@@ -428,6 +428,34 @@ function slotsOfMap(store, levelsDir, manifest) {
 }
 
 /**
+ * 生成期红字 → 人话（只翻实际会撞到的两类，其余原样进 `detail`，不假装全懂）。
+ * 红字里的 `L5` 是 renumber 后的关号，用户完全不知道对应哪张图 ⇒ 交给 `nameOf` 对回落盘名。
+ */
+function humanizeGateError(raw, nameOf) {
+    const say = [];
+    for (const m of raw.matchAll(/门禁⑦ (普通关|boss) L(\d+) steps=(\d+) 越出 \[(\d+), (\d+)\]/g)) {
+        const [, kind, id, steps, lo, hi] = m;
+        say.push(`${nameOf(+id)}：实测 ${steps} 步，${kind}须落在 ${lo}–${hi} 步 ⇒ ` +
+            (+steps > +hi ? '图案太密（珠子太多），换更小或更简单的图' : '图案太空（珠子太少），换更大或更复杂的图'));
+    }
+    const di = raw.match(/DI 非严格递增（L(\d+)=([\d.]+) → L(\d+)=([\d.]+)）/);
+    if (di)
+        say.push(`${nameOf(+di[1])} 与 ${nameOf(+di[3])} 难度分完全相同（都是 ${di[2]}）⇒ 关卡难度不允许并列，换一张难度差别更大的图`);
+    return say;
+}
+
+/** 关号 → 本次落盘的名字（plate 用每格名，内含来源图尾号 `studio-<结果尾6位>-r<行>c<列>`）。 */
+function gateNameOf(levelsDir, store, manifest) {
+    const byId = new Map();
+    for (const e of store.expandEntriesWithIds(levelsDir, manifest)) {
+        const obj = JSON.parse(readFileSync(join(levelsDir, e.file), 'utf8'));
+        if (e.kind === 'plate') e.ids.forEach((id, i) => byId.set(id, obj.cells[i]?.name || e.uid));
+        else byId.set(e.ids[0], obj.name || e.uid);
+    }
+    return (id) => byId.get(id) || `第 ${id} 号关`;
+}
+
+/**
  * 管理事务（所有写端点的唯一编排入口）：
  *   快照（levels 真源树 + tuning 原文）→ mutate(ctx)（同步写盘，返回新 manifest + log）
  *   → manifest 落盘（contentVersion++）→ id 轴重编号 → `DEMO_LEVEL_COUNT` 联动
@@ -460,8 +488,14 @@ async function applyManage(res, mutate, reply) {
         if (tuned !== tuningBefore) writeFileSync(TUNING_PATH, tuned);
         const sync = runSync();
         if (sync.status !== 0) {
+            const raw = String(sync.stderr || sync.stdout || '').trim().slice(-1200);
+            // 名字必须在 rollback() 之前取（回滚后文件恢复原状，本次落盘计划就没了）
+            const say = humanizeGateError(raw, gateNameOf(LEVELS_DIR, store, next.manifest));
             rollback();
-            return respond(500, { error: '生成期断言未通过，真源已回滚（操作未生效，可安全修正重试）：\n' + String(sync.stderr || sync.stdout || '').slice(-1200) });
+            return respond(500, {
+                error: '生成期断言未通过，真源已回滚（操作未生效，可安全修正重试）：\n' + (say.length ? say.join('\n') : raw),
+                detail: raw,
+            });
         }
         return respond(200, { ok: true, count, log: next.log ?? [], note: 'levels:sync + framework:sync 已跑；git diff 确认后提交' });
     } catch (e) {

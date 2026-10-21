@@ -208,6 +208,11 @@
         let importCtl = null; // 批量导入进行中的 AbortController（「取消导入」用）
         const preselect = new URLSearchParams(location.search).get('result') || '';
 
+        // 服务端失败时 error 已翻成人话，detail 是生成期门禁原文（备回查）
+        function httpErr(j, fallback) {
+            return ((j && j.error) || fallback) + (j && j.detail ? '\n—— 门禁原文 ——\n' + j.detail : '');
+        }
+
         function showErr(msg) {
             $('err').textContent = msg;
             $('err').style.display = 'block';
@@ -253,7 +258,7 @@
                     body: JSON.stringify(body ?? {}),
                 });
                 const j = await res.json().catch(() => ({}));
-                if (!res.ok) throw new Error(j.error || ('HTTP ' + res.status));
+                if (!res.ok) throw new Error(httpErr(j, 'HTTP ' + res.status));
                 showLog([...(j.log || []), `关数 ${j.count}（DEMO_LEVEL_COUNT 已联动）`]);
                 await reload();
             } catch (e) {
@@ -279,7 +284,7 @@
                 });
                 if (!(res.headers.get('content-type') || '').includes('application/x-ndjson')) {
                     const j = await res.json().catch(() => ({}));
-                    throw new Error(j.error || ('HTTP ' + res.status));
+                    throw new Error(httpErr(j, 'HTTP ' + res.status));
                 }
                 const reader = res.body.getReader();
                 const dec = new TextDecoder();
@@ -303,7 +308,7 @@
                     }
                 }
                 if (!final) throw new Error('连接中断，未收到最终结果（请刷新页面核对真源）');
-                if (final.code !== 200) throw new Error(final.error || ('HTTP ' + final.code));
+                if (final.code !== 200) throw new Error(httpErr(final, 'HTTP ' + final.code));
                 showLog([...(final.log || []), `关数 ${final.count}（DEMO_LEVEL_COUNT 已联动）`]);
                 await reload();
             } catch (e) {
@@ -616,7 +621,7 @@
             try {
                 const res = await fetch('/api/manage/verify', { method: 'POST' });
                 const j = await res.json().catch(() => ({}));
-                if (!res.ok) throw new Error(j.error || ('HTTP ' + res.status));
+                if (!res.ok) throw new Error(httpErr(j, 'HTTP ' + res.status));
                 showLog(j.note || 'ok');
                 await reload();
             } catch (e) {
