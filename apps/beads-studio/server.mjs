@@ -717,8 +717,22 @@ async function importResults(res, chapterId, ids, progress, reply) {
     }
     const ls = await import('../../tools/scripts/level-store.mjs');
     // 0) 轻规划：不可入关/不存在/切片 tier 在跑 bot 前拦下，同时算出总槽数
+    //    逐条收集而不是首错即停：勾 5 条时一次列全所有问题（修一条试一条太磨人）
     const shapes = [];
-    for (const id of ids) shapes.push(await planShape(id));
+    const shapeErrs = [];
+    for (const id of ids) {
+        try { shapes.push(await planShape(id)); }
+        catch (e) {
+            if (!(e instanceof ManageError)) throw e;
+            shapeErrs.push(e);
+        }
+    }
+    if (shapeErrs.length)
+        throw new ManageError(
+            `批量预检未通过（${shapeErrs.length}/${ids.length} 条，真源未改动）：\n` +
+            shapeErrs.map((e) => `· ${e.message}`).join('\n'),
+            shapeErrs.every((e) => e.code === 404) ? 404 : 422,
+        );
     // 1) 容量预检前置：满章/超容不必白跑 bot（commit 内仍逐条复检，防同批累积偏差）
     const store = await import('../../tools/scripts/chapter-store.mjs');
     chapterForInsert(store, LEVELS_DIR, ls.readManifest(LEVELS_DIR), chapterId,
