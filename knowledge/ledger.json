@@ -2481,8 +2481,8 @@
       "state": "active",
       "file": "knowledge/lessons/criteria-measure.md",
       "category": "判据实测",
-      "title": "拼豆大图切成小格入关时，只有「每格 80–250 颗珠」这段窄区间能同时过两道生成期闸，满密度照片类大图物理上进不了关",
-      "contentHash": "44001f0cac46dfb1dee1b5744858b8fc86c596c3470acde69959661faf052141",
+      "title": "组合图（plate）进不了关，卡在两件早已定案的事上——规格要求每宫「错位密度 ≤60% 且整区域就位」，而工具只会造「全错位」和「≤8 对互换」两档；别先怪步数闸",
+      "contentHash": "a7262ef00f5ea0e269939cef31f3d9bf6d9d0d19acfb61335a24133f6483884c",
       "sourceTask": "WXG-T-341",
       "addedDate": "2026-10-21",
       "lastAccess": "2026-10-21",
@@ -3730,6 +3730,15 @@
         "K-150"
       ],
       "note": null
+    },
+    {
+      "date": "2026-10-21",
+      "taskId": "WXG-T-341",
+      "kind": "updated",
+      "ids": [
+        "K-149"
+      ],
+      "note": "K-149 根因订正：非判据堵死，系工具缺规格要求的 ≤60% 整区域就位档"
     }
   ]
 }
