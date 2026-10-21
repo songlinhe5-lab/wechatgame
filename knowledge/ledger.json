@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 148,
+  "nextId": 149,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -2458,6 +2458,23 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-148",
+      "state": "active",
+      "file": "knowledge/patterns.md",
+      "category": "关卡与生成链",
+      "title": "章节内容双轴模型：展示轴靠章文件 `levels[]`，id 轴靠 manifest `order`",
+      "contentHash": "c961e50d17b07d7814ae7d511beb92553397172e321bc6f3363940f7379ad840",
+      "sourceTask": "WXG-T-341",
+      "addedDate": null,
+      "lastAccess": null,
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -3658,6 +3675,15 @@
       "kind": "added",
       "ids": [
         "K-147"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-21",
+      "taskId": "WXG-T-341",
+      "kind": "added",
+      "ids": [
+        "K-148"
       ],
       "note": null
     }

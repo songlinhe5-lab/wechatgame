@@ -4092,3 +4092,19 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **真机读数（2026-10-19，用户手测回传，已回写）**：**6a 齿轮腿甲/乙双过** —— **甲** 按住 HUD 左上齿轮拖到盘面空白处抬起 ⇒ 未暂停、计时继续；**乙** 原地按住抬起 ⇒ 弹暂停面板（同钮正向对照成立，K-054）⇒ **safe area + 胶囊避让修复被真机证实有效**（旧包齿轮压在状态栏触摸区确实是「乙1 不弹」的直接原因）。⇒ D-79 判 **`PASS*（6a 齿轮腿）`**；⚠ 残留 = 6b 道具卡 / 6c 结算主钮未测、「误取消率」无阈值、证据 = **用户口述无落盘帧** ⇒ ⛔ 不升 `PASS`、不外推「全部按钮通过」。回写四处：走查单 **v1.5→v1.6**（D-79 判定列 + §6 统计 + 变更日志）｜`test-cases` **§A4**（新增真机读数块 + `TC-INP-01R` 腿① 升 `[Device]` 复核通过，腿②③④⑤ 仍待复核）｜`input-control` **§8** 范表后真机读数块（明示只覆盖齿轮腿）｜执行卡 **§6** 结果段。
 - **未做 / 下一步**：① ~~用户扫码测 6a（甲 拖出后抬起不弹 / 乙 原地抬起弹暂停）~~ ✅ **已完成，甲/乙 双过**；② ~~回填走查单 D-79 判定列 + `test-cases` 旧读数升降 + `input-control` §2.1 交叉引用~~ ✅ **已回写**（见上一条）；③ **6b 道具卡 / 6c 结算主钮 / 6d 误取消主观读数仍未测**；④ ✅ **已整笔入库 `bd964a0`（81 文件，含拆分批 / BD-62 连带；未 push）**；⑤ `meta-view` cap 行仍写字面 `4`（与 `SAFE_EDGE_MARGIN` 同值，本轮刻意不动源码以保「23:29 构建新鲜」）；⑥ D-79 证据档位仍 = **用户口述**，若提审前需要可补 `hdc` 帧。
 - **验证（文书面）**：`check:links` OK；回填后全量 `verify` = **PASS 22 / WARN 0 / SKIP 0 / FAIL 0**（含 `check:tasks` / `check:links` / `typecheck` / `test` / `cocos:check` / `check:size`）。本轮零代码改动，23:29 产物未变（不需要重出码）；提交后复跑 `verify` = **PASS 22 / FAIL 0**。
+
+## WXG-T-341
+
+**工程·beads-studio 大关/小关管理 + 分大关导入 + 替换图案 · 负责：主理人(Qoder) · 状态：✅ 完成（2026-10-21）**
+
+- **诉求（用户原话）**：「后期重新调整关卡时候，不要再动代码，直接通过 studio 完整管理大关列表和小关列表，并且能够创建/编辑小关，分大关导入系统」。四项拍板：编辑深度 = 管理+替换 / 导入 = 一键生效（写盘后自动 `levels:sync` + `framework:sync`，失败整批回滚）/ 章管理 = 完整含删除 / 推进 = 直接开单分批（① 列表+导入链 ② 替换图案 ③ 回写收尾）。
+- **缺口（开工前）**：旧 ingest 只能「往指定章插关」，无列表、无调序/移章/删除、无建章 ⇒ 每次调关都要手改 `manifest.json` / `chapters/*.json`，违背诉求。
+- **交付一（批次① ae4af5c）**：`tools/scripts/chapter-store.mjs` 纯函数库（`moveChapter` / `moveInChapter` / `insertBeforeBoss` / `swapToEnd` / `setEntryKind` / `removeEntryByUid` / `renumberIds` / `expandedCount` / `syncDemoLevelCount` 等，node:test 12 例）+ `server.mjs` 新端点：`GET /api/manage/state`（章/关轻投影）、`POST /api/manage/verify`（复跑 sync）、`POST /api/manage/chapter`（建章 + 首关 boss，展示图 dataURL 落 `assets/<id>-boss-256.png`）、`POST /api/manage/chapter/:id/(rename|open|move|delete)`（delete 支持 move 并入 / delete 级联）、`POST /api/manage/level/:uid/(remove|move|rename|boss)`；`public/manage.html` 管理页 + 生成页入口改跳转（`/manage.html?result=`）。
+- **交付二（批次② cb6c14d）**：`POST /api/manage/level/:uid/replace {resultId}` —— 同 uid 换图案/实测时长，关名/关号/章位不变；仅 single/boss（plate 多文件产物 → 删后重导）；字段显式重建（不 spread 旧 `misplaced` / `paletteCodes`）；管理页每行加「替换图案…」下拉（仅非 plate，options = ≤32 结果）。
+- **事务模型（唯一写入口 `applyManage`）**：快照 levels 树 Buffer + tuning 原文 → `mutate(ctx)` 同步写盘 → `writeManifest(contentVersion+1)` → `renumberIds` → `syncDemoLevelCount`（门禁⑤ 联动，同值 no-op）→ `runSync()`（levels:sync + framework:sync）；sync 任一断言红 ⇒ `restoreTree` + 写回 tuning + 重跑 sync + 500 转达 stderr 尾 1200 字；mutate 内用户域拒绝用 `ManageError(msg, 422)`。
+- **双轴口径**：展示轴 = 章 `levels[]` 数组序；id 轴 = manifest `order` 升序装配后下标 +1（renumber 统一分配）。`order` 只要求严格递增、允许空洞（retired 先例）⇒ 删 entry / 章内调序 / 移章都不需要重排 order；新增关写 `id: 0` 占位。沉淀 **K-148**。
+- **冒烟（本地 `PORT=8899`）**：成功路径 = L00009 22×21/477s → **28×30/997s**（200，name/id/章位不变）、章内调序往返、建章（`testch`，L00010 997s）、删章级联、open 往返；拒绝路径 = 容量 `9+1 > 9` 422、门禁⑦ boss steps < 120 回滚、门禁⑥ DI 并列回滚、L99999 / 未知 result 404。**测后 `git checkout -- games/beads/design/levels games/beads/src/config …` 还原，真源零残留**（测试图移入 `temp/`）。
+- **验证**：`node --test tools/scripts/chapter-store.test.mjs` **12/12**；`pnpm run levels:check` 2 款游戏全绿；`verify-all --steps=check:arch,check:es5spread,check:secrets,levels:check,framework:sync:check,typecheck` **PASS 6/6**；`kb:sync` 沉淀统计 = **新增 1（K-148）/ 修改 0 / 激活 0 / 归档 0**；`kb:check` 八重 PASS。
+- **提交**：批次① `ae4af5c`（5 files +1280/−116）、批次② `cb6c14d`（2 files +67/−2）；推送 `git ls-remote` = `cb6c14d…`、`git reflog show origin/develop` = `update by push`（K-142 双证）。
+- **未做**：① plate 单关替换（删后重导）；② 章展示图创建后不可换（只新建时上传）；③ 容器/VPS 501（无 `games/` 真源，属预期）；④ ①半透(UI-60) / ②BD-62 / ③橱窗灯光 / ④暗线 未混做。
+
