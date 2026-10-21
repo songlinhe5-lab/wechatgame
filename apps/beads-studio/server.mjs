@@ -419,10 +419,12 @@ function slotsOfMap(store, levelsDir, manifest) {
  *   → manifest 落盘（contentVersion++）→ id 轴重编号 → `DEMO_LEVEL_COUNT` 联动
  *   → levels:sync + framework:sync。任一步失败：恢复快照 + 重跑 sync 兑平产物，转达红字。
  * mutate 内拒绝用 `throw new ManageError(...)`（4xx）；其余异常按 500。
+ * `reply` 缺省走 JSON；批量导入传自定义回调（NDJSON 流已经写了响应头，不能再 writeHead）。
  */
-async function applyManage(res, mutate) {
+async function applyManage(res, mutate, reply) {
+    const respond = reply || ((code, body) => sendJson(res, code, body));
     if (!existsSync(LEVELS_DIR))
-        return sendJson(res, 501, { error: '大关管理仅在本地仓运行 beads-studio 时可用（容器/VPS 无 games/ 真源）' });
+        return respond(501, { error: '大关管理仅在本地仓运行 beads-studio 时可用（容器/VPS 无 games/ 真源）' });
     // 动态 import：容器无 tools/ 时本服务仍可整体启动（同 ingest 原注）
     const store = await import('../../tools/scripts/chapter-store.mjs');
     const ls = await import('../../tools/scripts/level-store.mjs');
@@ -445,16 +447,16 @@ async function applyManage(res, mutate) {
         const sync = runSync();
         if (sync.status !== 0) {
             rollback();
-            return sendJson(res, 500, { error: '生成期断言未通过，真源已回滚（操作未生效，可安全修正重试）：\n' + String(sync.stderr || sync.stdout || '').slice(-1200) });
+            return respond(500, { error: '生成期断言未通过，真源已回滚（操作未生效，可安全修正重试）：\n' + String(sync.stderr || sync.stdout || '').slice(-1200) });
         }
-        return sendJson(res, 200, { ok: true, count, log: next.log ?? [], note: 'levels:sync + framework:sync 已跑；git diff 确认后提交' });
+        return respond(200, { ok: true, count, log: next.log ?? [], note: 'levels:sync + framework:sync 已跑；git diff 确认后提交' });
     } catch (e) {
         rollback();
-        return sendJson(res, e.code || 500, { error: String(e.message || e) });
+        return respond(e.code || 500, { error: String(e.message || e) });
     }
 }
 
-/** 章节列表轻投影（管理页 state；pattern 不进——批次② 预览再议）。 */
+/** 章节列表轻投影（管理页 state；pattern/色板已在批次④补上 → paint）。 */
 function describeChapters(levelsDir, store, ls) {
     const manifest = ls.readManifest(levelsDir);
     const chapters = [...(manifest.chapters ?? [])].sort((a, b) => a.order - b.order);
@@ -677,12 +679,20 @@ async function ingestLevel(res, id, chapterId) {
 }
 
 /** 批量入关（WXG-T-341）：全部预检/实测在事务外，随后同一事务按勾选顺序插 boss 前；
- *  任一条不可入关或容量不足 ⇒ 整批回滚（真源不留半截）。 */
-async function importResults(res, chapterId, ids) {
-    if (!existsSync(LEVELS_DIR)) return sendJson(res, 501, { error: '大关管理仅在本地仓运行 beads-studio 时可用' });
+ *  任一条不可入关或容量不足 ⇒ 整批回滚（真源不留半截）。
+ *  `progress`：逐条测量回显（NDJSON 流式）；`reply`：事务最终结果的自定义出口。 */
+async function importResults(res, chapterId, ids, progress, reply) {
+    if (!existsSync(LEVELS_DIR)) {
+        const err = { error: '大关管理仅在本地仓运行 beads-studio 时可用' };
+        return reply ? reply(501, err) : sendJson(res, 501, err);
+    }
     const ls = await import('../../tools/scripts/level-store.mjs');
     const plans = [];
-    for (const id of ids) plans.push(await planIngest(id));
+    for (const [i, id] of ids.entries()) {
+        await progress?.({ phase: 'measure', i: i + 1, n: ids.length, id });
+        plans.push(await planIngest(id));
+        await progress?.({ phase: 'measured', i: i + 1, n: ids.length, id });
+    }
     return applyManage(res, (ctx) => {
         let manifest = ctx.manifest;
         const log = [];
@@ -692,10 +702,11 @@ async function importResults(res, chapterId, ids) {
             log.push(out.log);
         }
         return { manifest, log };
-    });
+    }, reply);
 }
 
-/** POST /api/manage/chapter/:id/import { resultIds: [...] } —— 批量入关（≤10 条）。 */
+/** POST /api/manage/chapter/:id/import { resultIds: [...], stream?: true } —— 批量入关（≤10 条）。
+ *  stream=true 时回 NDJSON：逐条 `{phase:'measure'|'measured',i,n,id}`，收尾 `{done:true,code,...}`。 */
 async function handleChapterImport(req, res, chapterId) {
     const body = await readJsonBody(req);
     const ids = Array.isArray(body.resultIds) ? [...new Set(body.resultIds.map(String))] : [];
@@ -703,7 +714,20 @@ async function handleChapterImport(req, res, chapterId) {
     if (ids.length > 10) return sendJson(res, 422, { error: `一次最多 10 条（本次 ${ids.length} 条）` });
     const bad = ids.find((id) => !ID_RE.test(id));
     if (bad) return sendJson(res, 422, { error: `非法结果 id：${bad}` });
-    return importResults(res, chapterId, ids);
+    if (!body.stream) return importResults(res, chapterId, ids);
+
+    res.writeHead(200, { 'Content-Type': 'application/x-ndjson; charset=utf-8', 'Cache-Control': 'no-store' });
+    res.socket?.setNoDelay(true);
+    // 必须等 write 回调：planIngest 里的 spawnSync 会阻塞事件循环，不等回调则多条进度会滞在缓冲里合并成一坨
+    const w = (o) => new Promise((r) => {
+        try { res.write(JSON.stringify(o) + '\n', r); } catch { r(); } // 客户端断开：继续跑完事务
+    });
+    const finish = (code, o) => { w({ done: true, code, ...o }).then(() => res.end()); };
+    try {
+        return await importResults(null, chapterId, ids, w, finish);
+    } catch (e) {
+        return finish(e.code || 500, { error: String(e.message || e) });
+    }
 }
 
 // ── [WXG-T-341] 大关管理：章节 / 成员操作端点（全部走 applyManage 快照事务）─────
