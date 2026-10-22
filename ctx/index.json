@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4630,
       "lines": 159,
-      "sha256": "f04f2d224be32bbc33582c882e319c7154edc89a2a40a7cce8a9a91fdf856f16",
+      "sha256": "cdc3ce78f7d8c14f240df7188f5d9355d6127943a23416da0ddf7576080f2738",
       "tier": "normal",
       "sections": [
         {
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5513,
       "lines": 146,
-      "sha256": "a2e18202c52a1d36c99ecb68b01b407653b9239f24cecd94d1e95026741bfc4e",
+      "sha256": "e9b95f5aa201a5a2cd7c3f437106388aec969448ed81eeee74445296643df81a",
       "tier": "normal",
       "sections": [
         {
@@ -761,7 +761,7 @@
           ]
         },
         {
-          "anchor": "§`production/qa/beads/test-cases.md` — 1190 行 / 95690 tok / 实测读 15 次",
+          "anchor": "§`production/qa/beads/test-cases.md` — 1192 行 / 96783 tok / 实测读 15 次",
           "level": 2,
           "startLine": 31,
           "endLine": 35,
@@ -25437,9 +25437,9 @@
     },
     {
       "path": "games/beads/design/art/specs/a11y-anchors.md",
-      "tokens": 1198,
+      "tokens": 1384,
       "lines": 33,
-      "sha256": "70854f0425928e067f85a00a17f6a20eddd0799f90d503c0fd01e0d0f1a7a4c1",
+      "sha256": "983897e4f12cd5e5c5f0bd028a1b9ea92a1ac037e14c88f80c7210f41df9b27b",
       "tier": "normal",
       "sections": [
         {
@@ -25447,7 +25447,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 34,
-          "tokens": 1173,
+          "tokens": 1359,
           "summary": "正本矩阵 = accessibility.md §2（本表不重复其判据正文，预算注记 WXG-T-130 指引「再增判据",
           "keywords": [
             "check:a11y",
@@ -25462,9 +25462,9 @@
     },
     {
       "path": "games/beads/design/art/specs/accessibility.md",
-      "tokens": 35820,
+      "tokens": 36455,
       "lines": 200,
-      "sha256": "3e28abaa517414af8ffb1d4f5c419641c8c1a5dc35cbed96c669f2a10639d08a",
+      "sha256": "bd063c83d87c51cfbf1f3d7fb27cb93e1254c2e2842ab879a73b21686623fcbf",
       "tier": "normal",
       "sections": [
         {
@@ -25472,7 +25472,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 201,
-          "tokens": 35803,
+          "tokens": 36438,
           "summary": "项目：微信小游戏矩阵 · 第二款《拼豆填色消除》",
           "keywords": [
             "Accessibility",
@@ -25500,7 +25500,7 @@
           "level": 2,
           "startLine": 33,
           "endLine": 116,
-          "tokens": 23562,
+          "tokens": 24197,
           "summary": "机检面（WXG-T-155 / K-035）：本表各行「落地」声称的代码符号锚点正本在 [a11y-anchors.md",
           "keywords": [
             "WXG",
@@ -95111,9 +95111,9 @@
     },
     {
       "path": "production/qa/beads/test-cases.md",
-      "tokens": 95690,
-      "lines": 1190,
-      "sha256": "bd26a3cc2778bdc4b03a0f70709884821bf5f4d77fd5a778d4e0309d30eca649",
+      "tokens": 96783,
+      "lines": 1192,
+      "sha256": "9a0f7205d1b5c27f76f296efc4d113c69f48109bb2fff273f19b6ee31474a11a",
       "tier": "hot",
       "sections": [
         {
@@ -95121,7 +95121,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 17,
-          "tokens": 2441,
+          "tokens": 2474,
           "summary": "任务号：WXG-T-011 / WXG-T-028 / WXG-T-084 / WXG-T-092（复验轮） / WXG",
           "keywords": [
             "beads",
@@ -95700,8 +95700,8 @@
           "anchor": "§变更记录",
           "level": 1,
           "startLine": 619,
-          "endLine": 642,
-          "tokens": 7226,
+          "endLine": 643,
+          "tokens": 7811,
           "summary": "v1.0 2026-09-11 初版：§A 50 条（5 组 × 10，§8 判据 1:1）+ §B 派生 12 条 严",
           "keywords": [
             "§8",
@@ -95711,8 +95711,8 @@
         {
           "anchor": "§J · v2.0 判据迁移（**WXG-T-144 / Epic T-133**，2026-09-17）——「错位归位」玩法反转的判据面整体换代",
           "level": 1,
-          "startLine": 643,
-          "endLine": 682,
+          "startLine": 644,
+          "endLine": 683,
           "tokens": 1534,
           "summary": "### J.0 范围铁声明",
           "keywords": [
@@ -95727,8 +95727,8 @@
         {
           "anchor": "§J.1 四族改判 ⛔（原供料/道具判据，随玩法反转整体作废）",
           "level": 2,
-          "startLine": 648,
-          "endLine": 656,
+          "startLine": 649,
+          "endLine": 657,
           "tokens": 404,
           "summary": "TC-LOOP-02 / TC-TRAY-01 供料节律（60s tray:spawned 恰 15 次 ±1） ⛔ 作",
           "keywords": [
@@ -95743,8 +95743,8 @@
         {
           "anchor": "§J.2 新玩法判据用例（**[N] 层新增**；与 E1–E5 单测一一对应，代码锚点见 `tests/misplaced*.ts` / `selection-anchor.test.ts`）",
           "level": 2,
-          "startLine": 657,
-          "endLine": 677,
+          "startLine": 658,
+          "endLine": 678,
           "tokens": 766,
           "summary": "TC-J-01 tray-spawner v2.0 §8-2 [Node] 60s 零 tray:spawned + 首",
           "keywords": [
@@ -95759,8 +95759,8 @@
         {
           "anchor": "§J.3 G4 结论联动",
           "level": 2,
-          "startLine": 678,
-          "endLine": 682,
+          "startLine": 679,
+          "endLine": 683,
           "tokens": 77,
           "summary": "E1–E6 落码后：G4 玩法判据面已整体换代（本节 J 系列），但 G4 探针（g4-probe-v1.1.mjs）尚",
           "keywords": [
@@ -95772,8 +95772,8 @@
         {
           "anchor": "§K 风格与豆径族（**v2.1 / WXG-T-211-F 新增**）—— 来源家族 = `pause-settings v1.7 §8-14~19` + `save-progress v1.1 §8-11~13` + `ux-spec v1.19 §4` 行4/BOOT/overlay 各行 + `bead-visual-style-spec §12.2 C1/C5/C6/C7/C8/C9/C11/C12` + `assets-spec v1.5-r16 §1.9.7 7.11–7.13`",
           "level": 1,
-          "startLine": 683,
-          "endLine": 946,
+          "startLine": 684,
+          "endLine": 947,
           "tokens": 29485,
           "summary": "### K.0 编号与归属（两处必须先看）",
           "keywords": [
@@ -95788,8 +95788,8 @@
         {
           "anchor": "§L · tint 臂判据（WXG-T-226/230 · 2026-10-07 判据裁定会并入；详细推导与盲区推导 = `wxg-t-228-tint-criteria.md §11`）",
           "level": 1,
-          "startLine": 947,
-          "endLine": 968,
+          "startLine": 948,
+          "endLine": 969,
           "tokens": 1021,
           "summary": "适用臂：tint 臂（整盘单图元）。矢量臂仍走 C12/C7 现式，两式并存不互替。常量单一化：MASK_SHAPE_O",
           "keywords": [
@@ -95804,8 +95804,8 @@
         {
           "anchor": "§L.1 C12-t（主体色不变式 · tint 臂）",
           "level": 2,
-          "startLine": 951,
-          "endLine": 954,
+          "startLine": 952,
+          "endLine": 955,
           "tokens": 339,
           "summary": "统计域：珠 mask 纹理像素的不透明芯 B ≥ 250。逐像素出图色：(d,l) = (R/255, G/255)，o",
           "keywords": [
@@ -95818,8 +95818,8 @@
         {
           "anchor": "§L.2 K3 改写（孔底透色 · tint 臂分述）",
           "level": 2,
-          "startLine": 955,
-          "endLine": 958,
+          "startLine": 956,
+          "endLine": 959,
           "tokens": 168,
           "summary": "满豆有孔档孔为真透孔（J4 ⌀12）⇒ tint 臂孔底透出 B0 tile edge 档（−0.30），非 pit（−",
           "keywords": [
@@ -95834,8 +95834,8 @@
         {
           "anchor": "§L.3 C7 拆分（配方复杂度门 + 运行时预算门）",
           "level": 2,
-          "startLine": 959,
-          "endLine": 962,
+          "startLine": 960,
+          "endLine": 963,
           "tokens": 184,
           "summary": "C7-a（沿用旧值，语义改写）：统计域 = 层集配方侧；珠体命令数 ≤7 且真 α ≤2；语义 =「配方复杂度上限」——",
           "keywords": [
@@ -95847,8 +95847,8 @@
         {
           "anchor": "§L.4 R-9 分域（AA fringe · 已裁 ①）",
           "level": 2,
-          "startLine": 963,
-          "endLine": 968,
+          "startLine": 964,
+          "endLine": 969,
           "tokens": 195,
           "summary": "芯区（B ≥ 250）：保留 T1 原两线，按距轮廓分两子域——芯区-本体（距轮廓 >2px）：平均 ΔE < 2 + ",
           "keywords": [
@@ -95860,9 +95860,9 @@
         {
           "anchor": "§M · 主菜单招牌 + 走马灯卡 + 选关页作品墙（EP12-S6 / WXG-T-269-S6）",
           "level": 1,
-          "startLine": 969,
-          "endLine": 1191,
-          "tokens": 16781,
+          "startLine": 970,
+          "endLine": 1193,
+          "tokens": 17256,
           "summary": "⚠ 走马灯改造（menu-architecture §1.3 第五轮）口径：主菜单主区由「木框橱窗作品墙」→单张走马灯小",
           "keywords": [
             "§1.3",
@@ -95876,9 +95876,9 @@
         {
           "anchor": "§M.1 版面与三条硬口径（验收①⑥ · §5.1/§5.2/§5.4）",
           "level": 2,
-          "startLine": 984,
-          "endLine": 995,
-          "tokens": 1145,
+          "startLine": 985,
+          "endLine": 997,
+          "tokens": 1620,
           "summary": "TC-MN-01 口径①：主钮 = 当前关（与墙格解耦；点格改关后主钮跟随该关） [Node] 验收①·§5.4①·me",
           "keywords": [
             "§5.1",
@@ -95892,8 +95892,8 @@
         {
           "anchor": "§M.2 陈列序 = DI 升序（验收② · 消费 EP12-S5）",
           "level": 2,
-          "startLine": 996,
-          "endLine": 1004,
+          "startLine": 998,
+          "endLine": 1006,
           "tokens": 719,
           "summary": "TC-MN-08 九格缩略逐位复现 level-difficulty §5.2 墙序 L1→L8→L4→L3→L7→L2",
           "keywords": [
@@ -95908,8 +95908,8 @@
         {
           "anchor": "§M.3 首屏分流与文案单源（验收① · §7.1 F-1 / §6 P-7）",
           "level": 2,
-          "startLine": 1005,
-          "endLine": 1011,
+          "startLine": 1007,
+          "endLine": 1013,
           "tokens": 608,
           "summary": "TC-MN-12 首屏停主菜单：initialScreen 默认 'menu'（beads-shell.ts:156）；",
           "keywords": [
@@ -95924,8 +95924,8 @@
         {
           "anchor": "§M.4 招牌 `beadText` 珠拼（验收③④ · §5.3 · T-1 §0.5/§1.5/§1.7/§3.8）",
           "level": 2,
-          "startLine": 1012,
-          "endLine": 1023,
+          "startLine": 1014,
+          "endLine": 1025,
           "tokens": 1784,
           "summary": "TC-MN-14 位表完整性：四枚字模 = n×n 方阵、字符集闭于 {#, .}、n ≡ SIGN_MATRIX_N ",
           "keywords": [
@@ -95940,8 +95940,8 @@
         {
           "anchor": "§M.5 作品格珠拼缩略（验收④ · T-1 §3.1–§3.4 案乙）",
           "level": 2,
-          "startLine": 1024,
-          "endLine": 1032,
+          "startLine": 1026,
+          "endLine": 1034,
           "tokens": 1242,
           "summary": "TC-MN-21 聚合切块规则：切块覆盖且仅覆盖每个源格一次（rows ≥ n）；. / x 不入 tally ⇒ 该位",
           "keywords": [
@@ -95956,8 +95956,8 @@
         {
           "anchor": "§M.6 K-6 图元差分（验收④ · K-051 禁纸面值）",
           "level": 2,
-          "startLine": 1033,
-          "endLine": 1042,
+          "startLine": 1035,
+          "endLine": 1044,
           "tokens": 1463,
           "summary": "TC-MN-25 差分腿与生产腿同源：不传 variant ≡ 传默认值 ⇒ 整帧 sha 等；L4 同进程两遍取数全等",
           "keywords": [
@@ -95971,8 +95971,8 @@
         {
           "anchor": "§M.7 封箱与「未渗漏」自证（验收④ · S0⑤ / L5 / §42⑤）",
           "level": 2,
-          "startLine": 1043,
-          "endLine": 1048,
+          "startLine": 1045,
+          "endLine": 1050,
           "tokens": 455,
           "summary": "TC-MN-30 玩法侧零渗漏：playing 四键（frame0 total 1325 / sha 3269d92b5",
           "keywords": [
@@ -95987,8 +95987,8 @@
         {
           "anchor": "§M.8 事件面与铁律自证（验收⑤⑦ · §8 下游单④）",
           "level": 2,
-          "startLine": 1049,
-          "endLine": 1057,
+          "startLine": 1051,
+          "endLine": 1059,
           "tokens": 1179,
           "summary": "TC-MN-31 验收⑦ menu:零玩法事件（双臂）：① 菜单惰性面点扫（木框左右上下衬 / 格间隙 / 未解锁格 /",
           "keywords": [
@@ -96003,8 +96003,8 @@
         {
           "anchor": "§M.9 观感 / 屏幕层 / 真机面（⛔ 不得标绿，K-044）",
           "level": 2,
-          "startLine": 1058,
-          "endLine": 1068,
+          "startLine": 1060,
+          "endLine": 1070,
           "tokens": 848,
           "summary": "TC-MN-35 首屏 5s 内可认出「拼豆小铺」（珠拼招牌的可读性 / 缩略密度是否糊） [Device] 验收①·§",
           "keywords": [
@@ -96018,8 +96018,8 @@
         {
           "anchor": "§M.10 · WXG-T-269-S6 质量门结论（G1–G4）",
           "level": 2,
-          "startLine": 1069,
-          "endLine": 1160,
+          "startLine": 1071,
+          "endLine": 1162,
           "tokens": 5008,
           "summary": "判据正本 = 上文 §M（TC-MN-01..40）；冒烟半边 = smoke-tests.md v1.4（SC-MN-",
           "keywords": [
@@ -96032,8 +96032,8 @@
         {
           "anchor": "§M.10.1 验收 ①–⑦ × G1–G4 映射",
           "level": 3,
-          "startLine": 1073,
-          "endLine": 1084,
+          "startLine": 1075,
+          "endLine": 1086,
           "tokens": 324,
           "summary": "① §5.1–§5.4 版面与三条硬口径 + 未解锁格零事件 ✅ ✅ TC-MN-01..07/12/13 ⛔ 未执行（",
           "keywords": [
@@ -96046,8 +96046,8 @@
         {
           "anchor": "§M.10.2 逐门结论",
           "level": 3,
-          "startLine": 1085,
-          "endLine": 1092,
+          "startLine": 1087,
+          "endLine": 1094,
           "tokens": 430,
           "summary": "G1 静态门 = PASS。verify-all 22 项逐项执行、未短路，WARN 0 ｜ SKIP 0 ｜ FAIL",
           "keywords": [
@@ -96062,8 +96062,8 @@
         {
           "anchor": "§M.10.3 BD-MN 缺陷分级（本单内 MN-nn 记；正式号 **BD-53..60** = 现存最大 BD-52 +1，K-050）",
           "level": 3,
-          "startLine": 1093,
-          "endLine": 1105,
+          "startLine": 1095,
+          "endLine": 1107,
           "tokens": 839,
           "summary": "BD-53 MN-01 P3 验收⑤（ux §5 零新增动效）无自动化 oracle（三源文件 grep 0 命中但无测",
           "keywords": [
@@ -96078,8 +96078,8 @@
         {
           "anchor": "§M.11 追加缺陷（2026-10-18 · 交付格式收口批发现，非 S6 本单；正式号 **BD-61** = 全工作树现存最大 BD-60 +1，K-046/K-050）",
           "level": 3,
-          "startLine": 1106,
-          "endLine": 1160,
+          "startLine": 1108,
+          "endLine": 1162,
           "tokens": 3280,
           "summary": "BD-61 AR-01 P2（已确认：用户 2026-10-18 裁维持 P2，不上调） Cocos 投放件 textu",
           "keywords": [
@@ -96094,8 +96094,8 @@
         {
           "anchor": "§N. 第二跳收录面登记（2026-10-18 · WXG-T-293，quality-lead 裁定）",
           "level": 2,
-          "startLine": 1161,
-          "endLine": 1166,
+          "startLine": 1163,
+          "endLine": 1168,
           "tokens": 314,
           "summary": "本文件的判据锚点不按条数裁剪：裁条数会削掉 §A.0（UNTESTED/证据态唯一登记处）、§I.2（⛔ 未测道次护栏）",
           "keywords": [
@@ -96110,8 +96110,8 @@
         {
           "anchor": "§O. UI 架构迁移验收（ADR-0032 · UI-50…53 · WXG-T-320）",
           "level": 2,
-          "startLine": 1167,
-          "endLine": 1191,
+          "startLine": 1169,
+          "endLine": 1193,
           "tokens": 774,
           "summary": "判据来源：docs/architecture/ui-architecture-beads.md §10（验证口径）与 §",
           "keywords": [

@@ -17,7 +17,7 @@
 | A4 | ✅ | `drawPowerupGlyph` | 3 道具形状互异图标（`view/view-model.ts`，不靠颜色） |
 | A5 | ⚠️ | `FILL_POP_SCALE_TROUGH` | **`[WXG-T-256]` 层次段退役 ⇒ 状态降档（✅ → ⚠️）**：原锚 `glow_warm`（暖光 band）与容器板／三层背景同批整块删除 ⇒ 判据对象不再存在（底色现由宿主单层铺屏，珠下零图元，ΔL 判据自动满足）。本行剩余可检面 = **动效几何核算通道**（G1 落座 scale 谷值常量，`config/tuning.ts`）；矩阵行文字保留作历史时点记录。⛔ 不保留已退役锚点 |
 | A6 | ✅ | `hintAlpha` | 动画不承载独占信息：hint 呼吸在 reduceMotion 下退**静态**描边仍有信息（`view/view-model.ts`） |
-| B1 | ✅ | `#2A2E43` | `text_primary` 值锚（`view/palette.ts:71`，对比度 ≥4.5:1 的底色对） |
+| B1 | ✅ | `#2A2E43; #8A5B34` | `text_primary` 值锚（`view/palette.ts:71`，对比度 ≥4.5:1 的底色对）；**`[WXG-T-346]` 加 `#8A5B34` = `wood_face` 值锚**（累计星进度件木牌侧墨，对牌底实测 3.52/3.60:1 @28px 大字号档；读数与硬约束「⛔ 不得回落 <24px」见矩阵 B1 行与 `menu-layout-implementation-spec §10`。两臂的**字号/墨守卫** = `tests/menu-plate-title.test.ts` / `tests/arc-level-select-page.test.ts`（读渲染模型的 `font`/`fill`，逐臂变异自证），本表不以测试号作锚） |
 | B2 | ⛔ | `-` | **`[v1.5-r8]` 判据作废**：符号层已删 ⇒ 「符号对珠面 ≥3:1」不再有任何实现对象（`symbolInk` / `SYMBOL_INK_*` 一并删除）。不得复活为死常量 |
 | B3 | ✅ | `dangerAlpha` | 倒计时三通道之脉冲 α（`view/view-model.ts`，WXG-T-087 GAP-10） |
 | C1 | ✅ | `btn_expand; GEAR_HIT_SIZE` | 扩热区常量（`config/tuning.ts`；齿轮/扩展键 ≥88 设计 px） |
@@ -25,7 +25,7 @@
 | D1 | ✅ | `reduceMotion` | 减弱动效开关全通道（`view/`+`config/` 多命中；矩阵行自证接通清单） |
 | D2 | ✅ | `FILL_POP_RESTART_GATE_MS` | 闪烁安全重启门常量（`config/tuning.ts`，往复量核算底座） |
 | E1 | ✅ | `hudSmall` | 最小字号 28 floor 键（`view/view-model.ts:155`，v1.3 F7⑤ 修正后） |
-| E2 | ✅ | `largeText` | 大字号开关状态位（`game/state.ts`，`bodyFont` 消费） |
+| E2 | ✅ | `largeText; bodyFont` | 大字号开关状态位（`game/state.ts`）；**`[WXG-T-346]` 加 `bodyFont`** = 放大腿的唯一映射函数（选关页进度件 28→35 走它）；木牌侧「定尺不随放大」例外不新增锚点（无新符号） |
 | F1 | ✅ | `_stepPlaying` | 暂停冻结倒计时机制（`game/beads-game.ts`：计时只在 playing 步进 ⇒ PAUSED 自然冻结） |
 | F2 | ✅ | `GRID_HIT_SIZE; TRAY_HIT_SIZE` | 命中区外扩常量（`config/tuning.ts`，误触缓解） |
 | G1 | N/A | `-` | 无语音内容 |
