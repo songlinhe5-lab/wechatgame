@@ -171,6 +171,21 @@ describe('S-4 闸门：门票未达', () => {
         expect(r.overlayEvents.length, '零事件').toBe(before.events);
     });
 
+    it('走马灯翻到章 2 页（未开选关）⇒ 木牌进度件数据已就位；翻回首章 ⇒ 清空（WXG-T-346 取证补漏）', () => {
+        const r = rig({ pointer: 9, stars: [3, 3, 2, 2, 2, 2, 2, 2, 2, 0] });
+        goPage(r, 1);
+        const onPage = viewData(r.shell);
+        expect([onPage.arcStarGot, onPage.arcStarNeed], '页位落定即算，⛔ 等开选关页').toEqual([20, 21]);
+        const prev = metaLayout('none', WALL_ROWS, r.shell.menuAnchors).buttons.find((b) => b.id === 'carousel-prev')!;
+        const c = centerOf(prev.box);
+        expect(r.shell.tapMeta(c.x, c.y)).toBe(true);
+        r.now.t += 500;
+        r.shell.update(0.016);
+        r.now.t += 500;
+        r.shell.update(0.016);
+        expect(viewData(r.shell).arcStarNeed, '首章无阻断 ⇒ 不创建（⛔ 残留上一页数字）').toBeUndefined();
+    });
+
     it('首章无阻断：arcTicketOpen=true 且进度件不创建（⛔ 0/0），章内格照旧线性', () => {
         const r = rig({ pointer: 2, stars: [] });
         openLevels(r.shell, r);
@@ -306,7 +321,8 @@ describe('M-16 静态臂：门票归约输入里没有章 id', () => {
         const originalId = entry.id;
         try {
             entry.id = 'renamed-by-m16';
-            (r.shell as unknown as { _refreshArcGate(): void })._refreshArcGate();
+            const gate = r.shell as unknown as { _phase: { levelsArc: number }; _refreshArcGate(arc: number): void };
+            gate._refreshArcGate(gate._phase.levelsArc);
             const after = viewData(r.shell);
             expect(
                 [after.arcTicketOpen, after.arcStarGot, after.arcStarNeed],

@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4590,
       "lines": 158,
-      "sha256": "2c7b7b54f84dcdc6a8cf71c0147e76f6a2c59e487bc5b47a061c9fb0017e592e",
+      "sha256": "96e331292439a203a59a5a6336038767c27ba36aa4b9957f99086ffee8edcc46",
       "tier": "normal",
       "sections": [
         {
@@ -88201,9 +88201,9 @@
     },
     {
       "path": "production/epics/epics-beads-ep14.md",
-      "tokens": 11785,
+      "tokens": 11969,
       "lines": 143,
-      "sha256": "a5f16799a8887f514208f9c7f99917e8b6aafdbcb105c48120e419e8b021b73d",
+      "sha256": "58858d707dc0d72d3369cb5e8530f6381d1a0cd2455222c30fff2176ae76e1fa",
       "tier": "normal",
       "sections": [
         {
@@ -88211,7 +88211,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 144,
-          "tokens": 11763,
+          "tokens": 11947,
           "summary": "任务号 WXG-T-288（P1）· 2026-10-17 · 工程轨（子代理通道不可用，主理人按 my-skills/",
           "keywords": [
             "Epic",
@@ -88255,7 +88255,7 @@
           "level": 2,
           "startLine": 30,
           "endLine": 101,
-          "tokens": 7139,
+          "tokens": 7323,
           "summary": "",
           "keywords": [
             "Story",
@@ -88309,11 +88309,11 @@
           ]
         },
         {
-          "anchor": "§EP14-S4 · 锁态告知与星数 UI 呈现 — **READY**（原 BLOCKED，**复批后转态**；⚠ **视图腿已落码 = WXG-T-346，2026-10-22**：两处均画，状态仍 READY，差锁图元与视觉取证两尾）",
+          "anchor": "§EP14-S4 · 锁态告知与星数 UI 呈现 — **READY**（原 BLOCKED，**复批后转态**；⚠ **视图腿已落码 = WXG-T-346，2026-10-22**：两处均画 + 实拍取证已采，状态仍 READY，只差锁图元一句裁定）",
           "level": 3,
           "startLine": 52,
           "endLine": 58,
-          "tokens": 850,
+          "tokens": 1029,
           "summary": "阻塞：[待规格] = star-collect-rule §6-T1（「全 3★ 开大关」怎么告诉玩家 + 总星数落位/",
           "keywords": [
             "§6",

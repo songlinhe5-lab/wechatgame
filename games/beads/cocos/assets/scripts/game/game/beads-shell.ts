@@ -220,6 +220,8 @@ export class BeadsShell implements Game {
     };
     /** UI-40：走马灯页位 / 位移 / 吸附 / 玻璃手势全在 Presenter（本壳零走马灯字段）。 */
     private readonly _menu = new MainMenuPresenter();
+    /** 进度件当前口径所属大关页（`-1` = 尚未算过）；只在页位变号时重算（WXG-T-346）。 */
+    private _gateArc = -1;
     /**
      * **抬起提交门**（WXG-T-295 · `input-control §2.1` v2.13）：菜单 / overlay 上的按钮按下**只登记**
      * 命中的缓存钮（`metaLayout` 产出的同一对象引用），抬起帧重测热区、**id + slot 同者**才派发
@@ -357,6 +359,7 @@ export class BeadsShell implements Game {
         this._stepPageFx(dt);
         this._readMenuInput();
         this._menu.step(this._clock());
+        this._refreshArcGateOnMenuPage();
     }
 
     buildRenderModel(builder: RenderModelBuilder): void {
@@ -464,7 +467,7 @@ export class BeadsShell implements Game {
                 if (this._menu.offset >= ARC_OPEN_MAX) return false;
                 // EP13-S2：记下当前大关页 ⇒ 选关页只列本大关清单（tls §4 注 A：闸门本身不动）。
                 this._phase.openLevels(this._menu.offset);
-                this._refreshArcGate(); // S-4：门票 / n/N 只在此刻算（⛔ 每帧）
+                this._refreshArcGate(this._phase.levelsArc); // S-4：门票 / n/N 只在此刻算（⛔ 每帧）
                 this._emitOverlay(true);
                 this._beginPageFx(1);
                 return true;
@@ -653,7 +656,7 @@ export class BeadsShell implements Game {
     private _releaseGlass(): void {
         if (this._menu.release(this._clock()) !== 'open') return;
         this._phase.openLevels(this._menu.offset); // EP13-S2：同 `open-levels`（两入口同上下文）
-        this._refreshArcGate(); // S-4：同 `open-levels`（两入口同口径）
+        this._refreshArcGate(this._phase.levelsArc); // S-4：同 `open-levels`（两入口同口径）
         this._emitOverlay(true);
         this._beginPageFx(1);
     }
@@ -672,7 +675,7 @@ export class BeadsShell implements Game {
             this._wallSlotsForCount = n;
             this._wallSlotsForArc = arc;
             // S-4：换页 / 关表变长 ⇒ 门票与 n/N 同批重算（非每帧：只在重建分支）。
-            this._refreshArcGate();
+            this._refreshArcGate(this._phase.levelsArc);
         }
         return this._wallSlots;
     }
@@ -752,7 +755,8 @@ export class BeadsShell implements Game {
      * `[WXG-T-345]` S-4 **章门票闸门 + 只读告知件的唯一计算点**（ADR-0034 §6 S-4 行；
      * `meta-ui §2.7` 两层分家；`ux v1.10 §4.1（3-补）`）。
      *
-     * 调用点 = 墙表重建 / 开选关页（两入口）/ 章首格点击（直接复用同一出参 `_arcTicketSatisfied`）—— **⛔ 每帧**。
+     * 调用点 = 墙表重建 / 开选关页（两入口）/ 走马灯页位落定（{@link _refreshArcGateOnMenuPage}，
+     * 只在 `_menu.step` 推完吸附后比较一次）—— **⛔ 每帧重算**。
      * 结果写进 `_viewData` 的三个 primitive（视图只渲染、⛔ 二次推导，L5）。
      *
      * 口径（主理人 C/D 拍定）：
@@ -762,16 +766,28 @@ export class BeadsShell implements Game {
      *   入口已得 ⇒ `undefined`（**不创建**进度件，⛔ `0/0`）。
      * - 进度件数值 = **累计星 / 门槛**（`starSum` / `gate`，R7 v0.5），⛔ 满星关数。
      */
-    private _refreshArcGate(): void {
-        const ticket = this._arcTicketSatisfied(this._phase.levelsArc);
+    private _refreshArcGate(arc: number): void {
+        const ticket = this._arcTicketSatisfied(arc);
         // 棘轮：推进位已越过该章首关 ⇒ 入口是**已得**的（内容再变也不回收，I7 / §8-20）。
         // 空橱窗页（无 ARCS 行）⇒ `?? 1` ⇒ 不锁（该页无实体，R13 零事件）。
-        const firstLevel = ARCS[this._phase.levelsArc]?.levelRefs[0]?.[0] ?? 1;
+        const firstLevel = ARCS[arc]?.levelRefs[0]?.[0] ?? 1;
         const open = ticket.satisfied || this.play.maxUnlockedLevel >= firstLevel;
         const show = !open && ticket.total > 0;
         this._viewData.arcTicketOpen = open;
         this._viewData.arcStarGot = show ? ticket.starSum : undefined;
         this._viewData.arcStarNeed = show ? ticket.gate : undefined;
+        this._gateArc = arc;
+    }
+
+    /**
+     * `[WXG-T-346 取证补漏]` 走马灯页位落定 ⇒ 进度件跟着**当前页**走。
+     * 没有这一腿，翻页只动 `_menu.offset`（`levelsArc` 只在开选关页时才变）⇒ 木牌第二行
+     * 要么不出现、要么残留上一页的数字。比较只读一个 int（零分配），归约仍只在变号时发生。
+     */
+    private _refreshArcGateOnMenuPage(): void {
+        if (this._phase.overlay !== 'none') return;
+        if (this._menu.offset === this._gateArc) return;
+        this._refreshArcGate(this._menu.offset);
     }
 
     /**
