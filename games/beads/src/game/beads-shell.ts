@@ -194,11 +194,11 @@ export class BeadsShell implements Game {
         // 槽位 → 关卡引用（T-2B 缩略聚合的 pattern 入口；与 wallSlots 同批缓存，每帧只读）。
         wallLevels: [] as readonly (BeadsLevelRaw | undefined)[],
         // `[WXG-T-345]` S-4 只读告知件（由 `_refreshArcGate` 在非帧事件里写；⛔ 每帧算）。
-        // 默认 = 首章口径（无阻断 ⇒ 章开、不建 n/N 件）；⛔ 造 `0/0`。
+        // 默认 = 首章口径（无阻断 ⇒ 章开、不建进度件）；⛔ 造 `0/0`。
         arcTicketOpen: true,
-        // C 拍定「不创建」= `undefined`（⛔ 存 0/0）：total 有值才表示该页有进度件。
-        arcFullStarGot: undefined as number | undefined,
-        arcFullStarTotal: undefined as number | undefined,
+        // C 拍定「不创建」= `undefined`（⛔ 存 0/0）：门槛有值才表示该页有进度件。
+        arcStarGot: undefined as number | undefined,
+        arcStarNeed: undefined as number | undefined,
         // 走马灯 = 大关页（EP13-S4）：代表关 = 该大关收尾关（boss），图 = `ARCS[页].textureId`。
         carouselLevel: undefined as BeadsLevelRaw | undefined,
         carouselState: undefined as MetaBossState | undefined,
@@ -759,7 +759,8 @@ export class BeadsShell implements Game {
      * - `arcTicketOpen` = **入口闸门** = 门票成立 ∨ 既有推进位已越过章首（I7 棘轮；首章无前置⇒恒真）。
      *   ⛔ 复用橱窗三态 `MetaBossState`（那是显示层按 ≥1★ 算的，两层不混判）。
      * - `n/N` 取**阻断该页入口的上一章**（⛔ 被锁页自身：它恒 n=0）；N=0 / 门票已达成 /
-     *   入口已得 ⇒ `total=0`（**不创建**进度件，⛔ `0/0`）。
+     *   入口已得 ⇒ `undefined`（**不创建**进度件，⛔ `0/0`）。
+     * - 进度件数值 = **累计星 / 门槛**（`starSum` / `gate`，R7 v0.5），⛔ 满星关数。
      */
     private _refreshArcGate(): void {
         const ticket = this._arcTicketSatisfied(this._phase.levelsArc);
@@ -769,8 +770,8 @@ export class BeadsShell implements Game {
         const open = ticket.satisfied || this.play.maxUnlockedLevel >= firstLevel;
         const show = !open && ticket.total > 0;
         this._viewData.arcTicketOpen = open;
-        this._viewData.arcFullStarGot = show ? ticket.fullStarCount : undefined;
-        this._viewData.arcFullStarTotal = show ? ticket.total : undefined;
+        this._viewData.arcStarGot = show ? ticket.starSum : undefined;
+        this._viewData.arcStarNeed = show ? ticket.gate : undefined;
     }
 
     /**
@@ -821,7 +822,7 @@ export class BeadsShell implements Game {
     /**
      * 跨章推进闸门（传给 `BeadsGame.canAdvanceAcrossArc`）：门票**只在章界那一刻**参与解锁位推进。
      * - 同章 / 无归属（dev 导入关）/ 非相邻跨章 ⇒ 放行（闸门只守相邻章界，⛔ 兜数据异常）；
-     * - 相邻跨章（`to` = 下一章首关）⇒ 目标章门票（= 上一章清单全满星）。
+     * - 相邻跨章（`to` = 下一章首关）⇒ 目标章门票（= 上一章全通关且累计星达标）。
      */
     private _canAdvanceAcrossArc(fromIndex: number, toIndex: number): boolean {
         const fromArc = this._arcIndexOfLevel(fromIndex);

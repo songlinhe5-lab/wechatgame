@@ -188,17 +188,17 @@ export interface MetaViewData {
      */
     readonly arcTicketOpen?: boolean;
     /**
-     * `[WXG-T-345]` **满星进度件 n/N**（S-4；`ux v1.10 §4.1` 甲臂）的分子 / 分母，**只读**。
-     * n = 该章历史最高星为 3★ 的关数；N = 该章清单长度（⛔ `DEMO_LEVEL_COUNT`）。
+     * `[WXG-T-345]` **累计星进度件 已得/门槛**（S-4；`ux v1.11 §4.1` 甲臂）的分子 / 分母，**只读**。
+     * 已得 = 该章历史最高星求和；门槛 = 满星容量 − floor(关数 × 2 / 3)（1–2 关短章 = 关数）。
      *
-     * ⚠ **取值归属**（C 拍定）：恒指**阻断该页入口的上一章**（⛔ 被锁页自身：它恒 n=0、无色可读）。
-     * ⚠ **不创建**：N=0 / 首章无阻断 / 门票已达成 / 入口已得 ⇒ 两个字段均为 `undefined`
-     * （⛔ 造 `0/0`）——「有进度件」的唯一标志 = `arcFullStarTotal !== undefined`。
+     * ⚠ **取值归属**（C 拍定）：恒指**阻断该页入口的上一章**（⛔ 被锁页自身：它恒 0★、无色可读）。
+     * ⚠ **不创建**：门槛=0 / 首章无阻断 / 门票已达成 / 入口已得 ⇒ 两个字段均为 `undefined`
+     * （⛔ 造 `0/0`）——「有进度件」的唯一标志 = `arcStarNeed !== undefined`。
      * ⚠ **视觉数值待美术批**：文案前缀 / 字号 / x / y / 色 token 仍是 `[TODO]`（`§8.2 TODO-8`）
      * ⇒ 本版**只落数据、视图不画**（⛔ 工程侧发明版面数值）；渲染侧接上时只读这两个 primitive。
      */
-    readonly arcFullStarGot?: number;
-    readonly arcFullStarTotal?: number;
+    readonly arcStarGot?: number;
+    readonly arcStarNeed?: number;
     /**
      * **走马灯 Boss 图**（`[WXG-T-281]` 用户裁定：走马灯中间只展示 Boss 图、未通关置灰、点图进选关）：
      * `carouselLevel` = 当前陈列关（shell 取进度最远那关，余下已通集反序 ⇒ **每帧零 `difficultyOf`**）；

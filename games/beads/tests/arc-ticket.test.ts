@@ -2,11 +2,13 @@
  * WXG-T-345 · 工程轨 T-4 / **S-3** — 门票归约纯函数
  * ─────────────────────────────────────────────────────────────────────────────
  * 判据真源（⛔ 本文件零新判据）：
- *  - `docs/architecture/adr/ADR-0034-beads-save-uid-index-flatten.md` **§6 S-3 行**
- *    （六臂：全 3★ 开 / 章内一关 2★ ⇒ 不开 / 空清单两层都假 / 首章无前置 /
- *     追加一关实时归约转假 / boss 与教学关 ⛔ 豁免 = M-17）+ **§6.1 M-16 / M-17**；
+ *  - `design/proposals/star-collect-rule.md` **R7 v0.5**（2026-10-22 用户拍板 A：
+ *    门票 = **本章全通关 ∧ 累计星 ≥ 门槛**；门槛 = 满星容量 − floor(关数 × 2 / 3)；
+ *    1–2 关短章只要求全通关）；
  *  - `design/gdd/save-progress.md` §2.6.3 **I5**（门票不落档，实时可算）；
- *  - `design/proposals/star-collect-rule.md` **R7**（满星门槛 = 每关 `STAR_MAX`）。
+ *  - `docs/architecture/adr/ADR-0034-beads-save-uid-index-flatten.md` **§6 S-3 行**
+ *    （空清单两层都假 / 首章无前置 / 追加一关转假 / boss 与教学关 ⛔ 豁免 = M-17）
+ *    + **§6.1 M-16 / M-17**。
  *
  * 归约集合 = 章清单里的**每一个槽**，boss 关与教学关**不豁免**（M-17）。
  * 本函数的结构性保证：输入只有「星账 + 槽位下标」，**没有 kind、没有章 id**
@@ -18,6 +20,7 @@ import { readFileSync } from 'node:fs';
 import {
   arcTicket,
   arcEntryTicket,
+  arcGateStars,
   emptyArcTicketResult,
   type ArcTicketResult,
 } from '../src/systems/arc-ticket.js';
@@ -36,31 +39,75 @@ function allFull(n: number): number[] {
 /** 章清单槽位（0-based 关下标）——壳层 `_wallSlotsFor` 展开后的形态。 */
 const slots = (...idx: number[]): number[] => idx;
 
-describe('S-3 门票归约 · 六臂', () => {
-  it('臂 1：全 3★ ⇒ 开，n/N 全满', () => {
+describe('S-3 门票门槛派生（R7 v0.5）', () => {
+  it('9 关 ⇒ 21★（满星 27 允许丢 6 颗）', () => {
+    expect(arcGateStars(9)).toBe(21);
+  });
+
+  it('6 关 ⇒ 14★ / 3 关 ⇒ 7★（每三关允许丢两颗）', () => {
+    expect(arcGateStars(6)).toBe(14);
+    expect(arcGateStars(3)).toBe(7);
+  });
+
+  it('1–2 关短章只要求全通关（门槛 = 关数）', () => {
+    expect(arcGateStars(1)).toBe(1);
+    expect(arcGateStars(2)).toBe(2);
+  });
+
+  it('空章 ⇒ 0（不造门槛；门票由 `total > 0` 另挡）', () => {
+    expect(arcGateStars(0)).toBe(0);
+  });
+});
+
+describe('S-3 门票归约 · 双条件', () => {
+  it('臂 1：全 3★ ⇒ 开', () => {
     const out = result();
-    arcTicket(allFull(3), slots(0, 1, 2), out);
+    arcTicket(allFull(9), slots(0, 1, 2, 3, 4, 5, 6, 7, 8), out);
     expect(out.satisfied).toBe(true);
-    expect(out.fullStarCount).toBe(3);
-    expect(out.total).toBe(3);
+    expect(out.starSum).toBe(27);
+    expect(out.gate).toBe(21);
+    expect(out.clearedCount).toBe(9);
     expect(out.missingCount).toBe(0);
   });
 
-  it('臂 2：章内恰一关 2★ ⇒ 不开（差一关）', () => {
+  it('臂 2：3 关 2★、其余满星（24★）⇒ 仍开（改判核心：不再要求每关满星）', () => {
     const out = result();
-    arcTicket([STAR_MAX, STAR_MAX - 1, STAR_MAX], slots(0, 1, 2), out);
+    arcTicket([3, 3, 3, 3, 3, 3, 2, 2, 2], slots(0, 1, 2, 3, 4, 5, 6, 7, 8), out);
+    expect(out.satisfied, '24 ≥ 21 且全通关 ⇒ 开门').toBe(true);
+    expect(out.starSum).toBe(24);
+    expect(out.fullStarCount, '满星关数只作展示，不参与判定').toBe(6);
+  });
+
+  it('臂 3：恰好 21★ ⇒ 开（门槛闭区间）', () => {
+    const out = result();
+    arcTicket([3, 3, 3, 2, 2, 2, 2, 2, 2], slots(0, 1, 2, 3, 4, 5, 6, 7, 8), out);
+    expect(out.starSum).toBe(21);
+    expect(out.satisfied).toBe(true);
+  });
+
+  it('臂 4：20★（差一颗）⇒ 不开', () => {
+    const out = result();
+    arcTicket([3, 3, 2, 2, 2, 2, 2, 2, 2], slots(0, 1, 2, 3, 4, 5, 6, 7, 8), out);
     expect(out.satisfied).toBe(false);
-    expect(out.fullStarCount).toBe(2);
-    expect(out.total).toBe(3);
+    expect(out.starSum).toBe(20);
+    expect(out.gate).toBe(21);
+  });
+
+  it('臂 5：总分够但有一关没通 ⇒ 不开（全通关是独立前提）', () => {
+    const out = result();
+    // 6×3 + 2×2 + 0 = 22★ ≥ 21，但第 9 槽未通关。
+    arcTicket([3, 3, 3, 3, 3, 3, 2, 2, 0], slots(0, 1, 2, 3, 4, 5, 6, 7, 8), out);
+    expect(out.satisfied, '⛔ 跳关不能靠总分补').toBe(false);
+    expect(out.starSum).toBe(22);
     expect(out.missingCount).toBe(1);
   });
 
-  it('臂 3：空清单 ⇒ 两层都假（票不开 + N=0 不建进度件）', () => {
+  it('臂 6：空清单 ⇒ 两层都假（票不开 + 不建进度件）', () => {
     const single = result();
     arcTicket(allFull(3), slots(), single);
     expect(single.satisfied, '空清单不得被 `every` 的空真值放行').toBe(false);
     expect(single.total).toBe(0);
-    expect(single.fullStarCount).toBe(0);
+    expect(single.gate).toBe(0);
 
     // 入口层同一口径：上一章清单存在但为空 ⇒ 同样两层都假。
     const entry = result();
@@ -69,40 +116,42 @@ describe('S-3 门票归约 · 六臂', () => {
     expect(entry.total).toBe(0);
   });
 
-  it('臂 4：首章无前置 ⇒ 放行且不建进度件（⛔ 造 0/0）', () => {
+  it('臂 7：首章无前置 ⇒ 放行且不建进度件（⛔ 造 0/0）', () => {
     const out = result();
     arcEntryTicket([], undefined, out);
     expect(out.satisfied).toBe(true);
-    expect(out.total, '无前置 ⇒ 无 n/N 可言').toBe(0);
-    expect(out.fullStarCount).toBe(0);
+    expect(out.total, '无前置 ⇒ 无进度件可言').toBe(0);
+    expect(out.gate).toBe(0);
     expect(out.missingCount).toBe(0);
   });
 
-  it('臂 5：棘轮纯函数侧 —— 追加一关 ⇒ 实时归约转假', () => {
+  it('臂 8：棘轮纯函数侧 —— 追加一关（0★）⇒ 实时归约转假', () => {
     const before = result();
     arcTicket(allFull(2), slots(0, 1), before);
-    expect(before.satisfied).toBe(true);
+    expect(before.satisfied, '2 关短章全通关 ⇒ 开').toBe(true);
 
     // 章内追加一关（槽位 2 尚未得星）⇒ 同一存量星账的归约立即转假。
     const after = result();
     arcTicket(allFull(2), slots(0, 1, 2), after);
     expect(after.satisfied, '追加槽位必须让归约转假（已得入口的保留属 S-4 壳层臂）').toBe(false);
     expect(after.total).toBe(3);
+    expect(after.gate).toBe(7);
   });
 
-  it('臂 6（M-17）：boss 关与教学关计入 —— 首槽 2★ ⇒ 不开', () => {
+  it('臂 9（M-17）：boss 关与教学关计入 —— 首槽 0★ ⇒ 不开', () => {
     const out = result();
     // 章① 首槽 = 教学关位、末槽 = boss 关位；函数入力无 kind ⇒ 不可能豁免。
-    arcTicket([STAR_MAX - 1, STAR_MAX, STAR_MAX], slots(0, 1, 2), out);
+    arcTicket([0, 3, 3], slots(0, 1, 2), out);
     expect(out.satisfied).toBe(false);
     expect(out.missingCount).toBe(1);
   });
 
-  it('臂 6（M-17 镜像）：末槽（boss 位）2★ ⇒ 不开', () => {
+  it('臂 9（M-17 镜像）：末槽（boss 位）0★ ⇒ 不开，哪怕前两槽满星', () => {
     const out = result();
-    arcTicket([STAR_MAX, STAR_MAX, STAR_MAX - 1], slots(0, 1, 2), out);
+    arcTicket([3, 3, 0], slots(0, 1, 2), out);
     expect(out.satisfied).toBe(false);
-    expect(out.fullStarCount).toBe(2);
+    expect(out.starSum).toBe(6);
+    expect(out.gate).toBe(7);
   });
 });
 
@@ -115,22 +164,25 @@ describe('S-3 边界与复用', () => {
     expect(out.missingCount).toBe(1);
   });
 
-  it('星值超上限仍算满（钳值已由存档层做，归约只看 >= STAR_MAX）', () => {
+  it('星值超上限钳到 STAR_MAX 后参与求和（防非法读数撑爆总分）', () => {
     const out = result();
-    arcTicket([STAR_MAX + 1], slots(0), out);
-    expect(out.satisfied).toBe(true);
+    arcTicket([STAR_MAX + 100], slots(0), out);
+    expect(out.starSum).toBe(STAR_MAX);
+    expect(out.satisfied, '1 关短章 ⇒ 全通关即开').toBe(true);
   });
 
-  it('「差哪几关」按需回填到调用方数组，且不新建集合', () => {
+  it('「差哪几关」回填的是**未通关**槽：2★ 不算缺', () => {
     const out = result();
     const missing: number[] = [];
-    // 星账长度 9：槽 4 满星、槽 5 零星、槽 8 差一星 ⇒ 恰 2 关未满。
+    // 星账长度 9：槽 4 满星、槽 5 零星、槽 8 两星 ⇒ 只有槽 5 未通关。
     const stars = new Array<number>(9).fill(0);
     stars[4] = STAR_MAX;
     stars[8] = STAR_MAX - 1;
     arcTicket(stars, slots(4, 5, 8), out, missing);
-    expect(out.missingCount).toBe(2);
-    expect(missing, '回填的是关下标（0-based），供「差哪几关」二次表达').toEqual([5, 8]);
+    expect(out.missingCount).toBe(1);
+    expect(out.clearedCount).toBe(2);
+    expect(out.starSum).toBe(STAR_MAX + STAR_MAX - 1);
+    expect(missing, '回填的是关下标（0-based），供「差哪几关」二次表达').toEqual([5]);
   });
 
   it('复用同一出参：两次调用不残留上次状态', () => {
@@ -139,7 +191,8 @@ describe('S-3 边界与复用', () => {
     expect(out.satisfied).toBe(true);
     arcTicket([0, 0], slots(0, 1), out);
     expect(out.satisfied).toBe(false);
-    expect(out.fullStarCount).toBe(0);
+    expect(out.starSum).toBe(0);
+    expect(out.clearedCount).toBe(0);
   });
 });
 
