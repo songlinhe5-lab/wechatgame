@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4550,
       "lines": 157,
-      "sha256": "ab535438899f5720b1a21308cbdf8056dd087229ee82eb662f8d76497aedf51e",
+      "sha256": "00c4cd83405b53edb2c8378e70fd6cca003d68020b30264f50fe2f75becf0218",
       "tier": "normal",
       "sections": [
         {
@@ -11468,17 +11468,17 @@
     },
     {
       "path": "docs/architecture/adr/ADR-0034-beads-save-uid-index-flatten.md",
-      "tokens": 40681,
-      "lines": 501,
-      "sha256": "9269e4d755e5c7c8902b18bcc46558b9db77d4c22a91f343806a8cfcf08d2d1a",
+      "tokens": 41181,
+      "lines": 502,
+      "sha256": "ae4a6ce105408613c38f5bb5005db944009b68d4fde1e88c563e446ac33c404f",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§ADR-0034 · beads 存档以关卡稳定身份（uid）记账，运行时保持下标展平视图",
           "level": 1,
           "startLine": 1,
-          "endLine": 502,
-          "tokens": 40650,
+          "endLine": 503,
+          "tokens": 41150,
           "summary": "状态：Accepted（决策本体；T-2 / T-2R 均为纯文档批，零落码——用户 2026-10-22 令「存档与门",
           "keywords": [
             "ADR",
@@ -11875,8 +11875,8 @@
           "anchor": "§8 本批交付边界（诚实声明）",
           "level": 2,
           "startLine": 480,
-          "endLine": 502,
-          "tokens": 3416,
+          "endLine": 503,
+          "tokens": 3916,
           "summary": "✅ 已做：ADR-0034（本文，含 §6 施工清单与 §7 对账台账）、production/epics/epics-",
           "keywords": [
             "§6",
