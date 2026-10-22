@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 160,
+  "nextId": 161,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -2662,6 +2662,23 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-160",
+      "state": "active",
+      "file": "knowledge/lessons/cross-ide.md",
+      "category": "跨IDE",
+      "title": "终端按列宽折行后的输出抄进编辑工具会夹入「词内假空格」；中文正文改完必做一次空格复核",
+      "contentHash": "7e663e3175029ca5572784e105657dc3e678ce56d5fe37e9bc057f9051680552",
+      "sourceTask": "WXG-T-349",
+      "addedDate": "2026-10-22",
+      "lastAccess": "2026-10-22",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -4041,6 +4058,15 @@
       "ids": [
         "K-089",
         "K-137"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-22",
+      "taskId": "WXG-T-350",
+      "kind": "added",
+      "ids": [
+        "K-160"
       ],
       "note": null
     }
