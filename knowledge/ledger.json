@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 158,
+  "nextId": 159,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -761,7 +761,7 @@
       "file": "knowledge/lessons/process-ledger.md",
       "category": "流程台账",
       "title": "同一台账文件被并发会话同时写时，`git add <整文件>` 会把别人的 WIP 捎进本单提交",
-      "contentHash": "be561e37a5e3141287444f179802b417544fba5164c790e8aca579f22730aa1b",
+      "contentHash": "7e548c2852a5f4e9ab63316ef30179a6cde4b94153725c914252c4ddc6473ee8",
       "sourceTask": "WXG-T-097",
       "addedDate": "2026-09-15",
       "lastAccess": "2026-09-15",
@@ -1237,7 +1237,7 @@
       "file": "knowledge/lessons/testing.md",
       "category": "测试",
       "title": "脏工作树里「这条测试红是不是我引入的」必须用 stash 隔离实测判定，不得凭直觉归因",
-      "contentHash": "73b5bc999a54945b432add1a25df9d0cd2762340e12bbac5f499c38e7c27a542",
+      "contentHash": "0c1b57e2fa0b2e1ef409f0bd36c84b211a8129361011035eb92b8c62cf2ea661",
       "sourceTask": "WXG-T-169",
       "addedDate": "2026-09-26",
       "lastAccess": "2026-09-26",
@@ -2278,7 +2278,7 @@
       "file": "knowledge/lessons/process-ledger.md",
       "category": "流程台账",
       "title": "拆分件写好的「待主理人批准后粘贴」不会自动落地：五批代码已入库，主表与 Epic 宿主表仍搜不到该号",
-      "contentHash": "c048ce0be2a2f2df5a73b78872b3ecf30e1c27ecf91b78e9e667dcb1e74a9e20",
+      "contentHash": "ec428803be2b74f546b4ebe9ff6f22172b43cadecbdaa98f7b977cc6a38bbcb1",
       "sourceTask": "WXG-T-284",
       "addedDate": "2026-10-17",
       "lastAccess": "2026-10-17",
@@ -2620,6 +2620,23 @@
       "title": "夹具手工拼出的「最小形状」若与生产装配形状不同，对数据形状敏感的边界分支就永远走不到，变异也不会红",
       "contentHash": "bb9a2dc297ed6d48cc22dbe108b09f1af34f2bb03e0fce7929839ce4e0b177b7",
       "sourceTask": "WXG-T-345",
+      "addedDate": "2026-10-22",
+      "lastAccess": "2026-10-22",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-158",
+      "state": "active",
+      "file": "knowledge/lessons/process-ledger.md",
+      "category": "流程台账",
+      "title": "跨会话「只披露不代填」是双向通道：对方会话会读头注并照做，判归属要用 mtime 而不是 git status",
+      "contentHash": "2901d50a55b4b0ea765465284c589fa700921a670777b93cb9e1ca7dfdbd9d64",
+      "sourceTask": "WXG-T-346",
       "addedDate": "2026-10-22",
       "lastAccess": "2026-10-22",
       "accessCount": 0,
@@ -3959,6 +3976,26 @@
       "ids": [
         "K-156",
         "K-157"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-22",
+      "taskId": "WXG-T-346",
+      "kind": "added",
+      "ids": [
+        "K-158"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-22",
+      "taskId": "WXG-T-346",
+      "kind": "updated",
+      "ids": [
+        "K-045",
+        "K-076",
+        "K-137"
       ],
       "note": null
     }

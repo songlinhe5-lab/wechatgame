@@ -4388,6 +4388,7 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 2. ~~工作树仍有三份他会话在制品未入库~~ **同日 14:22 订正**：那三份文档连同他方代码在制品已由本会话的 `69fe98d` 意外入库（见 §6 二次竞态）⇒ 工作树现干净，但 HEAD 含他方 `WXG-T-348` 未完项。
 3. `apps/beads-studio/public/index.html` / `manage.html` 的改动经去空白 SHA-256 对账确认为**纯格式重排**（两文件同秒修改、仓库无 HTML 格式化门）⇒ 已按用户裁定 `git restore` 还原。
 4. 沉淀候选 3 条待裁（① 对比度读数必须带采样底色 ② QA 用例落位服从「每节一个来源家族」③ commitlint `body-max-line-length=100` 与中文长句冲突需一行一个读数拆分）；本轮 `kb:sync` 活跃 154 / 新增 0 / nextId 158，knowledge 零净变更。
+5. **同日沉淀批（用户令「沉淀候选 1/2/3/4」）**：上文 §6 回传的 4 条候选按 `knowledge/INDEX.md` §5.3「优先合并不重复沉淀」处理后，落为 **1 新条目 K-158 + 3 条追记（K-045 / K-076 / K-137）**：候选 1（`git commit` 提交索引全集）入 K-045 作「最裸形态」追记；候选 2（跨会话披露双向通道 + mtime 判归属）新立 K-158；候选 3（门禁不校提交号在册）入 K-137 作「同日二次复现 + 元盲区」追记并转出本单 349；候选 4（文档批免 stash 的第一道判据）入 K-076 追记。读数：`kb:sync --task=WXG-T-346` 新增 1 / 修改 3 / 激活 0 / 归档 0；`kb:audit` 无候选、无相似命中；`kb:check` 八重通过（活跃 155）；`ctx:check` OK（两片均未越 B 门）。第 4 项所列三条仍待裁。
 
 
 
