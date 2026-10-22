@@ -262,6 +262,28 @@ export function levelAt(index: number): BeadsLevelRaw | undefined {
   return LEVELS[index];
 }
 
+/**
+ * 关表的**稳定身份轴**（ADR-0034 **DEC-2 / DEC-3**；判据 = `design/gdd/save-progress.md`
+ * v1.3 §2.6.2 **I2** 与 **§8-22**）：第 i 项 = 第 i 关的存档记账 token（生成期由
+ * `tools/scripts/sync-levels-data.mjs` 从 `manifest.entries[].uid` 派生并注入为记录**首键**；
+ * plate 第 c 格 = `L000NN#c`）。星账的 uid↔index 双向换算**只**吃这条轴。
+ *
+ * ⚠ 不得改用数值 `id` 反推身份：`id` = 装配下标 + 1（展示 / 几何轴，插删调序会变），
+ * 而存档记账轴是内容身份；「按存档数组长度反推关身份」正是 `§8-22-④` 静态臂拒收的形状。
+ *
+ * 无身份的记录（= dev 调试导入的**未过生成器**外部关，见 `BeadsGame.importLevel`）⇒ 该槽取
+ * `''`，双向换算均跳过 ⇒ **不入档**（⛔ 不为本批外的来源发明 token 格式、也不污染他人记录）。
+ * 本函数只在 BOOT 与关表重装配处各跑一次（`control-manifest §2` 例外），⛔ 不进热路径。
+ */
+export function levelIdentityKeys(levels: readonly BeadsLevelRaw[]): string[] {
+  const out = new Array<string>(levels.length);
+  for (let i = 0; i < levels.length; i += 1) {
+    const uid = levels[i]?.uid;
+    out[i] = typeof uid === 'string' ? uid : '';
+  }
+  return out;
+}
+
 // ───────────────────────────────────────────────────── sprint stage patterns
 
 /**

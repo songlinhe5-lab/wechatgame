@@ -36,6 +36,8 @@ import { defaultBeadsMeta } from '../src/game/meta-save-schema.js';
 import { defaultBeadsSave } from '../src/game/save-schema.js';
 import { ARC_COMING_SOON, ARC_OPEN_MAX, ARCS } from '../src/config/arcs.js';
 import { LEVELS } from '../src/config/levels.js';
+// 星账夹具助手（轴从 `LEVELS` 派生，⛔ 手抄 token；K-152）。
+import { starsLedger } from './helpers.js';
 import { DESIGN_H, DESIGN_W, MENU_TEXTURES, WALL_ROWS } from '../src/config/tuning.js';
 import { buildMetaView, metaLayout, setMenuBitmapResolver, type MetaViewData } from '../src/view/meta-view.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
@@ -60,7 +62,9 @@ function rig(opts: { maxUnlocked?: number; stars?: number[] } = {}): Rig {
         JSON.stringify({
             ...defaultBeadsSave(),
             maxUnlockedLevel: opts.maxUnlocked ?? 1,
-            starsByLevel: opts.stars ?? [],
+            // WXG-T-344（ADR-0034 DEC-1）：档内星账 = 身份→星（从关表派生轴），
+            // ⛔ 位置型 `starsByLevel`（那只是一次性入口的输入侧）。
+            starsByUid: starsLedger(opts.stars ?? [], LEVELS),
         }),
     );
     storage.set(META_KEY, JSON.stringify({ ...defaultBeadsMeta(), staminaCur: 99 }));

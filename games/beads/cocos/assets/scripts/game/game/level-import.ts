@@ -139,6 +139,11 @@ export function studioUrl(base: string, path: string): string {
 export function draftToLevel(draft: LevelDraft, id: number, name: string): ImportOutcome {
     const swaps = draft.swaps ?? [];
     const level: BeadsLevelRaw = {
+        // 身份 token 恒由**生成期**从 `manifest.entries[].uid` 派生注入（ADR-0034 DEC-1/DEC-2），
+        // ⛔ 不得由本转换层手写（那是第二真源，`§8-22-①`）。草案未过 `levels:sync` ⇒ 无身份，
+        // 取空串 = 「本槽不入星账」哨兵（`levelIdentityKeys` 与双向换算均按此跳过）。
+        // 入关（写 `design/levels/` + 重跑 `levels:sync`）后身份才由脚本赋予。
+        uid: '',
         id,
         name,
         cols: draft.cols,

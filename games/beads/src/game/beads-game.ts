@@ -102,6 +102,7 @@ import {
   buildStagePattern,
   decoyColorIndices,
   levelIdOf,
+  levelIdentityKeys,
   validateBeadsLevel,
   type BeadsLevelRaw,
 } from '../config/levels.js';
@@ -137,12 +138,16 @@ import {
   SAVE_KEY,
   SAVE_VERSION,
   bootLevel,
+  collapseStars,
   defaultBeadsSave,
+  flattenStars,
   migrateV1ToV2,
   migrateV2ToV3,
   migrateV3ToV4,
+  migrateV4ToV5,
   normalizeBeadsSave,
   preserveCorruptBackup,
+  toBeadsSavePatch,
   type BeadsSave,
 } from './save-schema.js';
 import { beadInksFor, type BeadsPalette } from '../view/palette.js';
@@ -280,6 +285,15 @@ export class BeadsGame implements Game {
    * `_persistProgress()` 写回；本字段是内存**镜像**（与 `_sprintBestScore` 同判例）。
    */
   private _starsByLevel: number[] = [];
+  /**
+   * 关表的**稳定身份轴**只读镜像（ADR-0034 **DEC-3**）：第 i 项 = 第 i 关的存档记账 token，
+   * 与 `_levels` 同生命周期。星账的 uid↔index 换算只发生在**既有两个边界点**
+   * （BOOT 读档展平 / `_persistProgress` 收拢），各恰一次；本镜像**只在关表装配处**构造
+   * （下方 BOOT 与 `importLevel` 两处）。⛔ 视图 / 结算 / 每帧路径不得再构造——那会
+   * 重新开出一条「按存档长度反推关身份」的第二条读取路径（`save-progress v1.3 §8-22-④` 静态臂）。
+   * L5：它是关表的派生只读镜像，**不是游戏状态**；无身份槽取 `''`（dev 导入草案，不入档）。
+   */
+  private _levelKeys: readonly string[] = [];
   /**
    * 本局所打档位（§3.7 v1.50）。**选档即定星**：过关星级 = 本值，与剩余时间占比无关。
    * 由 `_setupLevel` 按双条件闸门推导（(a) 本关前一档已过 ∧ (b) 上一关同档已过，首关豁免 (b)）。
@@ -798,7 +812,11 @@ export class BeadsGame implements Game {
       defaults: defaultBeadsSave,
       // v1→v2（WXG-T-088 可访问性开关）：只升版本号，新字段交由 normalizeSettings
       // 逐字段降级——不注册则 SaveManager 会把旧档判为待迁移而重置丢进度。
-      migrations: { 1: migrateV1ToV2, 2: migrateV2ToV3, 3: migrateV3ToV4 },
+      // v4→v5（ADR-0034 **DEC-4**）同一判例形状：**只做版本标记**，⛔ 不在迁移里做 uid
+      // 换算（`Migration` 签名拿不到关表轴），真正的对位换算住 `normalizeBeadsSave`。
+      // ⚠ 实测（DEC-5）：本族四条迁移均返回 `SAVE_VERSION` 而非 `n+1` ⇒ 一条即跳到底、
+      //   v1/v2/v3 老档根本不经 `migrations[4]` ⇒ 形态探测必须能兼住（链改严另单 S-7）。
+      migrations: { 1: migrateV1ToV2, 2: migrateV2ToV3, 3: migrateV3ToV4, 4: migrateV4ToV5 },
     });
 
     // D-03：崩溃恢复档是**另键** sidecar（提案 §5 方案 A）——S8 的键 / version /
@@ -814,15 +832,22 @@ export class BeadsGame implements Game {
       }
     }
 
+    // ADR-0034 **DEC-3** 的轴装配点（两处之一，另一处 = `importLevel`）：身份镜像与
+    // `this._levels` 同生命周期，此处**恰构造一次**；读档与写档两个边界均只读它。
+    this._levelKeys = Object.freeze(levelIdentityKeys(this._levels));
+
     const loaded = this._save.load();
-    const normalized = normalizeBeadsSave(loaded.data, this._levels.length);
-    this._save.patch(normalized.save);
+    const normalized = normalizeBeadsSave(loaded.data, this._levels.length, this._levelKeys);
+    // `toBeadsSavePatch`：框架 `patch` 浅合并不删键 ⇒ 旧位置型数组需显式置 undefined 才能
+    // 从档里物理消失（DEC-1「⛔ 双轨并存」的执行腿；写档频次不变，仍只下一次）。
+    this._save.patch(toBeadsSavePatch(normalized.save, normalized.staleKeys));
     if (normalized.changed || loaded.wasReset) this._save.save();
 
     this._sprintBestScore = normalized.save.sprintBestScore;
     this._sprintBestStage = normalized.save.sprintBestStage;
-    // S8 §2.2 `stars`：装载为内存镜像（长度已由 `normalizeBeadsSave` 按关卡表补齐）。
-    this._starsByLevel = [...normalized.save.starsByLevel];
+    // S8 §2.2 `stars`：**边界换算恰一次**（uid 账 → 下标稠密数组，长度 = `levelKeys`）。
+    // 运行时与视图继续吃下标数组（7 处取数位点零改动，ADR-0034 §4.2）⇒ 身份不进热路径。
+    this._starsByLevel = flattenStars(normalized.save.starsByUid, this._levelKeys);
     // 十个设置值整对象装载（非法值已由 `normalizeSettings` 逐字段降级为默认）；
     // 同批换皮肤 tokens 引用、按 bgm 静音态启停背景乐。
     this._settings.load(normalized.save.settings);
@@ -1440,6 +1465,9 @@ export class BeadsGame implements Game {
     const errors = validateBeadsLevel(raw);
     if (errors.length) return errors;
     this._levels = this._levels.concat([raw]); // 一次性操作，非热路径（拷写避免改入参冻结数组）
+    // 关表被重新装配 ⇒ 身份镜像同批重建（DEC-3：镜像与 `_levels` 同生命周期，
+    // 这是除 BOOT 外唯一的装配点）。草案未过生成器 ⇒ 无 `uid`，该槽取 `''`（不入档）。
+    this._levelKeys = Object.freeze(levelIdentityKeys(this._levels));
     this.goToLevel(this._levels.length - 1);
     // EP12-S9（裁定②）：草案携 `skin`（**引用 id，不传数据本体**）⇒ 导入成功后应用。
     // ⛔ 以**本地注册表**复验，不信任自报值（K-064「谎报值不采信」判例形状）：
@@ -2273,7 +2301,9 @@ export class BeadsGame implements Game {
       maxUnlockedLevel: Math.max(save.data.maxUnlockedLevel, next),
       currentLevel: next,
       // S8 §2.2 `stars` / §8-2：每关历史最高星（max 在过关记分处取，这里只负责落档）。
-      starsByLevel: [...this._starsByLevel],
+      // ADR-0034 **DEC-3** 的第二条边界换算（收拢，每局 ≤1 次）：下标镜像 → 身份账；
+      // 无身份槽（`''`，dev 导入草案）不入档。⛔ 不在本路径构造 `levelKeys`（只读镜像）。
+      starsByUid: collapseStars(this._starsByLevel, this._levelKeys),
     });
     save.save();
   }

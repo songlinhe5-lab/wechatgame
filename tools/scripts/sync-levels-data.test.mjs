@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { assertPricing, checkDifficultyDegeneracy, checkStepsGate, uidSlotsToLevelRefs, openPrefixLength, checkChapterCapacity, assertNoSourceTitle, injectChapterTitles, assembleArcs, assertOpenPrefix, assertChapterPackUniform } from './sync-levels-data.mjs';
+import { assertPricing, checkDifficultyDegeneracy, checkStepsGate, uidSlotsToLevelRefs, openPrefixLength, checkChapterCapacity, assertNoSourceTitle, injectChapterTitles, assembleArcs, assertOpenPrefix, assertChapterPackUniform, identityToken, assertLevelIdentities, assembleFromManifest } from './sync-levels-data.mjs';
 
 // 锚 = L5 `studio-5-21cd` 真值：BAC 199 步 × 1.69s = 336s。
 const bot = (o = {}) => ({
@@ -179,7 +179,7 @@ const FIX_FILES = {
     'chapters/mandala.json': FIX_CHAPTER,
 };
 
-/** 建「single + plate(2 槽) + boss」迷你内容仓（os.tmpdir，随系统清理）；over.files 覆盖/追加文件。 */
+/** 建「single + plate(2 槽) + boss」迷你内容仓（os.tmpdir，随系统清理）；over.files 覆盖/追加文件；over.chapters 换章登记（默认单章）。 */
 function mkArcFixture(over = {}) {
     const dir = mkdtempSync(join(tmpdir(), 'wxg-arc-'));
     for (const d of ['singles', 'plates', 'chapters', 'assets']) mkdirSync(join(dir, d));
@@ -187,7 +187,7 @@ function mkArcFixture(over = {}) {
     writeFileSync(join(dir, 'manifest.json'), JSON.stringify({
         schemaVersion: 2, gameId: 'fixture', paletteFile: 'palette.json',
         entries: FIX_ENTRIES,
-        chapters: [{ id: 'mandala', file: 'chapters/mandala.json', order: 1, open: true }],
+        chapters: over.chapters ?? [{ id: 'mandala', file: 'chapters/mandala.json', order: 1, open: true }],
     }));
     for (const [rel, obj] of Object.entries({ ...FIX_FILES, ...over.files }))
         writeFileSync(join(dir, rel), JSON.stringify(obj));
@@ -238,5 +238,68 @@ test('CH-S4 跨包 ⇒ 抛；同包 ⇒ 放行（断言 5 直测，CH-S5 开包�
     assert.throws(
         () => assertChapterPackUniform('fixture', 'mandala', ['main', 'packs']),
         /混包（main \+ packs）/,
+    );
+});
+
+// ── S-1 生成期身份通道（ADR-0034 §6 S-1 · DEC-1/DEC-2；判据 = save-progress v1.3 §8-22-①②③）──
+// 夹具 = `mkArcFixture`：single(L00001) + plate(P0002 两格) + boss(L00003) ⇒ 四槽。
+const SPANS_4 = new Map([
+    ['L00001', { start: 1, end: 1 }],
+    ['P0002', { start: 2, end: 3 }],
+    ['L00003', { start: 4, end: 4 }],
+]);
+const TOKENS_4 = ['L00001', 'P0002', 'P0002#2', 'L00003'];
+
+test('S-1 token 规则（DEC-1）：single/boss 原样｜plate 首格无后缀｜c≥2 加 #c（1-based 格序）', () => {
+    assert.equal(identityToken('L00001', 1), 'L00001');
+    assert.equal(identityToken('L00010', 1), 'L00010'); // boss 同样原样
+    assert.equal(identityToken('P0002', 1), 'P0002');
+    assert.equal(identityToken('P0002', 2), 'P0002#2');
+    assert.equal(identityToken('P0002', 4), 'P0002#4');
+});
+
+test('S-1 正向：plate 夹具装配 ⇒ 每条记录首键 = uid 且逐格互异、与槽序同命（§8-22-①②）', () => {
+    const { levels } = assembleFromManifest(mkArcFixture());
+    assert.deepEqual(levels.map((l) => l.uid), TOKENS_4);
+    assert.equal(Object.keys(levels[0])[0], 'uid'); // 身份 = 记录首键（字节序稳定）
+    assert.deepEqual(levels.map((l) => l.id), [1, 2, 3, 4]); // 与数值 id（装配下标）解耦但同位
+});
+
+test('S-1 变异自证 M-1：注入时去掉 `#c` 后缀 ⇒ 断言①（全表唯一）恰一红，不跑成②', () => {
+    const mutated = TOKENS_4.map((t) => t.split('#')[0]); // P0002 / P0002 同键
+    assert.throws(() => assertLevelIdentities('fixture', mutated, SPANS_4), /身份 token 重复 "P0002"（第 3 槽）/);
+});
+
+test('S-1 变异自证 M-2：对 token 数组插一次 .sort() ⇒ 断言①仍绿、断言②（序 == order 展开序）红', () => {
+    assertLevelIdentities('fixture', TOKENS_4, SPANS_4); // 未变异⇒绿（阳性对照下限）
+    const sorted = [...TOKENS_4].sort(); // 唯一性不破（①绿），但槽序错位（②红）
+    assert.throws(() => assertLevelIdentities('fixture', sorted, SPANS_4), /身份对位失败 —— 第 2 槽/);
+});
+
+test('S-1 断言②反面：身份条数与装配槽数不齐 ⇒ 抛（⛔ 默默少一条身份）', () => {
+    assert.throws(() => assertLevelIdentities('fixture', ['L00001', 'P0002'], SPANS_4), /条数 2 ≠ 装配槽数 4/);
+});
+
+test('S-1 回归自证 M-3：同一 uid 写进两章 ⇒ 既有「一关恰属一章」断言仍咬得住（§8-22-③）', () => {
+    const two = { id: 'second', title: '第二章', levels: ['L00001'], showcase: { bundle: 'themes', art: 'fx-256', textureId: 'bitmap__second' } };
+    assert.throws(
+        () => assembleArcs(mkArcFixture({
+            chapters: [
+                { id: 'mandala', file: 'chapters/mandala.json', order: 1, open: true },
+                { id: 'second', file: 'chapters/second.json', order: 2, open: false },
+            ],
+            files: {
+                'chapters/mandala.json': FIX_CHAPTER,
+                'chapters/second.json': two,
+            },
+        })),
+        /uid L00001 被多章引用/,
+    );
+});
+
+test('S-1 拒收第二真源：源关卡记录手写 uid ⇒ 抛（身份只能由生成期从 manifest uid 派生）', () => {
+    assert.throws(
+        () => assembleFromManifest(mkArcFixture({ files: { 'singles/L00001.json': { uid: 'HACKED', id: 1, name: 'fx-1' } } })),
+        /源关卡记录自带 uid/,
     );
 });

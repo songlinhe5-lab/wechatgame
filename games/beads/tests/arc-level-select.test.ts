@@ -28,6 +28,8 @@ import { createBeadsShell, type BeadsShell } from '../src/game/beads-shell.js';
 import { defaultBeadsMeta } from '../src/game/meta-save-schema.js';
 import { defaultBeadsSave } from '../src/game/save-schema.js';
 import { LEVELS } from '../src/config/levels.js';
+// 星账夹具助手（轴从 `LEVELS` 派生，⛔ 手抄 token；K-152）。
+import { starsLedger } from './helpers.js';
 import { ARCS, ARC_OPEN_MAX } from '../src/config/arcs.js';
 import { DESIGN_H, DESIGN_W, PANEL_IN_MS, WALL_CAPACITY, WALL_ROWS } from '../src/config/tuning.js';
 import { metaLayout } from '../src/view/meta-view.js';
@@ -55,12 +57,16 @@ function rig(
     const now = { t: 1_000 };
     const platform = new NodePlatform({ width: DESIGN_W, height: DESIGN_H, pixelRatio: 2 });
     const storage = platform.createStorage();
+    // WXG-T-344（ADR-0034 DEC-1）：存档侧的星账 = **身份→星**记录（从本 rig 的关表派生），
+    // ⛔ 再往档里写位置型 `starsByLevel`（那 = §2.6.5 一次性入口的输入侧，不是常规形态）。
+    // rig 对外仍收「按槽序的星值数组」（视图夹具的人读形状），换算只在这一处完成。
+    const levelList = opts.levels ?? LEVELS;
     storage.set(
         PLAY_KEY,
         JSON.stringify({
             ...defaultBeadsSave(),
             ...(opts.maxUnlocked !== undefined ? { maxUnlockedLevel: opts.maxUnlocked } : {}),
-            ...(opts.stars !== undefined ? { starsByLevel: opts.stars } : {}),
+            ...(opts.stars !== undefined ? { starsByUid: starsLedger(opts.stars, levelList) } : {}),
         }),
     );
     storage.set(META_KEY, JSON.stringify({ ...defaultBeadsMeta(), staminaCur: 99 }));

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 155,
+  "nextId": 156,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -2577,6 +2577,23 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-155",
+      "state": "active",
+      "file": "knowledge/lessons/process-audit.md",
+      "category": "流程对账",
+      "title": "同一份决策文里「决策条文」与「施工清单」各写各的 ⇒ 执行者照清单交付无过、决策却未兑现；落码批验收必须逐字段对账，并复核既有断言是否真消费了被改的那条轴",
+      "contentHash": "cfd851faf36c13a36809f2b543832364ff72f7c1917571f4a8391cf7f62c75c3",
+      "sourceTask": "WXG-T-344",
+      "addedDate": "2026-10-22",
+      "lastAccess": "2026-10-22",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -3889,6 +3906,15 @@
       "kind": "updated",
       "ids": [
         "K-154"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-22",
+      "taskId": "WXG-T-344",
+      "kind": "added",
+      "ids": [
+        "K-155"
       ],
       "note": null
     }

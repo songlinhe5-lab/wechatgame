@@ -59,7 +59,10 @@ import {
     normalizeBeadsSave,
     normalizeSettings,
 } from '../src/game/save-schema.js';
-import { createBeadsHarness, placeColor, simpleTestLevel, type Harness } from './helpers.js';
+import { createBeadsHarness, placeColor, simpleTestLevel, starsLedger, type Harness } from './helpers.js';
+// ADR-0034 DEC-2/DEC-3：存档夹具的身份轴与运行期 `_levelKeys` 取**同一构造式**
+// （⛔ 硬写 `L00001` 这类本版快照 = K-152；⛔ 让 `levelCount` 与身份轴脱钩 = 造出对不上号的假轴）。
+import { LEVELS, levelIdentityKeys } from '../src/config/levels.js';
 import type { BeadsGame } from '../src/game/beads-game.js';
 
 const REPO = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
@@ -240,9 +243,16 @@ function settingsOf(storage: Storage): Record<string, unknown> {
 }
 
 /** 归一化器对「存量档」的读入结果（含 BOOT 不报错面）。 */
-function normalizeDoc(doc: unknown): { save: ReturnType<typeof normalizeBeadsSave>['save']; changed: boolean } {
-    const r = normalizeBeadsSave(doc, 8);
-    return { save: r.save, changed: r.changed };
+const AXIS = levelIdentityKeys(LEVELS);
+/** 取轴的前 `count` 槽（本文件存在「1 关 harness」夹具 ⇒ 需要短轴；⛔ 自造 token）。 */
+const axisOf = (count: number): readonly string[] => AXIS.slice(0, Math.max(1, Math.min(count, AXIS.length)));
+function normalizeDoc(
+    doc: unknown,
+    levelCount = AXIS.length,
+): { save: ReturnType<typeof normalizeBeadsSave>['save']; changed: boolean; staleKeys: readonly string[] } {
+    const keys = axisOf(levelCount);
+    const r = normalizeBeadsSave(doc, keys.length, keys);
+    return { save: r.save, changed: r.changed, staleKeys: r.staleKeys };
 }
 
 // ───────────────────────────────────────────── TC-STY-01 · S9 §8-14（循环 + 即写 + 不切相位）
@@ -699,7 +709,9 @@ describe('TC-SAVE-11 · S8 §8-11：两字段入档 · 即写 · 只存末值 ·
     it('`SAVE_VERSION` 不为此 bump（判例 = debugInfo 与 v1→v2）', () => {
         const tuning = SRC('game/save-schema.ts');
         expect(tuning).toContain(`export const SAVE_VERSION = ${SAVE_VERSION};`);
-        expect(SAVE_VERSION).toBe(4);
+        // WXG-T-344：本钉值**不因换肤而变**，其 4→5 是 ADR-0034 DEC-4（星账换制）的差分，
+        // 与 §8-12「version 无需为新增可选字段 bump」口径不矛盾（本例验的是后者）。
+        expect(SAVE_VERSION).toBe(5);
     });
 });
 
@@ -744,7 +756,8 @@ describe('TC-SAVE-12 腿②③④ · S8 §8-12：非法值 ⇒ 该字段单独�
             currentLevel: 4,
             sprintBestScore: 777,
             sprintBestStage: 3,
-            starsByLevel: [3, 2, 1, 0, 0, 0, 0, 0],
+            // v5 形态：星账按身份记账（夹具从 `LEVELS` 派生轴，⛔ 位置数组）。
+            starsByUid: starsLedger([3, 2, 1]),
             settings: {
                 bgmMuted: true, sfxMuted: true, reduceMotion: true, largeText: true, vibrate: false, debugInfo: true,
                 beadStyle: { id: 'facet-4' }, beadSize: 'gigantic',
@@ -757,7 +770,7 @@ describe('TC-SAVE-12 腿②③④ · S8 §8-12：非法值 ⇒ 该字段单独�
         expect(save.currentLevel).toBe(4);
         expect(save.maxUnlockedLevel).toBe(5);
         expect(save.sprintBestScore).toBe(777);
-        expect(save.starsByLevel).toEqual([3, 2, 1, 0, 0, 0, 0, 0]);
+        expect(save.starsByUid).toEqual(starsLedger([3, 2, 1]));
         expect(save.settings).toMatchObject({ bgmMuted: true, sfxMuted: true, reduceMotion: true, largeText: true, vibrate: false, debugInfo: true });
         expect(changed).toBe(true); // 需一次补写回（patch 型写档）
 
@@ -775,7 +788,7 @@ describe('TC-SAVE-12 腿②③④ · S8 §8-12：非法值 ⇒ 该字段单独�
 
 /**
  * 本夹具 harness 只装 1 关 ⇒ 存量档必须按 `levelCount = 1` 构造才是**全合法存量档**；
- * 否则越界的 `maxUnlockedLevel/currentLevel` 与长度不符的 `starsByLevel` 会自己触发 changed，
+ * 否则越界的 `maxUnlockedLevel/currentLevel` 与对不上号的星账会自己触发 changed，
  * 两臂差值归零 ⇒ 本判据失真（实测踩到，故在此固定）。
  */
 const LEGACY_LEVEL_COUNT = 1;
@@ -789,6 +802,8 @@ function legacyDoc(): Record<string, unknown> {
         currentLevel: LEGACY_LEVEL_COUNT,
         sprintBestScore: 777,
         sprintBestStage: 3,
+        // ⚠ **故意保留 v4 位置形**：本条主题 = 「不含换肤两字段的存量档」，旧形星账是其合法的
+        //   **输入侧**（§2.6.5 一次性入口）；写回后旧键必须被物理清除（见下方落盘面断言）。
         starsByLevel: [3],
         settings: legacySettings(),
     };
@@ -811,13 +826,15 @@ describe('TC-SAVE-13 运行时腿 · S8 §8-13：不含两字段的存量档 ⇒
         expect(game.beadStyle).toBe(FIRST);
         expect(game.beadSize).toBe('full');
 
-        const normalized = normalizeBeadsSave(legacy, LEGACY_LEVEL_COUNT);
+        const normalized = normalizeBeadsSave(legacy, LEGACY_LEVEL_COUNT, axisOf(LEGACY_LEVEL_COUNT));
         expect(normalized.save.runs).toBe(9);
         expect(normalized.save.maxUnlockedLevel).toBe(LEGACY_LEVEL_COUNT);
         expect(normalized.save.currentLevel).toBe(LEGACY_LEVEL_COUNT);
         expect(normalized.save.sprintBestScore).toBe(777);
         expect(normalized.save.sprintBestStage).toBe(3);
-        expect(normalized.save.starsByLevel).toEqual([3]);
+        // 位置形 ⇒ 身份形一次性入口：旧第 0 位落到**轴第 0 槽的身份**上（ADR-0034 DEC-5 规则 2）。
+        expect(normalized.save.starsByUid).toEqual(starsLedger([3], LEVELS.slice(0, LEGACY_LEVEL_COUNT)));
+        expect(normalized.staleKeys, '旧数组需被写回物理清除（DEC-1 ⛔ 两轨并存）').toEqual(['starsByLevel']);
         expect(normalized.save.settings).toMatchObject(legacySettings());
         expect(normalized.changed).toBe(true); // 缺字段 ⇒ 报 changed（B1-Q3 修后行为）
 
@@ -828,7 +845,16 @@ describe('TC-SAVE-13 运行时腿 · S8 §8-13：不含两字段的存量档 ⇒
         const bootWrites = log.filter((e) => e.key === SAVE_KEY && e.kind === 'set').length;
 
         const controlStore = newStorage();
-        const complete = JSON.parse(JSON.stringify(legacy)) as { settings: Record<string, unknown> };
+        const complete = JSON.parse(JSON.stringify(legacy)) as {
+            settings: Record<string, unknown>;
+            starsByLevel?: unknown;
+            starsByUid?: unknown;
+        };
+        // WXG-T-344（ADR-0034 DEC-1/DEC-5）：对照臂必须是**已落成 v5 形**的完好档——
+        // 旧位置数组留在档里 = 一次性入口已触发 changed（与缺字段一样各多写一次），
+        // 两臂同带旧形 ⇒ 差值归零、本判据失真（换形实测踩到，故在此明写）。
+        delete complete.starsByLevel;
+        complete.starsByUid = { [levelOf(5).uid]: 3 }; // 与本夹具同一身份轴（⛔ 手抄 token）
         complete.settings['beadStyle'] = FIRST;
         complete.settings['beadSize'] = 'full';
         // EP12-S8：skinId 同为「本判据的新增字段族」——对照臂必须齐备该字段，
@@ -848,8 +874,12 @@ describe('TC-SAVE-13 运行时腿 · S8 §8-13：不含两字段的存量档 ⇒
         expect(after['beadStyle']).toBe(FIRST);
         expect(after['beadSize']).toBe('full');
         expect(after['debugInfo']).toBe(true); // 补写未抹掉既有字段
-        expect((readSave(storage) as Record<string, unknown>)['runs']).toBe((legacy['runs'] as number) + 1); // 旧档不丢档：仅 BOOT 写 +1，未被重置为 0
-        expect((readSave(storage) as Record<string, unknown>)['sprintBestScore']).toBe(777);
+        const persisted = readSave(storage) as Record<string, unknown>;
+        expect(persisted['runs']).toBe((legacy['runs'] as number) + 1); // 旧档不丢档：仅 BOOT 写 +1，未被重置为 0
+        expect(persisted['sprintBestScore']).toBe(777);
+        // §8-21 一次性入口的**落盘面**：写回后档内 ⛔ 不再有位置数组（双轨禁令）。
+        expect('starsByLevel' in persisted, '旧形已物理退场').toBe(false);
+        expect(persisted['starsByUid']).toEqual({ [levelOf(5).uid]: 3 }); // harness 只装 `levelOf(5)`（轴从夹具派生，⛔ 手抄 token）
     });
 });
 

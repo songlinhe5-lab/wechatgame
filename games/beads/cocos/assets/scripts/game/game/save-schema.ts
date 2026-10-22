@@ -81,7 +81,7 @@ export interface BeadsSettings {
 }
 
 export interface BeadsSave extends SaveDocument {
-  version: 4;
+  version: 5;
   /** Runs started — the "first launch" test is `runs === 0` (S1 §8-1). */
   runs: number;
   /**
@@ -100,11 +100,16 @@ export interface BeadsSave extends SaveDocument {
   /** Best sprint stage index ever reached (0-based). */
   sprintBestStage: number;
   /**
-   * 每关**历史最高星**（`0` = 未通关），长度 = 关卡数 —— S8 GDD §2.2 的 `stars`
-   * （代码侧命名 `starsByLevel`；键名与结构归代码，见该文文首「刻意例外」）。
-   * 语义 = 过关时 `max(旧, 新)`（§8-2「历史最高星不被低星覆盖」）。
+   * 每关**历史最高星**，按关卡**稳定内容身份**记账（ADR-0034 **DEC-1**；判据 =
+   * `design/gdd/save-progress.md` v1.3 §2.6.2 **I2**）—— S8 GDD §2.2 的 `stars`，
+   * 键名与序列化形态住代码（该文文首「刻意例外」）。
+   * - 键 = 生成期注入的稳定身份 token（`L000NN`，plate 第 c 格 = `L000NN#c`），
+   *   值 = 该关历史最高星 ∈ `[0, STAR_MAX]`；语义 = 过关时 `max(旧, 新)`（§8-2）不变。
+   * - v5 文档内 ⛔ **不再并存位置型 `starsByLevel`**（两套并存 = 第二真源，`changed`
+   *   无法自洽）；旧数组只作 §2.6.5 一次性入口的**输入侧**兼容。
+   * - 终态 = 按 `levelKeys` **稠密物化**（含 0 值），⇒ 形状确定、幂等可自证（DEC-5 规则 4）。
    */
-  starsByLevel: number[];
+  starsByUid: Record<string, number>;
   /** S9 audio toggles (save-progress §2.2; written on every switch). */
   settings: BeadsSettings;
 }
@@ -113,7 +118,13 @@ export interface BeadsSave extends SaveDocument {
 export const SAVE_KEY = 'wxgame.beads.save.v1';
 /** Where an unreadable document is preserved before being discarded. */
 export const BACKUP_KEY = 'wxgame.beads.save.v1.bak';
-export const SAVE_VERSION = 4;
+/**
+ * v5（ADR-0034 **DEC-4**）：星账从「位置别名数组」换制为「身份→星数映射」——
+ * 与 v1→v2 / v2→v3 / v3→v4 的「加可选字段 + 逐字段降级」不同档，属
+ * `control-manifest §5`「schema 变更 ⇒ 升版本 + 写迁移」，⛔ 不 bump 会让「version 仍写 4、
+ * 形态已是 5」的档在多包共存期无法判别。
+ */
+export const SAVE_VERSION = 5;
 
 /**
  * v1 → v2（WXG-T-088）：新增可访问性开关 `reduceMotion`（D1）与 `largeText`
@@ -148,6 +159,18 @@ export function migrateV3ToV4(doc: Record<string, unknown>): Record<string, unkn
   return { ...doc, version: SAVE_VERSION };
 }
 
+/**
+ * v4 → v5（ADR-0034 **DEC-4**）：**只做版本标记 + 旧字段原样透传**（沿 v1→v2 判例）。
+ * ⛔ 不在迁移函数里做 uid 换算：`Migration` 签名是 `Record → Record`
+ * （`packages/framework/src/core/save/save-manager.ts`），**拿不到关表轴**；真正的
+ * 对位换算住 `normalizeBeadsSave` 的形态探测（DEC-5）——那是唯一持有关表轴的层。
+ * ⚠ 实测事实（DEC-5）：本族四条迁移均返回 `SAVE_VERSION` 而非 `n+1` ⇒ 一条迁移即跳到底，
+ *   v1/v2/v3 老档根本不流经 `migrations[4]` ⇒ 换算必须由 normalize 兑住（链改严另单 S-7）。
+ */
+export function migrateV4ToV5(doc: Record<string, unknown>): Record<string, unknown> {
+  return { ...doc, version: SAVE_VERSION };
+}
+
 export function defaultBeadsSave(): BeadsSave {
   return {
     version: SAVE_VERSION,
@@ -157,8 +180,9 @@ export function defaultBeadsSave(): BeadsSave {
     currentLevel: 1,
     sprintBestScore: 0,
     sprintBestStage: 0,
-    // 长度在 `normalizeBeadsSave(raw, levelCount)` 里按关卡表补齐（出厂默认不知关卡数）。
-    starsByLevel: [],
+    // 星账在 `normalizeBeadsSave(raw, levelCount, levelKeys)` 里按身份表稠密物化
+    //（出厂默认不知关表 ⇒ 空映射；与旧 `starsByLevel: []` 同型）。
+    starsByUid: {},
     settings: {
       bgmMuted: false,
       sfxMuted: false,
@@ -240,33 +264,113 @@ export interface NormalizeResult {
   readonly save: BeadsSave;
   /** True when anything was repaired — the caller should write back. */
   readonly changed: boolean;
+  /**
+   * 存在于原始文档、但 v5 形态里不该再有的键名（ADR-0034 **DEC-1**「⛔ 两套并存」的执行腿）。
+   * ⚠ 为什么单列一份清单：`SaveManager.patch` 是**浅合并、不删键**
+   * （`packages/framework/src/core/save/save-manager.ts:121`），而框架 core 在本单授权外
+   * ⇒ 只把新字段塞进 `save` 无法把旧位置型数组从档里**物理抹掉**（双轨并存）。
+   * 调用方须把本清单交给 `toBeadsSavePatch`；它同时是 `changed` 的一条成因（DEC-5 规则 4
+   * 幂等臂：旧键未清除前，第二次读必须仍报 changed）。
+   */
+  readonly staleKeys: readonly string[];
+}
+
+/** 旧形态键名（只作**输入侧**一次性兼容与写回清除用，⛔ 不再作字段）。 */
+const STALE_STARS_KEY = 'starsByLevel';
+
+/** 单值钳：非有限数 → 0；小数**向下取整**；再钳 `[0, STAR_MAX]`（S8 §6 口径逐字不变）。 */
+function clampStar(value: unknown): number {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return 0;
+  return Math.max(0, Math.min(STAR_MAX, Math.floor(value)));
+}
+
+interface StarLedger {
+  readonly stars: Record<string, number>;
+  /** 档内**有条目**、当前关表对不上号 ⇒ 逐条作废的条数（= `I3`「可枚举」的丢弃维，DEC-9）。 */
+  readonly dropped: number;
+  /** 当前关表**有槽**、档内无条目 ⇒ 补 0 的槽数（新关 / 档短于关表）。 */
+  readonly missing: number;
+  /** 形态探测结果（DEC-5）：`uid` = v5 直读 · `legacy` = v4 一次性入口 · `none` = 无星账。 */
+  readonly form: 'uid' | 'legacy' | 'none';
+  readonly changed: boolean;
 }
 
 /**
- * 每关星级数组（S8 GDD §2.2 `stars` / §2.4 降级矩阵 / §6 边界 / §8-14 迁移腿）：
- *   · **非数组**（缺失 / 类型错）→ 重置全 0；
- *   · **长度不符 → 前缀搬运**（v1.2 / WXG-T-342）：第 i 位恒代表第 i+1 关，短于关卡数则缺位补 0、
- *     长于关卡数则截断（§8-14 要求「前 N 位逐位无损 + 写回恰一次」）；
- *     ⚠ 仅当关表**末尾追加**时成立——中间插入 / 删除 / 重排会让星错位且不报错，
- *     那类变更须另开迁移单按稳定 uid 对位（`levels-spec §11.7` 能力边界）；
- *   · 单值非有限数 → 0；小数**向下取整**（§6）；再钳 `[0, STAR_MAX]`。
- * 逐项钳正、**绝不弃整档**（与 `settings` 同判例）。
+ * 星账归一化 = **身份轴**上的读档换算（ADR-0034 **DEC-5** 形态探测三级，唯一裁定；
+ * 判据 = `design/gdd/save-progress.md` v1.3 §2.6.2 **I2** / §2.6.5 / **§8-16 ～ §8-17、§8-21**）。
+ *
+ * 1. 档内 `starsByUid` 是**非空记录** ⇒ v5 直读：逐键对位，当前关表认不出的键 = 孤儿
+ *    ⇒ **该条单独作废**（`dropped++`），⛔ 不挪给别的关、⛔ 不弃整档、⛔ 不抛异常（§2.4 v1.3 行 +
+ *    §8-17）；能能对位的逐条无损。
+ * 2. 否则档内 `starsByLevel` 是数组 ⇒ **v4 一次性入口**：旧第 i 位 = 写档那一刻关表第 i 关
+ *    （DEC-6 的一次性假设：未上架 + v1.22 已把轴对齐到当前关表），按 `levelKeys[i]` 对位搬运。
+ *    ⛔ 这是位置型字段最后的用途，v5 之后不再有位置轴（§8-21「⛔ 与 §8-14 双轨并存则红」）。
+ * 3. 两者皆无 ⇒ 全槽 0（沿旧「非数组 ⇒ 全 0」臂语义），新档由调用方一次写回稠密终态。
+ *
+ * 终态 = 按 `levelKeys` **稠密物化**（尾趟统一补 0）⇒ 形状确定、幂等可自证；单值仍逐条钳
+ * `[0, STAR_MAX]`（**DEC-1** 末条）。无身份槽（`''`，= dev 导入草案）不占键位；旧档映射到
+ * 这类槽的条目计作 `dropped`（该位无处落键）。`dropped > 0` 也计入 `changed`：孤儿留在档里
+ * = 「写回裁剪」没兑现已（DEC-9），且会让 §8-17 幂等臂失去归因。
+ *
+ * ⚠ 只在 BOOT 读档边界跑（每启动 ≤1 次）；函数局部 `Set` 建表已得到 DEC-3 明文放行
+ *   （`control-manifest §2` 例外：存档读写、初始化），⛔ 不得进 `update` / `buildRenderModel`。
  */
-function normalizeStars(raw: unknown, levelCount: number): number[] {
-  const out = new Array<number>(levelCount).fill(0);
-  if (!Array.isArray(raw)) return out;
-  const carry = Math.min(raw.length, levelCount);
-  for (let i = 0; i < carry; i += 1) {
-    const value = raw[i];
-    if (typeof value !== 'number' || !Number.isFinite(value)) continue;
-    out[i] = Math.max(0, Math.min(STAR_MAX, Math.floor(value)));
+function normalizeStarLedger(
+  raw: Record<string, unknown>,
+  levelKeys: readonly string[],
+): StarLedger {
+  const out: Record<string, number> = {};
+  const ids = new Set<string>();
+  for (let i = 0; i < levelKeys.length; i += 1) {
+    const key = levelKeys[i];
+    if (key !== '') ids.add(key);
   }
-  return out;
-}
+  const doc = raw['starsByUid'];
+  const legacy = raw[STALE_STARS_KEY];
+  let dropped = 0;
+  let changed = false;
+  let form: StarLedger['form'] = 'none';
 
-/** 逐项相等（长度不同即不等）——`changed` 判定用。 */
-function sameNumbers(a: readonly number[], b: readonly number[]): boolean {
-  return a.length === b.length && a.every((v, i) => v === b[i]);
+  if (isRecord(doc) && Object.keys(doc).length > 0) {
+    form = 'uid';
+    const keys = Object.keys(doc);
+    for (let i = 0; i < keys.length; i += 1) {
+      const key = keys[i];
+      if (!ids.has(key)) {
+        dropped += 1;
+        continue;
+      }
+      const value = clampStar(doc[key]);
+      out[key] = value;
+      if (doc[key] !== value) changed = true;
+    }
+  } else if (Array.isArray(legacy)) {
+    form = 'legacy';
+    const carry = Math.min(legacy.length, levelKeys.length);
+    for (let i = 0; i < carry; i += 1) {
+      const key = levelKeys[i];
+      if (key === '') {
+        dropped += 1;
+        continue;
+      }
+      out[key] = clampStar(legacy[i]);
+    }
+    dropped += Math.max(0, legacy.length - levelKeys.length);
+    // 旧形态只进一次：无论对位结果如何，写回都必须是新字段（§8-21「写回恰一次」）。
+    changed = true;
+  }
+
+  // 稠密尾趟：有槽无账 ⇒ 补 0（新关无记录 = 正常事实，不是异常）。⛔ 三条规则各自散着
+  // 补位（旧写法只有规则 3 补 ⇒ 规则 1/2 产出稀疏账，夹具的「完好档幂等」臂无法自证）。
+  let missing = 0;
+  for (let i = 0; i < levelKeys.length; i += 1) {
+    const key = levelKeys[i];
+    if (key === '' || out[key] !== undefined) continue;
+    out[key] = 0;
+    missing += 1;
+  }
+  if (missing > 0 || dropped > 0) changed = true;
+  return { stars: out, dropped, missing, form, changed };
 }
 
 /** 逐字段比较（含 normalize 兜底的缺字段 / 类型错场景），⛔ 不对整个 settings 对象做序列化比较。 */
@@ -285,16 +389,37 @@ function settingsEqual(a: BeadsSettings, b: BeadsSettings): boolean {
   );
 }
 
-/** Repair a loaded document into a valid one (degrade, never throw). */
-export function normalizeBeadsSave(raw: unknown, levelCount: number): NormalizeResult {
+/**
+ * Repair a loaded document into a valid one (degrade, never throw).
+ *
+ * 第三参 `levelKeys`（ADR-0034 **DEC-3**）= 与 `levelCount` 同轴的**稳定身份表**，
+ * 由 `BeadsGame` 在 BOOT 装配关表时构造一次并存为只读镜像（身份表构造式见
+ * `config/levels.ts`；第 i 项 = 第 i 关的身份 token；无身份槽为 `''`）。星账换算只在此层发生；
+ * ⛔ 视图 / 结算路径不得再构造（否则 = 第二条读取路径，被 `§8-22-④` 静态臂拒收）。
+ * 取**必填**而非可选：强制每个调用点显式对账身份轴，防止「忘传⇒默默走前缀搬运」。
+ */
+export function normalizeBeadsSave(
+  raw: unknown,
+  levelCount: number,
+  levelKeys: readonly string[],
+): NormalizeResult {
   const boundedCount = Math.max(1, Math.floor(levelCount));
   const fallback = defaultBeadsSave();
 
-  if (!isRecord(raw)) return { save: fallback, changed: true };
+  if (!isRecord(raw)) return { save: fallback, changed: true, staleKeys: [] };
 
   const maxUnlocked = levelIndex(raw['maxUnlockedLevel'], boundedCount);
   const current = levelIndex(raw['currentLevel'], boundedCount);
-  const rawStars = raw['starsByLevel'];
+  const ledger = normalizeStarLedger(raw, levelKeys);
+  // 旧位置型数组必须在写回时物理消失（DEC-1「⛔ 双轨」）。
+  const staleKeys: string[] = raw[STALE_STARS_KEY] !== undefined ? [STALE_STARS_KEY] : [];
+  // 可观测性 = `I3`「孤儿记录可枚举」与 §2.4「不弹错、不中断启动」的平衡点：只在
+  // **档内真有条目被丢弃**时留一行汇总（`missing` 作信息量同行报出：新关无记录 = 正常事实，
+  // ⛔ 不单独触发告警，否则每次出厂新档都会误报）；一次性、⛔ 逐条刷屏、⛔ 不新增玩家可见
+  // 反馈（S8 §4「降级静默」）。测试臂用**注入桩捕该 warn**，不用源码正则（§17 教训）。
+  if (ledger.dropped > 0) {
+    console.warn(`[beads] save uid unmatched: dropped=${ledger.dropped}, missing=${ledger.missing}`);
+  }
   // 一次性取出原始 settings 引用（归一入参、`changed` 比较与注释均读它，⛔ 不二次下标）。
   const rawSettings = raw['settings'];
 
@@ -306,7 +431,7 @@ export function normalizeBeadsSave(raw: unknown, levelCount: number): NormalizeR
     currentLevel: current ?? 1,
     sprintBestScore: num(raw['sprintBestScore'], 0),
     sprintBestStage: num(raw['sprintBestStage'], 0),
-    starsByLevel: normalizeStars(rawStars, boundedCount),
+    starsByUid: ledger.stars,
     settings: normalizeSettings(rawSettings),
   };
 
@@ -316,8 +441,10 @@ export function normalizeBeadsSave(raw: unknown, levelCount: number): NormalizeR
     raw['currentLevel'] !== save.currentLevel ||
     raw['sprintBestScore'] !== save.sprintBestScore ||
     raw['sprintBestStage'] !== save.sprintBestStage ||
-    !Array.isArray(rawStars) ||
-    !sameNumbers(rawStars as number[], save.starsByLevel) ||
+    // 星账侧的 changed 全部由 `normalizeStarLedger` 裁定（形态 ≠ v5 直读、孤儿丢弃、缺条目、
+    // 逐键钳正任一即真）；旧形态键未清除也必须报真，否则幂等臂无法自证（DEC-5 规则 4）。
+    ledger.changed ||
+    staleKeys.length > 0 ||
     rawSettings === undefined ||
     !isRecord(rawSettings) ||
     // **B1-Q3 `changed` 自我比较怪癖修正**（EP11-S5）：旧写法将 `normalizeSettings(raw)`
@@ -329,7 +456,64 @@ export function normalizeBeadsSave(raw: unknown, levelCount: number): NormalizeR
     // 等值 ⇒ 恰好是要报 changed 的场景（本处不需要归一后的类型，比较的就是原始脏值）。
     !settingsEqual(rawSettings as unknown as BeadsSettings, save.settings);
 
-  return { save, changed };
+  return { save, changed, staleKeys };
+}
+
+/**
+ * **展平**（uid 账 → 下标稠密数组）：ADR-0034 **DEC-3** 第一条转换，
+ * 唯一调用点 = `beads-game.ts` BOOT 读档边界（每启动 ≤1 次）。
+ * 运行时（7 处按下标取数与全部视图）继续吃下标数组 ⇒ 身份**不进热路径**
+ * （`control-manifest §2`）；入参已是 `normalizeBeadsSave` 的钳正产物 ⇒ 本函数只投影，
+ * ⛔ 不再钳（双钳 = 两条口径，钳臂 M-7 会失去归因）。
+ */
+export function flattenStars(
+  stars: Readonly<Record<string, number>>,
+  levelKeys: readonly string[],
+): number[] {
+  const out = new Array<number>(levelKeys.length).fill(0);
+  for (let i = 0; i < levelKeys.length; i += 1) {
+    const key = levelKeys[i];
+    if (key === '') continue;
+    const value = stars[key];
+    if (typeof value === 'number' && Number.isFinite(value)) out[i] = value;
+  }
+  return out;
+}
+
+/**
+ * **收拢**（下标数组 → uid 账）：**DEC-3** 第二条转换，唯一调用点 = `_persistProgress()`
+ * （每局 ≤1 次，S8 §2.5「结算写」）。无身份槽（`''`）不入档 ⇒ ⛔ 不发明 token 格式、
+ * 也不污染别的记录。身份唯一性已由生成期断言保证（S-1 断言①），故不存在同键两槽。
+ */
+export function collapseStars(
+  slots: readonly number[],
+  levelKeys: readonly string[],
+): Record<string, number> {
+  const out: Record<string, number> = {};
+  const n = Math.min(slots.length, levelKeys.length);
+  for (let i = 0; i < n; i += 1) {
+    const key = levelKeys[i];
+    if (key === '') continue;
+    out[key] = slots[i];
+  }
+  return out;
+}
+
+/**
+ * 组装写档补丁 = v5 全字段 + **物理删除**旧形态键。
+ *
+ * ⚠ 为何需要本函数（而不是直接 `patch(save)`）：框架 `patch` 浅合并且不删键，
+ * 而 `JSON.stringify` 会**省略值为 `undefined` 的键**（`storage.ts` 的 `JsonStorage.setJSON`）
+ * ⇒ 把 `staleKeys` 逐个置 `undefined` 是当前授权面内唯一能把旧数组从档里物理抹掉、
+ * 又不去改 `packages/framework/src/core/**` 的做法（DEC-1「⛔ 两套并存」的执行腿）。
+ */
+export function toBeadsSavePatch(
+  save: BeadsSave,
+  staleKeys: readonly string[],
+): Partial<BeadsSave> {
+  const out: Record<string, unknown> = { ...save };
+  for (let i = 0; i < staleKeys.length; i += 1) out[staleKeys[i]] = undefined;
+  return out as unknown as Partial<BeadsSave>;
 }
 
 /**

@@ -22,7 +22,8 @@ import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import { BeadsGame } from '../src/game/beads-game.js';
 import { CLEAR_PANEL_DELAY_MS, solverSequenceMs, IDENTITY_CAMERA } from '../src/config/tuning.js';
 import { colorIndexOfChar } from '../src/config/bead-charset.js';
-import type { BeadsLevelRaw } from '../src/config/levels.js';
+// ADR-0034 **DEC-2** 的身份轴：夹具的星账一律从**关卡表**派生（⛔ 硬写本版 token 快照，K-152）。
+import { LEVELS, levelIdentityKeys, type BeadsLevelRaw } from '../src/config/levels.js';
 
 export interface Harness {
   readonly services: GameServices;
@@ -217,6 +218,7 @@ function defaultSwaps(pattern: readonly string[]): [number, number, number, numb
  */
 export function simpleTestLevel(overrides: Partial<BeadsLevelRaw> = {}): BeadsLevelRaw {
   const merged: BeadsLevelRaw = {
+    uid: '',
     id: 90,
     name: '测试关',
     cols: 6,
@@ -228,6 +230,16 @@ export function simpleTestLevel(overrides: Partial<BeadsLevelRaw> = {}): BeadsLe
     pattern: ['123123', '123123', '123123', '123123', '123123'],
     ...overrides,
   };
+  // **身份 token**（ADR-0034 DEC-1/DEC-2）：生产侧恒由生成器注入，⛔ 玩法/转换层不得手写
+  // （`draftToLevel` 就取 `''` = 草案无身份，不入星账）。但**测试夹具代表的是已入关的关**：
+  // 若无身份，星星写档时被 `collapseStars` 跳过 ⇒ 「重启后读到历史星」一类用例集体失真
+  // （红基线实测：finish-panel / stars-tier / stars-total-hud 共 4 例因此假红）。
+  // 故未显式给 `uid` 时，按生成期同形 `L000NN` 从**作者手挑且恒定的 `id`** 派生一枚。
+  // ⚠ 与生产侧禁令不冲突：那条禁的是「运行期拿装配下标 / 存档长度反推身份」（§8-22-④），
+  //   本处是测试数据的**出生即身份**。显式 `overrides.uid`（含 `''` = 故意无身份）恒胜。
+  if (overrides.uid === undefined) {
+    (merged as { uid: string }).uid = `L${String(merged.id).padStart(5, '0')}`;
+  }
   // BeadsLevelRaw 的 swaps/cycleProfile 为 readonly（levels.ts 校验面）；
   // 字面量本体可变，此处绕过 readonly 仅做默认值填充（测试基建）。
   // WXG-T-139 BOOT 装配接线后：**测试关默认 swaps = []（空盘）** —— 既有 284 例
@@ -236,6 +248,28 @@ export function simpleTestLevel(overrides: Partial<BeadsLevelRaw> = {}): BeadsLe
   if (overrides.swaps === undefined) mutable.swaps = defaultSwaps(merged.pattern);
   if (overrides.cycleProfile === undefined) mutable.cycleProfile = 'short';
   return merged;
+}
+
+/**
+ * 位置型星值数组 → **v5 身份账**（ADR-0034 **DEC-1** 形态；夹具换形专用）。
+ *
+ * 轴一律从**关卡表**派生（`levelIdentityKeys`），⛔ 在夹具里硬写 `L00001` 这类本版快照
+ * 字面量（K-152：关表一加关，旧快照就地过期）。产出为**稠密**终态（缺位补 0），
+ * 与 `normalizeBeadsSave` 写回的形状一致 ⇒ 完好档夹具能做到 `changed = false`（幂等臂有牙）。
+ * 无身份槽（`''`）跳过不入账，与运行期 `collapseStars` 同口径。
+ */
+export function starsLedger(
+  values: readonly number[],
+  levels: readonly BeadsLevelRaw[] = LEVELS,
+): Record<string, number> {
+  const keys = levelIdentityKeys(levels);
+  const out: Record<string, number> = {};
+  for (let i = 0; i < keys.length; i += 1) {
+    const key = keys[i]!;
+    if (key === '') continue;
+    out[key] = i < values.length ? values[i]! : 0;
+  }
+  return out;
 }
 
 /**

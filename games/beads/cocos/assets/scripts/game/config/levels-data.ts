@@ -12,6 +12,15 @@
  */
 
 export interface BeadsLevelRaw {
+  /**
+   * 本关的**稳定内容身份** token（ADR-0034 DEC-1/DEC-2 · §6 S-1；判据 = `gdd/save-progress.md` v1.3 §8-22）：
+   * 生成期从 `manifest.entries[].uid` 纯函数派生并注入为记录**首键**（`single`/`boss` = uid 原样如 `L00001`；
+   * `plate` 的第 c 格（c≥2）= `L000NN#c`，1-based 格序，首格不加后缀）。⇒ 它是**存档星账的记账轴**（「这一关
+   * 几星」只取决于它是哪一关），与下面数值 `id`（= 装配下标 + 1，仅展示/几何轴）**解耦**；关表插删调序时
+   * `id` 会变而本字段不动。⛔ 源关卡 JSON 不得手写（生成期拒收：第二真源），也由断言保证全表唯一且与装配
+   * 槽序同命。运行时唯一消费点 = 存档读/写两个边界（`game/save-schema.ts` 归一化与 `BeadsGame` 镜像）。
+   */
+  readonly uid: string;
   readonly id: number;
   /** 内部名（studio 生成串，⛔ 不上屏）。 */
   readonly name: string;
@@ -111,6 +120,7 @@ export const LEVELS_DATA: LevelsData = {
   description: "关卡内容管线目录化真源（P1/P2）。WXG-T-203 pre-release 重置第二批：原 demo 8 关（L00001–L00008）已按用户裁定移出，关表由 beads-studio 生成的盘逐张入关重建；uid 5 位零填充、order 从 1 只追加。字符集与色板口径见 levels-spec §2 / art-bible §3.2。",
   levels: [
     {
+      uid: "L00001",
       id: 1,
       name: "studio-1-f57f",
       cols: 13,
@@ -155,6 +165,7 @@ export const LEVELS_DATA: LevelsData = {
       ],
     },
     {
+      uid: "L00002",
       id: 2,
       name: "studio-3-eddc",
       cols: 10,
@@ -202,6 +213,7 @@ export const LEVELS_DATA: LevelsData = {
       ],
     },
     {
+      uid: "L00003",
       id: 3,
       name: "studio-0-4715",
       cols: 14,
@@ -250,6 +262,7 @@ export const LEVELS_DATA: LevelsData = {
       ],
     },
     {
+      uid: "L00004",
       id: 4,
       name: "studio-2-7e27",
       cols: 12,
@@ -295,6 +308,7 @@ export const LEVELS_DATA: LevelsData = {
       ],
     },
     {
+      uid: "L00005",
       id: 5,
       name: "studio-2-23ca",
       cols: 12,
@@ -344,6 +358,7 @@ export const LEVELS_DATA: LevelsData = {
       ],
     },
     {
+      uid: "L00006",
       id: 6,
       name: "studio-5-f0d3",
       cols: 14,
@@ -386,6 +401,7 @@ export const LEVELS_DATA: LevelsData = {
       ],
     },
     {
+      uid: "L00007",
       id: 7,
       name: "studio-3-90df",
       cols: 14,
@@ -425,6 +441,7 @@ export const LEVELS_DATA: LevelsData = {
       ],
     },
     {
+      uid: "L00008",
       id: 8,
       name: "studio-4-4005",
       cols: 11,
@@ -469,6 +486,7 @@ export const LEVELS_DATA: LevelsData = {
       ],
     },
     {
+      uid: "L00009",
       id: 9,
       name: "studio-3-163c",
       cols: 22,
@@ -535,6 +553,7 @@ export const LEVELS_DATA: LevelsData = {
       title: "曼陀罗",
     },
     {
+      uid: "L00010",
       id: 10,
       name: "photo32-smoke-boss",
       cols: 32,

@@ -270,7 +270,9 @@ describe('EP12-S8 ② normalizeSettings skinId：缺字段 / 非字符串 / 未�
             expect(normalizeSettings({ skinId: id }).skinId).toBe(id);
         }
         expect(normalizeSettings({ skinId: 'cool-violet' }).skinId).toBe('cool-violet');
-        expect(SAVE_VERSION).toBe(4); // debugInfo / beadStyle 判例：逐字段降级无需迁移
+        // WXG-T-344：`SAVE_VERSION` 现为 5，但 **不属本判据**——皮肤字段仍走逐字段降级、
+        // 无需迁移（debugInfo / beadStyle 判例）；4→5 的 bump 由 ADR-0034 DEC-4（星账换制）承担。
+        expect(SAVE_VERSION).toBe(5); // 本例只钉「不为此 bump」的口径：无 skinId 相关迁移体
     });
 });
 

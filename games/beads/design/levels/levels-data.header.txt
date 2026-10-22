@@ -12,6 +12,15 @@
  */
 
 export interface BeadsLevelRaw {
+  /**
+   * 本关的**稳定内容身份** token（ADR-0034 DEC-1/DEC-2 · §6 S-1；判据 = `gdd/save-progress.md` v1.3 §8-22）：
+   * 生成期从 `manifest.entries[].uid` 纯函数派生并注入为记录**首键**（`single`/`boss` = uid 原样如 `L00001`；
+   * `plate` 的第 c 格（c≥2）= `L000NN#c`，1-based 格序，首格不加后缀）。⇒ 它是**存档星账的记账轴**（「这一关
+   * 几星」只取决于它是哪一关），与下面数值 `id`（= 装配下标 + 1，仅展示/几何轴）**解耦**；关表插删调序时
+   * `id` 会变而本字段不动。⛔ 源关卡 JSON 不得手写（生成期拒收：第二真源），也由断言保证全表唯一且与装配
+   * 槽序同命。运行时唯一消费点 = 存档读/写两个边界（`game/save-schema.ts` 归一化与 `BeadsGame` 镜像）。
+   */
+  readonly uid: string;
   readonly id: number;
   /** 内部名（studio 生成串，⛔ 不上屏）。 */
   readonly name: string;

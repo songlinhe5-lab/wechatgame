@@ -245,6 +245,9 @@ describe('E5 · BOOT 校验器拒收分支（沿用 L{id} row{i} col{j} 形态�
 
   it('validateBeadsLevel 会把 swaps 错误并进关卡错误列表（含 L{id} 前缀）', () => {
     const level = {
+      // WXG-T-344（ADR-0034 DEC-1）：已入关记录恒带稳定身份；本例只验 `L{id}` 前缀的错误文案，
+      // token 与 id 同值即够（身份与展示序在本判据里不相干）。
+      uid: 'L00077',
       id: 77,
       name: '缺 swaps',
       cols: 6,

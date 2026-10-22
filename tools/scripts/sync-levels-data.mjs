@@ -67,6 +67,8 @@
  *   ⑤ 声明了 `DEMO_LEVEL_COUNT` 的游戏 ⇒ 该值必须 == manifest 当前关数（WXG-T-231 门禁⑤）
  *   ⑥ 目录模式且该游戏有 `difficulty.ts` ⇒ 同类内 `DI` 无退化（可排出严格序；门禁⑥/G6，WXG-T-266）
  *   ⑦ 目录模式且该游戏 tuning 声明 `NORMAL_STEPS_MIN` ⇒ 普通关 `steps` 落区间 / boss 高于阈值 / 首关豁免（门禁⑦，2026-10-10）
+ *   ⑨ 目录模式 ⇒ 每条关卡记录**自带稳定身份** `uid`（ADR-0034 §6 S-1 · DEC-1/DEC-2；判据 = `save-progress v1.3 §8-22`）：
+ *     token 全表唯一（plate 逐格互异）且序 == `order` 展开序；身份 = 存档记账轴，与数值 `id`（装配下标）解耦
  * 前三条是 K-031 的结构性补丁：**只要游戏加了关卡数据就会被强制登记**。
  * ⇒ ⑥ 需引游戏侧 TS 单一真源 ⇒ `levels:sync`/`levels:check` 带 `--import=./tools/scripts/lib/ts-js-resolve.mjs` 钩子运行。
  *
@@ -330,6 +332,84 @@ export function assertNoSourceTitle(gameName, file, obj) {
     );
 }
 
+// ─────────────────── 关卡稳定身份通道（ADR-0034 DEC-1 / DEC-2 · §6 S-1）───────────────────
+
+/**
+ * 身份 token 规则（**manifest uid 的纯函数派生，⛔ 不是第二真源**，ADR-0034 DEC-1）：
+ *   · `single` / `boss` → uid 原样（如 `L00001`）；
+ *   · `plate` 的第 c 格（c ≥ 2）→ `L000NN#c`（c = 该 entry 展开内的 **1-based 格序**，首格不加后缀）。
+ * 粒度 = 「装配槽」而非「文件」：一个 plate entry 占多槽，一格一星才谈得上「这一关几星」。
+ * @param {string} uid manifest 里的关卡唯一 id
+ * @param {number} cellOrdinal 1-based 格序（single/boss 恒为 1）
+ * @returns {string}
+ */
+export function identityToken(uid, cellOrdinal = 1) {
+  return cellOrdinal <= 1 ? uid : `${uid}#${cellOrdinal}`;
+}
+
+/** 把身份注入为记录**首键**（产物里 `uid` 恒为每条记录第一行 ⇒ 字节序稳定、diff 可读）。 */
+function withIdentity(rec, token) {
+  if ('uid' in rec)
+    throw new Error(
+      `${gameNameOf(rec)}: 源关卡记录自带 uid=${JSON.stringify(rec.uid)} —— 身份由生成期从 manifest uid 派生，` +
+      '⛔ 不得由内容手写（否则 = 第二真源，§8-22-①）',
+    );
+  return { uid: token, ...rec };
+}
+
+function gameNameOf(rec) {
+  return rec && rec.name !== undefined ? `L${rec.id}` : '关卡记录';
+}
+
+/**
+ * S-1 生成期断言①②（判据源 = `design/gdd/save-progress.md` v1.3 **§8-22-①②**；ADR-0034 §6 S-1）。
+ * 纯函数（无 IO、L4 确定性）⇒ 可 `node --test` 直测；由 `expandEntries` 调用 ⇒ `levels:sync` 与
+ * `levels:check` 两条路径都咬得住（K-031：门禁必须对「实际生成」生效，不是对人写的清单）。
+ *
+ *  ① **token 全表唯一**（plate 逐格互异的直接体现）；
+ *  ② **token 序 == `order` 展开序** —— 期望值由 `uidSpans`（uid → 装配槽区间）**独立重述** DEC-1 规则导出，
+ *     与注入路径（`identityToken`）互不参照 ⇒ 任一路径被改坏即红（变异自证 M-1 打①、M-2 打②，
+ *     两臂可分别归因）。
+ *
+ * ③「一关恰属一章」不在此重复实现：现成腿 = `assembleArcs` 的 `uid 被多章引用` 断言，
+ *   其回归自证（新通道没把老守卫弄哑）落在 `sync-levels-data.test.mjs`（变异自证 M-3）。
+ *
+ * @param {string} gameName
+ * @param {string[]} tokens 与 `levels` 同序的身份 token
+ * @param {Map<string,{start:number,end:number}>} uidSpans `expandEntries` 构造的 uid → 1-based 闭区间
+ */
+export function assertLevelIdentities(gameName, tokens, uidSpans) {
+  // 断言①：全表唯一（先查 ⇒ 后缀丢失类变异归因到①，不误报成②）
+  const seen = new Set();
+  for (let i = 0; i < tokens.length; i++) {
+    if (seen.has(tokens[i]))
+      throw new Error(
+        `${gameName}: 身份 token 重复 ${JSON.stringify(tokens[i])}（第 ${i + 1} 槽）—— ` +
+        'S-1 断言① 要求全表唯一、plate 逐格互异（ADR-0034 DEC-1；§8-22-①）',
+      );
+    seen.add(tokens[i]);
+  }
+  // 断言②：独立导出「第 i 槽应该是谁」，与注入的 token 数组逐位对账
+  const expected = [];
+  for (const [uid, span] of uidSpans) {
+    const slots = span.end - span.start + 1;
+    for (let j = 1; j <= slots; j++) expected.push(j === 1 ? uid : `${uid}#${j}`);
+  }
+  if (tokens.length !== expected.length)
+    throw new Error(
+      `${gameName}: 身份 token 条数 ${tokens.length} ≠ 装配槽数 ${expected.length} —— ` +
+      '每条关卡记录必须恰有一个身份（S-1 断言②；§8-22-②）',
+    );
+  for (let i = 0; i < expected.length; i++) {
+    if (tokens[i] !== expected[i])
+      throw new Error(
+        `${gameName}: 身份对位失败 —— 第 ${i + 1} 槽注入 ${JSON.stringify(tokens[i])}，` +
+        `而 order 展开序派生值 = ${JSON.stringify(expected[i])}（S-1 断言②：` +
+        '身份序须与装配槽序一致 ⇒「第 i 格是谁」永远可答，⛔ 需要第二条换算路径才能对位，§8-22-②）',
+      );
+  }
+}
+
 /**
  * CH-S3：章 `title` 注入到该章**收尾关记录**（`levels[]` 末项 uid 的最后一个展开槽 = plate 末 cell；
  * 追加在对象末尾 ⇒ 产物 diff 仅该记录一行）。纯函数（无 IO）⇒ 可 `node --test` 直测。
@@ -347,7 +427,8 @@ export function injectChapterTitles(levels, chapter, uidSpans) {
  * 目录模式装配内核（关卡内容管线 P1 + 大关层共用）：读 manifest + palette.json + singles/plates，
  * 按 entry.order 展开成与旧单文件**同形同序**的 levels 数组。
  * 装配即断言（任一不成立 throw ⇒ --check/main 硬红，不静默报绿，K-031）：
- *   order 连续 1..N｜uid 唯一｜引用文件存在｜singles/+plates/ 无孤儿文件｜定价溯源与 time 一致。
+ *   order 连续 1..N｜uid 唯一｜引用文件存在｜singles/+plates/ 无孤儿文件｜定价溯源与 time 一致｜
+ *   身份 token 全表唯一且与装配槽序同命（S-1 断言①②，ADR-0034 DEC-1）。
  * 附带 `uidSpans`：uid → 装配后 1-based 闭区间 [start,end]（plate 占多槽）——大关 levelRefs 的
  * **唯一**换算来源，⛔ 不得另行重数 uid（第二索引 = 第二真源）。
  */
@@ -359,6 +440,7 @@ function expandEntries(game) {
   const uids = new Set();
   const referenced = new Set();
   const levels = [];
+  const tokens = [];
   const uidSpans = new Map();
   entries.forEach((e, i) => {
     // order：唯一且严格递增（允许退役留空洞，spec §1.2 retired 占位）
@@ -384,10 +466,23 @@ function expandEntries(game) {
       else assertNoSourceTitle(game.name, e.file, obj);
     }
     const start = levels.length + 1;
-    if (e.kind === 'plate') for (const c of obj.cells) levels.push(stripDevFields(c)); // P2 填；P1 无 plate
-    else levels.push(stripDevFields(obj));
+    // S-1（ADR-0034 DEC-1 / DEC-2）：每条关卡记录自带稳定身份 token（= 存档记账轴，与 `id` 轴解耦）。
+    // plate 按 1-based 格序逐格派生（首格无后缀、c≥2 加 `#c`）⇒ 「一格一星」有唯一可记名。
+    if (e.kind === 'plate') {
+      obj.cells.forEach((c, ci) => {
+        const token = identityToken(e.uid, ci + 1);
+        levels.push(withIdentity(stripDevFields(c), token));
+        tokens.push(token);
+      });
+    } else {
+      const token = identityToken(e.uid, 1);
+      levels.push(withIdentity(stripDevFields(obj), token));
+      tokens.push(token);
+    }
     uidSpans.set(e.uid, { start, end: levels.length, kind: e.kind, pack: e.pack });
   });
+  // S-1 断言①②（§8-22-①②）：在装配当场一次性对账 ⇒ levels:sync / levels:check 两路同拦。
+  assertLevelIdentities(game.name, tokens, uidSpans);
   for (const sub of ['singles', 'plates']) {
     const d = join(game.levelsDir, sub);
     if (!isDir(d)) continue;
@@ -872,6 +967,9 @@ function printHelp() {
   ⑦ 目录模式且该游戏声明 NORMAL_STEPS_MIN ⇒ 普通关 steps 落区间、boss steps≥BOSS_STEPS_MIN、首关教学豁免（门禁⑦）
   ⑧ 目录模式且有 chapters/ ⇒ 章断言集（§11.5；WXG-T-336/337）：order/open 前缀｜uid 恰一归属｜
      boss=末项｜同章同 pack｜槽位 ≤ WALL_CAPACITY｜showcase 齐备且资产存在｜源关卡 ⛔ 手写 title（断言 8）
+  ⑨ 目录模式 ⇒ 每条关卡记录自带身份 token（ADR-0034 S-1；判据 = save-progress v1.3 §8-22）：
+     ① token 全表唯一（plate 逐格互异，c≥2 加 #c） ② token 序 == order 展开序
+     ③「一关恰属一章」沿用 ⑧ 的现成腿（新通道不得把它弄哑 = 回归自证）
 
 真源：各游戏 design/gdd/systems-index.md §3（冻结常量）。`);
 }
