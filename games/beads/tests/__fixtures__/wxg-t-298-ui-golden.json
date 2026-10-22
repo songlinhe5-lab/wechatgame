@@ -4,7 +4,7 @@
   "unit": "UI-02",
   "spec": "docs/architecture/ui-architecture-beads.md §5 / §9.4 / §12",
   "codeBaseline": "bd964a0",
-  "capturedFrom": "3609dcb · 选关页空带大关名（WXG-T-340）",
+  "capturedFrom": "3499f4e · 工作树（WXG-T-298）",
   "fixture": {
     "viewport": {
       "width": 750,
@@ -31,9 +31,9 @@
         "overlay": "none",
         "phase": "playing"
       },
-      "total": 3661,
+      "total": 3662,
       "kinds": {
-        "circle": 965,
+        "circle": 966,
         "line": 295,
         "rect": 481,
         "text": 6,
@@ -41,7 +41,7 @@
         "polygon": 1912,
         "unclip": 1
       },
-      "sha": "229646ec1d3e5673248350894f15aa6fcabe4620b254a61edb54ba7339d94013",
+      "sha": "a95cbbee8c46b26eff7aea7941d03cc55e117c9e667a7b739a1f742f8ae53d22",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -74,9 +74,9 @@
         "overlay": "levels",
         "phase": "playing"
       },
-      "total": 5084,
+      "total": 5085,
       "kinds": {
-        "circle": 1365,
+        "circle": 1366,
         "line": 295,
         "rect": 692,
         "text": 18,
@@ -84,7 +84,7 @@
         "polygon": 2712,
         "unclip": 1
       },
-      "sha": "5c668385db7928043a2eda5edac94b985f05d95a29d371403db89df6565affa1",
+      "sha": "b08fe61e7378162a5a7e72f7873aca5bd2b530712b9d18cc0d14f19dbdb6d9c7",
       "background": "#F1E8D8",
       "transform": null
     },
