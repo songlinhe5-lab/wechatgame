@@ -33,6 +33,8 @@ import {
   settingsContentLabel,
 } from './settings-content';
 import { pausePanelLayout, type PanelButton } from '../systems/pause-panel';
+import { buyConfirmLayout } from '../systems/buy-confirm-panel';
+import { COPY_TOKENS } from '../config/copy-tokens';
 import { failPanelLabel, failPanelLayout } from '../systems/fail-panel';
 import { CONFETTI_COLORS, STAR_GOLD, withAlpha, type BeadInks, type BeadsPalette } from './palette';
 import { CLEAR_PANEL_TITLE, clearPanelLabel, clearPanelLayout } from '../systems/clear-panel';
@@ -113,6 +115,7 @@ export function buildBeadsView(
   drawConfetti(builder, snap, true); // G6 FG 8 枚：「近处彩带」；入禁飞带跳过绘制（不淡出，是不画）
   drawFinishPanel(builder, snap, palette);
   drawPausePanel(builder, snap, palette);
+  drawBuyConfirm(builder, snap, palette);
   drawFailPanel(builder, snap, palette);
   drawSprintSettle(builder, snap, palette);
   drawBanners(builder, snap, palette);
@@ -183,6 +186,57 @@ function drawPausePanel(
     } else {
       drawButton(builder, palette, bx, dy, bw, bh, 'paper', UI_CONTAINER.radiusCard, label, UI_FONT.panelButton, pressed);
     }
+  }
+}
+
+// ─────────────────────────────────────── 道具购买确认（ux-spec §3.7）
+
+/**
+ * 豆子购买确认弹窗（§3.6 v1.80 唯一出口）。**静态出图、无进出场**（与 `ux-spec §5`
+ * 弹窗动效表的差异已登记 `[待 art]`）；几何与命中同走 `buyConfirmLayout()`。
+ *
+ * 只读：价从快照来（`snap.buyConfirmPrice`）、文案从 `COPY_TOKENS` 来、几何从布局来。
+ */
+function drawBuyConfirm(builder: RenderModelBuilder, snap: BeadsSnapshot, palette: BeadsPalette): void {
+  const price = snap.buyConfirmPrice;
+  if (price <= 0) return;
+  const layout = buyConfirmLayout();
+  const geo = drawModalFrame(builder, {
+    panel: layout.panel,
+    progress: 1,
+    scrimRgb: UI_SCRIM.canvas,
+    scrimAlpha: UI_SCRIM.alpha,
+    palette,
+    radius: UI_CONTAINER.radiusPanel,
+    shadowAlpha: UI_CONTAINER.shadowAlphaPanel,
+  });
+
+  builder.text(geo.cx, layout.titleY, COPY_TOKENS.powerup_buy_confirm_title.replace('{n}', `${price}`), {
+    fill: palette.text,
+    font: UI_FONT.label,
+    align: 'center',
+    baseline: 'middle',
+  });
+
+  for (const button of layout.buttons) {
+    const bw = button.rect.xMax - button.rect.xMin;
+    const bh = button.rect.yMax - button.rect.yMin;
+    const bx = button.rect.xMin;
+    const by = button.rect.yMin;
+    const primary = button.id === 'buy-confirm';
+    drawButton(
+      builder,
+      palette,
+      bx,
+      by,
+      bw,
+      bh,
+      primary ? 'wood' : 'paper',
+      primary ? UI_CONTAINER.radiusWood : UI_CONTAINER.radiusCard,
+      primary ? COPY_TOKENS.btn_confirm_label : COPY_TOKENS.btn_cancel_label,
+      UI_FONT.panelButton,
+      snap.pressedButton === button.id,
+    );
   }
 }
 

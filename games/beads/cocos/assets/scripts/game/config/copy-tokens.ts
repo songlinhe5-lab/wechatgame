@@ -38,4 +38,14 @@ export const COPY_TOKENS = Object.freeze({
      * 退役 = **入口退役**，非字面作废：`levels` overlay 与代码按 Q5① **保留不删** ⇒ 其钮/标题仍读本值。
      */
     btn_levels_label: '选关',
+    /**
+     * `tokens.md §7` **新增·[待 art 确认]**（2026-10-22 · WXG-T-351 落码批草案）：
+     * 道具购买确认弹窗标题。`{n}` = 单价（`POWERUP_BUY_PRICE_*`），**渲染期替换**，余字不改。
+     * 措辞依据：货币对外名 =「豆子」（用户 2026-10-22 拍板）⇒ 不写「金币 / 币」。
+     */
+    powerup_buy_confirm_title: '用 {n} 豆子再用一次？',
+    /** `tokens.md §7` **新增·[待 art 确认]**（同上）：确认类弹窗主钮。 */
+    btn_confirm_label: '确定',
+    /** `tokens.md §7` **新增·[待 art 确认]**（同上）：确认类弹窗次钮（点板外同义）。 */
+    btn_cancel_label: '取消',
 } as const);

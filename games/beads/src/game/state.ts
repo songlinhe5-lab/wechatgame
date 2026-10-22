@@ -224,6 +224,11 @@ export interface BeadsSnapshot {
   powerupFreeUses: Record<PowerupType, number>;
   /** One-shot light hint under the powerup band (over-limit tap only, §2.6). */
   powerupHint: string;
+  /**
+   * 道具购买确认弹窗（`ux-spec §3.7`，§3.6 v1.80 豆子出口）：**>0 = 打开**，值为该型单价
+   * （20/30/45，视图直接印在标题里）；`0` = 关闭。**只读**：开关一律由 game 侧写。
+   */
+  buyConfirmPrice: number;
 
   /** S7 结算·过关面板（`ux-spec §3.4`）：可见性 + 入/出进度 + 是否接受点击。 */
   clearPanelVisible: boolean;
@@ -500,6 +505,7 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
       solverRandom: POWERUP_FREE_USES,
     },
     powerupHint: '',
+    buyConfirmPrice: 0,
     clearPanelVisible: false,
     clearPanelProgress: 0,
     clearPanelInteractive: false,

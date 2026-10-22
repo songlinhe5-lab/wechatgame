@@ -1164,7 +1164,7 @@ describe('设置态遮罩 α 分列 · ux §3.3「遮罩」条 + 工作项④：
         expect(SETTINGS_SCRIM_ALPHA).toBeLessThan(PANEL_SCRIM_ALPHA);
     });
 
-    it('静态门：`ui-theme` + `modal-frame` 收拢后 scrim 消费点穷尽 = 3 处纸面板框 + 2 处纯遮罩 + 1 处 DEBUG 覆层', () => {
+    it('静态门：`ui-theme` + `modal-frame` 收拢后 scrim 消费点穷尽 = 4 处纸面板框 + 2 处纯遮罩 + 1 处 DEBUG 覆层', () => {
         const vm = SRC('view/view-model.ts');
         const frameSites = vm.match(/drawModalFrame\(builder, \{/g) ?? [];
         const scrimSites = vm.match(/drawModalScrim\(builder, UI_SCRIM\.canvas, UI_SCRIM\.alpha\)/g) ?? [];
@@ -1174,10 +1174,11 @@ describe('设置态遮罩 α 分列 · ux §3.3「遮罩」条 + 工作项④：
         // 收拢后对局面板侧⛔ 不得再出现硬拼 rgba（RGB 单源 = ui-theme::UI_SCRIM.canvas）。
         expect(vm).not.toMatch(/rgba\(\$\{PANEL_SCRIM_RGB/);
 
-        expect(frameSites.length).toBe(3); // 暂停（动画）/ 过关 / 失败 = 纸面板三件
+        // 暂停（动画）/ 过关 / 失败 / **购买确认（静态，WXG-T-351）** = 纸面板四件
+        expect(frameSites.length).toBe(4);
         expect(scrimSites.length).toBe(2); // 冲刺结算 / 全通关 = 纯遮罩（底板构成不同，不并入纸面板）
         expect(settingsSites.length).toBe(1); // 唯一设置态消费点 = drawPausePanel
-        expect(panelAlphaSites.length).toBe(2); // 过关 / 失败静止态
+        expect(panelAlphaSites.length).toBe(3); // 过关 / 失败静止态 + 购买确认（静态常 α）
         expect(debugOverlay.length).toBe(1); // DEBUG 覆层已搬入 debug-layer（UI-24）
         // 穷尽：view-model 内不得再有裸 `scrimFill`（全部走 ModalFrame；覆层已上楼）。
         const allScrimFill = vm.match(/scrimFill\(UI_SCRIM\.canvas/g) ?? [];

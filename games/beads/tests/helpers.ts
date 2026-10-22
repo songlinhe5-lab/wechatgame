@@ -20,7 +20,7 @@ import {
 } from '@wxgame/framework';
 import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import { BeadsGame } from '../src/game/beads-game.js';
-import { CLEAR_PANEL_DELAY_MS, solverSequenceMs, IDENTITY_CAMERA } from '../src/config/tuning.js';
+import { CLEAR_PANEL_DELAY_MS, solverSequenceMs, IDENTITY_CAMERA, type PowerupType } from '../src/config/tuning.js';
 import { colorIndexOfChar } from '../src/config/bead-charset.js';
 // ADR-0034 **DEC-2** 的身份轴：夹具的星账一律从**关卡表**派生（⛔ 硬写本版 token 快照，K-152）。
 import { LEVELS, levelIdentityKeys, type BeadsLevelRaw } from '../src/config/levels.js';
@@ -71,6 +71,10 @@ export interface HarnessOptions {
   onStaminaRefill?: () => void;
   /** 透传 `BeadsGameOptions.onMenuRequest`（回主菜单意图上报，core-loop v2.3）。 */
   onMenuRequest?: () => void;
+  /** 透传 `BeadsGameOptions.onPowerupPurchase`（§3.6 v1.80 豆子购买扣款腿）。 */
+  onPowerupPurchase?: (type: PowerupType) => boolean;
+  /** 透传 `BeadsGameOptions.canWatchStaminaAd`（§3.14 v1.80 广告加心日限闸门）。 */
+  canWatchStaminaAd?: () => boolean;
 }
 
 export function createBeadsHarness(options: HarnessOptions = {}): Harness {
@@ -101,6 +105,8 @@ export function createBeadsHarness(options: HarnessOptions = {}): Harness {
     ...(options.canStartRun ? { canStartRun: options.canStartRun } : {}),
     ...(options.onStaminaRefill ? { onStaminaRefill: options.onStaminaRefill } : {}),
     ...(options.onMenuRequest ? { onMenuRequest: options.onMenuRequest } : {}),
+    ...(options.onPowerupPurchase ? { onPowerupPurchase: options.onPowerupPurchase } : {}),
+    ...(options.canWatchStaminaAd ? { canWatchStaminaAd: options.canWatchStaminaAd } : {}),
   });
 
   const emitted: { type: string; payload: unknown }[] = [];

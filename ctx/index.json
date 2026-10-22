@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4630,
       "lines": 159,
-      "sha256": "f64089a6dfbb5d28f328d484a426d7756bb41ab20b24557ba821fd5572046e13",
+      "sha256": "629108fd9c79fbde77765019a74c4fde34973d872992aa1b0c78a38506178dc9",
       "tier": "normal",
       "sections": [
         {
@@ -377,7 +377,7 @@
           "startLine": 1,
           "endLine": 160,
           "tokens": 4617,
-          "summary": "生成：2026-10-22 · 由 tools/scripts/build-context-index.mjs 自动生成",
+          "summary": "生成：2026-10-23 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
             "BUDGET",
@@ -13255,17 +13255,17 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 8502,
-      "lines": 173,
-      "sha256": "64cbed072f36d16d0f88de2fdc985a32411aa93accade834a26070cbae778beb",
+      "tokens": 8691,
+      "lines": 175,
+      "sha256": "e5472d0b2cde86e9b787afaa4dfbe6c4e2441550ed05d4df58a4bef947956658",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads UI 架构（View / ViewModel / Presenter + 公共基础）",
           "level": 1,
           "startLine": 1,
-          "endLine": 174,
-          "tokens": 8483,
+          "endLine": 176,
+          "tokens": 8672,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -13435,8 +13435,8 @@
           "anchor": "§12 TODO 拆分",
           "level": 2,
           "startLine": 132,
-          "endLine": 170,
-          "tokens": 4238,
+          "endLine": 172,
+          "tokens": 4426,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -13447,8 +13447,8 @@
         {
           "anchor": "§13 待你拍板",
           "level": 2,
-          "startLine": 171,
-          "endLine": 174,
+          "startLine": 173,
+          "endLine": 176,
           "tokens": 323,
           "summary": "D1–D5 均已裁定（见 [ADR-0032 §5](adr/ADR-0032-beads-ui-architectur",
           "keywords": [
@@ -25409,17 +25409,17 @@
     },
     {
       "path": "games/beads/design/art/proposals/ui-style-redesign/tokens.md",
-      "tokens": 3515,
-      "lines": 122,
-      "sha256": "556fbff628550357362b5688d4ee30e7bd409d19b03fbe57e8f203ba398e422e",
+      "tokens": 3797,
+      "lines": 125,
+      "sha256": "430e978ceba4c69e0638f55bbdca4f4f0bf93c4b77dd1d44fc337a273c751772",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§设计令牌表（tokens）· 「暖纸拼豆台」 · WXG-T-265 · **定稿**",
           "level": 1,
           "startLine": 1,
-          "endLine": 123,
-          "tokens": 3491,
+          "endLine": 126,
+          "tokens": 3772,
           "summary": "定稿声明（2026-10-07）：用户已裁 D-2 = 甲案「暖纸拼豆台」⇒ 本表全部取值定稿，不再是提案值；art-b",
           "keywords": [
             "tokens",
@@ -25521,8 +25521,8 @@
           "anchor": "§7 文案令牌（copy tokens）",
           "level": 2,
           "startLine": 106,
-          "endLine": 123,
-          "tokens": 1197,
+          "endLine": 126,
+          "tokens": 1479,
           "summary": "文案也走令牌：UI 侧不散落字面，落码一律读本表（与「颜色进 palette.ts」同一纪律）。",
           "keywords": [
             "copy",
@@ -42456,17 +42456,17 @@
     },
     {
       "path": "games/beads/design/ux/ux-spec.md",
-      "tokens": 40489,
-      "lines": 449,
-      "sha256": "0c12276ed285dfc51e3d350f852b67755e38c172d69f9bd3eff34b6fae00e903",
+      "tokens": 40913,
+      "lines": 464,
+      "sha256": "44d6628d331b28589028f9af9ed447f18faa07a507f3f92e96b022894e008a29",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§UX 规格（UX Spec）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 450,
-          "tokens": 40480,
+          "endLine": 465,
+          "tokens": 40904,
           "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.22 · 任务号 WXG-T-295（v1.22 = §4/",
           "keywords": [
             "§4",
@@ -42509,8 +42509,8 @@
           "anchor": "§3 关键界面线框（750×1334，坐标 y 向上，来源 §3.1 布局带）",
           "level": 2,
           "startLine": 63,
-          "endLine": 179,
-          "tokens": 4847,
+          "endLine": 194,
+          "tokens": 5271,
           "summary": "",
           "keywords": [
             "§3.1",
@@ -42577,7 +42577,7 @@
           "level": 3,
           "startLine": 154,
           "endLine": 176,
-          "tokens": 610,
+          "tokens": 645,
           "summary": "",
           "keywords": [
             "结算",
@@ -42599,10 +42599,25 @@
           ]
         },
         {
+          "anchor": "§3.7 道具购买确认（豆子出口，§3.6 v1.80 / WXG-T-351）",
+          "level": 3,
+          "startLine": 180,
+          "endLine": 194,
+          "tokens": 368,
+          "summary": "关内某型道具免费次数用尽后再点该卡（POWERUP_FREE_USES=1）⇒ 弹确认，属模态。",
+          "keywords": [
+            "§3.6",
+            "WXG",
+            "POWERUP_FREE_USES",
+            "道具购买确认",
+            "豆子出口"
+          ]
+        },
+        {
           "anchor": "§4 状态流转 × 输入响应矩阵（QA 直接转用例；与 input-control §2.3 门禁互为镜像）",
           "level": 2,
-          "startLine": 180,
-          "endLine": 253,
+          "startLine": 195,
+          "endLine": 268,
           "tokens": 6036,
           "summary": "提交时基分区（v1.9 新增；镜像 gdd/input-control.md v2.5 §2.1「提交时基表」，上位 A",
           "keywords": [
@@ -42617,8 +42632,8 @@
         {
           "anchor": "§5 交互反馈与动效时长表（权威毫秒值，回写 art-bible §7 占位）",
           "level": 2,
-          "startLine": 254,
-          "endLine": 306,
+          "startLine": 269,
+          "endLine": 321,
           "tokens": 7466,
           "summary": "本次（WXG-T-081）新增三行「教学引导」同时接替 art/assets-spec.md §1.2 hint 行末尾",
           "keywords": [
@@ -42633,8 +42648,8 @@
         {
           "anchor": "§6 首屏留存策略（微信前 10 秒）· WXG-T-081 可执行化重写",
           "level": 2,
-          "startLine": 307,
-          "endLine": 354,
+          "startLine": 322,
+          "endLine": 369,
           "tokens": 2729,
           "summary": "",
           "keywords": [
@@ -42647,8 +42662,8 @@
         {
           "anchor": "§6.1 首 10 秒时间轴（v1.4 随「错位归位」重写；0 文字；引导均为动效，毫秒值见 §5）",
           "level": 3,
-          "startLine": 309,
-          "endLine": 326,
+          "startLine": 324,
+          "endLine": 341,
           "tokens": 812,
           "summary": "玩法前提（v1.4）：L1 开局 = 棋盘全满 + 1 对错位珠（k=1，§3.13 建议值）+ 空托盘（供料关停）。引",
           "keywords": [
@@ -42663,8 +42678,8 @@
         {
           "anchor": "§6.2 首供语义裁定（GAP-02，不可两读）",
           "level": 3,
-          "startLine": 327,
-          "endLine": 340,
+          "startLine": 342,
+          "endLine": 355,
           "tokens": 988,
           "summary": "裁定：采「spawner.reset() 后置 _acc = interval」，不采「_setupLevel 内同步 ",
           "keywords": [
@@ -42679,8 +42694,8 @@
         {
           "anchor": "§6.3 启动路径表（skill §6 要求项，本次补齐）",
           "level": 3,
-          "startLine": 341,
-          "endLine": 354,
+          "startLine": 356,
+          "endLine": 369,
           "tokens": 855,
           "summary": "首次（runs==0） 主菜单（含选关列表）（#1 · v1.14 反转，原「BOOT 直进玩法」作废） 进关后走 §6",
           "keywords": [
@@ -42695,8 +42710,8 @@
         {
           "anchor": "§7 可访问性（对齐 `art/accessibility.md` 与 §3.8）",
           "level": 2,
-          "startLine": 355,
-          "endLine": 368,
+          "startLine": 370,
+          "endLine": 383,
           "tokens": 1123,
           "summary": "触控 UI 控件 ≥88px（TOUCH_MIN）；棋盘/托盘珠命中区=名义外扩 8px、重叠按格心最近（§3.8 v1",
           "keywords": [
@@ -42711,8 +42726,8 @@
         {
           "anchor": "§8 决策记录与裁决项",
           "level": 2,
-          "startLine": 369,
-          "endLine": 450,
+          "startLine": 384,
+          "endLine": 465,
           "tokens": 11186,
           "summary": "已裁定（沿袭）：~~无主菜单两路径（core-loop 判例）~~ v1.7 反转：主菜单恢复（WXG-T-164），启",
           "keywords": [

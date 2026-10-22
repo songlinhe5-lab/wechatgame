@@ -82,6 +82,7 @@ import {
   AD_PLACEHOLDER_HINT_TEXT,
   POWERUP_BUY_DENIED_HINT,
   SOLVER_HINT_MS,
+  powerupBuyPrice,
   SOLVER_MAX_CELLS,
   SOLVER_STAGGER_MS,
   solverSequenceMs,
@@ -111,7 +112,8 @@ import { applyMisplacedToGrid } from './misplaced-assembler';
 import { collectMisplacedGroup } from '../entities/grid';
 import { BeadGrid } from '../entities/grid';
 import { Tray } from '../entities/tray';
-import { PowerupSystem, type MisplacedBead } from '../systems/powerups';
+import { PowerupSystem, type AffectedCell, type MisplacedBead } from '../systems/powerups';
+import { hitBuyConfirm } from '../systems/buy-confirm-panel';
 import { FinishPanel, } from '../systems/finish-panel';
 import { SprintSettlePanel, } from '../systems/sprint-settle';
 import { comboVfxSpec, type ComboVfxKind } from '../view/combo-vfx';
@@ -263,6 +265,11 @@ export class BeadsGame implements Game {
   private readonly _powerups = new PowerupSystem();
   /** Over-limit card tap hint（§2.6 布局 A 占位轻提示；成功使用 / 换关即清）。 */
   private _powerupHint = '';
+  /**
+   * 待确认的豆子购买（`ux-spec §3.7`，§3.6 v1.80 出口）：非 null ⇒ 确认弹窗打开，
+   * 期间**全控件不响应**（模态）；确定才扣豆，取消/板外/换关/重试即清。
+   */
+  private _pendingBuy: PowerupType | null = null;
   /**
    * S7 结算·过关面板（WXG-T-063）。`LEVEL_CLEAR` 由它**等按钮**推进
    * （`ux-spec §4` 流转表），取代此前的「1.4s 自动进下一关」占位。
@@ -555,6 +562,7 @@ export class BeadsGame implements Game {
       get clearPanel() { return self._clearPanel; },
       get finishPanel() { return self._finishPanel; },
       get sprintSettle() { return self._sprintSettle; },
+      get buyConfirmOpen() { return self._pendingBuy !== null; },
     });
     this._panelRouter = new PanelRouter({
       get mode() { return self._mode; },
@@ -730,6 +738,11 @@ export class BeadsGame implements Game {
   /** 超限占位轻提示（'' = 无）。视图从快照读，测试从这里读。 */
   get powerupHint(): string {
     return this._powerupHint;
+  }
+
+  /** 待确认购买的道具型（`null` = 弹窗关闭）。测试从这里读。 */
+  get pendingPowerupBuy(): PowerupType | null {
+    return this._pendingBuy;
   }
 
   get bgmMuted(): boolean {
@@ -1181,32 +1194,63 @@ export class BeadsGame implements Game {
   usePowerup(type: PowerupType): boolean {
     if (this._machine.current !== 'playing') return false;
     const pool = this._misplacedBeads();
-    let outcome = this._powerups.request(type, pool);
+    const outcome = this._powerups.request(type, pool);
     if (outcome.kind === 'exhausted') {
-      // 免费次数用尽 ⇒ **豆子购买**（§3.6 v1.80 唯一出口）。棋盘无错位珠 / 达购买上限 /
-      // 豆子不足 ⇒ 零扣豆、零事件，只落轻提示（沿用「拒用不扣」判例）。
+      // 免费次数用尽 ⇒ **豆子购买**（§3.6 v1.80 唯一出口）：先弹确认（`ux-spec §3.7`），
+      // 此刻**零扣豆、零事件**；确定才走 {@link confirmPowerupBuy}。
       if (pool.length === 0 || !this._powerups.canPurchase(type)) {
         this._powerupHint = POWERUP_BUY_DENIED_HINT;
         return false;
       }
-      if (!this._onPowerupPurchase?.(type)) {
-        this._powerupHint = POWERUP_BUY_DENIED_HINT;
-        return false;
-      }
-      outcome = this._powerups.purchase(type, pool);
-      if (outcome.kind !== 'used') return false;
+      this._powerupHint = '';
+      this._pendingBuy = type;
+      return false;
     }
     if (outcome.kind !== 'used') return false;
-    this._powerupHint = '';
-
-    // G2′（用户 2026-09-17 裁定「甲」）：本帧**只点名不动手** —— 相 A 200ms 闪环期间
-    // 棋盘保持原样，`bead:placed` 与过关判定全部推到相 B 各自到点的那一帧（`_stepSolverFx`）。
-    // 事件载荷 = 点名格（§1.6.2a「affectedCells = 预警高亮的格」）；音频派发（S6）零变化。
-    const named = outcome.affectedCells;
-    this._emit('powerup:used', { type: outcome.type, affectedCells: named });
-    this._fx.startSweep(); // G3 扫光（表现层，不影响裁决）：与 §1.6.2a 解环器归位同帧启动
-    this._armSolverFx(named);
+    this._applyPowerupUse(outcome.type, outcome.affectedCells);
     return true;
+  }
+
+  /**
+   * 确认购买（弹窗「确定」）：扣豆**一次** + 生效**一次**。
+   * 豆子不足 / 本型子限或每关合计上限已满 / 棋盘已无错位珠 ⇒ 关窗 + 轻提示，零扣款零事件。
+   */
+  confirmPowerupBuy(): boolean {
+    const type = this._pendingBuy;
+    this._pendingBuy = null;
+    if (!type || this._machine.current !== 'playing') return false;
+    const pool = this._misplacedBeads();
+    if (pool.length === 0 || !this._powerups.canPurchase(type)) {
+      this._powerupHint = POWERUP_BUY_DENIED_HINT;
+      return false;
+    }
+    if (!this._onPowerupPurchase?.(type)) {
+      this._powerupHint = POWERUP_BUY_DENIED_HINT;
+      return false;
+    }
+    const outcome = this._powerups.purchase(type, pool);
+    if (outcome.kind !== 'used') return false;
+    this._applyPowerupUse(outcome.type, outcome.affectedCells);
+    return true;
+  }
+
+  /** 取消购买（弹窗「取消」/ 点板外）：零副作用关窗。 */
+  cancelPowerupBuy(): void {
+    this._pendingBuy = null;
+  }
+
+  /**
+   * 道具**生效腿**（免费与购买共用，唯一点名落地处）。
+   *
+   * G2′（用户 2026-09-17 裁定「甲」）：本帧**只点名不动手** —— 相 A 200ms 闪环期间棋盘保持原样，
+   * `bead:placed` 与过关判定全部推到相 B 各自到点的那一帧（`_stepSolverFx`）。
+   * 事件载荷 = 点名格（§1.6.2a「affectedCells = 预警高亮的格」）；音频派发（S6）零变化。
+   */
+  private _applyPowerupUse(type: PowerupType, affectedCells: readonly AffectedCell[]): void {
+    this._powerupHint = '';
+    this._emit('powerup:used', { type, affectedCells });
+    this._fx.startSweep(); // G3 扫光（表现层，不影响裁决）：与 §1.6.2a 解环器归位同帧启动
+    this._armSolverFx(affectedCells);
   }
 
   /**
@@ -1816,6 +1860,7 @@ export class BeadsGame implements Game {
   private _resetPowerups(): void {
     this._powerups.reset();
     this._powerupHint = '';
+    this._pendingBuy = null; // 换关 / 重试 / 新局一律关掉购买确认（ux-spec §3.7 闸门）
   }
 
   private _setupLevel(index: number): void {
@@ -1942,6 +1987,14 @@ export class BeadsGame implements Game {
 
   private _routeTap(x: number, y: number): void {
     this._consumedTap = false;
+    // 购买确认弹窗 = **模态**（ux-spec §3.7）：开窗期间其余控件全部不响应，
+    // 「确定」才提交，「取消」或点板外一律零副作用关窗。
+    if (this._pendingBuy) {
+      this._consumedTap = true;
+      if (hitBuyConfirm(x, y) === 'buy-confirm') this.confirmPowerupBuy();
+      else this.cancelPowerupBuy();
+      return;
+    }
     // S2 route 0–3（HUD 控件：缩放 / 齿轮 / 道具卡 / 展开按钮）—— 见 `HudRouter`。
     // 三态：放行（pass）⇒ 继续相位分派；消费（consumed）⇒ 计入 `_consumedTap`；吞掉（swallowed）⇒ 不计消费、不进任何分支。
     const hud = this._hud.route(this._machine.current, x, y);
@@ -2713,6 +2766,8 @@ export class BeadsGame implements Game {
     s.powerupFreeUses.solverPlus = this._powerups.uses.solverPlus;
     s.powerupFreeUses.solverRandom = this._powerups.uses.solverRandom;
     s.powerupHint = this._powerupHint;
+    // 购买确认弹窗（ux-spec §3.7）：0 = 关；>0 = 该型单价，视图直接印进标题。
+    s.buyConfirmPrice = this._pendingBuy ? powerupBuyPrice(this._pendingBuy) : 0;
 
     // S7 结算·过关面板（ux-spec §3.4）：数据 + 动画进度一起进快照，视图只读。
     s.clearPanelVisible = this._clearPanel.visible;

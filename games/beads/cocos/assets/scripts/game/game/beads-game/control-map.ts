@@ -20,6 +20,7 @@ import { hitFailPanel } from '../../systems/fail-panel';
 import { hitFinishPanel, type FinishPanel } from '../../systems/finish-panel';
 import { hitSprintSettle, type SprintSettlePanel } from '../../systems/sprint-settle';
 import { pausePanelLayout, rectContains, type PausePanel } from '../../systems/pause-panel';
+import { hitBuyConfirm } from '../../systems/buy-confirm-panel';
 import type { BeadsPhase, GameMode } from '../state';
 import type { BoardCameraController } from './board-camera-controller';
 import { hitExpandButton, hitGear, hitPowerupCard } from './hit-test';
@@ -45,6 +46,8 @@ export interface ControlMapHost {
   readonly clearPanel: ClearPanel;
   readonly finishPanel: FinishPanel;
   readonly sprintSettle: SprintSettlePanel;
+  /** 购买确认弹窗是否打开（模态：打开时只有它自己的两颗钮可点，ux-spec §3.7）。 */
+  readonly buyConfirmOpen: boolean;
 }
 
 export class ControlMap {
@@ -62,6 +65,8 @@ export class ControlMap {
    * `meta-view::hitTestMeta` 头注口径）。只读、零分配（返回值全是常量串或 `''`）。
    */
   hitUi(x: number, y: number): string {
+    // 购买确认弹窗模态：其余控件一律让位（`ux-spec §3.7`，与 `_routeTap` 顶部同序）。
+    if (this._host.buyConfirmOpen) return hitBuyConfirm(x, y) ?? '';
     const phase = this._host.phase;
     if (phase === 'playing') {
       const zc = this._host.board.zoomHit(x, y);
