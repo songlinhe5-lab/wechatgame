@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 161,
+  "nextId": 162,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -2679,6 +2679,23 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-161",
+      "state": "active",
+      "file": "knowledge/lessons/criteria-measure.md",
+      "category": "判据实测",
+      "title": "「文档值 ≠ 代码值」只是不等，不自动等于「文档落后」；判漂移方向前必须先列该标识的消费点并按被检域检索",
+      "contentHash": "b2362a8692379e804e785f45af106bde02580c6893f3c13bd2f412d1f9ed72ab",
+      "sourceTask": "WXG-T-350",
+      "addedDate": "2026-10-22",
+      "lastAccess": "2026-10-22",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -4067,6 +4084,15 @@
       "kind": "added",
       "ids": [
         "K-160"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-22",
+      "taskId": "WXG-T-350",
+      "kind": "added",
+      "ids": [
+        "K-161"
       ],
       "note": null
     }
