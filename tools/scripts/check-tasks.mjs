@@ -212,6 +212,9 @@ const registeredIds = new Set([...rowIds, ...detailIds, ...archivedIds, ...detai
   if (subjects) {
     // 只匹配 `WXG-T-<数字>` 前缀会漏掉本仓常见的连写署号（`WXG-T-257~260` 区间、
     // `WXG-T-222/268/269` 并列链）——200 笔窗口实测因此放过 281/287 两个未登号，故逐段展开。
+    // 分隔符只认 `~` `/` `、`：全史 788 笔里 en dash / 半角连字符连写零命中（实测），扩字符集会误伤「WXG-T-047 - 说明」。
+    // ponytail: 上限三处——区间跨度 >10 只取两端；`~` 会把区间内未署的号一并算进 cited（当批连续任务才这么写，现册全绿）；
+    // 「在册」只认四处结构面，正文/`### ` 子节里的号不算（K-137 追记）。要让宽窗口跑绿，先把头注披露清单改成每号一行的机器可读格式。
     const cited = new Set();
     for (const m of subjects.matchAll(/WXG-T-(\d+)((?:\s*[~/、]\s*\d+)*)/g)) {
       let prev = Number(m[1]);

@@ -1458,7 +1458,7 @@
       "file": "knowledge/lessons/testing-guard.md",
       "category": "测试守卫",
       "title": "守卫脚本硬编码的目标值与冻结真源脱钩 ⇒ 断言永不触发（假绿守卫）；投放重物前要先实测「守卫能不能红」",
-      "contentHash": "7123b758a21ad0b0e9a86fe866a6e543bc428cb1f1a2311220a2359c62f31cab",
+      "contentHash": "8457bf2d56110f2182ca614463bc0ff739bffc0b5aba6cc6a147a42d7d6a1053",
       "sourceTask": "WXG-T-219",
       "addedDate": "2026-09-27",
       "lastAccess": "2026-09-27",
@@ -2278,7 +2278,7 @@
       "file": "knowledge/lessons/process-ledger.md",
       "category": "流程台账",
       "title": "拆分件写好的「待主理人批准后粘贴」不会自动落地：五批代码已入库，主表与 Epic 宿主表仍搜不到该号",
-      "contentHash": "ec428803be2b74f546b4ebe9ff6f22172b43cadecbdaa98f7b977cc6a38bbcb1",
+      "contentHash": "6330cc7a6322d1ca9c8bc387d3905ea73297e5258d9dffd31a369feefa426067",
       "sourceTask": "WXG-T-284",
       "addedDate": "2026-10-17",
       "lastAccess": "2026-10-17",
@@ -4031,6 +4031,16 @@
       "kind": "updated",
       "ids": [
         "K-089"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-22",
+      "taskId": "WXG-T-349",
+      "kind": "updated",
+      "ids": [
+        "K-089",
+        "K-137"
       ],
       "note": null
     }
