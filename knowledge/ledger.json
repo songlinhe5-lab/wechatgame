@@ -761,7 +761,7 @@
       "file": "knowledge/lessons/process-ledger.md",
       "category": "流程台账",
       "title": "同一台账文件被并发会话同时写时，`git add <整文件>` 会把别人的 WIP 捎进本单提交",
-      "contentHash": "7e548c2852a5f4e9ab63316ef30179a6cde4b94153725c914252c4ddc6473ee8",
+      "contentHash": "8c23937a2ec3d4111b576e0cd936a512903f3429dec505122390431d77f377e8",
       "sourceTask": "WXG-T-097",
       "addedDate": "2026-09-15",
       "lastAccess": "2026-09-15",
@@ -4102,6 +4102,15 @@
       "kind": "updated",
       "ids": [
         "K-161"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-22",
+      "taskId": "WXG-T-353",
+      "kind": "updated",
+      "ids": [
+        "K-045"
       ],
       "note": null
     }
