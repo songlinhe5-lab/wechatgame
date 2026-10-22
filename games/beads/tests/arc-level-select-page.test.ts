@@ -152,4 +152,14 @@ describe('UI-34 空带大关名（[WXG-T-340] · levels-spec §11.4）', () => {
         expect(bare.filter(inBand), '无 chapterTitle ⇒ 不创建空带节点').toHaveLength(0);
         expect(textsOf({ chapterTitle: '曼陀罗' }).filter(inBand), '对照：有值恰一枚').toHaveLength(1);
     });
+
+    it('累计星进度件：有门槛 ⇒ 章名下方一行且在带内；无 ⇒ 不画（WXG-T-346）', () => {
+        expect(textsOf({ chapterTitle: '曼陀罗' }).some((c) => c.text.startsWith('★ ')), '无字段不画').toBe(false);
+        const on = textsOf({ chapterTitle: '曼陀罗', arcStarGot: 18, arcStarNeed: 21 });
+        const title = on.find((c) => c.text === '曼陀罗')!;
+        const bar = on.find((c) => c.text === '★ 18/21')!;
+        expect(bar, '进度件落空带').toBeDefined();
+        expect(inBand(bar), '仍在带内（不进热区、不出带）').toBe(true);
+        expect(bar.y, '在章名之下（y 向上 ⇒ 更小）').toBeLessThan(title.y);
+    });
 });

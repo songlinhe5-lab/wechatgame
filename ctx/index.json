@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4590,
       "lines": 158,
-      "sha256": "cfea42cf32403beae002e431443f520bb2d025d39dd1f226a196410de8a04142",
+      "sha256": "2c7b7b54f84dcdc6a8cf71c0147e76f6a2c59e487bc5b47a061c9fb0017e592e",
       "tier": "normal",
       "sections": [
         {
@@ -41065,17 +41065,17 @@
     },
     {
       "path": "games/beads/design/ux/arc-level-select-spec.md",
-      "tokens": 17185,
-      "lines": 267,
-      "sha256": "03740e6d3e8ca7016313beebe041e5a8ba26c452b7094a51798cf5ce06eda11a",
+      "tokens": 17442,
+      "lines": 268,
+      "sha256": "e940d780f2ed7837e16bcdf345bb0ee5b6bf3fdd4d97c6f8700f69e63e488ba3",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§UX 规格 · 大关选关页（Level Select by Arc · 曾用名「主题选关页」，原文件名 `theme-level-select-spec.md`）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 268,
-          "tokens": 17144,
+          "endLine": 269,
+          "tokens": 17401,
           "summary": "项目：games/beads · 版本 v1.11（2026-10-22 · WXG-T-346）：承接 proposa",
           "keywords": [
             "theme-level-select-spec.md",
@@ -41212,8 +41212,8 @@
           "anchor": "§8 决策记录与待确认项",
           "level": 2,
           "startLine": 227,
-          "endLine": 264,
-          "tokens": 3250,
+          "endLine": 265,
+          "tokens": 3507,
           "summary": "",
           "keywords": [
             "决策记录与待",
@@ -41237,11 +41237,11 @@
           ]
         },
         {
-          "anchor": "§8.2 待确认与已裁条目（均已在 `meta-ui §2.7` 挂 Q 号；号位**不复用**；在用待裁 = TODO-2（TODO-1 已落码 = WXG-T-340）+ **v1.10 新增 TODO-8/9/10（均归 art / tokens / 数值变更单，本批不钉数）**；TODO-5 已裁（10-17）待落码；已裁条目旧文 = 分片 **s8-history**）",
+          "anchor": "§8.2 待确认与已裁条目（均已在 `meta-ui §2.7` 挂 Q 号；号位**不复用**；在用待裁 = TODO-2（TODO-1 已落码 = WXG-T-340）+ **v1.10 新增 TODO-8/9/10/11（均归 art / tokens / 数值变更单，本批不钉数）**；TODO-5 已裁（10-17）待落码；已裁条目旧文 = 分片 **s8-history**）",
           "level": 3,
           "startLine": 251,
-          "endLine": 264,
-          "tokens": 1549,
+          "endLine": 265,
+          "tokens": 1806,
           "summary": "[TODO-1] 页头是否显示大关名 —— 现标题读 btn_levels_label = 选关（copy-tokens",
           "keywords": [
             "meta-ui §2.7",
@@ -41255,8 +41255,8 @@
         {
           "anchor": "§9 ⚠ 落码改动面登记（**已外移分片**）",
           "level": 2,
-          "startLine": 265,
-          "endLine": 268,
+          "startLine": 266,
+          "endLine": 269,
           "tokens": 114,
           "summary": "C-1…C-8 整表（§9）、各批改动叙事与 v1.3（3×3 改版）落码面逐字外移至同目录 arc-level-sel",
           "keywords": [
@@ -88201,9 +88201,9 @@
     },
     {
       "path": "production/epics/epics-beads-ep14.md",
-      "tokens": 11526,
+      "tokens": 11785,
       "lines": 143,
-      "sha256": "73629bb11ad3f12680314268af3f7eb1a0365811e2089c06d8df22ce5b3285c7",
+      "sha256": "a5f16799a8887f514208f9c7f99917e8b6aafdbcb105c48120e419e8b021b73d",
       "tier": "normal",
       "sections": [
         {
@@ -88211,7 +88211,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 144,
-          "tokens": 11504,
+          "tokens": 11763,
           "summary": "任务号 WXG-T-288（P1）· 2026-10-17 · 工程轨（子代理通道不可用，主理人按 my-skills/",
           "keywords": [
             "Epic",
@@ -88255,7 +88255,7 @@
           "level": 2,
           "startLine": 30,
           "endLine": 101,
-          "tokens": 6880,
+          "tokens": 7139,
           "summary": "",
           "keywords": [
             "Story",
@@ -88309,19 +88309,19 @@
           ]
         },
         {
-          "anchor": "§EP14-S4 · 锁态告知与星数 UI 呈现 — **READY**（原 BLOCKED，**复批后转态**）",
+          "anchor": "§EP14-S4 · 锁态告知与星数 UI 呈现 — **READY**（原 BLOCKED，**复批后转态**；⚠ **视图腿已落码 = WXG-T-346，2026-10-22**：两处均画，状态仍 READY，差锁图元与视觉取证两尾）",
           "level": 3,
           "startLine": 52,
           "endLine": 58,
-          "tokens": 629,
+          "tokens": 850,
           "summary": "阻塞：[待规格] = star-collect-rule §6-T1（「全 3★ 开大关」怎么告诉玩家 + 总星数落位/",
           "keywords": [
             "§6",
             "EP14",
             "READY",
             "BLOCKED",
-            "star",
-            "collect"
+            "WXG",
+            "star"
           ]
         },
         {

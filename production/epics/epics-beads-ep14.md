@@ -49,12 +49,12 @@
 - 依赖：**EP13-S1（ARCS 表 `levelRefs`）+ S2（overlay 消费）**先行。
 - **READY 复核（WXG-T-343 · T-2）**：S3 的 **READY 成立且不变** —— 门票归约只吃「章内每槽历史最高星」的**展平视图**（`levelRefs` ∩ `starsByLevel`），与 EP14-S6 的存档键形态**正交**，两者可并行施工（ADR-0034 §6 · S-3 行）。约束重申：门票判据 ⛔ 不得复用 `_arcState` 的 `allCleared`（`beads-shell.ts:692-712`，其判据 = `stars[lv-1] > 0` = 全通关口径），两层各测各的（本 Epic R-3 / ADR-0034 DEC-8）。
 
-### EP14-S4 · 锁态告知与星数 UI 呈现 — **READY**（原 BLOCKED，**复批后转态**）
+### EP14-S4 · 锁态告知与星数 UI 呈现 — **READY**（原 BLOCKED，**复批后转态**；⚠ **视图腿已落码 = WXG-T-346，2026-10-22**：两处均画，状态仍 READY，差锁图元与视觉取证两尾）
 - 阻塞：`[待规格]` = star-collect-rule §6-T1（「全 3★ 开大关」怎么告诉玩家 + 总星数落位/分母形态）。设计轨出 UX 续批后转 READY。
 - 射程预告：选关页锁态变体、HUD 星数位、（可选）大关进度 `n/9 ★3` 型提示。
 - **READY 复核（WXG-T-343 · T-2）：上面那句阻塞已解除**（⛔ 不删旧行，K-053 留档）。依据 = T-1 本批已将 §6-T1 **承接为正式规格**：`ux/arc-level-select-spec.md` **v1.10 §4.1「锁态告知规格」**（采**甲臂** = 只读「~~满星 n/N~~ ⇒ **v1.11 改形态：累计星 已得/门槛**」进度件，~~`n` = 本章 3★ 关数、`N` = 本章清单长~~ ⇒ `n` = 本章累计星、门槛 = 满星容量 − floor(关数 × 2 / 3)，⛔ `DEMO_LEVEL_COUNT`；n<门槛 时前置小锁，**复用既有 `ui_menu_badge_locked`** ⇒ 无新图元 ⇒ 不阻美术批）+ 矩阵新增 **R14**（点橱窗图**仍进该章列表**，⛔ 新增拦截/弹窗/扣心）/ **R15**（门票未达成章内格 = 与 R1 逐字同判据，⛔ 不发明第二种格形）+ `meta-ui v0.5 §8-10` 三臂。**原判据仍不新造**：DoD 改为引用 `meta-ui §8-10` 与 `arc-level-select-spec §4.1`。
 - 转 READY 后仍有两条**非阻塞尾注**：① 若 playtest 后要升级成乙臂（逐关星位点阵）⇒ 需新几何数值，回美术批（= `ux §8.2 TODO-9`）；② T-1 登记的**既存显示面缺口**：`copy-tokens.ts:30` `carousel_progress_label = '闯关进度'` 在册但**零消费** ⇒ 若告知件要用进度措词，接线归本 Story。
-- **v1.11 改判注（WXG-T-346）**：进度件形态从「满星 n/N」改「累计星 已得/门槛」（正本 = `ux/arc-level-select-spec.md` v1.11 §4.1）。壳层字段已同步改名：`arcFullStarGot/arcFullStarTotal` → **`arcStarGot/arcStarNeed`**（`beads-shell.ts` 赋值 = `ticket.starSum / ticket.gate`）；`meta-view.ts` 字段声明同步。⚠ **视图渲染腿仍待**：`meta-view.ts` 该字段注释明写「本版只落数据、视图不画」⇒ 本 Story 状态**维持 READY**，⛔ 判 DONE（K-035）。
+- **v1.11 改判注（WXG-T-346）**：进度件形态从「满星 n/N」改「累计星 已得/门槛」（正本 = `ux/arc-level-select-spec.md` v1.11 §4.1）。壳层字段已同步改名：`arcFullStarGot/arcFullStarTotal` → **`arcStarGot/arcStarNeed`**（`beads-shell.ts` 赋值 = `ticket.starSum / ticket.gate`）；`meta-view.ts` 字段声明同步。~~⚠ **视图渲染腿仍待**：`meta-view.ts` 该字段注释明写「本版只落数据、视图不画」⇒ 本 Story 状态**维持 READY**，⛔ 判 DONE（K-035）~~ ⇒ **视图腿已落码（WXG-T-346 同批，2026-10-22）**：走马灯木牌第二行（复用**在册** `MENU_PLATE_TITLE.line2Off`，关名让位 `line1Off`）+ 选关页空带章名下方（y = 章名中心 − `LEVELS_NAV_H / 2`，派生自既有常量）；件 = `★ n/门槛`，只读零热区，零新常量、零新文案令牌。测试：`tests/menu-plate-title.test.ts`（5 例）+ `tests/arc-level-select-page.test.ts`（9 例）各 +1 视图臂，全绿。**仍维持 READY 的两条尾巴**：① 锁图元未画（字段仅在未达成时创建 ⇒ 件一出现必然 n<门槛，锁恒显 = 零信息量；尺寸/相对位置归 art 批 = `ux §8.2 TODO-11`）；② 视觉取证（harness 走查截图）未采。
 
 ### EP14-S5 · 教学关引导路径 + L1 特判 — BLOCKED
 - 阻塞：`[待规格]` = §6-T2（教学关专门设计引导路径；L1 首次按 1★ 档起步为现建议、未终裁）。

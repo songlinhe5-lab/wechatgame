@@ -194,8 +194,10 @@ export interface MetaViewData {
      * ⚠ **取值归属**（C 拍定）：恒指**阻断该页入口的上一章**（⛔ 被锁页自身：它恒 0★、无色可读）。
      * ⚠ **不创建**：门槛=0 / 首章无阻断 / 门票已达成 / 入口已得 ⇒ 两个字段均为 `undefined`
      * （⛔ 造 `0/0`）——「有进度件」的唯一标志 = `arcStarNeed !== undefined`。
-     * ⚠ **视觉数值待美术批**：文案前缀 / 字号 / x / y / 色 token 仍是 `[TODO]`（`§8.2 TODO-8`）
-     * ⇒ 本版**只落数据、视图不画**（⛔ 工程侧发明版面数值）；渲染侧接上时只读这两个 primitive。
+     * ⚠ **落码读数（WXG-T-346 视图腿）**：两处已渲染——走马灯木牌第二行（`MENU_PLATE_TITLE.
+     * line2Off`，关名让位到 `line1Off`）与选关页空带章名下方（`LEVELS_NAV_H / 2` 派生）；
+     * 数字直拼 `★ n/门槛`（与顶栏 `❤ n/n` 同族，⛔ 新文案令牌）。锁图元未画：字段仅在未达成时
+     * 创建 ⇒ 锁恒真、零信息量；位置与尺寸待 art 批（`§8.2 TODO-11`）。文案前缀 / 字号的视觉微调仍归 art 批（`§8.2 TODO-8`）。
      */
     readonly arcStarGot?: number;
     readonly arcStarNeed?: number;
@@ -1015,19 +1017,32 @@ function drawComingSoonPlate(
     });
 }
 
-/** 木牌上的关序 / 关名。`alpha` ≤ 0 不画。 */
+/** 木牌上的关序 / 关名（有累计星进度件时上移到第一行，进度落第二行）。`alpha` ≤ 0 不画。
+ * `[WXG-T-346]` 进度件：两行槽复用 `MENU_PLATE_TITLE.line1Off/line2Off`（在册常量，零新数值）；
+ * 数字直接拼 `★ n/门槛`，与顶栏 `❤ n/n` 同族（无新文案令牌）。缺省不传 ⇒ 原单行逐字不变。 */
 function drawPlateTitle(
     builder: RenderModelBuilder,
     lv: BeadsLevelRaw,
     g: AnchoredMenuGeo,
     palette: BeadsPalette,
     alpha: number,
+    starGot?: number,
+    starNeed?: number,
 ): void {
     if (alpha <= 0) return;
     const top = g.plateBox.y + g.plateBox.h;
     const seq = `第 ${lv.id} 关`;
     const a = alpha < 1 ? alpha : undefined;
-    if (lv.title) {
+    if (lv.title && starNeed !== undefined) {
+        builder.text(MENU_PLATE.cx, top - MENU_PLATE_TITLE.line1Off, lv.title, {
+            fill: palette.woodEdge, font: UI_FONT.button, align: 'center', baseline: 'middle',
+            ...(a === undefined ? {} : { alpha: a }),
+        });
+        builder.text(MENU_PLATE.cx, top - MENU_PLATE_TITLE.line2Off, `★ ${starGot ?? 0}/${starNeed}`, {
+            fill: palette.textDim, font: UI_FONT.cell, align: 'center', baseline: 'middle',
+            ...(a === undefined ? {} : { alpha: a }),
+        });
+    } else if (lv.title) {
         // (b) 有展示名 ⇒ 只画名字、隐关序（用户 2026-10-21 裁；偏离 v3.7「关序+关名两行」原型）。
         builder.text(MENU_PLATE.cx, top - MENU_PLATE_TITLE.singleOff, lv.title, {
             fill: palette.woodEdge, font: UI_FONT.button, align: 'center', baseline: 'middle',
@@ -1087,7 +1102,7 @@ function drawMenuAnchored(
         builder.blit(MENU_TEXTURES.plate, g.plateBox.x, g.plateBox.y, g.plateBox.w, g.plateBox.h);
         const fade = plateFade(travel);
         if (data.carouselComingSoon === true) drawComingSoonPlate(builder, g, palette, fade[0]);
-        else if (data.carouselLevel !== undefined) drawPlateTitle(builder, data.carouselLevel, g, palette, fade[0]);
+        else if (data.carouselLevel !== undefined) drawPlateTitle(builder, data.carouselLevel, g, palette, fade[0], data.arcStarGot, data.arcStarNeed);
         if (data.carouselPeerComingSoon === true) drawComingSoonPlate(builder, g, palette, fade[1]);
         else if (data.carouselPeer !== undefined) drawPlateTitle(builder, data.carouselPeer, g, palette, fade[1]);
     }
@@ -1314,6 +1329,16 @@ function drawLevelsPage(
         builder.text(DESIGN_W / 2, (LEVELS_GRID_TOP + navTop - LEVELS_NAV_H) / 2, data.chapterTitle, {
             fill: palette.text,
             font: UI_FONT.overlayTitle,
+            align: 'center',
+            baseline: 'middle',
+        });
+    }
+    // `[WXG-T-346]` 累计星进度件（`ux v1.11 §4.1（3）甲臂`）：章名下方一行，只读、零热区。
+    // 位置派生自既有标题带高 `LEVELS_NAV_H / 2`（不新增版面常量）；视觉微调仍归 art 批（`§8.2 TODO-8`）。
+    if (data.arcStarNeed !== undefined) {
+        builder.text(DESIGN_W / 2, (LEVELS_GRID_TOP + navTop - LEVELS_NAV_H) / 2 - LEVELS_NAV_H / 2, `★ ${data.arcStarGot ?? 0}/${data.arcStarNeed}`, {
+            fill: palette.textDim,
+            font: UI_FONT.cell,
             align: 'center',
             baseline: 'middle',
         });

@@ -26,6 +26,13 @@ const texts = (data: MetaViewData) => {
     return b.end().commands.filter((c) => c.kind === 'text').map((c) => (c as { text: string }).text);
 };
 
+const textCmds = (data: MetaViewData) => {
+    const b = new RenderModelBuilder(DESIGN_W, DESIGN_H);
+    b.begin();
+    buildMetaView(b, data, DEFAULT_PALETTE);
+    return b.end().commands.filter((c) => c.kind === 'text') as unknown as { text: string; y: number }[];
+};
+
 afterEach(() => setMenuBitmapResolver());
 
 describe('木牌标题', () => {
@@ -41,6 +48,26 @@ describe('木牌标题', () => {
 
     it('木牌位图未就绪 ⇒ 不画标题（无底面不写字）', () => {
         expect(texts(dataFor(lv, 'pushing'))).not.toContain(`第 ${lv.id} 关`);
+    });
+});
+
+describe('累计星进度件（WXG-T-346 · ux v1.11 §4.1 甲臂）', () => {
+    const named = { ...LEVELS[0]!, title: '曼陀罗' };
+
+    it('有门槛 ⇒ 两行：关名上移，第二行 ★ n/门槛（在册 line1/line2 槽）', () => {
+        setMenuBitmapResolver(() => true);
+        const solo = textCmds(dataFor(named, 'pushing')).find((c) => c.text === '曼陀罗')!;
+        const both = textCmds({ ...dataFor(named, 'pushing'), arcStarGot: 18, arcStarNeed: 21 });
+        const title = both.find((c) => c.text === '曼陀罗')!;
+        const bar = both.find((c) => c.text === '★ 18/21')!;
+        expect(bar, '第二行画出进度').toBeDefined();
+        expect(title.y, '关名让位给第二行').not.toBe(solo.y);
+        expect(bar.y, '进度在关名之下（y 向上 ⇒ 更小）').toBeLessThan(title.y);
+    });
+
+    it('无门槛字段 ⇒ 不画进度件（原单行逐字不变）', () => {
+        setMenuBitmapResolver(() => true);
+        expect(texts(dataFor(named, 'pushing')).some((t) => t.startsWith('★ '))).toBe(false);
     });
 });
 
