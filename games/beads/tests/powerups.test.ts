@@ -15,10 +15,13 @@ import { createRng, type RewardedAdProvider } from '@wxgame/framework';
 import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import {
   AD_PLACEMENTS,
+  POWERUP_BUY_MAX_PER_LEVEL,
+  POWERUP_BUY_MAX_PER_TYPE,
   POWERUP_FREE_USES,
   POWERUP_TYPES,
   SOLVER_PLUS_COUNT,
   SOLVER_RANDOM_COUNT,
+  powerupBuyPrice,
 } from '../src/config/tuning.js';
 import { PowerupSystem, type MisplacedBead } from '../src/systems/powerups.js';
 import {
@@ -372,5 +375,71 @@ describe('S6 §8-10 bead:placed 语义与通关（解环器路径无 slot）', (
     for (const p of placed) expect('slot' in p).toBe(false); // 解环器路径不带 slot
     // 交换完成 ⇒ 零错位 ⇒ level:cleared（cleared-priority）。
     expect(h.count('level:cleared')).toBe(1);
+  });
+});
+
+/**
+ * §3.6 v1.80（WXG-T-351）豆子购买：免费次数用尽后的**唯一出口**。
+ * 判据 = 提案 `bean-currency-economy §7.1`（免费内零扣豆 / 超限零副作用 / 购买记账与免费计数互不污染）。
+ */
+describe('§3.6 v1.80 · 豆子购买（每型 1 次 / 每关合计 2 次）', () => {
+  const pool: MisplacedBead[] = [
+    { row: 0, col: 0, colorIdx: 1 },
+    { row: 0, col: 1, colorIdx: 2 },
+    { row: 0, col: 2, colorIdx: 3 },
+  ];
+
+  function exhausted(): PowerupSystem {
+    const sys = new PowerupSystem();
+    sys.attach(createRng(7));
+    expect(sys.request('solver', pool).kind).toBe('used');
+    expect(sys.request('solver', pool).kind, '免费 1 次已用完').toBe('exhausted');
+    return sys;
+  }
+
+  it('免费次数内不产生购买计数；超限后可购买且不动免费计数', () => {
+    const sys = exhausted();
+    expect(sys.bought('solver'), '免费使用不计入购买').toBe(0);
+    expect(sys.canPurchase('solver')).toBe(true);
+    expect(sys.purchase('solver', pool).kind).toBe('used');
+    expect(sys.bought('solver')).toBe(POWERUP_BUY_MAX_PER_TYPE);
+    expect(sys.freeUses('solver'), '购买不返还免费次数').toBe(0);
+    expect(sys.usedCount, 'C7 扣分口径仍只认免费已用').toBe(1);
+  });
+
+  it('每型子限 1 次、每关合计上限 2 次', () => {
+    const sys = exhausted();
+    expect(sys.purchase('solver', pool).kind).toBe('used');
+    expect(sys.canPurchase('solver'), '该型子限已达').toBe(false);
+    expect(sys.purchase('solver', pool).kind, '超额 ⇒ exhausted（零记账）').toBe('exhausted');
+    expect(sys.bought('solver')).toBe(POWERUP_BUY_MAX_PER_TYPE);
+
+    expect(sys.purchase('solverPlus', pool).kind).toBe('used');
+    expect(sys.canPurchase('solverRandom'), '每关合计 2 次已用尽').toBe(false);
+    expect(sys.purchase('solverRandom', pool).kind).toBe('exhausted');
+  });
+
+  it('棋盘无错位珠 ⇒ 购买零副作用（拒用不扣，同 request 判例）', () => {
+    const sys = exhausted();
+    expect(sys.purchase('solver', []).kind).toBe('empty');
+    expect(sys.bought('solver'), '未记账').toBe(0);
+    expect(sys.canPurchase('solver')).toBe(true);
+  });
+
+  it('reset 同时清零购买计数（关内口径，不入存档）', () => {
+    const sys = exhausted();
+    sys.purchase('solver', pool);
+    expect(sys.bought('solver')).toBe(1);
+    sys.reset();
+    expect(sys.bought('solver')).toBe(0);
+    expect(sys.canPurchase('solver')).toBe(true);
+    expect(sys.freeUses('solver')).toBe(POWERUP_FREE_USES);
+  });
+
+  it('三档单价 = 20 / 30 / 45（§3.6 v1.80 冻结）', () => {
+    expect(powerupBuyPrice('solver')).toBe(20);
+    expect(powerupBuyPrice('solverRandom')).toBe(30);
+    expect(powerupBuyPrice('solverPlus')).toBe(45);
+    expect(POWERUP_BUY_MAX_PER_LEVEL).toBe(2);
   });
 });

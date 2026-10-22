@@ -36,6 +36,10 @@ export interface BeadsMeta extends SaveDocument {
     heartBuysToday: number;
     /** `heartBuysToday` 所属日期键；与今日不同则计数归零。 */
     heartBuysDate: string;
+    /** 当日已看「广告加心」次数（§3.14 v1.80 日限 `HEART_AD_DAILY_LIMIT`）。 */
+    heartAdToday: number;
+    /** `heartAdToday` 所属日期键；与今日不同则计数归零。 */
+    heartAdDate: string;
 }
 
 /** Meta sidecar storage key（与 run 存档分键）。 */
@@ -53,6 +57,8 @@ export function defaultBeadsMeta(): BeadsMeta {
         signinLastDate: '',
         heartBuysToday: 0,
         heartBuysDate: '',
+        heartAdToday: 0,
+        heartAdDate: '',
     };
 }
 
@@ -99,6 +105,8 @@ export function normalizeBeadsMeta(raw: unknown): MetaNormalizeResult {
         signinLastDate: str(raw['signinLastDate'], ''),
         heartBuysToday: int(raw['heartBuysToday'], 0),
         heartBuysDate: str(raw['heartBuysDate'], ''),
+        heartAdToday: int(raw['heartAdToday'], 0),
+        heartAdDate: str(raw['heartAdDate'], ''),
     };
 
     const changed =
@@ -108,7 +116,9 @@ export function normalizeBeadsMeta(raw: unknown): MetaNormalizeResult {
         raw['signinClaims'] !== meta.signinClaims ||
         raw['signinLastDate'] !== meta.signinLastDate ||
         raw['heartBuysToday'] !== meta.heartBuysToday ||
-        raw['heartBuysDate'] !== meta.heartBuysDate;
+        raw['heartBuysDate'] !== meta.heartBuysDate ||
+        raw['heartAdToday'] !== meta.heartAdToday ||
+        raw['heartAdDate'] !== meta.heartAdDate;
 
     return { meta, changed };
 }

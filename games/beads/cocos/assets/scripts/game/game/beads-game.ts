@@ -80,6 +80,7 @@ import {
   normalSettleScore,
   TIMER_URGENT_T,
   AD_PLACEHOLDER_HINT_TEXT,
+  POWERUP_BUY_DENIED_HINT,
   SOLVER_HINT_MS,
   SOLVER_MAX_CELLS,
   SOLVER_STAGGER_MS,
@@ -426,6 +427,10 @@ export class BeadsGame implements Game {
   private readonly _canStartRun?: () => boolean;
   /** 体力回满发奖回调（options.onStaminaRefill；无 shell 时 undefined）。 */
   private readonly _onStaminaRefill?: () => void;
+  /** 广告加心是否还可用（options.canWatchStaminaAd；日限/满心闸门，无 shell 时 undefined ⇒ 不设门）。 */
+  private readonly _canWatchStaminaAd?: () => boolean;
+  /** 道具超限豆子购买闸门（options.onPowerupPurchase；无 shell 时 undefined ⇒ 占位提示）。 */
+  private readonly _onPowerupPurchase?: (type: PowerupType) => boolean;
   /**
    * 跨章推进闸门（options.canAdvanceAcrossArc；无 shell 时 undefined ⇒ 不设门、行为逐字不变）。
    * S-4：只在**章界那一刻**参与解锁位推进（I7 棘轮），⛔ 参与门票归约本体。
@@ -477,6 +482,8 @@ export class BeadsGame implements Game {
     this._onMenuRequest = options.onMenuRequest;
     this._canStartRun = options.canStartRun;
     this._onStaminaRefill = options.onStaminaRefill;
+    this._canWatchStaminaAd = options.canWatchStaminaAd;
+    this._onPowerupPurchase = options.onPowerupPurchase;
     this._canAdvanceAcrossArc = options.canAdvanceAcrossArc;
 
     this._sprintCap = validatedSprintTime(options.sprintTime);
@@ -1173,11 +1180,21 @@ export class BeadsGame implements Game {
    */
   usePowerup(type: PowerupType): boolean {
     if (this._machine.current !== 'playing') return false;
-    const outcome = this._powerups.request(type, this._misplacedBeads());
+    const pool = this._misplacedBeads();
+    let outcome = this._powerups.request(type, pool);
     if (outcome.kind === 'exhausted') {
-      // 占位文案与 `btn_expand` 同一常量（§2.6 布局 A：四处广告位同一语义）。
-      this._powerupHint = AD_PLACEHOLDER_HINT_TEXT;
-      return false;
+      // 免费次数用尽 ⇒ **豆子购买**（§3.6 v1.80 唯一出口）。棋盘无错位珠 / 达购买上限 /
+      // 豆子不足 ⇒ 零扣豆、零事件，只落轻提示（沿用「拒用不扣」判例）。
+      if (pool.length === 0 || !this._powerups.canPurchase(type)) {
+        this._powerupHint = POWERUP_BUY_DENIED_HINT;
+        return false;
+      }
+      if (!this._onPowerupPurchase?.(type)) {
+        this._powerupHint = POWERUP_BUY_DENIED_HINT;
+        return false;
+      }
+      outcome = this._powerups.purchase(type, pool);
+      if (outcome.kind !== 'used') return false;
     }
     if (outcome.kind !== 'used') return false;
     this._powerupHint = '';
@@ -1438,6 +1455,8 @@ export class BeadsGame implements Game {
     if (this._watchingAd) return;
     const ad = this._services?.rewardedAd;
     if (!ad || !this._onStaminaRefill) return;
+    // §3.14 v1.80 日限/满心闸门：不可加心时不拉广告（避免「看完啥也没有」）。
+    if (this._canWatchStaminaAd && !this._canWatchStaminaAd()) return;
     this._failHint = '';
     this._adKind = 'staminaRefill';
     this._pendingRunStart = proceed;
@@ -2124,8 +2143,8 @@ export class BeadsGame implements Game {
       this._adKind = null;
       const proceed = this._pendingRunStart;
       this._pendingRunStart = null;
-      this._onStaminaRefill?.(); // shell: meta.refillStamina() → STAMINA_MAX
-      // 回满后重放被拒的 run-start：此时闸门扣 1 心必成功（MAX ≥ START_COST），不会再次被拒。
+      this._onStaminaRefill?.(); // shell: meta.grantAdHearts() → +HEART_AD_GAIN（§3.14 v1.80）
+      // 加心后重放被拒的 run-start：+3 ≥ START_COST(1) ⇒ 扣心必成功，不会再次被拒。
       proceed?.();
       return;
     }

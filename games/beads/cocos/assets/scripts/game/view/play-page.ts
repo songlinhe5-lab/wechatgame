@@ -52,6 +52,7 @@ import {
     POWERUP_BADGE_SIZE,
     POWERUP_CARD_RADIUS,
     POWERUP_TYPES,
+    powerupBuyPrice,
     SAFE_EDGE_MARGIN,
     SELECT_LIFT_ANGLE,
     SELECT_LIFT_PX,
@@ -1349,8 +1350,8 @@ function drawPowerupBand(
             baseline: 'middle',
         });
 
-        // `ad_badge`：28×28 圆角 8、贴卡右上内缩 (8,8)、白色 ▶ 边 10（§1.4）。
-        // 常驻，不随次数变化（§2.6 布局 A：超限入口只剩它）。
+        // 角标：28×28 圆角 8、贴卡右上内缩 (8,8)。**§3.6 v1.80 改判**——免费次数内仍是
+        // 白 ▶（`ad_badge` 语汇），用尽后改为**豆子价**（超限位不再拉广告，只做购买入口）。
         const badgeX = x + w - POWERUP_BADGE_INSET - POWERUP_BADGE_SIZE;
         const badgeY = bottom + h - POWERUP_BADGE_INSET - POWERUP_BADGE_SIZE;
         builder.rect(badgeX, badgeY, POWERUP_BADGE_SIZE, POWERUP_BADGE_SIZE, {
@@ -1359,11 +1360,20 @@ function drawPowerupBand(
         });
         const bx = badgeX + POWERUP_BADGE_SIZE / 2;
         const by = badgeY + POWERUP_BADGE_SIZE / 2;
-        const edge = POWERUP_BADGE_GLYPH_EDGE;
-        builder.polygon(
-            [bx - edge / 2, by - edge / 2, bx - edge / 2, by + edge / 2, bx + edge / 2, by],
-            { fill: withAlpha(POWERUP_BADGE_GLYPH, free ? 1 : 0.5) },
-        );
+        if (free) {
+            const edge = POWERUP_BADGE_GLYPH_EDGE;
+            builder.polygon(
+                [bx - edge / 2, by - edge / 2, bx - edge / 2, by + edge / 2, bx + edge / 2, by],
+                { fill: withAlpha(POWERUP_BADGE_GLYPH, 1) },
+            );
+        } else {
+            builder.text(bx, by, `${powerupBuyPrice(type)}`, {
+                fill: POWERUP_BADGE_GLYPH,
+                font: UI_FONT.cell,
+                align: 'center',
+                baseline: 'middle',
+            });
+        }
 
         // 卡下方标签：28px `text_primary`（§1.4）——「文字标签并列」的那一半。
         builder.text(x + w / 2, powerupLabelY(), POWERUP_LABELS[type], {

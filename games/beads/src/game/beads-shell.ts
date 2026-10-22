@@ -30,7 +30,8 @@
  * 扣心语义（systems-index §3.14）：扣心时机 = 新局开局 / 重试。本 shell 在三处扣心——
  * 启动入玩法（{@link init}）、菜单→玩法（{@link startGame}）、以及玩法内 retry/restart
  * （经注入 play 的 `canStartRun` 闸门）。0 心重试被拒 → play 触发体力回满激励位
- * （§3.11 第二 live 位），发奖经 `onStaminaRefill` → {@link MetaState.refillStamina} 后重放。
+ * （§3.11 第二 live 位），发奖经 `onStaminaRefill` → {@link MetaState.grantAdHearts}
+ * （§3.14 v1.80：固定 +`HEART_AD_GAIN`、日限 `HEART_AD_DAILY_LIMIT`）后重放。
  * 冲刺消耗不冻结（§3.14），故 sprint 重开不设门。
  */
 
@@ -44,8 +45,10 @@ import {
     PANEL_IN_MS,
     PANEL_OUT_MS,
     menuAnchors,
+    powerupBuyPrice,
     setLiveDesignHeight,
     type MenuAnchors,
+    type PowerupType,
 } from '../config/tuning.js';
 import { ARC_OPEN_MAX, ARCS } from '../config/arcs.js';
 import { arcEntryTicket, emptyArcTicketResult, type ArcTicketResult } from '../systems/arc-ticket.js';
@@ -255,8 +258,12 @@ export class BeadsShell implements Game {
             onMenuRequest: () => this.showMenu(),
             // 新局开局体力闸门（§3.14）：retry/restart 前扣 1 心；0 心返回 false（play 转广告回满）。
             canStartRun: () => (this.meta ? this.meta.spendStamina(STAMINA_START_COST) : true),
-            // 体力回满激励位发奖（§3.11 第二 live 位）：回满至 STAMINA_MAX，随后 play 重放 run-start。
-            onStaminaRefill: () => this.meta?.refillStamina(),
+            // 广告加心发奖（§3.11 第二 live 位；§3.14 v1.80 由「回满」改固定 HEART_AD_GAIN）。
+            onStaminaRefill: () => this.meta?.grantAdHearts(),
+            // §3.14 v1.80 日限/满心闸门：不可加心时不拉广告。
+            canWatchStaminaAd: () => this.meta?.canWatchHeartAd ?? false,
+            // §3.6 v1.80 唯一豆子出口：道具超限购买的扣款腿（限额由 play 侧 PowerupSystem 判）。
+            onPowerupPurchase: (type) => this._buyPowerup(type),
             // `[WXG-T-345]` S-4：跨章推进闸门（门票只在章界那一刻参与解锁位推进；I7 棘轮）。
             canAdvanceAcrossArc: (fromIndex, toIndex) => this._canAdvanceAcrossArc(fromIndex, toIndex),
         });
@@ -318,7 +325,7 @@ export class BeadsShell implements Game {
             ad.onRewarded(() => {
                 if (!this._refillPending) return;
                 this._refillPending = false;
-                this.meta?.refillStamina();
+                this.meta?.grantAdHearts(); // §3.14 v1.80：固定 +HEART_AD_GAIN（溢出即弃）
             }),
             ad.onClose(() => {
                 this._refillPending = false;
@@ -425,15 +432,23 @@ export class BeadsShell implements Game {
     }
 
     /**
-     * 菜单侧 0 心回满位（§3.11 第二 live 位；内容/数值零改动，只复用既有 `stamina-refill` 位）。
-     * 无广告服务/无 meta/已有在飞 ⇒ 零副作用（被拒即停在本页，可再点）。
+     * 菜单侧 0 心广告加心位（§3.11 第二 live 位；§3.14 v1.80 由「回满」改固定加心）。
+     * 无广告服务/无 meta/已有在飞/日限用尽 ⇒ 零副作用（被拒即停在本页，可再点）。
      */
     private _requestStaminaRefill(): void {
         const ad = this._services?.rewardedAd;
         if (!ad || !this.meta || this._refillPending) return;
+        if (!this.meta.canWatchHeartAd) return; // 满心 / 日限用尽 ⇒ 不拉广告
         this._refillPending = true;
         ad.load(STAMINA_REFILL_PLACEMENT);
         ad.show();
+    }
+
+    /** 道具超限购买扣款（§3.6 v1.80）：豆子够则扣并放行，否则 false（play 侧只落轻提示）。 */
+    private _buyPowerup(type: PowerupType): boolean {
+        const meta = this.meta;
+        if (!meta) return false;
+        return meta.spendCoins(powerupBuyPrice(type));
     }
 
     /**

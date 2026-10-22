@@ -10,7 +10,7 @@
  * 同处，拆开反而割裂内聚（且 `SolverFxQueue` 是 knowledge/lessons/criteria.md 的判例锚点）。
  */
 
-import type { BeadsTuning, StageParams } from '../config/tuning';
+import type { BeadsTuning, PowerupType, StageParams } from '../config/tuning';
 import type { BeadsLevelRaw } from '../config/levels';
 import type { BeadsPalette } from '../view/palette';
 
@@ -78,10 +78,21 @@ export interface BeadsGameOptions {
      */
     readonly canStartRun?: () => boolean;
     /**
-     * 体力回满激励位发奖回调（§3.11 第二 live 位 / §3.14）：0 心重试被拒后看完广告调用，
-     * 由 shell 执行 `meta.refillStamina()`；缺省则不接广告回满（被拒即无副作用）。
+     * 广告加心发奖回调（§3.11 第二 live 位 / §3.14 v1.80）：0 心重试被拒后看完广告调用，
+     * 由 shell 执行 `meta.grantAdHearts()`（固定 +`HEART_AD_GAIN`）；缺省则不接广告（被拒即无副作用）。
      */
     readonly onStaminaRefill?: () => void;
+    /**
+     * 道具超限**豆子购买**闸门（§3.6 v1.80 / §3.14 唯一豆子出口）：免费次数用尽后再点该卡时调用，
+     * 返回 true = 已扣豆、放行（由 shell 经 `MetaState.spendCoins` 完成）；false = 豆子不足/未接。
+     * 缺省（无 shell 的独立 `BeadsGame`）⇒ 超限仍只是占位轻提示（后向兼容，既有单测不变）。
+     */
+    readonly onPowerupPurchase?: (type: PowerupType) => boolean;
+    /**
+     * 广告加心是否还可用（§3.14 v1.80 日限 + 满心闸门）：`false` ⇒ 不拉起 `stamina-refill` 位
+     * （避免「看完广告什么都没加」）。缺省 = 不设门（后向兼容）。
+     */
+    readonly canWatchStaminaAd?: () => boolean;
     /**
      * **跨章推进闸门**（WXG-T-345 · S-4；ADR-0034 §6 S-4 行 / M-15）。普通局过关推进解锁位时，
      * 若下一关与当前关**不在同一大关**，本回调决定解锁位能否越过章界：

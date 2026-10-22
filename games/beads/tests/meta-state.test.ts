@@ -10,6 +10,8 @@ import { describe, it, expect } from 'vitest';
 import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import type { Storage } from '@wxgame/framework';
 import {
+    HEART_AD_DAILY_LIMIT,
+    HEART_AD_GAIN,
     HEART_PRICE_LADDER,
     SIGNIN_REWARDS,
     STAMINA_MAX,
@@ -239,6 +241,74 @@ describe('MetaState — persistence', () => {
         store.set('test.meta', '{ not json');
         const r = rigOn(store);
         expect(r.meta.stamina).toBe(STAMINA_MAX);
+        expect(r.meta.coins).toBe(0);
+    });
+});
+
+/**
+ * §3.14 v1.80（WXG-T-351）：体力回满 → **广告加心（固定量 + 日限）**。
+ * 判据 = 提案 `bean-currency-economy §7.2`（+3 恰好 / 钳上限 / 满心不计次 / 日限 / 跨日复位 / 锚点不重置）。
+ */
+describe('§3.14 v1.80 · 广告加心（固定量 + 日限）', () => {
+    it('一次恰 +HEART_AD_GAIN；且**锚点不重置**（不吃掉已累积的恢复进度）', () => {
+        const r = rig();
+        expect(r.meta.spendStamina(STAMINA_MAX), '清空到 0 心').toBe(true);
+        expect(r.meta.grantAdHearts()).toBe(true);
+        expect(r.meta.stamina, '恰为 +HEART_AD_GAIN（不是回满）').toBe(HEART_AD_GAIN);
+
+        // 先进半档（4 分钟）再加心：若实现重锚，这 4 分钟会被清零。
+        r.advance(4 * 60 * 1000);
+        expect(r.meta.grantAdHearts()).toBe(true);
+        r.advance(4 * 60 * 1000);
+        r.meta.refresh();
+        expect(r.meta.stamina, '锚点保留 ⇒ 半档 + 半档 = 满一档 +1').toBe(HEART_AD_GAIN * 2 + 1);
+    });
+
+    it('满心 ⇒ 不加、不计次（日限名额不被白看浪费）', () => {
+        const r = rig();
+        expect(r.meta.stamina).toBe(STAMINA_MAX);
+        expect(r.meta.grantAdHearts()).toBe(false);
+        expect(r.meta.stamina).toBe(STAMINA_MAX);
+        expect(r.meta.heartAdsLeft).toBe(HEART_AD_DAILY_LIMIT);
+        expect(r.meta.canWatchHeartAd, '满心 ⇒ 闸门关闭（不拉广告）').toBe(false);
+    });
+
+    it('日限 HEART_AD_DAILY_LIMIT 次后拒绝；跨日复位', () => {
+        const r = rig();
+        let ok = 0;
+        for (let i = 0; i < HEART_AD_DAILY_LIMIT + 2; i++) {
+            r.meta.spendStamina(r.meta.stamina); // 每次清空，避免撞上限
+            if (r.meta.grantAdHearts()) ok += 1;
+        }
+        expect(ok, '日限内每次都给').toBe(HEART_AD_DAILY_LIMIT);
+        expect(r.meta.heartAdsLeft).toBe(0);
+        expect(r.meta.stamina, '超额那次零加心').toBe(0);
+
+        r.advance(DAY_MS);
+        r.meta.refresh(); // 25h 离线恢复先把体力补到上限（getter 只管余额、不触发恢复）
+        expect(r.meta.heartAdsLeft, '跨日（本地日键变化）计数归零').toBe(HEART_AD_DAILY_LIMIT);
+        r.meta.spendStamina(r.meta.stamina);
+        expect(r.meta.grantAdHearts()).toBe(true);
+    });
+
+    it('钳 STAMINA_MAX：7 心 +3 ⇒ 8（溢出即弃，签到同口径）', () => {
+        const r = rig();
+        expect(r.meta.spendStamina(1), '8 → 7 心').toBe(true);
+        expect(r.meta.stamina).toBe(7);
+        expect(r.meta.grantAdHearts()).toBe(true);
+        expect(r.meta.stamina).toBe(STAMINA_MAX);
+    });
+});
+
+describe('§3.14 v1.80 · spendCoins（唯一豆子出口的扣款腿）', () => {
+    it('足额则扣、不足则零变化', () => {
+        const r = rig();
+        r.meta.addCoins(50);
+        expect(r.meta.spendCoins(20)).toBe(true);
+        expect(r.meta.coins).toBe(30);
+        expect(r.meta.spendCoins(45), '不足 ⇒ false').toBe(false);
+        expect(r.meta.coins, '失败不扣').toBe(30);
+        expect(r.meta.spendCoins(30)).toBe(true);
         expect(r.meta.coins).toBe(0);
     });
 });

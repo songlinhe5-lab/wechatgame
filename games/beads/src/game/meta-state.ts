@@ -21,6 +21,8 @@
 
 import { SaveManager, type Storage } from '@wxgame/framework';
 import {
+    HEART_AD_DAILY_LIMIT,
+    HEART_AD_GAIN,
     HEART_PRICE_LADDER,
     SIGNIN_REWARDS,
     STAMINA_MAX,
@@ -72,6 +74,8 @@ export class MetaState {
     private _lastDate: string;
     private _heartBuys: number;
     private _heartDate: string;
+    private _heartAds: number;
+    private _heartAdDate: string;
 
     constructor(options: MetaStateOptions) {
         this._clock = options.clock;
@@ -95,6 +99,8 @@ export class MetaState {
         this._lastDate = d.signinLastDate;
         this._heartBuys = d.heartBuysToday;
         this._heartDate = d.heartBuysDate;
+        this._heartAds = d.heartAdToday;
+        this._heartAdDate = d.heartAdDate;
         // 首次装载（anchor=0）以当前时刻起步，避免把「出厂到现在」误算成离线恢复。
         if (this._anchor === 0) this._anchor = this._clock();
     }
@@ -136,6 +142,17 @@ export class MetaState {
 
     get canBuyHeart(): boolean {
         return this._cur < STAMINA_MAX && this._coins >= this.heartPrice;
+    }
+
+    /** 今日还剩几次「广告加心」（§3.14 v1.80 日限；只读，供 UI 置灰）。 */
+    get heartAdsLeft(): number {
+        const used = this._heartAdDate === dateKey(this._clock()) ? this._heartAds : 0;
+        return Math.max(0, HEART_AD_DAILY_LIMIT - used);
+    }
+
+    /** 今日广告加心是否还可用（未满心 + 日限未用尽）。 */
+    get canWatchHeartAd(): boolean {
+        return this._cur < STAMINA_MAX && this.heartAdsLeft > 0;
     }
 
     // ───────────────────────────────────────────────────────────── mutation
@@ -181,7 +198,37 @@ export class MetaState {
         this._persistStamina();
     }
 
-    /** 激励视频「回满」位（§3.14 第二 live 位）。 */
+    /**
+     * 激励视频加心（§3.14 v1.80 第二 live 位；**取代「回满」**）：一次 `HEART_AD_GAIN` 颗，
+     * 钳 `STAMINA_MAX`、**溢出即弃**（签到同口径）；**锚点不动**（奖励不吃掉已累积的恢复进度）。
+     * 满心 / 日限用尽 ⇒ 零副作用返回 false（调用方据此不扣次、不写档、不拉广告）。
+     */
+    grantAdHearts(): boolean {
+        this.refresh();
+        const today = dateKey(this._clock());
+        if (this._heartAdDate !== today) {
+            this._heartAds = 0;
+            this._heartAdDate = today;
+        }
+        if (this._cur >= STAMINA_MAX) return false;
+        if (this._heartAds >= HEART_AD_DAILY_LIMIT) return false;
+        this._heartAds += 1;
+        this._cur = Math.min(STAMINA_MAX, this._cur + HEART_AD_GAIN);
+        this._save.patch({
+            staminaCur: this._cur,
+            staminaAnchorMs: this._anchor,
+            heartAdToday: this._heartAds,
+            heartAdDate: this._heartAdDate,
+        });
+        this._save.save();
+        this._emit('stamina:changed', { cur: this._cur, max: STAMINA_MAX });
+        return true;
+    }
+
+    /**
+     * @deprecated §3.14 v1.80：`回满` 口径已废，加心统一走 {@link grantAdHearts}。
+     * 保留仅为测试与他处旧调用不炸，**UI 不得接**（同 `buyHeart()` 的处置）。
+     */
     refillStamina(): void {
         this._cur = STAMINA_MAX;
         this._anchor = this._clock();
@@ -194,6 +241,7 @@ export class MetaState {
         this._persistWallet();
     }
 
+    /** 扣豆（§3.14 v1.80 唯一出口 = 道具超限购买）。足额则扣、写档、发事件；不足 false。 */
     spendCoins(amount: number): boolean {
         if (amount <= 0) return true;
         if (this._coins < amount) return false;

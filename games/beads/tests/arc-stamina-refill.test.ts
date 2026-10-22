@@ -27,7 +27,7 @@ import { createBeadsShell, type BeadsShell } from '../src/game/beads-shell.js';
 import { defaultBeadsMeta } from '../src/game/meta-save-schema.js';
 import { defaultBeadsSave } from '../src/game/save-schema.js';
 import { LEVELS } from '../src/config/levels.js';
-import { STAMINA_MAX, STAMINA_REFILL_PLACEMENT, WALL_ROWS } from '../src/config/tuning.js';
+import { HEART_AD_GAIN, STAMINA_REFILL_PLACEMENT, WALL_ROWS } from '../src/config/tuning.js';
 import { metaLayout } from '../src/view/meta-view.js';
 import { simpleTestLevel } from './helpers.js';
 
@@ -100,7 +100,7 @@ function tapCell(r: Rig, slot: number): boolean {
 }
 
 describe('EP13-S3 · R7 主臂（0 心点可进格）', () => {
-    it('不进关、不扣心、拉起既有回满位；发奖回满后留本页，再点即进', () => {
+    it('不进关、不扣心、拉起既有加心位；发奖 +=HEART_AD_GAIN 后留本页，再点即进', () => {
         const r = rig({ stamina: 0, maxUnlocked: 9 });
         openLevels(r.shell);
         const eventsBefore = r.overlayEvents.length;
@@ -114,15 +114,16 @@ describe('EP13-S3 · R7 主臂（0 心点可进格）', () => {
         expect(r.ad.placement, '走既有 stamina-refill 位（零新 placement）').toBe(STAMINA_REFILL_PLACEMENT);
 
         r.ad.settle('complete');
-        expect(r.shell.meta!.stamina, '发奖 = 回满至上限（既有 MetaState.refillStamina）').toBe(STAMINA_MAX);
+        // §3.14 v1.80（WXG-T-351）：奖励由「回满 STAMINA_MAX」改「固定 +HEART_AD_GAIN」。
+        expect(r.shell.meta!.stamina, '发奖 = 固定 +HEART_AD_GAIN（非回满）').toBe(HEART_AD_GAIN);
         expect(r.shell.screen, '发奖不得自动进关（再点才进）').toBe('menu');
         expect(r.shell.overlay).toBe('levels');
 
-        expect(tapCell(r, 2), '回满后再点成功').toBe(true);
+        expect(tapCell(r, 2), '加心后再点成功').toBe(true);
         expect(r.shell.screen).toBe('play');
         expect(r.shell.play.phase).toBe('playing');
         expect(r.shell.play.levelIndex, '落到所点之关').toBe(2);
-        expect(r.shell.meta!.stamina).toBe(STAMINA_MAX - 1);
+        expect(r.shell.meta!.stamina).toBe(HEART_AD_GAIN - 1);
     });
 
     it('跳过（skip）→ 不回满、留本页；再次点格可重新拉起回满位', () => {
@@ -145,7 +146,7 @@ describe('EP13-S3 · R7 主臂（0 心点可进格）', () => {
         expect(r.shell.meta!.stamina).toBe(0);
     });
 
-    it('主钮「开始游戏」0 心 = 同一回满位（统一下入口的自然结果）', () => {
+    it('主钮「开始游戏」0 心 = 同一加心位（统一下入口的自然结果）', () => {
         const r = rig({ stamina: 0, maxUnlocked: 9 });
         const start = metaLayout('none', WALL_ROWS, r.shell.menuAnchors).buttons.find((b) => b.id === 'start')!;
         const c = centerOf(start.box);
@@ -153,7 +154,7 @@ describe('EP13-S3 · R7 主臂（0 心点可进格）', () => {
         expect(r.shell.screen).toBe('menu');
         expect(r.ad.showing).toBe(true);
         r.ad.settle('complete');
-        expect(r.shell.meta!.stamina).toBe(STAMINA_MAX);
+        expect(r.shell.meta!.stamina).toBe(HEART_AD_GAIN);
         expect(r.shell.tapMeta(c.x, c.y)).toBe(true);
         expect(r.shell.screen).toBe('play');
     });
@@ -189,7 +190,7 @@ describe('EP13-S3 · 串道反例（DoD 硬项）', () => {
         expect(r.shell.play.remaining, '⛔ 计时未被加时').toBe(remainingBefore);
         expect(r.shell.screen, '玩家仍留菜单').toBe('menu');
         expect(r.shell.overlay).toBe('levels');
-        expect(r.shell.meta!.stamina, '菜单侧回满照常到账').toBe(STAMINA_MAX);
+        expect(r.shell.meta!.stamina, '菜单侧加心照常到账').toBe(HEART_AD_GAIN);
 
         // 再点 ⇒ 全新开该关（弃局标随装配清除）。
         expect(tapCell(r, 0)).toBe(true);

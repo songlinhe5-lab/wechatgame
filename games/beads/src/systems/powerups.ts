@@ -20,6 +20,8 @@
  */
 
 import {
+  POWERUP_BUY_MAX_PER_LEVEL,
+  POWERUP_BUY_MAX_PER_TYPE,
   POWERUP_FREE_USES,
   POWERUP_TYPES,
   SOLVER_PLUS_COUNT,
@@ -108,6 +110,17 @@ export class PowerupSystem {
     solverRandom: POWERUP_FREE_USES,
   };
 
+  /**
+   * 本关豆子购买计数（§3.6 v1.80）：与免费次数**同一寿命**（关内重置、不入存档、
+   * 崩溃快照不存 ⇒ 快照恢复后 = 0，最坏多买一次，可接受）。
+   */
+  private readonly _bought: Record<PowerupType, number> = {
+    solver: 0,
+    solverPlus: 0,
+    solverRandom: 0,
+  };
+  private _boughtTotal = 0;
+
   /** 注入确定性 RNG（`services.rng`；架构 §2 的注入判例）。 */
   attach(rng: Rng): void {
     this._rng = rng;
@@ -141,11 +154,49 @@ export class PowerupSystem {
     return this._uses[type] ?? 0;
   }
 
+  /** 某道具本关已豆子购买次数（§3.6 v1.80）。 */
+  bought(type: PowerupType): number {
+    return this._bought[type] ?? 0;
+  }
+
+  /**
+   * 可否豆子购买（§3.6 v1.80）：类型合法 + 该型子限 + 每关合计上限 + `solverRandom` 有 Rng。
+   * **不含余额判断** —— 豆子住在 `MetaState`，扣款由 shell 注入的购买回调负责。
+   */
+  canPurchase(type: unknown): boolean {
+    if (!isPowerupType(type)) return false;
+    if (this._bought[type] >= POWERUP_BUY_MAX_PER_TYPE) return false;
+    if (this._boughtTotal >= POWERUP_BUY_MAX_PER_LEVEL) return false;
+    if (type === 'solverRandom' && !this._rng) return false;
+    return true;
+  }
+
+  /**
+   * 豆子购买一次（§3.6 v1.80 唯一出口）：点名规则与 {@link request} 同源，只是**不动免费计数**
+   * 而推进购买计数。调用方须先 {@link canPurchase} 且已完成扣款 —— 本方法仅在真的点名成功时
+   * 记账，`empty` / `invalid` 出口**零副作用**（沿用「拒用不扣」判例）。
+   */
+  purchase(type: unknown, misplaced: readonly MisplacedBead[]): PowerupOutcome {
+    if (!this.canPurchase(type)) return { kind: 'exhausted' };
+    const t = type as PowerupType;
+    const pool = Array.isArray(misplaced) ? misplaced : [];
+    const selected = this._select(t, pool);
+    if (selected === null) return { kind: 'invalid' };
+    if (selected.length === 0) return { kind: 'empty' };
+    this._bought[t] += 1;
+    this._boughtTotal += 1;
+    return { kind: 'used', type: t, affectedCells: toCells(selected) };
+  }
+
   // ─────────────────────────────────────────────────────── 生命周期
 
   /** 整关重置（§3.5 重置五项之第 5 项 + §2.5 复位时机）：三计数回 `POWERUP_FREE_USES`。 */
   reset(): void {
-    for (const type of POWERUP_TYPES) this._uses[type] = POWERUP_FREE_USES;
+    for (const type of POWERUP_TYPES) {
+      this._uses[type] = POWERUP_FREE_USES;
+      this._bought[type] = 0;
+    }
+    this._boughtTotal = 0;
   }
 
   /**
@@ -184,22 +235,26 @@ export class PowerupSystem {
     if (this._uses[type] <= 0) return { kind: 'exhausted' };
 
     const pool = Array.isArray(misplaced) ? misplaced : [];
-    let selected: readonly MisplacedBead[];
-    if (type === 'solverRandom') {
-      const rng = this._rng;
-      if (!rng) {
-        console.warn('[beads] S6 solverRandom 抽取缺少 Rng 注入（忽略，零事件零扣次）');
-        return { kind: 'invalid' };
-      }
-      selected = drawRandom(pool, SOLVER_RANDOM_COUNT, rng);
-    } else {
-      selected = pool.slice(0, selectCount(type));
-    }
+    const selected = this._select(type, pool);
+    if (selected === null) return { kind: 'invalid' };
     if (selected.length === 0) return { kind: 'empty' };
 
     // 只有实际点名才扣次（§2.5 扣减时机）。
     this._uses[type] -= 1;
     return { kind: 'used', type, affectedCells: toCells(selected) };
+  }
+
+  /** 点名规则唯一实现（免费与购买两条腿共用）；`null` = `solverRandom` 缺 Rng。 */
+  private _select(type: PowerupType, pool: readonly MisplacedBead[]): readonly MisplacedBead[] | null {
+    if (type === 'solverRandom') {
+      const rng = this._rng;
+      if (!rng) {
+        console.warn('[beads] S6 solverRandom 抽取缺少 Rng 注入（忽略，零事件零扣次）');
+        return null;
+      }
+      return drawRandom(pool, SOLVER_RANDOM_COUNT, rng);
+    }
+    return pool.slice(0, selectCount(type));
   }
 }
 

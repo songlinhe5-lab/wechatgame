@@ -818,8 +818,29 @@ export const POWERUP_FREE_USES = 1;
  * only live placement is the fail-page continue (§3.11).
  */
 export const AD_PLACEMENTS = 4;
+/**
+ * 豆子购买单价（§3.6 v1.80，WXG-T-351，用户 2026-10-22 拍板）。
+ * 定标 = 「最低档消耗品 ≤ 0.5 天免费产出」（`SOLVER` 20 / 签到日均 45.7 ≈ 0.44 天）：
+ * 道具只在卡关时有用，价格逼近一天收入会让人「宁可重开也不买」⇒ 出口形同虚设。
+ */
+export const POWERUP_BUY_PRICE_SOLVER = 20;
+export const POWERUP_BUY_PRICE_RANDOM = 30;
+export const POWERUP_BUY_PRICE_PLUS = 45;
+/** 每关豆子购买**合计**上限（3 型合计，§3.6 v1.80）。 */
+export const POWERUP_BUY_MAX_PER_LEVEL = 2;
+/** 每型每关豆子购买**子限**（§3.6 v1.80 行内「每型每关 1 次」）。 */
+export const POWERUP_BUY_MAX_PER_TYPE = 1;
+/** 豆子不足 / 达上限时的轻提示（`powerups §2.6` 占位轻提示同族，非广告文案）。 */
+export const POWERUP_BUY_DENIED_HINT = '豆子不足或已购满';
 /** A powerup identity — the frozen tuple's element type. */
 export type PowerupType = (typeof POWERUP_TYPES)[number];
+
+/** 某型道具的豆子购买单价（唯一取价点：logic 与 view 都读这里）。 */
+export function powerupBuyPrice(type: PowerupType): number {
+  if (type === 'solverPlus') return POWERUP_BUY_PRICE_PLUS;
+  if (type === 'solverRandom') return POWERUP_BUY_PRICE_RANDOM;
+  return POWERUP_BUY_PRICE_SOLVER;
+}
 
 // ──────────────────────────────────────────────────────── §3.11 fail revive
 /**
@@ -1175,6 +1196,17 @@ export const STAMINA_MAX = 8;
 export const STAMINA_REGEN_MIN_MS = 8 * 60 * 1000;
 /** §3.14 开局扣心：新局开局/重试各扣 1（PAUSED 恢复与菜单在途续进不重复扣）。 */
 export const STAMINA_START_COST = 1;
+
+/**
+ * §3.14 v1.80（WXG-T-351，用户 2026-10-22 拍板）：广告加心**固定数量**（原「回满至
+ * `STAMINA_MAX`」已废）。钳上限、**溢出即弃**（与签到送心同口径）；锚点**不重置**
+ * （奖励不吃掉玩家已累积的恢复进度）。
+ *
+ * 3 = 8 分钟/心 × 3 = 24 分钟「时间等价」，落在品类惯例 20–30 分钟区间中位。
+ */
+export const HEART_AD_GAIN = 3;
+/** §3.14 v1.80：广告加心**每日上限**（跨日按本地 `YYYY-M-D` 归零；满心不计次）。 */
+export const HEART_AD_DAILY_LIMIT = 5;
 
 /**
  * §3.14 签到奖励表（MF5 循环制：day cell = claims % 7，断签不清零）。

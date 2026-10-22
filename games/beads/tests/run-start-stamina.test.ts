@@ -13,6 +13,7 @@ import { MockRewardedAdProvider } from '@wxgame/framework';
 import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import { MetaState } from '../src/game/meta-state.js';
 import {
+    HEART_AD_GAIN,
     STAMINA_MAX,
     STAMINA_REFILL_PLACEMENT,
     STAMINA_START_COST,
@@ -39,9 +40,9 @@ function rig(saveKey: string): Rig {
         noAssemble: true,
         levels: [simpleTestLevel()],
         saveKey,
-        // The exact closures BeadsShell injects (§3.14 扣心 / §3.11 回满).
+        // The exact closures BeadsShell injects (§3.14 扣心 / §3.11 加心).
         canStartRun: () => meta.spendStamina(STAMINA_START_COST),
-        onStaminaRefill: () => meta.refillStamina(),
+        onStaminaRefill: () => meta.grantAdHearts(),
     });
     return {
         harness,
@@ -86,14 +87,14 @@ describe('retry 逐次扣心 (§3.14 新局开局消耗)', () => {
         expect(r.meta.stamina).toBe(0); // nothing spent while blocked
     });
 
-    it('completing the refill ad回满 to MAX then retries, spending one heart', () => {
+    it('completing the 加心 ad (+HEART_AD_GAIN) then retries, spending one heart', () => {
         const r = rig('test.runstart.refill');
         r.meta.spendStamina(STAMINA_MAX);
         expire(r.harness);
         tapFail(r.game, 'retry', true);
         r.ad.settle('complete');
-        // refill → STAMINA_MAX, then the replayed retry spends START_COST.
-        expect(r.meta.stamina).toBe(STAMINA_MAX - STAMINA_START_COST);
+        // §3.14 v1.80：加心 = 固定 +HEART_AD_GAIN（非回满），随后重放 retry 扣 START_COST。
+        expect(r.meta.stamina).toBe(HEART_AD_GAIN - STAMINA_START_COST);
         expect(r.game.phase).toBe('playing');
         expect(r.game.watchingAd).toBe(false);
     });
