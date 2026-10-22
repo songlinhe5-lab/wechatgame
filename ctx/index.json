@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4550,
       "lines": 157,
-      "sha256": "cb533b2965d6a836f9a1cebe7d77beffe949897d0a8feb53b56526ced7b97b03",
+      "sha256": "a069ec11965cef7729f2cfe23592f1327a3f814333b376c87ce9461f85999464",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 402,
-          "summary": "1 production/TASKS-DETAIL.md 183992 4240 normal",
+          "summary": "1 production/TASKS-DETAIL.md 184138 4241 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -422,7 +422,7 @@
           "startLine": 46,
           "endLine": 132,
           "tokens": 3041,
-          "summary": "production/TASKS-DETAIL.md 183992 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 184138 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5513,
       "lines": 146,
-      "sha256": "a75c388064f9cd9ba95affd2380d928431a6500d99b14768cb5cb9af75aff3a8",
+      "sha256": "4cda7cc9737374aa24dc63520100cee638920c415ce4c5d37566b330c091dbc1",
       "tier": "normal",
       "sections": [
         {
@@ -968,7 +968,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 4240 行 / 183992 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 4241 行 / 184138 tok",
           "level": 2,
           "startLine": 92,
           "endLine": 96,
@@ -11468,9 +11468,9 @@
     },
     {
       "path": "docs/architecture/adr/ADR-0034-beads-save-uid-index-flatten.md",
-      "tokens": 37760,
+      "tokens": 37924,
       "lines": 478,
-      "sha256": "55c7fa1758d7f9667a8145f9ff29ed63e6cef15f6230c5255b4b8ef1491a7452",
+      "sha256": "0d1b3cc34931b5c4b21a6afa92db17e755a484dc5c8bbb469dcf162e23bf8a83",
       "tier": "normal",
       "sections": [
         {
@@ -11478,7 +11478,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 479,
-          "tokens": 37729,
+          "tokens": 37893,
           "summary": "状态：Accepted（决策本体；T-2 / T-2R 均为纯文档批，零落码——用户 2026-10-22 令「存档与门",
           "keywords": [
             "ADR",
@@ -11815,7 +11815,7 @@
           "level": 2,
           "startLine": 274,
           "endLine": 439,
-          "tokens": 16209,
+          "tokens": 16349,
           "summary": "排序原则 = 可独立验收的最小切片 + 拓扑序。判据来源一律引用式（S<n>§8-<k>），本清单 ⛔ 新造玩家可见判据",
           "keywords": [
             "games/beads/src/**",
@@ -11845,7 +11845,7 @@
           "level": 3,
           "startLine": 335,
           "endLine": 439,
-          "tokens": 7677,
+          "tokens": 7812,
           "summary": "本节只登记实测读数与对账：⛔ 不改任何 DEC 本体、⛔ 不改 §6.1 各 M 号的语义、⛔ 不改 §6 施工口径（K",
           "keywords": [
             "§6.1",
@@ -82516,9 +82516,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 183992,
-      "lines": 4240,
-      "sha256": "6cb0afcb39cf77e7abb2d696c1bcfb78a3039a0ff39b947542a9af0100a5f55c",
+      "tokens": 184138,
+      "lines": 4241,
+      "sha256": "fef86fd92568ef3ae5167587d755f1bbbc3e0653b58dfc9114b210c1f4bce06c",
       "tier": "normal",
       "sections": [
         {
@@ -85039,8 +85039,8 @@
           "anchor": "§beads·fit 档放开「只缩不放大」钳（小盘放大铺满留边 + 初始视图 = 适配档）",
           "level": 1,
           "startLine": 3026,
-          "endLine": 4241,
-          "tokens": 81607,
+          "endLine": 4242,
+          "tokens": 81754,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
             "beads",
@@ -86306,8 +86306,8 @@
           "anchor": "§WXG-T-344",
           "level": 2,
           "startLine": 4184,
-          "endLine": 4241,
-          "tokens": 4098,
+          "endLine": 4242,
+          "tokens": 4245,
           "summary": "工程+设计·beads 存档改按关卡身份记账 · 落码批（星账腿） · 负责：程基岩（工程轨 T-3 落码 / T-2S",
           "keywords": [
             "WXG",
@@ -86379,8 +86379,8 @@
           "anchor": "§6 验证",
           "level": 3,
           "startLine": 4228,
-          "endLine": 4241,
-          "tokens": 1260,
+          "endLine": 4242,
+          "tokens": 1406,
           "summary": "全量门禁（本批多轮实跑，均为本机读数）：工程轨落码腿收尾一轮 verify = PASS 22 ｜ FAIL 0（当时 ",
           "keywords": [
             "verify",
@@ -87510,9 +87510,9 @@
     },
     {
       "path": "production/epics/epics-beads-ep14.md",
-      "tokens": 9303,
+      "tokens": 9299,
       "lines": 130,
-      "sha256": "ff50c918fd0d93122cbbab4b96319d97e5d494ae07d2a187cab180c091eba44c",
+      "sha256": "650d56af1a4ca406affa65082aa4b42c3c63b4e5db93f523fcfc5dfb8dc8cf7a",
       "tier": "normal",
       "sections": [
         {
@@ -87520,7 +87520,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 131,
-          "tokens": 9280,
+          "tokens": 9277,
           "summary": "任务号 WXG-T-288（P1）· 2026-10-17 · 工程轨（子代理通道不可用，主理人按 my-skills/",
           "keywords": [
             "Epic",
@@ -87564,7 +87564,7 @@
           "level": 2,
           "startLine": 28,
           "endLine": 90,
-          "tokens": 5490,
+          "tokens": 5486,
           "summary": "",
           "keywords": [
             "Story",
@@ -87653,7 +87653,7 @@
           "level": 3,
           "startLine": 59,
           "endLine": 90,
-          "tokens": 3844,
+          "tokens": 3840,
           "summary": "✅ 状态列回写（2026-10-22 · 落码批 WXG-T-344）【⚠ T-2S 现读限定（2026-10-22 ·",
           "keywords": [
             "EP14",
