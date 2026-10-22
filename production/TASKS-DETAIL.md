@@ -4386,3 +4386,14 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 
 
 
+
+
+## WXG-T-348
+
+**beads·主菜单签到入口回归（信封实装 + 未领小圆点）** · 2026-10-22 · 主理人(CodeBuddy)
+
+- **用户拍板（三点）**：① `canClaim` ⇒ 信封右上 1 枚小圆点（全局唯一提示位）；② 已领当日仍可打开看进度；③ 不做开合动画（零新毫秒值）。
+- **落码**：顶栏信箱从禁用空圆（α0.5）改正常态（白圆 + `ui_icon_mail` + 按下纹），公告位保持禁用预留；`open-signin` 热区注册（`mailHit` 与绘制同源 `anchoredGeo`）；小圆点 `MENU_SIGNIN_DOT_R=9`（色读既有 `danger`，零新 hex）。签到弹窗本体、`claimSignin`、7 日奖励表**零改动**（页面早已完整，仅入口退役）。
+- **口径变更**：推翻 Q5①「签到入口退役」；`ui-architecture-beads.md` §12 已登记视觉变更（K-051/K-053/DEC-6）。
+- **测试**：`beads-shell` / `meta-menu-wall` 动作集五元→六元 + 反断言反转；新常量纳入「零 §3 变更」自证。全量 1221 passed，仅金样本 `main-menu`（3662 vs 3661）/ `level-select-mid`（5085 vs 5084）因小圆点 +1 命令待复取。
+- **未决**：金样本须在可复现锚（本批 commit）后由 `tests/ui-golden-capture.ts` 重抓；真机观感（红点位置/大小）待验收。
