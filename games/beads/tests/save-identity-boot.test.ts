@@ -232,15 +232,15 @@ describe('§8-19 推进位独立落档（I6）：⛔ 由星数反推推进位', 
     fillBoard(first); // 槽 1 ⇒ 3★，推进位到 3
     const before = readDoc(shared);
     expect(before['starsByUid'], '三关全 3★ 前的账').toEqual(starsLedger([3, 3, 0], POOL));
-    expect(before['currentLevel']).toBe(3);
+    expect(before['lastPlayedKey'], '推进位存身份 token（S-2b），不再存位置数').toBe(levelIdentityKeys(POOL)[2]);
 
     const replay = boot(POOL, shared);
     replay.game.goToLevel(0); // 重玩已 3★ 的首关
     fillBoard(replay); // 再通一次：星不变（max 取大），但推进位被写回 2
     const after = readDoc(shared);
     expect(after['starsByUid'], '星值集合与重玩前逐字节相同').toEqual(before['starsByUid']);
-    expect(after['currentLevel'], '推进位 = 该重玩关的下一关，⛔ 不是「最高星关」').toBe(2);
-    expect(after['maxUnlockedLevel'], '已解锁位只增不减（棘轮 I7）').toBe(3);
+    expect(after['lastPlayedKey'], '推进位 = 该重玩关的下一关的身份，⛔ 不是「最高星关」').toBe(levelIdentityKeys(POOL)[1]);
+    expect(after['maxUnlockedKey'], '已解锁位只增不减（棘轮 I7）').toBe(levelIdentityKeys(POOL)[2]);
 
     const relaunched = boot(POOL, shared);
     expect(relaunched.game.levelIndex, 'BOOT 分流读的是落档的推进位，⛔ 不现算').toBe(1);
@@ -248,13 +248,20 @@ describe('§8-19 推进位独立落档（I6）：⛔ 由星数反推推进位', 
 
   it('静态臂：`beads-game.ts` 内推进位的写入不读星账（⛔ 启发式反推）', () => {
     const src = readFileSync(GAME_SRC, 'utf8');
-    // `currentLevel` 的写入点只有一处（`_persistProgress`），且其右值来自关卡指针算术。
-    const writes = src.split('\n').filter((line) => /^\s*currentLevel:/.test(line));
-    expect(writes.length).toBe(1);
-    expect(writes[0]).not.toMatch(/stars/);
+    // 写入点**恰两处**（WXG-T-345 · S-4 起）：`_persistProgress`（过关收拢）与
+    // `unlockAcrossArc`（跳章那一刻的门票授权，M-15 的唯一放行写入点）。⛔ 新增第三处；
+    // 两处右值均来自关卡指针 / 身份表，⛔ 读星账（I6 的实质）。
+    const writes = src.split('\n').filter((line) => /^\s*lastPlayedKey:/.test(line));
+    expect(writes.length, '写入点 = 两处（收拢 + 跨章授权）').toBe(2);
+    for (const line of writes) expect(line).not.toMatch(/stars/);
     // ⛔ 出现「按星数挑当前关」的启发式（取最高星关 / 首个非 3★ 关 等）。
-    expect(/currentLevel\s*=\s*[^;]*stars/i.test(src), '不得由星数派生推进位').toBe(false);
+    expect(/lastPlayedKey\s*=\s*[^;]*stars/i.test(src), '不得由星数派生推进位').toBe(false);
     expect(/indexOf\(\s*STAR_MAX\s*\)|starsByLevel\.(?:indexOf|findIndex|reduce|sort)/.test(src)).toBe(false);
+    // 跨章授权本体（S-4）不碰星账：它只推既有两根指针。
+    const start = src.indexOf('unlockAcrossArc(index: number): void {');
+    expect(start, 'S-4 跨章授权已落地').toBeGreaterThan(0);
+    const end = src.indexOf('\n  }', start);
+    expect(src.slice(start, end), '⛔ 授权腿读/写星账').not.toMatch(/stars/i);
   });
 });
 

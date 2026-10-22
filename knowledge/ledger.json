@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 156,
+  "nextId": 158,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -2594,6 +2594,40 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-156",
+      "state": "active",
+      "file": "knowledge/lessons/criteria-measure.md",
+      "category": "判据实测",
+      "title": "度量「已有构建产物」的读数（包体、快照、生成物校验）必须先核对产物时间戳，否则读到的是上一批的数",
+      "contentHash": "8a0856cb6f6dc61560fb3a927859c3e191dc9362f26dbf2ace4f2d3a0b3797ed",
+      "sourceTask": "WXG-T-345",
+      "addedDate": "2026-10-22",
+      "lastAccess": "2026-10-22",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-157",
+      "state": "active",
+      "file": "knowledge/lessons/testing-guard.md",
+      "category": "测试守卫",
+      "title": "夹具手工拼出的「最小形状」若与生产装配形状不同，对数据形状敏感的边界分支就永远走不到，变异也不会红",
+      "contentHash": "bb9a2dc297ed6d48cc22dbe108b09f1af34f2bb03e0fce7929839ce4e0b177b7",
+      "sourceTask": "WXG-T-345",
+      "addedDate": "2026-10-22",
+      "lastAccess": "2026-10-22",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -3915,6 +3949,16 @@
       "kind": "added",
       "ids": [
         "K-155"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-22",
+      "taskId": "WXG-T-345",
+      "kind": "added",
+      "ids": [
+        "K-156",
+        "K-157"
       ],
       "note": null
     }

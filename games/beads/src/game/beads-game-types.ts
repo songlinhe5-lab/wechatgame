@@ -82,4 +82,15 @@ export interface BeadsGameOptions {
      * 由 shell 执行 `meta.refillStamina()`；缺省则不接广告回满（被拒即无副作用）。
      */
     readonly onStaminaRefill?: () => void;
+    /**
+     * **跨章推进闸门**（WXG-T-345 · S-4；ADR-0034 §6 S-4 行 / M-15）。普通局过关推进解锁位时，
+     * 若下一关与当前关**不在同一大关**，本回调决定解锁位能否越过章界：
+     * `false` ⇒ 解锁位停在当前关（= 本章末关），星账照写（关卡已通是事实）。
+     * 缺省（无 shell 的独立 `BeadsGame`）⇒ 不设闸门，行为逐字不变（后向兼容）。
+     *
+     * ⚠ 两层分家（DEC-8 / `meta-ui §2.7`）：本回调只决定「推进位能否跨章界」，**不参与**门票归约
+     * 本身（归约 = `systems/arc-ticket.ts` 纯函数，输入不含章 id）；门票也只在**跳章那一刻**
+     * 作为放行依据（I7 棘轮：已得入口不因后续内容变更回收）。
+     */
+    readonly canAdvanceAcrossArc?: (fromIndex: number, toIndex: number) => boolean;
 }

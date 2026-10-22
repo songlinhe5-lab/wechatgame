@@ -9,7 +9,7 @@
  * 2. **Only progression is stored** — never mid-run state (combo, tray, grid).
  */
 
-import type { SaveDocument, Storage } from '@wxgame/framework';
+import type { Migration, SaveDocument, Storage } from '@wxgame/framework';
 import {
   BEAD_SIZE_DEFAULT,
   BEAD_SIZE_ORDER,
@@ -91,10 +91,17 @@ export interface BeadsSave extends SaveDocument {
    * 以 `runs > 0` 一次性迁移（老玩家不重看引导）。
    */
   onboarded: boolean;
-  /** Highest unlocked level, 1-based, clamped to `[1, levelCount]`. */
-  maxUnlockedLevel: number;
-  /** Level to resume on boot, 1-based. Out of range degrades to 1. */
-  currentLevel: number;
+  /**
+   * 已解锁最远关的**稳定身份 token**（ADR-0034 **DEC-7** / S-2b）——「解锁位」。
+   * `''` = 无身份指针（出厂默认 / 尚无推进）。⛔ 存 1-based 位置数：位置会在
+   * 「章内插一关 / 调展示序」时把语义挪到别的关（§8-23）；数值形态只剩 v4 旧档的
+   * **一次性入口**（旧键 `maxUnlockedLevel`，写回时点名清除）。
+   * 身份只住档内：BOOT 由 `normalizeBeadsSave` 解析成 **0-based 下标镜像**，
+   * 视图契约继续吃 1-based 数值（L5 零改动）。
+   */
+  maxUnlockedKey: string;
+  /** 续玩点的身份 token（「推进位」）；`''` 同义。与解锁位**各自判定、各自降级**（DEC-7）。 */
+  lastPlayedKey: string;
   /** Best sprint score ever (S8 v1.1 field, minimal slice). */
   sprintBestScore: number;
   /** Best sprint stage index ever reached (0-based). */
@@ -130,9 +137,13 @@ export const SAVE_VERSION = 5;
  * v1 → v2（WXG-T-088）：新增可访问性开关 `reduceMotion`（D1）与 `largeText`
  * （E2）。迁移**只升版本号并原样透传旧字段**——缺省的新字段交由 `normalizeSettings`
  * 逐字段降级为 false，因此旧档进度与原 settings 全保留、绝不重置（旧档不炸）。
+ *
+ * **S-7 改严**（ADR-0034 §6 S-7）：每级迁移必须返回 `n+1`（本函数 ⇒ `2`），
+ * ⛔ 再返回 `SAVE_VERSION`。旧行为「一条跳到底」会让 v1–v3 档根本不流经后续迁移，
+ * 后续任何一级结构迁移都会被静默跳过。
  */
 export function migrateV1ToV2(doc: Record<string, unknown>): Record<string, unknown> {
-  return { ...doc, version: SAVE_VERSION };
+  return { ...doc, version: 2 };
 }
 
 /**
@@ -144,10 +155,11 @@ export function migrateV2ToV3(doc: Record<string, unknown>): Record<string, unkn
   // ⚠ 迁移必须在**本函数**内落 `onboarded`：SaveManager.load 会先用 defaults 补
   // 缺字段再交给 normalize ⇒ normalize 层无法区分「v2 无字段」与「显式 false」。
   // 存量玩家（runs>0）一次性迁移为已引导；v3 后字段由 default/写入恒在。
+  // S-7：返回 `3`（⛔ `SAVE_VERSION`）。
   return {
     ...doc,
     onboarded: doc['onboarded'] !== undefined ? doc['onboarded'] === true : num(doc['runs'], 0) > 0,
-    version: SAVE_VERSION,
+    version: 3,
   };
 }
 
@@ -156,7 +168,7 @@ export function migrateV2ToV3(doc: Record<string, unknown>): Record<string, unkn
  * 判例：**只升版本号透传旧字段**，缺省字段由 `normalizeSettings` 逐字段降级。
  */
 export function migrateV3ToV4(doc: Record<string, unknown>): Record<string, unknown> {
-  return { ...doc, version: SAVE_VERSION };
+  return { ...doc, version: 4 };
 }
 
 /**
@@ -164,20 +176,33 @@ export function migrateV3ToV4(doc: Record<string, unknown>): Record<string, unkn
  * ⛔ 不在迁移函数里做 uid 换算：`Migration` 签名是 `Record → Record`
  * （`packages/framework/src/core/save/save-manager.ts`），**拿不到关表轴**；真正的
  * 对位换算住 `normalizeBeadsSave` 的形态探测（DEC-5）——那是唯一持有关表轴的层。
- * ⚠ 实测事实（DEC-5）：本族四条迁移均返回 `SAVE_VERSION` 而非 `n+1` ⇒ 一条迁移即跳到底，
- *   v1/v2/v3 老档根本不流经 `migrations[4]` ⇒ 换算必须由 normalize 兑住（链改严另单 S-7）。
+ * ⚠ 历史事实（DEC-5）：S-7 之前本族四条迁移均返回 `SAVE_VERSION` 而非 `n+1` ⇒ 一条迁移
+ *   即跳到底，v1/v2/v3 老档根本不流经 `migrations[4]`。**S-7 已改严**：每级各返回
+ *   `n+1`，v1 档逐级走完 1→2→3→4→5（形态探测仍必须能兼住旧档，二者不互斥）。
  */
 export function migrateV4ToV5(doc: Record<string, unknown>): Record<string, unknown> {
-  return { ...doc, version: SAVE_VERSION };
+  return { ...doc, version: 5 };
 }
+
+/**
+ * 迁移链的**单一真源**（S-7）：`SaveManager` 与测试都从这里取，⛔ 两处各写一张 map
+ * （否则「测试注册全链、生产漏一级」这类漂移在测试里看不见）。
+ * 键 = 源版本，值 = 升到 `键 + 1` 的迁移；缺任何一级 ⇒ `load()` 在缺位处 reset。
+ */
+export const BEADS_MIGRATIONS: Readonly<Record<number, Migration>> = {
+  1: migrateV1ToV2,
+  2: migrateV2ToV3,
+  3: migrateV3ToV4,
+  4: migrateV4ToV5,
+};
 
 export function defaultBeadsSave(): BeadsSave {
   return {
     version: SAVE_VERSION,
     runs: 0,
     onboarded: false,
-    maxUnlockedLevel: 1,
-    currentLevel: 1,
+    maxUnlockedKey: '',
+    lastPlayedKey: '',
     sprintBestScore: 0,
     sprintBestStage: 0,
     // 星账在 `normalizeBeadsSave(raw, levelCount, levelKeys)` 里按身份表稠密物化
@@ -260,6 +285,22 @@ function levelIndex(value: unknown, levelCount: number): number | null {
   return value;
 }
 
+/** 指针解析结果：`>= 0` = 命中下标；{@link POINTER_MISMATCH} = 身份已不在关表；{@link POINTER_ABSENT} = 无身份键。 */
+const POINTER_MISMATCH = -1;
+const POINTER_ABSENT = -2;
+
+/**
+ * 解析一根身份指针（**只读键比对**，不读任何星值）：
+ * - 非字符串 / `''` ⇒ `POINTER_ABSENT`（走 v4 旧数值入口或兜底）；
+ * - 字符串且在当前关表里 ⇒ 命中下标；
+ * - 字符串但关表认不出 ⇒ `POINTER_MISMATCH`（进入 Q8 丙档降级）。
+ */
+function resolvePointer(rawKey: unknown, levelKeys: readonly string[]): number {
+  if (typeof rawKey !== 'string' || rawKey === '') return POINTER_ABSENT;
+  const index = levelKeys.indexOf(rawKey);
+  return index >= 0 ? index : POINTER_MISMATCH;
+}
+
 export interface NormalizeResult {
   readonly save: BeadsSave;
   /** True when anything was repaired — the caller should write back. */
@@ -273,10 +314,20 @@ export interface NormalizeResult {
    * 幂等臂：旧键未清除前，第二次读必须仍报 changed）。
    */
   readonly staleKeys: readonly string[];
+  /** 解锁位的 **0-based 下标镜像**（运行时唯一消费形态；身份只住档内）。 */
+  readonly maxUnlockedIndex: number;
+  /** 续玩位的 0-based 下标镜像（`bootLevel` 用它 + 1 还原 1-based）。 */
+  readonly lastPlayedIndex: number;
 }
 
 /** 旧形态键名（只作**输入侧**一次性兼容与写回清除用，⛔ 不再作字段）。 */
 const STALE_STARS_KEY = 'starsByLevel';
+/**
+ * 旧**数值指针**键（v4 及以前）。S-2b 后它们只是 v4 档的一次性入口 ——
+ * ⚠ 必须点名清除：框架 `patch` 浅合并**不删键**，不清则旧键永久留在档里
+ * （沿 M-6 / M-19 同一课）。
+ */
+const STALE_POINTER_KEYS = ['maxUnlockedLevel', 'currentLevel'] as const;
 
 /** 单值钳：非有限数 → 0；小数**向下取整**；再钳 `[0, STAR_MAX]`（S8 §6 口径逐字不变）。 */
 function clampStar(value: unknown): number {
@@ -406,19 +457,73 @@ export function normalizeBeadsSave(
   const boundedCount = Math.max(1, Math.floor(levelCount));
   const fallback = defaultBeadsSave();
 
-  if (!isRecord(raw)) return { save: fallback, changed: true, staleKeys: [] };
+  if (!isRecord(raw)) {
+    return { save: fallback, changed: true, staleKeys: [], maxUnlockedIndex: 0, lastPlayedIndex: 0 };
+  }
 
-  const maxUnlocked = levelIndex(raw['maxUnlockedLevel'], boundedCount);
-  const current = levelIndex(raw['currentLevel'], boundedCount);
+  // ── 两根进度指针（S-2b / DEC-7 / Q8 丙档 · v1.3-R4 锚源收窄）──────────────
+  // 解析序：身份键命中 > v4 旧数值键一次性入口 > 兜底。
+  // **两根各自判定、各自降级**，⛔ 把一根的语义搬给另一根。
+  // Q-A 拍定 A1：v4 旧数值入口**可**作另一根的锚（混合档只出现在开发期，写回即清）。
+  const maxResolved = resolvePointer(raw['maxUnlockedKey'], levelKeys);
+  const lastResolved = resolvePointer(raw['lastPlayedKey'], levelKeys);
+  // 旧数值键（1-based）只对「无身份键」的 v4 档生效；越界 / 非整数 ⇒ 视为无。
+  const legacyMax = levelIndex(raw['maxUnlockedLevel'], boundedCount);
+  const legacyLast = levelIndex(raw['currentLevel'], boundedCount);
+  // 「可作锚的另一根」：只认命中或旧数值入口，⛔ 把失配值当锚。
+  const maxKnown = maxResolved >= 0 ? maxResolved : legacyMax !== null ? legacyMax - 1 : -1;
+  const lastKnown = lastResolved >= 0 ? lastResolved : legacyLast !== null ? legacyLast - 1 : -1;
+
+  let maxUnlockedIndex: number;
+  let lastPlayedIndex: number;
+  let downgraded = 0;
+
+  if (maxResolved === POINTER_MISMATCH) {
+    // Q8 丙档（判据源 `save-progress §2.6.4.1` 定义 1/2）：失配 ⇒ 回落到**另一根仍可解析的
+    // 指针**所指的关；⛔ 静默回 1（乙档已否）。
+    // 星账键集⛔ 作锚（v1.3-R4）：终态星账**稠密物化**（每关补 0）⇒ 键存在性恒真，取「装配序
+    // 最靠后」必落**表末位** = 禁止实现②「白送全章」；读星值又被④封死 ⇒ 星账在本档无证据。
+    // 另一根也指不回 ⇒ 定义 4 兜底首个开放章首关（本版 = 第 1 关）。
+    maxUnlockedIndex = lastKnown >= 0 ? lastKnown : 0;
+    downgraded += 1;
+  } else {
+    maxUnlockedIndex = maxKnown >= 0 && maxKnown < levelKeys.length ? maxKnown : 0;
+  }
+
+  if (lastResolved === POINTER_MISMATCH) {
+    // 同上（各自判定）：锚 = 解锁位；两根都指不回 ⇒ 定义 4 兜底。
+    lastPlayedIndex = maxKnown >= 0 ? maxKnown : 0;
+    downgraded += 1;
+  } else {
+    lastPlayedIndex = lastKnown >= 0 && lastKnown < levelKeys.length ? lastKnown : 0;
+  }
+
+  // 身份只住档内：写回值 = 下标镜像反查回 token（⛔ 反解 token、⛔ 自造 token）。
+  const maxUnlockedKey = levelKeys[maxUnlockedIndex] ?? '';
+  const lastPlayedKey = levelKeys[lastPlayedIndex] ?? '';
+
   const ledger = normalizeStarLedger(raw, levelKeys);
-  // 旧位置型数组必须在写回时物理消失（DEC-1「⛔ 双轨」）。
-  const staleKeys: string[] = raw[STALE_STARS_KEY] !== undefined ? [STALE_STARS_KEY] : [];
+  // 旧位置型数组与**旧数值指针**都必须在写回时物理消失（DEC-1「⛔ 双轨」/ M-19）。
+  const staleKeys: string[] = [];
+  if (raw[STALE_STARS_KEY] !== undefined) staleKeys.push(STALE_STARS_KEY);
+  for (let i = 0; i < STALE_POINTER_KEYS.length; i += 1) {
+    const key = STALE_POINTER_KEYS[i];
+    if (raw[key] !== undefined) staleKeys.push(key);
+  }
   // 可观测性 = `I3`「孤儿记录可枚举」与 §2.4「不弹错、不中断启动」的平衡点：只在
   // **档内真有条目被丢弃**时留一行汇总（`missing` 作信息量同行报出：新关无记录 = 正常事实，
   // ⛔ 不单独触发告警，否则每次出厂新档都会误报）；一次性、⛔ 逐条刷屏、⛔ 不新增玩家可见
   // 反馈（S8 §4「降级静默」）。测试臂用**注入桩捕该 warn**，不用源码正则（§17 教训）。
   if (ledger.dropped > 0) {
     console.warn(`[beads] save uid unmatched: dropped=${ledger.dropped}, missing=${ledger.missing}`);
+  }
+  // Q8 可观测（§2.6.4.1 定义 6）：失配次数进 logger，⛔ 玩家可见反馈。
+  // ⚠ 射程边界②的 `grant_chapter_unknown` **本批未实现**：它需章维信息（「锚是否落在
+  //   原已获准进入的那一章」），而存档层拿不到章表；按统一规则回落并如实登记。
+  if (downgraded > 0) {
+    console.warn(
+      `[beads] save pointer downgraded: count=${downgraded}, maxUnlocked=${maxUnlockedKey || '(none)'}, lastPlayed=${lastPlayedKey || '(none)'}`,
+    );
   }
   // 一次性取出原始 settings 引用（归一入参、`changed` 比较与注释均读它，⛔ 不二次下标）。
   const rawSettings = raw['settings'];
@@ -427,8 +532,8 @@ export function normalizeBeadsSave(
     version: SAVE_VERSION,
     runs: num(raw['runs'], 0),
     onboarded: raw['onboarded'] === true,
-    maxUnlockedLevel: maxUnlocked ?? 1,
-    currentLevel: current ?? 1,
+    maxUnlockedKey,
+    lastPlayedKey,
     sprintBestScore: num(raw['sprintBestScore'], 0),
     sprintBestStage: num(raw['sprintBestStage'], 0),
     starsByUid: ledger.stars,
@@ -437,8 +542,9 @@ export function normalizeBeadsSave(
 
   const changed =
     raw['runs'] !== save.runs ||
-    raw['maxUnlockedLevel'] !== save.maxUnlockedLevel ||
-    raw['currentLevel'] !== save.currentLevel ||
+    // 身份指针：v4 档无新键（undefined ≠ token）或失配降级（旧 token ≠ 新 token）都报真。
+    raw['maxUnlockedKey'] !== save.maxUnlockedKey ||
+    raw['lastPlayedKey'] !== save.lastPlayedKey ||
     raw['sprintBestScore'] !== save.sprintBestScore ||
     raw['sprintBestStage'] !== save.sprintBestStage ||
     // 星账侧的 changed 全部由 `normalizeStarLedger` 裁定（形态 ≠ v5 直读、孤儿丢弃、缺条目、
@@ -456,7 +562,7 @@ export function normalizeBeadsSave(
     // 等值 ⇒ 恰好是要报 changed 的场景（本处不需要归一后的类型，比较的就是原始脏值）。
     !settingsEqual(rawSettings as unknown as BeadsSettings, save.settings);
 
-  return { save, changed, staleKeys };
+  return { save, changed, staleKeys, maxUnlockedIndex, lastPlayedIndex };
 }
 
 /**
@@ -537,11 +643,15 @@ export function preserveCorruptBackup(storage: Storage, key: string = SAVE_KEY):
 }
 
 /**
- * Which level to enter on boot (S1 §8-1, no menu):
+ * Which level to enter on boot (S1 §8-1, no menu)：
  *   - `runs === 0` → level 1 (first launch)
- *   - otherwise    → `currentLevel` (resume the furthest unlocked)
+ *   - otherwise    → 续玩位身份解析出的 **0-based 下标** + 1（还原 1-based 契约）
+ *
+ * 签名变化（S-2b）：不再吃 `save.currentLevel`（位置数已从档里消失）；
+ * 身份 → 下标的换算**只**发生在 `normalizeBeadsSave` 一处（DEC-3），
+ * 本函数只做 1-based 还原，⛔ 第二处换算。
  */
-export function bootLevel(save: BeadsSave): number {
+export function bootLevel(save: Pick<BeadsSave, 'runs'>, lastPlayedIndex: number): number {
   if (save.runs === 0) return 1;
-  return save.currentLevel;
+  return lastPlayedIndex + 1;
 }

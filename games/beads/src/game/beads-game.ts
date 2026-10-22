@@ -135,16 +135,13 @@ import {
   type GameMode,
 } from './state.js';
 import {
+  BEADS_MIGRATIONS,
   SAVE_KEY,
   SAVE_VERSION,
   bootLevel,
   collapseStars,
   defaultBeadsSave,
   flattenStars,
-  migrateV1ToV2,
-  migrateV2ToV3,
-  migrateV3ToV4,
-  migrateV4ToV5,
   normalizeBeadsSave,
   preserveCorruptBackup,
   toBeadsSavePatch,
@@ -399,6 +396,13 @@ export class BeadsGame implements Game {
 
   private _services: GameServices | null = null;
   private _save: SaveManager<BeadsSave> | null = null;
+  /**
+   * 解锁位 / 续玩位的 **0-based 下标镜像**（S-2b / DEC-7）：身份 token 只住档内，
+   * 运行时一律吃下标（视图契约 L5 零改动）。两值只由两处写：BOOT 归一、
+   * `_persistProgress` 推进（后者只增不减，I7 棘轮）。
+   */
+  private _maxUnlockedIndex = 0;
+  private _lastPlayedIndex = 0;
   /** D-03 崩溃恢复档 IO（另键 sidecar，WXG-T-059；与 S8 常规档物理隔离）。协作类见 beads-game/crash-snapshot-io.ts。 */
   private readonly _crashIO: CrashSnapshotIO;
 
@@ -422,6 +426,11 @@ export class BeadsGame implements Game {
   private readonly _canStartRun?: () => boolean;
   /** 体力回满发奖回调（options.onStaminaRefill；无 shell 时 undefined）。 */
   private readonly _onStaminaRefill?: () => void;
+  /**
+   * 跨章推进闸门（options.canAdvanceAcrossArc；无 shell 时 undefined ⇒ 不设门、行为逐字不变）。
+   * S-4：只在**章界那一刻**参与解锁位推进（I7 棘轮），⛔ 参与门票归约本体。
+   */
+  private readonly _canAdvanceAcrossArc?: (fromIndex: number, toIndex: number) => boolean;
   /** 在飞广告种类：区分续时（revive）与体力回满（staminaRefill）的发奖路由。 */
   private _adKind: 'revive' | 'staminaRefill' | null = null;
   /**
@@ -468,6 +477,7 @@ export class BeadsGame implements Game {
     this._onMenuRequest = options.onMenuRequest;
     this._canStartRun = options.canStartRun;
     this._onStaminaRefill = options.onStaminaRefill;
+    this._canAdvanceAcrossArc = options.canAdvanceAcrossArc;
 
     this._sprintCap = validatedSprintTime(options.sprintTime);
     if (options.sprintTime !== undefined && this._sprintCap !== options.sprintTime) {
@@ -640,7 +650,7 @@ export class BeadsGame implements Game {
 
   /** 最高解锁关（1-based）；无存档 = 1。供 shell 选关屏每帧只读（不分配）。 */
   get maxUnlockedLevel(): number {
-    return this._save ? this._save.data.maxUnlockedLevel : 1;
+    return this._save ? this._maxUnlockedIndex + 1 : 1;
   }
 
   /**
@@ -814,9 +824,9 @@ export class BeadsGame implements Game {
       // 逐字段降级——不注册则 SaveManager 会把旧档判为待迁移而重置丢进度。
       // v4→v5（ADR-0034 **DEC-4**）同一判例形状：**只做版本标记**，⛔ 不在迁移里做 uid
       // 换算（`Migration` 签名拿不到关表轴），真正的对位换算住 `normalizeBeadsSave`。
-      // ⚠ 实测（DEC-5）：本族四条迁移均返回 `SAVE_VERSION` 而非 `n+1` ⇒ 一条即跳到底、
-      //   v1/v2/v3 老档根本不经 `migrations[4]` ⇒ 形态探测必须能兼住（链改严另单 S-7）。
-      migrations: { 1: migrateV1ToV2, 2: migrateV2ToV3, 3: migrateV3ToV4, 4: migrateV4ToV5 },
+      // **S-7 改严**：链 = `BEADS_MIGRATIONS`（单一真源，每级返回 n+1）；此前四条都返回
+      // `SAVE_VERSION` ⇒ 一条跳到底、后续迁移被静默跳过（ADR §6 S-7 / M-13）。
+      migrations: BEADS_MIGRATIONS,
     });
 
     // D-03：崩溃恢复档是**另键** sidecar（提案 §5 方案 A）——S8 的键 / version /
@@ -848,6 +858,9 @@ export class BeadsGame implements Game {
     // S8 §2.2 `stars`：**边界换算恰一次**（uid 账 → 下标稠密数组，长度 = `levelKeys`）。
     // 运行时与视图继续吃下标数组（7 处取数位点零改动，ADR-0034 §4.2）⇒ 身份不进热路径。
     this._starsByLevel = flattenStars(normalized.save.starsByUid, this._levelKeys);
+    // 两根进度指针的身份 → 下标镜像（S-2b：这是**唯一**换算处，DEC-3）。
+    this._maxUnlockedIndex = normalized.maxUnlockedIndex;
+    this._lastPlayedIndex = normalized.lastPlayedIndex;
     // 十个设置值整对象装载（非法值已由 `normalizeSettings` 逐字段降级为默认）；
     // 同批换皮肤 tokens 引用、按 bgm 静音态启停背景乐。
     this._settings.load(normalized.save.settings);
@@ -1457,6 +1470,35 @@ export class BeadsGame implements Game {
   }
 
   /**
+   * **跨章入口授权**（WXG-T-345 · S-4；ADR-0034 §6 S-4 行 / §6.1 M-15 的唯一写入点）。
+   *
+   * 门票只在**首次进入该章那一刻**作为放行依据（shell 在 `pick-level` 章首格上算）；
+   * 放行即把**既有两根进度指针**推到该关 —— 此后「已得入口」的证据就住在这两根指针里：
+   * 后续章内解锁继续走“线性过一开一”，**不回看门票**（I7 棘轮：⛔ 因内容变更回收入口）。
+   * ⛔ 新增布尔位、⛔ 碰星账（星是通关事实，归 `_persistProgress` 的收拢腿）。
+   *
+   * 幂等：目标已在解锁位内且恰为续玩点 ⇒ 不重复写档。无存档（未 `init` 的独立 play）⇒ 只动内存镜像。
+   * 无身份槽（`''` = dev 导入草案，未过生成器）⇒ 不推指针（与 `_persistProgress` 同判据）。
+   */
+  unlockAcrossArc(index: number): void {
+    if (this._levels.length === 0) return;
+    const clamped = Math.max(0, Math.min(index, this._levels.length - 1));
+    const key = this._levelKeys[clamped] ?? '';
+    if (key === '') return;
+    if (clamped <= this._maxUnlockedIndex && clamped === this._lastPlayedIndex) return;
+    this._maxUnlockedIndex = Math.max(this._maxUnlockedIndex, clamped);
+    this._lastPlayedIndex = clamped;
+    const save = this._save;
+    if (!save) return;
+    const maxKey = this._levelKeys[this._maxUnlockedIndex] ?? '';
+    save.patch({
+      maxUnlockedKey: maxKey !== '' ? maxKey : save.data.maxUnlockedKey,
+      lastPlayedKey: key,
+    });
+    save.save();
+  }
+
+  /**
    * 调试导入（WXG-T-179 · beads-studio）：将一关**已通过 BOOT 校验**的外部关卡
    * 追加到关表末尾并跳进去试玩。校验失败 ⇒ 返回错误串且**不改关表**（不伪造可玩态）。
    * 注：这是宿主侧调试通道，产物不入 `design/levels/`（入关走 `levels:sync`）。
@@ -1632,7 +1674,8 @@ export class BeadsGame implements Game {
 
   /**
    * BOOT routing (S1 §8-1, no menu): first launch → level 1; otherwise resume
-   * `currentLevel`. Invalid level data keeps the game in BOOT forever.
+   * the **last-played pointer** (already resolved to a 0-based index at the save
+   * boundary). Invalid level data keeps the game in BOOT forever.
    */
   private _boot(): void {
     if (this._bootErrors.length > 0) {
@@ -1640,7 +1683,7 @@ export class BeadsGame implements Game {
       return;
     }
     const save = this._save;
-    const target = save ? bootLevel(save.data) : 1;
+    const target = save ? bootLevel(save.data, this._lastPlayedIndex) : 1;
 
     this._levelIndex = Math.max(0, Math.min(target - 1, this._levels.length - 1));
     this._setupLevel(this._levelIndex);
@@ -2296,10 +2339,27 @@ export class BeadsGame implements Game {
     const save = this._save;
     if (!save) return;
     const levelCount = this._levels.length;
-    const next = Math.min(this._levelIndex + 2, levelCount);
+    // 0-based：过关 ⇒ 下一关（夹到关表末位）。
+    const rawNext = Math.min(this._levelIndex + 1, levelCount - 1);
+    // `[WXG-T-345]` S-4 **跨章推进钳制**（ADR-0034 §6 S-4 / §6.1 M-15）：门票只在章界那一刻
+    // 参与解锁位推进 —— 回调不放行 ⇒ 解锁位停在当前关（本章末关），⛔ 越界把下一章首关白送。
+    // 星账照写（关卡已通是事实）；「已得入口」的证据只住两根指针 ⇒ 运行期⛔ 回看门票（I7）。
+    const blocked =
+      rawNext !== this._levelIndex &&
+      this._canAdvanceAcrossArc !== undefined &&
+      !this._canAdvanceAcrossArc(this._levelIndex, rawNext);
+    const nextIndex = blocked ? this._levelIndex : rawNext;
+    const nextKey = this._levelKeys[nextIndex] ?? '';
+    // 解锁位**只增不减**（I7 棘轮 D）；右值取自身份表，⛔ 数值位置。
+    const maxIndex = Math.max(this._maxUnlockedIndex, nextIndex);
+    const maxKey = this._levelKeys[maxIndex] ?? '';
+    // 无身份槽（`''` = beads-studio 导入草案）不入档、不推进指针：草案未过生成器无 uid，
+    // 写空串会把指针打回兜底（降级登记，非发布路径）。
+    if (maxKey !== '') this._maxUnlockedIndex = maxIndex;
+    if (nextKey !== '') this._lastPlayedIndex = nextIndex;
     save.patch({
-      maxUnlockedLevel: Math.max(save.data.maxUnlockedLevel, next),
-      currentLevel: next,
+      maxUnlockedKey: maxKey !== '' ? maxKey : save.data.maxUnlockedKey,
+      lastPlayedKey: nextKey !== '' ? nextKey : save.data.lastPlayedKey,
       // S8 §2.2 `stars` / §8-2：每关历史最高星（max 在过关记分处取，这里只负责落档）。
       // ADR-0034 **DEC-3** 的第二条边界换算（收拢，每局 ≤1 次）：下标镜像 → 身份账；
       // 无身份槽（`''`，dev 导入草案）不入档。⛔ 不在本路径构造 `levelKeys`（只读镜像）。

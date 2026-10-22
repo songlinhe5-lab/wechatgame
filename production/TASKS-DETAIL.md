@@ -4238,4 +4238,83 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - ⚠ `check:tasks` 观察哨：主表 105 行 > 收敛阈值 20 ⇒ 仍建议另批 `pnpm run tasks:archive`（高影响动作，须用户明令）。
 - **真机腿**：`[Blocked: 无真机 / 无 AppID]`；旧档升级的真机验证、上传后的灰度腿均无法在本环境取证（解除条件 = 取得 AppID 与密钥后走 `wxgame-minigame-bridge` + 试玩抽样）。
 
+## WXG-T-345
+
+### 1. 立项与切批
+
+- **用户令（2026-10-22）**：对上一步三选项选 **1 =「现在就开这批（门票 + 闸门）」**。上位令 = 同日「每大关所有关需要获取到 3 星，才能凑足打开下一个大关的钥匙」+「**存档与门票一起做**」。
+- **射程 = ADR-0034 §6 的四个施工片**（逐片落地面见该表）：
+  1. **S-3 门票归约纯函数**：算出「这一大关够不够格开放」；不写存档、不碰界面、不动既有章态显示；
+  2. **S-2b 两根进度指针身份化**：「推进到第几关」与「解锁到第几关」从「第几个」改成「哪一关」；
+  3. **S-4 闸门接线 + 只读告知件**：把门票结果并进选关页点格那行判断，并给界面两个只读字段（章锁态、满星 n/N）；
+  4. **S-7 迁移链改严**：旧版本档一次跑完 1→2→3→4→5 五级、每级必前进一号，⛔ **不得**跳级或返回原号。
+- **⚠ 施工顺序硬约束（本批切批的关键一条）**：S-3 与 S-7 可先行；**S-2b 必须先于 S-4** —— 闸门落地时要写的「已得入口不回收」正好写在这两根指针上，先后颠倒会造出「两条腿各搬一半」的第三形态（ADR §6 S-2b 格「顺序硬约束」段 + DEC-7 补充条款 ① 明令禁止）。
+- **轨分配（写范围互不重叠，沿 K-153 判例）**：工程轨 T-4（程基岩）只写 `games/beads/src/**` / `games/beads/tests/**` / `tools/scripts/**`；设计轨 T-1Q（文策渊）只写 `games/beads/design/**`（裁 Q8/Q9、把门票判据转成硬条）；主理人负责切批、对帐、全量门禁与入库。
+
+### 2. 逐片落地面与验收判据（摘要；逐字锚点以 ADR-0034 §6 表为准）
+
+| 片 | 落地位置 | 验收什么算过 | 变异臂 |
+|---|---|---|---|
+| S-3 | 新文件 `games/beads/src/systems/arc-ticket.ts`（暂名，纯函数） | 全 3★ ⇒ 开；章内一关 2★ ⇒ 不开（但「本章已通关」显示仍为真，两层不混用）；空清单 ⇒ 两层都假；首章无前置；归约集合 = 本章清单内每一个槽（boss 关与教学关**不豁免**）；输出含 `n/N` 供只读件 | M-11（两层不混用）/ M-17（豁免臂） |
+| S-7 | `games/beads/src/game/save-schema.ts` 的 `migrations[n]` 族 | v1 档一次跑完 1→5 全链、`migrationsApplied` 恰 5 个台阶；摘掉 4→5 那一级该例必红 | M-13 |
+| S-2b | `save-schema.ts`（字段声明 / 默认值 / 读档 / 写回 / `changed` 比较 / `staleKeys` 追加两条旧数值键 / `bootLevel()`）+ `beads-game.ts`（写侧收拢点已有，只换右值；getter 签名不变） | 插一关 / 调展示序后两指针仍指得回同一关；旧数值键未点名清除 ⇒ 红（框架浅合并不删键）；降级档位按 Q8 裁定固化；**视图契约零改动** | M-18（身份免疫）/ M-19（双轨并存）/ M-20（降级档） |
+| S-4 | `games/beads/src/game/beads-shell.ts` 的 `pick-level` 分支（现行判断 = `levelIdx + 1 > maxUnlockedLevel` 零事件）+ 新只读 ViewModel 字段 | 章内解锁不变（过一开一）；跳章受门票拦；未达标的章仍可进入浏览、但格全锁（零事件 / 零扣心 / 灰珠 + 小锁）；已得入口不因后续加关而回收；门票输入里 ⛔ 不出现章 id | M-12 / M-15（棘轮）/ M-16（静态臂） |
+
+### 3. 禁止项（铁律与边界）
+
+- ⛔ 触 `systems-index §3` 任何冻结数值：门票判据是「全 3★」，读的是既有 `tierSecondsFor` 三线与星账，**零新常量**；§3.7 只允许加注。
+- ⛔ 往存档里加「本章已开」布尔（门票每次现算）；⛔ 复用既有 `_arcState.allCleared` 当门票（它答的是「全通关」，两层概念不同）。
+- ⛔ 借落码之机改判据语义；⛔ 以「文档已写」当已实现；⛔ 手编 `.scene/.prefab/.meta`；`games/*/src` ⛔ `import 'cc'`；⛔ 每帧路径新增分配；⛔ `Math.random()`。
+- ⛔ 改既有三态显示口径（橱窗卡「通关 / 推进中 / 锁」四字不变）；⛔ 因加新按钮或新弹窗（告知件 = 常驻只读，⛔ 注册热区）。
+
+### 4. 待裁与遗留
+
+- **Q8（身份指不回时两指针落哪一档）**：Q8 只阻塞 S-2b 的**降级档取值**，不阻塞其结构开工；工程侧先按「⛔ 丢进度」一侧实现并标注待裁，裁定到位后只改一处。
+- **Q9（插关后仍指得回同一关缺玩家可见硬条）**：建议本轮由设计轨转为 `save-progress §8` 硬条（编号顺延 23），并把引用同步到 `star-collect-rule` 与 EP14；⛔ 改既有条目正文。
+- 真机与上传腿 `[Blocked]`（无 AppID / 无密钥）；换制期开发档「至少清一次」已发生；S-2b 落地只多一次两指针回落 ⇒ 须知会 QA。
+
+### 5. 验证（2026-10-22 收尾实测；以下数值均为本机本轮跑出，未拿上一批读数代填）
+
+**① 全量门禁**：`pnpm run verify` = **PASS 22 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0**（22 项逐项执行、不短路）。与本批直接相关的几项读数：
+
+- **单元测试**：`npx vitest run --root games/beads` = **102 个测试文件 / 1210 passed + 3 skipped**（3 个跳过为既有跳过项，本批未新增跳过）；
+- **框架镜像**（`framework:sync:check`）：拷贝件与源码一致 —— beads（framework 61 + game 82）、breakout（framework 61 + game 16）；
+- **关卡数据**（`levels:check`）：beads 的 `levels-data.ts` / `arcs.ts` 与 `manifest.json` / `chapters/` 一致，breakout 亦一致，2 款游戏全过；
+- **架构静态门**（`check:arch`）：`OK — no violations`，仅 1 条提示，内容为 Cocos 目录内存在 330 个由编辑器生成的 `.scene/.prefab/.meta`（该类文件只允许编辑器产出，属正常提示，非违规）；
+- **Cocos 面**（`cocos:check` / `check:cocos-mask` / `check:es5spread`）：镜像代码、遮罩判据与 ES5 展开契约均 PASS。
+
+**② 九条变异臂自证**（逐条先把代码改成错误实现、确认对应用例变红，再逐字节还原）：脚本 `temp/mut-wxg-t-345.py`，逐条读数 `temp/mut-wxg-t-345-result.json`，结果 **9/9 全部按预期变红**：
+
+- 满星判据（臂 M-11）与「boss 关 / 教学关不豁免」（臂 M-17）⇒ 咬住 [arc-ticket.test.ts](file:///Users/stephenhe/Development/workspace/wechatgame/games/beads/tests/arc-ticket.test.ts) 的「两层不混用」与「归约集合无豁免」两组；
+- 章内线性解锁（臂 M-12）、门票输入不得出现章 id（臂 M-16）、解锁位棘轮（臂 M-15）⇒ 咬住 [arc-ticket-gate.test.ts](file:///Users/stephenhe/Development/workspace/wechatgame/games/beads/tests/arc-ticket-gate.test.ts)；
+- 旧版本档一次跑完整条迁移链（臂 M-13）⇒ 咬住 [save-schema.test.ts](file:///Users/stephenhe/Development/workspace/wechatgame/games/beads/tests/save-schema.test.ts) 的 1→5 全链断言；
+- 两根进度指针的内容变更免疫（臂 M-18）、旧数值键点名清除（臂 M-19）、身份指不回时的降级锚（臂 M-20）⇒ 咬住 [save-pointer-identity.test.ts](file:///Users/stephenhe/Development/workspace/wechatgame/games/beads/tests/save-pointer-identity.test.ts)。
+
+还原后复跑单测仍为上述 102 个文件 / 1210 passed + 3 skipped，排除「变异未还原」造成的假红或假绿。
+
+**③ 包体（release 基线档，本批源码重建后实测）**：先 `pnpm run build:cocos`（脚本默认即 release 基线：minify on / sourcemap off，见判例 K-111），再 `pnpm run check:size`：
+
+- beads 主包 **3318.7 KB / 111 文件**（gzip 参考 1664.0 KB），距 4096 KB 红线余量 **777.3 KB**；
+- 对照上一批（T-3）读数 3314.4 KB ⇒ 本批四片净增 **+4.3 KB**，文件数 111 未变；
+- ⚠ 过程留痕：重建前跑的 `check:size` 曾读到 3319.0 KB，但产物时间戳（12:16）早于本批源码（12:34）⇒ 判为旧产物读数并作废，重建后才取上述数值，避免「拿旧产物当新证据」（判例 K-152 同型）。
+
+**④ 文档与知识库门**：`kb:check` **PASSED**（八重校验；活跃 152 / 归档 0）；`ctx:build` 重建索引（文件 470 / 章节 6734）后 `ctx:check` **OK**（结构门 A/B/C/D/D2 与基线回归全过）；`check:tasks` / `check:links` 均 PASS。
+
+**⑤ 铁律与禁止项复核**：
+
+- 上一轮手写的 `games/beads/cocos/assets/scripts/game/systems/arc-ticket.ts.meta` **已删除**；随后 `pnpm run build:cocos`（release 基线档）为新增的 `arc-ticket.ts` **自动重新生成**了一份同构 `.meta`（`ver 4.0.24 / importer: typescript`，与既有 `save-schema.ts.meta` 同款，生成时间 12:39 晚于源码）⇒ 该文件属合法编辑器产物、随本批入库；判定口径 = **生成者与格式**，不是「文件是否存在」。`framework:sync` 仍只写 `.ts`、不生成也不改写 `.meta`；
+- 本批 **零 `systems-index §3` 冻结值改动、零 DEC 决策本体改动**，改动面清单见 [ADR-0034 §8](file:///Users/stephenhe/Development/workspace/wechatgame/docs/architecture/adr/ADR-0034-beads-save-uid-index-flatten.md)；
+- 新增的门票归约、闸门判断与迁移链均为确定性纯逻辑，未引入 `Math.random()`，未在每帧路径新增集合分配。
+
+**⑥ 环境阻塞（如实）**：真机扫码与上传腿仍 `[Blocked: 无真机 / 无 AppID / 无密钥]` ⇒ 本批验收只到「纯 Node 单测 + 浏览器 harness + CLI 构建」为止，⛔ 未做真机验收。
+
+**结论**：四片判据全部有挂用例、九条变异臂均能咬断、全量门禁全绿 ⇒ 本批可按「工程侧完成」入账；真机腿另行挂起。
+
+**⑦ 知识沉淀**（`pnpm run kb:sync --task=WXG-T-345`）：**新增 2 条 / 修改 0 / 激活 0 / 归档 0**；`kb:audit` 无归档相似命中；沉淀后 `kb:check` 八重校验 PASSED（活跃 **154** / 归档 0）：
+
+- **K-156**（判据实测）：度量「已有构建产物」的读数（包体、快照、生成物校验）必须先核对产物时间戳，否则读到的是上一批的数 —— 源于本批包体读数一次作废重测；
+- **K-157**（测试守卫）：夹具手搓的「最小形状」若与生产装配形状不同，对数据形状敏感的边界分支永远走不到，变异也不会红 —— 源于降级锚用例首版的稀疏星账假绿；
+- ⚠ 与本条相邻的既有条目 **K-155**（同一份决策文里「决策条文」与「施工清单」各写各的）已由上一批登记，本批不重复沉淀。
+
+
 

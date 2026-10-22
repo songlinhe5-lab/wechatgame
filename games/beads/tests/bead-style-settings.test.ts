@@ -249,10 +249,10 @@ const axisOf = (count: number): readonly string[] => AXIS.slice(0, Math.max(1, M
 function normalizeDoc(
     doc: unknown,
     levelCount = AXIS.length,
-): { save: ReturnType<typeof normalizeBeadsSave>['save']; changed: boolean; staleKeys: readonly string[] } {
+): { save: ReturnType<typeof normalizeBeadsSave>['save']; changed: boolean; staleKeys: readonly string[]; maxUnlockedIndex: number; lastPlayedIndex: number } {
     const keys = axisOf(levelCount);
     const r = normalizeBeadsSave(doc, keys.length, keys);
-    return { save: r.save, changed: r.changed, staleKeys: r.staleKeys };
+    return { save: r.save, changed: r.changed, staleKeys: r.staleKeys, maxUnlockedIndex: r.maxUnlockedIndex, lastPlayedIndex: r.lastPlayedIndex };
 }
 
 // ───────────────────────────────────────────── TC-STY-01 · S9 §8-14（循环 + 即写 + 不切相位）
@@ -767,8 +767,8 @@ describe('TC-SAVE-12 腿②③④ · S8 §8-12：非法值 ⇒ 该字段单独�
         expect(save.settings.beadStyle).toBe(FIRST);
         expect(save.settings.beadSize).toBe('full');
         expect(save.runs).toBe(6);
-        expect(save.currentLevel).toBe(4);
-        expect(save.maxUnlockedLevel).toBe(5);
+        expect(save.maxUnlockedKey).toBe(AXIS[4]);
+        expect(save.lastPlayedKey).toBe(AXIS[3]);
         expect(save.sprintBestScore).toBe(777);
         expect(save.starsByUid).toEqual(starsLedger([3, 2, 1]));
         expect(save.settings).toMatchObject({ bgmMuted: true, sfxMuted: true, reduceMotion: true, largeText: true, vibrate: false, debugInfo: true });
@@ -828,13 +828,13 @@ describe('TC-SAVE-13 运行时腿 · S8 §8-13：不含两字段的存量档 ⇒
 
         const normalized = normalizeBeadsSave(legacy, LEGACY_LEVEL_COUNT, axisOf(LEGACY_LEVEL_COUNT));
         expect(normalized.save.runs).toBe(9);
-        expect(normalized.save.maxUnlockedLevel).toBe(LEGACY_LEVEL_COUNT);
-        expect(normalized.save.currentLevel).toBe(LEGACY_LEVEL_COUNT);
+        expect(normalized.maxUnlockedIndex).toBe(LEGACY_LEVEL_COUNT - 1);
+        expect(normalized.lastPlayedIndex).toBe(LEGACY_LEVEL_COUNT - 1);
         expect(normalized.save.sprintBestScore).toBe(777);
         expect(normalized.save.sprintBestStage).toBe(3);
         // 位置形 ⇒ 身份形一次性入口：旧第 0 位落到**轴第 0 槽的身份**上（ADR-0034 DEC-5 规则 2）。
         expect(normalized.save.starsByUid).toEqual(starsLedger([3], LEVELS.slice(0, LEGACY_LEVEL_COUNT)));
-        expect(normalized.staleKeys, '旧数组需被写回物理清除（DEC-1 ⛔ 两轨并存）').toEqual(['starsByLevel']);
+        expect(normalized.staleKeys, '旧数组 + 两条旧数值指针均需写回物理清除（DEC-1 ⛔ 两轨并存）').toEqual(['starsByLevel', 'maxUnlockedLevel', 'currentLevel']);
         expect(normalized.save.settings).toMatchObject(legacySettings());
         expect(normalized.changed).toBe(true); // 缺字段 ⇒ 报 changed（B1-Q3 修后行为）
 
@@ -847,13 +847,19 @@ describe('TC-SAVE-13 运行时腿 · S8 §8-13：不含两字段的存量档 ⇒
         const controlStore = newStorage();
         const complete = JSON.parse(JSON.stringify(legacy)) as {
             settings: Record<string, unknown>;
-            starsByLevel?: unknown;
-            starsByUid?: unknown;
+            [key: string]: unknown;
         };
         // WXG-T-344（ADR-0034 DEC-1/DEC-5）：对照臂必须是**已落成 v5 形**的完好档——
         // 旧位置数组留在档里 = 一次性入口已触发 changed（与缺字段一样各多写一次），
         // 两臂同带旧形 ⇒ 差值归零、本判据失真（换形实测踩到，故在此明写）。
         delete complete.starsByLevel;
+        // S-2b：两条旧数值指针同样进 `staleKeys` ⇒ 对照臂必须换成身份指针并删旧键，
+        // 否则两臂都因旧键各多写一次、差值归零（与上面 `starsByLevel` 同一课）。
+        delete complete.maxUnlockedLevel;
+        delete complete.currentLevel;
+        const ctlAxis = levelIdentityKeys([levelOf(5)]);
+        complete.maxUnlockedKey = ctlAxis[LEGACY_LEVEL_COUNT - 1];
+        complete.lastPlayedKey = ctlAxis[LEGACY_LEVEL_COUNT - 1];
         complete.starsByUid = { [levelOf(5).uid]: 3 }; // 与本夹具同一身份轴（⛔ 手抄 token）
         complete.settings['beadStyle'] = FIRST;
         complete.settings['beadSize'] = 'full';

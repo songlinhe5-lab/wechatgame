@@ -24,13 +24,13 @@ import { LEVELS, levelIdentityKeys } from '../src/config/levels.js';
 import { ARCS } from '../src/config/arcs.js';
 import {
   BACKUP_KEY,
+  BEADS_MIGRATIONS,
   SAVE_KEY,
   SAVE_VERSION,
   bootLevel,
   collapseStars,
   defaultBeadsSave,
   flattenStars,
-  migrateV1ToV2,
   migrateV4ToV5,
   normalizeBeadsSave,
   normalizeSettings,
@@ -67,8 +67,9 @@ const validSave = () => ({
   runs: 3,
   // WXG-T-097 BD-32：v3 起显式引导标记（runs>0 的存量语义）。
   onboarded: true,
-  maxUnlockedLevel: 4,
-  currentLevel: 3,
+  // S-2b：两根指针存**身份 token**（不再存 1-based 位置数）。
+  maxUnlockedKey: KEYS[3],
+  lastPlayedKey: KEYS[2],
   sprintBestScore: 1200,
   sprintBestStage: 5,
   starsByUid: starsLedger(STAR_HEAD),
@@ -98,8 +99,8 @@ describe('beads save schema', () => {
       version: SAVE_VERSION,
       runs: 0,
       onboarded: false,
-      maxUnlockedLevel: 1,
-      currentLevel: 1,
+      maxUnlockedKey: '',
+      lastPlayedKey: '',
       sprintBestScore: 0,
       sprintBestStage: 0,
       // v5：出厂默认不知关表 ⇒ 空身份账；稠密终态由 `normalizeBeadsSave` 物化。
@@ -145,7 +146,7 @@ describe('beads save schema', () => {
     expect(repaired.changed, '钳正 ⇒ 写回一次').toBe(true);
     // 逐项钳正**不弃整档**：其余字段照常读出。
     expect(repaired.save.runs).toBe(3);
-    expect(repaired.save.maxUnlockedLevel).toBe(4);
+    expect(repaired.maxUnlockedIndex, '身份指针不受星账钳正牵连').toBe(3);
     // 「档短于关表」（旧 §2.4 的长度臂）在新制下 = 缺记录槽 ⇒ 补 0，⛔ 不搬前缀。
     const short = norm({ ...validSave(), starsByUid: { [KEYS[0]]: 3 } });
     expect(short.save.starsByUid, '缺槽补 0、余槽不因长度失配对位').toEqual(starsLedger([3]));
@@ -210,17 +211,24 @@ describe('beads save schema', () => {
   });
 
   // S1 §8-10：越界值安全降级，不崩溃、不中断启动。
-  it('degrades out-of-range level indices to 1', () => {
-    expect(norm({ ...validSave(), maxUnlockedLevel: 99 }).save.maxUnlockedLevel).toBe(1);
-    expect(norm({ ...validSave(), currentLevel: 0 }).save.currentLevel).toBe(1);
-    expect(norm({ ...validSave(), currentLevel: LEVEL_COUNT + 1 }).save.currentLevel).toBe(1);
-    expect(norm({ ...validSave(), currentLevel: 2.5 }).save.currentLevel).toBe(1);
-    expect(norm({ ...validSave(), maxUnlockedLevel: '4' }).save.maxUnlockedLevel).toBe(1);
+  // S-2b 后旧数值键 = v4 档的**一次性入口**（身份键缺位时才读）；越界一律降级到首关。
+  it('degrades out-of-range legacy level indices to the first level', () => {
+    const legacy = (extra: Record<string, unknown>) => ({
+      ...validSave(), maxUnlockedKey: '', lastPlayedKey: '', ...extra,
+    });
+    expect(norm(legacy({ maxUnlockedLevel: 99 })).maxUnlockedIndex).toBe(0);
+    expect(norm(legacy({ currentLevel: 0 })).lastPlayedIndex).toBe(0);
+    expect(norm(legacy({ currentLevel: LEVEL_COUNT + 1 })).lastPlayedIndex).toBe(0);
+    expect(norm(legacy({ currentLevel: 2.5 })).lastPlayedIndex).toBe(0);
+    expect(norm(legacy({ maxUnlockedLevel: '4' })).maxUnlockedIndex).toBe(0);
   });
 
-  it('accepts both bounds of the legal level range', () => {
-    expect(norm({ ...validSave(), currentLevel: 1 }).save.currentLevel).toBe(1);
-    expect(norm({ ...validSave(), currentLevel: LEVEL_COUNT }).save.currentLevel).toBe(LEVEL_COUNT);
+  it('accepts both bounds of the legal legacy level range', () => {
+    const legacy = (extra: Record<string, unknown>) => ({
+      ...validSave(), maxUnlockedKey: '', lastPlayedKey: '', ...extra,
+    });
+    expect(norm(legacy({ currentLevel: 1 })).lastPlayedIndex).toBe(0);
+    expect(norm(legacy({ currentLevel: LEVEL_COUNT })).lastPlayedIndex).toBe(LEVEL_COUNT - 1);
   });
 
   it('degrades counters that are missing, negative or non-finite to 0', () => {
@@ -243,7 +251,7 @@ describe('beads save schema', () => {
       debugInfo: false,
       ...SETTINGS_DEFAULTS,
     });
-    expect(missing.save.currentLevel).toBe(3); // progression survived
+    expect(missing.lastPlayedIndex).toBe(2); // progression survived
     expect(missing.changed).toBe(true);
 
     expect(normalizeSettings({ bgmMuted: true })).toEqual({
@@ -287,7 +295,10 @@ describe('beads save schema', () => {
   // WXG-T-088：v1→v2 升位——旧档（无 reduceMotion / largeText）装载后进度全保留、
   // 新开关逐字段降级 false，绝不因“版本号落后”而重置（旧档不炸）。
   // ⚠ v5 起该腿同时是「v1 位置档 → 身份档」的一次性入口（§8-21）。
-  it('migrates a v1 document to v5 without discarding progress', () => {
+  // **S-7 改严**（ADR-0034 §6 S-7）：每级迁移各返回 `n+1` ⇒ v1 档必须逐级走完
+  // 1→2→3→4→5。`migrationsApplied` 只记**落点**（框架 `SaveManager.load` 的既有语义，
+  // ⛔ 本批不改 core）⇒ 恰为 `[2,3,4,5]`：4 次跃迁、5 个版本台阶（含起点 1）。
+  it('migrates a v1 document through the full 1→2→3→4→5 chain', () => {
     const store = storage();
     const v1 = {
       version: 1,
@@ -305,25 +316,27 @@ describe('beads save schema', () => {
       key: SAVE_KEY,
       version: SAVE_VERSION,
       defaults: defaultBeadsSave,
-      migrations: { 1: migrateV1ToV2 },
+      // 注册**全链**：改严后缺任何一级都会在 `migrations[current]` 缺位时 reset（M-13 咬此）。
+      // 与生产**同一真源**（`BEADS_MIGRATIONS`，S-7）⇒ 测试不可能「自己注册全、生产漏一级」。
+      migrations: BEADS_MIGRATIONS,
     });
     const loaded = manager.load();
     expect(loaded.wasReset).toBe(false);
-    expect(loaded.migrationsApplied).toContain(SAVE_VERSION);
+    expect(loaded.migrationsApplied, '逐级落点必须一个不缺').toEqual([2, 3, 4, 5]);
 
     const normalized = norm(loaded.data);
     // 进度、原开关一字未动；新开关逐字段降级 false。
     expect(normalized.save.version).toBe(SAVE_VERSION);
     expect(normalized.save.runs).toBe(7);
-    expect(normalized.save.maxUnlockedLevel).toBe(5);
-    expect(normalized.save.currentLevel).toBe(5);
+    expect(normalized.maxUnlockedIndex).toBe(4);
+    expect(normalized.lastPlayedIndex).toBe(4);
     expect(normalized.save.sprintBestScore).toBe(9999);
     // 位置档 ⇒ 身份档：值序列逐条无损（展平回下标轴后与旧档逐位相同）。
     expect(normalized.save.starsByUid).toEqual(starsLedger(v1.starsByLevel));
     expect(flattenStars(normalized.save.starsByUid, KEYS)).toEqual(
       v1.starsByLevel.concat(new Array(LEVEL_COUNT - v1.starsByLevel.length).fill(0)),
     );
-    expect(normalized.staleKeys, 'v1 档带旧数组 ⇒ 写回须清').toEqual(['starsByLevel']);
+    expect(normalized.staleKeys, 'v1 档带旧数组 + 两条旧数值指针 ⇒ 写回须清').toEqual(['starsByLevel', 'maxUnlockedLevel', 'currentLevel']);
     expect(normalized.save.settings).toEqual({
       bgmMuted: true,
       sfxMuted: true,
@@ -338,10 +351,10 @@ describe('beads save schema', () => {
 
   // S1 §8-1：无存档 → 第 1 关；有进度 → 续进已解锁最远关。
   it('§8-1 boots level 1 on a first run and resumes the stored level otherwise', () => {
-    expect(bootLevel(defaultBeadsSave())).toBe(1);
-    expect(bootLevel({ ...defaultBeadsSave(), runs: 1, currentLevel: 3 })).toBe(3);
-    // A first run always starts at level 1, whatever currentLevel says.
-    expect(bootLevel({ ...defaultBeadsSave(), runs: 0, currentLevel: 5 })).toBe(1);
+    expect(bootLevel(defaultBeadsSave(), 0)).toBe(1);
+    expect(bootLevel({ ...defaultBeadsSave(), runs: 1 }, 2)).toBe(3);
+    // A first run always starts at level 1, whatever the pointer says.
+    expect(bootLevel({ ...defaultBeadsSave(), runs: 0 }, 4)).toBe(1);
   });
 
   it('preserves an unparseable document once and leaves valid JSON alone', () => {
@@ -379,8 +392,10 @@ describe('§8-16 身份化免疫（I2 / I4）：关表三种变更 ⇒ 未变更
     }
     const carried = KEYS.reduce((sum, k) => sum + (result.save.starsByUid[k] ?? 0), 0);
     expect(carried, `${label}：总星数 = 可对位记录之和`).toBe(STAR_SEQ.reduce((a, b) => a + b, 0));
-    expect(result.save.maxUnlockedLevel, `${label}：解锁位不回退`).toBe(validSave().maxUnlockedLevel);
-    expect(result.save.currentLevel, `${label}：推进位不回退`).toBe(validSave().currentLevel);
+    expect(result.save.maxUnlockedKey, `${label}：解锁位身份不丢`).toBe(KEYS[3]);
+    expect(result.maxUnlockedIndex, `${label}：解锁位随身份落到新下标`).toBe(keys.indexOf(KEYS[3]));
+    expect(result.save.lastPlayedKey, `${label}：推进位身份不丢`).toBe(KEYS[2]);
+    expect(result.lastPlayedIndex, `${label}：推进位随身份落到新下标`).toBe(keys.indexOf(KEYS[2]));
   }
 
   it('① 章内插一关 ⇒ 新关 0 星、其余逐条不动（且写回幂等）', () => {
@@ -515,7 +530,7 @@ describe('§8-18 章维变更对关身份账无损（⚠ v1.3-R：改章表不�
     const result = norm(validSave(), axis);
     expect(result.save.starsByUid).toEqual(validSave().starsByUid);
     for (let i = 0; i < KEYS.length; i += 1) expect(result.save.starsByUid[KEYS[i]]).toEqual(STAR_SEQ[i]);
-    expect(result.save.maxUnlockedLevel).toBe(validSave().maxUnlockedLevel);
+    expect(result.maxUnlockedIndex).toBe(KEYS.indexOf(KEYS[3]));
     expect(result.changed).toBe(false);
   });
 
@@ -550,8 +565,8 @@ describe('TC-SAVE-12 腿① · §8-12 字段级隔离结构的现成回归锚（
     expect(result.save.settings).toEqual({ ...ALL_ON, vibrate: true });
     // 不弃整档：进度 / 星级 / runs 逐字段无损。
     expect(result.save.runs).toBe(3);
-    expect(result.save.maxUnlockedLevel).toBe(4);
-    expect(result.save.currentLevel).toBe(3);
+    expect(result.save.maxUnlockedKey).toBe(KEYS[3]);
+    expect(result.save.lastPlayedKey).toBe(KEYS[2]);
     expect(result.save.sprintBestScore).toBe(1200);
     expect(result.save.starsByUid).toEqual(starsLedger(STAR_HEAD));
     // **B1-Q3 已随 EP11-S5 修正**：旧实现是 `normalizeSettings(raw)` 与同源产物的自我

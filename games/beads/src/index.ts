@@ -24,6 +24,7 @@ export * from './systems/fail-panel.js';
 export * from './systems/powerups.js';
 export * from './systems/finish-panel.js';
 export * from './systems/sprint-settle.js';
+export * from './systems/arc-ticket.js';
 export * from './view/combo-vfx.js';
 
 export * from './game/state.js';

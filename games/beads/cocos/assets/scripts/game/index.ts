@@ -24,6 +24,7 @@ export * from './systems/fail-panel';
 export * from './systems/powerups';
 export * from './systems/finish-panel';
 export * from './systems/sprint-settle';
+export * from './systems/arc-ticket';
 export * from './view/combo-vfx';
 
 export * from './game/state';

@@ -48,6 +48,7 @@ import {
     type MenuAnchors,
 } from '../config/tuning';
 import { ARC_OPEN_MAX, ARCS } from '../config/arcs';
+import { arcEntryTicket, emptyArcTicketResult, type ArcTicketResult } from '../systems/arc-ticket';
 import { BeadsGame, type BeadsGameOptions } from './beads-game';
 import { LEVELS } from '../config/levels';
 import type { BeadsLevelRaw } from '../config/levels-data';
@@ -142,6 +143,16 @@ export class BeadsShell implements Game {
     private _wallSlotsForCount = -1;
     /** 同上，缓存失效键之二 = 当前大关页（切大关 ⇔ 换清单）。 */
     private _wallSlotsForArc = -1;
+    /**
+     * `[WXG-T-345]` S-4 门票闸门的复用出参 + 「上一章清单」缓存（0-based 关下标）。
+     * 计算点只有：墙表重建 / 开选关页 / 章首格点击 / 过关时的跨章回调 —— **⛔ 每帧**。
+     */
+    private readonly _arcTicket: ArcTicketResult = emptyArcTicketResult();
+    private readonly _arcPrevSlots: number[] = [];
+    private _arcPrevArc = -1;
+    private _arcPrevCount = -1;
+    /** 「该章存在上一章」（首章 ⇒ false ⇒ 门票恒开、进度件不创建）。 */
+    private _arcPrevPresent = false;
     /** Scratch pointer for screen→design (never retained), same as BeadsGame. */
     private readonly _pointer = { x: 0, y: 0 };
     /** Reused view-data object — buildRenderModel must not allocate (热路径零分配). */
@@ -182,6 +193,12 @@ export class BeadsShell implements Game {
         wallSlots: [] as readonly number[],
         // 槽位 → 关卡引用（T-2B 缩略聚合的 pattern 入口；与 wallSlots 同批缓存，每帧只读）。
         wallLevels: [] as readonly (BeadsLevelRaw | undefined)[],
+        // `[WXG-T-345]` S-4 只读告知件（由 `_refreshArcGate` 在非帧事件里写；⛔ 每帧算）。
+        // 默认 = 首章口径（无阻断 ⇒ 章开、不建 n/N 件）；⛔ 造 `0/0`。
+        arcTicketOpen: true,
+        // C 拍定「不创建」= `undefined`（⛔ 存 0/0）：total 有值才表示该页有进度件。
+        arcFullStarGot: undefined as number | undefined,
+        arcFullStarTotal: undefined as number | undefined,
         // 走马灯 = 大关页（EP13-S4）：代表关 = 该大关收尾关（boss），图 = `ARCS[页].textureId`。
         carouselLevel: undefined as BeadsLevelRaw | undefined,
         carouselState: undefined as MetaBossState | undefined,
@@ -238,6 +255,8 @@ export class BeadsShell implements Game {
             canStartRun: () => (this.meta ? this.meta.spendStamina(STAMINA_START_COST) : true),
             // 体力回满激励位发奖（§3.11 第二 live 位）：回满至 STAMINA_MAX，随后 play 重放 run-start。
             onStaminaRefill: () => this.meta?.refillStamina(),
+            // `[WXG-T-345]` S-4：跨章推进闸门（门票只在章界那一刻参与解锁位推进；I7 棘轮）。
+            canAdvanceAcrossArc: (fromIndex, toIndex) => this._canAdvanceAcrossArc(fromIndex, toIndex),
         });
         // UI-25：宿主只提供调试投影（L5）；意图面随 P3 Presenter 落地。
         this._uiRoot = new UiRoot({
@@ -383,13 +402,18 @@ export class BeadsShell implements Game {
     /**
      * 进玩法统一下入口：扣心→切屏→`goToLevel(index)` 装配该局。0 心不切屏：
      * 留本页 + 拉起**既有**体力回满激励位（EP13-S3 · `tls §4-R7`，零新数值）。
+     *
+     * `acrossArc = true`（S-4）= 门票授权的跨章首格入口：**扣心之后**才把既有两根进度指针
+     * 推到该关（{@link BeadsGame.unlockAcrossArc}）——「已进入过」的事实就落在推进位上（I7），
+     * ⛔ 新增布尔、⛔ 在 0 心被拒的腿上写档。
      */
-    private _startLevel(index: number): boolean {
+    private _startLevel(index: number, acrossArc = false): boolean {
         if (!this.meta) return false;
         if (!this.meta.spendStamina(STAMINA_START_COST)) {
             this._requestStaminaRefill();
             return false;
         }
+        if (acrossArc) this.play.unlockAcrossArc(index);
         this._phase.resetTo('play');
         this._cancelPageFx();
         this._emitOverlay(false);
@@ -440,6 +464,7 @@ export class BeadsShell implements Game {
                 if (this._menu.offset >= ARC_OPEN_MAX) return false;
                 // EP13-S2：记下当前大关页 ⇒ 选关页只列本大关清单（tls §4 注 A：闸门本身不动）。
                 this._phase.openLevels(this._menu.offset);
+                this._refreshArcGate(); // S-4：门票 / n/N 只在此刻算（⛔ 每帧）
                 this._emitOverlay(true);
                 this._beginPageFx(1);
                 return true;
@@ -453,10 +478,19 @@ export class BeadsShell implements Game {
             case 'pick-level': {
                 const slot = btn.slot;
                 // 陈列序 = 配置文件顺序（恒等，槽位 = 关索引）；映射仍经 `_wallSlotsFor()`（保留 slot 间接层，视图契约不变）。
-                // 未解锁（`levelIdx+1 > maxUnlockedLevel`）与越界槽（映射表短于槽）一律零事件。
                 const levelIdx = slot === undefined ? undefined : this._wallSlotsFor()[slot];
-                if (levelIdx === undefined || levelIdx + 1 > this.play.maxUnlockedLevel) return false;
-                this._startLevel(levelIdx);
+                if (levelIdx === undefined) return false;
+                // `[WXG-T-345]` S-4：章内线性（§3.7 v1.78「过一开一」）**⛔ 变** —— 线性已开 ⇒
+                // 直接放行，**不再复核门票**。棘轮的全部凭据 = 既有推进位已越过该关（I7），
+                // ⛔ 新增「已进入」布尔；门票也只在章界那一刻参与（`_persistProgress` 的钳制腿）。
+                if (levelIdx + 1 <= this.play.maxUnlockedLevel) {
+                    this._startLevel(levelIdx);
+                    return true;
+                }
+                // 线性未开 = 只可能是**本章首格 + 章界未过**（解锁位被 `_persistProgress` 钳在章末）。
+                // 门票是唯一额外放行依据：章未开 ⇒ 零事件 / 零扣心 / 不消费；章首之外 ⛔ 用门票越权。
+                if (slot !== 0 || !this._arcTicketSatisfied(this._phase.levelsArc).satisfied) return false;
+                this._startLevel(levelIdx, true);
                 return true;
             }
             case 'studio-import':
@@ -619,6 +653,7 @@ export class BeadsShell implements Game {
     private _releaseGlass(): void {
         if (this._menu.release(this._clock()) !== 'open') return;
         this._phase.openLevels(this._menu.offset); // EP13-S2：同 `open-levels`（两入口同上下文）
+        this._refreshArcGate(); // S-4：同 `open-levels`（两入口同口径）
         this._emitOverlay(true);
         this._beginPageFx(1);
     }
@@ -636,6 +671,8 @@ export class BeadsShell implements Game {
             this._wallLevels = this._rebuildWallLevels(this._wallSlots);
             this._wallSlotsForCount = n;
             this._wallSlotsForArc = arc;
+            // S-4：换页 / 关表变长 ⇒ 门票与 n/N 同批重算（非每帧：只在重建分支）。
+            this._refreshArcGate();
         }
         return this._wallSlots;
     }
@@ -709,6 +746,89 @@ export class BeadsShell implements Game {
         if (!anyLevel) return undefined;
         if (!anyUnlocked) return 'locked';
         return allCleared ? 'cleared' : 'pushing';
+    }
+
+    /**
+     * `[WXG-T-345]` S-4 **章门票闸门 + 只读告知件的唯一计算点**（ADR-0034 §6 S-4 行；
+     * `meta-ui §2.7` 两层分家；`ux v1.10 §4.1（3-补）`）。
+     *
+     * 调用点 = 墙表重建 / 开选关页（两入口）/ 章首格点击（直接复用同一出参 `_arcTicketSatisfied`）—— **⛔ 每帧**。
+     * 结果写进 `_viewData` 的三个 primitive（视图只渲染、⛔ 二次推导，L5）。
+     *
+     * 口径（主理人 C/D 拍定）：
+     * - `arcTicketOpen` = **入口闸门** = 门票成立 ∨ 既有推进位已越过章首（I7 棘轮；首章无前置⇒恒真）。
+     *   ⛔ 复用橱窗三态 `MetaBossState`（那是显示层按 ≥1★ 算的，两层不混判）。
+     * - `n/N` 取**阻断该页入口的上一章**（⛔ 被锁页自身：它恒 n=0）；N=0 / 门票已达成 /
+     *   入口已得 ⇒ `total=0`（**不创建**进度件，⛔ `0/0`）。
+     */
+    private _refreshArcGate(): void {
+        const ticket = this._arcTicketSatisfied(this._phase.levelsArc);
+        // 棘轮：推进位已越过该章首关 ⇒ 入口是**已得**的（内容再变也不回收，I7 / §8-20）。
+        // 空橱窗页（无 ARCS 行）⇒ `?? 1` ⇒ 不锁（该页无实体，R13 零事件）。
+        const firstLevel = ARCS[this._phase.levelsArc]?.levelRefs[0]?.[0] ?? 1;
+        const open = ticket.satisfied || this.play.maxUnlockedLevel >= firstLevel;
+        const show = !open && ticket.total > 0;
+        this._viewData.arcTicketOpen = open;
+        this._viewData.arcFullStarGot = show ? ticket.fullStarCount : undefined;
+        this._viewData.arcFullStarTotal = show ? ticket.total : undefined;
+    }
+
+    /**
+     * 归约「第 `arc` 章的门票」= **上一章清单** × 展平星账（首章 ⇒ 无前置 ⇒ 放行），
+     * 委托纯函数 {@link arcEntryTicket}（DEC-8 判据源隔离）；结果写进复用出参，零分配。
+     */
+    private _arcTicketSatisfied(arc: number): ArcTicketResult {
+        const hasPrev = this._prepareArcPrev(arc);
+        return arcEntryTicket(this.play.starsByLevelRaw, hasPrev ? this._arcPrevSlots : undefined, this._arcTicket);
+    }
+
+    /**
+     * 确保 {@link _arcPrevSlots} = 第 `arc` 章的**上一章**清单（0-based，`levelRefs` 展开）；
+     * 返回「存在上一章」。缓存键 = (arc, 关表长)（导入追加关 ⇒ 重建；非热路径）。
+     * ⚠ 只看区间（章清单的**位置事实**），不读章 id（M-16）。
+     */
+    private _prepareArcPrev(arc: number): boolean {
+        const levelCount = this.play.levelCount;
+        if (arc === this._arcPrevArc && levelCount === this._arcPrevCount) return this._arcPrevPresent;
+        this._arcPrevArc = arc;
+        this._arcPrevCount = levelCount;
+        this._arcPrevSlots.length = 0;
+        const refs = arc > 0 ? ARCS[arc - 1]?.levelRefs : undefined;
+        if (refs) {
+            for (let r = 0; r < refs.length; r += 1) {
+                const range = refs[r]!;
+                for (let lv = range[0]; lv <= range[1] && lv <= levelCount; lv += 1) this._arcPrevSlots.push(lv - 1);
+            }
+        }
+        this._arcPrevPresent = refs !== undefined;
+        return this._arcPrevPresent;
+    }
+
+    /** 关索引 → 所属大关下标（`levelRefs` 1-based 区间）；无归属 ⇒ `-1`（数据异常，⛔ 猜）。 */
+    private _arcIndexOfLevel(index: number): number {
+        const lv = index + 1;
+        for (let a = 0; a < ARCS.length; a += 1) {
+            const refs = ARCS[a]?.levelRefs;
+            if (!refs) continue;
+            for (let r = 0; r < refs.length; r += 1) {
+                const range = refs[r]!;
+                if (lv >= range[0] && lv <= range[1]) return a;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * 跨章推进闸门（传给 `BeadsGame.canAdvanceAcrossArc`）：门票**只在章界那一刻**参与解锁位推进。
+     * - 同章 / 无归属（dev 导入关）/ 非相邻跨章 ⇒ 放行（闸门只守相邻章界，⛔ 兜数据异常）；
+     * - 相邻跨章（`to` = 下一章首关）⇒ 目标章门票（= 上一章清单全满星）。
+     */
+    private _canAdvanceAcrossArc(fromIndex: number, toIndex: number): boolean {
+        const fromArc = this._arcIndexOfLevel(fromIndex);
+        const toArc = this._arcIndexOfLevel(toIndex);
+        if (fromArc < 0 || toArc < 0 || fromArc === toArc) return true;
+        if (toArc !== fromArc + 1) return true;
+        return this._arcTicketSatisfied(toArc).satisfied;
     }
 
     private _metaViewData(): MetaViewData {

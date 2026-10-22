@@ -197,9 +197,9 @@ describe('EP13-S4 橱窗三态 = 大关集合归约（TODO-6 / Q16 = 甲）', ()
     });
 
     it('locked 在本版不可达（首关恒解锁）⇒ 只登记，不伪造观测', () => {
-        // 存档 `maxUnlockedLevel` 合法域 = [1, n]（save-schema.ts::levelIndex）⇒「一关未开」
+        // 存档的下标镜像合法域 = [0, n-1]（save-schema.ts::normalizeBeadsSave）⇒「一关未开」
         // 在本池不可构造；归约分支保留给后续大关（其首关可晚于当前解锁进度）。
-        expect(defaultBeadsSave().maxUnlockedLevel).toBe(1);
+        expect(defaultBeadsSave().maxUnlockedKey, '出厂无身份指针 ⇒ 归一兜底到首关').toBe('');
     });
 });
 
