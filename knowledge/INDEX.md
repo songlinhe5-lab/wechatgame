@@ -266,4 +266,5 @@
 | K-156 | 判据实测 | criteria-measure | 度量「已有构建产物」的读数（包体、快照、生成物校验）必须先核对产物时间戳，否则读到的是上一批的数 | WXG-T-345 | 2026-10-22 | 0 | active |
 | K-157 | 测试守卫 | testing-guard | 夹具手工拼出的「最小形状」若与生产装配形状不同，对数据形状敏感的边界分支就永远走不到，变异也不会红 | WXG-T-345 | 2026-10-22 | 0 | active |
 | K-158 | 流程台账 | process-ledger | 跨会话「只披露不代填」是双向通道：对方会话会读头注并照做，判归属要用 mtime 而不是 git status | WXG-T-346 | 2026-10-22 | 0 | active |
+| K-159 | 工具链Git | toolchain-git | `git commit` / `git push` 的输出接 `head`、`tail` 会被 SIGPIPE 中断，留下「索引已暂存、HEAD 未动」的半态 | WXG-T-349 | 2026-10-22 | 0 | active |
 <!-- kb:active:end -->

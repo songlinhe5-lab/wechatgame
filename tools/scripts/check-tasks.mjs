@@ -19,6 +19,7 @@
  *   I. **提交署号必须在册**（WXG-T-349 / K-137 追记）：最近 N 笔（默认 40，`--commits=` 可调）
  *      提交信息里出现的 `WXG-T-NNN`，逐个要求在「主表 ∪ 详情节 ∪ 行归档 ∪ 详情归档」里存在。
  *      动机（真事）：2026-10-22 三笔提交署 `WXG-T-346` 而台账当时**无此号** ⇒ A–H 全过、全量门禁十九项全绿。
+ *      署号写法含连写（`WXG-T-257~260` 区间 / `WXG-T-222/268/269` 并列链）⇒ 逐段展开，否则漏半数。
  *
  * 用法：
  *   node tools/scripts/check-tasks.mjs             # 校验（verify 内调用）
@@ -209,15 +210,29 @@ const registeredIds = new Set([...rowIds, ...detailIds, ...archivedIds, ...detai
     notes.push(`I: 跳过（git log 不可用 —— 非 git 目录或浅克隆）`);
   }
   if (subjects) {
-    const cited = [...new Set([...subjects.matchAll(/WXG-T-(\d+)/g)].map((m) => pad3(Number(m[1]))))];
-    const orphans = cited.filter((id) => !registeredIds.has(id));
+    // 只匹配 `WXG-T-<数字>` 前缀会漏掉本仓常见的连写署号（`WXG-T-257~260` 区间、
+    // `WXG-T-222/268/269` 并列链）——200 笔窗口实测因此放过 281/287 两个未登号，故逐段展开。
+    const cited = new Set();
+    for (const m of subjects.matchAll(/WXG-T-(\d+)((?:\s*[~/、]\s*\d+)*)/g)) {
+      let prev = Number(m[1]);
+      cited.add(pad3(prev));
+      for (const t of m[2].matchAll(/([~/、])\s*(\d+)/g)) {
+        const n = Number(t[2]);
+        // `~` 当区间（区间跨度封顶 10 防误伤），`/` `、` 当并列
+        if (t[1] === '~' && n >= prev && n - prev <= 10) for (let k = prev; k <= n; k++) cited.add(pad3(k));
+        else cited.add(pad3(n));
+        prev = n;
+      }
+    }
+    const orphans = [...cited].filter((id) => !registeredIds.has(id)).sort();
     if (orphans.length > 0) {
       failures.push(
         `I: 最近 ${commitScan} 笔提交信息署了 ${orphans.join('、')}，但台账不在册（主表/详情节/两个归档四处均无）—— ` +
-          '补登主表行 + `## <号>` 详情节，或把已归档的成对搬回（K-137）',
+          '补登主表行 + `## <号>` 详情节，或把已归档的成对搬回（K-137）；' +
+          '若属头注「用过号未自登主表清单」已披露的老号 ⇒ 按 K-137 只披露不代填，缩窗口到默认即不拦',
       );
     } else {
-      notes.push(`I: 最近 ${commitScan} 笔提交共署 ${cited.length} 个号，全部在册`);
+      notes.push(`I: 最近 ${commitScan} 笔提交共署 ${cited.size} 个号，全部在册`);
     }
   }
 }

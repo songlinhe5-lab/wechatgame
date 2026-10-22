@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 159,
+  "nextId": 160,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -1458,7 +1458,7 @@
       "file": "knowledge/lessons/testing-guard.md",
       "category": "测试守卫",
       "title": "守卫脚本硬编码的目标值与冻结真源脱钩 ⇒ 断言永不触发（假绿守卫）；投放重物前要先实测「守卫能不能红」",
-      "contentHash": "0c424944cfbc01a9828cd5ea9361955c80a122f1eb67e318d4a313ddda7d417b",
+      "contentHash": "7123b758a21ad0b0e9a86fe866a6e543bc428cb1f1a2311220a2359c62f31cab",
       "sourceTask": "WXG-T-219",
       "addedDate": "2026-09-27",
       "lastAccess": "2026-09-27",
@@ -2637,6 +2637,23 @@
       "title": "跨会话「只披露不代填」是双向通道：对方会话会读头注并照做，判归属要用 mtime 而不是 git status",
       "contentHash": "2901d50a55b4b0ea765465284c589fa700921a670777b93cb9e1ca7dfdbd9d64",
       "sourceTask": "WXG-T-346",
+      "addedDate": "2026-10-22",
+      "lastAccess": "2026-10-22",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-159",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain-git.md",
+      "category": "工具链Git",
+      "title": "`git commit` / `git push` 的输出接 `head`、`tail` 会被 SIGPIPE 中断，留下「索引已暂存、HEAD 未动」的半态",
+      "contentHash": "f7390a3b38eb1d54217a1bea7a4bf2d60f00fc2c098193b3b5a91a5ff120fdfe",
+      "sourceTask": "WXG-T-349",
       "addedDate": "2026-10-22",
       "lastAccess": "2026-10-22",
       "accessCount": 0,
@@ -3996,6 +4013,24 @@
         "K-045",
         "K-076",
         "K-137"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-22",
+      "taskId": "WXG-T-349",
+      "kind": "added",
+      "ids": [
+        "K-159"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-22",
+      "taskId": "WXG-T-349",
+      "kind": "updated",
+      "ids": [
+        "K-089"
       ],
       "note": null
     }
