@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4630,
       "lines": 159,
-      "sha256": "cdc3ce78f7d8c14f240df7188f5d9355d6127943a23416da0ddf7576080f2738",
+      "sha256": "d7c2c4f7649cd17a4f4112b9a4d4f4cc4d1072c1482eb177b76d2d0cf8769a08",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 402,
-          "summary": "1 production/TASKS-DETAIL.md 187330 4320 normal",
+          "summary": "1 production/TASKS-DETAIL.md 189751 4388 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -422,7 +422,7 @@
           "startLine": 46,
           "endLine": 134,
           "tokens": 3121,
-          "summary": "production/TASKS-DETAIL.md 187330 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 189751 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5513,
       "lines": 146,
-      "sha256": "e9b95f5aa201a5a2cd7c3f437106388aec969448ed81eeee74445296643df81a",
+      "sha256": "926d98f10115cf1b9ecd3faac9bc743459cfc0c612b3db9ebb4ea0bb62eedec1",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 156 行 / 66016 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 157 行 / 67244 tok / 实测读 4 次",
           "level": 2,
           "startLine": 27,
           "endLine": 30,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+157 · §待排（backlog，无号，立项时领取…=129+29",
+          "summary": "§WXG 任务台账（SSOT）=1+158 · §待排（backlog，无号，立项时领取…=130+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -968,7 +968,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 4320 行 / 187330 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 4388 行 / 189751 tok",
           "level": 2,
           "startLine": 92,
           "endLine": 96,
@@ -13255,17 +13255,17 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 8285,
-      "lines": 171,
-      "sha256": "f04c9c4163b9554e072ac09f40ea0bab61d012eb9dd20059d2e9740b60272da4",
+      "tokens": 8502,
+      "lines": 173,
+      "sha256": "64cbed072f36d16d0f88de2fdc985a32411aa93accade834a26070cbae778beb",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads UI 架构（View / ViewModel / Presenter + 公共基础）",
           "level": 1,
           "startLine": 1,
-          "endLine": 172,
-          "tokens": 8266,
+          "endLine": 174,
+          "tokens": 8483,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -13435,8 +13435,8 @@
           "anchor": "§12 TODO 拆分",
           "level": 2,
           "startLine": 132,
-          "endLine": 168,
-          "tokens": 4020,
+          "endLine": 170,
+          "tokens": 4238,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -13447,8 +13447,8 @@
         {
           "anchor": "§13 待你拍板",
           "level": 2,
-          "startLine": 169,
-          "endLine": 172,
+          "startLine": 171,
+          "endLine": 174,
           "tokens": 323,
           "summary": "D1–D5 均已裁定（见 [ADR-0032 §5](adr/ADR-0032-beads-ui-architectur",
           "keywords": [
@@ -25012,6 +25012,104 @@
             "design",
             "art",
             "变更记录"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "games/beads/design/art/proposals/ui-style-redesign/menu-visual-discipline-check.md",
+      "tokens": 1319,
+      "lines": 54,
+      "sha256": "4b3f41cd5a6921fdeebfd7be13d3bdd91e8f7d5a1384a5041a45e05eb8553663",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§主菜单视觉纪律 · 差距检查单（提案 · 未立项）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 55,
+          "tokens": 1297,
+          "summary": "项目：games/beads · 性质：检查单（提案档），零落码、零领号",
+          "keywords": [
+            "games",
+            "beads",
+            "主菜单视觉纪",
+            "差距检查单",
+            "提案",
+            "未立项"
+          ]
+        },
+        {
+          "anchor": "§1 五条纪律 × 现状核对",
+          "level": 2,
+          "startLine": 11,
+          "endLine": 24,
+          "tokens": 510,
+          "summary": "1 单焦点：最高明度对比只给一个行动 主钮唯一大字号召唤：CTA 位图腿 meta-view.ts:1132-1159（",
+          "keywords": [
+            "CTA",
+            "meta",
+            "view",
+            "五条纪律",
+            "现状核对"
+          ]
+        },
+        {
+          "anchor": "§2 唯一口径歧义：场景化 v2 下的「容器唯一」",
+          "level": 2,
+          "startLine": 25,
+          "endLine": 33,
+          "tokens": 219,
+          "summary": "字面纪律（竞品图3 推导）：一屏一种容器语言。",
+          "keywords": [
+            "唯一口径歧义",
+            "场景化",
+            "下的",
+            "容器唯一"
+          ]
+        },
+        {
+          "anchor": "§3 可选优化（非强制，不立项）",
+          "level": 2,
+          "startLine": 34,
+          "endLine": 42,
+          "tokens": 122,
+          "summary": "O-1 顶栏公告位（现禁用空圆，meta-view.ts:807-824）在图标就绪前保持无图标，避免自造图标破坏「零新",
+          "keywords": [
+            "meta",
+            "view",
+            "可选优化",
+            "非强制",
+            "不立项"
+          ]
+        },
+        {
+          "anchor": "§4 回写 `art-bible-proposal.md` §9 的前置",
+          "level": 2,
+          "startLine": 43,
+          "endLine": 50,
+          "tokens": 107,
+          "summary": "1. 先处置体积：该件 8023 tok 已超单文件上限 ⇒ 瘦身（史证外移已有先例）或登记 ctx/budget-ex",
+          "keywords": [
+            "art-bible-proposal.md",
+            "§9",
+            "art",
+            "bible",
+            "proposal",
+            "tok"
+          ]
+        },
+        {
+          "anchor": "§5 未决",
+          "level": 2,
+          "startLine": 51,
+          "endLine": 55,
+          "tokens": 41,
+          "summary": "族口径的正式措辞（§2）由 art 定稿；",
+          "keywords": [
+            "§2",
+            "art",
+            "未决"
           ]
         }
       ]
@@ -36963,6 +37061,159 @@
             "不是风险",
             "是本方案要付",
             "的账"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "games/beads/design/proposals/main-menu-entry-strategy.md",
+      "tokens": 1933,
+      "lines": 97,
+      "sha256": "8cbb480148bad6d1f07b1fdd24f4d15855b3a2cc2d4a65367222b8e7172cef4d",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§提案 · 待裁｜主菜单入口策略（Main Menu Entry Strategy）· beads",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 98,
+          "tokens": 1909,
+          "summary": "项目：games/beads · 性质：proposal（提案档），零落码、零领号",
+          "keywords": [
+            "Main",
+            "Menu",
+            "Entry",
+            "Strategy",
+            "beads",
+            "games"
+          ]
+        },
+        {
+          "anchor": "§0 一页纸结论",
+          "level": 2,
+          "startLine": 11,
+          "endLine": 21,
+          "tokens": 181,
+          "summary": "1 现在最该补的入口 签到（信箱实装） —— 逻辑活着、入口是禁用空圆（死链），零新机制",
+          "keywords": [
+            "一页纸结论"
+          ]
+        },
+        {
+          "anchor": "§1 现状核对（只列已核实事实）",
+          "level": 2,
+          "startLine": 22,
+          "endLine": 34,
+          "tokens": 229,
+          "summary": "顶栏三钮 = 设置（实装）+ 公告/信箱（禁用空圆 α0.5、无图标、无热区） meta-view.ts:763-824",
+          "keywords": [
+            "meta",
+            "view",
+            "现状核对",
+            "只列已核实事"
+          ]
+        },
+        {
+          "anchor": "§2 竞品入口 → 五类归档（我们怎么取）",
+          "level": 2,
+          "startLine": 35,
+          "endLine": 46,
+          "tokens": 265,
+          "summary": "进度 第N关胶囊 / 关卡地图 / 每日一关 / 任务 已有（走马灯木牌 + 选关 overlay；每日见 P3） 第 ",
+          "keywords": [
+            "overlay",
+            "竞品入口",
+            "五类归档",
+            "我们怎么取"
+          ]
+        },
+        {
+          "anchor": "§3 三条建议（优先级序）",
+          "level": 2,
+          "startLine": 47,
+          "endLine": 73,
+          "tokens": 481,
+          "summary": "",
+          "keywords": [
+            "三条建议",
+            "优先级序"
+          ]
+        },
+        {
+          "anchor": "§P1 · 营业章 = 签到（**信封实装**，用户已裁）",
+          "level": 3,
+          "startLine": 49,
+          "endLine": 56,
+          "tokens": 172,
+          "summary": "位置：顶栏右上「信箱」位（MENU_TOPBAR_X.mail = 648，现禁用空圆）；",
+          "keywords": [
+            "MENU_TOPBAR_X",
+            "mail",
+            "营业章",
+            "签到",
+            "信封实装",
+            "用户已裁"
+          ]
+        },
+        {
+          "anchor": "§P2 · 货架角 = 只读陈列",
+          "level": 3,
+          "startLine": 57,
+          "endLine": 64,
+          "tokens": 129,
+          "summary": "位置：玻璃窗（橱窗）右下角一小格；",
+          "keywords": [
+            "货架角",
+            "只读陈列"
+          ]
+        },
+        {
+          "anchor": "§P3 · 今日订单 = 每日关（暂缓）",
+          "level": 3,
+          "startLine": 65,
+          "endLine": 73,
+          "tokens": 135,
+          "summary": "位置：木牌板第二行槽位（与 ★ n/门槛 天然互斥：仅门票未达成时出现）；",
+          "keywords": [
+            "今日订单",
+            "每日关",
+            "暂缓"
+          ]
+        },
+        {
+          "anchor": "§4 元素手法（竞品 → 暖纸语言）",
+          "level": 2,
+          "startLine": 74,
+          "endLine": 83,
+          "tokens": 186,
+          "summary": "居中大卡 + 高光 + 难度角标预览 玻璃窗框不动，只换玻璃内内容；完成度画成纸上「已拼格/留白格」，不做百分比数字",
+          "keywords": [
+            "元素手法",
+            "竞品",
+            "暖纸语言"
+          ]
+        },
+        {
+          "anchor": "§5 风险",
+          "level": 2,
+          "startLine": 84,
+          "endLine": 91,
+          "tokens": 158,
+          "summary": "稀释单主钮：可点目标 >3 且视觉权重接近 ⇒ 首屏从「点哪」退化成「读什么」。本文三条里两条是只读/复活，今日订单一律",
+          "keywords": [
+            "风险"
+          ]
+        },
+        {
+          "anchor": "§6 未决 / 依赖",
+          "level": 2,
+          "startLine": 92,
+          "endLine": 98,
+          "tokens": 121,
+          "summary": "1. 信箱图标切图（B2/B3）出图时间 —— P1 的唯一硬前置；",
+          "keywords": [
+            "未决",
+            "依赖"
           ]
         }
       ]
@@ -60094,18 +60345,42 @@
       ]
     },
     {
+      "path": "memory/2026-10-22.md",
+      "tokens": 398,
+      "lines": 9,
+      "sha256": "691a0c1f36481e149e6eed2a6055de04472db4d9584a067d8cbf734bb813c75c",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§竞品主界面分析 → 主菜单视觉纪律检查单 + 入口策略提案（未立项）",
+          "level": 3,
+          "startLine": 2,
+          "endLine": 10,
+          "tokens": 367,
+          "summary": "用户指令：三款竞品截图，让美术/策划分析风格与入口，出改进方向；用户拍板「先出文档不立项」「签到=信封实装（T-346 ",
+          "keywords": [
+            "竞品主界面分",
+            "主菜单视觉纪",
+            "律检查单",
+            "入口策略提案",
+            "未立项"
+          ]
+        }
+      ]
+    },
+    {
       "path": "memory/INDEX.md",
-      "tokens": 15071,
-      "lines": 353,
-      "sha256": "da7f84741f912bad4c1a93356bb8e6ed72363584411047528c1d5e61099f6d4c",
+      "tokens": 15133,
+      "lines": 358,
+      "sha256": "0adf6fda7e5467d2dbb4d188469f77b8235c87426a19a4b715486cfd4c5fb7a8",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§memory/ — 日志分级索引（WXG-T-068；二级详情层 WXG-T-106）",
           "level": 1,
           "startLine": 1,
-          "endLine": 354,
-          "tokens": 15049,
+          "endLine": 359,
+          "tokens": 15111,
           "summary": "memory/ 是跨会话的运行时记忆，分四层：MEMORY.md（蒸馏后的常驻摘要）→",
           "keywords": [
             "memory",
@@ -60175,8 +60450,8 @@
           "anchor": "§4 摘要表（自动生成）",
           "level": 2,
           "startLine": 67,
-          "endLine": 354,
-          "tokens": 13410,
+          "endLine": 359,
+          "tokens": 13472,
           "summary": "<!-- memory:index:start（由 pnpm run ctx:build 生成，勿手改）-->",
           "keywords": [
             "memory",
@@ -60188,10 +60463,24 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-21.md` — 5,478 tok｜10 节｜**蒸馏到期 2026-11-20**（剩 29 天）",
+          "anchor": "§`memory/2026-10-22.md` — 398 tok｜0 节｜**蒸馏到期 2026-11-21**（剩 30 天）",
           "level": 3,
           "startLine": 73,
-          "endLine": 87,
+          "endLine": 77,
+          "tokens": 36,
+          "summary": "",
+          "keywords": [
+            "memory/2026-10-22.md",
+            "memory",
+            "tok",
+            "蒸馏到期"
+          ]
+        },
+        {
+          "anchor": "§`memory/2026-10-21.md` — 5,478 tok｜10 节｜**蒸馏到期 2026-11-20**（剩 29 天）",
+          "level": 3,
+          "startLine": 78,
+          "endLine": 92,
           "tokens": 781,
           "summary": "§WXG-T-341 完成：beads-studio 大关/小关管理 + 分大关导入 + 替换图案（Qoder） 3–1",
           "keywords": [
@@ -60206,8 +60495,8 @@
         {
           "anchor": "§`memory/2026-10-20.md` — 1,785 tok｜4 节｜**蒸馏到期 2026-11-19**（剩 28 天）",
           "level": 3,
-          "startLine": 88,
-          "endLine": 96,
+          "startLine": 93,
+          "endLine": 101,
           "tokens": 306,
           "summary": "§WXG-T-328 收尾批：verify + 提交推送 + CI 取证（Qoder） 3–8 397 — 承他会话（同",
           "keywords": [
@@ -60222,8 +60511,8 @@
         {
           "anchor": "§`memory/2026-10-14.md` — 142 tok｜2 节｜2 节已外移｜**蒸馏到期 2026-11-13**（剩 22 天）",
           "level": 3,
-          "startLine": 97,
-          "endLine": 103,
+          "startLine": 102,
+          "endLine": 108,
           "tokens": 217,
           "summary": "§续：定稿底图换代（第十二批 · 走③把橱窗画矮 47 px） 3–5 42 → memory/details/2026",
           "keywords": [
@@ -60238,8 +60527,8 @@
         {
           "anchor": "§`memory/2026-10-13.md` — 4,542 tok｜8 节｜5 节已外移｜**蒸馏到期 2026-11-12**（剩 21 天）",
           "level": 3,
-          "startLine": 104,
-          "endLine": 116,
+          "startLine": 109,
+          "endLine": 121,
           "tokens": 665,
           "summary": "§续：顶栏圆钮撞胶囊 → 用户裁定解（§5.1b） 25–31 365 — 11. 裁定：「设置按钮放左上角，右上角只放",
           "keywords": [
@@ -60254,8 +60543,8 @@
         {
           "anchor": "§`memory/2026-10-12.md` — 6,315 tok｜7 节｜**蒸馏到期 2026-11-11**（剩 20 天）",
           "level": 3,
-          "startLine": 117,
-          "endLine": 128,
+          "startLine": 122,
+          "endLine": 133,
           "tokens": 502,
           "summary": "§目录别名正名 + 编码器 A/B 收尾（同日第 3 批，含两处自纠） 31–38 512 — 用户问「DiT 放 di",
           "keywords": [
@@ -60269,8 +60558,8 @@
         {
           "anchor": "§`memory/2026-10-10.md` — 2,825 tok｜2 节｜**蒸馏到期 2026-11-09**（剩 18 天）",
           "level": 3,
-          "startLine": 129,
-          "endLine": 135,
+          "startLine": 134,
+          "endLine": 140,
           "tokens": 190,
           "summary": "§关卡生成期难度门禁⑦（工作量闸）落地 24–32 475 — 触发：用户「关卡生成时算难度需门禁——普通关落区间、bo",
           "keywords": [
@@ -60283,8 +60572,8 @@
         {
           "anchor": "§`memory/2026-10-09.md` — 358 tok｜0 节｜**蒸馏到期 2026-11-08**（剩 17 天）",
           "level": 3,
-          "startLine": 136,
-          "endLine": 140,
+          "startLine": 141,
+          "endLine": 145,
           "tokens": 36,
           "summary": "",
           "keywords": [
@@ -60297,8 +60586,8 @@
         {
           "anchor": "§`memory/2026-10-07.md` — 5,905 tok｜4 节｜**蒸馏到期 2026-11-06**（剩 15 天）",
           "level": 3,
-          "startLine": 141,
-          "endLine": 149,
+          "startLine": 146,
+          "endLine": 154,
           "tokens": 290,
           "summary": "§WXG-T-268 批 3 · EP12-S2/S3 落码 + P-3=24 裁定 + 第十八次复评（暖纸换肤续） 8",
           "keywords": [
@@ -60313,8 +60602,8 @@
         {
           "anchor": "§`memory/2026-10-06.md` — 2,680 tok｜2 节｜**蒸馏到期 2026-11-05**（剩 14 天）",
           "level": 3,
-          "startLine": 150,
-          "endLine": 156,
+          "startLine": 155,
+          "endLine": 161,
           "tokens": 149,
           "summary": "§合成式三端统一 + 旧 effect 死件清（WXG-T-259 · 第廿刀） 3–26 878 — 用户裁定（原话）",
           "keywords": [
@@ -60329,8 +60618,8 @@
         {
           "anchor": "§`memory/2026-10-05.md` — 4,344 tok｜0 节｜**蒸馏到期 2026-11-04**（剩 13 天）",
           "level": 3,
-          "startLine": 157,
-          "endLine": 161,
+          "startLine": 162,
+          "endLine": 166,
           "tokens": 36,
           "summary": "",
           "keywords": [
@@ -60343,8 +60632,8 @@
         {
           "anchor": "§`memory/2026-10-04.md` — 28,255 tok｜14 节｜14 节已外移｜**蒸馏到期 2026-11-03**（剩 12 天）",
           "level": 3,
-          "startLine": 162,
-          "endLine": 180,
+          "startLine": 167,
+          "endLine": 185,
           "tokens": 1454,
           "summary": "§【WXG-T-244 二十三批 · 收口】裁 [GLD+…] 日志 + 修盘内直填回滚 + 开单 WXG-T-246 ",
           "keywords": [
@@ -60359,8 +60648,8 @@
         {
           "anchor": "§`memory/2026-10-03.md` — 79 tok｜1 节｜1 节已外移｜**蒸馏到期 2026-11-02**（剩 11 天）",
           "level": 3,
-          "startLine": 181,
-          "endLine": 186,
+          "startLine": 186,
+          "endLine": 191,
           "tokens": 92,
           "summary": "§WXG-T-226 · B3/B4：tint 消费通道 + LOD 回退阀（CodeBuddy 会话，用户逐轮看图拍板",
           "keywords": [
@@ -60375,8 +60664,8 @@
         {
           "anchor": "§`memory/2026-09-29.md` — 7,239 tok｜0 节｜**蒸馏到期 2026-10-29**（剩 7 天）",
           "level": 3,
-          "startLine": 187,
-          "endLine": 191,
+          "startLine": 192,
+          "endLine": 196,
           "tokens": 36,
           "summary": "",
           "keywords": [
@@ -60389,8 +60678,8 @@
         {
           "anchor": "§`memory/2026-09-28.md` — 1,352 tok｜10 节｜9 节已外移｜**蒸馏到期 2026-10-28**（剩 6 天）",
           "level": 3,
-          "startLine": 192,
-          "endLine": 206,
+          "startLine": 197,
+          "endLine": 211,
           "tokens": 1047,
           "summary": "§WXG-T-221：beads-studio 当前关纹理预烘导出（S3-lite）（Qoder 主理人会话 · 用户三",
           "keywords": [
@@ -60405,8 +60694,8 @@
         {
           "anchor": "§`memory/2026-09-27.md` — 6,212 tok｜3 节｜**蒸馏到期 2026-10-27**（剩 5 天）",
           "level": 3,
-          "startLine": 207,
-          "endLine": 214,
+          "startLine": 212,
+          "endLine": 219,
           "tokens": 333,
           "summary": "§WXG-T-217：beads 缩放上下限绝对倍率化 + 低倍点击档（Qoder 主理人会话 · 用户逐项拍板） 3–",
           "keywords": [
@@ -60421,8 +60710,8 @@
         {
           "anchor": "§`memory/2026-09-22.md` — 1,263 tok｜1 节｜**蒸馏已到期（2026-10-22，已过期 0 天）**",
           "level": 3,
-          "startLine": 215,
-          "endLine": 220,
+          "startLine": 220,
+          "endLine": 225,
           "tokens": 118,
           "summary": "§WXG-T-186：beads 组珠消费序改「沿组连通的剥皮序」（Qoder 主理人会话 · 用户四项裁定） 3–15",
           "keywords": [
@@ -60437,8 +60726,8 @@
         {
           "anchor": "§`memory/2026-09-17.md` — 6,817 tok｜12 节｜**蒸馏已到期（2026-10-17，已过期 5 天）**",
           "level": 3,
-          "startLine": 221,
-          "endLine": 237,
+          "startLine": 226,
+          "endLine": 242,
           "tokens": 814,
           "summary": "§WXG-T-138：beads v1.23「大胆重制」提案落盘（WorkBuddy 主理人会话） 3–11 501 —",
           "keywords": [
@@ -60453,8 +60742,8 @@
         {
           "anchor": "§`memory/2026-09-16.md` — 4,236 tok｜7 节｜1 节已外移｜**蒸馏已到期（2026-10-16，已过期 6 天）**",
           "level": 3,
-          "startLine": 238,
-          "endLine": 249,
+          "startLine": 243,
+          "endLine": 254,
           "tokens": 552,
           "summary": "§WXG-T-121：装置自测分档挂门禁（BD-39 · BD-40，Qoder 主理人会话） 3–5 43 → mem",
           "keywords": [
@@ -60469,8 +60758,8 @@
         {
           "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏已到期（2026-10-15，已过期 7 天）**",
           "level": 3,
-          "startLine": 250,
-          "endLine": 266,
+          "startLine": 255,
+          "endLine": 271,
           "tokens": 968,
           "summary": "§波次3：G4 复验 + 文档漂移回写（WXG-T-092 / T-093，Qoder 主理人会话） 3–9 391 —",
           "keywords": [
@@ -60485,8 +60774,8 @@
         {
           "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏已到期（2026-10-14，已过期 8 天）**",
           "level": 3,
-          "startLine": 267,
-          "endLine": 294,
+          "startLine": 272,
+          "endLine": 299,
           "tokens": 1651,
           "summary": "§Cocos 预览全链路验收通过（08:31，主理会话，WXG-T-042 收口） 3–5 43 → memory/de",
           "keywords": [
@@ -60501,8 +60790,8 @@
         {
           "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏已到期（2026-10-13，已过期 9 天）**",
           "level": 3,
-          "startLine": 295,
-          "endLine": 315,
+          "startLine": 300,
+          "endLine": 320,
           "tokens": 945,
           "summary": "§my-skills 补缺调研（WXG-T-032 候选项盘点） 3–34 828 — 结论：有 4 个本地已装但未纳入",
           "keywords": [
@@ -60517,8 +60806,8 @@
         {
           "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏已到期（2026-10-12，已过期 10 天）**",
           "level": 3,
-          "startLine": 316,
-          "endLine": 333,
+          "startLine": 321,
+          "endLine": 338,
           "tokens": 764,
           "summary": "§专家团 vs my-agents 跨平台复用评估（调研结论） 3–8 335 — 三 IDE 均原生支持项目级 sub",
           "keywords": [
@@ -60533,8 +60822,8 @@
         {
           "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏已到期（2026-10-11，已过期 11 天）**",
           "level": 3,
-          "startLine": 334,
-          "endLine": 354,
+          "startLine": 339,
+          "endLine": 359,
           "tokens": 672,
           "summary": "§完成的工作 3–19 510 — 修复 Canvas2DLike.fillStyle / strokeStyle 类型",
           "keywords": [
@@ -83142,9 +83431,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 187330,
-      "lines": 4320,
-      "sha256": "48ca30ddfe5c30aaa7df85f7e5d01bcffbaa1ce3d2232caa257a384a1a017c7a",
+      "tokens": 189751,
+      "lines": 4388,
+      "sha256": "5cd081f294245413f9b1231cf18bd023e7b34f40d8987fd1ec0445032e10cdb9",
       "tier": "normal",
       "sections": [
         {
@@ -85665,8 +85954,8 @@
           "anchor": "§beads·fit 档放开「只缩不放大」钳（小盘放大铺满留边 + 初始视图 = 适配档）",
           "level": 1,
           "startLine": 3026,
-          "endLine": 4321,
-          "tokens": 84946,
+          "endLine": 4389,
+          "tokens": 87367,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
             "beads",
@@ -87019,7 +87308,7 @@
           "anchor": "§WXG-T-345",
           "level": 2,
           "startLine": 4241,
-          "endLine": 4321,
+          "endLine": 4319,
           "tokens": 3189,
           "summary": "",
           "keywords": [
@@ -87084,8 +87373,8 @@
           "anchor": "§5 验证（2026-10-22 收尾实测；以下数值均为本机本轮跑出，未拿上一批读数代填）",
           "level": 3,
           "startLine": 4276,
-          "endLine": 4321,
-          "tokens": 1680,
+          "endLine": 4319,
+          "tokens": 1679,
           "summary": "① 全量门禁：pnpm run verify = PASS 22 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0（",
           "keywords": [
             "pnpm",
@@ -87095,22 +87384,133 @@
             "WARN",
             "SKIP"
           ]
+        },
+        {
+          "anchor": "§WXG-T-346",
+          "level": 2,
+          "startLine": 4320,
+          "endLine": 4389,
+          "tokens": 2419,
+          "summary": "",
+          "keywords": [
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§1 立项与用户令",
+          "level": 3,
+          "startLine": 4322,
+          "endLine": 4328,
+          "tokens": 277,
+          "summary": "上位令（2026-10-22，见 ## WXG-T-343 / ## WXG-T-345）：「每大关所有关需要获取到 3",
+          "keywords": [
+            "WXG",
+            "立项与用户令"
+          ]
+        },
+        {
+          "anchor": "§2 门槛口径（纯派生，零新常量）",
+          "level": 3,
+          "startLine": 4329,
+          "endLine": 4339,
+          "tokens": 69,
+          "summary": "门槛 = 满星容量 − floor(关数 × 2 ÷ 3)：",
+          "keywords": [
+            "floor",
+            "门槛口径",
+            "纯派生",
+            "零新常量"
+          ]
+        },
+        {
+          "anchor": "§3 逐批落地面（七笔提交，12:57–14:06）",
+          "level": 3,
+          "startLine": 4340,
+          "endLine": 4351,
+          "tokens": 977,
+          "summary": "e20b8a1 工程 systems/arc-ticket.ts 新增 arcGateStars()；arcTicket",
+          "keywords": [
+            "e20b8a1",
+            "systems",
+            "arc",
+            "ticket",
+            "arcGateStars",
+            "arcTicket"
+          ]
+        },
+        {
+          "anchor": "§4 实测对比度（本批唯一新增的数）",
+          "level": 3,
+          "startLine": 4352,
+          "endLine": 4366,
+          "tokens": 282,
+          "summary": "底色 = PIL 采样投放件 ui_showcase_plate.png 两条文字带平均色；算式 = WCAG 1.4.",
+          "keywords": [
+            "PIL",
+            "ui_showcase_plate",
+            "png",
+            "WCAG",
+            "实测对比度",
+            "本批唯一新增"
+          ]
+        },
+        {
+          "anchor": "§5 验证读数",
+          "level": 3,
+          "startLine": 4367,
+          "endLine": 4372,
+          "tokens": 159,
+          "summary": "④⑤⑥⑦ 各批收尾均 pnpm run verify PASS 22 / WARN 0 / SKIP 0 / FAIL ",
+          "keywords": [
+            "pnpm",
+            "run",
+            "verify",
+            "PASS",
+            "WARN",
+            "SKIP"
+          ]
+        },
+        {
+          "anchor": "§6 ⚠ 同号双用登记（K-046 同型）",
+          "level": 3,
+          "startLine": 4373,
+          "endLine": 4379,
+          "tokens": 322,
+          "summary": "事实：WXG-T-346 被两个会话各领一批 —— 另一会话 d93e580（10-22 11:47 design(be",
+          "keywords": [
+            "WXG",
+            "d93e580",
+            "design",
+            "同号双用登记",
+            "同型"
+          ]
+        },
+        {
+          "anchor": "§7 遗留与下一步",
+          "level": 3,
+          "startLine": 4380,
+          "endLine": 4389,
+          "tokens": 246,
+          "summary": "1. 屏幕层 / 真机观感 ⛔（需预览产物连拍或真机，解除条件 = 出包 + 人工判读）。",
+          "keywords": [
+            "遗留与下一步"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 66016,
-      "lines": 156,
-      "sha256": "c01dcaf7d2315bd1efe4df94d7c6ed468c359a51cd76b8c56ed41ea8b9b943a9",
+      "tokens": 67244,
+      "lines": 157,
+      "sha256": "d2ec22d52761f28be037576ccdd6896501a1a785e5e914b3aaa79d2db726db86",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 157,
-          "tokens": 66008,
+          "endLine": 158,
+          "tokens": 67235,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -87123,8 +87523,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 129,
-          "endLine": 157,
+          "startLine": 130,
+          "endLine": 158,
           "tokens": 1390,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

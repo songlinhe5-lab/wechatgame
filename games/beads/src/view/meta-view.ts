@@ -57,6 +57,7 @@ import {
     MENU_PLATE,
     MENU_PLATE_TITLE,
     MENU_SIGN_FRAME,
+    MENU_SIGNIN_DOT_R,
     MENU_TEXTURES,
     MENU_TOPBAR_ICON_D,
     type MenuAnchors,
@@ -382,9 +383,10 @@ function overlayPlate(): Box {
 /** 星级_label 查表（取代旧每帧 `'★'.repeat(n)+'☆'.repeat(3-n)` ⇒ 逐字同串、每帧零字符串分配）。 */
 const STAR_LABELS: readonly string[] = ['☆☆☆', '★☆☆', '★★☆', '★★★'];
 /** 顶栏预留不实现（公告 / 信箱）两颗的热区**左缘**（只画不注册热区，§5.1b）。 */
-const TOPBAR_RESERVED_X: readonly number[] = [MENU_TOPBAR_X.notice, MENU_TOPBAR_X.mail];
-/** 预留两颗的图标腿（`[WXG-T-280]` 与 {@link TOPBAR_RESERVED_X} 同序；喇叭暂代公告 = 落地单 §3 C1）。 */
-const TOPBAR_RESERVED_ICON: readonly string[] = [MENU_TEXTURES.iconSound, MENU_TEXTURES.iconMail];
+/** 预留位（2026-10-22 签到入口回归后**只剩公告**一颗；信箱已实装，见 {@link drawTopbar}）。 */
+const TOPBAR_RESERVED_X: readonly number[] = [MENU_TOPBAR_X.notice];
+/** 预留位的图标腿（与 {@link TOPBAR_RESERVED_X} 同序；喇叭暂代公告 = 落地单 §3 C1）。 */
+const TOPBAR_RESERVED_ICON: readonly string[] = [MENU_TEXTURES.iconSound];
 
 /**
  * 生成 `WALL_COLS × rows` 个作品格热区（选关**整页**，版式 P：格 `LEVELS_CELL` / 间距 `LEVELS_GAP`）。
@@ -522,6 +524,8 @@ interface AnchoredMenuGeo {
     readonly arrowRHit: Box;
     readonly barBox: Box;
     readonly settingsHit: Box;
+    /** 签到信封热区（2026-10-22 入口回归：点击 → 既有 `signin` 弹窗）。 */
+    readonly mailHit: Box;
     /** 顶栏热区/视觉圆同心 y（= `settingsHit` 中心）。 */
     readonly topbarCy: number;
     /** 完成态 boss icon 圆心 y。 */
@@ -558,9 +562,10 @@ function anchoredGeo(a: MenuAnchors): AnchoredMenuGeo {
         MENU_BAR_H,
     );
     const settingsHit = box(MENU_TOPBAR_X.settings, r(a.btTopY) - TOUCH_MIN, TOUCH_MIN, TOUCH_MIN);
+    const mailHit = box(MENU_TOPBAR_X.mail, r(a.btTopY) - TOUCH_MIN, TOUCH_MIN, TOUCH_MIN);
     const geo: AnchoredMenuGeo = {
         caseBox, bossBox, clipBox, badgeBox, plateBox, signBox, ctaBox, ctaHit,
-        arrowL, arrowLHit, arrowR, arrowRHit, barBox, settingsHit,
+        arrowL, arrowLHit, arrowR, arrowRHit, barBox, settingsHit, mailHit,
         topbarCy: settingsHit.y + TOUCH_MIN / 2,
         doneCy: r(a.caseTopY - MENU_DONE_ICON.yOff),
         versionY: r(a.ctaBotY) / 2,
@@ -581,6 +586,9 @@ function menuLayoutAnchored(a: MenuAnchors): MetaLayout {
             { id: 'open-levels', box: g.bossBox },
             { id: 'start', box: g.ctaHit },
             { id: 'open-settings', box: g.settingsHit },
+            // 2026-10-22 用户裁：签到入口回归（信封实装，点开既有 `signin` 弹窗）。
+            // 用户同批拍板：**已领当日仍可打开**看进度 ⇒ 热区常驻、不做 canClaim 门控。
+            { id: 'open-signin', box: g.mailHit },
             { id: 'carousel-prev', box: g.arrowLHit },
             { id: 'carousel-next', box: g.arrowRHit },
         ],
@@ -761,15 +769,18 @@ function drawResourceBar(
 }
 
 /**
- * L6 顶栏三钮（§5.1b 落位表）。视觉圆 **Ø59 居中于 88×88 热区**（推导 2：热区不得互叠）。
- * - **左上 设置**（本批实装）= 白圆 + 齿轮，齿轮画法与对局页 HUD **同一函数**
+ * L6 顶栏三钮（§5.1b 落位表）。视觉圆 Ø80 居中于 88×88 热区（推导 2：热区不得互叠）。
+ * - **左上 设置**（实装）= 白圆 + 齿轮，齿轮画法与对局页 HUD **同一函数**
  *   （§5.1b 收口 ③：裁的是「入口语义不合并」，不是图元不复用 ⇒ 零新画法、零新美术）；
- * - **右上两颗**（公告 / 信箱）= 预留不实现 ⇒ 只画禁用态空圆（α 0.5），⛔ **不画图标**
- *   （图标形状归切图规格 B2/B3，且本批未定取色 ⇒ 零自造）；热区也不注册（见 {@link menuLayoutAnchored}）。
+ * - **右上 信箱**（2026-10-22 用户裁：签到入口回归）= 正常态白圆 + `ui_icon_mail`（切图已交付）
+ *   + 按下纹；`canClaim` ⇒ 右上 1 枚小圆点（`MENU_SIGNIN_DOT_R`，全局唯一提示位）。
+ *   ⛔ 程序化腿**不自造信封图标**（切图规格 B2/B3 权威）⇒ 缺图只留空圆底；
+ * - **右中 公告** = 仍预留不实现 ⇒ 只画禁用态空圆（α 0.5），⛔ 不画图标；热区不注册
+ *   （见 {@link menuLayoutAnchored}）。
  *
  * ⚠ 圆钮无文字 ⇒ 不走 {@link drawButton}（那个是给矩形纸钮用的）。
- * `[WXG-T-280]` 位图腿：`btnCircle` 就绪 ⇒ 底面 blit（含预留两颗 α=0.5 档）；`iconSettings` 就绪 ⇒
- * 40² 图标替齿轮；预留位图标就绪 ⇒ 同 α 叠 blit。未就绪 ⇒ 程序化腿。
+ * `[WXG-T-280]` 位图腿：`btnCircle` 就绪 ⇒ 底面 blit（公告位另叠 α=0.5）；`iconSettings` 就绪 ⇒
+ * 40² 图标替齿轮；公告位图标就绪 ⇒ 同 α 叠 blit。未就绪 ⇒ 程序化腿。
  * 圆心 y = `geo.topbarCy`（与热区同源）；x 档共用 `MENU_TOPBAR_X`。
  */
 function drawTopbar(
@@ -802,6 +813,37 @@ function drawTopbar(
         builder.blit(settingsIcon, cxc - id / 2, scy - id / 2, id, id);
     } else {
         drawGear(builder, cxc, scy, palette);
+    }
+    // ── 签到信封（2026-10-22 用户裁：入口回归；已领当日仍可打开看进度）──
+    // 热区常驻（见 `menuLayoutAnchored`），视觉与设置钮同构：底圆 + 40² 图标 + 按下纹。
+    const mcx = MENU_TOPBAR_X.mail + TOUCH_MIN / 2;
+    const mailPressed = isPressed(data, 'open-signin');
+    const mcy = cy + pressDy(data, mailPressed);
+    if (circleReady) {
+        const tex = mailPressed && _menuBitmapReady(MENU_TEXTURES.btnCirclePressed)
+            ? MENU_TEXTURES.btnCirclePressed
+            : circleTex;
+        builder.blit(tex, mcx - r, mcy - r, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_VISUAL_D);
+    } else {
+        builder.circle(mcx, mcy, r, {
+            fill: mailPressed ? palette.cardPressed : palette.panel,
+            stroke: palette.panelBorder,
+            lineWidth: 2,
+        });
+    }
+    const mailIcon = MENU_TEXTURES.iconMail;
+    if (_menuBitmapReady(mailIcon)) {
+        const id = MENU_TOPBAR_ICON_D;
+        builder.blit(mailIcon, mcx - id / 2, mcy - id / 2, id, id);
+    }
+    // ⛔ 程序化腿不自造信封图标（切图规格 B2/B3 权威）⇒ 缺图只留空圆底，不画替代图形。
+    // 未领小圆点：全局唯一提示位（不铺红点/不闪烁；色读既有 `danger`，零新 hex）。
+    if (data.canClaim) {
+        builder.circle(mcx + r * 0.72, mcy + r * 0.72, MENU_SIGNIN_DOT_R, {
+            fill: palette.danger,
+            stroke: palette.panel,
+            lineWidth: 2,
+        });
     }
     // 数组住模块级（`buildMetaView` 每帧走本函数 ⇒ ⛔ 不在热路径 `[a, b]` 现造）。
     for (let i = 0; i < TOPBAR_RESERVED_X.length; i++) {

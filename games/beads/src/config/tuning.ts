@@ -146,8 +146,15 @@ export const MENU_TOPBAR_X = { settings: 24, notice: 560, mail: 648 } as const;
  * 160×160 px @2x ⇒ 80 设计 px；旧 59/64 作废）。热区 88 同心包裹（视觉比热区小 8，邻钮视觉隙 8）。
  */
 export const MENU_TOPBAR_VISUAL_D = 80;
-/** 未实装的预留钮（公告 / 信箱）画成禁用态 ⇒ 视觉上在、语义上不承诺可点。 */
+/** 未实装的预留钮（现只剩**公告**一颗；信箱已于 2026-10-22 签到入口回归时实装）画成禁用态 ⇒
+ * 视觉上在、语义上不承诺可点。 */
 export const MENU_TOPBAR_RESERVED_ALPHA = 0.5;
+/**
+ * 签到信封「未领」小圆点半径（2026-10-22 用户裁：`canClaim` 时信封右上画 1 枚，**全局唯一提示位**
+ * ——不铺红点、不闪烁）。Ø18 ≈ 图标 40 的 45%，压在视觉圆（Ø80）右上 45° 内缘，色读 `palette.danger`
+ * （既有 token，零新 hex）。
+ */
+export const MENU_SIGNIN_DOT_R = 9;
 /** Puzzle band — the pattern matrix is centred inside it (both axes).
  *
  * ⚠ **§3.1 换尺（本轮用户拍板）：下沿 480 → 560**（带高 640 → 560）。动的理由只有一个：
