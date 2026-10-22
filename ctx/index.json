@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4590,
       "lines": 158,
-      "sha256": "96e331292439a203a59a5a6336038767c27ba36aa4b9957f99086ffee8edcc46",
+      "sha256": "f3746b866c72ab559ab49d338763ab24d479f57d46fcd1a741f5b93b69b1e530",
       "tier": "normal",
       "sections": [
         {
@@ -41065,18 +41065,18 @@
     },
     {
       "path": "games/beads/design/ux/arc-level-select-spec.md",
-      "tokens": 17442,
-      "lines": 268,
-      "sha256": "e940d780f2ed7837e16bcdf345bb0ee5b6bf3fdd4d97c6f8700f69e63e488ba3",
+      "tokens": 17853,
+      "lines": 269,
+      "sha256": "7e9970e5fe95c032f2e52ed9562dce809e9c757f81383d93185593f7649f4da6",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§UX 规格 · 大关选关页（Level Select by Arc · 曾用名「主题选关页」，原文件名 `theme-level-select-spec.md`）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 269,
-          "tokens": 17401,
-          "summary": "项目：games/beads · 版本 v1.11（2026-10-22 · WXG-T-346）：承接 proposa",
+          "endLine": 270,
+          "tokens": 17812,
+          "summary": "项目：games/beads · 版本 v1.12（2026-10-22 · WXG-T-346 续批 · 用户裁定）：",
           "keywords": [
             "theme-level-select-spec.md",
             "Level",
@@ -41136,7 +41136,7 @@
           "level": 2,
           "startLine": 69,
           "endLine": 180,
-          "tokens": 6964,
+          "tokens": 7000,
           "summary": "注 A（闸门不变，本批不改造）：_applyMetaAction('pick-level') 现码 = levelIdx",
           "keywords": [
             "applyMetaAction",
@@ -41152,7 +41152,7 @@
           "level": 3,
           "startLine": 111,
           "endLine": 180,
-          "tokens": 4081,
+          "tokens": 4116,
           "summary": "一句话射程：门票 = 本章全通关（每关历史最高星 ≥ 1）∧ 累计星 ≥ 门槛（~~本大关全部小关历史最高星 = 3★~",
           "keywords": [
             "star-collect-rule.md §6",
@@ -41168,7 +41168,7 @@
           "level": 2,
           "startLine": 181,
           "endLine": 198,
-          "tokens": 1010,
+          "tokens": 1027,
           "summary": "进入本页（点橱窗图） 页面淡入（整页替换；非遮罩面板）；reduceMotion 开 ⇒ 零转场（同帧整页到位） 抽屉音",
           "keywords": [
             "reduceMotion",
@@ -41197,7 +41197,7 @@
           "level": 2,
           "startLine": 213,
           "endLine": 226,
-          "tokens": 682,
+          "tokens": 705,
           "summary": "触控 作品格 = 页专用 170 ≥ TOUCH_MIN 88（§3.8）✅（⛔ 不改 WALL_CELL）；back ",
           "keywords": [
             "art/accessibility.md",
@@ -41212,8 +41212,8 @@
           "anchor": "§8 决策记录与待确认项",
           "level": 2,
           "startLine": 227,
-          "endLine": 265,
-          "tokens": 3507,
+          "endLine": 266,
+          "tokens": 3714,
           "summary": "",
           "keywords": [
             "决策记录与待",
@@ -41224,8 +41224,8 @@
           "anchor": "§8.1 已裁（谁裁的 + 一句理由，本文不重开）",
           "level": 3,
           "startLine": 229,
-          "endLine": 250,
-          "tokens": 1583,
+          "endLine": 251,
+          "tokens": 1723,
           "summary": "D1 大关→关卡清单存大关表、追加式、id 稳定；关卡 JSON/manifest 零改动 用户 2026-10-16 ",
           "keywords": [
             "JSON",
@@ -41237,11 +41237,11 @@
           ]
         },
         {
-          "anchor": "§8.2 待确认与已裁条目（均已在 `meta-ui §2.7` 挂 Q 号；号位**不复用**；在用待裁 = TODO-2（TODO-1 已落码 = WXG-T-340）+ **v1.10 新增 TODO-8/9/10/11（均归 art / tokens / 数值变更单，本批不钉数）**；TODO-5 已裁（10-17）待落码；已裁条目旧文 = 分片 **s8-history**）",
+          "anchor": "§8.2 待确认与已裁条目（均已在 `meta-ui §2.7` 挂 Q 号；号位**不复用**；在用待裁 = TODO-2（TODO-1 已落码 = WXG-T-340）+ **v1.10 新增 TODO-8/9/10（均归 art / tokens / 数值变更单，本批不钉数；TODO-11 已收口 = v1.12 D16）**；TODO-5 已裁（10-17）待落码；已裁条目旧文 = 分片 **s8-history**）",
           "level": 3,
-          "startLine": 251,
-          "endLine": 265,
-          "tokens": 1806,
+          "startLine": 252,
+          "endLine": 266,
+          "tokens": 1864,
           "summary": "[TODO-1] 页头是否显示大关名 —— 现标题读 btn_levels_label = 选关（copy-tokens",
           "keywords": [
             "meta-ui §2.7",
@@ -41255,8 +41255,8 @@
         {
           "anchor": "§9 ⚠ 落码改动面登记（**已外移分片**）",
           "level": 2,
-          "startLine": 266,
-          "endLine": 269,
+          "startLine": 267,
+          "endLine": 270,
           "tokens": 114,
           "summary": "C-1…C-8 整表（§9）、各批改动叙事与 v1.3（3×3 改版）落码面逐字外移至同目录 arc-level-sel",
           "keywords": [
@@ -88201,17 +88201,17 @@
     },
     {
       "path": "production/epics/epics-beads-ep14.md",
-      "tokens": 11969,
-      "lines": 143,
-      "sha256": "58858d707dc0d72d3369cb5e8530f6381d1a0cd2455222c30fff2176ae76e1fa",
+      "tokens": 12212,
+      "lines": 144,
+      "sha256": "e7c51da0266a3e242fca7ba91a9299f290940c3cc44937d9f54dfff94001305b",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Epic 拆分 · EP14 星星收集与星级难度（Star Collect）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 144,
-          "tokens": 11947,
+          "endLine": 145,
+          "tokens": 12190,
           "summary": "任务号 WXG-T-288（P1）· 2026-10-17 · 工程轨（子代理通道不可用，主理人按 my-skills/",
           "keywords": [
             "Epic",
@@ -88255,7 +88255,7 @@
           "level": 2,
           "startLine": 30,
           "endLine": 101,
-          "tokens": 7323,
+          "tokens": 7444,
           "summary": "",
           "keywords": [
             "Story",
@@ -88309,19 +88309,19 @@
           ]
         },
         {
-          "anchor": "§EP14-S4 · 锁态告知与星数 UI 呈现 — **READY**（原 BLOCKED，**复批后转态**；⚠ **视图腿已落码 = WXG-T-346，2026-10-22**：两处均画 + 实拍取证已采，状态仍 READY，只差锁图元一句裁定）",
+          "anchor": "§EP14-S4 · 锁态告知与星数 UI 呈现 — **DONE**（2026-10-22 · WXG-T-346 收口；原 BLOCKED → READY → **DONE** 三次状态均按 K-053 留痕；视图腿 + 实拍取证 + 锁图元裁定 = `ux v1.12 D16`）",
           "level": 3,
           "startLine": 52,
           "endLine": 58,
-          "tokens": 1029,
+          "tokens": 1157,
           "summary": "阻塞：[待规格] = star-collect-rule §6-T1（「全 3★ 开大关」怎么告诉玩家 + 总星数落位/",
           "keywords": [
+            "ux v1.12 D16",
             "§6",
             "EP14",
-            "READY",
-            "BLOCKED",
+            "DONE",
             "WXG",
-            "star"
+            "BLOCKED"
           ]
         },
         {
@@ -88371,8 +88371,8 @@
           "anchor": "§4 统计与状态",
           "level": 2,
           "startLine": 113,
-          "endLine": 126,
-          "tokens": 971,
+          "endLine": 127,
+          "tokens": 1059,
           "summary": "Epic ×1（5 Story）：READY ×3（S1/S2/S3）· BLOCKED ×2（S4/S5）；估点 M×",
           "keywords": [
             "Epic",
@@ -88385,8 +88385,8 @@
         {
           "anchor": "§5 风险与缓解",
           "level": 2,
-          "startLine": 127,
-          "endLine": 140,
+          "startLine": 128,
+          "endLine": 141,
           "tokens": 927,
           "summary": "R-1 既有用例锁着 v1.50「续时不封顶」与双条件选档语义，S1 换制即红 S1 DoD 明写「订正换形并声明，⛔ ",
           "keywords": [
@@ -88397,8 +88397,8 @@
         {
           "anchor": "§6 遗留与在册欠账（不在本 Epic 射程）",
           "level": 2,
-          "startLine": 141,
-          "endLine": 144,
+          "startLine": 142,
+          "endLine": 145,
           "tokens": 68,
           "summary": "meta:overlay 字段名漂移（EP13 已裁「登记不动」）；Q12/Q15 选关页旧未决；T3 供给体检（皮肤立",
           "keywords": [
