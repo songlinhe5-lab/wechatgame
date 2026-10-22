@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
 # 跨 IDE 统一：任意 git commit 前跑门禁。
-# 步骤：⓪ pnpm run check:secrets（密钥入仓守卫，WXG-T-047；红线，**拦截不修复**）
+# 步骤：前置 索引件数与清单报警（WXG-T-349，只报不拦）
+#       ⓪ pnpm run check:secrets（密钥入仓守卫，WXG-T-047；红线，**拦截不修复**）
 #       ① pnpm run check:links（四 IDE 指针完整性）
 #       ①⁷⁄₈ 暂存区含 `packages/framework/src/**.ts` 时 → `sync-framework-to-cocos.mjs --check`
 #          （WXG-T-101：Cocos 镜像漂移守卫，**只拦不写**，无框架改动的提交零开销）
@@ -29,6 +30,19 @@
 
 set -e
 cd "$(git rev-parse --show-toplevel)" || exit 1
+
+# 前置：索引归属报警（WXG-T-349 · 判例 K-045 追记）：`git commit` 提交的是**索引全集**，不是
+#     「本次刚 add 的路径」。并发会话共享同一工作树时，对方先 `git add` 的在制品会被本笔
+#     一并带入 HEAD（2026-10-22 真事：只 add 两份台账，落出 16 件）。钩子无从判断哪条路径
+#     属于哪个会话，故**只报警不阻断**：把清单摊到提交者眼前，核归属是一个动作就能做的事。
+#     阈值 4 = 常见小提交（1–2 手写件 + ② 自动重暂存的 3 件 ctx/memory 产物）不刷屏。
+STAGED_ALL="$(git diff --cached --name-only)"
+STAGED_N="$(printf '%s\n' "$STAGED_ALL" | sed '/^$/d' | wc -l | tr -d ' ')"
+echo "[pre-commit] 索引含 ${STAGED_N} 件（提交 = 索引全集，非本次 add）"
+if [ "$STAGED_N" -gt 4 ]; then
+  echo "[pre-commit] ⚠ 多件提交：逐项核对是否全属本单（并发会话必查，K-045）："
+  printf '%s\n' "$STAGED_ALL" | sed '/^$/d;s/^/   · /'
+fi
 
 # ⓪ 密钥入仓守卫（WXG-T-047）：最严重的一类问题放最前——密钥一旦进入提交历史，
 #     改写历史远比拦下来昂贵。零依赖纯 Node；扫描面 =「会入仓的文件集」；

@@ -16,14 +16,19 @@
  *   F. 头注号**不得落后**于主表 ∪ 归档全局最大号（防领号重号，WXG-T-070；领先合法只出 note）
  *   G. **backlog 卫生**（WXG-T-076）：结项即移除（不留删除线占位）+ 每行 ≤160 字符
  *   H. 主表行数**观察哨**（report-only，不阻断——「结构门硬、行为门软」惯例）
+ *   I. **提交署号必须在册**（WXG-T-349 / K-137 追记）：最近 N 笔（默认 40，`--commits=` 可调）
+ *      提交信息里出现的 `WXG-T-NNN`，逐个要求在「主表 ∪ 详情节 ∪ 行归档 ∪ 详情归档」里存在。
+ *      动机（真事）：2026-10-22 三笔提交署 `WXG-T-346` 而台账当时**无此号** ⇒ A–H 全过、全量门禁十九项全绿。
  *
  * 用法：
  *   node tools/scripts/check-tasks.mjs             # 校验（verify 内调用）
+ *   node tools/scripts/check-tasks.mjs --commits=200   # 放宽 I 项窗口（反事实自证 / 排障用）
  *   node tools/scripts/check-tasks.mjs --prune     # 把「已归档却仍留在详情文件」的小节**搬进**
  *                                                  # 详情归档（**搬，不是删**——删会丢任务正文）
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import {
   DETAIL_ARCHIVE_HEADER,
@@ -44,6 +49,9 @@ const rel = (p) => path.relative(ROOT, p);
 const TITLE_MAX = 60;
 /** backlog 行字符上限（WXG-T-076）：只写「是什么 / 谁发现 / 下一步」，长分析开任务再写。 */
 const BACKLOG_ROW_MAX = 160;
+/** I 项默认回溯提交数：一~两周的开发量。窗口越大越可能括到**历史上真未登**的老号（参主表头注
+ *  「用过号未自登主表清单」），那部分已不可追改 ⇒ 40 取的是「能拦住新事故」与「不因历史债长红」的折中。 */
+const COMMIT_SCAN_DEFAULT = 40;
 
 const read = (p) => (existsSync(p) ? readFileSync(p, 'utf8') : '');
 const idNum = (id) => Number.parseInt(id.replace('WXG-T-', ''), 10);
@@ -182,6 +190,36 @@ if (rows.length > ROW_SENTINEL) {
     `H: 主表 ${rows.length} 行 > 观察哨 ${ROW_SENTINEL} —— 该归档/收敛了：` +
       '`pnpm run tasks:archive -- --detail-until-under=7000 --write`',
   );
+}
+
+// I：提交信息署的号必须在册（主表 ∪ 详情节 ∪ 行归档 ∪ 详情归档）。K-137 及其 WXG-T-346 追记。
+// 为什么要抓提交信息而不是只校台账内部：A–H 全是「台账自洽」门，而事故形态是「代码已入库、
+// 台账无此行」——两边从不对撞就永远看不出来（K-137④ 手工做法的机械化）。
+const commitScan = Number(/--commits=(\d+)/.exec(process.argv.join(' '))?.[1] ?? COMMIT_SCAN_DEFAULT);
+const registeredIds = new Set([...rowIds, ...detailIds, ...archivedIds, ...detailArchiveIds]);
+{
+  let subjects = '';
+  try {
+    subjects = execFileSync('git', ['log', `-n${commitScan}`, '--format=%s'], {
+      encoding: 'utf8',
+      cwd: ROOT,
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+  } catch {
+    notes.push(`I: 跳过（git log 不可用 —— 非 git 目录或浅克隆）`);
+  }
+  if (subjects) {
+    const cited = [...new Set([...subjects.matchAll(/WXG-T-(\d+)/g)].map((m) => pad3(Number(m[1]))))];
+    const orphans = cited.filter((id) => !registeredIds.has(id));
+    if (orphans.length > 0) {
+      failures.push(
+        `I: 最近 ${commitScan} 笔提交信息署了 ${orphans.join('、')}，但台账不在册（主表/详情节/两个归档四处均无）—— ` +
+          '补登主表行 + `## <号>` 详情节，或把已归档的成对搬回（K-137）',
+      );
+    } else {
+      notes.push(`I: 最近 ${commitScan} 笔提交共署 ${cited.length} 个号，全部在册`);
+    }
+  }
 }
 
 // ── --prune：补搬（不是删）────────────────────────────────────────────────────
