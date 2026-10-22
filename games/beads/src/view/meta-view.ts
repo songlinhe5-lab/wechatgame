@@ -104,6 +104,7 @@ import type { BeadsLevelRaw } from '../config/levels-data.js';
 import {
     UI_FONT,
     UI_SCRIM,
+    bodyFont,
     pressOffset,
     scrimFill,
 } from './ui-theme.js';
@@ -1019,7 +1020,9 @@ function drawComingSoonPlate(
 
 /** 木牌上的关序 / 关名（有累计星进度件时上移到第一行，进度落第二行）。`alpha` ≤ 0 不画。
  * `[WXG-T-346]` 进度件：两行槽复用 `MENU_PLATE_TITLE.line1Off/line2Off`（在册常量，零新数值）；
- * 数字直接拼 `★ n/门槛`，与顶栏 `❤ n/n` 同族（无新文案令牌）。缺省不传 ⇒ 原单行逐字不变。 */
+ * 数字直接拼 `★ n/门槛`，与顶栏 `❤ n/n` 同族（无新文案令牌）。缺省不传 ⇒ 原单行逐字不变。
+ * `[art 批·TODO-8 已裁]` 第二行字号 / 色 = `font_label` 28 + `wood_face`（木牌定尺，⛔ 随 E2 放大，
+ * 理由与对比度自证见 `art/specs/menu-layout-implementation-spec.md §10`）。 */
 function drawPlateTitle(
     builder: RenderModelBuilder,
     lv: BeadsLevelRaw,
@@ -1039,7 +1042,7 @@ function drawPlateTitle(
             ...(a === undefined ? {} : { alpha: a }),
         });
         builder.text(MENU_PLATE.cx, top - MENU_PLATE_TITLE.line2Off, `★ ${starGot ?? 0}/${starNeed}`, {
-            fill: palette.textDim, font: UI_FONT.cell, align: 'center', baseline: 'middle',
+            fill: palette.woodFace, font: UI_FONT.sub, align: 'center', baseline: 'middle',
             ...(a === undefined ? {} : { alpha: a }),
         });
     } else if (lv.title) {
@@ -1334,11 +1337,13 @@ function drawLevelsPage(
         });
     }
     // `[WXG-T-346]` 累计星进度件（`ux v1.11 §4.1（3）甲臂`）：章名下方一行，只读、零热区。
-    // 位置派生自既有标题带高 `LEVELS_NAV_H / 2`（不新增版面常量）；视觉微调仍归 art 批（`§8.2 TODO-8`）。
+    // 位置派生自既有标题带高 `LEVELS_NAV_H / 2`（不新增版面常量）。
+    // `[art 批·TODO-8 已裁]` 字号 = `font_label` 28，随 E2 大字→ 35（`bodyFont`）；色 = `text_secondary`（对暖纸底
+    // ≈ 3.9:1，28px 属大字号 ≥ 3:1 达标）⇒ 正本 = `art/specs/menu-layout-implementation-spec.md §10`。
     if (data.arcStarNeed !== undefined) {
         builder.text(DESIGN_W / 2, (LEVELS_GRID_TOP + navTop - LEVELS_NAV_H) / 2 - LEVELS_NAV_H / 2, `★ ${data.arcStarGot ?? 0}/${data.arcStarNeed}`, {
             fill: palette.textDim,
-            font: UI_FONT.cell,
+            font: bodyFont(data.largeText, 'sub'),
             align: 'center',
             baseline: 'middle',
         });
