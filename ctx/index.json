@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4630,
       "lines": 159,
-      "sha256": "fab0300dfabb84d1c7116762c2553a5b24159d5fba799e492f20f8e918e83234",
+      "sha256": "f04f2d224be32bbc33582c882e319c7154edc89a2a40a7cce8a9a91fdf856f16",
       "tier": "normal",
       "sections": [
         {
@@ -27009,9 +27009,9 @@
     },
     {
       "path": "games/beads/design/art/specs/menu-layout-implementation-spec.md",
-      "tokens": 8750,
+      "tokens": 8835,
       "lines": 183,
-      "sha256": "c0cfd7aca8abcc9f2c9e26f55b121b5cd35290fcac6e7484215364bf6ee19014",
+      "sha256": "bd15cc11dd09c5ce211492e5ddccd6c189bc9d6e5cb7c81503862d206a6bcb82",
       "tier": "normal",
       "sections": [
         {
@@ -27019,7 +27019,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 184,
-          "tokens": 8724,
+          "tokens": 8808,
           "summary": "用途：UI 布局落码的唯一施工依据。规则正本 = 本件；取证图 = ../coordinates/menu-master",
           "keywords": [
             "coordinates",
@@ -27172,7 +27172,7 @@
           "level": 2,
           "startLine": 166,
           "endLine": 184,
-          "tokens": 1023,
+          "tokens": 1107,
           "summary": "射程：只钉「字号 / 色 / 位置 / 符号 / 装饰 / 令牌」六项。⛔ 不改判据与呈现位（告知规格正本 = ux/a",
           "keywords": [
             "§8.2",
@@ -88217,9 +88217,9 @@
     },
     {
       "path": "production/epics/epics-beads-ep14.md",
-      "tokens": 12627,
+      "tokens": 12711,
       "lines": 145,
-      "sha256": "073c93ac7fa69d04850de3d8bc7e4317fc801555dad10614f30be26c803bfd16",
+      "sha256": "aef63af7bc8ec63add3362dd28bb2ddaa5ea42aa9c3de9b35e49662e385e166e",
       "tier": "normal",
       "sections": [
         {
@@ -88227,7 +88227,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 146,
-          "tokens": 12605,
+          "tokens": 12689,
           "summary": "任务号 WXG-T-288（P1）· 2026-10-17 · 工程轨（子代理通道不可用，主理人按 my-skills/",
           "keywords": [
             "Epic",
@@ -88271,7 +88271,7 @@
           "level": 2,
           "startLine": 30,
           "endLine": 102,
-          "tokens": 7859,
+          "tokens": 7943,
           "summary": "",
           "keywords": [
             "Story",
@@ -88329,7 +88329,7 @@
           "level": 3,
           "startLine": 52,
           "endLine": 59,
-          "tokens": 1572,
+          "tokens": 1656,
           "summary": "阻塞：[待规格] = star-collect-rule §6-T1（「全 3★ 开大关」怎么告诉玩家 + 总星数落位/",
           "keywords": [
             "ux v1.12 D16",

@@ -13,7 +13,7 @@ import { RenderModelBuilder, type DrawCommand } from '@wxgame/framework';
 import { buildMetaView, hitTestMeta, metaLayout, type MetaViewData } from '../src/view/meta-view.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import { COPY_TOKENS } from '../src/config/copy-tokens.js';
-import { scrimFill, UI_SCRIM } from '../src/view/ui-theme.js';
+import { scrimFill, UI_FONT, UI_SCRIM } from '../src/view/ui-theme.js';
 import { LEVELS } from '../src/config/levels.js';
 import {
     DESIGN_H,
@@ -131,7 +131,7 @@ describe('UI-34 空带大关名（[WXG-T-340] · levels-spec §11.4）', () => {
         builder.begin();
         buildMetaView(builder, dataFor(extra), DEFAULT_PALETTE);
         return builder.end().commands.filter((c) => c.kind === 'text') as unknown as
-            { text: string; x: number; y: number }[];
+            { text: string; x: number; y: number; font?: string; fill?: string }[];
     };
     // 空带 [822,1122] = [LEVELS_GRID_TOP, navTop−NAV_H] 内的文本节点计数。
     const inBand = (c: { y: number }) => c.y >= LEVELS_GRID_TOP && c.y <= LEVELS_NAV_TOP - LEVELS_NAV_H;
@@ -161,5 +161,17 @@ describe('UI-34 空带大关名（[WXG-T-340] · levels-spec §11.4）', () => {
         expect(bar, '进度件落空带').toBeDefined();
         expect(inBand(bar), '仍在带内（不进热区、不出带）').toBe(true);
         expect(bar.y, '在章名之下（y 向上 ⇒ 更小）').toBeLessThan(title.y);
+    });
+
+    // 视觉裁决守卫（art 规格 `menu-layout-implementation-spec.md §10` v3.10 · WXG-T-346 art 批）。
+    // 页侧与木牌侧相反 ⇒ **随** E2 放大（空带高 300、行距 44 ⇒ 35 仍留 6.5px 余量，已实拍）。
+    it('进度件视觉 = 28 档 + textDim，E2 开 ⇒ 35（页侧随放大）', () => {
+        const bar = (largeText: boolean) => textsOf(
+            { chapterTitle: '曼陀罗', arcStarGot: 18, arcStarNeed: 21, largeText },
+        ).find((c) => c.text === '★ 18/21')!;
+        expect(bar(false).font, '字号 = font_label 28（UI_FONT.sub）').toBe(UI_FONT.sub);
+        expect(bar(false).font, '⛔ 回到 cell 22 档（22px 需 4.5:1，实测 textDim 仅 3.90:1）').not.toBe(UI_FONT.cell);
+        expect(bar(true).font, 'E2 开关 ×1.25 = 35（tokens.md §5）').toBe(UI_FONT.bodyLarge);
+        expect(bar(false).fill, '色 = text_secondary（比章名 text 低一档保住层级）').toBe(DEFAULT_PALETTE.textDim);
     });
 });
