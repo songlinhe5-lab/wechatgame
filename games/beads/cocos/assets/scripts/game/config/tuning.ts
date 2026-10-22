@@ -872,16 +872,46 @@ export const STAMINA_REFILL_PLACEMENT = 'stamina-refill';
  *
  * 关卡 JSON 的 `time` 字段语义 = **1★ 档时钟**（不存三个数）；2★/3★ 由 `tierSecondsFor` 派生
  * ⇒ 单一真源，不会三个数各自漂移。
+ *
+ * **v1.82 补（WXG-T-353 · R-2）**：v1.50–v1.81 期间三档共用 `LEVEL_TIME_MIN` 一个地板 ⇒
+ * 短关（`time` 30–37 s）的 2★/3★ 会双双触底塌成同一个数，现改为按档分设（见 `STAR_TIER_FLOOR`）。
  */
 export const STAR_TIER_K = [1.00, 0.85, 0.70] as const;
 /** 档位数（1★/2★/3★）。 */
 export const STAR_TIER_COUNT = 3;
 
-/** 本关 `time`（= 1★ 时钟）在第 `tier` 档实际给多少秒。 */
+/**
+ * **档间最小可感差（§3.7 v1.82 新增 · 数值 `[待 playtest]`）** —— 由 WXG-T-350 体检 R-2 /
+ * WXG-T-353 逐关实算引入：系数 ×0.85 / ×0.70 遇短关时 2★ 与 3★ 会塌成同一个数（L00001 甚至
+ * 三档全塌）⇒ 档内计时判星失去梯度，高星只能靠时间流（`PLAY_STREAK_STAR_UP_SECONDS`）。
+ * 4 s = 按「L00008 两线只差 1 s ≈ 无梯度」反推的最小可感差，**无试玩依据**，
+ * 待 playtest 校准（沿 `SPRINT_K_CURVE` 的 `[待 playtest]` 口径；ponytail: 先保证有梯度，不先调曲线）。
+ */
+export const STAR_TIER_MIN_GAP = 4;
+
+/**
+ * **按档地板（§3.7 v1.82）** = `[LEVEL_TIME_MIN, −GAP, −2×GAP]` = `[30, 26, 22]`。
+ *
+ * ⚠ 与 `LEVEL_TIME_MIN` 的分工（WXG-T-353 实搜确认：两值此前是**同一个常量兼两职**）：
+ * - `LEVEL_TIME_MIN` = **关表 `time` 字段的合法下界**（`levels.ts` 校验、`level-import.ts` 的
+ *   `measuredLevelTime` 钳制），⛔ 不随本组改动——改了会连带放宽关表合法区间；
+ * - 本组 = **三档时钟各自的地板**，允许 2★/3★ 低于 30 s（用户 2026-10-22 选「丙」即含此裁定）。
+ * ⇒ 1★ 地板仍 = `LEVEL_TIME_MIN`，所以「关表 `time` = 1★ 时钟」的单一真源语义（v1.76）不破。
+ */
+export const STAR_TIER_FLOOR = [
+  LEVEL_TIME_MIN,
+  LEVEL_TIME_MIN - STAR_TIER_MIN_GAP,
+  LEVEL_TIME_MIN - STAR_TIER_MIN_GAP * 2,
+] as const;
+
+/**
+ * 本关 `time`（= 1★ 时钟）在第 `tier` 档实际给多少秒。
+ * 地板按档取 `STAR_TIER_FLOOR`（§3.7 v1.82）⇒ 短关的 2★/3★ 不再双双钳到同一个 30。
+ */
 export function tierSecondsFor(levelTime: number, tier: number): number {
   const t = Math.max(1, Math.min(STAR_TIER_COUNT, Math.round(tier)));
   const k = STAR_TIER_K[t - 1] ?? 1;
-  return Math.max(LEVEL_TIME_MIN, Math.round(levelTime * k));
+  return Math.max(STAR_TIER_FLOOR[t - 1] ?? LEVEL_TIME_MIN, Math.round(levelTime * k));
 }
 
 /**

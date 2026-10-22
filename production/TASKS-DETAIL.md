@@ -4636,7 +4636,7 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 | 全量 | ⏮ ~~`pnpm run verify` **PASS 22 ｜ FAIL 0**~~ ⇒ **当批订正（真跑读数）**：**PASS 20 ｜ FAIL 2**——`framework:sync:check` **单跑即绿**（属并发写 cocos 镜像的瞬时态）、`test` 仅 1 例红（`meta-state.test.ts` 的「§3.14 v1.80 · 广告加心日限」，属另一会话在制品）。原值是**本批跑验证之前照抄上批口径填入的假陈述**，违反 K-045 新增追记「⛔ 沿用任一历史时点读数」（本批自己成了反面教材） |
 | 遗留阻塞 | 本批不影响门禁；全量真绿要等并发会话的 §3.14 落码完成后重跑 ⇒ **后续复现（同日 WXG-T-353）**：并发会话推进 §3.14 后重跑 `verify` = **PASS 22｜FAIL 0**，该阻塞已解除 |
 
-待裁（已订正）：R-1 乙（另拆常量）/ 丙（代码侧改名 `TOTAL_LEVEL_COUNT`，须同批改两处字面正则）、R-4 续时奖励改比例；R-3 需真机试玩，属阻塞项；~~R-2 三档塌缩~~ ⇒ **同日已开工，见 `## WXG-T-353`**。
+待裁（已订正）：R-1 乙（另拆常量）/ 丙（代码侧改名 `TOTAL_LEVEL_COUNT`，须同批改两处字面正则）、R-4 续时奖励改比例；R-3 需真机试玩，属阻塞项；~~R-2 三档塌缩~~ ⇒ **同日已开工（`## WXG-T-353`）→ 同日已按「丙」落码交付，见 `## WXG-T-354`**。
 
 ---
 
@@ -4678,3 +4678,58 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 | 台账 | `check:tasks` OK（主表 **113** ↔ 详情 **113**；I 项最近 40 笔共署 14 号全部在册）；头注 = 353、下一可用 354 |
 | 链接 | `check:links` OK（agents=7 skills=47） |
 | 全量 | `pnpm run verify` **PASS 22 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0**（本批当场实跑，exit=0）——与上批 352 的 `PASS 20｜FAIL 2` 差异 = 并发会话在此期间推进了 §3.14 落码 ⇒ **恰好当场实证本批刚落盘的 K-045 追记**：并发在制品使全量红为瞬时态，须当场重跑取证，⛔ 任一历史时点读数（无论红或绿）都不得沿用 |
+
+---
+
+## WXG-T-354
+
+**beads·§3.7 三档时钟「按档地板」落码（丙方案 · 消体检 R-2）**
+
+用户 2026-10-22 令「沉淀候选 / 下一步落丙方案」⇒ 上批（WXG-T-353）的取证方案转成代码 + 数值真源回写；同批把上轮回传的 2 条沉淀候选落盘（K-161 ⑥ / K-160 追记）。本批是全链里**唯一改玩家可见数值**的一批（三档秒数）。
+
+### 1. 领号核验与并发侦查（K-046 / K-045）
+- **领号**：`git log --grep=WXG-T-354` 零命中，`WXG-T-354` 此前只现于上批头注的「下一真可用号」前瞻 ⇒ 无冲突。
+- **落码前的并发侦查**：`git diff -U0 games/beads/src/config/tuning.ts` 抓到他会话 §3.14（体力/豆子经济线）三个插入型 hunk（新行 821 / 838 / 1200 一带），与本批目标区（工作树 856–885）逐条判定 ⇒ **最小间距 35 行、零重叠**，结论「可落码，但提交须按 hunk 过滤以免夹带」。
+- **施工期间 HEAD 前移（如实登记）**：他会话 §3.14 在本批验核之后作为 `4ceb0c5`（WXG-T-351）入库 ⇒ 此刻 `tuning.ts` 的工作树 diff 只剩本批 3 个 hunk。故提交前的夹带对撞改以「当次 `git diff` 全量逐 hunk 归属」为准，⛔ 不凭开工时的快照下结论（K-045 追记的同型延伸）。
+
+### 2. 交付清单
+| 件 | 内容 |
+|---|---|
+| `games/beads/src/config/tuning.ts` | 新增 `STAR_TIER_MIN_GAP = 4`、`STAR_TIER_FLOOR = [LEVEL_TIME_MIN, −GAP, −2×GAP]` = `[30, 26, 22]`；`tierSecondsFor` 地板由 `LEVEL_TIME_MIN` 改为按档取 `STAR_TIER_FLOOR[t-1]`；`STAR_TIER_K` **三值零改动**（注释加 v1.82 补注） |
+| `games/beads/cocos/assets/scripts/game/config/tuning.ts` | Cocos 镜像副本，**只由 `pnpm run framework:sync` 产出**（写入 1 件），⛔ 未手改 |
+| `games/beads/tests/tuning.test.ts` | `tierSecondsFor` 用例改为按档地板口径（`(30,3)` 30→22，旧读数留档为注释；补塌缩三关新读数 6 条断言）+ 新增独立用例「逐关三档时钟必须严格单调」，**取代**旧的 `expect(LEVEL_TIME_MIN).toBeLessThanOrEqual(59)` |
+| `games/beads/design/gdd/systems-index.md` | §3.5 v1.50 定价行加 v1.82 括注；§3.7 `STAR_TIER_K` 行加「派生下界修订（本组三值零改动）」+ 新增两常量行（含 `LEVEL_TIME_MIN` 语义收窄）；页头版本行 v1.78 → **v1.82**（同时追平 v1.79–v1.81 的**页头滞后**） |
+| `games/beads/design/gdd/systems-index-changelog.md` | 表尾新增 **v1.82** 行：两常量与派生读数 / `LEVEL_TIME_MIN` 语义收窄 / 防线换形 + 变异自证 / 沿革；依据栏明写「选丙即含裁定：高星档时钟允许低于 30 s」 |
+| `games/beads/design/forensics/wxg-t-350-star-supply-balance-check.md` | R-2 行 🔧 → ✅ 已交付（旧句全保留按 K-053 划档）+ 文末新增 **§11.4 落地记录**（两项待裁输入如何定档、三件改动、变异自证、未做与遗留四条、并发施工面登记） |
+| `knowledge/lessons/criteria-measure.md` | **K-161 追加第 ⑥ 条**：同型失效的测试侧一头——判据必须写成「对被检集合逐条成立的性质」，是 K-152 的测试侧变体 |
+| `knowledge/lessons/cross-ide.md` | **K-160 追加追记**：`rg -rn` 的 `-r` = `--replace`，符号名被静默改写成字面 `n`；征状识别 + 「引用符号名前不带 `-r` 重跑」规避 |
+| `production/TASKS.md` | 头注推到 354 / 下一 355，主表新增 354 行 |
+
+### 3. 三条关键判断
+- **① 「选丙」本身就含一条裁定**：丙的前提是**高星档时钟允许低于 30 s**（若答「否」，丙不成立、只能回乙拆 UI）。用户未单独裁这一条 ⇒ 我把归因写进 `STAR_TIER_FLOOR` 注释与 changelog 依据栏（「用户 2026-10-22 选丙即含此裁定」），日后回查不必重开。**G = 4 s 无试玩依据 ⇒ 标 `[待 playtest]`**，沿 `SPRINT_K_CURVE` 口径：只保证梯度存在，不担当难度调平。
+- **② 拆职而不换真源**：`LEVEL_TIME_MIN` 此前**兼两职**（关表 `time` 合法下界 + 三档共用地板）。本批只把它收窄为前者，三档地板另立 `STAR_TIER_FLOOR`，且 **1★ 地板仍 = `LEVEL_TIME_MIN`** ⇒ §3.7 v1.76「关表 `time` = 1★ 时钟」的单一真源不破（测试另钉 `expect(STAR_TIER_FLOOR[0]).toBe(LEVEL_TIME_MIN)`）。这正是拒掉「甲：抬 1★ 地板」的理由——甲要 `time` 与 1★ 解绑，等于改语义。
+- **③ 塌缩关的新读数（实算核过）**：L00001 `30/30/30` → **30/26/22**；L00006 `32/30/30` → **32/27/22**；L00008 `37/31/30`（只差 1 s）→ **37/31/26**；其余 7 关一字不变。派生式：`round(30×0.85)=26` ⇒ `max(26,26)=26`；`round(30×0.70)=21` ⇒ `max(22,21)=22`。
+
+### 4. 本批自纠（如实登记）
+- **近形字「塌」写成「塔」：单轮复发 4 次、4 个文件共 13 处**（systems-index 7 + 页头 2 + 报告 3 + TASKS.md 1；上批 WXG-T-353 已犯 1 次）。每次处置 = node 按 **Unicode 码点**替换（`U+5854 塔` → `U+584C 塌`）并打印 `residual 0` 取证；TASKS.md 那处先用 `git diff -U0` 的新增行限定扫描范围，以免误改他会话文本。**结论：肉眼校对完全无效**（同一段文字我连读三遍都没看出）⇒ 列为本批**第 3 条沉淀候选**，待用户点头再落。
+- **凭记忆写 `original_text` 错锚：累计第 6 次**（改测试标题时漏了右括号 `）`）⇒ `Failed to match` 后回 `rg -n` 取真字节才改对。同批还自造两处错字（「就边」→「就等于」、「取旧」→「取代旧」），均当批单独修回。
+- **镜像真身差点判错**：`framework:sync` 顾名思义只同步框架，我一度以为 `games/*/src` 侧的镜像要手改 ⇒ 查到 `docs/architecture/control-manifest.md:229`（该脚本同时镜像 framework + game 两类源，且 pre-commit 步骤 ①⁷⁄₈ 在暂存含 `games/*/src/**/*.ts` 时自动跑 `--check` 只拦不写）才确认。**全程未手改镜像**。
+- **沉淀候选选片纠错**：上轮把 K-160 记在 `criteria-measure.md`，实为 `cross-ide.md:52` ⇒ 落盘前先 `rg -n 'K-16[01]' knowledge/lessons/*.md` 复核纠正，未据错假设写入。
+- **sync 的安全性前置取证**：跑 `framework:sync` 之前先 `--check`，确认「不同步仅 1 处 = 我自己刚改的 `tuning.ts`」⇒ 据此判定不会把他会话的未同步半成品灌进镜像。
+
+### 5. 验收（本批当场实跑读数；并发在制品造成的红逐项归因，⛔ 不谎称全绿）
+
+| 项 | 结果 |
+|---|---|
+| 变异自证 | 临时注入 `STAR_TIER_FLOOR = [LEVEL_TIME_MIN, LEVEL_TIME_MIN, LEVEL_TIME_MIN] // MUTANT` ⇒ `tuning.test.ts` **Tests 2 failed ｜ 21 passed**，逐关断言精确输出 `L00001 30/30/30`、`L00006 32/30/30`；**旧 `LEVEL_TIME_MIN ≤ 59` 在同一塌缩态照绿** ⇒ 一次变异同时证「新断言有效」与「旧断言是假防线」。还原靠 `cp temp/tuning-354.bak`（⛔ 不用 `git checkout`，该文件当时含他会话 WIP），`MUTANT` 命中 0 |
+| 单测 | beads `vitest run`（10-22 当日重跑）= **Test Files 2 failed ｜ 101 passed (103) · Tests 5 failed ｜ 1236 passed ｜ 3 skipped (1244)**；**本批 `tests/tuning.test.ts` ✓ 23 passed**。5 例红逐条归属 = 他会话 §3.6 v1.80 道具购买确认弹窗在制品（4 例在未入库新件 `tests/powerup-buy-confirm.test.ts`，1 例是 `bead-style-settings.test.ts` 的 scrim 消费点穷尽静态门）⇒ **无一例属本批**。（开工时同测为 102 files / 1234 passed / 0 failed，此后对方新增 1 个测试件） |
+| 类型 | 本批文件单测 `tsc --noEmit -p games/beads/tsconfig.json` 当时 exit 0；全仓 `typecheck` 现**红**（exit 2）= 8 条 **全部** 落在 `tests/powerup-buy-confirm.test.ts`（`Property 'countEvents' does not exist on type 'Harness'`）= 对方尚未把该 helper 补进 `tests/helpers.ts` ⇒ 属对方冻结面，⛔ 不代改（K-045 2026-10-19 追记③） |
+| 镜像 | `framework:sync` 写入 1 件（本批 `tuning.ts`）→ `framework:sync:check` ✅；提交前再跑一次全树检查发现 **6 处不同步（全属对方 5 个 src 改动件 + 1 个新件缺镜像）**⇒ 本笔暂存含 `games/beads/src/**` 会被全树镜像门拦住；重跑 `framework:sync` 时 **写入 0、未变 144**（对方会话恰好自行 sync 了），复检 ✅ **beads framework 61 + game 83**、breakout 61 + 16 ⇒ **本批全程未写入对方一件镜像** |
+| 覆盖缺口 | 查 `tests/stars-tier.test.ts:34` 只用 `simpleTestLevel()`（`time` = 300）⇒ **短关此前未被任何测试覆盖**，补强 K-161 ⑥ 的证据链 |
+| 文本失真对撞 | 近形字按码点扫（`U+5854 塔` → `U+584C 塌`）：四件 `residual 0`；含本节在内的**全部新增行**再扫一次，`U+5854` 仅剩 1 处 = 本批自纠里故意引用的错字本身；零宽字符（U+200B/200C/200D/FEFF/2060）新增行命中 **0** |
+| B 门读数 | 追记后实测：`knowledge/lessons/cross-ide.md` **4079** / `knowledge/lessons/criteria-measure.md` **6648** tok（上限 8000，本批分别 +261 / +192）⇒ 两分片均在门内，⛔ 未新增豁免；`ctx:check` 结构门 A/B/C/D/D2 + E3 **OK**（exit 0） |
+| 关卡门禁 | `levels:check` OK（beads `levels-data` / `arcs` / breakout 三项一致）⇒ **兼本批「拆职」自证**：3★ 地板 22 已低于 `LEVEL_TIME_MIN` = 30，而关表校验只查 `time` 字段下界 ⇒ 合法区间未被放宽、也无关被误拒 |
+| 知识库 | `kb:sync --task=WXG-T-354`：**新增 0 ｜ 修改 2（K-161、K-160）**｜激活 0｜归档 0；`kb:audit` 无归档候选（活跃 158）；`ctx:build` 已刷新；`kb:check` **八重 PASSED**（活跃 158 / 归档 0） |
+| 台账 | `check:tasks` OK（主表 **114** ↔ 详情 **114** 配对完整；I 项最近 40 笔共署 **15** 号全部在册）；头注 = 354、下一可用 355。另 `check:tasks` 报 H 项 note：主表 114 行 > 观察哨 20 ⇒ **建议归档收敛**（`tasks:archive -- --detail-until-under=7000 --write`，属独立小单） |
+| 链接 | `check:links` OK（agents=7 skills=47） |
+| 全量 | `pnpm run verify`（10-22 当日重跑，逐项未短路）= **PASS 20 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 2**，exit 1。两红 = `typecheck` + `test`，**均已上表逐条归因到并发会话 §3.6 在制品**（与本批零重叠：本批只动 `config/tuning.ts` 一个源文件）⇒ 阻塞项与解除条件 = **对方 §3.6 购买确认弹窗落码完成后重跑全量**（同 WXG-T-352/353 已登记的瞬时态，K-045 追记） |

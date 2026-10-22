@@ -45,13 +45,16 @@ import {
   LEVEL_TIME_MIN,
   nextTierFor,
   SEC_PER_STEP,
+  STAR_TIER_FLOOR,
   STAR_TIER_K,
+  STAR_TIER_MIN_GAP,
   tierSecondsFor,
   gridLayoutFor,
   normalSettleScore,
   stageParamsFor,
   validatedSprintTime,
 } from '../src/config/tuning.js';
+import { LEVELS_DATA } from '../src/config/levels-data.js';
 
 describe('beads tuning derivation (systems-index §3 mirrors)', () => {
   it('derives the grid pitch from cell + gap', () => {
@@ -201,14 +204,23 @@ describe('beads tuning derivation (systems-index §3 mirrors)', () => {
   });
 
   describe('三档时钟与选档闸门 (§3.7 v1.78 档内计时判星)', () => {
-    it('tierSecondsFor：1★ = time，2★/3★ = ×0.85 / ×0.70，并被 LEVEL_TIME_MIN 兜住', () => {
+    it('tierSecondsFor：1★ = time，2★/3★ = ×0.85 / ×0.70，地板按档取 STAR_TIER_FLOOR（§3.7 v1.82）', () => {
       expect(STAR_TIER_K).toEqual([1.0, 0.85, 0.7]);
+      expect(STAR_TIER_MIN_GAP).toBe(4);
+      expect(STAR_TIER_FLOOR).toEqual([30, 26, 22]);
       expect(tierSecondsFor(200, 1)).toBe(200);
       expect(tierSecondsFor(200, 2)).toBe(170);
       expect(tierSecondsFor(200, 3)).toBe(140);
       // 小关的 3★ 不得被钳到与 1★ 同值（旧 MIN=120 会把三档塌缩成一个数）。
       expect(tierSecondsFor(84, 3)).toBe(59);
-      expect(tierSecondsFor(30, 3)).toBe(30); // 钳到下限，不出 21
+      // v1.81 以前这里钳到 30 ⇒ 与 1★ 同值（三档全塌）；v1.82 起 3★ 地板 = 22。
+      expect(tierSecondsFor(30, 3)).toBe(22);
+      expect(tierSecondsFor(30, 2)).toBe(26);
+      // 塌缩三关的新读数（WXG-T-353 逐关实算 · 体检 R-2 核销依据）
+      expect(tierSecondsFor(32, 2)).toBe(27);
+      expect(tierSecondsFor(32, 3)).toBe(22);
+      expect(tierSecondsFor(37, 2)).toBe(31);
+      expect(tierSecondsFor(37, 3)).toBe(26);
       expect(tierSecondsFor(200, 99)).toBe(140); // 越界钳到 3★
       expect(tierSecondsFor(200, 0)).toBe(200); // 下界钳到 1★
     });
@@ -247,8 +259,23 @@ describe('beads tuning derivation (systems-index §3 mirrors)', () => {
 
     it('SEC_PER_STEP 量纲 = 每批量动作秒数（旧 SEC_PER_TAP 每点击 3.6s 已重锚）', () => {
       expect(SEC_PER_STEP).toBe(1.69);
-      // LEVEL_TIME_MIN 必须低于八关最短的 3★ 档（59s），否则档位塌缩。
-      expect(LEVEL_TIME_MIN).toBeLessThanOrEqual(59);
+    });
+
+    it('逐关三档时钟必须严格单调（§3.7 v1.82 防塌缩 · 取代旧「常量 vs 历史极值」断言）', () => {
+      expect(STAR_TIER_FLOOR[0]).toBe(LEVEL_TIME_MIN); // 1★ 地板 = 关表 `time` 合法下界（§3.7 v1.76 单一真源语义不破）
+      // 旧防线（K-053 留档）：`expect(LEVEL_TIME_MIN).toBeLessThanOrEqual(59)`，注释写
+      // 「否则档位塌缩」。失效原因：59 是**八关时代**最短 3★ 档的快照，且不逐关检查 ⇒
+      // 关表涨到 10 关、L00001 / L00006 / L00008 真在塌缩时它照样绿（K-161 ⑥ / K-036 谱系）。
+      const collapsed: string[] = [];
+      for (const lv of LEVELS_DATA.levels) {
+        const a = tierSecondsFor(lv.time, 1);
+        const b = tierSecondsFor(lv.time, 2);
+        const c = tierSecondsFor(lv.time, 3);
+        if (!(c < b && b < a)) {
+          collapsed.push(`L${String(lv.id).padStart(5, '0')} ${a}/${b}/${c}`);
+        }
+      }
+      expect(collapsed).toEqual([]);
     });
   });
 
