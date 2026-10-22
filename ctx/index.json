@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4630,
       "lines": 159,
-      "sha256": "ed3713cc38cc0f439cea202dd8ffb858997328a4c604f8d38ebc5296e80720f5",
+      "sha256": "af3755d832f3533767c94248c5a950536949736e1379fd0bc9370edadafbb1a1",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 402,
-          "summary": "1 production/TASKS-DETAIL.md 196220 4541 normal",
+          "summary": "1 production/TASKS-DETAIL.md 197298 4583 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -422,7 +422,7 @@
           "startLine": 46,
           "endLine": 134,
           "tokens": 3121,
-          "summary": "production/TASKS-DETAIL.md 196220 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 197298 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5513,
       "lines": 146,
-      "sha256": "301fcdfcc53333a98ae2ca645bf1ed9889f77f503207a6b8a819e885da04703e",
+      "sha256": "bd9d47787264bd9f84471ba14e4728db5c6d0f2a33de89b7201ed9d7cb1cb1d9",
       "tier": "normal",
       "sections": [
         {
@@ -713,12 +713,12 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/gdd/systems-index.md` — 301 行 / 29791 tok / 实测读 170 次",
+          "anchor": "§`games/beads/design/gdd/systems-index.md` — 305 行 / 30533 tok / 实测读 170 次",
           "level": 2,
           "startLine": 19,
           "endLine": 22,
           "tokens": 256,
-          "summary": "§系统清单与依赖索引（Systems I…=1+302 · §1 系统清单=9+17 · §2 依赖排序（Depende",
+          "summary": "§系统清单与依赖索引（Systems I…=1+306 · §1 系统清单=9+17 · §2 依赖排序（Depende",
           "keywords": [
             "§1",
             "§2",
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 160 行 / 68513 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 161 行 / 68746 tok / 实测读 4 次",
           "level": 2,
           "startLine": 27,
           "endLine": 30,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+161 · §待排（backlog，无号，立项时领取…=133+29",
+          "summary": "§WXG 任务台账（SSOT）=1+162 · §待排（backlog，无号，立项时领取…=134+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -968,7 +968,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 4541 行 / 196220 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 4583 行 / 197298 tok",
           "level": 2,
           "startLine": 92,
           "endLine": 96,
@@ -32922,17 +32922,17 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index-changelog.md",
-      "tokens": 42488,
-      "lines": 90,
-      "sha256": "db87ceac70a4d5404f2ed6267f0e2c948a837ad6a8c34ceecbd3609bb5a86e43",
+      "tokens": 43027,
+      "lines": 91,
+      "sha256": "9b6c82b7c83ca652d6bf69ae230769ede4c34231c1da92bbc57921789c548b0d",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · systems-index §6 变更记录（拆分件）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 91,
-          "tokens": 42470,
+          "endLine": 92,
+          "tokens": 43009,
           "summary": "项目：games/beads · 归属：systems-index.md 的 §6 变更记录",
           "keywords": [
             "§6",
@@ -32947,8 +32947,8 @@
           "anchor": "§6 变更记录",
           "level": 2,
           "startLine": 7,
-          "endLine": 91,
-          "tokens": 42312,
+          "endLine": 92,
+          "tokens": 42851,
           "summary": "v1.0 2026-09-11 初版：9 系统清单 + 拓扑 + §3 冻结令（含 8 项 [待确认] 提案值） WXG",
           "keywords": [
             "§3",
@@ -32960,17 +32960,17 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index.md",
-      "tokens": 29791,
-      "lines": 301,
-      "sha256": "34f8f287fd72ce936010fbccb1f5a29ebc22ae5ff18e0543570936397bef0fce",
+      "tokens": 30533,
+      "lines": 305,
+      "sha256": "601d03b219ba39fbdbc95edc932e442a4edb2606f320be080ece69deb9766878",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§系统清单与依赖索引（Systems Index）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 302,
-          "tokens": 29774,
+          "endLine": 306,
+          "tokens": 30516,
           "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.78 · 任务号 WXG-T-288（v1.78 = 星级新",
           "keywords": [
             "Systems",
@@ -33012,8 +33012,8 @@
           "anchor": "§3 全局数值基线（Global Constants）· ❄️ 冻结令",
           "level": 2,
           "startLine": 56,
-          "endLine": 256,
-          "tokens": 21127,
+          "endLine": 260,
+          "tokens": 21869,
           "summary": "本项目唯一真源（Single Source of Truth）——适用范围：游戏数值与常量（分辨率 / 安全区 / 网格",
           "keywords": [
             "Global",
@@ -33102,8 +33102,8 @@
           "anchor": "§3.6 道具（Powerups）· v1.22 反转为解环器",
           "level": 3,
           "startLine": 143,
-          "endLine": 153,
-          "tokens": 574,
+          "endLine": 157,
+          "tokens": 955,
           "summary": "POWERUP_TYPES ['solver','solverPlus','solverRandom'] v1.22 冻",
           "keywords": [
             "Powerups",
@@ -33117,8 +33117,8 @@
         {
           "anchor": "§3.7 星级与结算",
           "level": 3,
-          "startLine": 154,
-          "endLine": 164,
+          "startLine": 158,
+          "endLine": 168,
           "tokens": 1830,
           "summary": "STAR_TIER_K [1.00, 0.85, 0.70] §3.7 v1.50 冻结变更：删除 STAR3_RATI",
           "keywords": [
@@ -33131,8 +33131,8 @@
         {
           "anchor": "§3.8 可访问性（对齐 art-bible §3.3 与工作室 Standard 级）",
           "level": 3,
-          "startLine": 165,
-          "endLine": 180,
+          "startLine": 169,
+          "endLine": 184,
           "tokens": 1655,
           "summary": "色觉区分（原「三重编码」） 二重：色相 + 明度 + 连续目标色底图 ⚠ v1.57 口径订正（既存漂移随本单核销，非本",
           "keywords": [
@@ -33147,8 +33147,8 @@
         {
           "anchor": "§3.9 包体预算",
           "level": 3,
-          "startLine": 181,
-          "endLine": 188,
+          "startLine": 185,
+          "endLine": 192,
           "tokens": 994,
           "summary": "主包红线 4096 KB 微信主包平台红线，不可逾越",
           "keywords": [
@@ -33158,8 +33158,8 @@
         {
           "anchor": "§3.10 冲刺模式（Sprint）· 2026-09-12 用户拍板冻结（WXG-T-020）",
           "level": 3,
-          "startLine": 189,
-          "endLine": 205,
+          "startLine": 193,
+          "endLine": 209,
           "tokens": 798,
           "summary": "SPRINT_TIME_DEFAULT 120 s 冲刺单局时长；合法区间 [90, 120]，越界回退默认（C1）",
           "keywords": [
@@ -33173,9 +33173,9 @@
         {
           "anchor": "§3.11 失败续时（Revive）· 2026-09-14 用户拍板冻结（WXG-T-057 / T-B）；v1.25 量级变更 60→180（WXG-T-149，用户 2026-09-17 拍板，对齐参考视频 ref-video §10.5 实测 +180s）",
           "level": 3,
-          "startLine": 206,
-          "endLine": 215,
-          "tokens": 333,
+          "startLine": 210,
+          "endLine": 219,
+          "tokens": 400,
           "summary": "REVIVE_BONUS_SEC 180 s 失败页激励视频看完（onRewarded）后写入可玩钟的秒数。v1.25 ",
           "keywords": [
             "§10.5",
@@ -33189,9 +33189,9 @@
         {
           "anchor": "§3.14 体力与钱包（Stamina & Wallet）· v1.28 新增冻结（WXG-T-164，用户 2026-09-18 八项拍板；反转 meta-framework M5 与「三货币不做」禁令）",
           "level": 3,
-          "startLine": 216,
-          "endLine": 227,
-          "tokens": 428,
+          "startLine": 220,
+          "endLine": 231,
+          "tokens": 722,
           "summary": "STAMINA_MAX 8 体力（心）上限（宽容包 B，用户拍板）",
           "keywords": [
             "Stamina",
@@ -33205,8 +33205,8 @@
         {
           "anchor": "§3.12 音频（Audio）· 2026-09-14 波次1建档（WXG-T-083 / 阮和鸣）",
           "level": 3,
-          "startLine": 228,
-          "endLine": 242,
+          "startLine": 232,
+          "endLine": 246,
           "tokens": 1179,
           "summary": "AUDIO_SFX_MIN_INTERVAL 0.05 s 高频短音（sfx_place/sfx_select）per-",
           "keywords": [
@@ -33221,8 +33221,8 @@
         {
           "anchor": "§3.13 错位参数（Misplaced）· v1.22 新增冻结（WXG-T-130，用户 2026-09-16 裁定案 A）",
           "level": 3,
-          "startLine": 243,
-          "endLine": 256,
+          "startLine": 247,
+          "endLine": 260,
           "tokens": 1955,
           "summary": "MISPLACED_PAIRS_MIN 1 单关错位交换对数下限；0 = 无错位 = 无玩法 ⇒ 非法，BOOT 拒收",
           "keywords": [
@@ -33237,8 +33237,8 @@
         {
           "anchor": "§4 事件总线约定（供程序落码参考）",
           "level": 2,
-          "startLine": 257,
-          "endLine": 288,
+          "startLine": 261,
+          "endLine": 292,
           "tokens": 1187,
           "summary": "沿用 breakout 的事件命名风格 <域>:<事件>，payload 一律带 levelId（v1.28 补注：局内",
           "keywords": [
@@ -33252,8 +33252,8 @@
         {
           "anchor": "§5 与框架层的接口假设",
           "level": 2,
-          "startLine": 289,
-          "endLine": 297,
+          "startLine": 293,
+          "endLine": 301,
           "tokens": 325,
           "summary": "引擎/平台：Cocos Creator 3.8 LTS + 微信小游戏（adapters/cocos + platfor",
           "keywords": [
@@ -33268,8 +33268,8 @@
         {
           "anchor": "§6 变更记录",
           "level": 2,
-          "startLine": 298,
-          "endLine": 302,
+          "startLine": 302,
+          "endLine": 306,
           "tokens": 107,
           "summary": "本节的全部内容已拆分为 systems-index-changelog.md（WXG-T-062，因本文累积超过 ctx",
           "keywords": [
@@ -36278,6 +36278,390 @@
             "§8",
             "dip",
             "变更记录"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "games/beads/design/proposals/bean-currency-economy.md",
+      "tokens": 7390,
+      "lines": 366,
+      "sha256": "0120381208a0ce4a811e88d82663b1f3269ac65dc5593f10c525c3e588c7a8d9",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§提案 · 待拍板｜豆子经济（Bean Currency）· beads",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 367,
+          "tokens": 7371,
+          "summary": "项目：games/beads · 版本 v1.0（已拍板 · 已落 §3） · WXG-T-351",
+          "keywords": [
+            "§3",
+            "Bean",
+            "Currency",
+            "beads",
+            "games",
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§0 一页纸结论",
+          "level": 2,
+          "startLine": 15,
+          "endLine": 26,
+          "tokens": 296,
+          "summary": "1 金币怎么包装 表现层改名「豆子」：图标换豆子（[待 art] 1 张 40² 位图）+ 文案统一；存档 coins ",
+          "keywords": [
+            "art",
+            "coins",
+            "一页纸结论"
+          ]
+        },
+        {
+          "anchor": "§1 现状核对（只列已核实事实）",
+          "level": 2,
+          "startLine": 27,
+          "endLine": 49,
+          "tokens": 691,
+          "summary": "豆子（现金币）来源只有签到：7 日循环 20/30/30/40/40/60/100（均值 ≈ 45.7/天） tunin",
+          "keywords": [
+            "tunin",
+            "现状核对",
+            "只列已核实事"
+          ]
+        },
+        {
+          "anchor": "§2 豆子货币包装（表现层）",
+          "level": 2,
+          "startLine": 50,
+          "endLine": 60,
+          "tokens": 168,
+          "summary": "名称 玩家可见全部称「豆子」（「拼豆」= 品牌词，不与货币混用） 资源条目前只有数字 + 图标，无文字",
+          "keywords": [
+            "豆子货币包装",
+            "表现层"
+          ]
+        },
+        {
+          "anchor": "§3 豆子出口①：道具卡超限再买一次",
+          "level": 2,
+          "startLine": 61,
+          "endLine": 85,
+          "tokens": 571,
+          "summary": "",
+          "keywords": [
+            "豆子出口",
+            "道具卡超限再",
+            "买一次"
+          ]
+        },
+        {
+          "anchor": "§3.1 交互",
+          "level": 3,
+          "startLine": 63,
+          "endLine": 68,
+          "tokens": 124,
+          "summary": "1. 某型道具本关免费次数（1 次）用完后，再点该卡 ⇒ 卡片显示豆子价角标（替代现 ad_badge），点击弹出「用 ",
+          "keywords": [
+            "ad_badge",
+            "交互"
+          ]
+        },
+        {
+          "anchor": "§3.2 次数与价格（v0.3 按行业锚重定价）",
+          "level": 3,
+          "startLine": 69,
+          "endLine": 77,
+          "tokens": 299,
+          "summary": "每型每关可买次数 1 次 与免费 1 次对称；防「无限买同型」把单关变成付费直线",
+          "keywords": [
+            "次数与价格",
+            "按行业锚重定"
+          ]
+        },
+        {
+          "anchor": "§3.3 与布局 A 的关系",
+          "level": 3,
+          "startLine": 78,
+          "endLine": 85,
+          "tokens": 117,
+          "summary": "改判点：3 个道具位的 ad_badge 从「广告占位」改为「豆子价角标」——不拉起广告，只读豆子余额；",
+          "keywords": [
+            "ad_badge",
+            "与布局",
+            "的关系"
+          ]
+        },
+        {
+          "anchor": "§4 心：自然回复（现状不动）+ 广告固定恢复（限次）",
+          "level": 2,
+          "startLine": 86,
+          "endLine": 129,
+          "tokens": 1305,
+          "summary": "",
+          "keywords": [
+            "自然回复",
+            "现状不动",
+            "广告固定恢复",
+            "限次"
+          ]
+        },
+        {
+          "anchor": "§4.1 你的四条裁定 → 与代码逐条对照",
+          "level": 3,
+          "startLine": 88,
+          "endLine": 98,
+          "tokens": 326,
+          "summary": "① 固定时间恢复 1 心 已实现：STAMINA_REGEN_MIN_MS = 8 分钟/心，MetaState.ref",
+          "keywords": [
+            "STAMINA_REGEN_MIN_MS",
+            "MetaState",
+            "ref",
+            "你的四条裁定",
+            "与代码逐条对"
+          ]
+        },
+        {
+          "anchor": "§4.2 落法（最小改动面）",
+          "level": 3,
+          "startLine": 99,
+          "endLine": 115,
+          "tokens": 553,
+          "summary": "1. 新常量（tuning.ts）：",
+          "keywords": [
+            "tuning",
+            "落法",
+            "最小改动面"
+          ]
+        },
+        {
+          "anchor": "§4.3 语义与数值影响（须知）",
+          "level": 3,
+          "startLine": 116,
+          "endLine": 121,
+          "tokens": 258,
+          "summary": "0 心玩家的续航从「一次广告 8 局」降到「一次广告 3 局」（N=3）；配合日限 5 次 ⇒ 日广告得心上限 15，约",
+          "keywords": [
+            "语义与数值影",
+            "须知"
+          ]
+        },
+        {
+          "anchor": "§4.4 广告基础设施",
+          "level": 3,
+          "startLine": 122,
+          "endLine": 129,
+          "tokens": 118,
+          "summary": "services.rewardedAd 已通（续时 + 回满两处 live）；",
+          "keywords": [
+            "services",
+            "rewardedAd",
+            "live",
+            "广告基础设施"
+          ]
+        },
+        {
+          "anchor": "§5 收支预算（粗算，全部 `[待 playtest]`）",
+          "level": 2,
+          "startLine": 130,
+          "endLine": 140,
+          "tokens": 207,
+          "summary": "收入（稳态） 签到日均 ≈ 45.7 豆（7 日合计 320）",
+          "keywords": [
+            "[待 playtest]",
+            "playtest",
+            "收支预算",
+            "粗算",
+            "全部"
+          ]
+        },
+        {
+          "anchor": "§6 §3 变更点与依赖（✅ 全部已落 v1.80 / WXG-T-351，除标「另批」者）",
+          "level": 2,
+          "startLine": 141,
+          "endLine": 160,
+          "tokens": 401,
+          "summary": "0 §3.14 Won't「只发不耗 / 币购道具」反转（B 包转采） §3.14 变更单 —— 最高优先级，未登记不得",
+          "keywords": [
+            "§3",
+            "§3.14",
+            "WXG",
+            "Won",
+            "变更点与依赖",
+            "全部已落"
+          ]
+        },
+        {
+          "anchor": "§7 判据（落码时必测）",
+          "level": 2,
+          "startLine": 161,
+          "endLine": 185,
+          "tokens": 368,
+          "summary": "",
+          "keywords": [
+            "判据",
+            "落码时必测"
+          ]
+        },
+        {
+          "anchor": "§7.1 豆子（道具出口）",
+          "level": 3,
+          "startLine": 163,
+          "endLine": 169,
+          "tokens": 103,
+          "summary": "1. 免费次数用尽后才出现豆子价角标；免费次数内零扣豆；",
+          "keywords": [
+            "豆子",
+            "道具出口"
+          ]
+        },
+        {
+          "anchor": "§7.2 心（自然回复 + 广告）",
+          "level": 3,
+          "startLine": 170,
+          "endLine": 179,
+          "tokens": 209,
+          "summary": "1. 自然回复回归：距锚点满 8 分钟 +1 心；不足 8 分钟零变化；",
+          "keywords": [
+            "自然回复",
+            "广告"
+          ]
+        },
+        {
+          "anchor": "§7.3 存档与安全",
+          "level": 3,
+          "startLine": 180,
+          "endLine": 185,
+          "tokens": 27,
+          "summary": "1. coins / staminaCur / 既有 heartBuys* 字段名与语义逐字不变。",
+          "keywords": [
+            "coins",
+            "staminaCur",
+            "heartBuys",
+            "存档与安全"
+          ]
+        },
+        {
+          "anchor": "§8 七项定值 + 依据（✅ 2026-10-22 用户「按建议值走」⇒ 全部生效，已落 §3 v1.80）",
+          "level": 2,
+          "startLine": 186,
+          "endLine": 205,
+          "tokens": 1139,
+          "summary": "定值三条锚：① 品类惯例区间（F2P 手游体力/激励视频/消耗品的通用做法，不是精确统计）；② 本作内部自洽（STAMI",
+          "keywords": [
+            "§3",
+            "F2P",
+            "STAMI",
+            "七项定值",
+            "依据",
+            "用户"
+          ]
+        },
+        {
+          "anchor": "§8.1 一句提醒（关于变现杠杆）",
+          "level": 3,
+          "startLine": 200,
+          "endLine": 205,
+          "tokens": 153,
+          "summary": "若你的目标是加强变现，最高杠杆不是调广告次数，而是 §3.14 的 STAMINA_REGEN_MIN / STAMIN",
+          "keywords": [
+            "§3.14",
+            "STAMINA_REGEN_MIN",
+            "STAMIN",
+            "一句提醒",
+            "关于变现杠杆"
+          ]
+        },
+        {
+          "anchor": "§9 §3 变更单（✅ 已落盘 v1.80 / WXG-T-351，2026-10-22）",
+          "level": 2,
+          "startLine": 206,
+          "endLine": 242,
+          "tokens": 1005,
+          "summary": "目标版本 v1.80（现状 changelog 末行 = v1.79 / 2026-10-18）。四处改动全部是改语义 ",
+          "keywords": [
+            "§3",
+            "WXG",
+            "changelog",
+            "变更单",
+            "已落盘"
+          ]
+        },
+        {
+          "anchor": "§9.1 §3.14 体力与钱包（3 行）",
+          "level": 3,
+          "startLine": 210,
+          "endLine": 217,
+          "tokens": 335,
+          "summary": "体力回满 「激励视频 onRewarded ｜ 第二 live 激励位（§3.11 同批）；一次回满至 STAMINA_",
+          "keywords": [
+            "§3.14",
+            "§3.11",
+            "onRewarded",
+            "live",
+            "STAMINA_",
+            "体力与钱包"
+          ]
+        },
+        {
+          "anchor": "§9.2 §3.6 道具（2 行改语义 + 4 行新增常量）",
+          "level": 3,
+          "startLine": 218,
+          "endLine": 228,
+          "tokens": 264,
+          "summary": "POWERUP_FREE_USES 「每关每道具免费次数；超出拉激励视频（A5 已确认 2026-09-11，语义不变）",
+          "keywords": [
+            "§3.6",
+            "POWERUP_FREE_USES",
+            "道具",
+            "行改语义",
+            "行新增常量"
+          ]
+        },
+        {
+          "anchor": "§9.3 §3.11 失败续时（1 行）",
+          "level": 3,
+          "startLine": 229,
+          "endLine": 234,
+          "tokens": 83,
+          "summary": "激励主位 「失败页续时 + 体力回满 ｜ v1.28 变更：live 激励位 1→2」 「失败页续时 + 广告加心（+3",
+          "keywords": [
+            "§3.11",
+            "live",
+            "失败续时"
+          ]
+        },
+        {
+          "anchor": "§9.4 changelog 行（✅ 已写入 `systems-index-changelog.md` v1.80；下方为草稿原样，实际行更详尽）",
+          "level": 3,
+          "startLine": 235,
+          "endLine": 242,
+          "tokens": 195,
+          "summary": "",
+          "keywords": [
+            "systems-index-changelog.md",
+            "changelog",
+            "systems",
+            "index",
+            "已写入",
+            "下方为草稿原"
+          ]
+        },
+        {
+          "anchor": "§10 落码清单（拍板后按此拆 Story；本表零代码）",
+          "level": 2,
+          "startLine": 243,
+          "endLine": 367,
+          "tokens": 566,
+          "summary": "1 src/config/tuning.ts 新增 HEART_AD_GAIN / HEART_AD_DAILY_LIM",
+          "keywords": [
+            "Story",
+            "src",
+            "config",
+            "tuning",
+            "HEART_AD_GAIN",
+            "HEART_AD_DAILY_LIM"
           ]
         }
       ]
@@ -83634,9 +84018,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 196220,
-      "lines": 4541,
-      "sha256": "d5b969bc1520670c8e47c7460df8ef611a59e5804b17f76a2f575ac3e00b700a",
+      "tokens": 197298,
+      "lines": 4583,
+      "sha256": "9e19f922aac93b6b47804346c1750573e5cc133c3709569c6900c702163f0056",
       "tier": "normal",
       "sections": [
         {
@@ -86157,8 +86541,8 @@
           "anchor": "§beads·fit 档放开「只缩不放大」钳（小盘放大铺满留边 + 初始视图 = 适配档）",
           "level": 1,
           "startLine": 3026,
-          "endLine": 4542,
-          "tokens": 93835,
+          "endLine": 4584,
+          "tokens": 94914,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
             "beads",
@@ -87923,22 +88307,123 @@
             "cjs",
             "HEAD"
           ]
+        },
+        {
+          "anchor": "§WXG-T-351",
+          "level": 2,
+          "startLine": 4543,
+          "endLine": 4584,
+          "tokens": 1075,
+          "summary": "beads·豆子经济 v1.0 + 体力广告改判（§3.6/§3.11/§3.14） · 2026-10-22 · 主理",
+          "keywords": [
+            "§3.6",
+            "§3.11",
+            "§3.14",
+            "WXG",
+            "beads"
+          ]
+        },
+        {
+          "anchor": "§1 立项依据",
+          "level": 3,
+          "startLine": 4547,
+          "endLine": 4550,
+          "tokens": 156,
+          "summary": "用户四点拍板（货币对外命名「豆子」/ 豆子出口 = 道具卡超限再买一次 / 买心改 纯广告 + 固定加心（限次） / 先",
+          "keywords": [
+            "立项依据"
+          ]
+        },
+        {
+          "anchor": "§2 本批范围（**零落码**）",
+          "level": 3,
+          "startLine": 4551,
+          "endLine": 4555,
+          "tokens": 80,
+          "summary": "只动文档：games/beads/design/gdd/systems-index.md §3.6 / §3.11 / ",
+          "keywords": [
+            "§3.6",
+            "§3.11",
+            "games",
+            "beads",
+            "design",
+            "gdd"
+          ]
+        },
+        {
+          "anchor": "§3 七项定值（用户「按建议值走」）",
+          "level": 3,
+          "startLine": 4556,
+          "endLine": 4568,
+          "tokens": 454,
+          "summary": "HEART_AD_GAIN 3 单次激励奖励的「时间等价」品类惯例 20–30 min；8 min/心 ⇒ 24 min",
+          "keywords": [
+            "HEART_AD_GAIN",
+            "min",
+            "七项定值",
+            "用户",
+            "按建议值走"
+          ]
+        },
+        {
+          "anchor": "§4 反转披露（必读）",
+          "level": 3,
+          "startLine": 4569,
+          "endLine": 4572,
+          "tokens": 83,
+          "summary": "§3.14 Won't「币购道具」 原文为「道具消耗属 B 包提案本轮不采（用户拍 A 包）」⇒ 本批是正式反转 Won",
+          "keywords": [
+            "§3.14",
+            "Won",
+            "反转披露",
+            "必读"
+          ]
+        },
+        {
+          "anchor": "§5 未做（待裁 / 另批）",
+          "level": 3,
+          "startLine": 4573,
+          "endLine": 4579,
+          "tokens": 130,
+          "summary": "落码 10 项（提案 §10）；",
+          "keywords": [
+            "§10",
+            "未做",
+            "待裁",
+            "另批"
+          ]
+        },
+        {
+          "anchor": "§6 判据",
+          "level": 3,
+          "startLine": 4580,
+          "endLine": 4584,
+          "tokens": 76,
+          "summary": "文档侧（本批唯一可验面）：§3 三节与 changelog v1.80 口径一致；pnpm run ctx:check ",
+          "keywords": [
+            "§3",
+            "changelog",
+            "pnpm",
+            "run",
+            "ctx",
+            "check"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 68513,
-      "lines": 160,
-      "sha256": "e7dc171f63b2518d01894f39b20355d6eec56886afedf6b20309a4deb0916c24",
+      "tokens": 68746,
+      "lines": 161,
+      "sha256": "bc7147df0244a60e0f87a25e74399319c40b4182a9ea98de64dfdd6a96f3549b",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 161,
-          "tokens": 68504,
+          "endLine": 162,
+          "tokens": 68738,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -87951,8 +88436,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 133,
-          "endLine": 161,
+          "startLine": 134,
+          "endLine": 162,
           "tokens": 1390,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
