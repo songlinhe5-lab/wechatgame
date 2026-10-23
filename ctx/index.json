@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4630,
       "lines": 159,
-      "sha256": "e332b99233b823aaf0da468005457331ca4b4c74c7f0895c54d612e7654a06d4",
+      "sha256": "63a66d23271c1fc9d7cf73052a8a5ac061d77ec2c4fc4f25ebb6d368444eeb9b",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 402,
-          "summary": "1 production/TASKS-DETAIL.md 219402 4998 normal",
+          "summary": "1 production/TASKS-DETAIL.md 219525 4999 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -422,7 +422,7 @@
           "startLine": 46,
           "endLine": 134,
           "tokens": 3121,
-          "summary": "production/TASKS-DETAIL.md 219402 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 219525 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5513,
       "lines": 146,
-      "sha256": "64cf84ccbc4c1e1c020fd94e65d1337c2616cd0881a8aa0ebb95e9948ca61498",
+      "sha256": "ca3c88576f925372475db0c7d1cb7d8d398e966f531784342c5d710f3f79ec60",
       "tier": "normal",
       "sections": [
         {
@@ -968,7 +968,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 4998 行 / 219402 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 4999 行 / 219525 tok",
           "level": 2,
           "startLine": 92,
           "endLine": 96,
@@ -84369,9 +84369,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 219402,
-      "lines": 4998,
-      "sha256": "08ddfcfb5e3e3a18de821dedc029ea907d3cb94fa1ce58969b90ef297f188481",
+      "tokens": 219525,
+      "lines": 4999,
+      "sha256": "a08bf835367997efa65ee2a8a3e8610f580ad5f93da596b80eac0b489d34332b",
       "tier": "normal",
       "sections": [
         {
@@ -86892,8 +86892,8 @@
           "anchor": "§beads·fit 档放开「只缩不放大」钳（小盘放大铺满留边 + 初始视图 = 适配档）",
           "level": 1,
           "startLine": 3026,
-          "endLine": 4999,
-          "tokens": 117018,
+          "endLine": 5000,
+          "tokens": 117140,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
             "beads",
@@ -89449,8 +89449,8 @@
           "anchor": "§WXG-T-359",
           "level": 2,
           "startLine": 4953,
-          "endLine": 4999,
-          "tokens": 2337,
+          "endLine": 5000,
+          "tokens": 2460,
           "summary": "beads·外观货币改判：皮肤改金币买断、星等级只管开关卡（§3 变更单 = systems-index v1.83；⛔",
           "keywords": [
             "§3",
@@ -89518,8 +89518,8 @@
           "anchor": "§5 验收（当场读数）",
           "level": 3,
           "startLine": 4984,
-          "endLine": 4991,
-          "tokens": 294,
+          "endLine": 4992,
+          "tokens": 417,
           "summary": "§3 变更单完整性 systems-index 三处行改（§3.7 主题解锁 + §3.7 解锁规则括号注 + §3.1",
           "keywords": [
             "§3",
@@ -89533,8 +89533,8 @@
         {
           "anchor": "§6 明确未做 / 遗留",
           "level": 3,
-          "startLine": 4992,
-          "endLine": 4999,
+          "startLine": 4993,
+          "endLine": 5000,
           "tokens": 300,
           "summary": "价格不落值：150 / 350 / 600🪙 仍是 [提案·待拍板]，⛔ 不入 §3、不入 tuning.ts；Q3（",
           "keywords": [

@@ -4986,7 +4986,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 |---|---|
 | §3 变更单完整性 | systems-index 三处行改（§3.7 主题解锁 + §3.7 解锁规则括号注 + §3.14 钱包消耗）+ 页头 v1.83 + changelog v1.83 行；两表**零数值改动**（门槛 21★ / 三价 20·30·45 / 两个上限全部原样） |
 | 提案换币全链 | 56 处编辑全部「原文唯一命中」预检通过（任一命中数 ≠ 1 即中止不写）⇒ 无静默漏改；431 → 462 行 |
-| 台账门禁 | `pnpm run check:tasks` ✅ 主表 119 行 / 详情 119 节配对完整，H 项观察哨仍提示该归档；`pnpm run verify` **PASS 22 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0**（本批纯文档，改台账前当场跑）；I 项入库后复测读数回写下一格 |
+| 台账门禁 | `pnpm run check:tasks` ✅ 主表 119 行 / 详情 119 节配对完整，H 项观察哨仍提示该归档；`pnpm run verify` **PASS 22 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0**（本批纯文档，改台账前当场跑） |
+| 入库后复测（`3a07b4e`） | `check:tasks` 仍 **119 行 / 119 节**；**I 项由 12 号转 13 号全在册**（本笔署号已入库 ⇒ 上一格不凭推演填的读数在此定档）；`check:links` OK（agents=7 skills=47）；HEAD 文件集 = 本批 6 件 + 钩子自动重暂存的 `ctx/index.json` / `ctx/BUDGET.md` / `ctx/hot-files.md`（既定机制），⛔ 未夹带他会话 `tools/scripts/*` 与 `ctx/budget-exempt.json`；两台账 HEAD CR = **0** |
 | 失真与结构自证 | 本批新增文本经码点扫词内空格口径 `/[\u4e00-\u9fff][ \u00a0]+[\u4e00-\u9fff]/` 无新增命中；两台账提交面 CR = **0**（工作树带 46 行对方 CRLF，提交时按 HEAD 基底重放去 CR） |
 
 ### 6. 明确未做 / 遗留
