@@ -4804,6 +4804,7 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 | `games/beads/design/ux/ux-spec.md` | **v1.24** 头注括注与文末三段按 A 形态**重写**（原按甲形态写的两段作废）；含 R2 判据修正的登记 |
 | `docs/architecture/ui-architecture-beads.md` | §12 UI-34 视觉变更登记段重写（改道过程、`starCriteriaText` 上提、两态待复取、`clear` 态串不变） |
 | `production/TASKS.md` | 头注推到 356 / 下一 357；主表新增 356 行 |
+| `games/beads/tests/__fixtures__/wxg-t-298-ui-golden.json` | **批 ②**：`ui-golden-capture.ts` 在锚 = 批 ① commit `dc60d54` 复取（两遍逐态 sha 自证 PASS）⇒ 只 `level-select`（total 1422→1423 / text 12→13）与 `level-select-mid`（5085→5086 / text 18→19）两条记录变 + `capturedFrom` 换指，其余九态逐字节不变；⛔ 未手改夹具 |
 
 ### 3. 三条关键判断
 - **① 推翻甲形态的是无障碍 floor，不是审美**：`accessibility.md:53` **E1** = 文字最小 **28** 设计 px（22px 已 v1.3 F7⑤ 作废）。28px 下 `★★★` ≈ 84px + `≤03:30` ≈ 94px = **178 > 格宽 170**（含左右内缩 10×2 需 198）⇒ 同带分栏**几何不成立**；降到 22px 虽塞得进（142 + 20 = 162），但 `menu-wall-signage-spec §3.9①` 的 22px **只裁给星符号**、不裁给数字文本，且 `menu-layout-implementation-spec §10`（WXG-T-346）**正是本页**把章名下方那行从 `cell` 22 升到 28 并设了防回退守卫 ⇒ 22px 版与既有裁定逆向。字宽 = em 比例估算（数字 0.556em / 冒号 0.278em / `≤` 0.584em / CJK 与 `★` 1em），宽度结论 `[待实测]`，**行位与字号档是确定算术**。
@@ -4822,6 +4823,7 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 | 定向 vitest | `arc-level-select-page` 13 + `clear-panel` 9 + `meta-menu-wall` 23 + `arc-wall-locked` 6 = **51 passed** |
 | 全量 vitest（beads） | **1246 passed ｜ 2 failed ｜ 3 skipped**（104 文件中 1 文件红）；两红 = 金样本 `level-select` / `level-select-mid`，**属待复取而非回归**（批 ② 以本批 commit 为锚跑 `tests/ui-golden-capture.ts`） |
 | 文本失真扫描 | `node tools/scripts/scan-text-distortion.mjs HEAD --paths=<本批 7 件>`：新增 **91 行 / 7 文件**；零宽 **0**、近形 **0**、词内空格**新增 0**（与 HEAD 命中集合对撞为空集；`U+FF0F` 48/48、`U+2212` 7/7 计数不变 ⇒ 属既有排版同族） |
-| 台账门禁 | `check:tasks` / `check:links` / `ctx:build` / `ctx:check` 读数见批 ① 末尾会话结论 |
+| 台账门禁 | `check:tasks` **OK**（主表 116 行 / 详情 116 节配对完整；H 观察哨「该归档」= 既有状态、非本批新造）、`check:links` **OK**（agents=7 skills=47）、`ctx:build` ✅（5 件 dirty 按 HEAD 内容索引、pre-commit 自动重建）、`ctx:check` **OK**（结构门 A/B/C/D/D2 与 E3 全过）；台账两件扫描 = 新增 47 行 / 2 文件，零宽 0、近形 1 + 词内空格 1 —— 逐件定位后确认**均属 HEAD 旧文自引**（`・` = 旧注「每页面・每弹窗」，空格命中全在旧批括注），本批新注与新增行贡献 **0** |
 | 知识库 | 批内自纠两笔（K-162 复发 / 码点凭记忆）= **沉淀候选，只披露不代填**（沿 K-137），待用户点头再 `kb:sync` |
+| 批 ② 金样本复取 | 锚 = 批 ① commit `dc60d54`（用户 2026-10-23 令「每改完即 commit + push」⇒ 复取锚必须是**已入库** commit 而非工作树）⇒ 两态各 +1 text 命令、sha 全变；`ui-golden.test.ts` **12 passed** ⇒ `pnpm run verify` **PASS 22 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0**；`clear` 态串逐字未变（共读 `starCriteriaText` 的输出等价性由金样本自证） |
 | 未做 / 遗留 | ① 宽度 `[待实测]`（harness `measureText` 或真机走查；E2 35px 档估 ≈ 580px 占屏 77%，居中后左右各余 ~85px 不越画布 750）；② 1★ 无用时门槛 ⇒ 选关页只见 3★/2★ 两档（§3.7 口径如此，非遗漏）；③ ux-spec 文末变更记录区外置（本文件主要膨胀源，属一次性迁移工程）；④ 真机可读性 `[待真机]` |

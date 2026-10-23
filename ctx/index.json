@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4630,
       "lines": 159,
-      "sha256": "f0afa753636a769ad1ecda35bfc26d94b73cc89cb14d37cd06598f983d752321",
+      "sha256": "f33bc95854f8a7244636ab16e333515b408f977e8989f479f87fba30eea3898d",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 402,
-          "summary": "1 production/TASKS-DETAIL.md 210798 4827 normal",
+          "summary": "1 production/TASKS-DETAIL.md 211175 4829 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -422,7 +422,7 @@
           "startLine": 46,
           "endLine": 134,
           "tokens": 3121,
-          "summary": "production/TASKS-DETAIL.md 210798 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 211175 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5513,
       "lines": 146,
-      "sha256": "0c884b7728cfc430e46c188553cb0c62de8c457f0d90ce47e5e82ce6b31fb928",
+      "sha256": "a0684b35773d8114ad661feb3204b8be4715851b56cec84203bb553af3a3305f",
       "tier": "normal",
       "sections": [
         {
@@ -745,7 +745,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 166 行 / 72325 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 166 行 / 72381 tok / 实测读 4 次",
           "level": 2,
           "startLine": 27,
           "endLine": 30,
@@ -968,7 +968,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 4827 行 / 210798 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 4829 行 / 211175 tok",
           "level": 2,
           "startLine": 92,
           "endLine": 96,
@@ -84198,9 +84198,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 210798,
-      "lines": 4827,
-      "sha256": "785b5375742ecdb056841f45182c395e95765d5ceee5e27f2390f94405627628",
+      "tokens": 211175,
+      "lines": 4829,
+      "sha256": "fd7238bd196d4747645984f73396b72744237b1d39be4a5db4ea78b0eb0ea8d8",
       "tier": "normal",
       "sections": [
         {
@@ -86721,8 +86721,8 @@
           "anchor": "§beads·fit 档放开「只缩不放大」钳（小盘放大铺满留边 + 初始视图 = 适配档）",
           "level": 1,
           "startLine": 3026,
-          "endLine": 4828,
-          "tokens": 108414,
+          "endLine": 4830,
+          "tokens": 108790,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
             "beads",
@@ -88946,8 +88946,8 @@
           "anchor": "§WXG-T-356",
           "level": 2,
           "startLine": 4784,
-          "endLine": 4828,
-          "tokens": 2497,
+          "endLine": 4830,
+          "tokens": 2873,
           "summary": "beads·选关整页空带「判星对照」行（三档门槛外显 · 形态甲被实测推翻后改道 A）",
           "keywords": [
             "WXG",
@@ -88974,8 +88974,8 @@
           "anchor": "§2 交付清单 (5)",
           "level": 3,
           "startLine": 4794,
-          "endLine": 4807,
-          "tokens": 649,
+          "endLine": 4808,
+          "tokens": 754,
           "summary": "games/beads/src/view/ui-theme.ts 新增导出 starCriteriaText(level",
           "keywords": [
             "games",
@@ -88989,8 +88989,8 @@
         {
           "anchor": "§3 三条关键判断 (4)",
           "level": 3,
-          "startLine": 4808,
-          "endLine": 4812,
+          "startLine": 4809,
+          "endLine": 4813,
           "tokens": 601,
           "summary": "① 推翻甲形态的是无障碍 floor，不是审美：accessibility.md:53 E1 = 文字最小 28 设计 ",
           "keywords": [
@@ -89002,8 +89002,8 @@
         {
           "anchor": "§4 自纠两笔（当场机械自证）",
           "level": 3,
-          "startLine": 4813,
-          "endLine": 4817,
+          "startLine": 4814,
+          "endLine": 4818,
           "tokens": 296,
           "summary": "① 表格替换又吞整行（K-162 复发）：把 v0.5 表行换成 v0.6 表行时，original_text 连带含了",
           "keywords": [
@@ -89015,9 +89015,9 @@
         {
           "anchor": "§5 验收读数",
           "level": 3,
-          "startLine": 4818,
-          "endLine": 4828,
-          "tokens": 423,
+          "startLine": 4819,
+          "endLine": 4830,
+          "tokens": 695,
           "summary": "typecheck npx tsc --noEmit（beads）= 零输出",
           "keywords": [
             "typecheck",
@@ -89032,9 +89032,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 72325,
+      "tokens": 72381,
       "lines": 166,
-      "sha256": "c93ce7fb484347fa47f5f632f6d6ba4b95521c5b01cf1ae1d9c4ae1cb44acd91",
+      "sha256": "d74535b9f50e98cdfd1cb2188d1e50b1456a7ce975de5b4ffa318df8a8f5145b",
       "tier": "hot",
       "sections": [
         {
@@ -89042,7 +89042,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 167,
-          "tokens": 72316,
+          "tokens": 72372,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
