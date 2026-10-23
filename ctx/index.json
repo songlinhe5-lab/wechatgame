@@ -34322,17 +34322,17 @@
     },
     {
       "path": "games/beads/design/levels/pattern-legibility.md",
-      "tokens": 2134,
-      "lines": 106,
-      "sha256": "6645bc09088ca5846131e8ffe0d500bbade6437445a54dfc9ed83196a2a4c25f",
+      "tokens": 2370,
+      "lines": 109,
+      "sha256": "8565fea56afd56337ac4137c2e4638733f0ac04612d9a93118eb7b41f036ee8a",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§豆面可读性（Pattern Legibility）· WXG-T-357",
           "level": 1,
           "startLine": 1,
-          "endLine": 107,
-          "tokens": 2119,
+          "endLine": 110,
+          "tokens": 2355,
           "summary": "一句话：DI（level-difficulty.md）管「难度排序与工量」，本文管「看不看得清」——",
           "keywords": [
             "Pattern",
@@ -34400,8 +34400,8 @@
           "anchor": "§5 studio：生成后二次优化修复（行为契约）",
           "level": 2,
           "startLine": 68,
-          "endLine": 83,
-          "tokens": 326,
+          "endLine": 85,
+          "tokens": 487,
           "summary": "落点 = apps/beads-studio/server.mjs::legibilityFix(pattern)，在新",
           "keywords": [
             "studio",
@@ -34415,8 +34415,8 @@
         {
           "anchor": "§6 门禁⑧ 使用",
           "level": 2,
-          "startLine": 84,
-          "endLine": 94,
+          "startLine": 86,
+          "endLine": 96,
           "tokens": 178,
           "summary": "",
           "keywords": [
@@ -34427,8 +34427,8 @@
         {
           "anchor": "§7 诚实登记（不软化）",
           "level": 2,
-          "startLine": 95,
-          "endLine": 101,
+          "startLine": 97,
+          "endLine": 103,
           "tokens": 174,
           "summary": "H-1：T1 = 9 与 T5 = 25 是像素艺术经验锚，未经 playtest 校准；校准前只当初筛，不当法律。",
           "keywords": [
@@ -34440,12 +34440,14 @@
         {
           "anchor": "§8 变更记录",
           "level": 2,
-          "startLine": 102,
-          "endLine": 107,
-          "tokens": 75,
-          "summary": "v1.0 2026-10-23 立：七项指标 + 门限 + 最小豆面经验线 + 现役 9 关读数；落 pattern-l",
+          "startLine": 104,
+          "endLine": 110,
+          "tokens": 150,
+          "summary": "v1.1 2026-10-23 守恒配套：新增 repairLevel()（pattern 改色后 misplaced ",
           "keywords": [
+            "repairLevel",
             "pattern",
+            "misplaced",
             "变更记录"
           ]
         }

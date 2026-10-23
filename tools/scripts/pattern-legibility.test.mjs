@@ -1,7 +1,7 @@
 // 豆面可读性守卫自测（WXG-T-357）：门限判读 + 二次修复不越界（不改尺寸/不碰 x/幂等）。
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { analyze, judge, repair, shortSideLimit, LIMITS } from './lib/pattern-legibility.mjs';
+import { analyze, judge, repair, repairLevel, shortSideLimit, LIMITS } from './lib/pattern-legibility.mjs';
 
 // 干净盘：两色各一整块，无孤点无细丝
 const CLEAN = [
@@ -125,4 +125,47 @@ test('短边下限按用色数分档', () => {
     assert.equal(shortSideLimit(5), 14);
     assert.equal(shortSideLimit(8), 16);
     assert.equal(LIMITS.beadsPerBlock, 9);
+});
+
+// 守恒配套：pattern 改色后 misplaced 的每色珠数须重新配平（levels-data.ts:56 BOOT 契约）
+test('repairLevel：改色后 pattern↔misplaced 每色珠数守恒且仍有错位格', () => {
+    // 12×12：底 '1' + 3×3 块 '2' + 1 枚孤点 '3'（会被吞掉 ⇒ 触发配平）
+    const build = (blockR, blockC, speckR, speckC) => {
+        const g = Array.from({ length: 12 }, () => new Array(12).fill('1'));
+        for (let r = blockR; r < blockR + 3; r += 1) for (let c = blockC; c < blockC + 3; c += 1) g[r][c] = '2';
+        g[speckR][speckC] = '3';
+        return g.map((row) => row.join(''));
+    };
+    const pattern = build(4, 4, 2, 9);
+    const misplaced = build(7, 7, 9, 2); // 同色多重集，但整块错位
+    const tally = (rows) => {
+        const m = {};
+        for (const r of rows) for (const c of r) if (c !== '.' && c !== 'x') m[c] = (m[c] ?? 0) + 1;
+        return m;
+    };
+    assert.deepEqual(tally(pattern), tally(misplaced), '夹具本身须守恒');
+    const out = repairLevel({ pattern, misplaced });
+    assert.equal(out.ok, true, out.reason);
+    assert.equal(out.changed, true);
+    assert.deepEqual(tally(out.pattern), tally(out.misplaced), '修后仍守恒');
+    assert.equal(out.pattern.length, pattern.length);
+    assert.ok(
+        out.misplaced.some((row, r) => [...row].some((ch, c) => ch !== '.' && ch !== 'x' && ch !== out.pattern[r][c])),
+        '修后仍须有错位格（不得修成全就位）',
+    );
+    out.pattern.forEach((row, r) => [...row].forEach((ch, c) => {
+        const wasBead = pattern[r][c] !== '.' && pattern[r][c] !== 'x';
+        const isBeadCh = ch !== '.' && ch !== 'x';
+        assert.equal(isBeadCh, wasBead, `轮廓逐格不变 (${r},${c})`);
+    }));
+});
+
+test('repairLevel：swaps 型（无 misplaced）拒修且不改入参', () => {
+    const pattern = ['111111111111', '1..2..2..2.1', '111111111111', '111111111111', '111111111111',
+        '111111111111', '111111111111', '111111111111', '111111111111', '111111111111', '111111111111', '111111111111'];
+    const out = repairLevel({ pattern });
+    assert.equal(out.ok, false);
+    assert.match(out.reason, /swaps/);
+    assert.deepEqual(out.pattern, pattern);
+    assert.equal(out.changed, false);
 });

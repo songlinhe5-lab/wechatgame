@@ -77,6 +77,8 @@
 | 并细丝 | 1 格宽块，且**该色另有主块（≥9 格）** → 涂成邻色多数 | 只并入，不扩张；该色唯一形体时保留 |
 | 填小孔 | 面积 ≤ 4 的内孔 → 填邻色多数 | 消「针眼」，T6/视觉断裂 |
 
+**守恒配套（硬约束，v1.1 补）**：`levels-data.ts:56` 要求 `misplaced` 与 `pattern` **每色珠数守恒 + 可填轮廓逐格匹配 + 错位格 ≥1**（现池 9 关实测全部严格相等）。⇒ **只改 `pattern` 必破约**，故落码走 `repairLevel({pattern, misplaced})`：先 `repair(pattern, { noDelete:true })`（关卡级不许删格，删格会改可填轮廓），再把 `misplaced` 的盈余色配平到短缺色，并断言三条契约；`swaps` 型（无 `misplaced`）**直接拒修**并给原因。
+
 **修不动的不假装修**：`sizing` 类（T5/T7 不足）只回报，回执明写「须重生成/减色」。
 **回执**：写入 studio 既有 `log` 通道（前端零改动），形如
 `已入关 L00012（single 16×16，实测 88s）｜豆面修复 吞孤点 7 格、并细丝 2 格；残留 T2（结构类）`。
@@ -103,4 +105,5 @@ node tools/scripts/lib/pattern-legibility.mjs --report   # 人读表
 
 | 版本 | 日期 | 变更 |
 |---|---|---|
+| v1.1 | 2026-10-23 | **守恒配套**：新增 `repairLevel()`（pattern 改色后 `misplaced` 每色配平 + 三条契约断言）；`repair()` 增 `noDelete`；studio 钩子改走 `repairLevel`（原直调 `repair` 会破守恒，属自捕缺陷） |
 | v1.0 | 2026-10-23 | 立：七项指标 + 门限 + 最小豆面经验线 + 现役 9 关读数；落 `pattern-legibility.mjs`（度量/判读/修复/CLI）+ 门禁⑧（WARN 默认）+ studio 生成后修复 |

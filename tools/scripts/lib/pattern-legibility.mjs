@@ -200,7 +200,7 @@ const majorOf = (list) => {
  * 重涂为邻色多数）· ③ 填小孔（面积 ≤ 4 的内孔 → 邻色多数）。
  * ⛔ 不改盘尺寸、不引入新颜色、不碰 `x` 锁定格；返回 `log` 供 studio 回执。
  */
-export function repair(pattern, { maxPasses = 3 } = {}) {
+export function repair(pattern, { maxPasses = 3, noDelete = false } = {}) {
     const grid = pattern.map((r) => [...r]);
     const rows = grid.length;
     const cols = rows ? grid[0].length : 0;
@@ -245,7 +245,8 @@ export function repair(pattern, { maxPasses = 3 } = {}) {
             if (isSilk && !hasMain) continue;
             const to = majorOf(ring);
             if (!to) {
-                if (isSpeck) {
+                // `noDelete`：关卡级修复不许删珠（删格会改可填轮廓 ⇒ 与 misplaced 逐格匹配契约冲突）
+                if (isSpeck && !noDelete) {
                     const [r, c] = b.cells[0];
                     grid[r][c] = '.';
                     touched += 1;
@@ -270,6 +271,64 @@ export function repair(pattern, { maxPasses = 3 } = {}) {
     }
     const summary = [...tally.entries()].map(([op, n]) => `${op} ${n} 格`);
     return { pattern: asPattern(), log: summary, changed: summary.length > 0 };
+}
+
+/**
+ * 关卡级修复（守恒配套）：`pattern` 改色后把 `misplaced` 的**每色珠数**重新配平到与 pattern 相等。
+ *
+ * 契约来自 `games/beads/src/config/levels-data.ts:56`：可填轮廓逐格匹配 + **每色珠数守恒** + 错位格 ≥1。
+ * 所以仅修 `pattern` 必破约 —— 本函数只重涂颜色（`noDelete`，不增删格、不动位置），
+ * `swaps` 型（无 `misplaced`）**拒修**并给原因；`ok:false` 时 pattern/misplaced 均为入参原值（拒绝写入）。
+ */
+export function repairLevel(level, { maxPasses = 3 } = {}) {
+    const { pattern, misplaced } = level;
+    if (!Array.isArray(misplaced))
+        return { ok: false, reason: 'swaps 型（无 misplaced）：改 pattern 必破每色守恒 ⇒ 须连 misplaced 一起重生成', pattern, misplaced, log: [], changed: false };
+    const fixed = repair(pattern, { maxPasses, noDelete: true });
+    if (!fixed.changed) return { ok: true, pattern, misplaced, log: [], changed: false };
+
+    const tally = (rows) => {
+        const m = new Map();
+        for (const row of rows) for (const ch of row) if (isBead(ch)) m.set(ch, (m.get(ch) ?? 0) + 1);
+        return m;
+    };
+    const want = tally(fixed.pattern);
+    const have = tally(misplaced);
+    const pool = new Map();
+    misplaced.forEach((row, r) =>
+        [...row].forEach((ch, c) => {
+            if (!isBead(ch)) return;
+            if (!pool.has(ch)) pool.set(ch, []);
+            pool.get(ch).push([r, c]);
+        }),
+    );
+    const out = misplaced.map((row) => [...row]);
+    const colors = [...new Set([...want.keys(), ...have.keys()])].sort();
+    const surplus = colors.filter((ch) => (have.get(ch) ?? 0) - (want.get(ch) ?? 0) > 0);
+    const deficit = colors.filter((ch) => (want.get(ch) ?? 0) - (have.get(ch) ?? 0) > 0);
+    let di = 0;
+    let need = deficit.length ? (want.get(deficit[0]) ?? 0) - (have.get(deficit[0]) ?? 0) : 0;
+    for (const ch of surplus) {
+        let spare = (have.get(ch) ?? 0) - (want.get(ch) ?? 0);
+        for (const [r, c] of pool.get(ch) ?? []) {
+            if (spare <= 0) break;
+            while (di < deficit.length && need <= 0) {
+                di += 1;
+                need = di < deficit.length ? (want.get(deficit[di]) ?? 0) - (have.get(deficit[di]) ?? 0) : 0;
+            }
+            if (di >= deficit.length) break;
+            out[r][c] = deficit[di];
+            spare -= 1;
+            need -= 1;
+        }
+    }
+
+    const after = tally(out);
+    const balanced = after.size === want.size && [...want.entries()].every(([ch, n]) => after.get(ch) === n);
+    const deranged = out.some((row, r) => [...row].some((ch, c) => isBead(ch) && ch !== fixed.pattern[r][c]));
+    if (!balanced || !deranged)
+        return { ok: false, reason: '配平后未满足「每色守恒 + 错位 ≥1」（拒绝写入）', pattern, misplaced, log: [], changed: false };
+    return { ok: true, pattern: fixed.pattern, misplaced: out, log: fixed.log, changed: true };
 }
 
 // ─────────────────────────────────────────────────────────── CLI ────────────
