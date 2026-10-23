@@ -272,4 +272,5 @@
 | K-162 | 跨IDE | cross-ide | 向 Markdown 表格追加行时拿「半截行」当追加锚 ⇒ 把相邻整行吞掉且工具不报警 | WXG-T-354 | 2026-10-23 | 0 | active |
 | K-163 | 环境 | environment | `dev/harness/.smoke/` 残留累积到 500+ 条目后，harness 冒烟会「假 FAIL」（`SAFE_DELETE_BULK_CONFIRM_REQUIRED`） | WXG-T-351 | 2026-10-23 | 0 | active |
 | K-164 | 跨IDE | cross-ide | 两会话在同一工作区改同一个文件 = 后写者整文件覆写，前者的改动会静默消失、`git status` 看不出来 | WXG-T-351 | 2026-10-23 | 0 | active |
+| K-165 | 判据实测 | criteria-measure | 改判一条冻结规则前，先取证它到底有没有落码：从未实现的纸面规则改了是零返工，已落码的改了成本全在迁移与回归 | WXG-T-359 | 2026-10-23 | 0 | active |
 <!-- kb:active:end -->

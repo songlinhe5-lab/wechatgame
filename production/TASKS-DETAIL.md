@@ -4980,6 +4980,7 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **真引入并已改的失真两处**（不写「零失真」充数）：`production/TASKS.md` 359 注与 `systems-index-changelog.md` v1.83 依据列里，我在「Q8 = 甲」与其后一词之间**误插一个空格**（不在此复引该错形，免得后续扫描把它当自指引文而漏改）⇒ 均改为「**甲定档**」（与提案 §13 既有写法对齐）。
   扫法定型 = **码点对撞**而非行级 diff：把新增文本里的 CJK-空格-CJK **码点对集合** 与 HEAD 同文件已存在的集合做差，只判真新引入者。行级 diff 会把被我整行重写/追加的长行里的**他方老文**一并报成命中（本轮报 3 处、逐对撞后真新引入 2 处）⇒ ⛔ 拿行级读数直接改字会误伤史证（K-053）。
 - 手法纪律延续（承上批 §5 自指行数失真）：本节与 §5 的门禁读数**先测后写**——`pnpm run verify` 于写台账前当场跑（PASS 22 / FAIL 0），行数取脚本输出（431 → 462）；唯「主表/详情行数与 I 项号数」只能在本笔入库后才定，故那一格按实测回写、⛔ 不凭推演填。
+- **入库沉淀时又一次「越界改字」（当场暴露当场回退）**：第一版 `temp/kb359.mjs` 为了写库文件把整文件 `.replace(/\r/g, '')` ⇒ 连带改了 `knowledge/lessons/cross-ide.md` 里 **K-162 / K-164 两条别人条目**的行尾，`kb:sync` 按内容哈希如实报出「修改 4 条」（本批射程只有 3 条）才暴露。处置 = 三片 lessons + 三份产物（`ledger.json` / `INDEX.md` / `CHANGELOG.md`）全部 `git checkout` 回退，改写成「只插不改」重跑，并以 `git diff --numstat` 断言 **deletions = 0**，统计回到「新增 1 ／修改 2」。同批第二条：新条目正文里手写了 `[K-xxx]` 占位符 ⇒ `kb:sync` 补号后叠成 `[K-165][K-xxx]`（该占位符只存在于 `knowledge/INDEX.md` §2 的格式说明，**落盘时不写**，脚本会在 `[类别]` 后自行插号）。⇒ 与 K-162 同族的口径：**追加型编辑只插不改，工具不校验你顺手动了谁的字节**。
 
 ### 5. 验收（当场读数）
 | 项 | 读数 |
@@ -4989,6 +4990,7 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 | 台账门禁 | `pnpm run check:tasks` ✅ 主表 119 行 / 详情 119 节配对完整，H 项观察哨仍提示该归档；`pnpm run verify` **PASS 22 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0**（本批纯文档，改台账前当场跑） |
 | 入库后复测（`3a07b4e`） | `check:tasks` 仍 **119 行 / 119 节**；**I 项由 12 号转 13 号全在册**（本笔署号已入库 ⇒ 上一格不凭推演填的读数在此定档）；`check:links` OK（agents=7 skills=47）；HEAD 文件集 = 本批 6 件 + 钩子自动重暂存的 `ctx/index.json` / `ctx/BUDGET.md` / `ctx/hot-files.md`（既定机制），⛔ 未夹带他会话 `tools/scripts/*` 与 `ctx/budget-exempt.json`；两台账 HEAD CR = **0** |
 | 失真与结构自证 | 本批新增文本经码点扫词内空格口径 `/[\u4e00-\u9fff][ \u00a0]+[\u4e00-\u9fff]/` 无新增命中；两台账提交面 CR = **0**（工作树带 46 行对方 CRLF，提交时按 HEAD 基底重放去 CR） |
+| 沉淀入库（用户令「沉淀候选」） | `kb:sync --task=WXG-T-359`：**新增 1**（**K-165** 判据实测 · 改判冻结规则前先取证它到底有没有落码）／**修改 2**（**K-160** 追记第四头 · 扫描归属口径「行级 vs 码点对级」；**K-159** 追记 · 副作用已发生但脚本抛错、退出码 1 看着像被拦）／激活 0 ／归档 0；`kb:audit` 无相似命中（≥0.34 零）；`ctx:build` 已刷新索引面 |
 
 ### 6. 明确未做 / 遗留
 - **价格不落值**：150 / 350 / 600🪙 仍是 `[提案·待拍板]`，⛔ 不入 §3、不入 `tuning.ts`；Q3（价格与套数）待用户裁。
