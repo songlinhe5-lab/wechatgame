@@ -4780,3 +4780,48 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 | 知识库 | 批 ① `kb:sync --task=WXG-T-355` = 新增 0 / 修改 0 / 激活 0 / 归档 0（活跃 158，写入「无：工作树与产物一致」）⇒ 两条候选**只披露不代填**（沿 K-137）。**批 ③ = 用户 2026-10-23 点头后落盘**：`kb:sync --task=WXG-T-355` ⇒ **新增 1（K-162「表格追加行拿半截行当锚会吞相邻整行」）｜ 修改 1（K-160 追记「字符被静默换成形近码点、肉眼复核无效」）｜ 激活 0 ｜ 归档 0**，活跃 **159** / 归档 0；`kb:audit` 无归档候选、无相似命中；`kb:check` **八重 PASSED**（活跃 159）；`ctx:build` 已刷新、`ctx:check` OK。配套执行层随批入库 = `tools/scripts/scan-text-distortion.mjs`（只扫 diff 新增行 + 打印归属文件 + 非常用符号盘点 + `--paths=` 避开并发 WIP），⛔ 未进 `verify`（无门禁消费者 ⇒ 按 K-060「门要有消费者」暂不入链） |
 | 文本失真对撞 | 收尾以 `git diff HEAD -U0` 限定**新增行 158 行**做码点机械扫：零宽字符（U+200B/200C/200D/FEFF/2060）命中 **0**；`U+5854 塔` = 1、`U+9022 逢` = 2、`U+22FA ⋺` = 2、`U+22BA ⊺` = 1、`U+30FB ・` = 3 —— 逐件定位后全部在台账两件（`TASKS-DETAIL.md` 本节的自纠引用 + `TASKS.md` 头注沿旧文的「每页面・每弹窗」），**代码 / ux-spec / ui-architecture 侧 residual 0**；`・` 曾命中我新写的 ux-spec v1.23 一行 ⇒ 已改回 `、`（见 §4③）。非常用符号盘点 = `§ ①–⑪ ／ ＝ ≈ − ′ ² ∪ ⇔ ↔ α Δ ～ ║ 〔〕 ⚠ ✅ ✓` 逐类核对均为本文既用记号（α = 仓内既有「遮罩 alpha」写法，非本批新造），无异常混入；CJK 之间 ≥2 空格命中 **0**；`\S {2,}\S` 命中 7 行（其中 4 行为缩进代码 / markdown 续行）⇒ 无假空格。**批 ② 台账与夹具复扫**：零宽 0、`\S {2,}\S` 0；塔 / ⋺ / ⊺ / ・ / 逢 / 锤 六类逐件定位 = 只出现在 §4 与本行两处引文内（故意引用错字本身；计数因自引会浮动，故只记归属不记定值），代码侧 residual 0；夹具 JSON 侧改动 = 4 行（`capturedFrom` + `clear` 的 total / kinds.text / sha），其余十态逐字节不变，本批未新造任何符号 ⇒ 无活错字入库 |
 | 未做 / 遗留 | ① 选关页每关三档门槛（用户裁甲不含）；② 真机可读性 `[待真机]`（28px 在手机上的实际辨识度未经试玩）；③ 批 ② 夹具复取**已交付**（锚 commit = `df2eeee`，读数见 §5 单测行） |
+
+## WXG-T-356
+
+**beads·选关整页空带「判星对照」行（三档门槛外显 · 形态甲被实测推翻后改道 A）**
+
+用户 2026-10-23 输入「沉淀候选 / 下一步 1」：「下一步 1」= 采纳 WXG-T-355 收尾给的选项 1「把三档门槛也做进选关页」（我在选项里已写明「需先定形态、金样本会再变动」）。形态三选一先裁 **甲 = 星带左右分栏、只给 3★ 一档**；**落码前实测推翻甲的前提** ⇒ 我给四选项（A 上移空带 / B 逐格 22px + 豁免登记 / C 放大格几何 / D 撤销本批），用户改裁 **A = 上移到章名空带**。本批**零 §3 数值改动**（只外显 §3.7 三档线），且**格内几何逐字回到 v0.4**。
+
+### 1. 领号核验与并发侦查（K-046 / K-045）
+- **领号**：`git log --grep=WXG-T-356` 零命中；主表无此行（`grep -c WXG-T-356 production/TASKS.md` = 1，即头注前瞻那一处）、详情最大节 = `## WXG-T-355` ⇒ 领 **356**（下一 = 357）。
+- **并发实测**：批开工期间 HEAD 由 `92a6ec0` → `c06a137` → `58b983a`(本会话批 ③) → `01643a6` / `3f50963` / `4db4343`（WXG-T-351 续会话连发三笔）。工作树一度同时含**他会话未提交的** `src/game/meta-state.ts` + 其镜像（`@deprecated` 补注）与 `tools/scripts/check-tasks.mjs`、`ctx/budget-exempt.json`、`tools/scripts/scan-text-distortion.mjs` 改动 ⇒ 本批 `git add` 一律**逐路径点名**，⛔ `git add -A`；`framework:sync` 之前确认 `src` 侧除我以外无未提交改动（否则全量镜像会把别人的 WIP 写进 `cocos/`）。他会话那三件随后自行入库。
+
+### 2. 交付清单
+| 件 | 内容 |
+|---|---|
+| `games/beads/src/view/ui-theme.ts` | 新增导出 `starCriteriaText(levelTime)` = 判星对照串的**唯一真源**（`3★ 用时 ≤ mm:ss ｜ 2★ 用时 ≤ mm:ss`）；`tierSecondsFor` 进 import；`formatTime` 同文件既有（补零口径 = BD-47 兜底） |
+| `games/beads/src/view/view-model.ts` | 结算面板那条**由内联模板改为调用 `starCriteriaText`，输出逐字不变**；`tierSecondsFor` import 退役；注释改指共读关系 |
+| `games/beads/src/view/meta-view.ts` | `drawLevelsPage` 空带增一枚 text：y = 带中心 − `LEVELS_NAV_H`（= 884）、`bodyFont(largeText,'sub')` + `palette.textDim`；数据腿 = `wallSlots.indexOf(currentLevelIndex)` → `wallLevels[槽]`，取不到 ⇒ **不建节点** |
+| （回退件）`meta-view.ts::drawWallCell` + `config/tuning.ts` | 甲形态的星带分栏与临时常量 `LEVELS_BAND_INSET` **整体 `git checkout HEAD --` 回退** ⇒ 格 170 / 顶内缩 8 / 星带 28 / 缩略 134 与星字 `cell` 22 一律不动 |
+| `games/beads/cocos/assets/scripts/game/view/{meta-view,ui-theme,view-model}.ts` | Cocos 镜像，**只由 `pnpm run framework:sync` 产出**（写入 4、未变 140、删除 0），⛔ 未手改；回退后镜像里 `tuning.ts` 自动复原（不在 M 列表） |
+| `games/beads/tests/arc-level-select-page.test.ts` | **新增三例**（串形状正则 + 落带内 + 在进度件之下 / 视觉 28→E2 35 + `textDim`、⛔ 回落 `cell` / 无当前关引用 ⇒ 不建节点且无 `--:--`）＋**修正既有 R2 判据一枚**（详见 §3③） |
+| `games/beads/design/ux/level-select-page-layout.md` | **v0.5 → v0.6**：v0.5「星带左右分栏」行作废（保留作废叙述与实测依据，K-053 不静默删）；新增「空带·判星对照行」表行 + 四条口径整段重写 |
+| `games/beads/design/ux/ux-spec.md` | **v1.24** 头注括注与文末三段按 A 形态**重写**（原按甲形态写的两段作废）；含 R2 判据修正的登记 |
+| `docs/architecture/ui-architecture-beads.md` | §12 UI-34 视觉变更登记段重写（改道过程、`starCriteriaText` 上提、两态待复取、`clear` 态串不变） |
+| `production/TASKS.md` | 头注推到 356 / 下一 357；主表新增 356 行 |
+
+### 3. 三条关键判断
+- **① 推翻甲形态的是无障碍 floor，不是审美**：`accessibility.md:53` **E1** = 文字最小 **28** 设计 px（22px 已 v1.3 F7⑤ 作废）。28px 下 `★★★` ≈ 84px + `≤03:30` ≈ 94px = **178 > 格宽 170**（含左右内缩 10×2 需 198）⇒ 同带分栏**几何不成立**；降到 22px 虽塞得进（142 + 20 = 162），但 `menu-wall-signage-spec §3.9①` 的 22px **只裁给星符号**、不裁给数字文本，且 `menu-layout-implementation-spec §10`（WXG-T-346）**正是本页**把章名下方那行从 `cell` 22 升到 28 并设了防回退守卫 ⇒ 22px 版与既有裁定逆向。字宽 = em 比例估算（数字 0.556em / 冒号 0.278em / `≤` 0.584em / CJK 与 `★` 1em），宽度结论 `[待实测]`，**行位与字号档是确定算术**。
+- **② 共读一条串，而不是再写一条**：门槛外显的文案在 355 已住 `view-model.ts` 内联模板。本批把它**上提成 `ui-theme.ts::starCriteriaText`** 供两页共调 ⇒ 文案与 `tierSecondsFor` 口径只有一套（⛔ 第二套判星式），且结算面板输出逐字不变（`clear` 金样本与 `clear-panel.test.ts` 零影响）。数据腿仍走视图既有 `wallSlots` / `wallLevels` ⇒ **零新快照字段**、**零新 tuning 常量**，继续避开并发面 `state.ts` / `beads-game.ts`。
+- **③ 一条既有判据被我的改动暴露为「位置代理身份」**：`arc-level-select-page.test.ts` R2 原写「无 `chapterTitle` ⇒ **空带内零文本节点**」，实际想钉的是「章名位不猜测」。空带自 346 进度件、本批判星行起**合法地**还住别的行 ⇒ 该例首跑转红。处置 = **收窄判据**（按带中心 y 取章名位节点），⛔ 放宽成「少一个也算过」；`⛔ 不回落关序/slug` 的语义逐字保留。教训：以位置/数量代理身份的断言，在同一区域加入合法新行时必假红 ⇒ 新增判据应钉**节点身份**（串或行位归属），不钉区域计数。
+
+### 4. 自纠两笔（当场机械自证）
+- **① 表格替换又吞整行（K-162 复发）**：把 v0.5 表行换成 v0.6 表行时，`original_text` 连带含了上一行「缩略区」⇒ 该行被整行吞掉。当场以 `grep -c '^|'`（HEAD 7 → 工作树 8 = +1 而非 0）发现并按 K-162 规避法补回完整行。**结论：条目写了不等于用了 —— 表格类替换的锚必须只含目标行，且改后必查行数。**
+- **② 近形字两例 + 「码点凭记忆」新坑**：SearchReplace 写出「星带分**稿**(U+7A3F)」与「星带分**栁**(U+6801)」两处（本意「分栏」）。用码点自修时我第一次把「栏」记成 **U+6805**（那是「栅」），替换后仍是错字，靠 node 从仓内既有用例（版面单 v0.6 的「左右分栏」）反查真码点 **U+680F** 才修好 ⇒ **码点也不得凭记忆，须从仓内正确用例反查**（列沉淀候选）。
+- 收尾扫描读数见 §5，代码侧近形字 residual 0。
+
+### 5. 验收读数
+| 项 | 读数 |
+|---|---|
+| typecheck | `npx tsc --noEmit`（beads）= **零输出** |
+| 定向 vitest | `arc-level-select-page` 13 + `clear-panel` 9 + `meta-menu-wall` 23 + `arc-wall-locked` 6 = **51 passed** |
+| 全量 vitest（beads） | **1246 passed ｜ 2 failed ｜ 3 skipped**（104 文件中 1 文件红）；两红 = 金样本 `level-select` / `level-select-mid`，**属待复取而非回归**（批 ② 以本批 commit 为锚跑 `tests/ui-golden-capture.ts`） |
+| 文本失真扫描 | `node tools/scripts/scan-text-distortion.mjs HEAD --paths=<本批 7 件>`：新增 **91 行 / 7 文件**；零宽 **0**、近形 **0**、词内空格**新增 0**（与 HEAD 命中集合对撞为空集；`U+FF0F` 48/48、`U+2212` 7/7 计数不变 ⇒ 属既有排版同族） |
+| 台账门禁 | `check:tasks` / `check:links` / `ctx:build` / `ctx:check` 读数见批 ① 末尾会话结论 |
+| 知识库 | 批内自纠两笔（K-162 复发 / 码点凭记忆）= **沉淀候选，只披露不代填**（沿 K-137），待用户点头再 `kb:sync` |
+| 未做 / 遗留 | ① 宽度 `[待实测]`（harness `measureText` 或真机走查；E2 35px 档估 ≈ 580px 占屏 77%，居中后左右各余 ~85px 不越画布 750）；② 1★ 无用时门槛 ⇒ 选关页只见 3★/2★ 两档（§3.7 口径如此，非遗漏）；③ ux-spec 文末变更记录区外置（本文件主要膨胀源，属一次性迁移工程）；④ 真机可读性 `[待真机]` |

@@ -13,7 +13,7 @@ import { RenderModelBuilder, type DrawCommand } from '@wxgame/framework';
 import { buildMetaView, hitTestMeta, metaLayout, type MetaViewData } from '../src/view/meta-view.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import { COPY_TOKENS } from '../src/config/copy-tokens.js';
-import { scrimFill, UI_FONT, UI_SCRIM } from '../src/view/ui-theme.js';
+import { scrimFill, UI_FONT, UI_SCRIM, starCriteriaText } from '../src/view/ui-theme.js';
 import { LEVELS } from '../src/config/levels.js';
 import {
     DESIGN_H,
@@ -147,10 +147,16 @@ describe('UI-34 空带大关名（[WXG-T-340] · levels-spec §11.4）', () => {
         )).toBe(true);
     });
 
-    it('R2 无 title：空带内零文本节点（兜底不猜测；⛔ 不回落关序/slug）', () => {
+    // R2 判据修正（WXG-T-356）：本例原以「整带零文本」代理「无章名节点」，而空带自 WXG-T-346
+    // 的累计星进度件与本批（版面单 v0.6 §2 判星对照行）起**合法地**还住别的行 ⇒ 位置 ≠ 身份。
+    // 改按**章名位**（带中心 y）取节点；「⛔ 不回落关序/slug」的语义逐字保留。
+    const onTitleRow = (c: { y: number }) =>
+        c.y === (LEVELS_GRID_TOP + LEVELS_NAV_TOP - LEVELS_NAV_H) / 2;
+
+    it('R2 无 title：章名位零节点（兜底不猜测；⛔ 不回落关序/slug）', () => {
         const bare = textsOf({});
-        expect(bare.filter(inBand), '无 chapterTitle ⇒ 不创建空带节点').toHaveLength(0);
-        expect(textsOf({ chapterTitle: '曼陀罗' }).filter(inBand), '对照：有值恰一枚').toHaveLength(1);
+        expect(bare.filter(onTitleRow), '无 chapterTitle ⇒ 章名位不建节点').toHaveLength(0);
+        expect(textsOf({ chapterTitle: '曼陀罗' }).filter(onTitleRow), '对照：有值恰一枚').toHaveLength(1);
     });
 
     it('累计星进度件：有门槛 ⇒ 章名下方一行且在带内；无 ⇒ 不画（WXG-T-346）', () => {
@@ -173,5 +179,37 @@ describe('UI-34 空带大关名（[WXG-T-340] · levels-spec §11.4）', () => {
         expect(bar(false).font, '⛔ 回到 cell 22 档（22px 需 4.5:1，实测 textDim 仅 3.90:1）').not.toBe(UI_FONT.cell);
         expect(bar(true).font, 'E2 开关 ×1.25 = 35（tokens.md §5）').toBe(UI_FONT.bodyLarge);
         expect(bar(false).fill, '色 = text_secondary（比章名 text 低一档保住层级）').toBe(DEFAULT_PALETTE.textDim);
+    });
+
+    // `[WXG-T-356]` 判星对照行（正本 = `level-select-page-layout.md` v0.6 §2）。
+    // 为什么不在格内：星带分栏要合规就得 ≥ 28px（accessibility E1 floor），而 28px 下
+    // `★★★` ≈ 84 + `≤03:30` ≈ 94 = 178 > 格宽 170 ⇒ 上移到空带，与进度件同档同色同底（暖纸底）。
+    const CRITERIA = starCriteriaText(LEVELS[0]!.time);
+
+    it('判星对照行 = 与结算面板共读 `starCriteriaText`，落带内、在进度件之下', () => {
+        expect(CRITERIA, '串形状（文案与门槛口径只有一套；字面值归 `clear-panel.test.ts`）')
+            .toMatch(/^3★ 用时 ≤ \d{2}:\d{2} ｜ 2★ 用时 ≤ \d{2}:\d{2}$/);
+        const on = textsOf({ chapterTitle: '曼陀罗', arcStarGot: 18, arcStarNeed: 21 });
+        const row = on.find((c) => c.text === CRITERIA);
+        expect(row, '门槛行未渲染').toBeDefined();
+        expect(inBand(row!), '仍在空带 [822,1122] 内').toBe(true);
+        expect(row!.y, '行位 = 带中心下移一个 `LEVELS_NAV_H`（派生常量、零新数值）')
+            .toBe((LEVELS_GRID_TOP + LEVELS_NAV_TOP - LEVELS_NAV_H) / 2 - LEVELS_NAV_H);
+        const bar = on.find((c) => c.text === '★ 18/21')!;
+        expect(row!.y < bar.y, '在进度件之下（y 向上 ⇒ 更小）').toBe(true);
+    });
+
+    it('判星对照行视觉 = 28 档随 E2 → 35 + textDim（⛔ 回落 `cell` 22，accessibility E1 floor）', () => {
+        const off = textsOf({}).find((c) => c.text === CRITERIA)!;
+        expect(off.font).toBe(UI_FONT.sub);
+        expect(off.font, '⛔ 回到 cell 22（v0.5 星带分栏那一版的错；22px 在本页暖纸底上不过普通文本档）').not.toBe(UI_FONT.cell);
+        expect(textsOf({ largeText: true }).find((c) => c.text === CRITERIA)!.font, 'E2 开 ⇒ 35（随大字模式放大）').toBe(UI_FONT.bodyLarge);
+        expect(off.fill).toBe(DEFAULT_PALETTE.textDim);
+    });
+
+    it('判星对照行：取不到当前关引用 ⇒ 不建节点（兜底不猜测，⛔ `--:--` 占位）', () => {
+        const off = textsOf({ currentLevelIndex: 999 });
+        expect(off.some((c) => c.text === CRITERIA), '越界关索引 ⇒ 整行不画').toBe(false);
+        expect(off.some((c) => /--:--|nan/i.test(c.text)), '⛔ 占位串').toBe(false);
     });
 });

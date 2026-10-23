@@ -16,6 +16,7 @@ import {
     SETTINGS_SCRIM_ALPHA,
     UI_CONTAINER,
     UI_PRESS_SINK,
+    tierSecondsFor,
 } from '../config/tuning';
 import { withAlpha } from './palette';
 import type { BeadsPalette } from './palette';
@@ -75,6 +76,16 @@ export function formatTime(seconds: number): string {
     const m = Math.floor(total / 60);
     const s = total % 60;
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+}
+
+/**
+ * 判星对照串（`ux-spec §3.4` v1.23 / 选关整页空带 `level-select-page-layout.md` v0.6 §2）。
+ * **过关结算面板与选关页共读本函数** ⇒ 文案与口径只有一套（⛔ 第二套判星式）。
+ * 门槛秒数 = §3.7 同一个 `tierSecondsFor`（与 `computeClearStars` 同源）；
+ * 1★ 无用时门槛（打完就算）⇒ 不进串（v1.23 同口径）。
+ */
+export function starCriteriaText(levelTime: number): string {
+    return `3★ 用时 ≤ ${formatTime(tierSecondsFor(levelTime, 3))} ｜ 2★ 用时 ≤ ${formatTime(tierSecondsFor(levelTime, 2))}`;
 }
 
 /** 遮罩色族 + 双档 α（α 名保留自 `tuning`，此处只做聚合视图）。 */

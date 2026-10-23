@@ -108,6 +108,7 @@ import {
     bodyFont,
     pressOffset,
     scrimFill,
+    starCriteriaText,
 } from './ui-theme';
 import { drawButton } from './ui-widgets';
 import {
@@ -1405,6 +1406,22 @@ function drawLevelsPage(
     // ≈ 3.9:1，28px 属大字号 ≥ 3:1 达标）⇒ 正本 = `art/specs/menu-layout-implementation-spec.md §10`。
     if (data.arcStarNeed !== undefined) {
         builder.text(DESIGN_W / 2, (LEVELS_GRID_TOP + navTop - LEVELS_NAV_H) / 2 - LEVELS_NAV_H / 2, `★ ${data.arcStarGot ?? 0}/${data.arcStarNeed}`, {
+            fill: palette.textDim,
+            font: bodyFont(data.largeText, 'sub'),
+            align: 'center',
+            baseline: 'middle',
+        });
+    }
+    // `[WXG-T-356]` 判星对照行（正本 = `design/ux/level-select-page-layout.md` v0.6 §2）。
+    // **不在格内**：星带分栏需要 ≥ 28px（accessibility E1 floor，22px 已 F7⑤ 作废），
+    // 而 28px 下 `★★★` ≈ 84 + `≤03:30` ≈ 94 = 178 > 格宽 170 ⇒ 几何不成立（v0.5 因此作废）。
+    // 行位 = 带中心再下移一个 `LEVELS_NAV_H`（= 884，派生常量、零新数值），与进度件同档同色。
+    // 成串与结算面板**共读** `starCriteriaText`（⛔ 第二套判星式）；数据腿只用视图已有的
+    // `wallSlots` / `wallLevels` ⇒ **零新增快照字段**（视图 ⛔ `import { LEVELS }`，判例同 EP12-S6 T-2B）。
+    const curSlot = data.wallSlots.indexOf(data.currentLevelIndex);
+    const curLevel = curSlot < 0 ? undefined : data.wallLevels[curSlot];
+    if (curLevel !== undefined) {
+        builder.text(DESIGN_W / 2, (LEVELS_GRID_TOP + navTop - LEVELS_NAV_H) / 2 - LEVELS_NAV_H, starCriteriaText(curLevel.time), {
             fill: palette.textDim,
             font: bodyFont(data.largeText, 'sub'),
             align: 'center',

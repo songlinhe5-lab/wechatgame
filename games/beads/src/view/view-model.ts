@@ -25,7 +25,6 @@ import {
   CONFETTI_NOFLY_YMIN,
   CONFETTI_NOFLY_YMAX,
   dialogShiftY,
-  tierSecondsFor,
 } from '../config/tuning.js';
 import type { BeadsSnapshot } from '../game/state.js';
 import {
@@ -61,7 +60,7 @@ import {
 import type { ConfettiBeadState } from './scene-vfx.js';
 import { drawModalFrame, drawModalScrim } from './modal-frame.js';
 import { drawButton, drawDashedRect } from './ui-widgets.js';
-import { UI_FONT, UI_SCRIM, bodyFont, drawPaperPanel, formatTime, pressOffset } from './ui-theme.js';
+import { UI_FONT, UI_SCRIM, bodyFont, drawPaperPanel, formatTime, pressOffset, starCriteriaText } from './ui-theme.js';
 import { drawPlayPage } from './play-page.js';
 import { starPoints } from './shape-utils.js';
 
@@ -480,16 +479,16 @@ function drawClearPanel(
     });
   }
 
-  // 判星对照（ux-spec §3.4 v1.23）：门槛秒数 = §3.7 三档时钟，视图只调同一个纯函数
-  // `tierSecondsFor`（与 `computeClearStars` 同源），⛔ 不自算一套。关表本体走快照的
-  // 只读引用 `finishLevels`（state.ts 注：视图 ⛔ 不 import LEVELS）。
+  // 判星对照（ux-spec §3.4 v1.23）：成串收进 `ui-theme.ts::starCriteriaText`（门槛 = §3.7 同一个
+  // `tierSecondsFor`，与 `computeClearStars` 同源）⇒ 与选关整页空带（WXG-T-356）**共读一条文案**。
+  // 关表本体走快照的只读引用 `finishLevels`（state.ts 注：视图 ⛔ 不 import LEVELS）。
   // 1★ 无用时门槛（只要打完就算）⇒ 本行不写；续时局星级走 §3.7 保底腿、与用时无关 ⇒ 不印。
   const critLevel = snap.finishLevels[snap.levelIndex];
   if (critLevel && !snap.revived) {
     builder.text(
       DESIGN_W / 2,
       layout.criteriaY,
-      `3★ 用时 ≤ ${formatTime(tierSecondsFor(critLevel.time, 3))} ｜ 2★ 用时 ≤ ${formatTime(tierSecondsFor(critLevel.time, 2))}`,
+      starCriteriaText(critLevel.time),
       { fill: palette.textDim, font: bodyFont(snap.largeText, 'sub'), align: 'center', baseline: 'middle' },
     );
   }
