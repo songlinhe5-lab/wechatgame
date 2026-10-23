@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4630,
       "lines": 159,
-      "sha256": "f83f7b31691a17e31349aa8f6742084963dd4d41e0afd5ace9e5ca4c0706915e",
+      "sha256": "5b3955675bf3792bc99c2e7b1c6b61140ee2f7e0986a841913b02fadd1334578",
       "tier": "normal",
       "sections": [
         {
@@ -31833,9 +31833,9 @@
     },
     {
       "path": "games/beads/design/gdd/meta-ui.md",
-      "tokens": 10160,
+      "tokens": 10187,
       "lines": 189,
-      "sha256": "7be4dfce1fb2455e5eda6ce5e7a79ec9990dc4a2c1db6a07bcd161e850f9591b",
+      "sha256": "f0341d26ee50fc332f2313d1b70fad7f0a28f168b28d95c1c543336ee0a213ab",
       "tier": "normal",
       "sections": [
         {
@@ -31843,7 +31843,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 190,
-          "tokens": 10143,
+          "tokens": 10170,
           "summary": "项目：games/beads · 版本 v0.6（草案 · 已含六项裁定 + WXG-T-283 三裁定 + 同批续裁 ",
           "keywords": [
             "GDD",
@@ -31871,7 +31871,7 @@
           "level": 2,
           "startLine": 18,
           "endLine": 91,
-          "tokens": 4925,
+          "tokens": 4952,
           "summary": "",
           "keywords": [
             "机制"
@@ -31939,7 +31939,7 @@
           "level": 3,
           "startLine": 59,
           "endLine": 64,
-          "tokens": 372,
+          "tokens": 399,
           "summary": "§3.14 现文 = STAMINA_START_COST 1，语义「普通局开局消耗；第二模式入口当前不存在，其余模式消",
           "keywords": [
             "§3.14",
@@ -32129,9 +32129,9 @@
     },
     {
       "path": "games/beads/design/gdd/pause-settings.md",
-      "tokens": 11149,
+      "tokens": 11162,
       "lines": 156,
-      "sha256": "1c132225f5a82b8341d7de526b384489c83ba8d2fd13d9a543160a0b0e39fc02",
+      "sha256": "ac98a367ab584cab5cd6adf0a3f8d8e15a306a892015528d713d6503a0e181ed",
       "tier": "normal",
       "sections": [
         {
@@ -32139,7 +32139,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 157,
-          "tokens": 11133,
+          "tokens": 11145,
           "summary": "项目：games/beads · 版本 v1.7 · 任务号 WXG-T-211-D（主理人编排案批 1 节点 D，用户",
           "keywords": [
             "GDD",
@@ -32288,7 +32288,7 @@
           "level": 2,
           "startLine": 117,
           "endLine": 144,
-          "tokens": 1919,
+          "tokens": 1931,
           "summary": "1. PLAYING 点齿轮 → game:paused 恰 1 次、S1=PAUSED、面板可见、遮罩覆盖棋盘与托盘；",
           "keywords": [
             "PLAYING",
@@ -33012,9 +33012,9 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index-changelog.md",
-      "tokens": 44349,
+      "tokens": 44569,
       "lines": 93,
-      "sha256": "99f1c09bf41c84147d78d74e9cbeef4adf59c685a2ec6ff1197d56bc9e723816",
+      "sha256": "39e9885af272a26aadd914383e24a6f6c82acbf3e1e258f5e4770cda0a1df658",
       "tier": "normal",
       "sections": [
         {
@@ -33022,7 +33022,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 94,
-          "tokens": 44331,
+          "tokens": 44551,
           "summary": "项目：games/beads · 归属：systems-index.md 的 §6 变更记录",
           "keywords": [
             "§6",
@@ -33038,7 +33038,7 @@
           "level": 2,
           "startLine": 7,
           "endLine": 94,
-          "tokens": 44173,
+          "tokens": 44392,
           "summary": "v1.0 2026-09-11 初版：9 系统清单 + 拓扑 + §3 冻结令（含 8 项 [待确认] 提案值） WXG",
           "keywords": [
             "§3",
@@ -41968,9 +41968,9 @@
     },
     {
       "path": "games/beads/design/ux/arc-level-select-spec.md",
-      "tokens": 18496,
+      "tokens": 18513,
       "lines": 269,
-      "sha256": "e650f1bddb08e769d3eaf1e20b2dcdefaf06651154c72aa4c2996eb0f288773a",
+      "sha256": "90c08358f9abc14bf45a56dc7d6f71fa686334b3ae454023c8b4f60e1c33afe8",
       "tier": "normal",
       "sections": [
         {
@@ -41978,7 +41978,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 270,
-          "tokens": 18454,
+          "tokens": 18472,
           "summary": "项目：games/beads · 版本 v1.13（2026-10-22 · WXG-T-346 art 批）：§8.2",
           "keywords": [
             "theme-level-select-spec.md",
@@ -42010,7 +42010,7 @@
           "level": 2,
           "startLine": 22,
           "endLine": 51,
-          "tokens": 761,
+          "tokens": 775,
           "summary": "",
           "keywords": [
             "Screen",
@@ -42039,7 +42039,7 @@
           "level": 2,
           "startLine": 69,
           "endLine": 180,
-          "tokens": 7248,
+          "tokens": 7252,
           "summary": "注 A（闸门不变，本批不改造）：_applyMetaAction('pick-level') 现码 = levelIdx",
           "keywords": [
             "applyMetaAction",
@@ -42352,9 +42352,9 @@
     },
     {
       "path": "games/beads/design/ux/level-select-page-layout.md",
-      "tokens": 3351,
+      "tokens": 3353,
       "lines": 98,
-      "sha256": "49cbc1b6230a2c2e7ddd58a1675913467b06c0552eb9fe537978f2fa332e9789",
+      "sha256": "db4766a094f168eab81f832b011e358411accaf04d496745cbae6793a5bcee04",
       "tier": "normal",
       "sections": [
         {
@@ -42362,7 +42362,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 99,
-          "tokens": 3333,
+          "tokens": 3335,
           "summary": "项目：games/beads · 版本 v0.4 · 日期 2026-10-21 · 状态：数值已冻结、已落码（版式 =",
           "keywords": [
             "beads",
@@ -42401,7 +42401,7 @@
           "level": 2,
           "startLine": 56,
           "endLine": 71,
-          "tokens": 567,
+          "tokens": 569,
           "summary": "§3 线框（遮罩 + 600×720 面板） 作废，以本文 §2 取代（已回写：主规格 v1.6 §3 = 版式 P 版",
           "keywords": [
             "§3",
@@ -42456,9 +42456,9 @@
     },
     {
       "path": "games/beads/design/ux/ux-spec.md",
-      "tokens": 42460,
+      "tokens": 42479,
       "lines": 480,
-      "sha256": "c84f60fba48c6291ebd4f43b43cca34262c66a597c49533fb8f2b1679554de8f",
+      "sha256": "a43a967e9d96d8e36f07f75f4a431cdc6dbbd320b13515a2bbde5c4dc843e020",
       "tier": "normal",
       "sections": [
         {
@@ -42466,7 +42466,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 481,
-          "tokens": 42451,
+          "tokens": 42470,
           "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.23 · 任务号 WXG-T-355（v1.23 = §3.",
           "keywords": [
             "§3",
@@ -42510,7 +42510,7 @@
           "level": 2,
           "startLine": 63,
           "endLine": 205,
-          "tokens": 5655,
+          "tokens": 5664,
           "summary": "",
           "keywords": [
             "§3.1",
@@ -42577,7 +42577,7 @@
           "level": 3,
           "startLine": 165,
           "endLine": 187,
-          "tokens": 645,
+          "tokens": 654,
           "summary": "",
           "keywords": [
             "结算",
