@@ -1,5 +1,5 @@
 /**
- * EP13-S3 · 菜单侧 0 心点可进格 = 不进关不扣心 + 拉起**既有**体力回满激励位（C-4，Q13=乙）。
+ * EP13-S3 · 菜单侧 0 心点可进格 = 不进关不扣心 + 拉起**既有**广告加心激励位（C-4，Q13=乙）。
  *
  * 验收真源 = `arc-level-select-spec.md` §4-R7 行（逐字）+ 该表「0 心点格」列；零新数值、
  * 激励位内容零改动。通道 = 乙（用户 2026-10-17 裁）：shell 直取 `services.rewardedAd`。
@@ -104,13 +104,13 @@ describe('EP13-S3 · R7 主臂（0 心点可进格）', () => {
         const r = rig({ stamina: 0, maxUnlocked: 9 });
         openLevels(r.shell);
         const eventsBefore = r.overlayEvents.length;
-        expect(tapCell(r, 2), '0 心 ⇒ 由回满位承接（tap 被消费，但不导航）').toBe(true);
+        expect(tapCell(r, 2), '0 心 ⇒ 由加心位承接（tap 被消费，但不导航）').toBe(true);
         expect(r.shell.screen).toBe('menu');
         expect(r.shell.overlay, '玩家留本页').toBe('levels');
         expect(r.shell.meta!.stamina, '不扣心（本就 0）').toBe(0);
         expect(r.shell.play.levelIndex, '不得进关装配（关卡指针未动）').toBe(0);
         expect(r.overlayEvents.length, '零新增 overlay 事件').toBe(eventsBefore);
-        expect(r.ad.showing, '拉起既有体力回满激励位').toBe(true);
+        expect(r.ad.showing, '拉起既有广告加心激励位').toBe(true);
         expect(r.ad.placement, '走既有 stamina-refill 位（零新 placement）').toBe(STAMINA_REFILL_PLACEMENT);
 
         r.ad.settle('complete');
@@ -126,7 +126,7 @@ describe('EP13-S3 · R7 主臂（0 心点可进格）', () => {
         expect(r.shell.meta!.stamina).toBe(HEART_AD_GAIN - 1);
     });
 
-    it('跳过（skip）→ 不回满、留本页；再次点格可重新拉起回满位', () => {
+    it('跳过（skip）→ 不加心、留本页；再次点格可重新拉起加心位', () => {
         const r = rig({ stamina: 0, maxUnlocked: 9 });
         openLevels(r.shell);
         expect(tapCell(r, 0)).toBe(true);
@@ -134,15 +134,15 @@ describe('EP13-S3 · R7 主臂（0 心点可进格）', () => {
         expect(r.shell.meta!.stamina).toBe(0);
         expect(r.shell.screen).toBe('menu');
         expect(r.ad.showing).toBe(false);
-        expect(tapCell(r, 0), '仍在 0 心 ⇒ 再次交给回满位').toBe(true);
-        expect(r.ad.showing, '在途标记已清 ⇒ 回满位可再拉起').toBe(true);
+        expect(tapCell(r, 0), '仍在 0 心 ⇒ 再次交给加心位').toBe(true);
+        expect(r.ad.showing, '在途标记已清 ⇒ 加心位可再拉起').toBe(true);
     });
 
     it('0 心点未解锁格 → 闸门先行：零事件、零扣心、**不拉广告**', () => {
         const r = rig({ stamina: 0, maxUnlocked: 1 });
         openLevels(r.shell);
         expect(tapCell(r, 1), '未解锁格不消费').toBe(false);
-        expect(r.ad.showing, '闸门逐字优先 ⇒ 不进回满位流程').toBe(false);
+        expect(r.ad.showing, '闸门逐字优先 ⇒ 不进加心位流程').toBe(false);
         expect(r.shell.meta!.stamina).toBe(0);
     });
 
@@ -150,7 +150,7 @@ describe('EP13-S3 · R7 主臂（0 心点可进格）', () => {
         const r = rig({ stamina: 0, maxUnlocked: 9 });
         const start = metaLayout('none', WALL_ROWS, r.shell.menuAnchors).buttons.find((b) => b.id === 'start')!;
         const c = centerOf(start.box);
-        expect(r.shell.tapMeta(c.x, c.y), '0 心 ⇒ 回满位承接（不导航）').toBe(true);
+        expect(r.shell.tapMeta(c.x, c.y), '0 心 ⇒ 加心位承接（不导航）').toBe(true);
         expect(r.shell.screen).toBe('menu');
         expect(r.ad.showing).toBe(true);
         r.ad.settle('complete');
@@ -178,7 +178,7 @@ describe('EP13-S3 · 串道反例（DoD 硬项）', () => {
         r.shell.showMenu();
         expect(r.shell.screen).toBe('menu');
         openLevels(r.shell);
-        expect(tapCell(r, 0), '0 心 ⇒ 留本页（回满位承接）').toBe(true);
+        expect(tapCell(r, 0), '0 心 ⇒ 留本页（加心位承接）').toBe(true);
         expect(r.shell.screen).toBe('menu');
         expect(r.ad.showing).toBe(true);
         expect(r.ad.placement).toBe(STAMINA_REFILL_PLACEMENT);

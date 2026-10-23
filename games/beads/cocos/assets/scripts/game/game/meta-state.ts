@@ -190,7 +190,7 @@ export class MetaState {
         return true;
     }
 
-    /** 加心（签到/激励回满之外的赠送），钳上限——溢出即弃（§3.14）。 */
+    /** 加心（签到等其它来源的赠送），钳上限——溢出即弃（§3.14）。 */
     addStamina(amount: number): void {
         if (amount <= 0) return;
         this._cur = Math.min(STAMINA_MAX, this._cur + amount);

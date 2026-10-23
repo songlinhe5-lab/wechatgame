@@ -29,7 +29,7 @@
  *
  * 扣心语义（systems-index §3.14）：扣心时机 = 新局开局 / 重试。本 shell 在三处扣心——
  * 启动入玩法（{@link init}）、菜单→玩法（{@link startGame}）、以及玩法内 retry/restart
- * （经注入 play 的 `canStartRun` 闸门）。0 心重试被拒 → play 触发体力回满激励位
+ * （经注入 play 的 `canStartRun` 闸门）。0 心重试被拒 → play 触发广告加心激励位
  * （§3.11 第二 live 位），发奖经 `onStaminaRefill` → {@link MetaState.grantAdHearts}
  * （§3.14 v1.80：固定 +`HEART_AD_GAIN`、日限 `HEART_AD_DAILY_LIMIT`）后重放。
  * 冲刺消耗不冻结（§3.14），故 sprint 重开不设门。
@@ -234,7 +234,7 @@ export class BeadsShell implements Game {
      * 玻璃（走马灯卡）不登本门：它自己就是「按下→拖动→抬起」的手势体（`MainMenuPresenter`）。
      */
     private _menuPress: MetaButton | null = null;
-    /** 菜单侧体力回满广告在途标（EP13-S3）：防连点重复 show；`onClose`/`onError` 清。 */
+    /** 菜单侧广告加心位在途标（EP13-S3）：防连点重复 show；`onClose`/`onError` 清。 */
     private _refillPending = false;
     /** 广告订阅退订器（`init` 登记、`dispose` 释放）。 */
     private readonly _adOffs: Array<() => void> = [];
@@ -257,7 +257,7 @@ export class BeadsShell implements Game {
             ...(options.play ?? {}),
             // 暂停面板「回主菜单」次钮 → 切到菜单（真机反馈裁定：弃本局棋盘——下次「开始游戏」= 全新开当前关）。
             onMenuRequest: () => this.showMenu(),
-            // 新局开局体力闸门（§3.14）：retry/restart 前扣 1 心；0 心返回 false（play 转广告回满）。
+            // 新局开局体力闸门（§3.14）：retry/restart 前扣 1 心；0 心返回 false（play 转广告加心位）。
             canStartRun: () => (this.meta ? this.meta.spendStamina(STAMINA_START_COST) : true),
             // 广告加心发奖（§3.11 第二 live 位；§3.14 v1.80 由「回满」改固定 HEART_AD_GAIN）。
             onStaminaRefill: () => this.meta?.grantAdHearts(),
@@ -320,7 +320,7 @@ export class BeadsShell implements Game {
             designHeight: services.viewport.designHeight,
         });
         this.play.init(services);
-        // 菜单侧体力回满发奖（EP13-S3）：**广播**订阅，只认自己的在途标 ⇒ 不误接续时/回满腿。
+        // 菜单侧广告加心发奖（EP13-S3）：**广播**订阅，只认自己的在途标 ⇒ 不误接续时/加心腿。
         const ad = services.rewardedAd;
         this._adOffs.push(
             ad.onRewarded(() => {
@@ -404,7 +404,7 @@ export class BeadsShell implements Game {
     /**
      * 主菜单主钮「开始游戏」：**开当前关**，扣 1 心。真机反馈裁定（WXG-T-165）
      * ——「回主菜单」弃本局棋盘、关卡解锁进度留。
-     * @returns true 当且仅当已进入玩法（0 心 ⇒ false，留在菜单走回满广告）。
+     * @returns true 当且仅当已进入玩法（0 心 ⇒ false，留在菜单走广告加心激励位）。
      */
     startGame(): boolean {
         return this._startLevel(this.play.levelIndex);
@@ -412,7 +412,7 @@ export class BeadsShell implements Game {
 
     /**
      * 进玩法统一下入口：扣心→切屏→`goToLevel(index)` 装配该局。0 心不切屏：
-     * 留本页 + 拉起**既有**体力回满激励位（EP13-S3 · `tls §4-R7`，零新数值）。
+     * 留本页 + 拉起**既有**广告加心激励位（EP13-S3 · `tls §4-R7`，零新数值）。
      *
      * `acrossArc = true`（S-4）= 门票授权的跨章首格入口：**扣心之后**才把既有两根进度指针
      * 推到该关（{@link BeadsGame.unlockAcrossArc}）——「已进入过」的事实就落在推进位上（I7），

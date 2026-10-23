@@ -854,8 +854,9 @@ export const REVIVE_BONUS_SEC = 180;
 /** Successful revives allowed per attempt (reset on full level restart). */
 export const REVIVE_MAX_PER_LEVEL = 1;
 /**
- * 体力回满激励位（§3.11 v1.28 第二 live 位 / §3.14「体力回满 = 激励视频 onRewarded」）。
- * 0 心时 retry/restart 被拒 → 看此广告回满至 `STAMINA_MAX` 再重试（WXG-T-164）。
+ * 广告加心激励位（§3.11 v1.28 第二 live 位 / §3.14 v1.80 激励视频 onRewarded）。
+ * 0 心时 retry/restart 被拒 → 看此广告加 `HEART_AD_GAIN` 颗心（钳 `STAMINA_MAX`、溢出即弃、
+ * 日限 `HEART_AD_DAILY_LIMIT`）再重试（WXG-T-164 立项 / WXG-T-351 v1.80 改判为固定加心）。
  * 框架 `REWARDED_PLACEMENT` 未列本值，但 `RewardedAdPlacement` 型别容 `| string`，
  * 故用游戏侧字符串位（不改冻结框架枚举）；ponytail: 真机广告单元映射待发布侧接入。
  */

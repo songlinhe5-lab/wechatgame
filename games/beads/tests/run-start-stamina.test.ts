@@ -1,5 +1,5 @@
 /**
- * retry/restart 逐次扣心（WXG-T-164，systems-index §3.14）+ 0 心看广告回满再重试
+ * retry/restart 逐次扣心（WXG-T-164，systems-index §3.14）+ 0 心看广告加心再重试
  * （§3.11 第二 live 位，用户 2026-09-18 拍板 B）。
  *
  * The gate lives in `BeadsGame._gateRunStart` (shared by retryLevel/restartRun);

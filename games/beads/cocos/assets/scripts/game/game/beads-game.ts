@@ -432,7 +432,7 @@ export class BeadsGame implements Game {
   private readonly _onMenuRequest?: () => void;
   /** 新局开局体力闸门（options.canStartRun；无 shell 时 undefined ⇒ 不设门）。 */
   private readonly _canStartRun?: () => boolean;
-  /** 体力回满发奖回调（options.onStaminaRefill；无 shell 时 undefined）。 */
+  /** 广告加心发奖回调（options.onStaminaRefill；无 shell 时 undefined）。 */
   private readonly _onStaminaRefill?: () => void;
   /** 广告加心是否还可用（options.canWatchStaminaAd；日限/满心闸门，无 shell 时 undefined ⇒ 不设门）。 */
   private readonly _canWatchStaminaAd?: () => boolean;
@@ -443,7 +443,7 @@ export class BeadsGame implements Game {
    * S-4：只在**章界那一刻**参与解锁位推进（I7 棘轮），⛔ 参与门票归约本体。
    */
   private readonly _canAdvanceAcrossArc?: (fromIndex: number, toIndex: number) => boolean;
-  /** 在飞广告种类：区分续时（revive）与体力回满（staminaRefill）的发奖路由。 */
+  /** 在飞广告种类：区分续时（revive）与广告加心（staminaRefill）的发奖路由。 */
   private _adKind: 'revive' | 'staminaRefill' | null = null;
   /**
    * 弃局标（EP13-S3）：`showMenu`（暂停次钮回主菜单）置真，新局装配（两装配入口共经
@@ -451,7 +451,7 @@ export class BeadsGame implements Game {
    * 无此标 ⇒ 「上局失败 → 回菜单 → 看体力广告」会被拉回旧失败盘白得加时。
    */
   private _abandoned = false;
-  /** 0 心被拒时挂起的 run-start 续体（广告回满后重放 retry/restart）。 */
+  /** 0 心被拒时挂起的 run-start 续体（广告加心后重放 retry/restart）。 */
   private _pendingRunStart: (() => boolean) | null = null;
   /** BOOT validation errors — non-empty means the game refuses PLAYING. */
   private _bootErrors: string[] = [];
@@ -1433,7 +1433,7 @@ export class BeadsGame implements Game {
   /** Retry after game over: normal → same level fresh; sprint → new run. */
   retryLevel(): boolean {
     if (this._machine.current !== 'game-over') return false;
-    // §3.14：普通局重开 = 新局开局，扣 1 心；0 心 → 看广告回满再重试（冲刺消耗不冻结，不设门）。
+    // §3.14：普通局重开 = 新局开局，扣 1 心；0 心 → 看广告加心再重试（冲刺消耗不冻结，不设门）。
     if (this._mode === 'normal' && !this._gateRunStart(() => this.retryLevel())) return false;
     this._watchingAd = false;
     this._failHint = '';
@@ -1480,7 +1480,7 @@ export class BeadsGame implements Game {
 
   /**
    * 新局开局体力闸门（§3.14）。无 shell（`_canStartRun` 未注入）→ 恒放行（独立 BeadsGame
-   * 后向兼容）；扣心成功 → 放行；0 心被拒 → 触发体力回满激励位（{@link _requestStaminaRefill}），
+   * 后向兼容）；扣心成功 → 放行；0 心被拒 → 触发广告加心激励位（{@link _requestStaminaRefill}），
    * 本次调用返回 false（停在原面板，广告发奖后经挂起续体重放）。
    */
   private _gateRunStart(proceed: () => boolean): boolean {
@@ -1491,9 +1491,9 @@ export class BeadsGame implements Game {
   }
 
   /**
-   * 0 心重试的体力回满广告（§3.11 第二 live 位）：加载 `stamina-refill` 位并挂起 run-start
-   * 续体；发奖路由见 {@link _onAdRewarded}（回满 → 重放 retry/restart，此时闸门扣 1 心成功）。
-   * 无广告位 / 无 shell 回满回调 → 无副作用（被拒即停在面板，可再点或等自然恢复）。
+   * 0 心重试的广告加心位（§3.11 第二 live 位）：加载 `stamina-refill` 位并挂起 run-start
+   * 续体；发奖路由见 {@link _onAdRewarded}（加心 → 重放 retry/restart，此时闸门扣 1 心成功）。
+   * 无广告位 / 无 shell 加心回调 → 无副作用（被拒即停在面板，可再点或等自然恢复）。
    */
   private _requestStaminaRefill(proceed: () => boolean): void {
     if (this._watchingAd) return;
@@ -1512,7 +1512,7 @@ export class BeadsGame implements Game {
   /** From the FINISH screen: replay the whole normal campaign from level 1. */
   restartRun(): boolean {
     if (this._machine.current !== 'finish') return false;
-    // §3.14：整轮重玩 = 新局开局，扣 1 心；0 心 → 看广告回满再重试。
+    // §3.14：整轮重玩 = 新局开局，扣 1 心；0 心 → 看广告加心再重试。
     if (!this._gateRunStart(() => this.restartRun())) return false;
     this._mode = 'normal';
     this._crashIO.clear(); // D-03：整轮重玩 ⇒ 旧快照失效
@@ -2189,7 +2189,7 @@ export class BeadsGame implements Game {
     this._abandoned = false; // 新局装配 = 重新入局（弃局标只活到下一次装配）
   }
 
-  /** 广告发奖分发：按在飞种类路由到续时（revive）或体力回满（staminaRefill）。 */
+  /** 广告发奖分发：按在飞种类路由到续时（revive）或广告加心（staminaRefill）。 */
   private _onAdRewarded(): void {
     this._watchingAd = false;
     if (this._adKind === 'staminaRefill') {

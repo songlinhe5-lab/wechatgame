@@ -67,7 +67,7 @@ export interface HarnessOptions {
   noCameraPin?: boolean;
   /** 透传 `BeadsGameOptions.canStartRun`（新局开局体力闸门，WXG-T-164）。 */
   canStartRun?: () => boolean;
-  /** 透传 `BeadsGameOptions.onStaminaRefill`（体力回满激励位发奖，WXG-T-164）。 */
+  /** 透传 `BeadsGameOptions.onStaminaRefill`（广告加心激励位发奖，WXG-T-164）。 */
   onStaminaRefill?: () => void;
   /** 透传 `BeadsGameOptions.onMenuRequest`（回主菜单意图上报，core-loop v2.3）。 */
   onMenuRequest?: () => void;

@@ -73,7 +73,7 @@ export interface BeadsGameOptions {
     readonly onMenuRequest?: () => void;
     /**
      * 新局开局体力闸门（WXG-T-164，systems-index §3.14）：普通局 retry/restart 前调用，
-     * 返回 true=已扣心放行、false=0 心被拒（转而触发 {@link onStaminaRefill} 广告回满再重试）。
+     * 返回 true=已扣心放行、false=0 心被拒（转而触发 {@link onStaminaRefill} 广告加心再重试）。
      * 缺省（无 shell 的独立 BeadsGame）→ 不设闸门，retry/restart 恒放行（保后向兼容，既有单测不变）。
      */
     readonly canStartRun?: () => boolean;
