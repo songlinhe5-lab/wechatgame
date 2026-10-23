@@ -271,4 +271,5 @@
 | K-161 | 判据实测 | criteria-measure | 「文档值 ≠ 代码值」只是不等，不自动等于「文档落后」；判漂移方向前必须先列该标识的消费点并按被检域检索 | WXG-T-350 | 2026-10-22 | 0 | active |
 | K-162 | 跨IDE | cross-ide | 向 Markdown 表格追加行时拿「半截行」当追加锚 ⇒ 把相邻整行吞掉且工具不报警 | WXG-T-354 | 2026-10-23 | 0 | active |
 | K-163 | 环境 | environment | `dev/harness/.smoke/` 残留累积到 500+ 条目后，harness 冒烟会「假 FAIL」（`SAFE_DELETE_BULK_CONFIRM_REQUIRED`） | WXG-T-351 | 2026-10-23 | 0 | active |
+| K-164 | 跨IDE | cross-ide | 两会话在同一工作区改同一个文件 = 后写者整文件覆写，前者的改动会静默消失、`git status` 看不出来 | WXG-T-351 | 2026-10-23 | 0 | active |
 <!-- kb:active:end -->

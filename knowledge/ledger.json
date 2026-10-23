@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 164,
+  "nextId": 165,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -2703,7 +2703,7 @@
       "file": "knowledge/lessons/cross-ide.md",
       "category": "跨IDE",
       "title": "向 Markdown 表格追加行时拿「半截行」当追加锚 ⇒ 把相邻整行吞掉且工具不报警",
-      "contentHash": "7d864d07e4d5fdfddf0c6d63431df6e94a38a346b0fe80373e03ad2876a718f0",
+      "contentHash": "34b63c8ba5a8cc7801c32c347350dd58b7bd16c1f00d736319e1f5c2511cde9a",
       "sourceTask": "WXG-T-354",
       "addedDate": "2026-10-23",
       "lastAccess": "2026-10-23",
@@ -2721,6 +2721,23 @@
       "category": "环境",
       "title": "`dev/harness/.smoke/` 残留累积到 500+ 条目后，harness 冒烟会「假 FAIL」（`SAFE_DELETE_BULK_CONFIRM_REQUIRED`）",
       "contentHash": "9873f0490791f118424de3f6334599d8c7a32d75cccfe5b5cecb3e8207f2b6fb",
+      "sourceTask": "WXG-T-351",
+      "addedDate": "2026-10-23",
+      "lastAccess": "2026-10-23",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-164",
+      "state": "active",
+      "file": "knowledge/lessons/cross-ide.md",
+      "category": "跨IDE",
+      "title": "两会话在同一工作区改同一个文件 = 后写者整文件覆写，前者的改动会静默消失、`git status` 看不出来",
+      "contentHash": "a0064bd417c124693bc8cdbdcb12a55ff94a8f3fed345ad02e0a2972e51bc92d",
       "sourceTask": "WXG-T-351",
       "addedDate": "2026-10-23",
       "lastAccess": "2026-10-23",
@@ -4191,6 +4208,24 @@
       "kind": "updated",
       "ids": [
         "K-139"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-23",
+      "taskId": "WXG-T-351",
+      "kind": "added",
+      "ids": [
+        "K-164"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-23",
+      "taskId": "WXG-T-351",
+      "kind": "updated",
+      "ids": [
+        "K-162"
       ],
       "note": null
     }
