@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4630,
       "lines": 159,
-      "sha256": "cca2530733a9e56db3d38a118b96d348d37e1fea4b8afdb582a8be2250be8fa1",
+      "sha256": "41d798f6305055058781a801996a3d3c37b173977b9942b620be80e35037b0a8",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 402,
-          "summary": "1 production/TASKS-DETAIL.md 208041 4782 normal",
+          "summary": "1 production/TASKS-DETAIL.md 208299 4782 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -422,7 +422,7 @@
           "startLine": 46,
           "endLine": 134,
           "tokens": 3121,
-          "summary": "production/TASKS-DETAIL.md 208041 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 208299 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5513,
       "lines": 146,
-      "sha256": "37b4da2c2cda8c0f9598124ccf7d04e78546d1eb3f74d47573141ee5ca9ecba2",
+      "sha256": "eb33b4658719003cc74b75c155548d43db88198f47345a8cc441541764e2bb6a",
       "tier": "normal",
       "sections": [
         {
@@ -745,7 +745,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 165 行 / 71103 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 165 行 / 71151 tok / 实测读 4 次",
           "level": 2,
           "startLine": 27,
           "endLine": 30,
@@ -968,7 +968,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 4782 行 / 208041 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 4782 行 / 208299 tok",
           "level": 2,
           "startLine": 92,
           "endLine": 96,
@@ -84199,9 +84199,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 208041,
+      "tokens": 208299,
       "lines": 4782,
-      "sha256": "d0aa6404f6761d31b6d94552964645b395e86fc4962551ce52487e26a218117e",
+      "sha256": "6865c1f0bde677e68e5405d4817af8a078f143c5e0734210165723dd5038a1c3",
       "tier": "normal",
       "sections": [
         {
@@ -86723,7 +86723,7 @@
           "level": 1,
           "startLine": 3026,
           "endLine": 4783,
-          "tokens": 105657,
+          "tokens": 105914,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
             "beads",
@@ -88508,7 +88508,7 @@
           "level": 2,
           "startLine": 4556,
           "endLine": 4597,
-          "tokens": 1075,
+          "tokens": 1333,
           "summary": "beads·豆子经济 v1.0 + 体力广告改判（§3.6/§3.11/§3.14） · 2026-10-22 · 主理",
           "keywords": [
             "§3.6",
@@ -88579,10 +88579,11 @@
           "level": 3,
           "startLine": 4586,
           "endLine": 4592,
-          "tokens": 130,
-          "summary": "落码 10 项（提案 §10）；",
+          "tokens": 358,
+          "summary": "~~落码 10 项（提案 §10）~~ ⇒ 已落（2026-10-23 逐项核实；交付非本单文档批）：① tuning.",
           "keywords": [
             "§10",
+            "tuning",
             "未做",
             "待裁",
             "另批"
@@ -88593,7 +88594,7 @@
           "level": 3,
           "startLine": 4593,
           "endLine": 4597,
-          "tokens": 76,
+          "tokens": 106,
           "summary": "文档侧（本批唯一可验面）：§3 三节与 changelog v1.80 口径一致；pnpm run ctx:check ",
           "keywords": [
             "§3",
@@ -88946,9 +88947,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 71103,
+      "tokens": 71151,
       "lines": 165,
-      "sha256": "04db4c5b5138fe91428d8b7d3896da6ad5b6408f341f6bb6c4cd0a867c315a8a",
+      "sha256": "305966012a3cb50579b0f631c25ede1697da85006adb3f6b0401bbbfe88f686e",
       "tier": "hot",
       "sections": [
         {
@@ -88956,7 +88957,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 166,
-          "tokens": 71095,
+          "tokens": 71143,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",

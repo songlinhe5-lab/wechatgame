@@ -4585,7 +4585,7 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 
 ### 5. 未做（待裁 / 另批）
 
-- 落码 10 项（提案 §10）；
+- ~~落码 10 项（提案 §10）~~ ⇒ **已落（2026-10-23 逐项核实；交付非本单文档批）**：① `tuning.ts` `HEART_AD_GAIN=3` / `HEART_AD_DAILY_LIMIT=5` / `POWERUP_BUY_PRICE_SOLVER|RANDOM|PLUS` = 20|30|45 / `POWERUP_BUY_MAX_PER_LEVEL=2` / `_PER_TYPE=1`；② `meta-save-schema.ts` `heartAdToday` / `heartAdDate`；③④ `meta-state.ts` `grantAdHearts()` / `heartAdsLeft` / `spendCoins()`；⑤ `systems/powerups.ts` `canPurchase()` / `purchase()` + 每型每关双上限；⑥ `view/play-page.ts` 角标「免费 ▶ / 用尽豆子价」+ 卡变灰；⑦ `beads-game-types.ts` `onPowerupPurchase`；⑧ `beads-game.ts` 兑换腿；⑨ `beads-shell.ts` 两处 `grantAdHearts()` + 日限闸门；⑩ `tests/` 30 例绿。交付提交 = `4ceb0c5`（道具超限购买 + 广告加心）/ `a93ab66`（购买确认弹窗）/ `a0ea242`（资源条 `▶N`）。
 - 首通豆子**数值**：本批只给建议值 15/40，未改 §3.14「钱包获取」行（该行仍写「通关首通」，**数值本就未冻结**）；
 - 豆子图标 art 交付；
 - 变现杠杆方向（拉长 `STAMINA_REGEN_MIN` / 降 `STAMINA_MAX`，现 8 min/心 + 上限 8 ⇒ 64 分钟回满、体力几乎不稀缺）**仅登记为可选方向，未改冻结值**。
@@ -4593,7 +4593,7 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 ### 6. 判据
 
 - 文档侧（本批唯一可验面）：§3 三节与 changelog v1.80 口径一致；`pnpm run ctx:check` / `pnpm run check:tasks` 绿；
-- 行为侧（落码批再跑）：提案 §7 共 12 条 —— 7.1 豆子 4 条 / 7.2 心 7 条 / 7.3 存档 1 条。
+- 行为侧（**已跑 2026-10-23**）：`powerup-buy-confirm` / `meta-state` / `run-start-stamina` 共 **30 例全绿**；提案 §7 共 12 条 —— 7.1 豆子 4 条 / 7.2 心 7 条 / 7.3 存档 1 条均已被用例覆盖。
 
 ## WXG-T-352
 
