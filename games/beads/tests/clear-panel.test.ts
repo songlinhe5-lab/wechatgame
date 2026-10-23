@@ -246,4 +246,37 @@ describe('S7 结算·过关面板（ux-spec §3.4/§4/§5）', () => {
     expect(info!.text).toMatch(/^剩余 \d{2}:\d{2} ｜ 道具 \d\/3 ｜ \d+ 动作（\d+ 击）$/);
     expect(info!.text).not.toContain('.');
   });
+
+  // WXG-T-355（ux-spec §3.4 v1.23）：判星门槛以前只活在 `computeClearStars` 里，玩家看不见。
+  // 本例钉三件事：① 门槛串印的是 §3.7 三档时钟的字面值（关表 time=300 ⇒ 3★ 210s / 2★ 255s）；
+  // ② 行位排在次要信息行与星级行之间（旧 `infoY + 70` 的带净空容不下 28px 一行）；
+  // ③ 续时局不印（星级走 §3.7 保底腿、与用时无关）。
+  it('判星对照行：门槛 = §3.7 三档时钟，排在信息行与星级行之间，续时局不印', () => {
+    const h = createBeadsHarness({
+      noAssemble: true,
+      levels: [simpleTestLevel({ id: 96 })],
+      saveKey: 'wxgame.beads.test.cp-t355',
+    });
+    fillBoard(h);
+    expect(h.game.phase).toBe('level-clear');
+    advancePastClearWave(h);
+
+    const crit = render(h).find(
+      (c) => c.kind === 'text' && c.text.startsWith('3★'),
+    ) as Extract<DrawCommand, { kind: 'text' }> | undefined;
+    expect(crit?.text, '结算面板未渲染判星对照行').toBe('3★ 用时 ≤ 03:30 ｜ 2★ 用时 ≤ 04:15');
+
+    const { infoY, criteriaY, starsY } = clearPanelLayout(NORMAL);
+    expect(criteriaY > infoY && criteriaY < starsY, `行位未夹在信息行与星级行之间：${infoY}/${criteriaY}/${starsY}`).toBe(true);
+
+    // 同一快照只改 `revived` ⇒ 行消失（视图 ⛔ 自持状态，故走快照注入）。
+    const revived = { ...h.game.snapshot, revived: true };
+    const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
+    builder.begin();
+    buildBeadsView(builder, revived, DEFAULT_PALETTE, DEMO_BEAD_INKS);
+    expect(
+      builder.end().commands.some((c) => c.kind === 'text' && c.text.startsWith('3★')),
+      '续时局仍印了判星门槛',
+    ).toBe(false);
+  });
 });

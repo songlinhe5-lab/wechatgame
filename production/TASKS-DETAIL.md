@@ -4733,3 +4733,49 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 | 台账 | `check:tasks` OK（主表 **114** ↔ 详情 **114** 配对完整；I 项最近 40 笔共署 **15** 号全部在册）；头注 = 354、下一可用 355。另 `check:tasks` 报 H 项 note：主表 114 行 > 观察哨 20 ⇒ **建议归档收敛**（`tasks:archive -- --detail-until-under=7000 --write`，属独立小单） |
 | 链接 | `check:links` OK（agents=7 skills=47） |
 | 全量 | `pnpm run verify`（10-22 当日重跑，逐项未短路）= **PASS 20 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 2**，exit 1。两红 = `typecheck` + `test`，**均已上表逐条归因到并发会话 §3.6 在制品**（与本批零重叠：本批只动 `config/tuning.ts` 一个源文件）⇒ 阻塞项与解除条件 = **对方 §3.6 购买确认弹窗落码完成后重跑全量**（同 WXG-T-352/353 已登记的瞬时态，K-045 追记） |
+
+## WXG-T-355
+
+**beads·结算·过关面板「判星对照」行（§3.7 三档时钟外显 · UX 裁甲）**
+
+用户 2026-10-22 从上批收尾三选项选 **1 = 把三档时钟做到玩家看得见**（要求先出 UX 规格再落码）；2026-10-23 就我提出的展示形态三选一裁 **甲 = 只在结算面板补一行判星对照** ⇒ ⛔ 不做玩法内 HUD 常驻、⛔ 不替换现有「剩余 ｜ 道具 ｜ 动作（击）」次要信息行、选关页门槛登记为未做项。本批**零 §3 数值改动**（只外显 WXG-T-354 已定的三档线）。
+
+### 1. 领号核验与并发侦查（K-046 / K-045）
+- **领号**：`git log --grep=WXG-T-355` 零命中；主表无此行、详情最大节 = `## WXG-T-354`；全树仅此号在头注「下一真可用号」里被前瞻引用 ⇒ 领 **355**（下一 = 356）。
+- **开工时的树态判读（本批最重要的一次侦查）**：`git status --porcelain` 见 36 件（32 件 `MM` + 4 件 `D `）。逐件 `git diff --cached --numstat` 与 `git diff --numstat` 对撞 ⇒ **`MM` 全部是「主索引陈旧、工作树 == HEAD」**（例 `view-model.ts`：index vs HEAD −54 / worktree vs index +54）；4 件 `D ` 复跑 status 时同路径以 `?? ` 再现 ⇒ 定性为**他会话 `git rm --cached`**（`buy-confirm-panel.ts` src+镜像、`heart-bar-label.test.ts`、`powerup-buy-confirm.test.ts`），文件仍在盘上、树未坏。基线自证 = `vitest run tests/clear-panel.test.ts` 改前 **8 passed**。
+- **由此定下的取证纪律**：本批一律用 `git diff HEAD` 取「我改了什么」，⛔ 用 `git diff`（vs 陈旧索引）——后者会把他会话内容混进我的失真扫描范围。
+
+### 2. 交付清单
+| 件 | 内容 |
+|---|---|
+| `games/beads/src/systems/clear-panel.ts` | `ClearPanelLayout` 新增 `criteriaY`；`build()` 取 `criteriaY = infoY + 41`、**星级行中心 `infoY + 70` → `+ 92`**；缎带行距（`titleY = starsY + 110`）与 `PANEL_SIZE` 560×480 **零改动**；头注「三段」→「四段」（内容段数与 §3.4 对齐） |
+| `games/beads/src/view/view-model.ts` | `drawClearPanel` 在星级 loop 与次要信息行之间绘 `3★ 用时 ≤ mm:ss ｜ 2★ 用时 ≤ mm:ss`（`palette.textDim` + `bodyFont(…, 'sub')` = 28px）；tuning import 追加 `tierSecondsFor`；函数头注加「判星对照行」 |
+| `games/beads/cocos/assets/scripts/game/{systems,view}/…` | Cocos 镜像两份，**只由 `pnpm run framework:sync` 产出**（写入 2、未变 142），⛔ 未手改 |
+| `games/beads/tests/clear-panel.test.ts` | 新增 1 例：钉死字面串 `'3★ 用时 ≤ 03:30 ｜ 2★ 用时 ≤ 04:15'`（`simpleTestLevel` 默认 `time=300` ⇒ §3.7 派生 210 / 255）、`infoY < criteriaY < starsY`、快照 spread `revived:true` 后该行消失 ⇒ 该件 **9 例全绿** |
+| `games/beads/design/ux/ux-spec.md` | **v1.22 → v1.23**（前版原样留档）：§3.4 线框插入对照行 + 行末新增四条硬口径注 + 文末「变更记录 · v1.23」（红线自证 / 视觉影响与验收 / 未做项①②） |
+| `docs/architecture/ui-architecture-beads.md` | UI-33 段新增**视觉变更登记（2026-10-23 · WXG-T-355）**：几何改量、数据腿、`snap.revived` 门、金样本 `clear` +1 命令与复取纪律 |
+| `production/TASKS.md` | 头注推到 355 / 下一 356；主表新增 355 行 |
+
+### 3. 三条关键判断
+- **① 零新快照字段（省法核心）**：门槛秒数 = 视图对 `snap.finishLevels[snap.levelIndex].time` 调**同一个** `tierSecondsFor`（与 `tuning.ts::computeClearStars` 同源 ⇒ 不产生第二套判星口径）。`finishLevels` 在快照里已是关表只读引用（`beads-game.ts:2802` 注「视图 ⛔ 不 import LEVELS」），因此**不必新增 `clearLevelTime` / `clearElapsed`** ⇒ 本批零碰 `state.ts` 与 `beads-game.ts`，正好绕开并发会话的在途面。
+- **② 28px 最小字号逼出的换形**：先前口头口径「星级行与次要信息行之间空着 70 设计像素、可零布局改动塞一行」**实算不成立**——70 是**中心距**，`CLEAR_STAR_SIZE=64` 且五角星下缘 = 中心 −0.809×(32×0.92) ≈ −23.8 ⇒ 带内净空仅 ~32.2 px；`art-bible.md:219` 钉最小字号 **28px**（22px 已在 F7⑤ 作废，不降级）⇒ 只能抬行：`starsY +70 → +92`、对照行取中点 `+41`（上下各留 ~13）。坐标方向核实 = 设计系 **y 向上**（`HUD_BAND {yMin:1214,yMax:1334}` 在屏顶），据此算出缎带上方原有 120px 空带但**不可读**（离信息簇太远）⇒ 弃用。
+- **③ 四条显示口径**：只给 3★/2★（**1★ 无用时门槛** ⇒ 不写）；写「**用时**」不写「剩余」（elapsed 与下方 `剩余 mm:ss` 是两个量，混写会误导）；`snap.revived`（= `_reviveCount > 0`，`_clearReviveBookkeeping()` 每关重置）为真 ⇒ **整行不印**（续时局星级走 §3.7 保底腿、与用时无关）；选关页每关三档门槛 = 用户裁甲不含 ⇒ 登记未做项。
+
+### 4. 本批自纠（如实登记）
+- **上一轮对用户的口头结论不实**：「空着 70 设计像素、零布局改动」→ 本批实算净空 ~32.2px ⇒ 改为抬星级行的换形，并在 ux-spec v1.23 变更记录与本节写明「先前口径不准」。
+- **近形字 / 怪字符三发**（同 WXG-T-354 那一类）：① 注释里写出 `仍 ⋺ 零改 PANEL_SIZE`（U+22FA 混入；本注初稿连码点也记错成 U+22BA = `⊺`，已实测算出后改正）⇒ 修为「`PANEL_SIZE` 零改动」；② ux-spec 线框把「逐颗」写成「**逢颗**」⇒ 单独修回；③ ux-spec v1.23 变更记录里三条分隔符打成了**片假名中点 `・`（U+30FB）**⇒ 收尾码点机械扫才现形，已改回顿号 `、`。前两发靠 diff 自查发现，第三发**肉眼反复读未察**、只靠扫描抖出。
+- **取证命令选错**：第一次文本失真扫描用 `git diff -U0`（worktree vs **陈旧索引**），结果混进他会话 buy-confirm 版面行 ⇒ 改 `git diff HEAD -U0` 后干净。
+- **台账主表错锚吞行（本批最重的一次）**：追加 355 行时把 `original_text` 取成 354 行的**前半截** ⇒ 354 行标题被吞、其余文粘到 355 行尾，形成列数错乱的合并行，主表一度**不再有独立的 WXG-T-354 行**。处置 = 在串行 junction（`| 见详情 |（消 R-2 塌缩…`）处断行并补回前缀，并以 `cmp` 证明恢复后的 354 行与 `HEAD:production/TASKS.md` 第 124 行**逐字节相同**（1358 B）。教训 = 表格行追加的锚必须取**完整行或行尾唯一串**，⛔ 取半截行（凭记忆 `original_text` 错锚累计第 7 次）。
+
+### 5. 验收（本批当场实跑读数）
+
+| 项 | 结果 |
+|---|---|
+| 单测 | beads `vitest run` = **Test Files 1 failed ｜ 103 passed (104) · Tests 1 failed ｜ 1244 passed ｜ 3 skipped (1248)**；**本批 `tests/clear-panel.test.ts` ✓ 9 passed**。唯一红 = `ui-golden.test.ts > 对拍：ClearResultModal（clear）` `[total]: expected 703 to be 702` ⇒ **待复取而非回归**（+1 命令 = 本批新增那一行 text），按 K-051 / K-053 只能由 `tests/ui-golden-capture.ts` 在可复现锚重抓、⛔ 不手改夹具；先例 = `3499f4e`（代码）→ `7a274c1`（夹具复取）⇒ 本批按**两笔提交**走：批 ① 代码+测试+文档（该例红），批 ② 以批 ① 为锚复取夹具 |
+| 类型 | `pnpm run typecheck` = framework / beads / breakout **全 Done**（exit 0；WXG-T-354 登记的 8 条 `powerup-buy-confirm.test.ts` TS 错已不在，属并发会话自行收口） |
+| 镜像 | `pnpm run framework:sync` → ✅ beads **framework 61 + game 83｜写入 2、未变 142、删除 0**（写入的两件正是本批两个源件的镜像）、breakout 61 + 16｜写入 0 ⇒ **未碰对方一件镜像** |
+| 台账 | `check:tasks` **OK**（主表 **115** 行 ↔ 详情 **115** 节配对完整；I 项最近 40 笔共署 **16** 号全部在册；头注 = 355、下一可用 356）。首轮曾报两项：C「详情缺 `## WXG-T-355`」（随本节写入消除）、以及串行合并行造成的列数错乱（拆回后同一项转绿）。另 H 项 note：主表 115 > 观察哨 20 ⇒ 建议归档收敛（`tasks:archive -- --detail-until-under=7000 --write`，属独立小单，本批未做） |
+| 链接 / 索引 | `check:links` OK（agents=7 skills=47）；`ctx:build` 已刷新（3 个 dirty 件按 HEAD 内容索引）；`ctx:check` OK — 结构门 A/B/C/D/D2 + E3 全通过 |
+| 知识库 | `kb:sync --task=WXG-T-355`：**沉淀统计 = 新增 0 ｜ 修改 0 ｜ 激活 0 ｜ 归档 0**（活跃 158 / 归档 0，写入「无：工作树与产物一致」）⇒ 本批**零知识写入**，2 条候选（近形字码点机械扫 / 表格行追加的锚取法）待用户点头再落 |
+| 文本失真对撞 | 收尾以 `git diff HEAD -U0` 限定**新增行 158 行**做码点机械扫：零宽字符（U+200B/200C/200D/FEFF/2060）命中 **0**；`U+5854 塔` = 1、`U+9022 逢` = 2、`U+22FA ⋺` = 2、`U+22BA ⊺` = 1、`U+30FB ・` = 3 —— 逐件定位后全部在台账两件（`TASKS-DETAIL.md` 本节的自纠引用 + `TASKS.md` 头注沿旧文的「每页面・每弹窗」），**代码 / ux-spec / ui-architecture 侧 residual 0**；`・` 曾命中我新写的 ux-spec v1.23 一行 ⇒ 已改回 `、`（见 §4③）。非常用符号盘点 = `§ ①–⑪ ／ ＝ ≈ − ′ ² ∪ ⇔ ↔ α Δ ～ ║ 〔〕 ⚠ ✅ ✓` 逐类核对均为本文既用记号（α = 仓内既有「遮罩 alpha」写法，非本批新造），无异常混入；CJK 之间 ≥2 空格命中 **0**；`\S {2,}\S` 命中 7 行（其中 4 行为缩进代码 / markdown 续行）⇒ 无假空格 |
+| 未做 / 遗留 | ① 选关页每关三档门槛（用户裁甲不含）；② 真机可读性 `[待真机]`（28px 在手机上的实际辨识度未经试玩）；③ 批 ② 夹具复取须在批 ① 入库后跑，跑前须确认锚 commit 可复现 |

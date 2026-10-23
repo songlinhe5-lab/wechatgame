@@ -171,6 +171,8 @@ games/beads/src/ui/
 **视觉变更登记（2026-10-23 · WXG-T-351 续 · 心日限可见）**：菜单 L4 资源条**心端文案**在「未满心」时由 `n/n` 改为 `n/n ▶N`（N = 今日剩余广告加心次数，`HEART_AD_DAILY_LIMIT=5` 的余量；`▶0` = 今日额度用尽），**满心时不追加**（此时广告不可用，印次数会误导）；未接线（`heartAdsLeft` 缺省）退回旧文案。仍是每端 1 条 text ⇒ 命令数不变，**十态金样本与封箱 sha 零漂移**（默认态恒满心）。
 ⚠ 设计侧回写待办：`art/proposals/ui-style-redesign/menu-architecture.md §5.1b-2`（资源条「数值合为一条 text」那行）尚未记 `▶N` 后缀，归 art 批补。
 
+**视觉变更登记（2026-10-23 · WXG-T-355 · UI-33 过关面板）**：**结算·过关面板增「判星对照」行**（用户 2026-10-22 选「把三档时钟做到玩家看得见」，2026-10-23 就形态裁 **甲 = 只补结算面板一行**；上位正本 = `ux-spec §3.4` v1.23）。改动 = `systems/clear-panel.ts` 新增 `criteriaY`（= `infoY + 41`）且**星级行中心由 `infoY + 70` 抬到 `infoY + 92`**（旧带净空 ~32 设计像素，容不下 art-bible 最小字号 28 的一行）+ `view/view-model.ts::drawClearPanel` 绘一行 `text_dim` 28px；**缎带 / 按钮 / 面板底板几何零改动**（`PANEL_SIZE` 560×480 不动，内容顶缘由 360 升到 382）。数据腿**零新快照字段**：门槛值由视图对 `snap.finishLevels[snap.levelIndex].time` 调 §3.7 的 `tierSecondsFor`（与 `computeClearStars` 同函数 ⇒ 不产生第二套判星口径）；`snap.revived` 为真 ⇒ 整行不印。**金样本影响**：`clear` 态 **+1 命令（702 → 703）**，由 `tests/ui-golden-capture.ts` 在可复现锚重抓（⛔ 不手改夹具，K-051 / K-053），其余十态逐字不变；判据 = `tests/clear-panel.test.ts` 新增一例。
+
 **关键路径**：UI-00 → UI-01 → UI-10…14 → UI-20 → UI-22 / UI-25 → UI-30 → UI-31 → UI-41 → UI-42 → UI-50 → UI-53。UI-02（金样本）与 P1 可并行，但必须在 UI-30 前完成。
 
 ## 13. 待你拍板

@@ -25,6 +25,7 @@ import {
   CONFETTI_NOFLY_YMIN,
   CONFETTI_NOFLY_YMAX,
   dialogShiftY,
+  tierSecondsFor,
 } from '../config/tuning.js';
 import type { BeadsSnapshot } from '../game/state.js';
 import {
@@ -427,7 +428,7 @@ function drawFailPanel(
 
 /**
  * 结算·过关面板：遮罩 + `panel_dialog` 底板（白底 / 1px 描边 / 圆角 24，assets-spec §1.5）
- * + 金色缎带标题 + **逐颗入场**的星级 + 次要信息「剩余 mm:ss ｜ 道具 n/3」+ 主/副双钮。
+ * + 金色缎带标题 + **逐颗入场**的星级 + 判星对照行 + 次要信息「剩余 mm:ss ｜ 道具 n/3」+ 主/副双钮。
  *
  * 几何/文案/动作全在 `systems/clear-panel.ts`（与命中测试同源）；本函数只画。
  * 星级节奏来自快照（`clearStarsShown` / `clearStarPopScale`）——面板逻辑按
@@ -477,6 +478,20 @@ function drawClearPanel(
     builder.polygon(starPoints(layout.starX[i]!, layout.starsY, starR * scale, 5, 90), {
       fill: STAR_GOLD, // F6：完成星 → STAR_GOLD（结算场景珠面不在场，无 §3.5 冲突）。
     });
+  }
+
+  // 判星对照（ux-spec §3.4 v1.23）：门槛秒数 = §3.7 三档时钟，视图只调同一个纯函数
+  // `tierSecondsFor`（与 `computeClearStars` 同源），⛔ 不自算一套。关表本体走快照的
+  // 只读引用 `finishLevels`（state.ts 注：视图 ⛔ 不 import LEVELS）。
+  // 1★ 无用时门槛（只要打完就算）⇒ 本行不写；续时局星级走 §3.7 保底腿、与用时无关 ⇒ 不印。
+  const critLevel = snap.finishLevels[snap.levelIndex];
+  if (critLevel && !snap.revived) {
+    builder.text(
+      DESIGN_W / 2,
+      layout.criteriaY,
+      `3★ 用时 ≤ ${formatTime(tierSecondsFor(critLevel.time, 3))} ｜ 2★ 用时 ≤ ${formatTime(tierSecondsFor(critLevel.time, 2))}`,
+      { fill: palette.textDim, font: bodyFont(snap.largeText, 'sub'), align: 'center', baseline: 'middle' },
+    );
   }
 
   // 次要信息（ux-spec §3.4 第三行）。

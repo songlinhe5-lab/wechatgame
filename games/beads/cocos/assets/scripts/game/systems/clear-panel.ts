@@ -11,7 +11,8 @@
  *  - 布局：`ux/ux-spec.md` §3.4（`panel_dialog` 560×480；主钮「下一关」+ 副钮「▶去冲刺」
  *    并排，两者各 ≥ `TOUCH_MIN`）—— 常量镜像在 `config/tuning.ts`；
  *  - 动画：`ux/ux-spec.md` §5（**星入场逐颗 150ms** ⇒ `CLEAR_STAR_STEP_MS`；面板入 / 出 200 / 150ms）；
- *  - 内容：§3.4 三段——缎带标题 / 星级行 / 次要信息「剩余 mm:ss ｜ 道具 n/3」。
+ *  - 内容：§3.4 四段——缎带标题 / 星级行 / **判星对照**「3★ 用时 ≤ mm:ss ｜ 2★ 用时 ≤ mm:ss」
+ *    / 次要信息「剩余 mm:ss ｜ 道具 n/3」。
  *
  * 布局与命中共用 `clearPanelLayout()`（按 `lastLevel` 缓存两份），图与热区不可能各说一套。
  *
@@ -55,6 +56,12 @@ export interface ClearPanelLayout {
   readonly titleY: number;
   /** 星级行中心 y。 */
   readonly starsY: number;
+  /**
+   * 判星对照行中心 y（ux-spec §3.4 v1.23）——夹在次要信息行与星级行之间。
+   * 旧口径「星级行中心 = `infoY + 70`」下该带净空只有 ~32 设计像素，容不下
+   * art-bible 最小字号 28 的一行 ⇒ WXG-T-355 把星级行抬到 `infoY + 92`，本行取中点。
+   */
+  readonly criteriaY: number;
   /** 次要信息基线 y（「剩余 mm:ss ｜ 道具 n/3」）。 */
   readonly infoY: number;
   /** 三颗星的中心 x（索引 0 = 最左）。 */
@@ -107,12 +114,15 @@ function build(lastLevel: boolean): ClearPanelLayout {
     { id: 'next', rect: rect(startX, rowY, CLEAR_BUTTON_W, PANEL_BUTTON_H) },
   ];
   const infoY = rowY + PANEL_BUTTON_H + PANEL_ROW_GAP;
-  const starsY = infoY + 70;
+  // WXG-T-355：判星对照行落 `infoY + 41`（上下各留 ~13 净空），星级行随之抬到 +92；
+  // 缎带行距（`titleY = starsY + 110`）不动 ⇒ 面板顶缘余量由 120 收到 98，`PANEL_SIZE` 零改动。
+  const criteriaY = infoY + 41;
+  const starsY = infoY + 92;
   const starsTotal = CLEAR_STAR_SIZE * 3 + CLEAR_STAR_GAP * 2;
   const firstStar = (DESIGN_W - starsTotal) / 2 + CLEAR_STAR_SIZE / 2;
   const starX = [0, 1, 2].map((i) => firstStar + i * (CLEAR_STAR_SIZE + CLEAR_STAR_GAP));
   void lastLevel; // 两个变体只差按钮文案（见 clearPanelLabel），几何相同
-  return { panel, buttons, titleY: starsY + 110, starsY, infoY, starX };
+  return { panel, buttons, titleY: starsY + 110, starsY, criteriaY, infoY, starX };
 }
 
 /** 按钮文案（`ux-spec §3.4`；末关主钮文案为派生项）。 */
