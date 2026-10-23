@@ -8,6 +8,11 @@
 
 ## 2026-10-23
 
+### WXG-T-351
+
+- **新增**（added）：K-163「`dev/harness/.smoke/` 残留累积到 500+ 条目后，harness 冒烟会「假 FAIL」（`SAFE_DELETE_BULK_CONFIRM_REQUIRED`）」
+- **修改**（updated）：K-139「交付格式的判据是「目标运行时能不能解码」，压缩率不构成选型依据；带「未验证前提」的格式裁定不得进产线口径」
+
 ### WXG-T-355
 
 - **新增**（added）：K-162「向 Markdown 表格追加行时拿「半截行」当追加锚 ⇒ 把相邻整行吞掉且工具不报警」
