@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4630,
       "lines": 159,
-      "sha256": "0776c3fd166118eca496b66ac33be6566d973909faace50824ca61629501823d",
+      "sha256": "d73b7788677e81d9695f724720d4d2b846e56d09f2ea517a14a415c8471082dd",
       "tier": "normal",
       "sections": [
         {
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5513,
       "lines": 146,
-      "sha256": "43b6dca0dda7872dad73e0f69bbd9d2814b44f0f80ab8302b018e569864e684a",
+      "sha256": "2e0b94aa02f890d8f3c393e68a9f8fff177c2f850ea9428aee1953dcbf3014f6",
       "tier": "normal",
       "sections": [
         {
@@ -713,7 +713,7 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/gdd/systems-index.md` — 307 行 / 31683 tok / 实测读 170 次",
+          "anchor": "§`games/beads/design/gdd/systems-index.md` — 307 行 / 31705 tok / 实测读 170 次",
           "level": 2,
           "startLine": 19,
           "endLine": 22,
@@ -24453,17 +24453,17 @@
     },
     {
       "path": "games/beads/design/art/proposals/ui-style-redesign/menu-architecture.md",
-      "tokens": 35818,
-      "lines": 944,
-      "sha256": "b4364650801f6b7cfe57b428a0e318e7d5184ceb101689179d3d18e5577ea559",
+      "tokens": 35965,
+      "lines": 945,
+      "sha256": "2c01afba61df276fdefdb728e1fc7d2226a52c4941e59a3d0a1796a4b8432872",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§主菜单架构裁定 · 「拼豆小铺」 · WXG-T-266",
           "level": 1,
           "startLine": 1,
-          "endLine": 945,
-          "tokens": 35800,
+          "endLine": 946,
+          "tokens": 35947,
           "summary": "角色：文策渊（设计策略）· 接 WXG-T-265（林绘澄「暖纸拼豆台」四件：screens.md / tokens.m",
           "keywords": [
             "WXG",
@@ -24677,8 +24677,8 @@
           "anchor": "§5 主菜单标题区 IA（logo / 背景图案 / 主按钮）",
           "level": 2,
           "startLine": 221,
-          "endLine": 728,
-          "tokens": 22174,
+          "endLine": 729,
+          "tokens": 22321,
           "summary": "",
           "keywords": [
             "logo",
@@ -24717,8 +24717,8 @@
           "anchor": "§5.1b-2 裁定 B 落地：顶栏动态避让规则（2026-10-13）",
           "level": 3,
           "startLine": 389,
-          "endLine": 658,
-          "tokens": 12065,
+          "endLine": 659,
+          "tokens": 12212,
           "summary": "规则式（自顶口径，单位 = 设计 px）：",
           "keywords": [
             "裁定",
@@ -24730,8 +24730,8 @@
         {
           "anchor": "§5.2 层级（z-order，自底向上）与热区",
           "level": 3,
-          "startLine": 659,
-          "endLine": 672,
+          "startLine": 660,
+          "endLine": 673,
           "tokens": 769,
           "summary": "L0 bg_base 全屏单层底（WXG-T-256 口径：容器板/三层背景已退役） ✗ 背景图案的最底层",
           "keywords": [
@@ -24746,8 +24746,8 @@
         {
           "anchor": "§5.3 logo 尺寸档位（可重算，不许只抄数）",
           "level": 3,
-          "startLine": 673,
-          "endLine": 720,
+          "startLine": 674,
+          "endLine": 721,
           "tokens": 2339,
           "summary": "回写口径（WXG-T-269-S6）：本节原式 44d 只对 n=8 成立 ⇒ 已按 menu-wall-signage",
           "keywords": [
@@ -24762,8 +24762,8 @@
         {
           "anchor": "§5.4 与「开始」主钮的关系（三条硬口径）",
           "level": 3,
-          "startLine": 721,
-          "endLine": 728,
+          "startLine": 722,
+          "endLine": 729,
           "tokens": 220,
           "summary": "1. 主钮 = 唯一 1 次交互「继续」通道：点 ⇒ 开当前关（maxUnlockedLevel 最远关）+ 扣 1 心",
           "keywords": [
@@ -24776,8 +24776,8 @@
         {
           "anchor": "§6 文案令牌（copy tokens）",
           "level": 2,
-          "startLine": 729,
-          "endLine": 751,
+          "startLine": 730,
+          "endLine": 752,
           "tokens": 963,
           "summary": "纪律同 tokens.md §7：UI 侧不散落字面，落码一律读表。判据只看令牌键，字面可换（沿用 ux-spec §3",
           "keywords": [
@@ -24792,8 +24792,8 @@
         {
           "anchor": "§7 与 `ux-spec §4` / `meta-view` 现状的冲突处理（**R-12 闭合方案**）",
           "level": 2,
-          "startLine": 752,
-          "endLine": 805,
+          "startLine": 753,
+          "endLine": 806,
           "tokens": 1933,
           "summary": "",
           "keywords": [
@@ -24808,8 +24808,8 @@
         {
           "anchor": "§7.1 事实核对（先核对再裁定，不推定）",
           "level": 3,
-          "startLine": 754,
-          "endLine": 765,
+          "startLine": 755,
+          "endLine": 766,
           "tokens": 319,
           "summary": "F-1 shell 首屏 = 菜单：BeadsShell._screen = options.initialScreen",
           "keywords": [
@@ -24824,8 +24824,8 @@
         {
           "anchor": "§7.2 裁定：**二合一 —— boot 相位渲染在 shell 主菜单屏上**",
           "level": 3,
-          "startLine": 766,
-          "endLine": 771,
+          "startLine": 767,
+          "endLine": 772,
           "tokens": 177,
           "summary": "不新增独立 boot 屏。 screens.md S0 的「boot 页」内容（招牌 + 木框橱窗 + 木主钮）就地落到",
           "keywords": [
@@ -24840,8 +24840,8 @@
         {
           "anchor": "§7.3 `ux-spec §4` 需改的两行（归主理人转 UX 轨回写，本单不代改）",
           "level": 3,
-          "startLine": 772,
-          "endLine": 781,
+          "startLine": 773,
+          "endLine": 782,
           "tokens": 210,
           "summary": "改 1 行 ~~BOOT｜（无交互）｜读档分流｜玩法·普通~~ ⇒ BOOT（shell 主菜单屏）｜（无交互）｜读档分",
           "keywords": [
@@ -24856,8 +24856,8 @@
         {
           "anchor": "§7.4 现状漂移（本单顺带登记，归工程单，**不在本单改码**）",
           "level": 3,
-          "startLine": 782,
-          "endLine": 805,
+          "startLine": 783,
+          "endLine": 806,
           "tokens": 1130,
           "summary": "P-5 主菜单次级行左右各溢出 9px 3 × MENU_SECONDARY_W(240) + 2 × gap(24) ",
           "keywords": [
@@ -24872,8 +24872,8 @@
         {
           "anchor": "§8 落码影响与下游",
           "level": 2,
-          "startLine": 806,
-          "endLine": 814,
+          "startLine": 807,
+          "endLine": 815,
           "tokens": 305,
           "summary": "改：meta-view.ts（menuLayout() 加作品墙网格、次级行 3→2 钮、标题读令牌、招牌/slogan",
           "keywords": [
@@ -24887,8 +24887,8 @@
         {
           "anchor": "§9 待拍板（**第三轮后剩 4 项**；Q1/Q2/Q3/Q4/Q6/Q8/命名 已裁）",
           "level": 2,
-          "startLine": 815,
-          "endLine": 833,
+          "startLine": 816,
+          "endLine": 834,
           "tokens": 478,
           "summary": "~~Q1~~ ~~类别维度~~ — ✅ 已裁 = 丙·难度带（用户 2026-10-07）",
           "keywords": [
@@ -24901,8 +24901,8 @@
         {
           "anchor": "§10 命名裁定（**回答用户提问**）",
           "level": 2,
-          "startLine": 834,
-          "endLine": 877,
+          "startLine": 835,
+          "endLine": 878,
           "tokens": 1175,
           "summary": "",
           "keywords": [
@@ -24913,8 +24913,8 @@
         {
           "anchor": "§10.1 裁定（一句话）",
           "level": 3,
-          "startLine": 836,
-          "endLine": 842,
+          "startLine": 837,
+          "endLine": 843,
           "tokens": 144,
           "summary": "⛔ 第四轮终裁（2026-10-07 用户「还是改回：拼豆小铺」）：全案只保留「拼豆小铺」一词 ——",
           "keywords": [
@@ -24925,8 +24925,8 @@
         {
           "anchor": "§10.2 为什么「拼豆小橱」不作 slogan（改判用户拟议，给理由）",
           "level": 3,
-          "startLine": 843,
-          "endLine": 850,
+          "startLine": 844,
+          "endLine": 851,
           "tokens": 203,
           "summary": "N-1 词性不对 slogan 是一句话（承诺/邀请），「拼豆小橱」是名词短语。招牌下挂一个与游戏名只差一字的名词 ⇒ ",
           "keywords": [
@@ -24941,8 +24941,8 @@
         {
           "anchor": "§10.3 为什么不改游戏名为「拼豆小橱」（推翻用户提问的隐含选项）",
           "level": 3,
-          "startLine": 851,
-          "endLine": 862,
+          "startLine": 852,
+          "endLine": 863,
           "tokens": 432,
           "summary": "N-4（最硬） 珠拼点阵可辨性：招牌是 8×8 珠点阵 beadText（§5.3）。「铺」12 画（钅5 + 甫7）；",
           "keywords": [
@@ -24957,8 +24957,8 @@
         {
           "anchor": "§10.4 若用户坚持改游戏名 = 「拼豆小橱」——需同步的文件清单（**本单不建议**）",
           "level": 3,
-          "startLine": 863,
-          "endLine": 877,
+          "startLine": 864,
+          "endLine": 878,
           "tokens": 294,
           "summary": "games/beads/design/art/proposals/ui-style-redesign/tokens.md",
           "keywords": [
@@ -24973,8 +24973,8 @@
         {
           "anchor": "§11 本轮改动清单（第三轮 · 2026-10-07）",
           "level": 2,
-          "startLine": 878,
-          "endLine": 917,
+          "startLine": 879,
+          "endLine": 918,
           "tokens": 791,
           "summary": "1 抬头 / §1 加「第三轮裁定稿」；§1 补 1.1 逐条修正表、1.2 走马灯口径一句话",
           "keywords": [
@@ -24986,8 +24986,8 @@
         {
           "anchor": "§10.5 第四轮回退（2026-10-07）：「拼豆小橱」撤回，全案只留「拼豆小铺」",
           "level": 3,
-          "startLine": 900,
-          "endLine": 917,
+          "startLine": 901,
+          "endLine": 918,
           "tokens": 315,
           "summary": "用户终裁：「还是改回：拼豆小铺」。",
           "keywords": [
@@ -25001,8 +25001,8 @@
         {
           "anchor": "§12 变更记录 · **WXG-T-269-S6 回写单**（2026-10-07，文策渊）",
           "level": 2,
-          "startLine": 918,
-          "endLine": 945,
+          "startLine": 919,
+          "endLine": 946,
           "tokens": 1458,
           "summary": "本批性质：只把 S6 实测结论回写进规格正本（实测依据 = 林绘澄 T-1 games/beads/design/art",
           "keywords": [
@@ -27326,17 +27326,17 @@
     },
     {
       "path": "games/beads/design/art/specs/menu-showcase-asset-spec.md",
-      "tokens": 8980,
-      "lines": 204,
-      "sha256": "f221cf8050d3e712c4be7c9139c3c44f8a821c8579162c347c446902103e4dd4",
+      "tokens": 9148,
+      "lines": 205,
+      "sha256": "febbf6d7bddb514eabdd2fa6138264086b5cd8915b5da3bab588d07f397c1cd1",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§主菜单「单主题橱窗」切图资产规格（提案 · 待实装）",
           "level": 1,
           "startLine": 1,
-          "endLine": 205,
-          "tokens": 8955,
+          "endLine": 206,
+          "tokens": 9123,
           "summary": "状态：提案 / 待实装 / 未 commit。本单只把已定稿的主菜单视觉方案整理成可切图的美术规格，供切图设计开工；数值",
           "keywords": [
             "commit",
@@ -27388,8 +27388,8 @@
           "anchor": "§3 切图资产清单（切图设计主交付）",
           "level": 2,
           "startLine": 75,
-          "endLine": 104,
-          "tokens": 2013,
+          "endLine": 105,
+          "tokens": 2180,
           "summary": "命名遵 assets-spec §4：全小写下划线、{域}_{实体}_{变体}_{状态}、禁中文/大写/版本号/fina",
           "keywords": [
             "§4",
@@ -27403,8 +27403,8 @@
         {
           "anchor": "§4 文字与动态内容（切图设计的关键约束）",
           "level": 2,
-          "startLine": 105,
-          "endLine": 120,
+          "startLine": 106,
+          "endLine": 121,
           "tokens": 279,
           "summary": "能动态渲染的文字一律不烘焙进 PNG，只切\"底板\"，文字叠在上层：",
           "keywords": [
@@ -27417,8 +27417,8 @@
         {
           "anchor": "§5 图集 / 命名 / 分包",
           "level": 2,
-          "startLine": 121,
-          "endLine": 151,
+          "startLine": 122,
+          "endLine": 152,
           "tokens": 2195,
           "summary": "分包归属：菜单 UI 位图（A2–G1）进 textures Bundle（合并进主包）。Boss 原图（E2）进 th",
           "keywords": [
@@ -27433,8 +27433,8 @@
         {
           "anchor": "§5.1 工具与工作流（切图 → 入库）",
           "level": 3,
-          "startLine": 128,
-          "endLine": 151,
+          "startLine": 129,
+          "endLine": 152,
           "tokens": 1945,
           "summary": "环境事实：引擎 Cocos Creator 3.8.8，构建配置 packAutoAtlas: true 已开。",
           "keywords": [
@@ -27449,8 +27449,8 @@
         {
           "anchor": "§6 包体与红线（诚实登记，别当已达标）",
           "level": 2,
-          "startLine": 152,
-          "endLine": 162,
+          "startLine": 153,
+          "endLine": 163,
           "tokens": 891,
           "summary": "本方案把主菜单从\"0 位图程序化\"改为\"位图切图\"，主包位图从 0 KB 变正：",
           "keywords": [
@@ -27462,8 +27462,8 @@
         {
           "anchor": "§7 可访问性（三态不得只靠颜色）",
           "level": 2,
-          "startLine": 163,
-          "endLine": 175,
+          "startLine": 164,
+          "endLine": 176,
           "tokens": 218,
           "summary": "形/位 锁定=暗柜+灰化；进行中=纯名牌+顶部绶带；已通关=画框内成品图+角上金章 三态结构不同，非仅换色 ✓",
           "keywords": [
@@ -27475,8 +27475,8 @@
         {
           "anchor": "§8 未决 · 交主理人对账 · 待实测",
           "level": 2,
-          "startLine": 176,
-          "endLine": 188,
+          "startLine": 177,
+          "endLine": 189,
           "tokens": 608,
           "summary": "1. 招牌 logo：切图(A2) vs 程序化 beadText(卡 A) —— 本方案默认切图（AI 蝴蝶结吊牌造型",
           "keywords": [
@@ -27490,8 +27490,8 @@
         {
           "anchor": "§9 参考图（`games/beads/design/art/shots/menu-showcase-20261010/`）",
           "level": 2,
-          "startLine": 189,
-          "endLine": 205,
+          "startLine": 190,
+          "endLine": 206,
           "tokens": 919,
           "summary": "v1-mainmenu-final.png 主界面 v1 定稿留档（已通关态：logo 招牌 + 右上三图标 + 放大橱",
           "keywords": [
@@ -31833,9 +31833,9 @@
     },
     {
       "path": "games/beads/design/gdd/meta-ui.md",
-      "tokens": 10140,
+      "tokens": 10160,
       "lines": 189,
-      "sha256": "795ae026dab7b96c8539c57f555ee987b150b422312fe035c69450fafe9d02ce",
+      "sha256": "7be4dfce1fb2455e5eda6ce5e7a79ec9990dc4a2c1db6a07bcd161e850f9591b",
       "tier": "normal",
       "sections": [
         {
@@ -31843,7 +31843,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 190,
-          "tokens": 10122,
+          "tokens": 10143,
           "summary": "项目：games/beads · 版本 v0.6（草案 · 已含六项裁定 + WXG-T-283 三裁定 + 同批续裁 ",
           "keywords": [
             "GDD",
@@ -31871,7 +31871,7 @@
           "level": 2,
           "startLine": 18,
           "endLine": 91,
-          "tokens": 4905,
+          "tokens": 4925,
           "summary": "",
           "keywords": [
             "机制"
@@ -31971,7 +31971,7 @@
           "level": 3,
           "startLine": 67,
           "endLine": 91,
-          "tokens": 2863,
+          "tokens": 2883,
           "summary": "术语正本（Q14 = 已裁 · 用户 2026-10-16 新口径）：文档族内指「关卡内容分组」者统一改称大关 = 一组",
           "keywords": [
             "WXG",
@@ -33012,9 +33012,9 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index-changelog.md",
-      "tokens": 44116,
+      "tokens": 44349,
       "lines": 93,
-      "sha256": "b3df267eca646e84bcef3b99494b65f3af4417d7b8fccb0e93ea57b6d4093731",
+      "sha256": "99f1c09bf41c84147d78d74e9cbeef4adf59c685a2ec6ff1197d56bc9e723816",
       "tier": "normal",
       "sections": [
         {
@@ -33022,7 +33022,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 94,
-          "tokens": 44098,
+          "tokens": 44331,
           "summary": "项目：games/beads · 归属：systems-index.md 的 §6 变更记录",
           "keywords": [
             "§6",
@@ -33038,7 +33038,7 @@
           "level": 2,
           "startLine": 7,
           "endLine": 94,
-          "tokens": 43939,
+          "tokens": 44173,
           "summary": "v1.0 2026-09-11 初版：9 系统清单 + 拓扑 + §3 冻结令（含 8 项 [待确认] 提案值） WXG",
           "keywords": [
             "§3",
@@ -33050,9 +33050,9 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index.md",
-      "tokens": 31683,
+      "tokens": 31705,
       "lines": 307,
-      "sha256": "57b14af8f1c8519906a76cb06510f7f357191456d3148b1ff775667876ea7d6d",
+      "sha256": "6054966ed3c9331734d68216fb37ef60997f9227438bca4a320ed7462d4faaec",
       "tier": "hot",
       "sections": [
         {
@@ -33060,7 +33060,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 308,
-          "tokens": 31666,
+          "tokens": 31688,
           "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.82 · 任务号 WXG-T-354（v1.82 = §3.",
           "keywords": [
             "§3",
@@ -33103,7 +33103,7 @@
           "level": 2,
           "startLine": 56,
           "endLine": 262,
-          "tokens": 22780,
+          "tokens": 22790,
           "summary": "本项目唯一真源（Single Source of Truth）——适用范围：游戏数值与常量（分辨率 / 安全区 / 网格",
           "keywords": [
             "Global",
@@ -33265,7 +33265,7 @@
           "level": 3,
           "startLine": 212,
           "endLine": 221,
-          "tokens": 400,
+          "tokens": 411,
           "summary": "REVIVE_BONUS_SEC 180 s 失败页激励视频看完（onRewarded）后写入可玩钟的秒数。v1.25 ",
           "keywords": [
             "§10.5",
@@ -33329,7 +33329,7 @@
           "level": 2,
           "startLine": 263,
           "endLine": 294,
-          "tokens": 1187,
+          "tokens": 1197,
           "summary": "沿用 breakout 的事件命名风格 <域>:<事件>，payload 一律带 levelId（v1.28 补注：局内",
           "keywords": [
             "breakout",

@@ -217,7 +217,7 @@ S9 暂停与设置（控制 S1 状态 + 写 S8）
 | 激励主位 | 失败页续时 + **广告加心** | **v1.28 变更**：live 激励位 1→2。**v1.80 语义订正（用户 2026-10-22 拍板）**：第二位由「体力回满」改为「**广告加心**」——一次 `HEART_AD_GAIN=3` 心、日上限 `HEART_AD_DAILY_LIMIT=5` 次（§3.14）；局内 `AD_PLACEMENTS=4`（3 道具+扩展）自 v1.80 起**全部不拉广告**（3 道具位改豆子购买、扩展位维持占位） |
 | 续打语义 | 不走整关重置 | 保留网格 / 托盘 / 扩展 / 道具次数 / 供料累加器；仅 S5 写 `remaining += REVIVE_BONUS_SEC` 与续时记账（`reviveBonusSec` / `revived`） |
 | 冲刺 | 不续时 | 冲刺归零走冲刺结算，不进失败续时面板 |
-| Won't | 强制插屏 / 未看完发奖 | **v1.28：体力移出 Won't**（M5 反转，见 §3.14）；激励须玩家主动点主钮；仅 `onRewarded` 发奖（加时/回满） |
+| Won't | 强制插屏 / 未看完发奖 | **v1.28：体力移出 Won't**（M5 反转，见 §3.14）；激励须玩家主动点主钮；仅 `onRewarded` 发奖（加时/~~回满~~ **广告加心**，v1.80 订正） |
 
 ### 3.14 体力与钱包（Stamina & Wallet）· v1.28 新增冻结（WXG-T-164，用户 2026-09-18 八项拍板；反转 meta-framework M5 与「三货币不做」禁令）
 | 常量 | 值 | 说明 |
@@ -286,7 +286,7 @@ S9 暂停与设置（控制 S1 状态 + 写 S8）
 | `sprint:ended` | `{score, bestStage, settleScore}` | S7 → S8（v1.1 字段写入） |
 | `meta:overlay` | `{id, open}` | **v1.28 新增（meta 域，不带 levelId）**：S10 → 视觉；overlay 入/出栈（settings/signin/profile/stamina/collection/leaderboard）；玩法层零事件 |
 | `signin:claimed` | `{day, coins, stamina}` | **v1.28 新增**：S10 签到 → 钱包/体力/视觉 toast；同日二次领零事件 |
-| `stamina:changed` | `{cur}` | **v1.28 新增**：S10 → 顶栏心胶囊（开局扣/恢复跳/回满） |
+| `stamina:changed` | `{cur}` | **v1.28 新增**：S10 → 顶栏心胶囊（开局扣/恢复跳/~~回满~~ **广告加心**，v1.80 订正） |
 | `wallet:changed` | `{coins, delta}` | **v1.28 新增**：S10 → 顶栏币胶囊 |
 | `settings:vibrate` | `{on}` | **v1.28 新增**：S9 → S10 触觉桥（即时落盘判例同四开关） |
 

@@ -596,6 +596,7 @@ python3 temp/l4-seed-ab.py                                          # 第二 see
 | 字号 | 数值 **28** = `font_label`（`tokens.md §5`） | ⚠ 第九批登记的「26 px」低于 `accessibility.md` **E1 地板 28** ⇒ **作废**；旧 `FONT_SMALL` 24 随之零消费者 ⇒ 删（`noUnusedLocals` 在册） |
 | 色 | `plaque_face #8C5C2A` / `plaque_edge #603C1A` / `plaque_bevel #F7CD9D`；数值墨**复用**在册 `wood_text #FFF6E8` | 门楣下缘（140,92,42）/ 梁顶亮部实测；`wood_text` vs `plaque_face` = **5.33:1** ✓（≥ 4.5）⇒ **零第四枚** |
 | 图元 | 1 rect + 1 line（上沿受光）+ 2 circle（铆钉 r 3.5）+ 2 text（❤/🪙 与数值**合一条**）= **6 命令** | 菜单帧 total **1154 → 1158**（台账重取） |
+| 心端配额后缀 | 心**未满**时数值行追加 ` ▶N`（N = 今日剩余「广告加心」次数 = `HEART_AD_DAILY_LIMIT` 5 的余量；`▶0` = 当日额度用尽，明确告知）；**满心 ⛔ 不追加**（此时广告不可用，印次数会被读成「现在能看」） | **§3.14 v1.80 日限可见（WXG-T-351，2026-10-23 实装回写）**；仍与数值**合一条** text ⇒ 命令数不变（6 → 6），十态金样本零漂移（默认态恒满心）|
 | 图标腿 | **emoji 占位**（沿用旧字面） | ⛔ 不自造程序化心/币画法——**形状权归资产卡 B5/B6**；位图腿受「WebP 能否作 Cocos ImageAsset 源」未验证前提约束 ⇒ 接腿另单 |
 | 皮肤 | `cool-violet` 三枚按在册别名策略 ≡ `woodFace` / `shadowInk` / `textDim` | ⛔ 不发明新色相（S8 冷肤头注同策略） |
 
