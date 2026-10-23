@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4630,
       "lines": 159,
-      "sha256": "b596f9cef1fb2640de4ca9232630a38defe2afc234d4472b35987088a298dce7",
+      "sha256": "5e249b506dd43b3062c8b6e848358f10786c5793bbee4ce6585e120e3d73a187",
       "tier": "normal",
       "sections": [
         {
@@ -377,7 +377,7 @@
           "startLine": 1,
           "endLine": 160,
           "tokens": 4617,
-          "summary": "生成：2026-10-23 · 由 tools/scripts/build-context-index.mjs 自动生成",
+          "summary": "生成：2026-10-24 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
             "BUDGET",
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 402,
-          "summary": "1 production/TASKS-DETAIL.md 219964 5001 normal",
+          "summary": "1 production/TASKS-DETAIL.md 222775 5057 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -422,7 +422,7 @@
           "startLine": 46,
           "endLine": 134,
           "tokens": 3121,
-          "summary": "production/TASKS-DETAIL.md 219964 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 222775 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5513,
       "lines": 146,
-      "sha256": "059eeb0edf52e17ae18d05368a3d238ccf27a81953410cb6e5270b3b90c69ce7",
+      "sha256": "4e72b437f117e7ccd5b9086d5dbb152cb58643e12970a8da9805721c8785d957",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 169 行 / 74656 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 170 行 / 75405 tok / 实测读 4 次",
           "level": 2,
           "startLine": 27,
           "endLine": 30,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+170 · §待排（backlog，无号，立项时领取…=142+29",
+          "summary": "§WXG 任务台账（SSOT）=1+171 · §待排（backlog，无号，立项时领取…=143+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -968,7 +968,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 5001 行 / 219964 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 5057 行 / 222775 tok",
           "level": 2,
           "startLine": 92,
           "endLine": 96,
@@ -84381,9 +84381,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 219964,
-      "lines": 5001,
-      "sha256": "3a05791cf667f44f0d664d1f4612a0f98c279e929a407f89da8b41f9f79ea507",
+      "tokens": 222775,
+      "lines": 5057,
+      "sha256": "4f846493dd10c383df2286932e614b3b8b571a839f66a9fcf722a4a17dacbeae",
       "tier": "normal",
       "sections": [
         {
@@ -86904,8 +86904,8 @@
           "anchor": "§beads·fit 档放开「只缩不放大」钳（小盘放大铺满留边 + 初始视图 = 适配档）",
           "level": 1,
           "startLine": 3026,
-          "endLine": 5002,
-          "tokens": 117579,
+          "endLine": 5058,
+          "tokens": 120391,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
             "beads",
@@ -89461,8 +89461,8 @@
           "anchor": "§WXG-T-359",
           "level": 2,
           "startLine": 4953,
-          "endLine": 5002,
-          "tokens": 2899,
+          "endLine": 5004,
+          "tokens": 2900,
           "summary": "beads·外观货币改判：皮肤改金币买断、星等级只管开关卡（§3 变更单 = systems-index v1.83；⛔",
           "keywords": [
             "§3",
@@ -89546,12 +89546,118 @@
           "anchor": "§6 明确未做 / 遗留",
           "level": 3,
           "startLine": 4995,
-          "endLine": 5002,
-          "tokens": 300,
+          "endLine": 5004,
+          "tokens": 302,
           "summary": "价格不落值：150 / 350 / 600🪙 仍是 [提案·待拍板]，⛔ 不入 §3、不入 tuning.ts；Q3（",
           "keywords": [
             "§3",
             "tuning",
+            "明确未做",
+            "遗留"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-360",
+          "level": 2,
+          "startLine": 5005,
+          "endLine": 5058,
+          "tokens": 2807,
+          "summary": "beads·皮肤买断机制层落码（§3.7 v1.83 的数据腿：价目 + 拥有态 + grandfather；⛔ 玩家可",
+          "keywords": [
+            "§3.7",
+            "WXG",
+            "beads",
+            "grandfather"
+          ]
+        },
+        {
+          "anchor": "§1 领号核验与并发侦查（K-046） (2)",
+          "level": 3,
+          "startLine": 5011,
+          "endLine": 5017,
+          "tokens": 419,
+          "summary": "开工时 HEAD = 573fbc0（= 359 批沉淀入库，已推送）。",
+          "keywords": [
+            "HEAD",
+            "fbc0",
+            "领号核验与并",
+            "发侦查"
+          ]
+        },
+        {
+          "anchor": "§2 交付清单 (8)",
+          "level": 3,
+          "startLine": 5018,
+          "endLine": 5027,
+          "tokens": 718,
+          "summary": "src/config/tuning.ts 新增 SKIN_PRICES_COINS: Readonly<Record<s",
+          "keywords": [
+            "src",
+            "config",
+            "tuning",
+            "SKIN_PRICES_COINS",
+            "Readonly",
+            "Record"
+          ]
+        },
+        {
+          "anchor": "§3 三条关键判断（全部实测后写）",
+          "level": 3,
+          "startLine": 5028,
+          "endLine": 5032,
+          "tokens": 389,
+          "summary": "1. 不 bump 存档版本号：packages/framework/src/core/save/save-manage",
+          "keywords": [
+            "bump",
+            "packages",
+            "framework",
+            "src",
+            "core",
+            "save"
+          ]
+        },
+        {
+          "anchor": "§4 全量红的归因（A/B/C 三分支复跑，⛔ 靠推演免责）",
+          "level": 3,
+          "startLine": 5033,
+          "endLine": 5040,
+          "tokens": 288,
+          "summary": "A 本批五件 + 对方 WIP（= 工作树原样） 22 failed / 117 passed",
+          "keywords": [
+            "WIP",
+            "failed",
+            "passed",
+            "全量红的归因",
+            "三分支复跑",
+            "靠推演免责"
+          ]
+        },
+        {
+          "anchor": "§5 验收（当场读数） (2)",
+          "level": 3,
+          "startLine": 5041,
+          "endLine": 5051,
+          "tokens": 348,
+          "summary": "类型 games/beads tsc --noEmit：本批五件 零错误（47 处全在他方 WIP 文件）",
+          "keywords": [
+            "games",
+            "beads",
+            "tsc",
+            "noEmit",
+            "WIP",
+            "验收"
+          ]
+        },
+        {
+          "anchor": "§6 明确未做 / 遗留 (2)",
+          "level": 3,
+          "startLine": 5052,
+          "endLine": 5058,
+          "tokens": 420,
+          "summary": "1. 玩家可见入口未接（三选项已随批复回传，待用户裁）：甲 = 复用设置页 cycle-skin 单钮三态（零新版面 ⇒",
+          "keywords": [
+            "cycle",
+            "skin",
             "明确未做",
             "遗留"
           ]
@@ -89560,17 +89666,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 74656,
-      "lines": 169,
-      "sha256": "213a27c29c657c67132a51c761b77bdcfb16704851613b0180eeea65cbc6cc69",
+      "tokens": 75405,
+      "lines": 170,
+      "sha256": "7c656ae257cc37f96434ff96a35da56813c2988a7c8eec12af5c0afaa2ebbffa",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 170,
-          "tokens": 74647,
+          "endLine": 171,
+          "tokens": 75397,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -89583,8 +89689,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 142,
-          "endLine": 170,
+          "startLine": 143,
+          "endLine": 171,
           "tokens": 1390,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

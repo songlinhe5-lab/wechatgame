@@ -1264,6 +1264,23 @@ export const SIGNIN_REWARDS: readonly { coins: number; hearts: number }[] = [
  */
 export const HEART_PRICE_LADDER: readonly number[] = [50, 100, 200];
 
+/**
+ * 皮肤买断价（§3.7 v1.83「外观 = 金币买断」，用户 2026-10-23 令「换皮肤也用豆子吧」）。
+ * 形状先例 = {@link BEAD_STYLE_LABELS}（按 skinId 建表），⛔ 不拿注册序当下标
+ * （注册序 = 玩家可见循环序，随手 append 会同时改价格 ⇒ 双错）。
+ *
+ * **未列入本表的 skinId = 不可购买**（`MetaState.buySkin` 直接拒），而非 0 价免费 ⇒
+ * 新肤入注册表时必须同批在此加一档，否则玩家侧表现为「买不了」而不是「白送」。
+ * 默认肤不靠本表获得，走存档初值 `ownedSkinIds = [DEFAULT_SKIN_ID]`（⛔ 不回收）。
+ *
+ * ⚠ 数值仍为 `[提案·Q3 待拍板]`，**不入 §3 冻结**（判例 `SPRINT_K_CURVE`：先落 tuning 可调参位）。
+ * 150 = 提案 §4.1 首档（按 P1 稳态 ≈116🪙/天 = 约 1.3 天结余）；⚠ 但 P1 产出腿未落码，
+ * 当下唯一产出 = 签到 ≈45.7🪙/天（§6.1）⇒ 实际到达第 3–4 天，需随首通币/每日任务一起看读数。
+ */
+export const SKIN_PRICES_COINS: Readonly<Record<string, number>> = Object.freeze({
+  'cool-violet': 150,
+});
+
 // ─────────── 主菜单（shell 屏）几何（来源：ux-spec v1.7 §2 流程 + meta-ui 线框；
 //             EP12-S6 版面族扩充，来源 `menu-architecture.md §5.1/§7.4`——**派生版面值，⛔ 不进 §3**）
 /** 主菜单主钮「开始游戏」宽 = mock 框 324（落地单 v3.5，用户 2026-10-15 裁；旧 320 作废）。 */

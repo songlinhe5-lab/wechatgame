@@ -342,6 +342,9 @@ export class BeadsShell implements Game {
             emit: (type, payload) => bus.emit(type, payload),
             metaKey: this._metaKey,
         });
+        // §3.7 v1.83 grandfather（提案 §4.3）：改判前「皮肤免费循环」时代选中的肤计入已拥有，
+        // ⛔ 不补扣、⛔ 不降级。幂等且只在此一处调（`play.skinId` 已由存档层降级保证已注册）。
+        this.meta.ensureSkinOwnership(this.play.skinId);
         // 启动路由（ux-spec v1.7 §6.3：直进玩法；0 心老玩家落菜单——体力系统生效，非违约）。
         if (this._phase.screen === 'play') {
             if (this.meta.stamina < STAMINA_START_COST) {

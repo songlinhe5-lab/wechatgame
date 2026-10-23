@@ -25,6 +25,7 @@ import {
     HEART_AD_GAIN,
     HEART_PRICE_LADDER,
     SIGNIN_REWARDS,
+    SKIN_PRICES_COINS,
     STAMINA_MAX,
     STAMINA_REGEN_MIN_MS,
 } from '../config/tuning.js';
@@ -76,6 +77,8 @@ export class MetaState {
     private _heartDate: string;
     private _heartAds: number;
     private _heartAdDate: string;
+    /** 已买断/初始拥有的皮肤（落档集合，§3.7 v1.83；真源 = `BeadsMeta.ownedSkinIds`）。 */
+    private _ownedSkins: Set<string>;
 
     constructor(options: MetaStateOptions) {
         this._clock = options.clock;
@@ -101,6 +104,7 @@ export class MetaState {
         this._heartDate = d.heartBuysDate;
         this._heartAds = d.heartAdToday;
         this._heartAdDate = d.heartAdDate;
+        this._ownedSkins = new Set(d.ownedSkinIds);
         // 首次装载（anchor=0）以当前时刻起步，避免把「出厂到现在」误算成离线恢复。
         if (this._anchor === 0) this._anchor = this._clock();
     }
@@ -153,6 +157,17 @@ export class MetaState {
     /** 今日广告加心是否还可用（未满心 + 日限未用尽）。 */
     get canWatchHeartAd(): boolean {
         return this._cur < STAMINA_MAX && this.heartAdsLeft > 0;
+    }
+
+    /** 该皮肤是否已拥有（只看落档集合，⛔ 不查星数等派生量，提案 §4.3）。 */
+    ownsSkin(id: string): boolean {
+        return this._ownedSkins.has(id);
+    }
+
+    /** 该皮肤的可买价（`SKIN_PRICES_COINS` 未在册 ⇒ `null` = 不可购买，供 UI 分态）。 */
+    skinPrice(id: string): number | null {
+        const price = SKIN_PRICES_COINS[id];
+        return price === undefined ? null : price;
     }
 
     // ───────────────────────────────────────────────────────────── mutation
@@ -241,13 +256,49 @@ export class MetaState {
         this._persistWallet();
     }
 
-    /** 扣豆（§3.14 v1.80 唯一出口 = 道具超限购买）。足额则扣、写档、发事件；不足 false。 */
+    /** 扣豆（§3.14 v1.80 豆子出口之一 = 道具超限购买）。足额则扣、写档、发事件；不足 false。 */
     spendCoins(amount: number): boolean {
         if (amount <= 0) return true;
         if (this._coins < amount) return false;
         this._coins -= amount;
         this._persistWallet();
         return true;
+    }
+
+    /**
+     * 买断皮肤（§3.7 v1.83「外观 = 金币买断」；提案 §11-3 判据）。
+     *
+     * 三种结果（全部当场可测）：
+     * - 已拥有 ⇒ **true 且零扣款**（幂等：反复点同一枚不重复扣，§11-3）；
+     * - 价目未在册（新肤忘加 `SKIN_PRICES_COINS`）⇒ **false**，⛔ 不是 0 价白送；
+     * - 余额不足 ⇒ **false 且零扣款零入档**。
+     *
+     * 成功：扣款 + 入档 **同一次 patch** 写入（原子，不出现「钱扣了皮肤没到手」的中间态）。
+     */
+    buySkin(id: string): boolean {
+        if (this._ownedSkins.has(id)) return true;
+        const price = this.skinPrice(id);
+        if (price === null) return false;
+        if (this._coins < price) return false;
+        this._coins -= price;
+        this._ownedSkins.add(id);
+        this._save.patch({ coins: this._coins, ownedSkinIds: [...this._ownedSkins] });
+        this._save.save();
+        this._emit('wallet:changed', { coins: this._coins });
+        return true;
+    }
+
+    /**
+     * grandfather（提案 §4.3）：改判前「皮肤免费循环」时代已选中的皮肤计入已拥有 ⇒
+     * ⛔ 不补扣、⛔ 不降级、⛔ 不强制换回默认肤。幂等（已在集合内 ⇒ 零写档）。
+     *
+     * 调用方只应在启动时传 `settings.skinId`（存档层已保证它要么已注册、要么已回落默认肤）。
+     */
+    ensureSkinOwnership(id: string): void {
+        if (id === '' || this._ownedSkins.has(id)) return;
+        this._ownedSkins.add(id);
+        this._save.patch({ ownedSkinIds: [...this._ownedSkins] });
+        this._save.save();
     }
 
     /**

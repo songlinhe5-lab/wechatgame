@@ -4999,3 +4999,59 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **Q4（顶栏信封实装为签到入口）与 Q9（头像框是否与皮肤同期铺）仍待裁**；Q9 已登记 §10 C12。
 - `concept.md` D12（v1.23「星级新增主题解锁货币语义」）属决策史证，按 v1.80 changelog 判例「⛔ 史证件不回改」保持原样，只在此登记。
 - 体检真正的 **R-3**（L00009 / L00010 两张 boss 关补试玩 `t_act`）自上批遗留至今，**仍未做**（需用户或真试玩）。
+
+---
+
+## WXG-T-360
+
+**beads·皮肤买断机制层落码（§3.7 v1.83 的数据腿：价目 + 拥有态 + grandfather；⛔ 玩家可见入口未接）**
+
+用户 2026-10-23 令「**沉淀候选 / P0 落码批**」⇒ 两件事：① 把 359 回传的三条沉淀候选正式入库（已单独提交 `573fbc0`，读数记在 359 节 §5）；② 承 359 的 v1.83 改判落 P0 机制层。本批射程 = **数据层与状态层**；UI 入口因待用户裁（三选项已随批回传）不动。
+
+### 1. 领号核验与并发侦查（K-046）
+- 开工时 HEAD = `573fbc0`（= 359 批沉淀入库，已推送）。
+- 领号认工作树全局最大号：`grep -oh 'WXG-T-[0-9]{3}' production/TASKS.md production/TASKS-DETAIL.md | sort -n | uniq | tail -1` = **360**；360 命中数 = 主表 **1**（仅上批头注「下一真可用号」前瞻）/ 详情 **0** / `git log --grep='WXG-T-36[01]'` **零命中** ⇒ 领 **360**（下一 = 361）。
+- 并发在制品（⛔ 本批不夹带、不代提交、不代改）：`src/config/levels-data.ts`（+919/−70）、`design/levels/singles/L0000{3,4,9}.json`、`tools/scripts/{check-tasks,scan-text-distortion}.mjs`、`ctx/budget-exempt.json`，另两台账带对方 CRLF（详情工作树 **45** 处 CR）。
+- ⚠ 对方 `levels-data.ts` 处于**非法态**（判据见 §4）⇒ 本批 `pnpm run verify` 不可跑绿，已如实登记为「被并发 WIP 阻塞」而非「本批零回归」。
+- **镜像门与提交窗口**（`control-manifest §15`，pre-commit ①⁷⁄₈）：本批改 `games/beads/src/**` ⇒ 必须同批带 Cocos 镜像，而 `sync-framework-to-cocos.mjs --check` **读全工作树** ⇒ 对方 WIP 在场时镜像门恒红。处置 = 先按字节备份对方源文件 → 临时收到 HEAD → 跑 sync（实测只写我四件镜像，`levels-data` 镜像零变动）→ 提交 → **立即还原对方 WIP 并核 sha256**。⛔ 不用 `--no-verify`，⛔ 不把对方内容写进镜像，⛔ 不代提交。
+
+### 2. 交付清单
+| 件 | 内容 |
+|---|---|
+| `src/config/tuning.ts` | 新增 `SKIN_PRICES_COINS: Readonly<Record<string, number>>` = `Object.freeze({ 'cool-violet': 150 })`。形状先例 = 同文件 `BEAD_STYLE_LABELS`（按 skinId 建表），⛔ 不拿注册序当下标（注册序 = 玩家可见循环序 ⇒ append 会同时改价格）。注释钉三条口径：**未列入 = 不可购买**（不是 0 价白送）、默认肤靠存档初值、`[提案·Q3 待拍板]` **不入 §3**（与 `HEART_PRICE_LADDER` 同判例 `SPRINT_K_CURVE`） |
+| `src/game/meta-save-schema.ts` | `BeadsMeta` 新增落档事实 `ownedSkinIds: string[]`（⛔ 不随星数/金币/关表漂）；defaults = `[DEFAULT_SKIN_ID]`；`ownedIds()` = 滤非空串 + Set 去重 + **强制含默认肤**，`sameIds()` 逐位比较并入 `changed`；**`META_SAVE_VERSION` 保持 1**（理由见 §3-1） |
+| `src/game/meta-state.ts` | `_ownedSkins: Set<string>` 镜像；只读 `ownsSkin(id)` / `skinPrice(id)`（未在册 ⇒ `null`，供 UI 分态）；变更 `buySkin(id)`：已拥有 ⇒ `true` 零扣款幂等、未在册 ⇒ `false`、余额不足 ⇒ `false` **零副作用**、成功 ⇒ 扣款与入档 **同一次 `patch`** 原子写 + `wallet:changed`（形状先例 = 旧 `buyHeart`）；`ensureSkinOwnership(id)` = grandfather，幂等、已在集合内**零写档**；顺带把 `spendCoins` 注释「唯一出口」订正为「出口之一」 |
+| `src/game/beads-shell.ts` | MetaState 构造后一行 `this.meta.ensureSkinOwnership(this.play.skinId)`（play 早于 meta 创建，skinId 已由存档层降级保证已注册）⇒ 迁移**单点**，⛔ 不让 meta 层跨档读 settings |
+| `tests/meta-state.test.ts` | +6 例：出厂态与 null 价 ／ 差 1 币不可买 + 恰够扣一次 + 恰 1 事件 ／ 幂等与未在册拒买 ／ **v1 老档手写 JSON grandfather**（零补扣 + 重载不丢 + 幂等零事件） ／ 买断落档事实重载仍拥有 ／ **静态门**（价目 key 必在注册表内 ∧ 默认肤不得进价目表）；旧 describe 标题「唯一豆子出口的扣款腿」订正为「出口之一…皮肤买断另走 `buySkin`」 |
+| `cocos/assets/scripts/**`（4 件镜像） | `config/tuning.ts` · `game/meta-save-schema.ts` · `game/meta-state.ts` · `game/beads-shell.ts` 由 `pnpm run framework:sync` 产出（写入 4、未变 140、删除 0），与源码同次提交（`control-manifest §15`）；⛔ 未把对方 `levels-data.ts` WIP 写进镜像 |
+
+### 3. 三条关键判断（全部实测后写）
+1. **不 bump 存档版本号**：`packages/framework/src/core/save/save-manager.ts:105` 是 `{ ...defaults(), ...doc }` 浅合并 ⇒ 新增字段自动补默认，**老档无需迁移**；反之 bump 版本会因 `migrations[current]` 缺失直接走 `wasReset` **清档**（判例 K-151 事故形状）。故本批把 P0 前置清单里的「存档版本号变更单」一项**判为不需要**，⛔ 不留「以后再 bump」。
+2. **拥有态落 meta sidecar 而非 run 存档**：`skinId` 住在 run 存档 settings（`save-schema.ts` 五处 + `state.ts` + `beads-game.ts`），`coins` 住在 meta。买断 = 一次「扣币 + 入档」，同档才能**一次 patch 原子写**；跨档写就要面对两份存档的失败半态。grandfather 因此由 shell 单点把 run 档事实搬进 meta 档集合，⛔ 不让 schema 互读。
+3. **入口未接是有意保留，不是遗漏**：机制层落码后玩家侧表现**与落码前逐字一致**（`cycle-skin` 仍免费遍历全注册表 ⇒ `ownedSkinIds` 暂为死数据）。反向选择（现在就收口 `cycle-skin`）会造成**玩家可见回归**：新玩家从此换不到任何皮肤，而购买 UI 还不存在。⇒ 登记 §6 遗留①：UI 批必须同批施加拥有判据，否则本批不闭合。
+
+### 4. 全量红的归因（A/B/C 三分支复跑，⛔ 靠推演免责）
+| 腿 | 状态组合 | 七文件读数 |
+|---|---|---|
+| A | 本批五件 + 对方 WIP（= 工作树原样） | **22 failed / 117 passed** |
+| B | 本批五件回退到 HEAD + 保留对方 WIP | **22 failed / 117 passed**（逐字同 A） |
+| C | 本批五件与对方数据四件**全部**回退到 HEAD | **139 passed / 0 failed** |
+⇒ 22 例失败（`beads-shell` / `board-camera` / `difficulty` / `levels` / `misplaced-assembler` / `pause-settings` / `ui-golden`）**全部**源自并发会话的 `levels-data.ts` + 三张 singles 在制品，本批贡献 = **0**。旁证：`tsc --noEmit` 的 47 处错误**全部**位于 `src/config/levels-data.ts`；`ui-golden` 的 proof 差异是 `phase: boot` 而非期望 `playing` ⇒ 启动进不了 play，与关表非法一致。B/C 两腿跑前把九件字节备份到 `temp/att360/`，复跑后按备份还原并核 numstat 与操作前逐行相等（本批 `17/0 · 3/0 · 35/1 · 52/1 · 94/1` + 对方 `919/70 · 231/21 · 169/13 · 519/36`）。
+
+### 5. 验收（当场读数）
+| 项 | 读数 |
+|---|---|
+| 类型 | `games/beads` `tsc --noEmit`：本批五件 **零错误**（47 处全在他方 WIP 文件） |
+| 定向测试 | `tests/meta-state.test.ts` **24 passed**（含本批 +6 例）；`tests/skin-system.test.ts` **21 passed / 1 skipped**（皮肤静态门未被本批破坏） |
+| 全量 | 1232 passed / 22 failed / 3 skipped ⇒ 22 红按 §4 三分支确诊为他方 WIP，本批不背书、不代改、不代提交 |
+| `pnpm run verify` | 🔴 **本批不可跑绿**（关卡数据腿红，根因同上）。解除条件 = 对方 `levels-data.ts` 收口入库后复跑 |
+| 包体 | 零新资源文件，仅 `tuning.ts` 一处常量（+17 行）⇒ 不触包体门 |
+| 镜像一致性 | `framework:sync` 实跑：beads 「写入 4、未变 140、删除 0」⇒ 写出的正是本批四件；提交前 pre-commit 的 `sync --check` 绿（镜像门本身拦下首笔提交并逼出这条腿，非事后补报） |
+| 沉淀入库（同一道令的前半） | `kb:sync --task=WXG-T-359` 统计 = 新增 **1**（K-165）／修改 **2**（K-160、K-159）／激活 0／归档 0，已随 `573fbc0` 入库（读数正本在 359 节 §5） |
+
+### 6. 明确未做 / 遗留
+1. **玩家可见入口未接**（三选项已随批复回传，待用户裁）：甲 = 复用设置页 `cycle-skin` 单钮三态（零新版面 ⇒ 不重抓金样本）／乙 = 新增 `buy-skin` 钮（触 `MENU_ORDER` 10 钮 5×2 版面 ⇒ 钮位重排 + 金样本同批重抓 + `skin-system.test.ts:357` 动作串白名单）／丙 = 独立皮肤页（先出 ux-spec）。⛔ 任一选项都必须同批给 `cycle-skin` 施加拥有判据。
+2. **广告档不采**：全仓 src 零 `wx.createRewardedVideoAd`，`RewardedAdProvider` 在 weapp = Noop（`docs/architecture/adr/rewarded-ad-provider-scope.md` 明文「W1 禁止合入直至用户明示批准」）⇒「看广告得皮肤/折扣」真机上不发奖；live 广告位只有 `HEART_AD_GAIN=3` / `HEART_AD_DAILY_LIMIT=5`。
+3. **价位 150 的实际到达天数**：现状唯一金币产出腿 = 签到 ≈**45.7🪙/天**（首通币、宝箱、每日任务全部未落码）⇒ 150 档需 **3–4 天**；提案「第一天买得起」的算术前提（P1 稳态 ≈116🪙/天）尚未存在。若要「首日可买」须同批落 P0-⑤ 首通金币（另批）。
+4. **Q3（价格与套数）仍待拍板**：`SKIN_PRICES_COINS` 目前一档，新肤入注册表时必须同批加档（否则玩家侧表现为「买不了」）。
+5. `pnpm run verify` 复跑与金样本回归 = 待并发 WIP 入库后补做。

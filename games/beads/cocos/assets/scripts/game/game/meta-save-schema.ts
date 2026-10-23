@@ -15,6 +15,7 @@
 
 import type { SaveDocument } from '../../framework/index';
 import { STAMINA_MAX } from '../config/tuning';
+import { DEFAULT_SKIN_ID } from '../config/skins/registry';
 
 export interface BeadsMeta extends SaveDocument {
     version: 1;
@@ -40,6 +41,14 @@ export interface BeadsMeta extends SaveDocument {
     heartAdToday: number;
     /** `heartAdToday` 所属日期键；与今日不同则计数归零。 */
     heartAdDate: string;
+    /**
+     * 已买断（或初始拥有）的皮肤 id（§3.7 v1.83 「外观 = 金币买断」；价目 = `SKIN_PRICES_COINS`）。
+     *
+     * **落档事实而非派生量**（提案 §4.3）：只在「购买成功」与「载入 grandfather」两处增长，
+     * ⛔ 不随星数/金币/关表长度漂（旧模型下「解锁」是星数派生量，扩关会被动退回未拥有；买断制天然免疫）。
+     * 初值 = `[DEFAULT_SKIN_ID]`，且 normalize **强制默认肤恒在**（⛔ 不回收）。
+     */
+    ownedSkinIds: string[];
 }
 
 /** Meta sidecar storage key（与 run 存档分键）。 */
@@ -59,6 +68,7 @@ export function defaultBeadsMeta(): BeadsMeta {
         heartBuysDate: '',
         heartAdToday: 0,
         heartAdDate: '',
+        ownedSkinIds: [DEFAULT_SKIN_ID],
     };
 }
 
@@ -75,6 +85,28 @@ function int(value: unknown, fallback: number): number {
 
 function str(value: unknown, fallback: string): string {
     return typeof value === 'string' ? value : fallback;
+}
+
+/**
+ * 已拥有皮肤集合：只收非空字符串、去重，并**强制含默认肤**（⛔ 不回收）。
+ * 仅在载入时跑（非热路径），⛔ 不得放进 `update` / `buildRenderModel`。
+ */
+function ownedIds(value: unknown): string[] {
+    const list = Array.isArray(value)
+        ? value.filter((v): v is string => typeof v === 'string' && v !== '')
+        : [];
+    const set = new Set(list);
+    set.add(DEFAULT_SKIN_ID);
+    return [...set];
+}
+
+/** 逐位比较（只在载入对账时用）：形状不同、长度不同或任一位不等 ⇒ 需要回写。 */
+function sameIds(raw: unknown, next: readonly string[]): boolean {
+    return (
+        Array.isArray(raw) &&
+        raw.length === next.length &&
+        next.every((v, i) => (raw as unknown[])[i] === v)
+    );
 }
 
 export interface MetaNormalizeResult {
@@ -107,6 +139,7 @@ export function normalizeBeadsMeta(raw: unknown): MetaNormalizeResult {
         heartBuysDate: str(raw['heartBuysDate'], ''),
         heartAdToday: int(raw['heartAdToday'], 0),
         heartAdDate: str(raw['heartAdDate'], ''),
+        ownedSkinIds: ownedIds(raw['ownedSkinIds']),
     };
 
     const changed =
@@ -118,7 +151,8 @@ export function normalizeBeadsMeta(raw: unknown): MetaNormalizeResult {
         raw['heartBuysToday'] !== meta.heartBuysToday ||
         raw['heartBuysDate'] !== meta.heartBuysDate ||
         raw['heartAdToday'] !== meta.heartAdToday ||
-        raw['heartAdDate'] !== meta.heartAdDate;
+        raw['heartAdDate'] !== meta.heartAdDate ||
+        !sameIds(raw['ownedSkinIds'], meta.ownedSkinIds);
 
     return { meta, changed };
 }
