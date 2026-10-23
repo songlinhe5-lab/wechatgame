@@ -46,6 +46,8 @@ import { join, dirname, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomBytes } from 'node:crypto';
 import { BEAD_COLOR_MAX, baseColorOfChar } from '../../tools/scripts/lib/bead-charset.mjs';
+// 豆面可读性（WXG-T-357）：生成后二次优化修复；正本 games/beads/design/levels/pattern-legibility.md
+import { analyze as analyzeLegibility, judge as judgeLegibility, repair as repairLegibility } from '../../tools/scripts/lib/pattern-legibility.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url)); // apps/beads-studio
 const REPO = join(ROOT, '../..'); // workspace 根（本地跑）；容器内见 Dockerfile 布局
@@ -715,6 +717,8 @@ function commitIngest(ctx, ls, plan, chapterId) {
     const uid = ls.assignUid('single', ls.existingUids(ctx.manifest));
     const file = `singles/${uid}.json`;
     const { d, brandSlug, measured } = plan;
+    const leg = legibilityFix(d.pattern); // 生成后二次优化修复（WXG-T-357）
+    d.pattern = leg.pattern;
     ls.writeLevelFile(levelsDir, file, {
         id: 0, name: plan.nameBase, cols: d.cols, rows: d.rows, // id 填 0 占位 ⇒ 收尾 renumber 必修正
         time: measured.time, cycleProfile: 'short',
@@ -726,7 +730,24 @@ function commitIngest(ctx, ls, plan, chapterId) {
     });
     store.writeChapter(levelsDir, ch.file, { ...doc, levels: store.insertBeforeBoss(doc.levels, uid) });
     const manifest = entryBeforeBoss(ls, ctx.manifest, doc, { uid, kind: 'single', file, pack: 'main' });
-    return { manifest, log: `已入关 ${uid}（single ${d.cols}×${d.rows}，实测 ${measured.time}s → 大关 ${chapterId} boss 前）` };
+    return { manifest, log: `已入关 ${uid}（single ${d.cols}×${d.rows}，实测 ${measured.time}s → 大关 ${chapterId} boss 前）｜${leg.note}` };
+}
+
+/**
+ * 生成后二次优化修复（WXG-T-357）：豆面体检 → 能自动修的修（吞孤点 / 并细丝 / 填小孔）→ 回执文案。
+ * 只在**新入关**路径调用（renumber 等纯重写路径不调，避免二次改写既有真源）。
+ * ⛔ 不改盘尺寸、不新增颜色、不碰 `x` 锁定格；尺寸/色数不足（`sizing`）修不动 ⇒ 回执里明说要重生成或减色。
+ */
+function legibilityFix(pattern) {
+    const before = judgeLegibility(analyzeLegibility(pattern));
+    if (before.ok) return { pattern, note: '豆面体检 7 项全过' };
+    const { pattern: fixed, log, changed } = repairLegibility(pattern);
+    const after = judgeLegibility(analyzeLegibility(fixed));
+    const residue = after.fails.map((f) => f.k).join('/');
+    if (!changed)
+        return { pattern, note: `豆面体检未过（${before.fails.map((f) => f.k).join('/')}）且无可自动修复项 ⇒ 须重生成/减色` };
+    const tail = after.ok ? '修后 7 项全过' : `残留 ${residue}${after.kind === 'sizing' ? '（尺寸/色数不足，须重生成或减色）' : ''}`;
+    return { pattern: fixed, note: `豆面修复 ${log.join('、')}；${tail}` };
 }
 
 /**
@@ -909,6 +930,8 @@ async function handleChapterCreate(req, res) {
         writeFileSync(join(levelsDir, 'assets', `${art}.png`), imgBuf);
         const uid = ls.assignUid('boss', ls.existingUids(ctx.manifest));
         const file = `singles/${uid}.json`;
+        const leg = legibilityFix(d.pattern); // 生成后二次优化修复（WXG-T-357）
+        d.pattern = leg.pattern;
         ls.writeLevelFile(levelsDir, file, {
             id: 0, name: `${id}-boss`, cols: d.cols, rows: d.rows, // id 填 0 占位 ⇒ 收尾 renumber 必修正
             time: measured.time, cycleProfile: 'short',
@@ -923,7 +946,7 @@ async function handleChapterCreate(req, res) {
         });
         let manifest = ls.appendEntry(ctx.manifest, { uid, kind: 'boss', file, pack: 'main' });
         manifest = store.addChapterTo(manifest, { id, open: false });
-        return { manifest, log: [`新建大关 ${id}「${title}」：首关 boss ${uid}（${d.cols}×${d.rows}，实测 ${measured.time}s）→ chapters/${id}.json + assets/${art}.png`] };
+        return { manifest, log: [`新建大关 ${id}「${title}」：首关 boss ${uid}（${d.cols}×${d.rows}，实测 ${measured.time}s）→ chapters/${id}.json + assets/${art}.png`, `首关 boss 豆面：${leg.note}`] };
     });
 }
 

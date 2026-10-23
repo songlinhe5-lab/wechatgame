@@ -83,6 +83,7 @@
 import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { analyze as analyzePattern, judge as judgePattern } from './lib/pattern-legibility.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '..', '..');
@@ -785,6 +786,29 @@ export function checkStepsGate(gameName, rows, bounds) {
 }
 
 /**
+ * 门禁⑧（WXG-T-357）：豆面可读性。判据 = `design/levels/pattern-legibility.md §2` 的 T1–T7。
+ *
+ * ⚠ **默认 WARN 不拦**（现池 legacy 有 4 关不达标，硬门会当场打红所有提交 ⇒ 与「门禁必须先绿」冲突）；
+ * `BEADS_LEGIBILITY_STRICT=1` 或 `strict:true` ⇒ 硬红。`strict` 缺省读环境变量，便于 CI 灰度收紧。
+ * 与门禁⑦ 分工：⑦ 管工量（`steps`），⑧ 管「看不看得清」，⛔ 两者都不参与定价。
+ */
+export function checkLegibility(gameName, rows, { strict = process.env.BEADS_LEGIBILITY_STRICT === '1' } = {}) {
+    const bad = [];
+    for (const r of rows) {
+        if (!Array.isArray(r.pattern)) continue; // 非拼豆型关（无 pattern）跳过
+        const m = analyzePattern(r.pattern);
+        const v = judgePattern(m);
+        if (v.ok) continue;
+        bad.push(`${r.id}(${v.kind}:${v.fails.map((f) => `${f.k}=${f.value}`).join(',')})`);
+    }
+    if (!bad.length) return [];
+    const msg = `${gameName}: 门禁⑧ 豆面可读性未过 ${bad.length} 关 ⇒ ${bad.join(' ')}`;
+    if (strict) throw new Error(`${msg}（放宽口径见 pattern-legibility.md §2；确属设计意图请登记，⛔ 不要调门限凑绿）`);
+    console.warn(`⚠ ${msg}\n   （WARN 模式：设 BEADS_LEGIBILITY_STRICT=1 转硬红；正本 design/levels/pattern-legibility.md）`);
+    return bad;
+}
+
+/**
  * 门禁⑦ 驱动：仅目录模式、且游戏侧 tuning.ts 声明了 `NORMAL_STEPS_MIN` 才生效（breakout / 未声明游戏零牵连）。
  * 直接读原始 manifest + singles（此时 `pricing.steps` 尚未被 stripDevFields 剔除），首关（最小 order 的非退役 entry）= 教学豁免。
  */
@@ -806,6 +830,25 @@ async function assertStepsGate(games) {
     }
     checkStepsGate(game.name, rows, { normalMin: t.NORMAL_STEPS_MIN, normalMax: t.NORMAL_STEPS_MAX, bossMin: t.BOSS_STEPS_MIN });
   }
+}
+
+/**
+ * 门禁⑧ 驱动：目录模式 + 该关有 `pattern` 即参评（breakout 单 JSON / 无 pattern 关零牵连）。
+ * 直接读原始 manifest + singles（同门禁⑦，绕开 stripDevFields），章内 plate 逐格展开。
+ */
+async function assertLegibility(games) {
+    for (const game of games) {
+        if (game.mode !== 'dir') continue;
+        const man = JSON.parse(readFileSync(game.manifestPath, 'utf8'));
+        const rows = [];
+        for (const e of man.entries) {
+            if (e.retired) continue;
+            const obj = JSON.parse(readFileSync(join(game.levelsDir, e.file), 'utf8'));
+            const cells = e.kind === 'plate' ? obj.cells : [obj];
+            for (const c of cells) rows.push({ id: c.id, kind: e.kind, pattern: c.pattern });
+        }
+        checkLegibility(game.name, rows);
+    }
 }
 
 /**
@@ -845,6 +888,8 @@ async function main() {
   await assertDifficultyChain(games);
   // 门禁⑦（工作量闸）：普通关 steps 落区间 / boss steps 高于阈值 / 教学首关全豁免（2026-10-10）。
   await assertStepsGate(games);
+  // 门禁⑧（可读性）：豆面稀碎/断裂/尺寸不足（默认 WARN，BEADS_LEGIBILITY_STRICT=1 硬红，WXG-T-357）。
+  await assertLegibility(games);
   // 大关断言集 6：章展开槽位 ≤ WALL_CAPACITY（§11.5；章断言 1–5/7 在 assembleArcs 内）。
   await assertChapterCapacity(games);
 

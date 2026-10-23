@@ -20,6 +20,10 @@
 - **新增**（added）：K-162「向 Markdown 表格追加行时拿「半截行」当追加锚 ⇒ 把相邻整行吞掉且工具不报警」
 - **修改**（updated）：K-160「终端按列宽折行后的输出抄进编辑工具会夹入「词内假空格」；中文正文改完必做一次空格复核」
 
+### WXG-T-357
+
+- **修改**（updated）：K-163「`dev/harness/.smoke/` 残留累积到 500+ 条目后，harness 冒烟会「假 FAIL」（`SAFE_DELETE_BULK_CONFIRM_REQUIRED`）」
+
 ## 2026-10-22
 
 ### WXG-T-343
