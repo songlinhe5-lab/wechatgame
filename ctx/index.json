@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4630,
       "lines": 159,
-      "sha256": "dfa3ffd094f8510aebd2678d1efc7a4b3ec4b83e925ba1f171c318339ef05162",
+      "sha256": "5e3935bdd8ae609376170f9fd5737ef2cea5e088e1191d56a768609977f907b9",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 402,
-          "summary": "1 production/TASKS-DETAIL.md 211843 4839 normal",
+          "summary": "1 production/TASKS-DETAIL.md 212426 4846 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -422,7 +422,7 @@
           "startLine": 46,
           "endLine": 134,
           "tokens": 3121,
-          "summary": "production/TASKS-DETAIL.md 211843 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 212426 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5513,
       "lines": 146,
-      "sha256": "2acb8aeb068582de2a7d18735f5017ad96e1536feb98462d71083a2dae037dfd",
+      "sha256": "542c0d3219b5aaf07d9eede18139e8a697d22fb3d65945642d26235a7fbb21d6",
       "tier": "normal",
       "sections": [
         {
@@ -745,7 +745,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 166 行 / 72406 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 166 行 / 72521 tok / 实测读 4 次",
           "level": 2,
           "startLine": 27,
           "endLine": 30,
@@ -968,7 +968,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 4839 行 / 211843 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 4846 行 / 212426 tok",
           "level": 2,
           "startLine": 92,
           "endLine": 96,
@@ -30883,9 +30883,9 @@
     },
     {
       "path": "games/beads/design/forensics/wxg-t-350-star-supply-balance-check.md",
-      "tokens": 7686,
+      "tokens": 7796,
       "lines": 203,
-      "sha256": "034c7cdeb339948f778b3358b710e6db3fa82f4f25acfa0a06620410d4751d9e",
+      "sha256": "f06794ab1eaba945d8a0ee64ec7f00125e3630f9a859d11eb10fbd67542923e5",
       "tier": "normal",
       "sections": [
         {
@@ -30893,7 +30893,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 204,
-          "tokens": 7663,
+          "tokens": 7774,
           "summary": "状态：体检完成，结论 CONCERNS；本批只读——⛔ 未改任何 §3 冻结值（改值须走 systems-index §",
           "keywords": [
             "§3",
@@ -31061,7 +31061,7 @@
           "level": 2,
           "startLine": 137,
           "endLine": 204,
-          "tokens": 2283,
+          "tokens": 2394,
           "summary": "本节只做取证与方案，不动 §3、不落码；拍板后由数值轨走变更单。",
           "keywords": [
             "§3",
@@ -31123,7 +31123,7 @@
           "level": 3,
           "startLine": 186,
           "endLine": 204,
-          "tokens": 752,
+          "tokens": 862,
           "summary": "用户 2026-10-22 令「下一步落丙方案」⇒ 两项待裁输入按如下口径定档：",
           "keywords": [
             "WXG",
@@ -84198,9 +84198,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 211843,
-      "lines": 4839,
-      "sha256": "aa0487dd841492882f91e9d3903dde3fff30f791308e978b0e5dab998e156c83",
+      "tokens": 212426,
+      "lines": 4846,
+      "sha256": "9fdbe57d84ac889534cf208a5de6b1a5d4cb2b73a3fd46393e621719b2f78437",
       "tier": "normal",
       "sections": [
         {
@@ -86721,8 +86721,8 @@
           "anchor": "§beads·fit 档放开「只缩不放大」钳（小盘放大铺满留边 + 初始视图 = 适配档）",
           "level": 1,
           "startLine": 3026,
-          "endLine": 4840,
-          "tokens": 109459,
+          "endLine": 4847,
+          "tokens": 110041,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
             "beads",
@@ -88685,8 +88685,8 @@
           "anchor": "§WXG-T-353",
           "level": 2,
           "startLine": 4643,
-          "endLine": 4683,
-          "tokens": 1385,
+          "endLine": 4690,
+          "tokens": 1967,
           "summary": "beads·三档时钟塌缩 R-2 开工（逐关实算 + 消法，⛔ 未落码）",
           "keywords": [
             "WXG",
@@ -88757,8 +88757,8 @@
           "anchor": "§5 验收（跑完验证后回填，⛔ 不沿用历史读数）",
           "level": 3,
           "startLine": 4670,
-          "endLine": 4683,
-          "tokens": 411,
+          "endLine": 4681,
+          "tokens": 410,
           "summary": "文本失真对撞 四件与 git show HEAD: 逐行「行号:签名」对撞 ⇒ 本批新增命中 0。首测抓到两处（表格里写",
           "keywords": [
             "git",
@@ -88770,10 +88770,23 @@
           ]
         },
         {
+          "anchor": "§6 后续订正（2026-10-23 追记）",
+          "level": 3,
+          "startLine": 4682,
+          "endLine": 4690,
+          "tokens": 571,
+          "summary": "本节叙述保持原样：353 批的射程确实 = 取证 + 方案，未落码、未动 §3（当时的事实）。",
+          "keywords": [
+            "§3",
+            "后续订正",
+            "追记"
+          ]
+        },
+        {
           "anchor": "§WXG-T-354",
           "level": 2,
-          "startLine": 4684,
-          "endLine": 4736,
+          "startLine": 4691,
+          "endLine": 4743,
           "tokens": 3133,
           "summary": "beads·§3.7 三档时钟「按档地板」落码（丙方案 · 消体检 R-2）",
           "keywords": [
@@ -88785,8 +88798,8 @@
         {
           "anchor": "§1 领号核验与并发侦查（K-046 / K-045）",
           "level": 3,
-          "startLine": 4690,
-          "endLine": 4694,
+          "startLine": 4697,
+          "endLine": 4701,
           "tokens": 262,
           "summary": "领号：git log --grep=WXG-T-354 零命中，WXG-T-354 此前只现于上批头注的「下一真可用号」",
           "keywords": [
@@ -88801,8 +88814,8 @@
         {
           "anchor": "§2 交付清单 (3)",
           "level": 3,
-          "startLine": 4695,
-          "endLine": 4707,
+          "startLine": 4702,
+          "endLine": 4714,
           "tokens": 626,
           "summary": "games/beads/src/config/tuning.ts 新增 STAR_TIER_MIN_GAP = 4、ST",
           "keywords": [
@@ -88817,8 +88830,8 @@
         {
           "anchor": "§3 三条关键判断 (2)",
           "level": 3,
-          "startLine": 4708,
-          "endLine": 4712,
+          "startLine": 4715,
+          "endLine": 4719,
           "tokens": 375,
           "summary": "① 「选丙」本身就含一条裁定：丙的前提是高星档时钟允许低于 30 s（若答「否」，丙不成立、只能回乙拆 UI）。用户未单",
           "keywords": [
@@ -88828,8 +88841,8 @@
         {
           "anchor": "§4 本批自纠（如实登记）",
           "level": 3,
-          "startLine": 4713,
-          "endLine": 4719,
+          "startLine": 4720,
+          "endLine": 4726,
           "tokens": 497,
           "summary": "近形字「塌」写成「塔」：单轮复发 4 次、4 个文件共 13 处（systems-index 7 + 页头 2 + 报告",
           "keywords": [
@@ -88842,8 +88855,8 @@
         {
           "anchor": "§5 验收（本批当场实跑读数；并发在制品造成的红逐项归因，⛔ 不谎称全绿）",
           "level": 3,
-          "startLine": 4720,
-          "endLine": 4736,
+          "startLine": 4727,
+          "endLine": 4743,
           "tokens": 1175,
           "summary": "变异自证 临时注入 STAR_TIER_FLOOR = [LEVEL_TIME_MIN, LEVEL_TIME_MIN,",
           "keywords": [
@@ -88858,8 +88871,8 @@
         {
           "anchor": "§WXG-T-355",
           "level": 2,
-          "startLine": 4737,
-          "endLine": 4783,
+          "startLine": 4744,
+          "endLine": 4790,
           "tokens": 3571,
           "summary": "beads·结算·过关面板「判星对照」行（§3.7 三档时钟外显 · UX 裁甲）",
           "keywords": [
@@ -88871,8 +88884,8 @@
         {
           "anchor": "§1 领号核验与并发侦查（K-046 / K-045） (2)",
           "level": 3,
-          "startLine": 4743,
-          "endLine": 4747,
+          "startLine": 4750,
+          "endLine": 4754,
           "tokens": 313,
           "summary": "领号：git log --grep=WXG-T-355 零命中；主表无此行、详情最大节 = ## WXG-T-354；全",
           "keywords": [
@@ -88887,8 +88900,8 @@
         {
           "anchor": "§2 交付清单 (4)",
           "level": 3,
-          "startLine": 4748,
-          "endLine": 4759,
+          "startLine": 4755,
+          "endLine": 4766,
           "tokens": 542,
           "summary": "games/beads/src/systems/clear-panel.ts ClearPanelLayout 新增 c",
           "keywords": [
@@ -88903,8 +88916,8 @@
         {
           "anchor": "§3 三条关键判断 (3)",
           "level": 3,
-          "startLine": 4760,
-          "endLine": 4764,
+          "startLine": 4767,
+          "endLine": 4771,
           "tokens": 484,
           "summary": "① 零新快照字段（省法核心）：门槛秒数 = 视图对 snap.finishLevels[snap.levelIndex]",
           "keywords": [
@@ -88917,8 +88930,8 @@
         {
           "anchor": "§4 本批自纠（如实登记） (2)",
           "level": 3,
-          "startLine": 4765,
-          "endLine": 4770,
+          "startLine": 4772,
+          "endLine": 4777,
           "tokens": 599,
           "summary": "上一轮对用户的口头结论不实：「空着 70 设计像素、零布局改动」→ 本批实算净空 ~32.2px ⇒ 改为抬星级行的换形",
           "keywords": [
@@ -88929,8 +88942,8 @@
         {
           "anchor": "§5 验收（本批当场实跑读数）",
           "level": 3,
-          "startLine": 4771,
-          "endLine": 4783,
+          "startLine": 4778,
+          "endLine": 4790,
           "tokens": 1401,
           "summary": "单测 beads vitest run = Test Files 1 failed ｜ 103 passed (104)",
           "keywords": [
@@ -88945,8 +88958,8 @@
         {
           "anchor": "§WXG-T-356",
           "level": 2,
-          "startLine": 4784,
-          "endLine": 4840,
+          "startLine": 4791,
+          "endLine": 4847,
           "tokens": 3541,
           "summary": "beads·选关整页空带「判星对照」行（三档门槛外显 · 形态甲被实测推翻后改道 A）",
           "keywords": [
@@ -88957,8 +88970,8 @@
         {
           "anchor": "§1 领号核验与并发侦查（K-046 / K-045） (3)",
           "level": 3,
-          "startLine": 4790,
-          "endLine": 4793,
+          "startLine": 4797,
+          "endLine": 4800,
           "tokens": 249,
           "summary": "领号：git log --grep=WXG-T-356 零命中；主表无此行（grep -c WXG-T-356 prod",
           "keywords": [
@@ -88973,8 +88986,8 @@
         {
           "anchor": "§2 交付清单 (5)",
           "level": 3,
-          "startLine": 4794,
-          "endLine": 4808,
+          "startLine": 4801,
+          "endLine": 4815,
           "tokens": 754,
           "summary": "games/beads/src/view/ui-theme.ts 新增导出 starCriteriaText(level",
           "keywords": [
@@ -88989,8 +89002,8 @@
         {
           "anchor": "§3 三条关键判断 (4)",
           "level": 3,
-          "startLine": 4809,
-          "endLine": 4813,
+          "startLine": 4816,
+          "endLine": 4820,
           "tokens": 649,
           "summary": "① 推翻甲形态的是无障碍 floor，不是审美：accessibility.md:53 E1 = 文字最小 28 设计 ",
           "keywords": [
@@ -89002,8 +89015,8 @@
         {
           "anchor": "§4 自纠两笔（当场机械自证）",
           "level": 3,
-          "startLine": 4814,
-          "endLine": 4818,
+          "startLine": 4821,
+          "endLine": 4825,
           "tokens": 296,
           "summary": "① 表格替换又吞整行（K-162 复发）：把 v0.5 表行换成 v0.6 表行时，original_text 连带含了",
           "keywords": [
@@ -89015,8 +89028,8 @@
         {
           "anchor": "§5 验收读数",
           "level": 3,
-          "startLine": 4819,
-          "endLine": 4830,
+          "startLine": 4826,
+          "endLine": 4837,
           "tokens": 693,
           "summary": "typecheck npx tsc --noEmit（beads）= 零输出",
           "keywords": [
@@ -89031,8 +89044,8 @@
         {
           "anchor": "§6 宽度实测销号（2026-10-23 追批）",
           "level": 3,
-          "startLine": 4831,
-          "endLine": 4840,
+          "startLine": 4838,
+          "endLine": 4847,
           "tokens": 609,
           "summary": "用户从收尾三选项选 1 = 给新行做宽度实测（把 [待实测] 销掉，超宽当场裁文案）。结论：不超宽，文案不动。",
           "keywords": [
@@ -89044,9 +89057,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 72406,
+      "tokens": 72521,
       "lines": 166,
-      "sha256": "64aa3d0bec10777d4588483efb8919a7bfef6a8e499a9ac7d8ff3181573d9aac",
+      "sha256": "771a4e00e82d932edbaca434d9a5341ba2587cad07477543f36735be5a9b8d1c",
       "tier": "hot",
       "sections": [
         {
@@ -89054,7 +89067,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 167,
-          "tokens": 72397,
+          "tokens": 72512,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
