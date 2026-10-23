@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5513,
       "lines": 146,
-      "sha256": "4e72b437f117e7ccd5b9086d5dbb152cb58643e12970a8da9805721c8785d957",
+      "sha256": "dc0d5e3ff28f580ee1ab29e501847271d860dd0c84835571732278a54d0e4204",
       "tier": "normal",
       "sections": [
         {
@@ -37836,17 +37836,17 @@
     },
     {
       "path": "games/beads/design/proposals/main-menu-entry-strategy.md",
-      "tokens": 1933,
-      "lines": 97,
-      "sha256": "8cbb480148bad6d1f07b1fdd24f4d15855b3a2cc2d4a65367222b8e7172cef4d",
+      "tokens": 3946,
+      "lines": 119,
+      "sha256": "7816dd59c133d73a81783e9f1d59dc38f3b536b0d0cfdf28e312e6d998448d72",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§提案 · 待裁｜主菜单入口策略（Main Menu Entry Strategy）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 98,
-          "tokens": 1909,
+          "endLine": 120,
+          "tokens": 3922,
           "summary": "项目：games/beads · 性质：proposal（提案档），零落码、零领号",
           "keywords": [
             "Main",
@@ -37860,9 +37860,9 @@
         {
           "anchor": "§0 一页纸结论",
           "level": 2,
-          "startLine": 11,
-          "endLine": 21,
-          "tokens": 181,
+          "startLine": 12,
+          "endLine": 23,
+          "tokens": 247,
           "summary": "1 现在最该补的入口 签到（信箱实装） —— 逻辑活着、入口是禁用空圆（死链），零新机制",
           "keywords": [
             "一页纸结论"
@@ -37871,8 +37871,8 @@
         {
           "anchor": "§1 现状核对（只列已核实事实）",
           "level": 2,
-          "startLine": 22,
-          "endLine": 34,
+          "startLine": 24,
+          "endLine": 36,
           "tokens": 229,
           "summary": "顶栏三钮 = 设置（实装）+ 公告/信箱（禁用空圆 α0.5、无图标、无热区） meta-view.ts:763-824",
           "keywords": [
@@ -37885,8 +37885,8 @@
         {
           "anchor": "§2 竞品入口 → 五类归档（我们怎么取）",
           "level": 2,
-          "startLine": 35,
-          "endLine": 46,
+          "startLine": 37,
+          "endLine": 48,
           "tokens": 265,
           "summary": "进度 第N关胶囊 / 关卡地图 / 每日一关 / 任务 已有（走马灯木牌 + 选关 overlay；每日见 P3） 第 ",
           "keywords": [
@@ -37899,9 +37899,9 @@
         {
           "anchor": "§3 三条建议（优先级序）",
           "level": 2,
-          "startLine": 47,
-          "endLine": 73,
-          "tokens": 481,
+          "startLine": 49,
+          "endLine": 94,
+          "tokens": 2242,
           "summary": "",
           "keywords": [
             "三条建议",
@@ -37911,8 +37911,8 @@
         {
           "anchor": "§P1 · 营业章 = 签到（**信封实装**，用户已裁）",
           "level": 3,
-          "startLine": 49,
-          "endLine": 56,
+          "startLine": 51,
+          "endLine": 58,
           "tokens": 172,
           "summary": "位置：顶栏右上「信箱」位（MENU_TOPBAR_X.mail = 648，现禁用空圆）；",
           "keywords": [
@@ -37927,8 +37927,8 @@
         {
           "anchor": "§P2 · 货架角 = 只读陈列",
           "level": 3,
-          "startLine": 57,
-          "endLine": 64,
+          "startLine": 59,
+          "endLine": 66,
           "tokens": 129,
           "summary": "位置：玻璃窗（橱窗）右下角一小格；",
           "keywords": [
@@ -37939,9 +37939,9 @@
         {
           "anchor": "§P3 · 今日订单 = 每日关（暂缓）",
           "level": 3,
-          "startLine": 65,
+          "startLine": 67,
           "endLine": 73,
-          "tokens": 135,
+          "tokens": 134,
           "summary": "位置：木牌板第二行槽位（与 ★ n/门槛 天然互斥：仅门票未达成时出现）；",
           "keywords": [
             "今日订单",
@@ -37950,10 +37950,26 @@
           ]
         },
         {
+          "anchor": "§P4 · 装扮馆（皮肤页）入口 —— 用户 2026-10-24 令「接入口 丙，请在主界面上设计入口位置」",
+          "level": 3,
+          "startLine": 74,
+          "endLine": 94,
+          "tokens": 1722,
+          "summary": "前提（已核实，非推定）：买断机制层已落码（WXG-T-360 · 提交 09adcc7）= 价目表 SKIN_PRICE",
+          "keywords": [
+            "WXG",
+            "adcc7",
+            "SKIN_PRICE",
+            "装扮馆",
+            "皮肤页",
+            "入口"
+          ]
+        },
+        {
           "anchor": "§4 元素手法（竞品 → 暖纸语言）",
           "level": 2,
-          "startLine": 74,
-          "endLine": 83,
+          "startLine": 95,
+          "endLine": 104,
           "tokens": 186,
           "summary": "居中大卡 + 高光 + 难度角标预览 玻璃窗框不动，只换玻璃内内容；完成度画成纸上「已拼格/留白格」，不做百分比数字",
           "keywords": [
@@ -37965,8 +37981,8 @@
         {
           "anchor": "§5 风险",
           "level": 2,
-          "startLine": 84,
-          "endLine": 91,
+          "startLine": 105,
+          "endLine": 112,
           "tokens": 158,
           "summary": "稀释单主钮：可点目标 >3 且视觉权重接近 ⇒ 首屏从「点哪」退化成「读什么」。本文三条里两条是只读/复活，今日订单一律",
           "keywords": [
@@ -37976,9 +37992,9 @@
         {
           "anchor": "§6 未决 / 依赖",
           "level": 2,
-          "startLine": 92,
-          "endLine": 98,
-          "tokens": 121,
+          "startLine": 113,
+          "endLine": 120,
+          "tokens": 237,
           "summary": "1. 信箱图标切图（B2/B3）出图时间 —— P1 的唯一硬前置；",
           "keywords": [
             "未决",
