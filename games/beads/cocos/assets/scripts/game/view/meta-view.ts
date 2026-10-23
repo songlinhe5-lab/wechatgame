@@ -124,6 +124,11 @@ export type MetaOverlay = 'none' | 'signin' | 'settings' | 'levels';
 export interface MetaViewData {
     readonly stamina: number;
     readonly staminaMax: number;
+    /**
+     * 今日还剩几次「广告加心」（§3.14 v1.80 日限）。`undefined` = 未接线（旧字面量 / 无 meta）
+     * ⇒ 资源条只显示 `心 n/n`，⛔ 不显示次数。
+     */
+    readonly heartAdsLeft?: number;
     readonly coins: number;
     readonly overlay: MetaOverlay;
     /**
@@ -708,6 +713,22 @@ function isPressed(data: MetaViewData, id: MetaAction): boolean {
  * - **墨色全读 palette**：牌面 `plaque_face` / 描边 `plaque_edge` / 亮线与铆钉 `plaque_bevel` /
  *   字 `wood_text`（对牌面 5.3:1 ✓）⇒ 视图内零 hex 字面（control-manifest §3）。
  */
+/**
+ * 资源条「心」端文案（§3.14 v1.80 日限可见，WXG-T-351 续）：
+ *
+ * - 满心（`stamina >= max`）⇒ 广告**不可用** ⇒ ⛔ 不显示次数（印「▶5」会误导成「现在能看」）；
+ * - 未满心 ⇒ 追 ` ▶N`（N 可为 0 = 「今天没额度了」，明确而非隐藏）；
+ * - `adsLeft === undefined`（未接线）⇒ 只显示 `心 n/n`（旧行为，零回归）。
+ *
+ * 单条 text ⇒ 每端仍是 1 条绘制命令（`menu-architecture §5.1b-2` 第十一批口径不变）。
+ */
+export function heartBarLabel(stamina: number, max: number, adsLeft?: number): string {
+    const base = `${stamina}/${max}`;
+    if (adsLeft === undefined) return base;
+    if (stamina >= max) return base;
+    return `${base} ▶${adsLeft}`;
+}
+
 function drawResourceBar(
     builder: RenderModelBuilder,
     data: MetaViewData,
@@ -740,7 +761,7 @@ function drawResourceBar(
         const iconX = MENU_PLAQUE_RIVET_INSET + MENU_PLAQUE_RIVET_R + 6;
         builder.blit(staminaIcon, x + iconX, cy - d / 2, d, d);
         builder.blit(coinIcon, x + g.w - iconX - d, cy - d / 2, d, d);
-        builder.text(x + iconX + d + 8, cy, `${data.stamina}/${data.staminaMax}`, {
+        builder.text(x + iconX + d + 8, cy, heartBarLabel(data.stamina, data.staminaMax, data.heartAdsLeft), {
             fill: palette.woodText,
             font: UI_FONT.label,
             align: 'left',
@@ -753,7 +774,7 @@ function drawResourceBar(
             baseline: 'middle',
         });
     } else {
-        builder.text(x + MENU_PLAQUE_ICON_INSET, cy, `❤ ${data.stamina}/${data.staminaMax}`, {
+        builder.text(x + MENU_PLAQUE_ICON_INSET, cy, `❤ ${heartBarLabel(data.stamina, data.staminaMax, data.heartAdsLeft)}`, {
             fill: palette.woodText,
             font: UI_FONT.label,
             align: 'left',

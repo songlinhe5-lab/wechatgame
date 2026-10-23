@@ -162,6 +162,7 @@ export class BeadsShell implements Game {
     private readonly _viewData = {
         stamina: 0,
         staminaMax: 0,
+        heartAdsLeft: 0,
         coins: 0,
         overlay: 'none' as MetaOverlay,
         signinDay: 0,
@@ -868,6 +869,8 @@ export class BeadsShell implements Game {
         const m = this.meta;
         v.stamina = m ? m.stamina : 0;
         v.staminaMax = m ? m.staminaMax : 0;
+        // §3.14 v1.80 日限可见：菜单资源条「心」端在未满心时显示今日剩余广告加心次数。
+        v.heartAdsLeft = m ? m.heartAdsLeft : 0;
         v.coins = m ? m.coins : 0;
         v.overlay = this._phase.overlay;
         // UI-42 前置（WXG-T-314）：选关页不透明度（淡入 ease-out、淡出 ease-in；静息 = undefined）。
