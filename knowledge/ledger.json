@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 162,
+  "nextId": 163,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -2669,7 +2669,7 @@
       "file": "knowledge/lessons/cross-ide.md",
       "category": "跨IDE",
       "title": "终端按列宽折行后的输出抄进编辑工具会夹入「词内假空格」；中文正文改完必做一次空格复核",
-      "contentHash": "45b42f841c73ef033ca06e8b94366cdc624881e1c6684627c9e6f401df0b48c3",
+      "contentHash": "a1c97a2e7df7ea27426218c2c02f82625fd44aed79e2ce2650ced8710754fbc9",
       "sourceTask": "WXG-T-349",
       "addedDate": "2026-10-22",
       "lastAccess": "2026-10-22",
@@ -2690,6 +2690,23 @@
       "sourceTask": "WXG-T-350",
       "addedDate": "2026-10-22",
       "lastAccess": "2026-10-22",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-162",
+      "state": "active",
+      "file": "knowledge/lessons/cross-ide.md",
+      "category": "跨IDE",
+      "title": "向 Markdown 表格追加行时拿「半截行」当追加锚 ⇒ 把相邻整行吞掉且工具不报警",
+      "contentHash": "7d864d07e4d5fdfddf0c6d63431df6e94a38a346b0fe80373e03ad2876a718f0",
+      "sourceTask": "WXG-T-354",
+      "addedDate": "2026-10-23",
+      "lastAccess": "2026-10-23",
       "accessCount": 0,
       "accessSources": [],
       "seen": [],
@@ -4121,6 +4138,24 @@
       "ids": [
         "K-160",
         "K-161"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-23",
+      "taskId": "WXG-T-355",
+      "kind": "added",
+      "ids": [
+        "K-162"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-23",
+      "taskId": "WXG-T-355",
+      "kind": "updated",
+      "ids": [
+        "K-160"
       ],
       "note": null
     }
