@@ -269,7 +269,13 @@ export class MetaState {
         return reward;
     }
 
-    /** 买心（钱包 A 包阶梯价）。满心或余额不足 → false；否则扣币加心、推进当日计数。 */
+    /**
+     * 买心（钱包 A 包阶梯价）。满心或余额不足 → false；否则扣币加心、推进当日计数。
+     *
+     * @deprecated §3.14 v1.80（WXG-T-351）：豆子买心**下线**（改纯广告加心），加心统一走
+     * {@link grantAdHearts}。保留为**内部 API**：仅单测与他处旧调用不炸，**UI 不得接**
+     * （同 {@link refillStamina} 的处置；阶梯价 `HEART_PRICE_LADDER` 保留不删）。
+     */
     buyHeart(): boolean {
         const now = this._clock();
         const today = dateKey(now);

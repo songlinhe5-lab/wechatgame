@@ -1256,6 +1256,11 @@ export const SIGNIN_REWARDS: readonly { coins: number; hearts: number }[] = [
 /**
  * §3.14 买心阶梯价（钱包 A 包）。**不冻结**——待 playtest 调参（systems-index
  * §3.14 明文「阶梯价不冻结」）；第 n 次购买（当日计数）取 `ladder[min(n, len-1)]`。
+ *
+ * @deprecated §3.14 v1.80（WXG-T-351）：豆子买心**下线**（改纯广告加心），
+ * `MetaState.buyHeart()` 降为内部 API、UI 不得接 ⇒ 本常量**保留不删**（§3.14 明写），
+ * 仅供 `MetaState.heartPrice` 与单测、旧调用；值本身仍未冻结 `[待 playtest]`
+ * （判例 `SPRINT_K_CURVE`）。
  */
 export const HEART_PRICE_LADDER: readonly number[] = [50, 100, 200];
 
