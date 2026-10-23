@@ -4755,6 +4755,7 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 | `games/beads/design/ux/ux-spec.md` | **v1.22 → v1.23**（前版原样留档）：§3.4 线框插入对照行 + 行末新增四条硬口径注 + 文末「变更记录 · v1.23」（红线自证 / 视觉影响与验收 / 未做项①②） |
 | `docs/architecture/ui-architecture-beads.md` | UI-33 段新增**视觉变更登记（2026-10-23 · WXG-T-355）**：几何改量、数据腿、`snap.revived` 门、金样本 `clear` +1 命令与复取纪律 |
 | `production/TASKS.md` | 头注推到 355 / 下一 356；主表新增 355 行 |
+| `games/beads/tests/__fixtures__/wxg-t-298-ui-golden.json` | **批 ②**：`ui-golden-capture.ts` 在锚 `df2eeee` 复取（两遍逐态 sha 自证 PASS）⇒ 只 `clear` 一条记录变（total 703 / kinds.text 14 / 新 sha）+ `capturedFrom` 换指；**⛔ 未手改夹具** |
 
 ### 3. 三条关键判断
 - **① 零新快照字段（省法核心）**：门槛秒数 = 视图对 `snap.finishLevels[snap.levelIndex].time` 调**同一个** `tierSecondsFor`（与 `tuning.ts::computeClearStars` 同源 ⇒ 不产生第二套判星口径）。`finishLevels` 在快照里已是关表只读引用（`beads-game.ts:2802` 注「视图 ⛔ 不 import LEVELS」），因此**不必新增 `clearLevelTime` / `clearElapsed`** ⇒ 本批零碰 `state.ts` 与 `beads-game.ts`，正好绕开并发会话的在途面。
@@ -4763,7 +4764,7 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 
 ### 4. 本批自纠（如实登记）
 - **上一轮对用户的口头结论不实**：「空着 70 设计像素、零布局改动」→ 本批实算净空 ~32.2px ⇒ 改为抬星级行的换形，并在 ux-spec v1.23 变更记录与本节写明「先前口径不准」。
-- **近形字 / 怪字符三发**（同 WXG-T-354 那一类）：① 注释里写出 `仍 ⋺ 零改 PANEL_SIZE`（U+22FA 混入；本注初稿连码点也记错成 U+22BA = `⊺`，已实测算出后改正）⇒ 修为「`PANEL_SIZE` 零改动」；② ux-spec 线框把「逐颗」写成「**逢颗**」⇒ 单独修回；③ ux-spec v1.23 变更记录里三条分隔符打成了**片假名中点 `・`（U+30FB）**⇒ 收尾码点机械扫才现形，已改回顿号 `、`。前两发靠 diff 自查发现，第三发**肉眼反复读未察**、只靠扫描抖出。
+- **近形字 / 怪字符三发**（同 WXG-T-354 那一类）：① 注释里写出 `仍 ⋺ 零改 PANEL_SIZE`（U+22FA 混入；本注初稿连码点也记错成 U+22BA = `⊺`，已实测算出后改正）⇒ 修为「`PANEL_SIZE` 零改动」；② ux-spec 线框把「逐颗」写成「**逢颗**」⇒ 单独修回；③ ux-spec v1.23 变更记录里三条分隔符打成了**片假名中点 `・`（U+30FB）**⇒ 收尾码点机械扫才现形，已改回顿号 `、`。前两发靠 diff 自查发现，第三发**肉眼反复读未察**、只靠扫描抖出。另：同一类错字在**工具参数**里连打两次（「锚 U+951A」打成「锤 U+9524」）⇒ 第一次靠 `Failed to match` 现形，第二次**已落进文件**、靠逐行读 diff 抓回并补上被吞的行尾 `|` ⇒ 印证「凡我手写 `original_text` 都是风险面，锚要取自实读字节」。
 - **取证命令选错**：第一次文本失真扫描用 `git diff -U0`（worktree vs **陈旧索引**），结果混进他会话 buy-confirm 版面行 ⇒ 改 `git diff HEAD -U0` 后干净。
 - **台账主表错锚吞行（本批最重的一次）**：追加 355 行时把 `original_text` 取成 354 行的**前半截** ⇒ 354 行标题被吞、其余文粘到 355 行尾，形成列数错乱的合并行，主表一度**不再有独立的 WXG-T-354 行**。处置 = 在串行 junction（`| 见详情 |（消 R-2 塌缩…`）处断行并补回前缀，并以 `cmp` 证明恢复后的 354 行与 `HEAD:production/TASKS.md` 第 124 行**逐字节相同**（1358 B）。教训 = 表格行追加的锚必须取**完整行或行尾唯一串**，⛔ 取半截行（凭记忆 `original_text` 错锚累计第 7 次）。
 
@@ -4771,11 +4772,11 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 
 | 项 | 结果 |
 |---|---|
-| 单测 | beads `vitest run` = **Test Files 1 failed ｜ 103 passed (104) · Tests 1 failed ｜ 1244 passed ｜ 3 skipped (1248)**；**本批 `tests/clear-panel.test.ts` ✓ 9 passed**。唯一红 = `ui-golden.test.ts > 对拍：ClearResultModal（clear）` `[total]: expected 703 to be 702` ⇒ **待复取而非回归**（+1 命令 = 本批新增那一行 text），按 K-051 / K-053 只能由 `tests/ui-golden-capture.ts` 在可复现锚重抓、⛔ 不手改夹具；先例 = `3499f4e`（代码）→ `7a274c1`（夹具复取）⇒ 本批按**两笔提交**走：批 ① 代码+测试+文档（该例红），批 ② 以批 ① 为锚复取夹具 |
+| 单测 | beads `vitest run` = **Test Files 1 failed ｜ 103 passed (104) · Tests 1 failed ｜ 1244 passed ｜ 3 skipped (1248)**；**本批 `tests/clear-panel.test.ts` ✓ 9 passed**。唯一红 = `ui-golden.test.ts > 对拍：ClearResultModal（clear）` `[total]: expected 703 to be 702` ⇒ **待复取而非回归**（+1 命令 = 本批新增那一行 text），按 K-051 / K-053 只能由 `tests/ui-golden-capture.ts` 在可复现锚重抓、⛔ 不手改夹具；先例 = `3499f4e`（代码）→ `7a274c1`（夹具复取）⇒ 本批按**两笔提交**走：批 ① = `df2eeee`（代码+测试+文档，该例红），批 ② = 以该笔为锚复取夹具。**批 ② 已跑**：`ui-golden-capture.ts` 两遍逐态 sha 自证 PASS ⇒ `clear` total 702 → **703**（`text` 13 → 14 = 本批新增那一行）、其余十态逐字不变（逐键对比只 1 态 DIFF）、`capturedFrom` 由 `3499f4e` 改指 `df2eeee` ⇒ `ui-golden.test.ts` ✓ 12 passed，全量 `pnpm run verify` = **PASS 22 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0**（含 typecheck / 镜像门 / 金样本对拍）|
 | 类型 | `pnpm run typecheck` = framework / beads / breakout **全 Done**（exit 0；WXG-T-354 登记的 8 条 `powerup-buy-confirm.test.ts` TS 错已不在，属并发会话自行收口） |
 | 镜像 | `pnpm run framework:sync` → ✅ beads **framework 61 + game 83｜写入 2、未变 142、删除 0**（写入的两件正是本批两个源件的镜像）、breakout 61 + 16｜写入 0 ⇒ **未碰对方一件镜像** |
 | 台账 | `check:tasks` **OK**（主表 **115** 行 ↔ 详情 **115** 节配对完整；I 项最近 40 笔共署 **16** 号全部在册；头注 = 355、下一可用 356）。首轮曾报两项：C「详情缺 `## WXG-T-355`」（随本节写入消除）、以及串行合并行造成的列数错乱（拆回后同一项转绿）。另 H 项 note：主表 115 > 观察哨 20 ⇒ 建议归档收敛（`tasks:archive -- --detail-until-under=7000 --write`，属独立小单，本批未做） |
 | 链接 / 索引 | `check:links` OK（agents=7 skills=47）；`ctx:build` 已刷新（3 个 dirty 件按 HEAD 内容索引）；`ctx:check` OK — 结构门 A/B/C/D/D2 + E3 全通过 |
 | 知识库 | `kb:sync --task=WXG-T-355`：**沉淀统计 = 新增 0 ｜ 修改 0 ｜ 激活 0 ｜ 归档 0**（活跃 158 / 归档 0，写入「无：工作树与产物一致」）⇒ 本批**零知识写入**，2 条候选（近形字码点机械扫 / 表格行追加的锚取法）待用户点头再落 |
-| 文本失真对撞 | 收尾以 `git diff HEAD -U0` 限定**新增行 158 行**做码点机械扫：零宽字符（U+200B/200C/200D/FEFF/2060）命中 **0**；`U+5854 塔` = 1、`U+9022 逢` = 2、`U+22FA ⋺` = 2、`U+22BA ⊺` = 1、`U+30FB ・` = 3 —— 逐件定位后全部在台账两件（`TASKS-DETAIL.md` 本节的自纠引用 + `TASKS.md` 头注沿旧文的「每页面・每弹窗」），**代码 / ux-spec / ui-architecture 侧 residual 0**；`・` 曾命中我新写的 ux-spec v1.23 一行 ⇒ 已改回 `、`（见 §4③）。非常用符号盘点 = `§ ①–⑪ ／ ＝ ≈ − ′ ² ∪ ⇔ ↔ α Δ ～ ║ 〔〕 ⚠ ✅ ✓` 逐类核对均为本文既用记号（α = 仓内既有「遮罩 alpha」写法，非本批新造），无异常混入；CJK 之间 ≥2 空格命中 **0**；`\S {2,}\S` 命中 7 行（其中 4 行为缩进代码 / markdown 续行）⇒ 无假空格 |
-| 未做 / 遗留 | ① 选关页每关三档门槛（用户裁甲不含）；② 真机可读性 `[待真机]`（28px 在手机上的实际辨识度未经试玩）；③ 批 ② 夹具复取须在批 ① 入库后跑，跑前须确认锚 commit 可复现 |
+| 文本失真对撞 | 收尾以 `git diff HEAD -U0` 限定**新增行 158 行**做码点机械扫：零宽字符（U+200B/200C/200D/FEFF/2060）命中 **0**；`U+5854 塔` = 1、`U+9022 逢` = 2、`U+22FA ⋺` = 2、`U+22BA ⊺` = 1、`U+30FB ・` = 3 —— 逐件定位后全部在台账两件（`TASKS-DETAIL.md` 本节的自纠引用 + `TASKS.md` 头注沿旧文的「每页面・每弹窗」），**代码 / ux-spec / ui-architecture 侧 residual 0**；`・` 曾命中我新写的 ux-spec v1.23 一行 ⇒ 已改回 `、`（见 §4③）。非常用符号盘点 = `§ ①–⑪ ／ ＝ ≈ − ′ ² ∪ ⇔ ↔ α Δ ～ ║ 〔〕 ⚠ ✅ ✓` 逐类核对均为本文既用记号（α = 仓内既有「遮罩 alpha」写法，非本批新造），无异常混入；CJK 之间 ≥2 空格命中 **0**；`\S {2,}\S` 命中 7 行（其中 4 行为缩进代码 / markdown 续行）⇒ 无假空格。**批 ② 台账与夹具复扫**：零宽 0、`\S {2,}\S` 0；塔 / ⋺ / ⊺ / ・ / 逢 / 锤 六类逐件定位 = 只出现在 §4 与本行两处引文内（故意引用错字本身；计数因自引会浮动，故只记归属不记定值），代码侧 residual 0；夹具 JSON 侧改动 = 4 行（`capturedFrom` + `clear` 的 total / kinds.text / sha），其余十态逐字节不变，本批未新造任何符号 ⇒ 无活错字入库 |
+| 未做 / 遗留 | ① 选关页每关三档门槛（用户裁甲不含）；② 真机可读性 `[待真机]`（28px 在手机上的实际辨识度未经试玩）；③ 批 ② 夹具复取**已交付**（锚 commit = `df2eeee`，读数见 §5 单测行） |

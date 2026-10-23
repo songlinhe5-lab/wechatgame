@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4630,
       "lines": 159,
-      "sha256": "ca44be91d06e5b4f693a073fd33081b2d77096e2de3b52c759ddb56cde872d46",
+      "sha256": "f83f7b31691a17e31349aa8f6742084963dd4d41e0afd5ace9e5ca4c0706915e",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 402,
-          "summary": "1 production/TASKS-DETAIL.md 207424 4781 normal",
+          "summary": "1 production/TASKS-DETAIL.md 207859 4782 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -422,7 +422,7 @@
           "startLine": 46,
           "endLine": 134,
           "tokens": 3121,
-          "summary": "production/TASKS-DETAIL.md 207424 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 207859 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5513,
       "lines": 146,
-      "sha256": "c53798cbe9a3c752b55bb6547b118a064b3a96d4d0dbc9e9967f0b4b08654712",
+      "sha256": "10b2393620f0dadf26ecc16f5e8e60c348e31bbb8a20f1293aa35e38338604d4",
       "tier": "normal",
       "sections": [
         {
@@ -745,7 +745,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 165 行 / 71010 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 165 行 / 71046 tok / 实测读 4 次",
           "level": 2,
           "startLine": 27,
           "endLine": 30,
@@ -968,7 +968,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 4781 行 / 207424 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 4782 行 / 207859 tok",
           "level": 2,
           "startLine": 92,
           "endLine": 96,
@@ -84162,9 +84162,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 207424,
-      "lines": 4781,
-      "sha256": "8717909f778c9920fbb555cd91f74c630eeb658159d865027278af3898ad3321",
+      "tokens": 207859,
+      "lines": 4782,
+      "sha256": "e2aec29aa3349b2e61e10f12930b7ef51274aeafab24ba6ad3fd5bfb40fcdae3",
       "tier": "normal",
       "sections": [
         {
@@ -86685,8 +86685,8 @@
           "anchor": "§beads·fit 档放开「只缩不放大」钳（小盘放大铺满留边 + 初始视图 = 适配档）",
           "level": 1,
           "startLine": 3026,
-          "endLine": 4782,
-          "tokens": 105039,
+          "endLine": 4783,
+          "tokens": 105474,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
             "beads",
@@ -88822,8 +88822,8 @@
           "anchor": "§WXG-T-355",
           "level": 2,
           "startLine": 4737,
-          "endLine": 4782,
-          "tokens": 2954,
+          "endLine": 4783,
+          "tokens": 3389,
           "summary": "beads·结算·过关面板「判星对照」行（§3.7 三档时钟外显 · UX 裁甲）",
           "keywords": [
             "§3.7",
@@ -88851,8 +88851,8 @@
           "anchor": "§2 交付清单 (4)",
           "level": 3,
           "startLine": 4748,
-          "endLine": 4758,
-          "tokens": 465,
+          "endLine": 4759,
+          "tokens": 542,
           "summary": "games/beads/src/systems/clear-panel.ts ClearPanelLayout 新增 c",
           "keywords": [
             "games",
@@ -88866,8 +88866,8 @@
         {
           "anchor": "§3 三条关键判断 (3)",
           "level": 3,
-          "startLine": 4759,
-          "endLine": 4763,
+          "startLine": 4760,
+          "endLine": 4764,
           "tokens": 484,
           "summary": "① 零新快照字段（省法核心）：门槛秒数 = 视图对 snap.finishLevels[snap.levelIndex]",
           "keywords": [
@@ -88880,9 +88880,9 @@
         {
           "anchor": "§4 本批自纠（如实登记） (2)",
           "level": 3,
-          "startLine": 4764,
-          "endLine": 4769,
-          "tokens": 500,
+          "startLine": 4765,
+          "endLine": 4770,
+          "tokens": 599,
           "summary": "上一轮对用户的口头结论不实：「空着 70 设计像素、零布局改动」→ 本批实算净空 ~32.2px ⇒ 改为抬星级行的换形",
           "keywords": [
             "本批自纠",
@@ -88892,9 +88892,9 @@
         {
           "anchor": "§5 验收（本批当场实跑读数）",
           "level": 3,
-          "startLine": 4770,
-          "endLine": 4782,
-          "tokens": 959,
+          "startLine": 4771,
+          "endLine": 4783,
+          "tokens": 1219,
           "summary": "单测 beads vitest run = Test Files 1 failed ｜ 103 passed (104)",
           "keywords": [
             "beads",
@@ -88909,9 +88909,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 71010,
+      "tokens": 71046,
       "lines": 165,
-      "sha256": "0cc1d3cf99c0db1409fe2a6d2fb05d42a86595bb7d681d7560be0cc9c7a2e67f",
+      "sha256": "2b8da494cc19d3e7a0399a2fa3061cc1f2624448ca2ec9f089ae2da5aaa572c0",
       "tier": "hot",
       "sections": [
         {
@@ -88919,7 +88919,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 166,
-          "tokens": 71001,
+          "tokens": 71037,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
