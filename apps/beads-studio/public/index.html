@@ -208,6 +208,13 @@
             border-color: var(--ac);
         }
 
+        /* 刚存下的那条：高亮 + 浅底，免得用户在一长列 id 里找不到以为没保存成功（2026-10-24 实测反馈） */
+        .item.on {
+            border-color: var(--ac);
+            background: #eef2fe;
+            font-weight: 600;
+        }
+
         .item small {
             color: #999;
         }
@@ -787,12 +794,14 @@
             if (current) location.href = '/manage.html?result=' + encodeURIComponent(current.id);
         };
 
-        /** 单条结果行（列表是轻投影，点开才拉单条全量）。 */
-        function resultItem(r) {
-            const d = document.createElement('div'); d.className = 'item';
+        /** 单条结果行（列表是轻投影，点开才拉单条全量）。`focus` = 刚保存的那条，高亮并滚到可视区。 */
+        function resultItem(r, focus) {
+            const d = document.createElement('div'); d.className = 'item' + (focus ? ' on' : '');
             const noImp = r.importable === false;
+            // 尺寸用**实际盘面**（trim 后），与 id 里的请求档位可能不同（13x12 档可能裁成 11×8）——
+            // 这一列就是给用户判断"能不能不加裁剪地换回该关"的依据，缺了就会怀疑筛错了。
             // 最右列窄 ⇒ id 视觉上省略，完整值放 title（悬停可见），别让用户失去识别依据
-            d.innerHTML = `<span title="${r.id}">${noImp ? (r.misMode === 'none' ? 'ℹ ' : '⚠ ') : ''}${r.id}</span><small>${r.colors} 色 · ${r.misMode === 'full' ? '全错位' : r.misMode === 'max' ? '最大化错位' : r.misMode === 'none' ? '不错位' : '错位 ' + r.swaps * 2}${noImp ? (r.misMode === 'none' ? ' · 游戏不入关' : ' · 不可入关') : ''}</small>`;
+            d.innerHTML = `<span title="${r.id}">${noImp ? (r.misMode === 'none' ? 'ℹ ' : '⚠ ') : ''}${r.id}</span><small>${r.cols}×${r.rows} · ${r.colors} 色 · ${r.misMode === 'full' ? '全错位' : r.misMode === 'max' ? '最大化错位' : r.misMode === 'none' ? '不错位' : '错位 ' + r.swaps * 2}${noImp ? (r.misMode === 'none' ? ' · 游戏不入关' : ' · 不可入关') : ''}</small>`;
             d.onclick = async () => {
                 try {
                     const full = await (await fetch('/api/results/' + r.id)).json();
@@ -820,16 +829,24 @@
             return d;
         }
 
-        async function loadResults() {
+        /** `focusId` = 刚保存的那条：高亮 + 滚到可视区；若它被当前筛选挡住 ⇒ 自动取消「只看该关尺寸」。 */
+        async function loadResults(focusId) {
             try {
                 const { results } = await (await fetch('/api/results')).json();
-                // 关卡模式默认只列**与该关同尺寸**的已存结果（替换进这一关时尺寸一致才不会重裁）；
+                // 关卡模式默认只列**为该关尺寸生成的**已存结果（替换进这一关时尺寸一致才不会重裁）。
+                // 判据 = 请求盘位档 `board` **或** trim 后实际行列 =
+                //   · 只比实际 cols/rows ⇒ 刚保存的那条永远筛不进来：beads-gen 裁空边，
+                //     13×12 档实测裁成 11×8（2026-10-24 用户报"第二次没保存下来"，
+                //     磁盘上 result.json 在、列表却还是 1/179 ⇒ 看着像没存）。
+                //   · board 是生成时点的档位，才是"我为这关生成的"那个口径。
                 // 勾掉复选框看全部（其它尺寸同样能替换，只是时长/门禁按新盘重算）。
                 const cell = levelInfo ? levelInfo.cells[levelCell] : null;
+                const cellBoard = cell ? `${cell.cols}x${cell.rows}` : '';
+                const sameAsCell = (r) => r.board === cellBoard || (r.cols === cell.cols && r.rows === cell.rows);
+                // 兜底：刚存的这条若按上面两条都不匹配（例如盘位档与尺寸都改过），本次直接取消筛选让它可见
+                if (focusId && cell && onlySame && !results.filter(sameAsCell).some((r) => r.id === focusId)) onlySame = false;
                 const onlySameOn = !!(cell && onlySame);
-                const shown = onlySameOn
-                    ? results.filter((r) => r.cols === cell.cols && r.rows === cell.rows)
-                    : results;
+                const shown = onlySameOn ? results.filter(sameAsCell) : results;
                 const el = $('results');
                 if (cell) {
                     el.innerHTML = `<b>已存结果</b> <small>（该关 ${cell.cols}×${cell.rows} · ${shown.length}/${results.length} 条）</small>` +
@@ -838,13 +855,18 @@
                 } else {
                     el.innerHTML = '<b>已存结果</b> <small>（GET /api/results，小游戏在线导入同源）</small>';
                 }
+                let focusEl = null;
                 if (onlySameOn) {
                     // 同尺寸过滤后按盘位档分组没意义（16x16 档常被裁成 13×12）⇒ 平铺，空则给出口
                     const grp = document.createElement('div'); grp.className = 'grp';
                     if (!shown.length) {
                         grp.innerHTML = `<small style="color:#999">没有 ${cell.cols}×${cell.rows} 的已存结果 —— 取消勾选「只看该关尺寸」可看全部</small>`;
                     } else {
-                        for (const r of shown) grp.appendChild(resultItem(r));
+                        for (const r of shown) {
+                            const it = resultItem(r, r.id === focusId);
+                            if (r.id === focusId) focusEl = it;
+                            grp.appendChild(it);
+                        }
                     }
                     el.appendChild(grp);
                 } else {
@@ -853,10 +875,15 @@
                     for (const [board, list] of Object.entries(byBoard)) {
                         const grp = document.createElement('div'); grp.className = 'grp';
                         grp.innerHTML = `<h3>${board}（${list.length}）</h3>`;
-                        for (const r of list) grp.appendChild(resultItem(r));
+                        for (const r of list) {
+                            const it = resultItem(r, r.id === focusId);
+                            if (r.id === focusId) focusEl = it;
+                            grp.appendChild(it);
+                        }
                         el.appendChild(grp);
                     }
                 }
+                focusEl?.scrollIntoView({ block: 'nearest' });
             } catch { /* 列表失败不阻塞主流程 */ }
         }
         // ── [?level=<uid>] 大关管理页 → 生成页（WXG-T-373）：载入该关图案，编辑完一键替换回该关 ──
@@ -993,8 +1020,14 @@
                 if (!r.ok) throw new Error(j.error || ('HTTP ' + r.status));
                 current = { ...current, draft: false };
                 show(current);          // 刷新徽章/按钮：入关与烘焙这时才可用
-                msg(`已存入历史：${j.id}`, 'ok');
-                loadResults();
+                // 保存成功要报**实际盘面**并点名尺寸差：id 里的档位是请求值，trim 后可能小一圈，
+                // 不提这一句用户会以为"存的不是我要的"或"根本没存"（2026-10-24 实测）。
+                const cell = levelInfo ? levelInfo.cells[levelCell] : null;
+                const dimDiff = cell && (current.cols !== cell.cols || current.rows !== cell.rows)
+                    ? `｜实际盘 ${current.cols}×${current.rows} ≠ 该关 ${cell.cols}×${cell.rows}（trim 裁空边所致；替换回该关会按新盘面重算）`
+                    : '';
+                msg(`已存入历史：${j.id}｜实际盘 ${current.cols}×${current.rows}${dimDiff}`, 'ok');
+                await loadResults(j.id);                // 高亮并滚到刚存的那条
                 if (levelInfo) renderLevelBar(j.id);   // 入库后才有「替换回该关」
             } catch (e) {
                 msg('保存失败：' + e.message, 'err');
