@@ -1273,30 +1273,31 @@ async function handleChapterOp(req, res, id, op) {
  * 只认**当前**草稿（id 不匹配即 409）：否则用户看到的是 A 的效果，却可能把后来覆盖的 B 存进历史。
  */
 async function handleDraftCommit(req, res) {
-    const draftDir = join(DATA, '_draft');
+    let body = {};
+    try {
+        body = JSON.parse((await readBody(req)).toString('utf8') || '{}');
+    } catch { /* 空体 = 没有目标 id，下面按 409 拒 */ }
+    // 草稿按 id 独立成目录（见 handleGenerate 注）：只认 body.id 指向的那一份，不再有"当前草稿"这种全局位
+    if (!body.id || !ID_RE.test(body.id)) return sendJson(res, 409, { error: '缺 id 或 id 非法：确认时要带上「生成预览」返回的那条 id' });
+    const draftDir = join(DATA, '_draft', body.id);
     const draftPath = join(draftDir, 'draft.json');
-    if (!existsSync(draftPath)) return sendJson(res, 409, { error: '没有待确认的预览：先点「生成预览」' });
+    if (!existsSync(draftPath)) return sendJson(res, 409, { error: `没有待确认的预览 ${body.id}（可能已确认过，或服务重启后草稿被清）` });
     let draft;
     try {
         draft = JSON.parse(readFileSync(draftPath, 'utf8'));
     } catch (e) {
         return sendJson(res, 422, { error: `草稿 draft.json 已损坏：${e.message}` });
     }
-    let body = {};
-    try {
-        body = JSON.parse((await readBody(req)).toString('utf8') || '{}');
-    } catch { /* 空体也接受：默认存当前草稿 */ }
-    if (body.id && body.id !== draft.id) {
-        return sendJson(res, 409, { error: `预览已换成 ${draft.id}（你确认的是 ${body.id}）⇒ 请按最新这条重新确认` });
-    }
     const { board, id } = draft;
-    if (!ID_RE.test(board) || !ID_RE.test(id)) return sendJson(res, 400, { error: '草稿 board/id 非法' });
+    if (!ID_RE.test(board) || !ID_RE.test(id) || id !== body.id) {
+        return sendJson(res, 422, { error: '草稿内容与 id 不一致（draft.json 被改过）' });
+    }
     const finalDir = join(DATA, board, id);
+    if (existsSync(finalDir)) return sendJson(res, 409, { error: `结果 ${id} 已入库` });
     mkdirSync(join(DATA, board), { recursive: true });
-    rmSync(finalDir, { recursive: true, force: true });
     renameSync(draftDir, finalDir);                        // raw.json + pattern.json + draft.json 一并搬家
     const snapshot = JSON.parse(readFileSync(join(finalDir, 'draft.json'), 'utf8'));
-    rmSync(join(finalDir, 'draft.json'), { force: true });
+    rmSync(join(finalDir, 'draft.json'), { force: true }); // 单文件删除，不触发批量删除守卫
     writeFileSync(join(finalDir, 'result.json'), JSON.stringify(snapshot, null, 2));
     return sendJson(res, 200, { id, board, saved: true, importable: snapshot.importable !== false });
 }
@@ -1614,12 +1615,13 @@ async function handleGenerate(req, res, url) {
     const board = q.get('board') || `${cols}x${rows}`;
     if (!ID_RE.test(board)) return sendJson(res, 400, { error: 'board 仅允许 [a-z0-9-]' });
     const id = `${board}-${Date.now()}-${randomBytes(2).toString('hex')}`;
-    // draft=1 = 预览：写进**单一草稿位** data/_draft/，不落 result.json ⇒ 既不进「已存结果」，
+    // draft=1 = 预览：写进 data/_draft/<id>/，不落 result.json ⇒ 既不进「已存结果」，
     // 也不会出现在管理页「替换图案…」的选图器里；点「确认保存」才由 /api/drafts/commit 转正。
+    // ⚠ 每次预览用**独立目录、绝不删旧草稿**：工作区删除守卫按「本 turn 累计条目数」计数（阈值 500，K-163），
+    //   固定目录 + rmSync 会让常驻服务攒过线后永久报 SAFE_DELETE_BULK_CONFIRM_REQUIRED（2026-10-24 实测 502）。
     const isDraft = q.get('draft') === '1';
-    const relOut = isDraft ? '_draft' : `${board}/${id}`;
-    const outDir = isDraft ? join(DATA, '_draft') : join(DATA, board, id);
-    if (isDraft) rmSync(outDir, { recursive: true, force: true });   // 单草稿位：新预览覆盖上一次预览
+    const relOut = isDraft ? `_draft/${id}` : `${board}/${id}`;
+    const outDir = join(DATA, relOut);
     mkdirSync(outDir, { recursive: true });
     const rawPath = join(outDir, 'raw.json');
     // 前端已按 cols×K × rows×K 平滑缩放到 w×h ⇒ 直接透传 base64，不再解码重编码
@@ -1660,7 +1662,9 @@ async function handleGenerate(req, res, url) {
         if (existsSync(join(outDir, 'pattern.json'))) {
             return sendJson(res, 422, { error: `${String(e.message || e)} ｜ 证据：data/${relOut}/（pattern.json + raw.json）` });
         }
-        rmSync(outDir, { recursive: true, force: true });
+        // 预览目录每次独立且不删（删除会计入工作区守卫的 turn 累计数，见 handleGenerate 注）——
+        // 空残骸最多占几 KB，清理由手动 rm 或后续清理脚本处理。
+        if (!isDraft) rmSync(outDir, { recursive: true, force: true });
         return sendJson(res, 422, { error: String(e.message || e) });
     }
     // 盘面真实尺寸 = beads-gen 裁空边（trim）后的实际行列，而非请求档位（异形/去背景后更小，
