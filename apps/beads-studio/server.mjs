@@ -14,10 +14,14 @@
  *        关卡模式「按该关尺寸生成」用它：否则 13×12 请求会被裁成 11×8，替换回该关就改盘面尺寸。
  *   GET  /api/results         → 结果列表（按盘面分组、时间倒序）
  *   GET  /api/results/:id     → 单个 result.json（小游戏在线导入用）
+ *   GET  /api/previews        → **预览草稿**列表（data/_draft/<id>/draft.json 的轻投影，`draft:true`）
+ *   GET  /api/previews/:id    → 单条预览全文（生成页「点行应用为当前」用；未入库故不入 /api/results）
  *   GET  /api/results/:id/thumb → 原图缩略图二进制（管理页选图器用；无 thumb ⇒ 404）
  *   GET  /api/results/:id/paint → 拼豆图案（pattern + paletteHex，旧条目无原图缩略图时选图器自己画）
  *   GET  /api/results/:id/level → 直接回 levelDraft（小游戏字段最少化；不可入关 ⇒ 422 + 原因）
- *   DELETE /api/results/:id     → 删除该条结果（整目录；id 走 [a-z0-9-] 白名单，不可逆）
+ *   DELETE /api/results/:id     → 删除该条结果（整目录；id 走 [a-z0-9-] 白名单，不可逆）。
+ *        同一路径也删**预览草稿**（data/_draft/<id>）：前端只留右侧 ✕ 这一个删除入口，
+ *        生成过的版面在确认保存前也不自动清理（2026-10-24 用户裁定）。
  *   POST /api/results/:id/ingest → 一键入关（WXG-T-341：body `{chapter}` 指定目标大关，插 boss 前）
  *   POST /api/manage/chapter/:id/import → 批量入关（body `{resultIds:[...]}`≤10 条，同一事务，失败整批回滚）
  *
@@ -185,9 +189,36 @@ function listResults() {
     return out;
 }
 
+/** 列出 `data/_draft/<id>/draft.json`（未确认保存的预览；时间倒序，轻投影 + `draft:true`）。
+ *  刻意**不进 `listResults`**：那条投影同时喂小游戏在线导入与管理页选图器，
+ *  而预览还没搬进 `data/<board>/<id>/`（按 id 找 result.json 会 404）⇒ 由 /api/previews 单独供生成页。
+ *  「生成过的版面一律留档，只有右侧 ✕ 能删」是 2026-10-24 用户裁定。 */
+function listPreviews() {
+    const dir = join(DATA, '_draft');
+    if (!existsSync(dir)) return [];
+    const out = [];
+    for (const id of readdirSync(dir)) {
+        try {
+            const d = JSON.parse(readFileSync(join(dir, id, 'draft.json'), 'utf8'));
+            out.push({
+                id: d.id, board: d.board, cols: d.cols, rows: d.rows, shape: d.shape,
+                palette: d.palette, colors: d.colors, swaps: d.swaps, misMode: d.misMode || 'swaps',
+                createdAt: d.createdAt,
+                slots: Math.max(1, Math.ceil(d.cols / 32)) * Math.max(1, Math.ceil(d.rows / 32)),
+                importable: d.importable !== false ? true : false,
+                hasThumb: !!d.thumb,
+                draft: true,
+            });
+        } catch {
+            /* 跳过损坏 / 非预览目录 */
+        }
+    }
+    out.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+    return out;
+}
+
 /** id 只允许 [a-z0-9-]，防目录穿越。 */
 const ID_RE = /^[a-z0-9][a-z0-9-]{0,63}$/;
-
 /**
  * demo 回落色板长度（= 游端 `LEVELS_DATA.palette`，真源 `design/levels/palette.json`）。
  * 不硬编：它才是「无品牌引用时索引能画到多远」的真实边界（§3.2 v1.55 连带）。
@@ -1736,7 +1767,25 @@ async function handle(req, res) {
                     return sendJson(res, 200, { deleted: del[1], board });
                 }
             }
+            // 预览草稿同路径删（生成页只有右侧 ✕ 一个删除入口，预览/已存同一套动作）
+            const draftDir = join(DATA, '_draft', del[1]);
+            if (existsSync(join(draftDir, 'draft.json'))) {
+                rmSync(draftDir, { recursive: true, force: true });
+                return sendJson(res, 200, { deleted: del[1], board: '_draft', draft: true });
+            }
             return sendJson(res, 404, { error: 'not found' });
+        }
+        // 预览草稿（未确认保存）：列表 + 单条全文。生成页靠它把预览也摆进「已存结果」一栏。
+        if (req.method === 'GET' && path === '/api/previews') return sendJson(res, 200, { previews: listPreviews() });
+        const pv = path.match(/^\/api\/previews\/([a-z0-9][a-z0-9-]{0,63})$/);
+        if (req.method === 'GET' && pv) {
+            const f = join(DATA, '_draft', pv[1], 'draft.json');
+            if (!existsSync(f)) return sendJson(res, 404, { error: `预览 ${pv[1]} 不存在（可能已确认保存或已删除）` });
+            try {
+                return sendJson(res, 200, { ...JSON.parse(readFileSync(f, 'utf8')), draft: true });
+            } catch (e) {
+                return sendJson(res, 422, { error: `预览 draft.json 已损坏：${e.message}` });
+            }
         }
         // 只读：生成页 `?level=<uid>` 载入该关图案（管理页点小关 → 跳生成页编辑）
         const ml = path.match(/^\/api\/levels\/([LP]\d{1,9})$/);

@@ -671,6 +671,7 @@
                     (exact ? `（按该关尺寸 ${cell.cols}×${cell.rows}，未裁边）` : '') +
                     '｜满意再点「✓ 确认保存这条结果」才进历史', 'ok');
                 if (levelInfo) renderLevelBar(null);   // 预览尚未入库 ⇒ 暂不给「替换回该关」
+                loadResults(j.id);                     // 预览也进列表（「预览」组，标「使用中」）
             } catch (e) { msg('生成失败：' + e.message, 'err'); }
             $('gen').disabled = false;
         };
@@ -812,48 +813,54 @@
             if (current) location.href = '/manage.html?result=' + encodeURIComponent(current.id);
         };
 
-        /** 把一条**已存结果**应用为当前（画布 + 高亮 + 关卡条「替换回该关」入口）。
-         *  与「生成预览」的差别：它已在 data/<board>/<id>/ 落盘 ⇒ 可入关/烘焙/替换回该关，
-         *  但没有「待确认保存」的身份（`commit` 恒禁用，见 show() 的 title 说明）。
-         *  此前点历史条目只画图、不刷关卡条 ⇒ 关卡模式下拿历史结果没法替换回该关。 */
-        function applyResult(r, el) {
+        /** 把列表里的任一条（已存结果 或 预览草稿）应用为当前。
+         *  已入库 ⇒ 可入关/烘焙/替换回该关；预览 ⇒ 只能「确认保存」转正后再走那三步（show() 会置灰）。
+         *  应用后重跑列表：靠 `current.id` 把「使用中」标到这一行（不另存状态，避免两处漂移）。 */
+        function applyResult(r) {
             current = r;
             show(r);
-            for (const it of document.querySelectorAll('#results .item.on')) it.classList.remove('on');
-            el?.classList.add('on');   // 标出"当前这条"，避免看花后不知道画布是哪份
             const cell = levelInfo ? levelInfo.cells[levelCell] : null;
             const dimDiff = cell && (r.cols !== cell.cols || r.rows !== cell.rows)
                 ? `｜实际盘 ${r.cols}×${r.rows} ≠ 该关 ${cell.cols}×${cell.rows}：替换回该关会改盘面尺寸`
                 : '';
-            msg(`已应用历史结果：${r.id}｜实际盘 ${r.cols}×${r.rows}` +
-                (levelInfo ? `｜可点关卡条「用 ${r.id} 替换 ${levelInfo.uid}」` : '') + dimDiff, 'ok');
-            if (levelInfo) renderLevelBar(r.id);   // 历史条目也走同一条写盘路径（replace + 门禁 + 实测）
+            msg(`已应用${r.draft ? '预览（未入库，先「确认保存」才能替换/入关）' : '历史结果'}：${r.id}｜实际盘 ${r.cols}×${r.rows}` +
+                (!r.draft && levelInfo ? `｜可点关卡条「用 ${r.id} 替换 ${levelInfo.uid}」` : '') + dimDiff, 'ok');
+            // 预览目录在 data/_draft/<id>（按 id 找 result.json 会扑空）⇒ 不给替换入口
+            if (levelInfo) renderLevelBar(r.draft ? null : r.id);
+            loadResults(r.id);
         }
 
-        /** 单条结果行（列表是轻投影，点开才拉单条全量）。`focus` = 刚保存的那条，高亮并滚到可视区。 */
-        function resultItem(r, focus) {
-            const d = document.createElement('div'); d.className = 'item' + (focus ? ' on' : '');
+        /** 单条结果行（轻投影；点开才拉全文）。`inUse` = 当前应用在画布上的那条（标「使用中」）。
+         *  预览草稿（`r.draft`）与已存结果同一套行：都能点开应用、都只能由右侧 ✕ 删除。 */
+        function resultItem(r, inUse) {
+            const d = document.createElement('div'); d.className = 'item' + (inUse ? ' on' : '');
             const noImp = r.importable === false;
-            // 尺寸用**实际盘面**（trim 后），与 id 里的请求档位可能不同（13x12 档可能裁成 11×8）——
-            // 这一列就是给用户判断"能不能不加裁剪地换回该关"的依据，缺了就会怀疑筛错了。
-            // 最右列窄 ⇒ id 视觉上省略，完整值放 title（悬停可见），别让用户失去识别依据
-            d.innerHTML = `<span title="${r.id}">${noImp ? (r.misMode === 'none' ? 'ℹ ' : '⚠ ') : ''}${r.id}</span><small>${r.cols}×${r.rows} · ${r.colors} 色 · ${r.misMode === 'full' ? '全错位' : r.misMode === 'max' ? '最大化错位' : r.misMode === 'none' ? '不错位' : '错位 ' + r.swaps * 2}${noImp ? (r.misMode === 'none' ? ' · 游戏不入关' : ' · 不可入关') : ''}</small>`;
-            d.title = '点击应用为当前（可下载 / 入关 / 烘焙；关卡模式下还能替换回该关）';
+            const mis = r.misMode === 'full' ? '全错位' : r.misMode === 'max' ? '最大化错位' : r.misMode === 'none' ? '不错位' : '错位 ' + r.swaps * 2;
+            // 尺寸用**实际盘面**（trim 后），与 id 里的请求档位可能不同；「使用中」必须显式写出来，
+            // 否则一列 id 看下来没人知道画布上是哪条（2026-10-24 用户要求）。
+            const tag = r.draft ? '✎ 预览 · ' : (inUse ? '<b style="color:var(--ac)">使用中</b> · ' : '');
+            d.innerHTML = `<span title="${r.id}">${noImp ? (r.misMode === 'none' ? 'ℹ ' : '⚠ ') : ''}${r.id}</span>` +
+                `<small>${tag}${r.cols}×${r.rows} · ${r.colors} 色 · ${mis}${noImp && !r.draft ? (r.misMode === 'none' ? ' · 游戏不入关' : ' · 不可入关') : ''}</small>`;
+            d.title = r.draft
+                ? '点击应用为当前（预览未入库：可「确认保存」转正；✕ 删除这条预览）'
+                : '点击应用为当前（可下载 / 入关 / 烘焙；关卡模式下还能替换回该关）';
             d.onclick = async () => {
                 try {
-                    const res = await fetch('/api/results/' + r.id);
+                    const url = (r.draft ? '/api/previews/' : '/api/results/') + r.id;
+                    const res = await fetch(url);
                     const full = await res.json();
                     if (!res.ok || full.error) throw new Error(full.error || ('HTTP ' + res.status));
-                    applyResult(full, d);
+                    applyResult(full);
                 } catch (e) { msg(`取详情失败：${r.id}（${e.message}）`, 'err'); }
             };
-            // 删除钮：不可逆（磁盘唯一副本）⇒ 必须二次确认；stopPropagation 避免误触发“查看该条”。
+            // 删除钮：**唯一的删除入口**（点行只应用、不删）。不可逆 ⇒ 二次确认。
             const x = document.createElement('button');
-            x.className = 'del'; x.textContent = '✕'; x.title = '删除这条结果（不可恢复）';
+            x.className = 'del'; x.textContent = '✕'; x.title = r.draft ? '删除这条预览（不可恢复）' : '删除这条结果（不可恢复）';
             x.onclick = async (ev) => {
                 ev.stopPropagation();
-                if (!confirm(`删除 ${r.id}？\n磁盘上只有一份，不可恢复。`)) return;
+                if (!confirm(`删除 ${r.draft ? '预览 ' : ''}${r.id}？\n磁盘上只有一份，不可恢复。`)) return;
                 try {
+                    // 预览与已存同路径：服务端先查 data/<board>/<id>，再查 data/_draft/<id>
                     const res = await fetch('/api/results/' + r.id, { method: 'DELETE' });
                     if (!res.ok) {
                         const j = await res.json().catch(() => ({}));
@@ -872,59 +879,42 @@
             return d;
         }
 
-        /** `focusId` = 刚保存的那条：高亮 + 滚到可视区；若它被当前筛选挡住 ⇒ 自动取消「只看该关尺寸」。 */
+        /** 拉「已存结果」+「预览草稿」合并渲染。`focusId` = 刚生成/刚保存的那条（滚入视区）。
+         *  口径（2026-10-24 用户裁定 A）：**不做尺寸/关卡筛选**——尺寸只作展示，替换时的尺寸变化由
+         *  确认框与提示条告警；预览（未入库）单独一组置顶，保证"生成过的版面都在列表里"。
+         *  「使用中」= `current.id`，所以任何应用/生成/保存后都要重跑本函数。 */
         async function loadResults(focusId) {
             try {
-                const { results } = await (await fetch('/api/results')).json();
-                // 关卡模式默认只列**为该关尺寸生成的**已存结果（替换进这一关时尺寸一致才不会重裁）。
-                // 判据 = 请求盘位档 `board` **或** trim 后实际行列 =
-                //   · 只比实际 cols/rows ⇒ 刚保存的那条永远筛不进来：beads-gen 裁空边，
-                //     13×12 档实测裁成 11×8（2026-10-24 用户报"第二次没保存下来"，
-                //     磁盘上 result.json 在、列表却还是 1/179 ⇒ 看着像没存）。
-                //   · board 是生成时点的档位，才是"我为这关生成的"那个口径。
-                // 勾掉复选框看全部（其它尺寸同样能替换，只是时长/门禁按新盘重算）。
+                const [rs, pv] = await Promise.all([
+                    fetch('/api/results').then((x) => x.json()),
+                    fetch('/api/previews').then((x) => x.json()).catch(() => ({ previews: [] })),
+                ]);
+                const results = Array.isArray(rs.results) ? rs.results : [];
+                const previews = Array.isArray(pv.previews) ? pv.previews : [];
                 const cell = levelInfo ? levelInfo.cells[levelCell] : null;
-                const cellBoard = cell ? `${cell.cols}x${cell.rows}` : '';
-                const sameAsCell = (r) => r.board === cellBoard || (r.cols === cell.cols && r.rows === cell.rows);
-                // 兜底：刚存的这条若按上面两条都不匹配（例如盘位档与尺寸都改过），本次直接取消筛选让它可见
-                if (focusId && cell && onlySame && !results.filter(sameAsCell).some((r) => r.id === focusId)) onlySame = false;
-                const onlySameOn = !!(cell && onlySame);
-                const shown = onlySameOn ? results.filter(sameAsCell) : results;
                 const el = $('results');
-                if (cell) {
-                    el.innerHTML = `<b>已存结果</b> <small>（该关 ${cell.cols}×${cell.rows} · ${shown.length}/${results.length} 条）</small>` +
-                        `<label style="font-size:12px;color:#666;white-space:nowrap;margin-left:8px"><input type="checkbox" id="onlySame" style="width:auto;margin-right:4px"${onlySame ? ' checked' : ''}>只看该关尺寸</label>`;
-                    $('onlySame').onchange = (e) => { onlySame = e.target.checked; loadResults(); };
-                } else {
-                    el.innerHTML = '<b>已存结果</b> <small>（GET /api/results，小游戏在线导入同源）</small>';
-                }
+                el.innerHTML = `<b>已存结果</b> <small>（${cell ? `该关 ${cell.cols}×${cell.rows} · ` : ''}` +
+                    `已存 ${results.length} 条 · 预览 ${previews.length} 条未入库｜点行应用为当前，只有 ✕ 删除）</small>`;
+                const curId = current && !current.fromLevel ? current.id : '';
                 let focusEl = null;
-                if (onlySameOn) {
-                    // 同尺寸过滤后按盘位档分组没意义（16x16 档常被裁成 13×12）⇒ 平铺，空则给出口
-                    const grp = document.createElement('div'); grp.className = 'grp';
-                    if (!shown.length) {
-                        grp.innerHTML = `<small style="color:#999">没有 ${cell.cols}×${cell.rows} 的已存结果 —— 取消勾选「只看该关尺寸」可看全部</small>`;
-                    } else {
-                        for (const r of shown) {
-                            const it = resultItem(r, r.id === focusId);
-                            if (r.id === focusId) focusEl = it;
-                            grp.appendChild(it);
-                        }
-                    }
-                    el.appendChild(grp);
-                } else {
-                    const byBoard = {};
-                    for (const r of shown) (byBoard[r.board] ??= []).push(r);
-                    for (const [board, list] of Object.entries(byBoard)) {
-                        const grp = document.createElement('div'); grp.className = 'grp';
-                        grp.innerHTML = `<h3>${board}（${list.length}）</h3>`;
-                        for (const r of list) {
-                            const it = resultItem(r, r.id === focusId);
-                            if (r.id === focusId) focusEl = it;
-                            grp.appendChild(it);
-                        }
-                        el.appendChild(grp);
-                    }
+                const mkRow = (r) => {
+                    const it = resultItem(r, r.id === curId);
+                    if (r.id === focusId) focusEl = it;
+                    return it;
+                };
+                if (previews.length) {
+                    const g = document.createElement('div'); g.className = 'grp';
+                    g.innerHTML = '<h3>预览（未入库 · 可「确认保存」转正）</h3>';
+                    for (const r of previews) g.appendChild(mkRow(r));
+                    el.appendChild(g);
+                }
+                const byBoard = {};
+                for (const r of results) (byBoard[r.board] ??= []).push(r);
+                for (const [board, list] of Object.entries(byBoard)) {
+                    const g = document.createElement('div'); g.className = 'grp';
+                    g.innerHTML = `<h3>${board}（${list.length}）</h3>`;
+                    for (const r of list) g.appendChild(mkRow(r));
+                    el.appendChild(g);
                 }
                 focusEl?.scrollIntoView({ block: 'nearest' });
             } catch { /* 列表失败不阻塞主流程 */ }
@@ -935,7 +925,6 @@
         const levelUid = new URLSearchParams(location.search).get('level') || '';
         let levelInfo = null;    // { uid, kind, chapter, cells[] }
         let levelCell = 0;       // plate 多格时的当前格
-        let onlySame = true;     // 「已存结果」是否只列与该关同尺寸的（关卡模式默认开）
 
         function mkEl(tag, txt, css) {
             const d = document.createElement(tag);

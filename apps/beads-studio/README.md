@@ -18,9 +18,11 @@ node apps/beads-studio/server.mjs          # → http://localhost:8787
 |---|---|
 | `POST /api/generate?cols=&rows=&board=&shape=&palette=&colors=&colorsmode=&swaps=&smooth=&noframe=&notrim=` | body = JSON `{w, h, data: base64(RGBA), thumb?: dataURL}`（≤2048²，图片由前端本地解像，**不上传原文件**；`thumb` 随结果存盘供「原图」视图回看）；返回 result.json。`notrim=1` = 关包围盒裁剪（空边留 void）⇒ 实际盘面 = 请求 `cols×rows`，供关卡模式「按该关尺寸生成」用 |
 | `GET /api/results` | 结果列表（按盘面分组、时间倒序）——**小游戏在线导入同源**；只回**轻投影**（元数据 + `hasThumb`，不含 pattern/缩略图，避免随条数膨胀），点条目时再取单条全量 |
+| `GET /api/previews` | **预览草稿**列表（`data/_draft/<id>/draft.json` 的轻投影，带 `draft:true`）。刻意不进 `/api/results`（预览未搬盘，小游戏导入/选图器按 id 找 `result.json` 会 404） |
+| `GET /api/previews/:id` | 单条预览全文（生成页「点行应用为当前」用） |
 | `GET /api/results/:id` | 单个 result.json |
 | `GET /api/results/:id/level` | 直接回 levelDraft（小游戏字段最少化）；**不可入关的产物返回 422 + 原因清单** |
-| `DELETE /api/results/:id` | 删除该条结果（整目录）。**不可逆**（磁盘上只有一份），id 走 `[a-z0-9-]` 白名单；前端列表每条带 ✕ 且**二次确认** |
+| `DELETE /api/results/:id` | 删除该条结果（整目录；同路径也删**预览草稿** `data/_draft/<id>`）。**不可逆**（磁盘上只有一份），id 走 `[a-z0-9-]` 白名单；生成页列表每条带 ✕ 且**二次确认**——这是唯一的删除入口，点行只「应用为当前」 |
 | `GET /` | 静态页 |
 
 存储：`apps/beads-studio/data/<board>/<id>/result.json`（运行时数据，已 gitignore）。一条结果 = 一个目录；面板上可直接删（✕ + 二次确认），
