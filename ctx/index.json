@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4630,
       "lines": 159,
-      "sha256": "4491f42013d60da7aa83ad03e535d218c3a948f069c74543c3a5b6158a0f2bb2",
+      "sha256": "87b244e0e640aca913da1e9436586b67ed29ebf6acd9989ca55b8a2c4200b27f",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 402,
-          "summary": "1 production/TASKS-DETAIL.md 238991 5498 normal",
+          "summary": "1 production/TASKS-DETAIL.md 239951 5545 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -422,7 +422,7 @@
           "startLine": 46,
           "endLine": 134,
           "tokens": 3121,
-          "summary": "production/TASKS-DETAIL.md 238991 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 239951 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5513,
       "lines": 146,
-      "sha256": "a3518bfd1bdb06decf74da9a9efbb9e2b815faeb95559250cce99cc8531d8fee",
+      "sha256": "850e789fc158226ebaaf623d0920225ff24054f2468edab952608e459ff52322",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 179 行 / 82217 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 180 行 / 82767 tok / 实测读 4 次",
           "level": 2,
           "startLine": 27,
           "endLine": 30,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+180 · §待排（backlog，无号，立项时领取…=152+29",
+          "summary": "§WXG 任务台账（SSOT）=1+181 · §待排（backlog，无号，立项时领取…=153+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -968,7 +968,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 5498 行 / 238991 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 5545 行 / 239951 tok",
           "level": 2,
           "startLine": 92,
           "endLine": 96,
@@ -84520,9 +84520,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 238991,
-      "lines": 5498,
-      "sha256": "722ea324f495e5f65232d2256c525ed1da85fd2db0d050d2d26b1076c2f9d8c5",
+      "tokens": 239951,
+      "lines": 5545,
+      "sha256": "083971c23271ba904ac126ce339aabb9831f75092a895623c4e96ba2bd6f721a",
       "tier": "normal",
       "sections": [
         {
@@ -87043,8 +87043,8 @@
           "anchor": "§beads·fit 档放开「只缩不放大」钳（小盘放大铺满留边 + 初始视图 = 适配档）",
           "level": 1,
           "startLine": 3026,
-          "endLine": 5499,
-          "tokens": 136606,
+          "endLine": 5546,
+          "tokens": 137567,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
             "beads",
@@ -90511,10 +90511,99 @@
           ]
         },
         {
-          "anchor": "§WXG-T-370",
+          "anchor": "§WXG-T-371",
           "level": 2,
           "startLine": 5437,
-          "endLine": 5463,
+          "endLine": 5483,
+          "tokens": 958,
+          "summary": "L3/L4 misplaced 格式修复入库（解 HEAD 破碎）+ §5.1 九关 DI 漂移全量取证（只报不裁）",
+          "keywords": [
+            "§5.1",
+            "WXG",
+            "misplaced",
+            "HEAD"
+          ]
+        },
+        {
+          "anchor": "§1 来源与判定",
+          "level": 3,
+          "startLine": 5441,
+          "endLine": 5444,
+          "tokens": 111,
+          "summary": "用户在「22/22 复核取证」的四个选项里选 3 = ①+②a。前置发现（K-158① mtime 判归属）：工作树 4",
+          "keywords": [
+            "mtime",
+            "来源与判定"
+          ]
+        },
+        {
+          "anchor": "§2 入库前的完整性核验（防「半成品入库」）",
+          "level": 3,
+          "startLine": 5445,
+          "endLine": 5455,
+          "tokens": 159,
+          "summary": "L00003.json 的 misplaced 14 行 × 字符串（rows=14 / cols=14）",
+          "keywords": [
+            "L00003",
+            "json",
+            "misplaced",
+            "rows",
+            "cols",
+            "入库前的完整"
+          ]
+        },
+        {
+          "anchor": "§3 入库效果",
+          "level": 3,
+          "startLine": 5456,
+          "endLine": 5464,
+          "tokens": 103,
+          "summary": "typecheck ❌ 26 处 TS2322（L3/L4 row0..rowN: misplaced 行须为字符串） ",
+          "keywords": [
+            "typecheck",
+            "TS2322",
+            "row0",
+            "rowN",
+            "misplaced",
+            "入库效果"
+          ]
+        },
+        {
+          "anchor": "§4 ②a 产出：§5.1 九关 DI 漂移全量清单（只报不裁）",
+          "level": 3,
+          "startLine": 5465,
+          "endLine": 5477,
+          "tokens": 262,
+          "summary": "取数口径 = tests/difficulty.test.ts 的 pool（ARCS[0].levelRefs 第一章",
+          "keywords": [
+            "§5.1",
+            "tests",
+            "difficulty",
+            "test",
+            "pool",
+            "ARCS"
+          ]
+        },
+        {
+          "anchor": "§5 明确未做（判据面留待裁定）",
+          "level": 3,
+          "startLine": 5478,
+          "endLine": 5483,
+          "tokens": 216,
+          "summary": "1. ⛔ 不改 EXPECT_DI、不改墙序期望、不改 §5.1/§5.2 文档：三条读数都指向「数据新、表旧」，但 D",
+          "keywords": [
+            "§5.1",
+            "§5.2",
+            "EXPECT_DI",
+            "明确未做",
+            "判据面留待裁"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-370",
+          "level": 2,
+          "startLine": 5484,
+          "endLine": 5510,
           "tokens": 665,
           "summary": "harness 冒烟暂存树改增量同步（K-163 的装置侧根治：不再整棵删 dev/harness/.smoke/）",
           "keywords": [
@@ -90527,8 +90616,8 @@
         {
           "anchor": "§1 根因",
           "level": 3,
-          "startLine": 5441,
-          "endLine": 5444,
+          "startLine": 5488,
+          "endLine": 5491,
           "tokens": 165,
           "summary": "tools/scripts/lib/harness-runtime.mjs::stageDist() 每次冒烟 / 帧预",
           "keywords": [
@@ -90543,8 +90632,8 @@
         {
           "anchor": "§2 改法（最小面）",
           "level": 3,
-          "startLine": 5445,
-          "endLine": 5448,
+          "startLine": 5492,
+          "endLine": 5495,
           "tokens": 114,
           "summary": "stageDist() 改为增量同步：先 walk(DIST) 取期望集合，只删 STAGE 中不在期望集合里的文件（常",
           "keywords": [
@@ -90559,8 +90648,8 @@
         {
           "anchor": "§3 判别自测（K-089：先证守卫能红，再证修法有效）",
           "level": 3,
-          "startLine": 5449,
-          "endLine": 5456,
+          "startLine": 5496,
+          "endLine": 5503,
           "tokens": 185,
           "summary": "往 .smoke 塞 300 个残留文件（合计 673 条目）后跑 harness:smoke ❌ exit 1 · [",
           "keywords": [
@@ -90575,8 +90664,8 @@
         {
           "anchor": "§4 边界与不做",
           "level": 3,
-          "startLine": 5457,
-          "endLine": 5463,
+          "startLine": 5504,
+          "endLine": 5510,
           "tokens": 124,
           "summary": "⛔ 不动 harness:build（它只写 dev/harness/dist，不碰 STAGE）。",
           "keywords": [
@@ -90591,8 +90680,8 @@
         {
           "anchor": "§WXG-T-369",
           "level": 2,
-          "startLine": 5464,
-          "endLine": 5499,
+          "startLine": 5511,
+          "endLine": 5546,
           "tokens": 1211,
           "summary": "beads·按 §3.13 冻结式改判出货关「最大错位」（L3 的 88 是正解，不是欠账）",
           "keywords": [
@@ -90604,8 +90693,8 @@
         {
           "anchor": "§1 领号与来源（K-046） (4)",
           "level": 3,
-          "startLine": 5468,
-          "endLine": 5472,
+          "startLine": 5515,
+          "endLine": 5519,
           "tokens": 206,
           "summary": "三路核验：头注「已分配至 368 / 下一真可用号 369」；主表无 ^ WXG-T-369 行；无 ## WXG-T-",
           "keywords": [
@@ -90616,8 +90705,8 @@
         {
           "anchor": "§2 取证",
           "level": 3,
-          "startLine": 5473,
-          "endLine": 5478,
+          "startLine": 5520,
+          "endLine": 5525,
           "tokens": 280,
           "summary": "真源：games/beads/design/gdd/systems-index.md §3.13「错位档位（--mis ",
           "keywords": [
@@ -90632,8 +90721,8 @@
         {
           "anchor": "§3 改动（单文件，数据面零改动）",
           "level": 3,
-          "startLine": 5479,
-          "endLine": 5486,
+          "startLine": 5526,
+          "endLine": 5533,
           "tokens": 240,
           "summary": "games/beads/tests/misplaced-assembler.test.ts（+13 −5）：",
           "keywords": [
@@ -90648,8 +90737,8 @@
         {
           "anchor": "§4 读数",
           "level": 3,
-          "startLine": 5487,
-          "endLine": 5492,
+          "startLine": 5534,
+          "endLine": 5539,
           "tokens": 167,
           "summary": "本文件单跑：34 passed（旧口径下 L3 必红）。",
           "keywords": [
@@ -90660,8 +90749,8 @@
         {
           "anchor": "§5 连带与遗留",
           "level": 3,
-          "startLine": 5493,
-          "endLine": 5499,
+          "startLine": 5540,
+          "endLine": 5546,
           "tokens": 244,
           "summary": "撤销 368 差额清单第 1 条（本批否证），368 实剩 2 条 = L3 DI 实测 42.2 vs §5.1 冻结",
           "keywords": [
@@ -90673,17 +90762,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 82217,
-      "lines": 179,
-      "sha256": "29499e7fb56fbb833bda8234affaa1b4dbfb734901c0b410f67f89a0deae9d9e",
+      "tokens": 82767,
+      "lines": 180,
+      "sha256": "ae3568d4995cda6227acf6d2393e2263d9676bee283d4902ed880b53b4240b30",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 180,
-          "tokens": 82209,
+          "endLine": 181,
+          "tokens": 82759,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -90696,8 +90785,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 152,
-          "endLine": 180,
+          "startLine": 153,
+          "endLine": 181,
           "tokens": 1390,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
