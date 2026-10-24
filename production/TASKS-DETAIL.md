@@ -5421,6 +5421,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 2. `tests/difficulty.test.ts` EP12-S5 验收①：L3 难度指数实测 **42.2** vs §5.1 冻结表 **73.7**。
 3. 同文件：按 DI 升序的九关墙序 = `L6→L1→L8→L2→L3→L5→L4→L7→L9`，与 §5.2 冻结序 `L6→L1→L8→L2→L5→L4→L3→L7→L9` 在 L3/L5 两处换位。
 
+**订正（同日 · WXG-T-369 实测）**：上列第 1 条判定反转 —— L3 的 88 是 §3.13 冻结式 `M_max = min(N, 2(N − m))` 的正解（N=108、m=64 ⇒ 强制原位 20 = 2m − N），「整片全错」在主导色过半时数学上不存在；欠账在测试判据（MVP 单档时代的 blanket 断言）而非数据，已随 WXG-T-369 按冻结式改判 ⇒ **本任务实剩第 2、3 条**（DI 与墙序）。
+
 ### 4. 关键判断（两条）
 
 1. **「形状修好」≠「数据修好」**：形状只是校验器的一项，全错覆盖率与冻结数值同步才是这批数据的实质判据；只看 BOOT 锁解没解会误判为已清零。
@@ -5431,3 +5433,39 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **待用户裁定**：若那四件长期不入库，是否授权我方接管（接管 = 明确丢弃其未提交工作），或另开一条按现成工具（`tools/scripts/level-derange.mjs`）重生成 L3 misplaced 的独立批。
 - 367 的复取动作在本批三条红清零后执行，工具与步骤已就绪（干净检出 + 相对软链 + 裸 node 复取器），预计一次 `cp` 夹具 + 一次对拍即完。
 - 本批产生的干净检出已删除（⛔ 留一个钉在旧 commit 的检出 = 下一轮读数的隐患）；重建 = `git worktree add --detach temp/<名> HEAD` + 手搭 `games/beads/node_modules/@wxgame/framework` 相对软链。
+
+## WXG-T-369
+
+**beads·按 §3.13 冻结式改判出货关「最大错位」（L3 的 88 是正解，不是欠账）**
+
+### 1. 领号与来源（K-046）
+
+- 三路核验：头注「已分配至 368 / 下一真可用号 369」；主表无 `^| WXG-T-369` 行；无 `## WXG-T-369` 节；`git log --all --grep` 零命中。
+- 来源 = 用户在 WXG-T-368 收尾三选项里选 **1**（原话是「用现成工具重生成 L3 的错位初盘，出参考件给关卡数据轨」）。**执行到取证阶段即否证该需求**：`M_max` 冻结式对 L3 给出的就是 88，"补到 108" 在数学上不可满足 ⇒ ⛔ 不产那份"全错 misplaced 参考件"，交付形态改为修判据。选项 1 里我留的那句「我在干净检出里先跑出 88→108」属未取证就先给的措辞，按实测作废。
+
+### 2. 取证
+
+- 真源：`games/beads/design/gdd/systems-index.md` §3.13「错位档位（`--mis` / studio `misKind`）」行 —— v1.56 生效（语义正本 `levels-spec §2.3` v1.12），`max` 档 = 把可错位格数推到 `M_max = min(N, 2(N − m))`、强制就位 `F = max(0, 2m − N)`；`m ≤ ⌊N/2⌋` 时**等价于 `full`（不打折）**；极值式已由 X2 穷举 6561 例（逐例断言固定点 == F）与 X3 穷举（退化不可达）复核。
+- 旧判据：`games/beads/tests/misplaced-assembler.test.ts:341-347` —— `expect(board.misplacedCount).toBe(fillable)`，即不分色分布一律要求全错。
+- 探针（`temp/wxg368-probe.ts`，只读，跑主树 = 含并发会话未提交数据）逐关输出 N / m / M_max / 实测原位 / 实测错位 / 校验错误数：L3 `N=108 m=64 ⇒ M_max=88`，实测错位 88、原位 20；其余九关 `M_max = N` 且原位 0；十关 `validateBeadsLevel` 全 0（形状面已被并发会话修好）。
+
+### 3. 改动（单文件，数据面零改动）
+
+`games/beads/tests/misplaced-assembler.test.ts`（+13 −5）：
+
+- 用例标题「错位格数 = 全可填格（成片全错）」→「错位格数 = 极大错位 `M_max`（§3.13 `max` 档冻结式）」。
+- 断言换为冻结式：统计可填格（排除 `.`/`x`）与其主导色珠数 m，`mMax = min(n, 2*(n − m))`，`expect(board.misplacedCount).toBe(mMax)`；失败信息携 `N/m/M_max` 三值便于回查。
+- 一条 `ponytail:` 天花板注记：m 按**整盘**统计，而 §2.3 的求解域 = **本宫** ⇒ 若将来出货关出现「整盘均衡、单宫过半」的组合图盘，本式会算出偏大的 M_max 而假红；升级路径 = 用 `sliceBoard` 逐宫求和（参照 `tools/scripts/level-derange.mjs::buildCellInitial`）。现出货十关均 `m ≤ N/2`，未触发。
+
+### 4. 读数
+
+- 本文件单跑：**34 passed**（旧口径下 L3 必红）。
+- beads 全量（主树脏口径）：**5 failed / 1256 passed / 3 skipped（1264）**；红 = UI-02 金样本三态（等 WXG-T-367 复取解锁）+ `difficulty.test.ts` 两条（§5.1 DI / §5.2 墙序）。对照 WXG-T-368 的预演口径 3 failed ⇒ 本批清掉 misplaced 那条，剩 2 条属数据与冻结文档的实质冲突。
+- 判据没被放宽的证明：九关 `m ≤ ⌊N/2⌋` 时 `M_max == N`，即这九关仍逐格要求全错；只有 L3 一档按真源换成 88。
+
+### 5. 连带与遗留
+
+- 撤销 368 差额清单第 1 条（本批否证），368 实剩 2 条 = L3 DI 实测 42.2 vs §5.1 冻结 73.7、九关墙陈列序 L3/L5 换位违 §5.2；这两条是「改关表还是改冻结文档」的数值真源裁定，⛔ 我单方定。
+- `check:tasks` 的 I 项（WXG-T-362 未在册）已由并发会话 `187e25e` 补登，其补登内容「三关豆面可读性修复 + L9 曼陀罗重建 30×30」正对上 WXG-T-367 定位的拐点 `aa5c85e` ⇒ 拐因与改关范围互证成立。
+- 金样本夹具零改动，复取仍阻塞。
+- `systems-index §3.13` 与 `levels-spec §2.3` 无冲突（v1.56 已转正），levels-spec v1.12 行里「§3.13 仍标 `[提案 v1.54]`、属未决漂移」那句已过期，本批不改文档历史行，仅在此登记为**已消解**。

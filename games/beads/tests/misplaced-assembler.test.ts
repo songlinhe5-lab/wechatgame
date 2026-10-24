@@ -338,12 +338,24 @@ describe('MVP · 全部出货关全错位初盘数据全过 BOOT', () => {
     }
   });
 
-  it('全部 misplaced 装配后：珠数守恒、错位格数 = 全可填格（成片全错）', () => {
+  it('全部 misplaced 装配后：珠数守恒、错位格数 = 极大错位 M_max（§3.13 `max` 档冻结式）', () => {
     for (const level of LEVELS) {
       const board = assembleFromMisplaced(level.pattern, level.misplaced!);
       expect(board.beads.length, `L${level.id}`).toBe(level.rows * level.cols);
-      const fillable = level.pattern.join('').split('').filter((ch) => ch !== '.' && ch !== 'x').length;
-      expect(board.misplacedCount, `L${level.id} 全错`).toBe(fillable);
+      // systems-index §3.13「错位档位」（v1.56 生效，语义正本 levels-spec §2.3）冻结式：
+      //   `max` 档可错位格数 M_max = min(N, 2(N − m))，N = 本宫可填格、m = 本宫主导色数。
+      // m > ⌊N/2⌋ 时「全错位」数学上不存在（强制就位 F = max(0, 2m − N)）⇒ 旧断言取「全部错位」错在根上；
+      // m ≤ ⌊N/2⌋ 时 M_max = N ⇒ 与旧断言逐格等价（正本语：「等价于 full，不打折」），严格度未降。
+      // ponytail: m 按**整盘**统计，而 §2.3 的域 = 本宫 ⇒ 整盘均衡、单宫过半的组合图盘会算出偏大的
+      // M_max（真极值应逐宫求和），本判据将假红。现出货 10 关实测均逐格全错（m ≤ N/2），未触发；
+      // 触发时改按 `sliceBoard` 逐宫求 M_max（参见 `tools/scripts/level-derange.mjs::buildCellInitial`）。
+      const cells = level.pattern.join('').split('').filter((ch) => ch !== '.' && ch !== 'x');
+      const freq = new Map<string, number>();
+      for (const ch of cells) freq.set(ch, (freq.get(ch) ?? 0) + 1);
+      const n = cells.length;
+      const m = freq.size ? Math.max(...Array.from(freq.values())) : 0;
+      const mMax = Math.min(n, 2 * (n - m));
+      expect(board.misplacedCount, `L${level.id} 最大错位（N=${n} m=${m} M_max=${mMax}）`).toBe(mMax);
     }
   });
 
