@@ -124,7 +124,7 @@ export const LESSONS_DIR = join(KNOWLEDGE_DIR, 'lessons');
 /** 已知分片顺序（正本映射见 `tools/scripts/split-knowledge-lessons.mjs::TAG_TO_SHARD`，改一侧必同步另一侧）。
  *  `process-audit`（标签 `流程对账`）= WXG-T-344 新建；`doc-reference`（标签 `文档引用`）= WXG-T-343 新建时**漏登记**，
  *  本批补上（两片此前只靠「未知片按名序追加」被采集，`knowledge:split --force` 会因缺映射 fail loud）。 */
-export const LESSONS_SHARD_ORDER = ['toolchain', 'toolchain-git', 'toolchain-image', 'process', 'process-ledger', 'process-audit', 'criteria', 'criteria-render', 'criteria-measure', 'doc-reference', 'testing', 'testing-guard', 'cross-ide', 'environment', 'onboarding', 'engine-cocos', 'engine-cocos-build'];
+export const LESSONS_SHARD_ORDER = ['toolchain', 'toolchain-git', 'toolchain-image', 'process', 'process-ledger', 'process-audit', 'process-gate', 'criteria', 'criteria-render', 'criteria-measure', 'doc-reference', 'testing', 'testing-guard', 'cross-ide', 'environment', 'onboarding', 'engine-cocos', 'engine-cocos-build'];
 const LESSONS_ARCHIVE = 'knowledge/archive/lessons-archived.md';
 const LESSONS_ARCHIVE_ABS = join(ARCHIVE_DIR, 'lessons-archived.md');
 

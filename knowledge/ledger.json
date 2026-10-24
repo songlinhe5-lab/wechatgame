@@ -180,10 +180,10 @@
     {
       "id": "K-011",
       "state": "active",
-      "file": "knowledge/lessons/process.md",
-      "category": "流程",
+      "file": "knowledge/lessons/process-gate.md",
+      "category": "流程门禁",
       "title": "质量门复验者 ≠ 实现者",
-      "contentHash": "f2614af109f9260f5c475bdb9ef66dd726de6549449463ef6e35d381f66ace11",
+      "contentHash": "6f269ea23193ef7a8abfd2ce5a5887d7314f72c5d02b8d4e2a699d30f16118cd",
       "sourceTask": "WXG-T-019",
       "addedDate": "2026-09-12",
       "lastAccess": "2026-09-12",
@@ -605,10 +605,10 @@
     {
       "id": "K-036",
       "state": "active",
-      "file": "knowledge/lessons/process.md",
-      "category": "流程",
+      "file": "knowledge/lessons/process-gate.md",
+      "category": "流程门禁",
       "title": "多项串联的门禁若「失败即短路」且「缺对象仍报绿」，它的 ✅ 不构成任何证据",
-      "contentHash": "209ccea10af559169a9e7cac8c082039b78421e6f301178e106de57440fe989f",
+      "contentHash": "e0d42d596f3a8ea692dc8c6efde66efc97cc737fdb226786ad6a98fb89357a20",
       "sourceTask": "WXG-T-084",
       "addedDate": "2026-09-15",
       "lastAccess": "2026-09-15",
@@ -622,10 +622,10 @@
     {
       "id": "K-037",
       "state": "active",
-      "file": "knowledge/lessons/process.md",
-      "category": "流程",
+      "file": "knowledge/lessons/process-gate.md",
+      "category": "流程门禁",
       "title": "「指令流层可证」≠「屏幕层可证」：Node 探针全绿不得抬升表现层结论",
-      "contentHash": "251309729d4d4cd43789f7f54a33ca1664b7ad98116d4568c0ee1cdccdef37bb",
+      "contentHash": "e709994383aeceec47046cc73ec164935671e6171fb41d62856d11e7aae092c5",
       "sourceTask": "WXG-T-092",
       "addedDate": "2026-09-15",
       "lastAccess": "2026-09-15",
@@ -2037,10 +2037,10 @@
     {
       "id": "K-123",
       "state": "active",
-      "file": "knowledge/lessons/process.md",
-      "category": "流程",
+      "file": "knowledge/lessons/process-gate.md",
+      "category": "流程门禁",
       "title": "登记「违例」前先确认判据对象在现役代码里存在——提案图上的标定 ≠ 入库实现",
-      "contentHash": "65079d76b37075c15d1346f9f25874468612c47ee5859a826e5abce10c2fea16",
+      "contentHash": "8983c3972cd147deeff7df486f6c0bf6ea7cff6f39695a2bd17f2e6302b47ff5",
       "sourceTask": "WXG-T-265",
       "addedDate": "2026-10-13",
       "lastAccess": "2026-10-13",
@@ -4324,6 +4324,18 @@
       "kind": "updated",
       "ids": [
         "K-166"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-24",
+      "taskId": "WXG-T-364",
+      "kind": "updated",
+      "ids": [
+        "K-011",
+        "K-036",
+        "K-037",
+        "K-123"
       ],
       "note": null
     }
