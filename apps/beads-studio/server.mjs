@@ -6,10 +6,12 @@
  * （子进程 spawn，`--in-raw` 免浏览器路径 ⇒ 服务器无需 playwright/chromium）。
  *
  * API：
- *   POST /api/generate?cols=&rows=&board=&shape=&palette=&colors=&colorsmode=&swaps=&noframe=&skin=
+ *   POST /api/generate?cols=&rows=&board=&shape=&palette=&colors=&colorsmode=&swaps=&noframe=&notrim=&skin=
  *        body = JSON `{ w, h, data: base64(RGBA), thumb?: dataURL }`
  *        图片由前端 canvas 本地解像（不上传原文件）；`thumb` = ≤256px JPEG 缩略图，
  *        **随结果存盘** ⇒ 历史条目也能回看原图（只存在前端内存里刷新/切条目就丢）。
+ *        `notrim=1` = 关掉 beads-gen 的包围盒裁剪（空边保留为 void）⇒ 实际盘面 = 请求 cols×rows。
+ *        关卡模式「按该关尺寸生成」用它：否则 13×12 请求会被裁成 11×8，替换回该关就改盘面尺寸。
  *   GET  /api/results         → 结果列表（按盘面分组、时间倒序）
  *   GET  /api/results/:id     → 单个 result.json（小游戏在线导入用）
  *   GET  /api/results/:id/thumb → 原图缩略图二进制（管理页选图器用；无 thumb ⇒ 404）
@@ -127,6 +129,8 @@ function runGen(rawPath, outDir, params) {
         if (params.shape && params.shape !== 'square') args.push('--shape', params.shape);
         if (params.colors > 0) args.push('--colors', String(params.colors));
         if (params.noframe) args.push('--noframe');
+        // 关包围盒裁剪：空边保留为 void，实际盘面 = 请求 cols×rows（关卡模式「按该关尺寸生成」）。
+        if (params.notrim) args.push('--notrim');
         const child = spawn('node', args, { cwd: SPAWN_CWD, timeout: 60_000 });
         let err = '';
         child.stderr.on('data', (d) => (err += d));
@@ -1642,6 +1646,8 @@ async function handleGenerate(req, res, url) {
         smooth: Math.max(0, parseInt(q.get('smooth') || '1', 10)),
         premedian: Math.max(0, parseInt(q.get('premedian') || '0', 10)),
         noframe: q.get('noframe') === '1',
+        // 关包围盒裁剪（关卡模式「按该关尺寸生成」）：见 runGen / 文件头 API 注。
+        notrim: q.get('notrim') === '1',
         mis: misRaw === 'swaps' || misRaw === 'none' || misRaw === 'max' ? misRaw : 'full',
     };
     // EP12-S9（裁定②）：生成页「风格」选项 → levelDraft.skin（**引用 id，不传数据本体**）。

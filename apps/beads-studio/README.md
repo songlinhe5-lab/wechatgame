@@ -16,7 +16,7 @@ node apps/beads-studio/server.mjs          # → http://localhost:8787
 
 | 方法/路径 | 说明 |
 |---|---|
-| `POST /api/generate?cols=&rows=&board=&shape=&palette=&colors=&colorsmode=&swaps=&smooth=&noframe=` | body = JSON `{w, h, data: base64(RGBA), thumb?: dataURL}`（≤2048²，图片由前端本地解像，**不上传原文件**；`thumb` 随结果存盘供「原图」视图回看）；返回 result.json |
+| `POST /api/generate?cols=&rows=&board=&shape=&palette=&colors=&colorsmode=&swaps=&smooth=&noframe=&notrim=` | body = JSON `{w, h, data: base64(RGBA), thumb?: dataURL}`（≤2048²，图片由前端本地解像，**不上传原文件**；`thumb` 随结果存盘供「原图」视图回看）；返回 result.json。`notrim=1` = 关包围盒裁剪（空边留 void）⇒ 实际盘面 = 请求 `cols×rows`，供关卡模式「按该关尺寸生成」用 |
 | `GET /api/results` | 结果列表（按盘面分组、时间倒序）——**小游戏在线导入同源**；只回**轻投影**（元数据 + `hasThumb`，不含 pattern/缩略图，避免随条数膨胀），点条目时再取单条全量 |
 | `GET /api/results/:id` | 单个 result.json |
 | `GET /api/results/:id/level` | 直接回 levelDraft（小游戏字段最少化）；**不可入关的产物返回 422 + 原因清单** |

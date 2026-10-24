@@ -46,6 +46,7 @@
 //   node temp/beads-gen.mjs --skew          # 制造单色多数，验证配色平衡
 //   node temp/beads-gen.mjs --in pic.png --cols 12 --rows 12 --cell 26
 //   node temp/beads-gen.mjs --noframe       # 不做背景去格（整盘皆可填）
+//   node temp/beads-gen.mjs --notrim        # 不做包围盒裁剪（空边保留为 void ⇒ 输出盘面 = 请求 cols×rows）
 //   node temp/beads-gen.mjs --sample 8      # 每格采样倍率（默认 8 ⇒ 块内众数投票；1 = 旧最近邻）
 //   node temp/beads-gen.mjs --smooth 2      # 众数滤波轮数（默认 0 = 关；游戏盘大块风可开 1–2）
 //   node temp/beads-gen.mjs --minblock 4    # 小于 N 格的碎块整体并入邻色（默认 1 = 关；<2 = 关）
@@ -246,6 +247,10 @@ const inRawPath = arg('in-raw', null); // JSON {w,h,data:base64(RGBA)} —— �
 const outDir = arg('out', join(process.cwd(), 'temp/beads-out'));
 const skew = has('skew'); // 合成图里逼出一个主导色，验证平衡
 const noFrame = has('noframe'); // 跳过去背景
+// 跳包围盒裁剪：空边保留为 void ⇒ 输出盘面 = 请求 cols×rows（关卡模式「按该关尺寸生成」用）。
+// 默认不跳（2026-09-21 用户拍板裁空边：盘面更满、尺寸门更易过）；
+// 但"替换回同一关"要求尺寸不变，裁了就改关的盘面 ⇒ 那条链路必须能关掉。
+const noTrim = has('notrim');
 const sample = Math.max(1, parseInt(arg('sample', '8'), 10)); // 每格采样倍率（块内众数投票）
 const smoothRounds = Math.max(0, parseInt(arg('smooth', '0'), 10)); // 众数滤波轮数（0 = 关；默认关：滤波会抹掉 2–3 格小特征，实物还原主用例受伤 2026-09-21）
 const minBlock = Math.max(0, parseInt(arg('minblock', '1'), 10)); // 碎块并入阈值（格；<2 = 关。默认关：同理保小特征 2026-09-21）
@@ -1313,6 +1318,7 @@ if (!noFrame && shape === 'square') {
 //    过、玩法盘面更满、物理尺寸更贴近实际用盘。插在聚集/平衡/错位构造**之前**
 //    ⇒ 下游（smooth/balance/sw/der/renderPng/toRowStrings）全部走裁后坐标。
 //    noframe（铺满整盘）无 void ⇒ bbox=整盘，trim 空转。
+//    `--notrim` 强制不裁（空边保留为 void）⇒ 输出盘面 = 请求 cols×rows。
 {
   let c0 = cols, c1 = -1, r0 = rows, r1 = -1;
   for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
@@ -1323,7 +1329,10 @@ if (!noFrame && shape === 'square') {
       if (r > r1) r1 = r;
     }
   }
-  if (c1 >= 0 && (c0 > 0 || r0 > 0 || c1 < cols - 1 || r1 < rows - 1)) {
+  const hollow = c1 >= 0 && (c0 > 0 || r0 > 0 || c1 < cols - 1 || r1 < rows - 1);
+  if (hollow && noTrim) {
+    console.error(`# trim 关闭（--notrim）：保留 ${cols}×${rows}（空边：左${c0} 右${cols - 1 - c1} 上${r0} 下${rows - 1 - r1}，记 void）`);
+  } else if (hollow) {
     const nc = c1 - c0 + 1, nr = r1 - r0 + 1;
     const s2 = new Array(nc * nr).fill(0);
     const a2 = new Array(nc * nr * 3).fill(0);

@@ -344,6 +344,11 @@
             </div>
             <label style="margin-top:10px"><input type="checkbox" id="noframe" style="width:auto">
                 铺满整盘（不扣背景；仅游戏关卡盘用——**实物图纸还原务必保持不勾**，否则背景吃掉大半用色预算）</label>
+            <!-- [?level=<uid>] 关卡模式专属：勾上 = 尺寸/盘位档强制对齐该关 + 关 beads-gen 的包围盒裁剪，
+                 空边保留为 void ⇒ 生成结果实际盘面 = 该关盘面，替换回该关不改尺寸。
+                 ⚠ 隐藏靠 style.display（本页 label{display:block} 会压过 [hidden] 的 UA 样式）。 -->
+            <label id="exactWrap" style="margin-top:10px;display:none"><input type="checkbox" id="exactSize" style="width:auto" checked>
+                按该关尺寸生成（自动关 trim：空边保留为空洞，盘面尺寸不变）</label>
             <button id="gen">生成预览（不入历史）</button>
             <!-- 生成只刷效果（写单一草稿位），此按钮才把这条预览转正进「已存结果」 -->
             <button id="commit" class="ghost" disabled style="margin-top:6px">✓ 确认保存这条结果</button>
@@ -630,9 +635,18 @@
             if (!currentBrand()) return msg('品牌表 /brands.json 未就绪：无法确定候选色集合与豆径 ⇒ 先跑 pnpm run palettes:sync 再刷新', 'err');
             const cols = parseInt($('cols').value, 10), rows = parseInt($('rows').value, 10);
             if (!cols || !rows) return msg('盘面尺寸非法', 'err');
+            // 「按该关尺寸生成」（关卡模式专属）：尺寸 + 盘位档强制对齐该关，并让服务端关掉包围盒裁剪
+            // （`notrim=1` ⇒ beads-gen `--notrim`）。否则 trim 会裁掉空边：请求 13×12 实际落 11×8，
+            // 替换回该关就把盘面改小了（2026-10-24 实测）。
+            const cell = levelInfo ? levelInfo.cells[levelCell] : null;
+            const exact = !!(cell && $('exactSize').checked);
+            const reqCols = exact ? cell.cols : cols;
+            const reqRows = exact ? cell.rows : rows;
             const q = new URLSearchParams({
-                board: $('board').value === 'custom' ? `${cols}x${rows}` : $('board').value,
-                cols, rows,
+                board: exact
+                    ? `${reqCols}x${reqRows}`
+                    : ($('board').value === 'custom' ? `${cols}x${rows}` : $('board').value),
+                cols: reqCols, rows: reqRows,
                 palette: $('palette').value, colors: $('colors').value,
                 colorsmode: $('colorsmode').value, cellmode: $('cellmode').value, swaps: $('swaps').value,
                 smooth: $('smooth').value, premedian: $('premedian').value, shape: shapeValue(),
@@ -640,6 +654,7 @@
                 noframe: $('noframe').checked ? '1' : '0',
                 skin: $('skin').value,
             });
+            if (exact) q.set('notrim', '1');
             $('gen').disabled = true; msg('生成中…');
             try {
                 // draft=1：只刷效果（写单一草稿位），不落 result.json ⇒ 不进「已存结果」/选图器；
@@ -652,7 +667,9 @@
                 const j = await r.json();
                 if (!r.ok) throw new Error(j.error || r.status);
                 current = j; show(j);
-                msg(`已生成预览：${j.id}｜满意再点「✓ 确认保存这条结果」才进历史`, 'ok');
+                msg(`已生成预览：${j.id}｜实际盘 ${j.cols}×${j.rows}` +
+                    (exact ? `（按该关尺寸 ${cell.cols}×${cell.rows}，未裁边）` : '') +
+                    '｜满意再点「✓ 确认保存这条结果」才进历史', 'ok');
                 if (levelInfo) renderLevelBar(null);   // 预览尚未入库 ⇒ 暂不给「替换回该关」
             } catch (e) { msg('生成失败：' + e.message, 'err'); }
             $('gen').disabled = false;
@@ -965,6 +982,9 @@
             };
             $('cols').value = c.cols;   // 预填同规格，便于按原尺寸重制
             $('rows').value = c.rows;
+            // 「按该关尺寸生成」开关只在关卡模式出现（默认勾上）：同尺寸重制是本页主用例，
+            // 不勾的话 trim 会把空边裁掉、替换回该关即改盘面尺寸。
+            $('exactWrap').style.display = '';
             renderLevelBar(null);
             show(current);
             loadResults();              // 「已存结果」按本关尺寸重筛（切格/换关都要跟）
