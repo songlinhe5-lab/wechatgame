@@ -377,6 +377,6 @@ DI_target(d) = DI_START + (d − 1) × ΔDI          // 类别内第 d 关的目
 | 4 | `difficultyOf` 实测 | N 102 / M 92 / ρ 0.902 / fC 0.800 / fK 0.390 ⇒ **DI 28.7** | N 63 / M 54 / ρ 0.857 / fC 0.800 / fK 0.442 ⇒ **DI 19.1** |
 | 5 | 连带红项 | 无 | `difficulty.test.ts` 2 例（逐值 + Spearman 0.883）、`ui-golden` 3 态（level-select / level-select-mid / sprint-settle） |
 
-- ⛔ **回归取证**：HEAD 干净检出（`git worktree` 于 `13d916d`）全量 `verify` = **PASS 20 ｜ WARN 0 ｜ SKIP 2 ｜ FAIL 0**（EXIT 0；beads 104 文件 1261 passed / 3 skipped、framework 508、breakout 239）；同一命令在工作树 = **PASS 21 ｜ FAIL 1**，唯一 FAIL 即上表第 5 行那 5 例 ⇒ 差异 100% 归因于关卡数据，与台账 / 文档改动零关系。
+- ⛔ **回归取证**：HEAD 干净检出（`git worktree` 于 `13d916d`）全量 `verify` = **PASS 20 ｜ WARN 0 ｜ SKIP 2 ｜ FAIL 0**（EXIT 0；beads 104 文件 1261 passed / 3 skipped、framework 508、breakout 239）；同一命令在 `bfa5f3c`（本节入库后）复跑同值；同一命令在工作树 = **PASS 21 ｜ FAIL 1**，唯一 FAIL 即上表第 5 行那 5 例 ⇒ 差异 100% 归因于关卡数据，与台账 / 文档改动零关系。
 - ⛔ 两处 SKIP（`check:size` / `check:cocos-mask`）是**自报未覆盖**：干净检出没有构建产物（wechatgame 档需有效 AppID），不是通过、也不是失败。
 - 复现探针：同一 `difficultyOf` 分喂 `git show HEAD:games/beads/design/levels/singles/L00001.json` 与工作树版，脚本留档 `temp/wxg377-l1-di-attribution.mjs`。

@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4630,
       "lines": 159,
-      "sha256": "c0bb644278c486236f402fb13f7800b0fb566ba34ab61cbdf0edd72427efafb2",
+      "sha256": "f5c0756aab476091af603017f34b5e6bd9e516ce800fe9a1b0fb133a12cde8ab",
       "tier": "normal",
       "sections": [
         {
@@ -24051,9 +24051,9 @@
     },
     {
       "path": "games/beads/design/art/proposals/ui-style-redesign/level-difficulty.md",
-      "tokens": 14193,
+      "tokens": 14212,
       "lines": 382,
-      "sha256": "7ad09393fea9f29b8e7c9d64c20c43dd424958513b00a5f73c4649811b6e1446",
+      "sha256": "3ae97e64aa6014886a2681bd0a367f3cda523cb9958041128c6d500b32d915e4",
       "tier": "normal",
       "sections": [
         {
@@ -24061,7 +24061,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 383,
-          "tokens": 14174,
+          "tokens": 14194,
           "summary": "角色：文策渊（设计策略）· 接 WXG-T-265；配套 menu-architecture.md（陈列序与类别阈值均消",
           "keywords": [
             "WXG",
@@ -24425,7 +24425,7 @@
           "level": 2,
           "startLine": 295,
           "endLine": 383,
-          "tokens": 3943,
+          "tokens": 3963,
           "summary": "1 §4.0（新增） Q6 双轨裁定：门禁=契约（只锁单调）· 生成器=默认实现（等差，可配可替换）+ 三条理由 A-1",
           "keywords": [
             "§10.1",
@@ -24488,7 +24488,7 @@
           "level": 3,
           "startLine": 368,
           "endLine": 383,
-          "tokens": 530,
+          "tokens": 549,
           "summary": "性质：本节只是漂移登记，不是裁定，也不改 §3 / §5 任何数值。376 批提交之后，L00001 又被并发会话改回旧",
           "keywords": [
             "§3",
