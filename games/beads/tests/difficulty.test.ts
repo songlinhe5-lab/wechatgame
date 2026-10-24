@@ -49,8 +49,11 @@ const is1 = (x: number) => x === Math.round(x * 10) / 10;
 
 describe('EP12-S5 · 验收① §5 第一章 9 关逐值复现', () => {
     it('9 关 DI 与 §5.1 表逐值相等（含中间量 A/K/fC/fK）', () => {
+        // 逐值差异先收集再一次性断言：`expect` 首条失败即抛出，会遮蔽其后各关的漂移
+        // （WXG-T-370 实测：表只报了 L3，L4/L9 同样不符却看不见）。
+        const drift: string[] = [];
         for (const p of pool) {
-            expect(p.di).toBe(EXPECT_DI[p.id]);
+            if (p.di !== EXPECT_DI[p.id]) drift.push(`L${p.id} DI=${p.di} ≠ §5.1 表 ${EXPECT_DI[p.id]}`);
             // 前置取整必要：因子必须三位，DI 一位（否则跨端漂移，§3.2）。
             expect(is3(p.res.a)).toBe(true);
             expect(is3(p.res.k)).toBe(true);
@@ -58,6 +61,7 @@ describe('EP12-S5 · 验收① §5 第一章 9 关逐值复现', () => {
             expect(is3(p.res.fK)).toBe(true);
             expect(is1(p.di)).toBe(true);
         }
+        expect(drift).toEqual([]);
     });
 
     it('DI 升序陈列序 = §5.2 九关墙序 L6→L1→L8→L2→L5→L4→L3→L7→L9', () => {
