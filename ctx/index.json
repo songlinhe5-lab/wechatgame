@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4630,
       "lines": 159,
-      "sha256": "66486623cf4bdb43093a9590132c2f1eb4d5a281b2a392894f56a017c7024479",
+      "sha256": "7c0f595f92aeffa151d3890174ed955db57a057ffc17827c095cc2219fc7b6f6",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 402,
-          "summary": "1 production/TASKS-DETAIL.md 251983 5856 normal",
+          "summary": "1 production/TASKS-DETAIL.md 251997 5856 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -422,7 +422,7 @@
           "startLine": 46,
           "endLine": 134,
           "tokens": 3121,
-          "summary": "production/TASKS-DETAIL.md 251983 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 251997 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5513,
       "lines": 146,
-      "sha256": "aaa68be45bd6e4b897d1a75f8e779b9f93a3d9bcc49f88101386c841247f27fe",
+      "sha256": "2dc128612aadac85a5853a5b95736c8655ebacc47a4c8c3d9f93fe7c42507cc0",
       "tier": "normal",
       "sections": [
         {
@@ -968,7 +968,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 5856 行 / 251983 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 5856 行 / 251997 tok",
           "level": 2,
           "startLine": 92,
           "endLine": 96,
@@ -84569,9 +84569,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 251983,
+      "tokens": 251997,
       "lines": 5856,
-      "sha256": "b85f867002a5994ff5aa49e1d70294a278010cb83bbe91b9dec8fe262104def0",
+      "sha256": "07fcfd948f235083883e34820ab46a561d08fc18237f8b23cfab0c09a89a31cb",
       "tier": "normal",
       "sections": [
         {
@@ -87093,7 +87093,7 @@
           "level": 1,
           "startLine": 3026,
           "endLine": 5857,
-          "tokens": 149598,
+          "tokens": 149613,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
             "beads",
@@ -90812,7 +90812,7 @@
           "level": 2,
           "startLine": 5547,
           "endLine": 5615,
-          "tokens": 1945,
+          "tokens": 1959,
           "summary": "beads·L00001 换图代收口——DI 28.7 / 数值真源逐值追平 / 金样本三态复取（375 预演的三个数落",
           "keywords": [
             "WXG",
@@ -90852,7 +90852,7 @@
           "level": 3,
           "startLine": 5568,
           "endLine": 5592,
-          "tokens": 629,
+          "tokens": 644,
           "summary": "本批量出的变更面比 375 预演更宽：不只 steps/time，还有 M 与 ρ。",
           "keywords": [
             "§5.1",

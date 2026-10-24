@@ -5577,7 +5577,7 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 | `time` | 30 | **46** | 同上（`pricing.clamped` true→false ⇒ 旧值是**被钳位**读数） |
 | `DI` | 31.8 | **28.7** | 102 × 0.902 × 0.800 × 0.390 = 28.71，自洽 |
 
-逐处回写（共 4 份文档 + 1 份测试）：
+逐处回写（2 份设计文档 + 1 份测试；另 `ui-architecture-beads.md §12` 登记 1 处）：
 
 | 位置 | 改动 |
 |---|---|
