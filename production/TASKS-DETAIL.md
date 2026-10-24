@@ -5598,7 +5598,7 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 
 ### 1. 代登说明（归属 / 裁定 / 取证纪律）
 
-- **归属**：并发会话（CodeBuddy），提交 `4f12245`「feat(beads): 小关列表章内拖拽调序 + 点行开编辑面板（WXG-T-373）」，已推送 `origin/develop`；**当场未顶台账头注、未登主表与详情节** ⇒ 374 会话按 K-046 重扫时撞号、改领 374，并使 `check:tasks` I 门恒红（详见 `## WXG-T-374` §1）。
+- **归属**：并发会话（CodeBuddy），**两腿共一号** —— 首腿 `4f12245`「feat(beads): 小关列表章内拖拽调序 + 点行开编辑面板（WXG-T-373）」，已推送 `origin/develop`；第二腿 `640ee2e`「feat(beads): 章底「＋ 添加小关…」入口显式化 + 满槽禁用（WXG-T-373）」（10/6 仅 `manage.html`）于本代登取数后、提交前在途入库 ⇒ 本会话 §2–§4 首腿口径**不回改**，第二腿在 §3 末与 §4 表追补、取数时序记在 §5。**当场未顶台账头注、未登主表与详情节** ⇒ 374 会话按 K-046 重扫时撞号、改领 374，并使 `check:tasks` I 门恒红（详见 `## WXG-T-374` §1）。
 - **裁定**：用户 2026-10-24 在「373 归属」三选项里拍 **代收口补登**（先例 = 291 由 292 会话代登）。
 - **取证纪律**：以下正文**全部取对该会话自己的提交信息**（`git log -1 --format=%B 4f12245` + `git show --numstat`），本会话⛔ 未参与其过程，不补写对方未给的证据；唯一新证据 = 本会话独立复跑对方单测（§4）。自报而未经复跑的项一律标「原样转录」。
 - **订正通道**：该会话若需补正，直接改本节与主表 373 行，⛔ 勿另开同号小节（`check:tasks` C 门按 `## WXG-T-<号>` 与主表一对一校验，同号两份会自撞）。
@@ -5615,7 +5615,7 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 
 后端：`apps/beads-studio/server.mjs` 在既有 `POST /api/manage/level/:uid/move` 上加 `{to}` 分支 → 新导出 `tools/scripts/chapter-store.mjs::moveInChapterTo`（`to` 须整数且 ∈ [0, len−2]；uid 不在章内 / 已为末位 ⇒ throw；boss 锁末位由 store 侧守，与旧 `{dir}` 分支同端点共存）。
 
-### 3. 改动面（`git show --numstat` 实测，4 件 +263 −21）
+### 3. 改动面（首腿 `4f12245`，`git show --numstat` 实测 4 件 +263 −21）
 
 | 文件 | + | − |
 |---|---|---|
@@ -5624,7 +5624,7 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 | `tools/scripts/chapter-store.mjs` | 18 | 0 |
 | `tools/scripts/chapter-store.test.mjs` | 21 | 1 |
 
-未新增测试套件（复用 `chapter-store.test.mjs`）；⛔ 未碰框架 `src/core`、关卡数据与 Cocos 镜像，故 L1–L5 五条铁律与本号无关。
+未新增测试套件（复用 `chapter-store.test.mjs`）；⛔ 未碰框架 `src/core`、关卡数据与 Cocos 镜像，故 L1–L5 五条铁律与本号无关。**第二腿 `640ee2e`** 只改 `manage.html` 1 件 +10 −6：① 原「分大关导入：批量导入…」改为章底显式入口「＋ 添加小关…」（tip「本章 N/9 槽，还能加 M 槽」）；② 满槽置「已加满」禁用 + tip「先删关或移章才能再加」（此前满槽仍可点，只能靠选择器锁确认）；③ 章头补「点小关行可编辑」提示。自报验证（真 chromium/CDP 只读）：章 1 9/9 ⇒ 已加满禁用；章 2 1/9 ⇒ 可点，选 8/8 可确认、第 9 张锁确认；普通行与 boss 行真实鼠标均能开面板、Esc 关闭。
 
 ### 4. 验证：对方自报 vs 本会话独立复跑
 
@@ -5634,10 +5634,12 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 | 落点公式全组合交叉验证（boss 恒末位） | 通过 | 原样转录（本会话无该装置，⛔ 不背书） |
 | 真 chromium（CDP）冒烟 8 项全绿、零页面异常 | 通过 | 原样转录（同上） |
 | `move`/`rename` 打桩、不写真源 | 是 | 原样转录（同上） |
+| 第二腿 `640ee2e` 真 chromium/CDP 只读冒烟（9/9 与 1/9 两章槽位、开/关面板） | 全绿 | 原样转录（本会话无该装置） |
 
 ### 5. 补登后读数与遗留
 
 - 只加主表行时 `check:tasks` 从 I 门红转为 **C 门红**（「主表有 WXG-T-373，但 `production/TASKS-DETAIL.md` 里没有 `## WXG-T-373` 小节」）；本节落位后复跑 = **✅ check:tasks OK**（主表 133 行 / 详情 133 节配对完整，note I：「最近 40 笔提交共署 20 个号，**全部在册**」）⇒ I 门与 `selftest:fast` 的级联红同批解除（后者经 `verify:selftest` 把 `check:tasks` 当夹具跑）。
+- **第二腿 `640ee2e` 的追补说明（不重写）**：本会话首次取数（`git log -3`）时 HEAD 仍 = `929f936`，该腿在补登节写完前已入库 ⇒ §2–§4 的首腿口径按当时取证保留，第二腿内容只在 §3 末与上表追补；本号完整腿数以 `git log --all --grep="WXG-T-373"` 为准，本会话⛔ 不承诺持续追平（待该会话自订正）。
 - 本会话⛔ 不代跑对方 studio 侧的在途改动：工作树仍有 `manage.html`、`manifest.json`、`chapters/mandala.json`、`check-tasks.mjs`、`scan-text-distortion.mjs` 呈 `M`，均属该会话在制品，本批零夹带（入库只走 pathspec 两件台账）。
 - 该批 4 件不含 singles / chapters 关卡内容 ⇒ 与 `## WXG-T-374` §6 登记的 contentVersion 缺口是两条独立账，各自归属。
 

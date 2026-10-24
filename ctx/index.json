@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4630,
       "lines": 159,
-      "sha256": "2be498b88b84f8293908dea439558bae41ee8a5b31946de20cdd6c303398b765",
+      "sha256": "62c677d88d8f457b0e282c3e2938a0d861a7d9bff37bf19ac5bbfbc818274a60",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 402,
-          "summary": "1 production/TASKS-DETAIL.md 246123 5734 normal",
+          "summary": "1 production/TASKS-DETAIL.md 246582 5736 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -422,7 +422,7 @@
           "startLine": 46,
           "endLine": 134,
           "tokens": 3121,
-          "summary": "production/TASKS-DETAIL.md 246123 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 246582 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5513,
       "lines": 146,
-      "sha256": "f0fd91713f0e25d6d44aacb6ce2155d1589e8f2374b21bb61aa74d6b81b61e89",
+      "sha256": "a77da3a4413c704bec2f6ac1d58fcf042a644502f408cae3c93c4130b0348740",
       "tier": "normal",
       "sections": [
         {
@@ -745,7 +745,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 183 行 / 85601 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 183 行 / 85698 tok / 实测读 4 次",
           "level": 2,
           "startLine": 27,
           "endLine": 30,
@@ -968,7 +968,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 5734 行 / 246123 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 5736 行 / 246582 tok",
           "level": 2,
           "startLine": 92,
           "endLine": 96,
@@ -84537,9 +84537,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 246123,
-      "lines": 5734,
-      "sha256": "09a1c7ede8451bbf6a42e2acffb7d00fd68d3ff0e9d6c99b7218f266238c3795",
+      "tokens": 246582,
+      "lines": 5736,
+      "sha256": "bf80d9da49f816bea709d67bfbb1f37f8fb96d6371c7d905ec1d9a0fb3734b63",
       "tier": "normal",
       "sections": [
         {
@@ -87060,8 +87060,8 @@
           "anchor": "§beads·fit 档放开「只缩不放大」钳（小盘放大铺满留边 + 初始视图 = 适配档）",
           "level": 1,
           "startLine": 3026,
-          "endLine": 5735,
-          "tokens": 143738,
+          "endLine": 5737,
+          "tokens": 144197,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
             "beads",
@@ -90881,8 +90881,8 @@
           "anchor": "§WXG-T-373",
           "level": 2,
           "startLine": 5595,
-          "endLine": 5643,
-          "tokens": 1309,
+          "endLine": 5645,
+          "tokens": 1768,
           "summary": "beads-studio·小关列表章内拖拽调序 + 点行开编辑面板（⚠ 由 WXG-T-374 会话代收口补登，正本归该",
           "keywords": [
             "WXG",
@@ -90895,8 +90895,8 @@
           "level": 3,
           "startLine": 5599,
           "endLine": 5605,
-          "tokens": 317,
-          "summary": "归属：并发会话（CodeBuddy），提交 4f12245「feat(beads): 小关列表章内拖拽调序 + 点行开编",
+          "tokens": 417,
+          "summary": "归属：并发会话（CodeBuddy），两腿共一号 —— 首腿 4f12245「feat(beads): 小关列表章内拖拽",
           "keywords": [
             "CodeBuddy",
             "f12245",
@@ -90923,27 +90923,27 @@
           ]
         },
         {
-          "anchor": "§3 改动面（`git show --numstat` 实测，4 件 +263 −21）",
+          "anchor": "§3 改动面（首腿 `4f12245`，`git show --numstat` 实测 4 件 +263 −21）",
           "level": 3,
           "startLine": 5618,
           "endLine": 5628,
-          "tokens": 109,
+          "tokens": 294,
           "summary": "apps/beads-studio/public/manage.html 218 20",
           "keywords": [
+            "4f12245",
             "git show --numstat",
+            "f12245",
             "git",
             "show",
-            "numstat",
-            "apps",
-            "beads"
+            "numstat"
           ]
         },
         {
           "anchor": "§4 验证：对方自报 vs 本会话独立复跑",
           "level": 3,
           "startLine": 5629,
-          "endLine": 5637,
-          "tokens": 154,
+          "endLine": 5638,
+          "tokens": 200,
           "summary": "node --test tools/scripts/chapter-store.test.mjs 13/13 tests",
           "keywords": [
             "node",
@@ -90957,9 +90957,9 @@
         {
           "anchor": "§5 补登后读数与遗留",
           "level": 3,
-          "startLine": 5638,
-          "endLine": 5643,
-          "tokens": 261,
+          "startLine": 5639,
+          "endLine": 5645,
+          "tokens": 382,
           "summary": "只加主表行时 check:tasks 从 I 门红转为 C 门红（「主表有 WXG-T-373，但 production",
           "keywords": [
             "check",
@@ -90973,8 +90973,8 @@
         {
           "anchor": "§WXG-T-372",
           "level": 2,
-          "startLine": 5644,
-          "endLine": 5735,
+          "startLine": 5646,
+          "endLine": 5737,
           "tokens": 2948,
           "summary": "beads·九关定价实测——L3/L4 的 steps/taps/time 仍是 362 换盘前的旧盘读数（只报不裁）",
           "keywords": [
@@ -90988,8 +90988,8 @@
         {
           "anchor": "§1 领号与来源",
           "level": 3,
-          "startLine": 5648,
-          "endLine": 5653,
+          "startLine": 5650,
+          "endLine": 5655,
           "tokens": 264,
           "summary": "用户在 WXG-T-369 收尾三选项里选 1（「裁定 L3 的难度冲突：先用现成工具把新旧图案的 DI 分量拆开，再给",
           "keywords": [
@@ -91000,8 +91000,8 @@
         {
           "anchor": "§2 取证（现成工具实跑，零新脚本）",
           "level": 3,
-          "startLine": 5654,
-          "endLine": 5681,
+          "startLine": 5656,
+          "endLine": 5683,
           "tokens": 587,
           "summary": "跑法 = tools/scripts/beads-bot.ts（真引擎装盘，单盘 0.1–0.4s；--patch 一律",
           "keywords": [
@@ -91016,8 +91016,8 @@
         {
           "anchor": "§3 改动（本批仅 1 件源码，零数据、零夹具）",
           "level": 3,
-          "startLine": 5682,
-          "endLine": 5686,
+          "startLine": 5684,
+          "endLine": 5688,
           "tokens": 121,
           "summary": "games/beads/tests/difficulty.test.ts +5 −1：逐值比对由 expect(p.di",
           "keywords": [
@@ -91032,8 +91032,8 @@
         {
           "anchor": "§4 读数 (2)",
           "level": 3,
-          "startLine": 5687,
-          "endLine": 5692,
+          "startLine": 5689,
+          "endLine": 5694,
           "tokens": 259,
           "summary": "npx vitest run tests/difficulty.test.ts = 2 failed / 9 passe",
           "keywords": [
@@ -91048,8 +91048,8 @@
         {
           "anchor": "§5 待裁（四案，均已核代价）",
           "level": 3,
-          "startLine": 5693,
-          "endLine": 5703,
+          "startLine": 5695,
+          "endLine": 5705,
           "tokens": 315,
           "summary": "甲 全量 beads-bot --patch 重测 + sync-levels-data + §5.1/§5.2 回写 ",
           "keywords": [
@@ -91064,8 +91064,8 @@
         {
           "anchor": "§6 连带遗留",
           "level": 3,
-          "startLine": 5704,
-          "endLine": 5708,
+          "startLine": 5706,
+          "endLine": 5710,
           "tokens": 148,
           "summary": "复取金样本的真前置由 367/368 记的「形状入库」推进为两条：difficulty 两红随本批裁定落档而绿 + §1",
           "keywords": [
@@ -91077,8 +91077,8 @@
         {
           "anchor": "§7 补测（2026-10-24，用户选 372 收尾选项 1「甲+丙一起做」⇒ 先把丙的实测数字做出来）",
           "level": 3,
-          "startLine": 5709,
-          "endLine": 5735,
+          "startLine": 5711,
+          "endLine": 5737,
           "tokens": 1113,
           "summary": "探针 = temp/wxg373-cand.mjs（23 行，只读）：候选图案由现盘机械变换产生，misplaced 一",
           "keywords": [
@@ -91094,9 +91094,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 85601,
+      "tokens": 85698,
       "lines": 183,
-      "sha256": "a2a53c00b3717db6ba559990540ea0b80c7da3f4c844c59858c7f43805466942",
+      "sha256": "7f5d20a5a723e3c71116c0600b0ce840c572bac1a554db0db83e2e4968401e41",
       "tier": "hot",
       "sections": [
         {
@@ -91104,7 +91104,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 184,
-          "tokens": 85592,
+          "tokens": 85690,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
