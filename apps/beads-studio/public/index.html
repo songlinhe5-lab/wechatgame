@@ -655,6 +655,8 @@
                 skin: $('skin').value,
             });
             if (exact) q.set('notrim', '1');
+            // 关卡标签：让服务端把这条结果记进本关（列表「只看本关」的唯一依据）
+            if (levelInfo) q.set('level', levelInfo.uid);
             $('gen').disabled = true; msg('生成中…');
             try {
                 // draft=1：只刷效果（写单一草稿位），不落 result.json ⇒ 不进「已存结果」/选图器；
@@ -880,8 +882,9 @@
         }
 
         /** 拉「已存结果」+「预览草稿」合并渲染。`focusId` = 刚生成/刚保存的那条（滚入视区）。
-         *  口径（2026-10-24 用户裁定 A）：**不做尺寸/关卡筛选**——尺寸只作展示，替换时的尺寸变化由
-         *  确认框与提示条告警；预览（未入库）单独一组置顶，保证"生成过的版面都在列表里"。
+         *  口径（2026-10-24 用户）：**关卡模式下只列本关的记录**——判据是结果上的 `linkedLevels`
+         *  （生成时由 `?level=` 打标，替换成功时反向补标）；不做尺寸筛选（尺寸只作展示，替换时的
+         *  尺寸变化由确认框与提示条告警）。不带 `?level=` 时照旧全量列出。
          *  「使用中」= `current.id`，所以任何应用/生成/保存后都要重跑本函数。 */
         async function loadResults(focusId) {
             try {
@@ -889,12 +892,22 @@
                     fetch('/api/results').then((x) => x.json()),
                     fetch('/api/previews').then((x) => x.json()).catch(() => ({ previews: [] })),
                 ]);
-                const results = Array.isArray(rs.results) ? rs.results : [];
-                const previews = Array.isArray(pv.previews) ? pv.previews : [];
+                const allResults = Array.isArray(rs.results) ? rs.results : [];
+                const allPreviews = Array.isArray(pv.previews) ? pv.previews : [];
                 const cell = levelInfo ? levelInfo.cells[levelCell] : null;
+                const uid = levelInfo ? levelInfo.uid : '';
+                // 本关 = linkedLevels 命中该 uid。无标签的旧条目**不混进来**（它们属于别的关 / 不属于任何关），
+                // 数量在标题里报出来，免得用户以为"记录被删了"。
+                const mine = (r) => !uid || (Array.isArray(r.linkedLevels) && r.linkedLevels.includes(uid));
+                const results = allResults.filter(mine);
+                const previews = allPreviews.filter(mine);
+                const hidden = uid ? allResults.length - results.length + (allPreviews.length - previews.length) : 0;
                 const el = $('results');
-                el.innerHTML = `<b>已存结果</b> <small>（${cell ? `该关 ${cell.cols}×${cell.rows} · ` : ''}` +
-                    `已存 ${results.length} 条 · 预览 ${previews.length} 条未入库｜点行应用为当前，只有 ✕ 删除）</small>`;
+                el.innerHTML = `<b>已存结果</b> <small>（` +
+                    (uid ? `本关 ${uid}${cell ? ` · ${cell.cols}×${cell.rows}` : ''} · ` : '') +
+                    `已存 ${results.length} 条 · 预览 ${previews.length} 条` +
+                    (hidden ? `｜另 ${hidden} 条属其它关/未标关，已隐藏` : '') +
+                    `｜点行应用为当前，只有 ✕ 删除）</small>`;
                 const curId = current && !current.fromLevel ? current.id : '';
                 let focusEl = null;
                 const mkRow = (r) => {
@@ -916,8 +929,14 @@
                     for (const r of list) g.appendChild(mkRow(r));
                     el.appendChild(g);
                 }
+                if (uid && !results.length && !previews.length) {
+                    const g = document.createElement('div'); g.className = 'grp';
+                    g.innerHTML = '<small style="color:#999">本关还没有记录 —— 在本页「生成预览」→「✓ 确认保存」后就会出现在这里' +
+                        '（带历史标记的才属于本关；从 `/` 生成再「替换回该关」的也会自动归到本关）</small>';
+                    el.appendChild(g);
+                }
                 focusEl?.scrollIntoView({ block: 'nearest' });
-            } catch { /* 列表失败不阻塞主流程 */ }
+            } catch { /* 列表失败不阻塞主函数 */ }
         }
         // ── [?level=<uid>] 大关管理页 → 生成页（WXG-T-373）：载入该关图案，编辑完一键替换回该关 ──
         //    关卡真源只读（GET /api/levels/:uid）；写回仍走既有 /api/manage/level/:uid/replace

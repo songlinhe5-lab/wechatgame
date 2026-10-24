@@ -179,6 +179,8 @@ function listResults() {
                     importable: blockers.length === 0,
                     blockers: blockers.slice(0, 2), blockerCount: blockers.length,
                     hasThumb: !!r.thumb,
+                    // 「只看本关」的判据（生成时打标 / 替换时反向补标）；旧条目为空数组
+                    linkedLevels: Array.isArray(r.linkedLevels) ? r.linkedLevels : [],
                 });
             } catch {
                 /* 跳过损坏条目 */
@@ -208,6 +210,7 @@ function listPreviews() {
                 importable: d.importable !== false ? true : false,
                 hasThumb: !!d.thumb,
                 draft: true,
+                linkedLevels: Array.isArray(d.linkedLevels) ? d.linkedLevels : [],
             });
         } catch {
             /* 跳过损坏 / 非预览目录 */
@@ -1478,6 +1481,16 @@ async function handleLevelReplace(req, res, uid) {
             ...(d.misplaced ? { misplaced: d.misplaced } : {}),
             ...(brandSlug ? { palette: brandSlug, paletteCodes: d.paletteCodes } : {}),
         });
+        // 反向补标：这条结果被本关采用 ⇒ 记进 linkedLevels，之后「只看本关」的列表能找回它
+        // （源可能是 `/` 下生成的无标签条目）。result.json 属运行时运维数据、不在关卡真源事务里，
+        // 标签只增不删 ⇒ 重复替换幂等，写失败也不回滚替换本身。
+        const lv = Array.isArray(r.linkedLevels) ? r.linkedLevels : [];
+        if (!lv.includes(uid)) {
+            try {
+                writeFileSync(resultFile, JSON.stringify({ ...r, linkedLevels: [...lv, uid] }, null, 2));
+                r.linkedLevels = [...lv, uid];
+            } catch { /* 忽略：不影响关卡写盘结果 */ }
+        }
         return { manifest: ctx.manifest, log: [`替换 ${uid} 图案：${old.cols}×${old.rows} → ${d.cols}×${d.rows}，实测 ${measured.time}s（关名「${old.name}」、关号与章位不变）`] };
     });
 }
@@ -1687,6 +1700,10 @@ async function handleGenerate(req, res, url) {
     // （与游戏侧 importBlockers「未注册不拒收关卡本体」同口径：生成侧直接收敛，不产脏值）。
     const skinRaw = q.get('skin');
     const skin = SKIN_IDS.includes(skinRaw) ? skinRaw : SKIN_IDS[0];
+    // 关卡标签（`?level=<uid>`，生成页在 `?level=` 模式下带过来）：为"只看本关的历史记录"提供依据。
+    // ⚠ 只有**从关卡编辑页生成**的才带；`/` 下生成的不带 ⇒ 不会串进任何关的列表。
+    //    数组而非单值：同一份结果可能被替换进多个关（见 handleLevelReplace 的反向标记）。
+    const levelUid = /^[LP]\d{1,9}$/.test(q.get('level') || '') ? q.get('level') : '';
     if (params.mis === 'swaps' && params.swaps < 1) params.swaps = 1; // 交换模式下 k≥1
     let pattern;
     try {
@@ -1728,6 +1745,8 @@ async function handleGenerate(req, res, url) {
         paletteHex: pattern.paletteHex ?? null, // 色号 → 实际 hex（前端忠实预览 artkal 用）
         misplaced: pattern.misplaced, // 全错位参考盘（仅 swaps=0 时为真实初始盘）
         report: pattern.report ?? null,
+        // 关卡标签：只有从关卡编辑页生成才有（见上 levelUid 注）
+        ...(levelUid ? { linkedLevels: [levelUid] } : {}),
     };
     // 可入关判定在写盘时算一次（单一真源），前端与服务端拦截共用同一结果
     result.blockers = importBlockers(result);
