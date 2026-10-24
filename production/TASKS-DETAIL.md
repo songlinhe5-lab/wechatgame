@@ -5091,6 +5091,22 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 2. **金样本三态复取被上述 BOOT 锁阻塞**，拐点已确认在本提交，见 WXG-T-367。
 3. **`EXPECT_DI` 逐值表与九关墙序断言未随批同步**：`tests/difficulty.test.ts` 两例（`expected 73.7 to be 42.2`、墙序 `L3/L5` 互换）在 HEAD 上红，属本批下游欠账，待数据修复入库后一并同步。
 
+### 5. 转交原会话（交办单，2026-10-24 由 verify 收尾批开出）
+
+**背景读数**（同一台机、同一 `develop`，三档实测）：干净 HEAD **15/22** → 恢复工作树在制关卡数据 **18/22** → 本节补登后 **21/22**，唯一红 `test` 6 例。以下 5 项全部指向**工作树中未提交的关卡数据改动**（`design/levels/singles/L00003.json`、`L00004.json`、`games/beads/src/config/levels-data.ts`、`cocos/assets/scripts/game/config/levels-data.ts`）——按 K-158③「他轨产物不代改、不代提交」，本批不开工，只交办。
+
+| # | 需做 | 依据读数（原文） | 完成判据 |
+|---|---|---|---|
+| 1 | `L00003/L00004.json` 的 `misplaced` 由**二维数组**改为「每行一个字符串」 | `L3 row0..row13: misplaced 行须为字符串`（L4 同形，两关共 26 行）；该校验口径自 `89f28e0` 起生效 | `pnpm run typecheck` + `pnpm run cocos:check` + `pnpm run harness:build` 三绿 |
+| 2 | L3 错位格数补齐到「全可填格」 | `tests/misplaced-assembler.test.ts:346` → `L3 全错: expected 88 to be 108`（**差 20 格**） | `pnpm --filter @wxgame/beads run test` 该例转绿 |
+| 3 | 同步 `EXPECT_DI` 与 §5.1 表，并订正九关墙序 | `expected 73.7 to be 42.2`；墙序实测 `[6,1,8,2,3,5,4,7,9]` vs 期望 `[6,1,8,2,5,4,3,7,9]`（L3/L5 互换） | `tests/difficulty.test.ts` 两例转绿 |
+| 4 | 重抓 `ui-golden` 三态 | `main-menu 5636≠3662`、`level-select 1409≠1423`、`level-select-mid 7046≠5086`（`total` 指令数） | 仅由 `tests/ui-golden-capture.ts` 在可复现锚重抓；⛔ 手改夹具（K-051/K-053）；重抓前须有 UX 裁定且 `ui-architecture-beads.md §12` 登记 |
+| 5 | 上述入库后整跑取读数 | 现行 `PASS 21 ｜ FAIL 1` | `pnpm run verify` 出 **22/22** |
+
+**解除条件**：5 项全绿且整跑 22/22；届时由执行会话在本段末追加「已闭环 + 提交号」即可关闭。
+**⛔ 明确不做**：本补登批不动上述任一文件；不为凑绿放宽 `misplaced` 校验器或手改金样本；不跳项。
+**共享面**：本段 + `production/TASKS.md` 头注「362 已补登」段（K-158② 要求披露落在共享文件，不写在提交信息里）。
+
 ## WXG-T-363
 
 **beads·装扮馆（`skins` 弹窗）工程批：设置页入口 + 卡区版面 + 买断闭环（承 360 遗留①，闭合 §3.7 v1.83「外观 = 金币买断」的玩家可见腿）**
