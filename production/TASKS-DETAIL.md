@@ -2614,139 +2614,6 @@ bake 走 `bake:<styleId>:<colorIdx>` 且 `bakeSize = BAKE_CANONICAL_SIZE`（常�
 
 ---
 
-## WXG-T-256
-
-**WXG-T-256 · beads·S5′-3 层序 = 视觉裁剪解（去容器板 + 统一单层底色 + 第二块提交体 + 载体插序）**（2026-10-05 · 主理人 Qoder · 程基岩域 + 美术域代落盘 · `ADR-0030 §5.6` 第十六刀）
-
-**用户裁定（两项，选项题均取推荐项）**：① **去板范围 = 整块去掉（最彻底）** —— `drawPuzzlePlate` 的 B1–B3 暖光 band + B4 投影 + B5 白板体 + B5b 内凹 + B6 完成贴纸全拆；② **统一背景 = 收成单层纯色背景** —— `drawBackgroundLayers` 的冷沉 + 两档同心提亮退役，只留 `palette.background`。
-第三条是本单给的路线裁定：「**A 起步、B 作为收口替换**」= 底色由**渲染器自己画**（宿主注入第二块提交体），相机 `clearColor` 方案留作 `[R]` 读 dc 后的替换。
-
-**为什么这不是「把底板挪出去」**：§5.5 残留 3 当初的诊断是「一块 `Graphics` 同装底板（珠下）与遮罩（珠上）⇒ 插入序必错一侧，解法 = 底板整块挪出 `Graphics`」。开工复核发现更根本的一条：**裁② 那把尺（按「有没有动效」切 L0/L2）在容器板上失效** —— 板宽 `gridW = (gridCols−1)×snap.gridPitch + gridCell` 随 `camZoom` 每帧重算 ⇒ 「没有动效」为假，烘了就得按缩放档重烘（与「盘面整体缩放、内容不重烘」的用户硬约束冲突）。**去板 + 单层底色 ⇒ 珠下零图元 ⇒ L0 不需要烘 ⇒ 冲突面直接消失**，层序由**节点序**解决（Cocos UI 不需要 zIndex）⇒ ⛔ 框架 `render-model` 零改动，当初预想的「层归属标记」这套新机制**一行都不用写**（改判 = **裁②′**）。
-
-**顺带确诊并修掉一处既有缺陷**：`RenderModelBuilder.setBackground()` 产出的 `model.background` 在 **Cocos 侧此前无任何消费方**（canvas2d 侧 `canvas2d-renderer.ts:165` 有）⇒ 两端底色不一致。`Main.scene` 的 `cc.Camera` 只有 `_color: rgba(0,0,0,255)`、**无** `_clearColor` / `clearFlags` ⇒ 引擎默认清屏色**静态读不出**，⛔ 不得据此断言现网表现。修法 = 宿主注入 `Background` 节点画这一色（复用 canvas2d 语义），**不猜引擎默认值**。
-
-**交付（代码 5 + 判据 4 + 文档 5）**
-
-| 面 | 改动 |
-|---|---|
-| `view/view-model.ts` | 删 `drawPuzzlePlate()` / `drawBackgroundLayers()` 两函数及调用（**−86 行**，⛔ 不留空转代码，留 6 行退役登记指向 §5.6）；`setBackground` 上加「只发一个 token，铺满屏归宿主」 |
-| `config/tuning.ts` / `view/palette.ts` | 退役 `PLATE_*`×8 + `BG_*`×3 = **11 常量** 与 `GLOW_WARM_HEX / BG_DEPTH_HEX / BG_LIFT_HEX` **3 hex**（原地注释留退役登记） |
-| `framework/src/adapters/cocos/cocos-renderer.ts` | `CocosRendererOptions.backGraphics?`（**可选**）+ `draw()` 起手铺一屏 `model.background`；⛔ 未注入 = 逐字节等价（DEC-2 口径） |
-| `framework/src/adapters/cocos/bindings.ts` | 节点序 `GameRoot → Background(Graphics) → BlitLayer(Node) → Graphics(矢量 UI) → Labels`；`createBlitCarrier(_layer: Node)` 形参语义由 GameRoot 改 **BlitLayer**；`backGraphics` 注入 |
-| `cocos/.../beads-blit-carrier.ts` / `BeadsBootstrap.ts` | 图集节点挂 BlitLayer（**兑现旧 `ponytail:` 注**：父节点不再是 GameRoot 末尾 ⇒ 底图之上、矢量 UI 之下，面板/遮罩能压住珠）；覆写签名同步 + 文档写明「⛔ 不是 GameRoot」 |
-| 判据 | 封箱三处（`PLATE_BG_RETIRE_FRAME0/78 = 9` 分段登记常量 + 腿 4a/4b + 差分自洽 + `toBe(1868)` + 键 13 三条断言）· 色表锁 `37/fd5a0def780d` → **`34/67c2a2c08a92`** · `tuning.test` ⑤ 改贴 `PUZZLE_BAND.yMin` · `check:a11y` A5 **✅ → ⚠️**（锚 `glow_warm` → `FILL_POP_SCALE_TROUGH`，`accessibility.md` 矩阵行 + §3 小结同步） |
-| 文档 | `ADR-0030` 头注第十六刀 + §5.2 裁②′ 就地改判 + §5.5 残留 3 标解除 + **新增 §5.6** · `assets-spec` **v1.5-r20**（§1.7/§1.8 退役条 + 基线表「背景/板 −9」订正注） · `art-bible` **v1.5-r3**（§3.1 三 token 行 + §3.5/§4.3/§6/§8 对应条划线留档，K-053） · `systems-index` **v1.61**（§3 值零改动，只作废 `PUZZLE_BAND` 负面后果 ③）+ changelog 行 · QA `test-cases.md` **K.5.1-补7** |
-
-**封箱基线修订 = 唯一通道**：官方复取器 `tests/bead-style-seal-recapture.ts` 重抓 ⇒ `frame78 1877→1868`（`rect 998 · circle 160 · line 376 · text 12 · polygon 322`，sha `d3a57328…`）、`frame0 1331→1322`（sha `0419c9e2…`）；**逐 kind 归因 = 两帧各 rect −9（板 6 + 背景 3），其余 Δ = 0，未解释 0 条**；**最强反证 = 珠体族 `legacyFlow` 96 例 + facet 45 例逐字节等值**；史证 `head.*` / `s3AtFormalization` / `fixture.*` 不动。⚠ **流程偏差如实登记**：本次重抓由**变更侧**执行、未过 QA 之手（K-082「更新权在 QA」）⇒ 记 P3，见 `K.5.1-补7` 首条。
-
-**ponytail 选了什么 / 拒了什么**：取「**删掉冲突对象**」而非「发明层归属标记 + 三处插序判断」；取「宿主画底色（复用 canvas2d 语义）」而非「相机 `clearColor`」（后者把色值真源劈成 `Main.scene` + `palette.ts` 两处，且 ⛔ 猜不出引擎默认值）；取「**两块提交体**」接受 dc 可能 +1 而非为省 1 dc 引入双真源；⛔ 不留 `PLATE_*` 空转常量「以防想恢复」；⛔ 不把 a11y 锚点抹成 `-` 躲检（按事实降档）。
-
-**验证**：beads **808 passed / 1 skipped（59 文件）** · `typecheck` 0 错 · `cocos:check` 检查 2 / 失败 0 · `framework:sync:check` 一致（framework 53 + game 47）· `check:a11y` 一次**真红**后复绿 · `harness:smoke` OK（`rect=129 arc=3412 fill=1569 fillText=12` / `6127 draw commands`）· 收口 `pnpm run verify` **PASS 21 / WARN 0 / SKIP 0 / FAIL 0**。⛔ 未 commit。
-
-**残留与解除条件**：
-① 复取器锚 = `3982e43 + worktree-delta(未提交)` ⇒ 不满足「可复现 commit 锚」全义，**提交后复跑复取器自证等值**；
-② **Cocos 端 dc 未读**（本批提交体 1 → 2 块 ⇒ 按 §5.0.3 静置期可能 **+1**）**解除条件** = ② 真机/harness 复读 dc 与截图（`carrier=on` 两臂）；
-③ 若 +1 有代价 → ③ 换代**相机 `clearColor`**（删这块 rect，代价 = 色值双真源 + 需改 `Main.scene`，L1 侧要走编辑器动作）；
-④ 观感 `[待真机 / art 校准]`：去板后盘/地同色域、暖侧只剩珠子 ⇒ 丙案「双色温对撞」基调是否仍成立归**正主复验**；完成态 B6 贴纸消失，若要补非板形态完成标记 = 另开 art 单；
-⑤ `S3` 两端对拍、`[R]` 低端机预读未动。
-
-**沉淀统计**：`kb:sync --task=WXG-T-256` ⇒ **新增 2 / 修改 0 / 激活 0 / 归档 0**（`kb:audit`：归档候选无、相似命中无）。
-新增 **K-109**「层序死结优先『删掉引起冲突的对象』，而不是给数据模型加『层归属标记』——加标记 = 扩协议，删对象 = 缩问题面」；
-**K-110**「改『渲染真源』字段前必须先 grep 两侧消费方：canvas2d 吃了 ≠ Cocos 吃了，harness 全绿掩盖的是『某个宿主根本没读这个字段』」。
-`ctx:build` 已重跑（knowledge/memory/TASKS/QA 索引面刷新）。
-
-**同批补记（用户 2026-10-05 报「格子背景没了、盘面背景板还在」= 旧产物，非漏删）**：截图里那块白板 = `palette.panel #FFFFFF` + `panelBorder #E2DFF0` 圆角矩形（正是 B5 板体），而 `build/wechatgame` 的时间戳是 **16:04（T-255 收口那次）**、源码与镜像改动在 **16:25 / 16:30** ⇒ 产物早于本批 ⇒ 板必然还在。取证 = debug 产物 `assets/main/index.js` 里 `drawPuzzlePlate` / `PLATE_*` 只剩**注释命中**（函数体已无）。重建后 `check:cocos-mask` 4/4 OK、`check:size` OK、`verify` **PASS 21 / FAIL 0**。
-⚠ **本批一处自伤（如实）**：第一次重建走的是默认档 = **debug**，把在册 **release** 产物原地覆盖 ⇒ `check:size` 当场 **FAIL**（主包 6074.3 KB > 红线 4096，`cc.js` 3365 KB 触发「疑似 debug」启发）⇒ 立即 `build:cocos -- --release` 复原（主包 **2918.3 KB**，仍 ⚠ 超内部目标 2000 但 ≤ 红线 = K-089 口径 OK）。较在册 2866.8 KB **+51.5 KB**，旧产物已被覆盖 ⇒ **未逐文件归因**（本批不动资产，疑为新层节点代码 + 镜像刷新）。沉淀 **K-111**。
-
-**追加验证（用户「坑底是纹理还是矢量图」· 一次性探针跑完即删，⛔ 不入判据）**：同一盘面同一帧两臂对照 ⇒ **矢量臂** `rect 908 / circle 260 / line 320 / polygon 522 / text 12 = 2022 条`；**纹理臂** `blit 280 / rect 20 / circle 4 / line 16 / polygon 10 / text 12 = 342 条`（需求集 = `mask__{bead,grid}__{holed,holeless}__v1` 四张）。
-**分流真源只有一处**：`drawTargetTile` / `drawEmptySocket` 的纹理臂要求 `_tintRuntime !== undefined`，而生产 Cocos 侧该运行时**只由 `beads-blit-carrier` 注入**（`carrierSwitchOn()` ⇒ 默认 `null`）⇒ **当前构建档（不带参数）看到的坑底 = 矢量图**；加 `carrier=on`（web `?carrier=on` / wx 启动参数）且日志 `masks=4/4 carrier=on` 后才是纹理（tile 画布 33dp、内容 30dp 居中，槽与底图同一张图）。harness 侧默认即纹理臂，`?tint=off` 可切回矢量对照（HUD 有 `tint 4/4 mask` / `tint off` 行）。
-**同批补记（2026-10-05 · 用户「真机加了 `carrier=on` 还是矢量图」= 装载腿两处缺陷，⛔ 不是参数没传到）**：web-mobile 产物 + Chromium 复现 ⇒ 控制台 `masks=2/4 carrier=off`（参数**已**生效，载体建了、`loadBundle('textures')` 也成功），缺的是两张 `holeless`。逐形态实测（同一路径换六种写法）定位到两条独立缺陷：
-① **并发 memo**：`ensureMaskBundle()` 记 `_maskBundleTried` 标志位 + 结果槽，而 warmup 对四张 `Promise.all` 并发调它 ⇒ 后三个调用方当场拿 `null` 走全局 uuid 腿（`holeless` 已离开 `main` ⇒ 解不出）。改为缓存 **Promise 本身**。
-② **API 形态**：`bundle.load(path, ImageAsset, cb)` 三参在 3.8.8 把回调当 `options`（`this.onProgress is not a function`）；补成四参后在**构建产物**里只请求到 `import/<uuid>.json`、**永不回调**（连被 `redirect` 回 `main` 的 `holed` 两张也挂），而 `assetManager.loadAny({ bundle, path }, cb)` 同场景直接返回 `ImageAsset` + 128px `HTMLImageElement` ⇒ 取资产一律经 `assetManager`，bundle 句柄只用于注册。
-修后（release 重建）：**web-mobile 产物 `?carrier=on` ⇒ `masks=4/4 carrier=on`** ✅；`check:cocos-mask` 4/4、`check:size` OK（beads 主包在册口径不变）、`verify` **PASS 21 / FAIL 0**（含 `typecheck`）。
-⚠ 更正上一段「追加验证」的隐含前提：那句「加 `carrier=on` 且日志 `masks=4/4` 后才是纹理」在**本批之前对构建产物不成立**（只有编辑器 Preview / harness 成立）。
-⚠ **弱取证面登记**：`check:cocos-mask` 只核 native png 在不在 ⇒ 上面两条它全绿。产物级加载证据 = 跑一次 `?carrier=on` 看 `4/4`（探针留在 `temp/wxg256-socket-arm/probe-carrier.mjs`，⛔ **未入册**，重跑：`node temp/wxg256-socket-arm/probe-carrier.mjs "carrier=on"`；**是否升为常驻 smoke 工具未拍**，代价 = 每次要 Cocos 构建 + Chromium）。沉淀 **K-112**（异步 memo 记 Promise）、**K-113**（跨 Bundle 加载形态）。
-⛔ 未闭：微信真机侧 `carrier=on` 的 `4/4` 与 dc 读数（本地探针只覆盖 web-mobile 运行时，`wx.createCanvas` 离屏能力与 `loadAny` 在 wx 档仍需真机确认）= ② 批。
-
----
-
-## WXG-T-261
-
-# beads·托盘放大批（槽底深色墨档 + 格缝加大 + 尺回 48/6 系）
-
-> 2026-10-06，主理人(Qoder)·美术域＋工程域代落盘。用户三裁原话：「将托盘格子的 mask 混一个深色，
-> 槽底显示更深一些；托盘格子之间增加一些间隔；托盘整体放大一些，两边离边缘不要太远。」
-
-**一、代码（src + 镜像同批，`framework:sync` 写入 1）**
-
-- `tuning.ts`：`TRAY_SLOT` 30→**48** · `TRAY_GAP` 2→**6** ⇒ pitch 54 · 12 列行宽 642 · 每边留白 54
-  （v4.0 期 184）。推翻 WXG-T-237 v4.0「1:1 格面」；保留其 mask 接线（托盘槽吃盘面 `cell` mask 等比，
-  ⛔ 不另建托盘专属 mask）。`TRAY_BEAD_SIZE` 降为**命中框基准**（=44；`TRAY_HIT_SIZE`=60），
-  绘制不读它 ⇒ 托盘珠吃等比 `drawInset`、珠面 ≈**41.6**。
-- `palette.ts`：新 token `traySlot #BCC2CB`（只换托盘槽底，盘面空格仍 `slot`）= art 单合法通道
-  （`assets-spec` **v1.5-r21**，让号自查 r20→r21）；色表锁 **34→35/`38c2bed416c3`**。
-- `view-model.ts` / `bead-render.ts`：托盘珠与盘面珠**逐字同参**（防两臂异形）；槽底墨消费 `traySlot`。
-
-**二、封箱第十五次复评（WXG-T-212 官方例外通道，四步闭环）**
-
-1. **前态锚**：HEAD 隔离副本（`git archive HEAD` + symlink node_modules）逐字节复现现役锁
-   （frame0 1322/`907ea480…` · frame78 1868/`537de402…` · legacyFlow 96 例零差）。
-2. **现态重抓**：官方复取器（临时加 `WXG211_DUMP_FLOW` env 门控 dump，⛔ 不改封存路径）。
-3. **流级差分归因**：两帧各 172 条改写（rect 121 + line 51）全落托盘带 y∈[364,450]，零插入零删除
-   ⇒ 逐 kind 计数与 total 全等、仅两键 sha 动（新锁 `664f99ee9a49…` / `97a42a866f6e…`）；
-   证据 `temp/wxg-t-211-s3/t261-diff-frame{0,78}.txt`。provenance 键 `s3_frame_recheck_15`。
-4. **strip-back 处置**：第十四批闭合自证在几何改写口径下数学上不可存续 ⇒ K-053 划线作废不净删、
-   back 计数腿保留；前态史证键 `s3_pre_tray_261` 接替（total 全等 + sha 不等）；
-   `legacyFlow` 键形 z26→z44 换回转正态（常驻腿读 fixture 登记参数非代码常量，非铁律击穿）。
-
-**三、测试爆炸面与判据修订（4 红→全绿）**
-
-- `bead-render` ④ 色表锁追改；③ 腿改钉等比式 41.6 + 方向 `toBeGreaterThan` + 反向守卫；
-  旧臂封箱口径恒 44 ⇒ **两臂差 2.4dp 如实登记**（⛔ 不为凑绿动旧臂击穿 seal），收口 = S7。
-- `bead-style-seal` 腿 4a：recheck_15 三条查询断言 + 史证断言；删一处恒真 `kinds===undefined`
-  伪绿（K-060）。fixture 经一次性脚本 `temp/wxg-t-211-s3/update-fixture-261.cjs` 更新（防重复守卫）。
-
-**四、文档在册（a4）**：`systems-index` **v1.62**（§3.4 三行 + changelog）· `assets-spec` **v1.5-r21**
-（头注/§1.3/§1.10.9/硬约束③④）· `ADR-0018:197` 反转句口径注（盘珠 30 < 珠面 41.6，不另开 ADR）。
-
-**五、验证**：`framework:sync`（写入 1）· beads **59 files / 812 passed / 1 skipped** ·
-`pnpm run verify` **PASS 21 / WARN 0 / SKIP 0 / FAIL 0**。**未 commit**。
-
-**五-B、二批续裁（同日 2026-10-06 · 不另领号）**：用户二批两裁 —— ①「托盘槽底色太浅，格底mask混合的颜色需要是深灰或者浅黑」②「托盘珠子孔不透明，看不到下面的槽颜色，孔需要透明透底」。
-落码 = **palette `traySlot` #BCC2CB → #4A5060**（同 token 纯墨改值；色表锁条数仍 35 ⇒ sha1 `38c2bed416c3`→`1979d53033a1`；盘面空格仍 `slot`）+
-**撤 tint 臂托盘珠 `liveHole` 补孔**（`bead-render.ts` 字段+分支、`view-model.ts` 调用参；2026-10-05 药方的病灶前提「真透透出近白格底」随槽底加深消失 ⇒ 补孔 = 盖底；
-撤后 = DEC-2 mask 真透透出槽底、与盘面珠同构；`drawLiveHole` 函数保留 = 烘焙臂仍消费；矢量臂 / 烘焙臂 / 盘面珠零改动）。
-**封箱第十六次复评**（`provenance.s3_frame_recheck_16`）：前态锚 ≡ 现役登记逐字节 MATCH（复取器自证）；流级差分 = 两帧各 **168 条纯墨改写**
-（rect 120 + line 48，仅 fill/stroke 字段，全落托盘带 y∈[336,396.2]；墨 #BCC2CB 族 → #4A5060 族 + 派生 ramp）⇒ 逐 kind 计数与 total 全等、只两键 sha 动
-（`135300071c65…` / `689a2a1b313f…`）；前态史证键 `s3_pre_tray_261b`；最强反证 = legacyFlow 96 例 + facet 层 45+45 例逐字节零变更。
-**判据腿同步** = `bead-tint-arm`「1 blit + 0 circle（⛔ 补孔回潮即红）」/ `bead-style-seal` 腿 4a recheck_16 三查询 + pre261b 钉 / `bead-render` ④ 色表锁追改。
-**文档在册** = assets-spec v1.5-r21 续裁注（头注 / §1.3 empty 卡 / §1.10.9 托盘族行 + 硬约束④）· systems-index v1.62 版本头与 changelog 二批续裁注（不另顶版）。
-**二批验证** = beads 59 files / **812 passed / 1 skipped** · `framework:sync`（写入 3）· `pnpm run verify` **PASS 21 / WARN 0 / SKIP 0 / FAIL 0**。**未 commit**。
-
-**五-C、三批缺陷修复（同日 2026-10-06 · 不另领号）**：用户报「现在槽底没有变化，只有槽边缘的阴影在加深」。
-**确诊**（生产合成函数 `compositeTintMask` 实算 + 命令流探针）：格 mask 通道语义 `R=d / G=l / B=shape`，`grid-hole` 内部 **B=0 ⇒ tint blit 槽底面全透明、只着色槽口斜面环**；
-盘面有 B0 垫底（`tilePainted=true`）⇒ 槽底读 B0 无病灶；托盘无 B0，而 `drawEmptySocket` tint 分支 early-return 把 JSDoc 自己承诺的「自带亮底」rect 一并跳过
-⇒ 槽底实际透出托盘面板白瓷 ⇒ 二批 `#4A5060` 只作用在边缘环上（旧判据腿「命中 ⇒ 0 rect」把这个缺陷钉死过）。**根因修一处** = tint 分支 `!tilePainted` 时先铺与矢量臂同墨同几何的底 rect 再 blit；
-盘面路径与矢量臂逐字节不变 ⇒ **封箱零扰动**（不触发复评，seal 9 例实跑过）。**判据腿重写** = `bead-tint-arm` ①「1 底 rect + 1 blit，底墨 ≡ `traySlot`（⛔ 槽底透面板回潮即红）」。
-**三批验证** = beads **812 passed / 1 skipped** · `framework:sync`（写入 1）· `pnpm run verify` **PASS 21 / FAIL 0**。**未 commit**。
-
-**五-D、四批观感续裁（同日 2026-10-06 · 不另领号）**：用户裁「托盘槽轮廓外不要有颜色」——三批补的底 rect 是**全格径**，
-而格 mask 斜面环外沿在 13/128 处 ⇒ 轮廓外露出一圈 `traySlot` 色带。实量环带（`grid-hole` PNG）：外沿 13 / 内沿 26 px、外圆角 R≈34、角圆心 (47,47)
-⇒ 底 rect 改走**环带中线**（inset 19.5 / 半径 27.5，与角圆心同心）= 环整幅覆盖底边、轮廓外零色。
-**落码** = `SOCKET_CARD` 新增 `tintBaseInset/tintBaseRadius`（art-owned 比例常量，⛔ 不进 §3）+ tint 分支底 rect 换尺；盘面/矢量臂逐字节不变（seal 9 例实跑）。
-**判据** = `bead-tint-arm` ① 加钉 `w/radius` 公式等值（⛔ 全格径底边回潮即红）。**四批验证** = beads **812 / 1 skipped** · `framework:sync`（写入 2）· verify **PASS 21 / FAIL 0**。**未 commit**。
-
-**六、遗留与待裁**
-
-- `[待真机]`：48/6 观感 · ~~`#BCC2CB` 深浅~~（二批判太浅 ⇒ 定稿 `#4A5060`；三批修后槽底才真正吃墨，待复核深灰观感与孔透底观感）· 3 行态面板底压 `btn_expand` ≈14dp（E2 同族）·
-  `SELECT_LIFT × liftScale` 越槽算式按 48 重推（tuning 注已标 30 期快照）。
-- 沉淀候选 3 条（**未写库，待用户/主理人裁**）：① 双引号 shell 内联脚本含反引号 ⇒ 命令替换吞字卡死终端，
-  含反引号/特殊字符的脚本必须落盘再跑；② 封箱复评「等比臂改值、绝对臂锁字节」的两臂差登记法（本批 2.4dp 先例）；
-  ③ 格 mask `B=shape` 内部为 0 ⇒ **tint blit 不含底色**，凡「命中 tint 即可跳过矢量图元」的臂切换须逐图元核对**透明下层假设**（盘面有 B0 成立、托盘无 B0 不成立），且旧判据「命中 ⇒ 0 rect」会把这类缺底缺陷钉死（三批先例）。
-- 上一会话悬挂终端（bquote 续行态）未清理，不影响本批交付。
-
----
-
 ## WXG-T-267
 
 **皮肤替换系统架构设计（🔵 架构设计中，程基岩）**
@@ -2780,163 +2647,6 @@ bake 走 `bake:<styleId>:<colorIdx>` 且 `bakeSize = BAKE_CANONICAL_SIZE`（常�
   ⟹ D3 切换机制随之简化：无「运行时切换 vs 启动时选择」之辨，宏定值即当前肤
 - **Ⅲ 第一肤 = tokens.md 甲案「暖纸拼豆台」** ✅
 - **Ⅳ `endpointCoeffs` 首批 8 系数全开** ✅
-
----
-
-## WXG-T-266
-
-**主菜单架构裁定「单屏作品墙 + 类别延迟生效」+ 图元难度线性公式（文策渊两件，✅ 裁定稿）**
-
-用户提主菜单两案（① 走马灯橱窗 / ② 二级入口）+ 三条硬要求：主菜单标题含 logo 与背景、
-图元在同类型内按难度线性增长、难度计算有固定公式。
-
-### 裁定：第三案（**推翻主理人倾向的方案 1**）
-
-主菜单 = **一块木框橱窗 + 一屏 4×3 作品格（可点）+ 一个木主钮**；不设类别层、不设二级橱窗页、
-不设走马灯；**类别在关数 > 12 时才以 tab 形式出现**。
-
-**推翻理由（文策渊给的数据依据）**：
-- 9–12 关**一屏放得下** ⟹ 走马灯的横向浏览成本为 0 ⟹ 「为 0 成本问题付机制钱」
-- **类别当前无数据**：manifest 全 `pack:"main"`、关卡 JSON 无 category 字段
-  ⟹ 类别数应判为 **0**，不是主理人说的「3~5」
-
-### 难度公式（单一真源，可落码）
-
-```
-DI = round₁₀( M × f_C × f_K )      // 单位 = 等效错位珠数
-M  = ρ · N                          // ρ = 错位率，N = 格数
-f_C = clamp(1 + 0.10(C−5), 0.60, 2.00)   // C = 颜色数
-f_K = max(0.35, 1 + 1.60(K−0.50))        // K = 1−A，A = 同色相邻率
-线性律：N_target(d) = round( DI_target(d) / (ρ·f_C·f_K) )
-        DI_target(d) = DI_START + (d−1) × ΔDI    // 类别内第 d 关
-```
-`DI_START = 50`、`ΔDI = 45` ⟹ **ΔN ≈ 39 格/档**（现池锚 ρ=1、C=7、K=0.469）。
-
-### 9 关实测（验证单调、无退化）
-
-DI = 31.8 / 41.0 / 73.7 / 66.8 / 43.7 / 29.9 / 76.8 / 36.4 / 289.7（L1…L9，2026-10-10 换盘后新池）
-⟹ 按 DI 升序**严格递增、无并列无钳位**；与实测 `steps` 序 **Spearman = 0.833**。
-
-⛔ **硬发现**：现池**入关序 ≠ 难度序**（L9 难度 289.7 是最易关 L6 29.9 的 9.7 倍却排最后）
-⟹ 裸用关号陈列 = 难度乱序 ⟹ **必须按 DI 排**（这是实测判据）。
-
-> ⚠ **2026-10-10 换盘更新**：本节原为旧池（2026-10-07）实测（Spearman 0.933、最小相邻差 3.4）；现关表换为 teaching-set 9 关，上述数值已按新池重测（区间 [29.9, 289.7]、首末比 9.69、最小相邻差 1.9）；正本见 `level-difficulty.md §5.1/§5.2`。
-
-### §3 关系
-
-**零新增冻结值、零改动已冻结值**；系数住 `levels-spec §5.0.x` + `tuning.ts`。
-⛔ **DI 不参与定价**（先验公式对 steps 绝对残差最大 ≈ +102%／最负 ≈ −59%、极差 ≈162pp（2026-10-10 换盘后新池；口径 `k = mean(DI/steps)`，见 `level-difficulty.md §5.3` H-3），定价与规模闸仍走实测）。
-
-### R-12 闭合
-
-不新增独立 boot 屏 —— S0 内容就地落已实装 shell 主菜单（`meta-view.ts:359-370`）；
-`ux-spec §4` 改 1 行 + 增 1 行（BOOT 停菜单 / 点开始进关）；`meta-view.ts:361` 的 `'拼豆'` ⇒ 读 `app_name`。
-
-### 第三轮（2026-10-07 用户回应后，文策渊回裁）
-
-**① Q6 = 双轨但主客易位**：门禁**只锁单调**（契约，引 `DI_FLOOR/DI_STEP_MIN`，后者是**下界**非「等于 ΔDI」）；
-生成器**保留等差**（默认实现，引 `di_start/di_step`，可配可替换）。两参数**零交集** ⟹ 新增门禁
-**G10 断言：把 `di_step` 45→80，门禁仍绿**。理由：反解 `N_target` 必须有标量目标（否则造关无解），
-但 DI 对 steps 残差最大 ≈58%，锁死公差等于宣称「知道 45 分是什么手感」。
-⛔ **未采纯校验器**（会把用户要求的「线性增长」削成「单调增长」）。
-
-**② 走马灯 = 判 (b) 词义非机制**：用户逐条回 Q1/Q2/Q4/Q6/Q8 无一条反对第三案，且本轮只留「橱窗」删了「走马灯」。
-⟹ 保留「橱窗」作**模块名 + 视觉语义**；走马灯与 tab **同层互斥**（`wall_overflow_mode` 一键切）：
-判据 = **类别维度是否有序** —— 有序（DI 难度带/尺寸/色数）→ `tab`（默认），无序（题材）→ `carousel`。
-
-**③ 命名组合（用户拟「拼豆小橱」的处理）**：
-游戏名 **「拼豆小铺」不动** ｜ ~~「拼豆小橱」= 主界面橱窗模块名~~ **（第四轮已回退：模块名也用「拼豆小铺」）** ｜ slogan **「一颗一颗，拼出你的小铺」**。
-⟹ 「**小铺是店，小橱是店里那只陈列柜**」上下位关系，用户拟议的词义全保留。
-⛔ 不改游戏名的**落码级理由**：招牌是 8×8 珠点阵，「橱」16 画（含"厨"多层嵌套）**必糊**，「铺」12 画可辨。
-
-**④ 配置化（用户要求「可配置 + 每类关卡数不固定」）**：
-```
-WallConfig { wall_capacity:12, wall_overflow_mode:'tab'|'carousel', category_dimension:'di',
-             category_max:5, category_min:2, category_floor:8,
-             category_split:'quantile'|'explicit', category_sizes:null }
-DifficultyCurveConfig { curve:'arithmetic', di_start:50, di_step:45, per_category:null, di_ceil:null }
-```
-`split='quantile'` ⟹ **每类关数由 DI 分位决定、不固定**；`'explicit'` 才按 `category_sizes[]` 人工编排。
-⟹ **不再存在「每类关数 = n/K」这个等式**；`category_max` 可配满足「随版本可改」。
-配置项住 `levels-spec §5.0.x` + `tuning.ts`，**不进 §3**（零新增冻结值）。
-
-### 第四轮（2026-10-07 用户终裁）：命名回退「拼豆小铺」
-
-用户令：**「还是改回：拼豆小铺」** ⟹ ⛔ 第三轮的「铺 = 游戏名 / 橱 = 模块名」**作废**；
-`wall_module_name` 由 `拼豆小橱` 改回 **`拼豆小铺`**。
-
-⟹ **全案只保留「拼豆小铺」一词**：游戏名 = 橱窗模块名 = `拼豆小铺`，slogan =「一颗一颗，拼出你的小铺」。
-
-**回退理由**：不引入与游戏名只差一字的新词（4 字里 3 字相同 ⟹ 读作「再说一遍」，信息增量为零——
-这与第三轮自己给出的 N-1/N-2 判据同源，用户在模块名位同样判定成立）；「铺」已含陈列空间语义，
-橱窗概念由**视觉**（木框 + 作品格）承担，不必再靠字面命名。
-
-**新增纪律**：对外命名与屏内命名统一为「拼豆小铺」；任何新增模块名不得与它相差一字，
-新增即需重裁，成员不得自行拟名。
-
-### 第五轮（2026-10-07 用户三项终裁）
-
-1. **Q9 = `carousel`（走马灯机制上）** ⟹ `wall_overflow_mode` 默认由 `tab` **改为 `carousel`**；
-   ⛔ **覆盖**第三轮「有序维度 ⇒ tab」判据（Q1 = DI 难度带有序，本应 tab，用户终裁优先）。
-   `tab` 降级为可替换模式（`wall_overflow_mode` 一键切回）。
-2. **门禁 = 纯单调（不设数值阈值）** ⟹ 只锁**同类别内 `DI` 严格递增**（`DI[i+1] > DI[i]` = 难度不断升级）；
-   ⛔ **删除 `DI_FLOOR` / `DI_STEP_MIN`**（用户「不要具体数值限制」）⟹ 差 > 0 即达标。
-   ⟹ 双轨仍成立：门禁纯单调（零数值）、生成器保留等差（`di_start`/`di_step` 可配）。
-3. **Q5 = `levels` overlay 入口隐藏**（代码与 overlay 保留，入口收敛 ≠ 功能删除，U1 同判例）。
-
-**至此 WXG-T-266 全部待裁项关闭（Q1–Q10）**，可转程基岩（engineering-lead）拆 Epic 进落码批。
-
-### 待用户拍板
-
-Q2 作品墙可点否（建议可点）· Q1 类别维度（建议丙 = DI 难度带，零人工打标）· Q3 slogan ·
-Q4 `WALL_CAPACITY 12 / CATEGORY_MAX 5` · Q6 `DI_START 50 / ΔDI 45` · Q8 DI 是否上 UI（建议不展示）。
-
----
-
-## WXG-T-265
-
-**整体 UI 美术风格重设计「暖纸拼豆台」甲案（林绘澄四件，✅ 提案已出）**
-
-用户令：调用 studio skill 整体调度，**重设计所有页面与 UI 风格**；风格 = 休闲 / 治愈 /
-明快 / 辨识度高；⛔ **唯一不动**：盘面格与托盘里的格子 + 珠子美术（珠面保持现状干净几何，
-WXG-T-263 手绘质感不入批）。
-
-### 流程（SOP 阶段 1）
-
-主理人派单 → 林绘澄（art-director）两轮：① 提案四件；② 用户三裁后的**采纳态修订**。
-主理人未代笔美术规格（铁律 1）。
-
-### 用户三裁（2026-10-07）
-
-D-2 = **甲案**（暖纸拼豆台）· D-1 = 游戏名 **「拼豆小铺」**（非主理人推荐的「豆豆森林」）·
-D-3 = **boot 标题页随本批**。D-4~D-8 维持林绘澄建议值（仍待决策）。
-
-### 林绘澄推翻主理人初稿五处（史证）
-
-① 底色 `#f6efe2` → **`#F1E8D8`**（初稿与奶白珠 ΔL 仅 2.7% < 4% 不可辨阈）
-② 删「目标提示条」（违 GAP-03 已裁的 0 文字教学 + 归位连击零 HUD）
-③ 托盘 6+6 → **§3.4 冻结 24+12**（主理人凭印象写错）
-④ 蜡笔质感前提作废（T-263 不入批 ⟹ 方案在干净几何珠面下自洽）
-⑤ 手写体 → 系统字体 0KB（包体纪律）
-
-### 核心设计语义
-
-**「木 = 可按、纸 = 承载、胶囊 = 状态」**——主次按钮靠明度 + 材质 + 位置三通道区分
-（色盲友好纪律在 UI 侧落实）。
-
-### 林绘澄第二轮新增建议
-
-「小铺 = 陈列/收藏」做成**木框橱窗**：boot = 招牌（珠拼「拼豆小铺」）+ 3 格货架
-（已通关 = 珠拼缩略 / 未通关 = 既有虚线空槽）；finish = 作品**上架**填满同一橱窗 ⟹ 命名语义闭合。
-
-### ⚠ 待裁（阻塞落码）
-
-- **R-12（UX 侧）**：boot 页「点开始」与 `ux-spec §4`「BOOT = 无交互自动过渡」+
-  既有 meta 主菜单 **双重口径差** ⟹ boot 与主菜单是同屏还是两屏，本批不自裁
-- **R-11①**：`meta-view.ts:361` **已实装**主菜单标题「拼豆」（+「开始游戏」钮）
-  ⟹ 是否改为「拼豆小铺」（关键新事实：主菜单此前被认为不存在）
-- **K-6**：boot 珠阵图元按珠数线性增长 ⟹ 不预支纸面值，落码差分复算 + 封箱第十七次复评
-- 色表锁（35 条 + sha1）与整帧 provenance 必动 ⟹ 走 art 单同步快照通道同批
 
 ---
 
@@ -3021,199 +2731,6 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 
 ---
 
-## WXG-T-262
-
-# beads·fit 档放开「只缩不放大」钳（小盘放大铺满留边 + 初始视图 = 适配档）
-
-> 2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：
-> 不应该是1:1的缩放比例，应该是整个盘面放大到左右留一定空隙。盘面初始时候应该是适配按钮这个比例。」
-
-**一、裁定解读与不变式推翻**
-
-- 诉求①「适配钮 ≠ 1:1」= `computeFitZoom` 退役 `Math.min(1, ·)` 只缩不放大钳 → `Math.min(CAMERA_ZOOM_MAX, fitW, fitH)`；
-  诉求②「初始 = 适配档」= 复位点本就在位（`_setupLevel` 与适配钮均调 `fitCamera`），换式即自动满足，零新代码。
-- 「一定空隙」= 在册 `BOARD_FIT_MARGIN = 24`（fit 公式既有边距），零改动，不另造新常量。
-- 本单 = **§3.3 v1.59 不变式 `MIN ≤ fit ≤ 1 ≤ MAX` 的二次推翻**，即 ADR-0018 §3.4.5 ②
-  「放开上限属另案（须二次推翻本条并登记）」所预留的**另案本身**；按预留路径登记（状态行 + ② 划线注 + 新 §3.4.6 修订注），
-  不 Superseded（其余条款仍现行）。
-- ⛔ 下钳（`Math.max(CAMERA_ZOOM_MIN, ·)`）不写 = 死码：GRID 上限 29×29 最坏 fit≈0.553 > MIN 0.2，下界天然成立（JSDoc 记理由）。
-- 实测样本：6×5 → fit 3.24 → 越上钳落 **2.0**；12×16 → 1.004；13×12 → 1.34；顶格档 22×16 恰 = 1（702/702）；
-  现池 6 尺寸初始 fit ≈ 1.004–1.34（均不越 2.0 上钳）。
-
-**二、护栏（「低分辨率放大损质感」旧理由为何不再成立）**
-
-- 烘焙/LOD 最大档早已挂 `BEAD_CELL × CAMERA_ZOOM_MAX`（×2.0）⇒ 放大到 2.0 不越现有烘焙覆盖，⛔ 不另烘新档。
-- 命中热区随 zoom **变大**（点击更稳），方向无代价。
-
-**三、测试分域（38 红级联确诊 → 813+1 全绿）**
-
-- **确诊陷阱**：`noAssemble` 只跳 BOOT「错位装配」，**不跳关卡装配** ⇒ `game.init()` 内 `_setupLevel → fitCamera` 照跑
-  （探针实证 13×12 夹具 pitch=42.89 = fit 1.34×32）；放开上限后一切隐含 zoom=1 的判据（像素坐标/命中/封箱字节）破功，
-  全服首跑 **38 红 / 12 文件**（含 seal sha 变红实证）。
-- **收口方案**：`tests/helpers.ts` 新 `pinIdentityCamera(game)`——照 `dirtyCamera` 先例读写 `_camera` 私有字段 + 调
-  `_recomputeLayout()`，⛔ 不为测试扩公开 API；`createBeadsHarness` 默认 init 后钉恒等档（像素级判据族回归旧语义）；
-  `noCameraPin: true` 豁免**验 fit 传导本身**的判据腿（view-model vm-e `gridPitch ≡ computeFitZoom×32` 与甲案 z<1 腿）；
-  中途 `goToLevel/startSprint` 重入 fit 的（scene-vfx / consume-order / misplaced-direct-fill）在调用后补钉。
-- **封箱零扰动**：`wxg-t-211-s3-seal.json` 逐字节不动（harness 钉恒等 ⇒ 产帧序列与旧一致）⇒ 不触发第十七次复评。
-- `board-camera.test.ts` 三族断言重写：小盘腿钉 `CAMERA_ZOOM_MAX`、新增中间档腿（12×16 >1 且 <MAX）、
-  顶格档派生守卫翻转（⇔ `fit ≥ 1`）、TC-CAM-08 小盘回归锚从「与恒等逐位相同」翻转为「zoom=MAX + pitch×zoom」。
-
-**四、文档级联（先改文档再改代码纪律，同批登记）**
-
-- `systems-index.md` **v1.63**：头行摘要 + §3.3 初始缩放行划线换式 + 不变式作废重登 + 顶格档派生断言 ⇔ `fit ≥ 1`；
-  冻结三值（`CAMERA_ZOOM_MIN/MAX`、`BOARD_FIT_MARGIN`）**零改动**，仅不变式换形。changelog 追加 v1.63 行。
-- `ADR-0018`：状态行「再被 v1.63/WXG-T-262 二次推翻」注 + §3.4.5 ② 划线注 + 新增 **§3.4.6 修订注**
-  （推翻声明+用户原话 / 现行口径 / 代价与护栏 / 防连坐正面声明），`[待真机]` 已标。
-- `input-control.md` **v2.12**：§6 复位行 `min(1,·)` 划线作废留档（K-053 风格，「小盘 fit=1 与恒等逐位相同」句作废）+ changelog 行。
-
-**五、负面后果（诚实记）**
-
-- 全关初始视图改变（放大档），观感首屏构图 `[待真机]`；6×5 等小盘从「1:1 居中留大片空」变「铺满留 24 边」。
-- 旧封箱回归锚「小盘 fit=1 ≡ 恒等」永久翻转（TC-CAM-08），回潮即红——这是**判据换形**不是判据删除（⛔ 无删断言求绿，K-036 合规）。
-
-**六、验证**
-
-- `framework:sync` 写入 3（board-camera / beads-game / tuning 镜像）· beads **813 passed + 1 skipped**（59 文件全绿）·
-  `pnpm run verify` **PASS 21 / WARN 0 / SKIP 0 / FAIL 0**（含 check:links / framework:sync:check）· **未 commit**（等用户指示）。
-
-**七、遗留**
-
-- `[待真机]`：全关初始放大档观感（用户 harness 复核）。
-- 沉淀候选 2 条（未写库，待裁）：① 夹具选项语义与生产路径的隐含耦合——`noAssemble` 一类「跳某阶段」开关必须实测它**不跳**哪些阶段，改全局渲染参数前先用探针读一个派生量（pitch）验当前生效档位；② 测试分域「钉旧语义 vs 豁免验新语义」二选一不够时，用 harness 默认钉 + 逐腿豁免选项，比全量显式传参小得多。
-
-**八、同日续裁 v1.64（适配档宽度 = 托盘边缘对齐 · 不另领号）**
-
-- 用户续裁原话：「适配档宽度最好能适配到托盘边缘的宽度，两边与托盘两边对齐。」⇒ `computeFitZoom` 的
-  `fitW` 基准由 `DESIGN_W − 2×BOARD_FIT_MARGIN`（702）改 **`TRAY_ROW_WIDTH`（642）**：新派生常量
-  `= TRAY_COLS × (TRAY_SLOT + TRAY_GAP) − TRAY_GAP`（§3.4 冻结族派生，⛔ 另硬编），`trayLayout().rowWidth`
-  同源回收；盘面居中 ⇒ 左右缘与托盘左右缘对齐。纵向不变（24 留边 = 512）。
-- `BOARD_FIT_MARGIN` **值零改动、作用域收窄 = 仅纵向**（不再进 `fitW`/`c_max`）。
-- **顶格档连带**：`c_max = floor((642+2)/32)` = **20**（旧 22）、`r_max` = 16 不动 ⇒ 20×16；642 非 `32n−2`
-  整珠宽 ⇒ 新基准下不存在恰 `fit=1` 的盘宽 ⇒ 守卫 `toBe(1)` → `toBeGreaterThanOrEqual(1)`（判据换形非删断言）；
-  大盘腿改钉 `natW × fit ≤ TRAY_ROW_WIDTH`。
-- **影响面（如实）**：现池 6 尺寸初始 fit **全不变**（均高度钉 1.004–1.34，宽基准不参与取值）；6×5 越上钳档不变；
-  仅 21–22 列宽盘轻度缩至托盘宽内（22×16 恰 1 → ≈0.914）；封箱 fixture 依旧逐字节不动（恒等钉存续）。
-- 文档级联 = systems-index **v1.64**（头行 + §3.3 初始缩放行二次划线换式 + 顶格档行 + `BOARD_FIT_MARGIN` 行作用域注）
-  / changelog v1.64 行 / ADR-0018 §3.4.6 现行口径行续裁注。`input-control` 零改动（v2.12 起「本文不钉数值」口径，公式真源引用仍成立）。
-- 验证 = `framework:sync` 写入 2（board-camera / tuning 镜像）· beads **813 + 1 skipped** 全绿 ·
-  `pnpm run verify` **PASS 21 / WARN 0 / SKIP 0 / FAIL 0** · **未 commit**（等用户指示）。
-
-**九、同日三续裁 v1.65（宽度钉到托盘整体宽 + 高度腿退役 · 不另领号）**
-
-- 用户原话（2026-10-06）：「盘面适配点击后，放大效果还是不够宽，宽度需要对齐托盘整体宽度」。
-- **诊断（先于动码）**：v1.64 后现池 6 尺寸初始 fit 仍全为**高度钉**（`min` 里 `fitH` 先触顶）⇒ 宽度基准 642→666 的换尺**不可被感知**，诉求无法靠换尺兑现；必须退役高度腿。经 AskUserQuestion 知情确认（选项明示「长盘初屏上下行被裁、拖动可查看」的代价），用户选**宽度优先**，并追加口径：「可点击区域限制在托盘以上、顶部菜单以下」——经查即既有行为（带外屏位属 HUD/托盘路由区，`view-model` 格心可视窗裁除 + `clampCamera` 平移夹取已覆盖），**零新码**。
-- 落码 = `computeFitZoom` 换式 `fit = min(CAMERA_ZOOM_MAX, TRAY_PANEL_WIDTH/natW)`（高度项删除）；`tuning.ts` 新派生常量 `TRAY_PANEL_WIDTH = TRAY_ROW_WIDTH + 2×TRAY_PANEL_PAD`（666，`trayLayout().panelW` 同源回收，⛔ 硬编）；`BOARD_FIT_MARGIN` 退出 fit 算式（值 24 零改动，作用域 = 仅平移夹取窗口/控件净空）。
-- 测试换形（断言换形非删，K-036）：顶格档「行越界必缩」腿 → **行轴独立性腿** `fit(c,17) ≡ fit(c,16)` + `fit(c,40) ≡ fit(c,16)`；大盘腿锚 642→666；公式腿 rMax 项随 §3 退役；小盘/中间档/封箱零扰动（夹具恒等钉存续）。view-model 两条 noCameraPin 腿等值自动跟随（22×19 fit=666/702≈0.949 仍 z<1）。
-- 现池效果 = 初始 fit 由 1.004–1.34（高度钉）变 **1.49–2.0**（宽度钉/上钳）⇒ 初屏普遍变宽，诉求正面兑现；如实登记：8/10 列窄盘钉 `CAMERA_ZOOM_MAX` 2.0 后仍略窄于托盘（不另烘新档）；长盘初屏**不再完整可见** `[待真机]`。
-- 文档级联 = systems-index **v1.65**（头行 + §3.3 初始缩放行三次划线 + 顶格档行「列域 20 · 行数域退役」+ `BOARD_FIT_MARGIN` 行作用域注）/ changelog v1.65 行 / ADR-0018 §3.4.6 三续裁注（v1.64 口径划线留档）。`input-control` 零改动（「本文不钉数值」口径存续）。
-- 验证 = `framework:sync` 写入 2 · beads **813 + 1 skipped** 全绿 · `pnpm run verify` **PASS 21 / WARN 0 / SKIP 0 / FAIL 0** · check:tasks OK · **未 commit**（等用户指示）。
-
-**十、同日四续裁 v1.66（平移上限放开 = 盘缘至操作区中线 · 不另领号）**
-
-- 用户原话（2026-10-06）：「要求盘面边缘拖动最大能到操作区域的中点」。
-- 落码 = `clampCamera` 越界轴 `maxOff = 盘/2`（旧 `(盘 − 视口)/2`「盘缘 = 视口边」作废）；未越界轴保持锁 0（「fit 盘拖不动」基线不动）；护栏 = 至少半盘恒在视口内 ⇒ 不丢盘。动因 = v1.65 宽度钉档后被裁边行需能拖到带中央看/点，带外空白转正为合法中间态（行为翻转如实登记）。
-- 测试换形（K-036 非删）：「焦点补偿越悬挑区触夹」腿前提消失（zoom 0.3→1.0 最大补偿 ≈347 < 半盘 511）⇒ 重写为**平移上限直检腿**（offset 猛拖必夹回 ±半盘）；大盘 X 夹腿与 `setCameraZoom` 重夹腿锚换式（越界值 900→2000）；跟手腿内界判断自动放宽跟随。
-- 文档 = systems-index **v1.66** 头行（§3 无平移夹取行 ⇒ 零 §3 改动）/ changelog v1.66 / ADR-0018 §3.4.6 四续裁注；`input-control` 零改动（从未在文钉夹取数值）。
-- 验证 = `framework:sync` 写入 1 · beads **813 + 1 skipped** 全绿（封箱逐字节不动）· `pnpm run verify` **PASS 21 / FAIL 0** · check:tasks OK · **未 commit**（等用户指示）。
-
-**十一、同日五续裁 v1.67（拖动上限两轴统一 + 带内显示剔除退役 · 不另领号）**
-
-- 用户 2026-10-06 原话：「要求左右最大拖动区域也是边缘到中点；另外上下不限制展示区域，只限制手势区域」。
-- ① 拖动：`clampCamera` v1.66 残留的「未越界轴锁 0」档退役 ⇒ 两轴统一 `maxOff = 盘/2`；窄盘（如 6×5 fit 档 380×320）也可拖，盘缘至视口中线；护栏不变 = 至少半盘恒在视口内。连带清理：`WINDOW_W/WINDOW_H` 局部常量失去唯一消费者 ⇒ 删（含 DESIGN_W/PUZZLE_BAND import）。
-- ② 显示：`view-model::drawGrid` 带内可视窗剔除 → **离屏窗**（`cy ∈ [-gridCell, DESIGN_H + gridCell]`），溢出行照画。层序现状（确诊于 buildRenderModel 发射序）：`drawHud → drawGrid → drawTray` ⇒ 溢出行**盖上沿 HUD、被下沿托盘面板盖**——「不限制展示」按发令执行，被面板盖部分是既有层序，观感 `[待真机]` 复看。
-- ③ 手势区：零改动。带外屏位属 HUD/托盘路由区（input-control §2.1 带级次序）⇒ 可见但点不中，恰合「只限制手势区域」。
-- ④ 连带作废：ADR-0015 §2.2 丁-3「25 < 30/94 不压 HUD/托盘」承重核算整体失效（动机被替代；「格心」判据保留 ⛔ 格缘），丁-3 行尾追修订注；ADR-0018 §3.4.6 追五续裁注。
-- ⑤ 测试换形（K-036 非删）：「board ≤ 视口 → offset 锁 0」腿 → 窄盘上限直检腿；性能骨架存续 = 恒等档格心全在屏内 ⇒ 零剔除，封箱与 `view-model`/`scene-vfx` 快照逐字节不动（实测全过）。
-- 验证 = `framework:sync` 写入 2 · beads 59 files / 813+1 skipped 全绿 · verify **21/21** · check:tasks/links 过。**未 commit**。
-
-**十二、同日六续裁 v1.68（平移夹取改双条件式 · 不另领号）**
-
-- 用户 2026-10-06 原话：「限制滑动的区域作调整：必须同时满足滑动方向边界到达最大操作边界并且滑动反方向边界超过中心点才会被限制这个方向滑动，否则可以滑动这个方向」。
-- 解读落码：单轴夹取 = 两条件 AND（① 拖动方向盘缘 ≥ 操作边界；② 背向盘缘 ≥ 视口中线）⇒ 上限取两触发阈值大者 `maxOff = max(盘, 视口 − 盘)/2`。**盘 > 视口** 时 (视口−盘)/2 < 0 ⇒ 退化 v1.66/67 的 `盘/2`（大盘族全部测试数值不动）；**盘 < 视口一半** 时拖动边先触界 ⇒ 上限 `(视口−盘)/2`（旧 `盘/2` 对窄盘偏严，本批放宽）。
-- `WINDOW_W/WINDOW_H` 局部常量（v1.67 曾随锁 0 档退役删除）重新引入 = 「最大操作边界」消费方回岗。
-- 测试 = 新增「窄窄盘顶格」腿（6×5 @0.5 → X 上限 327.5 / Y 240）；「窄盘」腿改「双条件缺一不夹」表述（380/320 均 > 半视口 ⇒ 仍 b/2 分支）；beads **814 + 1 skipped**（+1 新腿）全绿 · sync 写入 1 · verify **21/21**。**未 commit**；`[待真机]` 追加 = 窄盘顶格拖动手感。
-
-**十三、同日七续裁 v1.69（纵向操作边界 = 菜单下 ~ 托盘上 · 不另领号）**
-
-- 用户 2026-10-06 原话：「左右限制可以，但是上下操作边界不对，上边界应该是在 top 的 menu 下面一点，下边界应该是在托盘上面一点」。
-- 落码：`clampCamera` Y 窗口 = `[TRAY_BAND.yMax + BOARD_FIT_MARGIN, HUD_BAND.yMin − BOARD_FIT_MARGIN]`（474~1190，716 高）——两侧锚点全部在册（§3.1 带族冻结），「一点」= 既有留边常量 24（`BOARD_FIT_MARGIN` v1.65 退出 fit 后重获消费方），零新冻结。X 用户明确认可 ⇒ 一行未动。
-- 不对称如实入式：盘布局仍锚带心 840（offset=0 语义 = gridLayout 真源不动），新操作心 = 832（差 −8）⇒ Y 上下限不对称。效果分档：长盘（>716 高）= 原 ±b/2 翻转为 +（b/2−8）/−（b/2+8）；中窄盘 = 拖动边触界主导，可拖范围扩大（320 高：±160 → +190/−206）。
-- 测试 = 模块级 `clampY` 镜像函数（与 src 同构；band 尺再搬只红真漂移不假红）；直检腿补向下触「托盘上」边界断言；窄盘/窄窄盘/跟手腿换形。beads **814 + 1 skipped** 全绿 · sync 写入 1 · verify **21/21**。**未 commit**；`[待真机]` 追加 = 8px 不对称是否可感。
-
----
-
-## WXG-T-268
-
-**EP-12「暖纸拼豆台」UI 风格落地与换肤双面 —— Epic 拆分 + 首冲刺落码批（spawn 程基岩，2026-10-07）**
-
-用户令（本会话）：「程基岩 Epic 拆分 + 落码批」，主题确认 = 现有 UI 设计主题风格落地（T-265 采纳态 + T-266 裁定）；**随单补充裁定（原话）**：「换肤不光要能设定暖纸拼豆台，studio 生成时候也要增加风格选项暖纸拼豆台」⇒ 换肤双面：① 游戏内运行时设定；② `apps/beads-studio` 生成侧新增风格选项。
-
-### 交付 A · 拆分件
-
-- `production/epics/epics-beads-ep12.md`（新，EP-12 编号 grep 确认未占用）：1 Epic / **9 Story** —— 呈现 S1–S4（色板 token / 容器语言 / 六相位 / 告急页）、难度真源 S5（`difficultyOf()` 单一真源）、主菜单作品墙 S6（T-266 第三案）、finish 陈列 S7、换肤通道 S8（`settings.skinId` + 注册表白名单）、**studio 导出链 S9**（levelDraft schema 增可选 `skin` 字段 = 引用 `BeadsSkin.id` 白名单不传数据本体 + 前端选项 + 导入侧未注册回落 default + 告警）；估点 S×2·M×5·L×2。
-- 判据纪律：只引设计侧既有判据（art-bible §2/§3.1、screens 4 态矩阵、ux-spec §5 毫秒表、T-266 公式），零新判据零新数值；§3 冻结值零涉。
-- 宿主 `epics-beads.md` §1 追加 EP-12 行 + §2 指针 + §5 统计更新。
-- **需向 T-267 同步 2 条**：① T-267 裁Ⅱ「皮肤入口暂不实现、切换走构建期宏」被本单裁定改为**运行时设置项**；② 若未决问题 1 选 A/B，T-267 arch D1「DEFAULT_SKIN.tokens = 冷紫灰现值」表述需随之修订。
-
-### 交付 B · 首冲刺落码（EP12-S1）
-
-- `palette.ts` 五值替换（`bg_base #F1E8D8` / `panel #FFFCF6` / `panel_border #E6DAC3` / `shadow_ink` 不动项除外等，逐值对 §3.1 表）+ `view-model.ts` P-1 缩放钮/滑轨 slot 族纯墨改写（**零几何变更**）；镜像成对（`framework:sync:check` ✅）。
-- 封箱**第十七次复评**：官方复取器差分复算——两帧各 **15 行改写**（字段级 40：panel×16 / P-1×12 / accentPrimary×12），total/逐 kind 全等（1868/1322），**未解释 = 0**；珠体族（legacyFlow 96 + facet 45+45）逐字节不变；色表锁 sha1 `1979d53033a1`→`612ced0aa888`（条数 35 不变）；seal fixture 追改 + 前态史证键 `s3_pre_ui_268`。
-- 新测试 `games/beads/tests/ui-warm-paper-tokens.test.ts`（6 例）；判据脚本复算：textDim on panel **4.64:1 ≥4.5**（§3.2 `[待核]` 闭合）/ 白 ▶ 对 wood 5.4:1 / bg 饱和 **10.4% ≤12%** / 奶白珠 ΔL **5.4% > 4%**。
-- 读数：beads 相关 3 套件 54 例全绿 · `pnpm run verify` **PASS 21 / WARN 0 / FAIL 0** · typecheck 0 · lint 0。
-- `production/qa/beads/test-cases.md` K.5.1-补9 段落笔（含 P3 流程偏差如实登记：复评锚 = 工作树态，commit 后须复跑复取器自证等值）。
-- ⚠ harness 截图证据（ADVISORY）未落 `production/qa/evidence/`（headless 截图需主理人配合），移交下游补。
-
-### 未决问题（4 项，交用户/主理人裁）
-
-1. **默认肤语义**（影响 S8 取值）：A 冷紫灰退役、暖纸即默认（现状，推荐）/ B 冷紫灰收编为可选肤 `cool-violet` / C 回退 S1 走第二肤通道。
-2. **D-5 告急翻转**（阻塞 EP12-S4 局部）：计时胶囊「告急切纸底」vs「恒纸底」（林绘澄建议后者）。
-3. **art-bible §1.1 橱窗主视觉**（林绘澄建议非用户裁）：本拆分按 T-266 第三案落 S6/S7，§1.1 是否作废请确认。
-4. **P-3 面板圆角**（阻塞 S2 一项）：代码 18 vs 规格 24 二选一回写。
-
-**台账登记**：主理人（CodeBuddy）2026-10-07 代登；未 commit（工作树含本单前既有脏文件，未触碰）。
-
-### 批 2（同日续 · 用户四裁落地 + EP12-S8 换肤通道 + EP12-S9 studio 导出链）
-
-**用户四裁**：① 默认肤 = warm-paper + **冷紫灰收编可选肤 `cool-violet`**；② D-5 计时胶囊**恒纸底**（S4 阻塞解除）；③ art-bible §1.1 橱窗作废、按 T-266 作品墙执行（§1.1 仅追加一行裁定注，正文修订归林绘澄）；④ P-3 圆角 18 vs 24 未拍板 ⇒ **EP12-S2 不开工**。
-
-**S8 落码**：`config/skins/{registry,warm-paper,cool-violet}.ts`（warm-paper tokens 直引 `DEFAULT_PALETTE` 同实例 ⇒ 默认渲染逐字节不变；cool-violet 18 字段逐值核 `HEAD e8b81a9` 史证）；`settings.skinId` 逐字段降级（SAVE_VERSION 不 bump）；`beads-game` 换肤引用单点 `_applySkin` + `_cycleSkin`（注册序回绕、恰写档 1 次）；pause-panel 行 4 扩三格（`PAUSE_PANEL_H=718` 与 ux §3.3 零改动）；shell 菜单消费 `play.palette` 两屏一致。
-
-**S9 落码**：`LevelDraft.skin?`（**引用 id 不传数据本体**，白名单 warm-paper/cool-violet）；`validateBeadsLevel` 仅类型校验；`importLevel` K-064 复验（未注册回落 default + 一次性告警）；studio `server.mjs` 白名单收敛 + `public/index.html`「风格」下拉（默认暖纸拼豆台）。踩坑：`levels-data.ts` 是生成物，改入 `levels-data.header.txt` 模板真源后 levels:check 转绿（K-031 族正例）。
-
-**读数**：`pnpm run verify` **21/21 全 PASS** · beads vitest **840 passed / 2 skipped**（A6 热路径零分配机械探针无仓内先例，按 K-035 记 SKIP 待裁）· **封箱/色表锁零触碰**（seal 四腿 + 第十七次复评 + 色表锁 35/`612ced0aa888` 原样绿；cool-violet hex 住 `config/skins/` 不入 palette 锁面）· 珠面族逐字节钉住 · 镜像 sync 写 13。**行为变化 2 条**：cycle-skin 钮 present（注册数 0→2，`S9§8-19` 守卫语义保留）；`BeadsShellOptions.palette` 下传 play 两屏一致。
-
-**未决 4 项（交用户/主理人）**：① A6 探针另批补 / 论证关闭 / 挂 T-267；② E2E 真服务腿未跑（注入式 HTTP 腿已绿）——主理人起 studio 服务实跑入 evidence 或延联调；③ cool-violet 玩家侧名「冷紫灰」为工程占位，是否转林绘澄定名；④ **EP11-S5 台账口径差**：任务单写「本体未开工」，仓内事实 = 已收口（registry 头注 + TC-STY 全在）——本批按仓内事实执行、未顺手实现其遗留项，请核对台账。
-
-**T-267 同步项**：arch.md D5「缺省 `'default'`」与 D1 默认肤表述与实落「默认 = `warm-paper`」不一致，文档修订归文档批，代码以注册表为真源。studio 件未 commit ⇒ 未触发部署（deploy.yml 零改动）。`dev/harness/preview/level-*.svg` 9 件 = verify 冒烟再生成产物随工作树。全程零 commit/push。
-
-### WXG-T-224/268 收口批 · check-secrets WARN 核对留痕（2026-10-07）
-
-- 4 处 `WECHAT-APPID` WARN（ADR-0030:124 / VERSION.md:33 / memory/2026-10-04:952 / TASKS-DETAIL:2541）核对：均为**描述性引用**（记录「AppID 在仓」环境事实），源头 = 根 `project.config.json`（`wx63c62151a1c0cf3b`）与 Cocos 构建档（`wx8cf9f756e5390749`）——两者为微信工程**必需配置**，本就在仓、非本批引入。判定：非泄密，放行；AppID 纪律关注点仍是私钥与 upstream 泄露面（check-secrets 持续盯）。
-
-### WXG-T-230 · 续二/续三汇编（2026-10-07）
-
-**续二（程基岩，两项落码 ✅）**：
-- **A. C12 换墨反证臂**：`check-bead-style-pool.mjs` 增 `reinkDominantArm()`——facet-4 占优层墨（lit #fef9f1）换成他格 base（#FFD23F）⇒ 重跑 identifyPrimary ⇒ argmax 必须跟色（常门实测跟随 ✓ + 变异自证：identifyPrimary 恒返写死值 ⇒ FAIL 指认，K-060）。与 TC-STY-10 机械门互补（机械门管端点数、换墨臂管判别力）。
-- **B. 封箱腿整帧漂移自动报警**（731100c 根治，用户拍板「机器拦」）：fixture 增顶层 `recheckLedger` 复评台账（5 项入账）+ seal 测试 3 条新腿——漂移分类：已登记复评（K.5.1-补N 在案）⇒ WARN+指引官方复取器重封 / 未登记 ⇒ FAIL+指路 §K.5.1。防伪三锁：逐帧 Σ≡帧差 / witness 逐字在 provenance / qaAnchor 在 QA 正本在案；四篡改反证全被机械指认。
-- 验证：seal **12/12 绿**（9 既有+3 新）· pool 22/22 绿 · ledger 14/14 绿 · tsc 0 错 · 常门 exit 0。并发冻结文件零触碰。
-
-**续三（严守真，判据文本草案 ✅）**：`wxg-t-228-tint-criteria.md` 增 **§11「§230 判据文本草案」** 五件：§11.1 C12-t（统计域=B≥250 纹理像素，盲区 plate≡pit 结构性登记，拦截职责交叉引用 TC-TINT-09/19）/ §11.2 K3 改写（B0 tile edge vs pit，旧文划线留痕）/ §11.3 C7 拆分（a 配方门沿用 7/2 + b 运行时预算门，新值待裁）/ §11.4 R-9 分域（含「合并域<5=等价否决 tint」后果句）/ §11.5 换墨臂入 TC-STY-10。随批登记漂移：WXG-T-232 已改 holeFeatherDp 0.5→0.25 ⇒ TC-TINT-02 读数须按新产物复测。
-
-**→ 汇编结论**：230 主体完成；剩余 = **「判据裁定会」四项**（C12-t 式并入 / C7-b 新值 / R-9 分域+新值 / K3 取舍）待主理人+策划打包裁定；裁后文策渊并入 §12.2、程基岩同步 ADR-0028 §5、本册并入 test-cases §L。mask:diff 挂载已复绿（PASS）。
-
-
-### ★ 判据裁定会（2026-10-07，主理人四项全拍板 ①）
-
-| 项 | 裁定 |
-|---|---|
-| C12-t | **并入 test-cases §L** 作为 tint 臂正式判据（统计域=mask 纹理像素 B≥250；盲区 plate≡pit 由 TC-TINT-09/19 交叉拦截）|
-| C7-b | **采纳方案值**（blit ≤1/珠、draw call +1、三角 ≤2、真 α=0——与 S5′ 实现实测一致）|
-| R-9 | **采纳分域**（芯区保留 T1 原两线 + 边缘带 p95≤12/单点≤20/无振铃——合并域 <5 = 等价否决 tint 的选项被否）|
-| K3 | **跟随定稿**（孔底透 B0 tile edge −0.30；与 226-Q2 裁定连带一致）|
-
-**裁后流水**：① test-cases §L 并入 ✅本批 ② `bead-visual-style-spec §12.2` C5/C12 引用面回写 → 挂文策渊 ③ `ADR-0028 §5` 执行态同步 → 挂程基岩。
-
 ## WXG-T-269
 
 ### EP12-S6 主菜单「拼豆小铺」作品墙（批 6、双轨并行、QA §M 代落）
@@ -3251,34 +2768,7 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **余项（受 §19 红线 + 真机取证 gate，本批不做）**：MCP `asset_operations.import` 导 PNG→`asset_system.refresh` 生成 `.meta`→CLI `build:cocos` 重建→`check:size` 复核主包 +38KB→真机扫码取证 `Texture2D.image=` 运行时构造（ADR-0031 §4.2 条 4）。受控正文（`control-manifest §19`「向主包投放位图」 + `systems-index §3.8` 总包 30720→20480）另走 §3.9 变更单，本单只记录裁定（ADR-0031 §1.2/§6）、不擅改。
 - **未 commit**（用户未点名提交）。
 
-## WXG-T-272
-
-> memory·日记长节外移 + Qoder 长期记忆清理（上下文瘦身）｜主理人(Qoder)｜2026-10-15 用户令「上下文内容太多，剔除无用上下文」
-
-- **背景**：会话注入面过大（目录树 + 记忆总览 + 定向日记）。体检定位大头：`ctx/index.json` 2.7MB（机器读、hooks 依赖，**不动**）、`memory/2026-10-04.md` 150KB、`temp/` 572 文件（未授权不动，待用户点名）。
-- **日记外移（文件侧）**：用现成工具 `pnpm run memory:split`（WXG-T-106 机械口径，dry-run 先跑）对 5 篇（10-04/10-03/09-28/10-13/10-14）外移 31 个 >600 tok `##` 节 → `memory/details/`（详情件 18→49），逐字节搬运 + 工具自带回读校验；5 篇合计 323KB→114KB。`ctx:build` 重建 + `ctx:check` A/B/C/D/D2+E3 全绿；`memory/INDEX.md` 与 ctx 产物由脚本自动更新。
-- **Qoder 长期记忆清理（记忆侧，删 11 条，逐条经用户裁决）**：
-  - 首轮低价值 2 条（单点实现细节，不满足入库重要性原则）；
-  - A1 登录安全策略（失败锁定/短信/IP 审计）＝本仓无登录后端，grep 证实为串台误录；
-  - A2 「大图切多关」Plate 主题整档 ×3（architecture 子集条 + pitfalls 正本条 + P2b 算法条）——用户裁「暂不需要，将来再梳理」；底档 = P2 spec §0.2、`tools/scripts/level-derange.mjs`、日记详情件；
-  - A3 直填vs级联悬置条（`_nearestFirst` 已删、级联问题被 G-3 裁定关闭，条目描述已废）；
-  - A4 P2b 工程经验条（教训 1/2 逐字重复，教训 3 随 A2 整档归档）；
-  - B1 `games/beads/art/` 矛盾条（目录不存在，与 `design/art/` 现行正本冲突，保留正确条）；
-  - B2 品牌色合并待裁条（`MIN_BRAND_DE` 全仓零命中，路线已被像素级 k-means 正本承载）。
-- **保留**：G-3 裁定、剥皮 task_summary（带校正段）、验证盲区专条、k-means 架构正本、安全区双条（分工非重复）。
-- **零代码改动**（`src/**` / `packages/framework/**` 未动）⇒ 未重跑 verify；`check:links` 实跑 OK。
-- **遗留**：`temp/`（572 文件 + 208 目录）与 `.playwright-cli/` 旧日志仍在目录树注入面内，待用户点名后清理。
-
-## WXG-T-284
-
-> beads·EP-13「大关选关页」拆分 + 五批落码｜主理人(Qoder) spawn 程基岩｜2026-10-16 用户三裁定（清单存大关表 / 点图进本大关列表 / 已通关格直接重玩）+ Q13=乙、Q14 大关改称、Q16/Q17=甲
-
-- **本号性质**：拆分立项号（纯计划批）⇒ 五批落码全部沿用同号不另领；正文 = `production/epics/epics-beads-ep13.md`（READY×5），状态对账 = `epics-beads-status.md` 第 9–13 条，史证 = `epics-beads-ep13.s-history.md`。
-- **五批入库**：S1 `201c0e4` 大关表承载关卡清单 + `themes.ts`→`arcs.ts` 改名（C-1）· S2 `74acba8` 选关页 = 本大关清单 ∩ 闸门（C-2 ①②④ + C-5）· S3 `994cb24` 0 心点格拉既有体力回满位（C-4，含广告串道反例）· S4 `25015cd` 走马灯按大关 + 三态归约（C-2 ③⑤⑥）· S5 `6e94f49` 格按下态 + 陈旧注释订正（C-3 ①②核对③）。
-- **口径**：零 §3 变更、零新判据、零新数值；每批带自带回归腿（末态 beads 1024 passed / 2 skipped，`verify` 22/22，镜像一致）。
-- **台账补登说明（K-046 同型）**：拆分件 §8 「待主理人批准后由领号会话粘贴」的宿主登记拟行当时未落地 ⇒ 五批代码已入库而主表无行。本次按 §8 拟行补行 + 详情节，并将头注由 272 校到 289（⚠ 283/286–289 仍属“用了号未登主表”，待各会话自登）。
-- **未闭（不属本号射程，已挂账）**：① 规格自陈句回写 ~~6 处~~ ⇒ **已闭：实测七处**（`arc-level-select-spec.md` 版本行 / 术语轮 / §4 两行 / §9 指针行 / TODO-3 / TODO-6，v1.4 随 `4f14028`，设计轨 WXG-T-283 域代落）；② 跟进单 `epics-beads-ep13-fu-wallcell.md`（3×3 收墙 + 未解锁/越界合形锁格）待领号；③ 下游占位 D-1（C-6 QA 判据族）/ D-2（C-7 art 回写）/ D-3（C-8 图元差分复算）/ D-5（TODO-1 页头大关名令牌）；④ 真机腿与目视项（S3 广告真机、S5 harness 出图签署）；`locked` 态本版不可达。
-- **台账与知识库补登（2026-10-17 收口批）**：本号已按 §8 拟行补登主表行 + 详情节 + `epics-beads.md` EP-13 三处（提交 `3d2ec80`）；规格自陈句七处已回写（提交 `4f14028`）。`kb:sync --task=WXG-T-289` 沉淀统计：**新增 2 / 修改 1 / 激活 0 / 归档 0**（K-136 文档批假绿门校验盲区、K-137 宿主登记拟行未落地），`kb:audit` 无归档相似命中。
+---
 
 ## WXG-T-290
 
@@ -3291,16 +2781,7 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **并发冲突处置**（用户选项）：`tuning.ts` 工作区含并行会话的**纯缩进重排**（122 行，数值未变）⇒ 本批用部分暂存只提自己的 `WALL_COLS` 两行（源码 + 镜像同法），格式化原样留给对方会话自登（K-045 同族）。
 - **未闭**：[TODO-ART-1] 灰阶具体值未定（本批只断言零饱和）；9 格内容版式三底稿待美术选版（数据驱动不受阻）；A8 真机观感 `[待真机]`；生产腿台账待 QA 重取。
 
-## WXG-T-288
-
-> beads·星级玩法立项 + EP14 拆分 + S1 结算引擎落码｜主理人(Qoder)·程基岩域代落｜2026-10-17 用户拍板星级新制（档内按用时判星）
-
-- **本号性质**：星级玩法立项号（P1）⇒ EP14 拆分与 S1 落码沿用不另领。
-- **裁定与真源**：`systems-index §3.7` **v1.78** 五行改语义（档位单条件 / 档内按用时判星 / 续时保底档位星 等）⇒ **零数值变更**（复用既有 `STAR_TIER_K` / `tierSecondsFor`）；规则正本 = `design/proposals/star-collect-rule.md` v0.2（R1–R8 + §5 裁定 + §6 待办）；存档结构变更 **0**（R6 复用 `starsByLevel`）。
-- **拆分** = `production/epics/epics-beads-ep14.md`：5 Story = S1 M READY / S2 S READY / S3 M READY / S4·S5 **BLOCKED**（待规格 `star-collect-rule §6-T1`：全 3★ 开大关怎么告诉玩家 + 总星数落位与分母形态）；子代理通道不可用 ⇒ 主理人按 `wxgame-epic-split` 方法代执行。
-- **已入库两批**：立项回写 + 拆分 `3c889ac`；**EP14-S1 星级结算引擎** `435c8b0`（四臂判据 = `score-combo §8-1` 全绿；旧 v1.50「续时不封顶」与双条件选档用例按 K-053 **换形不删腿**；镜像同步核一致）。
-- **在册风险（拆分件 §5）**：R-1 既有用例锁旧语义 ⇒ 换形逐条对 §3.7 v1.78；R-2 总星数求和不得进 `update`（L5 热路径零分配）；R-3 闸门≠通关章两概念不得混用（S3 单列反例臂）；R-5 续时广告真机腿 `[待真机 + 待广告接入]` 不入本批硬门。
-- **台账补登说明（K-137 同型）**：本号此前只活在拆分件与提交信息里、主表无行（与 283/285/286/287/289 同一形态欠账）⇒ 由 WXG-T-290 收口批补登主表行 + 详情节 + `epics-beads.md` EP-14 三处（Epic 13→14 / Story 52→57 / `[Blocked]` 5→7）。
+---
 
 ## WXG-T-292
 
@@ -3374,6 +2855,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **遗留观察（不属本批，需另裁）**：`.git` 目录现 **430 MB**（历史累积的取证图/原型图，非本次造成）⇒ 若要瘦身需走 history rewrite（影响所有 clone + 已推分支），风险高，先挂号待裁。
 - **验证**：`pnpm run verify` 复跑（见下方结论）；本批三笔均过 pre-commit（check:secrets / check:links / ctx 重建与终校）与 commitlint。
 
+---
+
 ## WXG-T-291
 
 > beads·交付格式统一 PNG + 菜单纹理归属腿（BD-61）｜原会话在途未提交 ⇒ **2026-10-18 由 WXG-T-292 会话代收口**（用户选下一步选项 2 授权）｜本会话**未跑过 `git push`**
@@ -3393,6 +2876,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **未验/未闭环**：真机 `wx.loadSubpackage` 未跑（需 AppID + 密钥）；分包开关仍默认关（`audio/…`）；`audio-spec` 自己登记的三条未达成（三首同长 40 s / 接缝真听 / 响度校准）仍开；BD-33 仅推进两件。
 - ✅ **上述两类尾巴已由同日本人接续处理（记在 `## WXG-T-292` 续批五，2026-10-18 晚）**：6 个缩进件按 `.editorconfig` 判定后分别收下/退回；`bench/` 定去向 = 图不入库、README + 复现配方入库 ⇒ 工作树已归零（`git status` 空）。
 
+---
+
 ## WXG-T-293
 
 > ctx·第二跳速查表（`ctx/hot-files.md`）控量两件 + 锚点级硬门 D3｜主理人(Qoder)，裁定来自严守真(quality-lead)｜2026-10-18 晚（用户选下一步选项 2 = 还 WXG-T-292 挂下的 hot-files 债）
@@ -3405,6 +2890,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **三数并报（U6）**：`ctx/hot-files.md` **5793 → 5470 tokens**（上限回落 5800→**5600**，余 130）｜文件块 **20 → 29**（ROUTES 引用面覆盖变好，非失控）｜锚点条目 **351 → 318**（截断不减覆盖，条目数下降来自 TASKS-DETAIL 上限 + 未收录节改为行尾如实写出「余 N 节 → ctx/index.json」）。
 - **验证**：`ctx:hotfiles:selftest` **19/19**（U1/U2/U3 各有「能红」反例 + 「不误报」正例）｜`selftest:fast` **9/9**（含新桩）｜`ctx:check` 默认态 OK 且连跑两遍 `ctx/index.json` + `ctx/hot-files.md` **字节相同**（确定性）｜`check:links` OK｜`pnpm run verify` **PASS 22 / FAIL 0**（见下条补记）｜新桩自身遵守 K-089「先证能红」：解析器 bug 就是靠它把红跑出来后暴露。
 - **遗留**：① ROUTES.md 现 **7441 / 上限 7500**（本批只加两行短注）⇒ 已挂待排表，下次加条目前须先按 ⑫ 瘦身；② `ctx:check` 的 A 项按 HEAD 计量，工作树超量只在提交时红（本轮实测 ROUTES 一度 7701 被这条纪律兜住，处置 = 瘦身而非调阈）；③ 质量门 U5（G4 取回演练 5 条：`§A.0 / §A4c / §G.4 / §I.2 / §M.10`）待严守真跑一次人工取证。
+
+---
 
 ## WXG-T-294
 
@@ -3495,68 +2982,7 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **D-77 真机部分读数（四帧对比）**：判 `PASS*` —— ① 层序/可见性 ✓（主菜单位图腿在真机屏幕确实可见，§19 前置 2 拿到屏幕级证据）；② ◀▶ 按下态 ✗ 未取得「按住换面」读数（按住帧与未按住帧仅差 52 B），且 ◀ 在末张卡「敬请期待」上近似无箭头却实际可点（帧 C 证明能翻回第 9 关）⇒ 样式与可点性不一致，**归 BD-61 同类，不另开 BD-62**（真机复现读数已入 `test-cases.md` §M.11）；③ 选关墙第 9 格缩略 未验（锁态，需先推进存档）。
 - **用户确证设计预期 ⇒ 推翻我上一轮的定性，独立开 BD-62**：末张「敬请期待」卡应「左 ◀ 有按钮、右 ▶ 消失」，实测**方向完全相反**（◀ 弱化似禁用却可点、▶ 无下一张可翻仍显示）⇒ 定级 P2（视觉显著异常 + 有规避手段），解除条件三条（① 可见性按规格翻转 + 补机检/截图判据；② 中央 7 颗灰点占位图案交 ART 出定稿——用户判「不对，需要设计」属设计缺口，不另开缺陷号；③ 重跑 D-77 子判点 ②）。上一轮我把它归为「BD-61 同类、不另开号」是**误判**（BD-61 = 按下态量化塌缩，本件 = 末张态左右可见性方向反），已在 `test-cases.md §M.11` 写明推翻过程并登记 **BD-62**（AR-02，现存最大 BD-61 +1，K-046/K-050 已核）；走查单 D-77 判定由 `PASS*` 改 **`CONCERNS`**。
 
-## WXG-T-340
-
-**工程·beads 选关页空带大关名（`levels-spec §11.4` TODO-1 接线）落码批（用户对 339 回传后续选项选 B） · 负责：主理人(Qoder) · 状态：✅ 完成（2026-10-21）**
-
-- **背景**：WXG-T-334 时代真机报 4 项缺陷之④的收尾半——选关页大关标题应显示章名（用户原话「第9关希望显示大关的名字，比如教学」）。CH-S3（title 上移）已闭、`levels-spec §11.4` 已裁「显示、进顶部空带 [822,1122]」，本批 = 该裁定的接线落码 + 金样本重抓。
-- **确诊**：选关页空带 [822,1122] 从无绘制（`drawLevelsPage` 只画标题带「选关」；「第9关」= 木牌 `drawPlateTitle` 旧观感残留，选关页本身从未画过它）；取数唯一正确来源 = `PhaseRouteBinder.levelsArc`（binder 注释原文：「`levels` 页的大关上下文（`_wallSlotsFor` 的唯一来源）」）。
-- **修法（三件，正本 §11.4 钉死零分叉）**：① `MetaViewData` 加 `chapterTitle?: string`（注释声明：视图不查表、⛔ 不借 boss 关派生 `title` 作第二通道）；② shell `_metaViewData` 塞 `ARCS[this._phase.levelsArc]?.title`（与选关墙同源）；③ `drawLevelsPage` 空带 [LEVELS_GRID_TOP, navTop - LEVELS_NAV_H] 有值才建节点、居中带心、字号取 `UI_FONT.overlayTitle`。**R1** = 有 title 原样渲染（不拼前缀 / 不加序号）；**R2** = 无值不建文本节点（兜底零猜测）。带内 y / 字号正本明标 `[TODO]` 归 art 批 ⇒ 本批取占位（带中心 + 页头同档字）。
-- **文件面**：`src/view/meta-view.ts`（字段 + 空带绘制 + `navTop` 提取共用）+ `src/game/beads-shell.ts`（`_viewData` 初始化 + 塞值）；cocos 镜像 2 件（`framework:sync`）；测试 1 件：`arc-level-select-page.test.ts` 新 describe 2 例（R1 落位断言 / R2 空带零文本节点反证）。
-- **金样本**（先登记 ⇒ 重抓；K-051 / K-053 / ADR-0032 DEC-6）：先跑对拍 = 恰 `level-select` / `level-select-mid` 两态红（其余九态绿）；capture 两遍确定性重抓（`WXG298_SOURCE_REV=3609dcb`）⇒ 夹具 diff 恰 7 行：`capturedFrom` = `3609dcb · 选关页空带大关名（WXG-T-340）` + 两态 sha/total/kinds.text（level-select `d4aee179…`→`e193506e…`、total 1421→1422、text 11→12；level-select-mid `22d0adc7…`→`5c668385…`、total 5083→5084、text 17→18），其余九态 sha 逐字未变。`--dump` 机械证据：帧内 `{"kind":"text","x":375,"y":972,"text":"曼陀罗","fill":"#2A2E43","font":"40px sans-serif"}`（x=DESIGN_W/2、y=空带中心 972）且全帧集仅两态含「曼陀罗」。
-- **登记**：`ui-architecture-beads §12` UI-34 行视觉变更登记（K-051 / K-053 / ADR-0032 DEC-6：先裁定再重抓）。
-- **验证**：beads 全量 98 文件 **1140 过 + 3 skip**（较 339 批 1138 +2 = 本批新例）；`framework:sync:check` 绿；`verify` PASS 22。
-- **未做**：①半透（UI-60 容器层，ADR-0033）/ ②BD-62（末张卡左右可见性方向反）/ ③橱窗灯光（美术资产）/ ④暗线；空带带内 y / 字号微调（art 批 `[TODO]`）。
-
-## WXG-T-339
-
-**工程·beads 真机缺陷①「设置弹窗标题压首行」修复批（用户对 338 回传后续选项选 B） · 负责：主理人(Qoder) · 状态：✅ 完成（2026-10-21）**
-
-- **背景**：WXG-T-334 时代用户真机报 4 项缺陷之①——主界面设置弹窗标题「设置」与第一行按钮重叠；本批独立修复（①半透属 UI-60 架构 / ②属 BD-62 / ③属美术资产 / ④暗线 ⇒ 均不混做）。
-- **确诊（双源）**：标题中心 = `plate.y + plate.h - 70` = 957（字面 40 ⇒ 下缘 937）；首行钮带 = [877, 965] ⇒ 中心落进带内、与按钮叠 **28**。`settingsLayout` 注释原已登记「重叠属既有排版」，本批清零（代码 + 注释同改）。
-- **修法（联立实算；平台惯例不可照搬）**：标题基线 −70→**−50**、栅格 `topY` −150→**−170**、行距 `TOUCH_MIN + 16`→**+12** ⇒ 三处净空各 **12**（标题下缘 957 对首行顶 857+88 = 945 / 行间 100−88 / 末行底 457 对返回钮顶 445）；板顶距 30、底距 50。排除项：暂停面板惯例（`PANEL_TITLE_BAND_H` 100）在 720 板 + 5 行 + `TOUCH_MIN` 88 下数学不可行；纯移标题需 ≥ 40 仅余 ≤ 2、纯移栅格需 36 而余量仅 16 ⇒ 取三项联立解（B2）。
-- **文件面**：`src/view/meta-view.ts`（标题行 −50 + `settingsLayout` 注释按新几何重写）+ `src/view/settings-content.ts`（−170 / +12 + JSDoc）；cocos 镜像 2 件（`framework:sync`）；测试 3 件：`settings-content.test.ts`（首钮 857 / 末钮 457 / step 100）、`bead-style-settings.test.ts`（注释「457 > 445 间隙 12」）、`dialog-center.test.ts`（+26 行新 describe：标题 text 命令下缘对全场 88 高 rect 最高顶缘净空 ≥ 10）。
-- **金样本**（先红取证 ⇒ 重抓）：先跑对拍 = 恰 `settings` / `signin` 两态红（其余 10 绿；actual dump 坐实标题 977 / 首钮 857 / 首行顶 945 与算术逐字节吻合）；`ui-golden-capture.ts` 两遍确定性重抓（`WXG298_SOURCE_REV=90e0e11`）⇒ 夹具 diff 恰 3 行：`capturedFrom` = `90e0e11 · 设置弹窗标题压首行修复（WXG-T-339）` + 两态 sha（settings `24b06b96…`→`d8b5c527…` / signin `a84f5b4c…`→`2a46500d…`），其余九态 sha 逐字未变、total/kinds 全等。signin 标题因共用 chrome 行同步位移（格布局未动、入口已退役不扩面，已注释声明）。
-- **登记**：`ui-architecture-beads §12` UI-30 行视觉变更登记（K-051 / K-053 / ADR-0032 DEC-6：先裁定再重抓）。
-- **变异自证 1 例**：标题基线咬回 −70 ⇒ `dialog-center` 恰 1 例红（弹着点 = 新守卫），`cmp` 逐字节还原后复绿。
-- **验证**：beads 全量 98 文件 **1138 过 + 3 skip**（较 337/338 批 1137 +1 = 新守卫例）；`framework:sync:check` 绿；`verify` PASS 22。
-- **未做**：①半透（UI-60 容器层，ADR-0033）/ ②BD-62（末张卡左右可见性方向反）/ ③橱窗灯光（美术资产）/ ④暗线。
-
-## WXG-T-338
-
-**工程·beads 大关 CH-S4「断言扩面」落码批（用户对 337 回传后续选项选 B） · 负责：主理人(Qoder) · 状态：✅ 完成（2026-10-21）；CH-S5 未开**
-
-- **背景**：承 `level-content-pipeline.md` §11.8 CH-S4（纯 Node）：给 `sync-levels-data.test.mjs` 补七类装配边界夹具（uid→区间合并边界 / 空章 / 跨包 / open 洞 / boss 非末 / 孤儿关 / 超 `WALL_CAPACITY`）。
-- **等价重构**（`sync-levels-data.mjs` +28/−9，行为不变）：`assertOpenPrefix`（断言 1′）与 `assertChapterPackUniform`（断言 5）自 `assembleArcs` 内抽出为纯函数——上游 `pack!=='main'` 门与调用前置使二者在真数据流不可达（§11.4 先绿后守）⇒ 抽出后夹具可直测；`assembleArcs` 导出（注释明示**不写盘**）供夹具驱动。
-- **夹具**（`sync-levels-data.test.mjs` +8 例 ⇒ 共 31 过）：temp 目录「single + plate(2 槽) + boss」迷你内容仓 `mkArcFixture`（`os.tmpdir`）驱动 `assembleArcs`——绿路径（`levelRefs [[1,4]]` / openMax 1 / 容量 4）/ 空章 / boss 非末 / 孤儿关 / 孤儿章；断言 1′/5 直测（open 洞 / 跨包）；`uidSlotsToLevelRefs` 空列表 ⇒ §11.8 七类全覆盖（超 `WALL_CAPACITY` 由 336 批「章容量」例守）。
-- **变异自证 2 例**：① 跨包断言 `p !== packs[0]` → `false` ⇒ 只红「跨包」1 例（30/1）；② `assembleArcs` boss 非末断言咬断 ⇒ 只红「boss 非末」1 例（30/1）；均 `cmp` **逐字节还原**后复绿 31/31。
-- **验证**：`node --test` 31 过（23 旧 + 8 新）；`levels:check` 零漂移（beads/breakout 全一致）；`verify` PASS 22。
-- **未做**：CH-S5（分包放开，卡 `build:wx`）；五项不混做（①设置弹窗重叠 / ①半透 UI-60 / ②BD-62 / ③橱窗灯光 / ④暗线）。
-
-## WXG-T-337
-
-**工程·beads 大关 CH-S3「title 上移」落码批（用户对 336 回传后续选项选 A） · 负责：主理人(Qoder) · 状态：✅ 完成（2026-10-21）；CH-S4/S5 未开**
-
-- **背景**：承 `level-content-pipeline.md` §11.7 CH-S3 五步迁移（title 上移到 chapter 级）：`BeadsLevelRaw.title` 降级为**生成期派生字段**（唯一真源 = 所属章 `chapters/<id>.json` 的 `title`；仅章收尾关（boss）携带）；运行时 `drawPlateTitle` **零改动**（视图读 `carouselLevel.title`，与今日同路径）。
-- **源改动**：`singles/L00009.json` 删手写 `"title": "曼陀罗",` 一行；`manifest.json` `contentVersion` 31→32。
-- **生成器**（`sync-levels-data.mjs` 7 处替换、+46/-3）：新增 `assertNoSourceTitle`（**断言 8**：有大关层的游戏，源关卡手写 `title` 即抛）+ `injectChapterTitles`（章 `levels[]` **末项 uid** 的**最后一个展开槽**写 `title`、**追加在对象末尾** ⇒ 产物 diff 仅该记录一行；末项 uid 不在装配表（拼错/retired）或 title 非法 ⇒ **跳过**，交 `assembleArcs` 报红不重复抛）；`expandEntries` 内启用断言 8（plate 查每个 cell / single 查 obj）+ 孤儿检查后注入循环 ⇒ 装配两入口全覆盖。
-- **口径订正随批**：`levels-data.header.txt` 的 title 注释「木牌第二行（≤6 字）」→ 属章派生名新语义（4 行）⇒ `levels-spec §11` 登记关闭「双真源窗口」。
-- **产物**：`levels:sync` 重生 `levels-data.ts`（L00009 记录 `title` 移至对象末尾、header 注释更新）；`arcs.ts`「已一致，跳过」零变化；`framework:sync` 镜像 1 件。
-- **单测与自证**：`sync-levels-data.test.mjs` +3（注入断言含键序末位 / 异常跳过 / 断言 8 抛）⇒ 共 23 过；**变异自证 2 例**：① `chapters/mandala.json` title 曼陀罗→曼陀罗X ⇒ `levels:check` 红报 2 处产物漂移（levels-data.ts + arcs.ts 同咬）⇒ 章名确实流入两产物；② `singles/L00005.json` 插 `"title": "测试",` ⇒ 断言 8 精确咬红（`beads: 源关卡 singles/L00005.json 手写了 title="测试" —— 展示名唯一真源 = 所属章 title…`）；均**逐字节还原**后 check 复绿。
-- **验证**：`levels:check` 幂等 OK；beads vitest 98 文件 1137 过（`arcs.test.ts` 4 例 / `menu-plate-title.test.ts` 3 例全绿、ui-golden 零漂移）；`verify` PASS 22；§11.7 验收四条达成（L00009 仍带 title / 两测试全绿 / `DEMO_LEVEL_COUNT` 仍 9 / 木牌渲染路径不变）。
-- **未做**：CH-S4（夹具扩面）/ CH-S5（分包放开，卡 `build:wx`）；settings 重叠 / 半透（UI-60）/ BD-62 / 橱窗灯光 / ④ 暗线 未混做。
-
-## WXG-T-336
-
-**工程·beads 大关（chapter）配置层落码批 CH-S1/S2（7 项未决全采纳） · 负责：主理人(Qoder) · 状态：✅ 完成（2026-10-21）；CH-S3/S4/S5 未开**
-
-- **背景**：用户令「全采纳开 CH-S1/S2」= 335 设计批 7 项未决按子单推荐全采：Q-A 产物保留 `levelRefs` 区间 / Q-B 章超 9 槽生成期硬拦 / Q-C `ARC_COMING_SOON` 本批不迁（留手写 header） / Q-D `open` 字段本批上；设计 ① 页头章名落空带 [822,1122] / ② 章名不设长度硬门 / ③ 玩法 HUD 分母延后（登记 `[TODO]`）。
-- **CH-S1 真源落盘**：新建 `games/beads/design/levels/chapters/mandala.json`（首章一物一文件：`{id:"mandala", title:"曼陀罗", levels:[L00001…L00009 共 9 个 uid], showcase:{bundle:"themes", art:"l9-boss-mandala-256", textureId:"bitmap__boss_l9"}}`）；`manifest.json` 末尾加 `chapters:[{id,file,order:1,open:true}]`；`contentVersion` 不 bump（按 §11.7 步骤 4，CH-S3 才 31→32）。
-- **CH-S2 生成器垂直切片**：`sync-levels-data.mjs` 抽 `expandEntries`（装配内核 + `uidSpans` 唯一换算来源）；新增 `assembleArcs`（断言 1–7：章 order 严格递增 / `open` 前缀无洞 / id=文件名 / title 非空 / levels 非空 / uid 全局恰一归属且非 retired / boss 恰 1 条且=末项 / 同章同 pack / 未退役 entry 必须被覆盖 / 孤儿章文件反向查 / showcase 三字段齐备 + textureId 全表唯一 + `assets/<art>.png` 存在 / 轴对齐 `levels[i].id===i+1`）、`uidSlotsToLevelRefs`（相邻连续合并）、`openPrefixLength`、`checkChapterCapacity`（槽位 ≤ 读 tuning 的 `WALL_CAPACITY`，async 驱动同门禁⑥⑦）、`buildArcsModuleSource`（`arcs-data.header.txt` + 生成数据体 = `ARCS`/`ARC_OPEN_MAX`/`OPEN_ARCS`；header `trimEnd` 归一化）；发现阶段加 `chapters/` 与 `manifest.chapters[]` **双向绑定**（成对缺席/成对存在 + 缺 header/产物报红）；`levels:check`/`levels:sync` 自然并入（同脚本）。
-- **产物**：`games/beads/src/config/arcs.ts` 重生成为生成物（头部 ⚠️ GENERATED + 真源指路 `chapters/*.json`；`ArcEntry` 接口独立声明替代 `typeof ARCS[number]`；6 个消费点零改动 = beads-shell / tuning / main-menu-presenter / meta-view / arc-carousel 测试 / 宿主 beads-blit-carrier）；`framework:sync` 镜像 1 件；新 `arcs-data.header.txt`（手写模板 = `ArcEntry` 接口 + `ARC_COMING_SOON` + 说明）。
-- **单测与自证**：`sync-levels-data.test.mjs` +5（区间合并含 plate 多槽边界 / 断点分段 / 无区间抛 / open 前缀含乱序与空 / 容量超一槽抛）；**变异自证 2 例**（boss 挪首位 ⇒ 咬「boss 必须是 levels[] 末项（现第 1/9 项）」；删 L00005 ⇒ 咬「L00005 未被任何章覆盖」；均逐字节还原后 check 复绿）。
-- **验证**：`levels:sync`/`levels:check` 幂等 OK；beads vitest 98 文件 1137 过（`arcs.test.ts` 4 条钉住旧值 ⇒ 产物语义等价手写版）；`node --test` sync 单测 20 过；`verify` PASS 22（含 typecheck / framework:sync:check / levels:check）。
-- **未做**：CH-S3（title 上移：删 `L00009.json.title` + 生成期注入 + `contentVersion++`）/ CH-S4（夹具扩面）/ CH-S5（分包放开，卡 `build:wx`）；settings 重叠 / 半透（UI-60）/ BD-62 / 橱窗灯光 / ④ 暗线 未混做。
+---
 
 ## WXG-T-335
 
@@ -3572,108 +2998,7 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **验证**：纯文档批、零代码、零产物、零 §3 变更；`verify` 22 绿；两份正本互引一致（chapter schema / boss 归属 / 空章 / 禁跨包四口径逐条对齐）。
 - **未做**：①设置重叠、①返回钮、①半透（UI-60）、②BD-62、③橱窗灯光、④暗线 未混做；23 个编辑器生成 `.meta` 仍未入库（独立决定）。
 
-## WXG-T-334
-
-**工程·beads 走马灯木牌大关名「曼陀罗」+ (b) 只显名字（4 项真机缺陷先修 ④） · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-21）**
-
-- **背景**：用户报 4 项真机缺陷（设置页重叠/返回钮/半透；走马灯末张箭头消失+默认图案；橱窗灯光质量；大关外圈暗线+标题「第9关」），本批只先修可独立修的 ④（木牌显大关名），其余各归其位（①半透=UI-60、②=BD-62、③=美术、①重叠/④暗线=待正经批）。
-- **④ 确诊**：`BeadsLevelRaw.title?` 字段（`levels-data.ts:19-21`「主菜单橱窗木牌展示名，缺省只显关序」）+ 渲染 `meta-view.ts::drawPlateTitle`（已 `if(lv.title)` 画名字）早已为此设计，只缺数据 ⇒ 非「无概念」（上一轮误判已自纠）。
-- **名字来源**：「曼陀罗」= L9 boss 图案主题名，三处坐实（`menu-proto-coords.py:17` PLATE_TEXT=("第9关","曼陀罗")、`menu-showcase-asset-spec.md:180` 实装主题名 boss 曼陀罗、`arc-level-select-spec.md:163` 大关① 曼陀罗=关卡1-9）；关表/studio result/raw 均无此名（只有生成串 studio-3-163c）⇒ 名字取自设计文档，非我编。
-- **落码**：`design/levels/singles/L00009.json` 加 `"title":"曼陀罗"` → `pnpm run levels:sync` 重生成 `levels-data.ts`（`stripDevFields` 删除名单透传，title 自动进产物）；用户选 **(b)「有展示名⇒只显名字、隐关序」** ⇒ `drawPlateTitle` 的 `if(lv.title)` 支从「关序 line1 + 名字 line2」改为「名字居中一行（singleOff）」，else（无 title，其余 8 关）逐字不动。
-- **测试**：`menu-plate-title.test.ts` 断言从「两行」改为「有 title⇒只画名、不画关序」；`menu-carousel.test.ts`（title 淡变腿）不受影响仍绿；`ui-golden.test.ts` **未红**（main-menu 场景 `unlocked:9` 的木牌当前卡非 L9，命令流无变化）⇒ 免重抓夹具（K-051/053）。
-- **⚠ 偏离登记**：(b) 推翻 v3.7 原型「关序+关名两行」布局（`menu-proto-coords.py` 注释本意两行），依用户 2026-10-21 明选 (b) 执行，代码注释已标偏离。
-- **验证**：`verify` PASS 22 / FAIL 0（含 framework:sync:check 镜像一致、typecheck、beads 全测）；未跑 build:cocos（真机取证仍卡上传密钥，包留待配钥后重出）。
-- **未做**：①设置重叠、①返回钮样式、①半透、②BD-62、③橱窗灯光、④暗线 六项本批不混做。下一可用号 **WXG-T-335**。
-
-## WXG-T-333
-
-**工程·headroom 本机安装押后 + 真机走查前置侦察（现包年龄与出包通道） · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 登记（2026-10-21）；未改任何生产代码**
-
-- **用户裁定**：「暂时先不装 headroom，继续走查任务」⇒ `uv tool install` **已取消、零落盘**（本仓与用户机器均未新增 headroom 文件），MCP 接线（WXG-T-330）保持原样。
-- **安装前侦察所得（零写入、可复用）**：PyPI `headroom-ai` 当前 = **0.41.0**（203 个版本、迭代很快；`requires_python >=3.10`，本机 3.13.10 可）；`console_scripts` 含 `headroom=headroom.cli:main` ⇒ **装完可直接用命令行跑压缩实测，不需依赖 Qoder 重载 MCP**；extra 分档：`[mcp,code]` 只拖 `mcp` + `tree-sitter`（轻），`[proxy]` 才拖 `transformers` + `onnxruntime` + `fastapi` + `openai`（重，且本宿主用不上）。⇒ 将来要装，命令钉为 `uv tool install --python 3.13 "headroom-ai[mcp,code]==0.41.0"`，装完用 `headroom --version` 读数回写 `my-mcp/README.md §8` 做确定版本锚。
-- **走查前沿的真发现（阻塞不在真机、在包）**：`games/beads/cocos/build/wechatgame/` 产物**停在 2026-10-19 23:27**（目录内无 10-20 及以后的文件），而 `WXG-T-322`（高屏遮罩铺满，`7f8d1dd` 10-20 16:24）与 `WXG-T-323`（对话框居中）代码都是 10-20 落的；取证目录也只有 `production/qa/beads/device/2026-10-19/`。⇒ 走查单 P1/P2 那两条 `PASS` 只拿着**用户直读回执**（同一设备、同一天），**未取证物重建腿**；按 §0 判定规则（`PASS*` = 样本不足），这两条应记「待同包复验」而非闭环。⚠ 本批只**登记事实**，不替会话改别人写下的判定列。
-- **出包通道已核**：`build:cocos` = `tools/scripts/build-cocos.mjs` 直接 `spawnSync` 编辑器自带 CLI（`/Applications/Cocos/Creator/3.8.8/CocosCreator.app/Contents/MacOS/CocosCreator --project <proj> --build "platform=wechatgame;debug=false"`，默认 release 基线档，判例 K-111）⇒ **无需开 GUI**；CLI 文件在位（已 `ls` 确认）。⚠ 新镜像件 `ui-container-order.ts`（WXG-T-329）尚无 `.meta`，按 L1 不得手伪造 ⇒ 要么由编辑器导入生成（CLI 构建含资源导入），要么本批不动它（它未被视图引用，进不了运行路径）。
-- **走查单当前可推面（读 §2/§3/§4/§6 得）**：真机 `6UNBB26416051396`（L-A 畅享 CHZ-AL00）在线；**阻塞 X-09 的解除条件只差「B′ 落码」**（路线已拍板 = 只把菜单 BGM 挑进分包，当时按「一轮真机只引入一个变量」暂不落码）；**D-77 遗留的标定线定性不需新包**（确诊法已写：清微信小游戏缓存或换新微信号冷启 ⇒ 仍出则开 BD、不出则记存档态）；D-77 子判点 ③（选关墙第 9 格缩略）需先推进存档；D-40/D-41/D-44 需别的机型（灵动岛 / Android targetSdk 35+ / 胶囊机）⇒ 本机不可推。UI-60 战线一（容器层 + 设备层序读数）仍卡「视图接线未做」，不在「纯走查」范围。
-- **未做**：不改代码、不出包、不动真机取证（等用户在下面三条里拍板）。下一可用号 **WXG-T-334**（已核工树除头注自指外无 333 引用）。
-
-## WXG-T-332
-
-**工程·headroom 可用形态口径订正（proxy 在 Qoder 不可用） · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 入库（2026-10-21）**
-
-- **触发**：用户指出「headroom 好像只能 MCP 用法，如果直接代理使用，那么 qoder 里面好像不能用」。判定：**对**。上一批（WXG-T-330）我在收尾给的三个选项里把「走 proxy」当作可用路径挂着，没先确认本宿主不开放模型端点 ⇒ 该选项在本仓日常环境从一开始就不成立。
-- **事实边界**：headroom 四种形态里，**proxy 与 wrap 都要求宿主能改模型 base URL / 出网代理**（CLI 宿主如 Claude Code・Codex 可以，闭源 GUI IDE 不行）。Qoder 的模型接入不对用户开放 ⇒ 流量无法改道。Library 形态需自写调 LLM 的代码，而**游戏运行时不调 LLM** ⇒ 对产品代码无意义。剩下可用的只有 **MCP 档**。
-- **MCP 档的真实价值（本轮同时说清的另一半）**：它只暴露 `headroom_compress` / `headroom_retrieve` / `headroom_stats` 三个**显式工具**——**Agent 主动调才压，默认行为不变、不自动拦 stdout** ⇒ 接线 ≠ 已省。真实省幅仍靠仓内 `ctx/` 读侧预算体系（ROUTES 锚点 + hot-files 局部读 + B 门）与命令产出控制。
-- **回写五处**：① [my-skills/headroom/SKILL.md](../../my-skills/headroom/SKILL.md) 四种接入逐档标可用/不可用，并在「削减模型输出」一节顶部加 ⛔ 前置声明（该节在 GUI IDE 用不上）；② [my-mcp/README.md](../../my-mcp/README.md) §8 那条「字面减输出在 proxy 侧」改为「在本仓不可用（proxy / wrap 都要改宿主端点）」；③ 台账 332 行 + 详情节 + 新建当日日记 `memory/2026-10-21.md`；④ 长期记忆两条同步订正（`tool_experience` Headroom 四种接入→逐档加宿主前提；`skill_experience` 知识库沉淀→补「接入配方必逐档标宿主前提，接上≠已省」）——防跨会话重踩同一个错。
-- **不动的两处**：旧日记 `memory/2026-10-20.md` 与旧台账行里「字面减输出在 proxy 侧」的表述属时间序过程账，按惯例不回改，本批只订正**现行文档**（技能正文 + 接线记录）。
-- **沉淀**：**K-147**（接本地拦截型工具前先查宿主开放度；三问：要改宿主配置吗 → 本宿主开不开这个入 → 有无 CLI 等价宿主；答不上就标「未验」不得当选项交付）。统计：新增 1 / 修改 0 / 激活 0 / 归档 0。
-- **不伪造读数**：本仓无从实测 proxy 不可用（正因端点不可改而无从测），文档里写的是「用户 2026-10-21 指出 + 本仓未实测」，没假装跑过 `headroom proxy`。
-- **遗留**：MCP 档在当前环境只是「大块的按需压缩后手」；要真省 token 得靠读侧纪律与少出巨输出。若日后换用可调端点的 CLI 宿主，proxy + `HEADROOM_OUTPUT_SHAPER=1` 仍是未展开的那条腿。
-
-## WXG-T-331
-
-**工程·外部技能/工具沉淀为可刷新知识库 · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 入库（2026-10-20）；跨项目 arsenal 仓仅登记为候选**
-
-- **来源**：用户问「headroom 库和 ponytail 库能否作为个人知识库沉淀下来，之后的项目直接用？哪种方式方便查询和接入？如果 github 库可以实现那就最好」。给四选（A 都进本仓 my-skills / B 另起跨项目 arsenal 仓 / C 只进 Qoder 记忆 / D 先核上游）⇒ 用户拍 **A**。
-- **关键区分（决定归档形态，两者不能同一处理）**：ponytail = **纯文本方法论 skill**（六个 `SKILL.md`）⇒ 适合 vendoring 进仓、随仓库走；headroom = **需本机装二进制的上游包**⇒ ⛔ 不存代码，只存「接入配方型 SKILL.md」，用到时一行装。
-- **ponytail 六件入库**：从**本机已装副本** `~/.qoder/skills/ponytail{,-audit,-debt,-gain,-help,-review}` 逐字 `cp -R` 进 `my-skills/`（六目录各仅一份 SKILL.md，frontmatter `name` = 目录名，共 ≈28 KB）。选它不选上游直取的原因 = 本会话亲测在用、内容真实；且 `raw.githubusercontent.com` 在本网域不通（`curl` 全部 FAIL，连接被重）。
-- **headroom 薄技能**：新建 `my-skills/headroom/SKILL.md` = 何时用 / 装法 / 四种接入（library · proxy · wrap · MCP）/ 输出削减 (`HEADROOM_OUTPUT_SHAPER=1` 只在 proxy 侧) / 与本仓 `ctx/` 读侧预算互补 / 未装时预期失败。与 `my-mcp/README.md §8`（WXG-T-330）不重复：前者是**可触发技能**、后者是**接线记录**。
-- **上游坐实**：`DietrichGebert/ponytail`（MIT），来源二重 = `ponytail-help/SKILL.md:71` 自带 `Full docs + examples: github.com/DietrichGebert/ponytail` + `api.github.com/.../git/trees/HEAD?recursive=1` 列出 `skills/ponytail*/SKILL.md` 与根 `LICENSE`。⇒ 教训：**curl raw 不通不等于仓库不存在**，探结构走 API trees。
-- **四 IDE 链接**：7 件 × 4 目录 `ln -sfn ../../my-skills/<name> .<ide>/skills/<name>`（`.cursor` `.codebuddy` `.workbuddy` `.qoder`）⇒ `check:links` OK，技能 40→47。
-- **编目（可查询性的落点）**：`my-skills/INDEX.md` 新增 **§1b.2** 逐件表格 + 四注（来料与许可 / provenance与刷新方式 / 安全审计结论 / 优先级不变）；§1b 标题计数 21→28。
-- **刷新腿**：新脚本 `my-skills/_repos/update-ponytail-2026-10.sh`（入库）—— `git pull` 克隆 → 逐件 **diff 不自动盖** → 人工确认后 `cp -R` → 跑 `check:links`；`.gitignore` 新增 `my-skills/_repos/ponytail/`（同 mattpocock-skills / superpowers / Claude-Code-Game-Studios 惯例：内嵌 git 克隆只记空 gitlink ⇒ 必不入库）。脚本里写明「先 diff」的理由 = 快照取自已装副本而非上游，直接盖会改掉实际在用的纪律文本。
-- **记忆兜底（两条，跨项目自动想起）**：`tool_experience`「Headroom 本机上下文压缩层：安装与四种接入」；`skill_experience`「把外部 GitHub 技能/工具沉淀为可刷新的个人知识库：两种形态分开存」。既有 `learned_skill_experience`（ponytail 触发时机）与 `development_practice_specification`（必触发规则与档位口径）不重复，本批未动。
-- **沉淀（kb:sync 已入账）**：**K-145**（`raw.githubusercontent.com` curl 全失败而 `api.github.com` trees 一次成功 ⇒ endpoint 要分层探，别拿单一通道的失败当事实）；**K-146**（快照取本机已装副本⇒刷新语义不同，必须「先 diff 不自动盖」+ 比内容前核非空 + `_repos/` 内嵌克隆必不入库）。沉淀统计：新增 2 / 修改 0 / 激活 0 / 归档 0，`kb:audit` 无相似命中。
-- **诚实边界 / 未做**：① 本批**未落上游 `LICENSE` 文件**（域不通）⇒ 许可依 frontmatter `license: MIT` 自证，首跑刷新脚本时顺带 `cp ponytail/LICENSE` 补齐；② 链接为**项目级**，仅在工程内生效 ⇒ 真要「新项目直接用」需另起 arsenal 仓或装到全局技能目录（候选，待用户点头）；③ 纯 skills/docs + 1 脚本 + 1 行 .gitignore、零 TS ⇒ 不进包、不碰游戏运行时。
-
-## WXG-T-330
-
-**工程·MCP 接入 headroom（本地上下文压缩 server） · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 接线入库（2026-10-20）；本机二进未装（选项三才装）**
-
-- **来源**：用户给 https://github.com/headroomlabs-ai/headroom 要「调研 + 如何用到本工程减少 token 输出」。调研后给三选（接 MCP / 出 proxy 落地清单 / 先可行性探针），用户选「接 MCP」。
-- **Headroom 定位（一句话）**：跑在本机的上下文压缩层，把喂给模型的巨型工具输出（JSON/日志/git diff/RAG）压小再进 LLM，原文本地留档可逆（CCR）。**它压「工具 stdout 回灌」，与本仓 `ctx/` 读侧预算体系（别整读大文件）互补不替代**。
-- **接线（只改正本）**：`my-mcp/servers.json` 加 `headroom`（`transport:"stdio", command:"headroom", args:["mcp","serve"]`）→ `pnpm run mcp:build` 重生 `.mcp.json`（explicit）/`.cursor/mcp.json`（cursor）/`.codebuddy/mcp.json`（explicit）三产物（机器生成物不手改）。`command` 走 PATH（与 `npx` 同款），未硬编绝对路。
-- **门禁**：`check:mcp` OK（三产物与正本一致；headroom stdio 有 command+args ⇒ C3 绿）；`check:plugins` OK（它只按 vendor 包名匹配带 `@scope/name@semver` 的条目 ⇒ 无版本 spec 的 headroom 被忽略，不影响 weixin 锚校验）。Qoder 读项目根 `.mcp.json`（README §5），首次使用需 IDE 内批准。
-- **为何选 stdio MCP 而非 proxy**：proxy（`headroom proxy` + `HEADROOM_OUTPUT_SHAPER=1`）是真正「减少输出 token」的形态（verbosity/effort 削减），但属 Harness/IDE 出网级、本轮不可入仓（也无法在沙箱替 Qoder 改道）；MCP server 可入仓、提供显式 `headroom_compress`/`headroom_retrieve`/`headroom_stats`。两者不互斥。
-- **诚实边界**：① 本轮**不装 headroom**（`uv tool install` 写仓外家目录、且属选项三的「可行性探针」职责）⇒ 未装前 Qoder spawn 该 server 失败，同 cocos 未开编辑器时的预期连接失败（README §7-4），装上即恢复；② 游戏运行时不调 LLM ⇒ headroom 不进包、不影响包体红线；③ 版本钉按仓风不硬编 `latest`（README §8 要求装完把 `headroom --version` 读数回写台账做确定锚）。
-- **未做 / 下一步**：① 本机装 headroom + `headroom doctor`/`headroom savings` 量真实省幅（选项三）；② 若 Qoder 不继承 PATH，把正本 `command` 改为绝对路径后 `mcp:build`；③ 若要字面「减输出」，走 proxy 形态（需用户 IDE 配出网）。
-
-## WXG-T-329
-
-**beads·UI-60 DEC-8①：Node 侧层序守门轨（引擎无关） · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 守门轨完成（2026-10-20），战线一（视图接线 + cc 层树 + 真机读数）排期中）**
-
-- **来源**：用户在「UI-60 三选」里选「先做守门轨（本轮可独立做完并提交）+ 为真机修缺陷排期」。本单 = ADR-0033 **DEC-8①** 的「Node 侧新增机检」腿，与 WXG-T-328 内核同一先例（引擎无关产物先入库、设备腿后接）。
-- **新增 `packages/framework/src/core/render/ui-container-order.ts`**（⛔ 不 import `cc` ⇒ Node 可测，进 `core/index.ts` barrel）：`checkUiContainerOrder(commands: readonly DrawCommand[]) → string[]`（返回违规描述列表，空 = 通过；调用方按场景 `throw` 或收集上报）。单次线性扫描，非热路径。
-- **校验什么（结构良构，非叠序本身）**：① `beginContainer`/`endContainer` 配对且**容器不重叠/不嵌套**（新容器不得在上一个未闭合时打开）⇒ 每容器一段连续块 ⇔ **DEC-8① 第一句「容器 A 全部命令索引 < 容器 B」**；② `beginSegment` 只在容器内、与 `endSegment` 配对且**段不叠套**（DEC-2）；③ `endContainer`/`endSegment` 不悬空；④ 帧尾不得留未闭容器/段。
-- **与内核互补不重复**：`UiScopeTree`（WXG-T-328）管 enter/exit 的**排序行为**（兄弟位怎么算，已被 9 例钉住）；本门管视图**吐出的命令流是否良构**——前提不成立（容器重叠/段跑出容器）则内核再对也白搭。二者合起来才是 DEC-8① 要的「设备无关替身」。
-- **验收**：framework **47 文件 508 passed**（+8 例：正样本相邻闭合容器块 + 空流不误报 + 6 反证逐条钉具体违规串，删判定即转红 ⇒ 非空跑）；beads/breakout **零漂移**（新增函数生产侧尚未消费）、三包 typecheck 0；`framework:sync` 新增 1 件镜像（framework 60→61）且 `framework:sync:check` 一致；`verify` **PASS 22 / WARN 0 / FAIL 0**。
-- **⚠ 诚实边界（别把本单当修好）**：视图现在还不发容器命令（战线一未做）⇒ 本门当前只咬人造样本；战线一把弹窗内容搬进容器后，把它指向真帧（金样本 / 采样帧）即自动生效、无需改门。**本门单独不消缺陷**。
-- **⛔ 战线一（排期、需真机取证 = 缺陷真正的关闭条件）**：① 弹窗视图发 `beginContainer`/`beginSegment`（受 ADR-0033 §4 并发前置：他会话 UI 迁移 WIP——即 T-299…T-318——已入库，前置已解除）；② `bindings.ts` 的 cc 节点层树薄壳（容器×段子树 + 位图腿归属，那条腿真伪只能由设备证）；③ `build:cocos` 后发到在线鸿蒙真机（`6UNBB26416051396`）实拍层序；④ 金样本按容器重抓（指令流多出容器边界 ⇒ sha 会变，须先登记 K-053）；⑤ 解开 `dialog-center.test.ts` 那条 skip（现只能证 canvas2d 层序，不证真机）。② 与③ 不在同一批会反复踩「假绿」（ADR-0033 判例链 322→324→325）。
-
-## WXG-T-328
-
-**beads·UI-60 P1（可证部分）：容器×段层树内核 · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 内核完成（2026-10-20），cc 薄壳与视图接线仍待 P1 后半）**
-
-- **来源**：用户选「推 P1 的可证部分」——把层树逻辑写成引擎无关类，让「层怎么排 / 何时建 / 越界怎么办」能在 Node 里逐条证，`bindings.ts` 只留 cc 工厂薄壳（那条腿只能由设备证）。
-- **新增 `packages/framework/src/adapters/cocos/ui-scope-tree.ts`**（⛔ 不 import `cc`，进 `adapters/cocos/index.ts` barrel）：`UiScopeTree implements CocosUiScopeHostLike`；宿主注入 `UiScopeTreeHooks = { root, defaultScope, defaultBlitParent, create(key, parent, siblingIndex) }`。`siblingIndex` 由**内核**算定 ⇒ 宿主只照数排兄弟，⛔ 不得自行决定序（否则序有两处真源）。
-- **内核兑现的四条规则**（各带单测，共 9 例）：① **懒建**——`enter*` 不建层，只有真落笔（读 `current`）才建，与 `lastScopeCount` 同口径，唯一例外是建段须先有父容器层；② **容器序 = 出现序**，首次出现定兄弟位、跨帧复用不重排；③ **段序 = `UI_SEGMENT_ORDER` 枚举序而非绘制先后**（DEC-3 核心，也正是「Cocos 把指令序压成通道序」那类缺陷的反面）；④ **段挂在容器之下**（用父子序代替 zIndex，DEC-4）；另加防御：未进容器就开段 ⇒ warn-once 忽略、空栈退出不抛。
-- **接口修订（如实登记）**：`CocosUiScopeHostLike.exitScope()` 拆为 `exitContainer()` / `exitSegment()`。原因：单一出栈分不开「出段 → 回本容器默认段」与「出容器」，P0 的合一写法会把退出语义埋错；P0 宿主接口尚无生产消费者（只有测试假件）⇒ 零外溢。`CocosUiScopeLike` / 默认层语义未动。
-- **兼容面**：视图仍未发任何层级命令、`bindings.ts` 未注入宿主 ⇒ **真机零行为变化**；金样本十一态应零漂移。
-- **验收**：framework **46 文件 500 passed**（+9 例）；**三处定向变异全咬红**（段序改插入序 ⇒ 2 例红；取消懒建 ⇒ 1 例红；帧首不清默认层 ⇒ 1 例红），随后按内容比对逐字节还原（sha `dcca8f5ef733`）；beads 98 文件 **1137 passed + 3 skipped**（金样本十一态 sha 零漂移）、breakout 239、三包 typecheck 0 错；`framework:sync` 新增 1 件镜像（framework 59→60）且 `framework:sync:check` 一致；`check:arch` OK（唯一 WARN 是既有的编辑器生成件计数，与本批无关）。
-- **⛔ 未完成项（别把本单当修好）**：`bindings.ts` 的 cc 工厂薄壳、视图发 `beginContainer/beginSegment`、真机层序读数（ADR-0033 DEC-8）——这三件才是「设置弹窗层级错乱」的关闭条件；其中视图接线受 §4 前置约束（他会话 UI 迁移 WIP 入库）。
-
-## WXG-T-327
-
-**beads·UI-60 P0：容器 / 段语法 + Cocos 作用域映射 · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）**
-
-- **来源**：承 [`ADR-0033`](../docs/architecture/adr/ADR-0033-ui-container-layer-ordering.md) §5 Q1 分期的第一批（用户「Q1 分期确认」）。
-- **开工前核前置（并按实测改窄 §4）**：本轮 `git status` = 47 个未提交件在场，脏件集中在 `framework/src/core/ui`（4）与 `games/beads/src/{ui,view}`（+镜像），而 **`core/render/**` 与 `adapters/**` 一个未被触碰** ⇒ P0 框架腿不撞车可先行；P1（弹窗内容入容器）/ P2（输入逆序）仍须等他会话 WIP 入库。ADR §4 原那句「必须等 WIP 全部入库」过硬，已改为按腿分别登记。
-- **语法（`core/render/render-model.ts`）**：`UiSegment`（`page|hud|modal|toast`）+ `UI_SEGMENT_ORDER` 唯一序表（⛔ adapter / 视图不得再抄一份）+ 四个 kind（`container` / `containerEnd` / `segment` / `segmentEnd`）+ 四条 builder 方法。新 kind 由 `signature()` 的逐字段遍历自动纳入 ⇒ 「脏帧门控看不见层级变化」这类坑预先堵死；层级命令不带几何 ⇒ 不进顶点 arena。
-- **两端映射（`adapters/cocos/cocos-renderer.ts`）**：新增 `CocosUiScopeLike`（一对全通道提交体）+ `CocosUiScopeHostLike`（帧首清层 / 进出容器 / 进段 / 出栈 / 当前层）与 `options.scopeHost`。**未注入宿主 ⇒ 四 kind 静默忽略、旧单层路径逐字不变**（breakout 与一切未接线宿主零漂移；canvas2d 侧的 no-op 由单测锁死，不靠口头声明）。为什么作用域必须自带矢量笔而不只换标签层：同容器内「先画 HUD（矢量 + 文字）再压遮罩」要求后面的 `Graphics` 能盖住前面的 `Labels`——正是 ADR-0030 为 `model.background` 踩过的同一个坑。
-- **DEC-5（同层文字叠序）**：`CocosLabelLike.setSiblingIndex?` 可选方法 + 帧内计数，**换作用域重新归零**；不提供该方法的宿主行为同旧。旧行为的问题如实记在注释里：只 `acquire()`+`setPosition()` ⇒ 叠序取决于池节点创建史，跨帧可变。
-- **预算实测出口**：`lastScopeCount` = 本帧**真正落过笔**的作用域数（只 `enter` 而未画图元的不计 ⇒ 不虚报），无宿主恒 1。这是用户 Q2 那句「必须实测」的第一个可运行口径；真机 DG 读数仍要等 P1 接线后才能取。
-- **⚠ 交付面收窄（如实登记，不算已完成）**：`bindings.ts` 的 cc 节点树（容器 × 段 × 通道子树 + 位图腿归属）**不在本批**——那条腿的真伪只能由设备证（画布叠序 / 节点序 / draw call 实数），无编辑器时写它 = 交不行也证不行的代码。故 P0 对真机**零行为变化**（连宿主都未注入），层级缺陷本身仍未消；解 skip 的层序例归 P1。
-- **验收**：framework 45 文件 **491 passed**（新增 6 例）；**反证** = 把作用域解析置空 ⇒ 路由 / DEC-5 / scope 计数 **3 例全红**，随后按 sha256 逐字节还原；beads 98 文件 **1137 passed + 3 skipped**（金样本十一态零漂移，因视图未发新命令）、breakout 239、三包 typecheck 0；`framework:sync` 写 4 件镜像、`framework:sync:check` 一致；`check:arch` / `check:tasks` / `check:links` / ctx A–E 全绿；`verify` PASS 22 / FAIL 0。
-- **下一步**：P1 = `bindings.ts` cc 层树 + 弹窗内容搬进容器（解开 `dialog-center.test.ts` 的 skip 层序例 + 真机层序读数）；前置 = 他会话 UI 迁移 WIP 入库。
+---
 
 ## WXG-T-326
 
@@ -3686,6 +3011,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **不阻塞的留项**：S1 段枚举是否再加 `debug`（`DebugLayer` 必须永远最顶，推荐复用 `toast` 之上的隐式末位）；S2 跨容器段序按「容器序优先、段只在容器内起作用」执行，P1 接线时逐个验证。
 - **验收（本批）**：纯文档 ⇒ `check:tasks` 87/87 配对、`check:links`、ctx A–E 全绿（`ui-architecture-beads.md` 仍 ≤ 8000 tokens）；代码与测试零改动，故不重跑构建与真机码（`b9c047d` 的产物仍有效）。
 - **仍阻塞的事项**：UI-60 P0 开工前置 = 另一会话的 UI 架构迁移 WIP 入库（本轮实测 `git status` = 47 个未提交 / 未跟踪件在场）。
+
+---
 
 ## WXG-T-325
 
@@ -3700,6 +3027,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **验收（本批）**：beads **1137 passed + 3 skipped**（新增 1 skip = 层序待容器层）；金样本 11 例绿（复取后对拍）；typecheck 0；`framework:sync:check` 一致；`check:tasks` / `check:links` / ctx A–E 门。容器层的真验收在 UI-60 P1（解开 skip 例）与 P3（设备读数）。
 - **阻塞与前置**：⚠ 另一会话正在同一层做 UI 架构迁移（`ui-root.ts` / `ui-host.ts` / `modal-frame.ts` / `play-page.ts` 等 44 个未提交文件）⇒ UI-60 须等其入库，否则双写。待用户裁 ADR-0033 §5 Q1（四批分期）/ Q2（容器粒度：只 page/modal 还是含 hud/toast）/ Q3（过渡态是否维持「没半透」）。
 
+---
+
 ## WXG-T-324
 
 **beads·真机 P2：菜单弹窗无半透（遮罩下未画底页） · 负责：主理人(Qoder)·程基岩域 · 状态：⚠ 曾完成（2026-10-20）⇒ 已由 WXG-T-325 回退（问题定性仍成立，终解归 UI-60 / ADR-0033）**
@@ -3711,87 +3040,7 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **性能读数（诚实）**：设置/签到页每帧指令从 25/28 条升到 3686/3689 条（≈ 主菜单本帧成本）。与主菜单同量级、属既有包络内（菜单页本来就要画 3661 条），但确实是“开弹窗后变贵”——若真机发热/卡页，回退杆 = 弹窗期只画静态底（走马灯不更新）或烘一张底图。
 - **登记漂移（本批不改的件）**：`src/ui/phase-route-binder.ts` 头注「菜单遮罩态不画底页，属既有视觉」已过时 ⇒ 该件当前属另一在途会话的未提交 WIP，本批不夹带改动（同文件镜 1 件），待该会话或后续单把注释改成本口径。
 
-## WXG-T-323
-
-**beads·真机 P2：六处对话框中心不对手机中心（逐机居中收口一处） · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）**
-
-- **触发**：用户扫码复验 WXG-T-322 后回执「暂停遮罩顶到状态栏下方、整屏无漏」「齿轮/继续按钮仍可点」，同轮新报「**对话框上下不居中**」。两项裁剪：居中基准 = 对话框中心对齐手机中心；范围 = 所有对话框一起修、**统一一处**（基类/公共部分）。
-- **根因（systematic-debugging Phase 1–3）**：`dynamicHeight` 档（WXG-T-280 P1）把设计高逐机算到 1334~1630，菜单链锚与 HUD 已消新高（`menuAnchors.designHeight` / `_hudDy`），但**局内五处 + 菜单弹窗一处**仍按静态 `DESIGN_H` 居中（`pause-panel:109` / `clear-panel:94` / `fail-panel:59` / `sprint-settle:118` / `meta-view:335`）。畅享实读：1625 档面板中心 667 vs 屏中心 812.5 ⇒ **偏下 145.5 设计 px = 219 dp = 屏高 9%**（三种板高算得同一偏差，因为位移量与板高无关）。
-- **落码（收口一处）**：`tuning.ts` 新增 `setLiveDesignHeight` / `liveDesignHeight` / `dialogShiftY`（位移 = `round((实际高 − 1334)/2)`，基准档与更矮档恒 **0**）；`BeadsShell.init` 与菜单链锚**同点一次写入**（早于 `play.init`）；六处底板算式只加 `+ dialogShiftY()`（原数字就地保留⇒ 1334 可读可校）；菜单 `OVERLAY_PLATE` 常量转 `overlayPlate()` 首次算定缓用（保热路径零分配）；彩带**禁飞带同源位移**（`view-model::drawConfetti` 循环外算一次）——面板一动旧带就盖不住按钮，属必须同批改的派生常量。绘制面与命中面仍共用同一 `*PanelLayout()` ⇒ 图与热区同源。
-- **测试**：新增 `tests/dialog-center.test.ts` 3 例（1128×2444 动态档 rig：① init 写入 1625 且位移 146；② 局内七份板（暂停 normal/sprint、结算两档、失败两档、冲刺结算）中心 = H/2 ± 0.5；③ 设置弹窗**绘制面** rect（`radiusPanel` 唯一）中心 = H/2）。**反证**：把 `dialogShiftY` 临时改为恒 0 ⇒ 三例全红（145.5 / 146），再按 sha256 逐字节还原。零漂移证据 = beads 98 文件 1137 passed + 2 skipped（含金样本十态 sha 全等、夹具未重抓）+ typecheck 0。
-- **未夹带改动（观察项三条）**：① **全通关页（finish-panel）** 不属居中弹窗，它是顶锚标题带 + 底锚按钮行（`titleY = DESIGN_H − 180`），高屏机顶部会多出一条约 291 设计 px 空带 ⇒ 待用户看过实物后单独裁（改它会连带 rows/shelf 链式重算）；② `scene-vfx::confettiSpawnY` 默认 top = `DESIGN_H`，但调用方已传 `builder.height`（WXG-T-322 后与真高同源）⇒ 无需改；③ 本批未给面板加运行期缓存失效，因 `App.resize()` 在真机不触发且 `setLiveDesignHeight` 只在 init 调用（与菜单链锚同一假设）；若将来允许转屏/逐帧改高，两处都要补失效。
-- **落点**：`production/TASKS.md` 头注 323/324 + 主表行；本 节；`device-walkthrough §2` P1 行拆读（遮罩已 PASS、居中 CONCERNS 待复验）；无 §3 冻结常量变动（`PAUSE_PANEL_H` / `PANEL_SIZE` 等按 §6.1 判例不入 §3，本批**零改值**、只改锚点）。
-
-## WXG-T-322
-
-**beads·真机 P1：暂停遮罩高屏未铺满（动态设计高未同步 builder） · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）**
-
-- **触发**：用户扫码实测（L-A 畅享 90 Pro Max / CHZ-AL00 / 1128×2444 dp / dpr3）报「暂停遮罩没有铺满整屏」；用户明确不需转横屏。
-- **根因（systematic-debugging）**：`App._init()` 只 `viewport.resize()`，未同步 `RenderModelBuilder` ⇒ 动态高档首帧 `builder.height` 仍是基准 1334，而 viewport 已 1625（= 750×2444/1128）。所有读 `builder.height` 的全屏图元（暂停 / 失败 / 过关 / 冲刺遮罩、全通关色带、性能覆层、连击变换锚点）顶部漏 291 设计 px；背景与版式读 viewport，所以只有遮罩出问题。
-- **落码**：`packages/framework/src/compose/app.ts::_init` 增加 `_builder.resize(...)`（与 `App.resize()` 同款）；`packages/framework/tests/compose/app-host-driven.test.ts` 新增 1 例：1128×2444 + `dynamicHeight` ⇒ viewport 与首帧 `builder.height` 均为 1625（修复前实测 1334 红，修复后绿）。
-- **验证**：framework 44 文件 484 例全绿；`framework:sync --check` 一致（beads / breakout 镜像同步）；重建 release 产物（AppID `wx8cf9f756e5390749`，3.1 MB）并出码复验。
-- **诚实限制**：真机复视待用户回执；`bindings.ts` 的 GameRoot `setContentSize` 仍在 re-fit 前调用（尺寸停在 1334，未观察到对应症状，未夹带改动，登记为观察项）。
-
-## WXG-T-321
-
-**beads·转场收尾：金样本补转场中点帧 + `reduceMotion` 页面转场专项裁定** · 负责：主理人(Qoder)·文策渊域 · 状态：✅ 完成（2026-10-20）
-
-- **触发**：用户选下一步 2（转场收尾两小件）。
-- **专项裁定（D1）**：`reduceMotion` 开 ⇒ 页面转场**整段关停**（进页同帧静息、`back` 同帧离页）；弹窗「面板入 / 出」200/150 **不变**。理由 = 全屏 α 斜坡属非必要动效，页面身份已由版式表达；⛔ 未新造毫秒值（关停 = 0ms）。落点 = `arc-level-select-spec §5` v1.7（两行）。
-- **落码**：`beads-shell.ts::_beginPageFx` 单分支（`this.play.reduceMotion` ⇒ 取消在途转场；淡出同时 `_phase.close()` + `_emitOverlay(false)`）；`arc-level-select.test.ts` +1 例（进页后 30 帧逐字不变 + `back` 同帧 `overlay = none` + 菜单帧复位）。
-- **金样本中点帧**：新增 `level-select-mid`（同属 `LevelSelectPage`，不新增单元）——进页 6 帧 = 100ms / 200ms，ease-out `pageFade = 0.75`；total **5083**（主菜单底页 + 半透明页），两遍确定性自证 PASS。其余十态 sha **逐字未变**；夹具重抓，`capturedFrom = 4b8d1ec · 含选关页转场中点帧（WXG-T-321）`。
-- **落点**：`ui-golden-scenes.ts`（状态）/ `ui-golden-capture.ts`（十一帧断言 + readme）/ `ui-golden.test.ts`（11 帧 + 单元去重）/ 夹具；`arc-level-select-spec §5` v1.7；`TASKS.md` 头注 321/322 + 主表行；本小节。
-- **诚实限制**：① 中点帧只锁绘制指令流（含 alpha），不覆盖观感；② `reduceMotion` 体感 `[待真机]`（Node 只证状态与帧等价）；③ 弹窗面板转场不在本裁范围。
-
-## WXG-T-320
-
-**beads·P5·UI-53 全量验收：`verify` 22 项 + harness 双游 + 真机 `[R]` 登记** · 负责：主理人(Qoder)·质量负责人域 · 状态：✅ 完成（2026-10-20）
-
-- **触发**：用户选下一步 1（UI-53）。验收原文 = 「全量 `verify` 与 harness 验收；真机安全区项登记为 `[R]` 阻塞」（`ui-architecture-beads §12`）。
-- **机械面实测**：`verify` **PASS 22 / WARN 0 / SKIP 0 / FAIL 0**；单测 framework 483 / breakout 239 / beads 1132 passed + 2 skipped（1134，97 文件）；`ui-golden` 十态零漂移（自 UI-50 起 sha 未变）；`harness:build` + `harness:smoke` 双游启帧（beads：13×12 盘 / 156 格 / 24 托盘槽 / 5 帧 rect 102·arc 2816·fill 1277·fillText 13 / 4926 条指令）；`check:arch` OK + §20 `--selftest` 11/11；包体 beads 主包 3201.0 KB / 108 文件（余 895.0 KB）。
-- **真机 `[R]` 登记**：复用 `device-walkthrough.md §3 Session 2` 既有条目，不另造 ID —— D-40（灵动岛）、D-41/D-42（Android 安全区脏值 / letterbox）、D-43/D-44（ohos 安全区 / 热区与胶囊避让）、P1（高屏 HUD 上移 / 齿轮可点 / 遮罩铺满）。阻塞原因 = iPhone 14 Pro+ 与 Android 三键机无在手设备；L-A 畅享需用户扫码 + 人工看屏，本会话无设备操作权。解除条件 = 扫码装包后按 Session 2 逐条取证入库。
-- **落点**：`production/qa/beads/test-cases.md` 新增 **§O**（TC-UI53-01…07 + 阻塞表）；`ui-architecture-beads.md` UI-53 行 ✅ / §13 尾句 / §11 包体实测；`TASKS.md` 头注 320/321 + 主表行；本小节。
-- **诚实限制**：① `harness:smoke` 是 Node 内加载产物字节 + canvas 桩，**不构成像素级或真机证据**；② 真机面未签收 ⇒ 整链只记「机械面闭合」，不得记「全部 PASS」；③ 金样本只对拍绘制指令流，不覆盖观感与手感。
-
-## WXG-T-319
-
-**beads·P5·UI-52 机械守：`check:arch` §20 五条 + 负样本自测** · 负责：主理人(Qoder)·工程负责人域 · 状态：✅ 完成（2026-10-20）
-
-- **触发**：用户选下一步 1（UI-52）。验收原文 = 「故意违规用例能被拦下」（`ui-architecture-beads §12`）。
-- **五条规则**（`tools/scripts/check-architecture.mjs`，只扫 `games/beads/src`）：
-  - §20-1 同文件出现 `scrimFill(` + `drawPaperPanel(` 而无 `drawModalFrame(` ⇒ 拦（自造弹窗）；
-  - §20-2 `view/` 与 `ui/` 下 rgba()/hsl() 字面量 ⇒ 拦（kit 三件 `ui-theme` / `palette` / `modal-frame` 豁免）；
-  - §20-3 `view/` 下 `screen|overlay|phase` 的 `===` / `!==` 判断 ⇒ 拦（登记偏离 `meta-view.ts` / `view-model.ts`）；
-  - §20-4 `systems/*.ts` 里 `hit*()` 存在却未调本文件 `*Layout()` ⇒ 拦；
-  - §20-5 `this._screen|_overlay` 或 `_screen|_overlay =` 标志位 ⇒ 拦。
-- **负样本自测**：`--selftest` 11 例（五条各「被拦 + 放行」，§20-3 加 `!==` 变体）；`check:arch:selftest` 入 `selftests.mjs` fast 档 ⇒ `verify` 覆盖（装置完整性守卫要求新 `*:selftest` 必须入档）。
-- **顺带真实违规**：规则扩到 `!==` 后咬出 `play-page.ts:180` `snap.phase !== 'playing'`（缩放条自抑制）⇒ 按守则把相位判断上移到门面：`drawPlayPage` 增第五参 `zoomControlsVisible`，`view-model` 传 `snap.phase === 'playing'`（已是登记偏离）；`tests/play-page.test.ts` 同步（门面等价 / 静态门两条）。
-- **验证**：`check:arch` OK（仅存量 L1 场景 WARN）、`check:arch:selftest` 11/11、`selftest:fast` 10 件 PASS、`typecheck` 0、beads 1134 例绿、`verify` PASS 22；金样本十态零漂移（签名变更不改绘制路径）。
-- **诚实限制**：① 规则是文本级 grep，只认调用名，判不了「同一个布局函数」的语义等价；② `UI_ARCH_EXCEPTIONS` 是文件级豁免（`meta-view` 整体放行 §20-3），随界面单元拆出逐条收；③ §20-1 只认 scrim+paper 同文件，跨文件自造弹窗仍可漏。
-
-## WXG-T-318
-
-**beads·P5·UI-51 文档回写：目录 / 路由表 / §20 守则 / ROUTES** · 负责：主理人(Qoder)·设计策略 + 工程负责人 · 状态：✅ 完成（2026-10-20）
-
-- **触发**：UI 架构迁移 P5 第二格（用户选下一步「1」）。验收口径 = 任务表原文「`check:links`、`ctx:check` 绿」；本批**纯文档、零代码**。
-- **`architecture-beads §3` 目录**：按现树重写 —— 新增 `ui/`（`ui-root` / `ui-host` / `phase-route-binder` / `main-menu-presenter`）、`game/beads-game/` 子模块与 `view/bead-styles/`；删除早已不存在的 `view/symbols.ts` 等陈旧条目。
-- **界面→路由表**：`ux-spec §2` 新增六行表（`menu` / `play` / `levels` 三条 page，`settings` / `signin` 两条 modal，对局相位面板标「后续单」），并写明 page 不透明 / modal 透明、View 不得用 `screen ===` / `overlay ===`；`arc-level-select-spec §2` 在栈深度红线内补路由身份（`levels` / `page`、`openLevels(arc)`、`back` = `close()`）。
-- **`control-manifest §20`**：落 ADR-0032 §8 五条守则（弹窗必经 `ModalFrame` / 遮罩只在 `UiTheme` / View 禁导航判断与游戏对象 / 绘制与命中同布局 / 路由只经 `Navigator`），并**如实登记两处已知偏离**（菜单侧 settings·signin chrome 仍直绘；`buildMetaView` 的 `data.overlay` 分支为唯一存量），避免守则先于事实。
-- **`ctx/ROUTES`**：§1.4 增「UI 架构五条守则」锚点（估 300 tok）；`check:links` / `ctx:check` 双绿。
-- **诚实限制**：机械守卫（`check:arch` 规则与负样本）归 UI-52；界面单元拆分（弹窗各画各的）仍待 UX 裁定。
-
-## WXG-T-317
-
-**beads·P5·UI-50 UiRoot 唯一绘制入口：并行开关退役** · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）
-
-- **触发**：UI 架构迁移 P5 首格（用户选下一步「1」）。验收口径 = 任务表原文「无重复实现残留；`framework:sync:check` 绿」。
-- **入口收口**：壳 `buildRenderModel` 只剩 `this._uiRoot.draw(builder, this.play.palette)`；删 `UI_ROOT_ENABLED` 开关与 `_drawDebugLayer` 双分支，`update` 每帧推进路由栈。`UiRoot` 仍是「可见路由自下而上 → 调试层最后」。
-- **视图绑路由**：`PhaseRouteBinder` 构造期注入 `PhasePageDrawers`（`menu` / `play` 两个闭包）——`menu` / `play` 路由的 `draw` 直接绑到 `buildMetaView` / `play.buildRenderModel`；`levels` 是页路由（挡菜单）⇒ 复用菜单腿入口（`data.overlay === 'levels'` 选整页分支）；`signin` / `settings` 透明弹窗 ⇒ 底下 menu 路由仍可见并画出弹窗，故两条弹窗路由 `draw` 为空。
-- **调试层归一**：`BeadsGame.drawDebugLayer` 与其 `_debugState` 暂存对象退役；调试数据只剩 `debugState()` 一个出口（`UiRoot` 宿主逐帧调用），文案与开关仍单源。
-- **零漂移**：菜单腿 / 对局腿的绘制调用与层序逐字未改（只是调用点从壳移到路由 `draw`）；`levels` 页路由与旧路径同源 ⇒ 金样本十态 sha 全等、夹具未重抓；调试层仍在内容之后。
-- **测试**：`ui-root.test.ts` 删「开关默认关闭」1 例（开关已不存在）；`phase-route-binder.test.ts` 第 6 例改为「基础页路由即绘制入口、弹窗不重复画」；`bead-style-settings.test.ts` 静态门改为「壳无开关 / 无 `_drawDebugLayer`、`buildMetaView` 与 `play.buildRenderModel` 各恰一处、注入先于绘制」。
-- **验证读数**：beads 97 文件 **1134**（1132 passed + 2 skipped）；`npx tsc`（beads + harness）双 0；`pnpm run verify` **PASS 22**；`framework:sync` 写 4 件（`beads-shell.ts` / `beads-game.ts` / `ui-root.ts` / `phase-route-binder.ts`），`.meta` 待编辑器生成。
-- **诚实限制**：逐单元路由绘制未拆 —— 弹窗 / 页各画各的会变成「弹窗下画菜单」（现有视觉是整屏重画、不画底页），属视觉变更，需 UX 裁定后另开单；对局相位弹窗仍归 `PanelRouter` 的点击分派（同上批）。
+---
 
 ## WXG-T-316
 
@@ -3805,6 +3054,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **验证读数**：beads 97 文件 **1135**（1133 passed + 2 skipped）；`npx tsc` 0 错；`pnpm run verify` PASS 22；Cocos 镜像 2 件随源更新（`beads-shell.ts` + 新 `phase-route-binder.ts`）。
 - **诚实限制**：`UI_ROOT_ENABLED` 仍默认关（拆旧链、开关退役 = UI-50）；对局腿相位弹窗（`paused` / `level-clear` / `game-over` / `finish`）仍由 `BeadsGame.phase` + `PanelRouter` 直接分派 —— 它们是**点击路由**、不持导航状态，搬上路由须先让面板 View 注册（UI-50）；金样本夹具 `_readme` 保留捕获当时的 `_overlay` 措辞（不手改夹具）。
 
+---
+
 ## WXG-T-315
 
 **beads·UI-40 MainMenuPage：走马灯状态从 shell 迁入 Presenter** · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）
@@ -3816,6 +3067,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **测试**：新增 `tests/main-menu-presenter.test.ts` 6 例 —— 点按进选关 / 末页空橱窗零事件、10px 点按线、不足 30% 回弹、过 30% 吸附翻页（中点仍在途、终点页位 +1 且位移归零）、吸附在途按下即停、首末页快甩与 ◀▶ 不越界。既有 `menu-carousel.test.ts`（8）与 `arc-carousel.test.ts`（6）全绿。
 - **验证读数**：beads 96 文件 **1129**（1127 passed + 2 skipped）；`npx tsc` 0 错；`pnpm run verify` **PASS 22**；Cocos 镜像 4 件随源更新（`framework:sync:check` 绿）。
 - **诚实限制**：UiRoot **路由注册与开关翻转**仍未接线（`UI_ROOT_ENABLED` 默认关；归 UI-42 PhaseRouteBinder），本批只交 Presenter 本体；`_overlay` 仍由壳持有。
+
+---
 
 ## WXG-T-314
 
@@ -3829,6 +3082,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **验证读数**：beads 95 文件 **1121**（1119 passed + 2 skipped）；framework `render-model` 26 例；`framework:sync` 后镜像 4 件更新（beads 3 / breakout 1）且 `framework:sync:check` 绿；`pnpm run verify` **PASS 22**。
 - **诚实限制**：UiRoot **页路由**（`_overlay` 退役）仍归 UI-40 / UI-42，本批只补「转场 + 透明度通道」；转场无音效（抽屉音需音频变更单，⛔ 不夹带）。
 
+---
+
 ## WXG-T-313
 
 **CI 运行面对齐 Node 24（原生 TS type-stripping）** · 负责：主理人(Qoder)·工程域 · 状态：✅ 完成（2026-10-20）
@@ -3840,6 +3095,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **不夹带**：未改任何测试、未放宽任何判据、未跳过任何检查；Node 24 与本地 验证环境一致。
 - **验证读数**：本地 `pnpm run verify` PASS 22（Node v24.4.1）；远端 CI 39366031955 / 39366031793 双绿（develop 自 2026-10-19 起首次全绿）。
 
+---
+
 ## WXG-T-312
 
 **协作纪律·完成即提交推送与提交总结** · 负责：主理人(Qoder)·工程域 · 状态：✅ 完成（2026-10-20）
@@ -3849,6 +3106,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **例外未变**：发布、删除高影响产物、改动他人未提交的工作树内容，仍须先取得用户明确同意；⛔ 强推、⛔ `--no-verify`。
 - **同批收口**：T-311 的「未提交 / 金样本 `capturedFrom` 记工作树」限制已闭合 —— 累积落码入库 `8e0d133`，金样本改用 `WXG298_SOURCE_REV=8e0d133` 复取（仅 `capturedFrom` 一行变化，十态 sha 不变，两遍确定性自证 PASS）。
 - **验证读数**：`pnpm run verify` PASS 22；金样本 11 例全绿。
+
+---
 
 ## WXG-T-311
 
@@ -3864,6 +3123,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **诚实限制**：① 已闭合 —— 累积落码入库 `8e0d133`，金样本按该 commit 复取（见 WXG-T-312）；② 200/150 转场与 UiRoot 页路由未接线（见上）；③ 缩略 134 对 256² 源清晰度仍 `[待真机]`（UI-34a 已登记）；④ 已闭合 —— `framework:sync` 已在提交前跑过，`framework:sync:check` 绿。
 - **验证读数（2026-10-20）**：beads **95 文件 / 1119 passed + 2 skipped**（较上批 +1 文件 +6 例）；`tsc --noEmit` OK；金样本 11 例全绿；`pnpm run verify` PASS 22。
 
+---
+
 ## WXG-T-310
 
 **beads·UI 架构迁移 P4·UI-34a 选关整页前置文档回写** · 负责：主理人(Qoder)·林绘澄／文策渊域 · 状态：✅ 完成（2026-10-20）
@@ -3874,6 +3135,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **为何不动共享常量**：`THUMB_AREA` 由 `WALL_CELL` 派生且是 `drawLevelThumb` 缺省值，直接改会连带主菜单橱窗；页专用值（格 170 / 间距 30 / 缩略 134）由调用点传入，`drawLevelThumb` 已有 `area` 入参 ⇒ 主菜单与选关页各自取参、零耦合。
 - **诚实限制**：① 三项核对中「真机观感」（整页格界可读性、平板/超宽屏缩略锐度）仍 **未验**，已登记 `menu-wall-signage-spec §7.3`；② 对比度结论为**接受现状**而非「达到 3:1」，若真机反馈轮廓糊再启用 `locked` 回退杠杆（一行换色）；③ `levelsLayout()` 仍走 `OVERLAY_PLATE` 600×720，**本批零代码**，落码归 UI-34；④ 9 格关卡结构（云端基底 vs 原型 CELLS 不一致）仍待用户裁定，不在本批射程；⑤ 本批无提交。
 - **验证读数（2026-10-20）**：`ctx:check` **OK**（A/B/C/D/D2 + E3 全过；主规格回写后仍 ≤8000 tok 门，未新增豁免）；`check:links` **OK**（agents=7 / skills=40）；`check:tasks` **OK**（主表 71 ⇔ 详情 71，配对完整）；`pnpm run verify` **PASS 22 / WARN 0 / SKIP 0 / FAIL 0**。
+
+---
 
 ## WXG-T-309
 
@@ -3887,6 +3150,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **诚实限制**：① `play-page.ts` 单文件 1467 行，是「先搬后拆」的中间态——UI-42 接 Presenter 后可再按 HUD / 棋盘 / 托盘分件；② Presenter 与 UiRoot 路由尚未接线（`UI_ROOT_ENABLED` 仍默认关），本批只是**绘制入口**收口；③ 棋盘手势 / 命中未动，符合条目「棋盘手势不动」；④ 视觉统一（弹窗 chrome / 托盘纸面板化）按 §9-5 **不夹带**；⑤ `.meta` 未触碰，Cocos 镜像由 `framework:sync` 写入 6 件（play-page / shape-utils / view-model / ui-theme / ui-widgets / meta-view）；⑥ 本批无提交。
 - **验证读数（2026-10-20）**：beads **94 文件 / 1113 passed + 2 skipped**（较上批 +1 文件 +3 例）；`pnpm run typecheck` 三包全过；`check:arch` OK（仅既有 L1 编辑器文件 WARN）；`framework:sync` beads 写入 6 / 未变 132 / 删除 0，`framework:sync:check` OK；`verify` **PASS 22 / WARN 0 / SKIP 0 / FAIL 0**。
 
+---
+
 ## WXG-T-308
 
 **beads·UI 架构迁移 P3·UI-32 SigninModal 签到内容块** · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）
@@ -3897,6 +3162,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **新增机检**：`tests/signin-content.test.ts` 5 例 —— 7 格版式（4+3 居中 / 全落底板内）、`metaLayout('signin')` 与 `signinCellLayout` 同源 + 领取/返回可命中、三态绘制（✓ 计数 / α 0.6 / 今日 4px 主色）、不可领取时今日按已领画、单源静态门（`meta-view` 不再自带签到字面）。
 - **诚实限制**：① 弹窗 chrome 未并入 `ModalFrame` —— 签到底板历史画法 = 无投影、无描边的素面 rect，与纸面板不同形，§9-5「视觉统一不夹带」⇒ 留给视觉裁定；② 不引入开合时钟 —— 签到入口已退役（Q5①，`ux-spec` §5.1b），无真实开启动线，⛔ 不造死路径；③ `.meta` 未触碰，Cocos 镜像由 `framework:sync` 写入 2 件（新件 + meta-view）；④ 本批无提交。
 - **验证读数（2026-10-20）**：beads **93 文件 / 1110 passed + 2 skipped**；`typecheck` 三包全过；`framework:sync` beads 写入 2 / breakout 0；`verify` **PASS 22 / WARN 0 / SKIP 0 / FAIL 0**。
+
+---
 
 ## WXG-T-307
 
@@ -3910,6 +3177,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **诚实限制**：① 入场中途反向（close 后再 open，<200ms）从当前进度续走（旧实现跳回 0）——`ModalLifecycle` 既定改善，与 UI-31 同源；② `open()` 重入不再把进度重置为 0（旧三件套会），现流程无此路径；③ 弹窗 chrome 视觉统一（遮罩 / 纸面板合一）按 §9-5 **不夹带**，另开 UX 裁定；④ `.meta` 未触碰，Cocos 镜像由 `framework:sync` 写入 4 件；⑤ 本批无提交。
 - **验证读数（2026-10-20）**：定向 5 文件 46 例全绿；beads **92 文件 / 1105 passed + 2 skipped**；framework **44 文件 / 482 绿**（未改动）；`tsc --noEmit` 0；`framework:sync` beads 写入 4 / breakout 0；`verify` **PASS 22 / WARN 0 / SKIP 0 / FAIL 0**。
 
+---
+
 ## WXG-T-306
 
 **beads·UI 架构迁移 P3·UI-31 PauseModal（动画改 ModalLifecycle + 设置钮绘制收口）** · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）
@@ -3920,6 +3189,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **新增机检**：框架 `modal-lifecycle.test.ts` +1（`reset()` 中途硬收且可重开）；beads `tests/pause-modal.test.ts` 4 例（入场可点 / 关合零响应 / reset 中途生效；chip 三态配色；选择器纸钮 + 小字档 + 文案同源）。
 - **诚实限制**：① 「复用 SettingsContent」只到**动作 / 文案 / 设置钮绘制**；暂停版式几何按 §8 仍住 `systems/pause-panel.ts`，未搬进内容块；② 暂停面板的弹窗 chrome（遮罩 / 纸面板 / 标题 / 进出场几何）仍由 `view-model` 直调 `ModalFrame`，等 P4 Presenter 收口；③ 入场中途反向（pause → resume → pause，<200ms）现从当前进度续走（旧实现会跳回 0）——这是 `ModalLifecycle` 的既定改善，现有测试未覆盖该路径；④ 本批无提交。
 - **验证读数（2026-10-20）**：beads **91 文件 / 1100 passed + 2 skipped**；framework **44 文件 / 482 绿**；`tsc --noEmit` 0；`verify` **PASS 22 / FAIL 0**；`framework:sync` beads 写入 4 / breakout 写入 1。
+
+---
 
 ## WXG-T-305
 
@@ -3932,6 +3203,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **诚实限制**：① 弹窗 chrome（遮罩 / 纸面板 / 标题 / 返回 / 在线导入）仍住 `meta-view`，本批只抽内容块；搬进 `ModalFrame` 属 UI-31（会改几何 ⇒ 需重抓金样本）；② 「调试分区」未加视觉分隔（Debug / 性能信息仍与其它钮同列）——加分区标题会改画面，按迁移期零漂移口径留待视觉裁定；③ 本批无提交。
 - **验证读数（2026-10-20）**：beads **90 文件 / 1096 passed + 2 skipped**；`tsc --noEmit` 0；`verify` **PASS 22 / FAIL 0**；`framework:sync` 写入 3。
 
+---
+
 ## WXG-T-304
 
 **beads·UI 架构迁移 P2·UI-25 UiRoot 组合根与 UiHost 接口（与旧链并行挂接）** · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）
@@ -3941,6 +3214,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **并行挂接口径**：开关关闭（默认）= 旧链直调 `play.drawDebugLayer`，逐字不变；打开 = `UiRoot` 接管调试层（可见路由 + DebugLayer），**内容仍由旧链画** ⇒ 随时可回退，P3 起逐界面注册为路由，P5 拆旧链后开关退役。
 - **验收证据**：`tests/ui-root.test.ts` 4 例 —— 开关默认 false；**空栈时与旧链 `drawPerfOverlay` 指令逐字相同**；page→modal→调试层顺序；调试关时路由照画、零覆层。金样本十一例零差异（默认关 ⇒ 帧不变）。全量 beads **89 文件 / 1091 passed + 2 skipped**；`verify` **PASS 22 / FAIL 0**；`framework:sync` 写入 4。
 - **诚实限制**：① 本批只有组合根与调试层接管，路由集为空（十个界面仍是旧链绘制，属 P3/P4 迁移范围）；② `UiHost` 暂无意图方法（无执行者，按 ponytail 不先造）；③ 本批无提交。
+
+---
 
 ## WXG-T-303
 
@@ -3955,6 +3230,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **验证读数（2026-10-20）**：beads **88 文件 / 1087 passed + 2 skipped**；`tsc --noEmit` 0；`verify` **PASS 22 / FAIL 0**；`framework:sync` 写入 3。
 - **差异处置**：调试开关默认关 ⇒ 默认画面零改；若未来默认开或改面板几何，须重抓金样本。
 
+---
+
 ## WXG-T-302
 
 **beads·UI 架构迁移 P2·UI-23 ScreenFrame + NavBar（安全区分区、胶囊避让）** · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）
@@ -3967,6 +3244,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **诚实限制**：① ScreenFrame 的「背景 / 调试层挂点」未出——背景各页异构、调试层属 UI-24；② `NAV_BAR_ICON` / `NAV_BAR_GAP` 尚无消费面，未入 §3 冻结；③ 本批无提交。
 - **验证读数（2026-10-20）**：`tsc --noEmit` 退出 0；`verify` **PASS 22 / FAIL 0**；新增单测 8 例绿。
 - **差异处置**：同前批——接线批（UI-25）若改画面，须先有 UX 裁定并重抓金样本。
+
+---
 
 ## WXG-T-301
 
@@ -3982,34 +3261,7 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **验证读数（2026-10-20）**：beads 全量 **86 文件 / 1074 passed + 2 skipped**；`tsc --noEmit` 退出 0；`verify` 读数见会话结论。
 - **差异处置**：同前批——只允许「源码形态变、像素流不变」；按钮视觉要改先有 UX 裁定并重抓金样本。
 
-## WXG-T-300
-
-**beads·UI 架构迁移 P2·UI-22 ModalFrame（遮罩 / 纸面板 / 进出场 / 点击屏障）** · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）
-
-- **任务（用户 2026-10-20 选下一步 A）**：按 [`ui-architecture-beads.md`](../docs/architecture/ui-architecture-beads.md) §12 UI-22「ModalFrame（遮罩、面板、标题带、进出场、屏障、内容插槽）」；验收原文 =「屏障单测；进出场与现行逐帧一致」。
-- **落点（1 新件 + 5 处消费面）**：`games/beads/src/view/modal-frame.ts` = `modalFrameLayout`（0.9→1.0 绕中心线性缩放，clamp 0..1）/ `drawModalScrim`（全屏遮罩，格式复用 `ui-theme::scrimFill`）/ `drawModalFrame`（遮罩 + 纸面板，返回内容区几何）/ `modalHitTest`（`content` / `block` / `dismiss`，`dismissOnScrim` 默认关）。迁移期落 `src/view/`，UI-25 总装时随 `ui-theme` 一起搬 `src/ui/kit/`。
-- **收口射程**：暂停 / 过关 / 失败三处「遮罩 + 纸面板」整体改由 `drawModalFrame`（暂停带进出场，过关/失败 `progress=1`）；冲刺结算 / 全通关只换 `drawModalScrim`——前者底板是手绘单层（无投影/无描边）、后者根本没有整块面板，强行并入即改像素流，按登记不并。
-- **逐帧一致（硬证据）**：`tests/modal-frame.test.ts` 把收拢前 `drawPausePanel` 的算式原样留作 oracle，对 `t = 0 / 0.25 / 0.5 / 0.75 / 1` 断言 `toEqual`（同序浮点 ⇒ 位级相等，不是近似）；另钉 `t=1` 还原静止态边界、`t=0` 从 0.9 起且中心不动、越界 clamp。
-- **屏障单测**：面板内含边界 ⇒ `content`；面板外默认 ⇒ `block`（暂停面板「其余零响应」口径）；`dismissOnScrim=true` ⇒ `dismiss`。
-- **金样本验收**：`tests/ui-golden.test.ts` **11 例全绿、夹具零改动**（十态 sha/total/kinds 全等）⇒ 静止态无漂移，满足 §9.4。
-- **静态门同步**：`bead-style-settings` 改钉 `drawModalFrame` 3 处 + `drawModalScrim` 2 处 + `scrimAlpha` 档位 3 处 + DEBUG 0.7 1 处；并禁止 `modal-frame.ts` 硬拼 `rgba`（字符串格式唯一真源仍 = `ui-theme::scrimFill`）。
-- **诚实限制**：① `meta-view` 的 overlay 遮罩未接——其高度读菜单锚定档 `A.H` 而非 `builder.height`；② 标题带未参数化——暂停标题 y 不随缩放走（现行行为），抽成随缩放会改像素流，留给后续统一裁定；③ 本批无提交，工作树另含 T-296/297 历史未提交件，提交需人工分拆。
-- **验证读数（2026-10-20）**：beads 全量 **85 文件 / 1068 passed + 2 skipped**；`games/beads` `tsc --noEmit` 退出 0；`pnpm run verify` 读数见会话结论。
-- **差异处置**：只允许「源码形态变、像素流不变」；要改遮罩/面板视觉先有 UX 裁定并在 §12 登记，再由 `ui-golden-capture.ts` 重抓，⛔ 不得手改夹具求绿（K-051 / K-053 / K-082）。
-
-## WXG-T-299
-
-**beads·UI 架构迁移 P2·UI-20 UiTheme 风格层（遮罩 / 纸面板 / 字体 / 按下位移收拢）** · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）
-
-- **任务（用户 2026-10-20 选下一步 A）**：按 [`ui-architecture-beads.md`](../docs/architecture/ui-architecture-beads.md) §12 UI-20「UiTheme：收拢遮罩（保留双档名）、纸面板、字体、按下位移」；验收原文 =「金样本中两种遮罩逐字一致」。
-- **落点（1 新件 + 4 处消费面）**：`games/beads/src/view/ui-theme.ts` = `UI_FONT`（字面并集）/ `UI_SCRIM`（canvas `42,46,67` · overlay `0,0,0` · 双档 α）/ `scrimFill` / `pressOffset` / `drawPaperPanel`；`view-model.ts` 与 `meta-view.ts` 改为消费本层（本地 `drawPaperPanel` / `pressDy` 实现删除，仅留 1 行包装）。
-- **双档遮罩零漂移**：`PANEL_SCRIM_ALPHA`（0.5）与 `SETTINGS_SCRIM_ALPHA`（0.3）**名字与值均未动**，仍住 `tuning.ts`，`UI_SCRIM` 只引用；两族 RGB 历史不同源（画布 `42,46,67` / 菜单 overlay `0,0,0`）⇒ 只收拢不洗色（ux ①「RGB 零改动」）。`bead-style-settings` 静态门同步改为钉 `scrimFill(UI_SCRIM.canvas|overlay, …)` 穷尽 6 处。
-- **按下位移单源**：`UI_CONTAINER.pressDy` 由字面 `2` 改为引用 `UI_PRESS_SINK`，两处同值常量不再可各自漂移。
-- **金样本验收（硬证据）**：`tests/ui-golden.test.ts` **11 例全绿、夹具零改动**（十态 sha/total/kinds 全等）⇒ 两种遮罩与全部十界面逐字无漂移，满足 §9.4「不得有无登记的差异」。
-- **新增机检**：`tests/ui-theme.test.ts` 4 例（两族 × 双档 `rgba` 逐字、双档名指向在册值、位移三分支、按钮字重不互换）。
-- **诚实限制**：`meta-view` 的 overlay 底板（无投影/无描边的单层 `palette.panel`）**未**并入 `drawPaperPanel`——并入即改变像素流；统一留给 UI-22 ModalFrame。DEBUG 覆层 0.7 只复用 `scrimFill`，不属双档。
-- **验证读数（2026-10-20）**：beads 全量 **84 文件 / 1061 passed + 2 skipped**；`games/beads` `tsc --noEmit` 退出 0；`pnpm run verify` **PASS 22 / WARN 0 / SKIP 0 / FAIL 0**。
-- **差异处置**：本批只允许「源码形态变、像素流不变」；若未来需改遮罩/面板视觉，先有 UX 裁定并在 §12 登记，再由 `ui-golden-capture.ts` 重抓，⛔ 不得手改夹具求绿（K-051 / K-053 / K-082）。
+---
 
 ## WXG-T-298
 
@@ -4025,6 +3277,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **差异处置（正本纪律）**：任一态红 ⇒ 先查 UI 渲染路径是否被改；视觉变更须先有 UX 裁定并在 `ui-architecture-beads` §12 登记，再仅由 `ui-golden-capture.ts` 在**可复现锚**重抓；⛔ 不得手改夹具求绿（K-051 / K-053 / K-082）。
 - **后续联动**：UI-20/21/22/23/24 与 UI-30/31/32/33/34/40/41 的「金样本对拍」验收直接消费本夹具；新增界面或状态 = 扩 `STATES` + 重抓（覆盖腿会拦掉漏登记）。
 
+---
+
 ## WXG-T-297
 
 - **任务**：beads UI 架构迁移 P1 收口——“UI-13 SafeInsets + UI-14 完整闭环”（用户 2026-10-20 选下一步 A）。
@@ -4032,6 +3286,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **测试**：新增 `tests/core/safe-insets.test.ts` **7 例**（dp→设计换算与 y-up 翻转、三段带、安全区上沿低于胶囊时取安全区、无胶囊为 `null` 而非零矩形、字母屏 `1/scale`、超屏 clamp、缓存命中 / 视口变化 / 平台变化重算）；`tests/platform/platform.test.ts` 补 weapp 完整矩形、反相矩形归 `null`、web / node 各补 `capsuleRectDp === null`。framework 全量 = **44 文件 / 481 例绿**。
 - **验证读数（2026-10-20）**：`pnpm --filter @wxgame/framework run typecheck` 退出 0｜`pnpm run check:arch` OK（L2 无违规）｜`pnpm run framework:sync` = beads / breakout 各写入 **6**（`safe-insets` + 4 件改动 + 导出行），`framework:sync:check` 绿｜`pnpm run verify` = **PASS 22 / WARN 0 / SKIP 0 / FAIL 0**。⚠ 新增拷贝件无 `.meta`，需开 Cocos 编辑器生成（L1）。
 - **状态**：✅ 完成（2026-10-20）。UI-14 至此全量闭环；下一关键路径 = UI-20 UiTheme（依赖 UI-14）或 UI-02 金样本（UI-30 前置，可并行）。
+
+---
 
 ## WXG-T-296
 
@@ -4042,6 +3298,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **测试**：新增 3 文件 **21 例**（Navigator 7 / ModalLifecycle 8 / PressTracker 6），逐条覆盖 §12 验收：push / pop / replace / reset 与屏障、开合与中途反转、移出取消与同帧即时点击；另含 `visibleRoutes` 复用数组、`reset` 的 onExit/onEnter、负 dt 与超长 dt clamp。`packages/framework` 全量 = **43 文件 / 474 例绿**。
 - **验证读数（2026-10-20）**：`pnpm --filter @wxgame/framework run typecheck` 退出 0｜`pnpm run check:arch` OK（L2 无违规，仅沿用 1 条 L1 编辑器产物提醒）｜`pnpm run framework:sync` = beads / breakout 各写入 5（三件 + `ui/index` + `core/index`），`framework:sync:check` 绿｜`pnpm run verify` = **PASS 22 / WARN 0 / SKIP 0 / FAIL 0**。⚠ 新增拷贝件无 `.meta`，需开 Cocos 编辑器生成（L1，脚本不碰）。
 - **状态**：✅ 完成（2026-10-20）。遗留：**UI-13 SafeInsets** 未开工（需 `PlatformInfo` 补胶囊完整矩形 + weapp / web / node 三适配器单测）；**UI-14** 的 UI-10…12 导出与镜像已落，`safe-insets` 导出待 UI-13。✅ **两项均于同日由 WXG-T-297 收口**；UI-02（金样本）与 UI-13 可并行。
+
+---
 
 ## WXG-T-295
 
@@ -4093,306 +3351,7 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **未做 / 下一步**：① ~~用户扫码测 6a（甲 拖出后抬起不弹 / 乙 原地抬起弹暂停）~~ ✅ **已完成，甲/乙 双过**；② ~~回填走查单 D-79 判定列 + `test-cases` 旧读数升降 + `input-control` §2.1 交叉引用~~ ✅ **已回写**（见上一条）；③ **6b 道具卡 / 6c 结算主钮 / 6d 误取消主观读数仍未测**；④ ✅ **已整笔入库 `bd964a0`（81 文件，含拆分批 / BD-62 连带；未 push）**；⑤ `meta-view` cap 行仍写字面 `4`（与 `SAFE_EDGE_MARGIN` 同值，本轮刻意不动源码以保「23:29 构建新鲜」）；⑥ D-79 证据档位仍 = **用户口述**，若提审前需要可补 `hdc` 帧。
 - **验证（文书面）**：`check:links` OK；回填后全量 `verify` = **PASS 22 / WARN 0 / SKIP 0 / FAIL 0**（含 `check:tasks` / `check:links` / `typecheck` / `test` / `cocos:check` / `check:size`）。本轮零代码改动，23:29 产物未变（不需要重出码）；提交后复跑 `verify` = **PASS 22 / FAIL 0**。
 
-## WXG-T-341
-
-**工程·beads-studio 大关/小关管理 + 分大关导入 + 替换图案 · 负责：主理人(Qoder) · 状态：✅ 完成（2026-10-21）**
-
-- **诉求（用户原话）**：「后期重新调整关卡时候，不要再动代码，直接通过 studio 完整管理大关列表和小关列表，并且能够创建/编辑小关，分大关导入系统」。四项拍板：编辑深度 = 管理+替换 / 导入 = 一键生效（写盘后自动 `levels:sync` + `framework:sync`，失败整批回滚）/ 章管理 = 完整含删除 / 推进 = 直接开单分批（① 列表+导入链 ② 替换图案 ③ 回写收尾）。
-- **缺口（开工前）**：旧 ingest 只能「往指定章插关」，无列表、无调序/移章/删除、无建章 ⇒ 每次调关都要手改 `manifest.json` / `chapters/*.json`，违背诉求。
-- **交付一（批次① ae4af5c）**：`tools/scripts/chapter-store.mjs` 纯函数库（`moveChapter` / `moveInChapter` / `insertBeforeBoss` / `swapToEnd` / `setEntryKind` / `removeEntryByUid` / `renumberIds` / `expandedCount` / `syncDemoLevelCount` 等，node:test 12 例）+ `server.mjs` 新端点：`GET /api/manage/state`（章/关轻投影）、`POST /api/manage/verify`（复跑 sync）、`POST /api/manage/chapter`（建章 + 首关 boss，展示图 dataURL 落 `assets/<id>-boss-256.png`）、`POST /api/manage/chapter/:id/(rename|open|move|delete)`（delete 支持 move 并入 / delete 级联）、`POST /api/manage/level/:uid/(remove|move|rename|boss)`；`public/manage.html` 管理页 + 生成页入口改跳转（`/manage.html?result=`）。
-- **交付二（批次② cb6c14d）**：`POST /api/manage/level/:uid/replace {resultId}` —— 同 uid 换图案/实测时长，关名/关号/章位不变；仅 single/boss（plate 多文件产物 → 删后重导）；字段显式重建（不 spread 旧 `misplaced` / `paletteCodes`）；管理页每行加「替换图案…」下拉（仅非 plate，options = ≤32 结果）。
-- **事务模型（唯一写入口 `applyManage`）**：快照 levels 树 Buffer + tuning 原文 → `mutate(ctx)` 同步写盘 → `writeManifest(contentVersion+1)` → `renumberIds` → `syncDemoLevelCount`（门禁⑤ 联动，同值 no-op）→ `runSync()`（levels:sync + framework:sync）；sync 任一断言红 ⇒ `restoreTree` + 写回 tuning + 重跑 sync + 500 转达 stderr 尾 1200 字；mutate 内用户域拒绝用 `ManageError(msg, 422)`。
-- **双轴口径**：展示轴 = 章 `levels[]` 数组序；id 轴 = manifest `order` 升序装配后下标 +1（renumber 统一分配）。`order` 只要求严格递增、允许空洞（retired 先例）⇒ 删 entry / 章内调序 / 移章都不需要重排 order；新增关写 `id: 0` 占位。沉淀 **K-148**。
-- **冒烟（本地 `PORT=8899`）**：成功路径 = L00009 22×21/477s → **28×30/997s**（200，name/id/章位不变）、章内调序往返、建章（`testch`，L00010 997s）、删章级联、open 往返；拒绝路径 = 容量 `9+1 > 9` 422、门禁⑦ boss steps < 120 回滚、门禁⑥ DI 并列回滚、L99999 / 未知 result 404。**测后 `git checkout -- games/beads/design/levels games/beads/src/config …` 还原，真源零残留**（测试图移入 `temp/`）。
-- **验证**：`node --test tools/scripts/chapter-store.test.mjs` **12/12**；`pnpm run levels:check` 2 款游戏全绿；`verify-all --steps=check:arch,check:es5spread,check:secrets,levels:check,framework:sync:check,typecheck` **PASS 6/6**；`kb:sync` 沉淀统计 = **新增 1（K-148）/ 修改 0 / 激活 0 / 归档 0**；`kb:check` 八重 PASS。
-- **提交**：批次① `ae4af5c`（5 files +1280/−116）、批次② `cb6c14d`（2 files +67/−2）；推送 `git ls-remote` = `cb6c14d…`、`git reflog show origin/develop` = `update by push`（K-142 双证）。
-- **未做**：① plate 单关替换（删后重导）；② 章展示图创建后不可换（只新建时上传）；③ 容器/VPS 501（无 `games/` 真源，属预期）；④ ①半透(UI-60) / ②BD-62 / ③橱窗灯光 / ④暗线 未混做。
-
-## WXG-T-342
-
-**工程·beads 扩池存档迁移腿（前缀搬运）+ S8 §2.4 改判 · 负责：主理人(Qoder) · 状态：✅ 完成（2026-10-21）**
-
-- **诉求（用户选择）**：对 WXG-T-341 回传的三个后续选项选 **1** = 「补存档迁移腿并开单」——把 341 登记的发布红线（扩池即清档）真正接线，而不是只留一句警告。
-- **判据变更授权**：该项本质是 S8 存档降级矩阵的裁定变更（「长度不符 → 重置全 0」→ 「前缀搬运」），按纪律需开单 + 用户授权；本单即该授权落点（用户选 1 = 批准改判）。
-- **文档先行（3 处）**：① `gdd/save-progress.md` 升 **v1.2**：§2.2 `stars` 降级默认列由「全 0」改「前缀搬运、缺位补 0（非数组仍全 0）」；§2.4 矩阵行改写 + 新增 v1.2 说明块（含旧口径留档与**能力边界**）；§8-3 旧口径就地标注 + **新增 §8-14 迁移腿判据**（四臂：前 N 位无损 / 末位补 0 / 首次 `changed` / 二次幂等）；顺手登记 §8-3「钳 8」与 §2.4 行及代码不一致（既存漂移，本批只登不改）。② `levels/levels-spec.md` §11.7 补「✅ v1.22 已落地」+ ⚠ 能力边界（只对末尾追加成立）；§10 新增 v1.22 行；§3.1① v1.21 块那句「老档历史星清零」加「已于 v1.22 改为前缀搬运，此句为 v1.21 留档」注。③ `ux/arc-level-select-spec.md` 无需改（与存档语义无关）。
-- **代码（1 处，root cause）**：`src/game/save-schema.ts::normalizeStars`——原写法 `if (!Array.isArray(raw) || raw.length !== levelCount) return out;`（全或无）→ 现 `if (!Array.isArray(raw)) return out; const carry = Math.min(raw.length, levelCount);`（前缀搬运）。无新函数、无新字段、无 `SAVE_VERSION` bump（§8-14 与 S8 §8-12 一致：patch 型全量写档）。framework 镜像由同步腿自动跟随。
-- **测试**：`tests/save-schema.test.ts` —— 原「长度不符 → 全 0」单臂拆为**三臂**（短⇒前缀搬运 / 长⇒截断 / 非数组⇒全 0）+ 新增 §8-14 专测（9 位旧档喂 10 关池：前 9 位无损、末位 0、首次 `changed=true`、二次 `changed=false`）⇒ 17→18 例；`tests/arc-level-select.test.ts` R4/R5 的注释同步改口径（旧句说「写错会静默清星」，现为「会被静默搬运成末位 0 ⇒ 不报错但对不了位」，夹具仍按池长派生）。
-- **变异自证**：把 `carry` 临时改回「长度相等才全搬、否则 0」⇒ **恰好 2 例红**（三臂那条 + §8-14 专测），其余 16 绿；`cp` 逐字节还原后复绿。
-- **验证**：beads `npx vitest run` = **1141 passed + 3 skipped（98 文件）**；`pnpm run verify` = **PASS 22 ｜ FAIL 0**（其中 `framework:sync:check` 首轮曾瞬时红：校验早于镜像写入，单跑 `pnpm run framework:sync:check` 与重跑 verify 均绿）。
-- **能力边界（新增红线，已写入两处正本）**：前缀映射只在**末尾追加**关卡时成立；中间插入 / 删除 / 重排会让星静默错位且不报错 ⇒ 那类变更须另开迁移单，按稳定 uid（`orders` / `uids`）而非下标对位。生成期门禁目前**不**强制「只许末尾追加」，该约束靠发布流程守。
-- **未做**：① 未做「中间插关」的 uid 对位迁移；② 未在真机验旧档升级（无 AppID）；③ 未清理 `save-progress §2.2` 既存的「`version` 恒 1」陈旧描述（属另一族漂移，本批只触星表相关行）；④ ①半透(UI-60) / ②BD-62 / ③橱窗灯光 / ④暗线 未混做。
-
-## WXG-T-343
-
-**设计+工程·beads 存档改按关卡身份记账 + 大关推进门票 · 负责：文策渊（设计轨）/ 程基岩（工程轨）/ 主理人汇编 · 状态：✅ 决策入库（2026-10-22）· 纯文档批、零落码**
-
-### 1. 诉求与范围（用户原话）
-
-- 前提令：**「存档当前大关所有关状态，有一个很重要前提，每大关所有关需要获取到3星，才能凑足打开下一个大关的钥匙。」**
-- 范围令：**「存档与门票一起做」** ⇒ 本批同时处理两件事：（甲）存档从「按第几关（数组位置）」记账改为「按哪一关（稳定身份）」记账；（乙）把早已冻结但运行时零实现的「本章每关都拿满三星才能进下一章」补齐可算的数据基础与界面告知。
-
-### 2. 阶段 0 诊断（主理人）
-
-- 本批不从零起：它是 WXG-T-342 详情节「未做」第①项（未做中间插关的身份对位迁移）的直接接续，也是 EP14 里挂着 `[待规格]` 的 S4 的解锁前置。
-- 跨职责域（设计语义 + 工程架构 + Epic 拆分）⇒ 按编排法双轨并行 spawn，主理人不代笔任何一方正本。
-
-### 3. 设计轨产出（文策渊 T-1 + 复批 T-1R）
-
-- `games/beads/design/gdd/save-progress.md` 升 **v1.3（同批复批 R）**：
-  - 新增 **§2.6「按大关组织的进度存档」**——只定「存什么」：§2.6.1 存档需承载的信息、§2.6.2 信息充分性表（I1–I7 七条断言，例如 I5「门票不得作为布尔入档」、I6「已推进到第几关无法从星数账派生」、I7「门票一旦成立不因后续改动回收」）、§2.6.3–2.6.4 边界原则与降级场景、§2.6.5 对 v1.2「前缀搬运」的唯一裁定（降格为「无身份旧档的一次性入口」，⛔ 不留两套并存规则）、§2.6.6 上架后再改存档结构的四条前置（迁移腿幂等永不抛 / 镜像用例 / 灰度 / 数值真源对账）。
-  - **§2.2 字段表与 §2.4 降级矩阵按新语义同步**（四行新增），§8 新增八条验收判据 **15～22**：门票可算性、改关表顺序免疫、孤儿记录逐条作废不弃整档、章维变更无损、推进位不可派生、门票不回收、旧档一次性入口、内容身份唯一性与同命。⚠ 八条**全属待实现判据**（代码一行未改 ⇒ 落码前直接跑只能拿红基线，K-035）。
-  - 本篇刻意**不写键名、不写序列化形态、不选迁移算法**（文首「刻意例外」不变），把「怎么存」全权交给工程轨。
-- `games/beads/design/gdd/meta-ui.md` 升 **v0.5** §2.7：大关进度与本章满星的两层口径表。
-- `games/beads/design/ux/arc-level-select-spec.md` 升 **v1.10** §4.1：锁格告知件 = 一枚常驻只读的「满星 n/N」小件；点锁格不弹窗、不扣体力。
-- `games/beads/design/proposals/star-collect-rule.md` 升 **v0.4**：划除 R6 中「`starsByLevel` 存档零改动」半句（按 K-053 删除线留痕 + 写两条废除理由 + 登记两处同源漂移）；**总星数口径（历史最高星求和）不受影响**；R7（门票 = 本大关全部小关 3★）寻址轴改述。
-
-### 4. 工程轨产出（程基岩 T-2 + 复批 T-2R）
-
-- 新 **`docs/architecture/adr/ADR-0034-beads-save-uid-index-flatten.md`（Accepted，328 行）**：
-  - 逐条实测取证十条（存档三处进度全是位置别名 / 运行时关表不带身份 / 生成期已有「数组下标 = 装配槽」硬断言 / 删关即整体重编号 / 存档读写各只有一个边界点 / 未上架故无外部玩家档 / 包体现读 3312.7 KB 余量 783.3 KB）。
-  - 四案对比后**采纳甲案**：存档按关卡稳定身份记账（`Record<身份, 历史最高星>`），运行时仍是按下标的稠密数组；身份与下标的换算只发生在**读档展平**与**写档收拢**两个既有边界点，各恰一次（不在每帧路径 ⇒ 不顶撞热路径零分配）。否掉三案：另加一条并行键数组（身份与值分两家、长度不齐时无从配对）、运行时全面改成身份索引（七处消费点换形 + 破坏视图只读契约，收益与甲案相同）、生成期冻结关表顺序（直接废除 studio 既有的调序与删后重编号能力，而该能力是产品要求）。
-  - 桥接通道取「关卡记录各自带身份」，章归属**不入档**（每次构建由章清单重新派生）；存档版本 4→5（属换制非加字段）；迁移函数只做版本标记，真正的对位换算落在读档归一化的形态探测三级规则里；门票 = 纯函数、布尔不落档、不复用既有的 `allCleared` 标记、不做运行期活锁。
-  - **七步施工清单**（生成期通道 → 存档换制 → 门票纯函数 → 闸门接入 → 测试族换形批 → 包体与漂移复测 → 迁移链改严）+ 逐步前置与并行关系；**变异自证十七臂**（含命门三臂：换算里忽略键表退回前缀搬运必须红、把「等于满星」松成「大于零」必须红、门票回收造成活锁必须红）；**向设计轨的提问单 Q1–Q7 全部闭合 ⇒ 落码批无待裁项**。
-- `production/epics/epics-beads-ep14.md`：新增 **S6「存档身份换制（按 uid 记账）+ 生成期通道 · L · READY」**；**S4 由 BLOCKED 转 READY**（阻塞项 `[待规格]` 已清零）；§4 旧的「存档结构变更 0」按 K-053 划线改判；§5 风险表新增四条。
-
-### 5. 两轨冲突与复批（本批唯一实质改判）
-
-- **冲突**：设计正本 §2.4 新行与 §8-18 都预设「存档内部引用了章的身份」；工程采纳形态明确**章编号不进存档** ⇒ 「存档引用一个不存在的章」在真实形态下构造不出来，落码批无从据此造测试夹具。
-- **处置**：工程轨只提改写请求不代笔，设计轨复批**采纳更强口径**——「改章名 / 删一章 / 章间挪关 ⇒ ⛔ 不得作废任何关级记录」；§8-18 整条重写为**单个测试夹具即可构造**的三臂判据（三种章维变更各一臂，外加一条静态臂：门票归约的输入里不允许出现章编号），原「不复用 `allCleared`」的禁令逐字保留；同时新增 §8-22（内容身份唯一性与同命，正是工程侧生成期三条断言的判据源）。
-- **随动**：判据族由七条（15～21）扩为八条（15～22），工程轨两份文档的引用号同步改；主理人另订正一处措词残留（§2.4 第三行的「或章」二字，因采纳形态下章维不可能单独失配）。
-
-### 6. 遗留与代价（⛔ 不阻塞落码批，但开工前须知会）
-
-- ① **已知代价**：换制批开工时，开发期本地档与真机扫码档**至少清一次**（新旧形态不可互读），须在 QA 冒烟前告知；
-- ② 冻结常量表 `systems-index §3.7` 说明列仍写「存档结构零改动」，与本批冲突 ⇒ 需一张**零数值措辞订正单**（用户令 ⛔ 本批自行触 §3）；
-- ③ 工程侧侧问「plate 大图改格数时该记什么」尚未进 §2.6.3 场景矩阵（R-3 未答）；
-- ④ 「改章编号」目前无机械守卫（历史台账 + `levels:check` 断言）⇒ 需另单（R-2）；
-- ⑤ 换制批与内容投放批 ⛔ 不得同期（R-1）；
-- ⑥ `star-utility.md:30` 的同源漂移归皮肤批；
-- ⑦ EP14-S5 仍阻塞在教学关规格；
-- ⑧ 真机与上传腿一律 `[Blocked]`（无 AppID / 无密钥）；
-- ⑨ 工作区另有 `apps/beads-studio/public/index.html` 与 `manage.html` 两个他人改动 ⇒ 本批不代提交、不代还原，归属待用户确认。
-
-### 7. 验证
-
-- 纯文档批：零 `src/**` 改动 ⇒ 不新增测试。全量门禁实跑两轮：首轮 FAIL 2（`check:tasks` + `selftest:fast`）——确诊为**台账登记的竞态**：`verify` 跑到该校验时，主表已有 343 行而详情节尚未写完（配对关系临时不齐）；单项重跑均绿。补完后第二轮 = **`verify` PASS 22 ｜ FAIL 0**（含 `check:tasks` 主表 104 行 / 详情 104 节配对完整、`check:links`、`levels:check`、`typecheck`、测试族 8.8s、`check:size`、`selftest:fast` 10/10）。
-- `kb:check` 八重 **PASS**（活跃 151 / 归档 0）；`kb:sync --task=WXG-T-343` 沉淀统计 = **新增 2（K-153 双轨并行预设冲突 / K-154 文档内部编号转述断链）/ 修改 1（K-154 换标签与换片，缘由见下条）/ 激活 0 / 归档 0**；`kb:audit` 无相似命中（归档候选 0）；`ctx:build` 已刷新索引面，`ctx:check` **OK**（结构门 A/B/C/D/D2 与 E3 全过）。
-- ⚠ **`ctx:check` B 门（单文件 ≤8000 tok）首次拦下本批提交（4 件），已按既有口径分两路处置**：① `knowledge/lessons/criteria.md` 加完 K-154 后达 8386 tok ⇒ 按 `knowledge/INDEX.md §2`「**新标签 = 新建一片**」与「⛔ 不走豁免」（判例 WXG-T-041 + K-025），把该条子切为新片 `knowledge/lessons/doc-reference.md`（标签 `文档引用`，正文逐字不动、ID 仍 K-154 ⇒ kb:sync 记为「修改 1」）；② `ADR-0034`（20055）/ `save-progress.md`（15065）/ `meta-ui.md`（9770）三件属 ADR 与 GDD 正本（决策↔取证行号须同页互查、QA 按 §8 逐条造用例）⇒ 走 `ctx/budget-exempt.json` 豁免登记（与 ADR-0011/0015/0020/0022/0023/0024/0030 与 systems-index/core-loop/input-control/pause-settings/bead-grid/arc-level-select-spec 同族，均 WXG-T-343 登记 + 写明理由）。
-- ⚠ `check:tasks` 附观察哨提示：主表 104 行 > 收敛阈值 20 ⇒ 建议另批 `pnpm run tasks:archive`（本批未做，⛔ 归档会移出历史行，属高影响动作须明令）。
-- ⚠ 陈旧计数订正三处（本批主理人代修，属机械计数非语义改判，已申报）：`save-progress.md` 版本头、§2.6.5-3、§8-14 交叉引用仍写「15～21」，与 §8 末「15～22 八条」自相矛盾 ⇒ 已全部同步（设计轨成员复批时遗留）。
-
-## WXG-T-344
-
-**工程+设计·beads 存档改按关卡身份记账 · 落码批（星账腿） · 负责：程基岩（工程轨 T-3 落码 / T-2S 文书同步）· 文策渊（设计轨 T-1S 文档刷新）· 主理人切批与汇编取证 · 状态：✅ 落码入库（2026-10-22）· 关键路径前半，⛔ 整条换制未完成**
-
-### 1. 立项与切批口径
-
-- 用户对上批（WXG-T-343 纯文档批）回传的后续选项选 **1 =「发落码任务单，按七步顺序开工」**，并被告知这一步会真的清一次开发期存档。
-- 主理人切批（不另开一问，理由记在此）：先发**星账腿** = ADR-0034 施工清单的 **S-1（生成期给关卡数据带上身份）/ S-2（存档格式换制）/ S-5（测试夹具同转换形）/ S-6（包体·漂移·镜像复测）** 四片。因为夹具换形必须与格式换制同批提交才不会出现「批量假红」；而「满星钥匙」的纯函数与闸门接入要动界面消费点，混在一批里失败用例难以归因 ⇒ **S-3 / S-4（门票两片）+ S-7（迁移链改严）留下一批 WXG-T-345**。
-
-### 2. 落地面（做什么，玩家可感口径）
-
-玩家侧的变化只有一条：**存档里的星星从此按「哪一关」记，不再按「第几关」记** ⇒ 中间插一关、调整大关内展示顺序、删一关，都不会再让已经拿到的星星静悄悄串到别的关上；旧的「按第几关」存档在第一次读取时一次性对位搬运，此后不再走那条路（搬运腿已被物理清除，不留双轨）。
-
-| 片 | 落到的文件 | 实测口径 |
-|---|---|---|
-| **S-1 生成期通道** | `tools/scripts/sync-levels-data.mjs`（身份 token 派生 + 装配期三条断言）、`games/beads/design/levels/levels-data.header.txt`（字段说明）、产物 `src/config/levels-data.ts`（**每条记录首键 = `uid`**，只由 `levels:sync` 生成）、`src/config/levels.ts`（只读身份键表通道）、`tools/scripts/sync-levels-data.test.mjs`（生成期断言与夹具，宿主全量 **38/38**） | token 规则照决策原文：普通关 = `L000NN`，大图盘逐格加 `#c` 后缀；`arcs.ts` 与章清单**零改动**（章归属仍每次构建派生） |
-| **S-2 存档换制** | `src/game/save-schema.ts`（`SAVE_VERSION` 4→5 现读 `:127`；星账字段 `starsByUid` `:112`；`migrateV4ToV5` `:170` 只作版本标记；形态探测三级 `normalizeStarLedger` `:318`；展平 `flattenStars` `:469`／收拢 `collapseStars` `:488`／写回物理清除 `toBeadsSavePatch` `:510`；`normalizeBeadsSave` 加第三参 `:401`）、`src/game/beads-game.ts`（启动装配处展平、`_persistProgress()` 收拢、身份只读镜像仅**两装配点**构造）、`src/game/level-import.ts`（开发期导入追加身份轴） | 身份↔下标换算**只发生在这两个本来就存在的读写边界点**，各恰一次，不进每帧路径；未知键丢弃 + 一次性汇总告警，⛔ 抛异常、⛔ 不弃整档；框架 core 零改动（旧键物理清除走游戏侧补丁，因框架浅合并不删键） |
-| **S-5 测试族换形** | `games/beads/tests/` **7 改 + 1 新增**（新增 `save-identity-boot.test.ts` = 运行期双腿，实读 10 例），身份形态位点实增 **67 处** | 与决策清单「29 处 / 14 文件」**不一致**：那 14 个 grep 命中里 7 个文件的 `starsByLevel:` 是渲染入参（运行时下标轴）而非存档文档形态，不需换形 ⇒ 口径就地订正并记账，⛔ 不改决策本体 |
-| **S-6 复测** | 无代码，只跑命令：`levels:sync` → `levels:check`（零漂移）→ `framework:sync`（镜像 5 件同步到 `games/beads/cocos/assets/scripts/game/**`）→ `build:cocos`（默认 release 基线档）→ `check:size` | 主包 **3312.7 → 3314.4 KB / 111 件不变**，余量 781.6 KB；Δ **+1.7 KB** 未触「>4 KB 停批」阈，但**比原估算（+130 B）大一个量级** ⇒ 根因 = 初稿只估了数据腿、漏估新增代码腿，已在决策文 §6.2.3 就地订正 |
-
-### 3. 自证与验证读数
-
-- **故意把代码改坏、看测试是否报警**（变异自证）：本批实跑 **11 臂 + 1 子臂**，每臂「注入 → 记红数 → 逐字节还原（SHA-256 对账）→ 复绿」，工作树零变异残留。命门臂 = **在换算里故意忽略身份键表、退回按位置搬运 ⇒ 插一关夹具必读错格**（实测红 4 例，读数 `expected [3,0,3,0] to deeply equal [3,0,0,3]`）；另有「旧键不再被点名清除」红 5 例、「孤儿键不裁剪」红 3 例、「星数上不封顶」红 1 例（`expected 5 to be 3`）、「启动多写一次档」红 2 例。逐臂台账 = ADR-0034 §6.2.2。
-- **两处「计划 ≠ 实测」如实记账**（均只订正口径、⛔ 不动决策）：① 夹具换形面 8 文件而非 14（见上表）；② 幂等性的牙实际住在**写回时物理删除旧键**，而不在 `changed` 布尔上（原计划把它押在 `changed`，实测不成立）。
-- **验收判据转绿情况**（设计正本八条新增判据）：**16／17／18／19／21／22 六条有例并逐臂自证**；**15／20 仍属待实现**（门票归约与闸门 = S-3/S-4 未开工，跑只拿红基线，⛔ 判绿）。⚠ 六条中**18 无专属变异读数**、**22 的「逐格互异」腿受「现关表零大图盘」限制对真实数据是空跑**（仅由合成夹具与生成期变异咬住）——两处诚实限定已写进正本注记。
-
-### 4. 汇编查出的实质偏差（本批最重要的一条）
-
-- **现象**：上批决策文把「存档 v5 该有哪些字段」锁成三件（星账 + 解锁边界 + 续玩位置），但**同一份文件的施工清单那一行只列了星账**。执行者照清单交付，无过。
-- **后果**：两根进度指针**至今仍是 1-based 位置别名**（全仓搜决策预告的两个身份字段名 = 0 命中），且读档那行**压根不消费身份键表** ⇒ 已有的「插一关/调序后不回退」断言对这两根指针**没有判别力**（绿不代表已验）。玩家可感的影响 = 星星不会串格了，但「下次进来从哪一关继续」「解锁到第几关」在删关/中间插关后仍会错指一格。
-- **处置**（⛔ 主理人不代改任一轨正本）：同批加派两条纠偏腿，均为**纯文书批、零代码**——
-  - **T-2S（程基岩）**七件事：决策第 7 条与触发条件就地加现读订正（旧句逐字保留）；**新立施工片 S-2b**（两指针身份化，写明**必须先于门票闸门**）；追加三条变异自证 **M-18／M-19／M-20**（台账由 17 臂扩为 **20 臂**，本批未跑）；逐臂台账里涉该不变量的四行**按事实收窄**（防「星账免疫」被读成「整条已验」）；补**版本号处置条款 = 补齐时 `SAVE_VERSION` 仍留 5、⛔ 不 bump 6**（理由：读侧本按字段形状判别；反而 bump 会把回滚代价从「两字段回落第 1 关」升级为「整档清空」）；新开 **Q8**（身份指不回时指针落哪档）与 **Q9**（该不变量缺玩家可见硬判据）两条待裁项；交付边界补一条「**本批交付面 = 星账身份化，⛔ 不含推进／解锁两轴**」。Epic 侧把该 Story 从「前半 DONE」改写为**三档台账**（已完成／未完成且已定义／未完成且未定义），并明写 **⛔ 不得判 DONE**。
-  - **T-1S（文策渊）**：设计正本 §8 文末「八条均未落码」的旧注记，按判例 K-053 **整段留档**后逐条分档重写为「已落码有例／仍待实现／前置件现状／环境边界」四块，方向 = **文档跟上已入库代码的事实**（⛔ 反向改语义迁就实现），断言正文与 I1–I7 **一字未动**；并把上面那条偏差作为**语义差距**登记，给主理人三个选项（补落码 / 收窄语义 / 登记为已知限制）而非自行降格。
-
-### 5. 遗留与代价
-
-- ① **Q8 / Q9 待裁**（设计轨复批射程）：两条不阻塞 S-2b 的结构开工，但阻塞它的验收判据可引用化 ⇒ 建议随下一任务单并发文策渊。
-- ② **S-2b 待落码**：实测需换形源码 **14 处**、测试 **11 文件**（其余 10 文件零改动）、视图契约零改动、包体估算 +0.5～0.8 KB（非实测）；落地时 **⛔ 不会多一次全档清档**，只多一次「两根指针字段级回落第 1 关」，星账逐字节无损 ⇒ **须知会 QA 别当 bug 提单**。
-- ③ **门票两片 + 迁移链改严 = WXG-T-345**（判据 15／20 与被测物在此）。
-- ④ 数值真源表 §3.7 说明列那句「存档结构零改动」需一张**零数值措辞订正单**（用户令 ⛔ 我自行触碰该表）。
-- ⑤ 换制期开发档「至少清一次」这一代价**已发生**；真机与上传腿一律 `[Blocked]`（无 AppID / 无密钥）。
-- ⑥ 大图盘改格数时星星怎么记（仍未进场景矩阵）、改章编号缺机械守卫，两条仍开。
-- ⑦ 工作区 `apps/beads-studio/public/index.html` 与 `manage.html` 两个他人改动，本批不代提交、不代还原。
-
-### 6. 验证
-
-- **全量门禁**（本批多轮实跑，均为本机读数）：工程轨落码腿收尾一轮 **`verify` = PASS 22 ｜ FAIL 0**（当时 `pnpm -r run test` 合计 **1923 passed + 3 skipped / 158 文件**，逐字读数 = ADR-0034 §6.2.5 第 10 行）；两条文书腿各自收尾一轮亦 22/22；主理人在详情节与知识库落账后再复跑一轮 = **`verify` PASS 22 ｜ FAIL 0**（`check:tasks` 主表 **105 行** ↔ 详情 **105 节** 配对完整且标题均 ≤ 60 字符、`check:links` OK（agents=7 / skills=47）、`levels:check`、`typecheck`、`framework:sync:check`、`cocos:check`、`check:size`、`selftest:fast` 10/10 全过）。主理人本轮单独复跑 `pnpm run test` = **beads 99 文件全过 / 1176 passed + 3 skipped**（本会话实跑，与上引全仓合计口径不同，⛔ 混用）。
-- **铁律复查**（主理人亲自 grep / 实读，非采信自述）：框架 core 无 `cc`/`wx`/DOM；换算只在启动读档与结算写档两个既有边界点，**不进每帧路径**；无 `Math.random()`；视图契约（`MetaViewData.starsByLevel` 只读ViewModel）零改动 = L5 未触；产物 `levels-data.ts` 只由脚本生成（未手编）。
-- **知识库**：`kb:check` **八重 PASS（活跃 152 / 归档 0）**；`kb:sync --task=WXG-T-344` 沉淀统计 = **新增 1（K-155）／修改 0 ／激活 0 ／归档 0**；`kb:audit` 无相似命中。新条目 = 「同一份决策文里『决策条文』与『施工清单』各写各的 ⇒ 执行者照清单交付无过、决策却未兑现」（本批 §4 那一条偏差的抽象，含次生坑「既有断言对新字段无判别力 = 假绿」）。
-- ⚠ **`流程` 分片现读 7797 tok，再收一条即越 `ctx:check` B 门（8000）** ⇒ 按 `knowledge/INDEX.md` §2「新标签 = 新片、⛔ 不走豁免」将 K-155 入新片 `knowledge/lessons/process-audit.md`（标签 `流程对账`，⛔ 不动既有条目）。
-- ⚠ **顺手补一处遗留不一致（代修、已申报）**：上批新建 `knowledge/lessons/doc-reference.md` 时**只建了片、未同步两处硬映射**（`tools/scripts/split-knowledge-lessons.mjs::TAG_TO_SHARD` + `tools/scripts/lib/knowledge-ledger.mjs::LESSONS_SHARD_ORDER`）——按该表自带注释「改一侧必同步另一侧；缺映射时 `knowledge:split --force` 会 fail loud」，本批同时登记 `doc-reference`（上批漏）与 `process-audit`（本批新）两项，并在 `knowledge/INDEX.md` 分片清单里补齐两片 + 如实标注该清单为人工维护、已漏 `art-derivation`（⛔ 本批不整修该清单）。
-- `ctx:build` 已刷新索引面；`ctx:check` **OK**（结构门 A/B/C/D/D2 与 E3 全过）。
-- **提交与入库**：主提交 = **`83376cc`**（37 文件 / +2571 −653，含新文件 `games/beads/tests/save-identity-boot.test.ts` 与 `knowledge/lessons/process-audit.md`）；本批 ⛔ 无任何变异残留（逐臂还原后 SHA-256 对账）；ADR-0034 头部与 §6 表 S-1/S-2/S-5/S-6 行首、EP14 S6 状态行的提交号占位由紧随的文书小提交回填真实 hash；推送双证（`git ls-remote` + `git reflog show origin/develop`，判例 K-142）在本会话结论回传。
-- ⚠ **`ctx:check` B 门（单文件 ≤8000 tok）本批实际拦下一次提交（pre-commit 钩子），已按同族先例处置**：`production/epics/epics-beads-ep14.md` 因 T-2S 把 S6 改写为三档台账（已完成／未完成且已定义／未完成且未定义）从 ≤8000 顶到 **9303 tok** ⇒ 按 `wxgame-epic-split` 的 Story 卡结构（判据引用与 Ready·DONE 判定须同页互查）+ 同族先例（`epics-beads.md` WXG-T-268、`epics-beads-ep12.md` WXG-T-269 达 10088 tok 均已豁免）登记 `ctx/budget-exempt.json`，带 reason + note + taskId。**该豁免自带撤销条件**（⛔ 不得靠豁免放任无界膨胀）：下次修订本 Epic 时把台账里的**逐臂变异读数与包体数字**外移回 ADR-0034 §6.2（该节本就是读数正本，且 Epic 文中已自写「⛔ 不拄读数、只挂引用」），Epic 只留三档状态与判据引用 ⇒ 顶回 ≤8000 即撤销本豁免（这也正是 K-155 所治的「同一读数住两个家」）。上批已登记的三件正本豁免（ADR-0034 / save-progress / meta-ui）本次沿用，⛔ 除此之外本批不新增豁免。
-- ⚠ `check:tasks` 观察哨：主表 105 行 > 收敛阈值 20 ⇒ 仍建议另批 `pnpm run tasks:archive`（高影响动作，须用户明令）。
-- **真机腿**：`[Blocked: 无真机 / 无 AppID]`；旧档升级的真机验证、上传后的灰度腿均无法在本环境取证（解除条件 = 取得 AppID 与密钥后走 `wxgame-minigame-bridge` + 试玩抽样）。
-
-## WXG-T-345
-
-### 1. 立项与切批
-
-- **用户令（2026-10-22）**：对上一步三选项选 **1 =「现在就开这批（门票 + 闸门）」**。上位令 = 同日「每大关所有关需要获取到 3 星，才能凑足打开下一个大关的钥匙」+「**存档与门票一起做**」。
-- **射程 = ADR-0034 §6 的四个施工片**（逐片落地面见该表）：
-  1. **S-3 门票归约纯函数**：算出「这一大关够不够格开放」；不写存档、不碰界面、不动既有章态显示；
-  2. **S-2b 两根进度指针身份化**：「推进到第几关」与「解锁到第几关」从「第几个」改成「哪一关」；
-  3. **S-4 闸门接线 + 只读告知件**：把门票结果并进选关页点格那行判断，并给界面两个只读字段（章锁态、满星 n/N）；
-  4. **S-7 迁移链改严**：旧版本档一次跑完 1→2→3→4→5 五级、每级必前进一号，⛔ **不得**跳级或返回原号。
-- **⚠ 施工顺序硬约束（本批切批的关键一条）**：S-3 与 S-7 可先行；**S-2b 必须先于 S-4** —— 闸门落地时要写的「已得入口不回收」正好写在这两根指针上，先后颠倒会造出「两条腿各搬一半」的第三形态（ADR §6 S-2b 格「顺序硬约束」段 + DEC-7 补充条款 ① 明令禁止）。
-- **轨分配（写范围互不重叠，沿 K-153 判例）**：工程轨 T-4（程基岩）只写 `games/beads/src/**` / `games/beads/tests/**` / `tools/scripts/**`；设计轨 T-1Q（文策渊）只写 `games/beads/design/**`（裁 Q8/Q9、把门票判据转成硬条）；主理人负责切批、对帐、全量门禁与入库。
-
-### 2. 逐片落地面与验收判据（摘要；逐字锚点以 ADR-0034 §6 表为准）
-
-| 片 | 落地位置 | 验收什么算过 | 变异臂 |
-|---|---|---|---|
-| S-3 | 新文件 `games/beads/src/systems/arc-ticket.ts`（暂名，纯函数） | 全 3★ ⇒ 开；章内一关 2★ ⇒ 不开（但「本章已通关」显示仍为真，两层不混用）；空清单 ⇒ 两层都假；首章无前置；归约集合 = 本章清单内每一个槽（boss 关与教学关**不豁免**）；输出含 `n/N` 供只读件 | M-11（两层不混用）/ M-17（豁免臂） |
-| S-7 | `games/beads/src/game/save-schema.ts` 的 `migrations[n]` 族 | v1 档一次跑完 1→5 全链、`migrationsApplied` 恰 5 个台阶；摘掉 4→5 那一级该例必红 | M-13 |
-| S-2b | `save-schema.ts`（字段声明 / 默认值 / 读档 / 写回 / `changed` 比较 / `staleKeys` 追加两条旧数值键 / `bootLevel()`）+ `beads-game.ts`（写侧收拢点已有，只换右值；getter 签名不变） | 插一关 / 调展示序后两指针仍指得回同一关；旧数值键未点名清除 ⇒ 红（框架浅合并不删键）；降级档位按 Q8 裁定固化；**视图契约零改动** | M-18（身份免疫）/ M-19（双轨并存）/ M-20（降级档） |
-| S-4 | `games/beads/src/game/beads-shell.ts` 的 `pick-level` 分支（现行判断 = `levelIdx + 1 > maxUnlockedLevel` 零事件）+ 新只读 ViewModel 字段 | 章内解锁不变（过一开一）；跳章受门票拦；未达标的章仍可进入浏览、但格全锁（零事件 / 零扣心 / 灰珠 + 小锁）；已得入口不因后续加关而回收；门票输入里 ⛔ 不出现章 id | M-12 / M-15（棘轮）/ M-16（静态臂） |
-
-### 3. 禁止项（铁律与边界）
-
-- ⛔ 触 `systems-index §3` 任何冻结数值：门票判据是「全 3★」，读的是既有 `tierSecondsFor` 三线与星账，**零新常量**；§3.7 只允许加注。
-- ⛔ 往存档里加「本章已开」布尔（门票每次现算）；⛔ 复用既有 `_arcState.allCleared` 当门票（它答的是「全通关」，两层概念不同）。
-- ⛔ 借落码之机改判据语义；⛔ 以「文档已写」当已实现；⛔ 手编 `.scene/.prefab/.meta`；`games/*/src` ⛔ `import 'cc'`；⛔ 每帧路径新增分配；⛔ `Math.random()`。
-- ⛔ 改既有三态显示口径（橱窗卡「通关 / 推进中 / 锁」四字不变）；⛔ 因加新按钮或新弹窗（告知件 = 常驻只读，⛔ 注册热区）。
-
-### 4. 待裁与遗留
-
-- **Q8（身份指不回时两指针落哪一档）**：Q8 只阻塞 S-2b 的**降级档取值**，不阻塞其结构开工；工程侧先按「⛔ 丢进度」一侧实现并标注待裁，裁定到位后只改一处。
-- **Q9（插关后仍指得回同一关缺玩家可见硬条）**：建议本轮由设计轨转为 `save-progress §8` 硬条（编号顺延 23），并把引用同步到 `star-collect-rule` 与 EP14；⛔ 改既有条目正文。
-- 真机与上传腿 `[Blocked]`（无 AppID / 无密钥）；换制期开发档「至少清一次」已发生；S-2b 落地只多一次两指针回落 ⇒ 须知会 QA。
-
-### 5. 验证（2026-10-22 收尾实测；以下数值均为本机本轮跑出，未拿上一批读数代填）
-
-**① 全量门禁**：`pnpm run verify` = **PASS 22 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0**（22 项逐项执行、不短路）。与本批直接相关的几项读数：
-
-- **单元测试**：`npx vitest run --root games/beads` = **102 个测试文件 / 1210 passed + 3 skipped**（3 个跳过为既有跳过项，本批未新增跳过）；
-- **框架镜像**（`framework:sync:check`）：拷贝件与源码一致 —— beads（framework 61 + game 82）、breakout（framework 61 + game 16）；
-- **关卡数据**（`levels:check`）：beads 的 `levels-data.ts` / `arcs.ts` 与 `manifest.json` / `chapters/` 一致，breakout 亦一致，2 款游戏全过；
-- **架构静态门**（`check:arch`）：`OK — no violations`，仅 1 条提示，内容为 Cocos 目录内存在 330 个由编辑器生成的 `.scene/.prefab/.meta`（该类文件只允许编辑器产出，属正常提示，非违规）；
-- **Cocos 面**（`cocos:check` / `check:cocos-mask` / `check:es5spread`）：镜像代码、遮罩判据与 ES5 展开契约均 PASS。
-
-**② 九条变异臂自证**（逐条先把代码改成错误实现、确认对应用例变红，再逐字节还原）：脚本 `temp/mut-wxg-t-345.py`，逐条读数 `temp/mut-wxg-t-345-result.json`，结果 **9/9 全部按预期变红**：
-
-- 满星判据（臂 M-11）与「boss 关 / 教学关不豁免」（臂 M-17）⇒ 咬住 [arc-ticket.test.ts](file:///Users/stephenhe/Development/workspace/wechatgame/games/beads/tests/arc-ticket.test.ts) 的「两层不混用」与「归约集合无豁免」两组；
-- 章内线性解锁（臂 M-12）、门票输入不得出现章 id（臂 M-16）、解锁位棘轮（臂 M-15）⇒ 咬住 [arc-ticket-gate.test.ts](file:///Users/stephenhe/Development/workspace/wechatgame/games/beads/tests/arc-ticket-gate.test.ts)；
-- 旧版本档一次跑完整条迁移链（臂 M-13）⇒ 咬住 [save-schema.test.ts](file:///Users/stephenhe/Development/workspace/wechatgame/games/beads/tests/save-schema.test.ts) 的 1→5 全链断言；
-- 两根进度指针的内容变更免疫（臂 M-18）、旧数值键点名清除（臂 M-19）、身份指不回时的降级锚（臂 M-20）⇒ 咬住 [save-pointer-identity.test.ts](file:///Users/stephenhe/Development/workspace/wechatgame/games/beads/tests/save-pointer-identity.test.ts)。
-
-还原后复跑单测仍为上述 102 个文件 / 1210 passed + 3 skipped，排除「变异未还原」造成的假红或假绿。
-
-**③ 包体（release 基线档，本批源码重建后实测）**：先 `pnpm run build:cocos`（脚本默认即 release 基线：minify on / sourcemap off，见判例 K-111），再 `pnpm run check:size`：
-
-- beads 主包 **3318.7 KB / 111 文件**（gzip 参考 1664.0 KB），距 4096 KB 红线余量 **777.3 KB**；
-- 对照上一批（T-3）读数 3314.4 KB ⇒ 本批四片净增 **+4.3 KB**，文件数 111 未变；
-- ⚠ 过程留痕：重建前跑的 `check:size` 曾读到 3319.0 KB，但产物时间戳（12:16）早于本批源码（12:34）⇒ 判为旧产物读数并作废，重建后才取上述数值，避免「拿旧产物当新证据」（判例 K-152 同型）。
-
-**④ 文档与知识库门**：`kb:check` **PASSED**（八重校验；活跃 152 / 归档 0）；`ctx:build` 重建索引（文件 470 / 章节 6734）后 `ctx:check` **OK**（结构门 A/B/C/D/D2 与基线回归全过）；`check:tasks` / `check:links` 均 PASS。
-
-**⑤ 铁律与禁止项复核**：
-
-- 上一轮手写的 `games/beads/cocos/assets/scripts/game/systems/arc-ticket.ts.meta` **已删除**；随后 `pnpm run build:cocos`（release 基线档）为新增的 `arc-ticket.ts` **自动重新生成**了一份同构 `.meta`（`ver 4.0.24 / importer: typescript`，与既有 `save-schema.ts.meta` 同款，生成时间 12:39 晚于源码）⇒ 该文件属合法编辑器产物、随本批入库；判定口径 = **生成者与格式**，不是「文件是否存在」。`framework:sync` 仍只写 `.ts`、不生成也不改写 `.meta`；
-- 本批 **零 `systems-index §3` 冻结值改动、零 DEC 决策本体改动**，改动面清单见 [ADR-0034 §8](file:///Users/stephenhe/Development/workspace/wechatgame/docs/architecture/adr/ADR-0034-beads-save-uid-index-flatten.md)；
-- 新增的门票归约、闸门判断与迁移链均为确定性纯逻辑，未引入 `Math.random()`，未在每帧路径新增集合分配。
-
-**⑥ 环境阻塞（如实）**：真机扫码与上传腿仍 `[Blocked: 无真机 / 无 AppID / 无密钥]` ⇒ 本批验收只到「纯 Node 单测 + 浏览器 harness + CLI 构建」为止，⛔ 未做真机验收。
-
-**结论**：四片判据全部有挂用例、九条变异臂均能咬断、全量门禁全绿 ⇒ 本批可按「工程侧完成」入账；真机腿另行挂起。
-
-**⑦ 知识沉淀**（`pnpm run kb:sync --task=WXG-T-345`）：**新增 2 条 / 修改 0 / 激活 0 / 归档 0**；`kb:audit` 无归档相似命中；沉淀后 `kb:check` 八重校验 PASSED（活跃 **154** / 归档 0）：
-
-- **K-156**（判据实测）：度量「已有构建产物」的读数（包体、快照、生成物校验）必须先核对产物时间戳，否则读到的是上一批的数 —— 源于本批包体读数一次作废重测；
-- **K-157**（测试守卫）：夹具手搓的「最小形状」若与生产装配形状不同，对数据形状敏感的边界分支永远走不到，变异也不会红 —— 源于降级锚用例首版的稀疏星账假绿；
-- ⚠ 与本条相邻的既有条目 **K-155**（同一份决策文里「决策条文」与「施工清单」各写各的）已由上一批登记，本批不重复沉淀。
-
-
-## WXG-T-346
-
-### 1. 立项与用户令
-
-- **上位令（2026-10-22，见 `## WXG-T-343` / `## WXG-T-345`）**：「每大关所有关需要获取到 3 星，才能凑足打开下一个大关的钥匙」+「存档与门票一起做」。
-- **本批改判（用户同日拍板 A）**：门票口径由「本章全部小关 3★」改为「**本章全部小关通关（每关 ≥1★）∧ 累计星 ≥ 门槛**」，逐章判定 —— 全 3★ 对首章过陡，改拆为「通关广度 + 累计星」两条腿。
-- **推进方式**：本 Story 四轮均由用户在上一步三选项中选 **1** —— ① 收口 S4（删前置小锁图元 + 补设计变更单）② 走美术批（钉 TODO-8 + 定 `carousel_progress_label` 往哪走）③ 给裁决上锁（两枚防回退守卫）④ 可访问性册回写（把实测对比度落进矩阵与 QA）。
-- **⚠ 本任务号被两个会话同时领用**，详见本节第 6 条。
-
-### 2. 门槛口径（纯派生，零新常量）
-
-门槛 = 满星容量 − floor(关数 × 2 ÷ 3)：
-
-| 章内关数 | 满星容量 | 门槛 |
-|---|---|---|
-| 9 | 27 | **21★** |
-| 6 | 18 | **14★** |
-| 3 | 9 | **7★** |
-| 1–2（短章） | — | 门槛 = 关数（只要求全通关） |
-
-### 3. 逐批落地面（七笔提交，12:57–14:06）
-
-| 提交 | 类型 | 做了什么 | 证据 / 验收 |
-|---|---|---|---|
-| `e20b8a1` | 工程 | `systems/arc-ticket.ts` 新增 `arcGateStars()`；`arcTicket()` 出参扩为 `starSum`/`gate`/`clearedCount`/`total`，判定 = `total>0 && cleared===total && sum>=gate`（单循环零分配）；shell 与 meta-view 字段改名 `arcStarGot`/`arcStarNeed` | 门票臂单测转绿；零 `systems-index §3` 触达 |
-| `4fa7be5` | 工程 | 进度件从「只落数据」改为两处渲染：走马灯木牌第二行（关名让位 `line1Off`、进度走 `line2Off`）+ 选关页章名下方；件 = `★ n/门槛` 数字直拼（与顶栏 `❤ n/n` 同族 ⇒ 零新文案令牌），只读零热区（L5），`drawPlateTitle` 传两个 number 守热路径零分配 | 零新增版面常量；尺/色归 art 批（当时标 TODO-8/TODO-11） |
-| `e6cb988` | 工程（补漏） | **实拍取证抓到的壳层漏算**：翻页只动 `_menu.offset`，而归约固定读 `levelsArc`（只在开选关页时才变）⇒ 木牌第二行要么不出现、要么残留上一页数字 ⇒ `_refreshArcGate(arc)` 显式收页号 + 新增 `_refreshArcGateOnMenuPage()`（`_menu.step()` 落定后变号才归约，⛔ 每帧重算） | `tests/arc-ticket-gate.test.ts` 新增 1 例（翻到章 2 ⇒ 20/21；翻回首章 ⇒ 清空）+ M-16 静态臂同步新签名 |
-| `ed53293` | 设计 | 用户裁「件仅在未达成时创建 ⇒ 前置小锁恒真、零信息量」⇒ 删锁图元；ux v1.12 §4.1-3 甲臂 / §5 / §7 三处划线（K-053）+ §8.1 D16 + §8.2 TODO-11 收口；epics S4 由 READY 转 DONE | 纯文档、零代码 |
-| `e464c4c` | 美术 | 闭 TODO-8 并落 `menu-layout-implementation-spec.md` **v3.10 新增 §10**（正本）：字号 `font_label` 28（原 `UI_FONT.cell` 22 ⇒ 属**改正**不是微调）、木牌侧 `palette.woodFace` / 选关页侧 `palette.textDim`、页侧随 E2 → 35（`bodyFont`）而木牌侧定尺不随放大（牌面高 100、两行行心距 32 无余量）；⛔ 不新建令牌，`carousel_progress_label` 划线退役（值保留不删 + copy-tokens 镜像注） | ui-golden 12 例 sha 不变（两态均无进度件）+ 三个视图测试 24 例全绿 + verify 22/22；ctx B 门拦下一次 ⇒ 落地单 8750>8000 走豁免登记（撤销条件 = 下次增补前外移 §5 资源清单） |
-| `8a0f62a` | 测试 | 两枚防回退守卫 `tests/menu-plate-title.test.ts` / `tests/arc-level-select-page.test.ts`：木牌侧 = 28 档 + `woodFace` 且 `largeText` 开仍 28；页侧 = 28 → `bodyLarge`(35) + `textDim`；两例各含一条 `not.toBe(UI_FONT.cell)` 显式反向断言，注释写明 22px 档的对比度读数 | **逐臂变异自证**：两处改回 `UI_FONT.cell` ⇒ 两例同时转红（已还原，工作树 0 dirty）；两文件 16 例全绿、verify 22/22 |
-| `9fed05f` | 文档 | 可访问性册回写：`accessibility.md` B1/E1/E2 三行落实测数与「⛔ 不得回落 <24px」硬约束；`a11y-anchors.md` B1 加 `#8A5B34`、E2 加 `bodyFont`（两枚可机检锚）；QA `test-cases.md` 升 v1.24、§M.1 后补 **TC-MN-41**（落位从原拟的 §G 改判为 §M，理由 = 本文件「每节 = 一个判据来源家族」） | `check:a11y` OK（2 个游戏锚点全在 src 命中）、`check:links` OK、verify PASS 22 / WARN 0 / SKIP 0 / FAIL 0 |
-
-### 4. 实测对比度（本批唯一新增的数）
-
-底色 = PIL 采样投放件 `ui_showcase_plate.png` 两条文字带平均色；算式 = WCAG 1.4.3 相对亮度（非抄旧文档读数）。
-
-| 墨 | 底色 | 字号 | 对比度 | 判定 |
-|---|---|---|---|---|
-| `wood_face #8A5B34` | `#F2C188` | 28 | **3.52:1** | 大字号 3:1 ⇒ 过 |
-| `wood_face #8A5B34` | `#F2C48C` | 28 | **3.60:1** | 过 |
-| `text_secondary #6E7288` | `#F2C188` | 22（改前态） | **2.88:1** | ❌ 连大字号 3:1 都不过 |
-| `text_secondary #6E7288` | `#F2C48C` | 22（改前态） | **2.95:1** | ❌ 同上 |
-| `text_secondary #6E7288` | 暖纸底 `#F1E8D8` | 28 | **3.90:1** | 过 |
-| 对照位 | `wood_face` 于纸底 **4.76** / `text_secondary` 于白 **4.75** | | | 证「底色不同不得混引」 |
-
-⇒ 本批定性：旧态属 B1 行既有的「dim 于非白底不达标」同型缺陷，**改正而非微调**；且 28px 是两臂墨达标的**前提**，故写硬约束「⛔ 不得回落 <24px」（普通文本档需 4.5:1）。
-
-### 5. 验证读数
-
-- ④⑤⑥⑦ 各批收尾均 `pnpm run verify` **PASS 22 / WARN 0 / SKIP 0 / FAIL 0**（未改 `games/beads/src/**` 的批仍跑全量，`framework:sync:check` 在内须绿）。
-- 金样本无变化原因：两态均落在「门票已开放的首章」⇒ 进度件不出现，故 sha 零漂移 ⇒ **该件的字号/色此前无门可守**，这就是 `8a0f62a` 两例守卫立项的直接理由。
-- 屏幕层 / 真机 = **⛔ 未执行**（K-037：指令流可证 ≠ 屏幕可证）；TC-MN-41 的 `[Device]` 半边空挂。
-
-### 6. ⚠ 同号双用登记（K-046 同型）
-
-- **事实**：`WXG-T-346` 被两个会话各领一批 —— 另一会话 `d93e580`（10-22 11:47 `design(beads): 星级经济与日常留存提案`）与本会话七笔（12:57–14:06）。两边均未登主表。
-- **发现路径**：本批（清工作树归位）核对领号时读 `TASKS.md` 头注 + `git log --grep='WXG-T-346' --all` 才查出；头注此前只承认 `d93e580` 一条，并称「346 尚未被任何文档引用」。
-- **处置**：本会话七笔已自登主表与本节（沿「谁用谁自登」口径）；`d93e580` 一行仍由该会话自登（**K-137 只披露不代填**）；领号头注已把「下一可用号」从 347 改口为 **348**（347 仅被旧注文字预占、零提交零文档引用）。
-- **二次竞态（本会话自纠，同小节最严重的一条）**：本会话的文档提交 `69fe98d`（14:22:48）实际含 **16 件** = 本会话 2 件台账 + 他方会话（CodeBuddy · `WXG-T-348` 主菜单签到入口）11 件在制品 + `ctx/` 与 `memory/INDEX.md` 生成物 3 件。
-  - **根因**：`git commit` 提交的是**索引全集**，不是「本会话刚 `git add` 的路径」；共享工作树里他方会话在 14:22 前已 `git add` 自己的改动 ⇒ 本会话一笔文档提交把别人的半成品一并带入 HEAD。这是 K-046 的**新面**：撞的不是任务号，是**暂存区**。
-  - **取证**：`git show --stat 69fe98d`（16 files）+ `git log --oneline -3`（他方 20 秒后 `3499f4e` 自登 348 台账与节）+ `git rev-parse origin/develop` = `9fed05f` ⇒ **两笔均未推送**，远端未受影响。
-  - **处置**：⛔ 不改写历史 —— 他方会话活跃中，`reset` 会拆掉其 `3499f4e` 并与其后续提交互踩；改为就地登记交叉引用 ⇒ **追溯 WXG-T-348 的代码须同时看 `69fe98d`（`tuning.ts` / `meta-view.ts` / 镜像 / 两测试 / 两份提案档）与 `3499f4e`（台账 + ctx）**。
-  - **登记一条装置缺口**（与上面 F 项盲区并列）：`git commit` 在跨会话共享工作树下无「只提交自己那几条路径」的机械保护，本仓库预提交钩子亦不校验索引归属 ⇒ 并发会话提交前须先 `git diff --cached --name-only` 核暂存区（本会话此前未核，故犯）。
-- **门禁盲区（供后续工具单参考）**：`check:tasks` F 项只比「头注号 vs 主表 ∪ 归档最大号」，**不读 git log** ⇒ 提交里署了未登记的号不会变红（本轮 verify 22 全绿即为例）。若要机械守，需新开单把 `git log --grep` 纳入比对。
-
-### 7. 遗留与下一步
-
-1. 屏幕层 / 真机观感 ⛔（需预览产物连拍或真机，解除条件 = 出包 + 人工判读）。
-2. ~~工作树仍有三份他会话在制品未入库~~ **同日 14:22 订正**：那三份文档连同他方代码在制品已由本会话的 `69fe98d` 意外入库（见 §6 二次竞态）⇒ 工作树现干净，但 HEAD 含他方 `WXG-T-348` 未完项。
-3. `apps/beads-studio/public/index.html` / `manage.html` 的改动经去空白 SHA-256 对账确认为**纯格式重排**（两文件同秒修改、仓库无 HTML 格式化门）⇒ 已按用户裁定 `git restore` 还原。
-4. 沉淀候选 3 条待裁（① 对比度读数必须带采样底色 ② QA 用例落位服从「每节一个来源家族」③ commitlint `body-max-line-length=100` 与中文长句冲突需一行一个读数拆分）；本轮 `kb:sync` 活跃 154 / 新增 0 / nextId 158，knowledge 零净变更。
-5. **同日沉淀批（用户令「沉淀候选 1/2/3/4」）**：上文 §6 回传的 4 条候选按 `knowledge/INDEX.md` §5.3「优先合并不重复沉淀」处理后，落为 **1 新条目 K-158 + 3 条追记（K-045 / K-076 / K-137）**：候选 1（`git commit` 提交索引全集）入 K-045 作「最裸形态」追记；候选 2（跨会话披露双向通道 + mtime 判归属）新立 K-158；候选 3（门禁不校提交号在册）入 K-137 作「同日二次复现 + 元盲区」追记并转出本单 349；候选 4（文档批免 stash 的第一道判据）入 K-076 追记。读数：`kb:sync --task=WXG-T-346` 新增 1 / 修改 3 / 激活 0 / 归档 0；`kb:audit` 无候选、无相似命中；`kb:check` 八重通过（活跃 155）；`ctx:check` OK（两片均未越 B 门）。第 4 项所列三条仍待裁。
-
-
-
-
+---
 
 ## WXG-T-348
 
@@ -4403,6 +3362,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **口径变更**：推翻 Q5①「签到入口退役」；`ui-architecture-beads.md` §12 已登记视觉变更（K-051/K-053/DEC-6）。
 - **测试**：`beads-shell` / `meta-menu-wall` 动作集五元→六元 + 反断言反转；新常量纳入「零 §3 变更」自证。全量 1221 passed，仅金样本 `main-menu`（3662 vs 3661）/ `level-select-mid`（5085 vs 5084）因小圆点 +1 命令待复取。
 - **未决**：金样本须在可复现锚（本批 commit）后由 `tests/ui-golden-capture.ts` 重抓；真机观感（红点位置/大小）待验收。
+
+---
 
 ## WXG-T-349
 
@@ -4490,6 +3451,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 
 **验收（本批实跑）**：`--commits=5000` 读数 = 15 号（已录上表）；`--commits=40` 仍 OK；知识侧两条追记经 `kb:sync` 记为修改 2 / 新增 0（候选全部归入已有条目，未新立）。
 
+---
+
 ## WXG-T-350
 
 **beads·星星供给数值体检（门票 21★ / 皮肤价目 / 三档时钟）** · 2026-10-22 · 主理人(Qoder)·数值轨
@@ -4553,6 +3516,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 
 **验收（§7 核销批实跑）**：假空格与零宽字符对撞 = 六个改动文件的本批新增命中 **0**（HEAD 与工作区的命中行完全一致）；`kb:sync --task=WXG-T-350` 新增 1（赋 **K-161**）/ 修改 0，活跃条目 158，`kb:audit` 无候选、`kb:check` 八重校验 PASSED；`check:tasks` OK（主表 111 行 ↔ 详情 111 节；本批属同单核销故不领新号，351 已被并发会话领走并把头注推至 352，号池无冲突）；`check:links` OK；`pnpm run verify` 最终态 **PASS 22 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0**。
 
+---
+
 ## WXG-T-351
 
 **beads·豆子经济 v1.0 + 体力广告改判（§3.6/§3.11/§3.14）** · 2026-10-22 · 主理人(CodeBuddy)·设计轨
@@ -4594,6 +3559,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 
 - 文档侧（本批唯一可验面）：§3 三节与 changelog v1.80 口径一致；`pnpm run ctx:check` / `pnpm run check:tasks` 绿；
 - 行为侧（**已跑 2026-10-23**）：`powerup-buy-confirm` / `meta-state` / `run-start-stamina` 共 **30 例全绿**；提案 §7 共 12 条 —— 7.1 豆子 4 条 / 7.2 心 7 条 / 7.3 存档 1 条均已被用例覆盖。
+
+---
 
 ## WXG-T-352
 
@@ -4741,6 +3708,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 | 链接 | `check:links` OK（agents=7 skills=47） |
 | 全量 | `pnpm run verify`（10-22 当日重跑，逐项未短路）= **PASS 20 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 2**，exit 1。两红 = `typecheck` + `test`，**均已上表逐条归因到并发会话 §3.6 在制品**（与本批零重叠：本批只动 `config/tuning.ts` 一个源文件）⇒ 阻塞项与解除条件 = **对方 §3.6 购买确认弹窗落码完成后重跑全量**（同 WXG-T-352/353 已登记的瞬时态，K-045 追记） |
 
+---
+
 ## WXG-T-355
 
 **beads·结算·过关面板「判星对照」行（§3.7 三档时钟外显 · UX 裁甲）**
@@ -4787,6 +3756,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 | 知识库 | 批 ① `kb:sync --task=WXG-T-355` = 新增 0 / 修改 0 / 激活 0 / 归档 0（活跃 158，写入「无：工作树与产物一致」）⇒ 两条候选**只披露不代填**（沿 K-137）。**批 ③ = 用户 2026-10-23 点头后落盘**：`kb:sync --task=WXG-T-355` ⇒ **新增 1（K-162「表格追加行拿半截行当锚会吞相邻整行」）｜ 修改 1（K-160 追记「字符被静默换成形近码点、肉眼复核无效」）｜ 激活 0 ｜ 归档 0**，活跃 **159** / 归档 0；`kb:audit` 无归档候选、无相似命中；`kb:check` **八重 PASSED**（活跃 159）；`ctx:build` 已刷新、`ctx:check` OK。配套执行层随批入库 = `tools/scripts/scan-text-distortion.mjs`（只扫 diff 新增行 + 打印归属文件 + 非常用符号盘点 + `--paths=` 避开并发 WIP），⛔ 未进 `verify`（无门禁消费者 ⇒ 按 K-060「门要有消费者」暂不入链） |
 | 文本失真对撞 | 收尾以 `git diff HEAD -U0` 限定**新增行 158 行**做码点机械扫：零宽字符（U+200B/200C/200D/FEFF/2060）命中 **0**；`U+5854 塔` = 1、`U+9022 逢` = 2、`U+22FA ⋺` = 2、`U+22BA ⊺` = 1、`U+30FB ・` = 3 —— 逐件定位后全部在台账两件（`TASKS-DETAIL.md` 本节的自纠引用 + `TASKS.md` 头注沿旧文的「每页面・每弹窗」），**代码 / ux-spec / ui-architecture 侧 residual 0**；`・` 曾命中我新写的 ux-spec v1.23 一行 ⇒ 已改回 `、`（见 §4③）。非常用符号盘点 = `§ ①–⑪ ／ ＝ ≈ − ′ ² ∪ ⇔ ↔ α Δ ～ ║ 〔〕 ⚠ ✅ ✓` 逐类核对均为本文既用记号（α = 仓内既有「遮罩 alpha」写法，非本批新造），无异常混入；CJK 之间 ≥2 空格命中 **0**；`\S {2,}\S` 命中 7 行（其中 4 行为缩进代码 / markdown 续行）⇒ 无假空格。**批 ② 台账与夹具复扫**：零宽 0、`\S {2,}\S` 0；塔 / ⋺ / ⊺ / ・ / 逢 / 锤 六类逐件定位 = 只出现在 §4 与本行两处引文内（故意引用错字本身；计数因自引会浮动，故只记归属不记定值），代码侧 residual 0；夹具 JSON 侧改动 = 4 行（`capturedFrom` + `clear` 的 total / kinds.text / sha），其余十态逐字节不变，本批未新造任何符号 ⇒ 无活错字入库 |
 | 未做 / 遗留 | ① 选关页每关三档门槛（用户裁甲不含）；② 真机可读性 `[待真机]`（28px 在手机上的实际辨识度未经试玩）；③ 批 ② 夹具复取**已交付**（锚 commit = `df2eeee`，读数见 §5 单测行） |
+
+---
 
 ## WXG-T-356
 
@@ -4845,6 +3816,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **回填面**：版面单 v0.6（§2 表行 + 口径条 1/4）、ux-spec v1.24（头注 + 变更记录）、本节 §3① 与 §5 遗留行；**零代码、零夹具、零 §3 数值** ⇒ 无需 `framework:sync` / 金样本复取。
 - **仍未销**：真机 28px 辨识度 `[待真机]`（不是宽度问题）；平台差异只测了 macOS 字形，iOS/Android 由 Verdana 上界覆盖（宽 5.3% 仍不越界）。
 
+---
+
 ## WXG-T-357
 
 **beads·豆面可读性判据（pattern-legibility）· 门禁⑧ · studio 生成后二次修复**
@@ -4888,6 +3861,9 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - `node --test tools/scripts/pattern-legibility.test.mjs` ⇒ 6/6 通过
 - `pnpm run levels:check` ⇒ WARN 打印 6 关未过、产物仍一致；加 `BEADS_LEGIBILITY_STRICT=1` ⇒ 非零退出（两模式都实测）
 - `pnpm run verify` ⇒ 全绿（见提交正文）
+
+---
+
 ## WXG-T-358
 
 **beads·星级经济提案：复刷产出裁定登记 + 幻影升星通道订正（⛔ 不动 §3、⛔ 不落玩法码）**
@@ -4949,6 +3925,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **处置**：本笔把对端工作树里的 357 主表行 + 357 详情节**原文还原入库**（⛔ 未改一字，仅去掉该两件流入的 46 个 CRLF 行尾，与仓内既有 LF 口径一致），并在 §5 / §6 就地划线留订（K-053）；提交后立即 `git show HEAD:` 对撞 357 / 358 双向在册。
 - **根因与判据更新**：`update-index --cacheinfo` 写的是**全仓共享 index**，与 K-045「提交 = 索引全集」是同一风险面的**反向发作**——上次是「对方的在制品被我提交」，这次是「我的暂存替对方决定了台账内容」。并发会话同时写同一台账时，**重放落 index 与 commit 之间不存在安全窗口**。解除条件二选一：① 台账正本改按会话分文件再合并（尚未做）；② 把「重放 → commit → `git show HEAD:` 对撞署号在册」写进同一个不留人工间隔的脚本（本笔只做了一半：commit 后人工对撞，仍留窗口）。
 - **建议**（不代做）：补 `.gitattributes`（`* text=auto eol=lf`）消除 CRLF 流入；`check:tasks` I 项加一个**对 HEAD 而不对工作树**的署号对撞模式，专门抓本形态。
+
+---
 
 ## WXG-T-359
 
@@ -5056,6 +4034,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 4. **Q3（价格与套数）仍待拍板**：`SKIN_PRICES_COINS` 目前一档，新肤入注册表时必须同批加档（否则玩家侧表现为「买不了」）。
 5. `pnpm run verify` 复跑与金样本回归 = 待并发 WIP 入库后补做。
 
+---
+
 ## WXG-T-362
 
 **beads·三关豆面可读性修复 + L9 曼陀罗重建为 30×30 八瓣（⚠ 事后补登：原提交 `aa5c85e` 未自登主表，本节由 2026-10-24 verify 收尾批据提交史与改动面回填）**
@@ -5106,6 +4086,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 **解除条件**：5 项全绿且整跑 22/22；届时由执行会话在本段末追加「已闭环 + 提交号」即可关闭。
 **⛔ 明确不做**：本补登批不动上述任一文件；不为凑绿放宽 `misplaced` 校验器或手改金样本；不跳项。
 **共享面**：本段 + `production/TASKS.md` 头注「362 已补登」段（K-158② 要求披露落在共享文件，不写在提交信息里）。
+
+---
 
 ## WXG-T-363
 
@@ -5169,6 +4151,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - ⛔ 不夹带：`levels-data.ts`、`design/levels/singles/L0000{3,4}.json`、`tools/scripts/*`、`apps/beads-studio/lab*`、其 `levels-data` 镜像、两份台账的对方 364 行。
 - 推送取证按 K-142：`git ls-remote origin refs/heads/develop` + `git reflog show origin/develop --date=iso`。
 
+---
+
 ## WXG-T-364
 
 **beads-studio·大关草稿统一发布（按大关攒小关定序 → 新增大关 / 整章替换+归档）**
@@ -5212,6 +4196,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 3. **`renumberIds` 是全局 id 轴**：替换后新关数 ≠ 旧关数时，该章**之后**所有章的关卡文件 `id` 整体平移（`uid` 不变）。既有机制，本批未改。
 4. **归档只搬运、不提供自动还原端点**：`archive/<章id>-<时间戳>/` 内留 `_chapter.json` + `_entries.json` 供**人工**还原（YAGNI，需要时另批）。
 5. **`pnpm run verify` 未跑**：工作树有他会话在制（`src/game/**`、`src/ui/**`、`src/view/**`、`tests/**` 一批 + `levels-data.ts`）⇒ 全量必红且非本批引入。本批只跑 `node --check` + `read_lints` + 真机端点。
+
+---
 
 ## WXG-T-365
 
@@ -5278,6 +4264,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - ⛔ 不夹带：`levels-data.ts` 与其镜像、`L0000{3,4}.json`、`tools/scripts/{check-tasks,scan-text-distortion}.mjs`、`TASKS-DETAIL.md` 的对方 363/364 对调 hunk。
 - 推送取证按 K-142：`git ls-remote origin refs/heads/develop` + `git reflog show origin/develop --date=iso`。
 
+---
+
 ## WXG-T-366
 
 **beads·消除三处「展开 Set」写法（ES-01 存档字段隐患一行修）（用户在 WXG-T-365 收尾三选项里选 1）**
@@ -5328,6 +4316,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 
 - 提交范围 = 4 件源码/镜像 + 2 份台账（`TASKS-DETAIL.md` 走 HEAD 铺底 + 只插我方节的原子法，⛔ 不带对方对调 hunk）；pre-commit ② 自动重暂存 `ctx/{index.json,BUDGET.md,hot-files.md}` + `memory/INDEX.md`。
 - 推送取证按 K-142：`git ls-remote origin refs/heads/develop` + `git reflog show origin/develop --date=iso`。
+
+---
 
 ## WXG-T-367
 
@@ -5390,6 +4380,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 4. `check:tasks` I 项：`WXG-T-362` 署号未在册（K-137 ⇒ 只披露不代填）。
 5. `[待裁定]` 是否给 `levels:check` 补一条 misplaced 行形状判据（本批未扩门禁）。
 
+---
+
 ## WXG-T-368
 
 **beads·L3 misplaced 全错覆盖率与第一章数值同步（HEAD 启动即卡 BOOT 的后续，= WXG-T-367 复取的真前置）**
@@ -5433,6 +4425,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **待用户裁定**：若那四件长期不入库，是否授权我方接管（接管 = 明确丢弃其未提交工作），或另开一条按现成工具（`tools/scripts/level-derange.mjs`）重生成 L3 misplaced 的独立批。
 - 367 的复取动作在本批三条红清零后执行，工具与步骤已就绪（干净检出 + 相对软链 + 裸 node 复取器），预计一次 `cp` 夹具 + 一次对拍即完。
 - 本批产生的干净检出已删除（⛔ 留一个钉在旧 commit 的检出 = 下一轮读数的隐患）；重建 = `git worktree add --detach temp/<名> HEAD` + 手搭 `games/beads/node_modules/@wxgame/framework` 相对软链。
+
+---
 
 ## WXG-T-371
 
@@ -5481,6 +4475,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 2. ⛔ **不重抓 `ui-golden` 三态**（`main-menu` / `level-select` / `level-select-mid`）：须 `ui-golden-capture.ts` 在可复现锚重抓，且前置是 UX 裁定 + `ui-architecture-beads.md §12` 登记（K-051 / K-053）。
 3. ⛔ **不动 `tests/difficulty.test.ts`**：该文件 mtime `14:06:49`，并发会话正在改（已把逐值断言改为「先收集漂移再一次性断言」，本批 §4 的清单即复用其诊断能力）。
 
+---
+
 ## WXG-T-370
 
 **harness 冒烟暂存树改增量同步（K-163 的装置侧根治：不再整棵删 `dev/harness/.smoke/`）**
@@ -5507,6 +4503,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - ⛔ 不放宽冒烟判据、不跳项、不加 `--no-verify`。
 - 残留**空目录**不清（`walk` 只返回文件）：无害，且越清越接近"批量删除"而重新触发守卫；真要收拾就一次性删到 `.smoke` 不存在（K-163 ② 的做法）。
 - 未改 `.gitignore`，未新增任何暂存物。
+
+---
 
 ## WXG-T-369
 
@@ -5543,6 +4541,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - `check:tasks` 的 I 项（WXG-T-362 未在册）已由并发会话 `187e25e` 补登，其补登内容「三关豆面可读性修复 + L9 曼陀罗重建 30×30」正对上 WXG-T-367 定位的拐点 `aa5c85e` ⇒ 拐因与改关范围互证成立。
 - 金样本夹具零改动，复取仍阻塞。
 - `systems-index §3.13` 与 `levels-spec §2.3` 无冲突（v1.56 已转正），levels-spec v1.12 行里「§3.13 仍标 `[提案 v1.54]`、属未决漂移」那句已过期，本批不改文档历史行，仅在此登记为**已消解**。
+
+---
 
 ## WXG-T-376
 
@@ -5613,6 +4613,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **并发在制品零夹带**：`apps/beads-studio/*` 与 `tools/scripts/{beads-gen,check-tasks,scan-text-distortion}.mjs` 本批全程未动、未提交（提交后仍应为 dirty，可作下一笔取证）。
 - 本批不改 `manifest.json` 的 `contentVersion` 以外的任何档位字段；门禁⑧ 的 L2/L3/L7/L10 **既存 WARN** 不属本批射程。
 
+---
+
 ## WXG-T-375
 
 **beads·UI 金样本三态复取收口（选关页两态 + 转场中点帧；承 367/368/369 三条前置登记）**
@@ -5664,6 +4666,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **复取器可复现锚机械守（2026-10-24 五次续批，用户选「provenance 机械守」）**：原本 `capturedFrom` 写作 `${process.env.WXG298_SOURCE_REV ?? 'unknown'}`，env 缺失时静默写 `unknown`、填错时写进无关 commit（356 批失真的同一个口子）⇒ 改为写盘前**先校验后取值**：`git rev-parse --short HEAD` 与 `WXG298_SOURCE_REV` 双向前缀比对（7 位与 40 位都接受），缺失或不等即 `assert` 拒写，错误文案直接给出正确的跑法。守卫放在两遍渲染**之前** ⇒ 拒写不浪费渲染。**负样本**：新增 `tools/scripts/ui-golden-capture-selftest.sh`（① 缺 env、② `rev=deadbeef`、③ 两次拒写后夹具 sha 不变），已入 `selftest:fast` 第 11 件（`package.json` 同步加 `ui-golden:capture:selftest` 入口，否则完整性守卫会报「档位项在 package.json 里不存在」）。读数：`selftest:fast` = **PASS 11 / FAIL 0**（新件 0.9s / 断言 3/3，完整性守卫无告警）；`typecheck` EXIT=0。判定逻辑正例实测：`HEAD(d3038d4)` 自等 = true、40 位全哈希 = true、`deadbeef` = false。⚠ 已知边界：工作树 dirty 时 rev 只是**名义锚**（内容 ≠ HEAD），真正的可复现复取仍应在干净检出里做，故守卫**不**拦 dirty（否则正常「改代码→复取」流程会被拦）。
 - **数据腿落定前预演（2026-10-24 六次续批，用户选「数据腿落定后收口」）**：四件数据仍未提交（diff 与上批字节相同 ⇒ 作者已停手但未落盘），不能代提交；`levels:check` = **OK**（`contentVersion` 35→38、L1 图案 4 行重排、`time` 30→46、`pricing` 重算且 `clamped` true→false ⇒ 数据自身自洽）。为回答「落定后是否即绿」，把那 4 件 diff 应用到 `git worktree --detach @ d556b50` 后跑 beads 全量 = **仍 6 failed**（与在制态同一批）⇒ **数据落定 ≠ 全绿，还差两步**：① `difficulty.test.ts` 3 条需作者回写数值真源 —— 实测 **L1 DI 28.7**（§5.1 表记 31.8）、墙序 **[1,6,8,2,3,5,4,7,9]**（原 `[6,1,…]`，L1 因 DI 变低升到第 1 位）、**Spearman 0.833**（原 0.867）；② `ui-golden` 3 条（`level-select` / `level-select-mid` / `sprint-settle`）需先 `§12` 登记 L1 换图裁定再由 `ui-golden-capture.ts` 复取（K-051/K-053）。⛔ 本批未代提交他人数据、未复取（锚未落定时复取会写入假锚，而守卫只比对 rev、dirty 下会放行 ⇒ 此处靠人守，属上述已知边界）；worktree 已拆。
 
+---
+
 ## WXG-T-374
 
 **beads·L4 换 A 案图案 + 全池真引擎重定价 + §5 冻结表回写（372 裁定的执行批）**
@@ -5711,6 +4715,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 10 件：关卡数据 4（`singles/L00003.json`、`singles/L00004.json`、`src/config/levels-data.ts`、`cocos/.../config/levels-data.ts`）+ 判据/注释 3（`tests/difficulty.test.ts`、`src/config/tuning.ts` 及其 Cocos 镜像 `cocos/.../config/tuning.ts`——镜像 diff 与源 diff 逐字相等，`framework:sync:check` 绿，同批入库）+ 数值真源文档 1（`level-difficulty.md`：§5 标题、§5.1 三行 + 表头注、§5.2 整表重排 + 三条校验结论、§1.2/A-2/§3 输入表/§3.3/§5.3 H-1–H-3/§6.3 CH-B/§8 B-2・B-4/§9 Q9，新增 §10.2 变更记录；**⛔ 公式与 §3 常量零改动**）+ 台账 2。
 
 ⛔ **并发在制品四件全排除**（`manifest.json` contentVersion 35→37、`chapters/mandala.json` 尾换行、`tools/scripts/check-tasks.mjs` 与 `scan-text-distortion.mjs` 纯缩进 diff）——均为他会话所有（`4f12245` 同批会话在途）。夹带风险已用代码排除：`sync-levels-data.mjs:517`「**contentVersion 不进产物**」+ HEAD 生成物 grep 零命中 ⇒ sync 不会把 manifest bump 携进 `levels-data.ts`。缺口：manifest contentVersion 未因本批改 singles 而 bump（属并发会话正在重构的 studio 侧职责），登记不代做。
+
+---
 
 ## WXG-T-373
 
@@ -5762,6 +4768,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **第二腿 `640ee2e` 的追补说明（不重写）**：本会话首次取数（`git log -3`）时 HEAD 仍 = `929f936`，该腿在补登节写完前已入库 ⇒ §2–§4 的首腿口径按当时取证保留，第二腿内容只在 §3 末与上表追补；本号完整腿数以 `git log --all --grep="WXG-T-373"` 为准，本会话⛔ 不承诺持续追平（待该会话自订正）。
 - 本会话⛔ 不代跑对方 studio 侧的在途改动：工作树仍有 `manage.html`、`manifest.json`、`chapters/mandala.json`、`check-tasks.mjs`、`scan-text-distortion.mjs` 呈 `M`，均属该会话在制品，本批零夹带（入库只走 pathspec 两件台账）。
 - 该批 4 件不含 singles / chapters 关卡内容 ⇒ 与 `## WXG-T-374` §6 登记的 contentVersion 缺口是两条独立账，各自归属。
+
+---
 
 ## WXG-T-372
 
