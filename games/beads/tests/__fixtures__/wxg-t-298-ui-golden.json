@@ -4,7 +4,7 @@
   "unit": "UI-02",
   "spec": "docs/architecture/ui-architecture-beads.md §5 / §9.4 / §12",
   "codeBaseline": "bd964a0",
-  "capturedFrom": "dc60d54 · 工作树（WXG-T-298）",
+  "capturedFrom": "cc8b52f · detached worktree 干净检出复取（WXG-T-375 金样本三态收口）",
   "fixture": {
     "viewport": {
       "width": 750,
@@ -31,17 +31,17 @@
         "overlay": "none",
         "phase": "playing"
       },
-      "total": 3662,
+      "total": 5636,
       "kinds": {
-        "circle": 966,
+        "circle": 1530,
         "line": 295,
-        "rect": 481,
+        "rect": 763,
         "text": 6,
         "clip": 1,
-        "polygon": 1912,
+        "polygon": 3040,
         "unclip": 1
       },
-      "sha": "a95cbbee8c46b26eff7aea7941d03cc55e117c9e667a7b739a1f742f8ae53d22",
+      "sha": "d5a66e7d12572327e1aa1d561e3e3e1fc1ad4c323c6977d0ea6c8905156ffdd3",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -54,14 +54,14 @@
         "overlay": "levels",
         "phase": "playing"
       },
-      "total": 1423,
+      "total": 1409,
       "kinds": {
         "text": 13,
-        "rect": 210,
-        "polygon": 800,
-        "circle": 400
+        "rect": 208,
+        "polygon": 792,
+        "circle": 396
       },
-      "sha": "9b7821e34abf4b3218487d6793e79b38c50972218719c235fd73f783cb2cd632",
+      "sha": "3597ed99cd38113e647500dac19cd72b9a5ae4eba081e00f5cef558cac247334",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -74,17 +74,17 @@
         "overlay": "levels",
         "phase": "playing"
       },
-      "total": 5086,
+      "total": 7046,
       "kinds": {
-        "circle": 1366,
+        "circle": 1926,
         "line": 295,
-        "rect": 692,
+        "rect": 972,
         "text": 19,
         "clip": 1,
-        "polygon": 2712,
+        "polygon": 3832,
         "unclip": 1
       },
-      "sha": "c4aac209f29560104a156eaa0c367356eb4aaa611ad0fdfb24de1aac02f7d914",
+      "sha": "185e17b6de3823d5facb5b151ad22bb5fe1509c163339afcf2d16e35e260e967",
       "background": "#F1E8D8",
       "transform": null
     },

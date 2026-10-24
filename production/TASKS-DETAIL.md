@@ -5544,6 +5544,53 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - 金样本夹具零改动，复取仍阻塞。
 - `systems-index §3.13` 与 `levels-spec §2.3` 无冲突（v1.56 已转正），levels-spec v1.12 行里「§3.13 仍标 `[提案 v1.54]`、属未决漂移」那句已过期，本批不改文档历史行，仅在此登记为**已消解**。
 
+## WXG-T-375
+
+**beads·UI 金样本三态复取收口（选关页两态 + 转场中点帧；承 367/368/369 三条前置登记）**
+
+### 1. 领号与来源
+
+用户在 WXG-T-374 收尾三选项里选 **1 =「金样本三红收口」** ⇒ 本批执行 WXG-T-367 立、368/369 逐条收紧的复取。
+
+- **领号四路扫（K-046）**：主表/头注最大 = 374、详情节最大 = 374、`git log --all --grep="WXG-T-37[5-9]"` 零命中、工树仅头注「下一真可用号」自指 ⇒ 领 **375**，全仓零占用。
+- **前置登记正本** = `docs/architecture/ui-architecture-beads.md §12` 的 367（复取未做）/ 368（预演订正）/ 369（判定反转）三条；本批已在同一节末尾追加执行记录。
+
+### 2. 解除条件核对（369 收敛后的两条，逐条给证据）
+
+| 条件 | 入库证据 | 本批复跑 |
+|---|---|---|
+| `L3`/`L4` 的 misplaced 字符串行修复（BOOT 锁前置） | `d2aa7ab`（WXG-T-371） | 干净检出复取 ⇒ 11 态 `proof.phase` **零 `boot`**，菜单族均 `playing` |
+| §5.1 DI 与 §5.2 墙序与关表同步 | `929f936`（WXG-T-374） | `difficulty.test.ts` 11/11 绿，随全量 `verify` 的 `test` 项转绿 |
+
+原第三条「L3 全错覆盖率」已由 369 判定反转撤销（88 = §3.13 冻结式 `M_max = min(N, 2(N − m))` 的正解），本批不再等待。
+
+### 3. 装置与做法（ponytail：零新脚本、零新工具）
+
+- 直接复用 367 已跑通的装置：`git worktree add --detach temp/wxg375-cc cc8b52f` 开干净检出 + 手搭 `games/beads/node_modules/@wxgame/framework` 相对软链 + `node --experimental-transform-types --import=./tools/scripts/lib/ts-js-resolve.mjs games/beads/tests/ui-golden-capture.ts`。两遍确定性自证是**复取器内建**的 `assert`，无需另写。
+- 为何不在主树跑：主树当时有五件并发在制品（`manage.html` / `mandala.json` / `manifest.json` / `check-tasks.mjs` / `scan-text-distortion.mjs`），夹具是要长期对拍的金标准，⛔ 把别人未入库的状态烘进去（K-045）。实测亦坐实无害：干净检出的三态 total/kinds 与主树实跑 `.actual.jsonl` 逐字全等。
+- **归因实验**（本批核心，不是「跑一下复取器」）：在干净检出里**只**把 `games/beads/src/config/levels-data.ts` 单独 `git checkout 09adcc7 --`（= 362 的前一笔），代码其余保持 HEAD，再跑一次复取器；跑完 `git checkout HEAD --` 还原。单变量 ⇒ 能把「数据腿」与「代码腿」分开读数。
+
+### 4. 读数
+
+| 态 | 旧夹具 total | HEAD 实测 | 回退数据后 | 结论 |
+|---|---|---|---|---|
+| `main-menu` | 3662 | 5636 | **3662**（kinds 全等、sha ≠ 旧） | total/kinds = 数据腿；sha 多一层 365 代码腿 |
+| `level-select` | 1423 | 1409 | **1423**（**sha 亦逐字相等**） | 纯数据腿（该态不画顶栏） |
+| `level-select-mid` | 5086 | 7046 | **5086**（kinds 全等、sha ≠ 旧） | 两腿之和 |
+
+- 362 数据事实（`git show` 直读 `singles/L0000{3,4,9}.json` 两版对比）：唯一改格数的是 **L9 22×21 → 30×30**，有珠格 **328 → 612（+284）**；L3/L4 格数不变（只改配色与 misplaced 分布）。
+- 命令构成恒等式：一颗豆 = 1 rect + 2 circle + 4 polygon = **7 条** ⇒ 主菜单腿 +282 组（+1974）、选关腿 −2 组（−14）、中点帧 +1960 = 两腿相加。
+- 复取范围：夹具 16 行 +/−，只涉三态记录；其余八态 total/kinds/sha 逐字未变（含 367 预判的 `settings`/`signin`「仅相位腿红」—— 实测该两态夹具本就记 `playing`、无需改 ⇒ 预判不成立）。
+- 11 态相位全为预期：菜单族 `playing` / `pause` `paused` / `clear` `level-clear` / `fail`·`sprint-settle` `game-over` / `finish` `finish`。
+- 验收：`npx vitest run tests/ui-golden.test.ts` = **12 passed**（此前 3 failed）；复取器两遍确定性自证 = PASS；全量 `pnpm run verify` = **PASS 22 / FAIL 0**（本批唯一红项 `test` 已转绿）。
+
+### 5. 遗留与纪律回写
+
+- **`capturedFrom` 锚字段纪律（本批新发现，已入 §12）**：复取必须传当次 HEAD 并核对该字段随 diff 一起变。356 批（`3611904`）传了 298 时代的旧值 `dc60d54`，该错一直影响到本批（按锚取数会误读复取基）。先例 = 312 批把 311 的锚重锚到 `8e0d133`。是否给复取器加「env 缺失/非当前 HEAD 即拒写」的机械守 = `[待裁定]`（本批不扩门禁，ponytail：一行 assert 就够，等再踩一次再说）。
+- 本批零代码、零玩法数据、零夹具手工编辑（只搬复取器产出）；改动面 = 1 件夹具（生成物）+ `ui-architecture-beads.md` 登记 + 台账两文件。
+- 不属本批射程的既存遗留（归 374 收尾选项 2/3）：`menu-architecture.md §3.3` 旧 DI 区间与旧墙序、`TASKS-DETAIL.md` 两处「残差 ≈58%」、`manifest.json` 的 `contentVersion` 未因 374 改 singles 而 bump、门禁⑧ L2/L3/L7/L10 既存 WARN、`check:tasks` note H（主表行数超观察哨）。
+- worktree 已拆（`git worktree remove`）；实验数据与 `--dump` 产物留在 `temp/`（已 gitignore）。
+
 ## WXG-T-374
 
 **beads·L4 换 A 案图案 + 全池真引擎重定价 + §5 冻结表回写（372 裁定的执行批）**
