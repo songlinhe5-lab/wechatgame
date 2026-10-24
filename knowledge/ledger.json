@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 168,
+  "nextId": 169,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -2798,6 +2798,23 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-168",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain-git.md",
+      "category": "工具链Git",
+      "title": "查「某个字段的值被谁改过」⛔ 拿 `git log -S` 搜键名（pickaxe 数的是出现次数 ⇒ 同行换值不命中，会得到假的「从未改过」），须改 `-G` 正则或搜旧值",
+      "contentHash": "16718d7aba918312e6621aa9870788d1e27647dad3e6980d4fe774763c724454",
+      "sourceTask": "WXG-T-375",
+      "addedDate": "2026-10-24",
+      "lastAccess": "2026-10-24",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -4403,6 +4420,24 @@
       "kind": "added",
       "ids": [
         "K-167"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-24",
+      "taskId": "WXG-T-375",
+      "kind": "added",
+      "ids": [
+        "K-168"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-24",
+      "taskId": "WXG-T-375",
+      "kind": "updated",
+      "ids": [
+        "K-168"
       ],
       "note": null
     }
