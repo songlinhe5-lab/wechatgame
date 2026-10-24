@@ -61,7 +61,6 @@ import {
     MENU_TEXTURES,
     MENU_TOPBAR_ICON_D,
     type MenuAnchors,
-    MENU_TOPBAR_RESERVED_ALPHA,
     MENU_TOPBAR_VISUAL_D,
     MENU_TOPBAR_X,
     SIGN_BEAD_PITCH,
@@ -123,7 +122,8 @@ import { SKINS_TITLE, drawSkinCard, skinCardBoxes } from './skins-content';
 
 /**
  * 菜单侧呈现态。`skins`（**WXG-T-363**）= 装扮馆弹窗（与 `signin` / `settings` 同一
- * {@link overlayPlate} 容器）；入口 = 设置弹窗行5 左格 `open-skins`（ux-spec v1.25 §3.8）。
+ * {@link overlayPlate} 容器）；入口 = 顶栏中档 `open-skins`（ux-spec §3.8 · 提案 P4-甲，
+ * 由 **WXG-T-365** 自设置弹窗行5 左格上提）。
  */
 export type MetaOverlay = 'none' | 'signin' | 'settings' | 'levels' | 'skins';
 
@@ -318,9 +318,9 @@ export type MetaAction =
     /** EP12-S8 行4 第三枚选择器钮：整套皮肤（与暂停面板同一批 game setter，内容单源）。 */
     | 'cycle-skin'
     /**
-     * `[WXG-T-363]` 设置弹窗行5 左格 = **装扮馆入口**（顶替原 `cycle-skin` 的位）；
-     * 钮面文案与 `cycle-skin` 同串，受理归 shell（`PhaseRouteBinder.openModal('skins')），
-     * ⛔ 不进 `GameSettings.apply`。
+     * `[WXG-T-363]` 装扮馆入口（顶栏中档 x=560，`[WXG-T-365]` 由设置弹窗行5 左格上提，提案 P4-甲）；
+     * 受理归 shell（`PhaseRouteBinder.openModal('skins')`），⛔ 不进 `GameSettings.apply`。
+     * 顶栏 = 无字圆钮 ⇒ 不走 `settingsContentLabel`（设置行5 左格已回到 `cycle-skin`）。
      */
     | 'open-skins'
     /**
@@ -408,11 +408,7 @@ function overlayPlate(): Box {
 //    几何由 {@link anchoredGeo} 逐机算定（`bossBox` 图位 ⇒ `[WXG-T-281]` 旧白卡退场）⇒ 静态档 `CAROUSEL_BOX` 已随锚定档退场。
 /** 星级_label 查表（取代旧每帧 `'★'.repeat(n)+'☆'.repeat(3-n)` ⇒ 逐字同串、每帧零字符串分配）。 */
 const STAR_LABELS: readonly string[] = ['☆☆☆', '★☆☆', '★★☆', '★★★'];
-/** 顶栏预留不实现（公告 / 信箱）两颗的热区**左缘**（只画不注册热区，§5.1b）。 */
-/** 预留位（2026-10-22 签到入口回归后**只剩公告**一颗；信箱已实装，见 {@link drawTopbar}）。 */
-const TOPBAR_RESERVED_X: readonly number[] = [MENU_TOPBAR_X.notice];
-/** 预留位的图标腿（与 {@link TOPBAR_RESERVED_X} 同序；喇叭暂代公告 = 落地单 §3 C1）。 */
-const TOPBAR_RESERVED_ICON: readonly string[] = [MENU_TEXTURES.iconSound];
+/** 顶栏三颗全部实装（`[WXG-T-365]`：中档由公告预留位升格为装扮馆入口 ⇒ 预留数组与禁用态退场）。 */
 
 /**
  * 生成 `WALL_COLS × rows` 个作品格热区（选关**整页**，版式 P：格 `LEVELS_CELL` / 间距 `LEVELS_GAP`）。
@@ -569,6 +565,11 @@ interface AnchoredMenuGeo {
     readonly arrowRHit: Box;
     readonly barBox: Box;
     readonly settingsHit: Box;
+    /**
+     * `[WXG-T-365]` 装扮馆入口热区（顶栏中档 x=560，提案 P4-甲：原公告预留位升格）。
+     * 与 `settingsHit` / `mailHit` 同 pitch 88、同一行 y ⇒ 零新坐标推导。
+     */
+    readonly skinsHit: Box;
     /** 签到信封热区（2026-10-22 入口回归：点击 → 既有 `signin` 弹窗）。 */
     readonly mailHit: Box;
     /** 顶栏热区/视觉圆同心 y（= `settingsHit` 中心）。 */
@@ -607,10 +608,11 @@ function anchoredGeo(a: MenuAnchors): AnchoredMenuGeo {
         MENU_BAR_H,
     );
     const settingsHit = box(MENU_TOPBAR_X.settings, r(a.btTopY) - TOUCH_MIN, TOUCH_MIN, TOUCH_MIN);
+    const skinsHit = box(MENU_TOPBAR_X.skins, r(a.btTopY) - TOUCH_MIN, TOUCH_MIN, TOUCH_MIN);
     const mailHit = box(MENU_TOPBAR_X.mail, r(a.btTopY) - TOUCH_MIN, TOUCH_MIN, TOUCH_MIN);
     const geo: AnchoredMenuGeo = {
         caseBox, bossBox, clipBox, badgeBox, plateBox, signBox, ctaBox, ctaHit,
-        arrowL, arrowLHit, arrowR, arrowRHit, barBox, settingsHit, mailHit,
+        arrowL, arrowLHit, arrowR, arrowRHit, barBox, settingsHit, skinsHit, mailHit,
         topbarCy: settingsHit.y + TOUCH_MIN / 2,
         doneCy: r(a.caseTopY - MENU_DONE_ICON.yOff),
         versionY: r(a.ctaBotY) / 2,
@@ -631,6 +633,8 @@ function menuLayoutAnchored(a: MenuAnchors): MetaLayout {
             { id: 'open-levels', box: g.bossBox },
             { id: 'start', box: g.ctaHit },
             { id: 'open-settings', box: g.settingsHit },
+            // `[WXG-T-365]` 装扮馆入口上提顶栏中档（提案 P4-甲）；设置弹窗行5 左格同时回到 `cycle-skin`。
+            { id: 'open-skins', box: g.skinsHit },
             // 2026-10-22 用户裁：签到入口回归（信封实装，点开既有 `signin` 弹窗）。
             // 用户同批拍板：**已领当日仍可打开**看进度 ⇒ 热区常驻、不做 canClaim 门控。
             { id: 'open-signin', box: g.mailHit },
@@ -726,8 +730,6 @@ function label(id: MetaAction, data: MetaViewData): string {
         case 'cycle-bead-style':
         case 'cycle-bead-size':
         case 'cycle-skin':
-        // `[WXG-T-363]` 装扮馆入口与原循环钮**同串**（钮面逐字不变 = `settings` 金样本不漂）。
-        case 'open-skins':
             return settingsContentLabel(id, data);
         default:
             return '';
@@ -838,12 +840,14 @@ function drawResourceBar(
  * - **右上 信箱**（2026-10-22 用户裁：签到入口回归）= 正常态白圆 + `ui_icon_mail`（切图已交付）
  *   + 按下纹；`canClaim` ⇒ 右上 1 枚小圆点（`MENU_SIGNIN_DOT_R`，全局唯一提示位）。
  *   ⛔ 程序化腿**不自造信封图标**（切图规格 B2/B3 权威）⇒ 缺图只留空圆底；
- * - **右中 公告** = 仍预留不实现 ⇒ 只画禁用态空圆（α 0.5），⛔ 不画图标；热区不注册
- *   （见 {@link menuLayoutAnchored}）。
+ *   ⛔ 该位不加红点（全局唯一提示位 = 信封小圆点）。
+ * - **右中 装扮馆**（`[WXG-T-365]` 提案 P4-甲：原公告预留位升格）= 与上两颗同构同函数腿
+ *   （白圆底 + 按下纹 + 40² 图标）；图标暂以该位原有喇叭顶替 ⇒ `[待 UI 设计]`，⛔ 新画法。
+ *   热区已注册（`menuLayoutAnchored` 的 `open-skins`）⇒ 公告语义位被占用属本裁定的已知代价。
  *
  * ⚠ 圆钮无文字 ⇒ 不走 {@link drawButton}（那个是给矩形纸钮用的）。
- * `[WXG-T-280]` 位图腿：`btnCircle` 就绪 ⇒ 底面 blit（公告位另叠 α=0.5）；`iconSettings` 就绪 ⇒
- * 40² 图标替齿轮；公告位图标就绪 ⇒ 同 α 叠 blit。未就绪 ⇒ 程序化腿。
+ * `[WXG-T-280]` 位图腿：`btnCircle` 就绪 ⇒ 底面 blit；`iconSettings` 就绪 ⇒
+ * 40² 图标替齿轮。未就绪 ⇒ 程序化腿。
  * 圆心 y = `geo.topbarCy`（与热区同源）；x 档共用 `MENU_TOPBAR_X`。
  */
 function drawTopbar(
@@ -908,24 +912,30 @@ function drawTopbar(
             lineWidth: 2,
         });
     }
-    // 数组住模块级（`buildMetaView` 每帧走本函数 ⇒ ⛔ 不在热路径 `[a, b]` 现造）。
-    for (let i = 0; i < TOPBAR_RESERVED_X.length; i++) {
-        const x = TOPBAR_RESERVED_X[i]! + TOUCH_MIN / 2;
-        const icon = TOPBAR_RESERVED_ICON[i]!;
-        if (circleReady && _menuBitmapReady(icon)) {
-            const id = MENU_TOPBAR_ICON_D;
-            builder.blit(circleTex, x - r, cy - r, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_VISUAL_D, {
-                alpha: MENU_TOPBAR_RESERVED_ALPHA,
-            });
-            builder.blit(icon, x - id / 2, cy - id / 2, id, id, { alpha: MENU_TOPBAR_RESERVED_ALPHA });
-        } else {
-            builder.circle(x, cy, r, {
-                fill: palette.panel,
-                stroke: palette.slotBorder,
-                lineWidth: 2,
-                alpha: MENU_TOPBAR_RESERVED_ALPHA,
-            });
-        }
+    // ── 装扮馆入口（`[WXG-T-365]` · 提案 P4-甲 = 原公告预留位升格，坐标零改动）──
+    // 与设置 / 信封三同构：底圆 + 按下纹 + 40² 图标；⛔ 程序化腿不自造图标（信封判例
+    // = 形状归切图规格权威）⇒ 缺图只留空圆底。
+    // ⚠ 图标暂用该位原有的 `MENU_TEXTURES.iconSound`（喇叭）顶替 ⇒ 语义错位属已知代价
+    // `[待 UI 设计]`（用户 2026-10-24 令「先用原入口图标代替，晚点再对 UI 设计」）。
+    const skx = MENU_TOPBAR_X.skins + TOUCH_MIN / 2;
+    const skinsPressed = isPressed(data, 'open-skins');
+    const skcy = cy + pressDy(data, skinsPressed);
+    if (circleReady) {
+        const tex = skinsPressed && _menuBitmapReady(MENU_TEXTURES.btnCirclePressed)
+            ? MENU_TEXTURES.btnCirclePressed
+            : circleTex;
+        builder.blit(tex, skx - r, skcy - r, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_VISUAL_D);
+    } else {
+        builder.circle(skx, skcy, r, {
+            fill: skinsPressed ? palette.cardPressed : palette.panel,
+            stroke: palette.panelBorder,
+            lineWidth: 2,
+        });
+    }
+    const skinsIcon = MENU_TEXTURES.iconSound;
+    if (_menuBitmapReady(skinsIcon)) {
+        const id = MENU_TOPBAR_ICON_D;
+        builder.blit(skinsIcon, skx - id / 2, skcy - id / 2, id, id);
     }
 }
 

@@ -139,16 +139,18 @@ export const MENU_TOPBAR_TOP_FALLBACK = SAFE_TOP_H + SAFE_EDGE_MARGIN;
  * 三颗热区**左缘** x（热区尺寸 = `TOUCH_MIN` 88，不新常量）。逐档实测依据 = §5.1b 落位表：
  * 左上那颗不受胶囊约束（x∈[24,112] 在定稿图内非背景占比 0.00%）；右上两颗按 **pitch = 88**
  * 排（定稿图视觉 pitch 70 ⇒ 两热区会重叠 18 px 误触），外颗右缘 736 ⇒ 距屏边 14。
+ *
+ * `[WXG-T-365]` 中档由预留位 `notice` 升格为 `skins`（装扮馆入口 = 提案 P4-甲，正本
+ * `design/proposals/main-menu-entry-strategy.md` §P4-甲）⇒ **坐标零改动**，只换语义；
+ * 代价 = 公告位被占用（提案已列，回滚 = 键名与一颗钮改回预留空圆）。图标暂用该位原
+ * 有的 `MENU_TEXTURES.iconSound`（喇叭）顶替 ⇒ `[待 UI 设计]`，见 `meta-view::drawTopbar`。
  */
-export const MENU_TOPBAR_X = { settings: 24, notice: 560, mail: 648 } as const;
+export const MENU_TOPBAR_X = { settings: 24, skins: 560, mail: 648 } as const;
 /**
  * 顶栏视觉圆直径 = 80（落地单 v3.5，用户 2026-10-15 裁：`ui_btn_circle_*` 与三枚 `ui_icon_*` 同为
  * 160×160 px @2x ⇒ 80 设计 px；旧 59/64 作废）。热区 88 同心包裹（视觉比热区小 8，邻钮视觉隙 8）。
  */
 export const MENU_TOPBAR_VISUAL_D = 80;
-/** 未实装的预留钮（现只剩**公告**一颗；信箱已于 2026-10-22 签到入口回归时实装）画成禁用态 ⇒
- * 视觉上在、语义上不承诺可点。 */
-export const MENU_TOPBAR_RESERVED_ALPHA = 0.5;
 /**
  * 签到信封「未领」小圆点半径（2026-10-22 用户裁：`canClaim` 时信封右上画 1 枚，**全局唯一提示位**
  * ——不铺红点、不闪烁）。Ø18 ≈ 图标 40 的 45%，压在视觉圆（Ø80）右上 45° 内缘，色读 `palette.danger`

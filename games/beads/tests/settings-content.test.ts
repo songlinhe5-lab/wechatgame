@@ -65,7 +65,7 @@ describe('UI-30 · SettingsContent', () => {
             'toggle-debug-info',
             'cycle-bead-style',
             'cycle-bead-size',
-            'open-skins',
+            'cycle-skin',
             'toggle-debug-guides',
         ]);
         // 首钮：x = 240+40、topY = 307+720−170（WXG-T-339）；第二钮右移 colW(248)+gap(24)。
@@ -92,7 +92,7 @@ describe('UI-30 · SettingsContent', () => {
             'toggle-debug-info',
             'cycle-bead-style',
             'cycle-bead-size',
-            'open-skins',
+            'cycle-skin',
             'toggle-debug-guides',
         ] as SettingsAction[]) {
             expect(ids).toContain(id);
@@ -105,10 +105,7 @@ describe('UI-30 · SettingsContent', () => {
         expect(settingsContentLabel('toggle-vibrate', DATA)).toBe('震动  开');
         expect(settingsContentLabel('cycle-bead-style', DATA)).toContain('珠子风格');
         expect(settingsContentLabel('cycle-bead-size', DATA)).toContain('豆子尺寸');
-        expect(settingsContentLabel('open-skins', DATA)).toContain('皮肤');
-        // WXG-T-363 零漂移判据：入口只换动作 id ⇒ 两个 id 的钮面文案逐字同串
-        //（暂停面板行4 仍用 `cycle-skin`，两入口同文案单源）。
-        expect(settingsContentLabel('open-skins', DATA)).toBe(settingsContentLabel('cycle-skin', DATA));
+        expect(settingsContentLabel('cycle-skin', DATA)).toContain('皮肤');
         expect(settingsContentLabel('toggle-debug-guides', DATA)).toBe('Debug  关');
     });
 
@@ -128,11 +125,13 @@ describe('UI-30 · SettingsContent', () => {
         expect(pressedY).toBeLessThan(idleY);
     });
 
-    it('动作全集 ≡ 弹窗排布 + 暂停面板腿（WXG-T-363 回归钉：`cycle-skin` 退出 MENU_ORDER 但仍是 SettingsAction）', () => {
+    it('动作全集 ≡ 弹窗排布（WXG-T-365 回归钉：装扮馆入口已上提顶栏 ⇒ ⛔ 不再是设置动作）', () => {
         // `view-model` 靠本判定把暂停面板的 setting 钮派到 chip 小字档；漏一个
         // ⇒ 该钮落回通用主/次钮腿（字档 22px → bold 30px），`pause` 金样本整帧漂。
         expect(isSettingsAction('cycle-skin')).toBe(true);
-        expect(isSettingsAction('open-skins')).toBe(true);
+        // `open-skins` = 顶栏无字圆钮（MetaAction 而非 SettingsAction）⇒ 不进本集合；
+        // 误把它当设置钮会让 `settingsContentLabel` 收到无定义分支（返回空串）。
+        expect(isSettingsAction('open-skins')).toBe(false);
         expect(isSettingsAction('resume')).toBe(false);
     });
 

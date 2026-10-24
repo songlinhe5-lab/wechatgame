@@ -1295,10 +1295,10 @@ describe('菜单设置 overlay 行4 选择器钮族 · S9 §8-14/16/19（内容�
         expect(new Set(ids).size).toBe(ids.length); // 每钮唯一
         expect(ids.filter((i) => i === 'cycle-bead-style').length).toBe(1);
         expect(ids.filter((i) => i === 'cycle-bead-size').length).toBe(1);
-        expect(ids.filter((i) => i === 'open-skins').length).toBe(1); // EP12-S8 → WXG-T-363（行5 左格改挂装扮馆入口）
+        expect(ids.filter((i) => i === 'cycle-skin').length).toBe(1); // EP12-S8 → WXG-T-363 曾改挂装扮馆入口，WXG-T-365 已回退（入口上提顶栏）
 
         const rows = [...new Set(grid.map((b) => b.box.y))].sort((a, b) => b - a);
-        expect(grid.length).toBe(10); // 8 旧钮 + 装扮馆入口 + Debug（末行空格）
+        expect(grid.length).toBe(10); // 8 旧钮 + 皮肤循环钮 + Debug（两列五行）
         expect(rows.length).toBe(Math.ceil(grid.length / 2)); // 两列 ⇒ 行数 = ⌈钮数 / 2⌉
         // 末行两枚：皮肤 + Debug，plate 高不长。
         const bottomRowY = rows[rows.length - 1]!;

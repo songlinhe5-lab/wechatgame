@@ -5161,3 +5161,68 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 3. **`renumberIds` 是全局 id 轴**：替换后新关数 ≠ 旧关数时，该章**之后**所有章的关卡文件 `id` 整体平移（`uid` 不变）。既有机制，本批未改。
 4. **归档只搬运、不提供自动还原端点**：`archive/<章id>-<时间戳>/` 内留 `_chapter.json` + `_entries.json` 供**人工**还原（YAGNI，需要时另批）。
 5. **`pnpm run verify` 未跑**：工作树有他会话在制（`src/game/**`、`src/ui/**`、`src/view/**`、`tests/**` 一批 + `levels-data.ts`）⇒ 全量必红且非本批引入。本批只跑 `node --check` + `read_lints` + 真机端点。
+
+## WXG-T-365
+
+**beads·装扮馆入口上提主菜单顶栏中档（提案 P4-甲落地）（承 363 遗留①「位置 = 设置弹窗行5 左格」系临时位；用户令「顶栏甲案批」）**
+
+### 1. 领号核验与并发侦查（K-046 / K-045）
+
+- **三路核验**：头注「下一真可用号 = 365」+ 主表无 365 行 + 详情无 `## WXG-T-365` + `git log --grep=WXG-T-365` 空 ⇒ 领 365 合规。
+- **并发在制品（⛔ 不夹带，本批不 add）**：`src/config/levels-data.ts` 与其 Cocos 镜像、`design/levels/singles/L0000{3,4}.json`、`tools/scripts/check-tasks.mjs`（仅模板字符串缩进重排）、`tools/scripts/scan-text-distortion.mjs`、`production/TASKS-DETAIL.md`（对方把 `## WXG-T-364` 与 `## WXG-T-363` 两节顺序对调，44+/44−）。
+- **`TASKS-DETAIL.md` 走原子提交法**（363 批固化）：`git show HEAD:<file>` 铺底 + 只插我方一节构造暂存 blob（`git hash-object -w` + `git update-index --cacheinfo`），工作树另行为**追加**我方节 ⇒ 对方对调 hunk 不入本笔，且提交后工作树不会「反向缺我方节」而埋下被覆写的雷。
+
+### 2. 交付清单（15 件 + 2 份台账）
+
+| 件 | 内容 |
+|---|---|
+| `src/config/tuning.ts`（+ Cocos 镜像） | `MENU_TOPBAR_X` 中档键名 `notice` → `skins`，**坐标 24/560/648 与 pitch 88 一字未改**；删 `MENU_TOPBAR_RESERVED_ALPHA`（预留占位专用 ⇒ 升格后成死常量） |
+| `src/view/meta-view.ts`（+ 镜像） | `AnchoredMenuGeo` 增 `skinsHit`；`drawTopbar` 的预留占位循环（半透圆 + `alpha`）退场，改画**正常态圆**（按下态走 `palette.cardPressed`）+ 图标腿（`_menuBitmapReady` 就绪 ⇒ `blit`，否则不画）；绘制与命中读同一 geo ⇒ 「画 A 位按 B 位」结构性不可能 |
+| `src/view/settings-content.ts`（+ 镜像） | 行5 左格**逐字回退** `open-skins` → `cycle-skin`；`SettingsAction` 联合类型退出 `open-skins` ⇒ `isSettingsAction('open-skins') === false`（入口只留顶栏一条腿） |
+| `tests/beads-shell.test.ts` | **本批 ONE runnable check**：三颗顶栏热区中心 x = 68·604·692 且同 y + 中颗该列只有 1 枚圆且**不带 alpha**（画法腿从「预留」升「正常」的判别式）+ 顶栏入口单层 ⇒ `back` 直回主菜单（嵌套深度 = 1）；反假绿钉引 K-089 |
+| `tests/meta-menu-wall.test.ts` | 七枚动作集扫面随迁（`open-skins` 从 `SettingsAction` 移到 `MetaAction`）；§3 零变更名单删死名 `MENU_TOPBAR_RESERVED_ALPHA`（否则名单本身成假绿守卫） |
+| `tests/menu-layout-v35.test.ts` | `MENU_TOPBAR_X.notice` → `.skins`（typecheck 曾因此红 2 处）+ 用例标题「公告钮」→「中档钮」 |
+| `tests/settings-content.test.ts` · `skin-system.test.ts` · `bead-style-settings.test.ts` | 入口断言随迁（设置页不再有装扮馆入口；`cycle-skin` 恢复免费循环判据） |
+| `design/ux/ux-spec.md` **v1.26** | §2 路由表 `skins` 进入列 = 「主菜单顶栏中档钮」；§3.8 入口条改写（旧三行整体划线留档，K-053）；文末「变更记录 · v1.26」并**当场作废 v1.25 的假阻塞** |
+| `docs/architecture/ui-architecture-beads.md` | §12 追加「视觉变更登记（2026-10-24 · WXG-T-365 · UI-40 主菜单顶栏）」：改动面 / 金样本影响 / 判据 / 上位正本 |
+| `design/proposals/main-menu-entry-strategy.md` | v0.3 头注条 + 「P4-甲 落地记录」（三项裁定、硬前置证伪、B1–B4 状态、未闭合债） |
+
+### 3. 五条关键判断（全部实测后写）
+
+1. **顶栏不是场景，是像素**：入口升格 = 换键名 + 换画法 + 换动作归属，**零新坐标、零新热区算式**（`anchoredGeo` 单源）。上一批按「场景第四颗」去设想才逼出 `.meta` 依赖，属问题建模错误。
+2. **图标复用 = 用户裁定的最短腿**：「先用原入口图标代替，晚点再对 UI 设计」⇒ 直接复用该位原有 `MENU_TEXTURES.iconSound`（喇叭），零切图、零 `.meta`、零新画法；观感债 `[待 UI 设计]` 显式登记，不伪装成已完成。
+3. **上批「硬前置」被实测证伪**（K-096 同型）：「甲案需 `ui_icon_skin.png` + `.meta` 故结构上做不出」把快照日当永久事实。已在 ux-spec v1.26 记录中当场认错作废，并在提案「落地记录」写明证伪过程。
+4. **单入口纪律优先于便利**：`open-skins` 退出 `SettingsAction` 会让既有断言变红，仍按「一条腿」改判据而非保留双入口 —— 双入口 = 同屏两个语义位，且设置页 `cycle-skin`（免费循环）与装扮馆（买断）并存在同一格会造成判据打架。
+5. **金样本「条数不变 / sha 变」机理查明**：Node 捕获路径下位图腿恒不就绪 ⇒ 该颗的 `blit` 不产指令，改的是 α/fill/stroke 参数 ⇒ main-menu `total` 仍 5636（与落码前逐字同值）而 sha 变。故用户「本批不复取，只登账」的裁定不掩盖读数：三笔红（5636 vs 夹具 3662 / 1409 vs 1423 / 7046 vs 5086）**属既存待复取债**，非本批造成，复取须与视觉定稿同一 commit 一并重抓。
+
+### 4. 全量读数与归因（窗口取证，⛔ 靠推演免责）
+
+`pnpm run verify` = **PASS 18 ｜ FAIL 4**（22 项逐项执行、不短路）；`typecheck` / `framework:sync:check` / `cocos:check` / `check:size` / `mask:diff` / `harness:smoke` / `check:host-tests` / `check:board-seam` 全绿。
+
+| 红项 | 读数 | 归因 |
+|---|---|---|
+| `test` | beads **6 failed / 1255 passed / 3 skipped（1264）**（framework 508 绿 / breakout 239 绿） | ① ui-golden 3 例 = 既存待复取债（读数与本批落码前**逐字同值**，机理见 §3-5）；② difficulty 2 例（L3 DI 42.2 vs 表定 73.7；陈列序 `[6,1,8,2,3,5,4,7,9]` vs 表序）+ misplaced-assembler 1 例（L3 错位格 88 vs 108）= **对方关卡内容 WIP**，出处 = `git diff --stat` 显示 `L00003.json` −238 行、`levels-data.ts` −784 行，本批未动任何关卡数据 |
+| `check:es5spread` | 3 处 `[...Set]`（`meta-save-schema.ts:100` · `meta-state.ts:285/300`） | **HEAD 既存债**（出自 `09adcc7` WXG-T-360 皮肤买断机制层；两文件工作树与 HEAD 无差异）⇒ 非本批造成，登 §5-2 一行修 |
+| `check:tasks` | 2 条 | A「`WXG-T-363` 列数 4 ≠ 5」= **我方上批台账行漏第 5 列，本批已修**；I「`WXG-T-362` 署号未在册」= 他会话 `aa5c85e`，头注已披露 ⇒ 按 K-137 只披露不代填 |
+| `selftest:fast` | 1 红（`verify:selftest`） | **纯下游**：其第 4 步实跑 `check:tasks`（脚本自述「仓库现状问题，非聚合器问题」）⇒ 随 I 项存在而红 |
+
+### 5. 遗留与后续批
+
+1. `[待 UI 设计]` 装扮馆顶栏真图标（现复用喇叭）；`[待 art]` 卡面真美术预览与「解锁 150」货币图示（承 363 未清）。
+2. **P0 一行修**：`[...Set]` ×3 → `Array.from(...)`（ADR-0012 / ES-01；微信 ES5 档位下 `[...Set]` 塌成长度 1 的 `[Set]` ⇒ 存档字段被写坏）。属 360 遗留，非本批范围，待用户点头另开单。
+3. 金样本三态待复取（main-menu / level-select / level-select-mid）：复取锚与 `capturedFrom` 重锚须同批，⛔ 分批改夹具（判例 K-051）。
+4. `[待产品]` 原 `notice` 语义位被装扮馆占用 ⇒ 公告/邮件入口若要做须另择位（提案 P4 的「公告预留」语义并未消失，只是让位）。
+5. 观感与热区实测（88px 触点 + 中颗图标尺寸）`[待真机]`，本文不写「已达标」。
+6. `WXG-T-362` 台账未在册（他会话）⇒ 本批只披露不代填（K-137）。
+
+### 6. 工程教训（本批新踩点，沉淀候选来源）
+
+- **编辑工具会篡改中文**：本批两次写入出现「钮面→扭面」「顶栏→顶标」「零漂移→零漂（丢字）」。长段中文改走「`Write` 临时件 + python 定点插入 + 删临时件」，事后 `grep -c` 计数复验；K-053 的「逐字留档」前提 = 字节级保真，否则留档即伪造。
+- **码点凭记忆必错**：修「顶标」时把「栏」记成 U+6805（实为「栅」），第一遍修复反而写入 4 处「顶栅」⇒ 中文替换一律用**字面量**，不用转义码点。
+- **假判例引用自查**：曾把 K-089（阈值与真源脱钩 ⇒ 假绿）误写成 K-166（末位=boss 须 append）。引用前回 `knowledge/lessons/<标签>.md` 取原文，编号与语义成对核。
+
+### 7. 提交与推送取证
+
+- 提交范围 = 本批名下 15 件：`tuning.ts` / `meta-view.ts` / `settings-content.ts`（各含 Cocos 镜像，共 6 件）· 6 份测试 · `ux-spec.md` · `ui-architecture-beads.md` · `main-menu-entry-strategy.md` · 2 份台账（**只我方行/节**）；pre-commit ② 自动重暂存 `ctx/{index.json,BUDGET.md,hot-files.md}` + `memory/INDEX.md`。
+- ⛔ 不夹带：`levels-data.ts` 与其镜像、`L0000{3,4}.json`、`tools/scripts/{check-tasks,scan-text-distortion}.mjs`、`TASKS-DETAIL.md` 的对方 363/364 对调 hunk。
+- 推送取证按 K-142：`git ls-remote origin refs/heads/develop` + `git reflog show origin/develop --date=iso`。

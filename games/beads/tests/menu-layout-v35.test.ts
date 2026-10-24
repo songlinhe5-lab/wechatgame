@@ -39,15 +39,16 @@ describe('v3.5 定案常量', () => {
         expect(MENU_TOPBAR_ICON_D).toBe(MENU_TOPBAR_VISUAL_D);
         expect(MENU_TOPBAR_VISUAL_D).toBeLessThanOrEqual(TOUCH_MIN);
         // 右两颗热区 pitch 88 ⇒ 视觉隙 ≥ 0
-        expect(MENU_TOPBAR_X.mail - MENU_TOPBAR_X.notice - MENU_TOPBAR_VISUAL_D).toBeGreaterThanOrEqual(0);
+        // [WXG-T-365] 中档键名 notice → skins（公告预留位升格为装扮馆入口），坐标一字未变
+        expect(MENU_TOPBAR_X.mail - MENU_TOPBAR_X.skins - MENU_TOPBAR_VISUAL_D).toBeGreaterThanOrEqual(0);
     });
 
-    it('v3.7 招牌板体不压顶栏钮：板体（logo 图内 x[11,948]/960）左右缘落在设置钮与公告钮视觉圆之间', () => {
+    it('v3.7 招牌板体不压顶栏钮：板体（logo 图内 x[11,948]/960）左右缘落在设置钮与中档钮视觉圆之间', () => {
         const k = MENU_SIGN_FRAME.w / 960;
         const boardL = MENU_SIGN_FRAME.x + 11 * k;
         const boardR = MENU_SIGN_FRAME.x + 948 * k;
         const pad = (TOUCH_MIN - MENU_TOPBAR_VISUAL_D) / 2;
-        expect(boardR).toBeLessThanOrEqual(MENU_TOPBAR_X.notice + pad);
+        expect(boardR).toBeLessThanOrEqual(MENU_TOPBAR_X.skins + pad);
         expect(boardL).toBeGreaterThanOrEqual(MENU_TOPBAR_X.settings + pad + MENU_TOPBAR_VISUAL_D);
         expect(MENU_SIGN_FRAME.x * 2 + MENU_SIGN_FRAME.w).toBe(DESIGN_W); // 居中
     });

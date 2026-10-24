@@ -193,7 +193,7 @@ describe('BeadsShell — overlay stack + meta:overlay events', () => {
         const open = centerOf('none', 'open-settings');
         r.shell.tapMeta(open.x, open.y);
         const btn = metaLayout('settings').buttons.find((b) => b.id === 'toggle-debug-guides')!;
-        const skin = metaLayout('settings').buttons.find((b) => b.id === 'open-skins')!;
+        const skin = metaLayout('settings').buttons.find((b) => b.id === 'cycle-skin')!;
         expect(btn.box.y).toBe(skin.box.y);
         expect(btn.box.x).toBeGreaterThan(skin.box.x);
         expect(r.shell.play.debugGuides).toBe(false);
@@ -231,8 +231,10 @@ describe('BeadsShell — 走马灯卡入口 + levels overlay 选关（menu-archi
         expect(ids, '卡 = 入口').toContain('open-levels');
         expect(ids, '墙已下移 overlay ⇒ 菜单无 pick-level').not.toContain('pick-level');
         // [WXG-T-280] 锚定档：卡两侧 ◀▶ 翻页两颗（carousel-prev/next）进热区集。
-        // 2026-10-22 用户裁：签到入口回归（信封实装）⇒ `open-signin` 进第 6 位；公告位仍不注册。
-        expect([...new Set(ids)].sort()).toEqual(['carousel-next', 'carousel-prev', 'open-levels', 'open-settings', 'open-signin', 'start']);
+        // 2026-10-22 用户裁：签到入口回归（信封实装）；**WXG-T-365：原公告预留位升格为装扮馆入口
+        // `open-skins`（提案 P4-甲）**⇒ 顶栏三颗全部在册，集合七枚。
+        expect([...new Set(ids)].sort()).toEqual(['carousel-next', 'carousel-prev', 'open-levels', 'open-settings', 'open-signin', 'open-skins', 'start']);
+        expect(ids, '装扮馆入口已上提顶栏中档').toContain('open-skins');
         expect(ids, '签到入口回归（信封实装；旧 Q5① 退役口径作废）').toContain('open-signin');
         const before = r.shell.meta!.stamina;
         const c = centerOf('none', 'open-levels');
@@ -302,11 +304,9 @@ describe('BeadsShell — 装扮馆 skins 弹窗：入口 · 卡区 · 买断闭�
     const SECOND = registeredSkins()[1]!; // 未买断腿靠它（价目已在册）
     const SECOND_PRICE = SKIN_PRICES_COINS[SECOND.id]!;
 
-    /** 入口只有一条腿：菜单 → 设置弹窗行5 左格。 */
+    /** 入口只有一条腿：顶栏中档（**WXG-T-365** · 提案 P4-甲；原公告预留位升格）。 */
     function openSkins(r: Rig): void {
-        const open = centerOf('none', 'open-settings');
-        r.shell.tapMeta(open.x, open.y);
-        const entry = centerOf('settings', 'open-skins');
+        const entry = centerOf('none', 'open-skins');
         expect(r.shell.tapMeta(entry.x, entry.y)).toBe(true);
         expect(r.shell.overlay).toBe('skins');
     }
@@ -323,15 +323,30 @@ describe('BeadsShell — 装扮馆 skins 弹窗：入口 · 卡区 · 买断闭�
             .map((c) => (c as { text: string }).text);
     }
 
-    it('入口 = 设置弹窗行5 左格 · 返回弹回上一层（嵌套栈）· 发 meta:overlay', () => {
+    it('入口 = 顶栏中档（三颗同一行、pitch 88）· 返回回主菜单（单层）· 发 meta:overlay', () => {
         const r = rig({ initialScreen: 'menu' });
+        // 钉**具体数**（假绿守卫判例 K-089 同族）：三颗左缘 x = `MENU_TOPBAR_X`{24,560,648}，
+        // 热区 88 ⇒ 中心 x = {68,604,692}；同一行 y（两颗之间不得漏注册 / 不得互叠）。
+        const top = (['open-settings', 'open-skins', 'open-signin'] as const).map((id) => centerOf('none', id));
+        expect(top.map((c) => Math.round(c.x))).toEqual([68, 604, 692]);
+        expect(new Set(top.map((c) => Math.round(c.y))).size).toBe(1);
+        // 画法腿：中颗现在画的是**正常态圆**（⛔ 旧禁用态 α0.5 空圆残影）⇒ 命令流里该列 x 只有
+        // 1 枚圆且不带 alpha（`MENU_TOPBAR_RESERVED_ALPHA` 已随预留位退场）。
+        const mb = new RenderModelBuilder(750, 1334);
+        mb.begin();
+        r.shell.buildRenderModel(mb);
+        const mid = mb.end()
+            .commands
+            .filter((c) => c.kind === 'circle')
+            .map((c) => c as unknown as { x: number; alpha?: number })
+            .filter((c) => Math.abs(c.x - 604) < 0.5);
+        expect(mid).toHaveLength(1);
+        expect(mid[0]!.alpha).toBeUndefined();
         openSkins(r);
         expect(r.overlayEvents.some((e) => e.open && e.name === 'skins')).toBe(true);
         const back = centerOf('skins', 'back');
         r.shell.tapMeta(back.x, back.y);
-        expect(r.shell.overlay).toBe('settings'); // ⛔ 不整栈清空：回设置弹窗
-        r.shell.tapMeta(centerOf('settings', 'back').x, centerOf('settings', 'back').y);
-        expect(r.shell.overlay).toBe('none');
+        expect(r.shell.overlay).toBe('none'); // 顶栏入口 = 单层 ⇒ 返回直接回主菜单
     });
 
     it('卡区：槽序 = 注册序 · 列几何共读设置内容块（⛔ 第二套列宽）', () => {
