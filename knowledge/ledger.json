@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 167,
+  "nextId": 168,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -2781,6 +2781,23 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-167",
+      "state": "active",
+      "file": "knowledge/lessons/testing.md",
+      "category": "测试",
+      "title": "金样本漂移归因必须做「单变量回退实验」：`total`/`kinds` 腿与 `sha` 腿可以来自两个不同批次，只按 sha 拐点推测会把两腿并成一腿",
+      "contentHash": "99e793cb3f8cc299b9d70a88b4431ef17eff89c5327f33bb5ab9d6bb1dbab039",
+      "sourceTask": "WXG-T-375",
+      "addedDate": "2026-10-24",
+      "lastAccess": "2026-10-24",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -4377,6 +4394,15 @@
       "kind": "updated",
       "ids": [
         "K-163"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-24",
+      "taskId": "WXG-T-375",
+      "kind": "added",
+      "ids": [
+        "K-167"
       ],
       "note": null
     }

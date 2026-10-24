@@ -5590,6 +5590,7 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - 本批零代码、零玩法数据、零夹具手工编辑（只搬复取器产出）；改动面 = 1 件夹具（生成物）+ `ui-architecture-beads.md` 登记 + 台账两文件。
 - 不属本批射程的既存遗留（归 374 收尾选项 2/3）：`menu-architecture.md §3.3` 旧 DI 区间与旧墙序、`TASKS-DETAIL.md` 两处「残差 ≈58%」、`manifest.json` 的 `contentVersion` 未因 374 改 singles 而 bump、门禁⑧ L2/L3/L7/L10 既存 WARN、`check:tasks` note H（主表行数超观察哨）。
 - worktree 已拆（`git worktree remove`）；实验数据与 `--dump` 产物留在 `temp/`（已 gitignore）。
+- **知识入账（2026-10-24 续批，用户令「A」= 立三候选中的 A 条）**：归因法已入知识库 = **K-167【测试】金样本漂移归因必须做「单变量回退实验」：`total`/`kinds` 腿与 `sha` 腿可以来自两个不同批次**，落位 `knowledge/lessons/testing.md`（片内第 12 条）。按 `knowledge/INDEX.md §2` 三步跑齐：`kb:sync --task=WXG-T-375` 沉淀统计 = **新增 1（K-167）/ 修改 0 / 激活 0 / 归档 0**，`nextId` 167→168；`kb:audit` = 活跃 164 / 归档 0 ⇒ 无归档候选、**无相似命中**（归档区为空，第②步天然无从命中，不属漏跑）；`kb:check` 八重校验 PASSED；`ctx:build` 已刷新（文件 478 / 章节 7021）。待裁：候选 **B**（`capturedFrom` 这类锚字段的变更 `git log -S` 查不出来，pickaxe 只统计出现次数 ⇒ 须直读 `git show` diff）与候选 **C**（`verify` 须排在台账回写之后，否则 `check:tasks` 拿假 FAIL）本批**未立号**，且 C 与既存记忆「ctx:check 成对使用 `--working-tree`（含 verify 时序陷阱）」属同族，立新号前应先评估能不能合进那条。
 
 ## WXG-T-374
 
