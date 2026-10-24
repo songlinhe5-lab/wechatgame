@@ -5098,7 +5098,7 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 | # | 需做 | 依据读数（原文） | 完成判据 |
 |---|---|---|---|
 | 1 | `L00003/L00004.json` 的 `misplaced` 由**二维数组**改为「每行一个字符串」 | `L3 row0..row13: misplaced 行须为字符串`（L4 同形，两关共 26 行）；该校验口径自 `89f28e0` 起生效 | `pnpm run typecheck` + `pnpm run cocos:check` + `pnpm run harness:build` 三绿 |
-| 2 | L3 错位格数补齐到「全可填格」 | `tests/misplaced-assembler.test.ts:346` → `L3 全错: expected 88 to be 108`（**差 20 格**） | `pnpm --filter @wxgame/beads run test` 该例转绿 |
+| ~~2~~ | ~~L3 错位格数补齐到「全可填格」~~ → **⚠ 本项已被 WXG-T-369 否证并闭环** | 原记 `L3 全错: expected 88 to be 108`（差 20 格）；369 判定 **L3 的 88 是正解**（§3.13 冻结式 `M_max` 口径），原断言按「全可填格」属**误判**，已在断言端修正 | ✅ 已闭环（`ca10404`） |
 | 3 | 同步 `EXPECT_DI` 与 §5.1 表，并订正九关墙序 | `expected 73.7 to be 42.2`；墙序实测 `[6,1,8,2,3,5,4,7,9]` vs 期望 `[6,1,8,2,5,4,3,7,9]`（L3/L5 互换） | `tests/difficulty.test.ts` 两例转绿 |
 | 4 | 重抓 `ui-golden` 三态 | `main-menu 5636≠3662`、`level-select 1409≠1423`、`level-select-mid 7046≠5086`（`total` 指令数） | 仅由 `tests/ui-golden-capture.ts` 在可复现锚重抓；⛔ 手改夹具（K-051/K-053）；重抓前须有 UX 裁定且 `ui-architecture-beads.md §12` 登记 |
 | 5 | 上述入库后整跑取读数 | 现行 `PASS 21 ｜ FAIL 1` | `pnpm run verify` 出 **22/22** |
@@ -5433,6 +5433,33 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - **待用户裁定**：若那四件长期不入库，是否授权我方接管（接管 = 明确丢弃其未提交工作），或另开一条按现成工具（`tools/scripts/level-derange.mjs`）重生成 L3 misplaced 的独立批。
 - 367 的复取动作在本批三条红清零后执行，工具与步骤已就绪（干净检出 + 相对软链 + 裸 node 复取器），预计一次 `cp` 夹具 + 一次对拍即完。
 - 本批产生的干净检出已删除（⛔ 留一个钉在旧 commit 的检出 = 下一轮读数的隐患）；重建 = `git worktree add --detach temp/<名> HEAD` + 手搭 `games/beads/node_modules/@wxgame/framework` 相对软链。
+
+## WXG-T-370
+
+**harness 冒烟暂存树改增量同步（K-163 的装置侧根治：不再整棵删 `dev/harness/.smoke/`）**
+
+### 1. 根因
+
+`tools/scripts/lib/harness-runtime.mjs::stageDist()` 每次冒烟 / 帧预览都 `rmSync(STAGE, { recursive: true, force: true })` 整棵删再重贴。IDE 工作区批量删除守卫按「**本 turn 累计删除条目数**」计（阈值 500），一份 324 文件 + 324 目录的树 = **648 条目** ⇒ 必被拒（K-163 原记录的现象与根因）。该守卫只存在于 IDE shell 层（仓库代码无 `SAFE_DELETE` 实现），普通终端 / CI 无此拦截——但正因为它是环境特性，⛔ 不能用改判据 / 跳项来绕。
+
+### 2. 改法（最小面）
+
+`stageDist()` 改为**增量同步**：先 `walk(DIST)` 取期望集合，只删 `STAGE` 中**不在期望集合里**的文件（常态 0 个），其余照旧覆盖写。改动 **1 文件 / +11 −2 行**，无新依赖、无新配置项、无新参数；`loadHarness()` 是唯一调用点，`smoke-harness.mjs` 与 `render-harness-frame.mjs` 两个消费者同源受益。
+
+### 3. 判别自测（K-089：先证守卫能红，再证修法有效）
+
+| 场景 | 改前 | 改后 |
+|---|---|---|
+| 往 `.smoke` 塞 300 个残留文件（合计 **673 条目**）后跑 `harness:smoke` | ❌ exit 1 · `[safe-delete] count:626 > 500` · `.smoke` 一字未动 | ✅ exit 0 · junk 300 个被增量清掉 · `.smoke` 回 **373** 条目 |
+| 连跑第三次（期望删除 0 个） | 改前不适用（整棵删仍超线） | ✅ exit 0 |
+| 整跑 `pnpm run verify`（`[17] harness:build` → `[19] harness:smoke`） | 视累积条目数红/绿不定（K-163 追记：655 红 / 372 绿两次实测） | ✅ `harness:smoke` PASS，整跑 **21/22**（唯一红 = `test`，他轨关卡数据在制） |
+
+### 4. 边界与不做
+
+- ⛔ 不动 `harness:build`（它只写 `dev/harness/dist`，不碰 `STAGE`）。
+- ⛔ 不放宽冒烟判据、不跳项、不加 `--no-verify`。
+- 残留**空目录**不清（`walk` 只返回文件）：无害，且越清越接近"批量删除"而重新触发守卫；真要收拾就一次性删到 `.smoke` 不存在（K-163 ② 的做法）。
+- 未改 `.gitignore`，未新增任何暂存物。
 
 ## WXG-T-369
 

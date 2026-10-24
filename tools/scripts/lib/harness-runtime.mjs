@@ -45,13 +45,22 @@ function walk(dir, out = []) {
  * @returns {{ rewritten: number, strayBare: string[] }}
  */
 function stageDist() {
-  rmSync(STAGE, { recursive: true, force: true });
+  const files = walk(DIST);
+  // 增量同步而非整棵删（K-163 / WXG-T-370）：工作区批量删除守卫按「本 turn 累计条目数」计
+  // （阈值 500），整棵 rm 一份 648 条目的暂存树必被拒 ⇒ 只清 DIST 里已不存在的残留。
+  // 常态残留 = 0 个；结构未变时不发生删除，冒烟与 verify 整跑均可重复执行。
+  if (existsSync(STAGE)) {
+    const wanted = new Set(files.map((f) => relative(DIST, f)));
+    for (const stale of walk(STAGE)) {
+      if (!wanted.has(relative(STAGE, stale))) rmSync(stale, { force: true });
+    }
+  }
   mkdirSync(STAGE, { recursive: true });
 
   const strayBare = new Set();
   let rewritten = 0;
 
-  for (const file of walk(DIST)) {
+  for (const file of files) {
     const rel = relative(DIST, file);
     const target = join(STAGE, rel);
     mkdirSync(dirname(target), { recursive: true });

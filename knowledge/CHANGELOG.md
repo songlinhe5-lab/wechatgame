@@ -12,6 +12,7 @@
 
 - **修改**（updated）：K-139「交付格式的判据是「目标运行时能不能解码」，压缩率不构成选型依据；带「未验证前提」的格式裁定不得进产线口径」、K-163「`dev/harness/.smoke/` 残留累积到 500+ 条目后，harness 冒烟会「假 FAIL」（`SAFE_DELETE_BULK_CONFIRM_REQUIRED`）」
 - **修改**（updated）：K-163「`dev/harness/.smoke/` 残留累积到 500+ 条目后，harness 冒烟会「假 FAIL」（`SAFE_DELETE_BULK_CONFIRM_REQUIRED`）」
+- **修改**（updated）：K-163「`dev/harness/.smoke/` 残留累积到 500+ 条目后，harness 冒烟会「假 FAIL」（`SAFE_DELETE_BULK_CONFIRM_REQUIRED`）」
 
 ### WXG-T-364
 
