@@ -104,4 +104,11 @@ export interface BeadsGameOptions {
      * 作为放行依据（I7 棘轮：已得入口不因后续内容变更回收）。
      */
     readonly canAdvanceAcrossArc?: (fromIndex: number, toIndex: number) => boolean;
+    /**
+     * **皮肤买断拥有态**（WXG-T-363 · `systems-index §3.7` v1.83「外观 = 金币买断」）：
+     * 真源 = `MetaState.ownsSkin`，由 shell 下传。穿肤的两条腿（暂停面板换肤循环的循环域、
+     * 装扮馆 `wearSkin` 定向穿档）只在这条腿上读拥有态 ⇒ ⛔ 存在第二套拥有态真源。
+     * 缺省（无 shell / 无经济层的独立 `BeadsGame`）⇒ **不设门**，行为逐字不变（后向兼容）。
+     */
+    readonly ownsSkin?: (skinId: string) => boolean;
 }

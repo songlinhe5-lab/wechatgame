@@ -8,11 +8,11 @@
  * （DEC-3：栈即导航状态）。
  *
  * 热路径零分配：转场只推 / 弹引用；投影只读栈顶。三条内容路由（menu / play / levels）
- * 由构造期闭包给出 `draw`（UI-50：`UiRoot` 是唯一绘制入口），两条弹窗路由是模块级单例。
+ * 由构造期闭包给出 `draw`（UI-50：`UiRoot` 是唯一绘制入口），弹窗路由是模块级单例。
  *
  * ⚠ 边界 ①：`levels` 是**页**（盖住菜单）⇒ 它的 `draw` 复用菜单腿入口（视图按 overlay 走页分支）；
- * `signin` / `settings` 是**透明弹窗**，底下 menu 路由仍可见并画出弹窗本帧（菜单遮罩态不画
- * 底页，属既有视觉；逐层拆分要先过 UX 裁定），故两条弹窗路由 `draw` 为空。
+ * `signin` / `settings` / `skins` 是**透明弹窗**，底下 menu 路由仍可见并画出弹窗本帧（菜单遮罩态不画
+ * 底页，属既有视觉；逐层拆分要先过 UX 裁定），故弹窗路由 `draw` 为空。
  * ⚠ 边界 ②：对局腿的相位弹窗（`paused` / `level-clear` / `game-over` / `finish`）仍由
  * `BeadsGame.phase` + `PanelRouter` 直接分派 —— 它们是**点击路由**（命中哪颗面板钮），
  * 不是导航标志位；搬上本栈要先让面板 View 注册成路由。本批不动，免得同一状态两处真源。
@@ -25,7 +25,7 @@ import type { UiRoute } from './ui-root';
 export type ShellScreen = 'play' | 'menu';
 
 /** 菜单侧覆盖层（与 `MetaOverlay` 的呈现侧取值一一对应）。 */
-export type MenuOverlay = 'signin' | 'settings';
+export type MenuOverlay = 'signin' | 'settings' | 'skins';
 
 /**
  * 基础页的绘制入口（壳注入：菜单腿一次 `buildMetaView`、对局腿一次
@@ -41,6 +41,10 @@ const noop = (): void => { };
 
 const MODAL_SIGNIN: UiRoute = { name: 'signin', kind: 'modal', draw: noop };
 const MODAL_SETTINGS: UiRoute = { name: 'settings', kind: 'modal', draw: noop };
+/** `[WXG-T-363]` 装扮馆弹窗（入口 = 设置弹窗行5 左格 `open-skins`）。 */
+const MODAL_SKINS: UiRoute = { name: 'skins', kind: 'modal', draw: noop };
+/** 弹窗路由表（`MenuOverlay` 全覆盖 ⇒ `openModal` 无三元链、新增一档只加一行）。 */
+const MODALS: Record<MenuOverlay, UiRoute> = { signin: MODAL_SIGNIN, settings: MODAL_SETTINGS, skins: MODAL_SKINS };
 
 export class PhaseRouteBinder {
     /**
@@ -77,7 +81,7 @@ export class PhaseRouteBinder {
         const routes = this._nav.routes;
         if (routes.length < 2) return 'none';
         const name = routes[routes.length - 1]!.name;
-        return name === 'levels' || name === 'signin' || name === 'settings' ? name : 'none';
+        return name === 'levels' || name === 'signin' || name === 'settings' || name === 'skins' ? name : 'none';
     }
 
     /** `levels` 页的大关上下文（`_wallSlotsFor` 的唯一来源）。 */
@@ -98,7 +102,7 @@ export class PhaseRouteBinder {
 
     /** 菜单 → 弹窗（透明，底下仍画主菜单）。 */
     openModal(name: MenuOverlay): void {
-        this._nav.push(name === 'signin' ? MODAL_SIGNIN : MODAL_SETTINGS);
+        this._nav.push(MODALS[name]);
     }
 
     /** 关栈顶覆盖层；基础页不弹（`back` 与淡出终点共用）。 */

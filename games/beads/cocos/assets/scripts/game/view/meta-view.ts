@@ -118,8 +118,14 @@ import {
     settingsContentLabel,
 } from './settings-content';
 import { SIGNIN_TITLE, drawSigninContent, signinCellLayout } from './signin-content';
+// WXG-T-363：装扮馆内容块（卡区版式 / 卡面绘制 / 标题）单源，与 UI-30 / UI-32 同形。
+import { SKINS_TITLE, drawSkinCard, skinCardBoxes } from './skins-content';
 
-export type MetaOverlay = 'none' | 'signin' | 'settings' | 'levels';
+/**
+ * 菜单侧呈现态。`skins`（**WXG-T-363**）= 装扮馆弹窗（与 `signin` / `settings` 同一
+ * {@link overlayPlate} 容器）；入口 = 设置弹窗行5 左格 `open-skins`（ux-spec v1.25 §3.8）。
+ */
+export type MetaOverlay = 'none' | 'signin' | 'settings' | 'levels' | 'skins';
 
 /** Everything the meta screens draw, assembled read-only by the shell. */
 export interface MetaViewData {
@@ -310,7 +316,18 @@ export type MetaAction =
     | 'cycle-bead-style'
     | 'cycle-bead-size'
     /** EP12-S8 行4 第三枚选择器钮：整套皮肤（与暂停面板同一批 game setter，内容单源）。 */
-    | 'cycle-skin';
+    | 'cycle-skin'
+    /**
+     * `[WXG-T-363]` 设置弹窗行5 左格 = **装扮馆入口**（顶替原 `cycle-skin` 的位）；
+     * 钮面文案与 `cycle-skin` 同串，受理归 shell（`PhaseRouteBinder.openModal('skins')），
+     * ⛔ 不进 `GameSettings.apply`。
+     */
+    | 'open-skins'
+    /**
+     * `[WXG-T-363]` 装扮馆卡（点 = 已拥有则穿上 / 未拥有先买后穿，买断闭环归 shell）。
+     * 卡序走 {@link MetaButton.slot}（= `registeredSkins()` 注册序下标），⛔ 视图不传 skinId。
+     */
+    | 'skin-tap';
 
 interface Box {
     readonly x: number;
@@ -327,6 +344,7 @@ export interface MetaButton {
      * ⚠ 槽位 **≠ 关索引**：陈列序 = 配置文件顺序（EP12-S6 已退役 DI 升序，现码恒等），仍须经
      * shell 的 `wallSlots` 映射解析（视图内拿不到、也不该拿到关索引）。
      * 旧字段名 `levelIndex` 正是 `beads-shell.ts::_wallSlotsFor`「按槽当关」回归的温床，就此**更名根治**。
+     * `[WXG-T-363]` `skin-tap` 共用本字段 = 皮肤**注册序下标**（解析腿 = `registeredSkins()[slot]`）。
      */
     readonly slot?: number;
 }
@@ -361,7 +379,9 @@ const _layouts = new Map<MetaOverlay, MetaLayout>();
  */
 const _layoutsByRows = new Map<MetaOverlay, Map<number, MetaLayout>>();
 
-/** 弹窗纸面板宽高（`signin` / `settings` 共用；`levels` 自 ADR-0032 D5 起是**整页**，不走纸面板）。 */
+/**
+ * 弹窗纸面板宽高（`signin` / `settings` / `skins` 共用；`levels` 自 ADR-0032 D5 起是**整页**，不走纸面板）。
+ */
 const OVERLAY_W = 600;
 const OVERLAY_H = 720;
 
@@ -481,11 +501,30 @@ function settingsLayout(): MetaLayout {
     return { buttons, signinCells: [] };
 }
 
+/**
+ * `[WXG-T-363]` 装扮馆弹窗（ux-spec v1.25 §3.8）：同一 {@link overlayPlate} 底板 + 卡区热区 + 底部返回。
+ * 卡区几何单源在 `view/skins-content.ts::skinCardBoxes`（共读 `SETTINGS_GRID` 列宽）；
+ * `back` 与 `settings` 的返回**同几何**（240×TOUCH_MIN @ 板底 + 50 居中）。
+ */
+function skinsLayout(): MetaLayout {
+    const plate = overlayPlate();
+    const cards = skinCardBoxes(plate);
+    const buttons: MetaButton[] = [];
+    for (let i = 0; i < cards.length; i++) buttons.push({ id: 'skin-tap', slot: i, box: cards[i]! });
+    const backW = 240;
+    buttons.push({
+        id: 'back',
+        box: box(plate.x + (plate.w - backW) / 2, plate.y + 50, backW, TOUCH_MIN),
+    });
+    return { buttons, signinCells: [] };
+}
+
 function buildLayout(overlay: MetaOverlay, rows: number): MetaLayout {
     return overlay === 'signin' ? signinLayout()
         : overlay === 'settings' ? settingsLayout()
             : overlay === 'levels' ? levelsLayout(rows)
-                : menuLayoutAnchored(DEFAULT_MENU_ANCHORS);
+                : overlay === 'skins' ? skinsLayout()
+                    : menuLayoutAnchored(DEFAULT_MENU_ANCHORS);
 }
 
 // ───────────────────────────────────────────────── [WXG-T-280] anchored menu
@@ -687,6 +726,8 @@ function label(id: MetaAction, data: MetaViewData): string {
         case 'cycle-bead-style':
         case 'cycle-bead-size':
         case 'cycle-skin':
+        // `[WXG-T-363]` 装扮馆入口与原循环钮**同串**（钮面逐字不变 = `settings` 金样本不漂）。
+        case 'open-skins':
             return settingsContentLabel(id, data);
         default:
             return '';
@@ -1507,10 +1548,13 @@ export function buildMetaView(
         builder.rect(plate.x, plate.y, plate.w, plate.h, { fill: palette.panel, radius: UI_CONTAINER.radiusPanel });
         // overlay 标题：`settings` 读文案表；`signin` 的「七日签到」在 `tokens.md §7` **无对应键**
         // ⇒ 维持既有字面，UI-32 起由 `signin-content.ts` 单源给出（⛔ 不为此新造令牌）。
+        // `[WXG-T-363]` `skins` 同判例（「装扮馆」= `skins-content.ts::SKINS_TITLE`）。
         // [WXG-T-339] 基线 −50（修前 −70：中心落进设置首行钮带 ⇒ 真机报「标题压按钮」）；
         // 本行两弹窗共用 ⇒ signin 标题同步位移（其格布局未动，入口已退役不扩面）。
         const overlayTitle =
-            data.overlay === 'signin' ? SIGNIN_TITLE : COPY_TOKENS.btn_settings_label;
+            data.overlay === 'signin' ? SIGNIN_TITLE
+                : data.overlay === 'skins' ? SKINS_TITLE
+                    : COPY_TOKENS.btn_settings_label;
         builder.text(plate.x + plate.w / 2, plate.y + plate.h - 50, overlayTitle, {
             fill: palette.text,
             font: UI_FONT.overlayTitle,
@@ -1530,6 +1574,11 @@ export function buildMetaView(
         if (data.overlay === 'settings' && isSettingsAction(b.id)) continue;
         if (b.id === 'pick-level') continue; // 选关格已在上方绘制
         if (b.id === 'studio-import' && !data.studioEnabled) continue; // 未配服务 ⇒ 不绘制（也不该被点）
+        // `[WXG-T-363]` 装扮馆卡：卡面 = 皮肤自己的令牌（非通用钮画法），画法单源 `skins-content`。
+        if (b.id === 'skin-tap') {
+            drawSkinCard(builder, b.box, b.slot ?? -1, data.skinId, data.pressed === b, data.reduceMotion, palette);
+            continue;
+        }
         drawMetaButton(builder, palette, data, b);
     }
     if (data.debugGuides) drawSafeGuides(builder, A);

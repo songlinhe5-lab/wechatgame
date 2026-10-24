@@ -22,7 +22,12 @@ import type { BeadsPalette } from './palette';
 import { UI_FONT, pressOffset } from './ui-theme';
 import { drawButton } from './ui-widgets';
 
-/** 内容块里的设置动作（顺序即绘制 / 命中顺序）。 */
+/**
+ * 内容块里的设置动作（顺序即绘制 / 命中顺序）。
+ * `open-skins`（WXG-T-363）= 菜单设置弹窗里原 `cycle-skin` 的位置改挂的**装扮馆入口**：
+ * 钮面文案与 `cycle-skin` 同串（见 {@link settingsContentLabel}），受理归 shell（不进本件的开关族）；
+ * 暂停面板行4 仍是 `cycle-skin`（循环切已买断肤）。
+ */
 export type SettingsAction =
     | 'toggle-bgm'
     | 'toggle-sfx'
@@ -33,6 +38,7 @@ export type SettingsAction =
     | 'cycle-bead-style'
     | 'cycle-bead-size'
     | 'cycle-skin'
+    | 'open-skins'
     | 'toggle-debug-guides';
 
 /** 宿主投影：设置弹窗与暂停面板的同名字段子集（结构兼容，⛔ 不复制对象）。 */
@@ -64,8 +70,26 @@ export interface SettingsButton {
 }
 
 /**
- * 菜单变体顺序：**10 钮 = 5 行 × 2 列**（末行 = 皮肤 + Debug）。
+ * 内容块**列几何单源**（WXG-T-363）：设置弹窗 10 钮与装扮馆卡区共读这一套列宽/列间/内缩，
+ * ⛔ 第二套列宽（`view/skins-content.ts::skinCardBoxes` 是本件之外唯一的消费者）。
+ * 数值 = 金样本在册态（`settings` 首行钮 `{x:280,y:857,w:248,h:88}`）的由来，⛔ 顺手改。
+ */
+export const SETTINGS_GRID = Object.freeze({
+    /** 行首内缩（左右同值 ⇒ 行宽 = plate.w − 2×本值）。 */
+    sideInset: 40,
+    /** 列间距。 */
+    colGap: 24,
+    /** 列数。 */
+    cols: 2,
+    /** 首行钮下缘距 plate 底缘（= `plate.y + plate.h − 170`，避让实算见 `meta-view::settingsLayout` 注）。 */
+    firstRowFromBottom: 170,
+});
+
+/**
+ * 菜单变体顺序：**10 钮 = 5 行 × 2 列**（末行 = 装扮馆入口 + Debug）。
  * ⚠ 改动顺序会重排设置弹窗的按钮位置与金样本 ⇒ 需同批重抓夹具。
+ * 行5 左格由 `cycle-skin` 换为 `open-skins`（WXG-T-363）= **只换动作 id**：文案 / 几何 / 字档 / 色
+ * 逐字不变，而 id 不进 RenderModel 指令流 ⇒ `settings` 金样本零漂移（ux-spec v1.25 §3.8）。
  */
 const MENU_ORDER: readonly SettingsAction[] = [
     'toggle-bgm',
@@ -76,11 +100,15 @@ const MENU_ORDER: readonly SettingsAction[] = [
     'toggle-debug-info',
     'cycle-bead-style',
     'cycle-bead-size',
-    'cycle-skin',
+    'open-skins',
     'toggle-debug-guides',
 ];
 
-const ACTION_SET: ReadonlySet<string> = new Set<string>(MENU_ORDER);
+// ⚠ `MENU_ORDER` 只管**设置弹窗的排布**；暂停面板行4 的换肤循环钮仍属 SettingsAction（UI-31 由
+// `view-model::isSettingsAction` 逐钮派发到 chip 小字档）⇒ 动作全集另含 `cycle-skin`（WXG-T-363）。
+// 漏一个的代价实测可见：`isSettingsAction('cycle-skin')` 判假 ⇒ 暂停面板该钮落回通用主/次钮腿
+// （字档 22px → bold 30px），`pause` 金样本整帧漂。
+const ACTION_SET: ReadonlySet<string> = new Set<string>([...MENU_ORDER, 'cycle-skin']);
 
 export function isSettingsAction(id: string): id is SettingsAction {
     return ACTION_SET.has(id);
@@ -91,11 +119,11 @@ export function isSettingsAction(id: string): id is SettingsAction {
  * 避让实算与三处净空 12 见 `meta-view::settingsLayout` 注）。
  */
 export function settingsContentButtons(plate: SettingsBox): SettingsButton[] {
-    const rowW = plate.w - 80;
-    const rowX = plate.x + 40;
-    const colGap = 24;
-    const colW = (rowW - colGap) / 2;
-    const topY = plate.y + plate.h - 170;
+    const rowW = plate.w - SETTINGS_GRID.sideInset * 2;
+    const rowX = plate.x + SETTINGS_GRID.sideInset;
+    const colGap = SETTINGS_GRID.colGap;
+    const colW = (rowW - colGap * (SETTINGS_GRID.cols - 1)) / SETTINGS_GRID.cols;
+    const topY = plate.y + plate.h - SETTINGS_GRID.firstRowFromBottom;
     const out: SettingsButton[] = [];
     for (let i = 0; i < MENU_ORDER.length; i++) {
         const col = i % 2;
@@ -135,7 +163,9 @@ export function settingsContentLabel(id: SettingsAction, data: SettingsContentDa
             return `珠子风格  ${beadStyleLabel(data.beadStyle)}`;
         case 'cycle-bead-size':
             return `豆子尺寸  ${BEAD_SIZE_LABELS[data.beadSize] ?? data.beadSize}`;
+        // 装扮馆入口与原循环钮同串（钮面不变 = `settings` 金样本不漂的唯一凭据）。
         case 'cycle-skin':
+        case 'open-skins':
             return `皮肤  ${skinLabel(data.skinId)}`;
         case 'toggle-debug-guides':
             return `Debug  ${data.debugGuides ? '开' : '关'}`;

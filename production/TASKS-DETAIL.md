@@ -5055,3 +5055,65 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 3. **价位 150 的实际到达天数**：现状唯一金币产出腿 = 签到 ≈**45.7🪙/天**（首通币、宝箱、每日任务全部未落码）⇒ 150 档需 **3–4 天**；提案「第一天买得起」的算术前提（P1 稳态 ≈116🪙/天）尚未存在。若要「首日可买」须同批落 P0-⑤ 首通金币（另批）。
 4. **Q3（价格与套数）仍待拍板**：`SKIN_PRICES_COINS` 目前一档，新肤入注册表时必须同批加档（否则玩家侧表现为「买不了」）。
 5. `pnpm run verify` 复跑与金样本回归 = 待并发 WIP 入库后补做。
+
+## WXG-T-363
+
+**beads·装扮馆（`skins` 弹窗）工程批：设置页入口 + 卡区版面 + 买断闭环（承 360 遗留①，闭合 §3.7 v1.83「外观 = 金币买断」的玩家可见腿）**
+
+用户 2026-10-24 令「**落皮肤页工程批**」。上位：359（v1.83 改判）→ 360（机制层：价目 + 拥有态 + grandfather，⛔ 入口未接）→ 361/362（对方批）→ 本批（UI + 闭环）。360 §3-3 把话说死：「UI 批必须同批施加拥有判据，否则本批不闭合」⇒ 入口与门**必须同批落**，不能先开门后收口。
+
+### 1. 领号核验与并发侦查（K-046 / K-045）
+
+- 开工时 HEAD = `0990680`（360 批遗留①的 P4 四案文档批）；批中对方（CodeBuddy）落 `f47f278`（WXG-T-364 studio 大关草稿统一发布）⇒ 本批提交基 = `f47f278`。
+- 领号认工作树 ∪ HEAD ∪ 归档全局最大号：主表头注已分配至 360，但工作树内 361/362/364 已在他会话散文中出现 ⇒ 按「号递增不回收」取 **363**（`grep -rn 'WXG-T-363' production/ games/ docs/` 于开工时零命中）。
+- 并发在制品（⛔ 不夹带、不代提交、不代改）：`src/config/levels-data.ts`（+52/−784）、`design/levels/singles/L0000{3,4}.json`、`tools/scripts/{check-tasks,scan-text-distortion}.mjs`、`apps/beads-studio/lab*.mjs`、两份台账（`TASKS.md` 头注升 364/365 + 364 主表行 + 356 行被改写成 **CRLF**；`TASKS-DETAIL.md` §357 整节 45 行 CRLF）。
+- **台账的原子提交法**（本批新踩点，K-045 同族）：两份台账里对方的行**未入库**，`git add <整文件>` 即夹带 ⇒ 改走「备份工作树 → `git show HEAD:<file>` 铺底 → 只插我方一行/一节 → `git add` → 还原工作树（对方内容 + 我方内容并存）」。校验 = `git diff --cached` 只剩我方 hunk、`git diff` 只剩对方 hunk、文件 CR 计数不变（TASKS.md 仍 1 处、DETAIL 仍 45 处）。⚠ 对方 364 的台账行仍待其会话自登，本批不代笔。
+- 镜像门（`control-manifest §15`，pre-commit ①⁷⁄₈）：本批改 `games/beads/src/**` ⇒ 触发 `sync-framework-to-cocos.mjs --check`，该检查读**全工作树** ⇒ 先跑 `pnpm run framework:sync`（实测写 10、未变 135、删 0，含对方 `levels-data` 镜像一并被 sync 忠实拷贝）→ 只暂存我名下 9 件镜像，⛔ 不用 `--no-verify`。
+
+### 2. 交付清单
+
+| 件 | 内容 |
+|---|---|
+| `design/ux/ux-spec.md` **v1.25**（B1 先文档后代码） | §2 路由表增 `skins`（modal · 入口 = 设置弹窗「皮肤」行）+ 新 **§3.8 装扮馆弹窗**七条（入口 / 容器 / 卡区 / 卡面 / 交互 / 暂停面板门 / 动效）+ 头注与文末变更记录。**+1897 tok（44130 → 46027，484 → 511 行）** ⇒ 越过 WXG-T-098 豁免条款的 500 tok 评估线，评估结论与撤销条件登记在 `ctx/budget-exempt.json` 同条目（本批不外移 §3，理由见 §3-4） |
+| `src/view/skins-content.ts`（**新** 136 行） | `SKINS_TITLE` / `skinCardBoxes(plate)`（列几何**共读** `SETTINGS_GRID` ⇒ ⛔ 第二套列宽；卡带 y∈[645,945]）/ `statusText` 四态（`穿戴中` / `点击穿戴` / `解锁 {价}` / `不可购买`，全走文案通道 ⇒ 零红点、零新提示位）/ `drawSkinCard`（卡底 = 该肤 `panel`、卡内一枚该肤 `wood` 族木钮 + 一行 `text` 状态字；7 位置参数 ⇒ 每帧零分配）/ `setSkinOwnedResolver`（拥有态经宿主注入 ⇒ `MetaViewData` **零新增字段**，判例 = `meta-view::setMenuBitmapResolver`） |
+| `src/config/tuning.ts` | 新增 `SKINS_CARD_H = 300` / `SKINS_CARD_TOP_INSET = 82`（版面派生值 ⇒ ⛔ 不进 §3，判例同 `SETTINGS_GRID` / `LEVELS_*`）；82 的由来 = 与设置弹窗「标题下缘 957 / 净空 12」同一避让口径 |
+| `src/view/settings-content.ts` | `SettingsAction` 增 `open-skins`；`MENU_ORDER[8] = 'open-skins'`（替原 `cycle-skin` 位）；文案 case `cycle-skin`/`open-skins` **同串**；`settingsContentButtons` 改读 `SETTINGS_GRID`（列宽 248 逐字不变）；**`ACTION_SET = new Set([...MENU_ORDER, 'cycle-skin'])`**（见 §3-1，本批唯一的金样本级坑） |
+| `src/view/meta-view.ts` | `MetaOverlay` 增 `'skins'`；`MetaAction` 增 `open-skins` / `skin-tap`（卡序走 `MetaButton.slot` = 注册序下标，⛔ 视图不传 skinId）；`skinsLayout()` 热区（卡 + `back` 与 settings 同几何）；`buildLayout` / `label` / 标题行 / 绘制分支各加一腿 |
+| `src/ui/phase-route-binder.ts` | `MenuOverlay` 增 `skins` + `MODAL_SKINS`（`MODALS: Record<MenuOverlay, UiRoute>` 全覆盖 ⇒ `openModal` 无三元链）；`overlay` 投影加 `skins` 一档 |
+| `src/game/beads-shell.ts` | `case 'open-skins'` → `openModal('skins')` + `meta:overlay` 事件；`case 'skin-tap'` = **买断闭环**（已拥有 ⇒ 直接穿；未拥有 ⇒ `buySkin` 成功才穿；余额不足 ⇒ `false` 零扣款零入档零穿戴零事件）；ctor 内 `ownsSkin = (id) => this.meta?.ownsSkin(id) ?? true` 一处注入 `setSkinOwnedResolver` |
+| `src/game/beads-game-types.ts` / `beads-game.ts` / `beads-game/game-settings.ts` | `BeadsGameOptions.ownsSkin?` → `BeadsGame._ownsSkin` → `GameSettingsHost.ownsSkin?`（**单点转交，`BeadsGame` 不存副本**）；新增 `GameSettings.wearSkin(id)`（已是当前档 ⇒ 零写档；未拥有且宿主给了查询 ⇒ 零写档不静默降级；否则 `applySkin` + `persist` = 恰一次写档）；`_cycleSkin` 循环域收为**已拥有集合**（宿主未注入 ⇒ 不设门，`skin-system.test.ts:303-312` 全注册表循环例因此仍绿） |
+| `tests/beads-shell.test.ts` | 新 describe 6 例：入口只有一条腿 + `back` 回上一层（嵌套栈）+ 事件／卡区槽序 = 注册序 & 列几何共读 & 卡带钉**具体数**／态文案并存零红点／点未拥有卡 = 先买后穿 + 余额不足四零／点已拥有在穿卡 = 恒等零写档／拥有态门（穷腿零副作用 + 阳性对照 K-060） |
+| `tests/settings-content.test.ts` · `skin-system.test.ts` · `bead-style-settings.test.ts` | **有意改写既有判据**（4 处，见 §3-3） |
+| `cocos/assets/scripts/**`（**9 件**镜像） | `view/skins-content.ts`（新）· `config/tuning.ts` · `view/settings-content.ts` · `view/meta-view.ts` · `ui/phase-route-binder.ts` · `game/beads-shell.ts` · `game/beads-game-types.ts` · `game/beads-game.ts` · `game/beads-game/game-settings.ts`，由 `framework:sync` 产出、与源码同次提交 |
+
+### 3. 四条关键判断（全部实测后写）
+
+1. **`MENU_ORDER` ≠ 动作全集 —— 摘 id 前必查 `isSettingsAction` 的消费者**（本批唯一造成金样本漂的自引入缺陷）。把 `cycle-skin` 从 `MENU_ORDER` 换成 `open-skins` 后 `ACTION_SET`（原 = `new Set(MENU_ORDER)`）随之丢掉该动作，而 `view-model::drawPausePanel` 靠 `isSettingsAction(id)` 把暂停面板行4 的换肤钮派发到 chip 小字档（`UI_FONT.panelToggle` 22px）⇒ 判假即落回通用主/次钮腿（bold 30px）⇒ **`pause` 金样本整帧 sha 漂**（total 676 与 kinds 恒等，只有 1 行 font 值变，肉眼与「行数列种比对」都看不出来）。确诊法 = 临时 probe 双 dump + diff 命中唯一差异行；修法 = `ACTION_SET` 显式并入 `'cycle-skin'` + `settings-content.test.ts` 加 `isSettingsAction` 三腿回归钉。**沉淀候选①（跨域通用）**：排布表与动作全集是两个概念，共用一个数组时任何「从排布表摘除」都等于「从全集摘除」。
+2. **零金样本复取靠的是「钮面逐字不变」这条可检验路径**：入口改造只换动作 id（不进 RenderModel 指令流），`skins` 是新 overlay 态、不扩 `ui-golden` 的 11 态集合 ⇒ 判据 = 提交前后 `settings` / `signin` / `pause` 对拍**同一份未复取夹具**仍 ✓。实测读数见 §4。
+3. **有意改判据清单**（⛔ 静默改，逐条列给复核）：① `skin-system.test.ts:289-290` 由「settings 钮含 `cycle-skin`」改为「含 `open-skins` ∧ 不含 `cycle-skin`」（EP12-S8 的入口位变了，换肤能力本身仍在暂停面板）；② `settings-content.test.ts` MENU_ORDER 全等例 + 动作全集例的 `cycle-skin` → `open-skins`，并新增「两 id 文案逐字相等」与 §3-1 的 `isSettingsAction` 钉；③ `bead-style-settings.test.ts:1298` 行5 左格 id 改写（`grid.length = 10` 不变）；④ `beads-shell.test.ts:196` 入口 find 目标改写。
+4. **ux-spec 债务不外移 §3、改记头注版本链外移**（触发 WXG-T-098 条款的实测复核）：§3 ASCII 线框 = 166 行 / 22.4 KB，占全文件 151.8 KB 的 **15%** ⇒ 外移后仍 ≈39k tok，**顶不回 8000**，只是换个位置放债；而 §2 路由行 ↔ §3.8 版面 ↔ §4 矩阵本批要三处同页互查（新 6 例判据即按此三处写）。真正的块状存量是 §1 之前的**头注版本链**（9 行 = 18.2 KB ≈ 12%）与文末变更记录 ⇒ 撤销条件已在 `ctx/budget-exempt.json` 改写为「下次触 ux-spec 前先做文档批：头注版本链 + 变更记录外移为 `design/ux/CHANGELOG-ux-spec.md`，同步 `ctx/ROUTES.md` 锚点」。
+
+### 4. 全量读数与归因（窗口取证，⛔ 靠推演免责）
+
+| 腿 | 状态组合 | 读数 |
+|---|---|---|
+| A | 工作树原样（本批 12 件 + 对方 WIP） | **6 failed / 1255 passed / 3 skipped（1264）** |
+| B | 本批 12 件回退 HEAD + 保留对方 WIP | **6 failed / 1248 passed（1257）**，失败**同名同列** |
+| C | 全部回退 HEAD（含对方数据四件） | **本批未跑**（B 已单向闭合归因；A−B 差 7 例 = 本批新增判据数） |
+
+⇒ 6 红 = `difficulty`（9 关 DI 逐值 + 墙序）×2、`misplaced-assembler`（L3 珠数 88↔108）×1、`ui-golden`（main-menu / level-select / level-select-mid）×3，**全部**源于对方在制品 `levels-data.ts` + `L0000{3,4}.json`，本批贡献 = **0**。旁证：`tsc --noEmit`（beads 工程）**零错误**；9 个 `ui-golden` 态（含 `settings` / `signin` / `pause`）对拍 HEAD 夹具逐字 ✓；`temp/ui-golden/*.actual.jsonl` 全量 grep 本批文案（`装扮馆` / `解锁 150` / `穿戴中`）**零命中** ⇒ 本批未向任何在册帧输出新命令。⚠ `pnpm run verify` 因上述 6 红不可跑绿 = **被并发 WIP 阻塞**，非本批零回归（360 §4 同口径）。
+
+### 5. 遗留与后续批
+
+1. **顶栏甲案未落**（P4-甲 = 推荐案）：需 `cocos/assets/textures/ui_icon_skin.png` + `.meta` + menu 金样本重抓，解除条件 = 有编辑器或拿到合法切图。本批入口是**设置弹窗行5 左格**（临时位），非终态。
+2. 卡面 = 皮肤令牌样本（`panel` + `wood` 木钮 + 状态字），160 高度余量留给真美术预览图 `[待 art]`；「解锁 150」缺货币图示 `[待 art]`。
+3. **只容一行**（`ponytail:` 注释已钉在 `skinCardBoxes`）：注册肤数 > `SETTINGS_GRID.cols` = 2 时第二行压进返回钮带 ⇒ 届时要改卡高或转整页。
+4. 皮肤页 `ui-golden` 在册态未扩（本批 ⛔ 复取）⇒ 若要把 `skins` 纳入整帧对拍，须与美术定稿同批走 `ui-golden-capture`。
+5. 真机可读性（卡内 40px 木钮 + `UI_FONT.label` 状态字）`[待真机]`，本文不写「已达标」。
+6. `pnpm run verify` 复跑与金样本回归 = 待并发 WIP 入库后补做（承 360 §5-5 同条未清）。
+
+### 6. 提交与推送取证
+
+- 提交范围 = 本批名下：`ux-spec.md` · `skins-content.ts`（新）· `settings-content.ts` · `meta-view.ts` · `tuning.ts` · `phase-route-binder.ts` · `beads-shell.ts` · `beads-game-types.ts` · `beads-game.ts` · `game-settings.ts` · 4 份测试 · `ctx/budget-exempt.json` · 2 份台账（**只我方 hunk**）· 9 件 Cocos 镜像；pre-commit ② 自动重暂存 `ctx/{index.json,BUDGET.md,hot-files.md}` + `memory/INDEX.md`。
+- ⛔ 不夹带：`levels-data.ts`、`design/levels/singles/L0000{3,4}.json`、`tools/scripts/*`、`apps/beads-studio/lab*`、其 `levels-data` 镜像、两份台账的对方 364 行。
+- 推送取证按 K-142：`git ls-remote origin refs/heads/develop` + `git reflog show origin/develop --date=iso`。

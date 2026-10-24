@@ -67,7 +67,9 @@ import {
     type MetaOverlay,
     type MetaViewData,
 } from '../view/meta-view';
-import { DEFAULT_SKIN_ID } from '../config/skins/registry';
+import { DEFAULT_SKIN_ID, registeredSkins } from '../config/skins/registry';
+// `[WXG-T-363]` 装扮馆：拥有态注入腿（视图标签）+ 卡区画法单源同文件，判例 = `setMenuBitmapResolver`。
+import { setSkinOwnedResolver } from '../view/skins-content';
 import { MainMenuPresenter } from '../ui/main-menu-presenter';
 import type { BeadsPalette } from '../view/palette';
 import type { PausePanelAction } from '../systems/pause-panel';
@@ -250,6 +252,10 @@ export class BeadsShell implements Game {
         this._metaKey = options.metaKey;
         this._studio = options.studio;
         this._wallBaseLevels = options.play?.levels ?? LEVELS;
+        // `[WXG-T-363]` 拥有态单源（惰性读 `this.meta`，`init()` 前 / 无 meta 的宿主 ⇒ 不设门）：
+        // 卡面标签与穿/循两道门读**同一条腿** ⇒ ⛔ 出现「显示解锁价、点击却白穿」的不一致。
+        const ownsSkin = (skinId: string): boolean => this.meta?.ownsSkin(skinId) ?? true;
+        setSkinOwnedResolver(ownsSkin);
         this.play = new BeadsGame({
             // EP12-S8：shell 级 palette 选项真正下传 play（此前只作用于菜单侧的独立副本，
             // 与 play 各持一份；收编单源后默认肤 tokens = DEFAULT_PALETTE，缺省行为不变）。
@@ -267,6 +273,8 @@ export class BeadsShell implements Game {
             onPowerupPurchase: (type) => this._buyPowerup(type),
             // `[WXG-T-345]` S-4：跨章推进闸门（门票只在章界那一刻参与解锁位推进；I7 棘轮）。
             canAdvanceAcrossArc: (fromIndex, toIndex) => this._canAdvanceAcrossArc(fromIndex, toIndex),
+            // `[WXG-T-363]` 买断门：暂停面板换肤循环与装扮馆 `wearSkin` 共用此腿（§3.7 v1.83）。
+            ownsSkin,
         });
         // UI-25：宿主只提供调试投影（L5）；意图面随 P3 Presenter 落地。
         this._uiRoot = new UiRoot({
@@ -528,6 +536,22 @@ export class BeadsShell implements Game {
                 this._phase.openModal('settings');
                 this._emitOverlay(true);
                 return true;
+            // `[WXG-T-363]` 装扮馆入口（设置弹窗行5 左格，钮面与原换肤循环钮同串）。
+            case 'open-skins':
+                this._cancelPageFx();
+                this._phase.openModal('skins');
+                this._emitOverlay(true);
+                return true;
+            // `[WXG-T-363]` 装扮馆点卡 = 买断闭环：已拥有 ⇒ 直接穿上；未拥有 ⇒ **先买后穿**；
+            // `coins` 不足 ⇒ `buySkin` 返回 false ⇒ 零扣款零入档零穿肤零事件（⛔ 部分成交）。
+            case 'skin-tap': {
+                const skin = registeredSkins()[btn.slot ?? -1];
+                if (!skin) return false;
+                const m = this.meta;
+                if (m && !m.ownsSkin(skin.id) && !m.buySkin(skin.id)) return false;
+                this.play.wearSkin(skin.id);
+                return true;
+            }
             case 'back':
                 // UI-42 前置（WXG-T-314）：**仅选关页**走淡出 150ms（弹窗仍即时关，口径不变）。
                 // 淡出期间 overlay 仍归页（命中路径不变）⇒ 终点才置 `none` 并发关闭事件。

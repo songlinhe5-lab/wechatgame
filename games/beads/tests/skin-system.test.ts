@@ -286,8 +286,11 @@ describe('EP12-S8 ③ cycle-skin 钮族：present · 循环 · 恰写档 1 次 �
             expect(ids).toContain('cycle-skin');
             expect(ids.filter((i) => i === 'cycle-skin').length).toBe(1);
         }
-        // 菜单设置 overlay 同钮（内容单源判例）。
-        expect(metaLayout('settings').buttons.map((b) => b.id)).toContain('cycle-skin');
+        // 菜单设置 overlay 同位（内容单源判例）：**WXG-T-363** 行5 左格已改挂装扮馆入口
+        // `open-skins`（只换动作 id，钮面文案不变）⇒ 设置页不再有换肤循环腿。
+        const settingIds = metaLayout('settings').buttons.map((b) => b.id);
+        expect(settingIds).toContain('open-skins');
+        expect(settingIds).not.toContain('cycle-skin');
     });
 
     it('点按循环 = 注册序回绕 · 每次恰写档 1 次 · PAUSED 保持 · 不推计时', () => {

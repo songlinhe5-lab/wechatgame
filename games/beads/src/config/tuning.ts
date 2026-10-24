@@ -1281,6 +1281,20 @@ export const SKIN_PRICES_COINS: Readonly<Record<string, number>> = Object.freeze
   'cool-violet': 150,
 });
 
+/**
+ * 装扮馆卡外框高（**WXG-T-363** · ux-spec v1.25 §3.8）。版面派生值 ⇒ ⛔ 不进 §3
+ * （判例同 `SETTINGS_GRID` / `LEVELS_*`）。
+ * 300 = 卡面两行内容（`skins-content` 的 2×40 行高 + 2×24 内缩 + 12 行距 = 152）
+ * + 148 余量（留给真美术预览图位 `[待 art]`）。
+ */
+export const SKINS_CARD_H = 300;
+/**
+ * 卡顶缘自底板顶缘下缩（同上正本）。82 ⇒ 卡上缘 945，与设置弹窗「标题下缘 957 / 净空 12」
+ * 同一避让口径（`meta-view::settingsLayout` 注）；卡下缘 645 > 返回钮上缘 445 ⇒ 净空 200。
+ * ⚠ 底板高 720 不改，注册肤数 > `SETTINGS_GRID.cols`（第二行）会压进返回钮带 ⇒ 届时改卡高或转整页。
+ */
+export const SKINS_CARD_TOP_INSET = 82;
+
 // ─────────── 主菜单（shell 屏）几何（来源：ux-spec v1.7 §2 流程 + meta-ui 线框；
 //             EP12-S6 版面族扩充，来源 `menu-architecture.md §5.1/§7.4`——**派生版面值，⛔ 不进 §3**）
 /** 主菜单主钮「开始游戏」宽 = mock 框 324（落地单 v3.5，用户 2026-10-15 裁；旧 320 作废）。 */

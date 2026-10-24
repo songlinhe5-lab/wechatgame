@@ -26,7 +26,13 @@ import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import { createBeadsShell, type BeadsShell } from '../src/game/beads-shell.js';
 import { defaultBeadsMeta } from '../src/game/meta-save-schema.js';
 import { metaLayout, type MetaAction, type MetaOverlay } from '../src/view/meta-view.js';
-import { STAMINA_MAX, STAMINA_START_COST } from '../src/config/tuning.js';
+import { DEFAULT_SKIN_ID, registeredSkins } from '../src/config/skins/registry.js';
+import {
+    SKINS_CARD_H,
+    SKIN_PRICES_COINS,
+    STAMINA_MAX,
+    STAMINA_START_COST,
+} from '../src/config/tuning.js';
 
 const START = 1_700_000_000_000;
 const META_KEY = 'test.shell.meta';
@@ -187,7 +193,7 @@ describe('BeadsShell — overlay stack + meta:overlay events', () => {
         const open = centerOf('none', 'open-settings');
         r.shell.tapMeta(open.x, open.y);
         const btn = metaLayout('settings').buttons.find((b) => b.id === 'toggle-debug-guides')!;
-        const skin = metaLayout('settings').buttons.find((b) => b.id === 'cycle-skin')!;
+        const skin = metaLayout('settings').buttons.find((b) => b.id === 'open-skins')!;
         expect(btn.box.y).toBe(skin.box.y);
         expect(btn.box.x).toBeGreaterThan(skin.box.x);
         expect(r.shell.play.debugGuides).toBe(false);
@@ -287,5 +293,113 @@ describe('BeadsShell — save sidecar isolation', () => {
         r.shell.meta!.claimSignin();
         expect(JSON.parse(r.storage.get(META_KEY)!).coins).toBeGreaterThan(0);
         expect(r.storage.get(PLAY_KEY)).toBe(playBefore);
+    });
+});
+
+// ══════════════════════════════════ WXG-T-363 装扮馆（ux-spec v1.25 §3.8）
+
+describe('BeadsShell — 装扮馆 skins 弹窗：入口 · 卡区 · 买断闭环 · 拥有态门', () => {
+    const SECOND = registeredSkins()[1]!; // 未买断腿靠它（价目已在册）
+    const SECOND_PRICE = SKIN_PRICES_COINS[SECOND.id]!;
+
+    /** 入口只有一条腿：菜单 → 设置弹窗行5 左格。 */
+    function openSkins(r: Rig): void {
+        const open = centerOf('none', 'open-settings');
+        r.shell.tapMeta(open.x, open.y);
+        const entry = centerOf('settings', 'open-skins');
+        expect(r.shell.tapMeta(entry.x, entry.y)).toBe(true);
+        expect(r.shell.overlay).toBe('skins');
+    }
+
+    const cards = () => metaLayout('skins').buttons.filter((b) => b.id === 'skin-tap');
+
+    function textsOf(r: Rig): string[] {
+        const b = new RenderModelBuilder(750, 1334);
+        b.begin();
+        r.shell.buildRenderModel(b);
+        return b
+            .end()
+            .commands.filter((c) => c.kind === 'text')
+            .map((c) => (c as { text: string }).text);
+    }
+
+    it('入口 = 设置弹窗行5 左格 · 返回弹回上一层（嵌套栈）· 发 meta:overlay', () => {
+        const r = rig({ initialScreen: 'menu' });
+        openSkins(r);
+        expect(r.overlayEvents.some((e) => e.open && e.name === 'skins')).toBe(true);
+        const back = centerOf('skins', 'back');
+        r.shell.tapMeta(back.x, back.y);
+        expect(r.shell.overlay).toBe('settings'); // ⛔ 不整栈清空：回设置弹窗
+        r.shell.tapMeta(centerOf('settings', 'back').x, centerOf('settings', 'back').y);
+        expect(r.shell.overlay).toBe('none');
+    });
+
+    it('卡区：槽序 = 注册序 · 列几何共读设置内容块（⛔ 第二套列宽）', () => {
+        const cs = cards();
+        expect(cs.map((b) => b.slot)).toEqual(registeredSkins().map((_, i) => i));
+        const settingsBtn = metaLayout('settings').buttons.find((b) => b.id === 'toggle-bgm')!;
+        expect(cs[0]!.box.w).toBe(settingsBtn.box.w);
+        expect(cs[0]!.box.h).toBe(SKINS_CARD_H);
+        // 钉**具体数**（⛔ 只比常量名）：`tuning::SKINS_CARD_H/TOP_INSET` 漏定义时 `undefined === undefined`
+        // 会假绿，而 NaN 盒子的唯一症状是「热区永远打不中」（WXG-T-363 实测踩过）。
+        // 卡带 = y∈[645,945]：上缘 = 底板顶 1027 − `SKINS_CARD_TOP_INSET` 82 ⇒ 距标题下缘 957 净空 12。
+        expect(cs[0]!.box.y).toBe(645);
+        expect(cs[0]!.box.y + cs[0]!.box.h).toBe(945);
+        expect(cs[1]!.box.x).toBeGreaterThan(cs[0]!.box.x + cs[0]!.box.w); // 左右同排分居
+        expect(cs[1]!.box.y).toBe(cs[0]!.box.y); // 当前只容一行
+    });
+
+    it('未买断卡的态文案走文案通道：「穿戴中」/「解锁 {价}」并存 · 零红点', () => {
+        const r = rig({ initialScreen: 'menu', seedMeta: { coins: 0 } });
+        openSkins(r);
+        const texts = textsOf(r);
+        expect(texts).toContain('装扮馆');
+        expect(texts).toContain('穿戴中'); // 默认肤 = 已拥有 + 当前穿戴
+        expect(texts).toContain(`解锁 ${SECOND_PRICE}`);
+        expect(texts).not.toContain('点击穿戴');
+    });
+
+    it('点未拥有卡 = 先买后穿（同腿闭环）；余额不足 ⇒ 零扣款零入档零穿戴', () => {
+        const rich = rig({ initialScreen: 'menu', seedMeta: { coins: SECOND_PRICE + 50 } });
+        openSkins(rich);
+        const p = centerOf('skins', 'skin-tap', 1);
+        expect(rich.shell.tapMeta(p.x, p.y)).toBe(true);
+        expect(rich.shell.play.skinId).toBe(SECOND.id);
+        expect(rich.shell.meta!.coins).toBe(50);
+        expect(rich.shell.meta!.ownsSkin(SECOND.id)).toBe(true);
+        expect(textsOf(rich)).toContain('穿戴中'); // 买断后同位改写态
+
+        const poor = rig({ initialScreen: 'menu', seedMeta: { coins: SECOND_PRICE - 1 } });
+        openSkins(poor);
+        const metaBefore = poor.storage.get(META_KEY);
+        expect(poor.shell.tapMeta(p.x, p.y)).toBe(false);
+        expect(poor.shell.play.skinId).toBe(DEFAULT_SKIN_ID);
+        expect(poor.shell.meta!.coins).toBe(SECOND_PRICE - 1);
+        expect(poor.shell.meta!.ownsSkin(SECOND.id)).toBe(false);
+        expect(poor.storage.get(META_KEY)).toBe(metaBefore); // 零扣款 ⇒ 零写档
+    });
+
+    it('点已拥有且在穿的卡 = 恒等零写档', () => {
+        const r = rig({ initialScreen: 'menu' });
+        openSkins(r);
+        const playBefore = r.storage.get(PLAY_KEY);
+        const p = centerOf('skins', 'skin-tap', 0);
+        expect(r.shell.tapMeta(p.x, p.y)).toBe(true);
+        expect(r.shell.play.skinId).toBe(DEFAULT_SKIN_ID);
+        expect(r.storage.get(PLAY_KEY)).toBe(playBefore);
+    });
+
+    it('拥有态门：暂停面板换肤循环跳未买断肤（⛔ 白嫖腿）· 已拥有两枚才循环', () => {
+        const poor = rig({ initialScreen: 'play', seedMeta: { coins: 0 } });
+        poor.shell.play.applySettingsAction('cycle-skin');
+        expect(poor.shell.play.skinId).toBe(DEFAULT_SKIN_ID); // 仅一枚已拥有 ⇒ 零副作用
+
+        // 阳性对照（K-060）：观测窗非空 ⇒ 同上注入两枚已拥有 ⇒ 循环到第二肤。
+        const rich = rig({
+            initialScreen: 'play',
+            seedMeta: { ownedSkinIds: [DEFAULT_SKIN_ID, SECOND.id] },
+        });
+        rich.shell.play.applySettingsAction('cycle-skin');
+        expect(rich.shell.play.skinId).toBe(SECOND.id);
     });
 });

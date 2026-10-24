@@ -443,6 +443,11 @@ export class BeadsGame implements Game {
    * S-4：只在**章界那一刻**参与解锁位推进（I7 棘轮），⛔ 参与门票归约本体。
    */
   private readonly _canAdvanceAcrossArc?: (fromIndex: number, toIndex: number) => boolean;
+  /**
+   * 皮肤买断拥有态（options.ownsSkin；WXG-T-363）：无 shell 时 `undefined` ⇒ **不设门**，
+   * 穿/循腿行为逐字回到注入前。受理单点仍在 `GameSettings`（本类只负引用转交）。
+   */
+  private readonly _ownsSkin?: (skinId: string) => boolean;
   /** 在飞广告种类：区分续时（revive）与广告加心（staminaRefill）的发奖路由。 */
   private _adKind: 'revive' | 'staminaRefill' | null = null;
   /**
@@ -492,6 +497,7 @@ export class BeadsGame implements Game {
     this._canWatchStaminaAd = options.canWatchStaminaAd;
     this._onPowerupPurchase = options.onPowerupPurchase;
     this._canAdvanceAcrossArc = options.canAdvanceAcrossArc;
+    this._ownsSkin = options.ownsSkin;
 
     this._sprintCap = validatedSprintTime(options.sprintTime);
     if (options.sprintTime !== undefined && this._sprintCap !== options.sprintTime) {
@@ -510,6 +516,8 @@ export class BeadsGame implements Game {
       get services() { return self._services; },
       applyPalette(tokens) { self.palette = tokens; },
       emitVibrate(on) { self._emit('settings:vibrate', { on }); },
+      // `[WXG-T-363]` 买断门：拥有态只经本口子读 shell 的 `MetaState`（⛔ 本类不存副本）。
+      ownsSkin: this._ownsSkin,
     });
     this._fx = new FeedbackFx({
       get playing() { return self._machine.current === 'playing'; },
@@ -2504,6 +2512,15 @@ export class BeadsGame implements Game {
   setDebugGuides(on: boolean): void {
     if (this._settings.values.debugGuides === on) return;
     this._settings.setDebugGuides(on);
+  }
+
+  /**
+   * 装扮馆点卡 = **定向穿档**（WXG-T-363 · `ux-spec` v1.25 §3.8）：与暂停面板的 `cycle-skin`
+   * 共用同一个 `GameSettings` 受理点（两入口状态恒一致），买断门也在彼处（options.ownsSkin）。
+   * 本方法 ⛔ 判拥有态（买断闭环归 shell，它才持有 `MetaState`）；生效 = 下一帧、零过渡（§3.3 口径）。
+   */
+  wearSkin(skinId: string): void {
+    this._settings.wearSkin(skinId);
   }
 
   /**

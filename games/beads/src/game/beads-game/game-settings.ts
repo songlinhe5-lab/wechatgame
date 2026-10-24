@@ -56,6 +56,12 @@ export interface GameSettingsHost {
   applyPalette(tokens: BeadsPalette): void;
   /** §3.8 震动开关：发 `settings:vibrate`（§4 meta 事件）。 */
   emitVibrate(on: boolean): void;
+  /**
+   * `[WXG-T-363]` 皮肤**买断拥有态**（真源 = `MetaState.ownsSkin`，经 `BeadsGameOptions.ownsSkin` 下传）。
+   * `§3.7` v1.83「外观 = 金币买断」⇒ 穿肤只得在已拥有集合内发；未注入（无经济层的宿主 / 旧测试）
+   * ⇒ **不设门**，行为逐字回到注入前。
+   */
+  ownsSkin?(skinId: string): boolean;
 }
 
 export class GameSettings {
@@ -169,6 +175,18 @@ export class GameSettings {
   }
 
   /**
+   * **定向穿档**（WXG-T-363 · 装扮馆点卡）：与 `_cycleSkin` 同一道买断门（⛔ 不花钱切到未买断肤）。
+   * 两条零副作用分支：① 已是当前档 ⇒ 零写档；② 未拥有且宿主给了拥有态查询 ⇒ 零写档（不静默降级）。
+   * 宿主未注入 `ownsSkin` ⇒ 不设门（无经济层的旧链逐字不变）。一次调用恰写档 1 次（S9 §8-16）。
+   */
+  wearSkin(id: string): void {
+    if (this._v.skinId === id) return;
+    if (this._host.ownsSkin && !this._host.ownsSkin(id)) return;
+    this.applySkin(id);
+    this.persist();
+  }
+
+  /**
    * Sfx request gate (never touched by the music toggle, §8-4).
    *
    * `minInterval` 按 clip 分档（§3.2）——**不得**回到统一 0.05（那会把 reject 推成
@@ -253,17 +271,26 @@ export class GameSettings {
    * 循环序 = `registeredSkins()` 注册序；到达末档回绕；当前 id 不在注册表内
    * （理论不可达）⇒ 落 index 0。一次调用 `persist()` 恰 1 次、只写
    * `skinId` 一个字段、不切相位不推计时不动棋局（L5）。
+   *
+   * `[WXG-T-363]` **循环域 = 已拥有集合**（`ux-spec` v1.25 §3.8）：未买断肤不得被暂停面板
+   * 免费切到（白嫖腿）。往后找到的第一枚已拥有 ⇒ 经 `wearSkin` 写档；**仅一枚已拥有**（= 当前档）
+   * ⇒ `wearSkin` 走恒等分支 ⇒ 零写档零事件零换肤；宿主未注入拥有态 ⇒ 不设门（行为同改前）。
    */
   private _cycleSkin(): void {
     const skins = registeredSkins();
-    let next = 0;
+    const owns = this._host.ownsSkin;
+    let cur = -1;
     for (let i = 0; i < skins.length; i++) {
       if (skins[i].id === this._v.skinId) {
-        next = (i + 1) % skins.length;
+        cur = i;
         break;
       }
     }
-    this.applySkin(skins[next].id);
-    this.persist();
+    for (let step = 1; step <= skins.length; step++) {
+      const id = skins[(cur + step) % skins.length].id;
+      if (owns && !owns(id)) continue;
+      this.wearSkin(id);
+      return;
+    }
   }
 }
