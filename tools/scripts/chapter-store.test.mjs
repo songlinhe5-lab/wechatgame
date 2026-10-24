@@ -6,7 +6,7 @@ import { mkdtempSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import {
-  chapterFile, insertBeforeBoss, removeFromLevels, moveInChapter, swapToEnd,
+  chapterFile, insertBeforeBoss, removeFromLevels, moveInChapter, moveInChapterTo, swapToEnd,
   setEntryKind, removeEntryByUid, addChapterTo, removeChapterFrom, moveChapter,
   expandEntriesWithIds, expandedCount, renumberIds, syncDemoLevelCount,
 } from './chapter-store.mjs';
@@ -33,6 +33,26 @@ test('moveInChapter：末位（boss）锁死，移动永不涉及末位', () => 
   assert.throws(() => moveInChapter(['L1', 'L2', 'L9'], 'L2', 'down'), /不可与 boss 交换位置/);
   assert.throws(() => moveInChapter(['L1', 'L2', 'L9'], 'L1', 'up'), /已到边界/);
   assert.throws(() => moveInChapter(['L1', 'L9'], 'L1', 'sideways'), /dir 只允 up\|down/);
+});
+
+test('moveInChapterTo：按下标重排（拖拽落点），boss 位不可占也不可越', () => {
+  // to = 移动后该关所在下标
+  assert.deepEqual(moveInChapterTo(['L1', 'L2', 'L3', 'L9'], 'L1', 2), ['L2', 'L3', 'L1', 'L9']);
+  assert.deepEqual(moveInChapterTo(['L1', 'L2', 'L3', 'L9'], 'L3', 0), ['L3', 'L1', 'L2', 'L9']);
+  // 原地（to === 当前位置）幂等
+  assert.deepEqual(moveInChapterTo(['L1', 'L2', 'L3', 'L9'], 'L2', 1), ['L1', 'L2', 'L3', 'L9']);
+  // boss 自身不可移动
+  assert.throws(() => moveInChapterTo(['L1', 'L2', 'L9'], 'L9', 0), /boss 恒为章内末位/);
+  // 落点落在 boss 位 / 越界 ⇒ throw（max = len - 2）
+  assert.throws(() => moveInChapterTo(['L1', 'L2', 'L9'], 'L1', 2), /目标位置需 0–1/);
+  assert.throws(() => moveInChapterTo(['L1', 'L2', 'L9'], 'L1', -1), /目标位置需 0–1/);
+  assert.throws(() => moveInChapterTo(['L1', 'L2', 'L9'], 'L1', 1.5), /目标位置需 0–1/);
+  // 不在章内
+  assert.throws(() => moveInChapterTo(['L1', 'L9'], 'L5', 0), /不在该章内/);
+  // 入参不被 mutate
+  const src = ['L1', 'L2', 'L3', 'L9'];
+  moveInChapterTo(src, 'L1', 2);
+  assert.deepEqual(src, ['L1', 'L2', 'L3', 'L9']);
 });
 
 test('swapToEnd：与末项交换（设为 boss 的位置步）；已是末项 ⇒ 原样', () => {

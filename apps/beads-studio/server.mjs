@@ -1302,6 +1302,12 @@ async function handleLevelOp(req, res, uid, op) {
             store.writeChapter(levelsDir, target.file, { ...tdoc, levels: store.insertBeforeBoss(tdoc.levels, uid) });
             return { manifest, log: [`移关 ${uid}：${c.id} → ${toId}（插 boss 前）`] };
         }
+        if (op === 'move' && body.to !== undefined) {
+            // 拖拽落点：`to` = 移动后该关在章内的下标（0 起）。boss 锁末位由 store 侧守。
+            const levels = storeReject(() => store.moveInChapterTo(doc.levels, uid, Number(body.to)));
+            store.writeChapter(levelsDir, c.file, { ...doc, levels });
+            return { manifest, log: [`章内拖拽 ${uid} → 第 ${Number(body.to) + 1} 位（章 ${c.id}）`] };
+        }
         if (op === 'move') {
             const levels = storeReject(() => store.moveInChapter(doc.levels, uid, String(body.dir ?? '')));
             store.writeChapter(levelsDir, c.file, { ...doc, levels });

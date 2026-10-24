@@ -78,6 +78,24 @@ export function moveInChapter(levels, uid, dir) {
   return out;
 }
 
+/**
+ * 章内移到指定下标（拖拽落点）：`to` = 移动后 uid 所在位置。
+ * 约束与 `moveInChapter` 同源 —— **boss 锁末位**，故 `to` 只允许 `[0, len - 2]`：
+ * 落到末位等于把 boss 顶掉，落到末位之后更是越界。
+ */
+export function moveInChapterTo(levels, uid, to) {
+  const i = levels.indexOf(uid);
+  if (i < 0) throw new Error(`${uid} 不在该章内`);
+  if (i === levels.length - 1) throw new Error('boss 恒为章内末位，不可移动');
+  const max = levels.length - 2;
+  if (!Number.isInteger(to) || to < 0 || to > max) {
+    throw new Error(`目标位置需 0–${max}（boss 恒为章内末位），收到 ${to}`);
+  }
+  const out = levels.filter((u) => u !== uid);
+  out.splice(to, 0, uid);
+  return out;
+}
+
 /** 与末项交换位置（「设为 boss」的第一步；kind 由调用方 setEntryKind 同步原子改）。 */
 export function swapToEnd(levels, uid) {
   const i = levels.indexOf(uid);

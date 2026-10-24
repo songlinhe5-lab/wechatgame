@@ -98,6 +98,26 @@
         .lv .ops { margin-left: auto; display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
         .lv .ops select { font-size: 12px; padding: 3px 6px; }
 
+        /* 章内小关：拖拽调序（仅章内）+ 点行进编辑面板 */
+        .lv.dragging { opacity: .4; }
+        .lv.drop-before { box-shadow: 0 -2px 0 0 var(--ac); }
+        .lv.drop-after { box-shadow: 0 2px 0 0 var(--ac); }
+        .lv.clickable { border-radius: 6px; cursor: pointer; }
+        .lv.clickable:hover { background: #fbf7ee; }
+        .lv[draggable="true"] { cursor: grab; }        /* 排在 clickable 之后：可拖行露抓手，boss 行留指针 */
+        .lv[draggable="true"]:active { cursor: grabbing; }
+        .lv:focus-visible { outline: 2px solid var(--ac); outline-offset: 1px; }
+
+        /* 小关编辑面板：复用 picker 的面板骨架（.pk-box/.pk-head/.pk-foot） */
+        #lvm { position: fixed; inset: 0; z-index: 30; padding: 20px; background: rgba(0, 0, 0, .45); display: flex; align-items: center; justify-content: center; }
+        #lvm[hidden] { display: none; }
+        #lvm .pk-box { width: min(560px, 100%); }
+        #lvm .lvm-body { padding: 14px; overflow: auto; }
+        #lvm .lvm-art { display: flex; justify-content: center; padding: 4px 0 12px; }
+        #lvm .lvm-art canvas { max-width: 220px; max-height: 220px; image-rendering: pixelated; border-radius: 6px; background: #faf7f0; }
+        #lvm .lvm-meta { font-size: 12px; color: #6b6b6b; margin-bottom: 10px; line-height: 1.7; }
+        #lvm .lvm-ops { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+
         #err {
             white-space: pre-wrap;
             word-break: break-all;
@@ -270,6 +290,20 @@
             </div>
             <div class="pk-grid" id="pk-grid"></div>
             <div class="pk-foot"><span class="grow" id="pk-pick">未选择</span><button id="pk-ok" disabled>确认</button></div>
+        </div>
+    </div>
+
+    <div id="lvm" hidden>
+        <div class="pk-box">
+            <div class="pk-head"><b id="lvm-title">小关</b><span class="grow"></span><button class="ghost" id="lvm-close">关闭</button></div>
+            <div class="lvm-body">
+                <div class="lvm-art" id="lvm-art"></div>
+                <div class="lvm-meta" id="lvm-meta"></div>
+                <label for="lvm-name">关名（1–60 字）</label>
+                <input id="lvm-name" type="text" maxlength="60">
+                <div class="lvm-ops" id="lvm-ops"></div>
+            </div>
+            <div class="pk-foot"><span class="grow" id="lvm-hint"></span><button id="lvm-save">保存关名</button><button class="ghost" id="lvm-cancel">取消</button></div>
         </div>
     </div>
     <script>
@@ -558,7 +592,104 @@
         };
         $('pk-close').onclick = () => closePicker(null);
         $('picker').onclick = (e) => { if (e.target === $('picker')) closePicker(null); };
-        addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('picker').hidden) closePicker(null); });
+        addEventListener('keydown', (e) => {
+            if (e.key !== 'Escape') return;
+            if (!$('picker').hidden) return closePicker(null);   // 选图器在上层，先关它
+            if (!$('lvm').hidden) closeLevelEditor();
+        });
+
+        // ── 章内小关：拖拽调序 + 点行编辑（WXG-T-373）──
+        //    拖拽只在本章内改序（跨章走「移章…」下拉，误拖会让关卡跳到别的章）；
+        //    所有动作与行内按钮同源（下面 5 个函数），避免两处逻辑漂移。
+        let lvFrom = null;     // 拖拽源行下标（null = 无拖拽）
+        let lvFocus = null;    // 键盘调序后待复焦的 uid（重渲染会重建行元素）
+        let lvmCtx = null;     // 面板上下文 {lv, ch, others}
+
+        function renameLevel(lv) {
+            const n = prompt('小关名（1–60 字）', lv.name || '');
+            if (n !== null) op(`/api/manage/level/${lv.uid}/rename`, { name: n });
+        }
+
+        async function replaceLevelPattern(lv) {
+            const v = await pickResult(`替换 ${lv.uid} 的图案`, (r) => r.importable !== false);
+            if (!v) return;
+            if (!confirm(`用「${v}」替换 ${lv.uid} 的图案？关名/关号/章位不变，时长按实测重算。`)) return;
+            op(`/api/manage/level/${lv.uid}/replace`, { resultId: v });
+        }
+
+        function setLevelBoss(lv) {
+            if (!confirm(`把 ${lv.uid} 设为本章 boss？（需换到末位，原 boss 降为普通关）`)) return;
+            op(`/api/manage/level/${lv.uid}/boss`);
+        }
+
+        function moveLevelToChapter(lv, chapterId) {
+            op(`/api/manage/level/${lv.uid}/move`, { chapter: chapterId });
+        }
+
+        function removeLevel(lv) {
+            if (!confirm(`删除小关 ${lv.uid}（${lv.file}）？其后关号自动前移，不可撤销。`)) return;
+            op(`/api/manage/level/${lv.uid}/remove`);
+        }
+
+        function closeLevelEditor() {
+            $('lvm').hidden = true;
+            lvmCtx = null;
+        }
+
+        // 面板出口：右上关闭 / 取消 / 点遮罩 全走同一个 closeLevelEditor（hidden 与 lvmCtx 不会走散）
+        $('lvm-close').onclick = closeLevelEditor;
+        $('lvm-cancel').onclick = closeLevelEditor;
+        $('lvm').onclick = (e) => { if (e.target === $('lvm')) closeLevelEditor(); };
+
+        /** 保存关名：面板内唯一改名入口（输入框直接编辑 + Enter 提交）。 */
+        function saveLevelName() {
+            const c = lvmCtx;
+            if (!c) return closeLevelEditor();
+            const n = $('lvm-name').value.trim();
+            if (!n || n.length > 60) {                       // 就地报错：页顶红字在模态下不可见
+                $('lvm-hint').textContent = '关名需 1–60 字';
+                return $('lvm-name').focus();
+            }
+            closeLevelEditor();
+            if (n === (c.lv.name || '')) return showLog(['关名未变，未提交']);
+            op(`/api/manage/level/${c.lv.uid}/rename`, { name: n });
+        }
+        $('lvm-save').onclick = saveLevelName;
+        $('lvm-name').onkeydown = (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); saveLevelName(); }
+        };
+
+        /** 点行打开的小关编辑面板：只读信息 + 关名 + 动作（替换图案 / 设 boss / 移章 / 删除）。 */
+        function openLevelEditor(lv, ch, others) {
+            lvmCtx = { lv, ch, others };
+            const idTxt = `#${lv.id}${lv.idEnd !== undefined && lv.idEnd !== lv.id ? '–' + lv.idEnd : ''}`;
+            $('lvm-title').textContent = `${lv.uid} · ${idTxt} · ${lv.name || '(未命名)'}`;
+            $('lvm-meta').innerHTML =
+                `章「${esc(ch.title)}」· ${esc(lv.kind)} · ${lv.cols}×${lv.rows}` +
+                (lv.time !== undefined ? ` · 实测 ${lv.time}s` : '') + ` · ${lv.slots} 槽<br>文件 ${esc(lv.file || '—')}`;
+            const art = $('lvm-art');
+            art.innerHTML = '';
+            if (lv.paint) art.appendChild(paintThumb(lv.paint));
+            const isBoss = lv.kind === 'boss';
+            $('lvm-name').value = lv.name || '';
+            const ops = $('lvm-ops');
+            ops.innerHTML = '';
+            // 面板内动作一律先关面板：这些动作会改章位/关号/文件，留着旧 ctx 只会误导
+            const act = (fn) => () => { closeLevelEditor(); fn(lv); };
+            ops.appendChild(btn('替换图案…', lv.kind === 'plate', act(replaceLevelPattern), 'ghost'));
+            ops.appendChild(btn('设为 boss', isBoss || lv.kind === 'plate', act(setLevelBoss), 'ghost'));
+            if (others.length && !isBoss) {
+                ops.appendChild(select(
+                    [{ value: '', label: '移到其他大关…' }, ...others.map((c) => ({ value: c.id, label: `→ ${c.title}` }))],
+                    '',
+                    (v) => { if (v) { closeLevelEditor(); moveLevelToChapter(lv, v); } },
+                ));
+            }
+            ops.appendChild(btn('删除该关', isBoss, act(removeLevel), 'danger'));
+            $('lvm-hint').textContent = isBoss ? 'boss 恒为章末：不可移动、不可删除' : '顺序：拖行或 ↑/↓';
+            $('lvm').hidden = false;
+            $('lvm-name').focus();
+        }
 
         function render() {
             if (!S) return;
@@ -634,42 +765,109 @@
                     const isBoss = lv.kind === 'boss';
                     ops.appendChild(btn('↑', isBoss || li === 0, () => op(`/api/manage/level/${lv.uid}/move`, { dir: 'up' }), 'ghost'));
                     ops.appendChild(btn('↓', isBoss || li >= last - 1, () => op(`/api/manage/level/${lv.uid}/move`, { dir: 'down' }), 'ghost'));
-                    ops.appendChild(btn('改名', false, () => {
-                        const n = prompt('小关名（1–60 字）', lv.name || '');
-                        if (n !== null) op(`/api/manage/level/${lv.uid}/rename`, { name: n });
-                    }, 'ghost'));
+                    ops.appendChild(btn('改名', false, () => renameLevel(lv), 'ghost'));
                     if (!isBoss && lv.kind !== 'plate') {
-                        ops.appendChild(btn('设 boss', false, () => {
-                            if (!confirm(`把 ${lv.uid} 设为本章 boss？（需换到末位，原 boss 降为普通关）`)) return;
-                            op(`/api/manage/level/${lv.uid}/boss`);
-                        }, 'ghost'));
+                        ops.appendChild(btn('设 boss', false, () => setLevelBoss(lv), 'ghost'));
                     } else {
                         ops.appendChild(spacer('设 boss'));
                     }
                     if (lv.kind !== 'plate') {
                         // 替换图案：换 levelDraft 不动 uid/关号/章位/关名；plate 是多文件产物，须删后重导。
-                        ops.appendChild(btn('替换图案…', false, async () => {
-                            const v = await pickResult(`替换 ${lv.uid} 的图案`, (r) => r.importable !== false);
-                            if (!v) return;
-                            if (!confirm(`用「${v}」替换 ${lv.uid} 的图案？关名/关号/章位不变，时长按实测重算。`)) return;
-                            op(`/api/manage/level/${lv.uid}/replace`, { resultId: v });
-                        }, 'ghost'));
+                        ops.appendChild(btn('替换图案…', false, () => replaceLevelPattern(lv), 'ghost'));
                     }
                     if (others.length && !isBoss) {
                         const mv = select([{ value: '', label: '移章…' }, ...others.map((c) => ({ value: c.id, label: `→ ${c.title}` }))], '', (v) => {
-                            if (v) op(`/api/manage/level/${lv.uid}/move`, { chapter: v });
+                            if (v) moveLevelToChapter(lv, v);
                         });
                         ops.appendChild(mv);
                     }
                     if (!isBoss) {
-                        ops.appendChild(btn('删除', false, () => {
-                            if (!confirm(`删除小关 ${lv.uid}（${lv.file}）？其后关号自动前移，不可撤销。`)) return;
-                            op(`/api/manage/level/${lv.uid}/remove`);
-                        }, 'danger'));
+                        ops.appendChild(btn('删除', false, () => removeLevel(lv), 'danger'));
                     } else {
                         ops.appendChild(spacer('删除'));
                     }
                     row.appendChild(ops);
+
+                    // 拖拽调序（仅章内；boss 恒末位 ⇒ 落点夹到末位前一位）
+                    //    落点语义 =「移动后 uid 在章内的下标」（同 store.moveInChapterTo）；from < to 时源在前，
+                    //    摘掉自己后目标左移一格，故 to -= 1。
+                    const leaveIfOut = (e) => {
+                        // dragleave 在子元素之间移动时也会触发：离开整行才清指示线
+                        if (!row.contains(e.relatedTarget)) row.classList.remove('drop-before', 'drop-after');
+                    };
+                    if (!isBoss) {
+                        row.draggable = true;
+                        row.ondragstart = (e) => {
+                            lvFrom = li;
+                            row.classList.add('dragging');
+                            e.dataTransfer.effectAllowed = 'move';
+                            e.dataTransfer.setData('text/plain', lv.uid);   // Firefox 不 setData 不会起拖
+                        };
+                        row.ondragover = (e) => {
+                            if (lvFrom === null) return;
+                            e.preventDefault();
+                            const b = row.getBoundingClientRect();
+                            const after = e.clientY > b.top + b.height / 2;
+                            row.classList.toggle('drop-before', !after);
+                            row.classList.toggle('drop-after', after);
+                        };
+                        row.ondragleave = leaveIfOut;
+                        row.ondrop = (e) => {
+                            e.preventDefault();
+                            const after = row.classList.contains('drop-after');
+                            row.classList.remove('drop-before', 'drop-after');
+                            if (lvFrom === null) return;
+                            const from = lvFrom;
+                            lvFrom = null;
+                            let to = li + (after ? 1 : 0);
+                            if (from < to) to -= 1;                          // 摘掉源后目标左移一格
+                            to = Math.min(to, ch.levels.length - 2);         // boss 恒末位
+                            if (to < 0 || to === from) return;
+                            op(`/api/manage/level/${lv.uid}/move`, { to });
+                        };
+                        row.ondragend = () => {
+                            lvFrom = null;
+                            row.classList.remove('dragging', 'drop-before', 'drop-after');
+                        };
+                    } else {
+                        // boss 行也接拖：落在 boss 上 = 插到末位前（这是「拖到最末尾」唯一可用落点）
+                        row.ondragover = (e) => {
+                            if (lvFrom === null) return;
+                            e.preventDefault();
+                            row.classList.add('drop-before');
+                        };
+                        row.ondragleave = leaveIfOut;
+                        row.ondrop = (e) => {
+                            e.preventDefault();
+                            row.classList.remove('drop-before');
+                            if (lvFrom === null) return;
+                            const from = lvFrom;
+                            lvFrom = null;
+                            const to = ch.levels.length - 2;                 // 摘掉源后列表末位
+                            if (to < 0 || to === from) return;
+                            op(`/api/manage/level/${lv.uid}/move`, { to });
+                        };
+                    }
+                    // 点行（避开 ops 区）→ 小关编辑面板；行可聚焦，↑/↓ 直接调序
+                    row.tabIndex = 0;
+                    row.classList.add('clickable');
+                    row.onclick = (e) => {
+                        if (e.target.closest('.ops')) return;
+                        openLevelEditor(lv, ch, others);
+                    };
+                    row.onkeydown = (e) => {
+                        if (isBoss || e.target.closest('.ops')) return;      // boss 锁末位、ops 内控件自用方向键
+                        if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+                        const up = e.key === 'ArrowUp';
+                        if (up ? li === 0 : li >= last - 1) return;          // 边界（末位是 boss，不让占）
+                        e.preventDefault();
+                        lvFocus = lv.uid;                                    // 重渲染后把焦点放回本行，连按才连贯
+                        op(`/api/manage/level/${lv.uid}/move`, { dir: up ? 'up' : 'down' });
+                    };
+                    if (lv.uid === lvFocus) {
+                        lvFocus = null;
+                        row.focus({ preventScroll: true });
+                    }
                     lvBox.appendChild(row);
                 });
                 card.appendChild(lvBox);
