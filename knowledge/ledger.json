@@ -2312,7 +2312,7 @@
       "file": "knowledge/lessons/environment.md",
       "category": "环境",
       "title": "交付格式的判据是「目标运行时能不能解码」，压缩率不构成选型依据；带「未验证前提」的格式裁定不得进产线口径",
-      "contentHash": "cd24e437c685664fc6d8bfde2f6cce40b8112e38b86fa494f56526fd0450854d",
+      "contentHash": "d44b2670a90f1be9dded6a9320624ba10ab7c55b5372d80f0a1d86eafbc976b2",
       "sourceTask": null,
       "addedDate": "2026-10-18",
       "lastAccess": "2026-10-18",
@@ -2720,7 +2720,7 @@
       "file": "knowledge/lessons/environment.md",
       "category": "环境",
       "title": "`dev/harness/.smoke/` 残留累积到 500+ 条目后，harness 冒烟会「假 FAIL」（`SAFE_DELETE_BULK_CONFIRM_REQUIRED`）",
-      "contentHash": "ea2dfd44b1f04626e0b3483f69e5e755d1b76265f19a618260c4011733d8ce46",
+      "contentHash": "efbad923cc4389c2eaa0b630b2eba5733b2d8e4b8f4e21d4b8cda0ec5f2d5686",
       "sourceTask": "WXG-T-351",
       "addedDate": "2026-10-23",
       "lastAccess": "2026-10-23",
@@ -4349,6 +4349,16 @@
         "K-151",
         "K-152",
         "K-157"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-24",
+      "taskId": null,
+      "kind": "updated",
+      "ids": [
+        "K-139",
+        "K-163"
       ],
       "note": null
     }
