@@ -364,3 +364,19 @@ DI_target(d) = DI_START + (d − 1) × ΔDI          // 类别内第 d 关的目
 
 - ⛔ **门禁**：`steps = 27 ∈ [18, 90]` 合规；`levels:check` = OK；`difficulty.test.ts` **11 passed**；金样本三态复取后 **12 passed**（本批只动 `sha` 腿，`total`/`kinds` 逐字未变 —— 与 K-167 同族，不是 total 腿漂移）。
 - ⛔ **§3 冻结常量零改动**；`menu-architecture.md §3.2/§3.3` 的历史漂移在本批一并结清（见 §10.2 第 ② 项追补）。
+
+### 10.4 登记 · L00001 第二次换盘（2026-10-24 22:57 · 并发会话在制，**未提交**）
+
+> 性质：本节只是**漂移登记**，不是裁定，也不改 §3 / §5 任何数值。376 批提交之后，L00001 又被并发会话改回旧盘；截至本节写入，该改动**停在工作树、未提交、也未回写正文**。⇒ 若该会话最终不落地，**整节可删**；若落地，§5.1 / §5.2 / §5.3 与 `difficulty.test.ts` 须由该会话按实测同步（⛔ 本会话不代改数值，先例 K-053：关卡数据现值为真源、历史快照不回改）。
+
+| # | 观测项 | HEAD（`13d916d`，含 376 批） | 工作树（22:57:01 写入） |
+|---|---|---|---|
+| 1 | 盘面 | 13×12 | 11×8 |
+| 2 | 定价 | `steps 27` / `time 46` / `clamped` false | `steps 15` / `time 30` / `clamped` true |
+| 3 | `contentVersion` | 38 | 42 |
+| 4 | `difficultyOf` 实测 | N 102 / M 92 / ρ 0.902 / fC 0.800 / fK 0.390 ⇒ **DI 28.7** | N 63 / M 54 / ρ 0.857 / fC 0.800 / fK 0.442 ⇒ **DI 19.1** |
+| 5 | 连带红项 | 无 | `difficulty.test.ts` 2 例（逐值 + Spearman 0.883）、`ui-golden` 3 态（level-select / level-select-mid / sprint-settle） |
+
+- ⛔ **回归取证**：HEAD 干净检出（`git worktree` 于 `13d916d`）全量 `verify` = **PASS 20 ｜ WARN 0 ｜ SKIP 2 ｜ FAIL 0**（EXIT 0；beads 104 文件 1261 passed / 3 skipped、framework 508、breakout 239）；同一命令在工作树 = **PASS 21 ｜ FAIL 1**，唯一 FAIL 即上表第 5 行那 5 例 ⇒ 差异 100% 归因于关卡数据，与台账 / 文档改动零关系。
+- ⛔ 两处 SKIP（`check:size` / `check:cocos-mask`）是**自报未覆盖**：干净检出没有构建产物（wechatgame 档需有效 AppID），不是通过、也不是失败。
+- 复现探针：同一 `difficultyOf` 分喂 `git show HEAD:games/beads/design/levels/singles/L00001.json` 与工作树版，脚本留档 `temp/wxg377-l1-di-attribution.mjs`。

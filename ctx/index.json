@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4630,
       "lines": 159,
-      "sha256": "0d41225456c274c04a29d2339f6f3dfe01ab49bdea0baa8f56ac4851fd881398",
+      "sha256": "c0bb644278c486236f402fb13f7800b0fb566ba34ab61cbdf0edd72427efafb2",
       "tier": "normal",
       "sections": [
         {
@@ -24051,17 +24051,17 @@
     },
     {
       "path": "games/beads/design/art/proposals/ui-style-redesign/level-difficulty.md",
-      "tokens": 13633,
-      "lines": 366,
-      "sha256": "37ad2e53482e89021cd10ea4ff1c0f2febe2a8d44cb1112cb59f99991b239f6b",
+      "tokens": 14193,
+      "lines": 382,
+      "sha256": "7ad09393fea9f29b8e7c9d64c20c43dd424958513b00a5f73c4649811b6e1446",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§关卡难度公式（DI）与图元线性律 · WXG-T-266",
           "level": 1,
           "startLine": 1,
-          "endLine": 367,
-          "tokens": 13614,
+          "endLine": 383,
+          "tokens": 14174,
           "summary": "角色：文策渊（设计策略）· 接 WXG-T-265；配套 menu-architecture.md（陈列序与类别阈值均消",
           "keywords": [
             "WXG",
@@ -24424,8 +24424,8 @@
           "anchor": "§10 本轮改动清单（第三轮 · 2026-10-07；**换盘后刷新见 §10.1**）",
           "level": 2,
           "startLine": 295,
-          "endLine": 367,
-          "tokens": 3383,
+          "endLine": 383,
+          "tokens": 3943,
           "summary": "1 §4.0（新增） Q6 双轨裁定：门禁=契约（只锁单调）· 生成器=默认实现（等差，可配可替换）+ 三条理由 A-1",
           "keywords": [
             "§10.1",
@@ -24481,6 +24481,22 @@
             "换图收口",
             "取证在",
             "六次续批预演"
+          ]
+        },
+        {
+          "anchor": "§10.4 登记 · L00001 第二次换盘（2026-10-24 22:57 · 并发会话在制，**未提交**）",
+          "level": 3,
+          "startLine": 368,
+          "endLine": 383,
+          "tokens": 530,
+          "summary": "性质：本节只是漂移登记，不是裁定，也不改 §3 / §5 任何数值。376 批提交之后，L00001 又被并发会话改回旧",
+          "keywords": [
+            "§3",
+            "§5",
+            "L00001",
+            "登记",
+            "第二次换盘",
+            "并发会话在制"
           ]
         }
       ]
