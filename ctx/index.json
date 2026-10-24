@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4630,
       "lines": 159,
-      "sha256": "1085558e60201e99d4983d9e5c3580721c765a11225344b0da5c90c19bcd9c1b",
+      "sha256": "1e15fa1cd968e849d1dfdbc28f2cba83b089c963541cc69f03fb3cffde04daa9",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 402,
-          "summary": "1 production/TASKS-DETAIL.md 235329 5382 normal",
+          "summary": "1 production/TASKS-DETAIL.md 236280 5417 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -422,7 +422,7 @@
           "startLine": 46,
           "endLine": 134,
           "tokens": 3121,
-          "summary": "production/TASKS-DETAIL.md 235329 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 236280 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5513,
       "lines": 146,
-      "sha256": "d156c8dbc542d46ac786ae642087965d5fa11ee38df7cbf67697f9f4af0822da",
+      "sha256": "f72bf6f09ebe4b20a5fcb83579a0317d9676f46c72d658c03cd0c4d8702f0c56",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 176 行 / 80457 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 177 行 / 80999 tok / 实测读 4 次",
           "level": 2,
           "startLine": 27,
           "endLine": 30,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+177 · §待排（backlog，无号，立项时领取…=149+29",
+          "summary": "§WXG 任务台账（SSOT）=1+178 · §待排（backlog，无号，立项时领取…=150+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -968,7 +968,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 5382 行 / 235329 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 5417 行 / 236280 tok",
           "level": 2,
           "startLine": 92,
           "endLine": 96,
@@ -84520,9 +84520,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 235329,
-      "lines": 5382,
-      "sha256": "be586f5ca0f29148ebb9339df3e5b9be028f636646bd13bf41730184b41b6c9e",
+      "tokens": 236280,
+      "lines": 5417,
+      "sha256": "0f1dcfaf29cfa564a3da9f7c2fa72b1951821bbb997919b229772e47b270ede1",
       "tier": "normal",
       "sections": [
         {
@@ -87043,8 +87043,8 @@
           "anchor": "§beads·fit 档放开「只缩不放大」钳（小盘放大铺满留边 + 初始视图 = 适配档）",
           "level": 1,
           "startLine": 3026,
-          "endLine": 5383,
-          "tokens": 132944,
+          "endLine": 5418,
+          "tokens": 133895,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
             "beads",
@@ -89802,10 +89802,84 @@
           ]
         },
         {
-          "anchor": "§WXG-T-363",
+          "anchor": "§WXG-T-362",
           "level": 2,
           "startLine": 5059,
-          "endLine": 5120,
+          "endLine": 5093,
+          "tokens": 948,
+          "summary": "beads·三关豆面可读性修复 + L9 曼陀罗重建为 30×30 八瓣（⚠ 事后补登：原提交 aa5c85e 未自登主",
+          "keywords": [
+            "WXG",
+            "beads",
+            "aa5c85e"
+          ]
+        },
+        {
+          "anchor": "§1 事实来源（可追溯锚）",
+          "level": 3,
+          "startLine": 5063,
+          "endLine": 5070,
+          "tokens": 216,
+          "summary": "提交 aa5c85e（2026-10-24 06:55 +0800）fix(beads): 三关豆面可读性修复 + L9",
+          "keywords": [
+            "aa5c85e",
+            "fix",
+            "beads",
+            "事实来源",
+            "可追溯锚"
+          ]
+        },
+        {
+          "anchor": "§2 交付内容（逐条据提交信息）",
+          "level": 3,
+          "startLine": 5071,
+          "endLine": 5082,
+          "tokens": 272,
+          "summary": "L00003 / L00004 守恒配套修复（repairLevel，pattern↔misplaced 每色守恒）⇒ ",
+          "keywords": [
+            "L00003",
+            "L00004",
+            "repairLevel",
+            "pattern",
+            "misplaced",
+            "交付内容"
+          ]
+        },
+        {
+          "anchor": "§3 关键约束（提交信息所载实测结论，可复用）",
+          "level": 3,
+          "startLine": 5083,
+          "endLine": 5087,
+          "tokens": 65,
+          "summary": "1. 1 格宽的同心环在 30 格栅格上必然断裂（紫环在赤道整段消失）⇒ 环宽须 ≥2 格。",
+          "keywords": [
+            "关键约束",
+            "提交信息所载",
+            "实测结论",
+            "可复用"
+          ]
+        },
+        {
+          "anchor": "§4 遗留 / 与后续批的接口（补登时新增实测，非原批自述）",
+          "level": 3,
+          "startLine": 5088,
+          "endLine": 5093,
+          "tokens": 256,
+          "summary": "1. misplaced 形态与校验器脱钩：本批写入的 misplaced 仍是二维数组，而校验器自 89f28e0 起",
+          "keywords": [
+            "misplaced",
+            "f28e0",
+            "遗留",
+            "与后续批的接",
+            "补登时新增实",
+            "非原批自述"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-363",
+          "level": 2,
+          "startLine": 5094,
+          "endLine": 5155,
           "tokens": 3551,
           "summary": "beads·装扮馆（skins 弹窗）工程批：设置页入口 + 卡区版面 + 买断闭环（承 360 遗留①，闭合 §3.7",
           "keywords": [
@@ -89818,8 +89892,8 @@
         {
           "anchor": "§1 领号核验与并发侦查（K-046 / K-045） (4)",
           "level": 3,
-          "startLine": 5065,
-          "endLine": 5072,
+          "startLine": 5100,
+          "endLine": 5107,
           "tokens": 517,
           "summary": "开工时 HEAD = 0990680（360 批遗留①的 P4 四案文档批）；批中对方（CodeBuddy）落 f47f",
           "keywords": [
@@ -89833,8 +89907,8 @@
         {
           "anchor": "§2 交付清单 (9)",
           "level": 3,
-          "startLine": 5073,
-          "endLine": 5088,
+          "startLine": 5108,
+          "endLine": 5123,
           "tokens": 1169,
           "summary": "design/ux/ux-spec.md v1.25（B1 先文档后代码） §2 路由表增 skins（modal · ",
           "keywords": [
@@ -89849,8 +89923,8 @@
         {
           "anchor": "§3 四条关键判断（全部实测后写）",
           "level": 3,
-          "startLine": 5089,
-          "endLine": 5095,
+          "startLine": 5124,
+          "endLine": 5130,
           "tokens": 779,
           "summary": "1. MENU_ORDER ≠ 动作全集 —— 摘 id 前必查 isSettingsAction 的消费者（本批唯一造",
           "keywords": [
@@ -89863,8 +89937,8 @@
         {
           "anchor": "§4 全量读数与归因（窗口取证，⛔ 靠推演免责）",
           "level": 3,
-          "startLine": 5096,
-          "endLine": 5105,
+          "startLine": 5131,
+          "endLine": 5140,
           "tokens": 327,
           "summary": "A 工作树原样（本批 12 件 + 对方 WIP） 6 failed / 1255 passed / 3 skipped",
           "keywords": [
@@ -89879,8 +89953,8 @@
         {
           "anchor": "§5 遗留与后续批",
           "level": 3,
-          "startLine": 5106,
-          "endLine": 5114,
+          "startLine": 5141,
+          "endLine": 5149,
           "tokens": 305,
           "summary": "1. 顶栏甲案未落（P4-甲 = 推荐案）：需 cocos/assets/textures/ui_icon_skin.p",
           "keywords": [
@@ -89894,8 +89968,8 @@
         {
           "anchor": "§6 提交与推送取证",
           "level": 3,
-          "startLine": 5115,
-          "endLine": 5120,
+          "startLine": 5150,
+          "endLine": 5155,
           "tokens": 203,
           "summary": "提交范围 = 本批名下：ux-spec.md · skins-content.ts（新）· settings-conte",
           "keywords": [
@@ -89910,8 +89984,8 @@
         {
           "anchor": "§WXG-T-364",
           "level": 2,
-          "startLine": 5121,
-          "endLine": 5164,
+          "startLine": 5156,
+          "endLine": 5199,
           "tokens": 1799,
           "summary": "beads-studio·大关草稿统一发布（按大关攒小关定序 → 新增大关 / 整章替换+归档）",
           "keywords": [
@@ -89923,8 +89997,8 @@
         {
           "anchor": "§1 开工取证（先摸现状，不猜）",
           "level": 3,
-          "startLine": 5127,
-          "endLine": 5132,
+          "startLine": 5162,
+          "endLine": 5167,
           "tokens": 290,
           "summary": "已有：manage.html 章内 ↑/↓ 调序与跨章移（server.mjs:1044-1064）、单关 replac",
           "keywords": [
@@ -89939,8 +90013,8 @@
         {
           "anchor": "§2 交付清单 (10)",
           "level": 3,
-          "startLine": 5133,
-          "endLine": 5141,
+          "startLine": 5168,
+          "endLine": 5176,
           "tokens": 356,
           "summary": "apps/beads-studio/server.mjs（草稿层） DRAFTS_DIR + assertDraftId",
           "keywords": [
@@ -89955,8 +90029,8 @@
         {
           "anchor": "§3 两处 bug（实测暴露，均已修）",
           "level": 3,
-          "startLine": 5142,
-          "endLine": 5145,
+          "startLine": 5177,
+          "endLine": 5180,
           "tokens": 247,
           "summary": "1. repairLevel is not defined（既有，WXG-T-357 遗留）：server.mjs:55",
           "keywords": [
@@ -89971,8 +90045,8 @@
         {
           "anchor": "§4 验收（真机 · 事务级）",
           "level": 3,
-          "startLine": 5146,
-          "endLine": 5157,
+          "startLine": 5181,
+          "endLine": 5192,
           "tokens": 346,
           "summary": "mode:'new' 建章 chapters/zz-draft-test.json（order 3 / open fal",
           "keywords": [
@@ -89987,8 +90061,8 @@
         {
           "anchor": "§5 明确未做 / 已知限制 (2)",
           "level": 3,
-          "startLine": 5158,
-          "endLine": 5164,
+          "startLine": 5193,
+          "endLine": 5199,
           "tokens": 333,
           "summary": "1. 发布未走 NDJSON 流式：N 关各跑一次 beads-bot 实测（本批单关 ≈0.9–1.0s，命中缓存），",
           "keywords": [
@@ -90002,8 +90076,8 @@
         {
           "anchor": "§WXG-T-365",
           "level": 2,
-          "startLine": 5165,
-          "endLine": 5229,
+          "startLine": 5200,
+          "endLine": 5264,
           "tokens": 2727,
           "summary": "beads·装扮馆入口上提主菜单顶栏中档（提案 P4-甲落地）（承 363 遗留①「位置 = 设置弹窗行5 左格」系临时",
           "keywords": [
@@ -90014,8 +90088,8 @@
         {
           "anchor": "§1 领号核验与并发侦查（K-046 / K-045） (5)",
           "level": 3,
-          "startLine": 5169,
-          "endLine": 5174,
+          "startLine": 5204,
+          "endLine": 5209,
           "tokens": 257,
           "summary": "三路核验：头注「下一真可用号 = 365」+ 主表无 365 行 + 详情无 ## WXG-T-365 + git lo",
           "keywords": [
@@ -90028,8 +90102,8 @@
         {
           "anchor": "§2 交付清单（15 件 + 2 份台账）",
           "level": 3,
-          "startLine": 5175,
-          "endLine": 5189,
+          "startLine": 5210,
+          "endLine": 5224,
           "tokens": 684,
           "summary": "src/config/tuning.ts（+ Cocos 镜像） MENU_TOPBAR_X 中档键名 notice →",
           "keywords": [
@@ -90044,8 +90118,8 @@
         {
           "anchor": "§3 五条关键判断（全部实测后写）",
           "level": 3,
-          "startLine": 5190,
-          "endLine": 5197,
+          "startLine": 5225,
+          "endLine": 5232,
           "tokens": 499,
           "summary": "1. 顶栏不是场景，是像素：入口升格 = 换键名 + 换画法 + 换动作归属，零新坐标、零新热区算式（anchoredG",
           "keywords": [
@@ -90057,8 +90131,8 @@
         {
           "anchor": "§4 全量读数与归因（窗口取证，⛔ 靠推演免责） (2)",
           "level": 3,
-          "startLine": 5198,
-          "endLine": 5208,
+          "startLine": 5233,
+          "endLine": 5243,
           "tokens": 420,
           "summary": "pnpm run verify = PASS 18 ｜ FAIL 4（22 项逐项执行、不短路）；typecheck /",
           "keywords": [
@@ -90073,8 +90147,8 @@
         {
           "anchor": "§5 遗留与后续批 (2)",
           "level": 3,
-          "startLine": 5209,
-          "endLine": 5217,
+          "startLine": 5244,
+          "endLine": 5252,
           "tokens": 286,
           "summary": "1. [待 UI 设计] 装扮馆顶栏真图标（现复用喇叭）；[待 art] 卡面真美术预览与「解锁 150」货币图示（承 ",
           "keywords": [
@@ -90085,8 +90159,8 @@
         {
           "anchor": "§6 工程教训（本批新踩点，沉淀候选来源）",
           "level": 3,
-          "startLine": 5218,
-          "endLine": 5223,
+          "startLine": 5253,
+          "endLine": 5258,
           "tokens": 237,
           "summary": "编辑工具会篡改中文：本批两次写入出现「钮面→扭面」「顶栏→顶标」「零漂移→零漂（丢字）」。长段中文改走「Write 临时",
           "keywords": [
@@ -90099,8 +90173,8 @@
         {
           "anchor": "§7 提交与推送取证",
           "level": 3,
-          "startLine": 5224,
-          "endLine": 5229,
+          "startLine": 5259,
+          "endLine": 5264,
           "tokens": 180,
           "summary": "提交范围 = 本批名下 15 件：tuning.ts / meta-view.ts / settings-content",
           "keywords": [
@@ -90115,8 +90189,8 @@
         {
           "anchor": "§WXG-T-366",
           "level": 2,
-          "startLine": 5230,
-          "endLine": 5280,
+          "startLine": 5265,
+          "endLine": 5315,
           "tokens": 1597,
           "summary": "beads·消除三处「展开 Set」写法（ES-01 存档字段隐患一行修）（用户在 WXG-T-365 收尾三选项里选 ",
           "keywords": [
@@ -90128,8 +90202,8 @@
         {
           "anchor": "§1 领号与来源（K-046）",
           "level": 3,
-          "startLine": 5234,
-          "endLine": 5239,
+          "startLine": 5269,
+          "endLine": 5274,
           "tokens": 175,
           "summary": "来源 = 365 §4 / §5-2 登记的既存债：check:es5spread 三处红出自 09adcc7（WXG-",
           "keywords": [
@@ -90144,8 +90218,8 @@
         {
           "anchor": "§2 交付清单（4 件）",
           "level": 3,
-          "startLine": 5240,
-          "endLine": 5249,
+          "startLine": 5275,
+          "endLine": 5284,
           "tokens": 172,
           "summary": "games/beads/src/game/meta-save-schema.ts ownedIds() 末行返回由「展开",
           "keywords": [
@@ -90160,8 +90234,8 @@
         {
           "anchor": "§3 四条关键判断（全部实测后写） (2)",
           "level": 3,
-          "startLine": 5250,
-          "endLine": 5256,
+          "startLine": 5285,
+          "endLine": 5291,
           "tokens": 591,
           "summary": "1. 为什么这条是真 bug 而非风格洁癖：构建侧实证 = 产物里原生出现 new Set() / new Map() ",
           "keywords": [
@@ -90176,8 +90250,8 @@
         {
           "anchor": "§4 读数与归因",
           "level": 3,
-          "startLine": 5257,
-          "endLine": 5268,
+          "startLine": 5292,
+          "endLine": 5303,
           "tokens": 261,
           "summary": "check:es5spread 修复前 3 违规 → 修复后 OK（160 shipped source file(s)",
           "keywords": [
@@ -90192,8 +90266,8 @@
         {
           "anchor": "§5 遗留与后续批 (3)",
           "level": 3,
-          "startLine": 5269,
-          "endLine": 5275,
+          "startLine": 5304,
+          "endLine": 5310,
           "tokens": 193,
           "summary": "1. 真机兼容未证（ADR-0012 §4.3 明列的未证事项）：微信 runtime 是否原生具备 Array.fro",
           "keywords": [
@@ -90208,8 +90282,8 @@
         {
           "anchor": "§6 提交与推送取证 (2)",
           "level": 3,
-          "startLine": 5276,
-          "endLine": 5280,
+          "startLine": 5311,
+          "endLine": 5315,
           "tokens": 103,
           "summary": "提交范围 = 4 件源码/镜像 + 2 份台账（TASKS-DETAIL.md 走 HEAD 铺底 + 只插我方节的原子",
           "keywords": [
@@ -90222,8 +90296,8 @@
         {
           "anchor": "§WXG-T-367",
           "level": 2,
-          "startLine": 5281,
-          "endLine": 5341,
+          "startLine": 5316,
+          "endLine": 5376,
           "tokens": 1807,
           "summary": "beads·金样本复取前置侦查与 §12 归因订正（复取阻塞于 BOOT 锁）（用户令「金样本三态复取」⇒ 侦查后选甲案",
           "keywords": [
@@ -90236,8 +90310,8 @@
         {
           "anchor": "§1 领号与来源（K-046） (2)",
           "level": 3,
-          "startLine": 5285,
-          "endLine": 5289,
+          "startLine": 5320,
+          "endLine": 5324,
           "tokens": 96,
           "summary": "三路核验：头注「下一真可用号 WXG-T-367」且该串在 TASKS.md 仅 1 处自指；主表无 ^ WXG-T-3",
           "keywords": [
@@ -90249,8 +90323,8 @@
         {
           "anchor": "§2 侦查手段：怎么在共享脏工作树里量到「HEAD 自身」",
           "level": 3,
-          "startLine": 5290,
-          "endLine": 5295,
+          "startLine": 5325,
+          "endLine": 5330,
           "tokens": 226,
           "summary": "git worktree add --detach temp/wxg367-anchor HEAD（temp/ 属 gi",
           "keywords": [
@@ -90265,8 +90339,8 @@
         {
           "anchor": "§3 四条实测",
           "level": 3,
-          "startLine": 5296,
-          "endLine": 5307,
+          "startLine": 5331,
+          "endLine": 5342,
           "tokens": 586,
           "summary": "1. 拐点 = 单点 aa5c85e（WXG-T-362，已入库）：逐 rev 复取 —— dc60d54/361190",
           "keywords": [
@@ -90280,8 +90354,8 @@
         {
           "anchor": "§4 交付清单（3 件文档，⛔ 不动夹具、不动数据）",
           "level": 3,
-          "startLine": 5308,
-          "endLine": 5316,
+          "startLine": 5343,
+          "endLine": 5351,
           "tokens": 143,
           "summary": "docs/architecture/ui-architecture-beads.md §12 订正 WXG-T-365 ",
           "keywords": [
@@ -90296,8 +90370,8 @@
         {
           "anchor": "§5 三条关键判断（全部实测后写）",
           "level": 3,
-          "startLine": 5317,
-          "endLine": 5322,
+          "startLine": 5352,
+          "endLine": 5357,
           "tokens": 224,
           "summary": "1. 「能不能复取」的判据不是登记齐不齐，而是取到的相位是不是设计意图态：金样本把 proof = {screen, o",
           "keywords": [
@@ -90310,8 +90384,8 @@
         {
           "anchor": "§6 读数",
           "level": 3,
-          "startLine": 5323,
-          "endLine": 5333,
+          "startLine": 5358,
+          "endLine": 5368,
           "tokens": 171,
           "summary": "复取器确定性自证 每次跑两遍逐态记录全等 = PASS（含 sha 与 proof）",
           "keywords": [
@@ -90324,8 +90398,8 @@
         {
           "anchor": "§7 遗留与后续批",
           "level": 3,
-          "startLine": 5334,
-          "endLine": 5341,
+          "startLine": 5369,
+          "endLine": 5376,
           "tokens": 216,
           "summary": "1. P0（不属本批，归并发会话的关卡数据轨）：develop HEAD 启动即卡 BOOT（L3/L4 misplac",
           "keywords": [
@@ -90339,8 +90413,8 @@
         {
           "anchor": "§WXG-T-368",
           "level": 2,
-          "startLine": 5342,
-          "endLine": 5383,
+          "startLine": 5377,
+          "endLine": 5418,
           "tokens": 1053,
           "summary": "beads·L3 misplaced 全错覆盖率与第一章数值同步（HEAD 启动即卡 BOOT 的后续，= WXG-T-",
           "keywords": [
@@ -90354,8 +90428,8 @@
         {
           "anchor": "§1 领号与来源（K-046） (3)",
           "level": 3,
-          "startLine": 5346,
-          "endLine": 5350,
+          "startLine": 5381,
+          "endLine": 5385,
           "tokens": 81,
           "summary": "三路核验：头注「已分配至 367 / 下一真可用号 368」；主表无 ^ WXG-T-368 行；无 ## WXG-T-",
           "keywords": [
@@ -90366,8 +90440,8 @@
         {
           "anchor": "§2 本批为什么不改数据（边界）",
           "level": 3,
-          "startLine": 5351,
-          "endLine": 5356,
+          "startLine": 5386,
+          "endLine": 5391,
           "tokens": 230,
           "summary": "修复该数据缺陷的工作已在并发会话的手上：games/beads/src/config/levels-data.ts（含 ",
           "keywords": [
@@ -90382,8 +90456,8 @@
         {
           "anchor": "§3 做了什么：把「其入库之后」预演出来（零碰撞）",
           "level": 3,
-          "startLine": 5357,
-          "endLine": 5372,
+          "startLine": 5392,
+          "endLine": 5407,
           "tokens": 302,
           "summary": "在干净检出（temp/wxg367-anchor，detached @ 0733976）里拷入那四件在制品，跑复取器 +",
           "keywords": [
@@ -90398,8 +90472,8 @@
         {
           "anchor": "§4 关键判断（两条）",
           "level": 3,
-          "startLine": 5373,
-          "endLine": 5377,
+          "startLine": 5408,
+          "endLine": 5412,
           "tokens": 128,
           "summary": "1. 「形状修好」≠「数据修好」：形状只是校验器的一项，全错覆盖率与冻结数值同步才是这批数据的实质判据；只看 BOOT ",
           "keywords": [
@@ -90411,8 +90485,8 @@
         {
           "anchor": "§5 待裁定与后续",
           "level": 3,
-          "startLine": 5378,
-          "endLine": 5383,
+          "startLine": 5413,
+          "endLine": 5418,
           "tokens": 203,
           "summary": "待用户裁定：若那四件长期不入库，是否授权我方接管（接管 = 明确丢弃其未提交工作），或另开一条按现成工具（tools/s",
           "keywords": [
@@ -90424,17 +90498,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 80457,
-      "lines": 176,
-      "sha256": "888942dd921309480c795a76362ee98d7a5f6f1cc73ffb59729500b68cd97768",
+      "tokens": 80999,
+      "lines": 177,
+      "sha256": "cae3e0f4e695376d6019d6fc5e7bb6328146153edf7221bb924d6ab072096e53",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 177,
-          "tokens": 80449,
+          "endLine": 178,
+          "tokens": 80990,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -90447,8 +90521,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 149,
-          "endLine": 177,
+          "startLine": 150,
+          "endLine": 178,
           "tokens": 1390,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
