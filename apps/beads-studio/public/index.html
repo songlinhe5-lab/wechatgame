@@ -44,18 +44,32 @@
 
         main {
             display: grid;
-            grid-template-columns: 340px 1fr;
+            grid-template-columns: 340px minmax(0, 1fr) 320px;
             gap: 16px;
             padding: 16px 20px;
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
-        /* [?level=] 关卡条落在左列顶部，表单紧随其下；豆面展示固定右列——
-           不写死列会按自动流把表单挤到右列、豆面挤到左下（2026-10-24 实测布局错位）。 */
+        /* 列位写死，不靠自动流：关卡条+表单 = 左列，豆面 = 中列，已存结果 = 最右列。
+           （不写死会按自动流把表单挤到中列、豆面挤到左下，2026-10-24 实测布局错位。） */
         #lvbar { grid-column: 1; }
         main > section:first-of-type { grid-column: 1; }
         main > section:last-of-type { grid-column: 2; }
+        #results { grid-column: 3; }
+        /* 最右列只有 320px：id 单行省略、属性单行不折，344 条也保持紧凑（否则每条折成两行锯齿） */
+        #results .item { gap: 6px; }
+        #results .item span { flex: 1 1 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        #results .item small { flex: 0 0 auto; white-space: nowrap; }
+        #results .item .del { flex: 0 0 28px; }
+
+        @media (max-width:1180px) {
+            main {
+                grid-template-columns: 340px minmax(0, 1fr);
+            }
+
+            #results { grid-column: 2; }        /* 中屏收回右列（豆面下方） */
+        }
 
         @media (max-width:860px) {
             main {
@@ -64,7 +78,8 @@
 
             #lvbar,
             main > section:first-of-type,
-            main > section:last-of-type {
+            main > section:last-of-type,
+            #results {
                 grid-column: 1;
             }
         }
@@ -367,8 +382,9 @@
                     </div>
                 </div>
             </div>
-            <div class="card" id="results"><b>已存结果</b> <small>（GET /api/results，小游戏在线导入同源）</small></div>
         </section>
+        <!-- 已存结果：独立成最右一列（窄屏回落右列下方 / 单列） -->
+        <div class="card" id="results"><b>已存结果</b> <small>（GET /api/results，小游戏在线导入同源）</small></div>
     </main>
     <!-- 盘面绘制共享模块（视觉正源 = games/beads/src/view/{palette,bead-render}.ts，见文件头同步表） -->
     <script src="/board-render.js"></script>
@@ -784,7 +800,8 @@
                     for (const r of list) {
                         const d = document.createElement('div'); d.className = 'item';
                         const noImp = r.importable === false;
-                        d.innerHTML = `<span>${noImp ? (r.misMode === 'none' ? 'ℹ ' : '⚠ ') : ''}${r.id}</span><small>${r.colors} 色 · ${r.misMode === 'full' ? '全错位' : r.misMode === 'max' ? '最大化错位' : r.misMode === 'none' ? '不错位' : '错位 ' + r.swaps * 2}${noImp ? (r.misMode === 'none' ? ' · 游戏不入关' : ' · 不可入关') : ''}</small>`;
+                        // 最右列窄 ⇒ id 视觉上省略，完整值放 title（悬停可见），别让用户失去识别依据
+                        d.innerHTML = `<span title="${r.id}">${noImp ? (r.misMode === 'none' ? 'ℹ ' : '⚠ ') : ''}${r.id}</span><small>${r.colors} 色 · ${r.misMode === 'full' ? '全错位' : r.misMode === 'max' ? '最大化错位' : r.misMode === 'none' ? '不错位' : '错位 ' + r.swaps * 2}${noImp ? (r.misMode === 'none' ? ' · 游戏不入关' : ' · 不可入关') : ''}</small>`;
                         // 列表是轻投影（不含 pattern/缩略图）⇒ 点开才拉单条全量
                         d.onclick = async () => {
                             try {
