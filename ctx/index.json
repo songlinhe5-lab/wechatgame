@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4630,
       "lines": 159,
-      "sha256": "3dd920c694baa01a67e7d3992d0ae48d049ecf3495668a63fe73dd8f86b17e37",
+      "sha256": "56263cfee082d447dd74694c119208863e05335914408a663540f45f1912d5f6",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 402,
-          "summary": "1 production/TASKS-DETAIL.md 241752 5611 normal",
+          "summary": "1 production/TASKS-DETAIL.md 242832 5635 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -422,7 +422,7 @@
           "startLine": 46,
           "endLine": 134,
           "tokens": 3121,
-          "summary": "production/TASKS-DETAIL.md 241752 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 242832 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5513,
       "lines": 146,
-      "sha256": "558e1a57865e6884ebb263e166f4575647eb3bf4863de92cfd5c1491d8809ba3",
+      "sha256": "0ea3acba632815aa3f4f3822d374adbc1f8ded0eeb04a6e012dff73a19ff31b7",
       "tier": "normal",
       "sections": [
         {
@@ -745,7 +745,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 181 行 / 83495 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 181 行 / 83700 tok / 实测读 4 次",
           "level": 2,
           "startLine": 27,
           "endLine": 30,
@@ -968,7 +968,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 5611 行 / 241752 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 5635 行 / 242832 tok",
           "level": 2,
           "startLine": 92,
           "endLine": 96,
@@ -84520,9 +84520,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 241752,
-      "lines": 5611,
-      "sha256": "a52969a468d568cfab3d99c633cc2dac041832b5d7cac76f142a14de0103be0c",
+      "tokens": 242832,
+      "lines": 5635,
+      "sha256": "27c78924fca81cd43d412adb40362c9cebc975648446674793ccf1510aa8daf1",
       "tier": "normal",
       "sections": [
         {
@@ -87043,8 +87043,8 @@
           "anchor": "§beads·fit 档放开「只缩不放大」钳（小盘放大铺满留边 + 初始视图 = 适配档）",
           "level": 1,
           "startLine": 3026,
-          "endLine": 5612,
-          "tokens": 139368,
+          "endLine": 5636,
+          "tokens": 140448,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
             "beads",
@@ -90762,8 +90762,8 @@
           "anchor": "§WXG-T-372",
           "level": 2,
           "startLine": 5547,
-          "endLine": 5612,
-          "tokens": 1798,
+          "endLine": 5636,
+          "tokens": 2878,
           "summary": "beads·九关定价实测——L3/L4 的 steps/taps/time 仍是 362 换盘前的旧盘读数（只报不裁）",
           "keywords": [
             "WXG",
@@ -90853,22 +90853,38 @@
           "anchor": "§6 连带遗留",
           "level": 3,
           "startLine": 5607,
-          "endLine": 5612,
-          "tokens": 149,
+          "endLine": 5611,
+          "tokens": 148,
           "summary": "复取金样本的真前置由 367/368 记的「形状入库」推进为两条：difficulty 两红随本批裁定落档而绿 + §1",
           "keywords": [
             "§1",
             "difficulty",
             "连带遗留"
           ]
+        },
+        {
+          "anchor": "§7 补测（2026-10-24，用户选 372 收尾选项 1「甲+丙一起做」⇒ 先把丙的实测数字做出来）",
+          "level": 3,
+          "startLine": 5612,
+          "endLine": 5636,
+          "tokens": 1043,
+          "summary": "探针 = temp/wxg373-cand.mjs（23 行，只读）：候选图案由现盘机械变换产生，misplaced 一",
+          "keywords": [
+            "temp",
+            "wxg373",
+            "cand",
+            "mjs",
+            "misplaced",
+            "补测"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 83495,
+      "tokens": 83700,
       "lines": 181,
-      "sha256": "cc8f001f1c883d640e6ec422cfdcb6de98c25740643d8df6605b17692949835f",
+      "sha256": "68d26a56f9301cd4bdc0f23dde2629b77f269224bf9de928e1a2a075a6b0d20c",
       "tier": "hot",
       "sections": [
         {
@@ -90876,7 +90892,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 182,
-          "tokens": 83486,
+          "tokens": 83691,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
