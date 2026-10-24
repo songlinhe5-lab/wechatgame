@@ -750,6 +750,7 @@
             $('ing').disabled = !(r.levelDraft) || r.importable === false || r.draft === true;
             // 只有「尚未入库的预览」能确认保存：已存结果 / 载入的关卡都没有这个身份
             $('commit').disabled = !r.draft;
+            $('commit').title = r.draft ? '' : '只对刚生成的预览有效：历史条目已在库中，无需再保存';
             // 不可入关就显式标红 + 说原因（静默换色比报错难查，不能只靠用户自己避坑）。
             // 实物图纸模式（mis=none）下这些全是游戏导入门槛，对图纸用途一条都不适用
             // （色板 artkal-s 对图纸反而正解）⇒ 降为 ℹ 提示，不吓人（2026-09-21 用户拍板）。
@@ -811,6 +812,24 @@
             if (current) location.href = '/manage.html?result=' + encodeURIComponent(current.id);
         };
 
+        /** 把一条**已存结果**应用为当前（画布 + 高亮 + 关卡条「替换回该关」入口）。
+         *  与「生成预览」的差别：它已在 data/<board>/<id>/ 落盘 ⇒ 可入关/烘焙/替换回该关，
+         *  但没有「待确认保存」的身份（`commit` 恒禁用，见 show() 的 title 说明）。
+         *  此前点历史条目只画图、不刷关卡条 ⇒ 关卡模式下拿历史结果没法替换回该关。 */
+        function applyResult(r, el) {
+            current = r;
+            show(r);
+            for (const it of document.querySelectorAll('#results .item.on')) it.classList.remove('on');
+            el?.classList.add('on');   // 标出"当前这条"，避免看花后不知道画布是哪份
+            const cell = levelInfo ? levelInfo.cells[levelCell] : null;
+            const dimDiff = cell && (r.cols !== cell.cols || r.rows !== cell.rows)
+                ? `｜实际盘 ${r.cols}×${r.rows} ≠ 该关 ${cell.cols}×${cell.rows}：替换回该关会改盘面尺寸`
+                : '';
+            msg(`已应用历史结果：${r.id}｜实际盘 ${r.cols}×${r.rows}` +
+                (levelInfo ? `｜可点关卡条「用 ${r.id} 替换 ${levelInfo.uid}」` : '') + dimDiff, 'ok');
+            if (levelInfo) renderLevelBar(r.id);   // 历史条目也走同一条写盘路径（replace + 门禁 + 实测）
+        }
+
         /** 单条结果行（列表是轻投影，点开才拉单条全量）。`focus` = 刚保存的那条，高亮并滚到可视区。 */
         function resultItem(r, focus) {
             const d = document.createElement('div'); d.className = 'item' + (focus ? ' on' : '');
@@ -819,11 +838,14 @@
             // 这一列就是给用户判断"能不能不加裁剪地换回该关"的依据，缺了就会怀疑筛错了。
             // 最右列窄 ⇒ id 视觉上省略，完整值放 title（悬停可见），别让用户失去识别依据
             d.innerHTML = `<span title="${r.id}">${noImp ? (r.misMode === 'none' ? 'ℹ ' : '⚠ ') : ''}${r.id}</span><small>${r.cols}×${r.rows} · ${r.colors} 色 · ${r.misMode === 'full' ? '全错位' : r.misMode === 'max' ? '最大化错位' : r.misMode === 'none' ? '不错位' : '错位 ' + r.swaps * 2}${noImp ? (r.misMode === 'none' ? ' · 游戏不入关' : ' · 不可入关') : ''}</small>`;
+            d.title = '点击应用为当前（可下载 / 入关 / 烘焙；关卡模式下还能替换回该关）';
             d.onclick = async () => {
                 try {
-                    const full = await (await fetch('/api/results/' + r.id)).json();
-                    current = full; show(full);
-                } catch { msg('取详情失败：' + r.id, 'err'); }
+                    const res = await fetch('/api/results/' + r.id);
+                    const full = await res.json();
+                    if (!res.ok || full.error) throw new Error(full.error || ('HTTP ' + res.status));
+                    applyResult(full, d);
+                } catch (e) { msg(`取详情失败：${r.id}（${e.message}）`, 'err'); }
             };
             // 删除钮：不可逆（磁盘唯一副本）⇒ 必须二次确认；stopPropagation 避免误触发“查看该条”。
             const x = document.createElement('button');
@@ -837,7 +859,11 @@
                         const j = await res.json().catch(() => ({}));
                         return msg('删除失败：' + (j.error || res.status), 'err');
                     }
-                    if (current && current.id === r.id) { current = null; $('cv').getContext('2d').clearRect(0, 0, 420, 420); }
+                    if (current && current.id === r.id) {
+                        current = null;
+                        $('cv').getContext('2d').clearRect(0, 0, 420, 420);
+                        if (levelInfo) renderLevelBar(null);   // 别留一个指向已删 id 的「替换回该关」
+                    }
                     msg('已删除 ' + r.id, 'ok');
                     loadResults();
                 } catch (e) { msg('删除失败：' + e.message, 'err'); }
@@ -999,9 +1025,14 @@
             applyLevelCell();
         }
 
-        /** 把当前生成结果替换回该关（复用管理页同一条写盘路径，不新增协议）。 */
+        /** 把当前结果（生成预览或应用过来的历史条目）替换回该关（复用管理页同一条写盘路径，不新增协议）。 */
         async function replaceIntoLevel(resultId) {
-            if (!confirm(`用 ${resultId} 替换 ${levelInfo.uid} 的图案？\n关名/关号/章位不变，时长按真引擎实测重算；门禁不过整笔回滚。`)) return;
+            const cell = levelInfo.cells[levelCell];
+            // 尺寸不一致要在确认框里说清：替换会按新盘面重算，不是"只换图案"（用户上次正是栽在这条）
+            const dimWarn = current && current.id === resultId && (current.cols !== cell.cols || current.rows !== cell.rows)
+                ? `\n⚠ 盘面尺寸会变：${cell.cols}×${cell.rows} → ${current.cols}×${current.rows}`
+                : '';
+            if (!confirm(`用 ${resultId} 替换 ${levelInfo.uid} 的图案？\n关名/关号/章位不变，时长按真引擎实测重算；门禁不过整笔回滚。${dimWarn}`)) return;
             try {
                 const r = await fetch(`/api/manage/level/${levelInfo.uid}/replace`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
