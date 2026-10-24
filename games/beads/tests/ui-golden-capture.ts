@@ -12,10 +12,14 @@
  * `--dump` 另把十一帧全量命令流写到 `temp/ui-golden/<id>.jsonl`（temp/ 属 gitignore）。
  *
  * 纪律：
+ *  - `WXG298_SOURCE_REV` 必须等于当前 HEAD，缺失或不等 ⇒ **拒写夹具**（否则夹具会带着一个
+ *    「不是这段代码跑出来的」假出处；WXG-T-375）；工作树 dirty 时 rev 只是名义锚，真正的
+ *    可复现复取应在 `git worktree --detach @ <commit>` 干净检出里做（K-167）；
  *  - 脚本连跑两遍自证确定性，逐态 sha 不一致即拒写（「对拍工具可重复运行」的机械证据）；
  *  - ⛔ 只在**可复现锚**（commit）复取；⛔ 手改 sha/total/种类数；视觉变更须先有 UX 裁定并
  *    在 `docs/architecture/ui-architecture-beads.md` 登记（K-051 / K-053 / ADR-0032 DEC-6）。
  */
+import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import {
@@ -31,6 +35,15 @@ import { DESIGN_H, DESIGN_W } from '../src/config/tuning.js';
 const OUT = new URL('./__fixtures__/wxg-t-298-ui-golden.json', import.meta.url);
 const DUMP_DIR = new URL('../../../temp/ui-golden/', import.meta.url);
 const shouldDump = process.argv.includes('--dump');
+
+/* 可复现锚守卫（WXG-T-375）：任何写盘之前先把 rev 与 HEAD 对齐，否则拒写。 */
+const headRev = execFileSync('git', ['rev-parse', '--short', 'HEAD'], { encoding: 'utf8' }).trim();
+const sourceRev = process.env.WXG298_SOURCE_REV?.trim();
+assert.ok(sourceRev, `WXG298_SOURCE_REV 缺失 ⇒ 拒写夹具（须 = git rev-parse --short HEAD，实为 ${headRev}）`);
+assert.ok(
+    headRev.startsWith(sourceRev) || sourceRev.startsWith(headRev),
+    `WXG298_SOURCE_REV=${sourceRev} ≠ 当前 HEAD ${headRev} ⇒ 拒写夹具（在可复现锚上复取，K-167）`,
+);
 
 const runs = [runAllUiGoldenStates(), runAllUiGoldenStates()];
 assert.equal(runs[0]!.length, 11, `状态数 ${runs[0]!.length} ≠ 11（十单元 + 转场中点）`);
@@ -66,7 +79,7 @@ const fixture = {
     unit: 'UI-02',
     spec: 'docs/architecture/ui-architecture-beads.md §5 / §9.4 / §12',
     codeBaseline: 'bd964a0',
-    capturedFrom: `${process.env.WXG298_SOURCE_REV ?? 'unknown'} · ${process.env.WXG298_SOURCE_DESC ?? '工作树（WXG-T-298）'}`,
+    capturedFrom: `${sourceRev} · ${process.env.WXG298_SOURCE_DESC ?? '工作树（WXG-T-298）'}`,
     fixture: {
         viewport: { width: DESIGN_W, height: DESIGN_H, pixelRatio: UI_GOLDEN_PIXEL_RATIO },
         seed: UI_GOLDEN_SEED,

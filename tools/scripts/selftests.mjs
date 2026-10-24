@@ -55,6 +55,9 @@ export const TIERS = {
         { script: 'check:host-tests:selftest', argv: ['node', `${S}/check-host-behavior-tests.mjs`, '--selftest'] },
         // WXG-T-319：§20 UI 架构五条守则的负样本自测（每条规则必须咬得住）。
         { script: 'check:arch:selftest', argv: ['node', `${S}/check-architecture.mjs`, '--selftest'] },
+        // WXG-T-375：金样本复取器的可复现锚守卫负样本（缺 WXG298_SOURCE_REV / rev ≠ HEAD
+        // 必须拒写，且夹具字节不变）——让「capturedFrom 必须是真 HEAD」由门守而非人守。
+        { script: 'ui-golden:capture:selftest', argv: ['bash', `${S}/ui-golden-capture-selftest.sh`] },
     ],
     heavy: [
         { script: 'ci:review:selftest', argv: ['bash', `${S}/ci-pr-review-selftest.sh`] },
