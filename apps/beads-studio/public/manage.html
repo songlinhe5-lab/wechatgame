@@ -108,15 +108,21 @@
         .lv[draggable="true"]:active { cursor: grabbing; }
         .lv:focus-visible { outline: 2px solid var(--ac); outline-offset: 1px; }
 
-        /* 小关编辑面板：复用 picker 的面板骨架（.pk-box/.pk-head/.pk-foot） */
-        #lvm { position: fixed; inset: 0; z-index: 30; padding: 20px; background: rgba(0, 0, 0, .45); display: flex; align-items: center; justify-content: center; }
-        #lvm[hidden] { display: none; }
-        #lvm .pk-box { width: min(560px, 100%); }
-        #lvm .lvm-body { padding: 14px; overflow: auto; }
-        #lvm .lvm-art { display: flex; justify-content: center; padding: 4px 0 12px; }
-        #lvm .lvm-art canvas { max-width: 220px; max-height: 220px; image-rendering: pixelated; border-radius: 6px; background: #faf7f0; }
-        #lvm .lvm-meta { font-size: 12px; color: #6b6b6b; margin-bottom: 10px; line-height: 1.7; }
-        #lvm .lvm-ops { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+        /* 两级页面：#pg-levels = 一级（关卡列表）/ #pg-level = 二级（小关编辑）。
+           两者共用 main 的 1100px 居中列；#err/#log 提到两级之外，二级页里操作失败也能看见。 */
+        main[hidden] { display: none; }
+        #pg-notice { max-width: 1100px; margin: 0 auto; padding: 12px 20px 0; }
+        .pg-crumb { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; margin-bottom: 10px; }
+        .pg-crumb b { font-size: 15px; }
+        .pg-crumb .sep { color: #b9b1a1; font-size: 13px; }
+        #pg-level .lvm-wrap { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+        #pg-level .lvm-art { flex: none; }
+        #pg-level .lvm-art:empty { display: none; }
+        #pg-level .lvm-art canvas { display: block; max-width: 260px; max-height: 260px; image-rendering: pixelated; border-radius: 6px; background: #faf7f0; }
+        #pg-level .lvm-info { flex: 1; min-width: 260px; }
+        #pg-level .lvm-meta { font-size: 12px; color: #6b6b6b; margin-bottom: 10px; line-height: 1.7; }
+        #pg-level .lvm-ops { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--bd); }
+        #pg-level .lvm-ops:empty { display: none; }
 
         #err {
             white-space: pre-wrap;
@@ -215,13 +221,19 @@
         <span style="margin-left:auto"></span>
         <button class="ghost" id="verify" title="跑 levels:sync + framework:sync（幂等，只校验不改内容）">校验并同步</button>
     </header>
-    <main>
-        <div style="font-size:12px;color:#6b6b6b;margin-bottom:10px">
-            关号 #N = 全局装配顺序（增删后自动连续重排）· 槽 = 该关在展示墙占的格数 ·
-            开放 = 自第 1 章起连续解锁 · boss 恒为章末且不可直接删除 · plate = 多格组合图（整章导入产物）
-        </div>
+    <!-- 两级页面共用：错误/日志放在页面切换之外，二级页里失败也看得见 -->
+    <div id="pg-notice">
         <div id="err"></div>
         <div id="log"></div>
+    </div>
+
+    <!-- 一级页面：关卡列表 -->
+    <main id="pg-levels">
+        <div style="font-size:12px;color:#6b6b6b;margin-bottom:10px">
+            关号 #N = 全局装配顺序（增删后自动连续重排）· 槽 = 该关在展示墙占的格数 ·
+            开放 = 自第 1 章起连续解锁 · boss 恒为章末且不可直接删除 · plate = 多格组合图（整章导入产物）·
+            <b>点小关行进入小关编辑页</b>
+        </div>
         <button id="cancel" hidden style="position:fixed;right:24px;bottom:24px;z-index:30;box-shadow:0 4px 16px rgba(0,0,0,.18)">取消导入</button>
         <div id="chapters"></div>
 
@@ -293,19 +305,30 @@
         </div>
     </div>
 
-    <div id="lvm" hidden>
-        <div class="pk-box">
-            <div class="pk-head"><b id="lvm-title">小关</b><span class="grow"></span><button class="ghost" id="lvm-close">关闭</button></div>
-            <div class="lvm-body">
-                <div class="lvm-art" id="lvm-art"></div>
-                <div class="lvm-meta" id="lvm-meta"></div>
-                <label for="lvm-name">关名（1–60 字）</label>
-                <input id="lvm-name" type="text" maxlength="60">
-                <div class="lvm-ops" id="lvm-ops"></div>
-            </div>
-            <div class="pk-foot"><span class="grow" id="lvm-hint"></span><button id="lvm-save">保存关名</button><button class="ghost" id="lvm-cancel">取消</button></div>
+    <!-- 二级页面：小关编辑（深链 #level/<uid>，刷新不丢页） -->
+    <main id="pg-level" hidden>
+        <div class="pg-crumb">
+            <button class="ghost" id="lvm-close">← 返回关卡列表</button>
+            <span class="sep">关卡 /</span><b id="lvm-title">小关</b>
         </div>
-    </div>
+        <div class="card">
+            <div class="lvm-wrap">
+                <div class="lvm-art" id="lvm-art"></div>
+                <div class="lvm-info">
+                    <div class="lvm-meta" id="lvm-meta"></div>
+                    <label for="lvm-name">关名（1–60 字）</label>
+                    <input id="lvm-name" type="text" maxlength="60">
+                </div>
+            </div>
+            <div class="lvm-ops" id="lvm-ops"></div>
+            <div class="bar" style="margin-top:10px">
+                <span id="lvm-hint" style="font-size:12px;color:#6b6b6b"></span>
+                <span class="grow"></span>
+                <button id="lvm-save">保存关名</button>
+                <button class="ghost" id="lvm-cancel">取消</button>
+            </div>
+        </div>
+    </main>
     <script>
         const $ = (id) => document.getElementById(id);
         const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -443,6 +466,7 @@
                 drafts = dr.drafts || [];
                 render();
                 syncDraftUi();
+                restoreLevelFromHash();   // 深链/刷新后仍在二级页
             } catch (e) {
                 showErr('加载失败：' + e.message);
             }
@@ -595,7 +619,7 @@
         addEventListener('keydown', (e) => {
             if (e.key !== 'Escape') return;
             if (!$('picker').hidden) return closePicker(null);   // 选图器在上层，先关它
-            if (!$('lvm').hidden) closeLevelEditor();
+            if (!$('pg-level').hidden) closeLevelEditor();
         });
 
         // ── 章内小关：拖拽调序 + 点行编辑（WXG-T-373）──
@@ -631,28 +655,49 @@
             op(`/api/manage/level/${lv.uid}/remove`);
         }
 
+        /** 一级 ↔ 二级页面切换：二级 = 小关编辑页，URL 记 `#level/<uid>`（刷新/分享不丢页）。 */
         function closeLevelEditor() {
-            $('lvm').hidden = true;
+            $('pg-level').hidden = true;
+            $('pg-levels').hidden = false;
             lvmCtx = null;
+            if ((location.hash || '').startsWith('#level/')) history.replaceState(null, '', location.pathname + location.search);
+            scrollTo({ top: 0 });
         }
 
-        // 面板出口：右上关闭 / 取消 / 点遮罩 全走同一个 closeLevelEditor（hidden 与 lvmCtx 不会走散）
+        // 二级页出口：面包屑「← 返回关卡列表」/ 底部取消 / Esc 全走同一个 closeLevelEditor
         $('lvm-close').onclick = closeLevelEditor;
         $('lvm-cancel').onclick = closeLevelEditor;
-        $('lvm').onclick = (e) => { if (e.target === $('lvm')) closeLevelEditor(); };
+
+        /** 深链恢复：带 `#level/<uid>` 打开或刷新时，直接落到该关的编辑页（数据到齐后才能定位）。 */
+        function restoreLevelFromHash() {
+            const m = /^#level\/(.+)$/.exec(location.hash || '');
+            if (!m || !S) return;
+            const uid = decodeURIComponent(m[1]);
+            for (const ch of S.chapters) {
+                const lv = (ch.levels || []).find((x) => x.uid === uid);
+                if (!lv) continue;
+                if (lv.missing) return showErr(`${uid} 的 manifest 引用缺失（先跑校验）`);
+                return openLevelEditor(lv, ch, S.chapters.filter((c) => c.id !== ch.id));
+            }
+            closeLevelEditor();
+            showErr(`#${uid} 不在任何大关里（可能已删）⇒ 已回到关卡列表`);
+        }
+        addEventListener('hashchange', restoreLevelFromHash);
 
         /** 保存关名：面板内唯一改名入口（输入框直接编辑 + Enter 提交）。 */
         function saveLevelName() {
             const c = lvmCtx;
             if (!c) return closeLevelEditor();
             const n = $('lvm-name').value.trim();
-            if (!n || n.length > 60) {                       // 就地报错：页顶红字在模态下不可见
+            if (!n || n.length > 60) {                       // 就地报错，别让用户去页顶找红字
                 $('lvm-hint').textContent = '关名需 1–60 字';
                 return $('lvm-name').focus();
             }
-            closeLevelEditor();
-            if (n === (c.lv.name || '')) return showLog(['关名未变，未提交']);
-            op(`/api/manage/level/${c.lv.uid}/rename`, { name: n });
+            if (n === (c.lv.name || '')) {
+                $('lvm-hint').textContent = '关名未变，未提交';
+                return;
+            }
+            op(`/api/manage/level/${c.lv.uid}/rename`, { name: n });   // 停在本页：reload 后按 hash 就地刷新
         }
         $('lvm-save').onclick = saveLevelName;
         $('lvm-name').onkeydown = (e) => {
@@ -669,14 +714,21 @@
                 (lv.time !== undefined ? ` · 实测 ${lv.time}s` : '') + ` · ${lv.slots} 槽<br>文件 ${esc(lv.file || '—')}`;
             const art = $('lvm-art');
             art.innerHTML = '';
-            if (lv.paint) art.appendChild(paintThumb(lv.paint));
+            if (lv.paint) {
+                const cv = paintThumb(lv.paint);
+                const scale = Math.max(1, Math.floor(260 / Math.max(cv.width, cv.height)));  // 整数倍放大，像素不被插值糊掉
+                cv.style.width = cv.width * scale + 'px';
+                cv.style.height = cv.height * scale + 'px';
+                art.appendChild(cv);
+            }
             const isBoss = lv.kind === 'boss';
             $('lvm-name').value = lv.name || '';
             const ops = $('lvm-ops');
             ops.innerHTML = '';
-            // 面板内动作一律先关面板：这些动作会改章位/关号/文件，留着旧 ctx 只会误导
+            // 会改章位/关号/文件的动作先回一级（旧 ctx 只会误导）；替换图案不动 uid/关号/章位 ⇒ 留在本页，
+            // 换完由 reload → restoreLevelFromHash 就地刷新图案与实测时长。
             const act = (fn) => () => { closeLevelEditor(); fn(lv); };
-            ops.appendChild(btn('替换图案…', lv.kind === 'plate', act(replaceLevelPattern), 'ghost'));
+            ops.appendChild(btn('替换图案…', lv.kind === 'plate', () => replaceLevelPattern(lv), 'ghost'));
             ops.appendChild(btn('设为 boss', isBoss || lv.kind === 'plate', act(setLevelBoss), 'ghost'));
             if (others.length && !isBoss) {
                 ops.appendChild(select(
@@ -686,8 +738,13 @@
                 ));
             }
             ops.appendChild(btn('删除该关', isBoss, act(removeLevel), 'danger'));
-            $('lvm-hint').textContent = isBoss ? 'boss 恒为章末：不可移动、不可删除' : '顺序：拖行或 ↑/↓';
-            $('lvm').hidden = false;
+            $('lvm-hint').textContent = isBoss
+                ? 'boss 恒为章末：不可移动、不可删除'
+                : '调序回关卡列表：拖行或按 ↑/↓';
+            $('pg-levels').hidden = true;          // 一级 → 二级
+            $('pg-level').hidden = false;
+            history.replaceState(null, '', '#level/' + lv.uid);
+            scrollTo({ top: 0 });
             $('lvm-name').focus();
         }
 
@@ -705,7 +762,7 @@
                 const head = document.createElement('div');
                 head.className = 'chhead';
                 head.innerHTML = `<b>#${ch.order} ${esc(ch.title)}</b><code>${esc(ch.id)}</code>` +
-                    `<small>${ch.levels.length} 关 · ${ch.slots}/${S.wallCapacity} 槽 · 点小关行可编辑 · 展示图 ${esc(ch.showcase?.art || '—')}</small>`;
+                    `<small>${ch.levels.length} 关 · ${ch.slots}/${S.wallCapacity} 槽 · 展示图 ${esc(ch.showcase?.art || '—')}</small>`;
                 card.appendChild(head);
 
                 const bar = document.createElement('div');
