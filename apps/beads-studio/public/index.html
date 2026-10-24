@@ -366,7 +366,7 @@
                 <div id="stats"></div>
                 <button class="ghost" id="dl" disabled>下载 levelDraft JSON</button>
                 <button class="ghost" id="cp" disabled>复制 rowstrings</button>
-                <button class="ghost" id="ing" disabled>导入大关…（去管理页选章）</button>
+                <!-- 入关入口只在管理页（2026-10-24 用户裁定）：本页不再有「导入大关」，避免两处各长一套 -->
                 <button class="ghost" id="bake" disabled title="先选中一条结果">烘焙本关纹理</button>
                 <div id="bake-status" style="font-size:12px;color:#666;margin-top:4px;min-height:16px"></div>
                 <!-- [WXG-T-222] tint 资源导出（色无关 mask/base 四件套；有孔/无孔切换）+ 实时预览 -->
@@ -748,9 +748,8 @@
                     (df.blockers?.length ? `\n⛔ 不可入关：${df.blockers.join('；')}` : ''))
                     : '');
             $('dl').disabled = $('cp').disabled = !(r.levelDraft);
-            // 入关只在本地仓模式可用（服务端无 games/ 目录则 501）；不可入关条目直接置灰
-            // 预览（draft）还没进 data/<board>/<id>/ ⇒ 入关与烘焙都读不到它，先禁用并说明
-            $('ing').disabled = !(r.levelDraft) || r.importable === false || r.draft === true;
+            // 预览（draft）还没进 data/<board>/<id>/ ⇒ 烘焙按 id 找目录会扑空，先禁用并说明
+            // （入关已不在本页：统一走管理页，见下方 [WXG-T-341] 注）
             // 只有「尚未入库的预览」能确认保存：已存结果 / 载入的关卡都没有这个身份
             $('commit').disabled = !r.draft;
             $('commit').title = r.draft ? '' : '只对刚生成的预览有效：历史条目已在库中，无需再保存';
@@ -810,13 +809,12 @@
         $('cp').onclick = () => navigator.clipboard.writeText((current.levelDraft?.pattern || []).join('\n'))
             .then(() => msg('rowstrings 已复制', 'ok'));
 
-        // WXG-T-341：入关须先选目标大关 ⇒ 跳管理页（带 result 预选，章内导入下拉自动选中）
-        $('ing').onclick = () => {
-            if (current) location.href = '/manage.html?result=' + encodeURIComponent(current.id);
-        };
+        // WXG-T-341：入关**只在管理页**做（`/manage.html` 的批量导入 + 章内导入下拉）。
+        // 本页原有一个「导入大关…」跳转按钮，2026-10-24 用户裁定去掉：两处入口各长一套，改不动时
+        // 没人说得清哪边是真源。管理页仍支持 `?result=<id>` 预选，需要时手拼 URL 即可。
 
         /** 把列表里的任一条（已存结果 或 预览草稿）应用为当前。
-         *  已入库 ⇒ 可入关/烘焙/替换回该关；预览 ⇒ 只能「确认保存」转正后再走那三步（show() 会置灰）。
+         *  已入库 ⇒ 可下载/烘焙/替换回该关（入关统一在管理页）；预览 ⇒ 先「确认保存」转正再走这几步。
          *  应用后重跑列表：靠 `current.id` 把「使用中」标到这一行（不另存状态，避免两处漂移）。 */
         function applyResult(r) {
             current = r;
@@ -825,7 +823,7 @@
             const dimDiff = cell && (r.cols !== cell.cols || r.rows !== cell.rows)
                 ? `｜实际盘 ${r.cols}×${r.rows} ≠ 该关 ${cell.cols}×${cell.rows}：替换回该关会改盘面尺寸`
                 : '';
-            msg(`已应用${r.draft ? '预览（未入库，先「确认保存」才能替换/入关）' : '历史结果'}：${r.id}｜实际盘 ${r.cols}×${r.rows}` +
+            msg(`已应用${r.draft ? '预览（未入库，先「确认保存」才能替换回该关）' : '历史结果'}：${r.id}｜实际盘 ${r.cols}×${r.rows}` +
                 (!r.draft && levelInfo ? `｜可点关卡条「用 ${r.id} 替换 ${levelInfo.uid}」` : '') + dimDiff, 'ok');
             // 预览目录在 data/_draft/<id>（按 id 找 result.json 会扑空）⇒ 不给替换入口
             if (levelInfo) renderLevelBar(r.draft ? null : r.id);
@@ -845,7 +843,7 @@
                 `<small>${tag}${r.cols}×${r.rows} · ${r.colors} 色 · ${mis}${noImp && !r.draft ? (r.misMode === 'none' ? ' · 游戏不入关' : ' · 不可入关') : ''}</small>`;
             d.title = r.draft
                 ? '点击应用为当前（预览未入库：可「确认保存」转正；✕ 删除这条预览）'
-                : '点击应用为当前（可下载 / 入关 / 烘焙；关卡模式下还能替换回该关）';
+                : '点击应用为当前（可下载 / 烘焙 / 替换回该关；入关去大关管理页）';
             d.onclick = async () => {
                 try {
                     const url = (r.draft ? '/api/previews/' : '/api/results/') + r.id;
@@ -984,7 +982,7 @@
             }
             if (generatedId) {
                 if (levelInfo.kind === 'plate') {
-                    acts.appendChild(mkEl('span', 'plate 不支持原位替换：改动走「导入大关」重建',
+                    acts.appendChild(mkEl('span', 'plate 不支持原位替换：改动去大关管理页「导入大关」重建',
                         'font-size:12px;color:#c0392b'));
                 } else {
                     const rep = mkEl('button', `用 ${generatedId} 替换 ${levelInfo.uid} 的图案`);
@@ -1078,7 +1076,7 @@
                 const j = await r.json().catch(() => ({}));
                 if (!r.ok) throw new Error(j.error || ('HTTP ' + r.status));
                 current = { ...current, draft: false };
-                show(current);          // 刷新徽章/按钮：入关与烘焙这时才可用
+                show(current);          // 刷新徽章/按钮：下载、烘焙、替换回该关这时才可用
                 // 保存成功要报**实际盘面**并点名尺寸差：id 里的档位是请求值，trim 后可能小一圈，
                 // 不提这一句用户会以为"存的不是我要的"或"根本没存"（2026-10-24 实测）。
                 const cell = levelInfo ? levelInfo.cells[levelCell] : null;
