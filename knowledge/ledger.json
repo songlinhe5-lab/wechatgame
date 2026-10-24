@@ -2720,7 +2720,7 @@
       "file": "knowledge/lessons/environment.md",
       "category": "环境",
       "title": "`dev/harness/.smoke/` 残留累积到 500+ 条目后，harness 冒烟会「假 FAIL」（`SAFE_DELETE_BULK_CONFIRM_REQUIRED`）",
-      "contentHash": "efbad923cc4389c2eaa0b630b2eba5733b2d8e4b8f4e21d4b8cda0ec5f2d5686",
+      "contentHash": "50d86119888e735a8218bde1512a5ec6d3c5a798dc33c3c978f7614516c5cff2",
       "sourceTask": "WXG-T-351",
       "addedDate": "2026-10-23",
       "lastAccess": "2026-10-23",
@@ -4358,6 +4358,15 @@
       "kind": "updated",
       "ids": [
         "K-139",
+        "K-163"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-24",
+      "taskId": null,
+      "kind": "updated",
+      "ids": [
         "K-163"
       ],
       "note": null
