@@ -147,6 +147,22 @@
         .pk-foot { display: flex; gap: 10px; align-items: center; padding: 10px 14px; border-top: 1px solid var(--bd); }
         .pk-foot .grow { flex: 1; font-size: 12px; color: #6b6b6b; }
 
+        /* 大关草稿（WXG-T-364）：拖拽排序行 + 键盘兜底 */
+        .dr-row {
+            display: grid; grid-template-columns: 16px 24px 48px minmax(120px, 1fr) minmax(150px, .9fr) auto;
+            gap: 8px; align-items: center; padding: 6px 8px; margin-bottom: 6px;
+            border: 1px solid var(--bd); border-radius: 6px; background: #fffdf8;
+        }
+        .dr-row[draggable="true"] { cursor: grab; }
+        .dr-row.drop-before { box-shadow: 0 -2px 0 0 var(--ac); }
+        .dr-row.drop-after { box-shadow: 0 2px 0 0 var(--ac); }
+        .dr-row:focus-visible { outline: 2px solid var(--ac); outline-offset: 1px; }
+        .dr-h { color: #c9bfa8; font-size: 13px; user-select: none; }
+        .dr-n { font-size: 12px; color: #6b6b6b; text-align: right; }
+        .dr-thumb img { width: 44px; height: 44px; object-fit: cover; border-radius: 4px; background: #f3efe6; display: block; }
+        .dr-id { font-family: ui-monospace, monospace; font-size: 11.5px; word-break: break-all; }
+        .dr-meta { font-size: 11.5px; color: #6b6b6b; }
+
         .row3 { display: grid; grid-template-columns: minmax(180px, .9fr) minmax(180px, .9fr) minmax(240px, 1.2fr); gap: 10px; }
         .row3 input, .row3 select { width: 100%; min-width: 0; }
         #new-prev { margin-top: 6px; font-size: 12px; color: #6b6b6b; min-height: 16px; }
@@ -171,6 +187,39 @@
         <div id="log"></div>
         <button id="cancel" hidden style="position:fixed;right:24px;bottom:24px;z-index:30;box-shadow:0 4px 16px rgba(0,0,0,.18)">取消导入</button>
         <div id="chapters"></div>
+
+        <div class="card">
+            <b>大关草稿（按大关攒一批小关 → 拖拽定序 → 一次性发布）</b>
+            <div style="font-size:12px;color:#6b6b6b;margin:4px 0 8px">
+                草稿只存结果引用，未发布前不动真源 · 列表顺序 = 入章顺序，<b>末位将作为该章 boss</b>（组图不能放末位）·
+                拖拽换位，键盘用 Alt+↑/↓
+            </div>
+            <div class="row3">
+                <div><label>大关 id（新增大关时即章 id）</label><input id="dr-id" placeholder="neon"></div>
+                <div><label>标题</label><input id="dr-title" placeholder="霓虹"></div>
+                <div><label>橱窗图（新建必填 · 替换可留空沿用原图）</label><input type="file" id="dr-img" accept="image/png,image/jpeg"></div>
+            </div>
+            <div id="dr-prev"></div>
+            <div class="bar">
+                <select id="dr-list" style="min-width:220px"></select>
+                <button class="ghost" id="dr-load">载入</button>
+                <button class="ghost" id="dr-new">新建草稿</button>
+                <button class="ghost" id="dr-del">删除草稿</button>
+            </div>
+            <div id="dr-levels" style="margin-top:10px"></div>
+            <div class="bar">
+                <button class="ghost" id="dr-add">+ 加小关…</button>
+                <button class="ghost" id="dr-save">保存草稿</button>
+                <span id="dr-sum" style="font-size:12px;color:#6b6b6b"></span>
+            </div>
+            <div class="bar" style="margin-top:12px;border-top:1px dashed var(--bd);padding-top:10px">
+                <button class="big" id="dr-pub-new">发布为新增大关</button>
+                <span style="font-size:12px;color:#6b6b6b">或整章替换 →</span>
+                <select id="dr-target" style="min-width:200px"></select>
+                <button class="big" id="dr-pub-rep">替换该大关</button>
+            </div>
+            <div id="dr-tip" style="font-size:12px;color:#6b6b6b;margin-top:6px"></div>
+        </div>
 
         <div class="card">
             <b>新建大关（含首关 boss，从结果导入）</b>
@@ -323,14 +372,19 @@
 
         async function reload() {
             try {
-                const [stRes, rsRes] = await Promise.all([fetch('/api/manage/state'), fetch('/api/results')]);
+                const [stRes, rsRes, drRes] = await Promise.all([
+                    fetch('/api/manage/state'), fetch('/api/results'), fetch('/api/drafts'),
+                ]);
                 const st = await stRes.json();
                 if (!stRes.ok) throw new Error(st.error || ('HTTP ' + stRes.status));
                 S = st;
                 const rs = await rsRes.json().catch(() => ({ results: [] }));
                 // 全量保留（含不可入关的）：由各入口 filter 决定可见性——批量导入故意展示灰卡+原因（告知为什么不行）
                 results = rs.results || [];
+                const dr = await drRes.json().catch(() => ({ drafts: [] }));
+                drafts = dr.drafts || [];
                 render();
+                syncDraftUi();
             } catch (e) {
                 showErr('加载失败：' + e.message);
             }
@@ -616,6 +670,238 @@
             });
             if (!S.chapters.length) root.innerHTML = '<div class="card">暂无大关（先新建）</div>';
         }
+
+        // ── [WXG-T-364] 大关草稿：按大关攒一批小关 → 拖拽定序 → 一次性发布（新增 / 整章替换）──
+        // 草稿态只碰 /api/drafts（不动真源）；publish 才是唯一写盘入口，服务端单事务 + 快照回滚。
+        let drafts = [];
+        let draft = { id: '', title: '', resultIds: [], imageDataUrl: '' };
+        let drFrom = null;             // 拖拽源行下标（null = 无拖拽）
+        let drDirty = false;           // 表单/顺序有未保存改动（发布前自动补存）
+        const DR_ID_RE = /^[a-z0-9][a-z0-9-]{0,31}$/;
+
+        function draftSlots() {
+            return draft.resultIds.reduce((n, id) => n + (results.find((x) => x.id === id)?.slots ?? 1), 0);
+        }
+
+        /** 草稿下拉 / 替换目标下拉 / 按钮可用态 / 槽数汇总。 */
+        function syncDraftUi() {
+            const keep = draft.id || $('dr-list').value;
+            $('dr-list').innerHTML = drafts.length
+                ? drafts.map((d) => `<option value="${esc(d.id)}">${esc(d.id)} · ${esc(d.title)}（${d.count} 关）</option>`).join('')
+                : '<option value="">（暂无草稿）</option>';
+            if (keep) $('dr-list').value = keep;
+            $('dr-del').disabled = !drafts.length;
+
+            const chs = S?.chapters || [];
+            const keepT = $('dr-target').value;
+            $('dr-target').innerHTML = chs.length
+                ? chs.map((c) => `<option value="${esc(c.id)}">#${c.order} ${esc(c.title)}（${c.slots} 槽）</option>`).join('')
+                : '<option value="">（暂无大关）</option>';
+            if (keepT) $('dr-target').value = keepT;
+
+            const has = draft.resultIds.length > 0;
+            $('dr-pub-new').disabled = !has;
+            $('dr-pub-rep').disabled = !has || !chs.length;
+            const slots = draftSlots(), cap = S?.wallCapacity ?? 0;
+            $('dr-sum').textContent = has
+                ? `${draft.resultIds.length} 关 · 合计 ${slots} 槽` + (cap ? ` / 墙容量 ${cap}${slots > cap ? '（超出，发布会被拒）' : ''}` : '')
+                : '';
+            $('dr-tip').textContent = drDirty ? '有未保存修改（发布前会自动补存）' : '';
+        }
+
+        function renderDraftRows() {
+            const box = $('dr-levels');
+            box.innerHTML = '';
+            if (!draft.resultIds.length) {
+                box.innerHTML = '<div style="font-size:12px;color:#6b6b6b">空草稿：点「+ 加小关…」从已有生成结果里选（可多选，按勾选顺序追加，之后可拖拽调整）。</div>';
+                syncDraftUi();
+                return;
+            }
+            draft.resultIds.forEach((id, i) => {
+                const r = results.find((x) => x.id === id) || {};
+                const row = document.createElement('div');
+                row.className = 'dr-row';
+                row.draggable = true;
+                row.tabIndex = 0;
+                row.dataset.i = String(i);
+                const isBoss = i === draft.resultIds.length - 1;
+                row.innerHTML = '<span class="dr-h">≡</span>' +
+                    `<span class="dr-n">${i + 1}</span>` +
+                    `<span class="dr-thumb">${r.hasThumb ? `<img loading="lazy" src="/api/results/${encodeURIComponent(id)}/thumb" alt="">` : ''}</span>` +
+                    `<span class="dr-id">${esc(id)}</span>` +
+                    `<span class="dr-meta">${r.cols ?? '?'}×${r.rows ?? '?'} · ${r.colors ?? '?'} 色` +
+                    `${r.slots > 1 ? ` · 占 ${r.slots} 槽` : ''}${isBoss ? ' · <b>boss</b>' : ''}</span>`;
+                row.appendChild(btn('移除', false, () => {
+                    draft.resultIds.splice(i, 1);
+                    drDirty = true;
+                    renderDraftRows();
+                }, 'ghost'));
+
+                // 拖拽：落点在上半 ⇒ 插到该行前，下半 ⇒ 插到该行后
+                row.ondragstart = (e) => {
+                    drFrom = i;
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', id); // Firefox 不 setData 不会起拖
+                };
+                row.ondragover = (e) => {
+                    if (drFrom === null) return;
+                    e.preventDefault();
+                    const b = row.getBoundingClientRect();
+                    const after = e.clientY > b.top + b.height / 2;
+                    row.classList.toggle('drop-before', !after);
+                    row.classList.toggle('drop-after', after);
+                };
+                row.ondragleave = () => row.classList.remove('drop-before', 'drop-after');
+                row.ondrop = (e) => {
+                    e.preventDefault();
+                    const after = row.classList.contains('drop-after');
+                    row.classList.remove('drop-before', 'drop-after');
+                    if (drFrom === null) return;
+                    let to = i + (after ? 1 : 0);
+                    if (drFrom < to) to -= 1;                 // 先摘后插：源在前会少一格
+                    const [x] = draft.resultIds.splice(drFrom, 1);
+                    draft.resultIds.splice(to, 0, x);
+                    drFrom = null;
+                    drDirty = true;
+                    renderDraftRows();
+                    box.children[to]?.focus();
+                };
+                row.ondragend = () => { drFrom = null; row.classList.remove('drop-before', 'drop-after'); };
+
+                // 键盘兜底（拖拽对键盘/读屏不可达）：Alt+↑/↓ 挪一位
+                row.onkeydown = (e) => {
+                    if (!e.altKey || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return;
+                    const to = i + (e.key === 'ArrowUp' ? -1 : 1);
+                    if (to < 0 || to >= draft.resultIds.length) return;
+                    e.preventDefault();
+                    const [x] = draft.resultIds.splice(i, 1);
+                    draft.resultIds.splice(to, 0, x);
+                    drDirty = true;
+                    renderDraftRows();
+                    box.children[to]?.focus();
+                };
+                box.appendChild(row);
+            });
+            syncDraftUi();
+        }
+
+        /** 表单态 → 落盘草稿（发布前自动调，减少一次手点）。 */
+        async function saveDraft() {
+            const id = $('dr-id').value.trim();
+            const title = $('dr-title').value.trim();
+            if (!DR_ID_RE.test(id)) throw new Error('草稿 id 非法（小写字母/数字/连字符，≤32 位）');
+            if (!title || title.length > 40) throw new Error('标题需 1–40 字');
+            if (!draft.resultIds.length) throw new Error('草稿为空：至少加 1 关');
+            const body = { title, resultIds: draft.resultIds };
+            const file = $('dr-img').files[0];
+            if (file) body.imageDataUrl = draft.imageDataUrl || await shrinkTo256(file);
+            const res = await fetch('/api/drafts/' + encodeURIComponent(id), {
+                method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body),
+            });
+            const j = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(httpErr(j, 'HTTP ' + res.status));
+            draft.id = id;
+            drDirty = false;
+            await reload();
+            showLog([`草稿 ${id} 已保存（${j.count} 关${j.art ? '，含橱窗图' : '，无橱窗图 —— 新建大关须补图'}）`]);
+        }
+
+        async function loadDraft() {
+            const id = $('dr-list').value;
+            if (!id) return;
+            try {
+                const res = await fetch('/api/drafts/' + encodeURIComponent(id));
+                const j = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(httpErr(j, 'HTTP ' + res.status));
+                const d = j.draft;
+                draft = { id: d.id, title: d.title, resultIds: [...(d.resultIds || [])], imageDataUrl: d.imageDataUrl || '' };
+                $('dr-id').value = d.id;
+                $('dr-title').value = d.title;
+                $('dr-img').value = '';
+                $('dr-prev').innerHTML = d.imageDataUrl
+                    ? `<img src="${d.imageDataUrl}" alt="橱窗图" style="width:64px;height:64px;border-radius:6px;border:1px solid var(--bd);vertical-align:middle"> 当前橱窗图（重选即覆盖）`
+                    : '';
+                drDirty = false;
+                renderDraftRows();
+                showLog([`已载入草稿 ${d.id}（${draft.resultIds.length} 关）`]);
+            } catch (e) { showErr(e.message); }
+        }
+
+        $('dr-list').onchange = loadDraft;
+        $('dr-load').onclick = loadDraft;
+
+        $('dr-new').onclick = () => {
+            draft = { id: '', title: '', resultIds: [], imageDataUrl: '' };
+            $('dr-id').value = ''; $('dr-title').value = ''; $('dr-img').value = '';
+            $('dr-prev').innerHTML = '';
+            drDirty = false;
+            renderDraftRows();
+        };
+
+        $('dr-del').onclick = async () => {
+            const id = $('dr-list').value;
+            if (!id) return;
+            if (!confirm(`删除草稿 ${id}？（只删草稿，已发布的大关不受影响）`)) return;
+            try {
+                const res = await fetch('/api/drafts/' + encodeURIComponent(id), { method: 'DELETE' });
+                const j = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(httpErr(j, 'HTTP ' + res.status));
+                if (draft.id === id) $('dr-new').onclick();
+                await reload();
+                showLog([`草稿 ${id} 已删除`]);
+            } catch (e) { showErr(e.message); }
+        };
+
+        $('dr-img').onchange = async () => {
+            draft.imageDataUrl = '';
+            $('dr-prev').textContent = '';
+            const file = $('dr-img').files[0];
+            if (!file) return;
+            try {
+                draft.imageDataUrl = await shrinkTo256(file);
+                $('dr-prev').innerHTML = `<img src="${draft.imageDataUrl}" alt="橱窗图预览" style="width:64px;height:64px;border-radius:6px;border:1px solid var(--bd);vertical-align:middle"> 已缩到 256×256（保存草稿时写入）`;
+            } catch (e) { $('dr-prev').textContent = '图片解码失败：' + e.message; }
+            drDirty = true;
+        };
+
+        $('dr-add').onclick = async () => {
+            // 已在本草稿里的不再列出（选重会被服务端 422 拒）
+            const ids = await pickResult('加入草稿（可多选，按勾选顺序追加到末位前）',
+                (r) => !draft.resultIds.includes(r.id), { multiple: true });
+            if (!ids || !ids.length) return;
+            draft.resultIds.push(...ids);
+            drDirty = true;
+            renderDraftRows();
+        };
+
+        $('dr-save').onclick = async () => { try { await saveDraft(); } catch (e) { showErr(e.message); } };
+
+        /** 发布：new = 用草稿 id 新建大关；replace = 整章替换到选中大关（旧关归档）。 */
+        async function publishDraft(mode) {
+            const btns = [$('dr-pub-new'), $('dr-pub-rep')];
+            try {
+                if (!draft.resultIds.length) throw new Error('草稿为空：至少加 1 关');
+                if (drDirty || draft.id !== $('dr-id').value.trim()) await saveDraft();
+                const target = mode === 'replace' ? $('dr-target').value : undefined;
+                if (mode === 'replace' && !target) throw new Error('没有可替换的大关');
+                btns.forEach((b) => { b.disabled = true; });
+                showLog([`发布中：${draft.resultIds.length} 关逐条跑 beads-bot 实测（此阶段真源未改动），请勿关闭页面…`]);
+                const res = await fetch(`/api/drafts/${encodeURIComponent(draft.id)}/publish`, {
+                    method: 'POST', headers: { 'content-type': 'application/json' },
+                    body: JSON.stringify(mode === 'replace' ? { mode, target } : { mode }),
+                });
+                const j = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(httpErr(j, 'HTTP ' + res.status));
+                showLog([...(j.log || []), `关数 ${j.count}（DEMO_LEVEL_COUNT 已联动）`]);
+                await reload();
+            } catch (e) {
+                showErr(e.message);
+            } finally {
+                syncDraftUi();
+            }
+        }
+        $('dr-pub-new').onclick = () => publishDraft('new');
+        $('dr-pub-rep').onclick = () => publishDraft('replace');
 
         $('verify').onclick = async () => {
             try {

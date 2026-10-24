@@ -21,6 +21,11 @@
  *
  * —— 大关管理（WXG-T-341，全部仅本地仓、容器 501；每次写后自动 levels:sync + `DEMO_LEVEL_COUNT`
  *    联动，生成期断言失败 ⇒ 快照回滚并转达红字原文；真源正本 = design/proposals/level-content-pipeline §11）——
+ *   GET  /api/drafts                           → 大关草稿列表（[WXG-T-364] 以大关为编辑单元的暂存区）
+ *   GET  /api/drafts/:id                       → 草稿全文（含橱窗图）；POST 同路径 = upsert {title,resultIds,imageDataUrl?}
+ *   DELETE /api/drafts/:id                     → 删草稿（不碰真源）
+ *   POST /api/drafts/:id/publish               → 统一发布 {mode:'new'|'replace', target?}：单事务按草稿顺序入章，
+ *        末位设 boss；replace 保留 title/章序/showcase 并把旧关文件整批归档 `design/levels/archive/<章id>-<时间戳>/`
  *   GET  /api/manage/state                     → 大关/小关列表（管理页数据源）
  *   POST /api/manage/verify                    → 复跑生成链（「校验 / 导入大关」按钮，幂等）
  *   POST /api/manage/chapter                   → 新建大关（含首关 boss，从结果导入；body {id,title,imageDataUrl,resultId}）
@@ -41,7 +46,7 @@
  */
 import { createServer } from 'node:http';
 import { spawn, spawnSync } from 'node:child_process';
-import { mkdirSync, writeFileSync, readFileSync, readdirSync, rmSync, existsSync } from 'node:fs';
+import { mkdirSync, writeFileSync, readFileSync, readdirSync, rmSync, renameSync, existsSync } from 'node:fs';
 import { join, dirname, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomBytes } from 'node:crypto';
@@ -682,9 +687,23 @@ function entryBeforeBoss(ls, manifest, doc, entry) {
         : ls.appendEntry(manifest, entry);
 }
 
+/**
+ * 草稿发布专用的落位：**直接追加**（`append`）而非插 boss 前。
+ * 为什么必须区分（WXG-T-364 实测）：`entryBeforeBoss` 只看章内末位、不看 kind ⇒ 章刚建/刚清空时
+ * 第 1 条 append 后，第 2 条会被当成「boss 前」插到第 1 条**之前**，草稿顺序整段倒序
+ * （实测草稿 [22×21, 14×8] 落成 levels [14×8, 22×21]）。草稿发布时章内还没有 boss，
+ * 顺序真源就是草稿数组，逐条 append 才能保证 levels[] === 草稿顺序。
+ */
+function placeUid(store, doc, uid, append) {
+    return append ? [...(doc.levels ?? []), uid] : store.insertBeforeBoss(doc.levels, uid);
+}
+function placeEntry(ls, manifest, doc, entry, append) {
+    return append ? ls.appendEntry(manifest, entry) : entryBeforeBoss(ls, manifest, doc, entry);
+}
+
 /** 事务内落盘一条计划（同步）：写关卡文件 + 章 doc（boss 前）+ manifest entry。返回 {manifest, log}。
  *  容量逐条复检（同批多条靠累积 cur 拦住，超容 ⇒ 整批回滚）。 */
-function commitIngest(ctx, ls, plan, chapterId) {
+function commitIngest(ctx, ls, plan, chapterId, { append = false } = {}) {
     const { store, levelsDir } = ctx;
     if (plan.kind === 'plate') {
         const { ch, doc } = chapterForInsert(store, levelsDir, ctx.manifest, chapterId, plan.cellEntries.length);
@@ -709,8 +728,8 @@ function commitIngest(ctx, ls, plan, chapterId) {
             sourcePreview: plan.thumb,
             cells: finalCells,
         }));
-        store.writeChapter(levelsDir, ch.file, { ...doc, levels: store.insertBeforeBoss(doc.levels, plateUid) });
-        const manifest = entryBeforeBoss(ls, ctx.manifest, doc, { uid: plateUid, kind: 'plate', file: plateFile, pack: 'main' });
+        store.writeChapter(levelsDir, ch.file, { ...doc, levels: placeUid(store, doc, plateUid, append) });
+        const manifest = placeEntry(ls, ctx.manifest, doc, { uid: plateUid, kind: 'plate', file: plateFile, pack: 'main' }, append);
         return { manifest, log: `已入关 ${plateUid}（plate ${finalCells.length} 格 → 大关 ${chapterId} boss 前；tier ${JSON.stringify(plan.tierCounts)}）` };
     }
     const { ch, doc } = chapterForInsert(store, levelsDir, ctx.manifest, chapterId, 1);
@@ -729,8 +748,8 @@ function commitIngest(ctx, ls, plan, chapterId) {
         ...(d.misplaced ? { misplaced: d.misplaced } : {}),
         ...(brandSlug ? { palette: brandSlug, paletteCodes: d.paletteCodes } : {}),
     });
-    store.writeChapter(levelsDir, ch.file, { ...doc, levels: store.insertBeforeBoss(doc.levels, uid) });
-    const manifest = entryBeforeBoss(ls, ctx.manifest, doc, { uid, kind: 'single', file, pack: 'main' });
+    store.writeChapter(levelsDir, ch.file, { ...doc, levels: placeUid(store, doc, uid, append) });
+    const manifest = placeEntry(ls, ctx.manifest, doc, { uid, kind: 'single', file, pack: 'main' }, append);
     return { manifest, log: `已入关 ${uid}（single ${d.cols}×${d.rows}，实测 ${measured.time}s → 大关 ${chapterId} boss 前）｜${leg.note}` };
 }
 
@@ -743,7 +762,7 @@ function legibilityFix(draft) {
     const before = judgeLegibility(analyzeLegibility(draft.pattern));
     if (before.ok) return { pattern: draft.pattern, misplaced: draft.misplaced, note: '豆面体检 7 项全过' };
     // ⚠ 必须走 repairLevel（守恒配套）：只改 pattern 会破 levels-data.ts:56 的「每色珠数守恒」
-    const out = repairLevel(draft);
+    const out = repairLevelLegibility(draft);
     if (!out.ok)
         return {
             pattern: draft.pattern,
@@ -890,6 +909,232 @@ function storeReject(fn) {
     } catch (e) {
         throw e instanceof ManageError ? e : new ManageError(String(e.message || e));
     }
+}
+
+// ── [WXG-T-364] 大关草稿：以「大关」为编辑单元攒一批小关 → 一次性发布 ────────────
+//
+// 为什么需要草稿：现有链路是「单条结果 → 立刻插进某章 boss 前」，一次只能进 1 条（或 10 条批量），
+// 关序只能**入关后**再用 ↑/↓ 挪。以大关为单元编辑时，顺序应先在草稿里排定，最后一次性落盘。
+//
+// 草稿只存 resultId 引用（不复制图案/像素），落 `data/drafts/<id>/draft.json`：
+//   · `data/` 已在 .gitignore（运行时数据不入库），且 `listResults` 对非 result 目录 isDir 全吞 ⇒ 不污染 /api/results。
+// 发布 = 单事务（applyManage）：任一条不可入关 / 超墙容量 ⇒ 整批回滚，真源不留半截。
+// 排序真源 = 草稿 resultIds 顺序 ⇒ 落成章 doc `levels[]` 顺序，**末位即 boss**（与 arc 装配口径一致）。
+// ponytail: 发布暂不走 NDJSON 流式（对齐批量导入的 stream 分支成本高）；N 关各跑一次 bot 实测，
+//   前端只显示「实测中」。等单次发布经常 >6 关再加流式进度。
+
+const DRAFTS_DIR = join(DATA, 'drafts');
+const DRAFT_MAX = 40;                       // 单草稿关数上限（墙容量会先拦，这条只防跑飞）
+const draftFile = (id) => join(DRAFTS_DIR, id, 'draft.json');
+
+function assertDraftId(id) {
+    if (!CHAPTER_ID_RE.test(id)) throw new ManageError('草稿/大关 id 非法（^[a-z0-9][a-z0-9-]{0,31}$：小写字母/数字/连字符）');
+    return id;
+}
+
+function readDraft(id) {
+    assertDraftId(id);
+    const f = draftFile(id);
+    if (!existsSync(f)) throw new ManageError(`草稿 ${id} 不存在`, 404);
+    return JSON.parse(readFileSync(f, 'utf8'));
+}
+
+/** 橱窗图统一入口（新建章 / 草稿存图共用）：data:image/png base64 → Buffer，≤512KB。 */
+function parsePngDataUrl(v) {
+    const m = typeof v === 'string' ? v.match(/^data:image\/png;base64,([A-Za-z0-9+/\s=]+)$/) : null;
+    if (!m) throw new ManageError('展示图需为 data:image/png;base64,...（前端 canvas 缩到 256² 后上传）');
+    const buf = Buffer.from(m[1].replace(/\s+/g, ''), 'base64');
+    if (!buf.length || buf.length > 512 * 1024) throw new ManageError(`展示图 PNG ${buf.length} 字节超限（≤512KB）`);
+    return buf;
+}
+
+/** 草稿列表（管理页左栏）：不回 base64 大图，只回 `art` 有无。 */
+function listDrafts() {
+    if (!existsSync(DRAFTS_DIR)) return [];
+    const out = [];
+    for (const id of readdirSync(DRAFTS_DIR)) {
+        try {
+            const d = JSON.parse(readFileSync(join(DRAFTS_DIR, id, 'draft.json'), 'utf8'));
+            out.push({
+                id: d.id ?? id, title: d.title ?? '', count: (d.resultIds ?? []).length,
+                art: !!d.imageDataUrl, updatedAt: d.updatedAt ?? null,
+            });
+        } catch { /* 半截/损坏草稿跳过（同 listResults 口径） */ }
+    }
+    return out.sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)));
+}
+
+/**
+ * 章内旧关文件整批搬到 `archive/<章id>-<时间戳>/`（保留 `singles/` 相对结构 + 章 doc / manifest 片段副本），
+ * 返回归档目录名。`archive/` 在所有校验的扫描面之外 —— sync 只扫 `singles/ plates/ chapters/` 顶层与
+ * levels 顶层 `*.json`（sync-levels-data.mjs:487-493/669-675、levels-dir-pipeline.test.ts:96-101），
+ * 与既存 `assets/` 同构 ⇒ 不触发「孤儿关卡文件」断言。
+ * 事务回滚安全性：`snapshotTree` 含整个 levels 树，`restoreTree` 会把归档搬运后的原文件从快照重建、
+ * 并删掉快照外新增的 archive 文件 ⇒ 回滚后磁盘与事务前逐字节一致。
+ */
+function archiveChapterLevels(levelsDir, chapterId, doc, manifest) {
+    const name = `${chapterId}-${new Date().toISOString().replace(/[-:]/g, '').replace('T', '-').slice(0, 15)}`;
+    const dir = join(levelsDir, 'archive', name);
+    const entries = [];
+    for (const u of doc.levels ?? []) {
+        const e = manifest.entries.find((x) => x.uid === u);
+        if (!e) continue;
+        entries.push({ ...e });                                  // 留 manifest 片段，人工还原时照抄
+        const src = join(levelsDir, e.file);
+        if (!existsSync(src)) continue;
+        const dest = join(dir, e.file);
+        mkdirSync(dirname(dest), { recursive: true });
+        renameSync(src, dest);
+    }
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, '_chapter.json'), JSON.stringify(doc, null, 2) + '\n');
+    writeFileSync(join(dir, '_entries.json'), JSON.stringify(entries, null, 2) + '\n');
+    return name;
+}
+
+/** GET /api/drafts → { drafts: [{id,title,count,art,updatedAt}] } */
+function handleDraftList(res) {
+    return sendJson(res, 200, { drafts: listDrafts() });
+}
+
+/** GET /api/drafts/:id → 草稿全文（含橱窗图 base64，供编辑页预览）。 */
+function handleDraftGet(res, id) {
+    return sendJson(res, 200, { draft: readDraft(id) });
+}
+
+/** POST /api/drafts/:id —— upsert 草稿。body {title, resultIds:[按序], imageDataUrl?}。不动真源。 */
+async function handleDraftSave(req, res, id) {
+    assertDraftId(id);
+    const body = await readJsonBody(req);
+    const title = String(body.title ?? '').trim();
+    if (!title || title.length > 40) throw new ManageError('大关标题需 1–40 字');
+    const ids = Array.isArray(body.resultIds) ? body.resultIds.map(String) : [];
+    if (ids.length > DRAFT_MAX) throw new ManageError(`草稿最多 ${DRAFT_MAX} 关（本次 ${ids.length} 关）`);
+    if (new Set(ids).size !== ids.length) throw new ManageError('同一结果不得重复加入草稿（错位盘里同图案会出现两块同色，bot 判据必挂）');
+    const bad = ids.find((x) => !ID_RE.test(x));
+    if (bad) throw new ManageError(`非法结果 id：${bad}`);
+    for (const x of ids) if (!findResultFile(x)) throw new ManageError(`结果 ${x} 不存在（草稿不留坏引用）`, 404);
+    const png = body.imageDataUrl === undefined ? null : parsePngDataUrl(body.imageDataUrl); // undefined = 保留原图
+
+    const prevPath = draftFile(id);
+    const prev = existsSync(prevPath) ? JSON.parse(readFileSync(prevPath, 'utf8')) : {};
+    const art = png ? `data:image/png;base64,${png.toString('base64')}` : prev.imageDataUrl ?? null;
+    const draft = { id, title, resultIds: ids, ...(art ? { imageDataUrl: art } : {}), updatedAt: new Date().toISOString() };
+    mkdirSync(join(DRAFTS_DIR, id), { recursive: true });
+    writeFileSync(prevPath, JSON.stringify(draft, null, 2) + '\n');
+    return sendJson(res, 200, { ok: true, id, count: ids.length, art: !!art, updatedAt: draft.updatedAt });
+}
+
+/** DELETE /api/drafts/:id —— 删草稿（不碰真源；已发布的大关照旧存在）。 */
+function handleDraftDelete(res, id) {
+    assertDraftId(id);
+    const dir = join(DRAFTS_DIR, id);
+    if (!existsSync(dir)) throw new ManageError(`草稿 ${id} 不存在`, 404);
+    rmSync(dir, { recursive: true, force: true });
+    return sendJson(res, 200, { ok: true, deleted: id });
+}
+
+/**
+ * POST /api/drafts/:id/publish —— 统一发布。body {mode:'new'|'replace', target?}。
+ *   · `new`     ：章 id = 草稿 id（须未被占用），落 `assets/<id>-boss-256.png` + `chapters/<id>.json`
+ *   · `replace` ：章 id = target（草稿 id 仅作草稿标识），**保留 title/章序/showcase**，旧关文件整批归档
+ * 两种模式都：按草稿顺序逐条入关 → 末位设为 boss（组图不能作 boss，末尾是 plate ⇒ 事务前拦）。
+ * 事务外先做「逐条预检 + bot 实测 + 总槽校验」，全部通过才进写盘事务。
+ */
+async function handleDraftPublish(req, res, id) {
+    const draft = readDraft(id);
+    const body = await readJsonBody(req);
+    const mode = body.mode === 'replace' ? 'replace' : 'new';
+    const target = String(body.target ?? '').trim();
+    const ids = draft.resultIds ?? [];
+    if (!ids.length) throw new ManageError('草稿为空：至少加 1 关再发布');
+    if (!existsSync(LEVELS_DIR)) return sendJson(res, 501, { error: '大关发布仅在本地仓运行 beads-studio 时可用' });
+
+    const ls = await import('../../tools/scripts/level-store.mjs');
+    const store = await import('../../tools/scripts/chapter-store.mjs');
+    const manifest0 = ls.readManifest(LEVELS_DIR);
+    if (mode === 'new') {
+        if ((manifest0.chapters ?? []).some((c) => c.id === id))
+            throw new ManageError(`大关 ${id} 已存在：改草稿 id，或改用「替换」到该大关`);
+        if (!draft.imageDataUrl) throw new ManageError('新建大关须有橱窗图：草稿里补一张 256² PNG 再发布');
+    } else {
+        if (!CHAPTER_ID_RE.test(target)) throw new ManageError('替换须指定目标大关（body.target）');
+        if (!(manifest0.chapters ?? []).some((c) => c.id === target))
+            throw new ManageError(`目标大关 ${target} 不存在（要新建请用 mode:'new'）`, 404);
+    }
+
+    // 事务外：逐条预检 + 实测（耗时全在这，此阶段真源不动）。逐条收集而非首错即停，一次列全问题。
+    const plans = [];
+    const errs = [];
+    for (const rid of ids) {
+        try { plans.push(await planIngest(rid)); }
+        catch (e) {
+            if (!(e instanceof ManageError)) throw e;
+            errs.push(e);
+        }
+    }
+    if (errs.length)
+        throw new ManageError(
+            `发布预检未通过（${errs.length}/${ids.length} 关，真源未改动）：\n` +
+            errs.map((e) => `· ${e.message}`).join('\n'),
+            errs.every((e) => e.code === 404) ? 404 : 422,
+        );
+    const lastPlan = plans[plans.length - 1];
+    if (lastPlan.kind === 'plate')
+        throw new ManageError('草稿末位是组图（plate）：boss 须单文件盘 ⇒ 把一张 ≤32 的单图拖到末位');
+    const totalSlots = plans.reduce((n, p) => n + p.slots, 0);
+    const wallCap = readWallCapacity(readFileSync(TUNING_PATH, 'utf8'));
+    if (totalSlots > wallCap)
+        throw new ManageError(`本批 ${totalSlots} 槽 > 墙容量 ${wallCap}：删几关或拆成两个大关`);
+
+    const png = mode === 'new' || draft.imageDataUrl ? parsePngDataUrl(draft.imageDataUrl) : null;
+
+    return applyManage(res, (ctx) => {
+        const log = [];
+        let manifest = ctx.manifest;
+        let chapterId = id;
+
+        if (mode === 'new') {
+            const art = `${id}-boss-256`;
+            mkdirSync(join(ctx.levelsDir, 'assets'), { recursive: true });
+            writeFileSync(join(ctx.levelsDir, 'assets', `${art}.png`), png);
+            store.writeChapter(ctx.levelsDir, store.chapterFile(id), {
+                id, title: draft.title, levels: [],
+                showcase: { bundle: 'themes', art, textureId: `bitmap__${id}_boss` },
+            });
+            manifest = store.addChapterTo(manifest, { id, open: false });
+            log.push(`新建大关 ${id}「${draft.title}」+ assets/${art}.png`);
+        } else {
+            chapterId = target;
+            const ch = (manifest.chapters ?? []).find((c) => c.id === target);
+            const doc = store.readChapter(ctx.levelsDir, ch.file);
+            const arch = archiveChapterLevels(ctx.levelsDir, target, doc, manifest);
+            for (const u of doc.levels ?? []) manifest = store.removeEntryByUid(manifest, u);
+            const showcase = png
+                ? { bundle: 'themes', art: `${target}-boss-256`, textureId: `bitmap__${target}_boss` }
+                : doc.showcase;
+            if (png) {
+                mkdirSync(join(ctx.levelsDir, 'assets'), { recursive: true });
+                writeFileSync(join(ctx.levelsDir, 'assets', `${target}-boss-256.png`), png);
+            }
+            store.writeChapter(ctx.levelsDir, ch.file, { ...doc, levels: [], ...(showcase ? { showcase } : {}) });
+            log.push(`整章替换大关 ${target}「${doc.title}」：旧 ${(doc.levels ?? []).length} 关已归档 archive/${arch}/（title/章序/showcase 保留）`);
+        }
+
+        for (const plan of plans) {
+            // append：章内此刻还没有 boss，顺序真源 = 草稿数组（插 boss 前会把第 2 条插到第 1 条之前）
+            const out = commitIngest({ ...ctx, manifest }, ls, plan, chapterId, { append: true });
+            manifest = out.manifest;
+            log.push(out.log);
+        }
+        // 章内现有关卡已清空 ⇒ levels 顺序 = 草稿顺序；末位升 boss（组图已在上面拦掉）
+        const doc2 = store.readChapter(ctx.levelsDir, (manifest.chapters.find((c) => c.id === chapterId)).file);
+        const bossUid = doc2.levels?.[doc2.levels.length - 1];
+        if (bossUid && manifest.entries.find((x) => x.uid === bossUid)?.kind !== 'boss')
+            manifest = store.setEntryKind(manifest, bossUid, 'boss');
+        log.push(`${ids.length} 关按草稿顺序入章；末位 ${bossUid} 设为 boss`);
+        return { manifest, log };
+    });
 }
 
 /**
@@ -1433,6 +1678,15 @@ async function handle(req, res) {
             }
             return sendJson(res, 404, { error: 'not found' });
         }
+        // [WXG-T-364] 大关草稿：以大关为编辑单元攒一批小关 → 一次性发布（新增 / 整章替换 + 旧关归档）。
+        // 草稿本身只碰 data/drafts（不需要 501 守卫）；publish 才是写真源，其内单守 501。
+        if (req.method === 'GET' && path === '/api/drafts') return handleDraftList(res);
+        const mdp = path.match(/^\/api\/drafts\/([a-z0-9][a-z0-9-]{0,31})\/publish$/);
+        if (req.method === 'POST' && mdp) return await handleDraftPublish(req, res, mdp[1]);
+        const md = path.match(/^\/api\/drafts\/([a-z0-9][a-z0-9-]{0,31})$/);
+        if (md && req.method === 'GET') return handleDraftGet(res, md[1]);
+        if (md && req.method === 'POST') return await handleDraftSave(req, res, md[1]);
+        if (md && req.method === 'DELETE') return handleDraftDelete(res, md[1]);
         // [WXG-T-341] 大关管理（全部仅本地仓；handler 内守 501）：状态/校验/建章/章操作/关操作。
         if (req.method === 'GET' && path === '/api/manage/state') return handleManageState(res);
         if (req.method === 'POST' && path === '/api/manage/verify') return handleManageVerify(res);
