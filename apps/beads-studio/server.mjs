@@ -1269,6 +1269,39 @@ async function handleChapterOp(req, res, id, op) {
 }
 
 /**
+ * POST /api/drafts/commit { id } —— 把预览草稿转正：data/_draft/ → data/<board>/<id>/ 并落 result.json。
+ * 只认**当前**草稿（id 不匹配即 409）：否则用户看到的是 A 的效果，却可能把后来覆盖的 B 存进历史。
+ */
+async function handleDraftCommit(req, res) {
+    const draftDir = join(DATA, '_draft');
+    const draftPath = join(draftDir, 'draft.json');
+    if (!existsSync(draftPath)) return sendJson(res, 409, { error: '没有待确认的预览：先点「生成预览」' });
+    let draft;
+    try {
+        draft = JSON.parse(readFileSync(draftPath, 'utf8'));
+    } catch (e) {
+        return sendJson(res, 422, { error: `草稿 draft.json 已损坏：${e.message}` });
+    }
+    let body = {};
+    try {
+        body = JSON.parse((await readBody(req)).toString('utf8') || '{}');
+    } catch { /* 空体也接受：默认存当前草稿 */ }
+    if (body.id && body.id !== draft.id) {
+        return sendJson(res, 409, { error: `预览已换成 ${draft.id}（你确认的是 ${body.id}）⇒ 请按最新这条重新确认` });
+    }
+    const { board, id } = draft;
+    if (!ID_RE.test(board) || !ID_RE.test(id)) return sendJson(res, 400, { error: '草稿 board/id 非法' });
+    const finalDir = join(DATA, board, id);
+    mkdirSync(join(DATA, board), { recursive: true });
+    rmSync(finalDir, { recursive: true, force: true });
+    renameSync(draftDir, finalDir);                        // raw.json + pattern.json + draft.json 一并搬家
+    const snapshot = JSON.parse(readFileSync(join(finalDir, 'draft.json'), 'utf8'));
+    rmSync(join(finalDir, 'draft.json'), { force: true });
+    writeFileSync(join(finalDir, 'result.json'), JSON.stringify(snapshot, null, 2));
+    return sendJson(res, 200, { id, board, saved: true, importable: snapshot.importable !== false });
+}
+
+/**
  * GET /api/levels/:uid —— 只读：把一关读成**生成页可载入**的形状（生成页 `?level=<uid>` 用）。
  * 与其它关卡端点同口径：容器/VPS 无 games/ 真源 ⇒ 501。plate 逐格展开（前端默认看第 1 格）。
  * `paint` 复用 `paintOf`（paletteCodes → hex），前端不需要第二套色板映射。
@@ -1581,7 +1614,12 @@ async function handleGenerate(req, res, url) {
     const board = q.get('board') || `${cols}x${rows}`;
     if (!ID_RE.test(board)) return sendJson(res, 400, { error: 'board 仅允许 [a-z0-9-]' });
     const id = `${board}-${Date.now()}-${randomBytes(2).toString('hex')}`;
-    const outDir = join(DATA, board, id);
+    // draft=1 = 预览：写进**单一草稿位** data/_draft/，不落 result.json ⇒ 既不进「已存结果」，
+    // 也不会出现在管理页「替换图案…」的选图器里；点「确认保存」才由 /api/drafts/commit 转正。
+    const isDraft = q.get('draft') === '1';
+    const relOut = isDraft ? '_draft' : `${board}/${id}`;
+    const outDir = isDraft ? join(DATA, '_draft') : join(DATA, board, id);
+    if (isDraft) rmSync(outDir, { recursive: true, force: true });   // 单草稿位：新预览覆盖上一次预览
     mkdirSync(outDir, { recursive: true });
     const rawPath = join(outDir, 'raw.json');
     // 前端已按 cols×K × rows×K 平滑缩放到 w×h ⇒ 直接透传 base64，不再解码重编码
@@ -1620,7 +1658,7 @@ async function handleGenerate(req, res, url) {
         // 而 raw.json 是**重生同一盘的唯一输入**（改平滑/减色后拿同图对比）⇒ 一并保留，不省这点空间。
         // `data/` 已 gitignore。ponytail: 无 result.json ⇒ 列表不展示、API 不删，手动 `rm -rf data/<board>/<id>`
         if (existsSync(join(outDir, 'pattern.json'))) {
-            return sendJson(res, 422, { error: `${String(e.message || e)} ｜ 证据：data/${board}/${id}/（pattern.json + raw.json）` });
+            return sendJson(res, 422, { error: `${String(e.message || e)} ｜ 证据：data/${relOut}/（pattern.json + raw.json）` });
         }
         rmSync(outDir, { recursive: true, force: true });
         return sendJson(res, 422, { error: String(e.message || e) });
@@ -1653,6 +1691,11 @@ async function handleGenerate(req, res, url) {
     // 可入关判定在写盘时算一次（单一真源），前端与服务端拦截共用同一结果
     result.blockers = importBlockers(result);
     result.importable = result.blockers.length === 0;
+    // 预览只写 draft.json（含与正式记录同一份 result 快照）⇒ 确认时原样搬成 result.json，不再重算
+    if (isDraft) {
+        writeFileSync(join(outDir, 'draft.json'), JSON.stringify(result, null, 2));
+        return sendJson(res, 200, { ...result, draft: true });
+    }
     writeFileSync(join(outDir, 'result.json'), JSON.stringify(result, null, 2));
     // 诊断期保留 raw（源图像素底稿）：thumb 是缩略图会掩盖压缩伪影，
     // 需要 raw 才能定位「同图不同结果」类问题（2026-09-21 树冠块状偏色）。
@@ -1666,6 +1709,8 @@ async function handle(req, res) {
     try {
         if (req.method === 'OPTIONS') return send(res, 204, '');
         if (req.method === 'POST' && path === '/api/generate') return await handleGenerate(req, res, url);
+        // 预览 → 确认入库（生成页「确认保存这条结果」）
+        if (req.method === 'POST' && path === '/api/drafts/commit') return await handleDraftCommit(req, res);
         // [WXG-T-221] 当前关预烘导出（仅本地仓，两 handler 内各自守 501）。
         if (req.method === 'GET' && path === '/api/bake-manifest') return handleBakeManifest(res, url);
         if (req.method === 'POST' && path === '/api/bake-save') return await handleBakeSave(req, res);

@@ -51,9 +51,21 @@
             margin: 0 auto;
         }
 
+        /* [?level=] 关卡条落在左列顶部，表单紧随其下；豆面展示固定右列——
+           不写死列会按自动流把表单挤到右列、豆面挤到左下（2026-10-24 实测布局错位）。 */
+        #lvbar { grid-column: 1; }
+        main > section:first-of-type { grid-column: 1; }
+        main > section:last-of-type { grid-column: 2; }
+
         @media (max-width:860px) {
             main {
                 grid-template-columns: 1fr;
+            }
+
+            #lvbar,
+            main > section:first-of-type,
+            main > section:last-of-type {
+                grid-column: 1;
             }
         }
 
@@ -310,7 +322,9 @@
             </div>
             <label style="margin-top:10px"><input type="checkbox" id="noframe" style="width:auto">
                 铺满整盘（不扣背景；仅游戏关卡盘用——**实物图纸还原务必保持不勾**，否则背景吃掉大半用色预算）</label>
-            <button id="gen">生成</button>
+            <button id="gen">生成预览（不入历史）</button>
+            <!-- 生成只刷效果（写单一草稿位），此按钮才把这条预览转正进「已存结果」 -->
+            <button id="commit" class="ghost" disabled style="margin-top:6px">✓ 确认保存这条结果</button>
             <div id="msg"></div>
         </section>
         <section>
@@ -605,15 +619,18 @@
             });
             $('gen').disabled = true; msg('生成中…');
             try {
-                const r = await fetch('/api/generate?' + q, {
+                // draft=1：只刷效果（写单一草稿位），不落 result.json ⇒ 不进「已存结果」/选图器；
+                // 满意后点「确认保存这条结果」才由 /api/drafts/commit 转正。
+                const r = await fetch('/api/generate?' + q + '&draft=1', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ w: srcPixels.w, h: srcPixels.h, data: toB64(srcPixels.data), thumb: srcThumb }),
                 });
                 const j = await r.json();
                 if (!r.ok) throw new Error(j.error || r.status);
-                current = j; show(j); msg(`已生成并存储：${j.id}`, 'ok'); loadResults();
-                if (levelInfo) renderLevelBar(j.id);   // 关卡模式：给出「替换回该关」入口
+                current = j; show(j);
+                msg(`已生成预览：${j.id}｜满意再点「✓ 确认保存这条结果」才进历史`, 'ok');
+                if (levelInfo) renderLevelBar(null);   // 预览尚未入库 ⇒ 暂不给「替换回该关」
             } catch (e) { msg('生成失败：' + e.message, 'err'); }
             $('gen').disabled = false;
         };
@@ -689,20 +706,27 @@
                     : '');
             $('dl').disabled = $('cp').disabled = !(r.levelDraft);
             // 入关只在本地仓模式可用（服务端无 games/ 目录则 501）；不可入关条目直接置灰
-            $('ing').disabled = !(r.levelDraft) || r.importable === false;
+            // 预览（draft）还没进 data/<board>/<id>/ ⇒ 入关与烘焙都读不到它，先禁用并说明
+            $('ing').disabled = !(r.levelDraft) || r.importable === false || r.draft === true;
+            // 只有「尚未入库的预览」能确认保存：已存结果 / 载入的关卡都没有这个身份
+            $('commit').disabled = !r.draft;
             // 不可入关就显式标红 + 说原因（静默换色比报错难查，不能只靠用户自己避坑）。
             // 实物图纸模式（mis=none）下这些全是游戏导入门槛，对图纸用途一条都不适用
             // （色板 artkal-s 对图纸反而正解）⇒ 降为 ℹ 提示，不吓人（2026-09-21 用户拍板）。
             const isPaper = r.misMode === 'none';
             // 载入的关卡不是"待入关结果"，标「不可入关」会误导（用户会以为这关坏了）
             $('badge').textContent = r.fromLevel
-                ? 'ℹ 关卡真源当前图案（只读载入）：换源图或调参数 → 生成，再「替换回该关」'
+                ? 'ℹ 关卡真源当前图案（只读载入）：生成预览 → 确认保存 → 再「替换回该关」'
                 : r.importable === false
                     ? (isPaper ? 'ℹ 游戏入关限制（实物图纸不受影响）：' : '⚠ 不可入关：') + (r.blockers || []).join('；')
                     : '';
             $('badge').className = r.fromLevel ? '' : 'bad';
             // [WXG-T-221] 把当前结果交给预烘模块（启用/置灰按 demo 盘判定）。
             if (window.updateBakeButton) window.updateBakeButton(r);
+            if (r.draft) {                       // 预览未落盘：烘焙按 id 找目录会扑空
+                $('bake').disabled = true;
+                $('bake').title = '预览未入库：先「确认保存」再烘焙';
+            }
         }
 
         /** 三视图切换（原图 / 正解 / 错位）。 */
@@ -824,8 +848,9 @@
             ));
             bar.appendChild(head);
             bar.appendChild(mkEl('div',
-                '上图 = 该关当前图案（可切「正解图 / 错位图」对照）。换源图或调参数后点「生成」= 存一条新结果；' +
-                '生成完在这里一键替换回本关（走门禁⑦/⑧ + 真引擎实测，不过整笔回滚）。',
+                '上图 = 该关当前图案（可切「正解图 / 错位图」对照）。换源图或调参数 → 点「生成预览」只刷效果，' +
+                '不入历史；满意后点「✓ 确认保存这条结果」，随后在这里一键替换回本关' +
+                '（走门禁⑦/⑧ + 真引擎实测，不过整笔回滚）。',
                 'font-size:12px;color:#666;margin-top:4px'));
             const row = mkEl('div', undefined, 'display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px');
             const back = mkEl('a', '← 回关卡列表', 'font-size:12px');
@@ -911,6 +936,28 @@
                 bar.textContent = `载入关卡 ${levelUid} 失败：${e.message}`;
             }
         })();
+
+        /** 「确认保存这条结果」：把当前预览从 data/_draft/ 转正进「已存结果」（此前一律不落盘）。 */
+        $('commit').onclick = async () => {
+            if (!current?.draft) return msg('没有待确认的预览：先点「生成预览」', 'err');
+            $('commit').disabled = true;
+            try {
+                const r = await fetch('/api/drafts/commit', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: current.id }),
+                });
+                const j = await r.json().catch(() => ({}));
+                if (!r.ok) throw new Error(j.error || ('HTTP ' + r.status));
+                current = { ...current, draft: false };
+                show(current);          // 刷新徽章/按钮：入关与烘焙这时才可用
+                msg(`已存入历史：${j.id}`, 'ok');
+                loadResults();
+                if (levelInfo) renderLevelBar(j.id);   // 入库后才有「替换回该关」
+            } catch (e) {
+                msg('保存失败：' + e.message, 'err');
+                $('commit').disabled = false;
+            }
+        };
 
         loadResults();
     </script>
