@@ -97,7 +97,7 @@ function ownedIds(value: unknown): string[] {
         : [];
     const set = new Set(list);
     set.add(DEFAULT_SKIN_ID);
-    return [...set];
+    return Array.from(set);
 }
 
 /** 逐位比较（只在载入对账时用）：形状不同、长度不同或任一位不等 ⇒ 需要回写。 */

@@ -5226,3 +5226,54 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - 提交范围 = 本批名下 15 件：`tuning.ts` / `meta-view.ts` / `settings-content.ts`（各含 Cocos 镜像，共 6 件）· 6 份测试 · `ux-spec.md` · `ui-architecture-beads.md` · `main-menu-entry-strategy.md` · 2 份台账（**只我方行/节**）；pre-commit ② 自动重暂存 `ctx/{index.json,BUDGET.md,hot-files.md}` + `memory/INDEX.md`。
 - ⛔ 不夹带：`levels-data.ts` 与其镜像、`L0000{3,4}.json`、`tools/scripts/{check-tasks,scan-text-distortion}.mjs`、`TASKS-DETAIL.md` 的对方 363/364 对调 hunk。
 - 推送取证按 K-142：`git ls-remote origin refs/heads/develop` + `git reflog show origin/develop --date=iso`。
+
+## WXG-T-366
+
+**beads·消除三处「展开 Set」写法（ES-01 存档字段隐患一行修）（用户在 WXG-T-365 收尾三选项里选 1）**
+
+### 1. 领号与来源（K-046）
+
+- 来源 = 365 §4 / §5-2 登记的既存债：`check:es5spread` 三处红出自 `09adcc7`（WXG-T-360 皮肤买断机制层），工作树与 HEAD 逐字相同 ⇒ 非 365 造成，按「不夹带、另开单」处理。
+- 三路核验：头注「下一真可用号 = 366」+ 主表无 366 行 + 详情无 `## WXG-T-366` + `git log --grep=WXG-T-366` 空 ⇒ 领 366 合规。
+- 并发侦查：对方 WIP 面与 365 批相同（`levels-data.ts` 含镜像、`L0000{3,4}.json`、`tools/scripts/{check-tasks,scan-text-distortion}.mjs`、`TASKS-DETAIL.md` 的 363/364 对调 hunk），⛔ 不 add。
+
+### 2. 交付清单（4 件）
+
+| 件 | 改动 |
+|---|---|
+| `games/beads/src/game/meta-save-schema.ts` | `ownedIds()` 末行返回由「展开集合」改为 `Array.from(set)`（载入去重 + 强制含默认肤的那条腿） |
+| `games/beads/src/game/meta-state.ts` | `buySkin()` 与 `ensureSkinOwnership()` 两处写档表达式改为 `ownedSkinIds: Array.from(this._ownedSkins)` |
+| `games/beads/cocos/assets/scripts/game/game/{meta-save-schema.ts, meta-state.ts}` | `pnpm run framework:sync` 产出（写入 2、未变 143），`framework:sync:check` 绿 |
+
+零新增常量、零新增导出、零 `tuning.ts` 改动、零行为变更。
+
+### 3. 四条关键判断（全部实测后写）
+
+1. **为什么这条是真 bug 而非风格洁癖**：构建侧实证 = 产物里原生出现 `new Set()` / `new Map()` 且全 bundle 无 core-js polyfill ⇒ Babel 只降语法不注入内置对象；ES5 语义下展开一个集合得到的是「长度为 1、元素是集合本身」的数组，于是落档字段 `ownedSkinIds` 会被写成坏形状，玩家已买断的皮肤列表在重启后丢失（判据来源 = `docs/architecture/adr/ADR-0012-es5-spread-language-contract.md` §1 上下文第 2 条（目标 runtime 具备 ES2015 built-ins）+ §2 方案甲）。
+2. **本批刻意不加单测**（与「非平凡逻辑留一条可跑判据」的表面冲突，理由要写清）：Node 与浏览器是现代 JS，`展开集合` 与 `Array.from(集合)` 的结果逐位相同 ⇒ 任何 Vitest 断言对这条差异**零判别力**，写进去就是 K-089 型假绿守卫（阈值与真因脱钩）。判别力放在真正守得住的地方：类型级静态门禁 `tools/scripts/check-es5-spread.mjs`（不可证明为数组即红、fail-closed）+ 其自测 `pnpm run check:es5spread:selftest` 的阳性对照（植 5 类缺陷必恰得 5 红、安全数组展开与逃生阀不误报、清理回绿且工作树无残留），本批实跑三段全过（K-089 后半句「先实测守卫能不能红」+ K-030（自测只走宽松分支会假绿，须真库复跑））。
+3. **语义等价的取证方式** = 全量读数比对而非推理：beads **6 failed / 1255 passed / 3 skipped（1264）**，与修复前逐名同值（三条金样本 + 三条对方关卡 WIP），`typecheck` 全绿，`check:es5spread` 由 3 违规转「160 入库源文件零违规」。
+4. （附）注释面守 ADR-0012 §4.2「入库源码的注释里不得写字面形式」——注释会随 debug 构建进产物、污染产物 grep 取证，故本批只改表达式，不在源码注释里复述旧写法。
+
+### 4. 读数与归因
+
+| 腿 | 读数 |
+|---|---|
+| `check:es5spread` | 修复前 3 违规 → 修复后 **OK（160 shipped source file(s), no non-array spread）** |
+| `check:es5spread:selftest` | 三段全过（基线绿 / 恰 5 红 / 回绿无残留） |
+| `typecheck` | framework / beads / breakout 全绿 |
+| `framework:sync:check` | 绿（拷贝件与源码一致） |
+| beads 全量 | 6 failed / 1255 passed / 3 skipped（1264）= 与修复前**同名同列**，零新增红 |
+| `verify` 聚合 | **PASS 19 ｜ FAIL 3**（365 批同树读数 = PASS 18 / FAIL 4）⇒ 本批净消 1 项红 = `check:es5spread`；余 FAIL 项 = `check:tasks` + `test` + `selftest:fast`，逐项见下行 |
+| 未闭合的红 | `check:tasks` I 项（`WXG-T-362` 署号未在册，属他会话 `aa5c85e`，按 K-137 只披露不代填）+ `selftest:fast`（`verify:selftest` 第 4 步实跑 `check:tasks`，纯下游）；对方关卡 WIP 三例照旧 |
+
+### 5. 遗留与后续批
+
+1. **真机兼容未证**（ADR-0012 §4.3 明列的未证事项）：微信 runtime 是否原生具备 `Array.from` + 可迭代 `Set` / `Map` 仍靠「同级别内置对象」推断，须由真机 BOOT 复验关闭（`[待真机]`）。
+2. `games/breakout/cocos/build/wechatgame/` 仍是旧产物、内含一处无法静态判定的展开形态，重建需 AppID ⇒ 发布阶段一并处理（ADR-0012 §4.3（中性/待观察））。
+3. 承 365 未清：金样本三态待复取、顶栏装扮馆真图标 `[待 UI 设计]`、`[待产品]` 公告语义位另择。
+4. `WXG-T-362` 台账未在册（他会话自登）。
+
+### 6. 提交与推送取证
+
+- 提交范围 = 4 件源码/镜像 + 2 份台账（`TASKS-DETAIL.md` 走 HEAD 铺底 + 只插我方节的原子法，⛔ 不带对方对调 hunk）；pre-commit ② 自动重暂存 `ctx/{index.json,BUDGET.md,hot-files.md}` + `memory/INDEX.md`。
+- 推送取证按 K-142：`git ls-remote origin refs/heads/develop` + `git reflog show origin/develop --date=iso`。

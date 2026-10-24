@@ -282,7 +282,7 @@ export class MetaState {
         if (this._coins < price) return false;
         this._coins -= price;
         this._ownedSkins.add(id);
-        this._save.patch({ coins: this._coins, ownedSkinIds: [...this._ownedSkins] });
+        this._save.patch({ coins: this._coins, ownedSkinIds: Array.from(this._ownedSkins) });
         this._save.save();
         this._emit('wallet:changed', { coins: this._coins });
         return true;
@@ -297,7 +297,7 @@ export class MetaState {
     ensureSkinOwnership(id: string): void {
         if (id === '' || this._ownedSkins.has(id)) return;
         this._ownedSkins.add(id);
-        this._save.patch({ ownedSkinIds: [...this._ownedSkins] });
+        this._save.patch({ ownedSkinIds: Array.from(this._ownedSkins) });
         this._save.save();
     }
 
