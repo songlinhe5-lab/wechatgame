@@ -51,9 +51,9 @@
             margin: 0 auto;
         }
 
-        /* 列位写死，不靠自动流：关卡条+表单 = 左列，豆面 = 中列，已存结果 = 最右列。
+        /* 列位写死，不靠自动流：关卡条通栏占首行，表单 = 左列，豆面 = 中列，已存结果 = 最右列。
            （不写死会按自动流把表单挤到中列、豆面挤到左下，2026-10-24 实测布局错位。） */
-        #lvbar { grid-column: 1; }
+        #lvbar { grid-column: 1 / -1; }
         main > section:first-of-type { grid-column: 1; }
         main > section:last-of-type { grid-column: 2; }
         #results { grid-column: 3; }
@@ -847,7 +847,8 @@
             return d;
         }
 
-        /** 关卡条：关号/名称/尺寸/实测 + 回列表 + 逐格切换 + （生成后）替换回该关。 */
+        /** 关卡条（通栏一行）：左侧一行关信息，右侧操作（逐格切换 / 替换回该关 / 回列表）。
+         *  说明文字不再铺一段——按钮已写明「不入历史」「确认保存」，重复交代只会占掉版面。 */
         function renderLevelBar(generatedId) {
             const bar = $('lvbar');
             if (!levelInfo) { bar.hidden = true; return; }
@@ -855,44 +856,41 @@
             const idTxt = `#${c.id}${c.idEnd !== undefined && c.idEnd !== c.id ? '–' + c.idEnd : ''}`;
             bar.hidden = false;
             bar.innerHTML = '';
-            const head = mkEl('div');
-            head.appendChild(mkEl('b', `正在编辑 ${levelInfo.uid}`));
-            head.appendChild(document.createTextNode(
-                ` ${idTxt}${c.name ? ' · ' + c.name : ''} · ${c.cols}×${c.rows}` +
+            bar.style.cssText = 'display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap';
+            const info = mkEl('div', undefined, 'display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;min-width:0');
+            info.appendChild(mkEl('b', `正在编辑 ${levelInfo.uid}`));
+            info.appendChild(mkEl('span',
+                `${idTxt}${c.name ? ' · ' + c.name : ''} · ${c.cols}×${c.rows}` +
                 (c.time != null ? ` · 实测 ${c.time}s` : '') + (c.steps != null ? ` / ${c.steps} 步` : '') +
                 (levelInfo.chapter ? ` · 章「${levelInfo.chapter.title}」` : '') +
-                (levelInfo.cells.length > 1 ? ` · 组合图第 ${levelCell + 1}/${levelInfo.cells.length} 格` : ''),
-            ));
-            bar.appendChild(head);
-            bar.appendChild(mkEl('div',
-                '上图 = 该关当前图案（可切「正解图 / 错位图」对照）。换源图或调参数 → 点「生成预览」只刷效果，' +
-                '不入历史；满意后点「✓ 确认保存这条结果」，随后在这里一键替换回本关' +
-                '（走门禁⑦/⑧ + 真引擎实测，不过整笔回滚）。',
-                'font-size:12px;color:#666;margin-top:4px'));
-            const row = mkEl('div', undefined, 'display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px');
-            const back = mkEl('a', '← 回关卡列表', 'font-size:12px');
-            back.href = '/manage.html';
-            row.appendChild(back);
+                (levelInfo.cells.length > 1 ? ` · 第 ${levelCell + 1}/${levelInfo.cells.length} 格` : ''),
+                'font-size:12px;color:#666'));
+            bar.appendChild(info);
+
+            const acts = mkEl('div', undefined, 'display:flex;gap:6px;align-items:center;flex-wrap:wrap');
             if (levelInfo.cells.length > 1) {
                 levelInfo.cells.forEach((_, i) => {
                     const b = mkEl('button', `第 ${i + 1} 格`);
                     b.className = 'ghost';
                     if (i === levelCell) b.style.fontWeight = '700';
                     b.onclick = () => { levelCell = i; applyLevelCell(); };
-                    row.appendChild(b);
+                    acts.appendChild(b);
                 });
             }
             if (generatedId) {
                 if (levelInfo.kind === 'plate') {
-                    row.appendChild(mkEl('span', 'plate（多格组合图）不支持原位替换：改动请走「导入大关」重建',
+                    acts.appendChild(mkEl('span', 'plate 不支持原位替换：改动走「导入大关」重建',
                         'font-size:12px;color:#c0392b'));
                 } else {
                     const rep = mkEl('button', `用 ${generatedId} 替换 ${levelInfo.uid} 的图案`);
                     rep.onclick = () => replaceIntoLevel(generatedId);
-                    row.appendChild(rep);
+                    acts.appendChild(rep);
                 }
             }
-            bar.appendChild(row);
+            const back = mkEl('a', '← 回关卡列表', 'font-size:12px');
+            back.href = '/manage.html';
+            acts.appendChild(back);
+            bar.appendChild(acts);
         }
 
         /** 载入的关卡盘 → `current`（与 result 同形，复用 show()/画布/缩放，不另造渲染路径）。 */
