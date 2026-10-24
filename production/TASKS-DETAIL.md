@@ -5554,7 +5554,7 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 
 本会话原已按头注「下一真可用号 **WXG-T-373**」动手，文中 373 引用已写完；随后并发会话（CodeBuddy）在同一工作树**提交并推送了 `4f12245`「小关列表章内拖拽调序 + 点行开编辑面板（WXG-T-373）」**（只含 `apps/beads-studio/public/manage.html` + `server.mjs` + `tools/scripts/chapter-store{,.test}.mjs` 四件，**未碰台账头注与主表**）。按 K-046 重扫（主表 / 详情节 / `git log --all --grep` / 工作树）：373 = 已被占用（仅活在 commit message），374 四处零占用 ⇒ **本批改领 374**，文中旧引用已逐字换号（`level-difficulty.md` 9 处 + `tuning.ts` 1 处 + `difficulty.test.ts` 1 处）。
 
-⚠ **连带后果（非本批引入，只报不代填）**：`pnpm run check:tasks` 的 **I 门现在恒红** ——「最近 40 笔提交署了 WXG-T-373，但台账不在册」。按 K-137「用过号未自登 ⇒ 只披露不代填」，本批仅在头注披露，**不代写对方的主表行与详情节**；解除条件 = 该会话自登 374 号位之前的 373，或用户明确拍板「代收口」（先例 = 291 由 292 代登）。
+⚠ **连带后果（非本批引入，只报不代填）**：`pnpm run check:tasks` 的 **I 门现在恒红** ——「最近 40 笔提交署了 WXG-T-373，但台账不在册」。按 K-137「用过号未自登 ⇒ 只披露不代填」，本批仅在头注披露，**不代写对方的主表行与详情节**；解除条件 = 该会话自登 374 号位之前的 373，或用户明确拍板「代收口」（先例 = 291 由 292 代登）。**2026-10-24 后续**：用户拍板「代收口」⇒ 373 的主表行与详情节已由本会话按 `4f12245` 的提交正文补登，见下 `## WXG-T-373`；本段措辞保留为当时状态，⛔ 不回改。
 
 ### 2. A 案图案的设约束与守恒
 
@@ -5591,6 +5591,55 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 10 件：关卡数据 4（`singles/L00003.json`、`singles/L00004.json`、`src/config/levels-data.ts`、`cocos/.../config/levels-data.ts`）+ 判据/注释 3（`tests/difficulty.test.ts`、`src/config/tuning.ts` 及其 Cocos 镜像 `cocos/.../config/tuning.ts`——镜像 diff 与源 diff 逐字相等，`framework:sync:check` 绿，同批入库）+ 数值真源文档 1（`level-difficulty.md`：§5 标题、§5.1 三行 + 表头注、§5.2 整表重排 + 三条校验结论、§1.2/A-2/§3 输入表/§3.3/§5.3 H-1–H-3/§6.3 CH-B/§8 B-2・B-4/§9 Q9，新增 §10.2 变更记录；**⛔ 公式与 §3 常量零改动**）+ 台账 2。
 
 ⛔ **并发在制品四件全排除**（`manifest.json` contentVersion 35→37、`chapters/mandala.json` 尾换行、`tools/scripts/check-tasks.mjs` 与 `scan-text-distortion.mjs` 纯缩进 diff）——均为他会话所有（`4f12245` 同批会话在途）。夹带风险已用代码排除：`sync-levels-data.mjs:517`「**contentVersion 不进产物**」+ HEAD 生成物 grep 零命中 ⇒ sync 不会把 manifest bump 携进 `levels-data.ts`。缺口：manifest contentVersion 未因本批改 singles 而 bump（属并发会话正在重构的 studio 侧职责），登记不代做。
+
+## WXG-T-373
+
+**beads-studio·小关列表章内拖拽调序 + 点行开编辑面板（⚠ 由 WXG-T-374 会话代收口补登，正本归该会话订正）**
+
+### 1. 代登说明（归属 / 裁定 / 取证纪律）
+
+- **归属**：并发会话（CodeBuddy），提交 `4f12245`「feat(beads): 小关列表章内拖拽调序 + 点行开编辑面板（WXG-T-373）」，已推送 `origin/develop`；**当场未顶台账头注、未登主表与详情节** ⇒ 374 会话按 K-046 重扫时撞号、改领 374，并使 `check:tasks` I 门恒红（详见 `## WXG-T-374` §1）。
+- **裁定**：用户 2026-10-24 在「373 归属」三选项里拍 **代收口补登**（先例 = 291 由 292 会话代登）。
+- **取证纪律**：以下正文**全部取对该会话自己的提交信息**（`git log -1 --format=%B 4f12245` + `git show --numstat`），本会话⛔ 未参与其过程，不补写对方未给的证据；唯一新证据 = 本会话独立复跑对方单测（§4）。自报而未经复跑的项一律标「原样转录」。
+- **订正通道**：该会话若需补正，直接改本节与主表 373 行，⛔ 勿另开同号小节（`check:tasks` C 门按 `## WXG-T-<号>` 与主表一对一校验，同号两份会自撞）。
+
+### 2. 内容（取对该会话提交正文）
+
+前端 `apps/beads-studio/public/manage.html`：
+
+- 小关行 HTML5 拖拽章内调序，落点 = **移动后下标**（`from < to` 时左移一格）；boss 恒末位 ⇒ 夹到 `len-2`。
+- boss 行也接拖：落到 boss = 插到末位前（「拖到最末尾」的唯一可用落点）。
+- 行可聚焦 + `↑`/`↓` 键盘调序；边界（首位 / 紧邻 boss）不发请求，重渲染后复焦本行。
+- 点行（避开 `.ops`）打开小关编辑面板：`lvm-*` 八件、焦点进 `lvm-name`、`Esc`/遮罩/取消/右上关闭同出口、空名就地报错（页顶红字在模态下不可见）、未改名不提交、`Enter` 等价点保存。
+- 行内与面板动作同源 = `renameLevel` / `setLevelBoss` / `replaceLevelPattern` / `moveLevelToChapter` / `removeLevel` 五个命名函数，杜绝两处漂移。
+
+后端：`apps/beads-studio/server.mjs` 在既有 `POST /api/manage/level/:uid/move` 上加 `{to}` 分支 → 新导出 `tools/scripts/chapter-store.mjs::moveInChapterTo`（`to` 须整数且 ∈ [0, len−2]；uid 不在章内 / 已为末位 ⇒ throw；boss 锁末位由 store 侧守，与旧 `{dir}` 分支同端点共存）。
+
+### 3. 改动面（`git show --numstat` 实测，4 件 +263 −21）
+
+| 文件 | + | − |
+|---|---|---|
+| `apps/beads-studio/public/manage.html` | 218 | 20 |
+| `apps/beads-studio/server.mjs` | 6 | 0 |
+| `tools/scripts/chapter-store.mjs` | 18 | 0 |
+| `tools/scripts/chapter-store.test.mjs` | 21 | 1 |
+
+未新增测试套件（复用 `chapter-store.test.mjs`）；⛔ 未碰框架 `src/core`、关卡数据与 Cocos 镜像，故 L1–L5 五条铁律与本号无关。
+
+### 4. 验证：对方自报 vs 本会话独立复跑
+
+| 项 | 该会话自报 | 374 会话复跑（2026-10-24，HEAD `929f936`） |
+|---|---|---|
+| `node --test tools/scripts/chapter-store.test.mjs` | 13/13 | **tests 13 / pass 13 / fail 0**（52.6 ms）✅ 与自报一致 |
+| 落点公式全组合交叉验证（boss 恒末位） | 通过 | 原样转录（本会话无该装置，⛔ 不背书） |
+| 真 chromium（CDP）冒烟 8 项全绿、零页面异常 | 通过 | 原样转录（同上） |
+| `move`/`rename` 打桩、不写真源 | 是 | 原样转录（同上） |
+
+### 5. 补登后读数与遗留
+
+- 只加主表行时 `check:tasks` 从 I 门红转为 **C 门红**（「主表有 WXG-T-373，但 `production/TASKS-DETAIL.md` 里没有 `## WXG-T-373` 小节」）；本节落位后复跑 = **✅ check:tasks OK**（主表 133 行 / 详情 133 节配对完整，note I：「最近 40 笔提交共署 20 个号，**全部在册**」）⇒ I 门与 `selftest:fast` 的级联红同批解除（后者经 `verify:selftest` 把 `check:tasks` 当夹具跑）。
+- 本会话⛔ 不代跑对方 studio 侧的在途改动：工作树仍有 `manage.html`、`manifest.json`、`chapters/mandala.json`、`check-tasks.mjs`、`scan-text-distortion.mjs` 呈 `M`，均属该会话在制品，本批零夹带（入库只走 pathspec 两件台账）。
+- 该批 4 件不含 singles / chapters 关卡内容 ⇒ 与 `## WXG-T-374` §6 登记的 contentVersion 缺口是两条独立账，各自归属。
 
 ## WXG-T-372
 
