@@ -2071,10 +2071,10 @@
     {
       "id": "K-125",
       "state": "active",
-      "file": "knowledge/lessons/testing-guard.md",
-      "category": "测试守卫",
+      "file": "knowledge/lessons/testing-change.md",
+      "category": "测试变更",
       "title": "语义从「取大」换到「优先」时，`≥` 型不变式没有判别力，必须补一条相等式",
-      "contentHash": "b667f9fe14a837d037268bdabaced732c1be1177dc19312d1bdbafb38d2027d4",
+      "contentHash": "f067e72bbb2b5893c0ca8436e6814ab4ff037fe32bcd2a722a3f6e8939b2dde8",
       "sourceTask": "WXG-T-265",
       "addedDate": "2026-10-13",
       "lastAccess": "2026-10-13",
@@ -2139,10 +2139,10 @@
     {
       "id": "K-129",
       "state": "active",
-      "file": "knowledge/lessons/testing-guard.md",
-      "category": "测试守卫",
+      "file": "knowledge/lessons/testing-change.md",
+      "category": "测试变更",
       "title": "往皮肤调色板加一枚字段在本仓是「三处联动」的改动，逐道修会逐道漏；台账那一道的修法只有一条",
-      "contentHash": "ffb5b9091874130a64c8e2477e5ba95bf41654667e8341a09d44e660eb227491",
+      "contentHash": "a43bfe1014af600b3e208e8d45906b68648de208fbd9b9d573ab1be8ddff5060",
       "sourceTask": null,
       "addedDate": "2026-10-13",
       "lastAccess": "2026-10-13",
@@ -2513,10 +2513,10 @@
     {
       "id": "K-151",
       "state": "active",
-      "file": "knowledge/lessons/testing-guard.md",
-      "category": "测试守卫",
+      "file": "knowledge/lessons/testing-change.md",
+      "category": "测试变更",
       "title": "关卡「扩池」是破坏性存档变更：关表长度即 `DEMO_LEVEL_COUNT`，降级矩阵按「长度不符 → 重置全 0」静默清历史星",
-      "contentHash": "6f5d97d5e845de9de9b49419fb29e2637434ffe85ace343ec8cb4156aa9c88e2",
+      "contentHash": "145a17a9aed16afa0977a44246bb33cacc38e66d3c68681f1d23a05adb28c67f",
       "sourceTask": "WXG-T-341",
       "addedDate": "2026-10-21",
       "lastAccess": "2026-10-21",
@@ -2530,10 +2530,10 @@
     {
       "id": "K-152",
       "state": "active",
-      "file": "knowledge/lessons/testing-guard.md",
-      "category": "测试守卫",
+      "file": "knowledge/lessons/testing-change.md",
+      "category": "测试变更",
       "title": "把「本版快照」当不变式硬写的测试，会在内容投放变更时批量假红并淹没真信号",
-      "contentHash": "b66c04a6efb1f8ccf21c24b74c654b92d2f0bcc92e98f23ea5958c8dd3d9c1c7",
+      "contentHash": "845477e1cac4dfa2d2731443a699c20dcefe136bc3166c8998b4476a4341659b",
       "sourceTask": "WXG-T-341",
       "addedDate": "2026-10-21",
       "lastAccess": "2026-10-21",
@@ -2615,10 +2615,10 @@
     {
       "id": "K-157",
       "state": "active",
-      "file": "knowledge/lessons/testing-guard.md",
-      "category": "测试守卫",
+      "file": "knowledge/lessons/testing-change.md",
+      "category": "测试变更",
       "title": "夹具手工拼出的「最小形状」若与生产装配形状不同，对数据形状敏感的边界分支就永远走不到，变异也不会红",
-      "contentHash": "bb9a2dc297ed6d48cc22dbe108b09f1af34f2bb03e0fce7929839ce4e0b177b7",
+      "contentHash": "75d38c4b10198ee3b8a417a4396e83a1d604c74fa285d7b7ec08bb79370385ef",
       "sourceTask": "WXG-T-345",
       "addedDate": "2026-10-22",
       "lastAccess": "2026-10-22",
@@ -4336,6 +4336,19 @@
         "K-036",
         "K-037",
         "K-123"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-24",
+      "taskId": "WXG-T-364",
+      "kind": "updated",
+      "ids": [
+        "K-125",
+        "K-129",
+        "K-151",
+        "K-152",
+        "K-157"
       ],
       "note": null
     }
