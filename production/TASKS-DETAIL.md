@@ -5544,6 +5544,54 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - 金样本夹具零改动，复取仍阻塞。
 - `systems-index §3.13` 与 `levels-spec §2.3` 无冲突（v1.56 已转正），levels-spec v1.12 行里「§3.13 仍标 `[提案 v1.54]`、属未决漂移」那句已过期，本批不改文档历史行，仅在此登记为**已消解**。
 
+## WXG-T-374
+
+**beads·L4 换 A 案图案 + 全池真引擎重定价 + §5 冻结表回写（372 裁定的执行批）**
+
+### 1. 领号与来源（⚠ 号改领，K-046 同型再现）
+
+用户在 372 收尾三选项里选 **1**（「拍 A，我一笔落完」）⇒ 本批获明确授权改关卡数据与数值真源文档。
+
+本会话原已按头注「下一真可用号 **WXG-T-373**」动手，文中 373 引用已写完；随后并发会话（CodeBuddy）在同一工作树**提交并推送了 `4f12245`「小关列表章内拖拽调序 + 点行开编辑面板（WXG-T-373）」**（只含 `apps/beads-studio/public/manage.html` + `server.mjs` + `tools/scripts/chapter-store{,.test}.mjs` 四件，**未碰台账头注与主表**）。按 K-046 重扫（主表 / 详情节 / `git log --all --grep` / 工作树）：373 = 已被占用（仅活在 commit message），374 四处零占用 ⇒ **本批改领 374**，文中旧引用已逐字换号（`level-difficulty.md` 9 处 + `tuning.ts` 1 处 + `difficulty.test.ts` 1 处）。
+
+⚠ **连带后果（非本批引入，只报不代填）**：`pnpm run check:tasks` 的 **I 门现在恒红** ——「最近 40 笔提交署了 WXG-T-373，但台账不在册」。按 K-137「用过号未自登 ⇒ 只披露不代填」，本批仅在头注披露，**不代写对方的主表行与详情节**；解除条件 = 该会话自登 374 号位之前的 373，或用户明确拍板「代收口」（先例 = 291 由 292 代登）。
+
+### 2. A 案图案的设约束与守恒
+
+手工重排 12 行（12×12），三条硬约束逐条核：① **各色颗数与原盘逐字相同**（2:61 / 3:33 / 1:14 / 4:14，N=122）⇒ 包体、色板、缩略图、`cols/rows` 全不动；② 门禁⑧ `lib/pattern-legibility.mjs` 的 `analyze`/`judge` 新旧图均 `ok = true`（T1–T7）；③ `levels:check` 的 WARN 名单 = 2/3/7/10（**既存**，不含 L4）。
+
+⚠ **一处自我更正（已写入 `level-difficulty.md §10.2` 尾）**：372 补测把 A 案描述为「把 1 号 4 个碎域与 4 号 4 个碎域聚块」，连通域实测原盘只有 **8 个**（1=3 / 2=2 / 3=1 / 4=2）⇒ **域数不是 `steps` 的驱动因素**；A 案真杠杆 = 同颗数下把 `A`（可批量落子邻接比）抬到 0.786、`K` 压到 0.214。
+
+### 3. 落盘腿（唯一写盘入口）
+
+`temp/wxg373-apply.mjs`（60 行，gitignore 内）：先用现成 `tools/scripts/level-derange.mjs::buildCellInitial(pattern)` **重装配初盘**（甲档 `M = 122/122`、`F = 0`、`swaps = []`），组 10 关 bundle 后走 `beads-bot.ts … --patch`（`levels-spec.md:449`「写盘入口唯一 = `pricingOf`」），再把 `time + pricing` 搬回 singles（L4 另搬 `pattern/misplaced/swaps`）。两个坑当场填掉：
+
+1. `cleared` **只存在于 bot stdout**（`--patch` 回写的是 time+pricing）⇒ 守卫若从被 patch 的关卡文件取 `cleared` 会**假报「L1 未通关，拒写」**；改为解析 stdout 末行 results 数组。
+2. 落盘前先跑 `--dry` 对拍 ⇒ 只有 L3 `60→43` / `101→73`、L4 `42→47` / `71→79` 变化，**其余 8 关逐字不变**（即 372 报的两笔陈账是全池仅有的两笔）。
+
+生成物顺序坑：先 `framework:sync`（framework→cocos 复制，报「写入 0」）再 `levels:sync`（写真源 `src/config/levels-data.ts`）会留下 **stale 的 cocos 副本** ⇒ 正确序 = `levels:sync` → `framework:sync`。
+
+### 4. 读数（本批实测）
+
+| 项 | 值 |
+|---|---|
+| L00004 新盘 bot | **steps 47 / taps 92 / time 79s**、`cleared = Y`、`blockers = []`（门禁⑦ `∈[18,90]` 转合规，原 106 两头都不合规） |
+| L00004 DI | **59.5**（A 0.786 / K 0.214 / fC 0.900 / fK 0.542），仍在 L5 43.7 之上、L7 76.8 之下 ⇒ **墙序不变** |
+| 全池 DI 漂移 | L3 42.2（≠表 73.7）、L4 59.5（≠表 66.8）、L9 426.7（≠表 289.7）⇒ 已由本批回写 §5.1/§5.2 |
+| 序校验 | 墙序实测 **[6,1,8,2,3,5,4,7,9]**、Spearman **0.867**（Σd² = 16）、k = **1.652**、残差 +92.5%／−61.1%、极差 ≈154pp、首末比 **14.27**、L9 占跳度 **88.2%**（均 python 重算，非手算） |
+| 测试 | `tests/difficulty.test.ts` **11/11 绿**（372 加的收集化断言一次报出 3 条漂移 + 新的 Spearman 红，本批随之转绿） |
+| beads 全量 | **1258 passed / 3 failed / 3 skipped**（104 文件中 1 件红） |
+
+### 5. ⚠ 金样本三红：已举证**非本批引入**
+
+3 条红 = `ui-golden.test.ts` › `LevelSelectPage` 三态，`[total] expected 5086 to be 7046`（相位腿 `proof` 已先过）。本批一度把本批的 4 件数据文件临时回退到 HEAD 复跑取基线（改前备份存 `temp/wxg373-bak/`，跑完逐件恢复），读数**逐字相同**（仍 3 红、同 5086/7046）⇒ **基线红，与本批换图/重定价无关**。该 +1960 节点差属 362/371 以后的选关页改版，处置仍须走 `ui-architecture-beads.md §12` 登记 UX 裁定后由 `tests/ui-golden-capture.ts` 重抓（K-051/K-053），⛔ 不得手改夹具 ⇒ 归下一单。
+
+### 6. 改动面
+
+10 件：关卡数据 4（`singles/L00003.json`、`singles/L00004.json`、`src/config/levels-data.ts`、`cocos/.../config/levels-data.ts`）+ 判据/注释 3（`tests/difficulty.test.ts`、`src/config/tuning.ts` 及其 Cocos 镜像 `cocos/.../config/tuning.ts`——镜像 diff 与源 diff 逐字相等，`framework:sync:check` 绿，同批入库）+ 数值真源文档 1（`level-difficulty.md`：§5 标题、§5.1 三行 + 表头注、§5.2 整表重排 + 三条校验结论、§1.2/A-2/§3 输入表/§3.3/§5.3 H-1–H-3/§6.3 CH-B/§8 B-2・B-4/§9 Q9，新增 §10.2 变更记录；**⛔ 公式与 §3 常量零改动**）+ 台账 2。
+
+⛔ **并发在制品四件全排除**（`manifest.json` contentVersion 35→37、`chapters/mandala.json` 尾换行、`tools/scripts/check-tasks.mjs` 与 `scan-text-distortion.mjs` 纯缩进 diff）——均为他会话所有（`4f12245` 同批会话在途）。夹带风险已用代码排除：`sync-levels-data.mjs:517`「**contentVersion 不进产物**」+ HEAD 生成物 grep 零命中 ⇒ sync 不会把 manifest bump 携进 `levels-data.ts`。缺口：manifest contentVersion 未因本批改 singles 而 bump（属并发会话正在重构的 studio 侧职责），登记不代做。
+
 ## WXG-T-372
 
 **beads·九关定价实测——L3/L4 的 `steps/taps/time` 仍是 362 换盘前的旧盘读数（只报不裁）**
@@ -5633,3 +5681,5 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 **甲的装置结论**（上批未核清）：`singles/L000NN.json` **不是** `beads-bot.ts` 的合法输入（它只吃 beads-gen 的 `pattern.json` 或 `{"levels":[…]}` 聚合，见 `beads-bot.ts:196-235`），所以全量重测定价必须借现成写盘器 `tools/scripts/level-store.mjs::writeLevelFile` —— studio 的 `POST /api/manage/level/:uid/replace`（`apps/beads-studio/server.mjs:1334` 起，注释明写「uid / 关号 / 章位 / 关名全不变，只有图案与实测时长（pricing 溯源）换新」）正是这条链的封装 ⇒ **丙 的换图与甲 的定价写回是同一个入口**，两案天然合并，⛔ 不需要新脚本。
 
 本批仍 ⛔ 零主树数据改动、⛔ 零夹具改动（候选与 bundle 全在 `temp/`，被 gitignore）。待裁收敛成一句话：**L4 取 A（保盘幅聚块）还是 C（缩到 10×10）**；定了即一笔落完「换图 + 全量定价 `--patch` + §5.1/§5.2 回写 + `tuning.ts:716/723` 过期注释」，difficulty 两红随之转绿。
+
+**后记（2026-10-24）**：用户拍 **A** ⇒ 已由 **WXG-T-374** 一笔落完（换图 + 全池重定价 + §5 回写 + `tuning.ts` 注释），`difficulty.test.ts` 11/11 转绿；本行状态随之闭合，详见 `## WXG-T-374`。

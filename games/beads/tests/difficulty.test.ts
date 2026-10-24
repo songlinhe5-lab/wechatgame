@@ -1,7 +1,7 @@
 /**
  * WXG-T-266 EP12-S5 · 难度分 `DI` 单一真源 + 守卫（正本 = level-difficulty.md §3/§5/§7）。
  *
- * 覆盖：验收① §5 **第一章** 9 关逐值复现 + Spearman 0.833；验收② §7 守卫 G1–G10（纯 Node）。
+ * 覆盖：验收① §5 **第一章** 9 关逐值复现 + Spearman 0.867；验收② §7 守卫 G1–G10（纯 Node）。
  * G6 的「可排严格序 + 并列红」判据本体在 `tools/scripts/sync-levels-data.test.mjs`（node --test，
  * 与门禁同侧）；本文件从游戏侧钉住公式真源与其余守卫。
  */
@@ -18,9 +18,10 @@ import { measuredLevelTime } from '../src/game/level-import.js';
 const at = (rel: string) => fileURLToPath(new URL(rel, import.meta.url));
 const SINGLES = at('../design/levels/singles');
 
-/** §5.1 实测表：DI 逐值 + steps（bot 动作数，dev-only 不进产物，故从真源 JSON 读）。 */
+/** §5.1 实测表：DI 逐值 + steps（bot 动作数，dev-only 不进产物，故从真源 JSON 读）。
+ *  2026-10-24 WXG-T-374 全池重测：L3 73.7→42.2（换盘后读数）、L4 66.8→59.5（A 案换图）、L9 289.7→426.7（30×30 重建）。*/
 const EXPECT_DI: Record<number, number> = {
-    1: 31.8, 2: 41.0, 3: 73.7, 4: 66.8, 5: 43.7, 6: 29.9, 7: 76.8, 8: 36.4, 9: 289.7,
+    1: 31.8, 2: 41.0, 3: 42.2, 4: 59.5, 5: 43.7, 6: 29.9, 7: 76.8, 8: 36.4, 9: 426.7,
 };
 interface PoolLevel {
     id: number;
@@ -64,12 +65,12 @@ describe('EP12-S5 · 验收① §5 第一章 9 关逐值复现', () => {
         expect(drift).toEqual([]);
     });
 
-    it('DI 升序陈列序 = §5.2 九关墙序 L6→L1→L8→L2→L5→L4→L3→L7→L9', () => {
+    it('DI 升序陈列序 = §5.2 九关墙序 L6→L1→L8→L2→L3→L5→L4→L7→L9', () => {
         const order = [...pool].sort((a, b) => a.di - b.di || a.id - b.id).map((p) => p.id);
-        expect(order).toEqual([6, 1, 8, 2, 5, 4, 3, 7, 9]);
+        expect(order).toEqual([6, 1, 8, 2, 3, 5, 4, 7, 9]);
     });
 
-    it('Spearman(DI 序, steps 序) = 0.833（doc 平局按关号升序破，与 §5.2 步序列一致）', () => {
+    it('Spearman(DI 序, steps 序) = 0.867（doc 平局按关号升序破，与 §5.2 步序列一致）', () => {
         // steps 秩：升序、平局按关号升序赋不同秩（现池 steps 全互异 ⇒ 平局臂不可达），复刻 §5.2「steps 序」列。
         const bySteps = [...pool].sort((a, b) => a.steps - b.steps || a.id - b.id);
         const stepRank = new Map<number, number>();
@@ -78,7 +79,7 @@ describe('EP12-S5 · 验收① §5 第一章 9 关逐值复现', () => {
         const d2 = byDi.reduce((s, p, i) => s + (i + 1 - stepRank.get(p.id)!) ** 2, 0);
         const n = pool.length;
         const rho = 1 - (6 * d2) / (n * (n * n - 1));
-        expect(Math.round(rho * 1000) / 1000).toBe(0.833);
+        expect(Math.round(rho * 1000) / 1000).toBe(0.867);
     });
 });
 

@@ -3,18 +3,18 @@
   "name": "studio-0-4715",
   "cols": 14,
   "rows": 14,
-  "time": 101,
+  "time": 73,
   "cycleProfile": "short",
   "pricing": {
     "source": "bot",
-    "steps": 60,
-    "stepsLB": 10,
-    "taps": 120,
+    "steps": 43,
+    "stepsLB": 5,
+    "taps": 83,
     "actionsSplit": {
-      "moves": 60,
-      "places": 28,
+      "moves": 43,
+      "places": 22,
       "directFills": 0,
-      "retrieves": 32
+      "retrieves": 21
     },
     "secPerStep": 1.69,
     "clamped": false,

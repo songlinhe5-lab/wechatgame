@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4630,
       "lines": 159,
-      "sha256": "56263cfee082d447dd74694c119208863e05335914408a663540f45f1912d5f6",
+      "sha256": "4b85b66fd4c90c0d13aef5516a8c2bf6637844ac2d91d10ab5565da6118a5256",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 402,
-          "summary": "1 production/TASKS-DETAIL.md 242832 5635 normal",
+          "summary": "1 production/TASKS-DETAIL.md 244744 5685 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -422,7 +422,7 @@
           "startLine": 46,
           "endLine": 134,
           "tokens": 3121,
-          "summary": "production/TASKS-DETAIL.md 242832 见 ctx/budget-exempt.json（无",
+          "summary": "production/TASKS-DETAIL.md 244744 见 ctx/budget-exempt.json（无",
           "keywords": [
             "tokens",
             "production",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5513,
       "lines": 146,
-      "sha256": "0ea3acba632815aa3f4f3822d374adbc1f8ded0eeb04a6e012dff73a19ff31b7",
+      "sha256": "8acb1c688bdf212f8e46ef0b7e7e5a46e91d14f40d7b7fe89cf6293d4ee153e1",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 181 行 / 83700 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 182 行 / 84952 tok / 实测读 4 次",
           "level": 2,
           "startLine": 27,
           "endLine": 30,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+182 · §待排（backlog，无号，立项时领取…=154+29",
+          "summary": "§WXG 任务台账（SSOT）=1+183 · §待排（backlog，无号，立项时领取…=155+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -968,7 +968,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 5635 行 / 242832 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 5685 行 / 244744 tok",
           "level": 2,
           "startLine": 92,
           "endLine": 96,
@@ -24051,17 +24051,17 @@
     },
     {
       "path": "games/beads/design/art/proposals/ui-style-redesign/level-difficulty.md",
-      "tokens": 10775,
-      "lines": 327,
-      "sha256": "57d6b1f33c22b2224d6257c6235fc72b1173687436fabed14d938e849cf1f8f5",
+      "tokens": 12580,
+      "lines": 347,
+      "sha256": "e0f48e6649e96cff8745cbd12800f05649f80ab92c66de9337da5110f2128b81",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§关卡难度公式（DI）与图元线性律 · WXG-T-266",
           "level": 1,
           "startLine": 1,
-          "endLine": 328,
-          "tokens": 10756,
+          "endLine": 348,
+          "tokens": 12561,
           "summary": "角色：文策渊（设计策略）· 接 WXG-T-265；配套 menu-architecture.md（陈列序与类别阈值均消",
           "keywords": [
             "WXG",
@@ -24076,7 +24076,7 @@
           "level": 2,
           "startLine": 11,
           "endLine": 36,
-          "tokens": 769,
+          "tokens": 798,
           "summary": "",
           "keywords": [
             "定位与消歧",
@@ -24104,7 +24104,7 @@
           "level": 3,
           "startLine": 22,
           "endLine": 36,
-          "tokens": 529,
+          "tokens": 557,
           "summary": "DI（难度分） 结构难度分，单位 = 「等效错位珠数」 本文件 §3（先验、零实测、可落码） ① 陈列序 ② 类别分带 ",
           "keywords": [
             "§3",
@@ -24119,7 +24119,7 @@
           "level": 2,
           "startLine": 37,
           "endLine": 52,
-          "tokens": 475,
+          "tokens": 500,
           "summary": "N pattern 中非 . / x 的格数（= 图元） [1, GRID_MAX_COLS × GRID_MAX_RO",
           "keywords": [
             "pattern",
@@ -24135,7 +24135,7 @@
           "level": 2,
           "startLine": 53,
           "endLine": 94,
-          "tokens": 1011,
+          "tokens": 1086,
           "summary": "",
           "keywords": [
             "公式本体",
@@ -24179,7 +24179,7 @@
           "level": 3,
           "startLine": 85,
           "endLine": 94,
-          "tokens": 314,
+          "tokens": 389,
           "summary": "在当时那 9 关上做最小二乘拟合可得 R² ≈ 0.97 的模型，但最优解给出 c_C = −0.065（负数）——即「",
           "keywords": [
             "c_C",
@@ -24195,7 +24195,7 @@
           "level": 2,
           "startLine": 95,
           "endLine": 170,
-          "tokens": 2078,
+          "tokens": 2081,
           "summary": "",
           "keywords": [
             "图元线性律",
@@ -24208,7 +24208,7 @@
           "level": 3,
           "startLine": 97,
           "endLine": 124,
-          "tokens": 857,
+          "tokens": 861,
           "summary": "用户质疑（2026-10-07）：「DI_START / ΔDI 为什么要固定？根据门禁，同类型里保证难度升序即可。」",
           "keywords": [
             "DI_START",
@@ -24251,43 +24251,43 @@
           ]
         },
         {
-          "anchor": "§5 现池 9 关示例数值表（实测 · 2026-10-10 换盘后 bot 重测）",
+          "anchor": "§5 现池 9 关示例数值表（实测 · 2026-10-24 WXG-T-374 全池重测，上一版为 2026-10-10 换盘）",
           "level": 2,
           "startLine": 171,
-          "endLine": 225,
-          "tokens": 1893,
+          "endLine": 227,
+          "tokens": 2287,
           "summary": "",
           "keywords": [
-            "bot",
+            "WXG",
             "现池",
             "关示例数值表",
             "实测",
-            "换盘后",
-            "重测"
+            "全池重测",
+            "上一版为"
           ]
         },
         {
-          "anchor": "§5.1 逐关实测量（源：`games/beads/design/levels/singles/*.json`，contentVersion 31）",
+          "anchor": "§5.1 逐关实测量（源：`games/beads/design/levels/singles/*.json`，**2026-10-24 WXG-T-374 重测**：L00003 取 362 换盘后读数、L00004 换「保盘幅聚块」图、L00009 取 30×30 重建后读数；`steps/time` 全池按 `beads-bot::pricingOf` 真引擎重出）",
           "level": 3,
           "startLine": 173,
-          "endLine": 190,
-          "tokens": 514,
+          "endLine": 191,
+          "tokens": 633,
           "summary": "L00001 13×12 102 3 0.881 0.119 102 1.000 0.800 0.390 31.8 10",
           "keywords": [
+            "steps/time",
+            "beads-bot::pricingOf",
             "games",
             "beads",
             "design",
-            "levels",
-            "singles",
-            "json"
+            "levels"
           ]
         },
         {
           "anchor": "§5.2 按 `DI` 升序与序校验（❌ 本列曾为「建议陈列序」；**2026-10-10 #2 反转后运行时陈列改配置文件恒等序**，本表保留为难度分析参照）",
           "level": 3,
-          "startLine": 191,
-          "endLine": 215,
-          "tokens": 945,
+          "startLine": 192,
+          "endLine": 217,
+          "tokens": 1049,
           "summary": "1 L00006 29.9 — 19 2",
           "keywords": [
             "DI",
@@ -24301,11 +24301,12 @@
         {
           "anchor": "§5.3 诚实登记的三条（不软化）",
           "level": 3,
-          "startLine": 216,
-          "endLine": 225,
-          "tokens": 334,
-          "summary": "H-1 现池 ρ 恒 = 1.000（9/9 全错位，零方差） ρ 对现池零分辨力 ⇒ 它不能作为现池的排序依据；保留为",
+          "startLine": 218,
+          "endLine": 227,
+          "tokens": 451,
+          "summary": "H-1 现池 ρ 近零方差（8/9 关 = 1.000，仅 L00003 = 0.815） 单点非零仍构不成排序依据 ⇒",
           "keywords": [
+            "L00003",
             "诚实登记的三",
             "不软化"
           ]
@@ -24313,9 +24314,9 @@
         {
           "anchor": "§6 与 `systems-index §3` 冻结值的关系",
           "level": 2,
-          "startLine": 226,
-          "endLine": 247,
-          "tokens": 549,
+          "startLine": 228,
+          "endLine": 249,
+          "tokens": 574,
           "summary": "",
           "keywords": [
             "systems-index §3",
@@ -24328,8 +24329,8 @@
         {
           "anchor": "§6.1 零新增、零改动（逐条自证）",
           "level": 3,
-          "startLine": 228,
-          "endLine": 232,
+          "startLine": 230,
+          "endLine": 234,
           "tokens": 144,
           "summary": "⛔ 不新增任何 §3 冻结常量：c_C / c_K / C_REF / K_REF / FK_FLOOR / FC_LO",
           "keywords": [
@@ -24344,8 +24345,8 @@
         {
           "anchor": "§6.2 只引用（不抄写）",
           "level": 3,
-          "startLine": 233,
-          "endLine": 236,
+          "startLine": 235,
+          "endLine": 238,
           "tokens": 74,
           "summary": "§3.2 BEAD_COLOR_MAX（C 上界）· §3.3 GRID_MAX_COLS/ROWS（N 与盘面上界）·",
           "keywords": [
@@ -24360,9 +24361,9 @@
         {
           "anchor": "§6.3 变更申请（**登记，本单不自裁，归主理人串行落笔**）",
           "level": 3,
-          "startLine": 237,
-          "endLine": 247,
-          "tokens": 279,
+          "startLine": 239,
+          "endLine": 249,
+          "tokens": 304,
           "summary": "CH-A §3.13 文字变更（非数值） 规模闸行注里的挂账「难度分 D = 100 × T / LEVEL_TIME_",
           "keywords": [
             "§3.13",
@@ -24376,8 +24377,8 @@
         {
           "anchor": "§7 可测试性说明（守卫该怎么断言）",
           "level": 2,
-          "startLine": 248,
-          "endLine": 267,
+          "startLine": 250,
+          "endLine": 269,
           "tokens": 950,
           "summary": "形态参照 tests/bead-charset.test.ts 的 X1 判例（「不得出现第二份表字面量」扫描）与 sy",
           "keywords": [
@@ -24392,9 +24393,9 @@
         {
           "anchor": "§8 已知风险与 `[待实测]`",
           "level": 2,
-          "startLine": 268,
-          "endLine": 280,
-          "tokens": 646,
+          "startLine": 270,
+          "endLine": 282,
+          "tokens": 745,
           "summary": "B-1 C 的外推区未实测：现池 C ∈ [3, 6]（换盘前旧池 [3, 8]），而 BEAD_COLOR_MAX =",
           "keywords": [
             "[待实测]",
@@ -24406,9 +24407,9 @@
         {
           "anchor": "§9 待拍板（**换盘后剩 1 项：Q9**；Q6 / Q7 / Q8 均已裁）",
           "level": 2,
-          "startLine": 281,
-          "endLine": 291,
-          "tokens": 505,
+          "startLine": 283,
+          "endLine": 293,
+          "tokens": 529,
           "summary": "~~Q6~~ ~~生成期目标参数 DI_START / ΔDI 是否固定~~ — ✅ 已裁 = 双轨 + 可配（§4.0",
           "keywords": [
             "§4.0",
@@ -24421,9 +24422,9 @@
         {
           "anchor": "§10 本轮改动清单（第三轮 · 2026-10-07；**换盘后刷新见 §10.1**）",
           "level": 2,
-          "startLine": 292,
-          "endLine": 328,
-          "tokens": 1419,
+          "startLine": 294,
+          "endLine": 348,
+          "tokens": 2540,
           "summary": "1 §4.0（新增） Q6 双轨裁定：门禁=契约（只锁单调）· 生成器=默认实现（等差，可配可替换）+ 三条理由 A-1",
           "keywords": [
             "§10.1",
@@ -24436,9 +24437,9 @@
         {
           "anchor": "§10.1 追加 · 换盘后刷新（2026-10-10 · WXG-T-266 后续 / EP12-S5 DI 单一真源）",
           "level": 3,
-          "startLine": 307,
-          "endLine": 328,
-          "tokens": 1086,
+          "startLine": 309,
+          "endLine": 330,
+          "tokens": 1122,
           "summary": "背景：拼豆关卡章节资源重建（teaching-set 9 关经 studio 管线 + 真引擎 bot 实测入关，替换旧",
           "keywords": [
             "WXG",
@@ -24447,6 +24448,22 @@
             "set",
             "studio",
             "bot"
+          ]
+        },
+        {
+          "anchor": "§10.2 追加 · 全池重测 + L00004 换图（2026-10-24 · WXG-T-374，取证在 WXG-T-372）",
+          "level": 3,
+          "startLine": 331,
+          "endLine": 348,
+          "tokens": 1056,
+          "summary": "背景：372 审计发现三处陈账 —— L00003 的 steps/time 是换盘前旧读数、L00004 实测 106",
+          "keywords": [
+            "L00004",
+            "WXG",
+            "L00003",
+            "steps",
+            "time",
+            "追加"
           ]
         }
       ]
@@ -84520,9 +84537,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 242832,
-      "lines": 5635,
-      "sha256": "27c78924fca81cd43d412adb40362c9cebc975648446674793ccf1510aa8daf1",
+      "tokens": 244744,
+      "lines": 5685,
+      "sha256": "157b8dc6de1398bb61bcd0167c4fc46fd2e4949da4e9b612aa1befc1add917d6",
       "tier": "normal",
       "sections": [
         {
@@ -87043,8 +87060,8 @@
           "anchor": "§beads·fit 档放开「只缩不放大」钳（小盘放大铺满留边 + 初始视图 = 适配档）",
           "level": 1,
           "startLine": 3026,
-          "endLine": 5636,
-          "tokens": 140448,
+          "endLine": 5686,
+          "tokens": 142360,
           "summary": "2026-10-06，主理人(Qoder)·设计域＋工程域代落盘。用户裁定原话：「适配按钮触发后有问题：",
           "keywords": [
             "beads",
@@ -90759,11 +90776,113 @@
           ]
         },
         {
-          "anchor": "§WXG-T-372",
+          "anchor": "§WXG-T-374",
           "level": 2,
           "startLine": 5547,
-          "endLine": 5636,
-          "tokens": 2878,
+          "endLine": 5594,
+          "tokens": 1839,
+          "summary": "beads·L4 换 A 案图案 + 全池真引擎重定价 + §5 冻结表回写（372 裁定的执行批）",
+          "keywords": [
+            "§5",
+            "WXG",
+            "beads"
+          ]
+        },
+        {
+          "anchor": "§1 领号与来源（⚠ 号改领，K-046 同型再现）",
+          "level": 3,
+          "startLine": 5551,
+          "endLine": 5558,
+          "tokens": 395,
+          "summary": "用户在 372 收尾三选项里选 1（「拍 A，我一笔落完」）⇒ 本批获明确授权改关卡数据与数值真源文档。",
+          "keywords": [
+            "领号与来源",
+            "号改领",
+            "同型再现"
+          ]
+        },
+        {
+          "anchor": "§2 A 案图案的设约束与守恒",
+          "level": 3,
+          "startLine": 5559,
+          "endLine": 5564,
+          "tokens": 225,
+          "summary": "手工重排 12 行（12×12），三条硬约束逐条核：① 各色颗数与原盘逐字相同（2:61 / 3:33 / 1:14 /",
+          "keywords": [
+            "案图案的设约",
+            "束与守恒"
+          ]
+        },
+        {
+          "anchor": "§3 落盘腿（唯一写盘入口）",
+          "level": 3,
+          "startLine": 5565,
+          "endLine": 5573,
+          "tokens": 312,
+          "summary": "temp/wxg373-apply.mjs（60 行，gitignore 内）：先用现成 tools/scripts/l",
+          "keywords": [
+            "temp",
+            "wxg373",
+            "apply",
+            "mjs",
+            "gitignore",
+            "tools"
+          ]
+        },
+        {
+          "anchor": "§4 读数（本批实测）",
+          "level": 3,
+          "startLine": 5574,
+          "endLine": 5584,
+          "tokens": 262,
+          "summary": "L00004 新盘 bot steps 47 / taps 92 / time 79s、cleared = Y、bloc",
+          "keywords": [
+            "L00004",
+            "bot",
+            "steps",
+            "taps",
+            "time",
+            "cleared"
+          ]
+        },
+        {
+          "anchor": "§5 ⚠ 金样本三红：已举证**非本批引入**",
+          "level": 3,
+          "startLine": 5585,
+          "endLine": 5588,
+          "tokens": 182,
+          "summary": "3 条红 = ui-golden.test.ts › LevelSelectPage 三态，[total] expect",
+          "keywords": [
+            "golden",
+            "test",
+            "LevelSelectPage",
+            "total",
+            "expect",
+            "金样本三红"
+          ]
+        },
+        {
+          "anchor": "§6 改动面",
+          "level": 3,
+          "startLine": 5589,
+          "endLine": 5594,
+          "tokens": 353,
+          "summary": "10 件：关卡数据 4（singles/L00003.json、singles/L00004.json、src/conf",
+          "keywords": [
+            "singles",
+            "L00003",
+            "json",
+            "L00004",
+            "src",
+            "conf"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-372",
+          "level": 2,
+          "startLine": 5595,
+          "endLine": 5686,
+          "tokens": 2948,
           "summary": "beads·九关定价实测——L3/L4 的 steps/taps/time 仍是 362 换盘前的旧盘读数（只报不裁）",
           "keywords": [
             "WXG",
@@ -90776,8 +90895,8 @@
         {
           "anchor": "§1 领号与来源",
           "level": 3,
-          "startLine": 5551,
-          "endLine": 5556,
+          "startLine": 5599,
+          "endLine": 5604,
           "tokens": 264,
           "summary": "用户在 WXG-T-369 收尾三选项里选 1（「裁定 L3 的难度冲突：先用现成工具把新旧图案的 DI 分量拆开，再给",
           "keywords": [
@@ -90788,8 +90907,8 @@
         {
           "anchor": "§2 取证（现成工具实跑，零新脚本）",
           "level": 3,
-          "startLine": 5557,
-          "endLine": 5584,
+          "startLine": 5605,
+          "endLine": 5632,
           "tokens": 587,
           "summary": "跑法 = tools/scripts/beads-bot.ts（真引擎装盘，单盘 0.1–0.4s；--patch 一律",
           "keywords": [
@@ -90804,8 +90923,8 @@
         {
           "anchor": "§3 改动（本批仅 1 件源码，零数据、零夹具）",
           "level": 3,
-          "startLine": 5585,
-          "endLine": 5589,
+          "startLine": 5633,
+          "endLine": 5637,
           "tokens": 121,
           "summary": "games/beads/tests/difficulty.test.ts +5 −1：逐值比对由 expect(p.di",
           "keywords": [
@@ -90820,8 +90939,8 @@
         {
           "anchor": "§4 读数 (2)",
           "level": 3,
-          "startLine": 5590,
-          "endLine": 5595,
+          "startLine": 5638,
+          "endLine": 5643,
           "tokens": 259,
           "summary": "npx vitest run tests/difficulty.test.ts = 2 failed / 9 passe",
           "keywords": [
@@ -90836,8 +90955,8 @@
         {
           "anchor": "§5 待裁（四案，均已核代价）",
           "level": 3,
-          "startLine": 5596,
-          "endLine": 5606,
+          "startLine": 5644,
+          "endLine": 5654,
           "tokens": 315,
           "summary": "甲 全量 beads-bot --patch 重测 + sync-levels-data + §5.1/§5.2 回写 ",
           "keywords": [
@@ -90852,8 +90971,8 @@
         {
           "anchor": "§6 连带遗留",
           "level": 3,
-          "startLine": 5607,
-          "endLine": 5611,
+          "startLine": 5655,
+          "endLine": 5659,
           "tokens": 148,
           "summary": "复取金样本的真前置由 367/368 记的「形状入库」推进为两条：difficulty 两红随本批裁定落档而绿 + §1",
           "keywords": [
@@ -90865,9 +90984,9 @@
         {
           "anchor": "§7 补测（2026-10-24，用户选 372 收尾选项 1「甲+丙一起做」⇒ 先把丙的实测数字做出来）",
           "level": 3,
-          "startLine": 5612,
-          "endLine": 5636,
-          "tokens": 1043,
+          "startLine": 5660,
+          "endLine": 5686,
+          "tokens": 1113,
           "summary": "探针 = temp/wxg373-cand.mjs（23 行，只读）：候选图案由现盘机械变换产生，misplaced 一",
           "keywords": [
             "temp",
@@ -90882,17 +91001,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 83700,
-      "lines": 181,
-      "sha256": "68d26a56f9301cd4bdc0f23dde2629b77f269224bf9de928e1a2a075a6b0d20c",
+      "tokens": 84952,
+      "lines": 182,
+      "sha256": "a0ded8895aac7c42a7738343fa5a0b489cc483d1a1597ae6ecb97772ebd0a1af",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 182,
-          "tokens": 83691,
+          "endLine": 183,
+          "tokens": 84943,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -90905,8 +91024,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 154,
-          "endLine": 182,
+          "startLine": 155,
+          "endLine": 183,
           "tokens": 1390,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
