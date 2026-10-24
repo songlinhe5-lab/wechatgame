@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>beads-studio · 豆面 tint 编辑器</title>
+    <!--
+      独立 tint 编辑器（2026-10-24 用户要求）：只做三件事 —— 出 mask、看 mask、看叠加效果。
+      **零新逻辑**：mask 烘焙/合成/下载全走既有 `tint-export.js`（服务端跑定稿 python 脚本）；
+      叠加预览直接复用 `board-render.js` 的 drawBoard + `window.TintBoard`（= 游戏内同一套渲染路径），
+      所以这里看到的叠加效果与生成页/游戏一致，不是另画一套近似图。
+      DOM 契约（tint-export.js 按 id 取）：#tint-mode / #tint-color / #tint-status / #tint-cv-bead /
+      #tint-cv-grid / #tint-export —— 改 id 会让模块静默失效。
+    -->
+    <style>
+        :root {
+            --bd: #d8d2c4;
+            --bg: #faf7f0;
+            --ac: #3d7bf5;
+            --tx: #33333d;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font: 14px/1.5 system-ui, -apple-system, "PingFang SC", sans-serif;
+            background: var(--bg);
+            color: var(--tx);
+        }
+
+        header {
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--bd);
+            display: flex;
+            gap: 14px;
+            align-items: baseline;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: var(--bg);
+        }
+
+        header h1 { font-size: 16px; margin: 0; }
+        header a { font-size: 12px; color: var(--ac); text-decoration: none; }
+        header .sp { margin-left: auto; }
+
+        main {
+            padding: 16px 20px 40px;
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            border: 1px solid var(--bd);
+            border-radius: 8px;
+            padding: 12px 14px;
+            background: #fff;
+        }
+
+        .card b { display: block; margin-bottom: 8px; }
+
+        label { display: block; font-size: 12px; color: #666; margin: 8px 0 2px; }
+
+        select,
+        input[type="color"] { width: 100%; padding: 6px 8px; border: 1px solid var(--bd); border-radius: 6px; background: #fff; }
+
+        input[type="color"] { height: 34px; padding: 2px; }
+
+        button { padding: 8px 12px; border: 1px solid var(--bd); border-radius: 6px; background: #fff; cursor: pointer; }
+        button:hover { border-color: var(--ac); }
+        button:disabled { opacity: .55; cursor: default; }
+
+        small { color: #888; font-size: 12px; }
+
+        .masks { display: flex; gap: 14px; }
+        .masks canvas,
+        #overlay { border: 1px solid var(--bd); border-radius: 6px; background: #fff; }
+        .masks canvas { width: 256px; height: 256px; image-rendering: pixelated; }
+        #tint-status { min-height: 18px; font-size: 12px; margin-top: 8px; color: #666; }
+        #tint-status.err { color: #c0392b; }
+        #tint-status.ok { color: #2e7d32; }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>豆面 tint 编辑器</h1>
+        <a href="/">← 生成页</a>
+        <a class="sp" href="/manage.html">大关 / 小关管理 →</a>
+    </header>
+
+    <main>
+        <section class="card" style="width:280px">
+            <b>档位与颜色</b>
+            <label>tint 档位（决定 mask 形状）</label>
+            <select id="tint-mode">
+                <option value="holed" selected>有孔（四向刻面 · 珠面 26/30dp）</option>
+                <option value="holeless">无孔（四向刻面 · 珠面 24/30dp）</option>
+            </select>
+            <label>珠色（运行时 tint 色，只影响预览不改 mask）</label>
+            <input type="color" id="tint-color" value="#d9534f">
+            <div id="tint-status">准备中…</div>
+            <button id="tint-export" style="width:100%;margin-top:8px">下载本档 mask（bead + grid）</button>
+            <small style="display:block;margin-top:8px;line-height:1.5">
+                mask 色无关（同一张 × 任意珠色 = 任意豆），通道 = R 漫反射 / G 高光 / B 形状；
+                烘焙真源是服务端定稿脚本，本页只取结果，不移植算法。
+            </small>
+        </section>
+
+        <section class="card">
+            <b>mask（128×128，2× 放大显示）</b>
+            <div class="masks">
+                <div>
+                    <canvas id="tint-cv-bead" width="256" height="256"></canvas>
+                    <small>bead（珠子本体）</small>
+                </div>
+                <div>
+                    <canvas id="tint-cv-grid" width="256" height="256"></canvas>
+                    <small>grid（空格坑底）</small>
+                </div>
+            </div>
+        </section>
+
+        <section class="card">
+            <b>叠加预览（mask × 珠色，走游戏同一套 drawBoard）</b>
+            <canvas id="overlay" width="640" height="480"></canvas>
+            <small style="display:block;margin-top:6px">
+                有珠格 = 垫色格底（目标色 ×0.70）+ 珠面 sprite × 上方所选珠色；空洞格 = grid sprite × 槽色。
+                改档位/改色即时重绘。
+            </small>
+        </section>
+    </main>
+
+    <script src="/board-render.js"></script>
+    <script type="module" src="/tint-export.js"></script>
+    <script>
+        // 演示盘：有珠 = '1'（画成所选珠色）；所有格子给一个"目标色"（'2' = 槽色）⇒ 空格也走 grid mask，
+        // 这样一颗 mask 的两个产物（bead / grid）在同一张图上都能看到。
+        const DEMO = [
+            '..1111..',
+            '.111111.',
+            '11111111',
+            '11111111',
+            '.111111.',
+            '..1111..',
+        ];
+        const SLOT_HEX = '#8a93a6';
+
+        function drawOverlay() {
+            const cv = document.getElementById('overlay');
+            const hex = document.getElementById('tint-color').value;
+            const rows = DEMO.length, cols = DEMO[0].length;
+            const target = DEMO.map((r) => r.replace(/./g, '2')); // 每格都有目标色 ⇒ 空格出坑底
+            BeadsBoardRender.drawBoard(cv.getContext('2d'), cv.width, cv.height, DEMO, {
+                cols, rows, pattern: target,
+                hexes: [null, hex, SLOT_HEX],   // 索引 = 字符 index（1-based），与关卡 hexes 同形
+                tint: window.TintBoard ? window.TintBoard.current() : null,
+            });
+        }
+
+        // mask 就绪/换档 ⇒ 模块派发 tint-change；改色 ⇒ 自己听 input（模块那侧只管 mask 预览）
+        document.addEventListener('tint-change', drawOverlay);
+        document.getElementById('tint-color').addEventListener('input', drawOverlay);
+        drawOverlay();   // 先按旧画法兜底画一版，mask 到位后由 tint-change 覆盖
+    </script>
+</body>
+
+</html>
