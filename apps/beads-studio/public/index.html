@@ -282,8 +282,8 @@
             </select>
             <label>单珠尺寸倍率 1x/2x/3x/4x（2x ⇒ 行列÷2、珠数≈÷4；选后即时重推）</label>
             <select id="density">
-                <option value="1" selected>1x（按品牌标准）</option>
-                <option value="2">2x</option>
+                <option value="1">1x（按品牌标准）</option>
+                <option value="2" selected>2x</option>
                 <option value="3">3x</option>
                 <option value="4">4x</option>
             </select>
@@ -300,8 +300,8 @@
             </div>
             <div class="row2">
                 <div><label>错位密度</label><select id="misKind">
-                        <option value="none" selected>不错位（实物图纸 · 最像原图）</option>
-                        <option value="full">全错位（每颗可填珠都不就位）</option>
+                        <option value="none">不错位（实物图纸 · 最像原图）</option>
+                        <option value="full" selected>全错位（每颗可填珠都不就位）</option>
                         <option value="max">最大化错位（色少也能尽量错开）</option>
                         <option value="swaps">少量交换（k 对 ⇒ 仅 2k 颗错位）</option>
                     </select></div>
@@ -347,7 +347,7 @@
             <!-- [?level=<uid>] 关卡模式专属：勾上 = 尺寸/盘位档强制对齐该关 + 关 beads-gen 的包围盒裁剪，
                  空边保留为 void ⇒ 生成结果实际盘面 = 该关盘面，替换回该关不改尺寸。
                  ⚠ 隐藏靠 style.display（本页 label{display:block} 会压过 [hidden] 的 UA 样式）。 -->
-            <label id="exactWrap" style="margin-top:10px;display:none"><input type="checkbox" id="exactSize" style="width:auto" checked>
+            <label id="exactWrap" style="margin-top:10px;display:none"><input type="checkbox" id="exactSize" style="width:auto">
                 按该关尺寸生成（自动关 trim：空边保留为空洞，盘面尺寸不变）</label>
             <button id="gen">生成预览（不入历史）</button>
             <!-- 生成只刷效果（写单一草稿位），此按钮才把这条预览转正进「已存结果」 -->
@@ -1016,8 +1016,8 @@
             };
             $('cols').value = c.cols;   // 预填同规格，便于按原尺寸重制
             $('rows').value = c.rows;
-            // 「按该关尺寸生成」开关只在关卡模式出现（默认勾上）：同尺寸重制是本页主用例，
-            // 不勾的话 trim 会把空边裁掉、替换回该关即改盘面尺寸。
+            // 「按该关尺寸生成」开关只在关卡模式出现；**默认不勾**（2026-10-24 用户拍板）——
+            // 勾上才会强制尺寸/盘位档对齐该关并关掉 trim；不勾就按照片推断尺寸走常规生成。
             $('exactWrap').style.display = '';
             renderLevelBar(null);
             show(current);
