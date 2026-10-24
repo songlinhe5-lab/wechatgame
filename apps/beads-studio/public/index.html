@@ -233,6 +233,8 @@
         <a href="/manage.html" style="margin-left:auto;font-size:12px;color:var(--ac);text-decoration:none">大关/小关管理 →</a>
     </header>
     <main>
+        <!-- [?level=<uid>] 从大关管理页带关进来时的关卡条（载入该关图案 / 生成后一键替换回该关） -->
+        <div class="card" id="lvbar" hidden></div>
         <section class="card">
             <label>源图（本地解像，不上传原图）</label>
             <input type="file" id="file" accept="image/*">
@@ -611,6 +613,7 @@
                 const j = await r.json();
                 if (!r.ok) throw new Error(j.error || r.status);
                 current = j; show(j); msg(`已生成并存储：${j.id}`, 'ok'); loadResults();
+                if (levelInfo) renderLevelBar(j.id);   // 关卡模式：给出「替换回该关」入口
             } catch (e) { msg('生成失败：' + e.message, 'err'); }
             $('gen').disabled = false;
         };
@@ -674,8 +677,10 @@
             else drawBoard(r.misplaced?.length ? r.misplaced : r.pattern);
             const rp = r.report || {};
             const df = rp.difficulty;
-            $('stats').textContent =
-                `${r.cols}×${r.rows}｜可填 ${rp.fillable ?? '?'}｜用色 ${r.colors}｜错位 ${r.misMode === 'full' ? '全错位（每颗可填珠都不就位）' : r.misMode === 'max' ? `最大化错位（错开 ${rp.mis?.M ?? '?'} 颗、强制就位 ${rp.mis?.F ?? '?'} 颗；N=${rp.mis?.N ?? '?'}/m=${rp.mis?.m ?? '?'}）` : r.misMode === 'none' ? '不错位（实物图纸模式）' : `${r.swaps * 2} 颗（${r.swaps} 对交换）`}\n` +
+            $('stats').textContent = r.fromLevel
+                // 载入的关卡没有生成报告：只报真源里有的字段，别拿 '?' 冒充统计
+                ? `${r.cols}×${r.rows}｜可填 ${rp.fillable ?? '—'}｜用色 ${r.colors}｜错位 ${Array.isArray(r.misplaced) && r.misplaced.length ? '真源已存（切「错位图」看）' : '无'}`
+                : `${r.cols}×${r.rows}｜可填 ${rp.fillable ?? '?'}｜用色 ${r.colors}｜错位 ${r.misMode === 'full' ? '全错位（每颗可填珠都不就位）' : r.misMode === 'max' ? `最大化错位（错开 ${rp.mis?.M ?? '?'} 颗、强制就位 ${rp.mis?.F ?? '?'} 颗；N=${rp.mis?.N ?? '?'}/m=${rp.mis?.m ?? '?'}）` : r.misMode === 'none' ? '不错位（实物图纸模式）' : `${r.swaps * 2} 颗（${r.swaps} 对交换）`}\n` +
                 `色差 ${rp.colorError?.final ?? '?'}｜同色相邻率 ${rp.clusteringMisplaced?.adjRate ?? (df ? df.adjRate : '?')}` +
                 (df ? (df.error
                     ? `\n难度 ——（${df.error}）`
@@ -689,9 +694,13 @@
             // 实物图纸模式（mis=none）下这些全是游戏导入门槛，对图纸用途一条都不适用
             // （色板 artkal-s 对图纸反而正解）⇒ 降为 ℹ 提示，不吓人（2026-09-21 用户拍板）。
             const isPaper = r.misMode === 'none';
-            $('badge').textContent = r.importable === false
-                ? (isPaper ? 'ℹ 游戏入关限制（实物图纸不受影响）：' : '⚠ 不可入关：') + (r.blockers || []).join('；')
-                : '';
+            // 载入的关卡不是"待入关结果"，标「不可入关」会误导（用户会以为这关坏了）
+            $('badge').textContent = r.fromLevel
+                ? 'ℹ 关卡真源当前图案（只读载入）：换源图或调参数 → 生成，再「替换回该关」'
+                : r.importable === false
+                    ? (isPaper ? 'ℹ 游戏入关限制（实物图纸不受影响）：' : '⚠ 不可入关：') + (r.blockers || []).join('；')
+                    : '';
+            $('badge').className = r.fromLevel ? '' : 'bad';
             // [WXG-T-221] 把当前结果交给预烘模块（启用/置灰按 demo 盘判定）。
             if (window.updateBakeButton) window.updateBakeButton(r);
         }
@@ -783,6 +792,126 @@
                 }
             } catch { /* 列表失败不阻塞主流程 */ }
         }
+        // ── [?level=<uid>] 大关管理页 → 生成页（WXG-T-373）：载入该关图案，编辑完一键替换回该关 ──
+        //    关卡真源只读（GET /api/levels/:uid）；写回仍走既有 /api/manage/level/:uid/replace
+        //    （门禁⑦/⑧ + bot 实测 + 快照回滚都在里面，本页不碰写盘协议）。
+        const levelUid = new URLSearchParams(location.search).get('level') || '';
+        let levelInfo = null;    // { uid, kind, chapter, cells[] }
+        let levelCell = 0;       // plate 多格时的当前格
+
+        function mkEl(tag, txt, css) {
+            const d = document.createElement(tag);
+            if (txt !== undefined) d.textContent = txt;
+            if (css) d.style.cssText = css;
+            return d;
+        }
+
+        /** 关卡条：关号/名称/尺寸/实测 + 回列表 + 逐格切换 + （生成后）替换回该关。 */
+        function renderLevelBar(generatedId) {
+            const bar = $('lvbar');
+            if (!levelInfo) { bar.hidden = true; return; }
+            const c = levelInfo.cells[levelCell];
+            const idTxt = `#${c.id}${c.idEnd !== undefined && c.idEnd !== c.id ? '–' + c.idEnd : ''}`;
+            bar.hidden = false;
+            bar.innerHTML = '';
+            const head = mkEl('div');
+            head.appendChild(mkEl('b', `正在编辑 ${levelInfo.uid}`));
+            head.appendChild(document.createTextNode(
+                ` ${idTxt}${c.name ? ' · ' + c.name : ''} · ${c.cols}×${c.rows}` +
+                (c.time != null ? ` · 实测 ${c.time}s` : '') + (c.steps != null ? ` / ${c.steps} 步` : '') +
+                (levelInfo.chapter ? ` · 章「${levelInfo.chapter.title}」` : '') +
+                (levelInfo.cells.length > 1 ? ` · 组合图第 ${levelCell + 1}/${levelInfo.cells.length} 格` : ''),
+            ));
+            bar.appendChild(head);
+            bar.appendChild(mkEl('div',
+                '上图 = 该关当前图案（可切「正解图 / 错位图」对照）。换源图或调参数后点「生成」= 存一条新结果；' +
+                '生成完在这里一键替换回本关（走门禁⑦/⑧ + 真引擎实测，不过整笔回滚）。',
+                'font-size:12px;color:#666;margin-top:4px'));
+            const row = mkEl('div', undefined, 'display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px');
+            const back = mkEl('a', '← 回关卡列表', 'font-size:12px');
+            back.href = '/manage.html';
+            row.appendChild(back);
+            if (levelInfo.cells.length > 1) {
+                levelInfo.cells.forEach((_, i) => {
+                    const b = mkEl('button', `第 ${i + 1} 格`);
+                    b.className = 'ghost';
+                    if (i === levelCell) b.style.fontWeight = '700';
+                    b.onclick = () => { levelCell = i; applyLevelCell(); };
+                    row.appendChild(b);
+                });
+            }
+            if (generatedId) {
+                if (levelInfo.kind === 'plate') {
+                    row.appendChild(mkEl('span', 'plate（多格组合图）不支持原位替换：改动请走「导入大关」重建',
+                        'font-size:12px;color:#c0392b'));
+                } else {
+                    const rep = mkEl('button', `用 ${generatedId} 替换 ${levelInfo.uid} 的图案`);
+                    rep.onclick = () => replaceIntoLevel(generatedId);
+                    row.appendChild(rep);
+                }
+            }
+            bar.appendChild(row);
+        }
+
+        /** 载入的关卡盘 → `current`（与 result 同形，复用 show()/画布/缩放，不另造渲染路径）。 */
+        function applyLevelCell() {
+            const c = levelInfo.cells[levelCell];
+            const pattern = c.paint?.pattern ?? null;
+            // 可填珠数 = 非 '.' 格数（载入态没有生成报告，这个数我们自己数得出来）
+            const fillable = (pattern || []).reduce((n, row) => n + [...String(row)].filter((ch) => ch !== '.').length, 0);
+            current = {
+                id: `level-${levelInfo.uid}`, board: `${c.cols}x${c.rows}`,
+                cols: c.cols, rows: c.rows,
+                palette: '', colors: c.paint?.colors?.length ?? 0,
+                misMode: 'full', importable: false,
+                pattern, misplaced: c.misplaced,
+                paletteHex: c.paint?.colors ?? null,
+                levelDraft: { cols: c.cols, rows: c.rows, pattern, ...(c.misplaced ? { misplaced: c.misplaced } : {}) },
+                report: { fillable }, fromLevel: levelInfo.uid,
+            };
+            $('cols').value = c.cols;   // 预填同规格，便于按原尺寸重制
+            $('rows').value = c.rows;
+            renderLevelBar(null);
+            show(current);
+        }
+
+        async function loadLevel(uid) {
+            const r = await fetch('/api/levels/' + encodeURIComponent(uid));
+            const j = await r.json().catch(() => ({}));
+            if (!r.ok) throw new Error(j.error || ('HTTP ' + r.status));
+            levelInfo = j;
+            levelCell = 0;
+            applyLevelCell();
+        }
+
+        /** 把当前生成结果替换回该关（复用管理页同一条写盘路径，不新增协议）。 */
+        async function replaceIntoLevel(resultId) {
+            if (!confirm(`用 ${resultId} 替换 ${levelInfo.uid} 的图案？\n关名/关号/章位不变，时长按真引擎实测重算；门禁不过整笔回滚。`)) return;
+            try {
+                const r = await fetch(`/api/manage/level/${levelInfo.uid}/replace`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ resultId }),
+                });
+                const j = await r.json().catch(() => ({}));
+                if (!r.ok) throw new Error((j.error || ('HTTP ' + r.status)) + (j.detail ? '\n—— 门禁原文 ——\n' + j.detail : ''));
+                msg(`已替换 ${levelInfo.uid}：` + (j.log || []).join('；'), 'ok');
+                await loadLevel(levelInfo.uid);      // 重读真源，看到替换后的图案与实测
+            } catch (e) { msg('替换失败：' + e.message, 'err'); }
+        }
+
+        (async () => {
+            if (!levelUid) return;
+            try {
+                await loadLevel(levelUid);
+                msg(`已载入关卡 ${levelUid}：改完生成，再一键替换回该关`, 'ok');
+            } catch (e) {
+                const bar = $('lvbar');
+                bar.hidden = false;
+                bar.style.borderColor = '#f5c6c0';
+                bar.textContent = `载入关卡 ${levelUid} 失败：${e.message}`;
+            }
+        })();
+
         loadResults();
     </script>
 </body>

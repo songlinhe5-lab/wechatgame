@@ -1268,6 +1268,34 @@ async function handleChapterOp(req, res, id, op) {
     });
 }
 
+/**
+ * GET /api/levels/:uid —— 只读：把一关读成**生成页可载入**的形状（生成页 `?level=<uid>` 用）。
+ * 与其它关卡端点同口径：容器/VPS 无 games/ 真源 ⇒ 501。plate 逐格展开（前端默认看第 1 格）。
+ * `paint` 复用 `paintOf`（paletteCodes → hex），前端不需要第二套色板映射。
+ */
+async function handleLevelGet(res, uid) {
+    if (!existsSync(LEVELS_DIR))
+        return sendJson(res, 501, { error: '载入关卡仅在本地仓运行 beads-studio 时可用（容器/VPS 无 games/ 真源）' });
+    const ls = await import('../../tools/scripts/level-store.mjs');
+    const store = await import('../../tools/scripts/chapter-store.mjs');
+    const manifest = ls.readManifest(LEVELS_DIR);
+    const e = manifest.entries.find((x) => x.uid === uid);
+    if (!e) return sendJson(res, 404, { error: `关卡 ${uid} 不在 manifest` });
+    const obj = JSON.parse(readFileSync(join(LEVELS_DIR, e.file), 'utf8'));
+    const cells = e.kind === 'plate' ? (obj.cells ?? []) : [obj];
+    if (!cells.length) return sendJson(res, 422, { error: `${uid} 无图案数据（真源已坏，先跑校验）` });
+    const hit = findChapterOf(store, LEVELS_DIR, manifest, uid);
+    return sendJson(res, 200, {
+        uid, kind: e.kind, file: e.file,
+        chapter: hit ? { id: hit.c.id, order: hit.c.order, title: hit.doc.title } : null,
+        cells: cells.map((c) => ({
+            id: c.id, idEnd: c.idEnd ?? c.id, name: c.name ?? '', cols: c.cols, rows: c.rows,
+            time: c.time ?? null, steps: c.pricing?.steps ?? null,
+            paint: paintOf(c), misplaced: Array.isArray(c.misplaced) ? c.misplaced : null,
+        })),
+    });
+}
+
 /** POST /api/manage/level/:uid/(remove|move|rename|boss|replace)。 */
 async function handleLevelOp(req, res, uid, op) {
     if (op === 'replace') return handleLevelReplace(req, res, uid);
@@ -1655,6 +1683,9 @@ async function handle(req, res) {
             }
             return sendJson(res, 404, { error: 'not found' });
         }
+        // 只读：生成页 `?level=<uid>` 载入该关图案（管理页点小关 → 跳生成页编辑）
+        const ml = path.match(/^\/api\/levels\/([LP]\d{1,9})$/);
+        if (req.method === 'GET' && ml) return await handleLevelGet(res, ml[1]);
         if (req.method === 'GET' && path === '/api/results') return sendJson(res, 200, { results: listResults() });
         // 原图缩略图二进制（管理页选图器逐个懒加载；dataURL 解码后直接回图片，省前端一次 base64 转换）
         const mt = path.match(/^\/api\/results\/([a-z0-9][a-z0-9-]{0,63})\/thumb$/);
