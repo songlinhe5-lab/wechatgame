@@ -5277,3 +5277,64 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 
 - 提交范围 = 4 件源码/镜像 + 2 份台账（`TASKS-DETAIL.md` 走 HEAD 铺底 + 只插我方节的原子法，⛔ 不带对方对调 hunk）；pre-commit ② 自动重暂存 `ctx/{index.json,BUDGET.md,hot-files.md}` + `memory/INDEX.md`。
 - 推送取证按 K-142：`git ls-remote origin refs/heads/develop` + `git reflog show origin/develop --date=iso`。
+
+## WXG-T-367
+
+**beads·金样本复取前置侦查与 §12 归因订正（复取阻塞于 BOOT 锁）（用户令「金样本三态复取」⇒ 侦查后选甲案 = 本批不复取）**
+
+### 1. 领号与来源（K-046）
+
+- 三路核验：头注「下一真可用号 **WXG-T-367**」且该串在 `TASKS.md` 仅 1 处自指；主表无 `^| WXG-T-367` 行；无 `## WXG-T-367` 节；`git log --all --grep=WXG-T-367` 零命中 ⇒ 领号合规。
+- 来源 = WXG-T-366 收尾三选项之 **1**「金样本三态复取」，用户 2026-10-24 令。
+
+### 2. 侦查手段：怎么在共享脏工作树里量到「HEAD 自身」
+
+- `git worktree add --detach temp/wxg367-anchor HEAD`（`temp/` 属 gitignore，不进版本库）+ 手搭 `games/beads/node_modules/@wxgame/framework` 的**相对**软链（原仓库该链接本就是相对路径 ⇒ 在检出内解析到检出自己的 `packages/framework`）；复取器只靠裸 node + `--experimental-transform-types` + `tools/scripts/lib/ts-js-resolve.mjs`，零第三方依赖 ⇒ 不必 `pnpm install` 即可跑。
+- 要 vitest 读数时把根 `node_modules` 软链进检出，`npx vitest run --root <检出>/games/beads` ⇒ 拿到 HEAD 的权威全量读数。
+- ⛔ 不 `git add` 对方在制品、⛔ 不 `stash` 共享工作树（会打断对方会话）；侦查期间曾在主树跑过一次复取，随后 `git checkout --` 还原夹具。
+
+### 3. 四条实测
+
+1. **拐点 = 单点 `aa5c85e`（WXG-T-362，已入库）**：逐 rev 复取 —— `dc60d54`/`3611904`/`09adcc7` 均 `main-menu` 3662 · `level-select` 1423 · phase `playing`；`aa5c85e` 起 5636 · 1409 · phase `boot`（`level-select-mid` 随 menu 腿 +1960）；其后的 `ff8efe4`（363）/`a1ef23f`（365）/`0733976`（366）零影响。
+2. **视觉腿与关卡数据无关**：干净 HEAD、HEAD+对方三件、主树+WIP 三次复取 ⇒ 十一态 **sha 逐字全等**（新 `settings` sha `d8b5c527…` 恰与 §12 里 339 批登记的定稿值一致，反向印证复取器可信）。
+3. **但 `proof.phase` 是数据相关的**：`beads-game.ts::_boot()` 对**每一关**跑 `validateBeadsLevel`，`_bootErrors` 非空即 `console.warn('[beads] level validation failed — refusing PLAYING')` 并 return（注释自陈 "Invalid level data keeps the game in BOOT forever"；`config/levels.ts:63` 另有 "rejected all 8 levels and BOOT never finished" 的同形状先例注）。HEAD 上 `L3` 14 行 / `L4` 12 行 misplaced 非字符串 ⇒ 启动永久停在 BOOT。
+4. **HEAD 权威读数 = beads 22 failed / 1239 passed / 3 skipped（1264）**：`pause-settings` 10（失败信息清一色 `expected 'boot' to be 'playing'` = 纯连锁）+ `ui-golden` **5** + `misplaced-assembler` 2 + `difficulty` 2 + `levels` 1 + `board-camera` 1 + `beads-shell` 1；主树（含对方未入库三件）= 6 failed / 1255 ⇒ **差 16 条全由那件数据修复所掩盖**。
+
+**订正记（不静默删原文，K-053）**：
+
+- ux §12 的 WXG-T-365 条目原写「既存三笔红 ⇒ 归并发会话在制品」**错**，本批就地改写并留痕（K-096 同型：把当日快照的推测当永久事实）。
+- 365 / 366 两节所记「金样本三例」「6 failed」均为**主树脏工作树口径**，在该口径下成立、不改写；新增的是 **HEAD 口径**：ui-golden 实为 5 例红（`settings`/`signin` 只差相位）、beads 全量实为 22 例红。两者不矛盾，引用时须注明口径。
+
+### 4. 交付清单（3 件文档，⛔ 不动夹具、不动数据）
+
+| 件 | 改动 |
+|---|---|
+| `docs/architecture/ui-architecture-beads.md` §12 | 订正 WXG-T-365 条的归因半句 + 新增「金样本复取前置登记（WXG-T-367）」 |
+| `production/TASKS.md` | 367 主表行 + 头注推进为「已分配至 367 / 下一真可用号 368」 |
+| `production/TASKS-DETAIL.md` | 本节（原子暂存：HEAD 铺底 + 只插我方节） |
+| `games/beads/tests/__fixtures__/wxg-t-298-ui-golden.json` | **零改动**（侦查产物已还原为 HEAD 版） |
+
+### 5. 三条关键判断（全部实测后写）
+
+1. 「能不能复取」的判据不是登记齐不齐，而是**取到的相位是不是设计意图态**：金样本把 `proof = {screen, overlay, phase}` 一并纳入等值判据 ⇒ 任何让游戏进不了 `PLAYING` 的数据缺陷都会伪装成"视觉变更"。分离办法 = sha/total/kinds 与 proof 两轴分别比（本轮即由此拆出②③两条结论）。
+2. 并发共享工作树下，**"当前读数" ≠ "HEAD 读数"**；不做独立检出就得不出可归因的数（365 批的错归因正是缺这一步）。
+3. ⛔ 用「先复取一次、回头再复一次」替代「等前置」：两次基线漂移即毁掉金标准的意义，且第一次会把卡死态写成正确答案。
+
+### 6. 读数
+
+| 项 | 读数 |
+|---|---|
+| 复取器确定性自证 | 每次跑两遍逐态记录全等 = PASS（含 sha 与 proof） |
+| HEAD 干净检出 beads 全量 | 22 failed / 1239 passed / 3 skipped（1264） |
+| 主树（含对方 WIP）beads 全量 | 6 failed / 1255 passed / 3 skipped（1264） |
+| 十一态 sha 三跑比对 | 逐字全等（视觉腿就绪） |
+| `pnpm run levels:check` @ HEAD | OK —— 即该门不查 misplaced 行形状（缺口已记 §12） |
+| 夹具与工作树 | `wxg-t-298-ui-golden.json` 与 HEAD 逐字一致；对方四件脏文件全程未入暂存 |
+
+### 7. 遗留与后续批
+
+1. **P0（不属本批，归并发会话的关卡数据轨）**：develop HEAD 启动即卡 BOOT（L3/L4 misplaced 形状非法）。我方不代改数据以免撞车；若该件长期不入库，需另立项处置。
+2. **复取五态**（解除条件 = 上一条入库）：`main-menu`/`level-select`/`level-select-mid` 视觉+相位、`settings`/`signin` 仅相位，⛔ 分批、⛔ 手改（K-051 / K-053）。
+3. 顶栏装扮馆真图标 `[待 UI 设计]`（承 365，与复取同批最省一次抓取）。
+4. `check:tasks` I 项：`WXG-T-362` 署号未在册（K-137 ⇒ 只披露不代填）。
+5. `[待裁定]` 是否给 `levels:check` 补一条 misplaced 行形状判据（本批未扩门禁）。
