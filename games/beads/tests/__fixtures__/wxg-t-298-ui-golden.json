@@ -4,7 +4,7 @@
   "unit": "UI-02",
   "spec": "docs/architecture/ui-architecture-beads.md §5 / §9.4 / §12",
   "codeBaseline": "bd964a0",
-  "capturedFrom": "cc8b52f · detached worktree 干净检出复取（WXG-T-375 金样本三态收口）",
+  "capturedFrom": "2c02565 · L00001 换图收口复取（WXG-T-376）",
   "fixture": {
     "viewport": {
       "width": 750,
@@ -61,7 +61,7 @@
         "polygon": 792,
         "circle": 396
       },
-      "sha": "3597ed99cd38113e647500dac19cd72b9a5ae4eba081e00f5cef558cac247334",
+      "sha": "ddce1f65ebd8cf991665ec8d00b1109e19fcbac00669feb2df98b46f24be1329",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -84,7 +84,7 @@
         "polygon": 3832,
         "unclip": 1
       },
-      "sha": "185e17b6de3823d5facb5b151ad22bb5fe1509c163339afcf2d16e35e260e967",
+      "sha": "d7605e5e1af66bfec614cfa940046080de91d5f3103a21b243af85b2a6fbdb8d",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -225,7 +225,7 @@
         "text": 19,
         "polygon": 10
       },
-      "sha": "30252d5a4016bebd6dfa302e0490ddb4e5a586eb94f8b46f7db280cec9483e2a",
+      "sha": "e6401a994368be944909c462cf5b599d54dc6af94f04449869e083adbc9c9322",
       "background": "#F1E8D8",
       "transform": null
     },
