@@ -149,19 +149,36 @@
 
         /* 大关草稿（WXG-T-364）：拖拽排序行 + 键盘兜底 */
         .dr-row {
-            display: grid; grid-template-columns: 16px 24px 48px minmax(120px, 1fr) minmax(150px, .9fr) auto;
+            display: grid; grid-template-columns: 18px 24px 48px minmax(120px, 1fr) minmax(150px, .9fr) auto;
             gap: 8px; align-items: center; padding: 6px 8px; margin-bottom: 6px;
             border: 1px solid var(--bd); border-radius: 6px; background: #fffdf8;
         }
         .dr-row[draggable="true"] { cursor: grab; }
+        .dr-row.dragging { opacity: .4; }
         .dr-row.drop-before { box-shadow: 0 -2px 0 0 var(--ac); }
         .dr-row.drop-after { box-shadow: 0 2px 0 0 var(--ac); }
         .dr-row:focus-visible { outline: 2px solid var(--ac); outline-offset: 1px; }
-        .dr-h { color: #c9bfa8; font-size: 13px; user-select: none; }
+        /* 手柄：原 #c9bfa8 太淡，没人知道这里能拖 */
+        .dr-h { color: #7d7364; font-size: 15px; font-weight: 700; line-height: 1; user-select: none; }
         .dr-n { font-size: 12px; color: #6b6b6b; text-align: right; }
+        /* 无缩略图也占同尺寸，否则 id 列上下错位 */
+        .dr-thumb { width: 44px; height: 44px; }
         .dr-thumb img { width: 44px; height: 44px; object-fit: cover; border-radius: 4px; background: #f3efe6; display: block; }
+        .dr-thumb.empty { border-radius: 4px; background: repeating-linear-gradient(45deg, #f3efe6 0 6px, #e9e2d3 6px 12px); }
         .dr-id { font-family: ui-monospace, monospace; font-size: 11.5px; word-break: break-all; }
         .dr-meta { font-size: 11.5px; color: #6b6b6b; }
+        /* 发布区：新建 / 替换分区；替换是破坏性动作（归档整章 + 全局重排 id），用 danger 色 */
+        .dr-pub { margin-top: 12px; border-top: 1px dashed var(--bd); padding-top: 10px; }
+        .dr-pub .seg { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .dr-pub .seg + .seg { margin-top: 10px; padding-top: 10px; border-top: 1px dotted var(--bd); }
+        .dr-pub .lbl { font-size: 12px; color: #6b6b6b; }
+        .dr-pub .grow { flex: 1; }
+        /* button.big 是 width:100%（原本给单卡片底部大按钮用），在 flex 分区里会撑满并挤掉同行说明 */
+        .dr-pub .seg button.big { width: auto; margin-top: 0; }
+        #dr-pub-rep { background: var(--danger); }
+        #dr-pub-rep:hover:not(:disabled) { background: #a5301f; }
+        #dr-cap { font-size: 12px; color: #6b6b6b; }
+        #dr-cap.warn { color: var(--danger); font-weight: 600; }
 
         .row3 { display: grid; grid-template-columns: minmax(180px, .9fr) minmax(180px, .9fr) minmax(240px, 1.2fr); gap: 10px; }
         .row3 input, .row3 select { width: 100%; min-width: 0; }
@@ -212,11 +229,18 @@
                 <button class="ghost" id="dr-save">保存草稿</button>
                 <span id="dr-sum" style="font-size:12px;color:#6b6b6b"></span>
             </div>
-            <div class="bar" style="margin-top:12px;border-top:1px dashed var(--bd);padding-top:10px">
-                <button class="big" id="dr-pub-new">发布为新增大关</button>
-                <span style="font-size:12px;color:#6b6b6b">或整章替换 →</span>
-                <select id="dr-target" style="min-width:200px"></select>
-                <button class="big" id="dr-pub-rep">替换该大关</button>
+            <div class="dr-pub">
+                <div class="seg">
+                    <button class="big" id="dr-pub-new">发布为新增大关</button>
+                    <span class="lbl">用上面的草稿 id 建一个新章（须有橱窗图）</span>
+                </div>
+                <div class="seg">
+                    <span class="lbl">整章替换到</span>
+                    <select id="dr-target" style="min-width:200px"></select>
+                    <button class="big" id="dr-pub-rep">替换该大关</button>
+                    <span class="grow"></span>
+                    <span id="dr-cap"></span>
+                </div>
             </div>
             <div id="dr-tip" style="font-size:12px;color:#6b6b6b;margin-top:6px"></div>
         </div>
@@ -706,6 +730,17 @@
             $('dr-sum').textContent = has
                 ? `${draft.resultIds.length} 关 · 合计 ${slots} 槽` + (cap ? ` / 墙容量 ${cap}${slots > cap ? '（超出，发布会被拒）' : ''}` : '')
                 : '';
+            // 替换预判：整章换掉 ⇒ 目标章槽数直接变成草稿槽数（9 槽章换 2 槽批 = 释放 7）
+            const tgt = chs.find((c) => c.id === $('dr-target').value);
+            if (has && tgt) {
+                const d = slots - tgt.slots;
+                $('dr-cap').textContent = `#${tgt.order} ${tgt.title}：${tgt.levels.length} 关 ${tgt.slots} 槽 → ${draft.resultIds.length} 关 ${slots} 槽` +
+                    (d === 0 ? '（持平）' : d > 0 ? `（多吃 ${d} 槽）` : `（释放 ${-d} 槽）`);
+                $('dr-cap').classList.toggle('warn', cap > 0 && slots > cap);
+            } else {
+                $('dr-cap').textContent = '';
+                $('dr-cap').classList.remove('warn');
+            }
             $('dr-tip').textContent = drDirty ? '有未保存修改（发布前会自动补存）' : '';
         }
 
@@ -727,7 +762,7 @@
                 const isBoss = i === draft.resultIds.length - 1;
                 row.innerHTML = '<span class="dr-h">≡</span>' +
                     `<span class="dr-n">${i + 1}</span>` +
-                    `<span class="dr-thumb">${r.hasThumb ? `<img loading="lazy" src="/api/results/${encodeURIComponent(id)}/thumb" alt="">` : ''}</span>` +
+                    `<span class="dr-thumb${r.hasThumb ? '' : ' empty'}">${r.hasThumb ? `<img loading="lazy" src="/api/results/${encodeURIComponent(id)}/thumb" alt="">` : ''}</span>` +
                     `<span class="dr-id">${esc(id)}</span>` +
                     `<span class="dr-meta">${r.cols ?? '?'}×${r.rows ?? '?'} · ${r.colors ?? '?'} 色` +
                     `${r.slots > 1 ? ` · 占 ${r.slots} 槽` : ''}${isBoss ? ' · <b>boss</b>' : ''}</span>`;
@@ -740,6 +775,7 @@
                 // 拖拽：落点在上半 ⇒ 插到该行前，下半 ⇒ 插到该行后
                 row.ondragstart = (e) => {
                     drFrom = i;
+                    row.classList.add('dragging');                 // 让「正在搬哪一行」可见
                     e.dataTransfer.effectAllowed = 'move';
                     e.dataTransfer.setData('text/plain', id); // Firefox 不 setData 不会起拖
                 };
@@ -766,7 +802,7 @@
                     renderDraftRows();
                     box.children[to]?.focus();
                 };
-                row.ondragend = () => { drFrom = null; row.classList.remove('drop-before', 'drop-after'); };
+                row.ondragend = () => { drFrom = null; row.classList.remove('dragging', 'drop-before', 'drop-after'); };
 
                 // 键盘兜底（拖拽对键盘/读屏不可达）：Alt+↑/↓ 挪一位
                 row.onkeydown = (e) => {
@@ -800,10 +836,15 @@
             });
             const j = await res.json().catch(() => ({}));
             if (!res.ok) throw new Error(httpErr(j, 'HTTP ' + res.status));
+            // 改 id 再保存 = 另存为新草稿（旧的那份不会被删，容易以为「改好了」）
+            const renamedFrom = draft.id && draft.id !== id ? draft.id : null;
             draft.id = id;
             drDirty = false;
             await reload();
-            showLog([`草稿 ${id} 已保存（${j.count} 关${j.art ? '，含橱窗图' : '，无橱窗图 —— 新建大关须补图'}）`]);
+            showLog([
+                `草稿 ${id} 已保存（${j.count} 关${j.art ? '，含橱窗图' : '，无橱窗图 —— 新建大关须补图'}）`,
+                ...(renamedFrom ? [`⚠ id 由 ${renamedFrom} 改为 ${id} = 另存为新草稿：原草稿 ${renamedFrom} 仍在列表里，需要的话手动删除`] : []),
+            ]);
         }
 
         async function loadDraft() {
@@ -827,16 +868,26 @@
             } catch (e) { showErr(e.message); }
         }
 
-        $('dr-list').onchange = loadDraft;
-        $('dr-load').onclick = loadDraft;
+        /** 未保存的顺序改动会被 loadDraft / 新建静默覆盖 ⇒ 切换前必须问一次（否则拖了半天的顺序直接没）。 */
+        function guardDirty(what) {
+            if (!drDirty) return true;
+            return confirm(`当前草稿有未保存的顺序改动，切到「${what}」会丢弃。\n\n继续？（选「取消」可先点「保存草稿」）`);
+        }
 
-        $('dr-new').onclick = () => {
+        function resetDraftForm() {
             draft = { id: '', title: '', resultIds: [], imageDataUrl: '' };
             $('dr-id').value = ''; $('dr-title').value = ''; $('dr-img').value = '';
             $('dr-prev').innerHTML = '';
             drDirty = false;
             renderDraftRows();
-        };
+        }
+
+        // 取消切换时 syncDraftUi 会把下拉选回当前草稿
+        $('dr-list').onchange = () => { if (guardDirty($('dr-list').value || '所选草稿')) loadDraft(); else syncDraftUi(); };
+        $('dr-load').onclick = () => { if (guardDirty($('dr-list').value || '所选草稿')) loadDraft(); };
+        $('dr-target').onchange = syncDraftUi;
+
+        $('dr-new').onclick = () => { if (guardDirty('新建草稿')) resetDraftForm(); };
 
         $('dr-del').onclick = async () => {
             const id = $('dr-list').value;
@@ -846,7 +897,7 @@
                 const res = await fetch('/api/drafts/' + encodeURIComponent(id), { method: 'DELETE' });
                 const j = await res.json().catch(() => ({}));
                 if (!res.ok) throw new Error(httpErr(j, 'HTTP ' + res.status));
-                if (draft.id === id) $('dr-new').onclick();
+                if (draft.id === id) resetDraftForm();
                 await reload();
                 showLog([`草稿 ${id} 已删除`]);
             } catch (e) { showErr(e.message); }
@@ -884,6 +935,17 @@
                 if (drDirty || draft.id !== $('dr-id').value.trim()) await saveDraft();
                 const target = mode === 'replace' ? $('dr-target').value : undefined;
                 if (mode === 'replace' && !target) throw new Error('没有可替换的大关');
+                // 替换是破坏性动作：归档整章旧关 + 触发全局 renumberIds ⇒ 必须二次确认
+                if (mode === 'replace') {
+                    const ch = (S?.chapters || []).find((c) => c.id === target);
+                    const ok = confirm(
+                        `整章替换大关「${ch?.title ?? target}」（#${ch?.order ?? '?'}）\n\n` +
+                        `· 该章现有 ${ch?.levels?.length ?? '?'} 关会整批归档到 design/levels/archive/\n` +
+                        `· 换成本批 ${draft.resultIds.length} 关（末位作 boss）\n` +
+                        `· 其后各章的关号会随 renumberIds 整体重排\n\n确定继续？`,
+                    );
+                    if (!ok) return;
+                }
                 btns.forEach((b) => { b.disabled = true; });
                 showLog([`发布中：${draft.resultIds.length} 关逐条跑 beads-bot 实测（此阶段真源未改动），请勿关闭页面…`]);
                 const res = await fetch(`/api/drafts/${encodeURIComponent(draft.id)}/publish`, {
