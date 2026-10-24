@@ -787,49 +787,75 @@
             if (current) location.href = '/manage.html?result=' + encodeURIComponent(current.id);
         };
 
+        /** 单条结果行（列表是轻投影，点开才拉单条全量）。 */
+        function resultItem(r) {
+            const d = document.createElement('div'); d.className = 'item';
+            const noImp = r.importable === false;
+            // 最右列窄 ⇒ id 视觉上省略，完整值放 title（悬停可见），别让用户失去识别依据
+            d.innerHTML = `<span title="${r.id}">${noImp ? (r.misMode === 'none' ? 'ℹ ' : '⚠ ') : ''}${r.id}</span><small>${r.colors} 色 · ${r.misMode === 'full' ? '全错位' : r.misMode === 'max' ? '最大化错位' : r.misMode === 'none' ? '不错位' : '错位 ' + r.swaps * 2}${noImp ? (r.misMode === 'none' ? ' · 游戏不入关' : ' · 不可入关') : ''}</small>`;
+            d.onclick = async () => {
+                try {
+                    const full = await (await fetch('/api/results/' + r.id)).json();
+                    current = full; show(full);
+                } catch { msg('取详情失败：' + r.id, 'err'); }
+            };
+            // 删除钮：不可逆（磁盘唯一副本）⇒ 必须二次确认；stopPropagation 避免误触发“查看该条”。
+            const x = document.createElement('button');
+            x.className = 'del'; x.textContent = '✕'; x.title = '删除这条结果（不可恢复）';
+            x.onclick = async (ev) => {
+                ev.stopPropagation();
+                if (!confirm(`删除 ${r.id}？\n磁盘上只有一份，不可恢复。`)) return;
+                try {
+                    const res = await fetch('/api/results/' + r.id, { method: 'DELETE' });
+                    if (!res.ok) {
+                        const j = await res.json().catch(() => ({}));
+                        return msg('删除失败：' + (j.error || res.status), 'err');
+                    }
+                    if (current && current.id === r.id) { current = null; $('cv').getContext('2d').clearRect(0, 0, 420, 420); }
+                    msg('已删除 ' + r.id, 'ok');
+                    loadResults();
+                } catch (e) { msg('删除失败：' + e.message, 'err'); }
+            };
+            d.appendChild(x);
+            return d;
+        }
+
         async function loadResults() {
             try {
                 const { results } = await (await fetch('/api/results')).json();
-                const byBoard = {};
-                for (const r of results) (byBoard[r.board] ??= []).push(r);
+                // 关卡模式默认只列**与该关同尺寸**的已存结果（替换进这一关时尺寸一致才不会重裁）；
+                // 勾掉复选框看全部（其它尺寸同样能替换，只是时长/门禁按新盘重算）。
+                const cell = levelInfo ? levelInfo.cells[levelCell] : null;
+                const onlySameOn = !!(cell && onlySame);
+                const shown = onlySameOn
+                    ? results.filter((r) => r.cols === cell.cols && r.rows === cell.rows)
+                    : results;
                 const el = $('results');
-                el.innerHTML = '<b>已存结果</b> <small>（GET /api/results，小游戏在线导入同源）</small>';
-                for (const [board, list] of Object.entries(byBoard)) {
+                if (cell) {
+                    el.innerHTML = `<b>已存结果</b> <small>（该关 ${cell.cols}×${cell.rows} · ${shown.length}/${results.length} 条）</small>` +
+                        `<label style="font-size:12px;color:#666;white-space:nowrap;margin-left:8px"><input type="checkbox" id="onlySame" style="width:auto;margin-right:4px"${onlySame ? ' checked' : ''}>只看该关尺寸</label>`;
+                    $('onlySame').onchange = (e) => { onlySame = e.target.checked; loadResults(); };
+                } else {
+                    el.innerHTML = '<b>已存结果</b> <small>（GET /api/results，小游戏在线导入同源）</small>';
+                }
+                if (onlySameOn) {
+                    // 同尺寸过滤后按盘位档分组没意义（16x16 档常被裁成 13×12）⇒ 平铺，空则给出口
                     const grp = document.createElement('div'); grp.className = 'grp';
-                    grp.innerHTML = `<h3>${board}（${list.length}）</h3>`;
-                    for (const r of list) {
-                        const d = document.createElement('div'); d.className = 'item';
-                        const noImp = r.importable === false;
-                        // 最右列窄 ⇒ id 视觉上省略，完整值放 title（悬停可见），别让用户失去识别依据
-                        d.innerHTML = `<span title="${r.id}">${noImp ? (r.misMode === 'none' ? 'ℹ ' : '⚠ ') : ''}${r.id}</span><small>${r.colors} 色 · ${r.misMode === 'full' ? '全错位' : r.misMode === 'max' ? '最大化错位' : r.misMode === 'none' ? '不错位' : '错位 ' + r.swaps * 2}${noImp ? (r.misMode === 'none' ? ' · 游戏不入关' : ' · 不可入关') : ''}</small>`;
-                        // 列表是轻投影（不含 pattern/缩略图）⇒ 点开才拉单条全量
-                        d.onclick = async () => {
-                            try {
-                                const full = await (await fetch('/api/results/' + r.id)).json();
-                                current = full; show(full);
-                            } catch { msg('取详情失败：' + r.id, 'err'); }
-                        };
-                        grp.appendChild(d);
-                        // 删除钮：不可逆（磁盘唯一副本）⇒ 必须二次确认；stopPropagation 避免误触发“查看该条”。
-                        const x = document.createElement('button');
-                        x.className = 'del'; x.textContent = '✕'; x.title = '删除这条结果（不可恢复）';
-                        x.onclick = async (ev) => {
-                            ev.stopPropagation();
-                            if (!confirm(`删除 ${r.id}？\n磁盘上只有一份，不可恢复。`)) return;
-                            try {
-                                const res = await fetch('/api/results/' + r.id, { method: 'DELETE' });
-                                if (!res.ok) {
-                                    const j = await res.json().catch(() => ({}));
-                                    return msg('删除失败：' + (j.error || res.status), 'err');
-                                }
-                                if (current && current.id === r.id) { current = null; $('cv').getContext('2d').clearRect(0, 0, 420, 420); }
-                                msg('已删除 ' + r.id, 'ok');
-                                loadResults();
-                            } catch (e) { msg('删除失败：' + e.message, 'err'); }
-                        };
-                        d.appendChild(x);
+                    if (!shown.length) {
+                        grp.innerHTML = `<small style="color:#999">没有 ${cell.cols}×${cell.rows} 的已存结果 —— 取消勾选「只看该关尺寸」可看全部</small>`;
+                    } else {
+                        for (const r of shown) grp.appendChild(resultItem(r));
                     }
                     el.appendChild(grp);
+                } else {
+                    const byBoard = {};
+                    for (const r of shown) (byBoard[r.board] ??= []).push(r);
+                    for (const [board, list] of Object.entries(byBoard)) {
+                        const grp = document.createElement('div'); grp.className = 'grp';
+                        grp.innerHTML = `<h3>${board}（${list.length}）</h3>`;
+                        for (const r of list) grp.appendChild(resultItem(r));
+                        el.appendChild(grp);
+                    }
                 }
             } catch { /* 列表失败不阻塞主流程 */ }
         }
@@ -839,6 +865,7 @@
         const levelUid = new URLSearchParams(location.search).get('level') || '';
         let levelInfo = null;    // { uid, kind, chapter, cells[] }
         let levelCell = 0;       // plate 多格时的当前格
+        let onlySame = true;     // 「已存结果」是否只列与该关同尺寸的（关卡模式默认开）
 
         function mkEl(tag, txt, css) {
             const d = document.createElement(tag);
@@ -913,6 +940,7 @@
             $('rows').value = c.rows;
             renderLevelBar(null);
             show(current);
+            loadResults();              // 「已存结果」按本关尺寸重筛（切格/换关都要跟）
         }
 
         async function loadLevel(uid) {
