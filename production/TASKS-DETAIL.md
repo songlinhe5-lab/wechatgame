@@ -5117,3 +5117,47 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - 提交范围 = 本批名下：`ux-spec.md` · `skins-content.ts`（新）· `settings-content.ts` · `meta-view.ts` · `tuning.ts` · `phase-route-binder.ts` · `beads-shell.ts` · `beads-game-types.ts` · `beads-game.ts` · `game-settings.ts` · 4 份测试 · `ctx/budget-exempt.json` · 2 份台账（**只我方 hunk**）· 9 件 Cocos 镜像；pre-commit ② 自动重暂存 `ctx/{index.json,BUDGET.md,hot-files.md}` + `memory/INDEX.md`。
 - ⛔ 不夹带：`levels-data.ts`、`design/levels/singles/L0000{3,4}.json`、`tools/scripts/*`、`apps/beads-studio/lab*`、其 `levels-data` 镜像、两份台账的对方 364 行。
 - 推送取证按 K-142：`git ls-remote origin refs/heads/develop` + `git reflog show origin/develop --date=iso`。
+
+## WXG-T-364
+
+**beads-studio·大关草稿统一发布（按大关攒小关定序 → 新增大关 / 整章替换+归档）**
+
+用户 2026-10-24 令「大关生成的一批小关里面，可以调整小关顺序，并最终生成一个大关资源；生成大关时候可以选择替换某一大关或者新增大关」。三项边界逐条拍板：①**以大关为编辑单元**编辑，所有小关完成后**统一导入**（明确「不会单独给某一小关导入」）②**整章替换 + 旧关文件归档** ③**拖拽排序**。
+
+### 1. 开工取证（先摸现状，不猜）
+- 已有：`manage.html` 章内 ↑/↓ 调序与跨章移（`server.mjs:1044-1064`）、单关 `replace`（`server.mjs:1094-1135`，只换图案与时长，uid/关名/关号全不变）、`/api/manage/chapter` 建章 + `/import` 批量入关。
+- **不存在**（探查确认）：整章替换端点、入关**前**的顺序暂存、拖拽排序、`lab.mjs` 任何接线（只有 `lab.selftest.mjs` 引用它）。
+- 硬约束：入关时长**必须**来自 beads-bot 真引擎实测（`server.mjs:663-666` 明写拒用静态估算）；排序唯一真源 = 章文档 `levels[]` 数组顺序，`id`/`order` 均为派生量（`renumberIds` / `expandedCount`）。
+- 归档位置安全性（决定 replace 的落地形态）：`design/levels/archive/` 不在任何校验的扫描面内 —— sync 只扫 `singles/ plates/ chapters/` 顶层与 levels 顶层 `*.json`（`sync-levels-data.mjs:487-493 / 669-675`、`levels-dir-pipeline.test.ts:96-101`），与既存 `assets/` 同构。
+
+### 2. 交付清单
+| 件 | 内容 |
+|---|---|
+| `apps/beads-studio/server.mjs`（草稿层） | `DRAFTS_DIR` + `assertDraftId/readDraft/parsePngDataUrl/listDrafts`；`GET/POST/DELETE /api/drafts[/:id]`；`POST /api/drafts/:id/publish {mode:'new'\|'replace',target?}`。草稿只存 `resultId` 引用，落 `data/drafts/<id>/draft.json`（git 忽略；`listResults` 的 `try/catch` 会吞掉非 result 目录 ⇒ 不污染 `/api/results`） |
+| 同上（归档腿） | `archiveChapterLevels()`：旧关整批 `renameSync` → `archive/<章id>-<时间戳>/`，另写 `_chapter.json` / `_entries.json`。回滚靠既有 `snapshotTree`/`restoreTree`（快照含整棵 levels 树 ⇒ 原文件重建、快照外新增的 archive 删除） |
+| 同上（落位） | `placeUid()` / `placeEntry()` + `commitIngest(..., { append })`；publish 走 append，收尾把 `levels[]` 末位 `setEntryKind('boss')` |
+| `apps/beads-studio/public/manage.html` | 草稿工作台：草稿下拉/载入/新建/删除、标题 + 橱窗图、关列表拖拽（`ondragover` 上下半判落点）+ `Alt+↑/↓` 键盘兜底、槽数/墙容量提示、发布两模式两个按钮 |
+| `knowledge/lessons/process.md` | 沉淀 1 条（末位 = boss 的落位须 append、boss 标记收尾统一设） |
+
+### 3. 两处 bug（实测暴露，均已修）
+1. **`repairLevel is not defined`（既有，WXG-T-357 遗留）**：`server.mjs:55` 导入别名是 `repairLevelLegibility`，而 `legibilityFix()` 调 `repairLevel()`。只在豆面判据未过、需要自动修复时触发 ⇒ 任何一次真正需要修复的入关都会整批 500。本批 publish 首次实测即撞上（`{"error":"repairLevel is not defined"}`，事务已回滚无残留）。
+2. **草稿顺序落盘倒序（本批引入）**：`commitIngest` 固定走 `entryBeforeBoss()`，该函数只看 `doc.levels` 末位、**不看 `kind`**。章刚建/刚清空时第 1 条 append 后，第 2 条被当作「插 boss 前」插到第 1 条**之前**。对照取证：修复前草稿 `[22×21, 14×8]` → `levels [14×8, 22×21]`（倒）；修复后草稿 `[14×8, 22×21]` → `levels [14×8, 22×21]`（同序）。
+
+### 4. 验收（真机 · 事务级）
+| 用例 | 读数 |
+|---|---|
+| `mode:'new'` | 建章 `chapters/zz-draft-test.json`（order 3 / open false）+ `assets/zz-draft-test-boss-256.png` + `L00011 kind=boss`；`DEMO_LEVEL_COUNT` 10→11 |
+| `mode:'replace'` | 归档 `archive/zz-draft-test-20261023-234002/{singles/L00011.json, _entries.json, _chapter.json}` 三件齐；title / 章序 #3 / showcase 三项保留 |
+| 门禁⑥ 拦截 | `DI 非严格递增（L8=36.4 → L11=36.4）` ⇒ 500 + 门禁原文，**回滚后 archive 空、章文件逐字未变** |
+| 门禁⑦ 拦截 | `普通关 L11 steps=282 越出 [18, 90]` ⇒ 同上，回滚干净 |
+| 顺序同序 | 草稿 `[14×8, 22×21]` ⇒ `levels [14×8(single), 22×21(boss)]` |
+| 事务前守卫 | 草稿不存在 404 / 空草稿 422 / id 撞已有大关 422 / 替换目标不存在 404 / 新建缺橱窗图 422 |
+
+清理与还原：测试章、两个草稿、`archive/`、橱窗图全部清除。因工作树已有他会话未提交改动（`L00003/L00004.json`、`levels-data.ts`），改用**整目录 tar 快照**（`/tmp/beads-baseline.tgz`）而非 `git checkout` 还原 ⇒ `chapters=mandala#1,photo32-smoke#2` / `contentVersion=35` / `entries=10` / `DEMO_LEVEL_COUNT=10`，与测前逐项一致。
+
+### 5. 明确未做 / 已知限制
+1. **发布未走 NDJSON 流式**：N 关各跑一次 beads-bot 实测（本批单关 ≈0.9–1.0s，命中缓存），前端只显示「实测中，请勿关闭页面」；若单次发布经常 >6 关再加流式进度（代码内已标 `ponytail:`）。
+2. **墙容量只有 9 槽**（`wallCapacity=9`，`mandala` 章已占满）⇒ 一个大关装不下很多关，草稿合计超 9 槽在事务外即被拒。是否调 `WALL_COLS*WALL_ROWS` 属设计裁定，本批未动。
+3. **`renumberIds` 是全局 id 轴**：替换后新关数 ≠ 旧关数时，该章**之后**所有章的关卡文件 `id` 整体平移（`uid` 不变）。既有机制，本批未改。
+4. **归档只搬运、不提供自动还原端点**：`archive/<章id>-<时间戳>/` 内留 `_chapter.json` + `_entries.json` 供**人工**还原（YAGNI，需要时另批）。
+5. **`pnpm run verify` 未跑**：工作树有他会话在制（`src/game/**`、`src/ui/**`、`src/view/**`、`tests/**` 一批 + `levels-data.ts`）⇒ 全量必红且非本批引入。本批只跑 `node --check` + `read_lints` + 真机端点。

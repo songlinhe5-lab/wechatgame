@@ -6,6 +6,14 @@
 > 数据源 = `knowledge/ledger.json` 的 `events`（**append-only** 追加日志）+ 条目台账（标题取自台账）；
 > 日期倒序，同一日期内按 Task ID 分组。
 
+## 2026-10-24
+
+### WXG-T-364
+
+- **新增**（added）：K-166「章内「末位 = boss」的落位必须 append，boss 标记收尾统一设」
+- **修改**（updated）：K-166「章内「末位 = boss」的落位必须 append，boss 标记收尾统一设」
+- **修改**（updated）：K-166「章内「末位 = boss」的落位必须 append，boss 标记收尾统一设」
+
 ## 2026-10-23
 
 ### WXG-T-351

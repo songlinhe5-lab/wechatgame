@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 166,
+  "nextId": 167,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -2764,6 +2764,23 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-166",
+      "state": "active",
+      "file": "knowledge/patterns.md",
+      "category": "关卡与生成链",
+      "title": "章内「末位 = boss」的落位必须 append，boss 标记收尾统一设",
+      "contentHash": "0995e03e6d7e21004b65b53f29a0d981775b06dbd20e23c6601bfd279ac4c619",
+      "sourceTask": "WXG-T-364",
+      "addedDate": "2026-10-24",
+      "lastAccess": "2026-10-24",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -4280,6 +4297,33 @@
       "kind": "updated",
       "ids": [
         "K-165"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-24",
+      "taskId": "WXG-T-364",
+      "kind": "added",
+      "ids": [
+        "K-166"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-24",
+      "taskId": "WXG-T-364",
+      "kind": "updated",
+      "ids": [
+        "K-166"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-24",
+      "taskId": "WXG-T-364",
+      "kind": "updated",
+      "ids": [
+        "K-166"
       ],
       "note": null
     }
