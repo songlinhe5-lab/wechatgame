@@ -705,7 +705,7 @@
                 const head = document.createElement('div');
                 head.className = 'chhead';
                 head.innerHTML = `<b>#${ch.order} ${esc(ch.title)}</b><code>${esc(ch.id)}</code>` +
-                    `<small>${ch.levels.length} 关 · ${ch.slots}/${S.wallCapacity} 槽 · 展示图 ${esc(ch.showcase?.art || '—')}</small>`;
+                    `<small>${ch.levels.length} 关 · ${ch.slots}/${S.wallCapacity} 槽 · 点小关行可编辑 · 展示图 ${esc(ch.showcase?.art || '—')}</small>`;
                 card.appendChild(head);
 
                 const bar = document.createElement('div');
@@ -872,16 +872,20 @@
                 });
                 card.appendChild(lvBox);
 
-                // ── 分大关导入：选一条或多条结果（弹缩略图选择器）→ 按勾选顺序插本关 boss 前 ──
+                // ── 章底「添加小关」：选一条或多条结果（弹缩略图选择器）→ 按勾选顺序插本章 boss 前，
+                //    加到本章槽位满（= wallCapacity）为止；满槽即禁用并说明为什么加不了。
+                const left = Math.max(0, S.wallCapacity - ch.slots);
                 const imp = document.createElement('div');
                 imp.className = 'bar';
                 const tip = document.createElement('span');
                 tip.style.cssText = 'font-size:12px;color:#6b6b6b';
-                tip.textContent = '分大关导入：';
+                tip.textContent = left > 0
+                    ? `添加小关（插 boss 前，可多选）· 本章 ${ch.slots}/${S.wallCapacity} 槽，还能加 ${left} 槽`
+                    : `本章 ${ch.slots}/${S.wallCapacity} 槽已满（单文件关 1 槽）⇒ 先删关或移章才能再加`;
                 imp.appendChild(tip);
-                imp.appendChild(btn('批量导入…', false, async () => {
-                    const ids = await pickResult(`导入到「${ch.title}」（boss 前，可多选）`, null, {
-                        multiple: true, slotsLeft: Math.max(0, S.wallCapacity - ch.slots),
+                imp.appendChild(btn(left > 0 ? '＋ 添加小关…' : '已加满', left <= 0, async () => {
+                    const ids = await pickResult(`添加小关到「${ch.title}」（插 boss 前，可多选）`, null, {
+                        multiple: true, slotsLeft: left,
                     });
                     if (!ids || !ids.length) return;
                     importBatch(ch.id, ids);
