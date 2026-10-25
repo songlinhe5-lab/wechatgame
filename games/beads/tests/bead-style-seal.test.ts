@@ -30,7 +30,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { RenderModelBuilder, polygonVertices, type DrawCommand, type RenderModel } from '@wxgame/framework';
@@ -689,7 +689,7 @@ function ledgerCoverageViolations(
     if (qaDoc !== null) {
         for (const e of entries) {
             if (e.qaAnchor && !qaDoc.includes(e.qaAnchor)) {
-                v.push(`台账项 ${e.id}：qaAnchor ${e.qaAnchor} 未在 production/qa/beads/test-cases.md 在案 ⇒ 复评通道手续不全（唯一例外通道 b 条）`);
+                v.push(`台账项 ${e.id}：qaAnchor ${e.qaAnchor} 未在 production/qa/beads/test-cases*.md 在案 ⇒ 复评通道手续不全（唯一例外通道 b 条）`);
             }
         }
     }
@@ -730,7 +730,14 @@ const driftFailMessage = (frame: string, d: number): string =>
  */
 describe('WXG-T-230-B · 整帧漂移复评登记哨兵（未走复评通道的漂移自动报警）', () => {
     const entries = (): RecheckLedgerEntry[] => SEAL.recheckLedger.entries;
-    const qaDoc = (): string => readFileSync(resolve(REPO, 'production/qa/beads/test-cases.md'), 'utf8');
+    // WXG-T-225 判据分片后 QA 正本 = `test-cases.md` 索引页 + `test-cases-<片>.md`；
+    // qaAnchor 落在任一分片即在案（同一正本集合，不降级）。
+    const QA_DIR = resolve(REPO, 'production/qa/beads');
+    const qaDoc = (): string =>
+        readdirSync(QA_DIR)
+            .filter((f) => /^test-cases.*\.md$/.test(f))
+            .map((f) => readFileSync(resolve(QA_DIR, f), 'utf8'))
+            .join('\n');
 
     it('台账覆盖腿：逐帧 Σ ≡ 帧差 + witness/qaAnchor 归因链在案 + 判据登记常数↔台账一一对应（真数据零违规）', () => {
         expect(ledgerCoverageViolations(entries(), SEAL, qaDoc())).toEqual([]);

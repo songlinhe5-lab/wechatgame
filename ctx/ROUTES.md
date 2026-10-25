@@ -87,7 +87,7 @@
 5. 同一会话对同一文件反复小读 **超过 3 次** → 合并为**一次扩读**（连同命中节一起取整段）。
 
 **反模式（禁止）**：
-- ❌ 对 `systems-index.md` / `control-manifest.md` / `test-cases.md` / `architecture-beads.md` 等大文件无条件 `read_file(全文)`。
+- ❌ 对 `systems-index.md` / `control-manifest.md` / `test-cases*.md` / `architecture-beads.md` 等大文件无条件 `read_file(全文)`。
 - ❌ 为找一句常量而整文件加载 —— 先查锚点。
 - ❌ 同一文件边读边改、来回小读超过 3 次（上下文抖动）。
 - ✅ 锚点命不中 → 索引可能漂移，重跑 `pnpm run ctx:build` 后再查。
@@ -169,17 +169,17 @@
 | Cocos MCP 接入（ADR-0009） | docs/architecture/control-manifest.md#§14 Cocos MCP 编辑器接入（ADR-0009） | 448 | |
 | **UI 架构五条守则** | docs/architecture/control-manifest.md#§20 UI 架构守则（ADR-0032 §8；WXG-T-318 落表） | 400 | 弹窗 / 遮罩 / View / 布局 / 路由 |
 
-### 1.5 QA 判据（hot · production/qa/beads/test-cases.md）
+### 1.5 QA 判据（hot · production/qa/beads/test-cases*.md，13 片；总索引 = `test-cases.md`）
 
 | 意图 / 需要什么 | 精确锚点（文件#章节） | 估算 token | 备注 |
 |---|---|---:|---|
-| 硬判据总表（50 条） | production/qa/beads/test-cases.md#§A 硬判据用例（50 条 = 5 组 × 10，判据 1:1 映射） | 2507 | ⚠ 本文件锚点**不按条数裁**（裁则削掉 §A.0 / §I.2 / §K / §M.10 等判据与结论态节，WXG-T-293）；控量走标题截断，D3-U1 保命中 |
-| A1 核心循环判据 | production/qa/beads/test-cases.md#§A1 · 核心循环（S1）— 来源 `core-loop.md §8.1..10` | 526 | |
-| A2 拼图网格判据 | production/qa/beads/test-cases.md#§A2 · 拼图网格与填色（S3）— 来源 `bead-grid.md §8.1..10` | 480 | |
-| A3 供料托盘判据 | production/qa/beads/test-cases.md#§A3 · 供料与托盘（S4）— 来源 `tray-spawner.md §8.1..10` | 450 | |
-| A4 输入操控判据 | production/qa/beads/test-cases.md#§A4 · 输入与操控（S2）— 来源 `input-control.md §8.1..10` | 449 | |
-| A5 倒计时判据 | production/qa/beads/test-cases.md#§A5 · 倒计时与失败（S5）— 来源 `timer-gameover.md §8.1..10` | 502 | |
-| **派生用例** | production/qa/beads/test-cases.md#§B 派生用例（来源 systems-index §3 / accessibility.md，无 §8 编号，标注来源） | 825 | 来源标注 |
+| 硬判据总表（50 条） | production/qa/beads/test-cases-a-core.md#§A 硬判据用例（50 条 = 5 组 × 10，判据 1:1 映射） | 2507 | ⚠ QA 判据件锚点**不按条数裁**（裁则削掉 §A.0 / §I.2 / §K / §M.10 等判据与结论态节，WXG-T-293）；控量走标题截断，D3-U1 保命中。**13 片总索引 = `production/qa/beads/test-cases.md` 的 §分片索引（WXG-T-225）** |
+| A1 核心循环判据 | production/qa/beads/test-cases-a-core.md#§A1 · 核心循环（S1）— 来源 `core-loop.md §8.1..10` | 526 | |
+| A2 拼图网格判据 | production/qa/beads/test-cases-a-core.md#§A2 · 拼图网格与填色（S3）— 来源 `bead-grid.md §8.1..10` | 480 | |
+| A3 供料托盘判据 | production/qa/beads/test-cases-a-core.md#§A3 · 供料与托盘（S4）— 来源 `tray-spawner.md §8.1..10` | 450 | |
+| A4 输入操控判据 | production/qa/beads/test-cases-a-input.md#§A4 · 输入与操控（S2）— 来源 `input-control.md §8.1..10` | 449 | |
+| A5 倒计时判据 | production/qa/beads/test-cases-a-input.md#§A5 · 倒计时与失败（S5）— 来源 `timer-gameover.md §8.1..10` | 502 | |
+| **派生用例** | production/qa/beads/test-cases-b-f.md#§B 派生用例（来源 systems-index §3 / accessibility.md，无 §8 编号，标注来源） | 825 | 来源标注 |
 
 ### 1.6 任务台账与长期记忆（hot）
 

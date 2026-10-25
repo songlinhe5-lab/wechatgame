@@ -92,7 +92,7 @@
   ② 判据里加**闭合自证**：对现役流机械剥掉该键的序列化形态 ⇒ 所得 sha 必逐字节 ≡ 前态锁，且带键条数 = 登记常量（本批 `BACK_KEY_LINES = 4`）。一条断言同时锁「键只落在这几条 / 几何零改写 / 零删除」，任一不实即红；
   ③ 阳性对照要写进登记（多标 / 漏标 / 改坐标三向均破坏等值），否则读者无法判断这条断言是不是恒真；
   ④ 史证键属**只读**：下一次复评只准追加，⛔ 不得拿它当现役值引用。
-  判例引用：`games/beads/tests/bead-style-seal.test.ts` 腿 4a、`games/beads/tests/__fixtures__/wxg-t-211-s3-seal.json`、`production/qa/beads/test-cases.md §K.5.1-补8`；同族 K-051/K-053（基准修订唯一通道）、K-060（空断言伪绿）。
+  判例引用：`games/beads/tests/bead-style-seal.test.ts` 腿 4a、`games/beads/tests/__fixtures__/wxg-t-211-s3-seal.json`、`production/qa/beads/test-cases-k-ledger-2.md §K.5.1-补8`；同族 K-051/K-053（基准修订唯一通道）、K-060（空断言伪绿）。
 
 - **[判据][K-115] 判据「方向翻转」（不得命中 → 必须命中）必须与「断言数不变」同批登记，否则读者无法区分翻转与软化**（来源 WXG-T-256 / QA `K.5.1-补8`，2026-10-05）
   现象：上一批为排障加的「托盘区恒矢量」反向守卫（`trayZone` ⇒ 断言**不**命中 tint 臂），在底图通道落地后整块改写为「同臂」正向守卫；diff 看起来像「把拦路的那条测试删掉了」。

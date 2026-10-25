@@ -2,7 +2,7 @@
 
 - **任务号**：**WXG-T-228**（P1）· **执笔**：严守真（quality-lead）· **日期**：2026-09-29
 - **状态**：**判据件（readonly）** —— 只给结论、映射与建议；⛔ 不自更新 fixture、不改定稿数值、不改他人正本、不落码、未 commit / 未 push。
-- **从属**：判据来源家族 = 定稿 py 口径 + `ADR-0028 §5` + `bead-visual-style-spec §12.2 C1–C12` + `cell-standard §3 J1–J7` + `systems-index §3.9` + `§13.13 T1`。本文是 `production/qa/beads/test-cases.md` 的**判据分册**（拟并回为 §L，见 §8），与 `test-plan.md / smoke-tests.md / bug-severity.md` 同族。
+- **从属**：判据来源家族 = 定稿 py 口径 + `ADR-0028 §5` + `bead-visual-style-spec §12.2 C1–C12` + `cell-standard §3 J1–J7` + `systems-index §3.9` + `§13.13 T1`。本文是 `production/qa/beads/test-cases-l-tint.md §L` 的**判据分册**（已并回，见 §8），与 `test-plan.md / smoke-tests.md / bug-severity.md` 同族。
 - **口径真源（冲突时自上而下）**：
   1. **定稿口径正本** = `tools/mask-preview/export-cocos-textures.py`（有孔 **v1.1**）· `export-cocos-textures-holeless.py`（无孔 **v1.0-holeless**）
   2. **工程方案** = `production/plans/wxg-t-226-tint-pipeline-plan.md`（EP-12 / V-1…V-9 / R-1…R-12）

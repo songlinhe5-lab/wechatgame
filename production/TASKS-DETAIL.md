@@ -567,7 +567,7 @@
 
 ## WXG-T-225 · 拆 `production/qa/beads/test-cases.md` 判据分片（撤销 WXG-T-084 的 B 项豁免）
 
-> **状态**：🔄 立项待裁（2026-09-29 立；来源 = WXG-T-224 的 quality-lead 裁定移交项）
+> **状态**：✅ 已完成（2026-10-25；2026-09-29 立，来源 = WXG-T-224 的 quality-lead 裁定移交项；施工口径 = quality-lead 拆法裁定 + 用户 2026-10-25 选「§K 甲（标题层级提升）」与「一次做完」）
 > **领号**：225（核：仅出现在主表头注「下一可用号」，无任务占用；K-046）
 
 ### 背景
@@ -594,6 +594,58 @@
 
 - 只做文档拆分与引用面同步，**不改判据值、不改判据语义**（K-051/K-053：禁自更新 fixture、禁静默删旧文案）；
 - 拆分方案须由 quality-lead 裁定，装置侧不擅自动 QA 判据文档结构。
+
+### 裁定（quality-lead，2026-10-25）
+
+- **阈值**：判据件硬阈 **16,000 tok**（`production/qa/**` 归 ledger 档，≠ spec 的 8,000），施工目标 **≤14,000**。否决 8,000 的理由：变更记录单节即 9.4k、§A4/A4b/A4c 必须同片，硬切会造出 5–6 个「半节」文件。
+- **切分**：**13 片** = 索引页 + 12 片；§K 按台账切 3 片（style / ledger-1 / ledger-2），切点 = K.4 末（L748|749）、第 2 次补登末（L811|812）。
+- **§K 前置**：26 个块首伪标题（`> ### K.x` / `> **K.x 标题**`）必须先提升为真标题，否则三片零锚点。
+- **锚点**：逐处改路径，⛔ 不建 stub（stub 会造成 D3-U1 假绿）；`check:links` 不是锚点门，真凭据 = `ctx:check` 的 D/D2/D3。
+- **撤豁免**：判据 = `ctx/budget-exempt.json` 中该 path **零命中**；「过期豁免只记 note」不算撤销。
+
+### 施工（2026-10-25）
+
+| # | 文件 | 内容 | tok |
+|---:|---|---|---:|
+| 1 | `test-cases.md` | 索引页（§分片索引 / §锚点迁移表 / §引用与追加规则） | 3485 |
+| 2 | `test-cases-a-core.md` | §A 头 + §A.0 / A.0b / A1–A3 | 4949 |
+| 3 | `test-cases-a-input.md` | §A4 / A4b / A4c / A5 | 11941 |
+| 4 | `test-cases-b-f.md` | §B–§F | 5359 |
+| 5 | `test-cases-g-perceptual.md` | §G | 9670 |
+| 6 | `test-cases-h-i.md` | §H + §I | 5740 |
+| 7 | `test-cases-history.md` | 变更记录 + §J | 9519 |
+| 8 | `test-cases-k-style.md` | §K 头 + K.0–K.4 | 7238 |
+| 9 | `test-cases-k-ledger-1.md` | K.5 台账前段（至第 2 次补登） | 9149 |
+| 10 | `test-cases-k-ledger-2.md` | 第 3–11 次补登 + K.6 / K.7 | 13585 |
+| 11 | `test-cases-l-tint.md` | §L | 1192 |
+| 12 | `test-cases-m-menu.md` | §M 头 + M.1–M.9 | 11261 |
+| 13 | `test-cases-m-gate.md` | §M.10 / M.11 / BD-61 / §N / §O | 6286 |
+
+- **§K 标题提升**：`> ### K.x` → `### K.x`；`> **K.x 标题**尾文` → `### 标题` + `> 尾文`；`K.1a` 降一级为 `####`（H4 不进索引）。零丢失校验 = 去标记后字符流逐字相等（157,700 字符）。
+- **正文搬迁**：零改动零删除；校验 = 12 片正文逐行对比 `HEAD + §K 提升`（12/12 全等，1180 行）。
+- **索引页**：迁移表只到 § 级且 ⛔ 不写 `K.5.1-补N` 字面（避免给 seal 测试造 substring 假绿）；版本行 v1.24/2026-10-22 → **v1.25/2026-10-25**。
+- **机器依赖**：`bead-style-seal.test.ts` 的 `qaDoc()` 由单文件改为 `test-cases*.md` 集合拼接（qaAnchor 落在任一分片即在案，断言强度不变），失败文案同步。
+- **引用面**：`ctx/ROUTES.md` §1.5 七行（行数不变）+ L90 反模式行；
+- **文档引用 9 处**：art `final/README.md`、`docs/architecture/ui-architecture-beads.md`、`knowledge/lessons/criteria.md`、`assets-spec.md` ×2、`art-bible.md`、`menu-layout-implementation-spec.md`、`smoke-tests.md` ×3、`wxg-t-228-tint-criteria.md`。
+
+### 验证
+
+- `pnpm run check:tasks` **OK**——主表 99 行 ⇔ 详情 99 节，归档 184 成对。
+- `ctx:build --staged-blobs` → **490 文件 / 6985 节**；`ctx:check --staged` **OK**（A/B/C/D/D2 + E3 全过）。
+- A 项：`ctx/hot-files.md` **5552 / 5600** ✅；常驻总量 **15343** > 软阈值 13500（观察哨 WARN，不阻断）。
+- `ctx/budget-exempt.json` **53 → 52 条**，`production/qa/beads/test-cases.md` path **零命中**。
+- `npx vitest run tests/bead-style-seal.test.ts`（beads）= **12/12 passed**（读取面改集合后零降级）。
+- 全量 `pnpm run verify`（22 项，不短路）：**PASS 20 / FAIL 2**。
+  - `test`（exit 1）：beads **6 failed / 1255 passed / 3 skipped**，名单 = `difficulty.test.ts` 3 条（EP12-S5 §5.1 逐值 / DI 序 / Spearman）+ `ui-golden.test.ts` 3 条（level-select / level-select-mid / sprint-settle）。**归因 = 并发在制 level 数据**：工作树 `L00001.json`（time 46→30、pattern 两次改行）与 `levels-data.ts`（同源两处）为另一会话未完成改动（K-045）；干净检出（`git worktree` @ `HEAD`）复跑 beads 全量 = **1261 passed / 3 skipped / 0 failed（104/104 文件）**，两个红文件单跑 23/23 passed ⇒ 非本批引入。
+  - `selftest:fast`（exit 1）：内嵌 `ctx:check` 0.6s exit 1，**红因 = 未提交态**——`ctx:check` 默认模式按 HEAD blob 比对，本批 24 个被索引 .md 尚未提交 ⇒ C 项逐件报过期（结构性，非缺陷）。同内容用 pre-commit 同款 `ctx:check --staged` 已验 **OK**（见上条）；提交后即收敛。
+
+### 遗留
+
+- 12 片均为 `tier:normal`（仅索引页仍 hot）⇒ 若某片被裁撤，ROUTES 会经 D2 报红（预期行为）；`tier:hot` 集合是否随分片重定，留给下一轮 ctx 单。
+- 索引页 tokens 列为估算值（不计入门禁）；超 16k 须人工看 B 项，新一轮新增判据后需回写。
+- `smoke-tests.md` 的 `test-cases-m-menu.md §M.0` 为历史悬空锚点（原 `test-cases.md §M.0` 本就不存在），本轮只改文件路径、不造节。
+- 拼图/切点依赖行号：若后续在 §K 前段插节，三个 K 分片的切点需重算（索引页 §分片索引 为准）。
+- `production/qa/test-cases.md`（非 beads）与本次同名不同件，未动。
 
 ### WXG-T-226/227/228 · 豆面格面正式管线（三专家并行，2026-09-29 回传）
 

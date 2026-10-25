@@ -46,5 +46,5 @@
 4. **格式一律 PNG**（2026-10-17 用户令：小程序不支持 WebP）；新件不得落 `.webp`。
 5. **既有 `.webp` 处置（2026-10-18 分档执行，已收口）**：
    - **已退役共 27 件**（第一批 7 + 第二批 20）→ 隔离区 `temp/webp-retired-20261018/`（不硬删，git 侧记为删除）：① 现役链 7 件（proto-v2/v3 五张 + coin/stamina，无同名冲突 ⇒ 逐位一致转 PNG、maxΔ 0 自证）；② 按「Cocos 投放件反推父本」判据定 PNG 为现役的 20 件（A 组 6 仅编码损失 + B 组 14，含根镜像件与 boss 旧底件）。**本区 `assets/menu/` 与 `prototypes/` 已零 webp**，harness `MENU_FILE` 全部指 PNG。
-   - ⚠ **B-10 裁定结果不是「选哪份现役」，而是查出一个量化塌缩缺陷**：`octree(正本 pressed)` 与在册投放件逐像素相等（⇒ 没人装错文件），但 RGBA 八叉树把 alpha 算进色距 ⇒ 按下态暗边被合掉（同族互异保持率 0.13）⇒ **BD-61**（`production/qa/beads/test-cases.md §M.11`，含初版误判的订正块）。修复入口 = `../../ai-workflows/quantize-cocos-textures.py`。
+   - ⚠ **B-10 裁定结果不是「选哪份现役」，而是查出一个量化塌缩缺陷**：`octree(正本 pressed)` 与在册投放件逐像素相等（⇒ 没人装错文件），但 RGBA 八叉树把 alpha 算进色距 ⇒ 按下态暗边被合掉（同族互异保持率 0.13）⇒ **BD-61**（`production/qa/beads/test-cases-m-gate.md §M.11`，含初版误判的订正块）。修复入口 = `../../ai-workflows/quantize-cocos-textures.py`。
    - **取证快照 53 件保持原样**（`../shots/**` 22 + `production/qa/menu-b*/**` 31）——不经小程序解码，且换格式会破坏当时读数的逐字节复现（K-131）。
