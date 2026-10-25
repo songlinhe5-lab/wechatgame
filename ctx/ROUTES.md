@@ -8,80 +8,23 @@
 > 锚点写法 = `路径#小节标题`，与 `ctx/index.json` 的 `anchor` **一一对应**（可 `pnpm run ctx:build` 重建）。
 > **整文件（非锚点）引用**：指「只给路径、不给小节」的路由，须在该行**行尾**标注 `<!-- no-anchor -->`
 > 显式豁免锚点校验；`pnpm run ctx:check` 的 **D 项**会逐条校验 `路径#锚点` 是否在索引中可命中，
-> 未标注豁免的整文件引用会被判失败。
-> 「估算 token」为**粗略值**（CJK≈1/字、ASCII≈1/4 字符），仅用于取舍；准确行区间以 `ctx/index.json` 为准。
+> 未标注豁免的整文件引用会被判失败。**估算口径与准确行区间**见下行摘要与 `ctx/index.json`。
 
-### 量化与自证（本表的效果由「分层上下文节省装置」实测，WXG-T-026）
+### 装置契约摘要（全文 = 原 ①–⑫，见 `docs/agent/context-metrics-history.md` §5，WXG-T-379 迁出）
 
-> ① **估算口径**：本表与装置涉及的 token 一律为**估算**（CJK≈1/字、ASCII≈1/4 字符，
-> 见 `tools/scripts/lib/context-tokens.mjs`），**非**精确 tokenizer，仅用于排行与阈值护栏。
-> ② **数据来源**：本机 IDE 会话转录（Cursor / WorkBuddy）→ 读事件账本 `ctx/reads-ledger.jsonl`
-> （**仅元数据**：path/offset/limit/行数/字节/估算 token，**绝不落正文**；仓库外路径丢弃）。
-> 采集需**本机会话文件**：`pnpm run ctx:reads`。
-> ③ **如何复算**：`pnpm run ctx:usage` → 分布 `ctx/usage-distribution.json`（聚合指标）+ 人读报告
-> `ctx/reads-summary.md`；报表 `ctx/BUDGET.md §4` 与门禁 `pnpm run ctx:check`（E 项）均消费该分布。
-> ④ **基线如何更新**：`pnpm run ctx:check -- --update-baseline --reason="…" --task-id="WXG-T-…"`
-> （更新 `ctx/savings-baseline.json`，**必须**写明 `reason` 与 `taskId`；缺字段视为配置错误）。
-> ⑤ **去重口径限制**：账本按 `(ide,session,path,offset,limit)` **去重**——**抖动指标只反映不同区间的小读，
-> 同区间重复读已被去重合并**；故 E2 抖动计数为**下界**，护栏强度弱于字面，读者勿高估。
-> ⑥ **埋点能力与接入调研**：`docs/agent/context-instrumentation-survey.md`（四 IDE read 事件埋点能力矩阵；
-> **本轮不改任何 IDE 配置**，接入属后续独立任务）。
-> ⑦ **门禁语义分层（主理人裁定 WXG-T-026，2026-09-12）**：**结构门硬**——A 常驻预算 / B 单文件上限 /
-> C 索引新鲜度 / D ROUTES 锚点 / **E3 基线回归**（劣于基线即 `FAIL` 阻断）；**行为门软（报告项）**——
-> **E1 节省率**（局部读中位数 ≥70%、P10 ≥40%）与 **E2 护栏**（抖动组数、大文件整文件读次数）
-> **如实展示 ❌ 与数字但不阻断 CI**，理由：行为指标取决于历史会话分布，不应作为无关 PR 的合并硬门。
-> **E4 净收益**（WXG-T-036，q-2）同为**报告项**：毛节省率不扣装置自身开销，故并列
-> 「实测 / 应然·协议基线（仅 ROUTES）/ 应然·含行号速查」三行，**禁止只报好看的那个**；
-> 若协议产物（`ctx/`）读事件为 0，必须同步输出**归因声明**（毛节省不可归因于本装置）。
-> ⑧ **观察目标（非门）**：E1/E2 是**报告项**（⑦），最新读数看 `ctx/reads-summary.md` + `ctx/BUDGET.md §4`，
-> **不要**在本表里维护快照。阶段观察目标：E1 **P10 ≥ 40%**、抖动组 **≤ 5**、大文件整文件读 **≤ 30** 次。
-> ⑧·补 **E1 必须双列并报（WXG-T-036 q1）**：P10 分**严格 / 宽松**两列——差别来自「有 `limit` 无 `offset`
-> 的近似整读」，采集与分析侧判定为**三分法**（`full` / `implicitFull` = 无 `offset` 且行覆盖 ≥95% / `partial`）。
-> ⚠ **零和**：收紧口径会让 P10 变好而整读占比变差，**两侧必须一起报**，⛔ 只引好看的那一列。
-> ⑧·补 **样本代表性边界（WXG-T-026 复验 F-01/F-02）**：读数只来自少数根会话、且活动会话边写边采 ⇒
-> 样本非平稳、**重跑即漂移**（故 E2/E3 用**比率口径**）；**单仓库非独立重复采样 ⇒ 不可外推**。
-> 快照数字与样本构成 → `docs/agent/context-metrics-history.md §1–§3`。
-> ⑨ **索引新鲜度契约（WXG-T-026，2026-09-12）**：`ctx/index.json` 描述的是**已提交内容（HEAD）**——
-> dirty（有未提交改动 / 未跟踪）文件按 **HEAD blob** 参与哈希与行数计算，未跟踪的**新文件不入索引**。
-> 因此 CI（干净检出）恒绿；但**本地 dirty 文件的行号可能与索引漂移**（索引描述已提交内容，不描述你的
-> 未提交改动）。逃生阀 `--working-tree` 强制按工作树内容、输出标注「非默认模式」，**生成器与门禁两侧必须
-> 成对使用**（`ctx:build --working-tree` → `ctx:check --working-tree`）——只切校验侧会让 C 项对**每个 dirty
-> 文件**报「索引过期」，且照提示重跑**默认** `ctx:build` 也消除不了（索引模式 ≠ 校验模式，WXG-T-036 复验）。
-> 成对使用的附带收益：**A/B 项显示工作树真实体积**（默认模式显示 HEAD 值 → 本地已超标时会**假绿**，
-> 实例与当时数字 → `docs/agent/context-metrics-history.md §4`）。
-> 暂存区模式 `--staged-blobs` 见 ⑩。
-> ⑩ **pre-commit 自动重建（WXG-T-032 ⑤，2026-09-13）**：改被索引 `.md` 后**直接提交即可**——
-> pre-commit 检测到暂存区含 `.md` 时会以 `--staged-blobs`（暂存 .md 按**暂存 blob** 内容索引，暂存
-> 新文件一并纳入）自动重建 `ctx/index.json` + `ctx/BUDGET.md` + `ctx/hot-files.md` 并**重新暂存**
-> （产物随本次提交入库），再跑 `ctx:check --staged` 兜底终校验（正常路径恒绿，仅竞态 / 意外时拦截）。
-> 不再要求「先 `ctx:build` 再提交」，也**不需要且禁止**用 `--no-verify` 绕过。手动 `pnpm run ctx:build`
-> 仍用于本地预览 / 复算（默认模式 = ⑨ 的 HEAD 锚定）。
-> ⑪ **第二跳产物 `ctx/hot-files.md`（WXG-T-036 q-1，2026-09-13）**：把「锚点 → `offset`/`limit`」这一跳
-> 单独摘成**人/agent 可直读**的小文件（全量 `ctx/index.json` 体量大、不宜直读），由 `pnpm run ctx:build`
-> 生成。收录**热文件（`tier:hot`，必收）× 大文件/实测热读（按预算可收）**；`ctx/` 下生成物**不收**（防自引用）。
-> 体积上限 `LIMITS.hotFilesMaxTokens`（生成器与 `ctx:check` **A 项共用同一常量**，正常路径恒绿）；
-> 超预算候选**不进本表**，但在文末「未收录」**如实列出**（指向 `ctx/index.json`）。
-> 该表是**协议常驻开销**，会直接扣减应然净收益 → `ctx/reads-summary.md §②.1` **单列一行**给出其代价。
-> ⑪·补 **收录优先级 + 覆盖率硬门（WXG-T-044，2026-09-13）**：选池改为 **① 本表引用优先（无条件进池）
-> → ② 实测读次数 ↓ → ③ 体积 ↑**（旧版只认「实测读过 ∨ ≥3000 tok」，使本表引用的中小文件全部落选，
-> agent 走到锚点只能退机器读的全量 `ctx/index.json`）；文末「未收录」只列 ROUTES 引用的落选文件
-> （旧版逐条列全量落选者，纯常驻开销；回收账见 `docs/agent/context-metrics-history.md §4`）。**门禁 D2（硬门）**：引用面覆盖率 ≥
-> `LIMITS.hotFilesCoverageMin` —— 结构指标，不受 ⑦ 行为类裁定约束，断链即 FAIL。
-> ⑪·补² **第二跳两件控量 + 硬门 D3（WXG-T-293，quality-lead 裁定）**：① 锚点名超 `hotAnchorLabelMaxChars`（20）截前缀 + `…`，**行号不动** ⇒ 覆盖不变；② `hotFileAnchorMax`（12）只作用于 ROUTES 已声明「先用 index.json」的文件（现网 = TASKS-DETAIL），⛔ 不裁 QA 判据表。D3（U1/U2/U3）机械守可寻性，反例必红 = `ctx:hotfiles:selftest`；同批 `hotFilesMaxTokens` 5800→**5600**。
-> ⑫ **本表常驻体积上限（WXG-T-039 R5，2026-09-13）**：本表是协议常驻第二跳且为**手维护路由表**
-> （被索引但非生成物、无生成器控量），设**硬上限 7500 估算 tokens**（`LIMITS.routesMd` ≈ 现值 +20%、
-> 低于 B 项通用 8000）——`pnpm run ctx:check` **A 项**超限即 FAIL + exit 1，处置 = **瘦身**（合并重复
-> 路由 / 删除失效锚点引用 / 长说明移 docs/），**勿直接调大阈值**（调阈须按程序留痕并同步文档）。
-> 另设**常驻总量观察哨**（AGENTS.md + my-rules/* + hot-files + 本表的每会话固定开销合计，软阈
-> `LIMITS.residentTotalSoft` = 13500）：单文件上限各自为政时总量仍可漂移，超软阈仅 ⚠️ 提示**不阻断**。
-> 上限单一真源：`tools/scripts/lib/context-index.mjs` 的 `residentLimit()`（门禁 A 项与 BUDGET.md §1 表共用）。
+> **估算口径**：本表与装置 token 一律估算（CJK≈1/字、ASCII≈1/4；`tools/scripts/lib/context-tokens.mjs`），非精确 tokenizer。
+> **索引新鲜度**：`ctx/index.json` 描述**已提交内容（HEAD）**——dirty 文件按 HEAD blob 算、未跟踪新文件不入索引，
+> 故本地 dirty 时行号可能漂移；逃生阀 `--working-tree` 与暂存区 `--staged-blobs` **必须生成器与门禁成对使用**。
+> **pre-commit 自动重建**：改被索引 `.md` 后直接提交即可（按暂存 blob 重建三产物并重新暂存，再 `ctx:check --staged` 兜底）；⛔ 不需要也禁止 `--no-verify`。手动 `ctx:build` 仅供本地预览（默认 = HEAD 锚定）。
+> **门禁分层**：**结构门硬**——A 常驻预算 / B 单文件上限 / C 索引新鲜度 / D 锚点可命中 / **D2** 引用面覆盖 / **D3** 二跳可寻（U1–U3）/ E3 基线回归，断即 FAIL；**行为门软**——E1 节省率 / E2 抖动 / E4 净收益只报数不阻断（E1 须严格·宽松双列、零和两侧并报；`ctx/` 读事件为 0 时须出归因声明）。
+> **三个上限**（单一真源 `tools/scripts/lib/context-index.mjs` 的 `residentLimit()`）：本表 `routesMd` **7500** / 第二跳 `hotFilesMaxTokens` **5600** / 常驻总量软阈 `residentTotalSoft` **13500**（观察哨，不阻断）。
+> **超限处置 = 瘦身**（合并重复路由 / 删失效锚点 / 长说明移 docs）；⛔ 勿直接调大阈值（调阈须按程序留痕并同步文档）。
 
 ## 0. 上下文读取协议（强制）
 
 1. 读本表 → 命中**精确锚点**（文件 + 小节标题）。
 2. 到 `ctx/hot-files.md` 查该锚点的 `offset`/`limit`（行内格式 `锚点=offset+limit`，已算好）。
-  - 本表引用到的文件**保证能查到**（选池优先级与门禁 **D2 硬门**见前言 ⑪·补）；只有落在该表末
-    「未收录 · ROUTES 引用的文件」小节里逐条列出的，才退 `ctx/index.json` 查 `startLine`/`endLine`（**勿**整读）。
+  - 本表引用的文件**保证可查**（**D2 硬门**）；只有「未收录」小节列出的才退 `ctx/index.json` 查 `startLine`/`endLine`（**勿**整读）。
 3. `read_file(path, offset, limit)` —— **只取这一节**。
 4. 仅当需「**逐字精确**」（改判据 / 抄常量 / 引用原文）时，才扩读相邻节；否则摘要足够。
 5. 同一会话对同一文件反复小读 **超过 3 次** → 合并为**一次扩读**（连同命中节一起取整段）。
@@ -173,7 +116,7 @@
 
 | 意图 / 需要什么 | 精确锚点（文件#章节） | 估算 token | 备注 |
 |---|---|---:|---|
-| 硬判据总表（50 条） | production/qa/beads/test-cases-a-core.md#§A 硬判据用例（50 条 = 5 组 × 10，判据 1:1 映射） | 2507 | ⚠ QA 判据件锚点**不按条数裁**（裁则削掉 §A.0 / §I.2 / §K / §M.10 等判据与结论态节，WXG-T-293）；控量走标题截断，D3-U1 保命中。**13 片总索引 = `production/qa/beads/test-cases.md` 的 §分片索引（WXG-T-225）** |
+| 硬判据总表（50 条） | production/qa/beads/test-cases-a-core.md#§A 硬判据用例（50 条 = 5 组 × 10，判据 1:1 映射） | 2507 | ⚠ 锚点**不按条数裁**（裁即削掉判据/结论态节，WXG-T-293），控量走标题截断、D3-U1 保命中。**13 片总索引 = `production/qa/beads/test-cases.md` 的 §分片索引（WXG-T-225）** |
 | A1 核心循环判据 | production/qa/beads/test-cases-a-core.md#§A1 · 核心循环（S1）— 来源 `core-loop.md §8.1..10` | 526 | |
 | A2 拼图网格判据 | production/qa/beads/test-cases-a-core.md#§A2 · 拼图网格与填色（S3）— 来源 `bead-grid.md §8.1..10` | 480 | |
 | A3 供料托盘判据 | production/qa/beads/test-cases-a-core.md#§A3 · 供料与托盘（S4）— 来源 `tray-spawner.md §8.1..10` | 450 | |
@@ -185,9 +128,9 @@
 
 | 意图 / 需要什么 | 精确锚点（文件#章节） | 估算 token | 备注 |
 |---|---|---:|---|
-| 领号 / 任务台账 | production/TASKS.md#§WXG 任务台账（SSOT） | 2220 | **领号认工作树全局最大号，不止已提交头注**（判例 K-046：并发会话未提交的号段只存在于工作树，照 HEAD 头注领号必撞）：`grep -o 'WXG-T-[0-9]\{3\}' production/TASKS.md production/TASKS-DETAIL.md \| sed 's/.*WXG-T-//' \| sort -n \| tail -1` ⇒ +1；要看**全部任务状态**才读主表（≈2.4k tok），详情按下一行入口**只读命中那一节** |
+| 领号 / 任务台账 | production/TASKS.md#§WXG 任务台账（SSOT） | 2220 | **领号认工作树全局最大号，不止已提交头注**（K-046：并发号段只在工作树，照头注必撞）：`grep -oh 'WXG-T-[0-9]\{3\}' production/TASKS.md production/TASKS-DETAIL.md \| sed 's/.*WXG-T-//' \| sort -n \| tail -1` ⇒ +1；看**全部状态**才读主表（≈2.4k tok），详情只读命中节 |
 | 任务**详情**（按需，勿整读） | production/TASKS-DETAIL.md#§WXG 任务台账 · 详情（标题制正文侧） | 单节 ≈ 290 | 一任务一节（`## WXG-T-0NN`）；**先用 `ctx/index.json` 查该节 `startLine`/`endLine`**，再 `read_file(path, offset, limit)` |
-| **memory 日志摘要（先读这个）** | memory/INDEX.md | 6777 | 分级加载入口：文件 → `##` 主题的行区间 + 体量 + **「详情」列** + 节首句摘要；命中后先看「详情」列：`—` ⇒ 按行区间读日记那一节，非 `—` ⇒ 正文已外移，改读 `memory/details/<…>.md`（WXG-T-068；二级详情层 WXG-T-106） | <!-- no-anchor -->
+| **memory 日志摘要（先读这个）** | memory/INDEX.md | 6777 | 分级加载入口：主题行区间 + 体量 + **「详情」列** + 节首句摘要；`—` ⇒ 按行区间读日记那一节，非 `—` ⇒ 正文已外移，改读 `memory/details/<…>.md`（WXG-T-068 · 二级层 WXG-T-106） | <!-- no-anchor -->
 | 已知限制 | memory/MEMORY.md#§已知限制 | 80 | |
 | 常用脚本 | memory/MEMORY.md#§常用脚本 | 197 | |
 | 项目约定 | memory/MEMORY.md#§项目约定 | 460 | |
@@ -229,6 +172,6 @@
 - 本表锚点须与 `ctx/index.json` 的 `anchor` 一致；改任一被索引 `.md` 的标题后，重跑 `pnpm run ctx:build`
   并用 `pnpm run ctx:check` 验证（C 项会点名过期文件）。
 - 只增补行、不删既有锚点；废弃锚点标 `[已过时]`。
-- 体积约束：本表是**协议常驻开销**（计入应然净收益，见 ⑪）；其体积由 `ctx:usage` 如实计入报表，
+- 体积约束：本表是**协议常驻开销**（计入应然净收益）；其体积由 `ctx:usage` 如实计入报表，
   **不再单独卡行数**（原「≤150 行」目标已让位给**引用面完整性**——由硬门 D2 守住）；
-  **token 硬上限见 ⑫**（`LIMITS.routesMd` = 7500，`ctx:check` A 项守住；WXG-T-039 R5）。
+  **token 硬上限 `LIMITS.routesMd` = 7500**（`ctx:check` A 项守住；沿革见 `docs/agent/context-metrics-history.md` §5 ⑫）。

@@ -24,9 +24,9 @@
 
 §wechatgame 项目长期笔记=1+74 · §日志蒸馏规程（R2 · WXG-T-0…=7+6 · §项目约定=13+15 · §常用脚本=28+11 · §SubAgent=39+4 · §Rules=43+3 · §Hooks=46+7 · §Headless / CI=53+8 · §已知限制=61+14
 
-## `production/TASKS.md` — 131 行 / 67827 tok / 实测读 4 次
+## `production/TASKS.md` — 132 行 / 68465 tok / 实测读 4 次
 
-§WXG 任务台账（SSOT）=1+132 · §待排（backlog，无号，立项时领取…=103+30
+§WXG 任务台账（SSOT）=1+133 · §待排（backlog，无号，立项时领取…=104+30
 
 ## `production/qa/beads/test-cases.md` — 62 行 / 3485 tok / 实测读 15 次
 
@@ -102,10 +102,10 @@
 §knowledge/ — 工作室知识库…=1+282 · §1 读取协议（开发前期）=7+10 · §2 写入协议（任务收尾）=17+28 · §3 文件分工=45+10 · §4 维护=55+13 · §5 生命周期（访问记账 → 归档 → …=68+41 · §6 活跃条目（自动生成）=109+174
 > 本表只列 7 / 11 节：其余 4 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
 
-## `production/TASKS-DETAIL.md` — 4804 行 / 190337 tok
+## `production/TASKS-DETAIL.md` — 4847 行 / 191646 tok
 
-§WXG 任务台账 · 详情（标题制正文…=1+4805 · §WXG-T-367=4126+63 · §WXG-T-368=4189+46 · §WXG-T-371=4235+49 · §WXG-T-370=4284+29 · §WXG-T-369=4313+38 · §WXG-T-378=4351+56 · §WXG-T-377=4407+80 · §WXG-T-376=4487+71 · §WXG-T-375=4558+53 · §WXG-T-374=4611+50 · §WXG-T-373=4661+53 · §WXG-T-372=4714+92
-> 本表只列 13 / 379 节：其余 366 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
+§WXG 任务台账 · 详情（标题制正文…=1+4848 · §WXG-T-368=4189+46 · §WXG-T-371=4235+49 · §WXG-T-370=4284+29 · §WXG-T-369=4313+38 · §WXG-T-379=4351+43 · §WXG-T-378=4394+56 · §WXG-T-377=4450+80 · §WXG-T-376=4530+71 · §WXG-T-375=4601+53 · §WXG-T-374=4654+50 · §WXG-T-373=4704+53 · §WXG-T-372=4757+92
+> 本表只列 13 / 385 节：其余 372 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
 
 ## `games/breakout/design/concept.md` — 143 行 / 3113 tok / 实测读 217 次
 
@@ -174,4 +174,4 @@
 §GDD · S4 砖块类型与命中规则（…=1+147 · §1 目标=7+3 · §2 机制=10+91 · §3 输入=101+5 · §4 输出与反馈=106+9 · §5 数值=115+11 · §6 边界条件=126+9 · §7 依赖=135+5 · §8 验收标准=140+8
 > 本表只列 9 / 15 节：其余 6 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
 
-> 另有 235 个文件既未被 `ctx/ROUTES.md` 引用、也未命中热度/体积门槛，与路由读取无关，故不逐条列出（需要时查 `ctx/index.json`）。
+> 另有 236 个文件既未被 `ctx/ROUTES.md` 引用、也未命中热度/体积门槛，与路由读取无关，故不逐条列出（需要时查 `ctx/index.json`）。
