@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 175,
+  "nextId": 176,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -2917,6 +2917,23 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-175",
+      "state": "active",
+      "file": "knowledge/lessons/process-gate.md",
+      "category": "流程门禁",
+      "title": "给某个状态加门之前，先让生产该状态的工具满足它：否则第一个合法操作就会把门打红",
+      "contentHash": "ec2dbd14f42e9fe0c8af6dfef2a690575e9020bff36c8c84353df17b4c3d00ef",
+      "sourceTask": "WXG-T-385",
+      "addedDate": "2026-10-25",
+      "lastAccess": "2026-10-25",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -4654,6 +4671,15 @@
       "kind": "added",
       "ids": [
         "K-174"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-25",
+      "taskId": "WXG-T-385",
+      "kind": "added",
+      "ids": [
+        "K-175"
       ],
       "note": null
     }

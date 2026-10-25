@@ -2,7 +2,7 @@
 /**
  * kb-check.mjs — 知识库 ledger / markdown / 索引面一致性校验（WXG-T-029）。
  *
- * 九重校验（失败 → 中文诊断 + 修复指引，exit 1）：
+ * 十重校验（失败 → 中文诊断 + 修复指引，exit 1）：
  *   ① 活跃条目 ID 唯一且格式合法（`K-\d{3}`；活跃 + 归档全局唯一）；
  *   ② ledger ↔ markdown **双向一致**（活跃↔lessons/patterns，归档↔archive/*；
  *      无孤儿 ledger 条目、无缺 ledger 的 markdown 条目）；
@@ -25,6 +25,10 @@
  *      ↓ 该项是「两处人工双登记必漏」的机械防线：`art-derivation`（标签 `美术派生`）曾建了片、
  *      进了指针页，两张表都漏登，只靠「未知片按名序追加」兜底才没丢条目。
  *      （反向「登记的片缺文件」不单列：该片有条目时 ② 已报孤儿；空片无文件不构成漂移。）
+ *   ⑩ **活跃文件内条目按 ID 升序**（WXG-T-385）：`lessons/*` 与 `patterns.md` 的条目必须按
+ *      ID 数字升序排列（文档形态契约：`kb:sync` 只在尾部追加新号、`kb:reactivate` 由
+ *      `insertIntoCategory` 按 ID 插入）⇒ 倒序 = 有人手工搬错或旧探针落位。
+ *      只报「前大后小」；ID 重复归 ①，不在此重复报。
  *
  * USAGE
  *   node tools/scripts/kb-check.mjs
@@ -51,6 +55,7 @@ import {
   entryContentHash,
   normalizeThresholds,
   parseKnowledgeFile,
+  parseIdNum,
   readLedger,
   sortEntries,
 } from './lib/knowledge-ledger.mjs';
@@ -307,16 +312,35 @@ if (existsSync(LESSONS_DIR)) {
   }
 }
 
+// ── ⑩ 活跃文件内条目按 ID 升序（WXG-T-385）─────────────────────────────────
+// 形态契约（`knowledge/INDEX.md` §3「片内条目按 ID 升序」）：`kb:sync` 只在尾部追加新号、
+// `kb:reactivate` 由 `insertIntoCategory` 按 ID 插入 ⇒ 倒序 = 手工搬错或旧探针落位。
+// 只报「前大后小」；ID 重复归 ①，不在此重复报。
+for (const { f, parsed } of activeParsed) {
+  let prev = null;
+  for (const e of parsed.entries) {
+    if (!e.id) continue;
+    if (prev && parseIdNum(e.id) < parseIdNum(prev.id)) {
+      fail(
+        `⑩ 片内条目未按 ID 升序：${f.file} 第 ${e.startLine} 行 ${e.id} 排在 ${prev.id}（第 ${prev.startLine} 行）之后`,
+        '按 ID 升序搬回原位（kb:sync 只在尾部追加、kb:reactivate 按 ID 插入）',
+      );
+    }
+    prev = e;
+  }
+}
+
 // ── 汇总 ───────────────────────────────────────────────────────────────────
 if (problems.length === 0) {
   console.log(
-    `✅ kb:check PASSED —— **九重校验**：活跃 ${actives.length} / 归档 ${archived.length}；` +
+    `✅ kb:check PASSED —— **十重校验**：活跃 ${actives.length} / 归档 ${archived.length}；` +
       `① ID 唯一且合法 ② ledger↔markdown 双向一致 ③ SKIP_DIRS 含 archive ④ INDEX 活跃块同步 ` +
-      `⑤ thresholds 合法 ⑥ accessCount↔seen 严格一致 ⑦ events 合法 ⑧ contentHash 一致 ⑨ 分片映射一致`,
+      `⑤ thresholds 合法 ⑥ accessCount↔seen 严格一致 ⑦ events 合法 ⑧ contentHash 一致 ` +
+      `⑨ 分片映射一致 ⑩ 片内条目 ID 升序`,
   );
   process.exit(0);
 }
-console.error(`❌ kb:check FAILED（九重校验）—— ${problems.length} 项问题：`);
+console.error(`❌ kb:check FAILED（十重校验）—— ${problems.length} 项问题：`);
 for (const p of problems) console.error(`   - ${p}`);
 if (fixes.size > 0) {
   console.error('   修复指引：');

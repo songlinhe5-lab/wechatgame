@@ -36,6 +36,8 @@
 #            新标签在尾部、accessCount +1 不丢
 #         ⑲ kb:check ⑨（WXG-T-384）：磁盘分片未登记 → FAIL；条目行内标签落错片 → FAIL；
 #            移除分片目录后恢复 exit 0（旧布局跳过）
+#         ⑳ kb:check ⑩（WXG-T-385）：条目倒序 → FAIL 并点名两个号；
+#            `insertIntoCategory` 把老号插到首个更大 ID 之前（不追加到分区尾）
 #
 # 用法：tools/scripts/knowledge-selftest.sh
 # 产物：仅 stdout 报告；临时目录退出时清理，不污染仓库 / 真实知识库。
@@ -809,6 +811,63 @@ assert_not_contains "$(cat "$WORK/last.txt")" "K-001 行内标签" "19c 合法�
 rm -rf "$REPO/knowledge/lessons"
 rc=$(run node "$KB_CHECK")
 assert_eq "$rc" "0" "19d 移除分片目录（旧布局）后 kb:check 重新 exit 0"
+
+# ── [20] ⑩ 片内条目 ID 升序 + reactivate 按 ID 插入（WXG-T-385）─────────────
+echo
+echo "[20] kb:check ⑩：条目倒序 → FAIL；insertIntoCategory 按 ID 插入"
+
+# 20a 单测：老号插到分区内首个更大 ID 之前（不是追加到分区尾）
+rc=$(run node - "$REPO" <<'NODE_EOF'
+import { pathToFileURL } from 'node:url';
+import { join } from 'node:path';
+const root = process.argv[2];
+const { insertIntoCategory, parseKnowledgeFile } = await import(
+  pathToFileURL(join(root, 'tools/scripts/lib/knowledge-ledger.mjs')).href,
+);
+const lines = ['# t', '', '## 工具链', '', '- **[工具链][K-001] a**', '  正文 a', '', '- **[工具链][K-003] c**', '  正文 c', ''];
+const out = insertIntoCategory(lines, '工具链', ['- **[工具链][K-002] b**', '  正文 b']);
+const ids = parseKnowledgeFile(out.join('\n'), 'x').entries.map((e) => e.id).join(',');
+if (ids !== 'K-001,K-002,K-003') {
+  console.error(`BAD order: ${ids}`);
+  process.exit(1);
+}
+if (out.filter((l) => l === '').length !== 5) {
+  console.error('BAD blanks');
+  process.exit(1);
+}
+NODE_EOF
+)
+assert_eq "$rc" "0" "20a insertIntoCategory 把 K-002 插到 K-001 与 K-003 之间（不是分区尾）"
+
+# 20b 门：两条对调 → sync 回写哈希 → kb:check 必须因 ⑩ 变红（且不误报 ⑧）
+node - "$REPO" <<'NODE_EOF'
+import { writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+writeFileSync(
+  join(process.argv[2], 'knowledge/lessons.md'),
+  `# lessons.md — 教训库（桩）
+
+## 工具链
+
+- **[流程][K-002] 桩教训二：qux quux**（来源 WXG-T-902，2026-01-02）
+  现象：p2。
+  根因：r2。
+
+- **[工具链][K-001] 桩教训一：foo bar baz**（来源 WXG-T-901，2026-01-01）
+  现象：p1。
+  根因：r1。
+  规避：a1。
+`,
+  'utf8',
+);
+NODE_EOF
+rc=$(run node "$KB_SYNC")
+assert_eq "$rc" "0" "20b 倒序布局 sync 仍成功（sync 不回排，只回写哈希）"
+rc=$(run node "$KB_CHECK")
+assert_eq "$rc" "1" "20b 条目倒序 → kb:check exit 1"
+assert_contains "$(cat "$WORK/last.txt")" "⑩ 片内条目未按 ID 升序" "20b 报「⑩ 片内条目未按 ID 升序」"
+assert_contains "$(cat "$WORK/last.txt")" "K-001 排在 K-002" "20b 点名两个号与先后关系"
+assert_not_contains "$(cat "$WORK/last.txt")" "⑧ 条目" "20b 哈希已由 sync 回写 ⇒ 不误报 ⑧"
 
 # ── 汇总 ────────────────────────────────────────────────────────────────────
 echo

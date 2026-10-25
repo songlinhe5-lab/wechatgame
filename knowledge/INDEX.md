@@ -47,7 +47,7 @@
 | 文件 | 内容 |
 |---|---|
 | `lessons.md` | **指针页（不再放条目正文）**：标签 → 分片文件表 + 引用口径 |
-| `lessons/` | 教训分片（WXG-T-111 按行内标签切）：`toolchain` / `process` / `criteria` / `criteria-render`（WXG-T-221 子切：判据片越 B 门，渲染/几何序类条目入新片）/ `testing` / `cross-ide` / `environment` / `onboarding`（WXG-T-208 新切）/ `engine-cocos`（WXG-T-169 新建，首个 `引擎Cocos` 条目入册）/ `process-ledger` / `testing-guard` / `engine-cocos-build`（WXG-T-260 提交批子切：三片同时越 B 门 ⇒ 各按子标签再切，条目正文逐字节搬运、仅行内标签换名） / `doc-reference`（WXG-T-343 新建，标签 `文档引用`） / `process-audit`（WXG-T-344 新建，标签 `流程对账`；⚠ 这两片建片时只建了文件、**漏登记下述两处硬映射**（`doc-reference` 自 WXG-T-343 起漏），WXG-T-344 已补齐） / `toolchain-context`（WXG-T-382 再切，标签 `工具链上下文`：上下文预算 / 索引产物 / 门禁装置类九条目 K-003/004/005/030/032/034/058/119/171） / `process-ledger-sync`（WXG-T-382 再切，标签 `流程台账协作`：跨会话并发写盘 / 落地与归属类三条目 K-045/137/158；父片留单会话写台账的格式与门禁）；⚠ 本清单为人工维护、曾漏 `art-derivation`（WXG-T-384 已补登进映射表），**现读全片以 `knowledge/lessons/` 目录为准**；片内条目**按 ID 升序**，`## <标签>` 小标题保留（`kb:reactivate` 靠它定位）。⚠️ 新标签只需登记**一处**：`lib/knowledge-ledger.mjs::TAG_TO_SHARD`（WXG-T-384 起为单一正本，片序 `LESSONS_SHARD_ORDER` 由其派生；`kb:check ⑨` 机械校验「映射 ↔ 磁盘片 ↔ 条目行内标签」，未登记新片与落错片都会红；`knowledge:split --force` 仍对未知标签 fail loud） |
+| `lessons/` | 教训分片（WXG-T-111 按行内标签切）：`toolchain` / `process` / `criteria` / `criteria-render`（WXG-T-221 子切：判据片越 B 门，渲染/几何序类条目入新片）/ `testing` / `cross-ide` / `environment` / `onboarding`（WXG-T-208 新切）/ `engine-cocos`（WXG-T-169 新建，首个 `引擎Cocos` 条目入册）/ `process-ledger` / `testing-guard` / `engine-cocos-build`（WXG-T-260 提交批子切：三片同时越 B 门 ⇒ 各按子标签再切，条目正文逐字节搬运、仅行内标签换名） / `doc-reference`（WXG-T-343 新建，标签 `文档引用`） / `process-audit`（WXG-T-344 新建，标签 `流程对账`；⚠ 这两片建片时只建了文件、**漏登记下述两处硬映射**（`doc-reference` 自 WXG-T-343 起漏），WXG-T-344 已补齐） / `toolchain-context`（WXG-T-382 再切，标签 `工具链上下文`：上下文预算 / 索引产物 / 门禁装置类九条目 K-003/004/005/030/032/034/058/119/171） / `process-ledger-sync`（WXG-T-382 再切，标签 `流程台账协作`：跨会话并发写盘 / 落地与归属类三条目 K-045/137/158；父片留单会话写台账的格式与门禁）；⚠ 本清单为人工维护、曾漏 `art-derivation`（WXG-T-384 已补登进映射表），**现读全片以 `knowledge/lessons/` 目录为准**；片内条目**按 ID 升序**（`kb:check ⑩` 机械守：`kb:sync` 只在尾部追加、`kb:reactivate` 按 ID 插入），`## <标签>` 小标题保留（`kb:reactivate` 靠它定位）。⚠️ 新标签只需登记**一处**：`lib/knowledge-ledger.mjs::TAG_TO_SHARD`（WXG-T-384 起为单一正本，片序 `LESSONS_SHARD_ORDER` 由其派生；`kb:check ⑨` 机械校验「映射 ↔ 磁盘片 ↔ 条目行内标签」，未登记新片与落错片都会红；`knowledge:split --force` 仍对未知标签 fail loud） |
 | `patterns.md` | 模式库：本仓已验证可复用的实现/流程模式（未分片，1.4k tok） |
 | `ledger.json` | **条目台账（产物，勿手改）**：ID / 状态 / 类别 / 来源 / `lastAccess` / `accessCount` / `seen` / 归档与激活留痕；由 `kb:*` 命令维护，键序固定 |
 | `archive/` | **归档区**：`lessons-archived.md` / `patterns-archived.md` / `INDEX.md`（归档清单）；**已被 ctx 索引排除**（`SKIP_DIRS` 含 `archive`），开工查询看不到。lessons 各分片**共用单份** `lessons-archived.md` |
@@ -76,7 +76,7 @@
 | `pnpm run kb:audit` | ① **归档候选**（闲置 ≥ 90 天且访问 ≤ 1 次）② **归档相似命中**（新条目 vs 归档条目相似度 ≥ 0.34）——**只出清单，不自动归档** |
 | `pnpm run kb:archive -- --ids=K-004 --reason="…"` | **人工确认后**执行归档（`--reason` 必填） |
 | `pnpm run kb:reactivate -- --ids=K-004 --reason="…"` | 从归档搬回原文件并激活（保留历史访问计数，+1 次激活留痕） |
-| `pnpm run kb:check` | **九重**一致性校验（ID 唯一 / ledger↔md 双向 / archive 排除生效 / 活跃表一致 / 阈值存在 / `accessCount === seen.length` 严格成立 / `events` 合法 / `contentHash` 一致 / **分片映射 ↔ 磁盘片 ↔ 条目行内标签一致**） |
+| `pnpm run kb:check` | **十重**一致性校验（ID 唯一 / ledger↔md 双向 / archive 排除生效 / 活跃表一致 / 阈值存在 / `accessCount === seen.length` 严格成立 / `events` 合法 / `contentHash` 一致 / **分片映射 ↔ 磁盘片 ↔ 条目行内标签一致** / **片内条目按 ID 升序**） |
 
 ### 5.2 归档阈值（用户 2026-09-12 裁定，存于 `ledger.json.thresholds`）
 
@@ -281,4 +281,5 @@
 | K-172 | 流程台账 | process-ledger | `TASKS-DETAIL` 节标题必须裸写 `## WXG-T-NNN`：带副标题会被 `parseDetail` 漏认，门却报「没有此小节」 | WXG-T-381 | 2026-10-25 | 0 | active |
 | K-173 | 工具链 | toolchain | `String.replace` 的替换串含 `$` 会被当成替换模式（`$&` = 整匹配、反引号 = 匹配前、`$'` = 匹配后）：机械改文档必须用函数替换 | WXG-T-382 | 2026-10-25 | 0 | active |
 | K-174 | 工具链 | toolchain | 同一份映射登记在两处且无机械校验，必然漂移：能派生就派生，不能派生就上「三向」门 | WXG-T-384 | 2026-10-25 | 0 | active |
+| K-175 | 流程门禁 | process-gate | 给某个状态加门之前，先让生产该状态的工具满足它：否则第一个合法操作就会把门打红 | WXG-T-385 | 2026-10-25 | 0 | active |
 <!-- kb:active:end -->

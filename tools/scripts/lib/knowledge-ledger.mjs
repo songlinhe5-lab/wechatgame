@@ -446,8 +446,12 @@ export function removeEntryLines(lines, entry) {
 }
 
 /**
- * 把一个条目文本块插入到 `category` 小标题分区末尾（找不到则追加到文件尾）。
+ * 把一个条目文本块插入到 `category` 小标题分区（找不到则追加到文件尾）。
  * 用于 kb:reactivate 保持类别分区。
+ *
+ * **插入位置按 ID 升序**（WXG-T-385）：`kb:check ⑩` 把「活跃文件内条目 ID 升序」当契约，
+ * 而激活的往往是老号 ⇒ 无脑追加到分区尾会当场把门打红。故先找分区内第一个 ID 更大的条目，
+ * 插在它之前；没有更大的（= 新号）才落到分区尾（与 `kb:sync` 的尾部追加一致）。
  * @param {string[]} lines
  * @param {string|null} category
  * @param {string[]} entryLines
@@ -477,8 +481,20 @@ export function insertIntoCategory(lines, category, entryLines) {
       break;
     }
   }
-  // 在 tail 之前回退空行，插在最后一条正文之后
+  // 默认插在分区末尾；老号（激活的条目）则插到第一个更大 ID 之前（见函数注释）
   let insertAt = tail;
+  const incoming = parseEntryTitleLine(entryLines[0] ?? '');
+  const incomingNum = incoming?.id ? parseIdNum(incoming.id) : null;
+  if (incomingNum !== null) {
+    for (let k = head + 1; k < tail; k += 1) {
+      const t = parseEntryTitleLine(lines[k]);
+      if (t?.id && parseIdNum(t.id) > incomingNum) {
+        insertAt = k;
+        break;
+      }
+    }
+  }
+  // 回到插入点之前，回退空行，使分隔行仍只空一行
   while (insertAt - 1 > head && lines[insertAt - 1].trim() === '') insertAt -= 1;
   const out = [...lines.slice(0, insertAt), '', ...entryLines, ...lines.slice(insertAt)];
   return out;
