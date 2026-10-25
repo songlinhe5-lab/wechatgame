@@ -47,6 +47,9 @@
 #         ㉔ kb:archive 成功分支逐字段（WXG-T-390）：state/archivedDate/archiveReason 同写；正文多行逐行重建预期块
 #            （标题行 + 归档元信息行 + 正文行）比到 lessons-archived.md；源文件 = 原文件恰好减去那段（邻条不伤）；
 #            events 末条 archived 透传 date/taskId/note
+#         ㉕ --task 形态校验（WXG-T-392）：archive / sync / reactivate 三脚本同一契约——坏形态 → exit 2 +
+#            诊断回显坏值并给正确形态；三次拒绝后 ledger 与两个活跃文件逐字节不变、events 不追加；
+#            边界 `--task=`（空串）不算非法 = 按缺省 null 记账（成功归档、event.taskId=null）
 #
 # 用法：tools/scripts/knowledge-selftest.sh
 # 产物：仅 stdout 报告；临时目录退出时清理，不污染仓库 / 真实知识库。
@@ -1083,6 +1086,55 @@ assert_eq "$ev" "2026-03-06|WXG-T-908|桩：逐字段正例" "24d archived event
 rc=$(run node "$KB_CHECK")
 assert_eq "$rc" "0" "24e 归档后 kb:check 仍 exit 0（② 双向一致：md 已减、ledger 已转态）"
 assert_not_contains "$(cat "$WORK/last.txt")" "❌" "24e 无任何失败项"
+
+# ── [25] --task 形态非法 → exit 2：三脚本同契约 + 零写盘 + 空串按缺省（WXG-T-392）──
+echo
+echo "[25] --task 形态校验：archive / sync / reactivate 均 exit 2，拒绝时一个字节不写"
+
+cp "$REPO/knowledge/ledger.json" "$WORK/ledger.pre25.json"
+cp "$REPO/knowledge/lessons.md" "$WORK/lessons.pre25.md"
+cp "$REPO/knowledge/patterns.md" "$WORK/patterns.pre25.md"
+evn25=$(ldevn)
+
+# 25a kb:archive：ids / date / reason 全合法，只把 --task 换成缺前缀的坏形态
+rc=$(run node "$KB_ARCHIVE" --ids=K-002 --date=2026-03-07 --reason="桩：task 负例" --task=T-392)
+assert_eq "$rc" "2" "25a kb:archive 非法 --task → exit 2（用法错误，不是语义 1）"
+assert_contains "$(cat "$WORK/last.txt")" "--task 形态非法（T-392）" "25a 诊断回显传入的坏值"
+assert_contains "$(cat "$WORK/last.txt")" "应形如 WXG-T-029" "25a 诊断给出正确形态（可直接照抄）"
+
+# 25b kb:sync：尾巴非数字（正则锁两头，不允许多余字符）
+rc=$(run node "$KB_SYNC" --task=WXG-T-abc)
+assert_eq "$rc" "2" "25b kb:sync 非法 --task → exit 2"
+assert_contains "$(cat "$WORK/last.txt")" "--task 形态非法（WXG-T-abc）" "25b 诊断同源于 archive（三脚本一份契约）"
+
+# 25c kb:reactivate：全小写（校验区分大小写）
+rc=$(run node "$KB_REACTIVATE" --ids=K-006 --reason="桩：task 负例" --task=wxg-t-392)
+assert_eq "$rc" "2" "25c kb:reactivate 非法 --task → exit 2"
+assert_contains "$(cat "$WORK/last.txt")" "--task 形态非法（wxg-t-392）" "25c 大小写不符也被拒（不是包大小写宽松匹配）"
+
+# 25d 三次拒绝均为零写盘（守卫在任何读写之前），且 events 不追加
+assert_eq "$(ldevn)" "$evn25" "25d 三次非法 --task 后 events 条数未增"
+assert_file_not "$REPO/knowledge/lessons.md" "> 归档于 2026-03-07" "25d 未被拒绝的归档日期漏进活跃文件"
+cmp -s "$WORK/ledger.pre25.json" "$REPO/knowledge/ledger.json" && ok "25d ledger 逐字节不变（守卫早于写盘）" || bad "25d ledger 被拒绝分支改写"
+cmp -s "$WORK/lessons.pre25.md" "$REPO/knowledge/lessons.md" && ok "25d lessons.md 逐字节不变" || bad "25d lessons.md 被拒绝分支改写"
+cmp -s "$WORK/patterns.pre25.md" "$REPO/knowledge/patterns.md" && ok "25d patterns.md 逐字节不变" || bad "25d patterns.md 被拒绝分支改写"
+
+# 25e 边界：`--task=`（空串）不算非法 = 按缺省 null 记账，而当正例跑完
+rc=$(run node "$KB_ARCHIVE" --ids=K-006 --date=2026-03-08 --reason="桩：task 缺省边界" --task=)
+assert_eq "$rc" "0" "25e --task= 空串不被当非法（exit 0，真完成归档）"
+assert_eq "$(ld K-006 state)" "archived" "25e ledger：K-006 state=archived（本条不只是「不报错」，而是真写成了）"
+assert_eq "$(ldevids archived)" "K-006" "25e events 末条 archived 只含本批 ID"
+ev25=$(node -e '
+const j = JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"));
+const es = (j.events || []).filter((x) => x && x.kind === "archived");
+const last = es[es.length - 1];
+process.stdout.write(last ? String(last.taskId) : "<none>");
+' "$REPO/knowledge/ledger.json")
+assert_eq "$ev25" "null" "25e event.taskId = null（空串归一为「无归因」，而不是写入一个空字符串）"
+
+rc=$(run node "$KB_CHECK")
+assert_eq "$rc" "0" "25f 边界归档后 kb:check 仍 exit 0"
+assert_not_contains "$(cat "$WORK/last.txt")" "❌" "25f 无任何失败项"
 
 # ── 汇总 ────────────────────────────────────────────────────────────────────
 echo

@@ -3093,70 +3093,6 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 
 ---
 
-## WXG-T-296
-
-- **任务**：beads UI 架构迁移 P1 机制层（ADR-0032 已 Accepted；按 [`ui-architecture-beads.md`](../docs/architecture/ui-architecture-beads.md) §12 关键路径）。
-- **范围（本批）**：**UI-10 Navigator**（`packages/framework/src/core/ui/navigator.ts`：基于 `SceneStack`，路由类型 `page` / `modal`，`push / pop / replace / reset`，栈顶独占输入，可见路由集 = 栈顶向下到第一个 `page` 为止）｜**UI-11 ModalLifecycle**（`core/ui/modal-lifecycle.ts`：`closed / opening / open / closing` 四态 + 0..1 进度，`dt` 驱动，中途反转从当前进度续走，零分配）｜**UI-12 PressTracker**（`core/ui/press-tracker.ts`：按下登记、抬起命中同目标才产出提交；移出 / 换目标 / 取消 ⇒ 零提交；同帧 down+up = 即时点击，对照 `input-control` v2.13）。三者均纯新增，**不改** `buildBeadsView` / `buildMetaView` / shell 导航标志位 ⇒ 零视觉漂移。
-- **验收（引自 §12）**：UI-10 单测覆盖 push / pop / replace / reset 与屏障；UI-11 覆盖开合与中途反转；UI-12 覆盖移出取消与同帧即时点击；`check:arch` / `framework:sync:check` 绿。
-- **落点（5 新文件 + 1 行导出）**：`packages/framework/src/core/ui/navigator.ts`（`Route = Scene + kind`；`visibleRoutes(out)` 从最近的 `page` 起自下而上写入调用方数组，热路径零分配；`blocksBelow` = 栈顶为 `modal`）｜`modal-lifecycle.ts`（四态 + 0..1 进度；中途反转从当前进度续走；`duration ≤ 0` 即时完成；纯标量）｜`press-tracker.ts`（`begin / end(hit) / cancel`；`end` 仅在抬起点与登记目标同引用时返回目标）｜`core/ui/index.ts`（三件导出）｜`core/index.ts` +1 行 `export * from './ui/index.js'`。均为纯新增，`buildBeadsView` / `buildMetaView` / shell 标志位**零改动** ⇒ 零视觉漂移。
-- **测试**：新增 3 文件 **21 例**（Navigator 7 / ModalLifecycle 8 / PressTracker 6），逐条覆盖 §12 验收：push / pop / replace / reset 与屏障、开合与中途反转、移出取消与同帧即时点击；另含 `visibleRoutes` 复用数组、`reset` 的 onExit/onEnter、负 dt 与超长 dt clamp。`packages/framework` 全量 = **43 文件 / 474 例绿**。
-- **验证读数（2026-10-20）**：`pnpm --filter @wxgame/framework run typecheck` 退出 0｜`pnpm run check:arch` OK（L2 无违规，仅沿用 1 条 L1 编辑器产物提醒）｜`pnpm run framework:sync` = beads / breakout 各写入 5（三件 + `ui/index` + `core/index`），`framework:sync:check` 绿｜`pnpm run verify` = **PASS 22 / WARN 0 / SKIP 0 / FAIL 0**。⚠ 新增拷贝件无 `.meta`，需开 Cocos 编辑器生成（L1，脚本不碰）。
-- **状态**：✅ 完成（2026-10-20）。遗留：**UI-13 SafeInsets** 未开工（需 `PlatformInfo` 补胶囊完整矩形 + weapp / web / node 三适配器单测）；**UI-14** 的 UI-10…12 导出与镜像已落，`safe-insets` 导出待 UI-13。✅ **两项均于同日由 WXG-T-297 收口**；UI-02（金样本）与 UI-13 可并行。
-
----
-
-## WXG-T-295
-
-> beads·区外按钮改「抬起才提交」（输入时基统一）｜主理人(Qoder)·用户直裁｜程基岩域 + 文策域｜2026-10-19（用户原话「所有按钮应该按下抬起后再响应，如果按下，移动到按钮外部，那么抬起不会响应」；AskUserQuestion 两裁 = 范围「所有按钮类控件」+「文档先行一并回写」）
-
-- **翻的是哪条冻结裁定**：`input-control §2.1` v2.5 立的「未翻清单」——棋盘区抬起才提交（WXG-T-167/169 已翻）、**区外按下即提交**（未翻）。本批把区外**按钮类控件**一并翻成「抬起才提交」。机制 = **按下腿只登记控件身份、抬起腿在抬起点重测热区且要求仍是同一颗控件才派发** ⇒ 拖出热区 / 按住移到别的钮 / 期间相位已变 = 零响应零事件零扣次零音效。业务判定**一行没新写**：派发仍走原路由腿（`_handleTap` / `_applyMetaAction`），本门只决定「这一帧派不派」。
-- **明示未翻（范围门）**：托盘槽 4a/4b（落子与取回目标，不是按钮）、棋盘格（v2.5 起本就抬起）、缩放滑轨（拖拽控件 ⇒ 按下即进拖拽态并逐帧跟随）、遮罩空白、`tapDesign`/`tapMeta` 调试旁路（合成一次完整点击 ⇒ `justUp=true` 当场过门）。**范围外两件**（本轮实测核过，非推断）= `packages/framework` 无按钮层（`hitTest` 全仓零命中，命中几何在各游戏面板里）⇒ 不动框架；`games/breakout` 的 `_readInput` 只有「全屏 tap 发球 + 挡板跟随」零按钮控件 ⇒ 零改动。
-- **落点（两文件）**：`beads-game.ts` 新字段 `_uiPressTarget` + `_hitUiControl()`（按下腿）+ `_commitUiTap()`（抬起腿）+ 两处装配复位（`_uiPressTarget = ''`，防在途按压跨到新手牌指向不存在的控件）；`beads-shell.ts` 新字段 `_menuPress` + `_commitMenuPress()` + `update()` play 分支清登记。两条纪律写进函数头注：① **命中序必须与 `_routeTap` 逐条同序、几何全走同一批 `hit*` helper**（⛔ 不写第二套坐标，否则「按下判 A 抬起判 B」= 热区漂移，同 `meta-view::hitTestMeta` 头注口径）；② shell 侧比 **`id` + `slot`** 而非对象引用全等（选关页布局表每帧重建，引用会漂）。热路径零分配：按下腿返回值全是常量串或 `''`。
-- **顺带修掉一个旧缺口**：旧 `_readMenuInput` 在 `!isDown` 提前 `return` ⇒ 同一固定步内 down+up 的菜单快点击**被吞**（与 WXG-T-170 在局内修掉的是同一个坑的菜单腿）。本批重排该函数（先按 `justDown` 登记、再独立判 `!isDown` 提交）⇒ 顺手补上，属**新行为**，已配用例而不是只改注释。
-- **文档五件同批**：`input-control` **v2.13**（§2.1 提交时基段重写 + 路由表拆「区外按钮 / 区外非按钮」两行 + §3 输入行 / §6 手势边界 / §8 范表与判据 9 / §9 变更行）｜`core-loop` **v2.4**（U11 修正声明加订正子句：扫光链起点 = `powerup:used` **发射帧**，该帧现在 = 提交帧；旧文划线留档 K-053）｜`ux-spec` **v1.22**（§4 交互矩阵表头「区外拆分」+ 逐行改标「区外·抬起才提交」+ 托盘行标「非按钮未翻」+ §5/§8 U11 随迁注 + 文末变更记录）｜QA `test-cases` **v1.23**（§A4c.0 驱动口径由「push(down) 即断言」改为「down 帧 + up 帧两帧驱动」，并列出**旧读数降级清单**——只 push(down) 的历史断言不再构成证据，K-035）｜`ADR-0015` 头部加「修订（2026-10-19 · WXG-T-295）」行（原 C-3(a) 只写棋盘区，区外那句现失效）。
-- **测试**：新增 `tests/ui-input-timing.test.ts` **7 例**（面板主钮 down 不提交 / up 才提交、拖出热区零响应、A 钮拖到 B 钮两者都不生效、齿轮抬起才暂停、滑轨仍按下生效且逐帧跟随、托盘槽按下帧提交=未翻对照、主菜单钮拖出与跨钮取消）——**每条零响应腿都配同坐标同帧形的正向对照**（K-054，否则「热区整个失效」也能交出绿）；改写 `p3-pressed-shelf`（主钮与 shell 菜单按下态两例）、`pause-settings`（删本地 `tapInFrame` 改用 `tests/helpers.ts` 那份 + §8-6 余量 1 帧→2 帧）、`frame-order`（fo-1 保序正证留、fo-2 因道具卡提交后仍留 PLAYING ⇒ 改断 `time - 2*STEP` 并**如实写明本例不再对道具卡证明「输入先于计时」**）。变异实测：拆掉「同一控件」判定 ⇒ 只有跨钮两条腿转红 ⇒ 据此给 shell 补一条「齿轮按住 → 在 start CTA 抬起」跨钮腿（变异下确实红：`expected 'play' to be 'menu'`），「拖到空白」那条是靠抬起点落空成立而非身份判定，已如实记为两条不同判据。
-- **按下态换形（用户可退）**：`_pressedButtonNow()` 的语义由「按下即提交 ⇒ 淡出期内续亮到淡完」变为「**按住期间亮、抬起提交那帧即灭**」（切相位与起淡出同帧发生在手指已离开的抬起帧）。判定**不加 latch 新状态**——旧承载理由随按下即提交前提一起消解，加状态才是过度设计。
-- **验证读数（分时刻，⛔ 不混为一谈）**：① 20:3x 本批收口 = beads **1042 例绿**（82 文件）、`framework:sync` 副本一致、`verify` **PASS 19 / FAIL 3**（typecheck / cocos:check / harness:build，三条同根 = BD-62 在途件缺 `_viewData` 两字段初始化；本会话临时补那两行证实三门转绿后**撤回**，不越界代改他人尺度）② 20:51 复测 = **同一套件 5 文件 39 例红**，根因**不在本批**：拆分会话把 `_camera` 移进 `BoardCameraController` 而 `tests/helpers.ts::pinIdentityCamera` 仍按旧字段写 ⇒ `Cannot set properties of undefined (setting 'zoom')`（`createBeadsHarness` 前置腿，全 harness 类用例连坐）。③ 21:0x 再复测 = 该前置腿已由**拆分会话自己修好**（改读 `_board.camera`）⇒ 21:01 beads 全量 **82 文件 / 1042 passed / 2 skipped**（含本批 7 例），`verify` 的 `test` 门 PASS、`framework:sync:check` 亦转绿（拷贝件与 src 一致，含本批代码）；仍红的是 **FAIL 3 = typecheck / cocos:check / harness:build，三项同一个根因**：`beads-shell.ts:774-775` 写了 `v.carouselFirst/carouselLast` 而 `_viewData` 未声明那两字段（TS2551 ×2）= BD-62 在途件，与本批零相关 ⇒ 本批**当前可自证绿**（测试与镜像两面），只差 BD-62 那一行。
-- **并发冲突实录（三条，均非本批引入）**：① 20:30 本批对 `p3-pressed-shelf.test.ts` 的修改被外部写回覆盖为 HEAD 态 ⇒ 已重新施加并复验；② 20:37 起他会话把 `beads-game.ts` 拆入 `src/game/beads-game/{bead-conservation,game-settings,board-camera-controller}.ts`，且**已把本批两条腿的调用点适配为 `this._board.zoomHit(...)`**（门逻辑逐字保留，只是取控件的入口换形）⇒ 两线代码目前共存；③ 后果 = `beads-game.ts` 的 `git diff` 现混两线（820 行变更，−700 主要来自拆分）⇒ **本批无法单独成笔**，提交需人工分拆暂存（后由本会话按 K-045 整笔入库 `bd964a0`；未 push）。
-- **遗留**：① ~~`verify` 仍 FAIL 3，同一根因 = BD-62 在途件的两字段~~ ✅ **同日 22:3x 由该会话自行收口，本会话复跑 = PASS 22 / FAIL 0**（详「续批」节，⛔ 不是本批改的）；② ✅ 已整笔入库 `bd964a0`（用户 2026-10-19 选「C」授权；含拆分批 / BD-62 连带）；③ `meta-ui.md` 等屏文档未逐处补时基句，以 `input-control` v2.13 为真源；④ **手感待真机**（现已列入 **D-79**，见续批）：按钮侧**不设位移阈值**，判据 = 「抬起点是否仍在该钮热区」⇒ 热区外的轻微抖动会取消点击（这正是用户要的语义），真机若出现高频误取消，加阈值是一处改动（`_commitUiTap` 内比对按下点，⛔ 不要往 `_hitUiControl` 里塞）。
-- **沉淀（`kb:sync --task=WXG-T-295`）**：**新增 1 / 修改 1 / 激活 0 / 归档 0** —— 新增 **K-144**［测试守卫］「同一个零响应结论由两条不同机制各自达成时，只写一例 ⇒ 变异只能拆掉一条、另一条恒绿」（本批变异实测的直接产物，逐机制建例 + 逐机制拆变异的可复用配方）；修改 **K-045**［流程台账］追记第三变体（并发会话对同一份 .ts 做**结构重构** ⇒ 按 hunk 过滤与「HEAD 重放」两法均失效 + **绿读数必带时刻**，即 K-036 谱系的「检过 ≠ 现在还绿」）。✅ `kb:audit` 无相似命中（活跃 141 / 归档 0）、`kb:check` 八重校验 PASSED、`ctx:build` 已刷新索引面。
-
-### 续批（2026-10-19 22:3x–22:5x，不另领号）：选项 A = 复跑 verify + 真机手感走查开工准备
-
-- **上一轮登记的三项 FAIL 已消失，且不是我修的**：并发会话自行收口了 BD-62 那两字段（`_viewData` 已声明 `carouselFirst/carouselLast`）并补好了 harness 前置腿；本会话 22:3x 首跑 `verify` = **PASS 20 / FAIL 2**（`framework:sync:check` / `cocos:check` 镜像瞬时漂移），跑一次机械 `framework:sync` 后复跑 = **PASS 22 / WARN 0 / FAIL 0**。⚠ 读数只在 22:3x 时点成立（同一棵树仍有另一条线在写）；beads 全量在本日 21:01 实测 = **1042 passed / 2 skipped**（含本批 7 例）。
-- **重建现包**（旧包不含本批代码，拿它走查 = 测旧物）：22:47 `build:cocos`（release，26.3s）⇒ `check:size` = **3200.3 KB / 108 文件**（较 09:19 基线 **+12.1 KB**，本日夜间多线未提交工作全在内）；`check:cocos-mask` OK；**新增一条代码面同源校验** = `assets/main/index.js` grep 到 `uiPressTarget` / `menuPress` ⇒ 抬起提交门真进了主包（K-036 变体：不跑这条就看不出「仓里改了包里仍旧」）。
-- **走查单 v1.2 → v1.3**：§1 前置三行换为 22:47 实测 + 记一条 CLI 坑（`--qr-output` **必须绝对路径**，相对路径报 code 17「二维码输出路径无效」，与登录/密钥无关——本批实测踩到）；**新增 D-79**（Session 3 输入）= 齿轮 / 道具卡 / 结算主钮各做两腿（**甲** 拖出热区或跨钮抬起 ⇒ 零响应；**乙** 同钮原地抬起 ⇒ 正常响应），线全部指回 `input-control` **v2.13** / `test-cases` **v1.23**，⛔ 本单不新造线；P3 按下态行按新时基改写（~~淡出期仍显~~ ⇒ 抬起提交帧即灭）；§6 统计 S3 **11→12**、线已定义 **3→4**。
-- **执行卡**（`production/qa/beads/device/2026-10-19/README.md`）新增 §6：6a–6c 六条手指操作 + **6d 主观「误取消」读数**（哪些钮、几次——这是给 v2.13 定「位移宽容度」的**唯一事实来源**，现在没阈值）；禁忌 3 就地订正 = 旧码/旧包不得拿来测 D-79。
-- **预览码已代拉**：22:54 `cli islogin` = `{"login":true}`、`cli preview` ✔（TOTAL **3.1 MB / 3,235,817 B** < 4 MB）⇒ 扫码图 `temp/wxg295-preview-qr.png`（`temp/` 不入库）；真机在线 `hdc list targets` = `6UNBB26416051396`，hdc 取帧配方已写进卡。
-- **本续批零真机读数**（D-79 判定列仍空）：手指操作只能由用户做（本机截得到 Mac 屏、点不动手机与真机）⇒ 等扫码按 6a–6c 操完后由本会话取帧回填判定与来源状态列，阶段裁定归编排者。
-- **验证**：`verify` **22 / 0**（22:3x 时点）· `check:size` OK · `check:cocos-mask` OK · `framework:sync:check` OK · `check:tasks` 56⇔56 · `ctx:check` OK · `check:links` OK（本续批零代码改动，只改 QA 文书 + 重建产物）。
-
-### 续批二（2026-10-19 23:0x，不另领号）：包体数字对齐 + D-79 等待 + 提交分拆结论
-
-- **包体数字一次对齐（纯文书，零代码）**：以 22:47 现包实测（`find -type f -exec stat -f%z` 求和）为准 —— 主包 **3200.3 KB / 108 文件**，`assets/main` **527.2 → 539.3**（+12.1，其余组逐值不变），距主包红线余量 **907.8 → 895.7 KB**。改了三处：发布清单 **v1.5 §1.2**（含红线/总包/NO-GO 现值；§8 保留 10-18 gzip 基线并标注；A 现值 3200.3；B′ 预期 **3200.3 → 2731.1**；B/C **2288.9**）；走查单 **v1.4 §1**（补余量 895.7）；执行卡 §0/§1（09:19 旧包与 22:47 现包分时点，第 3 步改指 **`temp/wxg295-preview-qr.png`**，命令改绝对路径）。⛔ 不改 `systems-index §3.9` 冻结常量。
-- **B′ 仍未落码 ⇒ 门控读的是 3200.3 / 895.7，不是 2719.0 / 907.8**；发布清单已把这条写成明文，避免下一轮把「拍板预期」当成「现包读数」。
-- **D-79 仍零真机读数**：执行卡 6a–6c 需用户手指操作；`production/qa/beads/device/2026-10-19/` 下无 `D-79_LA_*` 帧。回填落点已定：走查单 §3 D-79 判定/证据列 + `test-cases` §A4「本批需复核的旧读数」**逐条限定**升/降 + `input-control` §2.1 真机读数交叉引用（⛔ 不把 D-79 三条腿扩大成「全部按钮 PASS」）。6d 若报高频误取消，阈值落点 = `beads-game/input-router.ts::commitUiTap`（拆分前名 `_commitUiTap`；原 `beads-game.ts`），需新增按下点坐标字段，⛔ 不往 `hitUiControl` 塞。
-- **提交分拆结论：本批不单独成笔**。K-045 追记里「HEAD 重放」的前提已变：本批 `_uiPressTarget` / `commitUiTap` 已被拆分会话搬进**未跟踪的** `src/game/beads-game/input-router.ts`，`beads-game.ts` 源码 diff 里已无本批符号；若只提交 shell 腿 + 文档 + 测试，`ui-input-timing.test.ts` 的面板/齿轮腿会引用不存在的 `commitUiTap` ⇒ 红树；若连 `input-router.ts` 一起提交，则把对方未完成的拆分目录整块带进本笔。⇒ 建议等对方收口后整笔走；本轮不动 git。
-
-### 续批三（2026-10-19 23:1x–23:29，不另领号）：选项 C = 对局 safe area + 胶囊避让
-
-- **用户裁定**：上一轮末尾三选项，用户选 **C**「暂停 D-79，先修 safe+胶囊」——D-79 真机回填暂缓，先把「齿轮压在状态栏触摸区」这一强候选根因按接口值修掉。
-- **改的是哪条口径**：对局 HUD 此前只有「动态高 `hudDy = designHeight − 1334`」，完全不看刘海/胶囊；主菜单早已用 `menuAnchors()` 走 `safeTopDp / capsuleBottomDp / safeBottomDp`。本轮把对局顶带接进**同一套函数**（⛔ 不写第二套换算）：`menuAnchors` 给 `st / (H − btTopY) / sb`，即 `_safeTop` / `_capsuleBottom` / `_safeBottom`，**仅 `plat.isMiniGame` 时计算**（harness / node 无刘海 ⇒ 三值 0 ⇒ 旧版面逐字节不变）。
-- **避让公式一行**：`_hudDy() = extra − _capsuleBottom`（`extra = designHeight − DESIGN_H`）。`_capsuleBottom = H − btTopY = 胶囊底缘 + SAFE_EDGE_MARGIN(4)`（dp→设计 px 已由 `menuAnchors` 按 `750 / windowWidthDp` 换算）。渲染（`snap.hudDy`）与齿轮热区（`hitGear(x, y, hudDy)`）同读 `_hudDy()` ⇒ 图与热区不会分家。
-- **落点（四源 + 一测）**：`state.ts`（`BeadsSnapshot` 增 `safeTop / capsuleBottom / safeBottom` 三快照字段，默认 0）｜`beads-game.ts`（`init` 算三值 + 私有字段 + `_hudDy()` 减 capsuleBottom + `_syncSnapshot` 写三值）｜`view-model.ts`（新 `drawSafeGuideLines()` 单源 + `drawHud` 末按 `snap.debugGuides` 调用）｜`meta-view.ts`（`drawSafeGuides` 改为复用同一函数，删本地重复画法）｜`dynamic-height.test.ts`（+2 例）。
-- **debug 划线（用户原话「与主界面功能一致」）**：**不**给暂停面板加第 11 钮——五行 10 钮已满，`pause-panel.ts` 原注释已写明该动作由设置 overlay 串入；主菜单齿轮 → 设置 →「Debug 开」的 `toggle-debug-guides` 走 `applySettingsAction` **持久化**，进关后 `snap.debugGuides` 同样生效。对局三条线 = `safeTop` / 胶囊底（回退 `SAFE_EDGE_MARGIN` 后与主菜单同值）/ `safeBottom`，两屏共用 `view-model::drawSafeGuideLines`，⛔ 不再各画一份。
-- **口径差 4px（本轮自己发现并修）**：`snap.capsuleBottom` 存的是**避让量**（= 裸胶囊底 + 4），直接当 cap 线会低 4px；已改为 `Math.max(0, capsuleBottom − SAFE_EDGE_MARGIN)`，与主菜单 `H − btTopY − 4` 同值。对局划线 H 坐标传 `DESIGN_H + snap.hudDy + snap.capsuleBottom` = 真实 `designHeight`。
-- **测试**：① 白盒设 `_capsuleBottom = 171` ⇒ 断言 `hudDy = DY − 171`，且**旧「贴屏顶」坐标已出热区（点不动）、新坐标可暂停**（图与热区同源的正反向各一条）；② 设 `_safeTop=88 / _capsuleBottom=171 / _safeBottom=68` ⇒ 断言三条线的 y = `H−88` / `H−167` / `68`。类型断言沿用仓内既有 `(c as unknown as { y1: number }).y1`（`filter` 不带类型谓词，`DrawCommand` 联合不窄化）。
-- **验证读数（分时刻）**：`tsc --noEmit` 通过；4 个相关套件 43 例绿（dynamic-height 6 / ui-input-timing 7 / pause-settings 14 / beads-shell 16）；**beads 全量 82 文件 / 1046 passed + 2 skipped**（较 22:47 的 1042 增 4 = 本轮 2 + 他会话 2）。
-- **构建与包体**：`framework:sync` 写入 4 / 未变 117 ⇒ `build:cocos` release **26.1s** ⇒ `check:size` = **3201.0 KB / 108 文件**（较 22:47 **+0.7 KB**，全在 `assets/main` 539.3 → 540.1），距主包红线余量 **895.0 KB**；包内 `assets/main/index.js` grep 到 `drawSafeGuideLines` / `capsuleBottom`（共 9 处命中）⇒ 安全区代码真进包（K-036 变体）。`cli preview` 23:29 ✔ TOTAL **3,236,587 B** < 4 MB（`temp/wxg295-preview-qr.png`）。
-- **文档三件同批**：发布清单 **v1.5 → v1.6**（§1.2 全量换 23:29 现包 3201.0 / 895.0 / B′ 2731.8 / B/C 2289.6）｜走查单 **v1.4 → v1.5**（§1 前置三行换 23:29 实测 + D-79 加「旧包读数作废、须在新包重测 6a」）｜执行卡 `device/2026-10-19/README.md` §0/§1/§6（6a 改「23:29 现包」+ 警示）。⛔ 未改 `systems-index §3.9` 冻结常量。
-- **根因状态（如实）**：**未最终确认**。现有最强证据 = 真机 HarmonyOS（hdc 无 `wm`；RenderService 报 render 1128×2444 / physical 1272×2756）⇒ 旧包齿轮中心距屏顶约 60 设计 px ≈ **34dp**，正落在系统状态栏触摸区（下拉通知栏会吞触摸）；修复后齿轮中心下移 `capsuleBottom`（约 117 设计 px ≈ **66dp**），到屏顶约 100dp。是否真解决，只能由用户在 **23:29 新包**上手测 6a 甲/乙判定。
-- **真机读数（2026-10-19，用户手测回传，已回写）**：**6a 齿轮腿甲/乙双过** —— **甲** 按住 HUD 左上齿轮拖到盘面空白处抬起 ⇒ 未暂停、计时继续；**乙** 原地按住抬起 ⇒ 弹暂停面板（同钮正向对照成立，K-054）⇒ **safe area + 胶囊避让修复被真机证实有效**（旧包齿轮压在状态栏触摸区确实是「乙1 不弹」的直接原因）。⇒ D-79 判 **`PASS*（6a 齿轮腿）`**；⚠ 残留 = 6b 道具卡 / 6c 结算主钮未测、「误取消率」无阈值、证据 = **用户口述无落盘帧** ⇒ ⛔ 不升 `PASS`、不外推「全部按钮通过」。回写四处：走查单 **v1.5→v1.6**（D-79 判定列 + §6 统计 + 变更日志）｜`test-cases` **§A4**（新增真机读数块 + `TC-INP-01R` 腿① 升 `[Device]` 复核通过，腿②③④⑤ 仍待复核）｜`input-control` **§8** 范表后真机读数块（明示只覆盖齿轮腿）｜执行卡 **§6** 结果段。
-- **未做 / 下一步**：① ~~用户扫码测 6a（甲 拖出后抬起不弹 / 乙 原地抬起弹暂停）~~ ✅ **已完成，甲/乙 双过**；② ~~回填走查单 D-79 判定列 + `test-cases` 旧读数升降 + `input-control` §2.1 交叉引用~~ ✅ **已回写**（见上一条）；③ **6b 道具卡 / 6c 结算主钮 / 6d 误取消主观读数仍未测**；④ ✅ **已整笔入库 `bd964a0`（81 文件，含拆分批 / BD-62 连带；未 push）**；⑤ `meta-view` cap 行仍写字面 `4`（与 `SAFE_EDGE_MARGIN` 同值，本轮刻意不动源码以保「23:29 构建新鲜」）；⑥ D-79 证据档位仍 = **用户口述**，若提审前需要可补 `hdc` 帧。
-- **验证（文书面）**：`check:links` OK；回填后全量 `verify` = **PASS 22 / WARN 0 / SKIP 0 / FAIL 0**（含 `check:tasks` / `check:links` / `typecheck` / `test` / `cocos:check` / `check:size`）。本轮零代码改动，23:29 产物未变（不需要重出码）；提交后复跑 `verify` = **PASS 22 / FAIL 0**。
-
----
-
 ## WXG-T-348
 
 **beads·主菜单签到入口回归（信封实装 + 未领小圆点）** · 2026-10-22 · 主理人(CodeBuddy)
@@ -4431,6 +4367,66 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 **未闭合**：① LB 入门禁的阈值口径（LB 拒 / UB+LB 双条件 / 仅报告）待拍板；② L00010 需后台批；
 ③ 束搜索不完备 ⇒ 19 是「已找到最好解」，真最优 ∈ [6,19]。
 
+---
+
+## WXG-T-392
+
+**`--task` 形态校验负例：三脚本同契约 + 拒绝零写盘 + 空串按缺省**（2026-10-25）
+
+> 领号已核 K-046：开工前头注「下一可用 = 392」（391 已由并发会话 `df20052` 占用并顶注），主表 / 详情节 / `git log --all --grep` / 全树 grep 四路零占用（唯一命中是本批自测注释）⇒ 本批取 **392**。
+
+### 1. 病根（T-389 §5 遗留 1 = T-390 §5 遗留 1）
+
+归档脚本头注写着四条用法错误都走 exit 2：缺 `--ids`、`--ids` 无有效 ID、缺 `--reason`、**`--task` 形态非法**。前三条在 `[5]`/`[22]` 里各有一个独立负例，第四条从来没有：
+
+- 自测里出现过的 12 处 `--task=` **全是合法号**（`WXG-T-901`…`WXG-T-908`），所以「传了 `T-392` 这种缺前缀的值会被拒」这件事只存在于代码里，删掉那段守卫不会有任何用例红；
+- 这条守卫不只 archive 一处：`kb-archive.mjs:56` / `kb-sync.mjs:71` / `kb-reactivate.mjs:63` 各一份，共用 lib 导出的同一正则 `TASK_ID_RE = /^WXG-T-\d+$/` ⇒ 一个脚本改松了另外两个不知道；
+- 正则两头锁死 + 区分大小写 + 首尾空格先 trim（所传值只要「形如」才算合法），这些形态细节全靠读代码，无取证；
+- 另一头：`--task` 缺省 / 传空串时应归一为 `null`（「无归因」，不是写一个空字符串），这个分支同样没人测。
+
+### 2. 改法（只加自测，不动脚本行为）
+
+`[25]` 六腿，仍在桩仓（临时目录）里跑：
+
+- **25a/b/c 三脚本各一腿**，坏形态各不相同：archive 用 `T-392`（缺 `WXG-` 前缀）、sync 用 `WXG-T-abc`（尾巴非数字，验两头锁死）、reactivate 用 `wxg-t-392`（全小写，验区分大小写）。三条都期望 **exit 2**（用法错误，不是语义 1），且诊断既回显传入的坏值、又给出可照抄的正确形态。ids / date / reason 均给合法值，让红只能源于 `--task`。
+- **25d 拒绝即零写盘**：三次被拒后 `ledger.json` / `lessons.md` / `patterns.md` 逐字节不变，`events` 条数未增。这条是 [22] / [23] 手法在本组的延伸：光看 exit 2 不能证明它早于写盘。
+- **25e 边界正例**：`--task=`（空串）不算非法，真完成归档（`state=archived`、`events` 末条只含本批 ID），且 `event.taskId` 是 `null` 而非 `""`。
+- **25f** 边界归档后 `kb:check` 仍 exit 0 且无 `❌`。
+
+> **没有把三处守卫抽成共享函数**：正则本身已是单一正本（`knowledge-ledger.mjs::TASK_ID_RE`），剩下的只是三行 `if` 复制；本组三条断言已经把「三脚本一份契约」钉住（改坏一处即红），再抽一层是为三行造抽象。若将来要改语义（比如允许小写），改三处会被本组红三腿指名，不会静默漂移。
+
+> **判别力实验两枪**（均改真码、跑完逐字节还原，`git status` 确认该件已复原）：
+> ① `kb-archive.mjs` 守卫改成 `if (false)` ⇒ **恰 8 红**（25a 三条 + 25d 三条 + 25f 两条级联，另两脚本仍绿），证实本组能逐脚本定位；
+> ② 删掉 archive 里「空串归 `null`」那半个条件 ⇒ **恰 4 红且全在 25e**，证实那半行不是可删的冗余。
+
+- **提交被 ctx B 门拦下 → 本批同批做官方收敛**（不属原计划，如实登记）：pre-commit 报 `B: production/TASKS-DETAIL.md 206258 tokens > 类别上限 205000（tasksDetail）`。核基线：HEAD 版该件已 ≈204.9k tok，即**文件本体贴顶**，本批 +4.5k 只是把这扇门撞到。处置取钩子自己推荐的第二条路 `tasks:archive -- --detail-until-under=200000 --write`，按**最少条数**收敛 ⇒ 搬 **2 行 / 成对 2 节**（T-296、T-295，均 2026-10-19/20 的 beads 批），回落至上限以下（实测读数见 §3）。
+  > 为什么不选另两条：① `--detail-until-under=7000`（钩子 note 里的默认配方）实测要一次搬 **46 行 / 46 节**，远超闭合本门所需，属独立的收敛工程；② 在 `ctx/budget-exempt.json` 登记豁免 = 把 T-377 刚撤销 35 条、且明写「归档器 200k 契约 + 5k 余量」的这档门又变回债务登记簿。归档器行为未改，头注由其按「全局最大号（主表 ∪ 归档）」校准为 392 / 下一可用 **393**（与本批手写字一致，无重号）。
+
+### 3. 读数与门禁
+
+| 项 | 读数 |
+|---|---|
+| `knowledge-selftest.sh` | **271 / 271**（`[25]` 新增 18 条断言；原 253） |
+| `kb:check`（真实仓库） | 十重 PASS（活跃 172，判据未动） |
+| `check:tasks` | 写节前主表 **94 行 ⇔ 详情 94 节**（基线实测 93 再写预期值）；ctx B 门收敛后 **92 ⇔ 92**、详情归档侧 206 节成对 |
+| `tasks:archive`（dry-run → `--write`） | 搬 2 行 / 2 节（守恒校验通过）；详情 206258 → 归档器预估 199182 → **本批写完实测 199847 tok**（上限 205000，余 5153）；`ctx:check --staged` B 项由红转绿 |
+| `kb:audit` | ① 无候选 ② 无相似命中 |
+| `kb:sync --task=WXG-T-392` | 归档条目 0 / 写入：无 |
+
+### 4. 沉淀统计（`kb:sync --task=WXG-T-392`）
+
+**新增 0 / 修改 0 / 激活 0 / 归档 0**（纯自测；`[25]` 里的两次归档只发生在临时桩仓，真实 `knowledge/` 零改动）。
+
+### 5. 遗留
+
+1. `--date` 形态非法时是**静默兜底**而非报错（三个脚本都是 `/^\d{4}-\d{2}-\d{2}$/` 不匹配 → `todayISO()`），传 `--date=2026-3-6` 既不纠正、也不报错，而是归档到「今天」。这是未成文行为，先要裁「静默兜底 vs exit 2」再补断言（同 `--task` 当年先补头注契约、后补负例的路径）。
+2. `INDEX.md` 活跃块与 `archive/INDEX.md` 的行内容与排序、`reactivate` 反方向的 `stripArchivedMeta`（剔掉元信息行后原文逐字节还原）—— T-390 §5 遗留 2 未动。
+3. 24c 接缝空行单一形态的钉法（T-390 §5 遗留 3）仍在；本组未涉足。
+4. `check:tasks` 的 **H 观察哨未消**（主表 92 行 > 20，只告警不拦门）：真要把主表压到观察哨以下，得按「体积驱动」批量归档 70+ 行 ⇒ 需先裁「主表该留多少行近期任务」的口径，另开批次，不混进本批。
+5. 跑归档器时顺手发现（**非本批引入**，属存量）：`TASKS-DETAIL.md` 里 `## WXG-T-224 · …` / `## WXG-T-225 · …` 两节标题带「· 副标题」，而 `parseDetail` 只认裸号 ⇒ 这两节对 `check:tasks` 不可见（grep 物理节 94 vs 门报 92 即此因），而其主表行已入 `TASKS-archive.md` ⇒ 详情侧残留。修法 = 标题改裸号后重跑归档器成对搬运，或先补一条「详情有节 / 主表无行」的反向门 —— 需先裁方钉哪一侧。
+
+---
+
 ## WXG-T-389
 
 **`kb:archive` 余下两条 exit 1 分支负例：源文件未知 / ledger 有而 markdown 无**（2026-10-25）
@@ -4519,6 +4515,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 
 1. 服务端不做回收站、不做逐个删除/勾选 —— 只有「全清」（ponytail：先给最少的一档，要按目录删再加）。
 2. `_variants/` 空目录本身留着（gitignore 忽略它，删不删无差别）。
+
+---
 
 ## WXG-T-387
 
@@ -4725,6 +4723,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 2. `knowledge/INDEX.md` §3 的片清单仍是**人工维护的长串**，本次只改口径（「两处」→「一处」）不改形态；真读全片以 `knowledge/lessons/` 目录为准。若要彻底去人工，可由 `TAG_TO_SHARD` 生成该串 —— 本批未做：§3 每片都挂着历史沿革注，生成会丢注释。
 3. ⑨ 假定**一片一标签**（`dupShards` 判据）。将来若需「多标签指向同片」（别名），要先改判据再改表。
 
+---
+
 ## WXG-T-383
 
 **beads-studio · tint 导出参数化（B 阶）：定稿口径与实验档分离**（2026-10-25）
@@ -4781,6 +4781,8 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 
 1. 变体目录只靠 gitignore 隔离，**无自动清理**（累积靠人删，与 `apps/beads-studio/data/` 草稿同策）。
 2. 生成页没有调参面板（有意：那页是「选图→出关」，调参留在 tint 编辑器）。
+
+---
 
 ## WXG-T-382
 
@@ -4903,6 +4905,8 @@ B 门是 **spec 8,000、不设豁免**（WXG-T-041 + K-025「特殊豁免要早�
 
 `kb:audit`：归档候选 0、相似命中 0。首跑 `kb:sync` 未带 `--task` ⇒ CHANGELOG 落在「（无任务号）」，已按各条 `sourceTask` 补署（K-171→380、K-172 / K-169→381）后重渲染。
 
+---
+
 ## WXG-T-380
 
 **hot-files 第二跳「填充预留」：收录线与上限分离（5,567 → 5,185 tok，余 33 → 415）**（2026-10-25）
@@ -4949,6 +4953,8 @@ B 门是 **spec 8,000、不设豁免**（WXG-T-041 + K-025「特殊豁免要早�
 **新增 1 / 激活 0 / 归档 0**：**K-171**（`knowledge/lessons/toolchain.md`）—— 「预算型生成物『恒贴上限』是填充线造成的，不是素材过多：余量小先查填充逻辑，别先砍池」，即 §1 诊断订正的推广形态；含预留额度做法与「自测必须带『预留置 0 必回填』反例」（K-089）。版本实施落点在 §2 / §4。
 
 ⚠ 首版正文 412 tok ⇒ `knowledge/lessons/toolchain.md` 8,152 **> spec 8,000**，pre-commit 的 B 项当场拦下（K-170「单文件上限是硬顶」重演）。按「标题行即索引、正文只留可操作项」裁到 184 tok ⇒ 分片 7,924，`kb:sync --task=WXG-T-380` 记 K-171 修改 1 条。
+
+---
 
 ## WXG-T-379
 
