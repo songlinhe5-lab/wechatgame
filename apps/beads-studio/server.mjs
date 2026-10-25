@@ -1676,11 +1676,13 @@ function handleTintExport(res, url) {
     if (!keys.length) params = {};
     const args = [script];
     let outDir = join(REPO, 'tools/mask-preview/cocos-assets');
+    let variant = null; // 实验档目录名；定稿口径 = null（前端据此区分两档）
     if (keys.length) {
         const canon = JSON.stringify(Object.fromEntries(keys.map((k) => [k, params[k]])));
         const key = createHash('sha1').update(canon).digest('hex').slice(0, 10);
         args.push('--params', canon, '--out-dir', `_variants/${key}`);
         outDir = join(outDir, '_variants', key);
+        variant = key;
     }
     const r = spawnSync('python3', args, { cwd: REPO, encoding: 'utf8', timeout: 60_000 });
     if (r.status !== 0)
@@ -1691,8 +1693,12 @@ function handleTintExport(res, url) {
         if (!existsSync(p)) return sendJson(res, 500, { error: `脚本未产出 ${name}` });
         files.push({ filename: name, dataUrl: `data:image/png;base64,${readFileSync(p).toString('base64')}` });
     }
-    // meta.beadDp：前端拿它裁珠面 sprite（改珠面尺寸时不裁错）
-    return sendJson(res, 200, { mode, params, meta: { beadDp: params.beadDp ?? (mode === 'holed' ? 26 : 24) }, files });
+    // meta.beadDp：前端拿它裁珠面 sprite（改珠面尺寸时不裁错）；variant：实验档落到哪个目录
+    return sendJson(res, 200, {
+        mode, params, variant,
+        meta: { beadDp: params.beadDp ?? (mode === 'holed' ? 26 : 24) },
+        files,
+    });
 }
 
 async function handleGenerate(req, res, url) {

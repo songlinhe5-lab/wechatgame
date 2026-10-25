@@ -4505,10 +4505,27 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 
 `pnpm run mask:diff` = **PASS**（四张 128px 全 0 差异 + 编码不变式全过）。
 
-### 4. 未闭合
+### 4. 前端调参滑杆（同批续做）
 
-1. **前端调参控件未做**：`public/tint-export.js` 仍只发 `mode`，参数面板与「用 `meta.beadDp` 裁珠面 sprite」都还是待办 ⇒ 状态记 🚧 而非 ✅。
-2. 变体目录只靠 gitignore 隔离，**无自动清理**（累积靠人删，与 `apps/beads-studio/data/` 草稿同策）。
+`public/tint-export.js`：新增 `PARAM_SPEC`（键集随档位）+ `renderParamInputs()` 按档生成滑杆（容器 `#tint-params` 不存在则静默跳过 ⇒ 生成页行为不变）；**只发动过的键** ⇒ 滑杆全默认时请求不带 `params`，仍走定稿口径。缓存键由 `mode` 改为 `mode|键=值`；珠面裁窗改读服务端回的 `meta.beadDp`（不再写死 26/24），否则改 `beadDp` 后 sprite 会裁错。`tint.html` 加面板卡 + 重置钮；服务端回包补 `variant`（实验档目录名，定稿 = null）。
+
+浏览器实测（Chromium / `agent-browser` / 1440×900）：
+
+| 操作 | 实测 |
+|---|---|
+| 载入页面 | `定稿口径（有孔）· 滑杆全默认`，10 条滑杆全在默认值，`_variants/` 不产生 |
+| `beadDp` 26 → 30 | `实验档（有孔）· beadDp=30 · _variants/44de0b2ab6/`；`TintBoard.faceDp` 26→30（裁窗跟随）；读数转红、目录已落盘 |
+| 点「重置为定稿口径」 | 回 `定稿口径（有孔）`，`beadDp` 回 26，读数复灰 |
+| 切无孔档 | 滑杆变 8 条（无 `holeDp`/`holeRingDp`），`faceDp=24` |
+| 无孔档 `cornerDp` → 12（上界） | `实验档（无孔）· cornerDp=12 · _variants/3e326a92dc/`，叠加预览珠形变圆角 |
+| 打开生成页（无 `#tint-params`） | 不渲染面板、`定稿口径（有孔）`、`agent-browser errors` 空 |
+
+⛔ **踩到的坑（已修）**：`<input type=range>` 会把越出步长的 value **静默吸附**。首版 `facetDown: 0.37 / step 0.02` ⇒ 载入即被吸到 0.38，页面一打开就判成「改过」并落了 `_variants/c90d8f1df9/`（用户什么都没动）。0–1 档步长一律改 **0.01**，`def` 必落在网格上。
+
+### 5. 未闭合
+
+1. 变体目录只靠 gitignore 隔离，**无自动清理**（累积靠人删，与 `apps/beads-studio/data/` 草稿同策）。
+2. 生成页没有调参面板（有意：那页是「选图→出关」，调参留在 tint 编辑器）。
 
 ## WXG-T-382
 

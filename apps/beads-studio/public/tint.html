@@ -12,6 +12,8 @@
       所以这里看到的叠加效果与生成页/游戏一致，不是另画一套近似图。
       DOM 契约（tint-export.js 按 id 取）：#tint-mode / #tint-color / #tint-status / #tint-cv-bead /
       #tint-cv-grid / #tint-export —— 改 id 会让模块静默失效。
+      [WXG-T-383] 调参面板：`#tint-params`（容器，滑杆由模块按 `PARAM_SPEC` 生成，id = `p-<键>` /
+      读数 `v-<键>`）+ `#tint-params-reset`。容器缺失时模块不渲染面板（生成页即如此），行为退回定稿档。
     -->
     <style>
         :root {
@@ -83,6 +85,19 @@
         #tint-status { min-height: 18px; font-size: 12px; margin-top: 8px; color: #666; }
         #tint-status.err { color: #c0392b; }
         #tint-status.ok { color: #2e7d32; }
+
+        /* 调参滑杆（WXG-T-383）：上排 = 名称 + 读数，下排 = 整宽 range */
+        #tint-params .p-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 0 8px;
+            margin: 6px 0;
+            font-size: 12px;
+            color: #666;
+        }
+
+        #tint-params input[type="range"] { grid-column: 1 / -1; width: 100%; margin: 2px 0 0; }
+        #tint-params .diff { color: #c0392b; font-weight: 600; }
     </style>
 </head>
 
@@ -109,6 +124,17 @@
                 mask 色无关（同一张 × 任意珠色 = 任意豆），通道 = R 漫反射 / G 高光 / B 形状；
                 烘焙真源是服务端定稿脚本，本页只取结果，不移植算法。
             </small>
+        </section>
+
+        <section class="card" style="width:280px">
+            <b>实验参数（B 阶）</b>
+            <small style="display:block;line-height:1.5">
+                滑杆<b>全默认 = 定稿口径</b>（产物逐字节不变）；动任意一条即写
+                <code>cocos-assets/_variants/&lt;key&gt;/</code>（studio 草稿，不入库）。
+                松手才烘焙（拖拽中不连续跑脚本）。
+            </small>
+            <div id="tint-params"></div>
+            <button id="tint-params-reset" style="width:100%;margin-top:8px">重置为定稿口径</button>
         </section>
 
         <section class="card">
