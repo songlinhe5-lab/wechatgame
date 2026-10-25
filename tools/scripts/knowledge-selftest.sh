@@ -1207,6 +1207,7 @@ cp "$REPO/knowledge/ledger.json" "$WORK/ledger.pre27.json"
 cp "$REPO/knowledge/lessons.md" "$WORK/lessons.pre27.md"
 cp "$REPO/knowledge/patterns.md" "$WORK/patterns.pre27.md"
 evn27=$(ldevn)
+today27=$(node -e 'const d = new Date(); const p = (n) => String(n).padStart(2, "0"); process.stdout.write(`${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`);')
 
 # 27a archive：日越位——DATE_RE 能过、Date.parse 也不报错，但会静默滚成 2026-03-02
 rc=$(run node "$KB_ARCHIVE" --ids=K-002 --date=2026-02-30 --reason="桩：假日子负例")
@@ -1257,6 +1258,11 @@ assert_eq "$rc" "1" "27i 手填日历不存在的 event date → kb:check exit 1
 assert_contains "$(cat "$WORK/last.txt")" "⑦" "27i 诊断归属第⑦重校验"
 assert_contains "$(cat "$WORK/last.txt")" "2026-02-30" "27i 诊断回显坏值"
 cp "$WORK/ledger.pre27i.json" "$REPO/knowledge/ledger.json"
+
+# 27k 缺省的另一半边：只给 `--date` 不带值（parseArgs 给 true）——本组前文只证过空串
+rc=$(run node "$KB_ARCHIVE" --ids=K-003 --date --reason="桩：只给参数名不带值")
+assert_eq "$rc" "0" "27k 只给 --date 不带值不算用法错误（exit 0，按缺省真完成归档）"
+assert_eq "$(ld K-003 archivedDate)" "$today27" "27k archivedDate = 当天（与 26h 空串同归一）"
 
 rc=$(run node "$KB_CHECK")
 assert_eq "$rc" "0" "27j 收尾 kb:check 仍 exit 0（真闰日归档与事件日期均合法）"

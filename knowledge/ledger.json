@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 177,
+  "nextId": 178,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -2951,6 +2951,23 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-177",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain.md",
+      "category": "工具链",
+      "title": "日期存在性判据不能只看 `Date.parse` 是否 NaN：日越位会静默滚到次日，必须按 UTC 解析后回比原串",
+      "contentHash": "9c199e2771c1f636466c7c32ffb5068b792ffd8caea94970dcf6a7777f5a97c7",
+      "sourceTask": "WXG-T-395",
+      "addedDate": "2026-10-25",
+      "lastAccess": "2026-10-25",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -4706,6 +4723,15 @@
       "kind": "added",
       "ids": [
         "K-176"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-25",
+      "taskId": "WXG-T-395",
+      "kind": "added",
+      "ids": [
+        "K-177"
       ],
       "note": null
     }
