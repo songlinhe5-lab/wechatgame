@@ -12,7 +12,7 @@ import { createRng } from '@wxgame/framework';
 import { createBeadsHarness, simpleTestLevel, burnToRemaining } from './helpers.js';
 import { Tray } from '../src/entities/tray.js';
 import { Spawner } from '../src/systems/spawner.js';
-import { TRAY_BASE_SLOTS, TRAY_EXPAND_SLOTS } from '../src/config/tuning.js';
+import { TRAY_BASE_SLOTS, TRAY_TIER_SLOTS } from '../src/config/tuning.js';
 import { RenderModelBuilder } from '../../../packages/framework/src/core/render/render-model.js';
 import { buildBeadsView } from '../src/view/view-model.js';
 import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
@@ -289,10 +289,13 @@ describe('S4 tray-spawner', () => {
     }
     expect(harness.count('bead:placed')).toBe(3);
 
-    // Structural sanity: expansion adds exactly TRAY_EXPAND_SLOTS.
-    const cap = game.tray.capacity;
+    // Structural sanity (v1.83 三档): each expansion bumps exactly one tier, 两次封顶。
+    expect(game.tray.capacity).toBe(TRAY_TIER_SLOTS[0]);
     expect(game.expandTray()).toBe(true);
-    expect(game.tray.capacity).toBe(cap + TRAY_EXPAND_SLOTS);
-    expect(harness.count('tray:expanded')).toBe(1);
+    expect(game.tray.capacity).toBe(TRAY_TIER_SLOTS[1]);
+    expect(game.expandTray()).toBe(true);
+    expect(game.tray.capacity).toBe(TRAY_TIER_SLOTS[2]);
+    expect(game.expandTray()).toBe(false); // 顶档：canExpand=false ⇒ 不再拉广告
+    expect(harness.count('tray:expanded')).toBe(2);
   });
 });

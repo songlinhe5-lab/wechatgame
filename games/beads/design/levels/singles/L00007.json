@@ -3,20 +3,27 @@
   "name": "studio-3-90df",
   "cols": 14,
   "rows": 8,
-  "time": 69,
+  "time": 71,
   "cycleProfile": "short",
   "pricing": {
     "source": "bot",
-    "steps": 41,
+    "steps": 35,
     "stepsLB": 9,
-    "taps": 80,
+    "baseCap": 12,
+    "stepsByCap": {
+      "12": 35,
+      "24": 41,
+      "48": 19
+    },
+    "taps": 69,
     "actionsSplit": {
-      "moves": 41,
-      "places": 21,
-      "directFills": 0,
-      "retrieves": 20
+      "moves": 35,
+      "places": 16,
+      "directFills": 6,
+      "retrieves": 13
     },
     "secPerStep": 1.69,
+    "tierK": 0.85,
     "clamped": false,
     "cleared": true
   },

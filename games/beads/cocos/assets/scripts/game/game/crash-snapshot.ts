@@ -22,7 +22,7 @@
  *   提案 §2 的其余字段**原样采用**；`writtenAtMs` 按提案默认**不设 TTL**。
  */
 
-import { POWERUP_FREE_USES, TRAY_BASE_SLOTS, TRAY_EXPAND_SLOTS } from '../config/tuning';
+import { POWERUP_FREE_USES, TRAY_BASE_SLOTS, TRAY_TIER_SLOTS } from '../config/tuning';
 import type { Storage } from '../../framework/index';
 
 /** 另键（提案 §5 方案 A）。终稿归代码，此处为落码值。 */
@@ -207,14 +207,14 @@ export function parseCrashSnapshot(raw: unknown, ctx: CrashContext): CrashReadRe
       if (colorIdx === null) return bad('traySlots.colorIdx 非非负整数');
       traySlots.push({ colorIdx });
     }
-    const maxTray = TRAY_BASE_SLOTS + TRAY_EXPAND_SLOTS;
-    if (traySlots.length !== TRAY_BASE_SLOTS && traySlots.length !== maxTray) {
-      return bad(`traySlots 长度 ${traySlots.length} 不属 {${TRAY_BASE_SLOTS}, ${maxTray}}`);
+    // §3.4 v1.83 三档制：合法长度 = `TRAY_TIER_SLOTS`（12 / 24 / 48），⛔ 不再两态枚举。
+    if (TRAY_TIER_SLOTS.indexOf(traySlots.length) < 0) {
+      return bad(`traySlots 长度 ${traySlots.length} 不属 {${TRAY_TIER_SLOTS.join(', ')}}`);
     }
 
     const trayExpanded = raw['trayExpanded'];
     if (typeof trayExpanded !== 'boolean') return bad('trayExpanded 非布尔');
-    if (trayExpanded !== (traySlots.length === maxTray)) {
+    if (trayExpanded !== (traySlots.length !== TRAY_BASE_SLOTS)) {
       return bad(`trayExpanded(${trayExpanded}) 与托盘长度(${traySlots.length}) 矛盾`);
     }
 

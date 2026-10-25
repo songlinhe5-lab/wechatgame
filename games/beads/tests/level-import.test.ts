@@ -7,6 +7,7 @@ import {
     importLatest,
     measuredLevelTime,
     studioUrl,
+    tierStepBudget,
     type LevelDraft,
 } from '../src/game/level-import.js';
 import { DEMO_LEVEL_COUNT, LEVEL_TIME_MAX, LEVEL_TIME_MIN } from '../src/config/tuning.js';
@@ -40,14 +41,15 @@ function draftOf(over: Partial<LevelDraft> = {}): LevelDraft {
 }
 
 describe('WXG-T-179 · level-import 转换与定价', () => {
-    it('measuredLevelTime：BAC 批量动作数 × SEC_PER_STEP（公式 v0.4，§3.5 v1.50）—— 锚值 / clamp / 非法输入', () => {
-        // 锚：L6 `studio-0-0a91` 真引擎实测 109 个批量动作 × 1.69s = 184s。
-        // 同一关玩家实测 `t_act = 205s` ⇒ 偏差 −10%，在 §5.0.1 的 25% 阈值内
-        //（八关最大偏差 ±29%，所以本公式只当**新关先验**，玩过一律用实测覆盖）。
+    it('measuredLevelTime：步数 × SEC_PER_STEP ÷ 2★系数（公式 v0.5，§3.5 v1.84）—— 锚值 / clamp / 非法输入', () => {
+        // 锚：109 个批量动作 × 1.69s = 184s ⇒ 装进 **2★ 档**（÷0.85）= 217s（= 1★ 时钟）。
+        // 语义 = 「基础 12 槽的步数刚好塞满 2★ 档」⇒ 2★ 是紧平衡、3★ 要靠扩容省步数。
         // ⚠️ difficulty 的分母 = `LEVEL_TIME_MAX`（开发期 2500）⇒ D 不可跨档比较。
-        expect(measuredLevelTime(109)).toEqual({ time: 184, difficulty: 7 });
-        expect(measuredLevelTime(10).time).toBe(LEVEL_TIME_MIN); // 16.9s ⇒ 钳到下限 30
-        expect(measuredLevelTime(1480).time).toBe(LEVEL_TIME_MAX); // 2501s ⇒ 钳到上限
+        expect(measuredLevelTime(109)).toEqual({ time: 217, difficulty: 9 });
+        // `ceil` 的保证：2★ 档预算**恒 ≥** 定价步数（改 round 就会把边沿关判成「2★ 拿不到」）。
+        expect(tierStepBudget(measuredLevelTime(109).time, 2)).toBeGreaterThanOrEqual(109);
+        expect(measuredLevelTime(10).time).toBe(LEVEL_TIME_MIN); // 19.9s ⇒ 钳到下限 30
+        expect(measuredLevelTime(1480).time).toBe(LEVEL_TIME_MAX); // 2943s ⇒ 钳到上限
         // 非法输入 ⇒ 0 步 ⇒ 下限（不产生 NaN 倒计时：NaN 永不到零 = 失败条件永不触发）
         expect(measuredLevelTime(Number.NaN).time).toBe(LEVEL_TIME_MIN);
         expect(measuredLevelTime(-5).time).toBe(LEVEL_TIME_MIN);

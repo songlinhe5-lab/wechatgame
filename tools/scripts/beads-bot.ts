@@ -20,9 +20,16 @@
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { createBeadsHarness, simpleTestLevel } from '../../games/beads/tests/helpers.js';
-import { measuredLevelTime } from '../../games/beads/src/game/level-import.js';
-import { LEVEL_TIME_MAX, SEC_PER_STEP } from '../../games/beads/src/config/tuning.js';
+import { measuredLevelTime, tierStepBudget } from '../../games/beads/src/game/level-import.js';
+import {
+    LEVEL_TIME_MAX,
+    SEC_PER_STEP,
+    STAR_TIER_K,
+    TRAY_BASE_SLOTS,
+    TRAY_TIER_SLOTS,
+} from '../../games/beads/src/config/tuning.js';
 import { blobAnchors, runBot } from '../../games/beads/design/forensics/g3/g3-lib.js';
+import { pinTrayCapacity } from './lib/tray-capacity.js';
 import type { BeadsLevelRaw } from '../../games/beads/src/config/levels-data.js';
 
 export interface MeasureResult {
@@ -59,29 +66,49 @@ export interface MeasureResult {
     /** 动作分解（取证）：`places` 托盘→洞、`directFills` 盘上锤直填、`retrieves` 整组取回。 */
     readonly split: { readonly moves: number; readonly places: number; readonly directFills: number; readonly retrieves: number };
     readonly cleared: boolean;
-    /** 批量动作数（`直填+取回+落子`，`BAC` 尝试序）= **时长定价的自变量**（公式 v0.4）。 */
+    /** 批量动作数（`直填+取回+落子`，`BAC` 尝试序）= **时长定价的自变量**（公式 v0.5，取基础档）。 */
     readonly steps: number;
+    /**
+     * **三档容量各测一遍**（§3.4 v1.83：12 / 24 / 48 槽，`{cap: steps}`）。
+     * 用途 = 关卡设计判「这关要几档才拿得到 3★」（`tierStepBudget` 复核），⛔ 不是定价输入。
+     * ⚠ bot 是贪心：**不单调**（实测 L5 48 槽 110 步 > 12 槽 64 步）⇒ 只当同策略相对读数。
+     */
+    readonly stepsByCap: Readonly<Record<number, number>>;
     readonly time: number;
     readonly difficulty: number;
     /** 硬拦判据（非空 ⇒ 不可入关）；阈值全来自 `tuning`（§3.13/§3.5）。 */
     readonly blockers: readonly string[];
+    /**
+     * 提示（不拦入关）：三档容量-星级自洽的**设计读数**。
+     * 为何不硬拦：「3★ 档步数预算」出自 `SEC_PER_STEP`（残差 ±29%）× bot 贪心（非最优），
+     * 拿它判死一关属于**用先验否证设计**；正解是由关卡设计据此调盘/调时长。
+     */
+    readonly warnings: readonly string[];
 }
 
 /** 四个公开命令 = 玩家四种点击；包一层计数，**不改判定逻辑**。 */
 const CMDS = ['tapGridCell', 'selectBoardBead', 'selectTraySlot', 'retrieveSelectedGroup'] as const;
 
-/** 装一盘（生产 BOOT 装配）→ bot 打到通关 → 实测点击数与时长。 */
-export function measureBoard(raw: BeadsLevelRaw, seed = 'beads-bot'): MeasureResult {
+/** 单档容量的实测读数（`cap = TRAY_BASE_SLOTS` 即旧口径）。 */
+interface Leg {
+    readonly steps: number;
+    readonly taps: number;
+    readonly cleared: boolean;
+    readonly stuck: string;
+    readonly split: MeasureResult['split'];
+    /** 初始错位同色连通块尺寸（升序；`bMed` 与下界都从它派生）。 */
+    readonly sizes: readonly number[];
+    readonly m: number;
+}
+
+/** 在指定容量档上跑一遍 bot（走生产 BOOT + 公开命令；容量钉住只影响托盘，不改规则）。 */
+function runLeg(raw: BeadsLevelRaw, seed: string, cap: number): Leg {
     const level = simpleTestLevel({ ...raw, time: LEVEL_TIME_MAX });
     const h = createBeadsHarness({ seed, levels: [level] });
     h.game.goToLevel(0);
+    pinTrayCapacity(h.game, cap);
     const grid = h.game.grid;
-    const m = grid.misplacedCount;
-    const full = m > 0 && (raw.misplaced?.length ?? 0) > 0;
-
-    // B_med：错位同色连通块中位数（`collectMisplacedGroup` 真码度量）。
     const sizes = blobAnchors(grid).map((b) => b.size).sort((a, b) => a - b);
-    const bMed = full ? (sizes[Math.floor(sizes.length / 2)] ?? 0) : 0;
 
     const g = h.game as unknown as Record<string, unknown>;
     const orig: ((...a: never[]) => boolean)[] = [];
@@ -107,32 +134,64 @@ export function measureBoard(raw: BeadsLevelRaw, seed = 'beads-bot'): MeasureRes
      * 尝试序取 **`BAC`**（先取回挖洞→再落子→最后直填）：八关实测上它同时拿下最大误差最小
      * （±28%，旧 `ACB` ±39%）与难度排序最准（Spearman ρ 0.95 vs 0.83）。
      */
-    const steps = r.places + r.directFills + r.retrieves;
+    return { steps: r.places + r.directFills + r.retrieves, taps, cleared: r.cleared, stuck: r.stuck, split, sizes, m: grid.misplacedCount };
+}
 
-    const { time, difficulty } = measuredLevelTime(steps);
+/** 装一盘（生产 BOOT 装配）→ bot 在三档容量上各打到通关 → 实测点击数与时长。 */
+export function measureBoard(raw: BeadsLevelRaw, seed = 'beads-bot'): MeasureResult {
+    // 基础档 = 定价档（§3.5 v1.84：2★ 档要容纳的就是这一档的步数）。
+    const base = runLeg(raw, seed, TRAY_BASE_SLOTS);
+    const stepsByCap: Record<number, number> = {};
+    for (const cap of TRAY_TIER_SLOTS) {
+        stepsByCap[cap] = cap === TRAY_BASE_SLOTS ? base.steps : runLeg(raw, seed, cap).steps;
+    }
+
+    const m = base.m;
+    const full = m > 0 && (raw.misplaced?.length ?? 0) > 0;
+    const bMed = full ? (base.sizes[Math.floor(base.sizes.length / 2)] ?? 0) : 0;
+    const steps = base.steps;
+
+    const { time, difficulty, clamped } = measuredLevelTime(steps);
     const blockers: string[] = [];
-    if (!r.cleared) blockers.push(`bot 未通关（${r.stuck.slice(0, 40)}）⇒ 可解性未证实，不可入关`);
+    if (!base.cleared) blockers.push(`bot 未通关（${base.stuck.slice(0, 40)}）⇒ 可解性未证实，不可入关`);
     // 规模闸（§3.13）**只用真值**：实测步数 × 每步单价 击空倒计时预算 ⇒ 拒。
     // 为何不用静态代理量（M / B_med）：已入库关卡实测证伪 —— 甜心 B_med=6 但 44 taps
     // 可通关、猫咪脸 B_med=6 而 134 taps 超预算，B_med 同为 6 结果相反 ⇒ 静态量无分辨力；
     // 而 bot 单盘 0.3s，也不需要静态量做早期剪枝。
     if (steps * SEC_PER_STEP > LEVEL_TIME_MAX)
         blockers.push(`实测 ${steps} 个批量动作 × ${SEC_PER_STEP}s = ${Math.round(steps * SEC_PER_STEP)}s > ${LEVEL_TIME_MAX}s（1★ 档内不可能通关）`);
+    // ── 容量-星级自洽判据（§5.0 公式 v0.5 配套，用户 2026-10-25 口径）─────────────
+    // 钳位关跳过：`tierSecondsFor` 的地板会让档秒数与步数脱钩（同 `assertPricing` 的 clamped 口径）。
+    const warnings: string[] = [];
+    if (!clamped) {
+        const budget2 = tierStepBudget(time, 2);
+        if (steps > budget2)
+            blockers.push(`基础档（${TRAY_BASE_SLOTS} 槽）${steps} 步 > 2★ 档预算 ${budget2} 步 ⇒ 不看广告拿不到 2★（定价应回退到 1★ 基准或减步数）`);
+        const alt = TRAY_TIER_SLOTS.filter((c) => c !== TRAY_BASE_SLOTS);
+        const bestAlt = Math.min(...alt.map((c) => stepsByCap[c] ?? Number.POSITIVE_INFINITY));
+        const budget3 = tierStepBudget(time, 3);
+        if (bestAlt > budget3)
+            warnings.push(`扩容档最少 ${bestAlt} 步 > 3★ 档预算 ${budget3} 步 ⇒ 实测上任何容量档都拿不到 3★（bot 贪心非最优，需人工复核或调盘/调时长）`);
+        else
+            warnings.push(`3★ 需 ≤${budget3} 步：12/24/48 槽实测 ${TRAY_TIER_SLOTS.map((c) => stepsByCap[c]).join('/')} ⇒ 开 ${alt.find((c) => (stepsByCap[c] ?? Infinity) <= budget3)} 槽可达`);
+    }
     return {
         id: raw.id,
         name: raw.name,
         dims: `${raw.cols}x${raw.rows}`,
         m,
         bMed,
-        taps,
+        taps: base.taps,
         /** 下界 = 初始错位组数（见 `MeasureResult.actionsLB` 成立理由）。 */
-        actionsLB: sizes.length,
+        actionsLB: base.sizes.length,
         steps,
-        split,
-        cleared: r.cleared,
+        stepsByCap,
+        split: base.split,
+        cleared: base.cleared,
         time,
         difficulty,
         blockers,
+        warnings,
     };
 }
 
@@ -155,15 +214,20 @@ export function measureBoard(raw: BeadsLevelRaw, seed = 'beads-bot'): MeasureRes
  * 的等式不变式跳过本关（钳位上下界住在 `tuning.ts`，本脚本不跨语言再抄一份）。
  */
 export function pricingOf(res: MeasureResult) {
-    const raw = Math.round(res.steps * SEC_PER_STEP);
     return {
         source: 'bot' as const,
         steps: res.steps,
         stepsLB: res.actionsLB,
+        /** 步数取自哪一档容量（§3.4 v1.83：基础档 = 12 槽，= 定价档）。 */
+        baseCap: TRAY_BASE_SLOTS,
+        /** 三档容量实测步数（设计依据，⛔ 不参与 `time` 计算）。 */
+        stepsByCap: res.stepsByCap,
         taps: res.taps,
         actionsSplit: res.split,
         secPerStep: SEC_PER_STEP,
-        clamped: raw !== res.time,
+        /** 定价基准档系数（§3.5 v1.84：`STAR_TIER_K[1]` = 2★ 档，等式 = `time == ceil(ceil(steps×单价)÷tierK)`）。 */
+        tierK: STAR_TIER_K[1]!,
+        clamped: measuredLevelTime(res.steps).clamped,
         cleared: res.cleared,
     };
 }
@@ -261,7 +325,8 @@ for (const res of results) {
         `（mv${res.split.moves}/放${res.split.places}/直${res.split.directFills}/取${res.split.retrieves}）` +
         `｜通关=${res.cleared ? 'Y' : 'N'}` +
         `｜time=${res.time}s｜D=${res.difficulty}` +
-        (res.blockers.length ? `｜⛔ ${res.blockers.join('；')}` : ''),
+        (res.blockers.length ? `｜⛔ ${res.blockers.join('；')}` : '') +
+        (res.warnings.length ? `｜⚠ ${res.warnings.join('；')}` : ''),
     );
 }
 // stdout 末行 = 调用方契约（`server.mjs measureWithBot/measureCells` 直接 JSON.parse）：

@@ -3,20 +3,27 @@
   "name": "studio-3-eddc",
   "cols": 10,
   "rows": 13,
-  "time": 51,
+  "time": 129,
   "cycleProfile": "short",
   "pricing": {
     "source": "bot",
-    "steps": 30,
+    "steps": 64,
     "stepsLB": 8,
-    "taps": 58,
+    "baseCap": 12,
+    "stepsByCap": {
+      "12": 64,
+      "24": 30,
+      "48": 22
+    },
+    "taps": 127,
     "actionsSplit": {
-      "moves": 30,
-      "places": 14,
-      "directFills": 1,
-      "retrieves": 15
+      "moves": 64,
+      "places": 29,
+      "directFills": 4,
+      "retrieves": 31
     },
     "secPerStep": 1.69,
+    "tierK": 0.85,
     "clamped": false,
     "cleared": true
   },

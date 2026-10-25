@@ -95,9 +95,14 @@ export interface BeadsSnapshot {
   gridRows: number;
   cells: SnapshotCell[];
 
-  /** Tray slots (flat; capacity 12 or 24 when expanded). */
+  /** Tray slots (flat; capacity ∈ `TRAY_TIER_SLOTS` = 12 / 24 / 48). */
   traySlots: SnapshotSlot[];
   trayExpanded: boolean;
+  /**
+   * 还能再开一次扩容广告（§3.4 v1.83 三档：12 → 24 → 48，顶档为假）。
+   * 视图据此决定 `btn_expand` 是否绘制、以及虚线预览行是否留位。
+   */
+  trayCanExpand: boolean;
   traySelected: number;
   /**
    * v2.0 统一选择锚 · board 侧（Epic T-133 E2）：选中的错位珠格坐标，E6 据此
@@ -450,6 +455,7 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     cells: [],
     traySlots: [],
     trayExpanded: false,
+    trayCanExpand: true,
     traySelected: -1,
     boardSelectedRow: -1,
     boardSelectedCol: -1,

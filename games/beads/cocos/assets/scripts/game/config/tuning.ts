@@ -510,33 +510,30 @@ export const GRID_MIN_ROWS = 5;
 
 // ───────────────────────────────────────────────────────────── §3.4 tray
 /**
- * Base tray capacity（**v1.42 冻结变更 12→24**，WXG-T-203 丙档，用户 2026-09-22 拍板
- * D1=丙・D2=接受 v2.1 小托盘深度降格）：**2 行 × 12**。
+ * 托盘容量**三档**（§3.4 v1.83，用户 2026-10-25 拍板）：**基础 12 → 首次激励视频 24 →
+ * 二次激励视频 48，上限 48**。
  *
- * 依据 = E1 两轮 bot 实测矩阵（提案 §6.1/§6.2）：32×32 宫 reg60 部分错位下
- * tray12=148–160 全超 116 taps 线、tray24=90–96 达标（余量 22%）——增益窗口
- * 恰好卡在「大色块 + 整区域就位部分错位」（组合图宫形态）上；全错位大盘
- * 两轮复现 176–178 仍不可入关（v1.41 规模闸维持，扩容不解锁全错位）。
+ * 依据（实测，非估算）：同一 BAC 策略 bot 在三档容量下重跑现池 10 关，基础槽 24→12 后
+ * 步数普遍上升（L2 30→64、L8 22→43、L9 183→225），而 24/48 档对多数盘仍显著更低
+ * （L2 30/22、L9 183/113）⇒ **容量本身构成一条难度轴**：小关在 12 槽下 2★ 紧平衡、
+ * 3★ 需靠扩容（用户口径，已落为定价公式的基准档，见 `measuredLevelTime`）。
+ * ⚠ 该轴**不单调**（bot 贪心：L5 48 槽 110 步 > 12 槽 64 步；L3/L7 24 槽略差于 12 槽）
+ * ⇒ 用途限于「同一策略的相对读数」，⛔ 不得当「扩容必胜」的依据。
  *
- * 诚实记录（负面后果，不得隐去）：
- *  - **推翻 v1.30（WXG-T-168「先开一行」）的取值但保留其版面方法论**：v1.30
- *    针对的是 4 行态（24/24 面板高 216）；丙档 2 行基础态几何 v1.24 已验
- *    （panelH 126 零溢出）、3 行扩展态（panelH 180）与 `btn_expand` 热区重叠
- *    48px **待 E2 真机重验，未验前不作 QA 判据**。
- *  - 与 `input-control §2.1` v2.1「小托盘滚窗 = 操作深度所在」论述冲突——
- *    用户明示取舍（大盘可玩优先，D2），该条已同批复注。
- *  - `Tray` 实体与 `trayLayout(rows)` 的行数均为 capacity 派生 ⇒ 本值切换零接线；
- *    虚线判据 `row >= ceil(TRAY_BASE_SLOTS / TRAY_COLS)`（v1.30 修误判）在
- *    2 行基础态下正确划界（row0/1 实线、row2 虚线）。
+ * 版面：`panelH(rows) = 54·rows + 18` ⇒ 1 行 72 / 2 行 126 / 3 行 180 / **4 行 234 = 带高
+ * `TRAY_BAND` 234，恰好铺满、零溢出**（v1.24 定带高时的口径）。`btn_expand` 视觉
+ * y∈[236,284] 在 1/2 行态不被压；3 行态压 14dp、4 行态整块覆盖——但 4 行 = 顶档，
+ * 按钮本就该消失（`canExpand` 为假）⇒ 该重叠不可达。
+ *
+ * A1 语义不变：每关内有效、重开/换关重置（`Tray.reset()` 回第 0 档）。
  */
-export const TRAY_BASE_SLOTS = 24;
-/**
- * Expansion capacity（**v1.42 不变**，丙档 base 24 / expand 12）：**+1 行 × 12 = 12 槽**，
- * 扩展后共 36 槽（3 行，panelH 180 ≤ 带高）。激励视频解锁、MVP 无广告调用
- * （badge 占位）、本关内有效、重开重置（A1 语义不变）；扩展行沿用虚线槽语言
- * （WXG-T-168 修 `dashed = row > 0` 误判后的判据在丙档下正确划界）。
- */
-export const TRAY_EXPAND_SLOTS = 12;
+export const TRAY_TIER_SLOTS: readonly number[] = Object.freeze([12, 24, 48]);
+/** 基础（未看广告）容量 = 第 0 档 = **12 槽（1 行）**。 */
+export const TRAY_BASE_SLOTS = TRAY_TIER_SLOTS[0]!;
+/** 顶档容量 = **48 槽（4 行，恰好铺满托盘带）= 广告可解锁的上限**。 */
+export const TRAY_MAX_SLOTS = TRAY_TIER_SLOTS[TRAY_TIER_SLOTS.length - 1]!;
+/** 可看的扩容广告次数 = 档数 − 1 = **2**（本关内计数，`Tray.reset()` 清零）。 */
+export const TRAY_AD_EXPAND_COUNT = TRAY_TIER_SLOTS.length - 1;
 /** Slots per tray row. */
 export const TRAY_COLS = 12;
 /**
@@ -710,15 +707,19 @@ export const SEC_PER_STEP = 1.69;
  *
  * 三档判据（消费方 = `sync-levels-data.mjs` 门禁⑦ + `apps/beads-studio/server.mjs` 入关当场拒）：
  * - **首关 = 教学引导关，全豁免**（沿用既有「首关豁免」先例，`ux-spec §1 原则3`「纯动效引导」）。
- * - `NORMAL_STEPS_MIN = ceil(LEVEL_TIME_MIN ÷ SEC_PER_STEP) = ceil(30 ÷ 1.69) = 18`
- *   ⇒ **派生自 §3.5**、非新发明：普通关工作量若低于此值，`time` 会被钳到 `LEVEL_TIME_MIN=30s` 而无差异
- *   （现池最浅普通关 L6=19 恰好通过）。
- * - `NORMAL_STEPS_MAX = 90`（≈152s）：普通关上限，须明显低于 boss；现池最高普通关 L5=68 通过。
- * - `BOSS_STEPS_MIN = 120`（≈203s，≈普通上限的 1.33×）：boss 须**跳档**、非「略难的普通关」；现池 boss L9=183 通过。
+ * - `NORMAL_STEPS_MIN = ceil(LEVEL_TIME_MIN × STAR_TIER_K[1] ÷ SEC_PER_STEP) = ceil(30×0.85÷1.69) = 16`
+ *   ⇒ **派生自 §3.5**、非新发明（v1.84 随 2★ 基准重推；旧 18 = 1★ 基准的派生值）：
+ *   普通关工作量若低于此值，`time` 会被钳到 `LEVEL_TIME_MIN=30s` 而无差异。
+ * - `NORMAL_STEPS_MAX = 90`（2★ 基准下 ≈179s）：普通关上限，须明显低于 boss。
+ * - `BOSS_STEPS_MIN = 120`（≈239s，≈普通上限的 1.33×）：boss 须**跳档**、非「略难的普通关」。
+ * ⚠ 上下限本身**未随基础槽 24→12 改动**（v1.84 重测后现池仍全部落在区间内，见下行）
+ *   —— 改的是量纲来源（旧读数是 24 槽口径），不是判据阈值。若将来重定标，依据是
+ *   「普通关 vs boss 的相对跳档」而非绝对秒数。
  *
- * 现池校验（2026-10-24 WXG-T-374 重定价，steps）：L1 教学豁免｜L2=30 L3=43 L4=47 L5=68 L6=19 L7=41 L8=22 ∈ [18,90] ✅｜L9 boss 183 ≥ 120 ✅。
+ * 现池校验（2026-10-25 **基础档 12 槽**重测，steps）：L1 教学豁免｜L2=64 L3=41 L4=60 L5=64
+ * L6=27 L7=35 L8=43 ∈ [16,90] ✅｜boss L9=225、L10=1106 ≥ 120 ✅。
  */
-export const NORMAL_STEPS_MIN = 18;
+export const NORMAL_STEPS_MIN = 16;
 export const NORMAL_STEPS_MAX = 90;
 export const BOSS_STEPS_MIN = 120;
 
@@ -3098,6 +3099,20 @@ export function trayLayout(rows: number, width: number = DESIGN_W): TrayLayout {
     slotCenterY: (row: number) =>
       TRAY_BAND.yMax - TRAY_PANEL_PAD - TRAY_SLOT / 2 - pitch * row,
   };
+}
+
+/**
+ * 虚线预览行是否留位（§3.4 v1.83 三档制的视觉配套）。
+ *
+ * 判据 = 再加一行后面板底是否仍在 `btn_expand` **视觉框上沿**之上：
+ * · 基础档 1 行 + 1 预览 ⇒ `panelBottom 324 ≥ 284` ✅ 留（玩家看得到「还差一行」）；
+ * · 24 槽 2 行 + 1 预览 ⇒ `270 < 284` ❌ 不留（会压按钮 14dp，而此刻按钮**必须**可点：
+ *   它正是升到 48 槽的入口）。
+ * ⛔ 不另硬编 324/270：两侧都由 `trayLayout()` 与 `EXPAND_BTN_*` 派生。
+ */
+export function trayPreviewFits(unlockedRows: number): boolean {
+  const btnTop = TRAY_BAND.yMin + (EXPAND_BTN_HIT_H - EXPAND_BTN_H) / 2 + EXPAND_BTN_H;
+  return trayLayout(unlockedRows + 1).panelBottom >= btnTop;
 }
 
 /**

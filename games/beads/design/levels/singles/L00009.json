@@ -3,20 +3,27 @@
   "name": "studio-3-163c",
   "cols": 30,
   "rows": 30,
-  "time": 309,
+  "time": 449,
   "cycleProfile": "short",
   "pricing": {
     "source": "bot",
-    "steps": 183,
+    "steps": 225,
     "stepsLB": 21,
-    "taps": 366,
+    "baseCap": 12,
+    "stepsByCap": {
+      "12": 225,
+      "24": 183,
+      "48": 113
+    },
+    "taps": 450,
     "actionsSplit": {
-      "moves": 183,
-      "places": 71,
-      "directFills": 36,
-      "retrieves": 76
+      "moves": 225,
+      "places": 77,
+      "directFills": 67,
+      "retrieves": 81
     },
     "secPerStep": 1.69,
+    "tierK": 0.85,
     "clamped": false,
     "cleared": true
   },

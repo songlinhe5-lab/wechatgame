@@ -17,7 +17,8 @@
 import { readFileSync } from 'node:fs';
 import { LEVELS_DATA } from '../../games/beads/src/config/levels-data.js';
 import { createBeadsHarness, simpleTestLevel } from '../../games/beads/tests/helpers.js';
-import { LEVEL_TIME_MAX } from '../../games/beads/src/config/tuning.js';
+import { LEVEL_TIME_MAX, TRAY_BASE_SLOTS, TRAY_MAX_SLOTS } from '../../games/beads/src/config/tuning.js';
+import { pinTrayCapacity } from './lib/tray-capacity.js';
 import { stepBounds } from '../../games/beads/src/game/step-bounds.js';
 import { blobAnchors, emptyCells } from '../../games/beads/design/forensics/g3/g3-lib.js';
 import type { BeadsGame } from '../../games/beads/src/game/beads-game.js';
@@ -47,9 +48,20 @@ interface Snapshot {
     actions: Action[];
 }
 
+/** 是否开局即开扩展底槽（`--expand`：模拟「开了扩展槽」的玩家，容量 +12）。 */
+let EXPAND = false;
+/** `--cap=N`：开局把底槽槽数直接钉到 N（12/24/48 各档测算用；默认不动，走引擎现值）。 */
+let CAP = 0;
+
+function setCapacity(g: BeadsGame, k: number) {
+    pinTrayCapacity(g, k);
+}
+
 function freshGame(raw: any): BeadsGame {
     const h = createBeadsHarness({ seed: 'beads-bot', levels: [simpleTestLevel({ ...raw, time: LEVEL_TIME_MAX })] });
     h.game.goToLevel(0);
+    if (EXPAND) (h.game as any).expandTray();
+    if (CAP > 0) setCapacity(h.game, CAP);
     return h.game;
 }
 
@@ -212,6 +224,8 @@ function solve(raw: any, beam: number, maxDepth: number) {
 const arg = process.argv[2];
 const beam = Number((process.argv.find((a) => a.startsWith('--beam=')) ?? '--beam=8').split('=')[1]);
 const maxDepth = Number((process.argv.find((a) => a.startsWith('--depth=')) ?? '--depth=24').split('=')[1]);
+EXPAND = process.argv.includes('--expand');
+CAP = Number((process.argv.find((a) => a.startsWith('--cap=')) ?? '--cap=0').split('=')[1]) || 0;
 
 function resolveRaw(): { raw: any; label: string } {
     if (arg && arg.endsWith('.json')) {
@@ -241,6 +255,7 @@ console.log(JSON.stringify({
     breakdown: path ? { boardMove: byKind('boardMove'), trayFill: byKind('trayFill'), retrieve: byKind('retrieve') } : null,
     remainingDeficit: snap ? snap.deficit : null,
     remainingMisplaced: snap?.misplaced ?? null,
+    trayCapacity: CAP > 0 ? CAP : (EXPAND ? TRAY_MAX_SLOTS : TRAY_BASE_SLOTS),
     beam, maxDepth, elapsedMs: ms,
 }, null, 1));
 if (path) {

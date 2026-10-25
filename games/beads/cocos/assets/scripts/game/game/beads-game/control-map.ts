@@ -37,6 +37,8 @@ export interface ControlMapHost {
   readonly board: BoardCameraController;
   readonly hudDy: number;
   readonly trayExpanded: boolean;
+  /** 还能再升一档容量（12→24→48，§3.4 v1.83）。 */
+  readonly trayCanExpand: boolean;
   /** 失败面板是否还有复活次数。 */
   readonly reviveAvailable: boolean;
   readonly levelCount: number;
@@ -75,7 +77,7 @@ export class ControlMap {
       if (hitGear(x, y, this._host.hudDy)) return 'gear';
       const card = hitPowerupCard(x, y);
       if (card) return card; // 'solver' | 'solverPlus' | 'solverRandom'
-      if (hitExpandButton(x, y, this._host.trayExpanded)) return 'expand';
+      if (hitExpandButton(x, y, this._host.trayCanExpand)) return 'expand';
       return ''; // 路由 4 托盘 / 5 网格 = 落子与取回目标，非按钮
     }
     if (phase === 'paused') return this._host.panel.hitTest(x, y, this._host.mode) ?? '';

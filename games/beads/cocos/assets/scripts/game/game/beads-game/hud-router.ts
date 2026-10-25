@@ -25,11 +25,13 @@ export interface HudRouterHost {
   /** HUD 带上移量（热区与渲染同源，见 `BeadsGame._hudDy`）。 */
   readonly hudDy: number;
   readonly trayExpanded: boolean;
+  /** 还能再升一档（12→24→48，§3.4 v1.83）；顶档为假 ⇒ 按钮不可见/不可点。 */
+  readonly trayCanExpand: boolean;
   sfx(clipId: string): void;
   pauseManual(): void;
   usePowerup(type: PowerupType): void;
-  /** 展开按钮的占位轻提示（布局 A：零事件）。 */
-  showExpandPlaceholder(): void;
+  /** 展开按钮：本关升一档容量（每次一次激励视频，失败按降级口径照发）。 */
+  requestExpand(): void;
 }
 
 export class HudRouter {
@@ -64,9 +66,9 @@ export class HudRouter {
       return 'consumed';
     }
 
-    // 4. 展开按钮：命中时必为未展开态（`hitExpandButton` 展开态直接返回 false），故无需再判 expanded。
-    if (hitExpandButton(x, y, h.trayExpanded)) {
-      h.showExpandPlaceholder();
+    // 4. 展开按钮：命中时必为「还能再升一档」（`hitExpandButton` 顶档直接返回 false）。
+    if (hitExpandButton(x, y, h.trayCanExpand)) {
+      h.requestExpand();
       return 'consumed';
     }
 

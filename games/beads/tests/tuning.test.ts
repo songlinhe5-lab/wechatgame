@@ -35,7 +35,8 @@ import {
   TRAY_BASE_SLOTS,
   TRAY_BEAD_SIZE,
   TRAY_COLS,
-  TRAY_EXPAND_SLOTS,
+  TRAY_MAX_SLOTS,
+  TRAY_TIER_SLOTS,
   TRAY_GAP,
   TRAY_HIT_SIZE,
   TRAY_PANEL_PAD,
@@ -296,15 +297,16 @@ describe('beads tuning derivation (systems-index §3 mirrors)', () => {
     });
   });
 
-  it('keeps tray rows inside the design width, with both capacities row-aligned', () => {
+  it('keeps tray rows inside the design width, with every tier row-aligned', () => {
     const rowWidth = TRAY_COLS * (TRAY_SLOT + TRAY_GAP) - TRAY_GAP;
     expect(rowWidth).toBeLessThanOrEqual(DESIGN_W);
-    // v1.42（WXG-T-203 丙档，E1 两轮矩阵：32×32 reg60 下 tray24=90–96 达标）：基础 = **2 实心行**、扩展 = **+1 行**。
-    expect(TRAY_BASE_SLOTS).toBe(2 * TRAY_COLS);
-    expect(TRAY_EXPAND_SLOTS).toBe(1 * TRAY_COLS);
-    // v1.25 带位修订：带高 234（未随 v1.30/v1.42 改动，容 4 行态）；丙档扩展后需 3 行（180）。
+    // v1.83 三档（用户 2026-10-25）：12 / 24 / 48 = **1 / 2 / 4 整行**，顶档恰好铺满托盘带。
+    expect(TRAY_TIER_SLOTS).toEqual([1 * TRAY_COLS, 2 * TRAY_COLS, 4 * TRAY_COLS]);
+    expect(TRAY_BASE_SLOTS).toBe(1 * TRAY_COLS);
+    expect(TRAY_MAX_SLOTS).toBe(4 * TRAY_COLS);
+    // 带高必须容下**顶档**行数（4 行 = 234 = 带高，零溢出；v1.24 定带高即为此口径）。
     expect(TRAY_BAND.yMax - TRAY_BAND.yMin).toBeGreaterThanOrEqual(
-      3 * (TRAY_SLOT + TRAY_GAP) - TRAY_GAP + 2 * 12,
+      Math.ceil(TRAY_MAX_SLOTS / TRAY_COLS) * (TRAY_SLOT + TRAY_GAP) - TRAY_GAP + 2 * TRAY_PANEL_PAD,
     );
   });
 

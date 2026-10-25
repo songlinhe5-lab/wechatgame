@@ -13,8 +13,8 @@ import { RenderModelBuilder, type DrawCommand, type RectCommand, type TextComman
 import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import { SAVE_KEY } from '../src/game/save-schema.js';
 import type { RewardedAdProvider } from '@wxgame/framework';
+import { MockRewardedAdProvider } from '../../../packages/framework/src/platform/rewarded-ad.js';
 import {
-    AD_PLACEHOLDER_HINT_TEXT,
     AD_HINT_TEXT_Y,
     BEAD_CELL,
     BEAD_PITCH,
@@ -35,6 +35,7 @@ import {
     TRAY_BASE_SLOTS,
     TRAY_COLS,
     TRAY_HIT_SIZE,
+    TRAY_TIER_SLOTS,
     TRAY_FULL_PULSE_MS,
     WRONG_SHAKE_PX,
     WRONG_FX_MS,
@@ -553,62 +554,63 @@ describe('T-097 BD-15 btn_expand 路由与占位（input-control §2.1/§2.2 · 
             ...(provider ? { rewardedAd: provider } : {}),
         });
 
-    it('未扩展态点热区中心 → 吞掉 + 一次性占位轻提示，且事件学全零', () => {
+    /** Node 宿主 = `MockRewardedAdProvider(null)`（等显式 settle），与 `revive.test` 同口径。 */
+    const mockAd = (h: Harness): MockRewardedAdProvider =>
+        h.services.rewardedAd as unknown as MockRewardedAdProvider;
+
+    it('基础档点热区中心 → 吞掉 + 拉 tray-expand 位，看完升到 24 槽（§3.4 v1.83）', () => {
         const spy = adSpy();
         const h = mk(spy.provider);
         h.advance(1 / 60); // 首供已在托盘（v1.17 GAP-02）
 
-        const emitted = h.emitted.length;
-        const capacity = h.game.tray.capacity;
         const plays = h.audio.played.length;
+        expect(h.game.tray.capacity).toBe(TRAY_BASE_SLOTS);
+        expect(TRAY_BASE_SLOTS).toBe(TRAY_TIER_SLOTS[0]);
 
-        tapInFrame(h, BTN_MID.x, BTN_MID.y);
-
-        // 吞掉：路由命中优先级 3，不落到槽/格（`input-control §2.1`）。
+        // 吞掉：路由命中优先级 4，不落到槽/格（`input-control §2.1`）。
         expect(h.game.tapDesign(BTN_MID.x, BTN_MID.y)).toBe(true);
-        // 零事件、零槽变化、零扣次、不拉广告（§8-1 的 S4 出口本轮不可达，BD-37）。
-        expect(h.emitted.length).toBe(emitted);
-        expect(h.game.tray.expanded).toBe(false);
-        expect(h.game.tray.capacity).toBe(capacity);
-        expect(capacity).toBe(TRAY_BASE_SLOTS);
+        expect(spy.calls).toContain('load');
+        expect(spy.calls).toContain('show');
+        expect(h.game.watchingAd).toBe(true);
+        // 未看完 ⇒ 容量不动（先广告后扩容，⛔ 不是点了就给）。
+        expect(h.game.tray.capacity).toBe(TRAY_BASE_SLOTS);
         expect(h.game.powerups.usedCount).toBe(0);
-        expect(spy.calls.filter((c) => c === 'load' || c === 'show')).toEqual([]);
         // 静默：`audio-events §1` 无占位点击音，不得新造。
         expect(h.audio.played).toHaveLength(plays);
-        // 与道具超限同文案同语义（§2.6 布局 A）。
-        const snap = h.game.snapshot;
-        expect(snap.tapHintText).toBe(AD_PLACEHOLDER_HINT_TEXT);
-        expect(snap.tapHintAnchor).toBe('expand');
-        expect(snap.tapHintRow).toBe(-1);
-        expect(snap.tapHintCol).toBe(-1);
+
+        mockAd(h).settle('complete');
+        expect(h.game.tray.capacity).toBe(TRAY_TIER_SLOTS[1]); // 24 槽
+        expect(h.count('tray:expanded')).toBe(1);
+        expect(h.game.snapshot.tapHintText).toBe(''); // 占位轻提示已退役（原「即将开放」）
     });
 
-    it('提示在 TAP_HINT_MS 窗口后自清（与 BD-16 同通道同上限）', () => {
+    it('广告失败 ⇒ 降级照发一档（weapp Noop 口径，用户 2026-10-25 裁）', () => {
         const h = mk();
         h.advance(1 / 60);
-        tapInFrame(h, BTN_MID.x, BTN_MID.y);
-        expect(h.game.snapshot.tapHintText).toBe(AD_PLACEHOLDER_HINT_TEXT);
+        expect(h.game.tapDesign(BTN_MID.x, BTN_MID.y)).toBe(true);
+        expect(h.game.watchingAd).toBe(true);
 
-        h.advance(TAP_HINT_MS / 1000 + 1 / 60);
+        mockAd(h).settle('error');
 
-        const snap = h.game.snapshot;
-        expect(snap.tapHintText).toBe('');
-        expect(textCmd(renderSnap(snap), AD_PLACEHOLDER_HINT_TEXT)).toBeUndefined();
+        expect(h.game.watchingAd).toBe(false);
+        expect(h.game.tray.capacity).toBe(TRAY_TIER_SLOTS[1]); // 失败也升档（开发期降级）
+        expect(h.count('tray:expanded')).toBe(1);
     });
 
-    it('已扩展态（本轮不可达）点击仍吞掉但零提示 —— 语义已完成', () => {
+    it('两档之后顶档（48 槽）⇒ 按钮消失、`trayCanExpand` 为假、不可再拉广告', () => {
         const h = mk();
         h.advance(1 / 60);
-        expect(h.game.expandTray()).toBe(true);
+        expect(h.game.expandTray()).toBe(true); // 24
+        expect(h.game.expandTray()).toBe(true); // 48
+        expect(h.game.tray.capacity).toBe(TRAY_TIER_SLOTS[2]);
+        expect(h.game.snapshot.trayCanExpand).toBe(false);
+        expect(h.game.expandTray()).toBe(false); // 顶档：机制层直接拒
+
         const emitted = h.emitted.length;
-
-        // v1.25（WXG-T-143）：扩展态按钮隐藏 ⇒ 点击**穿透**到 4 行托盘槽点选
-        //（原「吞掉返回 true」期望随隐藏语义改写）。
-        expect(h.game.tapDesign(BTN_MID.x, BTN_MID.y)).toBe(false);
-
-        expect(h.game.snapshot.tapHintText).toBe('');
-        expect(h.emitted.length).toBe(emitted); // 零事件（空槽点选不发声）
-        expect(h.game.tray.capacity).toBeGreaterThan(TRAY_BASE_SLOTS); // 未被二次改写
+        const calls = mockAd(h).placement;
+        expect(h.game.requestTrayExpand()).toBe(false); // 顶档：不再拉广告
+        expect(mockAd(h).placement).toBe(calls);
+        expect(h.emitted.length).toBe(emitted);
     });
 
     it('PAUSED 下点扩展零响应（遮罩吞掉，§8-1）', () => {
@@ -679,8 +681,8 @@ describe('T-097 BD-15 btn_expand 路由与占位（input-control §2.1/§2.2 · 
 
 // ══════════════════ T-097 BD-10 满槽告警面板描边（ux-spec §5 / assets-spec §1.5）══════════════════
 describe('T-097 BD-10 满槽告警面板描边', () => {
-    // v1.24：托盘 12→24（WXG-T-141）⇒ 面板几何随行数派生，不再单行基线。
-    const lay1 = trayLayout(Math.ceil(TRAY_BASE_SLOTS / TRAY_COLS));
+    // v1.83 三档：基础档 = 12 槽（1 行）；仍可扩容 ⇒ 面板另含**一行虚线预览**（面板高按绘制行数）。
+    const lay1 = trayLayout(Math.ceil(TRAY_BASE_SLOTS / TRAY_COLS) + 1);
 
     /**
      * 面板尺寸那条 danger 描边环。`wrong` 态用的也是 `palette.danger`

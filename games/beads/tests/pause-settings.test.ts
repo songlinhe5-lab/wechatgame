@@ -38,7 +38,7 @@ import {
   TRAY_BAND,
   TRAY_COLS,
   TRAY_BASE_SLOTS,
-  TRAY_EXPAND_SLOTS,
+  TRAY_TIER_SLOTS,
   trayLayout,
   gridLayoutFor,
 } from '../src/config/tuning.js';
@@ -265,7 +265,7 @@ describe('S9 pause & settings', () => {
     harness.advance(12); // burn countdown
     expect(game.expandTray()).toBe(true);
     expect(game.tray.expanded).toBe(true);
-    expect(game.tray.capacity).toBe(TRAY_BASE_SLOTS + TRAY_EXPAND_SLOTS); // v1.24：24+24=48
+    expect(game.tray.capacity).toBe(TRAY_TIER_SLOTS[1]); // v1.83 三档：12 → 24（首次扩容）
     expect(game.grid.filledCount).toBe(1);
     expect(game.remaining).toBeLessThan(300);
 
@@ -284,7 +284,7 @@ describe('S9 pause & settings', () => {
     // 3. tray cleared · 4. expansion reverted
     expect(game.tray.holdingCount).toBe(0);
     expect(game.tray.expanded).toBe(false);
-    expect(game.tray.capacity).toBe(TRAY_BASE_SLOTS); // v1.24：重开回基线 24 槽
+    expect(game.tray.capacity).toBe(TRAY_BASE_SLOTS); // v1.83：重开回基线 12 槽（第 0 档）
     // 5. powerup free uses — no powerup state exists in this slice (S6 out of
     //    scope), so the item is vacuous here; see the lead report.
     expect(harness.count('powerup:used')).toBe(0);

@@ -17,7 +17,7 @@
  * call each other).
  */
 
-import { TRAY_BASE_SLOTS, TRAY_EXPAND_SLOTS } from '../config/tuning';
+import { TRAY_BASE_SLOTS, TRAY_TIER_SLOTS } from '../config/tuning';
 
 export type SlotState = 'free' | 'holding' | 'selected';
 
@@ -37,7 +37,8 @@ export type SelectResult = 'selected' | 'unchanged' | 'deselected' | 'invalid';
 
 export class Tray {
   private readonly _slots: TraySlot[];
-  private _expanded = false;
+  /** 容量档位（0 = 基础 12 槽；1 = 24；2 = 48 顶档）。§3.4 v1.83 三档制。 */
+  private _tier = 0;
   /** Still-needed colour counts; index 1..10 (0 unused). */
   private readonly _needed: number[] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
@@ -50,19 +51,34 @@ export class Tray {
     return this._slots.length;
   }
 
+  /** 当前容量档位（0 基）。 */
+  get tier(): number {
+    return this._tier;
+  }
+
+  /** 还能不能再开一次扩容广告（§3.4 v1.83：顶档 48 槽后为假 ⇒ 按钮消失）。 */
+  get canExpand(): boolean {
+    return this._tier < TRAY_TIER_SLOTS.length - 1;
+  }
+
+  /** 已扩容过（任一档）= 旧布尔语义，视图/结算分仍读它。 */
   get expanded(): boolean {
-    return this._expanded;
+    return this._tier > 0;
   }
 
   slot(index: number): TraySlot | undefined {
     return this._slots[index];
   }
 
-  /** Unlock the dashed expansion row (per-level only; reset() reverts, A1). */
+  /**
+   * 升一档（per-level only; reset() reverts，A1）。三档制下可连调两次：
+   * 12 → 24 → 48（§3.4 v1.83）。已顶档 ⇒ `false`（调用方据此不再拉广告）。
+   */
   expand(): boolean {
-    if (this._expanded) return false;
-    this._expanded = true;
-    for (let i = 0; i < TRAY_EXPAND_SLOTS; i++) {
+    if (!this.canExpand) return false;
+    this._tier += 1;
+    const target = TRAY_TIER_SLOTS[this._tier]!;
+    while (this._slots.length < target) {
       this._slots.push({ state: 'free', colorIdx: 0 });
     }
     return true;
@@ -75,7 +91,7 @@ export class Tray {
       slot.state = 'free';
       slot.colorIdx = 0;
     }
-    this._expanded = false;
+    this._tier = 0;
     this._needed.fill(0);
   }
 

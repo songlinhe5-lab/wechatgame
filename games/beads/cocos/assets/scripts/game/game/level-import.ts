@@ -11,7 +11,7 @@
  */
 
 import { validateBeadsLevel } from '../config/levels';
-import { LEVEL_TIME_MAX, LEVEL_TIME_MIN, SEC_PER_STEP } from '../config/tuning';
+import { LEVEL_TIME_MAX, LEVEL_TIME_MIN, SEC_PER_STEP, STAR_TIER_K, tierSecondsFor } from '../config/tuning';
 import { assembleFromMisplaced, fillableCells } from './misplaced-assembler';
 import type { BeadsLevelRaw } from '../config/levels-data';
 
@@ -94,24 +94,53 @@ export function boardStats(pattern: readonly string[], misplacedCount: number): 
 }
 
 /**
- * 批量动作数 → 1★ 时钟/难度（§3.5 v1.50，公式 **v0.4** · 正本 `levels-spec §5.0`）。
+ * 批量动作数 → 1★ 时钟/难度（§3.5 **v1.84**，公式 **v0.5** · 正本 `levels-spec §5.0`）。
  *
- *   T₁ = clamp( steps × SEC_PER_STEP, [LEVEL_TIME_MIN, LEVEL_TIME_MAX] )
- *   D  = round(100 × T₁ / LEVEL_TIME_MAX)
+ *   need = ceil( steps × SEC_PER_STEP )                        // 2★ 档至少要给的秒数
+ *   T₁   = clamp( ceil( need ÷ STAR_TIER_K[1] ), [LEVEL_TIME_MIN, LEVEL_TIME_MAX] )
+ *   D    = round(100 × T₁ / LEVEL_TIME_MAX)
  *
- * `steps` = **BAC 尝试序下的批量动作数**（`直填 + 取回 + 落子`，选锚并入被它服务的动作），
- * 由 `tools/scripts/beads-bot.ts` 走生产 BOOT + `BeadsGame` 公开命令实测（不复刻判定逻辑）。
+ * `steps` = **基础档容量（12 槽）下**的批量动作数（`直填 + 取回 + 落子`，选锚并入被它服务的
+ * 动作），由 `tools/scripts/beads-bot.ts` 走生产 BOOT + `BeadsGame` 公开命令实测。
  *
- * ⚠ **本函数只给「新关先验」**：已人工试玩过的关一律用实测 `t_act` 定 T₁（公式 v0.4，
- * 溯源 `pricing.source='playtest'`）——八关实测残差仍达 ±29%，不够直接进玩家体验。
- * 旧 `SEC_PER_TAP`（每点击 3.6s）已被重锚与改名（量纲从「点击」变「批量动作」）。
- * 历史：v0.1 按颗（`M × 22.5s`）在 32 盘语料上 32/32 触顶 420s ⇒ 已作废。
+ * **v0.5 为什么除以 0.85（用户 2026-10-25 口径）**：`time` 是 **1★ 档**时钟，而玩家的真实
+ * 体验基准是「基础 12 槽能不能卡点拿 2★」。把基础档步数装进 **2★ 档**（`STAR_TIER_K[1]=0.85`）
+ * ⇒ 2★ 秒数恰 ≈ `steps × SEC_PER_STEP`（**紧平衡**：不多不少刚好打完），3★ 档自动 ≈ 0.82×
+ * 该值 ⇒ **必须靠扩容（24/48 槽）压步数才拿得到**。这正是「12 槽 2★ 紧平衡 / 3★ 要开广告」
+ * 的机械化表达，⛔ 不要改回 1★ 基准（那会让 2★ 也必须扩容，与设计口径相反）。
+ * 两级 `ceil` 而非 `round`：2★ 秒数必须**恒 ≥** 定价步数×单价，否则四舍五入会把边沿关判成
+ * 「2★ 拿不到」（可用性由 `tierStepBudget()` 复核；`clamped` 位让消费方知道等式已失效）。
+ *
+ * ⚠ **本函数只给「新关先验」**：已人工试玩过的关一律用实测 `t_act` 定 T₁（`pricing.source='playtest'`）。
+ * 历史：v0.1 按颗（`M × 22.5s`）在 32 盘语料上 32/32 触顶 420s ⇒ 作废；v0.4 = 1★ 基准。
  */
-export function measuredLevelTime(steps: number): { time: number; difficulty: number } {
+export function measuredLevelTime(steps: number): { time: number; difficulty: number; clamped: boolean } {
     const n = Number.isFinite(steps) && steps > 0 ? Math.round(steps) : 0;
-    const raw = n * SEC_PER_STEP;
-    const time = Math.min(LEVEL_TIME_MAX, Math.max(LEVEL_TIME_MIN, Math.round(raw)));
-    return { time, difficulty: Math.round((100 * time) / LEVEL_TIME_MAX) };
+    // 两级 ceil，缺一不可：先取「2★ 档至少要给的秒数」`need`（步数 × 单价向上取整），
+    // 再把它反解回 1★ 时钟。只做一次 ceil（`ceil(S×c÷K)`）会因
+    // `tierSecondsFor` 内部再 round 一次而少给 1 秒 ⇒ `tierStepBudget` 少算 1 步
+    // （实测 S=109 时 217 → 预算 108 < 109，关卡被判「2★ 拿不到」）。
+    const need = Math.ceil(n * SEC_PER_STEP);
+    const raw = need / STAR_TIER_K[1]!;
+    const time = Math.min(LEVEL_TIME_MAX, Math.max(LEVEL_TIME_MIN, Math.ceil(raw)));
+    return {
+        time,
+        difficulty: Math.round((100 * time) / LEVEL_TIME_MAX),
+        /** 钳位过（上下沿生效）⇒ 档秒数不再与步数成正比，消费方应跳过等式复核。 */
+        clamped: Math.ceil(raw) !== time,
+    };
+}
+
+/**
+ * 第 `tier` 档时钟**能容纳多少批量动作**（= `floor(档秒数 ÷ SEC_PER_STEP)`）。
+ *
+ * 用途 = 关卡设计/入关判据把「这档到底够不够」变成一句可算的话（§5.0 公式 v0.5 的配套）：
+ * - `tierStepBudget(T₁, 2) ≥ steps@12` ⇒ 基础档 2★ 可达（紧平衡的定义）；
+ * - `tierStepBudget(T₁, 3) ≥ min(steps@24, steps@48)` ⇒ 至少某一扩容档 3★ 可达。
+ * 两条都成立才算一关「定价自洽」，消费方 = `beads-bot.ts` 的 blockers（生成期硬拦）。
+ */
+export function tierStepBudget(levelTime: number, tier: number): number {
+    return Math.floor(tierSecondsFor(levelTime, tier) / SEC_PER_STEP);
 }
 
 /**

@@ -60,7 +60,6 @@ import {
     TIMER_CAPSULE,
     TIMER_CAPSULE_SHADOW_ALPHA,
     TIMER_CAPSULE_SHADOW_DY,
-    TRAY_BASE_SLOTS,
     TRAY_COLS,
     TRAY_FULL_PULSE_MS,
     TRAY_PLATE,
@@ -79,6 +78,7 @@ import {
     powerupLabelY,
     solverSequenceMs,
     trayLayout,
+    trayPreviewFits,
     zoomControlLayout,
 } from '../config/tuning';
 import type { BeadsSnapshot } from '../game/state';
@@ -950,9 +950,12 @@ function drawTray(
     palette: BeadsPalette,
     inks: BeadInks,
 ): void {
-    const rows = Math.ceil(snap.traySlots.length / TRAY_COLS);
-    // 基础（已开放）行数 —— 虚线语言**只属于扩展行**（`TRAY_BASE_SLOTS` 之后追加的行）。
-    const baseRows = Math.ceil(TRAY_BASE_SLOTS / TRAY_COLS);
+    // 已解锁行数 = 当前容量 / 12（三档 12/24/48 ⇒ 1/2/4 行，§3.4 v1.83）。
+    const unlockedRows = Math.ceil(snap.traySlots.length / TRAY_COLS);
+    // 还能再升一档 ⇒ 多留**一行虚线预览**（沿用「未解锁 = 虚线空槽」既有语言），
+    // 但只在**不压 `btn_expand`** 的那一档留（`trayPreviewFits`，24 槽档会压 14dp）。
+    // ⚠ `rows` 是**绘制**行数，命中仍按 capacity 派生 ⇒ 预览行无语义、不可点。
+    const rows = unlockedRows + (snap.trayCanExpand && trayPreviewFits(unlockedRows) ? 1 : 0);
     // 几何单一真源（§3.4 v1.20）：与 S2 命中测试共用 `trayLayout()`。
     const lay = trayLayout(rows);
 
@@ -977,9 +980,9 @@ function drawTray(
         const cx = lay.slotCenterX(col);
         const cy = lay.slotCenterY(row);
         const slotBottom = cy - TRAY_SLOT / 2;
-        // WXG-T-168：旧式 `row > 0` 把**基础容量的第 2 行**也画成虚线 ⇒ 玩家把已开放
-        // 的行误读成「未解锁/虚位」（正是上一轮「以为容量只有 12」的视觉来源）。
-        const dashed = row >= baseRows;
+        // WXG-T-168：旧式 `row > 0` 把**已开放的第 2 行**也画成虚线 ⇒ 玩家把已开放
+        // 的行误读成「未解锁/虚位」。判据 = 是否超出**已解锁行数**（三档制同源）。
+        const dashed = row >= unlockedRows;
 
         if (slot.state === 'free') {
             if (dashed) {
@@ -1173,9 +1176,9 @@ function drawExpandButton(
     snap: BeadsSnapshot,
     palette: BeadsPalette,
 ): void {
-    // v1.25（WXG-T-143）：扩展后按钮隐藏 —— 4 行托盘面板（y∈[216,450]）完整覆盖
-    // 其热区 [230,318]，继续绘制会与 row2/row3 槽位视觉重叠（参考视频同款：用后即收）。
-    if (snap.trayExpanded) return;
+    // v1.83：**顶档（48 槽）才隐藏** —— 4 行面板（y∈[216,450]）会完整覆盖其热区；
+    // 1/2 行态（12/24 槽）按钮仍在带下沿净空里，必须继续画（三档制的第二次扩容入口）。
+    if (!snap.trayCanExpand) return;
     const btn = expandButtonLayout();
     const cy = btn.bottom + btn.h / 2;
     // [EP12-S2/S3] T4 木钮通用面（radius 16、无顶缘受光线）：sheen = false。

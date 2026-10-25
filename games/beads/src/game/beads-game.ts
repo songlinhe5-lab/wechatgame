@@ -79,7 +79,6 @@ import {
   tierSecondsFor,
   normalSettleScore,
   TIMER_URGENT_T,
-  AD_PLACEHOLDER_HINT_TEXT,
   POWERUP_BUY_DENIED_HINT,
   SOLVER_HINT_MS,
   powerupBuyPrice,
@@ -448,8 +447,8 @@ export class BeadsGame implements Game {
    * 穿/循腿行为逐字回到注入前。受理单点仍在 `GameSettings`（本类只负引用转交）。
    */
   private readonly _ownsSkin?: (skinId: string) => boolean;
-  /** 在飞广告种类：区分续时（revive）与广告加心（staminaRefill）的发奖路由。 */
-  private _adKind: 'revive' | 'staminaRefill' | null = null;
+  /** 在飞广告种类：区分续时（revive）/ 广告加心（staminaRefill）/ 托盘扩容（trayExpand）的发奖路由。 */
+  private _adKind: 'revive' | 'staminaRefill' | 'trayExpand' | null = null;
   /**
    * 弃局标（EP13-S3）：`showMenu`（暂停次钮回主菜单）置真，新局装配（两装配入口共经
    * {@link _clearReviveBookkeeping}）清假。广告发奖是**广播**，续时腿只认机器状态；
@@ -532,10 +531,11 @@ export class BeadsGame implements Game {
       get board() { return self._board; },
       get hudDy() { return self._hudDy(); },
       get trayExpanded() { return self._tray.expanded; },
+      get trayCanExpand() { return self._tray.canExpand; },
       sfx(clipId: string) { self._sfx(clipId); },
       pauseManual() { self._requestPause('manual'); },
       usePowerup(type: PowerupType) { self.usePowerup(type); },
-      showExpandPlaceholder() { self._fx.showTapHint(AD_PLACEHOLDER_HINT_TEXT, -1, -1, 'expand'); },
+      requestExpand() { self.requestTrayExpand(); },
     });
     this._boardTaps = new BoardTapRouter({
       get grid() { return self._grid; },
@@ -563,6 +563,7 @@ export class BeadsGame implements Game {
       get board() { return self._board; },
       get hudDy() { return self._hudDy(); },
       get trayExpanded() { return self._tray.expanded; },
+      get trayCanExpand() { return self._tray.canExpand; },
       get reviveAvailable() { return self._reviveCount < REVIVE_MAX_PER_LEVEL; },
       get levelCount() { return self._levels.length; },
       get isLastLevel() { return self._levelIndex >= self._levels.length - 1; },
@@ -1364,10 +1365,34 @@ export class BeadsGame implements Game {
     fx.landCount = i + 1;
   }
 
-  /** Unlock the tray expansion row (MVP: badge-only placeholder, no ad call). */
+  /**
+   * 升一档托盘容量（12 → 24 → 48，§3.4 v1.83）。**纯机制**：不发广告、不判相位，
+   * 供广告发奖 / 崩溃恢复 / 测试直调。顶档后再调 ⇒ `false`。
+   */
   expandTray(): boolean {
     if (!this._tray.expand()) return false;
     this._emit('tray:expanded', {});
+    return true;
+  }
+
+  /**
+   * `btn_expand` 的完整语义（§3.4 v1.83）：本关内**每升一档看一次激励视频**，
+   * 顶档（48）后按钮消失 ⇒ 本方法不再可达。
+   *
+   * 降级口径（用户 2026-10-25 拍板「失败即免费给」）：weapp 宿主的激励位是 Noop
+   * （`show()` 必 onError）⇒ 失败分支必须**照发奖励**，否则真机永远拿不到扩容。
+   * 该分支是开发期手段，上线前随真广告接入一并删除。
+   * @returns 是否受理（顶档 / 已在飞广告 / 非 playing ⇒ false，按钮侧应已不可见）。
+   */
+  requestTrayExpand(): boolean {
+    if (!this._tray.canExpand) return false;
+    if (this._watchingAd) return false;
+    const ad = this._services?.rewardedAd;
+    if (!ad) return this.expandTray(); // 无广告位宿主 ⇒ 同降级口径直发
+    this._adKind = 'trayExpand';
+    this._watchingAd = true;
+    ad.load(REWARDED_PLACEMENT.trayExpand);
+    ad.show();
     return true;
   }
 
@@ -1813,6 +1838,12 @@ export class BeadsGame implements Game {
       }),
       ad.onError(() => {
         this._watchingAd = false;
+        // 托盘扩容降级（用户 2026-10-25 裁「失败即免费给」）：weapp 激励位是 Noop ⇒
+        // 真机必走本分支。⛔ 该分支随真广告接入删除（否则 = 白送槽位）。
+        if (this._adKind === 'trayExpand') {
+          this._adKind = null;
+          this.expandTray();
+        }
       }),
     );
 
@@ -2197,9 +2228,14 @@ export class BeadsGame implements Game {
     this._abandoned = false; // 新局装配 = 重新入局（弃局标只活到下一次装配）
   }
 
-  /** 广告发奖分发：按在飞种类路由到续时（revive）或广告加心（staminaRefill）。 */
+  /** 广告发奖分发：按在飞种类路由到托盘扩容 / 续时（revive）/ 广告加心（staminaRefill）。 */
   private _onAdRewarded(): void {
     this._watchingAd = false;
+    if (this._adKind === 'trayExpand') {
+      this._adKind = null;
+      this.expandTray();
+      return;
+    }
     if (this._adKind === 'staminaRefill') {
       this._adKind = null;
       const proceed = this._pendingRunStart;
@@ -2842,6 +2878,7 @@ export class BeadsGame implements Game {
       out.colorIdx = slot.colorIdx;
     }
     s.trayExpanded = this._tray.expanded;
+    s.trayCanExpand = this._tray.canExpand;
     s.traySelected = this._tray.selectedSlot;
     // v2.0 统一选择锚 · board 侧（E2）：E6 据此画错位珠高亮；-1 = 无。
     // 与 traySelected 三值互斥（input-control §2.1），至多一侧 ≥ 0。

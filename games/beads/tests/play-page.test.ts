@@ -74,9 +74,10 @@ describe('UI-41 · PlayPage', () => {
             expect(hitPowerupCard(r.x + r.w / 2, r.bottom + r.h / 2)).toBe(POWERUP_TYPES[i]);
         }
 
+        // v1.83：第三参数语义由「已扩容」改为 **`canExpand`**（还能不能再升一档）。
         const btn = expandButtonLayout();
-        expect(hitExpandButton(btn.x + btn.w / 2, btn.bottom + btn.h / 2, false)).toBe(true);
-        expect(hitExpandButton(btn.x + btn.w / 2, btn.bottom + btn.h / 2, true)).toBe(false);
+        expect(hitExpandButton(btn.x + btn.w / 2, btn.bottom + btn.h / 2, true)).toBe(true);
+        expect(hitExpandButton(btn.x + btn.w / 2, btn.bottom + btn.h / 2, false)).toBe(false);
     });
 
     it('静态门：对局页绘制单源，旧门面不再自带 HUD / 棋盘 / 托盘 / 道具带 / 缩放', () => {

@@ -3,20 +3,27 @@
   "name": "studio-1-f57f",
   "cols": 13,
   "rows": 12,
-  "time": 46,
+  "time": 43,
   "cycleProfile": "short",
   "pricing": {
     "source": "bot",
-    "steps": 27,
+    "steps": 21,
     "stepsLB": 4,
-    "taps": 54,
+    "baseCap": 12,
+    "stepsByCap": {
+      "12": 21,
+      "24": 27,
+      "48": 9
+    },
+    "taps": 42,
     "actionsSplit": {
-      "moves": 27,
-      "places": 13,
-      "directFills": 1,
-      "retrieves": 13
+      "moves": 21,
+      "places": 9,
+      "directFills": 3,
+      "retrieves": 9
     },
     "secPerStep": 1.69,
+    "tierK": 0.85,
     "clamped": false,
     "cleared": true
   },

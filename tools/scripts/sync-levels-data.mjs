@@ -310,8 +310,14 @@ export function assertPricing(uid, lv) {
     throw new Error(`${uid}: stepsLB=${p.stepsLB} > steps=${p.steps} ⇒ 错位组数下界被突破，疑回归`);
   if (p.cleared === false)
     throw new Error(`${uid}: pricing.cleared=false ⇒ 可解性未证实，不可入关（§5.0 硬拦闸）`);
-  if (!p.clamped && Math.abs(lv.time - Math.round(p.steps * p.secPerStep)) > 1)
-    throw new Error(`${uid}: time=${lv.time} 与 round(steps=${p.steps} × secPerStep=${p.secPerStep}) 不符 ⇒ 改了 pattern/time 未重跑 beads-bot --patch`);
+  // 定价基准档（§3.5 v1.84）：`tierK` 缺省 = 1（旧 1★ 基准记录，等式不变）；
+  // 现值 0.85 = 2★ 档（基础 12 槽步数装进 2★ 时钟 = 紧平衡）。
+  const tierK = p.tierK ?? 1;
+  const priced = Math.ceil(Math.ceil(p.steps * p.secPerStep) / tierK);
+  if (!p.clamped && Math.abs(lv.time - priced) > 1)
+    throw new Error(
+      `${uid}: time=${lv.time} 与 ceil(ceil(steps=${p.steps} × secPerStep=${p.secPerStep}) ÷ tierK=${tierK})=${priced} 不符 ⇒ 改了 pattern/time 未重跑 beads-bot --patch`,
+    );
 }
 
 /** 剔除 dev-only 字段（浅拷贝；关卡数据本体不突变）。 */

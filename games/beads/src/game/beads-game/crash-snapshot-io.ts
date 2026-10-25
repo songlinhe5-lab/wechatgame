@@ -238,8 +238,8 @@ export class CrashSnapshotIO {
     // needed[] **重算**（提案 §2：绝不从快照恢复，防双真源）。
     h.tray.initNeeded(grid.neededColorCounts());
 
-    // 托盘：先扩容，再逐槽还原（`colorIdx = 0` 即 free）。
-    if (snapshot.trayExpanded && !h.tray.expanded) h.tray.expand();
+    // 托盘：先逐档扩容到快照容量（§3.4 v1.83 三档 12/24/48），再逐槽还原（`colorIdx = 0` 即 free）。
+    while (h.tray.capacity < snapshot.traySlots.length && h.tray.expand()) { /* 升一档 */ }
     // v1.22（WXG-T-137）：S6 已无托盘镜像（道具目标 = 棋盘错位珠）⇒ 这里不再
     // 逐槽喂镜像，只恢复三计数（`restoreUses`）。托盘槽由上面的逐槽还原独立恢复。
     h.powerups.restoreUses(snapshot.powerupUses);

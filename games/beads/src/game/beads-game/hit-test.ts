@@ -45,10 +45,11 @@ export function hitPowerupCard(x: number, y: number): PowerupType | null {
 
 /**
  * `btn_expand` 热区 = 132×88（§3.4 v1.20，热区大于视觉 132×48）。几何同源 `expandButtonLayout()`。
- * 扩展态按钮隐藏 ⇒ 命中同时失效（否则会截胡扩展托盘的点选，渲染侧同款守卫）。
+ * 顶档（48 槽）后按钮消失 ⇒ 命中同时失效（否则会截胡托盘点选，渲染侧同款守卫）。
+ * 三档制（§3.4 v1.83）下判据是 **`canExpand`**（还能不能再升一档），不是"已扩容过"。
  */
-export function hitExpandButton(x: number, y: number, trayExpanded: boolean): boolean {
-  if (trayExpanded) return false;
+export function hitExpandButton(x: number, y: number, trayCanExpand: boolean): boolean {
+  if (!trayCanExpand) return false;
   const btn = expandButtonLayout();
   return (
     x >= btn.hitX && x <= btn.hitX + btn.hitW && y >= btn.hitBottom && y <= btn.hitBottom + btn.hitH
