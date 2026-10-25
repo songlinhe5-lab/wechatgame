@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3793,
       "lines": 129,
-      "sha256": "fd6de6de96cbfb82ea176834372d63202fc5d0078c3140046a51d7a6464c9447",
+      "sha256": "731899ef4015042347909e46b2c0afaf0f75f28ef81cf0821f6d1f3fc2fc73ca",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 406,
-          "summary": "1 production/TASKS-DETAIL.md 200215 5598 normal",
+          "summary": "1 production/TASKS-DETAIL.md 200822 5601 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5185,
       "lines": 164,
-      "sha256": "3c477b505b38b678fbfa92f8abe4173a306cdc165828ad40ab90bfb5d0a7af59",
+      "sha256": "1b7a3e91e1825714a89ada1fd05ee3e2e10c691da5651e791fa5abc3ef4c43e6",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 145 行 / 75245 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 146 行 / 76048 tok / 实测读 4 次",
           "level": 2,
           "startLine": 27,
           "endLine": 30,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+146 · §待排（backlog，无号，立项时领取…=117+30",
+          "summary": "§WXG 任务台账（SSOT）=1+147 · §待排（backlog，无号，立项时领取…=118+30",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 5598 行 / 200215 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 5601 行 / 200822 tok",
           "level": 2,
           "startLine": 105,
           "endLine": 109,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+5599 · §WXG-T-390=4196+53 · §WXG-T-3",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+5602 · §WXG-T-390=4196+53 · §WXG-T-3",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -84947,17 +84947,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 200215,
-      "lines": 5598,
-      "sha256": "6aba562e5cdf4c1af3c0b4a5e313c8a46128cfff51cd49435322953974065e9d",
+      "tokens": 200822,
+      "lines": 5601,
+      "sha256": "553ba3045b94c2e92bbea0eef75b275e2cf363d26d3bc3b47dc8ddaa0c75c818",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 5599,
-          "tokens": 200198,
+          "endLine": 5602,
+          "tokens": 200805,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -91617,11 +91617,91 @@
           ]
         },
         {
-          "anchor": "§WXG-T-394",
+          "anchor": "§WXG-T-396",
           "level": 2,
           "startLine": 5498,
-          "endLine": 5548,
-          "tokens": 1551,
+          "endLine": 5540,
+          "tokens": 1557,
+          "summary": "主表 / 详情：production/TASKS.md WXG-T-396 ｜ 主理人(Qoder)·productio",
+          "keywords": [
+            "WXG",
+            "production",
+            "TASKS",
+            "Qoder",
+            "productio"
+          ]
+        },
+        {
+          "anchor": "§1 结论",
+          "level": 3,
+          "startLine": 5502,
+          "endLine": 5509,
+          "tokens": 473,
+          "summary": "一行格式修复。WXG-T-394（beads 侧托盘三档批）的主表行只写了 4 格（Task ID / 名称 / 负责 ",
+          "keywords": [
+            "WXG",
+            "beads",
+            "Task",
+            "结论"
+          ]
+        },
+        {
+          "anchor": "§2 为什么这次代改",
+          "level": 3,
+          "startLine": 5510,
+          "endLine": 5513,
+          "tokens": 140,
+          "summary": "默认口径 = 对他人半成品只披露不代填（判例 K-158；上一批 WXG-T-395 正是如此处置，只把它登记成门禁阻塞",
+          "keywords": [
+            "WXG",
+            "为什么这次代"
+          ]
+        },
+        {
+          "anchor": "§3 改动面",
+          "level": 3,
+          "startLine": 5514,
+          "endLine": 5522,
+          "tokens": 301,
+          "summary": "只动两件台账文件：",
+          "keywords": [
+            "改动面"
+          ]
+        },
+        {
+          "anchor": "§4 读数（均同一命令实测）",
+          "level": 3,
+          "startLine": 5523,
+          "endLine": 5533,
+          "tokens": 200,
+          "summary": "pnpm run check:tasks 修前唯一红 = A: WXG-T-394 列数 4 ≠ 5；修后 0 红，A/",
+          "keywords": [
+            "pnpm",
+            "run",
+            "check",
+            "tasks",
+            "WXG",
+            "读数"
+          ]
+        },
+        {
+          "anchor": "§5 遗留 (13)",
+          "level": 3,
+          "startLine": 5534,
+          "endLine": 5540,
+          "tokens": 375,
+          "summary": "1. 对方行的备注写在状态格内（本表无独立备注格，属既有表结构而非缺陷），下一批若需检索该行文字位置，按 check-t",
+          "keywords": [
+            "check",
+            "遗留"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-394",
+          "level": 2,
+          "startLine": 5541,
+          "endLine": 5602,
+          "tokens": 1841,
           "summary": "beads·托盘三档 12/24/48 + 定价基准抬到 2★ + 十关重定价（2026-10-25）",
           "keywords": [
             "WXG",
@@ -91631,8 +91711,8 @@
         {
           "anchor": "§1 用户原话（口径真源）",
           "level": 3,
-          "startLine": 5504,
-          "endLine": 5509,
+          "startLine": 5547,
+          "endLine": 5552,
           "tokens": 174,
           "summary": "「调整下，默认给 12 槽，首次开广告给到 24 槽，再次开广告给到 48 槽，上限 48 槽。12 槽对于小关，2 星",
           "keywords": [
@@ -91643,8 +91723,8 @@
         {
           "anchor": "§2 改动",
           "level": 3,
-          "startLine": 5510,
-          "endLine": 5517,
+          "startLine": 5553,
+          "endLine": 5560,
           "tokens": 412,
           "summary": "1. §3.4 三档制：TRAY_TIER_SLOTS = [12,24,48]（单一真源）、TRAY_MAX_SLOT",
           "keywords": [
@@ -91657,8 +91737,8 @@
         {
           "anchor": "§3 实测读数（12/24/48 槽步数）",
           "level": 3,
-          "startLine": 5518,
-          "endLine": 5523,
+          "startLine": 5561,
+          "endLine": 5566,
           "tokens": 88,
           "summary": "L1 21/27/9｜L2 64/30/22｜L3 41/43/16｜L4 60/47/35｜L5 64/68/110｜",
           "keywords": [
@@ -91669,8 +91749,8 @@
         {
           "anchor": "§4 挂账",
           "level": 3,
-          "startLine": 5524,
-          "endLine": 5529,
+          "startLine": 5567,
+          "endLine": 5572,
           "tokens": 124,
           "summary": "L5 studio-2-23ca 拿不到 3★（任何容量档都 > 预算 53 步）⇒ 已进 warnings，需关卡设计",
           "keywords": [
@@ -91682,8 +91762,8 @@
         {
           "anchor": "§5 二批（用户选 A：换序 + 重标定 + 重定价）",
           "level": 3,
-          "startLine": 5530,
-          "endLine": 5539,
+          "startLine": 5573,
+          "endLine": 5582,
           "tokens": 357,
           "summary": "起因：用户看三档读数后质询「L5 怎么越来越多了？算法出bug了吧？」",
           "keywords": [
@@ -91698,8 +91778,8 @@
         {
           "anchor": "§6 三批（星级时间按结果规划 + L9 boss 开新机制）",
           "level": 3,
-          "startLine": 5540,
-          "endLine": 5548,
+          "startLine": 5583,
+          "endLine": 5591,
           "tokens": 236,
           "summary": "用户令：「按照结果来规划关卡星级时间，后期体验后再提出修改建议」→「L9 boss关要求48槽紧平衡」。",
           "keywords": [
@@ -91711,90 +91791,10 @@
           ]
         },
         {
-          "anchor": "§WXG-T-396",
-          "level": 2,
-          "startLine": 5549,
-          "endLine": 5599,
-          "tokens": 1241,
-          "summary": "主表 / 详情：production/TASKS.md WXG-T-396 ｜ 主理人(Qoder)·productio",
-          "keywords": [
-            "WXG",
-            "production",
-            "TASKS",
-            "Qoder",
-            "productio"
-          ]
-        },
-        {
-          "anchor": "§1 结论",
-          "level": 3,
-          "startLine": 5553,
-          "endLine": 5558,
-          "tokens": 215,
-          "summary": "一行格式修复。WXG-T-394（beads 侧托盘三档批）的主表行只写了 4 格（Task ID / 名称 / 负责 ",
-          "keywords": [
-            "WXG",
-            "beads",
-            "Task",
-            "结论"
-          ]
-        },
-        {
-          "anchor": "§2 为什么这次代改",
-          "level": 3,
-          "startLine": 5559,
-          "endLine": 5562,
-          "tokens": 142,
-          "summary": "默认口径 = 对他人半成品只披露不代填（判例 K-177 先例 4；上一批 WXG-T-395 正是如此处置，只把它登记",
-          "keywords": [
-            "WXG",
-            "为什么这次代"
-          ]
-        },
-        {
-          "anchor": "§3 改动面",
-          "level": 3,
-          "startLine": 5563,
-          "endLine": 5571,
-          "tokens": 182,
-          "summary": "只动两件台账文件：",
-          "keywords": [
-            "改动面"
-          ]
-        },
-        {
-          "anchor": "§4 读数（均同一命令实测）",
-          "level": 3,
-          "startLine": 5572,
-          "endLine": 5582,
-          "tokens": 180,
-          "summary": "pnpm run check:tasks 修前唯一红 = A: WXG-T-394 列数 4 ≠ 5；修后 0 红，A/",
-          "keywords": [
-            "pnpm",
-            "run",
-            "check",
-            "tasks",
-            "WXG",
-            "读数"
-          ]
-        },
-        {
-          "anchor": "§5 遗留 (13)",
-          "level": 3,
-          "startLine": 5583,
-          "endLine": 5588,
-          "tokens": 160,
-          "summary": "1. 对方行的备注写在状态格内（本表无独立备注格，属既有表结构而非缺陷），下一批若需检索该行文字位置，按 check-t",
-          "keywords": [
-            "check",
-            "遗留"
-          ]
-        },
-        {
           "anchor": "§7 四批（L9 3★ 收紧到「48 槽还很赶」）",
           "level": 3,
-          "startLine": 5589,
-          "endLine": 5599,
+          "startLine": 5592,
+          "endLine": 5602,
           "tokens": 273,
           "summary": "用户追加口径「要求 48 槽还很赶」。先量后定：L9 扫 6 策略 × 3 容量 ⇒ 最省可达 12/24/48 = 1",
           "keywords": [
@@ -91807,17 +91807,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 75245,
-      "lines": 145,
-      "sha256": "f68b991cea6c739865fb379fa3c7621c7bea0c127cebc9ac814ed909bc058742",
+      "tokens": 76048,
+      "lines": 146,
+      "sha256": "e7a9b23874a8081c3a17beb8e8549b019e6905dec01c34afdf6392ea68beb163",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 146,
-          "tokens": 75236,
+          "endLine": 147,
+          "tokens": 76039,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -91830,8 +91830,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 117,
-          "endLine": 146,
+          "startLine": 118,
+          "endLine": 147,
           "tokens": 1460,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
