@@ -836,23 +836,20 @@
         }
 
         /** 单条结果行（轻投影；点开才拉全文）。`inUse` = 当前应用在画布上的那条（标「使用中」）。
-         *  预览草稿（`r.draft`）与已存结果同一套行：都能点开应用、都只能由右侧 ✕ 删除。 */
+         *  只处理**已确认保存**的结果（预览草稿不展示，2026-10-25 用户要求）。 */
         function resultItem(r, inUse) {
             const d = document.createElement('div'); d.className = 'item' + (inUse ? ' on' : '');
             const noImp = r.importable === false;
             const mis = r.misMode === 'full' ? '全错位' : r.misMode === 'max' ? '最大化错位' : r.misMode === 'none' ? '不错位' : '错位 ' + r.swaps * 2;
             // 尺寸用**实际盘面**（trim 后），与 id 里的请求档位可能不同；「使用中」必须显式写出来，
             // 否则一列 id 看下来没人知道画布上是哪条（2026-10-24 用户要求）。
-            const tag = r.draft ? '✎ 预览 · ' : (inUse ? '<b style="color:var(--ac)">使用中</b> · ' : '');
+            const tag = inUse ? '<b style="color:var(--ac)">使用中</b> · ' : '';
             d.innerHTML = `<span title="${r.id}">${noImp ? (r.misMode === 'none' ? 'ℹ ' : '⚠ ') : ''}${r.id}</span>` +
-                `<small>${tag}${r.cols}×${r.rows} · ${r.colors} 色 · ${mis}${noImp && !r.draft ? (r.misMode === 'none' ? ' · 游戏不入关' : ' · 不可入关') : ''}</small>`;
-            d.title = r.draft
-                ? '点击应用为当前（预览未入库：可「确认保存」转正；✕ 删除这条预览）'
-                : '点击应用为当前（可下载 / 烘焙 / 替换回该关；入关去大关管理页）';
+                `<small>${tag}${r.cols}×${r.rows} · ${r.colors} 色 · ${mis}${noImp ? (r.misMode === 'none' ? ' · 游戏不入关' : ' · 不可入关') : ''}</small>`;
+            d.title = '点击应用为当前（可下载 / 烘焙 / 替换回该关；入关去大关管理页）';
             d.onclick = async () => {
                 try {
-                    const url = (r.draft ? '/api/previews/' : '/api/results/') + r.id;
-                    const res = await fetch(url);
+                    const res = await fetch('/api/results/' + r.id);
                     const full = await res.json();
                     if (!res.ok || full.error) throw new Error(full.error || ('HTTP ' + res.status));
                     applyResult(full);
@@ -860,12 +857,11 @@
             };
             // 删除钮：**唯一的删除入口**（点行只应用、不删）。不可逆 ⇒ 二次确认。
             const x = document.createElement('button');
-            x.className = 'del'; x.textContent = '✕'; x.title = r.draft ? '删除这条预览（不可恢复）' : '删除这条结果（不可恢复）';
+            x.className = 'del'; x.textContent = '✕'; x.title = '删除这条结果（不可恢复）';
             x.onclick = async (ev) => {
                 ev.stopPropagation();
-                if (!confirm(`删除 ${r.draft ? '预览 ' : ''}${r.id}？\n磁盘上只有一份，不可恢复。`)) return;
+                if (!confirm(`删除 ${r.id}？\n磁盘上只有一份，不可恢复。`)) return;
                 try {
-                    // 预览与已存同路径：服务端先查 data/<board>/<id>，再查 data/_draft/<id>
                     const res = await fetch('/api/results/' + r.id, { method: 'DELETE' });
                     if (!res.ok) {
                         const j = await res.json().catch(() => ({}));
@@ -891,24 +887,21 @@
          *  「使用中」= `current.id`，所以任何应用/生成/保存后都要重跑本函数。 */
         async function loadResults(focusId) {
             try {
-                const [rs, pv] = await Promise.all([
-                    fetch('/api/results').then((x) => x.json()),
-                    fetch('/api/previews').then((x) => x.json()).catch(() => ({ previews: [] })),
-                ]);
+                // 只列**已确认保存**（data/<board>/<id>/）的条目：预览草稿一律不展示（2026-10-25 用户要求），
+                // 但它们仍在磁盘上、不会被自动清理 —— 只有右侧 ✕ 能删。
+                const rs = await fetch('/api/results').then((x) => x.json()).catch(() => ({}));
                 const allResults = Array.isArray(rs.results) ? rs.results : [];
-                const allPreviews = Array.isArray(pv.previews) ? pv.previews : [];
                 const cell = levelInfo ? levelInfo.cells[levelCell] : null;
                 const uid = levelInfo ? levelInfo.uid : '';
                 // 本关 = linkedLevels 命中该 uid。无标签的旧条目**不混进来**（它们属于别的关 / 不属于任何关），
                 // 数量在标题里报出来，免得用户以为"记录被删了"。
                 const mine = (r) => !uid || (Array.isArray(r.linkedLevels) && r.linkedLevels.includes(uid));
                 const results = allResults.filter(mine);
-                const previews = allPreviews.filter(mine);
-                const hidden = uid ? allResults.length - results.length + (allPreviews.length - previews.length) : 0;
+                const hidden = uid ? allResults.length - results.length : 0;
                 const el = $('results');
                 el.innerHTML = `<b>已存结果</b> <small>（` +
                     (uid ? `本关 ${uid}${cell ? ` · ${cell.cols}×${cell.rows}` : ''} · ` : '') +
-                    `已存 ${results.length} 条 · 预览 ${previews.length} 条` +
+                    `已存 ${results.length} 条` +
                     (hidden ? `｜另 ${hidden} 条属其它关/未标关，已隐藏` : '') +
                     `｜点行应用为当前，只有 ✕ 删除）</small>`;
                 const curId = current && !current.fromLevel ? current.id : '';
@@ -918,12 +911,6 @@
                     if (r.id === focusId) focusEl = it;
                     return it;
                 };
-                if (previews.length) {
-                    const g = document.createElement('div'); g.className = 'grp';
-                    g.innerHTML = '<h3>预览（未入库 · 可「确认保存」转正）</h3>';
-                    for (const r of previews) g.appendChild(mkRow(r));
-                    el.appendChild(g);
-                }
                 const byBoard = {};
                 for (const r of results) (byBoard[r.board] ??= []).push(r);
                 for (const [board, list] of Object.entries(byBoard)) {
@@ -932,7 +919,7 @@
                     for (const r of list) g.appendChild(mkRow(r));
                     el.appendChild(g);
                 }
-                if (uid && !results.length && !previews.length) {
+                if (uid && !results.length) {
                     const g = document.createElement('div'); g.className = 'grp';
                     g.innerHTML = '<small style="color:#999">本关还没有记录 —— 在本页「生成预览」→「✓ 确认保存」后就会出现在这里' +
                         '（带历史标记的才属于本关；从 `/` 生成再「替换回该关」的也会自动归到本关）</small>';
@@ -974,16 +961,13 @@
             if (!cell || !(cell.paint?.pattern || []).length) return;
             const uid = levelInfo.uid;
             try {
-                const [rs, pv] = await Promise.all([
-                    fetch('/api/results').then((x) => x.json()).catch(() => ({})),
-                    fetch('/api/previews').then((x) => x.json()).catch(() => ({})),
-                ]);
+                // 只认**已确认保存**的条目（预览不展示也不参与认领）
+                const rs = await fetch('/api/results').then((x) => x.json()).catch(() => ({}));
                 // 只在**本关**条目里找（linkedLevels 命中），按新→旧最多试 12 条，避免为认领拉全库详情
-                const cands = [...(rs.results || []), ...(pv.previews || [])]
+                const cands = (rs.results || [])
                     .filter((r) => (r.linkedLevels || []).includes(uid)).slice(0, 12);
                 for (const r of cands) {
-                    const url = (r.draft ? '/api/previews/' : '/api/results/') + r.id;
-                    const full = await fetch(url).then((x) => (x.ok ? x.json() : null)).catch(() => null);
+                    const full = await fetch('/api/results/' + r.id).then((x) => (x.ok ? x.json() : null)).catch(() => null);
                     if (!full || full.error || !sameAsLevel(full)) continue;
                     current = full;
                     show(full);
