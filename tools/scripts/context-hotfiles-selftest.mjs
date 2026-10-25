@@ -10,11 +10,14 @@
  */
 
 import {
+  LIMITS,
   hopHit,
   parseHotBlocks,
+  renderHotFiles,
   secondHopIssues,
   renderHotFileBlock,
 } from './lib/context-index.mjs';
+import { estimateTokens } from './lib/context-tokens.mjs';
 
 const S = '\u00a7';           // 锚点前缀 §
 const ELL = '\u2026';          // 截断后缀 …
@@ -132,6 +135,33 @@ ok('G4 补足取的是尾部编号最大的节（倒序），不是文档开头'
 const uncapped = renderHotFileBlock(wide, 0, { labelMaxChars: 20, anchorMax: 12, preferred: false }).join('\n');
 const uncappedListed = (parseHotBlocks(`## \`docs/wide.md\`\n\n${uncapped.split('\n').find((l) => l.startsWith(S)) ?? ''}`).get('docs/wide.md')?.entries ?? []);
 ok('G5 非 preferred 文件不受条数上限（25 节全列）', uncappedListed.length === 26);
+
+// ── 预算预留（WXG-T-380）：可选池只填到「上限 − 预留」──────────────────────
+// 反例必红：把预留置 0 应当重新填满（否则 H1 只是一条恒真断言，K-089）。
+const denseIndex = {
+  files: [
+    {
+      path: 'docs/zz-wxg380-hot.md', lines: 10, tokens: 80, tier: 'hot',
+      sections: [{ anchor: `${S}热`, level: 1, startLine: 1, endLine: 10 }],
+    },
+    ...Array.from({ length: 60 }, (_, i) => ({
+      path: `docs/zz-wxg380-${i}.md`, lines: 200, tokens: 4000,
+      sections: Array.from({ length: 20 }, (_, j) => ({
+        anchor: `${S}节 ${i}.${j}`, level: j === 0 ? 1 : 2,
+        startLine: 1 + j * 10, endLine: 10 + j * 10,
+      })),
+    })),
+  ],
+};
+const reserved = estimateTokens(renderHotFiles(denseIndex));
+const fillCap = LIMITS.hotFilesMaxTokens - LIMITS.hotFilesReserveTokens;
+ok(`H1 填充止于「上限 ${LIMITS.hotFilesMaxTokens} − 预留 ${LIMITS.hotFilesReserveTokens}」（实测 ${reserved}）`, reserved <= fillCap);
+ok('H1b 预留不是「填不动」：仍接近填充线（不低于上限 − 预留 − 单个文件块）', reserved > fillCap - 400);
+const savedReserve = LIMITS.hotFilesReserveTokens;
+LIMITS.hotFilesReserveTokens = 0;
+const unreserved = estimateTokens(renderHotFiles(denseIndex));
+LIMITS.hotFilesReserveTokens = savedReserve;
+ok(`H2 反例能红：预留置 0 即重新贴上限（${unreserved} > ${reserved}）`, unreserved > reserved);
 
 const failed = results.filter((r) => !r.pass);
 for (const r of results) console.log(`  ${r.pass ? '✅' : '❌'} ${r.name}`);

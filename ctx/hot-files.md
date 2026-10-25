@@ -6,7 +6,7 @@
 > 两条控量规则（WXG-T-293，quality-lead 裁定）：① 锚点名超 20 字符即截为前缀 + …（**行号不动**，全名仍可在 index.json 查）；② 台账型文件（ROUTES 已声明「先用 `ctx/index.json`」）每表最多列 12 条补足项（ROUTES 引用锚点与 L1 族父不计入），行尾如实写出「余 N 节」。
 > 收录：**热文件 + `ctx/ROUTES.md` 引用到的文件 + 实测热读/大文件**；查不到 → `ctx/index.json`（全量，⛔ 禁止整读——**现 ≈83 万估算 tok**；按路径取节：`jq .files[] | select(.path=="<路径>") | .sections ctx/index.json`，只找标题行 `grep -n "^#" <文件>`）。token 为**估算**（CJK≈1/字、ASCII≈1/4 字符）。
 
-> 体积预算 ≤ 5600 估算 tokens（当前 36 个文件）：本表是协议常驻开销，会**直接扣减净收益**（`ctx/reads-summary.md §②.1`），故超预算候选不进本表。
+> 体积预算 ≤ 5600 估算 tokens（当前 33 个文件）：本表是协议常驻开销，会**直接扣减净收益**（`ctx/reads-summary.md §②.1`），故超预算候选不进本表。
 
 ## `docs/architecture/architecture-beads.md` — 196 行 / 4589 tok / 实测读 35 次
 
@@ -24,9 +24,9 @@
 
 §wechatgame 项目长期笔记=1+74 · §日志蒸馏规程（R2 · WXG-T-0…=7+6 · §项目约定=13+15 · §常用脚本=28+11 · §SubAgent=39+4 · §Rules=43+3 · §Hooks=46+7 · §Headless / CI=53+8 · §已知限制=61+14
 
-## `production/TASKS.md` — 132 行 / 68465 tok / 实测读 4 次
+## `production/TASKS.md` — 133 行 / 68993 tok / 实测读 4 次
 
-§WXG 任务台账（SSOT）=1+133 · §待排（backlog，无号，立项时领取…=104+30
+§WXG 任务台账（SSOT）=1+134 · §待排（backlog，无号，立项时领取…=105+30
 
 ## `production/qa/beads/test-cases.md` — 62 行 / 3485 tok / 实测读 15 次
 
@@ -102,10 +102,10 @@
 §knowledge/ — 工作室知识库…=1+282 · §1 读取协议（开发前期）=7+10 · §2 写入协议（任务收尾）=17+28 · §3 文件分工=45+10 · §4 维护=55+13 · §5 生命周期（访问记账 → 归档 → …=68+41 · §6 活跃条目（自动生成）=109+174
 > 本表只列 7 / 11 节：其余 4 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
 
-## `production/TASKS-DETAIL.md` — 4847 行 / 191646 tok
+## `production/TASKS-DETAIL.md` — 4888 行 / 192720 tok
 
-§WXG 任务台账 · 详情（标题制正文…=1+4848 · §WXG-T-368=4189+46 · §WXG-T-371=4235+49 · §WXG-T-370=4284+29 · §WXG-T-369=4313+38 · §WXG-T-379=4351+43 · §WXG-T-378=4394+56 · §WXG-T-377=4450+80 · §WXG-T-376=4530+71 · §WXG-T-375=4601+53 · §WXG-T-374=4654+50 · §WXG-T-373=4704+53 · §WXG-T-372=4757+92
-> 本表只列 13 / 385 节：其余 372 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
+§WXG 任务台账 · 详情（标题制正文…=1+4889 · §WXG-T-371=4235+49 · §WXG-T-370=4284+29 · §WXG-T-369=4313+38 · §WXG-T-380=4351+41 · §WXG-T-379=4392+43 · §WXG-T-378=4435+56 · §WXG-T-377=4491+80 · §WXG-T-376=4571+71 · §WXG-T-375=4642+53 · §WXG-T-374=4695+50 · §WXG-T-373=4745+53 · §WXG-T-372=4798+92
+> 本表只列 13 / 391 节：其余 378 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
 
 ## `games/breakout/design/concept.md` — 143 行 / 3113 tok / 实测读 217 次
 
@@ -161,17 +161,4 @@
 §GDD · S2 输入与操控（Inpu…=1+207 · §1 目标=9+4 · §2 机制=13+59 · §3 输入=72+9 · §4 输出与反馈=81+12 · §5 数值=93+4 · §6 边界条件=97+24 · §7 依赖=121+5 · §8 验收标准（可测试硬判据，QA 直接…=126+58 · §9 变更记录=184+24
 > 本表只列 10 / 14 节：其余 4 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
 
-## `my-skills/wxgame-qa-gates/SKILL.md` — 123 行 / 2279 tok / 实测读 50 次
-
-§wxgame QA 门禁法（风险驱动五…=6+119 · §1 测试计划（`production/…=13+15 · §2 测试用例（`test-cases.…=28+7 · §3 冒烟测试清单（`smoke-tes…=35+7 · §4 缺陷分级（`bug-severit…=42+13 · §5 Playtest 计划（`play…=55+7 · §6 测试不稳定性（flaky）——**…=62+15 · §7 测试证据评审（evidence r…=77+14 · §8 长跑 / 耐久测试（soak）——…=91+16 · §门编号（G1–G4，定义与源文档 `t…=107+11 · §门禁纪律=118+7
-
-## `games/breakout/design/gdd/save-progress.md` — 133 行 / 2476 tok / 实测读 47 次
-
-§GDD · S8 存档与进度（Save…=1+134 · §1 目标=7+3 · §2 机制=10+11 · §3 输入=21+4 · §4 存档结构（**最终版 · 工程侧照…=25+53 · §5 数值=78+15 · §6 边界条件=93+25 · §7 依赖=118+5 · §8 验收标准=123+12
-
-## `games/breakout/design/gdd/bricks.md` — 146 行 / 2914 tok / 实测读 47 次
-
-§GDD · S4 砖块类型与命中规则（…=1+147 · §1 目标=7+3 · §2 机制=10+91 · §3 输入=101+5 · §4 输出与反馈=106+9 · §5 数值=115+11 · §6 边界条件=126+9 · §7 依赖=135+5 · §8 验收标准=140+8
-> 本表只列 9 / 15 节：其余 6 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
-
-> 另有 236 个文件既未被 `ctx/ROUTES.md` 引用、也未命中热度/体积门槛，与路由读取无关，故不逐条列出（需要时查 `ctx/index.json`）。
+> 另有 239 个文件既未被 `ctx/ROUTES.md` 引用、也未命中热度/体积门槛，与路由读取无关，故不逐条列出（需要时查 `ctx/index.json`）。

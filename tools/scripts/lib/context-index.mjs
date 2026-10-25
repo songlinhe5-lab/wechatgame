@@ -397,6 +397,17 @@ export const LIMITS = {
   hotFilesMaxTokens: 5600,
 
   /**
+   * 【WXG-T-380】可选池填充的**预留额度**（给必收 / 强制收录集的合法增长留出余量）。
+   * 病根：前缀扫描原本「填到上限」⇒ 本表恒贴 5600（2026-10-25 实测 5567 / 余 33），
+   * 任何一次「ROUTES 新引用一个文件」或「tier:hot 新增一节」（单条 15–60 tok）都会顶穿 A 门；
+   * 历史因此连续抬上限六次（4000→4700→4900→5150→5300→5600，见上方留痕）。
+   * 预留把「填满」改成「填到 上限 − 预留」：被裁的只是**可选池尾部**（当前 = 旧游戏 breakout
+   * 等低频件），ROUTES 引用的文件本就强制收录 ⇒ 协议链路零影响、D2 覆盖率零影响。
+   * 取 300 ≈ 6–10 条新路由锚点或 2–3 个新收录小文件，覆盖数批文档增量后才需再议。
+   */
+  hotFilesReserveTokens: 300,
+
+  /**
    * 【WXG-T-293】速查表里单个锚点标题的**显示**截断长度（字符）。
    * 依据 = quality-lead 裁定：test-cases 一类判据表**不得按条数裁**（会削判据族），
    * 而成本由「锚点文字长度」决定、与节体量无关 ⇒ 截前缀 + `…`，**`=start+limit` 原样保留**
@@ -1346,7 +1357,8 @@ export function renderHotFiles(index, dist = null) {
     return L.join('\n');
   };
 
-  // 选收录集：在 optional 前缀上取「最大的 L 使文档 ≤ 预算」。
+  // 选收录集：在 optional 前缀上取「最大的 L 使文档 ≤ 预算 − 预留」（WXG-T-380）。
+  // 预留存在的原因见 LIMITS.hotFilesReserveTokens：不预留 = 恒贴上限 = 下次合法增量必红。
   //
   // 为什么是**前缀扫描**而不是逐个贪心：文末「未收录」清单本身占体积，且**后跳过的文件会追加进该清单**。
   // 逐个贪心时，接受第 k 个文件用的是「当时的 omitted」，而后续跳过的文件会把清单撑大 →
@@ -1354,9 +1366,10 @@ export function renderHotFiles(index, dist = null) {
   // 前缀扫描保证：每个候选要么进本表、要么进未收录清单，二者只居其一，估计与落盘一致。
   // 大小关于 L 单调（入选块 ≈30×节数 ≫ 未收录行 ≈12 tok），故首次越界即可停。
   let best = 0;
+  const fillTarget = LIMITS.hotFilesMaxTokens - (LIMITS.hotFilesReserveTokens ?? 0);
   for (let L = 1; L <= optional.length; L += 1) {
     const doc = render([...required, ...optional.slice(0, L)], optional.slice(L));
-    if (estimateTokens(doc) > LIMITS.hotFilesMaxTokens) break;
+    if (estimateTokens(doc) > fillTarget) break;
     best = L;
   }
   // WXG-T-144（D2 断链根治）：ROUTES 引用的文件**必收** —— 它们是协议第二跳的

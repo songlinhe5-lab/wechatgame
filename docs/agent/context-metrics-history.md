@@ -125,6 +125,10 @@ WXG-T-036 q1（2026-09-13）复核发现：P10 单列会**虚高**。同批两�
 > （旧版逐条列全量落选者，纯常驻开销；回收账见 `docs/agent/context-metrics-history.md §4`）。**门禁 D2（硬门）**：引用面覆盖率 ≥
 > `LIMITS.hotFilesCoverageMin` —— 结构指标，不受 ⑦ 行为类裁定约束，断链即 FAIL。
 > ⑪·补² **第二跳两件控量 + 硬门 D3（WXG-T-293，quality-lead 裁定）**：① 锚点名超 `hotAnchorLabelMaxChars`（20）截前缀 + `…`，**行号不动** ⇒ 覆盖不变；② `hotFileAnchorMax`（12）只作用于 ROUTES 已声明「先用 index.json」的文件（现网 = TASKS-DETAIL），⛔ 不裁 QA 判据表。D3（U1/U2/U3）机械守可寻性，反例必红 = `ctx:hotfiles:selftest`；同批 `hotFilesMaxTokens` 5800→**5600**。
+> ⑪·补³ **填充预留（WXG-T-380，2026-10-25）**：可选池不再「填满上限」，改为填到 **上限 − `hotFilesReserveTokens`（300）**。
+> 病根是前缀扫描恒贴 5600（实测余 33）⇒ 任何一次 ROUTES 新引用（15–60 tok）或 `tier:hot` 新增一节都会顶穿 A 门，
+> 历史上已因此连续六次抬上限（4000→4700→4900→5150→5300→5600）。被裁的只是**可选池尾部**（现网 = breakout 低频件），
+> ROUTES 引用件仍强制收录 ⇒ D2/D3 零影响。回滚 = 该常量置 0。
 > ⑫ **本表常驻体积上限（WXG-T-039 R5，2026-09-13）**：本表是协议常驻第二跳且为**手维护路由表**
 > （被索引但非生成物、无生成器控量），设**硬上限 7500 估算 tokens**（`LIMITS.routesMd` ≈ 现值 +20%、
 > 低于 B 项通用 8000）——`pnpm run ctx:check` **A 项**超限即 FAIL + exit 1，处置 = **瘦身**（合并重复

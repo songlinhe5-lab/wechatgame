@@ -4348,6 +4348,47 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 
 ---
 
+## WXG-T-380
+
+**hot-files 第二跳「填充预留」：收录线与上限分离（5,567 → 5,185 tok，余 33 → 415）**（2026-10-25）
+
+> 领号已核 K-046：开工前头注下一可用号 = 380，工作树与在册零占用（379 为本会话上一批）。
+
+### 1. 病根（诊断订正）
+
+上一批（WXG-T-379）收尾时，我把「hot-files 5,567 / 5,600、余 33」讲成「池子太满，下次任一新热文件入库即撞门」。动手后核对生成器 `renderHotFiles()`：**可选池共约 272 件（收录 36 + 落选 236），本表体积由预算决定、不由池子决定**——前缀扫描取「最大的收录数 L，使文档 ≤ 上限」⇒ 任何一次瘦身或增删，下一批候选会立刻把腾出的额度填回去。
+
+结论：**减池 / 降热度门槛不产生余量**，只会换一批文件进来。真因是**填充线与上限重合**：余 33 tok 意味着下一次「ROUTES 新引用一个文件」或「`tier:hot` 新增一节」（单条 15–60 tok）必然顶穿 A 项。该机制历史上已导致连续六次抬上限：4000→4700（T-144）→4900（T-211）→5150（T-214/221）→5300（T-262）→5600（T-269），每次注释里都写着「下次先还债」。
+
+### 2. 改法（一处常量 + 一处填充线 + 三条自测）
+
+| 位置 | 改动 |
+|---|---|
+| `tools/scripts/lib/context-index.mjs` `LIMITS` | 新增 `hotFilesReserveTokens: 300`（附病根、被裁对象与回滚说明） |
+| 同文件 `renderHotFiles()` 前缀扫描 | 填充线 `hotFilesMaxTokens` → `hotFilesMaxTokens − hotFilesReserveTokens`；**最终超限判定仍对硬上限**——必收 / 强制收录集真越界时照旧诚实 FAIL 并提示，不静默越界 |
+| `tools/scripts/context-hotfiles-selftest.mjs` | 新增 H1 / H1b / H2：合成 60 件候选池 ⇒ ① 文档 ≤ 上限 − 预留；② 仍接近填充线（不是「填不动」）；③ **把预留置 0 必回填**（反例能红，K-089） |
+
+取舍：被裁的只是**可选池尾部**（本批 3 件：`games/breakout/design/gdd/save-progress.md` 96 tok、`games/breakout/design/gdd/bricks.md` 178 tok、`my-skills/wxgame-qa-gates/SKILL.md` 163 tok）。ROUTES 引用到的文件走「强制收录」，不受预留影响 ⇒ D2（覆盖率）与 D3（U1–U3 可寻性）零变化；这些文件日后若被路由化，会自动回到表内。
+
+### 3. 读数（工作树实测）
+
+| 指标 | 改前 | 改后 | 上限 |
+|---|---|---|---|
+| `ctx/hot-files.md` | 5,567（余 33） | **5,185**（余 415） | 5,600 ✅ |
+| 收录文件数 | 36 | 33 | — |
+| 常驻总量 | 13,306 | **12,924** | 软阈 13,500 ✅ |
+| `hotFilesMaxTokens` / `residentTotalSoft` | 5600 / 13500 | **原值未动** | — |
+
+### 4. 验证
+
+`ctx:hotfiles:selftest` **22/22**（19 旧 + 3 新）· `ctx:check` A/B/C/D/D2/D3 + E3 全绿（A 项读工作树：5,185 / 12,924）· `ctx:build` 490 文件 / 6,984 节 · `check:links` OK · `check:tasks` OK。
+
+### 5. 遗留
+
+1. 预留 300 是**经验值**（≈6–10 条新路由锚点或 2–3 个新收录小文件）。若某批增量持续 > 300，先问「新增件该不该被路由化」，而不是再抬上限——与 T-292 注释里「再涨前先还债」同一约束。
+2. 可选池里仍有 5 件 breakout 低频文档（合计 ≈810 tok）。要再腾余量，优先考虑「非当前活跃游戏域冷却」，但那属规则变更，需用户裁定。
+3. `tier:hot` 必收 6 件（systems-index / control-manifest / TASKS / test-cases / architecture-beads / MEMORY）仍是最大刚性块，瘦身仍待 quality-lead 裁定（T-224 未还债）。
+
 ## WXG-T-379
 
 **常驻层瘦身：ROUTES 前言 ①–⑫ 迁入 `docs/agent/context-metrics-history.md` §5（15,358 → 13,306 tok）**
