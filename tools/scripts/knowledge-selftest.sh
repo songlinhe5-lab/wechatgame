@@ -47,9 +47,11 @@
 #         ㉔ kb:archive 成功分支逐字段（WXG-T-390）：state/archivedDate/archiveReason 同写；正文多行逐行重建预期块
 #            （标题行 + 归档元信息行 + 正文行）比到 lessons-archived.md；源文件 = 原文件恰好减去那段（邻条不伤）；
 #            events 末条 archived 透传 date/taskId/note
-#         ㉕ --task 形态校验（WXG-T-392）：archive / sync / reactivate 三脚本同一契约——坏形态 → exit 2 +
-#            诊断回显坏值并给正确形态；三次拒绝后 ledger 与两个活跃文件逐字节不变、events 不追加；
-#            边界 `--task=`（空串）不算非法 = 按缺省 null 记账（成功归档、event.taskId=null）
+#         ㉕ --task 形态校验（WXG-T-392，touch 一腿由 WXG-T-397 补齐）：archive / sync / reactivate /
+#            touch 四入口同一契约（正本 = lib 的 requireTaskArg）——坏形态 → exit 2 +
+#            诊断回显坏值并给正确形态；拒绝后 ledger 与两个活跃文件逐字节不变、events 不追加、
+#            accessCount 不自增；边界 `--task=`（空串）不算非法 = 按缺省 null 记账
+#            （归档走 event.taskId=null；touch 走 tag=touch:<date>，不写尾巴空的 `touch:`）
 #
 # 用法：tools/scripts/knowledge-selftest.sh
 # 产物：仅 stdout 报告；临时目录退出时清理，不污染仓库 / 真实知识库。
@@ -1087,9 +1089,9 @@ rc=$(run node "$KB_CHECK")
 assert_eq "$rc" "0" "24e 归档后 kb:check 仍 exit 0（② 双向一致：md 已减、ledger 已转态）"
 assert_not_contains "$(cat "$WORK/last.txt")" "❌" "24e 无任何失败项"
 
-# ── [25] --task 形态非法 → exit 2：三脚本同契约 + 零写盘 + 空串按缺省（WXG-T-392）──
+# ── [25] --task 形态非法 → exit 2：四入口同契约 + 零写盘 + 空串按缺省（WXG-T-392 / 397）──
 echo
-echo "[25] --task 形态校验：archive / sync / reactivate 均 exit 2，拒绝时一个字节不写"
+echo "[25] --task 形态校验：archive / sync / reactivate / touch 均 exit 2，拒绝时一个字节不写"
 
 cp "$REPO/knowledge/ledger.json" "$WORK/ledger.pre25.json"
 cp "$REPO/knowledge/lessons.md" "$WORK/lessons.pre25.md"
@@ -1105,7 +1107,7 @@ assert_contains "$(cat "$WORK/last.txt")" "应形如 WXG-T-029" "25a 诊断给�
 # 25b kb:sync：尾巴非数字（正则锁两头，不允许多余字符）
 rc=$(run node "$KB_SYNC" --task=WXG-T-abc)
 assert_eq "$rc" "2" "25b kb:sync 非法 --task → exit 2"
-assert_contains "$(cat "$WORK/last.txt")" "--task 形态非法（WXG-T-abc）" "25b 诊断同源于 archive（三脚本一份契约）"
+assert_contains "$(cat "$WORK/last.txt")" "--task 形态非法（WXG-T-abc）" "25b 诊断同源于 archive（四入口一份契约）"
 
 # 25c kb:reactivate：全小写（校验区分大小写）
 rc=$(run node "$KB_REACTIVATE" --ids=K-006 --reason="桩：task 负例" --task=wxg-t-392)
@@ -1135,6 +1137,39 @@ assert_eq "$ev25" "null" "25e event.taskId = null（空串归一为「无归因�
 rc=$(run node "$KB_CHECK")
 assert_eq "$rc" "0" "25f 边界归档后 kb:check 仍 exit 0"
 assert_not_contains "$(cat "$WORK/last.txt")" "❌" "25f 无任何失败项"
+
+# ── 25g–25k：第四入口 kb:touch 补同一份 --task 契约（WXG-T-397，销 WXG-T-393 遗留 1）──
+cp "$REPO/knowledge/ledger.json" "$WORK/ledger.pre25g.json"
+evntouch=$(ldevn)
+acbase=$(ld K-002 accessCount)
+
+# 25g kb:touch：位置参数给合法 ID，只把 --task 换成缺前缀的坏形态（旧行为：原样拼进 tag 并写盘）
+rc=$(run node "$KB_TOUCH" K-002 --date=2026-03-09 --task=T-396)
+assert_eq "$rc" "2" "25g kb:touch 非法 --task → exit 2（与 archive / sync / reactivate 四入口同契约）"
+assert_contains "$(cat "$WORK/last.txt")" "--task 形态非法（T-396）" "25g 诊断同源（文案与 25a–25c 一致）"
+assert_contains "$(cat "$WORK/last.txt")" "应形如 WXG-T-029" "25g 诊断给出可照抄的正确形态"
+
+# 25h 拒绝为零写盘：守卫必在 readLedger / accessCount 自增之前
+assert_eq "$(ldevn)" "$evntouch" "25h 非法 --task 后 events 条数未增"
+cmp -s "$WORK/ledger.pre25g.json" "$REPO/knowledge/ledger.json" && ok "25h ledger 逐字节不变" || bad "25h ledger 被拒绝分支改写"
+assert_eq "$(ld K-002 accessCount)" "$acbase" "25h K-002 accessCount 未变（旧行为会在这里 +1 并把 touch:T-396 注进来源标签）"
+
+# 25i 正例：合法号带首尾空格 → trim 后接受，tag 落为 touch:<trim 值>
+rc=$(run node "$KB_TOUCH" K-002 --date=2026-03-10 --task=" WXG-T-909 ")
+assert_eq "$rc" "0" "25i 带空格的合法 --task 被接受（exit 0，真完成补录）"
+assert_eq "$(ld K-002 accessCount)" "$((acbase + 1))" "25i accessCount 只 +1"
+case "$(ldsrc K-002)" in *,touch:WXG-T-909) ok "25i 来源标签尾部 = touch:WXG-T-909（空格不入库）";; *) bad "25i 尾部不是 trim 后的标签（实际：$(ldsrc K-002)）";; esac
+
+# 25j 边界：`--task=` 空串不算非法 = 归一为「无归因」，tag 走 touch:<date>（旧行为会写成尾巴空的 `touch:`）
+rc=$(run node "$KB_TOUCH" K-002 --date=2026-03-11 --task=)
+assert_eq "$rc" "0" "25j --task= 空串不被当非法（exit 0，touch 也按缺省记账）"
+case "$(ldsrc K-002)" in *,touch:2026-03-11) ok "25j 空串归一为 touch:<date>，⛔ 不写入尾巴空的 touch:";; *) bad "25j 尾部不是 touch:<date>（实际：$(ldsrc K-002)）";; esac
+assert_eq "$(ld K-002 accessCount)" "$((acbase + 2))" "25j accessCount = 基线+2（与 seen 同增，⑥ 仍严格成立）"
+assert_eq "$(ldseen K-002)" "$((acbase + 2))" "25j seen 与 accessCount 严格相等"
+
+rc=$(run node "$KB_CHECK")
+assert_eq "$rc" "0" "25k touch 正例后 kb:check 仍 exit 0（accessCount↔seen 严格一致未被破坏）"
+assert_not_contains "$(cat "$WORK/last.txt")" "❌" "25k 无任何失败项"
 
 # ── [26] 日期入参形态非法 → exit 2：六入口一份契约 + 拒绝零写盘 + 空串/trim 边界（WXG-T-393）──
 echo

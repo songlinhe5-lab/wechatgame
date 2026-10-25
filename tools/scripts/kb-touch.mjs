@@ -18,7 +18,7 @@
  *   node tools/scripts/kb-touch.mjs K-003 --task=WXG-T-026
  *   # 经 pnpm：pnpm run kb:touch -- K-001 K-003
  *
- * 退出码：0 全部成功；1 有未知 / 非活跃 ID；2 未给 ID 或 --date 形态非法、日期不存在（用法错误）。
+ * 退出码：0 全部成功；1 有未知 / 非活跃 ID；2 未给 ID 或 --date 形态非法、日期不存在、--task 形态非法（用法错误）。
  */
 
 import {
@@ -28,6 +28,7 @@ import {
   parseArgs,
   readLedger,
   requireDateArg,
+  requireTaskArg,
   seenToken,
   writeLedger,
 } from './lib/knowledge-ledger.mjs';
@@ -40,7 +41,7 @@ if (ids.length === 0) {
   process.exit(2);
 }
 const date = requireDateArg(opts, 'date');
-const task = typeof opts.task === 'string' ? opts.task : null;
+const task = requireTaskArg(opts); // 与 archive / reactivate / sync 共一份契约（WXG-T-397）
 const tag = task ? `touch:${task}` : `touch:${date}`;
 
 const ledger = readLedger();

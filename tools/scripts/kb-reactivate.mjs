@@ -28,7 +28,6 @@ import {
   ARCHIVE_DIR,
   ARCHIVE_INDEX_PATH,
   INDEX_PATH,
-  TASK_ID_RE,
   appendAccessSource,
   contentHashOf,
   insertIntoCategory,
@@ -43,6 +42,7 @@ import {
   renderActiveBlock,
   renderArchiveIndex,
   requireDateArg,
+  requireTaskArg,
   rewriteActiveBlock,
   seenToken,
   sortEntries,
@@ -54,14 +54,10 @@ const { opts } = parseArgs(process.argv.slice(2));
 const idsRaw = typeof opts.ids === 'string' ? opts.ids : null;
 const reason = typeof opts.reason === 'string' ? opts.reason.trim() : '';
 const date = requireDateArg(opts, 'date');
-const task = typeof opts.task === 'string' && opts.task.trim() !== '' ? opts.task.trim() : null;
+const task = requireTaskArg(opts); // 四入口共一份 --task 契约（正本在 lib/knowledge-ledger.mjs）
 
 if (!idsRaw) {
   console.error('用法：node tools/scripts/kb-reactivate.mjs --ids=K-004 [--reason="…"] [--date=YYYY-MM-DD] [--task=WXG-T-0xx]');
-  process.exit(2);
-}
-if (task !== null && !TASK_ID_RE.test(task)) {
-  console.error(`❌ --task 形态非法（${task}）：应形如 WXG-T-029。`);
   process.exit(2);
 }
 const ids = idsRaw.split(',').map((s) => s.trim()).filter(Boolean);

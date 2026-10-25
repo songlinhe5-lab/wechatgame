@@ -45,7 +45,6 @@ import {
   INDEX_PATH,
   LEDGER_PATH,
   LEDGER_VERSION,
-  TASK_ID_RE,
   entryContentHash,
   formatId,
   inscribeId,
@@ -60,6 +59,7 @@ import {
   renderArchiveIndex,
   renderChangelog,
   requireDateArg,
+  requireTaskArg,
   rewriteActiveBlock,
   serializeLedger,
   sortEntries,
@@ -67,11 +67,7 @@ import {
 
 // ── CLI ───────────────────────────────────────────────────────────────────────
 const { opts } = parseArgs(process.argv.slice(2));
-const task = typeof opts.task === 'string' && opts.task.trim() !== '' ? opts.task.trim() : null;
-if (task !== null && !TASK_ID_RE.test(task)) {
-  console.error(`❌ --task 形态非法（${task}）：应形如 WXG-T-029。`);
-  process.exit(2);
-}
+const task = requireTaskArg(opts); // 四入口共一份 --task 契约（正本在 lib/knowledge-ledger.mjs）
 const note = typeof opts.note === 'string' && opts.note.trim() !== '' ? opts.note.trim() : null;
 const runDate = requireDateArg(opts, 'today');
 

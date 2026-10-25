@@ -362,6 +362,29 @@ export function requireDateArg(opts, flag) {
   return v;
 }
 
+/**
+ * `--task` 的唯一解析入口（WXG-T-397，销 WXG-T-393 遗留 1）—— 四个写 ledger 的 kb 脚本
+ * （sync / archive / reactivate / touch）共一份契约，**不再各自重写**：
+ * • 未传 / 空串 / 只给 `--task` 不带值 → `null`（缺省不是用法错误，规约同 `--date`）；
+ * • 首尾空格先 trim，剩下形如 `WXG-T-\d+`（`TASK_ID_RE`）→ 返回 trim 后的值；
+ * • 其他形态 → 打诊断并按**用法错误 exit 2**，⛔ **不原样拼进** `events[].taskId` 或
+ *   touch 的来源标签 / `seen` 主体——错号一旦入库，只能靠 kb:check ⑦ 事后报红，而那时
+ *   `accessCount` 已经 +1（touch 分支）或记录已带脏归因入库，事后无从反查是哪个入口写的。
+ * 以前 archive / reactivate / sync 三处各自内联重写了这段，touch 完全无守卫（非法号原样入库）；
+ * 本函数收成一份，三处内联块改为调用。与旧行为唯一差异：诊断里的回显从 trim 后的值改为
+ * **原始入参**（与 `requireDateArg` 同口径），退出码与判定条件不变。
+ */
+export function requireTaskArg(opts) {
+  const raw = opts?.task;
+  if (typeof raw !== 'string' || raw.trim() === '') return null;
+  const v = raw.trim();
+  if (!TASK_ID_RE.test(v)) {
+    console.error(`❌ --task 形态非法（${raw}）：应形如 WXG-T-029。`);
+    process.exit(2);
+  }
+  return v;
+}
+
 /** `b - a` 的天数（按 UTC 零点，避免时区/夏令时抖动）。 */
 export function daysBetween(a, b) {
   const ms = Date.parse(`${b}T00:00:00Z`) - Date.parse(`${a}T00:00:00Z`);

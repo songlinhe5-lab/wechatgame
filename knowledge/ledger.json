@@ -149,7 +149,7 @@
       "file": "knowledge/lessons/cross-ide.md",
       "category": "跨IDE",
       "title": "派单范围表述必须对照冻结真源复核",
-      "contentHash": "7710632d26c60775081f95f206dc6abca2b830c97fcf575cf790b6bd3b88ae39",
+      "contentHash": "87cb57faa17de1b60b390f739607a2159d5bbb8d171b224b8029246a4201d7d9",
       "sourceTask": "WXG-T-013",
       "addedDate": "2026-09-12",
       "lastAccess": "2026-09-12",
@@ -2941,7 +2941,7 @@
       "file": "knowledge/lessons/toolchain.md",
       "category": "工具链",
       "title": "工具回显会把「斜杠分隔的数字日期」渲染成连字符形态，符号形态的取证只能读字节",
-      "contentHash": "18594588c95f367293763c8042eb0437856118309f85ca7bfb59ef67e480b488",
+      "contentHash": "5cab4fe3b664def80774a8b998153e0e953720cc04b75eb1d007da36f16f3305",
       "sourceTask": "WXG-T-393",
       "addedDate": "2026-10-25",
       "lastAccess": "2026-10-25",
@@ -4753,6 +4753,24 @@
         "K-009"
       ],
       "note": "K-045/K-009 追记定稿（引号归一为「」）"
+    },
+    {
+      "date": "2026-10-25",
+      "taskId": "WXG-T-397",
+      "kind": "updated",
+      "ids": [
+        "K-176"
+      ],
+      "note": "K-176 追记：同一条符号形态坑二次踩中，根因是排障未按域检索"
+    },
+    {
+      "date": "2026-10-25",
+      "taskId": "WXG-T-397",
+      "kind": "updated",
+      "ids": [
+        "K-009"
+      ],
+      "note": "K-009 追记：下一步选项描述与登记原意相反，开工前订正口径"
     }
   ]
 }
