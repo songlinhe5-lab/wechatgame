@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3793,
       "lines": 129,
-      "sha256": "2b480869a4d1894e7e9474753473152067487c9f1f4e3febbedda3c19e338fa5",
+      "sha256": "28a3b3367d42925204ceb64bad9468d8338428f95a77a1a4842575bca60fde8f",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 406,
-          "summary": "1 production/TASKS-DETAIL.md 202793 5522 normal",
+          "summary": "1 production/TASKS-DETAIL.md 203712 5554 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5185,
       "lines": 164,
-      "sha256": "5c1dec118b7b82fc0a7f5bc247e0ede6b3ac89a60b0c3fdba614186963ad3c5f",
+      "sha256": "72785bc81cdea6fbf14f33eb1e53ba2b745fe5f951da50af1a8b0ac2cd378f38",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 144 行 / 74363 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 145 行 / 74477 tok / 实测读 4 次",
           "level": 2,
           "startLine": 27,
           "endLine": 30,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+145 · §待排（backlog，无号，立项时领取…=116+30",
+          "summary": "§WXG 任务台账（SSOT）=1+146 · §待排（backlog，无号，立项时领取…=117+30",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 5522 行 / 202793 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 5554 行 / 203712 tok",
           "level": 2,
           "startLine": 105,
           "endLine": 109,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+5523 · §WXG-T-390=4287+53 · §WXG-T-3",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+5555 · §WXG-T-390=4287+53 · §WXG-T-3",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -84857,17 +84857,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 202793,
-      "lines": 5522,
-      "sha256": "27d07aa972bfe506cf90b2d2a583c39f9a7eff2ac124559f2cac01b5cef91356",
+      "tokens": 203712,
+      "lines": 5554,
+      "sha256": "de3d5e0bf9fe349717be9dd89df62b6f7d057545232b2372914dbd780c0a93b5",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 5523,
-          "tokens": 202776,
+          "endLine": 5555,
+          "tokens": 203695,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -91527,22 +91527,85 @@
             "misplaced",
             "补测"
           ]
+        },
+        {
+          "anchor": "§WXG-T-394",
+          "level": 2,
+          "startLine": 5524,
+          "endLine": 5555,
+          "tokens": 916,
+          "summary": "beads·托盘三档 12/24/48 + 定价基准抬到 2★ + 十关重定价（2026-10-25）",
+          "keywords": [
+            "WXG",
+            "beads"
+          ]
+        },
+        {
+          "anchor": "§1 用户原话（口径真源）",
+          "level": 3,
+          "startLine": 5530,
+          "endLine": 5535,
+          "tokens": 174,
+          "summary": "「调整下，默认给 12 槽，首次开广告给到 24 槽，再次开广告给到 48 槽，上限 48 槽。12 槽对于小关，2 星",
+          "keywords": [
+            "用户原话",
+            "口径真源"
+          ]
+        },
+        {
+          "anchor": "§2 改动",
+          "level": 3,
+          "startLine": 5536,
+          "endLine": 5543,
+          "tokens": 412,
+          "summary": "1. §3.4 三档制：TRAY_TIER_SLOTS = [12,24,48]（单一真源）、TRAY_MAX_SLOT",
+          "keywords": [
+            "§3.4",
+            "TRAY_TIER_SLOTS",
+            "TRAY_MAX_SLOT",
+            "改动"
+          ]
+        },
+        {
+          "anchor": "§3 实测读数（12/24/48 槽步数）",
+          "level": 3,
+          "startLine": 5544,
+          "endLine": 5549,
+          "tokens": 88,
+          "summary": "L1 21/27/9｜L2 64/30/22｜L3 41/43/16｜L4 60/47/35｜L5 64/68/110｜",
+          "keywords": [
+            "实测读数",
+            "槽步数"
+          ]
+        },
+        {
+          "anchor": "§4 挂账",
+          "level": 3,
+          "startLine": 5550,
+          "endLine": 5555,
+          "tokens": 124,
+          "summary": "L5 studio-2-23ca 拿不到 3★（任何容量档都 > 预算 53 步）⇒ 已进 warnings，需关卡设计",
+          "keywords": [
+            "studio",
+            "warnings",
+            "挂账"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 74363,
-      "lines": 144,
-      "sha256": "80223a275260fc33aa59ccba8dbe3dcf3b3a3953837ea50a9014365a2aad332e",
+      "tokens": 74477,
+      "lines": 145,
+      "sha256": "72d11b74f04c76b6f9548af174ebe8784081ae21dcd7fe91b1679b2ace9b15ce",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 145,
-          "tokens": 74354,
+          "endLine": 146,
+          "tokens": 74468,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -91555,8 +91618,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 116,
-          "endLine": 145,
+          "startLine": 117,
+          "endLine": 146,
           "tokens": 1460,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -100339,9 +100402,9 @@
     },
     {
       "path": "production/qa/beads/test-cases-k-ledger-2.md",
-      "tokens": 13585,
-      "lines": 145,
-      "sha256": "8bb8a15553c50505518261c16b5d61843a13edc1500bc28185e5a3f03838c32c",
+      "tokens": 14670,
+      "lines": 156,
+      "sha256": "f8e8c0233a6ff92f61d10c2e80e5669c30a308ec7f070c576c34b33b48b608b5",
       "tier": "normal",
       "sections": [
         {
@@ -100489,10 +100552,26 @@
           ]
         },
         {
-          "anchor": "§K.6 `06` 珐琅 —— **只登记出池门引用，本批不造判据**（Q1 = 甲）",
+          "anchor": "§K.5.1-补12 整帧基线第二十次复评修订（2026-10-25 · WXG-T-394 托盘三档 12/24/48，基础行 2→1 · 正本 = provenance `s3_frame_recheck_20`）",
           "level": 3,
           "startLine": 133,
-          "endLine": 141,
+          "endLine": 143,
+          "tokens": 1037,
+          "summary": "通道声明：属整帧非珠体族削减型改动（托盘容量三档 TRAY_TIER_SLOTS = [12,24,48]，用户 202",
+          "keywords": [
+            "s3_frame_recheck_20",
+            "WXG",
+            "provenance",
+            "TRAY_TIER_SLOTS",
+            "整帧基线第二",
+            "十次复评修订"
+          ]
+        },
+        {
+          "anchor": "§K.6 `06` 珐琅 —— **只登记出池门引用，本批不造判据**（Q1 = 甲）",
+          "level": 3,
+          "startLine": 144,
+          "endLine": 152,
           "tokens": 357,
           "summary": "引用项 内容 出处 QA 处置",
           "keywords": [
@@ -100506,8 +100585,8 @@
         {
           "anchor": "§K.7 本节残留与回改触发器（诚实登记，不得被\"已建例\"掩盖）",
           "level": 3,
-          "startLine": 142,
-          "endLine": 146,
+          "startLine": 153,
+          "endLine": 157,
           "tokens": 288,
           "summary": "① assets-spec 7.13 判据 ③ 的「C12 强读法」引用行需 art 订正（K.6）；② C12 弱读的",
           "keywords": [

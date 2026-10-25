@@ -42,10 +42,10 @@ function draftOf(over: Partial<LevelDraft> = {}): LevelDraft {
 
 describe('WXG-T-179 · level-import 转换与定价', () => {
     it('measuredLevelTime：步数 × SEC_PER_STEP ÷ 2★系数（公式 v0.5，§3.5 v1.84）—— 锚值 / clamp / 非法输入', () => {
-        // 锚：109 个批量动作 × 1.69s = 184s ⇒ 装进 **2★ 档**（÷0.85）= 217s（= 1★ 时钟）。
+        // 锚：109 个批量动作 × 1.69s ⇒ need = ceil(184.21) = 185s ⇒ ÷0.85 再 ceil = **218s**（1★ 时钟）。
         // 语义 = 「基础 12 槽的步数刚好塞满 2★ 档」⇒ 2★ 是紧平衡、3★ 要靠扩容省步数。
         // ⚠️ difficulty 的分母 = `LEVEL_TIME_MAX`（开发期 2500）⇒ D 不可跨档比较。
-        expect(measuredLevelTime(109)).toEqual({ time: 217, difficulty: 9 });
+        expect(measuredLevelTime(109)).toEqual({ time: 218, difficulty: 9, clamped: false });
         // `ceil` 的保证：2★ 档预算**恒 ≥** 定价步数（改 round 就会把边沿关判成「2★ 拿不到」）。
         expect(tierStepBudget(measuredLevelTime(109).time, 2)).toBeGreaterThanOrEqual(109);
         expect(measuredLevelTime(10).time).toBe(LEVEL_TIME_MIN); // 19.9s ⇒ 钳到下限 30

@@ -4,7 +4,7 @@
   "unit": "UI-02",
   "spec": "docs/architecture/ui-architecture-beads.md §5 / §9.4 / §12",
   "codeBaseline": "bd964a0",
-  "capturedFrom": "2c02565 · L00001 换图收口复取（WXG-T-376）",
+  "capturedFrom": "7dabc2e · 工作树（WXG-T-298）",
   "fixture": {
     "viewport": {
       "width": 750,
@@ -61,7 +61,7 @@
         "polygon": 792,
         "circle": 396
       },
-      "sha": "ddce1f65ebd8cf991665ec8d00b1109e19fcbac00669feb2df98b46f24be1329",
+      "sha": "0f2a9a5ce8cdf61a310a60c7c64aa7acf22464764c25b4e3492fcc8871f321e8",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -84,7 +84,7 @@
         "polygon": 3832,
         "unclip": 1
       },
-      "sha": "d7605e5e1af66bfec614cfa940046080de91d5f3103a21b243af85b2a6fbdb8d",
+      "sha": "4e06c5b3e90bfb330d738b7c15ae259cf3aea8eaf6c6c3bb5b916090fc09d9c1",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -133,15 +133,15 @@
         "overlay": "none",
         "phase": "playing"
       },
-      "total": 654,
+      "total": 570,
       "kinds": {
-        "rect": 322,
+        "rect": 262,
         "circle": 64,
-        "line": 125,
+        "line": 101,
         "text": 13,
         "polygon": 130
       },
-      "sha": "3a2b122702e53a567c7b507500d49767b5042a015f8627e976b699e84ac71091",
+      "sha": "edf43c24c147a34520e5afa7029035ad41f3ea01e278f1416f2115493b18b26b",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -154,15 +154,15 @@
         "overlay": "none",
         "phase": "paused"
       },
-      "total": 676,
+      "total": 592,
       "kinds": {
-        "rect": 333,
+        "rect": 273,
         "circle": 63,
-        "line": 127,
+        "line": 103,
         "text": 23,
         "polygon": 130
       },
-      "sha": "8aa2b027016d8a500236a545e45ba323136a4c343fc5657fa762e358352371a7",
+      "sha": "fee6f85cd89681bdf0bcea23ee1b30dd4f836495e972fc6a25598f6054366f76",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -175,15 +175,15 @@
         "overlay": "none",
         "phase": "level-clear"
       },
-      "total": 703,
+      "total": 619,
       "kinds": {
-        "rect": 323,
+        "rect": 263,
         "circle": 63,
-        "line": 127,
+        "line": 103,
         "text": 14,
         "polygon": 176
       },
-      "sha": "6bbaa173d1dae70c7cc3e83225bdadf17872773dc9a2aca46a85f5aa31d5d75d",
+      "sha": "f94b589d739d0327fbeef3dbc879f47fae08ceeb164ea54ba1a41594db40bc66",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -196,15 +196,15 @@
         "overlay": "none",
         "phase": "game-over"
       },
-      "total": 656,
+      "total": 572,
       "kinds": {
-        "rect": 323,
+        "rect": 263,
         "circle": 63,
-        "line": 127,
+        "line": 103,
         "text": 13,
         "polygon": 130
       },
-      "sha": "0f190a2730822f1d3c7c247187b59522ac9cf1a6d50a83d5cbd2aeb6e8ea6603",
+      "sha": "00000e4bc127c8bcb8d6051f826e8a1ef7ad35f838feda0f3ce46cf7dbad6ec8",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -217,15 +217,15 @@
         "overlay": "none",
         "phase": "game-over"
       },
-      "total": 952,
+      "total": 868,
       "kinds": {
-        "rect": 651,
+        "rect": 591,
         "circle": 3,
-        "line": 269,
+        "line": 245,
         "text": 19,
         "polygon": 10
       },
-      "sha": "e6401a994368be944909c462cf5b599d54dc6af94f04449869e083adbc9c9322",
+      "sha": "3bb0bd3d501e6a4029a70cc7f2e41ebbca5f47913daa2fde9d66a6e9eade8da6",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -238,15 +238,15 @@
         "overlay": "none",
         "phase": "finish"
       },
-      "total": 838,
+      "total": 754,
       "kinds": {
-        "rect": 352,
+        "rect": 292,
         "circle": 113,
-        "line": 125,
+        "line": 101,
         "text": 15,
         "polygon": 233
       },
-      "sha": "422cd4d16edaba80e8e4fc7572c99f1ed9c5faa760513b03fcd6f4ca0bfc0bce",
+      "sha": "d2268b5319801cf8d3b4829e1d6c2680945894e6903068642718d6b1b3564861",
       "background": "#F1E8D8",
       "transform": null
     }
