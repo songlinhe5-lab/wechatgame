@@ -964,6 +964,7 @@
         const levelUid = new URLSearchParams(location.search).get('level') || '';
         let levelInfo = null;    // { uid, kind, chapter, cells[] }
         let levelCell = 0;       // plate 多格时的当前格
+        let gateSteps = null;    // 门禁⑦ 步数区间（/api/gates ← tuning.ts 真源）
 
         function mkEl(tag, txt, css) {
             const d = document.createElement(tag);
@@ -976,6 +977,29 @@
          *  说明文字不再铺一段——按钮已写明「不入历史」「确认保存」，重复交代只会占掉版面。 */
         /** 该条图案是否**逐字等于**本关当前图案（= 已经在用）。
          *  用它判"当前方案"而不是另存一个来源 id：关卡被手改过 ⇒ 自然没有匹配，不需要维护额外状态。 */
+        /** 结果自带的实测步数（`report.difficulty` 优先，其次 `levelDraft.pricing`）。 */
+        function stepsOf(r) {
+            return r?.report?.difficulty?.steps ?? r?.levelDraft?.pricing?.steps ?? null;
+        }
+
+        /** 门禁⑦ 会不会把这条打回：返回提示文案（空串 = 可替换）。
+         *  阈值来自 `/api/gates`（= tuning.ts 真源，与 sync 的 ⑦ 门禁同源，**不在这里写死数字**）；
+         *  判定只用于"点之前先说清楚"，最终仍由服务端门禁裁决（含首关教学豁免）。 */
+        function stepsGateNote(r) {
+            const steps = stepsOf(r);
+            if (!gateSteps || steps == null) return '';
+            if (levelInfo.kind === 'boss') {
+                return gateSteps.bossMin != null && steps < gateSteps.bossMin
+                    ? `该方案 ${steps} 步 < boss 门槛 ${gateSteps.bossMin} ⇒ 门禁⑦会回滚（替换不会生效）` : '';
+            }
+            const c = levelInfo.cells[levelCell];
+            if (c.id === 1 && levelInfo.cells.length === 1) return '';   // 首关教学豁免（与 sync 一致）
+            if (gateSteps.normalMin == null || gateSteps.normalMax == null) return '';
+            return steps < gateSteps.normalMin || steps > gateSteps.normalMax
+                ? `该方案 ${steps} 步，普通关须 ${gateSteps.normalMin}–${gateSteps.normalMax} ⇒ 门禁⑦会回滚（替换不会生效），换更小/更简单的图`
+                : '';
+        }
+
         function sameAsLevel(r) {
             const cell = levelInfo ? levelInfo.cells[levelCell] : null;
             const target = (cell?.paint?.pattern || []).join('|');
@@ -1011,7 +1035,7 @@
         /** `generatedId` = 可替换回该关的候选（已入库、且不等于本关当前图案）；
          *  `inUseId` = 本关当前图案的**来源条目**（图案逐字相同 ⇒ 已在用）⇒ 只报状态、不给替换按钮，
          *  因为"用自己替换自己"是空操作（2026-10-25 用户要求）。 */
-        function renderLevelBar(generatedId, inUseId) {
+        function renderLevelBar(generatedId, inUseId, errText) {
             const bar = $('lvbar');
             if (!levelInfo) { bar.hidden = true; return; }
             const c = levelInfo.cells[levelCell];
@@ -1044,13 +1068,28 @@
                     acts.appendChild(mkEl('span', 'plate 不支持原位替换：改动去大关管理页「导入大关」重建',
                         'font-size:12px;color:#c0392b'));
                 } else {
-                    const rep = mkEl('button', `用 ${generatedId} 替换 ${levelInfo.uid} 的图案`);
-                    rep.onclick = () => replaceIntoLevel(generatedId);
-                    acts.appendChild(rep);
+                    // 先按门禁⑦ 预检：注定被回滚的方案就把按钮换成原因，省掉一次点了没反应的困惑
+                    const note = current && current.id === generatedId ? stepsGateNote(current) : '';
+                    if (note) {
+                        acts.appendChild(mkEl('span', note, 'font-size:12px;color:#c0392b;max-width:560px'));
+                    } else {
+                        const rep = mkEl('button', `用 ${generatedId} 替换 ${levelInfo.uid} 的图案`);
+                        rep.onclick = () => replaceIntoLevel(generatedId);
+                        acts.appendChild(rep);
+                    }
                 }
             } else if (inUseId) {
                 acts.appendChild(mkEl('span', `本关当前图案＝${inUseId}（已在用，无需替换）`,
                     'font-size:12px;color:var(--ac)'));
+            }
+            // 预览阶段也提前说：这条就算入库也过不了门禁⑦ —— 别等替换时才撞墙
+            if (!generatedId && !inUseId && current?.draft) {
+                const note = stepsGateNote(current);
+                if (note) acts.appendChild(mkEl('span', note, 'font-size:12px;color:#c0392b;max-width:560px'));
+            }
+            // 就地报错：失败原来只进顶部飘条，用户容易当作"点了没反应"
+            if (errText) {
+                acts.appendChild(mkEl('span', '替换失败：' + errText, 'font-size:12px;color:#c0392b;max-width:560px'));
             }
             const back = mkEl('a', '← 回关卡列表', 'font-size:12px');
             back.href = '/manage.html';
@@ -1111,12 +1150,19 @@
                 if (!r.ok) throw new Error((j.error || ('HTTP ' + r.status)) + (j.detail ? '\n—— 门禁原文 ——\n' + j.detail : ''));
                 msg(`已替换 ${levelInfo.uid}：` + (j.log || []).join('；'), 'ok');
                 await loadLevel(levelInfo.uid);      // 重读真源，看到替换后的图案与实测
-            } catch (e) { msg('替换失败：' + e.message, 'err'); }
+            } catch (e) {
+                // 在按钮原地再报一次（门禁原文第一行），别只丢进顶部飘条
+                renderLevelBar(resultId, null, String(e.message).split('\n')[0]);
+                msg('替换失败：' + e.message, 'err');
+            }
         }
 
         (async () => {
             if (!levelUid) return;
             try {
+                // 门禁⑦ 阈值（tuning 真源）先取回来，替换按钮才好做"点了会不会被回滚"的预检
+                const g = await fetch('/api/gates').then((x) => x.json()).catch(() => ({}));
+                gateSteps = g?.steps ?? null;
                 await loadLevel(levelUid);
                 msg(`已载入关卡 ${levelUid}：改完生成，再一键替换回该关`, 'ok');
             } catch (e) {

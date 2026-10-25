@@ -1796,6 +1796,19 @@ async function handle(req, res) {
         }
         // 预览草稿（未确认保存）：列表 + 单条全文。生成页靠它把预览也摆进「已存结果」一栏。
         if (req.method === 'GET' && path === '/api/previews') return sendJson(res, 200, { previews: listPreviews() });
+        // 门禁阈值透出（真源 = games/beads/src/config/tuning.ts，与 sync 的 ⑦ 门禁同源）：
+        // 生成页据此在**点替换之前**就告诉用户"这条 X 步会被门禁回滚"，而不是等他点了才报错。
+        if (req.method === 'GET' && path === '/api/gates') {
+            let src = '';
+            try { src = readFileSync(TUNING_PATH, 'utf8'); } catch { /* 无 games/ 真源 ⇒ 全 null */ }
+            return sendJson(res, 200, {
+                steps: {
+                    normalMin: src ? readTuningConst(src, 'NORMAL_STEPS_MIN') : null,
+                    normalMax: src ? readTuningConst(src, 'NORMAL_STEPS_MAX') : null,
+                    bossMin: src ? readTuningConst(src, 'BOSS_STEPS_MIN') : null,
+                },
+            });
+        }
         // 一键清理未入库草稿：草稿不展示 ⇒ 必须有个批量出口（单条 ✕ 已随列表一起下掉了）。
         // `?keep=<id>` 保留画布上正在用的那条 —— 否则刚生成、还没「确认保存」的那份会被自己的清理删掉。
         if (req.method === 'DELETE' && path === '/api/previews') {
