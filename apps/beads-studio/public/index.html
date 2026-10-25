@@ -673,7 +673,8 @@
                 msg(`已生成预览：${j.id}｜实际盘 ${j.cols}×${j.rows}` +
                     (exact ? `（按该关尺寸 ${cell.cols}×${cell.rows}，未裁边）` : '') +
                     '｜满意再点「✓ 确认保存这条结果」才进历史', 'ok');
-                if (levelInfo) renderLevelBar(null);   // 预览尚未入库 ⇒ 暂不给「替换回该关」
+                // 预览尚未入库 ⇒ 暂不给「替换回该关」；若它恰好等于本关图案，只在关卡条报"已在用"
+                if (levelInfo) renderLevelBar(null, sameAsLevel(j) ? j.id : null);
                 loadResults(j.id);                     // 预览也进列表（「预览」组，标「使用中」）
             } catch (e) { msg('生成失败：' + e.message, 'err'); }
             $('gen').disabled = false;
@@ -824,10 +825,13 @@
             const dimDiff = cell && (r.cols !== cell.cols || r.rows !== cell.rows)
                 ? `｜实际盘 ${r.cols}×${r.rows} ≠ 该关 ${cell.cols}×${cell.rows}：替换回该关会改盘面尺寸`
                 : '';
-            msg(`已应用${r.draft ? '预览（未入库，先「确认保存」才能替换回该关）' : '历史结果'}：${r.id}｜实际盘 ${r.cols}×${r.rows}` +
-                (!r.draft && levelInfo ? `｜可点关卡条「用 ${r.id} 替换 ${levelInfo.uid}」` : '') + dimDiff, 'ok');
+            // 已在用（= 与本关当前图案逐字相同）⇒ 不给替换按钮，只报状态：替换自己没有任何效果
+            const src = !r.draft && sameAsLevel(r);
+            msg(`已应用${r.draft ? '预览（未入库，先「确认保存」才能替换回该关）' : src ? '正在使用的方案' : '历史结果'}：${r.id}｜实际盘 ${r.cols}×${r.rows}` +
+                (src ? '｜＝本关当前图案，无需替换' : '') +
+                (!r.draft && !src && levelInfo ? `｜可点关卡条「用 ${r.id} 替换 ${levelInfo.uid}」` : '') + dimDiff, 'ok');
             // 预览目录在 data/_draft/<id>（按 id 找 result.json 会扑空）⇒ 不给替换入口
-            if (levelInfo) renderLevelBar(r.draft ? null : r.id);
+            if (levelInfo) renderLevelBar(r.draft || src ? null : r.id, src ? r.id : null);
             loadResults(r.id);
         }
 
@@ -953,7 +957,47 @@
 
         /** 关卡条（通栏一行）：左侧一行关信息，右侧操作（逐格切换 / 替换回该关 / 回列表）。
          *  说明文字不再铺一段——按钮已写明「不入历史」「确认保存」，重复交代只会占掉版面。 */
-        function renderLevelBar(generatedId) {
+        /** 该条图案是否**逐字等于**本关当前图案（= 已经在用）。
+         *  用它判"当前方案"而不是另存一个来源 id：关卡被手改过 ⇒ 自然没有匹配，不需要维护额外状态。 */
+        function sameAsLevel(r) {
+            const cell = levelInfo ? levelInfo.cells[levelCell] : null;
+            const target = (cell?.paint?.pattern || []).join('|');
+            if (!target) return false;
+            const pat = (r?.levelDraft?.pattern || r?.pattern || []).join('|');
+            return !!pat && pat === target;
+        }
+
+        /** 进二级页时自动认领「本关当前方案」：图案逐字相同的本关条目 ⇒ 直接标「使用中」、画布切到它、
+         *  **不显示替换按钮**（替换自己＝空操作）。没有匹配就保持载入态（初始状态，2026-10-25 用户要求）。 */
+        async function markLevelSource() {
+            const cell = levelInfo ? levelInfo.cells[levelCell] : null;
+            if (!cell || !(cell.paint?.pattern || []).length) return;
+            const uid = levelInfo.uid;
+            try {
+                const [rs, pv] = await Promise.all([
+                    fetch('/api/results').then((x) => x.json()).catch(() => ({})),
+                    fetch('/api/previews').then((x) => x.json()).catch(() => ({})),
+                ]);
+                // 只在**本关**条目里找（linkedLevels 命中），按新→旧最多试 12 条，避免为认领拉全库详情
+                const cands = [...(rs.results || []), ...(pv.previews || [])]
+                    .filter((r) => (r.linkedLevels || []).includes(uid)).slice(0, 12);
+                for (const r of cands) {
+                    const url = (r.draft ? '/api/previews/' : '/api/results/') + r.id;
+                    const full = await fetch(url).then((x) => (x.ok ? x.json() : null)).catch(() => null);
+                    if (!full || full.error || !sameAsLevel(full)) continue;
+                    current = full;
+                    show(full);
+                    renderLevelBar(null, full.id);   // 已在用 ⇒ 只报状态
+                    loadResults(full.id);
+                    return;
+                }
+            } catch { /* 认领失败 ⇒ 按初始态显示，不影响编辑 */ }
+        }
+
+        /** `generatedId` = 可替换回该关的候选（已入库、且不等于本关当前图案）；
+         *  `inUseId` = 本关当前图案的**来源条目**（图案逐字相同 ⇒ 已在用）⇒ 只报状态、不给替换按钮，
+         *  因为"用自己替换自己"是空操作（2026-10-25 用户要求）。 */
+        function renderLevelBar(generatedId, inUseId) {
             const bar = $('lvbar');
             if (!levelInfo) { bar.hidden = true; return; }
             const c = levelInfo.cells[levelCell];
@@ -990,6 +1034,9 @@
                     rep.onclick = () => replaceIntoLevel(generatedId);
                     acts.appendChild(rep);
                 }
+            } else if (inUseId) {
+                acts.appendChild(mkEl('span', `本关当前图案＝${inUseId}（已在用，无需替换）`,
+                    'font-size:12px;color:var(--ac)'));
             }
             const back = mkEl('a', '← 回关卡列表', 'font-size:12px');
             back.href = '/manage.html';
@@ -1021,6 +1068,7 @@
             renderLevelBar(null);
             show(current);
             loadResults();              // 「已存结果」按本关尺寸重筛（切格/换关都要跟）
+            markLevelSource();          // 进二级页就认领"正在使用的方案"（认出则不给替换按钮）
         }
 
         async function loadLevel(uid) {
@@ -1086,7 +1134,12 @@
                     : '';
                 msg(`已存入历史：${j.id}｜实际盘 ${current.cols}×${current.rows}${dimDiff}`, 'ok');
                 await loadResults(j.id);                // 高亮并滚到刚存的那条
-                if (levelInfo) renderLevelBar(j.id);   // 入库后才有「替换回该关」
+                // 入库后才有「替换回该关」；但如果它的图案＝本关当前图案（刚从该关导出的同一版），
+                // 替换自己是空操作 ⇒ 只报"已在用"（2026-10-25 用户要求）
+                if (levelInfo) {
+                    const src = sameAsLevel(current);
+                    renderLevelBar(src ? null : j.id, src ? j.id : null);
+                }
             } catch (e) {
                 msg('保存失败：' + e.message, 'err');
                 $('commit').disabled = false;
