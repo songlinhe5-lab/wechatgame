@@ -1796,6 +1796,27 @@ async function handle(req, res) {
         }
         // 预览草稿（未确认保存）：列表 + 单条全文。生成页靠它把预览也摆进「已存结果」一栏。
         if (req.method === 'GET' && path === '/api/previews') return sendJson(res, 200, { previews: listPreviews() });
+        // 一键清理未入库草稿：草稿不展示 ⇒ 必须有个批量出口（单条 ✕ 已随列表一起下掉了）。
+        // `?keep=<id>` 保留画布上正在用的那条 —— 否则刚生成、还没「确认保存」的那份会被自己的清理删掉。
+        if (req.method === 'DELETE' && path === '/api/previews') {
+            const keepRaw = url.searchParams.get('keep') || '';
+            const keep = ID_RE.test(keepRaw) ? keepRaw : '';
+            const dir = join(DATA, '_draft');
+            let deleted = 0;
+            if (existsSync(dir)) {
+                for (const id of readdirSync(dir)) {
+                    if (id === keep) continue;
+                    const p = join(dir, id);
+                    // 只删"确实是预览草稿"的目录（有 draft.json），别误删放在这里的散文件
+                    if (!existsSync(join(p, 'draft.json'))) continue;
+                    try {
+                        rmSync(p, { recursive: true, force: true });
+                        deleted++;
+                    } catch { /* 占用/权限问题跳过，能删多少算多少 */ }
+                }
+            }
+            return sendJson(res, 200, { deleted, kept: keep || undefined });
+        }
         const pv = path.match(/^\/api\/previews\/([a-z0-9][a-z0-9-]{0,63})$/);
         if (req.method === 'GET' && pv) {
             const f = join(DATA, '_draft', pv[1], 'draft.json');

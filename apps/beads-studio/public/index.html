@@ -903,7 +903,10 @@
                     (uid ? `本关 ${uid}${cell ? ` · ${cell.cols}×${cell.rows}` : ''} · ` : '') +
                     `已存 ${results.length} 条` +
                     (hidden ? `｜另 ${hidden} 条属其它关/未标关，已隐藏` : '') +
-                    `｜点行应用为当前，只有 ✕ 删除）</small>`;
+                    `｜点行应用为当前，只有 ✕ 删除）</small>` +
+                    // 草稿不再展示（2026-10-25）⇒ 批量清理只在这里露出一个出口
+                    `<button class="ghost" id="cleanDrafts" style="font-size:12px;padding:2px 8px;margin-left:8px;width:auto" title="删除 data/_draft 下所有未入库草稿（画布上正在用的那条会保留）">清理草稿</button>`;
+                $('cleanDrafts').onclick = cleanDrafts;
                 const curId = current && !current.fromLevel ? current.id : '';
                 let focusEl = null;
                 const mkRow = (r) => {
@@ -928,6 +931,33 @@
                 focusEl?.scrollIntoView({ block: 'nearest' });
             } catch { /* 列表失败不阻塞主函数 */ }
         }
+
+        /** 一键清理未入库草稿（`data/_draft/*`）。草稿已不展示 ⇒ 这是唯一的批量出口；
+         *  **保留画布上那条未入库的预览**（`current.draft`），否则刚生成、还没「确认保存」的会被自己删掉。 */
+        async function cleanDrafts() {
+            const btn = $('cleanDrafts');
+            try {
+                const list = await fetch('/api/previews').then((x) => x.json())
+                    .then((j) => (Array.isArray(j.previews) ? j.previews : [])).catch(() => []);
+                const keep = current && current.draft ? current.id : '';
+                const todo = list.filter((p) => p.id !== keep);
+                if (!todo.length) return msg(`没有可清理的草稿${keep ? '（画布上这条已保留）' : ''}`, 'ok');
+                if (btn) btn.disabled = true;
+                const ok = confirm(`清理 ${todo.length} 条未入库草稿？\n` +
+                    (keep ? `保留画布上正在用的 ${keep}；\n` : '') + '磁盘上只有一份，不可恢复。');
+                if (!ok) { if (btn) btn.disabled = false; return; }
+                const res = await fetch('/api/previews' + (keep ? '?keep=' + encodeURIComponent(keep) : ''), { method: 'DELETE' });
+                const j = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(j.error || ('HTTP ' + res.status));
+                msg(`已清理 ${j.deleted} 条草稿` + (j.kept ? `（保留 ${j.kept}）` : ''), 'ok');
+            } catch (e) {
+                msg('清理失败：' + e.message, 'err');
+            } finally {
+                const b = $('cleanDrafts');   // 列表可能已重绘 ⇒ 重新取一次再解锁
+                if (b) b.disabled = false;
+            }
+        }
+
         // ── [?level=<uid>] 大关管理页 → 生成页（WXG-T-373）：载入该关图案，编辑完一键替换回该关 ──
         //    关卡真源只读（GET /api/levels/:uid）；写回仍走既有 /api/manage/level/:uid/replace
         //    （门禁⑦/⑧ + bot 实测 + 快照回滚都在里面，本页不碰写盘协议）。
