@@ -52,6 +52,13 @@
 #            诊断回显坏值并给正确形态；拒绝后 ledger 与两个活跃文件逐字节不变、events 不追加、
 #            accessCount 不自增；边界 `--task=`（空串）不算非法 = 按缺省 null 记账
 #            （归档走 event.taskId=null；touch 走 tag=touch:<date>，不写尾巴空的 `touch:`）
+#         ㉖ 日期入参形态非法（WXG-T-393）：六入口（archive·reactivate·touch·sync·audit·collect）
+#            共一份 lib `requireDateArg` → exit 2 + 诊断回显坏值；拒绝后逐字节零写盘；
+#            空串 / 只给 `--date` 不带值 = 按当天缺省（⛔ 不当用法错误），trim 边界另有一腿
+#         ㉗ 日期不存在（日历假日子，WXG-T-395）：`isCalendarDate` = 按 UTC 解析后回比原串；
+#            **写盘面**（六入口）与**校验面**（kb:check ⑦）取同一份判据；真闰日留作正例
+#         ㉘ 源码面「防副本再生」（WXG-T-399）：两个正则只在 lib 定义；六入口必调 requireDateArg、
+#            四入口必调 requireTaskArg；直接 `.test` 的只允许校验面 kb-check.mjs 一处
 #
 # 用法：tools/scripts/knowledge-selftest.sh
 # 产物：仅 stdout 报告；临时目录退出时清理，不污染仓库 / 真实知识库。
@@ -1302,6 +1309,37 @@ assert_eq "$(ld K-003 archivedDate)" "$today27" "27k archivedDate = 当天（与
 rc=$(run node "$KB_CHECK")
 assert_eq "$rc" "0" "27j 收尾 kb:check 仍 exit 0（真闰日归档与事件日期均合法）"
 assert_not_contains "$(cat "$WORK/last.txt")" "❌" "27j 无任何失败项"
+
+# ── [28] 源码面「防副本再生」：正则只在 lib 定义，入口只能调用（WXG-T-399）──────
+echo
+echo "[28] 源码面：单一正本 + 入口必须走 requireDateArg / requireTaskArg，⛔ 第三份内联判断"
+
+# 28a 入口脚本（kb-*.mjs，lib 不在此列）不得自己定义这两个正则
+defs=$(grep -lE '(DATE_RE|TASK_ID_RE)[[:space:]]*=' "$SCRIPT_DIR"/kb-*.mjs 2>/dev/null)
+assert_eq "$defs" "" "28a 正则定义只在 lib/knowledge-ledger.mjs（入口自带一份 = 漂移起点）"
+
+# 28b 六个吃日期入参的入口必须调 lib 的 requireDateArg
+for f in kb-archive kb-reactivate kb-touch kb-sync kb-audit kb-collect; do
+  if grep -q 'requireDateArg(' "$SCRIPT_DIR/$f.mjs"; then
+    ok "28b $f.mjs 调 lib requireDateArg（形态 + 存在性同一份判据）"
+  else
+    bad "28b $f.mjs 没调 requireDateArg —— 日期入参又内联重写或根本漏了守卫"
+  fi
+done
+
+# 28c 四个吃 --task 的入口必须调 lib 的 requireTaskArg（WXG-T-397 刚收成一份）
+for f in kb-archive kb-reactivate kb-sync kb-touch; do
+  if grep -q 'requireTaskArg(' "$SCRIPT_DIR/$f.mjs"; then
+    ok "28c $f.mjs 调 lib requireTaskArg（--task 契约四入口同源）"
+  else
+    bad "28c $f.mjs 没调 requireTaskArg —— --task 守卫又回到各写各的"
+  fi
+done
+
+# 28d 直接 `.test` 正则的地方只允许「校验面」kb-check.mjs（它复用 lib 常量合法）；
+#     写盘面必须走 require*Arg，冒出第二个文件即红
+inl=$(grep -lE '(DATE_RE|TASK_ID_RE)\.test' "$SCRIPT_DIR"/kb-*.mjs 2>/dev/null)
+assert_eq "$inl" "$SCRIPT_DIR/kb-check.mjs" "28d 内联 .test 只剩校验面一处（写盘面出现第二处即红）"
 
 # ── 汇总 ────────────────────────────────────────────────────────────────────
 echo
