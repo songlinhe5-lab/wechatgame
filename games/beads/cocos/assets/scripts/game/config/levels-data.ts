@@ -503,7 +503,7 @@ export const LEVELS_DATA: LevelsData = {
       starTierK: [
         1,
         0.85,
-        0.577,
+        0.4176,
       ],
       cycleProfile: "short",
       decoys: [],

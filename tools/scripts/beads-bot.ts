@@ -101,8 +101,30 @@ interface Leg {
     readonly m: number;
 }
 
+/**
+ * **最省解扫描用的策略组**（生成期「3★ 够不够」判据的右端）。
+ *
+ * 为何需要：定价口径（`ACB` + `retrieve:'max'` + 不用锚复用）是一条**固定策略**，它在
+ * 大容量下明显偏松——L9 在 48 槽按定价口径 76 步，而换策略最省只要 50 步（差 52%）。
+ * 若不扫，`stepsByCap` 会把「48 槽也拿不到 3★」判成事实，实际只是这条策略走不动。
+ * ⛔ 本组**只服务「可达性」判据**，不参与定价（定价永远用单一固定口径，保证跨关可比）。
+ */
+const BEST_EFFORT_POLICIES = [
+    { branchOrder: 'ACB', retrieve: 'max' as const, reuseAnchor: true },
+    { branchOrder: 'CAB', retrieve: 'max' as const, reuseAnchor: false },
+    { branchOrder: 'CAB', retrieve: 'max' as const, reuseAnchor: true },
+    { branchOrder: 'CBA', retrieve: 'max' as const, reuseAnchor: true },
+    { branchOrder: 'BCA', retrieve: 'min' as const, reuseAnchor: true },
+    { branchOrder: 'ABC', retrieve: 'min' as const, reuseAnchor: false },
+] as const;
+
 /** 在指定容量档上跑一遍 bot（走生产 BOOT + 公开命令；容量钉住只影响托盘，不改规则）。 */
-function runLeg(raw: BeadsLevelRaw, seed: string, cap: number): Leg {
+function runLeg(
+    raw: BeadsLevelRaw,
+    seed: string,
+    cap: number,
+    opt: { branchOrder?: string; retrieve?: 'max' | 'min'; reuseAnchor?: boolean } = {},
+): Leg {
     const level = simpleTestLevel({ ...raw, time: LEVEL_TIME_MAX });
     const h = createBeadsHarness({ seed, levels: [level] });
     h.game.goToLevel(0);
@@ -126,7 +148,14 @@ function runLeg(raw: BeadsLevelRaw, seed: string, cap: number): Leg {
     // 旧序 = 取回优先 ⇒ 只要有空槽就先囤货，把「直填 1 步/颗」换成「取回 + 逐颗落子 ≈2 步/颗」，
     // 托盘越大囤得越多 ⇒ 步数随容量**递增**（L5 实测 12/24/48 槽 = 64/68/110），容量轴不可解释。
     // `'ACB'` = 归位 → 直填 → 取回，与 `runBot` 头注的回归基准一致，且容量单调（同盘 29/20/17）。
-    const r = runBot(h, { allowDirectFill: true, retrieve: 'max', usePowerups: false, maxMoves: 20000, branchOrder: 'ACB' });
+    const r = runBot(h, {
+        allowDirectFill: true,
+        retrieve: opt.retrieve ?? 'max',
+        usePowerups: false,
+        maxMoves: 20000,
+        branchOrder: opt.branchOrder ?? 'ACB',
+        reuseAnchor: opt.reuseAnchor ?? false,
+    });
     CMDS.forEach((name, i) => {
         g[name] = orig[i];
     });
@@ -174,16 +203,32 @@ export function measureBoard(raw: BeadsLevelRaw, seed = 'beads-bot'): MeasureRes
         if (steps > budget2)
             blockers.push(`基础档（${TRAY_BASE_SLOTS} 槽）${steps} 步 > 2★ 档预算 ${budget2} 步 ⇒ 不看广告拿不到 2★（定价应回退到 1★ 基准或减步数）`);
         const alt = TRAY_TIER_SLOTS.filter((c) => c !== TRAY_BASE_SLOTS);
-        // `starTierK` = 单关覆盖（§3.7 v1.86）。例：L9 boss 把 3★ 系数压到 0.577 ⇒ 预算 76 步
-        // = steps@48 ⇒ **必须开 48 槽**且恰好够（24 槽 88 步已超），即用户要的「48 槽紧平衡」。
         const budget3 = tierStepBudget(time, 3, raw.starTierK);
-        const bestAlt = Math.min(...alt.map((c) => stepsByCap[c] ?? Number.POSITIVE_INFINITY));
-        const needCap = [TRAY_BASE_SLOTS, ...alt].find((c) => (stepsByCap[c] ?? Infinity) <= budget3);
-        const kTag = raw.starTierK ? `（单关系数 3★=${raw.starTierK[2]}）` : '';
+        // `starTierK` = 单关覆盖（§3.7 v1.86）。带了覆盖的关通常把 3★ 压到「容量极限」，
+        // 单一口径（定价用）会误报「拿不到」⇒ 只有这类关才付「扫最省解」的成本。
+        const bestByCap: Record<number, number> = raw.starTierK ? {} : { ...stepsByCap };
+        if (raw.starTierK) {
+            for (const c of TRAY_TIER_SLOTS) {
+                let best = Number.POSITIVE_INFINITY;
+                for (const pol of BEST_EFFORT_POLICIES) {
+                    const leg = runLeg(raw, 'beads-bot-best', c, pol);
+                    if (leg.cleared) best = Math.min(best, leg.steps);
+                }
+                bestByCap[c] = best;
+            }
+        }
+        const readings = TRAY_TIER_SLOTS.map((c) => bestByCap[c]).join('/');
+        const needCap = [TRAY_BASE_SLOTS, ...alt].find((c) => (bestByCap[c] ?? Infinity) <= budget3);
+        const kTag = raw.starTierK ? `（单关系数 3★=${raw.starTierK[2]}，读数为最省解扫描）` : '';
         if (!needCap)
-            warnings.push(`3★ 预算 ${budget3} 步${kTag} < 任何容量档实测最少 ${bestAlt} 步 ⇒ 拿不到 3★（bot 贪心非最优，需人工复核或调盘/调时长）`);
+            warnings.push(`3★ 预算 ${budget3} 步${kTag} < 任何容量档最省可达 ${Math.min(...TRAY_TIER_SLOTS.map((c) => bestByCap[c] ?? Infinity))} 步 ⇒ 拿不到 3★（需人工复核或调盘/调时长）`);
         else
-            warnings.push(`3★ 需 ≤${budget3} 步${kTag}：12/24/48 槽实测 ${TRAY_TIER_SLOTS.map((c) => stepsByCap[c]).join('/')} ⇒ 开 ${needCap} 槽可达${needCap === TRAY_BASE_SLOTS ? '（基础档即可，未吃容量）' : ''}`);
+            warnings.push(`3★ 需 ≤${budget3} 步${kTag}：12/24/48 槽 = ${readings} 步 ⇒ 开 ${needCap} 槽可达${needCap === TRAY_BASE_SLOTS ? '（基础档即可，未吃容量）' : ''}`);
+        if (raw.starTierK && needCap && needCap !== TRAY_BASE_SLOTS) {
+            const below = [TRAY_BASE_SLOTS, ...alt].filter((c) => c < needCap);
+            const tight = Math.min(...below.map((c) => bestByCap[c] ?? Infinity)) - budget3;
+            warnings.push(`容量闸自洽：低档最省仍差 ${tight} 步 ⇒ 「必须 ${needCap} 槽」成立`);
+        }
     }
     return {
         id: raw.id,

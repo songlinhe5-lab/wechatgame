@@ -265,19 +265,20 @@ describe('beads tuning derivation (systems-index §3 mirrors)', () => {
       expect(SEC_PER_STEP).toBe(4.14);
     });
 
-    it('单关三档系数 starTierK 覆盖（§3.7 v1.86 · L9 boss 3★ 必须开 48 槽）', () => {
-      // L00009：time=546，单关系数 3★=0.577 ⇒ 3★ = round(546×0.577) = 315s（全局 0.70 会给 382s）
+    it('单关三档系数 starTierK 覆盖（§3.7 v1.86/87 · L9 boss 3★ 必须开 48 槽且很赶）', () => {
+      // L00009：time=546，单关系数 3★=0.4176 ⇒ 3★ = round(546×0.4176) = 228s（全局 0.70 会给 382s）
       expect(tierSecondsFor(546, 3)).toBe(382); // 全局默认不受影响
-      expect(tierSecondsFor(546, 3, [1, 0.85, 0.577])).toBe(315);
+      expect(tierSecondsFor(546, 3, [1, 0.85, 0.4176])).toBe(228);
       // 判星随之改口径：用时 330s 在全局线下是 3★，在单关线下落到 2★
       expect(computeClearStars(546 - 330, 546, 546, 1).stars).toBe(3);
-      expect(computeClearStars(546 - 330, 546, 546, 1, false, [1, 0.85, 0.577]).stars).toBe(2);
-      // 312s ≤ 315s ⇒ 3★（边界含 ≤）
-      expect(computeClearStars(546 - 312, 546, 546, 1, false, [1, 0.85, 0.577]).stars).toBe(3);
+      expect(computeClearStars(546 - 330, 546, 546, 1, false, [1, 0.85, 0.4176]).stars).toBe(2);
+      // 225s ≤ 228s ⇒ 3★（边界含 ≤）；229s ⇒ 2★
+      expect(computeClearStars(546 - 225, 546, 546, 1, false, [1, 0.85, 0.4176]).stars).toBe(3);
+      expect(computeClearStars(546 - 229, 546, 546, 1, false, [1, 0.85, 0.4176]).stars).toBe(2);
       // 数据侧：现池只有 L9 带覆盖，且必须是严格递减的三元组
       const withK = LEVELS_DATA.levels.filter((lv) => lv.starTierK);
       expect(withK.map((lv) => lv.id)).toEqual([9]);
-      expect(withK[0]!.starTierK).toEqual([1, 0.85, 0.577]);
+      expect(withK[0]!.starTierK).toEqual([1, 0.85, 0.4176]);
     });
 
     it('逐关三档时钟必须严格单调（§3.7 v1.82 防塌缩 · 取代旧「常量 vs 历史极值」断言）', () => {
