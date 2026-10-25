@@ -179,9 +179,9 @@
     },
     {
       "path": "apps/beads-studio/README.md",
-      "tokens": 3630,
+      "tokens": 3665,
       "lines": 151,
-      "sha256": "751335e9c11f5e8db14a32880840459660d4859cb5875cc315ebc8de75fc69a8",
+      "sha256": "6ecb2d610ff8df8879081af66fca9fb338d6a6b11c9381863ef4823732ab04a5",
       "tier": "normal",
       "sections": [
         {
@@ -189,7 +189,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 152,
-          "tokens": 3609,
+          "tokens": 3644,
           "summary": "上传照片 → 量化到拼豆色板 → 配色平衡 → 交换法错位 → 关卡草案 JSON（预览 + 归类存储 + 小游戏在线导",
           "keywords": [
             "beads",

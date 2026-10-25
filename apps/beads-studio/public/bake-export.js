@@ -67,7 +67,7 @@ function isDemoPalette(r) {
     return !r.palette || r.palette === '10';
 }
 
-// ── 与详情面板的接线：index.html 的 show(r) 会调 window.updateBakeButton(r) ──
+// ── 与详情面板的接线：generate.html 的 show(r) 会调 window.updateBakeButton(r) ──
 let currentResult = null;
 let baking = false;
 

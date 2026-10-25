@@ -203,7 +203,9 @@
 <body>
     <header>
         <h1>大关 / 小关管理</h1>
-        <a href="/" style="text-decoration:none">← 返回生成页</a>
+        <!-- 本页 = 站点首页（`/`）：大关/小关是主编排入口，生成页与豆面编辑器是它的下游工具 -->
+        <a href="/generate.html" style="text-decoration:none">生成页（制图 / 替换图案）→</a>
+        <a href="/tint.html" style="text-decoration:none">豆面 tint 编辑器 →</a>
         <span id="meta" style="color:#6b6b6b;font-size:12px"></span>
         <span style="margin-left:auto"></span>
         <button class="ghost" id="verify" title="跑 levels:sync + framework:sync（幂等，只校验不改内容）">校验并同步</button>
@@ -616,7 +618,7 @@
          *  本页只保留关卡管理动作（改名 / 设 boss / 移章 / 删除 / 直接挑已存结果替换）——
          *  两处都放"编辑图案"会各长一套，改不动时没人说得清哪边是真源。 */
         function editLevelPattern(lv) {
-            location.href = '/?level=' + encodeURIComponent(lv.uid);
+            location.href = '/generate.html?level=' + encodeURIComponent(lv.uid);
         }
 
         function render() {

@@ -3,7 +3,7 @@
 上传照片 → 量化到拼豆色板 → 配色平衡 → 交换法错位 → **关卡草案 JSON**（预览 + 归类存储 + 小游戏在线导入）。
 
 - **生成核心**：复用 `tools/scripts/beads-gen.mjs`（子进程 `--in-raw --no-png` 免浏览器路径，服务器无需 playwright/chromium）。
-- **零第三方依赖**：服务端纯 `node:http`；前端单页 `public/index.html`（canvas 预览，本地解像不上传原图文件）。
+- **零第三方依赖**：服务端纯 `node:http`；前端三个静态页：首页 `public/manage.html`（大关/小关管理）、生成页 `public/generate.html`、豆面编辑器 `public/tint.html`（canvas 预览，本地解像不上传原图文件）。
 - **定位（诚实）**：调试/出关工具，无鉴权、单实例；产物是**关卡数据草案**，能否入关仍由 `levels.ts` BOOT 校验决定。
 
 ## 本地跑

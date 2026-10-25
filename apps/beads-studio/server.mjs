@@ -46,7 +46,7 @@
  *                                    烘焙脚本 tools/mask-preview/export-cocos-textures{,-holeless}.py，
  *                                    单一真源零移植；色无关 ⇒ 无逐色导出）
  *        解码 base64 PNG 落 games/beads/assets/{kind}/levels/{filename}。两端点仅本地仓开（容器 501）。
- *   GET  /                    → 静态页 public/index.html
+ *   GET  /                    → 站点首页 = 大关/小关管理页 public/manage.html（生成页 /generate.html）
  *
  * 存储：data/<board>/<id>/result.json（归类 = 目录即盘面档位）。
  */
@@ -1931,8 +1931,14 @@ async function handle(req, res) {
             const type = ext === '.js' ? 'text/javascript; charset=utf-8' : ext === '.map' ? 'application/json; charset=utf-8' : 'application/octet-stream';
             return send(res, 200, readFileSync(file), type);
         }
-        // 静态：/ 与 /index.html → public/；其余映射同路径（防穿越）
-        const rel = path === '/' ? 'index.html' : path.slice(1);
+        // 静态：`/` = 站点首页 = 大关/小关管理页（2026-10-25 用户：首页应是大小关入口，
+        // 生成页与豆面编辑器降为它的下游工具，路径 /generate.html、/tint.html）；其余映射同路径（防穿越）
+        // 旧书签 /index.html（曾是生成页）→ 302 到新路径，别让老链接直接 404
+        if (path === '/index.html') {
+            res.writeHead(302, { Location: '/generate.html' });
+            return res.end();
+        }
+        const rel = path === '/' ? 'manage.html' : path.slice(1);
         const file = join(PUBLIC, rel);
         if (!file.startsWith(PUBLIC) || !existsSync(file)) return sendJson(res, 404, { error: 'not found' });
         // 本地工具页每次协商：否则浏览器启发式缓存会让改动不生效（改动后没看到新按钮）
