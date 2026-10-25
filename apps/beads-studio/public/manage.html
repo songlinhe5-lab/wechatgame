@@ -203,8 +203,9 @@
 <body>
     <header>
         <h1>大关 / 小关管理</h1>
-        <!-- 本页 = 站点首页（`/`）：大关/小关是主编排入口，生成页与豆面编辑器是它的下游工具 -->
-        <a href="/generate.html" style="text-decoration:none">生成页（制图 / 替换图案）→</a>
+        <!-- 本页 = 站点首页（`/`）：大关/小关是主编排入口。
+             生成页**不单独开入口**（2026-10-25 用户裁定）：只能点小关行进入，天然带上 ?level=<uid>，
+             免得从空格子进生成页做出"不属于任何关"的结果。豆面编辑器与关卡无关，仍留在页头。 -->
         <a href="/tint.html" style="text-decoration:none">豆面 tint 编辑器 →</a>
         <span id="meta" style="color:#6b6b6b;font-size:12px"></span>
         <span style="margin-left:auto"></span>
