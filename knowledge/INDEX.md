@@ -278,4 +278,6 @@
 | K-168 | 工具链Git | toolchain-git | 查「某个字段的值被谁改过」⛔ 拿 `git log -S` 搜键名（pickaxe 数的是出现次数 ⇒ 同行换值不命中，会得到假的「从未改过」），须改 `-G` 正则或搜旧值 | WXG-T-375 | 2026-10-24 | 0 | active |
 | K-169 | 流程台账 | process-ledger | `check:tasks` 按裸竖线切主表行：行内写管道或命令即被判「列数 N ≠ 5」 | WXG-T-378 | 2026-10-25 | 0 | active |
 | K-170 | 流程台账 | process-ledger | 单文件上限是硬顶：往详情节追加前先估 tok，撞顶后再挤会白跑一轮 pre-commit | WXG-T-378 | 2026-10-25 | 0 | active |
+| K-171 | 工具链 | toolchain | 预算型生成物「恒贴上限」是填充线造成的，不是素材过多：余量小先查填充逻辑，别先砍池 | WXG-T-380 | 2026-10-25 | 0 | active |
+| K-172 | 流程台账 | process-ledger | `TASKS-DETAIL` 节标题必须裸写 `## WXG-T-NNN`：带副标题会被 `parseDetail` 漏认，门却报「没有此小节」 | WXG-T-381 | 2026-10-25 | 0 | active |
 <!-- kb:active:end -->

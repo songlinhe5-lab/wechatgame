@@ -22,7 +22,7 @@
 
 | # | 文件 | tokens | 行数 | tier |
 |---:|---|---:|---:|:--:|
-| 1 | `production/TASKS-DETAIL.md` | 193564 | 4928 | normal |
+| 1 | `production/TASKS-DETAIL.md` | 194040 | 4943 | normal |
 | 2 | `games/beads/design/art/specs/assets-spec.md` | 120024 | 2105 | normal |
 | 3 | `production/qa/beads/g4-regression-report.md` | 86807 | 2201 | normal |
 | 4 | `production/TASKS.md` | 69766 | 138 | hot |

@@ -4388,6 +4388,15 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 1. 两个提示是**文本**，没有独立自测：判定语义未变，回归风险 = 提示不准，不是误判。若日后放宽 `parseDetail` 的标题规则（允许副标题），必须同步删掉 `strayHeadingHint` 与文件头两句，否则提示会变成假的。
 2. `I` 项在非 git 目录会跳过（桩仓实测），属既有设计，本批未动。
 
+### 5. 沉淀统计（`kb:sync`）
+
+**新增 1 / 修改 1 / 激活 0 / 归档 0**：
+
+- **K-172**（`knowledge/lessons/process-ledger.md`，〔流程台账〕片）—— §1 第二条的通用形态：详情节标题必须裸写 `## WXG-T-NNN`，带副标题会被 `parseDetail` 漏认而门报「没有此小节」；含「日后放宽标题规则须同批删掉 `strayHeadingHint`，否则提示变假话」。
+- **K-169 追记** —— 列数不对的两种**相反**成因（全角「｜」变少 / 未转义半角竖线变多），并记「只加提示、不动判定」类改动的回归面 = 提示变假话。
+
+`kb:audit`：归档候选 0、相似命中 0。首跑 `kb:sync` 未带 `--task` ⇒ CHANGELOG 落在「（无任务号）」，已按各条 `sourceTask` 补署（K-171→380、K-172 / K-169→381）后重渲染。
+
 ## WXG-T-380
 
 **hot-files 第二跳「填充预留」：收录线与上限分离（5,567 → 5,185 tok，余 33 → 415）**（2026-10-25）
@@ -4428,6 +4437,12 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 1. 预留 300 是**经验值**（≈6–10 条新路由锚点或 2–3 个新收录小文件）。若某批增量持续 > 300，先问「新增件该不该被路由化」，而不是再抬上限——与 T-292 注释里「再涨前先还债」同一约束。
 2. 可选池里仍有 5 件 breakout 低频文档（合计 ≈810 tok）。要再腾余量，优先考虑「非当前活跃游戏域冷却」，但那属规则变更，需用户裁定。
 3. `tier:hot` 必收 6 件（systems-index / control-manifest / TASKS / test-cases / architecture-beads / MEMORY）仍是最大刚性块，瘦身仍待 quality-lead 裁定（T-224 未还债）。
+
+### 6. 沉淀统计（`kb:sync`）
+
+**新增 1 / 激活 0 / 归档 0**：**K-171**（`knowledge/lessons/toolchain.md`）—— 「预算型生成物『恒贴上限』是填充线造成的，不是素材过多：余量小先查填充逻辑，别先砍池」，即 §1 诊断订正的推广形态；含预留额度做法与「自测必须带『预留置 0 必回填』反例」（K-089）。版本实施落点在 §2 / §4。
+
+⚠ 首版正文 412 tok ⇒ `knowledge/lessons/toolchain.md` 8,152 **> spec 8,000**，pre-commit 的 B 项当场拦下（K-170「单文件上限是硬顶」重演）。按「标题行即索引、正文只留可操作项」裁到 184 tok ⇒ 分片 7,924，`kb:sync --task=WXG-T-380` 记 K-171 修改 1 条。
 
 ## WXG-T-379
 
