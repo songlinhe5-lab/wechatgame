@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3793,
       "lines": 129,
-      "sha256": "05f4c4f77f3ca49da0b37fb70088743c2d9c4c393e6febaec461fdef4a5fcd5e",
+      "sha256": "b31c9bf9c54d16f3712161dd7012c9256d4637c529b87cdeb6bb36a5edacf85e",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 406,
-          "summary": "1 production/TASKS-DETAIL.md 143476 4427 normal",
+          "summary": "1 production/TASKS-DETAIL.md 144064 4449 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5185,
       "lines": 164,
-      "sha256": "022b81d267497edda5e6f823f0c5a4940d1bcb0c96f62fbd16959203586ff38c",
+      "sha256": "d1214e8b1b9a47f4ea541a5a36b134cd0784cdf2e19bb3bfd8ecc8b15adf2af3",
       "tier": "normal",
       "sections": [
         {
@@ -713,7 +713,7 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/gdd/systems-index.md` — 307 行 / 35780 tok / 实测读 170 次",
+          "anchor": "§`games/beads/design/gdd/systems-index.md` — 307 行 / 36194 tok / 实测读 170 次",
           "level": 2,
           "startLine": 19,
           "endLine": 22,
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 4427 行 / 143476 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 4449 行 / 144064 tok",
           "level": 2,
           "startLine": 105,
           "endLine": 109,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+4428 · §WXG-T-390=3003+53 · §WXG-T-3",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+4450 · §WXG-T-390=3003+53 · §WXG-T-3",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -13351,17 +13351,17 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 13692,
-      "lines": 204,
-      "sha256": "cc8763c85347eb20d7648d3107bd5880090d734f0c9b11b5b51c2cdf9019b81f",
+      "tokens": 13872,
+      "lines": 205,
+      "sha256": "152a8e007d2581738085c07cd8d9181b728bbeb203f8d660f5e82d7d5640e949",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads UI 架构（View / ViewModel / Presenter + 公共基础）",
           "level": 1,
           "startLine": 1,
-          "endLine": 205,
-          "tokens": 13673,
+          "endLine": 206,
+          "tokens": 13853,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -13531,8 +13531,8 @@
           "anchor": "§12 TODO 拆分",
           "level": 2,
           "startLine": 132,
-          "endLine": 201,
-          "tokens": 9427,
+          "endLine": 202,
+          "tokens": 9607,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -13543,8 +13543,8 @@
         {
           "anchor": "§13 待你拍板",
           "level": 2,
-          "startLine": 202,
-          "endLine": 205,
+          "startLine": 203,
+          "endLine": 206,
           "tokens": 323,
           "summary": "D1–D5 均已裁定（见 [ADR-0032 §5](adr/ADR-0032-beads-ui-architectur",
           "keywords": [
@@ -33218,17 +33218,17 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index-changelog.md",
-      "tokens": 48090,
-      "lines": 99,
-      "sha256": "c56c40924a05f3ce4fc556dc99f68b447d8a1a926253f3c295f7590042934fb0",
+      "tokens": 48489,
+      "lines": 100,
+      "sha256": "245fc801c0699b6518012474641d272ce6d87999fd5a19947e8842ee83d6b22e",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · systems-index §6 变更记录（拆分件）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 100,
-          "tokens": 48072,
+          "endLine": 101,
+          "tokens": 48471,
           "summary": "项目：games/beads · 归属：systems-index.md 的 §6 变更记录",
           "keywords": [
             "§6",
@@ -33243,8 +33243,8 @@
           "anchor": "§6 变更记录",
           "level": 2,
           "startLine": 7,
-          "endLine": 100,
-          "tokens": 47914,
+          "endLine": 101,
+          "tokens": 48313,
           "summary": "v1.0 2026-09-11 初版：9 系统清单 + 拓扑 + §3 冻结令（含 8 项 [待确认] 提案值） WXG",
           "keywords": [
             "§3",
@@ -33256,9 +33256,9 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index.md",
-      "tokens": 35780,
+      "tokens": 36194,
       "lines": 307,
-      "sha256": "5062f8feaf39989d8f72d092847a11a867a86d7de31709185f9a9fd821ea2c92",
+      "sha256": "ae91c36b93c9c97d5831f15c6ff45117b21349e1f7ede278802d6b34f18a9d39",
       "tier": "hot",
       "sections": [
         {
@@ -33266,8 +33266,8 @@
           "level": 1,
           "startLine": 1,
           "endLine": 308,
-          "tokens": 35763,
-          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.88 · 任务号 WXG-T-398（v1.88 = 门票门",
+          "tokens": 36177,
+          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.89 · 任务号 WXG-T-398（v1.89 = 结算按",
           "keywords": [
             "Systems",
             "Index",
@@ -33309,7 +33309,7 @@
           "level": 2,
           "startLine": 56,
           "endLine": 262,
-          "tokens": 24810,
+          "tokens": 25068,
           "summary": "本项目唯一真源（Single Source of Truth）——适用范围：游戏数值与常量（分辨率 / 安全区 / 网格",
           "keywords": [
             "Global",
@@ -33487,7 +33487,7 @@
           "level": 3,
           "startLine": 222,
           "endLine": 233,
-          "tokens": 905,
+          "tokens": 1163,
           "summary": "STAMINA_MAX 8 体力（心）上限（宽容包 B，用户拍板）",
           "keywords": [
             "Stamina",
@@ -85004,17 +85004,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 143476,
-      "lines": 4427,
-      "sha256": "8b97016722811b5f73be6a9bc3506d3a3a994cbcf85297a33fcce828207f7882",
+      "tokens": 144064,
+      "lines": 4449,
+      "sha256": "9cfa8cf9a44aa936726d6cccaf76ba0066401ff9c1df7efd97a9546652151f93",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 4428,
-          "tokens": 143459,
+          "endLine": 4450,
+          "tokens": 144048,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -89698,8 +89698,8 @@
           "anchor": "§WXG-T-400",
           "level": 2,
           "startLine": 4371,
-          "endLine": 4428,
-          "tokens": 1415,
+          "endLine": 4450,
+          "tokens": 2004,
           "summary": "check:tasks note H 去硬编码阈值 + tasks:archive:selftest 源面门 [9]（2",
           "keywords": [
             "WXG",
@@ -89791,7 +89791,7 @@
           "anchor": "§6 遗留 (4)",
           "level": 3,
           "startLine": 4419,
-          "endLine": 4428,
+          "endLine": 4427,
           "tokens": 198,
           "summary": "1. pnpm run verify 全量仍未复跑（399 §9 遗留 2 原样，本批仍只碰 tools/scripts",
           "keywords": [
@@ -89801,6 +89801,22 @@
             "verify",
             "tools",
             "scripts"
+          ]
+        },
+        {
+          "anchor": "§4 首通豆子**已落码**（v1.89，本节取代上面 §2 的「未落码」标注）",
+          "level": 3,
+          "startLine": 4428,
+          "endLine": 4450,
+          "tokens": 559,
+          "summary": "用户 2026-10-26 三次拍板后的最终口径（全部落码）：",
+          "keywords": [
+            "§2",
+            "首通豆子",
+            "已落码",
+            "本节取代上面",
+            "未落码",
+            "标注"
           ]
         }
       ]

@@ -255,6 +255,13 @@ export interface BeadsSnapshot {
   clearPowerupsUsed: number;
   clearActions: number;
   clearTaps: number;
+  /**
+   * 结算发豆（§3.14 v1.81）：本次到手豆数 / 一句话原因 / 是否被日上限降档。
+   * `clearCoinReason === ''` ⇒ 面板**不画**该行（无 shell 的独立 `BeadsGame` / 未接经济）。
+   */
+  clearCoins: number;
+  clearCoinReason: string;
+  clearCoinsCapped: boolean;
   /** 末关 ⇒ 主钮文案「查看结果」（点后进 FINISH）。 */
   clearLastLevel: boolean;
 
@@ -522,6 +529,9 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     clearPowerupsUsed: 0,
     clearActions: 0,
     clearTaps: 0,
+    clearCoins: 0,
+    clearCoinReason: '',
+    clearCoinsCapped: false,
     clearLastLevel: false,
     finishPanelVisible: false,
     finishPanelProgress: 0,

@@ -1272,6 +1272,28 @@ export const SIGNIN_REWARDS: readonly { coins: number; hearts: number }[] = [
   { coins: 100, hearts: 0 },
 ];
 
+// ─────────────────────── 结算按星发豆（§3.14 获取源「通关首通」落码；用户 2026-10-26 拍板）
+/**
+ * **首通奖励**（该关历史最高星 = 0 时按**本次星级**发，一次性）：普通关 / Boss 关各自一组。
+ * 索引 = `stars - 1`（1★/2★/3★）。用户口径：「过关星级会首次掉落一定数量豆子」。
+ */
+export const CLEAR_COIN_FIRST: readonly number[] = [20, 30, 40];
+export const CLEAR_COIN_FIRST_BOSS: readonly number[] = [40, 60, 80];
+/** **复刷奖励**（已通关过）：普通 / Boss。用户 2026-10-26：「每盘奖励还是恢复到 5/10」。 */
+export const CLEAR_COIN_REPLAY_NORMAL = 5;
+export const CLEAR_COIN_REPLAY_BOSS = 10;
+/**
+ * **超日上限后的安慰奖**（普通 / Boss）—— ⛔ 不清零（用户 2026-10-26 拍板「柔和，非硬顶」），
+ * 但只有 1/2，且结算页必须写明「今日复刷已达上限」，否则玩家看不出为什么变少。
+ */
+export const CLEAR_COIN_REPLAY_CAPPED_NORMAL = 1;
+export const CLEAR_COIN_REPLAY_CAPPED_BOSS = 2;
+/**
+ * 复刷日上限 = 签到日均 `320 / 7 ≈ 45.7` 取整 **45**（用户 2026-10-26 拍板「与签到一致」）。
+ * 普通关 5🪙 ⇒ 9 盘到顶；Boss 10🪙 ⇒ 4.5 盘。按本地日期键（`dateKey`）归零，与签到同口径。
+ */
+export const CLEAR_COIN_REPLAY_DAILY_CAP = 45;
+
 /**
  * §3.14 买心阶梯价（钱包 A 包）。**不冻结**——待 playtest 调参（systems-index
  * §3.14 明文「阶梯价不冻结」）；第 n 次购买（当日计数）取 `ladder[min(n, len-1)]`。
@@ -1805,6 +1827,17 @@ export const BOSS_THUMB_TEXTURES: Readonly<Record<number, string>> = (() => {
   }
   return Object.freeze(map);
 })();
+/**
+ * boss 关判定（`levelId` = **1-based 关号** = 某大关收尾关）。
+ *
+ * 与 {@link BOSS_THUMB_TEXTURES} **同源派生**（同一份 `ARCS.levelRefs` 末区间）——
+ * ⛔ 不新建第二份 boss 真源：`BeadsLevelRaw` 本就不带 `kind`（boss 只在生成期排序标）。
+ * 用途 = 结算发豆分档（Boss 关首通 40/60/80、复刷 10/2；普通关 20/30/40、5/1）。
+ */
+export function isBossLevelId(levelId: number): boolean {
+  return Object.prototype.hasOwnProperty.call(BOSS_THUMB_TEXTURES, levelId);
+}
+
 /** 回退档序（§3.8 序 2/3 预置杠杆，逐级触发、不并行）。 */
 export const THUMB_TIERS: readonly number[] = Object.freeze([5, 4, 3]);
 /** 虚线空槽档回退（§3.8 序 4：空格改 48 档格径 ⇒ 48 条 line/格 降为 20 条）。 */

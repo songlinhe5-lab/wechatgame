@@ -42,6 +42,13 @@ export interface BeadsMeta extends SaveDocument {
     /** `heartAdToday` 所属日期键；与今日不同则计数归零。 */
     heartAdDate: string;
     /**
+     * 当日**复刷发豆**累计（§3.14 v1.81 日上限 `CLEAR_COIN_REPLAY_DAILY_CAP`）。
+     * 只累加复刷腿（⛔ 不含首通与签到）；跨天由 `replayCoinsDate` 归零。
+     */
+    replayCoinsToday: number;
+    /** `replayCoinsToday` 所属日期键（`YYYY-M-D` 本地，与签到同口径 dateKey）。 */
+    replayCoinsDate: string;
+    /**
      * 已买断（或初始拥有）的皮肤 id（§3.7 v1.83 「外观 = 金币买断」；价目 = `SKIN_PRICES_COINS`）。
      *
      * **落档事实而非派生量**（提案 §4.3）：只在「购买成功」与「载入 grandfather」两处增长，
@@ -68,6 +75,8 @@ export function defaultBeadsMeta(): BeadsMeta {
         heartBuysDate: '',
         heartAdToday: 0,
         heartAdDate: '',
+        replayCoinsToday: 0,
+        replayCoinsDate: '',
         ownedSkinIds: [DEFAULT_SKIN_ID],
     };
 }
@@ -139,6 +148,8 @@ export function normalizeBeadsMeta(raw: unknown): MetaNormalizeResult {
         heartBuysDate: str(raw['heartBuysDate'], ''),
         heartAdToday: int(raw['heartAdToday'], 0),
         heartAdDate: str(raw['heartAdDate'], ''),
+        replayCoinsToday: int(raw['replayCoinsToday'], 0),
+        replayCoinsDate: str(raw['replayCoinsDate'], ''),
         ownedSkinIds: ownedIds(raw['ownedSkinIds']),
     };
 
@@ -152,6 +163,8 @@ export function normalizeBeadsMeta(raw: unknown): MetaNormalizeResult {
         raw['heartBuysDate'] !== meta.heartBuysDate ||
         raw['heartAdToday'] !== meta.heartAdToday ||
         raw['heartAdDate'] !== meta.heartAdDate ||
+        raw['replayCoinsToday'] !== meta.replayCoinsToday ||
+        raw['replayCoinsDate'] !== meta.replayCoinsDate ||
         !sameIds(raw['ownedSkinIds'], meta.ownedSkinIds);
 
     return { meta, changed };

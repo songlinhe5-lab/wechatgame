@@ -91,6 +91,7 @@ import {
   nextBeadLod,
   ZOOM_LOD_LAYERS,
   type BeadSizeKind,
+  isBossLevelId,
   stageParamsFor,
   validatedSprintTime,
   type BeadsTuning,
@@ -155,6 +156,7 @@ import { DEFAULT_SKIN, DEFAULT_SKIN_ID, skinById } from '../config/skins/registr
 import { buildBeadsView } from '../view/view-model.js';
 import type { UiDebugState } from '../ui/ui-host.js';
 import type { BeadsEvents, BeadsGameOptions } from './beads-game-types.js';
+import type { ClearCoinGrant } from './meta-state.js';
 import { BeadConservation } from './beads-game/bead-conservation.js';
 import { GameSettings } from './beads-game/game-settings.js';
 import { BoardCameraController } from './beads-game/board-camera-controller.js';
@@ -437,6 +439,8 @@ export class BeadsGame implements Game {
   private readonly _canWatchStaminaAd?: () => boolean;
   /** 道具超限豆子购买闸门（options.onPowerupPurchase；无 shell 时 undefined ⇒ 占位提示）。 */
   private readonly _onPowerupPurchase?: (type: PowerupType) => boolean;
+  /** 结算发豆（options.onClearCoins；无 shell 时 undefined ⇒ 面板不显示该行）。 */
+  private readonly _onClearCoins?: (stars: number, isBoss: boolean, firstClear: boolean) => ClearCoinGrant | undefined;
   /**
    * 跨章推进闸门（options.canAdvanceAcrossArc；无 shell 时 undefined ⇒ 不设门、行为逐字不变）。
    * S-4：只在**章界那一刻**参与解锁位推进（I7 棘轮），⛔ 参与门票归约本体。
@@ -495,6 +499,7 @@ export class BeadsGame implements Game {
     this._onStaminaRefill = options.onStaminaRefill;
     this._canWatchStaminaAd = options.canWatchStaminaAd;
     this._onPowerupPurchase = options.onPowerupPurchase;
+    this._onClearCoins = options.onClearCoins;
     this._canAdvanceAcrossArc = options.canAdvanceAcrossArc;
     this._ownsSkin = options.ownsSkin;
 
@@ -1711,9 +1716,13 @@ export class BeadsGame implements Game {
             game.revived,
             level.starTierK, // §3.7 v1.86 单关三档系数（如 boss 关 3★ 必须开 48 槽）
           );
-          game._lastStars = stars;
-          // 通关画面总览：取**历史最好**（重玩不降级，与 `maxUnlockedLevel` 同语义）。
+          // §3.14 v1.81：首通判定必须在**写星之前**取（下面写星是 `Math.max`，写后就恒 ≥1）。
           const li = game._levelIndex;
+          const firstClear = (game._starsByLevel[li] ?? 0) <= 0;
+          game._lastStars = stars;
+          // 结算发豆：首通按本次星级一次性 / 复刷走日上限（经济全在 shell+meta，本类只透传）。
+          game._clearCoins = game._onClearCoins?.(stars, isBossLevelId(level.id), firstClear) ?? null;
+          // 通关画面总览：取**历史最好**（重玩不降级，与 `maxUnlockedLevel` 同语义）。
           game._starsByLevel[li] = Math.max(game._starsByLevel[li] ?? 0, stars);
           // C7 结算分（局内不显示，供排行/段位与面板外部读取）：四因子全在此刻可得。
           game._lastSettleScore = normalSettleScore(
@@ -2609,6 +2618,8 @@ export class BeadsGame implements Game {
   // ─────────────────────────────────────────────────────────────── snapshot
 
   private _lastStars = 0;
+  /** 本局结算发豆结果（§3.14 v1.81）；`null` ⇒ 面板不画该行。每局 `level-clear` 重算。 */
+  private _clearCoins: ClearCoinGrant | null = null;
 
   /** Last normal-mode clear's stars (view convenience). */
   get lastStars(): number {
@@ -2828,6 +2839,9 @@ export class BeadsGame implements Game {
     s.clearPanelProgress = this._clearPanel.progress;
     s.clearPanelInteractive = this._clearPanel.interactive;
     s.clearStars = this._lastStars;
+    s.clearCoins = this._clearCoins?.coins ?? 0;
+    s.clearCoinReason = this._clearCoins?.reason ?? '';
+    s.clearCoinsCapped = this._clearCoins?.capped ?? false;
     const shown = this._clearPanel.starsShown(this._lastStars);
     s.clearStarsShown = shown;
     s.clearStarPopScale = shown > 0 ? this._clearPanel.starScale(shown - 1) : 1;

@@ -493,6 +493,24 @@ function drawClearPanel(
     );
   }
 
+  // 结算发豆（§3.14 v1.81；用户 2026-10-26 令「星级下方一行 + 把原因说清楚」）：
+  // 文案**整句由 `MetaState.grantClearCoins` 产出**（含「首通 ★★★ 奖励」/「复刷奖励（今日 23/45）」/
+  // 「今日复刷奖励已达 45，仅发安慰奖」三种），⛔ 前端不拼原因 —— 否则口径一改就漂。
+  // 空串 / 缺字段 = 未接经济层（无 shell 的独立 BeadsGame、金样本静态快照）⇒ 本行不画（后向兼容）。
+  if (snap.clearCoinReason) {
+    builder.text(
+      DESIGN_W / 2,
+      layout.rewardY,
+      `+${snap.clearCoins} 🪙 · ${snap.clearCoinReason}`,
+      {
+        fill: snap.clearCoinsCapped ? palette.textDim : STAR_GOLD,
+        font: bodyFont(snap.largeText, 'sub'),
+        align: 'center',
+        baseline: 'middle',
+      },
+    );
+  }
+
   // 次要信息（ux-spec §3.4 第三行）。
   builder.text(
     DESIGN_W / 2,

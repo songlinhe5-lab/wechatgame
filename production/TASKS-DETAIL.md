@@ -4425,3 +4425,25 @@ pnpm run tasks:archive -- --detail-until-under=7000 --write
 
 ---
 
+### 4. 首通豆子**已落码**（v1.89，本节取代上面 §2 的「未落码」标注）
+
+用户 2026-10-26 三次拍板后的最终口径（全部落码）：
+
+| 项 | 普通关 | Boss 关 | 常量 |
+|---|---|---|---|
+| 首通 1★ / 2★ / 3★ | 20 / 30 / 40🪙 | 40 / 60 / 80🪙 | `CLEAR_COIN_FIRST{,_BOSS}` |
+| 复刷（未达上限） | 5🪙 | 10🪙 | `CLEAR_COIN_REPLAY_{NORMAL,BOSS}` |
+| 复刷（已达上限） | 1🪙 | 2🪙 | `CLEAR_COIN_REPLAY_CAPPED_*` |
+| 复刷日上限 | **45🪙**（= 签到日均 320/7） | 同 | `CLEAR_COIN_REPLAY_DAILY_CAP` |
+
+三条与用户原话的对应：
+1. 「上限与签到一致」⇒ 45（签到实测 20/30/30/40/40/60/100，日均 45.7）；
+2. 「每盘恢复 5/10，基本 4~5 盘达到上限」⇒ **Boss 关卡口径**成立（10🪙 × 4.5 盘）；普通关 5🪙 需 **9 盘**，已在拍板时明示并获「甲」选择；
+3. 「结算时复刷上限说明 + 给 1/2」⇒ 超限**不清零**降 1/2，且面板必须写明「今日复刷奖励已达 45，仅发安慰奖」。
+
+落码清单（8 件 + 测试 + 镜像）：
+`tuning.ts`（8 常量 + `isBossLevelId`）/ `meta-save-schema.ts`（`replayCoinsToday`+`replayCoinsDate` + defaults/normalize/changed）/ `MetaState.grantClearCoins` + `ClearCoinGrant` + `_persistClearCoins` /
+`BeadsGameOptions.onClearCoins` / `BeadsGame`（首通判定挪到**写星之前**、`_clearCoins`、快照三字段）/ `BeadsShell` 回调接线 / `ClearPanelLayout.rewardY`（`starsY+56`，夹在星底 +32 与缎带顶 −40 之间，`PANEL_SIZE` 零改动）/ `view-model` 一行渲染（原因整句由 meta 给，⛔ 前端不拼）。
+测试 = `tests/clear-coins.test.ts` 7 例（首通六值 / 复刷单价 / 普通 9 盘到顶降 1 / Boss 跨限降 2 / 首通不吃上限 / 跨日归零 / 日计次重载）。
+
+**金样本 clear 态 +1 条 text（619→620）**：按 K-051/K-053 先登记 `docs/architecture/ui-architecture-beads.md` UI-61，再由 `ui-golden-capture.ts` 在**提交锚**重抓（⛔ 未手改夹具）。

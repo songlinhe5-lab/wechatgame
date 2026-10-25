@@ -57,6 +57,11 @@ export interface ClearPanelLayout {
   /** 星级行中心 y。 */
   readonly starsY: number;
   /**
+   * 结算发豆行中心 y（§3.14 v1.81）——**星级正下方**（星底 = `starsY + CLEAR_STAR_SIZE/2 = +32`，
+   * 缎带顶 ≈ `titleY − 40` ⇒ 净空 32~70，取中点 `starsY + 56`）。
+   */
+  readonly rewardY: number;
+  /**
    * 判星对照行中心 y（ux-spec §3.4 v1.23）——夹在次要信息行与星级行之间。
    * 旧口径「星级行中心 = `infoY + 70`」下该带净空只有 ~32 设计像素，容不下
    * art-bible 最小字号 28 的一行 ⇒ WXG-T-355 把星级行抬到 `infoY + 92`，本行取中点。
@@ -122,7 +127,10 @@ function build(lastLevel: boolean): ClearPanelLayout {
   const firstStar = (DESIGN_W - starsTotal) / 2 + CLEAR_STAR_SIZE / 2;
   const starX = [0, 1, 2].map((i) => firstStar + i * (CLEAR_STAR_SIZE + CLEAR_STAR_GAP));
   void lastLevel; // 两个变体只差按钮文案（见 clearPanelLabel），几何相同
-  return { panel, buttons, titleY: starsY + 110, starsY, criteriaY, infoY, starX };
+  // §3.14 v1.81 结算发豆行：夹在**星底（starsY+32）**与**缎带顶（titleY−40）**之间取中点，
+  // `PANEL_SIZE` 与缎带行距（+110）均零改动。
+  const rewardY = starsY + 56;
+  return { panel, buttons, titleY: starsY + 110, starsY, rewardY, criteriaY, infoY, starX };
 }
 
 /** 按钮文案（`ux-spec §3.4`；末关主钮文案为派生项）。 */

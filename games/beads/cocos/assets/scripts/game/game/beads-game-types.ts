@@ -12,6 +12,7 @@
 
 import type { BeadsTuning, PowerupType, StageParams } from '../config/tuning';
 import type { BeadsLevelRaw } from '../config/levels';
+import type { ClearCoinGrant } from './meta-state';
 import type { BeadsPalette } from '../view/palette';
 
 /** Events emitted on the framework bus — systems-index §4 (v1.22 event table). */
@@ -88,6 +89,15 @@ export interface BeadsGameOptions {
      * 缺省（无 shell 的独立 `BeadsGame`）⇒ 超限仍只是占位轻提示（后向兼容，既有单测不变）。
      */
     readonly onPowerupPurchase?: (type: PowerupType) => boolean;
+    /**
+     * **结算按星发豆**（§3.14 v1.81「通关首通」获取源；用户 2026-10-26 拍板）：
+     * `level-clear` 相位算定星级后调用，由 shell 转给 `MetaState.grantClearCoins`。
+     *
+     * - `firstClear` = **写星之前**该关历史最高星为 0（由 `BeadsGame` 在 1717 的 `Math.max` 之前取）；
+     * - 返回值直接上结算面板（`clearCoins` / `clearCoinReason`），⛔ 前端不自己算；
+     * - 缺省（无 shell 的独立 `BeadsGame`）⇒ 不发豆、面板不显示该行（后向兼容）。
+     */
+    readonly onClearCoins?: (stars: number, isBoss: boolean, firstClear: boolean) => ClearCoinGrant | undefined;
     /**
      * 广告加心是否还可用（§3.14 v1.80 日限 + 满心闸门）：`false` ⇒ 不拉起 `stamina-refill` 位
      * （避免「看完广告什么都没加」）。缺省 = 不设门（后向兼容）。

@@ -21,6 +21,13 @@
 
 import { SaveManager, type Storage } from '../../framework/index';
 import {
+    CLEAR_COIN_FIRST,
+    CLEAR_COIN_FIRST_BOSS,
+    CLEAR_COIN_REPLAY_BOSS,
+    CLEAR_COIN_REPLAY_CAPPED_BOSS,
+    CLEAR_COIN_REPLAY_CAPPED_NORMAL,
+    CLEAR_COIN_REPLAY_DAILY_CAP,
+    CLEAR_COIN_REPLAY_NORMAL,
     HEART_AD_DAILY_LIMIT,
     HEART_AD_GAIN,
     HEART_PRICE_LADDER,
@@ -28,6 +35,7 @@ import {
     SKIN_PRICES_COINS,
     STAMINA_MAX,
     STAMINA_REGEN_MIN_MS,
+    STAR_MAX,
 } from '../config/tuning';
 import {
     META_SAVE_KEY,
@@ -39,6 +47,21 @@ import {
 
 /** Loose emit hook — the shell wires it to the framework EventBus. */
 export type MetaEmit = (type: string, payload: unknown) => void;
+
+/**
+ * 结算发豆结果（§3.14 v1.81）。
+ *
+ * `reason` 是**给玩家看的整句**（结算面板星级下方那一行直接消费）——
+ * ⛔ 前端不要自己拼「为什么多 / 为什么少」，否则文案会与上限口径漂开。
+ */
+export interface ClearCoinGrant {
+    /** 实发豆数（0 = 本次不发，仍会给 reason 说明）。 */
+    readonly coins: number;
+    /** 一句话原因，例如「首通 ★★★ 奖励」「复刷奖励（今日 23/45）」。 */
+    readonly reason: string;
+    /** 是否因**当日复刷上限**而降档（结算页文案据此加粗/换色）。 */
+    readonly capped: boolean;
+}
 
 export interface MetaStateOptions {
     readonly storage: Storage;
@@ -77,6 +100,9 @@ export class MetaState {
     private _heartDate: string;
     private _heartAds: number;
     private _heartAdDate: string;
+    /** 当日复刷已发豆（§3.14 v1.81 日上限；跨 `_replayDate` 归零）。 */
+    private _replayCoins: number;
+    private _replayDate: string;
     /** 已买断/初始拥有的皮肤（落档集合，§3.7 v1.83；真源 = `BeadsMeta.ownedSkinIds`）。 */
     private _ownedSkins: Set<string>;
 
@@ -104,6 +130,8 @@ export class MetaState {
         this._heartDate = d.heartBuysDate;
         this._heartAds = d.heartAdToday;
         this._heartAdDate = d.heartAdDate;
+        this._replayCoins = d.replayCoinsToday;
+        this._replayDate = d.replayCoinsDate;
         this._ownedSkins = new Set(d.ownedSkinIds);
         // 首次装载（anchor=0）以当前时刻起步，避免把「出厂到现在」误算成离线恢复。
         if (this._anchor === 0) this._anchor = this._clock();
@@ -256,6 +284,47 @@ export class MetaState {
         this._persistWallet();
     }
 
+    /**
+     * 结算按星发豆（§3.14 v1.81「通关首通」获取源落码；用户 2026-10-26 拍板）。
+     *
+     * 三档口径（每档当场可测）：
+     * - **首通**（该关历史最高星 = 0，判定由调用方在**写星之前**取）⇒ 按**本次星级**发一次性奖励
+     *   （普通 20/30/40、Boss 40/60/80）——用户口径「过关星级会首次掉落一定数量豆子」；
+     * - **复刷未超日上限** ⇒ 普通 {@link CLEAR_COIN_REPLAY_NORMAL} / Boss {@link CLEAR_COIN_REPLAY_BOSS}；
+     * - **复刷已超上限** ⇒ 降为 1 / 2（⛔ **不清零**，用户拍板「柔和，非硬顶」），且 `reason` 必须写明已达上限。
+     *
+     * ⛔ 首通腿**不计入**日上限（上限只约束复刷）；跨天归零与签到同口径（{@link dateKey}）。
+     */
+    grantClearCoins(stars: number, isBoss: boolean, firstClear: boolean): ClearCoinGrant {
+        const star = Math.max(1, Math.min(STAR_MAX, Math.floor(stars)));
+        if (firstClear) {
+            const table = isBoss ? CLEAR_COIN_FIRST_BOSS : CLEAR_COIN_FIRST;
+            const coins = table[star - 1] ?? 0;
+            if (coins > 0) {
+                this._coins += coins;
+                this._persistWallet();
+            }
+            return { coins, reason: `首通 ${'★'.repeat(star)} 奖励`, capped: false };
+        }
+        const today = dateKey(this._clock());
+        if (this._replayDate !== today) {
+            this._replayCoins = 0;
+            this._replayDate = today;
+        }
+        const capped = this._replayCoins >= CLEAR_COIN_REPLAY_DAILY_CAP;
+        const coins = capped
+            ? (isBoss ? CLEAR_COIN_REPLAY_CAPPED_BOSS : CLEAR_COIN_REPLAY_CAPPED_NORMAL)
+            : (isBoss ? CLEAR_COIN_REPLAY_BOSS : CLEAR_COIN_REPLAY_NORMAL);
+        // 超限后不再累加（当日读数封在 cap，⛔ 不让「48/45」这种自相矛盾的数字上屏）。
+        if (!capped) this._replayCoins += coins;
+        this._coins += coins;
+        this._persistClearCoins();
+        const reason = capped
+            ? `今日复刷奖励已达 ${CLEAR_COIN_REPLAY_DAILY_CAP}，仅发安慰奖`
+            : `复刷奖励（今日 ${Math.min(this._replayCoins, CLEAR_COIN_REPLAY_DAILY_CAP)}/${CLEAR_COIN_REPLAY_DAILY_CAP}）`;
+        return { coins, reason, capped };
+    }
+
     /** 扣豆（§3.14 v1.80 豆子出口之一 = 道具超限购买）。足额则扣、写档、发事件；不足 false。 */
     spendCoins(amount: number): boolean {
         if (amount <= 0) return true;
@@ -369,6 +438,17 @@ export class MetaState {
 
     private _persistWallet(): void {
         this._save.patch({ coins: this._coins });
+        this._save.save();
+        this._emit('wallet:changed', { coins: this._coins });
+    }
+
+    /** 复刷腿的写档（多带两枚日计次字段；`spendCoins` 仍走 {@link _persistWallet}）。 */
+    private _persistClearCoins(): void {
+        this._save.patch({
+            coins: this._coins,
+            replayCoinsToday: this._replayCoins,
+            replayCoinsDate: this._replayDate,
+        });
         this._save.save();
         this._emit('wallet:changed', { coins: this._coins });
     }
