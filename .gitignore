@@ -131,3 +131,4 @@ __pycache__/
 
 # 真机通道验证帧（手机桌面，非判据证据）不入库
 production/qa/beads/device/**/PRECHECK_*
+tools/mask-preview/cocos-assets/_variants/

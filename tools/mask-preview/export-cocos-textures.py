@@ -51,6 +51,20 @@ from PIL import Image, ImageDraw
 
 HERE = Path(__file__).parent
 OUT_DIR = HERE / "cocos-assets"
+
+# ── 参数化入口（2026-10-25「B 阶」：studio 的 tint 编辑器调参用）─────────────────
+# `--params '<json>'` 覆盖下方冻结常量；**不传 = 定稿口径，产物逐字节不变**（mask:diff 仍绿）。
+# `--out-dir <name>` 落到 cocos-assets/<name>/ —— 变体不覆盖冻结产物，实验版永远另存一档。
+import argparse as _argparse
+import sys as _sys
+
+_ap = _argparse.ArgumentParser(add_help=False)
+_ap.add_argument('--params', default='')
+_ap.add_argument('--out-dir', default='')
+_ARGS, _ = _ap.parse_known_args()
+if _ARGS.out_dir:
+    OUT_DIR = HERE / "cocos-assets" / _ARGS.out_dir
+
 OUT = 128
 SS = 4
 RENDER = OUT * SS               # 512
@@ -75,6 +89,39 @@ BEAD_DP = 26.0
 BEAD_CORNER_DP = 8.0
 CELL_DP = 30.0
 
+# facet-4 四向亮度（左恒 0）；grid 与本体刻面同构，故放这里供 --params 覆盖
+FACET_UP, FACET_RIGHT, FACET_DOWN = 1.0, 0.74, 0.37
+
+# 参数白名单（键 → 常量名, 下限, 上限）。范围 = 物理可辨区间，越界直接非零退出，
+# 免得产出一张"几何不成立"的 mask 还当成资产。
+_PARAM_SPEC = {
+    'holeDp': ('HOLE_DP', 6.0, 20.0),
+    'holeRingDp': ('HOLE_RING_DP', 0.0, 4.0),
+    'frameDp': ('FRAME_DP', 0.0, 5.0),
+    'beadDp': ('BEAD_DP', 18.0, 30.0),
+    'cornerDp': ('BEAD_CORNER_DP', 0.0, 15.0),
+    'litL': ('LIT_L', 0.0, 1.0),
+    'plateD': ('PLATE_D', 0.0, 1.0),
+    'facetUp': ('FACET_UP', 0.0, 1.0),
+    'facetRight': ('FACET_RIGHT', 0.0, 1.0),
+    'facetDown': ('FACET_DOWN', 0.0, 1.0),
+}
+if _ARGS.params:
+    for _k, _v in json.loads(_ARGS.params).items():
+        if _k not in _PARAM_SPEC:
+            _sys.exit(f'未知参数 {_k}（允许：{", ".join(_PARAM_SPEC)}）')
+        _g, _lo, _hi = _PARAM_SPEC[_k]
+        _f = float(_v)
+        if not (_lo <= _f <= _hi):
+            _sys.exit(f'参数 {_k}={_f} 越界，允许 {_lo}–{_hi}')
+        globals()[_g] = _f
+# 几何一致性：孔（含孔边）必须小于珠本体（珠面 − 2×外框），否则孔会穿出珠外
+if HOLE_DP + 2 * HOLE_RING_DP > BEAD_DP - 2 * FRAME_DP:
+    _sys.exit(f'几何不成立：孔 {HOLE_DP}+2×{HOLE_RING_DP} > 珠本体 {BEAD_DP}−2×{FRAME_DP}')
+print(f'# params holeDp={HOLE_DP} holeRingDp={HOLE_RING_DP} frameDp={FRAME_DP} beadDp={BEAD_DP} '
+      f'cornerDp={BEAD_CORNER_DP} litL={LIT_L} plateD={PLATE_D} '
+      f'facetUp={FACET_UP} facetRight={FACET_RIGHT} facetDown={FACET_DOWN}')
+
 data = json.load(open(HERE / "layers.json"))
 
 C = RENDER / 2
@@ -97,7 +144,7 @@ def facet_light(dx, dy):
     right_w = np.clip((ux - np.abs(uy)) * 2, 0, 1)
     down_w = np.clip((uy - np.abs(ux)) * 2, 0, 1)
     left_w = np.clip(1.0 - up_w - right_w - down_w, 0, 1)
-    return 0.37 * down_w + 0.74 * right_w + 1.0 * up_w   # left=0
+    return FACET_DOWN * down_w + FACET_RIGHT * right_w + FACET_UP * up_w   # left=0
 
 
 _ys, _xs = np.mgrid[0:RENDER, 0:RENDER]
@@ -297,7 +344,7 @@ gm[..., 0][sd_g < -EDGE_DP * PX] = int(0.70 * 255)
 gm[..., 2][sd_g < -EDGE_DP * PX] = 255
 grid_mask = Image.fromarray(gm, "RGBA")
 
-OUT_DIR.mkdir(exist_ok=True)
+OUT_DIR.mkdir(parents=True, exist_ok=True)
 for name, img in (
     ("bead-hole-tint-128-mask.png", bead_mask),
     ("grid-hole-tint-128-mask.png", grid_mask),

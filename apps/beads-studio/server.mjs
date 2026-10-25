@@ -42,10 +42,14 @@
  *   GET  /api/bake-manifest?id=&style= → 当前关预烘清单（WXG-T-221 S3-lite）：扫 result 用到的色集，
  *        与 games/beads/assets/{bead,cell}/levels/ 已有文件求差，回 { bead:[{colorIdx,filename}], cell:[...] }（仅缺失项）。
  *   POST /api/bake-save         → body `{ kind:'bead'|'cell', filename, dataUrl }`；filename 严格白名单、
- *   GET  /api/tint-export?mode=holed|holeless → tint mask 双张 base64（WXG-T-222；base 已 v8.0 移除；服务端跑定稿
- *                                    烘焙脚本 tools/mask-preview/export-cocos-textures{,-holeless}.py，
+ *   GET  /api/tint-export?mode=holed|holeless[&params={json}] → tint mask 双张 base64（WXG-T-222；base 已 v8.0 移除；
+ *                                    服务端跑定稿烘焙脚本 tools/mask-preview/export-cocos-textures{,-holeless}.py，
  *                                    单一真源零移植；色无关 ⇒ 无逐色导出）
  *        解码 base64 PNG 落 games/beads/assets/{kind}/levels/{filename}。两端点仅本地仓开（容器 501）。
+ *        ⚠️ `params` 是「B 阶」调参口：**不传 ⇒ 定稿口径**（写 cocos-assets/，逐字节不变，mask:diff 仍绿）；
+ *          **传了 ⇒ 实验档**（写 cocos-assets/_variants/<sha1 前10>/，该目录已 gitignore，永不覆盖定稿产物）。
+ *          键集/上下界随 mode 不同（无孔档无孔），见 TINT_MODES[...].params；非法一律 400 可读报错。
+ *          回包 `meta.beadDp` = 生效珠面 dp，前端据此裁珠面 sprite（改珠面尺寸时不裁错）。
  *   GET  /                    → 站点首页 = 大关/小关管理页 public/manage.html（生成页 /generate.html）
  *
  * 存储：data/<board>/<id>/result.json（归类 = 目录即盘面档位）。
@@ -55,7 +59,7 @@ import { spawn, spawnSync } from 'node:child_process';
 import { mkdirSync, writeFileSync, readFileSync, readdirSync, rmSync, renameSync, existsSync } from 'node:fs';
 import { join, dirname, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { randomBytes } from 'node:crypto';
+import { randomBytes, createHash } from 'node:crypto';
 import { BEAD_COLOR_MAX, baseColorOfChar } from '../../tools/scripts/lib/bead-charset.mjs';
 // 豆面可读性（WXG-T-357）：生成后二次优化修复；正本 games/beads/design/levels/pattern-legibility.md
 import { analyze as analyzeLegibility, judge as judgeLegibility, repairLevel as repairLevelLegibility } from '../../tools/scripts/lib/pattern-legibility.mjs';
@@ -1603,16 +1607,44 @@ async function handleBakeSave(req, res) {
  * tint mask 是**色无关**的（一张 mask × 运行时 tint 色），故无逐色导出、与 bake-manifest 不同。
  * 透明度只由 mask 的 B(shape) 通道承担 ⇒ 无 `*-base.png`（v8.0 移除；v9.0 holed 改名 `*-hole-*`）。
  */
+/** 两档共用的键（与两个脚本 `_PARAM_SPEC` 交集部分同值同界）。 */
+const TINT_PARAMS_COMMON = {
+    frameDp: [0, 5], beadDp: [18, 30],
+    litL: [0, 1], plateD: [0, 1],
+    facetUp: [0, 1], facetRight: [0, 1], facetDown: [0, 1],
+};
+
+/** ⛔ 键集合与上下界必须逐项对齐各脚本的 `_PARAM_SPEC`：无孔档没有孔（无 holeDp/holeRingDp），
+ *  且 cornerDp 上界 12（有孔档 15）——写错就是把 400 变成 500「烘焙脚本失败」。 */
 const TINT_MODES = {
     holed: {
         script: 'tools/mask-preview/export-cocos-textures.py',
         files: ['bead-hole-tint-128-mask.png', 'grid-hole-tint-128-mask.png'],
+        params: { holeDp: [6, 20], holeRingDp: [0, 4], cornerDp: [0, 15], ...TINT_PARAMS_COMMON },
+        // 几何一致性预检（脚本内同一条）：孔+双孔边必须小于珠本体，否则孔会穿出珠外
+        geom: { hole: 'holeDp', ring: 'holeRingDp', frame: 'frameDp', bead: 'beadDp' },
+        defaults: { holeDp: 12, holeRingDp: 1, frameDp: 1, beadDp: 26 },
     },
     holeless: {
         script: 'tools/mask-preview/export-cocos-textures-holeless.py',
         files: ['bead-holeless-tint-128-mask.png', 'grid-holeless-tint-128-mask.png'],
+        params: { cornerDp: [0, 12], ...TINT_PARAMS_COMMON },
     },
 };
+
+/** 校验并规整 tint 参数：未知键 / 越界 / 非数字 ⇒ 抛可读错误（调用侧转 400）。 */
+function normalizeTintParams(raw, spec) {
+    const out = {};
+    for (const [k, v] of Object.entries(raw || {})) {
+        const band = spec[k];
+        if (!band) throw new Error(`未知 tint 参数 ${k}（允许：${Object.keys(spec).join(', ')}）`);
+        const n = Number(v);
+        if (!Number.isFinite(n)) throw new Error(`tint 参数 ${k} 不是数字：${v}`);
+        if (n < band[0] || n > band[1]) throw new Error(`tint 参数 ${k}=${n} 越界，允许 ${band[0]}–${band[1]}`);
+        out[k] = n;
+    }
+    return out;
+}
 
 function handleTintExport(res, url) {
     if (!existsSync(join(REPO, 'games/beads')))
@@ -1622,8 +1654,35 @@ function handleTintExport(res, url) {
     if (!conf) return sendJson(res, 400, { error: 'mode 只允 holed|holeless' });
     const script = join(REPO, conf.script);
     if (!existsSync(script)) return sendJson(res, 500, { error: `定稿脚本缺失：${conf.script}` });
-    const outDir = join(REPO, 'tools/mask-preview/cocos-assets');
-    const r = spawnSync('python3', [script], { cwd: REPO, encoding: 'utf8', timeout: 60_000 });
+    // 参数化（B 阶）：无 params ⇒ 定稿口径、写 cocos-assets/（冻结产物，逐字节不变）；
+    // 有 params ⇒ 写 cocos-assets/_variants/<key>/，实验版永不覆盖冻结产物（该目录已 gitignore）。
+    let params = {};
+    const rawP = url.searchParams.get('params');
+    if (rawP) {
+        try {
+            params = normalizeTintParams(JSON.parse(rawP), conf.params);
+            if (conf.geom) {
+                // 与脚本同一条几何校验；缺省值补齐后再判，免得脚本非零退出变成 500
+                const g = { ...conf.defaults, ...params };
+                const { hole, ring, frame, bead } = conf.geom;
+                if (g[hole] + 2 * g[ring] > g[bead] - 2 * g[frame])
+                    throw new Error(`几何不成立：孔 ${g[hole]}+2×${g[ring]} > 珠本体 ${g[bead]}−2×${g[frame]}`);
+            }
+        } catch (e) {
+            return sendJson(res, 400, { error: 'params 非法：' + e.message });
+        }
+    }
+    const keys = Object.keys(params).sort();
+    if (!keys.length) params = {};
+    const args = [script];
+    let outDir = join(REPO, 'tools/mask-preview/cocos-assets');
+    if (keys.length) {
+        const canon = JSON.stringify(Object.fromEntries(keys.map((k) => [k, params[k]])));
+        const key = createHash('sha1').update(canon).digest('hex').slice(0, 10);
+        args.push('--params', canon, '--out-dir', `_variants/${key}`);
+        outDir = join(outDir, '_variants', key);
+    }
+    const r = spawnSync('python3', args, { cwd: REPO, encoding: 'utf8', timeout: 60_000 });
     if (r.status !== 0)
         return sendJson(res, 500, { error: `烘焙脚本失败（rc=${r.status}；需 python3+numpy+pillow）：${(r.stderr || r.stdout || '').slice(-400)}` });
     const files = [];
@@ -1632,7 +1691,8 @@ function handleTintExport(res, url) {
         if (!existsSync(p)) return sendJson(res, 500, { error: `脚本未产出 ${name}` });
         files.push({ filename: name, dataUrl: `data:image/png;base64,${readFileSync(p).toString('base64')}` });
     }
-    return sendJson(res, 200, { mode, files });
+    // meta.beadDp：前端拿它裁珠面 sprite（改珠面尺寸时不裁错）
+    return sendJson(res, 200, { mode, params, meta: { beadDp: params.beadDp ?? (mode === 'holed' ? 26 : 24) }, files });
 }
 
 async function handleGenerate(req, res, url) {

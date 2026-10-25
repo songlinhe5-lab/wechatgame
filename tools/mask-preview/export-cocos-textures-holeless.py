@@ -33,6 +33,20 @@ from PIL import Image, ImageDraw
 
 HERE = Path(__file__).parent
 OUT_DIR = HERE / "cocos-assets"
+
+# ── 参数化入口（2026-10-25「B 阶」：studio 的 tint 编辑器调参用）─────────────────
+# `--params '<json>'` 覆盖下方冻结常量；**不传 = 定稿口径，产物逐字节不变**。
+# `--out-dir <name>` 落到 cocos-assets/<name>/ —— 变体不覆盖冻结产物。
+import argparse as _argparse
+import sys as _sys
+
+_ap = _argparse.ArgumentParser(add_help=False)
+_ap.add_argument('--params', default='')
+_ap.add_argument('--out-dir', default='')
+_ARGS, _ = _ap.parse_known_args()
+if _ARGS.out_dir:
+    OUT_DIR = HERE / "cocos-assets" / _ARGS.out_dir
+
 OUT = 128
 SS = 4
 RENDER = OUT * SS               # 512
@@ -54,6 +68,33 @@ CELL_DP = 30.0
 SLOT_HALF_DP = 11.0             # 槽口半宽：22dp = 珠面 24 − 2×1（防漏同构，见头注）
 SLOT_CORNER_DP = 7.0            # 槽角 = 珠角（轮廓同构）
 
+# facet-4 四向亮度（左恒 0）
+FACET_UP, FACET_RIGHT, FACET_DOWN = 1.0, 0.74, 0.37
+
+# 参数白名单（键 → 常量名, 下限, 上限）；越界非零退出，不出畸形 mask。
+# 无孔档没有孔，故无 holeDp/holeRingDp；槽口随珠面派生（SLOT_HALF_DP 保持同构）
+_PARAM_SPEC = {
+    'frameDp': ('FRAME_DP', 0.0, 5.0),
+    'beadDp': ('BEAD_DP', 18.0, 30.0),
+    'cornerDp': ('BEAD_CORNER_DP', 0.0, 12.0),
+    'litL': ('LIT_L', 0.0, 1.0),
+    'plateD': ('PLATE_D', 0.0, 1.0),
+    'facetUp': ('FACET_UP', 0.0, 1.0),
+    'facetRight': ('FACET_RIGHT', 0.0, 1.0),
+    'facetDown': ('FACET_DOWN', 0.0, 1.0),
+}
+if _ARGS.params:
+    for _k, _v in json.loads(_ARGS.params).items():
+        if _k not in _PARAM_SPEC:
+            _sys.exit(f'未知参数 {_k}（允许：{", ".join(_PARAM_SPEC)}）')
+        _g, _lo, _hi = _PARAM_SPEC[_k]
+        _f = float(_v)
+        if not (_lo <= _f <= _hi):
+            _sys.exit(f'参数 {_k}={_f} 越界，允许 {_lo}–{_hi}')
+        globals()[_g] = _f
+print(f'# params frameDp={FRAME_DP} beadDp={BEAD_DP} cornerDp={BEAD_CORNER_DP} litL={LIT_L} '
+      f'plateD={PLATE_D} facetUp={FACET_UP} facetRight={FACET_RIGHT} facetDown={FACET_DOWN}')
+
 data = json.load(open(HERE / "layers-holeless.json"))
 
 C = RENDER / 2
@@ -72,7 +113,7 @@ def facet_light(dx, dy):
     up_w = np.clip((-uy - np.abs(ux)) * 2, 0, 1)
     right_w = np.clip((ux - np.abs(uy)) * 2, 0, 1)
     down_w = np.clip((uy - np.abs(ux)) * 2, 0, 1)
-    return 0.37 * down_w + 0.74 * right_w + 1.0 * up_w   # left=0
+    return FACET_DOWN * down_w + FACET_RIGHT * right_w + FACET_UP * up_w   # left=0
 
 
 _ys, _xs = np.mgrid[0:RENDER, 0:RENDER]
@@ -206,7 +247,7 @@ gm[..., 0][sd_g < -EDGE_DP * PX] = int(0.32 * 255)
 gm[..., 2][sd_g < -EDGE_DP * PX] = 255                             # 槽底：shape 满幅（⛔ holeless 深坑 0.32 必须保住 ⇒ I-5 分叉）
 grid_mask = Image.fromarray(gm, "RGBA")
 
-OUT_DIR.mkdir(exist_ok=True)
+OUT_DIR.mkdir(parents=True, exist_ok=True)
 for name, img in (
     ("bead-holeless-tint-128-mask.png", bead_mask),
     ("grid-holeless-tint-128-mask.png", grid_mask),

@@ -4348,6 +4348,46 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 
 ---
 
+## WXG-T-383
+
+**beads-studio · tint 导出参数化（B 阶）：定稿口径与实验档分离**（2026-10-25）
+
+> 领号已核 K-046：开工前头注下一可用号 = 383，主表 / 详情节 / `git log --all --grep` 三路零占用。
+
+### 1. 要解决的问题
+
+`/api/tint-export` 原先只能产出**定稿口径**的 4 张 mask（有孔 / 无孔 × 珠面 / 格面）；试参数只能手改 `export-cocos-textures*.py` 里的冻结常量再跑 —— 那会把实验值写进 `cocos-assets/`，`mask:diff` 逐字节门当场红。用户要的是「能在 studio 里试参数，但定稿产物一格不动」。
+
+### 2. 改法（三件，单一真源零移植）
+
+| 件 | 改动 |
+|---|---|
+| `tools/mask-preview/export-cocos-textures.py` | 加 `--params <json>` / `--out-dir <name>`；`_PARAM_SPEC` 白名单（10 键 = 键 → 常量名 + 上下界），未知键 / 越界非零退出；**另加几何一致性校验**「孔 + 2×孔边 ≤ 珠本体」 |
+| `tools/mask-preview/export-cocos-textures-holeless.py` | 同上，但**无 `holeDp` / `holeRingDp`**（无孔档没有孔），且 `cornerDp` 上界 **12**（有孔档 15） |
+| `apps/beads-studio/server.mjs` | `TINT_MODES[...].params` **按 mode 分行**白名单 + `normalizeTintParams()`；无 params ⇒ 写 `cocos-assets/`（冻结），有 params ⇒ 规范化 JSON（键排序）取 sha1 前 10 位写 `cocos-assets/_variants/<key>/`；回包加 `meta.beadDp`（holed 26 / holeless 24 兜底） |
+
+⛔ **键集必须随 mode 分行**：若写成一份共享白名单，「无孔档 + holeDp」与「holeless + cornerDp=13」会从 400 可读报错退化成 500「烘焙脚本失败」——服务端这层的存在意义正是可读报错（脚本那层是防直调）。
+
+⛔ `_variants/` 属 studio 草稿，**不入库**：`.gitignore` 加 `tools/mask-preview/cocos-assets/_variants/`。
+
+### 3. 读数（macOS 本地，`PORT=8799` 起服务实测 11 条）
+
+| 请求 | 期望 | 实测 |
+|---|---|---|
+| `mode=holed` 无 params | 200，`meta.beadDp=26` | ✅ 冻结 4 张 sha256 与改前**逐字节相同** |
+| `mode=holeless` 无 params | 200，`meta.beadDp=24` | ✅ 同上 |
+| `holed` + `{"beadDp":28,"litL":0.5}` | 200，落 `_variants/9553574030/` | ✅ 与冻结产物哈希不同 |
+| `holeless` + `{"holeDp":10}` | 400 未知参数 | ✅ |
+| `holeless` + `{"cornerDp":13}` | 400 越界 0–12 | ✅ |
+| 未知键 / 越界 / 非数字 / 坏 JSON / 几何不成立 | 400 | ✅ 五条全 400，报错可读 |
+
+`pnpm run mask:diff` = **PASS**（四张 128px 全 0 差异 + 编码不变式全过）。
+
+### 4. 未闭合
+
+1. **前端调参控件未做**：`public/tint-export.js` 仍只发 `mode`，参数面板与「用 `meta.beadDp` 裁珠面 sprite」都还是待办 ⇒ 状态记 🚧 而非 ✅。
+2. 变体目录只靠 gitignore 隔离，**无自动清理**（累积靠人删，与 `apps/beads-studio/data/` 草稿同策）。
+
 ## WXG-T-382
 
 **知识库分片再切：`工具链` / `流程台账` 各切一新片（四片余量 1,299–4,574）**（2026-10-25）
