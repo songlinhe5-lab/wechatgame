@@ -21,6 +21,8 @@
 #         ⑫ 宁漏勿错：主表有行但详情无对应小节 → **跳过该行**（搬了会丢正文）并告警
 #         ⑬ 同号守卫（WXG-T-078）：主表内出现同号 → 扫「主表∪归档」告警横幅；写盘时
 #            同批内同号**只归档首份**、其余保留主表（不自动合并），归档不放大成重复行
+#         ⑭ 源面（WXG-T-400，判例 K-089 追记）：`check:tasks` 的 note H 只指路、
+#            不写死可执行阈值——建议串里的硬编码数字会随台账规模过期，而门禁本身不报错过期
 #
 # 用法：tools/scripts/archive-tasks-selftest.sh
 # 产物：仅 stdout 报告；临时目录退出时清理，不污染仓库。
@@ -329,6 +331,23 @@ assert_contains "$OUT" "本批内同号重复行" "[8b] 明示批次内同号只
 A6="$REPO6/production/archive/TASKS-archive.md"
 assert_eq "$(grep -c '| WXG-T-001 |' "$A6")" "1" "[8b] 归档中 T-001 仅 1 份（未放大成重复）"
 assert_eq "$(grep -c '| WXG-T-001 |' "$T6")" "1" "[8b] 主表保留 1 份同号行（不自动合并）"
+
+# ── [9] 源面：check:tasks 的 note H 不得把阈值写死成可直接执行的数字（WXG-T-400）────
+# 为什么要这条：note H 是「门禁发给执行者的建议串」。门仍绿、提示仍出，失真的不是断言而是建议
+# 本身——旧串硬编码 `--detail-until-under=7000 --write`，而详情驱动分支不看年龄、按号序一路删到
+# 底，阈值低于「全部可归档行搬出后的下限」时 7000/40000/80000 三档同读数 ⇒ 照抄会把当天刚入库的
+# 行一起搬进冷存。故：负向锁「数字阈值不再以可执行形态出现」，正向锁「建议仍在且要求先 dry-run」
+# ——只留负向会被「把整条建议删掉」骗过（K-036：既证守卫能红，也证它不靠空转绿）。
+echo "—— [9] note H 建议串去硬编码阈值"
+CHECK_CMD="$SCRIPT_DIR/check-tasks.mjs"
+HBLOCK="$(sed -n '/^const ROW_SENTINEL/,/^}/p' "$CHECK_CMD")"
+assert_contains "$HBLOCK" "notes.push" "[9a] 能定位到 H 的推送块（锚未失效）"
+if echo "$HBLOCK" | grep -qE -- '--(detail-)?until-under=[0-9]'; then
+  bad "[9b] H 块内又出现写死的数字阈值——正是 K-089 追记的过期形状"
+else
+  ok "[9b] H 块内无可执行数字阈值"
+fi
+assert_contains "$HBLOCK" '不带 `--write`' "[9c] 建议仍要求先跑 dry-run（防空转删建议）"
 
 echo "=================================================================="
 echo "结果：PASS=$PASS FAIL=$FAIL"

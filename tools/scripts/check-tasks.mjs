@@ -223,11 +223,17 @@ if (backlogStart < 0) {
 
 // H（观察哨，report-only）：主表行数提醒。只 WARN 不阻断 —— 对齐本仓「结构门硬、行为门软」
 // 惯例（WXG-T-026 裁定）：行数取决于开发节奏，不该成为无关提交的硬门。
+// ⚠ 本条**只指路、不写死阈值**（判例 K-089 追记，WXG-T-400）：旧文案硬编码
+// `--detail-until-under=7000 --write`，而该驱动分支不看年龄、按号序一路删到底——
+// 详情文件涨到 202239 tok 后，7000 与 40000/80000 实测同读数（一次搬空 49 行，含当天两笔），
+// 照抄这条「收敛建议」反而把结果推向意图对面。真数字由 `tasks:archive` 的 dry-run 自己报。
 const ROW_SENTINEL = 20;
 if (rows.length > ROW_SENTINEL) {
   notes.push(
     `H: 主表 ${rows.length} 行 > 观察哨 ${ROW_SENTINEL} —— 该归档/收敛了：` +
-    '`pnpm run tasks:archive -- --detail-until-under=7000 --write`',
+    '先跑**不带 `--write`** 的 `pnpm run tasks:archive -- --days=<N>`（或 `--until-under=<上限以下>`），' +
+    '读它自己打印的「计划归档 N 行 → 预计 X tokens」再拍档位；' +
+    '确认无误才补 `--write`（成对搬详情节，守恒校验不过不落盘）',
   );
 }
 

@@ -1458,7 +1458,7 @@
       "file": "knowledge/lessons/testing-guard.md",
       "category": "测试守卫",
       "title": "守卫脚本硬编码的目标值与冻结真源脱钩 ⇒ 断言永不触发（假绿守卫）；投放重物前要先实测「守卫能不能红」",
-      "contentHash": "692aed29b6b65adc8a50247a386c6280c9b9b64f48decc8945ec2d080b3956ea",
+      "contentHash": "d4c2e622ab0e604760b21f0636f93803b762c47713b6def25560abbeed49cc78",
       "sourceTask": "WXG-T-219",
       "addedDate": "2026-09-27",
       "lastAccess": "2026-09-27",
@@ -4780,6 +4780,15 @@
         "K-089"
       ],
       "note": "K-089 追记：门禁发出的可执行建议串，硬编码阈值随规模过期"
+    },
+    {
+      "date": "2026-10-26",
+      "taskId": "WXG-T-400",
+      "kind": "updated",
+      "ids": [
+        "K-089"
+      ],
+      "note": "K-089 追记 ⑦：只禁不立的负向断言删掉被测内容即骗绿，须配正向腿与锚点前置腿"
     }
   ]
 }
