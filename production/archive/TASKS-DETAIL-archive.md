@@ -5353,3 +5353,279 @@ D-3 = **boot 标题页随本批**。D-4~D-8 维持林绘澄建议值（仍待决
 3. `apps/beads-studio/public/index.html` / `manage.html` 的改动经去空白 SHA-256 对账确认为**纯格式重排**（两文件同秒修改、仓库无 HTML 格式化门）⇒ 已按用户裁定 `git restore` 还原。
 4. 沉淀候选 3 条待裁（① 对比度读数必须带采样底色 ② QA 用例落位服从「每节一个来源家族」③ commitlint `body-max-line-length=100` 与中文长句冲突需一行一个读数拆分）；本轮 `kb:sync` 活跃 154 / 新增 0 / nextId 158，knowledge 零净变更。
 5. **同日沉淀批（用户令「沉淀候选 1/2/3/4」）**：上文 §6 回传的 4 条候选按 `knowledge/INDEX.md` §5.3「优先合并不重复沉淀」处理后，落为 **1 新条目 K-158 + 3 条追记（K-045 / K-076 / K-137）**：候选 1（`git commit` 提交索引全集）入 K-045 作「最裸形态」追记；候选 2（跨会话披露双向通道 + mtime 判归属）新立 K-158；候选 3（门禁不校提交号在册）入 K-137 作「同日二次复现 + 元盲区」追记并转出本单 349；候选 4（文档批免 stash 的第一道判据）入 K-076 追记。读数：`kb:sync --task=WXG-T-346` 新增 1 / 修改 3 / 激活 0 / 归档 0；`kb:audit` 无候选、无相似命中；`kb:check` 八重通过（活跃 155）；`ctx:check` OK（两片均未越 B 门）。第 4 项所列三条仍待裁。
+
+---
+
+## WXG-T-224
+
+**ctx·hot-files 收录瘦身（test-cases 锚点摘要只留高频节）** — 主理人 2026-09-29 立项，quality-lead（严守真）只读裁定。
+
+> ⚠ **本行由主理人（CodeBuddy）于 WXG-T-229 批次代补**（原会话只占号未登详情节，`check:tasks` C 项拦）；
+> 正文以各自交付件为准（本批无新事实，只做摘要 + 指针）。
+
+- **起因**：常驻总量 14669 > 软阈值 13500、`ctx/hot-files.md` 5062/上限 5150。
+- **关键纠正**：立项时的瘦身对象 `ux-spec.md` **已失效**（不进 hot-files 且已在 `ctx/budget-exempt.json` 豁免 B 项 ⇒ 瘦它零收益）；真实体积主体 = `production/qa/beads/test-cases.md` 的**锚点文字**（块 1412 tok = hot-files 27.9%；§A +261 / §K +184 / §I +106 / §G +111）。
+- **裁定（严守真）**：CONCERNS + 方案④。裁节 ROI 为负（父节 9–15k 会突破 B 项）；降门槛机械不可能（可选池 = 0）；推荐**规则 R**（只收 L1/L2 + `ROUTES.md` 引用锚点，或父节 >8000 例外）。
+- **P1 缺陷（同批发现）**：`test-cases.md` 标题级别错 ⇒ §I 区间误吞「变更记录」+ 整个 §J（11064 tok vs 真实 ~2000）⇒ 每次协议读多 ~9000 tok。
+- **执行（用户选 A）**：P1 修 6 处标题级别 ⇒ §I 572–677→**572–613**（11064→2260）；规则 R 落码（`routesReferencedAnchors()` / `parentTokens()` + `renderHotFileBlock` 节级过滤）⇒ hot-files **5150/5150 ✅**、D2 100%、全门绿；收录文件 18→25。
+- **遗留**：A 项余量归 0（下批新增即 FAIL）；P2/P3 挂账；拆单派生 ⇒ **WXG-T-225**。未 commit。
+
+---
+
+## WXG-T-225
+
+**QA·拆 `production/qa/beads/test-cases.md` 判据分片（撤销 WXG-T-084 的 B 项豁免）** — 来源 = WXG-T-224 裁定移交，quality-lead 待裁。
+
+> ⚠ 同 WXG-T-224：本行由主理人（CodeBuddy）于 WXG-T-229 批次代补（原会话只占号未登详情节）。
+
+- **事实**：该件现 **69479 tok**，靠 B 项豁免（WXG-T-084）苟住 ⇒ **69k 整读悬崖**。
+- **拆分价值**：① 撤销豁免、消整读风险 ② 脱离 `tier:hot` 必收 ⇒ 重获生成器自调节能力。
+- ⛔ **拆分不减 `ctx/hot-files.md` 体积**（锚点文字守恒 + 每新文件多 ≈20 tok 表头）⇒ **它不是 WXG-T-224 的瘦身手段，不得混计收益**。
+- **待裁**：拆法（按 §A–§K 族 / 按系统域）、文件名与锚点兼容、`g4-regression-report.md` 等引用面同步。
+
+---
+
+## WXG-T-316
+
+**beads·UI-42 PhaseRouteBinder：壳导航标志位退役** · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）
+
+- **触发**：UI 架构迁移 P4 下一格（用户选下一步「1」）。验收口径 = 任务表原文「`_screen` / `_overlay` 删除后全仓测试绿」；DEC-3「栈即导航状态」。
+- **落点**：新建 `src/ui/phase-route-binder.ts::PhaseRouteBinder` —— 栈底恒有且只有一个基础页（`menu` / `play`）；`levels` 为**页**路由（不透明）、`signin` / `settings` 为**弹窗**路由（透明）；`screen` / `overlay` 全部由 Navigator 栈**投影**（壳不再有标志位）；`levelsArc` 收口选关页大关上下文。四个转场入口 = `resetTo(screen)` / `openLevels(arc)` / `openModal(name)` / `close()`；基础页永不被弹掉。
+- **零漂移**：绘制路径与 `hitTestMeta` 判据逐字未改，只换数据源；`meta:overlay` 事件时序不变（`back` 淡出期间 overlay 仍归页、150ms 终点才 `close()` + 发事件）；金样本十态 sha 全等、夹具未重抓。路由 `draw` 为空实现 ⇒ `UI_ROOT_ENABLED` 打开时画面仍是「旧链内容 + 调试层」。
+- **与 UiRoot 共用同一栈**：`PhaseRouteBinder(this._uiRoot.nav)`，不做第二份真源；UI-50 拆旧链时本栈即绘制源。
+- **测试**：新增 `tests/phase-route-binder.test.ts` 6 例 —— 初始基础页；`levels` 页路由 + 大关上下文 + 关栈顶；`signin` / `settings` 弹窗不换屏；基础页 `close()` 不弹空栈；`resetTo` 清覆盖层；与 `UiRoot` 共用栈时空 `draw` 零指令。
+- **验证读数**：beads 97 文件 **1135**（1133 passed + 2 skipped）；`npx tsc` 0 错；`pnpm run verify` PASS 22；Cocos 镜像 2 件随源更新（`beads-shell.ts` + 新 `phase-route-binder.ts`）。
+- **诚实限制**：`UI_ROOT_ENABLED` 仍默认关（拆旧链、开关退役 = UI-50）；对局腿相位弹窗（`paused` / `level-clear` / `game-over` / `finish`）仍由 `BeadsGame.phase` + `PanelRouter` 直接分派 —— 它们是**点击路由**、不持导航状态，搬上路由须先让面板 View 注册（UI-50）；金样本夹具 `_readme` 保留捕获当时的 `_overlay` 措辞（不手改夹具）。
+
+---
+
+## WXG-T-315
+
+**beads·UI-40 MainMenuPage：走马灯状态从 shell 迁入 Presenter** · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）
+
+- **触发**：UI 架构迁移 P4 下一格（用户选下一步「1」）。验收口径 = 任务表原文「金样本对拍；走马灯边界行为不变」。
+- **迁出内容**：新建 `src/ui/main-menu-presenter.ts::MainMenuPresenter` —— 页位 `offset` / 拖动位移 `dx` / 透明度进度 `t` / 页数 `pages`、玻璃手势（按下 / 拖动 / 松手）、吸附动画（`nudge` / `step` / `peerSign`）全部收口；`beads-shell.ts` 删除 10 个走马灯字段与 7 个私有方法，只保留 `_menu` 一处引用与 `_clock()` 喂时。
+- **职责边界**：松手结果 `open` / `page` / `none` 由 Presenter 判定（10px 点按线、30% 阈值、快甩、末页空橱窗都留在同一处）；**副作用仍归壳** —— `overlay` / `overlayArc` / `meta:overlay` / 200ms 页转场只在 `open` 时触发；按钮抬起提交门 `_menuPress` 不动。
+- **零漂移**：绘制路径（`buildMetaView`）逐字未改，只把数据源从壳字段换成 Presenter 同名读数；金样本十态 sha 全等、夹具未重抓；`menu-carousel.ts` 仍是纯函数单源，仅改一行注释。
+- **测试**：新增 `tests/main-menu-presenter.test.ts` 6 例 —— 点按进选关 / 末页空橱窗零事件、10px 点按线、不足 30% 回弹、过 30% 吸附翻页（中点仍在途、终点页位 +1 且位移归零）、吸附在途按下即停、首末页快甩与 ◀▶ 不越界。既有 `menu-carousel.test.ts`（8）与 `arc-carousel.test.ts`（6）全绿。
+- **验证读数**：beads 96 文件 **1129**（1127 passed + 2 skipped）；`npx tsc` 0 错；`pnpm run verify` **PASS 22**；Cocos 镜像 4 件随源更新（`framework:sync:check` 绿）。
+- **诚实限制**：UiRoot **路由注册与开关翻转**仍未接线（`UI_ROOT_ENABLED` 默认关；归 UI-42 PhaseRouteBinder），本批只交 Presenter 本体；`_overlay` 仍由壳持有。
+
+---
+
+## WXG-T-314
+
+**beads·UI-42 前置：菜单 ↔ 选关页 200 / 150 页面转场** · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）
+
+- **触发**：T-311 登记的两条遗留之一（「200/150 转场未接线」）。真源 = `arc-level-select-spec §5`（入 200 / 出 150，ease-out / ease-in）→ `ux-spec §5` 面板入 / 出行 ⇒ 直接复用 `PANEL_IN_MS` / `PANEL_OUT_MS`，**零新毫秒值**。
+- **机制（三件）**：① 框架 `RenderModelBuilder` 增**非嵌套组透明度**（`setAlpha` / `resetAlpha`；`rect/circle/line/text/polygon/blit` 合流，`alpha === 1` 时原样返回 ⇒ 静息帧零新字段）；② `MetaViewData.pageFade` + `buildMetaView`：底页恒为主菜单，选关页（含自身不透明页底）整组 α ⇒ 淡入淡出同一套绘制代码；③ `BeadsShell` 用 **dt 累积**推进（`_pageFxDir` / `_pageFxT`，⛔ 不用墙钟 ⇒ 固定步进可测）。
+- **语义取舍**：进入即 `overlay = 'levels'`（页立即可交互）；`back` 淡出期间 **overlay 仍归页**（命中路径不变，⛔ 不把点击送给菜单 CTA），150ms 终点才置 `none` 并补发 `meta:overlay`；`showMenu` / 进玩法 / 开弹窗均 `_cancelPageFx()`。
+- **零漂移**：`pageFade === undefined`（缺省）时原路径逐字不变；金样本 `level-select` 场景改为**推完转场再取帧**（`advance(PANEL_IN_MS / 1000 + 1 帧)`）⇒ 十态 sha **全不变、夹具未重抓**（K-051 无需新锚）。
+- **测试**：framework `render-model.test.ts` +1（默认零字段 / 乘算 / `resetAlpha` 与 `begin` 复位）；`arc-level-select.test.ts` +2（中点帧 ≠ 静息帧且 200ms 终点逐字等于静息帧；`back` 150ms 内 overlay 仍归页、零关闭事件，到点才落 `none`）；页内既有断言按真实入口先 settle（`openLevels` / `levelsFrame`），未放宽任何判据。
+- **验证读数**：beads 95 文件 **1121**（1119 passed + 2 skipped）；framework `render-model` 26 例；`framework:sync` 后镜像 4 件更新（beads 3 / breakout 1）且 `framework:sync:check` 绿；`pnpm run verify` **PASS 22**。
+- **诚实限制**：UiRoot **页路由**（`_overlay` 退役）仍归 UI-40 / UI-42，本批只补「转场 + 透明度通道」；转场无音效（抽屉音需音频变更单，⛔ 不夹带）。
+
+---
+
+## WXG-T-313
+
+**CI 运行面对齐 Node 24（原生 TS type-stripping）** · 负责：主理人(Qoder)·工程域 · 状态：✅ 完成（2026-10-20）
+
+- **触发**：T-312 推送后 develop CI 红（run 39363506681）：`Levels check` 报 `ERR_UNKNOWN_FILE_EXTENSION ".ts"`（`difficulty.ts`），`Unit` 报 `bead-style-pool.test.ts` 13 例红（同样错在子进程直接执行 `.ts`）。查历史：develop 自 2026-10-19 起多笔 push 的 CI 均红，属存量漂移，非本批引入。
+- **根因**：workflow 五个 job 固定 `node-version: "20"`；而 `tools/scripts/sync-levels-data.mjs` 门禁⑥与 `bead-style-pool` 子进程依赖 Node ≥22.18 的原生 type-stripping（脚本头注已写明）。本地 Node v24.4.1 跑 `pnpm run verify` 全绿，故为运行面口径不一致。
+- **落点**：`.github/workflows/ci.yml` 五处 `node-version` `20`→`24`，首处加注释说明版本下限理由；CI 的 `levels:check` 步骤补 `--import=./tools/scripts/lib/ts-js-resolve.mjs`（此前绕过了 package.json 脚本，`difficulty.ts` 内部的 `.js` 引用无钩子解析）；`package.json` `engines.node` `>=20`→`>=22.18`。`commit-lint.yml` 未动（只跑 commitlint，Node 20 可胜任且一直绿）。
+- **三轮验证**：① 只升 Node（`52a7b7a`）→ Unit 转绿、Levels 仍红（`Cannot find module tuning.js`）；② 补钩子（`28b279c`）→ CI run 39366031955 **七个 job 全绿**（Detect changes / Arch guard / Context budget / Unit / Harness / Levels check / gate），Commit Lint run 39366031793 亦绿；③ 本地用与 CI 同一条命令复跑 `levels:check OK —— 2 款游戏全部一致（beads、breakout）`。
+- **不夹带**：未改任何测试、未放宽任何判据、未跳过任何检查；Node 24 与本地 验证环境一致。
+- **验证读数**：本地 `pnpm run verify` PASS 22（Node v24.4.1）；远端 CI 39366031955 / 39366031793 双绿（develop 自 2026-10-19 起首次全绿）。
+
+---
+
+## WXG-T-312
+
+**协作纪律·完成即提交推送与提交总结** · 负责：主理人(Qoder)·工程域 · 状态：✅ 完成（2026-10-20）
+
+- **任务（用户 2026-10-20 原话）**：「增加规则，每次完成修改，提交commit并push，同时给出修改提交总结。」该指令覆盖 2026-10-19「会话不得自行 push」的旧裁。
+- **落点（5 份规则/记忆件 + 台账）**：① `my-rules/agents-md.md`（四 IDE 常驻摘要）改为「每完成一次修改即 commit + push 并回传提交总结」；② `AGENTS.md §7` 两条合并改写：完成即提交 + 推送取证（以 `git ls-remote` / `git reflog` 为准）；③ `docs/ci/commit-and-review-rules.md` 新增 §2.6「完成即提交推送」四步流程（验证 → 提交 → 推送 → 总结）与例外；④ `docs/agent/output-style.md` 新增「每次提交的提交总结」五项口径；⑤ `memory/MEMORY.md §Hooks` 订正旧约束，IDE 自动推送降为叠加兜底；⑥ 本台账自登。
+- **例外未变**：发布、删除高影响产物、改动他人未提交的工作树内容，仍须先取得用户明确同意；⛔ 强推、⛔ `--no-verify`。
+- **同批收口**：T-311 的「未提交 / 金样本 `capturedFrom` 记工作树」限制已闭合 —— 累积落码入库 `8e0d133`，金样本改用 `WXG298_SOURCE_REV=8e0d133` 复取（仅 `capturedFrom` 一行变化，十态 sha 不变，两遍确定性自证 PASS）。
+- **验证读数**：`pnpm run verify` PASS 22；金样本 11 例全绿。
+
+---
+
+## WXG-T-311
+
+**beads·UI 架构迁移 P4·UI-34 选关整页落码** · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）
+
+- **任务（用户 2026-10-20 选下一步 A）**：按 [`ui-architecture-beads.md`](../docs/architecture/ui-architecture-beads.md) §12 **UI-34**：「LevelSelectPage 整页（ScreenFrame + 仅标题 NavBar，从主界面 push 页面路由，无遮罩；**页专用常量，不改 `WALL_CELL`**）」；验收原文 = **版式与确认单 §2 一致；选关意图正确；底部 `back` 回主界面；抬起才提交且同钮**。前置 UI-34a（确认单 v0.2 §4.1 六条清零）已就位。
+- **落点（1 常量组 + 2 处视图 + 4 处测试）**：① [`tuning.ts`](../games/beads/src/config/tuning.ts) 新增页专用 `LEVELS_CELL`(170) / `LEVELS_GAP`(30) / `LEVELS_GRID_LEFT`(90) / `LEVELS_GRID_TOP`(822) / `LEVELS_THUMB_AREA`(134 = 170−8−28 派生式) / `LEVELS_BACK_W`(240) / `LEVELS_BACK_BOTTOM`(116 = `SAFE_BOTTOM_H`+48) / `LEVELS_NAV_H`(88) / `LEVELS_NAV_TOP`(1210 = `DESIGN_H`−124)；`WALL_CELL`(120) / `WALL_CAPACITY`(9) / `THUMB_AREA`(84) **零改动**。② [`meta-view.ts`](../games/beads/src/view/meta-view.ts)：`levelsLayout()` 按版式 P 重算（网格 x∈[90,660]、行底 652/452/252，back 240×88 @ (255,116)）；`buildMetaView` 增 `levels` **整页分支** —— 只画导航带标题，⛔ 不画遮罩、⛔ 不画 `OVERLAY_PLATE`；`drawWallCell` / `drawLockedWallCell` 的缩略改传 `LEVELS_THUMB_AREA`（走 `drawLevelThumb` 既有 `area` 入参，零新绘制分支）。
+- **标题随安全区**：标题中心 y = `(anchors?.btTopY ?? LEVELS_NAV_TOP) − LEVELS_NAV_H/2`。真机有 `MenuAnchors` 时随胶囊底缘下移；无锚宿主（直调/单测）落 1210 兜底 ⇒ 无第二套几何。网格仍**底部锚定静态**（版式 P 的选型理由：多出的高度给顶部空带）。
+- **为何整页仍由 shell `_overlay` 驱动**：UiRoot 页面路由接线归 UI-40（MainMenuPage）/ UI-42（PhaseRouteBinder）。本批只改「画成什么样」，不改「谁来推栈」；`meta:overlay` 事件、`back` 语义与抬起提交门逐字未动（R8/R10/R11 回归已证）。
+- **不夹带**：spec v1.6 §5 的 **200/150 淡入淡出未实现** —— 现 meta overlay 无转场机制、`meta:overlay` 无监听者，且 UI-34 验收未列 ⇒ 登记为 UI-42 遗留，⛔ 不伪造时钟。（**已由 WXG-T-314 闭合**：组透明度 + dt 累积转场，见该节）
+- **零漂移边界**：金样本**仅 `level-select` 态变化**（total 1423→1421 = 遮罩 + 纸面板两条 rect 退场；缩略 84→134 与 back 位移全进 sha），其余**九态逐字不变**（前后夹具 `JSON.stringify` 逐态全等已核）。重抓严格走 `tests/ui-golden-capture.ts`（两遍确定性自证 PASS），`capturedFrom = 8e0d133 · 累积落码（WXG-T-311）`。
+- **新增 / 改测**：新建 [`arc-level-select-page.test.ts`](../games/beads/tests/arc-level-select-page.test.ts) **6 例** —— 版式 P 九格左缘（90/290/490）与行底（652/452/252）、`LEVELS_THUMB_AREA` 派生式、back 盒与热区（375,160 命中 / 10,10 空白零响应）、整页性质（`background` = `palette.background` / 无遮罩 / 无 600×720 纸面板）、标题居中 1166、格内图元不越格。改测：`meta-menu-wall` 的缩略 oracle **同参补 `LEVELS_THUMB_AREA`**（旧缺省 84 与生产签名恒失配 = 假红）；`arc-level-select` **R10** 手势改**跨格拖拽**（旧坐标经 `screenToDesign` y 翻转后落进同一格，版式 P 下那是一次正当点击）；`arc-wall-locked` 几何断言改页常量。
+- **诚实限制**：① 已闭合 —— 累积落码入库 `8e0d133`，金样本按该 commit 复取（见 WXG-T-312）；② 200/150 转场与 UiRoot 页路由未接线（见上）；③ 缩略 134 对 256² 源清晰度仍 `[待真机]`（UI-34a 已登记）；④ 已闭合 —— `framework:sync` 已在提交前跑过，`framework:sync:check` 绿。
+- **验证读数（2026-10-20）**：beads **95 文件 / 1119 passed + 2 skipped**（较上批 +1 文件 +6 例）；`tsc --noEmit` OK；金样本 11 例全绿；`pnpm run verify` PASS 22。
+
+---
+
+## WXG-T-310
+
+**beads·UI 架构迁移 P4·UI-34a 选关整页前置文档回写** · 负责：主理人(Qoder)·林绘澄／文策渊域 · 状态：✅ 完成（2026-10-20）
+
+- **任务（用户 2026-10-20 选下一步 A）**：按 [`ui-architecture-beads.md`](../docs/architecture/ui-architecture-beads.md) §12 **UI-34a**：「选关整页前置：美术规格回写（版式 P 的格 / 间距 / 网格范围，正本 `menu-wall-signage-spec`）；核对格轮廓对比度、缩略图放大后清晰度；主规格回写（含「注 B」订正）」；验收原文 = **确认单 §4 第 1–6 条清零**。
+- **落点（四件文档，零 `src/` 改动）**：① [`menu-wall-signage-spec.md`](../games/beads/design/art/specs/menu-wall-signage-spec.md) 新增 **§3.9**（版式 P 版面表 + 三项核对结论）+ §7.3 两条 `[待真机]`；② [`arc-level-select-spec.md`](../games/beads/design/ux/arc-level-select-spec.md) 升 **v1.6**（§3 旧 600×720 线框 → 版式 P 表 / §2 栈深度整页化 / §4 注 B 订正 / §4 空白处行 / §5 淡入淡出 / §7 触控 170 / §7 非色相通道 / §8.2 TODO-1 / §1 原则 2）；③ [`level-select-page-layout.md`](../games/beads/design/ux/level-select-page-layout.md) 升 **v0.2**（§4.1 六条清零记录，并订正 §2 旧「间距 48」笔误）；④ [`arc-level-select-spec.s9-history.md`](../games/beads/design/ux/arc-level-select-spec.s9-history.md) §11 追加 v1.6 叙事（旧几何 K-053 划线留档）。
+- **三项核对怎么落的（不伪造截图）**：① **对比度** = 用 WCAG 相对亮度对真实 `palette` hex 实算：`slot`/页底 **1.131:1**、`slotBorder`/页底 **1.185:1**（有纸面板时 1.050 / 1.406）；裁定 = **接受、不改描边**（轮廓不承担状态判定：锁形 / 描边宽 4 vs 2 / 星符号 / 缩略本体四通道），回退杠杆 = 描边换 `palette.locked`（**1.651:1**，既有 token、零新 hex）。② **清晰度** = 查源图实际像素（`l9-boss-mandala-256.png` = **256×256**）+ 设备像素换算（134 × 物理宽/750 = 201 / 230 / 257 / 366）⇒ 前三档为**下采样**；同一图已在走马灯 468×528 放大 1.8× 上屏 ⇒ 134 更安全；仅 >1433 物理宽（2048 档）才上采样 ⇒ 标 `[待真机]`，必要时升源 512。③ **星带 / 顶内缩** = 发现不变式「三边留白 18 / 8 / 28 恒定、格径增量 +50 全部给缩略」⇒ 裁 **不放大**，星字仍 `UI_FONT.cell` 22px，零共享常量改动、不新增第四档字号。
+- **为何不动共享常量**：`THUMB_AREA` 由 `WALL_CELL` 派生且是 `drawLevelThumb` 缺省值，直接改会连带主菜单橱窗；页专用值（格 170 / 间距 30 / 缩略 134）由调用点传入，`drawLevelThumb` 已有 `area` 入参 ⇒ 主菜单与选关页各自取参、零耦合。
+- **诚实限制**：① 三项核对中「真机观感」（整页格界可读性、平板/超宽屏缩略锐度）仍 **未验**，已登记 `menu-wall-signage-spec §7.3`；② 对比度结论为**接受现状**而非「达到 3:1」，若真机反馈轮廓糊再启用 `locked` 回退杠杆（一行换色）；③ `levelsLayout()` 仍走 `OVERLAY_PLATE` 600×720，**本批零代码**，落码归 UI-34；④ 9 格关卡结构（云端基底 vs 原型 CELLS 不一致）仍待用户裁定，不在本批射程；⑤ 本批无提交。
+- **验证读数（2026-10-20）**：`ctx:check` **OK**（A/B/C/D/D2 + E3 全过；主规格回写后仍 ≤8000 tok 门，未新增豁免）；`check:links` **OK**（agents=7 / skills=40）；`check:tasks` **OK**（主表 71 ⇔ 详情 71，配对完整）；`pnpm run verify` **PASS 22 / WARN 0 / SKIP 0 / FAIL 0**。
+
+---
+
+## WXG-T-309
+
+**beads·UI 架构迁移 P4·UI-41 PlayPage 对局页基础场景** · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）
+
+- **任务（用户 2026-10-20 选下一步 A）**：按 [`ui-architecture-beads.md`](../docs/architecture/ui-architecture-beads.md) §4「PlayPage（HUD、托盘、道具带、缩放控件；棋盘手势不动）」与 §12 UI-41；验收原文 =「对局金样本对拍；棋盘输入测试全绿」；迁移方式沿用 §9-4「旧入口保留为门面，直到最后一批」；前置 UI-31（暂停）/ UI-33（四结算）已就位。
+- **落点（2 新建 + 5 处收口）**：① 新建 `src/view/play-page.ts::drawPlayPage(builder, snap, palette, inks)` —— 承接**整段基础场景**（伪震屏变换 → 底色 → HUD → 棋盘绘制 → 缩放控件 → 托盘 → 展开钮 → 道具带 → 扫光 → 连击特效），内部即原 `drawHud` / `drawGrid` / `drawZoomControls` / `drawTray` / `drawExpandButton` / `drawPowerupBand` / `drawSweep` / `drawComboVfx` 及全部私有辅助逐字搬入；`drawGear` 随 HUD 搬入并导出。② 新建 `src/view/shape-utils.ts`（`starPoints` / `arcPoints`，道具图标与结算星级共用的纯几何，独立成件避免循环依赖）。③ `view/view-model.ts`（2156 → 656 行）：`buildBeadsView` 保留为**唯一门面**，前缀改为一次 `drawPlayPage`，其后继续画彩带 MAIN → 过关 / 全通关 / 暂停 / 失败 / 冲刺结算面板 → 彩带 FG → 横幅（彩带 sandwich 不拆散）。④ 共享件上移：`bodyFont(largeText, name)` / `formatTime` → `ui-theme.ts`；`drawDashedRect` → `ui-widgets.ts`（托盘未解锁行与全通关未过关格共用）。⑤ `meta-view.ts` 的 `drawGear` 改从 `play-page.js` 导入。
+- **为什么整场景抽而不是只抽四组控件**：原帧层序为 HUD → 棋盘 → 缩放 → 托盘 → 展开 → 道具带 → 扫光 → 连击，**层序交错**（缩放夹在棋盘与托盘之间），按「四组控件」拆会切碎一次 page 调用；且 grid 与 tray 共享 `drawLiftShadowOn` / `hintAlpha` / `groupLand*` 等辅助，整段搬运才不产生循环依赖。棋盘**手势与命中完全未动**（仍住 `game/beads-game/`）。
+- **零漂移证据**：`ui-golden.test.ts` **11 例全绿、夹具零改动**（含 playing 态逐字同序）；新增前缀等价机检把「门面 = `drawPlayPage` + 结算层追加」变成可回归断言。
+- **新增机检**：`tests/play-page.test.ts` 3 例 —— ① 门面等价（`buildBeadsView` 指令前缀 ≡ `drawPlayPage` 全量）；② 绘制 / 命中同源（齿轮中心、托盘槽心 × 6、道具卡中心 → 对应 `POWERUP_TYPES[i]`、展开钮中心及其收起态）；③ 静态门（六个 draw 在 `play-page` 内顺序递增；`view-model` 不再自带 `drawHud` / `drawGrid` / `drawTray` / `drawPowerupBand` / `drawZoomControls` / `export drawGear`；`meta-view` 从 `play-page` 导入齿轮）。
+- **诚实限制**：① `play-page.ts` 单文件 1467 行，是「先搬后拆」的中间态——UI-42 接 Presenter 后可再按 HUD / 棋盘 / 托盘分件；② Presenter 与 UiRoot 路由尚未接线（`UI_ROOT_ENABLED` 仍默认关），本批只是**绘制入口**收口；③ 棋盘手势 / 命中未动，符合条目「棋盘手势不动」；④ 视觉统一（弹窗 chrome / 托盘纸面板化）按 §9-5 **不夹带**；⑤ `.meta` 未触碰，Cocos 镜像由 `framework:sync` 写入 6 件（play-page / shape-utils / view-model / ui-theme / ui-widgets / meta-view）；⑥ 本批无提交。
+- **验证读数（2026-10-20）**：beads **94 文件 / 1113 passed + 2 skipped**（较上批 +1 文件 +3 例）；`pnpm run typecheck` 三包全过；`check:arch` OK（仅既有 L1 编辑器文件 WARN）；`framework:sync` beads 写入 6 / 未变 132 / 删除 0，`framework:sync:check` OK；`verify` **PASS 22 / WARN 0 / SKIP 0 / FAIL 0**。
+
+---
+
+## WXG-T-308
+
+**beads·UI 架构迁移 P3·UI-32 SigninModal 签到内容块** · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）
+
+- **任务（用户 2026-10-20 选下一步 A）**：按 [`ui-architecture-beads.md`](../docs/architecture/ui-architecture-beads.md) §4「SigninModal 签到：`meta-view` 的 `signin` overlay → 领取、返回」与 §12 UI-32；验收原文 =「金样本对拍」；迁移顺序见 §9-3（设置 → 暂停 → 签到 → 四个结算）。
+- **落点（1 新建 + 1 处派发）**：① 新建 `src/view/signin-content.ts` —— 标题单源 `SIGNIN_TITLE`（`tokens.md §7` 无对应键，维持既有字面）、`signinCellLayout(plate)`（7 格 = 4 + 3 居中，格 110 / 间距 18，相对静止态底板派生）、`drawSigninContent(...)`（已领 = 灰底 + ✓ α0.6 / 今日 = 主色 4px 描边 / 未领 = ❤ 或 🪙 奖励文案）；② `meta-view` 的 `signinLayout` 改调 `signinCellLayout`，标题读 `SIGNIN_TITLE`，格绘制改调 `drawSigninContent`（指令顺序逐字未变）；**领取 / 返回钮、遮罩与底板就地未动**（绘制与命中共用 `metaLayout` 同一份缓存）。
+- **零漂移证据**：`ui-golden.test.ts` **11 例全绿、夹具零改动**（signin 态逐字同序）；`bead-style-settings.test.ts` 的 signin 遮罩 α 判据仍绿。
+- **新增机检**：`tests/signin-content.test.ts` 5 例 —— 7 格版式（4+3 居中 / 全落底板内）、`metaLayout('signin')` 与 `signinCellLayout` 同源 + 领取/返回可命中、三态绘制（✓ 计数 / α 0.6 / 今日 4px 主色）、不可领取时今日按已领画、单源静态门（`meta-view` 不再自带签到字面）。
+- **诚实限制**：① 弹窗 chrome 未并入 `ModalFrame` —— 签到底板历史画法 = 无投影、无描边的素面 rect，与纸面板不同形，§9-5「视觉统一不夹带」⇒ 留给视觉裁定；② 不引入开合时钟 —— 签到入口已退役（Q5①，`ux-spec` §5.1b），无真实开启动线，⛔ 不造死路径；③ `.meta` 未触碰，Cocos 镜像由 `framework:sync` 写入 2 件（新件 + meta-view）；④ 本批无提交。
+- **验证读数（2026-10-20）**：beads **93 文件 / 1110 passed + 2 skipped**；`typecheck` 三包全过；`framework:sync` beads 写入 2 / breakout 0；`verify` **PASS 22 / WARN 0 / SKIP 0 / FAIL 0**。
+
+---
+
+## WXG-T-307
+
+**beads·UI 架构迁移 P3·UI-33 四个结算弹窗共享结果骨架** · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）
+
+- **任务（用户 2026-10-20 选下一步 A）**：按 [`ui-architecture-beads.md`](../docs/architecture/ui-architecture-beads.md) §8「`systems/*-panel.ts` 里的布局与命中纯函数就地保留、由 Presenter 调用（避免一次性搬迁）；它们的开合动画状态类退役，改用 `ModalLifecycle`」与 §12 UI-33；验收原文 =「四界面金样本对拍；意图一一对应」；动机见 ADR-0032 §1 第四行（`PausePanel` / `ClearPanel` / `SprintSettlePanel` / `FinishPanel` 各有一套开合进度、均读 `PANEL_IN_MS` ⇒ 同一件事四份实现；其中 Pause 已随 UI-31 收口）。
+- **落点（1 新建 + 3 收口）**：① 新建 `src/systems/result-panel.ts::ResultPanelClock` —— 开合改框架 `ModalLifecycle`（时长仍由本模块给 `PANEL_IN_MS` / `PANEL_OUT_MS`），逐项入场公式 `popsShown(count, stepMs)` / `popScale(index, stepMs)` 合为一份（星级逐颗与通关逐关本同一公式，只差步长）；② `ClearPanel`（−54/+19）、`SprintSettlePanel`（−27/+11）、`FinishPanel`（−57/+20）的 `_elapsed` / `_shown` / `_closing` 三件套退役，改为 `private readonly _clock = new ResultPanelClock()` 逐项委托；③ `FinishPanel.elapsedMs` 公开 getter 无调用方 ⇒ 删除；④ **布局 / 命中 / 文案纯函数一行未动**（§8），公开 getter 口径不变（入场即可点 / 退场零响应 / 未显示 `progress = 0`）。失败面板（`FailPanel`）旧实现即由 `game-over` 相位直接驱动、不持时钟 ⇒ 不持本骨架（代码头注已写明）。
+- **零漂移证据**：视图侧不消费面板 `progress`（`drawClearPanel` / `drawFailPanel` 传 `progress: 1` 给 `drawModalFrame`；`drawSprintSettle` 手绘单层板；`drawFinishPanel` 只画遮罩 + 彩带）⇒ 本批**未改 `view-model.ts` 一行**，`ui-golden.test.ts` **11 例全绿、夹具零改动**（含 clear / sprint-settle / finish 三态，fail 态亦不动）。
+- **意图一一对应**：四份面板既有测试经真实 `tapDesign` 全绿（过关 下一关/冲刺、失败 复活/重试、冲刺结算 再来/返回、全通关 重玩/冲刺/回菜单），`panel-router.ts` 未改 ⇒ 动作 id 路由不变。
+- **新增机检**：`games/beads/tests/result-panel.test.ts` 5 例 —— 三面板循环同一开合口径（入场即可点 / 中途 0.5 / 满格 / 退场零响应 / 退场后归零）、逐项入场同一公式（clear 3 颗 vs finish 8 行，弹跳同 0→1.2→1）、骨架退场归零。
+- **诚实限制**：① 入场中途反向（close 后再 open，<200ms）从当前进度续走（旧实现跳回 0）——`ModalLifecycle` 既定改善，与 UI-31 同源；② `open()` 重入不再把进度重置为 0（旧三件套会），现流程无此路径；③ 弹窗 chrome 视觉统一（遮罩 / 纸面板合一）按 §9-5 **不夹带**，另开 UX 裁定；④ `.meta` 未触碰，Cocos 镜像由 `framework:sync` 写入 4 件；⑤ 本批无提交。
+- **验证读数（2026-10-20）**：定向 5 文件 46 例全绿；beads **92 文件 / 1105 passed + 2 skipped**；framework **44 文件 / 482 绿**（未改动）；`tsc --noEmit` 0；`framework:sync` beads 写入 4 / breakout 0；`verify` **PASS 22 / WARN 0 / SKIP 0 / FAIL 0**。
+
+---
+
+## WXG-T-306
+
+**beads·UI 架构迁移 P3·UI-31 PauseModal（动画改 ModalLifecycle + 设置钮绘制收口）** · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）
+
+- **任务（用户 2026-10-20 选下一步 A）**：按 [`ui-architecture-beads.md`](../docs/architecture/ui-architecture-beads.md) §4「PauseModal 暂停 … 内嵌 `SettingsContent`」、§8「`systems/*-panel.ts` 里的布局与命中纯函数就地保留、由 Presenter 调用（避免一次性搬迁）；它们的开合动画状态类退役，改用 `ModalLifecycle`」与 §12 UI-31；验收原文 =「暂停相关现有测试全绿」。
+- **落点（1 框架补件 + 2 处代码收口）**：① `packages/framework/src/core/ui/modal-lifecycle.ts` 新增 `reset()`（关合中途也硬收，供 dispose）；② `systems/pause-panel.ts`：`PausePanel` 自持的 `_state` / `_elapsedMs` 时钟退役，改持 `ModalLifecycle`；时长仍由本模块按 `PANEL_IN_MS` / `PANEL_OUT_MS` 传入；`interactive` 保持旧口径 = `open` **或 `opening`**（入场帧起可点，关合零响应）；`visible` / `durationMs` / `progress` getter 面不变；**布局与命中纯函数 `pausePanelLayout` 一行未动**（§8）。③ `view/settings-content.ts` 新增 `drawPauseSettingButton(...)` —— 暂停档设置钮单源（开关 chip 选中木底 / 关态纸底描边 / 按下换面；选择器纸钮 + 小字档；文案仍走 `settingsContentLabel`）；`view/view-model.ts::drawPausePanel` 改逐钮派发（设置项走新函数，继续 / 重玩 / 回主菜单就地画）⇒ 指令流顺序与旧实现逐字相同。
+- **零漂移证据**：`ui-golden.test.ts` **11 例全绿、夹具零改动**（含暂停态）；`pause-settings.test.ts` **14 例全绿**（§8-1 零响应 / §8-8 幂等 / §8-10 200/150ms 单调 / §8-11 / §8-13 全过）。
+- **新增机检**：框架 `modal-lifecycle.test.ts` +1（`reset()` 中途硬收且可重开）；beads `tests/pause-modal.test.ts` 4 例（入场可点 / 关合零响应 / reset 中途生效；chip 三态配色；选择器纸钮 + 小字档 + 文案同源）。
+- **诚实限制**：① 「复用 SettingsContent」只到**动作 / 文案 / 设置钮绘制**；暂停版式几何按 §8 仍住 `systems/pause-panel.ts`，未搬进内容块；② 暂停面板的弹窗 chrome（遮罩 / 纸面板 / 标题 / 进出场几何）仍由 `view-model` 直调 `ModalFrame`，等 P4 Presenter 收口；③ 入场中途反向（pause → resume → pause，<200ms）现从当前进度续走（旧实现会跳回 0）——这是 `ModalLifecycle` 的既定改善，现有测试未覆盖该路径；④ 本批无提交。
+- **验证读数（2026-10-20）**：beads **91 文件 / 1100 passed + 2 skipped**；framework **44 文件 / 482 绿**；`tsc --noEmit` 0；`verify` **PASS 22 / FAIL 0**；`framework:sync` beads 写入 4 / breakout 写入 1。
+
+---
+
+## WXG-T-305
+
+**beads·UI 架构迁移 P3·UI-30 SettingsModal + 共享 SettingsContent** · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）
+
+- **任务（用户 2026-10-20 选下一步 A）**：按 [`ui-architecture-beads.md`](../docs/architecture/ui-architecture-beads.md) §4 SettingsContent「设置内容块（音乐 / 音效 / 减弱动效 / 大字号 / 震动 / 珠风格 / 豆尺寸 / 皮肤 / 性能信息…），含「调试」分区；按场景（菜单 / 暂停）出变体」与 §12 UI-30；验收原文 =「金样本对拍；全部动作可达」。
+- **落点（1 新件 + 2 处接线）**：① 新建 `src/view/settings-content.ts` —— `SettingsAction`（10 动作）、`settingsContentButtons(plate)`（5 行 × 2 列，几何与旧口径逐字相同）、`settingsContentLabel(id, data)`（档位文案）、`drawSettingsContent(...)`（按钮绘制 + 按下位移）、`isSettingsAction`。② `view/meta-view.ts`：`settingsLayout` 改用内容块布局；`label()` 的十个设置 case 改调 `settingsContentLabel`；绘制循环前先画内容块、循环内跳过设置动作（返回 / 在线导入仍属弹窗 chrome）。③ `view/view-model.ts`：暂停面板 `panelLabel` 的九个设置 case 改调同一函数 ⇒ 两入口档位名从此只改一处；删三处已无用的注册表 import。
+- **零漂移证据**：`ui-golden.test.ts` **11 例全绿**（设置态指令流逐字不变，夹具零改动）；`bead-style-settings` 36 例、`pause-settings` 14 例全绿。
+- **新增机检**：`tests/settings-content.test.ts` 5 例 —— 10 钮 5×2 几何（首钮 280/877/248/88、末钮 552/461）；**每个按钮中心命中自己**（逐钮可达）；开关两态 + 三选择器文案；按下态 rect 下沉；静态门（暂停面板改读同函数、不再自带设置项字面）。`skin-system` 的 `cycle-skin` 第四入口静态门白名单补入新件。
+- **诚实限制**：① 弹窗 chrome（遮罩 / 纸面板 / 标题 / 返回 / 在线导入）仍住 `meta-view`，本批只抽内容块；搬进 `ModalFrame` 属 UI-31（会改几何 ⇒ 需重抓金样本）；② 「调试分区」未加视觉分隔（Debug / 性能信息仍与其它钮同列）——加分区标题会改画面，按迁移期零漂移口径留待视觉裁定；③ 本批无提交。
+- **验证读数（2026-10-20）**：beads **90 文件 / 1096 passed + 2 skipped**；`tsc --noEmit` 0；`verify` **PASS 22 / FAIL 0**；`framework:sync` 写入 3。
+
+---
+
+## WXG-T-304
+
+**beads·UI 架构迁移 P2·UI-25 UiRoot 组合根与 UiHost 接口（与旧链并行挂接）** · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）
+
+- **任务（用户 2026-10-20 选下一步 A）**：按 [`ui-architecture-beads.md`](../docs/architecture/ui-architecture-beads.md) §6 运行时流程「UI 根取 Navigator 的可见路由集，自下而上逐个 `View.draw`；最后画 `DebugLayer`」与 §12 UI-25「UiRoot 组合根与 UiHost 接口，与旧链并行挂接（开关）」；验收原文 =「开关关闭时全仓测试与改动前一致」。
+- **落点（2 新件 + 3 处接线）**：① `src/ui/ui-root.ts` = `UiRoot`：持有 `Navigator`，`draw` 按 `visibleRoutes` 自下而上画路由（可见集写进复用数组，零分配），末尾画 `drawPerfOverlay`；`update` 推进路由栈；导出开关 `UI_ROOT_ENABLED: boolean = false`。② `src/ui/ui-host.ts` = `UiHost` 窄接口与 `UiDebugState`：迁移期只暴露调试投影（L5：UI 不读游戏对象）；意图面留 P3 Presenter 落地，避免空动作联合。③ `beads-game`：新增 `debugState(out, onMenu)` —— 开关 / 帧耗时 / 相位 / 关卡 / pitch·LOD 文案的**唯一出处**，`drawDebugLayer` 改为先取它再画（旧链输出逐字不变）。④ `beads-shell`：构造 `UiRoot`（host 复用 `_uiDebug` 对象、菜单腿由 `_screen !== 'play'` 判定）；`update` 开关打开才推进路由栈；`buildRenderModel` 两腿改经 `_drawDebugLayer` 分流。
+- **并行挂接口径**：开关关闭（默认）= 旧链直调 `play.drawDebugLayer`，逐字不变；打开 = `UiRoot` 接管调试层（可见路由 + DebugLayer），**内容仍由旧链画** ⇒ 随时可回退，P3 起逐界面注册为路由，P5 拆旧链后开关退役。
+- **验收证据**：`tests/ui-root.test.ts` 4 例 —— 开关默认 false；**空栈时与旧链 `drawPerfOverlay` 指令逐字相同**；page→modal→调试层顺序；调试关时路由照画、零覆层。金样本十一例零差异（默认关 ⇒ 帧不变）。全量 beads **89 文件 / 1091 passed + 2 skipped**；`verify` **PASS 22 / FAIL 0**；`framework:sync` 写入 4。
+- **诚实限制**：① 本批只有组合根与调试层接管，路由集为空（十个界面仍是旧链绘制，属 P3/P4 迁移范围）；② `UiHost` 暂无意图方法（无执行者，按 ponytail 不先造）；③ 本批无提交。
+
+---
+
+## WXG-T-303
+
+**beads·UI 架构迁移 P2·UI-24 DebugLayer（性能覆层上移、标定线单源、菜单可看）** · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）
+
+- **任务（用户 2026-10-20 选下一步 A）**：按 [`ui-architecture-beads.md`](../docs/architecture/ui-architecture-beads.md) §4 DebugLayer「挂在所有路由之上：性能覆层（帧率 / 帧耗时，半透明窄面板，禁用全屏 α）+ 安全区标定线；性能采样上移到 UI 根，菜单与弹窗里同样可看」；验收原文 =「菜单与弹窗内可见性能信息；对局金样本不变」。
+- **落点（1 新件 + 4 处接线）**：① `src/view/debug-layer.ts` = `drawPerfOverlay(builder, palette, enabled, frameMs, phase, level, detail)`（原对局覆层逐字搬入：`rect(12, top-148, 316, 136)` + `scrimFill(canvas, 0.7)` + 三行文本；`enabled = false` 零指令）+ `drawSafeGuideLines`（从 `view-model` 原样搬入）。② `view-model`：删覆层段与标定线定义，改 import。③ `beads-game`：`update` 开头调 `sampleFrame(dt)`（EMA 单源方法）；新增 `drawDebugLayer(builder, onMenu)`（对局取快照相位 / 关卡 / pitch / LOD，菜单只出 fps + `menu`）。④ `beads-shell`：`update` 菜单腿单独喂 `sampleFrame`（`play.update` 不跑）；`buildRenderModel` 两腿**末尾**调 `drawDebugLayer`（对局在 `play.buildRenderModel` 之后、菜单在 `buildMetaView` 之后）⇒ 弹窗与菜单面板都被盖住。
+- **口径保持**：半透明窄面板（非全屏遮罩，避免改变 fill 负载污染帧样本）；三行布局 / 行距 / 字体逐字不变；标定线三线三标注不变。
+- **金样本验收**：`ui-golden.test.ts` **11 例全绿、夹具零改动**（十态默认 `debugInfo = false` ⇒ 零指令）。
+- **新增机检**：`tests/debug-layer.test.ts` 4 例（关零指令 / 开三行 + 面板几何 + α 0.7 / 菜单两行不画空行 / 标定线三线三字）；`bead-style-settings` 增 2 条：真 shell 菜单帧开 `debugInfo` 出现 `fps`、关回去消失；静态门钉「两腿都接且排在各路由之后」+ view-model 不再有裸 `scrimFill`。
+- **诚实限制**：① 「SettingsContent 调试分区」未做——共享内容块属 UI-30，本批只收 DebugLayer；② 菜单腿覆层压住菜单顶棚资源条（仅 debug 开时出现，非默认态），UI-25 总装时可移到内容带；③ 本批无提交。
+- **验证读数（2026-10-20）**：beads **88 文件 / 1087 passed + 2 skipped**；`tsc --noEmit` 0；`verify` **PASS 22 / FAIL 0**；`framework:sync` 写入 3。
+- **差异处置**：调试开关默认关 ⇒ 默认画面零改；若未来默认开或改面板几何，须重抓金样本。
+
+---
+
+## WXG-T-302
+
+**beads·UI 架构迁移 P2·UI-23 ScreenFrame + NavBar（安全区分区、胶囊避让）** · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）
+
+- **任务（用户 2026-10-20 选下一步 A）**：按 [`ui-architecture-beads.md`](../docs/architecture/ui-architecture-beads.md) §12 UI-23「ScreenFrame + NavBar（安全区分区、胶囊避让）」；验收原文 =「注入胶囊矩形时控件不入矩形」。
+- **落点（1 新件，零接线）**：`games/beads/src/view/ui-frame.ts` = `screenFrame(insets, margin?)` 把框架层 `SafeInsets` 三条安全带转成去边距的 `FrameRect`；`navBar(insets, spec)` 出 `bar / title / back / right / capsule` 布局。`tuning.ts` 补 `NAV_BAR_ICON = 56` / `NAV_BAR_GAP = 8`（机制默认值，UI-25 接线时按 tokens 校准）。
+- **胶囊避让口径**：胶囊与本栏垂直相交才避让；按胶囊落左半 / 右半 / 横跨收窄可用横向区间——左半推 `leftEdge = capsule.right + gap`、右半压 `rightEdge = capsule.left - gap`、横跨则整栏无可用区（不放返回、不放槽、标题宽 0）。返回键与右侧槽排不下即不排，绝不越界。
+- **迁移期不改画面**：现有菜单顶棚 / 对局 HUD / 选关页手算坐标一处未动，本件供 UI-25 总装消费 ⇒ 金样本十态天然不变。
+- **新增机检**：`tests/ui-frame.test.ts` 8 例——无胶囊基准、胶囊右上（控件全不入矩形）、胶囊左上（返回键右挪）、横跨（零控件）、不在本栏（不避让）、槽溢出（只排能排的且不重叠）、三区矩形同界、内容区顶界 = 胶囊底。
+- **诚实限制**：① ScreenFrame 的「背景 / 调试层挂点」未出——背景各页异构、调试层属 UI-24；② `NAV_BAR_ICON` / `NAV_BAR_GAP` 尚无消费面，未入 §3 冻结；③ 本批无提交。
+- **验证读数（2026-10-20）**：`tsc --noEmit` 退出 0；`verify` **PASS 22 / FAIL 0**；新增单测 8 例绿。
+- **差异处置**：同前批——接线批（UI-25）若改画面，须先有 UX 裁定并重抓金样本。
+
+---
+
+## WXG-T-301
+
+**beads·UI 架构迁移 P2·UI-21 通用按钮控件（四族并入单入口）** · 负责：主理人(Qoder)·程基岩域 · 状态：✅ 完成（2026-10-20）
+
+- **任务（用户 2026-10-20 选下一步 A）**：按 [`ui-architecture-beads.md`](../docs/architecture/ui-architecture-beads.md) §12 UI-21「通用控件（WoodButton 等），合并两套按钮绘制」；验收原文 =「按钮金样本对拍一致」。
+- **落点（1 新件 + 9 处消费面）**：`games/beads/src/view/ui-widgets.ts` = `drawButton(builder, palette, x, y, w, h, tone, radius, label?, font?, pressed?, disabled?, sheen?)`；tone 四族：`wood`（T3/T4 木钮，含可关顶缘受光线）/ `accent`（菜单主钮）/ `ghost`（菜单次钮）/ `paper`（T1 纸次钮）。位置参数、热路径零分配。
+- **收口清单**：原 `view-model::drawWoodButton` 4 处（暂停续玩 / 失败续时 / 托盘展开 / 过关下一关）+ 原 `meta-view::drawButton` 2 处（菜单 CTA / overlay 按钮）+ 暂停 / 失败 / 过关三处手写纸次钮 3 处；两处本地函数删除，改为单一入口。
+- **逐字保留**：木钮「面 → 顶缘受光线 → 底缘承重线 → 木色字」、菜单钮「2px 同色描边 + 面板色字」、纸钮「`panelBorder` 1px + 正文色字」；按下换 `woodFacePressed`、禁用 α 0.5、sheen 关闭（T4）均按原分支；指令顺序与收拢前一致。
+- **金样本验收**：`tests/ui-golden.test.ts` **11 例全绿、夹具零改动**（十态 sha/total/kinds 全等）⇒ 静息态逐字无漂移。
+- **新增机检**：`tests/ui-widgets.test.ts` 6 例（木钮静息 / 按下 / 无受光线无字、纸钮、菜单主钮、禁用 α）。
+- **诚实限制**：① chip（开关类按钮）仍手写——它有「选中 = 木底、未选 = 纸底」双态，不属静态四族，留给 SettingsContent 批；② 按钮圆角仍由调用方传（木钮有两档 16 / `radiusWood`），未强行统一；③ 本批无提交，工作树另含 T-296…300 历史未提交件。
+- **验证读数（2026-10-20）**：beads 全量 **86 文件 / 1074 passed + 2 skipped**；`tsc --noEmit` 退出 0；`verify` 读数见会话结论。
+- **差异处置**：同前批——只允许「源码形态变、像素流不变」；按钮视觉要改先有 UX 裁定并重抓金样本。
+
+---
+
+## WXG-T-298
+
+**beads·UI-02 金样本（十界面整帧指令流封箱 + 只读对拍）** · 负责：主理人(Qoder)·严守真域 · 状态：✅ 完成（2026-10-20）
+
+- **任务（用户 2026-10-20 选下一步 A）**：按 [`ui-architecture-beads.md`](../docs/architecture/ui-architecture-beads.md) §12 UI-02「建金样本：每界面 × 关键状态抓取现行 RenderModel 指令序列」；验收原文 =「覆盖十个单元；对拍工具可重复运行」。定位 = §9.4 迁移期「逐条对拍，不得有无登记的差异」的守门员，同时是 UI-20 验收与 UI-30 开工的硬前置（ADR-0032 DEC-6）。
+- **落点（3 新件 + 1 夹具）**：`games/beads/tests/ui-golden-scenes.ts`（十态共享驱动：`createBeadsShell` → 真实入口 `tapMeta` / `play.tapDesign` / 通关填盘 / 倒计时，每态带 `screen/overlay/phase` 场景自证）｜`ui-golden-capture.ts`（非 `.test.ts` 的独立复取器，**连跑两遍逐态记录全等才写盘**；`--dump` 另把全量流写 `temp/ui-golden/`）｜`ui-golden.test.ts`（只读对拍，⛔ 不写夹具）｜`__fixtures__/wxg-t-298-ui-golden.json`。
+- **十态覆盖（§5 十界面各取一关键态，夹具按此序）**：MainMenuPage `main-menu` 3661 条｜LevelSelectPage `level-select` 1423｜SettingsModal `settings` 25｜SigninModal `signin` 28｜PlayPage `play` 654｜PauseModal `pause` 676｜ClearResultModal `clear` 702｜FailResultModal `fail` 656｜SprintSettleModal `sprint-settle` 952｜FinishModal `finish` 838。
+- **封箱口径**：每态锁 `sha256(命令流 join("\n"))` + `total` + 逐 `kind` 计数 + 宿主消费的 `background` / `transform` + 场景自证；polygon 命令按 `polygonVertices()` 内联 `points`（顶点漂移同样进 sha）。全量流约 1.6 MB ⇒ **不整份入库**，差异时由测试把 actual 流 dump 到 `temp/ui-golden/<id>.actual.jsonl` 供逐条差分。
+- **可重复性证据**：`capture` 内置双跑自证；另实测**连抓两次夹具逐字节一致**（`sha256 = ae985f2f7239fa95f0dcd7da69df6e3cfad2bf973323683157a01bd0ae1e43f2`）。固定因子 = `Viewport(750×1334)` / `pixelRatio 2` / `createRng('beads-ui-golden')` / clock `1_700_000_000_000` / 步长 `1/60`；菜单播种 `staminaCur=99`、`maxUnlockedLevel=9`；对局 `simpleTestLevel()` 6×5（clear/finish `noBootAssembly` 空盘；fail `time=30`；冲刺 `sprintTime=90`）。
+- **诚实限制**：`signin` 当前无菜单入口（Q5① 退役，`beads-shell.test.ts` 明令菜单不得有签到热区）⇒ 该态经测试后门置 `_overlay='signin'`，为迁移基线保留；入口恢复后应改回真实路径并重抓。
+- **验证读数（2026-10-20）**：`tests/ui-golden.test.ts` **11 例绿**（1 覆盖腿 + 10 态对拍）；beads 全量 **83 文件 / 1057 passed + 2 skipped**；`games/beads` `tsc --noEmit` 退出 0；`pnpm run verify` **PASS 22 / WARN 0 / SKIP 0 / FAIL 0**。
+- **差异处置（正本纪律）**：任一态红 ⇒ 先查 UI 渲染路径是否被改；视觉变更须先有 UX 裁定并在 `ui-architecture-beads` §12 登记，再仅由 `ui-golden-capture.ts` 在**可复现锚**重抓；⛔ 不得手改夹具求绿（K-051 / K-053 / K-082）。
+- **后续联动**：UI-20/21/22/23/24 与 UI-30/31/32/33/34/40/41 的「金样本对拍」验收直接消费本夹具；新增界面或状态 = 扩 `STATES` + 重抓（覆盖腿会拦掉漏登记）。
+
+---
+
+## WXG-T-297
+
+- **任务**：beads UI 架构迁移 P1 收口——“UI-13 SafeInsets + UI-14 完整闭环”（用户 2026-10-20 选下一步 A）。
+- **落点（1 新文件 + 3 适配器 + 1 导出行）**：`packages/framework/src/core/ui/safe-insets.ts`（`SafeBand` / `SafeInsets` / 纯函数 `computeSafeInsets(platform, viewport)` / `SafeInsetsCache`；dp → 设计 px 走 **`1/scale`**，字母屏亦正确；`topBar / content / bottomBar` 三段全 y-up；胶囊无值恒 `null`）｜`core/game/game.ts` 新增 `CapsuleRect` 类型与 `PlatformInfo.capsuleRectDp`（dp、原点屏左上，`capsuleBottomDp === capsuleRectDp.bottom`）｜weapp 适配器一次读出完整矩形并做合法性校验（缺 API / 任一分量非有限 / `right ≤ left` / `bottom ≤ top` ⇒ `null`；旧 `capsuleBottomDp` 由矩形派生）｜web / node 显式 `null`（⛔ 不是零矩形）｜`core/ui/index.ts` 导出 `safe-insets`。
+- **测试**：新增 `tests/core/safe-insets.test.ts` **7 例**（dp→设计换算与 y-up 翻转、三段带、安全区上沿低于胶囊时取安全区、无胶囊为 `null` 而非零矩形、字母屏 `1/scale`、超屏 clamp、缓存命中 / 视口变化 / 平台变化重算）；`tests/platform/platform.test.ts` 补 weapp 完整矩形、反相矩形归 `null`、web / node 各补 `capsuleRectDp === null`。framework 全量 = **44 文件 / 481 例绿**。
+- **验证读数（2026-10-20）**：`pnpm --filter @wxgame/framework run typecheck` 退出 0｜`pnpm run check:arch` OK（L2 无违规）｜`pnpm run framework:sync` = beads / breakout 各写入 **6**（`safe-insets` + 4 件改动 + 导出行），`framework:sync:check` 绿｜`pnpm run verify` = **PASS 22 / WARN 0 / SKIP 0 / FAIL 0**。⚠ 新增拷贝件无 `.meta`，需开 Cocos 编辑器生成（L1）。
+- **状态**：✅ 完成（2026-10-20）。UI-14 至此全量闭环；下一关键路径 = UI-20 UiTheme（依赖 UI-14）或 UI-02 金样本（UI-30 前置，可并行）。
