@@ -4348,6 +4348,54 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 
 ---
 
+## WXG-T-389
+
+**`kb:archive` 余下两条 exit 1 分支负例：源文件未知 / ledger 有而 markdown 无**（2026-10-25）
+
+> 领号已核 K-046：开工前头注「下一可用 = 389」——按 K-046 四路重扫时发现 **388 已被并发会话（CodeBuddy `0dfd5a9` tint 清理入口）占用并已顶注**；改扫 389：主表 / 详情节 / `git log --all --grep` / 全树 grep 四路零占用（唯一命中是头注「下一可用号」前瞻）⇒ 本批取 **389**。
+
+### 1. 病根（T-387 §5 遗留 1）
+
+`kb-archive.mjs` 的失败分支共六条，`[22]` 只覆盖到入口四条（缺 `--ids` / 空有效 ID / 未知 ID / 非活跃 ID）。剩下两条都在「参数合法、库里数据对不上」这一段：
+
+- **源文件未知**：ledger 条目的 `file` 不在 `ACTIVE_FILES` 白名单里 ⇒ 归档时无处可搬；
+- **ledger 有 / markdown 无**：条目在册但活跃正文里查不到这条 `[K-0NN]` ⇒ ② 型双向不一致。
+
+这两条此前从未独立跑过，等于「`kb:check` ② 抓到的脏库，`kb:archive` 撞上去会怎样」无人知道。风险点有两个：诊断是否**点名是哪一个文件**（只说「失败」的话调用方无从下手），以及是否**指路 `kb:check`**（这类失败的正确处置是修库而不是重试命令）。
+
+### 2. 改法（只加自测，不动脚本行为）
+
+`[23]` 三腿，全程在桩仓：
+
+- **23a 源文件未知 → exit 1**：往桩 ledger 塞一条 `file:"knowledge/notes.md"` 的活跃条目 `K-097`，跑归档 ⇒ exit 1，诊断须逐字给出「源文件未知：knowledge/notes.md」，且 `assert_file_not` 证明野条目**没被搬进**归档文件。
+- **23b ledger 有 / markdown 无 → exit 1**：塞 `file:"knowledge/lessons.md"` 但正文无此条的 `K-098` ⇒ exit 1，诊断点名「在 `knowledge/lessons.md` 中不存在」，并断言含「先跑 `kb:check`」——**诊断要给出下一步，不能只报错**。
+- **23c 现场还原**：每条负例跑完立刻 `cp` 回备份的 ledger；末尾对 ledger / `lessons.md` / `patterns-archived.md` **三件 `cmp` 逐字节比对**，再跑 `kb:check` 确认仍 exit 0。
+
+> **现场隔离纪律**：23a/23b 是主动造 ② 型脏库，因此「先 `cp` 备份 → 塞脏条目 → 跑负例 → 逐字节还原」必须在同一腿内闭环，⛔ 不把脏 ledger 留给 `[23]` 之后的用例（否则会伪装成 `kb:check` 的假红）。
+
+> **判别力实验**：负例断言容易写成恒绿。把 23a 的 `K-097` 临时换成合法活跃号 `K-001` 复跑 ⇒ **恰 4 红**（exit 变成 0、两条诊断串找不到、`assert_file_not` 失效），证实这几条真在测东西；随即改回 `K-097`，复跑 240/240。
+
+### 3. 读数与门禁
+
+| 项 | 读数 |
+|---|---|
+| `knowledge-selftest.sh` | **240 / 240**（[23] 新增 10 条断言；原 230） |
+| `kb:check`（真实仓库） | 十重 PASS（活跃 172，判据未动） |
+| `check:tasks` | 主表 91 行 ⇔ 详情 91 节 |
+| `kb:audit` | 归档候选 0（相似命中无） |
+
+### 4. 沉淀统计（`kb:sync --task=WXG-T-389`）
+
+**新增 0 / 修改 0 / 激活 0 / 归档 0**（纯自测，未加知识条目）。
+
+### 5. 遗留
+
+1. `--task` 形态非法（exit 2 的第三条诊断）仍无独立断言，与 22a/22b 同码不同串。
+2. 六条失败分支里剩「`--reason` 缺」以外的用法路径已全覆盖，但**成功分支的搬移内容**（条目正文从活跃文件整段迁到归档、`state`/`archivedDate`/`archiveReason` 三字段同写）只在 `[13]` 端到端里过一次，未逐字段断言。
+3. `[23]` 造脏条目直接改桩 ledger，未经 `kb:add` 正常入口 ⇒ 若将来 ledger 结构加必填字段，23a/23b 的塞造需同步。
+
+---
+
 ## WXG-T-388
 
 **beads-studio · tint 实验档清理入口（`DELETE /api/tint-variants`）**（2026-10-25）

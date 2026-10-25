@@ -42,6 +42,8 @@
 #            → 重新激活 → 插回 K-006 之前，kb:check ⑩ 与 ⑧ 同绿（不只测 helper 与门）
 #         ㉒ kb:archive 失败分支（WXG-T-387）：缺 --ids / 空有效 ID → exit 2（用法）；
 #            未知 ID / 已归档 ID → exit 1（语义）；四次失败后 ledger 与归档文件逐字节不变
+#         ㉓ kb:archive 余下两条 exit 1（WXG-T-389）：ledger 的 file 不在 ACTIVE_FILES →「源文件未知」；
+#            ledger 有、活跃 markdown 查无此条 →「中不存在」并指路 kb:check；负例后三件逐字节还原
 #
 # 用法：tools/scripts/knowledge-selftest.sh
 # 产物：仅 stdout 报告；临时目录退出时清理，不污染仓库 / 真实知识库。
@@ -973,6 +975,37 @@ cmp -s "$WORK/ledger.pre22.json" "$REPO/knowledge/ledger.json" && ok "22e 四次
 cmp -s "$WORK/archpatterns.pre22.md" "$REPO/knowledge/archive/patterns-archived.md" && ok "22e 归档文件逐字节不变" || bad "22e 归档文件被失败分支改写"
 rc=$(run node "$KB_CHECK")
 assert_eq "$rc" "0" "22e 负例后 kb:check 仍 exit 0"
+
+# ── [23] kb:archive 余下两条 exit 1：源文件未知 / markdown 查无此条（WXG-T-389）──
+echo
+echo "[23] kb:archive exit 1 补全：ledger 的 file 不在 ACTIVE_FILES + ledger 有/markdown 无"
+
+cp "$REPO/knowledge/ledger.json" "$WORK/ledger.pre23.json"
+cp "$REPO/knowledge/lessons.md" "$WORK/lessons.pre23.md"
+cp "$REPO/knowledge/archive/patterns-archived.md" "$WORK/archpatterns.pre23.md"
+
+# 23a ledger 的 file 指向 ACTIVE_FILES 之外 → 反查归档配置失败
+node -e 'const fs=require("node:fs");const p=process.argv[1];const j=JSON.parse(fs.readFileSync(p,"utf8"));j.entries.push({id:"K-097",state:"active",file:"knowledge/notes.md",category:"流程",title:"野源文件",sourceTask:null,addedDate:null,lastAccess:null,accessCount:0,accessSources:[],archivedDate:null,archiveReason:null,reactivatedDate:null});fs.writeFileSync(p,JSON.stringify(j,null,2)+"\n")' "$REPO/knowledge/ledger.json"
+rc=$(run node "$KB_ARCHIVE" --ids=K-097 --reason="桩：源文件未知")
+assert_eq "$rc" "1" "23a 源文件不在 ACTIVE_FILES → exit 1"
+assert_contains "$(cat "$WORK/last.txt")" "源文件未知：knowledge/notes.md" "23a 诊断点名未知源文件路径"
+assert_file_not "$REPO/knowledge/archive/patterns-archived.md" "[K-097]" "23a 野源文件条目未被搬进归档"
+cp "$WORK/ledger.pre23.json" "$REPO/knowledge/ledger.json"
+
+# 23b ledger 有、活跃 markdown 里查无此条（② 型不一致）
+node -e 'const fs=require("node:fs");const p=process.argv[1];const j=JSON.parse(fs.readFileSync(p,"utf8"));j.entries.push({id:"K-098",state:"active",file:"knowledge/lessons.md",category:"流程",title:"只在 ledger",sourceTask:null,addedDate:null,lastAccess:null,accessCount:0,accessSources:[],archivedDate:null,archiveReason:null,reactivatedDate:null});fs.writeFileSync(p,JSON.stringify(j,null,2)+"\n")' "$REPO/knowledge/ledger.json"
+rc=$(run node "$KB_ARCHIVE" --ids=K-098 --reason="桩：markdown 查无此条")
+assert_eq "$rc" "1" "23b ledger 有 / markdown 无 → exit 1"
+assert_contains "$(cat "$WORK/last.txt")" "在 knowledge/lessons.md 中不存在" "23b 诊断点名不一致的文件"
+assert_contains "$(cat "$WORK/last.txt")" "先跑 kb:check" "23b 诊断给出下一步（不只报错）"
+cp "$WORK/ledger.pre23.json" "$REPO/knowledge/ledger.json"
+
+# 23c 还原后现场干净：三件逐字节不变、kb:check 仍绿
+cmp -s "$WORK/ledger.pre23.json" "$REPO/knowledge/ledger.json" && ok "23c ledger 已还原（负例期间未半途写坏）" || bad "23c ledger 未还原"
+cmp -s "$WORK/lessons.pre23.md" "$REPO/knowledge/lessons.md" && ok "23c lessons.md 逐字节不变" || bad "23c lessons.md 被失败分支改写"
+cmp -s "$WORK/archpatterns.pre23.md" "$REPO/knowledge/archive/patterns-archived.md" && ok "23c 归档文件逐字节不变" || bad "23c 归档文件被失败分支改写"
+rc=$(run node "$KB_CHECK")
+assert_eq "$rc" "0" "23c 还原后 kb:check 仍 exit 0"
 
 # ── 汇总 ────────────────────────────────────────────────────────────────────
 echo
