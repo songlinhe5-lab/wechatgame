@@ -44,6 +44,9 @@
 #            未知 ID / 已归档 ID → exit 1（语义）；四次失败后 ledger 与归档文件逐字节不变
 #         ㉓ kb:archive 余下两条 exit 1（WXG-T-389）：ledger 的 file 不在 ACTIVE_FILES →「源文件未知」；
 #            ledger 有、活跃 markdown 查无此条 →「中不存在」并指路 kb:check；负例后三件逐字节还原
+#         ㉔ kb:archive 成功分支逐字段（WXG-T-390）：state/archivedDate/archiveReason 同写；正文多行逐行重建预期块
+#            （标题行 + 归档元信息行 + 正文行）比到 lessons-archived.md；源文件 = 原文件恰好减去那段（邻条不伤）；
+#            events 末条 archived 透传 date/taskId/note
 #
 # 用法：tools/scripts/knowledge-selftest.sh
 # 产物：仅 stdout 报告；临时目录退出时清理，不污染仓库 / 真实知识库。
@@ -1006,6 +1009,80 @@ cmp -s "$WORK/lessons.pre23.md" "$REPO/knowledge/lessons.md" && ok "23c lessons.
 cmp -s "$WORK/archpatterns.pre23.md" "$REPO/knowledge/archive/patterns-archived.md" && ok "23c 归档文件逐字节不变" || bad "23c 归档文件被失败分支改写"
 rc=$(run node "$KB_CHECK")
 assert_eq "$rc" "0" "23c 还原后 kb:check 仍 exit 0"
+
+# ── [24] kb:archive 成功分支逐字段：三字段同写 + 正文整段搬迁 + events 透传（WXG-T-390）──
+echo
+echo "[24] kb:archive 成功分支：归档日期入 ledger、条目正文整段搬迁、源文件只减不伤邻条"
+
+cp "$REPO/knowledge/lessons.md" "$WORK/lessons.pre24.md"
+
+# 24 前预理：从桩里取出 K-001 的整段正文（标题行 + 紧邻的缩进行），并自检「确实是 4 行」
+node -e '
+const fs = require("node:fs");
+const lines = fs.readFileSync(process.argv[1], "utf8").split("\n");
+const s = lines.findIndex((l) => l.includes("[K-001]"));
+if (s < 0) process.exit(2);
+let e = s + 1;
+while (e < lines.length && /^  \S/.test(lines[e])) e++;
+const block = lines.slice(s, e);
+fs.writeFileSync(process.argv[2], block.join("\n") + "\n", "utf8");
+process.exit(block.length === 4 ? 0 : 1);
+' "$REPO/knowledge/lessons.md" "$WORK/entry24.txt" \
+  && ok "24 前预理：已捕获 K-001 整段 4 行正文（桩布局未漂移，后面的搬迁断言才有意义）" \
+  || bad "24 前预理失败：K-001 不是「标题行 + 3 行正文」，桩布局已变，本组断言需同步重写"
+
+rc=$(run node "$KB_ARCHIVE" --ids=K-001 --date=2026-03-06 --reason="桩：逐字段正例" --task=WXG-T-908)
+assert_eq "$rc" "0" "24a kb:archive K-001 退出码 0"
+
+# 24a 三字段同写（此前只断言过 state / archiveReason）
+assert_eq "$(ld K-001 state)" "archived" "24a ledger：state=archived"
+assert_eq "$(ld K-001 archivedDate)" "2026-03-06" "24a ledger：archivedDate = 传入的 --date（正例首测）"
+assert_eq "$(ld K-001 archiveReason)" "桩：逐字段正例" "24a ledger：archiveReason = 传入的 --reason"
+
+# 24b 正文整段入归档（不只标题行）——归档块的结构是「原标题行 + 归档元信息行 + 原正文行」，
+#     元信息行按设计插在第一行之后，故不能直接拿源文件的连续段去比，要逐行重建预期块
+node -e '
+const fs = require("node:fs");
+const arc = fs.readFileSync(process.argv[1], "utf8");
+const block = fs.readFileSync(process.argv[2], "utf8").replace(/\n$/, "").split("\n");
+const meta = "> 归档于 2026-03-06（原因：桩：逐字段正例）";
+const chunk = [block[0], meta, ...block.slice(1)].join("\n");
+process.exit(arc.includes(chunk) ? 0 : 1);
+' "$REPO/knowledge/archive/lessons-archived.md" "$WORK/entry24.txt" \
+  && ok "24b 归档文件含 K-001：原标题行 + 归档元信息行 + **三行正文按序跟在后**（正文未掉行）" \
+  || bad "24b 归档文件缺整段正文（可能只搬了标题行 / 元信息行错位）"
+
+# 24c 源文件只恰好减去那段，邻条不受牵连
+assert_file_has "$REPO/knowledge/lessons.md" "[K-002]" "24c 同文件邻条 K-002 未被牵连"
+assert_file_has "$REPO/knowledge/lessons.md" "[K-006]" "24c 同分区邻条 K-006 未被牵连"
+node -e '
+const fs = require("node:fs");
+const pre = fs.readFileSync(process.argv[1], "utf8").split("\n");
+const post = fs.readFileSync(process.argv[2], "utf8").split("\n");
+const block = fs.readFileSync(process.argv[3], "utf8").replace(/\n$/, "").split("\n");
+const startIdx = pre.findIndex((l, i) => block.every((b, k) => pre[i + k] === b));
+if (startIdx < 0) process.exit(2);
+const expected = pre.slice(0, startIdx).concat(pre.slice(startIdx + block.length));
+const collapsed = expected.filter((l, i) => !(l === "" && expected[i - 1] === ""));
+const eq = (a, b) => a.length === b.length && a.every((l, i) => l === b[i]);
+process.exit(eq(expected, post) || eq(collapsed, post) ? 0 : 1);
+' "$WORK/lessons.pre24.md" "$REPO/knowledge/lessons.md" "$WORK/entry24.txt" \
+  && ok "24c 源文件 = 原文件逐行减去 K-001 那一段（接缝可收敛掉一个空行，再无其他改动）" \
+  || bad "24c 源文件改动超出该条目范围（误删邻条 / 残留野行）"
+
+# 24d events 末条 archived 透传 date / taskId / note
+ev=$(node -e '
+const j = JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"));
+const es = (j.events || []).filter((x) => x && x.kind === "archived");
+const last = es[es.length - 1];
+process.stdout.write(last ? [last.date, last.taskId, last.note].join("|") : "<none>");
+' "$REPO/knowledge/ledger.json")
+assert_eq "$(ldevids archived)" "K-001" "24d events 末条 archived 只含本批 ID"
+assert_eq "$ev" "2026-03-06|WXG-T-908|桩：逐字段正例" "24d archived event 透传 date/taskId/note"
+
+rc=$(run node "$KB_CHECK")
+assert_eq "$rc" "0" "24e 归档后 kb:check 仍 exit 0（② 双向一致：md 已减、ledger 已转态）"
+assert_not_contains "$(cat "$WORK/last.txt")" "❌" "24e 无任何失败项"
 
 # ── 汇总 ────────────────────────────────────────────────────────────────────
 echo
