@@ -152,15 +152,15 @@ function savedDoc(r: Rig): Record<string, unknown> {
 /* ═════════════ ① 门票未达：章 2 页只读件 + 零事件/零扣心/不消费 ═════════════ */
 
 describe('S-4 闸门：门票未达', () => {
-    it('章 2 页：arcTicketOpen=false、累计星 = 上一章 20/21；点章首格零事件 / 零扣心 / 不消费', () => {
-        // 前 9 关全通关但只得 20★（门槛 21★）⇒ 门票不成立。
+    it('章 2 页：arcTicketOpen=false、累计星 = 上一章 20/24；点章首格零事件 / 零扣心 / 不消费', () => {
+        // 前 9 关全通关但只得 20★（门槛 24★）⇒ 门票不成立。
         const r = rig({ pointer: 9, stars: [3, 3, 2, 2, 2, 2, 2, 2, 2, 0] });
         goPage(r, 1);
         openLevels(r.shell, r);
         const data = viewData(r.shell);
         expect(data.chapterTitle, '确在章 2 页').toBe(ARCS[1]!.title);
         expect(data.arcTicketOpen, '门票归约为假 ⇒ 章锁').toBe(false);
-        expect([data.arcStarGot, data.arcStarNeed], 'C 拍定：已得/门槛取阻断该页入口的上一章').toEqual([20, 21]);
+        expect([data.arcStarGot, data.arcStarNeed], 'C 拍定：已得/门槛取阻断该页入口的上一章').toEqual([20, 24]);
 
         const before = { stamina: r.shell.meta!.stamina, idx: r.shell.play.levelIndex, events: r.overlayEvents.length };
         expect(clickCell(r, 0), '章未开 ⇒ 不消费（零热区零事件的机械面）').toBe(false);
@@ -175,7 +175,7 @@ describe('S-4 闸门：门票未达', () => {
         const r = rig({ pointer: 9, stars: [3, 3, 2, 2, 2, 2, 2, 2, 2, 0] });
         goPage(r, 1);
         const onPage = viewData(r.shell);
-        expect([onPage.arcStarGot, onPage.arcStarNeed], '页位落定即算，⛔ 等开选关页').toEqual([20, 21]);
+        expect([onPage.arcStarGot, onPage.arcStarNeed], '页位落定即算，⛔ 等开选关页').toEqual([20, 24]);
         const prev = metaLayout('none', WALL_ROWS, r.shell.menuAnchors).buttons.find((b) => b.id === 'carousel-prev')!;
         const c = centerOf(prev.box);
         expect(r.shell.tapMeta(c.x, c.y)).toBe(true);
@@ -280,15 +280,15 @@ describe('M-12 章内线性解锁不变', () => {
 
 describe('两层不混用：显示层三态 ≠ 推进层门票', () => {
     it('章 1 全通关但累计星不足：carouselState=cleared 而同源门票为假（M-11 的壳层镜像）', () => {
-        // 全通关（≥1★）但只得 20★ < 21★ ⇒ 显示层 cleared、推进层票不开。
+        // 全通关（≥1★）但只得 20★ < 24★ ⇒ 显示层 cleared、推进层票不开。
         const r = rig({ pointer: 9, stars: [3, 3, 2, 2, 2, 2, 2, 2, 2, 0] });
         draw(r.shell);
         expect(viewData(r.shell).carouselState, '≥1★ 三态口径一字不动').toBe('cleared');
-        // 同一份星账的推进层面：票不开、累计星 = 20/21（两层各算各的，⛔ 互相改造）。
+        // 同一份星账的推进层面：票不开、累计星 = 20/24（两层各算各的，⛔ 互相改造）。
         goPage(r, 1);
         openLevels(r.shell, r);
         expect(viewData(r.shell).arcTicketOpen, '同源门票归约为假').toBe(false);
-        expect([viewData(r.shell).arcStarGot, viewData(r.shell).arcStarNeed]).toEqual([20, 21]);
+        expect([viewData(r.shell).arcStarGot, viewData(r.shell).arcStarNeed]).toEqual([20, 24]);
     });
 });
 
@@ -315,7 +315,7 @@ describe('M-16 静态臂：门票归约输入里没有章 id', () => {
         openLevels(r.shell, r);
         const before = viewData(r.shell);
         const baseline: readonly unknown[] = [before.arcTicketOpen, before.arcStarGot, before.arcStarNeed];
-        expect(baseline, '夹具基线：章 2 门票假 + 上一章 20/21').toEqual([false, 20, 21]);
+        expect(baseline, '夹具基线：章 2 门票假 + 上一章 20/24').toEqual([false, 20, 24]);
         // "只改章 id"：就地重命名当前页的章条目，存档 / levelRefs 一字不动；跑完还原。
         const entry = ARCS[1] as unknown as { id: string };
         const originalId = entry.id;

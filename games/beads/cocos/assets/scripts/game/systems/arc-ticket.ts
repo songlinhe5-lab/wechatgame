@@ -3,7 +3,7 @@
  * ─────────────────────────────────────────────────────────────────────────────
  * 语义（设计真源 = `design/gdd/save-progress.md` §2.6.3 / `star-collect-rule.md` R7 v0.5）：
  * 门票 = **本章每槽都已通关（星 ≥ 1）且累计星 ≥ 门槛**，两者缺一不可。
- * 门槛 {@link arcGateStars} = 满星容量 − floor(槽数 × 2 / 3)（每三关允许丢两颗星）；
+ * 门槛 {@link arcGateStars} = 满星容量 − floor(槽数 ÷ 3)（每三关允许丢**一关** = 最多 3 颗星；用户 2026-10-25 拍板 21→24）；
  * **1–2 关的短章只要求全通关**（用户 2026-10-22 拍板 A）。
  * 归约集合 = 章清单里的**每一个槽**，boss 关与教学关**不豁免**（§6.1 M-17）——
  * 本文件的结构性保证是：入力只有「展平星账 + 槽位下标」，**没有 kind、没有章 id**，
@@ -51,13 +51,17 @@ export function emptyArcTicketResult(): ArcTicketResult {
 }
 
 /**
- * 本章门票门槛（纯派生，⛔ 落档）= 满星容量 − floor(槽数 × 2 / 3)。
- * 9 关 ⇒ 21★；6 关 ⇒ 14★；3 关 ⇒ 7★；**1–2 关短章 ⇒ 只要求全通关**（= 槽数）。
+ * 本章门票门槛（纯派生，⛔ 落档）= 满星容量 − floor(槽数 ÷ 3)。
+ * 9 关 ⇒ 24★（6 关满星 + 3 关 2★ 即达标 ⇒ 留 3 关非满机会）；
+ * 6 关 ⇒ 16★；3 关 ⇒ 8★；**1–2 关短章 ⇒ 只要求全通关**（= 槽数）。
+ * ⚠ 口径换代（用户 2026-10-25 拍板 21→24）：旧式 `floor(槽数 × 2 / 3)` = 「每三关允许丢**两颗星**」，
+ * 21★ 下最省力路径只需 **3/9 关满星**（3×3 + 6×2 = 21）⇒ 刷满 3★ 对门票零边际收益；
+ * 现式 = 「每三关允许丢**一关**」，24★ 下最省力路径需 **6/9 关满星**（6×3 + 3×2 = 24）。
  */
 export function arcGateStars(levelCount: number): number {
   if (levelCount <= 0) return 0;
   if (levelCount <= 2) return levelCount;
-  return levelCount * STAR_MAX - Math.floor((levelCount * 2) / 3);
+  return levelCount * STAR_MAX - Math.floor(levelCount / 3);
 }
 
 /**
