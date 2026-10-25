@@ -11,7 +11,10 @@
  *               且为**手维护路由表**（非生成物、无生成器控量），审计认定其为无护栏增长点，
  *               故与 hot-files 同列硬门；另并列**常驻总量观察哨**（A 项所有常驻行合计 vs
  *               residentTotalSoft，报告项：超阈只醒目提示、不阻断，硬阻断只挂单文件）。
- *   B 单文件上限 任意 .md > 8000 tokens 视为超限（除非 ctx/budget-exempt.json 白名单）
+ *   B 单文件上限 **按文档类别分档**（WXG-T-377，见 lib/context-index.mjs 的 FILE_CAPS）：
+ *               spec 8000（默认，判据/规格类不放松）/ ledger 16000 / generated 24000 /
+ *               TASKS.md 80000 / TASKS-DETAIL.md 205000 / vendor 免检；超过所属类别上限视为超限
+ *               （除非 ctx/budget-exempt.json 白名单）。
  *   C 索引新鲜度 复用 build-context-index.mjs --check 的能力（共享函数，不 shell 外调）；
  *               **契约（WXG-T-026，2026-09-12）：索引描述「已提交内容（HEAD）」** ——
  *               dirty 文件按 HEAD blob 校验（`git show HEAD:<path>`），未跟踪新文件不算
@@ -78,6 +81,9 @@ import {
   ROUTES_PATH,
   SKIP_DIRS,
   dirtySet,
+  fileCapOf,
+  fileClassOf,
+  FILE_CAPS,
   freshnessIssues,
   readDistribution,
   readIndex,
@@ -324,13 +330,16 @@ function checkFileMax(index) {
   for (const e of configErrors) failures.push(e);
 
   const rows = [];
-  const over = index.files.filter((f) => f.tokens > LIMITS.fileMax);
+  // 上限按文档类别取（WXG-T-377）：vendor 返回 Infinity ⇒ 整目录免检，不再逐件占豁免额度。
+  const over = index.files.filter((f) => f.tokens > fileCapOf(f.path));
   for (const f of over) {
+    const limit = fileCapOf(f.path);
+    const cls = fileClassOf(f.path);
     const exempt = entries.get(f.path);
-    rows.push({ file: f.path, tokens: f.tokens, exempt: exempt ?? null });
+    rows.push({ file: f.path, tokens: f.tokens, limit, cls, exempt: exempt ?? null });
     if (!exempt) {
       failures.push(
-        `B: \`${f.path}\` ${f.tokens} tokens > 单文件上限 ${LIMITS.fileMax} —— ` +
+        `B: \`${f.path}\` ${f.tokens} tokens > 所属类别上限 ${limit}（${cls}）—— ` +
         '要么拆分为多文件，要么在 ctx/budget-exempt.json 登记（须带 reason 与 taskId）',
       );
     } else {
@@ -1113,14 +1122,20 @@ if (residentRows.length) {
 }
 console.log('');
 
-console.log(`B 单文件上限 — 任意 .md ≤ ${LIMITS.fileMax} tokens（可豁免）`);
+console.log(
+  'B 单文件上限 — 按文档类别分档（可豁免）：' +
+    Object.entries(FILE_CAPS)
+      .map(([k, v]) => `${k} ≤ ${v}`)
+      .join(' / ') +
+    ' / vendor 免检',
+);
 if (overRows.length === 0) {
   console.log('✅ 无超限文件');
 } else {
-  console.log('| 文件 | tokens | 豁免 |');
-  console.log('|---|---:|:--:|');
+  console.log('| 文件 | tokens | 类别 · 上限 | 豁免 |');
+  console.log('|---|---:|---:|:--:|');
   for (const r of overRows) {
-    console.log(`| ${r.file} | ${r.tokens} | ${r.exempt ? `✅ ${r.exempt.taskId}` : '❌'} |`);
+    console.log(`| ${r.file} | ${r.tokens} | ${r.cls} · ${r.limit} | ${r.exempt ? `✅ ${r.exempt.taskId}` : '❌'} |`);
   }
 }
 console.log('');

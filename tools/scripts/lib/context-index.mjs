@@ -509,6 +509,57 @@ export const LIMITS = {
 };
 
 /**
+ * B 项单文件上限：**按文档类别分档**（WXG-T-377）。
+ *
+ * 病根（2026-10-25 实测）：单一 8000 对五类文档一视同仁，而其中三类天生压不下去
+ * （vendor 不可改写 / 生成物无手工拆分口 / 台账与任务文件由生成器按时间序追加）⇒
+ * 只能逐件登记豁免，豁免表涨到 88 条、门退化成「债务登记簿」（永远绿，也永远不清）。
+ *
+ * 分档原则：**判据与规格类一分不放松**（仍是 8000），只给「物理上不可拆」的三类各自一个
+ * 有依据的上限，且 vendor 整目录免检（不再逐件占豁免额度）。
+ *
+ *   spec       8000   默认：判据 / 规格 / 提案 / ADR / GDD / UX / skill（原口径不变）
+ *   ledger    16000   追加型台账：Epic / QA 批次 / 发布清单 / 计划 / 引擎版本记录（只按时间序追加）
+ *   generated 24000   生成物：knowledge 索引与变更流水、memory/INDEX（须装生成器时间窗，非登记豁免）
+ *   tasksIndex 80000  production/TASKS.md（领号头注 ≈2 万 tok + 主表；触顶即加归档）
+ *   tasksDetail 205000 production/TASKS-DETAIL.md（`archive-tasks.mjs` 的 200k 契约 + 5k 余量）
+ *   vendor      ∞     第三方 `cocos-mcp-server` 目录：⛔ 不得改写，整目录免检
+ */
+export const FILE_CAPS = {
+  spec: 8000,
+  ledger: 16000,
+  generated: 24000,
+  tasksIndex: 80000,
+  tasksDetail: 205000,
+};
+
+const LEDGER_PREFIXES = [
+  'production/epics/',
+  'production/qa/',
+  'production/release/',
+  'production/plans/',
+  'production/archive/',
+  'docs/engine-reference/',
+];
+
+const GENERATED_PATHS = new Set(['knowledge/CHANGELOG.md', 'knowledge/INDEX.md', 'memory/INDEX.md']);
+
+/** 该文件属 B 项的哪一档（vendor / generated / tasksIndex / tasksDetail / ledger / spec）。 */
+export function fileClassOf(relPath) {
+  if (relPath.includes('/cocos-mcp-server/')) return 'vendor';
+  if (GENERATED_PATHS.has(relPath)) return 'generated';
+  if (relPath === 'production/TASKS.md') return 'tasksIndex';
+  if (relPath === 'production/TASKS-DETAIL.md') return 'tasksDetail';
+  if (LEDGER_PREFIXES.some((p) => relPath.startsWith(p))) return 'ledger';
+  return 'spec';
+}
+
+/** 该文件的 B 项上限；vendor 返回 Infinity（免检）。门禁与报表**共用本函数**，不两处硬编码。 */
+export function fileCapOf(relPath) {
+  return FILE_CAPS[fileClassOf(relPath)] ?? Infinity;
+}
+
+/**
  * A 项常驻层单文件的**上限映射**（WXG-T-039 R5）。
  *
  * `build-context-index.mjs`（BUDGET.md §1 表的「上限」列）与

@@ -16,93 +16,6 @@
       "taskId": "WXG-T-343"
     },
     {
-      "path": "games/breakout/cocos/extensions/cocos-mcp-server/README.de.md",
-      "reason": "第三方 vendor 插件（cocos-mcp-server v1.5.4）自带的官方多语言 README，非本仓创作文档；不得改写拆分（破坏与上游一致性），已被 ctx 索引按章节锚点覆盖",
-      "taskId": "WXG-T-042"
-    },
-    {
-      "path": "games/breakout/cocos/extensions/cocos-mcp-server/README.es.md",
-      "reason": "同上：vendor 插件官方多语言 README，不改写不拆分",
-      "taskId": "WXG-T-042"
-    },
-    {
-      "path": "games/breakout/cocos/extensions/cocos-mcp-server/README.fr.md",
-      "reason": "同上：vendor 插件官方多语言 README，不改写不拆分",
-      "taskId": "WXG-T-042"
-    },
-    {
-      "path": "games/breakout/cocos/extensions/cocos-mcp-server/README.ja.md",
-      "reason": "同上：vendor 插件官方多语言 README，不改写不拆分",
-      "taskId": "WXG-T-042"
-    },
-    {
-      "path": "games/breakout/cocos/extensions/cocos-mcp-server/README.ko.md",
-      "reason": "同上：vendor 插件官方多语言 README，不改写不拆分",
-      "taskId": "WXG-T-042"
-    },
-    {
-      "path": "games/breakout/cocos/extensions/cocos-mcp-server/README.pt.md",
-      "reason": "同上：vendor 插件官方多语言 README，不改写不拆分",
-      "taskId": "WXG-T-042"
-    },
-    {
-      "path": "games/breakout/cocos/extensions/cocos-mcp-server/README.ru.md",
-      "reason": "同上：vendor 插件官方多语言 README，不改写不拆分",
-      "taskId": "WXG-T-042"
-    },
-    {
-      "path": "games/breakout/cocos/extensions/cocos-mcp-server/README.vi.md",
-      "reason": "同上：vendor 插件官方多语言 README，不改写不拆分",
-      "taskId": "WXG-T-042"
-    },
-    {
-      "path": "production/TASKS-DETAIL.md",
-      "reason": "台账详情分片（每任务一 ## WXG-T-0NN 节），按读取协议只经 ctx 章节锚点局部读、从不整读；单文件 8000 上限对这类文件的原初理由（整读读不起）已弱化，其价值仅兜底；随 ✅ 任务累计必然增长",
-      "note": "收窄裁决（WXG-T-077，2026-09-14）：本豁免仅因近期 ✅ 任务（T-059/063/068–078）尚未满 30 天、tasks:archive 暂抽不走而权宜放行；一旦完成任务老化被 tasks:archive 成对搬入 production/archive/（不进索引面）使本文件自然降回 8000 下，须撤销本豁免。不得靠豁免放任无界膨胀。",
-      "taskId": "WXG-T-077"
-    },
-    {
-      "path": "games/beads/cocos/extensions/cocos-mcp-server/README.de.md",
-      "reason": "第三方 vendor 插件（cocos-mcp-server v1.5.4）自带的官方多语言 README，非本仓创作文档；不得改写拆分（破坏与上游一致性），已被 ctx 索引按章节锚点覆盖",
-      "note": "beads 侧经 WXG-T-079 接入同一插件，与 breakout 侧 WXG-T-042 系同一 vendor 产物，故沿用其豁免政策。",
-      "taskId": "WXG-T-042"
-    },
-    {
-      "path": "games/beads/cocos/extensions/cocos-mcp-server/README.es.md",
-      "reason": "同上：vendor 插件官方多语言 README，不改写不拆分（beads 侧 WXG-T-079 接入）",
-      "taskId": "WXG-T-042"
-    },
-    {
-      "path": "games/beads/cocos/extensions/cocos-mcp-server/README.fr.md",
-      "reason": "同上：vendor 插件官方多语言 README，不改写不拆分（beads 侧 WXG-T-079 接入）",
-      "taskId": "WXG-T-042"
-    },
-    {
-      "path": "games/beads/cocos/extensions/cocos-mcp-server/README.ja.md",
-      "reason": "同上：vendor 插件官方多语言 README，不改写不拆分（beads 侧 WXG-T-079 接入）",
-      "taskId": "WXG-T-042"
-    },
-    {
-      "path": "games/beads/cocos/extensions/cocos-mcp-server/README.ko.md",
-      "reason": "同上：vendor 插件官方多语言 README，不改写不拆分（beads 侧 WXG-T-079 接入）",
-      "taskId": "WXG-T-042"
-    },
-    {
-      "path": "games/beads/cocos/extensions/cocos-mcp-server/README.pt.md",
-      "reason": "同上：vendor 插件官方多语言 README，不改写不拆分（beads 侧 WXG-T-079 接入）",
-      "taskId": "WXG-T-042"
-    },
-    {
-      "path": "games/beads/cocos/extensions/cocos-mcp-server/README.ru.md",
-      "reason": "同上：vendor 插件官方多语言 README，不改写不拆分（beads 侧 WXG-T-079 接入）",
-      "taskId": "WXG-T-042"
-    },
-    {
-      "path": "games/beads/cocos/extensions/cocos-mcp-server/README.vi.md",
-      "reason": "同上：vendor 插件官方多语言 README，不改写不拆分（beads 侧 WXG-T-079 接入）",
-      "taskId": "WXG-T-042"
-    },
-    {
       "path": "games/beads/design/audio/audio-spec.md",
       "reason": "beads 音频规格（wxgame-audio-spec 五件套：方向/事件表引用/BGM 结构/混音/实现策略）单体产出，连贯性优先；逐事件表已独立成 audio-events.md；已被 ctx 按章节锚点覆盖，读取走锚点不整读，单文件 8000 上限对此类规格仅兜底",
       "note": "若后续内容进一步膨胀（>12000 tok），应按五件套拆为多文件；当前 10410 tok 依 TASKS-DETAIL 先例豁免。登记人 = 主理人",
@@ -119,12 +32,6 @@
       "reason": "beads QA 硬判据表（9 系统 A1–H3 + §G 可感知判据），逐系统×逐判据天然长；已被 ctx 按章节锚点覆盖、读取走 §A1..§H3/§G 局部读不整读；本会话由 WXG-T-084 补可感知判据后肨至 16163 tok",
       "note": "收紧条件（与 TASKS-DETAIL 同口径）：本豁免为波次1 交付权宜放行；下次 QA 修订（WXG-T-084 复验轮）应将本文件按系统域拆为 test-cases-<域>.md 使单文件自然降回 8000 下，拆后撤销本豁免。不得靠豁免放任无界膨胀。登记人 = 主理人",
       "taskId": "WXG-T-084"
-    },
-    {
-      "path": "docs/engine-reference/cocos/VERSION.md",
-      "reason": "Cocos 引擎参考文档（能力矩阵 G1–G5 + 版本史 + §3 缺陷取证表）天然长且按版本/缺陷时间序累积；已被 ctx 按章节锚点覆盖（§1 环境/§2 能力/§3 缺陷/§4…），读取协议走锚点局部读、从不整读；单文件 8000 上限对此类参考手册仅兜底",
-      "note": "本会话 WXG-T-082 据实修订（⚠️→✅）并新增 §3 G10 ES5 转译取证后胀至 11967 tok。若后续再跨大版本膨胀，宜按 VERSION-<major>.md 分版归档；当前依同类参考文档先例豁免。登记人 = 主理人",
-      "taskId": "WXG-T-082"
     },
     {
       "path": "games/beads/design/ux/ux-spec.md",
@@ -203,12 +110,6 @@
       "reason": "已安装的 skill 正本（my-skills/**，第三方/上游 skill 安装产物），开发期按 skill 清单入口读，从不整读这些 docs",
       "note": "代登记（2026-09-17，全量提交批次）：vendor/安装会话未登记豁免致 commit 守卫阻断；归属 = skills 安装会话",
       "taskId": "vendor-skills"
-    },
-    {
-      "path": "memory/INDEX.md",
-      "reason": "memory 摘要层索引（ctx:build 生成产物），行号与最终索引强同步，拆分会破坏锚点",
-      "note": "WXG-T-139（2026-09-17）随会话记录增长越至 8067 tok（超 67）。生成器产物 ⇒ 由 tasks:archive / ctx:build 周期收敛，不手工拆",
-      "taskId": "WXG-T-139"
     },
     {
       "path": "games/beads/design/gdd/core-loop.md",
@@ -295,12 +196,6 @@
       "taskId": "WXG-T-210"
     },
     {
-      "path": "production/TASKS.md",
-      "reason": "任务台账主表（SSOT）：跨 IDE 领号与状态总览，按读取协议每会话开工必读；体积主体不是任务行，而是头注「领号注」数十轮累积的并发/撞号散文（第 5 行单行约占全文一半）。详情走 TASKS-DETAIL 分片局部读",
-      "note": "2026-09-25（WXG-T-210）本批仅新增 T-209 追认行 + T-210 行（约 160 tok）即把本文件从约 7919 顶到 8079 越 8000 门 ⇒ 债务归属清楚：本批非根因，文件此前已常驻上限 99%。撤销条件（任一达成即须撤豁免，不得靠豁免放任无界膨胀）：① 跑 tasks:archive --detail-until-under=7000 把老化 ✅ 行成对搬入 production/archive/（不进索引面）使主表自然降回门下——check:tasks 的 H 项观察哨已在报「主表 24 行 > 20，该归档」；② 把头注「领号注」的并发/撞号史拆为 production/TASKS-LEDGER-NOTES.md，主表只留「当前已分配至 / 下一可用号」两行。本批不自做 ①②：① 会搬动其他会话的 ✅ 行、② 会改领号协议正文，均超出皮肤系统批范围。登记人 = 主理人(Qoder)",
-      "taskId": "WXG-T-210"
-    },
-    {
       "path": "docs/architecture/adr/ADR-0022-beads-custom-material-shader-feasibility.md",
       "reason": "beads 自定义材质/Shader 可行性 ADR（真机 spike 取证快照：三角数/DC/fill 实测表逐条内联），与 ADR-0018/0021 同类一次性取证文档：按 ctx 章节锚点局部读、开发期从不整读",
       "note": "若后续裁定复开使本 ADR 跨轮累积需拆分附录。登记人 = 主对话（用户直派批，挂靠 WXG-T-210）",
@@ -319,37 +214,14 @@
       "taskId": "WXG-T-211"
     },
     {
-      "path": "production/qa/beads/playtest-plan.md",
-      "reason": "beads Playtest 计划正本（v1.2 起含第 4 轮皮肤与豆径档 PT-SKIN-01..08 判定线导出）：与 test-cases/g4-regression-report 同族 QA 文档，按时间序追加、只经 ctx 章节锚点局部读、开发期从不整读",
-      "note": "v1.2 增补后 8100 tok（超 100）；沿 WXG-T-084 豁免口径同批登记。登记人 = 主对话（编排代执行）",
-      "taskId": "WXG-T-211"
-    },
-    {
-      "path": "memory/2026-09-28.md",
-      "reason": "开发日记（按时间序追加、只经 ctx 章节锚点局部读、开发期从不整读）——与 g4-regression-report/test-cases 同族豁免；由 tasks:archive 周期收敛，不手工拆",
-      "note": "WXG-T-214/221（2026-09-29）随 tint mask 探针批越至 14337 tok（超 8000 上限 79%）",
-      "taskId": "WXG-T-214"
-    },
-    {
       "path": "games/beads/design/art/specs/tint-mask-asset-spec.md",
       "reason": "美术资产规格正本（tint mask 分册）：命名/编码/包体预算/双档位与 a11y 实测——与 assets-spec 同族，按 ctx 章节锚点局部读、开发期从不整读；随 tint 档位与包体策略迭代持续追加，由 art:sync 周期收敛",
       "taskId": "WXG-T-227"
     },
     {
-      "path": "production/plans/wxg-t-226-tint-pipeline-plan.md",
-      "reason": "工程实施方案（一次性计划文档，EP-12 拆分 + ADR-0029 骨架 + 包体/风险实测）：落地后即归档，不持续追加；按章节锚点局部读、从不整读",
-      "taskId": "WXG-T-226"
-    },
-    {
       "path": "production/qa/beads/wxg-t-228-tint-criteria.md",
       "reason": "QA 判据分册（TC-TINT-01…22 + C7-b/C12-t/R-9 重设建议）：与 test-cases/g4-regression-report 同族，按章节锚点局部读、开发期从不整读；判据裁定落地后并入 test-cases §L（届时本件冻结）",
       "taskId": "WXG-T-228"
-    },
-    {
-      "path": "memory/2026-10-03.md",
-      "reason": "开发日记（按时间序追加、只经 ctx 章节锚点局部读、开发期从不整读）——与 memory/2026-09-28 同族豁免；由 tasks:archive 周期收敛，不手工拆",
-      "note": "WXG-T-226/235/236（2026-10-03）随 tint 接缝白线 + 抬起投影两批越至 8132 tok（超 8000 上限 1.7%）；⚠ 连续两份日记超限（09-28 已 14337）= 趋势非偶然，宜单独立单收敛策略",
-      "taskId": "WXG-T-236"
     },
     {
       "path": "memory/2026-10-04.md",
@@ -374,18 +246,6 @@
       "taskId": "WXG-T-260"
     },
     {
-      "path": "knowledge/INDEX.md",
-      "reason": "知识库入口（§1–§5 协议正文 + §6 活跃表）。§6 活跃表是 kb:sync **生成物**（逐条一行，随 115 条活跃条目增长，占 6148 tok），生成器无窗口；读取协议要求它每会话必读。⚠ 本豁免**只给入口件本身**，lessons 各分片仍依 §4 明令「不得新增豁免」，越阈一律再切",
-      "note": "WXG-T-257~259 沉淀批新增条目使其自 7351 越至 8972（正文 2825 + 生成表 6148）。撤销条件：下次再涨 >500 tok 时，把 §1–§5 协议正文外移 `knowledge/PROTOCOL.md`（可腾 ≈2825 tok ≈ 50 条目余量）并同步 AGENTS.md §9 / ctx/ROUTES.md 的 `INDEX.md#§1/§2/§5` 锚点引用，不得继续靠豁免硬扛。登记人 = 主理人(Qoder)",
-      "taskId": "WXG-T-260"
-    },
-    {
-      "path": "knowledge/CHANGELOG.md",
-      "reason": "由 `pnpm run kb:sync` 生成（文件头明示「请勿手改」），数据源 = ledger.events（**append-only**）；渲染器无时间窗，故体积随知识库全生命周期单调增长。与 memory/INDEX.md（WXG-T-139）同族：生成物 ⇒ 由工具链周期收敛，不手工拆",
-      "note": "WXG-T-257~259 三批沉淀使其自 5929 越至 8153。撤销条件（择一，须另立单做）：① 给 renderChangelog 加日期/条数窗（改动须同步 kb selftest）；② 按季度归档为 `knowledge/archive/CHANGELOG-<q>.md`（archive 已在 SKIP_DIRS，不入索引面）。⚠ 真源缺口已登记：本件无自动收敛 ⇒ 每次大沉淀批都会顶门。登记人 = 主理人(Qoder)",
-      "taskId": "WXG-T-260"
-    },
-    {
       "path": "docs/architecture/adr/ADR-0018-beads-board-size-playability.md",
       "reason": "盘面尺寸可玩性裁定正本（§3.4.5/§3.4.6 为 fit 档推翻链唯一落档处）；WXG-T-262 同日七批续裁注按「不篡改历史」逐批追加致 8414 > 8000，拆分会切断裁定链锚点",
       "note": "下次修订评估把 §3.4.6 七批续裁注正文外移至 systems-index-changelog（ADR 只留指针+现行口径一行）后撤销豁免",
@@ -397,26 +257,9 @@
       "taskId": "WXG-T-266"
     },
     {
-      "path": "production/epics/epics-beads.md",
-      "reason": "Epic 台账（EP-11/EP-12 等拆分件正本）：随 Story 增补持续增长， 按章节锚点局部读、从不整读；与 TASKS-DETAIL 同族",
-      "taskId": "WXG-T-268"
-    },
-    {
       "path": "games/beads/design/art/specs/menu-wall-signage-spec.md",
       "reason": "beads 美术资产规格分册（WXG-T-269-S6 招牌珠拼字形/橱窗/缩略绘制位表与档口径）：与 tint-mask-asset-spec（WXG-T-227）/menu-architecture（WXG-T-266）同族美术规格正本，位表与结论需整篇同读才能对齐同一档，拆分会致「字形↔档↔成本」跨文件互引；已被 ctx 按章节锚点覆盖，读取走局部读、从不整读",
       "note": "2026-10-07（WXG-T-269）首次入仓即 13126 tok（≈1.6× 上限）。债务显式化：若后续招牌/缩略档位继续追加，宜把逐字位表抽为 menu-wall-signage-glyphs.md、正文留档口径与结论后撤销豁免；再涨即拆，不得二次追加同类豁免。登记人 = 主理人(Qoder)",
-      "taskId": "WXG-T-269"
-    },
-    {
-      "path": "production/epics/epics-beads-ep12.md",
-      "reason": "EP-12「暖纸拼豆台」Story 台账正本（S1–S9 逐个四要素 + 逐批实测读数与状态行）：随 Story 增补按时间序追加，沿 epics-beads.md（WXG-T-268）同族豁免口径；按章节锚点局部读、从不整读",
-      "note": "2026-10-07（WXG-T-269-S6 批 6）随 S6 状态行 + 批 6-A/6-B 实测读数入仓越至 8964 tok（超 12%）。撤销条件：Story 全部闭合后可按 Epic 阶段拆件或归档使其自然回落 8000 下。登记人 = 主理人(Qoder)",
-      "taskId": "WXG-T-269"
-    },
-    {
-      "path": "production/qa/beads/smoke-tests.md",
-      "reason": "beads 冒烟清单正本（§0 实跑汇总 + 主链路 SC-01..13 + 冲刺/可感知/风格族/主菜单作品墙各段）：与 test-cases.md（WXG-T-084）/playtest-plan.md（WXG-T-211）/g4-regression-report.md（WXG-T-084）同族 QA 文档，按时间序追加、只经 ctx 章节锚点局部读、开发期从不整读",
-      "note": "2026-10-07（WXG-T-269-S6）新增 SC-MN-01/02 + SC-01/SC-11 K-053 划线订正使其越至 8572 tok（超 7%）。沿同族豁免口径同批登记；若后续多轮冒烟膨胀按测量轮拆分。登记人 = 主理人(Qoder)",
       "taskId": "WXG-T-269"
     },
     {
@@ -441,36 +284,6 @@
       "taskId": "WXG-T-269"
     },
     {
-      "path": "production/qa/menu-b19/README.md",
-      "reason": "第十四批菜单 QA 批次证据台账（B19–B25 判据读数、底图/位图取证与裁定链需同页互查）；与 test-cases/playtest-plan（WXG-T-084/211）同族 QA 文档，按批次时间序追加、经 ctx 章节锚点局部读、从不整读",
-      "note": "收紧条件：单批次台账下次再胀（>16000 tok）时按批次拆 menu-b1x/README 或外移 details，拆后撤销本豁免；不得靠豁免放任无界膨胀。登记人 = 主对话（提交收口代执行）",
-      "taskId": "WXG-T-265"
-    },
-    {
-      "path": "memory/2026-10-13.md",
-      "reason": "日记批次台账（原型 v2 第十批~定稿底图换代逐条流水），按日时间序追加；读取协议走 memory/INDEX.md 锚点局部读、从不整读；与 2026-10-03/04（WXG-T-236/244）同族先例",
-      "note": "收紧条件：跨日后旧日记不再增长；若再胀 >16000 tok 按 INDEX 口径外移 memory/details/，拆后撤销本豁免。登记人 = 主对话（提交收口代执行）",
-      "taskId": "WXG-T-265"
-    },
-    {
-      "path": "memory/2026-10-14.md",
-      "reason": "日记批次台账（布局 v3.3 / final 转正链 / remove-box-fill 同日 100 条），同上族口径与先例",
-      "note": "收紧条件：同 2026-10-13 行；再胀外移 details 后撤销。登记人 = 主对话（提交收口代执行）",
-      "taskId": "WXG-T-265"
-    },
-    {
-      "path": "production/qa/beads/device-walkthrough.md",
-      "reason": "beads 真机走查单正本（逐设备逐判据 D-xx 读数 + 判定列 + 版本变更日志）：与 test-cases/playtest-plan 同族 QA 文档，按走查批次时间序追加、只经 ctx 章节锚点局部读、开发期从不整读",
-      "note": "收紧条件：v1.6 回填 D-79 后 9729 tok 首次越线；下次走查修订时把已结案设备段外移 device/<date>/ 或拆 device-walkthrough-<批次>.md，拆后撤销本豁免。登记人 = 本会话（提交收口代执行）",
-      "taskId": "WXG-T-295"
-    },
-    {
-      "path": "production/release/beads/release-checklist.md",
-      "reason": "beads 发布清单正本（版本/包体/审核/回滚逐项判据 + 历史版本读数）：与 release 台账同族，按版本时间序追加、经章节锚点局部读、从不整读",
-      "note": "收紧条件：v1.6 对齐 23:29 包体后 8067 tok 首次越线；下次发版前把已归档版本段外移 production/release/archive/，拆后撤销本豁免。登记人 = 本会话（提交收口代执行）",
-      "taskId": "WXG-T-295"
-    },
-    {
       "path": "docs/architecture/ui-architecture-beads.md",
       "reason": "beads UI 架构与迁移台账正本（§1–§11 规范 + §12 TODO 拆分表 + §13 待拍板）：UI-50/53 等后续任务按 §12 行与章节锚点局部读、开发期从不整读；K-051/K-053/ADR-0032 DEC-6 纪律要求视觉变更登记落在 §12 行内联（先例 T-324/325 注在 UI-50 行），本批登记属纪律性追加",
       "note": "2026-10-21（WXG-T-339）本批仅新增 §12 UI-30 行视觉变更登记（约 165 tok）即把本文件自 7990 顶到 8155 越 8000 门 ⇒ 债务归属清楚：本批非根因，文件此前已常驻上限 99.9%（体积主体 = §12 各行累积的过程括注）。撤销条件：下次修订前评估把 §12 各行括注外移为 ui-architecture-beads-log.md（行只留状态与指针），拆后撤销本豁免；不得靠豁免放任无界膨胀。本批不自做：属结构迁移，超缺陷修复批范围。登记人 = 主理人(Qoder)",
@@ -483,17 +296,16 @@
       "taskId": "WXG-T-340"
     },
     {
-      "path": "production/epics/epics-beads-ep14.md",
-      "reason": "EP14「存档与进度」Story 台账正本（S1–S6 逐个四要素 + 逐批状态回写）：Epic / Story 的判据引用与 Ready·DONE 判定须同页互查（`wxgame-epic-split` 的 Story 卡结构），读取走 ctx 章节锚点局部读（§0 前提 / §2 各 Story / §4 变更 / §5 风险）、从不整读；同族先例 = epics-beads.md（WXG-T-268）与 epics-beads-ep12.md（WXG-T-269，10088 tok）",
-      "note": "2026-10-22（WXG-T-344）本批 T-2S 将 EP14-S6 改写为三档台账（已完成／未完成且已定义／未完成且未定义）⇒ 使其自 ≤8000 顶到 9303，ctx B 门拦下本批提交。⚠ 撤销条件（债务归属清楚，⛔ 不得靠豁免放任无界膨胀）：下次修订本 Epic 时，把台账里的**逐臂变异读数与包体数字**外移回 ADR-0034 §6.2（该节本就是读数正本；本 Epic 文中已自写「⛔ 不拄读数，只挂引用」），Epic 只留三档状态与判据引用 ⇒ 顶回 ≤8000 即撤销本豁免。登记人 = 主理人(Qoder)",
-      "taskId": "WXG-T-344"
-    },
-    {
       "path": "games/beads/design/proposals/star-economy-and-retention.md",
       "reason": "星级经济与留存提案正本（§0 结论 / §1.6 供给盘 / §4 皮肤价目 / §5–§6 日常与金币闭环 / §8–§13 分层与待裁）——「门票 vs 皮肤 vs 留存」三线是否打架必须同页互查；读取按 ctx 章节锚点局部读、开发期从不整读，拆分会把「21★ 门票 / 6-15-27★ 皮肤 / 每日任务产出」拆成跨文件互引",
       "note": "2026-10-22（WXG-T-346）本批 v0.2 同步门票改判（21★ 门票 / 27★ 荣誉解耦，六处措辞），已先删去与 §7.3 重复的解耦段（-196 tok），仍自 7963 顶到 8442 ⇒ 债务归属清楚：文件在改判前已常驻 99.5% 上限，而 K-053 要求旧句划线留档、⛔ 删存量正文，故净增不可压到 37 tok 以内。撤销条件（⛔ 不得靠豁免放任无界膨胀）：下次修订前把 §5 日常拉活 + §6 金币闭环（≈1574 tok）外移为同目录 star-economy-daily.md，正文只留三行结论与指针，顶回 ≤8000 即撤销本豁免。登记人 = 主理人(Qoder)",
       "taskId": "WXG-T-346"
     },
-    {"path": "games/beads/design/art/specs/menu-layout-implementation-spec.md", "reason": "UI 布局落码的唯一施工依据：§10 累计星进度件的落位依赖 §3 木牌两行槽（MENU_PLATE_TITLE.line1Off/line2Off）与 §8 走马灯平移/淡变口径，须同页互查；施工方取坐标按单页读，拆成两文件即跨文件拼装（沿 §7 已外移后主件仍保留全部在册坐标表的同族口径）", "note": "2026-10-22（WXG-T-346 · art 批）新增 §10（≈1.3k tok，含 WCAG 对比度实测与 E2 余量算术）后自 ≈7.4k 顶到 8750（超限 9.4%）。撤销条件（⛔ 不得靠豁免放任无界膨胀）：下次增补前把 §5 资源文件需求（78–104 行 ≈6.7 KB，与 final/README.md 的 assets/menu 台账重复登记）外移为同目录 menu-layout-assets-requirement.md、正文只留指针，顶回 ≤8000 即撤销本豁免。登记人 = 主理人(Qoder)", "taskId": "WXG-T-346"}
+    {
+      "path": "games/beads/design/art/specs/menu-layout-implementation-spec.md",
+      "reason": "UI 布局落码的唯一施工依据：§10 累计星进度件的落位依赖 §3 木牌两行槽（MENU_PLATE_TITLE.line1Off/line2Off）与 §8 走马灯平移/淡变口径，须同页互查；施工方取坐标按单页读，拆成两文件即跨文件拼装（沿 §7 已外移后主件仍保留全部在册坐标表的同族口径）",
+      "note": "2026-10-22（WXG-T-346 · art 批）新增 §10（≈1.3k tok，含 WCAG 对比度实测与 E2 余量算术）后自 ≈7.4k 顶到 8750（超限 9.4%）。撤销条件（⛔ 不得靠豁免放任无界膨胀）：下次增补前把 §5 资源文件需求（78–104 行 ≈6.7 KB，与 final/README.md 的 assets/menu 台账重复登记）外移为同目录 menu-layout-assets-requirement.md、正文只留指针，顶回 ≤8000 即撤销本豁免。登记人 = 主理人(Qoder)",
+      "taskId": "WXG-T-346"
+    }
   ]
 }

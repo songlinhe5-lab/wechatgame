@@ -69,6 +69,8 @@ import {
   LIMITS,
   RESIDENT_PROTOCOL_FILES,
   buildIndex,
+  fileCapOf,
+  fileClassOf,
   freshnessIssues,
   readDistribution,
   readIndex,
@@ -186,7 +188,7 @@ function renderBudget(index) {
   ];
   const top = [...files].sort((a, b) => b.tokens - a.tokens || a.path.localeCompare(b.path));
 
-  const overLimit = top.filter((f) => f.tokens > LIMITS.fileMax);
+  const overLimit = top.filter((f) => f.tokens > fileCapOf(f.path));
 
   const L = [];
   L.push('# 上下文预算报表（ctx/BUDGET.md）');
@@ -211,7 +213,7 @@ function renderBudget(index) {
   );
   L.push(
     `> \`ctx/ROUTES.md\` 常驻阈值 **${LIMITS.routesMd}**（WXG-T-039 R5）：现值 6235 之上留 ≈20% 余量，` +
-      '且低于 B 项通用单文件上限 8000——ROUTES 是手维护路由表（非生成物、无生成器控量），本门与门禁 A 项是其唯一硬护栏。',
+      '且低于 B 项默认单文件上限 8000（spec 档）——ROUTES 是手维护路由表（非生成物、无生成器控量），本门与门禁 A 项是其唯一硬护栏。',
   );
   // 常驻总量观察哨（WXG-T-039 R5，报告项）：单文件上限各自为政时总量仍可漂移，
   // 此行是观察哨；超软阈值不阻断，硬阻断只挂各单文件门（与门禁 A 项的总量行同源同判）。
@@ -232,15 +234,25 @@ function renderBudget(index) {
   });
   L.push('');
 
-  L.push(`## 3. 超限清单（> ${LIMITS.fileMax} tokens = 单文件上限）`);
+  L.push('## 3. 超限清单（超过所属类别上限）');
+  L.push('');
+  L.push(
+    '> 上限按文档类别分档（WXG-T-377）：**spec 8000**（判据/规格/提案/ADR/GDD/UX/skill，未放松）/ ' +
+      '**ledger 16000**（追加型台账：Epic·QA·发布·计划·引擎版本记录）/ **generated 24000**（生成物）/ ' +
+      '**TASKS.md 80000**、**TASKS-DETAIL.md 205000**（由 `archive-tasks.mjs` 治理）/ ' +
+      '**vendor 免检**（`cocos-mcp-server` 目录，⛔ 不可改写）。',
+  );
   L.push('');
   if (overLimit.length === 0) {
     L.push('无超限文件。');
   } else {
-    L.push('| 文件 | tokens | 处置 |');
-    L.push('|---|---:|:--:|');
+    L.push('| 文件 | tokens | 类别 · 上限 | 处置 |');
+    L.push('|---|---:|---:|:--:|');
     for (const f of overLimit) {
-      L.push(`| \`${f.path}\` | ${f.tokens} | 见 \`ctx/budget-exempt.json\`（无豁免则 ❌ 需报告主理人） |`);
+      L.push(
+        `| \`${f.path}\` | ${f.tokens} | ${fileClassOf(f.path)} · ${fileCapOf(f.path)} | ` +
+          '见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |',
+      );
     }
   }
   L.push('');
