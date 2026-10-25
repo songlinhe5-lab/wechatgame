@@ -276,4 +276,6 @@
 | K-166 | 关卡与生成链 | patterns | 章内「末位 = boss」的落位必须 append，boss 标记收尾统一设 | WXG-T-364 | 2026-10-24 | 0 | active |
 | K-167 | 测试 | testing | 金样本漂移归因必须做「单变量回退实验」：`total`/`kinds` 腿与 `sha` 腿可以来自两个不同批次，只按 sha 拐点推测会把两腿并成一腿 | WXG-T-375 | 2026-10-24 | 0 | active |
 | K-168 | 工具链Git | toolchain-git | 查「某个字段的值被谁改过」⛔ 拿 `git log -S` 搜键名（pickaxe 数的是出现次数 ⇒ 同行换值不命中，会得到假的「从未改过」），须改 `-G` 正则或搜旧值 | WXG-T-375 | 2026-10-24 | 0 | active |
+| K-169 | 流程台账 | process-ledger | `check:tasks` 按裸竖线切主表行：行内写管道或命令即被判「列数 N ≠ 5」 | WXG-T-378 | 2026-10-25 | 0 | active |
+| K-170 | 流程台账 | process-ledger | 单文件上限是硬顶：往详情节追加前先估 tok，撞顶后再挤会白跑一轮 pre-commit | WXG-T-378 | 2026-10-25 | 0 | active |
 <!-- kb:active:end -->

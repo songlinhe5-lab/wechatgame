@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 169,
+  "nextId": 171,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -761,7 +761,7 @@
       "file": "knowledge/lessons/process-ledger.md",
       "category": "流程台账",
       "title": "同一台账文件被并发会话同时写时，`git add <整文件>` 会把别人的 WIP 捎进本单提交",
-      "contentHash": "8c23937a2ec3d4111b576e0cd936a512903f3429dec505122390431d77f377e8",
+      "contentHash": "137cc2bf33b0b40a418d953eaaf563a29b6bb2fda959c5f241337bce2542b33d",
       "sourceTask": "WXG-T-097",
       "addedDate": "2026-09-15",
       "lastAccess": "2026-09-15",
@@ -1887,7 +1887,7 @@
       "file": "knowledge/lessons/criteria.md",
       "category": "判据",
       "title": "封箱基准「只插键、不动几何」类修订：闭合自证 = 剥键后 sha 逐字节 ≡ 前态锁 + 带键条数 = 登记常量，强于逐行 diff",
-      "contentHash": "868ab8f8dbe45ad2b1b7f6591eb4a865a393809d575a6affcf496c652fb56a9f",
+      "contentHash": "8183ad7e3e0c005277a392ff08b13579d44f8059eb513df14921400b0080239a",
       "sourceTask": "WXG-T-256",
       "addedDate": "2026-10-05",
       "lastAccess": "2026-10-05",
@@ -2261,7 +2261,7 @@
       "file": "knowledge/lessons/toolchain-git.md",
       "category": "工具链Git",
       "title": "文档批「本地门全绿」可以是假绿：`ctx:check` 默认校验 HEAD，暂存态超限只有 pre-commit 看得到",
-      "contentHash": "93d707798cf32d4803bdf082109d79a3bfa9a1e112ad53882f79cffba1dbd710",
+      "contentHash": "69d38e7a4d5ffeaae182ed35a863fa5c5efeeb152bdb07e4d3b42259a6d86174",
       "sourceTask": "WXG-T-289",
       "addedDate": "2026-10-17",
       "lastAccess": "2026-10-17",
@@ -2809,6 +2809,40 @@
       "sourceTask": "WXG-T-375",
       "addedDate": "2026-10-24",
       "lastAccess": "2026-10-24",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-169",
+      "state": "active",
+      "file": "knowledge/lessons/process-ledger.md",
+      "category": "流程台账",
+      "title": "`check:tasks` 按裸竖线切主表行：行内写管道或命令即被判「列数 N ≠ 5」",
+      "contentHash": "4470ce3e003d9d561ce52c8c3dff49ff5b075b4e226cc77efcd437d4ce0705ee",
+      "sourceTask": "WXG-T-378",
+      "addedDate": "2026-10-25",
+      "lastAccess": "2026-10-25",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-170",
+      "state": "active",
+      "file": "knowledge/lessons/process-ledger.md",
+      "category": "流程台账",
+      "title": "单文件上限是硬顶：往详情节追加前先估 tok，撞顶后再挤会白跑一轮 pre-commit",
+      "contentHash": "6a99c221f0938780821738879bab6588a15dde6f832529eeac120901fc856038",
+      "sourceTask": "WXG-T-378",
+      "addedDate": "2026-10-25",
+      "lastAccess": "2026-10-25",
       "accessCount": 0,
       "accessSources": [],
       "seen": [],
@@ -4447,6 +4481,37 @@
       "kind": "updated",
       "ids": [
         "K-136"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-25",
+      "taskId": "WXG-T-378",
+      "kind": "added",
+      "ids": [
+        "K-169",
+        "K-170"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-25",
+      "taskId": "WXG-T-378",
+      "kind": "updated",
+      "ids": [
+        "K-050",
+        "K-114",
+        "K-136"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-25",
+      "taskId": "WXG-T-378",
+      "kind": "updated",
+      "ids": [
+        "K-045",
+        "K-050"
       ],
       "note": null
     }
