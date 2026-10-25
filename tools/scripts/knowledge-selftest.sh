@@ -40,6 +40,8 @@
 #            `insertIntoCategory` 把老号插到首个更大 ID 之前（不追加到分区尾）
 #         ㉑ kb:reactivate 端到端（WXG-T-386）：归档老号 K-002（同分区已有更大号 K-006）
 #            → 重新激活 → 插回 K-006 之前，kb:check ⑩ 与 ⑧ 同绿（不只测 helper 与门）
+#         ㉒ kb:archive 失败分支（WXG-T-387）：缺 --ids / 空有效 ID → exit 2（用法）；
+#            未知 ID / 已归档 ID → exit 1（语义）；四次失败后 ledger 与归档文件逐字节不变
 #
 # 用法：tools/scripts/knowledge-selftest.sh
 # 产物：仅 stdout 报告；临时目录退出时清理，不污染仓库 / 真实知识库。
@@ -937,6 +939,40 @@ process.exit(i2>-1 && i6>-1 && fl>-1 && i2>fl && i2<i6 ? 0 : 1);
 assert_eq "$(ld K-002 state)" "active" "21c ledger：K-002 state=active"
 assert_eq "$(ldhashlen K-002)" "64" "21c contentHash 已按激活后正文重算（64 位）"
 assert_eq "$(ldseen K-002)" "$(ld K-002 accessCount)" "21c seen 与 accessCount 相等（⑥ 仍成立）"
+
+# ── [22] kb:archive 失败分支：exit 码分类 + 失败不落盘（WXG-T-387）────────────
+echo
+echo "[22] kb:archive 失败分支：缺 --ids / 空有效 ID（exit 2）· 未知 ID / 非活跃（exit 1）"
+
+cp "$REPO/knowledge/ledger.json" "$WORK/ledger.pre22.json"
+cp "$REPO/knowledge/archive/patterns-archived.md" "$WORK/archpatterns.pre22.md"
+
+# 22a 缺 --ids → 用法错误 exit 2
+rc=$(run node "$KB_ARCHIVE" --reason="桩：参数负例")
+assert_eq "$rc" "2" "22a 缺 --ids → exit 2（用法错误，不是 1）"
+assert_contains "$(cat "$WORK/last.txt")" "用法" "22a 诊断给出用法串"
+
+# 22b --ids 只有分隔符 → 有效 ID 为 0 → exit 2
+rc=$(run node "$KB_ARCHIVE" --ids=" , ," --reason="桩：空 ID 负例")
+assert_eq "$rc" "2" "22b --ids 无有效 ID → exit 2"
+assert_contains "$(cat "$WORK/last.txt")" "--ids 未给出有效 ID" "22b 诊断点名空 --ids"
+
+# 22c 未知 ID → exit 1（参数形态合法、语义失败）
+rc=$(run node "$KB_ARCHIVE" --ids=K-999 --reason="桩：未知 ID")
+assert_eq "$rc" "1" "22c 未知 ID K-999 → exit 1（与用法错误区分）"
+assert_contains "$(cat "$WORK/last.txt")" "未知条目 ID：K-999" "22c 诊断点名未知 ID"
+
+# 22d 非活跃 ID → exit 1（K-004 在 [13] 已归档，且从未重新激活）
+rc=$(run node "$KB_ARCHIVE" --ids=K-004 --reason="桩：非活跃负例")
+assert_eq "$rc" "1" "22d 已归档的 K-004 → exit 1"
+assert_contains "$(cat "$WORK/last.txt")" "非活跃（state=archived）" "22d 诊断点明 state=archived"
+assert_file_has "$REPO/knowledge/archive/patterns-archived.md" "[K-004]" "22d 失败后 K-004 仍在归档文件（未被二次搬移）"
+
+# 22e 失败不落盘：ledger 与归档文件逐字节不变，kb:check 仍绿
+cmp -s "$WORK/ledger.pre22.json" "$REPO/knowledge/ledger.json" && ok "22e 四次失败后 ledger 逐字节不变（exit 早于写盘）" || bad "22e ledger 被失败分支改写"
+cmp -s "$WORK/archpatterns.pre22.md" "$REPO/knowledge/archive/patterns-archived.md" && ok "22e 归档文件逐字节不变" || bad "22e 归档文件被失败分支改写"
+rc=$(run node "$KB_CHECK")
+assert_eq "$rc" "0" "22e 负例后 kb:check 仍 exit 0"
 
 # ── 汇总 ────────────────────────────────────────────────────────────────────
 echo
