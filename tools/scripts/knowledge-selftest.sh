@@ -38,6 +38,8 @@
 #            移除分片目录后恢复 exit 0（旧布局跳过）
 #         ⑳ kb:check ⑩（WXG-T-385）：条目倒序 → FAIL 并点名两个号；
 #            `insertIntoCategory` 把老号插到首个更大 ID 之前（不追加到分区尾）
+#         ㉑ kb:reactivate 端到端（WXG-T-386）：归档老号 K-002（同分区已有更大号 K-006）
+#            → 重新激活 → 插回 K-006 之前，kb:check ⑩ 与 ⑧ 同绿（不只测 helper 与门）
 #
 # 用法：tools/scripts/knowledge-selftest.sh
 # 产物：仅 stdout 报告；临时目录退出时清理，不污染仓库 / 真实知识库。
@@ -857,6 +859,9 @@ writeFileSync(
   现象：p1。
   根因：r1。
   规避：a1。
+
+- **[流程][K-006] 桩新增：delta epsilon**（来源 WXG-T-903，2026-03-10）
+  现象：p9。
 `,
   'utf8',
 );
@@ -868,6 +873,70 @@ assert_eq "$rc" "1" "20b 条目倒序 → kb:check exit 1"
 assert_contains "$(cat "$WORK/last.txt")" "⑩ 片内条目未按 ID 升序" "20b 报「⑩ 片内条目未按 ID 升序」"
 assert_contains "$(cat "$WORK/last.txt")" "K-001 排在 K-002" "20b 点名两个号与先后关系"
 assert_not_contains "$(cat "$WORK/last.txt")" "⑧ 条目" "20b 哈希已由 sync 回写 ⇒ 不误报 ⑧"
+
+# ── [21] 端到端：归档 → 重新激活 → ⑩ 与 ⑧ 同绿（WXG-T-386）────────────────
+echo
+echo "[21] kb:reactivate 端到端：老号归档后激活回「同分区有更大号」的位置"
+
+# 21a [20] 留下的倒序布局恢复为升序（含正确分区），由 sync 回写哈希
+node - "$REPO" <<'NODE_EOF'
+import { writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+writeFileSync(
+  join(process.argv[2], 'knowledge/lessons.md'),
+  `# lessons.md — 教训库（桩）
+
+## 工具链
+
+- **[工具链][K-001] 桩教训一：foo bar baz**（来源 WXG-T-901，2026-01-01）
+  现象：p1。
+  根因：r1。
+  规避：a1。
+
+## 流程
+
+- **[流程][K-002] 桩教训二：qux quux**（来源 WXG-T-902，2026-01-02）
+  现象：p2。
+  根因：r2。
+
+- **[流程][K-006] 桩新增：delta epsilon**（来源 WXG-T-903，2026-03-10）
+  现象：p9。
+`,
+  'utf8',
+);
+NODE_EOF
+rc=$(run node "$KB_SYNC")
+assert_eq "$rc" "0" "21a 恢复升序布局 + kb:sync 退出码 0"
+rc=$(run node "$KB_CHECK")
+assert_eq "$rc" "0" "21a 基线 kb:check exit 0（⑩ 已恢复绿）"
+
+# 21b 归档 K-002：同分区（流程）里还有更大的 K-006
+rc=$(run node "$KB_ARCHIVE" --ids=K-002 --date=2026-03-04 --reason="桩：e2e 归档")
+assert_eq "$rc" "0" "21b kb:archive K-002 退出码 0"
+assert_file_not "$REPO/knowledge/lessons.md" "[K-002]" "21b K-002 已离开活跃文件"
+rc=$(run node "$KB_CHECK")
+assert_eq "$rc" "0" "21b 归档后 kb:check exit 0"
+
+# 21c 重新激活：必须插到 K-006 之前（不是分区尾），且 ⑩/⑧ 均绿
+rc=$(run node "$KB_REACTIVATE" --ids=K-002 --date=2026-03-05 --reason="桩：e2e 激活" --task=WXG-T-907)
+assert_eq "$rc" "0" "21c kb:reactivate K-002 退出码 0"
+assert_file_has "$REPO/knowledge/lessons.md" "[K-002] 桩教训二：qux quux" "21c K-002 已回到 lessons.md"
+rc=$(run node "$KB_CHECK")
+assert_eq "$rc" "0" "21c 激活后 kb:check exit 0（⑩ 与 ⑧ 同绿）"
+assert_contains "$(cat "$WORK/last.txt")" "PASSED" "21c kb:check 输出 PASSED"
+assert_contains "$(cat "$WORK/last.txt")" "⑩ 片内条目 ID 升序" "21c PASS 串含 ⑩"
+assert_not_contains "$(cat "$WORK/last.txt")" "❌" "21c 无任何失败项（⑧ 未因 relink 误报）"
+node -e '
+const fs=require("node:fs");
+const lines=fs.readFileSync(process.argv[1],"utf8").split("\n");
+const i2=lines.findIndex(l=>l.includes("[K-002]"));
+const i6=lines.findIndex(l=>l.includes("[K-006]"));
+const fl=lines.findIndex(l=>l.startsWith("## 流程"));
+process.exit(i2>-1 && i6>-1 && fl>-1 && i2>fl && i2<i6 ? 0 : 1);
+' "$REPO/knowledge/lessons.md" && ok "21c K-002 插在 K-006 之前且仍在「流程」分区（不是分区尾）" || bad "21c K-002 落位不对（应插在 K-006 之前）"
+assert_eq "$(ld K-002 state)" "active" "21c ledger：K-002 state=active"
+assert_eq "$(ldhashlen K-002)" "64" "21c contentHash 已按激活后正文重算（64 位）"
+assert_eq "$(ldseen K-002)" "$(ld K-002 accessCount)" "21c seen 与 accessCount 相等（⑥ 仍成立）"
 
 # ── 汇总 ────────────────────────────────────────────────────────────────────
 echo

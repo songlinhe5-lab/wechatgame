@@ -4,7 +4,8 @@
  *
  * 动作（每个 ID）：
  *   1. 从 `knowledge/archive/<…>-archived.md` 删除该条目（并剥离归档元信息行）；
- *   2. 原文搬回**原文件**（保持类别分区：置于该 `## 类别` 分区末尾）；
+ *   2. 原文搬回**原文件**（保持类别分区：按 ID 升序插入该 `## 类别` 分区，
+ *      见 `lib/knowledge-ledger.mjs::insertIntoCategory` —— WXG-T-385）；
  *   3. ledger → `state: active` + `reactivatedDate`；**保留原 accessCount 并 +1**，
  *      `accessSources` 追加 `reactivate:<日期>`，`seen` 追加 `reactivate:<日期>#<日期>`
  *      （**显式动作主体**留痕，使 `accessCount === seen.length` 严格成立；不影响
