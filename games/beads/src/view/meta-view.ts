@@ -1472,7 +1472,7 @@ function drawLevelsPage(
     const curSlot = data.wallSlots.indexOf(data.currentLevelIndex);
     const curLevel = curSlot < 0 ? undefined : data.wallLevels[curSlot];
     if (curLevel !== undefined) {
-        builder.text(DESIGN_W / 2, (LEVELS_GRID_TOP + navTop - LEVELS_NAV_H) / 2 - LEVELS_NAV_H, starCriteriaText(curLevel.time), {
+        builder.text(DESIGN_W / 2, (LEVELS_GRID_TOP + navTop - LEVELS_NAV_H) / 2 - LEVELS_NAV_H, starCriteriaText(curLevel.time, curLevel.starTierK), {
             fill: palette.textDim,
             font: bodyFont(data.largeText, 'sub'),
             align: 'center',

@@ -139,8 +139,8 @@ export function measuredLevelTime(steps: number): { time: number; difficulty: nu
  * - `tierStepBudget(T₁, 3) ≥ min(steps@24, steps@48)` ⇒ 至少某一扩容档 3★ 可达。
  * 两条都成立才算一关「定价自洽」，消费方 = `beads-bot.ts` 的 blockers（生成期硬拦）。
  */
-export function tierStepBudget(levelTime: number, tier: number): number {
-    return Math.floor(tierSecondsFor(levelTime, tier) / SEC_PER_STEP);
+export function tierStepBudget(levelTime: number, tier: number, starTierK?: readonly number[]): number {
+    return Math.floor(tierSecondsFor(levelTime, tier, starTierK) / SEC_PER_STEP);
 }
 
 /**

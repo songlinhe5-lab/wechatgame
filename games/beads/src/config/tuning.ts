@@ -916,10 +916,19 @@ export const STAR_TIER_FLOOR = [
 /**
  * 本关 `time`（= 1★ 时钟）在第 `tier` 档实际给多少秒。
  * 地板按档取 `STAR_TIER_FLOOR`（§3.7 v1.82）⇒ 短关的 2★/3★ 不再双双钳到同一个 30。
+ *
+ * @param starTierK **单关覆盖**（可选，§3.7 v1.86）：缺省用全局 `STAR_TIER_K`。
+ *   用途 = 「这一关的某一档要专门规划」（例：boss 关要求 3★ 必须开 48 槽才紧平衡）。
+ *   仍走「`time` × 系数」同一算式 ⇒ `time` 仍是 1★ 时钟的单一真源（v1.76 不破），
+ *   只是系数可按关取值。合法性由 `sync-levels-data.mjs` 生成期断言（3 个数 / [0]=1 / 严格递减）。
  */
-export function tierSecondsFor(levelTime: number, tier: number): number {
+export function tierSecondsFor(
+  levelTime: number,
+  tier: number,
+  starTierK: readonly number[] = STAR_TIER_K,
+): number {
   const t = Math.max(1, Math.min(STAR_TIER_COUNT, Math.round(tier)));
-  const k = STAR_TIER_K[t - 1] ?? 1;
+  const k = starTierK[t - 1] ?? STAR_TIER_K[t - 1] ?? 1;
   return Math.max(STAR_TIER_FLOOR[t - 1] ?? LEVEL_TIME_MIN, Math.round(levelTime * k));
 }
 
@@ -1087,14 +1096,16 @@ export function computeClearStars(
   levelTime: number,
   tier: number,
   revived = false,
+  /** 单关覆盖（§3.7 v1.86）；缺省 = 全局 `STAR_TIER_K`。 */
+  starTierK?: readonly number[],
 ): { ratio: number; stars: number } {
   const ratio = total > 0 ? Math.max(0, Math.min(1, remaining / total)) : 0;
   if (revived) {
     return { ratio, stars: Math.max(1, Math.min(STAR_TIER_COUNT, Math.round(tier))) };
   }
   const elapsed = total - remaining;
-  if (elapsed <= tierSecondsFor(levelTime, 3)) return { ratio, stars: 3 };
-  if (elapsed <= tierSecondsFor(levelTime, 2)) return { ratio, stars: 2 };
+  if (elapsed <= tierSecondsFor(levelTime, 3, starTierK)) return { ratio, stars: 3 };
+  if (elapsed <= tierSecondsFor(levelTime, 2, starTierK)) return { ratio, stars: 2 };
   return { ratio, stars: 1 };
 }
 

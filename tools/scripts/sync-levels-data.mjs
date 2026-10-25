@@ -320,9 +320,27 @@ export function assertPricing(uid, lv) {
     );
 }
 
+/**
+ * 断言 9（§3.7 v1.86）：单关三档系数 `starTierK` 合法。
+ * 形态 = 长度 3 / `[0] === 1`（1★ = `time` 本身，单一真源不破）/ 严格递减 / 全部 ∈ (0,1]。
+ * ⛔ 只校验形态，**不校验松紧**——松紧是设计裁定（例：L9 boss 要 3★ 必须开 48 槽），
+ * 由 `beads-bot.ts` 的读数行 + `levels-spec §5.0.4` 规划表负责可解释性。
+ */
+export function assertStarTierK(uid, lv) {
+  const k = lv.starTierK;
+  if (k === undefined) return;
+  if (!Array.isArray(k) || k.length !== 3) throw new Error(`${uid}: starTierK 必须是长度 3 的数组`);
+  if (!k.every((v) => Number.isFinite(v) && v > 0 && v <= 1))
+    throw new Error(`${uid}: starTierK 每项须 ∈ (0,1]，实为 ${JSON.stringify(k)}`);
+  if (k[0] !== 1) throw new Error(`${uid}: starTierK[0] 必须为 1（1★ 档 = 关表 time 本身），实为 ${k[0]}`);
+  if (!(k[0] > k[1] && k[1] > k[2]))
+    throw new Error(`${uid}: starTierK 必须严格递减（3★ < 2★ < 1★），实为 ${JSON.stringify(k)}`);
+}
+
 /** 剔除 dev-only 字段（浅拷贝；关卡数据本体不突变）。 */
 function stripDevFields(lv) {
   assertPricing(`L${lv.id}`, lv);
+  assertStarTierK(`L${lv.id}`, lv);
   if (!DEV_ONLY_FIELDS.some((k) => k in lv)) return lv;
   const out = {};
   for (const k of Object.keys(lv)) if (!DEV_ONLY_FIELDS.includes(k)) out[k] = lv[k];

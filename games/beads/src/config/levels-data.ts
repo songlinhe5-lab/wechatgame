@@ -35,6 +35,14 @@ export interface BeadsLevelRaw {
   readonly rows: number;
   readonly time: number;
   /**
+   * **单关三档系数**（可选，§3.7 v1.86）：`[1★, 2★, 3★]` 的比例，缺省用全局
+   * `STAR_TIER_K = [1.00, 0.85, 0.70]`。用途 = 某关的某档需要单独规划，例如 boss 关
+   * **要求 3★ 必须开 48 槽才紧平衡**（此时 3★ 系数按 `steps@48 × SEC_PER_STEP ÷ time` 反解）。
+   * 仍走「`time` × 系数」同一算式 ⇒ `time` 仍是 1★ 时钟的单一真源，不存三个绝对秒数。
+   * 生成期断言（`sync-levels-data.mjs`）：长度 3 / `[0] === 1` / 严格递减 / 全部 (0,1]。
+   */
+  readonly starTierK?: readonly number[];
+  /**
    * 错位交换对 `[[r1,c1,r2,c2], ...]`（levels-spec v1.2 §2.1 / systems-index
    * v1.23 §3.13）：按数组序对「pattern 全满」的可填格珠两两交换 ⇒ 初始错位局面。
    * 对数 k ∈ [MISPLACED_PAIRS_MIN(1), MISPLACED_PAIRS_MAX(8)]。
@@ -492,6 +500,11 @@ export const LEVELS_DATA: LevelsData = {
       cols: 30,
       rows: 30,
       time: 546,
+      starTierK: [
+        1,
+        0.85,
+        0.577,
+      ],
       cycleProfile: "short",
       decoys: [],
       pattern: [

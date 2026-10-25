@@ -84,8 +84,8 @@ export function formatTime(seconds: number): string {
  * 门槛秒数 = §3.7 同一个 `tierSecondsFor`（与 `computeClearStars` 同源）；
  * 1★ 无用时门槛（打完就算）⇒ 不进串（v1.23 同口径）。
  */
-export function starCriteriaText(levelTime: number): string {
-    return `3★ 用时 ≤ ${formatTime(tierSecondsFor(levelTime, 3))} ｜ 2★ 用时 ≤ ${formatTime(tierSecondsFor(levelTime, 2))}`;
+export function starCriteriaText(levelTime: number, starTierK?: readonly number[]): string {
+    return `3★ 用时 ≤ ${formatTime(tierSecondsFor(levelTime, 3, starTierK))} ｜ 2★ 用时 ≤ ${formatTime(tierSecondsFor(levelTime, 2, starTierK))}`;
 }
 
 /** 遮罩色族 + 双档 α（α 名保留自 `tuning`，此处只做聚合视图）。 */

@@ -1709,6 +1709,7 @@ export class BeadsGame implements Game {
             level.time,
             game._tierThisLevel,
             game.revived,
+            level.starTierK, // §3.7 v1.86 单关三档系数（如 boss 关 3★ 必须开 48 槽）
           );
           game._lastStars = stars;
           // 通关画面总览：取**历史最好**（重玩不降级，与 `maxUnlockedLevel` 同语义）。
@@ -1936,7 +1937,7 @@ export class BeadsGame implements Game {
     // §3.7 v1.78 三档时钟：关卡 `time` = **1★ 档时钟**；本局档 = 本关历史最高 +1（封顶 3★，
     // 单条件闸门 R5），时钟按档缩放。**必须在写 `_starsByLevel` 之前算**（否则刚通的星会当场推高本局档）。
     this._tierThisLevel = nextTierFor(this._starsByLevel[index] ?? 0);
-    this._timer.reset(tierSecondsFor(level.time, this._tierThisLevel));
+    this._timer.reset(tierSecondsFor(level.time, this._tierThisLevel, level.starTierK));
     this._sprint.reset();
     this._stageIndex = 0;
     this._isNewBest = false;

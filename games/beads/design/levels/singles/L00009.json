@@ -4,6 +4,11 @@
   "cols": 30,
   "rows": 30,
   "time": 546,
+  "starTierK": [
+    1,
+    0.85,
+    0.577
+  ],
   "cycleProfile": "short",
   "pricing": {
     "source": "bot",

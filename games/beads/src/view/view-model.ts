@@ -488,7 +488,7 @@ function drawClearPanel(
     builder.text(
       DESIGN_W / 2,
       layout.criteriaY,
-      starCriteriaText(critLevel.time),
+      starCriteriaText(critLevel.time, critLevel.starTierK),
       { fill: palette.textDim, font: bodyFont(snap.largeText, 'sub'), align: 'center', baseline: 'middle' },
     );
   }

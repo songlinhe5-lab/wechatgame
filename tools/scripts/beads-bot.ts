@@ -135,8 +135,10 @@ function runLeg(raw: BeadsLevelRaw, seed: string, cap: number): Leg {
     const split = { moves: r.moves, places: r.places, directFills: r.directFills, retrieves: r.retrieves };
     /**
      * 定价自变量 = **批量动作数**（选锚并入被它服务的动作）。道具关闭 ⇒ 恰等于循环次数。
-     * 尝试序取 **`BAC`**（先取回挖洞→再落子→最后直填）：八关实测上它同时拿下最大误差最小
-     * （±28%，旧 `ACB` ±39%）与难度排序最准（Spearman ρ 0.95 vs 0.83）。
+     * 尝试序取 **`ACB`**（归位→直填→取回，`runBot` 头注的回归基准）。⚠ 2026-10-25 前用 `BAC`
+     * （取回优先）：只要有空槽就囤货，把「直填 1 步/颗」换「取回 + 逐颗落子 ≈2 步/颗」⇒ 步数随
+     * 托盘容量**递增**（L5 64/68/110），容量轴不可解释。换 `ACB` 后 10 关全单调，且
+     * `Spearman(DI,steps)` 反而升到 0.95（BAC 时代是 0.833）。
      */
     return { steps: r.places + r.directFills + r.retrieves, taps, cleared: r.cleared, stuck: r.stuck, split, sizes, m: grid.misplacedCount };
 }
@@ -172,12 +174,16 @@ export function measureBoard(raw: BeadsLevelRaw, seed = 'beads-bot'): MeasureRes
         if (steps > budget2)
             blockers.push(`基础档（${TRAY_BASE_SLOTS} 槽）${steps} 步 > 2★ 档预算 ${budget2} 步 ⇒ 不看广告拿不到 2★（定价应回退到 1★ 基准或减步数）`);
         const alt = TRAY_TIER_SLOTS.filter((c) => c !== TRAY_BASE_SLOTS);
+        // `starTierK` = 单关覆盖（§3.7 v1.86）。例：L9 boss 把 3★ 系数压到 0.577 ⇒ 预算 76 步
+        // = steps@48 ⇒ **必须开 48 槽**且恰好够（24 槽 88 步已超），即用户要的「48 槽紧平衡」。
+        const budget3 = tierStepBudget(time, 3, raw.starTierK);
         const bestAlt = Math.min(...alt.map((c) => stepsByCap[c] ?? Number.POSITIVE_INFINITY));
-        const budget3 = tierStepBudget(time, 3);
-        if (bestAlt > budget3)
-            warnings.push(`扩容档最少 ${bestAlt} 步 > 3★ 档预算 ${budget3} 步 ⇒ 实测上任何容量档都拿不到 3★（bot 贪心非最优，需人工复核或调盘/调时长）`);
+        const needCap = [TRAY_BASE_SLOTS, ...alt].find((c) => (stepsByCap[c] ?? Infinity) <= budget3);
+        const kTag = raw.starTierK ? `（单关系数 3★=${raw.starTierK[2]}）` : '';
+        if (!needCap)
+            warnings.push(`3★ 预算 ${budget3} 步${kTag} < 任何容量档实测最少 ${bestAlt} 步 ⇒ 拿不到 3★（bot 贪心非最优，需人工复核或调盘/调时长）`);
         else
-            warnings.push(`3★ 需 ≤${budget3} 步：12/24/48 槽实测 ${TRAY_TIER_SLOTS.map((c) => stepsByCap[c]).join('/')} ⇒ 开 ${alt.find((c) => (stepsByCap[c] ?? Infinity) <= budget3)} 槽可达`);
+            warnings.push(`3★ 需 ≤${budget3} 步${kTag}：12/24/48 槽实测 ${TRAY_TIER_SLOTS.map((c) => stepsByCap[c]).join('/')} ⇒ 开 ${needCap} 槽可达${needCap === TRAY_BASE_SLOTS ? '（基础档即可，未吃容量）' : ''}`);
     }
     return {
         id: raw.id,
