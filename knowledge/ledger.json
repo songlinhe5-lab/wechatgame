@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 174,
+  "nextId": 175,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -2900,6 +2900,23 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-174",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain.md",
+      "category": "工具链",
+      "title": "同一份映射登记在两处且无机械校验，必然漂移：能派生就派生，不能派生就上「三向」门",
+      "contentHash": "ce557197c265ec5b38e1166c7f5493b53fc7afc22e8759a41f1e8f60f62edf1b",
+      "sourceTask": "WXG-T-384",
+      "addedDate": "2026-10-25",
+      "lastAccess": "2026-10-25",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -4628,6 +4645,15 @@
       "kind": "added",
       "ids": [
         "K-173"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-25",
+      "taskId": "WXG-T-384",
+      "kind": "added",
+      "ids": [
+        "K-174"
       ],
       "note": null
     }

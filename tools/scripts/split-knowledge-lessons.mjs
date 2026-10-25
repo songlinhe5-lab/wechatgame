@@ -24,7 +24,7 @@
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { ROOT, parseKnowledgeFile } from './lib/knowledge-ledger.mjs';
+import { ROOT, TAG_TO_SHARD, parseKnowledgeFile } from './lib/knowledge-ledger.mjs';
 
 // ────────────────────────────────────────────────────────── CLI ────────────────
 
@@ -41,60 +41,14 @@ const OUT_DIR_REL = optVal('out-dir') ?? 'knowledge/lessons';
 const sourceAbs = relOr(SOURCE_REL);
 const outDirAbs = relOr(OUT_DIR_REL);
 
-// ─────────────────────────────────────────────── 标签 → 分片（冻结映射）─────────
+// ───────────────────────────────────── 标签 → 分片（正本在 lib）───────────────
 
 /**
- * 行内标签 → 分片文件名。**顺序即 `ACTIVE_FILES` 列表序**（补号顺序，见 lib 注释），
- * 改动本表必须同步 `lib/knowledge-ledger.mjs::LESSONS_SHARD_ORDER`。
+ * 映射与片序的正本已迁到 `lib/knowledge-ledger.mjs::TAG_TO_SHARD`（WXG-T-384：两处人工双登记
+ * 曾漏登 `art-derivation`；现片序由 `LESSONS_SHARD_ORDER = [...TAG_TO_SHARD.values()]` 派生，
+ * 由 `kb:check ⑨` 机械守）。此处保留转出 —— 旧引用与文档锚点仍写 `split-knowledge-lessons.mjs::TAG_TO_SHARD`。
  */
-export const TAG_TO_SHARD = new Map([
-    ['工具链', 'toolchain'],
-    // WXG-T-235 沉淀批：`工具链` 片越 B 门（8411 > 8000）⇒ 按 INDEX §4「标签内部再切」
-    // 子切版本控制/钩子/提交信息类四条目（K-001/031/048/093）。⛔ 不新增豁免（判例 K-025 / WXG-T-041）。
-    ['工具链Git', 'toolchain-git'],
-    // 2026-10-15 提交批：`工具链` 片越 B 门（8133 > 8000）⇒ 同法子切 **PIL/图像工具链**类条目（K-127）。⛔ 不新增豁免。
-    ['工具链图像', 'toolchain-image'],
-    // WXG-T-382 沉淀批：`工具链` 片再越 B 门（WXG-T-381 收尾后 7924 > 8000，余量 76）⇒ 按 INDEX §4
-    // 「标签内部再切」子切**上下文预算 / 索引产物 / 门禁装置**类九条目（K-003/004/005/030/032/034/058/119/171）。
-    // 与父片分工：`工具链` = 通用工具行为坑；`工具链上下文` = 只服务本仓 ctx/ 装置自身的坑。⛔ 不新增豁免。
-    ['工具链上下文', 'toolchain-context'],
-    ['流程', 'process'],
-    // WXG-T-260 提交批：`流程` 片越 B 门（8752 > 8000）⇒ 子切**台账 / 领号 / 并发写盘**类三条目（K-045/046/050）。
-    ['流程台账', 'process-ledger'],
-    // WXG-T-382 沉淀批：`流程台账` 片再越（7924→7941 tok，余量 59）⇒ 同法子切**跨会话并发写盘 /
-    // 落地与归属**类三条目（K-045/137/158）。分工：`流程台账` = 单会话写台账的格式与门禁；
-    // `流程台账协作` = 多会话同时动同一批台账文件时的归属与落地纪律。⛔ 不新增豁免。
-    ['流程台账协作', 'process-ledger-sync'],
-    // WXG-T-344 沉淀批：`流程` 片现读 7797 tok，再收一条即越 B 门 ⇒ 按 INDEX §2「新标签 = 新片、⛔ 不走豁免」
-    // 新开一片放**跨页对账**类纪律（首条 = 「决策条文 ⇄ 施工清单」自相矛盾），⛔ 不动既有条目。
-    ['流程对账', 'process-audit'],
-    // WXG-T-364 收尾批：`流程` 片 7770 tok 仍贴顶（B 门 8000，再收一条即越）⇒ 按 INDEX §4「标签内部再切」
-    // 子切**门禁链路与证据有效性**类四条目（K-011/036/037/123）：串联门禁短路假绿、证据层级越界、
-    // 复验者独立性、违例登记前须核判据对象在现役代码里。⛔ 不新增豁免（判例 K-025 / WXG-T-041）。
-    ['流程门禁', 'process-gate'],
-    ['判据', 'criteria'],
-    // WXG-T-221 八裁批：`判据` 片越 B 门（8317 tok）⇒ 按 INDEX §4「标签内部再切」子切渲染/几何序类五条目（K-052/055/056/063/067）。
-    ['判据渲染', 'criteria-render'],
-    // 2026-10-15 提交批：`判据渲染` 片越 B 门（9085 > 8000）⇒ 同法子切**像素网格/抠像/边缘量测/无损基准**类实测条目（K-126/128/130/131）。⛔ 不新增豁免。
-    ['判据实测', 'criteria-measure'],
-    // WXG-T-343 沉淀批新建（标签 `文档引用`：跨角色转述与文档间引用纪律）；当时只建片、
-    // ⛔ 未同步本表与 `LESSONS_SHARD_ORDER` ⇒ WXG-T-344 补登记（缺映射时 `knowledge:split --force` 会 fail loud）。
-    ['文档引用', 'doc-reference'],
-    ['测试', 'testing'],
-    // WXG-T-260 提交批：`测试` 片越 B 门（8722 > 8000）⇒ 子切**守卫与变异的有效性（假绿防线）**类四条目（K-038/042/060/089）。
-    ['测试守卫', 'testing-guard'],
-    // WXG-T-364 收尾批（二）：`测试守卫` 片实测 7971 tok，余量仅 29（B 门 8000）⇒ 按 INDEX §4「标签内部再切」
-    // 子切**变更引发的守卫/夹具失真**类五条目（K-125/129/151/152/157）。分工：`测试守卫` = 守卫自身
-    // 在变异下是否真的会失败；`测试变更` = 内容投放/夹具保真度变化后守卫是否还成立。⛔ 不新增豁免。
-    ['测试变更', 'testing-change'],
-    ['跨IDE', 'cross-ide'],
-    ['环境', 'environment'],
-    ['接入', 'onboarding'],
-    // WXG-T-169 沉淀批：`引擎Cocos` 早在 INDEX §2 类别清单内但无条目⇒本片随首条入册新建。
-    ['引擎Cocos', 'engine-cocos'],
-    // WXG-T-260 提交批：`引擎Cocos` 片越 B 门（8618 > 8000）⇒ 子切**构建产物 / 资产装载**类四条目（K-108/111/112/113）。
-    ['引擎Cocos构建', 'engine-cocos-build'],
-]);
+export { TAG_TO_SHARD };
 
 /** 条目块（含标题行）的逐字节文本。 */
 const blockText = (e) => [e.raw, ...(e.bodyLines ?? [])].join('\n');

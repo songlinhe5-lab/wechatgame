@@ -2,7 +2,7 @@
 /**
  * kb-check.mjs — 知识库 ledger / markdown / 索引面一致性校验（WXG-T-029）。
  *
- * 八重校验（失败 → 中文诊断 + 修复指引，exit 1）：
+ * 九重校验（失败 → 中文诊断 + 修复指引，exit 1）：
  *   ① 活跃条目 ID 唯一且格式合法（`K-\d{3}`；活跃 + 归档全局唯一）；
  *   ② ledger ↔ markdown **双向一致**（活跃↔lessons/patterns，归档↔archive/*；
  *      无孤儿 ledger 条目、无缺 ledger 的 markdown 条目）；
@@ -19,6 +19,12 @@
  *   ⑧ **`contentHash` 一致**：每个条目的 `contentHash` 必须与其**当前正文**
  *      （活跃↔lessons/patterns，归档↔archive/*）匹配 → 不匹配 / 缺失 = 有未 sync 的改动
  *      → FAIL + 提示 `pnpm run kb:sync`。
+ *   ⑨ **分片映射 ↔ 磁盘分片 ↔ 条目行内标签一致**（WXG-T-384）：`lib/knowledge-ledger.mjs::TAG_TO_SHARD`
+ *      （单一正本，片序 `LESSONS_SHARD_ORDER` 由其派生）必须覆盖磁盘上的每一片，且每个条目的
+ *      行内标签必须已登记、且映射到它所在的那一片。
+ *      ↓ 该项是「两处人工双登记必漏」的机械防线：`art-derivation`（标签 `美术派生`）曾建了片、
+ *      进了指针页，两张表都漏登，只靠「未知片按名序追加」兜底才没丢条目。
+ *      （反向「登记的片缺文件」不单列：该片有条目时 ② 已报孤儿；空片无文件不构成漂移。）
  *
  * USAGE
  *   node tools/scripts/kb-check.mjs
@@ -26,7 +32,7 @@
  * 退出码：0 全通过；1 任一失败。
  */
 
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { SKIP_DIRS } from './lib/context-index.mjs';
 import {
   ACTIVE_FILES,
@@ -39,7 +45,9 @@ import {
   EVENT_KINDS,
   ID_RE,
   INDEX_PATH,
+  LESSONS_DIR,
   TASK_ID_RE,
+  TAG_TO_SHARD,
   entryContentHash,
   normalizeThresholds,
   parseKnowledgeFile,
@@ -93,6 +101,7 @@ const remember = (parsed) => {
 };
 
 const activeMdIds = new Set();
+const activeParsed = []; // { f, parsed } —— ⑨ 逐片核行内标签
 for (const f of ACTIVE_FILES) {
   const parsed = parseFileText(f.abs, f.file);
   if (!parsed) {
@@ -100,6 +109,7 @@ for (const f of ACTIVE_FILES) {
     continue;
   }
   remember(parsed);
+  activeParsed.push({ f, parsed });
   for (const id of collectIds(parsed)) activeMdIds.add(id);
 }
 const archiveMdIds = new Set();
@@ -251,16 +261,62 @@ for (const e of entries) {
   }
 }
 
+// ── ⑨ 分片映射 ↔ 磁盘分片 ↔ 条目行内标签（双向）─────────────────────────────
+// 映射曾分散两处（标签→片在 split 脚本、片序在 lib）人工双登记且无校验 ⇒ `art-derivation`
+// （标签 `美术派生`）只建了片与指针页、两张表都漏登，靠「未知片按名序追加」兜底才没丢条目。
+// 现映射单一正本 = `TAG_TO_SHARD`（片序由其派生），本项机械守三件事：
+//   ① 片名不得重复（否则片序出重复项、ACTIVE_FILES 出重影）；
+//   ② 磁盘上的片必须登记（未登记的片 = 标签无归属，新条目无法归片）；
+//   ③ 条目标签必须已登记，且映射到它所在的那一片（防手改标签 / 搬错片）。
+// 反向（登记的片缺文件）不单列：该片有条目时 ② 已报孤儿；空片无文件不构成漂移。
+// 旧布局（无 `knowledge/lessons/` 目录）不适用 ⇒ 跳过（与 lib 的回退逻辑一致）。
+if (existsSync(LESSONS_DIR)) {
+  const registered = [...TAG_TO_SHARD.values()];
+  const dupShards = [...new Set(registered.filter((s, i) => registered.indexOf(s) !== i))];
+  for (const s of dupShards) {
+    fail(`⑨ 片名重复登记：${s} 被多个标签指向（片序出现重复项，ACTIVE_FILES 出重影）`, 'TAG_TO_SHARD 一片一标签');
+  }
+  const registeredSet = new Set(registered);
+  const diskShards = readdirSync(LESSONS_DIR)
+    .filter((n) => n.endsWith('.md'))
+    .map((n) => n.replace(/\.md$/, ''));
+  for (const s of diskShards) {
+    if (registeredSet.has(s)) continue;
+    fail(
+      `⑨ 分片未登记：knowledge/lessons/${s}.md 存在，但 TAG_TO_SHARD 无任何标签指向它（新条目无法归片，knowledge:split --force 会 fail loud）`,
+      '在 lib/knowledge-ledger.mjs::TAG_TO_SHARD 追加该片（行序 = 补号序），并补 knowledge/lessons.md 指针页行',
+    );
+  }
+  for (const { f, parsed } of activeParsed) {
+    if (!f.shard || f.shard === 'patterns') continue;
+    for (const e of parsed.entries) {
+      if (!e.id) continue;
+      const want = TAG_TO_SHARD.get(e.inlineCategory);
+      if (want == null) {
+        fail(
+          `⑨ 条目 ${e.id} 行内标签「${e.inlineCategory ?? ''}」未登记映射（未分区）`,
+          '在 lib/knowledge-ledger.mjs::TAG_TO_SHARD 登记该标签（新标签 = 新片，⛔ 不加豁免）',
+        );
+      } else if (want !== f.shard) {
+        fail(
+          `⑨ 条目 ${e.id} 行内标签「${e.inlineCategory}」应落 ${want}.md，实际在 ${f.shard}.md`,
+          '搬回对应分片，或改标签使两者一致',
+        );
+      }
+    }
+  }
+}
+
 // ── 汇总 ───────────────────────────────────────────────────────────────────
 if (problems.length === 0) {
   console.log(
-    `✅ kb:check PASSED —— **八重校验**：活跃 ${actives.length} / 归档 ${archived.length}；` +
+    `✅ kb:check PASSED —— **九重校验**：活跃 ${actives.length} / 归档 ${archived.length}；` +
       `① ID 唯一且合法 ② ledger↔markdown 双向一致 ③ SKIP_DIRS 含 archive ④ INDEX 活跃块同步 ` +
-      `⑤ thresholds 合法 ⑥ accessCount↔seen 严格一致 ⑦ events 合法 ⑧ contentHash 一致`,
+      `⑤ thresholds 合法 ⑥ accessCount↔seen 严格一致 ⑦ events 合法 ⑧ contentHash 一致 ⑨ 分片映射一致`,
   );
   process.exit(0);
 }
-console.error(`❌ kb:check FAILED（八重校验）—— ${problems.length} 项问题：`);
+console.error(`❌ kb:check FAILED（九重校验）—— ${problems.length} 项问题：`);
 for (const p of problems) console.error(`   - ${p}`);
 if (fixes.size > 0) {
   console.error('   修复指引：');

@@ -34,6 +34,8 @@
 #            最近 N=12 个（尾部最新、头部最旧被弃）、accessCount/seen 不变、kb:check 仍绿、
 #            幂等重跑字节不变；② 写入时截断——已满 N 条的条目经 kb:touch 追加后长度仍 = N、
 #            新标签在尾部、accessCount +1 不丢
+#         ⑲ kb:check ⑨（WXG-T-384）：磁盘分片未登记 → FAIL；条目行内标签落错片 → FAIL；
+#            移除分片目录后恢复 exit 0（旧布局跳过）
 #
 # 用法：tools/scripts/knowledge-selftest.sh
 # 产物：仅 stdout 报告；临时目录退出时清理，不污染仓库 / 真实知识库。
@@ -743,7 +745,7 @@ case "$(ldsrc K-001)" in src:t06,*src:t17) ok "18a 保留尾部最新 12 个（t
 assert_eq "$(ld K-001 accessCount)" "20" "18a accessCount 不随截断减少（仍=20）"
 assert_eq "$(ldseen K-001)" "20" "18a seen 不截断（仍=20，⑥ 前提）"
 rc=$(run node "$KB_CHECK")
-assert_eq "$rc" "0" "18a 截断后 kb:check exit 0（八重不受影响）"
+assert_eq "$rc" "0" "18a 截断后 kb:check exit 0（⑥ 不受影响）"
 
 # 18b 幂等：重跑 sync → 超限条目为 0 → 不再打印收敛行、ledger 字节不变
 cp "$REPO/knowledge/ledger.json" "$WORK/ledger.after18a.json"
@@ -778,6 +780,35 @@ assert_eq "$rc" "0" "18c 写入截断后 kb:check exit 0（⑥ 仍成立）"
 cp "$WORK/ledger.pre18.json" "$REPO/knowledge/ledger.json"
 rc=$(run node "$KB_CHECK")
 assert_eq "$rc" "0" "恢复现场后 kb:check 重新 exit 0"
+
+# ── [19] ⑨ 分片映射校验：未登记 / 落错片（WXG-T-384）────────────────────────
+echo
+echo "[19] kb:check ⑨：磁盘分片未登记 → FAIL；条目行内标签落错片 → FAIL"
+node - "$REPO" <<'NODE_EOF'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
+const root = process.argv[2];
+// 用桩仓库自己那份 lib（ROOT 也指向桩），不读真实仓库
+const { LESSONS_SHARD_ORDER } = await import(pathToFileURL(join(root, 'tools/scripts/lib/knowledge-ledger.mjs')).href);
+const dir = join(root, 'knowledge/lessons');
+mkdirSync(dir, { recursive: true });
+// 已登记片各建一份空文件（除 toolchain）；toolchain.md 装真实条目：K-001 标签「工具链」合法、K-002 标签「流程」落错片
+for (const s of LESSONS_SHARD_ORDER) writeFileSync(join(dir, s + '.md'), '', 'utf8');
+writeFileSync(join(dir, 'toolchain.md'), readFileSync(join(root, 'knowledge/lessons.md'), 'utf8'), 'utf8');
+// 一个未登记片：映射里没人指向它
+writeFileSync(join(dir, 'zz-mystery.md'), '', 'utf8');
+NODE_EOF
+rc=$(run node "$KB_CHECK")
+assert_eq "$rc" "1" "19a 存在未登记分片 → kb:check exit 1"
+assert_contains "$(cat "$WORK/last.txt")" "⑨ 分片未登记" "19a 报「⑨ 分片未登记」"
+assert_contains "$(cat "$WORK/last.txt")" "zz-mystery" "19a 点名 zz-mystery.md"
+assert_contains "$(cat "$WORK/last.txt")" "⑨ 条目 K-002 行内标签" "19b 报 K-002 标签落错片（流程 却在 toolchain.md）"
+assert_contains "$(cat "$WORK/last.txt")" "应落 process.md，实际在 toolchain.md" "19b 诊断给出应有片与实际片"
+assert_not_contains "$(cat "$WORK/last.txt")" "K-001 行内标签" "19c 合法条目 K-001 不误报"
+rm -rf "$REPO/knowledge/lessons"
+rc=$(run node "$KB_CHECK")
+assert_eq "$rc" "0" "19d 移除分片目录（旧布局）后 kb:check 重新 exit 0"
 
 # ── 汇总 ────────────────────────────────────────────────────────────────────
 echo

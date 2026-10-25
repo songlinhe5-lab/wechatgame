@@ -4348,6 +4348,67 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 
 ---
 
+## WXG-T-384
+
+**`kb:check` 分片映射机械校验：映射单一正本 + ⑨ 三向门**（2026-10-25）
+
+> 领号已核 K-046：开工前头注下一可用号 = 384，主表 / 详情节 / `git log --all --grep` 三路零占用（详情节里 T-381 引用的 `WXG-T-901/902/903` 是桩仓假号，扫描时先排除）。
+
+### 1. 病根（T-382 §6.1 遗留项）
+
+标签→片名 与 片序 **两处人工双登记、零机械校验**：
+
+| 表 | 位置 | 管什么 |
+|---|---|---|
+| `TAG_TO_SHARD` | `tools/scripts/split-knowledge-lessons.mjs` | 行内标签 → 片文件名（切分与归片用） |
+| `LESSONS_SHARD_ORDER` | `tools/scripts/lib/knowledge-ledger.mjs` | 片序 → `ACTIVE_FILES` 列表序（**补号序**） |
+
+两处注释都写着「改一侧必同步另一侧」——**注释不是门**。
+
+实证（写门时跑存量立刻红）：`knowledge/lessons/art-derivation.md`（标签 `美术派生`，WXG-T-268 建片）片文件与 `lessons.md` 指针页都有，但**两张表都漏登**；只靠 `lessonsSourceFiles()` 的「未知片按名序追加」兜底才没丢条目。这个兜底正是危险处：不一致**看起来完全正常**。
+
+### 2. 改法（能派生就派生 + 一道三向门）
+
+| 件 | 改动 |
+|---|---|
+| `lib/knowledge-ledger.mjs` | `TAG_TO_SHARD` 整段搬入（带全部历史注释）作**单一正本**；末尾补 `['美术派生','art-derivation']`；`LESSONS_SHARD_ORDER = [...TAG_TO_SHARD.values()]` 派生 ⇒ 两处降一处 |
+| `split-knowledge-lessons.mjs` | 删本地映射块（244 → 198 行），改 `import { TAG_TO_SHARD }` + `export { TAG_TO_SHARD }` 转出（旧文档锚点仍写 `split-knowledge-lessons.mjs::TAG_TO_SHARD`） |
+| `kb-check.mjs` | 新增 ⑨；八重 → 九重（头部注释 / PASS 串 / FAIL 串同步） |
+| `knowledge-selftest.sh` | 新增 `[19]`：桩仓造「全部登记片空文件 + zz-mystery 未登记片 + toolchain.md 装一条落错片条目」，7 条断言 |
+
+⑨ 只守三件（「双向」里的反向被有意收窄）：
+
+1. **片名唯一** —— 否则片序出重复项、`ACTIVE_FILES` 出重影；
+2. **磁盘片必须登记** —— 未登记的片 = 标签无归属，新条目无法归片；
+3. **条目标签必须已登记且落对片** —— 防手改标签 / 搬错片。
+
+⛔ 首版还写了「映射登记的片必须有文件」，跑 `split-knowledge-lessons-selftest.sh` 立刻 2 FAIL（[7]/[8]：桩仓只建了 toolchain/process 两片）。判定该分支与 ② 重复（片有条目时 ② 已报孤儿）、空片缺文件不构成漂移 ⇒ **删掉该分支**并同步注释与断言 —— 不为自己多造的判据开豁免。
+
+### 3. 读数与门禁
+
+| 项 | 读数 |
+|---|---|
+| `kb:check` | **九重 PASS**（活跃 171） |
+| `knowledge-selftest.sh` | **197 / 197**（[19] 新增 7 条断言） |
+| `split-knowledge-lessons-selftest.sh` | **45 / 45** |
+| `TAG_TO_SHARD` / `LESSONS_SHARD_ORDER` | 22 行 / 派生同 22（补入 `美术派生`） |
+| `knowledge/lessons/toolchain.md` | 4,637 → **4,991** tok（K-174；spec 8,000） |
+| `kb:audit` | 归档候选 0 |
+
+补登位置有讲究：`art-derivation` 追加在映射表**尾部**，而字母序兜底本来也把它排在末位 ⇒ `ACTIVE_FILES` 顺序与原先一致，**补号序零变化**。
+
+### 4. 沉淀统计（`kb:sync --task=WXG-T-384`）
+
+**新增 1 / 修改 0 / 激活 0 / 归档 0**：
+
+- **K-174**（`knowledge/lessons/toolchain.md`）——「同一份映射登记在两处且无机械校验，必然漂移：能派生就派生，不能派生就上『三向』门」；含「未知项静默兜底会让不一致**看起来正常**」与「新门上线当次必跑存量，红是存量债不是噪音」。
+
+### 5. 遗留
+
+1. ⑨ **未校验片内条目按 ID 升序**（`kb:reactivate` 与小标题定位都依赖该形态）；目前靠人为顺序，暂未出事。
+2. `knowledge/INDEX.md` §3 的片清单仍是**人工维护的长串**，本次只改口径（「两处」→「一处」）不改形态；真读全片以 `knowledge/lessons/` 目录为准。若要彻底去人工，可由 `TAG_TO_SHARD` 生成该串 —— 本批未做：§3 每片都挂着历史沿革注，生成会丢注释。
+3. ⑨ 假定**一片一标签**（`dupShards` 判据）。将来若需「多标签指向同片」（别名），要先改判据再改表。
+
 ## WXG-T-383
 
 **beads-studio · tint 导出参数化（B 阶）：定稿口径与实验档分离**（2026-10-25）

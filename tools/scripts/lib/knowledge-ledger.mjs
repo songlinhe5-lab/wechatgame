@@ -121,12 +121,64 @@ export const ARCHIVE_INDEX_PATH = join(ARCHIVE_DIR, 'INDEX.md');
  * `contentHash` 不含 `file` 等元数据 ⇒ 改落位**不算「修改」**，不会造出伪 `updated`。
  */
 export const LESSONS_DIR = join(KNOWLEDGE_DIR, 'lessons');
-/** 已知分片顺序（正本映射见 `tools/scripts/split-knowledge-lessons.mjs::TAG_TO_SHARD`，改一侧必同步另一侧）。
- *  `process-audit`（标签 `流程对账`）= WXG-T-344 新建；`doc-reference`（标 签 `文档引用`）= WXG-T-343 新建时**漏登记**，
- *  本批补上（两片此前只靠「未知片按名序追加」被采集，`knowledge:split --force` 会因缺映射 fail loud）。
- *  `toolchain-context`（标签 `工具链上下文`）/ `process-ledger-sync`（标签 `流程台账协作`）= WXG-T-382 再切
- *  （与 `split-knowledge-lessons.mjs::TAG_TO_SHARD` 双登记，改一侧必同步另一侧）。 */
-export const LESSONS_SHARD_ORDER = ['toolchain', 'toolchain-git', 'toolchain-image', 'toolchain-context', 'process', 'process-ledger', 'process-ledger-sync', 'process-audit', 'process-gate', 'criteria', 'criteria-render', 'criteria-measure', 'doc-reference', 'testing', 'testing-guard', 'testing-change', 'cross-ide', 'environment', 'onboarding', 'engine-cocos', 'engine-cocos-build'];
+
+/**
+ * 行内标签 → 分片名（**单一正本**）。**表行序 = 补号序**。
+ *
+ * WXG-T-384：此前映射在本目录外的 `split-knowledge-lessons.mjs`、片序在本文件，两处人工双登记且无机械校验
+ * ⇒ `art-derivation`（标签 `美术派生`，WXG-T-268 新建）建了片、也进了 `lessons.md` 指针页，**两张表都漏登**，
+ * 只靠「未知片按名序追加」被采集才没丢条目。现合并为一张表，片序由本表派生（不再有第二处可漂）。
+ * `kb:check ⑨` 对「映射 ↔ 磁盘分片文件 ↔ 条目行内标签」做三向校验（含漏登 / 多登 / 落错片）。
+ *
+ * 改表规矩（`knowledge/INDEX.md` §4）：越阈 ⇒ 该标签内部再切、⛔ 不新增豁免；新片**追加尾部**以保补号序稳定。
+ */
+export const TAG_TO_SHARD = new Map([
+  ['工具链', 'toolchain'],
+  // WXG-T-235 沉淀批：`工具链` 片越 B 门（8411 > 8000）⇒ 按 INDEX §4「标签内部再切」
+  // 子切版本控制/钩子/提交信息类四条目（K-001/031/048/093）。⛔ 不新增豁免（判例 K-025 / WXG-T-041）。
+  ['工具链Git', 'toolchain-git'],
+  // 2026-10-15 提交批：`工具链` 片越 B 门（8133 > 8000）⇒ 同法子切 **PIL/图像工具链**类条目（K-127）。⛔ 不新增豁免。
+  ['工具链图像', 'toolchain-image'],
+  // WXG-T-382 沉淀批：`工具链` 片再越 B 门（7924 > 8000）⇒ 子切**上下文预算 / 索引产物 / 门禁装置**类九条目
+  // （K-003/004/005/030/032/034/058/119/171）。与父片分工：`工具链` = 通用工具行为坑；`工具链上下文` = 只服务
+  // 本仓 ctx/ 装置自身的坑。⛔ 不新增豁免。
+  ['工具链上下文', 'toolchain-context'],
+  ['流程', 'process'],
+  // WXG-T-260 提交批：`流程` 片越 B 门（8752 > 8000）⇒ 子切**台账 / 领号 / 并发写盘**类三条目（K-045/046/050）。
+  ['流程台账', 'process-ledger'],
+  // WXG-T-382 沉淀批：`流程台账` 片再越（7941 tok）⇒ 子切**跨会话并发写盘 / 落地与归属**类三条目（K-045/137/158）。
+  // 分工：`流程台账` = 单会话写台账的格式与门禁；`流程台账协作` = 多会话同动同一批台账文件时的归属与落地纪律。
+  ['流程台账协作', 'process-ledger-sync'],
+  // WXG-T-344 沉淀批：`流程` 片 7797 tok 再收一条即越 ⇒ 按 INDEX §2「新标签 = 新片、⛔ 不走豁免」新开一片。
+  ['流程对账', 'process-audit'],
+  // WXG-T-364 收尾批：`流程` 片 7770 tok 仍贴顶 ⇒ 子切**门禁链路与证据有效性**类四条目（K-011/036/037/123）。
+  ['流程门禁', 'process-gate'],
+  ['判据', 'criteria'],
+  // WXG-T-221 八裁批：`判据` 片越 B 门（8317 tok）⇒ 子切渲染/几何序类五条目（K-052/055/056/063/067）。
+  ['判据渲染', 'criteria-render'],
+  // 2026-10-15 提交批：`判据渲染` 片越 B 门（9085 > 8000）⇒ 子切**像素网格/抠像/边缘量测/无损基准**类条目。
+  ['判据实测', 'criteria-measure'],
+  // WXG-T-343 新建（标签 `文档引用`）；当时只建片、两张表都漏登 ⇒ WXG-T-344 补登记。
+  ['文档引用', 'doc-reference'],
+  ['测试', 'testing'],
+  // WXG-T-260 提交批：`测试` 片越 B 门（8722 > 8000）⇒ 子切**守卫与变异的有效性（假绿防线）**类四条目。
+  ['测试守卫', 'testing-guard'],
+  // WXG-T-364 收尾批（二）：`测试守卫` 片 7971 tok，余 29 ⇒ 子切**变更引发的守卫/夹具失真**类五条目。
+  ['测试变更', 'testing-change'],
+  ['跨IDE', 'cross-ide'],
+  ['环境', 'environment'],
+  ['接入', 'onboarding'],
+  // WXG-T-169 沉淀批：`引擎Cocos` 早列于 INDEX §2 类别清单但无条目 ⇒ 本片随首条入册新建。
+  ['引擎Cocos', 'engine-cocos'],
+  // WXG-T-260 提交批：`引擎Cocos` 片越 B 门（8618 > 8000）⇒ 子切**构建产物 / 资产装载**类四条目。
+  ['引擎Cocos构建', 'engine-cocos-build'],
+  // WXG-T-268 新建时**漏登本表与片序表**（只建片 + 指针页），长期靠「未知片按名序追加」兜底；
+  // WXG-T-384 补登记，并作为「人工双登记必漏」的实证写进 `kb:check ⑨` 注释。追加尾部 ⇒ 补号序与原先兜底一致。
+  ['美术派生', 'art-derivation'],
+]);
+
+/** 已知分片顺序 = `TAG_TO_SHARD` 的行序（补号顺序必须稳定，否则新条目落位文件会漂）。 */
+export const LESSONS_SHARD_ORDER = [...TAG_TO_SHARD.values()];
 const LESSONS_ARCHIVE = 'knowledge/archive/lessons-archived.md';
 const LESSONS_ARCHIVE_ABS = join(ARCHIVE_DIR, 'lessons-archived.md');
 
