@@ -7,8 +7,10 @@
 |---|---|
 | `工具链` | `knowledge/lessons/toolchain.md` |
 | `工具链Git` | `knowledge/lessons/toolchain-git.md`（WXG-T-235 沉淀批新切：`工具链` 片越 B 门 8411 > 8000，按 `knowledge/INDEX.md` §4「该标签内部再切」把版本控制/钩子/提交信息类四条目 K-001/031/048/093 子切入新片；⛔ 未新增豁免） |
+| `工具链上下文` | `knowledge/lessons/toolchain-context.md`（WXG-T-382 沉淀批再切：`工具链` 片 7924 tok、余量 76 ⇒ 把上下文预算/索引产物/门禁装置类九条目 K-003/004/005/030/032/034/058/119/171 子切入新片；正文逐字节搬运、仅行内标签换名；⛔ 未新增豁免） |
 | `流程` | `knowledge/lessons/process.md` |
 | `流程台账` | `knowledge/lessons/process-ledger.md`（WXG-T-260 提交批新切：`流程` 片越 B 门 8752 > 8000，按 `knowledge/INDEX.md` §4「该标签内部再切」把台账/领号/并发写盘类三条目 K-045/046/050 子切入新片；⛔ 未新增豁免） |
+| `流程台账协作` | `knowledge/lessons/process-ledger-sync.md`（WXG-T-382 沉淀批再切：`流程台账` 片 7941 tok、余量 59 ⇒ 把跨会话并发写盘/落地与归属类三条目 K-045/137/158 子切入新片，父片留单会话写台账的格式与门禁；正文逐字节搬运；⛔ 未新增豁免） |
 | `判据` | `knowledge/lessons/criteria.md` |
 | `判据渲染` | `knowledge/lessons/criteria-render.md`（WXG-T-221 八裁批新切：`判据` 片越 B 门 8317 tok，渲染/几何序类五条目子切） |
 | `测试` | `knowledge/lessons/testing.md` |

@@ -47,7 +47,7 @@
 | 文件 | 内容 |
 |---|---|
 | `lessons.md` | **指针页（不再放条目正文）**：标签 → 分片文件表 + 引用口径 |
-| `lessons/` | 教训分片（WXG-T-111 按行内标签切）：`toolchain` / `process` / `criteria` / `criteria-render`（WXG-T-221 子切：判据片越 B 门，渲染/几何序类条目入新片）/ `testing` / `cross-ide` / `environment` / `onboarding`（WXG-T-208 新切）/ `engine-cocos`（WXG-T-169 新建，首个 `引擎Cocos` 条目入册）/ `process-ledger` / `testing-guard` / `engine-cocos-build`（WXG-T-260 提交批子切：三片同时越 B 门 ⇒ 各按子标签再切，条目正文逐字节搬运、仅行内标签换名） / `doc-reference`（WXG-T-343 新建，标签 `文档引用`） / `process-audit`（WXG-T-344 新建，标签 `流程对账`；⚠ 这两片建片时只建了文件、**漏登记下述两处硬映射**（`doc-reference` 自 WXG-T-343 起漏），WXG-T-344 已补齐）；⚠ 本清单为人工维护、已漏 `art-derivation`，**现读全片以 `knowledge/lessons/` 目录为准**；片内条目**按 ID 升序**，`## <标签>` 小标题保留（`kb:reactivate` 靠它定位）。⚠️ 新标签需同步两处硬映射：`split-knowledge-lessons.mjs::TAG_TO_SHARD` + `lib/knowledge-ledger.mjs::LESSONS_SHARD_ORDER`（只改一侧即两表不一致；新片未登记时仍可被采集，但 `knowledge:split --force` 会 fail loud） |
+| `lessons/` | 教训分片（WXG-T-111 按行内标签切）：`toolchain` / `process` / `criteria` / `criteria-render`（WXG-T-221 子切：判据片越 B 门，渲染/几何序类条目入新片）/ `testing` / `cross-ide` / `environment` / `onboarding`（WXG-T-208 新切）/ `engine-cocos`（WXG-T-169 新建，首个 `引擎Cocos` 条目入册）/ `process-ledger` / `testing-guard` / `engine-cocos-build`（WXG-T-260 提交批子切：三片同时越 B 门 ⇒ 各按子标签再切，条目正文逐字节搬运、仅行内标签换名） / `doc-reference`（WXG-T-343 新建，标签 `文档引用`） / `process-audit`（WXG-T-344 新建，标签 `流程对账`；⚠ 这两片建片时只建了文件、**漏登记下述两处硬映射**（`doc-reference` 自 WXG-T-343 起漏），WXG-T-344 已补齐） / `toolchain-context`（WXG-T-382 再切，标签 `工具链上下文`：上下文预算 / 索引产物 / 门禁装置类九条目 K-003/004/005/030/032/034/058/119/171） / `process-ledger-sync`（WXG-T-382 再切，标签 `流程台账协作`：跨会话并发写盘 / 落地与归属类三条目 K-045/137/158；父片留单会话写台账的格式与门禁）；⚠ 本清单为人工维护、已漏 `art-derivation`，**现读全片以 `knowledge/lessons/` 目录为准**；片内条目**按 ID 升序**，`## <标签>` 小标题保留（`kb:reactivate` 靠它定位）。⚠️ 新标签需同步两处硬映射：`split-knowledge-lessons.mjs::TAG_TO_SHARD` + `lib/knowledge-ledger.mjs::LESSONS_SHARD_ORDER`（只改一侧即两表不一致；新片未登记时仍可被采集，但 `knowledge:split --force` 会 fail loud） |
 | `patterns.md` | 模式库：本仓已验证可复用的实现/流程模式（未分片，1.4k tok） |
 | `ledger.json` | **条目台账（产物，勿手改）**：ID / 状态 / 类别 / 来源 / `lastAccess` / `accessCount` / `seen` / 归档与激活留痕；由 `kb:*` 命令维护，键序固定 |
 | `archive/` | **归档区**：`lessons-archived.md` / `patterns-archived.md` / `INDEX.md`（归档清单）；**已被 ctx 索引排除**（`SKIP_DIRS` 含 `archive`），开工查询看不到。lessons 各分片**共用单份** `lessons-archived.md` |
@@ -113,9 +113,9 @@
 |---|---|---|---|---|---|---|---|
 | K-001 | 工具链Git | toolchain-git | commitlint 自定义规则必须经 plugins 数组注册 | WXG-T-021 | 2026-09-12 | 0 | active |
 | K-002 | 工具链 | toolchain | bash heredoc 定界符未加引号 + JSON 内写注释 = 双重坑 | WXG-T-021 | 2026-09-12 | 0 | active |
-| K-003 | 工具链 | toolchain | 常驻上下文预算阈值必须与 token 估算公式同口径 | WXG-T-024 | 2026-09-12 | 0 | active |
-| K-004 | 工具链 | toolchain | 改过被索引的 `.md` 后必须重跑 `ctx:build`，否则 C 门必红 | WXG-T-026 | 2026-09-12 | 0 | active |
-| K-005 | 工具链 | toolchain | 含「活动会话」的采集型基线必须用比率口径，计数容忍带必然误报 | WXG-T-026 | 2026-09-12 | 0 | active |
+| K-003 | 工具链上下文 | toolchain-context | 常驻上下文预算阈值必须与 token 估算公式同口径 | WXG-T-024 | 2026-09-12 | 0 | active |
+| K-004 | 工具链上下文 | toolchain-context | 改过被索引的 `.md` 后必须重跑 `ctx:build`，否则 C 门必红 | WXG-T-026 | 2026-09-12 | 0 | active |
+| K-005 | 工具链上下文 | toolchain-context | 含「活动会话」的采集型基线必须用比率口径，计数容忍带必然误报 | WXG-T-026 | 2026-09-12 | 0 | active |
 | K-006 | 工具链 | toolchain | 冻结样本做 schema 升级，用「侧车重算」而不是全量重采 | WXG-T-026 | 2026-09-12 | 0 | active |
 | K-007 | 跨IDE | cross-ide | Qoder 把 `model: inherit` 当具体模型 ID 解析 | — | 2026-09-11 | 0 | active |
 | K-008 | 跨IDE | cross-ide | 跨 IDE 并行会话会撞任务号与 §6 版本号 | WXG-T-016 | 2026-09-12 | 0 | active |
@@ -140,11 +140,11 @@
 | K-027 | 流程 | patterns | 旁挂式生命周期层升级存量 md 沉淀层 | WXG-T-029 | — | 0 | active |
 | K-028 | 流程 | patterns | 访问计数「自动 + 显式」双通道 | WXG-T-029 | — | 0 | active |
 | K-029 | 工具链 | toolchain | 自增 ID 的下界必须取自既有数据，不能只看计数器 | WXG-T-029 | 2026-09-12 | 0 | active |
-| K-030 | 工具链 | toolchain | 产物进索引前先确认「新鲜度契约」——脚本自测会假绿 | WXG-T-029 | 2026-09-12 | 0 | active |
+| K-030 | 工具链上下文 | toolchain-context | 产物进索引前先确认「新鲜度契约」——脚本自测会假绿 | WXG-T-029 | 2026-09-12 | 0 | active |
 | K-031 | 工具链Git | toolchain-git | 多产物生成器新增产物时，必须同任务登记 pre-commit 的 `git add` 清单 | WXG-T-036 | 2026-09-13 | 0 | active |
-| K-032 | 工具链 | toolchain | 「逃生阀」两侧都支持时，文档必须写成 | WXG-T-036 | 2026-09-13 | 0 | active |
+| K-032 | 工具链上下文 | toolchain-context | 「逃生阀」两侧都支持时，文档必须写成 | WXG-T-036 | 2026-09-13 | 0 | active |
 | K-033 | 工具链 | toolchain | 能否用符号链接做「一处正本」，判据是 | WXG-T-043 | 2026-09-13 | 0 | active |
-| K-034 | 工具链 | toolchain | 协议第二跳的准入条件不能沿用「热度 + 体积」——引用面覆盖率必须独立成硬门（D2） | WXG-T-044 | 2026-09-13 | 0 | active |
+| K-034 | 工具链上下文 | toolchain-context | 协议第二跳的准入条件不能沿用「热度 + 体积」——引用面覆盖率必须独立成硬门（D2） | WXG-T-044 | 2026-09-13 | 0 | active |
 | K-035 | 流程 | process | 文档状态列混淆「规格已写」与「代码已实现」= 可访问性假绿的温床 | WXG-T-084 | 2026-09-14 | 0 | active |
 | K-036 | 流程门禁 | process-gate | 多项串联的门禁若「失败即短路」且「缺对象仍报绿」，它的 ✅ 不构成任何证据 | WXG-T-084 | 2026-09-15 | 0 | active |
 | K-037 | 流程门禁 | process-gate | 「指令流层可证」≠「屏幕层可证」：Node 探针全绿不得抬升表现层结论 | WXG-T-092 | 2026-09-15 | 0 | active |
@@ -155,7 +155,7 @@
 | K-042 | 测试守卫 | testing-guard | 几何单一真源化后测试失去自证能力，须另配不依赖该真源的不变量守卫 | WXG-T-097 | 2026-09-15 | 0 | active |
 | K-043 | 工具链 | toolchain | 取证脚本里「装载动作」必须写在模块 import 之前，否则拿到上一轮旧产物造出假 FAIL | WXG-T-097 | 2026-09-15 | 0 | active |
 | K-044 | 判据 | criteria | 判定上限由「判据完备性」决定，不由实现进度决定；且不得把「缺通道」当预期写进 PASS 条件 | WXG-T-097 | 2026-09-15 | 0 | active |
-| K-045 | 流程台账 | process-ledger | 同一台账文件被并发会话同时写时，`git add <整文件>` 会把别人的 WIP 捎进本单提交 | WXG-T-097 | 2026-09-15 | 0 | active |
+| K-045 | 流程台账协作 | process-ledger-sync | 同一台账文件被并发会话同时写时，`git add <整文件>` 会把别人的 WIP 捎进本单提交 | WXG-T-097 | 2026-09-15 | 0 | active |
 | K-046 | 流程台账 | process-ledger | 领号必须读「工作树全文」的全局最大号，只读已提交的头注必撞号 | WXG-T-106 | 2026-09-15 | 0 | active |
 | K-047 | 判据 | criteria | 幂等判据必锁「自己写出的产物字形」，写方与读方不同源时假绿与自毁同时存在 | WXG-T-106 | 2026-09-15 | 0 | active |
 | K-048 | 工具链Git | toolchain-git | 装置自指文件必须让索引取工作树字节，否则重建-add-校单遍不收敛 | WXG-T-112 | 2026-09-15 | 0 | active |
@@ -168,7 +168,7 @@
 | K-055 | 判据渲染 | criteria-render | 「连通块」API 的返回序是行主序、不是距锚序：「就近/最近」语义取前 N 前必须显式重排 | WXG-T-168 | 2026-09-18 | 0 | active |
 | K-056 | 判据渲染 | criteria-render | 渲染里「未解锁/扩展」的视觉语言必须随容量语义常量派生：裸行号判定会把已开放行画成未开放，并反噬成「假容量」缺陷报告 | WXG-T-168 | 2026-09-18 | 0 | active |
 | K-057 | 流程 | process | 「立项单」与「ADR 状态行」都不会被实施它们的另一张单自动收口，核销时要成对扫 | WXG-T-166 | 2026-09-19 | 0 | active |
-| K-058 | 工具链 | toolchain | 「已写进 .gitignore」不等于「已排除出索引产物」——枚举型走盘生成器只认自己的硬编码跳过集 | WXG-T-176 | 2026-09-19 | 0 | active |
+| K-058 | 工具链上下文 | toolchain-context | 「已写进 .gitignore」不等于「已排除出索引产物」——枚举型走盘生成器只认自己的硬编码跳过集 | WXG-T-176 | 2026-09-19 | 0 | active |
 | K-059 | 流程 | process | 用「甲/乙/丙」转述既有候选清单时必须带正文锚——字母会换义 | WXG-T-167 | 2026-09-19 | 0 | active |
 | K-060 | 测试守卫 | testing-guard | 变异自检里断言「方向」选错会留下伪绿：被测标量在变异下「冻结在旧非零值」而非归零时，存在性断言无判别力 | WXG-T-128 | 2026-09-19 | 0 | active |
 | K-061 | 测试 | testing | `noAssemble` 下手工铺盘 ≠ 装配：子系统内部索引未建，表现为「点名了但不动手」，极易误判为业务缺陷 | WXG-T-128 | 2026-09-19 | 0 | active |
@@ -226,7 +226,7 @@
 | K-116 | 引擎Cocos | engine-cocos | 给渲染命令加「层归属」标记前，先枚举每个宿主的绘制模型：单趟按命令序绘制的宿主天然免疫，可能只有一个 adapter 需要改 | WXG-T-256 | 2026-10-05 | 0 | active |
 | K-117 | 判据渲染 | criteria-render | tint mask 的透明度不在 A 通道：像素审计必须逐通道，「哪张是权威资产」用重跑生成器比 md5 判定 | WXG-T-257 | 2026-10-05 | 0 | active |
 | K-118 | 测试 | testing | 修像素级缺陷前先看「门是什么类型的门」；目标文件未入库（无 HEAD 基线）时 A/B 对照臂 = 摘掉新增那一笔调用重建 | WXG-T-257 | 2026-10-05 | 0 | active |
-| K-119 | 工具链 | toolchain | pre-commit 尾部那句「索引与暂存不一致」会掩盖真因；ctx B 越限要先定责再分流，豁免资格由政策而非方便决定 | WXG-T-260 | 2026-10-06 | 0 | active |
+| K-119 | 工具链上下文 | toolchain-context | pre-commit 尾部那句「索引与暂存不一致」会掩盖真因；ctx B 越限要先定责再分流，豁免资格由政策而非方便决定 | WXG-T-260 | 2026-10-06 | 0 | active |
 | K-120 | 引擎Cocos构建 | engine-cocos-build | 镜像拷贝树删资产必须「正本 + 拷贝件 + `.meta`」三处成对；只删拷贝件会被 `sync:check` 拦下并拒绝构建（OUT 与 OVER 两个方向都红） | WXG-T-259 | 2026-10-06 | 0 | active |
 | K-121 | 美术派生 | art-derivation | 迭代缩边前必须先做逐列亮度剖面诊断，搞清用户所见「宽带」的真实像素构成 | WXG-T-268 | 2026-10-12 | 0 | active |
 | K-122 | 美术派生 | art-derivation | 全局平滑核会把局部裁切改动跨分支传播，须按分支钳制或收紧作用域 | WXG-T-268 | 2026-10-12 | 0 | active |
@@ -244,7 +244,7 @@
 | K-134 | 美术派生 | art-derivation | 含「悬在实体外的影」的 9-slice 元素：切片线必须把悬影整块关进端帽，⛔ 整图横拉会把影按倍率摊平 | WXG-T-269 | 2026-10-14 | 0 | active |
 | K-135 | 美术派生 | art-derivation | 复用上一批的尺子：先对量纲，再把当初那份原始脚本重跑一遍取靶值 | WXG-T-269 | 2026-10-14 | 0 | active |
 | K-136 | 工具链Git | toolchain-git | 文档批「本地门全绿」可以是假绿：`ctx:check` 默认校验 HEAD，暂存态超限只有 pre-commit 看得到 | WXG-T-289 | 2026-10-17 | 0 | active |
-| K-137 | 流程台账 | process-ledger | 拆分件写好的「待主理人批准后粘贴」不会自动落地：五批代码已入库，主表与 Epic 宿主表仍搜不到该号 | WXG-T-284 | 2026-10-17 | 0 | active |
+| K-137 | 流程台账协作 | process-ledger-sync | 拆分件写好的「待主理人批准后粘贴」不会自动落地：五批代码已入库，主表与 Epic 宿主表仍搜不到该号 | WXG-T-284 | 2026-10-17 | 0 | active |
 | K-138 | 工具链图像 | toolchain-image | i2i 的 denoise 是「风格 ↔ 结构」单调权衡，且不承载离散状态语义 ⇒ 状态位必须程序化重画 | — | 2026-10-18 | 0 | active |
 | K-139 | 环境 | environment | 交付格式的判据是「目标运行时能不能解码」，压缩率不构成选型依据；带「未验证前提」的格式裁定不得进产线口径 | — | 2026-10-18 | 0 | active |
 | K-140 | 判据实测 | criteria-measure | 逐对象输出的工具，取数必须按对象名锚定；`tail` 取末行会把最后一个对象的读数当成第一个 | — | 2026-10-18 | 0 | active |
@@ -265,7 +265,7 @@
 | K-155 | 流程对账 | process-audit | 同一份决策文里「决策条文」与「施工清单」各写各的 ⇒ 执行者照清单交付无过、决策却未兑现；落码批验收必须逐字段对账，并复核既有断言是否真消费了被改的那条轴 | WXG-T-344 | 2026-10-22 | 0 | active |
 | K-156 | 判据实测 | criteria-measure | 度量「已有构建产物」的读数（包体、快照、生成物校验）必须先核对产物时间戳，否则读到的是上一批的数 | WXG-T-345 | 2026-10-22 | 0 | active |
 | K-157 | 测试变更 | testing-change | 夹具手工拼出的「最小形状」若与生产装配形状不同，对数据形状敏感的边界分支就永远走不到，变异也不会红 | WXG-T-345 | 2026-10-22 | 0 | active |
-| K-158 | 流程台账 | process-ledger | 跨会话「只披露不代填」是双向通道：对方会话会读头注并照做，判归属要用 mtime 而不是 git status | WXG-T-346 | 2026-10-22 | 0 | active |
+| K-158 | 流程台账协作 | process-ledger-sync | 跨会话「只披露不代填」是双向通道：对方会话会读头注并照做，判归属要用 mtime 而不是 git status | WXG-T-346 | 2026-10-22 | 0 | active |
 | K-159 | 工具链Git | toolchain-git | `git commit` / `git push` 的输出接 `head`、`tail` 会被 SIGPIPE 中断，留下「索引已暂存、HEAD 未动」的半态 | WXG-T-349 | 2026-10-22 | 0 | active |
 | K-160 | 跨IDE | cross-ide | 终端按列宽折行后的输出抄进编辑工具会夹入「词内假空格」；中文正文改完必做一次空格复核 | WXG-T-349 | 2026-10-22 | 0 | active |
 | K-161 | 判据实测 | criteria-measure | 「文档值 ≠ 代码值」只是不等，不自动等于「文档落后」；判漂移方向前必须先列该标识的消费点并按被检域检索 | WXG-T-350 | 2026-10-22 | 0 | active |
@@ -278,6 +278,7 @@
 | K-168 | 工具链Git | toolchain-git | 查「某个字段的值被谁改过」⛔ 拿 `git log -S` 搜键名（pickaxe 数的是出现次数 ⇒ 同行换值不命中，会得到假的「从未改过」），须改 `-G` 正则或搜旧值 | WXG-T-375 | 2026-10-24 | 0 | active |
 | K-169 | 流程台账 | process-ledger | `check:tasks` 按裸竖线切主表行：行内写管道或命令即被判「列数 N ≠ 5」 | WXG-T-378 | 2026-10-25 | 0 | active |
 | K-170 | 流程台账 | process-ledger | 单文件上限是硬顶：往详情节追加前先估 tok，撞顶后再挤会白跑一轮 pre-commit | WXG-T-378 | 2026-10-25 | 0 | active |
-| K-171 | 工具链 | toolchain | 预算型生成物「恒贴上限」是填充线造成的，不是素材过多：余量小先查填充逻辑，别先砍池 | WXG-T-380 | 2026-10-25 | 0 | active |
+| K-171 | 工具链上下文 | toolchain-context | 预算型生成物「恒贴上限」是填充线造成的，不是素材过多：余量小先查填充逻辑，别先砍池 | WXG-T-380 | 2026-10-25 | 0 | active |
 | K-172 | 流程台账 | process-ledger | `TASKS-DETAIL` 节标题必须裸写 `## WXG-T-NNN`：带副标题会被 `parseDetail` 漏认，门却报「没有此小节」 | WXG-T-381 | 2026-10-25 | 0 | active |
+| K-173 | 工具链 | toolchain | `String.replace` 的替换串含 `$` 会被当成替换模式（`$&` = 整匹配、反引号 = 匹配前、`$'` = 匹配后）：机械改文档必须用函数替换 | WXG-T-382 | 2026-10-25 | 0 | active |
 <!-- kb:active:end -->
