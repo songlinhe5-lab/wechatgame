@@ -4427,6 +4427,73 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 
 ---
 
+## WXG-T-393
+
+**`--date` / `--today` 口径裁定 + 断言：六入口一份「严格拒绝」契约**（2026-10-25）
+
+> 领号已核 K-046：开工前头注「下一可用 = 393」（392 已由本会话上一批占用并顶注），主表 / 详情节 / `git log --all --grep` / 全树 grep 四路零占用（唯一命中是头注前瞻）⇒ 本批取 **393**。
+
+### 1. 病根（T-392 §5 遗留 1，覆盖面比遗留记得更宽）
+
+遗留只写了「三个脚本」，实读是 **6 个入口 / 2 个参数名 / 2 种写法**，且一条契约都不曾成文：
+
+| 入口 | 参数名 | 改前写法 |
+|---|---|---|
+| `kb-archive.mjs:49`、`kb-reactivate.mjs:56`、`kb-touch.mjs:42` | `--date` | 各自**内联重写** `/^\d{4}-\d{2}-\d{2}$/`，不匹配就 `todayISO()` |
+| `kb-sync.mjs:76` | `--today` | `todayISO(typeof opts.today === 'string' ? opts.today : undefined)` |
+| `kb-audit.mjs:34`、`kb-collect.mjs:61` | `--today` | `todayISO(opts.today)`（`todayISO` 自接 override，内部再抄一份正则） |
+
+三宗实读病：① **静默回落** —— 形态非法不报错、不纠正，直接按「今天」写进 `archivedDate` / `reactivatedDate` / `lastAccess` / `events[].date`，事后无从反查真实操作日；② **同族两种松紧** —— `--task` 早在 `[25]` 就钉了「形态非法 → exit 2」而日期走兜底，再加第七个入口还得临场重裁；③ **正则抄本 5 份** —— lib `DATE_RE`（`:276`，`kb-check.mjs:233` 校 events 日期同源）+ lib `todayISO` 内一份 + 三脚本各一份。
+
+> 探针实测（件已删）：`2026-13-45` 过 `DATE_RE` 但 `Date.parse` 返 `NaN`；`2026-02-30` 连 `Date.parse` 也放行 ⇒ 本契约只锁**形态**（§5 遗留 2）；`" 2026-03-07 "`（带首尾空格）旧行为判非法 → 静默落当天，而同一脚本的 `--task` 是先 trim ⇒ 两条守卫规约不一致。
+
+### 2. 裁定与改法
+
+裁定由用户拍板（三案：**纯成文 / 只加告警 / 严格拒绝同 `--task`**）= **严格拒绝**：形态非法 → 用法错误 `exit 2` + 零写盘，六个入口共一份契约。
+
+> 为什么不选另两条：① 纯成文（只写头注）不改行为，判别力实验① 就是它的后果——去掉形态校验后 26h 红出 `archivedDate=2026-3-6`，坏值真入库；② 只加告警（`warn` 后继续）= 一条 stderr 会被忽略而写盘已成事实，且与同族 `--task` 的 exit 2 分叉。
+
+- **lib `knowledge-ledger.mjs`**：`todayISO(override)` 收为无参 `todayISO()`；新增 **`requireDateArg(opts, flag)`**（`:335`）作唯一解析点——未传 / 空串 / 只给参数名不带值 → 当天（规约同 `--task`：缺省不是用法错误）；trim 后形如 `DATE_RE` → 原样用；否则诊断（回显传入的坏值 + 可照抄的正确形态）并 `process.exit(2)`。
+- **六个调用点**统一成 `requireDateArg(opts, 'date'|'today')`；导入按 ASCII 序补 `requireDateArg,`、删 `todayISO,`；六处头注「退出码」行补「`--date` / `--today` 形态非法 → 2」，契约自此成文。
+- **`[26]` 24 条断言**（全在桩仓跑）：**26a–26f** 六入口各一腿且坏形态各不相同（archive 月/日没补零 / reactivate 分隔符写成斜杠 / touch 整串不是日期 / sync 日少一位 / audit 无分隔符连写 / collect 英文写法），均期望 exit 2 且诊断同源；**26g 零写盘**：六次拒绝后 `events` 条数未增、`K-002` 仍 active、ledger 与两活跃文件逐字节不变；**26h** 边界 `--date=`（空串）不报错、真完成归档且 `archivedDate` = 当天；**26i** 边界首尾空格被 trim 后入库；**26j** 收尾 `kb:check` 仍 exit 0。
+- **临场换过一腿的值**：26f 原拟用 `--today=2026-13-06` 测「月份越位被拒」，但 `DATE_RE` 只看形态 ⇒ 会跑过并使 `kb-collect` 真写桩 ledger ⇒ 换成 `next-week`，日历合法性另立遗留（26f 注释已指路 §5）。
+
+> **判别力实验两枪**（均改真码、跑完逐字节还原并以 `cmp -s` 证与备份一致）：① `if (!DATE_RE.test(v))` → `if (false)` ⇒ **恰 21 红且全在 `[26]`**（PASS=274 / FAIL=21，`[25]` 仍绿）；② `const v = raw.trim()` → `const v = raw` ⇒ **恰 2 红全在 26i**（PASS=293 / FAIL=2），证实 trim 那半行不是冗余。
+
+> **事故披露（真仓被本批写脏并当场还原）**：冒烟时在真仓跑了两次 `kb-touch K-001 --date=<合法日>`，**真实写入** `knowledge/ledger.json`（`K-001` 的 `accessCount` 0→1→2）。已 `git checkout -- knowledge/ledger.json` 还原并实测 `accessCount=0` / `lastAccess=2026-09-12` 回原值。教训 = 写操作类脚本的冒烟只能在桩仓跑，本批后续一律走 `run node "$KB_*"`。
+
+### 3. 读数与门禁
+
+| 项 | 读数 |
+|---|---|
+| `node --check` / `bash -n` | 7 件全过（lib + 六脚本）；自测脚本语法 OK |
+| grep 残留带参 `todayISO(` | 零命中（六入口均走 `requireDateArg`，导入区 `todayISO` 已退场） |
+| `knowledge-selftest.sh` | **295 / 295**（`[26]` 新增 24 条；原 271） |
+| `kb:check`（真实仓库） | 十重 PASS（活跃 **173**，本批 +1 = K-176） |
+| `kb:audit` | ① 无候选 ② 无相似命中 |
+| `check:tasks` | 写台账前实测 **92 行 ⇔ 92 节**；本批写完 **93 ⇔ 93**（A/C/I 无告警，H 观察哨仍未消） |
+| ctx B 门（`tasksDetail` 上限 205000） | 写节前实测 **199847 tok**（T-392 收敛后余 5153）→ 本批新节 + 主表行 + §5 遗留 6 全部写完、`ctx:build -- --staged-blobs` 按暂存 blob 实测 **202793 tok**（余 **2207**，未越线 ⇒ 本批未跑 `tasks:archive`，⛔ 未登记豁免） |
+
+### 4. 沉淀统计（`kb:sync --task=WXG-T-393`）
+
+**新增 1 / 修改 0 / 激活 0 / 归档 0**（累计活跃 172→173，`nextId` 176→177）：
+
+- **K-176**【工具链】工具回显会把「斜杠分隔的数字日期」渲染成连字符形态，符号形态的取证只能读字节 —— 本批两轮误诊的直接产物（详见 §5 遗留外的取证记录：文件字节为 `2026` 斜杠 `03` 斜杠 `06`，`od -c` / `charCodeAt` 回 `47` 而回显显示连字符）。
+
+> 入账过程如实记：第一次跑 `kb:sync` 时把 INDEX §2 模板里的占位符 `[K-xxx]` 当字面量写进了条目，补号后留下 `[K-176][K-xxx]` 双标签 ⇒ `git checkout -- knowledge/` 回到零改动态，按「补号前不带 ID」的正确写法重跑一次；上表为第二次（即唯一留档那次）的读数。
+
+### 5. 遗留
+
+1. `kb-touch.mjs:43` 的 `--task` **没有** `TASK_ID_RE` 守卫（archive / sync / reactivate 三处都有），传 `--task=T-393` 会原样拼进 `tag` —— 同族未钉契约的第四个入口。本批只登记不夹带修（要补 = 一条守卫 + `[25]` 一腿）。
+2. `DATE_RE` 只锁形态不锁日历合法性：`2026-13-06`、`2026-02-30` 仍能过并入库。要加就得先裁口径（`Date.parse` 对 `2026-02-30` 也放行 ⇒ 需自定月天数或 UTC 构造回比），属独立小批。
+3. `kb-check.mjs:233` 用同一份 `DATE_RE` 校验 `events[].date` ⇒ 「形态合法而日历不存在」的日期也能过十重校验；第 2 条一旦裁定，两处须同步（同源于 lib 已具备）。
+4. T-392 遗留 4 / 5 未动：主表行数仍越 H 观察哨（本批 +1 = 93）；`## WXG-T-224 · …` / `225 · …` 两节带副标题对 `parseDetail` 不可见。
+5. **B 门余量已再下一个台阶**：本批按暂存 blob 写完实测 202793 / 205000（余 **2207**）——下一批详情节只要再写 ≈2.2k tok 就会顶穿。届时仍按 T-392 同款「最少条数」`tasks:archive -- --detail-until-under=<上限以下>` 收敛（⛔ 不走 `budget-exempt` 豁免）；根治口径（主表压到观察哨以下）仍未裁，见遗留 4。
+6. **并发会话 `git stash` 扫走本批已完工的代码（当场恢复，属环境事实不是本批缺陷）**：台账写入前，并发会话跑了一次 `git stash`（`stash@{0}: pre-existing:L1-art+kb-sync`），把本批 12 件（lib + 六脚本 + 自测 + 四件 knowledge）**连同他们自己的在制品一起从工作树与暂存区卷走**，当时只剩我后来改的两件台账 ⇒ 从 stash **按路径精确取回我方 12 件**（`git checkout stash@{0} -- <路径>`），⛔ 未动他们的四件 beads 在制品与 `scan-text-distortion.mjs`，**stash 本身保留不 drop**（仍含他们的 L1-art 腿）。取回后重跑并确认：`node --check` 7 件全过、knowledge-selftest **295/295**、`kb:check` 十重 PASS（活跃 173）、`git diff HEAD -- knowledge/ledger.json` 只含 K-176 一条与它的 event（无多余写入）。⇒ 登记：多会话共一个工作树时，**写完未提交的改动随时可能被别人一次 stash / checkout 扫掉**（K-045 / K-137 同族的新成因），收口方提交前宜跑 `git reflog -3` + `git stash list` 扫一眼。
+7. **第二起并发交叉（提交前最后一道归属核对，K-045 同族）**：我方 `git add` 之后、`git commit` 之前，对方会话又往同一对台账文件里写了 **T-394 主表行 + `## WXG-T-394` 详情节 + 头注顶号（已分配 394 / 下一可用 395）** ⇒ 直接重跑 `git add` 会把这三件在制品一并入 HEAD（钩子前置报警的正是该成因）。处置：按 HEAD 逐件核对归属后，**只改写索引不改工作树**（`git hash-object -w` + `git update-index --cacheinfo`）⇒ 本批提交 = HEAD + 我方内容，对方的行/节仍作为未暂存 delta 留在工作树由其自行提交（⛔ 未回退其顶号以外的内容，其头注那行因与本批共用一个锚行，按「取自己那份、保留对方顶号」处理）。⇒ 登记：共工作树时，**台账这种单文件多会话写入不能靠 `git add <file>` 收尾**，得先 `git show :<file>` 比对索引再决定。
+
+---
+
 ## WXG-T-389
 
 **`kb:archive` 余下两条 exit 1 分支负例：源文件未知 / ledger 有而 markdown 无**（2026-10-25）

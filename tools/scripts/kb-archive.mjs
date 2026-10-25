@@ -15,7 +15,7 @@
  *   node tools/scripts/kb-archive.mjs --ids=K-004 --reason="…" --task=WXG-T-029   # 归因（写入 event）
  *   # 经 pnpm：pnpm run kb:archive -- --ids=K-004,K-011 --reason="…"
  *
- * 退出码：0 成功；1 未知 / 非活跃 ID；2 缺 --ids / --reason 或 --task 形态非法（用法错误）。
+ * 退出码：0 成功；1 未知 / 非活跃 ID；2 缺 --ids / --reason 或 --task / --date 形态非法（用法错误）。
  * **--reason 必填**：缺则报错退出（归档必须留痕可追溯）。
  */
 
@@ -37,16 +37,16 @@ import {
   readLedger,
   renderActiveBlock,
   renderArchiveIndex,
+  requireDateArg,
   rewriteActiveBlock,
   sortEntries,
-  todayISO,
   writeLedger,
 } from './lib/knowledge-ledger.mjs';
 
 const { opts } = parseArgs(process.argv.slice(2));
 const idsRaw = typeof opts.ids === 'string' ? opts.ids : null;
 const reason = typeof opts.reason === 'string' ? opts.reason.trim() : '';
-const date = typeof opts.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(opts.date) ? opts.date : todayISO();
+const date = requireDateArg(opts, 'date');
 const task = typeof opts.task === 'string' && opts.task.trim() !== '' ? opts.task.trim() : null;
 
 if (!idsRaw) {

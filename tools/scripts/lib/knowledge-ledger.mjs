@@ -316,11 +316,31 @@ export function parseArgs(list) {
   return { positional, opts };
 }
 
-export function todayISO(override) {
-  if (override && /^\d{4}-\d{2}-\d{2}$/.test(override)) return override;
+/** 当天（本地日区，`YYYY-MM-DD`）。 */
+export function todayISO() {
   const d = new Date();
   const p = (n) => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
+/**
+ * `--date` / `--today` 的唯一解析入口（WXG-T-393）—— 六个 kb 脚本（archive / reactivate /
+ * touch 用 `--date`，sync / audit / collect 用 `--today`）共一份契约，**不再各自重写正则**：
+ * • 未传 / 空串 / 只给 `--date` 不带值 → 当天（规约同 `--task`：缺省不是用法错误）；
+ * • 首尾空格先 trim，剩下形如 `YYYY-MM-DD`（`DATE_RE`）→ 原样用；
+ * • 其他形态 → 打诊断并按**用法错误 exit 2**，⛔ **不静默回落当天**——回落会把错日期写进
+ *   ledger 的 `archivedDate` / `reactivatedDate` / `lastAccess` 与 `events[].date`，事后无从反查。
+ * 本函数只锁**形态**：月 13 / 日 45 这类形似而非的日历假日子仍能过（`DATE_RE` 不管合法性）。
+ */
+export function requireDateArg(opts, flag) {
+  const raw = opts?.[flag];
+  if (typeof raw !== 'string' || raw.trim() === '') return todayISO();
+  const v = raw.trim();
+  if (!DATE_RE.test(v)) {
+    console.error(`❌ --${flag} 形态非法（${raw}）：应形如 YYYY-MM-DD。`);
+    process.exit(2);
+  }
+  return v;
 }
 
 /** `b - a` 的天数（按 UTC 零点，避免时区/夏令时抖动）。 */

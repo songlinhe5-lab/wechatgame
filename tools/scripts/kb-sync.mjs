@@ -31,7 +31,7 @@
  *   node tools/scripts/kb-sync.mjs --note="…"              # 附加备注（写入 event.note）
  *   node tools/scripts/kb-sync.mjs --today=2026-09-12      # 覆盖「运行日」（自测 / 回放用）
  *
- * 退出码：0 成功；1 关键文件缺失 / ledger 不可解析；2 `--task` 形态非法（用法错误）。
+ * 退出码：0 成功；1 关键文件缺失 / ledger 不可解析；2 `--task` / `--today` 形态非法（用法错误）。
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -59,10 +59,10 @@ import {
   renderActiveBlock,
   renderArchiveIndex,
   renderChangelog,
+  requireDateArg,
   rewriteActiveBlock,
   serializeLedger,
   sortEntries,
-  todayISO,
 } from './lib/knowledge-ledger.mjs';
 
 // ── CLI ───────────────────────────────────────────────────────────────────────
@@ -73,7 +73,7 @@ if (task !== null && !TASK_ID_RE.test(task)) {
   process.exit(2);
 }
 const note = typeof opts.note === 'string' && opts.note.trim() !== '' ? opts.note.trim() : null;
-const runDate = todayISO(typeof opts.today === 'string' ? opts.today : undefined);
+const runDate = requireDateArg(opts, 'today');
 
 // ── 0) 读 ledger（缺失 → 全新；存在但不可解析 → 报错不写）────────────────────
 const ledgerExists = existsSync(LEDGER_PATH);

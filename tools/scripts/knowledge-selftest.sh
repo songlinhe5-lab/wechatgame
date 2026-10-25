@@ -1136,6 +1136,69 @@ rc=$(run node "$KB_CHECK")
 assert_eq "$rc" "0" "25f 边界归档后 kb:check 仍 exit 0"
 assert_not_contains "$(cat "$WORK/last.txt")" "❌" "25f 无任何失败项"
 
+# ── [26] 日期入参形态非法 → exit 2：六入口一份契约 + 拒绝零写盘 + 空串/trim 边界（WXG-T-393）──
+echo
+echo "[26] --date / --today：archive·reactivate·touch·sync·audit·collect 均 exit 2，拒绝时一个字节不写"
+
+cp "$REPO/knowledge/ledger.json" "$WORK/ledger.pre26.json"
+cp "$REPO/knowledge/lessons.md" "$WORK/lessons.pre26.md"
+cp "$REPO/knowledge/patterns.md" "$WORK/patterns.pre26.md"
+evn26=$(ldevn)
+
+# 26a kb:archive：月/日没补零（今天只锁形态，不管日历合法性）
+rc=$(run node "$KB_ARCHIVE" --ids=K-002 --date=2026-3-6 --reason="桩：date 负例")
+assert_eq "$rc" "2" "26a kb:archive 非法 --date → exit 2（用法错误，不再静默回落当天）"
+assert_contains "$(cat "$WORK/last.txt")" "--date 形态非法（2026-3-6）" "26a 诊断回显传入的坏值"
+assert_contains "$(cat "$WORK/last.txt")" "应形如 YYYY-MM-DD" "26a 诊断给出可照抄的正确形态"
+
+# 26b kb:reactivate：分隔符写成斜杠
+rc=$(run node "$KB_REACTIVATE" --ids=K-003 --date=2026/03/06 --reason="桩：date 负例")
+assert_eq "$rc" "2" "26b kb:reactivate 非法 --date → exit 2"
+assert_contains "$(cat "$WORK/last.txt")" "--date 形态非法（2026/03/06）" "26b 同一份诊断文案（源于 lib）"
+
+# 26c kb:touch：整串根本不是日期（位置参数给合法 ID，让红只能源于 --date）
+rc=$(run node "$KB_TOUCH" K-002 --date=abc)
+assert_eq "$rc" "2" "26c kb:touch 非法 --date → exit 2"
+assert_contains "$(cat "$WORK/last.txt")" "--date 形态非法（abc）" "26c touch 也走同一入口（旧行为：静默按当天）"
+
+# 26d kb:sync：日少一位
+rc=$(run node "$KB_SYNC" --today=2026-03-0)
+assert_eq "$rc" "2" "26d kb:sync 非法 --today → exit 2"
+assert_contains "$(cat "$WORK/last.txt")" "--today 形态非法（2026-03-0）" "26d 参数名跟着诊断走（sync 用 --today）"
+
+# 26e kb:audit：无分隔符连写
+rc=$(run node "$KB_AUDIT" --today=20260306)
+assert_eq "$rc" "2" "26e kb:audit 非法 --today → exit 2（审计‘恒 0’只保结果，不保用法错误）"
+assert_contains "$(cat "$WORK/last.txt")" "--today 形态非法（20260306）" "26e 诊断同源"
+
+# 26f kb:collect：英文写法（这一腿必须被拒 —— 否则它会拿非法日写桩 ledger）
+#     ⚠ `2026-13-06` 这类“月份越位”形态上合法、不会被拒，属未裁的日历合法性（T-393 §5）
+rc=$(run node "$KB_COLLECT" --today=next-week)
+assert_eq "$rc" "2" "26f kb:collect 非法 --today → exit 2"
+assert_contains "$(cat "$WORK/last.txt")" "--today 形态非法（next-week）" "26f 六个入口共一份契约"
+
+# 26g 六次拒绝均为零写盘（守卫在任何读写之前）
+assert_eq "$(ldevn)" "$evn26" "26g 六次非法日期后 events 条数未增"
+assert_eq "$(ld K-002 state)" "active" "26g K-002 仍 active（被拒的归档真没落库）"
+cmp -s "$WORK/ledger.pre26.json" "$REPO/knowledge/ledger.json" && ok "26g ledger 逐字节不变" || bad "26g ledger 被拒绝分支改写"
+cmp -s "$WORK/lessons.pre26.md" "$REPO/knowledge/lessons.md" && ok "26g lessons.md 逐字节不变" || bad "26g lessons.md 被拒绝分支改写"
+cmp -s "$WORK/patterns.pre26.md" "$REPO/knowledge/patterns.md" && ok "26g patterns.md 逐字节不变" || bad "26g patterns.md 被拒绝分支改写"
+
+# 26h 边界：`--date=`（空串）不算非法 = 按缺省走当天，而当正例跑完（规约同 --task）
+today26=$(node -e 'const d = new Date(); const p = (n) => String(n).padStart(2, "0"); process.stdout.write(`${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`);')
+rc=$(run node "$KB_ARCHIVE" --ids=K-002 --date= --reason="桩：date 缺省边界")
+assert_eq "$rc" "0" "26h --date= 空串不被当非法（exit 0，真完成归档）"
+assert_eq "$(ld K-002 archivedDate)" "$today26" "26h archivedDate = 当天（空串按缺省，既不是坏值也不是报错）"
+
+# 26i 边界：首尾空格先 trim（旧行为当非法→静默落当天；现与 --task 同规约）
+rc=$(run node "$KB_REACTIVATE" --ids=K-002 --date=" 2026-03-09 " --reason="桩：date trim 正例")
+assert_eq "$rc" "0" "26i 带首尾空格的合法日期被接受（跟 26h 刚归档的 K-002 反向激活）"
+assert_eq "$(ld K-002 reactivatedDate)" "2026-03-09" "26i reactivatedDate = trim 后的传入值（不当天、也不带空格入库）"
+
+rc=$(run node "$KB_CHECK")
+assert_eq "$rc" "0" "26j 边界归档/激活后 kb:check 仍 exit 0（事件日期与 ledger 字段同形态）"
+assert_not_contains "$(cat "$WORK/last.txt")" "❌" "26j 无任何失败项"
+
 # ── 汇总 ────────────────────────────────────────────────────────────────────
 echo
 echo "=================================================================="

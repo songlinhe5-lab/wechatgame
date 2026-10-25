@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 176,
+  "nextId": 177,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -2934,6 +2934,23 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-176",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain.md",
+      "category": "工具链",
+      "title": "工具回显会把「斜杠分隔的数字日期」渲染成连字符形态，符号形态的取证只能读字节",
+      "contentHash": "18594588c95f367293763c8042eb0437856118309f85ca7bfb59ef67e480b488",
+      "sourceTask": "WXG-T-393",
+      "addedDate": "2026-10-25",
+      "lastAccess": "2026-10-25",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -4680,6 +4697,15 @@
       "kind": "added",
       "ids": [
         "K-175"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-25",
+      "taskId": "WXG-T-393",
+      "kind": "added",
+      "ids": [
+        "K-176"
       ],
       "note": null
     }

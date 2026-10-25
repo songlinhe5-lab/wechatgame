@@ -16,7 +16,7 @@
  *   node tools/scripts/kb-audit.mjs
  *   node tools/scripts/kb-audit.mjs --today=2026-09-12   # 覆盖「今天」（自测 / 回放）
  *
- * 退出码：0（审计恒 0；候选只为人工复核，不阻断）。
+ * 退出码：0（审计恒 0；候选只为人工复核，不阻断）；2 `--today` 形态非法（用法错误，审计不落盘）。
  */
 
 import {
@@ -26,12 +26,12 @@ import {
   normalizeThresholds,
   parseArgs,
   readLedger,
+  requireDateArg,
   sortEntries,
-  todayISO,
 } from './lib/knowledge-ledger.mjs';
 
 const { opts } = parseArgs(process.argv.slice(2));
-const today = todayISO(opts.today);
+const today = requireDateArg(opts, 'today');
 
 const ledger = readLedger();
 if (!ledger) {

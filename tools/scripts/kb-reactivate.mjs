@@ -19,7 +19,7 @@
  *   node tools/scripts/kb-reactivate.mjs --ids=K-004 --reason="…" --task=WXG-T-029   # 归因（写入 event）
  *   # 经 pnpm：pnpm run kb:reactivate -- --ids=K-004 --reason="…"
  *
- * 退出码：0 成功；1 未知 / 非归档 ID；2 缺 --ids 或 --task 形态非法（用法错误）。
+ * 退出码：0 成功；1 未知 / 非归档 ID；2 缺 --ids 或 --task / --date 形态非法（用法错误）。
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -42,18 +42,18 @@ import {
   readLedger,
   renderActiveBlock,
   renderArchiveIndex,
+  requireDateArg,
   rewriteActiveBlock,
   seenToken,
   sortEntries,
   stripArchivedMeta,
-  todayISO,
   writeLedger,
 } from './lib/knowledge-ledger.mjs';
 
 const { opts } = parseArgs(process.argv.slice(2));
 const idsRaw = typeof opts.ids === 'string' ? opts.ids : null;
 const reason = typeof opts.reason === 'string' ? opts.reason.trim() : '';
-const date = typeof opts.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(opts.date) ? opts.date : todayISO();
+const date = requireDateArg(opts, 'date');
 const task = typeof opts.task === 'string' && opts.task.trim() !== '' ? opts.task.trim() : null;
 
 if (!idsRaw) {
