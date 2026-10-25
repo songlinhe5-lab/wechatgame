@@ -149,7 +149,7 @@
       "file": "knowledge/lessons/cross-ide.md",
       "category": "跨IDE",
       "title": "派单范围表述必须对照冻结真源复核",
-      "contentHash": "cd3ce3cc02f9bf8711fd9868acf2be8fa40c351d9ad05658a049cbebf47b19ad",
+      "contentHash": "7710632d26c60775081f95f206dc6abca2b830c97fcf575cf790b6bd3b88ae39",
       "sourceTask": "WXG-T-013",
       "addedDate": "2026-09-12",
       "lastAccess": "2026-09-12",
@@ -761,7 +761,7 @@
       "file": "knowledge/lessons/process-ledger-sync.md",
       "category": "流程台账协作",
       "title": "同一台账文件被并发会话同时写时，`git add <整文件>` 会把别人的 WIP 捎进本单提交",
-      "contentHash": "c9003e20b91071b3a4006daae931752ede522916f22caf62f04d5d328c4eee07",
+      "contentHash": "90b4080939c8e9719d1fb486b0ae53f211fd3dd6adba81b808b1d5fd13225c3a",
       "sourceTask": "WXG-T-097",
       "addedDate": "2026-09-15",
       "lastAccess": "2026-09-15",
@@ -4734,6 +4734,25 @@
         "K-177"
       ],
       "note": null
+    },
+    {
+      "date": "2026-10-25",
+      "taskId": "WXG-T-396",
+      "kind": "updated",
+      "ids": [
+        "K-009",
+        "K-045"
+      ],
+      "note": "K-045/K-009 各补一条追记（台账单侧撕裂+判例号凭摘要错引）"
+    },
+    {
+      "date": "2026-10-25",
+      "taskId": "WXG-T-396",
+      "kind": "updated",
+      "ids": [
+        "K-009"
+      ],
+      "note": "K-045/K-009 追记定稿（引号归一为「」）"
     }
   ]
 }
