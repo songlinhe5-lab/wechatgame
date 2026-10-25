@@ -50,6 +50,8 @@
  *          **传了 ⇒ 实验档**（写 cocos-assets/_variants/<sha1 前10>/，该目录已 gitignore，永不覆盖定稿产物）。
  *          键集/上下界随 mode 不同（无孔档无孔），见 TINT_MODES[...].params；非法一律 400 可读报错。
  *          回包 `meta.beadDp` = 生效珠面 dp，前端据此裁珠面 sprite（改珠面尺寸时不裁错）。
+ *   DELETE /api/tint-variants → 清空 cocos-assets/_variants/（WXG-T-387）：只删该目录直接子项、
+ *        不碰定稿四张；不可恢复 ⇒ 前端二次确认。回 `{ removed }`。
  *   GET  /                    → 站点首页 = 大关/小关管理页 public/manage.html（生成页 /generate.html）
  *
  * 存储：data/<board>/<id>/result.json（归类 = 目录即盘面档位）。
@@ -1701,6 +1703,26 @@ function handleTintExport(res, url) {
     });
 }
 
+/**
+ * DELETE /api/tint-variants → 清空 `cocos-assets/_variants/`（WXG-T-387）。
+ *
+ * 实验档是 studio 草稿（已 gitignore、无自动清理），攒多了只能手删 ⇒ 给个入口。
+ * ⛔ 只遍历该目录的**直接子项**，不接受任何用户路径片段；⛔ 不碰 `cocos-assets/` 定稿四张。
+ * 不可恢复 ⇒ 前端必须二次确认（服务端不做回收站）。
+ */
+function handleTintVariantsClear(res) {
+    if (!existsSync(join(REPO, 'games/beads')))
+        return sendJson(res, 501, { error: '变体清理仅在本地仓运行 beads-studio 时可用（容器/VPS 无仓库资源）' });
+    const root = join(REPO, 'tools/mask-preview/cocos-assets/_variants');
+    if (!existsSync(root)) return sendJson(res, 200, { removed: 0 });
+    let removed = 0;
+    for (const name of readdirSync(root)) {
+        rmSync(join(root, name), { recursive: true, force: true });
+        removed++;
+    }
+    return sendJson(res, 200, { removed });
+}
+
 async function handleGenerate(req, res, url) {
     const q = url.searchParams;
     const cols = Math.min(107, Math.max(2, parseInt(q.get('cols') || '14', 10)));
@@ -1841,6 +1863,8 @@ async function handle(req, res) {
         if (req.method === 'GET' && path === '/api/bake-manifest') return handleBakeManifest(res, url);
         if (req.method === 'POST' && path === '/api/bake-save') return await handleBakeSave(req, res);
         if (req.method === 'GET' && path === '/api/tint-export') return handleTintExport(res, url);
+        // 实验档清理（WXG-T-387）：只清 cocos-assets/_variants/，定稿四张不碰；不可恢复。
+        if (req.method === 'DELETE' && path === '/api/tint-variants') return handleTintVariantsClear(res);
         // 删除一条已存结果（整目录）：id 走与建目录同一套 `[a-z0-9-]` 白名单，**不碰用户传入的路径片段**。
         // 不可逆（磁盘上唯一副本），所以前端必须二次确认；不提供批量/目录级删除。
         const del = path.match(/^\/api\/results\/([a-z0-9][a-z0-9-]{0,63})$/);

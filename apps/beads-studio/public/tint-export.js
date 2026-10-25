@@ -320,20 +320,40 @@ function syncParamLabel(el) {
     out.classList.toggle('diff', Math.abs(Number(el.value) - s.def) > 1e-9);
 }
 
-/** 全部滑杆回默认 ⇒ 下次 refreshMode 走去 params 的定稿口径。 */
+/** 全部滑杆回默认 ⇒ 下次 refreshMode 走去 params 的定稿口径。@returns refreshMode 的 promise */
 function resetParams() {
     const mode = document.getElementById('tint-mode')?.value || 'holed';
     for (const [k, s] of Object.entries(PARAM_SPEC[mode] || {})) {
         const el = document.getElementById(`p-${k}`);
         if (el) { el.value = s.def; syncParamLabel(el); }
     }
-    refreshMode();
+    return refreshMode();
+}
+
+/**
+ * 清空 `cocos-assets/_variants/`（WXG-T-387，服务端删、本端只发起）。
+ * 清完把变体缓存全清、滑杆回默认 ⇒ 预览回定稿口径，免得对着已删目录继续显示。
+ */
+async function clearVariants() {
+    if (!window.confirm('删除 cocos-assets/_variants/ 下全部实验档？定稿四张不受影响，但变体不可恢复。')) return;
+    try {
+        const res = await fetch('/api/tint-variants', { method: 'DELETE' });
+        const j = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(j.error || String(res.status));
+        for (const k of Object.keys(cache)) if (k.includes('|')) delete cache[k];
+        for (const k of Object.keys(spriteCache)) if (k.includes('|')) delete spriteCache[k];
+        await resetParams();
+        setStatus(`已清理 ${j.removed} 个变体目录 · 回到定稿口径`, 'ok');
+    } catch (e) {
+        setStatus('清理失败：' + e.message, 'err');
+    }
 }
 
 document.addEventListener('click', (ev) => {
     const id = ev.target?.id;
     if (id === 'tint-export') runExport();
     else if (id === 'tint-params-reset') resetParams();
+    else if (id === 'tint-variants-clear') clearVariants();
 });
 document.addEventListener('change', (ev) => {
     const id = ev.target?.id || '';

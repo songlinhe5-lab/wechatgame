@@ -14,6 +14,7 @@
       #tint-cv-grid / #tint-export —— 改 id 会让模块静默失效。
       [WXG-T-383] 调参面板：`#tint-params`（容器，滑杆由模块按 `PARAM_SPEC` 生成，id = `p-<键>` /
       读数 `v-<键>`）+ `#tint-params-reset`。容器缺失时模块不渲染面板（生成页即如此），行为退回定稿档。
+      [WXG-T-387] `#tint-variants-clear` = 清空 `_variants/`（服务端 DELETE /api/tint-variants，弹 confirm）。
     -->
     <style>
         :root {
@@ -135,6 +136,7 @@
             </small>
             <div id="tint-params"></div>
             <button id="tint-params-reset" style="width:100%;margin-top:8px">重置为定稿口径</button>
+            <button id="tint-variants-clear" style="width:100%;margin-top:6px">清空全部实验档（_variants）</button>
         </section>
 
         <section class="card">

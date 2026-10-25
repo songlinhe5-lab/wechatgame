@@ -4348,6 +4348,47 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 
 ---
 
+## WXG-T-388
+
+**beads-studio · tint 实验档清理入口（`DELETE /api/tint-variants`）**（2026-10-25）
+
+> 领号已核 K-046：落码前头注「下一可用 = 387」，提交前重读发现头注已被并发会话（Qoder `kb:archive` 批）顶到 387 ⇒ 改领 **388**，主表 / 详情节 / `git log --all --grep` / 全树 grep 四路零占用（唯一命中是头注「下一可用号」前瞻）。
+
+### 1. 为什么要它
+
+`_variants/` 是 383 引入的实验档草稿：已 gitignore、**无自动清理**，每调一次参数落一个 `<sha1前10>/` 目录，攒多了只能手删（`rm -rf`）。
+
+### 2. 改法（两件）
+
+| 件 | 改动 |
+|---|---|
+| `apps/beads-studio/server.mjs` | 新 `DELETE /api/tint-variants` → `handleTintVariantsClear()`：只对 `cocos-assets/_variants` 做 `readdirSync` 并删**直接子项**（⛔ 不接受任何用户路径片段）；目录不存在 ⇒ `{removed:0}`（幂等）；无 `games/beads` ⇒ 501（与 `tint-export` 同一道「仅本地仓」门） |
+| `public/{tint.html,tint-export.js}` | 加按钮 `#tint-variants-clear` + `clearVariants()`：`window.confirm` 二次确认（不可恢复）→ `fetch DELETE` → 清掉 `cache`/`spriteCache` 里带 `\|` 的变体键 → `await resetParams()`（滑杆回默认 + 重烘定稿档）→ 状态报「已清理 N 个变体目录 · 回到定稿口径」 |
+
+⛔ 清完必须**回定稿口径**：否则滑杆还停在旧值、屏幕上是已删目录的 mask，状态与磁盘不一致。清缓存按「键里有没有 `\|`」区分变体档（`paramKey()` 对定稿档返回裸 `mode`），定稿档缓存不丢。
+
+### 3. 读数
+
+接口（`PORT=8799`，curl）：
+
+| 请求 | 实测 |
+|---|---|
+| 先烘 `holed{beadDp:28}` + `holeless{cornerDp:12}` | 200，`_variants/` 出 `2d231f12c4`、`3e326a92dc` |
+| `DELETE /api/tint-variants` | `{removed:2}` 200；定稿 4 张 sha256 与改前逐字节相同 |
+| 再 `DELETE`（幂等） | `{removed:0}` 200 |
+
+浏览器（Chromium / `agent-browser`）：
+
+| 操作 | 实测 |
+|---|---|
+| 造变体（`beadDp` 30）→ 点「清空全部实验档」 | 状态「已清理 1 个变体目录 · 回到定稿口径」；滑杆回 26；`_variants/` 目录空 |
+| 造变体（`litL` 0.5）→ `confirm` 返回 false 再点 | 目录 `3eaa0f12f3` **保留**（取消路径不删） |
+
+### 4. 边界
+
+1. 服务端不做回收站、不做逐个删除/勾选 —— 只有「全清」（ponytail：先给最少的一档，要按目录删再加）。
+2. `_variants/` 空目录本身留着（gitignore 忽略它，删不删无差别）。
+
 ## WXG-T-387
 
 **`kb:archive` 失败分支独立负例：退出码分类 + 失败不落盘**（2026-10-25）
