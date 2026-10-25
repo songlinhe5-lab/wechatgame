@@ -590,7 +590,7 @@
 **结论**：交付面（P1 标题层级修正 + 规则 R 节级裁剪）全部落地且 10-25 实测达标，**无剩余施工项** ⇒ 结案。以下三笔**移出本单**：
 
 - 「拆 test-cases.md 另立单」（上方「未执行（挂账）」第 3 项）→ **已由 WXG-T-225 完成**（`bf22ef5`，13 片 + 撤销 B 项豁免）；
-- P2（index.json 2.23MB 与「≈195k」文案失真）/ P3（T-211 注记订正为「可选池已空」）→ 仍未动，随下一次 ctx 单处理（不在本单重开）；
+- P2（index.json 2.23MB 与「≈195k」文案失真）/ P3（T-211 注记订正为「可选池已空」）→ 仍未动，随下一次 ctx 单处理（不在本单重开）；**（后记 2026-10-25：已由 WXG-T-378 闭合 —— P2 六处口径与取节配方、P3 经核 09-29 已订正，详见 `## WXG-T-378`）**
 - 常驻总量 **15343 > 13500** → 入 `production/TASKS.md` §待排（backlog 一行）；`test-cases.md` 现为纯索引页、已无判据正文，是否仍留在 `HOT_FILES` 必收 6 件 → 下一轮 ctx 单评估（省 79 tok，属协议面而非 QA 面，本轮不动）。
 
 ## WXG-T-225 · 拆 `production/qa/beads/test-cases.md` 判据分片（撤销 WXG-T-084 的 B 项豁免）
@@ -4621,6 +4621,51 @@ drawZoomControls / drawTray / drawExpandButton / drawPowerupBand+Glyph / 十层�
 - `check:tasks` 的 I 项（WXG-T-362 未在册）已由并发会话 `187e25e` 补登，其补登内容「三关豆面可读性修复 + L9 曼陀罗重建 30×30」正对上 WXG-T-367 定位的拐点 `aa5c85e` ⇒ 拐因与改关范围互证成立。
 - 金样本夹具零改动，复取仍阻塞。
 - `systems-index §3.13` 与 `levels-spec §2.3` 无冲突（v1.56 已转正），levels-spec v1.12 行里「§3.13 仍标 `[提案 v1.54]`、属未决漂移」那句已过期，本批不改文档历史行，仅在此登记为**已消解**。
+
+---
+
+## WXG-T-378
+
+**ctx·`index.json` 体积口径校正 + P2/P3 两笔挂账闭合（零逻辑变更）**
+
+> **状态**：✅ 已完成（2026-10-25；来源 = WXG-T-224 结案重估转出的 P2/P3；用户 2026-10-25 在 T-224 收尾三选项中选 1）
+> **领号**：378（核：头注「下一可用号」= 378、主表最大 = 377、详情节最大 = 377、`git log --all --grep` 与 `production/archive/` 零命中 ⇒ 无占用；K-046）
+
+### 1. 病根（P2，实测 2026-10-25）
+
+| 读数 | 值 |
+|---|---|
+| 体积 / 估算 tok | **3,121,801 字节 = 2.98MB / 829,621（≈83 万）** |
+| 规模 | **490 文件 / 6,990 节** |
+| 改前文案 | 4 处注释写「≈2.24MB / ≈61 万」；生成头写「禁整读（≈2.2MB）」 |
+
+较 T-224 诊断（2.23MB / 588,617 tok）**涨 41%**，旧数字同时误导「多贵」与「能否整读」。另一半更实质：D2 失败只说「只能退到全量 index.json」，**不给取节配方** ⇒ 断链后 agent 无路可走。
+
+### 2. 改法（6 处，零逻辑变更）
+
+`lib/context-index.mjs` 三处：① D2 阈值依据注释 ② `routesAnchorRefs()` jsdoc ③ `renderHotFiles()` 生成头（→ `ctx/hot-files.md` 第 7 行）改「⛔ 禁止整读——现 ≈83 万估算 tok」+ 补兜底 `grep -n "^#" <文件>` 找标题行。`check-context-budget.mjs` 三处：④ 文件头 D2 说明 ⑤ `checkHotFilesCoverage()` jsdoc（①②④⑤ 统一为「2.98MB / ≈83 万估算 tok（2026-10-25）」）⑥ D2 失败信息补 jq 取节配方（`.files[]|select(.path=="<路径>")|.sections`，⛔ 整读即爆）。
+
+口径 = MB 两位 + 万 tok 一位 + 测量日；数字只属快照 ⇒ 判据落在「禁整读 + 给配方」，不靠记数。
+
+### 3. P3：零改码（经核已闭合，不重开 T-211）
+
+T-211 注记「可选池 = 0 文件」**2026-09-29 已订正**且原句留痕（`lib/context-index.mjs:364-366`）；`### H.4`→`##` 级别升已由 P1 落码（`production/qa/beads/test-cases-h-i.md` 头部现为 `## H.4`）。
+
+### 4. 验证
+
+| 项 | 读数 |
+|---|---|
+| `ctx:build` / `ctx:check` | 490 文件（3/6/481）/ 6,990 节；**ctx:check OK**（A–D2 + E3 全过，B 区仍 53 条豁免、零新增） |
+| `check:tasks` / `check:links` | **OK** —— 主表 **100 行** ⇔ 详情 **100 节**、归档 184 成对、7 个署号全在册；agents=7 / skills=47 |
+| `verify`（22 项不短路） | **PASS 21 / FAIL 1**：唯一红 `test`（beads 6 failed = difficulty 3 + ui-golden 3）经 `temp/wxg378-head@4dff78b` 干净检出复跑 **104 files / 1261 passed / 0 failed** ⇒ 归因并发在制的 `L00001.json` / `levels-data.ts`，与本批无关 |
+
+⚠ **一次假红已定因**：首轮 verify 与台账回写并行跑 ⇒ `tasks:archive:selftest` 假红 64/75；`verify:selftest` 同时报出真问题（主表行内 jq 管道符被当列分隔符，`check:tasks` A 项「列数 7≠5」）。修法 = 主表行不写带管道的命令、配方只留本节；修后 `selftest:fast` 11/11。**训条：台账写入期间 ⛔ 并行跑 verify。**
+
+### 5. 遗留
+
+1. 数字仍会漂：不装「体积快照自动写回注释」（要动生成器源码，过度设计）。
+2. 旧数保留：T-224 节三处「2.23MB / ≈588,617 tok」「≈195k」是当初诊断原文（K-053）。
+3. ⚠ 本批入库后 `TASKS-DETAIL.md` 已抵 tasksDetail 上限 205000（WXG-T-377 分档）⇒ 下次追加前先 `tasks:archive`，别再往上顶。
 
 ---
 

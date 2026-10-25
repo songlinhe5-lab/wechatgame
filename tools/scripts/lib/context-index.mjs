@@ -453,7 +453,7 @@ export const LIMITS = {
    *       取值与「历史会话读了什么」无关，故不受 WXG-T-026「E1/E2 行为类指标降级为
    *       报告项」裁定约束。它的退化是**本仓可修的确定性缺陷**——ROUTES 引用了新文件
    *       却忘了让它进第二跳——必须在 PR 处拦下，否则 agent 只能退到机器读的全量
-   *       `ctx/index.json`（**实测 ≈2.24MB / ≈61 万估算 tokens，禁止整读**），协议在最需要处断链。
+   *       `ctx/index.json`（**实测 2.98MB / ≈83 万估算 tokens（490 文件 / 6,990 节，2026-10-25），禁止整读**），协议在最需要处断链。
    *
    * 阈值依据：ROUTES 引用面有限（当前 19 个文件），要求 1.0 会把「预算刚好差一行」
    *       也判失败；跌到 0.9 以下意味着至少 2 个路由目标断链，属实质退化。
@@ -918,7 +918,7 @@ export function routesAnchorRefs(limit = 15) {
  *
  * 为什么需要它：`ctx/hot-files.md` 存在的唯一理由是补齐「ROUTES 锚点 → `offset`/`limit`」
  * 这一跳。若 ROUTES 引用到的文件却查不到行号，agent 只能退到 `ctx/index.json`
- * （全量 JSON；**实测 ≈2.24MB / ≈61 万估算 tokens ⇒ 禁止整读**，只按配方取节）——协议链路**恰好在最需要的地方断开**。
+ * （全量 JSON；**实测 2.98MB / ≈83 万估算 tokens ⇒ 禁止整读**，只按配方取节）——协议链路**恰好在最需要的地方断开**。
  * 故「ROUTES 引用面」必须是第二跳收录的**最高优先级**，并由门禁 D2（覆盖率硬门）守住。
  *
  * 与 `routesAnchorRefs()` 的分工：后者按行序返回**前 N 条** `路径#锚点` 供 BUDGET 报表展示；
@@ -1302,8 +1302,9 @@ export function renderHotFiles(index, dist = null) {
     );
     L.push(
       '> 收录：**热文件 + `ctx/ROUTES.md` 引用到的文件 + 实测热读/大文件**；查不到 → `ctx/index.json`' +
-      '（全量，**禁止整读**（≈2.2MB）；按路径精确取节：`jq .files[]' +
-      ' | select(.path=="<路径>") | .sections ctx/index.json`）。token 为**估算**（CJK≈1/字、ASCII≈1/4 字符）。',
+      '（全量，⛔ 禁止整读——**现 ≈83 万估算 tok**；按路径取节：`jq .files[]' +
+      ' | select(.path=="<路径>") | .sections ctx/index.json`，只找标题行 `grep -n "^#" <文件>`）' +
+      '。token 为**估算**（CJK≈1/字、ASCII≈1/4 字符）。',
     );
     L.push('');
     L.push(

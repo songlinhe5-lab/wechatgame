@@ -4,7 +4,7 @@
 > 读法：`read_file(path, offset, limit)` —— **只取该节**，勿对大文件无条件整读。
 > 行内格式：`锚点=offset+limit`（`limit` 已算好）；` · ` 分隔小节。
 > 两条控量规则（WXG-T-293，quality-lead 裁定）：① 锚点名超 20 字符即截为前缀 + …（**行号不动**，全名仍可在 index.json 查）；② 台账型文件（ROUTES 已声明「先用 `ctx/index.json`」）每表最多列 12 条补足项（ROUTES 引用锚点与 L1 族父不计入），行尾如实写出「余 N 节」。
-> 收录：**热文件 + `ctx/ROUTES.md` 引用到的文件 + 实测热读/大文件**；查不到 → `ctx/index.json`（全量，**禁止整读**（≈2.2MB）；按路径精确取节：`jq .files[] | select(.path=="<路径>") | .sections ctx/index.json`）。token 为**估算**（CJK≈1/字、ASCII≈1/4 字符）。
+> 收录：**热文件 + `ctx/ROUTES.md` 引用到的文件 + 实测热读/大文件**；查不到 → `ctx/index.json`（全量，⛔ 禁止整读——**现 ≈83 万估算 tok**；按路径取节：`jq .files[] | select(.path=="<路径>") | .sections ctx/index.json`，只找标题行 `grep -n "^#" <文件>`）。token 为**估算**（CJK≈1/字、ASCII≈1/4 字符）。
 
 > 体积预算 ≤ 5600 估算 tokens（当前 36 个文件）：本表是协议常驻开销，会**直接扣减净收益**（`ctx/reads-summary.md §②.1`），故超预算候选不进本表。
 
@@ -24,9 +24,9 @@
 
 §wechatgame 项目长期笔记=1+74 · §日志蒸馏规程（R2 · WXG-T-0…=7+6 · §项目约定=13+15 · §常用脚本=28+11 · §SubAgent=39+4 · §Rules=43+3 · §Hooks=46+7 · §Headless / CI=53+8 · §已知限制=61+14
 
-## `production/TASKS.md` — 150 行 / 71411 tok / 实测读 4 次
+## `production/TASKS.md` — 151 行 / 72158 tok / 实测读 4 次
 
-§WXG 任务台账（SSOT）=1+151 · §待排（backlog，无号，立项时领取…=122+30
+§WXG 任务台账（SSOT）=1+152 · §待排（backlog，无号，立项时领取…=123+30
 
 ## `production/qa/beads/test-cases.md` — 62 行 / 3485 tok / 实测读 15 次
 
@@ -102,10 +102,10 @@
 §knowledge/ — 工作室知识库…=1+280 · §1 读取协议（开发前期）=7+10 · §2 写入协议（任务收尾）=17+28 · §3 文件分工=45+10 · §4 维护=55+13 · §5 生命周期（访问记账 → 归档 → …=68+41 · §6 活跃条目（自动生成）=109+172
 > 本表只列 7 / 11 节：其余 4 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
 
-## `production/TASKS-DETAIL.md` — 5024 行 / 203852 tok
+## `production/TASKS-DETAIL.md` — 5069 行 / 204897 tok
 
-§WXG 任务台账 · 详情（标题制正文…=1+5025 · §WXG-T-366=4349+53 · §WXG-T-367=4402+63 · §WXG-T-368=4465+46 · §WXG-T-371=4511+49 · §WXG-T-370=4560+29 · §WXG-T-369=4589+38 · §WXG-T-377=4627+80 · §WXG-T-376=4707+71 · §WXG-T-375=4778+53 · §WXG-T-374=4831+50 · §WXG-T-373=4881+53 · §WXG-T-372=4934+92
-> 本表只列 13 / 392 节：其余 379 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
+§WXG 任务台账 · 详情（标题制正文…=1+5070 · §WXG-T-367=4402+63 · §WXG-T-368=4465+46 · §WXG-T-371=4511+49 · §WXG-T-370=4560+29 · §WXG-T-369=4589+38 · §WXG-T-378=4627+45 · §WXG-T-377=4672+80 · §WXG-T-376=4752+71 · §WXG-T-375=4823+53 · §WXG-T-374=4876+50 · §WXG-T-373=4926+53 · §WXG-T-372=4979+92
+> 本表只列 13 / 398 节：其余 385 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
 
 ## `games/breakout/design/concept.md` — 143 行 / 3113 tok / 实测读 217 次
 
