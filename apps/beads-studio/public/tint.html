@@ -157,7 +157,10 @@
             const target = DEMO.map((r) => r.replace(/./g, '2')); // 每格都有目标色 ⇒ 空格出坑底
             BeadsBoardRender.drawBoard(cv.getContext('2d'), cv.width, cv.height, DEMO, {
                 cols, rows, pattern: target,
-                hexes: [null, hex, SLOT_HEX],   // 索引 = 字符 index（1-based），与关卡 hexes 同形
+                // ⚠ `indexFromChar` 是 **0-based**（'1'→0、'2'→1，见 board-render.js:70）⇒ hexes 必须
+                //   按 0 起排。写成 [null, hex, ...] 会让 '1' 取到 undefined、退回默认调色板（黑珠），
+                //   而 '2' 拿到珠色 ⇒ 格底反成红。2026-10-25 实拍抓到的就是这个。
+                hexes: [hex, SLOT_HEX],
                 tint: window.TintBoard ? window.TintBoard.current() : null,
             });
         }
