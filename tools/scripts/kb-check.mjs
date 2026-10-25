@@ -53,6 +53,7 @@ import {
   TASK_ID_RE,
   TAG_TO_SHARD,
   entryContentHash,
+  isCalendarDate,
   normalizeThresholds,
   parseKnowledgeFile,
   parseIdNum,
@@ -230,8 +231,8 @@ if (!Array.isArray(ledger.events)) {
     if (!EVENT_KINDS.includes(ev?.kind)) {
       fail(`${at} 非法 kind「${ev?.kind}」（应为 ${EVENT_KINDS.join(' / ')}）`, 'pnpm run kb:sync');
     }
-    if (typeof ev?.date !== 'string' || !DATE_RE.test(ev.date)) {
-      fail(`${at} date 非法（${JSON.stringify(ev?.date)}），应为 YYYY-MM-DD`, 'pnpm run kb:sync');
+    if (typeof ev?.date !== 'string' || !DATE_RE.test(ev.date) || !isCalendarDate(ev.date)) {
+      fail(`${at} date 非法（${JSON.stringify(ev?.date)}），应为真实存在的 YYYY-MM-DD（月 01–12、日在该月天数内）`, 'pnpm run kb:sync');
     }
     if (!(ev?.taskId == null || (typeof ev.taskId === 'string' && TASK_ID_RE.test(ev.taskId)))) {
       fail(`${at} taskId 非法（${JSON.stringify(ev?.taskId)}），应为 WXG-T-\\d+ 或 null`, 'pnpm run kb:sync');

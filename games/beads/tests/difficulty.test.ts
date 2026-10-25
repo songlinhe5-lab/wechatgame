@@ -72,8 +72,14 @@ describe('EP12-S5 · 验收① §5 第一章 9 关逐值复现', () => {
         expect(order).toEqual([1, 6, 8, 2, 3, 5, 4, 7, 9]);
     });
 
-    it('Spearman(DI 序, steps 序) = 0.833（doc 平局按关号升序破，与 §5.2 步序列一致）', () => {
+    it('Spearman(DI 序, steps 序) = 0.95（doc 平局按关号升序破；WXG-T-394 量纲换代后重算）', () => {
         // steps 秩：升序、平局按关号升序赋不同秩（现池 steps 全互异 ⇒ 平局臂不可达），复刻 §5.2「steps 序」列。
+        //
+        // v1.85（WXG-T-394）：值 0.833 → **0.95**，原因是 `steps` 的**量纲换代**，不是 DI 公式改动：
+        // 定价口径由 `branchOrder='BAC'`（取回优先）改 `'ACB'`（归位→直填→取回）＋ `retrieve:'max'`
+        // 真按组大小降序（此前误为行扫描序），且基准容量取基础档 12 槽。
+        // 方向是**变好**：DI 序与工作量序重新对齐（0.95 ≥ `level-difficulty.md` B-2 自设的 0.90 门槛，
+        // 该文档 Q9「已跌破 0.90」的告警随之失效）。下游 `level-difficulty.md §5.2 / Q9` 两处读数已同批同步。
         const bySteps = [...pool].sort((a, b) => a.steps - b.steps || a.id - b.id);
         const stepRank = new Map<number, number>();
         bySteps.forEach((p, i) => stepRank.set(p.id, i + 1));
@@ -81,7 +87,7 @@ describe('EP12-S5 · 验收① §5 第一章 9 关逐值复现', () => {
         const d2 = byDi.reduce((s, p, i) => s + (i + 1 - stepRank.get(p.id)!) ** 2, 0);
         const n = pool.length;
         const rho = 1 - (6 * d2) / (n * (n * n - 1));
-        expect(Math.round(rho * 1000) / 1000).toBe(0.833);
+        expect(Math.round(rho * 1000) / 1000).toBe(0.95);
     });
 });
 

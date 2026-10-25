@@ -3,26 +3,26 @@
   "name": "studio-2-23ca",
   "cols": 12,
   "rows": 14,
-  "time": 129,
+  "time": 132,
   "cycleProfile": "short",
   "pricing": {
     "source": "bot",
-    "steps": 64,
+    "steps": 27,
     "stepsLB": 5,
     "baseCap": 12,
     "stepsByCap": {
-      "12": 64,
-      "24": 68,
-      "48": 110
+      "12": 27,
+      "24": 18,
+      "48": 15
     },
-    "taps": 128,
+    "taps": 54,
     "actionsSplit": {
-      "moves": 64,
-      "places": 30,
-      "directFills": 4,
-      "retrieves": 30
+      "moves": 27,
+      "places": 10,
+      "directFills": 11,
+      "retrieves": 6
     },
-    "secPerStep": 1.69,
+    "secPerStep": 4.14,
     "tierK": 0.85,
     "clamped": false,
     "cleared": true

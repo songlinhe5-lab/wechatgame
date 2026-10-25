@@ -122,7 +122,11 @@ function runLeg(raw: BeadsLevelRaw, seed: string, cap: number): Leg {
             return r;
         };
     });
-    const r = runBot(h, { allowDirectFill: true, retrieve: 'max', usePowerups: false, maxMoves: 20000, branchOrder: 'BAC' });
+    // ⚠ v2（WXG-T-394）：序由 `'BAC'` 改 `'ACB'`。
+    // 旧序 = 取回优先 ⇒ 只要有空槽就先囤货，把「直填 1 步/颗」换成「取回 + 逐颗落子 ≈2 步/颗」，
+    // 托盘越大囤得越多 ⇒ 步数随容量**递增**（L5 实测 12/24/48 槽 = 64/68/110），容量轴不可解释。
+    // `'ACB'` = 归位 → 直填 → 取回，与 `runBot` 头注的回归基准一致，且容量单调（同盘 29/20/17）。
+    const r = runBot(h, { allowDirectFill: true, retrieve: 'max', usePowerups: false, maxMoves: 20000, branchOrder: 'ACB' });
     CMDS.forEach((name, i) => {
         g[name] = orig[i];
     });

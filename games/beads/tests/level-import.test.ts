@@ -41,15 +41,15 @@ function draftOf(over: Partial<LevelDraft> = {}): LevelDraft {
 }
 
 describe('WXG-T-179 · level-import 转换与定价', () => {
-    it('measuredLevelTime：步数 × SEC_PER_STEP ÷ 2★系数（公式 v0.5，§3.5 v1.84）—— 锚值 / clamp / 非法输入', () => {
-        // 锚：109 个批量动作 × 1.69s ⇒ need = ceil(184.21) = 185s ⇒ ÷0.85 再 ceil = **218s**（1★ 时钟）。
+    it('measuredLevelTime：步数 × SEC_PER_STEP ÷ 2★系数（公式 v0.5，§3.5 v1.85）—— 锚值 / clamp / 非法输入', () => {
+        // 锚：109 个批量动作 × 4.14s ⇒ need = ceil(451.26) = 452s ⇒ ÷0.85 再 ceil = **532s**（1★ 时钟）。
         // 语义 = 「基础 12 槽的步数刚好塞满 2★ 档」⇒ 2★ 是紧平衡、3★ 要靠扩容省步数。
         // ⚠️ difficulty 的分母 = `LEVEL_TIME_MAX`（开发期 2500）⇒ D 不可跨档比较。
-        expect(measuredLevelTime(109)).toEqual({ time: 218, difficulty: 9, clamped: false });
+        expect(measuredLevelTime(109)).toEqual({ time: 532, difficulty: 21, clamped: false });
         // `ceil` 的保证：2★ 档预算**恒 ≥** 定价步数（改 round 就会把边沿关判成「2★ 拿不到」）。
         expect(tierStepBudget(measuredLevelTime(109).time, 2)).toBeGreaterThanOrEqual(109);
-        expect(measuredLevelTime(10).time).toBe(LEVEL_TIME_MIN); // 19.9s ⇒ 钳到下限 30
-        expect(measuredLevelTime(1480).time).toBe(LEVEL_TIME_MAX); // 2943s ⇒ 钳到上限
+        expect(measuredLevelTime(5).time).toBe(LEVEL_TIME_MIN); // ceil(20.7)/0.85=25 ⇒ 钳到下限 30
+        expect(measuredLevelTime(1480).time).toBe(LEVEL_TIME_MAX); // ceil(6127)/0.85 ⇒ 钳到上限
         // 非法输入 ⇒ 0 步 ⇒ 下限（不产生 NaN 倒计时：NaN 永不到零 = 失败条件永不触发）
         expect(measuredLevelTime(Number.NaN).time).toBe(LEVEL_TIME_MIN);
         expect(measuredLevelTime(-5).time).toBe(LEVEL_TIME_MIN);

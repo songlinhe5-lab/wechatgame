@@ -510,7 +510,12 @@ export function runBot(h: Harness, opt: BotOptions): BotResult {
       const start = game.tray.firstFree();
       if (start < 0) return;
       const blobs = blobAnchors(game.grid);
-      const list = opt.retrieve === 'max' ? blobs : blobs.slice().sort((a, b) => a.size - b.size);
+      // v2（WXG-T-394）：`'max'` 此前直接返回 `blobs`（= 行扫描序，**未排序**）⇒ 与「贪心取最大组」
+      // 的注释语义相反。现按注释真排序，`'min'` 仍是升序。
+      const list =
+        opt.retrieve === 'max'
+          ? blobs.slice().sort((a, b) => b.size - a.size)
+          : blobs.slice().sort((a, b) => a.size - b.size);
       for (const b of list) {
         if (opt.retrieve === 'min' && opt.maxRetrieve !== undefined && b.size > opt.maxRetrieve) continue;
         if (!game.selectBoardBead(b.cell.row, b.cell.col)) continue;

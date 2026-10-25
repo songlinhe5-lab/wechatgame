@@ -31,7 +31,7 @@
  *   node tools/scripts/kb-sync.mjs --note="…"              # 附加备注（写入 event.note）
  *   node tools/scripts/kb-sync.mjs --today=2026-09-12      # 覆盖「运行日」（自测 / 回放用）
  *
- * 退出码：0 成功；1 关键文件缺失 / ledger 不可解析；2 `--task` / `--today` 形态非法（用法错误）。
+ * 退出码：0 成功；1 关键文件缺失 / ledger 不可解析；2 `--task` / `--today` 形态非法、日期不存在（用法错误）。
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';

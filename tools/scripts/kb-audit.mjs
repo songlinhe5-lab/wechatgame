@@ -16,7 +16,7 @@
  *   node tools/scripts/kb-audit.mjs
  *   node tools/scripts/kb-audit.mjs --today=2026-09-12   # 覆盖「今天」（自测 / 回放）
  *
- * 退出码：0（审计恒 0；候选只为人工复核，不阻断）；2 `--today` 形态非法（用法错误，审计不落盘）。
+ * 退出码：0（审计恒 0；候选只为人工复核，不阻断）；2 `--today` 形态非法、日期不存在（用法错误，审计不落盘）。
  */
 
 import {

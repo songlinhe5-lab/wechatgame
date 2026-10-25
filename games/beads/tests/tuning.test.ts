@@ -259,7 +259,10 @@ describe('beads tuning derivation (systems-index §3 mirrors)', () => {
     });
 
     it('SEC_PER_STEP 量纲 = 每批量动作秒数（旧 SEC_PER_TAP 每点击 3.6s 已重锚）', () => {
-      expect(SEC_PER_STEP).toBe(1.69);
+      // v1.85（WXG-T-394）：1.69 → 4.14 = 「等节奏平移」——定价口径由 BAC（取回优先）
+      // 改 ACB（归位→直填→取回）后，Σsteps 从 1686 掉到 689（均 12 槽读数）⇒ 1.69 × 1686/689。
+      // ⚠ 4.14 未经新 `t_act` 重抽中位数（tuning 里已标 `[待 playtest]`）。
+      expect(SEC_PER_STEP).toBe(4.14);
     });
 
     it('逐关三档时钟必须严格单调（§3.7 v1.82 防塌缩 · 取代旧「常量 vs 历史极值」断言）', () => {

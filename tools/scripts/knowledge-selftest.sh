@@ -1171,8 +1171,8 @@ rc=$(run node "$KB_AUDIT" --today=20260306)
 assert_eq "$rc" "2" "26e kb:audit 非法 --today → exit 2（审计‘恒 0’只保结果，不保用法错误）"
 assert_contains "$(cat "$WORK/last.txt")" "--today 形态非法（20260306）" "26e 诊断同源"
 
-# 26f kb:collect：英文写法（这一腿必须被拒 —— 否则它会拿非法日写桩 ledger）
-#     ⚠ `2026-13-06` 这类“月份越位”形态上合法、不会被拒，属未裁的日历合法性（T-393 §5）
+# 26f 英文写法（这一腿必须被拒 —— 否则它会拿非法日写桩 ledger）
+#     月份越位的 `2026-13-06` 不属本组：形态上合法、被**存在性**拒，见 [27]（WXG-T-395）
 rc=$(run node "$KB_COLLECT" --today=next-week)
 assert_eq "$rc" "2" "26f kb:collect 非法 --today → exit 2"
 assert_contains "$(cat "$WORK/last.txt")" "--today 形态非法（next-week）" "26f 六个入口共一份契约"
@@ -1198,6 +1198,69 @@ assert_eq "$(ld K-002 reactivatedDate)" "2026-03-09" "26i reactivatedDate = trim
 rc=$(run node "$KB_CHECK")
 assert_eq "$rc" "0" "26j 边界归档/激活后 kb:check 仍 exit 0（事件日期与 ledger 字段同形态）"
 assert_not_contains "$(cat "$WORK/last.txt")" "❌" "26j 无任何失败项"
+
+# ── [27] 日期不存在（日历假日子）→ exit 2：六入口共一份存在性判据 + 零写盘 + 真闰日正例（WXG-T-395）──
+echo
+echo "[27] --date / --today 日历不存在：archive·reactivate·touch·sync·audit·collect 均 exit 2，拒绝时一个字节不写"
+
+cp "$REPO/knowledge/ledger.json" "$WORK/ledger.pre27.json"
+cp "$REPO/knowledge/lessons.md" "$WORK/lessons.pre27.md"
+cp "$REPO/knowledge/patterns.md" "$WORK/patterns.pre27.md"
+evn27=$(ldevn)
+
+# 27a archive：日越位——DATE_RE 能过、Date.parse 也不报错，但会静默滚成 2026-03-02
+rc=$(run node "$KB_ARCHIVE" --ids=K-002 --date=2026-02-30 --reason="桩：假日子负例")
+assert_eq "$rc" "2" "27a kb:archive 不存在的日期（2 月 30 日）→ exit 2"
+assert_contains "$(cat "$WORK/last.txt")" "--date 日期不存在（2026-02-30）" "27a 诊断与「形态非法」分档（不混成一句）"
+assert_contains "$(cat "$WORK/last.txt")" "2 月 29 只在闰年" "27a 诊断给出月天数与闰年口径，可照抄"
+
+# 27b reactivate：月越位（Date.parse 直接 NaN）
+rc=$(run node "$KB_REACTIVATE" --ids=K-003 --date=2026-13-06 --reason="桩：假日子负例")
+assert_eq "$rc" "2" "27b kb:reactivate 13 月 → exit 2"
+assert_contains "$(cat "$WORK/last.txt")" "--date 日期不存在（2026-13-06）" "27b 同一份诊断文案（源于 lib）"
+
+# 27c touch：平年的 2 月 29 日（旧行为：静默当成 3 月 1 日并入库）
+rc=$(run node "$KB_TOUCH" K-002 --date=2025-02-29)
+assert_eq "$rc" "2" "27c kb:touch 平年 2 月 29 日 → exit 2"
+
+# 27d sync：0 月
+rc=$(run node "$KB_SYNC" --today=2026-00-10)
+assert_eq "$rc" "2" "27d kb:sync 0 月 → exit 2"
+assert_contains "$(cat "$WORK/last.txt")" "--today 日期不存在（2026-00-10）" "27d 参数名跟着诊断走（sync 用 --today）"
+
+# 27e audit：4 月 31 日
+rc=$(run node "$KB_AUDIT" --today=2026-04-31)
+assert_eq "$rc" "2" "27e kb:audit 4 月 31 日 → exit 2（审计‘恒 0’只保结果，不保非法日期）"
+
+# 27f collect：日越位到 45（与 27a 不同档：Date.parse 对此直接 NaN）
+rc=$(run node "$KB_COLLECT" --today=2026-03-45)
+assert_eq "$rc" "2" "27f kb:collect 3 月 45 日 → exit 2"
+assert_contains "$(cat "$WORK/last.txt")" "--today 日期不存在（2026-03-45）" "27f 六个入口共一份存在性判据"
+
+# 27g 六次拒绝均为零写盘（守卫在任何读写之前）
+assert_eq "$(ldevn)" "$evn27" "27g 六次假日子后 events 条数未增"
+assert_eq "$(ld K-002 state)" "active" "27g K-002 仍 active（被拒的归档真没落库）"
+cmp -s "$WORK/ledger.pre27.json" "$REPO/knowledge/ledger.json" && ok "27g ledger 逐字节不变" || bad "27g ledger 被拒绝分支改写"
+cmp -s "$WORK/lessons.pre27.md" "$REPO/knowledge/lessons.md" && ok "27g lessons.md 逐字节不变" || bad "27g lessons.md 被拒绝分支改写"
+cmp -s "$WORK/patterns.pre27.md" "$REPO/knowledge/patterns.md" && ok "27g patterns.md 逐字节不变" || bad "27g patterns.md 被拒绝分支改写"
+
+# 27h 正例：真闰日 2024-02-29 必须被接受（否则回比会把合法日子一起杀掉）
+rc=$(run node "$KB_ARCHIVE" --ids=K-002 --date=2024-02-29 --reason="桩：真闰日正例")
+assert_eq "$rc" "0" "27h 真闰日 2024-02-29 被接受（exit 0，真完成归档）"
+assert_eq "$(ld K-002 archivedDate)" "2024-02-29" "27h archivedDate 原样入库（不被 UTC 回比改写）"
+
+# 27i 反向：校验面与写盘面同源——直接把假日子塞进桩 ledger，第⑦重必红（只回滚注入，不动 27h）
+cp "$REPO/knowledge/ledger.json" "$WORK/ledger.pre27i.json"
+node -e 'const fs=require("node:fs");const p=process.argv[1];const j=JSON.parse(fs.readFileSync(p,"utf8"));j.events.push({date:"2026-02-30",taskId:null,kind:"added",ids:["K-001"],note:null});fs.writeFileSync(p,JSON.stringify(j,null,2)+"\n")' "$REPO/knowledge/ledger.json"
+rc=$(run node "$KB_CHECK")
+assert_eq "$rc" "1" "27i 手填日历不存在的 event date → kb:check exit 1（⑦ 与 requireDateArg 同判据）"
+assert_contains "$(cat "$WORK/last.txt")" "⑦" "27i 诊断归属第⑦重校验"
+assert_contains "$(cat "$WORK/last.txt")" "2026-02-30" "27i 诊断回显坏值"
+cp "$WORK/ledger.pre27i.json" "$REPO/knowledge/ledger.json"
+
+rc=$(run node "$KB_CHECK")
+assert_eq "$rc" "0" "27j 收尾 kb:check 仍 exit 0（真闰日归档与事件日期均合法）"
+assert_not_contains "$(cat "$WORK/last.txt")" "❌" "27j 无任何失败项"
 
 # ── 汇总 ────────────────────────────────────────────────────────────────────
 echo

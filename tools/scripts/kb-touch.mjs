@@ -18,7 +18,7 @@
  *   node tools/scripts/kb-touch.mjs K-003 --task=WXG-T-026
  *   # 经 pnpm：pnpm run kb:touch -- K-001 K-003
  *
- * 退出码：0 全部成功；1 有未知 / 非活跃 ID；2 未给 ID 或 --date 形态非法（用法错误）。
+ * 退出码：0 全部成功；1 有未知 / 非活跃 ID；2 未给 ID 或 --date 形态非法、日期不存在（用法错误）。
  */
 
 import {

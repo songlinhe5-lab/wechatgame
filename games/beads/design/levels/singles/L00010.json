@@ -3,26 +3,26 @@
   "name": "photo32-smoke-boss",
   "cols": 32,
   "rows": 32,
-  "time": 2200,
+  "time": 1842,
   "cycleProfile": "short",
   "pricing": {
     "source": "bot",
-    "steps": 1106,
+    "steps": 378,
     "stepsLB": 20,
     "baseCap": 12,
     "stepsByCap": {
-      "12": 1106,
-      "24": 1001,
-      "48": 782
+      "12": 378,
+      "24": 282,
+      "48": 227
     },
-    "taps": 2211,
+    "taps": 756,
     "actionsSplit": {
-      "moves": 1106,
-      "places": 403,
-      "directFills": 299,
-      "retrieves": 404
+      "moves": 378,
+      "places": 167,
+      "directFills": 167,
+      "retrieves": 44
     },
-    "secPerStep": 1.69,
+    "secPerStep": 4.14,
     "tierK": 0.85,
     "clamped": false,
     "cleared": true

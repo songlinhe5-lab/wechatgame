@@ -3,26 +3,26 @@
   "name": "studio-4-4005",
   "cols": 11,
   "rows": 12,
-  "time": 86,
+  "time": 128,
   "cycleProfile": "short",
   "pricing": {
     "source": "bot",
-    "steps": 43,
+    "steps": 26,
     "stepsLB": 4,
     "baseCap": 12,
     "stepsByCap": {
-      "12": 43,
-      "24": 22,
-      "48": 12
+      "12": 26,
+      "24": 21,
+      "48": 11
     },
-    "taps": 84,
+    "taps": 51,
     "actionsSplit": {
-      "moves": 43,
-      "places": 18,
-      "directFills": 8,
-      "retrieves": 17
+      "moves": 26,
+      "places": 11,
+      "directFills": 10,
+      "retrieves": 5
     },
-    "secPerStep": 1.69,
+    "secPerStep": 4.14,
     "tierK": 0.85,
     "clamped": false,
     "cleared": true

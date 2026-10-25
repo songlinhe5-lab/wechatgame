@@ -15,7 +15,7 @@
  *   node tools/scripts/kb-archive.mjs --ids=K-004 --reason="…" --task=WXG-T-029   # 归因（写入 event）
  *   # 经 pnpm：pnpm run kb:archive -- --ids=K-004,K-011 --reason="…"
  *
- * 退出码：0 成功；1 未知 / 非活跃 ID；2 缺 --ids / --reason 或 --task / --date 形态非法（用法错误）。
+ * 退出码：0 成功；1 未知 / 非活跃 ID；2 缺 --ids / --reason 或 --task / --date 形态非法、日期不存在（用法错误）。
  * **--reason 必填**：缺则报错退出（归档必须留痕可追溯）。
  */
 

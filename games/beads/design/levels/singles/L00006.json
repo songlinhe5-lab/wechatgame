@@ -3,26 +3,26 @@
   "name": "studio-5-f0d3",
   "cols": 14,
   "rows": 11,
-  "time": 55,
+  "time": 93,
   "cycleProfile": "short",
   "pricing": {
     "source": "bot",
-    "steps": 27,
+    "steps": 19,
     "stepsLB": 4,
     "baseCap": 12,
     "stepsByCap": {
-      "12": 27,
-      "24": 19,
+      "12": 19,
+      "24": 13,
       "48": 11
     },
-    "taps": 54,
+    "taps": 38,
     "actionsSplit": {
-      "moves": 27,
-      "places": 10,
-      "directFills": 5,
-      "retrieves": 12
+      "moves": 19,
+      "places": 7,
+      "directFills": 7,
+      "retrieves": 5
     },
-    "secPerStep": 1.69,
+    "secPerStep": 4.14,
     "tierK": 0.85,
     "clamped": false,
     "cleared": true

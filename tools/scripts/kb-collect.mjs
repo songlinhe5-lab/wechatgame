@@ -37,7 +37,7 @@
  *   node tools/scripts/kb-collect.mjs --ledger=<path>      # 覆盖读事件账本路径
  *   node tools/scripts/kb-collect.mjs --today=2026-09-12   # 覆盖运行日（自测用）
  *
- * 退出码：0 成功；1 缺 ledger / 账本不可读；2 `--today` 形态非法（用法错误）。
+ * 退出码：0 成功；1 缺 ledger / 账本不可读；2 `--today` 形态非法、日期不存在（用法错误）。
  */
 
 import { readFileSync, existsSync } from 'node:fs';

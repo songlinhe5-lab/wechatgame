@@ -324,13 +324,28 @@ export function todayISO() {
 }
 
 /**
+ * `YYYY-MM-DD` 是否**日历上真实存在**（WXG-T-395，用户裁定 = 严在真实日期）。
+ * 只靠 `DATE_RE` 会放进两类假日子，而且 `Date.parse` 单独也不够用：
+ * • 月越位（`2026-13-06` / `2026-00-10`）→ `Date.parse` 直接 NaN；
+ * • 日越位（`2026-02-30` / `2026-04-31` / 非闰年的 `2025-02-29`）→ `Date.parse` **不报错**，
+ *   而是静默**滚到次日**（实测 `2026-02-30` 被当成 `2026-03-02`）。
+ * 故判据取「按 UTC 零点解析后回比原串」：NaN 或不等价即为假日子（真闰日 `2024-02-29` 等价）。
+ */
+export function isCalendarDate(v) {
+  const ms = Date.parse(`${v}T00:00:00Z`);
+  if (Number.isNaN(ms)) return false;
+  return new Date(ms).toISOString().slice(0, 10) === v;
+}
+
+/**
  * `--date` / `--today` 的唯一解析入口（WXG-T-393）—— 六个 kb 脚本（archive / reactivate /
  * touch 用 `--date`，sync / audit / collect 用 `--today`）共一份契约，**不再各自重写正则**：
  * • 未传 / 空串 / 只给 `--date` 不带值 → 当天（规约同 `--task`：缺省不是用法错误）；
- * • 首尾空格先 trim，剩下形如 `YYYY-MM-DD`（`DATE_RE`）→ 原样用；
+ * • 首尾空格先 trim，剩下形如 `YYYY-MM-DD`（`DATE_RE`）且**日历上真实存在** → 原样用；
  * • 其他形态 → 打诊断并按**用法错误 exit 2**，⛔ **不静默回落当天**——回落会把错日期写进
  *   ledger 的 `archivedDate` / `reactivatedDate` / `lastAccess` 与 `events[].date`，事后无从反查。
- * 本函数只锁**形态**：月 13 / 日 45 这类形似而非的日历假日子仍能过（`DATE_RE` 不管合法性）。
+ * 形态之外还锁**存在性**（WXG-T-395）：13 月 / 0 月 / 2 月 30 日这类形似而非的假日子同走 exit 2，
+ * 因为 `Date.parse` 会把后者静默滚成次日（实测 `2026-02-30` → `2026-03-02`）并入库。
  */
 export function requireDateArg(opts, flag) {
   const raw = opts?.[flag];
@@ -338,6 +353,10 @@ export function requireDateArg(opts, flag) {
   const v = raw.trim();
   if (!DATE_RE.test(v)) {
     console.error(`❌ --${flag} 形态非法（${raw}）：应形如 YYYY-MM-DD。`);
+    process.exit(2);
+  }
+  if (!isCalendarDate(v)) {
+    console.error(`❌ --${flag} 日期不存在（${v}）：日历上无此日（月须 01–12，日须在该月天数内，2 月 29 只在闰年）。`);
     process.exit(2);
   }
   return v;
