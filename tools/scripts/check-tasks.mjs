@@ -11,6 +11,7 @@
  *   A. 主表任务行的**名称单元格 ≤ 60 字符**（标题，不是段落）
  *   B. 主表任务行**连续**（表内不得有空行打断 Markdown 表格——历史上真实发生过）
  *   C. **配对**：主表每行 ⇔ 详情文件同名小节（`## WXG-T-0NN`）
+ *      （标题须**裸写**；写成 `## WXG-T-0NN · 副标题` 会被 `parseDetail` 漏认，门会给出定位提示 —— WXG-T-381）
  *   D. 详情**不得**残留已归档 id 的小节（正常由 `tasks:archive` 成对搬走；`--prune` 补搬）
  *   E. 详情归档**不得**有「行归档里不存在」的 id（成对搬运脱钩检测，WXG-T-065）
  *   F. 头注号**不得落后**于主表 ∪ 归档全局最大号（防领号重号，WXG-T-070；领先合法只出 note）
@@ -62,6 +63,40 @@ function splitCells(line) {
   return body.split(/(?<!\\)\|/).map((c) => c.trim());
 }
 
+/**
+ * 「列数不对」的定位提示（WXG-T-381，实测踩坑）：只报「列数 4 ≠ 5」无法定位，现场得逐字符数。
+ * 两种成因方向相反，故分别点名：
+ *   · 全角竖线 `｜`（中文输入法）= **不是**分隔符 ⇒ 两格并一格（列数变**少**）；
+ *   · 行内未转义的半角 `|`（常见于抄命令 / 管道） = 多切一刀（列数变**多**）。
+ */
+function cellCountHint(line, len) {
+  if (len > 5) {
+    return ' ——行内**未转义的半角 `|`** 被当成分隔符（常见于行内抄命令 / 管道）；转义为 `\\|` 或改写成文字';
+  }
+  if (/｜/.test(line)) {
+    return ' ——行内有**全角竖线「｜」**：它不是分隔符，会把两格并成一格；请改半角 `|`';
+  }
+  return '';
+}
+
+/**
+ * 详情节标题「形似而不被识别」的提示（WXG-T-381）：`parseDetail` 只认裸 `## WXG-T-0NN`，
+ * 写成 `## WXG-T-380 · 副标题` 会被漏认 ⇒ 门报「没有小节」与实际（明明在）相反，最易误诊。
+ * @returns {string} 空串 = 没找到形似标题
+ */
+function strayHeadingHint(detailText, id) {
+  const re = new RegExp(`^##\\s+${id}(?!\\d)(?=\\s*\\S)(.*)$`);
+  const lines = String(detailText).split('\n');
+  for (let i = 0; i < lines.length; i += 1) {
+    const m = re.exec(lines[i]);
+    if (m) {
+      return ` ——但第 ${i + 1} 行是 \`## ${id}${m[1].trim() ? ' ' + m[1].trim() : ''}\`：` +
+        `标题必须**裸写** \`## ${id}\`（解析器只认这一种形状），副标题请另起一行加粗`;
+    }
+  }
+  return '';
+}
+
 const failures = [];
 const notes = [];
 
@@ -76,13 +111,13 @@ for (let i = 0; i < ledgerLines.length; i++) {
   const title = cells[1] ?? '';
   rows.push({ id, title, line: i + 1 });
   if (cells.length !== 5) {
-    failures.push(`A: ${id} 列数 ${cells.length} ≠ 5（表头为 id/名称/负责/状态/产出）`);
+    failures.push(`A: ${id} 列数 ${cells.length} ≠ 5（表头为 id/名称/负责/状态/产出）${cellCountHint(line, cells.length)}`);
   }
   const plain = title.replace(/\*\*/g, '');
   if (plain.length > TITLE_MAX) {
     failures.push(
       `A: ${id} 名称 ${plain.length} 字符 > ${TITLE_MAX} —— 主表是**标题制**，正文请写进 ` +
-        `production/TASKS-DETAIL.md 的 ## ${id} 小节`,
+      `production/TASKS-DETAIL.md 的 ## ${id} 小节`,
     );
   }
 }
@@ -92,13 +127,14 @@ for (let k = 1; k < rows.length; k++) {
   if (rows[k].line - rows[k - 1].line !== 1) {
     failures.push(
       `B: 主表第 ${rows[k - 1].line} 行与第 ${rows[k].line} 行之间有空洞` +
-        `（表内不得有空行/夹注，会把表格截断）`,
+      `（表内不得有空行/夹注，会把表格截断）`,
     );
   }
 }
 
 // ── 详情 ─────────────────────────────────────────────────────────────────────
-const detailParsed = parseDetail(read(DETAIL));
+const detailText = read(DETAIL);
+const detailParsed = parseDetail(detailText);
 const detailIds = new Set(detailParsed.sections.map((s) => s.id));
 const archiveText = read(ARCHIVE);
 const archivedIds = new Set(
@@ -108,7 +144,9 @@ const detailArchiveIds = new Set(parseDetail(read(DETAIL_ARCHIVE)).sections.map(
 
 for (const { id } of rows) {
   if (!detailIds.has(id)) {
-    failures.push(`C: 主表有 ${id}，但 ${rel(DETAIL)} 里没有 ## ${id} 小节`);
+    failures.push(
+      `C: 主表有 ${id}，但 ${rel(DETAIL)} 里没有 ## ${id} 小节${strayHeadingHint(detailText, id)}`,
+    );
   }
 }
 
@@ -118,7 +156,7 @@ for (const id of staleSections) {
   if (archivedIds.has(id)) {
     failures.push(
       `D: ${id} 已归档，详情小节应一并搬走 —— 跑「pnpm run tasks:archive --write」` +
-        `（成对搬运）；已归档行补搬用「pnpm run check:tasks -- --prune」`,
+      `（成对搬运）；已归档行补搬用「pnpm run check:tasks -- --prune」`,
     );
   } else {
     failures.push(`C: 详情有 ## ${id} 小节，但主表无此行（孤儿详情）`);
@@ -152,7 +190,7 @@ if (headerMax === null) {
 } else if (headerMax < globalMax) {
   failures.push(
     `F: 头注号 ${pad3(headerMax)} **落后**于主表∪归档全局最大号 ${pad3(globalMax)} —— ` +
-      '潜在重号：跑 `pnpm run tasks:archive`（0 行时只告警不落盘）或手工改头注',
+    '潜在重号：跑 `pnpm run tasks:archive`（0 行时只告警不落盘）或手工改头注',
   );
 } else if (headerMax > globalMax) {
   notes.push(`F: 头注号 ${pad3(headerMax)} 领先全局最大号 ${pad3(globalMax)}（合法：头注只进不退）`);
@@ -177,7 +215,7 @@ if (backlogStart < 0) {
     if (len > BACKLOG_ROW_MAX) {
       failures.push(
         `G: backlog 行 ${i + 1} ${len} 字符 > 上限 ${BACKLOG_ROW_MAX} —— ` +
-          '只写「是什么 / 谁发现 / 下一步动作」，长分析开任务再写',
+        '只写「是什么 / 谁发现 / 下一步动作」，长分析开任务再写',
       );
     }
   }
@@ -189,7 +227,7 @@ const ROW_SENTINEL = 20;
 if (rows.length > ROW_SENTINEL) {
   notes.push(
     `H: 主表 ${rows.length} 行 > 观察哨 ${ROW_SENTINEL} —— 该归档/收敛了：` +
-      '`pnpm run tasks:archive -- --detail-until-under=7000 --write`',
+    '`pnpm run tasks:archive -- --detail-until-under=7000 --write`',
   );
 }
 
@@ -231,8 +269,8 @@ const registeredIds = new Set([...rowIds, ...detailIds, ...archivedIds, ...detai
     if (orphans.length > 0) {
       failures.push(
         `I: 最近 ${commitScan} 笔提交信息署了 ${orphans.join('、')}，但台账不在册（主表/详情节/两个归档四处均无）—— ` +
-          '补登主表行 + `## <号>` 详情节，或把已归档的成对搬回（K-137）；' +
-          '若属头注「用过号未自登主表清单」已披露的老号 ⇒ 按 K-137 只披露不代填，缩窗口到默认即不拦',
+        '补登主表行 + `## <号>` 详情节，或把已归档的成对搬回（K-137）；' +
+        '若属头注「用过号未自登主表清单」已披露的老号 ⇒ 按 K-137 只披露不代填，缩窗口到默认即不拦',
       );
     } else {
       notes.push(`I: 最近 ${commitScan} 笔提交共署 ${cited.size} 个号，全部在册`);
@@ -258,7 +296,7 @@ if (process.argv.includes('--prune')) {
   writeFileSync(DETAIL_ARCHIVE, serializeDetail(appendDetailSections(base, taken)), 'utf8');
   console.log(
     `check:tasks --prune — 已把 ${taken.length} 个残留小节**搬入** ${rel(DETAIL_ARCHIVE)}` +
-      `（正文未丢）：${taken.map((s) => s.id).join('、')}`,
+    `（正文未丢）：${taken.map((s) => s.id).join('、')}`,
   );
   process.exit(0);
 }
@@ -271,7 +309,7 @@ if (failures.length > 0) {
 }
 console.log(
   `✅ check:tasks OK —— 主表 ${rows.length} 行（名称均 ≤ ${TITLE_MAX} 字符且连续）、` +
-    `详情 ${detailIds.size} 节，配对完整` +
-    (detailArchiveIds.size > 0 ? `；详情归档 ${detailArchiveIds.size} 节与行归档成对` : ''),
+  `详情 ${detailIds.size} 节，配对完整` +
+  (detailArchiveIds.size > 0 ? `；详情归档 ${detailArchiveIds.size} 节与行归档成对` : ''),
 );
 for (const n of notes) console.log(`  note: ${n}`);
