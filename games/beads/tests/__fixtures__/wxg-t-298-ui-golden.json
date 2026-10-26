@@ -4,7 +4,7 @@
   "unit": "UI-02",
   "spec": "docs/architecture/ui-architecture-beads.md §5 / §9.4 / §12",
   "codeBaseline": "bd964a0",
-  "capturedFrom": "e444f8d0 · 工作树（WXG-T-298）",
+  "capturedFrom": "f3726ef2 · 工作树（WXG-T-432 S-3 金样本重抓）",
   "fixture": {
     "viewport": {
       "width": 750,
@@ -31,17 +31,17 @@
         "overlay": "none",
         "phase": "playing"
       },
-      "total": 5636,
+      "total": 5638,
       "kinds": {
         "circle": 1530,
         "line": 295,
-        "rect": 763,
-        "text": 6,
+        "rect": 764,
+        "text": 7,
         "clip": 1,
         "polygon": 3040,
         "unclip": 1
       },
-      "sha": "d5a66e7d12572327e1aa1d561e3e3e1fc1ad4c323c6977d0ea6c8905156ffdd3",
+      "sha": "6ef8af6fbcefdfeededed66e8c084f74dc7e4ad17f93752e147e497997ba0943",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -74,17 +74,17 @@
         "overlay": "levels",
         "phase": "playing"
       },
-      "total": 7046,
+      "total": 7048,
       "kinds": {
         "circle": 1926,
         "line": 295,
-        "rect": 972,
-        "text": 19,
+        "rect": 973,
+        "text": 20,
         "clip": 1,
         "polygon": 3832,
         "unclip": 1
       },
-      "sha": "4e2932054e3234e1b5bc720892c6b775a09fbf1d6e3dcf1bd20f74784c61b284",
+      "sha": "fe18c5dcdab387a699520014d3e993f8e59461fc7d957a859bda006a35fd9503",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -175,15 +175,15 @@
         "overlay": "none",
         "phase": "level-clear"
       },
-      "total": 621,
+      "total": 624,
       "kinds": {
-        "rect": 263,
+        "rect": 264,
         "circle": 63,
         "line": 103,
-        "text": 16,
+        "text": 18,
         "polygon": 176
       },
-      "sha": "aeb0155569e4e011901c527ebeb44c9e45e537dcebf9b94f61840a1bc1dac5f8",
+      "sha": "3efe712c1872e5fba3f3bea73796f8d85e343c73430a67f711aeb3cbd6ec729c",
       "background": "#F1E8D8",
       "transform": null
     },
