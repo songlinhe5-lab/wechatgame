@@ -114,6 +114,19 @@ interface WxApi {
   onShareAppMessage?(cb: () => { title?: string; imageUrl?: string; query?: string }): void;
   /** 右上角菜单里显示「转发」按钮。基础库 2.11.3+。 */
   showShareMenu?(opts?: { withShareTicket?: boolean; menus?: string[] }): void;
+  /**
+   * 小游戏热更管理器（WXG-T-407）。启动期检查新版本 → 下载 → ready 回调 →
+   * `applyUpdate()` 重启生效。基础库 2.8.0+。Node/harness 无此 API。
+   */
+  getUpdateManager?(): WxUpdateManager;
+}
+
+/** 微信 UpdateManager 的最小形状（只取我们实际消费的成员）。 */
+interface WxUpdateManager {
+  onCheckForUpdate?(cb: (res: { hasUpdate: boolean }) => void): void;
+  onUpdateReady?(cb: () => void): void;
+  onUpdateFailed?(cb: (res?: { errMsg?: string }) => void): void;
+  applyUpdate?(): void;
 }
 
 /** 微信 createRewardedVideoAd 返回对象的最小形状（只取我们实际消费的成员）。 */
@@ -321,6 +334,7 @@ export class WeappPlatform extends BasePlatform {
   readonly info: PlatformInfo;
   private readonly _wx: WxApi | undefined;
   private readonly _adUnitId?: string;
+  private readonly _updateReadyCbs: Array<() => void> = [];
 
   constructor(
     wx: WxApi | undefined = getWx(),
@@ -340,8 +354,6 @@ export class WeappPlatform extends BasePlatform {
       capsuleRectDp: capsule,
     };
     // 被动分享注册（WXG-T-405）：
-    // - showShareMenu：让右上角菜单出现「转发」按钮；
-    // - onShareAppMessage：给默认卡片一个兜底（宿主不填 title/imageUrl 时微信显示游戏名/图标）。
     if (wx) {
       const showMenu = wx.showShareMenu;
       if (typeof showMenu === 'function') {
@@ -350,6 +362,43 @@ export class WeappPlatform extends BasePlatform {
       const onShare = wx.onShareAppMessage;
       if (typeof onShare === 'function') {
         try { onShare(() => ({})); } catch { /* ignore */ }
+      }
+      // 热更注册（WXG-T-407）：
+      const um = wx.getUpdateManager?.();
+      if (um) {
+        if (typeof um.onCheckForUpdate === 'function') {
+          um.onCheckForUpdate((res) => {
+            this.log('info', `[update] check: hasUpdate=${res.hasUpdate}`);
+          });
+        }
+        if (typeof um.onUpdateReady === 'function') {
+          um.onUpdateReady(() => {
+            this.log('info', '[update] ready — firing callbacks');
+            for (const cb of [...this._updateReadyCbs]) cb();
+          });
+        }
+        if (typeof um.onUpdateFailed === 'function') {
+          um.onUpdateFailed((res) => {
+            this.log('warn', `[update] failed: ${res?.errMsg ?? 'unknown'}`);
+          });
+        }
+      }
+    }
+  }
+
+  onUpdateReady(callback: () => void): () => void {
+    this._updateReadyCbs.push(callback);
+    return () => {
+      const idx = this._updateReadyCbs.indexOf(callback);
+      if (idx >= 0) this._updateReadyCbs.splice(idx, 1);
+    };
+  }
+
+  applyUpdate(): void {
+    const um = this._wx?.getUpdateManager?.();
+    if (um && typeof um.applyUpdate === 'function') {
+      try { um.applyUpdate(); } catch (e) {
+        this.log('warn', `[update] applyUpdate threw: ${e}`);
       }
     }
   }

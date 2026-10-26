@@ -361,6 +361,15 @@ export class BeadsShell implements Game {
                 haptic?.(p.kind as never);
             }),
         );
+        // WXG-T-407 热更提示：订阅 OTA ready 事件 → emit 给 UI 层。
+        // 当前 beads 无通用 confirm modal ⇒ UI 提示可后续接；applyUpdate 已在 App 层透传。
+        const onUpdateReady = services.onUpdateReady;
+        if (onUpdateReady) {
+            onUpdateReady(() => {
+                const bus = services.events as unknown as { emit: (t: string, p: unknown) => void };
+                bus.emit('update:ready', null);
+            });
+        }
         const bus = services.events as unknown as { emit: (t: string, p: unknown) => void };
         this.meta = new MetaState({
             storage: services.storage,

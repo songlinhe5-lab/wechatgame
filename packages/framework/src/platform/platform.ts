@@ -63,6 +63,14 @@ export interface Platform {
    * hosts without a native share sheet leave this undefined.
    */
   share?(opts?: ShareOptions): void;
+  /**
+   * Subscribe to "new version ready" event (weapp update manager fired when
+   * a fresh package finishes downloading). Hosts without OTA leave this
+   * undefined; returns an unsubscribe function.
+   */
+  onUpdateReady?(callback: () => void): () => void;
+  /** Trigger an OTA restart (weapp only). Undefined on hosts without OTA. */
+  applyUpdate?(): void;
   getScreenSize(): ScreenSize;
   /** Schedule the next frame. The callback receives the delta in ms. */
   requestFrame(callback: (dtMs: number) => void): FrameHandle;

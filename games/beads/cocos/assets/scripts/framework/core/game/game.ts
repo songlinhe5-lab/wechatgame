@@ -92,6 +92,10 @@ export interface GameServices {
   readonly haptic?: (kind: HapticKind) => void;
   /** Optional share trigger. Undefined when the host has no native share sheet. */
   readonly share?: (opts?: ShareOptions) => void;
+  /** Subscribe to OTA "new version ready" event. Undefined on hosts without OTA. */
+  readonly onUpdateReady?: (callback: () => void) => () => void;
+  /** Trigger an OTA restart. Undefined on hosts without OTA. */
+  readonly applyUpdate?: () => void;
 }
 
 export interface Game {

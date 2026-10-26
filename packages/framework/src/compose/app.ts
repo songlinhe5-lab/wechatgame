@@ -123,6 +123,8 @@ export class App {
       rewardedAd: this.platform.createRewardedAdProvider(),
       haptic: this.platform.haptic?.bind(this.platform),
       share: this.platform.share?.bind(this.platform),
+      onUpdateReady: this.platform.onUpdateReady?.bind(this.platform),
+      applyUpdate: this.platform.applyUpdate?.bind(this.platform),
     };
 
     this.loop = new FixedStepLoop(
