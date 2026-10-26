@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3793,
       "lines": 129,
-      "sha256": "5d04b891b39feee0f5023e4a8ab9e9628e2d54558f303cf8aca4e56552f0dbae",
+      "sha256": "17afb7b3dd54e826a8c1c3e9b59c1ff373fc7892efecf41dcf46bd11109ff518",
       "tier": "normal",
       "sections": [
         {
@@ -39986,18 +39986,18 @@
     },
     {
       "path": "games/beads/design/proposals/star-economy-and-retention.md",
-      "tokens": 14094,
-      "lines": 461,
-      "sha256": "46d908c022bded0e32518f203828e3041504adc546f15a84d7403b5d39861918",
+      "tokens": 16372,
+      "lines": 564,
+      "sha256": "d24c451d2eb217cd1e3168cda51a49e5f58b1b287f5dcab18692f545ed71cb48",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§提案 · 待裁｜星级经济与日常留存（Star Economy & Retention）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 462,
-          "tokens": 14069,
-          "summary": "项目：games/beads（拼豆错位归位）· 版本 v0.3 · 任务号 WXG-T-359（设计轨；提案批，零落码）",
+          "endLine": 565,
+          "tokens": 16346,
+          "summary": "项目：games/beads（拼豆错位归位）· 版本 v0.4 · 任务号 WXG-T-359（设计轨；提案批，零落码）",
           "keywords": [
             "Star",
             "Economy",
@@ -40010,8 +40010,8 @@
         {
           "anchor": "§0 一页纸结论",
           "level": 2,
-          "startLine": 14,
-          "endLine": 27,
+          "startLine": 15,
+          "endLine": 28,
           "tokens": 517,
           "summary": "1 星级要不要随机 不要。星级保持确定性 0–3★；随机只放在「首次 3★ 宝箱」这类独立奖励层 新提案（否决随机星）",
           "keywords": [
@@ -40021,8 +40021,8 @@
         {
           "anchor": "§1 现状核对（只列已核实事实）",
           "level": 2,
-          "startLine": 28,
-          "endLine": 89,
+          "startLine": 29,
+          "endLine": 90,
           "tokens": 1418,
           "summary": "",
           "keywords": [
@@ -40033,8 +40033,8 @@
         {
           "anchor": "§1.1 星级：怎么给、怎么攒",
           "level": 3,
-          "startLine": 30,
-          "endLine": 35,
+          "startLine": 31,
+          "endLine": 36,
           "tokens": 171,
           "summary": "判定 = 确定性 0–3★：用时 ≤ 3★ 线给 3★、≤ 2★ 线给 2★、其余给 1★（tuning.ts:1017",
           "keywords": [
@@ -40047,8 +40047,8 @@
         {
           "anchor": "§1.2 星星：现在花在哪",
           "level": 3,
-          "startLine": 36,
-          "endLine": 45,
+          "startLine": 37,
+          "endLine": 46,
           "tokens": 254,
           "summary": "哪儿都没花，但它不是「没用」。 本批按代码实测把旧句「哪里都没花」拆成三层口径（⛔ 三件混说会误导改判）：",
           "keywords": [
@@ -40059,8 +40059,8 @@
         {
           "anchor": "§1.3 皮肤：现在怎么换",
           "level": 3,
-          "startLine": 46,
-          "endLine": 53,
+          "startLine": 47,
+          "endLine": 54,
           "tokens": 253,
           "summary": "注册表只有两套：warm-paper（默认）与 cool-violet（games/beads/src/config/s",
           "keywords": [
@@ -40075,8 +40075,8 @@
         {
           "anchor": "§1.4 签到：逻辑活着，入口退役",
           "level": 3,
-          "startLine": 54,
-          "endLine": 67,
+          "startLine": 55,
+          "endLine": 68,
           "tokens": 311,
           "summary": "这条要分清「系统」和「入口」，否则会把已裁的事当成缺陷：",
           "keywords": [
@@ -40088,8 +40088,8 @@
         {
           "anchor": "§1.5 金币：只发不耗",
           "level": 3,
-          "startLine": 68,
-          "endLine": 73,
+          "startLine": 69,
+          "endLine": 74,
           "tokens": 149,
           "summary": "获取：只有签到一处调用 addCoins（meta-state.ts:217）；首通金币、周榜结算都还是纸面条文（sys",
           "keywords": [
@@ -40104,8 +40104,8 @@
         {
           "anchor": "§1.6 供给盘",
           "level": 3,
-          "startLine": 74,
-          "endLine": 89,
+          "startLine": 75,
+          "endLine": 90,
           "tokens": 220,
           "summary": "mandala 1–9 9 27★",
           "keywords": [
@@ -40116,8 +40116,8 @@
         {
           "anchor": "§2 决策一：星级保持确定性 0–3★",
           "level": 2,
-          "startLine": 90,
-          "endLine": 145,
+          "startLine": 91,
+          "endLine": 146,
           "tokens": 1684,
           "summary": "",
           "keywords": [
@@ -40128,8 +40128,8 @@
         {
           "anchor": "§2.1 为什么不改成随机星数（四条硬理由）",
           "level": 3,
-          "startLine": 92,
-          "endLine": 98,
+          "startLine": 93,
+          "endLine": 99,
           "tokens": 231,
           "summary": "1. 会拆掉 3★ 的技术含义。现在的 3★ 是「比 2★ 线还快 15%」的确定成绩，玩家能复盘、能练。随机 1–5★",
           "keywords": [
@@ -40141,8 +40141,8 @@
         {
           "anchor": "§2.2 随机奖励的正确落点：首次 3★ 宝箱",
           "level": 3,
-          "startLine": 99,
-          "endLine": 110,
+          "startLine": 100,
+          "endLine": 111,
           "tokens": 236,
           "summary": "把「随机」从评星挪到发奖，两边都不受伤：",
           "keywords": [
@@ -40155,8 +40155,8 @@
         {
           "anchor": "§2.3 若一定要「更多星」：星屑方案（二期，需拆字段）",
           "level": 3,
-          "startLine": 111,
-          "endLine": 121,
+          "startLine": 112,
+          "endLine": 122,
           "tokens": 337,
           "summary": "如果后续确实需要「星星无限产出」，唯一干净的做法是加第二种货币：",
           "keywords": [
@@ -40170,8 +40170,8 @@
         {
           "anchor": "§2.4 复刷产出必须归零或递减（用户 2026-10-23 裁定）",
           "level": 3,
-          "startLine": 122,
-          "endLine": 145,
+          "startLine": 123,
+          "endLine": 146,
           "tokens": 796,
           "summary": "用户令原文：「反复刷关的豆子奖励需要降低，以平衡刷关的动力」。先把事实摆清楚：本文 §2.2 与",
           "keywords": [
@@ -40185,8 +40185,8 @@
         {
           "anchor": "§3 决策二（v0.3 改判）：星星既不解锁也不消费，只管开关卡；外观改金币买断",
           "level": 2,
-          "startLine": 146,
-          "endLine": 176,
+          "startLine": 147,
+          "endLine": 177,
           "tokens": 1087,
           "summary": "",
           "keywords": [
@@ -40201,8 +40201,8 @@
         {
           "anchor": "§3.1 两种模型对比",
           "level": 3,
-          "startLine": 148,
-          "endLine": 155,
+          "startLine": 149,
+          "endLine": 156,
           "tokens": 264,
           "summary": "~~A 累计阈值解锁~~（v0.1/v0.2 推荐） ~~「攒到 15★ 就永久得到这套」~~ ~~判定是派生量，零新存",
           "keywords": [
@@ -40212,8 +40212,8 @@
         {
           "anchor": "§3.2 为什么改选 C（金币买断）· v0.3",
           "level": 3,
-          "startLine": 156,
-          "endLine": 161,
+          "startLine": 157,
+          "endLine": 162,
           "tokens": 456,
           "summary": "1. 它曾经是现行裁定，现已由用户改判。§3.7 自 v1.23 起冻结「累计★ 达标解锁基础珠材质主题；高级主题走激励",
           "keywords": [
@@ -40225,8 +40225,8 @@
         {
           "anchor": "§3.3 如果坚持「花星」：仍然必须先拆双字段（v0.3 保留为护栏）",
           "level": 3,
-          "startLine": 162,
-          "endLine": 176,
+          "startLine": 163,
+          "endLine": 177,
           "tokens": 315,
           "summary": "最低要求（否则不要做）：",
           "keywords": [
@@ -40240,8 +40240,8 @@
         {
           "anchor": "§4 皮肤价目（v0.3：改按**金币**定价；原 `star-collect-rule.md` §6-T3 星供给体检作废留档）",
           "level": 2,
-          "startLine": 177,
-          "endLine": 219,
+          "startLine": 178,
+          "endLine": 220,
           "tokens": 1480,
           "summary": "",
           "keywords": [
@@ -40256,8 +40256,8 @@
         {
           "anchor": "§4.1 供给盘与节奏反推",
           "level": 3,
-          "startLine": 179,
-          "endLine": 196,
+          "startLine": 180,
+          "endLine": 197,
           "tokens": 815,
           "summary": "按「每天玩 2–4 关、P1 稳态 ≈116🪙/天、一次性池 680🪙（首通 360 + 首次 3★ 宝箱 320）",
           "keywords": [
@@ -40268,8 +40268,8 @@
         {
           "anchor": "§4.2 为什么第一档定 150🪙 而不是 300🪙",
           "level": 3,
-          "startLine": 197,
-          "endLine": 203,
+          "startLine": 198,
+          "endLine": 204,
           "tokens": 208,
           "summary": "~~3★ = 1 关满星太容易 / 6★ = 2 关满星正好教会「星级可以回头补」~~（v0.3 换币后此论证失效，按 ",
           "keywords": [
@@ -40280,8 +40280,8 @@
         {
           "anchor": "§4.3 存量存档兼容（grandfather · v0.3 换形）",
           "level": 3,
-          "startLine": 204,
-          "endLine": 212,
+          "startLine": 205,
+          "endLine": 213,
           "tokens": 260,
           "summary": "现有存档里可能已经存着 skinId = cool-violet，而星数为 0、金币也不够。处置：",
           "keywords": [
@@ -40296,8 +40296,8 @@
         {
           "anchor": "§4.4 皮肤数量与美术成本",
           "level": 3,
-          "startLine": 213,
-          "endLine": 219,
+          "startLine": 214,
+          "endLine": 220,
           "tokens": 142,
           "summary": "P0 只需 3 套可购买（现有 2 套 + 1 套新），第四套等 P1。⚠ v0.3 加注：买断制下「套数」直接等于金币",
           "keywords": [
@@ -40308,8 +40308,8 @@
         {
           "anchor": "§5 日常拉活：三段式，不要一次上齐",
           "level": 2,
-          "startLine": 220,
-          "endLine": 270,
+          "startLine": 221,
+          "endLine": 271,
           "tokens": 985,
           "summary": "",
           "keywords": [
@@ -40321,8 +40321,8 @@
         {
           "anchor": "§5.1 P0：把签到入口接上（信箱实装）",
           "level": 3,
-          "startLine": 222,
-          "endLine": 228,
+          "startLine": 223,
+          "endLine": 229,
           "tokens": 204,
           "summary": "做法：顶栏右上信封圆钮（代码 id mail）从「禁用态空圆、零热区」改为「可点 → open-signin」，并按 s",
           "keywords": [
@@ -40336,8 +40336,8 @@
         {
           "anchor": "§5.2 P1：每日首胜 + 3 个每日任务",
           "level": 3,
-          "startLine": 229,
-          "endLine": 244,
+          "startLine": 230,
+          "endLine": 245,
           "tokens": 321,
           "summary": "每日首胜：当日第一次通关 +20🪙 [提案]。作用是把「今天开一局」的回报从「只有签到」变成「玩也有」。",
           "keywords": [
@@ -40348,8 +40348,8 @@
         {
           "anchor": "§5.3 P2：每日挑战（先改旧提案，再做）",
           "level": 3,
-          "startLine": 245,
-          "endLine": 260,
+          "startLine": 246,
+          "endLine": 261,
           "tokens": 268,
           "summary": "daily-challenge.md 现在有两处必须先改才能接奖励：",
           "keywords": [
@@ -40363,8 +40363,8 @@
         {
           "anchor": "§5.4 跨天与防时钟回拨",
           "level": 3,
-          "startLine": 261,
-          "endLine": 270,
+          "startLine": 262,
+          "endLine": 271,
           "tokens": 134,
           "summary": "统一口径（签到、每日首胜、任务、挑战共用）：",
           "keywords": [
@@ -40375,8 +40375,8 @@
         {
           "anchor": "§6 金币闭环：先补出口，再谈加产出",
           "level": 2,
-          "startLine": 271,
-          "endLine": 328,
+          "startLine": 272,
+          "endLine": 329,
           "tokens": 1499,
           "summary": "",
           "keywords": [
@@ -40388,8 +40388,8 @@
         {
           "anchor": "§6.1 现状收支",
           "level": 3,
-          "startLine": 273,
-          "endLine": 286,
+          "startLine": 274,
+          "endLine": 287,
           "tokens": 417,
           "summary": "⚠ 本表 2026-10-23 按 §3.14 v1.80（WXG-T-351）重写：出口已从「买心」换成「买道具」，原",
           "keywords": [
@@ -40401,8 +40401,8 @@
         {
           "anchor": "§6.2 提案收支表（全部 `[提案·待拍板]`）",
           "level": 3,
-          "startLine": 287,
-          "endLine": 301,
+          "startLine": 288,
+          "endLine": 302,
           "tokens": 236,
           "summary": "签到 日 320 / 7 320",
           "keywords": [
@@ -40416,8 +40416,8 @@
         {
           "anchor": "§6.3 平衡判断",
           "level": 3,
-          "startLine": 302,
-          "endLine": 318,
+          "startLine": 303,
+          "endLine": 319,
           "tokens": 476,
           "summary": "⚠ 下表原按「买心」算，v1.80 后买心不吃豆 ⇒ 2026-10-23 整表按道具出口重算（收入仍取 P1",
           "keywords": [
@@ -40427,8 +40427,8 @@
         {
           "anchor": "§6.4 ~~为什么不加「金币买皮肤」~~ ⇒ v0.3 本条**作废，由用户改判反转**",
           "level": 3,
-          "startLine": 319,
-          "endLine": 328,
+          "startLine": 320,
+          "endLine": 329,
           "tokens": 309,
           "summary": "旧论证留档（K-053）：「会与累计星解锁双轨撞车……皮肤只走星，金币只走体力与头像框」。",
           "keywords": [
@@ -40442,8 +40442,8 @@
         {
           "anchor": "§7 获得感：三条线各给一个「下一步可见」",
           "level": 2,
-          "startLine": 329,
-          "endLine": 361,
+          "startLine": 330,
+          "endLine": 362,
           "tokens": 887,
           "summary": "",
           "keywords": [
@@ -40455,8 +40455,8 @@
         {
           "anchor": "§7.1 纵向：推图（已有，不用改）",
           "level": 3,
-          "startLine": 331,
-          "endLine": 335,
+          "startLine": 332,
+          "endLine": 336,
           "tokens": 135,
           "summary": "大关内线性解锁、大关门票 = 本章全通关（每关 ≥1★）∧ 累计星 ≥ 门槛（9 关 24★；R7 v0.7；~~全小关",
           "keywords": [
@@ -40469,8 +40469,8 @@
         {
           "anchor": "§7.2 横向：作品（已有种子，P2 放大）",
           "level": 3,
-          "startLine": 336,
-          "endLine": 341,
+          "startLine": 337,
+          "endLine": 342,
           "tokens": 146,
           "summary": "结算页已有「作品陈列条」：逐关一格，已通关 = 珠拼缩略，未通关 = 虚线空槽（games/beads/src/view",
           "keywords": [
@@ -40485,8 +40485,8 @@
         {
           "anchor": "§7.3 长线：外观 + 荣誉",
           "level": 3,
-          "startLine": 342,
-          "endLine": 347,
+          "startLine": 343,
+          "endLine": 348,
           "tokens": 257,
           "summary": "外观：~~4 套皮肤按 6/15/27★ 解锁~~ ⇒ v0.3：皮肤按 150 / 350 / 600🪙 买断（§4",
           "keywords": [
@@ -40499,8 +40499,8 @@
         {
           "anchor": "§7.4 主界面进度句（成本最低、感知最强）",
           "level": 3,
-          "startLine": 348,
-          "endLine": 361,
+          "startLine": 349,
+          "endLine": 362,
           "tokens": 287,
           "summary": "在现有 ★N 旁边补一个分母与一句进度：",
           "keywords": [
@@ -40512,8 +40512,8 @@
         {
           "anchor": "§8 落地分层",
           "level": 2,
-          "startLine": 362,
-          "endLine": 373,
+          "startLine": 363,
+          "endLine": 374,
           "tokens": 502,
           "summary": "P0 ① 信封入口 + 签到红点<br>② ~~累计星解锁皮肤（6/15/27）+ 锁定态不可选~~ ⇒ 金币买断皮肤（",
           "keywords": [
@@ -40523,8 +40523,8 @@
         {
           "anchor": "§9 新增常量候选（全部未冻结）",
           "level": 2,
-          "startLine": 374,
-          "endLine": 391,
+          "startLine": 375,
+          "endLine": 392,
           "tokens": 383,
           "summary": "~~SKIN_UNLOCK_STARS~~ ~~[0, 6, 15, 27]~~ ⇒ v0.3 作废（星不当外观货币），",
           "keywords": [
@@ -40536,8 +40536,8 @@
         {
           "anchor": "§10 冲突登记（逐条需处置，⛔ 本文不擅自改）",
           "level": 2,
-          "startLine": 392,
-          "endLine": 410,
+          "startLine": 393,
+          "endLine": 411,
           "tokens": 925,
           "summary": "C1 meta-ui.md §2.5 Q7 = 甲（逐格扣心；已诚实登记「半张图碰 0 心门」） 买心只是救急，不改扣心",
           "keywords": [
@@ -40551,8 +40551,8 @@
         {
           "anchor": "§11 验收口径（可转 QA，全部能纯 Node 单测）",
           "level": 2,
-          "startLine": 411,
-          "endLine": 424,
+          "startLine": 412,
+          "endLine": 425,
           "tokens": 441,
           "summary": "1. 星级不随机：同一输入（剩余时长、总时长、档位、是否续时）重复调用 computeClearStars，结果恒定。",
           "keywords": [
@@ -40567,8 +40567,8 @@
         {
           "anchor": "§12 不做的事（红线自查）",
           "level": 2,
-          "startLine": 425,
-          "endLine": 435,
+          "startLine": 426,
+          "endLine": 436,
           "tokens": 276,
           "summary": "⛔ 不改 STAR_TIER_K / computeClearStars / 续时保底，不做随机星数、抽卡、概率售卖；",
           "keywords": [
@@ -40581,8 +40581,8 @@
         {
           "anchor": "§13 待用户拍板（按依赖序）",
           "level": 2,
-          "startLine": 436,
-          "endLine": 451,
+          "startLine": 437,
+          "endLine": 452,
           "tokens": 695,
           "summary": "Q1 星级是否保持确定性 0–3★（随机只放宝箱）？ 保持；若想要「更多星」走二期星屑，不污染总星",
           "keywords": [
@@ -40591,10 +40591,111 @@
           ]
         },
         {
+          "anchor": "§14 内容与经济配比表（v0.4 · 用户 2026-10-26 令「写一份内容与经济配比表进提案」）",
+          "level": 2,
+          "startLine": 453,
+          "endLine": 554,
+          "tokens": 1964,
+          "summary": "本节解决的问题：内容量（多少大关）与经济量（多少豆子、多少外观）历来各给各的，导致每次加章都要重算一遍。本节把两者绑成一",
+          "keywords": [
+            "内容与经济配",
+            "比表",
+            "用户",
+            "写一份内容与",
+            "经济配比表进",
+            "提案"
+          ]
+        },
+        {
+          "anchor": "§14.1 先钉死四个口径（否则同一句话能算出三倍差）",
+          "level": 3,
+          "startLine": 458,
+          "endLine": 468,
+          "tokens": 246,
+          "summary": "一「章」的关卡数 9 关 = 8 普通 + 1 Boss 真实关表 design/levels/manifest.jso",
+          "keywords": [
+            "Boss",
+            "design",
+            "levels",
+            "manifest",
+            "jso",
+            "先钉死四个口"
+          ]
+        },
+        {
+          "anchor": "§14.2 单关耗时基线（真实读数，非估算）",
+          "level": 3,
+          "startLine": 469,
+          "endLine": 479,
+          "tokens": 134,
+          "summary": "L00001 59 s 41 s 教学关",
+          "keywords": [
+            "L00001",
+            "单关耗时基线",
+            "真实读数",
+            "非估算"
+          ]
+        },
+        {
+          "anchor": "§14.3 首上线大关数：按「14 天不通关」反推",
+          "level": 3,
+          "startLine": 480,
+          "endLine": 502,
+          "tokens": 454,
+          "summary": "推演参数（全部 [待 playtest]）：每关平均 2.5 次尝试才拿到 3★；单次耗时取该关 1★ 时钟的 60%；",
+          "keywords": [
+            "playtest",
+            "首上线大关数",
+            "天不通关",
+            "反推"
+          ]
+        },
+        {
+          "anchor": "§14.4 外观周期：按「14 天不穿透」反推",
+          "level": 3,
+          "startLine": 503,
+          "endLine": 531,
+          "tokens": 390,
+          "summary": "「不穿透」= 14 天肝满也买不齐。买穿 = 提前把出口清空，之后无事可攒。",
+          "keywords": [
+            "外观周期",
+            "天不穿透",
+            "反推"
+          ]
+        },
+        {
+          "anchor": "§14.5 每次更新的配比公式",
+          "level": 3,
+          "startLine": 532,
+          "endLine": 541,
+          "tokens": 170,
+          "summary": "月更（主节奏） 1 章 / 9 关 900 + 90.71 × 该章天数 新增首通池 900 + 期内固定产出",
+          "keywords": [
+            "每次更新的配",
+            "比公式"
+          ]
+        },
+        {
+          "anchor": "§14.6 同批登记的其他裁定（防散落）",
+          "level": 3,
+          "startLine": 542,
+          "endLine": 554,
+          "tokens": 349,
+          "summary": "经济不追求闭环，改为设持有上限（逼玩家尽快花掉；上限值 [待拍板]） 本文 §0/§6 口径已随之改写；上限值落 sys",
+          "keywords": [
+            "§0",
+            "§6",
+            "sys",
+            "同批登记的其",
+            "他裁定",
+            "防散落"
+          ]
+        },
+        {
           "anchor": "§附录 · 一句话规则卡（可直接抄进加载提示）",
           "level": 2,
-          "startLine": 452,
-          "endLine": 462,
+          "startLine": 555,
+          "endLine": 565,
           "tokens": 258,
           "summary": "每关最多三颗星，拼得越快星越多；重复打不会掉星。",
           "keywords": [
