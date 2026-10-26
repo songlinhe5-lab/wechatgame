@@ -48,8 +48,8 @@ import {
 import { rectContains, type PanelRect } from './pause-panel';
 import { ResultPanelClock } from './result-panel';
 
-/** 通关画面能请求的三件事（动作由 `BeadsGame` 执行）。 */
-export type FinishPanelAction = 'replay' | 'sprint' | 'menu';
+/** 通关画面能请求的四件事（动作由 `BeadsGame` 执行；分享属平台层，见 `beads-shell`）。 */
+export type FinishPanelAction = 'replay' | 'sprint' | 'menu' | 'share';
 
 export interface FinishButton {
   readonly id: FinishPanelAction;
@@ -127,12 +127,16 @@ function build(levelCount: number): FinishPanelLayout {
   // 复用暂停面板 `go-menu` 语义——上报意图、切屏归 shell）⇒ 主/副两格，总宽
   // 仍为 `CLEAR_BUTTON_W` 整体居中；`CLEAR_BUTTON_GAP` 随两格布局复建引入。
   // `FinishPanelAction` 的 `'sprint'` 成员与文案分支保留备复建，但不再产出。
+  //
+  // WXG-T-405：补「分享」位（结算面板炫耀 = 框架层 Platform.share）。三按钮横排
+  // replay(主) / share(次) / menu(副)，cellW 三等分。
   const startX = (DESIGN_W - CLEAR_BUTTON_W) / 2;
   const buttonY = 120;
-  const cellW = (CLEAR_BUTTON_W - CLEAR_BUTTON_GAP) / 2;
+  const cellW = (CLEAR_BUTTON_W - 2 * CLEAR_BUTTON_GAP) / 3;
   const buttons: FinishButton[] = [
     { id: 'replay', rect: rect(startX, buttonY, cellW, PANEL_BUTTON_H) },
-    { id: 'menu', rect: rect(startX + cellW + CLEAR_BUTTON_GAP, buttonY, cellW, PANEL_BUTTON_H) },
+    { id: 'share', rect: rect(startX + cellW + CLEAR_BUTTON_GAP, buttonY, cellW, PANEL_BUTTON_H) },
+    { id: 'menu', rect: rect(startX + 2 * (cellW + CLEAR_BUTTON_GAP), buttonY, cellW, PANEL_BUTTON_H) },
   ];
 
   return { titleY, totalY, rows, buttons, shelf: buildShelf(levelCount, rows, buttonY + PANEL_BUTTON_H) };
@@ -171,7 +175,10 @@ function buildShelf(
  * 定为本状态的推进出口之一），菜单钮按 v1.18 退为副钮，冲刺入口按 U1 保留分支。
  */
 export function finishPanelLabel(id: FinishPanelAction): string {
-  return id === 'sprint' ? '▶ 去冲刺' : id === 'menu' ? '回主菜单' : '重玩第 1 关';
+  if (id === 'sprint') return '▶ 去冲刺';
+  if (id === 'share') return '炫耀一下';
+  if (id === 'menu') return '回主菜单';
+  return '重玩第 1 关';
 }
 
 /** 命中测试（按钮外的任何点击 → null ⇒ 调用方零响应，`input-control §2.3`）。 */

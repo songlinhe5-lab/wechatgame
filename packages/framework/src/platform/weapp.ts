@@ -26,6 +26,7 @@ import {
   type FrameHandle,
   type HapticKind,
   type ScreenSize,
+  type ShareOptions,
 } from './platform.js';
 import {
   NoopRewardedAdProvider,
@@ -103,6 +104,16 @@ interface WxApi {
   vibrateShort?(opts?: { type?: 'light' | 'medium' | 'heavy' }): void;
   /** 基础库 2.2.0+。 */
   vibrateLong?(): void;
+  /** 触发分享面板（小游戏专用）。基础库 2.9.4+。 */
+  shareAppMessage?(opts: {
+    title?: string;
+    imageUrl?: string;
+    query?: string;
+  }): void;
+  /** 被动分享默认卡片（用户点右上角「···」→ 转发）。基础库 2.9.4+。 */
+  onShareAppMessage?(cb: () => { title?: string; imageUrl?: string; query?: string }): void;
+  /** 右上角菜单里显示「转发」按钮。基础库 2.11.3+。 */
+  showShareMenu?(opts?: { withShareTicket?: boolean; menus?: string[] }): void;
 }
 
 /** 微信 createRewardedVideoAd 返回对象的最小形状（只取我们实际消费的成员）。 */
@@ -328,6 +339,19 @@ export class WeappPlatform extends BasePlatform {
       capsuleBottomDp: capsule?.bottom ?? null,
       capsuleRectDp: capsule,
     };
+    // 被动分享注册（WXG-T-405）：
+    // - showShareMenu：让右上角菜单出现「转发」按钮；
+    // - onShareAppMessage：给默认卡片一个兜底（宿主不填 title/imageUrl 时微信显示游戏名/图标）。
+    if (wx) {
+      const showMenu = wx.showShareMenu;
+      if (typeof showMenu === 'function') {
+        try { showMenu({ withShareTicket: true, menus: ['shareAppMessage'] }); } catch { /* ignore */ }
+      }
+      const onShare = wx.onShareAppMessage;
+      if (typeof onShare === 'function') {
+        try { onShare(() => ({})); } catch { /* ignore */ }
+      }
+    }
   }
 
   /**
@@ -487,6 +511,25 @@ export class WeappPlatform extends BasePlatform {
         try { fn(); } catch { /* ignore */ }
       }
     }
+  }
+
+  /**
+   * 触发微信分享面板（WXG-T-405）。
+   *
+   * 优先用 `wx.shareAppMessage({ title, imageUrl, query })`（小游戏专用，
+   * 基础库 2.9.4+），无此 API 时静默 noop。与被动分享（onShareAppMessage）
+   * 互补：主动是"点按钮"，被动是"点右上角转发"。
+   */
+  share(opts: ShareOptions = {}): void {
+    const wx = this._wx;
+    if (!wx) return;
+    const fn = wx.shareAppMessage;
+    if (typeof fn !== 'function') return;
+    const args: { title?: string; imageUrl?: string; query?: string } = {};
+    if (opts.title) args.title = opts.title;
+    if (opts.imageUrl) args.imageUrl = opts.imageUrl;
+    if (opts.query) args.query = opts.query;
+    try { fn(args); } catch { /* ignore */ }
   }
 
   getScreenSize(): ScreenSize {

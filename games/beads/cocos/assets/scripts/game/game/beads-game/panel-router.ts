@@ -36,10 +36,12 @@ export interface PanelRouterHost {
   restartRun(): void;
   openMenu(): void;
   applyPanelAction(action: PausePanelAction): void;
+  /** 炫耀：调平台层 share（WXG-T-405），宿主无 share 能力时静默 noop。 */
+  share(): void;
 }
 
 export class PanelRouter {
-  constructor(private readonly _host: PanelRouterHost) {}
+  constructor(private readonly _host: PanelRouterHost) { }
 
   /**
    * 面板相位点击。命中 ⇒ 派发并返回 `true`；未命中 / 非面板相位 ⇒ `false`（零副作用）。
@@ -86,6 +88,7 @@ export class PanelRouter {
         h.sfx(AUDIO_CLIP_UI_TAP);
         if (action === 'replay') h.restartRun();
         else if (action === 'menu') h.openMenu();
+        else if (action === 'share') h.share();
         else h.startSprintRun();
         return true;
       }

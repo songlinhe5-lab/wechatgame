@@ -41,7 +41,7 @@
 | 17 | `games/beads/design/gdd/input-control.md` | 19568 | 206 | normal |
 | 18 | `games/beads/design/ux/arc-level-select-spec.md` | 18524 | 269 | normal |
 | 19 | `memory/details/2026-10-03-s01-t226.md` | 17901 | 548 | normal |
-| 20 | `production/qa/beads/wxg-t-228-tint-criteria.md` | 16868 | 444 | normal |
+| 20 | `knowledge/CHANGELOG.md` | 16979 | 541 | normal |
 
 ## 3. 超限清单（超过所属类别上限）
 

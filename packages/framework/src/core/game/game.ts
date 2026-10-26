@@ -21,7 +21,7 @@ import type { Rng } from '../math/rng.js';
 import type { Viewport } from '../render/viewport.js';
 import type { RenderModelBuilder } from '../render/render-model.js';
 import type { RewardedAdProvider } from '../ads/rewarded-ad.js';
-import type { HapticKind } from '../../platform/platform.js';
+import type { HapticKind, ShareOptions } from '../../platform/platform.js';
 
 /**
  * Opaque texture reference resolved by the render adapter. The core never
@@ -90,6 +90,8 @@ export interface GameServices {
   readonly rewardedAd: RewardedAdProvider;
   /** Optional tactile feedback callback. Undefined when the host cannot vibrate. */
   readonly haptic?: (kind: HapticKind) => void;
+  /** Optional share trigger. Undefined when the host has no native share sheet. */
+  readonly share?: (opts?: ShareOptions) => void;
 }
 
 export interface Game {

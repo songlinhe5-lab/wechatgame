@@ -619,6 +619,7 @@ export class BeadsGame implements Game {
       restartRun() { self.restartRun(); },
       openMenu() { self._onMenuRequest?.(); }, // core-loop v2.3：go-menu 同通道（pause-settings §2.2 判例）
       applyPanelAction(action: PausePanelAction) { self._applyPanelAction(action); },
+      share() { self._share(); },
     });
     this._input = new InputRouter({
       get phase() { return self._machine.current; },
@@ -1581,6 +1582,18 @@ export class BeadsGame implements Game {
     this._setupLevel(0);
     this._machine.transition('playing');
     return true;
+  }
+
+  /**
+   * 分享按钮点击（WXG-T-405）：直接透传给平台层 services.share?.()。
+   * 宿主无分享能力（Node/harness）时静默 noop。
+   */
+  private _share(): void {
+    const share = this._services?.share;
+    if (!share) return;
+    // 分享卡片内容待真机验证后定制：标题 = 关卡星级 + 剩余步数；
+    // 图片 = 现成 boss 缩略烘焙图（提案 TODO-3 方案）。当前只透传空 opts。
+    try { share({}); } catch { /* ignore */ }
   }
 
   /** Level jump for level-select UI / harness / tests (normal mode). */

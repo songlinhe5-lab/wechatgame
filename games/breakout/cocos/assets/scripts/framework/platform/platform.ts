@@ -32,6 +32,17 @@ export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 /** Tactile-feedback kind. Maps to the narrowest shape each host can produce. */
 export type HapticKind = 'light' | 'medium' | 'heavy' | 'selection' | 'success' | 'warning' | 'error';
 
+/** Content a game wants to share. Host adapters fill what they can; missing
+ * fields fall back to platform defaults (weapp shows the game icon/title). */
+export interface ShareOptions {
+  /** Share card title. 30-char limit on WeChat; adapters truncate gracefully. */
+  readonly title?: string;
+  /** Local path or URL to a share-card preview image. WeChat accepts both. */
+  readonly imageUrl?: string;
+  /** Query string appended to the target URL (landing page / share token). */
+  readonly query?: string;
+}
+
 export interface Platform {
   readonly info: PlatformInfo;
   /** Monotonic clock in milliseconds. */
@@ -54,6 +65,11 @@ export interface Platform {
    * web = `navigator.vibrate` when available.
    */
   haptic?(kind: HapticKind): void;
+  /**
+   * Trigger a share (host-dependent). weapp = `wx.shareAppMessage`;
+   * hosts without a native share sheet leave this undefined.
+   */
+  share?(opts?: ShareOptions): void;
   getScreenSize(): ScreenSize;
   /** Schedule the next frame. The callback receives the delta in ms. */
   requestFrame(callback: (dtMs: number) => void): FrameHandle;

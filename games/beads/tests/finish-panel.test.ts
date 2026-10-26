@@ -72,7 +72,7 @@ function reachFinish(h: Harness): void {
 }
 
 describe('S7 通关画面（ux-spec §3.6 / core-loop §8-8）', () => {
-  it('lays out one overview row per level, above two ≥TOUCH_MIN buttons', () => {
+  it('lays out one overview row per level, above three ≥TOUCH_MIN buttons', () => {
     const layout = finishPanelLayout(EIGHT.length);
     expect(layout.rows).toHaveLength(EIGHT.length);
 
@@ -93,8 +93,9 @@ describe('S7 通关画面（ux-spec §3.6 / core-loop §8-8）', () => {
     expect(layout.totalY).toBeGreaterThan(layout.rows[0]!.y);
 
     // WXG-T-177（用户 2026-09-19「去冲刺按钮先隐藏」）：去冲刺入口不再产出；
-    // 用户 2026-09-25 直派（core-loop v2.3）：补「回主菜单」副钮 ⇒ 主/副两格。
-    expect(layout.buttons.map((b) => b.id)).toEqual(['replay', 'menu']);
+    // 用户 2026-09-25 直派（core-loop v2.3）：补「回主菜单」副钮；
+    // WXG-T-405：补「炫耀」分享位 ⇒ 三格 replay(主) / share(次) / menu(副)。
+    expect(layout.buttons.map((b) => b.id)).toEqual(['replay', 'share', 'menu']);
     const lastRowY = layout.rows[layout.rows.length - 1]!.y;
     for (const button of layout.buttons) {
       expect(button.rect.yMax - button.rect.yMin).toBeGreaterThanOrEqual(TOUCH_MIN);
@@ -102,11 +103,13 @@ describe('S7 通关画面（ux-spec §3.6 / core-loop §8-8）', () => {
       expect(button.rect.xMin).toBeGreaterThan(0);
       expect(button.rect.xMax).toBeLessThan(DESIGN_W);
     }
-    // 两格总宽仍为单钮时代的 CLEAR_BUTTON_W，整体居中，邻格间为 CLEAR_BUTTON_GAP。
+    // 三格总宽仍为 CLEAR_BUTTON_W，整体居中；邻格间为 CLEAR_BUTTON_GAP。
     const first = layout.buttons[0]!.rect;
-    const second = layout.buttons[1]!.rect;
-    expect((first.xMin + second.xMax) / 2).toBe(DESIGN_W / 2);
-    expect(second.xMin - first.xMax).toBeGreaterThan(0); // 缝隙 = CLEAR_BUTTON_GAP，不重叠
+    const last = layout.buttons[layout.buttons.length - 1]!.rect;
+    expect((first.xMin + last.xMax) / 2).toBe(DESIGN_W / 2);
+    for (let i = 1; i < layout.buttons.length; i++) {
+      expect(layout.buttons[i]!.rect.xMin - layout.buttons[i - 1]!.rect.xMax).toBeGreaterThan(0);
+    }
   });
 
   it('labels: main = 重玩第 1 关，副 = 回主菜单（去冲刺文案分支保留备复建）', () => {
@@ -117,16 +120,18 @@ describe('S7 通关画面（ux-spec §3.6 / core-loop §8-8）', () => {
     expect(FINISH_MAX_STARS_PER_LEVEL).toBe(3);
   });
 
-  it('resolves hits inside the two buttons only（区外零响应）', () => {
+  it('resolves hits inside the three buttons only（区外零响应）', () => {
     const layout = finishPanelLayout(EIGHT.length);
     const primary = layout.buttons[0]!.rect;
-    const secondary = layout.buttons[1]!.rect;
+    const shareBtn = layout.buttons[1]!.rect;
+    const secondary = layout.buttons[2]!.rect;
     const centre = (r: { xMin: number; xMax: number; yMin: number; yMax: number }) =>
       [(r.xMin + r.xMax) / 2, (r.yMin + r.yMax) / 2] as const;
 
     expect(hitFinishPanel(...centre(primary), EIGHT.length)).toBe('replay');
+    expect(hitFinishPanel(...centre(shareBtn), EIGHT.length)).toBe('share');
     expect(hitFinishPanel(...centre(secondary), EIGHT.length)).toBe('menu');
-    // 两钮间缝隙 + 总览行 + 屏幕死角：全部零命中（§2.3 面板外零响应）。
+    // 三钮间缝隙 + 总览行 + 屏幕死角：全部零命中（§2.3 面板外零响应）。
     expect(hitFinishPanel(primary.xMax + 5, primary.yMin + 5, EIGHT.length)).toBeNull();
     expect(hitFinishPanel(DESIGN_W / 2, layout.rows[0]!.y, EIGHT.length)).toBeNull();
     expect(hitFinishPanel(0, 0, EIGHT.length)).toBeNull();
