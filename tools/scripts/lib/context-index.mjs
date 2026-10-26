@@ -550,6 +550,9 @@ const LEDGER_PREFIXES = [
   'production/release/',
   'production/plans/',
   'production/archive/',
+  // `production/BACKLOG.md`（WXG-T-407 拆出的未排期提案表）：追加型、按时间序长，
+  // 与归档同档（ledger 16000）；⛔ 不动任何阈值。
+  'production/BACKLOG.md',
   'docs/engine-reference/',
 ];
 

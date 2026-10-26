@@ -203,11 +203,20 @@ let toArchive = candidates.filter((c) => {
   return true;
 });
 
-// ── 全局最大号（主表全部表行 ∪ 归档全部表行，任何状态都占号）──────────────────
+// ── 全局最大号（主表全部表行 ∪ 归档全部表行 ∪ BACKLOG，任何状态都占号）──────
 const archiveText = existsSync(ARCHIVE) ? readFileSync(ARCHIVE, 'utf8') : '';
 let globalMax = 0;
 for (const id of allIds) globalMax = Math.max(globalMax, id);
 for (const m of archiveText.matchAll(/WXG-T-(\d+)/g)) {
+  globalMax = Math.max(globalMax, Number(m[1]));
+  idWidth = Math.max(idWidth, m[1].length);
+}
+// BACKLOG（未排期提案表，WXG-T-407）同样占号：提案在 BACKLOG 里领号后若不入全局最大号，
+// 头注校准会把「下一可用号」拉回 ⇒ 与已有提案行重号（K-046 同型）。口径与上面归档文本一致：
+// 整文 matchAll（单元格里的引用号一并计入，宁可前瞻不可回退）。
+const BACKLOG_PATH = join(ROOT, 'production', 'BACKLOG.md');
+const backlogText = existsSync(BACKLOG_PATH) ? readFileSync(BACKLOG_PATH, 'utf8') : '';
+for (const m of backlogText.matchAll(/WXG-T-(\d+)/g)) {
   globalMax = Math.max(globalMax, Number(m[1]));
   idWidth = Math.max(idWidth, m[1].length);
 }

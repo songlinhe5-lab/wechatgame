@@ -25,6 +25,8 @@
 #            不写死可执行阈值——建议串里的硬编码数字会随台账规模过期，而门禁本身不报错过期
 #         ⑮ 索引权威面（WXG-T-401，判例 K-045）：`check:tasks --staged` 读索引而非工作树——
 #            pre-commit 据此拦住「台账一侧入索引、另一侧留在工作树」的撕裂，同时对邻居未提交改动免疫
+#         ⑯ BACKLOG 第四面（WXG-T-407）：未排期提案表占号、可无详情节，但行格式与主表同构（J 项）
+#         ⑰ I 项在 --staged 降级为披露（WXG-T-407）：仓库级欠账不拦本单，硬拦留在工作树模式
 #
 # 用法：tools/scripts/archive-tasks-selftest.sh
 # 产物：仅 stdout 报告；临时目录退出时清理，不污染仓库。
@@ -394,6 +396,84 @@ assert_eq "$(run_staged)" "0" "[10c] 补齐另一侧（含头注）⇒ 绿，修
 printf '| WXG-T-003 | 坏行 | a | b | c | d |\n' >>"$REPO_S/production/TASKS.md"
 assert_eq "$(run_worktree)" "1" "[10d-1] 工作树被改坏 ⇒ 工作树模式红（对照）"
 assert_eq "$(run_staged)" "0" "[10d-2] 同一坏行未入索引 ⇒ --staged 不拦邻居 WIP（权威面真的换了）"
+
+# 为什么要这条：拆 BACKLOG（WXG-T-407）后台账多了一面，而三件事只能测才能确信：
+#   行搬过去后其详情节不能被判孤儿（否则拆表当日就红）；真孤儿仍必须红（别把门拆哑）；
+#   J 项（BACKLOG 行也得 5 列）得能红。三条腿各挡一种失效。
+echo "—— [11] BACKLOG 第四面：占号、可无节、行格式同主表"
+REPO_B="$WORK/repo-backlog"
+new_repo "$REPO_B"
+cat >"$REPO_B/production/TASKS.md" <<'EOS'
+# 任务台账（桩）
+
+> 当前已分配至 **WXG-T-002**，下一可用号 **WXG-T-003**。
+
+| Task ID | 名称 | 负责 | 状态 | 产出 |
+|---|---|---|---|---|
+| WXG-T-001 | 在办行 | 甲 | 🚧 进行中 | 见详情 |
+EOS
+cat >"$REPO_B/production/TASKS-DETAIL.md" <<'EOS'
+# 详情台账（桩）
+
+## WXG-T-001
+
+正文甲
+
+## WXG-T-002
+
+正文乙
+EOS
+cat >"$REPO_B/production/BACKLOG.md" <<'EOS'
+# 未排期提案（桩）
+
+| Task ID | 名称 | 负责 | 状态 | 产出 |
+|---|---|---|---|---|
+| WXG-T-002 | 提案行 | 乙 | 📋 提案 / 未排期 | 见详情 |
+EOS
+stub_commit "$REPO_B" "$(node -e 'console.log(new Date().toISOString())')"
+run_b() { ( cd "$REPO_B" && node "$CHECK_CMD" >/dev/null 2>&1 ); echo $?; }
+assert_eq "$(run_b)" "0" "[11a] 主表无 002 行、BACKLOG 有 ⇒ 其详情节不算孤儿"
+
+grep -v '^| WXG-T-002 |' "$REPO_B/production/BACKLOG.md" >"$REPO_B/production/BACKLOG.md.n" \
+  && mv "$REPO_B/production/BACKLOG.md.n" "$REPO_B/production/BACKLOG.md"
+assert_eq "$(run_b)" "1" "[11b] 两面都无行 ⇒ 孤儿详情仍必红（门未拆哑）"
+
+printf '| WXG-T-002 | 提案行 | 乙 | 📋 未排期 | x | 见详情 |\n' >>"$REPO_B/production/BACKLOG.md"
+assert_eq "$(run_b)" "1" "[11c] BACKLOG 行 6 列 ⇒ J 项红（格式同主表）"
+
+# 为什么要这条：`--staged` 是 pre-commit 的门，校的是「本笔索引自洽」；而 I 项校的是
+# 「提交史 vs 台账」= **仓库级**欠账。共享工作树里对方常「代码已提交、台账行还留在工作树」
+# ⇒ 索引面必缺该号，本单就被**别人的欠账**拦住（WXG-T-407 实测：本批被 402/403 拦下）。
+# 三条腿：12a 工作树模式必红（硬拦没被拆掉）；12b --staged 必绿（他人欠账不拦本单）；
+# 12c --staged 仍把该欠账打印出来（降级 ≠ 消失，防「把 I 项整块删掉」骗绿）。
+echo "—— [12] I 项在 --staged 降级为披露（仓库级欠账 ≠ 本笔自洽）"
+REPO_I="$WORK/repo-commitscan"
+new_repo "$REPO_I"
+cat >"$REPO_I/production/TASKS.md" <<'EOS'
+# 任务台账（桩）
+
+> 当前已分配至 **WXG-T-001**，下一可用号 **WXG-T-002**。
+
+| Task ID | 名称 | 负责 | 状态 | 产出 |
+|---|---|---|---|---|
+| WXG-T-001 | 甲行 | 甲 | ✅ 完成 | 见详情 |
+EOS
+cat >"$REPO_I/production/TASKS-DETAIL.md" <<'EOS'
+# 详情台账（桩）
+
+## WXG-T-001
+
+正文甲
+EOS
+stub_commit "$REPO_I" "$(node -e 'console.log(new Date().toISOString())')"
+git -C "$REPO_I" -c user.name=stub -c user.email=stub@stub -c commit.gpgsign=false \
+  commit -q --allow-empty -m 'feat(x): 他人代码已入库、台账行未登 (WXG-T-777)'
+run_i() { ( cd "$REPO_I" && node "$CHECK_CMD" >/dev/null 2>&1 ); echo $?; }
+run_i_staged() { ( cd "$REPO_I" && node "$CHECK_CMD" --staged >/dev/null 2>&1 ); echo $?; }
+assert_eq "$(run_i)" "1" "[12a] 工作树模式：未在册号仍硬拦（verify 口径未放宽）"
+assert_eq "$(run_i_staged)" "0" "[12b] --staged：他人欠账不拦本单"
+assert_contains "$( cd "$REPO_I" && node "$CHECK_CMD" --staged 2>&1 )" "WXG-T-777" \
+  "[12c] --staged 仍打印该欠账（降级不消失）"
 
 echo "=================================================================="
 echo "结果：PASS=$PASS FAIL=$FAIL"

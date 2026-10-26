@@ -18,16 +18,20 @@
  *   G. **backlog 卫生**（WXG-T-076）：结项即移除（不留删除线占位）+ 每行 ≤160 字符
  *   H. 主表行数**观察哨**（report-only，不阻断——「结构门硬、行为门软」惯例）
  *   I. **提交署号必须在册**（WXG-T-349 / K-137 追记）：最近 N 笔（默认 40，`--commits=` 可调）
- *      提交信息里出现的 `WXG-T-NNN`，逐个要求在「主表 ∪ 详情节 ∪ 行归档 ∪ 详情归档」里存在。
+ *      提交信息里出现的 `WXG-T-NNN`，逐个要求在「主表 ∪ BACKLOG ∪ 详情节 ∪ 行归档 ∪ 详情归档」里存在。
  *      动机（真事）：2026-10-22 三笔提交署 `WXG-T-346` 而台账当时**无此号** ⇒ A–H 全过、全量门禁十九项全绿。
  *      署号写法含连写（`WXG-T-257~260` 区间 / `WXG-T-222/268/269` 并列链）⇒ 逐段展开，否则漏半数。
+ *      ⚠ `--staged` 下**降级为 note**（WXG-T-407）：本项校的是仓库级欠账（提交史 vs 台账），不是「本笔
+ *      索引自洽」；共享工作树里对方「代码已入库、台账行还在工作树」时索引面必缺该号 ⇒ 拦住无关本单。
+ *      硬拦不丢：不带 `--staged`（= `verify` 口径）仍是 failure。
+ *   J. **BACKLOG 行格式**（WXG-T-407）：未排期提案表的行也得 5 列（与主表同构）。
  *
  * 用法：
  *   node tools/scripts/check-tasks.mjs             # 校验（verify 内调用，读**工作树**）
  *   node tools/scripts/check-tasks.mjs --staged     # 读**索引**（= 即将入库的内容）——pre-commit 专用（WXG-T-399）
  *       理由：共享工作树下 `git commit` 提交的是索引，工作树里常捏着并发会话的 WIP；
  *       读工作树会因对方未提交改动误拦本单，读索引才能接住「台账被扫走一侧」的撕裂态。
- *       ⚠ 与 `--prune` 互斥（写盘动作不能跑在索引面）。
+ *       ⚠ 与 `--prune` 互斥（写盘动作不能跑在索引面）；I 项在本模式只披露不拦（见上）。
  *   node tools/scripts/check-tasks.mjs --commits=200   # 放宽 I 项窗口（反事实自证 / 排障用）
  *   node tools/scripts/check-tasks.mjs --prune     # 把「已归档却仍留在详情文件」的小节**搬进**
  *                                                  # 详情归档（**搬，不是删**——删会丢任务正文）
@@ -49,6 +53,11 @@ const LEDGER = path.join(ROOT, 'production/TASKS.md');
 const DETAIL = path.join(ROOT, 'production/TASKS-DETAIL.md');
 const ARCHIVE = path.join(ROOT, 'production/archive/TASKS-archive.md');
 const DETAIL_ARCHIVE = path.join(ROOT, 'production/archive/TASKS-DETAIL-archive.md');
+// BACKLOG（未排期提案表，WXG-T-407 拆出）：**占号、但不要求配详情节**。
+// 拆表动机：归档器只搬 ✅ 行，而提案/留档类行（📝📋📌📄🧪🔵⚠⏸）永远不为 ✅ ⇒ 堆在主表里
+// 使「行数观察哨 20」成为不可达目标。行搬过来后其详情节仍留在 TASKS-DETAIL.md，所以 BACKLOG
+// 必须入「行侧集合」，否则那些节全被误判为孤儿详情。
+const BACKLOG = path.join(ROOT, 'production/BACKLOG.md');
 const rel = (p) => path.relative(ROOT, p);
 
 /** 名称单元格的字符上限（标题，不是段落）。 */
@@ -170,7 +179,16 @@ for (const { id } of rows) {
 }
 
 const rowIds = new Set(rows.map((r) => r.id));
-const staleSections = [...detailIds].filter((id) => !rowIds.has(id));
+const backlogText = read(BACKLOG);
+const backlogIds = new Set(
+  [...backlogText.matchAll(/^\|\s*(WXG-T-\d+)\s*\|/gm)].map((m) => m[1]),
+);
+for (const line of backlogText.split('\n')) {
+  if (!/^\|\s*WXG-T-\d+\s*\|/.test(line)) continue;
+  const cells = splitCells(line);
+  if (cells.length !== 5) failures.push(`J: BACKLOG 行 ${cells[0]} 列数 ${cells.length} ≠ 5（同主表格式）`);
+}
+const staleSections = [...detailIds].filter((id) => !rowIds.has(id) && !backlogIds.has(id));
 for (const id of staleSections) {
   if (archivedIds.has(id)) {
     failures.push(
@@ -178,7 +196,7 @@ for (const id of staleSections) {
       `（成对搬运）；已归档行补搬用「pnpm run check:tasks -- --prune」`,
     );
   } else {
-    failures.push(`C: 详情有 ## ${id} 小节，但主表无此行（孤儿详情）`);
+    failures.push(`C: 详情有 ## ${id} 小节，但主表与 BACKLOG 均无此行（孤儿详情）`);
   }
 }
 
@@ -189,7 +207,7 @@ for (const id of detailArchiveIds) {
   }
 }
 
-// F：头注号**不得落后**于「主表 ∪ 归档」的全局最大号（防领号重号，WXG-T-070）。
+// F：头注号**不得落后**于「主表 ∪ BACKLOG ∪ 归档」的全局最大号（防领号重号，WXG-T-070）。
 // 动机（真事）：之前三次台账编辑用 `str.replace` 改头注，**静默没匹配上**（那三次漏了 `assert`），
 // 头注停在 T-066 而表内已到 T-069 —— 唯一会告警的 `tasks:archive` 平时不跑 ⇒ 没人发现。
 // 方向性：头注**领先**是合法的（某会话先推进头注、对应行还没落盘；archive 亦明写「只进不退」），
@@ -201,6 +219,7 @@ const headerMax = (() => {
 const globalMax = Math.max(
   0,
   ...rows.map((r) => idNum(r.id)),
+  ...[...backlogIds].map(idNum),
   ...[...archiveText.matchAll(/^\|\s*(WXG-T-\d+)\s*\|/gm)].map((m) => idNum(m[1])),
 );
 const pad3 = (n) => `WXG-T-${String(n).padStart(3, '0')}`;
@@ -260,7 +279,7 @@ if (rows.length > ROW_SENTINEL) {
 // 为什么要抓提交信息而不是只校台账内部：A–H 全是「台账自洽」门，而事故形态是「代码已入库、
 // 台账无此行」——两边从不对撞就永远看不出来（K-137④ 手工做法的机械化）。
 const commitScan = Number(/--commits=(\d+)/.exec(process.argv.join(' '))?.[1] ?? COMMIT_SCAN_DEFAULT);
-const registeredIds = new Set([...rowIds, ...detailIds, ...archivedIds, ...detailArchiveIds]);
+const registeredIds = new Set([...rowIds, ...backlogIds, ...detailIds, ...archivedIds, ...detailArchiveIds]);
 {
   let subjects = '';
   try {
@@ -292,11 +311,19 @@ const registeredIds = new Set([...rowIds, ...detailIds, ...archivedIds, ...detai
     }
     const orphans = [...cited].filter((id) => !registeredIds.has(id)).sort();
     if (orphans.length > 0) {
-      failures.push(
-        `I: 最近 ${commitScan} 笔提交信息署了 ${orphans.join('、')}，但台账不在册（主表/详情节/两个归档四处均无）—— ` +
+      const msg =
+        `I: 最近 ${commitScan} 笔提交信息署了 ${orphans.join('、')}，但台账不在册（主表/BACKLOG/详情节/两个归档四处均无）—— ` +
         '补登主表行 + `## <号>` 详情节，或把已归档的成对搬回（K-137）；' +
-        '若属头注「用过号未自登主表清单」已披露的老号 ⇒ 按 K-137 只披露不代填，缩窗口到默认即不拦',
-      );
+        '若属头注「用过号未自登主表清单」已披露的老号 ⇒ 按 K-137 只披露不代填，缩窗口到默认即不拦';
+      // --staged 下**降级为 note**（WXG-T-407）：I 项是「提交史 vs 台账」的**仓库级**对撞，不是「本笔索引
+      // 自洽」判据。共享工作树里对方常「代码已提交、台账行还在工作树」⇒ 索引面必缺该号，
+      // 于是**别人的欠账拦住了本单**（实测：本批被 402/403 拦下，pre-commit exit 1）。
+      // 硬拦不丢：默认（工作树）模式仍是 failure，`verify` 与 `check:tasks` 照旧红。
+      if (STAGED_MODE) {
+        notes.push(`${msg}（--staged：仓库级欠账，披露不拦；硬拦见不带 --staged 的「pnpm run check:tasks」）`);
+      } else {
+        failures.push(msg);
+      }
     } else {
       notes.push(`I: 最近 ${commitScan} 笔提交共署 ${cited.size} 个号，全部在册`);
     }

@@ -761,7 +761,7 @@
       "file": "knowledge/lessons/process-ledger-sync.md",
       "category": "流程台账协作",
       "title": "同一台账文件被并发会话同时写时，`git add <整文件>` 会把别人的 WIP 捎进本单提交",
-      "contentHash": "d942a375b800b96782cf76fc71b9582818fb5d19bb6d3d1c62905c9f9269bc2c",
+      "contentHash": "a1727df3ddbe863cdc739dd8134feb977cf0663d44957b72b2b4b1420406e48c",
       "sourceTask": "WXG-T-097",
       "addedDate": "2026-09-15",
       "lastAccess": "2026-09-15",
@@ -2278,7 +2278,7 @@
       "file": "knowledge/lessons/process-ledger-sync.md",
       "category": "流程台账协作",
       "title": "拆分件写好的「待主理人批准后粘贴」不会自动落地：五批代码已入库，主表与 Epic 宿主表仍搜不到该号",
-      "contentHash": "fcf254670d644a6c2a6ad33d504f05c7cf50f89bb6a2a8da237be9de63186b84",
+      "contentHash": "675262ec2161d82d69f228c4d688c715690e1b2246f67e59f18ed2464023d08b",
       "sourceTask": "WXG-T-284",
       "addedDate": "2026-10-17",
       "lastAccess": "2026-10-17",
@@ -4811,6 +4811,16 @@
     {
       "date": "2026-10-26",
       "taskId": "WXG-T-405",
+      "kind": "updated",
+      "ids": [
+        "K-045",
+        "K-137"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-26",
+      "taskId": "WXG-T-407",
       "kind": "updated",
       "ids": [
         "K-045",
