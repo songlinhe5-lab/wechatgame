@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5185,
       "lines": 164,
-      "sha256": "a5ced5c27b68bd2c12b7f840865579b44f126d6fff82b56c5ea5246754e10200",
+      "sha256": "b00009482c1bca9d882d25a3c49b0e65d00bc86245897ca9898378fa5435930e",
       "tier": "normal",
       "sections": [
         {
@@ -37213,18 +37213,173 @@
       ]
     },
     {
+      "path": "games/beads/design/proposals/daily-challenge-boss-timer.md",
+      "tokens": 3671,
+      "lines": 155,
+      "sha256": "2f638739a277b70abe3b7accf2630c43bf07583577179277627909d98b5e7b2a",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§设计草案 · 每日挑战首期形态：Boss 关限时复挑 · beads",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 156,
+          "tokens": 3647,
+          "summary": "项目：games/beads · 版本 v0.1 · 任务号 WXG-T-413",
+          "keywords": [
+            "Boss",
+            "beads",
+            "games",
+            "WXG",
+            "设计草案",
+            "每日挑战首期"
+          ]
+        },
+        {
+          "anchor": "§1 首期形态：Boss 关限时复挑",
+          "level": 2,
+          "startLine": 10,
+          "endLine": 156,
+          "tokens": 3511,
+          "summary": "用户原话：「在一组任务里随机产生，首期只有一个任务组，已通 3 星的 boss 关，随机挑选一个 boss 关设定比 3",
+          "keywords": [
+            "Boss",
+            "boss",
+            "首期形态",
+            "关限时复挑"
+          ]
+        },
+        {
+          "anchor": "§1.1 与 v0.1 的关系",
+          "level": 3,
+          "startLine": 15,
+          "endLine": 25,
+          "tokens": 219,
+          "summary": "关卡来源 本地日期种子派生虚拟关卡（镜像 + 参数覆写） 直接复用已通 3★ 的 Boss 关，零派生",
+          "keywords": [
+            "Boss",
+            "的关系"
+          ]
+        },
+        {
+          "anchor": "§1.2 选题规则（首期：单一任务组）",
+          "level": 3,
+          "startLine": 26,
+          "endLine": 32,
+          "tokens": 192,
+          "summary": "候选池 = 玩家已达 3★ 的 Boss 关（levels 里 kind === 'boss' 且该关最高星 = 3）。",
+          "keywords": [
+            "Boss",
+            "levels",
+            "kind",
+            "boss",
+            "选题规则",
+            "首期"
+          ]
+        },
+        {
+          "anchor": "§1.3 时限规则（关键：不能用统一比例）",
+          "level": 3,
+          "startLine": 33,
+          "endLine": 44,
+          "tokens": 267,
+          "summary": "",
+          "keywords": [
+            "时限规则",
+            "关键",
+            "不能用统一比"
+          ]
+        },
+        {
+          "anchor": "§1.4 机会、体力与道具",
+          "level": 3,
+          "startLine": 45,
+          "endLine": 54,
+          "tokens": 187,
+          "summary": "每日机会 3 次/day；3 次用尽即当日结束（失败计入次数） 用户令",
+          "keywords": [
+            "day",
+            "机会",
+            "体力与道具"
+          ]
+        },
+        {
+          "anchor": "§1.5 奖励计算（用户要「计算后定」）",
+          "level": 3,
+          "startLine": 55,
+          "endLine": 98,
+          "tokens": 886,
+          "summary": "基准：Boss 关 3★ 首通 = 180 豆（CLEAR_COIN_FIRST_BOSS 三档累进 40 + 60 +",
+          "keywords": [
+            "Boss",
+            "CLEAR_COIN_FIRST_BOSS",
+            "奖励计算",
+            "用户要",
+            "计算后定"
+          ]
+        },
+        {
+          "anchor": "§1.6 完成标识与记录",
+          "level": 3,
+          "startLine": 99,
+          "endLine": 105,
+          "tokens": 181,
+          "summary": "成功 ⇒ 写当日记录 daily: { dateKey, levelId, timeMs, cleared: true ",
+          "keywords": [
+            "daily",
+            "dateKey",
+            "levelId",
+            "timeMs",
+            "cleared",
+            "true"
+          ]
+        },
+        {
+          "anchor": "§1.7 与「托盘扩容」的关系（现状核对，防误设）",
+          "level": 3,
+          "startLine": 106,
+          "endLine": 114,
+          "tokens": 225,
+          "summary": "扩容通道 只有广告路（requestTrayExpand → rewardedAd），无豆子路 用户 2026-10-2",
+          "keywords": [
+            "requestTrayExpand",
+            "rewardedAd",
+            "托盘扩容",
+            "的关系",
+            "现状核对",
+            "防误设"
+          ]
+        },
+        {
+          "anchor": "§1.8 托盘扩容豆子路（用户 2026-10-26 裁定，`[待拍板]`）",
+          "level": 3,
+          "startLine": 115,
+          "endLine": 156,
+          "tokens": 1090,
+          "summary": "定价（用户 2026-10-26 定「分层引导」：低档刻意便宜 ⇒ 玩家倾向豆子；高档刻意贵 ⇒ 用性价比推向广告）：",
+          "keywords": [
+            "[待拍板]",
+            "托盘扩容豆子",
+            "用户",
+            "裁定",
+            "待拍板"
+          ]
+        }
+      ]
+    },
+    {
       "path": "games/beads/design/proposals/daily-challenge.md",
-      "tokens": 7982,
-      "lines": 314,
-      "sha256": "516b8bf079af63344d096ba377e98ed4c0fe191258a43b118cbaf5b78429825b",
+      "tokens": 5043,
+      "lines": 185,
+      "sha256": "ba8ed802e7b881a4e20fdfbfde0d6a16a7b0ea3df840ce2f030185afcd26cdaa",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§设计草案 · 每日挑战（Daily Challenge）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 315,
-          "tokens": 7965,
+          "endLine": 186,
+          "tokens": 5025,
           "summary": "项目：games/beads（拼豆填色消除）· 版本 v0.2（全文未冻结） · 任务号 WXG-T-016（P2，孤立",
           "keywords": [
             "Daily",
@@ -37407,134 +37562,17 @@
           ]
         },
         {
-          "anchor": "§9 首期形态：Boss 关限时复挑（v0.2 · 用户 2026-10-26 定）",
+          "anchor": "§9 首期形态（v0.2）· 已独立成文",
           "level": 2,
           "startLine": 181,
-          "endLine": 315,
-          "tokens": 3048,
-          "summary": "用户原话：「在一组任务里随机产生，首期只有一个任务组，已通 3 星的 boss 关，随机挑选一个 boss 关设定比 3",
+          "endLine": 186,
+          "tokens": 95,
+          "summary": "拆分于 2026-10-26（原文件触 spec 档 8000 token 上限）。",
           "keywords": [
-            "Boss",
-            "boss",
+            "spec",
+            "token",
             "首期形态",
-            "关限时复挑",
-            "用户"
-          ]
-        },
-        {
-          "anchor": "§9.1 与 v0.1 的关系",
-          "level": 3,
-          "startLine": 186,
-          "endLine": 196,
-          "tokens": 219,
-          "summary": "关卡来源 本地日期种子派生虚拟关卡（镜像 + 参数覆写） 直接复用已通 3★ 的 Boss 关，零派生",
-          "keywords": [
-            "Boss",
-            "的关系"
-          ]
-        },
-        {
-          "anchor": "§9.2 选题规则（首期：单一任务组）",
-          "level": 3,
-          "startLine": 197,
-          "endLine": 203,
-          "tokens": 191,
-          "summary": "候选池 = 玩家已达 3★ 的 Boss 关（levels 里 kind === 'boss' 且该关最高星 = 3）。",
-          "keywords": [
-            "Boss",
-            "levels",
-            "kind",
-            "boss",
-            "选题规则",
-            "首期"
-          ]
-        },
-        {
-          "anchor": "§9.3 时限规则（关键：不能用统一比例）",
-          "level": 3,
-          "startLine": 204,
-          "endLine": 215,
-          "tokens": 267,
-          "summary": "",
-          "keywords": [
-            "时限规则",
-            "关键",
-            "不能用统一比"
-          ]
-        },
-        {
-          "anchor": "§9.4 机会、体力与道具",
-          "level": 3,
-          "startLine": 216,
-          "endLine": 225,
-          "tokens": 187,
-          "summary": "每日机会 3 次/day；3 次用尽即当日结束（失败计入次数） 用户令",
-          "keywords": [
-            "day",
-            "机会",
-            "体力与道具"
-          ]
-        },
-        {
-          "anchor": "§9.5 奖励计算（用户要「计算后定」）",
-          "level": 3,
-          "startLine": 226,
-          "endLine": 269,
-          "tokens": 886,
-          "summary": "基准：Boss 关 3★ 首通 = 180 豆（CLEAR_COIN_FIRST_BOSS 三档累进 40 + 60 +",
-          "keywords": [
-            "Boss",
-            "CLEAR_COIN_FIRST_BOSS",
-            "奖励计算",
-            "用户要",
-            "计算后定"
-          ]
-        },
-        {
-          "anchor": "§9.6 完成标识与记录",
-          "level": 3,
-          "startLine": 270,
-          "endLine": 276,
-          "tokens": 180,
-          "summary": "成功 ⇒ 写当日记录 daily: { dateKey, levelId, timeMs, cleared: true ",
-          "keywords": [
-            "daily",
-            "dateKey",
-            "levelId",
-            "timeMs",
-            "cleared",
-            "true"
-          ]
-        },
-        {
-          "anchor": "§9.7 与「托盘扩容」的关系（现状核对，防误设）",
-          "level": 3,
-          "startLine": 277,
-          "endLine": 285,
-          "tokens": 225,
-          "summary": "扩容通道 只有广告路（requestTrayExpand → rewardedAd），无豆子路 用户 2026-10-2",
-          "keywords": [
-            "requestTrayExpand",
-            "rewardedAd",
-            "托盘扩容",
-            "的关系",
-            "现状核对",
-            "防误设"
-          ]
-        },
-        {
-          "anchor": "§9.8 托盘扩容豆子路（用户 2026-10-26 裁定，`[待拍板]`）",
-          "level": 3,
-          "startLine": 286,
-          "endLine": 315,
-          "tokens": 629,
-          "summary": "定价（沿用 v1.80「最低档 ≤ 0.5 天免费产出」定标，与道具价区间 20/30/45 对齐）：",
-          "keywords": [
-            "[待拍板]",
-            "托盘扩容豆子",
-            "用户",
-            "裁定",
-            "待拍板"
+            "已独立成文"
           ]
         }
       ]
