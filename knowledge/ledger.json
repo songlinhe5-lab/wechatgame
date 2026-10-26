@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 178,
+  "nextId": 181,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -761,7 +761,7 @@
       "file": "knowledge/lessons/process-ledger-sync.md",
       "category": "流程台账协作",
       "title": "同一台账文件被并发会话同时写时，`git add <整文件>` 会把别人的 WIP 捎进本单提交",
-      "contentHash": "87d5b0233978586f7ed985379eb127ee9d54b7bcc99ebb4535552c6abf627ab6",
+      "contentHash": "e040fab32cf44eae3bbd91e46782473f77e9de990bc74afb86174c62999ef075",
       "sourceTask": "WXG-T-097",
       "addedDate": "2026-09-15",
       "lastAccess": "2026-09-15",
@@ -2968,6 +2968,57 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-178",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain-git.md",
+      "category": "工具链Git",
+      "title": "`.gitignore` 的目录型规则（带尾斜杠）不匹配同名软链 ⇒ 隔离工作树里软链的 `node_modules` 漏成未跟踪",
+      "contentHash": "8ed1dcdf2ff9a6db93aaa07f0d22a3edbae35e5747de6d6585e7869fc36a5fa7",
+      "sourceTask": "WXG-T-412",
+      "addedDate": "2026-10-26",
+      "lastAccess": "2026-10-26",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-179",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain-git.md",
+      "category": "工具链Git",
+      "title": "解完 merge ≠ 解对：冲突标记能整块提交入库，本仓五道门无一拦",
+      "contentHash": "65aec4e11f369440693799141c1d2b5f5c0a84bb63cc3a11b7479eee36ae2f03",
+      "sourceTask": "WXG-T-412",
+      "addedDate": "2026-10-26",
+      "lastAccess": "2026-10-26",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-180",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain-git.md",
+      "category": "工具链Git",
+      "title": "`git rebase --continue` 不跑 pre-commit ⇒ 钩子里「自动重建并 re-add」的产物（ctx 三件 + `memory/INDEX.md`）不会进结果提交",
+      "contentHash": "9b4247d10bbde2d912243e1da69753e61c266a20b7a45de5cefe14e0c2f56ca3",
+      "sourceTask": "WXG-T-412",
+      "addedDate": "2026-10-26",
+      "lastAccess": "2026-10-26",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -4835,6 +4886,43 @@
       "ids": [
         "K-045",
         "K-089"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-26",
+      "taskId": "WXG-T-412",
+      "kind": "added",
+      "ids": [
+        "K-178"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-26",
+      "taskId": "WXG-T-412",
+      "kind": "updated",
+      "ids": [
+        "K-045"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-26",
+      "taskId": "WXG-T-412",
+      "kind": "added",
+      "ids": [
+        "K-179",
+        "K-180"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-26",
+      "taskId": "WXG-T-412",
+      "kind": "updated",
+      "ids": [
+        "K-178"
       ],
       "note": null
     }

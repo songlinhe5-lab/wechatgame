@@ -5042,3 +5042,60 @@ wx.request({
 
 WXG-T-411 本轮会话内主表/详情/git log 均零占用，安全领号。
 
+---
+
+## WXG-T-412
+
+**会话隔离工作树落地（选项 3 收尾）**
+
+### 1. 触发
+用户 2026-10-26 令「下一步 1/2/3」的第 3 条 = 「按 `using-git-worktrees` 给各会话建独立工作树，根治本批 4 次损失形态」（K-045 那四种：暂存被 `reset` 打回、落库清工作树、`git add` 的 knowledge 三件被他人提交捎走、登记面被清回基底）。开工时又撞出**第五形态**：12:42 主仓 `develop` 停在别人 `pull --rebase` → `rebase (abort)` 后留下的 merge 冲突态（`.git/MERGE_HEAD` 在，`ctx/BUDGET.md`、`ctx/hot-files.md`、`ctx/index.json`、`production/TASKS.md`、`production/TASKS-DETAIL.md` 共 5 个文件 UU）⇒ 共享树里本会话**无法提交**，而替人解他人 merge 冲突不在授权范围。⇒ 本单全程改在隔离工作树里做，顺带把机制验成真。
+
+### 2. 改动面
+- `memory/MEMORY.md` §项目约定：新增「会话隔离工作树」条（建 / 收 / 两处坑）。
+- 台账：主表行 + 本详情节 + 头注校准 411 → 412（410 / 411 归对方，见 §6）。
+- 知识库：K-045 追记「第五损失形态 + 解法」；新条 **K-178**（`.gitignore` 目录规则不匹配软链）、**K-179**（冲突标记可整块提交入库，五道门无一拦）。
+- ⚠ **`.gitignore` 不在本单改动面**：我确实定位并修了同一处（`node_modules/` → `node_modules`，见 §4），但 rebase 到 `origin/develop` 时发现对方 WXG-T-411 批已把同一修法入库（`467aa574`，注释亦标「WXG-T-411 用最小 repo 复现」）⇒ 本单**撤销自己那版**，不占第二次 diff（ponytail 第 2 档：已在本仓的就用本仓的）；上一轮误加的重复 `.worktrees/` 块一并撤销（那条规则自 WXG-T-160 就在）。
+- rebase 清理：`production/TASKS.md` 头注里 develop 残留的 `<<<<<<< / ======= / >>>>>>>` 三行标记与两条 49,203 字符重复头注（删一条、留一条并接本单前瞻段）。
+
+### 3. 机制与选型
+- 依 `my-skills/using-git-worktrees` Step 1b（Step 1a 的「原生 worktree 工具」本环境没有 ⇒ 走 git 回退）：目录取 skill 默认 `.worktrees/`，分支 `wt/<slug>`，基点取 `origin/develop`（这样 `git push origin HEAD:develop` 才是 FF）。
+- 依赖**不重装**，软链主仓 4 处 `node_modules`（`.` / `packages/framework` / `games/beads` / `games/breakout`）：比 `pnpm install` 省一整轮安装且零 lockfile 漂移。代价暴露出 `.gitignore` 的真 bug —— 目录型规则 `node_modules/` **不匹配软链**，工作树会露出 `?? node_modules` ⇒ 一旦有人 `git add -A` 就把依赖树写进仓库（修法与判例见 §2 末与 K-178；入库那一笔是对方 411）。
+- ⛔ 不写 `tools/scripts/new-worktree.mjs`：建/收共三行 shell 已覆盖，加脚本 = 多一处要维护的判据（ponytail 第 1 档）。
+
+### 4. 实测读数
+- **漏网复现（同一命令当场跑）**：修前 `git status --porcelain` = `?? node_modules`、`?? packages/framework/node_modules`、`?? games/beads/node_modules`、`?? games/breakout/node_modules`（4 条）；只改 `.gitignore` 一行后 = 仅 ` M .gitignore`（0 条）。
+- **排除 worktree 变量的最小 repo 对照**：`git init` 空仓 + 真目录 `real/` + 软链 `node_modules -> real`，规则写 `node_modules/` ⇒ 仍列 `?? node_modules`；规则写 `node_modules` ⇒ 不列。⇒ 根因确认是「目录规则不跟随软链」，不是 worktree 的特殊行为。
+- **基线（skill Step 3）**：树内 `pnpm run verify` = **PASS 20｜WARN 0｜SKIP 2｜FAIL 0**；SKIP 两项 = `check:size` / `check:cocos-mask`，原因 = 新树无构建产物，解除条件 = 树内先 `pnpm run build:cocos`（默认即 release 基线档，判例 K-111）。
+- **钩子在隔离树内照常跑**（`core.hooksPath` 是仓库级配置，worktree 跟随）：pre-commit `check:links` + commitlint + 上一批 WXG-T-409 新加的 K 项（本单提交即为其首次跨 worktree 实战）。
+- `.worktrees/` 的忽略早于本单：`git check-ignore -v .worktrees/x` = 命中 `.gitignore:129:.worktrees/`（WXG-T-160 `76392174`，2026-09-18）⇒ 上一轮「未被忽略」的读数是误判，本单撤销当时加的重复块。
+- **让位后复核（同一命令当场重跑）**：取 develop 版 `.gitignore`（对方 411 那版）后，隔离树 `git status --porcelain` 仍 = 0 条未跟踪依赖 ⇒ 两种写法等价，本单的改动面无重复。
+- **develop 残留标记取证**：`git show origin/develop:production/TASKS.md | grep -c "^<<<<<<<"` = **1**（L5 标记 + L7 `=======` + L9 `>>>>>>> f871ad88`，夹着 L6/L8 两条长度同为 49,203 的重复头注；`SequenceMatcher` 实测两者只差「411/412」与「410/411」两个数字 ⇒ 删一条不丢内容）；`production/TASKS-DETAIL.md` 与其余文件 = 0。本单 rebase 后两面 grep 均 = 0。
+- **门自证**：本详情节初稿标题写成带副标题的 `## WXG-T-412 · …` ⇒ `check:tasks` **C 项当场硬拦**（「标题必须裸写」），改成裸标题 + 另起加粗副题才绿——这就是 409 §8 遗留 3（`parseDetail` 不认副标题）第一次由作者本人踩中，判据是活的。
+
+### 5. 验证
+本批所有读数均在隔离树 `/…/.worktrees/wxg-t-412-worktree` 内当场跑，基点 `origin/develop` = `467aa574`。
+
+| 门 / 命令 | 读数 |
+|---|---|
+| `check:tasks`（工作树版） | ✅ OK —— 主表 **62 行**（名称均 ≤ 60 且连续）、详情 **83 节** 配对完整、详情归档 235 节成对；note H（62 > 观察哨 20）、note I（最近 40 笔共署 19 个号全在册） |
+| `kb:check` | ✅ 十重 PASSED —— 活跃 **177**；⑨ 分片映射一致、⑩ 片内 ID 升序（K-178→179→180 同片相邻） |
+| `kb:sync --task=WXG-T-412` | 合计 **新增 3**（K-178 / K-179 / K-180）· **修改 2**（K-045 追记第五形态+解法；K-178 补并发让位注）· 激活 0 · 归档 0 |
+| `check:links` | ✅ OK —— agents=7 skills=47；frontmatter / INDEX / 路由表 / 四 IDE 链接完整 |
+| `pnpm run verify` | **PASS 19｜WARN 0｜SKIP 2｜FAIL 1**（共 22 项逐项跑不短路）—— 唯一 FAIL = `selftest:fast`，其内唯一红腿 = `ctx:check` exit 1（`❌ 索引已过期：6 个变更，0 个新文件`）= 默认 **HEAD 口径**，本文档面尚未入库 ⇒ K-136 同型，非隔离树缺陷（暂存口径见下一行）；SKIP 两项 = `check:size` / `check:cocos-mask`（新树无构建产物） |
+| `selftests.mjs --tier=fast` | **PASS 10｜FAIL 1｜共 11 件**，档位未覆盖 0 件 —— FAIL 即上行那一条 `ctx:check` |
+| `build-context-index.mjs --staged-blobs` + `check-context-budget.mjs --staged` | ✅ `ctx:check OK`（结构门 A/B/C/D/D2 与 E3 基线回归全过）——四面读数：**TASKS.md 57,169** / 档 80,000・**TASKS-DETAIL.md 161,718** / 档 205,000・**BACKLOG.md 11,846** / 档 16,000・`memory/MEMORY.md` 4,613（本批新上「会话隔离工作树」条后） |
+| 钩子跨 worktree 与 rebase 面 | pre-commit 全套 + commitlint + K 项在隔离树内实跑通过（`31bd49c7`）；同树 A/B 测出 **`git rebase --continue` 不跑 pre-commit**（结果提交 `eb469dce` 8 件不含 ctx）⇒ 登 K-180 |
+| 上一轮存档读数（非本轮，口径已标清） | 同一棵树干净态（无未入库文档改动）`verify` = PASS 20｜WARN 0｜SKIP 2｜FAIL 0，空提交探针 @`8fd3f803` |
+
+### 6. 并发披露
+- 领号按 K-046 四路核：`origin/develop`（`f871ad88`）面头注写「下一可用号 **411**」，但主仓工作树面已有对方的 `| WXG-T-411 | HTTP 通道平台抽象（httpGet）` 行与 `## WXG-T-411` 节（在其**未 push** 的提交 `d3520761` 及未解完的 merge 里）⇒ 本会话让两号，领 **412**（四路零占用：工作树仅头注前瞻一处、HEAD 无、提交史无、BACKLOG 无）。
+- ⛔ 未碰主仓那 5 个 UU 文件、⛔ 未替对方解 merge、⛔ 未 `git add` 其 framework 在制件（`packages/framework/src/**`、`games/beads/src/game/beads-shell.ts`、`games/*/cocos/assets/scripts/**`）。
+- 远端 `develop` 上 411 当时是「代码号已用、登记面缺行」的空档，**本批不代填**；对方自己的 merge（`467aa574`）已把 410/411 行与节入库 ⇒ 本单 rebase 后 410 / 411 / 412 连排，空档已闭合（本会话登记时点的领号四路核见本节首条）。
+- 那笔 merge 同时留下两处后果，本单只**处置与自己相关的那一处**：① 头注里的冲突标记（机械清掉，不改变对方任何文字）；② 对方 411 批也把 `.gitignore` 修法入库（与本单同一处）⇒ 本单让位，不抢第二份 diff。
+
+### 7. 遗留
+1. 隔离是**约定不是门**：没有钩子判「本会话是否在自己的 worktree 里」。要做成门 = `pre-commit` 比 `git rev-parse --git-common-dir` 与 `--git-dir`，不等则提示「你在共享主仓」；未做的原因 = 会误伤用户本人的主仓提交，要先拍板（建议出 note 不出 failure）。
+2. 主仓的 merge 冲突态已由对方 `467aa574` 解开（现主仓 `develop` 干净且 == `origin/develop`），但**解得不净**：头注带着标记入库⇒ 属门禁盲区（见 K-179）。本单只清了自己 rebase 撞上的那一处，**不回改对方的历史提交**。
+3. 隔离树 `verify` SKIP 两项（无构建产物）；满档需 `build:cocos`（约 17s + 产物占盘）。
+4. 本单推送后主仓 `develop` 落后 1（需对方下次 `pull --rebase` 追平）；那笔 rebase 会重演一次头注超长行的冲突，K-045 追记已记该面。

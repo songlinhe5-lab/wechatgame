@@ -16,6 +16,12 @@
 - **项目长期笔记正本在 `memory/`**：同上四 IDE 索引；日记可放 `memory/YYYY-MM-DD.md`；单节 >600 tok 走 `memory:split` 外移到 `memory/details/`（WXG-T-106）。
 - **知识沉淀正本已分片**（WXG-T-111）：条目正文在 `knowledge/lessons/<标签>.md`（工具链/流程/判据/测试/跨IDE/环境），`knowledge/lessons.md` 只是**指针页**；`ACTIVE_FILES` 动态枚举该目录 ⇒ 新标签建片即被采集，无需改码。引用条目**只写 K-0NN**（路径会跟布局漂），ID → 分片查 `knowledge/INDEX.md` 活跃表「分片」列；各片共用单份归档面，且同受 B 门约束、**不得加豁免**。
 - **领号认工作树，不认已提交头注**（K-046）：号池真身 = 工作树 ∪ HEAD ∪ 归档的全局最大号 +1；并发会话未提交的号段只在树里，照 `TASKS.md` 头注领号必撞。
+- **会话隔离工作树（WXG-T-412，2026-10-26）**：多会话共用一个工作树 ⇒ 暂存面/台账面互相清回（K-045 已记四种损失形态；同日出现第五形态：主仓停在别人 `pull --rebase` abort 后的 merge 冲突态，5 个文件 UU ⇒ 本会话根本无法提交）。配方走 `my-skills/using-git-worktrees` Step 1b（本环境无原生 worktree 工具）：
+  - **建**：`git worktree add .worktrees/<slug> -b wt/<slug> <基点>` → 软链依赖 `for d in . packages/framework games/beads games/breakout; do ln -sfn "$MAIN/$d/node_modules" "<wt>/$d/node_modules"; done` → 基线 `pnpm run verify`。
+  - **收**：`git push origin HEAD:develop`（基点取 `origin/develop` 才是 FF）→ `git worktree remove --force <wt>` → `git branch -D wt/<slug>`。
+  - ⚠ `.gitignore` 里 `node_modules` **不能带尾斜杠**：目录规则不匹配软链 ⇒ 工作树露出 `?? node_modules`（实测修前 4 条未跟踪、修后 0；正本已为无斜杠写法，入库那一笔是 WXG-T-411，判例 K-178）。`.worktrees/` 自 WXG-T-160（`76392174`）已忽略 ⇒ ⛔ 不要再加重复规则，判据用 `git check-ignore -v <路径>` 看命中哪一条。
+  - ⚠ `git rebase --continue` / `cherry-pick` **不跑 pre-commit**（实测：同树内 `git commit` 打全套钩子，rebase 续作零钩子回显且结果不含 ctx）⇒ rebase 后必须手工 `pnpm run ctx:build` 再 `git commit --amend`（判例 K-180）。
+  - ⚠ 新树无构建产物 ⇒ `verify` 里 `check:size` / `check:cocos-mask` 必 SKIP（干净态实测 PASS 20｜SKIP 2｜FAIL 0）；要满档先在树内 `pnpm run build:cocos`。⚠ 另有一类假 FAIL：树里有**未入库的文档改动**时，`selftest:fast` 的 `ctx:check`（默认 HEAD 口径）会报「索引已过期」⇒ 这是 K-136 的暂存态形态，⛔ 不是隔离树的缺陷，入库即消。钩子跟仓库级 `core.hooksPath` ⇒ pre-commit / commitlint / K 项在树内照常跑。
 - git 仓库 2026-09-11 才初始化；首个提交 `8263e58` 只含 skill 路径，项目代码基线尚未提交。
 - **设计图 / 资源图格式统一 PNG**（2026-10-17 用户令）：小程序不支持 WebP。之后所有设计图到资源图的生成与落盘一律 `.png`（脚本输出、final 台账、交付清单）；已存在的 `.webp` 原件不回溯转换，除非用户另令。
 - 框架核心 `packages/framework/src/core` 禁止依赖 DOM / `cc` / `wx`，保证能在 Node 里单元测试。

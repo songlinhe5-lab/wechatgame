@@ -52,3 +52,23 @@
   根因：`-S` 的判据是**目标串在该文件版本两侧的「出现次数差」**（pickaxe），不是「该行内容变过」⇒ 同行只换值时键名计数不变，天然不命中；`-G` 则是对 diff 文本做正则匹配，行有增删即命中，两者不可互替。
   规避/做法：按问题分三档选口径（本批在同一文件上实跑对照）——① 问「这个键何时引入/删除」→ `-S"<键名>"`；② 问「这一行的值被谁改过」→ `-G'<键名正则>'`（实测命中 11 笔，含真凶与本批收口笔）或 `-S"<旧值>"`（搜值而非搜键 ⇒ 删除侧计数下降即命中，实测命中 2 笔且含真凶）；③ **空结果 / 少结果不得直接当结论**，必须换一条不同判据复核（两条口径给同一个答案才叫证据）；生成物里的 provenance / 时间戳 / 来源锚这类「同行换值」字段一律走 ②。
   判例引用：`games/beads/tests/__fixtures__/wxg-t-298-ui-golden.json` 的 `capturedFrom`（356 批 `3611904` 起失真、WXG-T-375 批 `2b03de4` 改回真实基）、登记正本 `docs/architecture/ui-architecture-beads.md §12`；同族 K-096（把当日推测当永久事实）、K-051（推论须差分复算）、K-159（同页：git 命令的半态与取证口径）。
+
+- **[工具链Git][K-178] `.gitignore` 的目录型规则（带尾斜杠）不匹配同名软链 ⇒ 隔离工作树里软链的 `node_modules` 漏成未跟踪**（来源 WXG-T-412，2026-10-26）
+  现象：按 `using-git-worktrees` 建隔离工作树后把主仓依赖软链进来，树内 `git status --porcelain` 立刻露出 4 条 `?? node_modules` / `?? packages/framework/node_modules` / `?? games/{beads,breakout}/node_modules`；同一 `.gitignore` 在主仓跑却干净 ⇒ 看上去像「worktree 不继承忽略规则」（其实继承了）。
+  根因：`node_modules/` 是**目录型规则**，git 匹配时要求该路径自身是目录；软链在 git 眼里是 symlink 而非 dir ⇒ 规则不命中。主仓里 `node_modules` 恰是真目录，所以这条自建仓就在的规则一直没被软链场景考验过。
+  规避/做法：① 给「可能是软链」的路径写忽略一律用**无尾斜杠**形式（`node_modules` 同覆盖目录与软链，代价仅「也匹配同名普通文件」）；② 定性靠最小 repo 差分而⛔不在 worktree 现场猜：`git init` 空仓 + `mkdir real` + `ln -s real node_modules`，把两种写法各跑一次 `git status --porcelain` ⇒ 带斜杠那条列出 `?? node_modules`、无斜杠那条不列，一次坐实；③ 反向坑同批出现：目录型规则用 `git check-ignore -v <路径>` 能看到**命中哪一行**，⛔ 只凭 `-q` 的退出码下结论——本会话据此误判 `.worktrees/`「未被忽略」并加了重复规则，实测 `check-ignore -v .worktrees/x` = 命中 `.gitignore:129:.worktrees/`（WXG-T-160 `76392174`，2026-09-18 已入库），重复块已撤。
+  让位注（2026-10-26 同日）：本仓那条**无斜杠写法的入库者是对方 WXG-T-411 批**（`467aa574`，注释亦标「WXG-T-411 用最小 repo 复现」）⇒ 本会话（WXG-T-412）rebase 时撤下自己那版，不占第二次 diff，判据面只留本条。同批教训：并发会话会与你独立找到同一个根因，**先 grep 再写**（K-046 的精神同样适用于修法）。
+  判例引用：K-058（同族另一向：走盘生成器不读 `.gitignore`，排除面要看生成器枚举）、K-168（同一问题必须换第二条口径复核才叫证据）、K-179（同一批 rebase 撞出的标记残留）；正本 `memory/MEMORY.md` §项目约定「会话隔离工作树」。
+
+
+- **[工具链Git][K-179] 解完 merge ≠ 解对：冲突标记能整块提交入库，本仓五道门无一拦**（来源 WXG-T-412，2026-10-26）
+  现象：`origin/develop` 的 `467aa574`（提交信息 `wip: merge resolution done`）里 `production/TASKS.md` 第 5–9 行仍是 `<<<<<<< HEAD` / `=======` / `>>>>>>> f871ad88` 三段标记，中间夹着**两条各 49,203 字符的重复头注行**；`SequenceMatcher` 实测两条只差「411/412」与「410/411」两个数字 ⇒ 删一条不丢内容。该笔已推送成功，下一会话直到 rebase 才撞见。
+  根因：pre-commit 五道门（`check:secrets` / `check:links` / `check:plugins` / `check:mcp` / `check-tasks --staged`）判的都是结构面（列数、配对、头注号、锚点），**没有任何一腿 grep 冲突标记**；而 `check-tasks` 头注判据按 `当前已分配至` 取命中值，重复行与标记活在「一条合法头注的两侧」，F 项照样绿。
+  规避/做法：① 解完冲突、提交前跑一次 `git grep -nE '^(<<<<<<< |>>>>>>> )' -- .`（一条命令、零判据漂移）；② 接手他人留下的冲突面时先做**字符差分**再决定删哪条，⛔ 凭「看起来一样」删行；③ 若要上机械门，最廉价的落点是 `check-secrets.mjs` 同层加一腿标记拦——**待主理人拍板**（须限定「行首 + 7 个标记字符」，否则会误伤 markdown 的 setext `=======` 下划线）。
+  判例引用：K-045（共享工作树协作损伤谱系，本条属「他人解冲突解不净」那一面）、K-168（同一问题换第二条口径）；正本 `production/TASKS-DETAIL.md` `## WXG-T-412` §4/§6/§7。
+
+- **[工具链Git][K-180] `git rebase --continue` 不跑 pre-commit ⇒ 钩子里「自动重建并 re-add」的产物（ctx 三件 + `memory/INDEX.md`）不会进结果提交**（来源 WXG-T-412，2026-10-26）
+  现象：同一隔离树内两次建同内容提交做 A/B —— 手工 `git commit` 打印全套钩子回显（secrets / links / plugins / mcp / tasks / ctx:build / ctx:check）且结果含 ctx；`GIT_EDITOR=true git rebase --continue` 只回显 `[分离头指针 …] …` **零钩子输出**，结果提交 8 件、ctx 三件不在其中，而 `production/TASKS{,-DETAIL}.md` 已改 ⇒ HEAD 里索引相对文档是**过期**的。
+  根因：git 对 rebase / cherry-pick 的重放提交不执行 pre-commit（本仓实测；`core.hooksPath` 也救不了，这是调用面而非配置面）。本仓把「重建索引 → re-add → 终校验」整段写在 pre-commit 钩子里（WXG-T-032 ⑤），所以凡走 rebase 入库的提交都绕过了它。
+  规避/做法：① rebase 完不要直接把结果当成品：`pnpm run ctx:build` → `git add ctx/index.json ctx/BUDGET.md ctx/hot-files.md memory/INDEX.md` → `git commit --amend`（amend 走正常 `git commit` 路径，钩子会再跑一遍并终校验）；② 判据别只看 `git status` 干净——用 `pnpm run ctx:check`（默认 HEAD 口径）核一次；③ 这也解释了「本地提交绿、CI 干净检出红」的一类偶发。
+  判例引用：K-136（暂存态与 HEAD 态两套口径的假红/假绿家族）、K-168（同一问题换第二条口径）；与 `memory/MEMORY.md` §项目约定「会话隔离工作树」的 rebase 子条同源。
