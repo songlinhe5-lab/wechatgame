@@ -355,7 +355,7 @@ describe('TC-STY-11 · 行4 钮先行哨兵（S9 §8-19 + K.1a 阳性对照腿�
             'games/beads/src/view/bead-styles/registry.ts',
             'games/beads/src/view/bead-styles/contract.ts',
             'games/beads/src/view/meta-view.ts',
-            'games/beads/src/config/tuning.ts',
+            'games/beads/src/config/tuning/bead-style.ts',
         ];
         for (const file of sources) {
             const text = readFileSync(resolve(REPO, file), 'utf8');

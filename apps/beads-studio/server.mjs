@@ -410,7 +410,8 @@ function measureCells(cells) {
 // → levels:sync + framework:sync → 失败恢复快照。真源正本 = design/proposals/level-content-pipeline §11。
 
 const LEVELS_DIR = join(REPO, 'games/beads/design/levels');
-const TUNING_PATH = join(REPO, 'games/beads/src/config/tuning.ts');
+const GAMEPLAY_TUNING_PATH = join(REPO, 'games/beads/src/config/tuning/gameplay.ts');
+const MENU_TUNING_PATH = join(REPO, 'games/beads/src/config/tuning/menu.ts');
 /** uid 格式白名单（路径段入参用；`assignUid` 输出为 [LP]+digits，宽号 >99999 也认）。 */
 const UID_RE = /^[LP]\d{1,9}$/;
 const CHAPTER_ID_RE = /^[a-z0-9][a-z0-9-]{0,31}$/;
@@ -522,10 +523,10 @@ async function applyManage(res, mutate, reply) {
     const store = await import('../../tools/scripts/chapter-store.mjs');
     const ls = await import('../../tools/scripts/level-store.mjs');
     const snap = snapshotTree(LEVELS_DIR);
-    const tuningBefore = readFileSync(TUNING_PATH, 'utf8');
+    const tuningBefore = readFileSync(GAMEPLAY_TUNING_PATH, 'utf8');
     const rollback = () => {
         restoreTree(LEVELS_DIR, snap);
-        writeFileSync(TUNING_PATH, tuningBefore);
+        writeFileSync(GAMEPLAY_TUNING_PATH, tuningBefore);
         runSync(); // 回滚产物（ponytail：重跑失败未再兑底，本地工具人工兵平）
     };
     try {
@@ -536,7 +537,7 @@ async function applyManage(res, mutate, reply) {
         // 门禁⑤ 联动：关数变了才写（同值 no-op ⇒ 不产 diff）
         const count = store.expandedCount(LEVELS_DIR, next.manifest);
         const tuned = store.syncDemoLevelCount(tuningBefore, count);
-        if (tuned !== tuningBefore) writeFileSync(TUNING_PATH, tuned);
+        if (tuned !== tuningBefore) writeFileSync(GAMEPLAY_TUNING_PATH, tuned);
         const sync = runSync();
         if (sync.status !== 0) {
             const raw = String(sync.stderr || sync.stdout || '').trim().slice(-1200);
@@ -587,13 +588,14 @@ async function handleManageState(res) {
         return sendJson(res, 501, { error: '大关管理仅在本地仓运行 beads-studio 时可用（容器/VPS 无 games/ 真源）' });
     const store = await import('../../tools/scripts/chapter-store.mjs');
     const ls = await import('../../tools/scripts/level-store.mjs');
-    const tuning = readFileSync(TUNING_PATH, 'utf8');
+    const gameplayTuning = readFileSync(GAMEPLAY_TUNING_PATH, 'utf8');
+    const menuTuning = readFileSync(MENU_TUNING_PATH, 'utf8');
     const manifest = ls.readManifest(LEVELS_DIR);
     return sendJson(res, 200, {
         contentVersion: manifest.contentVersion,
         count: store.expandedCount(LEVELS_DIR, manifest),
-        demoLevelCount: readTuningConst(tuning, 'DEMO_LEVEL_COUNT'),
-        wallCapacity: readWallCapacity(tuning),
+        demoLevelCount: readTuningConst(gameplayTuning, 'DEMO_LEVEL_COUNT'),
+        wallCapacity: readWallCapacity(menuTuning),
         chapters: describeChapters(LEVELS_DIR, store, ls),
     });
 }
@@ -635,7 +637,7 @@ function chapterForInsert(store, levelsDir, manifest, chapterId, addSlots) {
     const doc = store.readChapter(levelsDir, ch.file);
     const slots = slotsOfMap(store, levelsDir, manifest);
     const cur = (doc.levels ?? []).reduce((n, u) => n + (slots.get(u) ?? 1), 0);
-    const cap = readWallCapacity(readFileSync(TUNING_PATH, 'utf8'));
+    const cap = readWallCapacity(readFileSync(MENU_TUNING_PATH, 'utf8'));
     if (cur + addSlots > cap)
         throw new ManageError(`大关 ${chapterId} 容量不足：${cur}+${addSlots} > ${cap}（拆章或先腾位）`);
     return { ch, doc };
@@ -1127,7 +1129,7 @@ async function handleDraftPublish(req, res, id) {
     if (lastPlan.kind === 'plate')
         throw new ManageError('草稿末位是组图（plate）：boss 须单文件盘 ⇒ 把一张 ≤32 的单图拖到末位');
     const totalSlots = plans.reduce((n, p) => n + p.slots, 0);
-    const wallCap = readWallCapacity(readFileSync(TUNING_PATH, 'utf8'));
+    const wallCap = readWallCapacity(readFileSync(MENU_TUNING_PATH, 'utf8'));
     if (totalSlots > wallCap)
         throw new ManageError(`本批 ${totalSlots} 槽 > 墙容量 ${wallCap}：删几关或拆成两个大关`);
 
@@ -1288,7 +1290,7 @@ async function handleChapterOp(req, res, id, op) {
             const slots = slotsOfMap(store, levelsDir, manifest);
             const add = uids.reduce((n, u) => n + (slots.get(u) ?? 1), 0);
             const cur = tl.reduce((n, u) => n + (slots.get(u) ?? 1), 0);
-            const cap = readWallCapacity(readFileSync(TUNING_PATH, 'utf8'));
+            const cap = readWallCapacity(readFileSync(MENU_TUNING_PATH, 'utf8'));
             if (cur + add > cap) throw new ManageError(`目标大关 ${moveTo} 容量不足：${cur}+${add} > ${cap}（先删几关或拆目标章）`);
             store.writeChapter(levelsDir, target.file, { ...tdoc, levels: [...tl.slice(0, -1), ...uids, tl[tl.length - 1]] });
             let next = manifest;
@@ -1402,7 +1404,7 @@ async function handleLevelOp(req, res, uid, op) {
             const slots = slotsOfMap(store, levelsDir, manifest);
             const add = slots.get(uid) ?? 1;
             const cur = (tdoc.levels ?? []).reduce((n, u) => n + (slots.get(u) ?? 1), 0);
-            const cap = readWallCapacity(readFileSync(TUNING_PATH, 'utf8'));
+            const cap = readWallCapacity(readFileSync(MENU_TUNING_PATH, 'utf8'));
             if (cur + add > cap) throw new ManageError(`目标大关 ${toId} 容量不足：${cur}+${add} > ${cap}`);
             store.writeChapter(levelsDir, c.file, { ...doc, levels: store.removeFromLevels(doc.levels, uid) });
             store.writeChapter(levelsDir, target.file, { ...tdoc, levels: store.insertBeforeBoss(tdoc.levels, uid) });
@@ -1890,7 +1892,7 @@ async function handle(req, res) {
         // 生成页据此在**点替换之前**就告诉用户"这条 X 步会被门禁回滚"，而不是等他点了才报错。
         if (req.method === 'GET' && path === '/api/gates') {
             let src = '';
-            try { src = readFileSync(TUNING_PATH, 'utf8'); } catch { /* 无 games/ 真源 ⇒ 全 null */ }
+            try { src = readFileSync(GAMEPLAY_TUNING_PATH, 'utf8'); } catch { /* 无 games/ 真源 ⇒ 全 null */ }
             return sendJson(res, 200, {
                 steps: {
                     normalMin: src ? readTuningConst(src, 'NORMAL_STEPS_MIN') : null,

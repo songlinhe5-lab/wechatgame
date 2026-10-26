@@ -18,7 +18,7 @@
  *  - **U16 = 甲**：循环长度与档数一律取运行时 `registeredStyleIds()`，⛔ 测试内禁写死款数。
  */
 import { describe, it, expect } from 'vitest';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -521,8 +521,11 @@ describe('TC-STY-04 · §8-17/C8 三段硬断言：珠体族 Δ ≠ 0 · B0 逐�
     });
 
     it('零新增毫秒值：tuning 不得为换肤/豆径引入新时长真源（§8-17 末句 + ux §5 不落新行）', () => {
-        const tuning = SRC('config/tuning.ts');
-        const msLines = tuning.split('\n').filter((line) => /export const .*_MS\b/.test(line));
+        const tuningDir = resolve(REPO, 'games/beads/src/config/tuning');
+        const msLines = readdirSync(tuningDir)
+            .filter((file) => file.endsWith('.ts'))
+            .flatMap((file) => readFileSync(resolve(tuningDir, file), 'utf8').split('\n'))
+            .filter((line) => /export const .*_MS\b/.test(line));
         expect(msLines.length).toBeGreaterThan(0); // 阳性对照：正则确能命中既有毫秒真源
         const skinMs = msLines.filter((line) => /STYLE|SKIN|BEAD_SIZE|THEME/i.test(line));
         expect(skinMs).toEqual([]); // ⛔ 出现「换肤动画时长」即违 §8-17
@@ -932,7 +935,7 @@ const ALLOWED_SRC_FILES: string[] = [
     'game/beads-shell.ts',
     'game/state.ts',
     'game/save-schema.ts',
-    'config/tuning.ts',
+    'config/tuning/bead-style.ts',
     'view/bead-styles/registry.ts',
     'view/bead-render.ts',
 ];

@@ -38,7 +38,7 @@ const optNum = (name) => {
   return hit ? Number(hit.slice(name.length + 3)) : undefined;
 };
 
-const TUNING = 'games/beads/src/config/tuning.ts';
+const TUNING = 'games/beads/src/config/tuning/board.ts';
 const RENDER = 'games/beads/src/view/bead-render.ts';
 const TESTS = 'games/beads/tests';
 const D_MARGIN = 20;   // 像素判据：超过 B0 底色中位多少算「亮」
