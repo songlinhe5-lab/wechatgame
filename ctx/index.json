@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3834,
       "lines": 130,
-      "sha256": "68ecdbd593c25f1c641a3889a12132693007b130ccede9f13636316b6b008c98",
+      "sha256": "8bcd0e22da074b88c6883e19c1168804e51eaf2d44a6db20a6a1e605e8c972d9",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 410,
-          "summary": "1 production/TASKS-DETAIL.md 182743 5781 normal",
+          "summary": "1 production/TASKS-DETAIL.md 182883 5782 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5185,
       "lines": 164,
-      "sha256": "fc4d5fba75d5800039625dc732228ac0d48fa32856e8d916f437098d8b31f940",
+      "sha256": "773be110a8159411df1b25ca4153b00b58ba7ff0c060d938cd5a338bcb7605d1",
       "tier": "normal",
       "sections": [
         {
@@ -745,7 +745,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 124 行 / 62070 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 124 行 / 62109 tok / 实测读 4 次",
           "level": 2,
           "startLine": 27,
           "endLine": 30,
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 5781 行 / 182743 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 5782 行 / 182883 tok",
           "level": 2,
           "startLine": 105,
           "endLine": 109,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+5781 · §WXG-T-415=5249+55 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+5782 · §WXG-T-415=5249+55 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -11987,9 +11987,9 @@
     },
     {
       "path": "docs/architecture/adr/ADR-0035-minigame-open-data-domain-friend-leaderboard.md",
-      "tokens": 7569,
+      "tokens": 7598,
       "lines": 264,
-      "sha256": "e0d51a47bcf5fe78b7468c7e7bfe0d0365a862530f8773edc4a2127c974f9ec9",
+      "sha256": "d068baba3e08048b89adb1e682d8d941465673ad754d233308afed654826a223",
       "tier": "normal",
       "sections": [
         {
@@ -11997,7 +11997,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 265,
-          "tokens": 7535,
+          "tokens": 7564,
           "summary": "状态：Proposed（Q1 指标 = B 品质分榜（榜页唯一总榜 + 分关榜下放结算面板，用户 2026-10-26 ",
           "keywords": [
             "ADR",
@@ -12284,7 +12284,7 @@
           "level": 2,
           "startLine": 212,
           "endLine": 238,
-          "tokens": 586,
+          "tokens": 605,
           "summary": "",
           "keywords": [
             "ADR",
@@ -12312,7 +12312,7 @@
           "level": 3,
           "startLine": 220,
           "endLine": 233,
-          "tokens": 426,
+          "tokens": 445,
           "summary": "S-1 core/opendata/：协议判别联合 + NoopOpenDataProvider + MockOpenD",
           "keywords": [
             "core",
@@ -12368,7 +12368,7 @@
           "level": 2,
           "startLine": 260,
           "endLine": 265,
-          "tokens": 251,
+          "tokens": 261,
           "summary": "架构评审 P1 批次（TODO-3~7）已全部落地：WXG-T-405 / 408 / 410 / 411 / 414。",
           "keywords": [
             "TODO",
@@ -86495,17 +86495,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 182743,
-      "lines": 5781,
-      "sha256": "a81bc05d85ee4ab244f896ad8b0167da77612c05393eeb873c1cb4190d6e752b",
+      "tokens": 182883,
+      "lines": 5782,
+      "sha256": "f9ffabab6d353ff6f870485045a2f8be3e5c998f3c004e2884c3ef1ee74b9727",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 5781,
-          "tokens": 182727,
+          "endLine": 5782,
+          "tokens": 182867,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -93683,8 +93683,8 @@
           "anchor": "§WXG-T-426",
           "level": 2,
           "startLine": 5732,
-          "endLine": 5747,
-          "tokens": 377,
+          "endLine": 5748,
+          "tokens": 517,
           "summary": "S-1 施工单：opendata 协议层 + Noop / Mock Provider · 负责：主理人(Qoder)·",
           "keywords": [
             "WXG",
@@ -93698,8 +93698,8 @@
         {
           "anchor": "§WXG-T-427",
           "level": 2,
-          "startLine": 5748,
-          "endLine": 5781,
+          "startLine": 5749,
+          "endLine": 5782,
           "tokens": 576,
           "summary": "",
           "keywords": [
@@ -93709,8 +93709,8 @@
         {
           "anchor": "§0 触发与性质 (3)",
           "level": 3,
-          "startLine": 5750,
-          "endLine": 5753,
+          "startLine": 5751,
+          "endLine": 5754,
           "tokens": 57,
           "summary": "用户令「2/3/1」中的第 2 项（三选一清单）：清理已退役常量 TRAY_EXPAND_SLOTS 的死引用。纯文档批",
           "keywords": [
@@ -93721,8 +93721,8 @@
         {
           "anchor": "§1 处置读数（25 处 / 12 份）",
           "level": 3,
-          "startLine": 5754,
-          "endLine": 5771,
+          "startLine": 5755,
+          "endLine": 5772,
           "tokens": 267,
           "summary": "art/specs/assets-spec.md 5 5 —（含 L506 代码块内用〔〕包裹）",
           "keywords": [
@@ -93737,8 +93737,8 @@
         {
           "anchor": "§2 验证",
           "level": 3,
-          "startLine": 5772,
-          "endLine": 5777,
+          "startLine": 5773,
+          "endLine": 5778,
           "tokens": 105,
           "summary": "grep -rc TRAY_EXPAND_SLOTS games/beads/design 加注前后合计均 25 ⇒ 原",
           "keywords": [
@@ -93753,8 +93753,8 @@
         {
           "anchor": "§3 遗留",
           "level": 3,
-          "startLine": 5778,
-          "endLine": 5781,
+          "startLine": 5779,
+          "endLine": 5782,
           "tokens": 120,
           "summary": "gdd/tray-spawner.md L62 / L84 把扩容写成「解锁 / 扩展解锁」语，但不含旧常量名，不属本批",
           "keywords": [
@@ -93770,9 +93770,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 62070,
+      "tokens": 62109,
       "lines": 124,
-      "sha256": "b9b202af1cdbd56897af6acf1c4920aaaf1494f42c12a8f328022a1fab80f7c9",
+      "sha256": "ad9fc40501cbe0d1cecbb270d74e6e57794966764ad702c3223686104de5aec2",
       "tier": "hot",
       "sections": [
         {
@@ -93780,7 +93780,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 125,
-          "tokens": 62062,
+          "tokens": 62100,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -96527,17 +96527,17 @@
     },
     {
       "path": "production/plans/2026-10-26-wxg-t-426-s1-opendata-protocol.md",
-      "tokens": 2821,
+      "tokens": 2856,
       "lines": 198,
-      "sha256": "394cdab49700b690e4c1d9087b3b597496a3ec4122ba2083e8c8e291d39e5448",
+      "sha256": "70b448e616fed5cefb954c69ab9dbdfd2f9dd5fa83e27f862041f9e756480be4",
       "tier": "normal",
       "sections": [
         {
-          "anchor": "§WXG-T-425 · S-1 施工单：opendata 协议层 + Noop / Mock Provider",
+          "anchor": "§WXG-T-426 · S-1 施工单：opendata 协议层 + Noop / Mock Provider",
           "level": 1,
           "startLine": 1,
           "endLine": 199,
-          "tokens": 2801,
+          "tokens": 2836,
           "summary": "上位：docs/architecture/adr/ADR-0035-minigame-open-data-domain-",
           "keywords": [
             "WXG",
@@ -96688,7 +96688,7 @@
           "startLine": 175,
           "endLine": 184,
           "tokens": 93,
-          "summary": "[ ] L2：core/opendata/ 零 cc / DOM / wx / window / document（ch",
+          "summary": "[x] L2：core/opendata/ 零 cc / DOM / wx / window / document（ch",
           "keywords": [
             "core",
             "opendata",
@@ -96703,8 +96703,8 @@
           "level": 2,
           "startLine": 185,
           "endLine": 193,
-          "tokens": 81,
-          "summary": "1. 两个测试文件全绿，新增用例 ≥ 12（A ≥ 5 / B ≥ 6）。",
+          "tokens": 113,
+          "summary": "1. 两个测试文件全绿，新增用例 ≥ 12（A ≥ 5 / B ≥ 6）。✅ 14 例（A = 5 / B = 9）。",
           "keywords": [
             "DoD",
             "完成定义"

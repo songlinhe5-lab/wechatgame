@@ -5731,12 +5731,13 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 
 ## WXG-T-426
 
-**S-1 施工单：opendata 协议层 + Noop / Mock Provider** · 负责：主理人(Qoder)·framework · 状态：🔧 待开工
+**S-1 施工单：opendata 协议层 + Noop / Mock Provider** · 负责：主理人(Qoder)·framework · 状态：✅ 完成（2026-10-26，提交 `43b9a85c`）
 
 - **施工单正文**（范围 In/Out、逐文件签名、实现硬约束、测试用例 A1–A5 / B1–B6、验证命令、风险、红线自证、DoD、交接 S-2/S-3/S-5）：`production/plans/2026-10-26-wxg-t-426-s1-opendata-protocol.md`
 - **上位**：`ADR-0035 §5.2` S-1（Q1–Q4 全部已拍：WXG-T-421 / 423 / 424）。
 - **一句话**：把主域 ⇄ 子域的消息形状与 Provider 契约定死在 core，用纯 Node 单测证明「版本握手可判 / 降级可走 / Mock 可驱动 UI」。
-- **本批边界**：只起草施工单，**零代码**；开工须用户明确指令。
+- **交付**：`core/opendata/{protocol,provider,mock,index}.ts` + `core/index.ts` barrel；测试 `tests/core/opendata-{protocol,provider}.test.ts` 共 **14 例**（A1–A5 = 5、B1–B6 = 9，先红后绿）；Cocos 镜像随 `framework:sync` 同步（beads / breakout 各 5 文件），`sync:check` 零漂移。
+- **门禁读数**：framework 49 文件 / 532 例全绿；beads 106 文件 / 1284 例（3 skipped）全绿；`typecheck` / `check:arch`（零 violation，仅既有 L1 编辑器文件 warning）/ `framework:sync:check` / `check:links` / `ctx:check` 全绿。
 - **切片纪律**：⛔ Platform 方法（S-2）/ 面板（S-3）/ 子域工程（S-4）/ 真机实现与 R2 纹理（S-5）都不在本单。
 - **风险预记**：① 协议常量双份（子域不能 import 主域）⇒ S-4 构建期生成，⛔ 手抄；② Mock 同步回执 ≠ 真机异步（新好友 2h 延迟）⇒ S-3 UI 必须有加载态。
 - **改号说明**：原拟 425，实读工作树台账已被 `1a3fd5f1`（托盘扩容只走激励视频）占用 ⇒ 按 K-046（入库者保号）取 **426**。

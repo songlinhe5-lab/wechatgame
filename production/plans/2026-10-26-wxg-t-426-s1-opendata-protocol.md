@@ -1,7 +1,7 @@
-# WXG-T-425 · S-1 施工单：opendata 协议层 + Noop / Mock Provider
+# WXG-T-426 · S-1 施工单：opendata 协议层 + Noop / Mock Provider
 
 - **上位**：`docs/architecture/adr/ADR-0035-minigame-open-data-domain-friend-leaderboard.md` §5.2 **S-1**（Q1–Q4 已于 2026-10-26 全部拍板：榜页唯一总榜 + 分关下放结算面板 / 首开榜弹授权 / §3.1 协议形状 / R2 按需重贴）
-- **状态**：📋 施工单已起草，**待开工**
+- **状态**：✅ **已完工（2026-10-26，提交 `43b9a85c`）**
 - **目标**：在**没有 `wx`、没有子域工程**的前提下，把「主域 ⇄ 子域」的消息形状与 Provider 契约**定死在 core**，并用纯 Node 单测证明三件事：版本握手可判、降级可走、Mock 能驱动后续 UI。
 
 ---
@@ -174,19 +174,19 @@ pnpm run check:links && pnpm run ctx:check
 
 ## 7. 红线自证（交付时逐条打勾）
 
-- [ ] L2：`core/opendata/**` 零 `cc` / DOM / `wx` / `window` / `document`（`check:arch` 机械证）
-- [ ] L3：未碰 `games/*/src`
-- [ ] L4：零 `Math.random()`
-- [ ] 零存档改动（save 仍 v6）、零 §3 冻结常量、零金样本变更、零 `PANEL_SIZE` 改动
-- [ ] ⛔ 未手编 `.scene` / `.prefab` / `.meta`
+- [x] L2：`core/opendata/**` 零 `cc` / DOM / `wx` / `window` / `document`（`check:arch` 机械证）
+- [x] L3：未碰 `games/*/src`
+- [x] L4：零 `Math.random()`
+- [x] 零存档改动（save 仍 v6）、零 §3 冻结常量、零金样本变更、零 `PANEL_SIZE` 改动
+- [x] ⛔ 未手编 `.scene` / `.prefab` / `.meta`
 
 ---
 
 ## 8. 完成定义（DoD）
 
-1. 两个测试文件全绿，新增用例 **≥ 12**（A ≥ 5 / B ≥ 6）。
-2. `typecheck` / `check:arch` / `framework:sync:check` / `check:links` / `ctx:check` 全绿。
-3. ADR-0035 §5.2 的 **S-1** 行标 ✅ 并回填 commit 短 sha。
+1. 两个测试文件全绿，新增用例 **≥ 12**（A ≥ 5 / B ≥ 6）。✅ **14 例**（A = 5 / B = 9）。
+2. `typecheck` / `check:arch` / `framework:sync:check` / `check:links` / `ctx:check` 全绿。✅ 另加 `test` 全量：framework 532 例 / beads 1284 例。
+3. ADR-0035 §5.2 的 **S-1** 行标 ✅ 并回填 commit 短 sha。✅ `43b9a85c`。
 4. 收尾回传 0–3 条沉淀候选。
 
 ---
