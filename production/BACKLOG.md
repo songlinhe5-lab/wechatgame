@@ -37,3 +37,4 @@
 | WXG-T-335 | 工程·beads 大关（chapter）配置层设计批 | 主理人(Qoder)· 程基岩域+文策渊域 | 📝 **设计完成（2026-10-21）**（用户拍 Q1=b 正交 / Q2 无 zip / title 上移 / 走 B，spawn 双成员并行）：程基岩 `proposals/level-content-pipeline.md` +§11（chapter 一物一文件 `chapters/<id>.json` + manifest.chapters[] + 与 pack 正交三条 + `arcs.ts` 改生成物 + title 上移方案 + CH-S1..S5，切片 = CH-S2）；文策渊 `levels/levels-spec.md` +§11 v1.15（三处显示矩阵 / 字段两表 / TODO-1 / 单关不再自带展示名）；纯文档零代码；⚠ 未决 7 项待拍、CH-S5 卡 build:wx | 见 `## WXG-T-335` |
 | WXG-T-413 | beads·内容打穿后接续预案（三层响应 + 四指标） | 主理人(CodeBuddy) | 📋 提案未排期（用户 2026-10-26 裁「不防打穿、改覆盖 99%」后立；暂不实施，待上线读数触发） | 见详情 |
 | WXG-T-414 | beads·「本关最快时间」展示位最小设计 | 主理人(CodeBuddy) | 📋 提案未排期（T-413 的 T+0 层里最省的一条；含设计，未落码） | 见详情 |
+| WXG-T-422 | beads·冲刺榜（二期）：冲刺模式恢复后再上第二榜 | 主理人(Qoder)·beads + 工程 | 📋 提案未排期（用户 2026-10-26 裁「冲刺模式作为二期需求，先上普通模式」；一期只上普通模式分关榜 + 总榜；前置 = 冲刺入口复建〔WXG-T-177〕+ 冲刺成绩上报 + 子域 `sprint` 榜） | 见详情 |
