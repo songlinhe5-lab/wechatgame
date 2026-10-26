@@ -1716,12 +1716,12 @@ export class BeadsGame implements Game {
             game.revived,
             level.starTierK, // §3.7 v1.86 单关三档系数（如 boss 关 3★ 必须开 48 槽）
           );
-          // §3.14 v1.81：首通判定必须在**写星之前**取（下面写星是 `Math.max`，写后就恒 ≥1）。
+          // §3.14 v1.90：`prevStars` 必须在**写星之前**取（下面写星是 `Math.max`，写后就恒 ≥1）。
           const li = game._levelIndex;
-          const firstClear = (game._starsByLevel[li] ?? 0) <= 0;
+          const prevStars = game._starsByLevel[li] ?? 0;
           game._lastStars = stars;
-          // 结算发豆：首通按本次星级一次性 / 复刷走日上限（经济全在 shell+meta，本类只透传）。
-          game._clearCoins = game._onClearCoins?.(stars, isBossLevelId(level.id), firstClear) ?? null;
+          // 结算发豆：首通/升星按档累进（每档各发一次）/ 复刷走日上限（经济全在 shell+meta，本类只透传）。
+          game._clearCoins = game._onClearCoins?.(stars, isBossLevelId(level.id), prevStars) ?? null;
           // 通关画面总览：取**历史最好**（重玩不降级，与 `maxUnlockedLevel` 同语义）。
           game._starsByLevel[li] = Math.max(game._starsByLevel[li] ?? 0, stars);
           // C7 结算分（局内不显示，供排行/段位与面板外部读取）：四因子全在此刻可得。

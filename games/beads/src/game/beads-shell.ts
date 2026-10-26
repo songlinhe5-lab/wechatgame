@@ -278,8 +278,8 @@ export class BeadsShell implements Game {
             // §3.14 v1.81 结算按星发豆（用户 2026-10-26 拍板）：首通按星级一次性（普通 20/30/40、
             // Boss 40/60/80）；复刷普通 5 / Boss 10，跨日上限 45 后降 1 / 2（⛔ 不清零）。
             // 返回的原因整句直接上结算面板「星级下方一行」——⛔ 面板侧不另行拼文案。
-            onClearCoins: (stars, isBoss, firstClear) =>
-                this.meta?.grantClearCoins(stars, isBoss, firstClear),
+            onClearCoins: (stars, isBoss, prevStars) =>
+                this.meta?.grantClearCoins(stars, isBoss, prevStars),
         });
         // UI-25：宿主只提供调试投影（L5）；意图面随 P3 Presenter 落地。
         this._uiRoot = new UiRoot({

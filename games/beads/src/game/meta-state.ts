@@ -288,23 +288,38 @@ export class MetaState {
      * 结算按星发豆（§3.14 v1.81「通关首通」获取源落码；用户 2026-10-26 拍板）。
      *
      * 三档口径（每档当场可测）：
-     * - **首通**（该关历史最高星 = 0，判定由调用方在**写星之前**取）⇒ 按**本次星级**发一次性奖励
-     *   （普通 20/30/40、Boss 40/60/80）——用户口径「过关星级会首次掉落一定数量豆子」；
+     * - **首通/升星**（`prevStars` = 写星**之前**该关的历史最高星，由调用方在 `Math.max` 前取）⇒
+     *   **每档各发一次、累计发放**（用户 2026-10-26：「每个星级首通的奖励只会发放一次」）：
+     *   直接 3★ 首通 = ★☆☆ 20 + ★★☆ 30 + ★★★ 40 = **90**（Boss 40+60+80 = 180），
+     *   而「先 1★ 再升 3★」= 20 + 70 = 90 —— 两条路径**总额相同**，⛔ 不存在「第一次手生就永久少拿」；
      * - **复刷未超日上限** ⇒ 普通 {@link CLEAR_COIN_REPLAY_NORMAL} / Boss {@link CLEAR_COIN_REPLAY_BOSS}；
      * - **复刷已超上限** ⇒ 降为 1 / 2（⛔ **不清零**，用户拍板「柔和，非硬顶」），且 `reason` 必须写明已达上限。
      *
      * ⛔ 首通腿**不计入**日上限（上限只约束复刷）；跨天归零与签到同口径（{@link dateKey}）。
      */
-    grantClearCoins(stars: number, isBoss: boolean, firstClear: boolean): ClearCoinGrant {
+    grantClearCoins(stars: number, isBoss: boolean, prevStars: number): ClearCoinGrant {
         const star = Math.max(1, Math.min(STAR_MAX, Math.floor(stars)));
-        if (firstClear) {
+        const prev = Math.max(0, Math.min(STAR_MAX, Math.floor(prevStars)));
+        // 首通腿：**每档各发一次**（用户 2026-10-26）⇒ 直接 3★ 首通 = ★☆☆+★★☆+★★★ 三档一起发。
+        // 已到过的档不再发；没到过的档逐档补 ⇒ 「1★ 首通、之后 3★」与「直接 3★」总额相同（都是累计 90）。
+        if (star > prev) {
             const table = isBoss ? CLEAR_COIN_FIRST_BOSS : CLEAR_COIN_FIRST;
-            const coins = table[star - 1] ?? 0;
+            const cum = (n: number): number => {
+                let sum = 0;
+                for (let i = 0; i < n; i += 1) sum += table[i] ?? 0;
+                return sum;
+            };
+            const coins = cum(star) - cum(prev);
             if (coins > 0) {
                 this._coins += coins;
                 this._persistWallet();
             }
-            return { coins, reason: `首通 ${'★'.repeat(star)} 奖励`, capped: false };
+            const solid = (n: number): string => '★'.repeat(n) + '☆'.repeat(STAR_MAX - n);
+            const lower = prev === 0 ? star - 1 : star - prev;
+            const reason = prev === 0
+                ? `首通 ${solid(star)} 奖励${lower > 0 ? `（含 ${lower} 档低星）` : ''}`
+                : `${solid(prev)} → ${solid(star)} 补发 ${lower} 档`;
+            return { coins, reason, capped: false };
         }
         const today = dateKey(this._clock());
         if (this._replayDate !== today) {

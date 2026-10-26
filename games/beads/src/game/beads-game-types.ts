@@ -93,11 +93,12 @@ export interface BeadsGameOptions {
      * **结算按星发豆**（§3.14 v1.81「通关首通」获取源；用户 2026-10-26 拍板）：
      * `level-clear` 相位算定星级后调用，由 shell 转给 `MetaState.grantClearCoins`。
      *
-     * - `firstClear` = **写星之前**该关历史最高星为 0（由 `BeadsGame` 在 1717 的 `Math.max` 之前取）；
+     * - `prevStars` = **写星之前**该关历史最高星（由 `BeadsGame` 在写星的 `Math.max` 之前取）；
+     *   语义 = 「首通奖励**每档各发一次**」：`stars > prevStars` ⇒ 补发差额（直接 3★ 首通 = 三档一起发）；
      * - 返回值直接上结算面板（`clearCoins` / `clearCoinReason`），⛔ 前端不自己算；
      * - 缺省（无 shell 的独立 `BeadsGame`）⇒ 不发豆、面板不显示该行（后向兼容）。
      */
-    readonly onClearCoins?: (stars: number, isBoss: boolean, firstClear: boolean) => ClearCoinGrant | undefined;
+    readonly onClearCoins?: (stars: number, isBoss: boolean, prevStars: number) => ClearCoinGrant | undefined;
     /**
      * 广告加心是否还可用（§3.14 v1.80 日限 + 满心闸门）：`false` ⇒ 不拉起 `stamina-refill` 位
      * （避免「看完广告什么都没加」）。缺省 = 不设门（后向兼容）。
