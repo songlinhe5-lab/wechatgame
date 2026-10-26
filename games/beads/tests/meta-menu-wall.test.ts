@@ -673,7 +673,8 @@ describe('EP12-S6 边界与铁律自证 · 珠体族只进菜单帧 / 零新色 
             'view/meta-view.ts',
             'view/menu-signage.ts',
             'game/beads-shell.ts',
-            'config/tuning.ts',
+            'config/tuning/layout.ts',
+            'config/tuning/menu.ts',
             'config/copy-tokens.ts',
             'config/sign-glyphs.ts',
         ]) {

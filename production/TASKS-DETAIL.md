@@ -5616,6 +5616,8 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 - **T1 完成（本笔提交）**：`check-architecture.mjs` 新增 L6 内部依赖方向与运行时循环检测；view → game 仅类型放行，存档 → view 单独报错，9 条旧 game → view 边逐条登记。自测由 11 增至 **19** 例（PASS 19｜FAIL 0），并挂既有 `check:arch:selftest` → `selftest:fast`（PASS 14｜FAIL 0）。真实探针 `game/arch-direction-probe.ts` 加一条未登记 game → view 后 `check:arch` 报 L6-direction，删除后恢复零违规；探针未入库。`control-manifest.md` 同步 L6 条文。
 - **T2 完成（本笔提交）**：新增 `config/bead-styles/registry.ts`，以 tuning 的四个既有 id 常量组成唯一可选池，提供默认 id、注册序与合法 id 判定；view 注册表按该顺序装配绘制器，不再持有第二份池序。存档改用 config 的 `isRegisteredStyleId`，设置循环只读 config 的 id 清单；L6 白名单由 9 条减至 **7** 条。先写静态归属探针并实测 **1 failed**（config 文件不存在），实现后同文件及存档/皮肤/风格池/珠渲染共 **161 passed｜1 skipped**，`ui-golden` **12 passed**，beads typecheck 与 `check:arch` 均通过。
 
+- **T3 完成（本笔提交）**：`config/tuning.ts` 机械拆为 layout / visual / board / gameplay / menu / motion / bead-style / audio / powerup-layout 九域，原入口仅桶再导出，域间保持 DAG 且不反依赖 barrel；`liveDesignH` 与全部声明原样随迁。结构探针先实测 **1 failed**（缺 layout 模块），实现后转绿；拆前拆后均实测 **479** 个运行时导出，名称与值指纹同为 `39d1271086d01a37acb2c68552209ae990ca1bc6768db5c7d3a0ae3acbf162cf`。源码文本读写方同步指向实际声明域，覆盖关数回写、墙容量、接缝与 mask 宏；beads 全测 **1279 passed｜3 skipped**（含 UI 金样本 12 passed），typecheck、levels:check、check:board-seam、check:arch、Cocos 同步检查通过；check:cocos-mask 因无构建产物仍为 **SKIP**。
+
 ---
 
 ## WXG-T-421

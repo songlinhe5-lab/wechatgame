@@ -26,13 +26,13 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '../..');
 
 const CARRIER = 'games/beads/cocos/assets/scripts/host/beads-blit-carrier.ts';
-const TUNING = 'games/beads/src/config/tuning.ts';
+const TUNING = 'games/beads/src/config/tuning/board.ts';
 /** 产物目录候选：同 `check-bundle-size.mjs` 的双路径约定。 */
 const BUILD_DIRS = ['games/beads/cocos/build/wechatgame', 'games/beads/build/wechatgame'];
 
 /**
  * `--pin=holed|holeless|null` 覆盖在册宏（不改文件就能问「放开宏的话产物够不够」），
- * 缺省 = 读 `tuning.ts` 的 `TINT_MASK_GAUGE_PIN`。
+ * 缺省 = 读 `tuning/board.ts` 的 `TINT_MASK_GAUGE_PIN`。
  */
 const PIN_ARGV = process.argv.find((a) => a.startsWith('--pin='))?.slice('--pin='.length);
 

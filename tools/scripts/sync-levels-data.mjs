@@ -546,7 +546,7 @@ export function assembleFromManifest(game) {
   // 为什么加：此前这类漂移**只在事后单测红**（levels / misplaced-assembler / level-import），
   // 生成期无拦截 ⇒ 入关批漏同步常量会静默一段时间（`81b08ed` 入第 9 关漏同步，红了 3 天 4 处才被立项）。
   // 只对**声明了该常量**的游戏生效 ⇒ breakout 等 legacy 单 JSON 模式零影响。
-  const tuningPath = join(GAMES_DIR, game.name, 'src', 'config', 'tuning.ts');
+  const tuningPath = join(GAMES_DIR, game.name, 'src', 'config', 'tuning', 'gameplay.ts');
   if (isFile(tuningPath)) {
     const declared = /export const DEMO_LEVEL_COUNT = (\d+)/.exec(readFileSync(tuningPath, 'utf8'));
     if (declared && Number(declared[1]) !== levels.length) {

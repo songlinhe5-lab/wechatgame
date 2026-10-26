@@ -112,7 +112,7 @@ describe('EP12-S5 · §7 守卫', () => {
         roots.forEach(walk);
         expect(hits.filter((h) => h.what === 'difficultyOf').length).toBe(1); // only difficulty.ts
         expect(hits.filter((h) => h.what === 'coef-decl').length).toBe(0); // coefficients never re-declared
-        expect(readFileSync(at('../src/config/tuning.ts'), 'utf8')).toMatch(/DIFFICULTY = Object\.freeze\(/); // 唯一定义位
+        expect(readFileSync(at('../src/config/tuning/gameplay.ts'), 'utf8')).toMatch(/DIFFICULTY = Object\.freeze\(/); // 唯一定义位
     });
 
     it('G2 确定性零 RNG：同输入两次逐位相等 + 实现内无 Math.random/services.rng', () => {
