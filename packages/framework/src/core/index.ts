@@ -24,6 +24,7 @@ export * from './render/render-model.js';
 export * from './render/ui-container-order.js'; // [UI-60 DEC-8①] 容器/段命令流结构机检（无 `cc`，Node 可测）
 export * from './game/game.js';
 export * from './ads/rewarded-ad.js';
+export * from './opendata/index.js';
 export * from './bake/bake-key.js';
 export * from './bake/bake-budget.js';
 export * from './bake/bake-surface.js';
