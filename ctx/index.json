@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3834,
       "lines": 130,
-      "sha256": "373af12cb928cfbe19bac815ff1e8f0b46a7602734ddbb22243aefbe8aeaf812",
+      "sha256": "2f6c4dcc5a3bcfe72c38f4d3fb55b9eedf619432e2e8891b61aa857fcd440339",
       "tier": "normal",
       "sections": [
         {
@@ -32963,18 +32963,18 @@
     },
     {
       "path": "games/beads/design/gdd/powerups-v2.md",
-      "tokens": 103821,
-      "lines": 1948,
-      "sha256": "acdd1e010aa9a9514f74c8a1ffd7a8628aa548988c6d150e89c6263642c90ace",
+      "tokens": 120459,
+      "lines": 2145,
+      "sha256": "99c841487a40fc6ef9cfd4b322e1642c1d093c18d80ea1f90fd93b52797276af",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · S6 道具系统 v2（Powerups v2）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 1949,
-          "tokens": 103806,
-          "summary": "项目：games/beads（拼豆错位归位）· 版本 v2.4 · 任务号 WXG-T-419（同一交付物延续修订，不新",
+          "endLine": 2146,
+          "tokens": 120444,
+          "summary": "项目：games/beads（拼豆错位归位）· 版本 v2.5 · 任务号 WXG-T-419（同一交付物延续修订，不新",
           "keywords": [
             "GDD",
             "Powerups",
@@ -32987,9 +32987,9 @@
         {
           "anchor": "§1 目标",
           "level": 2,
-          "startLine": 56,
-          "endLine": 89,
-          "tokens": 1778,
+          "startLine": 69,
+          "endLine": 103,
+          "tokens": 2018,
           "summary": "道具体系在核心循环里的职责 = 破局手段，不是进度手段，也不是通关手段。",
           "keywords": [
             "目标"
@@ -32998,9 +32998,9 @@
         {
           "anchor": "§2 机制",
           "level": 2,
-          "startLine": 90,
-          "endLine": 1009,
-          "tokens": 39372,
+          "startLine": 104,
+          "endLine": 1171,
+          "tokens": 48198,
           "summary": "",
           "keywords": [
             "机制"
@@ -33009,8 +33009,8 @@
         {
           "anchor": "§2.1 作用域（两件作用于棋盘 `filled(错位)` 格；**第三件作用于托盘珠**）",
           "level": 3,
-          "startLine": 92,
-          "endLine": 105,
+          "startLine": 106,
+          "endLine": 119,
           "tokens": 833,
           "summary": "可作用（前两件）：仅 filled(错位) 格（判定式 misplaced(cell) = filled ∧ color",
           "keywords": [
@@ -33025,19 +33025,32 @@
         {
           "anchor": "§2.2 三件道具效果表",
           "level": 3,
-          "startLine": 106,
-          "endLine": 690,
-          "tokens": 21215,
+          "startLine": 120,
+          "endLine": 801,
+          "tokens": 26205,
           "summary": "#### 2.2.0 身份、命名与解耦",
           "keywords": [
             "三件道具效果"
           ]
         },
         {
+          "anchor": "§✅ v2.5 新结论（按新口径重写 · 三条主指标）",
+          "level": 3,
+          "startLine": 802,
+          "endLine": 850,
+          "tokens": 3409,
+          "summary": "① 托盘清空率 = 100.00% · ② 托盘珠归位率 = 100.00%（30 组 × 2000 次，零例外）· ③",
+          "keywords": [
+            "新结论",
+            "按新口径重写",
+            "三条主指标"
+          ]
+        },
+        {
           "anchor": "§2.3 结算时序（一次点击 = 一次原子结算，无瞄准中间态）",
           "level": 3,
-          "startLine": 691,
-          "endLine": 720,
+          "startLine": 851,
+          "endLine": 880,
           "tokens": 1000,
           "summary": "沿用 2026-09-12 既定裁定，逐字不变：点道具卡 = 当帧完成全部裁定，不进入「选窗口 / 选珠」二级态，不缓存",
           "keywords": [
@@ -33050,8 +33063,8 @@
         {
           "anchor": "§2.4 与 S3 / S4 的事件契约（`powerup:used {type, affectedCells, traySlots?}`）",
           "level": 3,
-          "startLine": 721,
-          "endLine": 739,
+          "startLine": 881,
+          "endLine": 899,
           "tokens": 1541,
           "summary": "S6 不持有网格真源：只消费 S3 广播的 bead:placed 维护棋盘错位只读镜像（哪些格是 filled(错位)",
           "keywords": [
@@ -33064,27 +33077,27 @@
           ]
         },
         {
-          "anchor": "§2.5 额度模型（v2.3：**免费 = 账号级永久 1 次** + 额外无上限；**v2.4：件数 2 → 3**，见 §2.5-i）· ⚠ 推翻 v2.2 的「免费 1 次 / 关、整关重置、不入档」",
+          "anchor": "§2.5 额度模型（v2.3：**免费 = 账号级永久 1 次** + 额外无上限；**v2.5：三件对称，免费额度 = 3 个互不影响的账号级布尔**〔T-25 结案〕）· ⚠ 推翻 v2.2 的「免费 1 次 / 关、整关重置、不入档」",
           "level": 3,
-          "startLine": 740,
-          "endLine": 916,
-          "tokens": 9875,
+          "startLine": 900,
+          "endLine": 1078,
+          "tokens": 10259,
           "summary": "v2.3 改判（用户 2026-10-26 第四次裁定，T-20 结案）：用户原话——「整个游戏永久只有 1 次（两件道",
           "keywords": [
-            "§2.5",
             "额度模型",
             "免费",
             "账号级永久",
             "额外无上限",
-            "件数"
+            "三件对称",
+            "免费额度"
           ]
         },
         {
           "anchor": "§2.6 激励视频与购买双通道 · ⚠ 本版推翻 2026-10-22 裁定",
           "level": 3,
-          "startLine": 917,
-          "endLine": 1009,
-          "tokens": 4734,
+          "startLine": 1079,
+          "endLine": 1171,
+          "tokens": 4738,
           "summary": "旧裁定（2026-10-22 用户拍板）：局内 3 个道具位的广告腿退役，超出免费次数后只走豆子购买（落点 = syst",
           "keywords": [
             "syst",
@@ -33097,9 +33110,9 @@
         {
           "anchor": "§3 输入",
           "level": 2,
-          "startLine": 1010,
-          "endLine": 1029,
-          "tokens": 1229,
+          "startLine": 1172,
+          "endLine": 1191,
+          "tokens": 1252,
           "summary": "玩家（经 S2 路由优先级 2） 道具卡点击，携带 type ∈ POWERUP_TYPES（v2.4 = ['wind",
           "keywords": [
             "type",
@@ -33111,9 +33124,9 @@
         {
           "anchor": "§4 输出与反馈",
           "level": 2,
-          "startLine": 1030,
-          "endLine": 1056,
-          "tokens": 2462,
+          "startLine": 1192,
+          "endLine": 1218,
+          "tokens": 2578,
           "summary": "表现参数（毫秒 / 像素 / α）只引节号，本文不自写。",
           "keywords": [
             "输出与反馈"
@@ -33122,9 +33135,9 @@
         {
           "anchor": "§5 数值",
           "level": 2,
-          "startLine": 1057,
-          "endLine": 1462,
-          "tokens": 19829,
+          "startLine": 1219,
+          "endLine": 1629,
+          "tokens": 20881,
           "summary": "",
           "keywords": [
             "数值"
@@ -33133,8 +33146,8 @@
         {
           "anchor": "§5.1 本体系只引用、不新写（`systems-index §3` 既有常量）",
           "level": 3,
-          "startLine": 1059,
-          "endLine": 1072,
+          "startLine": 1221,
+          "endLine": 1234,
           "tokens": 803,
           "summary": "§3.6：「道具目标 = 棋盘错位珠（托盘零读写）」条 ⇒ ⚠ v2.4 该句的「托盘零读写」必须改为「托盘只读、不写入",
           "keywords": [
@@ -33149,9 +33162,9 @@
         {
           "anchor": "§5.2 变更单建议表（`[待拍板]`，冻结权归 `systems-index §3`）",
           "level": 3,
-          "startLine": 1073,
-          "endLine": 1111,
-          "tokens": 4418,
+          "startLine": 1235,
+          "endLine": 1276,
+          "tokens": 5107,
           "summary": "⛔ 本表是建议，本文不代冻；每行落库前须由主理人确认并登记 systems-index-changelog。",
           "keywords": [
             "[待拍板]",
@@ -33165,8 +33178,8 @@
         {
           "anchor": "§5.3 推荐值与推导依据（供拍板直接读）",
           "level": 3,
-          "startLine": 1112,
-          "endLine": 1126,
+          "startLine": 1277,
+          "endLine": 1291,
           "tokens": 607,
           "summary": "§5.3 的四条前置硬约束（v2.2 重写 · v2.4 第 3、4 条被用户裁定推翻、划线留档）",
           "keywords": [
@@ -33179,8 +33192,8 @@
         {
           "anchor": "§5.3-a 目标函数：把用户原话写成可核验判据",
           "level": 3,
-          "startLine": 1127,
-          "endLine": 1149,
+          "startLine": 1292,
+          "endLine": 1314,
           "tokens": 499,
           "summary": "用户原话（2026-10-26 三次裁定 C）：「后期会抬高错位珠数量，但是现阶段因为动的珠子变多了，需要抬高价格，让不",
           "keywords": [
@@ -33193,8 +33206,8 @@
         {
           "anchor": "§5.3-b 逐关核算（真实关卡数据，⛔ 不给区间了事）",
           "level": 3,
-          "startLine": 1150,
-          "endLine": 1188,
+          "startLine": 1315,
+          "endLine": 1353,
           "tokens": 856,
           "summary": "表 A · 熨贴片（windowRestore） —— 输入 = §2.2.4 序列 A（确定性，无尾部）：",
           "keywords": [
@@ -33209,8 +33222,8 @@
         {
           "anchor": "§5.3-c 定价候选与终选（`[待拍板]` T-5）",
           "level": 3,
-          "startLine": 1189,
-          "endLine": 1207,
+          "startLine": 1354,
+          "endLine": 1372,
           "tokens": 1026,
           "summary": "甲 50 25 2.00× 100（1.11×） 100（1.11×） 75 ⇒ 净赚 15 ✗ 1.21 中位口径达标",
           "keywords": [
@@ -33223,8 +33236,8 @@
         {
           "anchor": "§5.3-d boss 关读数（如实登记：抬价后 boss 关道具接近不可用）",
           "level": 3,
-          "startLine": 1208,
-          "endLine": 1218,
+          "startLine": 1373,
+          "endLine": 1383,
           "tokens": 399,
           "summary": "L00009（30×30，M = 612） 180 1380（23 次付费） 7.67× 1350（45 次） 7.50",
           "keywords": [
@@ -33239,8 +33252,8 @@
         {
           "anchor": "§5.3-e 未启用的杠杆（登记 · ⛔ 本版一个都没开）",
           "level": 3,
-          "startLine": 1219,
-          "endLine": 1228,
+          "startLine": 1384,
+          "endLine": 1393,
           "tokens": 273,
           "summary": "用户 2026-10-26 三次裁定 C 只选了抬单价。以下三条是 v2.1 的原推导，按 K-053 保留，供「若 p",
           "keywords": [
@@ -33253,8 +33266,8 @@
         {
           "anchor": "§5.3-f 定价基准重审：「20 豆 = 一局价值」这条锚还能不能用（v2.2 必答）",
           "level": 3,
-          "startLine": 1229,
-          "endLine": 1384,
+          "startLine": 1394,
+          "endLine": 1549,
           "tokens": 6768,
           "summary": "任务前提：本体系只继承经济体提案 §15.4 的「20 豆 = 一局价值」这一条基准，其余 §15 内容已于 v2.1 ",
           "keywords": [
@@ -33269,9 +33282,9 @@
         {
           "anchor": "§5.3-g v2.4 统一 100 豆的重算（现行 · 用户第六次裁定 B）",
           "level": 3,
-          "startLine": 1385,
-          "endLine": 1444,
-          "tokens": 2575,
+          "startLine": 1550,
+          "endLine": 1611,
+          "tokens": 2937,
           "summary": "用户裁定原文（2026-10-26 第六次裁定 B，逐字保留）：三件道具统一定价 100 豆；用户选定「就统一 100，",
           "keywords": [
             "§5.3",
@@ -33284,8 +33297,8 @@
         {
           "anchor": "§5.4 本体系**不**改动的量（防误伤清单）",
           "level": 3,
-          "startLine": 1445,
-          "endLine": 1462,
+          "startLine": 1612,
+          "endLine": 1629,
           "tokens": 1357,
           "summary": "MISPLACED_PAIRS_MIN/MAX · misplaced 判定式 · TRAY_* 全族 · STAR_T",
           "keywords": [
@@ -33300,9 +33313,9 @@
         {
           "anchor": "§6 边界条件",
           "level": 2,
-          "startLine": 1463,
-          "endLine": 1540,
-          "tokens": 5346,
+          "startLine": 1630,
+          "endLine": 1707,
+          "tokens": 5349,
           "summary": "极端值 / 小盘",
           "keywords": [
             "边界条件"
@@ -33311,9 +33324,9 @@
         {
           "anchor": "§7 依赖",
           "level": 2,
-          "startLine": 1541,
-          "endLine": 1663,
-          "tokens": 5507,
+          "startLine": 1708,
+          "endLine": 1830,
+          "tokens": 5735,
           "summary": "上游",
           "keywords": [
             "依赖"
@@ -33322,9 +33335,9 @@
         {
           "anchor": "§7.1 存档变更单（v2.3 新增 · 工程可直接照改）· 落码项 T-21",
           "level": 3,
-          "startLine": 1578,
-          "endLine": 1663,
-          "tokens": 3384,
+          "startLine": 1745,
+          "endLine": 1830,
+          "tokens": 3612,
           "summary": "一句话：v2.3 把「免费 1 次」从关内态搬到账号档，因此本体系从「对存档零新增」变为「必须新增布尔字段 + 宿主版本",
           "keywords": [
             "存档变更单",
@@ -33336,9 +33349,9 @@
         {
           "anchor": "§8 验收标准（可纯 Node 断言的硬判据；未标环境者均 `[Node]` vitest 可断言）",
           "level": 2,
-          "startLine": 1664,
-          "endLine": 1840,
-          "tokens": 8186,
+          "startLine": 1831,
+          "endLine": 2033,
+          "tokens": 10066,
           "summary": "记号：hits = 最密集窗口内错位珠数（仅 A）；M₀ = 裁定时刻错位珠数；n = B 的实际处理颗数 = min(",
           "keywords": [
             "[Node]",
@@ -33352,10 +33365,10 @@
         {
           "anchor": "§9 变更记录",
           "level": 2,
-          "startLine": 1841,
-          "endLine": 1949,
-          "tokens": 15725,
-          "summary": "v2.4 2026-10-26 用户第六次裁定 A / B / C 落地：新增第三件道具 + 三件统一 100 豆 + ",
+          "startLine": 2034,
+          "endLine": 2146,
+          "tokens": 18464,
+          "summary": "v2.5 2026-10-26 用户第七次裁定 A / B / C 落地：第三件评价口径改判 + 两处结案（同交付物延续",
           "keywords": [
             "变更记录"
           ]
@@ -33363,9 +33376,9 @@
         {
           "anchor": "§9.1 被本版取代的旧文档（判例 K-053 划线保留，⛔ 不删）",
           "level": 3,
-          "startLine": 1851,
-          "endLine": 1861,
-          "tokens": 1607,
+          "startLine": 2045,
+          "endLine": 2056,
+          "tokens": 2080,
           "summary": "⚠ v2.4 新增：「托盘零读写」这条硬边界（跨文档，非单一文档） 这是本版推翻的唯一一条「跨文档硬边界」：出处 = g",
           "keywords": [
             "被本版取代的",
@@ -33378,9 +33391,9 @@
         {
           "anchor": "§9.2 需同步回写的文档清单（本单不代改，逐项登记）",
           "level": 3,
-          "startLine": 1862,
-          "endLine": 1889,
-          "tokens": 4233,
+          "startLine": 2057,
+          "endLine": 2084,
+          "tokens": 4618,
           "summary": "R-1 systems-index §3.6 整节 POWERUP_TYPES 换两型（['windowRestore'",
           "keywords": [
             "§3.6",
@@ -33394,8 +33407,8 @@
         {
           "anchor": "§9.3 关卡侧待办（v2.1 新增 · **裁定 E** 的直接落点，本批不做，属关卡设计域）",
           "level": 3,
-          "startLine": 1890,
-          "endLine": 1910,
+          "startLine": 2085,
+          "endLine": 2105,
           "tokens": 1444,
           "summary": "裁定原话（用户 2026-10-26）：「后期调整关卡豆子数量，鼓励用道具完成关卡，可以提升消耗和收入」。",
           "keywords": [
@@ -33410,10 +33423,10 @@
         {
           "anchor": "§9.4 本版未决（v2.3 重排：**按「等谁」分三类**，⛔ 别混着排期）",
           "level": 3,
-          "startLine": 1911,
-          "endLine": 1949,
-          "tokens": 1896,
-          "summary": "见 §5.2 变更单建议表 T-1 ～ T-28 共 28 条（v2.4 新增 T-24 / T-25 / T-26 /",
+          "startLine": 2106,
+          "endLine": 2146,
+          "tokens": 2222,
+          "summary": "见 §5.2 变更单建议表 T-1 ～ T-29 共 29 条（v2.4 新增 T-24～T-28；v2.5 新增 T-",
           "keywords": [
             "§5.2",
             "本版未决",
