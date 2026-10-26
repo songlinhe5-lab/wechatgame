@@ -14,6 +14,7 @@ import type { BeadsTuning, PowerupType, StageParams } from '../config/tuning';
 import type { BeadsLevelRaw } from '../config/levels';
 import type { ClearCoinGrant } from './meta-state';
 import type { BeadsPalette } from '../view/palette';
+import type { HapticKind } from '../../framework/index';
 
 /** Events emitted on the framework bus — systems-index §4 (v1.22 event table). */
 export interface BeadsEvents extends Record<string, unknown> {
@@ -45,6 +46,12 @@ export interface BeadsEvents extends Record<string, unknown> {
     'sprint:ended': { score: number; bestStage: number; settleScore: number };
     /** §4 meta 事件（systems-index v1.28）：震动开关切换（局外不带 levelId）。 */
     'settings:vibrate': { on: boolean };
+    /**
+     * 触觉反馈请求（WXG-T-403）：game 侧**纯意图上报**，由 shell 订阅 gated by
+     * `vibrateOn` setting 再调 `services.haptic?.()`。kind 映射：
+     * light=放珠、medium=连击、heavy=碰撞、success=过关、warning=失败。
+     */
+    'haptic:trigger': { kind: HapticKind };
 }
 
 export interface BeadsGameOptions {

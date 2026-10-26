@@ -29,6 +29,9 @@ export interface FrameHandle {
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
+/** Tactile-feedback kind. Maps to the narrowest shape each host can produce. */
+export type HapticKind = 'light' | 'medium' | 'heavy' | 'selection' | 'success' | 'warning' | 'error';
+
 export interface Platform {
   readonly info: PlatformInfo;
   /** Monotonic clock in milliseconds. */
@@ -46,6 +49,11 @@ export interface Platform {
   createAssetProvider(): AssetProvider;
   /** Rewarded video. Node/web = Mock; weapp = Noop until a real pull is approved. */
   createRewardedAdProvider(): RewardedAdProvider;
+  /**
+   * Tactile feedback. Node/harness = noop; weapp = `wx.vibrateShort`/`wx.vibrateLong`;
+   * web = `navigator.vibrate` when available.
+   */
+  haptic?(kind: HapticKind): void;
   getScreenSize(): ScreenSize;
   /** Schedule the next frame. The callback receives the delta in ms. */
   requestFrame(callback: (dtMs: number) => void): FrameHandle;

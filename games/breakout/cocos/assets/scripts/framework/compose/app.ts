@@ -121,6 +121,7 @@ export class App {
       assets: options.assets ?? this.platform.createAssetProvider(),
       platform: this.platform.info,
       rewardedAd: this.platform.createRewardedAdProvider(),
+      haptic: this.platform.haptic?.bind(this.platform),
     };
 
     this.loop = new FixedStepLoop(

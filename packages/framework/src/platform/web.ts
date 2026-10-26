@@ -9,7 +9,7 @@
 import { MemoryStorage, type Storage } from '../core/save/storage.js';
 import { NullAudioBackend, type AudioBackend, type AudioBackendOptions } from '../core/audio/audio.js';
 import type { PlatformInfo } from '../core/game/game.js';
-import { BasePlatform, type FrameHandle, type ScreenSize } from './platform.js';
+import { BasePlatform, type FrameHandle, type HapticKind, type ScreenSize } from './platform.js';
 import { MockRewardedAdProvider } from './rewarded-ad.js';
 import { SynthAudioBackend, type SynthContext, type SynthInnerAudio } from './audio-synth.js';
 
@@ -148,6 +148,19 @@ export class WebPlatform extends BasePlatform {
   /** Browser harness: a tap on 续时 completes immediately (no WeChat SDK). */
   override createRewardedAdProvider() {
     return new MockRewardedAdProvider('complete');
+  }
+
+  /**
+   * Browser tacticle feedback via `navigator.vibrate` (Web Vibration API).
+   * 支持有限（Chrome/Android 上可用；iOS Safari 全禁）。无 API ⇒ 静默 noop。
+   * kind 粗略映射：light ≈ 15ms、medium ≈ 25ms、heavy ≈ 40ms；其余 25ms。
+   */
+  haptic(kind: HapticKind): void {
+    const g = dom() as unknown as { navigator?: { vibrate?: (ms: number) => boolean } };
+    const nav = g.navigator;
+    if (!nav || typeof nav.vibrate !== 'function') return;
+    const ms = kind === 'light' ? 15 : kind === 'heavy' ? 40 : 25;
+    try { nav.vibrate(ms); } catch { /* ignore */ }
   }
 
   getScreenSize(): ScreenSize {

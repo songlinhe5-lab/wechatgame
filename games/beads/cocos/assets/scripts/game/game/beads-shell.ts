@@ -240,6 +240,8 @@ export class BeadsShell implements Game {
     private _refillPending = false;
     /** 广告订阅退订器（`init` 登记、`dispose` 释放）。 */
     private readonly _adOffs: Array<() => void> = [];
+    /** 事件总线订阅退订器（WXG-T-403 haptic:trigger 等；`init` 登记、`dispose` 释放）。 */
+    private readonly _eventOffs: Array<() => void> = [];
     /** UI-25：UiRoot 的调试投影复用对象（与 `BeadsGame.debugState` 同口径）。 */
     private readonly _uiDebug: UiDebugState = { enabled: false, frameMs: 0, phase: '', level: '', detail: '' };
     /** UI-25：组合根（开关关闭时不参与绘制/推进）。 */
@@ -348,6 +350,17 @@ export class BeadsShell implements Game {
                 this._refillPending = false;
             }),
         );
+        // WXG-T-403 触觉反馈：订阅 game 衍生的 haptic:trigger 意图，gated by vibrateOn setting。
+        // 不设置 vibrateOn 时（老玩家存档无此字段）默认 true（VIBRATE_DEFAULT）。
+        const haptic = services.haptic;
+        const events = services.events;
+        this._eventOffs.push(
+            events.on('haptic:trigger' as string, (payload: unknown) => {
+                const p = payload as { kind?: string };
+                if (!p?.kind || !this.play.vibrateOn) return;
+                haptic?.(p.kind as never);
+            }),
+        );
         const bus = services.events as unknown as { emit: (t: string, p: unknown) => void };
         this.meta = new MetaState({
             storage: services.storage,
@@ -403,6 +416,7 @@ export class BeadsShell implements Game {
 
     dispose(): void {
         for (const off of this._adOffs) off();
+        for (const off of this._eventOffs) off();
         this.play.dispose();
         this.meta?.dispose();
     }

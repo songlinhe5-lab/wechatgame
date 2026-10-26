@@ -21,6 +21,7 @@ import type { Rng } from '../math/rng.js';
 import type { Viewport } from '../render/viewport.js';
 import type { RenderModelBuilder } from '../render/render-model.js';
 import type { RewardedAdProvider } from '../ads/rewarded-ad.js';
+import type { HapticKind } from '../../platform/platform.js';
 
 /**
  * Opaque texture reference resolved by the render adapter. The core never
@@ -87,6 +88,8 @@ export interface GameServices {
   readonly platform: PlatformInfo;
   /** Optional rewarded-video. Always present; weapp ships a Noop until approved. */
   readonly rewardedAd: RewardedAdProvider;
+  /** Optional tactile feedback callback. Undefined when the host cannot vibrate. */
+  readonly haptic?: (kind: HapticKind) => void;
 }
 
 export interface Game {

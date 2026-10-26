@@ -168,6 +168,29 @@ import { HudRouter } from './beads-game/hud-router';
 import { BoardTapRouter, type BoardAnchor } from './beads-game/board-tap-router';
 import { ControlMap } from './beads-game/control-map';
 import { hitTraySlot } from './beads-game/hit-test';
+import type { HapticKind } from '../../framework/index';
+
+/**
+ * 事件 → haptic kind 映射表（WXG-T-403）。
+ *
+ * 选则准则：
+ * - 轻量连续反馈 → light（放珠 = 微振动确认）
+ * - 中等反馈 → medium（连击递进、道具 = 值得"注意"的正反馈）
+ * - 强反馈 → heavy（碰撞反弹、连击断裂 = 值得"警惕"的负反馈）
+ * - 结算 → success / warning（过关/失败各一端）
+ *
+ * 故意不映射：tray/*, timer/*, settings/*, meta/*, game/*, sprint/* —
+ * 要么太细要么是元事件。
+ */
+const HAPTIC_MAP: ReadonlyMap<string, HapticKind> = new Map<string, HapticKind>([
+  ['bead:placed', 'light'],
+  ['bead:rejected', 'heavy'],
+  ['combo:up', 'medium'],
+  ['combo:break', 'heavy'],
+  ['level:cleared', 'success'],
+  ['level:failed', 'warning'],
+  ['powerup:used', 'medium'],
+]);
 
 /**
  * 公共契约类型（事件表 `BeadsEvents` + 构造选项 `BeadsGameOptions`）已抽至
@@ -3006,12 +3029,34 @@ export class BeadsGame implements Game {
     }
   }
 
+  /**
+   * 事件总线出口 + 触觉映射（WXG-T-403）。
+   *
+   * 特定事件自动衍生一条 `haptic:trigger` 意图，由 shell 订阅 gated by
+   * `vibrateOn` 再调 `services.haptic?.()`。kind 映射表：
+   * - bead:placed → light（轻触放珠）
+   * - bead:rejected → heavy（碰撞反弹）
+   * - combo:up → medium（连击递进）
+   * - combo:break → heavy（连击断裂）
+   * - level:cleared → success（过关）
+   * - level:failed → warning（失败）
+   * - powerup:used → medium（道具触发）
+   *
+   * haptic:trigger / settings:* / meta:* / game:* / timer:* / tray:* /
+   * sprint:* → 不衍生（要么是元事件要么是已经过细或已被消费过的事件）。
+   */
   private _emit<K extends keyof BeadsEvents>(type: K, payload: BeadsEvents[K]): void {
     if (!this._services) return;
     const bus = this._services.events as unknown as {
       emit: (type: string, payload: unknown) => void;
     };
     bus.emit(type as string, payload);
+    // 衍生 haptic —— 防 haptic:trigger 自身递归
+    if (type === 'haptic:trigger') return;
+    const kind = HAPTIC_MAP.get(type as string);
+    if (kind !== undefined) {
+      bus.emit('haptic:trigger', { kind });
+    }
   }
 }
 

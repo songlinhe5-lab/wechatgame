@@ -21,7 +21,12 @@ import {
   type AudioVoices,
 } from '../core/audio/audio.js';
 import type { CapsuleRect, PlatformInfo } from '../core/game/game.js';
-import { BasePlatform, type FrameHandle, type ScreenSize } from './platform.js';
+import {
+  BasePlatform,
+  type FrameHandle,
+  type HapticKind,
+  type ScreenSize,
+} from './platform.js';
 import {
   NoopRewardedAdProvider,
   type MockAdOutcome,
@@ -94,6 +99,10 @@ interface WxApi {
    * 基础库 2.0.4+；开发机若无此 API ⇒ Provider 降级为 Noop。
    */
   createRewardedVideoAd?(): WxRewardedVideoAd;
+  /** 基础库 2.2.0+。type ∈ ['light'|'medium'|'heavy']，默认 'medium'。 */
+  vibrateShort?(opts?: { type?: 'light' | 'medium' | 'heavy' }): void;
+  /** 基础库 2.2.0+。 */
+  vibrateLong?(): void;
 }
 
 /** 微信 createRewardedVideoAd 返回对象的最小形状（只取我们实际消费的成员）。 */
@@ -451,6 +460,32 @@ export class WeappPlatform extends BasePlatform {
     } catch (e) {
       this.log('warn', `[ad] createRewardedVideoAd 抛错：${e}`);
       return new NoopRewardedAdProvider();
+    }
+  }
+
+  /**
+   * Tactile feedback (`wx.vibrateShort` / `wx.vibrateLong`).
+   *
+   * 微信 API 形状：
+   * - `vibrateShort({ type: 'light'|'medium'|'heavy' })` — 基础库 2.2.0+
+   * - `vibrateLong()` — 基础库 2.2.0+
+   *
+   * kind 映射：light/medium/heavy → vibrateShort(type)；其余 → vibrateLong。
+   * 无 wx / 无 API → 静默 noop（不 warn，Node/harness 常态）。
+   */
+  haptic(kind: HapticKind): void {
+    const wx = this._wx;
+    if (!wx) return;
+    if (kind === 'light' || kind === 'medium' || kind === 'heavy') {
+      const fn = wx.vibrateShort;
+      if (typeof fn === 'function') {
+        try { fn({ type: kind }); } catch { /* ignore */ }
+      }
+    } else {
+      const fn = wx.vibrateLong;
+      if (typeof fn === 'function') {
+        try { fn(); } catch { /* ignore */ }
+      }
     }
   }
 
