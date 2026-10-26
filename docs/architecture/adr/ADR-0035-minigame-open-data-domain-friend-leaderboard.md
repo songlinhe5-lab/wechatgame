@@ -1,6 +1,6 @@
 # ADR-0035 · 好友排行榜走微信开放数据域（零后端），主域/子域协议与渲染预留
 
-- **状态**：**Proposed（Q2 授权时机已拍板 2026-10-26：首次打开榜单时弹；待拍板 Q1/Q3/Q4。⛔ 本批零落码，纯提案）**
+- **状态**：**Proposed（Q1 指标 / Q2 授权时机 / Q3 协议形状已拍板 2026-10-26；待拍板 Q4 渲染预留。⛔ 本批零落码，纯提案）**
 - **日期**：2026-10-26
 - **任务号**：WXG-T-418（架构评审提案 `production/plans/2026-10-26-arch-review-weapp-framework-and-beads.md` **TODO-8** 立项）
 - **负责域**：工程负责人（protocol 形状 / Platform 接口 / 渲染预留 / 分包与包体）；**「榜什么指标」= 文策渊**（本文 ⛔ 不代定玩家可见规则，见 Q1）
@@ -83,24 +83,55 @@ TODO-3~7 的五件全是「Platform 加一个可选方法 + 三端实现 + beads
 4. **渲染走「纹理通道」**：主域只认「一张可贴图的 canvas 纹理」，不认子域内部结构；beads 侧留一个**榜单面板占位**（先空面板 + "好友榜即将开放"，后接纹理）。
 5. **子域代码独立**：单列 `opendata/` 子目录（独立 tsconfig、独立构建产物、**禁止** import 主域框架/beads 代码），满足 W5。
 
-### 3.1 协议形状（草案，待 Q3 拍板）
+### 3.1 协议形状（**Q3 已拍板 2026-10-26：采纳本形状**）
 
 ```ts
 // 主域 → 子域
 type HostToOpenData =
-  | { type: 'rank:query'; key: string; order: 'asc' | 'desc'; limit: number }
-  | { type: 'rank:refresh' }
-  | { type: 'render:resize'; width: number; height: number };
+  // 握手：子域独立打包，热更后可能与主域版本错位 ⇒ 必须带版本；主题随握手下发
+  | { type: 'init'; version: 1; theme: OpenDataTheme; board: RankBoard }
+  | { type: 'rank:query'; board: RankBoard; key: string; order: 'asc' | 'desc'; limit: number }
+  | { type: 'rank:refresh'; board: RankBoard }
+  | { type: 'render:resize'; width: number; height: number; dpr: number }
+  | { type: 'render:visible'; visible: boolean };   // 面板开合 ⇒ 子域可停帧（省电）
 
-// 子域 → 主域（仅用于主域决定显隐/错误文案，不回传成绩明细）
+// 子域 → 主域（只回状态，不回传成绩明细，隐私面最小）
 type OpenDataToHost =
-  | { type: 'rank:ready'; count: number }
-  | { type: 'rank:error'; code: 'no-auth' | 'empty' | 'api-missing' };
+  | { type: 'ready'; version: 1 }                    // 握手回执，版本不符主域走降级
+  | { type: 'rank:ready'; board: RankBoard; count: number }
+  | { type: 'rank:error'; board: RankBoard; code: 'no-auth' | 'empty' | 'api-missing' | 'fail' };
 ```
 
-### 3.2 榜单指标（**Q1，归文策渊**）
+```ts
+type RankBoard = 'stars' | 'sprint';   // 本期只启用 'stars'；'sprint' 预留（冲刺落码后开）
+type OpenDataTheme = {
+  bg: string; rowBg: string; rowBgSelf: string;
+  text: string; accent: string;
+  avatarSize: number; rowH: number; fontPx: number;
+};  // 值源 = src/view/palette.ts（主域取，随 init 下发；子域不 import）
+```
 
-工程侧**不代定**。候选（供拍板）：① 单关最少步数 ② 已通关数 ③ 总星数 ④ 综合分。工程约束：**全榜只能 1 个 key**（W4 容量充足但保持简单），排序方向随指标定。
+四条设计约束（逐条对应外部限制，不是加戏）：
+
+1. **`version` 必备**：子域是**独立工程/独立产物**（W3），热更可能只更新主域 ⇒ 版本错位时主域必须走「敬请期待」降级而非崩溃。
+2. **`theme` 随 `init` 下发**：子域**不能** import `src/view/palette.ts`（W3），颜色/字号只能靠消息传，否则美术双轨必然跑偏（§4.2）。
+3. **`render:visible`**：面板不开时子域停 `requestAnimationFrame`，否则白烧帧与电。
+4. **不回传明细**：好友昵称/头像/分数一律不过界，主域只拿「有没有数据、几条」⇒ 隐私面最小，也避免主域二次真源。
+
+**「我在榜上高亮」怎么定**：⛔ 不用 `viewerUid`——主域无后端拿不到 openid（`wx.login` 只给 code）。子域内用 `wx.getUserInfo()` 的昵称+头像与好友条目匹配即可（同 `wx.getFriendCloudStorage` 返回项自带 nickname/avatarUrl）。
+
+### 3.2 榜单指标（**Q1 已拍板 2026-10-26：本期单榜 = 全关总星数**）
+
+**裁定**：
+- 本期榜（S-1 起落码）= **全关总星数**，`key = 'beads_total_stars'`，`order = 'desc'`。数据现成：`save-schema.ts` v5 `starsByUid: Record<string, number>` 直接求和，**零新增字段**。
+- **MF4 双榜口径不改**（`proposals/meta-framework.md` §3，2026-09-12 用户拍板冻结）：主榜「冲刺模式单局最佳分」**保留但后置**——`games/beads/src` 全树 grep `冲刺|sprint` **零命中**，冲刺模式尚未落码，主榜无数据源。KV key `beads_sprint_best` **预留不写入**，待冲刺落码后启用，届时自然恢复双榜。
+
+理由：
+1. **不改真源**：不是推翻 MF4，只是把「无数据源的那一半」排到冲刺之后（排期后置 ≠ 改判），避免无谓的改判登记。
+2. **可立即验证**：总星数在 S-4 子域骨架即可用纯函数单测（`reduce` 求和 + 排序），无需等冲刺。
+3. **单 key 优先**：首版协议/子域渲染只处理一种榜，减少子域复杂度（子域代码不能用框架，复杂度直接等于维护成本）。
+
+⛔ 明确不采用：单关最少步数（退化为只能比同一关，跨关不可比）、已通关数（与总星数高度相关，信息量低）、`SETTLE_SCORE`（该公式在 systems-index §3.7 明写「供排行/**段位 C7**」，与好友榜不是同一产品面，混用会造第二真源）。
 
 ### 3.3 渲染预留的三条路（**Q4，归工程**）
 
@@ -170,6 +201,8 @@ type OpenDataToHost =
 | S-4 | `opendata/` 子域骨架（独立 tsconfig，`onMessage` 收协议，Mock 数据自绘） | ✅ 子域单测（纯函数化排序/布局） |
 | S-5 | weapp 真实现：`getOpenDataContext` + `setUserCloudStorage` + `sharedCanvas` 纹理贴图 + 授权引导 | ❌ **仅真机**（EP-10） |
 
+**上报点（Q1 落地口径）**：普通关**通关结算帧**写一次 `wx.setUserCloudStorage({ KVDataList: [{ key: 'beads_total_stars', value: String(总星数) }] })`——值取 `starsByUid` 求和；失败静默（不阻断结算）。冲刺榜待冲刺模式落码后再补 `beads_sprint_best`。
+
 ### 5.3 验证纪律
 
 - S-1~S-4 必过：`typecheck` + framework/beads 全量测试 + `pnpm run framework:sync` + harness 视觉。
@@ -191,9 +224,9 @@ type OpenDataToHost =
 
 | # | 问题 | 归属 | 推荐 |
 |---|---|---|---|
-| Q1 | 榜单指标（步数 / 通关数 / 星数 / 综合分） | 文策渊 | 单关最少步数（最贴合 beads 玩法） |
+| Q1 | 榜单指标 | 文策渊 | ✅ **已拍板 2026-10-26：本期单榜 = 全关总星数**（`beads_total_stars`, desc；`starsByUid` 求和零新增字段）。MF4 双榜口径不改，主榜「冲刺最佳分」后置（冲刺未落码），key `beads_sprint_best` 预留 |
 | Q2 | 授权时机 | 产品 + 工程 | ✅ **已拍板 2026-10-26：首次打开榜单时弹**（通关后不弹；拒绝后空态 + `wx.openSetting` 回流，详见 §3.4） |
-| Q3 | 协议形状是否采纳 §3.1 | 工程 | 采纳（单向、极简、可 Mock） |
+| Q3 | 协议形状是否采纳 §3.1 | 工程 | ✅ **已拍板 2026-10-26：采纳**（单向 + `version` 握手 + `theme` 下发 + `render:visible`；不回传明细） |
 | Q4 | 渲染预留选 R1 / R2 / R3 | 工程 | **R2**（打开贴一次 + `rank:ready` 重贴） |
 
 ## 8. 与提案批次的衔接
