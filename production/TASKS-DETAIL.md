@@ -5168,3 +5168,58 @@ T-413 的 T+0 层里成本最低的一条：**不新增任何关卡内容**，�
 ### 5. 刻意不做
 - 好友/自身最佳对比：⛔ 不做（concept §7 已砍社交）
 - 最快时间给豆子奖励：⛔ 不做（会给经济新增产出腿，冲击 §14 配比表）
+
+## WXG-T-415
+
+**冲突标记进门禁：`check-secrets` 加 `CONFLICT-MARKER` 一腿 + 把该脚本自测挂上 fast 档**（✅ 完成 · 2026-10-26 · 主理人(Qoder)·工具链）
+
+### 1. 触发
+接 WXG-T-412 收尾三选项选 1（用户 2026-10-26 令「1」）。要治的是判例 K-179：`origin/develop` 的一笔 `wip: merge resolution done`（`467aa574`）把 `<<<<<<< / ======= / >>>>>>>` 三段标记连同两条重复头注整块提交入库，而 pre-commit 五道门（secrets / links / plugins / mcp / tasks）判的都是结构面，**没有任何一腿 grep 冲突标记** ⇒ 下一会话直到 rebase 才撞见。K-179 ③ 已写明「最廉价的落点」并留「待主理人拍板」，本单就是那次拍板的落地。
+
+### 2. 改动面
+| 文件 | 改了什么 | 为什么放这里 |
+|---|---|---|
+| `tools/scripts/check-secrets.mjs` | ① `CONTENT_RULES` 新增 `CONFLICT-MARKER`（行首 7 个 `<` 或 `>`）；② 头注补一节「为什么这条腿长在本脚本上」；③ `--help` 的 FAIL 清单加一项；④ 自测 18 → 24 条（B9–B13 + C5） | 该脚本的扫描面恰好就是「会不会入仓」= `git ls-files --cached --others --exclude-standard`，且已挂 pre-commit ⓪ / `verify` / CI 三处 ⇒ 加一条内容规则即复用全套采集与接线，**零新脚本、零改钩子、零改 CI** |
+| `package.json` | 新增入口 `check:secrets:selftest` | 该脚本的 `--selftest` 自 WXG-T-047 起就没有入口 ⇒ 18 条腿从未在 CI 跑过（判例 K-181） |
+| `tools/scripts/selftests.mjs` | `TIERS.fast` 加同名档位项 | 名字与 package.json 入口须一字不差，否则 `guardCoverage()` 报「入口未入档 / 档位项不存在」 |
+| `docs/architecture/control-manifest.md` §12 | 提交前自查表加一行「没有把未解决的 merge 冲突标记留在行首」 | 先改文档再改代码（AGENTS.md §4）；机器守之前得人知道有这条 |
+| `docs/architecture/architecture.md` 门禁表 | 「密钥守卫」→「密钥 / 冲突标记守卫」 | 同一脚本职责变了，表要跟 |
+| `knowledge/lessons/toolchain-git.md` | K-179 ③ 由「待拍板」改为「已落地 + 判据 + 复取读数」；新增 K-181 | 沉淀写回原条目，不留两条互相矛盾的说法 |
+
+⛔ 不新建 `check-conflict-markers.mjs`，也不改 `.githooks/pre-commit` 与 `verify-all.mjs` 步骤表（`check:secrets` 两处都已在册）——另起脚本要多接一处线、多一份扫描面口径，重复判据的噪声风险翻倍。
+
+### 3. 判据（为何只查行首、为何不查 `=`）
+- 命中条件 = 行首 7 个 `<` 或 7 个 `>`，其后为空格/制表或行末（git 把标记写死在列 0）。命中即 **FAIL，文档不降级**——事故就发生在 `.md` 里，把 `.md` 降成 WARN 等于没守。
+- **`=======` 那一段刻意不查**：markdown setext 标题的下划线正是行首一串 `=`，查它就把门禁变成噪声源，而噪声逼人加 `--no-verify`（K-025）；未解冲突必然成对带 `<<<<<<<` 与 `>>>>>>>`，任一条命中即可拦下。该取舍由自测 B13（setext 正例不命中）钉住。
+- 文档里要**展示**标记：必须写在行内反引号或缩进（行首非 0 列）——B10 / B11 是这两条的判别腿，本单的 K-179 追记与主表行本身就是合法写法（标记都在行中）。
+
+### 4. 取证
+- **事故原文复取**（第二口径，K-168）：把 `467aa574:production/TASKS.md` 落进临时桩仓库，跑 `node tools/scripts/check-secrets.mjs --root=<桩>` ⇒ `FAIL [CONFLICT-MARKER] production/TASKS.md:5`。即「这条腿当年就拦得住」是实测，不是推理。
+- **本仓零存量**：`git grep -nE '^(<<<<<<<|>>>>>>>)' -- .` = 0 命中；全仓扫描 `1830` 个文本文件 / 跳过二进制或超限 `478` / FAIL `0` / WARN `9`（9 条都是既有 AppID 文档降级项，与本单无关，改前改后同数）。
+- **自测**：`check-secrets --selftest` 24/24；`selftest:fast` 由 11 件 → 12 件全绿。
+- **K-181 的盘点差集**（`grep -l selftest tools/scripts/*.mjs` 减去 package.json `*:selftest` 指向的脚本）实测命中三件：`check-secrets.mjs`（本单挂档）、`build-mcp-configs.mjs`、`check-plugin-anchor.mjs`（后两件未挂，见 §7）。
+
+### 5. 验证（本单暂存态读数）
+| 门 / 命令 | 读数 |
+|---|---|
+| `pnpm run verify`（建树后基线，未含本单改动） | PASS 20 ｜ SKIP 2 ｜ FAIL 0（共 22 项） |
+| `pnpm run verify`（本单暂存态、未入库） | PASS 19 ｜ SKIP 2 ｜ FAIL 1 —— 唯一红 = `selftest:fast` 里的 `ctx:check`（默认 HEAD 口径，文档已改而索引未入库）= 判例 K-136 同型假红，入库即消；新挂的 `check:secrets:selftest` 在该档内 ✅（12 件里 PASS 11 / FAIL 1，红的就是上面那件） |
+| `pnpm run check:secrets` 全仓 | OK —— FAIL 0（扫 1830 个文本文件、跳过二进制/超限 478、WARN 9）；改前 HEAD 版脚本同面同读数 ⇒ 新腿零存量误报 |
+| `node tools/scripts/check-secrets.mjs --selftest` | PASS 24 ｜ FAIL 0 |
+| `pnpm run selftest:fast` | 台账回写前首跑 PASS 12 ｜ FAIL 0（新挂的 `check:secrets:selftest` 已入列）；台账回写后同档变 11 / FAIL 1，红的只有上行的 `ctx:check` |
+| `pnpm run check:tasks` | OK —— 主表 63 行（本单 +1）、详情 86 节、归档 235 节；H 观察哨仍报 63 > 20（归档需用户批准 `--write`） |
+| `pnpm run kb:check` | PASSED —— 十重校验、活跃 178（本单新增 K-181）；`kb:sync --task=WXG-T-415`：新增 1｜修改 1（K-179）|
+| `pnpm run check:links` | OK —— agents 7｜skills 47，frontmatter / INDEX / 路由表 / 四 IDE 链接完整 |
+| ctx 四面（`build-context-index.mjs --staged-blobs` 暂存态口径） | TASKS.md **57,609**（档 80,000）｜ TASKS-DETAIL.md **165,577**（档 205,000）｜ BACKLOG.md 11,980（档 16,000）｜ MEMORY.md 4,761（本单未改）｜ `files` 495（含 22 份 vendor README ⇒ 按 WXG-T-412 配方先补齐再 build） |
+
+### 6. 裁定与边界
+- 落点由「用户选 1」授权 ⇒ 不再另开 ADR；改的是既有脚本的一条规则，五道门的其余判据面一字未动。
+- ⚠ 只拦「行首 7 个标记字符」这一形态：若谁把标记缩进后提交（git 不会这么写），本腿不拦——记为已知上限，⛔ 不做模糊匹配（做不出判据就是伪判据）。
+- ⚠ 本腿查的是**工作树/暂存内容**（同 check-secrets 既有语义），不查历史 blob ⇒ 已入库的旧标记只能靠 `git grep` 人工盘（本轮读数 = 0）。
+- 全程在隔离工作树 `.worktrees/wxg-t-415-conflict-gate`（基点 `origin/develop` = `fb50e123`，即对方 413/414 批之后）内完成；建树即按 WXG-T-412 的配方补齐 4 处 `node_modules` 软链与 22 份 vendor `*.md`，主仓另有未提交的对方在制品（`games/beads/design/proposals/star-economy-and-retention.md`）⇒ 本单不夹带（K-137）。
+
+### 7. 遗留
+1. 另有两件裸 `--selftest` 未挂档：`build-mcp-configs.mjs`、`check-plugin-anchor.mjs`（判例 K-181 ② 的差集法可直接复跑）。
+2. `selftests.mjs::guardCoverage()` 的枚举面本身不含「裸 `--selftest`」线索 ⇒ 要根治须给它加第三类线索（拿 `tools/scripts/*.mjs` 里带 `--selftest` 的脚本名去比对 TIERS 的 argv 目标），未做是因为它会立刻把 1. 判红、把本单撑成三件事。
+3. `selftests.mjs` 头注仍写「fast 七件自测」、CI L148 注释仍写「11 件」，实际 fast 档已 12 件 ⇒ 注释读数会漂，下次改动顺手校准。
+4. `check:size` / `check:cocos-mask` 在树内仍 SKIP（无构建产物，不是通过）；要满档需先 `pnpm run build:cocos`。

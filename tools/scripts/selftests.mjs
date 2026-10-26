@@ -46,6 +46,10 @@ export const TIERS = {
         // 它 import 的就是 `lib/context-index.mjs`（与门禁同一份逻辑），故紧跟 ctx:check。
         { script: 'ctx:hotfiles:selftest', argv: ['node', `${S}/context-hotfiles-selftest.mjs`] },
         { script: 'check:size:selftest', argv: ['node', `${S}/check-bundle-size.mjs`, '--selftest'] },
+        // WXG-T-415：`check-secrets.mjs --selftest` 自 WXG-T-047 起就存在，但**既无
+        // package.json 入口、也不在档位里** ⇒ 18 条腿从未在 CI 跑过（完整性守卫只枚举
+        // `*:selftest` 入口与 `*-selftest.sh`，看不见裸 `--selftest` 模式，判例 K-181）。
+        { script: 'check:secrets:selftest', argv: ['node', `${S}/check-secrets.mjs`, '--selftest'] },
         { script: 'memory:split:selftest', argv: ['bash', `${S}/split-memory-detail-selftest.sh`] },
         { script: 'memory:distill:selftest', argv: ['bash', `${S}/distill-memory-selftest.sh`] },
         { script: 'knowledge:split:selftest', argv: ['bash', `${S}/split-knowledge-lessons-selftest.sh`] },

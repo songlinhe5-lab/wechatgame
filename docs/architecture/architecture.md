@@ -195,7 +195,7 @@
 | 类型检查 | `npm run typecheck` | ❌ | ✅ |
 | 单测 | `npm test` | ❌ | ✅ |
 | 架构守卫 | `npm run check:arch` | ❌ | ✅ |
-| 密钥守卫 | `npm run check:secrets` | ❌ | ✅ |
+| 密钥 / 冲突标记守卫 | `npm run check:secrets` | ❌ | ✅ |
 | 体积校验 | `npm run check:size` | ❌（对已有产物；无产物自动跳过） | ✅ |
 | 浏览器试玩 | `npm run dev` | ❌ | ❌ |
 | Cocos 构建 | `pnpm run build:cocos`（默认 wechatgame）/ `build:cocos:web`（web-mobile，免 AppID） | ✅ | ⚠️ 非 CI（需装编辑器），但**可脚本化** |

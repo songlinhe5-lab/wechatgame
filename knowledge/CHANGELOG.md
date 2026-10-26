@@ -36,6 +36,11 @@
 - **新增**（added）：K-179「解完 merge ≠ 解对：冲突标记能整块提交入库，本仓五道门无一拦」、K-180「`git rebase --continue` 不跑 pre-commit ⇒ 钩子里「自动重建并 re-add」的产物（ctx 三件 + `memory/INDEX.md`）不会进结果提交」
 - **修改**（updated）：K-178「`.gitignore` 的目录型规则（带尾斜杠）不匹配同名软链 ⇒ 隔离工作树里软链的 `node_modules` 漏成未跟踪」
 
+### WXG-T-415
+
+- **新增**（added）：K-181「裸 `--selftest` 模式没有 package.json 入口时，就落在自测完整性守卫的枚举面之外 ⇒ 装置自测可以长期零执行而无人知」
+- **修改**（updated）：K-179「解完 merge ≠ 解对：冲突标记能整块提交入库，本仓五道门无一拦」
+
 ## 2026-10-25
 
 ### WXG-T-378
