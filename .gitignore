@@ -1,5 +1,8 @@
 # 依赖
-node_modules/
+# 不带斜杠：隔离工作树里 node_modules 是软链，目录规则 `node_modules/` 不匹配软链
+# ⇒ 工作树会露出 `?? node_modules`（WXG-T-411 用最小 repo 复现：同目录两种写法仅
+# 无斜杠那条能压住软链）。`.worktrees/` 自 WXG-T-160（76392174，2026-09-18）已忽略。
+node_modules
 .pnpm-store/
 
 # 构建产物

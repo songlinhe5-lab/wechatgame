@@ -366,17 +366,17 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 3796,
-      "lines": 129,
-      "sha256": "a483dd5ca44e8e96ee2bb8f0e8072ef15a1b27743c9ebc7d1ad62fe6770d3c0a",
+      "tokens": 3831,
+      "lines": 130,
+      "sha256": "c98a3928ccc141ccb5fbdc24e39676539e45d344b161684d52c224a1f2e82774",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文预算报表（ctx/BUDGET.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 130,
-          "tokens": 3783,
+          "endLine": 131,
+          "tokens": 3818,
           "summary": "生成：2026-10-26 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 158867 5045 normal",
+          "summary": "1 production/TASKS-DETAIL.md 158867 5044 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -420,8 +420,8 @@
           "anchor": "§3 超限清单（超过所属类别上限）",
           "level": 2,
           "startLine": 46,
-          "endLine": 104,
-          "tokens": 2287,
+          "endLine": 105,
+          "tokens": 2322,
           "summary": "上限按文档类别分档（WXG-T-377）：spec 8000（判据/规格/提案/ADR/GDD/UX/skill，未放松",
           "keywords": [
             "WXG",
@@ -435,8 +435,8 @@
         {
           "anchor": "§4 真实最常用章节与分布加权节省率（估算）",
           "level": 2,
-          "startLine": 105,
-          "endLine": 130,
+          "startLine": 106,
+          "endLine": 131,
           "tokens": 612,
           "summary": "数据源：ctx/usage-distribution.json（真实读事件账本），样本 457 次读取 / 20 会话；",
           "keywords": [
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5185,
       "lines": 164,
-      "sha256": "0a807b0e04fdfb764d9b7a8dda2d41444e98083d8327d29a852839a5a30ff3a6",
+      "sha256": "ff2cdb5f0f4ad4b87d472903cd2776c25371984aee8c3adc18174bf214ac9e1c",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 112 行 / 56193 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 116 行 / 83112 tok / 实测读 4 次",
           "level": 2,
           "startLine": 27,
           "endLine": 30,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+113 · §待排（backlog，无号，立项时领取…=84+30",
+          "summary": "§WXG 任务台账（SSOT）=1+117 · §待排（backlog，无号，立项时领取…=88+30",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 5045 行 / 158867 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 5044 行 / 158867 tok",
           "level": 2,
           "startLine": 105,
           "endLine": 109,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+5046 · §WXG-T-400=4371+80 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+5045 · §WXG-T-400=4371+80 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -85200,16 +85200,16 @@
     {
       "path": "production/TASKS-DETAIL.md",
       "tokens": 158867,
-      "lines": 5045,
-      "sha256": "25fdc013ae1f40b66d701402575885199bb4500bbee07ee20f3b1dc01b28491d",
+      "lines": 5044,
+      "sha256": "a1e9bdf3c291bf326ebea87455a9e9b6b11ca515d007d3c82052846c3b3c8ec3",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 5046,
-          "tokens": 158851,
+          "endLine": 5045,
+          "tokens": 158850,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -90925,7 +90925,7 @@
           "anchor": "§WXG-T-410",
           "level": 2,
           "startLine": 4935,
-          "endLine": 4997,
+          "endLine": 4996,
           "tokens": 924,
           "summary": "",
           "keywords": [
@@ -91019,7 +91019,7 @@
           "anchor": "§7 撞号披露",
           "level": 3,
           "startLine": 4993,
-          "endLine": 4997,
+          "endLine": 4996,
           "tokens": 34,
           "summary": "Qoder 已占用 WXG-T-409（归档器改读行内完成日期），本任务领 WXG-T-410 无冲突。",
           "keywords": [
@@ -91031,8 +91031,8 @@
         {
           "anchor": "§WXG-T-411",
           "level": 2,
-          "startLine": 4998,
-          "endLine": 5046,
+          "startLine": 4997,
+          "endLine": 5045,
           "tokens": 679,
           "summary": "",
           "keywords": [
@@ -91042,8 +91042,8 @@
         {
           "anchor": "§1 触发 (4)",
           "level": 3,
-          "startLine": 5000,
-          "endLine": 5003,
+          "startLine": 4999,
+          "endLine": 5002,
           "tokens": 90,
           "summary": "架构评审提案 TODO-6（P1 批次）：HTTP 通道平台抽象。beads studio-import 功能（WXG-",
           "keywords": [
@@ -91058,8 +91058,8 @@
         {
           "anchor": "§2 改动面 (4)",
           "level": 3,
-          "startLine": 5004,
-          "endLine": 5016,
+          "startLine": 5003,
+          "endLine": 5015,
           "tokens": 207,
           "summary": "platform/platform.ts Platform 接口加 httpGet?(url: string): Pro",
           "keywords": [
@@ -91074,8 +91074,8 @@
         {
           "anchor": "§3 架构说明 (3)",
           "level": 3,
-          "startLine": 5017,
-          "endLine": 5023,
+          "startLine": 5016,
+          "endLine": 5022,
           "tokens": 192,
           "summary": "三平台实现形状统一：weapp 是回调式 wx.request → Promise 包装；web/node 都是 fet",
           "keywords": [
@@ -91090,8 +91090,8 @@
         {
           "anchor": "§4 微信 API 形状（基础库 2.10.0+）",
           "level": 3,
-          "startLine": 5024,
-          "endLine": 5035,
+          "startLine": 5023,
+          "endLine": 5034,
           "tokens": 94,
           "summary": "",
           "keywords": [
@@ -91104,8 +91104,8 @@
         {
           "anchor": "§5 验证 (5)",
           "level": 3,
-          "startLine": 5036,
-          "endLine": 5041,
+          "startLine": 5035,
+          "endLine": 5040,
           "tokens": 32,
           "summary": "typecheck ✅",
           "keywords": [
@@ -91116,8 +91116,8 @@
         {
           "anchor": "§6 撞号披露",
           "level": 3,
-          "startLine": 5042,
-          "endLine": 5046,
+          "startLine": 5041,
+          "endLine": 5045,
           "tokens": 25,
           "summary": "WXG-T-411 本轮会话内主表/详情/git log 均零占用，安全领号。",
           "keywords": [
@@ -91131,17 +91131,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 56193,
-      "lines": 112,
-      "sha256": "a39c5d65b58395e6c20c69aa2c1b83c8ca5def1476514a70734c4f6d15371eec",
+      "tokens": 83112,
+      "lines": 116,
+      "sha256": "4dfcab0453bb533da10196090df9e99a5dfbbd049081c0b28e004fa058d7fb6c",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 113,
-          "tokens": 56184,
+          "endLine": 117,
+          "tokens": 83103,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -91154,8 +91154,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 84,
-          "endLine": 113,
+          "startLine": 88,
+          "endLine": 117,
           "tokens": 1460,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
