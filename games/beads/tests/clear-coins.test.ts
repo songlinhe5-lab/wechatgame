@@ -61,7 +61,7 @@ const cum = (table: readonly number[], n: number): number =>
     table.slice(0, n).reduce((a, b) => a + b, 0);
 
 describe('§3.14 v1.90 结算按星发豆（首通按档累进）', () => {
-    it('首通：直接 3★ = 三档累加（普通 90 / Boss 180），2★ = 50 / 100，1★ = 20 / 40', () => {
+    it('首通：直接 3★ = 三档累加（普通 60 / Boss 120），2★ = 30 / 60，1★ = 10 / 20', () => {
         const cases: readonly (readonly [number, number, number])[] = [
             [1, cum(CLEAR_COIN_FIRST, 1), cum(CLEAR_COIN_FIRST_BOSS, 1)],
             [2, cum(CLEAR_COIN_FIRST, 2), cum(CLEAR_COIN_FIRST_BOSS, 2)],
@@ -79,17 +79,17 @@ describe('§3.14 v1.90 结算按星发豆（首通按档累进）', () => {
             expect(b.meta.grantClearCoins(stars, true, 0).coins, `${stars}★ Boss 首通`).toBe(boss);
         }
         // 拍板锚点（数值漂了先看这里）
-        expect(cum(CLEAR_COIN_FIRST, 3)).toBe(90);
-        expect(cum(CLEAR_COIN_FIRST_BOSS, 3)).toBe(180);
+        expect(cum(CLEAR_COIN_FIRST, 3)).toBe(60);
+        expect(cum(CLEAR_COIN_FIRST_BOSS, 3)).toBe(120);
     });
 
-    it('两路径等价：直接 3★ 与「先 1★ 再升 3★」总额相同（都是 90）', () => {
+    it('两路径等价：直接 3★ 与「先 1★ 再升 3★」总额相同（都是 60）', () => {
         const direct = rig();
-        expect(direct.meta.grantClearCoins(3, false, 0).coins).toBe(90);
+        expect(direct.meta.grantClearCoins(3, false, 0).coins).toBe(60);
 
         const gradual = rig();
-        expect(gradual.meta.grantClearCoins(1, false, 0).coins, '1★ 首通只发 ★☆☆ 档').toBe(20);
-        expect(gradual.meta.grantClearCoins(3, false, 1).coins, '升到 3★ 补 ★★☆ + ★★★ 两档').toBe(70);
+        expect(gradual.meta.grantClearCoins(1, false, 0).coins, '1★ 首通只发 ★☆☆ 档').toBe(10);
+        expect(gradual.meta.grantClearCoins(3, false, 1).coins, '升到 3★ 补 ★★☆ + ★★★ 两档').toBe(50);
         expect(gradual.meta.coins).toBe(direct.meta.coins);
     });
 
@@ -104,7 +104,7 @@ describe('§3.14 v1.90 结算按星发豆（首通按档累进）', () => {
 
     it('同档重打不再走首通（本次星级 ≤ 历史最高 ⇒ 复刷腿）', () => {
         const a = rig();
-        expect(a.meta.grantClearCoins(3, false, 0).coins).toBe(90);
+        expect(a.meta.grantClearCoins(3, false, 0).coins).toBe(60);
         expect(a.meta.grantClearCoins(3, false, 3).coins, '已达 3★ 再打 = 复刷').toBe(
             CLEAR_COIN_REPLAY_NORMAL,
         );
@@ -141,9 +141,9 @@ describe('§3.14 v1.90 结算按星发豆（首通按档累进）', () => {
         for (let i = 0; i < 10; i += 1) a.meta.grantClearCoins(1, false, 1);
         const before = a.meta.coins;
         const g = a.meta.grantClearCoins(3, false, 1);
-        expect(g.coins, '补发 70，不被复刷上限压成 1').toBe(70);
+        expect(g.coins, '补发 50，不被复刷上限压成 1').toBe(50);
         expect(g.capped).toBe(false);
-        expect(a.meta.coins).toBe(before + 70);
+        expect(a.meta.coins).toBe(before + 50);
     });
 
     it('跨本地日复刷计次归零（与签到同口径），次日恢复 5', () => {
@@ -170,7 +170,7 @@ describe('§3.14 v1.90 结算按星发豆（首通按档累进）', () => {
         expect(third.grantClearCoins(3, false, 3).capped).toBe(false);
     });
 
-    it('章节首通池上限 = 990（9 普通 + 1 Boss 全 3★；§3.14 v1.90 口径锚）', () => {
-        expect(9 * 90 + 180).toBe(990);
+    it('章节首通池上限 = 660（9 普通 + 1 Boss 全 3★；§3.14 v1.92「甲」口径锚）', () => {
+        expect(9 * 60 + 120).toBe(660);
     });
 });

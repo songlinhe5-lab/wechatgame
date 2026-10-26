@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3793,
       "lines": 129,
-      "sha256": "39da8c0ea336ab5dde23009736b8525a9f62c5f528eb6cb260f6d557be6a5e33",
+      "sha256": "920b8359f4c4f11eac3e195bec5539398ed51a49260c753fbaac1bf7c00450fa",
       "tier": "normal",
       "sections": [
         {
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5185,
       "lines": 164,
-      "sha256": "9ac53a1eeed5853d0a45f94a6dd02afbbc17336d4ee91b6ccda0d735e1d3bb58",
+      "sha256": "f0b99ae7ce90ec6bd2e38e6df8a56cb3987f53f58a995eab0072da6e2526a89d",
       "tier": "normal",
       "sections": [
         {
@@ -713,7 +713,7 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/gdd/systems-index.md` — 307 行 / 36377 tok / 实测读 170 次",
+          "anchor": "§`games/beads/design/gdd/systems-index.md` — 307 行 / 36410 tok / 实测读 170 次",
           "level": 2,
           "startLine": 19,
           "endLine": 22,
@@ -33218,17 +33218,17 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index-changelog.md",
-      "tokens": 48836,
-      "lines": 101,
-      "sha256": "e42d9333197dd1b6028a5530634db55dddf48471f2eaa3c5182385f77595b91f",
+      "tokens": 49037,
+      "lines": 102,
+      "sha256": "b0f11af1aad868ff5483ef6c963bb03f0411a46ed4539dd033384b7edc122739",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · systems-index §6 变更记录（拆分件）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 102,
-          "tokens": 48818,
+          "endLine": 103,
+          "tokens": 49019,
           "summary": "项目：games/beads · 归属：systems-index.md 的 §6 变更记录",
           "keywords": [
             "§6",
@@ -33243,8 +33243,8 @@
           "anchor": "§6 变更记录",
           "level": 2,
           "startLine": 7,
-          "endLine": 102,
-          "tokens": 48660,
+          "endLine": 103,
+          "tokens": 48860,
           "summary": "v1.0 2026-09-11 初版：9 系统清单 + 拓扑 + §3 冻结令（含 8 项 [待确认] 提案值） WXG",
           "keywords": [
             "§3",
@@ -33256,9 +33256,9 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index.md",
-      "tokens": 36377,
+      "tokens": 36410,
       "lines": 307,
-      "sha256": "da9a4059b380c9cea794796b688cb359229a390812a514c5ff6b806060661d68",
+      "sha256": "86eb1728e4012a9c51fb5383515e425b3bc19b4a2337aa3ee50e93717fbc7781",
       "tier": "hot",
       "sections": [
         {
@@ -33266,7 +33266,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 308,
-          "tokens": 36360,
+          "tokens": 36393,
           "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.90 · 任务号 WXG-T-398（v1.90 = 结算按",
           "keywords": [
             "Systems",
@@ -33309,7 +33309,7 @@
           "level": 2,
           "startLine": 56,
           "endLine": 262,
-          "tokens": 25166,
+          "tokens": 25199,
           "summary": "本项目唯一真源（Single Source of Truth）——适用范围：游戏数值与常量（分辨率 / 安全区 / 网格",
           "keywords": [
             "Global",
@@ -33487,7 +33487,7 @@
           "level": 3,
           "startLine": 222,
           "endLine": 233,
-          "tokens": 1261,
+          "tokens": 1294,
           "summary": "STAMINA_MAX 8 体力（心）上限（宽容包 B，用户拍板）",
           "keywords": [
             "Stamina",
