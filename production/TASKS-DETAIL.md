@@ -5247,6 +5247,61 @@ interface PerformanceSnapshot {
 WXG-T-412 = Qoder 会话隔离工作树配方（已入库）。WXG-T-413 = beads 消耗品文档（已入库）。**WXG-T-414 零占用**，直接领。
 
 
+## WXG-T-415
+
+**冲突标记进门禁：`check-secrets` 加 `CONFLICT-MARKER` 一腿 + 把该脚本自测挂上 fast 档**（✅ 完成 · 2026-10-26 · 主理人(Qoder)·工具链）
+
+### 1. 触发
+接 WXG-T-412 收尾三选项选 1（用户 2026-10-26 令「1」）。要治的是判例 K-179：`origin/develop` 的一笔 `wip: merge resolution done`（`467aa574`）把 `<<<<<<< / ======= / >>>>>>>` 三段标记连同两条重复头注整块提交入库，而 pre-commit 五道门（secrets / links / plugins / mcp / tasks）判的都是结构面，**没有任何一腿 grep 冲突标记** ⇒ 下一会话直到 rebase 才撞见。K-179 ③ 已写明「最廉价的落点」并留「待主理人拍板」，本单就是那次拍板的落地。
+
+### 2. 改动面
+| 文件 | 改了什么 | 为什么放这里 |
+|---|---|---|
+| `tools/scripts/check-secrets.mjs` | ① `CONTENT_RULES` 新增 `CONFLICT-MARKER`（行首 7 个 `<` 或 `>`）；② 头注补一节「为什么这条腿长在本脚本上」；③ `--help` 的 FAIL 清单加一项；④ 自测 18 → 24 条（B9–B13 + C5） | 该脚本的扫描面恰好就是「会不会入仓」= `git ls-files --cached --others --exclude-standard`，且已挂 pre-commit ⓪ / `verify` / CI 三处 ⇒ 加一条内容规则即复用全套采集与接线，**零新脚本、零改钩子、零改 CI** |
+| `package.json` | 新增入口 `check:secrets:selftest` | 该脚本的 `--selftest` 自 WXG-T-047 起就没有入口 ⇒ 18 条腿从未在 CI 跑过（判例 K-181） |
+| `tools/scripts/selftests.mjs` | `TIERS.fast` 加同名档位项 | 名字与 package.json 入口须一字不差，否则 `guardCoverage()` 报「入口未入档 / 档位项不存在」 |
+| `docs/architecture/control-manifest.md` §12 | 提交前自查表加一行「没有把未解决的 merge 冲突标记留在行首」 | 先改文档再改代码（AGENTS.md §4）；机器守之前得人知道有这条 |
+| `docs/architecture/architecture.md` 门禁表 | 「密钥守卫」→「密钥 / 冲突标记守卫」 | 同一脚本职责变了，表要跟 |
+| `knowledge/lessons/toolchain-git.md` | K-179 ③ 由「待拍板」改为「已落地 + 判据 + 复取读数」；新增 K-181 | 沉淀写回原条目，不留两条互相矛盾的说法 |
+
+⛔ 不新建 `check-conflict-markers.mjs`，也不改 `.githooks/pre-commit` 与 `verify-all.mjs` 步骤表（`check:secrets` 两处都已在册）——另起脚本要多接一处线、多一份扫描面口径，重复判据的噪声风险翻倍。
+
+### 3. 判据（为何只查行首、为何不查 `=`）
+- 命中条件 = 行首 7 个 `<` 或 7 个 `>`，其后为空格/制表或行末（git 把标记写死在列 0）。命中即 **FAIL，文档不降级**——事故就发生在 `.md` 里，把 `.md` 降成 WARN 等于没守。
+- **`=======` 那一段刻意不查**：markdown setext 标题的下划线正是行首一串 `=`，查它就把门禁变成噪声源，而噪声逼人加 `--no-verify`（K-025）；未解冲突必然成对带 `<<<<<<<` 与 `>>>>>>>`，任一条命中即可拦下。该取舍由自测 B13（setext 正例不命中）钉住。
+- 文档里要**展示**标记：必须写在行内反引号或缩进（行首非 0 列）——B10 / B11 是这两条的判别腿，本单的 K-179 追记与主表行本身就是合法写法（标记都在行中）。
+
+### 4. 取证
+- **事故原文复取**（第二口径，K-168）：把 `467aa574:production/TASKS.md` 落进临时桩仓库，跑 `node tools/scripts/check-secrets.mjs --root=<桩>` ⇒ `FAIL [CONFLICT-MARKER] production/TASKS.md:5`。即「这条腿当年就拦得住」是实测，不是推理。
+- **本仓零存量**：`git grep -nE '^(<<<<<<<|>>>>>>>)' -- .` = 0 命中；全仓扫描 `1830` 个文本文件 / 跳过二进制或超限 `478` / FAIL `0` / WARN `9`（9 条都是既有 AppID 文档降级项，与本单无关，改前改后同数）。
+- **自测**：`check-secrets --selftest` 24/24；`selftest:fast` 由 11 件 → 12 件全绿。
+- **K-181 的盘点差集**（`grep -l selftest tools/scripts/*.mjs` 减去 package.json `*:selftest` 指向的脚本）实测命中三件：`check-secrets.mjs`（本单挂档）、`build-mcp-configs.mjs`、`check-plugin-anchor.mjs`（后两件未挂，见 §7）。
+
+### 5. 验证（本单暂存态读数）
+| 门 / 命令 | 读数 |
+|---|---|
+| `pnpm run verify`（建树后基线，未含本单改动） | PASS 20 ｜ SKIP 2 ｜ FAIL 0（共 22 项） |
+| `pnpm run verify`（本单暂存态、未入库） | PASS 19 ｜ SKIP 2 ｜ FAIL 1 —— 唯一红 = `selftest:fast` 里的 `ctx:check`（默认 HEAD 口径，文档已改而索引未入库）= 判例 K-136 同型假红，入库即消；新挂的 `check:secrets:selftest` 在该档内 ✅（12 件里 PASS 11 / FAIL 1，红的就是上面那件） |
+| `pnpm run check:secrets` 全仓 | OK —— FAIL 0（扫 1830 个文本文件、跳过二进制/超限 478、WARN 9）；改前 HEAD 版脚本同面同读数 ⇒ 新腿零存量误报 |
+| `node tools/scripts/check-secrets.mjs --selftest` | PASS 24 ｜ FAIL 0 |
+| `pnpm run selftest:fast` | 台账回写前首跑 PASS 12 ｜ FAIL 0（新挂的 `check:secrets:selftest` 已入列）；台账回写后同档变 11 / FAIL 1，红的只有上行的 `ctx:check` |
+| `pnpm run check:tasks` | OK —— 主表 63 行（本单 +1）、详情 86 节、归档 235 节；H 观察哨仍报 63 > 20（归档需用户批准 `--write`） |
+| `pnpm run kb:check` | PASSED —— 十重校验、活跃 178（本单新增 K-181）；`kb:sync --task=WXG-T-415`：新增 1｜修改 1（K-179）|
+| `pnpm run check:links` | OK —— agents 7｜skills 47，frontmatter / INDEX / 路由表 / 四 IDE 链接完整 |
+| ctx 四面（`build-context-index.mjs --staged-blobs` 暂存态口径） | TASKS.md **57,609**（档 80,000）｜ TASKS-DETAIL.md **165,577**（档 205,000）｜ BACKLOG.md 11,980（档 16,000）｜ MEMORY.md 4,761（本单未改）｜ `files` 495（含 22 份 vendor README ⇒ 按 WXG-T-412 配方先补齐再 build） |
+
+### 6. 裁定与边界
+- 落点由「用户选 1」授权 ⇒ 不再另开 ADR；改的是既有脚本的一条规则，五道门的其余判据面一字未动。
+- ⚠ 只拦「行首 7 个标记字符」这一形态：若谁把标记缩进后提交（git 不会这么写），本腿不拦——记为已知上限，⛔ 不做模糊匹配（做不出判据就是伪判据）。
+- ⚠ 本腿查的是**工作树/暂存内容**（同 check-secrets 既有语义），不查历史 blob ⇒ 已入库的旧标记只能靠 `git grep` 人工盘（本轮读数 = 0）。
+- 全程在隔离工作树 `.worktrees/wxg-t-415-conflict-gate`（基点 `origin/develop` = `fb50e123`，即对方 413/414 批之后）内完成；建树即按 WXG-T-412 的配方补齐 4 处 `node_modules` 软链与 22 份 vendor `*.md`，主仓另有未提交的对方在制品（`games/beads/design/proposals/star-economy-and-retention.md`）⇒ 本单不夹带（K-137）。
+
+### 7. 遗留
+1. 另有两件裸 `--selftest` 未挂档：`build-mcp-configs.mjs`、`check-plugin-anchor.mjs`（判例 K-181 ② 的差集法可直接复跑）。
+2. `selftests.mjs::guardCoverage()` 的枚举面本身不含「裸 `--selftest`」线索 ⇒ 要根治须给它加第三类线索（拿 `tools/scripts/*.mjs` 里带 `--selftest` 的脚本名去比对 TIERS 的 argv 目标），未做是因为它会立刻把 1. 判红、把本单撑成三件事。
+3. `selftests.mjs` 头注仍写「fast 七件自测」、CI L148 注释仍写「11 件」，实际 fast 档已 12 件 ⇒ 注释读数会漂，下次改动顺手校准。
+4. `check:size` / `check:cocos-mask` 在树内仍 SKIP（无构建产物，不是通过）；要满档需先 `pnpm run build:cocos`。
+
 ## WXG-T-418
 
 ### 1. 触发
@@ -5320,3 +5375,56 @@ WXG-T-412 = Qoder 会话隔离工作树配方（已入库）。WXG-T-413 = beads
 处置 = 在 `ctx/budget-exempt.json` 追加一条**跨轨代登记**（`taskId` = **WXG-T-413**，note 明写「登记人 = WXG-T-418、正文归属 413、未改该文件一个字」），并附撤销条件：归属会话下次修订前把 §15 拆为 `powerups-economy.md`、正文留指针，顶回 ≤8000 即撤销。
 
 ⛔ 未改该 GDD 一个字（跨轨内容不动，只解除门禁阻塞）。
+
+---
+
+## WXG-T-419
+
+### 0. 触发与性质
+
+用户 2026-10-26 连续四次裁定，要求「重新设计道具」，先走「全流程 / 新系统」，并把首件功能定名「区域还原」。本单 = **设计域定稿批**，零改码、零改 `systems-index §3` 冻结常量、零新增存档字段。
+
+领号核对：头注原读「下一可用 415」，实测 415 = Qoder 冲突标记门禁批（`2c0a31df` 已入库）、416 = Qoder 自测覆盖批（worktree 在制）、417 = 对方前瞻、418 = WorkBuddy 开放数据域 ADR 批（`e0443c03`/`a4d7942f`/`e0c496f7` 已入库）⇒ 按判例 K-046 让四号，取 **419**。
+
+### 1. 交付物
+
+`games/beads/design/gdd/powerups-v2.md` v2.2，**1244 行 / 九节 / 20 条 Node 可断言判据**。取代 `powerups.md` v1.3 三解环器（`solver` / `solverPlus` / `solverRandom`），按 K-053 **划线留档不删**。
+
+### 2. 用户裁定（六条，逐条为主）
+
+| # | 裁定 | 落点 |
+|---|---|---|
+| 1 | 区域还原 = **6×6**，盘面小于 6×6 时**贴边收缩**（最小关 6×5 = 整盘） | §2.2.1；`SIDE = 6`（T-9 结案） |
+| 2 | 窗口位置 = **自动选错位珠最密集处**，平票走五级确定性 tie-break（禁 `Math.random`） | §2.2.1；实测「最密集」规则本身在 30×30 关值 **36 颗 vs 行主序 0 颗** |
+| 3 | 区域内**全部归位**（不按比例截断）；实现只能**两两交换**，不得就地改色（破坏色数守恒 ⇒ 死锁） | §2.2.1「为什么必须交换」；环轮转实测会让 3 关一键通关，明确不做 |
+| 4 | 第二件 = **固定 12 颗随机**，命名定为 A 组「**熨贴片 / 抖豆筛**」，显示名与内部类型名 `windowRestore` / `randomRestore` 解耦 | §2.2.0 / §2.2.2 |
+| 5 | 额度 = **每件免费 1 次、用完截止**，之后**豆子购买 或 看视频**；**视频无日限**（用户明确接受其为增收手段） | §2.5 / §2.6；原「引导 + 免费」两份额度、每日视频上限均按 K-053 划线 |
+| 6 | 抬价判据 = **普通关清零总成本 > 首通 90 豆**（不许首通赚豆）；强度问题交**关卡侧**调错位珠规模，**不缩窗口** | §5.3 / §9.3（L-1～L-5） |
+
+### 3. 关键核算读数（10 关真实数据 + 2000 seed）
+
+- 现池 10 关 `M`（错位珠）= **60–1024 颗**，跨度 17 倍；此前经济体提案沿用的「2–16 颗」只对 `swaps` 型成立，**对现池不成立**（存量口径更正）。
+- 熨贴片净归位：普通关 **29–61 颗 = M 的 36%–64%**；boss 关（30×30 / 32×32）仅 **5.9%–6.8%** ⇒ 中盘神器、大盘小口。
+- 抖豆筛净归位：期望 **12.3–21.9 颗**（取量 12 连带放大 1.02–1.82 倍），硬区间 `[12,24]`；boss 关仅 1.9%–2.4%。
+- 熨贴片在**全部 10 关**占优抖豆筛 **2.01–3.53 倍**，抖豆筛无独立主场 ⇒ 用户已知情并裁定不调（F-1～F-4 事实登记）。
+- 定价核算：熨贴片 **60** / 抖豆筛 **30** 时，5 个普通关清零成本均为首通 90 豆的 **1.33 倍**（最薄档）；boss 关 7.67×/10.33× ⇒ 道具在 boss 关事实上出局（L-5）。**下限硬依据**：抖豆筛 25 豆时 L00007 有 6.8% seed 4 次清零 ⇒ 只付 3 次钱 = 75 豆 < 90 豆，仍赚 ⇒ 推到 30。
+- 视频无日限的副作用（已登记为用户接受的取舍）：视频腿成为事实主渠道，豆子出口可能被架空，附 eCPM/填充率重评触发条件。
+
+### 4. 待用户确认（1 条，阻塞落码）
+
+**T-20**：免费 1 次是「**每关（每局）重置**」（主案，关内态不入档）还是「**每账号永久 1 次**」（备选，需 2 bit 存档 + 版本号 + 迁移矩阵）。用户原话「**免费道具总共每个有一次，用完截止**」含「总共」字样，两种读法都成立，设计侧未代选。
+
+### 5. 待拍板（10 条，均有推荐值）
+
+T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额度）· T-19 双通道面板默认腿（推荐：看视频）· T-15 第 3 预留卡卡面态与点击 · T-17 抖豆筛补抽口径（推荐乙：行主序确定性补抽）· T-8 `powerup:used` 可选 `window` 字段 · T-6/T-7/T-9（值已按裁定取，只待正式冻结）· §5.3-f 新定价锚（「首通奖励 1/3、2/3」替代「20 豆 = 一局价值」）。
+
+### 6. 未做 / 债务（诚实登记）
+
+1. **文档本体超 ctx spec 类 8000 tok 预算**。豁免条目已被 WXG-T-418 代登记在 `ctx/budget-exempt.json`，但其 `reason`/`note` 把正文归属写成 WXG-T-413 的 star-economy §15（**串台**），实际超限主体是本文档自身（1244 行）。本单未拆分（拆分＝把 §5 数值与定价、§2.2.4 核算表外移为 `powerups-economy.md`），留给下一批做；豁免撤销条件以拆分完成为准。
+2. **旧文档未加指针**：`powerups.md` v1.3 与 `star-economy-and-retention.md` §15 头注的「已被 §16 取代」尚未回指本文件（§9.2 R-1～R-18 已列清单，本单不代改他人文档）。
+3. **`systems-index §3.6` 未改**：三道具常量与三价仍在冻结表中，与本体系冲突，待 §3 变更单（§5.2 T-1～T-20）正式冻结后同批回写。
+4. **零落码**：`src/systems/powerups.ts` 仍是三解环器实现，判据 20 条全未落测。
+
+### 7. 验证
+
+`pnpm run ctx:check` → OK（结构门 A/B/C/D/D2 与 E3 基线通过；B 项因豁免放行，见 §6-1，⛔ 不得据此认为体积已达标）。未跑 `pnpm run verify`（本单零改码、无构建产物变化，按需在下一批落码时全量跑）。

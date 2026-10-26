@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3834,
       "lines": 130,
-      "sha256": "9788b99a9075ea7c7054c1b2392a7378180952ebdf885cf95f2d359ba60bf690",
+      "sha256": "658fedf5828d08a2b773af9cc541cc4c71c56b5547d730b9123061086bb84fe0",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 166152 5322 normal",
+          "summary": "1 production/TASKS-DETAIL.md 170156 5430 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5185,
       "lines": 164,
-      "sha256": "327d7a4b503c5e7c90c3c2b823b7aeff1cae793b7039303a2db6278a6b5c0914",
+      "sha256": "0cff5f77b21ea5606d374a0cbfa746de4a9fc725360e3cc55b34aa41f35f7063",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 115 行 / 57781 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 117 行 / 58781 tok / 实测读 4 次",
           "level": 2,
           "startLine": 27,
           "endLine": 30,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+116 · §待排（backlog，无号，立项时领取…=87+30",
+          "summary": "§WXG 任务台账（SSOT）=1+118 · §待排（backlog，无号，立项时领取…=89+30",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 5322 行 / 166152 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 5430 行 / 170156 tok",
           "level": 2,
           "startLine": 105,
           "endLine": 109,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+5323 · §WXG-T-404=4482+55 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+5431 · §WXG-T-406=4692+43 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -32854,18 +32854,18 @@
     },
     {
       "path": "games/beads/design/gdd/powerups-v2.md",
-      "tokens": 15809,
-      "lines": 486,
-      "sha256": "c990b52c598c2344c8e71865b10216cac81cfec93292982fc5f215a7a9d35f9e",
+      "tokens": 57165,
+      "lines": 1244,
+      "sha256": "46630fcb0d5cc98567b5bde20b118bdd108bade6a7b2285e0a1c0dd6e15ade95",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · S6 道具系统 v2（Powerups v2）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 487,
-          "tokens": 15794,
-          "summary": "项目：games/beads（拼豆错位归位）· 版本 v2.0 · 任务号 WXG-T-415（用户 2026-10-2",
+          "endLine": 1245,
+          "tokens": 57150,
+          "summary": "项目：games/beads（拼豆错位归位）· 版本 v2.2 · 任务号 WXG-T-416（同一交付物迭代，不新开号",
           "keywords": [
             "GDD",
             "Powerups",
@@ -32878,9 +32878,9 @@
         {
           "anchor": "§1 目标",
           "level": 2,
-          "startLine": 12,
-          "endLine": 33,
-          "tokens": 464,
+          "startLine": 39,
+          "endLine": 67,
+          "tokens": 1004,
           "summary": "道具体系在核心循环里的职责 = 破局手段，不是进度手段，也不是通关手段。",
           "keywords": [
             "目标"
@@ -32889,9 +32889,9 @@
         {
           "anchor": "§2 机制",
           "level": 2,
-          "startLine": 34,
-          "endLine": 236,
-          "tokens": 5959,
+          "startLine": 68,
+          "endLine": 607,
+          "tokens": 21373,
           "summary": "",
           "keywords": [
             "机制"
@@ -32900,8 +32900,8 @@
         {
           "anchor": "§2.1 作用域（唯一作用对象 = 棋盘 `filled(错位)` 格）",
           "level": 3,
-          "startLine": 36,
-          "endLine": 44,
+          "startLine": 70,
+          "endLine": 78,
           "tokens": 315,
           "summary": "可作用：仅 filled(错位) 格（判定式 misplaced(cell) = filled ∧ colorIdx ≠",
           "keywords": [
@@ -32916,9 +32916,9 @@
         {
           "anchor": "§2.2 两件道具效果表",
           "level": 3,
-          "startLine": 45,
-          "endLine": 165,
-          "tokens": 3291,
+          "startLine": 79,
+          "endLine": 398,
+          "tokens": 11634,
           "summary": "#### 2.2.0 身份、命名与解耦",
           "keywords": [
             "两件道具效果"
@@ -32927,9 +32927,9 @@
         {
           "anchor": "§2.3 结算时序（一次点击 = 一次原子结算，无瞄准中间态）",
           "level": 3,
-          "startLine": 166,
-          "endLine": 184,
-          "tokens": 419,
+          "startLine": 399,
+          "endLine": 423,
+          "tokens": 651,
           "summary": "沿用 2026-09-12 既定裁定，逐字不变：点道具卡 = 当帧完成全部裁定，不进入「选窗口 / 选珠」二级态，不缓存",
           "keywords": [
             "结算时序",
@@ -32941,9 +32941,9 @@
         {
           "anchor": "§2.4 与 S3 的事件契约（`powerup:used {type, affectedCells}`）",
           "level": 3,
-          "startLine": 185,
-          "endLine": 195,
-          "tokens": 456,
+          "startLine": 424,
+          "endLine": 434,
+          "tokens": 565,
           "summary": "S6 不持有网格真源：只消费 S3 广播的 bead:placed 维护棋盘错位只读镜像（哪些格是 filled(错位)",
           "keywords": [
             "powerup",
@@ -32955,23 +32955,27 @@
           ]
         },
         {
-          "anchor": "§2.5 次数计数模型（四类额度）",
+          "anchor": "§2.5 额度模型（v2.2：**两类**——免费 1 次 + 额外无上限）· ⚠ 推翻 v2.1 的四类额度",
           "level": 3,
-          "startLine": 196,
-          "endLine": 211,
-          "tokens": 542,
-          "summary": "四类额度，互不挪用、分别记账：",
+          "startLine": 435,
+          "endLine": 527,
+          "tokens": 4535,
+          "summary": "v2.2 改判（用户 2026-10-26 三次裁定 B）：用户原话「免费道具总共每个有一次，用完截止，之后每次都需要豆",
           "keywords": [
-            "次数计数模型",
-            "四类额度"
+            "额度模型",
+            "两类",
+            "免费",
+            "额外无上限",
+            "推翻",
+            "的四类额度"
           ]
         },
         {
           "anchor": "§2.6 激励视频与购买双通道 · ⚠ 本版推翻 2026-10-22 裁定",
           "level": 3,
-          "startLine": 212,
-          "endLine": 236,
-          "tokens": 822,
+          "startLine": 528,
+          "endLine": 607,
+          "tokens": 3538,
           "summary": "旧裁定（2026-10-22 用户拍板）：局内 3 个道具位的广告腿退役，超出免费次数后只走豆子购买（落点 = syst",
           "keywords": [
             "syst",
@@ -32984,23 +32988,23 @@
         {
           "anchor": "§3 输入",
           "level": 2,
-          "startLine": 237,
-          "endLine": 253,
-          "tokens": 405,
-          "summary": "玩家（经 S2 路由优先级 2） 道具卡点击，携带 type ∈ POWERUP_TYPES（本版 = ['window",
+          "startLine": 608,
+          "endLine": 625,
+          "tokens": 657,
+          "summary": "玩家（经 S2 路由优先级 2） 道具卡点击，携带 type ∈ POWERUP_TYPES（v2.1 = ['wind",
           "keywords": [
             "type",
             "POWERUP_TYPES",
-            "window",
+            "wind",
             "输入"
           ]
         },
         {
           "anchor": "§4 输出与反馈",
           "level": 2,
-          "startLine": 254,
-          "endLine": 276,
-          "tokens": 701,
+          "startLine": 626,
+          "endLine": 650,
+          "tokens": 1336,
           "summary": "表现参数（毫秒 / 像素 / α）只引节号，本文不自写。",
           "keywords": [
             "输出与反馈"
@@ -33009,9 +33013,9 @@
         {
           "anchor": "§5 数值",
           "level": 2,
-          "startLine": 277,
-          "endLine": 341,
-          "tokens": 2734,
+          "startLine": 651,
+          "endLine": 976,
+          "tokens": 14115,
           "summary": "",
           "keywords": [
             "数值"
@@ -33020,9 +33024,9 @@
         {
           "anchor": "§5.1 本体系只引用、不新写（`systems-index §3` 既有常量）",
           "level": 3,
-          "startLine": 279,
-          "endLine": 289,
-          "tokens": 278,
+          "startLine": 653,
+          "endLine": 663,
+          "tokens": 449,
           "summary": "§3.6：「道具目标 = 棋盘错位珠（托盘零读写）」条 · POWERUP_FREE_USES · AD_PLACEME",
           "keywords": [
             "systems-index §3",
@@ -33036,9 +33040,9 @@
         {
           "anchor": "§5.2 变更单建议表（`[待拍板]`，冻结权归 `systems-index §3`）",
           "level": 3,
-          "startLine": 290,
-          "endLine": 308,
-          "tokens": 841,
+          "startLine": 664,
+          "endLine": 693,
+          "tokens": 2628,
           "summary": "⛔ 本表是建议，本文不代冻；每行落库前须由主理人确认并登记 systems-index-changelog。",
           "keywords": [
             "[待拍板]",
@@ -33052,22 +33056,113 @@
         {
           "anchor": "§5.3 推荐值与推导依据（供拍板直接读）",
           "level": 3,
-          "startLine": 309,
-          "endLine": 335,
-          "tokens": 1427,
-          "summary": "T-2 每关额外次数（推荐「合计 2、每型 1」）",
+          "startLine": 694,
+          "endLine": 704,
+          "tokens": 418,
+          "summary": "§5.3 的四条前置硬约束（v2.2 重写 · ⛔ 任何定价方案都必须先满足）",
           "keywords": [
+            "§5.3",
             "推荐值与推导",
             "依据",
             "供拍板直接读"
           ]
         },
         {
+          "anchor": "§5.3-a 目标函数：把用户原话写成可核验判据",
+          "level": 3,
+          "startLine": 705,
+          "endLine": 727,
+          "tokens": 499,
+          "summary": "用户原话（2026-10-26 三次裁定 C）：「后期会抬高错位珠数量，但是现阶段因为动的珠子变多了，需要抬高价格，让不",
+          "keywords": [
+            "§5.3",
+            "目标函数",
+            "把用户原话写",
+            "成可核验判据"
+          ]
+        },
+        {
+          "anchor": "§5.3-b 逐关核算（真实关卡数据，⛔ 不给区间了事）",
+          "level": 3,
+          "startLine": 728,
+          "endLine": 766,
+          "tokens": 856,
+          "summary": "表 A · 熨贴片（windowRestore） —— 输入 = §2.2.4 序列 A（确定性，无尾部）：",
+          "keywords": [
+            "§5.3",
+            "§2.2.4",
+            "windowRestore",
+            "逐关核算",
+            "真实关卡数据",
+            "不给区间了事"
+          ]
+        },
+        {
+          "anchor": "§5.3-c 定价候选与终选（`[待拍板]` T-5）",
+          "level": 3,
+          "startLine": 767,
+          "endLine": 784,
+          "tokens": 904,
+          "summary": "甲 50 25 2.00× 100（1.11×） 100（1.11×） 75 ⇒ 净赚 15 ✗ 1.21 中位口径达标",
+          "keywords": [
+            "[待拍板]",
+            "§5.3",
+            "定价候选与终",
+            "待拍板"
+          ]
+        },
+        {
+          "anchor": "§5.3-d boss 关读数（如实登记：抬价后 boss 关道具接近不可用）",
+          "level": 3,
+          "startLine": 785,
+          "endLine": 795,
+          "tokens": 399,
+          "summary": "L00009（30×30，M = 612） 180 1380（23 次付费） 7.67× 1350（45 次） 7.50",
+          "keywords": [
+            "§5.3",
+            "boss",
+            "L00009",
+            "关读数",
+            "如实登记",
+            "抬价后"
+          ]
+        },
+        {
+          "anchor": "§5.3-e 未启用的杠杆（登记 · ⛔ 本版一个都没开）",
+          "level": 3,
+          "startLine": 796,
+          "endLine": 805,
+          "tokens": 273,
+          "summary": "用户 2026-10-26 三次裁定 C 只选了抬单价。以下三条是 v2.1 的原推导，按 K-053 保留，供「若 p",
+          "keywords": [
+            "§5.3",
+            "未启用的杠杆",
+            "登记",
+            "本版一个都没"
+          ]
+        },
+        {
+          "anchor": "§5.3-f 定价基准重审：「20 豆 = 一局价值」这条锚还能不能用（v2.2 必答）",
+          "level": 3,
+          "startLine": 806,
+          "endLine": 961,
+          "tokens": 6768,
+          "summary": "任务前提：本体系只继承经济体提案 §15.4 的「20 豆 = 一局价值」这一条基准，其余 §15 内容已于 v2.1 ",
+          "keywords": [
+            "§5.3",
+            "§15.4",
+            "§15",
+            "定价基准重审",
+            "一局价值",
+            "这条锚还能不"
+          ]
+        },
+        {
           "anchor": "§5.4 本体系**不**改动的量（防误伤清单）",
           "level": 3,
-          "startLine": 336,
-          "endLine": 341,
-          "tokens": 104,
+          "startLine": 962,
+          "endLine": 976,
+          "tokens": 696,
           "summary": "MISPLACED_PAIRS_MIN/MAX · misplaced 判定式 · TRAY_* 全族 · STAR_T",
           "keywords": [
             "MISPLACED_PAIRS_MIN",
@@ -33081,9 +33176,9 @@
         {
           "anchor": "§6 边界条件",
           "level": 2,
-          "startLine": 342,
-          "endLine": 373,
-          "tokens": 1280,
+          "startLine": 977,
+          "endLine": 1034,
+          "tokens": 3260,
           "summary": "极端值 / 小盘",
           "keywords": [
             "边界条件"
@@ -33092,9 +33187,9 @@
         {
           "anchor": "§7 依赖",
           "level": 2,
-          "startLine": 374,
-          "endLine": 403,
-          "tokens": 593,
+          "startLine": 1035,
+          "endLine": 1065,
+          "tokens": 1078,
           "summary": "上游",
           "keywords": [
             "依赖"
@@ -33103,26 +33198,26 @@
         {
           "anchor": "§8 验收标准（可纯 Node 断言的硬判据；未标环境者均 `[Node]` vitest 可断言）",
           "level": 2,
-          "startLine": 404,
-          "endLine": 449,
-          "tokens": 1585,
-          "summary": "记号：hits = 最密集窗口内错位珠数；ΔM = 一次使用前后的错位总数差；affectedCells = 事件 pa",
+          "startLine": 1066,
+          "endLine": 1154,
+          "tokens": 4242,
+          "summary": "记号：hits = 最密集窗口内错位珠数（仅 A）；M₀ = 裁定时刻错位珠数；n = B 的实际处理颗数 = min(",
           "keywords": [
             "[Node]",
             "Node",
             "vitest",
             "hits",
-            "affectedCells",
+            "min",
             "验收标准"
           ]
         },
         {
           "anchor": "§9 变更记录",
           "level": 2,
-          "startLine": 450,
-          "endLine": 487,
-          "tokens": 1654,
-          "summary": "v2.0 2026-10-26 道具体系重做（WXG-T-415，用户 2026-10-26 拍板）：① 旧三道具 so",
+          "startLine": 1155,
+          "endLine": 1245,
+          "tokens": 8190,
+          "summary": "v2.2 2026-10-26 用户三次裁定 A–E 落地（WXG-T-416；同一交付物迭代、不新开号），五项逐条登记",
           "keywords": [
             "WXG",
             "变更记录"
@@ -33131,9 +33226,9 @@
         {
           "anchor": "§9.1 被本版取代的旧文档（判例 K-053 划线保留，⛔ 不删）",
           "level": 3,
-          "startLine": 456,
-          "endLine": 462,
-          "tokens": 322,
+          "startLine": 1163,
+          "endLine": 1170,
+          "tokens": 697,
           "summary": "gdd/powerups.md v1.3 全文 整篇划线为史证，文件头加指针「已被 gdd/powerups-v2.md",
           "keywords": [
             "gdd",
@@ -33147,32 +33242,49 @@
         {
           "anchor": "§9.2 需同步回写的文档清单（本单不代改，逐项登记）",
           "level": 3,
-          "startLine": 463,
-          "endLine": 483,
-          "tokens": 862,
-          "summary": "R-1 systems-index §3.6 整节 POWERUP_TYPES 换两型；SOLVER_PLUS_COUN",
+          "startLine": 1171,
+          "endLine": 1193,
+          "tokens": 2225,
+          "summary": "R-1 systems-index §3.6 整节 POWERUP_TYPES 换两型（['windowRestore'",
           "keywords": [
             "§3.6",
             "systems",
             "index",
             "POWERUP_TYPES",
-            "SOLVER_PLUS_COUN",
+            "windowRestore",
             "需同步回写的"
           ]
         },
         {
-          "anchor": "§9.3 本版未决（须主理人/用户裁决才能推进落码）",
+          "anchor": "§9.3 关卡侧待办（v2.1 新增 · **裁定 E** 的直接落点，本批不做，属关卡设计域）",
           "level": 3,
-          "startLine": 484,
-          "endLine": 487,
-          "tokens": 67,
-          "summary": "见 §5 T-1 ～ T-12 共 12 条 [待拍板]。其中阻塞落码的四条：T-2（额外次数上限）· T-5（单价）·",
+          "startLine": 1194,
+          "endLine": 1212,
+          "tokens": 1169,
+          "summary": "裁定原话（用户 2026-10-26）：「后期调整关卡豆子数量，鼓励用道具完成关卡，可以提升消耗和收入」。",
           "keywords": [
-            "§5",
+            "关卡侧待办",
+            "新增",
+            "裁定",
+            "的直接落点",
+            "本批不做",
+            "属关卡设计域"
+          ]
+        },
+        {
+          "anchor": "§9.4 本版未决（v2.2 重排：**按「等谁」分三类**，⛔ 别混着排期）",
+          "level": 3,
+          "startLine": 1213,
+          "endLine": 1245,
+          "tokens": 968,
+          "summary": "见 §5.2 变更单建议表 T-1 ～ T-20 共 20 条，其中 4 条已结案（T-1 / T-13 / T-16 ",
+          "keywords": [
+            "§5.2",
             "本版未决",
-            "须主理人",
-            "用户裁决才能",
-            "推进落码"
+            "重排",
+            "等谁",
+            "分三类",
+            "别混着排期"
           ]
         }
       ]
@@ -86222,17 +86334,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 166152,
-      "lines": 5322,
-      "sha256": "63549a325553fb0a608fe99b2ac154d01600349d8e24e3845e3ac58c95489df4",
+      "tokens": 170156,
+      "lines": 5430,
+      "sha256": "bd04d7e4e47df2fa4ff828d75e20a751f2c8d62b1bc98d70931b4c14da05e2a1",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 5323,
-          "tokens": 166136,
+          "endLine": 5431,
+          "tokens": 170140,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -92516,21 +92628,140 @@
           ]
         },
         {
-          "anchor": "§WXG-T-418",
+          "anchor": "§WXG-T-415",
           "level": 2,
           "startLine": 5250,
-          "endLine": 5323,
-          "tokens": 1745,
+          "endLine": 5304,
+          "tokens": 2296,
+          "summary": "冲突标记进门禁：check-secrets 加 CONFLICT-MARKER 一腿 + 把该脚本自测挂上 fast 档",
+          "keywords": [
+            "WXG",
+            "check",
+            "secrets",
+            "CONFLICT",
+            "MARKER",
+            "fast"
+          ]
+        },
+        {
+          "anchor": "§1 触发 (7)",
+          "level": 3,
+          "startLine": 5254,
+          "endLine": 5256,
+          "tokens": 166,
+          "summary": "接 WXG-T-412 收尾三选项选 1（用户 2026-10-26 令「1」）。要治的是判例 K-179：origin",
+          "keywords": [
+            "WXG",
+            "origin",
+            "触发"
+          ]
+        },
+        {
+          "anchor": "§2 改动面 (7)",
+          "level": 3,
+          "startLine": 5257,
+          "endLine": 5268,
+          "tokens": 521,
+          "summary": "tools/scripts/check-secrets.mjs ① CONTENT_RULES 新增 CONFLICT-",
+          "keywords": [
+            "tools",
+            "scripts",
+            "check",
+            "secrets",
+            "mjs",
+            "CONTENT_RULES"
+          ]
+        },
+        {
+          "anchor": "§3 判据（为何只查行首、为何不查 `=`）",
+          "level": 3,
+          "startLine": 5269,
+          "endLine": 5273,
+          "tokens": 241,
+          "summary": "命中条件 = 行首 7 个 < 或 7 个 >，其后为空格/制表或行末（git 把标记写死在列 0）。命中即 FAIL，",
+          "keywords": [
+            "=",
+            "git",
+            "FAIL",
+            "判据",
+            "为何只查行首",
+            "为何不查"
+          ]
+        },
+        {
+          "anchor": "§4 取证",
+          "level": 3,
+          "startLine": 5274,
+          "endLine": 5279,
+          "tokens": 263,
+          "summary": "事故原文复取（第二口径，K-168）：把 467aa574:production/TASKS.md 落进临时桩仓库，跑 ",
+          "keywords": [
+            "aa574",
+            "production",
+            "TASKS",
+            "取证"
+          ]
+        },
+        {
+          "anchor": "§5 验证（本单暂存态读数）",
+          "level": 3,
+          "startLine": 5280,
+          "endLine": 5292,
+          "tokens": 493,
+          "summary": "pnpm run verify（建树后基线，未含本单改动） PASS 20 ｜ SKIP 2 ｜ FAIL 0（共 22",
+          "keywords": [
+            "pnpm",
+            "run",
+            "verify",
+            "PASS",
+            "SKIP",
+            "FAIL"
+          ]
+        },
+        {
+          "anchor": "§6 裁定与边界",
+          "level": 3,
+          "startLine": 5293,
+          "endLine": 5298,
+          "tokens": 281,
+          "summary": "落点由「用户选 1」授权 ⇒ 不再另开 ADR；改的是既有脚本的一条规则，五道门的其余判据面一字未动。",
+          "keywords": [
+            "ADR",
+            "裁定与边界"
+          ]
+        },
+        {
+          "anchor": "§7 遗留 (3)",
+          "level": 3,
+          "startLine": 5299,
+          "endLine": 5304,
+          "tokens": 225,
+          "summary": "1. 另有两件裸 --selftest 未挂档：build-mcp-configs.mjs、check-plugin-a",
+          "keywords": [
+            "selftest",
+            "build",
+            "mcp",
+            "configs",
+            "mjs",
+            "check"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-418",
+          "level": 2,
+          "startLine": 5305,
+          "endLine": 5380,
+          "tokens": 1746,
           "summary": "",
           "keywords": [
             "WXG"
           ]
         },
         {
-          "anchor": "§1 触发 (7)",
+          "anchor": "§1 触发 (8)",
           "level": 3,
-          "startLine": 5252,
-          "endLine": 5257,
+          "startLine": 5307,
+          "endLine": 5312,
           "tokens": 127,
           "summary": "用户 2026-10-26 问：「TODO-8 开放数据域 是否需要后端能力？还是微信能够提供排行能力？如果需要后端能力",
           "keywords": [
@@ -92541,8 +92772,8 @@
         {
           "anchor": "§2 结论（回答「要不要后端」）",
           "level": 3,
-          "startLine": 5258,
-          "endLine": 5267,
+          "startLine": 5313,
+          "endLine": 5322,
           "tokens": 172,
           "summary": "好友排行榜不需要自建后端。 微信为小游戏提供开放数据域：",
           "keywords": [
@@ -92554,8 +92785,8 @@
         {
           "anchor": "§3 交付物",
           "level": 3,
-          "startLine": 5268,
-          "endLine": 5276,
+          "startLine": 5323,
+          "endLine": 5331,
           "tokens": 111,
           "summary": "docs/architecture/adr/ADR-0035-minigame-open-data-domain-fri",
           "keywords": [
@@ -92570,8 +92801,8 @@
         {
           "anchor": "§4 外部事实取证（微信官方文档）",
           "level": 3,
-          "startLine": 5277,
-          "endLine": 5287,
+          "startLine": 5332,
+          "endLine": 5342,
           "tokens": 267,
           "summary": "W1 getFriendCloudStorage 仅在开放数据域可用，且需用户授权 scope.WxFriendInte",
           "keywords": [
@@ -92585,8 +92816,8 @@
         {
           "anchor": "§5 ADR 关键裁定（推荐档，待用户拍板 Q1–Q4）",
           "level": 3,
-          "startLine": 5288,
-          "endLine": 5295,
+          "startLine": 5343,
+          "endLine": 5350,
           "tokens": 267,
           "summary": "1. 不碰后端：本里程碑零服务器、零账号体系、零成绩校验。",
           "keywords": [
@@ -92599,8 +92830,8 @@
         {
           "anchor": "§6 待拍板",
           "level": 3,
-          "startLine": 5296,
-          "endLine": 5304,
+          "startLine": 5351,
+          "endLine": 5359,
           "tokens": 315,
           "summary": "Q1 榜单指标（步数 / 通关数 / 星数 / 综合分） 文策渊 ✅ 已拍板 2026-10-26：本期单榜 = 全关总",
           "keywords": [
@@ -92610,8 +92841,8 @@
         {
           "anchor": "§7 验证 (2)",
           "level": 3,
-          "startLine": 5305,
-          "endLine": 5310,
+          "startLine": 5360,
+          "endLine": 5365,
           "tokens": 62,
           "summary": "纯文档批：git diff --cached --name-only 核对仅 2 件（ADR + 提案）+ 台账 2 件",
           "keywords": [
@@ -92626,8 +92857,8 @@
         {
           "anchor": "§8 撞号披露",
           "level": 3,
-          "startLine": 5311,
-          "endLine": 5315,
+          "startLine": 5366,
+          "endLine": 5370,
           "tokens": 129,
           "summary": "头注原读「下一可用 416」，四路核发现 415 = Qoder 冲突标记门禁批（已入库 2c0a31df）、416 =",
           "keywords": [
@@ -92639,9 +92870,9 @@
         {
           "anchor": "§9 跨轨债务代登记（用户 2026-10-26 拍板「代登记豁免」）",
           "level": 3,
-          "startLine": 5316,
-          "endLine": 5323,
-          "tokens": 196,
+          "startLine": 5371,
+          "endLine": 5380,
+          "tokens": 198,
           "summary": "提交被 ctx:check B 项硬拦：games/beads/design/gdd/powerups-v2.md 在 ",
           "keywords": [
             "ctx",
@@ -92651,22 +92882,145 @@
             "design",
             "gdd"
           ]
+        },
+        {
+          "anchor": "§WXG-T-419",
+          "level": 2,
+          "startLine": 5381,
+          "endLine": 5431,
+          "tokens": 1701,
+          "summary": "",
+          "keywords": [
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§0 触发与性质",
+          "level": 3,
+          "startLine": 5383,
+          "endLine": 5388,
+          "tokens": 184,
+          "summary": "用户 2026-10-26 连续四次裁定，要求「重新设计道具」，先走「全流程 / 新系统」，并把首件功能定名「区域还原」",
+          "keywords": [
+            "触发与性质"
+          ]
+        },
+        {
+          "anchor": "§1 交付物",
+          "level": 3,
+          "startLine": 5389,
+          "endLine": 5392,
+          "tokens": 64,
+          "summary": "games/beads/design/gdd/powerups-v2.md v2.2，1244 行 / 九节 / 20 ",
+          "keywords": [
+            "games",
+            "beads",
+            "design",
+            "gdd",
+            "powerups",
+            "交付物"
+          ]
+        },
+        {
+          "anchor": "§2 用户裁定（六条，逐条为主）",
+          "level": 3,
+          "startLine": 5393,
+          "endLine": 5403,
+          "tokens": 388,
+          "summary": "1 区域还原 = 6×6，盘面小于 6×6 时贴边收缩（最小关 6×5 = 整盘） §2.2.1；SIDE = 6（T-",
+          "keywords": [
+            "§2.2.1",
+            "SIDE",
+            "用户裁定",
+            "六条",
+            "逐条为主"
+          ]
+        },
+        {
+          "anchor": "§3 关键核算读数（10 关真实数据 + 2000 seed）",
+          "level": 3,
+          "startLine": 5404,
+          "endLine": 5412,
+          "tokens": 359,
+          "summary": "现池 10 关 M（错位珠）= 60–1024 颗，跨度 17 倍；此前经济体提案沿用的「2–16 颗」只对 swaps",
+          "keywords": [
+            "seed",
+            "swaps",
+            "关键核算读数",
+            "关真实数据"
+          ]
+        },
+        {
+          "anchor": "§4 待用户确认（1 条，阻塞落码）",
+          "level": 3,
+          "startLine": 5413,
+          "endLine": 5416,
+          "tokens": 108,
+          "summary": "T-20：免费 1 次是「每关（每局）重置」（主案，关内态不入档）还是「每账号永久 1 次」（备选，需 2 bit 存档",
+          "keywords": [
+            "bit",
+            "待用户确认",
+            "阻塞落码"
+          ]
+        },
+        {
+          "anchor": "§5 待拍板（10 条，均有推荐值）",
+          "level": 3,
+          "startLine": 5417,
+          "endLine": 5420,
+          "tokens": 141,
+          "summary": "T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额度）· T-19 双通道面板默认腿（推荐：看",
+          "keywords": [
+            "待拍板",
+            "均有推荐值"
+          ]
+        },
+        {
+          "anchor": "§6 未做 / 债务（诚实登记）",
+          "level": 3,
+          "startLine": 5421,
+          "endLine": 5427,
+          "tokens": 284,
+          "summary": "1. 文档本体超 ctx spec 类 8000 tok 预算。豁免条目已被 WXG-T-418 代登记在 ctx/bu",
+          "keywords": [
+            "ctx",
+            "spec",
+            "tok",
+            "WXG",
+            "未做",
+            "债务"
+          ]
+        },
+        {
+          "anchor": "§7 验证 (3)",
+          "level": 3,
+          "startLine": 5428,
+          "endLine": 5431,
+          "tokens": 82,
+          "summary": "pnpm run ctx:check → OK（结构门 A/B/C/D/D2 与 E3 基线通过；B 项因豁免放行，见 ",
+          "keywords": [
+            "pnpm",
+            "run",
+            "ctx",
+            "check",
+            "验证"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 57781,
-      "lines": 115,
-      "sha256": "0e1709edebec95daa9070d70cbb49424ef274effee723e82803f266205797412",
+      "tokens": 58781,
+      "lines": 117,
+      "sha256": "5dae985bc8ce7b64e64145ad6b4a2a7d133879bbd328b6d2c245bee87c6a92c6",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 116,
-          "tokens": 57772,
+          "endLine": 118,
+          "tokens": 58772,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -92679,8 +93033,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 87,
-          "endLine": 116,
+          "startLine": 89,
+          "endLine": 118,
           "tokens": 1460,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
