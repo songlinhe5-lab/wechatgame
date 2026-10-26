@@ -370,9 +370,13 @@ agent（Godot/Unity/Unreal，本仓引擎唯一 = Cocos Creator + 微信小游�
 > 适用面：`games/beads/src/ui/**`、`games/beads/src/view/**`。设计全文见 [`ui-architecture-beads.md`](ui-architecture-beads.md) §8；机械守 = `check:arch` 的 §20 规则（WXG-T-319 落码，负样本 `--selftest` 已入 `selftest:fast`）。
 
 1. **弹窗必经 `ModalFrame`**：遮罩、纸面板、标题带、进出场、点击屏障五件不在面板文件里另写。
-   现状：对局侧五个面板已走（`view-model` → `drawModalFrame`）；菜单侧 `settings` / `signin` 的 chrome 仍是 `meta-view` 直绘 = **已知偏离**，随界面单元拆出收敛。
+   现状：对局侧五个面板已走（`view-model` → `drawModalFrame`）；菜单侧 `settings` / `signin` / `skins` 的 chrome = **共用一条腿**
+   `meta-view.ts::panelPage`（WXG-T-420 T7 表化时合流，⛔ 三页各写一份），但仍**直绘、未并入 `ModalFrame`**
+   = 已知偏离（签到底板是素面 rect，与纸面板不同形 ⇒ 待视觉裁定，UI-32 注）。
 2. **遮罩色与 α 只在 `UiTheme`**：菜单档 / 对局档保留两个档名；⛔ 在 View 里写死 RGB 或就地合并两档。
 3. **View 不得判断导航、不得读取游戏对象**：不出现 `screen ===` / `overlay ===` / `phase ===`，不 import 游戏对象，只吃只读 ViewModel。
-   现状：`buildMetaView` 的 `data.overlay` 分支是**唯一存量**（UI-50 起入口收口；逐单元拆出前不新增第二处）。
+   现状：**已清零（WXG-T-420 T7）**——`buildMetaView` 的 `data.overlay` 分支与版面构造的 `overlay` 串判均改为
+   表查（`META_PAGES` / `LAYOUT_BUILDERS`，行序 = 屏序），`check:arch` 的 `UI_ARCH_EXCEPTIONS` 已摘除
+   `view/meta-view.ts` 条目（余 `view/view-model.ts` 一条，待 T9 旧门面收口）。
 4. **绘制与命中共用同一布局函数**：布局是纯函数、按安全区缓存；View 与命中测试读同一份（`pausePanelLayout` 口径升为强制）。
 5. **路由变化只经 `Navigator`**：壳 / Presenter 不持 `_screen` / `_overlay` 标志位；屏幕与覆盖层由栈投影，栈顶独占输入，绘制遍历可见路由集。

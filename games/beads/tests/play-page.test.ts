@@ -103,6 +103,7 @@ describe('UI-41 · PlayPage', () => {
         for (const gone of ['function drawHud(', 'function drawGrid(', 'function drawTray(', 'function drawPowerupBand(', 'function drawZoomControls(', 'export function drawGear(']) {
             expect(vm).not.toContain(gone);
         }
-        expect(read('src/view/meta-view.ts')).toContain("import { drawGear } from './play-page.js';");
+        // WXG-T-420 T7：顶栏齿轮画法复用腿随 `drawTopbar` 搬到 `meta-menu.ts`（判例 K-183 ⇒ 守卫跟着迁移）。
+        expect(read('src/view/meta-menu.ts')).toContain("import { drawGear } from './play-page.js';");
     });
 });

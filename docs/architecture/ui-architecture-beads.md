@@ -57,15 +57,17 @@
 - **View**：`(builder, viewModel, theme, insets, 进度)` → 画。纯函数，无副作用，无状态，**不得读取游戏对象**，**不得出现 `overlay ===` / `phase ===` 这类导航判断**。
 - **Presenter**：① 布局（纯函数，按安全区缓存，**绘制与命中共用同一份**——现有 `pausePanelLayout` 的原则，升为强制）；② 命中（经 `PressTracker`）；③ 产出 `UiIntent` 交给宿主。允许持有的**界面本地状态**仅限：按下目标、弹窗进度、走马灯偏移与翻页动画这类纯展示状态（现在放在 shell：`_carouselOffset` 等）；⛔ 不得持有任何玩法数据。
 
-界面清单（现落点 → 目标）：
+界面清单（现落点 → 目标）：**WXG-T-420 T7** 起 `meta-view.ts`（1605 行）已按页面切片 =
+`meta-types` / `meta-layout` / `meta-widgets` / `meta-menu` / `meta-levels-page`，`meta-view.ts` 只留
+装配门面与 `META_PAGES` 表（对外导入路径与符号面不变）：
 
 | 单元 | 类型 | 现落点 | 主要意图 |
 |---|---|---|---|
-| MainMenuPage 主界面 | 页 | `meta-view.ts` 菜单绘制 + shell 菜单输入 | 开始、开选关页 / 设置 / 签到、翻页 |
+| MainMenuPage 主界面 | 页 | `meta-menu.ts` 绘制（几何 `meta-layout.ts`）+ shell 菜单输入 | 开始、开选关页 / 设置 / 签到、翻页 |
 | PlayPage 对局页 | 页 | `buildBeadsView` 的 HUD、托盘、道具带、缩放控件 | 齿轮、道具卡、托盘槽、展开钮（棋盘手势不在内） |
-| LevelSelectPage 选关（D5：整页，版式见 [确认单](../../games/beads/design/ux/level-select-page-layout.md)） | 页 | `meta-view` 的 `levels` overlay | 选关、返回（底部 `back`） |
-| SettingsModal 设置 | 弹窗 | `meta-view` 的 `settings` overlay | 各开关、选择器、在线导入、返回 |
-| SigninModal 签到 | 弹窗 | `meta-view` 的 `signin` overlay | 领取、返回 |
+| LevelSelectPage 选关（D5：整页，版式见 [确认单](../../games/beads/design/ux/level-select-page-layout.md)） | 页 | `meta-levels-page.ts`（钮表读 `meta-layout.ts`） | 选关、返回（底部 `back`） |
+| SettingsModal 设置 | 弹窗 | `meta-view.ts::panelPage` 的 `settings` 行 + `settings-content.ts` | 各开关、选择器、在线导入、返回 |
+| SigninModal 签到 | 弹窗 | `meta-view.ts::panelPage` 的 `signin` 行 + `signin-content.ts` | 领取、返回 |
 | PauseModal 暂停 | 弹窗 | `drawPausePanel` + [`pause-panel.ts`](../../games/beads/src/systems/pause-panel.ts) | 继续、重玩、回主菜单，内嵌 `SettingsContent` |
 | ClearResultModal 过关 | 弹窗 | `drawClearPanel` + `clear-panel.ts` | 下一关、冲刺 |
 | FailResultModal 失败 | 弹窗 | `drawFailPanel` + `fail-panel.ts` | 复活、重试 |

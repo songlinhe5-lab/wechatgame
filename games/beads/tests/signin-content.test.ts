@@ -110,7 +110,10 @@ describe('UI-32 · SigninContent', () => {
 
     it('单源：标题 / 版式 / 绘制只住 signin-content，meta-view 不再自带签到字面', () => {
         expect(SIGNIN_TITLE).toBe('七日签到');
-        const meta = readFileSync(resolve(SRC_ROOT, 'src/view/meta-view.ts'), 'utf8');
+        // WXG-T-420 T7：菜单拆片后「签到不自带字面」的射程 = meta* 全部视图件（判例 K-183）。
+        const meta = ['src/view/meta-view.ts', 'src/view/meta-layout.ts', 'src/view/meta-widgets.ts', 'src/view/meta-menu.ts']
+            .map((p) => readFileSync(resolve(SRC_ROOT, p), 'utf8'))
+            .join('\n');
         expect(meta).toContain('signinCellLayout(plate)');
         expect(meta).toContain('drawSigninContent(');
         expect(meta).toContain('SIGNIN_TITLE');

@@ -289,4 +289,6 @@
 | K-180 | 工具链Git | toolchain-git | `git rebase --continue` 不跑 pre-commit ⇒ 钩子里「自动重建并 re-add」的产物（ctx 三件 + `memory/INDEX.md`）不会进结果提交 | WXG-T-412 | 2026-10-26 | 0 | active |
 | K-181 | 工具链Git | toolchain-git | 裸 `--selftest` 模式没有 package.json 入口时，就落在自测完整性守卫的枚举面之外 ⇒ 装置自测可以长期零执行而无人知 | WXG-T-415 | 2026-10-26 | 0 | active |
 | K-182 | 工具链Git | toolchain-git | 合并时按「保留一侧」整块解台账 ⇒ 已入库的主表行与详情节一起消失，头注却留着；门禁只在「提交窗口署号」事后报警 | WXG-T-416 | 2026-10-26 | 0 | active |
+| K-183 | 跨IDE | cross-ide | 抽取型重构 = 复制：并发批改到同一函数时先集成基线再按最新原件重抽，抽后 grep 指向被搬区域的静态守卫随迁 | WXG-T-420 | 2026-10-26 | 0 | active |
+| K-184 | 代码结构 | patterns | 宽扇入无状态协作从上帝类抽出的两型取向：无状态模块函数 vs「模块纯函数 + 构造期一次性 getter 宿主」 | WXG-T-420 | 2026-10-26 | 0 | active |
 <!-- kb:active:end -->

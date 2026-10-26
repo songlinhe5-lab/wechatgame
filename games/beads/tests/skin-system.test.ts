@@ -362,6 +362,10 @@ describe('EP12-S8 ③ cycle-skin 钮族：present · 循环 · 恰写档 1 次 �
         const allow = new Set([
             'systems/pause-panel.ts', // 入口甲：行4 钮位
             'view/meta-view.ts', // 入口乙：菜单设置 overlay 同钮
+            // WXG-T-420 T7 菜单拆片：串值随「动作枚举 / 钮位版式 / 钮文案画法」三件分住，入口数目恒不变（判例 K-183）。
+            'view/meta-types.ts',
+            'view/meta-layout.ts',
+            'view/meta-widgets.ts',
             'view/settings-content.ts', // UI-30：设置内容块（钮位 + 回显文案单源）
             'game/beads-game.ts', // 面板动作分发（转交 GameSettings）
             'game/beads-game/game-settings.ts', // 唯一受理点（自 beads-game.ts 拆出）

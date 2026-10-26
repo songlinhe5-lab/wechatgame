@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 183,
+  "nextId": 185,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -3053,6 +3053,40 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-183",
+      "state": "active",
+      "file": "knowledge/lessons/cross-ide.md",
+      "category": "跨IDE",
+      "title": "抽取型重构 = 复制：并发批改到同一函数时先集成基线再按最新原件重抽，抽后 grep 指向被搬区域的静态守卫随迁",
+      "contentHash": "50ae7f46ce40be26f9f268bf6e1cd2c6ca007d21a2ff10a412aea729dfaf1c69",
+      "sourceTask": "WXG-T-420",
+      "addedDate": "2026-10-26",
+      "lastAccess": "2026-10-26",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-184",
+      "state": "active",
+      "file": "knowledge/patterns.md",
+      "category": "代码结构",
+      "title": "宽扇入无状态协作从上帝类抽出的两型取向：无状态模块函数 vs「模块纯函数 + 构造期一次性 getter 宿主」",
+      "contentHash": "d7a94d5bae76d818a0edfdfbff32979f6d4902742c6996e5b3b8de858bcb05e1",
+      "sourceTask": "WXG-T-420",
+      "addedDate": "2026-10-26",
+      "lastAccess": "2026-10-26",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -4993,6 +5027,16 @@
       "kind": "updated",
       "ids": [
         "K-181"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-26",
+      "taskId": "WXG-T-420",
+      "kind": "added",
+      "ids": [
+        "K-183",
+        "K-184"
       ],
       "note": null
     }

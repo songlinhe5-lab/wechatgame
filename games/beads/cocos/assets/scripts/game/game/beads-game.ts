@@ -33,8 +33,9 @@
  *  - `control-map.ts`           控件映射（按下腿命中 / 按下态 / 面板选项，只读）。
  *  - `hit-test.ts`              无状态命中几何（齿轮 / 道具卡 / 展开 / 托盘槽）。
  *  - `effects-dispatch.ts`      效果派发：音频订阅 / 触觉映射 / 广告点火 / 分享透传（无状态）。
+ *  - `snapshot-projection.ts`   快照投影：权威态 → `BeadsSnapshot` 原地写回（无状态，`_syncSnapshot` 逐帧委派）。
  *  留在本类：状态机（`_buildStateMachine`）、托盘锚归位裁决（`_placeSelected`）、
- *  解环器表现（`_armSolverFx` / `_stepSolverFx`）、快照投影（`_syncSnapshot`）、
+ *  解环器表现（`_armSolverFx` / `_stepSolverFx`）、
  *  BOOT / 订阅 / 装配（`_boot` / `_subscribe` / `_setupLevel`）。
  */
 
@@ -68,10 +69,8 @@ import {
   nextTierFor,
   tierSecondsFor,
   normalSettleScore,
-  TIMER_URGENT_T,
   POWERUP_BUY_DENIED_HINT,
   SOLVER_HINT_MS,
-  powerupBuyPrice,
   SOLVER_MAX_CELLS,
   SOLVER_STAGGER_MS,
   solverSequenceMs,
@@ -79,7 +78,6 @@ import {
   hitGridCell,
   menuAnchors,
   nextBeadLod,
-  ZOOM_LOD_LAYERS,
   type BeadSizeKind,
   isBossLevelId,
   stageParamsFor,
@@ -122,7 +120,6 @@ import { judgeRetrieve } from '../systems/retrieve';
 import { judgePlacement, planGroupFill } from '../systems/placement';
 import { planConsumeOrder } from '../systems/consume-order';
 import { Spawner } from '../systems/spawner';
-import { sliderTFromZoom } from '../systems/board-camera';
 import { GameTimer } from '../systems/timer';
 import { SprintTracker } from '../systems/sprint';
 import { PausePanel, type PausePanelAction } from '../systems/pause-panel';
@@ -134,7 +131,6 @@ import {
 } from '../systems/rank-panel';
 import {
   PHASE_TRANSITIONS,
-  bannerFor,
   createSnapshot,
   type BeadsPhase,
   type BeadsSnapshot,
@@ -178,6 +174,7 @@ import {
   fireShare,
   hapticKindFor,
 } from './beads-game/effects-dispatch';
+import { projectSnapshot, type SnapshotSource } from './beads-game/snapshot-projection';
 
 /**
  * 公共契约类型（事件表 `BeadsEvents` + 构造选项 `BeadsGameOptions`）已抽至
@@ -257,6 +254,11 @@ export class BeadsGame implements Game {
   private readonly _noBootAssembly: boolean;
   private readonly _machine: StateMachine<BeadsGame, BeadsPhase>;
   private readonly _snapshot: BeadsSnapshot;
+  /**
+   * 快照投影的读访问宿主（WXG-T-420 T6）：构造期一次性装配的 getter 对象，逐帧交
+   * `projectSnapshot` 只读 ⇒ 既授予私有读访问又不公开成员，且宿主本身零分配。
+   */
+  private readonly _snapshotSource: SnapshotSource;
   private readonly _tray = new Tray();
   /**
    * ⛔ 供料死路径（v2.0 定时供料关停，WXG-T-136）：主循环不再 tick 供料（错位珠是
@@ -541,6 +543,58 @@ export class BeadsGame implements Game {
     this._snapshot = createSnapshot(this.tuning);
     // 协作类的只读宿主视图：getter 惰性读，换关重建 grid/tray 后仍取到最新引用。
     const self = this;
+    // 快照投影宿主（WXG-T-420 T6）：逐字段 getter 回指 `self._X`，构造一次、逐帧只读不建。
+    // `hudDy` / `onboardingEnabled` 分别桥接方法 `self._hudDy()` 与静态 `BeadsGame.ONBOARDING_ENABLED`。
+    this._snapshotSource = {
+      get machine() { return self._machine; },
+      get mode() { return self._mode; },
+      get levelIndex() { return self._levelIndex; },
+      get levels() { return self._levels; },
+      get stageIndex() { return self._stageIndex; },
+      get starsByLevel() { return self._starsByLevel; },
+      get levelKeys() { return self._levelKeys; },
+      get timer() { return self._timer; },
+      get grid() { return self._grid; },
+      get layout() { return self._layout; },
+      get board() { return self._board; },
+      get tray() { return self._tray; },
+      get powerups() { return self._powerups; },
+      get powerupHint() { return self._powerupHint; },
+      get pendingBuy() { return self._pendingBuy; },
+      get clearPanel() { return self._clearPanel; },
+      get finishPanel() { return self._finishPanel; },
+      get sprintSettle() { return self._sprintSettle; },
+      get sprint() { return self._sprint; },
+      get panel() { return self._panel; },
+      get settings() { return self._settings; },
+      get fx() { return self._fx; },
+      get input() { return self._input; },
+      get solverFx() { return self._solverFx; },
+      get boardSelected() { return self._boardSelected; },
+      get clearCoins() { return self._clearCoins; },
+      get lastStars() { return self._lastStars; },
+      get lastSettleScore() { return self._lastSettleScore; },
+      get settleBestByUid() { return self._settleBestByUid; },
+      get actionsPlaying() { return self._actionsPlaying; },
+      get pressedButton() { return self._pressedButton; },
+      get sprintBestScore() { return self._sprintBestScore; },
+      get isNewBest() { return self._isNewBest; },
+      get debugOutlines() { return self._debugOutlines; },
+      get frameMs() { return self._frameMs; },
+      get hudDy() { return self._hudDy(); },
+      get safeTop() { return self._safeTop; },
+      get capsuleBottom() { return self._capsuleBottom; },
+      get safeBottom() { return self._safeBottom; },
+      get bootErrors() { return self._bootErrors; },
+      get reviveCount() { return self._reviveCount; },
+      get watchingAd() { return self._watchingAd; },
+      get failHint() { return self._failHint; },
+      get beadLod() { return self._beadLod; },
+      get onboardDone() { return self._onboardDone; },
+      get onboardingEnabled() { return BeadsGame.ONBOARDING_ENABLED; },
+      // `[WXG-T-432]` 好友榜面板只读视图（投影入口落 `snapshot-projection`）。
+      get rankPanel() { return self._rankPanel; },
+    };
     this._settings = new GameSettings({
       get save() { return self._save; },
       get services() { return self._services; },
@@ -2926,244 +2980,7 @@ export class BeadsGame implements Game {
   }
 
   private _syncSnapshot(): void {
-    const s = this._snapshot;
-    s.phase = this._machine.current;
-    s.phaseElapsed = this._machine.elapsed;
-    s.mode = this._mode;
-    s.levelIndex = this._levelIndex;
-    const currentLevel = this._levels[this._levelIndex];
-    s.levelId = this._mode === 'sprint' ? 'sprint' : currentLevel ? levelIdOf(currentLevel) : '';
-    s.levelName =
-      this._mode === 'sprint'
-        ? `冲刺 STAGE ${this._stageIndex + 1}`
-        : (currentLevel?.name ?? '');
-    s.levelCount = this._levels.length;
-
-    // 总星数（EP14-S2 · R6 = Σ 各关历史最高）：局部累加，热路径零分配（L5 / 控制清单）。
-    let starsTotal = 0;
-    for (let i = 0; i < this._starsByLevel.length; i++) starsTotal += this._starsByLevel[i]!;
-    s.starsTotal = starsTotal;
-
-    s.remaining = Math.max(0, Math.ceil(this._timer.remaining - 1e-9));
-    s.timeTotal = this._timer.total;
-    s.urgent = this._timer.remaining <= TIMER_URGENT_T && this._timer.remaining > 0;
-
-    // Grid cells (rebuild the flat buffer only when dimensions change).
-    const cellsNeeded = this._grid.rows * this._grid.cols;
-    if (s.gridCols !== this._grid.cols || s.gridRows !== this._grid.rows) {
-      s.gridCols = this._grid.cols;
-      s.gridRows = this._grid.rows;
-      s.cells = [];
-      for (let i = 0; i < cellsNeeded; i++) {
-        s.cells.push({ state: 'empty', colorIdx: 0, beadColorIdx: 0, void: false });
-      }
-    }
-    for (let i = 0; i < cellsNeeded; i++) {
-      const row = Math.floor(i / this._grid.cols);
-      const col = i % this._grid.cols;
-      const cell = this._grid.cell(row, col)!;
-      const out = s.cells[i]!;
-      out.state = cell.state;
-      out.colorIdx = cell.colorIdx;
-      out.beadColorIdx = cell.beadColorIdx;
-      out.void = cell.void;
-    }
-    s.gridLeft = this._layout.left;
-    s.gridTop = this._layout.top;
-    // Camera-scaled spacing/size so the render path matches `hitGridCell` exactly
-    // at any zoom (丁-3). = BEAD_PITCH/BEAD_CELL at identity → snapshot byte-identical.
-    s.gridPitch = this._layout.pitch;
-    s.gridCell = this._layout.cell;
-    s.beadLodLayers = this._beadLod ? ZOOM_LOD_LAYERS : 0; // 0 = 满层；视图只读不判阈值（C7 拆名：zoom LOD 用 ZOOM_LOD_LAYERS，不再蹭波浪常量）
-    // 缩放控件（盘面下方净空带）：slider 位置与倍率读数，视图只读（L5）。
-    s.zoomSliderT = sliderTFromZoom(this._board.camera.zoom);
-    s.camZoom = this._board.camera.zoom;
-
-    // S6 cards: remaining free uses per powerup（v1.95 = 账号级永久额度，0 ⇒ 视图
-    // 压暗卡片并走双通道面板）+ the one-shot over-limit hint.
-    s.powerupFreeUses.windowRestore = this._powerups.freeUses('windowRestore');
-    s.powerupFreeUses.randomRestore = this._powerups.freeUses('randomRestore');
-    s.powerupFreeUses.trayRestore = this._powerups.freeUses('trayRestore');
-    s.powerupHint = this._powerupHint;
-    // 购买确认弹窗（ux-spec §3.7）：0 = 关；>0 = 该型单价，视图直接印进标题。
-    s.buyConfirmPrice = this._pendingBuy ? powerupBuyPrice(this._pendingBuy) : 0;
-
-    // S7 结算·过关面板（ux-spec §3.4）：数据 + 动画进度一起进快照，视图只读。
-    s.clearPanelVisible = this._clearPanel.visible;
-    s.clearPanelProgress = this._clearPanel.progress;
-    s.clearPanelInteractive = this._clearPanel.interactive;
-    s.clearStars = this._lastStars;
-    // 品质分单榜（ADR-0035 Q1=B）：本局分 + 本关历史最佳（刚在通关帧更新过）。
-    s.clearQualityScore = this._lastSettleScore;
-    s.clearQualityBest =
-      this._settleBestByUid[this._levelKeys[this._levelIndex] ?? ''] ?? this._lastSettleScore;
-    s.clearCoins = this._clearCoins?.coins ?? 0;
-    s.clearCoinReason = this._clearCoins?.reason ?? '';
-    s.clearCoinsCapped = this._clearCoins?.capped ?? false;
-    const shown = this._clearPanel.starsShown(this._lastStars);
-    s.clearStarsShown = shown;
-    s.clearStarPopScale = shown > 0 ? this._clearPanel.starScale(shown - 1) : 1;
-    // BD-47（WXG-T-127）：结算面板「剩余 mm:ss」不吃浮点尾数 —— 快照层即取整，
-    // 口径与上方 s.remaining 一致（ceil − 1e-9，倒计时显示不提前归零）；
-    // formatTime 的 floor 只是视图兜底，两层都补（T-118 前发现、本单补登）。
-    s.clearRemaining = Math.max(0, Math.ceil(this._timer.remaining - 1e-9));
-    s.clearPowerupsUsed = this._powerups.usedCount;
-    s.clearTaps = this._input.tapsPlaying; // playtest 计量（含误点的输入计数）
-    s.clearActions = this._actionsPlaying; // 定星口径（与 `pricing.actions` 同口径）
-    s.clearLastLevel = this._levelIndex >= this._levels.length - 1;
-    // 好友榜面板（ADR-0035 S-3）：视图对象复用，热路径零分配。
-    s.rankPanel = this._rankPanel.view();
-
-    // S7 通关画面（ux-spec §3.6）：总览数据 + 逐关入场进度一起进快照，视图只读。
-    s.finishPanelVisible = this._finishPanel.visible;
-    s.finishPanelProgress = this._finishPanel.progress;
-    s.finishPanelInteractive = this._finishPanel.interactive;
-    if (s.finishStars.length !== this._levels.length) {
-      s.finishStars = new Array<number>(this._levels.length).fill(0);
-    }
-    for (let i = 0; i < s.finishStars.length; i++) {
-      s.finishStars[i] = this._starsByLevel[i] ?? 0;
-    }
-    const finishRows = this._finishPanel.rowsShown(this._levels.length);
-    s.finishRowsShown = finishRows;
-    s.finishRowPopScale = finishRows > 0 ? this._finishPanel.rowPopScale(finishRows - 1) : 1;
-    s.finishLevels = this._levels; // S7 陈列条：只读引用（视图 ⛔ 不 import LEVELS）
-    s.pressedButton = this._pressedButton;
-
-    // S7 冲刺结算面板（ux-spec §3.5 左列）：内容行数据 + 入/出进度一起进快照。
-    s.sprintSettleVisible = this._sprintSettle.visible;
-    s.sprintSettleProgress = this._sprintSettle.progress;
-    s.sprintSettleInteractive = this._sprintSettle.interactive;
-    s.sprintRunBestStage = this._sprint.bestStage;
-    s.sprintRunBestStreak = this._sprint.bestStreak;
-
-    this._fx.writeSnapshot(s); // 连击 / 反馈计时 / 单色提示 / 轻提示（协作类投影）
-
-    // Tray slots (rebuild on capacity change, i.e. expansion).
-    if (s.traySlots.length !== this._tray.capacity) {
-      s.traySlots = [];
-      for (let i = 0; i < this._tray.capacity; i++) {
-        s.traySlots.push({ state: 'free', colorIdx: 0 });
-      }
-    }
-    for (let i = 0; i < this._tray.capacity; i++) {
-      const slot = this._tray.slot(i)!;
-      const out = s.traySlots[i]!;
-      out.state = slot.state;
-      out.colorIdx = slot.colorIdx;
-    }
-    s.trayExpanded = this._tray.expanded;
-    s.trayCanExpand = this._tray.canExpand;
-    s.traySelected = this._tray.selectedSlot;
-    // v2.0 统一选择锚 · board 侧（E2）：E6 据此画错位珠高亮；-1 = 无。
-    // 与 traySelected 三值互斥（input-control §2.1），至多一侧 ≥ 0。
-    s.boardSelectedRow = this._boardSelected ? this._boardSelected.row : -1;
-    // WXG-T-148 ③：连通组快照（预分配容量，写值不新建 —— 热路径零分配）。
-    const grp = this._boardSelected?.order;
-    s.boardGroupCount = grp ? Math.min(grp.length, s.boardGroupRows.length) : 0;
-    if (grp) {
-      for (let gi = 0; gi < s.boardGroupCount; gi++) {
-        s.boardGroupRows[gi] = grp[gi]!.row;
-        s.boardGroupCols[gi] = grp[gi]!.col;
-      }
-    }
-    s.boardSelectedCol = this._boardSelected ? this._boardSelected.col : -1;
-
-    // Sprint HUD (normal mode keeps zeros — the view hides the block).
-    s.score = this._mode === 'sprint' ? this._sprint.score : 0;
-    s.multiplier = this._mode === 'sprint' ? this._sprint.multiplier : 1;
-    s.streak = this._mode === 'sprint' ? this._sprint.streak : 0;
-    s.stageIndex = this._stageIndex;
-    s.sprintBestScore = this._sprintBestScore;
-    s.isNewBest = this._isNewBest;
-
-    s.panelVisible = this._panel.visible;
-    s.panelProgress = this._panel.progress;
-    s.panelInteractive = this._panel.interactive;
-    s.bgmMuted = this._settings.values.bgmMuted;
-    s.sfxMuted = this._settings.values.sfxMuted;
-    s.reduceMotion = this._settings.values.reduceMotion;
-    s.largeText = this._settings.values.largeText;
-    s.debugOutlines = this._debugOutlines;
-    s.debugInfo = this._settings.values.debugInfo;
-    s.debugGuides = this._settings.values.debugGuides;
-    s.perfFrameMs = this._frameMs;
-    s.hudDy = this._hudDy(); // 动态高 + 胶囊避让：HUD 带与齿轮热区同读（`hitGear`）
-    s.safeTop = this._safeTop;
-    s.capsuleBottom = this._capsuleBottom;
-    s.safeBottom = this._safeBottom;
-    s.vibrate = this._settings.values.vibrate;
-    // EP11-S5 行4 两钮的档位回显 + view 换肤渲染的 styleId 入口（L5：view 只读、不判定）。
-    s.beadStyle = this._settings.values.beadStyle;
-    s.beadSize = this._settings.values.beadSize;
-    // EP12-S8：皮肤 id 回显（钮文案单源 = `skin.label`；渲染走 palette 实例，不经本值查表）。
-    s.skinId = this._settings.values.skinId;
-
-    const copy = bannerFor(s.phase, this._levelIndex >= this._levels.length - 1);
-    s.banner = copy.banner;
-    s.subBanner = copy.sub;
-    s.bootError = this._bootErrors.join('; ');
-    s.reviveAvailable =
-      s.phase === 'game-over' && this._mode === 'normal' && this._reviveCount < REVIVE_MAX_PER_LEVEL;
-    s.revived = this._reviveCount > 0;
-    s.watchingAd = this._watchingAd;
-    s.failHint = this._failHint;
-
-    // G2′ 解环器：一条单调进度 + 两组定长格坐标（相序曲线在 view 侧推导，L5）。
-    // 不活跃 ⇒ count 归零且数组填 -1（零残留，同 G1 槽置 null 口径）。
-    const sfx = this._solverFx;
-    s.solverProgress = sfx ? Math.min(1, sfx.elapsedMs / sfx.totalMs) : 0;
-    s.solverCellCount = sfx ? sfx.count : 0;
-    s.solverLandCount = sfx ? sfx.landCount : 0;
-    for (let i = 0; i < s.solverCellRows.length; i++) {
-      s.solverCellRows[i] = sfx ? sfx.cellRows[i]! : -1;
-      s.solverCellCols[i] = sfx ? sfx.cellCols[i]! : -1;
-    }
-    for (let i = 0; i < s.solverLandRows.length; i++) {
-      s.solverLandRows[i] = sfx && i < sfx.landCount ? sfx.landRows[i]! : -1;
-      s.solverLandCols[i] = sfx && i < sfx.landCount ? sfx.landCols[i]! : -1;
-      s.solverLandSteps[i] = sfx && i < sfx.landCount ? sfx.landSteps[i]! : -1;
-    }
-    // GAP-03 首屏引导：仅普通模式 PLAYING、首玩且本会话未落过子时激活（§6.3）。
-    // [WXG-T-239] `ONBOARDING_ENABLED = false` ⇒ 引导**显示已屏蔽**（设计与规格全留档，恢复见该常量头注）。
-    // ⛔ 短路顺序刻意「开关在前」：关闭时**完全不进**引导算法（`hintRow`/`hintCol`/`guideSlot` 保持 -1）
-    //   ⇒ 零额外计算、且从根上排除「引导半途生效」。
-    s.onboarding =
-      BeadsGame.ONBOARDING_ENABLED
-      && this._mode === 'normal'
-      && s.phase === 'playing'
-      && !this._onboardDone;
-    if (s.onboarding) {
-      // 首珠 = 托盘当前持有的最前一颗（GAP-02 首供落点）；其色决定单一目标格。
-      let guideSlot = -1;
-      let firstColor = -1;
-      for (let i = 0; i < s.traySlots.length; i++) {
-        const sl = s.traySlots[i]!;
-        if (sl.state !== 'free') {
-          guideSlot = i;
-          firstColor = sl.colorIdx;
-          break;
-        }
-      }
-      s.guideSlot = guideSlot;
-      if (firstColor >= 0) {
-        // 行主序首个匹配该色的可填空槽（单一指向 = 引导设计原则，避免多格同亮）。
-        for (let i = 0; i < s.gridRows && s.hintRow < 0; i++) {
-          for (let j = 0; j < s.gridCols; j++) {
-            const c = s.cells[i * s.gridCols + j]!;
-            if (!c.void && c.state === 'empty' && c.colorIdx === firstColor) {
-              s.hintRow = i;
-              s.hintCol = j;
-              break;
-            }
-          }
-        }
-      }
-    } else {
-      s.hintRow = -1;
-      s.hintCol = -1;
-      s.guideSlot = -1;
-    }
+    projectSnapshot(this._snapshot, this._snapshotSource);
   }
 
   /**
