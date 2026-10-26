@@ -14,6 +14,8 @@
  */
 
 import { MemoryStorage, type Storage } from '../core/save/storage.js';
+import type { PerformanceSnapshot } from '../core/performance/performance.js';
+import { computeFps } from '../core/performance/performance.js';
 import {
   NullAudioBackend,
   type AudioBackend,
@@ -117,6 +119,16 @@ interface WxApi {
   /** 低内存告警（小游戏基础库 2.11.0+）。 */
   onMemoryWarning?(cb: () => void): void;
   /**
+   * Set preferred render frame rate (基础库 2.11.0+）。
+   * 微信小游戏可选值 60 或 30。低端机调 30 降功耗/发热。
+   */
+  setPreferredFramesPerSecond?(fps: 30 | 60): void;
+  /**
+   * Performance API（基础库 2.11.0+）。返回 JS 堆内存等采样。
+   * 不同基础库版本形状略有差异，WeappPlatform 内部做健壮处理。
+   */
+  getPerformance?(): WxPerformanceApi;
+  /**
    * HTTP request（小游戏基础库 2.10.0+；正式环境需 https + 合法域名）。
    * 回调式——Platform.httpGet 会把它包成 Promise。
    */
@@ -143,6 +155,16 @@ interface WxRequestOptions {
   data?: unknown;
   success?(res: { data: unknown; statusCode: number; header?: Record<string, string> }): void;
   fail?(err: { errMsg?: string; statusCode?: number }): void;
+}
+
+/** wx.getPerformance() 返回对象的最小形状（内存字段因基础库版本而异，全可选）。 */
+interface WxPerformanceApi {
+  memory?: {
+    usedJSHeapSize?: number;
+    totalJSHeapSize?: number;
+    jsHeapSizeLimit?: number;
+  };
+  now?(): number;
 }
 
 /** 微信 createRewardedVideoAd 返回对象的最小形状（只取我们实际消费的成员）。 */
@@ -372,6 +394,11 @@ export class WeappPlatform extends BasePlatform {
     };
     // 被动分享注册（WXG-T-405）：
     if (wx) {
+      // 帧率档 init（WXG-T-414）：默认 60Hz；低端机/省电模式游戏层可降档。
+      const setFps = wx.setPreferredFramesPerSecond;
+      if (typeof setFps === 'function') {
+        try { setFps(60); } catch { /* base lib too old — ignore */ }
+      }
       const showMenu = wx.showShareMenu;
       if (typeof showMenu === 'function') {
         try { showMenu({ withShareTicket: true, menus: ['shareAppMessage'] }); } catch { /* ignore */ }
@@ -450,6 +477,30 @@ export class WeappPlatform extends BasePlatform {
         fail: (err) => reject(new Error(err.errMsg ?? `wx.request failed for ${url}`)),
       });
     });
+  }
+
+  setPreferredFps(fps: 30 | 60): void {
+    this._targetFps = fps;
+    const set = this._wx?.setPreferredFramesPerSecond;
+    if (typeof set === 'function') {
+      try { set(fps); } catch { /* base lib too old */ }
+    }
+  }
+
+  getPerformance(): PerformanceSnapshot {
+    const fps = computeFps(this._frameDeltas);
+    const perf = this._wx?.getPerformance?.();
+    const mem = perf?.memory;
+    return {
+      fps: fps > 0 ? fps : null,
+      heapBytesUsed: mem?.usedJSHeapSize ?? null,
+      heapBytesTotal: mem?.totalJSHeapSize ?? null,
+      clampedFrames: this._loopClampedFrames,
+      ticks: this._loopTicks,
+      loopTimeSeconds: this._loopTimeSeconds,
+      targetFps: this._targetFps,
+      frameBudgetMiss: fps > 0 && fps < this._targetFps * 0.9,
+    };
   }
 
   /**
@@ -655,6 +706,7 @@ export class WeappPlatform extends BasePlatform {
       const now = t || this.now();
       const dt = now - last;
       last = now;
+      this._recordFrame(dt / 1000); // WXG-T-414: feed FPS rolling window
       callback(dt);
     });
     return { cancel: () => g.cancelAnimationFrame?.(id) };

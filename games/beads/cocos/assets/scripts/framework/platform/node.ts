@@ -95,4 +95,19 @@ export class NodePlatform extends BasePlatform {
     }
     return g.fetch(url).then((r) => r.json());
   }
+
+  setPreferredFps(_fps: 30 | 60): void { /* noop */ }
+
+  getPerformance(): { fps: number | null; heapBytesUsed: number | null; heapBytesTotal: number | null; clampedFrames: number; ticks: number; loopTimeSeconds: number; targetFps: 30 | 60; frameBudgetMiss: boolean } {
+    return {
+      fps: null,
+      heapBytesUsed: null,
+      heapBytesTotal: null,
+      clampedFrames: this._loopClampedFrames,
+      ticks: this._loopTicks,
+      loopTimeSeconds: this._loopTimeSeconds,
+      targetFps: this._targetFps,
+      frameBudgetMiss: false,
+    };
+  }
 }

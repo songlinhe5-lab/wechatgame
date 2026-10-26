@@ -22,6 +22,7 @@ import type { Viewport } from '../render/viewport.js';
 import type { RenderModelBuilder } from '../render/render-model.js';
 import type { RewardedAdProvider } from '../ads/rewarded-ad.js';
 import type { HapticKind, ShareOptions } from '../haptics.js';
+import type { PerformanceSnapshot } from '../performance/performance.js';
 
 /**
  * Opaque texture reference resolved by the render adapter. The core never
@@ -100,6 +101,10 @@ export interface GameServices {
   readonly onMemoryWarning?: (callback: () => void) => () => void;
   /** Platform-agnostic HTTP GET. Undefined when the host has no network access. */
   readonly httpGet?: (url: string) => Promise<unknown>;
+  /** Set preferred render frame rate (30 or 60). Weapp only; others noop. */
+  readonly setPreferredFps?: (fps: 30 | 60) => void;
+  /** Pull a runtime performance snapshot (WXG-T-414). Zero args — platform keeps its own counters. */
+  readonly getPerformance?: () => PerformanceSnapshot;
 }
 
 export interface Game {

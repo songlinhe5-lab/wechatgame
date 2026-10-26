@@ -5168,3 +5168,81 @@ T-413 的 T+0 层里成本最低的一条：**不新增任何关卡内容**，�
 ### 5. 刻意不做
 - 好友/自身最佳对比：⛔ 不做（concept §7 已砍社交）
 - 最快时间给豆子奖励：⛔ 不做（会给经济新增产出腿，冲击 §14 配比表）
+
+## WXG-T-414
+
+### 1. 触发
+
+架构评审提案 TODO-7（P1 批次）：帧率档 + 性能上报。证据：无 `setPreferredFramesPerSecond` / `wx.getPerformance` 消费，低端机（R1 风险机型）无降帧策略与量化上报。方案：weapp 平台档位 API（默认 60Hz，可降 30Hz）+ `getPerformance` 跑时快照，为 TODO-15 真机帧率实测提供数据腿。
+
+### 2. 改动面
+
+**Core 层**（类型放 core，避免逆向依赖）：
+| 文件 | 变更 |
+|---|---|
+| `core/performance/performance.ts` | **新建**。`PerformanceSnapshot` 接口（fps/heapBytes/loopStats/targetFps/frameBudgetMiss）+ `computeFps()` 数学工具 |
+
+**Platform 层**：
+| 文件 | 变更 |
+|---|---|
+| `platform/platform.ts` | Platform 接口加 `setPreferredFps?(30\|60)` + `getPerformance?()`（零参数，平台自攒数据）；BasePlatform 抽象 FPS 滑动窗口（`_recordFrame` protected）+ loop 缓存（`_feedLoopStats` 内部） |
+| `platform/weapp.ts` | WxApi 补 `setPreferredFramesPerSecond?` + `getPerformance?`；构造函数 init 调 `setPreferredFramesPerSecond(60)`（与 showShareMenu 同区块）；requestFrame 里 `_recordFrame(dt/1000)` 喂 FPS；getPerformance 合并 FPS + `wx.getPerformance().memory` + loop 计数器 |
+| `platform/web.ts` | setPreferredFps noop（Web 无 API）；getPerformance FPS 自算、heap 字段 null；requestFrame 也加 `_recordFrame` |
+| `platform/node.ts` | setPreferredFps noop；getPerformance FPS=null（Node 无 rAF 喂数据）；heap 字段 null |
+
+**Compose + GameServices**：
+| 文件 | 变更 |
+|---|---|
+| `core/game/game.ts` | GameServices 加 `setPreferredFps?` + `getPerformance?` 两个可选字段 |
+| `compose/app.ts` | 组装 bind；`tick()` 末尾调 `platform._feedLoopStats(ticks, time, clampedFrames)` 缓存 loop 计数器 |
+
+**beads 侧**：
+| 文件 | 变更 |
+|---|---|
+| `game/beads-shell.ts` | shell.update() 每 600 帧（≈10s @60Hz）拉 `services.getPerformance?.()` → emit `system:perf-sample` 事件 |
+
+### 3. 架构说明
+
+- **FPS 滑动窗口在哪喂数据**：各平台 `requestFrame` 实现内部（weapp/web）每次回调前调 `this._recordFrame(dt/1000)`，零侵入游戏层；NodePlatform 无 rAF 所以 FPS=null。
+- **Loop 计数器在哪缓存**：App.tick() 每次 FixedStepLoop.advance() 后调 `platform._feedLoopStats()`（BasePlatform 默认实现存 protected 字段）——platform 不持有 loop 实例，但缓存其数据用于 getPerformance 快照。
+- **getPerformance 零参数设计**：FPS 是内部滑动窗口自己算的、heap 是平台自己查的、loop 计数器是 App 推来的——调用方只拿结果，无需传参。
+- **setPreferredFps 降级链**：微信有 API 真调；Web/Node 直接 noop 静默吞。
+
+### 4. 微信 API 形状
+
+```typescript
+// 帧率档（基础库 2.11.0+）
+wx.setPreferredFramesPerSecond(60); // 或 30
+
+// 性能内存（基础库 2.11.0+；不同版本字段可选性不同，全做 ?. 防御）
+const perf = wx.getPerformance();
+perf.memory.usedJSHeapSize;   // 已用
+perf.memory.totalJSHeapSize;  // 分配上限
+```
+
+### 5. getPerformance 返回字段
+
+```typescript
+interface PerformanceSnapshot {
+  fps: number | null;              // 滚动 60 帧窗口均值
+  heapBytesUsed: number | null;    // weapp 独有
+  heapBytesTotal: number | null;    // weapp 独有
+  clampedFrames: number;           // FixedStepLoop 累计被钳帧
+  ticks: number;                   // FixedStepLoop 累计 step 数
+  loopTimeSeconds: number;         // 模拟世界秒
+  targetFps: 30 | 60;              // 当前档位
+  frameBudgetMiss: boolean;        // fps < target * 0.9 → 预算未达
+}
+```
+
+### 6. 验证
+
+- typecheck ✅
+- framework tests **518/518** ✅
+- beads tests **1277 passed + 3 skipped** ✅
+- framework:sync ✅（beads 写入 7 + breakout 写入 7）
+
+### 7. 撞号披露
+
+WXG-T-412 = Qoder 会话隔离工作树配方（已入库）。WXG-T-413 = beads 消耗品文档（已入库）。**WXG-T-414 零占用**，直接领。
+

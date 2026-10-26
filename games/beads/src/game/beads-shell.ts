@@ -132,6 +132,7 @@ export class BeadsShell implements Game {
     private readonly _studio?: StudioImportOptions;
     /** 拉取在途门标（防连点重复导入）。 */
     private _studioBusy = false;
+    private _perfCounter = 0;
     /**
      * 陈列序基准表引用：与 {@link BeadsGame} 构造式 `options.levels ?? LEVELS` **逐字同表达式**
      * ⇒ shell 与 play 读同一张关表（宿主传自定义关表时也不漂移），且**只在构造期取一次**。
@@ -408,6 +409,15 @@ export class BeadsShell implements Game {
     }
 
     update(dt: number): void {
+        // WXG-T-414：每 600 帧（≈10s @60Hz）拉一次性能快照。
+        if (this._perfCounter++ >= 600) {
+            this._perfCounter = 0;
+            const snap = this._services?.getPerformance?.();
+            if (snap && this._services?.events) {
+                const bus = this._services.events as unknown as { emit: (t: string, p: unknown) => void };
+                bus.emit('system:perf-sample', snap);
+            }
+        }
         // UI-50：路由栈是唯一导航真源，每帧推进栈顶。
         this._uiRoot.update(dt);
         if (this._phase.screen === 'play') {

@@ -7,6 +7,7 @@
  */
 
 import { MemoryStorage, type Storage } from '../core/save/storage';
+import { computeFps } from '../core/performance/performance';
 import { NullAudioBackend, type AudioBackend, type AudioBackendOptions } from '../core/audio/audio';
 import type { PlatformInfo } from '../core/game/game';
 import { BasePlatform, type FrameHandle, type HapticKind, type ScreenSize } from './platform';
@@ -171,6 +172,24 @@ export class WebPlatform extends BasePlatform {
     return g.fetch(url).then((r) => r.json());
   }
 
+  setPreferredFps(_fps: 30 | 60): void {
+    // Web has no setPreferredFramesPerSecond — silently noop.
+  }
+
+  getPerformance(): import('../core/performance/performance').PerformanceSnapshot {
+    const fps = computeFps(this._frameDeltas);
+    return {
+      fps: fps > 0 ? fps : null,
+      heapBytesUsed: null,
+      heapBytesTotal: null,
+      clampedFrames: this._loopClampedFrames,
+      ticks: this._loopTicks,
+      loopTimeSeconds: this._loopTimeSeconds,
+      targetFps: this._targetFps,
+      frameBudgetMiss: fps > 0 && fps < this._targetFps * 0.9,
+    };
+  }
+
   getScreenSize(): ScreenSize {
     const g = dom();
     return {
@@ -192,6 +211,7 @@ export class WebPlatform extends BasePlatform {
       const now = t || this.now();
       const dt = now - last;
       last = now;
+      this._recordFrame(dt / 1000); // WXG-T-414
       callback(dt);
     });
     return { cancel: () => g.cancelAnimationFrame?.(id) };

@@ -127,6 +127,8 @@ export class App {
       applyUpdate: this.platform.applyUpdate?.bind(this.platform),
       onMemoryWarning: this.platform.onMemoryWarning?.bind(this.platform),
       httpGet: this.platform.httpGet?.bind(this.platform),
+      setPreferredFps: this.platform.setPreferredFps?.bind(this.platform),
+      getPerformance: this.platform.getPerformance?.bind(this.platform),
     };
 
     this.loop = new FixedStepLoop(
@@ -251,6 +253,9 @@ export class App {
   tick(frameDtSeconds: number): number {
     const steps = this.loop.advance(frameDtSeconds);
     this.services.audio.flush(frameDtSeconds);
+    // WXG-T-414: push loop counters into platform for perf snapshots.
+    (this.platform as { _feedLoopStats?: (t: number, ts: number, c: number) => void })
+      ._feedLoopStats?.(this.loop.ticks, this.loop.time, this.loop.clampedFrames);
     return steps;
   }
 

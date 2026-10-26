@@ -11,6 +11,7 @@
  */
 
 import type { HapticKind, ShareOptions } from '../core/haptics.js';
+import type { PerformanceSnapshot } from '../core/performance/performance.js';
 import type { Storage } from '../core/save/storage.js';
 import type { AudioBackend, AudioBackendOptions } from '../core/audio/audio.js';
 import type { AssetProvider, PlatformInfo } from '../core/game/game.js';
@@ -83,6 +84,25 @@ export interface Platform {
    * Undefined on hosts with no network access.
    */
   httpGet?(url: string): Promise<unknown>;
+  /**
+   * Set preferred render frame rate (weapp only). Values: 60 (default) or 30
+   * (battery/low-end mode). Silently ignored on hosts that don't support it.
+   * This is a one-shot initialization — the framework calls it on startup;
+   * game code shouldn't need to flip it mid-session.
+   */
+  setPreferredFps?(fps: 30 | 60): void;
+  /**
+   * Pull a runtime performance snapshot (WXG-T-414). Optional because not
+   * every host exposes memory introspection — callers guard with `?.()`.
+   * WeChat gives real heap numbers; web/node can compute FPS from frame
+   * deltas but know nothing of JS heap.
+   *
+   * Loop counters are pushed into the platform by the App layer after each
+   * `FixedStepLoop.advance()` — the platform doesn't own the loop.
+   */
+  getPerformance?(): PerformanceSnapshot;
+  /** (internal) Called by App after each loop advance — pushes loop counters. */
+  _feedLoopStats?(ticks: number, timeSeconds: number, clampedFrames: number): void;
   getScreenSize(): ScreenSize;
   /** Schedule the next frame. The callback receives the delta in ms. */
   requestFrame(callback: (dtMs: number) => void): FrameHandle;
@@ -97,6 +117,31 @@ export interface Platform {
 export abstract class BasePlatform implements Platform {
   abstract readonly info: PlatformInfo;
   private readonly _assetProvider = new NullAssetProvider();
+
+  /** Sliding window of recent frame deltas (seconds) — shared for FPS rolling avg. */
+  protected readonly _frameDeltas: number[] = [];
+  protected readonly _fpsWindowMax = 60;
+  protected _targetFps: 30 | 60 = 60;
+
+  /** Called by requestFrame impls each render frame — feeds FPS rolling window. */
+  protected _recordFrame(deltaSeconds: number): void {
+    if (!Number.isFinite(deltaSeconds) || deltaSeconds <= 0) return;
+    this._frameDeltas.push(deltaSeconds);
+    if (this._frameDeltas.length > this._fpsWindowMax) {
+      this._frameDeltas.shift();
+    }
+  }
+
+  /** Cached loop counters — pushed by App after each advance(). */
+  protected _loopTicks = 0;
+  protected _loopTimeSeconds = 0;
+  protected _loopClampedFrames = 0;
+
+  _feedLoopStats(ticks: number, timeSeconds: number, clampedFrames: number): void {
+    this._loopTicks = ticks;
+    this._loopTimeSeconds = timeSeconds;
+    this._loopClampedFrames = clampedFrames;
+  }
 
   abstract now(): number;
   abstract createStorage(): Storage;
