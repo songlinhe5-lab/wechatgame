@@ -287,4 +287,5 @@
 | K-178 | 工具链Git | toolchain-git | `.gitignore` 的目录型规则（带尾斜杠）不匹配同名软链 ⇒ 隔离工作树里软链的 `node_modules` 漏成未跟踪 | WXG-T-412 | 2026-10-26 | 0 | active |
 | K-179 | 工具链Git | toolchain-git | 解完 merge ≠ 解对：冲突标记能整块提交入库，本仓五道门无一拦 | WXG-T-412 | 2026-10-26 | 0 | active |
 | K-180 | 工具链Git | toolchain-git | `git rebase --continue` 不跑 pre-commit ⇒ 钩子里「自动重建并 re-add」的产物（ctx 三件 + `memory/INDEX.md`）不会进结果提交 | WXG-T-412 | 2026-10-26 | 0 | active |
+| K-181 | 工具链Git | toolchain-git | 裸 `--selftest` 模式没有 package.json 入口时，就落在自测完整性守卫的枚举面之外 ⇒ 装置自测可以长期零执行而无人知 | WXG-T-415 | 2026-10-26 | 0 | active |
 <!-- kb:active:end -->

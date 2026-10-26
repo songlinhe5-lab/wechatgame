@@ -64,11 +64,17 @@
 - **[工具链Git][K-179] 解完 merge ≠ 解对：冲突标记能整块提交入库，本仓五道门无一拦**（来源 WXG-T-412，2026-10-26）
   现象：`origin/develop` 的 `467aa574`（提交信息 `wip: merge resolution done`）里 `production/TASKS.md` 第 5–9 行仍是 `<<<<<<< HEAD` / `=======` / `>>>>>>> f871ad88` 三段标记，中间夹着**两条各 49,203 字符的重复头注行**；`SequenceMatcher` 实测两条只差「411/412」与「410/411」两个数字 ⇒ 删一条不丢内容。该笔已推送成功，下一会话直到 rebase 才撞见。
   根因：pre-commit 五道门（`check:secrets` / `check:links` / `check:plugins` / `check:mcp` / `check-tasks --staged`）判的都是结构面（列数、配对、头注号、锚点），**没有任何一腿 grep 冲突标记**；而 `check-tasks` 头注判据按 `当前已分配至` 取命中值，重复行与标记活在「一条合法头注的两侧」，F 项照样绿。
-  规避/做法：① 解完冲突、提交前跑一次 `git grep -nE '^(<<<<<<< |>>>>>>> )' -- .`（一条命令、零判据漂移）；② 接手他人留下的冲突面时先做**字符差分**再决定删哪条，⛔ 凭「看起来一样」删行；③ 若要上机械门，最廉价的落点是 `check-secrets.mjs` 同层加一腿标记拦——**待主理人拍板**（须限定「行首 + 7 个标记字符」，否则会误伤 markdown 的 setext `=======` 下划线）。
-  判例引用：K-045（共享工作树协作损伤谱系，本条属「他人解冲突解不净」那一面）、K-168（同一问题换第二条口径）；正本 `production/TASKS-DETAIL.md` `## WXG-T-412` §4/§6/§7。
+  规避/做法：① 解完冲突、提交前跑一次 `git grep -nE '^(<<<<<<< |>>>>>>> )' -- .`（一条命令、零判据漂移）；② 接手他人留下的冲突面时先做**字符差分**再决定删哪条，⛔ 凭「看起来一样」删行；③ 机械门已落地（WXG-T-415，2026-10-26）：`check-secrets.mjs` 的 `CONTENT_RULES` 加 `CONFLICT-MARKER` 一腿，判据 = **行首** 7 个 `<` 或 `>`（`=` 那一段刻意不查——markdown setext 标题的下划线正是行首一串 `=`，查它就是把门禁变成噪声源；而未解冲突必然成对带 `<<<<<<<` 与 `>>>>>>>`，任一条命中即可拦下）⇒ 复用该脚本既有扫描面与 pre-commit ⓪ / `verify` / CI 三处接线，零新脚本、零改钩子；负样本复取 = 拿事故原文 `467aa574:production/TASKS.md` 喂 `--root` 桩，实测 FAIL 命中 L5。
+  判例引用：K-045（共享工作树协作损伤谱系，本条属「他人解冲突解不净」那一面）、K-168（同一问题换第二条口径）、K-181（补这条腿时发现它自己的自测也没挂档）；正本 `production/TASKS-DETAIL.md` `## WXG-T-412` §4/§6/§7、`## WXG-T-415`。
 
 - **[工具链Git][K-180] `git rebase --continue` 不跑 pre-commit ⇒ 钩子里「自动重建并 re-add」的产物（ctx 三件 + `memory/INDEX.md`）不会进结果提交**（来源 WXG-T-412，2026-10-26）
   现象：同一隔离树内两次建同内容提交做 A/B —— 手工 `git commit` 打印全套钩子回显（secrets / links / plugins / mcp / tasks / ctx:build / ctx:check）且结果含 ctx；`GIT_EDITOR=true git rebase --continue` 只回显 `[分离头指针 …] …` **零钩子输出**，结果提交 8 件、ctx 三件不在其中，而 `production/TASKS{,-DETAIL}.md` 已改 ⇒ HEAD 里索引相对文档是**过期**的。
   根因：git 对 rebase / cherry-pick 的重放提交不执行 pre-commit（本仓实测；`core.hooksPath` 也救不了，这是调用面而非配置面）。本仓把「重建索引 → re-add → 终校验」整段写在 pre-commit 钩子里（WXG-T-032 ⑤），所以凡走 rebase 入库的提交都绕过了它。
   规避/做法：① rebase 完不要直接把结果当成品：`pnpm run ctx:build` → `git add ctx/index.json ctx/BUDGET.md ctx/hot-files.md memory/INDEX.md` → `git commit --amend`（amend 走正常 `git commit` 路径，钩子会再跑一遍并终校验）；② 判据别只看 `git status` 干净——用 `pnpm run ctx:check`（默认 HEAD 口径）核一次；③ 这也解释了「本地提交绿、CI 干净检出红」的一类偶发。
   判例引用：K-136（暂存态与 HEAD 态两套口径的假红/假绿家族）、K-168（同一问题换第二条口径）；与 `memory/MEMORY.md` §项目约定「会话隔离工作树」的 rebase 子条同源。
+
+- **[工具链Git][K-181] 裸 `--selftest` 模式没有 package.json 入口时，就落在自测完整性守卫的枚举面之外 ⇒ 装置自测可以长期零执行而无人知**（来源 WXG-T-415，2026-10-26）
+  现象：`check-secrets.mjs` 的 `--selftest` 自 WXG-T-047 起就有 18 条腿，但 `package.json` 无 `check:secrets:selftest` 入口、`selftests.mjs::TIERS` 里也没有它 ⇒ `verify` 与 CI 的 `selftest:fast` **从未跑过**（`git log -S'"check:secrets:selftest"' -- package.json` 零命中）。本轮给它加 6 条冲突标记腿时才实测确认。
+  根因：`selftests.mjs::guardCoverage()` 只枚举两类线索——`package.json` 里以 `:selftest` 结尾的脚本名、`tools/scripts/*-selftest.sh` 文件名；**脚本内的 `--selftest` 选项不在枚举面**。⇒ BD-39 那一族「有门、但没人跑自测」在 `*.mjs` 上换了形态复现（`.sh` 形态反被守得住，因为它有文件名线索）。
+  规避/做法：① 新写 `*.mjs --selftest` 时**同批**补 package.json 入口 + `TIERS` 档位项，两者名字须一字不差（守卫按脚本名比对）；② 盘点未挂档的自测用差集而非印象：`grep -l "selftest" tools/scripts/*.mjs` 减去 package.json `*:selftest` 指向的脚本 —— 本仓实测三件命中：`check-secrets.mjs`（本单已挂档）、`build-mcp-configs.mjs`、`check-plugin-anchor.mjs`（后两件登记遗留，见 `## WXG-T-415` §7）。
+  判例引用：K-025（豁免一旦存在，真实问题会被一起放过）、K-036（短路后的 ✅ 不构成证据）、K-168（同一问题换第二条口径）；正本 `production/TASKS-DETAIL.md` `## WXG-T-415` §2/§4。

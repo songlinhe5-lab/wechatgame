@@ -173,6 +173,7 @@ node tools/scripts/check-architecture.mjs
 [ ] §11 check-architecture.mjs 通过
 [ ] §15 没有对 Set / Map / 迭代器 / 字符串用展开语法（一律 Array.from）；check-es5-spread.mjs 通过
 [ ] §17 宿主输入已 ÷dpr + 翻 y，且有 Node 行为测试（不是源码级正则断言）
+[ ] 没有把未解决的 merge 冲突标记留在行首（`check:secrets` 的 CONFLICT-MARKER 腿守，WXG-T-415 / 判例 K-179）
 ```
 
 ---

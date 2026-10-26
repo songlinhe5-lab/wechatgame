@@ -28,9 +28,24 @@
  *     · 内容含高置信度**密钥赋值**（键名含 secret / apiKey / accessKey /
  *       privateKey / uploadKey，且右侧是 ≥16 字符的引号字面量）
  *     · **微信 AppID**（`wx` 后接 16 位十六进制）出现在**代码 / 配置**文件里
+ *     · **未解决的 merge 冲突标记**（行首 7 个 `<` 或 `>`，WXG-T-415 / 判例 K-179）
  *   WARN（不阻断，exit 仍 0）：
  *     · 同一条 AppID 规则命中 **`.md` 文档** —— 文档里出现 AppID 字样是合法的，
  *       但需人工核对是不是真值；真值请改为环境变量引用。
+ *
+ * ── 为什么「未解决冲突标记」这条腿长在本脚本上（WXG-T-415）─────────────────
+ *   判例 K-179：`origin/develop` 的一笔「merge resolution done」把 `<<<<<<< HEAD` /
+ *   `=======` / `>>>>>>> f871ad88` **整块提交入库**，而五道门（secrets / links /
+ *   plugins / mcp / tasks）判的都是结构面，没有任何一腿 grep 标记 ⇒ 下一会话
+ *   rebase 时才撞见。本脚本的扫描面恰好是「会不会入仓」= 已跟踪 ∪ 未跟踪且未被
+ *   忽略，且已挂在 pre-commit ⓪ / `verify` / CI 三处 ⇒ 加一腿内容规则即可复用
+ *   全套采集与接线，不新建脚本、不改钩子。
+ *   判据只认**行首** 7 个 `<` 或 `>`（git 写死列 0），故：
+ *     · `=` 那一段**不查** —— markdown setext 标题的下划线正是行首一串 `=`，
+ *       查它就是把门禁变成噪声源（K-025：豁免一旦存在，真问题会被一起放过）；
+ *       而未解冲突必然同时带 `<<<<<<<` 与 `>>>>>>>`，任一条命中即可拦下。
+ *     · 文档里**展示**标记须写在行内反引号或缩进（行首非 0 列）—— 这是刻意的，
+ *       因为「行首」正是 git 标记的定义位置。
  *
  * ── 刻意不做（避免造伪判据）──────────────────────────────────────────────
  *   · 不扫被 ignore 的文件（见上），因此「临时丢一个 key 进仓库」只要已被
@@ -88,6 +103,14 @@ export const CONTENT_RULES = [
     pattern: /\bwx[0-9a-f]{16}\b/,
     message: '微信 AppID 出现在仓库中（ADR-0010 §4.2-5：AppID 与私钥同样严禁入仓）',
     docsAreWarnOnly: true,
+  },
+  {
+    id: 'CONFLICT-MARKER',
+    // ⚠️ 不可写成完整的 7 连字符字面量，否则本脚本会命中自己（见自测 B8）。
+    pattern: /^(?:<{7}|>{7})(?:[ \t]|$)/m,
+    message:
+      '未解决的 merge 冲突标记（行首 7 个 < 或 >）—— 判例 K-179：解完 ≠ 解对；' +
+      '提交前自查 `git grep -nE "^(<<<<<<< |>>>>>>> )" -- .`。文档要展示请放行内反引号或缩进',
   },
 ];
 
@@ -256,6 +279,18 @@ function runSelftest() {
       matchContent('check-secrets.mjs', readFileSync(fileURLToPath(import.meta.url), 'utf8')).length === 0,
     );
 
+    // §B′ 冲突标记腿（WXG-T-415 / 判例 K-179）：样本同样**只能拼接**，B8 会扫本文件。
+    const MARKER_OPEN = F('<'.repeat(7), ' HEAD');
+    const MARKER_CLOSE = F('>'.repeat(7), ' origin/develop');
+    const CONFLICT_SAMPLE = `${MARKER_OPEN}\nours\n${'='.repeat(7)}\ntheirs\n${MARKER_CLOSE}\n`;
+    const conflictHits = (p, t) => matchContent(p, t).filter((h) => h.id === 'CONFLICT-MARKER');
+
+    check('B9 行首标记命中，且文档不降级', conflictHits('production/TASKS.md', CONFLICT_SAMPLE).every((h) => h.level === 'fail') && conflictHits('production/TASKS.md', CONFLICT_SAMPLE).length === 1);
+    check('B10 行内反引号展示不误伤', conflictHits('doc.md', F('- 标记写作 `', '<'.repeat(7), ' HEAD` 在行中')).length === 0);
+    check('B11 缩进展示不误伤', conflictHits('doc.md', `  ${MARKER_OPEN}\n`).length === 0);
+    check('B12 裸标记行（无分支名）也命中', conflictHits('a.ts', F('<'.repeat(7), '\nx\n')).length === 1);
+    check('B13 setext 标题（行首一串 =）不命中 —— 刻意不查 = 那一段', conflictHits('doc.md', `标题\n${'='.repeat(9)}\n正文\na\n${'='.repeat(7)}\nb\n`).length === 0);
+
     // §C 端到端（桩 git 仓库：验证「未跟踪且未被忽略」确实被采集）
     execFileSync('git', ['init', '-q'], { cwd: tmp });
     execFileSync('git', ['config', 'user.email', 'selftest@local'], { cwd: tmp });
@@ -265,12 +300,14 @@ function runSelftest() {
     writeFileSync(join(tmp, 'src', 'clean.ts'), 'export const ok = true;\n');
     writeFileSync(join(tmp, 'dropped.key'), 'IGNORED-BY-GITIGNORE\n');
     writeFileSync(join(tmp, 'leak.ts'), `${SECRET_SAMPLE}\n`);
+    writeFileSync(join(tmp, 'conflicted.md'), CONFLICT_SAMPLE);
     const collected = collectFiles(tmp);
     check('C1 采集含已跟踪与未跟踪文件', collected.includes('src/clean.ts') && collected.includes('leak.ts'));
     check('C2 被 .gitignore 覆盖的 *.key 不入扫描面', !collected.includes('dropped.key'));
     const e2e = collected.flatMap((rel) => matchContent(rel, readFileSync(join(tmp, rel), 'utf8')));
     check('C3 端到端抓到密钥文件', e2e.some((h) => h.id === 'SECRET-ASSIGNMENT' && h.path === 'leak.ts'));
     check('C4 端到端不误报干净文件', !e2e.some((h) => h.path === 'src/clean.ts'));
+    check('C5 端到端抓到未跟踪文件里的冲突标记', e2e.some((h) => h.id === 'CONFLICT-MARKER' && h.path === 'conflicted.md'));
   } finally {
     try {
       rmSync(tmp, { recursive: true, force: true });
@@ -309,7 +346,7 @@ function printHelp() {
   = 已跟踪 ∪ 未跟踪且未被忽略 → 即「会不会入仓」；被 .gitignore 覆盖的文件不扫。
   因此不需要 --staged 模式（本模式严格更强）。
 
-FAIL：敏感文件名 / PEM 私钥块 / 密钥赋值 / 代码里的微信 AppID
+FAIL：敏感文件名 / PEM 私钥块 / 密钥赋值 / 代码里的微信 AppID / 行首未解决冲突标记
 WARN：文档（.md）里的微信 AppID（需人工核对是否真值）
 
 未覆盖（如实声明）：control-manifest §10 同句的「CDN 私有地址」无判定定义，未实现。`);

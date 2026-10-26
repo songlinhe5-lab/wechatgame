@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 181,
+  "nextId": 182,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -2992,7 +2992,7 @@
       "file": "knowledge/lessons/toolchain-git.md",
       "category": "工具链Git",
       "title": "解完 merge ≠ 解对：冲突标记能整块提交入库，本仓五道门无一拦",
-      "contentHash": "65aec4e11f369440693799141c1d2b5f5c0a84bb63cc3a11b7479eee36ae2f03",
+      "contentHash": "f3222f5e394c3a1e3d366590edb6e28af540bd0925ba7b6be04a2a4ccab8ef50",
       "sourceTask": "WXG-T-412",
       "addedDate": "2026-10-26",
       "lastAccess": "2026-10-26",
@@ -3011,6 +3011,23 @@
       "title": "`git rebase --continue` 不跑 pre-commit ⇒ 钩子里「自动重建并 re-add」的产物（ctx 三件 + `memory/INDEX.md`）不会进结果提交",
       "contentHash": "9b4247d10bbde2d912243e1da69753e61c266a20b7a45de5cefe14e0c2f56ca3",
       "sourceTask": "WXG-T-412",
+      "addedDate": "2026-10-26",
+      "lastAccess": "2026-10-26",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-181",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain-git.md",
+      "category": "工具链Git",
+      "title": "裸 `--selftest` 模式没有 package.json 入口时，就落在自测完整性守卫的枚举面之外 ⇒ 装置自测可以长期零执行而无人知",
+      "contentHash": "aabf5b3d09d6a618d6054c897df0767328a7eea095165c3ac190a62fb372544f",
+      "sourceTask": "WXG-T-415",
       "addedDate": "2026-10-26",
       "lastAccess": "2026-10-26",
       "accessCount": 0,
@@ -4923,6 +4940,24 @@
       "kind": "updated",
       "ids": [
         "K-178"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-26",
+      "taskId": "WXG-T-415",
+      "kind": "added",
+      "ids": [
+        "K-181"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-26",
+      "taskId": "WXG-T-415",
+      "kind": "updated",
+      "ids": [
+        "K-179"
       ],
       "note": null
     }
