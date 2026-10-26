@@ -32,6 +32,7 @@
  *  - `board-tap-router.ts`      托盘 / 网格点击分派（选取 / 取回 / 归位 / 直填）。
  *  - `control-map.ts`           控件映射（按下腿命中 / 按下态 / 面板选项，只读）。
  *  - `hit-test.ts`              无状态命中几何（齿轮 / 道具卡 / 展开 / 托盘槽）。
+ *  - `effects-dispatch.ts`      效果派发：音频订阅 / 触觉映射 / 广告点火 / 分享透传（无状态）。
  *  留在本类：状态机（`_buildStateMachine`）、托盘锚归位裁决（`_placeSelected`）、
  *  解环器表现（`_armSolverFx` / `_stepSolverFx`）、快照投影（`_syncSnapshot`）、
  *  BOOT / 订阅 / 装配（`_boot` / `_subscribe` / `_setupLevel`）。
@@ -48,25 +49,13 @@ import {
 } from '../../framework/index';
 
 import {
-  AUDIO_CLIP_CLEAR,
-  AUDIO_CLIP_COMBO_BREAK,
-  AUDIO_CLIP_COMBO_T1,
-  AUDIO_CLIP_COMBO_T2,
-  AUDIO_CLIP_COMBO_T3,
   AUDIO_CLIP_DENIED,
-  AUDIO_CLIP_DISSOLVE,
   AUDIO_CLIP_PANEL_IN,
   AUDIO_CLIP_PANEL_OUT,
-  AUDIO_CLIP_PLACE,
-  AUDIO_CLIP_POWERUP,
   AUDIO_CLIP_REJECT,
   AUDIO_CLIP_REVIVE_OK,
-  AUDIO_CLIP_SELECT,
-  AUDIO_CLIP_STAGE,
   AUDIO_CLIP_STAR,
-  AUDIO_CLIP_TRAY_FULL,
   AUDIO_CLIP_UI_TAP,
-  AUDIO_CLIP_URGENT_BEAT,
   DEFAULT_TUNING,
   DESIGN_H,
   REVIVE_BONUS_SEC,
@@ -168,29 +157,12 @@ import { HudRouter } from './beads-game/hud-router';
 import { BoardTapRouter, type BoardAnchor } from './beads-game/board-tap-router';
 import { ControlMap } from './beads-game/control-map';
 import { hitTraySlot } from './beads-game/hit-test';
-import type { HapticKind } from '../../framework/index';
-
-/**
- * 事件 → haptic kind 映射表（WXG-T-403）。
- *
- * 选则准则：
- * - 轻量连续反馈 → light（放珠 = 微振动确认）
- * - 中等反馈 → medium（连击递进、道具 = 值得"注意"的正反馈）
- * - 强反馈 → heavy（碰撞反弹、连击断裂 = 值得"警惕"的负反馈）
- * - 结算 → success / warning（过关/失败各一端）
- *
- * 故意不映射：tray/*, timer/*, settings/*, meta/*, game/*, sprint/* —
- * 要么太细要么是元事件。
- */
-const HAPTIC_MAP: ReadonlyMap<string, HapticKind> = new Map<string, HapticKind>([
-  ['bead:placed', 'light'],
-  ['bead:rejected', 'heavy'],
-  ['combo:up', 'medium'],
-  ['combo:break', 'heavy'],
-  ['level:cleared', 'success'],
-  ['level:failed', 'warning'],
-  ['powerup:used', 'medium'],
-]);
+import {
+  attachAudioCues,
+  fireRewardedAd,
+  fireShare,
+  hapticKindFor,
+} from './beads-game/effects-dispatch';
 
 /**
  * 公共契约类型（事件表 `BeadsEvents` + 构造选项 `BeadsGameOptions`）已抽至
@@ -1429,8 +1401,7 @@ export class BeadsGame implements Game {
     if (!ad) return this.expandTray(); // 无广告位宿主 ⇒ 同降级口径直发
     this._adKind = 'trayExpand';
     this._watchingAd = true;
-    ad.load(REWARDED_PLACEMENT.trayExpand);
-    ad.show();
+    fireRewardedAd(ad, REWARDED_PLACEMENT.trayExpand);
     return true;
   }
 
@@ -1541,8 +1512,7 @@ export class BeadsGame implements Game {
     this._failHint = '';
     this._adKind = 'revive';
     this._watchingAd = true;
-    ad.load(REWARDED_PLACEMENT.failContinue);
-    ad.show();
+    fireRewardedAd(ad, REWARDED_PLACEMENT.failContinue);
     if (this._watchingAd) return true;
     if (this._machine.current !== 'game-over') return true;
     this._failHint = '即将开放';
@@ -1576,8 +1546,7 @@ export class BeadsGame implements Game {
     this._adKind = 'staminaRefill';
     this._pendingRunStart = proceed;
     this._watchingAd = true;
-    ad.load(STAMINA_REFILL_PLACEMENT);
-    ad.show();
+    fireRewardedAd(ad, STAMINA_REFILL_PLACEMENT);
   }
 
   /** From the FINISH screen: replay the whole normal campaign from level 1. */
@@ -1594,15 +1563,12 @@ export class BeadsGame implements Game {
   }
 
   /**
-   * 分享按钮点击（WXG-T-405）：直接透传给平台层 services.share?.()。
-   * 宿主无分享能力（Node/harness）时静默 noop。
+   * 分享按钮点击（WXG-T-405）：透传给效果派发模块（`effects-dispatch.ts::fireShare`）。
+   * 宿主无分享能力（Node/harness）静默 noop、分享抛错吞掉、卡片内容注释均随迁移住该模块。
    */
   private _share(): void {
-    const share = this._services?.share;
-    if (!share) return;
-    // 分享卡片内容待真机验证后定制：标题 = 关卡星级 + 剩余步数；
-    // 图片 = 现成 boss 缩略烘焙图（提案 TODO-3 方案）。当前只透传空 opts。
-    try { share({}); } catch { /* ignore */ }
+    if (!this._services) return;
+    fireShare(this._services);
   }
 
   /** Level jump for level-select UI / harness / tests (normal mode). */
@@ -1911,48 +1877,11 @@ export class BeadsGame implements Game {
       }),
     );
 
-    // ── 音频派发（WXG-T-096 / BD-05）：clip 选择**只**按 `audio-events §1` 的触发源
-    // 事件，时长与限流不在这里发明（真源 = §1 表 + §3.2 分档 + §3.12 冻结值）。
-    this._unsubs.push(
-      bus.on('bead:placed', () => this._sfx(AUDIO_CLIP_PLACE)),
-      bus.on('tray:selected', () => this._sfx(AUDIO_CLIP_SELECT)),
-      bus.on('bead:rejected', () => this._sfx(AUDIO_CLIP_REJECT)),
-      // A05-07：道具生效帧两条并存（id 不同 ⇒ 不被同帧去重吞掉）；
-      //         `affectedCells` 为空 ⇒ **零发声**（powerups §4 零噪声原则）。
-      //         BD-49（WXG-T-151 实证 / WXG-T-154 修复）：v1.22 payload 改名旧字段
-      //         `affectedSlots` 残留读本分支恒 undefined 早退 ⇒ 真链零发声；现读 L171 契约字段。
-      bus.on('powerup:used', (payload) => {
-        const cells = (payload as { affectedCells?: readonly { row: number; col: number }[] }).affectedCells;
-        if (!cells || cells.length === 0) return;
-        this._sfx(AUDIO_CLIP_POWERUP);
-        this._sfx(AUDIO_CLIP_DISSOLVE);
-      }),
-      // A05-08：三档分流不串音；`tier=0`（未升档）零发声。
-      bus.on('combo:up', (payload) => {
-        const tier = (payload as { tier: number }).tier;
-        if (tier === 3) this._sfx(AUDIO_CLIP_COMBO_T3);
-        else if (tier === 2) this._sfx(AUDIO_CLIP_COMBO_T2);
-        else if (tier === 1) this._sfx(AUDIO_CLIP_COMBO_T1);
-      }),
-      // A05-10：两种 `reason` 同一 clip（§5 只一行）；`wrong` 时与 `sfx_reject` 同帧
-      //         并存不互斥（双通道红线优先，Q-A05-3 采推荐项）。
-      bus.on('combo:break', () => this._sfx(AUDIO_CLIP_COMBO_BREAK)),
-      // A05-D7：首拍由 `timer:urgent` **边沿**驱动，后续每拍由 `timer:tick` 驱动；
-      //         同帧两条都到 ⇒ scheduler 入队去重 + 0.9s 限流 ⇒ 仍恰一拍。
-      bus.on('timer:urgent', () => this._sfx(AUDIO_CLIP_URGENT_BEAT)),
-      bus.on('timer:tick', (payload) => {
-        const remaining = (payload as { remaining: number }).remaining;
-        if (remaining <= TIMER_URGENT_T) this._sfx(AUDIO_CLIP_URGENT_BEAT);
-      }),
-      // A05-14：每次 `tray:full` 恰 1 次（**不循环**；500ms 呼吸属视觉，互不驱动）。
-      // ⛔ v2.0 供料关停（WXG-T-136）：`tray:full` 玩法侧零发射（systems-index §4 作废），
-      // 本监听为**死路径保留**——满槽告警视觉改由槽态驱动（view-model 读 `freeSlots`），
-      // 不经本事件；供料复活时自动恢复发声。`AUDIO_CLIP_TRAY_FULL` 仍留在 A05-24
-      // 19-clip 闭合集内（audio-events §1 未删行，音频域文件本单禁改）。
-      bus.on('tray:full', () => this._sfx(AUDIO_CLIP_TRAY_FULL)),
-      bus.on('sprint:stage', () => this._sfx(AUDIO_CLIP_STAGE)),
-      bus.on('level:cleared', () => this._sfx(AUDIO_CLIP_CLEAR)),
-    );
+    // ── 音频派发（WXG-T-096 / BD-05）：整块迁至 `effects-dispatch.ts::attachAudioCues`
+    // （T5 效果派发协作模块）。注册序、clip 映射、限流口径与 tray:full 死路径注释逐条随迁；
+    // 返回的 unsub 并入 `_unsubs`，`dispose()` 统一解绑。调用点仍在数据投影订阅之后
+    // ⇒「同一 bead:placed 上投影先于发声」的既有先后不变。
+    this._unsubs.push(...attachAudioCues(bus, (clipId) => this._sfx(clipId)));
   }
 
   /** Load a normal level: fresh grid/tray/rhythm/timer (S5 §2.4 reset list). */
@@ -3088,9 +3017,9 @@ export class BeadsGame implements Game {
       emit: (type: string, payload: unknown) => void;
     };
     bus.emit(type as string, payload);
-    // 衍生 haptic —— 防 haptic:trigger 自身递归
+    // 衍生 haptic —— 防 haptic:trigger 自身递归（映射表迁至 effects-dispatch.ts::hapticKindFor）
     if (type === 'haptic:trigger') return;
-    const kind = HAPTIC_MAP.get(type as string);
+    const kind = hapticKindFor(type as string);
     if (kind !== undefined) {
       bus.emit('haptic:trigger', { kind });
     }

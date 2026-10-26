@@ -56,7 +56,7 @@ games/beads/src/
 ├── game/
 │   ├── beads-game.ts        # Game 实现：S1 编排 + 事件订阅装配
 │   ├── beads-game/          # 对局子模块：输入链（input / hit-test / board-tap / panel / hud router）、
-│   │                        # 相机、设置、存档 IO、反馈特效、结算保护
+│   │                        # 相机、设置、存档 IO、反馈特效、效果派发、结算保护
 │   ├── beads-shell.ts       # 壳：屏幕相位 / 菜单输入 / 页转场 / 调试层投影
 │   ├── state.ts             # 六状态转移表 + Snapshot + 同帧裁决（cleared 优先）
 │   └── *-schema.ts          # 存档（save / meta-save）· crash-snapshot · level-import · difficulty

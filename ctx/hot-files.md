@@ -8,7 +8,7 @@
 
 > 体积预算 ≤ 5600 估算 tokens（当前 33 个文件）：本表是协议常驻开销，会**直接扣减净收益**（`ctx/reads-summary.md §②.1`），故超预算候选不进本表。
 
-## `docs/architecture/architecture-beads.md` — 235 行 / 5974 tok / 实测读 35 次
+## `docs/architecture/architecture-beads.md` — 235 行 / 5979 tok / 实测读 35 次
 
 §微信小游戏矩阵 — beads（拼豆填…=1+236 · §1 beads 特有约束（在矩阵约束之…=13+14 · §2 9 系统 → 框架模块映射（sys…=27+20 · §3 `games/beads/src`…=47+37 · §4 渲染层方案（ADR-0005 摘要…=84+18 · §5 事件装配图（systems-ind…=102+27 · §6 BOOT 装配与关卡加载流=129+24 · §7 激励视频占位（ADR-0006 摘…=153+9 · §8 风险登记册（beads 增量）=162+12 · §9 当前实现状态=174+28 · §10 死路径登记：S4 供料 `Spa…=202+35
 > 本表只列 11 / 15 节：其余 4 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
@@ -103,9 +103,9 @@
 §knowledge/ — 工作室知识库…=1+293 · §1 读取协议（开发前期）=7+10 · §2 写入协议（任务收尾）=17+28 · §3 文件分工=45+10 · §4 维护=55+12 · §5 生命周期（访问记账 → 归档 → …=67+41 · §6 活跃条目（自动生成）=108+186
 > 本表只列 7 / 11 节：其余 4 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
 
-## `production/TASKS-DETAIL.md` — 5878 行 / 185435 tok
+## `production/TASKS-DETAIL.md` — 5880 行 / 185837 tok
 
-§WXG 任务台账 · 详情（标题制正文…=1+5878 · §WXG-T-419=5493+89 · §WXG-T-420=5582+43 · §WXG-T-421=5625+33 · §WXG-T-422=5658+15 · §WXG-T-423=5673+16 · §WXG-T-424=5689+15 · §WXG-T-425=5704+32 · §WXG-T-426=5736+17 · §WXG-T-427=5753+37 · §WXG-T-428=5790+37 · §WXG-T-429=5827+36 · §WXG-T-430=5863+16
+§WXG 任务台账 · 详情（标题制正文…=1+5880 · §WXG-T-419=5493+89 · §WXG-T-420=5582+45 · §WXG-T-421=5627+33 · §WXG-T-422=5660+15 · §WXG-T-423=5675+16 · §WXG-T-424=5691+15 · §WXG-T-425=5706+32 · §WXG-T-426=5738+17 · §WXG-T-427=5755+37 · §WXG-T-428=5792+37 · §WXG-T-429=5829+36 · §WXG-T-430=5865+16
 > 本表只列 13 / 527 节：其余 514 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
 
 ## `games/breakout/design/concept.md` — 143 行 / 3113 tok / 实测读 217 次

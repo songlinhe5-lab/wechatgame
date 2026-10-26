@@ -5620,6 +5620,8 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 
 - **T4 完成（本笔提交）**：`Spawner` 死路径**只登记不删不摘**（D3 仍待拍）。实测取证写入 `docs/architecture/architecture-beads.md` 新增 §10：类本体（`systems/spawner.ts` 文件头 DEAD PATH）/ 主循环 `_stepPlaying` 不再 tick / 实例 `_spawner` + 调试 getter / 崩溃快照 `spawnAcc`·`spawnInterval`·`spawnFullReported` 三字段往返 / tuning 五死值 v1.22 作废 / `src/index.ts` 未再导出 spawner（401「仍在公开 barrel」订正为「实例仍挂调试面」）/ `tray-spawner.test.ts` 两例单元级死路径锁定。§5 事件表加 ⚠ 指针指向 §10。写清保留理由（D3 待拍 + 三者往返闭环 + 保留零热路径成本 + 复活零成本）、删除 5 步前置（含快照 schema 版本评估）、复活三条件（tray-spawner §6 + systems-index §3.4 + 主理人确认）。**零代码行为变化**。
 
+- **T5 完成（本笔提交）**：抽 `game/beads-game/effects-dispatch.ts` 承接**副作用派发**——四导出函数 `hapticKindFor`（事件 → 触觉 kind 查表，原 `_emit` 的 `HAPTIC_MAP.get`）/ `attachAudioCues`（原 `_subscribe` 11 条音频 `bus.on` 块，注册序逐条对齐、调用点仍在数据投影订阅之后）/ `fireRewardedAd`（三处 `ad.load()+ad.show()` 点火单点）/ `fireShare`（`_share` 透传）。取**模块函数**而非协作类：本模块零实例状态，与 `hit-test.ts` 同型（⛔ 不为统一形态造无状态壳）。**边界留在 BeadsGame**：广告发奖状态路由（`_adKind`/`_watchingAd`/`_pendingRunStart`/相位机/`_onAdRewarded` 三岔裁决）、广告回调装配、发声/点火/分享判据。主类 **3104 → 3033（−71）**。先写 `effects-dispatch.test.ts` 实测 RED（模块不存在 1 failed）→ 实现转 GREEN **13 passed**（含 K-106 接线证明：放珠 ⇒ `haptic:trigger{light}`、选槽 ⇒ 零触觉；契约断言非复制真源，K-042/K-152）；音频端到端时序与限流仍由 `audio-dispatch.test.ts` **36 passed** 守。beads 全测 **1298 passed｜3 skipped**（108 文件），typecheck、check:arch 通过；`framework:sync` 写入 2（新镜像 + 主类镜像，`.meta` 编辑器所有不伪造，同 T3 先例），Cocos 同步检查 exit 0。
+
 ---
 
 ## WXG-T-421
