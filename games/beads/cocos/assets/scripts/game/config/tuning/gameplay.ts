@@ -173,11 +173,21 @@ export const CYCLE_LEN_LONG = 5;
  *
  * 道具目标 = 棋盘错位珠；托盘**零读写**（错位珠在 grid 内直移 / 交换闭环）。
  */
-export const POWERUP_TYPES = ['solver', 'solverPlus', 'solverRandom'] as const;
-/** `solverPlus`：一次最多归位的错位珠数（§3.6 v1.22；不足不补）。 */
+export const POWERUP_TYPES = ['windowRestore', 'randomRestore', 'trayRestore'] as const;
+/**
+ * ~~`solverPlus`：一次最多归位的错位珠数~~ ⛔ v1.95 作废（WXG-T-419 道具体系
+ * 换版，systems-index §3.6；判例 K-053 死值留档）。
+ */
 export const SOLVER_PLUS_COUNT = 3;
-/** `solverRandom`：一次抽取归位的错位珠数（§3.6 v1.22；不足不补）。 */
+/** ~~`solverRandom`：一次抽取归位的错位珠数~~ ⛔ v1.95 作废，死值留档，同上。 */
 export const SOLVER_RANDOM_COUNT = 1;
+/**
+ * `windowRestore`（熨贴片）：作用窗口边长（§3.6 v1.95，WXG-T-419；用户拍板）。
+ * 盘面任一边小于 6 时窗口贴边收缩为整盘（`min(SIDE, rows/cols)`）。
+ */
+export const SIDE = 6;
+/** `randomRestore`（抖豆筛）：一次随机归位的错位珠数（§3.6 v1.95；不足不补）。 */
+export const RANDOM_RESTORE_COUNT = 12;
 /**
  * ⛔ v1.22 作废（WXG-T-137 解环器反转，systems-index §3.6）：「清**槽**」语义随道具
  * 目标改换而整体消失 ⇒ 窗口长度与随机抽珠数失去消费方。**死值保留**（§3.2 / §3.4
@@ -187,7 +197,14 @@ export const SOLVER_RANDOM_COUNT = 1;
 export const REGION_CLEAR_SLOTS = 6;
 /** ~~`random`：等概率抽至多这么多颗持有珠。~~ ⛔ 作废死值，见上。 */
 export const RANDOM_CLEAR_COUNT = 5;
-/** Free uses of *each* powerup per level — three independent counters (§3.6, A5). */
+/**
+ * Free uses of *each* powerup — three independent counters (§3.6, A5).
+ *
+ * ⚠ **v1.95 语义变更**（WXG-T-419，用户 2026-10-26 拍板）：值仍为 1，但寿命从
+ * 「**每关**重置」改为「**账号级永久**每型 1 次」——用掉即永久耗尽（入档
+ * `powerupFreeUsedWindow/Random/Tray` 三布尔，新关 / 失败重试 / 暂停重玩 /
+ * 换关**均不恢复**）。新手引导演示不消耗该额度（明示例外）。
+ */
 export const POWERUP_FREE_USES = 1;
 /**
  * In-level rewarded-video placements: 3 powerup cards + tray expansion (§3.6).
@@ -196,27 +213,26 @@ export const POWERUP_FREE_USES = 1;
  */
 export const AD_PLACEMENTS = 4;
 /**
- * 豆子购买单价（§3.6 v1.80，WXG-T-351，用户 2026-10-22 拍板）。
- * 定标 = 「最低档消耗品 ≤ 0.5 天免费产出」（`SOLVER` 20 / 签到日均 45.7 ≈ 0.44 天）：
- * 道具只在卡关时有用，价格逼近一天收入会让人「宁可重开也不买」⇒ 出口形同虚设。
+ * 豆子购买单价（§3.6 v1.95，WXG-T-419，用户 2026-10-26 拍板）。
+ * ~~v1.80 定标「最低档消耗品 ≤ 0.5 天免费产出」（20/30/45）~~ ⛔ 已作废（K-053
+ * 划线留档）：三件统一 **100** = 高端选项，判据 = 普通关「免费 1 次 + 全部必要
+ * 购买」总成本 > 首通 90 豆（不许首通赚豆，逐关核验见 `powerups-v2 §5.3`）。
+ * 购买**不设次数上限**，价格是唯一门槛（v2.1 裁定 C）。
  */
-export const POWERUP_BUY_PRICE_SOLVER = 20;
-export const POWERUP_BUY_PRICE_RANDOM = 30;
-export const POWERUP_BUY_PRICE_PLUS = 45;
-/** 每关豆子购买**合计**上限（3 型合计，§3.6 v1.80）。 */
-export const POWERUP_BUY_MAX_PER_LEVEL = 2;
-/** 每型每关豆子购买**子限**（§3.6 v1.80 行内「每型每关 1 次」）。 */
-export const POWERUP_BUY_MAX_PER_TYPE = 1;
+export const POWERUP_BUY_PRICE = 100;
+/**
+ * ~~每关豆子购买合计上限~~ / ~~每型每关子限~~ ⛔ v1.95 作废（WXG-T-429 冻结表
+ * 已划线）：「不设上限、只靠价格」为用户明示取舍。死值删除（无复用前景），
+ * 引用面随本批一并清理。
+ */
 /** 豆子不足 / 达上限时的轻提示（`powerups §2.6` 占位轻提示同族，非广告文案）。 */
 export const POWERUP_BUY_DENIED_HINT = '豆子不足或已购满';
 /** A powerup identity — the frozen tuple's element type. */
 export type PowerupType = (typeof POWERUP_TYPES)[number];
 
-/** 某型道具的豆子购买单价（唯一取价点：logic 与 view 都读这里）。 */
-export function powerupBuyPrice(type: PowerupType): number {
-  if (type === 'solverPlus') return POWERUP_BUY_PRICE_PLUS;
-  if (type === 'solverRandom') return POWERUP_BUY_PRICE_RANDOM;
-  return POWERUP_BUY_PRICE_SOLVER;
+/** 某型道具的豆子购买单价（唯一取价点：logic 与 view 都读这里）。v1.95：三件统一 100。 */
+export function powerupBuyPrice(_type: PowerupType): number {
+  return POWERUP_BUY_PRICE;
 }
 
 // ──────────────────────────────────────────────────────── §3.11 fail revive

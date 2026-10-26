@@ -101,7 +101,15 @@ import { applyMisplacedToGrid } from './misplaced-assembler';
 import { collectMisplacedGroup } from '../entities/grid';
 import { BeadGrid } from '../entities/grid';
 import { Tray } from '../entities/tray';
-import { PowerupSystem, type AffectedCell, type MisplacedBead } from '../systems/powerups';
+import {
+  PowerupSystem,
+  type AffectedCell,
+  type MisplacedBead,
+  type PowerupInputs,
+  type PowerupOutcome,
+  type TrayBead,
+  type TrayMove,
+} from '../systems/powerups';
 import { hitBuyConfirm } from '../systems/buy-confirm-panel';
 import { FinishPanel, } from '../systems/finish-panel';
 import { SprintSettlePanel, } from '../systems/sprint-settle';
@@ -441,6 +449,8 @@ export class BeadsGame implements Game {
   private readonly _canWatchStaminaAd?: () => boolean;
   /** 道具超限豆子购买闸门（options.onPowerupPurchase；无 shell 时 undefined ⇒ 占位提示）。 */
   private readonly _onPowerupPurchase?: (type: PowerupType) => boolean;
+  /** 免费腿用掉即落档（options.onPowerupFreeSpent；无 shell 时 undefined ⇒ 不落档）。 */
+  private readonly _onPowerupFreeSpent?: (depleted: Readonly<Record<PowerupType, boolean>>) => void;
   /** 结算发豆（options.onClearCoins；无 shell 时 undefined ⇒ 面板不显示该行）。 */
   private readonly _onClearCoins?: (stars: number, isBoss: boolean, prevStars: number) => ClearCoinGrant | undefined;
   /**
@@ -501,6 +511,7 @@ export class BeadsGame implements Game {
     this._onStaminaRefill = options.onStaminaRefill;
     this._canWatchStaminaAd = options.canWatchStaminaAd;
     this._onPowerupPurchase = options.onPowerupPurchase;
+    this._onPowerupFreeSpent = options.onPowerupFreeSpent;
     this._onClearCoins = options.onClearCoins;
     this._canAdvanceAcrossArc = options.canAdvanceAcrossArc;
     this._ownsSkin = options.ownsSkin;
@@ -1213,7 +1224,7 @@ export class BeadsGame implements Game {
   usePowerup(type: PowerupType): boolean {
     if (this._machine.current !== 'playing') return false;
     const pool = this._misplacedBeads();
-    const outcome = this._powerups.request(type, pool);
+    const outcome = this._powerups.request(type, pool, this._powerupInputs());
     if (outcome.kind === 'exhausted') {
       // 免费次数用尽 ⇒ **豆子购买**（§3.6 v1.80 唯一出口）：先弹确认（`ux-spec §3.7`），
       // 此刻**零扣豆、零事件**；确定才走 {@link confirmPowerupBuy}。
@@ -1226,13 +1237,23 @@ export class BeadsGame implements Game {
       return false;
     }
     if (outcome.kind !== 'used') return false;
-    this._applyPowerupUse(outcome.type, outcome.affectedCells);
+    this._applyPowerupUse(outcome);
+    // 免费腿用掉即落档（§3.6 v1.95「必须入档」；购买腿不经过此路径）。
+    this._onPowerupFreeSpent?.(this._powerups.freeDepleted);
     return true;
   }
 
   /**
+   * 注入账号级免费额度耗尽标志（§3.6 v1.95；shell 在 meta 载档后调用一次）。
+   * 透传 {@link PowerupSystem.setFreeDepleted}（仅收布尔字段，缺省不动）。
+   */
+  setPowerupFreeDepleted(flags: Partial<Record<PowerupType, boolean>>): void {
+    this._powerups.setFreeDepleted(flags);
+  }
+
+  /**
    * 确认购买（弹窗「确定」）：扣豆**一次** + 生效**一次**。
-   * 豆子不足 / 本型子限或每关合计上限已满 / 棋盘已无错位珠 ⇒ 关窗 + 轻提示，零扣款零事件。
+   * 豆子不足 / 棋盘已无错位珠 ⇒ 关窗 + 轻提示，零扣款零事件（v1.95 删除「达上限」路径）。
    */
   confirmPowerupBuy(): boolean {
     const type = this._pendingBuy;
@@ -1247,9 +1268,9 @@ export class BeadsGame implements Game {
       this._powerupHint = POWERUP_BUY_DENIED_HINT;
       return false;
     }
-    const outcome = this._powerups.purchase(type, pool);
+    const outcome = this._powerups.purchase(type, pool, this._powerupInputs());
     if (outcome.kind !== 'used') return false;
-    this._applyPowerupUse(outcome.type, outcome.affectedCells);
+    this._applyPowerupUse(outcome);
     return true;
   }
 
@@ -1263,13 +1284,61 @@ export class BeadsGame implements Game {
    *
    * G2′（用户 2026-09-17 裁定「甲」）：本帧**只点名不动手** —— 相 A 200ms 闪环期间棋盘保持原样，
    * `bead:placed` 与过关判定全部推到相 B 各自到点的那一帧（`_stepSolverFx`）。
-   * 事件载荷 = 点名格（§1.6.2a「affectedCells = 预警高亮的格」）；音频派发（S6）零变化。
+   * 事件载荷 = 点名格（§1.6.2a「affectedCells = 预警高亮的格」）+ `trayRestore` 的
+   * `traySlots`（§2.4 托盘清空信号）；音频派发（S6）零变化。
+   *
+   * ⚠ v1.95 分流（WXG-T-431）：`trayRestore` **同帧动手**（`_execTrayPlan`）——
+   * `powerups-v2 §2.2.5` 伪代码无相 A/相 B，且 plan 与动手同帧 ⇒ 盘面/托盘状态
+   * 与 plan 完全一致（零重算、零重消费 Rng）；另两件照旧走 G2′ 队列。
    */
-  private _applyPowerupUse(type: PowerupType, affectedCells: readonly AffectedCell[]): void {
+  private _applyPowerupUse(outcome: Extract<PowerupOutcome, { kind: 'used' }>): void {
     this._powerupHint = '';
-    this._emit('powerup:used', { type, affectedCells });
+    this._emit('powerup:used', {
+      type: outcome.type,
+      affectedCells: outcome.affectedCells,
+      ...(outcome.traySlots ? { traySlots: outcome.traySlots } : {}),
+    });
     this._fx.startSweep(); // G3 扫光（表现层，不影响裁决）：与 §1.6.2a 解环器归位同帧启动
-    this._armSolverFx(affectedCells);
+    if (outcome.trayPlan) this._execTrayPlan(outcome.trayPlan);
+    else this._armSolverFx(outcome.affectedCells);
+  }
+
+  /**
+   * `trayRestore` 动手腿（v1.95，§2.2.5）：按 plan **同帧**执行托盘→盘归位。
+   * plan 即真相（request 与动手同帧 ⇒ 不重算、不重消费 Rng，§2.2.5-⑥ 次数不破）。
+   * 托盘写入真方 = S4（经 `Tray` 写原语清槽，S6 保持只读）；**倒序执行** ——
+   * `takeBead` 左移补位会前移右侧槽号（v2.2 归类不变式），倒序清则 plan 槽号恒有效。
+   * 每颗一份 `bead:placed`（**带来源 slot**，托盘路径必带）+ 组落座队列
+   * （与手动放珠同视觉通道，`step` = 槽序 ⇒ 逐颗错开的「扫过」观感）。
+   */
+  private _execTrayPlan(plan: readonly TrayMove[]): void {
+    for (let i = plan.length - 1; i >= 0; i--) {
+      const m = plan[i]!;
+      this._conservation.mark(); // 哨兵入口（托→盘）
+      const slot = this._tray.slot(m.slot);
+      const bead = slot && slot.state !== 'free' ? slot.colorIdx : 0;
+      if (!bead) continue; // 防御：plan 与动手同帧，理论不可达
+      const target = this._grid.cell(m.targetRow, m.targetCol)!;
+      if (target.state === 'empty') {
+        if (!this._grid.fill(m.targetRow, m.targetCol, bead)) continue;
+      } else if (m.evictRow >= 0) {
+        // 换出：被占珠落 evict 空格（fill），托盘珠进目标格（setBead 改珠色）。
+        const evicted = target.beadColorIdx;
+        if (!this._grid.fill(m.evictRow, m.evictCol, evicted)) continue;
+        this._grid.setBead(m.targetRow, m.targetCol, bead);
+      } else {
+        continue; // 防御：被占且无 evict 位（plan 时已保证不发生）
+      }
+      this._tray.takeBead(m.slot);
+      this._emit('bead:placed', { row: m.targetRow, col: m.targetCol, colorIdx: bead, slot: m.slot });
+      this._fx.pushGroupLand(m.targetRow, m.targetCol, i);
+      this._conservation.check('trayRestore 归位');
+    }
+    // 同帧可能达成零错位 ⇒ cleared-priority（与 _stepSolverFx 序列末同判例）。
+    if (this._grid.isComplete()) {
+      if (this._mode === 'sprint') this._completeStage();
+      else this._machine.transition('level-clear');
+    }
   }
 
   /**
@@ -1286,6 +1355,43 @@ export class BeadsGame implements Game {
       }
     }
     return out;
+  }
+
+  /**
+   * 组装 S6 的 `PowerupInputs`（v1.95，WXG-T-431）：
+   *  - `dims`：盘面尺寸（`windowRestore` 算最密集 6×6 贴边收缩窗口）；
+   *  - `tray` / `empties`：`trayRestore` 的托盘珠清单（每颗带它的唯一归宿格，行主序
+   *    第一个匹配格；锁定 / 无归宿的珠**不进清单**——S6 约定调用方预筛）与盘面空格。
+   * 全部**读取期**构造，S6 仍无状态（不持镜像）。
+   */
+  private _powerupInputs(): PowerupInputs {
+    const grid = this._grid;
+    const tray: TrayBead[] = [];
+    for (let slot = 0; slot < this._tray.capacity; slot++) {
+      const s = this._tray.slot(slot);
+      if (!s || s.state !== 'holding') continue;
+      // 归宿格 = 行主序第一个「要求色 == 珠色 且 (empty 或 misplaced)」的格；
+      // locked / 已就位格不可能是归宿（守恒 ⇒ 有珠在托盘就有格缺珠）。
+      for (let row = 0; row < grid.rows; row++) {
+        for (let col = 0; col < grid.cols; col++) {
+          if (grid.requiredColor(row, col) !== s.colorIdx) continue;
+          const cell = grid.cell(row, col)!;
+          if (cell.state === 'empty' || (cell.state === 'filled' && grid.isMisplaced(row, col))) {
+            tray.push({ colorIdx: s.colorIdx, slot, targetRow: row, targetCol: col });
+            row = grid.rows; // 找到即跳出双层
+            break;
+          }
+        }
+      }
+    }
+    const empties: AffectedCell[] = [];
+    for (let row = 0; row < grid.rows; row++) {
+      for (let col = 0; col < grid.cols; col++) {
+        const cell = grid.cell(row, col)!;
+        if (cell.state === 'empty') empties.push({ row, col });
+      }
+    }
+    return { dims: { rows: grid.rows, cols: grid.cols }, tray, empties };
   }
 
   /**
@@ -2810,11 +2916,11 @@ export class BeadsGame implements Game {
     s.zoomSliderT = sliderTFromZoom(this._board.camera.zoom);
     s.camZoom = this._board.camera.zoom;
 
-    // S6 cards: remaining free uses per powerup (0 ⇒ the view dims the card and
-    // leans on the always-on ad_badge, §2.6) + the one-shot over-limit hint.
-    s.powerupFreeUses.solver = this._powerups.uses.solver;
-    s.powerupFreeUses.solverPlus = this._powerups.uses.solverPlus;
-    s.powerupFreeUses.solverRandom = this._powerups.uses.solverRandom;
+    // S6 cards: remaining free uses per powerup（v1.95 = 账号级永久额度，0 ⇒ 视图
+    // 压暗卡片并走双通道面板）+ the one-shot over-limit hint.
+    s.powerupFreeUses.windowRestore = this._powerups.freeUses('windowRestore');
+    s.powerupFreeUses.randomRestore = this._powerups.freeUses('randomRestore');
+    s.powerupFreeUses.trayRestore = this._powerups.freeUses('trayRestore');
     s.powerupHint = this._powerupHint;
     // 购买确认弹窗（ux-spec §3.7）：0 = 关；>0 = 该型单价，视图直接印进标题。
     s.buyConfirmPrice = this._pendingBuy ? powerupBuyPrice(this._pendingBuy) : 0;

@@ -1,4 +1,4 @@
-import { SOLVER_PLUS_COUNT } from './gameplay.js';
+import { SIDE } from './gameplay.js';
 import { HUD_BAND } from './layout.js';
 import { BEAD_CELL } from './board.js';
 
@@ -245,8 +245,12 @@ export const SOLVER_STAGGER_MS = 80;
  * 取值 = 观感量（≈ 0.47 格）`[待真机]`。
  */
 export const GROUP_LAND_DROP_PX = 22;
-/** 一次点名的上限：沿 §3.6 `SOLVER_PLUS_COUNT`（引用冻结值，不新增）。 */
-export const SOLVER_MAX_CELLS = SOLVER_PLUS_COUNT;
+/**
+ * 一次点名的上限（v1.95，WXG-T-431）：§3.6 三道具单次点名最坏情形 = `windowRestore`
+ * 的 6×6 窗口内**全部**错位珠 ⟹ 上界 = `SIDE²`（引用冻结值，不新增魔法数）。
+ * 用作 VFX 定长队列容量（`state.solverCell*` / `_armSolverFx`），超界静默截断。
+ */
+export const SOLVER_MAX_CELLS = SIDE * SIDE;
 
 /**
  * **[T-244 五批 · 2026-10-04 修「只有三个珠有动画」]** 落座延迟队列的**容量上界**（颗数）。

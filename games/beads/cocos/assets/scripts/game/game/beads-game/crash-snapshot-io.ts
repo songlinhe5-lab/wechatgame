@@ -171,8 +171,9 @@ export class CrashSnapshotIO {
       spawnAcc: h.spawner.acc,
       spawnInterval: h.spawner.interval,
       spawnFullReported: h.spawner.fullReported,
-      // S6 已入 `src`（WXG-T-060）⇒ 真值；字段语义 = **已用次数**（`0..POWERUP_FREE_USES`）。
-      powerupUses: h.powerups.used,
+      // S6 已入 `src`（WXG-T-060）⇒ 真值；v1.95 字段语义 = **本关已用次数**（免费腿
+      // + 购买腿合计；账号级免费额度不入快照——它住 meta 档，恢复时由 shell 注入）。
+      powerupUses: h.powerups.usedThisLevel,
       reviveCount: h.reviveCount,
       reviveBonusSec: h.reviveBonusSec,
       sprint:

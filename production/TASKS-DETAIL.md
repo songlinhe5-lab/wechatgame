@@ -5878,3 +5878,24 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 - **设计取舍**：工厂做成**可选方法**而非必选——第三方宿主（Node / web）没有开放数据域，强行要求实现会让每个平台壳都写一份空实现；`App` 用 `?.()` 接线，缺省即「本宿主无此能力」。`GameServices.openData` 同口径可选，消费端（S-3 面板）必须先判空再降级。
 - **切片纪律**：⛔ 不含 S-3 榜单面板占位 / S-4 子域骨架与构建期协议生成 / S-5 真机实现 + R2 纹理 + 授权引导；⛔ 未改 `OPEN_DATA_VERSION` 与任何协议形状；⛔ 未碰 `adapters/cocos`。
 - **交接**：S-3 可直接 `services.openData?.onMessage(...)` + `send({ type: 'rank:query', board })` 驱动占位面板；加载态必须存在（Mock 同步回执 ≠ 真机异步，见 `WXG-T-426` 风险预记）。
+## WXG-T-431
+
+**§3.6 v1.95 道具落码：三件空间修复器 + 账号级免费额度 + 统一价 100** · 负责：主理人(CodeBuddy)·beads 工程 · 状态：✅ 完成（2026-10-26）
+
+- **上位**：`games/beads/design/gdd/systems-index.md` §3.6 v1.95（`WXG-T-429` 冻结）+ `games/beads/design/gdd/powerups-v2.md` v2.6 §2.2/§2.4/§8-23；用户 2026-10-26 第十一次裁定「单价 100 / 免费额度账号级永久每型 1 次 / 购买不设上限」。
+- **一句话**：把冻结真源落成代码——S6 三点名器（最密集窗口 / 随机抽 12 / 托盘计划）+ 账号级永久免费额度三布尔入档（含迁移）+ 统一价 100 购买链，全量行为判据落测。
+- **交付**：
+  - `games/beads/src/config/tuning/gameplay.ts`：`POWERUP_TYPES` 三键换版；新增 `SIDE=6` / `RANDOM_RESTORE_COUNT=12` / `POWERUP_BUY_PRICE=100`；`SOLVER_PLUS_COUNT`/`SOLVER_RANDOM_COUNT` 划线留档（K-053）；`powerupBuyPrice` 恒返统一价；删三价与两级上限常量。
+  - `games/beads/src/config/tuning/motion.ts`：`SOLVER_MAX_CELLS` 改沿 `SIDE²=36`（原 `SOLVER_PLUS_COUNT=3` 静默截断点名——8 颗只执行部分，randomRestore 判据假红的根因）。
+  - `games/beads/src/systems/powerups.ts`：S6 重写——`densestWindow`（合法左上角全遍历、贴边收缩 `min(SIDE,rows)×min(SIDE,cols)`、平票行小列小确定性）/ `drawRandom`（`Rng` 注入抽 12 不足不补）/ `planTray`（槽位序、`TrayMove` 动手指令、换出珠随机落剩余空格、`-1` 哨兵=空格耗尽留托盘）；账号级 `_freeDepleted`（永久，`reset()` 不恢复）与本关 `_usedThisLevel`（C7 扣分口径）分离；购买不设上限（`_bought` 仅计数）。
+  - `games/beads/src/game/beads-game.ts`：`windowRestore`/`randomRestore` 走 G2′ 相 A/相 B；**`trayRestore` 同帧动手**（`powerups-v2 §2.2.5` 伪代码无相 A/B；plan 与动手同帧 ⇒ 零重算、零重消费 Rng；**倒序执行**避 `takeBead` 左移补位破坏槽号）；`_powerupInputs()` 构造托盘清单（含槽号）；`onPowerupFreeSpent` 免费腿用掉即落档回调。
+  - `games/beads/src/game/meta-save-schema.ts`：三布尔入档；**`META_SAVE_VERSION` 1→2 + `META_MIGRATIONS[1]` 注册**（§3.6 冻结：漏注册 = 整档回落清空老玩家经济，最高危；§8-23 判据守卫）。
+  - `games/beads/src/game/meta-state.ts`：`powerupFreeUsed` 读 getter + `setPowerupFreeUsed` 写 API（零变化零写档）。
+  - `games/beads/src/game/beads-shell.ts`：构造后注入耗尽标志（无 meta 宿主全 false 行为不变）+ 免费腿落档接线。
+  - `games/beads/src/game/beads-game-types.ts`：`powerup:used` 载荷加可选 `traySlots`（§2.4）。
+  - 快照三键换名：`crash-snapshot.ts` / `crash-snapshot-io.ts` / `state.ts`。
+  - 测试：`powerups.test.ts` 全量重写（常量镜像、§8-1 窗口、§8-2 抽 12、§8-3/4 归位几何与同 seed 复现、§8-6 托盘只读、§8-7 守恒、§8-8 账号级额度、§8-9 空作用、§8-10 bead:placed、trayRestore 三用例、购买新语义、§8-23 迁移）；`powerup-buy-confirm.test.ts` 改「无上限」判据（K-053 判据迁移 + `rebuildMisplaced` 夹具）；`scene-vfx.test.ts` 恒播满判据换 `trayRestore` 单珠同帧构造（原 `solver` 单颗序列前提随 v1.95 失效）；`in-level-snapshot`/`solver-vfx` 换名补 dims。
+- **门禁读数**：`typecheck` 0 错；beads vitest **1279 通过 / 8 失败**（失败全部 = 金样本与封箱基准 sha——三卡换名是 HUD 常驻件的内容级变化，`total`/`kinds` 逐字不变，已登记 §12 待干净锚重抓）；`Math.random` 零实际调用。
+- **设计取舍**：① 存档按 §3 冻结**升版+迁移**（推翻会话初拟的「不升版本」方案，AGENTS §4 以 §3 为准）；② `trayRestore` 同帧动手而非进 G2′ 队列——托盘珠的动手语义（放入/换出配对）无法用单格队列表达，且同帧 ⇒ plan 即真相；③ 免费额度双轨：账号级（永久）与本关（C7 扣分/快照）分离。
+- **⚠ 改号**：原拟 430，实读台账已被 Qoder S-2（`ce5363ad`）占用 ⇒ 按 K-046 改取 **431**（台账机械校准锚明示下一可用号）。
+- **遗留**：金样本 6 态 + 封箱基准 2 键待干净锚重抓（复取器 `ui-golden-capture.ts` / `bead-style-seal-recapture.ts`）；面板三卡文案已由 `POWERUP_LABELS` 解耦自动生效，双通道视图（免费/购买价）接线随角标口径（耗尽后印 100）已进 view 层默认路径；429 遗留三条（§3.5 失败重开注、视频腿口径、§4 事件表 `traySlots`）中事件表已在本批补齐，另两条仍待。

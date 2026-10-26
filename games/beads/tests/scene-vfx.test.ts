@@ -42,7 +42,6 @@ import {
   WAVE_RISE_RATIO,
   WAVE_SCALE_PEAK,
   WAVE_WINDOW_MIN_MS,
-  solverSequenceMs,
   TILE_BLEED,
 } from '../src/config/tuning.js';
 import { drawFilledBead, type FilledBeadOptions } from '../src/view/bead-render.js';
@@ -215,7 +214,7 @@ describe('G3 vfx_powerup_sweep · 命令层', () => {
     // 默认装配（`swaps` ⇒ 存在错位珠）才有可归位目标；空盘时 solver 合法返回 false。
     const h = createBeadsHarness({ levels: [simpleTestLevel()], saveKey: 'wxgame.beads.test.g3-arm' });
     expect(h.game.grid.misplacedCount).toBeGreaterThan(0);
-    expect(h.game.usePowerup('solver')).toBe(true);
+    expect(h.game.usePowerup('windowRestore')).toBe(true);
     // 上弦**当帧** p = 0（与 G1 `placeProgress` 同族的「0 = 未激活」约定 ⇒ 视图守卫把 p=0 读作关闭）。
     // 代价 = 首帧不画（一帧 16.7ms，且此时斜带主体仍在 x < 0 屏外），非缺陷。
     expect(h.game.snapshot.sweepProgress).toBe(0);
@@ -235,31 +234,36 @@ describe('G3 vfx_powerup_sweep · 命令层', () => {
    * `_update` 末尾、不受 `playing` 门约束），而 G6 彩带正是「level-clear 臂起、播满 800ms」
    * 的判例；裁定 1「庆祝先行放完再落遮罩」亦同精神（面板延迟 `CLEAR_PANEL_DELAY_MS` 开
    * ⇒ 400ms 扫光必然在面板前播完、无遮挡）。**给扫光加 playing 门会与上述两条分叉**。
-   *
-   * 构造要点：需**恰 1 颗错位**（序列 = `solverSequenceMs(1)` = 320ms）才留出
-   * 「已过关但扫光未归零」的观测窗口（400 − 320 = 80ms）；`buildMisplaced(…, 1)` 的
-   * 两两对调会给 **2 颗**（序列 400ms ≈ 扫光 ⇒ 窗口消失，本判据退化为恒真）。
+     *
+   * 构造要点（v1.95 换版，WXG-T-431）：改用 **`trayRestore` 单珠直移 + 同帧动手**——
+   * 全盘就位留 1 空格 + 托盘 1 颗匹配珠 ⇒ 归位即全清过关（level-clear 同帧达成）。
+   * ⛔ 旧 `solver` 单颗序列构造（`solverSequenceMs(1) = 320ms < SWEEP_MS` 留 80ms 观测窗）
+   * 随 v1.95 作废：`windowRestore` 最小可过关点名 = 2 颗（交换对，序列 400ms ≡ 扫光
+   * ⇒ 窗口消失）。同帧动手路径下「过关不掐断」的观测窗口恒存在（扫光自起点起算 400ms）。
    */
-  it('裁定「恒播满」（WXG-T-128 待裁③ 甲）：solver 归位致过关 ⇒ 扫光不被掐断、仍走完 400ms', () => {
-    // 前提（本判据的可观测性条件）：解环器序列**严格短于**扫光 ⇒ 才存在「已过关但扫光未归零」
-    // 的窗口。若将来常量调整破坏该前提（序列 ≥ 扫光），本行会先于断言报警，而非静默伪绿。
-    expect(solverSequenceMs(1)).toBeLessThan(SWEEP_MS);
+   it('裁定「恒播满」（WXG-T-128 待裁③ 甲）：道具归位致过关 ⇒ 扫光不被掐断、仍走完 400ms', () => {
+     const h = createBeadsHarness({
+       levels: [simpleTestLevel()],
+       saveKey: 'wxgame.beads.test.g3-clear-continue',
+       noAssemble: true,
+     });
+     const grid = h.game.grid;
+     // 全部可填格就位，仅留 (0,0) 空；托盘注入 1 颗匹配珠 ⇒ trayRestore 恰点名 1 格
+     // （托盘→盘直移，源格是托盘槽不留盘面空格 ⇒ 落格后全满零错位即过关）。
+     for (let r = 0; r < grid.rows; r++) {
+       for (let c = 0; c < grid.cols; c++) {
+         if (!grid.isFillable(r, c) || (r === 0 && c === 0)) continue;
+         grid.fill(r, c, grid.requiredColor(r, c));
+       }
+     }
+     expect(h.game.giveTrayBead(grid.requiredColor(0, 0))).toBeGreaterThanOrEqual(0);
+     expect(grid.misplacedCount).toBe(0); // 盘面本就零错位（过关只差这颗珠落格）
 
-    const h = createBeadsHarness({
-      levels: [simpleTestLevel()],
-      saveKey: 'wxgame.beads.test.g3-clear-continue',
-    });
-    expect(h.game.grid.misplacedCount).toBeGreaterThan(0); // 默认装配即有可归位目标
-
-    expect(h.game.usePowerup('solver')).toBe(true);
-    // 逐帧推进**到过关即停**；上界 23 帧（≈383ms）保证不越过扫光 400ms（越过后窗口消失）。
-    let frames = 0;
-    while (h.game.phase === 'playing' && frames < 23) {
-      h.advance(1 / 60);
-      frames++;
-    }
+     expect(h.game.usePowerup('trayRestore')).toBe(true);
+    // v1.95：trayRestore **同帧动手** ⇒ 过关判定同帧达成（不再有 23 帧逐帧推进窗口）。
     expect(h.game.phase).toBe('level-clear'); // ① 确已过关
-    // ② 裁定甲：过关**不掐断**扫光 —— 过关帧扫光仍在途。
+    h.advance(1 / 60); // 扫光起点帧 progress 读数 = 0（elapsed 起点）⇒ 推进一帧再读
+    // ② 裁定甲：过关**不掐断**扫光 —— 过关后扫光仍在途。
     // ⚠ 判别力自检（K-036）：「加 `playing` 门」这一变异下本条**仍会通过**（门令扫光冻结在非零值
     // 而非归零）⇒ 真正的判别力在 ③（冻结 ⇒ 永不推进/永不归零）。故 ① ② 只作前置，③ 才是判据。
     const pAtClear = h.game.snapshot.sweepProgress;

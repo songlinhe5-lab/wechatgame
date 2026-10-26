@@ -44,9 +44,14 @@ export interface CrashTraySlot {
  * `POWERUP_FREE_USES` 已随 S6 落码可用，故 T-059 留的「待补」在本轮关闭。
  */
 export interface CrashPowerupUses {
-  readonly solver: number;
-  readonly solverPlus: number;
-  readonly solverRandom: number;
+  /**
+   * ⚠ v1.95 键名换版（WXG-T-431，判例 K-053）：旧键 `solver/solverPlus/solverRandom`
+   * 的崩溃快照在新代码下恢复时走 `clampPowerups` 的 `fallback=0` 降级——崩溃快照
+   * 本就是临时态，丢一次可接受（不涉账号档）。
+   */
+  readonly windowRestore: number;
+  readonly randomRestore: number;
+  readonly trayRestore: number;
 }
 
 /** 冲刺运行时态（仅 `mode === 'sprint'` 时非 null）。 */
@@ -164,7 +169,11 @@ function clampPowerups(raw: unknown): CrashPowerupUses {
     const n = nonNegInt(raw[key]);
     return n === null ? 0 : Math.min(n, POWERUP_FREE_USES);
   };
-  return { solver: pick('solver'), solverPlus: pick('solverPlus'), solverRandom: pick('solverRandom') };
+  return {
+    windowRestore: pick('windowRestore'),
+    randomRestore: pick('randomRestore'),
+    trayRestore: pick('trayRestore'),
+  };
 }
 
 /**

@@ -1,13 +1,14 @@
 /**
- * S6 道具系统判据（`design/gdd/powerups.md` §8；v1.22 解环器反转，WXG-T-137）。
- *
- * 本文件用例**全部经语义改写**（§3.6 v1.22：道具从「清托盘槽」反转为
- * 「自动归位棋盘错位珠」）：每处改动写明「原判据 → 新判据」，用例不删。
+ * S6 道具系统判据（真源：`design/gdd/powerups-v2.md` §8 + `systems-index §3.6`
+ * **v1.95 换版**，WXG-T-419/429/431）。v1.22 三解环器判据已按 K-053 由本文件
+ * 全量改写：每处写明「原判据 → 新判据」，用例不删（语义作废的显式标注）。
  *
  * 测试基建事实：
- *  1. 一律用 simpleTestLevel()（6×5、三色、(0,0) 是可填格）。
- *  2. 错位局面一律用 grid.setBead() 装配（BOOT 装配原语，bead-grid §2.1）；
- *     v2.0 供料已关停 ⇒ 托盘恒空（giveTrayBead 只是测试死路径夹具）。
+ *  1. 一律用 simpleTestLevel()（6×5、三色、(0,0) 是可填格）。`SIDE=6` ≥ 任一边
+ *     ⇒ `windowRestore` 窗口贴边收缩 = **整盘**（min(6,rows) × min(6,cols)），
+ *     于是「最密集窗口」在小测试盘上恒覆盖全部错位珠。
+ *  2. 错位局面一律用 grid.setBead() 装配（BOOT 装配原语，bead-grid §2.1）。
+ *  3. 托盘珠用 `giveTrayBead` 死路径夹具装配（仅供 trayRestore 测试）。
  */
 
 import { describe, expect, it } from 'vitest';
@@ -15,14 +16,14 @@ import { createRng, type RewardedAdProvider } from '@wxgame/framework';
 import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import {
   AD_PLACEMENTS,
-  POWERUP_BUY_MAX_PER_LEVEL,
-  POWERUP_BUY_MAX_PER_TYPE,
+  POWERUP_BUY_PRICE,
   POWERUP_FREE_USES,
   POWERUP_TYPES,
-  SOLVER_PLUS_COUNT,
-  SOLVER_RANDOM_COUNT,
+  RANDOM_RESTORE_COUNT,
+  SIDE,
   powerupBuyPrice,
 } from '../src/config/tuning.js';
+import { META_MIGRATIONS, META_SAVE_VERSION } from '../src/game/meta-save-schema.js';
 import { PowerupSystem, type MisplacedBead } from '../src/systems/powerups.js';
 import {
   advancePastSolver,
@@ -79,7 +80,7 @@ function buildMisplaced(h: Harness, swaps: number): { row: number; col: number }
   return out;
 }
 
-/** 托盘快照 —— §8-6 改写：「托盘零读写」的直接断言对象。 */
+/** 托盘快照 —— §8-6 改写：「托盘只读（S6 不写）」的直接断言对象。 */
 function traySnapshot(h: Harness): string {
   const tray = h.game.tray;
   const slots: string[] = [];
@@ -117,73 +118,73 @@ function expectDeferred(h: Harness): void {
 
 // ─────────────────────────────────────────────────────── 常量镜像 §3.6
 
-describe('S6 §3.6 常量镜像', () => {
+describe('S6 §3.6 常量镜像（v1.95）', () => {
   it('mirrors the frozen §3.6 values', () => {
-    // 原：['region','clearAll','random'] + REGION_CLEAR_SLOTS/RANDOM_CLEAR_COUNT；
-    // 改：§3.6 v1.22 反转 ⇒ 三型解环器 + SOLVER_*_COUNT（旧值作废死值保留在 tuning）。
-    expect(POWERUP_TYPES).toEqual(['solver', 'solverPlus', 'solverRandom']);
-    expect(SOLVER_PLUS_COUNT).toBe(3);
-    expect(SOLVER_RANDOM_COUNT).toBe(1);
-    expect(POWERUP_FREE_USES).toBe(1);
-    expect(AD_PLACEMENTS).toBe(4); // 3 道具 + 扩展：布局 A 全为角标占位
+    // 原：['solver','solverPlus','solverRandom'] + SOLVER_*_COUNT；
+    // 改：§3.6 v1.95 换版 ⇒ 三件新道具 + SIDE / RANDOM_RESTORE_COUNT（旧值死值留档 tuning）。
+    expect(POWERUP_TYPES).toEqual(['windowRestore', 'randomRestore', 'trayRestore']);
+    expect(SIDE).toBe(6);
+    expect(RANDOM_RESTORE_COUNT).toBe(12);
+    expect(POWERUP_FREE_USES).toBe(1); // 值未动；语义 = 账号级永久每型 1 次（另有用例锁）
+    expect(AD_PLACEMENTS).toBe(4); // 3 道具 + 扩展（布局 A）
+    // §8-23 守卫：升版必须带迁移（漏注册 = 整档回落老玩家经济，§3.6 v1.95 最高危）。
+    expect(META_SAVE_VERSION).toBe(2);
+    expect(META_MIGRATIONS[1], 'v1→v2 迁移必须同批注册').toBeTypeOf('function');
   });
 });
 
 // ───────────────────────────────────────────────────────────────────── §8-1
 
-describe('S6 §8-1 solver 点名行主序首颗并归位', () => {
-  it('names exactly the first misplaced bead (row-major) and relocates it home', () => {
+describe('S6 §8-1 windowRestore 最密集窗口（原：solver 行主序首颗）', () => {
+  it('names every misplaced bead inside the densest window', () => {
     const h = mk('wxgame.beads.test.s6-1');
     const misplaced = buildMisplaced(h, 2); // 4 颗错位
     expect(misplaced.length).toBe(4);
     expect(h.game.grid.misplacedCount).toBe(4);
 
-    expect(h.game.usePowerup('solver')).toBe(true);
+    expect(h.game.usePowerup('windowRestore')).toBe(true);
     expect(h.count('powerup:used')).toBe(1);
     const payload = h.last<UsedPayload>('powerup:used')!;
-    expect(payload.type).toBe('solver');
-    // 原：清 6 槽窗口；改：solver 恒点名 1 颗（§3.6）＝ 行主序首颗。
-    expect(payload.affectedCells).toHaveLength(1);
-    expect(payload.affectedCells).toEqual([misplaced[0]!]);
+    expect(payload.type).toBe('windowRestore');
+    // 测试盘 6×5 < 6×6 ⇒ 窗口贴边收缩 = 整盘 ⇒ 最密集窗口 = 全部错位珠。
+    expect(payload.affectedCells).toHaveLength(4);
+    expect([...payload.affectedCells].sort((a, b) => a.row * 16 + a.col - (b.row * 16 + b.col)))
+      .toEqual(misplaced);
     const solved = payload.affectedCells[0]!;
     // G2′ 相 A（裁定「甲」）：本帧**只点名不动手** ⇒ 被点名的格仍是错位珠。
     expectDeferred(h);
     expect(h.game.grid.isMisplaced(solved.row, solved.col)).toBe(true);
     // 相 B 到点后才真归位。
-    advancePastSolver(h);
-    expect(h.game.grid.isMisplaced(solved.row, solved.col)).toBe(false);
+    advancePastSolver(h, 4);
+    expect(h.game.grid.misplacedCount).toBe(0);
   });
 });
 
 // ───────────────────────────────────────────────────────────────────── §8-2
 
-describe('S6 §8-2 solverPlus 点名上限', () => {
-  it('names at most SOLVER_PLUS_COUNT cells in row-major order', () => {
+describe('S6 §8-2 randomRestore 抽 RANDOM_RESTORE_COUNT 颗（原：solverPlus 上限 3）', () => {
+  it('names at most RANDOM_RESTORE_COUNT cells, drawn without replacement', () => {
     const h = mk('wxgame.beads.test.s6-2a');
-    const misplaced = buildMisplaced(h, 4); // 8 颗错位
+    const misplaced = buildMisplaced(h, 4); // 8 颗错位 < 12
     expect(misplaced.length).toBe(8);
 
-    expect(h.game.usePowerup('solverPlus')).toBe(true);
+    expect(h.game.usePowerup('randomRestore')).toBe(true);
     const payload = h.last<UsedPayload>('powerup:used')!;
-    // 原：region 6 槽；改：solverPlus 上限 = SOLVER_PLUS_COUNT = 3（不足不补）。
-    // G2′（WXG-T-150）后 payload = **点名格**（相 A 清单）而非「实际归位格」；
-    // ⚠️ 点名 3 颗里可能有一颗已被同对交换连带修好 ⇒ 归位数可 < 点名数。
+    // 不足不补：池 8 < 12 ⇒ 全部 8 颗（G2′ 后 payload = 点名格，可能被同对交换连带
+    // 修好的格仍在点名清单里——点名语义 = 「要动的格」）。
     expect(payload.affectedCells.length).toBeGreaterThanOrEqual(1);
-    expect(payload.affectedCells.length).toBeLessThanOrEqual(SOLVER_PLUS_COUNT);
+    expect(payload.affectedCells.length).toBeLessThanOrEqual(RANDOM_RESTORE_COUNT);
     expectDeferred(h);
-    advancePastSolver(h, SOLVER_PLUS_COUNT);
-    expect(h.game.grid.misplacedCount).toBe(4);
+    advancePastSolver(h, RANDOM_RESTORE_COUNT);
+    expect(h.game.grid.misplacedCount).toBe(0);
   });
 
   it('names fewer when the board has fewer misplaced beads（不足不补）', () => {
-    // 原：random 不足数不补抽（§8-5）；改：solverPlus 同判例。
-    // G2′（WXG-T-150）后 payload = 点名格 ⇒ 一对交换 ⇒ 点名 2 颗（旧写法记「首颗交换
-    // 连带修好配对珠 ⇒ payload = 1」——那是 payload = 实际归位数时代的读数，作废）。
     const h = mk('wxgame.beads.test.s6-2b');
-    const misplaced = buildMisplaced(h, 1); // 2 颗错位 < 3
+    const misplaced = buildMisplaced(h, 1); // 2 颗错位 < 12
     expect(misplaced.length).toBe(2);
 
-    expect(h.game.usePowerup('solverPlus')).toBe(true);
+    expect(h.game.usePowerup('randomRestore')).toBe(true);
     const payload = h.last<UsedPayload>('powerup:used')!;
     expect(payload.affectedCells).toHaveLength(2);
     expectDeferred(h);
@@ -194,7 +195,7 @@ describe('S6 §8-2 solverPlus 点名上限', () => {
 
 // ───────────────────────────────────────────────────────────────────── §8-3
 
-describe('S6 §8-3 归位几何：empty 目标格优先，否则交换', () => {
+describe('S6 §8-3 归位几何：empty 目标格优先，否则交换（几何不变，沿用）', () => {
   it('moves a misplaced bead into the empty home cell when one exists', () => {
     const h = mk('wxgame.beads.test.s6-3a');
     const grid = h.game.grid;
@@ -210,7 +211,7 @@ describe('S6 §8-3 归位几何：empty 目标格优先，否则交换', () => {
     grid.setBead(0, 1, homeColor); // (0,1) 错位：它的家 (0,0) 正空着
     expect(grid.isMisplaced(0, 1)).toBe(true);
 
-    expect(h.game.usePowerup('solver')).toBe(true);
+    expect(h.game.usePowerup('windowRestore')).toBe(true);
     const payload = h.last<UsedPayload>('powerup:used')!;
     expect(payload.affectedCells).toEqual([{ row: 0, col: 1 }]);
     expectDeferred(h);
@@ -226,9 +227,9 @@ describe('S6 §8-3 归位几何：empty 目标格优先，否则交换', () => {
     buildMisplaced(h, 1); // 满盘错位：目标格必被另一颗错位珠占据
     const before = h.game.grid.cell(0, 0)!.beadColorIdx;
 
-    expect(h.game.usePowerup('solver')).toBe(true);
+    expect(h.game.usePowerup('windowRestore')).toBe(true);
     const payload = h.last<UsedPayload>('powerup:used')!;
-    expect(payload.affectedCells).toEqual([{ row: 0, col: 0 }]);
+    expect(payload.affectedCells[0]).toEqual({ row: 0, col: 0 });
     expectDeferred(h);
     advancePastSolver(h);
     // 交换：两格都归位（错位计数 −2）。
@@ -239,8 +240,8 @@ describe('S6 §8-3 归位几何：empty 目标格优先，否则交换', () => {
 
 // ───────────────────────────────────────────────────────────────────── §8-4
 
-describe('S6 §8-4 solverRandom 唯一随机源', () => {
-  /** times 次抽取（每次重置免费次数）。 */
+describe('S6 §8-4 randomRestore 唯一随机源（原：solverRandom）', () => {
+  /** times 次抽取（每次重置**本关已用**计数；免费额度账号级，需手动复位耗尽标志）。 */
   function draw(seed: string, times: number, pool: number): { row: number; col: number }[][] {
     const sys = new PowerupSystem();
     sys.attach(createRng(seed));
@@ -248,30 +249,30 @@ describe('S6 §8-4 solverRandom 唯一随机源', () => {
     for (let i = 0; i < pool; i++) beads.push({ row: i, col: 0, colorIdx: 1 });
     const out: { row: number; col: number }[][] = [];
     for (let t = 0; t < times; t++) {
-      sys.restoreUses({ solverRandom: 0 });
-      const result = sys.request('solverRandom', beads);
-      if (result.kind !== 'used') throw new Error(`solverRandom 未生效：${result.kind}`);
+      sys.restoreUses({ randomRestore: 0 });
+      sys.setFreeDepleted({ randomRestore: false }); // 免费腿用掉即永久耗尽 ⇒ 测试里手动复位
+      const result = sys.request('randomRestore', beads);
+      if (result.kind !== 'used') throw new Error(`randomRestore 未生效：${result.kind}`);
       out.push([...result.affectedCells]);
     }
     return out;
   }
 
-  it('is deterministic per seed and draws exactly SOLVER_RANDOM_COUNT', () => {
-    expect(draw('s6-uniform', 5, 12)).toEqual(draw('s6-uniform', 5, 12));
-    for (const cells of draw('s6-uniform', 20, 12)) {
-      expect(cells).toHaveLength(SOLVER_RANDOM_COUNT); // 原：RANDOM_CLEAR_COUNT=5；改：1
+  it('is deterministic per seed and draws exactly RANDOM_RESTORE_COUNT（不足不补）', () => {
+    expect(draw('s6-uniform', 5, 20)).toEqual(draw('s6-uniform', 5, 20));
+    for (const cells of draw('s6-uniform', 20, 20)) {
+      expect(cells).toHaveLength(RANDOM_RESTORE_COUNT);
     }
   });
 });
 
 // ───────────────────────────────────────────────────────────────────── §8-5
 
-describe('S6 §8-5 solverRandom 不足数不补抽', () => {
+describe('S6 §8-5 不足数不补抽（沿用判例，randomRestore）', () => {
   it('names what exists and never conjures a bead', () => {
-    // 原：random 抽托盘 holding；改：solverRandom 抽棋盘错位珠（不足不补）。
     const sys = new PowerupSystem();
     sys.attach(createRng('s6-5'));
-    const result = sys.request('solverRandom', [{ row: 0, col: 0, colorIdx: 1 }]);
+    const result = sys.request('randomRestore', [{ row: 0, col: 0, colorIdx: 1 }]);
     expect(result.kind).toBe('used');
     if (result.kind === 'used') expect(result.affectedCells).toHaveLength(1);
   });
@@ -279,27 +280,25 @@ describe('S6 §8-5 solverRandom 不足数不补抽', () => {
 
 // ───────────────────────────────────────────────────────────────────── §8-6
 
-describe('S6 §8-6 零托盘读写（v1.22 新判据，取代「clearAll 全容量清槽」）', () => {
-  it('never touches the tray: state before == state after (incl. expansion)', () => {
+describe('S6 §8-6 棋盘道具不写托盘（v1.95：S6 对托盘只读，非「零读写」）', () => {
+  it('never touches the tray via windowRestore/randomRestore: state before == state after', () => {
     const h = mk('wxgame.beads.test.s6-6a');
     expect(h.game.expandTray()).toBe(true); // 扩容后 24 槽
     buildMisplaced(h, 3);
     const before = traySnapshot(h);
 
-    expect(h.game.usePowerup('solverPlus')).toBe(true);
+    expect(h.game.usePowerup('windowRestore')).toBe(true);
     expect(h.count('powerup:used')).toBe(1);
-    expect(traySnapshot(h)).toBe(before); // 托盘零读写（相 A）
-    advancePastSolver(h, SOLVER_PLUS_COUNT);
-    expect(traySnapshot(h)).toBe(before); // 相 B 真归位后仍零读写（否则本断言会空转）
+    expect(traySnapshot(h)).toBe(before); // 相 A 只读
+    advancePastSolver(h, 4);
+    expect(traySnapshot(h)).toBe(before); // 相 B 真归位后仍只读
   });
 });
 
 // ───────────────────────────────────────────────────────────────────── §8-7
 
-describe('S6 §8-7 只动错位珠（改写自「零网格写入」）', () => {
+describe('S6 §8-7 只动错位珠（守恒不变式，沿用）', () => {
   it('leaves locked counts untouched and only relocates misplaced beads', () => {
-    // 原：道具绝不写网格（census 恒定）；改：解环器写网格但只动错位珠 ⇒
-    // filled 总数守恒（归位 = 移动）、locked 恒不变。
     const h = mk('wxgame.beads.test.s6-7');
     const grid = h.game.grid;
     let lockedBefore = 0;
@@ -308,8 +307,8 @@ describe('S6 §8-7 只动错位珠（改写自「零网格写入」）', () => {
     buildMisplaced(h, 1);
     const filledBefore = grid.filledCount;
 
-    expect(h.game.usePowerup('solverPlus')).toBe(true);
-    advancePastSolver(h, SOLVER_PLUS_COUNT); // G2′：到点才写盘 ⇒ 本断言若不留门会空转
+    expect(h.game.usePowerup('windowRestore')).toBe(true);
+    advancePastSolver(h, 4); // G2′：到点才写盘 ⇒ 本断言若不留门会空转
     expect(grid.filledCount).toBe(filledBefore);
     let locked = 0;
     for (let r = 0; r < grid.rows; r++)
@@ -320,126 +319,189 @@ describe('S6 §8-7 只动错位珠（改写自「零网格写入」）', () => {
 
 // ───────────────────────────────────────────────────────────────────── §8-8
 
-describe('S6 §8-8 免费次数、超限占位与重置', () => {
-  it('keeps counters independent, badges the over-limit tap, resets on retry', () => {
+describe('S6 §8-8 免费额度（v1.95：账号级永久）与超限占位', () => {
+  it('free use is account-level: exhausted stays exhausted across reset; purchase path opens', () => {
     const spy = adSpy();
     const h = mk('wxgame.beads.test.s6-8', { rewardedAd: spy.provider });
     buildMisplaced(h, 1);
 
-    expect(h.game.usePowerup('solver')).toBe(true);
-    expect(h.game.powerups.freeUses('solver')).toBe(POWERUP_FREE_USES - 1);
-    // 其余两型计数独立（§2.5）。
-    expect(h.game.powerups.freeUses('solverPlus')).toBe(POWERUP_FREE_USES);
-    // 超限：占位轻提示（[DevTools] 角标的事件学）。onRewarded/onClose/onError 是
-    // 初始化即发生的一次性监听注册（合法），§8-8 要的是**不 load、不 show**。
-    expect(h.game.usePowerup('solver')).toBe(false);
+    expect(h.game.usePowerup('windowRestore')).toBe(true);
+    expect(h.game.powerups.freeUses('windowRestore')).toBe(0); // 用掉即永久耗尽
+    // 其余两型额度独立（§2.5）。
+    expect(h.game.powerups.freeUses('randomRestore')).toBe(POWERUP_FREE_USES);
+    // 超限：**双通道面板**（购买 / 视频）——本帧零扣豆、零广告 API（弹窗语义）。
+    expect(h.game.usePowerup('windowRestore')).toBe(false);
     expect(spy.calls.filter((c) => c === 'load' || c === 'show')).toEqual([]);
-    // 整关重置 ⇒ 三计数回满。
+    // ⛔ v1.95 语义变更：reset **不恢复**免费额度（原判据「整关重置 ⇒ 三计数回满」作废）。
     h.game.powerups.reset();
-    expect(h.game.powerups.freeUses('solver')).toBe(POWERUP_FREE_USES);
-    expect(h.game.powerups.freeUses('solverRandom')).toBe(POWERUP_FREE_USES);
+    expect(h.game.powerups.freeUses('windowRestore')).toBe(0);
+    expect(h.game.powerups.freeUses('trayRestore')).toBe(POWERUP_FREE_USES);
+  });
+
+  it('setFreeDepleted 注入账号档耗尽标志（shell 落档回读路径）', () => {
+    const sys = new PowerupSystem();
+    sys.attach(createRng('s6-8b'));
+    sys.setFreeDepleted({ trayRestore: true });
+    expect(sys.freeUses('trayRestore')).toBe(0);
+    expect(sys.freeUses('windowRestore')).toBe(POWERUP_FREE_USES);
   });
 });
 
 // ───────────────────────────────────────────────────────────────────── §8-9
 
-describe('S6 §8-9 空作用 / 非法 type', () => {
+describe('S6 §8-9 空作用 / 非法 type（沿用）', () => {
   it('treats an empty scope (zero misplaced) as a no-op and never charges a use', () => {
     const h = mk('wxgame.beads.test.s6-9'); // 全空盘 ⇒ 零错位
-    expect(h.game.usePowerup('solver')).toBe(false);
+    expect(h.game.usePowerup('windowRestore')).toBe(false);
     expect(h.count('powerup:used')).toBe(0);
-    expect(h.game.powerups.freeUses('solver')).toBe(POWERUP_FREE_USES); // 零扣次
+    expect(h.game.powerups.freeUses('windowRestore')).toBe(POWERUP_FREE_USES); // 零扣次
   });
 
   it('ignores an invalid type (invalid-enum guard)', () => {
     const sys = new PowerupSystem();
-    const result = sys.request('region', [{ row: 0, col: 0, colorIdx: 1 }]); // 旧类型名 ∉ 冻结清单
+    const result = sys.request('solver', [{ row: 0, col: 0, colorIdx: 1 }]); // 旧类型名 ∉ 冻结清单
     expect(result.kind).toBe('invalid');
   });
 });
 
 // ───────────────────────────────────────────────────────────────────── §8-10
 
-describe('S6 §8-10 bead:placed 语义与通关（解环器路径无 slot）', () => {
+describe('S6 §8-10 bead:placed 语义与通关（沿用）', () => {
   it('emits bead:placed without a slot and clears the level on zero-misplaced', () => {
     const h = mk('wxgame.beads.test.s6-10');
-    buildMisplaced(h, 1); // 一对交换错位 ⇒ solver 交换后即全归位
+    buildMisplaced(h, 1); // 一对交换错位 ⇒ 归位后即全归位
 
-    expect(h.game.usePowerup('solver')).toBe(true);
+    expect(h.game.usePowerup('windowRestore')).toBe(true);
     // G2′ 相 A（裁定「甲」）：同帧零 `bead:placed`、零过关 ⇒ 过关判定排在序列末。
     expectDeferred(h);
     expect(h.count('level:cleared')).toBe(0);
     advancePastSolver(h);
     const placed = h.all<{ slot?: number }>('bead:placed');
     expect(placed.length).toBeGreaterThanOrEqual(1);
-    for (const p of placed) expect('slot' in p).toBe(false); // 解环器路径不带 slot
-    // 交换完成 ⇒ 零错位 ⇒ level:cleared（cleared-priority）。
+    for (const p of placed) expect('slot' in p).toBe(false); // 道具路径不带 slot
+    // 归位完成 ⇒ 零错位 ⇒ level:cleared（cleared-priority）。
     expect(h.count('level:cleared')).toBe(1);
   });
 });
 
-/**
- * §3.6 v1.80（WXG-T-351）豆子购买：免费次数用尽后的**唯一出口**。
- * 判据 = 提案 `bean-currency-economy §7.1`（免费内零扣豆 / 超限零副作用 / 购买记账与免费计数互不污染）。
- */
-describe('§3.6 v1.80 · 豆子购买（每型 1 次 / 每关合计 2 次）', () => {
+// ───────────────────────────────────────────────── trayRestore（v1.95 新件）
+
+describe('S6 §2.2.5 trayRestore 托盘归位（用户原话口径的纯函数层）', () => {
+  const empties = [
+    { row: 0, col: 0 },
+    { row: 1, col: 1 },
+    { row: 2, col: 2 },
+  ];
+
+  it('首颗目标格为空 ⇒ 放入不换出；目标格被占 ⇒ 换出珠随机落剩余空格', () => {
+    const sys = new PowerupSystem();
+    sys.attach(createRng('s6-tray'));
+    const tray = [
+      { colorIdx: 1, slot: 0, targetRow: 0, targetCol: 0 }, // 空 ⇒ 放入
+      { colorIdx: 2, slot: 1, targetRow: 2, targetCol: 0 }, // 不在空格清单 ⇒ 被占 ⇒ 换出
+    ];
+    const result = sys.request('trayRestore', [], { tray, empties });
+    expect(result.kind).toBe('used');
+    if (result.kind !== 'used') return;
+    // 托盘两颗的目标格都在点名里；换出珠落剩余空格之一。
+    expect(result.affectedCells).toContainEqual({ row: 0, col: 0 });
+    expect(result.affectedCells).toContainEqual({ row: 2, col: 0 });
+    expect(result.affectedCells).toHaveLength(3); // 2 目标 + 1 换出落格
+  });
+
+  it('托盘空 ⇒ empty（零事件零扣次）；同 seed 复现', () => {
+    const sys = new PowerupSystem();
+    sys.attach(createRng('s6-tray-2'));
+    expect(sys.request('trayRestore', [], { tray: [], empties }).kind).toBe('empty');
+
+    const tray = [{ colorIdx: 3, slot: 2, targetRow: 1, targetCol: 1 }];
+    const run = (): readonly { row: number; col: number }[] => {
+      const s2 = new PowerupSystem();
+      s2.attach(createRng('s6-tray-2'));
+      const r = s2.request('trayRestore', [], { tray, empties });
+      if (r.kind !== 'used') throw new Error(r.kind);
+      return r.affectedCells;
+    };
+    expect(run()).toEqual(run());
+  });
+
+  it('空格耗尽 ⇒ 换出珠留托盘（仍归位目标格，不凭空造格）', () => {
+    const sys = new PowerupSystem();
+    sys.attach(createRng('s6-tray-3'));
+    const tray = [
+      { colorIdx: 1, slot: 0, targetRow: 0, targetCol: 0 }, // 被占 ⇒ 换出
+      { colorIdx: 2, slot: 1, targetRow: 1, targetCol: 1 }, // 被占 ⇒ 换出
+    ];
+    const result = sys.request('trayRestore', [], { tray, empties: [] });
+    expect(result.kind).toBe('used');
+    if (result.kind !== 'used') return;
+    expect(result.affectedCells).toEqual([
+      { row: 0, col: 0 },
+      { row: 1, col: 1 },
+    ]); // 只有目标格，零落格
+  });
+});
+
+// ───────────────────────────────────── §3.6 v1.95 · 豆子购买（无上限 / 统一 100）
+
+describe('§3.6 v1.95 · 豆子购买（不设上限，价格是唯一门槛）', () => {
   const pool: MisplacedBead[] = [
     { row: 0, col: 0, colorIdx: 1 },
     { row: 0, col: 1, colorIdx: 2 },
     { row: 0, col: 2, colorIdx: 3 },
   ];
 
+  // windowRestore 必需 dims（缺 = invalid 出口）；pool 3 颗在 0 行 ⇒ 1×3 整盘窗口。
+  const dims = { rows: 1, cols: 3 };
+
   function exhausted(): PowerupSystem {
     const sys = new PowerupSystem();
     sys.attach(createRng(7));
-    expect(sys.request('solver', pool).kind).toBe('used');
-    expect(sys.request('solver', pool).kind, '免费 1 次已用完').toBe('exhausted');
+    expect(sys.request('windowRestore', pool, { dims }).kind).toBe('used');
+    expect(sys.request('windowRestore', pool, { dims }).kind, '免费 1 次已永久耗尽').toBe('exhausted');
     return sys;
   }
 
-  it('免费次数内不产生购买计数；超限后可购买且不动免费计数', () => {
+  it('免费次数内不产生购买计数；耗尽后可购买且不动免费额度', () => {
     const sys = exhausted();
-    expect(sys.bought('solver'), '免费使用不计入购买').toBe(0);
-    expect(sys.canPurchase('solver')).toBe(true);
-    expect(sys.purchase('solver', pool).kind).toBe('used');
-    expect(sys.bought('solver')).toBe(POWERUP_BUY_MAX_PER_TYPE);
-    expect(sys.freeUses('solver'), '购买不返还免费次数').toBe(0);
-    expect(sys.usedCount, 'C7 扣分口径仍只认免费已用').toBe(1);
+    expect(sys.bought('windowRestore'), '免费使用不计入购买').toBe(0);
+    expect(sys.canPurchase('windowRestore')).toBe(true);
+    expect(sys.purchase('windowRestore', pool, { dims }).kind).toBe('used');
+    expect(sys.bought('windowRestore')).toBe(1);
+    expect(sys.freeUses('windowRestore'), '购买不返还免费额度').toBe(0);
+    expect(sys.usedCount, 'C7 扣分口径 = 本关已用（免费+购买）').toBe(2);
   });
 
-  it('每型子限 1 次、每关合计上限 2 次', () => {
+  it('不设次数上限（v2.1 裁定 C）：连续购买恒可', () => {
     const sys = exhausted();
-    expect(sys.purchase('solver', pool).kind).toBe('used');
-    expect(sys.canPurchase('solver'), '该型子限已达').toBe(false);
-    expect(sys.purchase('solver', pool).kind, '超额 ⇒ exhausted（零记账）').toBe('exhausted');
-    expect(sys.bought('solver')).toBe(POWERUP_BUY_MAX_PER_TYPE);
-
-    expect(sys.purchase('solverPlus', pool).kind).toBe('used');
-    expect(sys.canPurchase('solverRandom'), '每关合计 2 次已用尽').toBe(false);
-    expect(sys.purchase('solverRandom', pool).kind).toBe('exhausted');
+    expect(sys.purchase('windowRestore', pool, { dims }).kind).toBe('used');
+    expect(sys.purchase('windowRestore', pool, { dims }).kind).toBe('used');
+    expect(sys.purchase('randomRestore', pool).kind).toBe('used');
+    expect(sys.canPurchase('trayRestore')).toBe(true);
+    expect(sys.bought('windowRestore')).toBe(2);
   });
 
   it('棋盘无错位珠 ⇒ 购买零副作用（拒用不扣，同 request 判例）', () => {
     const sys = exhausted();
-    expect(sys.purchase('solver', []).kind).toBe('empty');
-    expect(sys.bought('solver'), '未记账').toBe(0);
-    expect(sys.canPurchase('solver')).toBe(true);
+    expect(sys.purchase('windowRestore', [], { dims }).kind).toBe('empty');
+    expect(sys.bought('windowRestore'), '未记账').toBe(0);
+    expect(sys.canPurchase('windowRestore')).toBe(true);
   });
 
-  it('reset 同时清零购买计数（关内口径，不入存档）', () => {
+  it('reset 清购买计数但**不恢复**免费额度（账号级语义的分界用例）', () => {
     const sys = exhausted();
-    sys.purchase('solver', pool);
-    expect(sys.bought('solver')).toBe(1);
+    sys.purchase('windowRestore', pool, { dims });
+    expect(sys.bought('windowRestore')).toBe(1);
     sys.reset();
-    expect(sys.bought('solver')).toBe(0);
-    expect(sys.canPurchase('solver')).toBe(true);
-    expect(sys.freeUses('solver')).toBe(POWERUP_FREE_USES);
+    expect(sys.bought('windowRestore')).toBe(0);
+    expect(sys.canPurchase('windowRestore')).toBe(true);
+    expect(sys.freeUses('windowRestore')).toBe(0); // ⛔ 不回满
   });
 
-  it('三档单价 = 20 / 30 / 45（§3.6 v1.80 冻结）', () => {
-    expect(powerupBuyPrice('solver')).toBe(20);
-    expect(powerupBuyPrice('solverRandom')).toBe(30);
-    expect(powerupBuyPrice('solverPlus')).toBe(45);
-    expect(POWERUP_BUY_MAX_PER_LEVEL).toBe(2);
+  it('三件统一 100 豆（§3.6 v1.95 冻结）', () => {
+    expect(powerupBuyPrice('windowRestore')).toBe(POWERUP_BUY_PRICE);
+    expect(powerupBuyPrice('randomRestore')).toBe(100);
+    expect(powerupBuyPrice('trayRestore')).toBe(100);
+    expect(POWERUP_BUY_PRICE).toBe(100);
   });
 });

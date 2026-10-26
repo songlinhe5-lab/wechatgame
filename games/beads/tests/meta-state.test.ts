@@ -8,7 +8,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
-import type { Storage } from '@wxgame/framework';
+import { type Storage } from '@wxgame/framework';
 import {
     HEART_AD_DAILY_LIMIT,
     HEART_AD_GAIN,
@@ -218,6 +218,43 @@ describe('MetaState — wallet A 包 (买心阶梯)', () => {
 });
 
 describe('MetaState — persistence', () => {
+    it('§8-23 · v1 档升 v2：迁移补三布尔、老玩家经济**零丢失**（⛔ 漏注册即整档回落）', () => {
+        const store = storage();
+        // 直接落一份 v1 老档（§3.6 v1.95 之前的形状：无三布尔、version 1）。
+        const v1Doc = {
+            version: 1,
+            staminaCur: 3,
+            staminaAnchorMs: 12345,
+            coins: 777,
+            signinClaims: 9,
+            signinLastDate: '2026-10-25',
+            heartBuysToday: 1,
+            heartBuysDate: '2026-10-25',
+            heartAdToday: 2,
+            heartAdDate: '2026-10-25',
+            replayCoinsToday: 11,
+            replayCoinsDate: '2026-10-25',
+            ownedSkinIds: [DEFAULT_SKIN_ID, 'cool-violet'],
+        };
+        store.set('test.meta.migrate', JSON.stringify(v1Doc));
+
+        const r = rigOn(store, 1_700_000_000_000, 'test.meta.migrate');
+        // 内存侧：老玩家经济零丢失（漏迁移 ⇒ SaveManager 回落 defaults，红灯：满心 / 0 豆）。
+        expect(r.meta.stamina).toBe(3);
+        expect(r.meta.coins).toBe(777);
+        // 落盘侧：触发一次写档（迁移后 normalize 无差 ⇒ 构造帧不回写，幂等无害），
+        // 读回验证 v2 档形状（MetaState 不暴露 version，从持久化档验）。
+        r.meta.refillStamina(); // deprecated 但恰是无副作用的写档腿（patch + save）
+        const persisted = JSON.parse(store.get('test.meta.migrate')!) as Record<string, unknown>;
+        expect(persisted['version']).toBe(2);
+        expect(persisted['coins']).toBe(777);
+        expect(persisted['ownedSkinIds']).toEqual([DEFAULT_SKIN_ID, 'cool-violet']);
+        // 三布尔补齐 = false（免费额度未用，偏向玩家）。
+        expect(persisted['powerupFreeUsedWindow']).toBe(false);
+        expect(persisted['powerupFreeUsedRandom']).toBe(false);
+        expect(persisted['powerupFreeUsedTray']).toBe(false);
+    });
+
     it('reloads economy from the same sidecar storage', () => {
         const store = storage();
         const a = rigOn(store);

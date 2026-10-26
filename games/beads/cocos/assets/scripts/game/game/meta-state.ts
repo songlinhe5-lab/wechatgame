@@ -38,6 +38,7 @@ import {
     STAR_MAX,
 } from '../config/tuning';
 import {
+    META_MIGRATIONS,
     META_SAVE_KEY,
     META_SAVE_VERSION,
     defaultBeadsMeta,
@@ -113,7 +114,9 @@ export class MetaState {
             key: options.metaKey ?? META_SAVE_KEY,
             version: META_SAVE_VERSION,
             defaults: defaultBeadsMeta,
-            // v1：无迁移（SaveManager 以 defaults 补缺字段）。
+            // §3.6 v1.95：v1→v2 三布尔（漏注册 = 整档回落，最高危——`META_MIGRATIONS`
+            // 单一真源；`powerups.test.ts` §8-23 镜像断言守卫）。
+            migrations: META_MIGRATIONS,
         });
         const loaded = this._save.load();
         const norm = normalizeBeadsMeta(loaded.data);
@@ -190,6 +193,33 @@ export class MetaState {
     /** 该皮肤是否已拥有（只看落档集合，⛔ 不查星数等派生量，提案 §4.3）。 */
     ownsSkin(id: string): boolean {
         return this._ownedSkins.has(id);
+    }
+
+    /**
+     * 三件道具的账号级免费额度耗尽标志（§3.6 v1.95；只读快照）。
+     * shell 用它注入 `BeadsGame.setPowerupFreeDepleted`（启动一次）。
+     */
+    get powerupFreeUsed(): { window: boolean; random: boolean; tray: boolean } {
+        const d = this._save.data;
+        return {
+            window: d.powerupFreeUsedWindow,
+            random: d.powerupFreeUsedRandom,
+            tray: d.powerupFreeUsedTray,
+        };
+    }
+
+    /**
+     * 落档三布尔（§3.6 v1.95「必须入档」）：免费腿用掉即写（shell 经
+     * `onPowerupFreeSpent` 转交）。零变化时零写档（幂等省 IO）。
+     */
+    setPowerupFreeUsed(flags: { window?: boolean; random?: boolean; tray?: boolean }): void {
+        const patch: Partial<BeadsMeta> = {};
+        if (flags.window !== undefined) patch.powerupFreeUsedWindow = flags.window;
+        if (flags.random !== undefined) patch.powerupFreeUsedRandom = flags.random;
+        if (flags.tray !== undefined) patch.powerupFreeUsedTray = flags.tray;
+        if (Object.keys(patch).length === 0) return;
+        this._save.patch(patch);
+        this._save.save();
     }
 
     /** 该皮肤的可买价（`SKIN_PRICES_COINS` 未在册 ⇒ `null` = 不可购买，供 UI 分态）。 */

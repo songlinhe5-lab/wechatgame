@@ -20,7 +20,6 @@ import {
   SOLVER_HINT_MS,
   SOLVER_MAX_CELLS,
   SOLVER_PER_BEAD_MS,
-  SOLVER_PLUS_COUNT,
   SOLVER_STAGGER_MS,
   POWERUP_FREE_USES,
   solverSequenceMs,
@@ -177,15 +176,15 @@ describe('G2′ 时序 · 相 A 只点名不动手（玩法语义变更）', () 
     const misplaced = buildMisplaced(h, 1);
     const before = h.game.grid.misplacedCount;
 
-    expect(h.game.usePowerup('solver')).toBe(true);
-    expect(h.game.powerups.freeUses('solver')).toBe(POWERUP_FREE_USES - 1);
+    expect(h.game.usePowerup('windowRestore')).toBe(true);
+    expect(h.game.powerups.freeUses('windowRestore')).toBe(POWERUP_FREE_USES - 1);
     expect(h.last<{ affectedCells: { row: number; col: number }[] }>('powerup:used')!.affectedCells)
-      .toEqual([misplaced[0]!]);
+      .toEqual(misplaced); // v1.95：windowRestore 点名窗口内全部错位珠（测试盘 = 整盘）
     expect(h.game.grid.misplacedCount).toBe(before); // 棋盘未动
     expect(h.count('bead:placed')).toBe(0);
     expect(h.count('level:cleared')).toBe(0);
     const snap = h.game.snapshot;
-    expect(snap.solverCellCount).toBe(1);
+    expect(snap.solverCellCount).toBe(misplaced.length);
     expect(snap.solverCellRows[0]).toBe(misplaced[0]!.row);
     expect(snap.solverCellCols[0]).toBe(misplaced[0]!.col);
     expect(snap.solverProgress).toBe(0); // 上弦帧哨兵（与 G1/G3 同族约定）
@@ -194,7 +193,7 @@ describe('G2′ 时序 · 相 A 只点名不动手（玩法语义变更）', () 
   it('到点前 0 落子、到点后归位 ⇒ 200ms 门是玩法提交时刻而非观感时长', () => {
     const h = mk('wxgame.beads.test.g2-gate');
     buildMisplaced(h, 1);
-    expect(h.game.usePowerup('solver')).toBe(true);
+    expect(h.game.usePowerup('windowRestore')).toBe(true);
     h.advance(s(SOLVER_HINT_MS - EPS_MS));
     expect(h.count('bead:placed')).toBe(0);
     expect(h.game.grid.misplacedCount).toBe(2);
@@ -205,24 +204,24 @@ describe('G2′ 时序 · 相 A 只点名不动手（玩法语义变更）', () 
 
   it('逐颗错开 80ms：点名多颗时落子事件数随各颗到点单调不减', () => {
     const h = mk('wxgame.beads.test.g2-stagger');
-    buildMisplaced(h, 4); // 8 颗错位 ⇒ solverPlus 点名 3
-    expect(h.game.usePowerup('solverPlus')).toBe(true);
-    expect(h.game.snapshot.solverCellCount).toBe(SOLVER_PLUS_COUNT);
+    buildMisplaced(h, 4); // 8 颗错位 < RANDOM_RESTORE_COUNT(12) ⇒ 不足不补点名 8
+    expect(h.game.usePowerup('randomRestore')).toBe(true);
+    expect(h.game.snapshot.solverCellCount).toBe(8);
     let prev = 0;
-    for (let step = 0; step < SOLVER_PLUS_COUNT; step++) {
+    for (let step = 0; step < 8; step++) {
       h.advance(s(SOLVER_STAGGER_MS));
       const now = h.count('bead:placed');
       expect(now).toBeGreaterThanOrEqual(prev);
       prev = now;
     }
     expect(prev).toBeGreaterThan(0);
-    expect(prev).toBeLessThanOrEqual(SOLVER_PLUS_COUNT * 2); // 每步至多 2 格（交换）
+    expect(prev).toBeLessThanOrEqual(8 * 2); // 每步至多 2 格（交换）
   });
 
   it('序列末零残留：progress / counts / 三数组全部复位', () => {
     const h = mk('wxgame.beads.test.g2-reset');
     buildMisplaced(h, 1);
-    expect(h.game.usePowerup('solverPlus')).toBe(true);
+    expect(h.game.usePowerup('randomRestore')).toBe(true);
     advancePastSolver(h, 2);
     const snap = h.game.snapshot;
     expect(snap.solverProgress).toBe(0);
@@ -236,7 +235,7 @@ describe('G2′ 时序 · 相 A 只点名不动手（玩法语义变更）', () 
   it('过关判定排在序列末（先看归位动画，再进 G4 庆祝 —— 裁定 1 同族）', () => {
     const h = mk('wxgame.beads.test.g2-clear');
     buildMisplaced(h, 1);
-    expect(h.game.usePowerup('solver')).toBe(true);
+    expect(h.game.usePowerup('windowRestore')).toBe(true);
     h.advance(s(HINT_MID));
     expect(h.game.phase).toBe('playing');
     expect(h.count('level:cleared')).toBe(0);
@@ -248,7 +247,7 @@ describe('G2′ 时序 · 相 A 只点名不动手（玩法语义变更）', () 
   it('预警窗口内局面已变（该珠已被复位）⇒ 相 B 静默跳过，零落子零警告式误写', () => {
     const h = mk('wxgame.beads.test.g2-skip');
     const misplaced = buildMisplaced(h, 1);
-    expect(h.game.usePowerup('solver')).toBe(true);
+    expect(h.game.usePowerup('windowRestore')).toBe(true);
     h.advance(s(HINT_MID));
     // 模拟「玩家自己先动手」：直接把点名珠复位（不发事件、不动其它格）。
     const target = misplaced[0]!;
@@ -262,7 +261,7 @@ describe('G2′ 时序 · 相 A 只点名不动手（玩法语义变更）', () 
   it('PAUSED ⇒ 冻结不作废（道具已扣次，不该因一次暂停丢掉归位）', () => {
     const h = mk('wxgame.beads.test.g2-pause');
     buildMisplaced(h, 1);
-    expect(h.game.usePowerup('solver')).toBe(true);
+    expect(h.game.usePowerup('windowRestore')).toBe(true);
     h.game.onPause(); // → PAUSED
     expect(h.game.phase).toBe('paused');
     h.advance(2);
@@ -278,7 +277,7 @@ describe('G2′ 时序 · 相 A 只点名不动手（玩法语义变更）', () 
   it('换关 / 重试 ⇒ 在途队列作废（不得拿旧格坐标动新棋盘）', () => {
     const h = mk('wxgame.beads.test.g2-invalidate');
     buildMisplaced(h, 1);
-    expect(h.game.usePowerup('solver')).toBe(true);
+    expect(h.game.usePowerup('windowRestore')).toBe(true);
     h.advance(s(HINT_MID));
     h.game.goToLevel(0); // 重装配（`_setupLevel`）⇒ 新空盘
     const placedBefore = h.count('bead:placed');
@@ -294,7 +293,7 @@ describe('G2′ 观感 · 相 A 状态环（T-148 白环已随 WXG-T-165 真机�
   it('D1 不关停相 A（纯 α 通道）：`reduceMotion` 下状态环照旧在场', () => {
     const h = mk('wxgame.beads.test.g2-d1');
     buildMisplaced(h, 1);
-    expect(h.game.usePowerup('solver')).toBe(true);
+    expect(h.game.usePowerup('windowRestore')).toBe(true);
     h.advance(s(HINT_MID));
     const snap = h.game.snapshot;
     const withMotion = renderSnap({ ...snap, reduceMotion: false });

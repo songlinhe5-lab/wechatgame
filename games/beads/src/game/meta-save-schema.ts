@@ -18,7 +18,7 @@ import { STAMINA_MAX } from '../config/tuning.js';
 import { DEFAULT_SKIN_ID } from '../config/skins/registry.js';
 
 export interface BeadsMeta extends SaveDocument {
-    version: 1;
+    version: 2;
     /** 当前体力（心），钳 `[0, STAMINA_MAX]`。 */
     staminaCur: number;
     /**
@@ -56,11 +56,45 @@ export interface BeadsMeta extends SaveDocument {
      * 初值 = `[DEFAULT_SKIN_ID]`，且 normalize **强制默认肤恒在**（⛔ 不回收）。
      */
     ownedSkinIds: string[];
+    /**
+     * 三件道具的免费额度是否已永久耗尽（§3.6 v1.95：**账号级永久每型 1 次**，
+     * WXG-T-419；内部类型名与显示名解耦，显示名 = 熨贴片 / 抖豆筛 / 扫豆刷）。
+     *
+     * `true` = 该型的账号级免费次数已用掉（**永不恢复**：新关 / 失败重试 / 暂停
+     * 重玩 / 换关均不回满）。新手引导的演示**不消耗**该额度（用户 2026-10-26
+     * 明示例外，防重复由 `onboarded` 侧承载，不在此存）。
+     *
+     * ⚠ §3.6 v1.95 冻结要求 **`META_SAVE_VERSION` 1 → 2 且 `migrations[1]` 同批
+     * 注册**（漏注册 = 版本升高而迁移缺失 ⇒ `save-manager` 整档回落，把老玩家的
+     * 体力 / 豆子 / 签到 / 皮肤清零——本节最高危一条，判据 = `powerups-v2 §8-23`；
+     * `powerups.test.ts` 镜像断言守卫版本号）。老档缺失 / 非布尔一律降级 `false`
+     * = 偏向玩家（视为未用）。~~沿 v1.83 `ownedSkinIds` 不升版判例~~（⛔ 冻结表
+     * 已改判为升版 + 迁移，按 `AGENTS §4` 以 §3 为准）。
+     */
+    powerupFreeUsedWindow: boolean;
+    powerupFreeUsedRandom: boolean;
+    powerupFreeUsedTray: boolean;
 }
 
 /** Meta sidecar storage key（与 run 存档分键）。 */
 export const META_SAVE_KEY = 'wxgame.beads.meta.v1';
-export const META_SAVE_VERSION = 1;
+export const META_SAVE_VERSION = 2;
+
+/**
+ * Meta 档迁移链（§3.6 v1.95 冻结：**漏注册 = 整档回落**，最高危）。
+ * 单一真源、每级返回 n+1（与 run 档 `BEADS_MIGRATIONS` 同判例形状）。
+ * v1→v2：新增三布尔（缺省 `false` = 免费额度未用，偏向玩家；显式补齐 = 自文档，
+ * 与 merge-defaults 兜底等价）。
+ */
+export const META_MIGRATIONS: Readonly<Record<number, (old: Record<string, unknown>) => Record<string, unknown>>> = {
+    1: (old) => ({
+        ...old,
+        powerupFreeUsedWindow: false,
+        powerupFreeUsedRandom: false,
+        powerupFreeUsedTray: false,
+        version: 2,
+    }),
+};
 
 /** 新玩家出厂：体力满、零币、未签到、未购心。 */
 export function defaultBeadsMeta(): BeadsMeta {
@@ -78,6 +112,9 @@ export function defaultBeadsMeta(): BeadsMeta {
         replayCoinsToday: 0,
         replayCoinsDate: '',
         ownedSkinIds: [DEFAULT_SKIN_ID],
+        powerupFreeUsedWindow: false,
+        powerupFreeUsedRandom: false,
+        powerupFreeUsedTray: false,
     };
 }
 
@@ -94,6 +131,11 @@ function int(value: unknown, fallback: number): number {
 
 function str(value: unknown, fallback: string): string {
     return typeof value === 'string' ? value : fallback;
+}
+
+/** 布尔兜底（非布尔一律 `false` = 「免费额度未用」的安全侧）。 */
+function flag(value: unknown): boolean {
+    return typeof value === 'boolean' ? value : false;
 }
 
 /**
@@ -151,6 +193,9 @@ export function normalizeBeadsMeta(raw: unknown): MetaNormalizeResult {
         replayCoinsToday: int(raw['replayCoinsToday'], 0),
         replayCoinsDate: str(raw['replayCoinsDate'], ''),
         ownedSkinIds: ownedIds(raw['ownedSkinIds']),
+        powerupFreeUsedWindow: flag(raw['powerupFreeUsedWindow']),
+        powerupFreeUsedRandom: flag(raw['powerupFreeUsedRandom']),
+        powerupFreeUsedTray: flag(raw['powerupFreeUsedTray']),
     };
 
     const changed =
@@ -165,7 +210,10 @@ export function normalizeBeadsMeta(raw: unknown): MetaNormalizeResult {
         raw['heartAdDate'] !== meta.heartAdDate ||
         raw['replayCoinsToday'] !== meta.replayCoinsToday ||
         raw['replayCoinsDate'] !== meta.replayCoinsDate ||
-        !sameIds(raw['ownedSkinIds'], meta.ownedSkinIds);
+        !sameIds(raw['ownedSkinIds'], meta.ownedSkinIds) ||
+        raw['powerupFreeUsedWindow'] !== meta.powerupFreeUsedWindow ||
+        raw['powerupFreeUsedRandom'] !== meta.powerupFreeUsedRandom ||
+        raw['powerupFreeUsedTray'] !== meta.powerupFreeUsedTray;
 
     return { meta, changed };
 }

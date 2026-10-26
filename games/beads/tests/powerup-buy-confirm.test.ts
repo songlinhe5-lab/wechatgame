@@ -6,7 +6,7 @@
  *  - 免费用尽后点卡 ⇒ **只弹窗**，此刻零扣豆零事件（「确定」才提交）；
  *  - 确定 ⇒ 扣豆**一次** + 生效**一次** + 关窗；
  *  - 取消 / 点板外 ⇒ 零副作用关窗；
- *  - 豆子不足 / 达购买上限 ⇒ 关窗 + 轻提示，零扣款零事件；
+ *  - 豆子不足 ⇒ 关窗 + 轻提示，零扣款零事件（v1.95 删除「达购买上限」路径：不设上限）；
  *  - 弹窗期间其余控件不响应（模态）。
  */
 import { describe, expect, it } from 'vitest';
@@ -14,7 +14,7 @@ import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
 import {
   POWERUP_BUY_DENIED_HINT,
-  POWERUP_BUY_PRICE_SOLVER,
+  POWERUP_BUY_PRICE,
   powerupBuyPrice,
 } from '../src/config/tuning.js';
 import { MetaState } from '../src/game/meta-state.js';
@@ -77,6 +77,37 @@ function buildMisplaced(h: Harness, swaps: number): void {
   }
 }
 
+/** 重铺错位局面：现存错位珠就地归位（`setBead` 装配原语），再按同款两两对调造新错位。 */
+function rebuildMisplaced(h: Harness, swaps: number): void {
+  const grid = h.game.grid;
+  for (let r = 0; r < grid.rows; r++)
+    for (let c = 0; c < grid.cols; c++)
+      if (grid.isMisplaced(r, c)) grid.setBead(r, c, grid.requiredColor(r, c));
+  const flat: { row: number; col: number }[] = [];
+  for (let r = 0; r < grid.rows; r++)
+    for (let c = 0; c < grid.cols; c++) {
+      const cell = grid.cell(r, c)!;
+      if (!cell.void && cell.state === 'filled') flat.push({ row: r, col: c });
+    }
+  const used = new Set<number>();
+  let done = 0;
+  for (let a = 0; a < flat.length && done < swaps; a++) {
+    if (used.has(a)) continue;
+    for (let b = a + 1; b < flat.length && done < swaps; b++) {
+      if (used.has(b)) continue;
+      if (grid.requiredColor(flat[a]!.row, flat[a]!.col) === grid.requiredColor(flat[b]!.row, flat[b]!.col)) continue;
+      const ba = grid.cell(flat[a]!.row, flat[a]!.col)!.beadColorIdx;
+      const bb = grid.cell(flat[b]!.row, flat[b]!.col)!.beadColorIdx;
+      grid.setBead(flat[a]!.row, flat[a]!.col, bb);
+      grid.setBead(flat[b]!.row, flat[b]!.col, ba);
+      used.add(a);
+      used.add(b);
+      done += 1;
+      break;
+    }
+  }
+}
+
 /** `powerup:used` 已发次数（Harness 只有 `emitted` 数组，没有 countEvents）。 */
 function usedCount(h: Harness): number {
   return h.emitted.filter((e) => e.type === 'powerup:used').length;
@@ -91,42 +122,42 @@ describe('§3.6 v1.80 · 道具购买确认弹窗', () => {
   it('免费次数内不弹窗、零扣豆', () => {
     const r = rig('test.buy.free');
     expect(r.game.grid.misplacedCount).toBeGreaterThan(0);
-    expect(r.game.usePowerup('solver')).toBe(true);
+    expect(r.game.usePowerup('windowRestore')).toBe(true);
     expect(r.game.pendingPowerupBuy).toBeNull();
     expect(r.meta.coins).toBe(200);
   });
 
   it('免费用尽后点卡只弹窗：零扣豆、零事件、未记账', () => {
     const r = rig('test.buy.open');
-    expect(r.game.usePowerup('solver')).toBe(true);
+    expect(r.game.usePowerup('windowRestore')).toBe(true);
     r.harness.advance(0.5); // 相 B 归位落地，棋盘恢复「仍有错位珠」
     const usedBefore = usedCount(r.harness);
 
-    expect(r.game.usePowerup('solver'), '超限 ⇒ 打开确认，不立即生效').toBe(false);
-    expect(r.game.pendingPowerupBuy).toBe('solver');
+    expect(r.game.usePowerup('windowRestore'), '超限 ⇒ 打开确认，不立即生效').toBe(false);
+    expect(r.game.pendingPowerupBuy).toBe('windowRestore');
     expect(r.meta.coins, '弹窗期零扣豆').toBe(200);
     expect(usedCount(r.harness) - usedBefore, '弹窗期零事件').toBe(0);
-    expect(r.game.powerups.bought('solver'), '未确认 ⇒ 不记账').toBe(0);
+    expect(r.game.powerups.bought('windowRestore'), '未确认 ⇒ 不记账').toBe(0);
   });
 
   it('确定 ⇒ 扣豆一次 + 生效一次 + 关窗', () => {
     const r = rig('test.buy.confirm');
-    r.game.usePowerup('solver');
+    r.game.usePowerup('windowRestore');
     r.harness.advance(0.5);
-    r.game.usePowerup('solver'); // 免费用尽 ⇒ 打开确认
+    r.game.usePowerup('windowRestore'); // 免费用尽 ⇒ 打开确认
     const usedBefore = usedCount(r.harness);
     const c = centerOf('buy-confirm');
 
     expect(r.game.tapDesign(c.x, c.y), '点在「确定」上').toBe(true);
     expect(r.game.pendingPowerupBuy).toBeNull();
-    expect(r.meta.coins).toBe(200 - POWERUP_BUY_PRICE_SOLVER);
+    expect(r.meta.coins).toBe(200 - POWERUP_BUY_PRICE);
     expect(usedCount(r.harness)).toBe(usedBefore + 1);
-    expect(r.game.powerups.bought('solver')).toBe(1);
+    expect(r.game.powerups.bought('windowRestore')).toBe(1);
   });
 
   it('取消 ⇒ 关窗且零扣豆零事件', () => {
     const r = rig('test.buy.cancel');
-    r.game.usePowerup('solver');
+    r.game.usePowerup('windowRestore');
     r.harness.advance(0.5);
     const usedBefore = usedCount(r.harness);
     const c = centerOf('buy-cancel');
@@ -139,7 +170,7 @@ describe('§3.6 v1.80 · 道具购买确认弹窗', () => {
 
   it('点板外同样关窗（模态：不穿透到棋盘/控件）', () => {
     const r = rig('test.buy.outside');
-    r.game.usePowerup('solver');
+    r.game.usePowerup('windowRestore');
     r.harness.advance(0.5);
     const layout = buyConfirmLayout();
 
@@ -150,10 +181,10 @@ describe('§3.6 v1.80 · 道具购买确认弹窗', () => {
 
   it('豆子不足 ⇒ 关窗 + 轻提示，零扣款零事件', () => {
     const r = rig('test.buy.poor', 0);
-    r.game.usePowerup('solver');
+    r.game.usePowerup('windowRestore');
     r.harness.advance(0.5);
-    r.game.usePowerup('solver'); // 免费用尽 ⇒ 打开确认
-    expect(r.game.pendingPowerupBuy).toBe('solver');
+    r.game.usePowerup('windowRestore'); // 免费用尽 ⇒ 打开确认
+    expect(r.game.pendingPowerupBuy).toBe('windowRestore');
     const usedBefore = usedCount(r.harness);
     const c = centerOf('buy-confirm');
 
@@ -164,32 +195,22 @@ describe('§3.6 v1.80 · 道具购买确认弹窗', () => {
     expect(usedCount(r.harness)).toBe(usedBefore);
   });
 
-  it('每关合计上限 2 次：买满后再点 ⇒ 不弹窗、只落提示', () => {
-    const r = rig('test.buy.cap');
+  it('不设次数上限（v1.95 换版，原判据「每关合计上限 2 次」作废）：重铺局面连续购买恒可', () => {
+    const r = rig('test.buy.cap', 1000);
     const c = centerOf('buy-confirm');
-    // 三种型各用掉免费 1 次
-    for (const t of ['solver', 'solverPlus', 'solverRandom'] as const) {
-      expect(r.game.usePowerup(t), `${t} 免费`).toBe(true);
+    // 免费腿 1 次：windowRestore 在测试盘（6×5 < 6×6）= 整盘点名，免费一次即全清。
+    expect(r.game.usePowerup('windowRestore'), '免费').toBe(true);
+    r.harness.advance(0.5);
+    // 每轮购买前重铺错位（setBead 装配原语允许就位⇄错位互转）；
+    // 连买 3 次恒可（⛔ 无任何次数上限拦截，价格是唯一门槛），每次扣款恒 100。
+    for (let i = 1; i <= 3; i++) {
+      rebuildMisplaced(r.harness, 4);
+      expect(r.game.usePowerup('windowRestore'), `开确认 ${i}`).toBe(false);
+      expect(r.game.pendingPowerupBuy, `pending ${i}`).toBe('windowRestore');
+      r.game.tapDesign(c.x, c.y);
+      expect(r.game.powerups.bought('windowRestore'), `买成 ${i}`).toBe(i);
       r.harness.advance(0.5);
     }
-    // 买满每关合计 2 次
-    expect(r.game.usePowerup('solver'), '开确认 1').toBe(false);
-    expect(r.game.pendingPowerupBuy, 'pending 1').toBe('solver');
-    r.game.tapDesign(c.x, c.y);
-    expect(r.game.powerups.bought('solver'), '买成 1').toBe(1);
-    r.harness.advance(0.5);
-
-    expect(r.game.usePowerup('solverPlus'), '开确认 2').toBe(false);
-    expect(r.game.pendingPowerupBuy, 'pending 2').toBe('solverPlus');
-    r.game.tapDesign(c.x, c.y);
-    expect(r.game.powerups.bought('solverPlus'), '买成 2').toBe(1);
-    r.harness.advance(0.5);
-
-    // 第三型：合计上限已满 ⇒ 不弹窗、只落提示、零扣款
-    const coinsBefore = r.meta.coins;
-    expect(r.game.usePowerup('solverRandom'), '达每关合计上限').toBe(false);
-    expect(r.game.pendingPowerupBuy, '不弹窗').toBeNull();
-    expect(r.game.powerupHint).toBe(POWERUP_BUY_DENIED_HINT);
-    expect(r.meta.coins, '零扣款').toBe(coinsBefore);
+    expect(r.meta.coins, '3×100 扣款').toBe(1000 - 3 * POWERUP_BUY_PRICE);
   });
 });

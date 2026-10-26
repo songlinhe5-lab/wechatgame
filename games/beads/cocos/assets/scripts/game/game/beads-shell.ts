@@ -276,6 +276,13 @@ export class BeadsShell implements Game {
             canWatchStaminaAd: () => this.meta?.canWatchHeartAd ?? false,
             // §3.6 v1.80 唯一豆子出口：道具超限购买的扣款腿（限额由 play 侧 PowerupSystem 判）。
             onPowerupPurchase: (type) => this._buyPowerup(type),
+            // §3.6 v1.95：免费腿用掉即落档（账号级永久每型 1 次；载荷 = 全量耗尽标志）。
+            onPowerupFreeSpent: (depleted) =>
+                this.meta?.setPowerupFreeUsed({
+                    window: depleted.windowRestore,
+                    random: depleted.randomRestore,
+                    tray: depleted.trayRestore,
+                }),
             // `[WXG-T-345]` S-4：跨章推进闸门（门票只在章界那一刻参与解锁位推进；I7 棘轮）。
             canAdvanceAcrossArc: (fromIndex, toIndex) => this._canAdvanceAcrossArc(fromIndex, toIndex),
             // `[WXG-T-363]` 买断门：暂停面板换肤循环与装扮馆 `wearSkin` 共用此腿（§3.7 v1.83）。
@@ -286,6 +293,16 @@ export class BeadsShell implements Game {
             onClearCoins: (stars, isBoss, prevStars) =>
                 this.meta?.grantClearCoins(stars, isBoss, prevStars),
         });
+        // §3.6 v1.95：meta 载档后把三布尔注入 PowerupSystem（账号级永久额度，启动一次）。
+        // 无 meta 的宿主（部分测试 harness）⇒ 缺省全 false = 额度未用，行为不变。
+        const freeUsed = this.meta?.powerupFreeUsed;
+        if (freeUsed) {
+            this.play.setPowerupFreeDepleted({
+                windowRestore: freeUsed.window,
+                randomRestore: freeUsed.random,
+                trayRestore: freeUsed.tray,
+            });
+        }
         // UI-25：宿主只提供调试投影（L5）；意图面随 P3 Presenter 落地。
         this._uiRoot = new UiRoot({
             debugState: () => {

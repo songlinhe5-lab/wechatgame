@@ -33,7 +33,12 @@ export interface BeadsEvents extends Record<string, unknown> {
     'bead:rejected': { row: number; col: number; colorIdx: number };
     'tray:full': Record<string, never>;
     'tray:expanded': Record<string, never>;
-    'powerup:used': { type: string; affectedCells: readonly { row: number; col: number }[] };
+    /** v1.95（WXG-T-431）：`trayRestore` 附带被清空的托盘槽号（S4 执行托盘写入的表现信号）。 */
+    'powerup:used': {
+      type: string;
+      affectedCells: readonly { row: number; col: number }[];
+      traySlots?: readonly number[];
+    };
     'timer:tick': { remaining: number };
     'timer:urgent': { remaining: number };
     'level:cleared': { levelId: string; remaining: number; ratio: number; stars: number };
@@ -96,6 +101,12 @@ export interface BeadsGameOptions {
      * 缺省（无 shell 的独立 `BeadsGame`）⇒ 超限仍只是占位轻提示（后向兼容，既有单测不变）。
      */
     readonly onPowerupPurchase?: (type: PowerupType) => boolean;
+    /**
+     * **免费腿用掉即落档**（§3.6 v1.95「必须入档」；WXG-T-431）：`usePowerup` 走
+     * 免费腿成功后调用，载荷 = 全量耗尽标志（shell 写回 `BeadsMeta` 三布尔）。
+     * 缺省（无 shell 的独立 `BeadsGame` / 测试 harness）⇒ 不落档（后向兼容）。
+     */
+    readonly onPowerupFreeSpent?: (depleted: Readonly<Record<PowerupType, boolean>>) => void;
     /**
      * **结算按星发豆**（§3.14 v1.81「通关首通」获取源；用户 2026-10-26 拍板）：
      * `level-clear` 相位算定星级后调用，由 shell 转给 `MetaState.grantClearCoins`。
