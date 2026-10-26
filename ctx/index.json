@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3834,
       "lines": 130,
-      "sha256": "2f6c4dcc5a3bcfe72c38f4d3fb55b9eedf619432e2e8891b61aa857fcd440339",
+      "sha256": "06f746a654b0db1e2f06a62bee06ad9fb4b73ae5cecf6924fa75f268e9b0914c",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 410,
-          "summary": "1 production/TASKS-DETAIL.md 178468 5628 normal",
+          "summary": "1 production/TASKS-DETAIL.md 178659 5629 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5185,
       "lines": 164,
-      "sha256": "e1f73f8cd09829f0cdae368587c04ca96b403dd404f27436b1260b1008d15272",
+      "sha256": "5336f97e8eaf5bd1c92c33b9f8ed3f387546cc50a276da8cbe837bea895e91c4",
       "tier": "normal",
       "sections": [
         {
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 5628 行 / 178468 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 5629 行 / 178659 tok",
           "level": 2,
           "startLine": 105,
           "endLine": 109,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+5629 · §WXG-T-409=4860+75 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+5630 · §WXG-T-409=4860+75 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -86495,17 +86495,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 178468,
-      "lines": 5628,
-      "sha256": "88aadf901b743d3616da397c8cd5f969e32f8eca53543d8848da84d5f0109130",
+      "tokens": 178659,
+      "lines": 5629,
+      "sha256": "8ea2b6194b26de321b99fa9142036e91786b1e7c850ef2b892208b612c4b958f",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 5629,
-          "tokens": 178452,
+          "endLine": 5630,
+          "tokens": 178643,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -93411,8 +93411,8 @@
           "anchor": "§WXG-T-420",
           "level": 2,
           "startLine": 5561,
-          "endLine": 5598,
-          "tokens": 1149,
+          "endLine": 5599,
+          "tokens": 1340,
           "summary": "beads 架构优化：依赖方向、配置归域、对局效果与快照投影（在办）",
           "keywords": [
             "WXG",
@@ -93479,8 +93479,8 @@
           "anchor": "§5 实施流水",
           "level": 3,
           "startLine": 5593,
-          "endLine": 5598,
-          "tokens": 164,
+          "endLine": 5599,
+          "tokens": 355,
           "summary": "T1 完成（本笔提交）：check-architecture.mjs 新增 L6 内部依赖方向与运行时循环检测；view",
           "keywords": [
             "check",
@@ -93493,8 +93493,8 @@
         {
           "anchor": "§WXG-T-421",
           "level": 2,
-          "startLine": 5599,
-          "endLine": 5629,
+          "startLine": 5600,
+          "endLine": 5630,
           "tokens": 914,
           "summary": "品质分单榜前置三件：存档 v6 + 结算面板品质分行 + 榜单数值口径",
           "keywords": [
@@ -93504,8 +93504,8 @@
         {
           "anchor": "§1 触发与上位",
           "level": 3,
-          "startLine": 5603,
-          "endLine": 5610,
+          "startLine": 5604,
+          "endLine": 5611,
           "tokens": 186,
           "summary": "用户 2026-10-26 原话：「① 存档新增字段 ② 结算面板加一行 ③ 说明榜单上的数值」。",
           "keywords": [
@@ -93515,8 +93515,8 @@
         {
           "anchor": "§2 交付",
           "level": 3,
-          "startLine": 5611,
-          "endLine": 5616,
+          "startLine": 5612,
+          "endLine": 5617,
           "tokens": 422,
           "summary": "1. 存档 v6（①）：games/beads/src/game/save-schema.ts SAVE_VERSION",
           "keywords": [
@@ -93531,8 +93531,8 @@
         {
           "anchor": "§3 验证与门禁",
           "level": 3,
-          "startLine": 5617,
-          "endLine": 5622,
+          "startLine": 5618,
+          "endLine": 5623,
           "tokens": 121,
           "summary": "单测：save-schema.test.ts（v6 迁移链 + 品质分账 5 条）、clear-panel.test.t",
           "keywords": [
@@ -93547,8 +93547,8 @@
         {
           "anchor": "§4 红线自证",
           "level": 3,
-          "startLine": 5623,
-          "endLine": 5629,
+          "startLine": 5624,
+          "endLine": 5630,
           "tokens": 131,
           "summary": "零 §3 冻结常量改动：SETTLE_SCORE 公式 / 四权重 / 区间 0–4200 一字未改；SETTLE_SC",
           "keywords": [

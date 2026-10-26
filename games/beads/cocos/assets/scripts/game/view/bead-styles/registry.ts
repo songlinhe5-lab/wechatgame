@@ -1,7 +1,8 @@
 /**
  * 风格注册表（EP11-S2 骨架 → **EP11-S3 转正** → **EP11-S4 入池两套** · ADR-0023 §7 · §12.9 步 3/4）
  * ─────────────────────────────────────────────────────────────────────────────
- * **本表 = 玩家可选风格池的唯一真源**：注册即可见（`registeredStyleIds()` 同时服务
+ * **本表 = 风格绘制器注册表**：可选 id 与注册序的唯一真源在 `config/bead-styles/registry.ts`，
+ * 本表按该顺序装配绘制器（`registeredStyleIds()` 同时服务
  * S9 §8-19「注册数 ≤ 1 ⇒ 设置钮不呈现」的计数与 U16 钮循环）⇒ ⛔ **对照用的
  * `legacy-ten` 十层风格不在本表内**，它住在 `bead-styles/legacy-ten.ts` 的
  * **registry 外对照通道**（任务单工作项 ②「不得让它触 U16 玩家钮」；把十层注册进来的
@@ -27,9 +28,10 @@
  * ✅ **EP11-S5（§12.9 步 5）已收口本中间态**：面板行4 左格 `cycle-bead-style` 与菜单设置
  *   overlay 同钮均已 present ⇒ 「注册 ≥ 2 ⇒ 钮必 present」（S9 §8-19 后半句）自此成立，
  *   `tests/bead-style-pool.test.ts::TC-STY-11` 腿 A 已从「无钮」**翻转**为「有钮 + 精确文案」。
- *   ⛔ 循环序真源仍是本表注册序（非视图侧数组序）；新增风格只 append 本表，钮与循环自动跟随。
+ *   ⛔ 循环序真源是 config 的 id 注册序；新增风格须同时挂绘制器，钮与循环自动跟随。
  */
-import { FACET4_STYLE_ID } from '../../config/tuning';
+import { registeredStyleIds } from '../../config/bead-styles/registry';
+export { DEFAULT_BEAD_STYLE_ID, registeredStyleIds } from '../../config/bead-styles/registry';
 import { DUAL_TONE_13 } from './dual-tone-13';
 import { FACET4 } from './facet-4';
 import { HANDDRAWN } from './handdrawn';
@@ -60,8 +62,15 @@ const DUAL13_STYLE: BeadStyle = DUAL_TONE_13;
  */
 const HANDDRAWN_STYLE: BeadStyle = HANDDRAWN;
 
-/** 注册序即循环序（S9 §8-15「注册序」真源，序由 = §12.6 池表行序）；模块级预建 + frozen（ADR-0023 §7）。 */
-const REGISTRY: readonly BeadStyle[] = Object.freeze([FACET4_STYLE, LINEART18_STYLE, DUAL13_STYLE, HANDDRAWN_STYLE]);
+/** 按 config 的 id 注册序装配绘制器；缺绘制器在模块装载时直接报错，不静默换档。 */
+const STYLE_BY_ID: ReadonlyMap<string, BeadStyle> = new Map(
+    [FACET4_STYLE, LINEART18_STYLE, DUAL13_STYLE, HANDDRAWN_STYLE].map((s) => [s.id, s]),
+);
+const REGISTRY: readonly BeadStyle[] = Object.freeze(registeredStyleIds().map((id) => {
+    const style = STYLE_BY_ID.get(id);
+    if (!style) throw new Error(`bead style renderer missing: ${id}`);
+    return style;
+}));
 
 const BY_ID: ReadonlyMap<string, BeadStyle> = new Map(REGISTRY.map((s) => [s.id, s]));
 
@@ -71,17 +80,9 @@ const BY_ID: ReadonlyMap<string, BeadStyle> = new Map(REGISTRY.map((s) => [s.id,
  * 由 `tests/bead-style-pool.test.ts` 钉住「默认档 ∈ REGISTRY 且 id === `FACET4_STYLE_ID`」。
  */
 export const DEFAULT_BEAD_STYLE: BeadStyle = FACET4_STYLE;
-/** 默认档 styleId 的对外别名（给 view-model / 存档层用，⛔ 不得由调用方另写字面量）。 */
-export const DEFAULT_BEAD_STYLE_ID = FACET4_STYLE_ID;
-
 /** 全部已注册风格（门禁脚本遍历入口；返回冻结数组，禁运行时增删）。 */
 export function registeredStyles(): readonly BeadStyle[] {
     return REGISTRY;
-}
-
-/** 已注册 styleId 列表（设置钮循环与 §8-19「注册数 ≤ 1 不呈现」的计数入口）。 */
-export function registeredStyleIds(): readonly string[] {
-    return REGISTRY.map((s) => s.id);
 }
 
 /** 按 id 取风格；未注册 ⇒ undefined（调用方负责降级，⛔ 不得静默回退他档）。 */

@@ -18,7 +18,7 @@
  *  - **U16 = 甲**：循环长度与档数一律取运行时 `registeredStyleIds()`，⛔ 测试内禁写死款数。
  */
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -665,6 +665,14 @@ describe('TC-STY-11 翻转腿 · §8-19：注册数 ≥ 2 ⇒ 钮 present 且循
         }
         expect(cycle.length).toBe(new Set(cycle).size); // 一圈内无重复 ⇒ 循环长度 = 注册数
         expect(cycle).toEqual(IDS.slice(1).concat(IDS[0])); // 且严格 = 注册序左旋
+    });
+});
+
+describe('WXG-T-420 T2 · 风格 id 真源归属', () => {
+    it('id 注册表住 config，存档与设置不再运行时依赖 view 注册表', () => {
+        expect(existsSync(resolve(REPO, 'games/beads/src/config/bead-styles/registry.ts'))).toBe(true);
+        expect(SRC('game/save-schema.ts')).not.toContain("from '../view/bead-styles/registry.js'");
+        expect(SRC('game/beads-game/game-settings.ts')).not.toContain("from '../../view/bead-styles/registry.js'");
     });
 });
 

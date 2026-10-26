@@ -244,12 +244,10 @@ const GAME_VIEW_EXCEPTIONS = new Map([
   ['game/beads-shell.ts -> view/meta-view.ts', '旧菜单壳直调 view，待 T7 收敛'],
   ['game/beads-shell.ts -> view/skins-content.ts', '装扮馆拥有态注入，待菜单投影下沉'],
   ['game/beads-shell.ts -> view/bead-render.ts', '壳读取烘焙运行时'],
-  ['game/beads-game/game-settings.ts -> view/bead-styles/registry.ts', 'T2 移除：风格校验下沉 config'],
   ['game/beads-game/feedback-fx.ts -> view/combo-vfx.ts', '效果规格暂居 view，后续归域'],
   ['game/beads-game.ts -> view/combo-vfx.ts', '效果规格暂居 view，后续归域'],
   ['game/beads-game.ts -> view/palette.ts', '渲染令牌暂由 Game 传递，T9 再上移绑定'],
   ['game/beads-game.ts -> view/view-model.ts', '旧渲染门面，T9 再上移绑定'],
-  ['game/save-schema.ts -> view/bead-styles/registry.ts', 'T2 移除：存档校验不得依赖表现层'],
 ]);
 
 /** Static relative imports; type-only declarations are erased and do not enter the runtime graph. */

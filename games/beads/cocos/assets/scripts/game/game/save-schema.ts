@@ -18,14 +18,14 @@ import {
   STAR_MAX,
   VIBRATE_DEFAULT,
 } from '../config/tuning';
-// **换肤三字段的注册真源**：珠体风格 = style registry（`view/bead-styles/registry.ts`）；
+// **换肤三字段的注册真源**：珠体风格 id = `config/bead-styles/registry.ts`；
 // **整套皮肤 = skins registry**（EP12-S8：`config/skins/registry.ts`，用户 2026-10-07 裁定 1
 // 「暖纸即默认 + 冷紫灰收编可选肤」）。S8 §8-12 构造 ③ 「字符串合法但未注册 ⇒ 单独回落
 // 默认」只能在读档层判，否则非法值会一路走到渲染侧被「静默兜底」，档内永远留着脏值。
 // 方向说明：本行是 game → config 的**只读函数**引用（registry 仅 import 两个皮肤模块，
 // 无环）；默认档 id 与渲染默认**同一真源**（`DEFAULT_SKIN_ID`），⛔ 不得在存档层另写
 // `'warm-paper'` 字面量。
-import { DEFAULT_BEAD_STYLE_ID, styleById } from '../view/bead-styles/registry';
+import { DEFAULT_BEAD_STYLE_ID, isRegisteredStyleId } from '../config/bead-styles/registry';
 import { DEFAULT_SKIN_ID, skinById } from '../config/skins/registry';
 
 /**
@@ -282,7 +282,7 @@ export function normalizeSettings(raw: unknown): BeadsSettings {
     debugInfo: boolField(raw, 'debugInfo', false),
     debugGuides: boolField(raw, 'debugGuides', false),
     beadStyle:
-      typeof styleRaw === 'string' && styleById(styleRaw) !== undefined
+      typeof styleRaw === 'string' && isRegisteredStyleId(styleRaw)
         ? styleRaw
         : DEFAULT_BEAD_STYLE_ID,
     beadSize: (BEAD_SIZE_ORDER as readonly string[]).includes(sizeRaw as string)
