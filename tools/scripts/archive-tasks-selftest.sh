@@ -27,6 +27,10 @@
 #            pre-commit 据此拦住「台账一侧入索引、另一侧留在工作树」的撕裂，同时对邻居未提交改动免疫
 #         ⑯ BACKLOG 第四面（WXG-T-407）：未排期提案表占号、可无详情节，但行格式与主表同构（J 项）
 #         ⑰ I 项在 --staged 降级为披露（WXG-T-407）：仓库级欠账不拦本单，硬拦留在工作树模式
+#         ⑱ 完成日期证据（WXG-T-409）：**行内状态列日期优先、blame 兜底**——旧口径只信 blame
+#            ⇒ 整表重写会把全表年龄复位成今天，观察哨永不可达（407 §8 遗留 1）
+#         ⑲ K 项（WXG-T-409）：`check:tasks --commit-msg=<file>` 只拿**本笔**消息的号碰索引面——
+#            I 项在 --staged 只能披露（他人欠账），本笔署号可硬拦；登记行未 `git add` 也拦
 #
 # 用法：tools/scripts/archive-tasks-selftest.sh
 # 产物：仅 stdout 报告；临时目录退出时清理，不污染仓库。
@@ -474,6 +478,84 @@ assert_eq "$(run_i)" "1" "[12a] 工作树模式：未在册号仍硬拦（verify
 assert_eq "$(run_i_staged)" "0" "[12b] --staged：他人欠账不拦本单"
 assert_contains "$( cd "$REPO_I" && node "$CHECK_CMD" --staged 2>&1 )" "WXG-T-777" \
   "[12c] --staged 仍打印该欠账（降级不消失）"
+
+# 为什么要这一组：归档年龄原来**只**读 `git blame` committer-time ⇒ 任何整表重写（拆 BACKLOG、
+# 头注校准、批量回填）都把全表「年龄」复位成今天，观察哨 20 在现语义下永不可达（实测 --days=14
+# 零候选）。WXG-T-409 改成「行内完成日期优先，blame 兜底」。
+# 三条腿都有判别力，靠**两次提交**把行级 blame 时间拉开：commit1 = 40 天前（写 002/003），
+# commit2 = 今天（追加 001）。变异取证（判例 K-089）：把 completionTimeOf 改回「只读 blame」
+# ⇒ 13a 与 13b 同时红；若只测 13a 一条，则「把 blame 判据整块删掉」也能骗绿。
+# 日期均动态算（写死绝对日期会逐年失效）。
+E_OLD="$(node -e 'console.log(new Date(Date.now() - 40 * 864e5).toISOString().slice(0, 10))')"
+E_NEW="$(node -e 'console.log(new Date(Date.now() - 5 * 864e5).toISOString().slice(0, 10))')"
+D_OLD_ISO="$(node -e 'console.log(new Date(Date.now() - 40 * 864e5).toISOString())')"
+D_NOW_ISO="$(node -e 'console.log(new Date().toISOString())')"
+echo "—— [13] 完成日期证据：行内状态列优先、blame 兜底（WXG-T-409）"
+REPO_E="$WORK/repo-datesource"
+new_repo "$REPO_E"
+cat >"$REPO_E/production/TASKS.md" <<EOS
+# 任务台账（桩）
+
+> 当前已分配至 **WXG-T-003**，下一可用号 **WXG-T-004**。
+
+| Task ID | 名称 | 负责 | 状态 | 产出 |
+|---|---|---|---|---|
+| WXG-T-002 | 行内新日期但 40 天前就提交 | 乙 | ✅ **完成（${E_NEW}）** | 见详情 |
+| WXG-T-003 | 无行内日期且 40 天前提交 | 丙 | ✅ 完成 | 见详情 |
+EOS
+stub_commit "$REPO_E" "$D_OLD_ISO"
+printf '| WXG-T-001 | 行内老日期但刚刚才提交 | 甲 | ✅ **完成（%s）** | 见详情 |\n' "$E_OLD" \
+  >>"$REPO_E/production/TASKS.md"
+stub_commit "$REPO_E" "$D_NOW_ISO"
+OUT_E="$(node "$ARCHIVE_CMD" --root="$REPO_E" --days=30 2>&1)"
+# 断言必须带「候选行」形状（`WXG-T-<号>｜完成日期 …`）⛔ 只搜裸号：
+# 输出里的「全局最大号：WXG-T-003」会把没入选的号也拼中（实测假绿）。
+assert_contains "$OUT_E" "WXG-T-1｜完成日期 ${E_OLD}" "[13a] 行内 40 天前 + blame 刚刚 ⇒ 入选（旧判据在此必不入选）"
+assert_not_contains "$OUT_E" "WXG-T-2｜" "[13b] 行内 5 天 + blame 40 天 ⇒ 不入选（行内日期赢，重排不错搬）"
+assert_contains "$OUT_E" "WXG-T-3｜完成日期" "[13c] 行内无日期 ⇒ 回退 blame（40 天）仍入选（兜底没被拆掉）"
+
+# 为什么要这一组：I 项（提交窗口 vs 台账）在 --staged 只能降级为披露，因为窗口里有**他人**
+# 欠账（WXG-T-407 实测：本批被 402/403 拦住）。而「本笔消息自己署的号」可以硬拦——K 项。
+# 四条腿：a 在册号放行；b 未在册号必红；c 无号消息放行（那是 commitlint 的事）；
+# d **登记行写了但没 git add** 仍必红——这条才是 K 相对 I 的真增益（读索引面不读工作树）。
+echo "—— [14] K 项：--commit-msg 只校本笔署号（WXG-T-409）"
+REPO_K="$WORK/repo-msgcheck"
+new_repo "$REPO_K"
+# 头注预先写到 002（而索引面只有 001 行）是**有意的**：F 项「头注号 ≥ 全局最大号」
+# 对头注领先是合法的，于是工作树里多出的 002 行不会围住 F —— 否则把 K 项改成读工作树
+# 也会被 F 项副产物拦下（实测），14d 就没有判别力了。
+cat >"$REPO_K/production/TASKS.md" <<EOS
+# 任务台账（桩）
+
+> 当前已分配至 **WXG-T-002**，下一可用号 **WXG-T-003**。
+
+| Task ID | 名称 | 负责 | 状态 | 产出 |
+|---|---|---|---|---|
+| WXG-T-001 | 甲行 | 甲 | ✅ 完成 | 见详情 |
+EOS
+cat >"$REPO_K/production/TASKS-DETAIL.md" <<EOS
+# 详情台账（桩）
+
+## WXG-T-001
+
+正文甲
+EOS
+stub_commit "$REPO_K" "$D_NOW_ISO"
+run_k() { ( cd "$REPO_K" && node "$CHECK_CMD" --commit-msg="$1" >/dev/null 2>&1 ); echo $?; }
+printf 'feat(x): 已在册的改动 (WXG-T-001)\n' >"$WORK/msg-ok.txt"
+printf 'feat(x): 台账没这个号 (WXG-T-777)\n' >"$WORK/msg-ghost.txt"
+printf 'chore: 不署号的杂项改动\n' >"$WORK/msg-nonumber.txt"
+assert_eq "$(run_k "$WORK/msg-ok.txt")" "0" "[14a] 本笔署已在册号 ⇒ 绿"
+assert_eq "$(run_k "$WORK/msg-ghost.txt")" "1" "[14b] 本笔署未在册号 ⇒ 硬拦（不像 I 那样只披露）"
+assert_eq "$(run_k "$WORK/msg-nonumber.txt")" "0" "[14c] 无号消息 ⇒ 放行（归 commitlint）"
+# 14d 的号必须**接得上连续性**且行/节成对（否则被 A・C 项副产物拦下，本腿就没判别力了）：
+# 实测——用不连续的 778 时，把 K 项改成读工作树也不会红（A 项替它拦了）⇒ 假判别。
+printf '| WXG-T-002 | 写了但未 git add | 丁 | 🔄 在办 | 见详情 |\n' >>"$REPO_K/production/TASKS.md"
+printf '\n## WXG-T-002\n\n正文乙\n' >>"$REPO_K/production/TASKS-DETAIL.md"
+printf 'feat(x): 登记面没入索引 (WXG-T-002)\n' >"$WORK/msg-unstaged.txt"
+assert_eq "$(run_k "$WORK/msg-unstaged.txt")" "1" "[14d] 登记行/节只在工作树、未 git add ⇒ 仍拦（读的是索引面）"
+assert_contains "$( cd "$REPO_K" && node "$CHECK_CMD" --commit-msg="$WORK/msg-ghost.txt" 2>&1 )" "K: 本笔提交信息署" \
+  "[14e] 拦下时得把 K 项诊断打印出来（⛔ 静默退出）"
 
 echo "=================================================================="
 echo "结果：PASS=$PASS FAIL=$FAIL"

@@ -14,9 +14,14 @@
  *   `archive`，置于 `production/archive/` 下**零代码改动**即被排除（不触碰 R1/R4/R5 产物）；
  * • 追溯老任务直接读文件 / git 即可，无需 ctx 路由。
  *
- * ── 完成日期判定来源（裁决）──────────────────────────────────────────────────────
- * 台账行**没有统一的「完成日期」字段**，行内文本日期只有个别行有、不可靠。本脚本用
- * **`git blame --porcelain` 的行级 committer-time**（该行最后一次被修改的提交时间）：
+ * ── 完成日期判定来源（裁决，WXG-T-409 订正）──────────────────────────────────
+ * 本档原写「行内文本日期只有个别行有、不可靠」⇒ 当时选 blame。**该前提已被拆表批实测推翻**：
+ * 主表 35/35 条 ✅ 行的状态列都写着可解析日期（格式已统一成「✅ **完成（YYYY-MM-DD）**」），
+ * 而 blame 口径在共享工作树里会被整表重写复位 ⇒ 现改为行内日期优先、blame 兜底：
+ * **行内完成日期（状态列里的 `YYYY-MM-DD`，显式「完成（…）」优先），取不到才回退
+ * `git blame --porcelain` 的行级 committer-time**（WXG-T-409 改口径；blame 仍是兜底）：
+ * 旧口径只取 blame ⇒ 整表重写（拆表 / 头注校准 / 批量回填）把每一行的「年龄」复位成
+ * 今天，观察哨永不可达；行内日期是文本，搬不坏。
  * • 行最后一次被修改通常就是「✅ 完成回填」那笔（= 完成时间）；后续勘误微调只会把日期
  *   **推后** → 只会漏归档不会错归档（宁漏勿错）；
  * • 一次 git 调用取全文件行级归属，O(行数) 不逐行 spawn；
@@ -138,7 +143,32 @@ const lines = tasksText.split(eol);
 // ── 行级 blame（committer-time，秒）─────────────────────────────────────────────
 const blame = blameCommitterTimes(TASKS, ROOT);
 
-// ── 识别候选行：WXG-T 表行 + 状态列 ✅ + blame 日期 ≥ N 天 ─────────────────────
+/**
+ * 完成日期的证据口径（WXG-T-409）：**行内状态列的日期优先**，取不到才回退 blame。
+ *
+ * 为什么不再只信 blame：旧判据取 `git blame` committer-time ⇒ 任何**整表重写**
+ * （拆 BACKLOG、头注校准、批量回填）都把 ✅ 行的「年龄」复位成今天，观察哨 20
+ * 在现语义下永不可达（判例：WXG-T-407 §8 遗留 1，`--days=14` dry-run 实测 0 候选）。
+ * 而本台账的 ✅ 行本来就写着「完成（2026-10-26）」——日期在**行文本里**，表怎么重写都
+ * 搬不动它。拆表批实测：主表 35/35 条 ✅ 行的状态列均带可解析日期 ⇒ 覆盖率 100%，
+ * 因此⛔ 不加第六列「完成日期」（那要同时改 57 主表行 + 21 BACKLOG 行 + 全套列数判据）。
+ * 优先级：① 显式「完成（YYYY-MM-DD）」→ ② 状态列**最后**一个日期（前面可能是引用别单的日期）
+ * → ③ blame → ④ null（无证据，宁漏勿错）。未来日期当无证据处理。
+ */
+const DONE_DATE_RE = /完成[^0-9]{0,6}(20\d{2}-\d{2}-\d{2})/;
+const ANY_DATE_RE = /20\d{2}-\d{2}-\d{2}/g;
+function completionTimeOf(line, idx) {
+  const status = (line.split('|').map((c) => c.trim())[4] ?? '');
+  const m = DONE_DATE_RE.exec(status);
+  const all = m ? [m[1]] : status.match(ANY_DATE_RE);
+  if (all) {
+    const t = Date.parse(`${all[all.length - 1]}T00:00:00Z`) / 1000;
+    if (Number.isFinite(t) && t <= Date.now() / 1000) return t;
+  }
+  return blame.get(idx + 1) ?? null;
+}
+
+// ── 识别候选行：WXG-T 表行 + 状态列 ✅ + 完成日期（行内优先，回退 blame）≥ N 天 ───────
 const taskRowRe = /^\|\s*WXG-T-(\d+)\s*\|/;
 const cutoff = Date.now() / 1000 - DAYS * 86400;
 const candidates = [];
@@ -156,9 +186,9 @@ for (let i = 0; i < lines.length; i += 1) {
   const cells = line.split('|').map((c) => c.trim());
   const status = cells[4] ?? '';
   if (!status.startsWith('✅')) continue;
-  const t = blame.get(i + 1);
+  const t = completionTimeOf(line, i);
   if (t == null) {
-    console.log(`  ⏭ 行 ${i + 1}｜WXG-T-${m[1]}｜状态 ✅ 但无日期证据（未提交 / blame 无元数据）——不动（宁漏勿错）`);
+    console.log(`  ⏭ 行 ${i + 1}｜WXG-T-${m[1]}｜状态 ✅ 但无日期证据（行内没写完成日期，且未提交 / blame 无元数据）——不动（宁漏勿错）`);
     continue;
   }
   if (t <= cutoff) {
@@ -358,7 +388,7 @@ if (Number.isFinite(headerLeadMax) && headerLeadMax > globalMax) {
 }
 
 // ── 报告 ───────────────────────────────────────────────────────────────────────
-console.log(`TASKS 完成行 30 天归档（tasks:archive，WXG-T-040 R3）${DRY ? '—— dry-run（默认；加 --write 落盘）' : '—— --write 落盘'}`);
+console.log(`TASKS 完成行 ${DAYS} 天归档（tasks:archive，WXG-T-040 R3）${DRY ? '—— dry-run（默认；加 --write 落盘）' : '—— --write 落盘'}`);
 console.log(
   `  台账：${rel(ROOT, TASKS)}（任务行 ${taskRowsBefore}）｜归档：${rel(ROOT, ARCHIVE)}（${existingArchiveIds.size} 行）` +
   (detailExists
@@ -368,16 +398,16 @@ console.log(
 const ruleText =
   UNTIL_UNDER !== null
     ? `完成判定：**体积驱动**（--until-under=${UNTIL_UNDER}，**忽略年龄**）`
-    : `完成判定：git blame committer-time ≤ ${fmt(new Date(cutoff * 1000))}（${DAYS} 天前）`;
+    : `完成判定：行内完成日期（取不到回退 git blame committer-time）≤ ${fmt(new Date(cutoff * 1000))}（${DAYS} 天前）`;
 console.log(
   `  ${ruleText}｜全局最大号（主表∪归档）：WXG-T-${fmtId(globalMax)}` +
   (headerLed ? `（表内最大 T-${fmtId(tableMax)}，**头注领先故沿用头注**）` : ''),
 );
 for (const c of candidates) {
-  console.log(`  ${existingArchiveIds.has(c.id) ? '⚠️ 已在归档' : '→ 归档'}｜行 ${c.idx + 1}｜WXG-T-${c.id}｜最后修改 ${fmt(c.date)}｜${c.line.slice(0, 60)}…`);
+  console.log(`  ${existingArchiveIds.has(c.id) ? '⚠️ 已在归档' : '→ 归档'}｜行 ${c.idx + 1}｜WXG-T-${c.id}｜完成日期 ${fmt(c.date)}｜${c.line.slice(0, 60)}…`);
 }
 if (candidates.length === 0) {
-  console.log('✅ 无满足 30 天条件的 ✅ 完成行——无可归档。');
+  console.log(`✅ 无满足 ${DAYS} 天条件的 ✅ 完成行——无可归档。`);
   const headerLine = lines.find((l) => l.includes('当前已分配至') && l.includes('下一可用号'));
   const headerMax = headerLine ? Number(/当前已分配至 \*\*WXG-T-(\d+)\*\*/.exec(headerLine)?.[1] ?? NaN) : NaN;
   if (headerMax !== globalMax) {
@@ -465,7 +495,7 @@ if (detailExists) {
 // 归档文件：不存在则带头创建；存在则追加批次。
 const batchStamp = new Date(Date.now() + 8 * 3600 * 1000).toISOString().replace('T', ' ').slice(0, 16) + ' +08:00';
 const batchIds = toArchive.map((c) => `WXG-T-${fmtId(c.id)}`).join('、');
-const batchLine = `> 归档批次 ${batchStamp} — ${movedRows.length} 行（${batchIds}）｜判定：git blame committer-time ≥ ${DAYS} 天` +
+const batchLine = `> 归档批次 ${batchStamp} — ${movedRows.length} 行（${batchIds}）｜判定：行内完成日期（无则回退 blame）≥ ${DAYS} 天` +
   (detailExists ? `｜详情节同批搬入 ${rel(ROOT, DETAIL_ARCHIVE)}` : '｜（无详情文件，只搬行）');
 let archiveOut = archiveText;
 if (!archiveText) {
@@ -503,7 +533,8 @@ console.log('   提醒：tasks:archive 是可选治理，不挂 pre-commit / CI�
 // ─────────────────────────────────────────────────────────────────── helpers ──
 
 /**
- * 「可归档行」的唯一口径：表行 + 状态列以 ✅ 开头 + **有日期证据**（blame 命中），按文件序。
+ * 「可归档行」的唯一口径：表行 + 状态列以 ✅ 开头 + **有日期证据**（行内完成日期优先，
+ * 回退 blame 命中），按文件序。日期判据单源于 `completionTimeOf`，⛔ 在此再内联一份。
  *
  * 为什么抽成一处（WXG-T-073 的初版教训）：三种体积 / 年龄策略各自内联这段筛选时，
  * 我把 `--detail-until-under` 接到了**已被年龄筛过**的 `candidates` 上 ⇒ 默认口径下它是空的，
@@ -516,7 +547,7 @@ function eligibleRows() {
     if (!m) continue;
     const cells = lines[i].split('|').map((c) => c.trim());
     if (!(cells[4] ?? '').startsWith('✅')) continue;
-    const t = blame.get(i + 1);
+    const t = completionTimeOf(lines[i], i);
     if (t == null) continue; // 无日期证据 → 不当作候选（宁漏勿错）
     out.push({ idx: i, id: Number(m[1]), line: lines[i], date: new Date(t * 1000) });
   }
@@ -593,14 +624,14 @@ function rel(root, p) {
 }
 
 function printHelp() {
-  console.log(`TASKS 完成行 30 天归档器（WXG-T-040 R3）
+  console.log(`TASKS 完成行归档器（默认保留 30 天，WXG-T-040 R3）
 
 用法：
   node tools/scripts/archive-tasks.mjs [选项]
 
 选项：
   --write          真实归档落盘（缺省为 dry-run：只打印计划，不改任何文件）
-  --days=<N>       完成天数阈值（默认 30；按 git blame committer-time 判定）
+  --days=<N>       完成天数阈值（默认 30；完成日期取**行内状态列**，无则回退 git blame committer-time）
   --detail-until-under=<N>
                     体积驱动 · **详情侧**：忽略 --days，按号序「最老优先」归档 ✅ 行（连同其详情
                     小节成对搬走），直到 production/TASKS-DETAIL.md 估值 < N tokens。
@@ -617,7 +648,9 @@ function printHelp() {
 
 口径：
   • 只移「第一列 WXG-T-\\d+ 且状态列以 ✅ 开头」的表行；🔄 / ⏸ / backlog / 注释行不动。
-  • 完成日期 = 行级 git blame committer-time（该行最后修改的提交时间）；无日期证据 → 不动（宁漏勿错）。
+  • 完成日期 = **行内状态列日期优先**（显式「完成（YYYY-MM-DD）」→ 否则取状态列最后一个日期），
+    取不到才回退行级 git blame committer-time；将来日期当无证据；两者都无 → 不动（宁漏勿错）。
+    （WXG-T-409 改口径：旧口径只信 blame ⇒ 整表重写会把全表年龄复位成今天，观察哨永不可达。）
   • 真实归档时校准头注：当前已分配至 / 下一可用号 = 主表 ∪ 归档全局最大号（+1），
     勘误行改为「领号认本注，本注由 tasks:archive 校准」——防并行会话只看主表重号。
   • **成对搬运（WXG-T-065）**：主表行 → TASKS-archive.md，其详情小节 → TASKS-DETAIL-archive.md，

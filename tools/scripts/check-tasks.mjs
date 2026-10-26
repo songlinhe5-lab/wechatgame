@@ -68,7 +68,35 @@ const BACKLOG_ROW_MAX = 160;
  *  「用过号未自登主表清单」），那部分已不可追改 ⇒ 40 取的是「能拦住新事故」与「不因历史债长红」的折中。 */
 const COMMIT_SCAN_DEFAULT = 40;
 
-const STAGED_MODE = process.argv.includes('--staged');
+/**
+ * 从一段提交信息文本里展开全部署号（`WXG-T-<数字>`，含 `~` 区间与 `/` `、` 并列）。
+ * 单源（判例 K-073 / K-089）：I 项（扫提交窗口）与 K 项（只校本笔消息）共用，⛔ 两处各写一份正则。
+ *
+ * 只匹配 `WXG-T-<数字>` 前缀会漏掉本仓常见的连写署号（`WXG-T-257~260` 区间、
+ * `WXG-T-222/268/269` 并列链）——200 笔窗口实测因此放过 281/287 两个未登号，故逐段展开。
+ * 分隔符只认 `~` `/` `、`：全史 788 笔里 en dash / 半角连字符连写零命中（实测），
+ * 扩字符集会误伤「WXG-T-047 - 说明」。
+ * ponytail: 上限三处——区间跨度 >10 只取两端；`~` 会把区间内未署的号一并算进 cited（当批连续任务才这么写，现册全绿）；
+ * 「在册」只认四处结构面，正文/`### ` 子节里的号不算（K-137 追记）。要让宽窗口跑绿，先把头注披露清单改成每号一行的机器可读格式。
+ */
+function citeIdsFrom(text) {
+  const cited = new Set();
+  for (const m of text.matchAll(/WXG-T-(\d+)((?:\s*[~/、]\s*\d+)*)/g)) {
+    let prev = Number(m[1]);
+    cited.add(pad3(prev));
+    for (const t of m[2].matchAll(/([~/、])\s*(\d+)/g)) {
+      const n = Number(t[2]);
+      // `~` 当区间（区间跨度封顶 10 防误伤），`/` `、` 当并列
+      if (t[1] === '~' && n >= prev && n - prev <= 10) for (let k = prev; k <= n; k++) cited.add(pad3(k));
+      else cited.add(pad3(n));
+      prev = n;
+    }
+  }
+  return cited;
+}
+
+// `--commit-msg=<file>`（WXG-T-409）与 `--staged` 同一权威面：读的也是**索引**（= 本笔即将提交的内容）。
+const STAGED_MODE = process.argv.includes('--staged') || process.argv.some((a) => a.startsWith('--commit-msg='));
 const readIndex = (p) => {
   // 索引里没有该路径（未跟踪 / 已删）与「文件不存在」同义，统一给空串；
   // ⚙ stderr 必须屏蔽：`git show :<不存在的路径>` 会把「致命错误：…」打到终端，
@@ -292,23 +320,7 @@ const registeredIds = new Set([...rowIds, ...backlogIds, ...detailIds, ...archiv
     notes.push(`I: 跳过（git log 不可用 —— 非 git 目录或浅克隆）`);
   }
   if (subjects) {
-    // 只匹配 `WXG-T-<数字>` 前缀会漏掉本仓常见的连写署号（`WXG-T-257~260` 区间、
-    // `WXG-T-222/268/269` 并列链）——200 笔窗口实测因此放过 281/287 两个未登号，故逐段展开。
-    // 分隔符只认 `~` `/` `、`：全史 788 笔里 en dash / 半角连字符连写零命中（实测），扩字符集会误伤「WXG-T-047 - 说明」。
-    // ponytail: 上限三处——区间跨度 >10 只取两端；`~` 会把区间内未署的号一并算进 cited（当批连续任务才这么写，现册全绿）；
-    // 「在册」只认四处结构面，正文/`### ` 子节里的号不算（K-137 追记）。要让宽窗口跑绿，先把头注披露清单改成每号一行的机器可读格式。
-    const cited = new Set();
-    for (const m of subjects.matchAll(/WXG-T-(\d+)((?:\s*[~/、]\s*\d+)*)/g)) {
-      let prev = Number(m[1]);
-      cited.add(pad3(prev));
-      for (const t of m[2].matchAll(/([~/、])\s*(\d+)/g)) {
-        const n = Number(t[2]);
-        // `~` 当区间（区间跨度封顶 10 防误伤），`/` `、` 当并列
-        if (t[1] === '~' && n >= prev && n - prev <= 10) for (let k = prev; k <= n; k++) cited.add(pad3(k));
-        else cited.add(pad3(n));
-        prev = n;
-      }
-    }
+    const cited = citeIdsFrom(subjects);
     const orphans = [...cited].filter((id) => !registeredIds.has(id)).sort();
     if (orphans.length > 0) {
       const msg =
@@ -320,12 +332,36 @@ const registeredIds = new Set([...rowIds, ...backlogIds, ...detailIds, ...archiv
       // 于是**别人的欠账拦住了本单**（实测：本批被 402/403 拦下，pre-commit exit 1）。
       // 硬拦不丢：默认（工作树）模式仍是 failure，`verify` 与 `check:tasks` 照旧红。
       if (STAGED_MODE) {
-        notes.push(`${msg}（--staged：仓库级欠账，披露不拦；硬拦见不带 --staged 的「pnpm run check:tasks」）`);
+        notes.push(`${msg}（${process.argv.includes('--staged') ? '--staged' : '--commit-msg'}：仓库级欠账，披露不拦；硬拦见不带参数的「pnpm run check:tasks」）`);
       } else {
         failures.push(msg);
       }
     } else {
       notes.push(`I: 最近 ${commitScan} 笔提交共署 ${cited.size} 个号，全部在册`);
+    }
+  }
+}
+
+// ── K：本笔提交信息署的号必须在册（--commit-msg=<file>，WXG-T-409）───────────────
+// 为什么要单独一项：I 项在 --staged 只能降级为 note——它扫的是提交**窗口**，里面常有
+// 他人欠账，不该拦住本单（判例 K-137）；但「本笔消息自己署的号」与本单可解耦，能硬拦。
+// 权威面 = 索引 ⇒「台账行还在工作树、没 git add」这种撕裂会在 commit-msg 就被拦下，
+// 而不是等提交完再靠事后发现（判例 K-045：共享工作树里未提交 ≠ 我的，暂存也不算拥有）。
+// 只拦「本笔署了但不在册」：无号消息放行（那是 commitlint 的 task-id 规则管的事）。
+const MSG_FILE = /--commit-msg=(\S+)/.exec(process.argv.join(' '))?.[1];
+if (MSG_FILE) {
+  const mine = [...citeIdsFrom(readFileSync(path.resolve(ROOT, MSG_FILE), 'utf8'))].sort();
+  if (mine.length === 0) {
+    notes.push('K: 本笔未署 WXG-T 号 ⇒ 不校（commitlint 另有 task-id 规则）');
+  } else {
+    const orphans = mine.filter((id) => !registeredIds.has(id));
+    if (orphans.length > 0) {
+      failures.push(
+        `K: 本笔提交信息署 ${orphans.join('、')}，但**索引面**台账不在册（主表 / BACKLOG / 详情节 / 两个归档均无）——` +
+        '先把登记面 `git add` 进本笔（`production/TASKS.md` + `production/TASKS-DETAIL.md`，提案行则 `BACKLOG.md`）再提交（判例 K-045 / K-137）',
+      );
+    } else {
+      notes.push(`K: 本笔署号 ${mine.join('、')} 均在册`);
     }
   }
 }

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # commit-msg 钩子：commitlint 细粒度校验（type/scope/header/task-id）— WXG-T-016
+# 另校「本笔署的任务号必须在台账在册」— WXG-T-409（判例 K-045 / K-137）
 # 启用：git config core.hooksPath .githooks（见 tools/scripts/install-githooks.mjs，prepare 自动生效）
 # 规则文档：docs/ci/commit-and-review-rules.md
 
@@ -28,5 +29,20 @@ else
   echo "[commit-msg] ❌ 提交信息不符合仓库规则（type / scope / header 长度 / 句号 / task-id）。" >&2
   echo "             规则与正反示例见: docs/ci/commit-and-review-rules.md" >&2
   echo "             快速自查: header 形如 <type>(<scope>): <subject>，全文须含 WXG-T-<数字> 或 #<数字>。" >&2
+  exit "$STATUS"
+fi
+
+# commitlint 只校「有没有署号」，不校「署的号在不在台账」。
+# 后者原来只有 `check:tasks` 的 I 项在做，而它扫的是提交**窗口**且读工作树——共享工
+# 作树下既误拦本单（他人欠账）又漏拦本单（本笔还未入库）⇒ WXG-T-409 新增 K 项：只拿
+# 本笔消息的号去碰索引面（= 本笔即将提交的内容），登记行没 `git add` 就当场拦下。
+if K_OUT="$(node tools/scripts/check-tasks.mjs --commit-msg="$MSG_FILE" 2>&1)"; then
+  echo "[commit-msg] ✅ 本笔署号已在册（K 项，读索引面）"
+else
+  STATUS=$?
+  echo "" >&2
+  echo "[commit-msg] ❌ 本笔提交信息署的任务号不在台账索引面：" >&2
+  printf '%s\n' "$K_OUT" | grep -E '^  - K:|^❌' >&2 || printf '%s\n' "$K_OUT" >&2
+  echo "             先把登记面（production/TASKS.md + TASKS-DETAIL.md，或 BACKLOG.md）git add 进本笔再提交。" >&2
   exit "$STATUS"
 fi

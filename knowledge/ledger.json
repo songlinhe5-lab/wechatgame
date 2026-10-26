@@ -761,7 +761,7 @@
       "file": "knowledge/lessons/process-ledger-sync.md",
       "category": "流程台账协作",
       "title": "同一台账文件被并发会话同时写时，`git add <整文件>` 会把别人的 WIP 捎进本单提交",
-      "contentHash": "a1727df3ddbe863cdc739dd8134feb977cf0663d44957b72b2b4b1420406e48c",
+      "contentHash": "87d5b0233978586f7ed985379eb127ee9d54b7bcc99ebb4535552c6abf627ab6",
       "sourceTask": "WXG-T-097",
       "addedDate": "2026-09-15",
       "lastAccess": "2026-09-15",
@@ -1458,7 +1458,7 @@
       "file": "knowledge/lessons/testing-guard.md",
       "category": "测试守卫",
       "title": "守卫脚本硬编码的目标值与冻结真源脱钩 ⇒ 断言永不触发（假绿守卫）；投放重物前要先实测「守卫能不能红」",
-      "contentHash": "d4c2e622ab0e604760b21f0636f93803b762c47713b6def25560abbeed49cc78",
+      "contentHash": "59ffad1a1e20a1cd0d8656e64fa0f39b0ba249b3efedb691ed931aed6bf0e224",
       "sourceTask": "WXG-T-219",
       "addedDate": "2026-09-27",
       "lastAccess": "2026-09-27",
@@ -4825,6 +4825,16 @@
       "ids": [
         "K-045",
         "K-137"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-26",
+      "taskId": "WXG-T-409",
+      "kind": "updated",
+      "ids": [
+        "K-045",
+        "K-089"
       ],
       "note": null
     }
