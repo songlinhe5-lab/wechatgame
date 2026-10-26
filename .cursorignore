@@ -1,0 +1,7 @@
+# WXG-T-420 T10 · ADR-0036：代码库索引/检索排除**构建期生成的镜像拷贝件**。
+# 正本 = packages/framework/src/** + games/*/src/**；这两棵树是 `pnpm run framework:sync`
+# 的产物（58,018 行派生码进索引只会挤掉真源）。⛔ 不排除 scripts 根下的 Bootstrap /
+# host / spike —— 那些是手写的编辑器侧真源。同款规则：`.ignore`（ripgrep）+
+# `.vscode/settings.json`（search.exclude，VS Code 系四 IDE）。
+games/*/cocos/assets/scripts/framework/
+games/*/cocos/assets/scripts/game/

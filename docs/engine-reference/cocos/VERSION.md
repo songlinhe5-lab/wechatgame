@@ -94,6 +94,8 @@ Cocos 4 于 2025-11 开源，距本决策不足一个月；其微信小游戏导
   - Cocos **自有构建管线**（编辑器内编译 / 微信小游戏构建）是否解析 `.js` 后缀导入——**该风险对本工程已不适用**（拷贝件默认无后缀，见上一条更正）；保留后缀的开关名是 `--keep-suffix`，**仓库中不存在 `--strip-suffix`**。
   - **收窄后的真实残余风险**：`export * from …` 这类 **ESM 语法本身**在 Cocos 构建管线中的处理——需一次真实构建确认。
   - 候选方案 (a) npm 包依赖、(b) dist 构建产物、(d) tsconfig paths 是否被编辑器支持——留待后续 ADR 评估能否替代拷贝基线。
+    **已评估 = `docs/architecture/adr/ADR-0036-generated-cocos-source-mirror.md`（WXG-T-420 T10）**：结论 = 拿到编辑器实测前 ⛔ 不换基线；
+    拷贝件改按「入库派生物」处理（检索/IDE 排除 + 硬门不变），复评触发条件见 ADR-0036 §5。
 - **当前做法**：源码用 `.js` 后缀导入（ESM 规范），vitest 侧通过 alias 指向 `src/index.ts`；Cocos 侧读拷贝件。
 
 ### G2 — `Graphics` API 的确切签名

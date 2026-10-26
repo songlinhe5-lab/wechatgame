@@ -1,0 +1,16 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# 检索排除（WXG-T-420 T10 · ADR-0036）：构建期生成的**镜像拷贝件**。
+#   正本 = `packages/framework/src/**` + `games/*/src/**`
+#   拷贝件 = `games/*/cocos/assets/scripts/{framework,game}/**`（唯一生产者 `pnpm run framework:sync`）
+# 为什么排除：Cocos 编辑器只编译 `assets/` 内的脚本 ⇒ 这份拷贝必须入库（含编辑器生成的
+#   `.meta`，见 ADR-0036 §3），但它是**派生物**，同名双命中只会污染检索与评审。
+# 需要显式查拷贝件时（例：排查镜像漂移）：
+#   rg -u --no-ignore <pattern> games/<game>/cocos/assets/scripts
+#   ⚠️ 排除只作用于**检索面**，不替代硬门：手改拷贝件由 `framework:sync:check` +
+#      `.githooks/pre-commit` 拦下（`control-manifest.md` §15）。
+# ⛔ 不排除 `cocos/assets/scripts/` 根下的 `BeadsBootstrap.ts` / `host/` / `spike/`：
+#    那些是**手写**的编辑器侧真源，不是拷贝件。
+# 复评触发条件见 ADR-0036 §5（拷贝改由构建期生成、或编辑器支持 assets 外引用时撤销本文件）。
+# ─────────────────────────────────────────────────────────────────────────────
+games/*/cocos/assets/scripts/framework/
+games/*/cocos/assets/scripts/game/

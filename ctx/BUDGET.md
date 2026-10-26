@@ -22,7 +22,7 @@
 
 | # | 文件 | tokens | 行数 | tier |
 |---:|---|---:|---:|:--:|
-| 1 | `production/TASKS-DETAIL.md` | 193206 | 5952 | normal |
+| 1 | `production/TASKS-DETAIL.md` | 194073 | 5954 | normal |
 | 2 | `games/beads/design/gdd/powerups-v2.md` | 130745 | 2262 | normal |
 | 3 | `games/beads/design/art/specs/assets-spec.md` | 120265 | 2105 | normal |
 | 4 | `production/qa/beads/g4-regression-report.md` | 86807 | 2201 | normal |
@@ -91,7 +91,7 @@
 | `games/beads/design/proposals/sec3-color-max-35-and-mis-max.md` | 10521 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/art/specs/tint-mask-asset-spec.md` | 10247 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/gdd/meta-ui.md` | 10203 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `docs/architecture/control-manifest.md` | 9737 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `docs/architecture/control-manifest.md` | 9879 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/gdd/core-loop.md` | 9561 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/audio/audio-events.md` | 9482 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/art/specs/menu-showcase-asset-spec.md` | 9148 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |

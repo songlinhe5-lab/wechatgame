@@ -1,0 +1,11 @@
+{
+  // WXG-T-420 T10 · ADR-0036：检索/IDE 排除**构建期生成的镜像拷贝件**。
+  // 正本 = packages/framework/src/** + games/*/src/**；下面两目录是 `pnpm run framework:sync`
+  // 的产物（唯一生产者，⛔ 手改会被 framework:sync:check + pre-commit 拦下）。
+  // 只写 search.exclude（⛔ 不藏进 files.exclude：Cocos 编辑器与排障仍需看得见）。
+  // ripgrep / 智能体检索侧的同款规则在仓库根 `.ignore`；Cursor 索引侧在 `.cursorignore`。
+  "search.exclude": {
+    "**/cocos/assets/scripts/framework/**": true,
+    "**/cocos/assets/scripts/game/**": true
+  }
+}
