@@ -5860,7 +5860,7 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 
 ## WXG-T-430
 
-**S-2 接线：`Platform.createOpenDataProvider?()` + `GameServices.openData?` + `App.dispose` 销毁** · 负责：主理人(Qoder)·framework · 状态：✅ 完成（2026-10-26）
+**S-2 接线：`Platform.createOpenDataProvider?()` + `GameServices.openData?` + `App.dispose` 销毁** · 负责：主理人(Qoder)·framework · 状态：✅ 完成（2026-10-26，提交 `ce5363ad`）
 
 - **上位**：`docs/architecture/adr/ADR-0035-minigame-open-data-domain-friend-leaderboard.md` §5.2 S-2；契约来自 S-1（`WXG-T-426` / `43b9a85c`）。
 - **一句话**：把 S-1 的 `OpenDataProvider` 契约接到宿主装配层——`Platform` 提供可选工厂、`App` 注入 `GameServices`、`dispose` 负责销毁；真实微信实现仍留 S-5，本单三宿主全部落到 Noop。
