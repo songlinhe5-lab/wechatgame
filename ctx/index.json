@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3793,
       "lines": 129,
-      "sha256": "b31c9bf9c54d16f3712161dd7012c9256d4637c529b87cdeb6bb36a5edacf85e",
+      "sha256": "9d5deefc9b8bd0a20d9a7a0418d46b20132666ef9c5fd59aded37d12893d4e47",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 406,
-          "summary": "1 production/TASKS-DETAIL.md 144064 4449 normal",
+          "summary": "1 production/TASKS-DETAIL.md 144729 4460 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5185,
       "lines": 164,
-      "sha256": "d1214e8b1b9a47f4ea541a5a36b134cd0784cdf2e19bb3bfd8ecc8b15adf2af3",
+      "sha256": "e043436218b31c3a13364036637b43c7d6e6b60ef5ed1398afb6957911e8b28d",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 122 行 / 64812 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 123 行 / 65107 tok / 实测读 4 次",
           "level": 2,
           "startLine": 27,
           "endLine": 30,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+123 · §待排（backlog，无号，立项时领取…=94+30",
+          "summary": "§WXG 任务台账（SSOT）=1+124 · §待排（backlog，无号，立项时领取…=95+30",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 4449 行 / 144064 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 4460 行 / 144729 tok",
           "level": 2,
           "startLine": 105,
           "endLine": 109,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+4450 · §WXG-T-390=3003+53 · §WXG-T-3",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+4461 · §WXG-T-390=3003+53 · §WXG-T-3",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -61945,7 +61945,7 @@
       "path": "memory/INDEX.md",
       "tokens": 15133,
       "lines": 358,
-      "sha256": "8f7966d8480a4d1d8e50911e454c4f31ced10b03f979068cc56d9957e2a34e6c",
+      "sha256": "330f56d2c1b13ee4c010d0c2f16d4fb4de2ba30dfda3d6085657232e6176b07a",
       "tier": "normal",
       "sections": [
         {
@@ -62036,7 +62036,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-22.md` — 398 tok｜0 节｜**蒸馏到期 2026-11-21**（剩 27 天）",
+          "anchor": "§`memory/2026-10-22.md` — 398 tok｜0 节｜**蒸馏到期 2026-11-21**（剩 26 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,
@@ -62050,7 +62050,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-21.md` — 5,478 tok｜10 节｜**蒸馏到期 2026-11-20**（剩 26 天）",
+          "anchor": "§`memory/2026-10-21.md` — 5,478 tok｜10 节｜**蒸馏到期 2026-11-20**（剩 25 天）",
           "level": 3,
           "startLine": 78,
           "endLine": 92,
@@ -62066,7 +62066,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-20.md` — 1,785 tok｜4 节｜**蒸馏到期 2026-11-19**（剩 25 天）",
+          "anchor": "§`memory/2026-10-20.md` — 1,785 tok｜4 节｜**蒸馏到期 2026-11-19**（剩 24 天）",
           "level": 3,
           "startLine": 93,
           "endLine": 101,
@@ -62082,7 +62082,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-14.md` — 142 tok｜2 节｜2 节已外移｜**蒸馏到期 2026-11-13**（剩 19 天）",
+          "anchor": "§`memory/2026-10-14.md` — 142 tok｜2 节｜2 节已外移｜**蒸馏到期 2026-11-13**（剩 18 天）",
           "level": 3,
           "startLine": 102,
           "endLine": 108,
@@ -62098,7 +62098,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-13.md` — 4,542 tok｜8 节｜5 节已外移｜**蒸馏到期 2026-11-12**（剩 18 天）",
+          "anchor": "§`memory/2026-10-13.md` — 4,542 tok｜8 节｜5 节已外移｜**蒸馏到期 2026-11-12**（剩 17 天）",
           "level": 3,
           "startLine": 109,
           "endLine": 121,
@@ -62114,7 +62114,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-12.md` — 6,315 tok｜7 节｜**蒸馏到期 2026-11-11**（剩 17 天）",
+          "anchor": "§`memory/2026-10-12.md` — 6,315 tok｜7 节｜**蒸馏到期 2026-11-11**（剩 16 天）",
           "level": 3,
           "startLine": 122,
           "endLine": 133,
@@ -62129,7 +62129,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-10.md` — 2,825 tok｜2 节｜**蒸馏到期 2026-11-09**（剩 15 天）",
+          "anchor": "§`memory/2026-10-10.md` — 2,825 tok｜2 节｜**蒸馏到期 2026-11-09**（剩 14 天）",
           "level": 3,
           "startLine": 134,
           "endLine": 140,
@@ -62143,7 +62143,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-09.md` — 358 tok｜0 节｜**蒸馏到期 2026-11-08**（剩 14 天）",
+          "anchor": "§`memory/2026-10-09.md` — 358 tok｜0 节｜**蒸馏到期 2026-11-08**（剩 13 天）",
           "level": 3,
           "startLine": 141,
           "endLine": 145,
@@ -62157,7 +62157,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-07.md` — 5,905 tok｜4 节｜**蒸馏到期 2026-11-06**（剩 12 天）",
+          "anchor": "§`memory/2026-10-07.md` — 5,905 tok｜4 节｜**蒸馏到期 2026-11-06**（剩 11 天）",
           "level": 3,
           "startLine": 146,
           "endLine": 154,
@@ -62173,7 +62173,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-06.md` — 2,680 tok｜2 节｜**蒸馏到期 2026-11-05**（剩 11 天）",
+          "anchor": "§`memory/2026-10-06.md` — 2,680 tok｜2 节｜**蒸馏到期 2026-11-05**（剩 10 天）",
           "level": 3,
           "startLine": 155,
           "endLine": 161,
@@ -62189,7 +62189,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-05.md` — 4,344 tok｜0 节｜**蒸馏到期 2026-11-04**（剩 10 天）",
+          "anchor": "§`memory/2026-10-05.md` — 4,344 tok｜0 节｜**蒸馏到期 2026-11-04**（剩 9 天）",
           "level": 3,
           "startLine": 162,
           "endLine": 166,
@@ -62203,7 +62203,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 28,255 tok｜14 节｜14 节已外移｜**蒸馏到期 2026-11-03**（剩 9 天）",
+          "anchor": "§`memory/2026-10-04.md` — 28,255 tok｜14 节｜14 节已外移｜**蒸馏到期 2026-11-03**（剩 8 天）",
           "level": 3,
           "startLine": 167,
           "endLine": 185,
@@ -62219,7 +62219,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-03.md` — 79 tok｜1 节｜1 节已外移｜**蒸馏到期 2026-11-02**（剩 8 天）",
+          "anchor": "§`memory/2026-10-03.md` — 79 tok｜1 节｜1 节已外移｜**蒸馏到期 2026-11-02**（剩 7 天）",
           "level": 3,
           "startLine": 186,
           "endLine": 191,
@@ -62235,7 +62235,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-29.md` — 7,239 tok｜0 节｜**蒸馏到期 2026-10-29**（剩 4 天）",
+          "anchor": "§`memory/2026-09-29.md` — 7,239 tok｜0 节｜**蒸馏到期 2026-10-29**（剩 3 天）",
           "level": 3,
           "startLine": 192,
           "endLine": 196,
@@ -62249,7 +62249,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-28.md` — 1,352 tok｜10 节｜9 节已外移｜**蒸馏到期 2026-10-28**（剩 3 天）",
+          "anchor": "§`memory/2026-09-28.md` — 1,352 tok｜10 节｜9 节已外移｜**蒸馏到期 2026-10-28**（剩 2 天）",
           "level": 3,
           "startLine": 197,
           "endLine": 211,
@@ -62265,7 +62265,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-27.md` — 6,212 tok｜3 节｜**蒸馏到期 2026-10-27**（剩 2 天）",
+          "anchor": "§`memory/2026-09-27.md` — 6,212 tok｜3 节｜**蒸馏到期 2026-10-27**（剩 1 天）",
           "level": 3,
           "startLine": 212,
           "endLine": 219,
@@ -62281,7 +62281,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-22.md` — 1,263 tok｜1 节｜**蒸馏已到期（2026-10-22，已过期 3 天）**",
+          "anchor": "§`memory/2026-09-22.md` — 1,263 tok｜1 节｜**蒸馏已到期（2026-10-22，已过期 4 天）**",
           "level": 3,
           "startLine": 220,
           "endLine": 225,
@@ -62297,7 +62297,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-17.md` — 6,817 tok｜12 节｜**蒸馏已到期（2026-10-17，已过期 8 天）**",
+          "anchor": "§`memory/2026-09-17.md` — 6,817 tok｜12 节｜**蒸馏已到期（2026-10-17，已过期 9 天）**",
           "level": 3,
           "startLine": 226,
           "endLine": 242,
@@ -62313,7 +62313,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-16.md` — 4,236 tok｜7 节｜1 节已外移｜**蒸馏已到期（2026-10-16，已过期 9 天）**",
+          "anchor": "§`memory/2026-09-16.md` — 4,236 tok｜7 节｜1 节已外移｜**蒸馏已到期（2026-10-16，已过期 10 天）**",
           "level": 3,
           "startLine": 243,
           "endLine": 254,
@@ -62329,7 +62329,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏已到期（2026-10-15，已过期 10 天）**",
+          "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏已到期（2026-10-15，已过期 11 天）**",
           "level": 3,
           "startLine": 255,
           "endLine": 271,
@@ -62345,7 +62345,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏已到期（2026-10-14，已过期 11 天）**",
+          "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏已到期（2026-10-14，已过期 12 天）**",
           "level": 3,
           "startLine": 272,
           "endLine": 299,
@@ -62361,7 +62361,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏已到期（2026-10-13，已过期 12 天）**",
+          "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏已到期（2026-10-13，已过期 13 天）**",
           "level": 3,
           "startLine": 300,
           "endLine": 320,
@@ -62377,7 +62377,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏已到期（2026-10-12，已过期 13 天）**",
+          "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏已到期（2026-10-12，已过期 14 天）**",
           "level": 3,
           "startLine": 321,
           "endLine": 338,
@@ -62393,7 +62393,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏已到期（2026-10-11，已过期 14 天）**",
+          "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏已到期（2026-10-11，已过期 15 天）**",
           "level": 3,
           "startLine": 339,
           "endLine": 359,
@@ -85004,17 +85004,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 144064,
-      "lines": 4449,
-      "sha256": "9cfa8cf9a44aa936726d6cccaf76ba0066401ff9c1df7efd97a9546652151f93",
+      "tokens": 144729,
+      "lines": 4460,
+      "sha256": "6b682ddb638f915460d0a02ae4a10fe7a104d8eda963a616a7b8891a5cb5e8f4",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 4450,
-          "tokens": 144048,
+          "endLine": 4461,
+          "tokens": 144712,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -89818,22 +89818,35 @@
             "未落码",
             "标注"
           ]
+        },
+        {
+          "anchor": "§WXG-T-401",
+          "level": 2,
+          "startLine": 4451,
+          "endLine": 4461,
+          "tokens": 662,
+          "summary": "框架微信能力缺口 + beads 架构优化 TODO 提案（📋 待拍板，未开工）",
+          "keywords": [
+            "WXG",
+            "beads",
+            "TODO"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 64812,
-      "lines": 122,
-      "sha256": "de66b65199e991cb0d22765e574ded8b86815cd7ce949d04a8e75a2d4f6ac5fe",
+      "tokens": 65107,
+      "lines": 123,
+      "sha256": "0f0056c4ed9848569e48b1bda734b43f95593faed411a57b0896fa3e6d8775ca",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 123,
-          "tokens": 64804,
+          "endLine": 124,
+          "tokens": 65098,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -89846,8 +89859,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 94,
-          "endLine": 123,
+          "startLine": 95,
+          "endLine": 124,
           "tokens": 1460,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -92184,6 +92197,396 @@
             "only",
             "本批已入库事",
             "供引用"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "production/plans/2026-10-26-arch-review-weapp-framework-and-beads.md",
+      "tokens": 3759,
+      "lines": 156,
+      "sha256": "20f587e376d4acb9fbb7ed31c31fc85e9ff98ba9b84f2bb4a3e7801352b45992",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§架构评审 TODO：微信小游戏框架能力补齐 + beads 架构优化",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 157,
+          "tokens": 3735,
+          "summary": "日期：2026-10-26",
+          "keywords": [
+            "TODO",
+            "beads",
+            "架构评审",
+            "微信小游戏框",
+            "架能力补齐",
+            "架构优化"
+          ]
+        },
+        {
+          "anchor": "§0 评审结论总览",
+          "level": 2,
+          "startLine": 10,
+          "endLine": 22,
+          "tokens": 192,
+          "summary": "架构主体健康：core 引擎无关、buildRenderModel 只读快照、平台抽象边界干净",
+          "keywords": [
+            "core",
+            "buildRenderModel",
+            "评审结论总览"
+          ]
+        },
+        {
+          "anchor": "§P0 — 发布阻断级（需用户拍板后执行）",
+          "level": 2,
+          "startLine": 23,
+          "endLine": 47,
+          "tokens": 720,
+          "summary": "",
+          "keywords": [
+            "发布阻断级",
+            "需用户拍板后",
+            "执行"
+          ]
+        },
+        {
+          "anchor": "§TODO-1 激励视频 weapp Provider 缺失（真机全 Noop）",
+          "level": 3,
+          "startLine": 25,
+          "endLine": 35,
+          "tokens": 336,
+          "summary": "证据：",
+          "keywords": [
+            "TODO",
+            "weapp",
+            "Provider",
+            "Noop",
+            "激励视频",
+            "缺失"
+          ]
+        },
+        {
+          "anchor": "§TODO-2 振动能力是空设置（有开关、无实现）",
+          "level": 3,
+          "startLine": 36,
+          "endLine": 47,
+          "tokens": 345,
+          "summary": "证据：",
+          "keywords": [
+            "TODO",
+            "振动能力是空",
+            "设置",
+            "有开关",
+            "无实现"
+          ]
+        },
+        {
+          "anchor": "§P1 — 平台能力补齐（框架新增可选能力，均不破坏 L1–L5）",
+          "level": 2,
+          "startLine": 48,
+          "endLine": 80,
+          "tokens": 664,
+          "summary": "",
+          "keywords": [
+            "平台能力补齐",
+            "框架新增可选",
+            "能力",
+            "均不破坏"
+          ]
+        },
+        {
+          "anchor": "§TODO-3 分享能力缺失",
+          "level": 3,
+          "startLine": 50,
+          "endLine": 54,
+          "tokens": 95,
+          "summary": "证据：全仓 grep 无 shareAppMessage / onShareAppMessage。",
+          "keywords": [
+            "TODO",
+            "grep",
+            "shareAppMessage",
+            "onShareAppMessage",
+            "分享能力缺失"
+          ]
+        },
+        {
+          "anchor": "§TODO-4 热更提示（UpdateManager）缺失",
+          "level": 3,
+          "startLine": 55,
+          "endLine": 59,
+          "tokens": 73,
+          "summary": "证据：无 getUpdateManager。小游戏标准实践：启动检查新版本 → 提示重启。",
+          "keywords": [
+            "TODO",
+            "UpdateManager",
+            "getUpdateManager",
+            "热更提示",
+            "缺失"
+          ]
+        },
+        {
+          "anchor": "§TODO-5 内存告警降档（onMemoryWarning → bake LRU 收缩）",
+          "level": 3,
+          "startLine": 60,
+          "endLine": 64,
+          "tokens": 117,
+          "summary": "证据：bake 缓存已就位（[bake-lru.ts](file:///Users/stephenhe/Developm",
+          "keywords": [
+            "TODO",
+            "onMemoryWarning",
+            "bake",
+            "LRU",
+            "lru",
+            "file"
+          ]
+        },
+        {
+          "anchor": "§TODO-6 HTTP 通道平台抽象",
+          "level": 3,
+          "startLine": 65,
+          "endLine": 69,
+          "tokens": 136,
+          "summary": "证据：[beads-shell.ts:85-90](file:///Users/stephenhe/Developmen",
+          "keywords": [
+            "TODO",
+            "HTTP",
+            "beads",
+            "shell",
+            "file",
+            "Users"
+          ]
+        },
+        {
+          "anchor": "§TODO-7 帧率档 + 性能上报",
+          "level": 3,
+          "startLine": 70,
+          "endLine": 74,
+          "tokens": 96,
+          "summary": "证据：无 setPreferredFramesPerSecond / wx.getPerformance 消费。低端机（",
+          "keywords": [
+            "TODO",
+            "setPreferredFramesPerSecond",
+            "getPerformance",
+            "帧率档",
+            "性能上报"
+          ]
+        },
+        {
+          "anchor": "§TODO-8 开放数据域（好友榜）——先挂 backlog",
+          "level": 3,
+          "startLine": 75,
+          "endLine": 80,
+          "tokens": 64,
+          "summary": "证据：无 getOpenDataContext。架构影响大（主域/子域 postMessage 协议 + 渲染层预留），",
+          "keywords": [
+            "TODO",
+            "backlog",
+            "getOpenDataContext",
+            "postMessage",
+            "开放数据域",
+            "好友榜"
+          ]
+        },
+        {
+          "anchor": "§P2 — beads 架构优化（重构，逐字节保行为）",
+          "level": 2,
+          "startLine": 81,
+          "endLine": 114,
+          "tokens": 959,
+          "summary": "",
+          "keywords": [
+            "beads",
+            "架构优化",
+            "重构",
+            "逐字节保行为"
+          ]
+        },
+        {
+          "anchor": "§TODO-9 `beads-game.ts` 瘦身第三批（现 3022 行）",
+          "level": 3,
+          "startLine": 83,
+          "endLine": 87,
+          "tokens": 142,
+          "summary": "证据：[beads-game.ts:23-37](file:///Users/stephenhe/Development",
+          "keywords": [
+            "beads-game.ts",
+            "TODO",
+            "beads",
+            "game",
+            "file",
+            "Users"
+          ]
+        },
+        {
+          "anchor": "§TODO-10 `tuning.ts` 拆分（现 3283 行）",
+          "level": 3,
+          "startLine": 88,
+          "endLine": 92,
+          "tokens": 151,
+          "summary": "证据：[tuning.ts:2-13](file:///Users/stephenhe/Development/work",
+          "keywords": [
+            "tuning.ts",
+            "TODO",
+            "tuning",
+            "file",
+            "Users",
+            "stephenhe"
+          ]
+        },
+        {
+          "anchor": "§TODO-11 菜单投影从 shell 下沉（现 987 行）",
+          "level": 3,
+          "startLine": 93,
+          "endLine": 97,
+          "tokens": 154,
+          "summary": "证据：[beads-shell.ts:899-971](file:///Users/stephenhe/Developm",
+          "keywords": [
+            "TODO",
+            "shell",
+            "beads",
+            "file",
+            "Users",
+            "stephenhe"
+          ]
+        },
+        {
+          "anchor": "§TODO-12 死代码清理：`spawner.ts`",
+          "level": 3,
+          "startLine": 98,
+          "endLine": 102,
+          "tokens": 139,
+          "summary": "证据：[beads-game.ts:17-21](file:///Users/stephenhe/Development",
+          "keywords": [
+            "spawner.ts",
+            "TODO",
+            "spawner",
+            "beads",
+            "game",
+            "file"
+          ]
+        },
+        {
+          "anchor": "§TODO-13 事件总线类型扩展点",
+          "level": 3,
+          "startLine": 103,
+          "endLine": 107,
+          "tokens": 178,
+          "summary": "证据：[beads-shell.ts:351](file:///Users/stephenhe/Development/",
+          "keywords": [
+            "TODO",
+            "beads",
+            "shell",
+            "file",
+            "Users",
+            "stephenhe"
+          ]
+        },
+        {
+          "anchor": "§TODO-14 视图大文件拆分（次优先）",
+          "level": 3,
+          "startLine": 108,
+          "endLine": 114,
+          "tokens": 107,
+          "summary": "证据：meta-view.ts 1604 行 / play-page.ts 1483 / bead-render.ts ",
+          "keywords": [
+            "TODO",
+            "meta",
+            "view",
+            "play",
+            "page",
+            "bead"
+          ]
+        },
+        {
+          "anchor": "§P3 — 性能 / 真机验证",
+          "level": 2,
+          "startLine": 115,
+          "endLine": 129,
+          "tokens": 384,
+          "summary": "",
+          "keywords": [
+            "性能",
+            "真机验证"
+          ]
+        },
+        {
+          "anchor": "§TODO-15 真机帧率实测（关闭 R1 风险）",
+          "level": 3,
+          "startLine": 117,
+          "endLine": 122,
+          "tokens": 188,
+          "summary": "证据：[architecture-beads.md §8 R1](file:///Users/stephenhe/Dev",
+          "keywords": [
+            "§8",
+            "TODO",
+            "architecture",
+            "beads",
+            "file",
+            "Users"
+          ]
+        },
+        {
+          "anchor": "§TODO-16 菜单静止帧构建短路（可选，先量化再决定）",
+          "level": 3,
+          "startLine": 123,
+          "endLine": 129,
+          "tokens": 156,
+          "summary": "证据：[app.ts:299-314](file:///Users/stephenhe/Development/work",
+          "keywords": [
+            "TODO",
+            "app",
+            "file",
+            "Users",
+            "stephenhe",
+            "Development"
+          ]
+        },
+        {
+          "anchor": "§需用户拍板的决策点",
+          "level": 2,
+          "startLine": 130,
+          "endLine": 138,
+          "tokens": 178,
+          "summary": "D1 激励视频（TODO-1） ① 本版实现 weapp wrapper（推荐，游戏闭环已就位） ② MVP 继续占位上",
+          "keywords": [
+            "TODO",
+            "weapp",
+            "wrapper",
+            "MVP",
+            "需用户拍板的",
+            "决策点"
+          ]
+        },
+        {
+          "anchor": "§建议执行顺序（拍板后）",
+          "level": 2,
+          "startLine": 139,
+          "endLine": 149,
+          "tokens": 180,
+          "summary": "1. 第一批（P0）：TODO-1 + TODO-2 —— framework 平台层各一小刀，beads 接线；每任务",
+          "keywords": [
+            "TODO",
+            "framework",
+            "beads",
+            "建议执行顺序",
+            "拍板后"
+          ]
+        },
+        {
+          "anchor": "§附：取证摘要（2026-10-26 读码）",
+          "level": 2,
+          "startLine": 150,
+          "endLine": 157,
+          "tokens": 251,
+          "summary": "铁律合规：games/beads/src grep Math.random / import 'cc' / 裸 wx. ",
+          "keywords": [
+            "games",
+            "beads",
+            "src",
+            "grep",
+            "Math",
+            "random"
           ]
         }
       ]

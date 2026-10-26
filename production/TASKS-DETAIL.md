@@ -4447,3 +4447,14 @@ pnpm run tasks:archive -- --detail-until-under=7000 --write
 测试 = `tests/clear-coins.test.ts` 7 例（首通六值 / 复刷单价 / 普通 9 盘到顶降 1 / Boss 跨限降 2 / 首通不吃上限 / 跨日归零 / 日计次重载）。
 
 **金样本 clear 态 +1 条 text（619→620）**：按 K-051/K-053 先登记 `docs/architecture/ui-architecture-beads.md` UI-61，再由 `ui-golden-capture.ts` 在**提交锚**重抓（⛔ 未手改夹具）。
+
+## WXG-T-401
+
+**框架微信能力缺口 + beads 架构优化 TODO 提案（📋 待拍板，未开工）**
+
+- **产出**：架构评审（读码取证，零代码改动）。正本 = `production/plans/2026-10-26-arch-review-weapp-framework-and-beads.md`（16 条 TODO 分 P0–P3 + 拍板点 D1–D4）。
+- **结论摘要**：core 分层健康（引擎无关 / buildRenderModel 只读 / 平台抽象边界干净 / dirtyGate 已实测省 3.0–3.9ms 重放）；铁律 L3/L4 全仓 grep 零违规；beads 106 测试文件 / ≈1312 用例护体。短板两处：
+  - **微信平台能力面**（P0 两项：① weapp 激励视频恒 Noop——`weapp.ts:280` 返回 `NoopRewardedAdProvider`，全仓无 `createRewardedVideoAd` 包装，而 beads 加心闭环已依赖它（`beads-shell.ts:455-462`），真机点「看广告加心」永远无效；② 振动是空设置——设置页有开关有持久化有事件（`game-settings.ts:123-127`），但框架 `Platform` 无 haptics 抽象、weapp 无 `vibrateShort`，`beads-game.ts:2118` 注释明说「批0 不接」。P1：分享 / 热更 UpdateManager / onMemoryWarning→bake LRU 收缩 / HTTP 通道（正式环境微信无全局 fetch）/ 帧率档与性能上报 / 开放数据域（建议挂 backlog））。
+  - **beads 巨型文件**（P2：`beads-game.ts` 3022 行再拆（快照投影 / BOOT 装配）；`tuning.ts` 3283 行按域拆 + barrel 保 §3 单源；`beads-shell.ts` 987 行菜单投影下沉 MenuProjection；`spawner.ts` documented dead path 仍在公开 barrel；事件总线类型扩展点消除 shell 两处 `as unknown as` 强转；视图三大件 meta-view/play-page/bead-render 按金样本护体切分）。
+  - **P3**：真机帧率 R1 风险未实测（Cocos Graphics 900+ 指令/帧，ADR-0005 复评触发）；菜单静止帧构建短路（dirtyGate 只省 draw 重放，build+hash 每帧仍跑）先量化再决定。
+- **下一步**：用户拍板 D1（激励视频：实现 weapp wrapper vs 继续占位） / D2（振动：接通 vs 移除设置项） / D3（spawner：整删 vs 仅摘 barrel） / D4（开放数据域：backlog vs 本里程碑）后，执行任务逐条另领号（T-402+）入表；本单在拍板后转排期或关闭。
