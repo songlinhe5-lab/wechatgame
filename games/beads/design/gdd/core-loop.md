@@ -104,7 +104,7 @@ BOOT ──► PLAYING ⇄ PAUSED
 全部引用 `systems-index §3`：
 - 布局带 §3.1（HUD/PUZZLE/TRAY/POWERUP 四带、SAFE_TOP_H、CAPSULE_AVOID）
 - 网格 §3.3（pitch 52、上限 13×12）
-- 托盘 §3.4（`TRAY_BASE_SLOTS`/`TRAY_EXPAND_SLOTS`；~~`SPAWN_INTERVAL_DEFAULT`~~ 已作废）；错位参数 §3.13（`MISPLACED_PAIRS_MIN/MAX`、交换构造、取回前提）
+- 托盘 §3.4（`TRAY_BASE_SLOTS`/`TRAY_EXPAND_SLOTS`；~~`SPAWN_INTERVAL_DEFAULT`~~ 已作废 —— 其中 `TRAY_EXPAND_SLOTS` **已随 v1.84 删除**，现役 = `TRAY_TIER_SLOTS` 三档制 `[12,24,48]` + `TRAY_AD_EXPAND_COUNT` = 2；见 `systems-index §3.4`）；错位参数 §3.13（`MISPLACED_PAIRS_MIN/MAX`、交换构造、取回前提）
 - 计时 §3.5（`LEVEL_TIME_DEFAULT`、`TIMER_URGENT_T`、失败唯一条件）
 - 道具 §3.6（解环器）、星级 §3.7（`STAR3_RATIO`/`STAR2_RATIO`/`DEMO_LEVEL_COUNT`）
 

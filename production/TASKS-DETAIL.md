@@ -5741,3 +5741,41 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 - **风险预记**：① 协议常量双份（子域不能 import 主域）⇒ S-4 构建期生成，⛔ 手抄；② Mock 同步回执 ≠ 真机异步（新好友 2h 延迟）⇒ S-3 UI 必须有加载态。
 - **改号说明**：原拟 425，实读工作树台账已被 `1a3fd5f1`（托盘扩容只走激励视频）占用 ⇒ 按 K-046（入库者保号）取 **426**。
 
+
+
+---
+
+## WXG-T-427
+
+### 0. 触发与性质
+
+用户令「2/3/1」中的第 2 项（三选一清单）：清理已退役常量 `TRAY_EXPAND_SLOTS` 的死引用。纯文档批，零代码、零 `systems-index §3` 数值改动。
+
+### 1. 处置读数（25 处 / 12 份）
+
+| 文件 | 命中 | 加注 | 跳过及原因 |
+|---|---|---|---|
+| `art/specs/assets-spec.md` | 5 | 5 | —（含 L506 代码块内用〔〕包裹） |
+| `proposals/tray-24-layout-derivation.md` | 2 | 2 | — |
+| `gdd/core-loop.md` | 1 | 1 | — |
+| `art/specs/art-bible.md` | 1 | 1 | — |
+| `proposals/in-level-snapshot.md` | 1 | 1 | —（另加「唯一途径 = 激励视频」半句） |
+| `proposals/v1.23-bold-remake.md` | 1 | 1 | — |
+| `proposals/ads-revive.md` | 1 | 1 | — |
+| `gdd/tray-spawner.md` | 3 | 0 | 3：均明写「删除」且已指 §3.4，重复加注属噪声 |
+| `gdd/systems-index.md` | 2 | 0 | 2：L3 版本头 + L122 §3.4 行均已带退役说明 |
+| `gdd/systems-index-changelog.md` | 6 | 0 | 6：变更日志，历史报告不回改 |
+| `gdd/meta-ui-changelog.md` | 1 | 0 | 1：同上 |
+| `levels/levels-spec.md` | 1 | 0 | 1：上批（WXG-T-425）已加双重失效标注，复核通过 |
+| **合计** | **25** | **12** | **13** |
+
+### 2. 验证
+
+- `grep -rc TRAY_EXPAND_SLOTS games/beads/design` 加注前后合计均 **25** ⇒ 原文未替换/未删除，仅追加括注（K-053 成立）
+- `git diff --stat` = 7 files changed, 12 insertions, 12 deletions（同行内联插字，零增删行）
+- `read_lints` 7 份文件 **0 error**；warning 均为既有 markdownlint 结构类且行号不在改动行
+
+### 3. 遗留
+
+- `gdd/tray-spawner.md` L62 / L84 把扩容写成「解锁 / 扩展解锁」语，但**不含旧常量名**，不属本批处置范围 ⇒ 建议另开一批统一改口（并入「唯一途径 = 激励视频」硬约束）
+- `assets-spec` L1141 原句「漂移中」为当时判读，已加注「原文保留 + 实测见 `tuning.ts:530/536`」，避免后人误以为当前仍漂移

@@ -40,7 +40,7 @@
 | `levelIndex` | number，**0-based**（对齐 `BeadsGame.levelIndex`） | 普通关；sprint 也记当时梯位所用的生成种子输入（见下） | 越界 / 关卡表对不上 → 丢 | 不存图案行字符串 |
 | `pauseIntent` | `'manual' \| 'system'` | D-04 助手字段；杀进程后一律按「系统打断」展示面板即可 | 缺省当 `'system'` | 不驱动玩法 |
 | **网格 filled 位图** `gridFilled` | 只覆盖**可填格**的 bit 串（行主序，`empty=0 / filled=1`） | `BeadGrid` 可填格的 `state === 'filled'` | 长度 ≠ 该关可填格数 → 丢；按位 `fill()` | `locked` / `.` void 由图案重建，禁止另存 |
-| **托盘** `traySlots` | `{ colorIdx: number }[]`（`colorIdx=0` 表示 free） | 生效容量内每槽持有色；`selected` 另字段 | 长度须 ∈ {`TRAY_BASE_SLOTS`, `TRAY_BASE_SLOTS+TRAY_EXPAND_SLOTS`} | `needed[]` **重算**（图案 − filled），防双真源 |
+| **托盘** `traySlots` | `{ colorIdx: number }[]`（`colorIdx=0` 表示 free） | 生效容量内每槽持有色；`selected` 另字段 | 长度须 ∈ {`TRAY_BASE_SLOTS`, `TRAY_BASE_SLOTS+TRAY_EXPAND_SLOTS`}（`TRAY_EXPAND_SLOTS` **已随 v1.84 删除**，现役 = `TRAY_TIER_SLOTS` 三档制 `[12,24,48]` + `TRAY_AD_EXPAND_COUNT` = 2；见 `systems-index §3.4`。⚠ 扩容唯一获取途径 = 激励视频（2026-10-26 裁定，见 `systems-index §3.4` 硬约束注 v1.94）） | `needed[]` **重算**（图案 − filled），防双真源 |
 | `trayExpanded` | boolean | 扩展行是否已解锁 | 与 `traySlots.length` 不一致 → 丢 | — |
 | `traySelected` | number | `-1` 或合法槽下标 | 越界钳 `-1` | — |
 | **remaining** | number（秒，连续值） | `GameTimer.remaining` | 非有限 / `<0` / `> timeTotal` → 丢 | 不存 display 字符串 |

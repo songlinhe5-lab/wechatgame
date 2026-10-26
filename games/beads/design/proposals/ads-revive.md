@@ -39,7 +39,7 @@
 | 位 | 假设发奖后得到什么 | 缓解的压力 |
 |---|---|---|
 | `region` / `clearAll` / `random` 超限 | 再清一次托盘珠 | 槽位空间 |
-| `btn_expand` | 扩 +`TRAY_EXPAND_SLOTS` | 槽位空间 |
+| `btn_expand` | 扩 +`TRAY_EXPAND_SLOTS`（**已随 v1.84 删除**，现役 = `TRAY_TIER_SLOTS` 三档制 `[12,24,48]` + `TRAY_AD_EXPAND_COUNT` = 2；见 `systems-index §3.4`） | 槽位空间 |
 
 concept 支柱 2 把压力写成「时间 × 空间」。商业位只买了空间那一轴。
 

@@ -1,7 +1,7 @@
 # 提案 · 托盘 24 槽（2 行）面板几何推导（WXG-T-143 收口件）
 
 - 状态：**待用户确认**（确认后按本文落码，tuning.ts §3.4 三常量 + TRAY_BAND 修订）
-- 背景：v1.24（WXG-T-141）冻结 `TRAY_BASE_SLOTS`/`TRAY_EXPAND_SLOTS` 12→24，但注明「工程侧尚未适配：规格缺新尺寸 ⇒ WXG-T-143 先回传请示」。用户 2026-09-17 答复「托盘 2 行面板的尺寸无定稿」⇒ 本提案按冻结槽位反推面板尺寸，供拍板。
+- 背景：v1.24（WXG-T-141）冻结 `TRAY_BASE_SLOTS`/`TRAY_EXPAND_SLOTS` 12→24（`TRAY_EXPAND_SLOTS` **已随 v1.84 删除**，现役 = `TRAY_TIER_SLOTS` 三档制 `[12,24,48]` + `TRAY_AD_EXPAND_COUNT` = 2；见 `systems-index §3.4`），但注明「工程侧尚未适配：规格缺新尺寸 ⇒ WXG-T-143 先回传请示」。用户 2026-09-17 答复「托盘 2 行面板的尺寸无定稿」⇒ 本提案按冻结槽位反推面板尺寸，供拍板。
 - 推导基准：`TRAY_SLOT=48`、`TRAY_GAP=6`（pitch 54）、`TRAY_COLS=12`、`TRAY_PANEL_PAD=12` 均不动；面板**贴 TRAY_BAND 上沿**锚定（§3.4 v1.20 既有结论）。
 
 ## 1. 基础态（24 槽 = 2 行 × 12）
@@ -31,7 +31,7 @@
 
 ## 3. 落码面（确认后执行）
 
-1. `tuning.ts`：`TRAY_BASE_SLOTS=24`、`TRAY_EXPAND_SLOTS=24`、`TRAY_BAND.yMin=216`（+注释）；src/cocos 镜像同步。
+1. `tuning.ts`：`TRAY_BASE_SLOTS=24`、`TRAY_EXPAND_SLOTS=24`（**已随 v1.84 删除**，现役 = `TRAY_TIER_SLOTS` 三档制 `[12,24,48]` + `TRAY_AD_EXPAND_COUNT` = 2；见 `systems-index §3.4`）、`TRAY_BAND.yMin=216`（+注释）；src/cocos 镜像同步。
 2. `view-model.drawTray` / `beads-game._hitTraySlot`：`rows` 入参已参数化（`trayLayout(rows)` 单一真源），仅需按 `TRAY_BASE_SLOTS/TRAY_COLS` 传 2、扩展后传 4；`btn_expand` 增「已扩展 ⇒ 不绘制不命中」。
 3. 测试：`tray-spawner.test` / `view-model.test` 槽数与面板高断言更新；新增 4 行态面板-道具卡净空 ≥16px 判据。
 4. `systems-index` §3.4 + changelog v1.25 追加带位修订行；`assets-spec §1.3` 托盘面板尺寸同步（若其有字面尺寸）。
