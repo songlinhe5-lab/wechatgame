@@ -25,7 +25,7 @@ import {
 } from '../../config/tuning';
 import { DEFAULT_SKIN, DEFAULT_SKIN_ID, registeredSkins, skinById } from '../../config/skins/registry';
 import type { PausePanelAction } from '../../systems/pause-panel';
-import { DEFAULT_BEAD_STYLE_ID, registeredStyles } from '../../view/bead-styles/registry';
+import { DEFAULT_BEAD_STYLE_ID, registeredStyleIds } from '../../config/bead-styles/registry';
 import type { BeadsPalette } from '../../view/palette';
 import type { BeadsSave, BeadsSettings } from '../save-schema';
 
@@ -237,15 +237,15 @@ export class GameSettings {
    * ③ 零分配热路径友好——面板点击非每帧，但仍走索引扫而不用 `find`/`map`（§2 纪律统一）。
    */
   private _cycleBeadStyle(): void {
-    const styles = registeredStyles();
+    const ids = registeredStyleIds();
     let next = 0;
-    for (let i = 0; i < styles.length; i++) {
-      if (styles[i].id === this._v.beadStyle) {
-        next = (i + 1) % styles.length;
+    for (let i = 0; i < ids.length; i++) {
+      if (ids[i] === this._v.beadStyle) {
+        next = (i + 1) % ids.length;
         break;
       }
     }
-    this._v.beadStyle = styles[next].id;
+    this._v.beadStyle = ids[next];
     this.persist();
   }
 
