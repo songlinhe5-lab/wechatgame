@@ -5072,6 +5072,7 @@ WXG-T-411 本轮会话内主表/详情/git log 均零占用，安全领号。
 - **让位后复核（同一命令当场重跑）**：取 develop 版 `.gitignore`（对方 411 那版）后，隔离树 `git status --porcelain` 仍 = 0 条未跟踪依赖 ⇒ 两种写法等价，本单的改动面无重复。
 - **develop 残留标记取证**：`git show origin/develop:production/TASKS.md | grep -c "^<<<<<<<"` = **1**（L5 标记 + L7 `=======` + L9 `>>>>>>> f871ad88`，夹着 L6/L8 两条长度同为 49,203 的重复头注；`SequenceMatcher` 实测两者只差「411/412」与「410/411」两个数字 ⇒ 删一条不丢内容）；`production/TASKS-DETAIL.md` 与其余文件 = 0。本单 rebase 后两面 grep 均 = 0。
 - **门自证**：本详情节初稿标题写成带副标题的 `## WXG-T-412 · …` ⇒ `check:tasks` **C 项当场硬拦**（「标题必须裸写」），改成裸标题 + 另起加粗副题才绿——这就是 409 §8 遗留 3（`parseDetail` 不认副标题）第一次由作者本人踩中，判据是活的。
+- **隔离树磁盘面 ≠ 主仓（本单推送后自查才发现的新坑）**：`87e1e154` 入库后对账两版 `ctx/index.json` 的 `files` 数 = **494（develop）vs 472（本单）**，差的 22 条全部是 `games/{beads,breakout}/cocos/extensions/cocos-mcp-server/README*.md` —— 它们被 `.gitignore:92` 忽略 ⇒ **不随 checkout 进新树**，而 `ctx:build` 走盘采集，主仓采得到、隔离树采不到 ⇒ 入库的索引替主仓「新文件」那一面（下一会话在主仓跑 `ctx:check` 会报 22 个新文件）。修法 = 把该目录 `*.md` 复制进树（ignored ⇒ 不脏 `git status`）后 `pnpm run ctx:build`，脚本逐字段对账 vendor 那 22 条与 develop 版 = **不一致 0**。
 
 ### 5. 验证
 本批所有读数均在隔离树 `/…/.worktrees/wxg-t-412-worktree` 内当场跑，基点 `origin/develop` = `467aa574`。
@@ -5084,7 +5085,8 @@ WXG-T-411 本轮会话内主表/详情/git log 均零占用，安全领号。
 | `check:links` | ✅ OK —— agents=7 skills=47；frontmatter / INDEX / 路由表 / 四 IDE 链接完整 |
 | `pnpm run verify` | **PASS 19｜WARN 0｜SKIP 2｜FAIL 1**（共 22 项逐项跑不短路）—— 唯一 FAIL = `selftest:fast`，其内唯一红腿 = `ctx:check` exit 1（`❌ 索引已过期：6 个变更，0 个新文件`）= 默认 **HEAD 口径**，本文档面尚未入库 ⇒ K-136 同型，非隔离树缺陷（暂存口径见下一行）；SKIP 两项 = `check:size` / `check:cocos-mask`（新树无构建产物） |
 | `selftests.mjs --tier=fast` | **PASS 10｜FAIL 1｜共 11 件**，档位未覆盖 0 件 —— FAIL 即上行那一条 `ctx:check` |
-| `build-context-index.mjs --staged-blobs` + `check-context-budget.mjs --staged` | ✅ `ctx:check OK`（结构门 A/B/C/D/D2 与 E3 基线回归全过）——四面读数：**TASKS.md 57,169** / 档 80,000・**TASKS-DETAIL.md 161,718** / 档 205,000・**BACKLOG.md 11,846** / 档 16,000・`memory/MEMORY.md` 4,613（本批新上「会话隔离工作树」条后） |
+| `build-context-index.mjs --staged-blobs` + `check-context-budget.mjs --staged` | ✅ `ctx:check OK`（结构门 A/B/C/D/D2 与 E3 基线回归全过）——四面读数：**TASKS.md 57,169** / 档 80,000・**TASKS-DETAIL.md 162,209** / 档 205,000・**BACKLOG.md 11,846** / 档 16,000・`memory/MEMORY.md` 4,761（本批新上「会话隔离工作树」条后）｜索引面 `files` = **494**（补齐 vendor 后与 develop 同数） |
+| 入库后复跑（K-136 的验证腿） | `87e1e154` 提交后同树：`git status` 干净、`ctx:check`（默认 HEAD 口径）转绿 = `✅ 索引新鲜（472 个 .md）`、`pnpm run verify` = **PASS 20｜WARN 0｜SKIP 2｜FAIL 0** ⇒ 那唯一 FAIL 确系未入库文档面所致，非隔离树缺陷；⚠ 这里的 **472** 就是下一节 vendor 坑的入口 |
 | 钩子跨 worktree 与 rebase 面 | pre-commit 全套 + commitlint + K 项在隔离树内实跑通过（`31bd49c7`）；同树 A/B 测出 **`git rebase --continue` 不跑 pre-commit**（结果提交 `eb469dce` 8 件不含 ctx）⇒ 登 K-180 |
 | 上一轮存档读数（非本轮，口径已标清） | 同一棵树干净态（无未入库文档改动）`verify` = PASS 20｜WARN 0｜SKIP 2｜FAIL 0，空提交探针 @`8fd3f803` |
 
@@ -5099,3 +5101,4 @@ WXG-T-411 本轮会话内主表/详情/git log 均零占用，安全领号。
 2. 主仓的 merge 冲突态已由对方 `467aa574` 解开（现主仓 `develop` 干净且 == `origin/develop`），但**解得不净**：头注带着标记入库⇒ 属门禁盲区（见 K-179）。本单只清了自己 rebase 撞上的那一处，**不回改对方的历史提交**。
 3. 隔离树 `verify` SKIP 两项（无构建产物）；满档需 `build:cocos`（约 17s + 产物占盘）。
 4. 本单推送后主仓 `develop` 落后 1（需对方下次 `pull --rebase` 追平）；那笔 rebase 会重演一次头注超长行的冲突，K-045 追记已记该面。
+5. **隔离树的采集面限于它的磁盘面**：ignored 但主仓存在且被索引的 .md（本例 vendor `cocos-mcp-server` 22 条）会在隔离树里静默缺失，而 `ctx:check` 只看树内自指 ⇒ 结构性拦不到。要做门 = 比 `ctx/index.json` 的 `files` 数与「主仓 ignored-but-present 的 .md」清单（跨工作树，需 `git --git-common-dir` 定主仓路径）；未做 = 代价与收益不匹配，且会拖慢每次 pre-commit，待拍板。

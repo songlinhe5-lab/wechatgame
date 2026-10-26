@@ -21,6 +21,7 @@
   - **收**：`git push origin HEAD:develop`（基点取 `origin/develop` 才是 FF）→ `git worktree remove --force <wt>` → `git branch -D wt/<slug>`。
   - ⚠ `.gitignore` 里 `node_modules` **不能带尾斜杠**：目录规则不匹配软链 ⇒ 工作树露出 `?? node_modules`（实测修前 4 条未跟踪、修后 0；正本已为无斜杠写法，入库那一笔是 WXG-T-411，判例 K-178）。`.worktrees/` 自 WXG-T-160（`76392174`）已忽略 ⇒ ⛔ 不要再加重复规则，判据用 `git check-ignore -v <路径>` 看命中哪一条。
   - ⚠ `git rebase --continue` / `cherry-pick` **不跑 pre-commit**（实测：同树内 `git commit` 打全套钩子，rebase 续作零钩子回显且结果不含 ctx）⇒ rebase 后必须手工 `pnpm run ctx:build` 再 `git commit --amend`（判例 K-180）。
+  - ⚠ **隔离树的磁盘面 ≠ 主仓**：`games/*/cocos/extensions/`（`.gitignore:92`，编辑器装的 vendor `cocos-mcp-server/README*.md`）不在 checkout 里 ⇒ 树内 `ctx:build` 只采到 **472** 个文件（主仓口径 **494**，差 22）⇒ 提交前先核 `ctx/index.json` 的 `files` 数，或先把该目录的 `*.md` 复制进树再 build（否则入库的索引替主仓“新文件”面，下次必报红）。`ctx:check` 只看树内自指，**拦不到这一类偏差**。
   - ⚠ 新树无构建产物 ⇒ `verify` 里 `check:size` / `check:cocos-mask` 必 SKIP（干净态实测 PASS 20｜SKIP 2｜FAIL 0）；要满档先在树内 `pnpm run build:cocos`。⚠ 另有一类假 FAIL：树里有**未入库的文档改动**时，`selftest:fast` 的 `ctx:check`（默认 HEAD 口径）会报「索引已过期」⇒ 这是 K-136 的暂存态形态，⛔ 不是隔离树的缺陷，入库即消。钩子跟仓库级 `core.hooksPath` ⇒ pre-commit / commitlint / K 项在树内照常跑。
 - git 仓库 2026-09-11 才初始化；首个提交 `8263e58` 只含 skill 路径，项目代码基线尚未提交。
 - **设计图 / 资源图格式统一 PNG**（2026-10-17 用户令）：小程序不支持 WebP。之后所有设计图到资源图的生成与落盘一律 `.png`（脚本输出、final 台账、交付清单）；已存在的 `.webp` 原件不回溯转换，除非用户另令。
