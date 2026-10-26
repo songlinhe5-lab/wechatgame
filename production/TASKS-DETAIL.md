@@ -4806,3 +4806,51 @@ WXG-T-400 收尾给了三条下一步，用户 2026-10-26 令「下一步 1/2/3�
 4. 对方 WXG-T-401 行的自迁（见 §4），以及对方 402/403 与其代码提交的入库顺序，均待对方会话收口。
 5. 共享工作树的隔离问题仍未解（404 §7 遗留 1 同条）：本批被清回基底三次、另有暂存被对方提交带走一次（§6），唯一根治 = 各会话独立工作树（`using-git-worktrees`）。
 6. **详情面有历史节标题不被门识别**：`## WXG-T-224 · …`、`## WXG-T-225 · …` 写成「编号 + `·` 副标题」，`parseDetail` 只认裸 `## WXG-T-0NN`（该坑 404 文档头 C 项已记，WXG-T-381）⇒ 门口径节数比物理标题行数少 2，**那两节实际不参与配对与在册判定**。本批不顺手修（改它 = 动他人历史节的标题与在册语义）；出路是把这两行标题去副标题，或让 `parseDetail` 容忍 `·` 后缀（后者会放宽门的识别面，须配判别腿）。
+
+## WXG-T-408
+
+### 1. 触发
+
+架构评审提案 TODO-4（P1 批次）：weapp 平台接 `getUpdateManager`。小游戏上线标配能力——启动检查新版本 → 下载 → 用户确认 → `applyUpdate` 重启生效。
+
+### 2. 改动面
+
+| 文件 | 变更 |
+|---|---|
+| `packages/framework/src/platform/weapp.ts` | WxApi 补 `getUpdateManager?()` + `WxUpdateManager` 接口；WeappPlatform 构造函数注册三回调（onCheckForUpdate/onUpdateReady/onUpdateFailed）；新增 `onUpdateReady(cb)` + `applyUpdate()` 两方法 |
+| `packages/framework/src/platform/platform.ts` | Platform 接口加两个可选方法 `onUpdateReady?` / `applyUpdate?` |
+| `packages/framework/src/core/game/game.ts` | GameServices 加两个可选字段透传 |
+| `packages/framework/src/compose/app.ts` | 组装 bind：`platform.onUpdateReady?.bind()` + `platform.applyUpdate?.bind()` |
+| `games/beads/src/game/beads-shell.ts` | init 订阅 onUpdateReady → emit `update:ready` 事件（UI 层后续接 confirm modal） |
+| Cocos 镜像（beads + breakout） | framework:sync 自动同步 |
+
+### 3. 架构说明
+
+- **与 share/haptic 形态差异**：haptic/share 是游戏主动发起（GameServices 持有可调用函数），UpdateManager 是平台生命周期事件（平台启动期自动注册 ready 回调 → 通知游戏层）。
+- **降级链**：无 wx → 构造函数不注册 UpdateManager → services.onUpdateReady 为 undefined → beads shell `if (onUpdateReady)` 跳过 → 零崩溃。
+- **回调存储**：构造函数先注册 wx.onUpdateReady（指向内部 fire 方法），外部 onUpdateReady(cb) 只是把 cb 存入 `_updateReadyCbs` 数组；ready 时 wx 回调 fire → 遍历调用所有已订阅者。
+- **applyUpdate 可重入**：ready 后用户可反复调 applyUpdate（每次调 wx.applyUpdate 都会重启）。
+
+### 4. 微信 API 形状（基础库 2.8.0+）
+
+```typescript
+const um = wx.getUpdateManager();
+um.onCheckForUpdate(res => { /* res.hasUpdate */ });
+um.onUpdateReady(() => { /* 下载完毕，弹确认 */ });
+um.onUpdateFailed(res => { /* 下载失败 */ });
+um.applyUpdate(); // 重启生效
+```
+
+### 5. 验证
+
+- typecheck ✅（framework/beads/breakout）
+- framework tests **518/518** ✅
+- beads tests **1277 passed + 3 skipped** ✅
+- framework:sync ✅（beads 写入 5 + breakout 写入 4）
+- 依赖方向零新增逆向（platform→core 单向）
+
+### 6. 遗留
+
+- beads 暂无通用 confirm modal ⇒ `update:ready` 事件已 emit 但 UI 层未接提示条；待 UI 团队或后续可视化批次接入（modal-frame 复用）
+- 真机未验（缺 AppID + 密钥）；开发机无 getUpdateManager 时静默 noop
+
