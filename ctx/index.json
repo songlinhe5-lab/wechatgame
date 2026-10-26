@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3834,
       "lines": 130,
-      "sha256": "f23c479beae98e5f5aecdd52cec4a0209e6030ed9b3adacdada95f3c7d903e6c",
+      "sha256": "c82442dc3ffe59f7b6aee6aa7ba611d3d6e87f7d7073d0c6aec06b71fd2a0bcb",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 410,
-          "summary": "1 production/TASKS-DETAIL.md 179086 5644 normal",
+          "summary": "1 production/TASKS-DETAIL.md 180006 5665 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5185,
       "lines": 164,
-      "sha256": "9e92f660a1591efdafd9f411ebe02504bedbacb294a971d81df73c0d7d88a8f7",
+      "sha256": "110cbe655616e2b3b22b6dea02fbad6b281d977eaa695de8197f32b8e59574ab",
       "tier": "normal",
       "sections": [
         {
@@ -745,7 +745,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 119 行 / 59945 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 119 行 / 60285 tok / 实测读 4 次",
           "level": 2,
           "startLine": 27,
           "endLine": 30,
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 5644 行 / 179086 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 5665 行 / 180006 tok",
           "level": 2,
           "startLine": 105,
           "endLine": 109,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+5645 · §WXG-T-410=4935+62 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+5666 · §WXG-T-410=4935+62 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -86496,17 +86496,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 179086,
-      "lines": 5644,
-      "sha256": "bc894cf8326045bed570e4dac1bf203bf40db18f050f32a373a46b532b34e96c",
+      "tokens": 180006,
+      "lines": 5665,
+      "sha256": "aeae4f4a153391deb1444944c564317024435493207e61c7a9cb12d3a05789fc",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 5645,
-          "tokens": 179069,
+          "endLine": 5666,
+          "tokens": 179989,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -93277,8 +93277,8 @@
           "anchor": "§WXG-T-419",
           "level": 2,
           "startLine": 5493,
-          "endLine": 5560,
-          "tokens": 2380,
+          "endLine": 5581,
+          "tokens": 3300,
           "summary": "",
           "keywords": [
             "WXG"
@@ -93354,10 +93354,23 @@
           ]
         },
         {
-          "anchor": "§4b. 待拍板（v2.3 新增 2 条）",
+          "anchor": "§4c. v2.4–v2.6 三次扩范围（同日第七 / 八次裁定）",
           "level": 3,
           "startLine": 5538,
-          "endLine": 5543,
+          "endLine": 5558,
+          "tokens": 899,
+          "summary": "v2.4 · 新增第三件「扫豆刷」（清理底槽）",
+          "keywords": [
+            "三次扩范围",
+            "同日第七",
+            "八次裁定"
+          ]
+        },
+        {
+          "anchor": "§4b. 待拍板（v2.3 新增 2 条）",
+          "level": 3,
+          "startLine": 5559,
+          "endLine": 5564,
           "tokens": 184,
           "summary": "T-22 R6 缓解杠杆（推荐：引导关告知「这是唯一一次免费」+ 耗尽态卡面「已用完 · 看视频可再用」同开；前期失败救",
           "keywords": [
@@ -93368,8 +93381,8 @@
         {
           "anchor": "§5 待拍板（10 条，均有推荐值）",
           "level": 3,
-          "startLine": 5544,
-          "endLine": 5547,
+          "startLine": 5565,
+          "endLine": 5568,
           "tokens": 141,
           "summary": "T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额度）· T-19 双通道面板默认腿（推荐：看",
           "keywords": [
@@ -93380,8 +93393,8 @@
         {
           "anchor": "§6 未做 / 债务（诚实登记）",
           "level": 3,
-          "startLine": 5548,
-          "endLine": 5554,
+          "startLine": 5569,
+          "endLine": 5575,
           "tokens": 284,
           "summary": "1. 文档本体超 ctx spec 类 8000 tok 预算。豁免条目已被 WXG-T-418 代登记在 ctx/bu",
           "keywords": [
@@ -93396,8 +93409,8 @@
         {
           "anchor": "§7 验证 (3)",
           "level": 3,
-          "startLine": 5555,
-          "endLine": 5560,
+          "startLine": 5576,
+          "endLine": 5581,
           "tokens": 83,
           "summary": "pnpm run ctx:check → OK（结构门 A/B/C/D/D2 与 E3 基线通过；B 项因豁免放行，见 ",
           "keywords": [
@@ -93411,8 +93424,8 @@
         {
           "anchor": "§WXG-T-420",
           "level": 2,
-          "startLine": 5561,
-          "endLine": 5599,
+          "startLine": 5582,
+          "endLine": 5620,
           "tokens": 1340,
           "summary": "beads 架构优化：依赖方向、配置归域、对局效果与快照投影（在办）",
           "keywords": [
@@ -93423,8 +93436,8 @@
         {
           "anchor": "§1 拍板与正本",
           "level": 3,
-          "startLine": 5565,
-          "endLine": 5571,
+          "startLine": 5586,
+          "endLine": 5592,
           "tokens": 198,
           "summary": "用户 2026-10-26 原话：「P0 全做 + T5/T6」= 评审报告的 T1–T6；T7–T10 不在本批。",
           "keywords": [
@@ -93435,8 +93448,8 @@
         {
           "anchor": "§2 现状读数（本轮实测）",
           "level": 3,
-          "startLine": 5572,
-          "endLine": 5577,
+          "startLine": 5593,
+          "endLine": 5598,
           "tokens": 188,
           "summary": "beads src = 85 个 TypeScript 文件 / 28,274 行；tests = 111 个 / 31",
           "keywords": [
@@ -93451,8 +93464,8 @@
         {
           "anchor": "§3 分项验收与读数回填",
           "level": 3,
-          "startLine": 5578,
-          "endLine": 5586,
+          "startLine": 5599,
+          "endLine": 5607,
           "tokens": 392,
           "summary": "1. T1 依赖方向门：游戏内部允许 view → game 仅类型、game → systems/entities/c",
           "keywords": [
@@ -93467,8 +93480,8 @@
         {
           "anchor": "§4 明确不做与遗留",
           "level": 3,
-          "startLine": 5587,
-          "endLine": 5592,
+          "startLine": 5608,
+          "endLine": 5613,
           "tokens": 132,
           "summary": "不引入新框架、DI 容器或响应式库；不重写渲染；不碰 §3 冻结数值；不为行数指标拆文件。",
           "keywords": [
@@ -93479,8 +93492,8 @@
         {
           "anchor": "§5 实施流水",
           "level": 3,
-          "startLine": 5593,
-          "endLine": 5599,
+          "startLine": 5614,
+          "endLine": 5620,
           "tokens": 355,
           "summary": "T1 完成（本笔提交）：check-architecture.mjs 新增 L6 内部依赖方向与运行时循环检测；view",
           "keywords": [
@@ -93494,8 +93507,8 @@
         {
           "anchor": "§WXG-T-421",
           "level": 2,
-          "startLine": 5600,
-          "endLine": 5632,
+          "startLine": 5621,
+          "endLine": 5653,
           "tokens": 915,
           "summary": "品质分单榜前置三件：存档 v6 + 结算面板品质分行 + 榜单数值口径",
           "keywords": [
@@ -93505,8 +93518,8 @@
         {
           "anchor": "§1 触发与上位",
           "level": 3,
-          "startLine": 5604,
-          "endLine": 5611,
+          "startLine": 5625,
+          "endLine": 5632,
           "tokens": 186,
           "summary": "用户 2026-10-26 原话：「① 存档新增字段 ② 结算面板加一行 ③ 说明榜单上的数值」。",
           "keywords": [
@@ -93516,8 +93529,8 @@
         {
           "anchor": "§2 交付",
           "level": 3,
-          "startLine": 5612,
-          "endLine": 5617,
+          "startLine": 5633,
+          "endLine": 5638,
           "tokens": 422,
           "summary": "1. 存档 v6（①）：games/beads/src/game/save-schema.ts SAVE_VERSION",
           "keywords": [
@@ -93532,8 +93545,8 @@
         {
           "anchor": "§3 验证与门禁",
           "level": 3,
-          "startLine": 5618,
-          "endLine": 5623,
+          "startLine": 5639,
+          "endLine": 5644,
           "tokens": 121,
           "summary": "单测：save-schema.test.ts（v6 迁移链 + 品质分账 5 条）、clear-panel.test.t",
           "keywords": [
@@ -93548,8 +93561,8 @@
         {
           "anchor": "§4 红线自证",
           "level": 3,
-          "startLine": 5624,
-          "endLine": 5632,
+          "startLine": 5645,
+          "endLine": 5653,
           "tokens": 132,
           "summary": "零 §3 冻结常量改动：SETTLE_SCORE 公式 / 四权重 / 区间 0–4200 一字未改；SETTLE_SC",
           "keywords": [
@@ -93562,8 +93575,8 @@
         {
           "anchor": "§WXG-T-422",
           "level": 2,
-          "startLine": 5633,
-          "endLine": 5645,
+          "startLine": 5654,
+          "endLine": 5666,
           "tokens": 422,
           "summary": "beads·冲刺榜（二期）：冲刺模式恢复后再上第二榜 · 负责：主理人(Qoder)·beads + 工程 · 状态：\ud83d",
           "keywords": [
@@ -93576,9 +93589,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 59945,
+      "tokens": 60285,
       "lines": 119,
-      "sha256": "17bb230729065ab7ccb6abf3e5ec0b46d3d735853eb845930ea80723afa7d03d",
+      "sha256": "b1b030789e55b05e5fd7f7a25e77c06542470b8b9f1aee5b8d91d6b6ba111ad3",
       "tier": "hot",
       "sections": [
         {
@@ -93586,7 +93599,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 120,
-          "tokens": 59937,
+          "tokens": 60276,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
