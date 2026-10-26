@@ -355,6 +355,8 @@ describe('TC-STY-11 · 行4 钮先行哨兵（S9 §8-19 + K.1a 阳性对照腿�
             'games/beads/src/view/bead-styles/registry.ts',
             'games/beads/src/view/bead-styles/contract.ts',
             'games/beads/src/view/meta-view.ts',
+            // WXG-T-420 T7：`label()`（菜单钮文案单源）随拆片搬到 `meta-widgets.ts` ⇒ 射程同批迁（K-183）。
+            'games/beads/src/view/meta-widgets.ts',
             'games/beads/src/config/tuning/bead-style.ts',
         ];
         for (const file of sources) {

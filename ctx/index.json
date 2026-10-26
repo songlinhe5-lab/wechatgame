@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3834,
       "lines": 130,
-      "sha256": "905a5af59cd78dc8ed03e27172401df6f98ed502d8196afe2a225049dc37e2fd",
+      "sha256": "ba6ca01f607840bdf843740e83f649e10d716db20cc72f0cd518e996db4f54a6",
       "tier": "normal",
       "sections": [
         {
@@ -377,7 +377,7 @@
           "startLine": 1,
           "endLine": 131,
           "tokens": 3821,
-          "summary": "生成：2026-10-26 · 由 tools/scripts/build-context-index.mjs 自动生成",
+          "summary": "生成：2026-10-27 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
             "BUDGET",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5236,
       "lines": 165,
-      "sha256": "fe6b0caba35ff9900e14a93da61ee399f0308d13843400f09c6067174eb2593c",
+      "sha256": "bf20f87b08421f16917978fd1378fe39eb6f79d6c2db53f023be4eb33c9b48e8",
       "tier": "normal",
       "sections": [
         {
@@ -697,12 +697,12 @@
           ]
         },
         {
-          "anchor": "§`docs/architecture/control-manifest.md` — 378 行 / 9624 tok / 实测读 42 次",
+          "anchor": "§`docs/architecture/control-manifest.md` — 382 行 / 9737 tok / 实测读 42 次",
           "level": 2,
           "startLine": 16,
           "endLine": 19,
           "tokens": 255,
-          "summary": "§控制清单 — 可立即执行的一页规则=1+379 · §0 六条铁律（违反 = 直接打回）=8+13 · §1 目录与落",
+          "summary": "§控制清单 — 可立即执行的一页规则=1+383 · §0 六条铁律（违反 = 直接打回）=8+13 · §1 目录与落",
           "keywords": [
             "§0",
             "§1",
@@ -13602,17 +13602,17 @@
     },
     {
       "path": "docs/architecture/control-manifest.md",
-      "tokens": 9624,
-      "lines": 378,
-      "sha256": "baa0d641848fa6eb4b51dce56e9144e723f6836c6367eb20a22cd6449c62bedc",
+      "tokens": 9737,
+      "lines": 382,
+      "sha256": "0c8089e77490adc37b19520f7a766044b7670d3d8252b5d4ef727bcc9d3c45c3",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§控制清单 — 可立即执行的一页规则",
           "level": 1,
           "startLine": 1,
-          "endLine": 379,
-          "tokens": 9608,
+          "endLine": 383,
+          "tokens": 9721,
           "summary": "给程序员的单页速查。评审时逐条对照，违反即打回。",
           "keywords": [
             "控制清单",
@@ -13911,8 +13911,8 @@
           "anchor": "§20 UI 架构守则（ADR-0032 §8；WXG-T-318 落表）",
           "level": 2,
           "startLine": 368,
-          "endLine": 379,
-          "tokens": 419,
+          "endLine": 383,
+          "tokens": 532,
           "summary": "适用面：games/beads/src/ui/、games/beads/src/view/。设计全文见 [ui-arch",
           "keywords": [
             "§8",
@@ -13927,17 +13927,17 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 14692,
-      "lines": 209,
-      "sha256": "2eb1ad416af8ea839471ba4e8d35c349095c5a968719f8884f4a8bd10a7b3563",
+      "tokens": 14793,
+      "lines": 211,
+      "sha256": "9cde4313b62ff177d9dd07cb7bf9ded0b66a08c5785617e3e26b30217e6cdb93",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads UI 架构（View / ViewModel / Presenter + 公共基础）",
           "level": 1,
           "startLine": 1,
-          "endLine": 210,
-          "tokens": 14673,
+          "endLine": 212,
+          "tokens": 14774,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -14009,8 +14009,8 @@
           "anchor": "§5 界面单元规范（View / ViewModel / Presenter）",
           "level": 2,
           "startLine": 52,
-          "endLine": 76,
-          "tokens": 831,
+          "endLine": 78,
+          "tokens": 932,
           "summary": "三件契约：",
           "keywords": [
             "View",
@@ -14022,8 +14022,8 @@
         {
           "anchor": "§6 运行时流程",
           "level": 2,
-          "startLine": 77,
-          "endLine": 83,
+          "startLine": 79,
+          "endLine": 85,
           "tokens": 360,
           "summary": "1. 渲染：UI 根取 Navigator 的可见路由集，自下而上逐个 View.draw；最后画 DebugLayer",
           "keywords": [
@@ -14037,8 +14037,8 @@
         {
           "anchor": "§7 目标目录",
           "level": 2,
-          "startLine": 84,
-          "endLine": 94,
+          "startLine": 86,
+          "endLine": 96,
           "tokens": 129,
           "summary": "",
           "keywords": [
@@ -14048,8 +14048,8 @@
         {
           "anchor": "§8 铁律映射与新增守则",
           "level": 2,
-          "startLine": 95,
-          "endLine": 107,
+          "startLine": 97,
+          "endLine": 109,
           "tokens": 277,
           "summary": "L2 框架 core 无 cc / DOM core/ui 纯机制，check:arch 机械守",
           "keywords": [
@@ -14064,8 +14064,8 @@
         {
           "anchor": "§9 迁移策略（绞杀式）",
           "level": 2,
-          "startLine": 108,
-          "endLine": 115,
+          "startLine": 110,
+          "endLine": 117,
           "tokens": 199,
           "summary": "1. 先建金样本：对每个界面在关键状态下抓取现行 RenderModel 指令序列，作为回归门。",
           "keywords": [
@@ -14077,8 +14077,8 @@
         {
           "anchor": "§10 验证口径",
           "level": 2,
-          "startLine": 116,
-          "endLine": 121,
+          "startLine": 118,
+          "endLine": 123,
           "tokens": 111,
           "summary": "单测：core/ui 四件各自单测；每个 Presenter 的命中与意图单测。",
           "keywords": [
@@ -14090,8 +14090,8 @@
         {
           "anchor": "§11 风险与前置",
           "level": 2,
-          "startLine": 122,
-          "endLine": 131,
+          "startLine": 124,
+          "endLine": 133,
           "tokens": 276,
           "summary": "~~他会话在途改动~~（meta-view.ts、view-model.ts、beads-shell.ts、ux-spe",
           "keywords": [
@@ -14106,8 +14106,8 @@
         {
           "anchor": "§12 TODO 拆分",
           "level": 2,
-          "startLine": 132,
-          "endLine": 206,
+          "startLine": 134,
+          "endLine": 208,
           "tokens": 10428,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
@@ -14119,8 +14119,8 @@
         {
           "anchor": "§13 待你拍板",
           "level": 2,
-          "startLine": 207,
-          "endLine": 210,
+          "startLine": 209,
+          "endLine": 212,
           "tokens": 323,
           "summary": "D1–D5 均已裁定（见 [ADR-0032 §5](adr/ADR-0032-beads-ui-architectur",
           "keywords": [

@@ -146,7 +146,8 @@ const GAME_IMPORT_CC = CC_IMPORT;
 
 /** Registered legacy deviations — see control-manifest §20 "现状" notes (UI-51). */
 const UI_ARCH_EXCEPTIONS = new Map([
-  ['view/meta-view.ts', '菜单侧 settings/signin chrome 仍直绘、overlay 分支为存量'],
+  // WXG-T-420 T7：`meta-view` 拆片并把 overlay 分支改成 `META_PAGES` / `LAYOUT_BUILDERS` 表查
+  //   ⇒ 菜单侧⛔ 不再出现导航态串判，本条目摘除（新片默认受 §20-3 扫，不需登记）。
   ['view/view-model.ts', '旧门面 buildBeadsView 按 phase 选结算层'],
 ]);
 
@@ -330,7 +331,10 @@ function runSelftest() {
     { name: '§20-2 UiTheme 放行', file: 'view/ui-theme.ts', src: "const s = 'rgba(0,0,0,0.5)';", want: null },
     { name: '§20-3 overlay 判断被拦', file: 'view/y.ts', src: "if (overlay === 'levels') {}", want: '§20-3' },
     { name: '§20-3 !== 判断被拦', file: 'view/y.ts', src: "if (phase !== 'play') {}", want: '§20-3' },
-    { name: '§20-3 登记偏离放行', file: 'view/meta-view.ts', src: "if (overlay === 'levels') {}", want: null },
+    { name: '§20-3 登记偏离放行', file: 'view/view-model.ts', src: "if (overlay === 'levels') {}", want: null },
+    // WXG-T-420 T7：`view/meta-view.ts` 已从 `UI_ARCH_EXCEPTIONS` 摘除 ⇒ 同一名不再享有放行
+    //（正向腿与上一例配对 ⇒ 豁免条目被人摸回来时本例当场红，K-144）。
+    { name: '§20-3 菜单侧豁免已摘 ⇒ 重新入扫', file: 'view/meta-view.ts', src: "if (overlay === 'levels') {}", want: '§20-3' },
     {
       name: '§20-4 命中另算被拦',
       file: 'systems/x-panel.ts',

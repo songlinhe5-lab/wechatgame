@@ -1204,7 +1204,12 @@ describe('设置态遮罩 α 分列 · ux §3.3「遮罩」条 + 工作项④：
         const mv = SRC('view/meta-view.ts');
         expect(mv).toContain('scrimFill(');
         expect(mv).toContain('UI_SCRIM.overlay');
-        expect(mv).toContain("data.overlay === 'settings' ? UI_SCRIM.settingsAlpha : UI_SCRIM.alpha");
+        // WXG-T-420 T7 起页面选择 = `META_PAGES` 表 ⇒ α 分列改钉「表行参」同形不变：
+        // 唯一设置态消费点 + 其余 overlay 仍旧 0.5（正向腿与计数腿配对，⛔ 只剩负向 = K-144 假绿）。
+        expect(mv.match(/UI_SCRIM\.settingsAlpha/g)?.length).toBe(1);
+        expect(mv).toContain('panelPage(COPY_TOKENS.btn_settings_label, UI_SCRIM.settingsAlpha');
+        expect(mv.match(/panelPage\([^,]+, UI_SCRIM\.alpha/g)?.length).toBe(2);
+        expect(mv).not.toContain('PANEL_SCRIM_RGB'); // 菜单侧遮罩 RGB 恒历史 `0,0,0`，不与画布侧同源
         const theme = SRC('view/ui-theme.ts');
         expect(theme).toContain('canvas: PANEL_SCRIM_RGB');
         expect(theme).toContain('overlay: { r: 0, g: 0, b: 0 }');
