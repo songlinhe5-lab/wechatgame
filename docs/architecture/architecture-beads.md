@@ -122,6 +122,8 @@ games/beads/src/
 
 订阅装配集中在 `beads-game.ts` 的 `_subscribe()`（breakout 同款模式）：Game 构造期订阅、`dispose()` 统一退订；S4 的"仍需颜色集合"投影、S5 的冻结语义都实现为**事件订阅侧**，系统间零直接调用。
 
+> ⚠ **本表 S4 `tray:spawned` / `tray:full` 两行自 v2.0 起为死路径**（定时供料关停，WXG-T-136）——主循环不再 tick 供料，两事件无玩法触发源（`tray:expanded` 仍活，扩容走激励视频）。保留理由 / 删除前置 / 复活条件见 **§10**。
+
 ---
 
 ## 6. BOOT 装配与关卡加载流
@@ -194,3 +196,40 @@ compose/createApp(platform)                    # compose/app.ts（矩阵级，�
 > 4. **可达性偏差与 BOOT 校验缺陷已分别登记**：见 `art/accessibility.md` 的「落地状态复核」
 >    （草绿墨色按 B2 地板翻转、locked 混色不可实现、斜纹密度）与本台账的 T-052 行
 >    （`validateBeadsLevel` 曾放行 `NaN` 时长/供料间隔，已修）。
+
+---
+
+## 10. 死路径登记：S4 供料 `Spawner`（WXG-T-420 · T4）
+
+> 本节登记「定时供料」这条**已停用但仍保留**的代码路径：保留理由、删除前置条件、复活条件。⛔ **零代码行为变化**（T4 只登记不删不摘）。数值真源仍是 `systems-index §3`（§3.2/§3.4）；复活/删除判据真源仍是 `tray-spawner §6/§8` 与 `core-loop §2.2.2`。
+
+### 10.1 现状取证（本轮实测，路径以符号为準、不钉行号）
+
+- **类本体**：`systems/spawner.ts`（197 行），文件头 `⛔ DEAD PATH` 显式标注 v2.0 定时供料关停（WXG-T-136，用户 2026-09-16 裁定案 A）。
+- **主循环**：`beads-game.ts` 的 `_stepPlaying` **不再调用 `_spawner.tick()`**（供料段恒空，段位保留——`core-loop §2.2.2`）⇒ `tray:spawned` / `tray:full` 无玩法触发源。
+- **实例仍在**：`BeadsGame` 仍 `new Spawner(4.0)`（字段 `_spawner`），经调试 getter `spawner` 暴露；`_loadLevel` / 冲刺换 stage 仍执行 `reset()` / `setDecoys()` / 写 `interval`（死路径缺省）。
+- **崩溃快照仍往返**：`crash-snapshot.ts` 的 `spawnAcc` / `spawnInterval` / `spawnFullReported` 三字段仍序列化并校验，`crash-snapshot-io.ts` 按「先 `interval` 再 `acc`」顺序写回 `spawner`（`interval` setter 会清累加器，顺序不可颠倒）。
+- **tuning 死值**：`NEEDED_WEIGHT` / `DECOY_WEIGHT` / `SPAWN_INTERVAL_DEFAULT` / `SPAWN_INTERVAL_MIN` / `SPAWN_INTERVAL_MAX` 均标 ⛔ v1.22 作废（`config/tuning/board.ts`），仅因快照往返与 `Spawner` 死路径引用而保留。
+- **公开 barrel**：`src/index.ts` **未** `export * from './systems/spawner.js'`——`Spawner` 不直接对外再导出。401 所述「仍在公开 barrel」应读作「实例仍被构造并挂在 Game 调试面上」，非 `index.ts` 再导出。
+- **测试仍锁死路径**：`tests/tray-spawner.test.ts` 保留两例 `Spawner` 单元级死路径测试（A′ `held ≤ demand`、加权抽色），供料复活时原 `§8` 判据即刻重新生效。
+
+### 10.2 保留理由（为什么本批不删）
+
+1. 删除是 401 遗留的**待拍板项 D3（整删 vs 仅摘 barrel）**，本批范围明确「只做保留登记」。
+2. 实例 + 快照字段 + tuning 死值三者互相引用，构成一条**往返自洽**的闭环：单删任一处都牵动存档往返一致性或关卡校验面，须一次性清算。
+3. 保留成本极低：主循环不 tick ⇒ 运行时零分配、零事件；`Spawner` 只在构造期 `new` 一次，不入热路径。
+4. 复活零成本：供料若回归，恢复 `_stepPlaying` 里的 tick 调用即可（直接用 `services.rng`），`§8` 判据原文随之复用——避免「删了又得照旧档重写」。
+
+### 10.3 删除前置条件（要真正移除死路径，须按序做齐）
+
+1. 用户拍板 D3 = 整删（或至少「摘 barrel / 摘实例」），并登记新任务号。
+2. 先从 `systems-index §3.2/§3.4` 移除对 `NEEDED_WEIGHT`/`DECOY_WEIGHT`/`SPAWN_INTERVAL_*` 的「死路径保留」注文，再删 `config/tuning/board.ts` 对应死值。
+3. 删 `crash-snapshot.ts` 三字段与 `crash-snapshot-io.ts` 读写 ⇒ **需评估存档/快照版本**（是否 bump、孤儿字段丢弃），⛔ 不得静默改快照 schema。
+4. 删 `beads-game.ts` 的 `_spawner` 字段、调试 getter、关卡/换 stage 装配中的 reset/setDecoys/interval 写入，以及 `_debugSpawnToTray`（若一并退役需另评——它是 v2.0 后 `tray:spawned` 的唯一夹具入口）。
+5. 删 `systems/spawner.ts` 与 `tests/tray-spawner.test.ts` 死路径两例，跑 `framework:sync` 重生成 Cocos 镜像，全量 verify。
+
+### 10.4 复活条件（供料机制回归）
+
+- **触发真源**：`tray-spawner §6 变更` + `systems-index §3.4` 撤销作废标注 + **主理人确认**（`core-loop §2.2.2` 明确要求）。三者齐备方复活，缺一不可。
+- **复活动作**：`_stepPlaying` 恢复 `_spawner.tick(dt, _tray, services.rng)` 并广播 `tray:spawned`/`tray:full`；`tray-spawner §8-1/2/3/4/9` 原文判据即刻重新生效（`§8-3` 另需 `§3` 恢复 `DECOY_COLORS_MAX ≥ 1`）。
+- **数据面**：关卡 `spawnInterval` 字段已在 levels JSON v2 删除（`misplaced-assembler.test.ts` 断言其不存在）⇒ 复活供料需重新引入逐关 `spawnInterval` 与其区间校验。
