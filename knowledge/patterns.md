@@ -78,3 +78,10 @@
   管理写端点统一事务：快照 levels 树 + tuning → mutate 写盘 → `contentVersion+1` → renumber → `DEMO_LEVEL_COUNT` 联动 → `levels:sync` + `framework:sync`；sync 任一断言红 ⇒ 整批回滚 + 500 转达 stderr 尾——**生成期断言就是写入口的兜底网**，前端只负责早拦可读 422。替换图案（同 uid 换 `levelDraft`）必须**显式重建**关卡对象、不可 spread 旧对象：旧 `misplaced` / `paletteCodes` 对新图案是脏数据；`time` / `pricing` 用 beads-bot 重算。
 
 - **[K-166] 章内「末位 = boss」的落位必须 append，boss 标记收尾统一设**（WXG-T-364 / `f47f278`，2026-10-24）：`levels[]` 的展示顺序真源 = 输入批次顺序 ⇒ 逐条 `append` 落位；⛔ 用「插到 boss 之前」在章内**尚无 boss** 时会把第 2 条插到第 1 条之前（实测草稿 `[22×21,14×8]` 落成 `[14×8,22×21]`；单条入关路径一直是对的、既有测试全绿 ⇒只在批量攒章时现形）。boss 标记留到全部追加完再 `setEntryKind(levels.at(-1),'boss')`；凡按章末位推断 `kind` 处必须同读 `kind` 字段、⛔ 只凭位置；发布前先算末位能否作 boss（plate 不可作 boss，普通关另有 18–90 步区间 ⇒位次排错会被门禁打回，事务能回滚但白跑一轮真引擎实测）。
+
+- **[代码结构][K-184] 宽扇入无状态协作从上帝类抽出的两型取向：无状态模块函数 vs「模块纯函数 + 构造期一次性 getter 宿主」**（来源 WXG-T-420 / commit b4762884，2026-10-26）
+  适用：从「上帝类」（本例 `BeadsGame` 3139 行）抽出一段**只读大量私有成员、无自身状态、每帧被调**的逻辑（`_syncSnapshot` 141 字段快照投影 → `game/beads-game/snapshot-projection.ts` 237 行），约束为行为不变、每帧零新增分配。
+  取向按**扇入宽度**选，⛔ 一律建 class / 上 DI / 引响应式库：① 窄签名（少量输入）→ 沿用无状态**模块函数**、逐参传入（先例 `hit-test.ts`、`effects-dispatch.ts`）；② 宽扇入（读数十个私有成员，本例 `SnapshotSource` 46 个）→ **模块纯函数 `projectSnapshot(输出对象, src)` + 构造期一次性「getter 宿主」**：`src` 每字段写成 `get x() { return self._x; }`（`self` 为构造闭包捕获的实例引用），**只在构造期装配一次**（本例 50 个 getter），热路径只读 ⇒ 零新增分配；⛔ 为传参退化成 40+ 形参长签名。方法/静态成员同样用 getter 桥（`get hudDy(){return self._hudDy()}`、`get onboardingEnabled(){return BeadsGame.ONBOARDING_ENABLED}`）。
+  收敛可见面：`src` 用**结构化视图接口**——只暴露所需字段的窄类型（本例 `SnapshotSource` 46 读 + `SolverFxView` 结构子集），⛔ 把被抽类的私有类型（`SolverFxQueue`）外溢成新契约；`machine` 结构化为 `{current, elapsed}` 避免泛型回指成环。
+  落地校验：投影**复用原输出对象原地写字段**（不新建、不增删键），键全集 = 真源 `createSnapshot` 契约对象；**TDD 基线法** = 先让新测试断言迁移前的 inline 版（RED → baseline GREEN），重连后同一测试再次 GREEN ⇒ 迁移前后行为一致的行为证据（全程不新增断言，只换被测体位置）。主类 3139→2956（−183），beads 全测 1314 passed。另：本体迁走后按名定位旧体的静态守卫须重指新文件（抽取与集成的先后纪律见 `lessons/cross-ide.md` K-142/K-164 同族条目）。
+  判例引用：K-042（抽走真源后原处守卫失自证 ⇒ 另配独立不变量 + 键全集对拍）、K-106（新文件须被门禁看到 ⇒ 静态守卫随迁即接线证明）、K-152（⛔ 把「本版快照」当不变式硬写 ⇒ 断言对拍权威源而非写死值）、K-014/K-016（决策表 / 固定结算序：无状态纯函数 + 表驱动断言同族）。
