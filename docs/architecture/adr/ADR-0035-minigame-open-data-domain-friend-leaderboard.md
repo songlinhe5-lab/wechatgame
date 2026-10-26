@@ -1,6 +1,6 @@
 # ADR-0035 · 好友排行榜走微信开放数据域（零后端），主域/子域协议与渲染预留
 
-- **状态**：**Proposed（Q1 指标 = B 品质分榜（**榜页唯一总榜 + 分关榜下放结算面板**，用户 2026-10-26 追裁）/ Q2 授权时机 / Q3 协议形状 已拍板 2026-10-26；**冲刺榜 = 二期需求**（用户 2026-10-26 追裁「冲刺模式作为二期需求，先上普通模式」，登 WXG-T-422）；Q4 渲染预留 **已拍板 = R2**（2026-10-26，WXG-T-424）。S-1 前置三件 ① 存档字段 + ② 结算面板品质分行 **已落码**（WXG-T-421，save v6），③ 榜单说明行随 S-4 子域 UI；⛔ 子域 / 排行榜代码本阶段仍未落，见 §3.2.1）**
+- **状态**：**Proposed（Q1 指标 = B 品质分榜（**榜页唯一总榜 + 分关榜下放结算面板**，用户 2026-10-26 追裁）/ Q2 授权时机 / Q3 协议形状 已拍板 2026-10-26；**冲刺榜 = 二期需求**（用户 2026-10-26 追裁「冲刺模式作为二期需求，先上普通模式」，登 WXG-T-422）；Q4 渲染预留 **已拍板 = R2**（2026-10-26，WXG-T-424）。S-1 前置三件 ① 存档字段 + ② 结算面板品质分行 **已落码**（WXG-T-421，save v6），③ 榜单说明行随 S-4 子域 UI。**S-3 面板占位已落码**（WXG-T-432，commit `f3726ef2` + 布局修正 `c8af2dc9`）；⛔ 子域 / 真实好友数据（S-4 / S-5）仍未落，见 §3.2.1）**
 - **日期**：2026-10-26
 - **任务号**：WXG-T-418（架构评审提案 `production/plans/2026-10-26-arch-review-weapp-framework-and-beads.md` **TODO-8** 立项）；§3.2.1 ① ② 落码 = **WXG-T-421**（save v6 + 结算面板品质分行）；榜结构改判（榜页唯一总榜 + 分关下放结算面板）= **WXG-T-423**；Q4 渲染拍板（R2）= **WXG-T-424**
 - **负责域**：工程负责人（protocol 形状 / Platform 接口 / 渲染预留 / 分包与包体）；**「榜什么指标」= 文策渊**（本文 ⛔ 不代定玩家可见规则，见 Q1）
@@ -223,7 +223,7 @@ SETTLE_SCORE = stars×1000 + round(ratio×1000) − powerupsUsed×50 + (未用�
 |---|---|---|
 | S-1 | `core/opendata/`：协议判别联合 + `NoopOpenDataProvider` + `MockOpenDataProvider`（harness 可跑）；施工单 = **WXG-T-426**（[S-1 施工单](../../../production/plans/2026-10-26-wxg-t-426-s1-opendata-protocol.md)）；**✅ 已完工（commit `43b9a85c`，14 例纯 Node 单测）** | ✅ 纯 Node 单测 |
 | S-2 | `Platform.createOpenDataProvider?()` + `GameServices.openData?` 透传；施工单 = **WXG-T-430**（`ce5363ad`）：`Platform` 新增可选工厂 + `BasePlatform` 默认 `NoopOpenDataProvider`、`GameServices.openData?` 由 `App` 接线、`dispose` 销毁；**✅ 已完工（6 例单测）** | ✅ 单测 |
-| S-3 | beads 榜单面板占位（路由 + 空态文案 + 未授权态） | ✅ harness 截图 |
+| S-3 | beads 榜单面板占位（路由 + 空态文案 + 未授权态）；施工单 = **WXG-T-432**（[S-3 施工单](../../../production/plans/2026-10-26-wxg-t-432-s3-rank-panel.md)）：`systems/rank-panel.ts` 七态状态机 + `view/rank-view.ts`（复用 `drawModalFrame`）+ 结算「好友这关榜」上下文入口（`settle`）+ 主菜单「好友榜」入口（`settle-total`）；**✅ 已完工（commit `f3726ef2` + 布局修正 `c8af2dc9`，10 例单测 + harness 验收见 `production/qa/beads/evidence/wxg-t-432-rank-panel.md`）**；⚠ 无真实子域时（三宿主默认 Noop Provider）面板停在 `loading`，`unsupported` 仅当服务未注入 ⇒ S-5 接真 Provider 后消失 | ✅ harness 截图 |
 | S-4 | `opendata/` 子域骨架（独立 tsconfig，`onMessage` 收协议，Mock 数据自绘） | ✅ 子域单测（纯函数化排序/布局） |
 | S-5 | weapp 真实现：`getOpenDataContext` + `setUserCloudStorage` + `sharedCanvas` 纹理贴图 + 授权引导 | ❌ **仅真机**（EP-10） |
 
@@ -261,4 +261,4 @@ SETTLE_SCORE = stars×1000 + round(ratio×1000) − powerupsUsed×50 + (未用�
 
 - 架构评审 P1 批次（TODO-3~7）已全部落地：WXG-T-405 / 408 / 410 / 411 / 414。
 - TODO-8 由「backlog」升级为**本 ADR（Proposed）**：结论 = **好友榜零后端**，本里程碑不写后端。
-- 后续：Q1=B（**榜页唯一总榜 + 分关下放结算面板**，WXG-T-423）已定 + Q2/Q3/Q4 **全部已拍**（Q4 = R2，WXG-T-424）+ §3.2.1 ① ② **已落码**（WXG-T-421：save v6 / 结算面板品质分行）→ **S-1 已完工 = WXG-T-426**（`core/opendata` 协议 + Noop/Mock Provider，commit `43b9a85c`）→ **S-2 已完工 = WXG-T-430**（`Platform.createOpenDataProvider?()` + `GameServices.openData?` 透传 + `dispose` 销毁，commit `ce5363ad`，三宿主默认 Noop）→ 下一步 **S-3**（beads 榜单面板占位 + 结算面板「好友这关第 N」上下文入口）→ S-3/S-4 补 ③ 榜单说明行 → R2 纹理通道随 **S-5**（真机面）落 → 按 §5.3 验证纪律推进。**二期**（不在一期范围）= 冲刺模式恢复 + 冲刺榜（WXG-T-422）。
+- 后续：Q1=B（**榜页唯一总榜 + 分关下放结算面板**，WXG-T-423）已定 + Q2/Q3/Q4 **全部已拍**（Q4 = R2，WXG-T-424）+ §3.2.1 ① ② **已落码**（WXG-T-421：save v6 / 结算面板品质分行）→ **S-1 已完工 = WXG-T-426**（`core/opendata` 协议 + Noop/Mock Provider，commit `43b9a85c`）→ **S-2 已完工 = WXG-T-430**（`Platform.createOpenDataProvider?()` + `GameServices.openData?` 透传 + `dispose` 销毁，commit `ce5363ad`，三宿主默认 Noop）→ **S-3 已完工 = WXG-T-432**（榜单面板七态 + 主菜单「好友榜」入口 + 结算「好友这关榜」上下文入口，commit `f3726ef2` / 布局修正 `c8af2dc9` / 金样本 `02015845`；harness 验收见 `production/qa/beads/evidence/wxg-t-432-rank-panel.md`）→ 下一步 **S-4**（`opendata/` 子域骨架 + ③ 榜单说明行）→ R2 纹理通道随 **S-5**（真机面）落 → 按 §5.3 验证纪律推进。**二期**（不在一期范围）= 冲刺模式恢复 + 冲刺榜（WXG-T-422）。

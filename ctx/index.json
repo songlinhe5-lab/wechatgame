@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3834,
       "lines": 130,
-      "sha256": "34c4a4db3cf49e0a1f316f49458ed6b099bf32df409b7e9c3c285018c730ef10",
+      "sha256": "ad9a06cc710d7a030887e13131779b7f9ec63e764902ecb9f68a825741f53405",
       "tier": "normal",
       "sections": [
         {
@@ -11987,9 +11987,9 @@
     },
     {
       "path": "docs/architecture/adr/ADR-0035-minigame-open-data-domain-friend-leaderboard.md",
-      "tokens": 7700,
+      "tokens": 7970,
       "lines": 264,
-      "sha256": "2a4d895b85db3983e13c334f75a07bd8f91b5e46ac27b7751773ad5bab76d0a6",
+      "sha256": "127c90279c4451cf25eaf4a5e496a31ecb530911e0f4ba54c4de975773cd016f",
       "tier": "normal",
       "sections": [
         {
@@ -11997,7 +11997,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 265,
-          "tokens": 7666,
+          "tokens": 7936,
           "summary": "状态：Proposed（Q1 指标 = B 品质分榜（榜页唯一总榜 + 分关榜下放结算面板，用户 2026-10-26 ",
           "keywords": [
             "ADR",
@@ -12284,7 +12284,7 @@
           "level": 2,
           "startLine": 212,
           "endLine": 238,
-          "tokens": 668,
+          "tokens": 849,
           "summary": "",
           "keywords": [
             "ADR",
@@ -12312,7 +12312,7 @@
           "level": 3,
           "startLine": 220,
           "endLine": 233,
-          "tokens": 508,
+          "tokens": 689,
           "summary": "S-1 core/opendata/：协议判别联合 + NoopOpenDataProvider + MockOpenD",
           "keywords": [
             "core",
@@ -12368,7 +12368,7 @@
           "level": 2,
           "startLine": 260,
           "endLine": 265,
-          "tokens": 300,
+          "tokens": 360,
           "summary": "架构评审 P1 批次（TODO-3~7）已全部落地：WXG-T-405 / 408 / 410 / 411 / 414。",
           "keywords": [
             "TODO",
@@ -13927,17 +13927,17 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 14692,
-      "lines": 209,
-      "sha256": "2eb1ad416af8ea839471ba4e8d35c349095c5a968719f8884f4a8bd10a7b3563",
+      "tokens": 15225,
+      "lines": 211,
+      "sha256": "a2de9f6b8f688a0ceb1ff17725076e0ff18901dd01237f9bb4c9602aa7ec4248",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads UI 架构（View / ViewModel / Presenter + 公共基础）",
           "level": 1,
           "startLine": 1,
-          "endLine": 210,
-          "tokens": 14673,
+          "endLine": 212,
+          "tokens": 15206,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -14107,8 +14107,8 @@
           "anchor": "§12 TODO 拆分",
           "level": 2,
           "startLine": 132,
-          "endLine": 206,
-          "tokens": 10428,
+          "endLine": 208,
+          "tokens": 10960,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -14119,8 +14119,8 @@
         {
           "anchor": "§13 待你拍板",
           "level": 2,
-          "startLine": 207,
-          "endLine": 210,
+          "startLine": 209,
+          "endLine": 212,
           "tokens": 323,
           "summary": "D1–D5 均已裁定（见 [ADR-0032 §5](adr/ADR-0032-beads-ui-architectur",
           "keywords": [
@@ -99209,6 +99209,31 @@
             "MCP",
             "本件错判订正",
             "初版三处"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "production/qa/beads/evidence/wxg-t-432-rank-panel.md",
+      "tokens": 431,
+      "lines": 12,
+      "sha256": "510d4bd548071334ba32248af0ff90deaa380bef5d55bdf5da800d701f1ccbb6",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§WXG-T-432 · S-3 好友榜面板 harness 验收",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 13,
+          "tokens": 417,
+          "summary": "锚：代码 f3726ef2（S-3 批）+ c8af2dc9（纵向布局修正）；金样本 02015845",
+          "keywords": [
+            "WXG",
+            "harness",
+            "f3726ef2",
+            "c8af2dc9",
+            "好友榜面板",
+            "验收"
           ]
         }
       ]
