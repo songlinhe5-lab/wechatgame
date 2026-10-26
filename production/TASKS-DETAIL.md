@@ -4631,3 +4631,59 @@ tray:*/timer:*/settings:*/meta:*/game:*/sprint:* — 要么太细（timer:tick �
 
 ---
 
+
+## WXG-T-405
+
+### 1. 概要
+
+分享能力封装（架构评审提案 TODO-3，P1 批次）。让 beads 结算面板有"炫耀一下"按钮能调起微信原生分享面板。
+
+### 2. 改动面（框架层 4 文件）
+
+| 件 | 路径 | 变更 |
+|---|---|---|
+| Platform 接口 | `packages/framework/src/platform/platform.ts` | 新增 `ShareOptions` 类型 + 可选 `share?(opts?)` 方法 |
+| WeappPlatform | 同上 | `share()` 实现 `wx.shareAppMessage`；构造函数里注册被动分享 `onShareAppMessage` + `showShareMenu` |
+| GameServices | `packages/framework/src/core/game/game.ts` | 增可选 `share?: (opts?: ShareOptions) => void` 字段 |
+| App | `packages/framework/src/compose/app.ts` | 组装透传 `this.platform.share?.bind(this.platform)` |
+
+### 3. 改动面（beads 侧 3 文件 + 测试）
+
+| 件 | 路径 | 变更 |
+|---|---|---|
+| FinishPanel | `games/beads/src/systems/finish-panel.ts` | FinishPanelAction 加 `'share'`；布局从两按钮变三按钮（replay/炫耀/menu 三等分）；finishPanelLabel 加文案分支 |
+| panel-router | `games/beads/src/game/beads-game/panel-router.ts` | PanelRouterHost 接口补 `share(): void`；路由逻辑加 `action === 'share'` 分支 |
+| BeadsGame | `games/beads/src/game/beads-game.ts` | 实现 `_share()` 透传 `services.share?.()` |
+| 测试 | `games/beads/tests/finish-panel.test.ts` | 更新 buttons 断言 + hit 断言 + 布局居中断言 |
+| 金样本 | `games/beads/tests/__fixtures__/wxg-t-298-ui-golden.json` | FinishModal total 754→756（多一个 share 按钮指令），其余不变 |
+
+### 4. 架构要点
+
+- **主动 vs 被动分享**：主动 = 用户点"炫耀"按钮 → `wx.shareAppMessage`；被动 = 用户点右上角「···」→ `wx.onShareAppMessage` 注册默认卡片。构造函数里注册 `showShareMenu` 让菜单出现转发按钮。
+- **降级链条**：Node/harness 无 share → `services.share` 字段 undefined → shell 里 `if (!share) return` → 点按钮静默无响应，零崩溃。
+- **分享卡片内容**：当前透传空 opts（微信显示游戏名/图标默认卡片）。提案原方案是自定义关卡星级标题 + boss 缩略图烘焙图——需真机验证后定制。
+- **与 haptic 的差异**：haptic 是 game 自动衍生意图 → shell 消费（EventBus 中转）；share 是用户主动触发 → shell 直接调 services.share?.()（不需要 EventBus）。
+
+### 5. 微信 API 形状
+
+```typescript
+// 主动分享（用户点按钮）
+wx.shareAppMessage({ title?, imageUrl?, query? });
+// 被动分享（点右上角转发）
+wx.onShareAppMessage(() => ({ title?, imageUrl?, query? }));
+// 让菜单出现转发按钮
+wx.showShareMenu({ withShareTicket: true, menus: ['shareAppMessage'] });
+```
+
+基础库门槛：`shareAppMessage`/`onShareAppMessage` 2.9.4+，`showShareMenu` 2.11.3+。无 API 时静默 noop。
+
+### 6. 验证
+
+- framework typecheck ✅
+- beads/breakout typecheck ✅
+- framework tests **518 passed**
+- beads tests **1277 passed + 3 skipped**
+- framework:sync ✅（beads 写入 7 + breakout 写入 4）
+- check:tasks 主表 76 ⇔ 详情 76 ✅
+- 金样本重抓 ✅（十一帧确定性自证两遍全等）
+
