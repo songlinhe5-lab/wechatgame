@@ -75,7 +75,7 @@
 ### TODO-8 开放数据域（好友榜）——先挂 backlog
 - **证据**：无 `getOpenDataContext`。架构影响大（主域/子域 postMessage 协议 + 渲染层预留），非独立小改。
 - **建议**：不排期，立项时单开 ADR。**规模**：L。
-- **进展（2026-10-26 · WXG-T-418）**：已单开 [ADR-0035](../../docs/architecture/adr/ADR-0035-minigame-open-data-domain-friend-leaderboard.md)（Proposed）。结论 = **好友榜零后端**（微信托管云存储 `setUserCloudStorage` + 子域 `getFriendCloudStorage`，需 `scope.WxFriendInteraction` 授权）；**仅全服/赛季/运营榜才需后端**，触发条件见该 ADR §6。**Q1/Q2/Q3 已拍板（2026-10-26）**：① 本期单榜 = 全关总星数 `beads_total_stars`（desc；MF4 主榜「冲刺最佳分」后置——冲刺未落码，key 预留）② 首开榜弹授权，通关后不弹，拒绝走空态 + `wx.openSetting` 回流 ③ 协议采纳 ADR §3.1（version 握手 + theme 下发 + 不回传明细）。待拍板 **Q4**（渲染预留，推荐 R2）。
+- **进展（2026-10-26 · WXG-T-418）**：已单开 [ADR-0035](../../docs/architecture/adr/ADR-0035-minigame-open-data-domain-friend-leaderboard.md)（Proposed）。结论 = **好友榜零后端**（微信托管云存储 `setUserCloudStorage` + 子域 `getFriendCloudStorage`，需 `scope.WxFriendInteraction` 授权）；**仅全服/赛季/运营榜才需后端**，触发条件见该 ADR §6。**Q2/Q3 已拍板（2026-10-26）**：② 首开榜弹授权，通关后不弹，拒绝走空态 + `wx.openSetting` 回流 ③ 协议采纳 ADR §3.1（version 握手 + theme 下发 + 不回传明细）。**Q1 指标重开待拍**（用户复核：星榜硬顶并列 ⇒ 饱和无区分度，原「总星数」裁定撤回）；候选 = A 冲刺最佳分+品质分（SETTLE_SCORE）/ B 品质分单榜 / C MF4 原双榜（星）/ D 冲刺分+步数达成率。**纠错**：冲刺模式**已落码**且 `sprintBestScore` 已存 save v5（上一版「冲刺未落码」为误判，glob 失效所致）。待拍板 **Q1 + Q4**（渲染推荐 R2）。
 
 ---
 
