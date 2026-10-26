@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3834,
       "lines": 130,
-      "sha256": "331b21d1a3088869b1200ba94be39797c19a598b31d21e92b34649c967b094e2",
+      "sha256": "2c0322923a5b2cf06cd8701c7fb10f199e6156e0073f52a813503c641cbef9d7",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 176445 5557 normal",
+          "summary": "1 production/TASKS-DETAIL.md 177429 5591 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5185,
       "lines": 164,
-      "sha256": "eb70774d18cbd849881e3cb2e0167d2dc6ce77b7590389b3ca1847c190a83159",
+      "sha256": "967d298984981fbc3f81b476a855c5dfddb40a4874f9bf736c96f91c86e60af1",
       "tier": "normal",
       "sections": [
         {
@@ -745,7 +745,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 118 行 / 59356 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 118 行 / 59576 tok / 实测读 4 次",
           "level": 2,
           "startLine": 27,
           "endLine": 30,
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 5557 行 / 176445 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 5591 行 / 177429 tok",
           "level": 2,
           "startLine": 105,
           "endLine": 109,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+5558 · §WXG-T-407=4735+75 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+5592 · §WXG-T-408=4810+50 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -13414,6 +13414,114 @@
             "core",
             "当前实现状态",
             "本轮"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "docs/architecture/beads-arch-review-2026-10-26.md",
+      "tokens": 2962,
+      "lines": 124,
+      "sha256": "5f6070a3a8a539e5e156e5ba8175728e918d29140e635ea58930a0fc3415dd00",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§beads 现状结构图 + 架构评审与 TODO（Qoder 专项）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 125,
+          "tokens": 2942,
+          "summary": "日期：2026-10-26 任务：WXG-T-420 性质：读码取证后的评审与拆分计划，逐项独立提交。",
+          "keywords": [
+            "beads",
+            "TODO",
+            "Qoder",
+            "WXG",
+            "现状结构图",
+            "架构评审与"
+          ]
+        },
+        {
+          "anchor": "§1 总体分层：同一套玩法核心，三种宿主",
+          "level": 2,
+          "startLine": 11,
+          "endLine": 38,
+          "tokens": 639,
+          "summary": "",
+          "keywords": [
+            "总体分层",
+            "同一套玩法核",
+            "三种宿主"
+          ]
+        },
+        {
+          "anchor": "§2 一帧的数据流（对局内）",
+          "level": 2,
+          "startLine": 39,
+          "endLine": 62,
+          "tokens": 291,
+          "summary": "",
+          "keywords": [
+            "一帧的数据流",
+            "对局内"
+          ]
+        },
+        {
+          "anchor": "§3 构建链：源码物理拷贝进 Cocos 工程",
+          "level": 2,
+          "startLine": 63,
+          "endLine": 76,
+          "tokens": 122,
+          "summary": "",
+          "keywords": [
+            "Cocos",
+            "构建链",
+            "源码物理拷贝",
+            "工程"
+          ]
+        },
+        {
+          "anchor": "§4 组成部分与规模（实测）",
+          "level": 2,
+          "startLine": 77,
+          "endLine": 87,
+          "tokens": 255,
+          "summary": "game/ + game/beads-game/ 12 + 11 个 / 7,626 + 2,247 行 权威状态、相位",
+          "keywords": [
+            "game",
+            "beads",
+            "组成部分与规",
+            "实测"
+          ]
+        },
+        {
+          "anchor": "§5 问题清单（证据 → 影响）",
+          "level": 2,
+          "startLine": 88,
+          "endLine": 107,
+          "tokens": 619,
+          "summary": "1. 对局编排者仍是上帝类：BeadsGame ≈3,080 行 / 121 私有字段 / ≈82 方法；已拆 11 个",
+          "keywords": [
+            "BeadsGame",
+            "问题清单",
+            "证据",
+            "影响"
+          ]
+        },
+        {
+          "anchor": "§6 TODO（本批 = T1–T6；T7–T10 仅登记）",
+          "level": 2,
+          "startLine": 108,
+          "endLine": 125,
+          "tokens": 634,
+          "summary": "T1 ✅ 游戏内部依赖方向门：允许 view→game（仅类型）、game→systems/entities/confi",
+          "keywords": [
+            "TODO",
+            "T10",
+            "view",
+            "game",
+            "systems",
+            "entities"
           ]
         }
       ]
@@ -86360,17 +86468,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 176445,
-      "lines": 5557,
-      "sha256": "fee62fba4a03d35d2e7c0b77a2a0e45a9e6ca9579fde065c341e09f9a4f6d251",
+      "tokens": 177429,
+      "lines": 5591,
+      "sha256": "57de38f2db91e3c11a61124ae89f0dfbba48fd0cef85111b8a8da6c43e5cd077",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 5558,
-          "tokens": 176429,
+          "endLine": 5592,
+          "tokens": 177412,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -93141,8 +93249,8 @@
           "anchor": "§WXG-T-419",
           "level": 2,
           "startLine": 5493,
-          "endLine": 5558,
-          "tokens": 2379,
+          "endLine": 5560,
+          "tokens": 2380,
           "summary": "",
           "keywords": [
             "WXG"
@@ -93261,8 +93369,8 @@
           "anchor": "§7 验证 (3)",
           "level": 3,
           "startLine": 5555,
-          "endLine": 5558,
-          "tokens": 82,
+          "endLine": 5560,
+          "tokens": 83,
           "summary": "pnpm run ctx:check → OK（结构门 A/B/C/D/D2 与 E3 基线通过；B 项因豁免放行，见 ",
           "keywords": [
             "pnpm",
@@ -93271,14 +93379,82 @@
             "check",
             "验证"
           ]
+        },
+        {
+          "anchor": "§WXG-T-420",
+          "level": 2,
+          "startLine": 5561,
+          "endLine": 5592,
+          "tokens": 979,
+          "summary": "beads 架构优化：依赖方向、配置归域、对局效果与快照投影（在办）",
+          "keywords": [
+            "WXG",
+            "beads"
+          ]
+        },
+        {
+          "anchor": "§1 拍板与正本",
+          "level": 3,
+          "startLine": 5565,
+          "endLine": 5571,
+          "tokens": 198,
+          "summary": "用户 2026-10-26 原话：「P0 全做 + T5/T6」= 评审报告的 T1–T6；T7–T10 不在本批。",
+          "keywords": [
+            "T10",
+            "拍板与正本"
+          ]
+        },
+        {
+          "anchor": "§2 现状读数（本轮实测）",
+          "level": 3,
+          "startLine": 5572,
+          "endLine": 5577,
+          "tokens": 188,
+          "summary": "beads src = 85 个 TypeScript 文件 / 28,274 行；tests = 111 个 / 31",
+          "keywords": [
+            "beads",
+            "src",
+            "TypeScript",
+            "tests",
+            "现状读数",
+            "本轮实测"
+          ]
+        },
+        {
+          "anchor": "§3 分项验收与读数回填",
+          "level": 3,
+          "startLine": 5578,
+          "endLine": 5586,
+          "tokens": 392,
+          "summary": "1. T1 依赖方向门：游戏内部允许 view → game 仅类型、game → systems/entities/c",
+          "keywords": [
+            "view",
+            "game",
+            "systems",
+            "entities",
+            "分项验收与读",
+            "数回填"
+          ]
+        },
+        {
+          "anchor": "§4 明确不做与遗留",
+          "level": 3,
+          "startLine": 5587,
+          "endLine": 5592,
+          "tokens": 132,
+          "summary": "不引入新框架、DI 容器或响应式库；不重写渲染；不碰 §3 冻结数值；不为行数指标拆文件。",
+          "keywords": [
+            "§3",
+            "明确不做与遗"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 59356,
+      "tokens": 59576,
       "lines": 118,
-      "sha256": "1baa432c82d80ed8e604a8332db4c5805abe6f8a6ff130ece427740d4d1dc9f7",
+      "sha256": "81f910400d6350607bacf9e724d1144df75ba107737570dd19a755f962504262",
       "tier": "hot",
       "sections": [
         {
@@ -93286,7 +93462,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 119,
-          "tokens": 59347,
+          "tokens": 59567,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
