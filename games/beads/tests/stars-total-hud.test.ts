@@ -106,13 +106,17 @@ describe('EP14-S2 总星数快照与 HUD（R6/R8）', () => {
 
 describe('EP14-S2 热路径零分配（L5 / 控制清单）', () => {
     it('快照投影内求和只用累加变量，无 map/filter/reduce/展开语法', () => {
-        // WXG-T-420 T6：`_syncSnapshot` 投影体已抽至 `snapshot-projection.ts::projectSnapshot`，
-        // 本静态守卫随之改指新文件（同一热路径零分配不变量，兼作 K-106 新模块被实际引用的证明）。
+        // WXG-T-420 T6：`_syncSnapshot` 投影体已抽至 `snapshot-projection.ts`，本静态守卫随之改指新文件。
+        // WXG-T-420 T8：投影再按分片拆五段，`starsTotal` 属菜单片 ⇒ 守卫随迁到 `projectMenuShard`
+        //（同一热路径零分配不变量，判例 K-183：抽取即复制 ⇒ 守卫跟到新的落位）。
         const src = SRC('game/beads-game/snapshot-projection.ts');
-        const at = src.indexOf('export function projectSnapshot');
+        const at = src.indexOf('function projectMenuShard');
         expect(at).toBeGreaterThan(0);
         const body = src.slice(at, src.indexOf('\n}', at));
         expect(body, 'starsTotal 求和不得新建数组/迭代器').not.toMatch(/\.map\(|\.filter\(|\.reduce\(|\[\s*\.\.\./);
         expect(body).toContain('starsTotal');
+        // 正向对照（K-144）：接线仍走 `projectSnapshot` 分片调度（⛔ 不变成死代码）。
+        const dispatch = src.slice(src.indexOf('export function projectSnapshot'), src.indexOf('\n}', src.indexOf('export function projectSnapshot')));
+        expect(dispatch).toContain('projectMenuShard(s, src);');
     });
 });
