@@ -4,7 +4,7 @@
   "unit": "UI-02",
   "spec": "docs/architecture/ui-architecture-beads.md §5 / §9.4 / §12",
   "codeBaseline": "bd964a0",
-  "capturedFrom": "d6b596a1 · 工作树（WXG-T-298）",
+  "capturedFrom": "e444f8d0 · 工作树（WXG-T-298）",
   "fixture": {
     "viewport": {
       "width": 750,
@@ -141,7 +141,7 @@
         "text": 13,
         "polygon": 130
       },
-      "sha": "edf43c24c147a34520e5afa7029035ad41f3ea01e278f1416f2115493b18b26b",
+      "sha": "4f5f39508fb57c98a72262147280f065b2a56221474eb20032aabcad3feb3786",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -162,7 +162,7 @@
         "text": 23,
         "polygon": 130
       },
-      "sha": "fee6f85cd89681bdf0bcea23ee1b30dd4f836495e972fc6a25598f6054366f76",
+      "sha": "a880e0b9d673b777de9ce77dca167b1e571d9770f93ea1d2a91cdb675f29fc88",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -183,7 +183,7 @@
         "text": 16,
         "polygon": 176
       },
-      "sha": "422aef1eef1fcc4d93cef1ceeb5e164957243aebde44341dc4ac00848ae94d52",
+      "sha": "aeb0155569e4e011901c527ebeb44c9e45e537dcebf9b94f61840a1bc1dac5f8",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -204,7 +204,7 @@
         "text": 13,
         "polygon": 130
       },
-      "sha": "00000e4bc127c8bcb8d6051f826e8a1ef7ad35f838feda0f3ce46cf7dbad6ec8",
+      "sha": "d6ae4472e0c13b547ab40914f715733493d7740927d3bce8a7451d0415f317df",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -225,7 +225,7 @@
         "text": 19,
         "polygon": 10
       },
-      "sha": "3bb0bd3d501e6a4029a70cc7f2e41ebbca5f47913daa2fde9d66a6e9eade8da6",
+      "sha": "2eb2ee7ea6790453e65a48497cb628f11dc0bd8a59498509d6548a929501ac51",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -246,7 +246,7 @@
         "text": 16,
         "polygon": 233
       },
-      "sha": "e61250f5bec914f36ab7c7eeb2aa853191b141cadb0a5e55131bd29e3772a6c0",
+      "sha": "4beec3b7dda92e824daae1b697666072750b614b48bcf62ac2db8d9a4fcc98e1",
       "background": "#F1E8D8",
       "transform": null
     }
