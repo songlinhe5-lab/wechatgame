@@ -5618,6 +5618,8 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 
 - **T3 完成（本笔提交）**：`config/tuning.ts` 机械拆为 layout / visual / board / gameplay / menu / motion / bead-style / audio / powerup-layout 九域，原入口仅桶再导出，域间保持 DAG 且不反依赖 barrel；`liveDesignH` 与全部声明原样随迁。结构探针先实测 **1 failed**（缺 layout 模块），实现后转绿；拆前拆后均实测 **479** 个运行时导出，名称与值指纹同为 `39d1271086d01a37acb2c68552209ae990ca1bc6768db5c7d3a0ae3acbf162cf`。源码文本读写方同步指向实际声明域，覆盖关数回写、墙容量、接缝与 mask 宏；beads 全测 **1279 passed｜3 skipped**（含 UI 金样本 12 passed），typecheck、levels:check、check:board-seam、check:arch、Cocos 同步检查通过；check:cocos-mask 因无构建产物仍为 **SKIP**。
 
+- **T4 完成（本笔提交）**：`Spawner` 死路径**只登记不删不摘**（D3 仍待拍）。实测取证写入 `docs/architecture/architecture-beads.md` 新增 §10：类本体（`systems/spawner.ts` 文件头 DEAD PATH）/ 主循环 `_stepPlaying` 不再 tick / 实例 `_spawner` + 调试 getter / 崩溃快照 `spawnAcc`·`spawnInterval`·`spawnFullReported` 三字段往返 / tuning 五死值 v1.22 作废 / `src/index.ts` 未再导出 spawner（401「仍在公开 barrel」订正为「实例仍挂调试面」）/ `tray-spawner.test.ts` 两例单元级死路径锁定。§5 事件表加 ⚠ 指针指向 §10。写清保留理由（D3 待拍 + 三者往返闭环 + 保留零热路径成本 + 复活零成本）、删除 5 步前置（含快照 schema 版本评估）、复活三条件（tray-spawner §6 + systems-index §3.4 + 主理人确认）。**零代码行为变化**。
+
 ---
 
 ## WXG-T-421
