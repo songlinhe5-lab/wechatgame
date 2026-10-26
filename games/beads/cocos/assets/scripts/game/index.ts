@@ -16,7 +16,6 @@ export * from './entities/tray';
 
 export * from './systems/placement';
 export * from './systems/retrieve';
-export * from './systems/spawner';
 export * from './systems/timer';
 export * from './systems/sprint';
 export * from './systems/pause-panel';

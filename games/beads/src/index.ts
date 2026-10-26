@@ -16,7 +16,6 @@ export * from './entities/tray.js';
 
 export * from './systems/placement.js';
 export * from './systems/retrieve.js';
-export * from './systems/spawner.js';
 export * from './systems/timer.js';
 export * from './systems/sprint.js';
 export * from './systems/pause-panel.js';
