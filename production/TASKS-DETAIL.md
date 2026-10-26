@@ -4687,3 +4687,44 @@ wx.showShareMenu({ withShareTicket: true, menus: ['shareAppMessage'] });
 - check:tasks 主表 76 ⇔ 详情 76 ✅
 - 金样本重抓 ✅（十一帧确定性自证两遍全等）
 
+
+## WXG-T-406
+
+### 1. 触发
+
+用户指出 WXG-T-403/405 引入的 `HapticKind` 和 `ShareOptions` 定义在 `platform/platform.ts`，但 `core/game/game.ts` 从那里 import 它们——形成 **core → platform 的逆向依赖**（应是 platform → core 单向向内）。
+
+### 2. 根因
+
+这俩类型是**游戏意图**（"我要一个 success haptic"/"我要分享一张带标题的卡片"），不是平台实现细节——它们的自然归属是 core 层。之前随手写在 platform 层导致 core/game 必须跨层去拿。
+
+### 3. 改动
+
+| 文件 | 变更 |
+|---|---|
+| `packages/framework/src/core/haptics.ts` | **新建**——搬入 HapticKind + ShareOptions 定义 |
+| `packages/framework/src/platform/platform.ts` | 删原定义；改 `import type` from `../core/haptics.js`；加 `export type { HapticKind, ShareOptions }` re-export 保 barrel 兼容 |
+| `packages/framework/src/core/game/game.ts` | import 源 `../../platform/platform.js` → `../haptics.js`（同层） |
+| Cocos 镜像（beads + breakout） | framework:sync 自动同步 7 件写入 |
+
+### 4. 依赖方向（校正后）
+
+```
+platform → core（单向向内，合规）
+core → platform = 0（零逆向依赖）
+```
+
+### 5. 验证
+
+- typecheck ✅（framework/beads/breakout）
+- framework tests **518/518** ✅
+- beads tests **1277 passed + 3 skipped** ✅
+- framework:sync ✅
+- 消费点 beads `import type { HapticKind } from '@wxgame/framework'` 仍工作（platform barrel re-export）
+
+### 6. 教训
+
+新增跨层类型前，先判定它是"意图"还是"实现"：
+- **意图**（游戏想做什么）→ core 层所有
+- **实现**（平台怎么做）→ platform 层所有
+

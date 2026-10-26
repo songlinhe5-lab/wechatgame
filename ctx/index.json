@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3796,
       "lines": 129,
-      "sha256": "d635ca1095456f8f2502f075de4e1ad1c2e194c357ba2bb1f0afbf7426ce2930",
+      "sha256": "19123dc5ed677e8d9ee04f9f3c1194a52a84ecd705d8c9fd0020113938bec83e",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 149495 4689 normal",
+          "summary": "1 production/TASKS-DETAIL.md 149966 4730 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5185,
       "lines": 164,
-      "sha256": "6e444e26754a36f0f10e11c5802a5ec889d8c27e57da934c65d88f12c957971a",
+      "sha256": "064cefe6123bf2e5cf8db971cbded4f99ee276e4c2ee3fb567ef1c10e602669c",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 127 行 / 66173 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 128 行 / 66320 tok / 实测读 4 次",
           "level": 2,
           "startLine": 27,
           "endLine": 30,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+128 · §待排（backlog，无号，立项时领取…=99+30",
+          "summary": "§WXG 任务台账（SSOT）=1+129 · §待排（backlog，无号，立项时领取…=100+30",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 4689 行 / 149495 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 4730 行 / 149966 tok",
           "level": 2,
           "startLine": 105,
           "endLine": 109,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+4690 · §WXG-T-395=3213+63 · §WXG-T-3",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+4731 · §WXG-T-395=3213+63 · §WXG-T-3",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -85144,17 +85144,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 149495,
-      "lines": 4689,
-      "sha256": "f84d262c570c9ccac5e57906406dc93bc8888d501031f5050a94f45c8e47d3d4",
+      "tokens": 149966,
+      "lines": 4730,
+      "sha256": "3f3d511ac83b4f93c92ca15797262d4a2c9ded13db3773b77b53df7028f54171",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 4690,
-          "tokens": 149478,
+          "endLine": 4731,
+          "tokens": 149950,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -90416,22 +90416,115 @@
             "typecheck",
             "验证"
           ]
+        },
+        {
+          "anchor": "§WXG-T-406",
+          "level": 2,
+          "startLine": 4691,
+          "endLine": 4731,
+          "tokens": 468,
+          "summary": "",
+          "keywords": [
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§1 触发",
+          "level": 3,
+          "startLine": 4693,
+          "endLine": 4696,
+          "tokens": 70,
+          "summary": "用户指出 WXG-T-403/405 引入的 HapticKind 和 ShareOptions 定义在 platfor",
+          "keywords": [
+            "WXG",
+            "HapticKind",
+            "ShareOptions",
+            "platfor",
+            "触发"
+          ]
+        },
+        {
+          "anchor": "§2 根因",
+          "level": 3,
+          "startLine": 4697,
+          "endLine": 4700,
+          "tokens": 77,
+          "summary": "这俩类型是游戏意图（\"我要一个 success haptic\"/\"我要分享一张带标题的卡片\"），不是平台实现细节——它们",
+          "keywords": [
+            "success",
+            "haptic",
+            "根因"
+          ]
+        },
+        {
+          "anchor": "§3 改动",
+          "level": 3,
+          "startLine": 4701,
+          "endLine": 4709,
+          "tokens": 140,
+          "summary": "packages/framework/src/core/haptics.ts 新建——搬入 HapticKind + S",
+          "keywords": [
+            "packages",
+            "framework",
+            "src",
+            "core",
+            "haptics",
+            "HapticKind"
+          ]
+        },
+        {
+          "anchor": "§4 依赖方向（校正后）",
+          "level": 3,
+          "startLine": 4710,
+          "endLine": 4716,
+          "tokens": 28,
+          "summary": "",
+          "keywords": [
+            "依赖方向",
+            "校正后"
+          ]
+        },
+        {
+          "anchor": "§5 验证 (2)",
+          "level": 3,
+          "startLine": 4717,
+          "endLine": 4724,
+          "tokens": 67,
+          "summary": "typecheck ✅（framework/beads/breakout）",
+          "keywords": [
+            "typecheck",
+            "framework",
+            "beads",
+            "breakout",
+            "验证"
+          ]
+        },
+        {
+          "anchor": "§6 教训",
+          "level": 3,
+          "startLine": 4725,
+          "endLine": 4731,
+          "tokens": 56,
+          "summary": "新增跨层类型前，先判定它是\"意图\"还是\"实现\"：",
+          "keywords": [
+            "教训"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 66173,
-      "lines": 127,
-      "sha256": "6944916b33096a5eb0e429a0976c9aba20287e79fadcba5a13c08dc111580f9b",
+      "tokens": 66320,
+      "lines": 128,
+      "sha256": "4820e65d43581da05ba8dfadfd766af405e64f9d90eca973984e3f834628f692",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 128,
-          "tokens": 66164,
+          "endLine": 129,
+          "tokens": 66311,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -90444,8 +90537,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 99,
-          "endLine": 128,
+          "startLine": 100,
+          "endLine": 129,
           "tokens": 1460,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
