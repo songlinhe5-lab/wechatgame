@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3796,
       "lines": 129,
-      "sha256": "b342057af45973850559f3a5b024fcff2bb3c91eccb858ace51e0790029e6062",
+      "sha256": "5d213f49a1bd662a3ab3969e8a944d832d5d27bbf806890986fcf19eee06e19b",
       "tier": "normal",
       "sections": [
         {
@@ -37214,17 +37214,17 @@
     },
     {
       "path": "games/beads/design/proposals/daily-challenge.md",
-      "tokens": 7298,
-      "lines": 283,
-      "sha256": "0bfed06b73e36bf504f5ec5111966cd3de837285d79c65268389555b54a4693c",
+      "tokens": 7982,
+      "lines": 314,
+      "sha256": "516b8bf079af63344d096ba377e98ed4c0fe191258a43b118cbaf5b78429825b",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§设计草案 · 每日挑战（Daily Challenge）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 284,
-          "tokens": 7280,
+          "endLine": 315,
+          "tokens": 7965,
           "summary": "项目：games/beads（拼豆填色消除）· 版本 v0.2（全文未冻结） · 任务号 WXG-T-016（P2，孤立",
           "keywords": [
             "Daily",
@@ -37410,8 +37410,8 @@
           "anchor": "§9 首期形态：Boss 关限时复挑（v0.2 · 用户 2026-10-26 定）",
           "level": 2,
           "startLine": 181,
-          "endLine": 284,
-          "tokens": 2363,
+          "endLine": 315,
+          "tokens": 3048,
           "summary": "用户原话：「在一组任务里随机产生，首期只有一个任务组，已通 3 星的 boss 关，随机挑选一个 boss 关设定比 3",
           "keywords": [
             "Boss",
@@ -37438,7 +37438,7 @@
           "level": 3,
           "startLine": 197,
           "endLine": 203,
-          "tokens": 193,
+          "tokens": 191,
           "summary": "候选池 = 玩家已达 3★ 的 Boss 关（levels 里 kind === 'boss' 且该关最高星 = 3）。",
           "keywords": [
             "Boss",
@@ -37479,8 +37479,8 @@
           "anchor": "§9.5 奖励计算（用户要「计算后定」）",
           "level": 3,
           "startLine": 226,
-          "endLine": 267,
-          "tokens": 782,
+          "endLine": 269,
+          "tokens": 886,
           "summary": "基准：Boss 关 3★ 首通 = 180 豆（CLEAR_COIN_FIRST_BOSS 三档累进 40 + 60 +",
           "keywords": [
             "Boss",
@@ -37491,12 +37491,28 @@
           ]
         },
         {
+          "anchor": "§9.6 完成标识与记录",
+          "level": 3,
+          "startLine": 270,
+          "endLine": 276,
+          "tokens": 180,
+          "summary": "成功 ⇒ 写当日记录 daily: { dateKey, levelId, timeMs, cleared: true ",
+          "keywords": [
+            "daily",
+            "dateKey",
+            "levelId",
+            "timeMs",
+            "cleared",
+            "true"
+          ]
+        },
+        {
           "anchor": "§9.7 与「托盘扩容」的关系（现状核对，防误设）",
           "level": 3,
-          "startLine": 268,
-          "endLine": 277,
-          "tokens": 294,
-          "summary": "托盘扩容通道 只有广告路（requestTrayExpand → rewardedAd），无豆子路 用户「要不广告要不豆",
+          "startLine": 277,
+          "endLine": 285,
+          "tokens": 225,
+          "summary": "扩容通道 只有广告路（requestTrayExpand → rewardedAd），无豆子路 用户 2026-10-2",
           "keywords": [
             "requestTrayExpand",
             "rewardedAd",
@@ -37507,19 +37523,18 @@
           ]
         },
         {
-          "anchor": "§9.6 完成标识与记录",
+          "anchor": "§9.8 托盘扩容豆子路（用户 2026-10-26 裁定，`[待拍板]`）",
           "level": 3,
-          "startLine": 278,
-          "endLine": 284,
-          "tokens": 180,
-          "summary": "成功 ⇒ 写当日记录 daily: { dateKey, levelId, timeMs, cleared: true ",
+          "startLine": 286,
+          "endLine": 315,
+          "tokens": 629,
+          "summary": "定价（沿用 v1.80「最低档 ≤ 0.5 天免费产出」定标，与道具价区间 20/30/45 对齐）：",
           "keywords": [
-            "daily",
-            "dateKey",
-            "levelId",
-            "timeMs",
-            "cleared",
-            "true"
+            "[待拍板]",
+            "托盘扩容豆子",
+            "用户",
+            "裁定",
+            "待拍板"
           ]
         }
       ]
@@ -40102,17 +40117,17 @@
     },
     {
       "path": "games/beads/design/proposals/star-economy-and-retention.md",
-      "tokens": 18724,
-      "lines": 656,
-      "sha256": "fc96211f1a874fab2acb36c0692f24dc5af9c61cefd3fbbd4572792c9e5f40a0",
+      "tokens": 18876,
+      "lines": 657,
+      "sha256": "c4975579f5e10a445d8597e8fe298d0b100597c66085ed1862ee3886f797ea13",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§提案 · 待裁｜星级经济与日常留存（Star Economy & Retention）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 657,
-          "tokens": 18699,
+          "endLine": 658,
+          "tokens": 18850,
           "summary": "项目：games/beads（拼豆错位归位）· 版本 v0.5 · 任务号 WXG-T-359（设计轨；提案批，零落码）",
           "keywords": [
             "Star",
@@ -40710,8 +40725,8 @@
           "anchor": "§14 内容与经济配比表（v0.4 · 用户 2026-10-26 令「写一份内容与经济配比表进提案」）",
           "level": 2,
           "startLine": 454,
-          "endLine": 646,
-          "tokens": 4072,
+          "endLine": 647,
+          "tokens": 4223,
           "summary": "本节解决的问题：内容量（多少大关）与经济量（多少豆子、多少外观）历来各给各的，导致每次加章都要重算一遍。本节把两者绑成一",
           "keywords": [
             "内容与经济配",
@@ -40795,8 +40810,8 @@
           "anchor": "§14.6 同批登记的其他裁定（防散落）",
           "level": 3,
           "startLine": 550,
-          "endLine": 560,
-          "tokens": 394,
+          "endLine": 561,
+          "tokens": 545,
           "summary": "经济不追求闭环；~~设持有上限~~ ⇒ v0.5 撤销 现行口径 = 不设豆子持有上限（用户 2026-10-26：「豆",
           "keywords": [
             "同批登记的其",
@@ -40807,8 +40822,8 @@
         {
           "anchor": "§14.7 体力三闸门与「最大可能」测算（v0.5 · 用户 2026-10-26 令）",
           "level": 3,
-          "startLine": 561,
-          "endLine": 646,
+          "startLine": 562,
+          "endLine": 647,
           "tokens": 1704,
           "summary": "用户令：「体力上限做限制，体力增加使用豆子或者看广告次数做限制，体力恢复速度做限制，看下最大可能会推多少关，获得多少豆子",
           "keywords": [
@@ -40821,8 +40836,8 @@
         {
           "anchor": "§附录 · 一句话规则卡（可直接抄进加载提示）",
           "level": 2,
-          "startLine": 647,
-          "endLine": 657,
+          "startLine": 648,
+          "endLine": 658,
           "tokens": 258,
           "summary": "每关最多三颗星，拼得越快星越多；重复打不会掉星。",
           "keywords": [
