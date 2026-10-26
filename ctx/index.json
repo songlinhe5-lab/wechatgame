@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3834,
       "lines": 130,
-      "sha256": "adae3eadd97fba4e9b28e0f91c16e4415cfc78326a72a60bea2766264dc9684c",
+      "sha256": "ab4ea34c0e60fea176ea9b0ab89e5674e084768232263d51768ee7d43736df2f",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 410,
-          "summary": "1 production/TASKS-DETAIL.md 181783 5728 normal",
+          "summary": "1 production/TASKS-DETAIL.md 182163 5743 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5185,
       "lines": 164,
-      "sha256": "3e537653106121c42827964cc4abd72aa9fb5fb84b11650adf54eea3f4744928",
+      "sha256": "bdb4c49c3f11fd08956e37b200eb7135e5454261a96ca5ce0a5599c99724d086",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 122 行 / 61331 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 123 行 / 61589 tok / 实测读 4 次",
           "level": 2,
           "startLine": 27,
           "endLine": 30,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+123 · §待排（backlog，无号，立项时领取…=94+30",
+          "summary": "§WXG 任务台账（SSOT）=1+124 · §待排（backlog，无号，立项时领取…=95+30",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 5728 行 / 181783 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 5743 行 / 182163 tok",
           "level": 2,
           "startLine": 105,
           "endLine": 109,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+5729 · §WXG-T-413=5108+33 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+5744 · §WXG-T-414=5141+31 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -11987,9 +11987,9 @@
     },
     {
       "path": "docs/architecture/adr/ADR-0035-minigame-open-data-domain-friend-leaderboard.md",
-      "tokens": 7499,
+      "tokens": 7569,
       "lines": 264,
-      "sha256": "4d78148f2d96f83423621de411e503b55d7c6a5b6cad8867be570320ec07015e",
+      "sha256": "e0d51a47bcf5fe78b7468c7e7bfe0d0365a862530f8773edc4a2127c974f9ec9",
       "tier": "normal",
       "sections": [
         {
@@ -11997,7 +11997,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 265,
-          "tokens": 7465,
+          "tokens": 7535,
           "summary": "状态：Proposed（Q1 指标 = B 品质分榜（榜页唯一总榜 + 分关榜下放结算面板，用户 2026-10-26 ",
           "keywords": [
             "ADR",
@@ -12284,7 +12284,7 @@
           "level": 2,
           "startLine": 212,
           "endLine": 238,
-          "tokens": 553,
+          "tokens": 586,
           "summary": "",
           "keywords": [
             "ADR",
@@ -12312,7 +12312,7 @@
           "level": 3,
           "startLine": 220,
           "endLine": 233,
-          "tokens": 393,
+          "tokens": 426,
           "summary": "S-1 core/opendata/：协议判别联合 + NoopOpenDataProvider + MockOpenD",
           "keywords": [
             "core",
@@ -12368,7 +12368,7 @@
           "level": 2,
           "startLine": 260,
           "endLine": 265,
-          "tokens": 215,
+          "tokens": 251,
           "summary": "架构评审 P1 批次（TODO-3~7）已全部落地：WXG-T-405 / 408 / 410 / 411 / 414。",
           "keywords": [
             "TODO",
@@ -86496,17 +86496,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 181783,
-      "lines": 5728,
-      "sha256": "3eb7b07c0fb184c3181d54269e2ebae04d851db6ec73898c63c60dbbeb333f3d",
+      "tokens": 182163,
+      "lines": 5743,
+      "sha256": "668e0bf7c79aa5c8708dd8d14a8b46a6a1da6dbbb51e7da58c138e9a7980a417",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 5729,
-          "tokens": 181766,
+          "endLine": 5744,
+          "tokens": 182146,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -93615,8 +93615,8 @@
           "anchor": "§WXG-T-425",
           "level": 2,
           "startLine": 5700,
-          "endLine": 5729,
-          "tokens": 781,
+          "endLine": 5731,
+          "tokens": 782,
           "summary": "",
           "keywords": [
             "WXG"
@@ -93668,8 +93668,8 @@
           "anchor": "§3 遗留（未处置，需其它轨）",
           "level": 3,
           "startLine": 5725,
-          "endLine": 5729,
-          "tokens": 116,
+          "endLine": 5731,
+          "tokens": 117,
           "summary": "design/levels/levels-spec.md:584 仍列「给 TRAY_EXPAND_SLOTS 一条免广",
           "keywords": [
             "design",
@@ -93679,22 +93679,38 @@
             "遗留",
             "未处置"
           ]
+        },
+        {
+          "anchor": "§WXG-T-426",
+          "level": 2,
+          "startLine": 5732,
+          "endLine": 5744,
+          "tokens": 375,
+          "summary": "S-1 施工单：opendata 协议层 + Noop / Mock Provider · 负责：主理人(Qoder)·",
+          "keywords": [
+            "WXG",
+            "opendata",
+            "Noop",
+            "Mock",
+            "Provider",
+            "Qoder"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 61331,
-      "lines": 122,
-      "sha256": "7f77e08f390c63e3d1f35cf5cf296bc1c1d87779ec7a8a1889c8602d1c2a6c88",
+      "tokens": 61589,
+      "lines": 123,
+      "sha256": "b69020f883b40ce4e75af1ebc2b02c48c60a2066fe96e605018fffd4063c8926",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 123,
-          "tokens": 61322,
+          "endLine": 124,
+          "tokens": 61581,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -93707,8 +93723,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 94,
-          "endLine": 123,
+          "startLine": 95,
+          "endLine": 124,
           "tokens": 1460,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -96435,6 +96451,208 @@
             "grep",
             "Math",
             "random"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "production/plans/2026-10-26-wxg-t-426-s1-opendata-protocol.md",
+      "tokens": 2821,
+      "lines": 198,
+      "sha256": "394cdab49700b690e4c1d9087b3b597496a3ec4122ba2083e8c8e291d39e5448",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§WXG-T-425 · S-1 施工单：opendata 协议层 + Noop / Mock Provider",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 199,
+          "tokens": 2801,
+          "summary": "上位：docs/architecture/adr/ADR-0035-minigame-open-data-domain-",
+          "keywords": [
+            "WXG",
+            "opendata",
+            "Noop",
+            "Mock",
+            "Provider",
+            "docs"
+          ]
+        },
+        {
+          "anchor": "§1 范围（In / Out 一刀切）",
+          "level": 2,
+          "startLine": 9,
+          "endLine": 31,
+          "tokens": 337,
+          "summary": "In（本单只做这些）",
+          "keywords": [
+            "Out",
+            "范围",
+            "一刀切"
+          ]
+        },
+        {
+          "anchor": "§2 交付物与签名",
+          "level": 2,
+          "startLine": 32,
+          "endLine": 114,
+          "tokens": 972,
+          "summary": "",
+          "keywords": [
+            "交付物与签名"
+          ]
+        },
+        {
+          "anchor": "§2.1 `core/opendata/protocol.ts`",
+          "level": 3,
+          "startLine": 34,
+          "endLine": 73,
+          "tokens": 501,
+          "summary": "",
+          "keywords": [
+            "core/opendata/protocol.ts",
+            "core",
+            "opendata",
+            "protocol"
+          ]
+        },
+        {
+          "anchor": "§2.2 `core/opendata/provider.ts`",
+          "level": 3,
+          "startLine": 74,
+          "endLine": 88,
+          "tokens": 163,
+          "summary": "",
+          "keywords": [
+            "core/opendata/provider.ts",
+            "core",
+            "opendata",
+            "provider"
+          ]
+        },
+        {
+          "anchor": "§2.3 `core/opendata/mock.ts`",
+          "level": 3,
+          "startLine": 89,
+          "endLine": 108,
+          "tokens": 234,
+          "summary": "",
+          "keywords": [
+            "core/opendata/mock.ts",
+            "core",
+            "opendata",
+            "mock"
+          ]
+        },
+        {
+          "anchor": "§2.4 barrel",
+          "level": 3,
+          "startLine": 109,
+          "endLine": 114,
+          "tokens": 44,
+          "summary": "core/opendata/index.ts 导出上述三件；core/index.ts 在 export * from ",
+          "keywords": [
+            "barrel",
+            "core",
+            "opendata",
+            "index",
+            "export",
+            "from"
+          ]
+        },
+        {
+          "anchor": "§3 实现硬约束",
+          "level": 2,
+          "startLine": 115,
+          "endLine": 124,
+          "tokens": 229,
+          "summary": "1. 零平台依赖：core/opendata/ ⛔ import cc / DOM / wx / window / do",
+          "keywords": [
+            "core",
+            "opendata",
+            "import",
+            "DOM",
+            "window",
+            "实现硬约束"
+          ]
+        },
+        {
+          "anchor": "§4 测试计划（**先红后绿**）",
+          "level": 2,
+          "startLine": 125,
+          "endLine": 151,
+          "tokens": 334,
+          "summary": "先写断言、跑红（文件不存在即红），再实现。用例清单：",
+          "keywords": [
+            "测试计划",
+            "先红后绿"
+          ]
+        },
+        {
+          "anchor": "§5 验证命令",
+          "level": 2,
+          "startLine": 152,
+          "endLine": 166,
+          "tokens": 154,
+          "summary": "",
+          "keywords": [
+            "验证命令"
+          ]
+        },
+        {
+          "anchor": "§6 风险与待观察",
+          "level": 2,
+          "startLine": 167,
+          "endLine": 174,
+          "tokens": 193,
+          "summary": "1. 协议常量双份：子域不能 import 主域代码 ⇒ S-4 必须构建期生成一份（从 protocol.ts 抽取）",
+          "keywords": [
+            "import",
+            "protocol",
+            "风险与待观察"
+          ]
+        },
+        {
+          "anchor": "§7 红线自证（交付时逐条打勾）",
+          "level": 2,
+          "startLine": 175,
+          "endLine": 184,
+          "tokens": 93,
+          "summary": "[ ] L2：core/opendata/ 零 cc / DOM / wx / window / document（ch",
+          "keywords": [
+            "core",
+            "opendata",
+            "DOM",
+            "window",
+            "document",
+            "红线自证"
+          ]
+        },
+        {
+          "anchor": "§8 完成定义（DoD）",
+          "level": 2,
+          "startLine": 185,
+          "endLine": 193,
+          "tokens": 81,
+          "summary": "1. 两个测试文件全绿，新增用例 ≥ 12（A ≥ 5 / B ≥ 6）。",
+          "keywords": [
+            "DoD",
+            "完成定义"
+          ]
+        },
+        {
+          "anchor": "§9 交接给 S-2 / S-3 / S-5",
+          "level": 2,
+          "startLine": 194,
+          "endLine": 199,
+          "tokens": 153,
+          "summary": "S-2：Platform.createOpenDataProvider?(): OpenDataProvider und",
+          "keywords": [
+            "Platform",
+            "createOpenDataProvider",
+            "OpenDataProvider",
+            "und",
+            "交接给"
           ]
         }
       ]

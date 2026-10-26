@@ -221,7 +221,7 @@ SETTLE_SCORE = stars×1000 + round(ratio×1000) − powerupsUsed×50 + (未用�
 
 | 片 | 内容 | 可验证性 |
 |---|---|---|
-| S-1 | `core/opendata/`：协议判别联合 + `NoopOpenDataProvider` + `MockOpenDataProvider`（harness 可跑） | ✅ 纯 Node 单测 |
+| S-1 | `core/opendata/`：协议判别联合 + `NoopOpenDataProvider` + `MockOpenDataProvider`（harness 可跑）；施工单 = **WXG-T-426**（[S-1 施工单](../../../production/plans/2026-10-26-wxg-t-426-s1-opendata-protocol.md)） | ✅ 纯 Node 单测 |
 | S-2 | `Platform.createOpenDataProvider?()` + `GameServices.openData?` 透传 | ✅ 单测 |
 | S-3 | beads 榜单面板占位（路由 + 空态文案 + 未授权态） | ✅ harness 截图 |
 | S-4 | `opendata/` 子域骨架（独立 tsconfig，`onMessage` 收协议，Mock 数据自绘） | ✅ 子域单测（纯函数化排序/布局） |
@@ -261,4 +261,4 @@ SETTLE_SCORE = stars×1000 + round(ratio×1000) − powerupsUsed×50 + (未用�
 
 - 架构评审 P1 批次（TODO-3~7）已全部落地：WXG-T-405 / 408 / 410 / 411 / 414。
 - TODO-8 由「backlog」升级为**本 ADR（Proposed）**：结论 = **好友榜零后端**，本里程碑不写后端。
-- 后续：Q1=B（**榜页唯一总榜 + 分关下放结算面板**，WXG-T-423）已定 + Q2/Q3/Q4 **全部已拍**（Q4 = R2，WXG-T-424）+ §3.2.1 ① ② **已落码**（WXG-T-421：save v6 / 结算面板品质分行）→ 主理人发 S-1 落码单（协议 + Provider + R2 纹理通道）→ S-3/S-4 补 ③ 榜单说明行 + 结算面板「好友这关第 N」入口 → 按 §5.3 验证纪律推进。**二期**（不在一期范围）= 冲刺模式恢复 + 冲刺榜（WXG-T-422）。
+- 后续：Q1=B（**榜页唯一总榜 + 分关下放结算面板**，WXG-T-423）已定 + Q2/Q3/Q4 **全部已拍**（Q4 = R2，WXG-T-424）+ §3.2.1 ① ② **已落码**（WXG-T-421：save v6 / 结算面板品质分行）→ **S-1 施工单已起草 = WXG-T-426**（协议 + Noop/Mock Provider，纯 Node 单测；`production/plans/2026-10-26-wxg-t-426-s1-opendata-protocol.md`）→ S-3/S-4 补 ③ 榜单说明行 + 结算面板「好友这关第 N」入口 → R2 纹理通道随 **S-5**（真机面）落 → 按 §5.3 验证纪律推进。**二期**（不在一期范围）= 冲刺模式恢复 + 冲刺榜（WXG-T-422）。
