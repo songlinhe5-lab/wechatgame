@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3793,
       "lines": 129,
-      "sha256": "d12840280660a2bf08027f52d380bc5415929fb6b09c680d7947c18e794d2353",
+      "sha256": "39da8c0ea336ab5dde23009736b8525a9f62c5f528eb6cb260f6d557be6a5e33",
       "tier": "normal",
       "sections": [
         {
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5185,
       "lines": 164,
-      "sha256": "6abd5bddd84fc4b40501657b987c090d06db15fafa08b800dab44366874dc93b",
+      "sha256": "9ac53a1eeed5853d0a45f94a6dd02afbbc17336d4ee91b6ccda0d735e1d3bb58",
       "tier": "normal",
       "sections": [
         {
@@ -713,7 +713,7 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/gdd/systems-index.md` — 307 行 / 36357 tok / 实测读 170 次",
+          "anchor": "§`games/beads/design/gdd/systems-index.md` — 307 行 / 36377 tok / 实测读 170 次",
           "level": 2,
           "startLine": 19,
           "endLine": 22,
@@ -33256,9 +33256,9 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index.md",
-      "tokens": 36357,
+      "tokens": 36377,
       "lines": 307,
-      "sha256": "b2c4e8b8df4814aef49d46f14ae31539fb1bce904531cb5f8597f03ceedff415",
+      "sha256": "da9a4059b380c9cea794796b688cb359229a390812a514c5ff6b806060661d68",
       "tier": "hot",
       "sections": [
         {
@@ -33266,7 +33266,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 308,
-          "tokens": 36340,
+          "tokens": 36360,
           "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.90 · 任务号 WXG-T-398（v1.90 = 结算按",
           "keywords": [
             "Systems",
@@ -33309,7 +33309,7 @@
           "level": 2,
           "startLine": 56,
           "endLine": 262,
-          "tokens": 25146,
+          "tokens": 25166,
           "summary": "本项目唯一真源（Single Source of Truth）——适用范围：游戏数值与常量（分辨率 / 安全区 / 网格",
           "keywords": [
             "Global",
@@ -33487,7 +33487,7 @@
           "level": 3,
           "startLine": 222,
           "endLine": 233,
-          "tokens": 1241,
+          "tokens": 1261,
           "summary": "STAMINA_MAX 8 体力（心）上限（宽容包 B，用户拍板）",
           "keywords": [
             "Stamina",

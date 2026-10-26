@@ -27,7 +27,7 @@ export interface BeadsMeta extends SaveDocument {
      * `0` = 尚未初始化（首次 refresh 时由 clock 落定）。
      */
     staminaAnchorMs: number;
-    /** 签到币余额（≥0 整数）。获取仅签到 / 周榜结算 / 通关首通；消耗 = 买心 / 头像框。 */
+    /** 签到币余额（≥0 整数）。获取仅签到 / 通关首通（v1.91 删周榜结算：现无排行榜）；消耗 = 皮肤买断 / 道具超限 / 头像框（后两者见 §3.14）。 */
     coins: number;
     /** 累计签到次数（循环制 MF5：当日格 = `signinClaims % 7`，断签不清零）。 */
     signinClaims: number;
