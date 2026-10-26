@@ -5246,6 +5246,118 @@ interface PerformanceSnapshot {
 
 WXG-T-412 = Qoder 会话隔离工作树配方（已入库）。WXG-T-413 = beads 消耗品文档（已入库）。**WXG-T-414 零占用**，直接领。
 
+## WXG-T-415
+
+**冲突标记进门禁：`check-secrets` 加 `CONFLICT-MARKER` 一腿 + 把该脚本自测挂上 fast 档**（✅ 完成 · 2026-10-26 · 主理人(Qoder)·工具链）
+
+### 1. 触发
+接 WXG-T-412 收尾三选项选 1（用户 2026-10-26 令「1」）。要治的是判例 K-179：`origin/develop` 的一笔 `wip: merge resolution done`（`467aa574`）把 `<<<<<<< / ======= / >>>>>>>` 三段标记连同两条重复头注整块提交入库，而 pre-commit 五道门（secrets / links / plugins / mcp / tasks）判的都是结构面，**没有任何一腿 grep 冲突标记** ⇒ 下一会话直到 rebase 才撞见。K-179 ③ 已写明「最廉价的落点」并留「待主理人拍板」，本单就是那次拍板的落地。
+
+### 2. 改动面
+| 文件 | 改了什么 | 为什么放这里 |
+|---|---|---|
+| `tools/scripts/check-secrets.mjs` | ① `CONTENT_RULES` 新增 `CONFLICT-MARKER`（行首 7 个 `<` 或 `>`）；② 头注补一节「为什么这条腿长在本脚本上」；③ `--help` 的 FAIL 清单加一项；④ 自测 18 → 24 条（B9–B13 + C5） | 该脚本的扫描面恰好就是「会不会入仓」= `git ls-files --cached --others --exclude-standard`，且已挂 pre-commit ⓪ / `verify` / CI 三处 ⇒ 加一条内容规则即复用全套采集与接线，**零新脚本、零改钩子、零改 CI** |
+| `package.json` | 新增入口 `check:secrets:selftest` | 该脚本的 `--selftest` 自 WXG-T-047 起就没有入口 ⇒ 18 条腿从未在 CI 跑过（判例 K-181） |
+| `tools/scripts/selftests.mjs` | `TIERS.fast` 加同名档位项 | 名字与 package.json 入口须一字不差，否则 `guardCoverage()` 报「入口未入档 / 档位项不存在」 |
+| `docs/architecture/control-manifest.md` §12 | 提交前自查表加一行「没有把未解决的 merge 冲突标记留在行首」 | 先改文档再改代码（AGENTS.md §4）；机器守之前得人知道有这条 |
+| `docs/architecture/architecture.md` 门禁表 | 「密钥守卫」→「密钥 / 冲突标记守卫」 | 同一脚本职责变了，表要跟 |
+| `knowledge/lessons/toolchain-git.md` | K-179 ③ 由「待拍板」改为「已落地 + 判据 + 复取读数」；新增 K-181 | 沉淀写回原条目，不留两条互相矛盾的说法 |
+
+⛔ 不新建 `check-conflict-markers.mjs`，也不改 `.githooks/pre-commit` 与 `verify-all.mjs` 步骤表（`check:secrets` 两处都已在册）——另起脚本要多接一处线、多一份扫描面口径，重复判据的噪声风险翻倍。
+
+### 3. 判据（为何只查行首、为何不查 `=`）
+- 命中条件 = 行首 7 个 `<` 或 7 个 `>`，其后为空格/制表或行末（git 把标记写死在列 0）。命中即 **FAIL，文档不降级**——事故就发生在 `.md` 里，把 `.md` 降成 WARN 等于没守。
+- **`=======` 那一段刻意不查**：markdown setext 标题的下划线正是行首一串 `=`，查它就把门禁变成噪声源，而噪声逼人加 `--no-verify`（K-025）；未解冲突必然成对带 `<<<<<<<` 与 `>>>>>>>`，任一条命中即可拦下。该取舍由自测 B13（setext 正例不命中）钉住。
+- 文档里要**展示**标记：必须写在行内反引号或缩进（行首非 0 列）——B10 / B11 是这两条的判别腿，本单的 K-179 追记与主表行本身就是合法写法（标记都在行中）。
+
+### 4. 取证
+- **事故原文复取**（第二口径，K-168）：把 `467aa574:production/TASKS.md` 落进临时桩仓库，跑 `node tools/scripts/check-secrets.mjs --root=<桩>` ⇒ `FAIL [CONFLICT-MARKER] production/TASKS.md:5`。即「这条腿当年就拦得住」是实测，不是推理。
+- **本仓零存量**：`git grep -nE '^(<<<<<<<|>>>>>>>)' -- .` = 0 命中；全仓扫描 `1830` 个文本文件 / 跳过二进制或超限 `478` / FAIL `0` / WARN `9`（9 条都是既有 AppID 文档降级项，与本单无关，改前改后同数）。
+- **自测**：`check-secrets --selftest` 24/24；`selftest:fast` 由 11 件 → 12 件全绿。
+- **K-181 的盘点差集**（`grep -l selftest tools/scripts/*.mjs` 减去 package.json `*:selftest` 指向的脚本）实测命中三件：`check-secrets.mjs`（本单挂档）、`build-mcp-configs.mjs`、`check-plugin-anchor.mjs`（后两件未挂，见 §7）。
+
+### 5. 验证（本单暂存态读数）
+| 门 / 命令 | 读数 |
+|---|---|
+| `pnpm run verify`（建树后基线，未含本单改动） | PASS 20 ｜ SKIP 2 ｜ FAIL 0（共 22 项） |
+| `pnpm run verify`（本单暂存态、未入库） | PASS 19 ｜ SKIP 2 ｜ FAIL 1 —— 唯一红 = `selftest:fast` 里的 `ctx:check`（默认 HEAD 口径，文档已改而索引未入库）= 判例 K-136 同型假红，入库即消；新挂的 `check:secrets:selftest` 在该档内 ✅（12 件里 PASS 11 / FAIL 1，红的就是上面那件） |
+| `pnpm run check:secrets` 全仓 | OK —— FAIL 0（扫 1830 个文本文件、跳过二进制/超限 478、WARN 9）；改前 HEAD 版脚本同面同读数 ⇒ 新腿零存量误报 |
+| `node tools/scripts/check-secrets.mjs --selftest` | PASS 24 ｜ FAIL 0 |
+| `pnpm run selftest:fast` | 台账回写前首跑 PASS 12 ｜ FAIL 0（新挂的 `check:secrets:selftest` 已入列）；台账回写后同档变 11 / FAIL 1，红的只有上行的 `ctx:check` |
+| `pnpm run check:tasks` | OK —— 主表 63 行（本单 +1）、详情 86 节、归档 235 节；H 观察哨仍报 63 > 20（归档需用户批准 `--write`） |
+| `pnpm run kb:check` | PASSED —— 十重校验、活跃 178（本单新增 K-181）；`kb:sync --task=WXG-T-415`：新增 1｜修改 1（K-179）|
+| `pnpm run check:links` | OK —— agents 7｜skills 47，frontmatter / INDEX / 路由表 / 四 IDE 链接完整 |
+| ctx 四面（`build-context-index.mjs --staged-blobs` 暂存态口径） | TASKS.md **57,609**（档 80,000）｜ TASKS-DETAIL.md **165,577**（档 205,000）｜ BACKLOG.md 11,980（档 16,000）｜ MEMORY.md 4,761（本单未改）｜ `files` 495（含 22 份 vendor README ⇒ 按 WXG-T-412 配方先补齐再 build） |
+
+### 6. 裁定与边界
+- 落点由「用户选 1」授权 ⇒ 不再另开 ADR；改的是既有脚本的一条规则，五道门的其余判据面一字未动。
+- ⚠ 只拦「行首 7 个标记字符」这一形态：若谁把标记缩进后提交（git 不会这么写），本腿不拦——记为已知上限，⛔ 不做模糊匹配（做不出判据就是伪判据）。
+- ⚠ 本腿查的是**工作树/暂存内容**（同 check-secrets 既有语义），不查历史 blob ⇒ 已入库的旧标记只能靠 `git grep` 人工盘（本轮读数 = 0）。
+- 全程在隔离工作树 `.worktrees/wxg-t-415-conflict-gate`（基点 `origin/develop` = `fb50e123`，即对方 413/414 批之后）内完成；建树即按 WXG-T-412 的配方补齐 4 处 `node_modules` 软链与 22 份 vendor `*.md`，主仓另有未提交的对方在制品（`games/beads/design/proposals/star-economy-and-retention.md`）⇒ 本单不夹带（K-137）。
+
+### 7. 遗留
+1. 另有两件裸 `--selftest` 未挂档：`build-mcp-configs.mjs`、`check-plugin-anchor.mjs`（判例 K-181 ② 的差集法可直接复跑）。
+2. `selftests.mjs::guardCoverage()` 的枚举面本身不含「裸 `--selftest`」线索 ⇒ 要根治须给它加第三类线索（拿 `tools/scripts/*.mjs` 里带 `--selftest` 的脚本名去比对 TIERS 的 argv 目标），未做是因为它会立刻把 1. 判红、把本单撑成三件事。
+3. `selftests.mjs` 头注仍写「fast 七件自测」、CI L148 注释仍写「11 件」，实际 fast 档已 12 件 ⇒ 注释读数会漂，下次改动顺手校准。
+4. `check:size` / `check:cocos-mask` 在树内仍 SKIP（无构建产物，不是通过）；要满档需先 `pnpm run build:cocos`。
+
+## WXG-T-416
+
+**台账合并损伤修复 + 自测档位漏项补第三类线索（+ 把会漂的注释读数改成命令）**（✅ 完成 · 2026-10-26 · 主理人(Qoder)·工具链）
+
+### 1. 触发
+接 WXG-T-415 收尾三选项 1/2/3（用户 2026-10-26 令「下一步 1/2/3」）。按 WXG-T-412 配方建隔离树（`.worktrees/wxg-t-416-selftest-coverage`，基点 `origin/develop` = `e8a386ea`）后，建树第一件事跑三门，**当场发现 HEAD 已被上一轮合并改坏**：对方 `3bae99b1` 与我的 `2c0a31df` 在 `e8a386ea` 合并时，两份台账按「保留对方」解冲突 ⇒ 我的 `WXG-T-415` **主表行与详情节同时消失**，而头注里「已分配至 415 / 下一 416」还在（同一个文件的两半各取了一侧）。`pnpm run check:tasks` 当场报 I 项「最近 40 笔提交署了 415，但四处均无」⇒ 本单第 0 件事就是把它修回来。
+
+做到一半远端前后进五笔（`e0443c03`/`a4d7942f` = 418 好友榜 ADR 与 Q2 拍板，`e0c496f7` = 418 的 Q1/Q3 拍板，`db90a8bf` = 419 道具体系 v2 定稿），而**本单第一次 `git commit` 被 `ctx:check` B 项当场拦下** —— 拦的对象不是我改的任何文件：对方 413 批新增的 `games/beads/design/gdd/powerups-v2.md` 单文件 **15,809 tokens** 越 spec 类 8,000 上限，其豁免登记（`ctx/budget-exempt.json`，跨轨代登记）随 418 批才入库 ⇒ **已入库债务硬拦其它轨提交**（正是那条豁免注里自己写下的动因）。处置（⛔ 未 `--no-verify`、⛔ 未代改对方一个字）：丢掉可再生的 `ctx/` 三件 → `git stash` → `merge --ff-only` 追到 `a4d7942f` → `stash pop` 解两处台账冲突取**并集**（头注沿用上游「已分配至 …」，我的 416 子句插在它的 415 子句之前）；`ctx:check` 的 B 项此后由该豁免合法放行。入库后推送前再追一次：`git rebase origin/develop`（→ `db90a8bf`），详情节零冲突、主表与头注两处冲突手工并集。
+
+### 2. 改动面
+| 文件 | 改了什么 | 为什么 |
+|---|---|---|
+| `production/TASKS.md` | 415 主表行（原文取自 `2c0a31df`）插回 414 之后；头注领号改 416 / 下一 417 | 合并丢行，逐字节回灌比重写安全 |
+| `production/TASKS-DETAIL.md` | 415 详情节（同上取原文，整节 §1–§7）追回文末 | 同上；行与节必须成对（K-065 口径） |
+| `tools/scripts/selftests.mjs` | 完整性守卫加**第三类线索**（脚本内 `--selftest` 模式）+ 豁免表 `AWAITING_SCRIPTS` + `--list` 一并列出；头注改成不抄件数 | 前两类线索（`:selftest` 入口名、`*-selftest.sh` 文件名）看不见裸 `--selftest`，K-181 就是靠这个漏的 |
+| `package.json` | 新增 `check:plugins:selftest`、`mcp:build:selftest` | 两件自测一直存在却从没在 verify / CI 跑过 |
+| `tools/scripts/selftests.mjs`（TIERS.fast） | 上述两件并入 fast 档 | 各 6/6、约 0.1s，挂档不增负担 |
+| `.github/workflows/ci.yml` | 删掉抄死的「11 件 / 6.7s / 覆盖率 11/11」，改为指向 `--list` 与实跑 | 读数抄一次漂一次（已漂两次） |
+| `knowledge/lessons/toolchain-git.md` | 新增 **K-182**（合并丢台账行）；K-181 追加「本批已挂档 + 第三类线索入代码」 | 沉淀写回原条目，不新增自相矛盾的说法 |
+
+### 3. 判据（第三类线索怎么算「已覆盖」）
+- 机械判据两条任一即算覆盖：① 某档位项的 argv 目标就是该脚本；② 规定命名的包装器 `<脚本名去后缀>-selftest.sh` 在档位里（既有 5 件 `.sh` 包装族靠这条认领，否则会被误判成漏挂）。
+- **反证优先于正证**（K-036 口径），且要可复现：往 `tools/scripts/` 丢一个只含 `process.argv.includes('--selftest')` 的探针文件 `zz-guard-probe.mjs`，跑 `selftest:fast` ⇒ 守卫**只**报 `zz-guard-probe.mjs 自带 --selftest 模式但未入任何档位`（不误伤其余 3 件已覆盖的脚本）；删探针复跑 ⇒ 该类报红消失。这比「摘掉档位项再跑」强：它同时验了命中与不命中两个方向。
+- ⛔ 注释里不抄件数/耗时：改写成「要真值就跑 `--list` / `--tier=<x>`」，从机制上消掉这一类漂移。
+
+### 4. 取证
+- 合并损伤面（逐件 grep 计数）：`production/TASKS.md` 的 415 行 = **0**、`TASKS-DETAIL.md` 的 415 节 = **0**，而第 5 行头注含「已分配至 415」= **1** ⇒ 同一文件两半各取一侧；对照 `git show 2c0a31df:production/TASKS.md` 该行 = 1（原文健在）。
+- 其余 12 件文件**未受损**（CONFLICT-MARKER 3 处 / pkg 入口 1 / TIERS 1 / manifest 1 / architecture 1 / K-181 1 / ledger 2 / INDEX 1）⇒ 损伤只落在两份台账，不是全批丢失。
+- 修复后：`check:tasks` OK（主表 **67 行** / 详情 **89 节** / 归档 235 节，含两次追平带进来的上游 418、419 行与节），I 项转为「最近 40 笔共署 18 个号，全部在册」。
+- ⚠️ **自纠（本单自己造过一次合并损伤）**：`git rebase` 的手工并集脚本把 `> **领号…**` 头注写成了 **3 份**（`grep -c` = 3、文件 120 行 / 381,790 字符 vs 上游 117 行 / 195,559）。
+  确诊法 = 拿 `git show <上游>:<文件> | wc -lc` 与工作树对读 + 特征串计数；修后 118 行 / 196,736 字符、头注 1 份。
+  这一族与 K-182 是同一枚硬币的两面（解冲既能**丢行**也能**dup 行**），而 `check:tasks` 两样都看不见 ⇒ 已并入 §7-1 的门设计判据。
+- 归档演练（选项 2，**未落盘**）：默认 30 天 = **0 行可归档**（完成行的行内完成日期全在 30 天内）；`--until-under=40000`（体积驱动、忽略年龄）= **计划归档 40 行 + 详情节 40 节**，台账 **59,139 → 预计 45,513 tokens**，而归档器自己判 ⚠️ **「全部可归档行移出后仍超阈值」**⇒ 结论：**光归档收不住**。主表 67 行里只有 40 行是 ✅ 完成行（可搬），余 27 行是在办 / 提案 / 待排；要真降回 40,000 以下，只能继续走 WXG-T-407 那条「拆 BACKLOG」的路（把未排期提案出主表），或把上限档位往上抬 —— 两者都须用户拍，⛔ 本单未执行 `--write`。
+
+### 5. 验证
+| 门 / 命令 | 读数 |
+|---|---|
+| `selftest:fast`（挂档前的反证） | ❌ FAIL —— 守卫当场报出**且仅报出**这两件（另 3 件同带 `--selftest` 的脚本已被前两类线索覆盖）；此处不看总数，只看「报出的名字对不对」 |
+| `selftest:fast`（挂档后） | PASS 14 ｜ FAIL 0 ｜ 共 14 件 —— 新挂两件 `check:plugins:selftest` / `mcp:build:selftest` 各 exit 0、0.0s 且全绿。（暂存态另跑一次 = PASS 13｜FAIL 1，红项恒为 `ctx:check` = K-136 同型假红） |
+| `pnpm run check:secrets` | OK —— 扫描 1,835 文本 / 跳过 478 / FAIL 0 / WARN 9（含 415 那条 CONFLICT-MARKER 腿在内全绿；本单两次解冲正是靠它兜住没把标记留在行首） |
+| `pnpm run check:tasks` | OK —— 主表 67 行 / 详情 89 节 / 归档 235 节；H 项 note（67 > 观察哨 20）、I 项「最近 40 笔共署 18 号全部在册」 |
+| `pnpm run kb:check` | PASSED 十重 —— 活跃 179（本单新增 K-182、修改 K-181）；`kb:sync --task=WXG-T-416`：新增 1 / 修改 1 |
+| `pnpm run check:links` | OK —— agents 7 / skills 47，四 IDE 链接与 INDEX 完整 |
+| `pnpm run verify`（暂存态） | PASS 19 ｜ WARN 0 ｜ SKIP 2 ｜ FAIL 1（共 22 项）—— 唯一红 = `selftest:fast` 内的 `ctx:check`（暂存内容尚未进索引 = K-136 同型假红，入库即消）；SKIP = `check:size` / `check:cocos-mask`（隔离树无 `build:cocos` 产物，**不是通过**） |
+| ctx 四面（`--staged-blobs`） | TASKS **59,139**/80,000 ｜ DETAIL **175,691**/205,000 ｜ BACKLOG **11,980**/16,000 ｜ MEMORY.md **4,761**；索引 `files` **497**（占位行按当场实测替换；DETAIL 行自指 ⇒ 迭代到不动点，第 2 轮数值不变） |
+
+### 6. 裁定与边界
+- 修复走「原文回灌」：从 `2c0a31df` 取该行/该节逐字节搬回，不重写内容，避免二次走样。
+- 归档不擅自落盘：H 项 note 自己就要求「先 dry-run 读计划行数与 token 预估再拍档位」；治理类操作由用户拍。
+- 隔离树判据本单**只出方案不落码**（§7-2）：任何默认阻断都会误伤用户本人在主仓的正常提交。
+
+### 7. 遗留（含两套方案）
+1. **合并丢台账行暂无门**（新判例 K-182）。建议落点：`check:tasks` 加一腿「主表行消失、且该号既不在归档也不在 BACKLOG ⇒ FAIL」。判据面 = 合并差异里 `^-` 开头的任务行；误伤面 = 归档批次（可用「归档文件同号新增」抵扣，`tasks:archive` 的守恒校验可直接复用）。未在本单落，是因为要一并想清 413/414 这类「BACKLOG-only」形态与被正当删行的场景。
+2. **隔离树判据方案**：可机械判定「本次提交在主工作树还是链接工作树」——`git rev-parse --git-dir` 与 `--git-common-dir` 在主工作树相等，在链接工作树不等。建议**默认只打印提示**（附 `git worktree list` 与「本会话若与他人并发请用隔离树」），另设环境变量 `WXG_REQUIRE_WORKTREE=1` 时才硬拦。判据弱点：它只能证明「你在主仓提交」，证明不了「此刻有别人也在用」，故不适合默认阻断。
+3. 归档待批：`--until-under=40000` 的 38 行 + 38 节，但**搬完仍 45,191 > 40,000**（读数与结论见 §4）⇒ 单搬不够，得与「继续拆 BACKLOG」一起拍。
+4. 树内 `check:size` / `check:cocos-mask` 仍 SKIP（隔离树无 `build:cocos` 产物，**不是通过**）；主仓工作树此刻被对方在制品占着（`powerups-v2.md` 脏），追平动作仍归对方收尾。
+5. **撞号披露（非本单引入，⛔ 不代填）**：`production/TASKS-DETAIL.md` 有**两个** `## WXG-T-414` 节 —— `c28c706f`（CodeBuddy「本关最快时间」展示位提案）与 `3bae99b1`（WorkBuddy 帧率档实现）各取了一次 414；主表只有帧率档那一行，提案节无对应行。至于 417：`git log --all --grep=WXG-T-417` = **0 笔**、BACKLOG / MEMORY / docs **零引用**，仅被 419 批的领号注记以「417 = 对方前瞻」一句跳过 ⇒ 名义上被人让过、实际无人认领。提案节是否改挂 417，由归属会话自行裁定，⛔ 本单不代改。这属判例 K-046 同型（用过号未核），且 `check:tasks` 现有判据看不见「同号双节」（C 项只校主表行→详情节方向）⇒ 建议并入 §7-1 那条门一起设计：详情节同号多份 = 报警。归属会话自行订正。
 
 ## WXG-T-415
 

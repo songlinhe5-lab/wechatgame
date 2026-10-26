@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 182,
+  "nextId": 183,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -3026,8 +3026,25 @@
       "file": "knowledge/lessons/toolchain-git.md",
       "category": "工具链Git",
       "title": "裸 `--selftest` 模式没有 package.json 入口时，就落在自测完整性守卫的枚举面之外 ⇒ 装置自测可以长期零执行而无人知",
-      "contentHash": "aabf5b3d09d6a618d6054c897df0767328a7eea095165c3ac190a62fb372544f",
+      "contentHash": "8c617d4a310e0c73adc022d5abd929b399301990cfc07f3b04522aee85590cd3",
       "sourceTask": "WXG-T-415",
+      "addedDate": "2026-10-26",
+      "lastAccess": "2026-10-26",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-182",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain-git.md",
+      "category": "工具链Git",
+      "title": "合并时按「保留一侧」整块解台账 ⇒ 已入库的主表行与详情节一起消失，头注却留着；门禁只在「提交窗口署号」事后报警",
+      "contentHash": "b9e132acfb6cad3b90bb4fd9aa4f37745494418864a1a7a957cdf8cd1abb0067",
+      "sourceTask": "WXG-T-416",
       "addedDate": "2026-10-26",
       "lastAccess": "2026-10-26",
       "accessCount": 0,
@@ -4958,6 +4975,24 @@
       "kind": "updated",
       "ids": [
         "K-179"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-26",
+      "taskId": "WXG-T-416",
+      "kind": "added",
+      "ids": [
+        "K-182"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-26",
+      "taskId": "WXG-T-416",
+      "kind": "updated",
+      "ids": [
+        "K-181"
       ],
       "note": null
     }

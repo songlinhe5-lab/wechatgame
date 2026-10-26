@@ -8,9 +8,11 @@
  *   · 本轮实测 —— `ctx:usage:selftest` 在 `3fa3be4` 与 `e9664da` 都是 **FAIL=63**（同一根因：
  *     桩只拷 `lib/` 里两件，而 `check-context-budget.mjs` 后来 import 了 `lib/memory-index.mjs`）
  *
- * 分档判据 = 实测耗时（2026-09-16，本机逐项计时；当前 verify 各项相加 13.8s）：
- *   fast  七件自测 + `ctx:check` ≈6.7s ⇒ 挂进 `verify` 与 CI，代价可接受（verify 13.8s → ≈20s）
- *   heavy >2s 五件 ≈25s           ⇒ 只挂 CI（全挂进 verify 会让本地全量验证慢三倍，反而诱发绕开）
+ * 分档判据 = 实测耗时（2026-09-16 首测；fast 档不断加件，数字只增不减）：
+ *   fast  约 6–8s（含一件**非自测**的 `ctx:check`）⇒ 挂进 `verify` 与 CI，代价可接受
+ *   heavy 五件 ≈25s               ⇒ 只挂 CI（全挂进 verify 会让本地全量验证慢三倍，反而诱发绕开）
+ *   ⛔ **不在此处抄件数与读数**（WXG-T-416）：抄了必漂（曾写「七件」而实为十一件、写「11/11」而实为十二件）。
+ *      要当前真值就现场跑：`--list` 看件、`--tier=<x>` 看逐项耗时。
  *
  * 为什么 fast 档里混了一条**非自测**的 `ctx:check`（BD-40）：它与 BD-39 同属「有门、但本地 verify
  * 不跑」这一族，实测只 0.51s。把它并入 fast 档 ⇒ 将来 `verify` 只需往 `STEPS` 加 `selftest:fast`
@@ -20,9 +22,14 @@
  *   1. **逐项执行、永不短路**（K-036：短路后的 ✅ 不构成证据），末尾按汇总定退出码。
  *   2. 打 `STATUS: OK|SKIP|FAIL` 机读行 —— 这样 `verify-all.mjs` 只需往 `STEPS` 加一项
  *      `selftest:fast` 即可接入，不必知道档位里有哪些件。
- *   3. **完整性守卫**：新出现的 `*-selftest.sh` / package.json 里 `*:selftest` 入口若未入档，
- *      当场报红（防「第 12 件装置自测又漏挂」）；确实挂不上的须写进 `AWAITING` 并给理由，
- *      由它降为 SKIP（**SKIP 不是通过，是没测** —— BD-18 口径），`--strict` 下判失败。
+ *   3. **完整性守卫**（三类线索，缺一类就有漏网）：
+ *      · `tools/scripts/*-selftest.sh` 文件名；
+ *      · `package.json` 里 `*:selftest` 入口名；
+ *      · 脚本内的 `--selftest` 模式（WXG-T-416）：前两类看不见它，`check-secrets.mjs` 的
+ *        18 条腿因此数年零执行（判例 K-181）。
+ *      任一未入档 ⇒ 当场报红（防「下一件装置自测又漏挂」）；确实挂不上的须写进 `AWAITING`
+ *      （入口名）或 `AWAITING_SCRIPTS`（脚本名）并给理由，由它降为 SKIP（**SKIP 不是通过，
+ *      是没测** —— BD-18 口径），`--strict` 下判失败。
  *
  * 用法：node tools/scripts/selftests.mjs [--tier=fast|heavy|all] [--strict] [--list]
  *       pnpm run selftest:fast ｜ pnpm run selftest:heavy
@@ -50,6 +57,10 @@ export const TIERS = {
         // package.json 入口、也不在档位里** ⇒ 18 条腿从未在 CI 跑过（完整性守卫只枚举
         // `*:selftest` 入口与 `*-selftest.sh`，看不见裸 `--selftest` 模式，判例 K-181）。
         { script: 'check:secrets:selftest', argv: ['node', `${S}/check-secrets.mjs`, '--selftest'] },
+        // WXG-T-416：第三类线索（裸 `--selftest`）报出的两件 —— 它们的自测一直存在却从没在
+        // verify/CI 跑过（判例 K-181）。两件都是 6/6、各约 0.1s，挂 fast 档不增负担。
+        { script: 'check:plugins:selftest', argv: ['node', `${S}/check-plugin-anchor.mjs`, '--selftest'] },
+        { script: 'mcp:build:selftest', argv: ['node', `${S}/build-mcp-configs.mjs`, '--selftest'] },
         { script: 'memory:split:selftest', argv: ['bash', `${S}/split-memory-detail-selftest.sh`] },
         { script: 'memory:distill:selftest', argv: ['bash', `${S}/distill-memory-selftest.sh`] },
         { script: 'knowledge:split:selftest', argv: ['bash', `${S}/split-knowledge-lessons-selftest.sh`] },
@@ -84,6 +95,13 @@ export const TIERS = {
  */
 const AWAITING = {};
 
+/**
+ * 第三类线索的豁免表（WXG-T-416）：键 = `tools/scripts/` 下的**脚本文件名**，值 = 理由。
+ * 当前为空 —— 两件裸 `--selftest`（`build-mcp-configs.mjs` / `check-plugin-anchor.mjs`）
+ * 已在本批挂上 fast 档。这里的条目会被计为 SKIP（不判绿）。
+ */
+const AWAITING_SCRIPTS = {};
+
 const args = process.argv.slice(2);
 const flag = (name) => args.includes(`--${name}`);
 const tierArg = (args.find((a) => a.startsWith('--tier=')) ?? '').slice(7);
@@ -101,6 +119,7 @@ if (flag('list')) {
     }
     console.log('awaiting（未入档，理由见源码 AWAITING）:');
     for (const k of Object.keys(AWAITING)) console.log(`  ${k}`);
+    for (const k of Object.keys(AWAITING_SCRIPTS)) console.log(`  ${k}`);
     process.exit(0);
 }
 
@@ -123,6 +142,19 @@ function guardCoverage() {
     }
     const orphanDeclared = [...declared].filter((k) => !(k in scripts));
     for (const k of orphanDeclared) problems.push(`档位项 ${k} 在 package.json 里不存在（改名脱钩）`);
+
+    // 第三类线索（WXG-T-416 / 判例 K-181）：脚本内的 `--selftest` 模式。前两类只认入口名与
+    // `*-selftest.sh` 文件名，看不见裸 `--selftest` ⇒ 自测可以数年零执行而无人知。
+    // 覆盖判据（机械，不靠命名约定外的推理）：某档位项的 argv 目标就是该脚本，
+    // 或按规定命名的包装器 `<脚本名去后缀>-selftest.sh` 在档位里。
+    const argvBases = new Set([...TIERS.fast, ...TIERS.heavy].map((i) => (i.argv[1] ?? '').split('/').pop()));
+    for (const f of readdirSync(join(ROOT, S)).filter((n) => n.endsWith('.mjs')).sort()) {
+        const src = readFileSync(join(ROOT, S, f), 'utf8');
+        if (!/includes\(['"]--selftest['"]\)/.test(src)) continue;
+        if (argvBases.has(f) || argvBases.has(`${f.replace(/\.mjs$/, '')}-selftest.sh`)) continue;
+        if (f in AWAITING_SCRIPTS) continue;
+        problems.push(`${S}/${f} 自带 --selftest 模式但未入任何档位（也没挂 <名>-selftest.sh 包装器）`);
+    }
     return problems;
 }
 

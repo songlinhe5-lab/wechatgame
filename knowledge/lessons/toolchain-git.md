@@ -76,5 +76,11 @@
 - **[工具链Git][K-181] 裸 `--selftest` 模式没有 package.json 入口时，就落在自测完整性守卫的枚举面之外 ⇒ 装置自测可以长期零执行而无人知**（来源 WXG-T-415，2026-10-26）
   现象：`check-secrets.mjs` 的 `--selftest` 自 WXG-T-047 起就有 18 条腿，但 `package.json` 无 `check:secrets:selftest` 入口、`selftests.mjs::TIERS` 里也没有它 ⇒ `verify` 与 CI 的 `selftest:fast` **从未跑过**（`git log -S'"check:secrets:selftest"' -- package.json` 零命中）。本轮给它加 6 条冲突标记腿时才实测确认。
   根因：`selftests.mjs::guardCoverage()` 只枚举两类线索——`package.json` 里以 `:selftest` 结尾的脚本名、`tools/scripts/*-selftest.sh` 文件名；**脚本内的 `--selftest` 选项不在枚举面**。⇒ BD-39 那一族「有门、但没人跑自测」在 `*.mjs` 上换了形态复现（`.sh` 形态反被守得住，因为它有文件名线索）。
-  规避/做法：① 新写 `*.mjs --selftest` 时**同批**补 package.json 入口 + `TIERS` 档位项，两者名字须一字不差（守卫按脚本名比对）；② 盘点未挂档的自测用差集而非印象：`grep -l "selftest" tools/scripts/*.mjs` 减去 package.json `*:selftest` 指向的脚本 —— 本仓实测三件命中：`check-secrets.mjs`（本单已挂档）、`build-mcp-configs.mjs`、`check-plugin-anchor.mjs`（后两件登记遗留，见 `## WXG-T-415` §7）。
+  规避/做法：① 新写 `*.mjs --selftest` 时**同批**补 package.json 入口 + `TIERS` 档位项，两者名字须一字不差（守卫按脚本名比对）；② 盘点未挂档的自测用差集而非印象：`grep -l "selftest" tools/scripts/*.mjs` 减去 package.json `*:selftest` 指向的脚本 —— 本仓实测三件命中：`check-secrets.mjs`（本单已挂档）、`build-mcp-configs.mjs`、`check-plugin-anchor.mjs`（后两件于 WXG-T-416 挂档；同批给 `guardCoverage()` 补了第三类线索——脚本内 `--selftest` 模式，含 `<名>-selftest.sh` 包装器认领——差集从此由机制归零）。
   判例引用：K-025（豁免一旦存在，真实问题会被一起放过）、K-036（短路后的 ✅ 不构成证据）、K-168（同一问题换第二条口径）；正本 `production/TASKS-DETAIL.md` `## WXG-T-415` §2/§4。
+
+- **[工具链Git][K-182] 合并时按「保留一侧」整块解台账 ⇒ 已入库的主表行与详情节一起消失，头注却留着；门禁只在「提交窗口署号」事后报警**（来源 WXG-T-416，2026-10-26）
+  现象：`3bae99b1`（对方）与 `2c0a31df`（我）合并成 `e8a386ea` 后，`production/TASKS.md` 里的 `WXG-T-415` **主表行消失**、`TASKS-DETAIL.md` 里的 `## WXG-T-415` **整节消失**，但同一文件第 5 行头注「已分配至 415 / 下一 416」还在 ⇒ 同一文件两半各取一侧；下一会话建树跑 `check:tasks` 才被 I 项（最近 40 笔提交署号须在册）报出，此时已推送。
+  根因：台账是**追加型长行文档**，冲突解决没有「两边都保」的机械判据，一次 `--ours / --theirs` 就整块丢；而 `check:tasks` 的 C 项只判「主表行 → 详情节」方向，B 项判行连续、F 项判头注数字，**「行消失了」不在任何一项的判据面**。
+  规避/做法：① 台账冲突一律「两边行都保、按号排序」，⛔ 不用整块 `--ours / --theirs`（WXG-T-412 的机械解冲突脚本是现成样板）；② 合并后立刻对近期号逐号核 `git show <merge>:production/TASKS.md | grep -c '^| WXG-T-<号>'` 并跑 `check:tasks`（本轮它是唯一报警器）；③ 确实丢了就用 `git show <原提交>:<文件>` **逐字节回灌**，⛔ 凭记忆重写。
+  判例引用：K-045（共享工作树协作损伤谱系）、K-137（他人半成品只披露不代填）、K-046（领号认工作树）；正本 `production/TASKS-DETAIL.md` `## WXG-T-416` §1/§4/§7。
