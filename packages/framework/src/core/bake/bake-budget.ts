@@ -34,6 +34,13 @@ export function estimateTextureSize(width: number, height: number): number {
 export const DEFAULT_BAKE_BUDGET_BYTES = 2.5 * 1024 * 1024;
 
 /**
+ * Low-memory emergency budget (WXG-T-409). 512 KB = 4 × shrink from default.
+ * Triggered by `wx.onMemoryWarning` on low-end devices; the cache retains
+ * only the hottest textures until normal memory pressure returns.
+ */
+export const LOW_MEMORY_BAKE_BUDGET_BYTES = 512 * 1024;
+
+/**
  * Mutable counters for cache telemetry. Exposed as a class (not a plain
  * object) so the LRU can increment in-place without allocation.
  *

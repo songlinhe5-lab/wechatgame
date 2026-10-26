@@ -96,6 +96,8 @@ export interface GameServices {
   readonly onUpdateReady?: (callback: () => void) => () => void;
   /** Trigger an OTA restart. Undefined on hosts without OTA. */
   readonly applyUpdate?: () => void;
+  /** Subscribe to low-memory warning event. Undefined on hosts without OTA/memory mgmt. */
+  readonly onMemoryWarning?: (callback: () => void) => () => void;
 }
 
 export interface Game {

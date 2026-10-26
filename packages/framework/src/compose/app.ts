@@ -125,6 +125,7 @@ export class App {
       share: this.platform.share?.bind(this.platform),
       onUpdateReady: this.platform.onUpdateReady?.bind(this.platform),
       applyUpdate: this.platform.applyUpdate?.bind(this.platform),
+      onMemoryWarning: this.platform.onMemoryWarning?.bind(this.platform),
     };
 
     this.loop = new FixedStepLoop(

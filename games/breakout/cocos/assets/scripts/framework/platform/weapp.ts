@@ -114,6 +114,8 @@ interface WxApi {
   onShareAppMessage?(cb: () => { title?: string; imageUrl?: string; query?: string }): void;
   /** 右上角菜单里显示「转发」按钮。基础库 2.11.3+。 */
   showShareMenu?(opts?: { withShareTicket?: boolean; menus?: string[] }): void;
+  /** 低内存告警（小游戏基础库 2.11.0+）。 */
+  onMemoryWarning?(cb: () => void): void;
   /**
    * 小游戏热更管理器（WXG-T-407）。启动期检查新版本 → 下载 → ready 回调 →
    * `applyUpdate()` 重启生效。基础库 2.8.0+。Node/harness 无此 API。
@@ -335,6 +337,7 @@ export class WeappPlatform extends BasePlatform {
   private readonly _wx: WxApi | undefined;
   private readonly _adUnitId?: string;
   private readonly _updateReadyCbs: Array<() => void> = [];
+  private readonly _memoryWarningCbs: Array<() => void> = [];
 
   constructor(
     wx: WxApi | undefined = getWx(),
@@ -383,6 +386,15 @@ export class WeappPlatform extends BasePlatform {
           });
         }
       }
+      // 内存告警注册（WXG-T-409）：低内存时 fire 订阅者回调 → 游戏层收缩 LRU / 关特效。
+      const onMemWarn = wx.onMemoryWarning;
+      if (typeof onMemWarn === 'function') {
+        const handler = () => {
+          this.log('warn', `[memory] warning — firing ${this._memoryWarningCbs.length} subscriber(s)`);
+          for (const cb of [...this._memoryWarningCbs]) cb();
+        };
+        onMemWarn(handler);
+      }
     }
   }
 
@@ -401,6 +413,14 @@ export class WeappPlatform extends BasePlatform {
         this.log('warn', `[update] applyUpdate threw: ${e}`);
       }
     }
+  }
+
+  onMemoryWarning(callback: () => void): () => void {
+    this._memoryWarningCbs.push(callback);
+    return () => {
+      const idx = this._memoryWarningCbs.indexOf(callback);
+      if (idx >= 0) this._memoryWarningCbs.splice(idx, 1);
+    };
   }
 
   /**

@@ -36,6 +36,7 @@
  */
 
 import type { Game, GameServices, RenderModelBuilder } from '@wxgame/framework';
+import { LOW_MEMORY_BAKE_BUDGET_BYTES } from '@wxgame/framework';
 import {
     FACET4_STYLE_ID,
     BEAD_SIZE_DEFAULT,
@@ -77,6 +78,7 @@ import { importLatest, type HttpGet } from './level-import.js';
 import { UiRoot } from '../ui/ui-root.js';
 import type { UiDebugState } from '../ui/ui-host.js';
 import { PhaseRouteBinder, type ShellScreen } from '../ui/phase-route-binder.js';
+import { getBeadBakeRuntime } from '../view/bead-render.js';
 
 /** UI-42：屏幕相位 / 覆盖层改由 {@link PhaseRouteBinder} 的 Navigator 栈投影（本文件不持标志位）。 */
 export type { ShellScreen };
@@ -368,6 +370,21 @@ export class BeadsShell implements Game {
             onUpdateReady(() => {
                 const bus = services.events as unknown as { emit: (t: string, p: unknown) => void };
                 bus.emit('update:ready', null);
+            });
+        }
+        // WXG-T-409 内存告警：LRU 收缩（烘焙臂）+ emit system 事件。
+        // reduceMotion 自动切 = 游戏侧可后续接（当前无通用 confirm）。
+        const onMemWarn = services.onMemoryWarning;
+        if (onMemWarn) {
+            onMemWarn(() => {
+                const lruRuntime = getBeadBakeRuntime();
+                if (lruRuntime?.shrinkTo) {
+                    lruRuntime.shrinkTo(LOW_MEMORY_BAKE_BUDGET_BYTES);
+                } else if (lruRuntime?.evictAll) {
+                    lruRuntime.evictAll();
+                }
+                const bus = services.events as unknown as { emit: (t: string, p: unknown) => void };
+                bus.emit('system:memory-warning', null);
             });
         }
         const bus = services.events as unknown as { emit: (t: string, p: unknown) => void };

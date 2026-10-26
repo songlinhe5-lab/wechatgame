@@ -69,8 +69,14 @@ export interface Platform {
    * undefined; returns an unsubscribe function.
    */
   onUpdateReady?(callback: () => void): () => void;
-  /** Trigger an OTA restart (weapp only). Undefined on hosts without OTA. */
+  /** Trigger an OTA restart. Undefined on hosts without OTA. */
   applyUpdate?(): void;
+  /**
+   * Subscribe to "low-memory warning" event (weapp fires when the JS heap
+   * approaches the host's memory cap). Hosts without OTA/memory management
+   * leave this undefined; returns an unsubscribe function.
+   */
+  onMemoryWarning?(callback: () => void): () => void;
   getScreenSize(): ScreenSize;
   /** Schedule the next frame. The callback receives the delta in ms. */
   requestFrame(callback: (dtMs: number) => void): FrameHandle;

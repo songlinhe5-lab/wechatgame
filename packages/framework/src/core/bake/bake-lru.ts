@@ -46,7 +46,7 @@ interface CacheEntry {
  */
 export class BakeLru {
     private readonly _map = new Map<string, CacheEntry>();
-    private readonly _budgetBytes: number;
+    private _budgetBytes: number;
     private _usedBytes = 0;
     private readonly _counters = new BakeCacheCounters();
 
@@ -124,5 +124,35 @@ export class BakeLru {
         this._map.clear();
         this._usedBytes = 0;
         this._counters.reset();
+    }
+
+    /**
+     * Shrink the live cache to `targetBytes` by evicting LRU entries.
+     * Called in response to memory warnings (`wx.onMemoryWarning`) on low-end
+     * hosts. The budget itself is **not** changed — this is just a one-shot
+     * eviction pass; subsequent `getOrBake` will still enforce the original cap.
+     * Use `setBudget()` for a persistent reduction.
+     */
+    shrinkTo(targetBytes: number): void {
+        while (this._usedBytes > targetBytes && this._map.size > 0) {
+            const oldest = this._map.keys().next().value;
+            if (oldest !== undefined) {
+                const evicted = this._map.get(oldest)!;
+                this._map.delete(oldest);
+                this._usedBytes -= evicted.sizeBytes;
+                this._counters.recordEviction();
+            }
+        }
+    }
+
+    /**
+     * Change the byte budget cap at runtime (e.g. on memory pressure).
+     * If the cache currently exceeds `newBytes`, entries are evicted LRU
+     * until it fits. Setting a higher budget does not proactively populate
+     * the cache — new entries bake in on-demand.
+     */
+    setBudget(newBytes: number): void {
+        this._budgetBytes = newBytes;
+        this.shrinkTo(newBytes);
     }
 }

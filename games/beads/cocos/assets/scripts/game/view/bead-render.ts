@@ -117,6 +117,10 @@ export { TRAY_BEAD_SIZE };
  */
 export interface BeadBakeRuntime {
   getTextureId(styleId: string, colorIdx: number, bakeSize: number): string;
+  /** WXG-T-409 低内存：清 LRU 全部缓存（零参 = 等价 invalidateAll）。可选。 */
+  evictAll?(): void;
+  /** WXG-T-409 低内存：缩缓存到 targetBytes 以下（LRU 驱逐）。可选。 */
+  shrinkTo?(targetBytes: number): void;
 }
 
 /** 模块级烘焙运行时槽位（默认 undefined = 烘焙臂未启用，走矢量臂）。 */
@@ -251,6 +255,9 @@ export function createDefaultBakeRuntime(
       }
       return texId;
     },
+    // WXG-T-409：透传 LRU 收缩能力给 shell 层（收到 onMemoryWarning 时调用）。
+    evictAll(): void { lru.invalidateAll(); },
+    shrinkTo(targetBytes: number): void { lru.shrinkTo(targetBytes); },
   };
 }
 
