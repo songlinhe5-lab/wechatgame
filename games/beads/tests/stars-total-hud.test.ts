@@ -105,11 +105,13 @@ describe('EP14-S2 总星数快照与 HUD（R6/R8）', () => {
 });
 
 describe('EP14-S2 热路径零分配（L5 / 控制清单）', () => {
-    it('快照同步段内求和只用累加变量，无 map/filter/reduce/展开语法', () => {
-        const src = SRC('game/beads-game.ts');
-        const at = src.indexOf('private _syncSnapshot');
+    it('快照投影内求和只用累加变量，无 map/filter/reduce/展开语法', () => {
+        // WXG-T-420 T6：`_syncSnapshot` 投影体已抽至 `snapshot-projection.ts::projectSnapshot`，
+        // 本静态守卫随之改指新文件（同一热路径零分配不变量，兼作 K-106 新模块被实际引用的证明）。
+        const src = SRC('game/beads-game/snapshot-projection.ts');
+        const at = src.indexOf('export function projectSnapshot');
         expect(at).toBeGreaterThan(0);
-        const body = src.slice(at, src.indexOf('\n  }', at));
+        const body = src.slice(at, src.indexOf('\n}', at));
         expect(body, 'starsTotal 求和不得新建数组/迭代器').not.toMatch(/\.map\(|\.filter\(|\.reduce\(|\[\s*\.\.\./);
         expect(body).toContain('starsTotal');
     });
