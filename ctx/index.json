@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3834,
       "lines": 130,
-      "sha256": "030849a7bec5f9a0a6632d18ade366877bae2ee1cf7c9c3cc49d7dfa8af186d5",
+      "sha256": "adae3eadd97fba4e9b28e0f91c16e4415cfc78326a72a60bea2766264dc9684c",
       "tier": "normal",
       "sections": [
         {
@@ -34983,9 +34983,9 @@
     },
     {
       "path": "games/beads/design/levels/levels-spec.md",
-      "tokens": 39215,
+      "tokens": 39432,
       "lines": 900,
-      "sha256": "60f21182627b0af269ab7e67fed7d2327f06d7cf1a5fc533716d043146ea3778",
+      "sha256": "197a9fadc02662306a807c0e77d17f5f4e4042c3f4debc3e690cce26511ceb16",
       "tier": "normal",
       "sections": [
         {
@@ -34993,7 +34993,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 901,
-          "tokens": 39202,
+          "tokens": 39419,
           "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.23 · 任务号 WXG-T-130（换盘收尾 v1.14 ",
           "keywords": [
             "Levels",
@@ -35129,7 +35129,7 @@
           "level": 2,
           "startLine": 293,
           "endLine": 587,
-          "tokens": 9728,
+          "tokens": 9945,
           "summary": "重推前提（WXG-T-130 案 A）：核心循环 = 「错位归位」，玩家只处理错位珠；定时供料不存在。",
           "keywords": [
             "SEC_PER_TAP",
@@ -35222,7 +35222,7 @@
           "level": 3,
           "startLine": 562,
           "endLine": 587,
-          "tokens": 1193,
+          "tokens": 1409,
           "summary": "⛔ 作废声明：本节全部前提（定时供料、供料冗余、满槽跳供、死珠棘轮）随供料关停消失——托盘珠唯一来源是玩家取回、必有可周",
           "keywords": [
             "GAP",
