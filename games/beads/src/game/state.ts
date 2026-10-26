@@ -242,6 +242,12 @@ export interface BeadsSnapshot {
   clearPanelInteractive: boolean;
   /** 本关星级 1..3。 */
   clearStars: number;
+  /**
+   * 品质分（C7 结算分，ADR-0035 Q1=B 品质分单榜）：本局得分 + 本关历史最佳。
+   * `> 0` 才画该行；两值相等（首通/刷新纪录前）视图只印本局分。
+   */
+  clearQualityScore: number;
+  clearQualityBest: number;
   /** 已入场的星数（`0..clearStars`）—— 视图据此逐颗显示（ux-spec §5，逐颗 150ms）。 */
   clearStarsShown: number;
   /** 最新入场那颗星的弹跳缩放（0→1.2→1；已稳定 = 1）。 */
@@ -523,6 +529,8 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     clearPanelProgress: 0,
     clearPanelInteractive: false,
     clearStars: 0,
+    clearQualityScore: 0,
+    clearQualityBest: 0,
     clearStarsShown: 0,
     clearStarPopScale: 1,
     clearRemaining: 0,

@@ -1,8 +1,8 @@
 # ADR-0035 · 好友排行榜走微信开放数据域（零后端），主域/子域协议与渲染预留
 
-- **状态**：**Proposed（Q2 授权时机 / Q3 协议形状已拍板 2026-10-26；Q1 指标重开待拍（星榜饱和被用户否决）；Q4 渲染预留待拍。⛔ 本批零落码，纯提案）**
+- **状态**：**Proposed（Q1 指标 = B 品质分榜（分关 + 总榜）/ Q2 授权时机 / Q3 协议形状 已拍板 2026-10-26；Q4 渲染预留待拍。S-1 前置三件 ① 存档字段 + ② 结算面板品质分行 **已落码**（WXG-T-421，save v6），③ 榜单说明行随 S-4 子域 UI；⛔ 子域 / 排行榜代码本阶段仍未落，见 §3.2.1）**
 - **日期**：2026-10-26
-- **任务号**：WXG-T-418（架构评审提案 `production/plans/2026-10-26-arch-review-weapp-framework-and-beads.md` **TODO-8** 立项）
+- **任务号**：WXG-T-418（架构评审提案 `production/plans/2026-10-26-arch-review-weapp-framework-and-beads.md` **TODO-8** 立项）；§3.2.1 ① ② 落码 = **WXG-T-421**（save v6 + 结算面板品质分行）
 - **负责域**：工程负责人（protocol 形状 / Platform 接口 / 渲染预留 / 分包与包体）；**「榜什么指标」= 文策渊**（本文 ⛔ 不代定玩家可见规则，见 Q1）
 - **权威来源（冲突以左列为准）**：`games/beads/design/gdd/systems-index.md` §3（本文 ⛔ 零数值改动）＞ `docs/architecture/control-manifest.md` ＞ 微信官方文档（见 §1.3 逐条链接）＞ `production/plans/2026-10-26-arch-review-weapp-framework-and-beads.md` TODO-8
 - **判例链**：K-035（无规格不落码）/ K-046（领号）/ K-111（`build:cocos` 默认 release 基线档）/ K-179 ③（待拍板项由主理人落地）
@@ -103,7 +103,9 @@ type OpenDataToHost =
 ```
 
 ```ts
-type RankBoard = 'stars' | 'sprint';   // 本期只启用 'stars'；'sprint' 预留（冲刺落码后开）
+type RankBoard = 'settle' | 'settle-total' | 'sprint';
+// Q1=B：本期启用 'settle'（`key` = 关卡 uid）+ 'settle-total'（总榜，Σ 各关历史最佳，无需额外 KV）；
+// 'sprint' 预留（入口复建后再开）
 type OpenDataTheme = {
   bg: string; rowBg: string; rowBgSelf: string;
   text: string; accent: string;
@@ -120,38 +122,41 @@ type OpenDataTheme = {
 
 **「我在榜上高亮」怎么定**：⛔ 不用 `viewerUid`——主域无后端拿不到 openid（`wx.login` 只给 code）。子域内用 `wx.getUserInfo()` 的昵称+头像与好友条目匹配即可（同 `wx.getFriendCloudStorage` 返回项自带 nickname/avatarUrl）。
 
-### 3.2 榜单指标（**Q1 重开：2026-10-26 用户复核后撤回「单榜总星数」裁定，待重拍**）
+### 3.2 榜单指标（**Q1 已拍板 2026-10-26：选 B = 品质分榜，口径 = 分关 + 总榜**）
 
-**撤回理由（用户当场指出）**：总星数上限 = 总关数 × 3，全通关即全员并列 ⇒ 静态、零重刷动力，不适合排名，只适合「进度徽章」。
+**裁定**：榜 = **品质分（`SETTLE_SCORE`）**，**主榜为分关榜**（选中关卡后看好友在该关的历史最佳品质分）；**另加总榜**（Σ 各关历史最佳，未通关关计 0）。两榜共用同一份 KV，**总榜不额外存储**（子域对 `settleBestByUid` 各字段求和即可）。冲刺分**本期不上榜**。
 
-**⛔ 纠错（本 ADR 上一版的事实错误）**：上一版称「冲刺模式未落码、主榜无数据源」——**错**。取证：`games/beads/src/systems/sprint.ts`、`sprint-settle.ts` 均在，`sprint:ended` 在 `beads-game.ts` 发射，`sprintBestScore` / `sprintBestStage` 已持久化于 `save-schema.ts` v5（S8 v1.1 字段）。**MF4 主榜数据源已就绪**。
+**总榜可比性口径**：Σ 只在**同一关集**内可比——现池关数取 `DEMO_LEVEL_COUNT`（现值 9），换盘 / 扩容后需按新关集重算（旧分不折算）。总榜是「覆盖广度 × 单关质量」的合成，分关榜是「单关极限」，两者并列展示、榜单页默认停在**分关榜**。
 
-三条候选的数据就绪度（实测）：
+**为什么不是冲刺分**：冲刺是完整可玩的独立模式（`mode:'sprint'`，120s 无尽梯、图案池循环、连击 ×2/×3/×5、每梯 `+200+50×梯`），但 **U1 三处入口当前全部隐藏**（WXG-T-177，用户 2026-09-19「去冲刺按钮先隐藏」：过关面板只剩「下一关」、通关画面不产冲刺钮、暂停面板左格换成「性能信息」）⇒ 玩家**没有任何路径进入冲刺**。榜上线时若指标指向进不去的模式，不成立。恢复冲刺入口属产品决策，另案；恢复后再按 MF4 补第二榜。
 
-| 候选 | 计算/字段 | 就绪度 | 饱和性 | 玩家可见性 |
-|---|---|---|---|---|
-| **冲刺最佳分**（MF4 主榜） | `sprintBestScore`（save v5） | ✅ **零新增** | 低（跑分无上限） | ✅ 冲刺结算面板已显示 score / bestStage / bestStreak，破纪录有角标 |
-| **品质分**（`SETTLE_SCORE`） | `normalSettleScore()` 已在 `tuning.ts`；通关帧 `beads-game.ts` 算 `_lastSettleScore`（`stars/ratio/powerupsUsed/expandUsed` 四因子当帧全可得） | ⚠ 计算现成、**未持久化**（save v5 无该字段）⇒ 需加 `settleBestByUid` + 存档 bump v6 | 低（`ratio` 连续） | ❌ **三处都不显示**（局内不显示是既有条款；结算面板只画星级总览与「共 N/M ★」；关卡页只画星） |
-| 总星数（MF4 副榜） | `starsByUid`（save v5） | ✅ 零新增 | **高（硬顶并列）** | ✅ 关卡页与结算页均显示 |
+**为什么不是总星数**：上限 = 总关数 × 3，全通关即全员并列 ⇒ 静态、零重刷动力（用户当场否决）。
 
-公式（已冻结 + 已实现）：
+**公式（已冻结 + 已实现）**：
 
 ```
 SETTLE_SCORE = stars×1000 + round(ratio×1000) − powerupsUsed×50 + (未用扩展 ? 200 : 0)
 ```
 
-权重常量已在 `tuning.ts`：`SETTLE_STAR_WEIGHT=1000` / `SETTLE_RATIO_SCALE=1000` / `SETTLE_POWERUP_PENALTY=50` / `SETTLE_NO_EXPAND_BONUS=200`。区间 0–4200。
+`ratio` = 剩余时间 / 总时长（[tuning.ts](../../../games/beads/src/config/tuning.ts) L1102），即「快慢」连续分量；权重常量 `SETTLE_STAR_WEIGHT=1000` / `SETTLE_RATIO_SCALE=1000` / `SETTLE_POWERUP_PENALTY=50` / `SETTLE_NO_EXPAND_BONUS=200`，区间 **0–4200**。四因子在通关帧全部可得（`beads-game.ts` `_lastSettleScore`），但**当前只写内存**。
 
-**待重拍（用户）**：
+#### 3.2.1 S-1 前置三件（用户 2026-10-26 指定）
 
-| 选项 | 内容 | 代价 |
-|---|---|---|
-| A | 双榜：冲刺最佳分（主）+ 品质分 Σ 各关最佳（副） | 需 save v6 + **普通关结算面板补一行「品质分」**（否则榜上数字无出处） |
-| B | 单榜：品质分 Σ 各关最佳 | 同上，且冲刺玩法不上榜 |
-| C | MF4 原双榜：冲刺最佳分 + 总星数 | 零新增、零 UI 改动，但副榜饱和 |
-| D | 双榜：冲刺最佳分 + 单关最省步数达成率 | 需新增运行时步数计数器（`state` 现无步数）+ 关卡最优步数入库 |
+| # | 事项 | 具体口径 | 现状 |
+|---|---|---|---|
+| ① | **存档新增字段** | `settleBestByUid: Record<string, number>`（逐关历史最佳品质分，键 = 关卡身份 token，与 `starsByLevel` 同族）；存档 **v5 → v6**，旧档默认 `{}`；通关帧 `Math.max` 写入并持久化 | ✅ **已落码（WXG-T-421）**：`save-schema.ts` v6 + `migrateV5ToV6`；**稀疏账**（0 = 无记录）；`SETTLE_SCORE_MAX` 派生的钳制上界；`beads-game.ts` 通关帧 `Math.max` + `_persistProgress` 落盘 |
+| ② | **结算面板加一行** | 普通关 `LEVEL_CLEAR` 面板显示「品质分 N · 最佳 M」。⚠️ `PANEL_SIZE` = 560×480 为 `ux-spec §3.4` 冻结且被结算/失败/通关面板共用 ⇒ **落位需 UI 拍板**（新增行会挤压既有 5 行；候选：面板仅结算加高 / 并入发豆行 / 用面板顶部留白），⛔ 不擅自改共享 `PANEL_SIZE` | ✅ **已落码（WXG-T-421）**：落位 = **面板顶部得分条**（缎带上方空带 `clear-panel.ts::qualityY`），`PANEL_SIZE` 零改动、既有六行零挤压；串 = `品质分 N`，历史更高时附 ` · 最佳 M`；`ux-spec §3.4` v1.27；金样本 `clear` 态 620 → 621 |
+| ③ | **说明榜单上的数值** | 子域榜单顶部固定说明行：「品质分 = 星级×1000 + 剩余时间×1000 − 道具×50 + 未扩容200（满分 4200）」+ 副行「同关历史最佳」；总榜副行「Σ 各关历史最佳」。文案随协议 `theme` 下发（子域不 import 主域文案），主域结算页用同一句 → 玩家在榜上看到的数字**能在结算页对上** | ⏳ **待 S-4 子域 UI 落码**（文案口径已定；主域结算页 `品质分 N` 与榜值同源 = `settleBestByUid`） |
 
-⛔ 已否决：单关最少步数（跨关不可比）、已通关数（与星数高相关）、金币/皮肤数（可购买 ⇒ 氪金榜）。
+**候选就绪度（保留，供回溯）**：
+
+| 候选 | 数据源 | 就绪度 | 饱和性 | 结论 |
+|---|---|---|---|---|
+| 冲刺最佳分 | `sprintBestScore`（save v5） | 零新增 | 低 | 代码就绪，但**入口隐藏** ⇒ 本期不用 |
+| **品质分 B（选中）** | `normalSettleScore()` 现成；需 ① 持久化 | ① + ② + ③ | 低（ratio 连续） | ✅ 本期单榜 |
+| 总星数 | `starsByUid`（save v5） | 零新增 | 高（硬顶并列） | ❌ 已否决 |
+
+⛔ 已否决：单关最少步数（跨关不可比，且运行时无步数计数）、已通关数（与星数高相关）、金币/皮肤数（可购买 ⇒ 氪金榜）、单关最短时间（三档时钟制下跨关不可比）。
 
 ### 3.3 渲染预留的三条路（**Q4，归工程**）
 
@@ -221,7 +226,9 @@ SETTLE_SCORE = stars×1000 + round(ratio×1000) − powerupsUsed×50 + (未用�
 | S-4 | `opendata/` 子域骨架（独立 tsconfig，`onMessage` 收协议，Mock 数据自绘） | ✅ 子域单测（纯函数化排序/布局） |
 | S-5 | weapp 真实现：`getOpenDataContext` + `setUserCloudStorage` + `sharedCanvas` 纹理贴图 + 授权引导 | ❌ **仅真机**（EP-10） |
 
-**上报点（Q1 落地口径）**：普通关**通关结算帧**写一次 `wx.setUserCloudStorage({ KVDataList: [{ key: 'beads_total_stars', value: String(总星数) }] })`——值取 `starsByUid` 求和；失败静默（不阻断结算）。冲刺榜待冲刺模式落码后再补 `beads_sprint_best`。
+**上报点（Q1=B 落地口径）**：普通关**通关结算帧**写一次 `wx.setUserCloudStorage({ KVDataList: [{ key: 'beads_settle', value: JSON.stringify({ v: 1, best: settleBestByUid }) }] })`。逐关最佳打包进**一个** KV（现池关数 × ~12 字节，远低于 1KB / 128 KV 上限）⇒ 子域按 `key = 关卡 uid` 取字段排序；失败静默（不阻断结算）。
+
+**总榜（`settle-total`）不另存**：子域对同一 KV 的 `settleBestByUid` 各字段求和得到 Σ（未通关关 = 0）⇒ 零额外 KV、零额外上报。冲刺榜 `beads_sprint_best` 待入口复建后再补。
 
 ### 5.3 验证纪律
 
@@ -244,7 +251,7 @@ SETTLE_SCORE = stars×1000 + round(ratio×1000) − powerupsUsed×50 + (未用�
 
 | # | 问题 | 归属 | 推荐 |
 |---|---|---|---|
-| Q1 | 榜单指标 | 文策渊 | ⏸ **重开待拍**（2026-10-26 用户复核：星榜饱和无意义 ⇒ 撤回原裁定）。候选 A 冲刺分+品质分 / B 品质分单榜 / C MF4 原双榜（星）/ D 冲刺分+步数达成率，见 §3.2 |
+| Q1 | 榜单指标 | 文策渊 | ✅ **已拍板 2026-10-26：B = 品质分榜，口径 = 分关榜 + 总榜（Σ 各关历史最佳）**（冲刺入口隐藏故本期不上；总星数已否决）。S-1 前置三件 ①② 已落码（WXG-T-421）、③ 随 S-4，见 §3.2.1 |
 | Q2 | 授权时机 | 产品 + 工程 | ✅ **已拍板 2026-10-26：首次打开榜单时弹**（通关后不弹；拒绝后空态 + `wx.openSetting` 回流，详见 §3.4） |
 | Q3 | 协议形状是否采纳 §3.1 | 工程 | ✅ **已拍板 2026-10-26：采纳**（单向 + `version` 握手 + `theme` 下发 + `render:visible`；不回传明细） |
 | Q4 | 渲染预留选 R1 / R2 / R3 | 工程 | **R2**（打开贴一次 + `rank:ready` 重贴） |
@@ -253,4 +260,4 @@ SETTLE_SCORE = stars×1000 + round(ratio×1000) − powerupsUsed×50 + (未用�
 
 - 架构评审 P1 批次（TODO-3~7）已全部落地：WXG-T-405 / 408 / 410 / 411 / 414。
 - TODO-8 由「backlog」升级为**本 ADR（Proposed）**：结论 = **好友榜零后端**，本里程碑不写后端。
-- 后续：Q1–Q4 拍板 → 主理人发落码单（S-1 起）→ 按 §5.3 验证纪律推进。
+- 后续：Q1=B（分关 + 总榜）已定 + Q2/Q3 已拍 + §3.2.1 ① ② **已落码**（WXG-T-421：save v6 / 结算面板品质分行）→ 待 Q4 拍板 → 主理人发 S-1 落码单（协议 + Provider）→ S-3/S-4 补 ③ 榜单说明行 → 按 §5.3 验证纪律推进。

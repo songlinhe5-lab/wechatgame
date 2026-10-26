@@ -272,7 +272,7 @@ describe('EP12-S8 ② normalizeSettings skinId：缺字段 / 非字符串 / 未�
         expect(normalizeSettings({ skinId: 'cool-violet' }).skinId).toBe('cool-violet');
         // WXG-T-344：`SAVE_VERSION` 现为 5，但 **不属本判据**——皮肤字段仍走逐字段降级、
         // 无需迁移（debugInfo / beadStyle 判例）；4→5 的 bump 由 ADR-0034 DEC-4（星账换制）承担。
-        expect(SAVE_VERSION).toBe(5); // 本例只钉「不为此 bump」的口径：无 skinId 相关迁移体
+        expect(SAVE_VERSION).toBe(6); // 本例只钉「不为此 bump」的口径：无 skinId 相关迁移体
     });
 });
 

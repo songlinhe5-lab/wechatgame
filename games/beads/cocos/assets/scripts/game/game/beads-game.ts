@@ -315,6 +315,13 @@ export class BeadsGame implements Game {
    */
   private _starsByLevel: number[] = [];
   /**
+   * 每关**历史最佳品质分**（C7 结算分，ADR-0035 §3.2.1 ①；Q1 = B 品质分单榜）。
+   * 权威在存档 `settleBestByUid`，本字段是内存镜像（同 `_starsByLevel` 判例）：
+   * BOOT 装载、通关帧取 `max(旧, 新)`、随 `_persistProgress()` 写回。
+   * 键 = 关卡稳定身份 token（同一根 `_levelKeys` 轴）；稀疏 ⇒ 无条目 = 未通关。
+   */
+  private _settleBestByUid: Record<string, number> = {};
+  /**
    * 关表的**稳定身份轴**只读镜像（ADR-0034 **DEC-3**）：第 i 项 = 第 i 关的存档记账 token，
    * 与 `_levels` 同生命周期。星账的 uid↔index 换算只发生在**既有两个边界点**
    * （BOOT 读档展平 / `_persistProgress` 收拢），各恰一次；本镜像**只在关表装配处**构造
@@ -916,6 +923,8 @@ export class BeadsGame implements Game {
     // S8 §2.2 `stars`：**边界换算恰一次**（uid 账 → 下标稠密数组，长度 = `levelKeys`）。
     // 运行时与视图继续吃下标数组（7 处取数位点零改动，ADR-0034 §4.2）⇒ 身份不进热路径。
     this._starsByLevel = flattenStars(normalized.save.starsByUid, this._levelKeys);
+    // v6 品质分最佳账：归一产物本身就是新对象（稀疏），直接作内存镜像（同星账边界）。
+    this._settleBestByUid = normalized.save.settleBestByUid;
     // 两根进度指针的身份 → 下标镜像（S-2b：这是**唯一**换算处，DEC-3）。
     this._maxUnlockedIndex = normalized.maxUnlockedIndex;
     this._lastPlayedIndex = normalized.lastPlayedIndex;
@@ -1760,13 +1769,22 @@ export class BeadsGame implements Game {
           game._clearCoins = game._onClearCoins?.(stars, isBossLevelId(level.id), prevStars) ?? null;
           // 通关画面总览：取**历史最好**（重玩不降级，与 `maxUnlockedLevel` 同语义）。
           game._starsByLevel[li] = Math.max(game._starsByLevel[li] ?? 0, stars);
-          // C7 结算分（局内不显示，供排行/段位与面板外部读取）：四因子全在此刻可得。
+          // C7 结算分（品质分；ADR-0035 Q1=B 品质分单榜）：四因子全在此刻可得。
           game._lastSettleScore = normalSettleScore(
             stars,
             ratio,
             game._powerups.usedCount,
             game._tray.expanded,
           );
+          // 每关历史最佳（max 在过关记分处取，⛔ 在存档层；同星账 §8-2 判例）。
+          // 无身份槽（`''` = dev 导入草案）不入账，⛔ 不发明 token。
+          const settleKey = game._levelKeys[li] ?? '';
+          if (settleKey !== '') {
+            const prevBest = game._settleBestByUid[settleKey] ?? 0;
+            if (game._lastSettleScore > prevBest) {
+              game._settleBestByUid[settleKey] = game._lastSettleScore;
+            }
+          }
           game._emit('level:cleared', { levelId, remaining, ratio, stars });
           game._persistProgress();
           game._crashIO.clear(); // D-03（提案 §3）：过关即删，避免残局覆盖下次启动
@@ -2526,6 +2544,8 @@ export class BeadsGame implements Game {
       // ADR-0034 **DEC-3** 的第二条边界换算（收拢，每局 ≤1 次）：下标镜像 → 身份账；
       // 无身份槽（`''`，dev 导入草案）不入档。⛔ 不在本路径构造 `levelKeys`（只读镜像）。
       starsByUid: collapseStars(this._starsByLevel, this._levelKeys),
+      // v6 品质分最佳账：稀疏镜像的浅拷贝（⛔ 直接把可变态交给存档层 ⇒ 避免别名）。
+      settleBestByUid: { ...this._settleBestByUid },
     });
     save.save();
   }
@@ -2875,6 +2895,10 @@ export class BeadsGame implements Game {
     s.clearPanelProgress = this._clearPanel.progress;
     s.clearPanelInteractive = this._clearPanel.interactive;
     s.clearStars = this._lastStars;
+    // 品质分单榜（ADR-0035 Q1=B）：本局分 + 本关历史最佳（刚在通关帧更新过）。
+    s.clearQualityScore = this._lastSettleScore;
+    s.clearQualityBest =
+      this._settleBestByUid[this._levelKeys[this._levelIndex] ?? ''] ?? this._lastSettleScore;
     s.clearCoins = this._clearCoins?.coins ?? 0;
     s.clearCoinReason = this._clearCoins?.reason ?? '';
     s.clearCoinsCapped = this._clearCoins?.capped ?? false;

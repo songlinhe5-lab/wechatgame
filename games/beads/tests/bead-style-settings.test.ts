@@ -711,7 +711,7 @@ describe('TC-SAVE-11 · S8 §8-11：两字段入档 · 即写 · 只存末值 ·
         expect(tuning).toContain(`export const SAVE_VERSION = ${SAVE_VERSION};`);
         // WXG-T-344：本钉值**不因换肤而变**，其 4→5 是 ADR-0034 DEC-4（星账换制）的差分，
         // 与 §8-12「version 无需为新增可选字段 bump」口径不矛盾（本例验的是后者）。
-        expect(SAVE_VERSION).toBe(5);
+        expect(SAVE_VERSION).toBe(6);
     });
 });
 

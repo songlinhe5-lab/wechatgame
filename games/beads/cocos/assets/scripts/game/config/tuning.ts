@@ -1018,6 +1018,14 @@ export const SETTLE_STAR_WEIGHT = 1000;
 export const SETTLE_RATIO_SCALE = 1000;
 export const SETTLE_POWERUP_PENALTY = 50;
 export const SETTLE_NO_EXPAND_BONUS = 200;
+/**
+ * C7 结算分（品质分）理论上限 = `STAR_MAX × SETTLE_STAR_WEIGHT + SETTLE_RATIO_SCALE
+ * + SETTLE_NO_EXPAND_BONUS`（= 4200）。
+ * 消费方：存档 `settleBestByUid` 的逐值钳制上界（ADR-0035 §3.2.1 ①「品质分单榜」）。
+ * ⛔ 本值不写死 4200：权重任一变化必须同步跟上。
+ */
+export const SETTLE_SCORE_MAX =
+  STAR_MAX * SETTLE_STAR_WEIGHT + SETTLE_RATIO_SCALE + SETTLE_NO_EXPAND_BONUS;
 
 /** One sprint stage's mechanical parameters (C6 ladder rung). */
 export interface StageParams {

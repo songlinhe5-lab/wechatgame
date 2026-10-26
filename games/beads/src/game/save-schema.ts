@@ -14,6 +14,7 @@ import {
   BEAD_SIZE_DEFAULT,
   BEAD_SIZE_ORDER,
   type BeadSizeKind,
+  SETTLE_SCORE_MAX,
   STAR_MAX,
   VIBRATE_DEFAULT,
 } from '../config/tuning.js';
@@ -81,7 +82,7 @@ export interface BeadsSettings {
 }
 
 export interface BeadsSave extends SaveDocument {
-  version: 5;
+  version: 6;
   /** Runs started — the "first launch" test is `runs === 0` (S1 §8-1). */
   runs: number;
   /**
@@ -117,6 +118,14 @@ export interface BeadsSave extends SaveDocument {
    * - 终态 = 按 `levelKeys` **稠密物化**（含 0 值），⇒ 形状确定、幂等可自证（DEC-5 规则 4）。
    */
   starsByUid: Record<string, number>;
+  /**
+   * 每关**历史最佳品质分**（C7 结算分，ADR-0035 §3.2.1 ①；Q1 = B 品质分单榜）。
+   * - 键 = 关卡稳定身份 token（同一根 `levelKeys` 轴），值 = 该关历史最高
+   *   `normalSettleScore` ∈ `[0, SETTLE_SCORE_MAX]`（= 4200）；通关帧取 `max(旧, 新)`。
+   * - **稀疏记账**（⛔ 稠密物化）：0 分等价于「无记录」，只在真通关后才有条目。
+   * - v6 新增 ⇒ `SAVE_VERSION` 5→6 + `migrateV5ToV6`（只升版本、旧档透传）。
+   */
+  settleBestByUid: Record<string, number>;
   /** S9 audio toggles (save-progress §2.2; written on every switch). */
   settings: BeadsSettings;
 }
@@ -131,7 +140,7 @@ export const BACKUP_KEY = 'wxgame.beads.save.v1.bak';
  * `control-manifest §5`「schema 变更 ⇒ 升版本 + 写迁移」，⛔ 不 bump 会让「version 仍写 4、
  * 形态已是 5」的档在多包共存期无法判别。
  */
-export const SAVE_VERSION = 5;
+export const SAVE_VERSION = 6;
 
 /**
  * v1 → v2（WXG-T-088）：新增可访问性开关 `reduceMotion`（D1）与 `largeText`
@@ -185,6 +194,16 @@ export function migrateV4ToV5(doc: Record<string, unknown>): Record<string, unkn
 }
 
 /**
+ * v5 → v6（ADR-0035 §3.2.1 ①）：新增 `settleBestByUid`（每关历史最佳品质分）。
+ * 同 v1→v2 判例：**只升版本号透传旧字段**，缺省字段由 `defaultBeadsSave()` 的 `{}`
+ * 经 `SaveManager.load` 合并补齐，再由 `normalizeBeadsSave` 逐键钳正 / 裁剪孤儿。
+ * ⛔ 迁移体不造分数（拿不到关表轴，也没有历史数据可回溯）。
+ */
+export function migrateV5ToV6(doc: Record<string, unknown>): Record<string, unknown> {
+  return { ...doc, version: 6 };
+}
+
+/**
  * 迁移链的**单一真源**（S-7）：`SaveManager` 与测试都从这里取，⛔ 两处各写一张 map
  * （否则「测试注册全链、生产漏一级」这类漂移在测试里看不见）。
  * 键 = 源版本，值 = 升到 `键 + 1` 的迁移；缺任何一级 ⇒ `load()` 在缺位处 reset。
@@ -194,6 +213,7 @@ export const BEADS_MIGRATIONS: Readonly<Record<number, Migration>> = {
   2: migrateV2ToV3,
   3: migrateV3ToV4,
   4: migrateV4ToV5,
+  5: migrateV5ToV6,
 };
 
 export function defaultBeadsSave(): BeadsSave {
@@ -208,6 +228,8 @@ export function defaultBeadsSave(): BeadsSave {
     // 星账在 `normalizeBeadsSave(raw, levelCount, levelKeys)` 里按身份表稠密物化
     //（出厂默认不知关表 ⇒ 空映射；与旧 `starsByLevel: []` 同型）。
     starsByUid: {},
+    // v6 品质分最佳账：出厂/未通关 = 空映射（稀疏账，⛔ 不稠密补 0）。
+    settleBestByUid: {},
     settings: {
       bgmMuted: false,
       sfxMuted: false,
@@ -335,6 +357,12 @@ function clampStar(value: unknown): number {
   return Math.max(0, Math.min(STAR_MAX, Math.floor(value)));
 }
 
+/** 品质分单值钳：非有限数 → 0；小数向下取整；再钳 `[0, SETTLE_SCORE_MAX]`。 */
+function clampSettleScore(value: unknown): number {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return 0;
+  return Math.max(0, Math.min(SETTLE_SCORE_MAX, Math.floor(value)));
+}
+
 interface StarLedger {
   readonly stars: Record<string, number>;
   /** 档内**有条目**、当前关表对不上号 ⇒ 逐条作废的条数（= `I3`「可枚举」的丢弃维，DEC-9）。 */
@@ -424,6 +452,44 @@ function normalizeStarLedger(
   return { stars: out, dropped, missing, form, changed };
 }
 
+interface SettleBestLedger {
+  readonly scores: Record<string, number>;
+  readonly changed: boolean;
+}
+
+/**
+ * 品质分最佳账归一（v6，ADR-0035 §3.2.1 ①）——**稀疏**记账，⛔ 不走星账的稠密物化。
+ *
+ * - 当前关表认不出的键 = 孤儿 ⇒ 逐条作废（同星账 §8-17 判例，⛔ 不弃整档）；
+ * - 单值钳 `[0, SETTLE_SCORE_MAX]` 并向下取整；`0` 等价于「无记录」⇒ 不落键；
+ * - 只在 BOOT 读档边界跑（每启动 ≤1 次），⛔ 不进 `update` / `buildRenderModel`。
+ */
+function normalizeSettleBestLedger(
+  raw: Record<string, unknown>,
+  levelKeys: readonly string[],
+): SettleBestLedger {
+  const out: Record<string, number> = {};
+  const doc = raw['settleBestByUid'];
+  if (!isRecord(doc)) return { scores: out, changed: doc !== undefined };
+  const ids = new Set<string>();
+  for (let i = 0; i < levelKeys.length; i += 1) {
+    if (levelKeys[i] !== '') ids.add(levelKeys[i]);
+  }
+  let changed = false;
+  const keys = Object.keys(doc);
+  for (let i = 0; i < keys.length; i += 1) {
+    const key = keys[i];
+    if (!ids.has(key)) {
+      changed = true;
+      continue;
+    }
+    const value = clampSettleScore(doc[key]);
+    if (value !== doc[key]) changed = true;
+    if (value > 0) out[key] = value;
+  }
+  return { scores: out, changed };
+}
+
 /** 逐字段比较（含 normalize 兜底的缺字段 / 类型错场景），⛔ 不对整个 settings 对象做序列化比较。 */
 function settingsEqual(a: BeadsSettings, b: BeadsSettings): boolean {
   return (
@@ -503,6 +569,7 @@ export function normalizeBeadsSave(
   const lastPlayedKey = levelKeys[lastPlayedIndex] ?? '';
 
   const ledger = normalizeStarLedger(raw, levelKeys);
+  const settleLedger = normalizeSettleBestLedger(raw, levelKeys);
   // 旧位置型数组与**旧数值指针**都必须在写回时物理消失（DEC-1「⛔ 双轨」/ M-19）。
   const staleKeys: string[] = [];
   if (raw[STALE_STARS_KEY] !== undefined) staleKeys.push(STALE_STARS_KEY);
@@ -537,6 +604,7 @@ export function normalizeBeadsSave(
     sprintBestScore: num(raw['sprintBestScore'], 0),
     sprintBestStage: num(raw['sprintBestStage'], 0),
     starsByUid: ledger.stars,
+    settleBestByUid: settleLedger.scores,
     settings: normalizeSettings(rawSettings),
   };
 
@@ -550,6 +618,8 @@ export function normalizeBeadsSave(
     // 星账侧的 changed 全部由 `normalizeStarLedger` 裁定（形态 ≠ v5 直读、孤儿丢弃、缺条目、
     // 逐键钳正任一即真）；旧形态键未清除也必须报真，否则幂等臂无法自证（DEC-5 规则 4）。
     ledger.changed ||
+    // 品质分账（v6）：同族口径 —— 孤儿 / 钳正 / 非记录形态任一即需写回一次。
+    settleLedger.changed ||
     staleKeys.length > 0 ||
     rawSettings === undefined ||
     !isRecord(rawSettings) ||

@@ -54,6 +54,11 @@ export interface ClearPanelLayout {
   readonly buttons: readonly ClearButton[];
   /** 缎带标题基线 y。 */
   readonly titleY: number;
+  /**
+   * 品质分行中心 y（ADR-0035 §3.2.1 ②）——缎带顶与面板顶缘之间的空带中点。
+   * 面板共用 560×480 冻结几何，`PANEL_SIZE` 零改动（只吃既有 98px 净空）。
+   */
+  readonly qualityY: number;
   /** 星级行中心 y。 */
   readonly starsY: number;
   /**
@@ -83,6 +88,8 @@ export interface ClearPanelOptions {
 
 /** 缎带标题（ux-spec §3.4）。 */
 export const CLEAR_PANEL_TITLE = '🎉 闯关成功';
+/** 金色缎带高度（ux-spec §3.4；视图与布局共用，⛔ 两处各写 84）。 */
+export const CLEAR_RIBBON_H = 84;
 
 function rect(x: number, y: number, w: number, h: number): PanelRect {
   return { xMin: x, yMin: y, xMax: x + w, yMax: y + h };
@@ -130,7 +137,11 @@ function build(lastLevel: boolean): ClearPanelLayout {
   // §3.14 v1.81 结算发豆行：夹在**星底（starsY+32）**与**缎带顶（titleY−40）**之间取中点，
   // `PANEL_SIZE` 与缎带行距（+110）均零改动。
   const rewardY = starsY + 56;
-  return { panel, buttons, titleY: starsY + 110, starsY, rewardY, criteriaY, infoY, starX };
+  const titleY = starsY + 110;
+  // 品质分行（ADR-0035 §3.2.1 ②）：缎带顶（y 向上 = `titleY + 缎带半高`）到面板顶缘的
+  // 98px 净空带取中点 ⇒ 不挤压既有六行、`PANEL_SIZE` / 缎带行距均零改动。
+  const qualityY = (titleY + CLEAR_RIBBON_H / 2 + panel.yMax) / 2;
+  return { panel, buttons, titleY, qualityY, starsY, rewardY, criteriaY, infoY, starX };
 }
 
 /** 按钮文案（`ux-spec §3.4`；末关主钮文案为派生项）。 */

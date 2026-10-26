@@ -174,10 +174,10 @@ describe('Q8 丙档（§2.6.4.1 v1.3-R4）· 失配 ⇒ 另一根指针；⛔ �
     expect(first.maxUnlockedIndex).toBe(0);
     expect(first.lastPlayedIndex).toBe(0);
     expect(first.save.version).toBe(SAVE_VERSION);
-    expect(SAVE_VERSION, 'DEC-7 补条①：留 5').toBe(5);
+    expect(SAVE_VERSION, 'ADR-0035 §3.2.1 ①：品质分账 v6').toBe(6);
 
     const stored = writeBack(first);
-    expect(stored['version']).toBe(5);
+    expect(stored['version']).toBe(SAVE_VERSION);
     const second = norm(stored);
     expect(second.changed, '降级只写一次').toBe(false);
     expect(second.staleKeys).toEqual([]);

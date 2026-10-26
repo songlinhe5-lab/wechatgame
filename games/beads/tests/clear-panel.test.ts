@@ -21,6 +21,7 @@ import {
 } from '../src/config/tuning.js';
 import {
   CLEAR_PANEL_TITLE,
+  CLEAR_RIBBON_H,
   ClearPanel,
   clearPanelLabel,
   clearPanelLayout,
@@ -278,5 +279,39 @@ describe('S7 结算·过关面板（ux-spec §3.4/§4/§5）', () => {
       builder.end().commands.some((c) => c.kind === 'text' && c.text.startsWith('3★')),
       '续时局仍印了判星门槛',
     ).toBe(false);
+  });
+
+  // ADR-0035 §3.2.1 ②（用户 2026-10-26「结算面板加一行」）：品质分要能被玩家看见，
+  // 否则排行榜数值对玩家是黑箱。行位 = 缎带顶与面板顶缘之间的空带（`PANEL_SIZE` 零改动）。
+  it('品质分行：落在缎带上方空带，首通只印本局分，破纪录后追加「最佳」', () => {
+    const layout = clearPanelLayout(NORMAL);
+    // 几何：缎带顶（y 向上）= titleY + 半高 < 品质行 < 面板顶缘。
+    expect(layout.qualityY).toBeGreaterThan(layout.titleY + CLEAR_RIBBON_H / 2);
+    expect(layout.qualityY).toBeLessThan(layout.panel.yMax);
+    expect(layout.panel.yMax - layout.panel.yMin).toBe(PANEL_SIZE.h);
+
+    const h = createBeadsHarness({
+      noAssemble: true,
+      levels: [simpleTestLevel({ id: 97 })],
+      saveKey: 'wxgame.beads.test.cp-quality',
+    });
+    fillBoard(h);
+    expect(h.game.phase).toBe('level-clear');
+    advancePastClearWave(h);
+
+    const quality = render(h).find(
+      (c) => c.kind === 'text' && c.text.startsWith('品质分'),
+    ) as Extract<DrawCommand, { kind: 'text' }> | undefined;
+    expect(quality?.text, '结算面板未渲染品质分行').toBe('品质分 4200');
+
+    // 同快照只改分数对（视图只读快照）⇒ 「本局 · 最佳」双值形态。
+    const withBest = { ...h.game.snapshot, clearQualityScore: 2400, clearQualityBest: 4200 };
+    const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
+    builder.begin();
+    buildBeadsView(builder, withBest, DEFAULT_PALETTE, DEMO_BEAD_INKS);
+    const dual = builder.end().commands.find(
+      (c) => c.kind === 'text' && c.text.startsWith('品质分'),
+    ) as Extract<DrawCommand, { kind: 'text' }> | undefined;
+    expect(dual?.text).toBe('品质分 2400 · 最佳 4200');
   });
 });

@@ -37,7 +37,12 @@ import { buyConfirmLayout } from '../systems/buy-confirm-panel.js';
 import { COPY_TOKENS } from '../config/copy-tokens.js';
 import { failPanelLabel, failPanelLayout } from '../systems/fail-panel.js';
 import { CONFETTI_COLORS, STAR_GOLD, withAlpha, type BeadInks, type BeadsPalette } from './palette.js';
-import { CLEAR_PANEL_TITLE, clearPanelLabel, clearPanelLayout } from '../systems/clear-panel.js';
+import {
+  CLEAR_PANEL_TITLE,
+  CLEAR_RIBBON_H,
+  clearPanelLabel,
+  clearPanelLayout,
+} from '../systems/clear-panel.js';
 import {
   FINISH_MAX_STARS_PER_LEVEL,
   FINISH_PANEL_TITLE,
@@ -455,7 +460,7 @@ function drawClearPanel(
   });
 
   // 金色缎带横幅 + 标题（ux-spec §3.4 首行）。
-  const ribbonH = 84;
+  const ribbonH = CLEAR_RIBBON_H;
   builder.rect(plate.xMin + PANEL_PADDING, layout.titleY - ribbonH / 2, w - PANEL_PADDING * 2, ribbonH, {
     fill: withAlpha(STAR_GOLD, 0.22), // F6：缎带金 → STAR_GOLD（资产色，暖橙让位）。
     radius: 16,
@@ -466,6 +471,20 @@ function drawClearPanel(
     align: 'center',
     baseline: 'middle',
   });
+
+  // 品质分（ADR-0035 §3.2.1 ②）：缎带上方空带一行「品质分 N · 最佳 M」。
+  // 两值相等（首通 / 本局即最佳）⇒ 只印本局分，不重复同一数字。
+  if (snap.clearQualityScore > 0) {
+    const best = snap.clearQualityBest;
+    builder.text(
+      DESIGN_W / 2,
+      layout.qualityY,
+      best > snap.clearQualityScore
+        ? `品质分 ${snap.clearQualityScore} · 最佳 ${best}`
+        : `品质分 ${snap.clearQualityScore}`,
+      { fill: palette.textDim, font: bodyFont(snap.largeText, 'sub'), align: 'center', baseline: 'middle' },
+    );
+  }
 
   // 星级：只画已入场的那些；最新一颗按弹跳缩放（0→1.2→1）。
   const starR = (CLEAR_STAR_SIZE / 2) * 0.92;

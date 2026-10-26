@@ -5452,7 +5452,7 @@ WXG-T-412 = Qoder 会话隔离工作树配方（已入库）。WXG-T-413 = beads
 | W5 | 新加好友后 **2 小时内**可能取不到该好友数据 | 文案不承诺「立刻可见」 |
 | W6 | 开放数据域**仅好友维度**，拿不到全服/陌生人数据 | 全服榜 = 后端 |
 
-### 5. ADR 关键裁定（推荐档，待用户拍板 Q1–Q4）
+### 5. ADR 关键裁定（Q1=B / Q2 / Q3 已拍板；仅 Q4 渲染预留待拍）
 
 1. **不碰后端**：本里程碑零服务器、零账号体系、零成绩校验。
 2. **协议先行**：`core/opendata/` 定判别联合（`rank:query` / `rank:refresh` / `render:resize` ↔ `rank:ready` / `rank:error`），主域只发、子域只收，不做双向 RPC。
@@ -5464,7 +5464,7 @@ WXG-T-412 = Qoder 会话隔离工作树配方（已入库）。WXG-T-413 = beads
 
 | # | 问题 | 归属 | 状态 |
 |---|---|---|---|
-| Q1 | 榜单指标（步数 / 通关数 / 星数 / 综合分） | 文策渊 | ⏸ **重开待拍 2026-10-26**（用户复核：总星数硬顶并列 ⇒ 撤回原裁定）。候选：A 冲刺最佳分+品质分 / B 品质分单榜 / C MF4 原双榜（星）/ D 冲刺分+步数达成率。**纠错**：冲刺模式已落码（`systems/sprint.ts`、`sprint-settle.ts`），`sprintBestScore` 已存 save v5 ⇒ 上一版「冲刺未落码」为 glob 失效误判；`SETTLE_SCORE` 计算已实现（`tuning.ts::normalSettleScore`，通关帧 `beads-game.ts` 算 `_lastSettleScore`）但**未持久化**、且三处 UI 均不显示 |
+| Q1 | 榜单指标（步数 / 通关数 / 星数 / 综合分） | 文策渊 | ✅ **已拍板 2026-10-26：B = 品质分单榜**（`SETTLE_SCORE`，分关榜；冲刺分因 U1 三处入口隐藏〔WXG-T-177〕本期不上；总星数硬顶并列已否决）。S-1 前置三件（ADR §3.2.1）：① 存档 `settleBestByUid`（v5→v6）② 结算面板加一行「品质分 N · 最佳 M」③ 榜单说明文案（公式 + 同关历史最佳） |
 | Q2 | 授权时机（首开榜时弹 / 首次通关后弹 / 设置页入口） | 产品 + 工程 | ✅ **已拍板 2026-10-26：首次打开榜单时弹**（通关后不弹；拒绝 → 空态 + `wx.openSetting` 回流，本次会话不再弹；见 ADR §3.4） |
 | Q3 | 协议形状是否采纳 ADR §3.1 | 工程 | ✅ **已拍板 2026-10-26：采纳**（单向 + `version` 握手 + `theme` 随 init 下发 + `render:visible` 停帧 + 不回传成绩明细；「我在榜上」靠子域昵称/头像自匹配，⛔ 不用 viewerUid） |
 | Q4 | 渲染预留选 R1 / R2 / R3 | 工程 | 待拍板（推荐：R2） |
@@ -5593,3 +5593,36 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 ### 5. 实施流水
 
 - **T1 完成（本笔提交）**：`check-architecture.mjs` 新增 L6 内部依赖方向与运行时循环检测；view → game 仅类型放行，存档 → view 单独报错，9 条旧 game → view 边逐条登记。自测由 11 增至 **19** 例（PASS 19｜FAIL 0），并挂既有 `check:arch:selftest` → `selftest:fast`（PASS 14｜FAIL 0）。真实探针 `game/arch-direction-probe.ts` 加一条未登记 game → view 后 `check:arch` 报 L6-direction，删除后恢复零违规；探针未入库。`control-manifest.md` 同步 L6 条文。
+
+---
+
+## WXG-T-421
+
+**品质分单榜前置三件：存档 v6 + 结算面板品质分行 + 榜单数值口径**
+
+### 1. 触发与上位
+
+- 用户 2026-10-26 原话：「① 存档新增字段 ② 结算面板加一行 ③ 说明榜单上的数值」。
+- 上位 = `docs/architecture/adr/ADR-0035-minigame-open-data-domain-friend-leaderboard.md` §3.2.1。Q1 已拍板 **B = 品质分榜**；用户另拍两项：
+  - 榜的口径 = **分关榜 + 总榜**（主榜分关；总榜 = Σ 各关历史最佳，共用同一 KV，零额外存储）。
+  - ② 的落位 = **面板顶部得分条**（缎带上方空带，`PANEL_SIZE` 560×480 零改动）。
+- 本批**只做前置三件**，⛔ 不落子域 / 排行榜代码（S-1~S-5 另发落码单）。
+
+### 2. 交付
+
+1. **存档 v6（①）**：`games/beads/src/game/save-schema.ts` `SAVE_VERSION` 5→6；新增 `settleBestByUid: Record<string, number>`（键 = 关卡身份 token，值钳制 `[0, SETTLE_SCORE_MAX]`，**稀疏记账**：0 = 无记录）；`migrateV5ToV6` 只升版本不造分数；`defaultBeadsSave()` 补 `{}`；`normalizeSettleBestLedger` 做孤儿键丢弃 + 钳制 + 丢 0。`tuning.ts` 新增派生常量 `SETTLE_SCORE_MAX`（= `STAR_MAX × SETTLE_STAR_WEIGHT + SETTLE_RATIO_SCALE + SETTLE_NO_EXPAND_BONUS` = 4200，⛔ 不进 §3）。`beads-game.ts` 通关帧对同关历史最佳 `Math.max` 写内存，`_persistProgress` 落盘。
+2. **结算面板品质分行（②）**：`systems/clear-panel.ts` 新增 `CLEAR_RIBBON_H = 84` 与 `qualityY`（缎带顶到面板顶缘 98px 空带取中点 = `titleY + 91`）；`view/view-model.ts` 在标题后绘制 `品质分 N`，历史最佳更高时追加 ` · 最佳 M`；`state.ts` 快照新增 `clearQualityScore` / `clearQualityBest`。既有六行零挤压。
+3. **榜单数值口径（③）**：`gdd/systems-index.md` v1.91 改 §3.10 `SETTLE_SCORE` 行说明（显示口径 + 榜值 = 同关历史最佳）；`ux-spec` v1.27 §3.4 线框 + 四条硬口径 + 变更记录；`docs/architecture/ui-architecture-beads.md` §12 视觉变更登记；`gdd/save-progress.md` v1.5 品质分最佳账登记；ADR-0035 状态头 / `RankBoard` / §3.2 / §3.2.1 / §5.2 / §7 同步为「分关 + 总榜、①② 已落码」。
+
+### 3. 验证与门禁
+
+- 单测：`save-schema.test.ts`（v6 迁移链 + 品质分账 5 条）、`clear-panel.test.ts`（品质分行落位与文案）全绿；版本钉值四处同步 6。
+- 金样本：`clear` 态 +1 text（620 → 621）⇒ 必须用 `tests/ui-golden-capture.ts` 在干净 HEAD 复取，⛔ 手改 sha/total。
+- `framework:sync`（Cocos 镜像）+ `typecheck` + beads 全量 + `check:tasks` + `ctx:build` + `check:links`。
+
+### 4. 红线自证
+
+- **零 §3 冻结常量改动**：`SETTLE_SCORE` 公式 / 四权重 / 区间 0–4200 一字未改；`SETTLE_SCORE_MAX` 是派生常量、住 `tuning.ts`。
+- `PANEL_SIZE` 560×480 零改动，失败 / 通关面板零影响。
+- 存档迁移每级返回 `n+1`（S-7），`migrateV5ToV6` 单测钉 `version === 6`。
+- 品质分账刻意**稀疏**（与星账的稠密物化不同：无排序 / 显示需求），0 值不落盘。

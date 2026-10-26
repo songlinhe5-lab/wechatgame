@@ -18,6 +18,7 @@ import { fileURLToPath } from 'node:url';
 import { SaveManager } from '@wxgame/framework';
 import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import {
+  SETTLE_SCORE_MAX,
   VIBRATE_DEFAULT,
 } from '../src/config/tuning.js';
 import { LEVELS, levelIdentityKeys } from '../src/config/levels.js';
@@ -32,6 +33,7 @@ import {
   defaultBeadsSave,
   flattenStars,
   migrateV4ToV5,
+  migrateV5ToV6,
   normalizeBeadsSave,
   normalizeSettings,
   preserveCorruptBackup,
@@ -73,6 +75,8 @@ const validSave = () => ({
   sprintBestScore: 1200,
   sprintBestStage: 5,
   starsByUid: starsLedger(STAR_HEAD),
+  // v6：品质分最佳账（稀疏）——前两关有记录，其余无条目。
+  settleBestByUid: { [KEYS[0]]: 3120, [KEYS[1]]: 2400 },
   settings: { bgmMuted: true, sfxMuted: false, reduceMotion: false, largeText: false, vibrate: true, debugInfo: false, debugGuides: false, beadStyle: 'facet-4', beadSize: 'full', skinId: 'warm-paper' },
 });
 
@@ -105,6 +109,8 @@ describe('beads save schema', () => {
       sprintBestStage: 0,
       // v5：出厂默认不知关表 ⇒ 空身份账；稠密终态由 `normalizeBeadsSave` 物化。
       starsByUid: {},
+      // v6：品质分最佳账出厂为空（稀疏，⛔ 稠密补 0）。
+      settleBestByUid: {},
       settings: { bgmMuted: false, sfxMuted: false, reduceMotion: false, largeText: false, vibrate: true, debugInfo: false, ...SETTINGS_DEFAULTS },
     });
   });
@@ -296,9 +302,9 @@ describe('beads save schema', () => {
   // 新开关逐字段降级 false，绝不因“版本号落后”而重置（旧档不炸）。
   // ⚠ v5 起该腿同时是「v1 位置档 → 身份档」的一次性入口（§8-21）。
   // **S-7 改严**（ADR-0034 §6 S-7）：每级迁移各返回 `n+1` ⇒ v1 档必须逐级走完
-  // 1→2→3→4→5。`migrationsApplied` 只记**落点**（框架 `SaveManager.load` 的既有语义，
-  // ⛔ 本批不改 core）⇒ 恰为 `[2,3,4,5]`：4 次跃迁、5 个版本台阶（含起点 1）。
-  it('migrates a v1 document through the full 1→2→3→4→5 chain', () => {
+  // 1→2→3→4→5→6。`migrationsApplied` 只记**落点**（框架 `SaveManager.load` 的既有语义，
+  // ⛔ 本批不改 core）⇒ 恰为 `[2,3,4,5,6]`：5 次跃迁、6 个版本台阶（含起点 1）。
+  it('migrates a v1 document through the full 1→2→3→4→5→6 chain', () => {
     const store = storage();
     const v1 = {
       version: 1,
@@ -322,7 +328,7 @@ describe('beads save schema', () => {
     });
     const loaded = manager.load();
     expect(loaded.wasReset).toBe(false);
-    expect(loaded.migrationsApplied, '逐级落点必须一个不缺').toEqual([2, 3, 4, 5]);
+    expect(loaded.migrationsApplied, '逐级落点必须一个不缺').toEqual([2, 3, 4, 5, 6]);
 
     const normalized = norm(loaded.data);
     // 进度、原开关一字未动；新开关逐字段降级 false。
@@ -481,6 +487,65 @@ describe('§8-17 孤儿记录逐条作废（I3 / §2.6.4）：对不上号的那
     } finally {
       warn.mockRestore();
     }
+  });
+});
+
+/* ═══════ ADR-0035 §3.2.1 ① — v6 品质分最佳账（稀疏 / 钳正 / 孤儿作废）═══════ */
+
+describe('v6 品质分最佳账 settleBestByUid', () => {
+  it('完好档原样保留、不稠密补 0、幂等', () => {
+    const result = norm(validSave());
+    expect(result.save.settleBestByUid).toEqual(validSave().settleBestByUid);
+    expect(Object.keys(result.save.settleBestByUid).length, '稀疏账 ⛔ 每关补 0').toBe(2);
+    expect(result.changed).toBe(false);
+  });
+
+  it('逐键钳 [0, SETTLE_SCORE_MAX] + 向下取整；0 等价于无记录 ⇒ 不落键', () => {
+    const doc = {
+      ...validSave(),
+      settleBestByUid: {
+        [KEYS[0]]: SETTLE_SCORE_MAX + 1,
+        [KEYS[1]]: 2400.7,
+        [KEYS[2]]: Number.NaN,
+        [KEYS[3]]: 0,
+      },
+    };
+    const result = norm(doc);
+    expect(result.save.settleBestByUid).toEqual({
+      [KEYS[0]]: SETTLE_SCORE_MAX,
+      [KEYS[1]]: 2400,
+    });
+    expect(result.changed, '钳正 / 丢 0 值 ⇒ 写回恰一次').toBe(true);
+    expect(norm(result.save).changed, '收敛后二次读幂等').toBe(false);
+  });
+
+  it('孤儿逐条作废、其余无损、⛔ 不弃整档', () => {
+    const result = norm({
+      ...validSave(),
+      settleBestByUid: { ...validSave().settleBestByUid, L00777: 3000 },
+    });
+    expect(result.save.settleBestByUid).toEqual(validSave().settleBestByUid);
+    expect(result.save.runs).toBe(3);
+    expect(result.save.starsByUid).toEqual(starsLedger(STAR_HEAD));
+    expect(result.changed).toBe(true);
+  });
+
+  it('非记录形态 ⇒ 空账，其余字段照常读出', () => {
+    for (const bad of [null, 3, 'scores', [], true]) {
+      const result = norm({ ...validSave(), settleBestByUid: bad });
+      expect(result.save.settleBestByUid).toEqual({});
+      expect(result.save.runs).toBe(3);
+      expect(result.save.settleBestByUid).not.toBeUndefined();
+      expect(result.changed).toBe(true);
+    }
+  });
+
+  it('v5 → v6 迁移只升版本、⛔ 在迁移体里造分数', () => {
+    const out = migrateV5ToV6(jsonRoundTrip({ ...validSave(), version: 5, settleBestByUid: undefined }));
+    expect(out['version']).toBe(6);
+    expect(out['settleBestByUid'], '迁移体不造账（缺省由 defaults 补 {}）').toBeUndefined();
+    expect(out['starsByUid']).toEqual(validSave().starsByUid);
+    expect(out['runs']).toBe(3);
   });
 });
 
@@ -656,20 +721,22 @@ describe('TC-SAVE-13 · §8-13 「无换肤迁移代码」静态哨 (a)(b)(c) + 
 
   it('(a)(b)(c) 现码零命中 ⇒ 护栏哨兵绿（⛔ 其绿不读作 §8-13「旧档不丢档」已验）', () => {
     const bodies = migrateBodies(readFileSync(SAVE_SRC, 'utf8'));
-    // 前提哨兵：抽取函数本身能抽到全部四条合法迁移（否则 (a)(b) 扫的是空集 = 假绿）。
+    // 前提哨兵：抽取函数本身能抽到全部五条合法迁移（否则 (a)(b) 扫的是空集 = 假绿）。
     // WXG-T-344：`migrateV4ToV5` 入链 ⇒ 本钉值随 ADR-0034 DEC-4 同批改此（差分记账见 ADR §6 第 2 步）。
     expect(bodies.map((b) => b.name)).toEqual([
       'migrateV1ToV2',
       'migrateV2ToV3',
       'migrateV3ToV4',
       'migrateV4ToV5',
+      'migrateV5ToV6',
     ]);
     const srcFiles = tsFiles(resolve(REPO, 'games/beads/src'));
     expect(srcFiles.length).toBeGreaterThan(20);
     const hits = srcFiles.flatMap((f) => scanSkinMigration(readFileSync(f, 'utf8'), f.replace(`${REPO}/`, '')));
     expect(hits).toEqual([]);
-    // (b) 的钉值形式：SAVE_VERSION = 5（ADR-0034 DEC-4 换制 bump；任何再 bump 都须先过本钉值差分）。
-    expect(SAVE_VERSION).toBe(5);
+    // (b) 的钉值形式：SAVE_VERSION = 6（ADR-0035 §3.2.1 ① 品质分账 bump；
+    // ADR-0034 DEC-4 的 4→5 是上一次换制。任何再 bump 都须先过本钉值差分）。
+    expect(SAVE_VERSION).toBe(6);
   });
 
   it('K-060 阳性对照：注入假想换肤迁移分支 ⇒ 三条规则均能命中（⛔ 不得永真绿）', () => {
@@ -730,7 +797,8 @@ describe('ADR-0034 DEC-3：uid ↔ index 双向换算 = 纯函数，恰在写读
   it('migrateV4ToV5 只做版本标记（DEC-4：⛔ 在迁移体里换算，那里拿不到关表轴）', () => {
     const doc = positionalDoc(STAR_SEQ);
     const out = migrateV4ToV5(jsonRoundTrip({ ...doc, starsByUid: undefined }));
-    expect(out['version']).toBe(SAVE_VERSION);
+    // S-7：每级迁移返回 `n+1`（本函数 ⇒ 5），⛔ 返回 `SAVE_VERSION`（否则后续 v5→v6 被跳过）。
+    expect(out['version']).toBe(5);
     expect(out['starsByLevel'], '迁移体不碰星账形态').toEqual(STAR_SEQ);
     expect(out['runs']).toBe(3);
   });
