@@ -6,7 +6,7 @@
 ## 常驻注入与长期笔记
 
 - **提示词正本** = `my-rules/agents-md.md`（每会话强制注入）；**长期笔记正本** = `memory/MEMORY.md`（日记 `memory/YYYY-MM-DD.md`）。各 IDE 路径均为相对符号链接，⛔ 不要在 `.cursor/rules` 等处改摘要。
-- **逐条路径表**（规则件 + 记忆件 × 四 IDE）→ `docs/agent/routing.md` §规则件与 MEMORY 件的四 IDE 落位；链接完整性由 `pnpm run check:links` 机械守。
+- **逐条路径表**（规则件 + 记忆件 × 四 IDE；Trae 本地可选）→ `docs/agent/routing.md` §规则件与 MEMORY 件的四 IDE 落位（+ Trae 本地）；链接完整性由 `pnpm run check:links` 机械守。
 
 ---
 

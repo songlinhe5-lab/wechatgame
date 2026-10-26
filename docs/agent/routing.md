@@ -15,18 +15,19 @@
 orchestration > wxgame-* 域 skill > 执行 pack > 外来通用（仅点名）
 ```
 
-## Skill 正本与四 IDE 链接
+## Skill 正本与 IDE 链接（四 IDE 入库 + Trae 本地）
 
-**Skill 正本**：`my-skills/<name>/`。四处 IDE 链接（相对符号链接，随仓库提交）：
+**Skill 正本**：`my-skills/<name>/`。四处入库 IDE 链接（相对符号链接，随仓库提交）：
 
 - `.cursor/skills/` · `.codebuddy/skills/` · `.workbuddy/skills/` · `.qoder/skills/`
+- Trae（本地可选，不入库）：`.trae/skills/`（存在时 `check:links` 按同一规则校验）
 
-新增 skill：正本进 `my-skills/`，四处各建 `../../my-skills/<name>` 链接。
+新增 skill：正本进 `my-skills/`，四处各建 `../../my-skills/<name>` 链接；Trae 本地另建同目标链接。
 
-## SubAgent 四 IDE 路径
+## SubAgent IDE 路径（四 IDE 入库 + Trae 本地）
 
 工作室成员委派：正本 `my-agents/`（6 成员 + `studio-orchestrator`）；委派时 `subagent_type` = `<name>`。
-四 IDE：`.cursor|.codebuddy|.workbuddy|.qoder/agents/<name>.md` → `../../my-agents/<name>.md`。清单见 `my-agents/INDEX.md`。
+四 IDE：`.cursor|.codebuddy|.workbuddy|.qoder/agents/<name>.md` → `../../my-agents/<name>.md`；Trae 本地 `.trae/agents/<name>.md` 同目标（不入库）。清单见 `my-agents/INDEX.md`。
 
 ## 跨域先交编排
 
@@ -36,7 +37,7 @@ orchestration > wxgame-* 域 skill > 执行 pack > 外来通用（仅点名）
 
 > 注：上句「上表」指 `AGENTS.md` §2 的主理人触发条件表（原文逐字保留于此，WXG-T-032）。
 
-## 规则件与 MEMORY 件的四 IDE 落位
+## 规则件与 MEMORY 件的四 IDE 落位（+ Trae 本地）
 
 > **迁出缘由**（2026-10-18 · WXG-T-292 瘦身续批）：`AGENTS.md` 受 `ctx:check` **A 项常驻硬上限**（见 `ctx/BUDGET.md` §1）约束，而这两张表是**逐条路径清单**：① always-on 规则件 `my-rules/agents-md.md` 已写明「四 IDE 规则路径均为指向本文件的相对符号链接」；② 链接存在性由 `pnpm run check:links` **机械守**（断链即红）。⇒ 常驻层只留结论与指针，路径表以本文为正本。（⚠ 本节故意不再开三级小标题：每个标题都会变成 `ctx/hot-files.md` 的一行锚点，而那张贴纸式的速查表也有体积硬门。）
 
@@ -48,8 +49,9 @@ orchestration > wxgame-* 域 skill > 执行 pack > 外来通用（仅点名）
 | CodeBuddy | `.codebuddy/rules/agents-md/RULE.mdc` → `../../../my-rules/agents-md.md` |
 | WorkBuddy | `.workbuddy/rules/agents-md/RULE.mdc` → `../../../my-rules/agents-md.md` |
 | Qoder | `.qoder/rules/agents-md.md` → `../../my-rules/agents-md.md` |
+| Trae | `.trae/rules/agents-md.md` → `../../my-rules/agents-md.md`（本地可选、不入库；`alwaysApply: true`；同目录递归 ≤3 层） |
 
-**二、长期笔记 MEMORY（四 IDE 可索引）**
+**二、长期笔记 MEMORY（四 IDE 可索引 + Trae 直读）**
 
 | 角色 | 路径 |
 |---|---|
@@ -58,4 +60,5 @@ orchestration > wxgame-* 域 skill > 执行 pack > 外来通用（仅点名）
 | CodeBuddy | `.codebuddy/memory` → `../memory` |
 | Qoder | `.qoder/memory` → `../memory` |
 | Cursor | `.cursor/memory/MEMORY.md`（入口指针；内容请读正本） |
+| Trae | 无独立链接；`.trae/rules/agents-md.md` 指向正本，按其中协议直读 `memory/` + `knowledge/` |
 

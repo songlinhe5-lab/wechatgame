@@ -25,15 +25,15 @@
 
 §wechatgame 项目长期笔记=1+81 · §日志蒸馏规程（R2 · WXG-T-0…=7+6 · §项目约定=13+22 · §常用脚本=35+11 · §SubAgent=46+4 · §Rules=50+3 · §Hooks=53+7 · §Headless / CI=60+8 · §已知限制=68+14
 
-## `production/TASKS.md` — 129 行 / 63885 tok / 实测读 4 次
+## `production/TASKS.md` — 130 行 / 63992 tok / 实测读 4 次
 
-§WXG 任务台账（SSOT）=1+130 · §待排（backlog，无号，立项时领取…=101+30
+§WXG 任务台账（SSOT）=1+131 · §待排（backlog，无号，立项时领取…=102+30
 
 ## `production/qa/beads/test-cases.md` — 62 行 / 3485 tok / 实测读 15 次
 
 §《拼豆填色消除》(beads) 测试用…=1+63 · §分片索引（WXG-T-225 · 13…=18+22 · §锚点迁移表（旧锚点 → 新文件；只到 …=40+17 · §引用与追加规则=57+7
 
-## `my-skills/INDEX.md` — 156 行 / 4349 tok / 实测读 61 次
+## `my-skills/INDEX.md` — 156 行 / 4363 tok / 实测读 61 次
 
 §wxgame skill 家族 IND…=1+157 · §1 清单（现役 38 个挂四 IDE …=6+30 · §1b. 外来通用·AI 编程工作流（2…=36+69 · §2 默认管线顺序与何时不走全 SOP=105+8 · §3 Skill 优先级（冲突时高者胜）=113+19 · §4 路径约定=132+14 · §5 冲突裁决链=146+7 · §6 Provenance 说明=153+5
 > 本表只列 8 / 10 节：其余 2 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
@@ -48,9 +48,9 @@
 §微信小游戏矩阵 — 主架构文档=1+257 · §1 目标与约束=13+23 · §2 分层与依赖方向=36+51 · §3 模块职责表（core）=87+19 · §4 数据流（一帧）=106+28 · §5 包体预算分配（微信小游戏）=134+34 · §6 构建链=168+51 · §7 扩展点（为矩阵后续游戏预留）=219+12 · §8 风险登记册=231+13 · §9 当前实现状态（本轮）=244+14
 > 本表只列 10 / 16 节：其余 6 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
 
-## `my-agents/INDEX.md` — 46 行 / 877 tok / 实测读 18 次
+## `my-agents/INDEX.md` — 47 行 / 904 tok / 实测读 18 次
 
-§my-agents — 工作室 Sub…=1+47 · §现役成员（6）+ 编排（1）=6+12 · §四 IDE 链接=18+9 · §与编排的关系=27+8 · §Frontmatter 约定（共享正本…=35+8 · §符号链接=43+5
+§my-agents — 工作室 Sub…=1+48 · §现役成员（6）+ 编排（1）=6+12 · §四 IDE 链接=18+10 · §与编排的关系=28+8 · §Frontmatter 约定（共享正本…=36+8 · §符号链接=44+5
 
 ## `docs/agent/headless-ci-pr-review.md` — 185 行 / 2747 tok / 实测读 8 次
 
@@ -66,9 +66,9 @@
 
 §仓库目录与产物落位（docs/agen…=1+37 · §目录与产物落位=6+32
 
-## `docs/agent/routing.md` — 61 行 / 1000 tok
+## `docs/agent/routing.md` — 64 行 / 1168 tok
 
-§默认路由细节（docs/agent/r…=1+62 · §Hooks / 提交门禁 / Head…=7+5 · §Skill 优先级（冲突时高者胜）=12+6 · §Skill 正本与四 IDE 链接=18+8 · §SubAgent 四 IDE 路径=26+5 · §跨域先交编排=31+8 · §规则件与 MEMORY 件的四 IDE…=39+24
+§默认路由细节（docs/agent/r…=1+65 · §Hooks / 提交门禁 / Head…=7+5 · §Skill 优先级（冲突时高者胜）=12+6 · §Skill 正本与 IDE 链接（四 …=18+9 · §SubAgent IDE 路径（四 I…=27+5 · §跨域先交编排=32+8 · §规则件与 MEMORY 件的四 IDE…=40+26
 
 ## `docs/agent/commands.md` — 31 行 / 2683 tok
 
@@ -103,10 +103,10 @@
 §knowledge/ — 工作室知识库…=1+295 · §1 读取协议（开发前期）=7+10 · §2 写入协议（任务收尾）=17+28 · §3 文件分工=45+10 · §4 维护=55+12 · §5 生命周期（访问记账 → 归档 → …=67+41 · §6 活跃条目（自动生成）=108+188
 > 本表只列 7 / 11 节：其余 4 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
 
-## `production/TASKS-DETAIL.md` — 5922 行 / 189219 tok
+## `production/TASKS-DETAIL.md` — 5936 行 / 189829 tok
 
-§WXG 任务台账 · 详情（标题制正文…=1+5923 · §WXG-T-421=5629+33 · §WXG-T-422=5662+15 · §WXG-T-423=5677+16 · §WXG-T-424=5693+15 · §WXG-T-425=5708+32 · §WXG-T-426=5740+17 · §WXG-T-427=5757+37 · §WXG-T-428=5794+37 · §WXG-T-429=5831+36 · §WXG-T-430=5867+16 · §WXG-T-431=5883+22 · §WXG-T-432=5905+19
-> 本表只列 13 / 529 节：其余 516 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
+§WXG 任务台账 · 详情（标题制正文…=1+5937 · §WXG-T-422=5662+15 · §WXG-T-423=5677+16 · §WXG-T-424=5693+15 · §WXG-T-425=5708+32 · §WXG-T-426=5740+17 · §WXG-T-427=5757+37 · §WXG-T-428=5794+37 · §WXG-T-429=5831+36 · §WXG-T-430=5867+16 · §WXG-T-431=5883+22 · §WXG-T-432=5905+19 · §WXG-T-433=5924+14
+> 本表只列 13 / 530 节：其余 517 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
 
 ## `games/breakout/design/concept.md` — 143 行 / 3113 tok / 实测读 217 次
 
@@ -162,4 +162,4 @@
 §GDD · S2 输入与操控（Inpu…=1+207 · §1 目标=9+4 · §2 机制=13+59 · §3 输入=72+9 · §4 输出与反馈=81+12 · §5 数值=93+4 · §6 边界条件=97+24 · §7 依赖=121+5 · §8 验收标准（可测试硬判据，QA 直接…=126+58 · §9 变更记录=184+24
 > 本表只列 10 / 14 节：其余 4 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
 
-> 另有 226 个文件既未被 `ctx/ROUTES.md` 引用、也未命中热度/体积门槛，与路由读取无关，故不逐条列出（需要时查 `ctx/index.json`）。
+> 另有 248 个文件既未被 `ctx/ROUTES.md` 引用、也未命中热度/体积门槛，与路由读取无关，故不逐条列出（需要时查 `ctx/index.json`）。

@@ -5920,3 +5920,17 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 - **设计取舍**：① `rankTheme` 放 `systems/rank-panel.ts` 并以结构类型 `RankThemeSource` 收参——放 `view/` 会新增 `game → view` 运行时边，而 `GAME_VIEW_EXCEPTIONS` 明写「只减不增」；② S-3 **不画「去设置开启」**（无 `openSettings` 宿主钩子 ⇒ 不造死按钮，S-5 再接）；③ `ready` 只显示「共 N 位好友上榜」，⛔ 不写「第 N」、不画头像行（协议不回明细）；④ 退场期 `interactive=false` 但点击仍被模态吞（菜单腿 / 玩法腿两处独立拦截）。
 - **边界**：⛔ 不含 S-4 子域工程 / `game.json openDataContext`、S-5 weapp 真实现与 R2 纹理贴图；⛔ 未改 `packages/framework/src/**`、§3 冻结常量、存档形状、`PANEL_SIZE` 560×480；⛔ 未动 `tools/scripts/*.mjs` 的他人未提交改动。
 - **遗留**：真宿主 / 子域未见（S-4/S-5）；「去设置开启」与未授权回流待 S-5 接 `openSettings` 后再渲染；ADR-0035 §5.2 S-3 的 ✅ 与 commit 回填在下一笔 docs 提交。
+
+## WXG-T-433
+
+**Trae 本地能力接入：my-* 正本链接 + knowledge/memory 直读** · 负责：主理人(Trae)·工具链 · 状态：✅ 完成（2026-10-27）
+
+- **上位**：用户令「skill 都在 my-* 文件夹里，关联这些文件夹的 LLM 能力；`memory/`、`knowledge/` 是知识库，用 `AGENTS.md` 引导 Trae 上下文」。落位按 Trae 官方项目级目录 `.trae/skills|agents|rules`；本项目定性为**本地个人配置、不入库**（上一轮试提交被 ctx 索引器「点目录跳过」结构性拦死，用户裁定「仅撤回暂存」）。
+- **交付（均在本机、不入库）**：
+  - `.trae/rules/agents-md.md` → `../../my-rules/agents-md.md`（always-on，本会话已实际加载）。
+  - `.trae/skills/<name>`（47 个）→ `../../my-skills/<name>`；排除 `_beatra-runtime` / `_repos` / 存档 `game-dev-tool-free` / `INDEX.md`。
+  - `.trae/agents/<name>.md`（7 个）→ `../../my-agents/<name>.md`。
+  - `memory/` 与 `knowledge/` 不另建链接：按 `agents-md.md` 协议经 `AGENTS.md` / `memory/INDEX.md` / `knowledge/INDEX.md` 分流直读。
+- **入库改动**：`tools/scripts/check-ide-links.mjs` 增 `OPTIONAL_IDE_DIRS = ['.trae']`（存在即按四 IDE 同一规则校验，缺则跳过 ⇒ 四 IDE 门禁保持恒定）；`docs/agent/routing.md`、`my-agents/INDEX.md`、`my-skills/INDEX.md`、`docs/agent/ide-capability-matrix.md`、`AGENTS.md`、`my-rules/agents-md.md` 登记 Trae 本地落位；`ctx/index.json` 顺带恢复 develop 的 22 条 vendor 索引（WXG-T-412 口径，上笔隔离树合并漏采）。
+- **门禁读数**：`check:links OK — agents=7 skills=47`（四 IDE + 本地 Trae 可选）；`ctx:check` / `check:tasks --staged` / `check-context-budget --staged` 全绿；零代码、零 §3 数值、零冻结常量。
+- **已知差异 / 遗留**：① Trae 无 `readonly` 字段 ⇒ `studio-orchestrator` / `quality-lead` 的只读约束在本 IDE 不生效，只能靠提示词自律；② 新增 skills 需**重载 Trae 窗口**才出现在 Skill 清单；③ `.trae/specs/` 同为本地态（不入库）。

@@ -23,6 +23,7 @@
 | CodeBuddy | `.codebuddy/agents/<name>.md` → `../../my-agents/<name>.md` |
 | WorkBuddy | `.workbuddy/agents/<name>.md` → `../../my-agents/<name>.md` |
 | Qoder | `.qoder/agents/<name>.md` → `../../my-agents/<name>.md` |
+| Trae | `.trae/agents/<name>.md` → `../../my-agents/<name>.md`（本地可选，不入库） |
 
 ## 与编排的关系
 

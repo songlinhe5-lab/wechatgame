@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 四 IDE 链接 + SubAgent frontmatter 完整性检查。
+ * 四 IDE（Cursor / CodeBuddy / WorkBuddy / Qoder）链接 + 本地 Trae 可选链接 + SubAgent frontmatter 完整性检查。
  * 真源：扫描 my-agents/*.md（除 INDEX）与 my-skills 下各包的 SKILL.md（除存档与下划线前缀目录）。
  * 失败时 exit 1，供 pre-commit 与 Cursor beforeShellExecution 拦提交。
  *
@@ -22,6 +22,9 @@ const ROOT = fileURLToPath(new URL('../..', import.meta.url));
 const AS_JSON = process.argv.includes('--json');
 
 const IDE_DIRS = ['.cursor', '.codebuddy', '.workbuddy', '.qoder'];
+
+/** `.trae` 为本地个人配置（不入库，索引器跳过点目录）；存在时按四 IDE 同一规则校验。 */
+const OPTIONAL_IDE_DIRS = ['.trae'];
 
 /** 不挂四 IDE 的 skill 目录 */
 const SKILL_ARCHIVED = new Set(['game-dev-tool-free']);
@@ -55,10 +58,21 @@ const RULE_POINTERS = [
     path: '.qoder/rules/agents-md.md',
     expectedRel: '../../my-rules/agents-md.md',
   },
+  {
+    path: '.trae/rules/agents-md.md',
+    expectedRel: '../../my-rules/agents-md.md',
+    optional: true,
+  },
 ];
 
 const errors = [];
 const warnings = [];
+
+/** 实际参与校验的 IDE 目录：四 IDE 恒查；`.trae` 仅当存在（本地个人配置）。 */
+const LINK_IDE_DIRS = [
+  ...IDE_DIRS,
+  ...OPTIONAL_IDE_DIRS.filter((d) => existsSync(join(ROOT, d))),
+];
 
 function abs(...parts) {
   return join(ROOT, ...parts);
@@ -314,7 +328,7 @@ checkAgentsIndex(AGENT_NAMES);
 checkOrchestrationRouting(AGENT_NAMES);
 
 // --- agents links ---
-for (const ide of IDE_DIRS) {
+for (const ide of LINK_IDE_DIRS) {
   const dir = abs(ide, 'agents');
   const allowed = new Set(AGENT_NAMES.map((n) => `${n}.md`));
   expectNoExtraSymlinks(dir, allowed, `${ide}/agents`);
@@ -329,7 +343,7 @@ for (const ide of IDE_DIRS) {
 }
 
 // --- skills links ---
-for (const ide of IDE_DIRS) {
+for (const ide of LINK_IDE_DIRS) {
   const dir = abs(ide, 'skills');
   const allowed = new Set(SKILL_NAMES);
   expectNoExtraSymlinks(dir, allowed, `${ide}/skills`);
@@ -354,7 +368,8 @@ expectFile(abs('memory', 'MEMORY.md'), 'memory/MEMORY.md 正本');
 // --- AGENTS 规则指针（正本 my-rules/agents-md.md）---
 expectFile(abs('my-rules', 'agents-md.md'), 'my-rules/agents-md.md 正本');
 expectFile(abs('AGENTS.md'), 'AGENTS.md 正本');
-for (const { path, expectedRel } of RULE_POINTERS) {
+for (const { path, expectedRel, optional } of RULE_POINTERS) {
+  if (optional && !existsSync(abs(path))) continue;
   expectRelSymlink(
     abs(path),
     expectedRel,
@@ -364,7 +379,7 @@ for (const { path, expectedRel } of RULE_POINTERS) {
 }
 
 // --- 存档 skill 不得挂四 IDE ---
-for (const ide of IDE_DIRS) {
+for (const ide of LINK_IDE_DIRS) {
   for (const archived of SKILL_ARCHIVED) {
     const p = abs(ide, 'skills', archived);
     if (existsSync(p) || isSymlink(p)) {
@@ -386,7 +401,7 @@ if (AS_JSON) {
   process.stdout.write(JSON.stringify(summary, null, 2) + '\n');
 } else if (ok) {
   process.stdout.write(
-    `check:links OK — agents=${AGENT_NAMES.length} skills=${SKILL_NAMES.length}；frontmatter / INDEX / 路由表 / 四 IDE 链接完整\n`,
+    `check:links OK — agents=${AGENT_NAMES.length} skills=${SKILL_NAMES.length}；frontmatter / INDEX / 路由表 / IDE 链接完整（四 IDE + 本地 Trae 可选）\n`,
   );
   for (const w of warnings) process.stderr.write(`  warn: ${w}\n`);
 } else {

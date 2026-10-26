@@ -1,7 +1,7 @@
 # IDE 能力迁移矩阵（docs/agent/ide-capability-matrix.md）
 
 > **来源**：主理人盘点（2026-09-13，WXG-T-045）。**结论先行的分工**：开发在 CodeBuddy / Cursor / Qoder 进行；WorkBuddy 只做方案调研、制定与设计。本矩阵回答「WorkBuddy 上的开发辅助能力，哪些已转入三 IDE、哪些没有」。
-> **总判定门**：`pnpm run check:links`（四 IDE skills/agents/rules 链接 + 正本完整性）与 `pnpm run check:mcp`（MCP 三产物与正本一致）全绿即为本矩阵「已迁移」的机器可验状态；两个门都接 pre-commit + CI。
+> **总判定门**：`pnpm run check:links`（四 IDE + 本地 Trae 可选 的 skills/agents/rules 链接 + 正本完整性）与 `pnpm run check:mcp`（MCP 三产物与正本一致）全绿即为本矩阵「已迁移」的机器可验状态；两个门都接 pre-commit + CI。
 
 ## 1. 组件级迁移矩阵（✅=已完成且门禁可验 / ⏳=待办 / ❌=不迁移，留 WorkBuddy）
 
