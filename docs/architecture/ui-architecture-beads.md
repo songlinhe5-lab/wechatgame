@@ -109,6 +109,8 @@ games/beads/src/ui/
 
 **快照字段守则（WXG-T-420 T8 已落地）**：`BeadsSnapshot` 新增字段必须先登记进 `games/beads/src/game/snapshot-shards.ts` 的**恰好一片**（对局 / 面板 / 菜单 / 调试 / 特效），投影按片写字段 ⇒ 越片写是编译错误；机械门 = `tests/snapshot-shards.test.ts`（漏登记 / 双登记 / 陈旧字段当场红）。运行形状仍是同一份扁平对象（判据「渲染指令逐字节一致」），读侧可按需窄化成 `SnapshotPlay` 等最小可见面。
 
+**渲染绑定守则（WXG-T-420 T9 已落地）**：`game/**` ⛔ 不得持有到 `view/**` 的**运行时** import（类型只进契约面），也不得知道「怎么画」；快照 → 渲染门面的绑定集中在**组装层** `games/beads/src/ui/play-binding.ts::renderPlayPage`，由壳的对局腿注入。机械门两处：`tools/scripts/check-architecture.mjs` L6（`GAME_VIEW_EXCEPTIONS` 登记集只减不增，现余 3 条壳边）+ `tests/game-view-decoupling.test.ts`（从 `game/beads-game.ts` 走**传递闭包**，绘制链 `view-model / play-page / bead-render / ui-widgets` 不可达；唯一登记例外 = 令牌表 `view/palette.ts`，因 `config/skins/warm-paper.ts` 直引 `DEFAULT_PALETTE`，arch.md D1 判例）。收益：Node 下不加载视图也能跑玩法测试。
+
 ## 9. 迁移策略（绞杀式）
 
 1. 先建**金样本**：对每个界面在关键状态下抓取现行 RenderModel 指令序列，作为回归门。

@@ -44,6 +44,7 @@ import {
 } from '../src/config/tuning.js';
 
 import type { BeadsGame } from '../src/game/beads-game.js';
+import { renderPlayPage } from '../src/ui/play-binding.js';
 
 const STEP = 1 / 60;
 
@@ -169,7 +170,7 @@ describe('S9 pause & settings', () => {
     // The scrim really does cover the board **and** the tray (§2.2).
     const builder = new RenderModelBuilder(750, 1334);
     builder.begin();
-    game.buildRenderModel(builder);
+    renderPlayPage(game, builder);
     const commands = builder.end().commands;
     const rects = commands.filter((c): c is RectCommand => c.kind === 'rect');
     const scrim = rects.find((r) => r.fill?.includes('rgba(42,46,67'));

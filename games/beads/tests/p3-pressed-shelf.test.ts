@@ -23,6 +23,7 @@ import { buildBeadsView } from '../src/view/view-model.js';
 import { buildMetaView, hitTestMeta, metaLayout, type MetaViewData } from '../src/view/meta-view.js';
 import { BeadsShell } from '../src/game/beads-shell.js';
 import { createBeadsHarness, simpleTestLevel, advancePastClearWave, type Harness } from './helpers.js';
+import { renderPlayPage } from '../src/ui/play-binding.js';
 
 const STEP = 1 / 60;
 /** 彩带禁飞带（screens.md S5，设计 y）。 */
@@ -45,7 +46,7 @@ function input(h: Harness, phase: 'down' | 'move' | 'up' | null, dx = 0, dy = 0)
   }
   h.game.update(STEP);
   h.input.endFrame(STEP);
-  h.game.buildRenderModel(new RenderModelBuilder(DESIGN_W, DESIGN_H)); // 同步快照
+  renderPlayPage(h.game, new RenderModelBuilder(DESIGN_W, DESIGN_H)); // 同步快照
 }
 
 function pausedHarness(key: string): Harness {

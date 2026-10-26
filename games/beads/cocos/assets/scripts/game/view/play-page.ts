@@ -111,7 +111,7 @@ import {
     type BeadsPalette,
 } from './palette';
 import { POWERUP_LABELS } from '../systems/powerups';
-import { comboBurst, comboParticleOffsets, comboPseudoShake } from './combo-vfx';
+import { comboBurst, comboParticleOffsets, comboPseudoShake } from '../systems/combo-vfx';
 import {
     groupLandDropDy,
     groupLandOffsetMs,

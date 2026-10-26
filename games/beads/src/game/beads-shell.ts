@@ -79,6 +79,8 @@ import { importLatest, type HttpGet } from './level-import.js';
 import { UiRoot } from '../ui/ui-root.js';
 import type { UiDebugState } from '../ui/ui-host.js';
 import { PhaseRouteBinder, type ShellScreen } from '../ui/phase-route-binder.js';
+// WXG-T-420 T9：对局页的视图绑定上移到组装层（Game 只出快照）。
+import { renderPlayPage } from '../ui/play-binding.js';
 import { getBeadBakeRuntime } from '../view/bead-render.js';
 
 /** UI-42：屏幕相位 / 覆盖层改由 {@link PhaseRouteBinder} 的 Navigator 栈投影（本文件不持标志位）。 */
@@ -316,10 +318,12 @@ export class BeadsShell implements Game {
             },
         });
         // UI-50：路由栈与 UiRoot 共用同一 Navigator，栈即绘制源 —— 基础页路由的 `draw`
-        // 闭包绑到本壳的两个视图入口（菜单腿消费 `play.palette`，换肤后两屏同帧一致）。
+        // 闭包绑到两个视图入口（菜单腿消费 `play.palette`，换肤后两屏同帧一致）。
+        // WXG-T-420 T9：对局腿不再走 `play.buildRenderModel`（上移到 `ui/play-binding.ts`），
+        // 菜单腿仍在壳内直调（绘制腿与命中腿 `hitTestMeta` 同源 ⇒ 收敛另开）。层序逐字不变。
         this._phase = new PhaseRouteBinder(this._uiRoot.nav, {
             menu: (b) => buildMetaView(b, this._metaViewData(), this.play.palette),
-            play: (b) => this.play.buildRenderModel(b),
+            play: (b) => renderPlayPage(this.play, b),
         }, options.initialScreen ?? 'menu');
     }
 
@@ -460,8 +464,8 @@ export class BeadsShell implements Game {
 
     buildRenderModel(builder: RenderModelBuilder): void {
         // UI-50：唯一绘制入口 —— 可见路由自下而上画内容，最后叠调试层。
-        // 基础页路由的 `draw` 闭包绑到既有视图（菜单腿 `buildMetaView` / 对局腿
-        // `play.buildRenderModel`）⇒ 层序与拆分前逐字一致。
+        // 基础页路由的 `draw` 闭已绑到视图入口（菜单腿 `buildMetaView` / 对局腿
+        // `renderPlayPage` ⇒ `buildBeadsView`，WXG-T-420 T9）⇒ 层序与拆分前逐字一致。
         this._uiRoot.draw(builder, this.play.palette);
     }
 
@@ -1075,7 +1079,8 @@ export class BeadsShell implements Game {
 
 /**
  * Harness/host factory. `clock` defaults to `Date.now`; production hosts may
- * pass a platform wall clock. Mirrors `createBeadsGame` for drop-in use.
+ * pass a platform wall clock. This is the host's drop-in `Game` — WXG-T-420 T9
+ * moved the play render leg here, so `createBeadsGame` alone no longer draws.
  */
 export function createBeadsShell(options: Omit<BeadsShellOptions, 'clock'> & { clock?: () => number } = {}): BeadsShell {
     return new BeadsShell({ ...options, clock: options.clock ?? ((): number => Date.now()) });

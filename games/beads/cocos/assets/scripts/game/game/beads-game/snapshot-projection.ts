@@ -3,8 +3,9 @@
  * 自 `beads-game.ts::_syncSnapshot` 抽出（WXG-T-420 T6），并按快照分片拆成五段写出（T8）。
  * 快照契约字段全集（`state.ts` 是唯一真源，归属清单见
  * `game/snapshot-shards.ts`），投影只写值、**不增删键**，且**复用同一 `s` 对象与其稳定缓冲（cells /
- * traySlots / powerupFreeUses / solver 数组）——`_syncSnapshot` 每帧经 `buildRenderModel`
- * 走一遍，故热路径**零新增分配**是硬红线（维度 / 容量变更时的原地重建是唯一例外）。
+ * traySlots / powerupFreeUses / solver 数组）——`_syncSnapshot` 只在 `get snapshot()` 里走一遍
+ *（WXG-T-420 T9：消费方 = 壳注入的组装层 `ui/play-binding.ts`），故热路径**零新增分配**
+ * 是硬红线（维度 / 容量变更时的原地重建是唯一例外）。
  *
  * 为什么是**模块函数 + 一次性 getter 宿主**而非协作类：本模块零实例状态（纯投影），
  * 与 `hit-test.ts` / `effects-dispatch.ts` 同型（⛔ 不为「统一形态」造无状态壳）。投影

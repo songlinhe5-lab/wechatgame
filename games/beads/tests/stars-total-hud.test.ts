@@ -23,6 +23,7 @@ import { createBeadsHarness, placeColor, simpleTestLevel } from './helpers';
 import { HUD_BAND } from '../src/config/tuning.js';
 import type { BeadsGame } from '../src/game/beads-game.js';
 import type { Harness } from './helpers';
+import { renderPlayPage } from '../src/ui/play-binding.js';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const SRC = (rel: string): string => readFileSync(resolve(ROOT, '..', 'src', rel), 'utf8');
@@ -46,7 +47,7 @@ function harness(saveKey: string, storage?: Harness['storage']): Harness {
 const textsOf = (game: BeadsGame): readonly DrawCommand[] => {
     const b = new RenderModelBuilder(750, 1334);
     b.begin();
-    game.buildRenderModel(b);
+    renderPlayPage(game, b);
     return b.end().commands;
 };
 const starText = (game: BeadsGame): Extract<DrawCommand, { kind: 'text' }> | undefined =>
@@ -61,7 +62,7 @@ describe('EP14-S2 总星数快照与 HUD（R6/R8）', () => {
         const t = starText(h.game);
         expect(t?.text).toBe('★0');
         // 连续两帧：同一快照引用（视图只读消费，⛔ 不逐帧新建）。
-        h.game.buildRenderModel(new RenderModelBuilder(750, 1334));
+        renderPlayPage(h.game, new RenderModelBuilder(750, 1334));
         expect(h.game.snapshot).toBe(h.game.snapshot);
     });
 

@@ -2,7 +2,7 @@
 
 > - **日期**：2026-10-26　**任务**：WXG-T-420　**性质**：读码取证后的评审与拆分计划，逐项独立提交。
 > - **用户拍板**：「P0 全做 + T5/T6」= 本文 TODO 的 T1–T6；后续续令「继续完成 T7～T10」。
->   **T7–T8 已收口**（拆片 + 快照分片）；T9–T10 见 §6。
+>   **T7–T9 已收口**（拆片 / 快照分片 / 渲染绑定上移）；T10 见 §6。
 > - **同域前作（不重复造结论）**：`production/plans/2026-10-26-arch-review-weapp-framework-and-beads.md`（WXG-T-401，WorkBuddy，
 >   16 条 TODO + 拍板点 D1–D4）。本文是它的 **beads 专项补充**：401 已点名「beads-game 再拆 / tuning 按域拆 / spawner 死路径 /
 >   视图三大件切分」，本文新增 **依赖方向门、存档→表现解耦、快照宽度实测、效果派发抽取、双源检索治理、事件投影清单**。
@@ -118,7 +118,7 @@ games/beads/cocos/assets/scripts/{game,framework}   ← 仓库里的第二份同
 | T6 | ✅ | 抽快照投影 `_syncSnapshot` → `game/beads-game/snapshot-projection.ts` | 快照逐字段对拍一致；每帧零新增分配 |
 | T7 | ✅ | `meta-view` 按 overlay 拆 + 旧门面收尾，压缩豁免表 | **豁免条目减少**（2→1，余 `view-model.ts`）；金样本十态对拍一致 |
 | T8 | ✅ | 快照分片（对局/面板/菜单/调试），预分配子对象 | 渲染指令逐字节一致；热路径分配不升 |
-| T9 | 后续 | `buildBeadsView` 绑定上移到壳/组装层，Game 只出快照 | Node 下不加载 view 也能跑玩法测试 |
+| T9 | ✅ | `buildBeadsView` 绑定上移到壳/组装层（新增 `ui/play-binding.ts`），Game 只出快照 | Node 下不加载 view 也能跑玩法测试：实探 SSR 模块图，`beads-game.ts` 入口 123 模块中 `view/` 只余登记例外 `view/palette.ts`（暖纸肤令牌直引，arch.md D1）⇒ 绘制链整片不可达；`GAME_VIEW_EXCEPTIONS` 7→3 |
 | T10 | 后续 | 双源治理：检索/IDE 排除拷贝件 + 「构建期生成拷贝」ADR | 搜索不再命中禁改件；ADR 含负面后果与复评触发 |
 
 **明确不做**：不引入新框架 / DI 容器 / 响应式库；不重写渲染层；不碰 §3 冻结数值；不为行数指标拆文件。

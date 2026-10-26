@@ -19,7 +19,7 @@
  */
 import type { ColorCueMode } from '../state.js';
 import type { SnapshotFx } from '../snapshot-shards.js';
-import { comboVfxProgress, type ComboVfxKind, type ComboVfxSpec } from '../../view/combo-vfx.js';
+import { comboVfxProgress, type ComboVfxKind, type ComboVfxSpec } from '../../systems/combo-vfx.js';
 import {
   CLEAR_PANEL_DELAY_MS,
   COLOR_WAVE_MS,

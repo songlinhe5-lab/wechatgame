@@ -1,14 +1,18 @@
 /**
- * BeadsGame — the whole game, wired to the framework `Game` contract.
+ * BeadsGame — the authoritative gameplay state (NOT a framework `Game` any
+ * more: since WXG-T-420 T9 the render leg belongs to the shell + assembly
+ * layer, so `BeadsShell` is the one that satisfies the framework contract).
  *
  * Architecture in one paragraph: the class owns the *authoritative state*
  * (pattern grid, tray, countdown, sprint tracker, phase
  * machine). Systems (`placement` / `timer` / `sprint`) are pure
  * mechanics that return outcomes; this class applies them and broadcasts the
  * registered events. Subscriptions live in `_subscribe()`, unwound in
- * `dispose()`. `buildRenderModel` only copies state into the snapshot — the
- * view can never reach back, which makes "UI holds no game state" true by
- * construction.
+ * `dispose()`. WXG-T-420 T9: reading `snapshot` only projects state into the
+ * flat read-model — this class no longer draws anything (the `buildBeadsView`
+ * binding lives in the assembly layer `ui/play-binding.ts`), which makes
+ * "UI holds no game state" true by construction **and** lets Node run gameplay
+ * tests without loading the view layer.
  *
  * Freeze discipline (ADR-0007): the state machine is the single arbiter —
  * PAUSED simply stops calling timer/combo-window ticks. The
@@ -34,6 +38,8 @@
  *  - `hit-test.ts`              无状态命中几何（齿轮 / 道具卡 / 展开 / 托盘槽）。
  *  - `effects-dispatch.ts`      效果派发：音频订阅 / 触觉映射 / 广告点火 / 分享透传（无状态）。
  *  - `snapshot-projection.ts`   快照投影：权威态 → `BeadsSnapshot` 原地写回（无状态，`_syncSnapshot` 逐帧委派）。
+ *  投影之外另有**组装层** `../ui/play-binding.ts`（WXG-T-420 T9）：快照 → `buildBeadsView` 的
+ *  绑定在此，`game/` 不再运行时引 `view/`。
  *  留在本类：状态机（`_buildStateMachine`）、托盘锚归位裁决（`_placeSelected`）、
  *  解环器表现（`_armSolverFx` / `_stepSolverFx`）、
  *  BOOT / 订阅 / 装配（`_boot` / `_subscribe` / `_setupLevel`）。
@@ -44,10 +50,8 @@ import {
   SaveManager,
   StateMachine,
   type AudioVoices,
-  type Game,
   type GameServices,
   type RankBoard,
-  type RenderModelBuilder,
 } from '@wxgame/framework';
 
 import {
@@ -112,7 +116,7 @@ import {
 import { hitBuyConfirm } from '../systems/buy-confirm-panel.js';
 import { FinishPanel, } from '../systems/finish-panel.js';
 import { SprintSettlePanel, } from '../systems/sprint-settle.js';
-import { comboVfxSpec, type ComboVfxKind } from '../view/combo-vfx.js';
+import { comboVfxSpec, type ComboVfxKind } from '../systems/combo-vfx.js';
 import {
   ClearPanel,
 } from '../systems/clear-panel.js';
@@ -150,10 +154,9 @@ import {
   toBeadsSavePatch,
   type BeadsSave,
 } from './save-schema.js';
-import { beadInksFor, type BeadsPalette } from '../view/palette.js';
+import type { BeadsPalette } from '../view/palette.js'; // WXG-T-420 T9：只取类型作字段面，渲染绑定已上移
 // **EP12-S8**：整套皮肤的注册真源（注册序即循环序；`DEFAULT_SKIN_ID` = 默认肤，⛔ 不另写字面量）。
 import { DEFAULT_SKIN, DEFAULT_SKIN_ID, skinById } from '../config/skins/registry.js';
-import { buildBeadsView } from '../view/view-model.js';
 import type { UiDebugState } from '../ui/ui-host.js';
 import type { BeadsEvents, BeadsGameOptions } from './beads-game-types.js';
 import type { ClearCoinGrant } from './meta-state.js';
@@ -231,7 +234,12 @@ interface SolverFxQueue {
 
 /** 结算面板选项两档常量（命中/按下态每帧查表 ⇒ ⛔ 不逐次造对象）。 */
 
-export class BeadsGame implements Game {
+/**
+ * 权威玩法态（WXG-T-420 T9：不再 `implements Game` —— 去掉了 `buildRenderModel` 这条腿，
+ * 框架 `Game` 契约由 `BeadsShell` 承担；`createBeadsGame` 因此**不再可直接 drop-in** 给
+ * `App`，须经壳或自行接上 `ui/play-binding.ts` 的渲染腿）。
+ */
+export class BeadsGame {
   readonly id = 'beads';
   readonly tuning: BeadsTuning;
   /**
@@ -755,6 +763,14 @@ export class BeadsGame implements Game {
     return this._levelIndex;
   }
 
+  /**
+   * 当前关卡原始数据（WXG-T-420 T9：渲染门面所需的珠色墨水组由**组装层**按本 getter
+   * 解析 ⇒ Game 只出数据，不再知道「怎么画」）。构造期即定（`_levels` 非空），热路径零分配。
+   */
+  get currentLevel(): BeadsLevelRaw {
+    return this._levels[this._levelIndex]!;
+  }
+
   get levelCount(): number {
     return this._levels.length;
   }
@@ -1016,13 +1032,6 @@ export class BeadsGame implements Game {
     this._sprintSettle.update(dt * 1000); // 冲刺结算面板同理
     this._rankPanel.update(dt * 1000); // 好友榜面板：表现层，不随相位冻结
     this._fx.stepPresentation(dt, this._solverFx !== null); // 连击 / 脉冲 / 抬起 / 反馈计时（表现层，不冻结）
-  }
-
-  buildRenderModel(builder: RenderModelBuilder): void {
-    this._syncSnapshot();
-    // v1.40：珠色墨水组按当前关卡解析（品牌 slug+codes → 注册表查 hex；WeakMap 缓存 ⇒
-    // 三处 `_levelIndex` 赋值点零改动，热路径零分配）。
-    buildBeadsView(builder, this._snapshot, this.palette, beadInksFor(this._levels[this._levelIndex]!));
   }
 
   /**
@@ -2729,7 +2738,7 @@ export class BeadsGame implements Game {
   }
 
   /**
-   * DEBUG 开关（dev/harness / Console）：开则 `buildRenderModel` 每帧在盘面叠画虚线——
+   * DEBUG 开关（dev/harness / Console）：开则绘制腿（`ui/play-binding.ts` → 视图）每帧在盘面叠画虚线——
    * 底图 tile 轮廓（品红，固定 `BEAD_PITCH`）与珠/槽轮廓（青，缩放 `gridCell`）。甲案后真实底图
    * `drawTargetTile` 已随相机缩放，品红框因此是「若 tile 仍不缩放会怎样」的**诊断参照**、非当前实画尺寸；
    * 与青色缩放轮廓的宽度差即曾致相邻重叠/不居中的可视化。不持久化、不参与玩法；关即零开销（view 跳过）。

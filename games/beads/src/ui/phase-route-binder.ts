@@ -29,7 +29,8 @@ export type MenuOverlay = 'signin' | 'settings' | 'skins';
 
 /**
  * 基础页的绘制入口（壳注入：菜单腿一次 `buildMetaView`、对局腿一次
- * `play.buildRenderModel` —— 本批只把**入口**收到路由上，不拆视图内部）。
+ * `renderPlayPage(play, b)`（WXG-T-420 T9：绑定已上移到 `ui/play-binding.ts`）——
+ * 本批只把**入口**收到路由上，不拆视图内部）。
  */
 export interface PhasePageDrawers {
     menu(builder: RenderModelBuilder): void;

@@ -11,6 +11,7 @@ import { DESIGN_W, GEAR_HIT_SIZE, HUD_BAND, SAFE_EDGE_MARGIN } from '../src/conf
 import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
 import { buildBeadsView } from '../src/view/view-model.js';
 import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
+import { renderPlayPage } from '../src/ui/play-binding.js';
 
 /** iPhone X 级 375×812 ⇒ 设计高 round(750×812/375) = 1624。 */
 const TALL_H = 1624;
@@ -38,11 +39,11 @@ describe('对局页 · 动态设计高', () => {
 
     it('hudDy = 实际设计高 − 1334（基准档为 0）', () => {
         const base = createBeadsHarness({ noAssemble: true, levels: [simpleTestLevel()], saveKey: 'wxgame.beads.test.dh-base' });
-        base.game.buildRenderModel(new RenderModelBuilder(DESIGN_W, 1334));
+        renderPlayPage(base.game, new RenderModelBuilder(DESIGN_W, 1334));
         expect(base.game.snapshot.hudDy).toBe(0);
 
         const h = tallHarness('wxgame.beads.test.dh-dy');
-        h.game.buildRenderModel(new RenderModelBuilder(DESIGN_W, TALL_H));
+        renderPlayPage(h.game, new RenderModelBuilder(DESIGN_W, TALL_H));
         expect(h.game.snapshot.hudDy).toBe(DY);
     });
 
@@ -73,7 +74,7 @@ describe('对局页 · 动态设计高', () => {
         const BT = 171;
         const h = tallHarness('wxgame.beads.test.dh-cap');
         (h.game as unknown as { _capsuleBottom: number })._capsuleBottom = BT;
-        h.game.buildRenderModel(new RenderModelBuilder(DESIGN_W, TALL_H));
+        renderPlayPage(h.game, new RenderModelBuilder(DESIGN_W, TALL_H));
         expect(h.game.snapshot.hudDy).toBe(DY - BT);
 
         h.advance(1 / 60);

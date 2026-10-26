@@ -8,13 +8,14 @@
  * 红线（`systems-index §3.8`）：只缩放、**无位移**——变换语义位结构上没有 dx/dy。
  *
  * 三层判据（denied-press / confetti 同族）：① 视图层（snap 覆写 → 纯呈现）；
- * ② 真链（连击到 tier2 → game.buildRenderModel 的模型变换位）；③ 护栏
+ * ② 真链（连击到 tier2 → renderPlayPage 的模型变换位）；③ 护栏
  * （变换不进命令流）。⚠️ 只到 `[Node]` 指令层（K-037）：Cocos 节点缩放是编辑器半
  * （bindings，ADR-0009 P2 构建阻塞），真机亚像素抖动为 B1/E1 观察项——整条不判 PASS。
  */
 
 import { describe, expect, it } from 'vitest';
 import { RenderModelBuilder } from '@wxgame/framework';
+import { renderPlayPage } from '../src/ui/play-binding.js';
 import {
     COMBO_SHAKE_SCALE_MAX,
     COMBO_VFX_LV2_MS,
@@ -23,7 +24,7 @@ import {
 } from '../src/config/tuning.js';
 import { buildBeadsView } from '../src/view/view-model.js';
 import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
-import { comboPseudoShake } from '../src/view/combo-vfx.js';
+import { comboPseudoShake } from '../src/systems/combo-vfx.js';
 import { createBeadsHarness, type Harness } from './helpers.js';
 import type { BeadsSnapshot } from '../src/game/state.js';
 
@@ -123,7 +124,7 @@ describe('G5 伪震屏 · 全局变换通道（art-bible §7.3.5 案 B · WXG-T-
 
     // ── ② 真链 ──────────────────────────────────────────────────────────
 
-    it('streak4 ⇒ pseudoShake 臂：经 game.buildRenderModel 下发变换，播完自清', () => {
+    it('streak4 ⇒ pseudoShake 臂：经 renderPlayPage 下发变换，播完自清', () => {
         const h = baseHarness('wxgame.beads.test.shake-f');
         for (let i = 0; i < 4; i++) expect(placeOne(h)).toBe(true); // streak 4 ⇒ tier 2
         expect(h.game.snapshot.comboVfxKind).toBe('pseudoShake');
@@ -132,7 +133,7 @@ describe('G5 伪震屏 · 全局变换通道（art-bible §7.3.5 案 B · WXG-T-
         const mid = (): number | undefined => {
             const b = new RenderModelBuilder(DESIGN_W, DESIGN_H);
             b.begin();
-            h.game.buildRenderModel(b);
+            renderPlayPage(h.game, b);
             return b.end().transform?.scale;
         };
         let sawAboveOne = false;
@@ -161,13 +162,13 @@ describe('G5 伪震屏 · 全局变换通道（art-bible §7.3.5 案 B · WXG-T-
         h.advance(FRAME);
         const b = new RenderModelBuilder(DESIGN_W, DESIGN_H);
         b.begin();
-        h.game.buildRenderModel(b);
+        renderPlayPage(h.game, b);
         expect('transform' in b.end()).toBe(true); // 在播
         // 下一帧窗口已关 ⇒ 无变换（快照每帧重取，不可拿旧引用）。
         h.advance(0.3); // 300ms > 150ms ⇒ 已自清
         expect(h.game.snapshot.comboVfxKind).toBe('');
         b.begin();
-        h.game.buildRenderModel(b);
+        renderPlayPage(h.game, b);
         expect('transform' in b.end()).toBe(false);
     });
 

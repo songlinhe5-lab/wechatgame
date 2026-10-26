@@ -245,10 +245,9 @@ const GAME_VIEW_EXCEPTIONS = new Map([
   ['game/beads-shell.ts -> view/meta-view.ts', '旧菜单壳直调 view，待 T7 收敛'],
   ['game/beads-shell.ts -> view/skins-content.ts', '装扮馆拥有态注入，待菜单投影下沉'],
   ['game/beads-shell.ts -> view/bead-render.ts', '壳读取烘焙运行时'],
-  ['game/beads-game/feedback-fx.ts -> view/combo-vfx.ts', '效果规格暂居 view，后续归域'],
-  ['game/beads-game.ts -> view/combo-vfx.ts', '效果规格暂居 view，后续归域'],
-  ['game/beads-game.ts -> view/palette.ts', '渲染令牌暂由 Game 传递，T9 再上移绑定'],
-  ['game/beads-game.ts -> view/view-model.ts', '旧渲染门面，T9 再上移绑定'],
+  // WXG-T-420 T9：`beads-game` 的三条 view 边（view-model / palette / combo-vfx）与
+  // `feedback-fx → combo-vfx` 已摘除 —— 渲染绑定上移 `ui/play-binding.ts`，
+  // 效果规格 `combo-vfx` 归域 `systems/`。登记集只减不增，摸回来当场红（K-144）。
 ]);
 
 /** Static relative imports; type-only declarations are erased and do not enter the runtime graph. */
@@ -378,8 +377,15 @@ function runSelftest() {
     },
     {
       name: 'L6 已登记存量 game → view 暂时放行',
-      files: [{ file: 'game/beads-game.ts', src: "import { buildBeadsView } from '../view/view-model.js';" }],
+      files: [{ file: 'game/beads-shell.ts', src: "import { buildMetaView } from '../view/meta-view.js';" }],
       want: null,
+    },
+    // WXG-T-420 T9：`game/beads-game.ts → view/view-model.ts` 已从 `GAME_VIEW_EXCEPTIONS` 摘除
+    //（绑定上移到 `ui/play-binding.ts`）⇒ 同一条边重新入扫必须红。
+    {
+      name: 'L6 T9 已摘除的 game → view 边重新入扫',
+      files: [{ file: 'game/beads-game.ts', src: "import { buildBeadsView } from '../view/view-model.js';" }],
+      want: 'L6-direction',
     },
     {
       name: 'L6 未登记存档 → view 被拦',

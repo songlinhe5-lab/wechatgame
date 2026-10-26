@@ -3,7 +3,7 @@
  *
  * 职责只有三件：持有 {@link Navigator}、自下而上画可见路由、最后画调试层。
  * UI-50 起本根是**唯一绘制入口**（壳的 `buildRenderModel` 只调这里）：基础页路由的
- * `draw` 绑到既有视图函数（`buildMetaView` / `play.buildRenderModel`），覆盖层内容
+ * `draw` 绑到既有视图函数（`buildMetaView` / `play-binding::renderPlayPage`），覆盖层内容
  * 仍由基础页的 View 分支画（见 `phase-route-binder.ts` 头注边界 ①）。
  *
  * 热路径零分配：可见集写进调用方持有数组；调试数据由宿主复用同一对象。

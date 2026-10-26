@@ -25,7 +25,7 @@ import {
   comboPseudoShake,
   comboVfxProgress,
   comboVfxSpec,
-} from '../src/view/combo-vfx.js';
+} from '../src/systems/combo-vfx.js';
 import { createBeadsHarness, type Harness } from './helpers.js';
 
 /** 落一颗匹配的珠子（同 sprint-settle 判例；落子不推进时钟 ⇒ 连击窗口不流逝）。 */
