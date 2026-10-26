@@ -440,7 +440,7 @@ export class BeadsGame implements Game {
   /** 道具超限豆子购买闸门（options.onPowerupPurchase；无 shell 时 undefined ⇒ 占位提示）。 */
   private readonly _onPowerupPurchase?: (type: PowerupType) => boolean;
   /** 结算发豆（options.onClearCoins；无 shell 时 undefined ⇒ 面板不显示该行）。 */
-  private readonly _onClearCoins?: (stars: number, isBoss: boolean, firstClear: boolean) => ClearCoinGrant | undefined;
+  private readonly _onClearCoins?: (stars: number, isBoss: boolean, prevStars: number) => ClearCoinGrant | undefined;
   /**
    * 跨章推进闸门（options.canAdvanceAcrossArc；无 shell 时 undefined ⇒ 不设门、行为逐字不变）。
    * S-4：只在**章界那一刻**参与解锁位推进（I7 棘轮），⛔ 参与门票归约本体。
