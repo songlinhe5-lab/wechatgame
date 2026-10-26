@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3793,
       "lines": 129,
-      "sha256": "11a7050aebecf12242338389dbb7e3e671e8942a0da129cc8c81f8c4c5cce288",
+      "sha256": "5d04b891b39feee0f5023e4a8ab9e9628e2d54558f303cf8aca4e56552f0dbae",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 406,
-          "summary": "1 production/TASKS-DETAIL.md 146821 4533 normal",
+          "summary": "1 production/TASKS-DETAIL.md 148598 4633 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5185,
       "lines": 164,
-      "sha256": "811f7cd832d00810e2467b2dcdc24ca25c290cbabd7828ac9b46a1db09eac615",
+      "sha256": "ead872845b898482cc99dd3ea4f56b03a215eedd2a1263e7fc542e0807cf50ab",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 124 行 / 65820 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 126 行 / 66050 tok / 实测读 4 次",
           "level": 2,
           "startLine": 27,
           "endLine": 30,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+125 · §待排（backlog，无号，立项时领取…=96+30",
+          "summary": "§WXG 任务台账（SSOT）=1+127 · §待排（backlog，无号，立项时领取…=98+30",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 4533 行 / 146821 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 4633 行 / 148598 tok",
           "level": 2,
           "startLine": 105,
           "endLine": 109,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+4534 · §WXG-T-391=3056+32 · §WXG-T-3",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+4634 · §WXG-T-393=3146+67 · §WXG-T-3",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -85019,17 +85019,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 146821,
-      "lines": 4533,
-      "sha256": "525b30e5ea57fa125acc3c78eabb4935ba2b26b60165ff314127238c55cbec46",
+      "tokens": 148598,
+      "lines": 4633,
+      "sha256": "a6d0a52c65a400fcfd61e0f783fbcc44968507903689eaf211ad3b3779bee074",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 4534,
-          "tokens": 146804,
+          "endLine": 4634,
+          "tokens": 148581,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -89865,8 +89865,8 @@
           "anchor": "§WXG-T-404",
           "level": 2,
           "startLine": 4482,
-          "endLine": 4534,
-          "tokens": 1687,
+          "endLine": 4535,
+          "tokens": 1959,
           "summary": "pre-commit 接台账「索引权威」门：check:tasks --staged（2026-10-26，主理人 Qo",
           "keywords": [
             "WXG",
@@ -89940,8 +89940,8 @@
           "anchor": "§5 并发处置（本批的实际做法）",
           "level": 3,
           "startLine": 4518,
-          "endLine": 4521,
-          "tokens": 242,
+          "endLine": 4522,
+          "tokens": 515,
           "summary": "提交时 production/TASKS.md 带着并发会话 WorkBuddy 未提交的头注改动（其把工作树头注推到「",
           "keywords": [
             "production",
@@ -89954,8 +89954,8 @@
         {
           "anchor": "§6 验证",
           "level": 3,
-          "startLine": 4522,
-          "endLine": 4528,
+          "startLine": 4523,
+          "endLine": 4529,
           "tokens": 138,
           "summary": "check:tasks 工作树版与 --staged 版均 exit 0；--prune --staged 正确报错退出",
           "keywords": [
@@ -89970,30 +89970,249 @@
         {
           "anchor": "§7 遗留",
           "level": 3,
-          "startLine": 4529,
-          "endLine": 4534,
+          "startLine": 4530,
+          "endLine": 4535,
           "tokens": 171,
           "summary": "1. 归属本身仍不可机械判定：跨归属报警维持「只打印」，本批只补了后果面。若将来要真隔离，出路是各会话独立工作树（usi",
           "keywords": [
             "usi",
             "遗留"
           ]
+        },
+        {
+          "anchor": "§WXG-T-402",
+          "level": 2,
+          "startLine": 4536,
+          "endLine": 4575,
+          "tokens": 559,
+          "summary": "",
+          "keywords": [
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§1 概要",
+          "level": 3,
+          "startLine": 4538,
+          "endLine": 4541,
+          "tokens": 58,
+          "summary": "weapp 激励视频 Provider 实现（架构评审提案 TODO-1，拍板 D1）。让 beads 里 Reward",
+          "keywords": [
+            "weapp",
+            "Provider",
+            "TODO",
+            "beads",
+            "Reward",
+            "概要"
+          ]
+        },
+        {
+          "anchor": "§2 改动面",
+          "level": 3,
+          "startLine": 4542,
+          "endLine": 4550,
+          "tokens": 190,
+          "summary": "Provider 类 packages/framework/src/platform/weapp.ts 新增 WxgRe",
+          "keywords": [
+            "Provider",
+            "packages",
+            "framework",
+            "src",
+            "platform",
+            "weapp"
+          ]
+        },
+        {
+          "anchor": "§3 关键契约桥接",
+          "level": 3,
+          "startLine": 4551,
+          "endLine": 4558,
+          "tokens": 66,
+          "summary": "onClose({isEnded: true}) onRewarded() → onClose({reason:'com",
+          "keywords": [
+            "onClose",
+            "isEnded",
+            "true",
+            "onRewarded",
+            "reason",
+            "com"
+          ]
+        },
+        {
+          "anchor": "§4 验证 (5)",
+          "level": 3,
+          "startLine": 4559,
+          "endLine": 4565,
+          "tokens": 30,
+          "summary": "framework typecheck ✅",
+          "keywords": [
+            "framework",
+            "typecheck",
+            "验证"
+          ]
+        },
+        {
+          "anchor": "§5 真机接入待办",
+          "level": 3,
+          "startLine": 4566,
+          "endLine": 4569,
+          "tokens": 52,
+          "summary": "构造时须传 adUnitId（小游戏管理后台创建），否则微信 load 会失败但不静默——错误经 onError 桥接，",
+          "keywords": [
+            "adUnitId",
+            "load",
+            "onError",
+            "真机接入待办"
+          ]
+        },
+        {
+          "anchor": "§6 撞号披露（K-137）",
+          "level": 3,
+          "startLine": 4570,
+          "endLine": 4575,
+          "tokens": 127,
+          "summary": "本提交（ab4448b6）署 WXG-T-402，但此前头注已登记 402/403/404 的描述。check:task",
+          "keywords": [
+            "ab4448b6",
+            "WXG",
+            "check",
+            "task",
+            "撞号披露"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-403",
+          "level": 2,
+          "startLine": 4576,
+          "endLine": 4634,
+          "tokens": 939,
+          "summary": "",
+          "keywords": [
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§1 概要 (2)",
+          "level": 3,
+          "startLine": 4578,
+          "endLine": 4581,
+          "tokens": 60,
+          "summary": "平台 haptics vibrateShort 接通 + beads 事件接线（架构评审提案 TODO-2，拍板 D2）",
+          "keywords": [
+            "haptics",
+            "vibrateShort",
+            "beads",
+            "TODO",
+            "概要"
+          ]
+        },
+        {
+          "anchor": "§2 改动面（框架层）",
+          "level": 3,
+          "startLine": 4582,
+          "endLine": 4592,
+          "tokens": 243,
+          "summary": "Platform 接口 packages/framework/src/platform/platform.ts 新增 H",
+          "keywords": [
+            "Platform",
+            "packages",
+            "framework",
+            "src",
+            "platform",
+            "改动面"
+          ]
+        },
+        {
+          "anchor": "§3 改动面（beads 侧）",
+          "level": 3,
+          "startLine": 4593,
+          "endLine": 4601,
+          "tokens": 174,
+          "summary": "EventMap games/beads/src/game/beads-game-types.ts BeadsEvent",
+          "keywords": [
+            "beads",
+            "EventMap",
+            "games",
+            "src",
+            "game",
+            "types"
+          ]
+        },
+        {
+          "anchor": "§4 架构要点",
+          "level": 3,
+          "startLine": 4602,
+          "endLine": 4607,
+          "tokens": 176,
+          "summary": "game 只发意图，不做平台调用：BeadsGame._emit 自动衍生 haptic:trigger，语义上是\"我想",
+          "keywords": [
+            "game",
+            "BeadsGame",
+            "emit",
+            "haptic",
+            "trigger",
+            "架构要点"
+          ]
+        },
+        {
+          "anchor": "§5 验证",
+          "level": 3,
+          "startLine": 4608,
+          "endLine": 4616,
+          "tokens": 64,
+          "summary": "framework typecheck ✅",
+          "keywords": [
+            "framework",
+            "typecheck",
+            "验证"
+          ]
+        },
+        {
+          "anchor": "§6 kind 映射准则",
+          "level": 3,
+          "startLine": 4617,
+          "endLine": 4626,
+          "tokens": 124,
+          "summary": "light vibrateShort({type:'light'}) 放珠——微振动确认",
+          "keywords": [
+            "kind",
+            "light",
+            "vibrateShort",
+            "type",
+            "映射准则"
+          ]
+        },
+        {
+          "anchor": "§7 故意不映射的事件",
+          "level": 3,
+          "startLine": 4627,
+          "endLine": 4634,
+          "tokens": 48,
+          "summary": "tray:*/timer:*/settings:*/meta:*/game:*/sprint:* — 要么太细（time",
+          "keywords": [
+            "tray",
+            "timer",
+            "settings",
+            "meta",
+            "game",
+            "sprint"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 65820,
-      "lines": 124,
-      "sha256": "1063356ff9d8e9a7dacaf86e9b95d70c033c4b1f6649276207cef3c53a13fbaa",
+      "tokens": 66050,
+      "lines": 126,
+      "sha256": "ff7eb840a96fd2e25c1770649254b20a0534cac11eac8c776f65b3dd4da8356d",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 125,
-          "tokens": 65812,
+          "endLine": 127,
+          "tokens": 66041,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -90006,8 +90225,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 96,
-          "endLine": 125,
+          "startLine": 98,
+          "endLine": 127,
           "tokens": 1460,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

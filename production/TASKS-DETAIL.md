@@ -4518,6 +4518,7 @@ WXG-T-400 收尾三选项选 1 的原话是「`git add` 归属硬门：pre-commi
 ### 5. 并发处置（本批的实际做法）
 
 提交时 `production/TASKS.md` 带着并发会话 WorkBuddy 未提交的头注改动（其把工作树头注推到「已分配至 402 / 下一 403」，其 plan §第一批 已把 402/403 预留给激励视频 Provider 两批）。按 K-045 追记 2026-09-19 的「以 HEAD 为基底重放本单」：主表行同时插进工作树与索引（避免我的行只活在索引里、被对方下一次整文件 `git add` 冲掉），头注只改索引版（对方的字节一行不动），`git hash-object -w` + `git update-index --cacheinfo` 落索引。领号按 K-046 **跳号避让**：401 已被对方入库、402/403 已被其头注与 plan 预占 ⇒ 本单领 **404**（四路核：`git log --all -S` 零命中、`git grep` 零命中、主表 0 行、详情 0 节、归档 0）。
+**同号并存披露（2026-10-26 追加，用户裁「只在详情节披露」）**：本单落 `de0aef88`（10:28:18）之前，另一会话（WorkBuddy）的提交 `7f94880d refactor(beads): D3 摘 barrel 导出 Spawner 死代码 (WXG-T-404)`（10:25:39）已署 404 ⇒ **同号不同事**。取证：`git show --stat 7f94880d` 只改 2 个源码文件、**未动台账**（既非 K-045 的单侧撕裂，也无夹带）。头注链现状亦被其后续校准改写：`de0aef88` 里 404 段原写「pre-commit 接台账『索引权威』门…」，HEAD 现写「404 = 404 = 本会话（WorkBuddy）D3 spawner barrel 导出摘除…」（链内 `404 = 404 =` 的自指重复系对方校准产物，⛔ 不代改）。按裁定 ⛔ 不改写历史、⛔ 不重编号：**追溯 404 须同时看两处** = 本节的 pre-commit 门禁批（`de0aef88`）+ 该提交的 beads barrel 批（`7f94880d`）。
 
 ### 6. 验证
 
@@ -4531,3 +4532,102 @@ WXG-T-400 收尾三选项选 1 的原话是「`git add` 归属硬门：pre-commi
 1. **归属本身仍不可机械判定**：跨归属报警维持「只打印」，本批只补了后果面。若将来要真隔离，出路是各会话独立工作树（`using-git-worktrees`），不是加钩子判据。
 2. **改名/删除后 HEAD 引用悬空无门**（K-045 追记 2026-10-25 WXG-T-378 的干净检出 404 形态）：`check:links` 只管 Markdown 链接，代码里的路径引用要另一套判据，本批未做。
 3. 主表行数观察哨（note H）照旧长响，等「主表该常驻多少行」的口径裁定。
+
+## WXG-T-402
+
+### 1. 概要
+
+weapp 激励视频 Provider 实现（架构评审提案 TODO-1，拍板 D1）。让 beads 里 `RewardedAdProvider` 从恒返 Noop 变成有真 `wx.createRewardedVideoAd()` 就返回真 Provider。
+
+### 2. 改动面
+
+| 件 | 路径 | 变更 |
+|---|---|---|
+| Provider 类 | `packages/framework/src/platform/weapp.ts` | 新增 `WxgRewardedAdProvider`（桥接 `wx.createRewardedVideoAd`），补 `WxApi.createRewardedVideoAd` 接口 + `WxRewardedVideoAd` 形状 |
+| Factory | 同上 | `WeappPlatform.createRewardedAdProvider()` 从恒返 Noop → 有真 API 返回 Provider / 无 API 保持 Noop；构造增可选 `{ adUnitId }` |
+| 单测 | `packages/framework/tests/platform/rewarded-ad.test.ts` | 新增 10 例（factory 分支 + load/show 时序 + isEnded 事件映射 + destroy + wx onError） |
+| Cocos 镜像 | beads/breakout `cocos/assets/scripts/framework/platform/weapp.ts` | `framework:sync` 自动同步 |
+
+### 3. 关键契约桥接
+
+| 微信事件 | Provider 回调 |
+|---|---|
+| `onClose({isEnded: true})` | `onRewarded()` → `onClose({reason:'completed'})` |
+| `onClose({isEnded: false})` | 只 `onClose({reason:'skipped'})` |
+| `load()` / `show()` Promise reject | `onError(Error)` |
+
+### 4. 验证
+
+- framework typecheck ✅
+- framework tests **518 passed**
+- beads typecheck + **1277 passed**
+- `framework:sync` ✅
+
+### 5. 真机接入待办
+
+构造时须传 `adUnitId`（小游戏管理后台创建），否则微信 load 会失败但不静默——错误经 `onError` 桥接，消费方走降级逻辑。
+
+### 6. 撞号披露（K-137）
+
+本提交（`ab4448b6`）署 WXG-T-402，但此前头注已登记 402/403/404 的描述。`check:tasks` I 项报「提交署号但台账不在册」——因 Qoder 并发会话也用了 404 号（pre-commit 台账门），头注 404 描述（D3 barrel 摘除）与主表 404 内容不一致。**本批补主表行 + 详情节 402/403**；D3 barrel 摘除的 commit `7f94880d` 号撞 404，后续另归 WXG-T-405。
+
+---
+
+## WXG-T-403
+
+### 1. 概要
+
+平台 haptics vibrateShort 接通 + beads 事件接线（架构评审提案 TODO-2，拍板 D2）。让 beads 设置页的「震动」开关从空功能变成真调起微信 `wx.vibrateShort`。
+
+### 2. 改动面（框架层）
+
+| 件 | 路径 | 变更 |
+|---|---|---|
+| Platform 接口 | `packages/framework/src/platform/platform.ts` | 新增 `HapticKind` 类型（light/medium/heavy/selection/success/warning/error）+ 可选方法 `haptic?(kind: HapticKind): void` |
+| WeappPlatform | `packages/framework/src/platform/weapp.ts` | `haptic()` 实现：light/medium/heavy → `wx.vibrateShort({type})`；其余 → `wx.vibrateLong()`；无 wx/无 API → 静默 noop |
+| WebPlatform | `packages/framework/src/platform/web.ts` | `haptic()` 实现：`navigator.vibrate(ms)`（支持有限，iOS Safari 全禁） |
+| NodePlatform | 自动继承 BasePlatform | haptic 可选 = undefined → Node 单测天然 noop |
+| GameServices | `packages/framework/src/core/game/game.ts` | 增可选 `haptic?: (kind: HapticKind) => void` 字段 |
+| App | `packages/framework/src/compose/app.ts` | 组装时 `haptic: this.platform.haptic?.bind(this.platform)` |
+
+### 3. 改动面（beads 侧）
+
+| 件 | 路径 | 变更 |
+|---|---|---|
+| EventMap | `games/beads/src/game/beads-game-types.ts` | `BeadsEvents` 增 `'haptic:trigger': { kind: HapticKind }` |
+| 事件映射 | `games/beads/src/game/beads-game.ts` | 新增 `HAPTIC_MAP` 常量 + `_emit()` 自动衍生 haptic:trigger |
+| 映射表 | 模块级常量 | bead:placed→light / bead:rejected→heavy / combo:up→medium / combo:break→heavy / level:cleared→success / level:failed→warning / powerup:used→medium |
+| Shell 订阅 | `games/beads/src/game/beads-shell.ts` | `init()` 内 `events.on('haptic:trigger')` gated by `this.play.vibrateOn` → 调 `services.haptic?.(kind)`；`dispose()` 清理 |
+
+### 4. 架构要点
+
+- **game 只发意图，不做平台调用**：`BeadsGame._emit` 自动衍生 `haptic:trigger`，语义上是"我想振动"而非"调 vibration API"。shell 订阅后 gated by `vibrateOn` setting 再调平台层。符合 L5（game 不持有平台实现）。
+- **降级链条**：无 `vibrateOn` setting（老存档）→ `VIBRATE_DEFAULT = true`；无 `services.haptic`（Node/harness）→ 函数本身 undefined；无 `wx.vibrateShort` → weapp.ts 静默 noop。三层降级保证任意宿主零崩溃。
+- **防递归**：`_emit` 里 `type === 'haptic:trigger'` 直接 return，不衍生自身。
+
+### 5. 验证
+
+- framework typecheck ✅
+- beads/breakout typecheck ✅
+- framework tests **518 passed**
+- beads tests **1277 passed + 3 skipped**
+- `framework:sync` ✅（beads + breakout 镜像同步）
+- `check:tasks` 补主表行 + 详情节后应过
+
+### 6. kind 映射准则
+
+| kind | 微信 API | 语义 |
+|---|---|---|
+| light | `vibrateShort({type:'light'})` | 放珠——微振动确认 |
+| medium | `vibrateShort({type:'medium'})` | 连击递进、道具——值得"注意"的正反馈 |
+| heavy | `vibrateShort({type:'heavy'})` | 碰撞反弹、连击断裂——值得"警惕"的负反馈 |
+| success | `vibrateLong()` | 过关——长振动正反馈 |
+| warning | `vibrateLong()` | 失败——长振动警示 |
+
+### 7. 故意不映射的事件
+
+tray:*/timer:*/settings:*/meta:*/game:*/sprint:* — 要么太细（timer:tick 每帧一次）要么是元事件（settings:vibrate 自身就是开关）。
+
+
+---
+
