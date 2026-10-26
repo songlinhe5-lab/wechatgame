@@ -107,6 +107,8 @@ games/beads/src/ui/
 
 **拟新增守则（落 `control-manifest` 新节，并加 `check:arch` 规则，见 UI-52）**：① 弹窗必经 `ModalFrame`；② 遮罩色与 α 只在 `UiTheme`；③ View 文件禁止出现导航判断与游戏对象读取；④ 绘制与命中必须共用同一布局函数；⑤ 路由变化只经 Navigator。
 
+**快照字段守则（WXG-T-420 T8 已落地）**：`BeadsSnapshot` 新增字段必须先登记进 `games/beads/src/game/snapshot-shards.ts` 的**恰好一片**（对局 / 面板 / 菜单 / 调试 / 特效），投影按片写字段 ⇒ 越片写是编译错误；机械门 = `tests/snapshot-shards.test.ts`（漏登记 / 双登记 / 陈旧字段当场红）。运行形状仍是同一份扁平对象（判据「渲染指令逐字节一致」），读侧可按需窄化成 `SnapshotPlay` 等最小可见面。
+
 ## 9. 迁移策略（绞杀式）
 
 1. 先建**金样本**：对每个界面在关键状态下抓取现行 RenderModel 指令序列，作为回归门。

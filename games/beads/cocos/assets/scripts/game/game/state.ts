@@ -6,6 +6,10 @@
  *
  * The snapshot is the ONLY thing the view layer sees — flat, read-only,
  * rebuilt in place from authoritative state each frame (control-manifest §8).
+ *
+ * WXG-T-420 T8：字段全集按**归属**登记成五片（对局 / 面板 / 菜单 / 调试 / 特效），
+ * 清单与分片类型在 `snapshot-shards.ts`；本文件的 `BeadsSnapshot` 仍是扁平契约（⛔ 不
+ * 改运行形状），逐片预分配见 `createSnapshot`，逐片写出见 `beads-game/snapshot-projection.ts`。
  */
 
 import type { SlotState } from '../entities/tray';
@@ -25,6 +29,13 @@ import {
 import { DEFAULT_SKIN_ID } from '../config/skins/registry';
 import type { BeadsLevelRaw } from '../config/levels-data';
 import { CLOSED_RANK_VIEW, type RankPanelView } from '../systems/rank-panel';
+import type {
+  SnapshotDebug,
+  SnapshotFx,
+  SnapshotMenu,
+  SnapshotPanel,
+  SnapshotPlay,
+} from './snapshot-shards';
 
 export type BeadsPhase = 'boot' | 'playing' | 'paused' | 'level-clear' | 'game-over' | 'finish';
 export type GameMode = 'normal' | 'sprint';
@@ -457,8 +468,27 @@ export interface BeadsSnapshot {
   tuning: BeadsTuning;
 }
 
+/**
+ * 逐片预分配（WXG-T-420 T8）：`createSnapshot` = 五片初始值的合并，**运行形状仍是那一份扁平
+ * 对象**（消费面零改动 ⇒ 渲染指令逐字节一致）。返回类型取 `snapshot-shards.ts` 的分片面
+ * ⇒ 某片漏了字段的初始值 = 编译错误（与「投影只写本片」同一道门）。
+ * 稳定缓冲（`cells` / `traySlots` / `boardGroup*` / `solver*` / `groupLand*` / `denied*`）
+ * 由所属片一次造好 ⇒ 逐帧只写值，热路径零分配。
+ */
+
 /** Build the mutable snapshot object (created once, updated in place). */
 export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
+  return {
+    ...createPlayShard(tuning),
+    ...createPanelShard(),
+    ...createMenuShard(),
+    ...createDebugShard(),
+    ...createFxShard(),
+  };
+}
+
+/** 片一 · 对局（HUD / 棋盘 / 托盘 / 选择 / 相机 / 道具体 / 首屏引导）。 */
+function createPlayShard(tuning: BeadsTuning): SnapshotPlay {
   return {
     phase: 'boot',
     phaseElapsed: 0,
@@ -473,6 +503,14 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     gridCols: 0,
     gridRows: 0,
     cells: [],
+    gridLeft: 0,
+    gridTop: 0,
+    gridPitch: 0,
+    gridCell: 0,
+    beadLodLayers: 0,
+    zoomSliderT: 0,
+    camZoom: 1,
+    hudDy: 0,
     traySlots: [],
     trayExpanded: false,
     trayCanExpand: true,
@@ -482,64 +520,41 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     boardGroupRows: new Array<number>(64).fill(-1),
     boardGroupCols: new Array<number>(64).fill(-1),
     boardGroupCount: 0,
-    panelVisible: false,
-    panelProgress: 0,
-    panelInteractive: false,
-    bgmMuted: false,
-    sfxMuted: false,
-    reduceMotion: false,
-    largeText: false,
-    vibrate: VIBRATE_DEFAULT,
-    debugOutlines: false,
-    debugInfo: false,
-    debugGuides: false,
-    perfFrameMs: 0,
-    hudDy: 0,
-    safeTop: 0,
-    capsuleBottom: 0,
-    safeBottom: 0,
-    // 默认档与存档层同一真源（`FACET4_STYLE_ID` = `registry.DEFAULT_BEAD_STYLE_ID` 的 tuning 定义），
-    // ⛔ 不得在 view/game 任一侧另写字面量。
-    beadStyle: FACET4_STYLE_ID,
-    beadSize: BEAD_SIZE_DEFAULT,
-    // 默认肤与存档层同一真源（`registry.DEFAULT_SKIN_ID`），⛔ 不得另写字面量。
-    skinId: DEFAULT_SKIN_ID,
-    starsTotal: 0,
-    score: 0,
-    multiplier: 1,
-    streak: 0,
-    stageIndex: 0,
-    sprintBestScore: 0,
-    isNewBest: false,
-    gridLeft: 0,
-    zoomSliderT: 0,
-    camZoom: 1,
-    gridTop: 0,
-    gridPitch: 0,
-    gridCell: 0,
-    beadLodLayers: 0,
-    banner: '',
-    subBanner: '',
-    bootError: '',
-    reviveAvailable: false,
-    revived: false,
-    watchingAd: false,
-    failHint: '',
     powerupFreeUses: {
       windowRestore: POWERUP_FREE_USES,
       randomRestore: POWERUP_FREE_USES,
       trayRestore: POWERUP_FREE_USES,
     },
     powerupHint: '',
+    score: 0,
+    multiplier: 1,
+    streak: 0,
+    stageIndex: 0,
+    sprintBestScore: 0,
+    isNewBest: false,
+    onboarding: false,
+    hintRow: -1,
+    hintCol: -1,
+    guideSlot: -1,
+    tuning,
+  };
+}
+
+/** 片二 · 面板族（暂停 / 购买确认 / 结算 / 通关 / 冲刺结算 / 失败横幅）。 */
+function createPanelShard(): SnapshotPanel {
+  return {
+    panelVisible: false,
+    panelProgress: 0,
+    panelInteractive: false,
     buyConfirmPrice: 0,
     clearPanelVisible: false,
     clearPanelProgress: 0,
     clearPanelInteractive: false,
     clearStars: 0,
-    clearQualityScore: 0,
-    clearQualityBest: 0,
     clearStarsShown: 0,
     clearStarPopScale: 1,
+    clearQualityScore: 0,
+    clearQualityBest: 0,
     clearRemaining: 0,
     clearPowerupsUsed: 0,
     clearActions: 0,
@@ -561,6 +576,52 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     sprintSettleInteractive: false,
     sprintRunBestStage: 0,
     sprintRunBestStreak: 0,
+    banner: '',
+    subBanner: '',
+    bootError: '',
+    reviveAvailable: false,
+    revived: false,
+    watchingAd: false,
+    failHint: '',
+    // `[WXG-T-432]` 好友榜只读视图 = 面板侧数据 ⇒ 关档初值随本片预分配。
+    rankPanel: CLOSED_RANK_VIEW,
+  };
+}
+
+/** 片三 · 菜单 / 设置回显（真源 = `GameSettings` + meta 存档）。 */
+function createMenuShard(): SnapshotMenu {
+  return {
+    bgmMuted: false,
+    sfxMuted: false,
+    reduceMotion: false,
+    largeText: false,
+    vibrate: VIBRATE_DEFAULT,
+    // 默认档与存档层同一真源（`FACET4_STYLE_ID` = `registry.DEFAULT_BEAD_STYLE_ID` 的 tuning 定义），
+    // ⛔ 不得在 view/game 任一侧另写字面量。
+    beadStyle: FACET4_STYLE_ID,
+    beadSize: BEAD_SIZE_DEFAULT,
+    // 默认肤与存档层同一真源（`registry.DEFAULT_SKIN_ID`），⛔ 不得另写字面量。
+    skinId: DEFAULT_SKIN_ID,
+    starsTotal: 0,
+  };
+}
+
+/** 片四 · 调试与度量（开关 + 逐机安全区深度，view 只读回显）。 */
+function createDebugShard(): SnapshotDebug {
+  return {
+    debugOutlines: false,
+    debugInfo: false,
+    debugGuides: false,
+    perfFrameMs: 0,
+    safeTop: 0,
+    capsuleBottom: 0,
+    safeBottom: 0,
+  };
+}
+
+/** 片五 · 特效与反馈时序（单调进度 + 定长槽；曲线在 view 侧推导，L5）。 */
+function createFxShard(): SnapshotFx {
+  return {
     comboVfxKind: '',
     comboVfxProgress: 0,
     comboVfxRow: -1,
@@ -605,16 +666,10 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     deniedCols: new Array<number>(DENIED_MAX_CELLS).fill(-1),
     deniedProgress: new Array<number>(DENIED_MAX_CELLS).fill(0),
     deniedCount: 0,
-    onboarding: false,
-    hintRow: -1,
-    hintCol: -1,
     tapHintText: '',
     tapHintRow: -1,
     tapHintCol: -1,
     tapHintAnchor: 'cell',
-    guideSlot: -1,
-    rankPanel: CLOSED_RANK_VIEW,
-    tuning,
   };
 }
 

@@ -11,9 +11,14 @@
  *   · 「判定什么时候该亮」（`_maybeColorCue` 的棋盘判据）与清盘面板的开关流程 ⇒ 留在 BeadsGame；
  *   · 音效：起播是否成功由返回值告知，音效由调用方播（本类不碰 audio）。
  *
- * 热路径零分配：所有计时槽在构造期或首次登记时分配，逐帧只写值。
+ * 热路径零分配：所有计时槽在构造期或首次登记时分配，逐帧只写值（无进珠时
+ * `trayLand*` 写**共享空数组**而非逐帧 `[]` ⇒ 每帧省两次分配，WXG-T-420 T8）。
+ *
+ * 写面（WXG-T-420 T8）：`writeSnapshot` 只收**特效片**（`SnapshotFx`）⇒ 本类编译期就
+ * 看不见其余 99 个字段（原先它拿到整份 `BeadsSnapshot`，越权写面板/对局字段不会报错）。
  */
-import type { BeadsSnapshot, ColorCueMode } from '../state';
+import type { ColorCueMode } from '../state';
+import type { SnapshotFx } from '../snapshot-shards';
 import { comboVfxProgress, type ComboVfxKind, type ComboVfxSpec } from '../../view/combo-vfx';
 import {
   CLEAR_PANEL_DELAY_MS,
@@ -51,6 +56,12 @@ type GroupLandFx = {
   totalMs: number;
 };
 type TrayLandFx = { slots: number[]; steps: number[]; elapsedMs: number; totalMs: number };
+/**
+ * 无进珠动画时写进快照的共享空数组（WXG-T-420 T8）：view 只读到 `trayLandCount` 为止，
+ * 且⛔ 不写回 ⇒ 共用一份实例安全；逐帧 `: []` 会每帧造两个新数组。
+ */
+const NO_TRAY_LAND_SLOTS: number[] = [];
+const NO_TRAY_LAND_STEPS: number[] = [];
 type CellFx = { row: number; col: number; elapsedMs: number };
 type TapHintFx = {
   text: string;
@@ -361,7 +372,7 @@ export class FeedbackFx {
    * 写入快照（表现层投影：只给单调进度 / 格坐标 / 定长槽，曲线与几何在 view 侧推导，L5）。
    * 不写 `failHint` / 解环器 / 面板 / 引导——那些归 BeadsGame。
    */
-  writeSnapshot(s: BeadsSnapshot): void {
+  writeSnapshot(s: SnapshotFx): void {
     // S7 连击特效（§2.5）：形态 + 播放进度 + 锚点一起进快照。
     s.comboVfxKind = this._comboVfx ? this._comboVfx.spec.kind : '';
     s.comboVfxProgress = this._comboVfx
@@ -382,9 +393,9 @@ export class FeedbackFx {
     s.placeProgress = pfx ? Math.min(1, pfx.elapsedMs / FILL_POP_MS) : 0;
     // §5 抬起斜坡**进格量**（0→1，未缓动）；D1 与 ease 由 view 侧施。
     s.liftProgress = Math.min(1, this._liftElapsedMs / SELECT_LIFT_MS);
-    // [T-244 九批] 托盘进珠快照（多槽队列）。
-    s.trayLandSlots = this._trayLandFx ? this._trayLandFx.slots : [];
-    s.trayLandSteps = this._trayLandFx ? this._trayLandFx.steps : [];
+    // [T-244 九批] 托盘进珠快照（多槽队列）。⛔ 无动画时写共享空数组，不逐帧新建 `[]`。
+    s.trayLandSlots = this._trayLandFx ? this._trayLandFx.slots : NO_TRAY_LAND_SLOTS;
+    s.trayLandSteps = this._trayLandFx ? this._trayLandFx.steps : NO_TRAY_LAND_STEPS;
     s.trayLandCount = this._trayLandFx ? this._trayLandFx.slots.length : 0;
     s.trayLandElapsedMs = this._trayLandFx ? this._trayLandFx.elapsedMs : 0;
     // G7 轻压：仅在播槽可见（120ms 后零残留）。

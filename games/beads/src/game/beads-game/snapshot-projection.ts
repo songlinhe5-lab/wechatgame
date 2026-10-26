@@ -1,7 +1,8 @@
 /**
  * 快照投影（协作模块）—— 把权威游戏状态**原地**拷进 `BeadsSnapshot`（视图只读消费面，L5）。
- * 自 `beads-game.ts::_syncSnapshot` 抽出（WXG-T-420 T6）。快照契约 141 个字段（`state.ts`
- * 是唯一真源），投影只写值、**不增删键**，且**复用同一 `s` 对象与其稳定缓冲**（cells /
+ * 自 `beads-game.ts::_syncSnapshot` 抽出（WXG-T-420 T6），并按快照分片拆成五段写出（T8）。
+ * 快照契约字段全集（`state.ts` 是唯一真源，归属清单见
+ * `game/snapshot-shards.ts`），投影只写值、**不增删键**，且**复用同一 `s` 对象与其稳定缓冲（cells /
  * traySlots / powerupFreeUses / solver 数组）——`_syncSnapshot` 每帧经 `buildRenderModel`
  * 走一遍，故热路径**零新增分配**是硬红线（维度 / 容量变更时的原地重建是唯一例外）。
  *
@@ -19,6 +20,13 @@
  * `game.snapshot` 的用例集体守）。
  */
 import type { BeadsPhase, BeadsSnapshot, GameMode } from '../state.js';
+import type {
+    SnapshotDebug,
+    SnapshotFx,
+    SnapshotMenu,
+    SnapshotPanel,
+    SnapshotPlay,
+} from '../snapshot-shards.js';
 import { bannerFor } from '../state.js';
 import { levelIdOf, type BeadsLevelRaw } from '../../config/levels.js';
 import {
@@ -122,8 +130,24 @@ export interface SnapshotSource {
 /**
  * 把权威状态原地投影进 `s`（⛔ 不返回新对象、不改 `s` 的引用身份）。调用方（`_syncSnapshot`）
  * 传入常驻的 `this._snapshot` 与一次性装配的 `src`，逐帧复用 ⇒ 零新增分配。
+ *
+ * WXG-T-420 T8：投影体按**分片**拆成五个函数（契约见 `../snapshot-shards.ts`），每片形参
+ * 取分片面 ⇒ **越片写字段是编译错误**，新增字段只需落到它所属的那一片。
+ * 调用序 = 对局 → 面板 → 菜单 → 调试 → 特效，与 T6 的写出序在数据上等价：
+ * 片内自读的缓冲（`cells` / `traySlots` / `finishStars` / `solverCellRows`）在同一片内
+ * 先写后用；原本跨块读 `s.phase` 的三处（banner / revive 门 / 引导门）改直读权威源
+ * `src.machine.current`（`projectPlayShard` 已在本帧先写入同值 ⇒ 逐字节不变）。
  */
 export function projectSnapshot(s: BeadsSnapshot, src: SnapshotSource): void {
+    projectPlayShard(s, src);
+    projectPanelShard(s, src);
+    projectMenuShard(s, src);
+    projectDebugShard(s, src);
+    projectFxShard(s, src);
+}
+
+/** 片一 · 对局：相位 / 关卡 / 计时 / 棋盘 / 托盘 / 选择锚 / 相机 / 道具体 / 首屏引导。 */
+function projectPlayShard(s: SnapshotPlay, src: SnapshotSource): void {
     s.phase = src.machine.current;
     s.phaseElapsed = src.machine.elapsed;
     s.mode = src.mode;
@@ -135,11 +159,6 @@ export function projectSnapshot(s: BeadsSnapshot, src: SnapshotSource): void {
             ? `冲刺 STAGE ${src.stageIndex + 1}`
             : (currentLevel?.name ?? '');
     s.levelCount = src.levels.length;
-
-    // 总星数（EP14-S2 · R6 = Σ 各关历史最高）：局部累加，热路径零分配（L5 / 控制清单）。
-    let starsTotal = 0;
-    for (let i = 0; i < src.starsByLevel.length; i++) starsTotal += src.starsByLevel[i]!;
-    s.starsTotal = starsTotal;
 
     s.remaining = Math.max(0, Math.ceil(src.timer.remaining - 1e-9));
     s.timeTotal = src.timer.total;
@@ -182,6 +201,91 @@ export function projectSnapshot(s: BeadsSnapshot, src: SnapshotSource): void {
     s.powerupFreeUses.randomRestore = src.powerups.freeUses('randomRestore');
     s.powerupFreeUses.trayRestore = src.powerups.freeUses('trayRestore');
     s.powerupHint = src.powerupHint;
+
+    // Tray slots (rebuild on capacity change, i.e. expansion).
+    if (s.traySlots.length !== src.tray.capacity) {
+        s.traySlots = [];
+        for (let i = 0; i < src.tray.capacity; i++) {
+            s.traySlots.push({ state: 'free', colorIdx: 0 });
+        }
+    }
+    for (let i = 0; i < src.tray.capacity; i++) {
+        const slot = src.tray.slot(i)!;
+        const out = s.traySlots[i]!;
+        out.state = slot.state;
+        out.colorIdx = slot.colorIdx;
+    }
+    s.trayExpanded = src.tray.expanded;
+    s.trayCanExpand = src.tray.canExpand;
+    s.traySelected = src.tray.selectedSlot;
+    // v2.0 统一选择锚 · board 侧（E2）：E6 据此画错位珠高亮；-1 = 无。
+    // 与 traySelected 三值互斥（input-control §2.1），至多一侧 ≥ 0。
+    s.boardSelectedRow = src.boardSelected ? src.boardSelected.row : -1;
+    // WXG-T-148 ③：连通组快照（预分配容量，写值不新建 —— 热路径零分配）。
+    const grp = src.boardSelected?.order;
+    s.boardGroupCount = grp ? Math.min(grp.length, s.boardGroupRows.length) : 0;
+    if (grp) {
+        for (let gi = 0; gi < s.boardGroupCount; gi++) {
+            s.boardGroupRows[gi] = grp[gi]!.row;
+            s.boardGroupCols[gi] = grp[gi]!.col;
+        }
+    }
+    s.boardSelectedCol = src.boardSelected ? src.boardSelected.col : -1;
+
+    // Sprint HUD (normal mode keeps zeros — the view hides the block).
+    s.score = src.mode === 'sprint' ? src.sprint.score : 0;
+    s.multiplier = src.mode === 'sprint' ? src.sprint.multiplier : 1;
+    s.streak = src.mode === 'sprint' ? src.sprint.streak : 0;
+    s.stageIndex = src.stageIndex;
+    s.sprintBestScore = src.sprintBestScore;
+    s.isNewBest = src.isNewBest;
+    s.hudDy = src.hudDy; // 动态高 + 胶囊避让：HUD 带与齿轮热区同读（`hitGear`）
+
+    // GAP-03 首屏引导：仅普通模式 PLAYING、首玩且本会话未落过子时激活（§6.3）。
+    // [WXG-T-239] `ONBOARDING_ENABLED = false` ⇒ 引导**显示已屏蔽**（设计与规格全留档，恢复见该常量头注）。
+    // ⛔ 短路顺序刻意「开关在前」：关闭时**完全不进**引导算法（`hintRow`/`hintCol`/`guideSlot` 保持 -1）
+    //   ⇒ 零额外计算、且从根上排除「引导半途生效」。（相位门原读 `s.phase`，本批改读权威源
+    //   `src.machine.current` —— 同帧同值 ⇒ 逐字节不变。）
+    s.onboarding =
+        src.onboardingEnabled
+        && src.mode === 'normal'
+        && src.machine.current === 'playing'
+        && !src.onboardDone;
+    if (s.onboarding) {
+        // 首珠 = 托盘当前持有的最前一颗（GAP-02 首供落点）；其色决定单一目标格。
+        let guideSlot = -1;
+        let firstColor = -1;
+        for (let i = 0; i < s.traySlots.length; i++) {
+            const sl = s.traySlots[i]!;
+            if (sl.state !== 'free') {
+                guideSlot = i;
+                firstColor = sl.colorIdx;
+                break;
+            }
+        }
+        s.guideSlot = guideSlot;
+        if (firstColor >= 0) {
+            // 行主序首个匹配该色的可填空槽（单一指向 = 引导设计原则，避免多格同亮）。
+            for (let i = 0; i < s.gridRows && s.hintRow < 0; i++) {
+                for (let j = 0; j < s.gridCols; j++) {
+                    const c = s.cells[i * s.gridCols + j]!;
+                    if (!c.void && c.state === 'empty' && c.colorIdx === firstColor) {
+                        s.hintRow = i;
+                        s.hintCol = j;
+                        break;
+                    }
+                }
+            }
+        }
+    } else {
+        s.hintRow = -1;
+        s.hintCol = -1;
+        s.guideSlot = -1;
+    }
+}
+
+/** 片二 · 面板族：购买确认 / 结算 / 通关 / 冲刺结算 / 暂停 / 失败横幅。 */
+function projectPanelShard(s: SnapshotPanel, src: SnapshotSource): void {
     // 购买确认弹窗（ux-spec §3.7）：0 = 关；>0 = 该型单价，视图直接印进标题。
     s.buyConfirmPrice = src.pendingBuy ? powerupBuyPrice(src.pendingBuy) : 0;
 
@@ -234,77 +338,58 @@ export function projectSnapshot(s: BeadsSnapshot, src: SnapshotSource): void {
     s.sprintRunBestStage = src.sprint.bestStage;
     s.sprintRunBestStreak = src.sprint.bestStreak;
 
-    src.fx.writeSnapshot(s); // 连击 / 反馈计时 / 单色提示 / 轻提示（协作类投影）
-
-    // Tray slots (rebuild on capacity change, i.e. expansion).
-    if (s.traySlots.length !== src.tray.capacity) {
-        s.traySlots = [];
-        for (let i = 0; i < src.tray.capacity; i++) {
-            s.traySlots.push({ state: 'free', colorIdx: 0 });
-        }
-    }
-    for (let i = 0; i < src.tray.capacity; i++) {
-        const slot = src.tray.slot(i)!;
-        const out = s.traySlots[i]!;
-        out.state = slot.state;
-        out.colorIdx = slot.colorIdx;
-    }
-    s.trayExpanded = src.tray.expanded;
-    s.trayCanExpand = src.tray.canExpand;
-    s.traySelected = src.tray.selectedSlot;
-    // v2.0 统一选择锚 · board 侧（E2）：E6 据此画错位珠高亮；-1 = 无。
-    // 与 traySelected 三值互斥（input-control §2.1），至多一侧 ≥ 0。
-    s.boardSelectedRow = src.boardSelected ? src.boardSelected.row : -1;
-    // WXG-T-148 ③：连通组快照（预分配容量，写值不新建 —— 热路径零分配）。
-    const grp = src.boardSelected?.order;
-    s.boardGroupCount = grp ? Math.min(grp.length, s.boardGroupRows.length) : 0;
-    if (grp) {
-        for (let gi = 0; gi < s.boardGroupCount; gi++) {
-            s.boardGroupRows[gi] = grp[gi]!.row;
-            s.boardGroupCols[gi] = grp[gi]!.col;
-        }
-    }
-    s.boardSelectedCol = src.boardSelected ? src.boardSelected.col : -1;
-
-    // Sprint HUD (normal mode keeps zeros — the view hides the block).
-    s.score = src.mode === 'sprint' ? src.sprint.score : 0;
-    s.multiplier = src.mode === 'sprint' ? src.sprint.multiplier : 1;
-    s.streak = src.mode === 'sprint' ? src.sprint.streak : 0;
-    s.stageIndex = src.stageIndex;
-    s.sprintBestScore = src.sprintBestScore;
-    s.isNewBest = src.isNewBest;
-
     s.panelVisible = src.panel.visible;
     s.panelProgress = src.panel.progress;
     s.panelInteractive = src.panel.interactive;
+
+    const copy = bannerFor(src.machine.current, src.levelIndex >= src.levels.length - 1);
+    s.banner = copy.banner;
+    s.subBanner = copy.sub;
+    s.bootError = src.bootErrors.join('; ');
+    s.reviveAvailable =
+        src.machine.current === 'game-over' && src.mode === 'normal' && src.reviveCount < REVIVE_MAX_PER_LEVEL;
+    s.revived = src.reviveCount > 0;
+    s.watchingAd = src.watchingAd;
+    s.failHint = src.failHint;
+}
+
+/**
+ * 片三 · 菜单 / 设置回显：顶栏与装扮馆文案、无障碍与震动开关、总星数。
+ * 这些值同时供对局页渲染（如 `beadStyle` / `reduceMotion`）⇒ 分片按**真源**归类，
+ * 读侧（view）拿的仍是整份 `BeadsSnapshot`，不因此少看字段。
+ */
+function projectMenuShard(s: SnapshotMenu, src: SnapshotSource): void {
+    // 总星数（EP14-S2 · R6 = Σ 各关历史最高）：局部累加，热路径零分配（L5 / 控制清单）。
+    let starsTotal = 0;
+    for (let i = 0; i < src.starsByLevel.length; i++) starsTotal += src.starsByLevel[i]!;
+    s.starsTotal = starsTotal;
+
     s.bgmMuted = src.settings.values.bgmMuted;
     s.sfxMuted = src.settings.values.sfxMuted;
     s.reduceMotion = src.settings.values.reduceMotion;
     s.largeText = src.settings.values.largeText;
-    s.debugOutlines = src.debugOutlines;
-    s.debugInfo = src.settings.values.debugInfo;
-    s.debugGuides = src.settings.values.debugGuides;
-    s.perfFrameMs = src.frameMs;
-    s.hudDy = src.hudDy; // 动态高 + 胶囊避让：HUD 带与齿轮热区同读（`hitGear`）
-    s.safeTop = src.safeTop;
-    s.capsuleBottom = src.capsuleBottom;
-    s.safeBottom = src.safeBottom;
     s.vibrate = src.settings.values.vibrate;
     // EP11-S5 行4 两钮的档位回显 + view 换肤渲染的 styleId 入口（L5：view 只读、不判定）。
     s.beadStyle = src.settings.values.beadStyle;
     s.beadSize = src.settings.values.beadSize;
     // EP12-S8：皮肤 id 回显（钮文案单源 = `skin.label`；渲染走 palette 实例，不经本值查表）。
     s.skinId = src.settings.values.skinId;
+}
 
-    const copy = bannerFor(s.phase, src.levelIndex >= src.levels.length - 1);
-    s.banner = copy.banner;
-    s.subBanner = copy.sub;
-    s.bootError = src.bootErrors.join('; ');
-    s.reviveAvailable =
-        s.phase === 'game-over' && src.mode === 'normal' && src.reviveCount < REVIVE_MAX_PER_LEVEL;
-    s.revived = src.reviveCount > 0;
-    s.watchingAd = src.watchingAd;
-    s.failHint = src.failHint;
+/** 片四 · 调试与度量：开关回显 + 逐机安全区 / 胶囊深度（只服务标定线与性能覆层）。 */
+function projectDebugShard(s: SnapshotDebug, src: SnapshotSource): void {
+    s.debugOutlines = src.debugOutlines;
+    s.debugInfo = src.settings.values.debugInfo;
+    s.debugGuides = src.settings.values.debugGuides;
+    s.perfFrameMs = src.frameMs;
+    s.safeTop = src.safeTop;
+    s.capsuleBottom = src.capsuleBottom;
+    s.safeBottom = src.safeBottom;
+}
+
+/** 片五 · 特效与反馈时序：单调进度 + 定长槽（曲线在 view 侧推导，L5）。 */
+function projectFxShard(s: SnapshotFx, src: SnapshotSource): void {
+    src.fx.writeSnapshot(s); // 连击 / 反馈计时 / 单色提示 / 轻提示（协作类投影，只写特效片）
 
     // G2′ 解环器：一条单调进度 + 两组定长格坐标（相序曲线在 view 侧推导，L5）。
     // 不活跃 ⇒ count 归零且数组填 -1（零残留，同 G1 槽置 null 口径）。
@@ -320,45 +405,5 @@ export function projectSnapshot(s: BeadsSnapshot, src: SnapshotSource): void {
         s.solverLandRows[i] = sfx && i < sfx.landCount ? sfx.landRows[i]! : -1;
         s.solverLandCols[i] = sfx && i < sfx.landCount ? sfx.landCols[i]! : -1;
         s.solverLandSteps[i] = sfx && i < sfx.landCount ? sfx.landSteps[i]! : -1;
-    }
-    // GAP-03 首屏引导：仅普通模式 PLAYING、首玩且本会话未落过子时激活（§6.3）。
-    // [WXG-T-239] `ONBOARDING_ENABLED = false` ⇒ 引导**显示已屏蔽**（设计与规格全留档，恢复见该常量头注）。
-    // ⛔ 短路顺序刻意「开关在前」：关闭时**完全不进**引导算法（`hintRow`/`hintCol`/`guideSlot` 保持 -1）
-    //   ⇒ 零额外计算、且从根上排除「引导半途生效」。
-    s.onboarding =
-        src.onboardingEnabled
-        && src.mode === 'normal'
-        && s.phase === 'playing'
-        && !src.onboardDone;
-    if (s.onboarding) {
-        // 首珠 = 托盘当前持有的最前一颗（GAP-02 首供落点）；其色决定单一目标格。
-        let guideSlot = -1;
-        let firstColor = -1;
-        for (let i = 0; i < s.traySlots.length; i++) {
-            const sl = s.traySlots[i]!;
-            if (sl.state !== 'free') {
-                guideSlot = i;
-                firstColor = sl.colorIdx;
-                break;
-            }
-        }
-        s.guideSlot = guideSlot;
-        if (firstColor >= 0) {
-            // 行主序首个匹配该色的可填空槽（单一指向 = 引导设计原则，避免多格同亮）。
-            for (let i = 0; i < s.gridRows && s.hintRow < 0; i++) {
-                for (let j = 0; j < s.gridCols; j++) {
-                    const c = s.cells[i * s.gridCols + j]!;
-                    if (!c.void && c.state === 'empty' && c.colorIdx === firstColor) {
-                        s.hintRow = i;
-                        s.hintCol = j;
-                        break;
-                    }
-                }
-            }
-        }
-    } else {
-        s.hintRow = -1;
-        s.hintCol = -1;
-        s.guideSlot = -1;
     }
 }
