@@ -18,6 +18,8 @@ import type { AssetProvider, PlatformInfo } from '../core/game/game.js';
 import { NullAssetProvider } from '../core/game/game.js';
 import type { RewardedAdProvider } from '../core/ads/rewarded-ad.js';
 import { NoopRewardedAdProvider } from './rewarded-ad.js';
+import type { OpenDataProvider } from '../core/opendata/provider.js';
+import { NoopOpenDataProvider } from '../core/opendata/provider.js';
 
 /**
  * Re-export core intent types so consumers importing from the platform
@@ -54,6 +56,12 @@ export interface Platform {
   createAssetProvider(): AssetProvider;
   /** Rewarded video. Node/web = Mock; weapp = Noop until a real pull is approved. */
   createRewardedAdProvider(): RewardedAdProvider;
+  /**
+   * Open-data-domain provider (ADR-0035 S-2). Optional because a host may have no
+   * open data domain at all; Node/web default to a Noop, and the real weapp
+   * implementation lands with S-5.
+   */
+  createOpenDataProvider?(): OpenDataProvider;
   /**
    * Tactile feedback. Node/harness = noop; weapp = `wx.vibrateShort`/`wx.vibrateLong`;
    * web = `navigator.vibrate` when available.
@@ -161,6 +169,11 @@ export abstract class BasePlatform implements Platform {
   /** Default: never awards. Concrete hosts override with Mock or a weapp wrapper. */
   createRewardedAdProvider(): RewardedAdProvider {
     return new NoopRewardedAdProvider();
+  }
+
+  /** Default: accepts messages and delivers nothing (S-5 wires the real weapp host). */
+  createOpenDataProvider(): OpenDataProvider {
+    return new NoopOpenDataProvider();
   }
 
   onHide(_callback: () => void): () => void {

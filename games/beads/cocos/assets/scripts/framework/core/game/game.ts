@@ -21,6 +21,7 @@ import type { Rng } from '../math/rng';
 import type { Viewport } from '../render/viewport';
 import type { RenderModelBuilder } from '../render/render-model';
 import type { RewardedAdProvider } from '../ads/rewarded-ad';
+import type { OpenDataProvider } from '../opendata/provider';
 import type { HapticKind, ShareOptions } from '../haptics';
 import type { PerformanceSnapshot } from '../performance/performance';
 
@@ -89,6 +90,11 @@ export interface GameServices {
   readonly platform: PlatformInfo;
   /** Optional rewarded-video. Always present; weapp ships a Noop until approved. */
   readonly rewardedAd: RewardedAdProvider;
+  /**
+   * Optional open-data provider (friend leaderboard, ADR-0035). Undefined when the
+   * host has no open data domain; Node/web/weapp-before-S-5 deliver nothing.
+   */
+  readonly openData?: OpenDataProvider;
   /** Optional tactile feedback callback. Undefined when the host cannot vibrate. */
   readonly haptic?: (kind: HapticKind) => void;
   /** Optional share trigger. Undefined when the host has no native share sheet. */

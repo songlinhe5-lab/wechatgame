@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { App } from '../../src/compose/app.js';
 import { NullAssetProvider, MapAssetProvider } from '../../src/core/game/game.js';
 import type { Game, GameServices, RenderModel } from '../../src/core/index.js';
-import { RenderModelBuilder } from '../../src/core/index.js';
+import { NoopOpenDataProvider, RenderModelBuilder } from '../../src/core/index.js';
 import { NodePlatform } from '../../src/platform/node.js';
 
 class FakeGame implements Game {
@@ -61,6 +61,31 @@ describe('App', () => {
     expect(app.services.assets).toBeInstanceOf(NullAssetProvider);
     expect(app.services.viewport.designWidth).toBe(750);
     expect(app.services.rewardedAd.isReady()).toBe(false);
+  });
+
+  it('exposes the open-data provider built by the platform (S-2)', () => {
+    const { app } = makeApp();
+    expect(app.services.openData).toBeInstanceOf(NoopOpenDataProvider);
+  });
+
+  it('leaves openData undefined on hosts without an open data domain', () => {
+    const platform = new NodePlatform({ width: 750, height: 1334, pixelRatio: 2 });
+    Object.defineProperty(platform, 'createOpenDataProvider', { value: undefined });
+    const app = new App({
+      game: new FakeGame(),
+      platform,
+      designWidth: 750,
+      designHeight: 1334,
+      seed: 'test',
+    });
+    expect(app.services.openData).toBeUndefined();
+  });
+
+  it('destroys the open-data provider on dispose (S-2)', () => {
+    const { app } = makeApp();
+    const spy = vi.spyOn(app.services.openData!, 'destroy');
+    app.dispose();
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it('accepts injected assets', () => {

@@ -5855,3 +5855,22 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 2. 视频腿口径三方不一：`powerups-v2 §2.6`（恢复、无日限）↔ `§3.6 AD_PLACEMENTS`（v1.80 零广告）↔ §3.11/§3.14
 3. `§4` 事件表未含 `powerup:used.traySlots`（`powerups-v2` T-27 要求必须加）
 4. 文档-代码漂移仍在：`tuning.ts:807-838` 旧三型与 20/30/45（按纪律不改 `src/**`）
+
+---
+
+## WXG-T-430
+
+**S-2 接线：`Platform.createOpenDataProvider?()` + `GameServices.openData?` + `App.dispose` 销毁** · 负责：主理人(Qoder)·framework · 状态：✅ 完成（2026-10-26）
+
+- **上位**：`docs/architecture/adr/ADR-0035-minigame-open-data-domain-friend-leaderboard.md` §5.2 S-2；契约来自 S-1（`WXG-T-426` / `43b9a85c`）。
+- **一句话**：把 S-1 的 `OpenDataProvider` 契约接到宿主装配层——`Platform` 提供可选工厂、`App` 注入 `GameServices`、`dispose` 负责销毁；真实微信实现仍留 S-5，本单三宿主全部落到 Noop。
+- **交付**：
+  - `packages/framework/src/platform/platform.ts`：接口新增 `createOpenDataProvider?(): OpenDataProvider`（**可选** = 宿主可以没有开放数据域）；`BasePlatform` 默认返回 `NoopOpenDataProvider`。
+  - `packages/framework/src/core/game/game.ts`：`GameServices.openData?: OpenDataProvider`（可选，无域时为 `undefined`）。
+  - `packages/framework/src/compose/app.ts`：`openData: this.platform.createOpenDataProvider?.()` 接线；`dispose()` 增 `this.services.openData?.destroy()`。
+  - 测试：新增 `tests/platform/opendata.test.ts` 3 例（Node / Web / Weapp 三宿主默认 Noop；Node 侧 `send` 不抛）+ `tests/compose/app.test.ts` 3 例（platform 产出实例、宿主无能力时 `openData === undefined`、`dispose` 调 `destroy` 恰 1 次）；合计 **6 例**。
+  - Cocos 镜像：`framework:sync` 同步 beads / breakout 各 3 文件，`sync:check` 零漂移。
+- **门禁读数**：framework 50 文件 / **538 例**全绿；breakout 12 文件 / 239 例全绿；beads 107 文件 / **1285 例（3 skipped）**全绿；`typecheck` / `check:arch` / `framework:sync:check` / `check:links` / `ctx:check` 全绿。
+- **设计取舍**：工厂做成**可选方法**而非必选——第三方宿主（Node / web）没有开放数据域，强行要求实现会让每个平台壳都写一份空实现；`App` 用 `?.()` 接线，缺省即「本宿主无此能力」。`GameServices.openData` 同口径可选，消费端（S-3 面板）必须先判空再降级。
+- **切片纪律**：⛔ 不含 S-3 榜单面板占位 / S-4 子域骨架与构建期协议生成 / S-5 真机实现 + R2 纹理 + 授权引导；⛔ 未改 `OPEN_DATA_VERSION` 与任何协议形状；⛔ 未碰 `adapters/cocos`。
+- **交接**：S-3 可直接 `services.openData?.onMessage(...)` + `send({ type: 'rank:query', board })` 驱动占位面板；加载态必须存在（Mock 同步回执 ≠ 真机异步，见 `WXG-T-426` 风险预记）。

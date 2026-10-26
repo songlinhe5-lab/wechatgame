@@ -121,6 +121,7 @@ export class App {
       assets: options.assets ?? this.platform.createAssetProvider(),
       platform: this.platform.info,
       rewardedAd: this.platform.createRewardedAdProvider(),
+      openData: this.platform.createOpenDataProvider?.(),
       haptic: this.platform.haptic?.bind(this.platform),
       share: this.platform.share?.bind(this.platform),
       onUpdateReady: this.platform.onUpdateReady?.bind(this.platform),
@@ -236,6 +237,7 @@ export class App {
   dispose(): void {
     this.stop();
     this.services.rewardedAd.destroy();
+    this.services.openData?.destroy();
     this.game.dispose?.();
     this.events.removeAll();
   }
