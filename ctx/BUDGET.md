@@ -40,8 +40,8 @@
 | 16 | `games/beads/design/gdd/save-progress.md` | 25764 | 304 | normal |
 | 17 | `games/beads/design/gdd/input-control.md` | 19568 | 206 | normal |
 | 18 | `games/beads/design/ux/arc-level-select-spec.md` | 18524 | 269 | normal |
-| 19 | `memory/details/2026-10-03-s01-t226.md` | 17901 | 548 | normal |
-| 20 | `knowledge/CHANGELOG.md` | 16979 | 541 | normal |
+| 19 | `games/beads/design/proposals/star-economy-and-retention.md` | 18250 | 642 | normal |
+| 20 | `memory/details/2026-10-03-s01-t226.md` | 17901 | 548 | normal |
 
 ## 3. 超限清单（超过所属类别上限）
 
@@ -65,11 +65,11 @@
 | `games/beads/design/gdd/save-progress.md` | 25764 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/gdd/input-control.md` | 19568 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/ux/arc-level-select-spec.md` | 18524 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/beads/design/proposals/star-economy-and-retention.md` | 18250 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `memory/details/2026-10-03-s01-t226.md` | 17901 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/qa/beads/wxg-t-228-tint-criteria.md` | 16868 | ledger · 16000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `docs/architecture/adr/IMPACT-0020a-beads-unit-5mm32-vs-render-50-52.md` | 16757 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/qa/beads/render-perf-device-baseline.md` | 16703 | ledger · 16000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `games/beads/design/proposals/star-economy-and-retention.md` | 16372 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/proposals/beads-studio-density-tiers.md` | 15894 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/proposals/sec3-5mm32-render-base-change.md` | 15465 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `docs/architecture/adr/ADR-0020-beads-board-debug-zoom-focus.md` | 15152 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
