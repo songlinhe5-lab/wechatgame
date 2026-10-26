@@ -37214,17 +37214,17 @@
     },
     {
       "path": "games/beads/design/proposals/daily-challenge.md",
-      "tokens": 6582,
-      "lines": 251,
-      "sha256": "e817569ee32eaa1396a5d09988642193a17161294c72cb44e11d9f6f4e20c20b",
+      "tokens": 7298,
+      "lines": 283,
+      "sha256": "0bfed06b73e36bf504f5ec5111966cd3de837285d79c65268389555b54a4693c",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§设计草案 · 每日挑战（Daily Challenge）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 252,
-          "tokens": 6565,
+          "endLine": 284,
+          "tokens": 7280,
           "summary": "项目：games/beads（拼豆填色消除）· 版本 v0.2（全文未冻结） · 任务号 WXG-T-016（P2，孤立",
           "keywords": [
             "Daily",
@@ -37410,8 +37410,8 @@
           "anchor": "§9 首期形态：Boss 关限时复挑（v0.2 · 用户 2026-10-26 定）",
           "level": 2,
           "startLine": 181,
-          "endLine": 252,
-          "tokens": 1648,
+          "endLine": 284,
+          "tokens": 2363,
           "summary": "用户原话：「在一组任务里随机产生，首期只有一个任务组，已通 3 星的 boss 关，随机挑选一个 boss 关设定比 3",
           "keywords": [
             "Boss",
@@ -37479,8 +37479,8 @@
           "anchor": "§9.5 奖励计算（用户要「计算后定」）",
           "level": 3,
           "startLine": 226,
-          "endLine": 245,
-          "tokens": 383,
+          "endLine": 267,
+          "tokens": 782,
           "summary": "基准：Boss 关 3★ 首通 = 180 豆（CLEAR_COIN_FIRST_BOSS 三档累进 40 + 60 +",
           "keywords": [
             "Boss",
@@ -37491,10 +37491,26 @@
           ]
         },
         {
+          "anchor": "§9.7 与「托盘扩容」的关系（现状核对，防误设）",
+          "level": 3,
+          "startLine": 268,
+          "endLine": 277,
+          "tokens": 294,
+          "summary": "托盘扩容通道 只有广告路（requestTrayExpand → rewardedAd），无豆子路 用户「要不广告要不豆",
+          "keywords": [
+            "requestTrayExpand",
+            "rewardedAd",
+            "托盘扩容",
+            "的关系",
+            "现状核对",
+            "防误设"
+          ]
+        },
+        {
           "anchor": "§9.6 完成标识与记录",
           "level": 3,
-          "startLine": 246,
-          "endLine": 252,
+          "startLine": 278,
+          "endLine": 284,
           "tokens": 180,
           "summary": "成功 ⇒ 写当日记录 daily: { dateKey, levelId, timeMs, cleared: true ",
           "keywords": [
