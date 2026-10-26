@@ -10,12 +10,19 @@
  * See docs/architecture/architecture.md → "platform layer".
  */
 
+import type { HapticKind, ShareOptions } from '../core/haptics';
 import type { Storage } from '../core/save/storage';
 import type { AudioBackend, AudioBackendOptions } from '../core/audio/audio';
 import type { AssetProvider, PlatformInfo } from '../core/game/game';
 import { NullAssetProvider } from '../core/game/game';
 import type { RewardedAdProvider } from '../core/ads/rewarded-ad';
 import { NoopRewardedAdProvider } from './rewarded-ad';
+
+/**
+ * Re-export core intent types so consumers importing from the platform
+ * barrel still see them (preserves `import type { HapticKind } from '@wxgame/framework'`).
+ */
+export type { HapticKind, ShareOptions };
 
 export interface ScreenSize {
   readonly width: number;
@@ -28,20 +35,6 @@ export interface FrameHandle {
 }
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
-
-/** Tactile-feedback kind. Maps to the narrowest shape each host can produce. */
-export type HapticKind = 'light' | 'medium' | 'heavy' | 'selection' | 'success' | 'warning' | 'error';
-
-/** Content a game wants to share. Host adapters fill what they can; missing
- * fields fall back to platform defaults (weapp shows the game icon/title). */
-export interface ShareOptions {
-  /** Share card title. 30-char limit on WeChat; adapters truncate gracefully. */
-  readonly title?: string;
-  /** Local path or URL to a share-card preview image. WeChat accepts both. */
-  readonly imageUrl?: string;
-  /** Query string appended to the target URL (landing page / share token). */
-  readonly query?: string;
-}
 
 export interface Platform {
   readonly info: PlatformInfo;

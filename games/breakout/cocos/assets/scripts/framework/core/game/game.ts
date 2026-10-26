@@ -21,7 +21,7 @@ import type { Rng } from '../math/rng';
 import type { Viewport } from '../render/viewport';
 import type { RenderModelBuilder } from '../render/render-model';
 import type { RewardedAdProvider } from '../ads/rewarded-ad';
-import type { HapticKind, ShareOptions } from '../../platform/platform';
+import type { HapticKind, ShareOptions } from '../haptics';
 
 /**
  * Opaque texture reference resolved by the render adapter. The core never
