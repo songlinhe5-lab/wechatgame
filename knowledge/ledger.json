@@ -761,7 +761,7 @@
       "file": "knowledge/lessons/process-ledger-sync.md",
       "category": "流程台账协作",
       "title": "同一台账文件被并发会话同时写时，`git add <整文件>` 会把别人的 WIP 捎进本单提交",
-      "contentHash": "90b4080939c8e9719d1fb486b0ae53f211fd3dd6adba81b808b1d5fd13225c3a",
+      "contentHash": "d17b4678d8d75ddc1ecb4fd26ff45708de0597b83aea0771b56323fc3a550d1b",
       "sourceTask": "WXG-T-097",
       "addedDate": "2026-09-15",
       "lastAccess": "2026-09-15",
@@ -4789,6 +4789,15 @@
         "K-089"
       ],
       "note": "K-089 追记 ⑦：只禁不立的负向断言删掉被测内容即骗绿，须配正向腿与锚点前置腿"
+    },
+    {
+      "date": "2026-10-26",
+      "taskId": "WXG-T-404",
+      "kind": "updated",
+      "ids": [
+        "K-045"
+      ],
+      "note": null
     }
   ]
 }

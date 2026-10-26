@@ -102,6 +102,26 @@ if [ -n "$STAGED_FW" ]; then
   fi
 fi
 
+# ①⁸⁄₈ 台账结构（索引权威，WXG-T-401 · 判例 K-045）：只在暂存区含台账四件套时跑。
+#     背景：A–I 判据长期只在 `verify` 里跑，钩子不接 ⇒ 并发会话把台账**一侧**扫走后，
+#     「详情有节、主表无行」的撕裂态能直接进 HEAD（2026-10-25 WXG-T-396 真事），
+#     要等下一轮全量校验才红，而那时已入库。
+#     为什么读**索引**不读工作树：`git commit` 提交的是索引；共享工作树下对方正改台账时，
+#     读工作树会因**不属本单**的改动误拦（K-045 追记 2026-10-19 的取证失效形态），
+#     读索引既能拦住本笔的撕裂，又对邻居的 WIP 免疫（两条都有自测腿 [10]）。
+#     同样**只拦不修**：补哪一侧属人的归属判断，钩子代写台账 = 把 K-045 换个方向再犯一遍。
+STAGED_TASKS="$(git diff --cached --name-only | grep -E '^production/(TASKS|archive/TASKS)' || true)"
+if [ -n "$STAGED_TASKS" ]; then
+  echo "[pre-commit] node tools/scripts/check-tasks.mjs --staged（暂存含台账，按索引核结构）"
+  if ! node tools/scripts/check-tasks.mjs --staged; then
+    echo ""
+    echo "❌ 提交被阻止：**索引里**的台账不自洽（列数 / 标题超长 / 主表行与详情节不成对 / 头注落后 / 署号未在册）。"
+    echo "   多为并发会话把另一侧留在工作树未暂存（本笔只带上一侧）。修复：把缺的一侧一并 add，"
+    echo "   或按 K-045 追记的「以 HEAD 为基底重放本单」精确入索引后重试（**勿用 --no-verify**）。"
+    exit 1
+  fi
+fi
+
 # ② ctx 索引自动重建（WXG-T-032 ⑤）：先探测暂存区是否含 .md（≈0 开销）；有才执行。
 STAGED_MD="$(git diff --cached --name-only | grep '\.md$' || true)"
 if [ -n "$STAGED_MD" ]; then

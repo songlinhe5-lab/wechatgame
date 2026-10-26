@@ -4476,3 +4476,58 @@ pnpm run tasks:archive -- --detail-until-under=7000 --write
 - **池子翻倍并已记账**：单关 40→90（Boss 80→180），一章全满星 = **990**（≈21.7 天签到；皮肤三套 1100 ⇒ 覆盖 90%）。
   用户未选池子调整项（甲 660 / 乙 2200 / 丙 990）⇒ 默认按 **丙（990，单价不动）**，如后续觉得皮肤太便宜，改 `SKIN_PRICES_COINS` 或单档即可。
 - 落码：`grantClearCoins` 第三参 `firstClear: boolean` → `prevStars: number`（内部 `cum(star) − cum(prev)`）；原因句三态（首通 / 补发 / 复刷两态）；测试 9 例。
+
+---
+
+## WXG-T-404
+
+> pre-commit 接台账「索引权威」门：`check:tasks --staged`（2026-10-26，主理人 Qoder·工具链）
+
+### 1. 来龙去脉
+
+WXG-T-400 收尾三选项选 1 的原话是「`git add` 归属硬门：pre-commit 至今对『暂存件跨归属』只报警不拦」。开工前先回读判例 [K-045](file:///Users/stephenhe/Development/workspace/wechatgame/knowledge/lessons/process-ledger-sync.md#L11-L23)，其 2026-10-22 追记已写明**「钩子无从判断哪条路径属于哪个会话，故只报警不阻断」**——即按字面做「归属门」在共享工作树里不可实现。故本批把目标改成**拦归属错误的后果**，并只做能机械判定的那一层。
+
+### 2. 取证（改前的真实缺口）
+
+| 事实 | 出处 |
+|---|---|
+| 台账结构判据 A–I 只挂在 `verify`，pre-commit 不跑 | [verify-all.mjs:53](file:///Users/stephenhe/Development/workspace/wechatgame/tools/scripts/verify-all.mjs#L53) 有 `check:tasks`；[pre-commit](file:///Users/stephenhe/Development/workspace/wechatgame/.githooks/pre-commit) 六步 = secrets / links / plugins / mcp / 镜像 --check / ctx 重建，无台账 |
+| 撕裂态曾直接进 HEAD（详情有节、主表无行） | K-045 追记 2026-10-25（WXG-T-396）：详情节被并发会话一次 `git add` 随其提交推送 |
+| 归属报警阈值 4 件、只打印不拦 | [pre-commit:34-45](file:///Users/stephenhe/Development/workspace/wechatgame/.githooks/pre-commit#L34-L45) |
+| 门若读工作树，共享工作树下会被邻居 WIP 误拦 | K-045 追记 2026-10-19（WXG-T-295）取证失效形态；本批实测时对方正改 `production/TASKS.md` 头注 |
+
+### 3. 改动（三件）
+
+1. **[check-tasks.mjs](file:///Users/stephenhe/Development/workspace/wechatgame/tools/scripts/check-tasks.mjs#L59-L75)**：新增 `--staged`，`read()` 改走 `git show :<path>`（索引 = 即将入库的内容）。缺路径与「文件不存在」同义给空串；`stdio` 屏蔽 stderr —— 实测 `git show :<索引里没有的路径>` 会把「致命错误：…」打到终端污染门禁输出。另加 `--staged` × `--prune` 互斥守卫（写盘动作不能跑在索引面）。
+2. **[.githooks/pre-commit](file:///Users/stephenhe/Development/workspace/wechatgame/.githooks/pre-commit#L105-L124)**：新增 ①⁸⁄₈ 步，触发面 = `git diff --cached --name-only` 命中 `^production/(TASKS|archive/TASKS)`（实测四件套命中 4、`.mjs` 不误触），失败即 `exit 1` 并给出「把缺的一侧一并 add / 按 K-045 HEAD 重放法精确入索引」两条出路。**只拦不修**：钩子代写台账等于把 K-045 换个方向再犯一遍。位置放在 ② ctx 重建之前——撕裂时不该白烧一次索引重建。
+3. **[archive-tasks-selftest.sh](file:///Users/stephenhe/Development/workspace/wechatgame/tools/scripts/archive-tasks-selftest.sh#L354-L397)**：新增源面 `[10]` 五条腿，复用既有 `new_repo` / `stub_commit` 桩仓库（`check-tasks.mjs` 自身无自测件，为一个模式新起整套不划算，寄居理由同 400 批 `[9]`）。
+
+### 4. 自测与判别力
+
+| 腿 | 内容 | 结果 |
+|---|---|---|
+| 10a | 干净索引基线绿（防空转） | ✅ |
+| 10b | 只 `add` 详情节 ⇒ `--staged` 红（新门的存在理由） | ✅ |
+| 10c | 补齐主表行 + 头注 ⇒ 绿（防门恒红堵死修复路径） | ✅ |
+| 10d-1 / 10d-2 | 同一坏行留在工作树未入索引 ⇒ 工作树模式红 / `--staged` 绿 | ✅ |
+| 变异 | 注入 `STAGED_MODE=false`（把索引读成工作树） | 恰 `[10d-2]` 红，PASS 82 / FAIL 1 |
+| 还原 | `cp` + `cmp` 逐字节一致 | ✅ |
+
+读数：`tasks:archive` 自测 **78 → 83**（FAIL 0）。10b 单独不构成判别 —— 撕裂时两个面同红；能证明「权威面真的换了」的只有 10d 那一对。
+
+### 5. 并发处置（本批的实际做法）
+
+提交时 `production/TASKS.md` 带着并发会话 WorkBuddy 未提交的头注改动（其把工作树头注推到「已分配至 402 / 下一 403」，其 plan §第一批 已把 402/403 预留给激励视频 Provider 两批）。按 K-045 追记 2026-09-19 的「以 HEAD 为基底重放本单」：主表行同时插进工作树与索引（避免我的行只活在索引里、被对方下一次整文件 `git add` 冲掉），头注只改索引版（对方的字节一行不动），`git hash-object -w` + `git update-index --cacheinfo` 落索引。领号按 K-046 **跳号避让**：401 已被对方入库、402/403 已被其头注与 plan 预占 ⇒ 本单领 **404**（四路核：`git log --all -S` 零命中、`git grep` 零命中、主表 0 行、详情 0 节、归档 0）。
+
+### 6. 验证
+
+- `check:tasks` 工作树版与 `--staged` 版均 exit 0；`--prune --staged` 正确报错退出 1。
+- `tasks:archive` 自测 PASS=83 / FAIL=0；`kb:check` 活跃 174 十重绿；`kb:sync --task=WXG-T-404` 修改 1（K-045）。
+- `check:links`、`ctx:check --staged` 绿；`selftest:fast` 绿（提交态复跑）。
+- 台账 ctx 读数：TASKS.md 估算 **65579**（余 14421）｜ TASKS-DETAIL.md 估算 **146821**（余 58179）（`ctx:build --staged-blobs` 实测后回填）。
+
+### 7. 遗留
+
+1. **归属本身仍不可机械判定**：跨归属报警维持「只打印」，本批只补了后果面。若将来要真隔离，出路是各会话独立工作树（`using-git-worktrees`），不是加钩子判据。
+2. **改名/删除后 HEAD 引用悬空无门**（K-045 追记 2026-10-25 WXG-T-378 的干净检出 404 形态）：`check:links` 只管 Markdown 链接，代码里的路径引用要另一套判据，本批未做。
+3. 主表行数观察哨（note H）照旧长响，等「主表该常驻多少行」的口径裁定。

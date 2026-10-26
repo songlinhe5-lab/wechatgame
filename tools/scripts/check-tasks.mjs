@@ -23,7 +23,11 @@
  *      署号写法含连写（`WXG-T-257~260` 区间 / `WXG-T-222/268/269` 并列链）⇒ 逐段展开，否则漏半数。
  *
  * 用法：
- *   node tools/scripts/check-tasks.mjs             # 校验（verify 内调用）
+ *   node tools/scripts/check-tasks.mjs             # 校验（verify 内调用，读**工作树**）
+ *   node tools/scripts/check-tasks.mjs --staged     # 读**索引**（= 即将入库的内容）——pre-commit 专用（WXG-T-399）
+ *       理由：共享工作树下 `git commit` 提交的是索引，工作树里常捏着并发会话的 WIP；
+ *       读工作树会因对方未提交改动误拦本单，读索引才能接住「台账被扫走一侧」的撕裂态。
+ *       ⚠ 与 `--prune` 互斥（写盘动作不能跑在索引面）。
  *   node tools/scripts/check-tasks.mjs --commits=200   # 放宽 I 项窗口（反事实自证 / 排障用）
  *   node tools/scripts/check-tasks.mjs --prune     # 把「已归档却仍留在详情文件」的小节**搬进**
  *                                                  # 详情归档（**搬，不是删**——删会丢任务正文）
@@ -55,7 +59,22 @@ const BACKLOG_ROW_MAX = 160;
  *  「用过号未自登主表清单」），那部分已不可追改 ⇒ 40 取的是「能拦住新事故」与「不因历史债长红」的折中。 */
 const COMMIT_SCAN_DEFAULT = 40;
 
-const read = (p) => (existsSync(p) ? readFileSync(p, 'utf8') : '');
+const STAGED_MODE = process.argv.includes('--staged');
+const readIndex = (p) => {
+  // 索引里没有该路径（未跟踪 / 已删）与「文件不存在」同义，统一给空串；
+  // ⚙ stderr 必须屏蔽：`git show :<不存在的路径>` 会把「致命错误：…」打到终端，
+  //    而这不是本门的诊断（实测于临时仓库：四个台账路径缺两个归档时输出被污染）。
+  try {
+    return execFileSync('git', ['show', `:${path.relative(ROOT, p)}`], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+  } catch {
+    return '';
+  }
+};
+const read = (p) =>
+  STAGED_MODE ? readIndex(p) : existsSync(p) ? readFileSync(p, 'utf8') : '';
 const idNum = (id) => Number.parseInt(id.replace('WXG-T-', ''), 10);
 
 function splitCells(line) {
@@ -288,6 +307,10 @@ const registeredIds = new Set([...rowIds, ...detailIds, ...archivedIds, ...detai
 // WXG-T-065 起语义变更：早先 --prune 是**删除**残留小节 ✗（会丢任务正文）。既然成对搬运
 // 已有落点（详情归档），补搬就是唯一不丢信息的修复动作。
 if (process.argv.includes('--prune')) {
+  if (STAGED_MODE) {
+    console.error('❌ --prune（写盘）与 --staged（读索引）互斥：前者要改工作树文件，后者要拿索引当权威面。');
+    process.exit(1);
+  }
   const stale = staleSections.filter((id) => archivedIds.has(id));
   if (stale.length === 0) {
     console.log('check:tasks --prune — 无需补搬（没有「已归档但详情仍在」的条目）');

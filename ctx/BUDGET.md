@@ -22,10 +22,10 @@
 
 | # | 文件 | tokens | 行数 | tier |
 |---:|---|---:|---:|:--:|
-| 1 | `production/TASKS-DETAIL.md` | 145130 | 4478 | normal |
+| 1 | `production/TASKS-DETAIL.md` | 146821 | 4533 | normal |
 | 2 | `games/beads/design/art/specs/assets-spec.md` | 120024 | 2105 | normal |
 | 3 | `production/qa/beads/g4-regression-report.md` | 86807 | 2201 | normal |
-| 4 | `production/TASKS.md` | 65107 | 123 | hot |
+| 4 | `production/TASKS.md` | 65579 | 124 | hot |
 | 5 | `games/beads/design/gdd/systems-index-changelog.md` | 48836 | 101 | normal |
 | 6 | `games/beads/design/ux/ux-spec.md` | 48138 | 518 | normal |
 | 7 | `docs/architecture/adr/ADR-0030-beads-cocos-production-blit-carrier.md` | 45150 | 1307 | normal |

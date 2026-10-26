@@ -23,6 +23,8 @@
 #            同批内同号**只归档首份**、其余保留主表（不自动合并），归档不放大成重复行
 #         ⑭ 源面（WXG-T-400，判例 K-089 追记）：`check:tasks` 的 note H 只指路、
 #            不写死可执行阈值——建议串里的硬编码数字会随台账规模过期，而门禁本身不报错过期
+#         ⑮ 索引权威面（WXG-T-401，判例 K-045）：`check:tasks --staged` 读索引而非工作树——
+#            pre-commit 据此拦住「台账一侧入索引、另一侧留在工作树」的撕裂，同时对邻居未提交改动免疫
 #
 # 用法：tools/scripts/archive-tasks-selftest.sh
 # 产物：仅 stdout 报告；临时目录退出时清理，不污染仓库。
@@ -348,6 +350,50 @@ else
   ok "[9b] H 块内无可执行数字阈值"
 fi
 assert_contains "$HBLOCK" '不带 `--write`' "[9c] 建议仍要求先跑 dry-run（防空转删建议）"
+
+# 为什么要这条：A–I 判据长期只跑在 verify，钩子不接 ⇒ 撕裂态能直接进 HEAD（真事：
+# WXG-T-396 的详情节被并发会话随其提交扫走，主表行留在工作树未入）。而门若读工作树，
+# 共享工作树下会因**不属本单**的改动误拦——故 --staged 必选索引面。四条腿各挡一种失效：
+#   10a 基线绿（防「夹具坏了也绿」的空转）；10b 撕裂必红（新门的存在理由）；
+#   10c 补齐必绿（防门恒红、把修复路径堵死）；10d 「工作树红 / 索引绿」双读数，
+#   证它真的换了权威面（只写 10a–10c 的话，把工作树误当索引读也测不出）。
+echo "—— [10] check:tasks --staged 读索引（pre-commit 新门）"
+REPO_S="$WORK/repo-staged"
+new_repo "$REPO_S"
+cat >"$REPO_S/production/TASKS.md" <<'EOS'
+# 任务台账（桩）
+
+> 当前已分配至 **WXG-T-001**，下一可用号 **WXG-T-002**。
+
+| Task ID | 名称 | 负责 | 状态 | 产出 |
+|---|---|---|---|---|
+| WXG-T-001 | 甲行 | 甲 | ✅ 完成 | 见详情 |
+EOS
+cat >"$REPO_S/production/TASKS-DETAIL.md" <<'EOS'
+# 详情台账（桩）
+
+## WXG-T-001
+
+正文甲
+EOS
+stub_commit "$REPO_S" "$(node -e 'console.log(new Date().toISOString())')"
+run_staged() { ( cd "$REPO_S" && node "$CHECK_CMD" --staged >/dev/null 2>&1 ); echo $?; }
+run_worktree() { ( cd "$REPO_S" && node "$CHECK_CMD" >/dev/null 2>&1 ); echo $?; }
+assert_eq "$(run_staged)" "0" "[10a] 干净索引基线绿"
+
+printf '\n## WXG-T-002\n\n正文乙\n' >>"$REPO_S/production/TASKS-DETAIL.md"
+git -C "$REPO_S" add production/TASKS-DETAIL.md
+assert_eq "$(run_staged)" "1" "[10b] 索引里「详情有节、主表无行」⇒ 红（入库前拦住）"
+
+node -e 'const fs=require("fs"),p=process.argv[1];let s=fs.readFileSync(p,"utf8");
+s=s.replace("| WXG-T-001 | 甲行 | 甲 | ✅ 完成 | 见详情 |","$&\n| WXG-T-002 | 乙行 | 乙 | ✅ 完成 | 见详情 |").replace("**WXG-T-001**，下一可用号 **WXG-T-002**","**WXG-T-002**，下一可用号 **WXG-T-003**");
+fs.writeFileSync(p,s)' "$REPO_S/production/TASKS.md"
+git -C "$REPO_S" add production/TASKS.md
+assert_eq "$(run_staged)" "0" "[10c] 补齐另一侧（含头注）⇒ 绿，修复路径未被堵死"
+
+printf '| WXG-T-003 | 坏行 | a | b | c | d |\n' >>"$REPO_S/production/TASKS.md"
+assert_eq "$(run_worktree)" "1" "[10d-1] 工作树被改坏 ⇒ 工作树模式红（对照）"
+assert_eq "$(run_staged)" "0" "[10d-2] 同一坏行未入索引 ⇒ --staged 不拦邻居 WIP（权威面真的换了）"
 
 echo "=================================================================="
 echo "结果：PASS=$PASS FAIL=$FAIL"
