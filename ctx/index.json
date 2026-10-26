@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3834,
       "lines": 130,
-      "sha256": "cc21e03cf7fc241faab9d7cddbf7e679f415d546be45dbb0c4dcea0b108211fc",
+      "sha256": "452d30e889de8bb37d5ac3f4d4a70501e6a0c89238380566816d3a1e62e362dc",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 165934 5322 normal",
+          "summary": "1 production/TASKS-DETAIL.md 166022 5322 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5185,
       "lines": 164,
-      "sha256": "956b3e0bde1520576b245521825599b269a80f7fb149b52bc64dfb98dbfe7934",
+      "sha256": "2f9d633bfec5f8eaa56ab22822069b66cf69ec6e843fd096cef474f68a3170e3",
       "tier": "normal",
       "sections": [
         {
@@ -745,7 +745,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 115 行 / 57691 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 115 行 / 57710 tok / 实测读 4 次",
           "level": 2,
           "startLine": 27,
           "endLine": 30,
@@ -1016,7 +1016,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 5322 行 / 165934 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 5322 行 / 166022 tok",
           "level": 2,
           "startLine": 105,
           "endLine": 109,
@@ -11987,18 +11987,18 @@
     },
     {
       "path": "docs/architecture/adr/ADR-0035-minigame-open-data-domain-friend-leaderboard.md",
-      "tokens": 4109,
-      "lines": 183,
-      "sha256": "6ad185b776a3ff223121dcf8470e5b497a7ba55b81235b48fa8074d9babf156b",
+      "tokens": 4591,
+      "lines": 203,
+      "sha256": "172fbf4efec01b817ad4c8506f16767110f3ef9f50992f809ff54c89f40119a6",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§ADR-0035 · 好友排行榜走微信开放数据域（零后端），主域/子域协议与渲染预留",
           "level": 1,
           "startLine": 1,
-          "endLine": 184,
-          "tokens": 4075,
-          "summary": "状态：Proposed（待主理人拍板 Q1–Q4；⛔ 本批零落码，纯提案）",
+          "endLine": 204,
+          "tokens": 4557,
+          "summary": "状态：Proposed（Q2 授权时机已拍板 2026-10-26：首次打开榜单时弹；待拍板 Q1/Q3/Q4。⛔ 本批",
           "keywords": [
             "ADR",
             "Proposed",
@@ -12156,8 +12156,8 @@
           "anchor": "§3 决定（Decision，推荐档 + 待拍板项）",
           "level": 2,
           "startLine": 76,
-          "endLine": 114,
-          "tokens": 799,
+          "endLine": 134,
+          "tokens": 1266,
           "summary": "推荐 = 方案 A（MVP 好友榜零后端），并按方案 C 的精神只做「一层薄预留」：",
           "keywords": [
             "Decision",
@@ -12210,10 +12210,24 @@
           ]
         },
         {
-          "anchor": "§4 后果（Consequences）",
-          "level": 2,
+          "anchor": "§3.4 授权与降级路径（**Q2 已拍板 2026-10-26：首次打开榜单时弹**）",
+          "level": 3,
           "startLine": 115,
           "endLine": 134,
+          "tokens": 440,
+          "summary": "裁定：只在「玩家主动点开好友榜」这一刻请求授权；通关后不弹。",
+          "keywords": [
+            "授权与降级路",
+            "已拍板",
+            "首次打开榜单",
+            "时弹"
+          ]
+        },
+        {
+          "anchor": "§4 后果（Consequences）",
+          "level": 2,
+          "startLine": 135,
+          "endLine": 154,
           "tokens": 443,
           "summary": "",
           "keywords": [
@@ -12224,8 +12238,8 @@
         {
           "anchor": "§4.1 正面",
           "level": 3,
-          "startLine": 117,
-          "endLine": 122,
+          "startLine": 137,
+          "endLine": 142,
           "tokens": 141,
           "summary": "零后端成本：无服务器、无域名、无备案、无防作弊；与 AGENTS.md §1「缺 AppID + 密钥」的现状不冲突（不",
           "keywords": [
@@ -12238,8 +12252,8 @@
         {
           "anchor": "§4.2 负面（如实记录）",
           "level": 3,
-          "startLine": 123,
-          "endLine": 129,
+          "startLine": 143,
+          "endLine": 149,
           "tokens": 194,
           "summary": "真机才可终验：sharedCanvas 纹理、授权弹窗、好友数据均为真机行为；无真机前只能验证协议 + Mock，不能宣",
           "keywords": [
@@ -12252,8 +12266,8 @@
         {
           "anchor": "§4.3 中性 / 待观察",
           "level": 3,
-          "startLine": 130,
-          "endLine": 134,
+          "startLine": 150,
+          "endLine": 154,
           "tokens": 85,
           "summary": "工作量级：协议层 + provider + 子域渲染器 + 面板接入 + 授权引导 ≈ L（与提案原判一致），必须分片落",
           "keywords": [
@@ -12265,8 +12279,8 @@
         {
           "anchor": "§5 落码分期与验证纪律（ADR 批准后才执行）",
           "level": 2,
-          "startLine": 135,
-          "endLine": 157,
+          "startLine": 155,
+          "endLine": 177,
           "tokens": 352,
           "summary": "",
           "keywords": [
@@ -12279,8 +12293,8 @@
         {
           "anchor": "§5.1 不做的（本 ADR 范围外）",
           "level": 3,
-          "startLine": 137,
-          "endLine": 142,
+          "startLine": 157,
+          "endLine": 162,
           "tokens": 50,
           "summary": "⛔ 后端榜单（§6 触发条件未成立）",
           "keywords": [
@@ -12293,8 +12307,8 @@
         {
           "anchor": "§5.2 分片（建议顺序，需主理人另发落码单）",
           "level": 3,
-          "startLine": 143,
-          "endLine": 152,
+          "startLine": 163,
+          "endLine": 172,
           "tokens": 192,
           "summary": "S-1 core/opendata/：协议判别联合 + NoopOpenDataProvider + MockOpenD",
           "keywords": [
@@ -12309,8 +12323,8 @@
         {
           "anchor": "§5.3 验证纪律",
           "level": 3,
-          "startLine": 153,
-          "endLine": 157,
+          "startLine": 173,
+          "endLine": 177,
           "tokens": 71,
           "summary": "S-1~S-4 必过：typecheck + framework/beads 全量测试 + pnpm run frame",
           "keywords": [
@@ -12325,8 +12339,8 @@
         {
           "anchor": "§6 复评触发条件（何时才需要 P2 后端提案）",
           "level": 2,
-          "startLine": 158,
-          "endLine": 169,
+          "startLine": 178,
+          "endLine": 189,
           "tokens": 211,
           "summary": "任一成立即单开后端提案（P2）：",
           "keywords": [
@@ -12338,9 +12352,9 @@
         {
           "anchor": "§7 待拍板（Q1–Q4）",
           "level": 2,
-          "startLine": 170,
-          "endLine": 178,
-          "tokens": 169,
+          "startLine": 190,
+          "endLine": 198,
+          "tokens": 165,
           "summary": "Q1 榜单指标（步数 / 通关数 / 星数 / 综合分） 文策渊 单关最少步数（最贴合 beads 玩法）",
           "keywords": [
             "beads",
@@ -12350,8 +12364,8 @@
         {
           "anchor": "§8 与提案批次的衔接",
           "level": 2,
-          "startLine": 179,
-          "endLine": 184,
+          "startLine": 199,
+          "endLine": 204,
           "tokens": 96,
           "summary": "架构评审 P1 批次（TODO-3~7）已全部落地：WXG-T-405 / 408 / 410 / 411 / 414。",
           "keywords": [
@@ -86207,9 +86221,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 165934,
+      "tokens": 166022,
       "lines": 5322,
-      "sha256": "5a156fa02d5dbcfd15427e2072639dc5086d4f435bf896bab2693e704c4a0b67",
+      "sha256": "ce03e19449d8420015c8d8a5d72832d07beb889d2fc8addd841ad66850f70596",
       "tier": "normal",
       "sections": [
         {
@@ -86217,7 +86231,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 5323,
-          "tokens": 165917,
+          "tokens": 166006,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -92505,7 +92519,7 @@
           "level": 2,
           "startLine": 5250,
           "endLine": 5323,
-          "tokens": 1527,
+          "tokens": 1615,
           "summary": "",
           "keywords": [
             "WXG"
@@ -92586,8 +92600,8 @@
           "level": 3,
           "startLine": 5296,
           "endLine": 5304,
-          "tokens": 96,
-          "summary": "Q1 榜单指标（步数 / 通关数 / 星数 / 综合分） 文策渊",
+          "tokens": 185,
+          "summary": "Q1 榜单指标（步数 / 通关数 / 星数 / 综合分） 文策渊 待拍板（推荐：单关最少步数）",
           "keywords": [
             "待拍板"
           ]
@@ -92641,9 +92655,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 57691,
+      "tokens": 57710,
       "lines": 115,
-      "sha256": "cb7ddde50d44318b28ec7389f3e6172af59011105f3a7476338a775189a28b13",
+      "sha256": "2e46e9b68fabd2a882576c2402d801e0dcf0d79ec8209135ea85b725198eed82",
       "tier": "hot",
       "sections": [
         {
@@ -92651,7 +92665,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 116,
-          "tokens": 57683,
+          "tokens": 57701,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -95008,9 +95022,9 @@
     },
     {
       "path": "production/plans/2026-10-26-arch-review-weapp-framework-and-beads.md",
-      "tokens": 3916,
+      "tokens": 3960,
       "lines": 157,
-      "sha256": "2a660888dca79fa2b0660437baff3d33a54994f94e58a4584bb9c951d4f1f55e",
+      "sha256": "4f4564cd2f647afe65f45efb59581bd962fe7845346fe1186b8361b6023864a0",
       "tier": "normal",
       "sections": [
         {
@@ -95018,7 +95032,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 158,
-          "tokens": 3892,
+          "tokens": 3936,
           "summary": "日期：2026-10-26",
           "keywords": [
             "TODO",
@@ -95091,7 +95105,7 @@
           "level": 2,
           "startLine": 48,
           "endLine": 81,
-          "tokens": 783,
+          "tokens": 828,
           "summary": "",
           "keywords": [
             "平台能力补齐",
@@ -95182,7 +95196,7 @@
           "level": 3,
           "startLine": 75,
           "endLine": 81,
-          "tokens": 183,
+          "tokens": 228,
           "summary": "证据：无 getOpenDataContext。架构影响大（主域/子域 postMessage 协议 + 渲染层预留），",
           "keywords": [
             "TODO",
