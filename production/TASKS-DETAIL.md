@@ -4931,3 +4931,66 @@ um.applyUpdate(); // 重启生效
 3. `parseDetail` 不认 `## WXG-T-224 · 副标题` 式标题 ⇒ 门口径比物理节数少 2（WXG-T-407 §8 遗留 6，本批不顺手修）。
 4. K 项只拦「署了不在册」，不拦「在册但登错面」（例如把在办行登进 BACKLOG）⇒ 要拦需再加语义门，等真出事故再说。
 5. 共享工作树隔离（用户点的下一步 3）另单处理。
+
+## WXG-T-410
+
+### 1. 触发
+
+架构评审提案 TODO-5（P1 批次）：weapp `onMemoryWarning` → bake LRU 收缩档位 + reduceMotion 联动。低端机长局下 JS 堆无保护，烘焙缓存 2.5MB 是 ADR-0025 L1 基线，低内存时应主动释放。
+
+### 2. 改动面
+
+**Framework core**（纯数据结构 + 事件管道）：
+| 文件 | 变更 |
+|---|---|
+| `core/bake/bake-budget.ts` | 加 `LOW_MEMORY_BAKE_BUDGET_BYTES = 512 * 1024`（2.5MB ↓4×） |
+| `core/bake/bake-lru.ts` | BakeLru 加 `setBudget(newBytes)`（持久调档 + shrink）+ `shrinkTo(targetBytes)`（一次性驱逐） |
+
+**Framework platform + compose**（与 haptic/share/updateReady 同模式）：
+| 文件 | 变更 |
+|---|---|
+| `platform/platform.ts` | Platform 接口加 `onMemoryWarning?(cb): () => void` |
+| `platform/weapp.ts` | WxApi 补 `onMemoryWarning?`；构造函数注册 wx.onMemoryWarning（基础库 2.11.0+）+ `onMemoryWarning(callback)` 方法（内部维护 `_memoryWarningCbs[]`） |
+| `core/game/game.ts` | GameServices 加可选 `onMemoryWarning` 字段 |
+| `compose/app.ts` | 组装 bind |
+
+**beads 侧**：
+| 文件 | 变更 |
+|---|---|
+| `view/bead-render.ts` | BeadBakeRuntime 接口加 `evictAll?()` + `shrinkTo?()` 可选方法；createDefaultBakeRuntime 实现（透传 BakeLru.invalidateAll/shrinkTo） |
+| `game/beads-shell.ts` | init 订阅 onMemoryWarning → getBeadBakeRuntime().shrinkTo(LOW_MEMORY) + emit `system:memory-warning` |
+
+### 3. 架构说明
+
+- **与 share/haptic/updateReady 同模式**：都是游戏层持有可选函数/订阅，Node/WebPlatform 自然 undefined 降级。
+- **BakeLru.shrinkTo vs setBudget**：shrinkTo 是一次性驱逐（不改变 budget 上限，下次 getOrBake 仍会填充到原 cap）；setBudget 是持久调档（改 budgetBytes + shrink）。beads 用 shrinkTo + LOW_MEMORY 档位——临时降档后预算不变，烘焙臂仍能恢复到 2.5MB（如果用户能回到高内存环境）。
+- **reduceMotion 联动**：提案说"必要时关渲染特效"，当前 beads 无通用 confirm modal + reduceMotion setter 路径（只给游戏状态机），暂 emit `system:memory-warning` 事件预留，后续可视化批次接。
+
+### 4. 微信 API 形状
+
+```typescript
+// 注册低内存告警（基础库 2.11.0+）
+wx.onMemoryWarning(() => { /* 收到告警 */ });
+// offMemoryWarning 在新版基础库可用，但构造函数只注册不持久引用——
+// 实例销毁时 handler 自动释放，不需要 off。
+```
+
+### 5. 验证
+
+- typecheck ✅
+- framework tests **518/518** ✅
+- beads tests **1277 passed + 3 skipped** ✅
+- framework:sync ✅（beads 写入 8 + breakout 写入 6）
+- 依赖方向零新增逆向
+
+### 6. 遗留
+
+- breakout 未接线（它没有烘焙臂，不需要 onMemoryWarning 消费）
+- reduceMotion 自动切暂 emit 事件预留；待 UI 层通用 confirm modal 或 settings setter 暴露后接
+- 真机未验；开发机无 wx.onMemoryWarning 时静默 noop
+- BakeLru 的 `_budgetBytes` 从 readonly 改为可写（setBudget 需要动态调整）；影响面仅限 BakeLru 类内部 getter（读取值不变）
+
+### 7. 撞号披露
+
+Qoder 已占用 WXG-T-409（归档器改读行内完成日期），本任务领 **WXG-T-410** 无冲突。
+
