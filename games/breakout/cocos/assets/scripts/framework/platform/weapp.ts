@@ -117,6 +117,11 @@ interface WxApi {
   /** 低内存告警（小游戏基础库 2.11.0+）。 */
   onMemoryWarning?(cb: () => void): void;
   /**
+   * HTTP request（小游戏基础库 2.10.0+；正式环境需 https + 合法域名）。
+   * 回调式——Platform.httpGet 会把它包成 Promise。
+   */
+  request?(opts: WxRequestOptions): void;
+  /**
    * 小游戏热更管理器（WXG-T-407）。启动期检查新版本 → 下载 → ready 回调 →
    * `applyUpdate()` 重启生效。基础库 2.8.0+。Node/harness 无此 API。
    */
@@ -129,6 +134,15 @@ interface WxUpdateManager {
   onUpdateReady?(cb: () => void): void;
   onUpdateFailed?(cb: (res?: { errMsg?: string }) => void): void;
   applyUpdate?(): void;
+}
+
+/** wx.request 的最小形状（HTTP GET 简化版）。 */
+interface WxRequestOptions {
+  url: string;
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  data?: unknown;
+  success?(res: { data: unknown; statusCode: number; header?: Record<string, string> }): void;
+  fail?(err: { errMsg?: string; statusCode?: number }): void;
 }
 
 /** 微信 createRewardedVideoAd 返回对象的最小形状（只取我们实际消费的成员）。 */
@@ -421,6 +435,21 @@ export class WeappPlatform extends BasePlatform {
       const idx = this._memoryWarningCbs.indexOf(callback);
       if (idx >= 0) this._memoryWarningCbs.splice(idx, 1);
     };
+  }
+
+  httpGet(url: string): Promise<unknown> {
+    const req = this._wx?.request;
+    if (typeof req !== 'function') {
+      return Promise.reject(new Error('[weapp] wx.request unavailable'));
+    }
+    return new Promise<unknown>((resolve, reject) => {
+      req({
+        url,
+        method: 'GET',
+        success: (res) => resolve(res.data),
+        fail: (err) => reject(new Error(err.errMsg ?? `wx.request failed for ${url}`)),
+      });
+    });
   }
 
   /**

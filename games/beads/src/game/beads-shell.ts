@@ -680,6 +680,7 @@ export class BeadsShell implements Game {
             bus?.emit?.('meta:studio-import', { ok, detail });
         };
         const get: HttpGet =
+            this._services?.httpGet ??
             studio.get ??
             ((url: string): Promise<unknown> =>
                 (globalThis as unknown as { fetch: (u: string) => Promise<{ json(): Promise<unknown> }> }).fetch(url).then((r) => r.json()));

@@ -163,6 +163,14 @@ export class WebPlatform extends BasePlatform {
     try { nav.vibrate(ms); } catch { /* ignore */ }
   }
 
+  httpGet(url: string): Promise<unknown> {
+    const g = globalThis as unknown as { fetch?: (u: string | URL, init?: unknown) => Promise<{ json(): Promise<unknown> }> };
+    if (typeof g.fetch !== 'function') {
+      return Promise.reject(new Error('[platform] fetch unavailable (web without global fetch)'));
+    }
+    return g.fetch(url).then((r) => r.json());
+  }
+
   getScreenSize(): ScreenSize {
     const g = dom();
     return {

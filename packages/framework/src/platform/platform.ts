@@ -77,6 +77,12 @@ export interface Platform {
    * leave this undefined; returns an unsubscribe function.
    */
   onMemoryWarning?(callback: () => void): () => void;
+  /**
+   * Platform-agnostic HTTP GET. weapp wraps `wx.request` → Promise;
+   * web/node use `fetch`. Returns parsed JSON (unknown shape — caller guards).
+   * Undefined on hosts with no network access.
+   */
+  httpGet?(url: string): Promise<unknown>;
   getScreenSize(): ScreenSize;
   /** Schedule the next frame. The callback receives the delta in ms. */
   requestFrame(callback: (dtMs: number) => void): FrameHandle;

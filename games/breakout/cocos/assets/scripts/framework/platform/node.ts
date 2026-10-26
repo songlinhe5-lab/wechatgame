@@ -87,4 +87,12 @@ export class NodePlatform extends BasePlatform {
 
   /** Silent in tests — the CI output stays readable. */
   override log(_level: LogLevel, _message: string, ..._args: unknown[]): void { }
+
+  httpGet(url: string): Promise<unknown> {
+    const g = globalThis as unknown as { fetch?: (u: string | URL, init?: unknown) => Promise<{ json(): Promise<unknown> }> };
+    if (typeof g.fetch !== 'function') {
+      return Promise.reject(new Error('[platform] fetch unavailable (Node <18 without global fetch)'));
+    }
+    return g.fetch(url).then((r) => r.json());
+  }
 }

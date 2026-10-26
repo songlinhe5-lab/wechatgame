@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3796,
       "lines": 129,
-      "sha256": "57e9316e4930aece9cb3329c1a5817b4d393cbc7a0da9377f00cd15797a96f70",
+      "sha256": "a483dd5ca44e8e96ee2bb8f0e8072ef15a1b27743c9ebc7d1ad62fe6770d3c0a",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 157257 4933 normal",
+          "summary": "1 production/TASKS-DETAIL.md 158867 5045 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5185,
       "lines": 164,
-      "sha256": "597925a076a0e16e8ee898606250b73c41c51e81766feacd6f7f561de65d2546",
+      "sha256": "0a807b0e04fdfb764d9b7a8dda2d41444e98083d8327d29a852839a5a30ff3a6",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 110 行 / 55973 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 112 行 / 56193 tok / 实测读 4 次",
           "level": 2,
           "startLine": 27,
           "endLine": 30,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+111 · §待排（backlog，无号，立项时领取…=82+30",
+          "summary": "§WXG 任务台账（SSOT）=1+113 · §待排（backlog，无号，立项时领取…=84+30",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 4933 行 / 157257 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 5045 行 / 158867 tok",
           "level": 2,
           "startLine": 105,
           "endLine": 109,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+4934 · §WXG-T-398=4230+52 · §WXG-T-3",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+5046 · §WXG-T-400=4371+80 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -85199,17 +85199,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 157257,
-      "lines": 4933,
-      "sha256": "2f311e7f764b4296b89dba3fc341c8ad453018c24dd5bec3a535822268809d16",
+      "tokens": 158867,
+      "lines": 5045,
+      "sha256": "25fdc013ae1f40b66d701402575885199bb4500bbee07ee20f3b1dc01b28491d",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 4934,
-          "tokens": 157241,
+          "endLine": 5046,
+          "tokens": 158851,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -90920,22 +90920,228 @@
             "archive",
             "遗留"
           ]
+        },
+        {
+          "anchor": "§WXG-T-410",
+          "level": 2,
+          "startLine": 4935,
+          "endLine": 4997,
+          "tokens": 924,
+          "summary": "",
+          "keywords": [
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§1 触发 (3)",
+          "level": 3,
+          "startLine": 4937,
+          "endLine": 4940,
+          "tokens": 69,
+          "summary": "架构评审提案 TODO-5（P1 批次）：weapp onMemoryWarning → bake LRU 收缩档位 +",
+          "keywords": [
+            "TODO",
+            "weapp",
+            "onMemoryWarning",
+            "bake",
+            "LRU",
+            "触发"
+          ]
+        },
+        {
+          "anchor": "§2 改动面 (3)",
+          "level": 3,
+          "startLine": 4941,
+          "endLine": 4962,
+          "tokens": 318,
+          "summary": "Framework core（纯数据结构 + 事件管道）：",
+          "keywords": [
+            "Framework",
+            "core",
+            "改动面"
+          ]
+        },
+        {
+          "anchor": "§3 架构说明 (2)",
+          "level": 3,
+          "startLine": 4963,
+          "endLine": 4968,
+          "tokens": 215,
+          "summary": "与 share/haptic/updateReady 同模式：都是游戏层持有可选函数/订阅，Node/WebPlatfo",
+          "keywords": [
+            "share",
+            "haptic",
+            "updateReady",
+            "Node",
+            "WebPlatfo",
+            "架构说明"
+          ]
+        },
+        {
+          "anchor": "§4 微信 API 形状",
+          "level": 3,
+          "startLine": 4969,
+          "endLine": 4977,
+          "tokens": 80,
+          "summary": "",
+          "keywords": [
+            "API",
+            "微信",
+            "形状"
+          ]
+        },
+        {
+          "anchor": "§5 验证 (4)",
+          "level": 3,
+          "startLine": 4978,
+          "endLine": 4985,
+          "tokens": 50,
+          "summary": "typecheck ✅",
+          "keywords": [
+            "typecheck",
+            "验证"
+          ]
+        },
+        {
+          "anchor": "§6 遗留 (6)",
+          "level": 3,
+          "startLine": 4986,
+          "endLine": 4992,
+          "tokens": 122,
+          "summary": "breakout 未接线（它没有烘焙臂，不需要 onMemoryWarning 消费）",
+          "keywords": [
+            "breakout",
+            "onMemoryWarning",
+            "遗留"
+          ]
+        },
+        {
+          "anchor": "§7 撞号披露",
+          "level": 3,
+          "startLine": 4993,
+          "endLine": 4997,
+          "tokens": 34,
+          "summary": "Qoder 已占用 WXG-T-409（归档器改读行内完成日期），本任务领 WXG-T-410 无冲突。",
+          "keywords": [
+            "Qoder",
+            "WXG",
+            "撞号披露"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-411",
+          "level": 2,
+          "startLine": 4998,
+          "endLine": 5046,
+          "tokens": 679,
+          "summary": "",
+          "keywords": [
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§1 触发 (4)",
+          "level": 3,
+          "startLine": 5000,
+          "endLine": 5003,
+          "tokens": 90,
+          "summary": "架构评审提案 TODO-6（P1 批次）：HTTP 通道平台抽象。beads studio-import 功能（WXG-",
+          "keywords": [
+            "TODO",
+            "HTTP",
+            "beads",
+            "studio",
+            "import",
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§2 改动面 (4)",
+          "level": 3,
+          "startLine": 5004,
+          "endLine": 5016,
+          "tokens": 207,
+          "summary": "platform/platform.ts Platform 接口加 httpGet?(url: string): Pro",
+          "keywords": [
+            "platform",
+            "Platform",
+            "httpGet",
+            "url",
+            "string",
+            "Pro"
+          ]
+        },
+        {
+          "anchor": "§3 架构说明 (3)",
+          "level": 3,
+          "startLine": 5017,
+          "endLine": 5023,
+          "tokens": 192,
+          "summary": "三平台实现形状统一：weapp 是回调式 wx.request → Promise 包装；web/node 都是 fet",
+          "keywords": [
+            "weapp",
+            "request",
+            "Promise",
+            "web",
+            "node",
+            "fet"
+          ]
+        },
+        {
+          "anchor": "§4 微信 API 形状（基础库 2.10.0+）",
+          "level": 3,
+          "startLine": 5024,
+          "endLine": 5035,
+          "tokens": 94,
+          "summary": "",
+          "keywords": [
+            "API",
+            "微信",
+            "形状",
+            "基础库"
+          ]
+        },
+        {
+          "anchor": "§5 验证 (5)",
+          "level": 3,
+          "startLine": 5036,
+          "endLine": 5041,
+          "tokens": 32,
+          "summary": "typecheck ✅",
+          "keywords": [
+            "typecheck",
+            "验证"
+          ]
+        },
+        {
+          "anchor": "§6 撞号披露",
+          "level": 3,
+          "startLine": 5042,
+          "endLine": 5046,
+          "tokens": 25,
+          "summary": "WXG-T-411 本轮会话内主表/详情/git log 均零占用，安全领号。",
+          "keywords": [
+            "WXG",
+            "git",
+            "log",
+            "撞号披露"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 55973,
-      "lines": 110,
-      "sha256": "a851f4facae21ac67888f29ec27eb86b3d802df823e730397e91996254b22f96",
+      "tokens": 56193,
+      "lines": 112,
+      "sha256": "a39c5d65b58395e6c20c69aa2c1b83c8ca5def1476514a70734c4f6d15371eec",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 111,
-          "tokens": 55964,
+          "endLine": 113,
+          "tokens": 56184,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -90948,8 +91154,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 82,
-          "endLine": 111,
+          "startLine": 84,
+          "endLine": 113,
           "tokens": 1460,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

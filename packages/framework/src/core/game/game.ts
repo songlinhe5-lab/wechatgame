@@ -98,6 +98,8 @@ export interface GameServices {
   readonly applyUpdate?: () => void;
   /** Subscribe to low-memory warning event. Undefined on hosts without OTA/memory mgmt. */
   readonly onMemoryWarning?: (callback: () => void) => () => void;
+  /** Platform-agnostic HTTP GET. Undefined when the host has no network access. */
+  readonly httpGet?: (url: string) => Promise<unknown>;
 }
 
 export interface Game {
