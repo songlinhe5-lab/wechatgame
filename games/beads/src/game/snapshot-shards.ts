@@ -143,5 +143,5 @@ export function inspectShardCoverage(
     for (const key of contractKeys) if (!seen.has(key)) missing.push(key);
     const unknown: string[] = [];
     for (const field of seen) if (!contract.has(field)) unknown.push(field);
-    return { missing, duplicated: [...duplicated], unknown, ok: missing.length === 0 && duplicated.size === 0 && unknown.length === 0 };
+    return { missing, duplicated: Array.from(duplicated), unknown, ok: missing.length === 0 && duplicated.size === 0 && unknown.length === 0 };
 }
