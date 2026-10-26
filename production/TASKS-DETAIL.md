@@ -5246,3 +5246,77 @@ interface PerformanceSnapshot {
 
 WXG-T-412 = Qoder 会话隔离工作树配方（已入库）。WXG-T-413 = beads 消耗品文档（已入库）。**WXG-T-414 零占用**，直接领。
 
+
+## WXG-T-418
+
+### 1. 触发
+
+用户 2026-10-26 问：「TODO-8 开放数据域 是否需要后端能力？还是微信能够提供排行能力？如果需要后端能力开始 P2 提案，否则完成数据域提案。」
+
+架构评审提案 TODO-8 原判 = 挂 backlog（规模 L，需单开 ADR）。本单按用户指令先答「要不要后端」，再据此交付**数据域提案**（ADR-0035）而非后端提案。
+
+### 2. 结论（回答「要不要后端」）
+
+**好友排行榜不需要自建后端。** 微信为小游戏提供**开放数据域**：
+
+- 主域 `wx.setUserCloudStorage({ KVDataList })`（基础库 1.9.9+）把玩家成绩写进**微信托管云存储**；
+- 子域（开放数据域）`wx.getFriendCloudStorage({ keyList })` 读回**同玩好友**的托管数据；
+- 子域用 `sharedCanvas` 画榜，主域把该 canvas 当纹理贴出来。
+
+**只有「全服 / 赛季 / 分段 / 运营后台可查 / 防作弊校验」才需要后端**——那是另一个产品，触发条件已写进 ADR §6。
+
+### 3. 交付物
+
+| 文件 | 性质 |
+|---|---|
+| `docs/architecture/adr/ADR-0035-minigame-open-data-domain-friend-leaderboard.md` | **新建**，Proposed 状态 ADR |
+| `production/plans/2026-10-26-arch-review-weapp-framework-and-beads.md` §TODO-8 | 追加「进展」行，指向 ADR-0035 |
+
+**本单零落码**：未改 `packages/**`、未改 `games/**` src/tests、未改 `game.json`、未动 `systems-index §3`。
+
+### 4. 外部事实取证（微信官方文档）
+
+| # | 事实 | 影响 |
+|---|---|---|
+| W1 | `getFriendCloudStorage` **仅在开放数据域可用**，且**需用户授权 `scope.WxFriendInteraction`** | 必须有授权引导与「未授权」降级态 |
+| W2 | 容量：每 openid 每游戏 ≤**128 个 KV 对**；每项 `key+value` ≤1KB；`key` ≤128 字节 | 榜单只需 1–3 个 key，余量充足 |
+| W3 | 开放数据域**只能用** canvas / 触摸 / 定时器 / `wx.getSystemInfo*` 等极少 API | 子域必须独立极简渲染，**不能**复用 beads 渲染栈 |
+| W4 | 接入：`game.json` 加 `openDataContext: "<目录>"`；主域 `wx.getOpenDataContext().postMessage()` 单向发消息 | 需要协议层（ADR §3.1） |
+| W5 | 新加好友后 **2 小时内**可能取不到该好友数据 | 文案不承诺「立刻可见」 |
+| W6 | 开放数据域**仅好友维度**，拿不到全服/陌生人数据 | 全服榜 = 后端 |
+
+### 5. ADR 关键裁定（推荐档，待用户拍板 Q1–Q4）
+
+1. **不碰后端**：本里程碑零服务器、零账号体系、零成绩校验。
+2. **协议先行**：`core/opendata/` 定判别联合（`rank:query` / `rank:refresh` / `render:resize` ↔ `rank:ready` / `rank:error`），主域只发、子域只收，不做双向 RPC。
+3. **能力落位按 ADR-0006 范式**：`core` 定义协议 + Noop/Mock provider；`platform/opendata-weapp.ts` 真实现；`Platform.createOpenDataProvider?()` 可选 ⇒ Node/Web 退 Noop/Mock。**⛔ `core` 不得反向 import `platform`**（WXG-T-406 教训）。
+4. **渲染预留三路对比**，推荐 **R2**（面板打开贴一次 + `rank:ready` 时重贴），R1（每帧贴）成本高，R3（DOM 覆盖层）在小游戏不可行。
+5. **分片 S-1~S-5**：协议 → Platform/GameServices 透传 → beads 面板占位 → 子域骨架 → weapp 真实现。前四片可 Node/harness 验证，**S-5 仅真机可验**。
+
+### 6. 待拍板
+
+| # | 问题 | 归属 |
+|---|---|---|
+| Q1 | 榜单指标（步数 / 通关数 / 星数 / 综合分） | 文策渊 |
+| Q2 | 授权时机（首开榜时弹 / 首次通关后弹 / 设置页入口） | 产品 + 工程 |
+| Q3 | 协议形状是否采纳 ADR §3.1 | 工程 |
+| Q4 | 渲染预留选 R1 / R2 / R3 | 工程 |
+
+### 7. 验证
+
+- 纯文档批：`git diff --cached --name-only` 核对仅 2 件（ADR + 提案）+ 台账 2 件。
+- `check:tasks --staged` 行 ⇔ 节配对。
+- 未跑测试套件（零源码改动，无回归面）。
+
+### 8. 撞号披露
+
+头注原读「下一可用 416」，四路核发现 **415 = Qoder 冲突标记门禁批**（已入库 `2c0a31df`）、**416 = Qoder 自测覆盖批**（`.worktrees/wxg-t-416-selftest-coverage` 在制）、**417 仅出现在该 worktree 副本的台账头注**（主树零占用但仍属对方前瞻）⇒ 本单让三号，取 **418**（主表 / 详情 / `git log --grep` / 全树 grep 四路零占用，判例 K-046）。
+
+
+### 9. 跨轨债务代登记（用户 2026-10-26 拍板「代登记豁免」）
+
+提交被 `ctx:check` B 项硬拦：`games/beads/design/gdd/powerups-v2.md` 在 HEAD 实测 **15809 tok > spec 类上限 8000**，源 = **WXG-T-413**（CodeBuddy 经济配比批）新增 §15 消耗品体系重设计，与本单零因果关系。
+
+处置 = 在 `ctx/budget-exempt.json` 追加一条**跨轨代登记**（`taskId` = **WXG-T-413**，note 明写「登记人 = WXG-T-418、正文归属 413、未改该文件一个字」），并附撤销条件：归属会话下次修订前把 §15 拆为 `powerups-economy.md`、正文留指针，顶回 ≤8000 即撤销。
+
+⛔ 未改该 GDD 一个字（跨轨内容不动，只解除门禁阻塞）。

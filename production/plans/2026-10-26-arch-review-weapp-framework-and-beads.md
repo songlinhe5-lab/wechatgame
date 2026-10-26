@@ -75,6 +75,7 @@
 ### TODO-8 开放数据域（好友榜）——先挂 backlog
 - **证据**：无 `getOpenDataContext`。架构影响大（主域/子域 postMessage 协议 + 渲染层预留），非独立小改。
 - **建议**：不排期，立项时单开 ADR。**规模**：L。
+- **进展（2026-10-26 · WXG-T-418）**：已单开 [ADR-0035](../../docs/architecture/adr/ADR-0035-minigame-open-data-domain-friend-leaderboard.md)（Proposed）。结论 = **好友榜零后端**（微信托管云存储 `setUserCloudStorage` + 子域 `getFriendCloudStorage`，需 `scope.WxFriendInteraction` 授权）；**仅全服/赛季/运营榜才需后端**，触发条件见该 ADR §6。待拍板 Q1–Q4。
 
 ---
 
