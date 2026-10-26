@@ -181,4 +181,11 @@ describe('WXG-T-432 S-3 · RankPanel 状态机与 Provider 收发', () => {
     expect(panel.count).toBe(3);
     expect(panel.view().board).toBe('settle');
   });
+
+  it('纵向序：标题 > 副标 > 状态行 > 按钮行（y 向上；防整版上下颠倒）', () => {
+    const layout = rankPanelLayout(false);
+    expect(layout.titleY).toBeGreaterThan(layout.subtitleY);
+    expect(layout.subtitleY).toBeGreaterThan(layout.statusY);
+    expect(layout.statusY).toBeGreaterThan(layout.buttons[0]!.rect.yMax);
+  });
 });

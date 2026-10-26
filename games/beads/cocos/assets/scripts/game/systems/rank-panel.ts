@@ -154,7 +154,8 @@ function build(hasSettings: boolean): RankPanelLayout {
     PANEL_SIZE.w,
     PANEL_SIZE.h,
   );
-  const rowY = panel.yMax - PANEL_PADDING - PANEL_BUTTON_H;
+  // 设计空间 y 向上：`yMin` = 面板下缘 ⇒ 按钮行贴底（与 clear / sprint-settle 同式）。
+  const rowY = panel.yMin + PANEL_PADDING;
   const buttons: RankButton[] = [];
   if (hasSettings) {
     // 两钮均分：左「返回」/ 右「去设置开启」。
@@ -170,9 +171,9 @@ function build(hasSettings: boolean): RankPanelLayout {
   return {
     panel,
     buttons,
-    titleY: panel.yMin + PANEL_PADDING + 40,
-    subtitleY: panel.yMin + PANEL_PADDING + 92,
-    statusY: panel.yMin + 236,
+    titleY: panel.yMax - PANEL_PADDING - 40,
+    subtitleY: panel.yMax - PANEL_PADDING - 92,
+    statusY: panel.yMax - 236,
   };
 }
 
