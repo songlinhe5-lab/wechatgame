@@ -22,7 +22,15 @@ import {
 } from '../core/audio/audio.js';
 import type { CapsuleRect, PlatformInfo } from '../core/game/game.js';
 import { BasePlatform, type FrameHandle, type ScreenSize } from './platform.js';
-import { NoopRewardedAdProvider } from './rewarded-ad.js';
+import {
+  NoopRewardedAdProvider,
+  type MockAdOutcome,
+} from './rewarded-ad.js';
+import type {
+  RewardedAdCloseEvent,
+  RewardedAdPlacement,
+  RewardedAdProvider,
+} from '../core/ads/rewarded-ad.js';
 import { SynthAudioBackend, type SynthContext, type SynthInnerAudio } from './audio-synth.js';
 
 /**
@@ -80,6 +88,29 @@ interface WxApi {
    * （“继续回退合成，绝不静默没声”，见 `_startFileLoop`）。
    */
   loadSubpackage?(opts: { name: string; success?: (res?: unknown) => void; fail?: (res?: unknown) => void }): unknown;
+  /**
+   * 激励视频广告（WXG-T-402）。返回的实例形状只取我们用到那部分——
+   * load/show Promise、onLoad/onError/onClose 回调。
+   * 基础库 2.0.4+；开发机若无此 API ⇒ Provider 降级为 Noop。
+   */
+  createRewardedVideoAd?(): WxRewardedVideoAd;
+}
+
+/** 微信 createRewardedVideoAd 返回对象的最小形状（只取我们实际消费的成员）。 */
+interface WxRewardedVideoAd {
+  load(opts?: { adUnitId?: string }): Promise<unknown>;
+  show(): Promise<unknown>;
+  onLoad(cb: () => void): void;
+  offLoad(cb: () => void): void;
+  onError(cb: (res: { errMsg?: string; errCode?: number }) => void): void;
+  offError(cb: (res: { errMsg?: string; errCode?: number }) => void): void;
+  /**
+   * 关闭回调的参数：isEnded=true 表示完整看完（该发奖），
+   * isEnded=false 表示中途关闭（跳过）。
+   */
+  onClose(cb: (res: { isEnded: boolean }) => void): void;
+  offClose(cb: (res: { isEnded: boolean }) => void): void;
+  destroy(): void;
 }
 
 /**
@@ -105,6 +136,128 @@ export function isWeapp(): boolean {
   const wx = getWx();
   return !!wx && typeof wx.getStorageSync === 'function';
 }
+
+/**
+ * WeChat mini-game rewarded-video Provider (WXG-T-402).
+ *
+ * 桥接 `wx.createRewardedVideoAd()` 与框架的 `RewardedAdProvider` 契约：
+ *  - 微信 onClose({isEnded: true}) → onRewarded + onClose('completed')
+ *  - 微信 onClose({isEnded: false}) → 只 onClose('skipped')
+ *  - 微信 load/show Promise reject → onError
+ *
+ * 外部须在构造时传入 `wx.createRewardedVideoAd`（本类不自己调 `getWx()`），
+ * 使 WeappPlatform 能在无此 API 的宿主上 gracefully 降级为 Noop。
+ *
+ * 注意：生产部署必须传 `adUnitId`（小游戏管理后台创建的广告位 ID）；
+ * 缺省时微信侧会 load 失败，错误将经 onError 桥接出去，不静默。
+ */
+export class WxgRewardedAdProvider implements RewardedAdProvider {
+  private readonly _rewarded: Array<() => void> = [];
+  private readonly _closed: Array<(event: RewardedAdCloseEvent) => void> = [];
+  private readonly _errors: Array<(error: Error) => void> = [];
+  private _ready = false;
+  private _showing = false;
+  private _destroyed = false;
+
+  private readonly _instance: WxRewardedVideoAd;
+
+  constructor(
+    createAd: () => WxRewardedVideoAd,
+    private readonly _adUnitId?: string,
+  ) {
+    this._instance = createAd();
+    // 微信 onLoad/onError 仅作诊断通道：我们的 ready 状态在 load Promise resolve 时置 true。
+    this._instance.onLoad?.(() => { /* onLoad 已由 load() Promise 覆盖 */ });
+    this._instance.onError?.((res) => {
+      const err = new Error(`WxRewardedAd: ${res.errMsg ?? 'unknown error'} (code ${res.errCode ?? '?'})`);
+      this._emitError(err);
+    });
+    this._instance.onClose?.(({ isEnded }) => {
+      if (this._destroyed) return;
+      this._showing = false;
+      this._ready = false; // 微信广告看完一次后需重新 load（微信自动处理，但我们保守重置）
+      if (isEnded) {
+        for (const cb of this._rewarded) cb();
+        for (const cb of this._closed) cb({ reason: 'completed' });
+      } else {
+        for (const cb of this._closed) cb({ reason: 'skipped' });
+      }
+    });
+  }
+
+  load(placement: RewardedAdPlacement): void {
+    if (this._destroyed) return;
+    void placement; // 微信 API 用 adUnitId 而非 placement 字符串，占位记录供未来扩展
+    this._instance.load(this._adUnitId ? { adUnitId: this._adUnitId } : undefined)
+      .then(() => {
+        if (!this._destroyed) this._ready = true;
+      })
+      .catch((e: unknown) => {
+        this._ready = false;
+        this._emitError(new Error(
+          `WxRewardedAd load failed: ${e instanceof Error ? e.message : String(e)}`,
+        ));
+      });
+  }
+
+  isReady(): boolean {
+    return this._ready && !this._showing && !this._destroyed;
+  }
+
+  show(): void {
+    if (this._destroyed || !this._ready || this._showing) {
+      this._emitError(new Error('RewardedAd: show rejected'));
+      return;
+    }
+    this._showing = true;
+    this._instance.show()
+      .catch((e: unknown) => {
+        this._showing = false;
+        this._ready = false;
+        this._emitError(new Error(
+          `WxRewardedAd show failed: ${e instanceof Error ? e.message : String(e)}`,
+        ));
+      });
+    // onClose 会把 _showing 置 false；这里 show() Promise resolve 时广告已在展示但我们不做额外状态变更
+  }
+
+  onRewarded(cb: () => void): () => void {
+    this._rewarded.push(cb);
+    return () => this._remove(this._rewarded, cb);
+  }
+
+  onClose(cb: (event: RewardedAdCloseEvent) => void): () => void {
+    this._closed.push(cb);
+    return () => this._remove(this._closed, cb);
+  }
+
+  onError(cb: (error: Error) => void): () => void {
+    this._errors.push(cb);
+    return () => this._remove(this._errors, cb);
+  }
+
+  destroy(): void {
+    this._destroyed = true;
+    this._showing = false;
+    this._ready = false;
+    this._rewarded.length = 0;
+    this._closed.length = 0;
+    this._errors.length = 0;
+    try { this._instance.destroy?.(); } catch { /* ignore */ }
+  }
+
+  private _emitError(error: Error): void {
+    for (const cb of this._errors) cb(error);
+  }
+
+  private _remove<T>(list: T[], item: T): void {
+    const index = list.indexOf(item);
+    if (index >= 0) list.splice(index, 1);
+  }
+}
+
+// MockAdOutcome 保留以备后续扩展（外部 mock 测试需要）—— 不删除，让 tree-shaker 决定。
+export type { MockAdOutcome };
 
 /** Storage backed by `wx.*StorageSync`. Never throws on quota errors. */
 export class WeappStorage implements Storage {
@@ -147,10 +300,15 @@ export class WeappStorage implements Storage {
 export class WeappPlatform extends BasePlatform {
   readonly info: PlatformInfo;
   private readonly _wx: WxApi | undefined;
+  private readonly _adUnitId?: string;
 
-  constructor(wx: WxApi | undefined = getWx()) {
+  constructor(
+    wx: WxApi | undefined = getWx(),
+    options: { adUnitId?: string } = {},
+  ) {
     super();
     this._wx = wx;
+    this._adUnitId = options.adUnitId;
     const safe = this._readSafeArea();
     const capsule = this._readCapsuleRect();
     this.info = {
@@ -276,9 +434,24 @@ export class WeappPlatform extends BasePlatform {
     return backend;
   }
 
-  /** No wx ad API until the user approves a real pull (WXG-T-058). */
-  override createRewardedAdProvider() {
-    return new NoopRewardedAdProvider();
+  /**
+   * 激励视频 Provider（WXG-T-402）。有 `wx.createRewardedVideoAd` 就返回真包装，
+   * 否则降级 Noop（保持与旧行为零差异，真机开发者/Node 单测零破坏）。
+   */
+  override createRewardedAdProvider(): RewardedAdProvider {
+    const create = this._wx?.createRewardedVideoAd;
+    if (typeof create !== 'function') {
+      return new NoopRewardedAdProvider();
+    }
+    try {
+      return new WxgRewardedAdProvider(
+        () => create.call(this._wx),
+        this._adUnitId,
+      );
+    } catch (e) {
+      this.log('warn', `[ad] createRewardedVideoAd 抛错：${e}`);
+      return new NoopRewardedAdProvider();
+    }
   }
 
   getScreenSize(): ScreenSize {
