@@ -10,6 +10,8 @@
  *   §3  no #rrggbb colour literals outside a view/palette.ts file.
  *   §5  no bare localStorage / wx.setStorageSync outside the platform layer.
  *   L1  reports any .scene / .prefab present (editor-generated only).
+ *   L6  beads internal runtime dependencies: no view ↔ game cycle, no save → view;
+ *       registered legacy edges are explicit and must shrink rather than grow.
  *   §20 UI architecture (ADR-0032 §8 / control-manifest §20; beads only):
  *       -1 dialogs with scrim + paper must go through drawModalFrame
  *       -2 no rgba()/rgb() literals outside ui-theme / palette
@@ -27,7 +29,7 @@
  */
 
 import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { join, relative, basename } from 'node:path';
+import { join, relative, basename, posix } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
@@ -237,7 +239,81 @@ function beadsUiViolations(rel, source) {
   return out;
 }
 
-/** §20 negative samples: every rule must fire, every registered exception must pass. */
+/** L6 存量反向边（WXG-T-420）：只放行逐条登记的旧边，新反向 import 必红。 */
+const GAME_VIEW_EXCEPTIONS = new Map([
+  ['game/beads-shell.ts -> view/meta-view.ts', '旧菜单壳直调 view，待 T7 收敛'],
+  ['game/beads-shell.ts -> view/skins-content.ts', '装扮馆拥有态注入，待菜单投影下沉'],
+  ['game/beads-shell.ts -> view/bead-render.ts', '壳读取烘焙运行时'],
+  ['game/beads-game/game-settings.ts -> view/bead-styles/registry.ts', 'T2 移除：风格校验下沉 config'],
+  ['game/beads-game/feedback-fx.ts -> view/combo-vfx.ts', '效果规格暂居 view，后续归域'],
+  ['game/beads-game.ts -> view/combo-vfx.ts', '效果规格暂居 view，后续归域'],
+  ['game/beads-game.ts -> view/palette.ts', '渲染令牌暂由 Game 传递，T9 再上移绑定'],
+  ['game/beads-game.ts -> view/view-model.ts', '旧渲染门面，T9 再上移绑定'],
+  ['game/save-schema.ts -> view/bead-styles/registry.ts', 'T2 移除：存档校验不得依赖表现层'],
+]);
+
+/** Static relative imports; type-only declarations are erased and do not enter the runtime graph. */
+function beadImports(rel, source) {
+  const body = stripComments(source);
+  const out = [];
+  const pattern = /(?:^|\n)\s*(import|export)\s+([^;]+);/g;
+  let match;
+  while ((match = pattern.exec(body)) !== null) {
+    const statement = match[2].trim();
+    const spec = statement.match(/\bfrom\s*['"](\.[^'"]+)['"]/) ?? statement.match(/^['"](\.[^'"]+)['"]/);
+    if (!spec) continue;
+    const target = posix.normalize(posix.join(posix.dirname(rel), spec[1])).replace(/\.js$/, '.ts');
+    const line = body.slice(0, match.index).split('\n').length + (match[0].startsWith('\n') ? 1 : 0);
+    out.push({ target, typeOnly: /^type\b/.test(statement), line });
+  }
+  return out;
+}
+
+/** L6 direction + runtime-cycle checks; pure so negative samples exercise the production rule. */
+function beadsDependencyViolations(files) {
+  const out = [];
+  const known = new Set(files.map((f) => f.file));
+  const graph = new Map();
+  for (const entry of files) {
+    const imports = beadImports(entry.file, entry.src);
+    graph.set(entry.file, imports.filter((i) => !i.typeOnly && known.has(i.target)));
+    for (const edge of imports) {
+      const key = `${entry.file} -> ${edge.target}`;
+      if (entry.file.startsWith('game/save') && edge.target.startsWith('view/') && !GAME_VIEW_EXCEPTIONS.has(key)) {
+        out.push({ rule: 'L6-save', file: entry.file, line: edge.line, message: '存档层依赖 view —— id 清单与校验应下沉 config' });
+      } else if (!edge.typeOnly && entry.file.startsWith('view/') && edge.target.startsWith('game/')) {
+        out.push({ rule: 'L6-direction', file: entry.file, line: edge.line, message: 'view 运行时依赖 game —— 只允许 import type 快照契约' });
+      } else if (!edge.typeOnly && entry.file.startsWith('game/') && edge.target.startsWith('view/') && !GAME_VIEW_EXCEPTIONS.has(key)) {
+        out.push({ rule: 'L6-direction', file: entry.file, line: edge.line, message: '新增 game → view 运行时依赖 —— 旧边须逐条登记且只减不增' });
+      }
+    }
+  }
+
+  const state = new Map();
+  const stack = [];
+  const seen = new Set();
+  function visit(file) {
+    state.set(file, 1);
+    stack.push(file);
+    for (const edge of graph.get(file) ?? []) {
+      if (!state.has(edge.target)) visit(edge.target);
+      else if (state.get(edge.target) === 1) {
+        const cycle = [...stack.slice(stack.indexOf(edge.target)), edge.target];
+        const key = cycle.slice(0, -1).sort().join(' -> ');
+        if (!seen.has(key)) {
+          seen.add(key);
+          out.push({ rule: 'L6-cycle', file, line: edge.line, message: `运行时循环依赖：${cycle.join(' -> ')}` });
+        }
+      }
+    }
+    stack.pop();
+    state.set(file, 2);
+  }
+  for (const file of known) if (!state.has(file)) visit(file);
+  return out;
+}
+
+/** §20/L6 negative samples: every rule must fire, every registered exception must pass. */
 function runSelftest() {
   const cases = [
     {
@@ -282,6 +358,66 @@ function runSelftest() {
     else fail += 1;
     console.log(`  ${ok ? '✅' : '❌'} ${c.name}${ok ? '' : ` —— got [${got.join(', ')}]`}`);
   }
+  const dependencyCases = [
+    {
+      name: 'L6 view 运行时依赖 game 被拦',
+      files: [{ file: 'view/probe.ts', src: "import { x } from '../game/state.js';" }],
+      want: 'L6-direction',
+    },
+    {
+      name: 'L6 view 仅类型依赖 game 放行',
+      files: [{ file: 'view/probe.ts', src: "import type { BeadsSnapshot } from '../game/state.js';" }],
+      want: null,
+    },
+    {
+      name: 'L6 未登记 game → view 被拦',
+      files: [{ file: 'game/probe.ts', src: "import { x } from '../view/x.js';" }],
+      want: 'L6-direction',
+    },
+    {
+      name: 'L6 已登记存量 game → view 暂时放行',
+      files: [{ file: 'game/beads-game.ts', src: "import { buildBeadsView } from '../view/view-model.js';" }],
+      want: null,
+    },
+    {
+      name: 'L6 未登记存档 → view 被拦',
+      files: [{ file: 'game/save-probe.ts', src: "import { styleById } from '../view/bead-styles/registry.js';" }],
+      want: 'L6-save',
+    },
+    {
+      name: 'L6 运行时循环依赖被拦',
+      files: [
+        { file: 'game/a.ts', src: "import { b } from './b.js';" },
+        { file: 'game/b.ts', src: "export { a } from './a.js';" },
+      ],
+      want: 'L6-cycle',
+    },
+    {
+      name: 'L6 仅类型回边不构成运行时环',
+      files: [
+        { file: 'game/a.ts', src: "import { b } from './b.js';" },
+        { file: 'game/b.ts', src: "import type { A } from './a.js';" },
+      ],
+      want: null,
+    },
+    {
+      name: 'L6 普通单向依赖放行',
+      files: [
+        { file: 'game/a.ts', src: "import { b } from '../systems/b.js';" },
+        { file: 'systems/b.ts', src: "import { c } from '../config/c.js';" },
+        { file: 'config/c.ts', src: 'export const c = 1;' },
+      ],
+      want: null,
+    },
+  ];
+  for (const c of dependencyCases) {
+    const got = beadsDependencyViolations(c.files).map((v) => v.rule);
+    const ok = c.want === null ? got.length === 0 : got.includes(c.want);
+    if (ok) pass += 1;
+    else fail += 1;
+    console.log(`  ${ok ? '✅' : '❌'} ${c.name}${ok ? '' : ` —— got [${got.join(', ')}]`}`);
+  }
+
   console.log(`\ncheck-architecture --selftest: PASS=${pass} FAIL=${fail}`);
   process.exit(fail === 0 ? 0 : 1);
 }
@@ -335,11 +471,16 @@ for (const gameName of safeReaddir(gamesDir)) {
 // beads UI: §20 五条守则（ADR-0032 §8 / control-manifest §20）
 const beadsSrc = join(gamesDir, 'beads', 'src');
 if (existsDir(beadsSrc)) {
+  const dependencyFiles = [];
   for (const file of walk(beadsSrc, isTs)) {
     const rel = relative(beadsSrc, file).split('\\').join('/');
     const raw = read(file);
     if (raw === null) continue;
+    dependencyFiles.push({ file: rel, src: raw });
     for (const v of beadsUiViolations(rel, raw)) report(v.rule, file, v.line, v.message);
+  }
+  for (const v of beadsDependencyViolations(dependencyFiles)) {
+    report(v.rule, join(beadsSrc, v.file), v.line, v.message);
   }
 }
 

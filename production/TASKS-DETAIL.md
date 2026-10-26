@@ -5589,3 +5589,7 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 - 不引入新框架、DI 容器或响应式库；不重写渲染；不碰 §3 冻结数值；不为行数指标拆文件。
 - T7 视图豁免收敛、T8 快照分片、T9 渲染绑定上移、T10 双源治理均未排入本批。
 - 拆分测试不得只复制被测真源：需有独立不变量与正向对照（K-042、K-152）；新文件还须证明被类型检查与门禁实际看到（K-106）。
+
+### 5. 实施流水
+
+- **T1 完成（本笔提交）**：`check-architecture.mjs` 新增 L6 内部依赖方向与运行时循环检测；view → game 仅类型放行，存档 → view 单独报错，9 条旧 game → view 边逐条登记。自测由 11 增至 **19** 例（PASS 19｜FAIL 0），并挂既有 `check:arch:selftest` → `selftest:fast`（PASS 14｜FAIL 0）。真实探针 `game/arch-direction-probe.ts` 加一条未登记 game → view 后 `check:arch` 报 L6-direction，删除后恢复零违规；探针未入库。`control-manifest.md` 同步 L6 条文。

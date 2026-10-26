@@ -98,7 +98,7 @@
 
 | 意图 / 需要什么 | 精确锚点（文件#章节） | 估算 token | 备注 |
 |---|---|---:|---|
-| **五条铁律 L1–L5（完整）** | docs/architecture/control-manifest.md#§0 五条铁律（违反 = 直接打回） | 253 | 评审逐条打回 |
+| **六条铁律 L1–L6（完整）** | docs/architecture/control-manifest.md#§0 六条铁律（违反 = 直接打回） | 352 | 评审逐条打回；L6 为 beads 内部依赖方向 |
 | 热路径零分配 | docs/architecture/control-manifest.md#§2 热路径零分配 | 261 | |
 | 数据驱动，不硬编码 | docs/architecture/control-manifest.md#§3 数据驱动，不硬编码 | 155 | |
 | 事件是通知，不是状态 | docs/architecture/control-manifest.md#§4 事件是通知，不是状态 | 164 | |

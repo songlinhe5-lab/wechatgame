@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3834,
       "lines": 130,
-      "sha256": "2c0322923a5b2cf06cd8701c7fb10f199e6156e0073f52a813503c641cbef9d7",
+      "sha256": "34c0d8a1f5f500e2dce9709f779276339e174b4e8929bfd6fb905f57c1e962e2",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 177429 5591 normal",
+          "summary": "1 production/TASKS-DETAIL.md 177597 5595 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -452,9 +452,9 @@
     },
     {
       "path": "ctx/ROUTES.md",
-      "tokens": 5165,
+      "tokens": 5176,
       "lines": 177,
-      "sha256": "dc8465a0c91851c98a84d2341798969c85ec1d802bba9bf5dffafe84d36456f7",
+      "sha256": "9ba3b27ca81b43861753907e9e96bcfaf6d288c49d6e7fa5ac9aaa69239c48db",
       "tier": "normal",
       "sections": [
         {
@@ -462,7 +462,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 178,
-          "tokens": 5153,
+          "tokens": 5164,
           "summary": "给 agent 的第一跳：开工前先读本表，命中锚点后用 read_file(path, offset, limit) 只",
           "keywords": [
             "ctx",
@@ -506,7 +506,7 @@
           "level": 2,
           "startLine": 38,
           "endLine": 169,
-          "tokens": 3787,
+          "tokens": 3797,
           "summary": "",
           "keywords": [
             "路由表"
@@ -564,8 +564,8 @@
           "level": 3,
           "startLine": 97,
           "endLine": 114,
-          "tokens": 419,
-          "summary": "五条铁律 L1–L5（完整） docs/architecture/control-manifest.md#§0 五条铁律",
+          "tokens": 429,
+          "summary": "六条铁律 L1–L6（完整） docs/architecture/control-manifest.md#§0 六条铁律",
           "keywords": [
             "§0",
             "hot",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5185,
       "lines": 164,
-      "sha256": "967d298984981fbc3f81b476a855c5dfddb40a4874f9bf736c96f91c86e60af1",
+      "sha256": "056d086c82406682adfba0a455aa0e9f6f896b5774f1ae62556ef74914afcd1e",
       "tier": "normal",
       "sections": [
         {
@@ -697,12 +697,12 @@
           ]
         },
         {
-          "anchor": "§`docs/architecture/control-manifest.md` — 377 行 / 9525 tok / 实测读 42 次",
+          "anchor": "§`docs/architecture/control-manifest.md` — 378 行 / 9624 tok / 实测读 42 次",
           "level": 2,
           "startLine": 15,
           "endLine": 18,
           "tokens": 255,
-          "summary": "§控制清单 — 可立即执行的一页规则=1+378 · §0 五条铁律（违反 = 直接打回）=8+12 · §1 目录与落",
+          "summary": "§控制清单 — 可立即执行的一页规则=1+379 · §0 六条铁律（违反 = 直接打回）=8+13 · §1 目录与落",
           "keywords": [
             "§0",
             "§1",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 5591 行 / 177429 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 5595 行 / 177597 tok",
           "level": 2,
           "startLine": 105,
           "endLine": 109,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+5592 · §WXG-T-408=4810+50 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+5596 · §WXG-T-408=4810+50 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -13528,17 +13528,17 @@
     },
     {
       "path": "docs/architecture/control-manifest.md",
-      "tokens": 9525,
-      "lines": 377,
-      "sha256": "e037843da60aded98db24dd102199baa75218c25f7bdf2958b21afb0e4b8bf45",
+      "tokens": 9624,
+      "lines": 378,
+      "sha256": "baa0d641848fa6eb4b51dce56e9144e723f6836c6367eb20a22cd6449c62bedc",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§控制清单 — 可立即执行的一页规则",
           "level": 1,
           "startLine": 1,
-          "endLine": 378,
-          "tokens": 9509,
+          "endLine": 379,
+          "tokens": 9608,
           "summary": "给程序员的单页速查。评审时逐条对照，违反即打回。",
           "keywords": [
             "控制清单",
@@ -13547,11 +13547,11 @@
           ]
         },
         {
-          "anchor": "§0 五条铁律（违反 = 直接打回）",
+          "anchor": "§0 六条铁律（违反 = 直接打回）",
           "level": 2,
           "startLine": 8,
-          "endLine": 19,
-          "tokens": 253,
+          "endLine": 20,
+          "tokens": 352,
           "summary": "L1 禁止手工编辑 .scene / .prefab / .meta。 场景里只允许 GameRoot + Bootst",
           "keywords": [
             "scene",
@@ -13559,14 +13559,14 @@
             "meta",
             "GameRoot",
             "Bootst",
-            "五条铁律"
+            "六条铁律"
           ]
         },
         {
           "anchor": "§1 目录与落位",
           "level": 2,
-          "startLine": 20,
-          "endLine": 35,
+          "startLine": 21,
+          "endLine": 36,
           "tokens": 143,
           "summary": "",
           "keywords": [
@@ -13576,8 +13576,8 @@
         {
           "anchor": "§2 热路径零分配",
           "level": 2,
-          "startLine": 36,
-          "endLine": 52,
+          "startLine": 37,
+          "endLine": 53,
           "tokens": 261,
           "summary": "update() / stepBall() / buildRenderModel() 里每帧执行的代码：",
           "keywords": [
@@ -13590,8 +13590,8 @@
         {
           "anchor": "§3 数据驱动，不硬编码",
           "level": 2,
-          "startLine": 53,
-          "endLine": 66,
+          "startLine": 54,
+          "endLine": 67,
           "tokens": 349,
           "summary": "❌ 系统文件里出现魔法数字（if (levelIndex === 3) speed = 620）",
           "keywords": [
@@ -13604,8 +13604,8 @@
         {
           "anchor": "§4 事件是通知，不是状态",
           "level": 2,
-          "startLine": 67,
-          "endLine": 78,
+          "startLine": 68,
+          "endLine": 79,
           "tokens": 164,
           "summary": "✅ 事件总线只用来广播\"发生了什么\"：brick:destroyed / paddle:hit / ball:lost",
           "keywords": [
@@ -13620,8 +13620,8 @@
         {
           "anchor": "§5 存档",
           "level": 2,
-          "startLine": 79,
-          "endLine": 88,
+          "startLine": 80,
+          "endLine": 89,
           "tokens": 134,
           "summary": "✅ 一律走 SaveManager<T>：带 version + migrations + validate",
           "keywords": [
@@ -13635,8 +13635,8 @@
         {
           "anchor": "§6 输入",
           "level": 2,
-          "startLine": 89,
-          "endLine": 99,
+          "startLine": 90,
+          "endLine": 100,
           "tokens": 220,
           "summary": "✅ 游戏只读 InputManager.snapshot（逐帧不可变）",
           "keywords": [
@@ -13648,8 +13648,8 @@
         {
           "anchor": "§7 状态机",
           "level": 2,
-          "startLine": 100,
-          "endLine": 108,
+          "startLine": 101,
+          "endLine": 109,
           "tokens": 115,
           "summary": "✅ 用 StateMachine<S> 的转移表声明合法边；非法转移自动失败",
           "keywords": [
@@ -13660,8 +13660,8 @@
         {
           "anchor": "§8 渲染",
           "level": 2,
-          "startLine": 109,
-          "endLine": 122,
+          "startLine": 110,
+          "endLine": 123,
           "tokens": 326,
           "summary": "✅ 游戏只产出 RenderModel（rect / circle / line / text / polygon / ",
           "keywords": [
@@ -13676,8 +13676,8 @@
         {
           "anchor": "§9 平台差异",
           "level": 2,
-          "startLine": 123,
-          "endLine": 130,
+          "startLine": 124,
+          "endLine": 131,
           "tokens": 89,
           "summary": "✅ 一切宿主差异写在 platform/{node,web,weapp}.ts 里，通过 Platform 接口暴露",
           "keywords": [
@@ -13692,8 +13692,8 @@
         {
           "anchor": "§10 网络与安全（后续游戏适用）",
           "level": 2,
-          "startLine": 131,
-          "endLine": 140,
+          "startLine": 132,
+          "endLine": 141,
           "tokens": 137,
           "summary": "✅ 服务端权威：客户端只做本地预测与表现，判定结果以服务端为准",
           "keywords": [
@@ -13704,8 +13704,8 @@
         {
           "anchor": "§11 测试",
           "level": 2,
-          "startLine": 141,
-          "endLine": 159,
+          "startLine": 142,
+          "endLine": 160,
           "tokens": 204,
           "summary": "✅ 验证驱动：先写测试，再实现",
           "keywords": [
@@ -13715,8 +13715,8 @@
         {
           "anchor": "§12 提交前自查表",
           "level": 2,
-          "startLine": 160,
-          "endLine": 180,
+          "startLine": 161,
+          "endLine": 181,
           "tokens": 264,
           "summary": "",
           "keywords": [
@@ -13726,8 +13726,8 @@
         {
           "anchor": "§13 反模式速查（见到就打回）",
           "level": 2,
-          "startLine": 181,
-          "endLine": 206,
+          "startLine": 182,
+          "endLine": 207,
           "tokens": 743,
           "summary": "在 update() 里 arr.filter(...) 原地遍历 + for 循环；池化临时数组",
           "keywords": [
@@ -13742,8 +13742,8 @@
         {
           "anchor": "§14 Cocos MCP 编辑器接入（ADR-0009）",
           "level": 2,
-          "startLine": 207,
-          "endLine": 219,
+          "startLine": 208,
+          "endLine": 220,
           "tokens": 450,
           "summary": "接入定位：验证 / 构建 / 资源刷新闭环——不是\"用 AI 搭场景\"。插件在编辑器侧，运行时包体零影响。",
           "keywords": [
@@ -13756,8 +13756,8 @@
         {
           "anchor": "§15 构建层语言契约（ADR-0012，根因 G10）",
           "level": 2,
-          "startLine": 220,
-          "endLine": 240,
+          "startLine": 221,
+          "endLine": 241,
           "tokens": 874,
           "summary": "Cocos 脚本打包把所有平台降到 ES5，且 built-in 不 polyfill、语法照旧降级。其中一条不对称会静",
           "keywords": [
@@ -13772,8 +13772,8 @@
         {
           "anchor": "§16 音频后端契约（ADR-0013，根因 BD-05b）",
           "level": 2,
-          "startLine": 241,
-          "endLine": 259,
+          "startLine": 242,
+          "endLine": 260,
           "tokens": 758,
           "summary": "选型已冻结：systems-index §3.12 = 程序化合成、主包音频 0 KB（判据 A05-25）。要出声只能",
           "keywords": [
@@ -13788,8 +13788,8 @@
         {
           "anchor": "§17 宿主输入归一化（ADR-0011 §3(e)，根因 缺陷 C1）",
           "level": 2,
-          "startLine": 260,
-          "endLine": 317,
+          "startLine": 261,
+          "endLine": 318,
           "tokens": 1726,
           "summary": "屏幕坐标的唯一契约 = 屏幕 CSS px · 左上原点；DPR 永不进 Viewport / InputManager",
           "keywords": [
@@ -13804,8 +13804,8 @@
         {
           "anchor": "§18 外来吸收四条（CCGS `gameplay-code`，WXG-T-175）",
           "level": 2,
-          "startLine": 318,
-          "endLine": 342,
+          "startLine": 319,
+          "endLine": 343,
           "tokens": 601,
           "summary": "来源：Claude Code Game Studios（MIT）.claude/rules/gameplay-code.",
           "keywords": [
@@ -13820,8 +13820,8 @@
         {
           "anchor": "§19 珠面烘焙管线（正本 = ADR-0025／ADR-0027；八条纪律 = ADR-0027 §3 DEC-8）",
           "level": 2,
-          "startLine": 343,
-          "endLine": 366,
+          "startLine": 344,
+          "endLine": 367,
           "tokens": 988,
           "summary": "⛔ 向主包投放位图 = 三条前置，缺一不得投放（2026-10-19 由 WXG-T-294 把原单条「包体守卫未归位前",
           "keywords": [
@@ -13836,8 +13836,8 @@
         {
           "anchor": "§20 UI 架构守则（ADR-0032 §8；WXG-T-318 落表）",
           "level": 2,
-          "startLine": 367,
-          "endLine": 378,
+          "startLine": 368,
+          "endLine": 379,
           "tokens": 419,
           "summary": "适用面：games/beads/src/ui/、games/beads/src/view/。设计全文见 [ui-arch",
           "keywords": [
@@ -86468,17 +86468,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 177429,
-      "lines": 5591,
-      "sha256": "57de38f2db91e3c11a61124ae89f0dfbba48fd0cef85111b8a8da6c43e5cd077",
+      "tokens": 177597,
+      "lines": 5595,
+      "sha256": "8514c2b84fbedb9f3f44e58ef3ba97588b46d43cb5902f7bdfe1053ec50ac41d",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 5592,
-          "tokens": 177412,
+          "endLine": 5596,
+          "tokens": 177581,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -93384,8 +93384,8 @@
           "anchor": "§WXG-T-420",
           "level": 2,
           "startLine": 5561,
-          "endLine": 5592,
-          "tokens": 979,
+          "endLine": 5596,
+          "tokens": 1148,
           "summary": "beads 架构优化：依赖方向、配置归域、对局效果与快照投影（在办）",
           "keywords": [
             "WXG",
@@ -93446,6 +93446,21 @@
           "keywords": [
             "§3",
             "明确不做与遗"
+          ]
+        },
+        {
+          "anchor": "§5 实施流水",
+          "level": 3,
+          "startLine": 5593,
+          "endLine": 5596,
+          "tokens": 162,
+          "summary": "T1 完成（本笔提交）：check-architecture.mjs 新增 L6 内部依赖方向与运行时循环检测；view",
+          "keywords": [
+            "check",
+            "architecture",
+            "mjs",
+            "view",
+            "实施流水"
           ]
         }
       ]
