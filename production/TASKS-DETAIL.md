@@ -5899,3 +5899,22 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 - **设计取舍**：① 存档按 §3 冻结**升版+迁移**（推翻会话初拟的「不升版本」方案，AGENTS §4 以 §3 为准）；② `trayRestore` 同帧动手而非进 G2′ 队列——托盘珠的动手语义（放入/换出配对）无法用单格队列表达，且同帧 ⇒ plan 即真相；③ 免费额度双轨：账号级（永久）与本关（C7 扣分/快照）分离。
 - **⚠ 改号**：原拟 430，实读台账已被 Qoder S-2（`ce5363ad`）占用 ⇒ 按 K-046 改取 **431**（台账机械校准锚明示下一可用号）。
 - **遗留**：金样本 6 态 + 封箱基准 2 键待干净锚重抓（复取器 `ui-golden-capture.ts` / `bead-style-seal-recapture.ts`）；面板三卡文案已由 `POWERUP_LABELS` 解耦自动生效，双通道视图（免费/购买价）接线随角标口径（耗尽后印 100）已进 view 层默认路径；429 遗留三条（§3.5 失败重开注、视频腿口径、§4 事件表 `traySlots`）中事件表已在本批补齐，另两条仍待。
+
+## WXG-T-432
+
+**S-3 榜单面板占位：好友榜面板七态 + 结算「好友这关榜」上下文入口 + 主菜单「好友榜」入口** · 负责：主理人(Qoder)·beads 工程 · 状态：✅ 完成（2026-10-26）
+
+- **上位**：`docs/architecture/adr/ADR-0035-minigame-open-data-domain-friend-leaderboard.md` §5.2 S-3 / §3.1 协议 / §3.2 Q1=B（榜页唯一总榜 `settle-total`；分关榜 `settle` 只作结算面板上下文入口）/ §3.4 授权流程；施工单 = `production/plans/2026-10-26-wxg-t-432-s3-rank-panel.md`（原拟 431，被同日在办的 §3.6 v1.95 落码批占用 ⇒ 按台账机械校准锚改 432）。
+- **一句话**：把好友榜从「协议 + 宿主能力」推进到**看得见的面板**——两处入口（主菜单 / 结算面板）可打开占位面板，七态文案 / 开合动画 / 模态输入 / 协议收发全部就位；**不画好友行、不显示名次**（子域只回 `count`），真宿主留 S-5。
+- **交付**：
+  - 新 `games/beads/src/systems/rank-panel.ts`：`RankPanel` 状态机（`unsupported / loading / ready / empty / no-auth / fail / incompatible`）+ `ResultPanelClock` 开合 + 布局/命中（`rankPanelLayout` 按 `hasSettings` 缓存两份）+ `rankTheme(RankThemeSource)`（结构入参，避免 game→view 新增 L6 边）。
+  - 新 `games/beads/src/view/rank-view.ts`：`drawRankPanel`（复用 `drawModalFrame`，零 hex；标题 / 副标总榜·本关 / 状态行 / 返回钮）。
+  - `game/state.ts`：`BeadsSnapshot.rankPanel?: RankPanelView`（缺省 `CLOSED_RANK_VIEW`，既有测试字面量零改动）。
+  - `game/beads-game.ts`：`attach(services.openData ?? null)` / `dispose` detach / `update` 推进 / `_routeTap` 最前模态拦截 / 公开命令 `openRank`·`openLevelRank`·`closeRank`·`rankOpen`·`rankView`·`updateRank`·`hitRank`·`tapRank` / 快照回填。
+  - `systems/clear-panel.ts`：`ClearPanelAction` 增 `'rank'`；`rankChip` 110×88（`x = primary.xMax + CLEAR_BUTTON_GAP`，右缘恰抵 `panel.xMax - PANEL_PADDING`）；命中与标签。`game/beads-game/panel-router.ts` 增 `openLevelRank()` 分派；`view/view-model.ts` 绘两行纸 chip。
+  - `view/meta-view.ts`：`MetaAction 'open-rank'` + CTA 左侧 140×88 纸钮「好友榜」（`rankBox/rankHit` 同对象）+ `MetaViewData.rank` 叠画；`game/beads-shell.ts` 菜单腿 `updateRank`、`_readMenuInput` 模态门、`_applyMetaAction` ⇒ `openRank('settle-total','')`。
+  - 测试：新增 `tests/rank-panel.test.ts`（9 例：unsupported / ready+query 恰一条 / empty / no-auth+api-missing / incompatible 不发 query / close 退场 / detach 后 emit 无效 / 命中返回与 settings 钩子 / 异 board 忽略）；`clear-panel.test.ts` 增 chip 几何与命中；`meta-menu-wall.test.ts` 增纸钮入口 + 真指针菜单模态例；`beads-shell.test.ts` 动作集补 `open-rank`。
+- **门禁读数**：beads **109 文件 / 1315 passed / 0 failed / 3 skipped**；`ui-golden` 12 例绿；`typecheck` / `check:arch` 退出 0（仅既有 L1「编辑器生成文件」warning）。金样本经 `tests/ui-golden-capture.ts` 重抓（⛔ 手改）：`main-menu` 5636→5638、`level-select-mid` 7046→7048、`clear` 621→624（各 +2 / +2 / +3 条命令：好友榜钮 2 条、chip 1 rect + 2 text），其余 8 态逐字不变。
+- **设计取舍**：① `rankTheme` 放 `systems/rank-panel.ts` 并以结构类型 `RankThemeSource` 收参——放 `view/` 会新增 `game → view` 运行时边，而 `GAME_VIEW_EXCEPTIONS` 明写「只减不增」；② S-3 **不画「去设置开启」**（无 `openSettings` 宿主钩子 ⇒ 不造死按钮，S-5 再接）；③ `ready` 只显示「共 N 位好友上榜」，⛔ 不写「第 N」、不画头像行（协议不回明细）；④ 退场期 `interactive=false` 但点击仍被模态吞（菜单腿 / 玩法腿两处独立拦截）。
+- **边界**：⛔ 不含 S-4 子域工程 / `game.json openDataContext`、S-5 weapp 真实现与 R2 纹理贴图；⛔ 未改 `packages/framework/src/**`、§3 冻结常量、存档形状、`PANEL_SIZE` 560×480；⛔ 未动 `tools/scripts/*.mjs` 的他人未提交改动。
+- **遗留**：真宿主 / 子域未见（S-4/S-5）；「去设置开启」与未授权回流待 S-5 接 `openSettings` 后再渲染；ADR-0035 §5.2 S-3 的 ✅ 与 commit 回填在下一笔 docs 提交。

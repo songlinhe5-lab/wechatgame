@@ -24,6 +24,7 @@ import {
 } from '../config/tuning.js';
 import { DEFAULT_SKIN_ID } from '../config/skins/registry.js';
 import type { BeadsLevelRaw } from '../config/levels-data.js';
+import { CLOSED_RANK_VIEW, type RankPanelView } from '../systems/rank-panel.js';
 
 export type BeadsPhase = 'boot' | 'playing' | 'paused' | 'level-clear' | 'game-over' | 'finish';
 export type GameMode = 'normal' | 'sprint';
@@ -447,6 +448,12 @@ export interface BeadsSnapshot {
    */
   tapHintAnchor: 'cell' | 'expand';
 
+  /**
+   * 好友榜面板只读视图（ADR-0035 §5.2 S-3）。**可选** ⇒ 既有测试字面量零改动；
+   * 缺省按关档处理（无 shell / 合成快照）。
+   */
+  rankPanel?: RankPanelView;
+
   tuning: BeadsTuning;
 }
 
@@ -606,6 +613,7 @@ export function createSnapshot(tuning: BeadsTuning): BeadsSnapshot {
     tapHintCol: -1,
     tapHintAnchor: 'cell',
     guideSlot: -1,
+    rankPanel: CLOSED_RANK_VIEW,
     tuning,
   };
 }

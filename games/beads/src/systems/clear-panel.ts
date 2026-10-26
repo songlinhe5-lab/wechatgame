@@ -19,11 +19,14 @@
  * ⚠️ 与旧实现的差别（WXG-T-063）：`LEVEL_CLEAR` 此前是「1.4s 后自动进下一关」的占位，
  * 而 `ux-spec §4` 的流转表写的是「LEVEL_CLEAR → 下一关 / 去冲刺*(U1) → 玩法·n+1 / 玩法·冲刺」
  * ⇒ **面板必须等按钮**，自动推进已删除（`LEVEL_CLEAR_DELAY_S` 随之退休）。
+ *
+ * `[WXG-T-432]` 按钮行右侧追加「好友 / 这关榜」纸 chip：ADR-0035 §5.2 S-3 的结算面板上下文入口
+ * （`settle` 榜），与主钮同排、右缘贴 `panel.xMax - PANEL_PADDING`；`PANEL_SIZE` 零改动。
  */
 
 import {
-  // WXG-T-177：`CLEAR_BUTTON_GAP` 曾用于第二按钮（去冲刺）落位，入口隐藏后不再需要；
-  // 复建 U1 三处入口时从 `tuning` 重新引入即可。
+  // `[WXG-T-432]` 复引入 `CLEAR_BUTTON_GAP`：好友榜 chip 与主钮同排的间距。
+  CLEAR_BUTTON_GAP,
   CLEAR_BUTTON_W,
   CLEAR_STAR_GAP,
   CLEAR_STAR_SIZE,
@@ -39,8 +42,8 @@ import {
 import { rectContains, type PanelRect } from './pause-panel.js';
 import { ResultPanelClock } from './result-panel.js';
 
-/** 面板按钮能请求的两件事（动作由 `BeadsGame` 执行）。 */
-export type ClearPanelAction = 'next' | 'sprint';
+/** 面板按钮能请求的三件事（动作由 `BeadsGame` 执行）。 */
+export type ClearPanelAction = 'next' | 'sprint' | 'rank';
 
 export interface ClearButton {
   readonly id: ClearPanelAction;
@@ -52,6 +55,8 @@ export interface ClearPanelLayout {
   readonly panel: PanelRect;
   /** 两个按钮，视觉优先级序（主钮在前）。 */
   readonly buttons: readonly ClearButton[];
+  /** 好友这关榜纸 chip（ADR-0035 S-3）：与主钮同排，右缘抵 `panel.xMax - PANEL_PADDING`。 */
+  readonly rankChip: PanelRect;
   /** 缎带标题基线 y。 */
   readonly titleY: number;
   /**
@@ -90,6 +95,8 @@ export interface ClearPanelOptions {
 export const CLEAR_PANEL_TITLE = '🎉 闯关成功';
 /** 金色缎带高度（ux-spec §3.4；视图与布局共用，⛔ 两处各写 84）。 */
 export const CLEAR_RIBBON_H = 84;
+/** 好友这关榜纸 chip 宽（`[WXG-T-432]`；ADR-0035 §5.2 S-3 结算面板上下文入口）。 */
+export const CLEAR_RANK_CHIP_W = 110;
 
 function rect(x: number, y: number, w: number, h: number): PanelRect {
   return { xMin: x, yMin: y, xMax: x + w, yMax: y + h };
@@ -125,6 +132,9 @@ function build(lastLevel: boolean): ClearPanelLayout {
   const buttons: ClearButton[] = [
     { id: 'next', rect: rect(startX, rowY, CLEAR_BUTTON_W, PANEL_BUTTON_H) },
   ];
+  // `[WXG-T-432]` 好友这关榜 chip（ADR-0035 §5.2 S-3）：主钮右侧、同一行；
+  // 右缘 = `startX + CLEAR_BUTTON_W + CLEAR_BUTTON_GAP + CLEAR_RANK_CHIP_W` = `panel.xMax - PANEL_PADDING`。
+  const rankChip = rect(startX + CLEAR_BUTTON_W + CLEAR_BUTTON_GAP, rowY, CLEAR_RANK_CHIP_W, PANEL_BUTTON_H);
   const infoY = rowY + PANEL_BUTTON_H + PANEL_ROW_GAP;
   // WXG-T-355：判星对照行落 `infoY + 41`（上下各留 ~13 净空），星级行随之抬到 +92；
   // 缎带行距（`titleY = starsY + 110`）不动 ⇒ 面板顶缘余量由 120 收到 98，`PANEL_SIZE` 零改动。
@@ -141,20 +151,23 @@ function build(lastLevel: boolean): ClearPanelLayout {
   // 品质分行（ADR-0035 §3.2.1 ②）：缎带顶（y 向上 = `titleY + 缎带半高`）到面板顶缘的
   // 98px 净空带取中点 ⇒ 不挤压既有六行、`PANEL_SIZE` / 缎带行距均零改动。
   const qualityY = (titleY + CLEAR_RIBBON_H / 2 + panel.yMax) / 2;
-  return { panel, buttons, titleY, qualityY, starsY, rewardY, criteriaY, infoY, starX };
+  return { panel, buttons, rankChip, titleY, qualityY, starsY, rewardY, criteriaY, infoY, starX };
 }
 
 /** 按钮文案（`ux-spec §3.4`；末关主钮文案为派生项）。 */
 export function clearPanelLabel(id: ClearPanelAction, lastLevel: boolean): string {
+  if (id === 'rank') return '好友这关榜';
   if (id === 'sprint') return '▶ 去冲刺';
   return lastLevel ? '查看结果' : '下一关';
 }
 
 /** 命中测试（面板外 / 非交互期为 null）。 */
 export function hitClearPanel(x: number, y: number, opts: ClearPanelOptions): ClearPanelAction | null {
-  for (const button of clearPanelLayout(opts).buttons) {
+  const layout = clearPanelLayout(opts);
+  for (const button of layout.buttons) {
     if (rectContains(button.rect, x, y)) return button.id;
   }
+  if (rectContains(layout.rankChip, x, y)) return 'rank';
   return null;
 }
 

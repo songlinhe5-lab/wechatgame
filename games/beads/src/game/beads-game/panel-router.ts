@@ -38,6 +38,8 @@ export interface PanelRouterHost {
   applyPanelAction(action: PausePanelAction): void;
   /** 炫耀：调平台层 share（WXG-T-405），宿主无 share 能力时静默 noop。 */
   share(): void;
+  /** 结算面板「好友这关榜」上下文入口（`[WXG-T-432]`；ADR-0035 §5.2 S-3）。 */
+  openLevelRank(): void;
 }
 
 export class PanelRouter {
@@ -78,7 +80,8 @@ export class PanelRouter {
         if (!action) return false;
         h.sfx(AUDIO_CLIP_UI_TAP);
         if (action === 'next') h.advanceAfterClear();
-        else h.startSprintRun();
+        else if (action === 'sprint') h.startSprintRun();
+        else h.openLevelRank();
         return true;
       }
       case 'finish': {

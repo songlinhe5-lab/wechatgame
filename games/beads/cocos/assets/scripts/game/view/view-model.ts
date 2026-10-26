@@ -67,6 +67,7 @@ import { drawModalFrame, drawModalScrim } from './modal-frame';
 import { drawButton, drawDashedRect } from './ui-widgets';
 import { UI_FONT, UI_SCRIM, bodyFont, drawPaperPanel, formatTime, pressOffset, starCriteriaText } from './ui-theme';
 import { drawPlayPage } from './play-page';
+import { drawRankPanel } from './rank-view';
 import { starPoints } from './shape-utils';
 
 /** 按下态绘制 y 偏移（算法在 `ui-theme::pressOffset`，本包装只取快照字段）。 */
@@ -124,6 +125,8 @@ export function buildBeadsView(
   drawFailPanel(builder, snap, palette);
   drawSprintSettle(builder, snap, palette);
   drawBanners(builder, snap, palette);
+  // `[WXG-T-432]` 好友榜面板（ADR-0035 S-3）：结算面板上下文入口打开时叠在最上层。
+  if (snap.rankPanel) drawRankPanel(builder, palette, snap.rankPanel);
 }
 
 
@@ -555,6 +558,25 @@ function drawClearPanel(
       drawButton(builder, palette, button.rect.xMin, by, bw, bh, 'paper', UI_CONTAINER.radiusCard, label, UI_FONT.panelButton, pressed);
     }
   }
+
+  // 好友这关榜 chip（ADR-0035 §5.2 S-3）：纸面 + 两行字，几何/动作全在 `clear-panel.ts`。
+  const chip = layout.rankChip;
+  const chipPressed = snap.pressedButton === 'rank';
+  const chipY = chip.yMin + pressDy(snap, 'rank');
+  builder.rect(chip.xMin, chipY, chip.xMax - chip.xMin, chip.yMax - chip.yMin, {
+    fill: chipPressed ? palette.cardPressed : palette.panel,
+    stroke: palette.panelBorder,
+    lineWidth: UI_CONTAINER.strokePanel,
+    radius: UI_CONTAINER.radiusCard,
+  });
+  const chipCx = (chip.xMin + chip.xMax) / 2;
+  const chipFont = bodyFont(snap.largeText, 'hudSmall');
+  builder.text(chipCx, chipY + 60, '好友', {
+    fill: palette.text, font: chipFont, align: 'center', baseline: 'middle',
+  });
+  builder.text(chipCx, chipY + 30, '这关榜', {
+    fill: palette.text, font: chipFont, align: 'center', baseline: 'middle',
+  });
 }
 
 

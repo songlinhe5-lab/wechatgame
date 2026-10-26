@@ -54,6 +54,7 @@ import { ARCS } from '../src/config/arcs.js';
 import { difficultyOf } from '../src/game/difficulty.js';
 import { COPY_TOKENS } from '../src/config/copy-tokens.js';
 import { buildMetaView, hitTestMeta, metaLayout, type MetaViewData } from '../src/view/meta-view.js';
+import { rankPanelLayout } from '../src/systems/rank-panel.js';
 import { drawLevelThumb, levelThumbCells, SIGN_INK_COLOR_IDX } from '../src/view/menu-signage.js';
 import { drawFilledBead, type FilledBeadOptions } from '../src/view/bead-render.js';
 import { DEFAULT_PALETTE, DEMO_BEAD_INKS, beadGrayInksFor, beadInksFor } from '../src/view/palette.js';
@@ -103,6 +104,8 @@ const L1_SLOT = WALL_ORDER_IDS.indexOf(1);
 
 interface Rig {
     readonly shell: BeadsShell;
+    /** 真框架服务（真指针用例经 `input` / `viewport` 投递屏幕坐标）。 */
+    readonly services: GameServices;
     readonly overlayEvents: unknown[];
     readonly emitted: () => string[];
     readonly emitTo: (topic: string) => void;
@@ -154,6 +157,7 @@ function rig(opts: { maxUnlocked?: number; initialScreen?: 'play' | 'menu' } = {
     shell.init(services);
     return {
         shell,
+        services,
         overlayEvents,
         emitted: () => [...topics],
         emitTo: (t: string) => bus.emit(t, {}),
@@ -412,7 +416,7 @@ describe('EP12-S6 Deliverable 3 · 三条硬口径（§5.4）+ 未解锁零热�
         // §5.1b 第三批：信箱 2026-10-22 实装（`open-signin`）；**公告位 2026-10-24 由预留升格为
         // 装扮馆入口 `open-skins`（WXG-T-365 · 提案 P4-甲）**⇒ 顶栏三颗全部注册；
         // 底部次级行整行退役。[WXG-T-280] 锚定档：橱窗卡两侧 ◀▶ 翻页两颗进热区集（落地单 §3）。
-        expect([...ids].sort()).toEqual(['carousel-next', 'carousel-prev', 'open-levels', 'open-settings', 'open-signin', 'open-skins', 'start']);
+        expect([...ids].sort()).toEqual(['carousel-next', 'carousel-prev', 'open-levels', 'open-rank', 'open-settings', 'open-signin', 'open-skins', 'start']);
         // 扫面（16×16 步长）：菜单全域可命中的动作集恰等于上面七枚 ⇒ 无暗道。
         const scanned = new Set<string>();
         for (let x = 0; x <= DESIGN_W; x += 16) {
@@ -421,7 +425,7 @@ describe('EP12-S6 Deliverable 3 · 三条硬口径（§5.4）+ 未解锁零热�
                 if (b) scanned.add(b.id);
             }
         }
-        expect([...scanned].sort()).toEqual(['carousel-next', 'carousel-prev', 'open-levels', 'open-settings', 'open-signin', 'open-skins', 'start']);
+        expect([...scanned].sort()).toEqual(['carousel-next', 'carousel-prev', 'open-levels', 'open-rank', 'open-settings', 'open-signin', 'open-skins', 'start']);
     });
 
     // EP13-FU-1 换形（旧口径 = 「未解锁格 = 虚线空槽」，~~无🔒字样~~ ⇒ Q15 2026-10-17 改裁**合形**）：
@@ -744,5 +748,65 @@ describe('EP12-S6 边界与铁律自证 · 珠体族只进菜单帧 / 零新色 
         }
         // 冻结数值本体也未被搬动：`wall_capacity` 的**实装值** 12 仍是派生常量，不是 §3 新条目。
         expect(WALL_CAPACITY).toBe(WALL_COLS * WALL_ROWS);
+    });
+});
+
+/**
+ * `[WXG-T-432]` ADR-0035 §5.2 S-3：主菜单「好友榜」纸钮（总榜 `settle-total`）+ 面板模态门。
+ * 入口几何与 `drawMenuAnchored` 同源（`open-rank` 进锚定档热区表）；模态门必须由**真指针**
+ * 证明（`tapMeta` 是调试旁路，绕开 `_readMenuInput` 的拦截分支）。
+ */
+describe('WXG-T-432 S-3 · 菜单好友榜入口与菜单腿模态门', () => {
+    const STEP = 1 / 60;
+
+    /** 一帧 = beginFrame → 投递本帧样本 → `shell.update` → endFrame（与 `App._fixedUpdate` 同形）。 */
+    function shellPointer(r: Rig, designX: number, designY: number, phase: 'down' | 'up'): void {
+        const screen = { x: 0, y: 0 };
+        r.services.viewport.designToScreen(screen, designX, designY);
+        r.services.input.beginFrame();
+        r.services.input.push({ id: 1, x: screen.x, y: screen.y, phase, time: 0 });
+        r.shell.update(STEP);
+        r.services.input.endFrame(STEP);
+    }
+
+    it('`open-rank` 在册：默认档热区存在且中心命中；shell 点击开 `settle-total` 总榜并留在菜单', () => {
+        const btn = metaLayout('none').buttons.find((b) => b.id === 'open-rank');
+        expect(btn, '主菜单热区表缺 open-rank').toBeDefined();
+        expect(hitTestMeta('none', ...centerTuple(btn!.box))?.id).toBe('open-rank');
+
+        const r = rig(); // 默认 menu、services 无 openData ⇒ 面板落 unsupported 占位
+        const anchored = anchoredLayout(r.shell).buttons.find((b) => b.id === 'open-rank')!;
+        expect(r.shell.tapMeta(...centerTuple(anchored.box))).toBe(true);
+        expect(r.shell.play.rankOpen).toBe(true);
+        expect(r.shell.play.rankView().board).toBe('settle-total');
+        expect(r.shell.screen).toBe('menu');
+    });
+
+    it('菜单腿模态：榜单开着时点「开始游戏」被吞（不切屏、不扣心），点面板「返回」才退', () => {
+        const r = rig();
+        const anchored = anchoredLayout(r.shell);
+        const cta = centerOf(anchored.buttons.find((b) => b.id === 'start')!.box);
+        const rankBtn = anchored.buttons.find((b) => b.id === 'open-rank')!;
+        expect(r.shell.tapMeta(...centerTuple(rankBtn.box))).toBe(true);
+        expect(r.shell.play.rankOpen).toBe(true);
+
+        const staminaBefore = r.staminaOf();
+        const phaseBefore = r.shell.play.phase;
+        shellPointer(r, cta.x, cta.y, 'down');
+        shellPointer(r, cta.x, cta.y, 'up');
+
+        expect(r.shell.screen, '模态期点 CTA 不得切屏').toBe('menu');
+        expect(r.shell.play.phase).toBe(phaseBefore);
+        expect(r.staminaOf(), '模态期点 CTA 不得扣心（start 未派发）').toBe(staminaBefore);
+        expect(r.shell.play.rankOpen, '榜单仍开着（点击被吞）').toBe(true);
+
+        const back = rankPanelLayout(false).buttons[0]!.rect;
+        const backC = { x: (back.xMin + back.xMax) / 2, y: (back.yMin + back.yMax) / 2 };
+        expect(r.shell.play.hitRank(backC.x, backC.y)).toBe('back');
+        shellPointer(r, backC.x, backC.y, 'down');
+        shellPointer(r, backC.x, backC.y, 'up');
+        // `rankOpen` 读 `visible` ⇒ 退场 150ms 内在绘；推进过场后为 false。
+        for (let i = 0; i < 12; i += 1) r.shell.update(STEP);
+        expect(r.shell.play.rankOpen).toBe(false);
     });
 });

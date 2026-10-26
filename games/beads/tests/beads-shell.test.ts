@@ -232,8 +232,9 @@ describe('BeadsShell — 走马灯卡入口 + levels overlay 选关（menu-archi
         expect(ids, '墙已下移 overlay ⇒ 菜单无 pick-level').not.toContain('pick-level');
         // [WXG-T-280] 锚定档：卡两侧 ◀▶ 翻页两颗（carousel-prev/next）进热区集。
         // 2026-10-22 用户裁：签到入口回归（信封实装）；**WXG-T-365：原公告预留位升格为装扮馆入口
-        // `open-skins`（提案 P4-甲）**⇒ 顶栏三颗全部在册，集合七枚。
-        expect([...new Set(ids)].sort()).toEqual(['carousel-next', 'carousel-prev', 'open-levels', 'open-settings', 'open-signin', 'open-skins', 'start']);
+        // `open-skins`（提案 P4-甲）**⇒ 顶栏三颗全部在册，集合七枚（WXG-T-432 好友榜进册后八枚）。
+        // `[WXG-T-432]` 主菜单「好友榜」纸钮（`open-rank`）进册 ⇒ 集合八枚。
+        expect([...new Set(ids)].sort()).toEqual(['carousel-next', 'carousel-prev', 'open-levels', 'open-rank', 'open-settings', 'open-signin', 'open-skins', 'start']);
         expect(ids, '装扮馆入口已上提顶栏中档').toContain('open-skins');
         expect(ids, '签到入口回归（信封实装；旧 Q5① 退役口径作废）').toContain('open-signin');
         const before = r.shell.meta!.stamina;

@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3834,
       "lines": 130,
-      "sha256": "150cc8913128cf4cd9dcdf6e211bc527a68cc0f89feec97e69c358dd9c019a53",
+      "sha256": "34c4a4db3cf49e0a1f316f49458ed6b099bf32df409b7e9c3c285018c730ef10",
       "tier": "normal",
       "sections": [
         {
@@ -377,7 +377,7 @@
           "startLine": 1,
           "endLine": 131,
           "tokens": 3821,
-          "summary": "生成：2026-10-26 · 由 tools/scripts/build-context-index.mjs 自动生成",
+          "summary": "生成：2026-10-27 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
             "BUDGET",
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 410,
-          "summary": "1 production/TASKS-DETAIL.md 185837 5880 normal",
+          "summary": "1 production/TASKS-DETAIL.md 188489 5920 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -659,9 +659,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 5235,
+      "tokens": 5236,
       "lines": 165,
-      "sha256": "7b2f348495843d1e8ef05a322013e6eb7ad7863d3a2aba5895ba4cb145eab71c",
+      "sha256": "7c9219c040b9fee8833d603a5d81f3356d2d7b4883803364082dd283dd0d8090",
       "tier": "normal",
       "sections": [
         {
@@ -669,7 +669,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 166,
-          "tokens": 5207,
+          "tokens": 5208,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 127 行 / 63652 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 129 行 / 63885 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+128 · §待排（backlog，无号，立项时领取…=99+30",
+          "summary": "§WXG 任务台账（SSOT）=1+130 · §待排（backlog，无号，立项时领取…=101+30",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 5880 行 / 185837 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 5920 行 / 188489 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+5880 · §WXG-T-419=5493+89 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+5921 · §WXG-T-421=5627+33 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -13927,17 +13927,17 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 14262,
-      "lines": 207,
-      "sha256": "018d94aa1c3fa14c3314817daeaff05afbfee2969f9418a4208ed328e64aaabc",
+      "tokens": 14692,
+      "lines": 209,
+      "sha256": "2eb1ad416af8ea839471ba4e8d35c349095c5a968719f8884f4a8bd10a7b3563",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads UI 架构（View / ViewModel / Presenter + 公共基础）",
           "level": 1,
           "startLine": 1,
-          "endLine": 208,
-          "tokens": 14243,
+          "endLine": 210,
+          "tokens": 14673,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -14107,8 +14107,8 @@
           "anchor": "§12 TODO 拆分",
           "level": 2,
           "startLine": 132,
-          "endLine": 204,
-          "tokens": 9997,
+          "endLine": 206,
+          "tokens": 10428,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -14119,8 +14119,8 @@
         {
           "anchor": "§13 待你拍板",
           "level": 2,
-          "startLine": 205,
-          "endLine": 208,
+          "startLine": 207,
+          "endLine": 210,
           "tokens": 323,
           "summary": "D1–D5 均已裁定（见 [ADR-0032 §5](adr/ADR-0032-beads-ui-architectur",
           "keywords": [
@@ -86568,17 +86568,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 185837,
-      "lines": 5880,
-      "sha256": "d31adfcfebd1679edc5faa2d99599a5715a954f1eb925ac76f63aa0570b815de",
+      "tokens": 188489,
+      "lines": 5920,
+      "sha256": "b38754790e114372e0be311c5a8687c46ee66eb1e5134ad84bdeefa371d9ff07",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 5880,
-          "tokens": 185820,
+          "endLine": 5921,
+          "tokens": 188472,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -94015,22 +94015,46 @@
             "GameServices",
             "ope"
           ]
+        },
+        {
+          "anchor": "§WXG-T-431",
+          "level": 2,
+          "startLine": 5881,
+          "endLine": 5902,
+          "tokens": 1393,
+          "summary": "§3.6 v1.95 道具落码：三件空间修复器 + 账号级免费额度 + 统一价 100 · 负责：主理人(CodeBud",
+          "keywords": [
+            "§3.6",
+            "WXG",
+            "CodeBud"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-432",
+          "level": 2,
+          "startLine": 5903,
+          "endLine": 5921,
+          "tokens": 1252,
+          "summary": "S-3 榜单面板占位：好友榜面板七态 + 结算「好友这关榜」上下文入口 + 主菜单「好友榜」入口 · 负责：主理人(Qo",
+          "keywords": [
+            "WXG"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 63652,
-      "lines": 127,
-      "sha256": "2a0a86d03f7b5ca158adda951f98fe73e3223180340a4ca448d832bd81cf13ef",
+      "tokens": 63885,
+      "lines": 129,
+      "sha256": "1a0e6fe7b164a55b74e88f9fc757835d3e17bc1d07afd21fb0696e7b3fb2084d",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 128,
-          "tokens": 63644,
+          "endLine": 130,
+          "tokens": 63876,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -94043,8 +94067,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 99,
-          "endLine": 128,
+          "startLine": 101,
+          "endLine": 130,
           "tokens": 1460,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -96973,6 +96997,186 @@
             "OpenDataProvider",
             "und",
             "交接给"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "production/plans/2026-10-26-wxg-t-432-s3-rank-panel.md",
+      "tokens": 4103,
+      "lines": 211,
+      "sha256": "5fda078763560f0e9565a590d37eacccc48fbd2675f5be3c4fd6598c72caf35c",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§WXG-T-432 · S-3 施工单：榜单面板占位 + 结算面板「好友这关榜」上下文入口",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 212,
+          "tokens": 4072,
+          "summary": "上位：docs/architecture/adr/ADR-0035-minigame-open-data-domain-",
+          "keywords": [
+            "WXG",
+            "docs",
+            "architecture",
+            "adr",
+            "ADR",
+            "minigame"
+          ]
+        },
+        {
+          "anchor": "§0 开工前状态（已解除）",
+          "level": 2,
+          "startLine": 10,
+          "endLine": 20,
+          "tokens": 151,
+          "summary": "原阻塞 = 工作区有一批 WXG-T-419/429 在途改动（12 个文件，道具换版）且基线 typecheck 红。",
+          "keywords": [
+            "WXG",
+            "typecheck",
+            "开工前状态",
+            "已解除"
+          ]
+        },
+        {
+          "anchor": "§1 范围（In / Out 一刀切）",
+          "level": 2,
+          "startLine": 21,
+          "endLine": 47,
+          "tokens": 487,
+          "summary": "In",
+          "keywords": [
+            "Out",
+            "范围",
+            "一刀切"
+          ]
+        },
+        {
+          "anchor": "§2 新文件签名",
+          "level": 2,
+          "startLine": 48,
+          "endLine": 149,
+          "tokens": 1183,
+          "summary": "",
+          "keywords": [
+            "新文件签名"
+          ]
+        },
+        {
+          "anchor": "§2.1 `games/beads/src/systems/rank-panel.ts`",
+          "level": 3,
+          "startLine": 50,
+          "endLine": 130,
+          "tokens": 943,
+          "summary": "",
+          "keywords": [
+            "games",
+            "beads",
+            "src",
+            "systems",
+            "rank",
+            "panel"
+          ]
+        },
+        {
+          "anchor": "§2.2 `games/beads/src/view/rank-view.ts`",
+          "level": 3,
+          "startLine": 131,
+          "endLine": 149,
+          "tokens": 218,
+          "summary": "",
+          "keywords": [
+            "games",
+            "beads",
+            "src",
+            "view",
+            "rank"
+          ]
+        },
+        {
+          "anchor": "§3 修改点（逐文件精确接线）",
+          "level": 2,
+          "startLine": 150,
+          "endLine": 167,
+          "tokens": 1056,
+          "summary": "games/beads/src/game/state.ts BeadsSnapshot 末尾加 readonly ran",
+          "keywords": [
+            "games",
+            "beads",
+            "src",
+            "game",
+            "state",
+            "BeadsSnapshot"
+          ]
+        },
+        {
+          "anchor": "§4 测试（先红后绿）",
+          "level": 2,
+          "startLine": 168,
+          "endLine": 191,
+          "tokens": 413,
+          "summary": "",
+          "keywords": [
+            "测试",
+            "先红后绿"
+          ]
+        },
+        {
+          "anchor": "§4.1 新 `games/beads/tests/rank-panel.test.ts`",
+          "level": 3,
+          "startLine": 170,
+          "endLine": 183,
+          "tokens": 225,
+          "summary": "用 MockOpenDataProvider（packages/framework/src/core/opendata/",
+          "keywords": [
+            "games",
+            "beads",
+            "tests",
+            "rank",
+            "panel",
+            "test"
+          ]
+        },
+        {
+          "anchor": "§4.2 复用既有测试",
+          "level": 3,
+          "startLine": 184,
+          "endLine": 191,
+          "tokens": 166,
+          "summary": "games/beads/tests/clear-panel.test.ts（若存在）：hitClearPanel(ran",
+          "keywords": [
+            "games",
+            "beads",
+            "tests",
+            "clear",
+            "panel",
+            "test"
+          ]
+        },
+        {
+          "anchor": "§5 门禁与提交",
+          "level": 2,
+          "startLine": 192,
+          "endLine": 202,
+          "tokens": 250,
+          "summary": "1. 基线已绿（§0）→ 开工。",
+          "keywords": [
+            "§0",
+            "门禁与提交"
+          ]
+        },
+        {
+          "anchor": "§6 待批决策（请逐条拍板）",
+          "level": 2,
+          "startLine": 203,
+          "endLine": 212,
+          "tokens": 164,
+          "summary": "D1 工作区 419/429 三个脏文件的处理 甲：stash → S-3 → pop",
+          "keywords": [
+            "stash",
+            "pop",
+            "待批决策",
+            "请逐条拍板"
           ]
         }
       ]

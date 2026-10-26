@@ -15,12 +15,14 @@ import {
   DESIGN_H,
   DESIGN_W,
   PANEL_BUTTON_H,
+  PANEL_PADDING,
   PANEL_SIZE,
   TOUCH_MIN,
   normalSettleScore,
 } from '../src/config/tuning.js';
 import {
   CLEAR_PANEL_TITLE,
+  CLEAR_RANK_CHIP_W,
   CLEAR_RIBBON_H,
   ClearPanel,
   clearPanelLabel,
@@ -86,6 +88,20 @@ describe('S7 结算·过关面板（ux-spec §3.4/§4/§5）', () => {
     // 标题/星级/信息三行自上而下排布（y 向上）。
     expect(layout.titleY).toBeGreaterThan(layout.starsY);
     expect(layout.starsY).toBeGreaterThan(layout.infoY);
+  });
+
+  // `[WXG-T-432]` ADR-0035 §5.2 S-3：结算面板上下文入口 = 主钮右侧「好友 / 这关榜」纸 chip。
+  // 几何与主钮同排，右缘正好抵 `panel.xMax - PANEL_PADDING`（`PANEL_SIZE` 零改动）。
+  it('好友这关榜 chip：右缘抵面板右内边距、110×PANEL_BUTTON_H，中心命中 rank', () => {
+    const layout = clearPanelLayout(NORMAL);
+    const chip = layout.rankChip;
+    expect(chip.xMax).toBe(layout.panel.xMax - PANEL_PADDING);
+    expect(chip.xMax - chip.xMin).toBe(110);
+    expect(chip.xMax - chip.xMin).toBe(CLEAR_RANK_CHIP_W);
+    expect(chip.yMax - chip.yMin).toBe(PANEL_BUTTON_H);
+    // 与主钮同一行（按钮行 y 区间）。
+    expect(chip.yMin).toBe(layout.buttons[0]!.rect.yMin);
+    expect(hitClearPanel((chip.xMin + chip.xMax) / 2, (chip.yMin + chip.yMax) / 2, NORMAL)).toBe('rank');
   });
 
   it('switches the primary label on the last level only', () => {

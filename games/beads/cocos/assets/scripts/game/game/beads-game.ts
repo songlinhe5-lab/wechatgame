@@ -45,6 +45,7 @@ import {
   type AudioVoices,
   type Game,
   type GameServices,
+  type RankBoard,
   type RenderModelBuilder,
 } from '../../framework/index';
 
@@ -125,6 +126,12 @@ import { sliderTFromZoom } from '../systems/board-camera';
 import { GameTimer } from '../systems/timer';
 import { SprintTracker } from '../systems/sprint';
 import { PausePanel, type PausePanelAction } from '../systems/pause-panel';
+import {
+    RankPanel,
+    rankTheme,
+    type RankPanelAction,
+    type RankPanelView,
+} from '../systems/rank-panel';
 import {
   PHASE_TRANSITIONS,
   bannerFor,
@@ -328,6 +335,11 @@ export class BeadsGame implements Game {
    * 续时主钮（§3.5 明文）。
    */
   private readonly _sprintSettle = new SprintSettlePanel();
+  /**
+   * 好友榜面板占位（ADR-0035 §5.2 S-3）。theme 在构造期由 palette 派生；
+   * 宿主 Provider 由 `init(services)` attach。
+   */
+  private readonly _rankPanel: RankPanel;
   /** 反馈特效时钟（协作类，见 beads-game/feedback-fx.ts）：连击 / 脉冲 / 抬起 / 各反馈计时全归其内。 */
   private readonly _fx: FeedbackFx;
   /**
@@ -503,6 +515,7 @@ export class BeadsGame implements Game {
     this.tuning = options.tuning ?? DEFAULT_TUNING;
     // EP12-S8：默认肤 tokens 直引 DEFAULT_PALETTE ⇒ 不传 options.palette 时渲染逐字节不变。
     this.palette = options.palette ?? DEFAULT_SKIN.tokens;
+    this._rankPanel = new RankPanel({ theme: rankTheme(this.palette) });
     this._saveKey = options.saveKey ?? SAVE_KEY;
     this._levels = options.levels ?? LEVELS;
     this._noBootAssembly = options.noBootAssembly ?? false;
@@ -610,6 +623,7 @@ export class BeadsGame implements Game {
       openMenu() { self._onMenuRequest?.(); }, // core-loop v2.3：go-menu 同通道（pause-settings §2.2 判例）
       applyPanelAction(action: PausePanelAction) { self._applyPanelAction(action); },
       share() { self._share(); },
+      openLevelRank() { self.openLevelRank(); },
     });
     this._input = new InputRouter({
       get phase() { return self._machine.current; },
@@ -860,6 +874,8 @@ export class BeadsGame implements Game {
     // 恢复 tick 调用即可（直接用 `services.rng`，无需重建字段）。
     // S6 的 `random` 只能抽自注入的 Rng（铁律 L4；§8-4 有架构守卫）。
     this._powerups.attach(services.rng);
+    // 好友榜（ADR-0035 S-3）：宿主有能力才订阅；Node / web / 旧宿主传 null ⇒ 打开落 unsupported。
+    this._rankPanel.attach(services.openData ?? null);
 
     // Preserve an unreadable document before SaveManager discards it — best effort.
     preserveCorruptBackup(services.storage, this._saveKey);
@@ -944,6 +960,7 @@ export class BeadsGame implements Game {
     this._clearPanel.update(dt * 1000); // 结算面板同理：退出淡出要在离开 LEVEL_CLEAR 后跑完
     this._finishPanel.update(dt * 1000); // 通关画面同理
     this._sprintSettle.update(dt * 1000); // 冲刺结算面板同理
+    this._rankPanel.update(dt * 1000); // 好友榜面板：表现层，不随相位冻结
     this._fx.stepPresentation(dt, this._solverFx !== null); // 连击 / 脉冲 / 抬起 / 反馈计时（表现层，不冻结）
   }
 
@@ -1008,6 +1025,7 @@ export class BeadsGame implements Game {
   dispose(): void {
     for (const unsub of this._unsubs) unsub();
     this._unsubs.length = 0;
+    this._rankPanel.detach();
     this._save?.flush();
     this._services = null;
   }
@@ -2125,6 +2143,13 @@ export class BeadsGame implements Game {
 
   private _routeTap(x: number, y: number): void {
     this._consumedTap = false;
+    // 好友榜面板 = 模态（ADR-0035 §5.2 S-3）：可见期吞掉一切其它点击，只派发面板按钮。
+    if (this._rankPanel.visible) {
+      this._consumedTap = true;
+      const rankAction = this._rankPanel.hitTest(x, y);
+      if (rankAction) this._rankPanel.tap(rankAction);
+      return;
+    }
     // 购买确认弹窗 = **模态**（ux-spec §3.7）：开窗期间其余控件全部不响应，
     // 「确定」才提交，「取消」或点板外一律零副作用关窗。
     if (this._pendingBuy) {
@@ -2167,6 +2192,44 @@ export class BeadsGame implements Game {
       default:
         return; // boot: taps ignored (panel answers are PAUSED-only)
     }
+  }
+
+  // ─────────────────────────────────────── 好友榜（ADR-0035 §5.2 S-3）
+
+  /** 打开榜单面板（`settle-total` = 菜单总榜；`settle` = 结算面板上下文榜）。 */
+  openRank(board: RankBoard, key: string): void {
+    this._rankPanel.open(board, key);
+  }
+
+  /** 结算面板「好友这关榜」：当前关的稳定身份 token 作 key。 */
+  openLevelRank(): void {
+    this._rankPanel.open('settle', this._levelKeys[this._levelIndex] ?? '');
+  }
+
+  closeRank(): void {
+    this._rankPanel.close();
+  }
+
+  get rankOpen(): boolean {
+    return this._rankPanel.visible;
+  }
+
+  /** 只读视图（复用对象，零分配）。 */
+  rankView(): RankPanelView {
+    return this._rankPanel.view();
+  }
+
+  /** 菜单腿推进（dt 秒）。 */
+  updateRank(dt: number): void {
+    this._rankPanel.update(dt * 1000);
+  }
+
+  hitRank(x: number, y: number): RankPanelAction | null {
+    return this._rankPanel.hitTest(x, y);
+  }
+
+  tapRank(action: RankPanelAction): void {
+    this._rankPanel.tap(action);
   }
 
   /**
@@ -2948,6 +3011,8 @@ export class BeadsGame implements Game {
     s.clearTaps = this._input.tapsPlaying; // playtest 计量（含误点的输入计数）
     s.clearActions = this._actionsPlaying; // 定星口径（与 `pricing.actions` 同口径）
     s.clearLastLevel = this._levelIndex >= this._levels.length - 1;
+    // 好友榜面板（ADR-0035 S-3）：视图对象复用，热路径零分配。
+    s.rankPanel = this._rankPanel.view();
 
     // S7 通关画面（ux-spec §3.6）：总览数据 + 逐关入场进度一起进快照，视图只读。
     s.finishPanelVisible = this._finishPanel.visible;

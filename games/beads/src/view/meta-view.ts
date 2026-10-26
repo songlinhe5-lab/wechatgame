@@ -119,6 +119,8 @@ import {
 import { SIGNIN_TITLE, drawSigninContent, signinCellLayout } from './signin-content.js';
 // WXG-T-363：装扮馆内容块（卡区版式 / 卡面绘制 / 标题）单源，与 UI-30 / UI-32 同形。
 import { SKINS_TITLE, drawSkinCard, skinCardBoxes } from './skins-content.js';
+import type { RankPanelView } from '../systems/rank-panel.js';
+import { drawRankPanel } from './rank-view.js';
 
 /**
  * 菜单侧呈现态。`skins`（**WXG-T-363**）= 装扮馆弹窗（与 `signin` / `settings` 同一
@@ -270,6 +272,8 @@ export interface MetaViewData {
      * **同一缓存对象**（视图按引用比对 ⇒ 零分配）；未按 / 未命中 ⇒ `null` / 缺省。
      */
     readonly pressed?: MetaButton | null;
+    /** `[WXG-T-432]` 好友榜面板只读视图（shell 每帧覆盖；缺省 = 关档 ⇒ 不画）。 */
+    readonly rank?: RankPanelView;
 }
 
 /**
@@ -323,6 +327,8 @@ export type MetaAction =
      * 顶栏 = 无字圆钮 ⇒ 不走 `settingsContentLabel`（设置行5 左格已回到 `cycle-skin`）。
      */
     | 'open-skins'
+    /** `[WXG-T-432]` 主菜单「好友榜」纸钮（CTA 左侧；查看总榜）。 */
+    | 'open-rank'
     /**
      * `[WXG-T-363]` 装扮馆卡（点 = 已拥有则穿上 / 未拥有先买后穿，买断闭环归 shell）。
      * 卡序走 {@link MetaButton.slot}（= `registeredSkins()` 注册序下标），⛔ 视图不传 skinId。
@@ -559,6 +565,9 @@ interface AnchoredMenuGeo {
     readonly signBox: Box;
     readonly ctaBox: Box;
     readonly ctaHit: Box;
+    /** `[WXG-T-432]` 主菜单「好友榜」纸钮（CTA 左侧；绘制/热区同对象）。 */
+    readonly rankBox: Box;
+    readonly rankHit: Box;
     readonly arrowL: Box;
     readonly arrowLHit: Box;
     readonly arrowR: Box;
@@ -595,6 +604,7 @@ function anchoredGeo(a: MenuAnchors): AnchoredMenuGeo {
     const signBox = box(MENU_SIGN_FRAME.x, r(a.signTopY + MENU_SIGN_FRAME.bowYOff) - MENU_SIGN_FRAME.h, MENU_SIGN_FRAME.w, MENU_SIGN_FRAME.h);
     const ctaBox = box(MENU_CTA_X, r(a.ctaBotY), MENU_PRIMARY_W, MENU_CTA_H);
     const ctaHit = box(ctaBox.x, ctaBox.y + (MENU_CTA_H - TOUCH_MIN) / 2, MENU_PRIMARY_W, TOUCH_MIN);
+    const rankBox = box(24, ctaBox.y + (MENU_CTA_H - TOUCH_MIN) / 2, 140, TOUCH_MIN);
     const arrowY = r(a.caseCenterY) - MENU_ARROW_VISUAL_D / 2;
     const arrowL = box(MENU_ARROW_X.left, arrowY, MENU_ARROW_VISUAL_D, MENU_ARROW_VISUAL_D);
     const arrowR = box(MENU_ARROW_X.right, arrowY, MENU_ARROW_VISUAL_D, MENU_ARROW_VISUAL_D);
@@ -612,6 +622,7 @@ function anchoredGeo(a: MenuAnchors): AnchoredMenuGeo {
     const mailHit = box(MENU_TOPBAR_X.mail, r(a.btTopY) - TOUCH_MIN, TOUCH_MIN, TOUCH_MIN);
     const geo: AnchoredMenuGeo = {
         caseBox, bossBox, clipBox, badgeBox, plateBox, signBox, ctaBox, ctaHit,
+        rankBox, rankHit: rankBox,
         arrowL, arrowLHit, arrowR, arrowRHit, barBox, settingsHit, skinsHit, mailHit,
         topbarCy: settingsHit.y + TOUCH_MIN / 2,
         doneCy: r(a.caseTopY - MENU_DONE_ICON.yOff),
@@ -631,6 +642,7 @@ function menuLayoutAnchored(a: MenuAnchors): MetaLayout {
         buttons: [
             // `[WXG-T-281]` 白卡退役：点 Boss 图进选关 ⇒ 图位 = `open-levels` 热区（与绘制同一对象）。
             { id: 'open-levels', box: g.bossBox },
+            { id: 'open-rank', box: g.rankHit },
             { id: 'start', box: g.ctaHit },
             { id: 'open-settings', box: g.settingsHit },
             // `[WXG-T-365]` 装扮馆入口上提顶栏中档（提案 P4-甲）；设置弹窗行5 左格同时回到 `cycle-skin`。
@@ -1272,6 +1284,13 @@ function drawMenuAnchored(
     } else {
         drawButton(builder, palette, g.ctaBox.x, g.ctaBox.y + pressDy(data, ctaPressed), g.ctaBox.w, g.ctaBox.h, 'accent', 14, label('start', data), UI_FONT.button, ctaPressed);
     }
+    // `[WXG-T-432]` 好友榜入口：CTA 左侧纸钮（T1 纸面；标签为菜单侧短名）。
+    const rankPressed = isPressed(data, 'open-rank');
+    drawButton(
+        builder, palette, g.rankBox.x, g.rankBox.y + pressDy(data, rankPressed),
+        g.rankBox.w, g.rankBox.h, 'paper', UI_CONTAINER.radiusCard,
+        '好友榜', UI_FONT.button, rankPressed,
+    );
     builder.text(DESIGN_W / 2, g.versionY, COPY_TOKENS.version_label, {
         fill: palette.textDim,
         font: UI_FONT.label,
@@ -1522,6 +1541,8 @@ export function buildMetaView(
     if (data.overlay === 'none') {
         drawMenuAnchored(builder, data, palette, anchoredGeo(A), withSignage);
         if (data.debugGuides) drawSafeGuides(builder, A);
+        // `[WXG-T-432]` 好友榜面板叠在菜单之上（含遮罩）；进度全读 `view.progress`。
+        if (data.rank) drawRankPanel(builder, palette, data.rank);
         return;
     }
 

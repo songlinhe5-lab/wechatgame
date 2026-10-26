@@ -68,6 +68,7 @@ import {
     type MetaOverlay,
     type MetaViewData,
 } from '../view/meta-view.js';
+import type { RankPanelAction, RankPanelView } from '../systems/rank-panel.js';
 import { DEFAULT_SKIN_ID, registeredSkins } from '../config/skins/registry.js';
 // `[WXG-T-363]` 装扮馆：拥有态注入腿（视图标签）+ 卡区画法单源同文件，判例 = `setMenuBitmapResolver`。
 import { setSkinOwnedResolver } from '../view/skins-content.js';
@@ -226,6 +227,8 @@ export class BeadsShell implements Game {
         studioEnabled: false,
         /** 按下态：`hitTestMeta` 返回的缓存钮引用（每帧由 `_readMenuInput` 覆盖，零分配）。 */
         pressed: null as MetaButton | null,
+        /** `[WXG-T-432]` 好友榜面板视图（每帧由 `_metaViewData` 覆盖；关档 = undefined）。 */
+        rank: undefined as RankPanelView | undefined,
     };
     /** UI-40：走马灯页位 / 位移 / 吸附 / 玻璃手势全在 Presenter（本壳零走马灯字段）。 */
     private readonly _menu = new MainMenuPresenter();
@@ -239,6 +242,8 @@ export class BeadsShell implements Game {
      * 玻璃（走马灯卡）不登本门：它自己就是「按下→拖动→抬起」的手势体（`MainMenuPresenter`）。
      */
     private _menuPress: MetaButton | null = null;
+    /** `[WXG-T-432]` 好友榜面板的按下登记（抬起同点才派发，口径同 `_menuPress`）。 */
+    private _rankPress: RankPanelAction | null = null;
     /** 菜单侧广告加心位在途标（EP13-S3）：防连点重复 show；`onClose`/`onError` 清。 */
     private _refillPending = false;
     /** 广告订阅退订器（`init` 登记、`dispose` 释放）。 */
@@ -444,6 +449,7 @@ export class BeadsShell implements Game {
         }
         // UI-24：菜单腿不跑 play.update ⇒ 采样单独喂（debugInfo 关时内部零开销）。
         this.play.sampleFrame(dt);
+        this.play.updateRank(dt); // 好友榜面板：菜单腿推进开合动画（play.update 在菜单不跑）
         // 菜单：推进体力恢复（离线 f(Δt)）+ 读点击。play 冻结（不 update ⇒ 倒计时不走）。
         this.meta?.refresh();
         this._stepPageFx(dt);
@@ -614,6 +620,10 @@ export class BeadsShell implements Game {
                 this._phase.openModal('skins');
                 this._emitOverlay(true);
                 return true;
+            // `[WXG-T-432]` 主菜单好友榜：榜页唯一总榜 `settle-total`（ADR-0035 §3.2 Q1=B）。
+            case 'open-rank':
+                this.play.openRank('settle-total', '');
+                return true;
             // `[WXG-T-363]` 装扮馆点卡 = 买断闭环：已拥有 ⇒ 直接穿上；未拥有 ⇒ **先买后穿**；
             // `coins` 不足 ⇒ `buySkin` 返回 false ⇒ 零扣款零入档零穿肤零事件（⛔ 部分成交）。
             case 'skin-tap': {
@@ -730,6 +740,21 @@ export class BeadsShell implements Game {
         if (!services) return;
         const snap = services.input.snapshot;
         services.viewport.screenToDesign(this._pointer, snap.x, snap.y);
+        // `[WXG-T-432]` 好友榜面板 = 模态：可见期菜单输入全拦，只处理面板按钮的按下/抬起同点派发。
+        if (this.play.rankOpen) {
+            if (snap.justDown) this._rankPress = this.play.hitRank(this._pointer.x, this._pointer.y);
+            this._menuPress = null;
+            this._viewData.pressed = null;
+            if (!snap.isDown) {
+                const press = this._rankPress;
+                this._rankPress = null;
+                if (press && this.play.hitRank(this._pointer.x, this._pointer.y) === press) {
+                    this.play.tapRank(press);
+                }
+            }
+            return;
+        }
+        this._rankPress = null;
         if (snap.justDown) {
             const btn = hitTestMeta(this._phase.overlay, this._pointer.x, this._pointer.y, this._viewData.anchors);
             if (btn?.id === 'open-levels' && this._phase.overlay === 'none') {
@@ -1035,6 +1060,8 @@ export class BeadsShell implements Game {
             v.carouselPeerTextureId = ARCS[peerPage]?.textureId;
         }
         v.studioEnabled = this._studio !== undefined;
+        // `[WXG-T-432]` 好友榜面板（复用视图对象，零分配）。
+        v.rank = this.play.rankOpen ? this.play.rankView() : undefined;
         return v;
     }
 
