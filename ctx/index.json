@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3796,
       "lines": 129,
-      "sha256": "9b22956c8a1c5ed9fd538b9d7ac1bc2ee92137b9104ec45e6e78b7e3b7571a3e",
+      "sha256": "ebd92b9ca1b072fbaf8469a37a261cb57cdb6b331175b25d932121edcd8423d7",
       "tier": "normal",
       "sections": [
         {
@@ -40155,17 +40155,17 @@
     },
     {
       "path": "games/beads/design/proposals/star-economy-and-retention.md",
-      "tokens": 20515,
-      "lines": 741,
-      "sha256": "50d8f8da757b28e80170f805d1aeb836aa44156b3166190c8d9e63d4141ee6a2",
+      "tokens": 21078,
+      "lines": 757,
+      "sha256": "da73cea5d90a27eb86fb507119c13827284051fd286b407fb80bdb73174bc6f7",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§提案 · 待裁｜星级经济与日常留存（Star Economy & Retention）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 742,
-          "tokens": 20489,
+          "endLine": 758,
+          "tokens": 21052,
           "summary": "项目：games/beads（拼豆错位归位）· 版本 v0.5 · 任务号 WXG-T-359（设计轨；提案批，零落码）",
           "keywords": [
             "Star",
@@ -40875,8 +40875,8 @@
           "anchor": "§15 消耗品体系重设计（v0.6 · 用户 2026-10-26 令）",
           "level": 2,
           "startLine": 648,
-          "endLine": 729,
-          "tokens": 1554,
+          "endLine": 745,
+          "tokens": 2117,
           "summary": "用户原话：「道具如果只调整一个珠子，那么太不值了，能否调整一定数量珠子或者一定比例珠子，并把道具使用的次数做限制；一局总",
           "keywords": [
             "消耗品体系重",
@@ -40899,25 +40899,25 @@
           ]
         },
         {
-          "anchor": "§15.2 效果重设计（固定颗数 + 强制留尾巴）",
+          "anchor": "§15.2 效果重设计（按「当前剩余」归一化 + 下限保护）",
           "level": 3,
           "startLine": 660,
-          "endLine": 673,
-          "tokens": 267,
-          "summary": "solver 归位 1 颗（行主序） 归位 3 颗 19%",
+          "endLine": 688,
+          "tokens": 614,
+          "summary": "用户 2026-10-26 追加约束：「每个小关版面的珠子个数可能差别很大，如果只是限制珠子个数，可能不同小关道具使用价",
           "keywords": [
-            "solver",
             "效果重设计",
-            "固定颗数",
-            "强制留尾巴"
+            "当前剩余",
+            "归一化",
+            "下限保护"
           ]
         },
         {
           "anchor": "§15.3 次数重设计",
           "level": 3,
-          "startLine": 674,
-          "endLine": 684,
-          "tokens": 230,
+          "startLine": 689,
+          "endLine": 700,
+          "tokens": 278,
           "summary": "免费次数 每型各 1 次（共 3） 每局合计 1 次 POWERUP_FREE_USES 语义「每型」→「每局合计」⇒ ",
           "keywords": [
             "POWERUP_FREE_USES",
@@ -40927,9 +40927,9 @@
         {
           "anchor": "§15.4 定价基准：20 豆 = 一局的价值",
           "level": 3,
-          "startLine": 685,
-          "endLine": 700,
-          "tokens": 193,
+          "startLine": 701,
+          "endLine": 716,
+          "tokens": 205,
           "summary": "首次给消耗品一条统一尺：",
           "keywords": [
             "定价基准",
@@ -40939,9 +40939,9 @@
         {
           "anchor": "§15.5 经济影响",
           "level": 3,
-          "startLine": 701,
-          "endLine": 711,
-          "tokens": 171,
+          "startLine": 717,
+          "endLine": 727,
+          "tokens": 232,
           "summary": "单局最大豆子消耗 75 豆（plus 45 + random 30，每型各 1） 135 豆（45 × 3）",
           "keywords": [
             "plus",
@@ -40952,9 +40952,9 @@
         {
           "anchor": "§15.6 落码前置",
           "level": 3,
-          "startLine": 712,
-          "endLine": 719,
-          "tokens": 197,
+          "startLine": 728,
+          "endLine": 735,
+          "tokens": 286,
           "summary": "1. systems-index §3.6 变更单（效果颗数 / 免费次数语义 / 购买上限 / 子限）；",
           "keywords": [
             "§3.6",
@@ -40966,8 +40966,8 @@
         {
           "anchor": "§15.7 与历史裁定的关系（K-053 留痕）",
           "level": 3,
-          "startLine": 720,
-          "endLine": 729,
+          "startLine": 736,
+          "endLine": 745,
           "tokens": 115,
           "summary": "v1.80「每型免费 1 次 + 每型每关限购 1、每关合计 2」 改为「每局合计免费 1 + 每局合计可买 3、取消子",
           "keywords": [
@@ -40979,8 +40979,8 @@
         {
           "anchor": "§附录 · 一句话规则卡（可直接抄进加载提示）",
           "level": 2,
-          "startLine": 730,
-          "endLine": 742,
+          "startLine": 746,
+          "endLine": 758,
           "tokens": 323,
           "summary": "每关最多三颗星，拼得越快星越多；重复打不会掉星。",
           "keywords": [
