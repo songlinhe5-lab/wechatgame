@@ -3281,7 +3281,7 @@
       "file": "knowledge/lessons/criteria-measure-evidence.md",
       "category": "判据实测取证",
       "title": "想加「可解性/容量」类门禁前，先查 `levels:check` 已有的硬拦闸与已被撤回的错论，否则会造出把合法内容判红的弱门",
-      "contentHash": "12df2f53205f5fea1f57c81585d28b2ee499eeb7c452db928bcab16d7d0b0105",
+      "contentHash": "e43e267636ac04e86d07e48f760c54939a5008ddd4ce83637853a382b866c044",
       "sourceTask": "WXG-T-434",
       "addedDate": "2026-10-27",
       "lastAccess": "2026-10-27",
@@ -5343,6 +5343,15 @@
       "ids": [
         "K-194",
         "K-195"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-27",
+      "taskId": "WXG-T-434",
+      "kind": "updated",
+      "ids": [
+        "K-196"
       ],
       "note": null
     }
