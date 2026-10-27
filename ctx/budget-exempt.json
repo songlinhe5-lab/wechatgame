@@ -314,7 +314,7 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "reason": "beads 台账详情正本：主表行 ↔ `## <单号>` 小节**必须成对**（`check:tasks` C 项机械守），故每开一单必增一节。WXG-T-446 批实测：写入本单小节即越 tasksDetail 类别 205000 上限，删该节即 OK ⇒ 文件内无法腾挪（删存量节会断已完成单的取证链，删本单节则 C 项直接红）。动因 = 已入库体量硬拦本批提交（同 `powerups-v2` / WXG-T-418 跨轨代登记先例）；本批未改任何既有单正文。",
+      "reason": "beads 台账详情正本：主表行 ↔ `## <单号>` 小节**必须成对**（`check:tasks` C 项机械守），故每开一单必增一节。WXG-T-446/447 批实测：写入本单小节即越 tasksDetail 类别 205000 上限，删该节即 OK ⇒ 文件内无法腾挪（删存量节会断已完成单的取证链，删本单节则 C 项直接红）。动因 = 已入库体量硬拦本批提交（同 `powerups-v2` / WXG-T-418 跨轨代登记先例）；本批未改任何既有单正文。",
       "note": "撤销条件（⛔ 不得靠豁免放任无界膨胀）：下一批提交前跑 `pnpm run tasks:archive --write`，把已完成老单的主表行与详情节**成对**搬进 `production/archive/TASKS-DETAIL-archive.md`，使主件回落到 ≤195000 tok 后撤销本豁免；⛔ 不得连续两批都靠豁免硬扛。登记人 = 主理人(CodeBuddy)",
       "taskId": "WXG-T-446"
     }

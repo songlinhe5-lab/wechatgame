@@ -13,8 +13,8 @@
 |---|---|---|---|
 | `st` | safeTop 换算 | `safeArea.top × k` | `SAFE_TOP_H = 120` |
 | `cap` | 胶囊底换算 | `getMenuButtonBoundingClientRect().bottom × k` | `SAFE_TOP_H = 120` |
-| `sb` | 底部 inset 换算 | `(screenH − safeArea.bottom) × k` | `SAFE_BOTTOM_H = 68` |
-| `H` | 系高 | `screenHeight × k` | `DESIGN_H = 1334` |
+| `sb` | 底部 inset 换算 | `(windowH − safeArea.bottom) × k`（**窗口底基准** · WXG-T-447） | `SAFE_BOTTOM_H = 68` |
+| `H` | 系高 | `windowHeight × k`（与 `Viewport` 同源，窗口底基准） | `DESIGN_H = 1334` |
 
 - ⚠ **接口优先语义沿用 v1.75**（`safeEdgeInset` 判例 K-124）：接口 > 0 就只信接口，⛔ 不 `max` 静态宏。现函数带 `SAFE_EDGE_MARGIN=4` 加数，本链隙值（16/32/4）**已含边距语义** ⇒ 落码二选一：裸换算（`round(dp×k)`）或复用函数后把隙值各减 4，**不许双重加 4**。
 - ⚠ 现 `DESIGN_H = 1334` 假设 SE 档，本规范下**系高逐机变**（五档实测 1625~1630 不等）⇒ 底锚计算禁用 `DESIGN_H` 常量，走 `H` 锚。

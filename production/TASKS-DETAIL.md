@@ -6216,3 +6216,21 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 **落码**：`dev/harness/index.html` 说明条改 `display:none`（`.show` 展开）+ `#controls` 增「说明」钮；`main.ts` 增 `toggleHelp()` 与 `H` 键入口；README 补一行。**只动 dev 工具层，零游戏几何 / 零输入链路改动**。
 
 **验收**：`serve-harness --build-only` OK；`smoke-harness`（breakout + beads）OK；`check:links` / `ctx:check` OK；修复后截图底部完整露出「好友榜 / 开始游戏 / 版本号」，点击行为与修前逐点一致。
+
+## WXG-T-447
+
+**`safeAreaBottom` 改窗口底基准（修「安全区已隔离、再避让一次」的重复）· 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-10-27）**
+
+用户追问「底部约 30 px 这是怎么算出来的，我觉得是这个问题导致。底部安全区域已经隔离出来了，再屏蔽就多了」。
+
+**先把算式摊开**：`ctaBotY = H − cta1 = sb + MENU_CHAIN_GAP_BOTTOM(32)`（`menu.ts:466/488`）。浏览器 harness 里 `sb = 0`（`beads-shell.ts:395` 只在 `isMiniGame` 取接口值、`web.ts:50` 恒 0）⇒ 720 宽下的 30.7 css px **全部**来自设计底隙 32（版本号带，`meta-layout.ts:273` `versionY = ctaBotY/2`），与安全区无关。⚠ 上一批回复里把热区屏幕区间写成 [1084,1163] 是算错的（混用了 1193 高窗口的读数），正确是 **[1163,1247]**（`scale = 0.9595`）。
+
+**真问题在基准混用**（用户直觉命中的那一半）：版面高 `H` 走 `Viewport` ← `getScreenSize().height` = **`windowHeight`**，而底 inset 却走 `weapp.ts::_readSafeArea` 的 **`screenHeight − safeArea.bottom`**。两者只在「窗口贴屏幕底」时同值；一旦某些机型把窗口停在安全区底，`screenHeight − safeArea.bottom` 算到的是**顶部差值**（状态栏高），被菜单链 `cta1 = H − sb − 32` 当成底隙再加一次 = 重复避让。
+
+**落码**（`packages/framework/src/platform/weapp.ts::_readSafeArea`）：底 inset 改 `Math.max(0, windowHeight − (safeArea.bottom ?? windowHeight))`，基库缺 `windowHeight` 才退回 `screenHeight`；`top` 口径不动（仍取接口原值）。
+
+**等价性与影响面**：窗口贴屏幕底（全屏小游戏常态）时 `windowHeight === screenHeight` ⇒ 与旧式**逐值相同**，既有版面零差异；仅在「窗口不贴底」时由「顶部差值」修正为 0。`safeEdgeInset`（`core/ui/safe-insets.ts:48`）与 `menuAnchors`（`beads-shell.ts:395` / `beads-game.ts:990`）都只是消费该字段，不另算。
+
+**文档同源三处**：`games/beads/src/config/tuning/layout.ts:90`（接口表底行）、`menu.ts:405`（入参注释）、`design/art/specs/menu-layout-implementation-spec.md`（`sb` 与 `H` 两行）。
+
+**验收**：framework **547 passed**（新增 5 例：窗口止于安全区底 ⇒ 0 / 窗口贴底 ⇒ 34 / 缺 `windowHeight` 回退 / 无 `safeArea` ⇒ 双边 0 / 脏值越界夹 0）；beads **1372 passed + 2 skipped**（与改前同数）；`typecheck` / `check:arch` / `serve-harness --build-only` / `smoke-harness` 全 OK。⚠ 真机读数（`windowHeight` vs `screenHeight` vs `safeArea.bottom`）仍待用户在设备上取一次作最终确认。

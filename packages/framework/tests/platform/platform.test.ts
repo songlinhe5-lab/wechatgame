@@ -183,6 +183,55 @@ describe('WeappPlatform', () => {
     expect(platform.getScreenSize()).toEqual({ width: 390, height: 844, pixelRatio: 3 });
   });
 
+  /**
+   * `[WXG-T-447]` 底 inset 基准 = **窗口底**（与 `Viewport` / `menuAnchors` 排版同源）。
+   * 旧式 `screenHeight − safeArea.bottom` 只在「窗口贴屏幕底」时才对：窗口一旦止于
+   * 安全区底，它算到的是**顶部差值**（状态栏高），再被菜单链当底隙加一次 = 重复避让。
+   */
+  describe('[WXG-T-447] 底 inset 取窗口基准', () => {
+    type WinInfo = ReturnType<FakeWx['getWindowInfo']>;
+    const withWindow = (wx: FakeWx, info: Record<string, unknown>): FakeWx => {
+      wx.getWindowInfo = () => info as unknown as WinInfo;
+      return wx;
+    };
+
+    it('窗口已止于安全区底 ⇒ 0（旧式会算成顶部差值 34）', () => {
+      // 屏 844 / 窗 810（顶扣 34）/ 安全区底 810 ⇒ 底 inset 必须是 0。
+      const wx = withWindow(fakeWx(), {
+        windowWidth: 390, windowHeight: 810, pixelRatio: 3, screenHeight: 844,
+        safeArea: { top: 47, bottom: 810 },
+      });
+      expect(new WeappPlatform(wx).info.safeAreaBottom).toBe(0);
+      expect(new WeappPlatform(wx).info.safeAreaTop).toBe(47); // top 口径不变
+    });
+
+    it('窗口贴屏幕底 ⇒ 与旧式逐值相同（本改对既有版面零差异）', () => {
+      expect(new WeappPlatform(fakeWx()).info.safeAreaBottom).toBe(34);
+    });
+
+    it('基库缺 windowHeight ⇒ 退回 screenHeight 兜底', () => {
+      const wx = withWindow(fakeWx(), {
+        windowWidth: 390, pixelRatio: 3, screenHeight: 844,
+        safeArea: { top: 47, bottom: 810 },
+      });
+      expect(new WeappPlatform(wx).info.safeAreaBottom).toBe(34);
+    });
+
+    it('无 safeArea ⇒ 双边 0（不得由窗口高倒推）', () => {
+      const wx = withWindow(fakeWx(), { windowWidth: 390, windowHeight: 844, pixelRatio: 3, screenHeight: 844 });
+      expect(new WeappPlatform(wx).info.safeAreaBottom).toBe(0);
+      expect(new WeappPlatform(wx).info.safeAreaTop).toBe(0);
+    });
+
+    it('安全区底越出窗口底（脏值）⇒ 夹到 0，不出负 inset', () => {
+      const wx = withWindow(fakeWx(), {
+        windowWidth: 390, windowHeight: 800, pixelRatio: 3, screenHeight: 844,
+        safeArea: { top: 47, bottom: 900 },
+      });
+      expect(new WeappPlatform(wx).info.safeAreaBottom).toBe(0);
+    });
+  });
+
   it('胶囊底缘 / 完整矩形：无该 API / 非法值一律给 null（⛔ 不得当 0 传下去，判例 K-124）', () => {
     expect(new WeappPlatform(fakeWx(0)).info.capsuleBottomDp).toBeNull();
     expect(new WeappPlatform(fakeWx(0)).info.capsuleRectDp).toBeNull();

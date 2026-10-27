@@ -402,7 +402,7 @@ export interface MenuAnchorsInput {
   readonly safeTopDp: number | null;
   /** `PlatformInfo.capsuleBottomDp`；`null`/≤0 ⇒ 顶栏走 `MENU_TOPBAR_TOP_FALLBACK`。 */
   readonly capsuleBottomDp: number | null;
-  /** `PlatformInfo.safeAreaBottom`（= screenH − safeArea.bottom，dp）；0 = 无 Home 条；`null` ⇒ `SAFE_BOTTOM_H`。 */
+  /** `PlatformInfo.safeAreaBottom`（= windowH − safeArea.bottom，dp，**窗口底基准** · WXG-T-447）；0 = 无 Home 条；`null` ⇒ `SAFE_BOTTOM_H`。 */
   readonly safeBottomDp: number | null;
   /** `getWindowInfo().windowWidth`（dp）⇒ 换算系数 k = 750/它；≤0 ⇒ k 无效全走兜底。 */
   readonly windowWidthDp: number;

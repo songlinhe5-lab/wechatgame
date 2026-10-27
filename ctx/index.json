@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3909,
       "lines": 132,
-      "sha256": "59be1f98e1b03b04f770d1c108f58178536dfc0429d0a509452e76f78db058c9",
+      "sha256": "fa04e236d13108b966f855312d57a7dddfdc0678fe3461b26c382ceeeee57486",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 410,
-          "summary": "1 production/TASKS-DETAIL.md 205567 6218 normal",
+          "summary": "1 production/TASKS-DETAIL.md 206354 6236 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5239,
       "lines": 165,
-      "sha256": "da14eceb6047210e999fab43384fda991270d9fa0d7a2f4715abe3e4d9304a38",
+      "sha256": "5ace39c899f0ec17bbe386aa9f080067273bf5c9917f0ff3329a763a39fa556f",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 142 行 / 68148 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 143 行 / 68472 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+143 · §待排（backlog，无号，立项时领取…=114+30",
+          "summary": "§WXG 任务台账（SSOT）=1+144 · §待排（backlog，无号，立项时领取…=115+30",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 6218 行 / 205567 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 6236 行 / 206354 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6219 · §WXG-T-435=5933+16 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6237 · §WXG-T-436=5949+17 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -28030,9 +28030,9 @@
     },
     {
       "path": "games/beads/design/art/specs/menu-layout-implementation-spec.md",
-      "tokens": 8836,
+      "tokens": 8862,
       "lines": 183,
-      "sha256": "fbe6c8fb5dec24a17583b448c18f69a82b07e1fa9f46aff1f7980e789bbb2845",
+      "sha256": "98c159082eb21b7bc0d87022bc0f2f2c9d6def944f2f23e0fe44221adb185688",
       "tier": "normal",
       "sections": [
         {
@@ -28040,7 +28040,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 184,
-          "tokens": 8810,
+          "tokens": 8835,
           "summary": "用途：UI 布局落码的唯一施工依据。规则正本 = 本件；取证图 = ../coordinates/menu-master",
           "keywords": [
             "coordinates",
@@ -28056,7 +28056,7 @@
           "level": 2,
           "startLine": 7,
           "endLine": 21,
-          "tokens": 325,
+          "tokens": 350,
           "summary": "k = 750 / windowWidth(dp)（getWindowInfo().windowWidth）。微信 rp",
           "keywords": [
             "DESIGN_W",
@@ -86820,17 +86820,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 205567,
-      "lines": 6218,
-      "sha256": "02d1ca2152c6b5ae1cb9a6b88603be2b9cd351e48e91228ac0264d2a160110b8",
+      "tokens": 206354,
+      "lines": 6236,
+      "sha256": "a7582153726abac6d56a49b170caa5f6d8e6071aff4b9b63f2025c874755ace1",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 6219,
-          "tokens": 205550,
+          "endLine": 6237,
+          "tokens": 206337,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -94690,22 +94690,35 @@
             "harness",
             "CodeBuddy"
           ]
+        },
+        {
+          "anchor": "§WXG-T-447",
+          "level": 2,
+          "startLine": 6220,
+          "endLine": 6237,
+          "tokens": 784,
+          "summary": "safeAreaBottom 改窗口底基准（修「安全区已隔离、再避让一次」的重复）· 负责：主理人(CodeBuddy)",
+          "keywords": [
+            "WXG",
+            "safeAreaBottom",
+            "CodeBuddy"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 68148,
-      "lines": 142,
-      "sha256": "32c26d57c4b0f1da835ce9cabcbadfe1fd6437316f34c15dab589dda37e8c630",
+      "tokens": 68472,
+      "lines": 143,
+      "sha256": "2d70270bd6ad73f0876be3db3de5913abf38259312d71d4335a5de9e16a546fb",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 143,
-          "tokens": 68139,
+          "endLine": 144,
+          "tokens": 68463,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -94718,8 +94731,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 114,
-          "endLine": 143,
+          "startLine": 115,
+          "endLine": 144,
           "tokens": 1460,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
