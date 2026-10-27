@@ -158,6 +158,9 @@ export const TAG_TO_SHARD = new Map([
   ['判据渲染', 'criteria-render'],
   // 2026-10-15 提交批：`判据渲染` 片越 B 门（9085 > 8000）⇒ 子切**像素网格/抠像/边缘量测/无损基准**类条目。
   ['判据实测', 'criteria-measure'],
+  // MVP 复验批（2026-10-27）：`判据实测` 片越 ctx B 门（入账后 8832 > 8000）⇒ 按 INDEX §4 同法子切
+  // **取证过程纪律**类条目（K-193 / K-194）。⛔ 不新增豁免（判例 WXG-T-041 + K-025）。
+  ['判据实测取证', 'criteria-measure-evidence'],
   // WXG-T-343 新建（标签 `文档引用`）；当时只建片、两张表都漏登 ⇒ WXG-T-344 补登记。
   ['文档引用', 'doc-reference'],
   ['测试', 'testing'],

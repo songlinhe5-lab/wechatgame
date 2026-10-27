@@ -299,4 +299,6 @@
 | K-190 | 流程 | process | 冻结表改值必须「§3 行 + changelog + 落码」同批三件套：只落码不回写 §3，机械门看不见，要等下轮 review 才暴露 | WXG-T-457 | 2026-10-27 | 0 | active |
 | K-191 | 流程 | process | §4 事件表对齐前先判「通道归属」：开放数据子域消息不是游戏事件总线 | WXG-T-457 | 2026-10-27 | 0 | active |
 | K-192 | 流程门禁 | process-gate | 门禁全绿 ≠ 值域全对：SKIP 清单本身就是审计输入，且 review 报告里的反引号等式会反向污染门的 SKIP 面 | WXG-T-457 | 2026-10-27 | 0 | active |
+| K-193 | 判据实测取证 | criteria-measure-evidence | 截图工具回显「Saved」不等于我读过它；凭上一轮印象描述本轮画面 = 臆述 | — | 2026-10-27 | 0 | active |
+| K-194 | 判据实测取证 | criteria-measure-evidence | 换宿主复验前先确认读回口装在哪；探针缺失时改用「逐格行为判别」而不是猜 | — | 2026-10-27 | 0 | active |
 <!-- kb:active:end -->

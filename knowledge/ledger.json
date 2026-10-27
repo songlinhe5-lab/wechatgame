@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 193,
+  "nextId": 195,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -3223,6 +3223,40 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-193",
+      "state": "active",
+      "file": "knowledge/lessons/criteria-measure-evidence.md",
+      "category": "判据实测取证",
+      "title": "截图工具回显「Saved」不等于我读过它；凭上一轮印象描述本轮画面 = 臆述",
+      "contentHash": "9825baecd52e791fd71bab3e89894abd514d35f9e4e1c6e026cc243c36450832",
+      "sourceTask": null,
+      "addedDate": "2026-10-27",
+      "lastAccess": "2026-10-27",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-194",
+      "state": "active",
+      "file": "knowledge/lessons/criteria-measure-evidence.md",
+      "category": "判据实测取证",
+      "title": "换宿主复验前先确认读回口装在哪；探针缺失时改用「逐格行为判别」而不是猜",
+      "contentHash": "584d30d6977c9adf94d11ef5bf4ad3cee9e8657101f6c623737facc742f4f959",
+      "sourceTask": null,
+      "addedDate": "2026-10-27",
+      "lastAccess": "2026-10-27",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -5225,6 +5259,26 @@
         "K-190",
         "K-191",
         "K-192"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-27",
+      "taskId": "WXG-T-434",
+      "kind": "added",
+      "ids": [
+        "K-193",
+        "K-194"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-27",
+      "taskId": "WXG-T-434",
+      "kind": "updated",
+      "ids": [
+        "K-193",
+        "K-194"
       ],
       "note": null
     }
