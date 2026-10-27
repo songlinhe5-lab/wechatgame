@@ -6351,3 +6351,17 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 - **接线**：四 IDE（`.cursor` / `.codebuddy` / `.workbuddy` / `.qoder`）+ 本地 `.trae` 各加两条相对符号链接；`my-skills/INDEX.md` 域·策划 / 域·技术各增一行，现役计数对齐 check:links 实测。
 - **节奏**：§3 变更后 / 每 Sprint 收口 / 发布门 G2 前（GDD）；新依赖与 ADR 转 Accepted 前 / 月度（架构）。
 - **门禁**：`check:links`（agents=7 skills=49）、`check:tasks --staged`、`ctx:check` 全绿；零代码、零 §3 数值。
+
+## WXG-T-456
+
+**§3 冻结值三方对账门 `check:frozen-values` + 定期联审节奏** · 负责：主理人(Qoder)·工具链 · 状态：✅ 完成（2026-10-27）
+
+- **上位**：用户拍板「**D**」（= A 机械门 + C 编排层联审，全都要）。455 已交付两件**只读** review skill，但其中「§3 ↔ 代码 ↔ 分册」数值比对仍靠人偶发发现 ⇒ 本单补其**机械半边**与工作室级**节奏**，⛔ 不重复登记审计步骤（判例 K-174：同一映射登记两处且无机械校验必然漂移）。
+- **交付（机械门）**：`tools/scripts/check-frozen-values.mjs` —— **A 面** §3 表格 ⇔ `games/<game>/src/config/**.ts` 落码字面量；**B 面** 下游现行文档里的 `` `NAME`=值 `` 等式 ⇔ §3（§3 未单列的派生/工程常量退而比落码值，否则恰好看不见「派生常量抄错」这一类漂移）；**SKIP 面** 诚实列出「本门看不见什么」（派生式 / 区间 / 复合值 / `[待 playtest]` 注），⛔ SKIP ≠ 通过。判据口径：`divergent` 集合跳两语义（`DEMO_LEVEL_COUNT` §3 按章读 9 / 代码按全表读 10，v1.81 已明文登记 ⇒ 不等 ≠ 文档落后，K-161）、史证行（反例/曾是/作废/划线）与文档内版本日志行整行跳过、历史快照目录（proposals/forensics/evidence/changelog…）不回改。`--selftest` 12 条合成语料（K-089 守卫必须能红）；无真源件报 `STATUS: SKIP` 防假绿。
+- **接线**：`package.json` 两脚本位 + `verify-all.mjs` STEPS 追加（步骤表 22→23，`--validate` 不脱钩）+ `docs/agent/commands.md` 说明行；skill 侧 `wxgame-gdd-review` §2 步 3/10、`wxgame-arch-review` §2 步 2、`wxgame-gdd-writer` §5 核对项 ①、`my-skills/INDEX.md` 四行。
+- **存量核销**（门上线即照出 6 处真不一致 + 2 处误报）：就地改文档 6 件 —— `art/specs/art-bible.md`（`BEAD_COLOR_MAX=10→35`，保留「本文提供 10 色子集」语义）、`audio/audio-spec.md`（`GRID_MAX_COLS=13→32` + 换算注）、`levels/levels-spec.md`（`BOSS_STEPS_MIN=120→49`）、`art/final/README.md`（`WALL_COLS` 代码已对齐 3×3）、`production/qa/beads/test-cases.md`（常量速查整片按 §3 v1.95 重写 + 旧值显式标「已核销不得据以造新用例」）、`design/concept.md §6`（门抓不到，因 `TRAY_BASE_SLOTS` 属派生常量，人工追平）；2 处误报**改判据不改文档**（反例叙述行 / 文档内版本日志行）。**只标不改 1 处**：`levels-spec.md` 门禁⑦标尺段为 1.69 s/步时代读数，v1.85 抬至 4.14 s/步后现行标尺 `NORMAL_STEPS_MIN=7`/`MAX=37`/`BOSS_STEPS_MIN=49`（三值不进 §3）⇒ 出口结论须由关卡 owner 重算，本单只登记不换写。
+- **交付（编排层节奏）**：`wxgame-orchestration` 新增「定期联审」节 —— 触发 = 日历（**每 4 周或每个里程碑收口，取先到**）∪ 事件（改 §3 冻结值 / 新增或推翻 ADR / 新游戏新系统 / 发布前 G4 门 / 用户点名「防跑偏」）；一轮 = 三拍（机器门先行 → 双域并行 spawn 文策渊+程基岩 → 主理人汇编 PASS/CONCERNS/FAIL）；「距上次多久」**现场派生 ⛔ 不建常驻台账件**（K-174）；**同一漂移连续两轮未修 ⇒ 升 P0**（与 `wxgame-arch-review` §5 同口径）。路由表两行加「定期评审/复审另走」指针。
+- **回退披露**：曾在本会话给 `wxgame-gdd-writer` 加 §6、给 `wxgame-adr-arch` 加 §4「架构复审五查」，核对 HEAD 后发现 455 已交付同名职责的两件专门 skill ⇒ 我这两节即**第二处登记**（正是 K-174 反模式），**整段删除**改为单向指针，description 亦回退为「写」口径。
+- **领号披露**：原按头注拟领 454，落笔前四路重扫发现 454 已被并发会话（CodeBuddy 核实全屏页切换）占用 ⇒ 按 K-046 取 **456**（四路核 456 零占用），改动 9 个文件内引用全局换号。
+- **门禁**：`check:frozen-values` **STATUS: OK**（beads：§3 可比 49 项 / A 面对账 42 / B 面文档等式 125；breakout：31 / 28 / 12）。新门自测首次入档时 `selftest:fast` 以两条**完整性守卫**红（入口未入档 + 裸 `--selftest` 未入档）⇒ 按要补 `selftests.mjs::TIERS.fast` 末项，复跑 PASS 15 / FAIL 0。
+- **沉淀统计（kb:sync）**：新增 **3** 条 / 修改 0 / 激活 0 / 归档 0 —— **K-187**（工具链：新门先跑裸读数定档，存量只能当场核销或进 SKIP，⛔ 建豁免台账）、**K-188**（流程：跨轮续接先四路复核世界，同职责件已存在则只补机械半边 + 单向指针）、**K-189**（测试守卫：自带 `--selftest` 的脚本必同批入 TIERS）；`kb:audit` 无归档候选与相似命中。

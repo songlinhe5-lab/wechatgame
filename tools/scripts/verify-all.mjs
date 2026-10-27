@@ -86,6 +86,9 @@ const STEPS = Object.freeze([
   // WXG-T-235：盘面 B0 接缝白线守卫。**静态口径门**（无浏览器依赖 ⇒ CI 可跑）；
   // 同名的**像素复验**模式（`--pixels`，需本地 Chrome + harness）⛔ 不挂本表（CI 无浏览器 ⇒ 必假红）。
   'check:board-seam',
+  // WXG-T-456 / 判例 K-174：§3 冻结值三方对账（§3 表格 ↔ `src/config/**.ts` ↔ 下游现行文档等式）。
+  // 动因：2026-10-27 人工核账实测到多处「下游文档抄旧值」，而 22 项里没有一条守这件事。
+  'check:frozen-values',
 ]);
 
 const STATUS_RE = /^STATUS:\s*(OK|WARN|SKIP|FAIL)\b/m;

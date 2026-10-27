@@ -1,6 +1,6 @@
 ---
 name: wxgame-orchestration
-description: 跑工作室全流程、阶段诊断、质量门或调度成员时使用。触发：九阶段、PASS/CONCERNS/FAIL、spawn、编排。
+description: 跑工作室全流程、阶段诊断、质量门、定期联审节奏或调度成员时使用。触发：九阶段、PASS/CONCERNS/FAIL、spawn、编排、定期 review、联审、巡检。
 ---
 
 # wxgame 工作室编排法（九阶段流水线，编号 0–8）
@@ -49,8 +49,8 @@ description: 跑工作室全流程、阶段诊断、质量门或调度成员时�
 | 角色 | 阶段职责 | subagent name | 必读 skill（spawn prompt 必附路径） |
 |---|---|---|---|
 | 主理人 | 诊断 / spawn / 门控 / 汇编 | `studio-orchestrator` | `my-skills/wxgame-orchestration/SKILL.md` |
-| 文策渊 | 概念 / GDD / 评审 / UX | `design-strategist` | `my-skills/wxgame-gdd-writer/SKILL.md` → `my-skills/wxgame-ux-spec/SKILL.md` |
-| 程基岩 | 架构 ADR / Epic 拆分 / 引擎实现 | `engineering-lead` | `my-skills/wxgame-adr-arch/SKILL.md` + `my-skills/wxgame-epic-split/SKILL.md` |
+| 文策渊 | 概念 / GDD / 评审 / UX | `design-strategist` | `my-skills/wxgame-gdd-writer/SKILL.md` → `my-skills/wxgame-ux-spec/SKILL.md`（**定期评审另走** `my-skills/wxgame-gdd-review/SKILL.md`） |
+| 程基岩 | 架构 ADR / Epic 拆分 / 引擎实现 | `engineering-lead` | `my-skills/wxgame-adr-arch/SKILL.md` + `my-skills/wxgame-epic-split/SKILL.md`（**定期复审另走** `my-skills/wxgame-arch-review/SKILL.md`） |
 | 林绘澄 | 美术三件套（圣经/资产规格/可访问性） | `art-director` | `my-skills/wxgame-art-spec-programmatic/SKILL.md` |
 | 阮和鸣 | 音频五件套（框架版） | `audio-director` | `my-skills/wxgame-audio-spec/SKILL.md`；配乐/配音执行层用 `indie-game-ost-pack` / `game-ui-voice-pack` |
 | 严守真 | QA 五件套 / 质量门 | `quality-lead` | `my-skills/wxgame-qa-gates/SKILL.md` |
@@ -85,6 +85,29 @@ description: 跑工作室全流程、阶段诊断、质量门或调度成员时�
 | FAIL | 关键路径门未过且无用户豁免（通常含 G1–G3 任一阻塞） |
 
 裁决权仍在编排者；G 门证据由严守真按 `wxgame-qa-gates` 产出与汇报。
+
+## 定期联审（防跑偏节奏，WXG-T-456）
+
+> 阶段 5 的「设计评审与范围检查」是冲刺循环的**副产品**；本节是它的**周期入口**。
+> 两个域的具体审计步骤不在本文件重写一遍 ⇒ 设计域走 `wxgame-gdd-review`，架构域走 `wxgame-arch-review`
+>（各自的 §0 旧域触发条件为准，本节只定**工作室级节奏与汇总裁决**）。
+
+**命中任一即开一轮**：① 日历：**每 4 周一次或每个里程碑收口一次，取先到**；② 事件：改 `systems-index §3` 冻结值 /
+新增或推翻 ADR / 新游戏新系统 / 发布前 G4 门 / 用户点名「防跑偏」。
+
+**一轮 = 三拍，主理人不亲自产出**：
+
+1. **机器门先行**：`pnpm run verify`——红项先修不先评（**已提交 ≠ 已过门**）。数值三方对账
+   （§3 ⇔ 落码 ⇔ 下游文档）已由 `check:frozen-values` 守，⛔ 不让人再手抄一遍。
+2. **双域并行 spawn**（互不等待）：文策渊 → `my-skills/wxgame-gdd-review/SKILL.md`；
+   程基岩 → `my-skills/wxgame-arch-review/SKILL.md`。两份必读路径必按规定写入 spawn prompt（见路由表）。
+3. **主理人汇编**：合并为 studio 级 PASS / CONCERNS / FAIL（成员只给建议结论），逐条附「已知风险与缓解」。
+
+**距上次多久——现场派生，⛔ 不建常驻台账件**（同一日期登记两处必漂移，K-174）：
+读两份评审件（路径见各自 §4）的头注日期；阶段 0 诊断时顺手报一句。
+
+**销账线**：上一轮漂移表里 P0/P1 且已在 `production/TASKS.md` 领号的，本轮开头逐条点名状态；
+**同一漂移连续两轮未修 ⇒ 升 P0**（与 `wxgame-arch-review` §5 同口径），未销账且未登记 = 本轮判 CONCERNS。
 
 ## 铁律
 

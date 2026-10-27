@@ -1,6 +1,6 @@
 ---
 name: wxgame-adr-arch
-description: 写 ADR、技术架构或控制清单时使用。触发：ADR、architecture、引擎选型、架构评审。
+description: 写 ADR、技术架构或控制清单时使用。触发：ADR、architecture、引擎选型。定期架构复审（防跑偏审计）走 `wxgame-arch-review`。
 ---
 
 # wxgame 架构决策法（ADR 三件套）
@@ -48,3 +48,4 @@ description: 写 ADR、技术架构或控制清单时使用。触发：ADR、arc
 
 `docs/architecture/`（architecture.md、control-manifest.md、
 adr/ADR-0001 引擎选型、ADR-0002 框架引擎解耦、ADR-0003 空场景代码驱动）。
+定期复审不属本 skill ⇒ 走 `my-skills/wxgame-arch-review/SKILL.md`（实例：`docs/architecture/beads-arch-review-2026-10-26.md`，WXG-T-420）。

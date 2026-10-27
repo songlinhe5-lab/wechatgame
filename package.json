@@ -80,6 +80,8 @@
     "selftest:heavy": "node tools/scripts/selftests.mjs --tier=heavy",
     "ci:review:selftest": "bash tools/scripts/ci-pr-review-selftest.sh",
     "check:tasks": "node tools/scripts/check-tasks.mjs",
+    "check:frozen-values": "node tools/scripts/check-frozen-values.mjs",
+    "check:frozen-values:selftest": "node tools/scripts/check-frozen-values.mjs --selftest",
     "skills:audit": "node tools/scripts/skill-audit.mjs",
     "check:host-tests": "node tools/scripts/check-host-behavior-tests.mjs",
     "check:host-tests:selftest": "node tools/scripts/check-host-behavior-tests.mjs --selftest",

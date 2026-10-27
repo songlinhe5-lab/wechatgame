@@ -1,6 +1,6 @@
 ---
 name: wxgame-gdd-writer
-description: 写本仓八节 GDD 或做数值体检时使用。触发：GDD、systems-index、MDA、balance check、冻结常量。泛用格式的 GDD 不走本 skill。
+description: 写本仓八节 GDD 或做数值体检时使用。触发：GDD、systems-index、MDA、balance check、冻结常量。定期设计评审（防跑偏审计）走 `wxgame-gdd-review`。泛用格式的 GDD 不走本 skill。
 ---
 
 # wxgame GDD 编写法（工作室验证过的四件套流程）
@@ -84,13 +84,15 @@ description: 写本仓八节 GDD 或做数值体检时使用。触发：GDD、sy
 改值必须走 §3 变更单（`systems-index` + `systems-index-changelog`）并通知全部下游
 （先改文档再改代码）。
 
-**核对域（beads）**：托盘容量（§3.4）/ 星级结算（§3.7）/ 冲刺曲线（§3.10）/
-体力钱包（§3.14）/ 倒计时（§3.5）/ 难度爬梯（§3.13）/ 包体（§3.9）。
+**核对域**：按该游戏 `systems-index` §3 的子节走（beads 实例：托盘容量 §3.4 / 星级结算 §3.7 /
+冲刺曲线 §3.10 / 体力钱包 §3.14 / 倒计时 §3.5 / 难度爬梯 §3.13 / 包体 §3.9）。
 
-**真源读取顺序**：`systems-index §3` → `tuning.ts`（落码值）→ 系统 GDD §7 公式 / §8 →
-`production/qa/beads/test-cases.md` → 关卡池。
+**真源读取顺序**：`systems-index §3` → `src/config/tuning/**.ts`（落码值）→ 系统 GDD §7 公式 / §8 →
+`production/qa/<game>/test-cases.md` → 关卡池。
 
-**核对项**：① **§3 ↔ `tuning.ts` 漂移**（最优先，真源被架空的信号）；② 离群值
+**核对项**：① **§3 ↔ 落码 ↔ 下游文档漂移**——**已由 `pnpm run check:frozen-values` 机械守（WXG-T-456），
+本动作不再逐常量手抄对数**；人的职责改为：读它的 `SKIP·` 清单（派生式/非原子值 = 门看不见的那部分，
+⛔ 不等于已验）+ 判“该改文档还是走 §3 变更单”。定期逐条审计走 `wxgame-gdd-review`。② 离群值
 （实际 vs GDD 声明区间）；③ 退化策略（恒优解）；④ 进度死区 / 突变；⑤ 容量压力
 （触发"部分收纳 / 满槽"的频率）；⑥ 包体（`check:size`，**仅 release 产物有意义**）。
 

@@ -31,7 +31,7 @@
 | `prototypes/levelselect-v1-popup-750x1334-at2x.png` | 脚本 `../../ai-workflows/levelselect-proto-coords.py`（PIL 程序化合成，零模型）；底图 = proto-v3 推关态 + 50% 遮罩；面板 OVERLAY_PLATE 600×720 @(75,307)，3×3 格，返回钮 240×88 @(255,357) | ⏳ **草稿待拍板**（未进运行时） |
 | `coordinates/levelselect-coords-750x1334-at2x.png` | 同脚本，坐标 y 向上、单位 750 设计 px | ⏳ 草稿待拍板 |
 
-- 几何真源：`arc-level-select-spec.md` §3（v1.3 3×3）。代码仍 4×3（`WALL_COLS = 4`），本件按规格出。
+- 几何真源：`arc-level-select-spec.md` §3（v1.3 3×3）。代码已对齐 3×3（`WALL_COLS = 3`），本件与规格同尺（旧注「代码仍 4×3」为 2026-10-17 当时的分叉，已收）。
 - 2026-10-17 晚改裁：空槽 = 锁格（Q15 合形）；9 格结构按云端基底（2★ / 0★ 推关 / 锁×6 含右上两格 / BOSS）同步到 `levelselect-proto-coords.py` 的 CELLS，本件已重出。
 - Q15 已裁（用户 2026-10-17）：锁格 = 灰图 + 小锁 + 无星；空槽 = 纯虚线。规格 §4 已同步改写；现码 `drawWallCell` 仍为虚线空槽，落码待办。
 - 占位：关卡缩略图形为 5×5 示意珠阵，标题位置与大关名为示意，BOSS 格尺寸规格未定（本件同 120 格）。

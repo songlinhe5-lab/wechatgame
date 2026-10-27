@@ -73,6 +73,9 @@ export const TIERS = {
         // WXG-T-375：金样本复取器的可复现锚守卫负样本（缺 WXG298_SOURCE_REV / rev ≠ HEAD
         // 必须拒写，且夹具字节不变）——让「capturedFrom 必须是真 HEAD」由门守而非人守。
         { script: 'ui-golden:capture:selftest', argv: ['bash', `${S}/ui-golden-capture-selftest.sh`] },
+        // WXG-T-456：三方对账门的合成语料自测（改代码值 / 改文档值 / 数组少一档必红，
+        // 加粗与单位扰动 / 史证行 / 版本日志行不得误报）——合成语料为主、只读不写，故可进 fast 档。
+        { script: 'check:frozen-values:selftest', argv: ['node', `${S}/check-frozen-values.mjs`, '--selftest'] },
     ],
     heavy: [
         { script: 'ci:review:selftest', argv: ['bash', `${S}/ci-pr-review-selftest.sh`] },

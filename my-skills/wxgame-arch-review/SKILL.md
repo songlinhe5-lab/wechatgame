@@ -32,7 +32,7 @@ description: 定期 review 小游戏架构是否跑偏（ADR、控制清单、�
 
 1. **规则清单化**：把 `control-manifest.md` 与 L1–L5 逐条抄成核对表（规则 / 来源 ADR / 守卫脚本）。
 2. **先跑机械门禁**（只记录，不修）：`pnpm run check:arch`、`framework:sync:check`、`cocos:check`、
-   `check:es5spread`、`typecheck`；记录退出码与关键输出。
+   `check:es5spread`、`check:frozen-values`（§3 冻结值 ⇔ 落码 ⇔ 下游文档，WXG-T-456）、`typecheck`；记录退出码与关键输出。
 3. **依赖方向**：`core/**` 是否出现 `cc` / DOM / `wx` / `window` / `document`（L2）；
    `games/*/src` 是否 `import 'cc'`（L3）；`adapters/cocos/bindings.ts` 是否漏进框架 barrel、是否被 harness 直接编译。
 4. **状态与渲染**：UI/渲染是否持有游戏状态；`buildRenderModel()` 是否只读；`update` / `step` /

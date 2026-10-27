@@ -7,9 +7,9 @@
 
 | 层级 | skill | 职责 |
 |---|---|---|
-| 编排 | `wxgame-orchestration` | 九阶段（0–8）流水线、spawn 模板（八要素，含必读 skill 路径）、成员→skill 路由表、PASS/CONCERNS/FAIL 与 G1–G4 挂钩 |
-| 域·策划 | `wxgame-gdd-writer` | 一页纸概念 → systems-index（冻结常量）→ 八节 GDD → 十查评审；**§5 数值平衡核对**（CCGS `balance-check` 吸收，WXG-T-175） |
-| 域·策划 | `wxgame-gdd-review` | **定期 GDD 漂移审计（只读）**：§3 冻结常量 ↔ 代码 tuning ↔ 各分册三方比对；出漂移表 + PASS/CONCERNS/FAIL，不改文档与代码（WXG-T-434） |
+| 编排 | `wxgame-orchestration` | 九阶段（0–8）流水线、spawn 模板（八要素，含必读 skill 路径）、成员→skill 路由表、PASS/CONCERNS/FAIL 与 G1–G4 挂钩、**§定期联审（工作室级节奏与汇总裁决，WXG-T-456）** |
+| 域·策划 | `wxgame-gdd-writer` | 一页纸概念 → systems-index（冻结常量）→ 八节 GDD → 十查评审；**§5 数值平衡核对**（CCGS `balance-check` 吸收，WXG-T-175；其 ① 漂移比对已改由 `check:frozen-values` 机械守，WXG-T-456） |
+| 域·策划 | `wxgame-gdd-review` | **定期 GDD 漂移审计（只读）**：§3 冻结常量 ↔ 代码 tuning ↔ 各分册三方比对；出漂移表 + PASS/CONCERNS/FAIL，不改文档与代码（WXG-T-434）。数值层已由 `check:frozen-values` 机械守 ⇒ 人只补门看不见的（SKIP 清单 + 魔法数字/范围蔓延） |
 | 域·策划 | `wxgame-ux-spec` | Screen Flow、ASCII 线框、状态×输入矩阵、动效毫秒表、微信首 10 秒留存 |
 | 域·技术 | `wxgame-adr-arch` | ADR 五节、主架构、控制清单 |
 | 域·技术 | `wxgame-arch-review` | **定期架构漂移审计（只读）**：控制清单 / ADR / L1–L5 ↔ 依赖与目录现状；出漂移表 + ADR 缺口 + PASS/CONCERNS/FAIL（WXG-T-434） |

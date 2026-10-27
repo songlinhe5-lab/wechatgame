@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 187,
+  "nextId": 190,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -3121,6 +3121,57 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-187",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain.md",
+      "category": "工具链",
+      "title": "新守卫门上线第一件事是跑「裸读数」定档：存量只有「当场核销」或「SKIP 列出」两种归宿，⛔ 建豁免台账",
+      "contentHash": "563fd0b8d8d72136eae181a2b72add491dfbe6b2d35db5f25f3592c364684c36",
+      "sourceTask": "WXG-T-456",
+      "addedDate": "2026-10-27",
+      "lastAccess": "2026-10-27",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-188",
+      "state": "active",
+      "file": "knowledge/lessons/process.md",
+      "category": "流程",
+      "title": "跨轮续接先复核「世界是否已变」：并发会话若已交付同职责件，只补机械半边 + 单向指针，重复节整段删除",
+      "contentHash": "f2ee1378d73076f83c9e4c8cfd0c4df7bd8e34fb8b3ab0bee242d23c5d9a9d79",
+      "sourceTask": "WXG-T-456",
+      "addedDate": "2026-10-27",
+      "lastAccess": "2026-10-27",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-189",
+      "state": "active",
+      "file": "knowledge/lessons/testing-guard.md",
+      "category": "测试守卫",
+      "title": "自带 `--selftest` 的新脚本必须同批入 `selftests.mjs::TIERS`，否则 `selftest:fast` 会「子项全绿却整档红」",
+      "contentHash": "7bfa07c52e23511256751599b4b29ac933ae26be9375990391fb72523027580d",
+      "sourceTask": "WXG-T-456",
+      "addedDate": "2026-10-27",
+      "lastAccess": "2026-10-27",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -5101,6 +5152,17 @@
       "ids": [
         "K-185",
         "K-186"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-27",
+      "taskId": "WXG-T-456",
+      "kind": "added",
+      "ids": [
+        "K-187",
+        "K-188",
+        "K-189"
       ],
       "note": null
     }
