@@ -6036,3 +6036,40 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 - **金样本（K-051 / K-053，先登记再重抓）**：`settings` **25 → 5665**、`signin` **28 → 5668**（= 底页整页入流 + 2 条容器命令），其余**九态 sha 逐字未变**。登记面 = `ui-architecture-beads.md §12` UI-60 行 + ADR-0033 §P1 设备腿交付记录 + `§8` 新增守则 ⑥「容器即渲染单元」。
 - **⛔ 未做 / 需设备证（`[R]`）**：① 真机层序实拍（同层文字与位图腿必须被遮罩压住）；② draw call 实测（DEC-3 预估 `Graphics ≤ 6`，K-030 旧训「不得按预估过关」）⇒ 本 ADR ⛔ 不得标「已实施」，缺陷状态 = **「已修待设备证」**。
 - **已知边界（显式不做）**：① 容器内 `blit` 仍由载体按自身白名单挂 `BlitLayerUI`（`UiScopeTree.blitParent` 已按作用域给出，但 `CocosBlitCarrierLike.accept` 尚无该形参）—— 现网弹窗内容 0 处 `blit` ⇒ 无影响；② 调试层（`drawPerfOverlay`）仍落默认层 ⇒ 会被后出现的弹窗容器盖，属 ADR §S1「DebugLayer 必须永远在最顶」待定项；③ 对局态相位弹窗（暂停 / 结算）仍走 `PanelRouter` 直派，不在本批容器化范围。
+
+---
+
+## WXG-T-438
+
+**UI-60 三项显式未做收口：位图腿作用域 / 调试层置顶 / 对局面板容器（ADR-0033）· 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-10-27；真机读数待取）**
+
+承接 `WXG-T-437` 交付时明确登记的「已知边界 ①②③」，用户令「显式未做 继续处理」⇒ 三条全部收口。
+
+### ① 位图腿按作用域递（DEC-3 缺口）
+
+- **问题**：`CocosRenderModelRenderer` 的 `blit` 分支只把命令交给载体，载体按自身白名单挂 `BlitLayerUI`（全局单层）⇒ 容器内发出的位图仍会落到容器之外，被本容器的 `Graphics` 盖住或被别的容器串层。`UiScopeTree.blitParent` 早已按作用域给出，但**框架没递给载体**。
+- **改动**：`CocosBlitCarrierLike.accept(cmd, x, y, blitParent?)` 加**可选**第 4 参（`unknown`，框架不解读）；`CocosUiScopeHostLike` 加可选 `blitParent`；`draw()` 的 `blit` 分支传 `scopeHost ? scopeHost.blitParent : undefined`。宿主实现（`games/beads/cocos/assets/scripts/host/beads-blit-carrier.ts`）：静态位图腿（above）用 `scoped ?? this._uiLayer`，**珠腿（below）仍恒留全局 `BlitLayer`**（DEC-7 世界层不容器化），clip 态仍优先 `_clipLayer`。
+- **兼容**：形参可选 + 调用点缺省 `undefined` ⇒ 未接作用域的宿主（breakout）与旧路径**逐字节不变**。
+
+### ② 调试层恒在最顶（ADR-0033 §S1 待定项）
+
+- **问题**：`drawPerfOverlay` 与安全区标定线落**默认层**（主 `Graphics` + 主标签池），而容器树整棵排在默认层之后 ⇒ 只要弹窗容器出现，调试层就被压掉。且容器序 = **首次出现序**、跨帧不重排 ⇒ 不能靠「谁后出现」把调试层永远放最后。
+- **改动**：`UiScopeTree` 加两个**可选**钩子 —— `topMost?: string` 与 `raise?(scope)`：① 该容器建层时兄弟位取哨兵 `UI_SCOPE_TOP_MOST_SIBLING`（宿主 **必须 clamp 到末位**，`bindings._createScope` 已 `Math.min(v, parent.children.length - 1)`）；② 每次 `enterContainer(topMost)` 重压回末位（后来新建的容器是 `addChild` 追加，不重压就会被顶掉）。序仍由**内核**决定 —— 宿主只按给定值落位（⛔ 不在宿主侧另算序，否则两处真源）。
+- **接线**：`bindings` 登记 `topMost: UI_DEBUG_SCOPE_ID`（`'__debug'`，新增导出常量，视图只发这一个 id）；`UiRoot.draw` 在 `d.enabled` 时把 `drawPerfOverlay` 包 `__debug` 容器；`meta-view` 把 `drawSafeGuides` 也包 `__debug`（标定线同属调试层）。**关闭时一条命令都不发** ⇒ 生产零开销、金样本零漂移。
+
+### ③ 对局面板层容器化（DEC-1 覆盖对局腿）
+
+- **问题**：`buildBeadsView` 里暂停 / 结算 / 失败 / 冲刺结算 / 购买确认 / 好友榜面板与玩法页同层 ⇒ 面板遮罩（`Graphics`）压不住 HUD 文字（`Labels`），与 `WXG-T-325` 同族（真机可见：暂停遮罩上浮着 HUD 数字）。
+- **改动**：`view-model.ts` 新增 `hasPanelOverlay(snap)`（取**保守上界**：宁可多开一个空容器，不可漏开 —— 空容器在内核里懒建、`_resolve` 不被读就一层都不建 ⇒ 零成本）与 `PANEL_SCOPE_ID = 'panel'`；面板串（彩带 MAIN → clear → FG → finish → pause → buyConfirm → fail → sprintSettle → banners → rank）整段包容器。容器内通道序与旧默认层**同构**（`Graphics → BlitLayerUI → Labels`）⇒ 容器内部逐字等价，只有「整体压到页面之上」这一条变化生效。
+- **判据坑**：首版谓词写 `snap.rankPanel !== undefined` ⇒ **恒真**（`snapshot-projection` 每帧都赋 `rankPanel.view()`，关闭态是 `CLOSED_RANK_VIEW`）⇒ play 态也开容器、封箱基准 frame0 Δtotal=2 报警。改用 `snap.rankPanel?.visible === true`（= `drawRankPanel` 的早退条件）后 play 零漂移。
+
+### 验收读数
+
+- framework **540 passed / 50 files**（+2 例：`topMost` 建层哨兵位 / 每次进入重压 + 非置顶不触发）；beads **1351 passed + 2 skipped**（除金样本五态）；`typecheck` 0；`check:arch` **OK**（唯一 WARN = L1 既有编辑器产物 373）；`framework:sync` 写 9 + `sync:check` 一致；**`build:cocos` breakout 14.7s / beads 16.8s 双绿**（`cocos-renderer` / `beads-blit-carrier` 改动在 cc 侧真编译通过）。
+- **金样本**：五态各 +2（`pause` / `clear` / `fail` / `sprint-settle` / `finish` = 面板容器 begin/end），`play` **零漂移**（无面板 ⇒ 不发边界），封箱基准（`WXG-T-211-S3` / `WXG-T-230-B`）**全绿不动**。
+- **⛔ 仍 `[R]`**：真机层序（对局暂停遮罩压住 HUD 文字）+ 容器内位图腿落位 + draw call 实测。ADR ⛔ 仍不得标「已实施」。
+
+### 遗留边界（不属本批）
+
+- 容器内 `clip` 仍走全局 `_clipHost`（弹窗与对局面板内均无 clip 命令，故无影响）。
+- 相位弹窗仍由 `PanelRouter` 直派（未搬上 Navigator 栈），本批只在**命令流层**包容器，导航真源不变。

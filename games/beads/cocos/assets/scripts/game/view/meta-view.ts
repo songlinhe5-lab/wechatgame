@@ -35,7 +35,7 @@ import {
 } from '../config/tuning';
 // EP12-S6 · P-7：屏内文案一律读表（`tokens.md §7` / `menu-architecture §6`），⛔ 不散落字面。
 import { COPY_TOKENS } from '../config/copy-tokens';
-import type { RenderModelBuilder } from '../../framework/index';
+import { UI_DEBUG_SCOPE_ID, type RenderModelBuilder } from '../../framework/index';
 import type { BeadsPalette } from './palette';
 import { drawSafeGuideLines } from './debug-layer';
 import { UI_FONT, UI_SCRIM, scrimFill } from './ui-theme';
@@ -201,7 +201,12 @@ export function buildMetaView(
         META_PAGES[base](builder, data, palette, layout, A, withSignage, thumbN);
     }
     // 四条腿历史上都在末尾画标定线 ⇒ 表化后统一提到一处（顺序与内容与改前逐字一致）。
-    if (data.debugGuides) drawSafeGuides(builder, A);
+    // `[ADR-0033 §S1]` 标定线同属调试层 ⇒ 走恒置顶容器，弹窗打开时也不被遮罩压掉。
+    if (data.debugGuides) {
+        builder.beginContainer(UI_DEBUG_SCOPE_ID);
+        drawSafeGuides(builder, A);
+        builder.endContainer();
+    }
 }
 
 /**

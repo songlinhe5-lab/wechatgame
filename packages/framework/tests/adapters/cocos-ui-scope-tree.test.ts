@@ -14,7 +14,12 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { UiScopeTree, type UiScopeTreeHooks } from '../../src/adapters/cocos/ui-scope-tree.js';
+import {
+  UI_DEBUG_SCOPE_ID,
+  UI_SCOPE_TOP_MOST_SIBLING,
+  UiScopeTree,
+  type UiScopeTreeHooks,
+} from '../../src/adapters/cocos/ui-scope-tree.js';
 import type { CocosGraphicsLike, CocosLabelSource, CocosUiScopeLike } from '../../src/adapters/cocos/cocos-renderer.js';
 import type { UiScopeChannels } from '../../src/adapters/cocos/ui-scope-tree.js';
 
@@ -27,7 +32,7 @@ interface Created {
 }
 
 /** 记一笔所有被建出来的作用域；`parent` 用可读字符串而非节点对象，方便逐条断言拓扑。 */
-function makeTree() {
+function makeTree(extra: Partial<UiScopeTreeHooks> = {}) {
   const created: Created[] = [];
   const nodeKey = new Map<unknown, string>();
   const stats = { defaultClears: 0, defaultReleases: 0 };
@@ -56,6 +61,7 @@ function makeTree() {
         labels: { acquire: () => { throw new Error('unused'); }, releaseAll: () => { rec.releases += 1; } } as unknown as CocosLabelSource,
       };
     },
+    ...extra,
   };
   const tree = new UiScopeTree(hooks);
   nodeKey.set(root, 'root');
@@ -170,5 +176,45 @@ describe('UI-60 P1 — 层树内核', () => {
     expect(scoped).not.toBe(defaultBlitParent);
     tree.exitSegment(); tree.exitContainer();
     expect(tree.blitParent).toBe(defaultBlitParent);    // 出层即回落
+  });
+});
+
+/**
+ * `[ADR-0033 §S1]` 恒置顶容器（调试层：性能覆层 + 安全区标定线必须永远看得见）。
+ * 序仍由内核决定 —— 宿主只拿到一个哨兵值去 clamp 到末位，⛔ 不在宿主侧另算序。
+ */
+describe('UI-60 P1 — 恒置顶容器（topMost）', () => {
+  it('建层时兄弟位取哨兵值，而不是出现序', () => {
+    const { tree, created } = makeTree({ topMost: UI_DEBUG_SCOPE_ID });
+    tree.beginFrame();
+    tree.enterContainer('settings');
+    void tree.current;                  // 落笔才建层
+    tree.exitContainer();
+    tree.enterContainer(UI_DEBUG_SCOPE_ID);
+    void tree.current;
+    expect(created.map((c) => [c.key, c.sibling])).toEqual([
+      ['settings', 0],
+      [UI_DEBUG_SCOPE_ID, UI_SCOPE_TOP_MOST_SIBLING],
+    ]);
+  });
+
+  it('每次进入都压回末位（后来新建的容器会把它顶下去）；非置顶容器不触发', () => {
+    const raised: string[] = [];
+    const { tree } = makeTree({
+      topMost: UI_DEBUG_SCOPE_ID,
+      raise: (scope) => raised.push((scope.handle as { name: string }).name),
+    });
+    tree.beginFrame();
+    tree.enterContainer('settings');
+    void tree.current;
+    tree.exitContainer();
+    tree.enterContainer(UI_DEBUG_SCOPE_ID);
+    expect(raised, '首次进入时层还没建 ⇒ 无 raise').toEqual([]);
+    void tree.current;
+    tree.exitContainer();
+    tree.beginFrame();
+    tree.enterContainer('settings');
+    tree.enterContainer(UI_DEBUG_SCOPE_ID);
+    expect(raised, '已建层后每次进入都重压').toEqual([UI_DEBUG_SCOPE_ID]);
   });
 });

@@ -113,6 +113,11 @@ export interface CocosUiScopeHostLike {
   exitContainer(): void;
   /** 当前作用域；栈空时返默认作用域。 */
   readonly current: CocosUiScopeLike;
+  /**
+   * `[UI-60 / ADR-0033 DEC-3]` 当前作用域的**位图腿父节点**（不透明值，仅转交 `blitCarrier`）。
+   * 可选：不提供 ⇒ `blit` 照旧不带作用域信息（宿主沿用自己那层默认位图层）。
+   */
+  readonly blitParent?: unknown;
 }
 
 export interface CocosColorFactory {
@@ -204,8 +209,12 @@ export interface CocosBlitCarrierLike {
    * ponytail: 帧边界由 `beginFrame()` 告知（`[WXG-T-253]` 补上）——实现体需要「上一帧
    * 用剩的节点本帧开头收掉」，而宿主不是它自己驱动的（`bindings.ts` 每帧调 `draw()`），
    * 所以这一刀必须由框架递。可选方法：不实现 = 与 T-252 落地时逐字节等价。
+   *
+   * `blitParent`（`[UI-60 / ADR-0033 DEC-3]`）：当前**作用域**给出的位图腿父节点，类型对框架
+   * 不透明（宿主解读）。缺省 `undefined` ⇒ 宿主沿用自己那层默认位图层。宿主**仍可忽略**它
+   * （珠层必须留在全局 `BlitLayer`，见 DEC-7）—— 框架只负责把「这条 blit 属于哪个容器」递过去。
    */
-  accept(cmd: BlitCommand, x: number, y: number): void;
+  accept(cmd: BlitCommand, x: number, y: number, blitParent?: unknown): void;
   /**
    * 进入/离开裁切：实现体把这期间的 blit 挂到蒙版节点下。可选；不实现 = 不改父节点。
    * 坐标不变（蒙版节点与 BlitLayer 同一原点），所以这里不传矩形。
@@ -431,7 +440,9 @@ export class CocosRenderModelRenderer {
           // injected carrier; without one the behaviour is byte-identical to before
           // (warn once, skip) so every unwired host keeps its current output.
           if (this._blitCarrier) {
-            this._blitCarrier.accept(cmd, cmd.x + ox, cmd.y + oy);
+            // `[UI-60 P1 / ADR-0033 DEC-3]` 位图腿也按作用域递：不传 ⇒ 宿主沿用默认位图层
+            // （旧行为逐字节不变）；传了而宿主不认 ⇒ 同样回落（接口形参可选，零破坏）。
+            this._blitCarrier.accept(cmd, cmd.x + ox, cmd.y + oy, scopeHost ? scopeHost.blitParent : undefined);
             break;
           }
           if (!this._blitWarned) {

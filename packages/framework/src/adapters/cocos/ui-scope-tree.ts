@@ -41,9 +41,31 @@ export interface UiScopeTreeHooks {
   /**
    * 建一个作用域。`siblingIndex` 由内核按规则 2 算好，宿主直接
    * `node.setSiblingIndex(siblingIndex)`（⛔ 宿主不得自行决定序，否则两处真源）。
+   *
+   * ⚠ 该值可能是 {@link UI_SCOPE_TOP_MOST_SIBLING}（= 恒置顶容器，见 `topMost`）⇒ 宿主**必须
+   * clamp 到末位**（`Math.min(v, parent.children.length - 1)`），⛔ 不得把超大数直接交给引擎。
    */
   create(key: string, parent: unknown, siblingIndex: number): UiScopeChannels;
+  /**
+   * `[ADR-0033 §S1]` **恒置顶容器 id**（调试层一类：必须永远在一切容器之上）。省略 ⇒ 纯出现序。
+   *
+   * 语义只有两条：① 该容器建层时兄弟位取 {@link UI_SCOPE_TOP_MOST_SIBLING}（宿主 clamp 到末位）；
+   * ② 每次 `enterContainer` 它都重新压回末位（否则后来新建的容器会把它顶下去）。序仍由内核决定，
+   * 宿主只按给定值落位。
+   */
+  readonly topMost?: string;
+  /** 把某作用域重新压回末位（**仅** `topMost` 容器会被调；不提供 ⇒ 只在建层时置顶一次）。 */
+  raise?(scope: UiScopeChannels): void;
 }
+
+/** 恒置顶容器建层时用的兄弟位哨兵（宿主 clamp 到末位，见 {@link UiScopeTreeHooks.create}）。 */
+export const UI_SCOPE_TOP_MOST_SIBLING = Number.MAX_SAFE_INTEGER;
+
+/**
+ * `[ADR-0033 §S1]` 调试层容器 id（性能覆层 / 安全区标定线）：**必须永远在最顶**
+ * （`bindings.ts` 把它登记为 `topMost`）。视图只发这一个 id，⛔ 不得另造第二份。
+ */
+export const UI_DEBUG_SCOPE_ID = '__debug';
 
 /** 一个容器在一帧里的状态：当前段、容器默认段层、各段层（跨帧复用）。 */
 class ContainerFrame {
@@ -89,6 +111,9 @@ export class UiScopeTree implements CocosUiScopeHostLike {
     }
     frame.segment = null;
     this._stack.push(frame);
+    // `[ADR-0033 §S1]` 恒置顶容器每次进入都压回末位：后来新建的容器是 addChild 追加
+    // ⇒ 不重压就会被顶到它下面（调试层必须永远看得见）。
+    if (id === this._hooks.topMost && frame.own) this._hooks.raise?.(frame.own);
   }
 
   /** 未进容器时开段 = 语义错误：忽略（warn-once），仍画默认层，⛔ 不猜父层。 */
@@ -144,7 +169,8 @@ export class UiScopeTree implements CocosUiScopeHostLike {
   private _ownScope(frame: ContainerFrame): UiScopeChannels {
     const hit = frame.own;
     if (hit) return hit;
-    const scope = this._hooks.create(frame.key, this._hooks.root, frame.sibling);
+    const sibling = frame.key === this._hooks.topMost ? UI_SCOPE_TOP_MOST_SIBLING : frame.sibling;
+    const scope = this._hooks.create(frame.key, this._hooks.root, sibling);
     frame.own = scope;
     this._all.push(scope);
     return scope;

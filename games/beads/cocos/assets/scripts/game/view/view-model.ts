@@ -116,6 +116,11 @@ export function buildBeadsView(
   // 收口在 `view/play-page.ts::drawPlayPage`，层序与拆分前逐字一致。
   // 缩放条仅 PLAYING 画：相位判断留本门面（已登记偏离），子 View 不比较 phase（守则 §20-3）。
   drawPlayPage(builder, snap, palette, inks, snap.phase === 'playing');
+  // `[UI-60 P1 / ADR-0033 DEC-1]` **面板层 = 一个渲染容器**：遮罩连同面板文字/位图腿整体压在
+  // 玩法页之上。旧层序下 HUD 文字住默认 `Labels` 通道、面板遮罩住 `Graphics` 通道 ⇒ 遮罩压不住
+  // HUD 文字（与 WXG-T-325 同族，真机可见）。无面板的静止帧一条容器命令都不发 ⇒ play 态零漂移。
+  const panel = hasPanelOverlay(snap);
+  if (panel) builder.beginContainer(PANEL_SCOPE_ID);
   // G6 结算彩带 MAIN/FG 夹住结算面板（§1.6.6 sandwich）：属结算层，仍由本门面画。
   drawConfetti(builder, snap, false); // G6 MAIN 36 枚：被 scrim α0.5 压住 = 「远处彩带」（§1.6.6 sandwich）
   drawClearPanel(builder, snap, palette);
@@ -128,6 +133,31 @@ export function buildBeadsView(
   drawBanners(builder, snap, palette);
   // `[WXG-T-432]` 好友榜面板（ADR-0035 S-3）：结算面板上下文入口打开时叠在最上层。
   if (snap.rankPanel) drawRankPanel(builder, palette, snap.rankPanel);
+  if (panel) builder.endContainer();
+}
+
+/**
+ * `[UI-60 P1]` 对局面板容器的 id（`UiRoot`/`bindings` 只按容器序排，id 仅供调试读）。
+ * ⛔ 不要与导航侧路由名重名（`settings` / `signin` / `skins`）。
+ */
+const PANEL_SCOPE_ID = 'panel';
+
+/**
+ * 本帧是否有「叠在玩法页之上」的面板 —— 决定要不要发面板容器边界。
+ *
+ * 判据取**保守上界**（宁可多开一个空容器，不可漏开）：空容器在内核里是懒建的，`_resolve`
+ * 不被读就一层都不建 ⇒ 零成本；漏开则那类面板退回旧层序（缺陷复发）。
+ */
+function hasPanelOverlay(snap: BeadsSnapshot): boolean {
+  return (
+    snap.panelVisible ||
+    snap.clearPanelVisible ||
+    snap.finishPanelVisible ||
+    snap.sprintSettleVisible ||
+    snap.buyConfirmPrice > 0 ||
+    snap.rankPanel?.visible === true ||
+    usesFailOverlay(snap)
+  );
 }
 
 

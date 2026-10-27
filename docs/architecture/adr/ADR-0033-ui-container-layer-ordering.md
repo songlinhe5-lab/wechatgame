@@ -1,6 +1,6 @@
 # ADR-0033 · UI 容器层：每页面 / 每弹窗一个渲染容器，容器内层有序、事件按层逆序透传
 
-- **状态**：Accepted（原则由用户 2026-10-20 真机裁定：「每个页面和对话框是一个 UI 容器，里面按照层级绘制，事件按照层级透传；层级是一个顺序关系，不能错乱」）；**Q1–Q3 已由用户 2026-10-20 裁定（§5）⇒ 方案定稿；P0 框架腿已入库（WXG-T-327，交付面见 §5 P0 记录），P1 / P2 受 §4 前置约束**；**DEC-8① Node 层序守门轨已入库（WXG-T-329，见 §DEC-8① 记录）**；**P1 设备腿已入库（WXG-T-437，见 §P1 设备腿交付记录）：cc 薄壳 + 视图发容器命令 + 弹窗自持绘制 + 层序例解 skip + 金样本重抓；⚠ 真机层序 / draw call 读数 `[R]` 未取 ⇒ 缺陷「已修待设备证」**
+- **状态**：Accepted（原则由用户 2026-10-20 真机裁定：「每个页面和对话框是一个 UI 容器，里面按照层级绘制，事件按照层级透传；层级是一个顺序关系，不能错乱」）；**Q1–Q3 已由用户 2026-10-20 裁定（§5）⇒ 方案定稿；P0 框架腿已入库（WXG-T-327，交付面见 §5 P0 记录），P1 / P2 受 §4 前置约束**；**DEC-8① Node 层序守门轨已入库（WXG-T-329，见 §DEC-8① 记录）**；**P1 设备腿已入库（WXG-T-437，见 §P1 设备腿交付记录）**；**三项显式未做已收口（WXG-T-438，见 §三项显式未做收口记录）：位图腿按作用域递 + 调试层恒置顶（§S1 定稿）+ 对局面板容器化**；⚠ 真机层序 / draw call 读数 `[R]` 未取 ⇒ 缺陷「已修待设备证」**
 - **日期**：2026-10-20
 - **关联**：ADR-0032（beads UI 架构，§6 路由 / §8 五条守则）、ADR-0030（Cocos 生产 blit 载体）、ADR-0031（blit 静态位图腿）、ADR-0026（`blit` kind）、ADR-0014（全局变换通道）
 - **判例链**：WXG-T-322（遮罩未铺满）→ WXG-T-323（弹窗居中）→ **WXG-T-324（弹窗补画底页 ⇒ 真机层级错乱）→ WXG-T-325（回退止血 + 本 ADR）**
@@ -101,6 +101,17 @@
 - **金样本**：`settings` 25→**5665**、`signin` 28→**5668**（底页入流 + 2 条容器命令），其余九态 sha 逐字未变；按 K-051 / K-053 先登记再重抓（`ui-golden-capture.ts`，提交锚）。
 - **⛔ 仍未取（`[R]`）**：真机层序实拍（同层文字与位图腿必须被遮罩压住）+ draw call 实测（DEC-3 预估 `Graphics ≤ 6`）。⇒ 本 ADR ⛔ 仍不得标「已实施」；缺陷状态 = 「已修待设备证」。
 - **已知边界（本轮显式不做）**：① 容器内的 `blit` 仍由载体按自身白名单挂 `BlitLayerUI`（`UiScopeTree.blitParent` 已按作用域给出，但 `CocosBlitCarrierLike` 尚无该形参）—— 现网弹窗内容 0 处 `blit`，故无影响；② 调试层（`drawPerfOverlay`）仍落默认层 ⇒ 会被后出现的弹窗容器盖住，属上文 S1「DebugLayer 必须永远在最顶」待定项。
+
+### 三项显式未做收口记录（WXG-T-438 · 2026-10-27）
+
+承接 §P1 设备腿交付记录里登记的「已知边界 ①②③」，三条全部收口：
+
+1. **位图腿按作用域递（补 DEC-3 缺口）**：`CocosBlitCarrierLike.accept(cmd, x, y, blitParent?)` 加**可选**第 4 参（`unknown`，框架不解读），`CocosUiScopeHostLike` 加可选 `blitParent`，`draw()` 的 `blit` 分支传 `scopeHost.blitParent`。宿主（`beads-blit-carrier`）：静态位图腿（above）用 `scoped ?? _uiLayer`；**珠腿（below）仍恒留全局 `BlitLayer`**（DEC-7 世界层不容器化）；clip 态仍优先 `_clipLayer`。形参可选 ⇒ 未接作用域的宿主（breakout）逐字节不变。
+2. **调试层恒在最顶（§S1 定稿）**：`UiScopeTree` 加 `topMost?: string` + `raise?(scope)` —— 该容器建层时兄弟位取哨兵 `UI_SCOPE_TOP_MOST_SIBLING`（宿主**必须 clamp 到末位**），并每次 `enterContainer` 重压末位（后来新建的容器是 `addChild` 追加）。**⛔ 不采用「谁后出现谁在上」的做法**：容器序是首次出现序、跨帧不重排，做不到「永远最后」。序仍由内核决定，宿主只按给定值落位。接线：`bindings` 登记 `topMost = UI_DEBUG_SCOPE_ID`（`'__debug'`，新增导出常量，视图只发这一个 id）；`UiRoot.draw` 在 `d.enabled` 时包 `__debug`；`meta-view` 的 `drawSafeGuides` 同样包 `__debug`。关闭时零命令 ⇒ 生产零开销、金样本零漂移。
+3. **对局面板层容器化（DEC-1 覆盖对局腿）**：`view-model::buildBeadsView` 用 `hasPanelOverlay(snap)`（**保守上界**：宁可多开空容器，不可漏开 —— 空容器懒建、不落笔就不建层）决定是否发 `panel` 容器边界，把彩带/面板整串包进去。⇒ 暂停与结算遮罩连同面板文字整体压在玩法页之上，**HUD 文字不再浮在遮罩上**（`WXG-T-325` 同族缺陷的对局腿）。容器内通道序与旧默认层同构，故容器内部逐字等价。
+   - **验收坑**：首版谓词写 `snap.rankPanel !== undefined` ⇒ 恒真（`snapshot-projection` 每帧赋 `rankPanel.view()`，关闭态是 `CLOSED_RANK_VIEW`）⇒ play 态也开容器、封箱基准 `frame0` Δtotal=2 报警。改用 `snap.rankPanel?.visible === true`（= `drawRankPanel` 的早退条件）后 play 与封箱基准零漂移。
+- **读数**：framework 540 绿（+2 例 `topMost`）；beads 1351 绿（除金样本五态）；`check:arch` OK；`build:cocos` 双绿；金样本 `pause`/`clear`/`fail`/`sprint-settle`/`finish` 各 +2，`play` 零漂移。
+- **⛔ 仍 `[R]`**：真机层序（对局暂停遮罩压住 HUD 文字）+ 容器内位图腿落位 + draw call 实测 ⇒ ADR 仍不得标「已实施」。
 
 ### 尚待后续定的小项（不阻塞 P0）
 

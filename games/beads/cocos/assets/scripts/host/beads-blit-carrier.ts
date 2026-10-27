@@ -295,7 +295,7 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
         this._clipOn = false;
     }
 
-    accept(cmd: BlitCommand, x: number, y: number): void {
+    accept(cmd: BlitCommand, x: number, y: number, blitParent?: unknown): void {
         if (!this._ready) return this._bail('载体未就绪', cmd);
         // 总责语义（ADR-0029 §8.1）：带 fx 的命令一律由本载体负责，⛔ 不回落矢量。
         const base = tintFxBase(cmd.fx);
@@ -314,7 +314,14 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
         // 两条腿不同层：珠（tint 图集）在 `Graphics` 之下、静态位图在其上。池位是同一条，
         // 只在层真变了时 setParent（选关墙同屏仅此 1 条位图命令，热路径仍零分配）。
         const below = base !== undefined || BELOW_GRAPHICS.has(cmd.textureId);
-        const parent = this._clipOn && this._clipLayer ? this._clipLayer : (below ? this._atlasNode() : this._uiLayer);
+        // `[UI-60 / ADR-0033 DEC-3]` 静态位图腿（above）跟着**作用域**走：容器内发出的位图
+        // 挂到该容器自己的 `BlitLayerUI` 下，才不会被本容器的 `Graphics` 盖住、也不会跨容器
+        // 串层。珠腿（below）**恒留全局 BlitLayer**（DEC-7：世界层不容器化）。
+        // 框架未传（旧路径 / 未接作用域宿主）⇒ 沿用本载体自己的默认 `_uiLayer`，逐字节不变。
+        const scoped = blitParent as Node | undefined;
+        const parent = this._clipOn && this._clipLayer
+            ? this._clipLayer
+            : (below ? this._atlasNode() : (scoped ?? this._uiLayer));
         if (sp.node.parent !== parent) {
             sp.node.setParent(parent);
             // 框垫底：同层若有珠（同属 BlitAtlas），框必须在它们之下。

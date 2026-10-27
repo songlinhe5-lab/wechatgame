@@ -40,7 +40,7 @@ import type { CocosBlitCarrierLike, CocosClipHostLike } from './cocos-renderer.j
 import { CocosInputBridge } from './input-bridge.js';
 import { CocosLoopBridge } from './loop-bridge.js';
 import { PooledLabelSource } from './label-pool.js';
-import { UiScopeTree, type UiScopeChannels } from './ui-scope-tree.js';
+import { UI_DEBUG_SCOPE_ID, UiScopeTree, type UiScopeChannels } from './ui-scope-tree.js';
 import type { CocosTouchSpace, CocosTouchSpaceWx } from './touch-normalize.js';
 import { normalizeCocosTouch, normalizeCocosTouchWx } from './touch-normalize.js';
 import { detectPlatform } from '../../platform/index.js';
@@ -305,6 +305,12 @@ export class Bootstrap extends Component {
       defaultScope: { graphics, labels },
       defaultBlitParent: this._blitLayerUI ?? undefined,
       create: (key, parent, siblingIndex) => this._createScope(key, parent as Node, siblingIndex),
+      // `[ADR-0033 §S1]` 调试层恒在最顶：每次进入都压回末位（否则后来新建的容器会顶掉它）。
+      topMost: UI_DEBUG_SCOPE_ID,
+      raise: (scope) => {
+        const group = (scope.handle as Node).parent;
+        if (group?.parent) group.setSiblingIndex(group.parent.children.length - 1);
+      },
     });
   }
 
@@ -326,7 +332,8 @@ export class Bootstrap extends Component {
   private _createScope(key: string, parent: Node, siblingIndex: number): UiScopeChannels {
     const group = new Node(`UI:${key}`);
     parent.addChild(group);
-    group.setSiblingIndex(siblingIndex);
+    // 恒置顶容器给的是 `UI_SCOPE_TOP_MOST_SIBLING`（超大哨兵）⇒ 必须 clamp 到末位。
+    group.setSiblingIndex(Math.min(siblingIndex, parent.children.length - 1));
     const penNode = new Node('Graphics');
     group.addChild(penNode);
     const graphics = penNode.addComponent(Graphics);

@@ -2,12 +2,12 @@
  * UI-25 · UiRoot 组合根（ADR-0032 §6；UI-50 起为唯一绘制入口）。
  *
  * 钉住三件行为：
- *  ① 空栈时与旧链 `drawPerfOverlay` 指令逐字相同（接管调试层零漂移）；
- *  ② 可见路由自下而上，调试层最后；
+ *  ① 空栈时与旧链 `drawPerfOverlay` 指令逐字相同（只多一层恒置顶容器边界，`[ADR-0033 §S1]`）；
+ *  ② 可见路由自下而上，弹窗自带容器（页面不包），调试层最后且恒置顶；
  *  ③ 调试关时路由照画、零覆层指令。
  */
 import { describe, it, expect } from 'vitest';
-import type { RenderModelBuilder } from '@wxgame/framework';
+import { UI_DEBUG_SCOPE_ID, type RenderModelBuilder } from '@wxgame/framework';
 import { UiRoot, type UiRoute } from '../src/ui/ui-root.js';
 import { drawPerfOverlay } from '../src/view/debug-layer.js';
 import type { BeadsPalette } from '../src/view/palette.js';
@@ -49,7 +49,7 @@ function route(name: string, kind: 'page' | 'modal'): UiRoute {
 }
 
 describe('UI-25 · UiRoot', () => {
-    it('空栈时与旧链 drawPerfOverlay 指令逐字相同', () => {
+    it('空栈时与旧链 drawPerfOverlay 指令逐字相同（只多恒置顶容器边界）', () => {
         const d: UiDebugState = {
             enabled: true,
             frameMs: 16.666,
@@ -61,7 +61,10 @@ describe('UI-25 · UiRoot', () => {
         drawPerfOverlay(old.builder, PALETTE, d.enabled, d.frameMs, d.phase, d.level, d.detail);
         const viaRoot = fakeBuilder();
         new UiRoot(host(d)).draw(viaRoot.builder, PALETTE);
-        expect(viaRoot.calls).toEqual(old.calls);
+        const marks = viaRoot.calls.filter((c) => c.kind === 'container' || c.kind === 'containerEnd');
+        expect(marks.map((c) => c.text ?? 'end')).toEqual([UI_DEBUG_SCOPE_ID, 'end']);
+        const inner = viaRoot.calls.filter((c) => c.kind !== 'container' && c.kind !== 'containerEnd');
+        expect(inner).toEqual(old.calls);
     });
 
     it('可见路由自下而上，弹窗自带容器，调试层最后', () => {
@@ -82,10 +85,16 @@ describe('UI-25 · UiRoot', () => {
             'container', // settings 容器开
             'line', // settings 内容
             'containerEnd',
-            'rect', // 调试层
+            'container', // 调试层（恒置顶容器）
+            'rect',
             'text',
             'text',
             'text',
+            'containerEnd',
+        ]);
+        expect(calls.filter((c) => c.kind === 'container').map((c) => c.text)).toEqual([
+            'settings',
+            UI_DEBUG_SCOPE_ID,
         ]);
         expect(calls.find((c) => c.kind === 'container')?.text).toBe('settings');
         expect(calls.filter((c) => c.kind === 'text').map((c) => c.text)).toEqual([
