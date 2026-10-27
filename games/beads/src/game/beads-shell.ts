@@ -184,6 +184,7 @@ export class BeadsShell implements Game {
         bgmMuted: false,
         debugInfo: false,
         debugGuides: false,
+        ghostSymbol: false,
         sfxMuted: false,
         reduceMotion: false,
         largeText: false,
@@ -1019,6 +1020,8 @@ export class BeadsShell implements Game {
         v.vibrate = this.play.vibrateOn;
         v.debugInfo = this.play.debugInfo;
         v.debugGuides = this.play.debugGuides;
+        // [WXG-T-434] E4 幽灵符号开关回显（暂停面板行5 与盘面渲染共读同一 getter）。
+        v.ghostSymbol = this.play.ghostSymbol;
         // EP11-S5 行4 两钮回显（与暂停面板共读同一对 getter ⇒ 两入口恒一致）。
         v.beadStyle = this.play.beadStyle;
         v.beadSize = this.play.beadSize;

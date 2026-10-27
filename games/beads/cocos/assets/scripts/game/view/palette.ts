@@ -511,11 +511,34 @@ export const CONFETTI_COLORS: readonly string[] = Object.freeze([
  */
 export const EMPTY_TINT_MIX = 0.42;
 /**
- * E4 幽灵符号不透明度（⛔ v1.22 作废，WXG-T-130/131：幽灵符号移除——用户
- * 2026-09-16 裁定「暂时不需要支持色盲玩家」（可访问性降级，accessibility v1.5
- * 登记含可恢复路径）。死值保留 + 开关式恢复零成本。§3.8 作废条目。
+ * E4 幽灵符号不透明度。沿革：v1.22 作废（WXG-T-130，用户 2026-09-16 裁定
+ * 「暂时不需要支持色盲玩家」）⇒ **v1.23 转正为设置开关**（WXG-T-138 提案 Q5，
+ * 用户拍板 A）：E4 绘制由设置项 `ghostSymbol` 控制，**默认关**（质感裁定不变），
+ * 值 0.32 恢复有效。WXG-T-434 落码（MVP 验收线「幽灵符号设置开关」）。
+ * 数值真源 = `systems-index §3.8`（v1.23 行）。
  */
 export const EMPTY_GHOST_ALPHA = 0.32;
+
+// ──────────────────────────────────────── symbol ink (assets-spec L5) ──
+//
+// L5 符号墨色族：E4 幽灵符号（空槽）与其同源。v1.22 随 E4 一并停用、v1.23 随
+// 开关转正由 `view/symbols.ts` 消费（WXG-T-434 恢复；本批未改任何值）。
+/** Ink used on a bright bead: `mix(base, #000, 0.55)` → the mix amount. */
+export const SYMBOL_INK_DARK_MIX = -0.55;
+/**
+ * Ink used on a dark bead: 纯白 `@ 0.90`。
+ * ⛔ **复用** `BEAD_HIGHLIGHT_HEX` 的同一色值（palette 是色值单源，⛔ 不新增第二个 `#FFFFFF`
+ * 字面量 ⇒ 「色表锁」hex 条数保持 49 不变）；两者语义正交（这里 = L5 符号亮墨，不是高光通道）。
+ */
+export const SYMBOL_INK_LIGHT = BEAD_HIGHLIGHT_HEX;
+export const SYMBOL_INK_LIGHT_ALPHA = 0.9;
+/** §1.1 L5 threshold on {@link luminance}: above it, ink goes dark. */
+export const SYMBOL_INK_LUMA_THRESHOLD = 0.6;
+/**
+ * Hard floor from `accessibility.md` B2 (「符号对珠面 ≥ 3:1」). Binding where it
+ * disagrees with the L5 threshold — see `symbolInk()` for the one colour affected.
+ */
+export const SYMBOL_CONTRAST_MIN = 3;
 
 // ───────────── 凹陷坑 / 珠垫 端点（v1.5 质感语言 · assets-spec §1.9，WXG-T-131/143）──
 //

@@ -66,6 +66,8 @@ export const PANEL_SHARD_FIELDS = [
 // ─────────────────────────────────────────── 片三 · 菜单 / 设置回显（真源 = GameSettings + meta 存档）
 export const MENU_SHARD_FIELDS = [
     'bgmMuted', 'sfxMuted', 'reduceMotion', 'largeText', 'vibrate',
+    // `[WXG-T-434]` E4 幽灵符号开关同属设置档 ⇒ 归本片（虽供对局页渲染，口径同 `beadStyle`）。
+    'ghostSymbol',
     'beadStyle', 'beadSize', 'skinId',
     'starsTotal',
 ] as const;

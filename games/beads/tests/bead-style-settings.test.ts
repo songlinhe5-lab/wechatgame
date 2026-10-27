@@ -879,6 +879,8 @@ describe('TC-SAVE-13 运行时腿 · S8 §8-13：不含两字段的存量档 ⇒
         complete.settings['skinId'] = 'warm-paper';
         // Debug 标定线同为逐字段降级：对照臂齐备，否则两臂都补写一次、差值归零。
         complete.settings['debugGuides'] = false;
+        // [WXG-T-434] E4 幽灵符号开关同为逐字段降级（同一课：对照臂必须齐备）。
+        complete.settings['ghostSymbol'] = false;
         controlStore.set(SAVE_KEY, JSON.stringify(complete));
         const ctl = spyStorage(controlStore);
         createBeadsHarness({ noAssemble: true, levels: [levelOf(5)], saveKey: SAVE_KEY, storage: ctl.storage });

@@ -52,6 +52,11 @@ export type PausePanelAction =
   | 'toggle-large-text'
   | 'toggle-vibrate'
   | 'toggle-debug-info'
+  /**
+   * `[WXG-T-434]` E4 幽灵符号开关（`systems-index §3.8` v1.23 转正；MVP 验收线
+   * 「幽灵符号设置开关」）。落**行5 三格**（原两格改三格，面板高度零改动）。
+   */
+  | 'toggle-ghost-symbol'
   /** 菜单设置的安全区标定线。暂停面板不放钮（末行已满），动作仍可被设置 overlay 串进来。 */
   | 'toggle-debug-guides'
   /** EP11-S5 行4：两枚**选择器钮**（非开关）——循环 registry 注册序 / `BEAD_SIZE_ORDER`。 */
@@ -164,7 +169,6 @@ function normalLayout(): PausePanelLayout {
   // （cell 宽 160 ≥ TOUCH_MIN 88，行数不变 ⇒ PAUSE_PANEL_H 718 与 ux §3.3 面板几何零改动）。
   const row4Top = row3Bottom - PANEL_ROW_GAP;
   const row4Bottom = row4Top - PANEL_BUTTON_H;
-  const cell2W = (innerWidth - gap) / 2;
   const row4Ids: PausePanelAction[] = ['cycle-bead-style', 'cycle-bead-size', 'cycle-skin'];
   for (let i = 0; i < row4Ids.length; i++) {
     buttons.push({
@@ -180,14 +184,15 @@ function normalLayout(): PausePanelLayout {
   // 复建 `'start-sprint'` 即可（`PausePanelAction` 成员与其处理分支均保留）。
   const row5Top = row4Bottom - PANEL_ROW_GAP;
   const row5Bottom = row5Top - PANEL_BUTTON_H;
-  buttons.push({
-    id: 'toggle-debug-info',
-    rect: rect(innerLeft, row5Bottom, cell2W, PANEL_BUTTON_H),
-  });
-  buttons.push({
-    id: 'go-menu',
-    rect: rect(innerLeft + cell2W + gap, row5Bottom, cell2W, PANEL_BUTTON_H),
-  });
+  // [WXG-T-434] 行5 由 2 格改 **3 格**（2-cell 改 3-cell，`PAUSE_PANEL_H 718` 零改动）：
+  // 中格新增「幽灵符号」开关（E4，默认关）。cell 宽 160 ≥ TOUCH_MIN 88。
+  const row5Ids: PausePanelAction[] = ['toggle-debug-info', 'toggle-ghost-symbol', 'go-menu'];
+  for (let i = 0; i < row5Ids.length; i++) {
+    buttons.push({
+      id: row5Ids[i]!,
+      rect: rect(innerLeft + i * (cellW + gap), row5Bottom, cellW, PANEL_BUTTON_H),
+    });
+  }
 
   _normal = { panel: plate, buttons, titleY: plate.yMax - 60 };
   return _normal;

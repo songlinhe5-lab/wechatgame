@@ -37,7 +37,13 @@ export type SettingsAction =
     | 'cycle-bead-style'
     | 'cycle-bead-size'
     | 'cycle-skin'
-    | 'toggle-debug-guides';
+    | 'toggle-debug-guides'
+    /**
+     * `[WXG-T-434]` E4 幽灵符号开关。**只住暂停面板行5**（设置弹窗 5 行已满，
+     * 加第 6 行会撞「返回」钮 ⇒ ⛔ 不进 `MENU_ORDER` 排布，但**必须进**本全集
+     * ⇒ 否则 `isSettingsAction` 判假、该钮落回通用主/次钮腿（WXG-T-363 判例）。
+     */
+    | 'toggle-ghost-symbol';
 
 /** 宿主投影：设置弹窗与暂停面板的同名字段子集（结构兼容，⛔ 不复制对象）。 */
 export interface SettingsContentData {
@@ -48,6 +54,11 @@ export interface SettingsContentData {
     readonly vibrate: boolean;
     readonly debugInfo: boolean;
     readonly debugGuides: boolean;
+    /**
+     * `[WXG-T-434]` E4 幽灵符号开关。**可选**：缺省 = 关（旧夹具免填；
+     * 判读一律用真值判断，⛔ 不写 `=== false`）。
+     */
+    readonly ghostSymbol?: boolean;
     readonly beadStyle: string;
     readonly beadSize: BeadSizeKind;
     readonly skinId: string;
@@ -107,7 +118,14 @@ const MENU_ORDER: readonly SettingsAction[] = [
 // `view-model::isSettingsAction` 逐钮派发到 chip 小字档）⇒ 排布表与全集可以不等。
 // 漏成员的代价实测可见（WXG-T-363）：`isSettingsAction('cycle-skin')` 判假 ⇒ 暂停面板该钮
 // 落回通用主/次钮腿（字档 22px → bold 30px），`pause` 金样本整帧漂。
-const ACTION_SET: ReadonlySet<string> = new Set<string>(MENU_ORDER);
+/**
+ * 设置动作**全集**（排布表 `MENU_ORDER` 只是它的子集）。
+ *
+ * `[WXG-T-434]` 幽灵符号开关只住**暂停面板行5**（设置弹窗 5 行已满、加第 6 行会撞返回钮
+ * ⇒ 不进排布表），但它仍是设置族钮 ⇒ **必须**在本集合里，否则 `isSettingsAction` 判假、
+ * 该钮落回通用主/次钮腿（字档 22 → bold 30，WXG-T-363 已实测过同型代价）。
+ */
+const ACTION_SET: ReadonlySet<string> = new Set<string>([...MENU_ORDER, 'toggle-ghost-symbol']);
 
 export function isSettingsAction(id: string): id is SettingsAction {
     return ACTION_SET.has(id);
@@ -166,6 +184,8 @@ export function settingsContentLabel(id: SettingsAction, data: SettingsContentDa
             return `皮肤  ${skinLabel(data.skinId)}`;
         case 'toggle-debug-guides':
             return `Debug  ${data.debugGuides ? '开' : '关'}`;
+        case 'toggle-ghost-symbol':
+            return `幽灵符号  ${data.ghostSymbol ? '开' : '关'}`;
     }
 }
 
@@ -177,6 +197,7 @@ const PAUSE_CHIPS: ReadonlySet<string> = new Set<string>([
     'toggle-large-text',
     'toggle-vibrate',
     'toggle-debug-info',
+    'toggle-ghost-symbol',
 ]);
 
 /** 暂停档的小字族（长文案：3 格单元放不下标准 30px 字面）。 */
@@ -185,6 +206,7 @@ const PAUSE_SMALL_FONT: ReadonlySet<string> = new Set<string>([
     'toggle-large-text',
     'toggle-vibrate',
     'toggle-debug-info',
+    'toggle-ghost-symbol',
     'cycle-bead-style',
     'cycle-bead-size',
     'cycle-skin',
@@ -204,6 +226,8 @@ function chipOn(id: SettingsAction, data: SettingsContentData): boolean {
             return data.vibrate;
         case 'toggle-debug-info':
             return data.debugInfo;
+        case 'toggle-ghost-symbol':
+            return data.ghostSymbol === true;
         default:
             return false;
     }

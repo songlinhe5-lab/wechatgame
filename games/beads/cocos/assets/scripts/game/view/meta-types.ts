@@ -51,6 +51,11 @@ export interface MetaViewData {
     readonly debugInfo: boolean;
     /** 设置 Debug 开关：菜单上画安全区顶 / 胶囊底 / 安全区底三条标定线。 */
     readonly debugGuides: boolean;
+    /**
+     * `[WXG-T-434]` E4 幽灵符号开关（只住暂停面板行5；此处保留同串值入口）。
+     * **可选**：缺省 = 关（旧夹具 / 旧调用方免填，判读处一律 `=== true`）。
+     */
+    readonly ghostSymbol?: boolean;
     /** EP11-S5 行4 两钮的菜单侧同串值入口（与暂停面板共读同一对 game getter ⇒ 两入口恒一致）。 */
     readonly beadStyle: string;
     readonly beadSize: BeadSizeKind;
@@ -203,6 +208,11 @@ export type MetaAction =
     | 'toggle-debug-info'
     /** 设置 Debug：安全区标定线。与 `PausePanelAction` 同串值，shell 走 default → `applySettingsAction`。 */
     | 'toggle-debug-guides'
+    /**
+     * `[WXG-T-434]` E4 幽灵符号开关（暂停面板行5）。同串值通道：shell 走 default →
+     * `applySettingsAction`；⛔ 不进设置弹窗 `MENU_ORDER`（5 行已满）。
+     */
+    | 'toggle-ghost-symbol'
     /** EP11-S5：与 `PausePanelAction` 同名同语义的选择器钮（行4）；shell 直串值入
      *  `BeadsGame.applySettingsAction`（既有通道，⛔ 不新造动作名）。 */
     | 'cycle-bead-style'

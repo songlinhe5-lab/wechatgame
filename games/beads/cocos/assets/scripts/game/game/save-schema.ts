@@ -61,6 +61,13 @@ export interface BeadsSettings {
    */
   readonly debugGuides: boolean;
   /**
+   * **[WXG-T-434]** E4 幽灵符号开关（`systems-index §3.8`：`EMPTY_GHOST_ALPHA` v1.22
+   * 作废 → v1.23 转正为设置开关，用户拍板 A）。**默认关**；开启后盘面空格在坑底中心
+   * 叠加目标色的矢量符号（色盲冗余通道，A2b/A3 恢复路径）。
+   * 缺字段逐字段降级 false，⛔ SAVE_VERSION 不 bump（同 `debugInfo` 判例）。
+   */
+  readonly ghostSymbol: boolean;
+  /**
    * 换肤两字段（**EP11-S5 / S8 v1.1 §8-11~13**）：珠子风格与豆径档的末值。
    * - `beadStyle`：string styleId，默认 `DEFAULT_BEAD_STYLE_ID`（= `facet-4`）；
    * - `beadSize`：枚举 BeadSizeKind，默认 BEAD_SIZE_DEFAULT（= 'full' 满豆）。
@@ -238,6 +245,7 @@ export function defaultBeadsSave(): BeadsSave {
       vibrate: VIBRATE_DEFAULT,
       debugInfo: false,
       debugGuides: false,
+      ghostSymbol: false,
       beadStyle: DEFAULT_BEAD_STYLE_ID,
       beadSize: BEAD_SIZE_DEFAULT,
       skinId: DEFAULT_SKIN_ID,
@@ -281,6 +289,7 @@ export function normalizeSettings(raw: unknown): BeadsSettings {
     vibrate: boolField(raw, 'vibrate', VIBRATE_DEFAULT),
     debugInfo: boolField(raw, 'debugInfo', false),
     debugGuides: boolField(raw, 'debugGuides', false),
+    ghostSymbol: boolField(raw, 'ghostSymbol', false),
     beadStyle:
       typeof styleRaw === 'string' && isRegisteredStyleId(styleRaw)
         ? styleRaw
@@ -500,6 +509,7 @@ function settingsEqual(a: BeadsSettings, b: BeadsSettings): boolean {
     a.vibrate === b.vibrate &&
     a.debugInfo === b.debugInfo &&
     a.debugGuides === b.debugGuides &&
+    a.ghostSymbol === b.ghostSymbol &&
     a.beadStyle === b.beadStyle &&
     a.beadSize === b.beadSize &&
     a.skinId === b.skinId

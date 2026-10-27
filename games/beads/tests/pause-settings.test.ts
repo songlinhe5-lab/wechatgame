@@ -367,6 +367,8 @@ describe('S9 pause & settings', () => {
       vibrate: true,
       debugInfo: false,
       debugGuides: false,
+      // [WXG-T-434] E4 幽灵符号：本腿未触行5 中格 ⇒ 保持默认关。
+      ghostSymbol: false,
       // EP11-S5：本腿未触行4 两钮 ⇒ 存档里两新字段保持默认档（S8 §8-11）。
       beadStyle: 'facet-4',
       beadSize: 'full',

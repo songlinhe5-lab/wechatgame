@@ -90,6 +90,7 @@ function panelLabel(button: PanelButton, snap: BeadsSnapshot): string {
     case 'toggle-large-text':
     case 'toggle-vibrate':
     case 'toggle-debug-info':
+    case 'toggle-ghost-symbol':
     case 'cycle-bead-style':
     case 'cycle-bead-size':
     case 'cycle-skin':

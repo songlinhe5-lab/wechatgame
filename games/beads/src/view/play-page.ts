@@ -87,6 +87,7 @@ import {
     drawDebugCellOutline,
     drawEmptySocket,
     drawFilledBead,
+    drawGhostSymbol,
     drawLiftBeadShadow,
     drawLockedBead,
     drawStateRing,
@@ -577,6 +578,12 @@ function drawGrid(
                 // ⇒ 又一次「有珠 / 无珠不是一张图」。默认档下两者同值 ⇒ 本条对封箱**零影响**（可证）。
                 if (!tileMerged) {
                     drawEmptySocket(builder, bx, cy, palette, snap.gridCell, cell.colorIdx, inks, true, beadDrawInset, tileOpts);
+                }
+                // [WXG-T-434] E4 幽灵符号（设置开关 `snap.ghostSymbol`，默认关）。
+                // ⛔ 必须挂在 `tileMerged` **之外**：tint 臂合并 B0 时整条 `drawEmptySocket`
+                // 都不调用，挂进去会让「开 tint ⇒ 开关失效」。画在坑底中心、α 0.32。
+                if (snap.ghostSymbol) {
+                    drawGhostSymbol(builder, bx, cy, snap.gridCell, cell.colorIdx, inks);
                 }
                 // GAP-03/04 引导：单一目标格 `hint` 蓝描边呼吸（叠加优先级：外描边 > E2 > E1）。
                 if (snap.onboarding && i === snap.hintRow && j === snap.hintCol) {

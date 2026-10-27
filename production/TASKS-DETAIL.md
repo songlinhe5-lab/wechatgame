@@ -5954,3 +5954,28 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 - **入库改动**：`tools/scripts/check-ide-links.mjs` 增 `OPTIONAL_IDE_DIRS = ['.trae']`（存在即按四 IDE 同一规则校验，缺则跳过 ⇒ 四 IDE 门禁保持恒定）；`docs/agent/routing.md`、`my-agents/INDEX.md`、`my-skills/INDEX.md`、`docs/agent/ide-capability-matrix.md`、`AGENTS.md`、`my-rules/agents-md.md` 登记 Trae 本地落位；`ctx/index.json` 顺带恢复 develop 的 22 条 vendor 索引（WXG-T-412 口径，上笔隔离树合并漏采）。
 - **门禁读数**：`check:links OK — agents=7 skills=47`（四 IDE + 本地 Trae 可选）；`ctx:check` / `check:tasks --staged` / `check-context-budget --staged` 全绿；零代码、零 §3 数值、零冻结常量。
 - **已知差异 / 遗留**：① Trae 无 `readonly` 字段 ⇒ `studio-orchestrator` / `quality-lead` 的只读约束在本 IDE 不生效，只能靠提示词自律；② 新增 skills 需**重载 Trae 窗口**才出现在 Skill 清单；③ `.trae/specs/` 同为本地态（不入库）。
+
+## WXG-T-434
+
+**beads MVP 验收线核账与缺口落码：普通模式归位连击 + 幽灵符号设置开关 + §7 五处漂移回写** · 负责：主理人(CodeBuddy)·beads 设计+工程 · 状态：✅ 完成（2026-10-27）
+
+- **上位**：用户令「MVP 原型设计与实现收尾」，二问拍板 ⇒ 对象 = **beads 的 MVP 验收线**（`concept §7` 十项），口径 = **实现 + 全量验证**（代码落完、`pnpm run verify` 全绿、可提交）。领号按机械校准锚（433 → 434），⛔ 不凭会话记忆。
+- **核账结论（十项逐条，`concept §7` 原文 vs 现值）**：六项已实现（核心玩法 / 托盘 / 倒计时告急 / 3 道具 / 暂停设置 / 本地存档）；**五处口径漂移**（旧文字仍写已废值）——①「8 关」实为 **10 关 / 2 大关**（`config/arcs.ts`）②「按 k 定价」实为 **按步数** `measuredLevelTime(steps)`（v1.84/v1.85 取代 `clamp(k×45s,120,420)`）③「托盘基础 12 + 扩展 12」实为**三档 `TRAY_TIER_SLOTS=[12,24,48]`**（v1.84）④「解环器三型」实为**三件空间修复器**（v1.95）⑤「通关画面 8 关全表」实为**本章总览**；**两处真缺口** ——⑥ 归位连击只在冲刺腿有，普通模式没有 ⑦ 幽灵符号设置开关**全仓零实现**（`EMPTY_GHOST_ALPHA` 只剩作废定义、`symbols.ts` 已随 v1.22 删除）。
+- **落码 ①：归位连击补到普通模式**（纯感官，零 HUD 数字）
+  - `game/beads-game.ts`：`_placeStreak` / `_placeWindow` / `_placeTier` 三字段 + `_armPlaceCombo` / `_breakPlaceCombo` / `_resetPlaceCombo`；接入三处 = `_placeSelected` 成功腿（落子推进）、`rejected(mismatch)` 腿（断连 `wrong`）、`_stepPlaying` 窗口 tick（断连 `timeout`）；`_setupLevel` 装配即清零。
+  - **零新常量**：窗口 = §3.10 C2 `COMBO_WINDOW_S`，档位 = C3 `COMBO_STREAK_TIERS` 经 `tierForStreak`（`systems/sprint.ts` 纯函数）复用；`combo:up.multiplier` 普通模式**恒发 1**（无倍率语义），`concept §4` 字段集合未变 ⇒ ⛔ 未走事件表变更。
+  - **⛔ 零 HUD 数字**：不动 `snapshot.multiplier` / `snapshot.streak`（那是冲刺腿计分通道）—— 判据实测两者全程 1 / 0。
+  - `ignored` 分支（占用 / 锁定）**不断连**：无效点击不是失误。
+- **落码 ②：幽灵符号设置开关**（§3.8 v1.23「转正」，默认关）
+  - 恢复 `view/symbols.ts`（从 `e82964f8^` 取回，226 行，v1.22 删除前原件）+ `palette.ts` 补回 5 个 `SYMBOL_*` 常量；`drawGhostSymbol()` 导出，**挂 `play-page` 空格分支末**。
+  - ⚠ **挂点教训**：⛔ 不能挂 `drawEmptySocket` 内 —— 那条路径在 `tileMerged`（tint 臂合并 B0）时**整条不调用** ⇒ 挂进去会「开 tint 就开关失效」。出参用 `EMPTY_GHOST_ALPHA`（0.32）。
+  - 存档：`BeadsSettings.ghostSymbol`（`boolField` 逐字段降级 false，**SAVE_VERSION 不 bump**，同 `debugInfo` 判例）+ `settingsEqual` + `GameSettings` 镜像 + `apply('toggle-ghost-symbol')` + `beads-shell` 投影 + 快照 **menu 片**登记（`snapshot-shards` / `snapshot-projection`）。
+  - UI：**暂停面板行5 由 2 格改 3 格**（`toggle-debug-info` / `toggle-ghost-symbol` / `go-menu`，`PAUSE_PANEL_H 718` 零改动、cell 宽 160 ≥ `TOUCH_MIN 88`）；设置动作**全集**与排布表 `MENU_ORDER` 解耦（新动作只住暂停面板，但必须进 `ACTION_SET` 否则 `isSettingsAction` 判假、字档掉回通用腿 —— WXG-T-363 同型）。
+  - ⚠ **设置弹窗加不了第 6 行**：5 行底缘 457 距返回钮上缘 445 只剩 12 ⇒ 新行会重叠。
+- **落码 ③：`concept.md §7` 回写**（版本 v1.6 → **v1.7**）：五处旧值划线留档（K-053）+ 两处新口径注；头部版本行同步登记。
+- **实测坑（三处）**：① **音频预算**：组填充同一帧连升三档会各占 `AudioScheduler.maxPerFrame`(6) 一个名额 ⇒ 把同帧 `sfx_panel_in` 挤出预算（`audio-dispatch` A05-18 判据实测红）。修法 = `_placeSelected` 批内**并到最高档**（`_placePendingTier`）+ `_frameSeq` **同帧只响一次**守卫；② **`SYMBOL_INK_LIGHT` 复用 `BEAD_HIGHLIGHT_HEX`**：新造 `#FFFFFF` 字面量会顶破「色表锁」hex 条数 49；③ `simpleTestLevel` 有 `[6,32]×[5,32]` 格数下限，3×3 盘被关卡校验拦进不了 PLAYING。
+- **测试**：新增 `tests/place-combo.test.ts`（5 例：三档 + multiplier 恒 1 / 零 HUD 数字 / `wrong` 断连且无 streak 零事件 / `timeout` 超窗 / 换关清零且**不发** `combo:break`）+ `tests/ghost-symbol.test.ts`（3 例：无目标色零图元 / 有目标色带 α / 十色齐全）；`save-schema` / `pause-settings` / `bead-style-settings` 夹具补 `ghostSymbol`（⛔ 未弱化任何既有断言）。
+- **金样本**：`ui-golden-capture.ts` 重抓（⛔ 手改），`pause` 帧因行5 三格变化，其余帧不动。
+- **门禁读数**：`pnpm run verify` = **PASS 20 ｜ FAIL 0 ｜ SKIP 2**（SKIP = `check:size` / `check:cocos-mask`，隔离工作树缺 gitignored `games/beads/cocos/extensions/`，非失败）；`typescript` 绿；beads `1394 passed`。
+- **边界**：⛔ 未改 `packages/framework/src/**`、未改 §3 冻结值（只按 §3.8 既有口径落码）、未 bump 存档版本、未动设置弹窗布局与 `PANEL_SIZE`。
+- **遗留（交设计域）**：① `gdd/score-combo.md` 仍无「归位连击」机制节 —— 本批按 §3.10 复用口径落码，建议补节把「普通模式复用冲刺阈值」写死；② `art/specs/assets-spec.md §1.2` 仍写「禁画 L5/E4 符号」，需按 §3.8 加一句「开关开启时才画（默认关 = 现视觉）」；③ 真机档（`[R]`）未验，档位特效与 combo 音观感留 QA。

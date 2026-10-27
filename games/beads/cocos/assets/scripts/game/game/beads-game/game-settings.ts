@@ -73,6 +73,8 @@ export class GameSettings {
     vibrate: VIBRATE_DEFAULT,
     debugInfo: false,
     debugGuides: false,
+    // [WXG-T-434] E4 幽灵符号 **默认关**（`systems-index §3.8` v1.23 转正为设置开关）。
+    ghostSymbol: false,
     beadStyle: DEFAULT_BEAD_STYLE_ID,
     beadSize: BEAD_SIZE_DEFAULT,
     skinId: DEFAULT_SKIN_ID,
@@ -128,6 +130,12 @@ export class GameSettings {
         return;
       case 'cycle-bead-style':
         this._cycleBeadStyle();
+        return;
+      case 'toggle-ghost-symbol':
+        // [WXG-T-434] E4 幽灵符号（A2b/A3 恢复通道）：写档 + 经 snapshot 回显给
+        // 盘面渲染（`drawEmptySocket.options.ghostSymbol`）；不切相位、不动棋局。
+        v.ghostSymbol = !v.ghostSymbol;
+        this.persist();
         return;
       case 'cycle-bead-size':
         this._cycleBeadSize();

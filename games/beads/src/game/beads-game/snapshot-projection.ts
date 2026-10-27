@@ -370,6 +370,8 @@ function projectMenuShard(s: SnapshotMenu, src: SnapshotSource): void {
     s.reduceMotion = src.settings.values.reduceMotion;
     s.largeText = src.settings.values.largeText;
     s.vibrate = src.settings.values.vibrate;
+    // `[WXG-T-434]` E4 幽灵符号开关（空槽渲染读它；真源 = 设置档）。
+    s.ghostSymbol = src.settings.values.ghostSymbol;
     // EP11-S5 行4 两钮的档位回显 + view 换肤渲染的 styleId 入口（L5：view 只读、不判定）。
     s.beadStyle = src.settings.values.beadStyle;
     s.beadSize = src.settings.values.beadSize;

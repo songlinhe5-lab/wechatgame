@@ -145,6 +145,11 @@ export interface BeadsSnapshot {
   largeText: boolean;
   /** §3.8 震动开关（WXG-T-164；view 经 snapshot 回显面板行开/关）。 */
   vibrate: boolean;
+  /**
+   * `[WXG-T-434]` E4 幽灵符号开关（`systems-index §3.8` v1.23 转正为设置开关，默认关）。
+   * 真源 = 设置档 ⇒ 归 menu 片；对局页读它决定空槽是否叠目标色符号。
+   */
+  ghostSymbol: boolean;
   /** DEBUG 虚线轮廓开关（`BeadsGame.setDebugOutlines`）；view 只读快照，正常恒 false。 */
   debugOutlines: boolean;
   /** DEBUG 性能覆层开关（`BeadsGame.setDebugInfo`，pause-settings v1.6 §2.2）。 */
@@ -596,6 +601,7 @@ function createMenuShard(): SnapshotMenu {
     reduceMotion: false,
     largeText: false,
     vibrate: VIBRATE_DEFAULT,
+    ghostSymbol: false,
     // 默认档与存档层同一真源（`FACET4_STYLE_ID` = `registry.DEFAULT_BEAD_STYLE_ID` 的 tuning 定义），
     // ⛔ 不得在 view/game 任一侧另写字面量。
     beadStyle: FACET4_STYLE_ID,

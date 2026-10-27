@@ -72,6 +72,7 @@ import {
   BEAD_SHADOW_ALPHA_SELECTED,
   beadColorOf,
   DEMO_BEAD_INKS,
+  EMPTY_GHOST_ALPHA,
   endpointOf,
   mix,
   SOCKET_EDGE_DARK_MIX,
@@ -83,6 +84,7 @@ import {
   type BeadInks,
   type BeadsPalette,
 } from './palette.js';
+import { beadSymbol, emitSymbol } from './symbols.js';
 
 /**
  * 珠参数卡 —— 真源已上移 `config/tuning.ts`（v1.57 `TRAY_BEAD_SIZE` 判例 + §12.2 C4
@@ -1000,6 +1002,41 @@ export interface EmptySocketTintOptions {
    * 反向守卫见 `bead-tint-arm.test.ts`。
    */
   readonly trayZone?: boolean;
+}
+
+/**
+ * E4 幽灵符号相对 L5 满符号的缩小比例（「同矢量 path 但缩小 80%」）。
+ * L5 满符号占 ≈BEAD×0.406，×此比例 → glyph 占 ≈BEAD×0.32（与 §3.8 描述一致）。
+ * 几何比例（非 §3 gameplay 常量），与 {@link BEAD_CARD} 同族。
+ */
+const GHOST_SYMBOL_SCALE = 0.8;
+
+/**
+ * E4 幽灵符号：与 L5 同矢量 path、缩至 ≈BEAD×0.32、α `EMPTY_GHOST_ALPHA`
+ * （色盲冗余通道，`assets-spec §1.2` 旧 E4 卡）。⛔ 热路径零分配：直调 emitSymbol，
+ * 不建中间对象；`colorIdx` 缺省时零动作。
+ *
+ * **调用面 = `play-page` 的空格分支末**（开关 `snap.ghostSymbol`，默认关）：
+ * ⛔ 不挂在 `drawEmptySocket` 内 —— 那条路径在 `tileMerged`（tint 臂合并 B0）时**整条不调**，
+ * 挂进去会让「开 tint ⇒ 开关失效」。
+ */
+export function drawGhostSymbol(
+  builder: RenderModelBuilder,
+  cx: number,
+  cy: number,
+  size: number,
+  colorIdx: number | undefined,
+  inks: BeadInks,
+): void {
+  if (colorIdx === undefined) return;
+  emitSymbol(
+    builder,
+    beadSymbol(colorIdx),
+    cx,
+    cy,
+    size * GHOST_SYMBOL_SCALE,
+    withAlpha(beadColorOf(inks, colorIdx), EMPTY_GHOST_ALPHA),
+  );
 }
 
 export function drawEmptySocket(

@@ -57,7 +57,14 @@ const LEVEL_COUNT = KEYS.length;
  * `DEFAULT_BEAD_STYLE_ID` / `BEAD_SIZE_DEFAULT` / `DEFAULT_SKIN_ID` 定，本处只存
  * 【期望字面量】，⛔ 不反向引用实现常量以免抹掉回归）。
  */
-const SETTINGS_DEFAULTS = { beadStyle: 'facet-4', beadSize: 'full', skinId: 'warm-paper', debugGuides: false };
+const SETTINGS_DEFAULTS = {
+  beadStyle: 'facet-4',
+  beadSize: 'full',
+  skinId: 'warm-paper',
+  debugGuides: false,
+  // [WXG-T-434] E4 幽灵符号开关默认关（§3.8 v1.23 转正为设置开关）。
+  ghostSymbol: false,
+};
 
 /** 有星的前三关（其余槽由 `starsLedger` 稠密补 0 ⇒ 完好档可自证 `changed = false`）。 */
 const STAR_HEAD = [3, 2, 1];
@@ -77,7 +84,7 @@ const validSave = () => ({
   starsByUid: starsLedger(STAR_HEAD),
   // v6：品质分最佳账（稀疏）——前两关有记录，其余无条目。
   settleBestByUid: { [KEYS[0]]: 3120, [KEYS[1]]: 2400 },
-  settings: { bgmMuted: true, sfxMuted: false, reduceMotion: false, largeText: false, vibrate: true, debugInfo: false, debugGuides: false, beadStyle: 'facet-4', beadSize: 'full', skinId: 'warm-paper' },
+  settings: { bgmMuted: true, sfxMuted: false, reduceMotion: false, largeText: false, vibrate: true, debugInfo: false, debugGuides: false, ghostSymbol: false, beadStyle: 'facet-4', beadSize: 'full', skinId: 'warm-paper' },
 });
 
 /** **v4 形态**文档（只有位置轴、无身份账）：一次性入口专用夹具（§8-21 / §8-14）。 */

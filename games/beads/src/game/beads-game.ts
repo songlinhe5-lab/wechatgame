@@ -66,6 +66,7 @@ import {
   DESIGN_H,
   REVIVE_BONUS_SEC,
   REVIVE_MAX_PER_LEVEL,
+  COMBO_WINDOW_S,
   SELECT_LIFT_MS,
   STAMINA_REFILL_PLACEMENT,
   STAGE_BONUS_TIME,
@@ -125,7 +126,7 @@ import { judgePlacement, planGroupFill } from '../systems/placement.js';
 import { planConsumeOrder } from '../systems/consume-order.js';
 import { Spawner } from '../systems/spawner.js';
 import { GameTimer } from '../systems/timer.js';
-import { SprintTracker } from '../systems/sprint.js';
+import { SprintTracker, tierForStreak } from '../systems/sprint.js';
 import { PausePanel, type PausePanelAction } from '../systems/pause-panel.js';
 import {
     RankPanel,
@@ -448,6 +449,38 @@ export class BeadsGame {
   private readonly _crashIO: CrashSnapshotIO;
 
   private _mode: GameMode = 'normal';
+  /**
+   * **[WXG-T-434] 归位连击（普通模式 · 纯感官）** — MVP 验收线项，`concept §7` /
+   * changelog v1.23「MVP 追加归位连击（纯感官 streak，零 HUD 数字）」。
+   *
+   * 与冲刺连击**共用阈值、不共用计分**：窗口 `COMBO_WINDOW_S` 与档位
+   * `COMBO_STREAK_TIERS`（§3.10 C2/C3）经 {@link tierForStreak} 复用 ⇒ **零新常量**；
+   * ⛔ 但不算分、不乘倍率、不上 HUD（`play-page` 的 `×M COMBO n` 恒为冲刺专属）。
+   * 表现走既有三档特效（`comboVfxSpec`）+ 既有 combo 音（`effects-dispatch` 监听
+   * `combo:up` / `combo:break`）。普通模式 `combo:up.multiplier` 恒发 1。
+   */
+  private _placeStreak = 0;
+  /** 归位连击窗口剩余秒（0 = 无活跃 streak）。 */
+  private _placeWindow = 0;
+  /** 归位连击当前档位（0 = 无）；只在**升档**那一颗触发特效（与冲刺 `tierUp` 同门）。 */
+  private _placeTier = 0;
+  /**
+   * 本批落子待发的**最高档**（0 = 无）。
+   * ⛔ 不在 `_armPlaceCombo` 里直接 emit：组填充一次可连升多档，同帧 3 个 combo clip 会
+   * 挤占 `AudioScheduler.maxPerFrame`（6）而把同帧的 `sfx_panel_in` 挤出预算
+   * （A05-18 实测：过关面板音丢失）。同批只发最高档 —— 与冲刺「重叠时只播最高档」同口径。
+   */
+  private _placePendingTier = 0;
+  private _placePendingRow = 0;
+  private _placePendingCol = 0;
+  /**
+   * 帧序号（`update()` 每次 ++）。归位连击用它做**同帧只响一次**的守卫：
+   * 一帧内连升 3 档对听觉无意义，却会各占一个 `AudioScheduler` 名额（`maxPerFrame` = 6）
+   * ⇒ 把同帧的 `sfx_panel_in` 挤出预算（A05-18 判据实测）。
+   */
+  private _frameSeq = 0;
+  /** 上一次真正发出 `combo:up` 的帧序号（-1 = 从未）。 */
+  private _placeUpFrame = -1;
   private _levelIndex = 0;
   private _stageIndex = 0;
   /** Validated sprint run length = also the stage-bonus cap (C1 + §8-7). */
@@ -891,6 +924,14 @@ export class BeadsGame {
   }
 
   /**
+   * `[WXG-T-434]` E4 幽灵符号开关（`systems-index §3.8` v1.23 转正，默认关）。
+   * 对局页经快照 `ghostSymbol`（menu 片）读它决定空槽是否叠目标色符号。
+   */
+  get ghostSymbol(): boolean {
+    return this._settings.values.ghostSymbol;
+  }
+
+  /**
    * 当前珠子风格 id（EP11-S5 / S9 §2.2 行4 左格）。**view 查 registry 的唯一入口**（L5：
    * 渲染层不持有游戏状态，只读本值），未经渲染侧兵，非法值已在 `normalizeSettings` 降级。
    */
@@ -1007,6 +1048,7 @@ export class BeadsGame {
 
   update(dt: number): void {
     if (!this._services) return;
+    this._frameSeq += 1;
     this.sampleFrame(dt);
     // ── 输入段（相位无关，WXG-T-100 / BD-34）────────────────────────────────
     // `InputRouter.handleTap` 的相位路由表已写全四相位（`input-control §2.3 状态门禁`：
@@ -2086,6 +2128,7 @@ export class BeadsGame {
     const level = this._levels[index];
     if (!level) throw new Error(`Beads: no level at index ${index}`);
     this._input.resetTapCount(); // 换关/重试/新局共用复位点（同 F3 甲裁「装配即复位」）
+    this._resetPlaceCombo(); // [WXG-T-434] 换关/重试/新局 ⇒ 归位连击清零（不跨局携带）
     this._actionsPlaying = 0;
     this._grid = new BeadGrid(level.pattern);
     // v2.0 BOOT 装配（levels-spec v1.2 §2.1 / v1.3 §2.2，WXG-T-139 装配器）：
@@ -2162,6 +2205,68 @@ export class BeadsGame {
     this._conservation.resetBaseline(false);
   }
 
+  /**
+   * **[WXG-T-434] 归位连击：一次正确落子推进 streak / 重置窗口 / 升档即播特效。**
+   *
+   * 纯感官：⛔ 不算分、不乘倍率、⛔ 不上 HUD。档位阈值 = §3.10 C3 `COMBO_STREAK_TIERS`
+   * （经 `tierForStreak` 复用）、窗口 = C2 `COMBO_WINDOW_S` ⇒ **零新常量**。
+   * `combo:up.multiplier` 在普通模式**恒发 1**（无倍率语义；⛔ 不改 §4 字段集合）。
+   */
+  private _armPlaceCombo(row: number, col: number): void {
+    this._placeWindow = COMBO_WINDOW_S;
+    this._placeStreak += 1;
+    const tier = tierForStreak(this._placeStreak);
+    if (tier > this._placeTier) {
+      this._placeTier = tier;
+      // 只记账，不 emit：见 `_placePendingTier` 注释（同帧音频预算）。
+      if (tier > this._placePendingTier) {
+        this._placePendingTier = tier;
+        this._placePendingRow = row;
+        this._placePendingCol = col;
+      }
+    }
+  }
+
+  /**
+   * **[WXG-T-434] 把本批最高档的归位连击真正发出去**（特效 + `combo:up`）。
+   * 调用点 = `_placeSelected` 组填充循环**之后**（一批落子 = 一次连击升级）。
+   */
+  private _flushPlaceCombo(): void {
+    const tier = this._placePendingTier;
+    if (tier <= 0) return;
+    this._placePendingTier = 0;
+    // 同帧只响一次（`fillBoard` 式的同帧批量落子会连升三档 ⇒ 挤掉同帧面板音）。
+    if (this._placeUpFrame === this._frameSeq) return;
+    this._placeUpFrame = this._frameSeq;
+    const spec = comboVfxSpec(tier);
+    if (spec) this._fx.armCombo(spec, this._placePendingRow, this._placePendingCol);
+    this._emit('combo:up', { streak: this._placeStreak, multiplier: 1, tier });
+  }
+
+  /**
+   * **[WXG-T-434] 归位连击断连**：`wrong` = 错色落子 / `timeout` = 超窗。
+   * 无活跃 streak ⇒ 零动作零事件（与冲刺 `SprintTracker._break` 同门）。
+   */
+  private _breakPlaceCombo(reason: 'wrong' | 'timeout'): void {
+    const live = this._placeStreak > 0;
+    this._placeStreak = 0;
+    this._placeWindow = 0;
+    this._placeTier = 0;
+    this._placePendingTier = 0;
+    if (live) this._emit('combo:break', { reason });
+  }
+
+  /**
+   * **[WXG-T-434] 归位连击清零**（换关 / 重开 / 新局）：⛔ 不发 `combo:break`
+   * —— 重开不是「断连」，发事件会让提示音每次换关响一次。
+   */
+  private _resetPlaceCombo(): void {
+    this._placeStreak = 0;
+    this._placeWindow = 0;
+    this._placeTier = 0;
+    this._placePendingTier = 0;
+  }
+
   /** One PLAYING frame: combo window → countdown (input is read in `update()`). The feed segment is dead (v2.0). */
   private _stepPlaying(dt: number): void {
     // 输入段已在 `update()` 头部落下（相位无关，WXG-T-100 / BD-34）。此守卫保留
@@ -2177,6 +2282,11 @@ export class BeadsGame {
     if (this._mode === 'sprint') {
       const broke = this._sprint.windowTick(dt);
       if (broke) this._emit('combo:break', { reason: broke });
+    } else if (this._placeStreak > 0) {
+      // [WXG-T-434] 归位连击窗口（普通模式）：同 `COMBO_WINDOW_S`、同「同帧落子先重置窗口」
+      // 判例 ⇒ 同帧落子永不会被本帧 tick 判超时。超窗 = `timeout` 断连。
+      this._placeWindow = Math.max(0, this._placeWindow - dt);
+      if (this._placeWindow <= 0) this._breakPlaceCombo('timeout');
     }
 
     // ⛔ 供料段（v2.0 定时供料关停，WXG-T-136 / 用户 2026-09-16 裁定案 A）：
@@ -2337,6 +2447,7 @@ export class BeadsGame {
       case 'toggle-reduce-motion':
       case 'toggle-large-text':
       case 'toggle-vibrate':
+      case 'toggle-ghost-symbol':
       case 'cycle-bead-style':
       case 'cycle-bead-size':
       case 'cycle-skin':
@@ -2569,6 +2680,9 @@ export class BeadsGame {
             this._save?.save();
           }
 
+          // [WXG-T-434] 归位连击（普通模式 · 纯感官）：与冲刺腿并列、互不干扰。
+          if (this._mode === 'normal') this._armPlaceCombo(c.row, c.col);
+
           if (this._mode === 'sprint') {
             const score = this._sprint.onPlaced();
             if (score.tierUp !== null) {
@@ -2594,6 +2708,8 @@ export class BeadsGame {
             break; // 过关已判 ⇒ 不再续填（同帧口径与单珠版一致）
           }
         }
+        // [WXG-T-434] 本批落子结束 ⇒ 发一次最高档归位连击（组填充同批只响一次）。
+        this._flushPlaceCombo();
         this._conservation.check('托盘落子 place'); // 每填一格必少一珠，混色重排写坏即报
         return true;
       }
@@ -2616,6 +2732,10 @@ export class BeadsGame {
         if (this._mode === 'sprint') {
           const reason = this._sprint.onRejected();
           this._emit('combo:break', { reason });
+        } else {
+          // [WXG-T-434] 普通模式：错色落子 = 立即断连（与冲刺 `wrong` 同语义）。
+          // `ignored` 分支（占用 / 锁定）**不断连** —— 那是无效点击而非失误。
+          this._breakPlaceCombo('wrong');
         }
         return false;
       }
