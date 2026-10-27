@@ -63,6 +63,43 @@ describe('WebPlatform (headless)', () => {
     expect(platform.info.name).toBe('web');
   });
 
+  /**
+   * F4（MVP review / WXG-T-434）：真的 `localStorage` 只讲 `getItem/setItem/removeItem/key/length`，
+   * 而框架侧的 `Storage` 接口讲 `get/set/remove/keys/clear`。直接把 DOM 对象当实现交出去，
+   * `JsonStorage` 的 try/catch 会把「`set` 不是函数」那记 TypeError 吞成写失败（控制清单：
+   * 读写失败永不抛异常）⇒ 网页端设置与进度全程静默不落盘，而本仓所有 Node 用例注入的都是
+   * 已合接口的 `MemoryStorage` ⇒ 这条链以前没人检得到（判例 K-036：跑过 ≠ 检到）。
+   */
+  it('wraps a DOM-shaped localStorage into the framework Storage interface', () => {
+    const store = new Map<string, string>();
+    const domStorage = {
+      getItem: (k: string) => (store.has(k) ? store.get(k)! : null),
+      setItem: (k: string, v: string) => void store.set(k, String(v)),
+      removeItem: (k: string) => void store.delete(k),
+      key: (index: number) => [...store.keys()][index] ?? null,
+      get length() {
+        return store.size;
+      },
+      clear: () => store.clear(),
+    };
+    const g = globalThis as unknown as { localStorage?: unknown };
+    g.localStorage = domStorage;
+    try {
+      const storage = new WebPlatform().createStorage();
+      storage.set('wxgame.beads.save', '{"version":2}');
+      expect(store.get('wxgame.beads.save')).toBe('{"version":2}');
+      expect(storage.get('wxgame.beads.save')).toBe('{"version":2}');
+      storage.set('other', '2');
+      expect(storage.keys().sort()).toEqual(['other', 'wxgame.beads.save']);
+      storage.remove('other');
+      expect(store.has('other')).toBe(false);
+      storage.clear();
+      expect(store.size).toBe(0);
+    } finally {
+      delete g.localStorage;
+    }
+  });
+
   it('reports fallback metrics without a DOM', () => {
     const platform = new WebPlatform();
     const size = platform.getScreenSize();

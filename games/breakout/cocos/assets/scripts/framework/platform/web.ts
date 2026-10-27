@@ -14,9 +14,25 @@ import { BasePlatform, type FrameHandle, type HapticKind, type ScreenSize } from
 import { MockRewardedAdProvider } from './rewarded-ad';
 import { SynthAudioBackend, type SynthContext, type SynthInnerAudio } from './audio-synth';
 
+/**
+ * 真的 `localStorage` 长得和框架的 `Storage` 接口**不一样**（`getItem/setItem/removeItem/key/length`
+ * vs `get/set/remove/keys/clear`）。本文件以前把全局变量直接声明成框架 `Storage` 交出去，
+ * 类型同名 ⇒ 编译期看不出来；运行期 `JsonStorage` 又把「`set` 不是函数」那记 TypeError 吞成
+ * 返回 `false`（控制清单：读写失败永不抛异常）⇒ 网页端读档永远当新档、写档静默消失。
+ * 判例 F4 / WXG-T-434；微信侧一直是对的（`weapp.ts` 有 `WeappStorage` 包 `wx.*StorageSync`）。
+ */
+interface DomLikeStorage {
+  getItem(key: string): string | null;
+  setItem(key: string, value: string): void;
+  removeItem(key: string): void;
+  key(index: number): string | null;
+  readonly length: number;
+  clear(): void;
+}
+
 interface GlobalWithDom {
   performance?: { now(): number };
-  localStorage?: Storage;
+  localStorage?: DomLikeStorage;
   requestAnimationFrame?: (cb: (t: number) => void) => number;
   cancelAnimationFrame?: (handle: number) => void;
   innerWidth?: number;
@@ -33,6 +49,40 @@ interface GlobalWithDom {
 
 function dom(): GlobalWithDom {
   return globalThis as unknown as GlobalWithDom;
+}
+
+/** DOM `Storage` → 框架 `Storage` 的适配层（与 `WeappStorage` 同族）。 */
+class DomStorage implements Storage {
+  constructor(private readonly _ls: DomLikeStorage) { }
+
+  get(key: string): string | null {
+    return this._ls.getItem(key);
+  }
+
+  set(key: string, value: string): void {
+    // ⛔ 不在这里包 try/catch：配额与隐私模式的失败要顺着原有的通道上报——
+    // `JsonStorage.setString` 捕获后返回 `false`，调用方据此决定降级，玩法不崩。
+    this._ls.setItem(key, value);
+  }
+
+  remove(key: string): void {
+    this._ls.removeItem(key);
+  }
+
+  keys(): string[] {
+    // 按索引取，不用展开：与 `MemoryStorage.keys()` 同判例（Cocos ES5 会把非数组可迭代对象
+    // 的展开降级成 concat 形式，真机上只拿到一个键，ADR-0012）。
+    const out: string[] = [];
+    for (let i = 0; i < this._ls.length; i++) {
+      const key = this._ls.key(i);
+      if (key !== null) out.push(key);
+    }
+    return out;
+  }
+
+  clear(): void {
+    this._ls.clear();
+  }
 }
 
 export class WebPlatform extends BasePlatform {
@@ -52,7 +102,8 @@ export class WebPlatform extends BasePlatform {
       capsuleBottomDp: null,
       capsuleRectDp: null,
     };
-    this._storage = options.storage ?? g.localStorage ?? new MemoryStorage();
+    const raw = g.localStorage;
+    this._storage = options.storage ?? (raw ? new DomStorage(raw) : new MemoryStorage());
   }
 
   now(): number {
