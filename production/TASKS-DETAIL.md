@@ -6368,7 +6368,7 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 
 ## WXG-T-457
 
-**beads GDD 漂移审计整改（§4 对齐 + §20-2 修复 + review 报告）** · 负责：主理人(Trae)·beads GDD+view · 状态：🔄 进行中（2026-10-27）
+**beads GDD 漂移审计整改（§4 对齐 + §20-2 修复 + review 报告）** · 负责：主理人(Trae)·beads GDD+view · 状态：✅ 完成（2026-10-27）
 
 - **上位**：用户「先不重载，直接开始 review 小游戏 GDD」⇒ `wxgame-gdd-review` 首跑（承 455 两件 review skill + 456 `check:frozen-values` 机械半边）。spec = `.trae/specs/beads-gdd-review-remediation/`（用户 2026-10-27 批准后执行；spec 件本地不入库）。
 - **审计结论（发现时）**：CONCERNS —— 1×P1（`check:arch` §20-2 红：`view/debug-layer.ts` 就地写 `rgba()`）+ 6×P2（§4 事件表/载荷与代码不一致）；**无 P0**。
@@ -6377,7 +6377,7 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 - **T3 SKIP 人工判读（只读）**：`check:frozen-values` 的 19 项非原子值 + 47 处不可解析文档式逐组判读（报告 §3）。**新发现 1×P1「门看不见的漂移」**：`TRAY_BAND.yMin` 代码 **216**（`src/config/tuning/layout.ts:161`）vs §3 **230**（`systems-index.md:82`）；且 §3.4 `TRAY_TIER_SLOTS` 行自述「panelH(4)=234 恰好等于托盘带高」与 §3.1 带高 220 **自相矛盾**（源 = `proposals/tray-24-layout-derivation.md §2` 方案 A 已落码、§3 未回写）。连带 `btn_expand` 几何整体 −14（代码 hit y∈[216,304] vs §3 y∈[230,318]）。**按 T3 纪律只登记不改值** ⇒ 待用户裁定后另开 §3 变更单（230→216 + changelog v1.97 + §3.4 两行同步）。
 - **T4 报告落盘**：`games/beads/design/gdd/review-2026-10-27.md`（基线 `723b50d9`、8 行漂移表、命令表、覆盖缺口、CONCERNS、2 条沉淀候选）。
 - **T5 门禁**：`check:arch` / `check:frozen-values` / `levels:check` / `palettes:check` / `check:a11y` / `check:links` / `typecheck` 全 exit 0；`pnpm --filter @wxgame/beads test` 1380 passed / 2 skipped。
-- **沉淀统计（kb:sync）**：新增 `__N__` / 修改 0 / 激活 0 / 归档 0（`kb:sync` 后回填）。
+- **沉淀统计（kb:sync）**：新增 **3** 条 / 修改 0 / 激活 0 / 归档 0 —— **K-190**（流程：冻结表改值必须「§3 行 + changelog + 落码」同批三件套）、**K-191**（流程：§4 对齐前先判通道归属，开放数据子域消息不是事件总线）、**K-192**（流程门禁：门禁全绿 ≠ 值域全对，SKIP 清单本身就是审计输入，且报告里反引号等式会反向污染 SKIP 面）；`kb:audit` 无归档候选与相似命中。
 
 ## WXG-T-458
 

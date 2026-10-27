@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest';
 import type { RenderModelBuilder } from '@wxgame/framework';
 import type { BeadsPalette } from '../src/view/palette.js';
 import { DEBUG_OUTLINE_TILE_HEX } from '../src/view/palette.js';
+import { UI_DEBUG_HIT_FILL } from '../src/view/ui-theme.js';
 import { drawHitBox, drawPerfOverlay, drawSafeGuideLines, drawTapTrace } from '../src/view/debug-layer.js';
 
 const P = { text: '#text' } as unknown as BeadsPalette;
@@ -42,7 +43,7 @@ describe('drawHitBox（`[WXG-T-444]` 响应区边界）', () => {
         // `[WXG-T-449]` 填一层 14% 品红：只描边时看不出热区比视觉框多出的那一截。
         expect(calls[0].args).toEqual([
             24, 300, 140, 88,
-            { stroke: DEBUG_OUTLINE_TILE_HEX, lineWidth: 2, fill: 'rgba(255, 60, 230, 0.14)' },
+            { stroke: DEBUG_OUTLINE_TILE_HEX, lineWidth: 2, fill: UI_DEBUG_HIT_FILL },
         ]);
     });
 

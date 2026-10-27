@@ -100,6 +100,12 @@ export const UI_SCRIM = Object.freeze({
     settingsAlpha: SETTINGS_SCRIM_ALPHA,
 } as const);
 
+/**
+ * `[WXG-T-457]` 调试层热区框填充（半透明品红；⛔ 不进 `palette` 正式调色板，只活在调试层）。
+ * 唯一用途 = `view/debug-layer.ts::drawHitBox` 的默认 fill；§20-2 要求色字面量只住 UiTheme / palette。
+ */
+export const UI_DEBUG_HIT_FILL = 'rgba(255,60,230,0.14)';
+
 export interface UiScrimRgb {
     readonly r: number;
     readonly g: number;
