@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3909,
       "lines": 132,
-      "sha256": "cc56a0ba601b13794bcc3c6556702f2d5eb937d6a55e405f8ff5083d9e5ded27",
+      "sha256": "199290111ecc076feb7457e6a5153f9d15410fdcd82c6d3416375088e1f753c9",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 410,
-          "summary": "1 production/TASKS-DETAIL.md 215991 6419 normal",
+          "summary": "1 production/TASKS-DETAIL.md 216400 6420 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5256,
       "lines": 165,
-      "sha256": "34cf7e0db16102b459dbf759ca41052247399f0e045f2d15a94af3b9e7504c7c",
+      "sha256": "dfd7931a068fd7e74e36f7f2c7df96793ac1846e7c6261a3229a85cd00ef9769",
       "tier": "normal",
       "sections": [
         {
@@ -713,7 +713,7 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/gdd/systems-index.md` — 323 行 / 42139 tok / 实测读 170 次",
+          "anchor": "§`games/beads/design/gdd/systems-index.md` — 323 行 / 42316 tok / 实测读 170 次",
           "level": 2,
           "startLine": 20,
           "endLine": 23,
@@ -745,7 +745,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 155 行 / 71750 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 155 行 / 71789 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 6419 行 / 215991 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 6420 行 / 216400 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6420 · §WXG-T-448=6238+16 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6421 · §WXG-T-448=6238+16 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -1192,7 +1192,7 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/gdd/input-control.md` — 206 行 / 19628 tok / 实测读 52 次",
+          "anchor": "§`games/beads/design/gdd/input-control.md` — 206 行 / 19665 tok / 实测读 52 次",
           "level": 2,
           "startLine": 160,
           "endLine": 166,
@@ -32452,9 +32452,9 @@
     },
     {
       "path": "games/beads/design/gdd/input-control.md",
-      "tokens": 19628,
+      "tokens": 19665,
       "lines": 206,
-      "sha256": "49b157a6663003451d3e7349a52ccfc3210ced9cdcd565486ff8d55fafe481a6",
+      "sha256": "21e35036fc8a1ffc7f3bff3c1f296f1f7cf96e2ab15d506802d365fba446d527",
       "tier": "normal",
       "sections": [
         {
@@ -32462,7 +32462,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 207,
-          "tokens": 19612,
+          "tokens": 19650,
           "summary": "项目：games/beads · 版本 v2.13 · 任务号 WXG-T-295（v2.13 = 区外「按钮类控件」改",
           "keywords": [
             "GDD",
@@ -32489,7 +32489,7 @@
           "level": 2,
           "startLine": 13,
           "endLine": 71,
-          "tokens": 4382,
+          "tokens": 4419,
           "summary": "",
           "keywords": [
             "机制"
@@ -32516,7 +32516,7 @@
           "level": 3,
           "startLine": 45,
           "endLine": 52,
-          "tokens": 411,
+          "tokens": 448,
           "summary": "最小热区 TOUCH_MIN = 88px（≈44pt）。",
           "keywords": [
             "§3.8",
@@ -34657,17 +34657,17 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index-changelog.md",
-      "tokens": 52419,
-      "lines": 107,
-      "sha256": "9b641860c71549499f389d6b12d98f00bc0d32ac09567d4cce62a3ddbf969869",
+      "tokens": 52773,
+      "lines": 108,
+      "sha256": "cabc7e9637af7f6853a79b5670c71b2f57a9976629ac3806d4ff252ed50ae856",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · systems-index §6 变更记录（拆分件）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 108,
-          "tokens": 52401,
+          "endLine": 109,
+          "tokens": 52755,
           "summary": "项目：games/beads · 归属：systems-index.md 的 §6 变更记录",
           "keywords": [
             "§6",
@@ -34682,8 +34682,8 @@
           "anchor": "§6 变更记录",
           "level": 2,
           "startLine": 7,
-          "endLine": 108,
-          "tokens": 52242,
+          "endLine": 109,
+          "tokens": 52596,
           "summary": "v1.0 2026-09-11 初版：9 系统清单 + 拓扑 + §3 冻结令（含 8 项 [待确认] 提案值） WXG",
           "keywords": [
             "§3",
@@ -34695,9 +34695,9 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index.md",
-      "tokens": 42139,
+      "tokens": 42316,
       "lines": 323,
-      "sha256": "cb2307425a5c27d8e973f966a33c6e42e0f1c481ac17479899705780d0795d65",
+      "sha256": "70fe173912f12ceb0ba739ba5229495da9a5dba929b15b493bd6eba91695ad43",
       "tier": "hot",
       "sections": [
         {
@@ -34705,8 +34705,8 @@
           "level": 1,
           "startLine": 1,
           "endLine": 324,
-          "tokens": 42122,
-          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.97 · 任务号 WXG-T-459（v1.97 = §3.",
+          "tokens": 42299,
+          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.98 · 任务号 WXG-T-459（v1.98 = §3.",
           "keywords": [
             "§3",
             "Systems",
@@ -34748,7 +34748,7 @@
           "level": 2,
           "startLine": 56,
           "endLine": 277,
-          "tokens": 28731,
+          "tokens": 28861,
           "summary": "本项目唯一真源（Single Source of Truth）——适用范围：游戏数值与常量（分辨率 / 安全区 / 网格",
           "keywords": [
             "Global",
@@ -34810,7 +34810,7 @@
           "level": 3,
           "startLine": 118,
           "endLine": 131,
-          "tokens": 2547,
+          "tokens": 2677,
           "summary": "TRAY_TIER_SLOTS [12, 24, 48] v1.84 三档制（用户 2026-10-25 拍板）：基础 ",
           "keywords": [
             "Tray",
@@ -41472,17 +41472,17 @@
     },
     {
       "path": "games/beads/design/proposals/sec3-tray-band-216-change.md",
-      "tokens": 1725,
-      "lines": 67,
-      "sha256": "31702ba5dedd7609584347777b59af1d3b0d4caa82737a8750b4c8804dfd2bdf",
+      "tokens": 2013,
+      "lines": 68,
+      "sha256": "6ae5d5f778207c802a2bfab708a22f989ec4b1db2f5ed3a9700f7e00f312492c",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§3 变更单：`TRAY_BAND` 下沿 230 → 216（带高 220 → 234）",
           "level": 1,
           "startLine": 1,
-          "endLine": 68,
-          "tokens": 1705,
+          "endLine": 69,
+          "tokens": 1992,
           "summary": "文档性质 §3 变更单（设计轨）。§3 行 + changelog + 落码三件套的文档半边；代码本已符合，本单补表",
           "keywords": [
             "TRAY_BAND",
@@ -41541,7 +41541,7 @@
           "level": 2,
           "startLine": 43,
           "endLine": 50,
-          "tokens": 130,
+          "tokens": 162,
           "summary": "不改 TRAY_TIER_SLOTS / TRAY_AD_EXPAND_COUNT / TRAY_SLOT / TRAY",
           "keywords": [
             "§4",
@@ -41556,8 +41556,8 @@
           "anchor": "§5 验证",
           "level": 2,
           "startLine": 51,
-          "endLine": 60,
-          "tokens": 164,
+          "endLine": 61,
+          "tokens": 310,
           "summary": "pnpm run check:frozen-values OK（区间值进 SKIP；人工核 = §3 与代码同值 216",
           "keywords": [
             "§5",
@@ -41571,9 +41571,9 @@
         {
           "anchor": "§6 风险与欠账",
           "level": 2,
-          "startLine": 61,
-          "endLine": 68,
-          "tokens": 307,
+          "startLine": 62,
+          "endLine": 69,
+          "tokens": 417,
           "summary": "1. 净空收窄：btn_expand 与道具带只剩 16 px（旧 30）；与基础态 row1 槽热区反而放宽到 25 ",
           "keywords": [
             "§6",
@@ -87352,17 +87352,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 215991,
-      "lines": 6419,
-      "sha256": "d3e4d7669b439caead5358c9a338af07dc148c2c73c011414c3b86e589962028",
+      "tokens": 216400,
+      "lines": 6420,
+      "sha256": "41e0c1e6d754bcc3d5ee8e5b9d2a28438625851f65872fbed9635fe39e7aa820",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 6420,
-          "tokens": 215974,
+          "endLine": 6421,
+          "tokens": 216383,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -95377,8 +95377,8 @@
           "anchor": "§WXG-T-458",
           "level": 2,
           "startLine": 6382,
-          "endLine": 6403,
-          "tokens": 1162,
+          "endLine": 6405,
+          "tokens": 1451,
           "summary": "排查本机微信开发者工具自动化通道 · 负责：主理人(CodeBuddy) · 状态：🔄 进行中（2026-10-27）",
           "keywords": [
             "WXG",
@@ -95388,10 +95388,10 @@
         {
           "anchor": "§WXG-T-459",
           "level": 2,
-          "startLine": 6404,
-          "endLine": 6420,
-          "tokens": 1250,
-          "summary": "§3.1 TRAY_BAND 下沿 230→216 变更单（带高 234 + btn_expand 同步） · 负责：主",
+          "startLine": 6406,
+          "endLine": 6421,
+          "tokens": 1370,
+          "summary": "§3.1 TRAY_BAND 下沿 230→216 变更单（带高 234 + btn_expand 同步）+ 净空几何复",
           "keywords": [
             "§3.1",
             "WXG",
@@ -95403,9 +95403,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 71750,
+      "tokens": 71789,
       "lines": 155,
-      "sha256": "4a3c45b7c74fa462bb5c38fec581ec390b4dc4c15999ec33058d8a6f7a6354af",
+      "sha256": "01249275c116760bdfd482879e663475ecb92838cdbef7b7f10680ca68d15f9e",
       "tier": "hot",
       "sections": [
         {
@@ -95413,7 +95413,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 156,
-          "tokens": 71741,
+          "tokens": 71780,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
