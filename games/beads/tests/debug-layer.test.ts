@@ -34,12 +34,25 @@ function texts(calls: readonly Call[]): string[] {
 }
 
 describe('drawHitBox（`[WXG-T-444]` 响应区边界）', () => {
-    it('只发一条带 stroke、无 fill 的矩形：几何逐字透传 + 线宽 2', () => {
+    it('只发一条 rect：几何逐字透传 + 线宽 2 + 半透明填充', () => {
         const { calls, builder } = recorder();
         drawHitBox(builder, 24, 300, 140, 88);
         expect(calls).toHaveLength(1);
         expect(calls[0].kind).toBe('rect');
-        expect(calls[0].args).toEqual([24, 300, 140, 88, { stroke: DEBUG_OUTLINE_TILE_HEX, lineWidth: 2 }]);
+        // `[WXG-T-449]` 填一层 14% 品红：只描边时看不出热区比视觉框多出的那一截。
+        expect(calls[0].args).toEqual([
+            24, 300, 140, 88,
+            { stroke: DEBUG_OUTLINE_TILE_HEX, lineWidth: 2, fill: 'rgba(255, 60, 230, 0.14)' },
+        ]);
+    });
+
+    it('`[WXG-T-449]` 填充必须半透明（α ≤ 0.3）——实色会遮住按钮本身', () => {
+        const { calls, builder } = recorder();
+        drawHitBox(builder, 0, 0, 10, 10);
+        const fill = String((calls[0].args[4] as { fill: string }).fill);
+        const alpha = Number(/rgba?\([^)]*?,\s*([\d.]+)\s*\)$/.exec(fill)?.[1]);
+        expect(alpha).toBeGreaterThan(0);
+        expect(alpha).toBeLessThanOrEqual(0.3);
     });
 });
 

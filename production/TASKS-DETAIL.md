@@ -6250,3 +6250,19 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 **验收**：beads **1377 passed + 2 skipped**（新增 5 档 × 4 条判据：下沿 = sb / 视觉零改动 / 上沿逐值不变 / 安全区内不命中）；`typecheck`、`check:arch`（1 既有 WARN）、`serve-harness --build-only` 全 OK。CDP 实测（720×1280，逐次 reload 隔离）：`(364,1255)`→`start`（**改前是 miss**）、`(364,1270)`→`start`、`(109,1260)`/`(109,1274)`→`open-rank`、`(364,1240)`→`start` ⇒ 安全区之上可点到底。
 
 **文档**：`design/art/specs/menu-layout-implementation-spec.md` CTA 行补登「WXG-T-448 起热区下沿下探到 `sb`、高 122 系、与视觉不同心」。⛔ 未动 `MENU_CHAIN_GAP_BOTTOM`、未动任何视觉常量、未动 §3 冻结值。
+
+## WXG-T-449
+
+**Debug 热区框加半透明填充（底隙响应带可视化）· 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-10-27）**
+
+用户令：「在 Debug 模式下，把热区也圈出来。看下效果。」
+
+**现状核对**：`[WXG-T-444]` 的 `drawHitBox` 画的本来就是**命中腿那张表**（`meta-view.ts:222` 遍历 `metaLayout(base, WALL_ROWS, A).buttons`，与 `hitTestMeta` 同源），`[WXG-T-448]` 之后框已自动下探。但**只描边时看不出效果**：热区与视觉框上沿差 2 设计 px、下沿差 32+2，2 设计 px 描边贴着按钮边画，肉眼分不清「多出来的一截」。
+
+**落码**（`games/beads/src/view/debug-layer.ts`）：`drawHitBox` 加可选 `fill`（默认 `HIT_BOX_FILL_HEX = rgba(255,60,230,0.14)`）——半透明品红，⛔ 不进 `palette` 正式调色板、⛔ 不许实色（会遮住按钮本身）。描边色/线宽不变。测试：`debug-layer.test.ts` 改 1（rect 断言补 fill）+ 加 1（α ∈ (0, 0.3] 守卫）。
+
+**效果实拍**（720×1280，`debugGuides` 开，`setDebugGuides(true)`；`sb=0` 档热区下沿 = 屏幕底）：
+- 图 1（`/tmp/hitband-1-boxes.png`）：主菜单全钮热区框——顶栏三钮 88²、翻页 88²、玻璃罩 `open-levels`、**好友榜与 CTA 的框向下延伸到屏幕底**、视觉按钮一个像素未动；左下角 `home 0` = 安全区标定线（`drawSafeGuideLines`）与热区下沿重合。
+- 图 2（`/tmp/hitband-2-tap.png`）：点屏幕最底 (109,1274)（设计 y=6）→ 触点探针（`[WXG-T-445]`）画在判定点、label = `open-rank`，好友榜面板（「正在加载…」/ 返回）打开，route 仍 menu ⇒ **屏底 6px 处可点**。
+
+**验收**：beads **1378 passed + 2 skipped**（改 1 加 1）；`serve-harness --build-only` OK。⛔ 零游戏几何改动：本笔只动调试层绘制参数。
