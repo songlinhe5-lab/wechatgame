@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3909,
       "lines": 132,
-      "sha256": "ba4cff364b374f811ae698a808b08a7496d247192c8b911fabd759f7948efad6",
+      "sha256": "ea3767e92584d79699ac9a51fb54dc2a17a3ca524de909945e92134272342696",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 410,
-          "summary": "1 production/TASKS-DETAIL.md 214738 6402 normal",
+          "summary": "1 production/TASKS-DETAIL.md 215703 6417 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5256,
       "lines": 165,
-      "sha256": "92cf8714dda510d5c38467936650b4c887ea12f6e920df7126d91f654ea643b2",
+      "sha256": "cf20500b97b84e2601a45275d952554873005089bd43a7a530cb4805475a9529",
       "tier": "normal",
       "sections": [
         {
@@ -713,7 +713,7 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/gdd/systems-index.md` — 323 行 / 41319 tok / 实测读 170 次",
+          "anchor": "§`games/beads/design/gdd/systems-index.md` — 323 行 / 42139 tok / 实测读 170 次",
           "level": 2,
           "startLine": 20,
           "endLine": 23,
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 154 行 / 71606 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 155 行 / 71743 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+155 · §待排（backlog，无号，立项时领取…=126+30",
+          "summary": "§WXG 任务台账（SSOT）=1+156 · §待排（backlog，无号，立项时领取…=127+30",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 6402 行 / 214738 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 6417 行 / 215703 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6403 · §WXG-T-447=6220+18 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6418 · §WXG-T-448=6238+16 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -1192,7 +1192,7 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/gdd/input-control.md` — 206 行 / 19568 tok / 实测读 52 次",
+          "anchor": "§`games/beads/design/gdd/input-control.md` — 206 行 / 19628 tok / 实测读 52 次",
           "level": 2,
           "startLine": 160,
           "endLine": 166,
@@ -26898,9 +26898,9 @@
     },
     {
       "path": "games/beads/design/art/specs/assets-spec.md",
-      "tokens": 121043,
+      "tokens": 121109,
       "lines": 2106,
-      "sha256": "b4aa588b285fe03500327cd299f882c5844619d7559364354b7f51dba3994af4",
+      "sha256": "5523d2a5c98c87ef41474345b92cda0dc42c3b4a66558d8f88fe33bab00b60d1",
       "tier": "normal",
       "sections": [
         {
@@ -26908,7 +26908,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 2107,
-          "tokens": 121029,
+          "tokens": 121095,
           "summary": "项目：微信小游戏矩阵 · 第二款《拼豆填色消除》",
           "keywords": [
             "Asset",
@@ -26935,7 +26935,7 @@
           "level": 2,
           "startLine": 45,
           "endLine": 2019,
-          "tokens": 96058,
+          "tokens": 96124,
           "summary": "",
           "keywords": [
             "资产清单",
@@ -26976,7 +26976,7 @@
           "level": 3,
           "startLine": 118,
           "endLine": 228,
-          "tokens": 9346,
+          "tokens": 9412,
           "summary": "tray_panel 690 × 190 [待 systems-index §3 对齐] 白 #FFFFFF，圆角 24",
           "keywords": [
             "§3",
@@ -32452,9 +32452,9 @@
     },
     {
       "path": "games/beads/design/gdd/input-control.md",
-      "tokens": 19568,
+      "tokens": 19628,
       "lines": 206,
-      "sha256": "e829827ca8f6d76daf0567d02303f774c9ce60cd90bb7788f79bc6041e849503",
+      "sha256": "49b157a6663003451d3e7349a52ccfc3210ced9cdcd565486ff8d55fafe481a6",
       "tier": "normal",
       "sections": [
         {
@@ -32462,7 +32462,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 207,
-          "tokens": 19553,
+          "tokens": 19612,
           "summary": "项目：games/beads · 版本 v2.13 · 任务号 WXG-T-295（v2.13 = 区外「按钮类控件」改",
           "keywords": [
             "GDD",
@@ -32489,7 +32489,7 @@
           "level": 2,
           "startLine": 13,
           "endLine": 71,
-          "tokens": 4322,
+          "tokens": 4382,
           "summary": "",
           "keywords": [
             "机制"
@@ -32516,7 +32516,7 @@
           "level": 3,
           "startLine": 45,
           "endLine": 52,
-          "tokens": 351,
+          "tokens": 411,
           "summary": "最小热区 TOUCH_MIN = 88px（≈44pt）。",
           "keywords": [
             "§3.8",
@@ -33959,17 +33959,17 @@
     },
     {
       "path": "games/beads/design/gdd/review-2026-10-27.md",
-      "tokens": 4095,
-      "lines": 133,
-      "sha256": "01bccbfeaa140da1b02d42c5c5b2dcf44b02d4cb3044a9530ddbca781c9b733d",
+      "tokens": 4347,
+      "lines": 135,
+      "sha256": "d63687b7c55cd50bcc40263511c6507082df813264f828ca3ebbfa0f89523f84",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads GDD 定期 review · 2026-10-27",
           "level": 1,
           "startLine": 1,
-          "endLine": 134,
-          "tokens": 4085,
+          "endLine": 136,
+          "tokens": 4337,
           "summary": "方法：wxgame-gdd-review（首跑）· 任务号 WXG-T-457 · 游戏 games/beads",
           "keywords": [
             "beads",
@@ -33983,8 +33983,8 @@
         {
           "anchor": "§1 输入清单",
           "level": 2,
-          "startLine": 10,
-          "endLine": 25,
+          "startLine": 11,
+          "endLine": 26,
           "tokens": 283,
           "summary": "数值真源 systems-index.md §3（§3.1–§3.14）、§4 事件表",
           "keywords": [
@@ -33999,9 +33999,9 @@
         {
           "anchor": "§2 漂移表",
           "level": 2,
-          "startLine": 26,
-          "endLine": 42,
-          "tokens": 851,
+          "startLine": 27,
+          "endLine": 43,
+          "tokens": 895,
           "summary": "1 架构门禁（§20-2） check:arch §20-2：rgba()/rgb() 字面量只许住 UiTheme /",
           "keywords": [
             "§20",
@@ -34015,9 +34015,9 @@
         {
           "anchor": "§3 SKIP 清单人工判读（T3 · 只读）",
           "level": 2,
-          "startLine": 43,
-          "endLine": 89,
-          "tokens": 1683,
+          "startLine": 44,
+          "endLine": 90,
+          "tokens": 1701,
           "summary": "check:frozen-values 对 beads 报 STATUS: OK，但门自己声明 SKIP ≠ 已验。以下",
           "keywords": [
             "SKIP",
@@ -34031,9 +34031,9 @@
         {
           "anchor": "§3.1 §3 非原子值 19 项",
           "level": 3,
-          "startLine": 47,
-          "endLine": 72,
-          "tokens": 787,
+          "startLine": 48,
+          "endLine": 73,
+          "tokens": 805,
           "summary": "CAPSULE_AVOID 区间 x∈[560,750], y∈[1214,1334] tuning/layout.ts",
           "keywords": [
             "§3",
@@ -34046,8 +34046,8 @@
         {
           "anchor": "§3.2 文档值不可解析 47 处（按形态分组，逐条归属）",
           "level": 3,
-          "startLine": 73,
-          "endLine": 89,
+          "startLine": 74,
+          "endLine": 90,
           "tokens": 810,
           "summary": "A 派生 / 引用式 13 accessibility.md LOD=0.9·CELL=27 / HIT=CELL+2·",
           "keywords": [
@@ -34062,8 +34062,8 @@
         {
           "anchor": "§4 命令与结果（工具调用透明）",
           "level": 2,
-          "startLine": 90,
-          "endLine": 106,
+          "startLine": 91,
+          "endLine": 107,
           "tokens": 302,
           "summary": "pnpm run check:arch（修复前） 1 FAIL [§20-2] games/beads/src/view",
           "keywords": [
@@ -34078,8 +34078,8 @@
         {
           "anchor": "§5 覆盖缺口（诚实登记）",
           "level": 2,
-          "startLine": 107,
-          "endLine": 116,
+          "startLine": 108,
+          "endLine": 117,
           "tokens": 205,
           "summary": "1. 未逐条复验分册 §8 验收判据：本轮只证明「分册存在 + 系统有实现 + 1380 单测绿」，§8 判据的可测性未",
           "keywords": [
@@ -34091,9 +34091,9 @@
         {
           "anchor": "§6 沉淀候选（3 条，`kb:sync` 已入册）",
           "level": 2,
-          "startLine": 117,
-          "endLine": 124,
-          "tokens": 272,
+          "startLine": 118,
+          "endLine": 125,
+          "tokens": 282,
           "summary": "1. K-192（流程门禁）：check:frozen-values 全绿只证明「可比原子值」零漂移；区间 / 派生 /",
           "keywords": [
             "kb:sync",
@@ -34107,9 +34107,9 @@
         {
           "anchor": "§7 本单整改记录（WXG-T-457）",
           "level": 2,
-          "startLine": 125,
-          "endLine": 134,
-          "tokens": 268,
+          "startLine": 126,
+          "endLine": 136,
+          "tokens": 420,
           "summary": "T1：UI_DEBUG_HIT_FILL 入 src/view/ui-theme.ts:107；src/view/deb",
           "keywords": [
             "WXG",
@@ -34657,17 +34657,17 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index-changelog.md",
-      "tokens": 51936,
-      "lines": 106,
-      "sha256": "55852bef4172d89f01bf59dc1692e7480d32dbe803cbd6ac3323a6aa7aefd1c9",
+      "tokens": 52419,
+      "lines": 107,
+      "sha256": "9b641860c71549499f389d6b12d98f00bc0d32ac09567d4cce62a3ddbf969869",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · systems-index §6 变更记录（拆分件）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 107,
-          "tokens": 51918,
+          "endLine": 108,
+          "tokens": 52401,
           "summary": "项目：games/beads · 归属：systems-index.md 的 §6 变更记录",
           "keywords": [
             "§6",
@@ -34682,8 +34682,8 @@
           "anchor": "§6 变更记录",
           "level": 2,
           "startLine": 7,
-          "endLine": 107,
-          "tokens": 51760,
+          "endLine": 108,
+          "tokens": 52242,
           "summary": "v1.0 2026-09-11 初版：9 系统清单 + 拓扑 + §3 冻结令（含 8 项 [待确认] 提案值） WXG",
           "keywords": [
             "§3",
@@ -34695,9 +34695,9 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index.md",
-      "tokens": 41319,
+      "tokens": 42139,
       "lines": 323,
-      "sha256": "20d05e86e833aa358e5bd96634f69436d42cfa2bc7b611af98e24014daf889cd",
+      "sha256": "cb2307425a5c27d8e973f966a33c6e42e0f1c481ac17479899705780d0795d65",
       "tier": "hot",
       "sections": [
         {
@@ -34705,10 +34705,10 @@
           "level": 1,
           "startLine": 1,
           "endLine": 324,
-          "tokens": 41302,
-          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.96 · 任务号 WXG-T-457（v1.96 = §4 ",
+          "tokens": 42122,
+          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.97 · 任务号 WXG-T-459（v1.97 = §3.",
           "keywords": [
-            "§4",
+            "§3",
             "Systems",
             "Index",
             "beads",
@@ -34748,7 +34748,7 @@
           "level": 2,
           "startLine": 56,
           "endLine": 277,
-          "tokens": 28402,
+          "tokens": 28731,
           "summary": "本项目唯一真源（Single Source of Truth）——适用范围：游戏数值与常量（分辨率 / 安全区 / 网格",
           "keywords": [
             "Global",
@@ -34764,7 +34764,7 @@
           "level": 3,
           "startLine": 69,
           "endLine": 85,
-          "tokens": 2615,
+          "tokens": 2759,
           "summary": "DESIGN_W 750 设计分辨率宽（px），与 breakout 一致（已裁定）",
           "keywords": [
             "DESIGN_W",
@@ -34810,7 +34810,7 @@
           "level": 3,
           "startLine": 118,
           "endLine": 131,
-          "tokens": 2363,
+          "tokens": 2547,
           "summary": "TRAY_TIER_SLOTS [12, 24, 48] v1.84 三档制（用户 2026-10-25 拍板）：基础 ",
           "keywords": [
             "Tray",
@@ -41471,6 +41471,120 @@
       ]
     },
     {
+      "path": "games/beads/design/proposals/sec3-tray-band-216-change.md",
+      "tokens": 1725,
+      "lines": 67,
+      "sha256": "31702ba5dedd7609584347777b59af1d3b0d4caa82737a8750b4c8804dfd2bdf",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§3 变更单：`TRAY_BAND` 下沿 230 → 216（带高 220 → 234）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 68,
+          "tokens": 1705,
+          "summary": "文档性质 §3 变更单（设计轨）。§3 行 + changelog + 落码三件套的文档半边；代码本已符合，本单补表",
+          "keywords": [
+            "TRAY_BAND",
+            "§3",
+            "changelog",
+            "变更单",
+            "下沿",
+            "带高"
+          ]
+        },
+        {
+          "anchor": "§1 变更内容",
+          "level": 2,
+          "startLine": 15,
+          "endLine": 26,
+          "tokens": 290,
+          "summary": "TRAY_BAND y∈[230,450]（带高 220） y∈[216,450]（带高 234） panelH(4) ",
+          "keywords": [
+            "§1",
+            "TRAY_BAND",
+            "panelH",
+            "变更内容"
+          ]
+        },
+        {
+          "anchor": "§2 推导（可重算）",
+          "level": 2,
+          "startLine": 27,
+          "endLine": 34,
+          "tokens": 157,
+          "summary": "面板高：panelH(rows) = rows × 54 − 6 + 2×12 ⇒ 2 行 120 / 3 行 180 ",
+          "keywords": [
+            "§2",
+            "panelH",
+            "rows",
+            "推导",
+            "可重算"
+          ]
+        },
+        {
+          "anchor": "§3 连带影响",
+          "level": 2,
+          "startLine": 35,
+          "endLine": 42,
+          "tokens": 309,
+          "summary": "1. btn_expand 两行几何（§3.4）整体 −14：热区 [216,304] / 视觉 [236,284]；与",
+          "keywords": [
+            "§3",
+            "§3.4",
+            "btn_expand",
+            "连带影响"
+          ]
+        },
+        {
+          "anchor": "§4 本单不改什么",
+          "level": 2,
+          "startLine": 43,
+          "endLine": 50,
+          "tokens": 130,
+          "summary": "不改 TRAY_TIER_SLOTS / TRAY_AD_EXPAND_COUNT / TRAY_SLOT / TRAY",
+          "keywords": [
+            "§4",
+            "TRAY_TIER_SLOTS",
+            "TRAY_AD_EXPAND_COUNT",
+            "TRAY_SLOT",
+            "TRAY",
+            "本单不改什么"
+          ]
+        },
+        {
+          "anchor": "§5 验证",
+          "level": 2,
+          "startLine": 51,
+          "endLine": 60,
+          "tokens": 164,
+          "summary": "pnpm run check:frozen-values OK（区间值进 SKIP；人工核 = §3 与代码同值 216",
+          "keywords": [
+            "§5",
+            "§3",
+            "pnpm",
+            "run",
+            "check",
+            "frozen"
+          ]
+        },
+        {
+          "anchor": "§6 风险与欠账",
+          "level": 2,
+          "startLine": 61,
+          "endLine": 68,
+          "tokens": 307,
+          "summary": "1. 净空收窄：btn_expand 与道具带只剩 16 px（旧 30）；与基础态 row1 槽热区反而放宽到 25 ",
+          "keywords": [
+            "§6",
+            "btn_expand",
+            "row1",
+            "风险与欠账"
+          ]
+        }
+      ]
+    },
+    {
       "path": "games/beads/design/proposals/star-collect-rule.md",
       "tokens": 5493,
       "lines": 76,
@@ -43028,9 +43142,9 @@
     },
     {
       "path": "games/beads/design/proposals/tray-24-layout-derivation.md",
-      "tokens": 1070,
+      "tokens": 1152,
       "lines": 43,
-      "sha256": "e33fc70dd264c91d82438dc226f0b15359b19accfe8aa21df84576ea358772cb",
+      "sha256": "ded2a104568cb9a78550c58f01fe4449e14ce5423fa197aa028124daf9d5334f",
       "tier": "normal",
       "sections": [
         {
@@ -43038,15 +43152,15 @@
           "level": 1,
           "startLine": 1,
           "endLine": 44,
-          "tokens": 1045,
-          "summary": "状态：待用户确认（确认后按本文落码，tuning.ts §3.4 三常量 + TRAY_BAND 修订）",
+          "tokens": 1127,
+          "summary": "状态：✅ 已采纳（2026-10-27 用户裁定「选项 A：承认代码现状」；§3 落表 v1.97 / 任务号 WXG-",
           "keywords": [
-            "§3.4",
+            "§3",
             "WXG",
-            "tuning",
-            "TRAY_BAND",
             "提案",
-            "托盘"
+            "托盘",
+            "面板几何推导",
+            "收口件"
           ]
         },
         {
@@ -43065,7 +43179,7 @@
           "level": 2,
           "startLine": 19,
           "endLine": 31,
-          "tokens": 287,
+          "tokens": 316,
           "summary": "panelH 234 4×54 − 6 + 2×12",
           "keywords": [
             "panelH",
@@ -43077,7 +43191,7 @@
           "level": 2,
           "startLine": 32,
           "endLine": 38,
-          "tokens": 227,
+          "tokens": 235,
           "summary": "1. tuning.ts：TRAY_BASE_SLOTS=24、TRAY_EXPAND_SLOTS=24（已随 v1.8",
           "keywords": [
             "tuning",
@@ -87238,17 +87352,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 214738,
-      "lines": 6402,
-      "sha256": "1bd7fb8925b1f4bbec2a049f46a4a73401a8e8eefbe0fa3f9b20fb17bab745fa",
+      "tokens": 215703,
+      "lines": 6417,
+      "sha256": "2fa2fae27b299d2cdad02e04e707354adcbe569cd82edf6f7c1c8d6da7581846",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 6403,
-          "tokens": 214722,
+          "endLine": 6418,
+          "tokens": 215686,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -95270,22 +95384,36 @@
             "WXG",
             "CodeBuddy"
           ]
+        },
+        {
+          "anchor": "§WXG-T-459",
+          "level": 2,
+          "startLine": 6404,
+          "endLine": 6418,
+          "tokens": 961,
+          "summary": "§3.1 TRAY_BAND 下沿 230→216 变更单（带高 234 + btn_expand 同步） · 负责：主",
+          "keywords": [
+            "§3.1",
+            "WXG",
+            "TRAY_BAND",
+            "btn_expand"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 71606,
-      "lines": 154,
-      "sha256": "3d58181020ab3d174833a9ffcbb1584b6f8fdee739419e4377da0e51080b1d60",
+      "tokens": 71743,
+      "lines": 155,
+      "sha256": "b5da17f3c6f930ba987bd7feceed95d71e31192d79f7d2307945b5f8dbfcfe25",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 155,
-          "tokens": 71597,
+          "endLine": 156,
+          "tokens": 71734,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -95298,8 +95426,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 126,
-          "endLine": 155,
+          "startLine": 127,
+          "endLine": 156,
           "tokens": 1460,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

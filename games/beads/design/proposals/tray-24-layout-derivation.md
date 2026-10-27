@@ -1,6 +1,6 @@
 # 提案 · 托盘 24 槽（2 行）面板几何推导（WXG-T-143 收口件）
 
-- 状态：**待用户确认**（确认后按本文落码，tuning.ts §3.4 三常量 + TRAY_BAND 修订）
+- 状态：**✅ 已采纳**（2026-10-27 用户裁定「选项 A：承认代码现状」；§3 落表 **v1.97** / 任务号 **WXG-T-459**，变更单 `design/proposals/sec3-tray-band-216-change.md`。代码自 WXG-T-143 即 216/450，本批只补 §3 与 changelog）
 - 背景：v1.24（WXG-T-141）冻结 `TRAY_BASE_SLOTS`/`TRAY_EXPAND_SLOTS` 12→24（`TRAY_EXPAND_SLOTS` **已随 v1.84 删除**，现役 = `TRAY_TIER_SLOTS` 三档制 `[12,24,48]` + `TRAY_AD_EXPAND_COUNT` = 2；见 `systems-index §3.4`），但注明「工程侧尚未适配：规格缺新尺寸 ⇒ WXG-T-143 先回传请示」。用户 2026-09-17 答复「托盘 2 行面板的尺寸无定稿」⇒ 本提案按冻结槽位反推面板尺寸，供拍板。
 - 推导基准：`TRAY_SLOT=48`、`TRAY_GAP=6`（pitch 54）、`TRAY_COLS=12`、`TRAY_PANEL_PAD=12` 均不动；面板**贴 TRAY_BAND 上沿**锚定（§3.4 v1.20 既有结论）。
 
@@ -25,7 +25,7 @@
 | 带位冲突 | 下探 14px | 216 < `TRAY_BAND.yMin`（230）；距 `POWERUP_BAND.yMax`（200）仍有 **16px 净空**，不压道具卡 |
 | `btn_expand` | **扩展后隐藏** | 4 行面板 [216,450] 完全覆盖按钮热区 [230,318]；扩展为一次性（A1 不跨关），参考视频同款（用后即收） |
 
-**带位修订建议（方案 A，推荐）**：`TRAY_BAND.yMin` 230 → **216**（v1.25 修订，兑现 v1.24「4 行态带高需整体重验」的挂账）。方案 B（压缩 pitch/pad 使 234 ≤ 220）数学不可行（pitch 51 → 222、pad 9 → 231，均超）——**必须动带位或接受溢出**，A 更干净。
+**带位修订建议（方案 A，推荐）**：`TRAY_BAND.yMin` 230 → **216**（**v1.97** 修订，兑现 v1.24「4 行态带高需整体重验」的挂账；⚠️ 旧写 v1.25 —— 该号位已被 `REVIVE_BONUS_SEC` 占用，勘误见变更单 §6-3）。方案 B（压缩 pitch/pad 使 234 ≤ 220）数学不可行（pitch 51 → 222、pad 9 → 231，均超）——**必须动带位或接受溢出**，A 更干净。
 
 连带：`AD_HINT_TEXT_Y=214`（「即将开放」占位提示）落在新面板区 [216,…] 内；该提示随 Task #4（WXG-T-150 广告实装）一并退役，无需为它保位。
 
@@ -34,7 +34,7 @@
 1. `tuning.ts`：`TRAY_BASE_SLOTS=24`、`TRAY_EXPAND_SLOTS=24`（**已随 v1.84 删除**，现役 = `TRAY_TIER_SLOTS` 三档制 `[12,24,48]` + `TRAY_AD_EXPAND_COUNT` = 2；见 `systems-index §3.4`）、`TRAY_BAND.yMin=216`（+注释）；src/cocos 镜像同步。
 2. `view-model.drawTray` / `beads-game._hitTraySlot`：`rows` 入参已参数化（`trayLayout(rows)` 单一真源），仅需按 `TRAY_BASE_SLOTS/TRAY_COLS` 传 2、扩展后传 4；`btn_expand` 增「已扩展 ⇒ 不绘制不命中」。
 3. 测试：`tray-spawner.test` / `view-model.test` 槽数与面板高断言更新；新增 4 行态面板-道具卡净空 ≥16px 判据。
-4. `systems-index` §3.4 + changelog v1.25 追加带位修订行；`assets-spec §1.3` 托盘面板尺寸同步（若其有字面尺寸）。
+4. `systems-index` §3.4 + changelog **v1.97** 追加带位修订行（已落；WXG-T-459）；`assets-spec §1.3` 托盘面板尺寸同步（若其有字面尺寸）。
 
 ## 4. 待拍板三问
 

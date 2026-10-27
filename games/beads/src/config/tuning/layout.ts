@@ -50,7 +50,7 @@ export const CAPSULE_AVOID = { xMin: 560, xMax: 750, yMin: 1214, yMax: 1334 } as
  * ⚠ v1.75：角色 = 接口无效时的兜底值，**不是下限**（真机一切以 `safeAreaBottom` 换算为准）。
  *
  * ⚠ **新增（WXG-T-265 ①iii）**：本仓此前**没有**底部安全常量（breakout 亦无），且现落码最贴底元素
- * = `TRAY_BAND.yMin 230`（距画布底 230 ≫ 68）⇒ **本值是预防性兜底，不是补漏**；它存在的意义是
+ * = `TRAY_BAND.yMin 216`（距画布底 216 ≫ 68；**v1.97 同步：旧写 230**）⇒ **本值是预防性兜底，不是补漏**；它存在的意义是
  * 「贴底元素以后会加（广告条 / 底部工具条）」且接口拿不到值时，不再走顶部 120 的老路（无推导写死）。
  *
  * 取 68 的推导（后人可重算）：Home Indicator 高 **iOS 全机型恒定 34 dp**（非刘海机 = 0），
@@ -155,8 +155,10 @@ export const MENU_SIGNIN_DOT_R = 9;
  * ⚙ 真源回写 = `design/gdd/systems-index.md §3.1/§3.3` + 变更单（与代码同批，非事后补票）。
  */
 export const PUZZLE_BAND = { yMin: 560, yMax: 1120 } as const;
-/** Tray band (white rounded panel). §3.1 v1.25：下沿 230→216 —— v1.24 冻结的
- * 4 行扩展态（panelH 234）必须完整落带（推导见 design/proposals/tray-24-layout-derivation.md）；
- * 基础态 2 行（panelH 120，y∈[330,450]）与 `btn_expand` 净空 12px 不受影响。 */
+/** Tray band (white rounded panel). **§3.1 v1.97（WXG-T-459）**：下沿 230→216 —— v1.24 冻结的
+ * 4 行扩展态（panelH 234）必须完整落带（推导见 design/proposals/tray-24-layout-derivation.md，
+ * 变更单 `design/proposals/sec3-tray-band-216-change.md`）。⚠️ 号位勘误：旧注释写「v1.25」，
+ * 该号已由 `REVIVE_BONUS_SEC` 占用 ⇒ 本改判实际登记于 **v1.97**。
+ * 基础态 2 行（panelH 120，y∈[330,450]）与 `btn_expand` 热区净空随按钮整体 −14 ⇒ 12→**26px**。 */
 export const TRAY_BAND = { yMin: 216, yMax: 450 } as const;
 /** Powerup band (3 white cards — S6 landed in WXG-T-060). */

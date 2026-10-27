@@ -256,7 +256,8 @@ export const TRAY_PANEL_WIDTH = TRAY_ROW_WIDTH + 2 * TRAY_PANEL_PAD;
 /**
  * `btn_expand` 视觉尺寸（§3.4 v1.20 ← `assets-spec §1.3`：132×48、圆角旧 24）。
  * 热区高 88 来自 `accessibility C1`（48 < `TOUCH_MIN` ⇒ 视觉不变、热区扩大），
- * 二者同心，因此视觉在带下沿居中于热区（y∈[250,298]，热区 y∈[230,318]）。
+ * 二者同心，因此视觉在带下沿居中于热区（y∈[236,284]，热区 y∈[216,304]；
+ * **v1.97** 随 `TRAY_BAND` 下沿 230→216 整体 −14，旧读数 [250,298]/[230,318]）。
  */
 export const EXPAND_BTN_W = 132;
 export const EXPAND_BTN_H = 48;
@@ -274,7 +275,7 @@ export const EXPAND_BTN_LABEL = '扩展';
 /** 占位文案：与道具超限同一语义（`powerups §2.6` 布局 A：本轮无路径）。 */
 export const AD_PLACEHOLDER_HINT_TEXT = '即将开放';
 /**
- * 扩展位占位提示的绘制 y：在 `POWERUP_BAND`（顶 200）与 `TRAY_BAND`（底 230）
+ * 扩展位占位提示的绘制 y：在 `POWERUP_BAND`（顶 200）与 `TRAY_BAND`（底 216，**v1.97**）
  * 之间的空白中线上——空间上贴着刚被点的按钮，且不压任何元素（`ux-spec §5`）。
  */
 export const AD_HINT_TEXT_Y = 214;

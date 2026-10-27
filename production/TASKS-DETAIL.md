@@ -6400,3 +6400,18 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 **重试轮（2026-10-27 晚，用户指令「重试下自动化通道」）**：①「客户端保持连接 + touch 重编译」懒注入假设 ✗（60s 轮询全死）；②窗口激活前台（Electron 节流假设）✗；③向已 Active 会话重跑 `cli auto` 重挂 ✗；④`cli engine/agent/auto-replay` 均与本问题无关（引擎构建 / 工具内 AI agent / 回放）。**误读纠正**：此前疑似的 `serveGameAppserviceFrame`/`serveAppserviceHtml`「服务失败」实为会话对象属性转储字段名，非报错；当前会话 `no winId`=0、无任何代理错误，引导链标记全绿 ⇒ **游戏可能已真在模拟器中运行，缺的只是自动化应答者注入**。终判：工具 2.02.2609231 CLI 模式下自动化钩子未注入游戏运行时（IDE 侧桥正常）；唯一判别 = 目视模拟器（A/B/C 待用户）。复测配方：`cli auto --auto-port 9420 --trust-project` → `touch <build>/game.js` → automator connect。
 
 **收口（2026-10-27 晚）**：用户目视确认模拟器 **A = 游戏画面正常**（调试 guides 开启：safe 82 / home 60 / cap 133 + 品红命中框，全要素渲染），同会话 `App.*` 依旧恒死 ⇒ 终判成立：**工具 2.02.2609231 CLI 模式下自动化应答者不注入游戏运行时**（IDE 侧桥正常）。追加排除：`cli agent` 子系统读 `app.json`，不支持小游戏工程（game.json），报 ENOENT 即终。**T-458 判定 = 工具侧缺陷，本机自动化闭环不可达**；解除条件 = 开发者工具升级/回退修复注入。可用遗产：① `touch <build>/game.js` 强制触发模拟器编译（CLI 会话不自动编译的解法）；② `/tmp/wxauto/` 探针脚本（trace/poll/retry）；③ WeappLog 日志路径与命名空间测绘结论（`Tool.*` 活 / `App.*` 死 = 应答者缺失的特征签名）。替代路径：T-454 取证走用户人工操作 + 截图。
+
+## WXG-T-459
+
+**§3.1 `TRAY_BAND` 下沿 230→216 变更单（带高 234 + `btn_expand` 同步）** · 负责：主理人(Trae)·beads GDD/注释 · 状态：✅ 完成（2026-10-27）
+
+- **上位**：用户 2026-10-27「按选项 A 执行，生成变更单并更新 changelog」；选项 A = 承认代码现状（`TRAY_BAND` 自 WXG-T-143 落码即 216/450）⇒ **改 §3 追代码**，⛔ 不改代码值。上游 = `design/gdd/review-2026-10-27.md §2-8`（P1，WXG-T-457 T3 只读发现）；推导正本 = `design/proposals/tray-24-layout-derivation.md §2` 方案 A。
+- **变更单**：`games/beads/design/proposals/sec3-tray-band-216-change.md`（状态「已采纳」；含 §1 变更表、§2 推导、§3 连带、§4 零改动项、§5 验证、§6 风险与欠账）。
+- **§3 回写**：`systems-index.md` 头部 **v1.97** / WXG-T-459；§3.1 `TRAY_BAND` 改 y∈[216,450]（带高 234）+ `SAFE_BOTTOM_H` 行例证 216；§3.4 `TRAY_TIER_SLOTS` 补自述消解注 + `btn_expand` 几何（热区 [216,304] / 视觉 [236,284]；与道具带净空 30→16、与基础态 row1 槽热区同口径 11→25）。`systems-index-changelog.md` 追加 **v1.97** 行。
+- **下游现行文档**：`design/gdd/input-control.md §2.2`（几何 + 措辞订正「基础态 row1」+ 净空 11→25）、`design/art/specs/assets-spec.md §1.3 + 常量速查`（`TRAY_BAND` [216,450] / 带高 234 / `btn_expand` 新几何）。
+- **代码注释（值零改动）**：`src/config/tuning/layout.ts`（`SAFE_BOTTOM_H` 例证 216；`TRAY_BAND` 注释 v1.97 + 号位勘误：旧写 v1.25，该号已被 `REVIVE_BONUS_SEC` 占用）、`src/config/tuning/board.ts`（`btn_expand` 几何、`AD_HINT_TEXT_Y` 注释底 216）；`pnpm run framework:sync` 写入 Cocos 镜像 **2** 文件（未变 172、删除 0）。
+- **提案状态**：`tray-24-layout-derivation.md` 改「✅ 已采纳（2026-10-27 选项 A；落表 v1.97 / WXG-T-459）」；`:28` / `:37` 版本号勘正 v1.25→v1.97。
+- **review 关闭**：`review-2026-10-27.md` 结论改 **PASS**（8/8 漂移关闭，无 P0）、§2-8 行改 ✅、SKIP 表 `TRAY_BAND` 行改已复核、§7 追加 T6、下一轮触发条件改写。
+- **门禁（2026-10-27 实跑）**：`check:frozen-values` **STATUS: OK**（beads 49 / 42 / 125；SKIP 非原子 **19** + 文档式 **47**，与本单前一致、**未膨胀**）；`check:arch` OK（仅 L1 WARN 373 个编辑器产物）；`check:tasks` OK（主表 105 行 / 详情 128 节配对）；`check:links` OK；`ctx:build` 重建索引（新变更单 1 个未提交文件按 HEAD 索引、pre-commit 自动重入）+ `ctx:check` OK；`pnpm --filter @wxgame/beads test` **115 文件 / 1380 passed / 2 skipped**（代码值零改动 ⇒ 零回归）。
+- **遗留/欠账**：① `btn_expand` 与道具带净空 16px、与 row1 槽热区 25px 均 `[待真机]`；② 带高 234 零余量（改托盘族常量前须重算）；③ `ux-spec.md:78` 线框图带值整体滞后（老图，另开 UX 刷新批，本单只登记）；④ 区间值仍进 SKIP（K-192），下次 review 人工复查。
+- **沉淀统计（kb:sync）**：本单**未新增**（新增 0 / 修改 0 / 激活 0 / 归档 0）—— 复用既有 **K-190**（§3 + changelog + 落码三件套）与 **K-192**（SKIP 人工核）；无候选 ⇒ 未跑 `kb:sync`。
