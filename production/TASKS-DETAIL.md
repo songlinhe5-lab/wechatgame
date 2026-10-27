@@ -6457,3 +6457,17 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 **复评通道（执行中）**：封箱基准（`bead-style-seal` 腿 4a/4b + T-230-B 哨兵，Δtotal=−8）与金样本 `play` 态随控件段移除漂移 ⇒ 按失败读数指路走 `bead-style-seal-recapture.ts` / `ui-golden-capture.ts` 于可复现锚重抓 + `test-cases.md §K.5.1-补N` 登记 + recheckLedger 入账（K-051/K-053）。
 
 **T-462 收口（2026-10-27 晚）**：复评通道全套办齐——① 封箱第二十一次复评：官方复取器重抓（`temp/wxg-t-211-s3/s3-seal.json` 晋升，frame78 `1788→1780` / frame0 `1242→1234`，Δ=−8 恰为 recheck-1 控件段退役；kinds rect 936 / circle 159 / text 10）+ 登记常数 `T462_ZOOM_CTRL_HIDE = 8` + 腿 4a 两式与前态史证三键等式 + 差分自洽三式（ctrl 项退役）+ 腿 4b 控件段前提作废（K-053 划线，`dropped` 8→0）+ 台账 `recheck-21-zoom-ctrl-hide` 入账 + provenance 键 21 + `test-cases-k-ledger-2.md §K.5.1-补13`；② 金样本 `play` 态重抓；③ beads **116 文件 1383 passed + 2 skipped** 全绿。⚠ 事故与纠正：`git add -A games/beads/` 误扫并发会话在制品（framework web.ts 镜像 + GDD review 报告）入 `df28f8e4`——已推送不可改史，用摘除提交 `84271b4e` 退回 `df28f8e4^` 态（工作树 WIP 不动）；教训 = 共享树提交**禁用 `-A`**，按本单文件清单精确 add。
+
+## WXG-T-463
+
+**复核 D1 处置：assets-spec §1.3.2 标历史快照 + v1.97 指针 · 负责：主理人(Trae) · 状态：✅ 完成（2026-10-28）**
+
+**触发** = GDD 复核轮（`games/beads/design/gdd/review-2026-10-27.md §8.3 D1`，P2）：v1.97 批只把 `assets-spec §1.3.2`（v1.5-r6 历史推导节）前提表两行改成现行值，同节其余旧代读数（`TRAY_HIT_SIZE` 62 / 450−318 / 234 > 220 ⇒ 越带 14px / panelH 126 + 净空 11px）未动 ⇒ 同节混代，旧结论（「rows=4 越带 14px」）只能由旧带位复算。
+
+**处置（按 K-053，只标不改史）**：① 版本头注升 **v1.5-r24**（让号自查：`v1.5-r24` 全仓 0 命中，现存最大 r23）；② §1.3.2 节头新增「历史快照（v1.5-r6 口径，带高 220）」指针注（`assets-spec.md:158`）；③ 前提表 `TRAY_BAND` / `btn_expand` 两行回退为当时值 `[230,450]` / 热区 `[230,318]`·视觉 `[250,298]`（`assets-spec.md:170-171`）⇒ 本节推导恢复自洽（越带 14px / 净空 11px 等旧结论可由旧前提复算）；④ 现行真源指向 `systems-index §3.1/§3.4`（v1.97：`TRAY_BAND` y∈[216,450]、按钮热区 [216,304] / 视觉 [236,284]）+ 本文件 §1.3 `btn_expand` 行。⛔ 不整节重算、不删史、不动其余节。
+
+**零引入**：零代码、零 §3 冻结值改动、零新 hex、零外部资产、零 `ux-spec §5` 变更请求。
+
+**门禁**：`check:frozen-values` STATUS OK（beads 49 / A 42 / B 125；SKIP 19 + 48，本文改动不新增 B 面等式）；`check:tasks` 配对；`check:links` OK。
+
+**review 回写**：`review-2026-10-27.md §8.3` D1 行改 **✅ 已处置（WXG-T-463 / v1.5-r24）**。
