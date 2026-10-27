@@ -19,6 +19,9 @@ import { UI_FONT, UI_SCRIM, scrimFill } from './ui-theme';
 /** 性能覆层面板几何（设计 px，贴屏顶；`top = builder.height` 动态高）。 */
 const PERF_PANEL = { x: 12, dy: -148, w: 316, h: 136, radius: 12 } as const;
 
+/** `[WXG-T-449]` 热区框填充色（半透明品红；⛔ 不进 `palette` 正式调色板，只活在调试层）。 */
+const HIT_BOX_FILL_HEX = 'rgba(255, 60, 230, 0.14)';
+
 /**
  * 性能覆层。`enabled = false` 时零指令（金样本与正常玩法不受影响）。
  * `level` / `detail` 可为空串：菜单腿只有 `phase = 'menu'`，不画空行。
@@ -57,8 +60,11 @@ export function drawPerfOverlay(
  * 再怀疑命中逻辑 —— 热区与绘制不同源、容差异常、钮被相邻钮抢，都会在这一层直接看见。
  *
  * 描边色用 `DEBUG_OUTLINE_TILE_HEX`（与标定线同族，⛔ 不进 `palette` 正式调色板）；
- * 线宽 2 设计 px ⇒ 真机约 1 css px，看得见又不糊满钮。只发一条 `rect`（带 `stroke` 无 `fill`），
- * 不参与任何命中判定。
+ * 线宽 2 设计 px ⇒ 真机约 1 css px，看得见又不糊满钮。不参与任何命中判定。
+ *
+ * `[WXG-T-449]` 加**半透明填充**（`HIT_BOX_FILL_HEX`）：只描边时，热区与视觉框（底部一行
+ * 上沿差 2、下沿差 32）几乎重合，看不出「多出来的一截」；填一层 14% 品红后，热区覆盖范围
+ * 一眼可辨，且仍能看清底下的按钮本身（α 低，不遮字）。⛔ 不要改成实色填充。
  */
 export function drawHitBox(
     builder: RenderModelBuilder,
@@ -66,8 +72,9 @@ export function drawHitBox(
     y: number,
     w: number,
     h: number,
+    fill: string = HIT_BOX_FILL_HEX,
 ): void {
-    builder.rect(x, y, w, h, { stroke: DEBUG_OUTLINE_TILE_HEX, lineWidth: 2 });
+    builder.rect(x, y, w, h, { stroke: DEBUG_OUTLINE_TILE_HEX, lineWidth: 2, fill });
 }
 
 /**

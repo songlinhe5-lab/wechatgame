@@ -518,15 +518,29 @@ export class WeappPlatform extends BasePlatform {
     return { left, top, right, bottom };
   }
 
+  /**
+   * 安全区内边距（dp，自**窗口**边量）。
+   *
+   * `[WXG-T-447]` 底 inset 的基准从 `screenHeight` 改为 `windowHeight`：版面一律按窗口排版
+   * （`Viewport` / `menuAnchors` 拿的都是 `getScreenSize().height` = `windowHeight`），
+   * 底 inset 必须与排版同基准，否则两处口径会在「窗口已止于安全区底」的机型上错位 ——
+   * 那时 `screenHeight − safeArea.bottom` 算到的是**顶部差值**（状态栏高），被当成底 inset
+   * 再加到菜单链上 = 重复避让。
+   *
+   * 等价性：窗口贴屏幕底（`windowHeight === screenHeight`，全屏小游戏常态）时两式恒等，
+   * 本改对既有版面零差异；仅在「窗口不贴底」时给出正确值（0，而不是顶部差值）。
+   * top 口径不变（仍取接口原值，靠屏幕顶）。
+   */
   private _readSafeArea(): { top: number; bottom: number } {
     const wx = this._wx;
     if (!wx) return { top: 0, bottom: 0 };
     const info = wx.getWindowInfo?.() ?? wx.getSystemInfoSync?.() ?? {};
     const safe = info.safeArea;
-    const screenHeight = info.screenHeight ?? info.windowHeight ?? 0;
     if (!safe) return { top: 0, bottom: 0 };
     const top = safe.top ?? 0;
-    const bottom = Math.max(0, screenHeight - (safe.bottom ?? screenHeight));
+    // 基库缺 windowHeight 时才退回 screenHeight（老版本兜底，语义同上取窗口底）。
+    const windowHeight = info.windowHeight ?? info.screenHeight ?? 0;
+    const bottom = Math.max(0, windowHeight - (safe.bottom ?? windowHeight));
     return { top, bottom };
   }
 

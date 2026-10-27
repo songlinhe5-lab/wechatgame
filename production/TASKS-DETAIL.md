@@ -6280,3 +6280,15 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 **边界不变**：⛔ 仍只对已登记的那颗钮外扩，不跨钮命中（T-443 语义）；x 向容差 24 设计 px < 相邻钮 x 间隙 54，无互抢。`[WXG-T-443]` 两用例（下飘 8 命中 / 飘 60 取消）在 rig scale 下语义自动跟随，无需改断言。
 
 **验收**：beads **1378 passed + 2 skipped**；`typecheck`、`serve-harness --build-only`、`smoke-harness` 全 OK。真机复测待用户：按钮下沿「点了没反应」应消失。
+
+## WXG-T-451
+
+**Cocos 触摸监听弃节点命中改全局 `input`（letterbox 触摸死区）· 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-10-27，待真机复测）**
+
+用户报（真机 iPhone 13 Pro Max，预览/体验版）：「好友榜按钮下半边点击没反应，猜测可能是点击事件被吃掉了」，并按取证步骤回报两条关键读数：① 点按钮**正中部**起 `__WXG_TOUCH_DEBUG` 红十字**消失**（上半边有）；② 顶部 label 无 `scr/dsn`（红十字都未出现 ⇒ 事件未进引擎监听层，非命中/派发问题）。
+
+**定位（读数 → 算式）**：临界 ≈ 屏底 **84 css px** = (1626 − 1334) × 0.5733 / 2，其中 1626 = 引擎可见设计高（SHOW_ALL，430/750 scale，932/0.5733）、1334 = Canvas 节点编辑器尺寸（`Main.scene` 实测 UITransform 750×1334）、0.5733 = 屏幕折设计。⇒ **引擎节点 hitTest 的监听包围盒（Canvas 750×1334 居中）没有覆盖 SHOW_ALL letterbox 的上下死带**，死带内 `touch-start` 根本不派发。主菜单底行（CTA/好友榜，设计 y∈[91,183] → 屏 y∈[827,880]）的下半恰好整段落进死带。harness 复现不了：harness 走 DOM 事件不经 Cocos 命中，且 720×1280 比例 letterbox≈0。
+
+**落码**（`packages/framework/src/adapters/cocos/bindings.ts`）：`_bindInput` 弃 `node.on('touch-start' …)`（节点 hitTest），改引擎**全局 `input`**（`ccInput.on(Input.EventType.TOUCH_START/MOVE/END/CANCEL, …, this)`，`pal/input` 直通、**不做节点 hitTest**）⇒ 事件恒达框架；letterbox 内的点由 `Viewport.screenToDesign` 给出界外设计坐标 ⇒ `inBox` 全不命中，零副作用（与框架「屏幕空间 = 全屏」契约一致）。`onDestroy` 对称 `off`（全局单例不随节点销毁自动解绑）。归一化链路（`readTouch`/`normalizeCocosTouchWx`，T-104/129/161）一字未动。
+
+**验收**：framework **547 passed**（`cocos-touch-origin-contract` 契约断言未破）；`pnpm run typecheck` OK；**`pnpm run build:cocos` 编译通过**（bindings 被 Node tsc 排除，Cocos 构建是它唯一的编译检查；先 `framework:sync` 同步拷贝件再构建）。⛔ 待真机复测：iPhone 13 Pro Max 上好友榜下半边应出红十字并命中 `open-rank`；同时验证顶部安全区一侧无回归。

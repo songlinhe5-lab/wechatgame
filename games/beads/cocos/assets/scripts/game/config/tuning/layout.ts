@@ -87,7 +87,7 @@ export const NAV_BAR_GAP = 8;
  * | 边 | `edgeDp` 取什（**全部来自小程序接口**） | 拿不到时的 fallback | 逐机结果（设计 px） |
  * |---|---|---|---|
  * | 顶 | `getMenuButtonBoundingClientRect().bottom`（胶囊底缘，**吞点击硬约束**） | `SAFE_TOP_H` | 116（非刘海）/ 137（Android）/ 164（X–14）/ 176（灵动岛）/ 161（Pro Max） |
- * | 底 | `PlatformInfo.safeAreaBottom`（= `screenHeight − safeArea.bottom`） | `SAFE_BOTTOM_H` | 72（34 dp @375）/ **63**（@430）/ 104（Android 三键）/ 72（inset 0 → fallback） |
+ * | 底 | `PlatformInfo.safeAreaBottom`（= `windowHeight − safeArea.bottom`，**窗口底基准** · WXG-T-447） | `SAFE_BOTTOM_H` | 72（34 dp @375）/ **63**（@430）/ 104（Android 三键）/ 72（inset 0 → fallback） |
  *
  * **fallback 触发条件 = `edgeDp ≤ 0` 或 `windowWidthDp ≤ 0`**（含 NaN）。这一条同时兜住三种现实：
  * ① web / node 无 wx；② 官方兼容点「部分机型不返回 safeArea」（框架此时给 0）；

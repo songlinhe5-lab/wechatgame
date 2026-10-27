@@ -25,12 +25,15 @@ import {
   Component,
   Graphics,
   HorizontalTextAlignment,
+  input as ccInput,
+  Input,
   Label,
   Node,
   UITransform,
   // WXG-T-104：`screen.devicePixelRatio` 是输入源（`pal/input`）同引擎同源的 DPR，
   // 归一化必须用它，不要自己复刻 `min(dpr, 2)` 的封顶规则。
   screen,
+  type EventTouch,
 } from 'cc';
 
 import { App } from '../../compose/app.js';
@@ -70,6 +73,8 @@ export class Bootstrap extends Component {
   private _menuClip: { host: CocosClipHostLike; blitLayer: Node } | null = null;
   private _renderer: CocosRenderModelRenderer | null = null;
   private _bridge: CocosInputBridge | null = null;
+  /** `[WXG-T-451]` 全局 input 监听已挂（onDestroy 对称 off）。 */
+  private _inputBound = false;
   private _labels: PooledLabelSource | null = null;
   /**
    * `[UI-60 P1 / ADR-0033 DEC-3]` 容器树宿主节点：每个可见容器一个子树，
@@ -214,6 +219,14 @@ export class Bootstrap extends Component {
 
   /** ⚠ Called by the engine when the component's node is destroyed. */
   onDestroy(): void {
+    // `[WXG-T-451]` 全局 input 是引擎单例，不随节点销毁自动解绑 ⇒ 显式对称 off。
+    if (this._inputBound) {
+      ccInput.off(Input.EventType.TOUCH_START, this._onTouchStart, this);
+      ccInput.off(Input.EventType.TOUCH_MOVE, this._onTouchMove, this);
+      ccInput.off(Input.EventType.TOUCH_END, this._onTouchEnd, this);
+      ccInput.off(Input.EventType.TOUCH_CANCEL, this._onTouchCancel, this);
+      this._inputBound = false;
+    }
     if (this._resizeBound) {
       const target = (globalThis as { removeEventListener?: (t: string, l: () => void) => void })
         .removeEventListener;
@@ -501,44 +514,49 @@ export class Bootstrap extends Component {
     // flip y and divide by dpr. The previous comment claimed the opposite
     // ("getLocation() already delivers top-left CSS px") — that was wrong and
     // is the root cause of defect C1; see ADR-0011 §1.1 (corrected).
-    const bridge = new CocosInputBridge(this._app.input, {
+    this._bridge = new CocosInputBridge(this._app.input, {
       now: () => Date.now(),
     });
-    this._bridge = bridge;
-    // Touch listeners only fire when touch-start lands inside the listening
-    // node's UITransform rect. `this.node` is the 750×1334 design rect, which
-    // leaves the letterbox bands dead on wide screens (observed 2026-09-13 in
-    // the desktop preview). Prefer the Canvas node — its UITransform always
-    // covers the full visible rect — and fall back to this.node.
-    const canvasNode = this.node.scene.getChildByName('Canvas');
-    const host = canvasNode ?? this.node;
+    // `[WXG-T-451]` **监听引擎全局 `input`，不再挂任何节点。**
+    //
+    // 节点监听（`node.on('touch-start')`）依赖引擎 hitTest：触摸必须落在监听节点的
+    // UITransform 包围盒内才派发。场景里 `Canvas` 节点的编辑器尺寸是 750×1334（Main.scene
+    // 实测），而框架契约的屏幕空间 = **全屏**：微信真机（iPhone 13 Pro Max 430×932，
+    // SHOW_ALL letterbox）可见设计高达 1626，Canvas 矩形若未随可见尺寸展开，上下各
+    // (1626−1334)×scale ≈ **84 css px 是触摸死区** —— 主菜单底行按钮（CTA/好友榜）的下半
+    // 恰好整段落进死区，`touch-start` 根本不派发（2026-10-27 真机实锤：按钮中部起无
+    // `__WXG_TOUCH_DEBUG` 红十字，临界线 ≈ 屏底 84px，与该算式吻合）。
+    //
+    // 全局 `input`（`pal/input` 直通，**不做节点 hitTest**）恒派发 ⇒ letterbox 内的点也到
+    // 框架，由 `Viewport.screenToDesign` 给出界外设计坐标 ⇒ `inBox` 全不命中，零副作用。
+    // ⚠ `Input.EventType.TOUCH_*` 的字符串值即 'touch-start' 等 dash 形式（3.8.8）。
+    ccInput.on(Input.EventType.TOUCH_START, this._onTouchStart, this);
+    ccInput.on(Input.EventType.TOUCH_MOVE, this._onTouchMove, this);
+    ccInput.on(Input.EventType.TOUCH_END, this._onTouchEnd, this);
+    ccInput.on(Input.EventType.TOUCH_CANCEL, this._onTouchCancel, this);
+    this._inputBound = true;
+  }
 
-    // ⚠ Event type constants: Node.EventType.TOUCH_START etc. Verified in
-    // 3.8.8: the dash form ('touch-start') is correct.
-    host.on(
-      'touch-start',
-      (e: CocosTouchEvent) => {
-        const q = readTouch(e, this._touchSpace());
-        bridge.onTouchStart(q);
-        this._drawTouchDebug(e, q);
-      },
-      this,
-    );
-    host.on(
-      'touch-move',
-      (e: CocosTouchEvent) => bridge.onTouchMove(readTouch(e, this._touchSpace())),
-      this,
-    );
-    host.on(
-      'touch-end',
-      (e: CocosTouchEvent) => bridge.onTouchEnd(readTouch(e, this._touchSpace())),
-      this,
-    );
-    host.on(
-      'touch-cancel',
-      (e: CocosTouchEvent) => bridge.onTouchCancel(readTouch(e, this._touchSpace())),
-      this,
-    );
+  private _onTouchStart(e: EventTouch): void {
+    if (!this._app || !this._bridge) return;
+    const q = readTouch(e, this._touchSpace());
+    this._bridge.onTouchStart(q);
+    this._drawTouchDebug(e, q);
+  }
+
+  private _onTouchMove(e: EventTouch): void {
+    if (!this._bridge) return;
+    this._bridge.onTouchMove(readTouch(e, this._touchSpace()));
+  }
+
+  private _onTouchEnd(e: EventTouch): void {
+    if (!this._bridge) return;
+    this._bridge.onTouchEnd(readTouch(e, this._touchSpace()));
+  }
+
+  private _onTouchCancel(e: EventTouch): void {
+    if (!this._bridge) return;
+    this._bridge.onTouchCancel(readTouch(e, this._touchSpace()));
   }
 }
 
