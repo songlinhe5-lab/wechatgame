@@ -164,6 +164,25 @@ function runGen(rawPath, outDir, params) {
     });
 }
 
+/** 有限的 number ⇒ 原值；其余 ⇒ null（缺失/字符串/NaN 一律不展示成 0）。 */
+function finiteNumber(v) {
+    return typeof v === 'number' && Number.isFinite(v) ? v : null;
+}
+
+/** 生成结果/预览草稿的**评估轻投影**：从 report.difficulty 与 levelDraft.pricing 取真引擎读数。
+ *  列表只带这几项小字段，不把整份 report / pattern 塞进 `/api/results`。 */
+function resultEval(r) {
+    const df = r.report?.difficulty;
+    const pr = r.levelDraft?.pricing;
+    const time = finiteNumber(df?.timeEst) ?? finiteNumber(r.levelDraft?.time);
+    const difficulty = finiteNumber(df?.score);
+    const steps = finiteNumber(df?.steps) ?? finiteNumber(pr?.steps);
+    const taps = finiteNumber(df?.taps) ?? finiteNumber(pr?.taps);
+    const source = typeof pr?.source === 'string' ? pr.source : (df ? 'bot' : null);
+    if (time === null && difficulty === null && steps === null && taps === null && source === null) return null;
+    return { time, difficulty, steps, taps, source };
+}
+
 /** 列出 data/ 下全部 result.json（按 createdAt 倒序）。
  *  只回**轻投影**（不含 thumb / levelDraft / misplaced / report）：列表要同时给前端与小游戏拉，
  *  携带 pattern 与缩略图会随条数线性膨胀；点条目时再 `GET /api/results/:id` 取全量。 */
@@ -185,6 +204,8 @@ function listResults() {
                     importable: blockers.length === 0,
                     blockers: blockers.slice(0, 2), blockerCount: blockers.length,
                     hasThumb: !!r.thumb,
+                    // 评估信息：估算难度/时长/实测步数（列表行直接展示，点开可看全文）
+                    eval: resultEval(r),
                     // 「只看本关」的判据（生成时打标 / 替换时反向补标）；旧条目为空数组
                     linkedLevels: Array.isArray(r.linkedLevels) ? r.linkedLevels : [],
                 });
@@ -215,6 +236,8 @@ function listPreviews() {
                 slots: Math.max(1, Math.ceil(d.cols / 32)) * Math.max(1, Math.ceil(d.rows / 32)),
                 importable: d.importable !== false ? true : false,
                 hasThumb: !!d.thumb,
+                // 未入库预览也给同一套评估轻投影（生成页列表不展示草稿，但清理/管理接口可复用）
+                eval: resultEval(d),
                 draft: true,
                 linkedLevels: Array.isArray(d.linkedLevels) ? d.linkedLevels : [],
             });
@@ -557,28 +580,60 @@ async function applyManage(res, mutate, reply) {
 }
 
 /** 章节列表轻投影（管理页 state；pattern/色板已在批次④补上 → paint）。 */
-function describeChapters(levelsDir, store, ls) {
+/** 单关（含 plate 逐格相加）的评估读数：估算时长/难度/实测步数。 */
+function levelEval(obj, kind, levelTimeMax) {
+    const cells = kind === 'plate' ? (obj.cells ?? []) : [obj];
+    let time = null;
+    let steps = null;
+    let taps = null;
+    for (const c of cells) {
+        const t = finiteNumber(c.time);
+        if (t !== null) time = (time ?? 0) + t;
+        const s = finiteNumber(c.pricing?.steps);
+        if (s !== null) steps = (steps ?? 0) + s;
+        const tp = finiteNumber(c.pricing?.taps);
+        if (tp !== null) taps = (taps ?? 0) + tp;
+    }
+    return {
+        time,
+        // plate 是多格拼图，没有单关 D；普通/ boss 按 measuredLevelTime 同一公式反算。
+        difficulty: kind !== 'plate' && time !== null && levelTimeMax
+            ? Math.round((100 * time) / levelTimeMax) : null,
+        steps,
+        taps,
+        source: kind === 'plate' ? null : (obj.pricing?.source ?? null),
+    };
+}
+
+function describeChapters(levelsDir, store, ls, levelTimeMax) {
     const manifest = ls.readManifest(levelsDir);
     const chapters = [...(manifest.chapters ?? [])].sort((a, b) => a.order - b.order);
     const docs = store.loadChapterMap(levelsDir, manifest);
     const byUid = new Map(manifest.entries.map((e) => [e.uid, e]));
     const expanded = new Map(store.expandEntriesWithIds(levelsDir, manifest).map((e) => [e.uid, e]));
-    return chapters.map((c) => {
+    return chapters.map((c, ci) => {
         const doc = docs.get(c.id) ?? { levels: [], title: '(章文件缺失)' };
         const levels = (doc.levels ?? []).map((uid) => {
             const e = byUid.get(uid);
             if (!e) return { uid, missing: true };
             const obj = JSON.parse(readFileSync(join(levelsDir, e.file), 'utf8'));
             const ex = expanded.get(uid);
-            const base = { uid, kind: e.kind, file: e.file, slots: ex?.slots ?? 1, name: obj.name ?? '' };
+            const evalInfo = levelEval(obj, e.kind, levelTimeMax);
+            const base = { uid, kind: e.kind, file: e.file, slots: ex?.slots ?? 1, name: obj.name ?? '', eval: evalInfo };
             if (e.kind === 'plate')
                 return { ...base, id: ex?.ids?.[0], idEnd: ex?.ids?.[(ex?.ids?.length ?? 1) - 1], cols: obj.gridCols, rows: obj.gridRows };
             return { ...base, id: obj.id, cols: obj.cols, rows: obj.rows, time: obj.time, paint: paintOf(obj) };
         });
+        const timeTotal = levels.reduce((n, l) => n + (l.eval?.time ?? 0), 0);
+        const stepsTotal = levels.reduce((n, l) => n + (l.eval?.steps ?? 0), 0);
         return {
             id: c.id, order: c.order, open: !!c.open, file: c.file,
             title: typeof doc.title === 'string' ? doc.title : '', showcase: doc.showcase,
             slots: levels.reduce((n, l) => n + (l.slots ?? 0), 0), levels,
+            timeTotal, stepsTotal,
+            // 展示与写入门限共用同一纯函数（chapter-store），UI 不另算一套预算。
+            // ⚠ 传**展示序下标** ci（不是 c.order：现网 order 从 1 起，首章 order=1）。
+            budget: store.chapterTimeStatus(timeTotal, ci),
         };
     });
 }
@@ -591,12 +646,15 @@ async function handleManageState(res) {
     const gameplayTuning = readFileSync(GAMEPLAY_TUNING_PATH, 'utf8');
     const menuTuning = readFileSync(MENU_TUNING_PATH, 'utf8');
     const manifest = ls.readManifest(LEVELS_DIR);
+    const levelTimeMax = readTuningConst(gameplayTuning, 'LEVEL_TIME_MAX');
     return sendJson(res, 200, {
         contentVersion: manifest.contentVersion,
         count: store.expandedCount(LEVELS_DIR, manifest),
         demoLevelCount: readTuningConst(gameplayTuning, 'DEMO_LEVEL_COUNT'),
         wallCapacity: readWallCapacity(menuTuning),
-        chapters: describeChapters(LEVELS_DIR, store, ls),
+        chapterBudgets: store.CHAPTER_TIME_BUDGET,
+        levelTimeMax,
+        chapters: describeChapters(LEVELS_DIR, store, ls, levelTimeMax),
     });
 }
 
@@ -723,6 +781,34 @@ async function measureShape(shape, progress) {
  */
 async function planIngest(id, progress) {
     return measureShape(await planShape(id), progress);
+}
+
+/** 一条落盘计划的已实测时长（plate 逐格相加）。 */
+function planSeconds(plan) {
+    if (plan.kind === 'plate')
+        return plan.measured.results.reduce((n, r) => n + (finiteNumber(r.time) ?? 0), 0);
+    return finiteNumber(plan.measured.time) ?? 0;
+}
+
+/** 秒 → mm:ss（门限报错与前端展示同口径）。 */
+function formatClock(sec) {
+    const s = Math.max(0, Math.round(sec));
+    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+}
+
+/** 整章发布/整章替换的写前门限；失败 422，真源不动。
+ *  `chapterIndex` = 展示序下标（首章 0），`chapterOrder` 仅用于报错展示（现网 order 从 1 起）。 */
+function assertChapterTimeBudget(status, label, chapterIndex, chapterOrder) {
+    if (status.ok) return;
+    const diff = status.direction === 'short'
+        ? `少 ${formatClock(-status.deltaSec)}`
+        : `多 ${formatClock(status.deltaSec)}`;
+    const chapterName = chapterIndex === 0 ? '首章' : `第 ${chapterOrder} 章（后续章）`;
+    throw new ManageError(
+        `${label}：本章实测总时长 ${formatClock(status.totalSec)}，不在${chapterName}目标 ` +
+        `${formatClock(status.minSec)}–${formatClock(status.maxSec)}（${diff}；中线 ${formatClock(status.targetSec)}）。真源未改动。`,
+        422,
+    );
 }
 
 /** 入关 entry 的落位：插 boss 的 order 之前（章内关号与 id 同序）；无 boss 时追加。 */
@@ -1133,6 +1219,24 @@ async function handleDraftPublish(req, res, id) {
     if (totalSlots > wallCap)
         throw new ManageError(`本批 ${totalSlots} 槽 > 墙容量 ${wallCap}：删几关或拆成两个大关`);
 
+    // 章时长门限（用户 2026-10-27 裁定）：只拦「整章发布 / 整章替换」事务。
+    // 增量批量导入不拦（半成品章必须能继续攒）；管理页仍实时显示预算状态。
+    // ⚠ 预算看**展示序下标**；现网 order 从 1 起，不能拿 order===0 判首章。
+    const sortedChapters = [...(manifest0.chapters ?? [])].sort((a, b) => a.order - b.order);
+    const chapterIndex = mode === 'new'
+        ? sortedChapters.length
+        : sortedChapters.findIndex((c) => c.id === target);
+    const chapterOrder = mode === 'new'
+        ? sortedChapters.reduce((max, c) => Math.max(max, c.order), 0) + 1
+        : sortedChapters[chapterIndex]?.order;
+    const totalTime = plans.reduce((n, p) => n + planSeconds(p), 0);
+    assertChapterTimeBudget(
+        store.chapterTimeStatus(totalTime, chapterIndex),
+        mode === 'new' ? '发布新增大关' : '整章替换',
+        chapterIndex,
+        chapterOrder,
+    );
+
     const png = mode === 'new' || draft.imageDataUrl ? parsePngDataUrl(draft.imageDataUrl) : null;
 
     return applyManage(res, (ctx) => {
@@ -1365,14 +1469,20 @@ async function handleLevelGet(res, uid) {
     const cells = e.kind === 'plate' ? (obj.cells ?? []) : [obj];
     if (!cells.length) return sendJson(res, 422, { error: `${uid} 无图案数据（真源已坏，先跑校验）` });
     const hit = findChapterOf(store, LEVELS_DIR, manifest, uid);
+    const levelTimeMax = readTuningConst(readFileSync(GAMEPLAY_TUNING_PATH, 'utf8'), 'LEVEL_TIME_MAX');
     return sendJson(res, 200, {
         uid, kind: e.kind, file: e.file,
         chapter: hit ? { id: hit.c.id, order: hit.c.order, title: hit.doc.title } : null,
-        cells: cells.map((c) => ({
-            id: c.id, idEnd: c.idEnd ?? c.id, name: c.name ?? '', cols: c.cols, rows: c.rows,
-            time: c.time ?? null, steps: c.pricing?.steps ?? null,
-            paint: paintOf(c), misplaced: Array.isArray(c.misplaced) ? c.misplaced : null,
-        })),
+        cells: cells.map((c) => {
+            const time = finiteNumber(c.time);
+            return {
+                id: c.id, idEnd: c.idEnd ?? c.id, name: c.name ?? '', cols: c.cols, rows: c.rows,
+                time: time ?? null, steps: c.pricing?.steps ?? null, taps: c.pricing?.taps ?? null,
+                difficulty: time !== null && levelTimeMax ? Math.round((100 * time) / levelTimeMax) : null,
+                source: c.pricing?.source ?? null,
+                paint: paintOf(c), misplaced: Array.isArray(c.misplaced) ? c.misplaced : null,
+            };
+        }),
     });
 }
 

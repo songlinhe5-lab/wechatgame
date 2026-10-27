@@ -117,7 +117,7 @@ function renderSavingsSection() {
   if (!dist || reads < USAGE_MIN_SAMPLES) {
     L.push(
       `> ⚠️ **样本不足（${reads} 次读取，回退 ROUTES 锚点）**——真实读数低于阈值 ${USAGE_MIN_SAMPLES}，` +
-        '下表为 `ctx/ROUTES.md` 的锚点集，**不代表真实使用分布**。',
+      '下表为 `ctx/ROUTES.md` 的锚点集，**不代表真实使用分布**。',
     );
     L.push('> 生成真实分布：`pnpm run ctx:reads`（采本机会话）→ `pnpm run ctx:usage`。');
     L.push('');
@@ -142,7 +142,7 @@ function renderSavingsSection() {
 
   L.push(
     `> 数据源：\`ctx/usage-distribution.json\`（真实读事件账本），样本 **${reads}** 次读取 / ` +
-      `${dist.samples?.sessions ?? '—'} 会话；token 一律为**估算**。`,
+    `${dist.samples?.sessions ?? '—'} 会话；token 一律为**估算**。`,
   );
   L.push('');
   L.push('| # | 锚点 | 文件 | 命中读数 | 归属估算 tokens |');
@@ -156,12 +156,12 @@ function renderSavingsSection() {
   if (m) {
     L.push(
       `**真实分布加权节省率**（估算）：Σ 实际读入 **${m.sumActual}** ÷ Σ 全文 **${m.sumFull}** = ` +
-        `**${pct(m.overall)}**（样本 ${m.samples} 次读取）`,
+      `**${pct(m.overall)}**（样本 ${m.samples} 次读取）`,
     );
     L.push('');
     L.push(
       `> 单次节省率：含整文件读的整体中位数 ${pct(m.median)}、仅局部读中位数 ${pct(m.medianPartial)}、` +
-        `仅局部读 P10 ${pct(m.p10Partial)}——护栏与阈值见 \`pnpm run ctx:check\` E 项。`,
+      `仅局部读 P10 ${pct(m.p10Partial)}——护栏与阈值见 \`pnpm run ctx:check\` E 项。`,
     );
   } else {
     L.push(`> 样本 ${reads} 次读取（分布文件未携带聚合指标；重跑 \`pnpm run ctx:usage\` 补齐）。`);
@@ -209,19 +209,19 @@ function renderBudget(index) {
   L.push('');
   L.push(
     `> AGENTS.md 常驻阈值 **${LIMITS.agentsMd}**（CJK 口径校准，WXG-T-024）：原 3000 疑似 bytes/4 口径，` +
-      '与本表 token 估算公式（CJK≈1/字、ASCII≈1/4 字符）不一致；3200 在现状之上留 ≈7% 余量。',
+    '与本表 token 估算公式（CJK≈1/字、ASCII≈1/4 字符）不一致；3200 在现状之上留 ≈7% 余量。',
   );
   L.push(
     `> \`ctx/ROUTES.md\` 常驻阈值 **${LIMITS.routesMd}**（WXG-T-039 R5）：现值 6235 之上留 ≈20% 余量，` +
-      '且低于 B 项默认单文件上限 8000（spec 档）——ROUTES 是手维护路由表（非生成物、无生成器控量），本门与门禁 A 项是其唯一硬护栏。',
+    '且低于 B 项默认单文件上限 8000（spec 档）——ROUTES 是手维护路由表（非生成物、无生成器控量），本门与门禁 A 项是其唯一硬护栏。',
   );
   // 常驻总量观察哨（WXG-T-039 R5，报告项）：单文件上限各自为政时总量仍可漂移，
   // 此行是观察哨；超软阈值不阻断，硬阻断只挂各单文件门（与门禁 A 项的总量行同源同判）。
   const residentTotal = resident.reduce((n, f) => n + f.tokens, 0);
   L.push(
     `> **常驻总量**（AGENTS.md + my-rules/* + ctx/hot-files.md + ctx/ROUTES.md，每次会话固定开销）= ` +
-      `**${residentTotal}** 估算 tokens（观察哨软阈值 ≤ ${LIMITS.residentTotalSoft}${residentTotal > LIMITS.residentTotalSoft ? '，⚠️ 已超——请评估瘦身' : ''}）：` +
-      '单文件上限各自为政时总量仍可漂移，本行仅观察提示、不阻断；硬阻断只挂各单文件门。',
+    `**${residentTotal}** 估算 tokens（观察哨软阈值 ≤ ${LIMITS.residentTotalSoft}${residentTotal > LIMITS.residentTotalSoft ? '，⚠️ 已超——请评估瘦身' : ''}）：` +
+    '单文件上限各自为政时总量仍可漂移，本行仅观察提示、不阻断；硬阻断只挂各单文件门。',
   );
   L.push('');
 
@@ -238,9 +238,9 @@ function renderBudget(index) {
   L.push('');
   L.push(
     '> 上限按文档类别分档（WXG-T-377）：**spec 8000**（判据/规格/提案/ADR/GDD/UX/skill，未放松）/ ' +
-      '**ledger 16000**（追加型台账：Epic·QA·发布·计划·引擎版本记录）/ **generated 24000**（生成物）/ ' +
-      '**TASKS.md 80000**、**TASKS-DETAIL.md 205000**（由 `archive-tasks.mjs` 治理）/ ' +
-      '**vendor 免检**（`cocos-mcp-server` 目录，⛔ 不可改写）。',
+    '**ledger 16000**（追加型台账：Epic·QA·发布·计划·引擎版本记录）/ **generated 24000**（生成物）/ ' +
+    '**TASKS.md 80000**、**TASKS-DETAIL.md 205000**（由 `archive-tasks.mjs` 治理）/ ' +
+    '**vendor 免检**（`cocos-mcp-server` 目录，⛔ 不可改写）。',
   );
   L.push('');
   if (overLimit.length === 0) {
@@ -251,7 +251,7 @@ function renderBudget(index) {
     for (const f of overLimit) {
       L.push(
         `| \`${f.path}\` | ${f.tokens} | ${fileClassOf(f.path)} · ${fileCapOf(f.path)} | ` +
-          '见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |',
+        '见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |',
       );
     }
   }
@@ -266,7 +266,7 @@ function runCheck() {
   if (!index) {
     console.error(
       '❌ 未找到 ctx/index.json（或无法解析）。\n' +
-        '   先生成索引：pnpm run ctx:build',
+      '   先生成索引：pnpm run ctx:build',
     );
     process.exit(1);
   }
@@ -366,7 +366,7 @@ function runBuild() {
   if (meta.stagedBlobs) {
     console.log(
       '⚠️  非默认模式（--staged-blobs）：暂存区中的 .md 按**暂存 blob**内容索引' +
-        '（= 即将提交的内容；pre-commit 自动重建用，WXG-T-032 ⑤）。',
+      '（= 即将提交的内容；pre-commit 自动重建用，WXG-T-032 ⑤）。',
     );
     if (!meta.git) {
       console.log('⚠️  未能读取 git（非 git 仓库 / git 不可用）→ 回退为纯工作树语义（等价干净检出）。');

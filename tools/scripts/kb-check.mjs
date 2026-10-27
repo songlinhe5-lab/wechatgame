@@ -335,9 +335,9 @@ for (const { f, parsed } of activeParsed) {
 if (problems.length === 0) {
   console.log(
     `✅ kb:check PASSED —— **十重校验**：活跃 ${actives.length} / 归档 ${archived.length}；` +
-      `① ID 唯一且合法 ② ledger↔markdown 双向一致 ③ SKIP_DIRS 含 archive ④ INDEX 活跃块同步 ` +
-      `⑤ thresholds 合法 ⑥ accessCount↔seen 严格一致 ⑦ events 合法 ⑧ contentHash 一致 ` +
-      `⑨ 分片映射一致 ⑩ 片内条目 ID 升序`,
+    `① ID 唯一且合法 ② ledger↔markdown 双向一致 ③ SKIP_DIRS 含 archive ④ INDEX 活跃块同步 ` +
+    `⑤ thresholds 合法 ⑥ accessCount↔seen 严格一致 ⑦ events 合法 ⑧ contentHash 一致 ` +
+    `⑨ 分片映射一致 ⑩ 片内条目 ID 升序`,
   );
   process.exit(0);
 }

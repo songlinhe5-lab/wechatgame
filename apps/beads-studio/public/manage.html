@@ -49,6 +49,8 @@
         .chhead { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
         .chhead code { background: #f3efe6; padding: 1px 6px; border-radius: 4px; font-size: 12px; }
         .chhead small { color: #6b6b6b; }
+        .chbudget { flex-basis: 100%; font-size: 12px; color: #1e7d3c; }
+        .chbudget.warn { color: var(--danger); font-weight: 600; }
 
         label { display: block; margin: 8px 0 2px; font-size: 12px; color: #666; }
 
@@ -192,6 +194,8 @@
         #dr-pub-rep:hover:not(:disabled) { background: #a5301f; }
         #dr-cap { font-size: 12px; color: #6b6b6b; }
         #dr-cap.warn { color: var(--danger); font-weight: 600; }
+        #dr-budget { font-size: 12px; color: #6b6b6b; margin-top: 6px; }
+        #dr-budget.warn { color: var(--danger); font-weight: 600; }
 
         .row3 { display: grid; grid-template-columns: minmax(180px, .9fr) minmax(180px, .9fr) minmax(240px, 1.2fr); gap: 10px; }
         .row3 input, .row3 select { width: 100%; min-width: 0; }
@@ -264,6 +268,7 @@
                     <span id="dr-cap"></span>
                 </div>
             </div>
+            <div id="dr-budget"></div>
             <div id="dr-tip" style="font-size:12px;color:#6b6b6b;margin-top:6px"></div>
         </div>
 
@@ -307,6 +312,36 @@
         // 服务端失败时 error 已翻成人话，detail 是生成期门禁原文（备回查）
         function httpErr(j, fallback) {
             return ((j && j.error) || fallback) + (j && j.detail ? '\n—— 门禁原文 ——\n' + j.detail : '');
+        }
+
+        function fmtClock(sec) {
+            if (typeof sec !== 'number' || !Number.isFinite(sec)) return '—';
+            const s = Math.max(0, Math.round(sec));
+            return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+        }
+
+        /** 评估信息：D / 估算时长 / 实测步数；缺项不伪造。 */
+        function evalText(e) {
+            if (!e) return '';
+            const bits = [];
+            if (typeof e.difficulty === 'number') bits.push(`D${e.difficulty}`);
+            if (typeof e.time === 'number') bits.push(`估时 ${fmtClock(e.time)}`);
+            if (typeof e.steps === 'number') bits.push(`${e.steps} 步`);
+            return bits.join(' · ');
+        }
+
+        function budgetText(b) {
+            if (!b) return '';
+            const tag = b.ok ? '✅ 达标' : b.direction === 'short' ? '⚠ 偏短' : '⚠ 偏长';
+            const gap = b.ok ? '' : `（${b.direction === 'short' ? '少' : '多'} ${fmtClock(Math.abs(b.deltaSec))}）`;
+            return `计划 ${fmtClock(b.totalSec)} / 目标 ${fmtClock(b.minSec)}–${fmtClock(b.maxSec)}（中线 ${fmtClock(b.targetSec)}）${tag}${gap}`;
+        }
+
+        function budgetStatus(totalSec, b) {
+            const ok = totalSec >= b.minSec && totalSec <= b.maxSec;
+            const direction = ok ? 'ok' : totalSec < b.minSec ? 'short' : 'long';
+            const deltaSec = ok ? 0 : totalSec < b.minSec ? totalSec - b.minSec : totalSec - b.maxSec;
+            return { ok, direction, minSec: b.minSec, maxSec: b.maxSec, targetSec: b.targetSec, totalSec, deltaSec };
         }
 
         function showErr(msg) {
@@ -636,7 +671,8 @@
                 const head = document.createElement('div');
                 head.className = 'chhead';
                 head.innerHTML = `<b>#${ch.order} ${esc(ch.title)}</b><code>${esc(ch.id)}</code>` +
-                    `<small>${ch.levels.length} 关 · ${ch.slots}/${S.wallCapacity} 槽 · 展示图 ${esc(ch.showcase?.art || '—')}</small>`;
+                    `<small>${ch.levels.length} 关 · ${ch.slots}/${S.wallCapacity} 槽 · 展示图 ${esc(ch.showcase?.art || '—')}</small>` +
+                    (ch.budget ? `<div class="chbudget${ch.budget.ok ? '' : ' warn'}">${esc(budgetText(ch.budget))}</div>` : '');
                 card.appendChild(head);
 
                 const bar = document.createElement('div');
@@ -685,10 +721,11 @@
                         lvBox.appendChild(row);
                         return;
                     }
+                    const ev = evalText(lv.eval) || (lv.time !== undefined ? `估时 ${fmtClock(lv.time)}` : '');
                     row.innerHTML = `<span class="uid">${esc(lv.uid)}</span>` +
                         `<span class="id">#${lv.id}${lv.idEnd !== undefined && lv.idEnd !== lv.id ? '–' + lv.idEnd : ''}</span>` +
                         `<span>${esc(lv.name || '(未命名)')}</span>` +
-                        `<small>${esc(lv.kind)} · ${lv.cols}×${lv.rows}${lv.time !== undefined ? ' · ' + lv.time + 's' : ''} · ${lv.slots} 槽</small>`;
+                        `<small>${esc(lv.kind)} · ${lv.cols}×${lv.rows}${ev ? ' · ' + esc(ev) : ''} · ${lv.slots} 槽</small>`;
                     if (lv.paint) row.prepend(paintThumb(lv.paint)); // 当前图案缩略图（plate 无 pattern ⇒ 不画）
 
                     const ops = document.createElement('div');
@@ -863,8 +900,11 @@
             $('dr-pub-new').disabled = !has;
             $('dr-pub-rep').disabled = !has || !chs.length;
             const slots = draftSlots(), cap = S?.wallCapacity ?? 0;
+            const totalTime = draft.resultIds.reduce((n, id) =>
+                n + (results.find((x) => x.id === id)?.eval?.time ?? 0), 0);
             $('dr-sum').textContent = has
-                ? `${draft.resultIds.length} 关 · 合计 ${slots} 槽` + (cap ? ` / 墙容量 ${cap}${slots > cap ? '（超出，发布会被拒）' : ''}` : '')
+                ? `${draft.resultIds.length} 关 · 合计 ${slots} 槽 · 估算 ${fmtClock(totalTime)}` +
+                    (cap ? ` / 墙容量 ${cap}${slots > cap ? '（超出，发布会被拒）' : ''}` : '')
                 : '';
             // 替换预判：整章换掉 ⇒ 目标章槽数直接变成草稿槽数（9 槽章换 2 槽批 = 释放 7）
             const tgt = chs.find((c) => c.id === $('dr-target').value);
@@ -876,6 +916,29 @@
             } else {
                 $('dr-cap').textContent = '';
                 $('dr-cap').classList.remove('warn');
+            }
+            // 章时长预算：替换看目标章；新章按发布后的章序预算。
+            if (has && tgt?.budget) {
+                const st = budgetStatus(totalTime, tgt.budget);
+                $('dr-budget').textContent = `目标章预算：${budgetText(st)}`;
+                $('dr-budget').classList.toggle('warn', !st.ok);
+            } else if (has) {
+                // 新增章恒 append ⇒ 展示序 = 现有章数；⚠ 不能用 order===0 判首章（现网首章 order=1）。
+                const nextIndex = chs.length;
+                const nextOrder = chs.reduce((m, c) => Math.max(m, c.order), 0) + 1;
+                const first = nextIndex === 0;
+                const b = S?.chapterBudgets?.[first ? 'first' : 'later']; // 阈值只从服务端拿，前端不抄第二套
+                if (b) {
+                    const st = budgetStatus(totalTime, b);
+                    $('dr-budget').textContent = `新章将按 #${nextOrder}（${first ? '首章' : '后续章'}）预算：${budgetText(st)}`;
+                    $('dr-budget').classList.toggle('warn', !st.ok);
+                } else {
+                    $('dr-budget').textContent = '';
+                    $('dr-budget').classList.remove('warn');
+                }
+            } else {
+                $('dr-budget').textContent = '';
+                $('dr-budget').classList.remove('warn');
             }
             $('dr-tip').textContent = drDirty ? '有未保存修改（发布前会自动补存）' : '';
         }
@@ -896,11 +959,13 @@
                 row.tabIndex = 0;
                 row.dataset.i = String(i);
                 const isBoss = i === draft.resultIds.length - 1;
+                const ev = evalText(r.eval);
                 row.innerHTML = '<span class="dr-h">≡</span>' +
                     `<span class="dr-n">${i + 1}</span>` +
                     `<span class="dr-thumb${r.hasThumb ? '' : ' empty'}">${r.hasThumb ? `<img loading="lazy" src="/api/results/${encodeURIComponent(id)}/thumb" alt="">` : ''}</span>` +
                     `<span class="dr-id">${esc(id)}</span>` +
                     `<span class="dr-meta">${r.cols ?? '?'}×${r.rows ?? '?'} · ${r.colors ?? '?'} 色` +
+                    `${ev ? ' · ' + esc(ev) : ''}` +
                     `${r.slots > 1 ? ` · 占 ${r.slots} 槽` : ''}${isBoss ? ' · <b>boss</b>' : ''}</span>`;
                 row.appendChild(btn('移除', false, () => {
                     draft.resultIds.splice(i, 1);

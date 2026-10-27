@@ -739,9 +739,18 @@
             else drawBoard(r.misplaced?.length ? r.misplaced : r.pattern);
             const rp = r.report || {};
             const df = rp.difficulty;
+            const loadedEval = r.fromLevel && levelInfo?.cells?.[levelCell];
+            const loadedEvalText = loadedEval
+                ? [
+                    typeof loadedEval.difficulty === 'number' ? `D${loadedEval.difficulty}` : '',
+                    typeof loadedEval.time === 'number' ? `估时 ${fmtSec(loadedEval.time)}` : '',
+                    typeof loadedEval.steps === 'number' ? `${loadedEval.steps} 步` : '',
+                ].filter(Boolean).join(' · ')
+                : '';
             $('stats').textContent = r.fromLevel
                 // 载入的关卡没有生成报告：只报真源里有的字段，别拿 '?' 冒充统计
-                ? `${r.cols}×${r.rows}｜可填 ${rp.fillable ?? '—'}｜用色 ${r.colors}｜错位 ${Array.isArray(r.misplaced) && r.misplaced.length ? '真源已存（切「错位图」看）' : '无'}`
+                ? `${r.cols}×${r.rows}｜可填 ${rp.fillable ?? '—'}｜用色 ${r.colors}｜错位 ${Array.isArray(r.misplaced) && r.misplaced.length ? '真源已存（切「错位图」看）' : '无'}` +
+                    (loadedEvalText ? `\n真源评估 ${loadedEvalText}` : '')
                 : `${r.cols}×${r.rows}｜可填 ${rp.fillable ?? '?'}｜用色 ${r.colors}｜错位 ${r.misMode === 'full' ? '全错位（每颗可填珠都不就位）' : r.misMode === 'max' ? `最大化错位（错开 ${rp.mis?.M ?? '?'} 颗、强制就位 ${rp.mis?.F ?? '?'} 颗；N=${rp.mis?.N ?? '?'}/m=${rp.mis?.m ?? '?'}）` : r.misMode === 'none' ? '不错位（实物图纸模式）' : `${r.swaps * 2} 颗（${r.swaps} 对交换）`}\n` +
                 `色差 ${rp.colorError?.final ?? '?'}｜同色相邻率 ${rp.clusteringMisplaced?.adjRate ?? (df ? df.adjRate : '?')}` +
                 (df ? (df.error
@@ -835,6 +844,22 @@
             loadResults(r.id);
         }
 
+        function fmtSec(sec) {
+            if (typeof sec !== 'number' || !Number.isFinite(sec)) return '—';
+            const s = Math.max(0, Math.round(sec));
+            return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+        }
+
+        /** 评估行：生成期真引擎读数（D / 1★ 估算清关 / 12 槽步数）。缺项不伪造。 */
+        function evalLine(e) {
+            if (!e) return '';
+            const bits = [];
+            if (typeof e.difficulty === 'number') bits.push(`D${e.difficulty}`);
+            if (typeof e.time === 'number') bits.push(`估时 ${fmtSec(e.time)}`);
+            if (typeof e.steps === 'number') bits.push(`${e.steps} 步`);
+            return bits.length ? ` · ${bits.join(' · ')}` : '';
+        }
+
         /** 单条结果行（轻投影；点开才拉全文）。`inUse` = 当前应用在画布上的那条（标「使用中」）。
          *  只处理**已确认保存**的结果（预览草稿不展示，2026-10-25 用户要求）。 */
         function resultItem(r, inUse) {
@@ -845,7 +870,7 @@
             // 否则一列 id 看下来没人知道画布上是哪条（2026-10-24 用户要求）。
             const tag = inUse ? '<b style="color:var(--ac)">使用中</b> · ' : '';
             d.innerHTML = `<span title="${r.id}">${noImp ? (r.misMode === 'none' ? 'ℹ ' : '⚠ ') : ''}${r.id}</span>` +
-                `<small>${tag}${r.cols}×${r.rows} · ${r.colors} 色 · ${mis}${noImp ? (r.misMode === 'none' ? ' · 游戏不入关' : ' · 不可入关') : ''}</small>`;
+                `<small>${tag}${r.cols}×${r.rows} · ${r.colors} 色 · ${mis}${evalLine(r.eval)}${noImp ? (r.misMode === 'none' ? ' · 游戏不入关' : ' · 不可入关') : ''}</small>`;
             d.title = '点击应用为当前（可下载 / 烘焙 / 替换回该关；入关去大关管理页）';
             d.onclick = async () => {
                 try {

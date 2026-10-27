@@ -1125,10 +1125,10 @@ console.log('');
 
 console.log(
   'B 单文件上限 — 按文档类别分档（可豁免）：' +
-    Object.entries(FILE_CAPS)
-      .map(([k, v]) => `${k} ≤ ${v}`)
-      .join(' / ') +
-    ' / vendor 免检',
+  Object.entries(FILE_CAPS)
+    .map(([k, v]) => `${k} ≤ ${v}`)
+    .join(' / ') +
+  ' / vendor 免检',
 );
 if (overRows.length === 0) {
   console.log('✅ 无超限文件');

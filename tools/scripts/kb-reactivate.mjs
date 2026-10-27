@@ -177,7 +177,7 @@ for (const id of reactivatedNow) {
 if (reason) console.log(`  原因：${reason}`);
 console.log(
   `  events：已追加 1 条 reactivated（${reactivatedNow.length} 条 ID，taskId=${task ?? 'null'}）；` +
-    'contentHash 已按回到活跃文件后的正文重算',
+  'contentHash 已按回到活跃文件后的正文重算',
 );
 console.log('  已刷新：knowledge/INDEX.md 活跃块、knowledge/archive/INDEX.md、knowledge/ledger.json');
 console.log('  提示：`pnpm run kb:check` 复核；`pnpm run ctx:build` 刷新索引面。');

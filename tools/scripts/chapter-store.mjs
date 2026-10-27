@@ -26,6 +26,37 @@ import { join } from 'node:path';
 
 export const CHAPTERS_DIR = 'chapters';
 
+/**
+ * 章时长门限（用户 2026-10-27 裁定：选 1，保留第一章 L9=30×30/546s）：
+ * - **展示序第 1 章**（index=0）= 20–30 分钟，中线 25；
+ * - 后续章（index≥1）= 30–40 分钟，中线 35。
+ *
+ * ⚠ 参数是**展示序下标**，不是 `order`：现网章 `order` 从 1 开始（K：首章 `order=1`），
+ * 拿 order 当 0 判断会把首章误判成后续章（2026-10-27 实测踩中）。
+ *
+ * 口径 = **章节内全部关卡 `time` 之和**（1★ 时钟；plate 按 cell 逐项相加），
+ * 只用于「整章发布 / 整章替换」事务；增量「批量导入」不硬拦（否则半成品章无法继续攒）。
+ */
+export const CHAPTER_TIME_BUDGET = Object.freeze({
+  first: Object.freeze({ minSec: 20 * 60, maxSec: 30 * 60, targetSec: 25 * 60 }),
+  later: Object.freeze({ minSec: 30 * 60, maxSec: 40 * 60, targetSec: 35 * 60 }),
+});
+
+/** 按**展示序下标**取目标区间；首章（index=0）短于后续章。 */
+export function chapterTimeBudget(chapterIndex) {
+  return Number(chapterIndex) === 0 ? CHAPTER_TIME_BUDGET.first : CHAPTER_TIME_BUDGET.later;
+}
+
+/** 章时长校验：返回 `{ok,direction,minSec,maxSec,targetSec,totalSec,deltaSec}`；边界含端点。 */
+export function chapterTimeStatus(totalSec, chapterIndex) {
+  const budget = chapterTimeBudget(chapterIndex);
+  const total = Number.isFinite(totalSec) ? Math.max(0, Math.round(totalSec)) : 0;
+  const ok = total >= budget.minSec && total <= budget.maxSec;
+  const direction = ok ? 'ok' : total < budget.minSec ? 'short' : 'long';
+  const deltaSec = ok ? 0 : total < budget.minSec ? total - budget.minSec : total - budget.maxSec;
+  return { ok, direction, ...budget, totalSec: total, deltaSec };
+}
+
 // ───────────────────────────────────────────── 章文档（chapter JSON） ──────
 
 /** 章文件相对路径（与 sync 断言「file 与 id 成对」同源，⛔ 不另行拼）。 */

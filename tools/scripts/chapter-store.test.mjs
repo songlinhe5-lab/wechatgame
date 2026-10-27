@@ -9,6 +9,7 @@ import {
   chapterFile, insertBeforeBoss, removeFromLevels, moveInChapter, moveInChapterTo, swapToEnd,
   setEntryKind, removeEntryByUid, addChapterTo, removeChapterFrom, moveChapter,
   expandEntriesWithIds, expandedCount, renumberIds, syncDemoLevelCount,
+  chapterTimeBudget, chapterTimeStatus,
 } from './chapter-store.mjs';
 
 test('insertBeforeBoss：插末项（boss）之前；空章 ⇒ 唯一成员；已存在 ⇒ throw', () => {
@@ -210,4 +211,19 @@ test('syncDemoLevelCount：替换数字、其余行不动；缺声明 ⇒ throw'
   assert.ok(out.includes('export const A = 1;'));
   assert.equal(syncDemoLevelCount(src, 9), src); // 同值 ⇒ 逐字节同（no-op 不产 diff）
   assert.throws(() => syncDemoLevelCount('export const X = 1;', 3), /缺 DEMO_LEVEL_COUNT/);
+});
+
+test('chapterTimeBudget：首章 20–30min，后续章 30–40min（中线 25/35）', () => {
+  assert.deepEqual(chapterTimeBudget(0), { minSec: 1200, maxSec: 1800, targetSec: 1500 });
+  assert.deepEqual(chapterTimeBudget(1), { minSec: 1800, maxSec: 2400, targetSec: 2100 });
+  assert.deepEqual(chapterTimeBudget(7), { minSec: 1800, maxSec: 2400, targetSec: 2100 });
+});
+
+test('chapterTimeStatus：含端点；短/长给方向与差额', () => {
+  const ok = chapterTimeStatus(1521, 0); // 现有第一章 25:21
+  assert.deepEqual(ok, { ok: true, direction: 'ok', minSec: 1200, maxSec: 1800, targetSec: 1500, totalSec: 1521, deltaSec: 0 });
+  assert.deepEqual(chapterTimeStatus(1200, 0), { ok: true, direction: 'ok', minSec: 1200, maxSec: 1800, targetSec: 1500, totalSec: 1200, deltaSec: 0 });
+  assert.deepEqual(chapterTimeStatus(1199, 0), { ok: false, direction: 'short', minSec: 1200, maxSec: 1800, targetSec: 1500, totalSec: 1199, deltaSec: -1 });
+  assert.deepEqual(chapterTimeStatus(2400, 1), { ok: true, direction: 'ok', minSec: 1800, maxSec: 2400, targetSec: 2100, totalSec: 2400, deltaSec: 0 });
+  assert.deepEqual(chapterTimeStatus(2401, 1), { ok: false, direction: 'long', minSec: 1800, maxSec: 2400, targetSec: 2100, totalSec: 2401, deltaSec: 1 });
 });

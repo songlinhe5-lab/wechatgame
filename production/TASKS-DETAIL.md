@@ -5983,3 +5983,32 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
   - ~~② `art/specs/assets-spec.md §1.2` 仍写「禁画 L5/E4 符号」~~ → **✅ 闭合**：`assets-spec` **v1.5-r22 → r23**，§1.2 `empty` 卡「禁画」句加 **E4 恢复条款**（⛔ 默认档禁画一字不改、开启才叠淡符号：α `EMPTY_GHOST_ALPHA` 0.32 / 外接 ≈ 格 ×0.32 / 墨 = 目标色 / 暗底 `SYMBOL_INK_LIGHT` @0.90 / ⛔ 不得读作第二颗珠子 / 挂点 `play-page` 而非 `drawEmptySocket`）；连带 `accessibility.md` **v1.5-r15 → r23**：A2b 行补「Basic 臂重新可用但仅开关开启时」+ A3 行交叉引用，**状态列一律不升不降、CVD 阻塞照旧不解除**（可选 ≠ 默认 ≠ 已验证）。两件同批同号 r23（让号自查：`grep 'v1\.5-r23'` 全仓原零命中，现存最大 r22）。
   - ~~③ 真机档（`[R]`）未验~~ → **⚠️ 转 QA 登记（环境做不到，写明阻塞与解除条件）**：`production/qa/beads/test-cases-g-perceptual.md` 新增 **§G.6 + TC-PER-21（归位连击观感）/ TC-PER-22（幽灵符号开关观感）**，状态一律 **⛔ 不可验（不是 FAIL）**；这两条的 `[N]` 层已分别由 `place-combo.test.ts`（5 例）与 `ui-golden play 帧 + ghost-symbol.test.ts`（3 例）锁死。**解除条件** = `[Cocos]` 帧检需 **R2 截图链路**（仍未交付）+ 真机音频后端（harness 全 `NullAudioBackend`，静音与无声不可区分）+ **色盲滤镜**（用于核定 A2b/A3 恢复量）+ 真机与 AppID（**仍缺**）。⛔ 不得因 `[N]` 绿把 §G.6 记为已验。
 - **本批门禁（文档批）**：`check:tasks` / `check:links` / `ctx:check` 全绿；`verify` 见主表行读数；**零代码、零 §3 冻结值、零 hex 新增、零存档形状改动**。
+
+## WXG-T-435
+
+**P0-1 章末收尾：本章末关通过 → 本章 FINISH（MVP 期间不跨章）** · 负责：主理人(CodeBuddy)·beads 工程 · 状态：✅ 完成（2026-10-27）
+
+- **上位**：用户 2026-10-27 令「提交代码，并继续验证 MVP 原型」⇒ 工作区在途改动代为收口并提交。本批代码与文档原为在途状态（未署号），按 K-046 领 **435** 补登。
+- **改判**：`core-loop.md` **v2.5 §8-8** —— 旧判据「通过第 n 关（n<8）→ 解锁；第 8 关通过 → 进 FINISH」改述为「通过第 n 关且 n **不是本章末关** → 解锁下一关；**本章末关通过 → 进本章 FINISH**」。**章界真源 = `config/arcs.ts::ARCS[].levelRefs` 派生的 `isBossLevelId`**（⛔ 不写死关数、⛔ 不删第二章 L10、⛔ 不把 `DEMO_LEVEL_COUNT` 钉成第一章关数 —— K-161 / K-151）。
+- **落码**（`src/` 与 `cocos/assets/scripts/` 镜像成对）：
+  - `beads-game.ts`：新增 `_finishEndIndex`（`-1` = 未进本章结算 ⇒ 退回全表长度，旧口径）；`_finishRowCount()` / `_isArcFinalIndex()` 两个派生出口；三处 `SnapshotSource` getter 暴露 `finishLevelCount` / `isArcFinalLevel`；`restartRun()` 补 `_levelIndex = 0`（`_setupLevel` 不移动游标，缺这句重玩会停在上次的章末关）；`_setupLevel` 里 `_finishEndIndex = -1` 复位。
+  - `snapshot-projection.ts`：`finishLevelCount` / `isArcFinalLevel` 两个只读投影（供 `view` 层取本章关数）。
+  - `control-map.ts` / `panel-router.ts`：FINISH 面板命中与路由按本章关数取（4 + 11 行）。
+- **判据**：新增 `tests/arc-chapter-finish.test.ts` **3 例** —— ① 第一章 L9 填满 → 进 `FINISH` 且**不进**第二章 L10；② FINISH「重玩」→ 回 L1（不是回 L9）；③ **非 boss 关表回归**（`ARCS` 无 boss 声明时退回旧全表口径，防「无章配置」环境炸）。
+- **边界**：⛔ 零 §3 冻结常量改动、⛔ 零毫秒值改动、⛔ 不改 `DEMO_LEVEL_COUNT`；**MVP 期间章末不跨章**（跨章推进留后续批次，已写进 §8-8）。
+- **订正（K-053）**：该批原稿在 `core-loop.md` v2.5 行把任务号写成 **`WXG-T-910`** —— 实测全仓唯一命中就在那一行，而 `WXG-T-909/910` 只是 `knowledge` 自测夹具里的**假号字符串**（`touch:WXG-T-909`），**非真实任务号**（台账真实最大 = 434）⇒ 本批订正为 **435** 并在行内留注。
+
+## WXG-T-436
+
+**章时长门限：首章 20–30 min / 后续章 30–40 min + studio 写入门禁** · 负责：主理人(CodeBuddy)·工具链 · 状态：✅ 完成（2026-10-27）
+
+- **上位**：用户 2026-10-27 裁定「**选 1**：保留第一章 L9 = 30×30 / 546 s 不改」+ 「提交代码，并继续验证 MVP 原型」令下代为收口。按 K-046 领 **436**。
+- **口径（用户裁定值）**：**展示序第 1 章**（`index=0`）= **20–30 min**（中线 25）；**后续章**（`index≥1`）= **30–40 min**（中线 35）；量 = **章内全部关卡 `time` 之和**（1★ 时钟，plate 按 cell 逐项相加）。首章现池 L1–L9 = **1521 s = 25:21** ⇒ 落在区间内，故保留 L9 不重定价。
+- **落码**：
+  - `tools/scripts/chapter-store.mjs`：新增冻结表 `CHAPTER_TIME_BUDGET` + 纯函数 `chapterTimeBudget(chapterIndex)` / `chapterTimeStatus(totalSec, chapterIndex)`（返回 `{ok, direction, minSec, maxSec, targetSec, totalSec, deltaSec}`，边界含端点）。
+  - `apps/beads-studio/server.mjs`：`describeChapters()` 逐章算预算状态（**UI 与写入门限共用同一纯函数，⛔ 不另算一套预算**）+ `assertChapterTimeBudget()` 只在「**发布为新增大关 / 整章替换**」事务上硬拦（不合规 **422**，真源不动）；**增量「批量导入」不硬拦**（否则半成品章永远攒不起来）。`manage.html` 同步展示每章预算状态。
+  - `games/beads/design/levels/levels-spec.md`：新增「章节时长预算」表 + 口径注。
+- **⚠ 实测坑（写进注释与文档）**：`chapterIndex` 传的是**展示序下标**，**不是 `order`** —— 现网 manifest 的 `chapters[].order` **从 1 起**（`mandala=1` / `photo32-smoke=2`），拿 `order` 当 0 判断会把**首章误判成后续章**（2026-10-27 实测踩中）。首版文档写「第一章 `order=0` / 后续章 `order≥1`」，本批按 K-053 划线订正为「展示序 `index=0`（现网 `order=1`）」。
+- **附随**：`tools/scripts/` 5 件**纯缩进归一**（`build-context-index.mjs` / `check-context-budget.mjs` / `kb-check.mjs` / `kb-reactivate.mjs` / `lib/context-index.mjs`，均多行模板字面量的缩进对齐，**行为零变化**）—— 与功能改动分开记账，避免把格式化噪声混进功能 diff。
+- **判据**：`tools/scripts/chapter-store.test.mjs` +16 行（门限边界 / 方向 / 展示序 vs order 区分）。
+- **边界**：⛔ 零 §3 冻结常量改动（门限是**发布事务**约束，不是玩法数值）、⛔ 零关卡 JSON 改动、⛔ 零运行时行为变化。

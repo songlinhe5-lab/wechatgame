@@ -1312,7 +1312,7 @@ export function renderHotFiles(index, dist = null) {
     L.push('> 行内格式：`锚点=offset+limit`（`limit` 已算好）；` · ` 分隔小节。');
     L.push(
       `> 两条控量规则（WXG-T-293，quality-lead 裁定）：① 锚点名超 ${LIMITS.hotAnchorLabelMaxChars} 字符即截为前缀 + \u2026（**行号不动**，全名仍可在 index.json 查）；` +
-        `② 台账型文件（ROUTES 已声明「先用 \`ctx/index.json\`」）每表最多列 ${LIMITS.hotFileAnchorMax} 条补足项（ROUTES 引用锚点与 L1 族父不计入），行尾如实写出「余 N 节」。`,
+      `② 台账型文件（ROUTES 已声明「先用 \`ctx/index.json\`」）每表最多列 ${LIMITS.hotFileAnchorMax} 条补足项（ROUTES 引用锚点与 L1 族父不计入），行尾如实写出「余 N 节」。`,
     );
     L.push(
       '> 收录：**热文件 + `ctx/ROUTES.md` 引用到的文件 + 实测热读/大文件**；查不到 → `ctx/index.json`' +
