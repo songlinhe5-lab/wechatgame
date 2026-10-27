@@ -366,17 +366,17 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 3872,
-      "lines": 131,
-      "sha256": "45ef22cbd94961a2f3e7555664c13a427338323b9575124f8780cb48413ae037",
+      "tokens": 3909,
+      "lines": 132,
+      "sha256": "59be1f98e1b03b04f770d1c108f58178536dfc0429d0a509452e76f78db058c9",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文预算报表（ctx/BUDGET.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 132,
-          "tokens": 3859,
+          "endLine": 133,
+          "tokens": 3896,
           "summary": "生成：2026-10-27 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 410,
-          "summary": "1 production/TASKS-DETAIL.md 204987 6204 normal",
+          "summary": "1 production/TASKS-DETAIL.md 205567 6218 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -420,8 +420,8 @@
           "anchor": "§3 超限清单（超过所属类别上限）",
           "level": 2,
           "startLine": 46,
-          "endLine": 106,
-          "tokens": 2362,
+          "endLine": 107,
+          "tokens": 2400,
           "summary": "上限按文档类别分档（WXG-T-377）：spec 8000（判据/规格/提案/ADR/GDD/UX/skill，未放松",
           "keywords": [
             "WXG",
@@ -435,8 +435,8 @@
         {
           "anchor": "§4 真实最常用章节与分布加权节省率（估算）",
           "level": 2,
-          "startLine": 107,
-          "endLine": 132,
+          "startLine": 108,
+          "endLine": 133,
           "tokens": 612,
           "summary": "数据源：ctx/usage-distribution.json（真实读事件账本），样本 457 次读取 / 20 会话；",
           "keywords": [
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5239,
       "lines": 165,
-      "sha256": "bf12779fb17baf82d49d78d083f46725b64932c124a6a47325aa8fcf96be8b46",
+      "sha256": "da14eceb6047210e999fab43384fda991270d9fa0d7a2f4715abe3e4d9304a38",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 141 行 / 67797 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 142 行 / 68148 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+142 · §待排（backlog，无号，立项时领取…=113+30",
+          "summary": "§WXG 任务台账（SSOT）=1+143 · §待排（backlog，无号，立项时领取…=114+30",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 6204 行 / 204987 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 6218 行 / 205567 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6205 · §WXG-T-434=5902+31 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6219 · §WXG-T-435=5933+16 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -1330,17 +1330,17 @@
     },
     {
       "path": "dev/harness/README.md",
-      "tokens": 3177,
-      "lines": 202,
-      "sha256": "18b1e2ef4834bce6ad7eb82709a658687ed86ad98421f009904838ea1085775c",
+      "tokens": 3259,
+      "lines": 203,
+      "sha256": "1cc5e59237efb341659f9dcc0d9641925c79317036c64771c03643599c865f8c",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§dev/harness — 浏览器验证器",
           "level": 1,
           "startLine": 1,
-          "endLine": 203,
-          "tokens": 3167,
+          "endLine": 204,
+          "tokens": 3248,
           "summary": "在浏览器里直接跑真实游戏，不需要 Cocos Creator 编辑器，也不需要微信开发者工具。",
           "keywords": [
             "dev",
@@ -1377,8 +1377,8 @@
           "anchor": "§操作方式（breakout）",
           "level": 2,
           "startLine": 51,
-          "endLine": 64,
-          "tokens": 142,
+          "endLine": 65,
+          "tokens": 224,
           "summary": "← → 移动挡板（键盘）",
           "keywords": [
             "breakout",
@@ -1388,8 +1388,8 @@
         {
           "anchor": "§beads（拼豆填色消除）",
           "level": 2,
-          "startLine": 65,
-          "endLine": 134,
+          "startLine": 66,
+          "endLine": 135,
           "tokens": 1343,
           "summary": "",
           "keywords": [
@@ -1400,8 +1400,8 @@
         {
           "anchor": "§开两款 / 切换",
           "level": 3,
-          "startLine": 67,
-          "endLine": 77,
+          "startLine": 68,
+          "endLine": 78,
           "tokens": 120,
           "summary": "<http://127.0.0.1:4173/> breakout（默认）",
           "keywords": [
@@ -1414,8 +1414,8 @@
         {
           "anchor": "§操作（与 breakout 不同，别沿用上一节的表）",
           "level": 3,
-          "startLine": 78,
-          "endLine": 96,
+          "startLine": 79,
+          "endLine": 97,
           "tokens": 398,
           "summary": "点托盘珠 选中该槽（再点一次取消） selectTraySlot(i)",
           "keywords": [
@@ -1430,8 +1430,8 @@
         {
           "anchor": "§控制台",
           "level": 3,
-          "startLine": 97,
-          "endLine": 118,
+          "startLine": 98,
+          "endLine": 119,
           "tokens": 404,
           "summary": "",
           "keywords": [
@@ -1441,8 +1441,8 @@
         {
           "anchor": "§beads 在 harness 上的已知缺口（不要当产品缺陷上报）",
           "level": 3,
-          "startLine": 119,
-          "endLine": 134,
+          "startLine": 120,
+          "endLine": 135,
           "tokens": 368,
           "summary": "GAP-07 点击全不中 仅 harness 真因：main.ts L92-93 送 clientX * dpr（dev",
           "keywords": [
@@ -1457,8 +1457,8 @@
         {
           "anchor": "§验证器验证了什么",
           "level": 2,
-          "startLine": 135,
-          "endLine": 155,
+          "startLine": 136,
+          "endLine": 156,
           "tokens": 304,
           "summary": "",
           "keywords": [
@@ -1469,8 +1469,8 @@
         {
           "anchor": "§它是怎么工作的",
           "level": 2,
-          "startLine": 156,
-          "endLine": 190,
+          "startLine": 157,
+          "endLine": 191,
           "tokens": 464,
           "summary": "",
           "keywords": [
@@ -1480,8 +1480,8 @@
         {
           "anchor": "§改了代码之后",
           "level": 3,
-          "startLine": 180,
-          "endLine": 190,
+          "startLine": 181,
+          "endLine": 191,
           "tokens": 76,
           "summary": "serve-harness.mjs 每次启动都会重新编译，并且 HTTP 响应带 cache-control: no-s",
           "keywords": [
@@ -1496,8 +1496,8 @@
         {
           "anchor": "§目录约定",
           "level": 2,
-          "startLine": 191,
-          "endLine": 203,
+          "startLine": 192,
+          "endLine": 204,
           "tokens": 170,
           "summary": "dev/harness/index.html ✅ 页面骨架 + importmap",
           "keywords": [
@@ -86820,17 +86820,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 204987,
-      "lines": 6204,
-      "sha256": "74df1a772d024e975ae0064ce90d38f06b561def56b5f44527f6e87c02fa8fca",
+      "tokens": 205567,
+      "lines": 6218,
+      "sha256": "02d1ca2152c6b5ae1cb9a6b88603be2b9cd351e48e91228ac0264d2a160110b8",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 6205,
-          "tokens": 204970,
+          "endLine": 6219,
+          "tokens": 205550,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -94677,22 +94677,35 @@
             "Debug",
             "CodeBuddy"
           ]
+        },
+        {
+          "anchor": "§WXG-T-446",
+          "level": 2,
+          "startLine": 6206,
+          "endLine": 6219,
+          "tokens": 577,
+          "summary": "harness 说明条遮挡收口（「响应区到这儿为止」的真凶）· 负责：主理人(CodeBuddy) · 状态：✅ 完成（",
+          "keywords": [
+            "WXG",
+            "harness",
+            "CodeBuddy"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 67797,
-      "lines": 141,
-      "sha256": "ab2e73901355c274e2af38527125f0c0e4ff66e62d2e516f4772540a1912a3fe",
+      "tokens": 68148,
+      "lines": 142,
+      "sha256": "32c26d57c4b0f1da835ce9cabcbadfe1fd6437316f34c15dab589dda37e8c630",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 142,
-          "tokens": 67788,
+          "endLine": 143,
+          "tokens": 68139,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -94705,8 +94718,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 113,
-          "endLine": 142,
+          "startLine": 114,
+          "endLine": 143,
           "tokens": 1460,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

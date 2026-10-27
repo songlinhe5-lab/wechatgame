@@ -453,6 +453,10 @@ window.addEventListener('keydown', (event) => {
     }
     return;
   }
+  if (event.key === 'h' || event.key === 'H') {
+    toggleHelp();
+    return;
+  }
   if (event.key >= '1' && event.key <= '5') {
     goToLevel(Number(event.key) - 1);
   }
@@ -527,6 +531,23 @@ for (const button of document.querySelectorAll<HTMLButtonElement>('[data-level]'
 
 must<HTMLButtonElement>('#restart').addEventListener('click', () => {
   restartRun();
+});
+
+/**
+ * 说明条开关（`H` 键 / 「说明」钮同一入口 / 默认收起）。
+ *
+ * `#help` 是 DOM 覆盖层、画在画布之上：`pointer-events:none` 只让点击穿透，**视觉照样盖住**。
+ * 它常驻时占掉屏幕底部 54 css px，正压在 beads 主菜单 CTA / 好友榜热区的下沿 ⇒ 按钮的按下反馈
+ * 与 Debug 触点探针（十字）画到那儿就被这层吃掉，看起来像「响应区域到这儿为止」。
+ * 热区本身无误（实测点进去仍命中 `start` / `open-rank`）⇒ 修的是遮挡，⛔ 不动任何游戏几何。
+ */
+const helpPanel = must<HTMLDivElement>('#help');
+function toggleHelp(): void {
+  helpPanel.classList.toggle('show');
+}
+must<HTMLButtonElement>('#help-toggle').addEventListener('click', () => {
+  toggleHelp();
+  canvas.focus();
 });
 
 /**

@@ -6202,3 +6202,17 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 **判读法**：开 Debug 点按钮边沿 —— 十字与手指重合 ⇒ 热区问题（id 就写在旁边）；整体偏移且越边越多 ⇒ **坐标换算**问题，⛔ 不改热区。
 
 **验收**：`debug-layer` 锁探针形态；`meta-menu-wall` 真帧锁「关零探针 / 开则按下帧出 `open-rank` / 远点抬手不触发钮」。beads **1372 passed + 2 skipped**；`tsc` / `check:arch` OK。
+
+## WXG-T-446
+
+**harness 说明条遮挡收口（「响应区到这儿为止」的真凶）· 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-10-27）**
+
+用户追问「十字好像最低只能点到这里，不光好友榜按钮，旁边的开始按钮也被限制了，是否响应区域有限制？」
+
+**先把怀疑变成读数**（CDP + 逐次 reload 隔离状态，720×1280）：(364,1200) 命中 `start` → route menu→play；(364,1235)（落在 `#help` 面板内）同样命中 `start`；(109,1200)/(109,1235) 命中 `open-rank`；(364,1255)（按钮下沿之外）才 `null`（设计底隙内，属预期）。⇒ **热区与绘制同源（`anchoredGeo` 同一对象）、不存在响应区限制**；`#help` 的 `pointer-events: none` 亦确实生效（`elementFromPoint` 在 1090/1200/1235 全落 `stage`）。⚠ 首轮脚本把后续点全读成 miss，真因是**首点已切页**（menu→play）后仍在点菜单 —— 记一条：状态可变的点击探针必须每点一次重开。
+
+**真凶**：`#help` 是 DOM 覆盖层（画在 canvas 之上），常驻占屏底 54 css px（`top = 1216`），正压在主菜单 CTA / 好友榜热区的下沿（热区屏幕 y ∈ [1084,1163]）。它**不吃点击但吃视觉**：按钮的按下反馈被盖掉，Debug 触点探针（`[WXG-T-445]` 十字）画到那里就被这层挡住 ⇒ 观感等价于「响应区到这儿为止」。
+
+**落码**：`dev/harness/index.html` 说明条改 `display:none`（`.show` 展开）+ `#controls` 增「说明」钮；`main.ts` 增 `toggleHelp()` 与 `H` 键入口；README 补一行。**只动 dev 工具层，零游戏几何 / 零输入链路改动**。
+
+**验收**：`serve-harness --build-only` OK；`smoke-harness`（breakout + beads）OK；`check:links` / `ctx:check` OK；修复后截图底部完整露出「好友榜 / 开始游戏 / 版本号」，点击行为与修前逐点一致。

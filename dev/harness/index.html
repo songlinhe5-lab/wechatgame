@@ -100,7 +100,13 @@
         color: var(--dim);
         /* WXG-T-113：同上，纯说明文字，不遮挡画布热区（tray / 底部按钮）。 */
         pointer-events: none;
+        /* 2026-10-27：`pointer-events:none` 只让点击穿透，**视觉仍盖住画布**（DOM 在 canvas 之上）。
+           底部 54px 正好压在主菜单 CTA / 好友榜热区下沿，按钮的按下反馈与 Debug 触点探针
+           （十字）画到那儿就被这层吃掉 ⇒「响应区到底为止」的错觉。默认收起，按 `H` 或点
+           「说明」展开。⛔ 不要再改回常驻显示。 */
+        display: none;
       }
+      #help.show { display: block; }
       #help b { color: var(--text); }
       #fatal {
         position: fixed;
@@ -130,6 +136,7 @@
       <button data-level="4">L4</button>
       <button data-level="5">L5</button>
       <button id="restart">重新开始</button>
+      <button id="help-toggle">说明</button>
     </div>
 
     <div id="help" class="panel">
