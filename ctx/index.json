@@ -33959,17 +33959,17 @@
     },
     {
       "path": "games/beads/design/gdd/review-2026-10-27.md",
-      "tokens": 5485,
-      "lines": 180,
-      "sha256": "cef088b5b1892864512435fad6c9e5019866fc8cb5077a8e71e195cbf6be3646",
+      "tokens": 4347,
+      "lines": 135,
+      "sha256": "d63687b7c55cd50bcc40263511c6507082df813264f828ca3ebbfa0f89523f84",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads GDD 定期 review · 2026-10-27",
           "level": 1,
           "startLine": 1,
-          "endLine": 181,
-          "tokens": 5475,
+          "endLine": 136,
+          "tokens": 4337,
           "summary": "方法：wxgame-gdd-review（首跑）· 任务号 WXG-T-457 · 游戏 games/beads",
           "keywords": [
             "beads",
@@ -34118,93 +34118,6 @@
             "view",
             "theme",
             "deb"
-          ]
-        },
-        {
-          "anchor": "§8 复核轮（v1.97 / v1.98 落表后，2026-10-27 晚）",
-          "level": 2,
-          "startLine": 137,
-          "endLine": 181,
-          "tokens": 1120,
-          "summary": "基线：e3260c85（含 T-459 的 v1.97/v1.98 与后续 T-460 提交）。",
-          "keywords": [
-            "e3260c85",
-            "复核轮",
-            "落表后"
-          ]
-        },
-        {
-          "anchor": "§8.1 三方一致（§3 ⇔ 代码 ⇔ 下游现行文档）",
-          "level": 3,
-          "startLine": 143,
-          "endLine": 153,
-          "tokens": 272,
-          "summary": "TRAY_BAND y∈[216,450]（systems-index.md:82） layout.ts:163 {yM",
-          "keywords": [
-            "§3",
-            "TRAY_BAND",
-            "systems",
-            "index",
-            "layout",
-            "三方一致"
-          ]
-        },
-        {
-          "anchor": "§8.2 SKIP 人工判读（只读）",
-          "level": 3,
-          "startLine": 154,
-          "endLine": 158,
-          "tokens": 125,
-          "summary": "门禁读数：可比 49 / A 面 42 / B 面 125；SKIP 非原子 19 + 文档式 47 —— 与首轮同数（",
-          "keywords": [
-            "SKIP",
-            "人工判读",
-            "只读"
-          ]
-        },
-        {
-          "anchor": "§8.3 漂移表（本轮新登记）",
-          "level": 3,
-          "startLine": 159,
-          "endLine": 166,
-          "tokens": 350,
-          "summary": "D1 文档自相矛盾 v1.97 TRAY_BAND 216 / 带高 234 assets-spec §1.3.2（v1",
-          "keywords": [
-            "§1.3.2",
-            "TRAY_BAND",
-            "assets",
-            "spec",
-            "漂移表",
-            "本轮新登记"
-          ]
-        },
-        {
-          "anchor": "§8.4 命令表",
-          "level": 3,
-          "startLine": 167,
-          "endLine": 177,
-          "tokens": 133,
-          "summary": "pnpm run check:frozen-values 0 STATUS: OK；beads 49 / 42 / 12",
-          "keywords": [
-            "pnpm",
-            "run",
-            "check",
-            "frozen",
-            "values",
-            "STATUS"
-          ]
-        },
-        {
-          "anchor": "§8.5 沉淀候选（0–3，本轮 0 新增）",
-          "level": 3,
-          "startLine": 178,
-          "endLine": 181,
-          "tokens": 55,
-          "summary": "无新增：D1 是「局部回写历史节 ⇒ 制造混代」的实例，可由既有 K-053（旧文划线留档、不静默改写）覆盖；不另立条目",
-          "keywords": [
-            "沉淀候选",
-            "本轮",
-            "新增"
           ]
         }
       ]
