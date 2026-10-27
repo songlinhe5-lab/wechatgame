@@ -103426,17 +103426,17 @@
     },
     {
       "path": "production/qa/beads/test-cases-g-perceptual.md",
-      "tokens": 10422,
-      "lines": 127,
-      "sha256": "3a7274e4b78a794b89dd748c5e7e55b590154d9dc860543ebe01a81ab6894045",
+      "tokens": 11277,
+      "lines": 156,
+      "sha256": "a5b6452ad42c90251d8e7555135958b7b27121d2827d6e0e9362c69cc9fa44e9",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§G 可感知性判据（20 条，v1.3 新增）—— **GAP-14 / BD-14 根治项**",
           "level": 1,
           "startLine": 6,
-          "endLine": 128,
-          "tokens": 10268,
+          "endLine": 157,
+          "tokens": 11124,
           "summary": "",
           "keywords": [
             "GAP",
@@ -103551,6 +103551,52 @@
             "幽灵符号",
             "新增",
             "条观感判据"
+          ]
+        },
+        {
+          "anchor": "§G.7 MVP 原型 [B] 三屏 smoke 实测（2026-10-27 · WXG-T-434 验证腿）",
+          "level": 2,
+          "startLine": 129,
+          "endLine": 157,
+          "tokens": 832,
+          "summary": "道次：[B] 浏览器真实渲染像素（Cocos web-mobile 产物，真机同源渲染路径：同一 Bootstrap →",
+          "keywords": [
+            "MVP",
+            "smoke",
+            "WXG",
+            "Cocos",
+            "web",
+            "mobile"
+          ]
+        },
+        {
+          "anchor": "§交叉验证（[B] 读数反向验证 T-434 的三处文档结论）",
+          "level": 3,
+          "startLine": 143,
+          "endLine": 152,
+          "tokens": 198,
+          "summary": "「8 关」→ 10 关 / 2 大关 HUD 右上 LV 1/10 ✅ 订正与实机一致",
+          "keywords": [
+            "HUD",
+            "交叉验证",
+            "读数反向验证",
+            "的三处文档结"
+          ]
+        },
+        {
+          "anchor": "§⚠ 本轮未取到（登记，不判 FAIL）",
+          "level": 3,
+          "startLine": 153,
+          "endLine": 157,
+          "tokens": 234,
+          "summary": "暂停面板（§G.6 的幽灵符号开关入口） —— 齿轮位于设计 (60, midY)、热区 x∈[0,88] + HUD_",
+          "keywords": [
+            "FAIL",
+            "midY",
+            "HUD_",
+            "本轮未取到",
+            "登记",
+            "不判"
           ]
         }
       ]
