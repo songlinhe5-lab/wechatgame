@@ -6365,3 +6365,34 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 - **领号披露**：原按头注拟领 454，落笔前四路重扫发现 454 已被并发会话（CodeBuddy 核实全屏页切换）占用 ⇒ 按 K-046 取 **456**（四路核 456 零占用），改动 9 个文件内引用全局换号。
 - **门禁**：`check:frozen-values` **STATUS: OK**（beads：§3 可比 49 项 / A 面对账 42 / B 面文档等式 125；breakout：31 / 28 / 12）。新门自测首次入档时 `selftest:fast` 以两条**完整性守卫**红（入口未入档 + 裸 `--selftest` 未入档）⇒ 按要补 `selftests.mjs::TIERS.fast` 末项，复跑 PASS 15 / FAIL 0。
 - **沉淀统计（kb:sync）**：新增 **3** 条 / 修改 0 / 激活 0 / 归档 0 —— **K-187**（工具链：新门先跑裸读数定档，存量只能当场核销或进 SKIP，⛔ 建豁免台账）、**K-188**（流程：跨轮续接先四路复核世界，同职责件已存在则只补机械半边 + 单向指针）、**K-189**（测试守卫：自带 `--selftest` 的脚本必同批入 TIERS）；`kb:audit` 无归档候选与相似命中。
+
+## WXG-T-457
+
+**beads GDD 漂移审计整改（§4 对齐 + §20-2 修复 + review 报告）** · 负责：主理人(Trae)·beads GDD+view · 状态：🔄 进行中（2026-10-27）
+
+- **上位**：用户「先不重载，直接开始 review 小游戏 GDD」⇒ `wxgame-gdd-review` 首跑（承 455 两件 review skill + 456 `check:frozen-values` 机械半边）。spec = `.trae/specs/beads-gdd-review-remediation/`（用户 2026-10-27 批准后执行；spec 件本地不入库）。
+- **审计结论（发现时）**：CONCERNS —— 1×P1（`check:arch` §20-2 红：`view/debug-layer.ts` 就地写 `rgba()`）+ 6×P2（§4 事件表/载荷与代码不一致）；**无 P0**。
+- **T1 P1 修复**：调试层热区填充色搬 `games/beads/src/view/ui-theme.ts::UI_DEBUG_HIT_FILL`（`rgba(255,60,230,0.14)`，⛔ 不进 palette），`debug-layer.ts` 删本地 `HIT_BOX_FILL_HEX` 改导入；`pnpm run framework:sync` 同步 2 个 Cocos 镜像文件；`check:arch` 由 FAIL 转 **OK**（仅 L1 WARN 373 个编辑器产物）。附带记录：门禁报 `:11` 与实址 `:23` 有行号偏移（`scanSource` 先 `stripComments` 再计行），工具链小缺陷已入报告。
+- **T2 §4 对齐（文档跟随代码）**：`systems-index.md §4` 六处订正 —— `meta:overlay` 改 `{open,name}`（取值 `none|signin|settings|levels|skins`）、`signin:claimed` `stamina`→`hearts`、`wallet:changed` 删 `delta`、`stamina:changed` 补 `max`、`powerup:used` 补可选 `traySlots`、新增 `meta:studio-import {ok,detail}`；头部版本行 → **v1.96**，changelog 追加 v1.96。裁决 = 文档跟随代码（载荷字段无下游消费者依赖）。**零 §3 冻结值改动**。
+- **T3 SKIP 人工判读（只读）**：`check:frozen-values` 的 19 项非原子值 + 47 处不可解析文档式逐组判读（报告 §3）。**新发现 1×P1「门看不见的漂移」**：`TRAY_BAND.yMin` 代码 **216**（`src/config/tuning/layout.ts:161`）vs §3 **230**（`systems-index.md:82`）；且 §3.4 `TRAY_TIER_SLOTS` 行自述「panelH(4)=234 恰好等于托盘带高」与 §3.1 带高 220 **自相矛盾**（源 = `proposals/tray-24-layout-derivation.md §2` 方案 A 已落码、§3 未回写）。连带 `btn_expand` 几何整体 −14（代码 hit y∈[216,304] vs §3 y∈[230,318]）。**按 T3 纪律只登记不改值** ⇒ 待用户裁定后另开 §3 变更单（230→216 + changelog v1.97 + §3.4 两行同步）。
+- **T4 报告落盘**：`games/beads/design/gdd/review-2026-10-27.md`（基线 `723b50d9`、8 行漂移表、命令表、覆盖缺口、CONCERNS、2 条沉淀候选）。
+- **T5 门禁**：`check:arch` / `check:frozen-values` / `levels:check` / `palettes:check` / `check:a11y` / `check:links` / `typecheck` 全 exit 0；`pnpm --filter @wxgame/beads test` 1380 passed / 2 skipped。
+- **沉淀统计（kb:sync）**：新增 `__N__` / 修改 0 / 激活 0 / 归档 0（`kb:sync` 后回填）。
+
+## WXG-T-458
+
+**排查本机微信开发者工具自动化通道 · 负责：主理人(CodeBuddy) · 状态：🔄 进行中（2026-10-27）**
+
+目标（用户拍板收尾选项③）：把「微信运行时复现闭环」搬进本机，供 WXG-T-454 主界面残留取证复用。
+
+**已确立事实**：
+1. `cli auto --auto-port 9420` 成功、ws 握手通；`Tool.getInfo` 秒回（IDE 主进程桥活着；工具 2.02.2609231、已登录、单实例）。
+2. 全部 `App.*`/`Native.*`（含 `App.captureScreenshot`、`evaluate` 底层）由 **IDE 侧 10s 超时**回 `timeout waiting for automator response` —— 命令已转发给游戏运行时但无应答者。
+3. **关键发现**：CLI 打开的会话**从不触发 `simulator app compile`**（预编译就绪但 0 次编译）；今晨 10:26 正常会话（16456 行编译日志）的编译是 `build:cocos` 写产物时被文件监视器触发的热重载——工具本就不在打开时自动跑游戏。
+4. `touch` 产物可强制走引导链：`onFileChange → simulator app compile → AppCreated → serveNative → createAppService → gamePage.html → LoadApp`，但 appservice 帧服务报错（`serveGameAppserviceFrame`/`serveAppserviceHtml` 栈），App 通道仍死。
+5. 已排除：登录态/服务端口（OK）、`--trust-project`（无效）、`cli cache --clean file|compile`（无效）、回环地址变体（localhost/127.0.0.1/[::1] 一致）、多实例（单例锁）。
+6. 噪音判明：`onProxyError /nativeview/index.html` 在正常会话同样出现 ×23，非致命。
+
+**阻塞**：模拟器窗口实际状态无目视确认（screencapture 无屏幕录制权限）——待用户看一眼三选一：A 游戏画面正常 / B 白屏或报错 / C 项目窗口未开。
+
+**复用资产**：`/tmp/wxauto/`（miniprogram-automator + trace/poll 探针脚本）；IDE 日志 `~/Library/Application Support/微信开发者工具/d1e8765721a6c23d43b14c95b1843e6b/WeappLog/logs/`。
