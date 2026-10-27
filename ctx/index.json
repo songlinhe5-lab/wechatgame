@@ -33959,17 +33959,17 @@
     },
     {
       "path": "games/beads/design/gdd/review-2026-10-27.md",
-      "tokens": 4347,
-      "lines": 135,
-      "sha256": "d63687b7c55cd50bcc40263511c6507082df813264f828ca3ebbfa0f89523f84",
+      "tokens": 5485,
+      "lines": 180,
+      "sha256": "cef088b5b1892864512435fad6c9e5019866fc8cb5077a8e71e195cbf6be3646",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads GDD 定期 review · 2026-10-27",
           "level": 1,
           "startLine": 1,
-          "endLine": 136,
-          "tokens": 4337,
+          "endLine": 181,
+          "tokens": 5475,
           "summary": "方法：wxgame-gdd-review（首跑）· 任务号 WXG-T-457 · 游戏 games/beads",
           "keywords": [
             "beads",
@@ -34118,6 +34118,93 @@
             "view",
             "theme",
             "deb"
+          ]
+        },
+        {
+          "anchor": "§8 复核轮（v1.97 / v1.98 落表后，2026-10-27 晚）",
+          "level": 2,
+          "startLine": 137,
+          "endLine": 181,
+          "tokens": 1120,
+          "summary": "基线：e3260c85（含 T-459 的 v1.97/v1.98 与后续 T-460 提交）。",
+          "keywords": [
+            "e3260c85",
+            "复核轮",
+            "落表后"
+          ]
+        },
+        {
+          "anchor": "§8.1 三方一致（§3 ⇔ 代码 ⇔ 下游现行文档）",
+          "level": 3,
+          "startLine": 143,
+          "endLine": 153,
+          "tokens": 272,
+          "summary": "TRAY_BAND y∈[216,450]（systems-index.md:82） layout.ts:163 {yM",
+          "keywords": [
+            "§3",
+            "TRAY_BAND",
+            "systems",
+            "index",
+            "layout",
+            "三方一致"
+          ]
+        },
+        {
+          "anchor": "§8.2 SKIP 人工判读（只读）",
+          "level": 3,
+          "startLine": 154,
+          "endLine": 158,
+          "tokens": 125,
+          "summary": "门禁读数：可比 49 / A 面 42 / B 面 125；SKIP 非原子 19 + 文档式 47 —— 与首轮同数（",
+          "keywords": [
+            "SKIP",
+            "人工判读",
+            "只读"
+          ]
+        },
+        {
+          "anchor": "§8.3 漂移表（本轮新登记）",
+          "level": 3,
+          "startLine": 159,
+          "endLine": 166,
+          "tokens": 350,
+          "summary": "D1 文档自相矛盾 v1.97 TRAY_BAND 216 / 带高 234 assets-spec §1.3.2（v1",
+          "keywords": [
+            "§1.3.2",
+            "TRAY_BAND",
+            "assets",
+            "spec",
+            "漂移表",
+            "本轮新登记"
+          ]
+        },
+        {
+          "anchor": "§8.4 命令表",
+          "level": 3,
+          "startLine": 167,
+          "endLine": 177,
+          "tokens": 133,
+          "summary": "pnpm run check:frozen-values 0 STATUS: OK；beads 49 / 42 / 12",
+          "keywords": [
+            "pnpm",
+            "run",
+            "check",
+            "frozen",
+            "values",
+            "STATUS"
+          ]
+        },
+        {
+          "anchor": "§8.5 沉淀候选（0–3，本轮 0 新增）",
+          "level": 3,
+          "startLine": 178,
+          "endLine": 181,
+          "tokens": 55,
+          "summary": "无新增：D1 是「局部回写历史节 ⇒ 制造混代」的实例，可由既有 K-053（旧文划线留档、不静默改写）覆盖；不另立条目",
+          "keywords": [
+            "沉淀候选",
+            "本轮",
+            "新增"
           ]
         }
       ]
@@ -105154,9 +105241,9 @@
     },
     {
       "path": "production/qa/beads/test-cases-k-ledger-2.md",
-      "tokens": 14670,
-      "lines": 156,
-      "sha256": "f8e8c0233a6ff92f61d10c2e80e5669c30a308ec7f070c576c34b33b48b608b5",
+      "tokens": 15366,
+      "lines": 166,
+      "sha256": "6c504f67287db930a91930274bdbaeace9ec30417709ecb26cc2b2e711602eba",
       "tier": "normal",
       "sections": [
         {
@@ -105320,10 +105407,26 @@
           ]
         },
         {
-          "anchor": "§K.6 `06` 珐琅 —— **只登记出池门引用，本批不造判据**（Q1 = 甲）",
+          "anchor": "§K.5.1-补13 整帧基线第二十一次复评修订（2026-10-27 · WXG-T-462 缩放控件条整条隐藏 · 正本 = provenance `s3_frame_recheck_21`）",
           "level": 3,
           "startLine": 144,
-          "endLine": 152,
+          "endLine": 153,
+          "tokens": 650,
+          "summary": "通道声明：属整帧非珠体族削减型改动（用户 2026-10-27 裁定「这块面板隐藏不展示」⇒ ZOOM_CONTROLS",
+          "keywords": [
+            "s3_frame_recheck_21",
+            "WXG",
+            "provenance",
+            "ZOOM_CONTROLS",
+            "整帧基线第二",
+            "十一次复评修"
+          ]
+        },
+        {
+          "anchor": "§K.6 `06` 珐琅 —— **只登记出池门引用，本批不造判据**（Q1 = 甲）",
+          "level": 3,
+          "startLine": 154,
+          "endLine": 162,
           "tokens": 357,
           "summary": "引用项 内容 出处 QA 处置",
           "keywords": [
@@ -105337,8 +105440,8 @@
         {
           "anchor": "§K.7 本节残留与回改触发器（诚实登记，不得被\"已建例\"掩盖）",
           "level": 3,
-          "startLine": 153,
-          "endLine": 157,
+          "startLine": 163,
+          "endLine": 167,
           "tokens": 288,
           "summary": "① assets-spec 7.13 判据 ③ 的「C12 强读法」引用行需 art 订正（K.6）；② C12 弱读的",
           "keywords": [
