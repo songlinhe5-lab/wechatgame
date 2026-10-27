@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3903,
       "lines": 132,
-      "sha256": "d05bfe61552ff01395f003cce11490a3ebfc4006ad0772b48072e72268346caa",
+      "sha256": "bc06a7cf1a76dcc1038cc8f807f970d16a2c59a46e8e009df0d55c15a721f92c",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 218479 6459 normal",
+          "summary": "1 production/TASKS-DETAIL.md 218563 6459 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5256,
       "lines": 165,
-      "sha256": "711b6328c395ce1ce191f7cf4879a497b907bfe18f1a8ce3421de36bc50bcb96",
+      "sha256": "2159410fb868caffcb4d67910cc1406e60649eb56970c5ae1b9bac28e4cd211a",
       "tier": "normal",
       "sections": [
         {
@@ -1016,7 +1016,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 6459 行 / 218479 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 6459 行 / 218563 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
@@ -33959,17 +33959,17 @@
     },
     {
       "path": "games/beads/design/gdd/review-2026-10-27.md",
-      "tokens": 4347,
-      "lines": 135,
-      "sha256": "d63687b7c55cd50bcc40263511c6507082df813264f828ca3ebbfa0f89523f84",
+      "tokens": 5566,
+      "lines": 185,
+      "sha256": "3253924c67ddc081c3d5d2df3655e85e37c9b42d2fb8ab13395f9cd71453b8de",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads GDD 定期 review · 2026-10-27",
           "level": 1,
           "startLine": 1,
-          "endLine": 136,
-          "tokens": 4337,
+          "endLine": 186,
+          "tokens": 5556,
           "summary": "方法：wxgame-gdd-review（首跑）· 任务号 WXG-T-457 · 游戏 games/beads",
           "keywords": [
             "beads",
@@ -34108,8 +34108,8 @@
           "anchor": "§7 本单整改记录（WXG-T-457）",
           "level": 2,
           "startLine": 126,
-          "endLine": 136,
-          "tokens": 420,
+          "endLine": 134,
+          "tokens": 387,
           "summary": "T1：UI_DEBUG_HIT_FILL 入 src/view/ui-theme.ts:107；src/view/deb",
           "keywords": [
             "WXG",
@@ -34118,6 +34118,94 @@
             "view",
             "theme",
             "deb"
+          ]
+        },
+        {
+          "anchor": "§8 复核轮（WXG-T-459 v1.97 / v1.98，2026-10-27 晚）",
+          "level": 2,
+          "startLine": 135,
+          "endLine": 186,
+          "tokens": 1234,
+          "summary": "触发 = 用户「重跑 wxgame-gdd-review 复核 v1.97/v1.98」。范围 = 只读复核本轮变更面（",
+          "keywords": [
+            "WXG",
+            "wxgame",
+            "gdd",
+            "review",
+            "复核轮"
+          ]
+        },
+        {
+          "anchor": "§8.1 三方一致（§3 ⇔ 落码 ⇔ 下游现行等式）",
+          "level": 3,
+          "startLine": 143,
+          "endLine": 155,
+          "tokens": 357,
+          "summary": "TRAY_BAND 区间 systems-index.md:82 y∈[216,450] layout.ts:163：y",
+          "keywords": [
+            "§3",
+            "TRAY_BAND",
+            "systems",
+            "index",
+            "layout",
+            "三方一致"
+          ]
+        },
+        {
+          "anchor": "§8.2 SKIP 判读复查",
+          "level": 3,
+          "startLine": 156,
+          "endLine": 161,
+          "tokens": 160,
+          "summary": "门禁读数：beads §3 可比常量 49 / A 面 42 / B 面 125；SKIP 19（非原子）+ 48（文档",
+          "keywords": [
+            "§3",
+            "SKIP",
+            "beads",
+            "判读复查"
+          ]
+        },
+        {
+          "anchor": "§8.3 漂移表（复核轮）",
+          "level": 3,
+          "startLine": 162,
+          "endLine": 169,
+          "tokens": 300,
+          "summary": "D1 文档混代 §3.1 TRAY_BAND 216/450 assets-spec §1.3.2（[v1.5-r6] ",
+          "keywords": [
+            "§3.1",
+            "§1.3.2",
+            "TRAY_BAND",
+            "assets",
+            "spec",
+            "漂移表"
+          ]
+        },
+        {
+          "anchor": "§8.4 命令与结果",
+          "level": 3,
+          "startLine": 170,
+          "endLine": 178,
+          "tokens": 112,
+          "summary": "pnpm run check:frozen-values 0 STATUS: OK；beads 49 / 42 / 12",
+          "keywords": [
+            "pnpm",
+            "run",
+            "check",
+            "frozen",
+            "values",
+            "STATUS"
+          ]
+        },
+        {
+          "anchor": "§8.5 沉淀候选",
+          "level": 3,
+          "startLine": 179,
+          "endLine": 186,
+          "tokens": 84,
+          "summary": "0 新增。D1 的处置口径由 K-053（旧文字划线留档、不静默删除）覆盖；本轮未产生新判例。",
+          "keywords": [
+            "沉淀候选"
           ]
         }
       ]
@@ -87402,9 +87490,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 218479,
+      "tokens": 218563,
       "lines": 6459,
-      "sha256": "8e0ee602ef0c34fb3faae67323b3067dc60cadcc6a78b3b8ed3e638a7963a7cd",
+      "sha256": "e3c35da6e67d096dbf00fe0dd07beba939a205100f2411541b1f3ee7bd227918",
       "tier": "normal",
       "sections": [
         {
@@ -87412,7 +87500,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 6460,
-          "tokens": 218462,
+          "tokens": 218547,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -95440,7 +95528,7 @@
           "level": 2,
           "startLine": 6406,
           "endLine": 6422,
-          "tokens": 1592,
+          "tokens": 1677,
           "summary": "§3.1 TRAY_BAND 下沿 230→216 变更单（带高 234 + btn_expand 同步）+ 净空几何复",
           "keywords": [
             "§3.1",
