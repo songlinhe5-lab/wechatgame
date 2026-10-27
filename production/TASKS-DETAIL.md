@@ -6471,3 +6471,5 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 **门禁**：`check:frozen-values` STATUS OK（beads 49 / A 42 / B 125；SKIP 19 + 48，本文改动不新增 B 面等式）；`check:tasks` 配对；`check:links` OK。
 
 **review 回写**：`review-2026-10-27.md §8.3` D1 行改 **✅ 已处置（WXG-T-463 / v1.5-r24）**。
+
+**后续裁定（2026-10-28，用户选项③）**：**D2 / D3 挂账**——`ux-spec.md:78` / `art-bible.md:190` 的旧上沿 230/420 与 `proposals/tray-24-layout-derivation.md:25` 未标年代，均随**下一 Sprint UX 图整体刷新批**一并处理，⛔ 不另开单；状态已写入 `review-2026-10-27.md §8.3` 级别列（⏸ 挂账）与文末处置状态行。
