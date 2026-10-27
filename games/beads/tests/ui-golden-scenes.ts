@@ -341,14 +341,22 @@ export function uiGoldenStateIds(): string[] {
     return STATES.map((s) => s.id);
 }
 
-/** 跑一态：返回登记用记录 + 全量命令流（后者仅 capture `--dump` 与失败诊断用）。 */
-export function runUiGoldenState(id: string): { record: UiGoldenStateRecord; flow: string[] } {
+/**
+ * 跑一态：返回登记用记录 + 全量命令流（后者仅 capture `--dump` 与失败诊断用）
+ * + **原始命令对象**（仅 `checkUiContainerOrder` 这类结构门用，不参与 sha）。
+ */
+export function runUiGoldenState(id: string): {
+    record: UiGoldenStateRecord;
+    flow: string[];
+    commands: readonly DrawCommand[];
+} {
     const def = STATES.find((s) => s.id === id);
     if (!def) throw new Error(`未登记的金样本状态：${id}`);
     const shell = def.build();
     const model = frame(shell);
     const flow = serializeUiGolden(model);
     return {
+        commands: model.commands,
         record: {
             id: def.id,
             unit: def.unit,

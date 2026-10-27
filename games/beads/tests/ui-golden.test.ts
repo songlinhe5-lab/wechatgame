@@ -24,7 +24,32 @@ import {
     uiGoldenStateIds,
     type UiGoldenStateRecord,
 } from './ui-golden-scenes.js';
+import { checkUiContainerOrder } from '@wxgame/framework';
 import { DESIGN_H, DESIGN_W } from '../src/config/tuning.js';
+
+/**
+ * 容器边界口径（`[WXG-T-437/438]`，ADR-0033 DEC-1）：**哪些态必须发容器边界**。
+ *
+ * 有面板 / 弹窗 ⇒ 恰 1 个容器（`settings`/`signin` 弹窗路由；对局五态 = `panel` 容器）；
+ * 纯页面 ⇒ 0（页面走默认层，恒在容器树之下）。
+ *
+ * ⛔ 改这张表 = 改层级契约（要先过 ADR 与 UX 登记），不是「让测试变绿」的手续（K-051）。
+ * 它同时是「相位弹窗仍由 `PanelRouter` 直派」这条边界的机械替身：谁绕过 `buildBeadsView`
+ * 直接面板命令而不包容器，这里当场红。
+ */
+const CONTAINER_EXPECT: Readonly<Record<string, number>> = {
+    'main-menu': 0,
+    'level-select': 0,
+    'level-select-mid': 0,
+    settings: 1,
+    signin: 1,
+    play: 0,
+    pause: 1,
+    clear: 1,
+    fail: 1,
+    'sprint-settle': 1,
+    finish: 1,
+};
 
 interface GoldenFixture {
     _readme: string;
@@ -107,6 +132,18 @@ describe('WXG-T-298 UI-02 金样本（十界面 × 关键状态整帧对拍）',
         expect(GOLDEN.fixture.menuSeed).toEqual({ staminaCur: 99, maxUnlockedLevel: 9 });
         // 场景自证必须记全（防「抓到的其实是另一屏」）。
         for (const s of GOLDEN.states) expect(s.proof.screen).toMatch(/^(menu|play)$/);
+    });
+
+    it('容器边界口径：十一帧结构门全空，且「有面板 ⇒ 恰一个容器」', () => {
+        // 口径表必须与场景集逐一对齐（少一态 / 多一态 ⇒ 当场红，不会静默漏覆盖）。
+        expect(Object.keys(CONTAINER_EXPECT).sort()).toEqual([...uiGoldenStateIds()].sort());
+        for (const id of uiGoldenStateIds()) {
+            const { commands } = runUiGoldenState(id);
+            // DEC-8① 结构门首次覆盖**全部十一帧**（含对局面板容器）。
+            expect(checkUiContainerOrder(commands), `${id} 结构门`).toEqual([]);
+            const containers = commands.filter((c) => c.kind === 'container').length;
+            expect(containers, `${id} 容器数`).toBe(CONTAINER_EXPECT[id]);
+        }
     });
 
     for (const want of GOLDEN.states) {

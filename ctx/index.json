@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3872,
       "lines": 131,
-      "sha256": "cd77449a43755d5096807a93deb7c43e8336bb792978553268ed03bc650665ab",
+      "sha256": "c2178b00b6545fe4a1a3c6fe54a376133fcffeebcee80d4a59315d39a6c353fe",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 410,
-          "summary": "1 production/TASKS-DETAIL.md 201258 6075 normal",
+          "summary": "1 production/TASKS-DETAIL.md 202399 6110 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5239,
       "lines": 165,
-      "sha256": "c2b8bc25e5a11aef4dccee995fffdee04524dbe131497a8e288198b04ff74ccd",
+      "sha256": "4589d0026b74301b1fef84978d20241509a6713fd5c0f43f54bb3bd559a7abfa",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 135 行 / 66027 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 136 行 / 66267 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+136 · §待排（backlog，无号，立项时领取…=107+30",
+          "summary": "§WXG 任务台账（SSOT）=1+137 · §待排（backlog，无号，立项时领取…=108+30",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 6075 行 / 201258 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 6110 行 / 202399 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6076 · §WXG-T-427=5777+37 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6111 · §WXG-T-428=5814+37 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -11408,17 +11408,17 @@
     },
     {
       "path": "docs/architecture/adr/ADR-0033-ui-container-layer-ordering.md",
-      "tokens": 6717,
-      "lines": 119,
-      "sha256": "57e72bcb7a6cc7607809b0cc1f0273ab256d6872d1ec2dbfe4e269ef6739f246",
+      "tokens": 7222,
+      "lines": 126,
+      "sha256": "d1bd044a2f7321051fb8b39219240a8bb180c0690bffba68dd24e895b41b46b3",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§ADR-0033 · UI 容器层：每页面 / 每弹窗一个渲染容器，容器内层有序、事件按层逆序透传",
           "level": 1,
           "startLine": 1,
-          "endLine": 120,
-          "tokens": 6679,
+          "endLine": 127,
+          "tokens": 7185,
           "summary": "状态：Accepted（原则由用户 2026-10-20 真机裁定：「每个页面和对话框是一个 UI 容器，里面按照层级绘",
           "keywords": [
             "ADR",
@@ -11491,8 +11491,8 @@
           "anchor": "§5 用户裁定（2026-10-20，原话存档）",
           "level": 2,
           "startLine": 58,
-          "endLine": 120,
-          "tokens": 3657,
+          "endLine": 127,
+          "tokens": 4106,
           "summary": "Q1 分期 = 确认。四批不变：P0 框架容器语法 + 两端层树映射 → P1 弹窗内容搬进容器（解开 dialog-c",
           "keywords": [
             "dialog",
@@ -11573,10 +11573,24 @@
           ]
         },
         {
-          "anchor": "§尚待后续定的小项（不阻塞 P0）",
+          "anchor": "§剩余两条边界的收口方式（WXG-T-439 · 2026-10-27）",
           "level": 3,
           "startLine": 116,
-          "endLine": 120,
+          "endLine": 122,
+          "tokens": 429,
+          "summary": "WXG-T-438 交付时登记的两条「不属本批」边界，本批不实现、改收口为机械门禁（理由同 ponytail：无需求驱动",
+          "keywords": [
+            "WXG",
+            "ponytail",
+            "剩余两条边界",
+            "的收口方式"
+          ]
+        },
+        {
+          "anchor": "§尚待后续定的小项（不阻塞 P0）",
+          "level": 3,
+          "startLine": 123,
+          "endLine": 127,
           "tokens": 137,
           "summary": "S1 段枚举是否需再加 debug：安全区标定线与性能覆层现走 DebugLayer，它必须永远在最顶。推荐复用 toa",
           "keywords": [
@@ -86770,17 +86784,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 201258,
-      "lines": 6075,
-      "sha256": "356ed043610accaef73e3223fd749659c5ef1c72a608355a368d21f453303a0e",
+      "tokens": 202399,
+      "lines": 6110,
+      "sha256": "ee768c190880974e18120148fe3ee567cc587661b6060e71aad946722b1831fe",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 6076,
-          "tokens": 201241,
+          "endLine": 6111,
+          "tokens": 202382,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -94315,8 +94329,8 @@
           "anchor": "§WXG-T-438",
           "level": 2,
           "startLine": 6042,
-          "endLine": 6076,
-          "tokens": 1506,
+          "endLine": 6078,
+          "tokens": 1507,
           "summary": "UI-60 三项显式未做收口：位图腿作用域 / 调试层置顶 / 对局面板容器（ADR-0033）· 负责：主理人(Cod",
           "keywords": [
             "WXG",
@@ -94389,8 +94403,8 @@
           "anchor": "§遗留边界（不属本批）",
           "level": 3,
           "startLine": 6072,
-          "endLine": 6076,
-          "tokens": 77,
+          "endLine": 6078,
+          "tokens": 78,
           "summary": "容器内 clip 仍走全局 _clipHost（弹窗与对局面板内均无 clip 命令，故无影响）。",
           "keywords": [
             "clip",
@@ -94398,22 +94412,97 @@
             "遗留边界",
             "不属本批"
           ]
+        },
+        {
+          "anchor": "§WXG-T-439",
+          "level": 2,
+          "startLine": 6079,
+          "endLine": 6111,
+          "tokens": 1136,
+          "summary": "UI-60 剩余两条边界收口为门禁：容器内 clip 硬拦 + 金样本容器口径表 · 负责：主理人(CodeBuddy)",
+          "keywords": [
+            "WXG",
+            "clip",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§决策 A · 容器内 `clip`：结构门硬拦，不建作用域级 `clipHost`",
+          "level": 3,
+          "startLine": 6085,
+          "endLine": 6091,
+          "tokens": 360,
+          "summary": "事实核查：全仓 builder.clip( 只有 1 处 —— games/beads/src/view/meta-me",
+          "keywords": [
+            "clip",
+            "clipHost",
+            "builder",
+            "games",
+            "beads",
+            "src"
+          ]
+        },
+        {
+          "anchor": "§决策 B · 相位弹窗不搬 Navigator 栈，改由金样本口径表守",
+          "level": 3,
+          "startLine": 6092,
+          "endLine": 6101,
+          "tokens": 401,
+          "summary": "为什么不做：ADR-0033 边界② 原文即要求「搬上本栈要先让面板 View 注册成路由」。真搬的前提是相位状态本身迁",
+          "keywords": [
+            "Navigator",
+            "ADR",
+            "View",
+            "决策",
+            "相位弹窗不搬",
+            "改由金样本口"
+          ]
+        },
+        {
+          "anchor": "§验收读数 (2)",
+          "level": 3,
+          "startLine": 6102,
+          "endLine": 6107,
+          "tokens": 103,
+          "summary": "framework 542 passed / 50 files（+2：页面层 clip 正样本、容器内 clip 反证 ",
+          "keywords": [
+            "framework",
+            "passed",
+            "files",
+            "clip",
+            "验收读数"
+          ]
+        },
+        {
+          "anchor": "§剩余（仍只有一条）",
+          "level": 3,
+          "startLine": 6108,
+          "endLine": 6111,
+          "tokens": 40,
+          "summary": "真机读数 [R]：层序实拍 + 容器内位图腿落位 + draw call 实测 ⇒ ADR-0033 仍不得标「已实施」",
+          "keywords": [
+            "draw",
+            "call",
+            "ADR",
+            "剩余",
+            "仍只有一条"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 66027,
-      "lines": 135,
-      "sha256": "ade6967f6ec8dfeacc12cd3cc2ded4243291f7dd5ed3ee1938d2fb6632d9a7bd",
+      "tokens": 66267,
+      "lines": 136,
+      "sha256": "e59f383cf3ee2b24a4f6d31ade85a9b4f014904f95c416f821aed1cb95bc99ba",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 136,
-          "tokens": 66018,
+          "endLine": 137,
+          "tokens": 66259,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -94426,8 +94515,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 107,
-          "endLine": 136,
+          "startLine": 108,
+          "endLine": 137,
           "tokens": 1460,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

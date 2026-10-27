@@ -9,10 +9,13 @@ import { describe, expect, it } from 'vitest';
 import type { DrawCommand } from '../../src/core/render/render-model.js';
 import { checkUiContainerOrder } from '../../src/core/render/ui-container-order.js';
 
-/** 一帧「主菜单容器 + 设置弹窗容器（内含 modal 段）」——结构良构，应零违规。 */
+/**
+ * 一帧「页面层 clip + 主菜单容器 + 设置弹窗容器（内含 modal 段）」——结构良构，应零违规。
+ * ⚠ clip 必须在**容器外**（`[WXG-T-439]`：Cocos 端裁切走全局 clipHost，容器内裁切会画到容器外）。
+ */
 const WELL_FORMED: DrawCommand[] = [
-    { kind: 'container', id: 'menu' },
     { kind: 'clip', x: 0, y: 0, w: 750, h: 1334 },
+    { kind: 'container', id: 'menu' },
     { kind: 'containerEnd' },
     { kind: 'container', id: 'settings' },
     { kind: 'segment', segment: 'modal' },
@@ -75,5 +78,18 @@ describe('WXG-T-329 — checkUiContainerOrder（UI-60 DEC-8① 结构机检）',
             { kind: 'containerEnd' },
         ]);
         expect(errs.some((e) => e.includes('未闭合时结束'))).toBe(true);
+    });
+
+    it('正样本：页面层 clip（容器外）⇒ 零违规', () => {
+        expect(checkUiContainerOrder([{ kind: 'clip', x: 0, y: 0, w: 750, h: 1334 }])).toEqual([]);
+    });
+
+    it('反证 7（`WXG-T-439` 显式降级）：容器内 clip ⇒ 判「容器内裁切」', () => {
+        const errs = checkUiContainerOrder([
+            { kind: 'container', id: 'menu' },
+            { kind: 'clip', x: 0, y: 0, w: 750, h: 1334 },
+            { kind: 'containerEnd' },
+        ]);
+        expect(errs.some((e) => e.includes('容器 "menu" 内'))).toBe(true);
     });
 });

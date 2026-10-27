@@ -6073,3 +6073,38 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 
 - 容器内 `clip` 仍走全局 `_clipHost`（弹窗与对局面板内均无 clip 命令，故无影响）。
 - 相位弹窗仍由 `PanelRouter` 直派（未搬上 Navigator 栈），本批只在**命令流层**包容器，导航真源不变。
+
+---
+
+## WXG-T-439
+
+**UI-60 剩余两条边界收口为门禁：容器内 `clip` 硬拦 + 金样本容器口径表 · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-10-27）**
+
+承接 `WXG-T-438` 尾部登记的「遗留边界（不属本批）」两条，用户令「剩余登记边界」⇒ 两条都**不实现、改收口为机械门禁**。判定依据：无需求驱动的投机实现（作用域级 `clipHost` / 相位状态迁栈）成本远高于收益，而「静默画错」与「未来绕过容器」才是真风险。
+
+### 决策 A · 容器内 `clip`：结构门硬拦，不建作用域级 `clipHost`
+
+- **事实核查**：全仓 `builder.clip(` 只有 **1 处** —— `games/beads/src/view/meta-menu.ts:450`（走马灯裁切），且属**页面层**、在任何容器之外 ⇒ 容器内 clip 目前**零发生**。
+- **为什么不能只传个 parent**：Cocos 端 clip 不是「一条命令挂到某节点」那么简单 —— `bindings.ts` 的 `_menuClip` 是一整套手搭 `Mask` 子树（`clipHost`），只为默认层建了一份。让容器内 clip 正确 = 每个作用域各建一套 Mask 子树，属真实功能开发而非薄壳。
+- **落码**：`packages/framework/src/core/render/ui-container-order.ts` 新增保证 4 —— `clip` 出现在容器内即 `errors.push(...)`（文案带容器 id 与索引 + ADR 指路）。⇒ 未来有人在容器里裁切，CI 当场红，而不是等真机发现「裁切框跑到容器外面」。
+- **测试**：`tests/core/ui-container-order.test.ts` 正样本改为「页面层 clip + 两容器」（原正样本把 clip 塞在容器内，被新规则当场咬中 ⇒ 顺手修正了这个自相矛盾的正样本）；新增正样本「页面层 clip 零违规」+ 反证 7「容器内 clip ⇒ 判『容器 "menu" 内』」。
+
+### 决策 B · 相位弹窗不搬 Navigator 栈，改由金样本口径表守
+
+- **为什么不做**：ADR-0033 边界② 原文即要求「搬上本栈要先让面板 View 注册成路由」。真搬的前提是相位状态本身迁出 `BeadsGame.phase`（`paused` 遍布 `systems/*`），半搬就会形成「Navigator 有路由 / `BeadsGame` 有 phase」的**双真源**；而本缺陷（面板压不住 HUD 文字）已由 `WXG-T-438` 的「命令流层包 `panel` 容器」根治 ⇒ 搬栈只剩架构一致性，无缺陷驱动。按 K 系列纪律，「登记边界」的合格收口是**可执行判据**，不是待办句。
+- **落码**：`games/beads/tests/ui-golden-scenes.ts::runUiGoldenState` 增返回原始 `commands`（不参与 sha）；`games/beads/tests/ui-golden.test.ts` 新增口径表 `CONTAINER_EXPECT` 与 1 例：
+  - 有面板/弹窗的态**必须恰 1 个容器**：`settings` / `signin` / `pause` / `clear` / `fail` / `sprint-settle` / `finish`；
+  - 纯页面态**必须 0 个**：`main-menu` / `level-select` / `level-select-mid` / `play`；
+  - 表键与 `uiGoldenStateIds()` **逐一对齐**（少一态 / 多一态都红，防静默漏覆盖）；
+  - 十一帧**全部**过 `checkUiContainerOrder`（DEC-8① 结构门首次覆盖对局五态）。
+- **效力**：谁绕过 `buildBeadsView` 直接发面板命令而不包容器（例如新加一种面板），这例当场红。
+
+### 验收读数
+
+- framework **542 passed / 50 files**（+2：页面层 clip 正样本、容器内 clip 反证 7）；beads **1357 passed + 2 skipped**（+1：容器口径表）。
+- **零视觉变更、金样本零漂移**（口径表只读不加命令；`beads`/`breakout` 产物与 `WXG-T-438` 同）。
+- `check:arch` OK；`pnpm run verify` 全绿（22 项）。
+
+### 剩余（仍只有一条）
+
+- **真机读数 `[R]`**：层序实拍 + 容器内位图腿落位 + draw call 实测 ⇒ ADR-0033 仍不得标「已实施」。
