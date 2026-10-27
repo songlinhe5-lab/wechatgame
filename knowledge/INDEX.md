@@ -303,4 +303,5 @@
 | K-194 | 判据实测取证 | criteria-measure-evidence | 换宿主复验前先确认读回口装在哪；探针缺失时改用「逐格行为判别」而不是猜 | — | 2026-10-27 | 0 | active |
 | K-195 | 判据实测取证 | criteria-measure-evidence | 「UI 点了一下没反应」不能当规则判据；出口存在性要走引擎公开命令，道具类还须确认二次提交 | WXG-T-434 | 2026-10-27 | 0 | active |
 | K-196 | 判据实测取证 | criteria-measure-evidence | 想加「可解性/容量」类门禁前，先查 `levels:check` 已有的硬拦闸与已被撤回的错论，否则会造出把合法内容判红的弱门 | WXG-T-434 | 2026-10-27 | 0 | active |
+| K-197 | 判据实测取证 | criteria-measure-evidence | 宿主替身全绿 ≠ 真宿主能落盘：框架与 DOM 同名类型互相遮蔽，再加吞异常，一条存档链可以在浏览器里静默哑掉而 1928 例照绿 | WXG-T-434 | 2026-10-27 | 0 | active |
 <!-- kb:active:end -->

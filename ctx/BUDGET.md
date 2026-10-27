@@ -41,7 +41,7 @@
 | 17 | `games/beads/design/gdd/save-progress.md` | 26135 | 305 | normal |
 | 18 | `games/beads/design/proposals/star-economy-and-retention.md` | 22195 | 763 | normal |
 | 19 | `games/beads/design/gdd/input-control.md` | 19665 | 206 | normal |
-| 20 | `knowledge/CHANGELOG.md` | 18857 | 595 | normal |
+| 20 | `knowledge/CHANGELOG.md` | 18990 | 597 | normal |
 
 ## 3. 超限清单（超过所属类别上限）
 
