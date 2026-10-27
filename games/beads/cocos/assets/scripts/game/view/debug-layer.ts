@@ -71,6 +71,33 @@ export function drawHitBox(
 }
 
 /**
+ * `[WXG-T-445]` **触点探针**：把「游戏认为你点在哪」画出来（十字 + 圆环 + 命中的钮 id）。
+ *
+ * 用于把「按钮边内点不上」这类**感觉**变成读数：探针十字与手指实际位置重合 ⇒ 热区/命中逻辑问题；
+ * 十字整体偏移（越靠边偏得越多）⇒ 手指→设计坐标换算问题（`Viewport.screenToDesign` / 宿主归一化），
+ * ⛔ 不该去改热区。与 `bindings` 的 `__WXG_TOUCH_DEBUG` 同口径，但走统一渲染层 ⇒ 三宿主都能看。
+ */
+export function drawTapTrace(
+    builder: RenderModelBuilder,
+    x: number,
+    y: number,
+    label: string,
+    ink: string,
+    font: string,
+): void {
+    const r = 26;
+    builder.line(x - r, y, x + r, y, ink, 3);
+    builder.line(x, y - r, x, y + r, ink, 3);
+    builder.circle(x, y, r * 0.55, { stroke: ink, lineWidth: 3 });
+    builder.text(x + r + 6, y + r, label, {
+        fill: ink,
+        font,
+        align: 'left',
+        baseline: 'middle',
+    });
+}
+
+/**
  * 安全区标定线：三条线 = 顶部安全区 / 胶囊底缘 / Home 条。入参均 = 距边的设计 px。
  * （原 `view-model::drawSafeGuideLines` 原样搬入，两屏共用同一份。）
  */

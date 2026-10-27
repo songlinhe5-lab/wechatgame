@@ -6184,3 +6184,21 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 **验收**：`debug-layer.test.ts` 锁指令形态（一条 rect、`stroke` 精确、`lineWidth: 2`、无 fill）；`beads-shell.test.ts` 真帧锁三态 —— Debug 关 = 0 条 / 开 = 每颗钮一条且逐颗对上热区表 / 好友榜开 = +1。beads **1370 passed + 2 skipped**；`tsc` 干净；`check:arch` OK。
 
 **边界**：① 选关页格（`pick-level`）与对局 HUD 尚未接（选关页处于 pageFade 腿时 `base` 仍是菜单档）；② 只画 `box`，不画 `TAP_SLOP` 的抬起容差外环 —— 想看容差边界需另加一圈虚线。
+
+---
+
+## WXG-T-445
+
+**Debug 触点探针（判定点十字 + 命中钮 id）· 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-10-27）**
+
+用户报「我感觉好友榜能点击的部分就是文字内容部分，按钮边框内不是都能点击区域」。
+
+**先把感觉变成读数（实测否证几何侧）**：好友榜纸钮的**绘制 rect 与命中表是同一个对象** —— 帧转储 `paper = {24,102,140,88}`（`fill #FFFCF6 / radius 20`）、`hit = {24,102,140,88}`；在框内取四角 (2,2)/(138,2)/(2,86)/(138,86) + 中心 + 上下中点共 7 个采样点，**7/7 全部命中 `open-rank`**；再扫 4 档锚（node 全 0 / iPhone 刘海 / Android 打孔 / 老机）**无相邻热区遮挡、0 丢失点**。⇒ 热区几何侧不存在「只有文字可点」。
+
+**剩下的两个可能**：① **手指 → 设计坐标换算偏**（`Viewport.screenToDesign` / 宿主归一化 / 信箱偏移），表现为「越靠边偏得越多」——按钮在左下角最吃亏，而文字在正中所以「只有文字好用」；② 预览到**陈旧产物**。
+
+**落码**：`debug-layer::drawTapTrace`（十字两线 + 圆环 + 一行「吃这颗点的钮 id」文本），`MetaViewData.tapTrace`（可选字段），shell 在**按下帧**记 `{x, y, label}`（菜单腿 label = 钮 id / `MISS`；面板腿 = `rank:<action>`），`_metaViewData()` 只在 Debug 开时外发。与 `bindings` 既有的 `__WXG_TOUCH_DEBUG` 同口径，但走统一渲染层 ⇒ 三宿主都能看。
+
+**判读法**：开 Debug 点按钮边沿 —— 十字与手指重合 ⇒ 热区问题（id 就写在旁边）；整体偏移且越边越多 ⇒ **坐标换算**问题，⛔ 不改热区。
+
+**验收**：`debug-layer` 锁探针形态；`meta-menu-wall` 真帧锁「关零探针 / 开则按下帧出 `open-rank` / 远点抬手不触发钮」。beads **1372 passed + 2 skipped**；`tsc` / `check:arch` OK。

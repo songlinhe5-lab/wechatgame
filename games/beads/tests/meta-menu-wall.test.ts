@@ -57,7 +57,7 @@ import { buildMetaView, hitTestMeta, metaLayout, type MetaViewData } from '../sr
 import { rankPanelLayout } from '../src/systems/rank-panel.js';
 import { drawLevelThumb, levelThumbCells, SIGN_INK_COLOR_IDX } from '../src/view/menu-signage.js';
 import { drawFilledBead, type FilledBeadOptions } from '../src/view/bead-render.js';
-import { DEFAULT_PALETTE, DEMO_BEAD_INKS, beadGrayInksFor, beadInksFor } from '../src/view/palette.js';
+import { DEBUG_OUTLINE_TILE_HEX, DEFAULT_PALETTE, DEMO_BEAD_INKS, beadGrayInksFor, beadInksFor } from '../src/view/palette.js';
 import {
     DESIGN_H,
     DESIGN_W,
@@ -861,6 +861,40 @@ describe('WXG-T-432 S-3 · 菜单好友榜入口与菜单腿模态门', () => {
         shellPointer(r, c.x, box.y + 14, 'down');
         shellPointer(r, c.x, box.y - 60, 'up'); // 框外 60px ≫ 容差
         expect(r.shell.play.rankOpen, '超容差 ⇒ 取消（原口径不变）').toBe(false);
+    });
+
+    it('`[WXG-T-445]` Debug 开 ⇒ 按下帧画触点探针（含吃这颗点的钮 id）；关 ⇒ 一条都不画', () => {
+        const r = rig();
+        const box = anchoredLayout(r.shell).buttons.find((b) => b.id === 'open-rank')!.box;
+        // 探针标记 = 「吃这颗点的钮 id」文本（`open-rank` / `rank:xxx`）；圆环不唯一（菜单自有盖章圆）。
+        const probe = (): string[] =>
+            frameOf(r.shell)
+                .filter((c) => c.kind === 'text')
+                .map((c) => (c as { text: string }).text)
+                .filter((t) => t === 'open-rank' || t.startsWith('rank:'));
+
+        expect(probe(), 'Debug 关：未点击也零探针').toEqual([]);
+
+        // 设置里翻 Debug
+        const open = anchoredLayout(r.shell).buttons.find((b) => b.id === 'open-settings')!.box;
+        r.shell.tapMeta(open.x + open.w / 2, open.y + open.h / 2);
+        const dbg = metaLayout('settings').buttons.find((b) => b.id === 'toggle-debug-guides')!;
+        r.shell.tapMeta(dbg.box.x + dbg.box.w / 2, dbg.box.y + dbg.box.h / 2);
+        const back = metaLayout('settings').buttons.find((b) => b.id === 'back')!;
+        r.shell.tapMeta(back.box.x + back.box.w / 2, back.box.y + back.box.h / 2);
+        expect(r.shell.screen).toBe('menu');
+        expect(r.shell.play.debugGuides).toBe(true);
+
+        // 只在**按下帧**读探针：抬手点故意放到远处 ⇒ 不触发任何钮（面板不开、整条腿干净）。
+        shellPointer(r, box.x + 70, box.y + 44, 'down');
+        expect(probe(), '探针带「吃这颗点的钮 id」').toEqual(['open-rank']);
+        const cmds = frameOf(r.shell);
+        expect(
+            cmds.some((c) => c.kind === 'circle' && (c as { stroke?: string }).stroke === DEBUG_OUTLINE_TILE_HEX),
+            '圆环用调试墨色',
+        ).toBe(true);
+        shellPointer(r, 700, 1300, 'up');
+        expect(r.shell.play.rankOpen, '远点抬手 ⇒ 取消，面板不开').toBe(false);
     });
 
     it('`[WXG-T-442]` 退场期内点面板**内**的余震 ⇒ 仍被吞且不穿透（不得误开下方橱窗）', () => {

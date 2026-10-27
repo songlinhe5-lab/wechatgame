@@ -183,6 +183,8 @@ export class BeadsShell implements Game {
     private _arcPrevPresent = false;
     /** Scratch pointer for screen→design (never retained), same as BeadsGame. */
     private readonly _pointer = { x: 0, y: 0 };
+    /** `[WXG-T-445]` Debug 触点探针：最近一次**按下帧**的判定点与命中的钮 id（仅 Debug 开时外发）。 */
+    private _tapTrace: { x: number; y: number; label: string } | undefined;
     /** Reused view-data object — buildRenderModel must not allocate (热路径零分配). */
     private readonly _viewData = {
         stamina: 0,
@@ -201,6 +203,8 @@ export class BeadsShell implements Game {
         bgmMuted: false,
         debugInfo: false,
         debugGuides: false,
+        // `[WXG-T-445]` Debug 触点探针（缺省无 ⇒ 渲染层零指令）。
+        tapTrace: undefined as { x: number; y: number; label: string } | undefined,
         ghostSymbol: false,
         sfxMuted: false,
         reduceMotion: false,
@@ -785,7 +789,15 @@ export class BeadsShell implements Game {
             this.play.rankOpen &&
             (this.play.rankInteractive || this.play.rankContains(this._pointer.x, this._pointer.y))
         ) {
-            if (snap.justDown) this._rankPress = this.play.hitRank(this._pointer.x, this._pointer.y);
+            if (snap.justDown) {
+                this._rankPress = this.play.hitRank(this._pointer.x, this._pointer.y);
+                // `[WXG-T-445]` 面板打开期同样留探针（看「点在哪 / 有没有被面板吃掉」）。
+                this._tapTrace = {
+                    x: this._pointer.x,
+                    y: this._pointer.y,
+                    label: this._rankPress ? `rank:${this._rankPress}` : 'rank:MISS',
+                };
+            }
             this._menuPress = null;
             this._viewData.pressed = null;
             if (!snap.isDown) {
@@ -800,6 +812,8 @@ export class BeadsShell implements Game {
         this._rankPress = null;
         if (snap.justDown) {
             const btn = hitTestMeta(this._phase.overlay, this._pointer.x, this._pointer.y, this._viewData.anchors);
+            // `[WXG-T-445]` 记下「判定到的点 + 吃这颗点的钮」，Debug 开时画成十字探针。
+            this._tapTrace = { x: this._pointer.x, y: this._pointer.y, label: btn ? btn.id : 'MISS' };
             if (btn?.id === 'open-levels' && this._phase.overlay === 'none') {
                 // 点在玻璃上先记下来，松手再决定是点按还是翻页。
                 this._menu.press(this._pointer.x, this._pointer.y, this._clock());
@@ -1064,6 +1078,8 @@ export class BeadsShell implements Game {
         v.vibrate = this.play.vibrateOn;
         v.debugInfo = this.play.debugInfo;
         v.debugGuides = this.play.debugGuides;
+        // `[WXG-T-445]` 触点探针只在 Debug 开时外发（关 ⇒ 字段缺省 ⇒ 渲染层零指令）。
+        v.tapTrace = this.play.debugGuides ? this._tapTrace : undefined;
         // [WXG-T-434] E4 幽灵符号开关回显（暂停面板行5 与盘面渲染共读同一 getter）。
         v.ghostSymbol = this.play.ghostSymbol;
         // EP11-S5 行4 两钮回显（与暂停面板共读同一对 getter ⇒ 两入口恒一致）。

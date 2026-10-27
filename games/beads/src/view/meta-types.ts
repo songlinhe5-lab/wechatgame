@@ -52,6 +52,12 @@ export interface MetaViewData {
     /** 设置 Debug 开关：菜单上画安全区顶 / 胶囊底 / 安全区底三条标定线。 */
     readonly debugGuides: boolean;
     /**
+     * `[WXG-T-445]` Debug 下的**触点探针**：最近一次菜单点击被判定到的设计坐标 + 命中的钮 id。
+     * 显示成十字 + 圆环 ⇒ 与手指实际位置一比即可分辨「热区画错」还是「手指→设计坐标换算偏了」。
+     * **可选**：缺省 = 不画（金样本 / 正常帧零指令）。
+     */
+    readonly tapTrace?: { readonly x: number; readonly y: number; readonly label: string };
+    /**
      * `[WXG-T-434]` E4 幽灵符号开关（只住暂停面板行5；此处保留同串值入口）。
      * **可选**：缺省 = 关（旧夹具 / 旧调用方免填，判读处一律 `=== true`）。
      */

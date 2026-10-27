@@ -36,8 +36,8 @@ import {
 // EP12-S6 · P-7：屏内文案一律读表（`tokens.md §7` / `menu-architecture §6`），⛔ 不散落字面。
 import { COPY_TOKENS } from '../config/copy-tokens.js';
 import { UI_DEBUG_SCOPE_ID, type RenderModelBuilder } from '@wxgame/framework';
-import type { BeadsPalette } from './palette.js';
-import { drawHitBox, drawSafeGuideLines } from './debug-layer.js';
+import { DEBUG_OUTLINE_TILE_HEX, type BeadsPalette } from './palette.js';
+import { drawHitBox, drawSafeGuideLines, drawTapTrace } from './debug-layer.js';
 import { UI_FONT, UI_SCRIM, scrimFill } from './ui-theme.js';
 import { drawSettingsContent, isSettingsAction } from './settings-content.js';
 import { SIGNIN_TITLE, drawSigninContent } from './signin-content.js';
@@ -235,6 +235,12 @@ export function buildMetaView(
                     button.rect.yMax - button.rect.yMin,
                 );
             }
+        }
+        // `[WXG-T-445]` 触点探针：把「判定到的点」画出来，与手指实际位置一比即可分辨是热区错
+        // 还是**手指→设计坐标换算**偏了（后者表现为越靠边偏得越多，⛔ 不该改热区）。
+        const trace = data.tapTrace;
+        if (trace !== undefined) {
+            drawTapTrace(builder, trace.x, trace.y, trace.label, DEBUG_OUTLINE_TILE_HEX, UI_FONT.cell);
         }
         drawSafeGuides(builder, A);
         builder.endContainer();

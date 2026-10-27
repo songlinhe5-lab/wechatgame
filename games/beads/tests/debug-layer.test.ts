@@ -7,12 +7,12 @@ import { describe, expect, it } from 'vitest';
 import type { RenderModelBuilder } from '@wxgame/framework';
 import type { BeadsPalette } from '../src/view/palette.js';
 import { DEBUG_OUTLINE_TILE_HEX } from '../src/view/palette.js';
-import { drawHitBox, drawPerfOverlay, drawSafeGuideLines } from '../src/view/debug-layer.js';
+import { drawHitBox, drawPerfOverlay, drawSafeGuideLines, drawTapTrace } from '../src/view/debug-layer.js';
 
 const P = { text: '#text' } as unknown as BeadsPalette;
 
 interface Call {
-    readonly kind: 'rect' | 'line' | 'text';
+    readonly kind: 'rect' | 'line' | 'text' | 'circle';
     readonly args: readonly unknown[];
 }
 
@@ -23,6 +23,7 @@ function recorder(): { calls: Call[]; builder: RenderModelBuilder } {
         height: 1334,
         rect: push('rect'),
         line: push('line'),
+        circle: push('circle'),
         text: push('text'),
     } as unknown as RenderModelBuilder;
     return { calls, builder };
@@ -39,6 +40,17 @@ describe('drawHitBox（`[WXG-T-444]` 响应区边界）', () => {
         expect(calls).toHaveLength(1);
         expect(calls[0].kind).toBe('rect');
         expect(calls[0].args).toEqual([24, 300, 140, 88, { stroke: DEBUG_OUTLINE_TILE_HEX, lineWidth: 2 }]);
+    });
+});
+
+describe('drawTapTrace（`[WXG-T-445]` 触点探针）', () => {
+    it('十字两条线 + 圆环 + 命中的钮 id（同色同笔宽）', () => {
+        const { calls, builder } = recorder();
+        drawTapTrace(builder, 94, 146, 'open-rank', DEBUG_OUTLINE_TILE_HEX, '20px sans-serif');
+        expect(calls.map((c) => c.kind)).toEqual(['line', 'line', 'circle', 'text']);
+        expect(calls[0].args).toEqual([68, 146, 120, 146, DEBUG_OUTLINE_TILE_HEX, 3]);
+        expect(calls[1].args).toEqual([94, 120, 94, 172, DEBUG_OUTLINE_TILE_HEX, 3]);
+        expect(calls[3].args[2]).toBe('open-rank');
     });
 });
 
