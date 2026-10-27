@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3872,
       "lines": 131,
-      "sha256": "efb9873542f5de6db2faac130280e5e5baea80a6642063f613018c6353d1dc34",
+      "sha256": "166d469275a580a0bc3926aaa2b7928ae52e118003c05162c6a4480fb742c2de",
       "tier": "normal",
       "sections": [
         {
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5239,
       "lines": 165,
-      "sha256": "003099d6a9b1f0594c50d0c557a7d567d07eb4d8fb4ab07b6de8f8e5f7e18fce",
+      "sha256": "ec1b3fd40b0407418cfd94b613a26b72ea31bc67ce321e67b98f8f4eb27930eb",
       "tier": "normal",
       "sections": [
         {
@@ -1112,12 +1112,12 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/gdd/core-loop.md` — 168 行 / 9561 tok / 实测读 70 次",
+          "anchor": "§`games/beads/design/gdd/core-loop.md` — 169 行 / 9905 tok / 实测读 70 次",
           "level": 2,
           "startLine": 135,
           "endLine": 139,
           "tokens": 118,
-          "summary": "§GDD · S1 核心循环（Core …=1+169 · §1 目标=9+4 · §2 机制=13+66 · §3 输",
+          "summary": "§GDD · S1 核心循环（Core …=1+170 · §1 目标=9+4 · §2 机制=13+66 · §3 输",
           "keywords": [
             "§1",
             "§2",
@@ -32212,17 +32212,17 @@
     },
     {
       "path": "games/beads/design/gdd/core-loop.md",
-      "tokens": 9561,
-      "lines": 168,
-      "sha256": "55ca9ac4a1d79b0acc357405e222fc0ebe8b7adaa023a2c9724f189bd16ac9ff",
+      "tokens": 9905,
+      "lines": 169,
+      "sha256": "ced27b5b4c9ccda5efc1aff5c8709d36c1b1da69c9ce023f2ed69f0ee8b119a8",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · S1 核心循环（Core Loop）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 169,
-          "tokens": 9547,
+          "endLine": 170,
+          "tokens": 9892,
           "summary": "项目：games/beads · 版本 v2.4 · 任务号 WXG-T-295（v2.4 = §8 时基注随上位 in",
           "keywords": [
             "§8",
@@ -32367,7 +32367,7 @@
           "level": 2,
           "startLine": 138,
           "endLine": 158,
-          "tokens": 2547,
+          "tokens": 2620,
           "summary": "1. 冷启动无存档 → 直接进入第 1 关 PLAYING，全程无主菜单；有存档 → 续进已解锁最远关。",
           "keywords": [
             "PLAYING",
@@ -32380,8 +32380,8 @@
           "anchor": "§9 变更记录",
           "level": 2,
           "startLine": 159,
-          "endLine": 169,
-          "tokens": 1893,
+          "endLine": 170,
+          "tokens": 2165,
           "summary": "v1.0 2026-09-12 建档（六状态机 + 微循环 + §8 十条判据） WXG-T-007",
           "keywords": [
             "§8",

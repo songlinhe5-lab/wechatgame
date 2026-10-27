@@ -22,6 +22,8 @@ export interface PanelRouterHost {
   /** 失败面板是否还有复活次数（`_reviveCount < REVIVE_MAX_PER_LEVEL`）。 */
   readonly reviveAvailable: boolean;
   readonly levelCount: number;
+  /** P0-1：通关画面展示的关数（本章结算 = 本章长度；否则全表长度）。 */
+  readonly finishLevelCount: number;
   readonly panel: PausePanel;
   readonly clearPanel: ClearPanel;
   readonly finishPanel: FinishPanel;
@@ -86,7 +88,7 @@ export class PanelRouter {
       }
       case 'finish': {
         // `ux-spec §4` 矩阵行 `FINISH | 去冲刺* / 重玩第 1 关`；面板外点击零响应。
-        const action: FinishPanelAction | null = h.finishPanel.hitTest(x, y, h.levelCount);
+        const action: FinishPanelAction | null = h.finishPanel.hitTest(x, y, h.finishLevelCount);
         if (!action) return false;
         h.sfx(AUDIO_CLIP_UI_TAP);
         if (action === 'replay') h.restartRun();

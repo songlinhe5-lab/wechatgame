@@ -44,6 +44,13 @@ export interface ControlMapHost {
   readonly levelCount: number;
   /** 当前是否为末关（结算面板主钮文案切换）。 */
   readonly isLastLevel: boolean;
+  /**
+   * 当前是否为**本章末关**（P0-1 · `core-loop §8-8`）：真源 = `arcs.ts::ARCS[].levelRefs`
+   * ⇒ `isBossLevelId`；章末 ⇒ 结算主钮为「查看结果」且 FINISH 走本章结算。
+   */
+  readonly isArcFinalLevel: boolean;
+  /** 通关画面展示的关数（本章结算 = 本章长度；否则全表长度）。 */
+  readonly finishLevelCount: number;
   readonly panel: PausePanel;
   readonly clearPanel: ClearPanel;
   readonly finishPanel: FinishPanel;
@@ -82,7 +89,7 @@ export class ControlMap {
     }
     if (phase === 'paused') return this._host.panel.hitTest(x, y, this._host.mode) ?? '';
     if (phase === 'level-clear') return this._host.clearPanel.hitTest(x, y, this.clearPanelOptions()) ?? '';
-    if (phase === 'finish') return this._host.finishPanel.hitTest(x, y, this._host.levelCount) ?? '';
+    if (phase === 'finish') return this._host.finishPanel.hitTest(x, y, this._host.finishLevelCount) ?? '';
     if (phase === 'game-over') {
       if (this._host.mode === 'sprint') return this._host.sprintSettle.hitTest(x, y) ?? '';
       return hitFailPanel(x, y, this._host.reviveAvailable) ?? '';
@@ -92,7 +99,7 @@ export class ControlMap {
 
   /** 面板几何/文案选项（末关把主钮文案切成「查看结果」）。 */
   clearPanelOptions(): ClearPanelOptions {
-    return this._host.isLastLevel ? CLEAR_OPTS_LAST : CLEAR_OPTS_NORMAL;
+    return this._host.isArcFinalLevel || this._host.isLastLevel ? CLEAR_OPTS_LAST : CLEAR_OPTS_NORMAL;
   }
 
   /**

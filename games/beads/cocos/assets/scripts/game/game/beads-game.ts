@@ -341,6 +341,11 @@ export class BeadsGame {
   /** 已触发过入场音效的**关数**（每关一次，逐关 150ms）。 */
   private _finishRowsAnnounced = 0;
   /**
+   * P0-1 本章收尾：FINISH 总览展示到哪一关（0-based，含）。`-1` = 未进本章结算
+   * ⇒ 退回全表长度（旧口径）。章界真源 = `arcs.ts::ARCS[].levelRefs` ⇒ `isBossLevelId`。
+   */
+  private _finishEndIndex = -1;
+  /**
    * S7 冲刺结算面板（`ux-spec §3.5` **左列**，WXG-T-067）：冲刺归零时复用 `GAME_OVER`
    * 相位展示「单局 / 最高梯位 / 最高连击」+ 双钮（再来一局 / 返回关卡），且**不出现**
    * 续时主钮（§3.5 明文）。
@@ -633,6 +638,8 @@ export class BeadsGame {
       get beadLod() { return self._beadLod; },
       get onboardDone() { return self._onboardDone; },
       get onboardingEnabled() { return BeadsGame.ONBOARDING_ENABLED; },
+      get finishLevelCount() { return self._finishRowCount(); },
+      get isArcFinalLevel() { return self._isArcFinalIndex(self._levelIndex); },
       // `[WXG-T-432]` 好友榜面板只读视图（投影入口落 `snapshot-projection`）。
       get rankPanel() { return self._rankPanel; },
     };
@@ -693,6 +700,8 @@ export class BeadsGame {
       get reviveAvailable() { return self._reviveCount < REVIVE_MAX_PER_LEVEL; },
       get levelCount() { return self._levels.length; },
       get isLastLevel() { return self._levelIndex >= self._levels.length - 1; },
+      get isArcFinalLevel() { return self._isArcFinalIndex(self._levelIndex); },
+      get finishLevelCount() { return self._finishRowCount(); },
       get panel() { return self._panel; },
       get clearPanel() { return self._clearPanel; },
       get finishPanel() { return self._finishPanel; },
@@ -703,6 +712,7 @@ export class BeadsGame {
       get mode() { return self._mode; },
       get reviveAvailable() { return self._reviveCount < REVIVE_MAX_PER_LEVEL; },
       get levelCount() { return self._levels.length; },
+      get finishLevelCount() { return self._finishRowCount(); },
       get panel() { return self._panel; },
       get clearPanel() { return self._clearPanel; },
       get finishPanel() { return self._finishPanel; },
@@ -1786,6 +1796,7 @@ export class BeadsGame {
     this._mode = 'normal';
     this._crashIO.clear(); // D-03：整轮重玩 ⇒ 旧快照失效
     this._finishPanel.close(); // 淡出由 `update()` 跑完（与结算面板同判例）
+    this._levelIndex = 0; // P0-1：重玩本章 ⇒ 回第 1 关（`_setupLevel` 不移动游标）
     this._setupLevel(0);
     this._machine.transition('playing');
     return true;
@@ -2127,6 +2138,7 @@ export class BeadsGame {
   private _setupLevel(index: number): void {
     const level = this._levels[index];
     if (!level) throw new Error(`Beads: no level at index ${index}`);
+    this._finishEndIndex = -1; // 装配新关 ⇒ 总览口径退回全表，直到下次章末结算
     this._input.resetTapCount(); // 换关/重试/新局共用复位点（同 F3 甲裁「装配即复位」）
     this._resetPlaceCombo(); // [WXG-T-434] 换关/重试/新局 ⇒ 归位连击清零（不跨局携带）
     this._actionsPlaying = 0;
@@ -2503,7 +2515,7 @@ export class BeadsGame {
    * 面板自身的入 / 出动画在 `update()` 里跑（表示层不停表）。
    */
   private _stepFinish(_dt: number): void {
-    const shown = this._finishPanel.rowsShown(this._levels.length);
+    const shown = this._finishPanel.rowsShown(this._finishRowCount());
     while (this._finishRowsAnnounced < shown) {
       this._finishRowsAnnounced++;
       this._sfx(AUDIO_CLIP_STAR);
@@ -2511,13 +2523,30 @@ export class BeadsGame {
   }
 
   /**
-   * 结算面板「下一关 / 查看结果」：末关 → FINISH，否则推进到下一关。
+   * 是否**本章末关**（P0-1 · `core-loop §8-8`）。
+   * 真源 = `arcs.ts::ARCS[].levelRefs` 派生的 `isBossLevelId`（1-based 关号）；
+   * ⛔ 不新建第二套 boss 真源、⛔ 不把第一章关数写进常量（K-161 / K-151）。
+   */
+  private _isArcFinalIndex(index: number): boolean {
+    return isBossLevelId(index + 1);
+  }
+
+  /** FINISH 总览关数：本章结算用本章长度；`-1`（未进本章结算）退回全表长度。 */
+  private _finishRowCount(): number {
+    return this._finishEndIndex >= 0 ? this._finishEndIndex + 1 : this._levels.length;
+  }
+
+  /**
+   * 结算面板「下一关 / 查看结果」：**本章末关**或全局末关 → FINISH，否则推进到下一关。
    * `ux-spec §4` 流转表 = `LEVEL_CLEAR → 下一关 / 去冲刺*(U1) → 玩法·n+1 / 玩法·冲刺`
    * ——面板**等按钮**，此前的「1.4s 自动推进」占位已随本面板删除。
+   *
+   * MVP 期间章末不跨章 ⇒ 第一章 L9 即本切片的收尾关；跨章推进留后续批次。
    */
   private _advanceAfterClear(): void {
     if (this._machine.current !== 'level-clear') return;
-    if (this._levelIndex >= this._levels.length - 1) {
+    if (this._levelIndex >= this._levels.length - 1 || this._isArcFinalIndex(this._levelIndex)) {
+      this._finishEndIndex = this._levelIndex;
       // 交接给通关画面：结算面板必须退场，否则它 150ms 的淡出会从通关画面后面透出来
       // （两个面板都画全屏遮罩，叠着会看到两层）。
       this._clearPanel.close();

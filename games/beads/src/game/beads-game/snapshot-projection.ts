@@ -124,6 +124,10 @@ export interface SnapshotSource {
     readonly beadLod: boolean;
     readonly onboardDone: boolean;
     readonly onboardingEnabled: boolean;
+    /** P0-1：FINISH 总览关数（本章结算 = 本章长度；否则全表长度；`core-loop §8-8`）。 */
+    readonly finishLevelCount: number;
+    /** P0-1：当前是否**本章末关**（真源 = `arcs.ts` ⇒ `isBossLevelId`）。 */
+    readonly isArcFinalLevel: boolean;
     /** `[WXG-T-432]` 好友榜面板占位状态机（投影只读 `view()`）。 */
     readonly rankPanel: RankPanel;
 }
@@ -312,19 +316,22 @@ function projectPanelShard(s: SnapshotPanel, src: SnapshotSource): void {
     s.clearPowerupsUsed = src.powerups.usedCount;
     s.clearTaps = src.input.tapsPlaying; // playtest 计量（含误点的输入计数）
     s.clearActions = src.actionsPlaying; // 定星口径（与 `pricing.actions` 同口径）
-    s.clearLastLevel = src.levelIndex >= src.levels.length - 1;
+    // P0-1（core-loop §8-8）：章末关 ⇒ 结算面板按「本章收尾」呈现（旧全局末关口徑保留为无 boss 关表的回归）。
+    s.clearLastLevel = src.isArcFinalLevel || src.levelIndex >= src.levels.length - 1;
 
     // S7 通关画面（ux-spec §3.6）：总览数据 + 逐关入场进度一起进快照，视图只读。
     s.finishPanelVisible = src.finishPanel.visible;
     s.finishPanelProgress = src.finishPanel.progress;
     s.finishPanelInteractive = src.finishPanel.interactive;
-    if (s.finishStars.length !== src.levels.length) {
-        s.finishStars = new Array<number>(src.levels.length).fill(0);
+    // P0-1：总览 = **本章**而非全表（夹到关表长度，防明细异常导致越界）。
+    const finishLevelCount = Math.max(1, Math.min(src.finishLevelCount, src.levels.length));
+    if (s.finishStars.length !== finishLevelCount) {
+        s.finishStars = new Array<number>(finishLevelCount).fill(0);
     }
-    for (let i = 0; i < s.finishStars.length; i++) {
+    for (let i = 0; i < finishLevelCount; i++) {
         s.finishStars[i] = src.starsByLevel[i] ?? 0;
     }
-    const finishRows = src.finishPanel.rowsShown(src.levels.length);
+    const finishRows = src.finishPanel.rowsShown(finishLevelCount);
     s.finishRowsShown = finishRows;
     s.finishRowPopScale = finishRows > 0 ? src.finishPanel.rowPopScale(finishRows - 1) : 1;
     s.finishLevels = src.levels; // S7 陈列条：只读引用（视图 ⛔ 不 import LEVELS）
