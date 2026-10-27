@@ -3298,7 +3298,7 @@
       "file": "knowledge/lessons/criteria-measure-evidence.md",
       "category": "判据实测取证",
       "title": "宿主替身全绿 ≠ 真宿主能落盘：框架与 DOM 同名类型互相遮蔽，再加吞异常，一条存档链可以在浏览器里静默哑掉而 1928 例照绿",
-      "contentHash": "14b43d1ac25d192ab529af7d6ab2817edc7be5f65974118eb91a00d5acf8a02e",
+      "contentHash": "3956f8f963981e4708d7bbcebaaae134a52973851ff1c6adabf18b1712d4d070",
       "sourceTask": "WXG-T-434",
       "addedDate": "2026-10-27",
       "lastAccess": "2026-10-27",
@@ -5383,6 +5383,15 @@
     },
     {
       "date": "2026-10-27",
+      "taskId": "WXG-T-434",
+      "kind": "updated",
+      "ids": [
+        "K-197"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-28",
       "taskId": "WXG-T-434",
       "kind": "updated",
       "ids": [
