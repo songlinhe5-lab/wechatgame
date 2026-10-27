@@ -211,7 +211,7 @@ export interface AnchoredMenuGeo {
     readonly ctaHit: Box;
     /** `[WXG-T-432]` 主菜单「好友榜」纸钮（CTA 左侧；绘制/热区同对象）。 */
     readonly rankBox: Box;
-    /** `[WXG-T-448]` 好友榜**热区**（下探到安全区上沿）——与视觉 `rankBox` 不再同一对象。 */
+    /** `[WXG-T-432]` 主菜单「好友榜」纸钮（CTA 左侧；绘制/热区同对象，`[WXG-T-453]` 收回 T-448 下探后恢复）。 */
     readonly rankHit: Box;
     readonly arrowL: Box;
     readonly arrowLHit: Box;
@@ -249,18 +249,13 @@ export function anchoredGeo(a: MenuAnchors): AnchoredMenuGeo {
     const signBox = box(MENU_SIGN_FRAME.x, r(a.signTopY + MENU_SIGN_FRAME.bowYOff) - MENU_SIGN_FRAME.h, MENU_SIGN_FRAME.w, MENU_SIGN_FRAME.h);
     const ctaBox = box(MENU_CTA_X, r(a.ctaBotY), MENU_PRIMARY_W, MENU_CTA_H);
     const rankBox = box(24, ctaBox.y + (MENU_CTA_H - TOUCH_MIN) / 2, 140, TOUCH_MIN);
-    // `[WXG-T-448]` **底隙响应带**：底部两颗钮的热区下沿下探到**安全区上沿**（视觉框 `ctaBox` /
-    // `rankBox` 一律不动）⇒ 底隙 32 设计 px 不再是死带，安全区之上全部可点。
-    //
-    // 依据：底隙折成屏幕在 375 宽机 ≈ 16.6 css px（16 Pro Max ≈ 18.3），叠上 home 条上方的
-    // 系统手势边缘后，用户感知为「安全区之上一条带点不上」（2026-10-27 反馈）。热区 ⊇ 视觉
-    // 是允许的（Apple HIG 同向），⛔ 但**安全区内不得响应** —— 那里是 home 条手势区。
-    // 上沿与旧热区逐值相同（= `ctaBotY + 90`）⇒ 只是向下加长，不改任何既有命中边。
-    const hitTop = ctaBox.y + (MENU_CTA_H - TOUCH_MIN) / 2 + TOUCH_MIN;
-    const hitBottom = r(a.sb);
-    const hitH = hitTop - hitBottom;
-    const ctaHit = box(ctaBox.x, hitBottom, MENU_PRIMARY_W, hitH);
-    const rankHit = box(rankBox.x, hitBottom, rankBox.w, hitH);
+    // `[WXG-T-453]` **收回 `[WXG-T-448]` 的底隙下探**：热区回归与视觉重合（上下各内缩 2 设计 px，
+    // `open-rank` 恢复「绘制/热区同对象」）。当初下探是为补「按钮下半点不上」，真因后来钉死为
+    // Cocos 节点命中的 letterbox 死区（`[WXG-T-451]` 改全局 input 已修）⇒ 下探失去收益，只剩
+    // 「框比按钮大一圈、点版本号带误触按钮」的观感/语义代价（用户 2026-10-27 拍板收回）。
+    // 底隙 32（`MENU_CHAIN_GAP_BOTTOM`）回归版本号带（不响应）。
+    const ctaHit = box(ctaBox.x, ctaBox.y + (MENU_CTA_H - TOUCH_MIN) / 2, MENU_PRIMARY_W, TOUCH_MIN);
+    const rankHit = rankBox;
     const arrowY = r(a.caseCenterY) - MENU_ARROW_VISUAL_D / 2;
     const arrowL = box(MENU_ARROW_X.left, arrowY, MENU_ARROW_VISUAL_D, MENU_ARROW_VISUAL_D);
     const arrowR = box(MENU_ARROW_X.right, arrowY, MENU_ARROW_VISUAL_D, MENU_ARROW_VISUAL_D);

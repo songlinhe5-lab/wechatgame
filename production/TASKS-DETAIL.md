@@ -6306,3 +6306,19 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 **测试**：新增「暂停中回主菜单 ⇒ 相位离开面板态」用例；EP13-S3 串道反例（DoD 硬项）的「旧盘不复活」判据从 `phase==='game-over'`（实现细节，新弃局腿下相位本就收走）改为**用户可见判据**「仍留菜单页」+ 零加时/零复活不变。beads **1379 passed + 2 skipped**；`typecheck` / `framework:sync` / `build:cocos` OK。
 
 **关联**：同批用户反馈「底部两按钮热区太高、延伸到安全边」—— 那是 `[WXG-T-448]` 按其当时要求（热区覆盖安全区外全域）的效果；真因（letterbox 死区）已由 T-451 修复，下探是否收回待用户裁定（选项：全收 / 半收 / 保持）。
+
+## WXG-T-453
+
+**收回 `[WXG-T-448]` 底隙下探（热区回归与视觉重合）· 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-10-27）**
+
+用户看到真机品红热区框后拍板：「完全收回（热区回到与按钮视觉重合（±2px），死带归版本号带不响应）」。
+
+**收回依据**：T-448 下探的动机是「按钮下半点不上」，而真因后来钉死为 **Cocos 节点命中的 letterbox 触摸死区**（`[WXG-T-451]` 改全局 input 已修）⇒ 下探失去收益；剩余代价 = 「框比按钮大一圈（122 vs 92 设计 px）+ 点版本号带误触按钮」。
+
+**落码**（`games/beads/src/view/meta-layout.ts::anchoredGeo`）：`ctaHit` 还原 `box(ctaBox.x, ctaBox.y + 2, MENU_PRIMARY_W, TOUCH_MIN)`（T-448 前口径逐值）；`rankHit` 恢复 `= rankBox`（绘制/热区同对象，`AnchoredMenuGeo` 字段注释同步）；底隙 32（`MENU_CHAIN_GAP_BOTTOM`）回归版本号带（不响应）。
+
+**测试**：`menu-anchors.test.ts` 的 T-448 用例组改写为 T-453 收回判据（逐档：还原逐值 / `rankHit===rankBox` 同源守卫 / 底隙带 `belowHit = ctaBot+1` 不响应 / 框内命中）。beads **1379 passed + 2 skipped**。
+
+**文档**：`design/art/specs/menu-layout-implementation-spec.md` CTA 行改为「T-448 曾下探、T-453 收回」沿革口径。
+
+**验收**：beads 1379 绿；`typecheck` / `framework:sync` / `build:cocos` OK。真机复测点：①底部按钮原热区（贴视觉）全程可点（T-451 生效）；②品红框与按钮重合；③暂停 → 回主菜单面板即收（T-452）。
