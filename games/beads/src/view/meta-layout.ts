@@ -211,6 +211,7 @@ export interface AnchoredMenuGeo {
     readonly ctaHit: Box;
     /** `[WXG-T-432]` 主菜单「好友榜」纸钮（CTA 左侧；绘制/热区同对象）。 */
     readonly rankBox: Box;
+    /** `[WXG-T-448]` 好友榜**热区**（下探到安全区上沿）——与视觉 `rankBox` 不再同一对象。 */
     readonly rankHit: Box;
     readonly arrowL: Box;
     readonly arrowLHit: Box;
@@ -247,8 +248,19 @@ export function anchoredGeo(a: MenuAnchors): AnchoredMenuGeo {
     // 招牌图框：图顶 = 结顶 + bowYOff（绳向上伸出结顶）；y-up 下框底 = 图顶 − h。
     const signBox = box(MENU_SIGN_FRAME.x, r(a.signTopY + MENU_SIGN_FRAME.bowYOff) - MENU_SIGN_FRAME.h, MENU_SIGN_FRAME.w, MENU_SIGN_FRAME.h);
     const ctaBox = box(MENU_CTA_X, r(a.ctaBotY), MENU_PRIMARY_W, MENU_CTA_H);
-    const ctaHit = box(ctaBox.x, ctaBox.y + (MENU_CTA_H - TOUCH_MIN) / 2, MENU_PRIMARY_W, TOUCH_MIN);
     const rankBox = box(24, ctaBox.y + (MENU_CTA_H - TOUCH_MIN) / 2, 140, TOUCH_MIN);
+    // `[WXG-T-448]` **底隙响应带**：底部两颗钮的热区下沿下探到**安全区上沿**（视觉框 `ctaBox` /
+    // `rankBox` 一律不动）⇒ 底隙 32 设计 px 不再是死带，安全区之上全部可点。
+    //
+    // 依据：底隙折成屏幕在 375 宽机 ≈ 16.6 css px（16 Pro Max ≈ 18.3），叠上 home 条上方的
+    // 系统手势边缘后，用户感知为「安全区之上一条带点不上」（2026-10-27 反馈）。热区 ⊇ 视觉
+    // 是允许的（Apple HIG 同向），⛔ 但**安全区内不得响应** —— 那里是 home 条手势区。
+    // 上沿与旧热区逐值相同（= `ctaBotY + 90`）⇒ 只是向下加长，不改任何既有命中边。
+    const hitTop = ctaBox.y + (MENU_CTA_H - TOUCH_MIN) / 2 + TOUCH_MIN;
+    const hitBottom = r(a.sb);
+    const hitH = hitTop - hitBottom;
+    const ctaHit = box(ctaBox.x, hitBottom, MENU_PRIMARY_W, hitH);
+    const rankHit = box(rankBox.x, hitBottom, rankBox.w, hitH);
     const arrowY = r(a.caseCenterY) - MENU_ARROW_VISUAL_D / 2;
     const arrowL = box(MENU_ARROW_X.left, arrowY, MENU_ARROW_VISUAL_D, MENU_ARROW_VISUAL_D);
     const arrowR = box(MENU_ARROW_X.right, arrowY, MENU_ARROW_VISUAL_D, MENU_ARROW_VISUAL_D);
@@ -266,7 +278,7 @@ export function anchoredGeo(a: MenuAnchors): AnchoredMenuGeo {
     const mailHit = box(MENU_TOPBAR_X.mail, r(a.btTopY) - TOUCH_MIN, TOUCH_MIN, TOUCH_MIN);
     const geo: AnchoredMenuGeo = {
         caseBox, bossBox, clipBox, badgeBox, plateBox, signBox, ctaBox, ctaHit,
-        rankBox, rankHit: rankBox,
+        rankBox, rankHit,
         arrowL, arrowLHit, arrowR, arrowRHit, barBox, settingsHit, skinsHit, mailHit,
         topbarCy: settingsHit.y + TOUCH_MIN / 2,
         doneCy: r(a.caseTopY - MENU_DONE_ICON.yOff),

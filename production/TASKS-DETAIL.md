@@ -6234,3 +6234,19 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 **文档同源三处**：`games/beads/src/config/tuning/layout.ts:90`（接口表底行）、`menu.ts:405`（入参注释）、`design/art/specs/menu-layout-implementation-spec.md`（`sb` 与 `H` 两行）。
 
 **验收**：framework **547 passed**（新增 5 例：窗口止于安全区底 ⇒ 0 / 窗口贴底 ⇒ 34 / 缺 `windowHeight` 回退 / 无 `safeArea` ⇒ 双边 0 / 脏值越界夹 0）；beads **1372 passed + 2 skipped**（与改前同数）；`typecheck` / `check:arch` / `serve-harness --build-only` / `smoke-harness` 全 OK。⚠ 真机读数（`windowHeight` vs `screenHeight` vs `safeArea.bottom`）仍待用户在设备上取一次作最终确认。
+
+## WXG-T-448
+
+**底隙响应带（底部热区下探到安全区上沿，视觉不动）· 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-10-27）**
+
+用户令：「视觉不动，只是事件响应区域要覆盖除了安全区域的范围，这样所有在安全区域的范围都可以响应点击事件。」
+
+**前情**：主菜单底部一行（CTA 324×92 @x218、好友榜 140×88 @x24）距安全区上沿还有 `MENU_CHAIN_GAP_BOTTOM = 32` 设计 px 的纯死带（375 宽机 ≈ 16.6 css px，16 Pro Max ≈ 18.3），叠上 home 条上方的系统手势边缘后被感知为「安全区之上一条带点不上」。`MENU_CHAIN_GAP_BOTTOM` 本身是菜单链收尾项 + 版本号落位带（`versionY = ctaBotY/2`），删它会连带 gapTop/gapBot 五档账重排 + 金样本重抓 ⇒ **不动它**。
+
+**落码**（`games/beads/src/view/meta-layout.ts::anchoredGeo`）：新增 `hitTop`（= 旧热区上沿，逐值不变 ─ `ctaBox.y + (MENU_CTA_H − TOUCH_MIN)/2 + TOUCH_MIN`）与 `hitBottom = r(a.sb)`，`ctaHit`/`rankHit` 均改为 `[sb, hitTop]` ⇒ 高 88 → 122 系。**视觉框 `ctaBox` / `rankBox` 一个像素未动**；`rankHit` 从「= rankBox 同对象」拆成独立 box（此前视觉与热区共用同一对象）。
+
+**边界**：安全区**内**仍不命中（`sb − 1` 采样断言 false）—— home 条手势区不抢；上沿不变 ⇒ 不改任何既有命中边（原「视觉/热区高差 4」保留）。热区 ⊇ 视觉下半段是 Apple HIG 同向的允许做法。
+
+**验收**：beads **1377 passed + 2 skipped**（新增 5 档 × 4 条判据：下沿 = sb / 视觉零改动 / 上沿逐值不变 / 安全区内不命中）；`typecheck`、`check:arch`（1 既有 WARN）、`serve-harness --build-only` 全 OK。CDP 实测（720×1280，逐次 reload 隔离）：`(364,1255)`→`start`（**改前是 miss**）、`(364,1270)`→`start`、`(109,1260)`/`(109,1274)`→`open-rank`、`(364,1240)`→`start` ⇒ 安全区之上可点到底。
+
+**文档**：`design/art/specs/menu-layout-implementation-spec.md` CTA 行补登「WXG-T-448 起热区下沿下探到 `sb`、高 122 系、与视觉不同心」。⛔ 未动 `MENU_CHAIN_GAP_BOTTOM`、未动任何视觉常量、未动 §3 冻结值。

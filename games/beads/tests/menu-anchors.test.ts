@@ -11,8 +11,9 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { menuAnchors, MENU_CTA_H, SIGN_BAND_PAD } from '../src/config/tuning.js';
+import { menuAnchors, MENU_CTA_H, SIGN_BAND_PAD, TOUCH_MIN } from '../src/config/tuning.js';
 import type { MenuAnchorsInput } from '../src/config/tuning.js';
+import { anchoredGeo, inBox } from '../src/view/meta-layout.js';
 
 /** st/cap/sb = **dp 原值**（×k 后应落 §4 表的设计 px）。 */
 const TIERS = [
@@ -75,4 +76,54 @@ describe('menuAnchors · 接口优先语义与 fallback（tuning 注释口径）
         // 退化档 gapBot 可为负（zone < 917）⇒ 只钉「CTA 不越屏底」这条底线。
         expect(fb.ctaBotY).toBeGreaterThanOrEqual(0);
     });
+});
+
+/**
+ * `[WXG-T-448]` 底隙响应带（用户令 2026-10-27：「视觉不动，只是事件响应区域要覆盖除了安全区域
+ * 的范围，这样所有在安全区域的范围都可以响应点击事件」）。
+ *
+ * 判据 = 三条，逐档钉死：
+ *  ① 热区下沿**贴安全区上沿**（`= sb`）⇒ 底隙 32 设计 px 不再是死带；
+ *  ② **视觉框一个像素都不动**（`ctaBox.y` 仍 `ctaBotY`、`rankBox.y` 仍 `ctaBotY + 2`，高度仍 92/88）
+ *     ⇒ 「视觉不动」是硬约束，⛔ 不得为补热区去挪绘制；
+ *  ③ 热区 ⊇ 视觉框，且**安全区内不响应**（home 条手势区不得被抢）。
+ */
+describe('`[WXG-T-448]` 底隙响应带（热区下探到安全区上沿）', () => {
+    for (const t of TIERS) {
+        it(`${t.name}：下沿 = sb · 视觉框零改动 · 覆盖视觉 · 安全区内不命中`, () => {
+            const a = menuAnchors(toInput(t));
+            const g = anchoredGeo(a);
+            const sb = Math.round(a.sb);
+            const ctaBot = Math.round(a.ctaBotY);
+
+            // ① 下沿贴安全区上沿（两颗钮同一个下沿）。
+            expect(g.ctaHit.y).toBe(sb);
+            expect(g.rankHit.y).toBe(sb);
+            expect(g.ctaHit.h).toBe(g.rankHit.h);
+
+            // ② 视觉框零改动。
+            expect(g.ctaBox.y).toBe(ctaBot);
+            expect(g.ctaBox.h).toBe(MENU_CTA_H);
+            expect(g.rankBox.y).toBe(ctaBot + 2);
+            expect(g.rankBox.h).toBe(TOUCH_MIN);
+
+            // ③ 上沿**逐值不变**（本改只向下加长，不动既有命中边）：
+            //    CTA 热区上沿本就是视觉框上下各内缩 2 设计 px ⇒ 上沿 = ctaBox.y + 90；
+            //    好友榜热区上沿与视觉框上沿重合 ⇒ 完全覆盖。
+            expect(g.ctaHit.y + g.ctaHit.h).toBe(g.ctaBox.y + (MENU_CTA_H - TOUCH_MIN) / 2 + TOUCH_MIN);
+            expect(g.rankHit.y + g.rankHit.h).toBe(g.rankBox.y + g.rankBox.h);
+            // 下沿覆盖视觉框下沿（热区 ⊇ 视觉的下半段 + 整条底隙）。
+            expect(g.ctaHit.y).toBeLessThanOrEqual(g.ctaBox.y);
+            expect(g.rankHit.y).toBeLessThanOrEqual(g.rankBox.y);
+
+            // ③ 安全区内不响应（sb>0 的档才有这条带）。
+            if (sb > 0) {
+                expect(inBox(g.ctaHit, g.ctaBox.x + 10, sb - 1)).toBe(false);
+                expect(inBox(g.rankHit, g.rankBox.x + 10, sb - 1)).toBe(false);
+            }
+            // 底隙带内必响应（下沿往上一格 = 响应）。
+            expect(inBox(g.ctaHit, g.ctaBox.x + 10, sb + 1)).toBe(true);
+            expect(inBox(g.rankHit, g.rankBox.x + 10, sb + 1)).toBe(true);
+        });
+    }
 });
