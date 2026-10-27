@@ -63,7 +63,7 @@ import {
   confettiQuad,
 } from './scene-vfx';
 import type { ConfettiBeadState } from './scene-vfx';
-import { drawModalFrame, drawModalScrim } from './modal-frame';
+import { drawModalFrame, drawModalScrim, frameFont, frameLen, frameX, frameY } from './modal-frame';
 import { drawButton, drawDashedRect } from './ui-widgets';
 import { UI_FONT, UI_SCRIM, bodyFont, drawPaperPanel, formatTime, pressOffset, starCriteriaText } from './ui-theme';
 import { drawPlayPage } from './play-page';
@@ -247,18 +247,19 @@ function drawPausePanel(
     shadowAlpha: UI_CONTAINER.shadowAlphaPanel,
   });
 
-  builder.text(geo.cx, layout.titleY, '暂停', {
+  // `[WXG-T-443]` 内容与面板同比伸缩：位置/字号一律过 `frame*`（`scale === 1` 时逐字不变）。
+  builder.text(geo.cx, frameY(geo, layout.titleY), '暂停', {
     fill: palette.text,
-    font: UI_FONT.panelTitle,
+    font: frameFont(geo, UI_FONT.panelTitle),
     align: 'center',
     baseline: 'middle',
   });
 
   for (const button of layout.buttons) {
-    const bw = (button.rect.xMax - button.rect.xMin) * geo.scale;
-    const bh = (button.rect.yMax - button.rect.yMin) * geo.scale;
-    const bx = geo.cx + (button.rect.xMin - geo.cx) * geo.scale;
-    const by = geo.cy + (button.rect.yMin - geo.cy) * geo.scale;
+    const bw = frameLen(geo, button.rect.xMax - button.rect.xMin);
+    const bh = frameLen(geo, button.rect.yMax - button.rect.yMin);
+    const bx = frameX(geo, button.rect.xMin);
+    const by = frameY(geo, button.rect.yMin);
     const pressed = snap.pressedButton === button.id;
     // UI-31：设置项（开关 / 选择器）的暂停档语言收口到 `settings-content`
     // （chip 木底选中 / 纸钮值字面 / 小字档 / 文案）；非设置项（继续 / 重玩 /
@@ -271,9 +272,9 @@ function drawPausePanel(
     const label = panelLabel(button, snap);
     const dy = by + pressDy(snap, button.id);
     if (button.id === 'resume') {
-      drawButton(builder, palette, bx, dy, bw, bh, 'wood', UI_CONTAINER.radiusWood, label, UI_FONT.panelButton, pressed);
+      drawButton(builder, palette, bx, dy, bw, bh, 'wood', UI_CONTAINER.radiusWood, label, frameFont(geo, UI_FONT.panelButton), pressed);
     } else {
-      drawButton(builder, palette, bx, dy, bw, bh, 'paper', UI_CONTAINER.radiusCard, label, UI_FONT.panelButton, pressed);
+      drawButton(builder, palette, bx, dy, bw, bh, 'paper', UI_CONTAINER.radiusCard, label, frameFont(geo, UI_FONT.panelButton), pressed);
     }
   }
 }

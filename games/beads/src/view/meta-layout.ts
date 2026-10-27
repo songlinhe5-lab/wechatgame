@@ -15,8 +15,12 @@ export function box(x: number, y: number, w: number, h: number): Box {
     return { x, y, w, h };
 }
 
-function inBox(b: Box, x: number, y: number): boolean {
-    return x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h;
+/**
+ * 盒命中。`pad` = 外扩容差（`[WXG-T-443]` 抬起容差用；默认 0 = 旧口径逐字不变）。
+ * ⚠ 只给「已登记的钮」做放松，⛔ 不要拿 `pad > 0` 去铺热区表（相邻钮会互相抢）。
+ */
+export function inBox(b: Box, x: number, y: number, pad = 0): boolean {
+    return x >= b.x - pad && x <= b.x + b.w + pad && y >= b.y - pad && y <= b.y + b.h + pad;
 }
 
 // ─────────────────────────────────────────────────────────── cached layouts

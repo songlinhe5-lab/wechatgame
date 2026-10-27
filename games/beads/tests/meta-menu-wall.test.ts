@@ -839,6 +839,30 @@ describe('WXG-T-432 S-3 · 菜单好友榜入口与菜单腿模态门', () => {
         expect(r.shell.play.rankInteractive, '重开后应接受点击').toBe(true);
     });
 
+    /**
+     * `[WXG-T-443]` 用户报「好友榜按钮点击响应区域看起来有问题，向下点一点就不响应了」。
+     * 热区与绘制是**同一个 `rankBox` 对象**（`rankHit: rankBox`）⇒ 不是画错，是抬起口径：
+     * `_commitMenuPress` 要求抬手点仍**精确**命中同一颗钮，拇指在按下→抬起间下飘出 88 高框就静默取消。
+     */
+    it('`[WXG-T-443]` 好友榜钮：按下在框内、抬手向下飘出框 8px 仍算点中（旧行为 = 静默取消）', () => {
+        const r = rig();
+        const box = anchoredLayout(r.shell).buttons.find((b) => b.id === 'open-rank')!.box;
+        const c = centerOf(box);
+        // 按下贴下缘内侧 14px；抬手时手指下飘到框外 8px（y-up ⇒ 向下 = y 减小）。
+        shellPointer(r, c.x, box.y + 14, 'down');
+        shellPointer(r, c.x, box.y - 8, 'up');
+        expect(r.shell.play.rankOpen, '帧内外扩 8px 的漂移应仍算点中').toBe(true);
+    });
+
+    it('`[WXG-T-443]` 超出容差的漂移仍取消（⛔ 不跨钮宽容命中）', () => {
+        const r = rig();
+        const box = anchoredLayout(r.shell).buttons.find((b) => b.id === 'open-rank')!.box;
+        const c = centerOf(box);
+        shellPointer(r, c.x, box.y + 14, 'down');
+        shellPointer(r, c.x, box.y - 60, 'up'); // 框外 60px ≫ 容差
+        expect(r.shell.play.rankOpen, '超容差 ⇒ 取消（原口径不变）').toBe(false);
+    });
+
     it('`[WXG-T-442]` 退场期内点面板**内**的余震 ⇒ 仍被吞且不穿透（不得误开下方橱窗）', () => {
         const r = rig();
         const backC = openThenBack(r);

@@ -44,7 +44,7 @@
 | **UiTheme** | 风格令牌唯一出处：遮罩（色、α，保留「菜单档 / 对局档」两个**档名**，D3）、纸面板（圆角、投影、描边）、字体、按下位移 | 两处遮罩字面量；两个 `pressDy` |
 | **ScreenFrame** | 页面基础：背景、按安全区切分的三个区（顶栏 / 内容 / 底部）、调试层挂点 | 菜单锚定几何与对局常量两套来源 |
 | **NavBar** | 导航栏组件：标题、右侧槽，**返回键可选**（选关页只用标题，返回由底部 `back` 提供）；**自动避让胶囊**，不允许控件落进胶囊矩形 | 各处手算 `CAPSULE_AVOID` |
-| **ModalFrame** | 弹窗基础：遮罩 + 纸面板 + 标题带 + 进出场（缩放与透明度随 `ModalLifecycle` 进度）+ **点击屏障**（遮罩及面板外全部吞掉，策略 `dismissOnScrim` 默认关，保持暂停面板「其余零响应」口径）+ 内容区插槽 | 四个结算 / 暂停面板各自的遮罩、面板、动画、屏障 |
+| **ModalFrame** | 弹窗基础：遮罩 + 纸面板 + 标题带 + 进出场（缩放与透明度随 `ModalLifecycle` 进度）+ **点击屏障**（遮罩及面板外全部吞掉，策略 `dismissOnScrim` 默认关，保持暂停面板「其余零响应」口径）+ 内容区插槽。**内容换算契约（`[WXG-T-443]`，实装 `view/modal-frame.ts`）**：进出场绕面板中心把面板缩到 `scaleFrom`，内容必须同比 —— 面板内任何**从布局静态值取的**坐标 / 长度 / 字号一律过 `frameX / frameY / frameLen / frameFont`，由已换算 box 派生的坐标天然正确；`scale === 1` 时四者原值（`frameFont` 返**同一引用**）⇒ 静息帧零漂移零分配 | 四个结算 / 暂停面板各自的遮罩、面板、动画、屏障 |
 | **通用控件** | `WoodButton`（合并 `drawWoodButton` 与 `drawButton`）、`PaperPanel`、`Chip`、`StarRow`、`ToggleRow`、`SelectorRow`、`ResourceBar` | 控件重复实现 |
 | **DebugLayer** | 挂在**所有路由之上**：性能覆层（帧率 / 帧耗时，半透明窄面板，禁用全屏 α——保持「面板开合不丢帧样本」的测量口径）、安全区标定线；读取统一的调试开关状态。性能采样上移到 UI 根，菜单与弹窗里同样可看 | 性能覆层仅对局有；两份标定线 |
 | **SettingsContent** | 设置内容块（音乐 / 音效 / 减弱动效 / 大字号 / 震动 / 珠风格 / 豆尺寸 / 皮肤 / 性能信息…），含「调试」分区；按场景（菜单 / 暂停）出变体 | 暂停面板与设置弹窗两处排版 |
@@ -105,7 +105,7 @@ games/beads/src/ui/
 | 数据驱动 | 颜色进 `palette.ts`，数值进 `tuning`，文案进 `copy-tokens`；遮罩只由 `UiTheme` 出 |
 | L1 不手写 `.scene` / `.prefab` / `.meta` | 新文件的 `.meta` 由 Cocos 编辑器生成 |
 
-**拟新增守则（落 `control-manifest` 新节，并加 `check:arch` 规则，见 UI-52）**：① 弹窗必经 `ModalFrame`；② 遮罩色与 α 只在 `UiTheme`；③ View 文件禁止出现导航判断与游戏对象读取；④ 绘制与命中必须共用同一布局函数；⑤ 路由变化只经 Navigator；⑥ **容器即渲染单元**（`[UI-60 / ADR-0033 DEC-1]`）：`modal` 路由必须自持 `draw`（⛔ 页面视图分支不得代画弹窗），且容器边界只由 `UiRoot.draw` 按 `route.kind` 发 —— 页面路由走默认层（恒在容器树之下，等价 DEC-9② 降级杆）。
+**拟新增守则（落 `control-manifest` 新节，并加 `check:arch` 规则，见 UI-52）**：① 弹窗必经 `ModalFrame`；② 遮罩色与 α 只在 `UiTheme`；③ View 文件禁止出现导航判断与游戏对象读取；④ 绘制与命中必须共用同一布局函数；⑤ 路由变化只经 Navigator；⑥ **容器即渲染单元**（`[UI-60 / ADR-0033 DEC-1]`）：`modal` 路由必须自持 `draw`（⛔ 页面视图分支不得代画弹窗），且容器边界只由 `UiRoot.draw` 按 `route.kind` 发 —— 页面路由走默认层（恒在容器树之下，等价 DEC-9② 降级杆）；⑦ **内容随面板伸缩**（`[WXG-T-443]`）：弹窗内容 ⛔ 不得直接吃布局静态坐标 / 字号，一律过 `modal-frame` 的 `frameX / frameY / frameLen / frameFont`；机械门 = `dialog-center.test.ts` 两态对拍（`progress` 0 与 1 之间必须满足 `a = c + (b − c) × s` 且字号同比，`scale === 1` 时换算器恒等）。
 
 **快照字段守则（WXG-T-420 T8 已落地）**：`BeadsSnapshot` 新增字段必须先登记进 `games/beads/src/game/snapshot-shards.ts` 的**恰好一片**（对局 / 面板 / 菜单 / 调试 / 特效），投影按片写字段 ⇒ 越片写是编译错误；机械门 = `tests/snapshot-shards.test.ts`（漏登记 / 双登记 / 陈旧字段当场红）。运行形状仍是同一份扁平对象（判据「渲染指令逐字节一致」），读侧可按需窄化成 `SnapshotPlay` 等最小可见面。
 

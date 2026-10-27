@@ -57,7 +57,7 @@ import { drawRankPanel } from './rank-view';
 import type { Box, MetaAction, MetaLayout, MetaOverlay, MetaViewData, MetaViewVariant } from './meta-types';
 
 export type { MetaAction, MetaBossState, MetaButton, MetaLayout, MetaOverlay, MetaViewData, MetaViewVariant } from './meta-types';
-export { hitTestMeta, metaLayout } from './meta-layout';
+export { hitTestMeta, inBox, metaLayout } from './meta-layout';
 export { heartBarLabel, resetMetaViewWarnings, setMenuBitmapResolver } from './meta-widgets';
 
 /**

@@ -3901,86 +3901,6 @@ T-211 注记「可选池 = 0 文件」**2026-09-29 已订正**且原句留痕（
 
 ---
 
-## WXG-T-377
-
-**ctx·B 项单文件上限按文档类别分档（单一 8000 ⇒ 六档，撤销 35 条豁免）**
-
-### 1. 领号与来源（K-046）
-
-用户在「8000 阀值能否一次性治理」的 A/B/C 三案里选 **A = 分类上限**（2026-10-25）。三案原样留档：
-
-- **A（选中）**：把单一 `8000` 拆成按文档类别分档，门禁与报表共用同一函数；
-- **B**：不动阈值，只清 8–10k 轻微档 15 件（需削 ≈1 万 tok）；
-- **C**：给豁免加租约（到期强制复核）。
-
-**领号四路扫**：头注「下一可用号」= 377、主表最大 = 376、详情节最大 = 376、`git log --all --grep="WXG-T-377"` 零命中 ⇒ 领 **377**，全仓零占用。
-
-### 2. 病根（改前实测）
-
-| 读数 | 值 |
-|---|---|
-| 超 8000 的单文件 | **84 件** |
-| `ctx/budget-exempt.json` 条目 | **88 条**（含 4 条已回落失效） |
-| 超限但未豁免 | **0** ⇒ B 项恒绿 = 债务登记簿 |
-| 全量真削成本（按 8000 口径） | **1,137,162 tok** |
-| 体积分布 | ≥100k 2 / 50–100k 3 / 20–50k 12 / 10–20k 40 / 8–10k 27 |
-
-三类**物理不可拆**（这是「一次性清零」做不到的唯一理由）：
-
-1. **vendor 16 件**：`games/{beads,breakout}/cocos/extensions/cocos-mcp-server/README.{de,es,fr,ja,ko,pt,ru,vi}.md`（每 game 12 个语种文件，其中这 8 个译版 8150–12627 tok），三方插件自带，⛔ 不得改写；
-2. **generated 3 件**：`knowledge/CHANGELOG.md`、`knowledge/INDEX.md`、`memory/INDEX.md`，生成器产出，手改会被下一次生成覆盖；
-3. **台账 2 件**：`production/TASKS.md`（领号头注本身 ≈2 万 tok + 主表 98 行）、`production/TASKS-DETAIL.md`（`archive-tasks.mjs` 的 200k 契约）。
-
-单一阈值下只能靠豁免硬扛；而整体上调又会同时放松 49 件判据/规格文档（含 12 万 tok 的 `assets-spec`）⇒ 必须分档。
-
-### 3. 改法：一处真源，三处消费
-
-`tools/scripts/lib/context-index.mjs` 新增 `FILE_CAPS` / `fileClassOf()` / `fileCapOf()`：
-
-| 类别 | 上限 | 判定 |
-|---|---|---|
-| `spec` | **8000**（一分不放松） | 其余全部（GDD / UX / ADR / 规格 / skill / 日记） |
-| `ledger` | **16000** | `production/{epics,qa,release,plans,archive}/` + `docs/engine-reference/` |
-| `generated` | **24000** | `knowledge/CHANGELOG.md`、`knowledge/INDEX.md`、`memory/INDEX.md` |
-| `tasksIndex` | **80000** | `production/TASKS.md` |
-| `tasksDetail` | **205000** | `production/TASKS-DETAIL.md`（归档器 200k 契约 + 5k 余量） |
-| `vendor` | **∞（免检）** | 路径含 `/cocos-mcp-server/` |
-
-`fileClassOf()` 的判定顺序即优先级：vendor → generated → tasksIndex → tasksDetail → ledger → spec。
-
-三个消费点（无第二份硬编码）：
-
-1. `check-context-budget.mjs::checkFileMax()` 改 `tokens > fileCapOf(path)`，失败文案带类别与上限，B 表增「类别 · 上限」列；
-2. `build-context-index.mjs` 的 `overLimit` 同函数判定，`ctx/BUDGET.md §3` 标题改「超限清单（超过所属类别上限）」+ 分档说明 + 增列；
-3. `ctx/budget-exempt.json` 按新口径重算：**88 → 53**，撤 **35** 条 = vendor 16 / ledger 10 / generated 3 / TASKS 2 / 已回落失效 4（4 件 `memory/2026-*.md` 已降到 8000 以下）。
-
-**刻意不改的两处**：
-
-- `LIMITS.fileMax` 在 D3/U3（hot-files 锚点密度）里仍传 8000 —— 那里衡量的是「锚点父节能否局部读」，与单文件债务无关；
-- `memory/YYYY-MM-DD.md` 仍归 `spec` 8000 —— memory-distill 协议就是为压日记体积存在的，放宽会削弱既有护栏。
-
-### 4. 验证
-
-| 项 | 读数 |
-|---|---|
-| `pnpm run ctx:build` | 478 文件 / always 3 / hot 6 / normal 469 / 章节 6950 |
-| `pnpm run ctx:check` | **OK**（A / B / C / D / D2 / E3 全过），B 区 53 行均带「类别 · 上限」 |
-| `ctx/BUDGET.md §3` | 处置列 53 行 ⇔ `budget-exempt.json` 53 条（一一对应） |
-| 分档后仍超 | **53 件** = spec 49 / ledger 4；超所属上限合计 **781,237 tok** |
-| 豁免表自洽 | 在册 53 条**全部**仍超其类别上限（失效条目 = 0） |
-| `pnpm run check:tasks` | **OK** —— 主表 99 行 ⇔ 详情 99 节配对完整（名称均 ≤ 60 字符且连续），归档 184 节与行成对；I 项「最近 40 笔共署 9 个号全部在册」 |
-| `pnpm run verify` | **PASS 21 / FAIL 1** —— 唯一红 = `test`（beads **6 failed** / 1255 passed / 3 skipped）。**归因（实测，非推断）**：`git worktree --detach @ HEAD`（`477f0d5`）干净检出复跑 beads 全量 = **104 files passed / 1261 passed / 3 skipped / 0 failed** ⇒ 6 红 **100% 由并发会话在制的 L00001 关卡数据**（工作树把 `time 46→30 / steps 27→10 / clamped false→true` 与图案一起改回旧值）造成，与本批零关系；其余 21 项全绿（含 `ctx:check`、`check:tasks`、`selftest:fast` 11/11） |
-
-### 5. 遗留与后续
-
-1. **不是清零**：53 条豁免仍是债务（spec 49 / ledger 4），超限合计 781,237 tok；门禁口径已诚实，但「真拆」未做。
-2. **两件 87k/97k 的整读悬崖**：`production/qa/beads/test-cases.md`（96783）与 `g4-regression-report.md`（86807）—— 前者对应既有待办 **T-225**（拆判据分片），后者按同法可拆；本批只调口径未拆文件。
-3. **ledger 接近上限的两件**：`wxg-t-228-tint-criteria.md`（16867）与 `render-perf-device-baseline.md`（16703）距 16000 仅 700–900 tok，可按 B 案一次削平。
-4. **文档表述未跟改**：`docs/agent/memory-distill.md`（日记 8000 的真实口径，仍成立）与 `docs/agent/context-instrumentation-survey.md`（历史调研）里的 8000 未动，避免把调研件改成伪现状。
-5. **免检 ≠ 鼓励整读**：vendor / generated 只是不再计债，读协议仍走 `ctx/ROUTES.md` → `ctx/hot-files.md`，⛔ 整读 12 语种 README 或生成物。
-
----
-
 ## WXG-T-372
 
 **beads·九关定价实测——L3/L4 的 `steps/taps/time` 仍是 362 换盘前的旧盘读数（只报不裁）**
@@ -4277,6 +4197,7 @@ L1 21/27/9｜L2 64/30/22｜L3 41/43/16｜L4 60/47/35｜L5 64/68/110｜L6 27/19/1
 
 用户令「先预留 TODO，在推关梳理清楚后设计」。已登记待办，不进本轮任何一档；
 现侧兑现仍是提案 §7.3 的「Boss 金框 / 章徽章」（`arc-ticket.ts` 的 `fullStarCount` 已归约、⛔ 尚未被任何展示消费）。
+
 ---
 
 ## WXG-T-399
@@ -4448,6 +4369,8 @@ pnpm run tasks:archive -- --detail-until-under=7000 --write
 
 **金样本 clear 态 +1 条 text（619→620）**：按 K-051/K-053 先登记 `docs/architecture/ui-architecture-beads.md` UI-61，再由 `ui-golden-capture.ts` 在**提交锚**重抓（⛔ 未手改夹具）。
 
+---
+
 ## WXG-T-401
 
 **框架微信能力缺口 + beads 架构优化 TODO 提案（📋 待拍板，未开工）**
@@ -4533,6 +4456,8 @@ WXG-T-400 收尾三选项选 1 的原话是「`git add` 归属硬门：pre-commi
 1. **归属本身仍不可机械判定**：跨归属报警维持「只打印」，本批只补了后果面。若将来要真隔离，出路是各会话独立工作树（`using-git-worktrees`），不是加钩子判据。
 2. **改名/删除后 HEAD 引用悬空无门**（K-045 追记 2026-10-25 WXG-T-378 的干净检出 404 形态）：`check:links` 只管 Markdown 链接，代码里的路径引用要另一套判据，本批未做。
 3. 主表行数观察哨（note H）照旧长响，等「主表该常驻多少行」的口径裁定。
+
+---
 
 ## WXG-T-402
 
@@ -4629,9 +4554,7 @@ weapp 激励视频 Provider 实现（架构评审提案 TODO-1，拍板 D1）。
 
 tray:*/timer:*/settings:*/meta:*/game:*/sprint:* — 要么太细（timer:tick 每帧一次）要么是元事件（settings:vibrate 自身就是开关）。
 
-
 ---
-
 
 ## WXG-T-405
 
@@ -4688,6 +4611,7 @@ wx.showShareMenu({ withShareTicket: true, menus: ['shareAppMessage'] });
 - check:tasks 主表 76 ⇔ 详情 76 ✅
 - 金样本重抓 ✅（十一帧确定性自证两遍全等）
 
+---
 
 ## WXG-T-406
 
@@ -4728,7 +4652,6 @@ core → platform = 0（零逆向依赖）
 新增跨层类型前，先判定它是"意图"还是"实现"：
 - **意图**（游戏想做什么）→ core 层所有
 - **实现**（平台怎么做）→ platform 层所有
-
 
 ---
 
@@ -4807,6 +4730,8 @@ WXG-T-400 收尾给了三条下一步，用户 2026-10-26 令「下一步 1/2/3�
 5. 共享工作树的隔离问题仍未解（404 §7 遗留 1 同条）：本批被清回基底三次、另有暂存被对方提交带走一次（§6），唯一根治 = 各会话独立工作树（`using-git-worktrees`）。
 6. **详情面有历史节标题不被门识别**：`## WXG-T-224 · …`、`## WXG-T-225 · …` 写成「编号 + `·` 副标题」，`parseDetail` 只认裸 `## WXG-T-0NN`（该坑 404 文档头 C 项已记，WXG-T-381）⇒ 门口径节数比物理标题行数少 2，**那两节实际不参与配对与在册判定**。本批不顺手修（改它 = 动他人历史节的标题与在册语义）；出路是把这两行标题去副标题，或让 `parseDetail` 容忍 `·` 后缀（后者会放宽门的识别面，须配判别腿）。
 
+---
+
 ## WXG-T-408
 
 ### 1. 触发
@@ -4853,7 +4778,6 @@ um.applyUpdate(); // 重启生效
 
 - beads 暂无通用 confirm modal ⇒ `update:ready` 事件已 emit 但 UI 层未接提示条；待 UI 团队或后续可视化批次接入（modal-frame 复用）
 - 真机未验（缺 AppID + 密钥）；开发机无 getUpdateManager 时静默 noop
-
 
 ---
 
@@ -4932,6 +4856,8 @@ um.applyUpdate(); // 重启生效
 4. K 项只拦「署了不在册」，不拦「在册但登错面」（例如把在办行登进 BACKLOG）⇒ 要拦需再加语义门，等真出事故再说。
 5. 共享工作树隔离（用户点的下一步 3）另单处理。
 
+---
+
 ## WXG-T-410
 
 ### 1. 触发
@@ -4993,6 +4919,8 @@ wx.onMemoryWarning(() => { /* 收到告警 */ });
 ### 7. 撞号披露
 
 Qoder 已占用 WXG-T-409（归档器改读行内完成日期），本任务领 **WXG-T-410** 无冲突。
+
+---
 
 ## WXG-T-411
 
@@ -5169,6 +5097,8 @@ T-413 的 T+0 层里成本最低的一条：**不新增任何关卡内容**，�
 - 好友/自身最佳对比：⛔ 不做（concept §7 已砍社交）
 - 最快时间给豆子奖励：⛔ 不做（会给经济新增产出腿，冲击 §14 配比表）
 
+---
+
 ## WXG-T-414
 
 ### 1. 触发
@@ -5246,6 +5176,8 @@ interface PerformanceSnapshot {
 
 WXG-T-412 = Qoder 会话隔离工作树配方（已入库）。WXG-T-413 = beads 消耗品文档（已入库）。**WXG-T-414 零占用**，直接领。
 
+---
+
 ## WXG-T-415
 
 **冲突标记进门禁：`check-secrets` 加 `CONFLICT-MARKER` 一腿 + 把该脚本自测挂上 fast 档**（✅ 完成 · 2026-10-26 · 主理人(Qoder)·工具链）
@@ -5300,6 +5232,8 @@ WXG-T-412 = Qoder 会话隔离工作树配方（已入库）。WXG-T-413 = beads
 2. `selftests.mjs::guardCoverage()` 的枚举面本身不含「裸 `--selftest`」线索 ⇒ 要根治须给它加第三类线索（拿 `tools/scripts/*.mjs` 里带 `--selftest` 的脚本名去比对 TIERS 的 argv 目标），未做是因为它会立刻把 1. 判红、把本单撑成三件事。
 3. `selftests.mjs` 头注仍写「fast 七件自测」、CI L148 注释仍写「11 件」，实际 fast 档已 12 件 ⇒ 注释读数会漂，下次改动顺手校准。
 4. `check:size` / `check:cocos-mask` 在树内仍 SKIP（无构建产物，不是通过）；要满档需先 `pnpm run build:cocos`。
+
+---
 
 ## WXG-T-416
 
@@ -5359,6 +5293,8 @@ WXG-T-412 = Qoder 会话隔离工作树配方（已入库）。WXG-T-413 = beads
 4. 树内 `check:size` / `check:cocos-mask` 仍 SKIP（隔离树无 `build:cocos` 产物，**不是通过**）；主仓工作树此刻被对方在制品占着（`powerups-v2.md` 脏），追平动作仍归对方收尾。
 5. **撞号披露（非本单引入，⛔ 不代填）**：`production/TASKS-DETAIL.md` 有**两个** `## WXG-T-414` 节 —— `c28c706f`（CodeBuddy「本关最快时间」展示位提案）与 `3bae99b1`（WorkBuddy 帧率档实现）各取了一次 414；主表只有帧率档那一行，提案节无对应行。至于 417：`git log --all --grep=WXG-T-417` = **0 笔**、BACKLOG / MEMORY / docs **零引用**，仅被 419 批的领号注记以「417 = 对方前瞻」一句跳过 ⇒ 名义上被人让过、实际无人认领。提案节是否改挂 417，由归属会话自行裁定，⛔ 本单不代改。这属判例 K-046 同型（用过号未核），且 `check:tasks` 现有判据看不见「同号双节」（C 项只校主表行→详情节方向）⇒ 建议并入 §7-1 那条门一起设计：详情节同号多份 = 报警。归属会话自行订正。
 
+---
+
 ## WXG-T-415
 
 **冲突标记进门禁：`check-secrets` 加 `CONFLICT-MARKER` 一腿 + 把该脚本自测挂上 fast 档**（✅ 完成 · 2026-10-26 · 主理人(Qoder)·工具链）
@@ -5413,6 +5349,8 @@ WXG-T-412 = Qoder 会话隔离工作树配方（已入库）。WXG-T-413 = beads
 2. `selftests.mjs::guardCoverage()` 的枚举面本身不含「裸 `--selftest`」线索 ⇒ 要根治须给它加第三类线索（拿 `tools/scripts/*.mjs` 里带 `--selftest` 的脚本名去比对 TIERS 的 argv 目标），未做是因为它会立刻把 1. 判红、把本单撑成三件事。
 3. `selftests.mjs` 头注仍写「fast 七件自测」、CI L148 注释仍写「11 件」，实际 fast 档已 12 件 ⇒ 注释读数会漂，下次改动顺手校准。
 4. `check:size` / `check:cocos-mask` 在树内仍 SKIP（无构建产物，不是通过）；要满档需先 `pnpm run build:cocos`。
+
+---
 
 ## WXG-T-418
 
@@ -5722,7 +5660,6 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 - **零改动自证**：零代码、零存档字段、零 §3 冻结常量；`check:tasks` / `check:links` / `ctx:check` 全绿。
 - **交后续落码单**：`sharedCanvas` 只在真机 / 开发者工具存在 ⇒ 主域侧必走 `Platform.createOpenDataProvider?()` 的可选实现，harness 用 Mock 占位纹理（与激励视频 ADR-0006 同范式），随 S-1/S-3 一并落。
 
-
 ---
 
 ## WXG-T-425
@@ -5769,8 +5706,6 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 - **切片纪律**：⛔ Platform 方法（S-2）/ 面板（S-3）/ 子域工程（S-4）/ 真机实现与 R2 纹理（S-5）都不在本单。
 - **风险预记**：① 协议常量双份（子域不能 import 主域）⇒ S-4 构建期生成，⛔ 手抄；② Mock 同步回执 ≠ 真机异步（新好友 2h 延迟）⇒ S-3 UI 必须有加载态。
 - **改号说明**：原拟 425，实读工作树台账已被 `1a3fd5f1`（托盘扩容只走激励视频）占用 ⇒ 按 K-046（入库者保号）取 **426**。
-
-
 
 ---
 
@@ -5900,6 +5835,9 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 - **设计取舍**：工厂做成**可选方法**而非必选——第三方宿主（Node / web）没有开放数据域，强行要求实现会让每个平台壳都写一份空实现；`App` 用 `?.()` 接线，缺省即「本宿主无此能力」。`GameServices.openData` 同口径可选，消费端（S-3 面板）必须先判空再降级。
 - **切片纪律**：⛔ 不含 S-3 榜单面板占位 / S-4 子域骨架与构建期协议生成 / S-5 真机实现 + R2 纹理 + 授权引导；⛔ 未改 `OPEN_DATA_VERSION` 与任何协议形状；⛔ 未碰 `adapters/cocos`。
 - **交接**：S-3 可直接 `services.openData?.onMessage(...)` + `send({ type: 'rank:query', board })` 驱动占位面板；加载态必须存在（Mock 同步回执 ≠ 真机异步，见 `WXG-T-426` 风险预记）。
+
+---
+
 ## WXG-T-431
 
 **§3.6 v1.95 道具落码：三件空间修复器 + 账号级免费额度 + 统一价 100** · 负责：主理人(CodeBuddy)·beads 工程 · 状态：✅ 完成（2026-10-26）
@@ -5922,6 +5860,8 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 - **⚠ 改号**：原拟 430，实读台账已被 Qoder S-2（`ce5363ad`）占用 ⇒ 按 K-046 改取 **431**（台账机械校准锚明示下一可用号）。
 - **遗留**：金样本 6 态 + 封箱基准 2 键待干净锚重抓（复取器 `ui-golden-capture.ts` / `bead-style-seal-recapture.ts`）；面板三卡文案已由 `POWERUP_LABELS` 解耦自动生效，双通道视图（免费/购买价）接线随角标口径（耗尽后印 100）已进 view 层默认路径；429 遗留三条（§3.5 失败重开注、视频腿口径、§4 事件表 `traySlots`）中事件表已在本批补齐，另两条仍待。
 
+---
+
 ## WXG-T-432
 
 **S-3 榜单面板占位：好友榜面板七态 + 结算「好友这关榜」上下文入口 + 主菜单「好友榜」入口** · 负责：主理人(Qoder)·beads 工程 · 状态：✅ 完成（2026-10-26）
@@ -5941,6 +5881,8 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 - **边界**：⛔ 不含 S-4 子域工程 / `game.json openDataContext`、S-5 weapp 真实现与 R2 纹理贴图；⛔ 未改 `packages/framework/src/**`、§3 冻结常量、存档形状、`PANEL_SIZE` 560×480；⛔ 未动 `tools/scripts/*.mjs` 的他人未提交改动。
 - **遗留**：真宿主 / 子域未见（S-4/S-5）；「去设置开启」与未授权回流待 S-5 接 `openSettings` 后再渲染；ADR-0035 §5.2 S-3 的 ✅ 与 commit 回填在下一笔 docs 提交。
 
+---
+
 ## WXG-T-433
 
 **Trae 本地能力接入：my-* 正本链接 + knowledge/memory 直读** · 负责：主理人(Trae)·工具链 · 状态：✅ 完成（2026-10-27）
@@ -5954,6 +5896,8 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 - **入库改动**：`tools/scripts/check-ide-links.mjs` 增 `OPTIONAL_IDE_DIRS = ['.trae']`（存在即按四 IDE 同一规则校验，缺则跳过 ⇒ 四 IDE 门禁保持恒定）；`docs/agent/routing.md`、`my-agents/INDEX.md`、`my-skills/INDEX.md`、`docs/agent/ide-capability-matrix.md`、`AGENTS.md`、`my-rules/agents-md.md` 登记 Trae 本地落位；`ctx/index.json` 顺带恢复 develop 的 22 条 vendor 索引（WXG-T-412 口径，上笔隔离树合并漏采）。
 - **门禁读数**：`check:links OK — agents=7 skills=47`（四 IDE + 本地 Trae 可选）；`ctx:check` / `check:tasks --staged` / `check-context-budget --staged` 全绿；零代码、零 §3 数值、零冻结常量。
 - **已知差异 / 遗留**：① Trae 无 `readonly` 字段 ⇒ `studio-orchestrator` / `quality-lead` 的只读约束在本 IDE 不生效，只能靠提示词自律；② 新增 skills 需**重载 Trae 窗口**才出现在 Skill 清单；③ `.trae/specs/` 同为本地态（不入库）。
+
+---
 
 ## WXG-T-434
 
@@ -5984,6 +5928,8 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
   - ~~③ 真机档（`[R]`）未验~~ → **⚠️ 转 QA 登记（环境做不到，写明阻塞与解除条件）**：`production/qa/beads/test-cases-g-perceptual.md` 新增 **§G.6 + TC-PER-21（归位连击观感）/ TC-PER-22（幽灵符号开关观感）**，状态一律 **⛔ 不可验（不是 FAIL）**；这两条的 `[N]` 层已分别由 `place-combo.test.ts`（5 例）与 `ui-golden play 帧 + ghost-symbol.test.ts`（3 例）锁死。**解除条件** = `[Cocos]` 帧检需 **R2 截图链路**（仍未交付）+ 真机音频后端（harness 全 `NullAudioBackend`，静音与无声不可区分）+ **色盲滤镜**（用于核定 A2b/A3 恢复量）+ 真机与 AppID（**仍缺**）。⛔ 不得因 `[N]` 绿把 §G.6 记为已验。
 - **本批门禁（文档批）**：`check:tasks` / `check:links` / `ctx:check` 全绿；`verify` 见主表行读数；**零代码、零 §3 冻结值、零 hex 新增、零存档形状改动**。
 
+---
+
 ## WXG-T-435
 
 **P0-1 章末收尾：本章末关通过 → 本章 FINISH（MVP 期间不跨章）** · 负责：主理人(CodeBuddy)·beads 工程 · 状态：✅ 完成（2026-10-27）
@@ -5997,6 +5943,8 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 - **判据**：新增 `tests/arc-chapter-finish.test.ts` **3 例** —— ① 第一章 L9 填满 → 进 `FINISH` 且**不进**第二章 L10；② FINISH「重玩」→ 回 L1（不是回 L9）；③ **非 boss 关表回归**（`ARCS` 无 boss 声明时退回旧全表口径，防「无章配置」环境炸）。
 - **边界**：⛔ 零 §3 冻结常量改动、⛔ 零毫秒值改动、⛔ 不改 `DEMO_LEVEL_COUNT`；**MVP 期间章末不跨章**（跨章推进留后续批次，已写进 §8-8）。
 - **订正（K-053）**：该批原稿在 `core-loop.md` v2.5 行把任务号写成 **`WXG-T-910`** —— 实测全仓唯一命中就在那一行，而 `WXG-T-909/910` 只是 `knowledge` 自测夹具里的**假号字符串**（`touch:WXG-T-909`），**非真实任务号**（台账真实最大 = 434）⇒ 本批订正为 **435** 并在行内留注。
+
+---
 
 ## WXG-T-436
 
@@ -6202,3 +6150,19 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 
 1. 退场 150ms 内点其它菜单钮（设置/签到）即时生效，弹窗容器按出现序叠在好友榜容器之上，观感无异常。
 2. 判据取**静态**面板边界（退场缩到 0.9）⇒ 保护范围比可视范围略大，取保守侧。
+
+---
+
+## WXG-T-443
+
+**抬起容差 + 弹窗内容随面板伸缩（ModalFrame 契约）· 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-10-27）**
+
+用户两条：「好友榜按钮点击响应区域看起来有问题，向下点一点就不响应了」；「对话框有伸缩效果，需要里面的文字内容和面板一起伸缩，这个要固化到对话框框架设计里」。
+
+**热区**：`rankHit: rankBox` 同源、绘制同 rect ⇒ 真因是 `_commitMenuPress` 的**抬起精确命中**（88 高 ≡ 44 css px，拇指下飘出框即静默取消）。修法 `TAP_SLOP = 16` 只对**已登记的钮**外扩再判（⛔ 不跨钮）；`inBox` 加 `pad = 0`（默认 0 = 旧口径不变），经 `meta-view` barrel 出（不新增 `game → view` 边，`check:arch` L6 抓过一次）。
+
+**伸缩**：`rank-view` 标题/副标/状态行取静态 `layout.y`、按钮字号不缩，`drawPausePanel` 标题同 ⇒ 面板缩到 0.9 时文字绕锚点不动。修法 `modal-frame` 新增 `frameX / frameY / frameLen / frameFont`（`scale === 1` 原值 / `frameFont` 同引用 ⇒ 静息零漂移零分配），rank + pause 接线，契约落 `ui-architecture-beads.md §4` + 守则⑦；真正传动画进度的只有这两个腿，其余恒 `progress: 1` 不接线。
+
+**读数**（先红后绿 4 例）：按下框内 14px / 抬手外飘 8px → 改前取消（红）/ 改后点中（绿）；外飘 60px 仍取消；`frame*` 在 `scale = 1` 恒等 + 同引用；好友榜两态对拍满足 `a = c + (b − c) × s` 且字号同比 → 改前红 / 改后绿。beads **1368 passed + 2 skipped**；金样本十一态零漂移；`tsc` / `check:arch` / `check:tasks` OK。
+
+**边界**：① `drawPauseSettingButton` 设置行字号未过 `frameFont`（位置对，≤200ms 内最大差 10%），留待视觉裁定；② 好友榜自己的 `返回` 钮仍是精确命中（本单只收菜单入口）。

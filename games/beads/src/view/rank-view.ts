@@ -20,7 +20,7 @@ import {
     rankPanelLayout,
     rankStatusText,
 } from '../systems/rank-panel.js';
-import { drawModalFrame } from './modal-frame.js';
+import { drawModalFrame, frameFont, frameLen, frameX, frameY } from './modal-frame.js';
 import type { BeadsPalette } from './palette.js';
 import { UI_FONT, UI_SCRIM, bodyFont } from './ui-theme.js';
 import { drawButton } from './ui-widgets.js';
@@ -44,19 +44,20 @@ export function drawRankPanel(
         shadowAlpha: UI_CONTAINER.shadowAlphaPanel,
     });
 
-    builder.text(geo.cx, layout.titleY, RANK_PANEL_TITLE, {
+    // `[WXG-T-443]` 内容与面板同比伸缩：位置/字号一律过 `frame*`（`scale === 1` 时逐字不变）。
+    builder.text(geo.cx, frameY(geo, layout.titleY), RANK_PANEL_TITLE, {
         fill: palette.text,
-        font: UI_FONT.panelTitle,
+        font: frameFont(geo, UI_FONT.panelTitle),
         align: 'center',
         baseline: 'middle',
     });
 
     // 榜单面板不发大字号（`RankPanelView` 无 `largeText`）⇒ 副标 / 状态行回落默认档。
-    const subFont = bodyFont(false, 'sub');
+    const subFont = frameFont(geo, bodyFont(false, 'sub'));
 
     builder.text(
         geo.cx,
-        layout.subtitleY,
+        frameY(geo, layout.subtitleY),
         view.board === 'settle-total' ? RANK_PANEL_SUBTITLE_TOTAL : RANK_PANEL_SUBTITLE_LEVEL,
         {
             fill: palette.textDim,
@@ -67,7 +68,7 @@ export function drawRankPanel(
     );
 
     // `ready` 走计数文案，`loading` 只换文案、不画进度条（无计时，进度只读过场）。
-    builder.text(geo.cx, layout.statusY, rankStatusText(view.state, view.count), {
+    builder.text(geo.cx, frameY(geo, layout.statusY), rankStatusText(view.state, view.count), {
         fill: palette.text,
         font: subFont,
         align: 'center',
@@ -75,20 +76,20 @@ export function drawRankPanel(
     });
 
     for (const button of layout.buttons) {
-        const bw = (button.rect.xMax - button.rect.xMin) * geo.scale;
-        const bh = (button.rect.yMax - button.rect.yMin) * geo.scale;
-        const bx = geo.cx + (button.rect.xMin - geo.cx) * geo.scale;
-        const by = geo.cy + (button.rect.yMin - geo.cy) * geo.scale;
+        const bw = frameLen(geo, button.rect.xMax - button.rect.xMin);
+        const bh = frameLen(geo, button.rect.yMax - button.rect.yMin);
+        const bx = frameX(geo, button.rect.xMin);
+        const by = frameY(geo, button.rect.yMin);
         // S-3 恒无 settings 钮；此处仍按 `layout.buttons` 通用派发，S-5 接钩子即生效。
         if (button.id === 'back') {
             drawButton(
                 builder, palette, bx, by, bw, bh, 'paper', UI_CONTAINER.radiusCard,
-                RANK_BUTTON_BACK, UI_FONT.panelButton, false,
+                RANK_BUTTON_BACK, frameFont(geo, UI_FONT.panelButton), false,
             );
         } else {
             drawButton(
                 builder, palette, bx, by, bw, bh, 'wood', UI_CONTAINER.radiusWood,
-                RANK_BUTTON_SETTINGS, UI_FONT.panelButton, false,
+                RANK_BUTTON_SETTINGS, frameFont(geo, UI_FONT.panelButton), false,
             );
         }
     }

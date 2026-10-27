@@ -45,6 +45,7 @@ import {
     WALL_CAPACITY,
     PANEL_IN_MS,
     PANEL_OUT_MS,
+    TAP_SLOP,
     menuAnchors,
     powerupBuyPrice,
     setLiveDesignHeight,
@@ -63,6 +64,7 @@ import {
     buildMetaModal,
     buildMetaView,
     hitTestMeta,
+    inBox,
     type MetaAction,
     type MetaBossState,
     type MetaButton,
@@ -830,8 +832,14 @@ export class BeadsShell implements Game {
         this._menuPress = null;
         if (!press) return;
         const hit = hitTestMeta(this._phase.overlay, this._pointer.x, this._pointer.y, this._viewData.anchors);
-        if (!hit || hit.id !== press.id || hit.slot !== press.slot) return;
-        this._applyMetaAction(hit);
+        if (hit && hit.id === press.id && hit.slot === press.slot) {
+            this._applyMetaAction(hit);
+            return;
+        }
+        // `[WXG-T-443]` 抬起容差：手指在按下→抬起间下飘出框（88 高钮 ≡ 44 css px）时，旧口径
+        // 静默取消 ⇒ 用户「向下点一点就不响应」。只对**已登记的那颗钮**外扩 `TAP_SLOP` 再判一次；
+        // ⛔ 不跨钮命中（换了钮 / 拖到别的钮上仍取消，零事件零扣心）。
+        if (inBox(press.box, this._pointer.x, this._pointer.y, TAP_SLOP)) this._applyMetaAction(press);
     }
 
     /** 松手：点按 ⇒ 进选关；拖动 ⇒ 翻页 / 回弹已在 Presenter 内启动。 */

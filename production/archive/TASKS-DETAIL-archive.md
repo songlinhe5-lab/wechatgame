@@ -7204,3 +7204,83 @@ D-3 = **boot 标题页随本批**。D-4~D-8 维持林绘澄建议值（仍待决
 - **第二腿 `640ee2e` 的追补说明（不重写）**：本会话首次取数（`git log -3`）时 HEAD 仍 = `929f936`，该腿在补登节写完前已入库 ⇒ §2–§4 的首腿口径按当时取证保留，第二腿内容只在 §3 末与上表追补；本号完整腿数以 `git log --all --grep="WXG-T-373"` 为准，本会话⛔ 不承诺持续追平（待该会话自订正）。
 - 本会话⛔ 不代跑对方 studio 侧的在途改动：工作树仍有 `manage.html`、`manifest.json`、`chapters/mandala.json`、`check-tasks.mjs`、`scan-text-distortion.mjs` 呈 `M`，均属该会话在制品，本批零夹带（入库只走 pathspec 两件台账）。
 - 该批 4 件不含 singles / chapters 关卡内容 ⇒ 与 `## WXG-T-374` §6 登记的 contentVersion 缺口是两条独立账，各自归属。
+
+---
+
+## WXG-T-377
+
+**ctx·B 项单文件上限按文档类别分档（单一 8000 ⇒ 六档，撤销 35 条豁免）**
+
+### 1. 领号与来源（K-046）
+
+用户在「8000 阀值能否一次性治理」的 A/B/C 三案里选 **A = 分类上限**（2026-10-25）。三案原样留档：
+
+- **A（选中）**：把单一 `8000` 拆成按文档类别分档，门禁与报表共用同一函数；
+- **B**：不动阈值，只清 8–10k 轻微档 15 件（需削 ≈1 万 tok）；
+- **C**：给豁免加租约（到期强制复核）。
+
+**领号四路扫**：头注「下一可用号」= 377、主表最大 = 376、详情节最大 = 376、`git log --all --grep="WXG-T-377"` 零命中 ⇒ 领 **377**，全仓零占用。
+
+### 2. 病根（改前实测）
+
+| 读数 | 值 |
+|---|---|
+| 超 8000 的单文件 | **84 件** |
+| `ctx/budget-exempt.json` 条目 | **88 条**（含 4 条已回落失效） |
+| 超限但未豁免 | **0** ⇒ B 项恒绿 = 债务登记簿 |
+| 全量真削成本（按 8000 口径） | **1,137,162 tok** |
+| 体积分布 | ≥100k 2 / 50–100k 3 / 20–50k 12 / 10–20k 40 / 8–10k 27 |
+
+三类**物理不可拆**（这是「一次性清零」做不到的唯一理由）：
+
+1. **vendor 16 件**：`games/{beads,breakout}/cocos/extensions/cocos-mcp-server/README.{de,es,fr,ja,ko,pt,ru,vi}.md`（每 game 12 个语种文件，其中这 8 个译版 8150–12627 tok），三方插件自带，⛔ 不得改写；
+2. **generated 3 件**：`knowledge/CHANGELOG.md`、`knowledge/INDEX.md`、`memory/INDEX.md`，生成器产出，手改会被下一次生成覆盖；
+3. **台账 2 件**：`production/TASKS.md`（领号头注本身 ≈2 万 tok + 主表 98 行）、`production/TASKS-DETAIL.md`（`archive-tasks.mjs` 的 200k 契约）。
+
+单一阈值下只能靠豁免硬扛；而整体上调又会同时放松 49 件判据/规格文档（含 12 万 tok 的 `assets-spec`）⇒ 必须分档。
+
+### 3. 改法：一处真源，三处消费
+
+`tools/scripts/lib/context-index.mjs` 新增 `FILE_CAPS` / `fileClassOf()` / `fileCapOf()`：
+
+| 类别 | 上限 | 判定 |
+|---|---|---|
+| `spec` | **8000**（一分不放松） | 其余全部（GDD / UX / ADR / 规格 / skill / 日记） |
+| `ledger` | **16000** | `production/{epics,qa,release,plans,archive}/` + `docs/engine-reference/` |
+| `generated` | **24000** | `knowledge/CHANGELOG.md`、`knowledge/INDEX.md`、`memory/INDEX.md` |
+| `tasksIndex` | **80000** | `production/TASKS.md` |
+| `tasksDetail` | **205000** | `production/TASKS-DETAIL.md`（归档器 200k 契约 + 5k 余量） |
+| `vendor` | **∞（免检）** | 路径含 `/cocos-mcp-server/` |
+
+`fileClassOf()` 的判定顺序即优先级：vendor → generated → tasksIndex → tasksDetail → ledger → spec。
+
+三个消费点（无第二份硬编码）：
+
+1. `check-context-budget.mjs::checkFileMax()` 改 `tokens > fileCapOf(path)`，失败文案带类别与上限，B 表增「类别 · 上限」列；
+2. `build-context-index.mjs` 的 `overLimit` 同函数判定，`ctx/BUDGET.md §3` 标题改「超限清单（超过所属类别上限）」+ 分档说明 + 增列；
+3. `ctx/budget-exempt.json` 按新口径重算：**88 → 53**，撤 **35** 条 = vendor 16 / ledger 10 / generated 3 / TASKS 2 / 已回落失效 4（4 件 `memory/2026-*.md` 已降到 8000 以下）。
+
+**刻意不改的两处**：
+
+- `LIMITS.fileMax` 在 D3/U3（hot-files 锚点密度）里仍传 8000 —— 那里衡量的是「锚点父节能否局部读」，与单文件债务无关；
+- `memory/YYYY-MM-DD.md` 仍归 `spec` 8000 —— memory-distill 协议就是为压日记体积存在的，放宽会削弱既有护栏。
+
+### 4. 验证
+
+| 项 | 读数 |
+|---|---|
+| `pnpm run ctx:build` | 478 文件 / always 3 / hot 6 / normal 469 / 章节 6950 |
+| `pnpm run ctx:check` | **OK**（A / B / C / D / D2 / E3 全过），B 区 53 行均带「类别 · 上限」 |
+| `ctx/BUDGET.md §3` | 处置列 53 行 ⇔ `budget-exempt.json` 53 条（一一对应） |
+| 分档后仍超 | **53 件** = spec 49 / ledger 4；超所属上限合计 **781,237 tok** |
+| 豁免表自洽 | 在册 53 条**全部**仍超其类别上限（失效条目 = 0） |
+| `pnpm run check:tasks` | **OK** —— 主表 99 行 ⇔ 详情 99 节配对完整（名称均 ≤ 60 字符且连续），归档 184 节与行成对；I 项「最近 40 笔共署 9 个号全部在册」 |
+| `pnpm run verify` | **PASS 21 / FAIL 1** —— 唯一红 = `test`（beads **6 failed** / 1255 passed / 3 skipped）。**归因（实测，非推断）**：`git worktree --detach @ HEAD`（`477f0d5`）干净检出复跑 beads 全量 = **104 files passed / 1261 passed / 3 skipped / 0 failed** ⇒ 6 红 **100% 由并发会话在制的 L00001 关卡数据**（工作树把 `time 46→30 / steps 27→10 / clamped false→true` 与图案一起改回旧值）造成，与本批零关系；其余 21 项全绿（含 `ctx:check`、`check:tasks`、`selftest:fast` 11/11） |
+
+### 5. 遗留与后续
+
+1. **不是清零**：53 条豁免仍是债务（spec 49 / ledger 4），超限合计 781,237 tok；门禁口径已诚实，但「真拆」未做。
+2. **两件 87k/97k 的整读悬崖**：`production/qa/beads/test-cases.md`（96783）与 `g4-regression-report.md`（86807）—— 前者对应既有待办 **T-225**（拆判据分片），后者按同法可拆；本批只调口径未拆文件。
+3. **ledger 接近上限的两件**：`wxg-t-228-tint-criteria.md`（16867）与 `render-perf-device-baseline.md`（16703）距 16000 仅 700–900 tok，可按 B 案一次削平。
+4. **文档表述未跟改**：`docs/agent/memory-distill.md`（日记 8000 的真实口径，仍成立）与 `docs/agent/context-instrumentation-survey.md`（历史调研）里的 8000 未动，避免把调研件改成伪现状。
+5. **免检 ≠ 鼓励整读**：vendor / generated 只是不再计债，读协议仍走 `ctx/ROUTES.md` → `ctx/hot-files.md`，⛔ 整读 12 语种 README 或生成物。

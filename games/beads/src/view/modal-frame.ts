@@ -53,6 +53,40 @@ export function modalFrameLayout(
     return { cx, cy, x: cx - w / 2, y: cy - h / 2, w, h, scale };
 }
 
+/**
+ * `[WXG-T-443]` **面板内 → 屏幕**换算（对话框框架契约，正本 `ui-architecture-beads.md §4`）。
+ *
+ * 弹窗进出场把**面板**绕中心缩到 `scaleFrom`（0.9→1）；内容也必须同比缩放，⛔ 不得直接把
+ * 布局里的静态坐标 / 字号交给 `builder` —— 否则面板缩了、文字绕锚点不动（真机可见：
+ * 面板边缘与文字脱开）。**凡是「从 layout 静态值取的」一律过本族；由已换算的 box 派生的
+ * 坐标天然正确**（如按钮文字画在 `bx + bw/2`）。
+ *
+ * `scale === 1` ⇒ **原值返回**（{@link frameFont} 返回**同一引用**）⇒ 静息帧零漂移、零分配，
+ * 与 `RenderModelBuilder.setAlpha` 的「1 = 原样」同一条纪律。
+ */
+export function frameX(geo: ModalFrameGeometry, x: number): number {
+    return geo.scale === 1 ? x : geo.cx + (x - geo.cx) * geo.scale;
+}
+
+/** 见 {@link frameX}。 */
+export function frameY(geo: ModalFrameGeometry, y: number): number {
+    return geo.scale === 1 ? y : geo.cy + (y - geo.cy) * geo.scale;
+}
+
+/** 面板内**长度**（宽 / 高 / 圆角 / 描边）→ 屏幕长度。见 {@link frameX}。 */
+export function frameLen(geo: ModalFrameGeometry, v: number): number {
+    return geo.scale === 1 ? v : v * geo.scale;
+}
+
+/**
+ * 面板内**字号串** → 屏幕字号串（只改其中的 `NNpx`，保留 `bold` 等前缀）。
+ * `scale === 1` ⇒ 返回**同一引用**（`===`，不是 `==`）⇒ 静息帧命令流逐字节不变。
+ */
+export function frameFont(geo: ModalFrameGeometry, font: string): string {
+    if (geo.scale === 1) return font;
+    return font.replace(/(\d+(?:\.\d+)?)px/, (_m, px: string) => `${Math.round(Number(px) * geo.scale * 10) / 10}px`);
+}
+
 /** 全屏遮罩；`alpha` 由调用方按档位与进度算好（设置档 = `settingsAlpha * t`）。 */
 export function drawModalScrim(
     builder: RenderModelBuilder,

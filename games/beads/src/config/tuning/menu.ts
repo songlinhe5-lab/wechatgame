@@ -74,6 +74,15 @@ export const PANEL_SCRIM_ALPHA = 0.5;
  * **设置态判定所取（回传已注明）**：任务单已裁「两入口都算设置态」⇒ 判定面 = **overlay 打开期间**，
  *   暂停面板可见期间即设置态（暂停面板自身承担设置职，内容单源 S9），不引入第三种「子态」。 */
 export const SETTINGS_SCRIM_ALPHA = 0.3;
+/**
+ * `[WXG-T-443]` **抬起容差**（设计 px）：「按下 → 抬起」之间手指在同一颗钮上漂出框仍算点中。
+ *
+ * 88 高的钮在真机 ≡ 44 css px，拇指下飘 10–20 设计 px 属常态 ⇒ 旧口径（抬手必须**精确**命中
+ * 同一个盒）表现为「点上了却没反应」。16 ≈ 8 css px，与 `TOUCH_MIN` 同属「手感地板」量级。
+ * ⛔ 只对**已登记的那颗钮**做外扩容差，不做跨钮宽容命中（顶栏三钮 pitch = `TOUCH_MIN`，放宽下行面互抢）。
+ */
+export const TAP_SLOP = 16;
+
 /** Panel button height — every row honours the TOUCH_MIN control floor (§3.8). */
 export const PANEL_BUTTON_H = TOUCH_MIN;
 /** Primary button ("继续") width (ux-spec §3.3: 240×88 主钮). */

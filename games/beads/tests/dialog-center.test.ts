@@ -36,6 +36,7 @@ import { defaultBeadsSave } from '../src/game/save-schema.js';
 import {
     DESIGN_H,
     DESIGN_W,
+    PANEL_SCALE_FROM,
     UI_CONTAINER,
     WALL_ROWS,
     dialogShiftY,
@@ -43,12 +44,13 @@ import {
 } from '../src/config/tuning.js';
 import { COPY_TOKENS } from '../src/config/copy-tokens.js';
 import { pausePanelLayout } from '../src/systems/pause-panel.js';
-import { RANK_PANEL_TITLE } from '../src/systems/rank-panel.js';
+import { RANK_BUTTON_BACK, RANK_PANEL_SUBTITLE_TOTAL, RANK_PANEL_TITLE, rankPanelLayout, rankStatusText } from '../src/systems/rank-panel.js';
 import { clearPanelLayout } from '../src/systems/clear-panel.js';
 import { failPanelLayout } from '../src/systems/fail-panel.js';
 import { sprintSettleLayout } from '../src/systems/sprint-settle.js';
 import { metaLayout } from '../src/view/meta-view.js';
-import { UI_SCRIM, scrimFill } from '../src/view/ui-theme.js';
+import { frameFont, frameLen, frameX, frameY } from '../src/view/modal-frame.js';
+import { UI_FONT, UI_SCRIM, scrimFill } from '../src/view/ui-theme.js';
 import type { PanelRect } from '../src/systems/pause-panel.js';
 
 const PLAY_KEY = 'test.dialog-center.play';
@@ -244,5 +246,75 @@ describe('WXG-T-339 — 设置弹窗标题与首行净空', () => {
         expect(bars.length, '88 高按钮 rect 在册').toBeGreaterThan(0);
         const firstRowTop = Math.max(...bars.map((cmd) => cmd.y + cmd.h));
         expect(title!.y - 20 - firstRowTop).toBeGreaterThanOrEqual(10);
+    });
+});
+
+/** 面板**静态**边界内、字面在 `wanted` 里的文字（`key` = 字面）⇒ 两态逐条对拍用。 */
+function panelTexts(
+    cmds: readonly DrawCommand[],
+    panel: PanelRect,
+    wanted: readonly string[],
+): Record<string, TextCommand> {
+    const out: Record<string, TextCommand> = {};
+    for (const cmd of cmds) {
+        if (cmd.kind !== 'text' || !wanted.includes(cmd.text)) continue;
+        if (cmd.x < panel.xMin || cmd.x > panel.xMax || cmd.y < panel.yMin || cmd.y > panel.yMax) continue;
+        out[cmd.text] = cmd;
+    }
+    return out;
+}
+
+/** 字号串里的 `NNpx` 数值（`frameFont` 只改这一处 ⇒ 对拍用它）。 */
+function fontPx(font: string | undefined): number {
+    const hit = /(\d+(?:\.\d+)?)px/.exec(font ?? '');
+    return hit ? Number(hit[1]) : 0;
+}
+
+/**
+ * `[WXG-T-443]` **固化腿**：对话框内容必须随面板一起伸缩（`modal-frame` 契约，见
+ * `ui-architecture-beads.md §4`）。真帧两态对拍 —— 帧 A = 刚打开（`progress` 0 ⇒
+ * `scale = PANEL_SCALE_FROM`），帧 B = 入场走完（`scale = 1`）：同一条文字的位移与字号
+ * 必须满足 `a = c + (b − c) × s`、`fontA = fontB × s`（`c` = 面板中心 = 缩放锚点）。
+ *
+ * 用户报「对话框有伸缩效果，需要里面的文字内容和面板一起伸缩」的实际缺陷：按钮几何已按
+ * `geo.scale` 算，但**从静态 layout 取的标题/副标/状态行**不换算 ⇒ 面板缩到 0.9 时文字离锚点不动。
+ */
+describe('WXG-T-443 — 对话框内容随面板伸缩（ModalFrame 契约）', () => {
+    it('换算器 `scale === 1` 恒等：原值 / 原引用（静息帧零漂移）', () => {
+        const geo = { cx: 375, cy: 700, x: 39, y: 460, w: 560, h: 480, scale: 1 };
+        expect(frameX(geo, 100)).toBe(100);
+        expect(frameY(geo, 260)).toBe(260);
+        expect(frameLen(geo, 88)).toBe(88);
+        // 字号串必须**同引用**（不是相等）：静息帧零分配、金样本 sha 不动。
+        expect(frameFont(geo, UI_FONT.panelTitle)).toBe(UI_FONT.panelTitle);
+    });
+
+    it('好友榜：面板内每条文字的位移与字号同比缩放（旧行为 = 标题绕锚点不动）', () => {
+        const shell = rig();
+        const entry = metaLayout('none', WALL_ROWS, shell.menuAnchors).buttons.find((b) => b.id === 'open-rank')!;
+        const c = entry.box;
+        expect(shell.tapMeta(c.x + c.w / 2, c.y + c.h / 2)).toBe(true);
+
+        const view = shell.play.rankView();
+        const panel = rankPanelLayout(false).panel;
+        const wanted = [RANK_PANEL_TITLE, RANK_PANEL_SUBTITLE_TOTAL, rankStatusText(view.state, view.count), RANK_BUTTON_BACK];
+
+        const textsA = panelTexts(frameOf(shell), panel, wanted);
+        expect(Object.keys(textsA).sort(), '面板四文在册').toEqual([...wanted].sort());
+
+        for (let i = 0; i < 16; i += 1) shell.update(1 / 60); // 200ms 入场走完 ⇒ scale = 1
+        const textsB = panelTexts(frameOf(shell), panel, wanted);
+
+        const s = PANEL_SCALE_FROM;
+        const cx = (panel.xMin + panel.xMax) / 2;
+        const cy = (panel.yMin + panel.yMax) / 2;
+        for (const key of wanted) {
+            const a = textsA[key]!;
+            const b = textsB[key];
+            expect(b, `「${key}」两态都在册`).toBeDefined();
+            expect(Math.abs(a.x - (cx + (b!.x - cx) * s)), `「${key}」x 同比`).toBeLessThanOrEqual(0.51);
+            expect(Math.abs(a.y - (cy + (b!.y - cy) * s)), `「${key}」y 同比`).toBeLessThanOrEqual(0.51);
+            expect(fontPx(a.font) / fontPx(b!.font), `「${key}」字号同比`).toBeCloseTo(s, 2);
+        }
     });
 });
