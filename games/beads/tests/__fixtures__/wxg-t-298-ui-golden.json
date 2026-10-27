@@ -4,7 +4,7 @@
   "unit": "UI-02",
   "spec": "docs/architecture/ui-architecture-beads.md §5 / §9.4 / §12",
   "codeBaseline": "bd964a0",
-  "capturedFrom": "db0bd954 · 工作树（WXG-T-298）",
+  "capturedFrom": "75172d38 · 工作树（WXG-T-298）",
   "fixture": {
     "viewport": {
       "width": 750,
@@ -134,7 +134,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "13d680212f089810efff8a90ae76c456e816c70c44a11f595855d7c70ec6a22f",
+      "sha": "13a1d862e22bb42271e3a8a3dd2823cbe5955725ba38ba7216cf43105810909f",
       "background": "#F1E8D8",
       "transform": null
     },
