@@ -4,7 +4,7 @@
   "unit": "UI-02",
   "spec": "docs/architecture/ui-architecture-beads.md §5 / §9.4 / §12",
   "codeBaseline": "bd964a0",
-  "capturedFrom": "7e975fc5 · 工作树（WXG-T-298）",
+  "capturedFrom": "db0bd954 · 工作树（WXG-T-298）",
   "fixture": {
     "viewport": {
       "width": 750,
@@ -178,7 +178,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "ca1117bb13441ff75420ba19f09bbfbad90cfb7466a47967e3f3c3a09485a261",
+      "sha": "c439c2c4c1f8278bbbfa4e75593d4e1251716e065bc7193efbb6317c72a4d628",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -201,7 +201,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "9c56cabb873d75e8ba01654c464a0ebf3a73e5d2488837d41b16a32b47f4563e",
+      "sha": "18769cb9564063c609098241212af2c8e8ed40a9636ff26e4a85bcc96ded9cd6",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -224,7 +224,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "bbc0f06b20813abde0b5a8246382fcb804043e971d867852984a9cf4fc2da1fd",
+      "sha": "d92d79d41e781a2f840f4c3aea2faf1000b35680d6ba5dd16d1dfb590453fcf8",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -247,7 +247,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "cf0e8489f4776a31fdcf988a35ab0eedf89d7cce745f11d48a1278ddc163338a",
+      "sha": "24db76d38613fcb4113a85115e3bfb32c0b29b642dcbcbc0aa3275f517f8a76f",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -270,7 +270,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "f0789c1d56a95c2b34cf0fcd9e8c0c3ed2cdcb8710d7efbf45debab3123d6fc1",
+      "sha": "147046e7e4810918fb5eb26a69de810dc7067d9fd3812864bbb6d007a6e37df0",
       "background": "#F1E8D8",
       "transform": null
     }
