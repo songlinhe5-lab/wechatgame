@@ -6,7 +6,8 @@
  *  ① 投影正确：`screen` = 栈底基础页，`overlay` = 栈顶覆盖层（基础页在顶 ⇒ `none`）；
  *  ② 转场只经 Navigator：进页 / 开弹窗 / 关栈顶 / 整栈重置，基础页永不被弹掉；
  *  ③ 与 `UiRoot` 共用同一 Navigator：基础页路由的 `draw` 就是壳注入的视图入口（UI-50），
- *     覆盖层路由不重复画（内容由基础页的 View 分支画）。
+ *     弹窗路由自持绘制（`[UI-60 P1 / ADR-0033 DEC-1]`：不再由基础页 View 代画），
+ *     且 `UiRoot.draw` 只对 `modal` 路由包容器边界。
  */
 import { describe, it, expect } from 'vitest';
 import { Navigator, type RenderModelBuilder } from '@wxgame/framework';
@@ -20,6 +21,7 @@ function binder(screen: 'play' | 'menu' = 'menu'): { nav: Navigator; b: PhaseRou
     const b = new PhaseRouteBinder(nav, {
         menu: () => calls.push('menu'),
         play: () => calls.push('play'),
+        modal: (_builder, name) => calls.push(name),
     }, screen);
     return { nav, b, calls };
 }
@@ -86,7 +88,7 @@ describe('UI-42 · PhaseRouteBinder', () => {
         expect(b.overlay).toBe('none');
     });
 
-    it('与 UiRoot 共用同一 Navigator：基础页路由即绘制入口（UI-50）', () => {
+    it('与 UiRoot 共用同一 Navigator：页面 + 弹窗各自绘制，弹窗包容器边界（UI-50 / ADR-0033）', () => {
         const root = new UiRoot({
             debugState: () => ({ enabled: false, frameMs: 0, phase: 'menu', level: '', detail: '' }),
         });
@@ -94,18 +96,23 @@ describe('UI-42 · PhaseRouteBinder', () => {
         const b = new PhaseRouteBinder(root.nav, {
             menu: () => calls.push('menu'),
             play: () => calls.push('play'),
+            modal: (_builder, name) => calls.push(`modal:${name}`),
         });
         const builder = {
             height: 1334,
             rect: () => calls.push('rect'),
             text: () => calls.push('text'),
+            beginContainer: (id: string) => calls.push(`begin:${id}`),
+            endContainer: () => calls.push('end'),
         } as unknown as RenderModelBuilder;
         b.openModal('settings');
         root.draw(builder, {} as BeadsPalette);
-        expect(calls, '覆盖层不重复画').toEqual(['menu']);
+        // 弹窗自持绘制且自带容器（页面路由不包容器 ⇒ 恒在容器树之下）。
+        expect(calls).toEqual(['menu', 'begin:settings', 'modal:settings', 'end']);
 
+        calls.length = 0;
         b.resetTo('play');
         root.draw(builder, {} as BeadsPalette);
-        expect(calls).toEqual(['menu', 'play']);
+        expect(calls, '页面路由不包容器').toEqual(['play']);
     });
 });

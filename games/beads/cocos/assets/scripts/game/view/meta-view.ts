@@ -80,11 +80,9 @@ type ContentDraw = (builder: RenderModelBuilder, data: MetaViewData, palette: Be
 /**
  * 弹窗三页共用的 chrome：遮罩 → 纸面板 → 标题 → 内容块 → 通用钮。
  *
- * ⚠ **不得在遮罩前补画底页**（判例 WXG-T-324 → 回退 WXG-T-325）：Cocos 端通道是**写死五段**
- * （`Background` → `BlitLayer` → `Graphics` → `BlitLayerUI` → `Labels`，见 `adapters/cocos/bindings.ts`
- * 层序三叠注）⇒ 指令流里的相对序被压成「通道序」，菜单的位图腿与文字永远浮在遮罩之上。
- * 正解 = 容器层（每页面/弹窗一个渲染容器，容器内按层有序、事件按层逆序透传）⇒ **ADR-0033 / UI-60**；
- * 在那之前本分支维持旧观感（实色底 + 遮罩 + 面板，「没半透但不错乱」）。
+ * `[UI-60 P1 / ADR-0033 DEC-1]` 本函数只由 {@link buildMetaModal} 在**弹窗容器内**调用 ⇒
+ * 遮罩与面板同属一个容器，容器整体排在底页命令之上（真机不再被写死五通道压乱；判例
+ * WXG-T-324 → T-325 的「底页补画在真机被反超」由此根治）。
  *
  * 遮罩只压半透、⛔ 不改 RGB 与 α 档（EP11-S5 U14=丙：仅 `settings` 行读下调档，其余仍旧 0.5）；
  * ⚠️ 遮罩盖**整屏** ⇒ 高读锚定档系高 `a.H`（兜底档 = `DESIGN_H`）。标题基线 = 板顶缘下 50
@@ -154,7 +152,22 @@ const META_PAGES: Record<MetaOverlay, PageDraw> = {
 };
 
 /**
- * Render one frame of the shell's meta screens. Read-only over `data`.
+ * `弹窗态 → 底页` 表：弹窗三态 ⇒ `null`（底页恒为主菜单），页面态 ⇒ 自身。
+ * 表查取代 `overlay ===` 串判（control-manifest §20-3 硬门扫 `view/`）。
+ */
+const BASE_PAGE: Record<MetaOverlay, MetaOverlay | null> = {
+    none: 'none',
+    levels: 'levels',
+    signin: null,
+    settings: null,
+    skins: null,
+};
+
+/**
+ * 画**页面**（底页）。弹窗打开时画的是主菜单底页 —— 遮罩压暗它、弹窗容器盖在它之上
+ * （ADR-0033 DEC-1/9②：弹窗不再由本函数代画）。
+ *
+ * Read-only over `data`.
  * `variant`（缺省 `undefined`）= 同帧差分入参，**生产不传** ⇒ 三档均取 `tuning.ts` 在册默认值。
  */
 export function buildMetaView(
@@ -169,8 +182,11 @@ export function buildMetaView(
     // `[WXG-T-280]` 菜单 = 锚定档唯一（shell init 逐机算定下传；直调缺省 ⇒ 模块级兜底档）。
     const A = data.anchors ?? DEFAULT_MENU_ANCHORS;
     builder.setBackground(palette.background);
+    // `[UI-60 P1 / ADR-0033 DEC-1]` 弹窗态下本函数只画底页（= 主菜单）⇒ 半透遮罩才有东西可透；
+    // 弹窗本体由 {@link buildMetaModal} 在**自己的容器**里画（`UiRoot.draw` 包容器边界）。
+    const base: MetaOverlay = BASE_PAGE[data.overlay] ?? 'none';
     // 钮表只在 `metaLayout` 缓存里取（`pressed` 对象身份比对依赖同一引用）。
-    const layout = metaLayout(data.overlay, rows);
+    const layout = metaLayout(base, rows);
     // UI-42 前置（WXG-T-314）：菜单 ↔ 选关页转场。`pageFade` = 选关页不透明度，底页恒为主菜单；
     // 淡入 / 淡出都只变选关页（含自身不透明页底）的组透明度，⛔ 不新增动画时钟。
     // `undefined`（缺省）⇒ 原路径逐字不变（金样本 / 封箱基线零漂移）。
@@ -182,10 +198,32 @@ export function buildMetaView(
         builder.rect(0, 0, DESIGN_W, A.H, { fill: palette.background });
         LEVELS_PAGE(builder, data, palette, layout, A, withSignage, thumbN);
     } else {
-        META_PAGES[data.overlay](builder, data, palette, layout, A, withSignage, thumbN);
+        META_PAGES[base](builder, data, palette, layout, A, withSignage, thumbN);
     }
     // 四条腿历史上都在末尾画标定线 ⇒ 表化后统一提到一处（顺序与内容与改前逐字一致）。
     if (data.debugGuides) drawSafeGuides(builder, A);
+}
+
+/**
+ * 画**弹窗**（`signin` / `settings` / `skins`）。非弹窗态 ⇒ 一条命令都不发（热路径早退）。
+ *
+ * `[UI-60 P1 / ADR-0033 DEC-1]` 弹窗自此由**弹窗路由自持绘制**：`UiRoot.draw` 在调用本函数
+ * 前后包一层 `beginContainer(...)`，容器自带三条通道 ⇒ 遮罩连同面板、文字、位图腿整体压在
+ * 底页之上（真机层序不再取决于指令在写死五通道里的归属）。
+ */
+export function buildMetaModal(
+    builder: RenderModelBuilder,
+    data: MetaViewData,
+    palette: BeadsPalette,
+    variant?: MetaViewVariant,
+): void {
+    if (BASE_PAGE[data.overlay] !== null) return;
+    const rows = variant?.wallRows ?? WALL_ROWS;
+    const thumbN = variant?.thumbN ?? THUMB_MATRIX_N;
+    const withSignage = variant?.signage !== false;
+    const A = data.anchors ?? DEFAULT_MENU_ANCHORS;
+    const layout = metaLayout(data.overlay, rows);
+    META_PAGES[data.overlay](builder, data, palette, layout, A, withSignage, thumbN);
 }
 
 /**

@@ -6012,3 +6012,27 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 - **附随**：`tools/scripts/` 5 件**纯缩进归一**（`build-context-index.mjs` / `check-context-budget.mjs` / `kb-check.mjs` / `kb-reactivate.mjs` / `lib/context-index.mjs`，均多行模板字面量的缩进对齐，**行为零变化**）—— 与功能改动分开记账，避免把格式化噪声混进功能 diff。
 - **判据**：`tools/scripts/chapter-store.test.mjs` +16 行（门限边界 / 方向 / 展示序 vs order 区分）。
 - **边界**：⛔ 零 §3 冻结常量改动（门限是**发布事务**约束，不是玩法数值）、⛔ 零关卡 JSON 改动、⛔ 零运行时行为变化。
+
+---
+
+## WXG-T-437
+
+**UI-60 P1 设备腿：弹窗渲染层级修复（ADR-0033）· 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-10-27；真机读数待取）**
+
+- **背景**：用户令「修改对话框框架逻辑渲染层级 bug」。定位 = **WXG-T-325 登记、至今未修的缺陷**（ADR-0033 此前只落三条可证腿：容器语法 P0 `WXG-T-327` / 层树内核 P1 可证 `WXG-T-328` / DEC-8① 结构门 `WXG-T-329`）。真机根因 = Cocos 把指令流压成**写死五段通道**（`Background → BlitLayer → Graphics → BlitLayerUI → Labels`），底页的位图腿与文字永远浮在遮罩之上；canvas2d 是 immediate mode ⇒ Node / 金样本全绿而真机错乱（K-030 同族）。诊断前置核实：`bindings.ts` 无 `scopeHost` 注入、beads 视图零 `beginContainer`、`dialog-center.test.ts` 层序例仍 `skip` ⇒ 缺陷确未修，工作树干净（ADR §4 并发前置已解除）。
+- **框架腿 · cc 薄壳（`packages/framework/src/adapters/cocos/bindings.ts`）**：
+  - `_buildGraph` 末尾建 `UiContainers`（root **最后一个**子节点）并 `new UiScopeTree({ root: UiContainers, defaultScope: 主 Graphics + 主标签池, defaultBlitParent, create })`；`_bindRenderer` 注入 `options.scopeHost`。⇒ 整棵容器树恒在默认五通道（含 `Labels`）之后，弹窗容器自带三通道压住底页文字与位图腿。
+  - `_createScope` 节点结构 = `UI:<key>` → `Graphics`（父自身组件，先于子节点）+ `BlitLayerUI` + `Labels` + **`Segments`**；`Segments` 作为内核 `handle` 返回。**为什么要独立子节点**：段按 `UI_SEGMENT_ORDER` 用 `setSiblingIndex(0..3)` 落位，若与上面三条通道同父，`setSiblingIndex(0)` 会把段插到**自己默认段的通道之前** ⇒ 段被自己的默认段盖住（DEC-4 反例）。兄弟位仍全由内核算（⛔ 宿主不自行决定序，否则两处真源）。
+  - 抽出 `_makeLabels(parent)`：主 `Labels` 层与每个容器/段层各一份 `PooledLabelSource`（DEC-5 的 sibling 定序在每池内独立成立）。
+- **视图腿（`games/beads/src/ui/`）**：
+  - `ui-root.ts::draw` 只对 `route.kind === 'modal'` 发 `beginContainer(route.name)` / `endContainer()`。**页面路由不进容器**：默认五通道恒在容器树之下 ⇒ 语义等价 DEC-9② 的「弹窗与页面合一个容器」降级杆，但菜单页 19 处位图腿归属（`BlitLayerUI`）与走马灯裁切蒙版逐字不变（零风险面）。
+  - `phase-route-binder.ts`：三条 modal 路由由模块级 `noop` 改为构造期闭包 `draw: (b) => drawers.modal(b, name)`（`PhasePageDrawers` 增 `modal` 成员）⇒ **DEC-1「弹窗自持 draw、页面视图分支不得代画」落地**。
+  - `meta-view.ts`：新增 `buildMetaModal`（非弹窗态一条命令不发，热路径早退）；`buildMetaView` 改为只画**底页**（弹窗态 ⇒ 主菜单）⇒ WXG-T-324 的半透观感随容器层正式恢复，不再是「先画底页赌通道序」那种做法。⚠ `BASE_PAGE` 用 `Record<MetaOverlay, MetaOverlay | null>` **表查**而非 `overlay ===` 串判 —— 首版写 `isModalOverlay()` 三元链当场被 `check:arch` **§20-3** 拦下（K-144 同型），改表查后转绿。
+  - `beads-shell.ts`：drawers 增 `modal: (b) => buildMetaModal(b, this._metaViewData(), this.play.palette)`。
+- **验收（Node 可证部分）**：
+  - `dialog-center.test.ts` 的 `skip` **解开**（遮罩之前主菜单图元 > 100）+ **新增 1 例**：`settings` 容器在册、`containerEnd` 闭合、半透遮罩落在容器**内**、`checkUiContainerOrder(cmds) === []`（DEC-8① 结构门首次指向**真帧**，不再是只咬人造样本）。
+  - `ui-root.test.ts` / `phase-route-binder.test.ts` 的 mock 断言改为验证「只对 modal 包容器且页面不包」与「弹窗自持绘制」。
+  - 读数：framework **538 passed / 50 files**；beads 除金样本两态外全绿；`typecheck` 三包 0；`check:arch` **OK**（唯一 WARN = L1 既有 365 个编辑器产物，非本批）；`framework:sync` 写 5 + `sync:check` 一致；**`build:cocos` beads 19.0s / breakout 17.0s 双绿** ⇒ `bindings.ts`（不进 Node `tsc`）在 Cocos 侧真编译通过。
+- **金样本（K-051 / K-053，先登记再重抓）**：`settings` **25 → 5665**、`signin` **28 → 5668**（= 底页整页入流 + 2 条容器命令），其余**九态 sha 逐字未变**。登记面 = `ui-architecture-beads.md §12` UI-60 行 + ADR-0033 §P1 设备腿交付记录 + `§8` 新增守则 ⑥「容器即渲染单元」。
+- **⛔ 未做 / 需设备证（`[R]`）**：① 真机层序实拍（同层文字与位图腿必须被遮罩压住）；② draw call 实测（DEC-3 预估 `Graphics ≤ 6`，K-030 旧训「不得按预估过关」）⇒ 本 ADR ⛔ 不得标「已实施」，缺陷状态 = **「已修待设备证」**。
+- **已知边界（显式不做）**：① 容器内 `blit` 仍由载体按自身白名单挂 `BlitLayerUI`（`UiScopeTree.blitParent` 已按作用域给出，但 `CocosBlitCarrierLike.accept` 尚无该形参）—— 现网弹窗内容 0 处 `blit` ⇒ 无影响；② 调试层（`drawPerfOverlay`）仍落默认层 ⇒ 会被后出现的弹窗容器盖，属 ADR §S1「DebugLayer 必须永远在最顶」待定项；③ 对局态相位弹窗（暂停 / 结算）仍走 `PanelRouter` 直派，不在本批容器化范围。

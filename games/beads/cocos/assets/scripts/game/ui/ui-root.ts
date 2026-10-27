@@ -42,7 +42,17 @@ export class UiRoot {
     /** 自下而上画可见路由，最后画调试层（盖住所有路由）。 */
     draw(builder: RenderModelBuilder, palette: BeadsPalette): void {
         const routes = this.nav.visibleRoutes(this._visible) as UiRoute[];
-        for (let i = 0; i < routes.length; i++) routes[i].draw(builder);
+        for (let i = 0; i < routes.length; i++) {
+            const route = routes[i]!;
+            // `[UI-60 P1 / ADR-0033 DEC-1]` **弹窗 = 独立渲染容器**：容器自带 Graphics /
+            // BlitLayerUI / Labels 三条通道，整棵排在页面命令之上 ⇒ 遮罩（Graphics）连同面板
+            // 文字、位图腿一起压住底页（WXG-T-325 真机「设置页不在最上面」的修法）。
+            // 页面路由仍走默认层：默认五通道恒在容器树之下 ⇒ 等价于 DEC-9② 的「合一个容器」降级杆，
+            // 且菜单页的 19 处位图腿归属（`BlitLayerUI`）与裁切蒙版逐字不变。
+            if (route.kind === 'modal') builder.beginContainer(route.name);
+            route.draw(builder);
+            if (route.kind === 'modal') builder.endContainer();
+        }
         const d = this._host.debugState();
         drawPerfOverlay(builder, palette, d.enabled, d.frameMs, d.phase, d.level, d.detail);
     }

@@ -60,6 +60,7 @@ import type { BeadsLevelRaw } from '../config/levels-data.js';
 // （DI 真源仍住 difficulty.ts，供门禁⑥/分带用）。
 import { MetaState } from './meta-state.js';
 import {
+    buildMetaModal,
     buildMetaView,
     hitTestMeta,
     type MetaAction,
@@ -325,6 +326,8 @@ export class BeadsShell implements Game {
         this._phase = new PhaseRouteBinder(this._uiRoot.nav, {
             menu: (b) => buildMetaView(b, this._metaViewData(), this.play.palette),
             play: (b) => renderPlayPage(this.play, b),
+            // `[UI-60 P1 / ADR-0033 DEC-1]` 弹窗自持绘制（容器边界由 `UiRoot.draw` 包）。
+            modal: (b) => buildMetaModal(b, this._metaViewData(), this.play.palette),
         }, options.initialScreen ?? 'menu');
     }
 

@@ -1,6 +1,6 @@
 # ADR-0033 · UI 容器层：每页面 / 每弹窗一个渲染容器，容器内层有序、事件按层逆序透传
 
-- **状态**：Accepted（原则由用户 2026-10-20 真机裁定：「每个页面和对话框是一个 UI 容器，里面按照层级绘制，事件按照层级透传；层级是一个顺序关系，不能错乱」）；**Q1–Q3 已由用户 2026-10-20 裁定（§5）⇒ 方案定稿；P0 框架腿已入库（WXG-T-327，交付面见 §5 P0 记录），P1 / P2 受 §4 前置约束**；**DEC-8① Node 层序守门轨已入库（WXG-T-329，见 §DEC-8① 记录），设备腿（视图接线 + cc 层树 + 真机读数）排期中、需真机取证**
+- **状态**：Accepted（原则由用户 2026-10-20 真机裁定：「每个页面和对话框是一个 UI 容器，里面按照层级绘制，事件按照层级透传；层级是一个顺序关系，不能错乱」）；**Q1–Q3 已由用户 2026-10-20 裁定（§5）⇒ 方案定稿；P0 框架腿已入库（WXG-T-327，交付面见 §5 P0 记录），P1 / P2 受 §4 前置约束**；**DEC-8① Node 层序守门轨已入库（WXG-T-329，见 §DEC-8① 记录）**；**P1 设备腿已入库（WXG-T-437，见 §P1 设备腿交付记录）：cc 薄壳 + 视图发容器命令 + 弹窗自持绘制 + 层序例解 skip + 金样本重抓；⚠ 真机层序 / draw call 读数 `[R]` 未取 ⇒ 缺陷「已修待设备证」**
 - **日期**：2026-10-20
 - **关联**：ADR-0032（beads UI 架构，§6 路由 / §8 五条守则）、ADR-0030（Cocos 生产 blit 载体）、ADR-0031（blit 静态位图腿）、ADR-0026（`blit` kind）、ADR-0014（全局变换通道）
 - **判例链**：WXG-T-322（遮罩未铺满）→ WXG-T-323（弹窗居中）→ **WXG-T-324（弹窗补画底页 ⇒ 真机层级错乱）→ WXG-T-325（回退止血 + 本 ADR）**
@@ -88,6 +88,19 @@
 - ⚠ **诚实边界**：视图现在还不发容器命令（战线一未做）⇒ 本门当前只咬人造样本；战线一把弹窗内容搬进容器后，把它指向真帧（金样本 / 采样帧）即自动生效，无需改门。**本门单独不消缺陷**。
 - ⛔ 战线一（排期中，需真机取证）= 弹窗视图发 `beginContainer`/`beginSegment` + `bindings.ts` cc 节点层树薄壳 + `build:cocos` 发到在线鸿蒙真机实拍层序 + 金样本按容器重抓（先登记 sha）+ 解开 `dialog-center.test.ts` 那条 skip。见 TASKS `## WXG-T-329` 遗留。
 
+
+### P1 设备腿交付记录（WXG-T-437 · 2026-10-27）
+
+**已落（`build:cocos` 两游戏 CLI 构建绿 = cc 侧可编译；真机读数仍缺）**：
+
+- **cc 薄壳（`adapters/cocos/bindings.ts`）**：`_buildGraph` 末尾建 `UiContainers` 节点（root **最后一个**子节点）并 `new UiScopeTree({ root: UiContainers, defaultScope: 主 Graphics + 主标签池, defaultBlitParent, create })`，`_bindRenderer` 注入 `options.scopeHost`。⇒ 整棵容器树恒在默认五通道（含 `Labels`）之后，弹窗容器自带三通道压住底页文字/位图腿。
+- **节点结构（`_createScope`）**：`UI:<key>` → `Graphics`（父自身组件，先于子节点）+ `BlitLayerUI` + `Labels` + **`Segments`**。`Segments` 必须是独立子节点并作为内核 `handle` 返回：段按 `UI_SEGMENT_ORDER` 用 `setSiblingIndex(0..3)` 落位，若与上面三条通道同父，`setSiblingIndex(0)` 会把段插到自己默认段的通道**之前**（段被自己的默认段盖住，DEC-4 反例）。兄弟位仍全由内核算（⛔ 宿主不自行决定序）。
+- **视图腿（`UiRoot.draw`）**：只对 `route.kind === 'modal'` 发 `beginContainer(route.name)` / `endContainer()`。页面路由**不进容器**（默认五通道恒在容器树之下 ⇒ 语义等价 DEC-9② 「弹窗与页面合一个容器」的降级杆，但零改动菜单页 19 处位图腿归属与裁切蒙版）。
+- **弹窗自持绘制（DEC-1 撤代职）**：`phase-route-binder` 的三条 modal 路由改为 `draw: (b) => drawers.modal(b, name)`（不再 `noop`）；新增 `meta-view::buildMetaModal`（非弹窗态早退）；`buildMetaView` 改为只画**底页**（弹窗态 ⇒ 主菜单）⇒ WXG-T-324 的半透观感随容器层正式恢复（不再是「补画底页」那种赌通道序的做法）。⚠ `BASE_PAGE` 用表查而非 `overlay ===` 串判（`check:arch` §20-3 硬门，K-144）。
+- **验收**：`dialog-center.test.ts` 的层序例**解 skip**（遮罩之前主菜单图元 > 100）+ 新增 1 例（容器在册 / 遮罩落在容器内 / `checkUiContainerOrder(cmds)` 为空）；`ui-root` 与 `phase-route-binder` 的 mock 断言改为验证「只对 modal 包容器」与「弹窗自持绘制」。framework 538 绿、beads 除金样本外全绿、`check:arch` OK、`framework:sync:check` 绿、`build:cocos` 两游戏绿。
+- **金样本**：`settings` 25→**5665**、`signin` 28→**5668**（底页入流 + 2 条容器命令），其余九态 sha 逐字未变；按 K-051 / K-053 先登记再重抓（`ui-golden-capture.ts`，提交锚）。
+- **⛔ 仍未取（`[R]`）**：真机层序实拍（同层文字与位图腿必须被遮罩压住）+ draw call 实测（DEC-3 预估 `Graphics ≤ 6`）。⇒ 本 ADR ⛔ 仍不得标「已实施」；缺陷状态 = 「已修待设备证」。
+- **已知边界（本轮显式不做）**：① 容器内的 `blit` 仍由载体按自身白名单挂 `BlitLayerUI`（`UiScopeTree.blitParent` 已按作用域给出，但 `CocosBlitCarrierLike` 尚无该形参）—— 现网弹窗内容 0 处 `blit`，故无影响；② 调试层（`drawPerfOverlay`）仍落默认层 ⇒ 会被后出现的弹窗容器盖住，属上文 S1「DebugLayer 必须永远在最顶」待定项。
 
 ### 尚待后续定的小项（不阻塞 P0）
 

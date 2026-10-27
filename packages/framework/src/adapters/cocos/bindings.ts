@@ -40,6 +40,7 @@ import type { CocosBlitCarrierLike, CocosClipHostLike } from './cocos-renderer.j
 import { CocosInputBridge } from './input-bridge.js';
 import { CocosLoopBridge } from './loop-bridge.js';
 import { PooledLabelSource } from './label-pool.js';
+import { UiScopeTree, type UiScopeChannels } from './ui-scope-tree.js';
 import type { CocosTouchSpace, CocosTouchSpaceWx } from './touch-normalize.js';
 import { normalizeCocosTouch, normalizeCocosTouchWx } from './touch-normalize.js';
 import { detectPlatform } from '../../platform/index.js';
@@ -70,6 +71,13 @@ export class Bootstrap extends Component {
   private _renderer: CocosRenderModelRenderer | null = null;
   private _bridge: CocosInputBridge | null = null;
   private _labels: PooledLabelSource | null = null;
+  /**
+   * `[UI-60 P1 / ADR-0033 DEC-3]` 容器树宿主节点：每个可见容器一个子树，
+   * 整棵恒排在默认五通道（含 `Labels`）之后 ⇒ 容器内命令恒画在未容器化的页面命令之上。
+   */
+  private _uiContainers: Node | null = null;
+  /** `[UI-60 P1]` 容器 × 段层树内核（兄弟位全由它算，⛔ 本文件不决定序）。 */
+  private _scopes: UiScopeTree | null = null;
   /** GameRoot 容器（WXG-T-132 全局变换的缩放宿主）；位置恒自 (0,0) 出发。 */
   private _root: Node | null = null;
   private _resizeBound = false;
@@ -252,22 +260,83 @@ export class Bootstrap extends Component {
 
     const labelRoot = new Node('Labels');
     root.addChild(labelRoot);
+    this._labels = this._makeLabels(labelRoot);
 
-    this._labels = new PooledLabelSource({
+    // `[UI-60 P1 / ADR-0033 DEC-3]` 容器树挂在**最后**：Cocos UI 序 = 子节点序，故整棵容器
+    // 子树恒在默认五通道之上 ⇒ 弹窗容器（自带 Graphics / BlitLayerUI / Labels 三件套）
+    // 能压住底页的文字与位图腿（= WXG-T-325 真机「设置页不在最上面」的根因）。
+    // 视图未发容器命令时本节点恒空 ⇒ 旧观感逐字节不变。
+    const uiContainers = new Node('UiContainers');
+    root.addChild(uiContainers);
+    this._uiContainers = uiContainers;
+    this._buildScopes();
+
+    // The renderer needs a Viewport. Reuse the App's viewport by constructing
+    // the App first, then binding the renderer in `launch()`.
+    // ⚠ For simplicity here we create the renderer lazily inside launch().
+  }
+
+  /** 一帧一池的标签提交体（主 `Labels` 层与每个容器/段层各一份）。 */
+  private _makeLabels(parent: Node): PooledLabelSource {
+    return new PooledLabelSource({
       initial: 8,
       create: () => {
         const node = new Node('Label');
-        labelRoot.addChild(node);
+        parent.addChild(node);
         const label = node.addComponent(Label);
         label.string = '';
         return wrapLabel(label);
       },
       hide: (label) => label.setVisible(false),
     });
+  }
 
-    // The renderer needs a Viewport. Reuse the App's viewport by constructing
-    // the App first, then binding the renderer in `launch()`.
-    // ⚠ For simplicity here we create the renderer lazily inside launch().
+  /**
+   * `[UI-60 P1 / ADR-0033 DEC-3/4]` 装容器 × 段层树。默认作用域 = 旧那两个提交体
+   * （主 `Graphics` + 主标签池）⇒ 视图不发层级命令时逐字等价于接线前。
+   */
+  private _buildScopes(): void {
+    const root = this._uiContainers;
+    const graphics = this._graphics;
+    const labels = this._labels;
+    if (!root || !graphics || !labels) return;
+    this._scopes = new UiScopeTree({
+      root,
+      defaultScope: { graphics, labels },
+      defaultBlitParent: this._blitLayerUI ?? undefined,
+      create: (key, parent, siblingIndex) => this._createScope(key, parent as Node, siblingIndex),
+    });
+  }
+
+  /**
+   * 建一个作用域。节点结构（层序由 `group` 的子节点序表达，⛔ 不用 zIndex —— DEC-4）：
+   *
+   * ```
+   * UI:<key>            ← 分组节点，兄弟位 = 内核给的 siblingIndex
+   * ├── Graphics        ← 本作用域矢量（父节点自身的 Graphics 先于其子节点 ⇒ 恒在段之下）
+   * ├── BlitLayerUI     ← 本作用域位图腿
+   * ├── Labels          ← 本作用域标签池（DEC-5：sibling 序按帧内第 n 条 text）
+   * └── Segments        ← 段的父（内核把它当不透明 `handle` 再传回来）
+   * ```
+   *
+   * ⚠ `Segments` 必须是**独立子节点**：段按 `UI_SEGMENT_ORDER` 用 `setSiblingIndex(0..3)` 落位，
+   * 若与上面三条通道同父，`setSiblingIndex(0)` 会把段插到自己默认段的通道**之前** ⇒ 段被
+   * 自己的默认段盖住（正是 DEC-4 要避免的那类错序）。
+   */
+  private _createScope(key: string, parent: Node, siblingIndex: number): UiScopeChannels {
+    const group = new Node(`UI:${key}`);
+    parent.addChild(group);
+    group.setSiblingIndex(siblingIndex);
+    const penNode = new Node('Graphics');
+    group.addChild(penNode);
+    const graphics = penNode.addComponent(Graphics);
+    const blitNode = new Node('BlitLayerUI');
+    group.addChild(blitNode);
+    const labelRoot = new Node('Labels');
+    group.addChild(labelRoot);
+    const segments = new Node('Segments');
+    group.addChild(segments);
+    return { graphics, labels: this._makeLabels(labelRoot), handle: segments, blitParent: blitNode };
   }
 
   /** Called by `launch()` after the App (and its viewport) exist. */
@@ -324,6 +393,9 @@ export class Bootstrap extends Component {
         clipHost: this._menuClip?.host,
         // [WXG-T-256] 底图提交体：没注入的宿主（breakout 等）行为零变更。
         backGraphics: this._back ?? undefined,
+        // `[UI-60 P1 / ADR-0033 DEC-3]` 容器 × 段层树：视图发 `beginContainer` 才落层，
+        // 不发则四 kind 静默忽略 ⇒ 未接线视图（breakout）与旧行为逐字节一致。
+        scopeHost: this._scopes ?? undefined,
       },
     );
   }

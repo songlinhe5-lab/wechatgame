@@ -21,6 +21,7 @@ import {
     NullAudioBackend,
     RenderModelBuilder,
     Viewport,
+    checkUiContainerOrder,
     createRng,
     type DrawCommand,
     type EventMap,
@@ -145,12 +146,11 @@ describe('WXG-T-323 — 对话框中心对齐手机中心（逐机实际设计�
     });
 });
 
-describe('WXG-T-324/325 — 菜单弹窗透出底页（待 ADR-0033 容器层）', () => {
-    // ⚠ 本例在 Node / canvas2d 端能跑绿，但**不足以证明真机层级正确**：Cocos 把指令流分成写死五段
-    // （Background → BlitLayer → Graphics → BlitLayerUI → Labels），遮罩（Graphics）压不住底页的
-    // `BlitLayerUI` 位图腿与 `Labels` 文字 ⇒ 先画底页的做法在真机端已回退（WXG-T-325）。
-    // 解开本 skip 的前置 = 容器层落地（ADR-0033 / UI-60）：弹窗作为独立容器，容器内层有序。
-    it.skip('设置弹窗：遮罩之前必须已画出主菜单图元（待容器层）', () => {
+describe('WXG-T-324/325 — 菜单弹窗透出底页（ADR-0033 容器层已落）', () => {
+    // `[UI-60 P1 / ADR-0033 DEC-1]` 本组解 skip 的前置已达成：弹窗由**弹窗路由自持绘制**且
+    // `UiRoot.draw` 为其包容器边界 ⇒ 真机端遮罩（容器内 Graphics）连同面板文字/位图腿整体
+    // 压在底页之上（写死五通道不再决定跨容器序）。真机层序读数仍须设备取证（DEC-8②）。
+    it('设置弹窗：遮罩之前必须已画出主菜单图元（底页半透）', () => {
         const shell = rig();
         openSettings(shell);
         const cmds = frameOf(shell);
@@ -163,6 +163,23 @@ describe('WXG-T-324/325 — 菜单弹窗透出底页（待 ADR-0033 容器层）
             .slice(0, at)
             .filter((cmd) => cmd.kind === 'polygon' || cmd.kind === 'circle').length;
         expect(underlay, '遮罩下必须已画出底层主菜单').toBeGreaterThan(100);
+    });
+
+    it('设置弹窗：弹窗体自成一段容器，且容器/段命令流结构良构（DEC-8①）', () => {
+        const shell = rig();
+        openSettings(shell);
+        const cmds = frameOf(shell);
+        const begin = cmds.findIndex((cmd) => cmd.kind === 'container' && cmd.id === 'settings');
+        const end = cmds.findIndex((cmd, i) => i > begin && cmd.kind === 'containerEnd');
+        expect(begin, '弹窗容器在册').toBeGreaterThan(-1);
+        expect(end, '容器闭合').toBeGreaterThan(begin);
+        // 遮罩与面板必须落在容器**内**：容器外（页面命令）不得出现设置弹窗的半透遮罩。
+        const scrim = scrimFill(UI_SCRIM.overlay, UI_SCRIM.settingsAlpha);
+        const at = cmds.findIndex((cmd) => cmd.kind === 'rect' && cmd.fill === scrim);
+        expect(at).toBeGreaterThan(begin);
+        expect(at).toBeLessThan(end);
+        // 结构门（ADR-0033 DEC-8①）：真帧命令流必须良构 —— 容器不重叠/不嵌套、begin/end 配对。
+        expect(checkUiContainerOrder(cmds)).toEqual([]);
     });
 });
 

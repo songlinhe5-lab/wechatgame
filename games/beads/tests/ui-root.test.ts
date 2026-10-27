@@ -16,7 +16,7 @@ import type { UiDebugState } from '../src/ui/ui-host.js';
 const PALETTE = { text: '#222222' } as unknown as BeadsPalette;
 
 interface Call {
-    kind: 'rect' | 'line' | 'text';
+    kind: 'rect' | 'line' | 'text' | 'container' | 'containerEnd';
     args: number[];
     text?: string;
 }
@@ -29,6 +29,9 @@ function fakeBuilder(): { builder: RenderModelBuilder; calls: Call[] } {
         line: (...args: number[]) => calls.push({ kind: 'line', args }),
         text: (...args: unknown[]) =>
             calls.push({ kind: 'text', args: args.slice(0, 2) as number[], text: args[2] as string }),
+        // `[UI-60 P1 / ADR-0033 DEC-1]` 容器边界只对 modal 路由发。
+        beginContainer: (id: string) => calls.push({ kind: 'container', args: [], text: id }),
+        endContainer: () => calls.push({ kind: 'containerEnd', args: [] }),
     } as unknown as RenderModelBuilder;
     return { builder, calls };
 }
@@ -61,7 +64,7 @@ describe('UI-25 · UiRoot', () => {
         expect(viaRoot.calls).toEqual(old.calls);
     });
 
-    it('可见路由自下而上，调试层最后', () => {
+    it('可见路由自下而上，弹窗自带容器，调试层最后', () => {
         const d: UiDebugState = {
             enabled: true,
             frameMs: 16.666,
@@ -74,7 +77,17 @@ describe('UI-25 · UiRoot', () => {
         root.push(route('settings', 'modal'));
         const { builder, calls } = fakeBuilder();
         root.draw(builder, PALETTE);
-        expect(calls.map((c) => c.kind)).toEqual(['line', 'line', 'rect', 'text', 'text', 'text']);
+        expect(calls.map((c) => c.kind)).toEqual([
+            'line', // menu（页面：不包容器 ⇒ 恒在容器树之下）
+            'container', // settings 容器开
+            'line', // settings 内容
+            'containerEnd',
+            'rect', // 调试层
+            'text',
+            'text',
+            'text',
+        ]);
+        expect(calls.find((c) => c.kind === 'container')?.text).toBe('settings');
         expect(calls.filter((c) => c.kind === 'text').map((c) => c.text)).toEqual([
             'fps 60 · 16.7 ms',
             'PLAYING · L3',
