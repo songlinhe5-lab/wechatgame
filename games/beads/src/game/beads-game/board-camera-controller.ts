@@ -15,6 +15,7 @@ import type { InputSnapshot, Viewport } from '@wxgame/framework';
 import {
   BOARD_TAP_MOVE_THRESHOLD,
   IDENTITY_CAMERA,
+  ZOOM_CONTROLS_VISIBLE,
   ZOOM_TAP_MIN,
   zoomControlLayout,
   type BoardCamera,
@@ -100,8 +101,11 @@ export class BoardCameraController {
     this._pinched = false;
   }
 
-  /** 缩放控件命中（热区各 88×88）：`reset`「1:1」/ `fit` 适配 / `track` slider。 */
+  /** 缩放控件命中（热区各 88×88）：`reset`「1:1」/ `fit` 适配 / `track` slider。
+   * `[WXG-T-462]` 控件条整条隐藏（用户裁定）⇒ 命中恒空（⛔ 不留隐形热区吃点击）；
+   * 缩放能力保留 = 盘面双指捏合。 */
   zoomHit(x: number, y: number): ZoomControlHit {
+    if (!ZOOM_CONTROLS_VISIBLE) return null;
     const zc = zoomControlLayout();
     const inside = (r: { x: number; y: number; w: number; h: number }): boolean =>
       x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h;

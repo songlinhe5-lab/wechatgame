@@ -29,6 +29,7 @@ import {
     EXPAND_BTN_W,
     UI_CONTAINER,
     powerupCardRects,
+    ZOOM_CONTROLS_VISIBLE,
     zoomControlLayout,
 } from '../src/config/tuning.js';
 import { buildBeadsFrame } from '../src/view/view-model.js';
@@ -100,7 +101,10 @@ describe('WXG-T-268 暖纸拼豆台 · UI 基础色板（art-bible §3.1 定稿 
 });
 
 describe('WXG-T-268 P-1 收编：缩放控件条改读纸面板族（risks.md P-1 / tokens.md §1）', () => {
-    it('缩放钮（72×56）与滑轨轨道 fill/stroke ≡ panel/panelBorder，不再消费 slot 族', () => {
+    // `[WXG-T-462]` 控件条整条隐藏（用户 2026-10-27 裁定）⇒ 整帧零控件命令；
+    // P-1 的 token 契约（钮/轨 ≡ panel/panelBorder，不消费 slot 族）随
+    // `ZOOM_CONTROLS_VISIBLE` 恢复展示时继续生效（契约原文见 tuning 注与 P-1 登记）。
+    it('控件条隐藏：整帧不产任何缩放控件命令（钮 72×56 / 轨 12 / knob r22 全缺席）', () => {
         const harness = sealStyleHarness();
         const builder = new RenderModelBuilder(750, 1334);
         builder.begin();
@@ -108,24 +112,10 @@ describe('WXG-T-268 P-1 收编：缩放控件条改读纸面板族（risks.md P-
         const cmds = builder.end().commands;
 
         const zc = zoomControlLayout();
-        const zoomBtns = cmds.filter(
-            (c) => c.kind === 'rect' && c.w === 72 && c.h === 56,
-        );
-        expect(zoomBtns.length, '1:1 + 适配 两钮在场').toBe(2);
-        for (const btn of zoomBtns) {
-            expect((btn as { fill?: string }).fill, '缩放钮面 ≡ panel（原 slot）').toBe(DEFAULT_PALETTE.panel);
-            expect((btn as { stroke?: string }).stroke, '缩放钮描边 ≡ panelBorder（原 slotBorder）').toBe(
-                DEFAULT_PALETTE.panelBorder,
-            );
-        }
-        const track = cmds.find((c) => c.kind === 'rect' && c.w === zc.track.w && c.h === 12);
-        expect(track, '滑轨轨道在场').toBeDefined();
-        expect((track as { fill?: string }).fill, '轨道面 ≡ panel').toBe(DEFAULT_PALETTE.panel);
-        expect((track as { stroke?: string }).stroke, '轨道描边 ≡ panelBorder').toBe(DEFAULT_PALETTE.panelBorder);
-        // 已选段/knob 描边走 accentPrimary（本批换值 wood_face）——钉住换值后的消费语义不变。
-        const knob = cmds.find((c) => c.kind === 'circle' && c.r === 22);
-        expect(knob, 'knob 在场（r22）').toBeDefined();
-        expect((knob as { stroke?: string }).stroke, 'knob 描边 ≡ accentPrimary').toBe(DEFAULT_PALETTE.accentPrimary);
+        expect(ZOOM_CONTROLS_VISIBLE, '工程参 = 隐藏').toBe(false);
+        expect(cmds.filter((c) => c.kind === 'rect' && c.w === 72 && c.h === 56), '缩放钮缺席').toHaveLength(0);
+        expect(cmds.find((c) => c.kind === 'rect' && c.w === zc.track.w && c.h === 12), '滑轨轨道缺席').toBeUndefined();
+        expect(cmds.find((c) => c.kind === 'circle' && c.r === 22), 'knob 缺席').toBeUndefined();
     });
 });
 

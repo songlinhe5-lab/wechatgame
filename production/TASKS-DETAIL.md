@@ -6442,3 +6442,15 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 **待办**：harness 复现 → 定位元凶 → 修复 + 判据 → 重建 → 真机复验。
 
 **T-461 取证进展（2026-10-27 晚）**：harness（canvas2d，430 逻辑宽档）进玩法截托盘 = **干净**（豆/槽完整、无白带）；web-mobile（Cocos-WebGL）早前同画面亦干净。细读用户截图修正判读：白带 = **托盘面板顶缘线（设计 y≈450，位置正确）**，而**豆体整体高出面板几何 ~30px**（豆顶伸出面板上缘、被面板边线横切）。静态推演：`slotCenterY/panelTop` 全为常量且 harness 同码同值 ⇒ 几何无漂移；三浏览器运行时同命令流无病灶 ⇒ 指向**微信运行时特有**的托盘豆绘制位移（托盘豆 = tint 臂 blit）。反证排查：微信模拟器菜单全位图（同载具路径）渲染正常 ⇒ 载具 UV 全局性损坏排除； board 豆（同路径不同尺档）真机历史截图正常 ⇒ 尺档级偏移待证。**静态穷尽，待用户判别证据**：① 托盘那排是空槽还是已装豆；② 白带会动/会消失吗（换关/缩放后）；③ 盘面豆与格子是否对齐（分流 board vs tray 路径）；④ 一张全屏截图（看白带是否横过盘面）。
+
+## WXG-T-462
+
+**缩放控件条整条隐藏 · 负责：主理人(CodeBuddy) · 状态：🔄 进行中（2026-10-27）**
+
+用户裁定（附真机截图：控件条与 1.61× 放大态的盘底珠几乎贴脸）：「这块面板隐藏不展示」。
+
+**实现**：`tuning/board.ts` 新增 `ZOOM_CONTROLS_VISIBLE = false` 工程参（单点可逆）；消费两路同源早退——`drawZoomControls`（绘制）与 `BoardCameraController.zoomHit`（命中漏斗，`zoomDown`/`sliderHeld`/`_applySlider` 全经它）⇒ ⛔ 不留隐形热区吃点击。缩放能力不受影响（盘面**双指捏合**链路不动；`setZoomForDebug` 调试腿保留）。几何常量零改动，恢复展示 = 改回 `true`。
+
+**测试改判**：`ui-warm-paper-tokens`（P-1 token 契约 → 隐藏态零控件命令断言，契约原文留 tuning 注）+ `ui-input-timing`（滑轨拖拽用例 → 隐藏态命中恒空/事件穿透断言）。
+
+**复评通道（执行中）**：封箱基准（`bead-style-seal` 腿 4a/4b + T-230-B 哨兵，Δtotal=−8）与金样本 `play` 态随控件段移除漂移 ⇒ 按失败读数指路走 `bead-style-seal-recapture.ts` / `ui-golden-capture.ts` 于可复现锚重抓 + `test-cases.md §K.5.1-补N` 登记 + recheckLedger 入账（K-051/K-053）。

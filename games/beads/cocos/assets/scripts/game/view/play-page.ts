@@ -79,6 +79,7 @@ import {
     solverSequenceMs,
     trayLayout,
     trayPreviewFits,
+    ZOOM_CONTROLS_VISIBLE,
     zoomControlLayout,
 } from '../config/tuning';
 import type { BeadsSnapshot } from '../game/state';
@@ -182,7 +183,8 @@ function drawZoomControls(
     palette: BeadsPalette,
     visible: boolean,
 ): void {
-    if (!visible) return;
+    // `[WXG-T-462]` 控件条整条隐藏（用户裁定）；`visible` 相位腿保留（面板期 scrim 口径不动）。
+    if (!visible || !ZOOM_CONTROLS_VISIBLE) return;
     const zc = zoomControlLayout();
     const midY = zc.track.y + zc.track.h / 2;
     const drawBtn = (r: { x: number; y: number; w: number; h: number }, label: string): void => {

@@ -417,6 +417,13 @@ export const ZOOM_TAP_MIN = 0.7; // [待真机]
 
 // ───────────── 棋盘缩放控件（盘面下方净空带 · 与上方相机组同口径）─────────────
 // ⚠ `ZOOM_CTRL_HOT` 等几何为工程参；净空公式随 §3.3 v1.59 换源（旧 × SPAN）。
+/**
+ * `[WXG-T-462]` 控件条**整条隐藏**（用户 2026-10-27 裁定「这块面板隐藏不展示」）：
+ * 绘制（`drawZoomControls`）与命中（`BoardCameraController.zoomHit`）同源早退 ⇒
+ * 不产生「隐形热区吃点击」；缩放能力不受影响（盘面**双指捏合**链路不动，
+ * `setZoomForDebug` 调试腿保留）。恢复展示 = 改回 `true`，几何常量零改动。
+ */
+export const ZOOM_CONTROLS_VISIBLE = false;
 /** 控件条各元素热区边长（= `TOUCH_MIN`，`accessibility C1`「视觉不变、热区扩大」）。 */
 export const ZOOM_CTRL_HOT = TOUCH_MIN;
 /** 控件条距 `PUZZLE_BAND` 左缘的内边距（设计 px）。 */

@@ -22,6 +22,7 @@ import {
   HUD_BAND,
   TRAY_COLS,
   trayLayout,
+  ZOOM_CONTROLS_VISIBLE,
   zoomControlLayout,
 } from '../src/config/tuning.js';
 
@@ -129,18 +130,15 @@ describe('区外按钮抬起才提交（WXG-T-295）', () => {
     expect(h.count('game:paused')).toBe(1);
   });
 
-  it('缩放滑轨 = 拖拽控件，仍按下即生效并逐帧跟随（⛔ 不受抬起门影响）', () => {
+  it('[WXG-T-462] 控件条隐藏：滑轨命中恒空——轨道点按不改档、不吃事件（缩放走盘面捏合）', () => {
     const h = createBeadsHarness({ noAssemble: true, levels: [simpleTestLevel()], saveKey: 'wxgame.beads.test.uit-slider' });
     const track = zoomControlLayout().track;
     const y = track.y + track.h / 2;
     const zoom0 = h.game.debugGestureState().zoom;
     poke(h, track.x + track.w * 0.5, y, 'down');
-    const zoomDown = h.game.debugGestureState().zoom;
-    expect(zoomDown).not.toBe(zoom0); // 按下帧即改档（旧口径，本批刻意保留）
-    poke(h, track.x + track.w * 0.9, y, 'move');
-    expect(h.game.debugGestureState().zoom).not.toBe(zoomDown); // 拖拽逐帧跟随
+    expect(h.game.debugGestureState().zoom).toBe(zoom0); // 隐藏 ⇒ 不改档
     poke(h, track.x + track.w * 0.9, y, 'up');
-    expect(h.game.phase).toBe('playing');
+    expect(h.game.phase).toBe('playing'); // 事件穿透（⛔ 不留隐形热区）
   });
 
   it('对照·未翻清单：托盘槽仍按下帧提交', () => {
