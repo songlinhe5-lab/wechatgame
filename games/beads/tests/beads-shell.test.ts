@@ -32,7 +32,9 @@ import {
     SKIN_PRICES_COINS,
     STAMINA_MAX,
     STAMINA_START_COST,
+    WALL_ROWS,
 } from '../src/config/tuning.js';
+import { DEBUG_OUTLINE_TILE_HEX } from '../src/view/palette.js';
 
 const START = 1_700_000_000_000;
 const META_KEY = 'test.shell.meta';
@@ -186,6 +188,49 @@ describe('BeadsShell — overlay stack + meta:overlay events', () => {
         expect(r.shell.play.debugInfo).toBe(true); // 持久化面见 pause-settings §8-13
         r.shell.tapMeta(dbg.box.x + dbg.box.w / 2, dbg.box.y + dbg.box.h / 2);
         expect(r.shell.play.debugInfo).toBe(false);
+    });
+
+    /**
+     * `[WXG-T-444]` 用户令「把按钮的响应区域在 debug 模式下也绘制出来边界」。
+     * 判据取**指令形态**（`stroke === DEBUG_OUTLINE_TILE_HEX` 且无 `fill` 的矩形），
+     * 不看截图：这样「画了但画错位置」与「压根没画」在单测里可分辨。
+     */
+    it('`[WXG-T-444]` Debug 开 ⇒ 菜单钮逐颗画响应区边界（关 ⇒ 零指令）', () => {
+        const r = rig({ initialScreen: 'menu' });
+        const hitBoxes = (): { x: number; y: number; w: number; h: number }[] => {
+            const b = new RenderModelBuilder(750, 1334);
+            b.begin();
+            r.shell.buildRenderModel(b);
+            return b.end().commands.filter(
+                (c) => c.kind === 'rect' && (c as { stroke?: string }).stroke === DEBUG_OUTLINE_TILE_HEX,
+            ) as { x: number; y: number; w: number; h: number }[];
+        };
+
+        expect(hitBoxes(), 'Debug 关：一条都不发（金样本零漂移的前提）').toHaveLength(0);
+
+        r.shell.tapMeta(centerOf('none', 'open-settings').x, centerOf('none', 'open-settings').y);
+        const dbg = metaLayout('settings').buttons.find((b) => b.id === 'toggle-debug-guides')!;
+        r.shell.tapMeta(dbg.box.x + dbg.box.w / 2, dbg.box.y + dbg.box.h / 2);
+        r.shell.tapMeta(centerOf('settings', 'back').x, centerOf('settings', 'back').y);
+        expect(r.shell.overlay).toBe('none');
+
+        // ⚠ 口径 = **命中腿自己那套几何**（`hitTestMeta` 传的是逐机 anchors），
+        // ⛔ 不是 `metaLayout('none')` 的缺省档 —— 两者在非零安全区的设备上不是同一套。
+        const hitLayout = metaLayout('none', WALL_ROWS, r.shell.menuAnchors);
+        const menuButtons = hitLayout.buttons;
+        const boxes = hitBoxes();
+        expect(boxes, '主菜单每颗钮一条框').toHaveLength(menuButtons.length);
+        // 逐颗对齐热区表：框必须**就是**判定用的 `box`（⛔ 不接受「画个大概」）。
+        const byId = new Map(menuButtons.map((b) => [`${b.box.x},${b.box.y},${b.box.w},${b.box.h}`, b.id]));
+        for (const box of boxes) {
+            expect(byId.has(`${box.x},${box.y},${box.w},${box.h}`), `框 ${JSON.stringify(box)} 对上热区表`).toBe(true);
+        }
+
+        // 好友榜面板打开 ⇒ 面板自己的钮也要画（否则「点不上」时两套钮只有一套有框）。
+        const rankBtn = menuButtons.find((b) => b.id === 'open-rank')!;
+        r.shell.tapMeta(rankBtn.box.x + rankBtn.box.w / 2, rankBtn.box.y + rankBtn.box.h / 2);
+        expect(r.shell.play.rankOpen).toBe(true);
+        expect(hitBoxes(), '面板钮也入框').toHaveLength(menuButtons.length + 1);
     });
 
     it('设置 Debug 打开后，菜单与设置页都画出安全区标定线', () => {

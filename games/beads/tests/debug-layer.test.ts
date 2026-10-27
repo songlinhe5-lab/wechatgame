@@ -6,7 +6,8 @@
 import { describe, expect, it } from 'vitest';
 import type { RenderModelBuilder } from '@wxgame/framework';
 import type { BeadsPalette } from '../src/view/palette.js';
-import { drawPerfOverlay, drawSafeGuideLines } from '../src/view/debug-layer.js';
+import { DEBUG_OUTLINE_TILE_HEX } from '../src/view/palette.js';
+import { drawHitBox, drawPerfOverlay, drawSafeGuideLines } from '../src/view/debug-layer.js';
 
 const P = { text: '#text' } as unknown as BeadsPalette;
 
@@ -30,6 +31,16 @@ function recorder(): { calls: Call[]; builder: RenderModelBuilder } {
 function texts(calls: readonly Call[]): string[] {
     return calls.filter((c) => c.kind === 'text').map((c) => String(c.args[2]));
 }
+
+describe('drawHitBox（`[WXG-T-444]` 响应区边界）', () => {
+    it('只发一条带 stroke、无 fill 的矩形：几何逐字透传 + 线宽 2', () => {
+        const { calls, builder } = recorder();
+        drawHitBox(builder, 24, 300, 140, 88);
+        expect(calls).toHaveLength(1);
+        expect(calls[0].kind).toBe('rect');
+        expect(calls[0].args).toEqual([24, 300, 140, 88, { stroke: DEBUG_OUTLINE_TILE_HEX, lineWidth: 2 }]);
+    });
+});
 
 describe('drawPerfOverlay', () => {
     it('开关关：零指令', () => {

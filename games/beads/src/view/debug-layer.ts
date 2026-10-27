@@ -53,6 +53,24 @@ export function drawPerfOverlay(
 }
 
 /**
+ * `[WXG-T-444]` 画一个**按钮响应区**框（Debug 开）。用途：报「点不上」时**先看框对不对**，
+ * 再怀疑命中逻辑 —— 热区与绘制不同源、容差异常、钮被相邻钮抢，都会在这一层直接看见。
+ *
+ * 描边色用 `DEBUG_OUTLINE_TILE_HEX`（与标定线同族，⛔ 不进 `palette` 正式调色板）；
+ * 线宽 2 设计 px ⇒ 真机约 1 css px，看得见又不糊满钮。只发一条 `rect`（带 `stroke` 无 `fill`），
+ * 不参与任何命中判定。
+ */
+export function drawHitBox(
+    builder: RenderModelBuilder,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+): void {
+    builder.rect(x, y, w, h, { stroke: DEBUG_OUTLINE_TILE_HEX, lineWidth: 2 });
+}
+
+/**
  * 安全区标定线：三条线 = 顶部安全区 / 胶囊底缘 / Home 条。入参均 = 距边的设计 px。
  * （原 `view-model::drawSafeGuideLines` 原样搬入，两屏共用同一份。）
  */

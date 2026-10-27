@@ -37,7 +37,7 @@ import {
 import { COPY_TOKENS } from '../config/copy-tokens';
 import { UI_DEBUG_SCOPE_ID, type RenderModelBuilder } from '../../framework/index';
 import type { BeadsPalette } from './palette';
-import { drawSafeGuideLines } from './debug-layer';
+import { drawHitBox, drawSafeGuideLines } from './debug-layer';
 import { UI_FONT, UI_SCRIM, scrimFill } from './ui-theme';
 import { drawSettingsContent, isSettingsAction } from './settings-content';
 import { SIGNIN_TITLE, drawSigninContent } from './signin-content';
@@ -54,6 +54,7 @@ import { drawMenuAnchored } from './meta-menu';
 import { drawLevelsPage } from './meta-levels-page';
 // `[WXG-T-432]` 好友榜面板占位视图（叠在菜单页之上；见下方 `buildMetaView` 末段）。
 import { drawRankPanel } from './rank-view';
+import { rankPanelLayout } from '../systems/rank-panel';
 import type { Box, MetaAction, MetaLayout, MetaOverlay, MetaViewData, MetaViewVariant } from './meta-types';
 
 export type { MetaAction, MetaBossState, MetaButton, MetaLayout, MetaOverlay, MetaViewData, MetaViewVariant } from './meta-types';
@@ -215,6 +216,26 @@ export function buildMetaView(
     // `[ADR-0033 §S1]` 标定线同属调试层 ⇒ 走恒置顶容器，弹窗打开时也不被遮罩压掉。
     if (data.debugGuides) {
         builder.beginContainer(UI_DEBUG_SCOPE_ID);
+        // `[WXG-T-444]` 按钮**响应区**边界 —— 画的必须是**命中腿真正比的那张表**：
+        // `hitTestMeta` 走 `metaLayout(overlay, WALL_ROWS, anchors)`（逐机 anchors），
+        // ⛔ 不是本函数的 `layout`（缺省档）。两者不同源时这里会立刻看出来 —— 这正是本调试项的意义。
+        for (const button of metaLayout(base, WALL_ROWS, A).buttons) {
+            drawHitBox(builder, button.box.x, button.box.y, button.box.w, button.box.h);
+        }
+        // 好友榜面板的钮：画**静态**布局框（= `hitRankPanel` 实际判定用的那套），
+        // 所以进出场缩到 0.9 时框会比可见面板大一圈 —— 这正是要看见的事实，不做 `frame*` 换算。
+        const rank = data.rank;
+        if (rank !== undefined && rank.visible) {
+            for (const button of rankPanelLayout(rank.settings).buttons) {
+                drawHitBox(
+                    builder,
+                    button.rect.xMin,
+                    button.rect.yMin,
+                    button.rect.xMax - button.rect.xMin,
+                    button.rect.yMax - button.rect.yMin,
+                );
+            }
+        }
         drawSafeGuides(builder, A);
         builder.endContainer();
     }

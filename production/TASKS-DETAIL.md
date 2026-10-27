@@ -6166,3 +6166,21 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 **读数**（先红后绿 4 例）：按下框内 14px / 抬手外飘 8px → 改前取消（红）/ 改后点中（绿）；外飘 60px 仍取消；`frame*` 在 `scale = 1` 恒等 + 同引用；好友榜两态对拍满足 `a = c + (b − c) × s` 且字号同比 → 改前红 / 改后绿。beads **1368 passed + 2 skipped**；金样本十一态零漂移；`tsc` / `check:arch` / `check:tasks` OK。
 
 **边界**：① `drawPauseSettingButton` 设置行字号未过 `frameFont`（位置对，≤200ms 内最大差 10%），留待视觉裁定；② 好友榜自己的 `返回` 钮仍是精确命中（本单只收菜单入口）。
+
+---
+
+## WXG-T-444
+
+**Debug 模式画按钮响应区边界 · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-10-27）**
+
+用户令「把按钮的响应区域在 debug 模式下也绘制出来边界」。
+
+**落码**：`view/debug-layer.ts` 新增 `drawHitBox(builder, x, y, w, h)` —— 单条 `rect`，只带 `stroke`（`DEBUG_OUTLINE_TILE_HEX`、线宽 2）无 `fill`，⛔ 不进 `palette` 正式调色板。`meta-view::buildMetaView` 的既有 `UI_DEBUG_SCOPE_ID` 恒置顶容器里逐颗画：菜单/选关页按 `metaLayout(base, WALL_ROWS, A)`，好友榜面板开时另画 `rankPanelLayout(settings).buttons`。
+
+**关键口径**：画的是**命中腿真正比的那张表**（`hitTestMeta` 走 `metaLayout(overlay, WALL_ROWS, anchors)`），⛔ 不是页面绘制自己用的 `layout`（缺省档）。本单第一次实现就踩了这条：用 `layout` 画出来的框与 `open-levels` 的热区对不上（占位框 `{146,363,468,528}` 在命中表里不存在）——**因为 `layout` 是缺省 anchors 的档，页面绘制走的是 `anchoredGeo(A)`**。改画命中表后逐颗对齐。好友榜面板画**静态**布局框（= `hitRankPanel` 判据），故进出场缩到 0.9 时框比可见面板大一圈，这是有意暴露的事实。
+
+**开关**：复用设置里既有的 Debug（`data.debugGuides`），关 ⇒ 零指令 ⇒ 金样本十一态零漂移。
+
+**验收**：`debug-layer.test.ts` 锁指令形态（一条 rect、`stroke` 精确、`lineWidth: 2`、无 fill）；`beads-shell.test.ts` 真帧锁三态 —— Debug 关 = 0 条 / 开 = 每颗钮一条且逐颗对上热区表 / 好友榜开 = +1。beads **1370 passed + 2 skipped**；`tsc` 干净；`check:arch` OK。
+
+**边界**：① 选关页格（`pick-level`）与对局 HUD 尚未接（选关页处于 pageFade 腿时 `base` 仍是菜单档）；② 只画 `box`，不画 `TAP_SLOP` 的抬起容差外环 —— 想看容差边界需另加一圈虚线。
