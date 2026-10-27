@@ -177,6 +177,15 @@ function build(hasSettings: boolean): RankPanelLayout {
   };
 }
 
+/**
+ * 面板**静态边界**命中（不看开合相位）。`[WXG-T-442]` 只给输入的「余震」判定用：
+ * 退场期（`visible` 仍 true、`interactive` 已 false）落在板上的点击仍算面板的，
+ * ⛔ 不放给底页 —— 否则「返回」位置连点会穿到下方橱窗（= 误进选关页）。
+ */
+export function rankPanelContains(x: number, y: number, hasSettings: boolean): boolean {
+  return rectContains(rankPanelLayout(hasSettings).panel, x, y);
+}
+
 /** 命中测试（退场期 / 未显示 ⇒ null）。 */
 export function hitRankPanel(
   x: number,
@@ -287,6 +296,11 @@ export class RankPanel {
   hitTest(x: number, y: number): RankPanelAction | null {
     if (!this.interactive) return null;
     return hitRankPanel(x, y, this._openSettings !== undefined);
+  }
+
+  /** 静态边界命中（相位无关；退场期余震判定见 {@link rankPanelContains}）。 */
+  contains(x: number, y: number): boolean {
+    return rankPanelContains(x, y, this._openSettings !== undefined);
   }
 
   tap(action: RankPanelAction): void {

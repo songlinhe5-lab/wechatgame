@@ -6174,3 +6174,31 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 
 1. 容器**首次出现序**定兄弟位：若同一次会话里先开过某个弹窗容器、之后才第一次开好友榜，则好友榜容器的兄弟位在弹窗之后。两者互斥（好友榜打开期菜单输入全拦），故当前无可见风险；真出现「两容器同帧可见」的需求时须按 DEC-1 显式排优先级。
 2. 面板进出场进度由 `RankPanel` 自持（`ResultPanelClock`），容器只包命令、不参与计时。
+
+---
+
+## WXG-T-442
+
+**好友榜退场 150ms 输入死区：模态门改「接受点击 或 面板内」· 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-10-27）**
+
+用户报「好友榜按钮，如果点击过了，返回再点击，有概率点不上，可能延迟点击」。
+
+### 根因
+
+菜单模态门（`beads-shell::_readMenuInput`）判据取 `rankOpen` = `visible` = `phase !== 'closed'` ⇒ **`closing` 也算可见**，退场 `PANEL_OUT_MS = 150`ms 内整屏菜单输入被 `return` 吞掉且 `_menuPress` 逐帧清空 ⇒ 连点的**按下帧**落在窗口内就整颗丢失（再点一次才生效 = 用户感知「点不上/延迟」）。实质 = `visible`（还画不画）与「占不占用输入」（还收不收点击）是两件事，面板已用 `interactive` 分开表达，菜单门只读了前者。
+
+### 落码
+
+`systems/rank-panel.ts` 新增 `rankPanelContains(x, y, hasSettings)` + `RankPanel.contains`（静态边界、相位无关）；`game/beads-game.ts` 新增 `rankInteractive` / `rankContains`；`game/beads-shell.ts` 模态门判据改 `rankOpen && (rankInteractive || rankContains(x, y))`。
+
+为什么不是简单的 `rankInteractive`：**板内余震仍要吞** —— 退场期「返回」那块下面就是走马灯橱窗玻璃，板内放行会让连点穿到 `open-levels` = 误进选关页；板外（入口钮在左下角）放行才既解死区又不引入新误触。板外重开复用 `ModalLifecycle.open` 既有语义：从 `closing` 反向续走，零新状态机。
+
+### 验收读数
+
+- **先红后绿**（真指针腿）：改前「退场期点入口」`rankOpen === false`（被吞后彻底关闭）**红**，改后 `true` + `rankInteractive === true` **绿**；「面板内余震不穿透」改前改后均绿（守不回归）。
+- beads 全量 **1364 passed + 2 skipped**（+2 本单）；`tsc --noEmit` 干净；`check:arch` OK。
+
+### 已知边界
+
+1. 退场 150ms 内点其它菜单钮（设置/签到）即时生效，弹窗容器按出现序叠在好友榜容器之上，观感无异常。
+2. 判据取**静态**面板边界（退场缩到 0.9）⇒ 保护范围比可视范围略大，取保守侧。

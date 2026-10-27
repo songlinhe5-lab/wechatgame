@@ -2428,6 +2428,16 @@ export class BeadsGame {
     return this._rankPanel.visible;
   }
 
+  /** `[WXG-T-442]` 面板是否**接受点击**（退场期 = false：可见但已不收货）。 */
+  get rankInteractive(): boolean {
+    return this._rankPanel.interactive;
+  }
+
+  /** `[WXG-T-442]` 面板静态边界命中（退场期余震判定，⛔ 与命中动作无关）。 */
+  rankContains(x: number, y: number): boolean {
+    return this._rankPanel.contains(x, y);
+  }
+
   /** 只读视图（复用对象，零分配）。 */
   rankView(): RankPanelView {
     return this._rankPanel.view();

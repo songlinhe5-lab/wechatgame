@@ -773,8 +773,16 @@ export class BeadsShell implements Game {
         if (!services) return;
         const snap = services.input.snapshot;
         services.viewport.screenToDesign(this._pointer, snap.x, snap.y);
-        // `[WXG-T-432]` 好友榜面板 = 模态：可见期菜单输入全拦，只处理面板按钮的按下/抬起同点派发。
-        if (this.play.rankOpen) {
+        // `[WXG-T-432]` 好友榜面板 = 模态：占用期菜单输入全拦，只处理面板按钮的按下/抬起同点派发。
+        // `[WXG-T-442]` 占用判据不能只看 `visible`：退场那 150ms（`PANEL_OUT_MS`）里面板仍可见、
+        // 但已 `!interactive` ⇒ 旧判据把整屏输入一起吞，「返回」后立刻点「好友榜」有概率点不上
+        // （要等退场走完重按）。现改成「接受点击 **或** 落在面板静态边界内」：板外的连点放行
+        // （入口可重开，`ModalLifecycle.open` 从 closing 反向续走），板内的余震仍吞 —— 否则
+        // 「返回」位置连点会穿到下方橱窗 = 误进选关页。
+        if (
+            this.play.rankOpen &&
+            (this.play.rankInteractive || this.play.rankContains(this._pointer.x, this._pointer.y))
+        ) {
             if (snap.justDown) this._rankPress = this.play.hitRank(this._pointer.x, this._pointer.y);
             this._menuPress = null;
             this._viewData.pressed = null;

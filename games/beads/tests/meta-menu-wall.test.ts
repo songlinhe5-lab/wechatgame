@@ -809,4 +809,44 @@ describe('WXG-T-432 S-3 · 菜单好友榜入口与菜单腿模态门', () => {
         for (let i = 0; i < 12; i += 1) r.shell.update(STEP);
         expect(r.shell.play.rankOpen).toBe(false);
     });
+
+    /** 开榜 → 点面板「返回」→ 退场期（`visible` 仍 true、已不接受点击）。返回 `返回` 钮中心。 */
+    function openThenBack(r: Rig): { x: number; y: number } {
+        const anchored = anchoredLayout(r.shell);
+        const rankC = centerOf(anchored.buttons.find((b) => b.id === 'open-rank')!.box);
+        shellPointer(r, rankC.x, rankC.y, 'down');
+        shellPointer(r, rankC.x, rankC.y, 'up');
+        expect(r.shell.play.rankOpen).toBe(true);
+        const back = rankPanelLayout(false).buttons[0]!.rect;
+        const backC = { x: (back.xMin + back.xMax) / 2, y: (back.yMin + back.yMax) / 2 };
+        shellPointer(r, backC.x, backC.y, 'down');
+        shellPointer(r, backC.x, backC.y, 'up');
+        expect(r.shell.play.rankOpen, '退场期仍可见').toBe(true);
+        expect(r.shell.play.rankInteractive, '退场期已不接受点击').toBe(false);
+        return backC;
+    }
+
+    it('`[WXG-T-442]` 退场期内点面板**外**的「好友榜」入口 ⇒ 必须重开（旧行为 = 被 150ms 退场吞掉）', () => {
+        const r = rig();
+        const anchored = anchoredLayout(r.shell);
+        const rankC = centerOf(anchored.buttons.find((b) => b.id === 'open-rank')!.box);
+        openThenBack(r);
+        // 退场还没走完就再点入口（人手连点 = 本单复现路径）。
+        shellPointer(r, rankC.x, rankC.y, 'down');
+        shellPointer(r, rankC.x, rankC.y, 'up');
+        for (let i = 0; i < 12; i += 1) r.shell.update(STEP);
+        expect(r.shell.play.rankOpen, '退场期点入口应重新开榜（旧行为 = 吞掉后彻底关闭）').toBe(true);
+        expect(r.shell.play.rankInteractive, '重开后应接受点击').toBe(true);
+    });
+
+    it('`[WXG-T-442]` 退场期内点面板**内**的余震 ⇒ 仍被吞且不穿透（不得误开下方橱窗）', () => {
+        const r = rig();
+        const backC = openThenBack(r);
+        shellPointer(r, 375, backC.y, 'down');
+        shellPointer(r, 375, backC.y, 'up');
+        for (let i = 0; i < 12; i += 1) r.shell.update(STEP);
+        expect(r.shell.play.rankOpen, '面板内余震不得重开').toBe(false);
+        expect(r.shell.screen, '面板内余震不得穿到橱窗（否则误进选关页）').toBe('menu');
+        expect(r.shell.overlay).toBe('none');
+    });
 });
