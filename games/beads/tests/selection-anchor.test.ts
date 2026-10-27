@@ -26,7 +26,7 @@ import type { BeadsGame } from '../src/game/beads-game.js';
 import { DEFAULT_PALETTE, DEMO_BEAD_INKS, beadColorOf, endpointOf, withAlpha } from '../src/view/palette.js';
 import { LIFT_SHADOW_ALPHA } from '../src/config/tuning.js';
 import { RenderModelBuilder, polygonVertices, type DrawCommand } from '../../../packages/framework/src/core/render/render-model.js';
-import { buildBeadsView } from '../src/view/view-model.js';
+import { buildBeadsFrame } from '../src/view/view-model.js';
 import type { BeadsSnapshot } from '../src/game/state.js';
 
 // ────────────────────────────────────────────────────────── 局面装配助手
@@ -35,7 +35,7 @@ import type { BeadsSnapshot } from '../src/game/state.js';
 function renderModel(snap: BeadsSnapshot) {
   const builder = new RenderModelBuilder(750, 1334);
   builder.begin();
-  buildBeadsView(builder, snap, DEFAULT_PALETTE, DEMO_BEAD_INKS);
+  buildBeadsFrame(builder, snap, DEFAULT_PALETTE, DEMO_BEAD_INKS);
   return builder.end();
 }
 

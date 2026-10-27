@@ -14,9 +14,16 @@ import { drawPerfOverlay } from '../view/debug-layer';
 import type { BeadsPalette } from '../view/palette';
 import type { UiHost } from './ui-host';
 
-/** 可绘制路由：`draw` 只读 ViewModel，与 `Scene` 生命周期正交。 */
+/**
+ * 可绘制路由：`draw` 只读 ViewModel，与 `Scene` 生命周期正交。
+ *
+ * `[WXG-T-440 / ADR-0033 边界②]` 有了 `presenter` 之后，`modal` 路由同时是**命中单元**：
+ * 「哪个面板该响应哪颗钮」与「哪个面板画在哪一层」出自**同一张路由表**，⛔ 不再两处真源。
+ */
 export interface UiRoute extends Route {
     draw(builder: RenderModelBuilder): void;
+    /** 命中并派发（`true` = 已消费）。仅 `modal` 路由需要；缺省 = 不参与命中链。 */
+    presenter?(x: number, y: number): boolean;
 }
 
 export class UiRoot {
@@ -37,6 +44,24 @@ export class UiRoot {
     /** 推进路由生命周期（`SceneStack.update` 只跑栈顶）。 */
     update(dt: number): void {
         this.nav.update(dt);
+    }
+
+    /**
+     * `[WXG-T-440 / ADR-0033 边界②]` 命中链：从**栈顶向下**找带 `presenter` 的路由。
+     *
+     * 屏障语义（`input-control §2.3`「面板相位仅面板按钮」）：只要栈上存在 `modal` 路由，
+     * **空点也算消费** —— 面板外点击零响应，且绝不漏给底下的页面命中。
+     *
+     * @returns `true` = 本次点击已由栈上面板接管（调用方不得再派发）。
+     */
+    hitTest(x: number, y: number): boolean {
+        const routes = this.nav.routes;
+        for (let i = routes.length - 1; i >= 0; i -= 1) {
+            const route = routes[i] as UiRoute;
+            if (route.presenter) route.presenter(x, y);
+            if (route.kind === 'modal') return true; // 屏障：modal 在场 ⇒ 一律消费
+        }
+        return false;
     }
 
     /** 自下而上画可见路由，最后画调试层（盖住所有路由）。 */

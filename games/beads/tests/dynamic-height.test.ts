@@ -9,9 +9,9 @@ import { describe, expect, it } from 'vitest';
 import { RenderModelBuilder, Viewport } from '@wxgame/framework';
 import { DESIGN_W, GEAR_HIT_SIZE, HUD_BAND, SAFE_EDGE_MARGIN } from '../src/config/tuning.js';
 import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
-import { buildBeadsView } from '../src/view/view-model.js';
+import { buildBeadsFrame } from '../src/view/view-model.js';
 import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
-import { renderPlayPage } from '../src/ui/play-binding.js';
+import { renderPlayFrame } from '../src/ui/play-binding.js';
 
 /** iPhone X 级 375×812 ⇒ 设计高 round(750×812/375) = 1624。 */
 const TALL_H = 1624;
@@ -28,7 +28,7 @@ function tallHarness(key: string): Harness {
 function frame(h: Harness): ReturnType<RenderModelBuilder['end']> {
     const b = new RenderModelBuilder(DESIGN_W, h.services.viewport.designHeight);
     b.begin();
-    buildBeadsView(b, h.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
+    buildBeadsFrame(b, h.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
     return b.end();
 }
 
@@ -39,11 +39,11 @@ describe('对局页 · 动态设计高', () => {
 
     it('hudDy = 实际设计高 − 1334（基准档为 0）', () => {
         const base = createBeadsHarness({ noAssemble: true, levels: [simpleTestLevel()], saveKey: 'wxgame.beads.test.dh-base' });
-        renderPlayPage(base.game, new RenderModelBuilder(DESIGN_W, 1334));
+        renderPlayFrame(base.game, new RenderModelBuilder(DESIGN_W, 1334));
         expect(base.game.snapshot.hudDy).toBe(0);
 
         const h = tallHarness('wxgame.beads.test.dh-dy');
-        renderPlayPage(h.game, new RenderModelBuilder(DESIGN_W, TALL_H));
+        renderPlayFrame(h.game, new RenderModelBuilder(DESIGN_W, TALL_H));
         expect(h.game.snapshot.hudDy).toBe(DY);
     });
 
@@ -74,7 +74,7 @@ describe('对局页 · 动态设计高', () => {
         const BT = 171;
         const h = tallHarness('wxgame.beads.test.dh-cap');
         (h.game as unknown as { _capsuleBottom: number })._capsuleBottom = BT;
-        renderPlayPage(h.game, new RenderModelBuilder(DESIGN_W, TALL_H));
+        renderPlayFrame(h.game, new RenderModelBuilder(DESIGN_W, TALL_H));
         expect(h.game.snapshot.hudDy).toBe(DY - BT);
 
         h.advance(1 / 60);

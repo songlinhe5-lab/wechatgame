@@ -312,7 +312,7 @@ describe('TC-STY-11 · 行4 钮先行哨兵（S9 §8-19 + K.1a 阳性对照腿�
         const { RenderModelBuilder } = await import('@wxgame/framework');
         const { DESIGN_H, DESIGN_W, GEAR_HIT_SIZE, HUD_BAND } = await import('../src/config/tuning.js');
         const { DEFAULT_PALETTE, DEMO_BEAD_INKS } = await import('../src/view/palette.js');
-        const { buildBeadsView } = await import('../src/view/view-model.js');
+        const { buildBeadsFrame } = await import('../src/view/view-model.js');
 
         const harness = createBeadsHarness({
             noAssemble: true,
@@ -325,7 +325,7 @@ describe('TC-STY-11 · 行4 钮先行哨兵（S9 §8-19 + K.1a 阳性对照腿�
 
         const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
         builder.begin();
-        buildBeadsView(builder, harness.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
+        buildBeadsFrame(builder, harness.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
         const texts = builder
             .end()
             .commands.filter((c) => c.kind === 'text')

@@ -31,7 +31,7 @@ import {
     powerupCardRects,
     zoomControlLayout,
 } from '../src/config/tuning.js';
-import { buildBeadsView } from '../src/view/view-model.js';
+import { buildBeadsFrame } from '../src/view/view-model.js';
 import { buildMetaView, metaLayout, type MetaViewData } from '../src/view/meta-view.js';
 import { failPanelLayout } from '../src/systems/fail-panel.js';
 import { RenderModelBuilder, type DrawCommand } from '@wxgame/framework';
@@ -104,7 +104,7 @@ describe('WXG-T-268 P-1 收编：缩放控件条改读纸面板族（risks.md P-
         const harness = sealStyleHarness();
         const builder = new RenderModelBuilder(750, 1334);
         builder.begin();
-        buildBeadsView(builder, harness.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
+        buildBeadsFrame(builder, harness.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
         const cmds = builder.end().commands;
 
         const zc = zoomControlLayout();
@@ -150,7 +150,7 @@ describe('[EP12-S2] 控件语言 token 批：逐值对齐 tokens.md §1「新」
         const harness = sealStyleHarness();
         const builder = new RenderModelBuilder(750, 1334);
         builder.begin();
-        buildBeadsView(builder, harness.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
+        buildBeadsFrame(builder, harness.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
         const cmds = builder.end().commands;
 
         const woodFace = cmds.find(
@@ -178,7 +178,7 @@ describe('WXG-T-268 EP12-S4 弹窗族换肤（screens.md S2/S3/S4 · paused/clea
     function render(harness: Harness) {
         const builder = new RenderModelBuilder(750, 1334);
         builder.begin();
-        buildBeadsView(builder, harness.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
+        buildBeadsFrame(builder, harness.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
         return builder.end().commands;
     }
 

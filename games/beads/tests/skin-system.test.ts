@@ -49,7 +49,7 @@ import { COOL_VIOLET_SKIN } from '../src/config/skins/cool-violet.js';
 import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
 import { pausePanelLayout, type PausePanelAction } from '../src/systems/pause-panel.js';
 import { metaLayout } from '../src/view/meta-view.js';
-import { buildBeadsView } from '../src/view/view-model.js';
+import { buildBeadsFrame } from '../src/view/view-model.js';
 import {
     SAVE_VERSION,
     normalizeSettings,
@@ -145,11 +145,11 @@ function serialize(model: ReturnType<RenderModelBuilder['end']>): string[] {
     );
 }
 
-/** 整帧命令流（真渲染链：`buildBeadsView` 读 snapshot ⇒ 与生产逐字同路）。 */
+/** 整帧命令流（真渲染链：`buildBeadsFrame` 读 snapshot ⇒ 与生产逐字同路）。 */
 function frame(harness: Harness): string[] {
     const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
     builder.begin();
-    buildBeadsView(builder, harness.game.snapshot, harness.game.palette, DEMO_BEAD_INKS);
+    buildBeadsFrame(builder, harness.game.snapshot, harness.game.palette, DEMO_BEAD_INKS);
     return serialize(builder.end());
 }
 
@@ -343,7 +343,7 @@ describe('EP12-S8 ③ cycle-skin 钮族：present · 循环 · 恰写档 1 次 �
             game.tapDesign(p.x, p.y);
             const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
             builder.begin();
-            buildBeadsView(builder, game.snapshot, game.palette, DEMO_BEAD_INKS);
+            buildBeadsFrame(builder, game.snapshot, game.palette, DEMO_BEAD_INKS);
             const texts = serialize(builder.end())
                 .map((l) => JSON.parse(l) as { kind: string; text?: string })
                 .filter((c) => c.kind === 'text' && typeof c.text === 'string' && c.text.startsWith('皮肤  '))
@@ -426,7 +426,7 @@ describe('EP12-S8 ④ 切肤渲染：下一帧生效零过渡 · 结构恒等 + 
         const buildBg = (): string | undefined => {
             const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
             builder.begin();
-            buildBeadsView(builder, game.snapshot, game.palette, DEMO_BEAD_INKS);
+            buildBeadsFrame(builder, game.snapshot, game.palette, DEMO_BEAD_INKS);
             return builder.end().background;
         };
         expect(buildBg()).toBe(warmBg);

@@ -21,7 +21,7 @@
 import type { RenderModelBuilder } from '@wxgame/framework';
 
 import { beadInksFor, type BeadsPalette } from '../view/palette.js';
-import { buildBeadsView } from '../view/view-model.js';
+import { buildBeadsFrame, buildBeadsView, buildPhasePanel, type PlayPanelName } from '../view/view-model.js';
 import type { BeadsSnapshot } from '../game/state.js';
 import type { BeadsLevelRaw } from '../config/levels-data.js';
 
@@ -35,7 +35,30 @@ export interface PlayRenderSource {
     readonly currentLevel: BeadsLevelRaw;
 }
 
-/** 对局页本帧的绘制入口：快照 → 门面 → 指令流（壳的对局腿与玩法侧测试共用）。 */
+/**
+ * 对局**页面层**的绘制入口（= `play` 路由的 `draw`）。`[WXG-T-440]` 相位面板已搬上路由栈 ⇒
+ * 面板由 {@link renderPlayPanel} 画、容器边界由 `UiRoot.draw` 发。
+ */
 export function renderPlayPage(play: PlayRenderSource, builder: RenderModelBuilder): void {
     buildBeadsView(builder, play.snapshot, play.palette, beadInksFor(play.currentLevel));
+}
+
+/**
+ * `[WXG-T-440]` **无导航栈场景的整帧入口**（Node 视图单测 / harness 快照）：页面层 + 当前相位面板。
+ * ⛔ 生产绘制腿不得改调本函数（会绕开路由与容器边界），生产帧由 `UiRoot.draw` 装配。
+ */
+export function renderPlayFrame(play: PlayRenderSource, builder: RenderModelBuilder): void {
+    buildBeadsFrame(builder, play.snapshot, play.palette, beadInksFor(play.currentLevel));
+}
+
+/**
+ * `[WXG-T-440 / ADR-0033 边界②]` 相位面板的绘制入口（`pause` / `clear` / `fail` /
+ * `sprint-settle` / `finish` 五条 modal 路由的 `draw`）—— 容器边界由 `UiRoot.draw` 按路由发。
+ */
+export function renderPlayPanel(
+    play: PlayRenderSource,
+    builder: RenderModelBuilder,
+    name: PlayPanelName,
+): void {
+    buildPhasePanel(builder, play.snapshot, play.palette, name);
 }

@@ -427,6 +427,11 @@ export class BeadsGame {
   private readonly _input: InputRouter;
   /** 面板相位的点击路由（协作类，见 beads-game/panel-router.ts）。 */
   private readonly _panelRouter: PanelRouter;
+  /**
+   * `[WXG-T-440 / ADR-0033 边界②]` 面板命中委托（壳在 `init` 后注入 = `UiRoot` 栈顶 presenter）。
+   * 未注入（Node 侧直调 `tapDesign` 的用例）⇒ 回落自带 {@link _panelRouter}，行为逐字不变。
+   */
+  private _panelHit: ((phase: BeadsPhase, x: number, y: number) => boolean) | null = null;
   /** UI 控件映射（命中 / 按下态 / 面板选项；协作类，见 beads-game/control-map.ts）。 */
   private readonly _controls: ControlMap;
   /** PLAYING 托盘 / 网格点击的分派（协作类，见 beads-game/board-tap-router.ts）。 */
@@ -2370,13 +2375,37 @@ export class BeadsGame {
       case 'game-over':
       case 'level-clear':
       case 'finish':
-      case 'paused':
-        // 面板相位（PAUSED / LEVEL_CLEAR / FINISH / GAME_OVER）：面板外点击零响应，见 `PanelRouter`。
-        this._consumedTap = this._panelRouter.route(this._machine.current, x, y);
+      case 'paused': {
+        // 面板相位（PAUSED / LEVEL_CLEAR / FINISH / GAME_OVER）：面板外点击零响应。
+        // `[WXG-T-440]` 命中已搬上路由栈：壳注入 `_panelHit`（= `UiRoot` 栈顶 presenter）时走它，
+        // 未注入（Node 侧直调）回落 `PanelRouter` ⇒ 生产走栈、测试零改动。
+        const phase = this._machine.current;
+        this._consumedTap = this._panelHit ? this._panelHit(phase, x, y) : this.routePanelTap(phase, x, y);
         return;
+      }
       default:
         return; // boot: taps ignored (panel answers are PAUSED-only)
     }
+  }
+
+  // ─────────────────────────────────────── 相位面板（ADR-0033 边界② / WXG-T-440）
+
+  /**
+   * `[WXG-T-440]` 注入面板命中委托（壳在拿到 `UiRoot` 后调一次）。
+   *
+   * 生产壳注入的闭包 = 「先 `syncPhase` 对账，再 `UiRoot.hitTest`」⇒ 命中与渲染出自**同一张路由表**。
+   * ⛔ Node 侧测试不注入 ⇒ 仍是自带 `PanelRouter`（169 处 `tapDesign` 用例零改动）。
+   */
+  setPanelPresenter(hit: (phase: BeadsPhase, x: number, y: number) => boolean): void {
+    this._panelHit = hit;
+  }
+
+  /**
+   * `[WXG-T-440]` 相位面板的动作派发（= `PanelRouter.route` 的公开面）。
+   * 路由 presenter 只拿得到面板名，动作本体仍在本类 ⇒ 由壳把「面板名 → 相位」映好后回调本方法。
+   */
+  routePanelTap(phase: BeadsPhase, x: number, y: number): boolean {
+    return this._panelRouter.route(phase, x, y);
   }
 
   // ─────────────────────────────────────── 好友榜（ADR-0035 §5.2 S-3）

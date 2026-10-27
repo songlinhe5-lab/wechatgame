@@ -50,7 +50,7 @@ import {
     type PausePanelAction,
 } from '../src/systems/pause-panel.js';
 import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
-import { buildBeadsView } from '../src/view/view-model.js';
+import { buildBeadsFrame } from '../src/view/view-model.js';
 import { registeredStyleIds } from '../src/view/bead-styles/registry.js';
 import { metaLayout, type MetaAction } from '../src/view/meta-view.js';
 import {
@@ -201,11 +201,11 @@ function serialize(model: ReturnType<RenderModelBuilder['end']>): string[] {
     );
 }
 
-/** 整帧命令流（真渲染链：`buildBeadsView` 读 snapshot ⇒ 与生产逐字同路）。 */
+/** 整帧命令流（真渲染链：`buildBeadsFrame` 读 snapshot ⇒ 与生产逐字同路）。 */
 function frame(harness: Harness): string[] {
     const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
     builder.begin();
-    buildBeadsView(builder, harness.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
+    buildBeadsFrame(builder, harness.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
     return serialize(builder.end());
 }
 
@@ -226,7 +226,7 @@ function b0Tiles(harness: Harness): DrawCommand[] {
     const pitch = harness.game.snapshot.gridPitch;
     const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
     builder.begin();
-    buildBeadsView(builder, harness.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
+    buildBeadsFrame(builder, harness.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
     return builder
         .end()
         .commands.filter((c) => c.kind === 'rect' && (c as { w: number }).w === pitch + 2 * TILE_BLEED);

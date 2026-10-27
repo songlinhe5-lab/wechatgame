@@ -19,11 +19,11 @@ import { clearPanelLayout } from '../src/systems/clear-panel.js';
 import { finishPanelLayout, hitFinishPanel } from '../src/systems/finish-panel.js';
 import { pausePanelLayout } from '../src/systems/pause-panel.js';
 import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
-import { buildBeadsView } from '../src/view/view-model.js';
+import { buildBeadsFrame } from '../src/view/view-model.js';
 import { buildMetaView, hitTestMeta, metaLayout, type MetaViewData } from '../src/view/meta-view.js';
 import { BeadsShell } from '../src/game/beads-shell.js';
 import { createBeadsHarness, simpleTestLevel, advancePastClearWave, type Harness } from './helpers.js';
-import { renderPlayPage } from '../src/ui/play-binding.js';
+import { renderPlayFrame } from '../src/ui/play-binding.js';
 
 const STEP = 1 / 60;
 /** 彩带禁飞带（screens.md S5，设计 y）。 */
@@ -32,7 +32,7 @@ const CONFETTI_BAND = { yMin: 447, yMax: 787 } as const;
 function frameOf(h: Harness): readonly RenderCommand[] {
   const b = new RenderModelBuilder(DESIGN_W, h.services.viewport.designHeight);
   b.begin();
-  buildBeadsView(b, h.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
+  buildBeadsFrame(b, h.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
   return b.end().commands;
 }
 
@@ -46,7 +46,7 @@ function input(h: Harness, phase: 'down' | 'move' | 'up' | null, dx = 0, dy = 0)
   }
   h.game.update(STEP);
   h.input.endFrame(STEP);
-  renderPlayPage(h.game, new RenderModelBuilder(DESIGN_W, DESIGN_H)); // 同步快照
+  renderPlayFrame(h.game, new RenderModelBuilder(DESIGN_W, DESIGN_H)); // 同步快照
 }
 
 function pausedHarness(key: string): Harness {
@@ -120,7 +120,7 @@ describe('P3 · 面板按下态（snap.pressedButton）', () => {
     const idle = { ...h.game.snapshot, pressedButton: null };
     const b = new RenderModelBuilder(DESIGN_W, DESIGN_H);
     b.begin();
-    buildBeadsView(b, idle, DEFAULT_PALETTE, DEMO_BEAD_INKS);
+    buildBeadsFrame(b, idle, DEFAULT_PALETTE, DEMO_BEAD_INKS);
     const base = b.end().commands.find(
       (c) =>
         c.kind === 'rect' &&
@@ -135,7 +135,7 @@ describe('P3 · 面板按下态（snap.pressedButton）', () => {
     const still = { ...h.game.snapshot, reduceMotion: true };
     const b2 = new RenderModelBuilder(DESIGN_W, DESIGN_H);
     b2.begin();
-    buildBeadsView(b2, still, DEFAULT_PALETTE, DEMO_BEAD_INKS);
+    buildBeadsFrame(b2, still, DEFAULT_PALETTE, DEMO_BEAD_INKS);
     const rm = face(b2.end().commands, DEFAULT_PALETTE.cardPressed);
     expect((rm as { y: number }).y).toBeCloseTo((base as { y: number }).y, 5);
   });

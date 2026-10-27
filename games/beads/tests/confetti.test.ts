@@ -46,7 +46,7 @@ import {
     type ConfettiBeadState,
 } from '../src/view/scene-vfx.js';
 import { CONFETTI_COLORS, DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
-import { buildBeadsView } from '../src/view/view-model.js';
+import { buildBeadsFrame } from '../src/view/view-model.js';
 import { clearPanelLayout } from '../src/systems/clear-panel.js';
 import { pausePanelLayout } from '../src/systems/pause-panel.js';
 import {
@@ -89,7 +89,7 @@ function fillBoard(h: Harness): void {
 function renderSnap(snap: BeadsSnapshot): RenderModel {
     const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
     builder.begin();
-    buildBeadsView(builder, snap, DEFAULT_PALETTE, DEMO_BEAD_INKS);
+    buildBeadsFrame(builder, snap, DEFAULT_PALETTE, DEMO_BEAD_INKS);
     return builder.end();
 }
 

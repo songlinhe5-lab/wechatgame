@@ -36,7 +36,7 @@ import { fileURLToPath } from 'node:url';
 import { RenderModelBuilder, polygonVertices, type DrawCommand, type RenderModel } from '@wxgame/framework';
 import { DESIGN_H, DESIGN_W, HUD_BAND, PUZZLE_BAND, ZOOM_CTRL_HOT, zoomControlLayout } from '../src/config/tuning.js';
 import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
-import { buildBeadsView } from '../src/view/view-model.js';
+import { buildBeadsFrame } from '../src/view/view-model.js';
 import { type FilledBeadOptions } from '../src/view/bead-render.js';
 import { drawLegacyTenBead } from '../src/view/bead-styles/legacy-ten.js';
 import { styleById } from '../src/view/bead-styles/registry.js';
@@ -359,7 +359,7 @@ function halfBoardHarness(saveKey: string): { harness: Harness; filled: number }
 function renderModel(harness: Harness): RenderModel {
     const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
     builder.begin();
-    buildBeadsView(builder, harness.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
+    buildBeadsFrame(builder, harness.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
     return builder.end();
 }
 

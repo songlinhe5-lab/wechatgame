@@ -79,10 +79,24 @@ import type { PausePanelAction } from '../systems/pause-panel.js';
 import { importLatest, type HttpGet } from './level-import.js';
 import { UiRoot } from '../ui/ui-root.js';
 import type { UiDebugState } from '../ui/ui-host.js';
+import type { PlayPanelName } from '../view/view-model.js';
+import type { BeadsPhase } from './state.js';
 import { PhaseRouteBinder, type ShellScreen } from '../ui/phase-route-binder.js';
 // WXG-T-420 T9：对局页的视图绑定上移到组装层（Game 只出快照）。
-import { renderPlayPage } from '../ui/play-binding.js';
+import { renderPlayPage, renderPlayPanel } from '../ui/play-binding.js';
 import { getBeadBakeRuntime } from '../view/bead-render.js';
+
+/**
+ * `[WXG-T-440 / ADR-0033 边界②]` 面板路由名 → 相位（`PanelRouter.route` 的入参）。
+ * `game-over` 的两副面孔（冲刺结算 / 失败面板）由 `PanelRouter` 自己按 `mode` 再分岔 ⇒ 这里同值。
+ */
+const PANEL_PHASE: Readonly<Record<PlayPanelName, BeadsPhase>> = {
+    pause: 'paused',
+    clear: 'level-clear',
+    fail: 'game-over',
+    'sprint-settle': 'game-over',
+    finish: 'finish',
+};
 
 /** UI-42：屏幕相位 / 覆盖层改由 {@link PhaseRouteBinder} 的 Navigator 栈投影（本文件不持标志位）。 */
 export type { ShellScreen };
@@ -328,7 +342,16 @@ export class BeadsShell implements Game {
             play: (b) => renderPlayPage(this.play, b),
             // `[UI-60 P1 / ADR-0033 DEC-1]` 弹窗自持绘制（容器边界由 `UiRoot.draw` 包）。
             modal: (b) => buildMetaModal(b, this._metaViewData(), this.play.palette),
+            // `[WXG-T-440 / ADR-0033 边界②]` 相位面板自持绘制 + 同源自持命中（动作仍在 game）。
+            panel: (b, name) => renderPlayPanel(this.play, b, name),
+            panelTap: (name, x, y) => this.play.routePanelTap(PANEL_PHASE[name], x, y),
         }, options.initialScreen ?? 'menu');
+        // `[WXG-T-440]` 命中链改走路由栈：先对账（相位已稳定）再问栈顶 presenter。
+        // ⛔ 不注入则 `BeadsGame` 自有 `PanelRouter` 兜底 ⇒ Node 侧直调用例零改动。
+        this.play.setPanelPresenter((phase, x, y) => {
+            this._phase.syncPhase(phase, this.play.mode);
+            return this._uiRoot.hitTest(x, y);
+        });
     }
 
     /** Clip → 合成配方，转交给宿主（沿 play 的音色库，ADR-0013）。 */
@@ -470,6 +493,8 @@ export class BeadsShell implements Game {
         // UI-50：唯一绘制入口 —— 可见路由自下而上画内容，最后叠调试层。
         // 基础页路由的 `draw` 闭已绑到视图入口（菜单腿 `buildMetaView` / 对局腿
         // `renderPlayPage` ⇒ `buildBeadsView`，WXG-T-420 T9）⇒ 层序与拆分前逐字一致。
+        // `[WXG-T-440]` 相位 → 面板路由的幂等对账放在画之前：栈即绘制源，相位是唯一真源。
+        this._phase.syncPhase(this.play.phase, this.play.mode);
         this._uiRoot.draw(builder, this.play.palette);
     }
 

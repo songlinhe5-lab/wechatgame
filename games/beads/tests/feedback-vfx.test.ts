@@ -49,7 +49,7 @@ import {
 import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
 import { EXPAND_BTN_INK } from '../src/view/palette.js';
 import { pausePanelLayout } from '../src/systems/pause-panel.js';
-import { buildBeadsView } from '../src/view/view-model.js';
+import { buildBeadsFrame } from '../src/view/view-model.js';
 import { createBeadsHarness, placeColor, simpleTestLevel, tapInFrame } from './helpers.js';
 import type { Harness } from './helpers.js';
 import type { BeadsSnapshot } from '../src/game/state.js';
@@ -57,7 +57,7 @@ import type { BeadsSnapshot } from '../src/game/state.js';
 function renderSnap(snap: BeadsSnapshot): readonly DrawCommand[] {
     const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
     builder.begin();
-    buildBeadsView(builder, snap, DEFAULT_PALETTE, DEMO_BEAD_INKS);
+    buildBeadsFrame(builder, snap, DEFAULT_PALETTE, DEMO_BEAD_INKS);
     return builder.end().commands;
 }
 
@@ -708,7 +708,7 @@ describe('T-097 BD-10 满槽告警面板描边', () => {
         return h;
     }
 
-    /** 连续 `n` 帧的描边 α 序列（每帧重跑 `buildBeadsView`，L5 纯函数）。 */
+    /** 连续 `n` 帧的描边 α 序列（每帧重跑 `buildBeadsFrame`，L5 纯函数）。 */
     function alphaSeq(h: Harness, n: number): number[] {
         const out: number[] = [];
         for (let f = 0; f < n; f++) {

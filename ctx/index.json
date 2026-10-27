@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3872,
       "lines": 131,
-      "sha256": "c2178b00b6545fe4a1a3c6fe54a376133fcffeebcee80d4a59315d39a6c353fe",
+      "sha256": "999ff101f855d24e386c67e39110fab5e745f9176fae2da30f22d648fc322a6e",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 410,
-          "summary": "1 production/TASKS-DETAIL.md 202399 6110 normal",
+          "summary": "1 production/TASKS-DETAIL.md 203271 6143 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5239,
       "lines": 165,
-      "sha256": "4589d0026b74301b1fef84978d20241509a6713fd5c0f43f54bb3bd559a7abfa",
+      "sha256": "7bad651d6d30e361aad6c0a1fc4a9ac5426b0f9a91c7491d9e337c9c648fc04f",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 136 行 / 66267 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 137 行 / 66508 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+137 · §待排（backlog，无号，立项时领取…=108+30",
+          "summary": "§WXG 任务台账（SSOT）=1+138 · §待排（backlog，无号，立项时领取…=109+30",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 6110 行 / 202399 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 6143 行 / 203271 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6111 · §WXG-T-428=5814+37 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6144 · §WXG-T-429=5851+36 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -11408,17 +11408,17 @@
     },
     {
       "path": "docs/architecture/adr/ADR-0033-ui-container-layer-ordering.md",
-      "tokens": 7222,
-      "lines": 126,
-      "sha256": "d1bd044a2f7321051fb8b39219240a8bb180c0690bffba68dd24e895b41b46b3",
+      "tokens": 7987,
+      "lines": 138,
+      "sha256": "d611ecea3ab57790d0277e60415a6ff7d5a7e98c1bcf2f8657acbf64697f4205",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§ADR-0033 · UI 容器层：每页面 / 每弹窗一个渲染容器，容器内层有序、事件按层逆序透传",
           "level": 1,
           "startLine": 1,
-          "endLine": 127,
-          "tokens": 7185,
+          "endLine": 139,
+          "tokens": 7950,
           "summary": "状态：Accepted（原则由用户 2026-10-20 真机裁定：「每个页面和对话框是一个 UI 容器，里面按照层级绘",
           "keywords": [
             "ADR",
@@ -11491,8 +11491,8 @@
           "anchor": "§5 用户裁定（2026-10-20，原话存档）",
           "level": 2,
           "startLine": 58,
-          "endLine": 127,
-          "tokens": 4106,
+          "endLine": 139,
+          "tokens": 4833,
           "summary": "Q1 分期 = 确认。四批不变：P0 框架容器语法 + 两端层树映射 → P1 弹窗内容搬进容器（解开 dialog-c",
           "keywords": [
             "dialog",
@@ -11587,10 +11587,25 @@
           ]
         },
         {
-          "anchor": "§尚待后续定的小项（不阻塞 P0）",
+          "anchor": "§边界② 真收口：相位面板搬上路由栈（WXG-T-440 · 2026-10-27）",
           "level": 3,
           "startLine": 123,
-          "endLine": 127,
+          "endLine": 134,
+          "tokens": 702,
+          "summary": "WXG-T-439 当时把边界②收成「金样本口径表守门」。本轮按用户指令真搬，做法与理由：",
+          "keywords": [
+            "WXG",
+            "边界",
+            "真收口",
+            "相位面板搬上",
+            "路由栈"
+          ]
+        },
+        {
+          "anchor": "§尚待后续定的小项（不阻塞 P0）",
+          "level": 3,
+          "startLine": 135,
+          "endLine": 139,
           "tokens": 137,
           "summary": "S1 段枚举是否需再加 debug：安全区标定线与性能覆层现走 DebugLayer，它必须永远在最顶。推荐复用 toa",
           "keywords": [
@@ -14113,9 +14128,9 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 16131,
+      "tokens": 16241,
       "lines": 217,
-      "sha256": "48240b648a738fb10ddc47b774e82a5848c32ea596daff80250961aef803e0d1",
+      "sha256": "31909df60a9845c88f8e8076b224002e1b3e380bafa6b80947805860cc6d7901",
       "tier": "normal",
       "sections": [
         {
@@ -14123,7 +14138,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 218,
-          "tokens": 16112,
+          "tokens": 16223,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -14210,7 +14225,7 @@
           "level": 2,
           "startLine": 79,
           "endLine": 85,
-          "tokens": 360,
+          "tokens": 357,
           "summary": "1. 渲染：UI 根取 Navigator 的可见路由集，自下而上逐个 View.draw；最后画 DebugLayer",
           "keywords": [
             "Navigator",
@@ -14294,7 +14309,7 @@
           "level": 2,
           "startLine": 138,
           "endLine": 214,
-          "tokens": 11287,
+          "tokens": 11400,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -86784,17 +86799,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 202399,
-      "lines": 6110,
-      "sha256": "ee768c190880974e18120148fe3ee567cc587661b6060e71aad946722b1831fe",
+      "tokens": 203271,
+      "lines": 6143,
+      "sha256": "843c68d65930cd57d4a97afc72efcf7876b266fe4e097db795af32ae92a62464",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 6111,
-          "tokens": 202382,
+          "endLine": 6144,
+          "tokens": 203254,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -94417,8 +94432,8 @@
           "anchor": "§WXG-T-439",
           "level": 2,
           "startLine": 6079,
-          "endLine": 6111,
-          "tokens": 1136,
+          "endLine": 6113,
+          "tokens": 1138,
           "summary": "UI-60 剩余两条边界收口为门禁：容器内 clip 硬拦 + 金样本容器口径表 · 负责：主理人(CodeBuddy)",
           "keywords": [
             "WXG",
@@ -94477,8 +94492,8 @@
           "anchor": "§剩余（仍只有一条）",
           "level": 3,
           "startLine": 6108,
-          "endLine": 6111,
-          "tokens": 40,
+          "endLine": 6113,
+          "tokens": 41,
           "summary": "真机读数 [R]：层序实拍 + 容器内位图腿落位 + draw call 实测 ⇒ ADR-0033 仍不得标「已实施」",
           "keywords": [
             "draw",
@@ -94487,22 +94502,79 @@
             "剩余",
             "仍只有一条"
           ]
+        },
+        {
+          "anchor": "§WXG-T-440",
+          "level": 2,
+          "startLine": 6114,
+          "endLine": 6144,
+          "tokens": 868,
+          "summary": "相位面板搬上路由栈（ADR-0033 边界②真收口）· 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026",
+          "keywords": [
+            "WXG",
+            "ADR",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§落码",
+          "level": 3,
+          "startLine": 6120,
+          "endLine": 6130,
+          "tokens": 398,
+          "summary": "ui/ui-root.ts UiRoute.presenter?(x, y)；新增 UiRoot.hitTest(x, ",
+          "keywords": [
+            "root",
+            "UiRoute",
+            "presenter",
+            "UiRoot",
+            "hitTest",
+            "落码"
+          ]
+        },
+        {
+          "anchor": "§验收读数 (3)",
+          "level": 3,
+          "startLine": 6131,
+          "endLine": 6139,
+          "tokens": 243,
+          "summary": "金样本十一帧 total 与 kinds 逐态完全不变（pause 596 / clear 626 / fail 574",
+          "keywords": [
+            "total",
+            "kinds",
+            "pause",
+            "clear",
+            "fail",
+            "验收读数"
+          ]
+        },
+        {
+          "anchor": "§已知边界",
+          "level": 3,
+          "startLine": 6140,
+          "endLine": 6144,
+          "tokens": 89,
+          "summary": "1. 买确认与相位面板同时出现时，两容器按出现序叠放（DEC-1 既定规则，本批不引入优先级）。",
+          "keywords": [
+            "DEC",
+            "已知边界"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 66267,
-      "lines": 136,
-      "sha256": "e59f383cf3ee2b24a4f6d31ade85a9b4f014904f95c416f821aed1cb95bc99ba",
+      "tokens": 66508,
+      "lines": 137,
+      "sha256": "0d393c8530f1c4424e170a0a437df30fb11a5f6b59c3bd8024ead7ad1723ca91",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 137,
-          "tokens": 66259,
+          "endLine": 138,
+          "tokens": 66499,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -94515,8 +94587,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 108,
-          "endLine": 137,
+          "startLine": 109,
+          "endLine": 138,
           "tokens": 1460,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

@@ -22,6 +22,11 @@ function binder(screen: 'play' | 'menu' = 'menu'): { nav: Navigator; b: PhaseRou
         menu: () => calls.push('menu'),
         play: () => calls.push('play'),
         modal: (_builder, name) => calls.push(name),
+        panel: (_builder, name) => calls.push(name),
+        panelTap: (name) => {
+            calls.push(`tap:${name}`);
+            return true;
+        },
     }, screen);
     return { nav, b, calls };
 }
@@ -97,6 +102,11 @@ describe('UI-42 · PhaseRouteBinder', () => {
             menu: () => calls.push('menu'),
             play: () => calls.push('play'),
             modal: (_builder, name) => calls.push(`modal:${name}`),
+            panel: (_builder, name) => calls.push(`panel:${name}`),
+            panelTap: (name) => {
+                calls.push(`tap:${name}`);
+                return true;
+            },
         });
         const builder = {
             height: 1334,
@@ -114,5 +124,68 @@ describe('UI-42 · PhaseRouteBinder', () => {
         b.resetTo('play');
         root.draw(builder, {} as BeadsPalette);
         expect(calls, '页面路由不包容器').toEqual(['play']);
+    });
+});
+
+const NO_DEBUG = {
+    debugState: () => ({ enabled: false, frameMs: 0, phase: 'menu', level: '', detail: '' }),
+};
+
+/**
+ * `[WXG-T-440 / ADR-0033 边界②]` 相位面板搬栈：`syncPhase` 是**幂等对账**（相位真源仍在
+ * `BeadsGame`），栈只是它的投影；命中链从栈顶向下、modal 在场即屏障。
+ */
+describe('WXG-T-440 · 相位面板搬栈', () => {
+    it('syncPhase 幂等：同相位连调不动栈；切相位只换栈顶那一个 modal', () => {
+        const { nav, b } = binder('play');
+        b.syncPhase('paused', 'normal');
+        expect(nav.depth).toBe(2);
+        expect(nav.top?.name).toBe('pause');
+        b.syncPhase('paused', 'normal'); // 幂等：不重推
+        expect(nav.depth).toBe(2);
+        b.syncPhase('level-clear', 'normal');
+        expect(nav.depth, '先撤旧面板再压新的（恒只一层）').toBe(2);
+        expect(nav.top?.name).toBe('clear');
+        b.syncPhase('playing', 'normal');
+        expect(nav.depth, 'playing 无面板 ⇒ 弹回基础页').toBe(1);
+        expect(nav.top?.name).toBe('play');
+    });
+
+    it('game-over 按模式分岔：普通 ⇒ fail，冲刺 ⇒ sprint-settle', () => {
+        const { nav, b } = binder('play');
+        b.syncPhase('game-over', 'normal');
+        expect(nav.top?.name).toBe('fail');
+        b.syncPhase('game-over', 'sprint');
+        expect(nav.top?.name).toBe('sprint-settle');
+        expect(nav.depth, '切换模式也只一层').toBe(2);
+    });
+
+    it('栈顶是菜单弹窗时 syncPhase 不动它（两类覆盖层互不接管）', () => {
+        const { nav, b } = binder();
+        b.openModal('settings');
+        b.syncPhase('playing', 'normal');
+        expect(nav.top?.name).toBe('settings');
+        b.close();
+        b.syncPhase('paused', 'normal');
+        expect(nav.top?.name).toBe('pause');
+    });
+
+    it('命中链：modal 在场时空点也算消费（屏障），无 modal 时不包命中', () => {
+        const root = new UiRoot(NO_DEBUG);
+        const hits: string[] = [];
+        root.push({ name: 'menu', kind: 'page', draw: () => { } });
+        root.push({
+            name: 'pause',
+            kind: 'modal',
+            draw: () => { },
+            presenter: (x, y) => {
+                hits.push(`${x},${y}`);
+                return false; // 未命中面板钮
+            },
+        });
+        expect(root.hitTest(10, 20), 'modal 在场 ⇒ 面板外点击也消费').toBe(true);
+        expect(hits).toEqual(['10,20']);
+        root.pop();
+        expect(root.hitTest(10, 20), '无 modal ⇒ 不接管').toBe(false);
     });
 });

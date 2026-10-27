@@ -34,8 +34,8 @@ import { DESIGN_H, DESIGN_W } from '../src/config/tuning.js';
  * 纯页面 ⇒ 0（页面走默认层，恒在容器树之下）。
  *
  * ⛔ 改这张表 = 改层级契约（要先过 ADR 与 UX 登记），不是「让测试变绿」的手续（K-051）。
- * 它同时是「相位弹窗仍由 `PanelRouter` 直派」这条边界的机械替身：谁绕过 `buildBeadsView`
- * 直接面板命令而不包容器，这里当场红。
+ * 它同时是「相位面板搬栈（`WXG-T-440`）后仍必须包容器」的机械替身：谁绕过路由表直接发面板
+ * 命令、或让页面路由也去包容器，这里当场红。
  */
 const CONTAINER_EXPECT: Readonly<Record<string, number>> = {
     'main-menu': 0,

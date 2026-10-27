@@ -30,7 +30,7 @@ import {
   hitClearPanel,
 } from '../src/systems/clear-panel.js';
 import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
-import { buildBeadsView } from '../src/view/view-model.js';
+import { buildBeadsFrame } from '../src/view/view-model.js';
 import { createBeadsHarness, simpleTestLevel, advancePastClearWave, type Harness } from './helpers.js';
 
 const NORMAL = { lastLevel: false } as const;
@@ -38,7 +38,7 @@ const NORMAL = { lastLevel: false } as const;
 function render(harness: Harness): readonly DrawCommand[] {
   const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
   builder.begin();
-  buildBeadsView(builder, harness.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
+  buildBeadsFrame(builder, harness.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
   return builder.end().commands;
 }
 
@@ -290,7 +290,7 @@ describe('S7 结算·过关面板（ux-spec §3.4/§4/§5）', () => {
     const revived = { ...h.game.snapshot, revived: true };
     const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
     builder.begin();
-    buildBeadsView(builder, revived, DEFAULT_PALETTE, DEMO_BEAD_INKS);
+    buildBeadsFrame(builder, revived, DEFAULT_PALETTE, DEMO_BEAD_INKS);
     expect(
       builder.end().commands.some((c) => c.kind === 'text' && c.text.startsWith('3★')),
       '续时局仍印了判星门槛',
@@ -324,7 +324,7 @@ describe('S7 结算·过关面板（ux-spec §3.4/§4/§5）', () => {
     const withBest = { ...h.game.snapshot, clearQualityScore: 2400, clearQualityBest: 4200 };
     const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
     builder.begin();
-    buildBeadsView(builder, withBest, DEFAULT_PALETTE, DEMO_BEAD_INKS);
+    buildBeadsFrame(builder, withBest, DEFAULT_PALETTE, DEMO_BEAD_INKS);
     const dual = builder.end().commands.find(
       (c) => c.kind === 'text' && c.text.startsWith('品质分'),
     ) as Extract<DrawCommand, { kind: 'text' }> | undefined;

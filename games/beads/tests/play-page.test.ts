@@ -25,7 +25,7 @@ import {
 import { hitExpandButton, hitGear, hitPowerupCard, hitTraySlot } from '../src/game/beads-game/hit-test.js';
 import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
 import { drawPlayPage } from '../src/view/play-page.js';
-import { buildBeadsView } from '../src/view/view-model.js';
+import { buildBeadsFrame } from '../src/view/view-model.js';
 import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
 
 const SRC_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -47,9 +47,9 @@ function modelOf(fn: (b: RenderModelBuilder) => void): RenderModel {
 }
 
 describe('UI-41 · PlayPage', () => {
-    it('门面等价：buildBeadsView 的前缀 ≡ drawPlayPage（结算层只在其后追加）', () => {
+    it('门面等价：buildBeadsFrame 的前缀 ≡ drawPlayPage（结算层只在其后追加）', () => {
         const h = harness();
-        const full = modelOf((b) => buildBeadsView(b, h.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS));
+        const full = modelOf((b) => buildBeadsFrame(b, h.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS));
         const play = modelOf((b) =>
             drawPlayPage(b, h.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS, h.game.snapshot.phase === 'playing'),
         );

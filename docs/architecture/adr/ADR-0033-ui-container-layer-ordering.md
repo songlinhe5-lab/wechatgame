@@ -1,6 +1,6 @@
 # ADR-0033 · UI 容器层：每页面 / 每弹窗一个渲染容器，容器内层有序、事件按层逆序透传
 
-- **状态**：Accepted（原则由用户 2026-10-20 真机裁定：「每个页面和对话框是一个 UI 容器，里面按照层级绘制，事件按照层级透传；层级是一个顺序关系，不能错乱」）；**Q1–Q3 已由用户 2026-10-20 裁定（§5）⇒ 方案定稿；P0 框架腿已入库（WXG-T-327，交付面见 §5 P0 记录），P1 / P2 受 §4 前置约束**；**DEC-8① Node 层序守门轨已入库（WXG-T-329，见 §DEC-8① 记录）**；**P1 设备腿已入库（WXG-T-437，见 §P1 设备腿交付记录）**；**三项显式未做已收口（WXG-T-438，见 §三项显式未做收口记录）：位图腿按作用域递 + 调试层恒置顶（§S1 定稿）+ 对局面板容器化**；**剩余两条边界已收口为机械门禁（WXG-T-439）：容器内 `clip` 结构门硬拦 + 金样本容器口径表 `CONTAINER_EXPECT`（相位弹窗不搬 Navigator 栈）**；⚠ 真机层序 / draw call 读数 `[R]` 未取 ⇒ 缺陷「已修待设备证」**
+- **状态**：Accepted（原则由用户 2026-10-20 真机裁定：「每个页面和对话框是一个 UI 容器，里面按照层级绘制，事件按照层级透传；层级是一个顺序关系，不能错乱」）；**Q1–Q3 已由用户 2026-10-20 裁定（§5）⇒ 方案定稿；P0 框架腿已入库（WXG-T-327，交付面见 §5 P0 记录），P1 / P2 受 §4 前置约束**；**DEC-8① Node 层序守门轨已入库（WXG-T-329，见 §DEC-8① 记录）**；**P1 设备腿已入库（WXG-T-437，见 §P1 设备腿交付记录）**；**三项显式未做已收口（WXG-T-438，见 §三项显式未做收口记录）：位图腿按作用域递 + 调试层恒置顶（§S1 定稿）+ 对局面板容器化**；**剩余两条边界已收口为机械门禁（WXG-T-439）：容器内 `clip` 结构门硬拦 + 金样本容器口径表 `CONTAINER_EXPECT`**；**边界② 已真收口（WXG-T-440）：相位面板注册成 modal 路由 + `syncPhase` 幂等对账（phase 仍唯一真源）+ `UiRoot.hitTest` 屏障命中**；⚠ 真机层序 / draw call 读数 `[R]` 未取 ⇒ 缺陷「已修待设备证」**
 - **日期**：2026-10-20
 - **关联**：ADR-0032（beads UI 架构，§6 路由 / §8 五条守则）、ADR-0030（Cocos 生产 blit 载体）、ADR-0031（blit 静态位图腿）、ADR-0026（`blit` kind）、ADR-0014（全局变换通道）
 - **判例链**：WXG-T-322（遮罩未铺满）→ WXG-T-323（弹窗居中）→ **WXG-T-324（弹窗补画底页 ⇒ 真机层级错乱）→ WXG-T-325（回退止血 + 本 ADR）**
@@ -119,6 +119,18 @@
 
 1. **容器内 `clip` ⇒ 结构门硬拦，不建作用域级 `clipHost`**。Cocos 端裁切走**全局** `clipHost`（`bindings.ts` 手搭的 `Mask` 子树，只在默认层），容器内裁切会被画到容器**之外**；全仓唯一 `clip` 是 `view/meta-menu.ts:450` 的**页面层**走马灯 ⇒ 容器内零使用。给每个作用域先建一套 Mask 属零需求投机。`checkUiContainerOrder` 新增保证 4：`clip` 出现在容器内即违规（10 例含反证 7）。真要放开时先做作用域级 clipHost，再拆这条门。
 2. **相位弹窗不搬 Navigator 栈**。搬栈前提是相位状态本身迁出 `BeadsGame.phase`（`paused` 遍布 systems），半搬即**双真源**；缺陷已由「命令流层包容器」根治，无架构收益驱动。改为**金样本容器口径表** `CONTAINER_EXPECT`：有面板/弹窗的态**必须恰 1 个容器**（`settings`/`signin`/`pause`/`clear`/`fail`/`sprint-settle`/`finish`），纯页面态 **0 个**（`main-menu`/`level-select`/`level-select-mid`/`play`），并让十一帧**全部**过结构门 ⇒ 谁绕过 `buildBeadsView` 直接发面板命令而不包容器，当场红（表与场景集逐一对齐，少一态也红）。
+
+### 边界② 真收口：相位面板搬上路由栈（WXG-T-440 · 2026-10-27）
+
+`WXG-T-439` 当时把边界②收成「金样本口径表守门」。本轮按用户指令**真搬**，做法与理由：
+
+- **不迁 phase 真源**。`BeadsGame.phase` 仍是唯一权威；`PhaseRouteBinder.syncPhase(phase, mode)` 只做**幂等对账**：目标面板已在栈顶 ⇒ 零动作；不是 ⇒ 先撤旧面板再压新的（恒只一层）。⇒ 不存在「Navigator 有路由 / game 有 phase」的双真源。`game-over` 的两副面孔（`sprint-settle` / `fail`）在映射函数里按 `mode` 分岔。
+- **渲染腿**：五条 modal 路由 `pause` / `clear` / `fail` / `sprint-settle` / `finish`，`draw` = `view-model::buildPhasePanel`（每相位复刻搬栈前的全局序：`clear` = 面板后画 FG，其余 = FG 先画），容器边界仍由 `UiRoot.draw` 按 `route.name` 发 ⇒ 容器 id 从 `'panel'` 变为相位名。
+- **命中腿**：`UiRoute.presenter?` + `UiRoot.hitTest(x, y)` —— 从栈顶向下找 presenter，且**只要栈上有 modal 就一律返回 `true`**（屏障：`input-control §2.3`「面板相位仅面板按钮」）。⇒ 渲染与命中出自**同一张路由表**。
+- **不打断 Node 侧 169 处 `tapDesign` 用例**：`BeadsGame` 加 `setPanelPresenter()` 注入点 —— 壳注入「`syncPhase` + `hitTest`」，**未注入即回落自带 `PanelRouter`**（测试路径行为逐字不变）。
+- **页面层拆干净**：`buildBeadsView` 只画玩法页 + MAIN 彩带 + 相位横幅 + 买确认（买确认与相位正交，自带遮罩 ⇒ 独立容器 `buy`）。给「无栈场景」另留 `buildBeadsFrame` / `renderPlayFrame`（= 页面 + 按快照选面板，**不包容器**）—— ⛔ 生产绘制腿不得调它。
+- **读数**：金样本十一帧 **`total` 与 `kinds` 逐态完全不变**（`pause` 596 / `clear` 626 / `fail` 574 / `sprint-settle` 870 / `finish` 758 / `play` 570 / 菜单三态与 `settings` `signin` 亦不变），**只有五态 `sha` 变**（容器 id 换成相位名 + MAIN 彩带移出容器）；`CONTAINER_EXPECT` 口径表原样通过（有面板的态仍恰 1 容器）⇒ 视觉零漂移、层序归属变化。
+- **已知边界**：买确认与相位面板各自容器按**出现序**叠放（DEC-1 既定规则，不引入优先级）；harness / Node 快照走 `renderPlayFrame`（无容器命令），容器正确性由 `ui-golden` 覆盖。
 
 ### 尚待后续定的小项（不阻塞 P0）
 

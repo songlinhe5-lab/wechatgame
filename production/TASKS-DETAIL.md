@@ -6108,3 +6108,36 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 ### 剩余（仍只有一条）
 
 - **真机读数 `[R]`**：层序实拍 + 容器内位图腿落位 + draw call 实测 ⇒ ADR-0033 仍不得标「已实施」。
+
+---
+
+## WXG-T-440
+
+**相位面板搬上路由栈（ADR-0033 边界②真收口）· 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-10-27；真机读数待取）**
+
+用户令「真做相位弹窗搬栈」（即 `WXG-T-439` 当时收成门禁的那条）。核心约束：**不迁 phase 真源**（半迁即双真源），只把 phase **投影**成路由；且不打断 Node 侧 169 处 `tapDesign` 用例。
+
+### 落码
+
+| 层 | 改动 |
+|---|---|
+| `ui/ui-root.ts` | `UiRoute.presenter?(x, y)`；新增 `UiRoot.hitTest(x, y)`：栈顶向下找 presenter，**只要栈上有 modal 就返回 `true`**（屏障，`input-control §2.3`） |
+| `ui/phase-route-binder.ts` | 五条 modal 路由 `pause`/`clear`/`fail`/`sprint-settle`/`finish`（`draw` = `buildPhasePanel`，`presenter` = `panelTap`）；新增 `syncPhase(phase, mode)` 幂等对账（目标已在栈顶 ⇒ 零动作，否则先撤旧再压新，恒只一层）；`game-over` 按 `mode` 分岔 |
+| `view/view-model.ts` | `PlayPanelName` = 面板名单一真源（binder 侧 `PhaseModal` 是别名）；`buildBeadsView` 收成**页面层**（玩法页 + MAIN 彩带 + 横幅 + 买确认自容器）；新增 `buildPhasePanel(name)`（每相位复刻搬栈前全局序）+ `buildBeadsFrame`（无栈整帧） |
+| `ui/play-binding.ts` | `renderPlayPage`（页面路由用）+ 新增 `renderPlayPanel`（相位路由用）+ `renderPlayFrame`（无栈整帧，harness/单测用） |
+| `game/beads-game.ts` | `setPanelPresenter()` 注入点 + `routePanelTap()` 公开面；`_routeTap` 面板分支改为「已注入走注入、未注入回落 `PanelRouter`」 |
+| `game/beads-shell.ts` | drawers 加 `panel` / `panelTap`；`PANEL_PHASE` 名→相位表；`init` 后 `setPanelPresenter((phase,x,y) => { syncPhase; hitTest })`；`buildRenderModel` 画前 `syncPhase` |
+
+### 验收读数
+
+- 金样本十一帧 **`total` 与 `kinds` 逐态完全不变**（`pause` 596 / `clear` 626 / `fail` 574 / `sprint-settle` 870 / `finish` 758 / `play` 570 / 菜单三态 / `settings` 5665 / `signin` 5668），**仅五态 `sha` 变**（容器 id 由 `'panel'` 改为相位名，MAIN 彩带移出容器）⇒ 视觉零漂移。
+- `CONTAINER_EXPECT` 口径表原样通过（有面板的态仍恰 1 容器）；十一帧结构门全空。
+- `phase-route-binder.test.ts` 10 例绿（+4：syncPhase 幂等 / game-over 分岔 / 菜单弹窗不被接管 / 命中屏障）。
+- beads 全量 **1356 passed + 2 skipped**（金样本五态按新锚重抓）。
+- 169 处 `tapDesign` 用例零改动（未注入 ⇒ 自带 `PanelRouter`）。
+- ⛔ 真机读数仍 `[R]`（层序实拍 + draw call）⇒ ADR 仍不得标「已实施」。
+
+### 已知边界
+
+1. 买确认与相位面板同时出现时，两容器按**出现序**叠放（DEC-1 既定规则，本批不引入优先级）。
+2. harness / Node 快照走 `renderPlayFrame`（**不包容器**）⇒ 容器正确性由 `ui-golden` 十一帧覆盖；⛔ 生产绘制腿不得调它。

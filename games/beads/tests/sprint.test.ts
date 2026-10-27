@@ -17,7 +17,7 @@ import {
 import { normalSettleScore, stageParamsFor, STAGE_BONUS_TIME } from '../src/config/tuning.js';
 import { pausePanelLayout } from '../src/systems/pause-panel.js';
 import type { BeadsGame } from '../src/game/beads-game.js';
-import { renderPlayPage } from '../src/ui/play-binding.js';
+import { renderPlayFrame } from '../src/ui/play-binding.js';
 
 /** Continue is the only PAUSED exit (WXG-T-055 D-04: onResume stays paused). */
 function tapContinue(game: BeadsGame, mode: 'normal' | 'sprint' = 'sprint'): void {
@@ -98,7 +98,7 @@ describe('S7 score-combo', () => {
     });
     const builder = new RenderModelBuilder(750, 1334);
     builder.begin();
-    renderPlayPage(normal.game, builder);
+    renderPlayFrame(normal.game, builder);
     const normalTexts = builder
       .end()
       .commands.filter((c) => c.kind === 'text')
@@ -111,7 +111,7 @@ describe('S7 score-combo', () => {
     sprint.game.startSprint();
     const builder2 = new RenderModelBuilder(750, 1334);
     builder2.begin();
-    renderPlayPage(sprint.game, builder2);
+    renderPlayFrame(sprint.game, builder2);
     const sprintTexts = builder2
       .end()
       .commands.filter((c) => c.kind === 'text')
@@ -393,11 +393,11 @@ describe('S7 score-combo', () => {
     // snapshots produce identical command counts (deterministic, offset-free).
     const b1 = new RenderModelBuilder(750, 1334);
     b1.begin();
-    renderPlayPage(game, b1);
+    renderPlayFrame(game, b1);
     const a = b1.end();
     const b2 = new RenderModelBuilder(750, 1334);
     b2.begin();
-    renderPlayPage(game, b2);
+    renderPlayFrame(game, b2);
     const b = b2.end();
     expect(a.commands.length).toBe(b.commands.length);
   });

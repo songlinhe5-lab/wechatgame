@@ -6,7 +6,7 @@
  *
  * 三层判据各管一段，互不越界：
  *   ① 包络 = `scene-vfx.ts` 纯函数（无状态、无命令）；
- *   ② 观感 = `buildBeadsView` 命令层（L5：视图只读快照）；
+ *   ② 观感 = `buildBeadsFrame` 命令层（L5：视图只读快照）；
  *   ③ 时序 = game 侧计时槽与 **裁定 1 的面板延迟门**（表现层不持状态 ⇒ 门只能在 game 侧）。
  */
 
@@ -63,7 +63,7 @@ import {
   endpointOf,
   withAlpha,
 } from '../src/view/palette.js';
-import { buildBeadsView } from '../src/view/view-model.js';
+import { buildBeadsFrame } from '../src/view/view-model.js';
 import { pausePanelLayout } from '../src/systems/pause-panel.js';
 import { createBeadsHarness, simpleTestLevel, pinIdentityCamera, type Harness } from './helpers.js';
 import type { BeadsSnapshot, ColorCueMode } from '../src/game/state.js';
@@ -78,7 +78,7 @@ const freshWave = (): WaveEnvelope => ({ scale: 1, dy: 0, active: false });
 function renderSnap(snap: BeadsSnapshot): readonly DrawCommand[] {
   const builder = new RenderModelBuilder(750, 1334);
   builder.begin();
-  buildBeadsView(builder, snap, DEFAULT_PALETTE, DEMO_BEAD_INKS);
+  buildBeadsFrame(builder, snap, DEFAULT_PALETTE, DEMO_BEAD_INKS);
   return builder.end().commands;
 }
 

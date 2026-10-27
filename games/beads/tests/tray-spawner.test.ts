@@ -14,7 +14,7 @@ import { Tray } from '../src/entities/tray.js';
 import { Spawner } from '../src/systems/spawner.js';
 import { TRAY_BASE_SLOTS, TRAY_TIER_SLOTS } from '../src/config/tuning.js';
 import { RenderModelBuilder } from '../../../packages/framework/src/core/render/render-model.js';
-import { buildBeadsView } from '../src/view/view-model.js';
+import { buildBeadsFrame } from '../src/view/view-model.js';
 import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
 import { trayLayout, TRAY_SLOT, TRAY_COLS } from '../src/config/tuning.js';
 
@@ -247,7 +247,7 @@ describe('S4 tray-spawner', () => {
 
     const builder = new RenderModelBuilder(750, 1334);
     builder.begin();
-    buildBeadsView(builder, game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
+    buildBeadsFrame(builder, game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
     const list = builder.end().commands;
     const lay = trayLayout(1);
     const cx = lay.slotCenterX(slot % TRAY_COLS);

@@ -104,7 +104,19 @@ function panelLabel(button: PanelButton, snap: BeadsSnapshot): string {
   }
 }
 
-/** Render one frame of Beads. Read-only over the snapshot by construction. */
+/**
+ * `[WXG-T-440]` 对局相位面板种类 —— **单一真源**（`ui/phase-route-binder::PhaseModal` 是本类型的
+ * 别名 re-export；`view` 层不反向 import `ui` 层，避免循环）。
+ */
+export type PlayPanelName = 'pause' | 'clear' | 'fail' | 'sprint-settle' | 'finish';
+
+/**
+ * 玩法**页面层**（= `play` 路由的 `draw`）。Read-only over the snapshot by construction.
+ *
+ * `[WXG-T-440 / ADR-0033 边界②]` 相位面板已注册成 modal 路由（{@link buildPhasePanel} 是它们的
+ * draw）⇒ 本函数**不再画面板**，相位面板的容器边界由 `UiRoot.draw` 按路由统一发。
+ * 留在这里的只有「与相位正交」的两类叠加物：买确认（`playing` 相位）、相位横幅。
+ */
 export function buildBeadsView(
   builder: RenderModelBuilder,
   snap: BeadsSnapshot,
@@ -116,48 +128,86 @@ export function buildBeadsView(
   // 收口在 `view/play-page.ts::drawPlayPage`，层序与拆分前逐字一致。
   // 缩放条仅 PLAYING 画：相位判断留本门面（已登记偏离），子 View 不比较 phase（守则 §20-3）。
   drawPlayPage(builder, snap, palette, inks, snap.phase === 'playing');
-  // `[UI-60 P1 / ADR-0033 DEC-1]` **面板层 = 一个渲染容器**：遮罩连同面板文字/位图腿整体压在
-  // 玩法页之上。旧层序下 HUD 文字住默认 `Labels` 通道、面板遮罩住 `Graphics` 通道 ⇒ 遮罩压不住
-  // HUD 文字（与 WXG-T-325 同族，真机可见）。无面板的静止帧一条容器命令都不发 ⇒ play 态零漂移。
-  const panel = hasPanelOverlay(snap);
-  if (panel) builder.beginContainer(PANEL_SCOPE_ID);
-  // G6 结算彩带 MAIN/FG 夹住结算面板（§1.6.6 sandwich）：属结算层，仍由本门面画。
-  drawConfetti(builder, snap, false); // G6 MAIN 36 枚：被 scrim α0.5 压住 = 「远处彩带」（§1.6.6 sandwich）
-  drawClearPanel(builder, snap, palette);
-  drawConfetti(builder, snap, true); // G6 FG 8 枚：「近处彩带」；入禁飞带跳过绘制（不淡出，是不画）
-  drawFinishPanel(builder, snap, palette);
-  drawPausePanel(builder, snap, palette);
-  drawBuyConfirm(builder, snap, palette);
-  drawFailPanel(builder, snap, palette);
-  drawSprintSettle(builder, snap, palette);
+  // G6 MAIN 36 枚：结算彩带的「远处」一半，恒在相位面板容器**之下**（§1.6.6 sandwich 的下半）。
+  drawConfetti(builder, snap, false);
+  // 相位横幅：面板可见时自身早退 ⇒ 落页面层与旧序等价。
   drawBanners(builder, snap, palette);
-  // `[WXG-T-432]` 好友榜面板（ADR-0035 S-3）：结算面板上下文入口打开时叠在最上层。
-  if (snap.rankPanel) drawRankPanel(builder, palette, snap.rankPanel);
-  if (panel) builder.endContainer();
+  // 买确认与相位正交（只在 `playing` 出现）⇒ 仍属页面层，但它自带全屏遮罩，需要自己的容器。
+  if (snap.buyConfirmPrice > 0) {
+    builder.beginContainer(BUY_SCOPE_ID);
+    drawBuyConfirm(builder, snap, palette);
+    builder.endContainer();
+  }
 }
 
 /**
- * `[UI-60 P1]` 对局面板容器的 id（`UiRoot`/`bindings` 只按容器序排，id 仅供调试读）。
- * ⛔ 不要与导航侧路由名重名（`settings` / `signin` / `skins`）。
+ * `[WXG-T-440 / ADR-0033 边界②]` 相位面板的 `draw`（= `pause` / `clear` / `fail` /
+ * `sprint-settle` / `finish` 五条 modal 路由的内容）。容器边界由 `UiRoot.draw` 包。
+ *
+ * 层序逐相位复刻搬栈前 `buildBeadsView` 的全局序（`clear` = 面板后画 FG，其余 = FG 先画），
+ * 并把好友榜面板留在最上 ⇒ **视觉零漂移**，只有容器归属变了。
  */
-const PANEL_SCOPE_ID = 'panel';
+export function buildPhasePanel(
+  builder: RenderModelBuilder,
+  snap: BeadsSnapshot,
+  palette: BeadsPalette,
+  name: PlayPanelName,
+): void {
+  switch (name) {
+    case 'clear':
+      drawClearPanel(builder, snap, palette);
+      drawConfetti(builder, snap, true); // G6 FG 8 枚（近处）：结算面板之上，入禁飞带不画
+      break;
+    case 'finish':
+      drawConfetti(builder, snap, true);
+      drawFinishPanel(builder, snap, palette);
+      break;
+    case 'pause':
+      drawConfetti(builder, snap, true);
+      drawPausePanel(builder, snap, palette);
+      break;
+    case 'fail':
+      drawConfetti(builder, snap, true);
+      drawFailPanel(builder, snap, palette);
+      break;
+    case 'sprint-settle':
+      drawConfetti(builder, snap, true);
+      drawSprintSettle(builder, snap, palette);
+      break;
+  }
+  // `[WXG-T-432]` 好友榜面板（ADR-0035 S-3）：结算上下文入口打开时叠在该相位面板之上。
+  if (snap.rankPanel) drawRankPanel(builder, palette, snap.rankPanel);
+}
+
+/** 买确认容器 id（`UiRoot`/`bindings` 只按容器序排，id 仅供调试读）。 */
+const BUY_SCOPE_ID = 'buy';
+
+/** 快照里当前可见的相位面板（多者同时可见属异常，按固定优先级取第一）。 */
+function panelOf(snap: BeadsSnapshot): PlayPanelName | null {
+  if (snap.clearPanelVisible) return 'clear';
+  if (snap.finishPanelVisible) return 'finish';
+  if (snap.panelVisible) return 'pause';
+  if (snap.sprintSettleVisible) return 'sprint-settle';
+  if (usesFailOverlay(snap)) return 'fail';
+  return null;
+}
 
 /**
- * 本帧是否有「叠在玩法页之上」的面板 —— 决定要不要发面板容器边界。
+ * `[WXG-T-440]` **无导航栈场景的一帧**（Node 视图单测、harness 快照）：页面层 + 当前相位面板。
  *
- * 判据取**保守上界**（宁可多开一个空容器，不可漏开）：空容器在内核里是懒建的，`_resolve`
- * 不被读就一层都不建 ⇒ 零成本；漏开则那类面板退回旧层序（缺陷复发）。
+ * 与生产路径同一批组件（{@link buildBeadsView} + {@link buildPhasePanel}），差别只有两点：
+ * ① 不按路由栈而是按快照选面板；② **不包容器边界**（那是 `UiRoot.draw` 的职责，由 `ui-golden`
+ * 对全部十一帧覆盖）。⛔ 生产绘制腿不得改调本函数（会绕开路由与容器）。
  */
-function hasPanelOverlay(snap: BeadsSnapshot): boolean {
-  return (
-    snap.panelVisible ||
-    snap.clearPanelVisible ||
-    snap.finishPanelVisible ||
-    snap.sprintSettleVisible ||
-    snap.buyConfirmPrice > 0 ||
-    snap.rankPanel?.visible === true ||
-    usesFailOverlay(snap)
-  );
+export function buildBeadsFrame(
+  builder: RenderModelBuilder,
+  snap: BeadsSnapshot,
+  palette: BeadsPalette,
+  inks: BeadInks,
+): void {
+  buildBeadsView(builder, snap, palette, inks);
+  const panel = panelOf(snap);
+  if (panel) buildPhasePanel(builder, snap, palette, panel);
 }
 
 

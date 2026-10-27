@@ -26,7 +26,7 @@ import {
 import { POWERUP_LABELS } from '../src/systems/powerups.js';
 import { computeFitZoom } from '../src/systems/board-camera.js';
 import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
-import { buildBeadsView } from '../src/view/view-model.js';
+import { buildBeadsFrame } from '../src/view/view-model.js';
 import { createBeadsHarness, placeColor, simpleTestLevel, type Harness } from './helpers.js';
 import type { BeadsSnapshot } from '../src/game/state.js';
 
@@ -43,7 +43,7 @@ const B0_TILE_PX = BEAD_PITCH + 2 * TILE_BLEED;
 function renderModel(harness: Harness): RenderModel {
   const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
   builder.begin();
-  buildBeadsView(builder, harness.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
+  buildBeadsFrame(builder, harness.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
   return builder.end();
 }
 
