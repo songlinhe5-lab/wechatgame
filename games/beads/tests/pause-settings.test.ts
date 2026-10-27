@@ -20,6 +20,7 @@ import {
 import { clearPanelLayout } from '../src/systems/clear-panel.js';
 import {
   pausePanelLayout,
+  rectContains,
   rectsOverlap,
   type PausePanelAction,
 } from '../src/systems/pause-panel.js';
@@ -839,5 +840,71 @@ describe('S9 pause & settings', () => {
     expect(game.snapshot.debugInfo).toBe(false);
     harness.advance(1 / 60);
     expect(game.snapshot.perfFrameMs).toBe(0);
+  });
+
+  // ⚠ MVP review F1 守卫（WXG-T-434，2026-10-27）：旧实测报「行4 画面文案与热区循环
+  // 错位一格」。渲染链本身是 id 单源（`layout.buttons` 逐钮 → `settingsContentLabel(id)`），
+  // 所以能碎的位置只有「文本落点 ↔ 钮矩形」这一层 ⇒ 本例逐格把**画在格里的字**与
+  // **该格 hitTest 解析出的动作**对钉，不靠任一侧的自述（⛔ 不断言「布局声称同源」）。
+  it('每格画面文案 = 该格动作（暂停面板逐格锁定）', () => {
+    const harness = createBeadsHarness({ noAssemble: true, saveKey: 'wxgame.beads.test.s9celllabels' });
+    const game = harness.game;
+    expect(tapGear(game)).toBe(true);
+
+    const builder = new RenderModelBuilder(750, 1334);
+    builder.begin();
+    renderPlayFrame(game, builder);
+    const texts = builder.end().commands.filter((c): c is TextCommand => c.kind === 'text');
+
+    /** 该格应画的词头（pause-settings v1.7 §2.2 五行终态 / `settingsContentLabel` 串首）。 */
+    const WORD: Record<PausePanelAction, string> = {
+      resume: '继续',
+      restart: '重玩',
+      'toggle-bgm': '音乐',
+      'toggle-sfx': '音效',
+      'toggle-reduce-motion': '减弱动效',
+      'toggle-large-text': '大字号',
+      'toggle-vibrate': '震动',
+      'toggle-debug-info': '性能信息',
+      'toggle-ghost-symbol': '幽灵符号',
+      'toggle-debug-guides': 'Debug',
+      'cycle-bead-style': '珠子风格',
+      'cycle-bead-size': '豆子尺寸',
+      'cycle-skin': '皮肤',
+      'start-sprint': '去冲刺',
+      'go-menu': '回主菜单',
+    };
+
+    const buttons = pausePanelLayout('normal').buttons;
+    // 覆盖面：新增钮必须同时进本表（⛔ 静默漏测）。
+    expect(buttons.map((b) => b.id)).toEqual([
+      'resume',
+      'restart',
+      'toggle-bgm',
+      'toggle-sfx',
+      'toggle-reduce-motion',
+      'toggle-large-text',
+      'toggle-vibrate',
+      'cycle-bead-style',
+      'cycle-bead-size',
+      'cycle-skin',
+      'toggle-debug-info',
+      'toggle-ghost-symbol',
+      'go-menu',
+    ]);
+
+    for (const button of buttons) {
+      // 该格中命中何人的词头 ⇒ 错位 / 对调 / 整行旋转都会在这条上报出格子坐标。
+      const owners = (Object.keys(WORD) as PausePanelAction[]).filter((id) =>
+        texts.some(
+          (t) => rectContains(button.rect, t.x, t.y) && t.text.startsWith(WORD[id]!),
+        ),
+      );
+      const at = `(${((button.rect.xMin + button.rect.xMax) / 2) | 0},${((button.rect.yMin + button.rect.yMax) / 2) | 0})`;
+      expect(owners, `${button.id} 格 ${at} 里画的是：${JSON.stringify(owners)}`).toEqual([button.id]);
+      // 热区反向：打格心解出的动作就是该格文案所属动作。
+      expect(game.panel.hitTest((button.rect.xMin + button.rect.xMax) / 2, (button.rect.yMin + button.rect.yMax) / 2, 'normal'))
+        .toBe(button.id);
+    }
   });
 });
