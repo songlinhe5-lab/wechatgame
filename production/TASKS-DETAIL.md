@@ -6417,6 +6417,7 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 - **review 关闭**：`review-2026-10-27.md` 结论改 **PASS**（8/8 漂移关闭，无 P0）、§2-8 行改 ✅、SKIP 表 `TRAY_BAND` 行改已复核、§7 追加 T6、下一轮触发条件改写。
 - **门禁（2026-10-27 实跑）**：`check:frozen-values` **STATUS: OK**（beads 49 / 42 / 125；SKIP 非原子 **19** + 文档式 **47**，与本单前一致、**未膨胀**）；`check:arch` OK（仅 L1 WARN 373 个编辑器产物）；`check:tasks` OK（主表 105 行 / 详情配对）；`check:links` OK；`ctx:build` 重建索引（新变更单 1 个未提交文件按 HEAD 索引、pre-commit 自动重入）+ `ctx:check` OK；`pnpm --filter @wxgame/beads test` **115 文件 / 1380 passed / 2 skipped**（代码值零改动 ⇒ 零回归）。**v1.98 复核批重跑**：`check:frozen-values` SKIP 仍 **19+47**、`check:tasks` 配对、`check:links` OK。
 - **遗留/欠账**：① 净空**已做代码级几何复核**（60 口径 26px、卡片 18px、三区不重叠，v1.98）+ harness 目视托盘与按钮分离；**真机触感仍待**（无 AppID/上传密钥 + T-458 工具缺陷；已并入 T-451/452/453 真机复测清单**第⑤项**，判据见 T-453 §验收）；② 带高 234 零余量（改托盘族常量前须重算）；③ `ux-spec.md:78` 线框图带值整体滞后（老图，另开 UX 刷新批，本单只登记）；④ 区间值仍进 SKIP（K-192），下次 review 人工复查。
+- **复核轮（2026-10-27 晚，用户「重跑 wxgame-gdd-review 复核 v1.97/v1.98」）**：基线 `e3260c85`；结论 **PASS**（**0 P0 / 0 P1**）。三方一致逐项见 `design/gdd/review-2026-10-27.md §8`；SKIP 仍 **19 + 47**（与首轮同数）。**新登记 1×P2（D1）**：`assets-spec §1.3.2` 是 v1.5-r6 历史推导节，本单只改了其前提表 167-168（`TRAY_BAND` / `btn_expand`），同节 169/182/196/224 仍是旧代读数 ⇒ **同节混代**；建议另开 art 规格批按 K-053 标「历史快照」（本单不改）。另 D2（`ux-spec:78` / `art-bible:190` 带值滞后）、D3（提案 `:25` 旧口径未标年代）登记。
 - **沉淀统计（kb:sync）**：本单**未新增**（新增 0 / 修改 0 / 激活 0 / 归档 0）—— 复用既有 **K-190**（§3 + changelog + 落码三件套）与 **K-192**（SKIP 人工核）；无候选 ⇒ 未跑 `kb:sync`。
 
 ## WXG-T-460
@@ -6454,3 +6455,5 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 **测试改判**：`ui-warm-paper-tokens`（P-1 token 契约 → 隐藏态零控件命令断言，契约原文留 tuning 注）+ `ui-input-timing`（滑轨拖拽用例 → 隐藏态命中恒空/事件穿透断言）。
 
 **复评通道（执行中）**：封箱基准（`bead-style-seal` 腿 4a/4b + T-230-B 哨兵，Δtotal=−8）与金样本 `play` 态随控件段移除漂移 ⇒ 按失败读数指路走 `bead-style-seal-recapture.ts` / `ui-golden-capture.ts` 于可复现锚重抓 + `test-cases.md §K.5.1-补N` 登记 + recheckLedger 入账（K-051/K-053）。
+
+**T-462 收口（2026-10-27 晚）**：复评通道全套办齐——① 封箱第二十一次复评：官方复取器重抓（`temp/wxg-t-211-s3/s3-seal.json` 晋升，frame78 `1788→1780` / frame0 `1242→1234`，Δ=−8 恰为 recheck-1 控件段退役；kinds rect 936 / circle 159 / text 10）+ 登记常数 `T462_ZOOM_CTRL_HIDE = 8` + 腿 4a 两式与前态史证三键等式 + 差分自洽三式（ctrl 项退役）+ 腿 4b 控件段前提作废（K-053 划线，`dropped` 8→0）+ 台账 `recheck-21-zoom-ctrl-hide` 入账 + provenance 键 21 + `test-cases-k-ledger-2.md §K.5.1-补13`；② 金样本 `play` 态重抓；③ beads **116 文件 1383 passed + 2 skipped** 全绿。⚠ 事故与纠正：`git add -A games/beads/` 误扫并发会话在制品（framework web.ts 镜像 + GDD review 报告）入 `df28f8e4`——已推送不可改史，用摘除提交 `84271b4e` 退回 `df28f8e4^` 态（工作树 WIP 不动）；教训 = 共享树提交**禁用 `-A`**，按本单文件清单精确 add。
