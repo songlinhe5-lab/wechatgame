@@ -23,11 +23,17 @@ export interface SigninBox {
     readonly h: number;
 }
 
-/** 7 格：4 + 3 居中排布（格 110 / 间距 18，相对静止态 plate 派生）。 */
+/** 7 格：4 + 3 居中排布（格 110 / 间距 18，相对静止态 plate 派生）。
+ *
+ * `[WXG-T-460]` 标题/格带分离：格顶（row 0 上缘 = rowTopY + 110）曾落在板顶下 40，
+ * 而 `panelPage` 标题基线在板顶下 50、字形自基线**向上**延 ⇒ 格顶越基线 10px
+ * （真机读作「七日签到」压首行格）。修 = rowTopY −150→−180 ⇒ 格顶 = 板顶下 70，
+ * 落基线下 20px；标题带（板顶 ~50+字高）/ 格带 / 钮带（板底 +60）三带互不越界。
+ */
 export function signinCellLayout(plate: SigninBox): SigninBox[] {
     const cellSize = 110;
     const cellGap = 18;
-    const rowTopY = plate.y + plate.h - 150;
+    const rowTopY = plate.y + plate.h - 180;
     const cells: SigninBox[] = [];
     for (let i = 0; i < SIGNIN_REWARDS.length; i++) {
         const row = i < 4 ? 0 : 1;

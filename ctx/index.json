@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3909,
       "lines": 132,
-      "sha256": "c849f139e82bd5f18627f80ffad68da71f320a9bb988f8cfea604d2f2f5a77a7",
+      "sha256": "726cb70270b132782ea88904b0c2e16b6fcbfa7b6d9d915beb2360da3164cbed",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 410,
-          "summary": "1 production/TASKS-DETAIL.md 216588 6420 normal",
+          "summary": "1 production/TASKS-DETAIL.md 217253 6442 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5256,
       "lines": 165,
-      "sha256": "9f23786ad08e6877491b5d826ef282b50c57b639a114eb2027ae44985f11a5bf",
+      "sha256": "35768cadb6a0eb146309a6c2c50f05d95c607691e886deee86c466146ecbbf84",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 155 行 / 71804 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 157 行 / 72185 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+156 · §待排（backlog，无号，立项时领取…=127+30",
+          "summary": "§WXG 任务台账（SSOT）=1+158 · §待排（backlog，无号，立项时领取…=129+30",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 6420 行 / 216588 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 6442 行 / 217253 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6421 · §WXG-T-448=6238+16 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6443 · §WXG-T-450=6270+14 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -14128,17 +14128,17 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 16472,
-      "lines": 217,
-      "sha256": "a079a66da71c8d4bf2504ffccd74fe8746adb42d2c3485a12dae3d09fb08da18",
+      "tokens": 16814,
+      "lines": 219,
+      "sha256": "1730a01de5da51a691a672f5f3330ff7e8d717749283ad81ae2192b8396ace67",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads UI 架构（View / ViewModel / Presenter + 公共基础）",
           "level": 1,
           "startLine": 1,
-          "endLine": 218,
-          "tokens": 16453,
+          "endLine": 220,
+          "tokens": 16795,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -14308,8 +14308,8 @@
           "anchor": "§12 TODO 拆分",
           "level": 2,
           "startLine": 138,
-          "endLine": 214,
-          "tokens": 11400,
+          "endLine": 216,
+          "tokens": 11742,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -14320,8 +14320,8 @@
         {
           "anchor": "§13 待你拍板",
           "level": 2,
-          "startLine": 215,
-          "endLine": 218,
+          "startLine": 217,
+          "endLine": 220,
           "tokens": 323,
           "summary": "D1–D5 均已裁定（见 [ADR-0032 §5](adr/ADR-0032-beads-ui-architectur",
           "keywords": [
@@ -87352,17 +87352,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 216588,
-      "lines": 6420,
-      "sha256": "f8cc4a61b8d06848e504ffdce82c0579e2b74da3ac4add6b7e46e5f8f9da7843",
+      "tokens": 217253,
+      "lines": 6442,
+      "sha256": "da536637b3bddcfcbf580ef8145e4d924e14cbf1a134132962ec81d62acbdcad",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 6421,
-          "tokens": 216572,
+          "endLine": 6443,
+          "tokens": 217237,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -95398,22 +95398,46 @@
             "TRAY_BAND",
             "btn_expand"
           ]
+        },
+        {
+          "anchor": "§WXG-T-460",
+          "level": 2,
+          "startLine": 6422,
+          "endLine": 6433,
+          "tokens": 369,
+          "summary": "真机缺陷①：签到弹窗标题/格带重叠 · 负责：主理人(CodeBuddy) · 状态：🔄 进行中（2026-10-27",
+          "keywords": [
+            "WXG",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-461",
+          "level": 2,
+          "startLine": 6434,
+          "endLine": 6443,
+          "tokens": 290,
+          "summary": "真机缺陷②：玩法底槽豆子被通宽白带横切 · 负责：主理人(CodeBuddy) · 状态：🔄 进行中（2026-10-",
+          "keywords": [
+            "WXG",
+            "CodeBuddy"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 71804,
-      "lines": 155,
-      "sha256": "30729314e0cc6ff499ada951fc03769cb9f4988fae9675c788fb69a3db6f5fe4",
+      "tokens": 72185,
+      "lines": 157,
+      "sha256": "21faca84d6b25d866a8307343449a8cc20de4d5e4005e57472e796f10b9467ad",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 156,
-          "tokens": 71795,
+          "endLine": 158,
+          "tokens": 72176,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -95426,8 +95450,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 127,
-          "endLine": 156,
+          "startLine": 129,
+          "endLine": 158,
           "tokens": 1460,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

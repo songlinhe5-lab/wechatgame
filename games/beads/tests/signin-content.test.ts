@@ -59,12 +59,12 @@ describe('UI-32 · SigninContent', () => {
     it('7 格版式：上行 4 / 下行 3，逐格居中且不重叠', () => {
         const cells = signinCellLayout(PLATE);
         expect(cells).toHaveLength(7);
-        // 上行：4×110 + 3×18 = 494 宽 ⇒ 左缘 = 75 + (600−494)/2 = 128；y = 307+720−150 = 877。
-        expect(cells[0]).toEqual({ x: 128, y: 877, w: 110, h: 110 });
-        expect(cells[3]).toEqual({ x: 512, y: 877, w: 110, h: 110 });
-        // 下行：3×110 + 2×18 = 366 宽 ⇒ 左缘 = 75 + (600−366)/2 = 192；y = 877−128 = 749。
-        expect(cells[4]).toEqual({ x: 192, y: 749, w: 110, h: 110 });
-        expect(cells[6]).toEqual({ x: 448, y: 749, w: 110, h: 110 });
+        // 上行：4×110 + 3×18 = 494 宽 ⇒ 左缘 = 75 + (600−494)/2 = 128；y = 307+720−180 = 847。
+        expect(cells[0]).toEqual({ x: 128, y: 847, w: 110, h: 110 });
+        expect(cells[3]).toEqual({ x: 512, y: 847, w: 110, h: 110 });
+        // 下行：3×110 + 2×18 = 366 宽 ⇒ 左缘 = 75 + (600−366)/2 = 192；y = 847−128 = 719。
+        expect(cells[4]).toEqual({ x: 192, y: 719, w: 110, h: 110 });
+        expect(cells[6]).toEqual({ x: 448, y: 719, w: 110, h: 110 });
         // 全部落在底板内。
         for (const c of cells) {
             expect(c.x).toBeGreaterThanOrEqual(PLATE.x);
@@ -72,6 +72,19 @@ describe('UI-32 · SigninContent', () => {
             expect(c.y).toBeGreaterThanOrEqual(PLATE.y);
             expect(c.y + c.h).toBeLessThanOrEqual(PLATE.y + PLATE.h);
         }
+    });
+
+    // `[WXG-T-460]` 标题/格带分离守卫：格顶（上行上缘）必须在标题基线（板顶下 50，
+    // `panelPage` 同款）之下 ≥20px —— 字形自基线向上延，格顶越线即读作「标题压格」。
+    it('标题/格带分离：格顶落标题基线下 ≥20px，钮带与格带不交界', () => {
+        const cells = signinCellLayout(PLATE);
+        const titleBaseline = PLATE.y + PLATE.h - 50; // panelPage 标题基线同款
+        const topRowTop = Math.max(...cells.map((c) => c.y + c.h));
+        expect(titleBaseline - topRowTop).toBeGreaterThanOrEqual(20);
+        // 钮带（板底 +60 起，60 高）与最下行格底不交界。
+        const btnTop = PLATE.y + 60;
+        const bottomRowBottom = Math.min(...cells.map((c) => c.y));
+        expect(bottomRowBottom).toBeGreaterThanOrEqual(btnTop + 60);
     });
 
     it('弹窗布局同源：metaLayout 的 7 格 = signinCellLayout，领取 / 返回两钮可命中', () => {
