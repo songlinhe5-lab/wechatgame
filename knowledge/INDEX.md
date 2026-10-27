@@ -301,4 +301,6 @@
 | K-192 | 流程门禁 | process-gate | 门禁全绿 ≠ 值域全对：SKIP 清单本身就是审计输入，且 review 报告里的反引号等式会反向污染门的 SKIP 面 | WXG-T-457 | 2026-10-27 | 0 | active |
 | K-193 | 判据实测取证 | criteria-measure-evidence | 截图工具回显「Saved」不等于我读过它；凭上一轮印象描述本轮画面 = 臆述 | — | 2026-10-27 | 0 | active |
 | K-194 | 判据实测取证 | criteria-measure-evidence | 换宿主复验前先确认读回口装在哪；探针缺失时改用「逐格行为判别」而不是猜 | — | 2026-10-27 | 0 | active |
+| K-195 | 判据实测取证 | criteria-measure-evidence | 「UI 点了一下没反应」不能当规则判据；出口存在性要走引擎公开命令，道具类还须确认二次提交 | WXG-T-434 | 2026-10-27 | 0 | active |
+| K-196 | 判据实测取证 | criteria-measure-evidence | 想加「可解性/容量」类门禁前，先查 `levels:check` 已有的硬拦闸与已被撤回的错论，否则会造出把合法内容判红的弱门 | WXG-T-434 | 2026-10-27 | 0 | active |
 <!-- kb:active:end -->
