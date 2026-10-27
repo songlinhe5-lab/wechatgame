@@ -120,11 +120,22 @@ function panelPage(
     };
 }
 
+/** 菜单好友榜的渲染容器 id（`UiRoot`/`bindings` 只按容器序排，id 仅供调试读）。 */
+const RANK_SCOPE_ID = 'rank';
+
 /** 主菜单页（`overlay = none`）：几何读调用方同一 `anchors` 派生的 {@link anchoredGeo} ⇒ 与热区恒同源。
  * `[WXG-T-432]` 好友榜面板叠在本页之上（含遮罩）；进度全读 `view.progress`。 */
 const MENU_PAGE: PageDraw = (builder, data, palette, _layout, a, withSignage) => {
     drawMenuAnchored(builder, data, palette, anchoredGeo(a), withSignage);
-    if (data.rank !== undefined) drawRankPanel(builder, palette, data.rank);
+    // `[WXG-T-441 / ADR-0033 DEC-1]` 菜单好友榜**必须自持容器**：它内部的遮罩走 `Graphics` 通道，
+    // 而走马灯橱窗的位图腿（`BlitLayerUI`）与页面全部文字（`Labels`）都排在 `Graphics` **之后**
+    // ⇒ 不容器化时遮罩压不住它们（真机表现：底页「开始游戏」「好友榜」文字与橱窗图依旧鲜亮）。
+    // 容器整棵排在默认五通道之后 ⇒ 一次到位；`visible` 判据与 `drawRankPanel` 的早退同源。
+    if (data.rank !== undefined && data.rank.visible) {
+        builder.beginContainer(RANK_SCOPE_ID);
+        drawRankPanel(builder, palette, data.rank);
+        builder.endContainer();
+    }
 };
 
 /** 选关**整页**：页底 = `palette.background`（不透明）⇒ ⛔ 不画遮罩、不画纸面板，标题住导航栏带。 */

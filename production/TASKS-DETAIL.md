@@ -6141,3 +6141,36 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 
 1. 买确认与相位面板同时出现时，两容器按**出现序**叠放（DEC-1 既定规则，本批不引入优先级）。
 2. harness / Node 快照走 `renderPlayFrame`（**不包容器**）⇒ 容器正确性由 `ui-golden` 十一帧覆盖；⛔ 生产绘制腿不得调它。
+
+---
+
+## WXG-T-441
+
+**菜单好友榜对话框层序：面板自持容器（ADR-0033 DEC-1）· 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-10-27；真机读数待取）**
+
+用户真机再报「对话框图层还是错的」（截图：菜单态好友榜面板打开，底页「拼豆小铺」招牌、走马灯橱窗、`8/8`/`20` 资源条、「开始游戏」「好友榜」文字全部**鲜亮地压在白色面板之上**，面板的「返回」还被走马灯那块「曼陀罗」木牌盖住下半截）。
+
+### 根因
+
+`WXG-T-437` 的容器腿只覆盖到**弹窗路由**（`settings`/`signin`/`skins`），而菜单好友榜画在**页面腿**里（`meta-view::MENU_PAGE` 末尾）：它自己的遮罩与白板走 `Graphics` 通道，但底页的位图腿（`BlitLayerUI`）与全部文字（`Labels`）在 Cocos 端排在 `Graphics` **之后**（`bindings.ts` 默认五通道写死序：Background → BlitLayer → Graphics → BlitLayerUI → Labels）⇒ 跨通道相对序被压平，白板与遮罩一律落在页面文字/位图**之下**。ADR-0033 的原话就是这条缺陷的判据：容器外的命令序不保证真机层序。
+
+⚠ 诚实边界：`dev/harness`（`Canvas2DRenderer`）**忽略容器命令**、严格按命令序绘制 ⇒ 该腿天然「看着是对的」，掩盖了缺陷；只有 Cocos 五通道腿显形。
+
+### 落码
+
+| 层 | 改动 |
+|---|---|
+| `view/meta-view.ts` | `MENU_PAGE` 末尾：`data.rank?.visible` ⇒ `builder.beginContainer(RANK_SCOPE_ID)` / `drawRankPanel` / `endContainer()`；新增常量 `RANK_SCOPE_ID = 'rank'`。判据与 `drawRankPanel` 自身早退同源（`visible`） |
+
+结构良构（`checkUiContainerOrder` 四条保证逐条成立）：容器连续成块、不嵌套（页面腿不发容器）、容器内**零 `clip`**（走马灯 `clip` 在 `drawMenuAnchored` 内，属容器外）。容器兄弟位 = 首次出现序 ⇒ 与后开的弹窗容器仍按出现序叠放（DEC-1 既定规则）。命中侧零改动：菜单模态屏障仍在 `beads-shell::_readMenuInput`（`play.rankOpen` 分支）。
+
+### 验收读数
+
+- 新增 `dialog-center.test.ts` 一例（真帧命令流）：好友榜容器在册且闭合、整帧**恰 1 个容器**、底页 CTA「开始游戏」在容器**外**、面板标题与纸底板在容器**内**、`checkUiContainerOrder` 为空。
+- beads 全量 **1362 passed + 2 skipped**（含金样本十一帧 sha 零漂移——金样本无「菜单 + 好友榜」态，故本批不重抓）；`tsc --noEmit` 干净；`check:arch` OK（仅 L1 历史 WARN）。
+- ⛔ 真机层序实拍仍 `[R]`：本批只把缺陷从「命令在写死通道里的归属」改成「容器整棵压默认五通道之上」，设备面读数须按 K 例「判据读数须声明测量分辨率带宽」再取一次。
+
+### 已知边界
+
+1. 容器**首次出现序**定兄弟位：若同一次会话里先开过某个弹窗容器、之后才第一次开好友榜，则好友榜容器的兄弟位在弹窗之后。两者互斥（好友榜打开期菜单输入全拦），故当前无可见风险；真出现「两容器同帧可见」的需求时须按 DEC-1 显式排优先级。
+2. 面板进出场进度由 `RankPanel` 自持（`ResultPanelClock`），容器只包命令、不参与计时。

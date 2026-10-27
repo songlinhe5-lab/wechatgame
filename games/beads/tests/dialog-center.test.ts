@@ -41,7 +41,9 @@ import {
     dialogShiftY,
     liveDesignHeight,
 } from '../src/config/tuning.js';
+import { COPY_TOKENS } from '../src/config/copy-tokens.js';
 import { pausePanelLayout } from '../src/systems/pause-panel.js';
+import { RANK_PANEL_TITLE } from '../src/systems/rank-panel.js';
 import { clearPanelLayout } from '../src/systems/clear-panel.js';
 import { failPanelLayout } from '../src/systems/fail-panel.js';
 import { sprintSettleLayout } from '../src/systems/sprint-settle.js';
@@ -165,7 +167,44 @@ describe('WXG-T-324/325 — 菜单弹窗透出底页（ADR-0033 容器层已落�
         expect(underlay, '遮罩下必须已画出底层主菜单').toBeGreaterThan(100);
     });
 
-    it('设置弹窗：弹窗体自成一段容器，且容器/段命令流结构良构（DEC-8①）', () => {
+    // `[WXG-T-441]` 用户真机再报「对话框图层还是错的」（菜单好友榜：底页「开始游戏」「好友榜」文字
+    // 与走马灯橱窗图依旧鲜亮、还压在白板之上）。根因同族但漏了一处：好友榜画在**页面腿**里，
+    // 其遮罩走 `Graphics`，而位图腿（`BlitLayerUI`）与文字（`Labels`）排在 `Graphics` 之后 ⇒
+    // 在 `MetaView` 里只包页面容器不够，必须让好友榜**自持容器**（`meta-view::MENU_PAGE`）。
+    it('菜单好友榜：面板自持容器，底页文字在容器外、面板标题与白板在容器内', () => {
+        const shell = rig();
+        const entry = metaLayout('none', WALL_ROWS, shell.menuAnchors).buttons.find((b) => b.id === 'open-rank')!;
+        const c = entry.box;
+        expect(shell.tapMeta(c.x + c.w / 2, c.y + c.h / 2)).toBe(true);
+        const cmds = frameOf(shell);
+        const begin = cmds.findIndex((cmd) => cmd.kind === 'container' && cmd.id === 'rank');
+        const end = cmds.findIndex((cmd, i) => i > begin && cmd.kind === 'containerEnd');
+        expect(begin, '好友榜容器在册').toBeGreaterThan(-1);
+        expect(end, '容器闭合').toBeGreaterThan(begin);
+        expect(cmds.filter((cmd) => cmd.kind === 'container')).toHaveLength(1);
+        // 底页 CTA 文案（「开始游戏」）必须留在容器**外**（= 默认五通道，容器整棵压其上）。
+        const cta = cmds.findIndex((cmd) => cmd.kind === 'text' && cmd.text === COPY_TOKENS.btn_start_label);
+        expect(cta, '底页 CTA 在册').toBeGreaterThan(-1);
+        expect(cta).toBeLessThan(begin);
+        // 面板标题与纸底板必须在容器**内**：容器自带 Graphics / Blit / Labels 三通道 ⇒ 遮罩压得住底页。
+        const title = cmds.findIndex(
+            (cmd, i) => i > begin && cmd.kind === 'text' && cmd.text === RANK_PANEL_TITLE,
+        );
+        expect(title, '面板标题落容器内').toBeGreaterThan(begin);
+        expect(title).toBeLessThan(end);
+        const plate = cmds.findIndex(
+            (cmd, i) =>
+                i > begin &&
+                cmd.kind === 'rect' &&
+                (cmd as RectCommand).radius === UI_CONTAINER.radiusPanel,
+        );
+        expect(plate, '面板白板落容器内').toBeGreaterThan(begin);
+        expect(plate).toBeLessThan(end);
+        // 结构门（ADR-0033 DEC-8①）：容器不重叠/不嵌套、begin/end 配对、容器内零 clip。
+        expect(checkUiContainerOrder(cmds)).toEqual([]);
+    });
+
+    it('设置弹窗：弹窗体自成一段容器，且容器/命令流结构良构（DEC-8①）', () => {
         const shell = rig();
         openSettings(shell);
         const cmds = frameOf(shell);
