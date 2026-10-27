@@ -3247,7 +3247,7 @@
       "file": "knowledge/lessons/criteria-measure-evidence.md",
       "category": "判据实测取证",
       "title": "换宿主复验前先确认读回口装在哪；探针缺失时改用「逐格行为判别」而不是猜",
-      "contentHash": "584d30d6977c9adf94d11ef5bf4ad3cee9e8657101f6c623737facc742f4f959",
+      "contentHash": "d8b64ed3093da253ca5e1ffabd2eaa7fa9ed75d0c1b294bd13417ccbb2f78e2f",
       "sourceTask": null,
       "addedDate": "2026-10-27",
       "lastAccess": "2026-10-27",
@@ -3264,7 +3264,7 @@
       "file": "knowledge/lessons/criteria-measure-evidence.md",
       "category": "判据实测取证",
       "title": "「UI 点了一下没反应」不能当规则判据；出口存在性要走引擎公开命令，道具类还须确认二次提交",
-      "contentHash": "01f6e1de5eb1a317055f4c0fa7597c62a24515f8c0f7b8e5422b25eac51c963a",
+      "contentHash": "054881fb9b09418454f1b32a707c0b115a6f81b7f4029a09561d26f524c35b48",
       "sourceTask": "WXG-T-434",
       "addedDate": "2026-10-27",
       "lastAccess": "2026-10-27",
@@ -5333,6 +5333,16 @@
       "ids": [
         "K-195",
         "K-196"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-27",
+      "taskId": "WXG-T-434",
+      "kind": "updated",
+      "ids": [
+        "K-194",
+        "K-195"
       ],
       "note": null
     }
