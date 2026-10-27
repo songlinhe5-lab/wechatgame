@@ -75,13 +75,16 @@ export const PANEL_SCRIM_ALPHA = 0.5;
  *   暂停面板可见期间即设置态（暂停面板自身承担设置职，内容单源 S9），不引入第三种「子态」。 */
 export const SETTINGS_SCRIM_ALPHA = 0.3;
 /**
- * `[WXG-T-443]` **抬起容差**（设计 px）：「按下 → 抬起」之间手指在同一颗钮上漂出框仍算点中。
+ * `[WXG-T-443]` **抬起容差**：「按下 → 抬起」之间手指在同一颗钮上漂出框仍算点中。
  *
- * 88 高的钮在真机 ≡ 44 css px，拇指下飘 10–20 设计 px 属常态 ⇒ 旧口径（抬手必须**精确**命中
- * 同一个盒）表现为「点上了却没反应」。16 ≈ 8 css px，与 `TOUCH_MIN` 同属「手感地板」量级。
+ * 88 高的钮在真机 ≡ 44 css px，拇指下飘 10–20 css px 属常态 ⇒ 旧口径（抬手必须**精确**命中
+ * 同一个盒）表现为「点上了却没反应」。`[WXG-T-450]` 改**屏幕尺度**：真机手感必须按手指实际
+ * 移动量（css px）定，不能按设计 px 定 —— 16 设计 px 在 375 宽机只折 8.3 css px（太紧），
+ * 在 430 宽机折 9.2；**12 css px** 与 Android `touch slop` 同量级，各档机型恒定。
  * ⛔ 只对**已登记的那颗钮**做外扩容差，不做跨钮宽容命中（顶栏三钮 pitch = `TOUCH_MIN`，放宽下行面互抢）。
+ * 折算在消费点做：`slopDesign = TAP_SLOP_CSS / viewport.fit.scale`（design = css / scale）。
  */
-export const TAP_SLOP = 16;
+export const TAP_SLOP_CSS = 12;
 
 /** Panel button height — every row honours the TOUCH_MIN control floor (§3.8). */
 export const PANEL_BUTTON_H = TOUCH_MIN;

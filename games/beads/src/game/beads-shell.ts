@@ -45,7 +45,7 @@ import {
     WALL_CAPACITY,
     PANEL_IN_MS,
     PANEL_OUT_MS,
-    TAP_SLOP,
+    TAP_SLOP_CSS,
     menuAnchors,
     powerupBuyPrice,
     setLiveDesignHeight,
@@ -851,9 +851,13 @@ export class BeadsShell implements Game {
             return;
         }
         // `[WXG-T-443]` 抬起容差：手指在按下→抬起间下飘出框（88 高钮 ≡ 44 css px）时，旧口径
-        // 静默取消 ⇒ 用户「向下点一点就不响应」。只对**已登记的那颗钮**外扩 `TAP_SLOP` 再判一次；
+        // 静默取消 ⇒ 用户「向下点一点就不响应」。只对**已登记的那颗钮**外扩容差再判一次；
+        // `[WXG-T-450]` 容差改**屏幕尺度**（`TAP_SLOP_CSS` css px）：真机手感按手指实际位移量定，
+        // 各档屏宽恒定 —— design = css / fit.scale（`screenToDesign` 同式），375 宽机 12 css ⇒ 24 设计。
         // ⛔ 不跨钮命中（换了钮 / 拖到别的钮上仍取消，零事件零扣心）。
-        if (inBox(press.box, this._pointer.x, this._pointer.y, TAP_SLOP)) this._applyMetaAction(press);
+        const scale = this._services?.viewport.fit.scale ?? 1;
+        const slop = Math.round(TAP_SLOP_CSS / scale);
+        if (inBox(press.box, this._pointer.x, this._pointer.y, slop)) this._applyMetaAction(press);
     }
 
     /** 松手：点按 ⇒ 进选关；拖动 ⇒ 翻页 / 回弹已在 Presenter 内启动。 */

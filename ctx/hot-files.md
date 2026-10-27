@@ -25,9 +25,9 @@
 
 §wechatgame 项目长期笔记=1+81 · §日志蒸馏规程（R2 · WXG-T-0…=7+6 · §项目约定=13+22 · §常用脚本=35+11 · §SubAgent=46+4 · §Rules=50+3 · §Hooks=53+7 · §Headless / CI=60+8 · §已知限制=68+14
 
-## `production/TASKS.md` — 145 行 / 69044 tok / 实测读 4 次
+## `production/TASKS.md` — 146 行 / 69305 tok / 实测读 4 次
 
-§WXG 任务台账（SSOT）=1+146 · §待排（backlog，无号，立项时领取…=117+30
+§WXG 任务台账（SSOT）=1+147 · §待排（backlog，无号，立项时领取…=118+30
 
 ## `production/qa/beads/test-cases.md` — 62 行 / 3485 tok / 实测读 15 次
 
@@ -103,10 +103,10 @@
 §knowledge/ — 工作室知识库…=1+297 · §1 读取协议（开发前期）=7+10 · §2 写入协议（任务收尾）=17+28 · §3 文件分工=45+10 · §4 维护=55+12 · §5 生命周期（访问记账 → 归档 → …=67+41 · §6 活跃条目（自动生成）=108+190
 > 本表只列 7 / 11 节：其余 4 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
 
-## `production/TASKS-DETAIL.md` — 6268 行 / 207582 tok
+## `production/TASKS-DETAIL.md` — 6282 行 / 208080 tok
 
-§WXG 任务台账 · 详情（标题制正文…=1+6269 · §WXG-T-438=5990+37 · §WXG-T-439=6027+35 · §WXG-T-440=6062+33 · §WXG-T-441=6095+33 · §WXG-T-442=6128+28 · §WXG-T-443=6156+16 · §WXG-T-444=6172+18 · §WXG-T-445=6190+16 · §WXG-T-446=6206+14 · §WXG-T-447=6220+18 · §WXG-T-448=6238+16 · §WXG-T-449=6254+16
-> 本表只列 13 / 560 节：其余 547 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
+§WXG 任务台账 · 详情（标题制正文…=1+6283 · §WXG-T-439=6027+35 · §WXG-T-440=6062+33 · §WXG-T-441=6095+33 · §WXG-T-442=6128+28 · §WXG-T-443=6156+16 · §WXG-T-444=6172+18 · §WXG-T-445=6190+16 · §WXG-T-446=6206+14 · §WXG-T-447=6220+18 · §WXG-T-448=6238+16 · §WXG-T-449=6254+16 · §WXG-T-450=6270+14
+> 本表只列 13 / 561 节：其余 548 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
 
 ## `games/breakout/design/concept.md` — 143 行 / 3113 tok / 实测读 217 次
 

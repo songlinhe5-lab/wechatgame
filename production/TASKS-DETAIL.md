@@ -6266,3 +6266,17 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 - 图 2（`/tmp/hitband-2-tap.png`）：点屏幕最底 (109,1274)（设计 y=6）→ 触点探针（`[WXG-T-445]`）画在判定点、label = `open-rank`，好友榜面板（「正在加载…」/ 返回）打开，route 仍 menu ⇒ **屏底 6px 处可点**。
 
 **验收**：beads **1378 passed + 2 skipped**（改 1 加 1）；`serve-harness --build-only` OK。⛔ 零游戏几何改动：本笔只动调试层绘制参数。
+
+## WXG-T-450
+
+**`TAP_SLOP` 改屏幕尺度（12 css px 折算）· 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-10-27）**
+
+用户拍板：「改成屏幕尺度可以」（承接 `[WXG-T-448]` 收尾时点出的遗留：容差按设计 px 定，小屏机上偏紧）。
+
+**动机**：真机手感 = 手指实际位移量（css px），不应随屏宽漂。旧 `TAP_SLOP = 16` 设计 px 在 375 宽机只折 **8.3 css px**（拇指下飘 10–20 css px 属常态 ⇒ 「点上了却没反应」的另一半成因）、430 宽机折 9.2；改 **`TAP_SLOP_CSS = 12` css px**（与 Android `touch slop` 同量级）后各档恒定：375 宽 ⇒ 24 设计 px、430 宽 ⇒ 21 设计 px。
+
+**落码**：`tuning/menu.ts` 常量改名换值（注释带折算式）；`beads-shell.ts::_commitMenuPress` 消费点折算 `slop = Math.round(TAP_SLOP_CSS / scale)`，`scale = this._services?.viewport.fit.scale ?? 1`（design = css / scale，与 `screenToDesign` 同式；⚠ 本方法没有局部 `services` —— 首版直用模块名触雷 `services is not defined`，5 用例红，即改 `this._services` + `?? 1` 兜底）。`TAP_SLOP` 无其它消费者、无文档记载，一次替换干净。
+
+**边界不变**：⛔ 仍只对已登记的那颗钮外扩，不跨钮命中（T-443 语义）；x 向容差 24 设计 px < 相邻钮 x 间隙 54，无互抢。`[WXG-T-443]` 两用例（下飘 8 命中 / 飘 60 取消）在 rig scale 下语义自动跟随，无需改断言。
+
+**验收**：beads **1378 passed + 2 skipped**；`typecheck`、`serve-harness --build-only`、`smoke-harness` 全 OK。真机复测待用户：按钮下沿「点了没反应」应消失。
