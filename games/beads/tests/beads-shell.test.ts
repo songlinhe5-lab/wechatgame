@@ -26,6 +26,7 @@ import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import { createBeadsShell, type BeadsShell } from '../src/game/beads-shell.js';
 import { defaultBeadsMeta } from '../src/game/meta-save-schema.js';
 import { metaLayout, type MetaAction, type MetaOverlay } from '../src/view/meta-view.js';
+import { anchoredGeo } from '../src/view/meta-layout.js';
 import { DEFAULT_SKIN_ID, registeredSkins } from '../src/config/skins/registry.js';
 import {
     SKINS_CARD_H,
@@ -130,6 +131,19 @@ describe('BeadsShell — menu → play (§3.14 扣心时机)', () => {
         const r = rig({ initialScreen: 'menu', seedMeta: { staminaCur: 0 } });
         expect(r.shell.startGame()).toBe(false);
         expect(r.shell.screen).toBe('menu');
+    });
+
+    // `[WXG-T-454]` 全屏页切换 = 整栈替换（用户 2026-10-27 主张，已是现状——Navigator.reset
+    // 换整栈、visibleRoutes 只画栈顶 page 及以上）：带压栈内容（设置弹窗）进 play ⇒
+    // 旧页与覆盖层全部去除，不残留任何菜单侧压栈件（对话框才压栈，全屏页不压栈）。
+    it('startGame replaces the whole stack: modal under it is dropped (全屏页非二级页)', () => {
+        const r = rig({ initialScreen: 'menu' });
+        const hit = anchoredGeo(r.shell.menuAnchors!).settingsHit;
+        expect(r.shell.tapMeta(hit.x + hit.w / 2, hit.y + hit.h / 2)).toBe(true);
+        expect(r.shell.overlay).toBe('settings');
+        expect(r.shell.startGame()).toBe(true);
+        expect(r.shell.screen).toBe('play');
+        expect(r.shell.overlay).toBe('none');
     });
 
     it('回主菜单弃本局棋盘 → 再开始 = 全新开当前关、再扣 1 心（不保留进度，WXG-T-165）', () => {

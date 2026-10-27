@@ -6322,3 +6322,23 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 **文档**：`design/art/specs/menu-layout-implementation-spec.md` CTA 行改为「T-448 曾下探、T-453 收回」沿革口径。
 
 **验收**：beads 1379 绿；`typecheck` / `framework:sync` / `build:cocos` OK。真机复测点：①底部按钮原热区（贴视觉）全程可点（T-451 生效）；②品红框与按钮重合；③暂停 → 回主菜单面板即收（T-452）。
+
+## WXG-T-454
+
+**核实「全屏页切换 = 旧页整栈去除」+ 主界面残留取证 · 负责：主理人(CodeBuddy) · 状态：🔄 进行中（2026-10-27）**
+
+用户主张：「主界面开始游戏进入游戏界面后，后面的主界面没有消失，这是典型多级页面做法；游戏界面是独立界面、非二级页面交互——是否可以全屏界面切换后旧页面去除、做完全的页面切入；只有对话框或带左上返回按钮的页面才保留压栈。」
+
+**核实结论（架构侧 = 已是现状，无需改码）**：
+1. `PhaseRouteBinder.resetTo(screen)` = `Navigator.reset([单页路由])`（`phase-route-binder.ts:153`）——「回主菜单 / 进玩法」全走它，语义即「整栈换成单个基础页」。
+2. `Navigator.visibleRoutes()`（`navigator.ts:67`）只画**栈顶 page 及其上**：栈 `[play]` 时绘制源不含任何菜单内容；modal（settings / signin / skins / 相位面板）与带返回钮的页（levels）才压栈——与用户主张逐条吻合。
+3. 新增守卫用例（`beads-shell.test.ts`）：设置弹窗在场 `startGame()` ⇒ `screen='play'` 且 `overlay='none'`（压栈内容被整栈替换吞掉）。beads **1380 passed + 2 skipped**。
+
+**残留取证（渲染侧 = 本机三运行时均不可复现）**：
+- harness（canvas2d）+ web-mobile（Cocos-WebGL，`build:cocos:web` 重建含 T-451~453）实测：菜单 → 开始游戏 → 暂停 → 回主菜单 → 再开始 **全环路截图干净**，无菜单元素残留（`agent-browser` 驱动，合成 pointer 事件走真输入管线）。
+- 源码逐通道核实每帧清场链：`cocos-renderer.draw()` 帧首 = `UiScopeTree.beginFrame()`（清**全部曾建**矢量层 + 归还标签，`ui-scope-tree.ts:92`）→ 载体 `beginFrame()` 收 `[0,_used)` 池位（T-269 口径）→ `clipHost.beginFrame()` 清蒙版 pen + mask + stencil 复位（`cocos-renderer.ts:320`）→ `back.clear()+fill`。重点嫌疑 `createShowcaseClip` 蒙版子树（`ShowcaseClipBlit`）内的池位 sprite 同走 `[0,_used)` 回收，**无例外通道**。
+- 模型层核实：进玩法后 render model 无菜单命令（上两端截图为证）。
+
+**阻塞**：微信开发者工具自动化通道（`cli auto --auto-port 9420/9421` + `miniprogram-automator` connect/launch）ws 握手通但**所有**调用（systemInfo / screenshot / evaluate）超时 ×3——无法在本机驱动微信运行时复现，判定环境阻塞、非代码阻塞。
+
+**待办**：等用户提供微信端（devtools 模拟器或真机）残留截图 + 触发路径（首次进入即残留？暂停回菜单后再进才有？单帧闪烁还是常驻？）⇒ 按 T-452 同法（截图定层 → 源码对账 → 复现收敛）定位。
