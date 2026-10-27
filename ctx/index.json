@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3903,
       "lines": 132,
-      "sha256": "043574125d10ed9ffaa837b0abe227ef20c4a8056ad19d274e7ebae5b62ae0fa",
+      "sha256": "5df749a2dbb078ef97113175a806b47a8001412156f79bd12258bf0588be064a",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 217253 6442 normal",
+          "summary": "1 production/TASKS-DETAIL.md 217606 6444 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5256,
       "lines": 165,
-      "sha256": "eedef7582aa0ca0af2a0657369609f296c6a801313973b918b1b3c404c2539e1",
+      "sha256": "73156b191e6eca5752e5b233c7f3dfb0f5c729acf07d3acd75ac9cbf7ab00208",
       "tier": "normal",
       "sections": [
         {
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 6442 行 / 217253 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 6444 行 / 217606 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6443 · §WXG-T-450=6270+14 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6445 · §WXG-T-450=6270+14 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -87402,17 +87402,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 217253,
-      "lines": 6442,
-      "sha256": "da536637b3bddcfcbf580ef8145e4d924e14cbf1a134132962ec81d62acbdcad",
+      "tokens": 217606,
+      "lines": 6444,
+      "sha256": "bcbc004517759123df1e12f5a7b9365374e1142aa161cd9c2f2fa3754dc02dfc",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 6443,
-          "tokens": 217237,
+          "endLine": 6445,
+          "tokens": 217590,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -95465,8 +95465,8 @@
           "anchor": "§WXG-T-461",
           "level": 2,
           "startLine": 6434,
-          "endLine": 6443,
-          "tokens": 290,
+          "endLine": 6445,
+          "tokens": 643,
           "summary": "真机缺陷②：玩法底槽豆子被通宽白带横切 · 负责：主理人(CodeBuddy) · 状态：🔄 进行中（2026-10-",
           "keywords": [
             "WXG",
