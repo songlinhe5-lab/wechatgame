@@ -14,6 +14,11 @@
  *     ⇒ 每容器 = 一段连续块 ⇒ **「容器 A 全部命令索引 < 容器 B」成立**（DEC-8① 第一句）。
  *  2. `segment` 只出现在容器内，且与 `segmentEnd` 配对、**段不叠套**（DEC-2 段在容器内不叠套）。
  *  3. `endContainer` / `endSegment` 不得悬空（无对应进入）。
+ *  4. `clip` **不得出现在容器内**（`[WXG-T-439]` 显式降级）：Cocos 端的裁切走**全局** `clipHost`
+ *     （`bindings.ts` 手搭的一套 `Mask` 子树，只在默认层），容器内发 `clip` 会被画到容器**之外**
+ *     ⇒ 与容器层语义冲突。当前全仓仅 `view/meta-menu.ts` 的走马灯在**页面层**裁切（1 处），
+ *     容器内零使用 ⇒ 这条门把「未来有人在容器内裁切」从静默画错变成当场红，而不是先给每个
+ *     作用域投机建一套 Mask（零需求驱动）。真要放开时先做作用域级 clipHost 再拆本门。
  *
  * ⛔ 本函数只判**结构**；「遮罩压住面板与文字」的段间叠序由 `UiScopeTree` 内核 + 真机读数
  * （ADR-0033 P3 / DEC-8②）负责——那条腿的真伪只能由设备证，不在本 Node 门内。
@@ -69,6 +74,13 @@ export function checkUiContainerOrder(commands: readonly DrawCommand[]): string[
           errors.push(`endSegment 无配对的 beginSegment @${i}`);
         } else {
           openSegment = null;
+        }
+        break;
+      case 'clip':
+        if (openContainer !== null) {
+          errors.push(
+            `clip 出现在容器 "${openContainer}" 内 @${i}（Cocos 端 clip 走全局 clipHost，容器内裁切会画到容器之外 ⇒ 禁；见 ADR-0033 / WXG-T-439）`,
+          );
         }
         break;
       default:
