@@ -6396,3 +6396,5 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 **阻塞**：模拟器窗口实际状态无目视确认（screencapture 无屏幕录制权限）——待用户看一眼三选一：A 游戏画面正常 / B 白屏或报错 / C 项目窗口未开。
 
 **复用资产**：`/tmp/wxauto/`（miniprogram-automator + trace/poll 探针脚本）；IDE 日志 `~/Library/Application Support/微信开发者工具/d1e8765721a6c23d43b14c95b1843e6b/WeappLog/logs/`。
+
+**重试轮（2026-10-27 晚，用户指令「重试下自动化通道」）**：①「客户端保持连接 + touch 重编译」懒注入假设 ✗（60s 轮询全死）；②窗口激活前台（Electron 节流假设）✗；③向已 Active 会话重跑 `cli auto` 重挂 ✗；④`cli engine/agent/auto-replay` 均与本问题无关（引擎构建 / 工具内 AI agent / 回放）。**误读纠正**：此前疑似的 `serveGameAppserviceFrame`/`serveAppserviceHtml`「服务失败」实为会话对象属性转储字段名，非报错；当前会话 `no winId`=0、无任何代理错误，引导链标记全绿 ⇒ **游戏可能已真在模拟器中运行，缺的只是自动化应答者注入**。终判：工具 2.02.2609231 CLI 模式下自动化钩子未注入游戏运行时（IDE 侧桥正常）；唯一判别 = 目视模拟器（A/B/C 待用户）。复测配方：`cli auto --auto-port 9420 --trust-project` → `touch <build>/game.js` → automator connect。
