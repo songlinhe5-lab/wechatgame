@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 185,
+  "nextId": 187,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -3087,6 +3087,40 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-185",
+      "state": "active",
+      "file": "knowledge/lessons/criteria-render.md",
+      "category": "判据渲染",
+      "title": "触摸「按下→抬起同点」必须带抬起容差，且只许扩在已登记的那颗钮上",
+      "contentHash": "4f5a78d4c82bfcb3853fb3b86f0d800dcdbcc11b3e374724ca4317ec9beb30ac",
+      "sourceTask": "WXG-T-443",
+      "addedDate": "2026-10-27",
+      "lastAccess": "2026-10-27",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-186",
+      "state": "active",
+      "file": "knowledge/lessons/criteria-render.md",
+      "category": "判据渲染",
+      "title": "「整体缩放」动画必须连内容一起缩：统一换算器 + `scale === 1` 返原引用",
+      "contentHash": "64ea7a013a1f4abb3e600eafd485ec1de722d56f2c6e726943bb4b0b9d1c52dc",
+      "sourceTask": "WXG-T-443",
+      "addedDate": "2026-10-27",
+      "lastAccess": "2026-10-27",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -5037,6 +5071,36 @@
       "ids": [
         "K-183",
         "K-184"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-27",
+      "taskId": "WXG-T-443",
+      "kind": "added",
+      "ids": [
+        "K-185",
+        "K-186"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-27",
+      "taskId": "WXG-T-443",
+      "kind": "updated",
+      "ids": [
+        "K-185",
+        "K-186"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-27",
+      "taskId": "WXG-T-443",
+      "kind": "updated",
+      "ids": [
+        "K-185",
+        "K-186"
       ],
       "note": null
     }
