@@ -1743,6 +1743,22 @@ export class BeadsGame {
   }
 
   /**
+   * `[WXG-T-452]` 回主菜单的**完整**弃局腿：弃局标 + **先收面板链**。
+   *
+   * 只置弃局标不够 —— `showMenu()` 切完 nav 栈后 `play.phase` 仍 `'paused'`，而
+   * `buildRenderModel` 每帧 `syncPhase(play.phase)` 按「paused ⇒ pause 面板」做幂等对账，
+   * 会把暂停面板**重新压回菜单栈顶** ⇒ 主菜单上残留暂停弹窗（真机 2026-10-27 实拍）。
+   *
+   * `reset('playing')` 复用 `playing.onEnter` 的面板关闭腿（`_panel.close()` /
+   * `game:resumed` / `PANEL_OUT` 音效，与「继续」同口径，不另写第二份关闭序）；
+   * 回菜单后 `play.update` 不跑 ⇒ 玩法冻结；下次 `goToLevel` 照常 `reset('playing')` 装配新局。
+   */
+  exitToMenu(): void {
+    this._machine.reset('playing');
+    this._abandoned = true;
+  }
+
+  /**
    * Fail-page 续时: load + show the fail-continue placement. Stays in
    * GAME_OVER until `onRewarded`. Sprint / cap / in-flight show → no-op.
    */

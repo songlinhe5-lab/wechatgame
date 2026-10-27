@@ -521,9 +521,9 @@ export class BeadsShell implements Game {
 
     // ───────────────────────────────────────────────────────────── routing
 
-    /** 暂停次钮「回主菜单」：切菜单、清 overlay（本局弃置——`play.abandonRun()`) 。 */
+    /** 暂停次钮「回主菜单」：切菜单、清 overlay（本局弃置 + 收面板链——`play.exitToMenu()`，`[WXG-T-452]`）。 */
     showMenu(): void {
-        this.play.abandonRun();
+        this.play.exitToMenu();
         this._phase.resetTo('menu');
         this._cancelPageFx();
         this._emitOverlay(true);

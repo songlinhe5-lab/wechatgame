@@ -185,7 +185,11 @@ describe('EP13-S3 · 串道反例（DoD 硬项）', () => {
 
         r.ad.settle('complete');
         // 广播发奖：play 的续时腿也在场 ⇒ 必须被「弃局标」挡住。
-        expect(r.shell.play.phase, '⛔ 不得被拉回 PLAYING（旧失败盘不复活）').toBe('game-over');
+        // `[WXG-T-452]` 「不复活」的用户可见判据 = **仍留菜单页**（nav 栈不被发奖腿切走）；
+        // 旧判据 `phase==='game-over'` 是实现细节 —— 弃局腿（exitToMenu）现在会把相位
+        // 收出面板态（'playing' 空转：菜单页不跑 play.update，棋盘未装配 ⇒ 无玩法推进），
+        // 续时腿也因 `_abandoned` / 相位守卫 no-op ⇒ 行为判据不变。
+        expect(r.shell.screen, '⛔ 不得被拉回 PLAYING 页（旧失败盘不复活）').toBe('menu');
         expect(r.shell.play.reviveBonusSec, '⛔ 零加时（⇒ 零 sfx_revive_ok，A05-19 同源）').toBe(reviveBefore);
         expect(r.shell.play.remaining, '⛔ 计时未被加时').toBe(remainingBefore);
         expect(r.shell.screen, '玩家仍留菜单').toBe('menu');

@@ -6292,3 +6292,17 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 **落码**（`packages/framework/src/adapters/cocos/bindings.ts`）：`_bindInput` 弃 `node.on('touch-start' …)`（节点 hitTest），改引擎**全局 `input`**（`ccInput.on(Input.EventType.TOUCH_START/MOVE/END/CANCEL, …, this)`，`pal/input` 直通、**不做节点 hitTest**）⇒ 事件恒达框架；letterbox 内的点由 `Viewport.screenToDesign` 给出界外设计坐标 ⇒ `inBox` 全不命中，零副作用（与框架「屏幕空间 = 全屏」契约一致）。`onDestroy` 对称 `off`（全局单例不随节点销毁自动解绑）。归一化链路（`readTouch`/`normalizeCocosTouchWx`，T-104/129/161）一字未动。
 
 **验收**：framework **547 passed**（`cocos-touch-origin-contract` 契约断言未破）；`pnpm run typecheck` OK；**`pnpm run build:cocos` 编译通过**（bindings 被 Node tsc 排除，Cocos 构建是它唯一的编译检查；先 `framework:sync` 同步拷贝件再构建）。⛔ 待真机复测：iPhone 13 Pro Max 上好友榜下半边应出红十字并命中 `open-rank`；同时验证顶部安全区一侧无回归。
+
+## WXG-T-452
+
+**暂停面板「回主菜单」后面板残留主菜单 · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-10-27）**
+
+用户真机实拍（iPhone 13 Pro Max）：主菜单背景上叠着暂停弹窗（暂停/继续/重玩/设置行/回主菜单），perf 行显示 `menu` ⇒ nav 栈确在菜单页而面板仍画。
+
+**根因**：`showMenu()` = `abandonRun()`（只置 `_abandoned`）+ `_phase.resetTo('menu')` —— `play.phase` 仍 `'paused'`；`buildRenderModel` 每帧 `_phase.syncPhase(play.phase, mode)`（`phase-route-binder.ts:182`）按「paused ⇒ pause 面板」做幂等对账：栈顶非面板 ⇒ `cur=null ≠ want='pause'` ⇒ **push 回菜单栈顶**。同帧还证实同源问题链：T-451（letterbox 死区）修掉后菜单输入可达，而残留面板的模态门（`rankOpen` 腿之外，pause modal 的屏障）会吞菜单底部输入 —— 两个 bug 叠在一张截图里。
+
+**落码**：`beads-game.ts` 新增 `exitToMenu()` = `this._machine.reset('playing')`（**复用 `playing.onEnter` 的面板关闭腿**：`_panel.close()` / `game:resumed` / `PANEL_OUT` 音效，与「继续」同口径，不另写第二份关闭序）+ `_abandoned = true`；`shell.showMenu()` 改调它。回菜单后菜单腿不跑 `play.update` ⇒ 相位 'playing' 空转、玩法冻结；下次 `goToLevel` 照常装配新局。⛔ 不用 `reset('boot')`：会跳过 `_panel.close()`，ModalLifecycle 残留 open 态。
+
+**测试**：新增「暂停中回主菜单 ⇒ 相位离开面板态」用例；EP13-S3 串道反例（DoD 硬项）的「旧盘不复活」判据从 `phase==='game-over'`（实现细节，新弃局腿下相位本就收走）改为**用户可见判据**「仍留菜单页」+ 零加时/零复活不变。beads **1379 passed + 2 skipped**；`typecheck` / `framework:sync` / `build:cocos` OK。
+
+**关联**：同批用户反馈「底部两按钮热区太高、延伸到安全边」—— 那是 `[WXG-T-448]` 按其当时要求（热区覆盖安全区外全域）的效果；真因（letterbox 死区）已由 T-451 修复，下探是否收回待用户裁定（选项：全收 / 半收 / 保持）。

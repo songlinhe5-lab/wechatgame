@@ -143,6 +143,19 @@ describe('BeadsShell — menu → play (§3.14 扣心时机)', () => {
         expect(r.shell.play.phase).toBe('playing');
         expect(r.shell.meta!.stamina).toBe(before - STAMINA_START_COST); // 弃本局 ⇒ 重进按新局扣心
     });
+
+    it('`[WXG-T-452]` 暂停中回主菜单 ⇒ 相位离开面板态（syncPhase 不得把暂停面板复压回菜单栈顶）', () => {
+        const r = rig({ initialScreen: 'play' });
+        r.shell.play.onPause();
+        expect(r.shell.play.phase).toBe('paused');
+        r.shell.showMenu();
+        expect(r.shell.screen).toBe('menu');
+        // 弃局腿必须先收面板链：phase 停在 'paused' 的话，下一帧 `syncPhase('paused')`
+        // 会把暂停面板重新 push 回菜单栈顶 ⇒ 主菜单残留暂停弹窗（真机实拍 2026-10-27）。
+        expect(r.shell.play.phase).toBe('playing');
+        expect(r.shell.play.phase === 'paused' || r.shell.play.phase === 'level-clear' ||
+            r.shell.play.phase === 'game-over' || r.shell.play.phase === 'finish').toBe(false);
+    });
 });
 
 describe('BeadsShell — overlay stack + meta:overlay events', () => {
