@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3909,
       "lines": 132,
-      "sha256": "d2e62cbdd02a3ae8376c1f5627d01bf951f36cb02c2aca6b64005272fe612851",
+      "sha256": "21f531fbc96ebc3936473e9c81af8034169a03e05f6934b62ed09553058ecb1a",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 410,
-          "summary": "1 production/TASKS-DETAIL.md 210735 6344 normal",
+          "summary": "1 production/TASKS-DETAIL.md 211167 6353 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -454,7 +454,7 @@
       "path": "ctx/ROUTES.md",
       "tokens": 5179,
       "lines": 177,
-      "sha256": "9b68af33903046d0d24babd05df3207e0b1e29c98106c43e25da4d6f3224964b",
+      "sha256": "36aa4621a82b32c8655cd6f85a0a4104a4c4b23dadac3c2b4f103bb52ec318bc",
       "tier": "normal",
       "sections": [
         {
@@ -613,7 +613,7 @@
           "startLine": 140,
           "endLine": 159,
           "tokens": 559,
-          "summary": "Skill 家族清单与优先级 my-skills/INDEX.md#§1 清单（现役 38 个挂四 IDE 链接；存档 ",
+          "summary": "Skill 家族清单与优先级 my-skills/INDEX.md#§1 清单（现役 49 个挂四 IDE 链接；存档 ",
           "keywords": [
             "§1",
             "Skill",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5239,
       "lines": 165,
-      "sha256": "6a79dae32f5b3d7342f735a1d153fa80d12f610f4086bc75b30c5f2d00ccd99b",
+      "sha256": "dcc12ce23226760cb041891fa65366d224ddb0ae978083df1150dc83100e4a98",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 150 行 / 70643 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 151 行 / 70731 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+151 · §待排（backlog，无号，立项时领取…=122+30",
+          "summary": "§WXG 任务台账（SSOT）=1+152 · §待排（backlog，无号，立项时领取…=123+30",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -777,12 +777,12 @@
           ]
         },
         {
-          "anchor": "§`my-skills/INDEX.md` — 156 行 / 4363 tok / 实测读 61 次",
+          "anchor": "§`my-skills/INDEX.md` — 158 行 / 4487 tok / 实测读 61 次",
           "level": 2,
           "startLine": 36,
           "endLine": 40,
           "tokens": 133,
-          "summary": "§wxgame skill 家族 IND…=1+157 · §1 清单（现役 38 个挂四 IDE …=6+30 · §",
+          "summary": "§wxgame skill 家族 IND…=1+159 · §1 清单（现役 49 个挂四 IDE …=6+32 · §",
           "keywords": [
             "my-skills/INDEX.md",
             "§1",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 6344 行 / 210735 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 6353 行 / 211167 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6345 · §WXG-T-443=6156+16 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6354 · §WXG-T-444=6172+18 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -68848,17 +68848,17 @@
     },
     {
       "path": "my-skills/INDEX.md",
-      "tokens": 4363,
-      "lines": 156,
-      "sha256": "67a1873a0200381d0281ce48bfcf84d3aa48ad28ef664c9b0b6a7bd5e1fe3876",
+      "tokens": 4487,
+      "lines": 158,
+      "sha256": "703df2e4c06ca0f2ef9fcb80edbd550c2541cfe241414b407edd71b3329001fb",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§wxgame skill 家族 INDEX",
           "level": 1,
           "startLine": 1,
-          "endLine": 157,
-          "tokens": 4355,
+          "endLine": 159,
+          "tokens": 4479,
           "summary": "本文件是 my-skills/ 全家族的统一约定（人读 + 编排者读）。",
           "keywords": [
             "wxgame",
@@ -68869,11 +68869,11 @@
           ]
         },
         {
-          "anchor": "§1 清单（现役 38 个挂四 IDE 链接；存档 1 个仅本目录留档）",
+          "anchor": "§1 清单（现役 49 个挂四 IDE 链接；存档 1 个仅本目录留档）",
           "level": 2,
           "startLine": 6,
-          "endLine": 35,
-          "tokens": 1217,
+          "endLine": 37,
+          "tokens": 1341,
           "summary": "编排 wxgame-orchestration 九阶段（0–8）流水线、spawn 模板（八要素，含必读 skill 路",
           "keywords": [
             "IDE",
@@ -68887,8 +68887,8 @@
         {
           "anchor": "§1b. 外来通用·AI 编程工作流（28 个挂四 IDE 链接；含 1b.1 五件 + 1b.2 七件）",
           "level": 2,
-          "startLine": 36,
-          "endLine": 104,
+          "startLine": 38,
+          "endLine": 106,
           "tokens": 2163,
           "summary": "来源均为标准 SKILL.md 格式（MIT），安全审计通过（无危险命令/外传行为）。正本在本目录，git 克隆留档 _",
           "keywords": [
@@ -68903,8 +68903,8 @@
         {
           "anchor": "§1b.1 2026-09-24 批（5 件）",
           "level": 3,
-          "startLine": 57,
-          "endLine": 84,
+          "startLine": 59,
+          "endLine": 86,
           "tokens": 873,
           "summary": "cloudflare/security-audit-skill security-audit 六阶段安全审计（侦察 → ",
           "keywords": [
@@ -68917,8 +68917,8 @@
         {
           "anchor": "§1b.2 2026-10-20 批（7 件：ponytail 家族 6 + headroom）",
           "level": 3,
-          "startLine": 85,
-          "endLine": 104,
+          "startLine": 87,
+          "endLine": 106,
           "tokens": 793,
           "summary": "DietrichGebert/ponytail ponytail 强制最简可用解（七级阶梯 / YAGNI，lite·f",
           "keywords": [
@@ -68933,8 +68933,8 @@
         {
           "anchor": "§2 默认管线顺序与何时不走全 SOP",
           "level": 2,
-          "startLine": 105,
-          "endLine": 112,
+          "startLine": 107,
+          "endLine": 114,
           "tokens": 140,
           "summary": "全 SOP（新游戏/大功能）：orchestration 阶段诊断 → 按九阶段表 spawn",
           "keywords": [
@@ -68948,8 +68948,8 @@
         {
           "anchor": "§3 Skill 优先级（冲突时高者胜）",
           "level": 2,
-          "startLine": 113,
-          "endLine": 131,
+          "startLine": 115,
+          "endLine": 133,
           "tokens": 312,
           "summary": "",
           "keywords": [
@@ -68961,8 +68961,8 @@
         {
           "anchor": "§4 路径约定",
           "level": 2,
-          "startLine": 132,
-          "endLine": 145,
+          "startLine": 134,
+          "endLine": 147,
           "tokens": 222,
           "summary": "游戏（策划/美术/源码） games/<game>/design · games/<game>/art · games/",
           "keywords": [
@@ -68976,8 +68976,8 @@
         {
           "anchor": "§5 冲突裁决链",
           "level": 2,
-          "startLine": 146,
-          "endLine": 152,
+          "startLine": 148,
+          "endLine": 154,
           "tokens": 85,
           "summary": "1. games/<game>/design/gdd/systems-index.md §3 冻结常量 是数值唯一真源",
           "keywords": [
@@ -68992,8 +68992,8 @@
         {
           "anchor": "§6 Provenance 说明",
           "level": 2,
-          "startLine": 153,
-          "endLine": 157,
+          "startLine": 155,
+          "endLine": 159,
           "tokens": 60,
           "summary": "除 audio-spec（框架版）外，各 wxgame-* 均提炼自 Breakout demo 的实际产物，",
           "keywords": [
@@ -84754,6 +84754,112 @@
       ]
     },
     {
+      "path": "my-skills/wxgame-arch-review/SKILL.md",
+      "tokens": 1482,
+      "lines": 76,
+      "sha256": "1bbfd457dc6df1b9561d1b94cb9dbd17c24317677424a6dadefbfaffdc58d05e",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§wxgame 架构定期 review（控制清单核对，只读）",
+          "level": 1,
+          "startLine": 6,
+          "endLine": 77,
+          "tokens": 1379,
+          "summary": "本 skill 属 wxgame 家族（管线顺序、优先级与冲突裁决见 my-skills/INDEX.md）。",
+          "keywords": [
+            "wxgame",
+            "review",
+            "skill",
+            "skills",
+            "INDEX",
+            "架构定期"
+          ]
+        },
+        {
+          "anchor": "§0 什么时候跑（触发节奏）",
+          "level": 2,
+          "startLine": 14,
+          "endLine": 20,
+          "tokens": 64,
+          "summary": "新增依赖 / 新建包 / 新增平台适配层后",
+          "keywords": [
+            "什么时候跑",
+            "触发节奏"
+          ]
+        },
+        {
+          "anchor": "§1 输入（只读）",
+          "level": 2,
+          "startLine": 21,
+          "endLine": 30,
+          "tokens": 116,
+          "summary": "控制清单 docs/architecture/control-manifest.md",
+          "keywords": [
+            "docs",
+            "architecture",
+            "control",
+            "manifest",
+            "输入",
+            "只读"
+          ]
+        },
+        {
+          "anchor": "§2 审计步骤（顺序执行）",
+          "level": 2,
+          "startLine": 31,
+          "endLine": 51,
+          "tokens": 560,
+          "summary": "1. 规则清单化：把 control-manifest.md 与 L1–L5 逐条抄成核对表（规则 / 来源 ADR /",
+          "keywords": [
+            "control",
+            "manifest",
+            "ADR",
+            "审计步骤",
+            "顺序执行"
+          ]
+        },
+        {
+          "anchor": "§3 漂移表（报告主体）",
+          "level": 2,
+          "startLine": 52,
+          "endLine": 60,
+          "tokens": 120,
+          "summary": "",
+          "keywords": [
+            "漂移表",
+            "报告主体"
+          ]
+        },
+        {
+          "anchor": "§4 结论与报告落位",
+          "level": 2,
+          "startLine": 61,
+          "endLine": 70,
+          "tokens": 207,
+          "summary": "结论三选一：PASS（0 个 P0/P1）/ CONCERNS（有 P1 但有明确修复计划）/ FAIL（有 P0，或 ",
+          "keywords": [
+            "PASS",
+            "CONCERNS",
+            "FAIL",
+            "结论与报告落"
+          ]
+        },
+        {
+          "anchor": "§5 纪律",
+          "level": 2,
+          "startLine": 71,
+          "endLine": 77,
+          "tokens": 112,
+          "summary": "只读：不擅自改 ADR、架构文档或代码。",
+          "keywords": [
+            "ADR",
+            "纪律"
+          ]
+        }
+      ]
+    },
+    {
       "path": "my-skills/wxgame-art-spec-programmatic/SKILL.md",
       "tokens": 914,
       "lines": 56,
@@ -85274,6 +85380,111 @@
             "sprints",
             "sprint",
             "后续衔接"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/wxgame-gdd-review/SKILL.md",
+      "tokens": 1436,
+      "lines": 72,
+      "sha256": "2bd55040926a83dfaa1b031be9de93eef7965f269d1c881f1c0926bef42dfffa",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§wxgame GDD 定期 review（漂移审计，只读）",
+          "level": 1,
+          "startLine": 6,
+          "endLine": 73,
+          "tokens": 1334,
+          "summary": "本 skill 属 wxgame 家族（管线顺序、优先级与冲突裁决见 my-skills/INDEX.md）。",
+          "keywords": [
+            "wxgame",
+            "GDD",
+            "review",
+            "skill",
+            "skills",
+            "INDEX"
+          ]
+        },
+        {
+          "anchor": "§0 什么时候跑（触发节奏）",
+          "level": 2,
+          "startLine": 15,
+          "endLine": 21,
+          "tokens": 69,
+          "summary": "每次冻结常量（§3）变更后",
+          "keywords": [
+            "§3",
+            "什么时候跑",
+            "触发节奏"
+          ]
+        },
+        {
+          "anchor": "§1 输入（只读）",
+          "level": 2,
+          "startLine": 22,
+          "endLine": 34,
+          "tokens": 176,
+          "summary": "数值 games/<game>/design/gdd/systems-index.md §3（冻结令）",
+          "keywords": [
+            "§3",
+            "games",
+            "game",
+            "design",
+            "gdd",
+            "systems"
+          ]
+        },
+        {
+          "anchor": "§2 审计步骤（顺序执行）",
+          "level": 2,
+          "startLine": 35,
+          "endLine": 48,
+          "tokens": 416,
+          "summary": "1. 冻结清单化：从 §3 逐条抄成表（小节、名称、值、单位）。不合并同类项、不四舍五入、不补默认值。",
+          "keywords": [
+            "§3",
+            "审计步骤",
+            "顺序执行"
+          ]
+        },
+        {
+          "anchor": "§3 漂移表（报告主体）",
+          "level": 2,
+          "startLine": 49,
+          "endLine": 57,
+          "tokens": 154,
+          "summary": "",
+          "keywords": [
+            "漂移表",
+            "报告主体"
+          ]
+        },
+        {
+          "anchor": "§4 结论与报告落位",
+          "level": 2,
+          "startLine": 58,
+          "endLine": 66,
+          "tokens": 196,
+          "summary": "结论三选一：PASS（0 个 P0/P1）/ CONCERNS（有 P1 但有明确修复计划）/ FAIL（有 P0，或 ",
+          "keywords": [
+            "PASS",
+            "CONCERNS",
+            "FAIL",
+            "结论与报告落"
+          ]
+        },
+        {
+          "anchor": "§5 纪律",
+          "level": 2,
+          "startLine": 67,
+          "endLine": 73,
+          "tokens": 123,
+          "summary": "只读：不改 GDD、不改代码、不新增任何数值。",
+          "keywords": [
+            "GDD",
+            "纪律"
           ]
         }
       ]
@@ -86820,17 +87031,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 210735,
-      "lines": 6344,
-      "sha256": "eec17d93835220d8eb36c444a0b3bc4cc6aef92e1ef9b6445b38e77e364ac3ca",
+      "tokens": 211167,
+      "lines": 6353,
+      "sha256": "c8c7416747eb71f624dfbae5623055e0df2a411b54eafde692dbee25fb801417",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 6345,
-          "tokens": 210719,
+          "endLine": 6354,
+          "tokens": 211151,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -94786,29 +94997,44 @@
           "anchor": "§WXG-T-454",
           "level": 2,
           "startLine": 6326,
-          "endLine": 6345,
+          "endLine": 6344,
           "tokens": 830,
           "summary": "核实「全屏页切换 = 旧页整栈去除」+ 主界面残留取证 · 负责：主理人(CodeBuddy) · 状态：🔄 进行中（",
           "keywords": [
             "WXG",
             "CodeBuddy"
           ]
+        },
+        {
+          "anchor": "§WXG-T-455",
+          "level": 2,
+          "startLine": 6345,
+          "endLine": 6354,
+          "tokens": 429,
+          "summary": "新增 GDD / 架构定期 review skill（只读漂移审计，防跑偏） · 负责：主理人(Trae)·工具链 · ",
+          "keywords": [
+            "WXG",
+            "GDD",
+            "review",
+            "skill",
+            "Trae"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 70643,
-      "lines": 150,
-      "sha256": "979c1943482f570ba5c7716cd071ec07e174fd7703633a03aff1cf594cd66d0c",
+      "tokens": 70731,
+      "lines": 151,
+      "sha256": "177d706511bf377e489da42221fb17f438b56e8312b2723dd9eba935bd28aa21",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 151,
-          "tokens": 70634,
+          "endLine": 152,
+          "tokens": 70723,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -94821,8 +95047,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 122,
-          "endLine": 151,
+          "startLine": 123,
+          "endLine": 152,
           "tokens": 1460,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

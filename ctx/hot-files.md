@@ -25,17 +25,17 @@
 
 §wechatgame 项目长期笔记=1+81 · §日志蒸馏规程（R2 · WXG-T-0…=7+6 · §项目约定=13+22 · §常用脚本=35+11 · §SubAgent=46+4 · §Rules=50+3 · §Hooks=53+7 · §Headless / CI=60+8 · §已知限制=68+14
 
-## `production/TASKS.md` — 150 行 / 70643 tok / 实测读 4 次
+## `production/TASKS.md` — 151 行 / 70731 tok / 实测读 4 次
 
-§WXG 任务台账（SSOT）=1+151 · §待排（backlog，无号，立项时领取…=122+30
+§WXG 任务台账（SSOT）=1+152 · §待排（backlog，无号，立项时领取…=123+30
 
 ## `production/qa/beads/test-cases.md` — 62 行 / 3485 tok / 实测读 15 次
 
 §《拼豆填色消除》(beads) 测试用…=1+63 · §分片索引（WXG-T-225 · 13…=18+22 · §锚点迁移表（旧锚点 → 新文件；只到 …=40+17 · §引用与追加规则=57+7
 
-## `my-skills/INDEX.md` — 156 行 / 4363 tok / 实测读 61 次
+## `my-skills/INDEX.md` — 158 行 / 4487 tok / 实测读 61 次
 
-§wxgame skill 家族 IND…=1+157 · §1 清单（现役 38 个挂四 IDE …=6+30 · §1b. 外来通用·AI 编程工作流（2…=36+69 · §2 默认管线顺序与何时不走全 SOP=105+8 · §3 Skill 优先级（冲突时高者胜）=113+19 · §4 路径约定=132+14 · §5 冲突裁决链=146+7 · §6 Provenance 说明=153+5
+§wxgame skill 家族 IND…=1+159 · §1 清单（现役 49 个挂四 IDE …=6+32 · §1b. 外来通用·AI 编程工作流（2…=38+69 · §2 默认管线顺序与何时不走全 SOP=107+8 · §3 Skill 优先级（冲突时高者胜）=115+19 · §4 路径约定=134+14 · §5 冲突裁决链=148+7 · §6 Provenance 说明=155+5
 > 本表只列 8 / 10 节：其余 2 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
 
 ## `my-skills/wxgame-orchestration/SKILL.md` — 104 行 / 2127 tok / 实测读 35 次
@@ -103,10 +103,10 @@
 §knowledge/ — 工作室知识库…=1+297 · §1 读取协议（开发前期）=7+10 · §2 写入协议（任务收尾）=17+28 · §3 文件分工=45+10 · §4 维护=55+12 · §5 生命周期（访问记账 → 归档 → …=67+41 · §6 活跃条目（自动生成）=108+190
 > 本表只列 7 / 11 节：其余 4 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
 
-## `production/TASKS-DETAIL.md` — 6344 行 / 210735 tok
+## `production/TASKS-DETAIL.md` — 6353 行 / 211167 tok
 
-§WXG 任务台账 · 详情（标题制正文…=1+6345 · §WXG-T-443=6156+16 · §WXG-T-444=6172+18 · §WXG-T-445=6190+16 · §WXG-T-446=6206+14 · §WXG-T-447=6220+18 · §WXG-T-448=6238+16 · §WXG-T-449=6254+16 · §WXG-T-450=6270+14 · §WXG-T-451=6284+12 · §WXG-T-452=6296+14 · §WXG-T-453=6310+16 · §WXG-T-454=6326+20
-> 本表只列 13 / 565 节：其余 552 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
+§WXG 任务台账 · 详情（标题制正文…=1+6354 · §WXG-T-444=6172+18 · §WXG-T-445=6190+16 · §WXG-T-446=6206+14 · §WXG-T-447=6220+18 · §WXG-T-448=6238+16 · §WXG-T-449=6254+16 · §WXG-T-450=6270+14 · §WXG-T-451=6284+12 · §WXG-T-452=6296+14 · §WXG-T-453=6310+16 · §WXG-T-454=6326+19 · §WXG-T-455=6345+10
+> 本表只列 13 / 566 节：其余 553 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
 
 ## `games/breakout/design/concept.md` — 143 行 / 3113 tok / 实测读 217 次
 

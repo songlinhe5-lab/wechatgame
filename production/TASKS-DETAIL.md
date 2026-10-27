@@ -6342,3 +6342,12 @@ T-5 单价 60/30 · T-18 引导方案（推荐：引导消耗那一次免费额�
 **阻塞**：微信开发者工具自动化通道（`cli auto --auto-port 9420/9421` + `miniprogram-automator` connect/launch）ws 握手通但**所有**调用（systemInfo / screenshot / evaluate）超时 ×3——无法在本机驱动微信运行时复现，判定环境阻塞、非代码阻塞。
 
 **待办**：等用户提供微信端（devtools 模拟器或真机）残留截图 + 触发路径（首次进入即残留？暂停回菜单后再进才有？单帧闪烁还是常驻？）⇒ 按 T-452 同法（截图定层 → 源码对账 → 复现收敛）定位。
+## WXG-T-455
+
+**新增 GDD / 架构定期 review skill（只读漂移审计，防跑偏）** · 负责：主理人(Trae)·工具链 · 状态：✅ 完成（2026-10-27）
+
+- **上位**：用户问「skill 里是否有 review 小游戏 GDD 和小游戏架构的 skill？需要定期 review，防止跑偏」，经选项拍板「建两个独立 review skill」。原拟 434，落笔时台账已被并发会话推进至 454，改领 455。
+- **交付**：`my-skills/wxgame-gdd-review/SKILL.md`（§3 冻结常量 ↔ 代码 tuning ↔ 各分册三方比对；十步审计 + 漂移表 + PASS/CONCERNS/FAIL；报告默认 `games/<game>/design/gdd/review-YYYY-MM-DD.md`）与 `my-skills/wxgame-arch-review/SKILL.md`（控制清单 / ADR / L1–L5 ↔ 依赖与目录现状；十步审计 + 漂移表 + ADR 缺口；报告默认 `docs/architecture/reviews/arch-review-YYYY-MM-DD.md`）。两者均**只读**，修复分别交 `wxgame-gdd-writer` / `wxgame-adr-arch` 另开单。
+- **接线**：四 IDE（`.cursor` / `.codebuddy` / `.workbuddy` / `.qoder`）+ 本地 `.trae` 各加两条相对符号链接；`my-skills/INDEX.md` 域·策划 / 域·技术各增一行，现役计数对齐 check:links 实测。
+- **节奏**：§3 变更后 / 每 Sprint 收口 / 发布门 G2 前（GDD）；新依赖与 ADR 转 Accepted 前 / 月度（架构）。
+- **门禁**：`check:links`（agents=7 skills=49）、`check:tasks --staged`、`ctx:check` 全绿；零代码、零 §3 数值。
