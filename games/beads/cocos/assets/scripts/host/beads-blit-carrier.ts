@@ -181,14 +181,6 @@ function carrierSwitchOn(): boolean {
     return v !== 'off' && v !== '0';
 }
 
-/** [WXG-T-461 探针] 诊断臂：启动参数 `probe=1|2|3`（缺省 0 = 关）。钉死环节后整块撤除。 */
-const PROBE_MODE: 0 | 1 | 2 | 3 = ((): 0 | 1 | 2 | 3 => {
-    const host = globalThis as AnyObj;
-    const q: string | undefined = host.wx?.getLaunchOptionsSync?.()?.query?.probe
-        ?? host.location?.search?.match(/(?:^|[?&])probe=([^&]*)/)?.[1];
-    return (q === '1' || q === '2' || q === '3' ? Number(q) : 0) as 0 | 1 | 2 | 3;
-})();
-
 class BeadsBlitCarrier implements CocosBlitCarrierLike {
     /** `maskId|base` → 图集格（首见即合成 + 整张重传；⚠ 只在换色时发生）。 */
     private readonly _cells = new Map<string, SpriteFrame>();
@@ -369,8 +361,6 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
             const want = cmd.alpha === undefined || cmd.alpha === 1 ? 255 : Math.round(cmd.alpha * 255);
             if (opacity.opacity !== want) opacity.opacity = want;
         }
-        // [WXG-T-461 探针 P1] 兄弟序钳到本帧命令序。托盘恢复 ⇒ 池序/兄弟序问题。
-        if (PROBE_MODE === 1) sp.node.setSiblingIndex(this._used - 1);
     }
 
     /**
@@ -402,46 +392,11 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
         const ctx = this._atlasCtx!;
         const sprite = cache.get(maskId, base) as TintCanvasLike | undefined;
         if (!sprite) return undefined;
-        // [WXG-T-461 探针 P3] 绕过图集：每格独立纹理直贴合成小 canvas（不经图集 drawImage/整张 uploadData）。
-        // 托盘恢复 ⇒ 图集环节（drawImage / uploadData）问题。
-        if (PROBE_MODE === 3) {
-            const texSolo = new Texture2D();
-            texSolo.reset({ width: MASK_CANONICAL_SIZE, height: MASK_CANONICAL_SIZE });
-            texSolo.uploadData(sprite as never);
-            const sfSolo = new SpriteFrame();
-            sfSolo.reset({
-                texture: texSolo,
-                originalSize: new Size(MASK_CANONICAL_SIZE, MASK_CANONICAL_SIZE),
-                rect: new Rect(0, 0, MASK_CANONICAL_SIZE, MASK_CANONICAL_SIZE),
-            });
-            sfSolo.packable = false;
-            this._cells.set(key, sfSolo);
-            return sfSolo;
-        }
         const idx = this._cells.size;
         const dx = (idx % ATLAS_COLS) * MASK_CANONICAL_SIZE;
         const dy = Math.floor(idx / ATLAS_COLS) * MASK_CANONICAL_SIZE;
         ctx.drawImage(sprite, dx, dy, MASK_CANONICAL_SIZE, MASK_CANONICAL_SIZE);
         tex.uploadData(this._atlasCanvas as never);
-        // [WXG-T-461 探针 P2] 合成链读回采样（仅首见合成，非热路径）：
-        // src = TintSpriteCache 小 canvas（合成阶段），atlas = 图集画布同格（drawImage 后）。
-        // src 错 ⇒ 合成层；src 对 atlas 错 ⇒ drawImage 层；都对但屏上错 ⇒ uploadData/GPU 层。
-        if (PROBE_MODE === 2) {
-            const S = MASK_CANONICAL_SIZE;
-            const px = (d: Uint8ClampedArray, x: number, y: number): string => {
-                const i = (y * S + x) * 4;
-                return `${d[i]},${d[i + 1]},${d[i + 2]},${d[i + 3]}`;
-            };
-            const dump = (d: Uint8ClampedArray | null): string => {
-                if (!d) return 'unreadable';
-                const pts: ReadonlyArray<readonly [number, number]> = [[64, 64], [64, 10], [64, 118], [8, 8], [120, 120]];
-                return pts.map(([x, y]) => `${x},${y}:${px(d, x, y)}`).join(' ');
-            };
-            const srcCtx = sprite.getContext('2d');
-            const src = srcCtx ? srcCtx.getImageData(0, 0, S, S).data : null;
-            const at = ctx.getImageData(dx, dy, S, S).data;
-            console.log(`[T461-P2] ${key} src{${dump(src)}} atlas{${dump(at)}}`);
-        }
         const sf = new SpriteFrame();
         sf.reset({
             texture: tex,
