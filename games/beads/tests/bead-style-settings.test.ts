@@ -37,6 +37,7 @@ import {
     type Storage,
 } from '@wxgame/framework';
 import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
+import { WebPlatform } from '../../../packages/framework/src/platform/web.js';
 import { createBeadsShell, type BeadsShell } from '../src/game/beads-shell.js';
 import {
     BEAD_SIZE_LABELS,
@@ -1394,5 +1395,54 @@ describe('菜单设置 overlay 行4 选择器钮族 · S9 §8-14/16/19（内容�
         expect(panelLabels).toEqual(menuLabels);
         for (const label of menuLabels) expect(label.startsWith('珠子风格  ')).toBe(true);
         expect(new Set(menuLabels).size).toBe(IDS.length); // 逐档各异 ⇒ 未把某档名写死
+    });
+});
+
+// ────────────────── F4 / K-197 · 真宿主形状（DOM 五件套）下的落盘腿
+
+/**
+ * 上面那批用例注入的都是 `MemoryStorage`（接口天然合），所以它们**不覆盖**真宿主适配层
+ * （判例 K-197：宿主替身全绿 ≠ 真宿主能落盘）。本用例只换**一个变量**：存储换成
+ * `WebPlatform` 在假 DOM `localStorage` 上产出的实现，其余驱动链与上面逐字同构
+ * （`tapDesign` 挨面板钮 = K-035）。输入路由本身不归本腿管。
+ */
+describe('F4 · web 宿主形状下设置真落盘，且跨宿主实例可读回（模拟刷新）', () => {
+    it('拨「音乐」⇒ 真宿主 set 恰 1 次写进 DOM 存储，新 WebPlatform 实例读回同值', () => {
+        const dom = new Map<string, string>();
+        const setCalls: string[] = [];
+        const g = globalThis as unknown as { localStorage?: unknown };
+        g.localStorage = {
+            getItem: (k: string) => (dom.has(k) ? dom.get(k)! : null),
+            setItem: (k: string, v: string) => {
+                setCalls.push(k);
+                dom.set(k, v);
+            },
+            removeItem: (k: string) => void dom.delete(k),
+            key: (i: number) => [...dom.keys()][i] ?? null,
+            get length() {
+                return dom.size;
+            },
+            clear: () => dom.clear(),
+        };
+        try {
+            const storage = new WebPlatform().createStorage();
+            const game = enterPaused(boot(storage));
+            expect(settingsOf(storage)['bgmMuted']).toBe(false);
+
+            const point = buttonPoint('toggle-bgm');
+            const writesBefore = setCalls.length;
+            expect(game.tapDesign(point.x, point.y)).toBe(true);
+
+            // §8-14「恰写档 1 次」在真宿主形状上的同口径：只写本档键一次。
+            expect(setCalls.slice(writesBefore)).toEqual([SAVE_KEY]);
+            expect(settingsOf(storage)['bgmMuted']).toBe(true);
+            // 落盘的不只是内存里的包装对象：DOM 字节里就是新值。
+            const doc = JSON.parse(dom.get(SAVE_KEY)!) as { settings: Record<string, unknown> };
+            expect(doc['settings']['bgmMuted']).toBe(true);
+            // 「刷新」= 换一个全新 web 宿主实例读同一份 DOM。
+            expect(settingsOf(new WebPlatform().createStorage())['bgmMuted']).toBe(true);
+        } finally {
+            delete g.localStorage;
+        }
     });
 });
