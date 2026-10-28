@@ -607,6 +607,7 @@ export class BeadsGame {
     this._snapshotSource = {
       get machine() { return self._machine; },
       get mode() { return self._mode; },
+      get reviveAdUsable() { return self._reviveAdUsable(); },
       get levelIndex() { return self._levelIndex; },
       get levels() { return self._levels; },
       get stageIndex() { return self._stageIndex; },
@@ -711,7 +712,7 @@ export class BeadsGame {
       get hudDy() { return self._hudDy(); },
       get trayExpanded() { return self._tray.expanded; },
       get trayCanExpand() { return self._tray.canExpand; },
-      get reviveAvailable() { return self._reviveCount < REVIVE_MAX_PER_LEVEL; },
+      get reviveAvailable() { return self._reviveAvailable(); },
       get levelCount() { return self._levels.length; },
       get isLastLevel() { return self._levelIndex >= self._levels.length - 1; },
       get isArcFinalLevel() { return self._isArcFinalIndex(self._levelIndex); },
@@ -724,7 +725,7 @@ export class BeadsGame {
     });
     this._panelRouter = new PanelRouter({
       get mode() { return self._mode; },
-      get reviveAvailable() { return self._reviveCount < REVIVE_MAX_PER_LEVEL; },
+      get reviveAvailable() { return self._reviveAvailable(); },
       get levelCount() { return self._levels.length; },
       get finishLevelCount() { return self._finishRowCount(); },
       get panel() { return self._panel; },
@@ -1771,6 +1772,16 @@ export class BeadsGame {
    * Fail-page 续时: load + show the fail-continue placement. Stays in
    * GAME_OVER until `onRewarded`. Sprint / cap / in-flight show → no-op.
    */
+  /** 激励入口可用态（WXG-T-470 · X-07 选 B）：宿主已配置真广告位。未声明语义的平台（web/node/harness）`?? true` 保旧演示语义。 */
+  private _reviveAdUsable(): boolean {
+    return this._services?.rewardedAdAvailable ?? true;
+  }
+
+  /** 复活钮显隐真源：次数未用 && 广告位可用——无广告位 ⇒ 只出「重试」（无「点不出广告」的假入口）。 */
+  private _reviveAvailable(): boolean {
+    return this._reviveCount < REVIVE_MAX_PER_LEVEL && this._reviveAdUsable();
+  }
+
   requestRevive(): boolean {
     if (this._machine.current !== 'game-over') return false;
     if (this._mode !== 'normal') return false;

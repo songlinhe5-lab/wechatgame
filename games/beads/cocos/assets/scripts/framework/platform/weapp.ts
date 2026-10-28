@@ -387,6 +387,8 @@ export class WeappPlatform extends BasePlatform {
     this.info = {
       name: 'weapp',
       isMiniGame: true,
+      // WXG-T-470：真广告位配置态——无 adUnitId ⇒ false ⇒ 激励入口 UI 隐藏（X-07 选 B）。
+      rewardedAdConfigured: Boolean(this._adUnitId),
       safeAreaTop: safe.top,
       safeAreaBottom: safe.bottom,
       capsuleBottomDp: capsule?.bottom ?? null,

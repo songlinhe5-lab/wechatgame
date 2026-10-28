@@ -76,6 +76,14 @@ export interface PlatformInfo {
    * 返回值不合法）。⛔ 不得用零矩形代替「未知」——与 {@link capsuleBottomDp} 同一口径。
    */
   readonly capsuleRectDp: CapsuleRect | null;
+  /**
+   * 真激励视频位已配置（WXG-T-470 · X-07 首发裁定）：`true` = 宿主注入了 `adUnitId`
+   * （`wx.createRewardedVideoAd` 可出真广告）；`false` = 小游戏宿主无广告位 ⇒
+   * 消费端（UI）**不得展示激励入口**（如失败页复活钮），避免「点不出广告」的
+   * 功能-文案不符。`undefined`（web/node 等未声明语义的平台）⇒ 消费端自择缺省
+   * （beads 取 `?? true` 保 harness/独立 BeadsGame 旧演示语义）。
+   */
+  readonly rewardedAdConfigured?: boolean;
 }
 
 /** Everything a game may depend on. Constructed by the App, injected once. */
@@ -90,6 +98,12 @@ export interface GameServices {
   readonly platform: PlatformInfo;
   /** Optional rewarded-video. Always present; weapp ships a Noop until approved. */
   readonly rewardedAd: RewardedAdProvider;
+  /**
+   * 激励入口可用态（WXG-T-470）：由 App 从 `PlatformInfo.rewardedAdConfigured` 透传。
+   * `undefined`（web/node/harness 未声明）⇒ 消费端 `?? true` 保旧语义；weapp 无
+   * 广告位 ⇒ `false` ⇒ 激励入口（复活/扩容/加心）在 UI 层隐藏（X-07 选 B）。
+   */
+  readonly rewardedAdAvailable?: boolean;
   /**
    * Optional open-data provider (friend leaderboard, ADR-0035). Undefined when the
    * host has no open data domain; Node/web/weapp-before-S-5 deliver nothing.

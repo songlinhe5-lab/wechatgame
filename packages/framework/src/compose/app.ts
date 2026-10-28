@@ -121,6 +121,8 @@ export class App {
       assets: options.assets ?? this.platform.createAssetProvider(),
       platform: this.platform.info,
       rewardedAd: this.platform.createRewardedAdProvider(),
+      // WXG-T-470：激励入口可用态透传（PlatformInfo 未声明语义的平台 ⇒ undefined ⇒ 消费端 ?? true）。
+      rewardedAdAvailable: this.platform.info.rewardedAdConfigured,
       openData: this.platform.createOpenDataProvider?.(),
       haptic: this.platform.haptic?.bind(this.platform),
       share: this.platform.share?.bind(this.platform),

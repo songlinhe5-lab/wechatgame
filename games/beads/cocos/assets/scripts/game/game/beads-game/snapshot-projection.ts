@@ -105,6 +105,8 @@ export interface SnapshotSource {
     readonly boardSelected: BoardAnchor | null;
     /** 载体④（ux-spec v1.30）：满槽 + 选中态色拒的闩锁，见 `BeadsGame._trayFullRejected`。 */
     readonly trayFullRejected: boolean;
+    /** 激励入口可用态（WXG-T-470）：宿主无真广告位 ⇒ false ⇒ 复活钮隐藏。 */
+    readonly reviveAdUsable: boolean;
     readonly clearCoins: ClearCoinGrant | null;
     readonly lastStars: number;
     readonly lastSettleScore: number;
@@ -376,7 +378,8 @@ function projectPanelShard(s: SnapshotPanel, src: SnapshotSource): void {
     s.subBanner = copy.sub;
     s.bootError = src.bootErrors.join('; ');
     s.reviveAvailable =
-        src.machine.current === 'game-over' && src.mode === 'normal' && src.reviveCount < REVIVE_MAX_PER_LEVEL;
+        src.machine.current === 'game-over' && src.mode === 'normal' && src.reviveCount < REVIVE_MAX_PER_LEVEL
+        && src.reviveAdUsable; // WXG-T-470：无广告位 ⇒ 只出重试钮（X-07 选 B）
     s.revived = src.reviveCount > 0;
     s.watchingAd = src.watchingAd;
     s.failHint = src.failHint;

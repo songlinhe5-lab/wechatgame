@@ -25,6 +25,7 @@ import {
 import {
   failPanelLabel,
   failPanelLayout,
+  hitFailPanel,
   type FailPanelAction,
 } from '../src/systems/fail-panel.js';
 import { rectsOverlap } from '../src/systems/pause-panel.js';
@@ -112,6 +113,28 @@ describe('fail-panel layout (ux-spec §3.5)', () => {
     expect(failPanelLabel('revive')).toContain(String(REVIVE_BONUS_SEC));
     expect(failPanelLabel('revive')).not.toMatch(/看视频/);
     expect(REVIVE_MAX_PER_LEVEL).toBe(1);
+  });
+});
+
+describe('revive entry gated on ad availability (WXG-T-470 · X-07 选 B)', () => {
+  it('rewardedAdAvailable=false ⇒ 快照复活钮隐藏、revive 位不再命中（无广告位不出假入口）', () => {
+    const harness = createBeadsHarness({
+      noAssemble: true,
+      levels: [simpleTestLevel()],
+      saveKey: 'wxgame.beads.test.revive.no-ad-unit',
+    });
+    (harness.services as { rewardedAdAvailable?: boolean }).rewardedAdAvailable = false;
+    expire(harness);
+    expect(harness.game.phase).toBe('game-over');
+    expect(harness.game.snapshot.reviveAvailable).toBe(false);
+    // 同一点位在「有广告位」布局里是 revive 钮；判 false（无广告位）后不得命中 revive
+    const reviveRect = failPanelLayout(true).buttons.find((b) => b.id === 'revive')!.rect;
+    const hit = hitFailPanel(
+      (reviveRect.xMin + reviveRect.xMax) / 2,
+      (reviveRect.yMin + reviveRect.yMax) / 2,
+      false,
+    );
+    expect(hit).not.toBe('revive');
   });
 });
 
