@@ -182,6 +182,24 @@
 - **判定**：连续 6 次点扫后 `stamina` 与 `screen` 均未变；Node 等价腿 = TC-MN-04（未解锁 + 越界）/ TC-MN-05（框·纸底·间隙零热区）/ TC-MN-31（惰性面零任何事件，含探针自检阳性对照）。
 - **状态**：⛔ **未执行**（画面半边同上）；逻辑半边已 ✅ 但**不判绿本条**（K-036 / K-044：单测 ≠ 冒烟）。
 
+## 网页宿主存档落盘冒烟（**v1.5 / WXG-T-434 复验批**）
+
+> **依据**：MVP 功能完整性复验（F1–F4）与判例 K-196 / K-197；写档口径真源 = `design/gdd/pause-settings.md` v1.7 §8-14（一次点按恰写档 1 次）与 `save-progress.md` v1.1 §8-11（两字段入档 · 即写）。
+> **效力边界（不得删）**：注入 `MemoryStorage` 的用例全绿**不覆盖**真宿主适配层（K-197）；`[Cocos]` 腿必须跑在 `build:cocos:web` 新产物上，改源码未重建 = 测旧码（K-156）。
+
+### SC-SV-01 网页宿主设置落盘 + 跨刷新读回 `[Node]`（机检腿）+ `[Cocos]`（真宿主腿）
+
+- **机检腿**：`games/beads/tests/bead-style-settings.test.ts` 末段「F4 · web 宿主形状…」——假 DOM 五件套注入 `globalThis.localStorage` ⇒ `new WebPlatform().createStorage()` ⇒ 真引擎 `tapDesign` 拨「音乐」钮 ⇒ 断本档键 `setItem` 恰 1 次、DOM 字节里 `settings.bgmMuted` 为新值、换一个**新** `WebPlatform` 实例读回同值。**敏感性已证**：临时把 `packages/framework/src/platform/web.ts` 的适配层退回原样直传 ⇒ 本用例即红（`storage.set is not a function`）。
+- **真宿主腿步骤（人工，浏览器）**：① `pnpm run build:cocos:web` → ② 静态服务器指向 `games/beads/cocos/build/web-mobile`（本轮 `127.0.0.1:8123`）→ ③ 打开 `index.html` 等启动 → ④ 读 `localStorage` 键 → ⑤ 点「开始游戏」→ 点齿轮进暂停 → 拨「音乐」→ 读文档与 `setItem` 计数 → ⑥ 刷新后重进暂停面板看文案。
+- **预期与本轮读数（2026-10-28）**：启动即出现 `wxgame.beads.save.v1` + `wxgame.beads.meta.v1`（修复前四面全空）；拨「音乐」⇒ 真文档 `settings.bgmMuted` `false→true` 且 save 键 `setItem` 恰 1 次；刷新后仍为 `true`、面板渲染「音乐 关」。✅ **通过**。
+- **取证两坑（写死在此，防下轮重踩）**：① 暂停面板期 `__WXG_GAME_DEBUG().screen` 仍是 `play`，判「面板开没开」要读 **`phase`**；② 设计坐标→客户端像素 ⛔ 不得眼估（本轮 CTA 眼估偏 16px），点完拿引擎调试标签 `dsn` 或截图读数回验。
+- **判红条件**：任一腿 `localStorage` 无本档键；一次点按写档次数 ≠ 1；刷新后字段回落默认值。
+
+### SC-SV-02 微信真机侧同一条链 `[Device]`
+
+- **状态**：⛔ **未执行**。原因 = 无 AppID + 上传密钥（`memory/MEMORY.md` §已知限制）；解除条件 = 补齐配置后扫码跑「拨开关 → 杀进程重进 → 读回」。
+- **盲区提示**：`production/qa/beads/g4-probe-v1.1.mjs:1798` 一类探针用 `new WebPlatform({ storage: new MemoryStorage() })` ⇒ 显式注入即**绕过** DOM 适配层，不得当作宿主适配证据（K-197）。
+
 ## 变更记录
 
 | 版本 | 日期 | 变更 | 作者 |
@@ -191,3 +209,4 @@
 | **v1.2** | **2026-09-14** | **WXG-T-084（首次实跑）**：① 新增 **§0 本轮实跑结论汇总表**（17 行，逐条标 ✅/⚠️/❌/⛔ + 探针编号 P1–P19 + 缺陷编号 BD-nn + **解除条件**）；② 图例扩展 `[Probe]`/`[Cocos]` 并标注 harness 污染与 Cocos 阻塞；③ **新增 3 条可感知冒烟 SC-PER-01..03**（首屏 1.5s 三锚点 / 一次操作一个反馈 / 死局有出口）——**本轮全 FAIL**，作为人工链路的必要门；④ 原汇总表**保留但标「状态列已过期」**，并注记「12/14 可由 vitest 覆盖」口径是 **BD-14 直接成因**；⑤ 登记实测事实：`game-over.onEnter` 不调 `_persistProgress()`（不判缺陷，供策划确认 §8-9「结算帧」语义） | 严守真 |
 | **v1.3** | 2026-09-26 | **WXG-T-211-F（风格与豆径族冒烟）**：新增 **SC-ST-01..04**（逐风格全量 `verify`+`harness:smoke`／`legacy-ten` SVG 逐字节零漂移（含"对照臂不得写错为四棱"的纠偏）／行4 两钮最短回路／06 出池门引用行）。依据 = `§12.2 C10/C6` + `§12.9 步 1/3/5` + `ADR-0024 J-5` + `S9 v1.7 §8-14~19` + `S8 v1.1 §8-11~13`。**四条效力边界随文**（纸面口径不得写性能改善／屏幕层待执行／落码前只拿红基线／SKIP≠测）。基线读数：`verify` PASS 17｜**SKIP 1（`check:size`）**｜FAIL 0；beads 592、framework 330、breakout 239；`harness:smoke` beads OK（**5943** commands/帧，**与 1587 不同夹具**）。**本族零条判绿** | 严守真（主对话代落盘） |
 | **v1.4** | 2026-10-07 | **WXG-T-269-S6（主菜单作品墙）**：① 新增 **SC-MN-01/02**（首屏停主菜单+作品墙点进关 / 未解锁格零响应），两条均 ⛔ 未执行；② 按 **K-053** 订正 **SC-01 / SC-11** 陈旧口径（~~无主菜单直进 L1~~ → 停主菜单；旧文划线留档，红线反转批 = WXG-T-180 + S6 T-2A）；③ 登记 ⚠ `[Harness]` 默认 `initialScreen:'play'` 与现口径不一致（**BD-56**，需主理人核对 shell 分流）；④ §0 表 + v1.0 原表同步订正链路名。硬判据见 `test-cases-m-menu.md §M`（TC-MN-01..40）| 严守真（readonly，主理人代落盘） |
+| **v1.5** | 2026-10-28 | **WXG-T-434（MVP 复验批收尾）**：新增 **SC-SV-01/02**（网页宿主存档落盘与跨刷新读回 / 微信真机侧同一条链）。背景 = 复验批唯一真缺陷 F4：`packages/framework/src/platform/web.ts` 把 `globalThis.localStorage` 当框架 `Storage` 直传，网页端写档静默丢（修复 `fc82b5f0`）；本段同时把「机检腿 + 真宿主腿步骤 + 取证两坑」固化，并登记旧探针用 `MemoryStorage` 注入的盲区（K-197）。SC-SV-01 ✅ 两条腿均实跑；SC-SV-02 ⛔ 未执行（无 AppID/密钥）| 主理人（CodeBuddy） |
