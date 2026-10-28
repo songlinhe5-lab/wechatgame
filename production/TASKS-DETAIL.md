@@ -6719,6 +6719,20 @@ T-461 收口时的同族发现（K-116 违反实例第二处）：选中珠分�
 `games/beads/src/game/beads-game.ts:1532` 的 `CellState` vs `"void"` 类型不匹配 —— 那是**并行会话的在制品**
 （该文件 src 与 mirror 均未纳入本单提交），⛔ 不是本单引入、也不代修。
 
+**接手修（同日 · 用户授权，2026-10-28 追加）**：先核意图再动 —— `git diff` 显示对方在修 P1
+「同色多颗托盘珠归宿格重复」（`_powerupInputs` 改按色消费式分配），新增两条回归腿
+**不依赖 `'void'`**；而 `CellState` = `'empty' | 'filled' | 'locked'`（`grid.ts:27`）**无 `'void'`**。
+⇒ 该条件为多余笔误，删之**语义不变**（`locked` 已是唯一「不可填」态）。处置 = 工作树改
+`if (cell.state === 'locked') continue;`（附注释点名判例）+ `framework:sync` 刷 mirror。
+**复跑全量 `verify` = `PASS 23 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0`（exit 0）**，四门全转绿
+（`typecheck` / `cocos:check` / `test` / `harness:build`）。
+
+**为什么不把这一行提交入库**（关键事实）：`git show HEAD:…/beads-game.ts | grep -c "state === 'void'"` = **0**
+⇒ **HEAD 本身没有这个错，红只存在于未提交的在制品**。局部提交 src 一行会与「mirror 整文件同步」
+冲突（HEAD 里 src 与 mirror 将不一致 ⇒ `framework:sync:check` 反被搞红）⇒ 正解 = 留在工作树，
+由对方提交其功能时一并带走。⚠ 遗留风险：对方若 `git checkout -- beads-game.ts` 或整文件覆盖，本行修正会丢
+（症状 = 三红复现，按本段处置即可）。
+
 ## WXG-T-470
 
 **Meta 页族批1①：图鉴（album）· 负责：主理人(Trae) · 状态：🟡 立项（2026-10-28）**
