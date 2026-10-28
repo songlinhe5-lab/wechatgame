@@ -1211,7 +1211,13 @@ describe('设置态遮罩 α 分列 · ux §3.3「遮罩」条 + 工作项④：
         // 唯一设置态消费点 + 其余 overlay 仍旧 0.5（正向腿与计数腿配对，⛔ 只剩负向 = K-144 假绿）。
         expect(mv.match(/UI_SCRIM\.settingsAlpha/g)?.length).toBe(1);
         expect(mv).toContain('panelPage(COPY_TOKENS.btn_settings_label, UI_SCRIM.settingsAlpha');
-        expect(mv.match(/panelPage\([^,]+, UI_SCRIM\.alpha/g)?.length).toBe(2);
+        // 默认 α 面板穷尽列举（`[WXG-T-470/471/472]` 批 1 加 album/localRank/profile 三页，
+        // 均按 design 取默认 0.5——⛔ 不是放宽：集合式判据约定「只有 settings 下调」不变，
+        // 新增页仍会红且报错点名是哪一页）。
+        const defaultAlphaPages = (mv.match(/(\w+): panelPage\([^,]+, UI_SCRIM\.alpha/g) ?? [])
+            .map((site) => site.slice(0, site.indexOf(':')))
+            .sort();
+        expect(defaultAlphaPages).toEqual(['album', 'localRank', 'profile', 'signin', 'skins']);
         expect(mv).not.toContain('PANEL_SCRIM_RGB'); // 菜单侧遮罩 RGB 恒历史 `0,0,0`，不与画布侧同源
         const theme = SRC('view/ui-theme.ts');
         expect(theme).toContain('canvas: PANEL_SCRIM_RGB');

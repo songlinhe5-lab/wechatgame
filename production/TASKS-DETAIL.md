@@ -6628,13 +6628,13 @@ T-461 收口时的同族发现（K-116 违反实例第二处）：选中珠分�
 
 **验证**：判别测试 `revive.test` 新例（`rewardedAdAvailable=false` ⇒ 快照隐藏 + revive 位不命中）；framework **550/550**、beads 定向 63/63、beads 全量 1387 passed（5 红 = 金样本 4 + scrim 静态门 1，见下）。
 
-**红分域裁决**：① 金样本四态（main-menu/level-select/settings/signin）= **T-469 账**（version_label `v1.x`→`v1.0.0` 文案漂移，Meta 四屏底部版本行文本变 ⇒ sha 漂）⇒ 本单走复评通道重抓（教训：改 view 消费文案必须跑金样本，T-469 只跑了 meta-menu 单文件漏了金样本对拍）。② scrim 静态门（`expected 5 to be 2`）= **并行域**（ui-theme/modal-frame scrim 消费点计数，本单未触碰该面）——如实披露不代修。
+**红分域裁决**：① 金样本四态（main-menu/level-select/settings/signin）= **T-469 账**（version_label `v1.x`→`v1.0.0` 文案漂移，Meta 四屏底部版本行文本变 ⇒ sha 漂）⇒ 本单走复评通道重抓（教训：改 view 消费文案必须跑金样本，T-469 只跑了 meta-menu 单文件漏了金样本对拍）。② scrim 静态门（`expected 5 to be 2`）——**已结清（2026-10-28 收尾）**：根因不是 ui-theme/modal-frame 而是 `1b4649cc`（T-470/471/472 批 1）在 `meta-view.ts::META_PAGES` 新增 `album/localRank/profile` 三页，均按 design 取默认 `UI_SCRIM.alpha`（0.5），而 `bead-style-settings.test.ts` 的**穷尽计数**仍留在改造前的 2 ⇒ 属「pin 过期」不是该域逻辑回归。处置 = 把裸计数换成**具名集合判据** `['album','localRank','profile','signin','skins']`（约定不变：只有 `settings` 下调 `settingsAlpha`；将来再加页仍红且报错点名是哪一页）——⛔ 不是放宽门限、未动 α 取值。复跑：`bead-style-settings` 38/38、全量 `verify` **PASS 23 ｜ FAIL 0**。
 
 **⚠ 领号披露**：`f7dd6ac2` 提交信息误署 **WXG-T-470**（提交时本会话台账视图滞后，470-472 已被并行 Trae 会话 Meta 页族批1 占用并登主表）⇒ 本单纠正为 **473**（提交信息内嵌旧号不回改，以台账为准——同 T-462 对表口径）。
 
 **版本腿打号 bug 修复**（T-469 机制缺陷，实测暴露）：打号原按字面 `v{oldVer}` 找——package.json 每建递增、源 label 基线静态 ⇒ **二建起永不打号**（`v1.0.1` 找不进 `v1.0.0` 的 label）。修 = 正则 `/v\d+\.\d+\.\d+/` 替换任意旧 build 段；复证 1.0.2 → **1.0.3**，产物 `v1.0.3 · 演示版` 上号 ✓。
 
-**待办**：金样本四态复评（干净 worktree 复取 + ledger 登记）；「演示版」字样去留；真机走查主会话（产物已就绪：mtime 12:1x + 含判据 + 版本号实显）。
+**待办（本单已无）**：金样本四态复评 ✅ `70f1f33c`（§12 登记）；scrim 静态门 ✅（见上②）；「演示版」字样去留 + 真机走查主会话 + `cli upload` 密钥 —— 三项**不在本单**，随 MVP 收尾推进（产物已就绪：v1.0.3 + 含判据 + 版本号实显）。
 
 ## WXG-T-470
 

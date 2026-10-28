@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3941,
       "lines": 133,
-      "sha256": "f52d9ae667b7094611d0a655055b3f5d245100d0ab30d1939d1551c5055761a9",
+      "sha256": "48568225151ed573e578dc44618ac1438fb656d927c42caae034ba4f8d67abde",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 226414 6705 normal",
+          "summary": "1 production/TASKS-DETAIL.md 226619 6705 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "951f0b5991721c3ad5b206b5e7f8ef1f2fccbae4afb7f8bbb16a7381f2bb1c07",
+      "sha256": "d35ab75c381d3c6bf25471f544f9aef23dfd55b600b6b264056ad0d788b5cd66",
       "tier": "normal",
       "sections": [
         {
@@ -745,7 +745,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 168 行 / 74889 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 168 行 / 74932 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
@@ -1016,7 +1016,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 6705 行 / 226414 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 6705 行 / 226619 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
@@ -87523,9 +87523,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 226414,
+      "tokens": 226619,
       "lines": 6705,
-      "sha256": "af1b2f9d990a2863b7013991c6352ace8416136a997a3f3589b70cdab8c7f4eb",
+      "sha256": "83dcae12df575d7f57ccc6ad272b3f9054ce5a895b7b7880fa8d7623db05efe4",
       "tier": "normal",
       "sections": [
         {
@@ -87533,7 +87533,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 6706,
-          "tokens": 226398,
+          "tokens": 226602,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -95709,7 +95709,7 @@
           "level": 2,
           "startLine": 6615,
           "endLine": 6638,
-          "tokens": 874,
+          "tokens": 1079,
           "summary": "X-07 选 B：无广告位隐藏复活钮 + 版本腿打号修复 · 负责：主理人(CodeBuddy) · 状态：🔄 判据已",
           "keywords": [
             "WXG",
@@ -95762,9 +95762,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 74889,
+      "tokens": 74932,
       "lines": 168,
-      "sha256": "beb4b630fb6f8d4c568de18768419a6c844573a5e947acb8e638d007eafb9be8",
+      "sha256": "f14d27486c3542934a5f4dc69137f49105d70b9b8d1bca309cb5f0d80b765adf",
       "tier": "hot",
       "sections": [
         {
@@ -95772,7 +95772,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 169,
-          "tokens": 74880,
+          "tokens": 74923,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
