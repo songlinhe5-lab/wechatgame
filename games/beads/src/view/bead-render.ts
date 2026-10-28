@@ -1133,6 +1133,14 @@ export function drawEmptySocket(
         builder.rect(cx - baseSize / 2, cy - baseSize / 2, baseSize, baseSize, {
           fill: base,
           radius: size * SOCKET_CARD.tintBaseRadius,
+          // [WXG-T-461 真机缺陷] Cocos carrier=on 时本 rect 是矢量命令 → 主 `Graphics`
+          //（层序在 BlitLayer 之上），而珠 blit 落 BlitLayer → **槽底 rect 盖住珠**
+          //（harness canvas2d 按命令序画所以从未复现；浏览器 Cocos 因构建档 mask 不齐
+          // carrier 静默 off，同未暴露——真机 4/4 才走到）。`back` 让它沉到 `backGraphics`
+          //（blit 之下，同托盘面板底通道）；canvas2d 端命令序不变（S5′-4 语义）。
+          // ⛔ 矢量臂底 rect（下方 `!tilePainted` 分支）**不打 back**：off 态两端同层按
+          // 命令序本就正确，且矢量臂在封箱字节锁内（tint 分支封箱不覆盖，零漂移）。
+          back: true,
         });
       }
       tintBlitOpts.fx = tintFx(base);
