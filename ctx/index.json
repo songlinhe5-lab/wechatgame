@@ -366,17 +366,17 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 3903,
-      "lines": 132,
-      "sha256": "dfa48244936fd879fcca6ad6ae1c7db63f00bd19785769219b16d01b3d83098f",
+      "tokens": 3941,
+      "lines": 133,
+      "sha256": "e061d0157aa7f51e5434b77e2125a8dcdf2381ffd2f868f0aaa5cb1cee9a68bc",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文预算报表（ctx/BUDGET.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 133,
-          "tokens": 3890,
+          "endLine": 134,
+          "tokens": 3928,
           "summary": "生成：2026-10-28 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -420,8 +420,8 @@
           "anchor": "§3 超限清单（超过所属类别上限）",
           "level": 2,
           "startLine": 46,
-          "endLine": 107,
-          "tokens": 2400,
+          "endLine": 108,
+          "tokens": 2438,
           "summary": "上限按文档类别分档（WXG-T-377）：spec 8000（判据/规格/提案/ADR/GDD/UX/skill，未放松",
           "keywords": [
             "WXG",
@@ -435,8 +435,8 @@
         {
           "anchor": "§4 真实最常用章节与分布加权节省率（估算）",
           "level": 2,
-          "startLine": 108,
-          "endLine": 133,
+          "startLine": 109,
+          "endLine": 134,
           "tokens": 612,
           "summary": "数据源：ctx/usage-distribution.json（真实读事件账本），样本 457 次读取 / 20 会话；",
           "keywords": [
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "f76c4dd82f1f9b82faefae0f20f71858be5e87c74a769a88fe5ebd651c666fc2",
+      "sha256": "15d64f32114a206088189fcf2df9c23b9b384eba63698c11ed3a5c74ff1fe818",
       "tier": "normal",
       "sections": [
         {
@@ -1176,12 +1176,12 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/gdd/tray-spawner.md` — 143 行 / 7867 tok / 实测读 52 次",
+          "anchor": "§`games/beads/design/gdd/tray-spawner.md` — 147 行 / 9267 tok / 实测读 52 次",
           "level": 2,
           "startLine": 155,
           "endLine": 159,
           "tokens": 119,
-          "summary": "§GDD · S4 供料与槽位托盘（Tr…=1+144 · §1 目标=9+4 · §2 机制=13+54 · §3 输",
+          "summary": "§GDD · S4 供料与槽位托盘（Tr…=1+148 · §1 目标=9+4 · §2 机制=13+54 · §3 输",
           "keywords": [
             "§1",
             "§2",
@@ -35330,25 +35330,25 @@
     },
     {
       "path": "games/beads/design/gdd/tray-spawner.md",
-      "tokens": 7867,
-      "lines": 143,
-      "sha256": "c184bdfe7caf43a06d061dc8754f65da5fb60c9cb26c8cccc5b38cc5ea59ab94",
+      "tokens": 9267,
+      "lines": 147,
+      "sha256": "9268a4722df2ad4d19ea353f0a9fe9d5052ace81f86545fcb5b25082d9c43195",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · S4 供料与槽位托盘（Tray Spawner）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 144,
-          "tokens": 7850,
-          "summary": "项目：games/beads · 版本 v2.5 · 任务号 WXG-T-394（v2.5 = 托盘容量三档制 12 →",
+          "endLine": 148,
+          "tokens": 9250,
+          "summary": "项目：games/beads · 版本 v2.6 · 任务号 WXG-T-434（v2.6 = §8-7 注词回正：该条",
           "keywords": [
+            "§8",
             "GDD",
             "Tray",
             "Spawner",
             "beads",
-            "games",
-            "WXG"
+            "games"
           ]
         },
         {
@@ -35501,8 +35501,8 @@
           "anchor": "§8 验收标准（可测试硬判据；v2.0 逐条作废/改写标注——**⛔ 条目不得作 QA 用例依据**）",
           "level": 2,
           "startLine": 116,
-          "endLine": 133,
-          "tokens": 1336,
+          "endLine": 136,
+          "tokens": 1862,
           "summary": "1. ⛔ 作废（v2.0 / WXG-T-130，用户裁定案 A 供料关停）。原文要点：60s 内 tray:spawn",
           "keywords": [
             "WXG",
@@ -35516,9 +35516,9 @@
         {
           "anchor": "§9 变更记录",
           "level": 2,
-          "startLine": 134,
-          "endLine": 144,
-          "tokens": 1639,
+          "startLine": 137,
+          "endLine": 148,
+          "tokens": 2402,
           "summary": "v2.4 2026-09-23 取回落槽回退「自动归类」（WXG-T-204，用户裁定，推翻 v2.3 / WXG-T-",
           "keywords": [
             "WXG",
