@@ -244,7 +244,10 @@ function bumpAndStampVersion({ game, gameDir, productDir, platform }) {
     return;
   }
   const baseLabel = labelM[1];
-  const stamped = baseLabel.replace(`v${oldVer}`, `v${newVer}`);
+  // ⛔ 不按字面 `v{oldVer}` 找：package.json 每建递增一次，而源 label 基线是静态常量——
+  // 第二建起 oldVer 就与 label 漂移（首建后 1.0.1 vs label v1.0.0）⇒ 永不打号（T-473 实测）。
+  // 用「任意 MAJOR.MINOR.BUILD 段」正则替换：label 基线写哪个 build 号都能打上本次号。
+  const stamped = baseLabel.replace(/v\d+\.\d+\.\d+/, `v${newVer}`);
   if (stamped === baseLabel) {
     console.log(`  ⚠️ 版本腿：源 label「${baseLabel}」不含 v${oldVer} ⇒ 无法打号（源码与 package.json 漂移？）`);
     return;

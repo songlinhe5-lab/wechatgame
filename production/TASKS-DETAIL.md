@@ -6610,6 +6610,31 @@ T-461 收口时的同族发现（K-116 违反实例第二处）：选中珠分�
 **⚠ 领号披露**：468 已被并行会话（crash-snapshot）在制品引用（T-246 行「WXG-T-468 验证闭环」，工作树未提交）⇒ 本单避让领 **469**（K-046）。
 
 **待办**：干净构建后复证产物打号（`v1.0.1 · 演示版` 上屏）；「演示版」去留；随真机走查批次推进 MVP 清单（release-checklist NO-GO ①③⑤）。
+（收口注：产物打号已于同日 T-473 批复证上屏——`v1.0.3 · 演示版`，版本腿打号 bug 修复后全链通。）
+
+## WXG-T-473
+
+**X-07 选 B：无广告位隐藏复活钮 + 版本腿打号修复 · 负责：主理人(CodeBuddy) · 状态：🔄 判据已落码、金样本复评进行中（2026-10-28）**
+
+**背景**：MVP 清单 ③（X-07 激励视频首发处理）用户拍板 **B（无广告位隐藏复活钮）**。取证：T-402 已实装 `WxgRewardedAdProvider`（缺 adUnitId ⇒ load 失败 onError，不静默）；复活链路「点击才 load+show」，Noop 下 failHint「即将开放」——运行时 `isReady()` 判据会逼出预载腿（M 级）⇒ 改**配置级判据**。
+
+**判据贯通**（五层）：
+1. `PlatformInfo.rewardedAdConfigured?: boolean`——weapp = `Boolean(this._adUnitId)`（无 adUnitId ⇒ false）；web/node 不声明 ⇒ undefined；
+2. `GameServices.rewardedAdAvailable?: boolean`——compose 从 info 透传；
+3. beads `_reviveAdUsable()` = `this._services?.rewardedAdAvailable ?? true`（**未声明语义平台 `?? true` 保 harness/独立 BeadsGame 旧演示语义**）；
+4. `_reviveAvailable()` = 次数未用 && 可用——`_snapshotSource` 与 `ControlMapHost` 两个 host 同源消费；
+5. 投影 `s.reviveAvailable` 加 `&& src.reviveAdUsable`——渲染与命中同真源（无「画了点不了」分裂）。
+将来接真广告位：shell 配 adUnitId ⇒ 按钮自然回归，零结构变更。
+
+**验证**：判别测试 `revive.test` 新例（`rewardedAdAvailable=false` ⇒ 快照隐藏 + revive 位不命中）；framework **550/550**、beads 定向 63/63、beads 全量 1387 passed（5 红 = 金样本 4 + scrim 静态门 1，见下）。
+
+**红分域裁决**：① 金样本四态（main-menu/level-select/settings/signin）= **T-469 账**（version_label `v1.x`→`v1.0.0` 文案漂移，Meta 四屏底部版本行文本变 ⇒ sha 漂）⇒ 本单走复评通道重抓（教训：改 view 消费文案必须跑金样本，T-469 只跑了 meta-menu 单文件漏了金样本对拍）。② scrim 静态门（`expected 5 to be 2`）= **并行域**（ui-theme/modal-frame scrim 消费点计数，本单未触碰该面）——如实披露不代修。
+
+**⚠ 领号披露**：`f7dd6ac2` 提交信息误署 **WXG-T-470**（提交时本会话台账视图滞后，470-472 已被并行 Trae 会话 Meta 页族批1 占用并登主表）⇒ 本单纠正为 **473**（提交信息内嵌旧号不回改，以台账为准——同 T-462 对表口径）。
+
+**版本腿打号 bug 修复**（T-469 机制缺陷，实测暴露）：打号原按字面 `v{oldVer}` 找——package.json 每建递增、源 label 基线静态 ⇒ **二建起永不打号**（`v1.0.1` 找不进 `v1.0.0` 的 label）。修 = 正则 `/v\d+\.\d+\.\d+/` 替换任意旧 build 段；复证 1.0.2 → **1.0.3**，产物 `v1.0.3 · 演示版` 上号 ✓。
+
+**待办**：金样本四态复评（干净 worktree 复取 + ledger 登记）；「演示版」字样去留；真机走查主会话（产物已就绪：mtime 12:1x + 含判据 + 版本号实显）。
 
 ## WXG-T-470
 
