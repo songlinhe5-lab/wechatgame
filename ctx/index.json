@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "5ac7f462643853c7206307931d2d275400678a89f5dce7e36645108b6694ba00",
+      "sha256": "525dd06bfdd1ca452ca03b6bb93716bd164cd04dabf3f90c1a62b20d6882d142",
       "tier": "normal",
       "sections": [
         {
@@ -936,26 +936,10 @@
           ]
         },
         {
-          "anchor": "§`production/qa/beads/test-cases-a-core.md` — 129 行 / 7471 tok",
+          "anchor": "§`docs/agent/cocos-setup.md` — 372 行 / 7520 tok",
           "level": 2,
           "startLine": 81,
           "endLine": 85,
-          "tokens": 125,
-          "summary": "§A 硬判据用例（50 条 = 5 组 …=6+125 · §A.0 本轮（WXG-T-084）实测…=13+35 · ",
-          "keywords": [
-            "production",
-            "beads",
-            "test",
-            "cases",
-            "core",
-            "tok"
-          ]
-        },
-        {
-          "anchor": "§`docs/agent/cocos-setup.md` — 372 行 / 7520 tok",
-          "level": 2,
-          "startLine": 86,
-          "endLine": 90,
           "tokens": 205,
           "summary": "§Cocos Creator + MCP…=1+373 · §1 前置事实与红线=10+20 · §2 七步总览（速查）",
           "keywords": [
@@ -970,8 +954,8 @@
         {
           "anchor": "§`games/beads/design/ai-workflows/model-matrix.md` — 162 行 / 7805 tok",
           "level": 2,
-          "startLine": 91,
-          "endLine": 95,
+          "startLine": 86,
+          "endLine": 90,
           "tokens": 145,
           "summary": "§AI 生图选型矩阵（四方向 · 云/本…=1+163 · §1 四方向首选矩阵=11+16 · §2 候选池 · 价目",
           "keywords": [
@@ -981,6 +965,22 @@
             "beads",
             "design",
             "workflows"
+          ]
+        },
+        {
+          "anchor": "§`production/qa/beads/test-cases-a-core.md` — 129 行 / 8052 tok",
+          "level": 2,
+          "startLine": 91,
+          "endLine": 95,
+          "tokens": 125,
+          "summary": "§A 硬判据用例（50 条 = 5 组 …=6+125 · §A.0 本轮（WXG-T-084）实测…=13+35 · ",
+          "keywords": [
+            "production",
+            "beads",
+            "test",
+            "cases",
+            "core",
+            "tok"
           ]
         },
         {
@@ -104678,9 +104678,9 @@
     },
     {
       "path": "production/qa/beads/test-cases-a-core.md",
-      "tokens": 7471,
+      "tokens": 8052,
       "lines": 129,
-      "sha256": "53e9eeb8f863b8f7a2ef7eb523c6e44bb8d67328d5b15e8bf01c1777e2d420a3",
+      "sha256": "836580f106990611c7424d304f8bf79c1533c6a257594a72795bbfe63ae9d72d",
       "tier": "normal",
       "sections": [
         {
@@ -104688,7 +104688,7 @@
           "level": 1,
           "startLine": 6,
           "endLine": 130,
-          "tokens": 7321,
+          "tokens": 7902,
           "summary": "v1.7 追加：§A4b（真链口径补充 TC-INP-01R/07R/08R + 三相位门禁判据 TC-INP-11/1",
           "keywords": [
             "A4b",
@@ -104781,7 +104781,7 @@
           "level": 2,
           "startLine": 106,
           "endLine": 130,
-          "tokens": 2280,
+          "tokens": 2861,
           "summary": "本组不计入上方「5 组 × 10 = 50」（先例 = §A4b）：它们不是 §8 现文的 1:1 映射，而是 2026",
           "keywords": [
             "§8",
@@ -105364,17 +105364,17 @@
     },
     {
       "path": "production/qa/beads/test-cases-history.md",
-      "tokens": 13181,
-      "lines": 73,
-      "sha256": "fc80cb4bdbdb5362b0f816a27f909f0d3f12920ea5fbfe8eae108a0af9349d2b",
+      "tokens": 14569,
+      "lines": 74,
+      "sha256": "74ca9fecbdbdc287c811e42242403c40540c7034e75936508ab0df0f63e9280b",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§变更记录",
           "level": 1,
           "startLine": 6,
-          "endLine": 33,
-          "tokens": 11474,
+          "endLine": 34,
+          "tokens": 12862,
           "summary": "v1.0 2026-09-11 初版：§A 50 条（5 组 × 10，§8 判据 1:1）+ §B 派生 12 条 严",
           "keywords": [
             "§8",
@@ -105384,8 +105384,8 @@
         {
           "anchor": "§J · v2.0 判据迁移（**WXG-T-144 / Epic T-133**，2026-09-17）——「错位归位」玩法反转的判据面整体换代",
           "level": 1,
-          "startLine": 34,
-          "endLine": 74,
+          "startLine": 35,
+          "endLine": 75,
           "tokens": 1534,
           "summary": "### J.0 范围铁声明",
           "keywords": [
@@ -105400,8 +105400,8 @@
         {
           "anchor": "§J.1 四族改判 ⛔（原供料/道具判据，随玩法反转整体作废）",
           "level": 2,
-          "startLine": 39,
-          "endLine": 47,
+          "startLine": 40,
+          "endLine": 48,
           "tokens": 404,
           "summary": "TC-LOOP-02 / TC-TRAY-01 供料节律（60s tray:spawned 恰 15 次 ±1） ⛔ 作",
           "keywords": [
@@ -105416,8 +105416,8 @@
         {
           "anchor": "§J.2 新玩法判据用例（**[N] 层新增**；与 E1–E5 单测一一对应，代码锚点见 `tests/misplaced*.ts` / `selection-anchor.test.ts`）",
           "level": 2,
-          "startLine": 48,
-          "endLine": 68,
+          "startLine": 49,
+          "endLine": 69,
           "tokens": 766,
           "summary": "TC-J-01 tray-spawner v2.0 §8-2 [Node] 60s 零 tray:spawned + 首",
           "keywords": [
@@ -105432,8 +105432,8 @@
         {
           "anchor": "§J.3 G4 结论联动",
           "level": 2,
-          "startLine": 69,
-          "endLine": 74,
+          "startLine": 70,
+          "endLine": 75,
           "tokens": 78,
           "summary": "E1–E6 落码后：G4 玩法判据面已整体换代（本节 J 系列），但 G4 探针（g4-probe-v1.1.mjs）尚",
           "keywords": [
