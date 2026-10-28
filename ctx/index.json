@@ -366,9 +366,9 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 3911,
+      "tokens": 3903,
       "lines": 132,
-      "sha256": "8eb1e677ecbe3e2245f20a2ee1fef9776f1e617b34f2d0b9522134602d396fb3",
+      "sha256": "c1c54740196ec5a09028c938678ffc4f1617ea34c98513cb337207915f27dd18",
       "tier": "normal",
       "sections": [
         {
@@ -376,7 +376,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 133,
-          "tokens": 3898,
+          "tokens": 3890,
           "summary": "生成：2026-10-28 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -405,7 +405,7 @@
           "level": 2,
           "startLine": 21,
           "endLine": 45,
-          "tokens": 411,
+          "tokens": 403,
           "summary": "1 games/beads/design/gdd/powerups-v2.md 144877 2328 normal",
           "keywords": [
             "Top",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "65f83b1c2ce4340ffe335b1672f534bcb8c5f74058c6b2a470d88b91715ced48",
+      "sha256": "91199d1bc311fc17d44dd13a4372871923e3b8ce69f3f8d7c8a43c7ff898ecec",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 95 行 / 18360 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 96 行 / 18680 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+96 · §待排（backlog，无号，立项时领取…=68+29",
+          "summary": "§WXG 任务台账（SSOT）=1+97 · §待排（backlog，无号，立项时领取…=69+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 3859 行 / 126741 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 3927 行 / 128167 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+3860 · §WXG-T-484=3115+43 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+3928 · §WXG-T-484=3115+43 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -87669,17 +87669,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 126741,
-      "lines": 3859,
-      "sha256": "30c94a69e4679d679405ca222f58d9b7a18628a6f07686f5bc639aa85a10a20d",
+      "tokens": 128167,
+      "lines": 3927,
+      "sha256": "b58e3643068cd24101d9d6e6f1061e35e870d8419247d52d75a854c9ea74f7ba",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 3860,
-          "tokens": 126724,
+          "endLine": 3928,
+          "tokens": 128150,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -91149,8 +91149,8 @@
           "anchor": "§WXG-T-487",
           "level": 2,
           "startLine": 3806,
-          "endLine": 3860,
-          "tokens": 983,
+          "endLine": 3862,
+          "tokens": 985,
           "summary": "顶栏改四钮两列两行：好友榜自 CTA 左侧上提为左上第二枚（✅ 完成 · 2026-10-28 · 主理人(CodeBu",
           "keywords": [
             "WXG",
@@ -91245,30 +91245,132 @@
           "anchor": "§7 遗留",
           "level": 3,
           "startLine": 3854,
-          "endLine": 3860,
-          "tokens": 138,
+          "endLine": 3862,
+          "tokens": 139,
           "summary": "1. P1 好友榜图标缺图（见 §4）—— 需切图 ui_icon_rank。",
           "keywords": [
             "§4",
             "ui_icon_rank",
             "遗留"
           ]
+        },
+        {
+          "anchor": "§WXG-T-488",
+          "level": 2,
+          "startLine": 3863,
+          "endLine": 3928,
+          "tokens": 1422,
+          "summary": "生成 ui_icon_rank 图标资源与效果图（云 qwen-image-3.0）（✅ 完成 · 2026-10-28",
+          "keywords": [
+            "WXG",
+            "ui_icon_rank",
+            "qwen",
+            "image"
+          ]
+        },
+        {
+          "anchor": "§1 触发 (5)",
+          "level": 3,
+          "startLine": 3867,
+          "endLine": 3870,
+          "tokens": 86,
+          "summary": "解 T-487 §4 的 P1 遗留：好友榜钮已上提顶栏左上第二枚，但 MENU_TEXTURES 只有 iconSet",
+          "keywords": [
+            "§4",
+            "MENU_TEXTURES",
+            "iconSet",
+            "触发"
+          ]
+        },
+        {
+          "anchor": "§2 可复现配方（skill 交付纪律 §6-2：证据不得只存 temp/）",
+          "level": 3,
+          "startLine": 3871,
+          "endLine": 3889,
+          "tokens": 416,
+          "summary": "",
+          "keywords": [
+            "§6",
+            "skill",
+            "temp",
+            "可复现配方",
+            "交付纪律",
+            "证据不得只存"
+          ]
+        },
+        {
+          "anchor": "§3 两版对比与选型",
+          "level": 3,
+          "startLine": 3890,
+          "endLine": 3898,
+          "tokens": 184,
+          "summary": "v1 101 领奖台三台阶：中间最高、左侧次之、右侧最低（真实 1/2/3 名高度序），台阶顶面正中嵌小圆点作名次位，顶",
+          "keywords": [
+            "两版对比与选"
+          ]
+        },
+        {
+          "anchor": "§4 判据读数（对照既有三枚，均为 160² @2x）",
+          "level": 3,
+          "startLine": 3899,
+          "endLine": 3909,
+          "tokens": 137,
+          "summary": "settings 44% 44% 2129 #A19C99 金属灰",
+          "keywords": [
+            "settings",
+            "A19C99",
+            "判据读数",
+            "对照既有三枚",
+            "均为"
+          ]
+        },
+        {
+          "anchor": "§5 产出",
+          "level": 3,
+          "startLine": 3910,
+          "endLine": 3921,
+          "tokens": 188,
+          "summary": "games/beads/design/art/final/assets/menu/ui_icon_rank.png 16",
+          "keywords": [
+            "games",
+            "beads",
+            "design",
+            "art",
+            "final",
+            "assets"
+          ]
+        },
+        {
+          "anchor": "§6 待办（本单未做，须真机/编辑器侧）",
+          "level": 3,
+          "startLine": 3922,
+          "endLine": 3928,
+          "tokens": 291,
+          "summary": "1. .meta 缺失 —— Cocos 纹理需编辑器导入生成 .meta（含 uuid）。⛔ 按 L1 禁手工编辑 .",
+          "keywords": [
+            "meta",
+            "Cocos",
+            "uuid",
+            "待办",
+            "本单未做",
+            "须真机"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 18360,
-      "lines": 95,
-      "sha256": "e916a9c71f6c7ea6729f9c663b0cc08cd04f5846b62625179026e1b3c2ffda01",
+      "tokens": 18680,
+      "lines": 96,
+      "sha256": "33b7e430ac573fa7c93d9e77971d315fff7b6f33eb116ded1e8451cb755a6dc6",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 96,
-          "tokens": 18351,
+          "endLine": 97,
+          "tokens": 18671,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -91281,8 +91383,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 68,
-          "endLine": 96,
+          "startLine": 69,
+          "endLine": 97,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

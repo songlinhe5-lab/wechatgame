@@ -3857,3 +3857,71 @@ rank     (行2)      skins  (行2)     行距 MENU_TOPBAR_ROW2_DY = 88 = TOUCH_M
 2. `skins` 图标仍借 `iconSound`（T-365 遗留），建议与上条同批出图。
 3. 左列/右列两枚纵向间距 88 = 热区贴边，视觉是否留 8px 隙待真机观感。
 4. 原「好友榜 = CTA 左侧」的布局不再存在 ⇒ 若日后要在 CTA 侧恢复任何入口，需重新领号评估（⛔ 不要与顶栏钮并存造成双入口）。
+
+---
+
+## WXG-T-488
+
+**生成 `ui_icon_rank` 图标资源与效果图（云 qwen-image-3.0）**（✅ 完成 · 2026-10-28 · 主理人(CodeBuddy)·治理轨）
+
+### 1. 触发
+
+解 T-487 §4 的 **P1 遗留**：好友榜钮已上提顶栏左上第二枚，但 `MENU_TEXTURES` 只有 iconSettings/iconSound/iconMail 三枚，该钮只能画空圆、对玩家不可识别。用户令「用在线生图 qwen 生成 ui_icon_rank 图表效果图和资源」。
+
+### 2. 可复现配方（skill 交付纪律 §6-2：证据不得只存 temp/）
+
+```bash
+# 定稿（v1）
+python3 games/beads/design/ai-workflows/dashscope-generate.py \
+  --model qwen-image-3.0 --size "1024*1024" --seed 101 \
+  --text "单个图标：好友排行榜（ranking）。圆润扁平 2D 卡通风格，粗描边。画面是一个领奖台 podium：
+          三个并排的圆角矩形台阶，中间最高、左右两侧对称稍低，每个台阶顶面正中有一个小圆点作为名次位。
+          台阶填充柔和紫色 #7C6FD9，轮廓用深紫色 #4A3FA0 粗描边。正视图，无透视，无渐变，无高光，
+          无投影，无文字。图形整体居中，占画幅约 60%，四周留出充足空白。
+          背景必须纯白 #FFFFFF 且完全均匀，无纹理、无渐变、无阴影、无光晕。"
+```
+
+切图（`temp/gen-rank-icon.py`，一次性脚本、⛔ 不入库）：
+- 白底 `ImageDraw.floodfill(thresh=24)` 从四角灌 → 品红哨兵反解外部布尔图
+- alpha **`MinFilter(3)` 边缘内退 1px 去白边** —— ⛔ 不用 `MaxFilter`（skill §3 描述的是"膨胀吃抗锯齿边"，但那是针对深色描边图；本图边缘外侧是纯白，扩张会把白像素拉进 alpha=255 造成白边）
+- 裁 alpha bbox → **长边**归一 50%（按宽归一会让占高冲到 54%，明显大于原三枚的 38–49%）→ 居中贴 160×160 透明画布
+- `LANCZOS` 重采样
+
+### 3. 两版对比与选型
+
+| 版本 | seed | 构图 | 判定 |
+|---|---|---|---|
+| **v1** | **101** | 领奖台三台阶：中间最高、左侧次之、右侧最低（真实 1/2/3 名高度序），台阶顶面正中嵌小圆点作名次位，顶面有极浅的立体暗示 | **定稿** |
+| v2 | 202 | 纯平面三竖条，左右等高对称，圆点浮在竖条**上方**与主体分离 | 弃用：左右等高丢了名次序；圆点分离后视觉读作「三个人物」而非排行榜 |
+
+v1 的顶面浅色层次在 80px 绘制下仅约 4–5px，起「台阶 = 名次位」的暗示作用，不糊。
+
+### 4. 判据读数（对照既有三枚，均为 160² @2x）
+
+| 图标 | alpha bbox 占宽 | 占高 | 不透明像素 | 主色 |
+|---|---:|---:|---:|---|
+| settings | 44% | 44% | 2129 | `#A19C99` 金属灰 |
+| sound | 56% | 49% | 3098 | `#FDCA67` 橙黄 |
+| mail | 48% | 38% | 3810 | `#B3DAFA` 浅蓝 + `#4C87BB` 描边 |
+| **rank（本件）** | **46%** | **50%** | **4127** | `#7C6FD9` 紫 + `#4A3FA0` 描边 |
+
+四枚**四色**（灰/橙/蓝/紫）⇒ 顶栏四钮在 80px 下靠色相即可区分，语义色策略与既有三枚一致。
+
+### 5. 产出
+
+| 文件 | 说明 |
+|---|---|
+| `games/beads/design/art/final/assets/menu/ui_icon_rank.png` | 160×160 成品（art 正本） |
+| `games/beads/cocos/assets/textures/ui_icon_rank.png` | 运行时同件 |
+| `games/beads/design/art/final/assets/menu/ui_icon_rank_source-1024.png` | 1024 源图（供日后重切/换色） |
+| `games/beads/design/art/final/assets/menu/effect-topbar.png` | 效果图 A：顶栏四钮全貌（左列 settings/rank、右列 mail/skins，含招牌占位） |
+| `games/beads/design/art/final/assets/menu/effect-closeup.png` | 效果图 B：rank 与 mail/settings 并排风格对比 |
+
+**成本**：云 2 张 × 0.18 元 = **0.36 元**；本地 0 张。
+
+### 6. 待办（本单未做，须真机/编辑器侧）
+
+1. **`.meta` 缺失** —— Cocos 纹理需编辑器导入生成 `.meta`（含 uuid）。⛔ 按 L1 禁手工编辑 `.meta`，本批不伪造。**在编辑器打开 `games/beads/cocos/assets/textures/` 导入 `ui_icon_rank.png` 即可**。
+2. **接线**：`MENU_TEXTURES` 增 `iconRank: 'bitmap__menu_icon_rank'`；`drawTopbar` 第四枚在底圆之后加 80² `blit`（位置已就绪，见 T-487 §4 注释）。因纹理 ID → 文件的映射不在 TS 侧（全仓仅 `MENU_TEXTURES` 出现该字面量），须与编辑器导入后的资源名对齐后再接线，否则 `menuBitmapReady` 恒 false、仍走空圆（无害但无收益）。
+3. **真机目检**：80px 下「像不像排行榜」需真机确认；若被读作「三个人物」，可换 v1 的 1024 源图重切（加大描边间距）或改出「奖杯」语义。
+4. harness 出图无法验证本件 —— `NullAssetProvider` ⇒ 纹理层全缺，只有真机/编辑器预览可看。
