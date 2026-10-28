@@ -6610,3 +6610,71 @@ T-461 收口时的同族发现（K-116 违反实例第二处）：选中珠分�
 **⚠ 领号披露**：468 已被并行会话（crash-snapshot）在制品引用（T-246 行「WXG-T-468 验证闭环」，工作树未提交）⇒ 本单避让领 **469**（K-046）。
 
 **待办**：干净构建后复证产物打号（`v1.0.1 · 演示版` 上屏）；「演示版」去留；随真机走查批次推进 MVP 清单（release-checklist NO-GO ①③⑤）。
+
+## WXG-T-470
+
+**Meta 页族批1①：图鉴（album）· 负责：主理人(Trae) · 状态：🟡 立项（2026-10-28）**
+
+**背景**：concept.md §7 Meta 页族（v1.4 新增）——图鉴 = 10 关缩略图墙 + 每关星级。批 0（主菜单 shell/关卡选关/签到/设置 overlay/体力钱包顶栏）已 100% 落码，meta-ui overlay 值域转正（v1.96），批 1 启动。
+
+**真源与约束**：
+- `systems-index.md` §3.14 `meta:overlay` v1.96 值域 `none|signin|settings|levels|skins` 需回加 `album`（8 值）
+- 零新存档字段：数据源复用 `starsByLevel[]`（`beads-game.ts:1059 flattenStars`）+ `ARCS[].textureId` / `ARCS[].levelRefs`（10 关缩略图）
+- L5 纪律：`buildMetaView` 只读 `MetaViewData` 投影，视图不持状态、不查表
+- 弹窗态叠主菜单：`BASE_PAGE['album'] = null`，复用 `panelPage` 容器
+
+**代码改动清单**：
+1. `meta-types.ts:18` — `MetaOverlay` 加 `| 'album'`；`:197` `MetaAction` 加 `| 'open-album'`；`MetaViewData` 加可选投影字段
+2. `meta-view.ts:152-164` — `META_PAGES` 加 `album: panelPage(COPY_TOKENS.btn_album_label, UI_SCRIM.alpha, drawAlbumContent)`；`:170-176` `BASE_PAGE` 加 `album: null`
+3. `beads-shell.ts:_applyMetaAction` — 加 `case 'open-album'`：`_cancelPageFx()` + `_phase.openModal('album')` + `_emitOverlay(true)`
+4. **新文件** `games/beads/src/view/meta-pages-content.ts::drawAlbumContent(builder, layout, data, palette)` — 10 关缩略图 2×5 网格 + 每关星级（通关 ★/未通关 灰点 + 锁定态）
+5. 主菜单入口：复用走马灯右侧或顶栏区三颗现有钮扩容，`open-album` 入口钮画法 / 几何 / 路由
+
+**验证**：`pnpm typecheck` 绿 + `drawAlbumContent` 不创建新分配（L5）+ 零新存档 + `_emitOverlay({open:true, name:'album'})` 发事件
+
+---
+
+## WXG-T-471
+
+**Meta 页族批1②：本地榜（localRank）· 负责：主理人(Trae) · 状态：🟡 立项（2026-10-28）**
+
+**背景**：concept.md §7 — 本地榜 = 每关星级展开排序 + 自己（当前关）高亮。与对局内好友榜 `rank-panel.ts` 分属不同通道（meta overlay ≠ rank panel）。
+
+**真源与约束**：
+- overlay 值域回加 `localRank`（8 值）
+- 零新存档：展开 `starsByLevel[]` 为 `{levelIdx, stars, cleared}` 数组 → 按 `stars DESC, levelIdx ASC` 排序
+- 与 WXG-T-432 好友榜区分：好友榜是「好友排名」用 `rank-panel.ts`（对局内），本地榜是「自己每关历史」用 meta overlay
+
+**代码改动清单**：
+1. `meta-types.ts:18` — `MetaOverlay` 加 `| 'localRank'`；`:197` `MetaAction` 加 `| 'open-local-rank'`
+2. `meta-view.ts` — `META_PAGES` + `BASE_PAGE` 各加 1 行（同 album 模式）
+3. `beads-shell.ts:_applyMetaAction` — 加 `case 'open-local-rank'`
+4. `beads-shell.ts::buildRenderModel` — 从 `starsByLevel` 派生 `localRankItems` 数组（只读，零分配热路径）
+5. **同文件** `meta-pages-content.ts::drawLocalRankContent` — 排名列表（序号 / 大关名 / ★n / 自身高亮行）
+
+**验证**：排序逻辑单元断言（零新常量）+ 自身高亮正确 + `_emitOverlay({open:true, name:'localRank'})`
+
+---
+
+## WXG-T-472
+
+**Meta 页族批1③：名片（profile）· 负责：主理人(Trae) · 状态：🟡 立项（2026-10-28）**
+
+**背景**：concept.md §7 — 名片 = 累计星 / 通关关数 / 体力胶囊 / 钱包胶囊 / 签到周期一览。
+
+**真源与约束**：
+- overlay 值域回加 `profile`（8 值）
+- 零新存档字段：派生投影 = `totalStars = starsByLevel.reduce(a+b)` + `clearedCount = starsByLevel.filter(s>0).length`
+- 数据源：`meta.stamina / meta.coins`（顶栏已在用）+ `starsByLevel[]` + `signinDay`
+
+**代码改动清单**：
+1. `meta-types.ts:18` — `MetaOverlay` 加 `| 'profile'`；`:197` `MetaAction` 加 `| 'open-profile'`
+2. `meta-view.ts` — `META_PAGES` + `BASE_PAGE` 各加 1 行（同 album 模式）
+3. `beads-shell.ts:_applyMetaAction` — 加 `case 'open-profile'`
+4. `beads-shell.ts::buildRenderModel` — 派生 `totalStars` / `clearedCount`（热路径零分配：用 `data.starsByLevel` 只读引用原地 reduce）
+5. **同文件** `meta-pages-content.ts::drawProfileContent` — 统计卡（累计星 ★ / 通关关数 / 体力胶囊 ♥ n/n / 钱包胶囊 ◆ n / 签到周期 7 格）
+
+**验证**：派生值单元断言（totalStars / clearedCount 从 starsByLevel 正确算出）+ `_emitOverlay({open:true, name:'profile'})` + 与顶栏胶囊同串值（复用 drawButton / heartBarLabel）
+
+---
+

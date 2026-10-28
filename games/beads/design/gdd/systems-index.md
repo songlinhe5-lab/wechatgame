@@ -299,7 +299,7 @@ S9 暂停与设置（控制 S1 状态 + 写 S8）
 | `combo:break` | `{reason: 'wrong'\|'timeout'}` | S7 → 视觉/音频（角标灰缩） |
 | `sprint:stage` | `{stageIndex, nextParams}` | S7 → S3/S4/S5（换 stage 参数注入，跨 stage 不断连） |
 | `sprint:ended` | `{score, bestStage, settleScore}` | S7 → S8（v1.1 字段写入） |
-| `meta:overlay` | `{open, name}` | **v1.28 新增（meta 域，不带 levelId）**：S10 → 视觉；overlay 入/出栈，`name ∈ {none, signin, settings, levels, skins}`（`open=false` 时恒 `none`）；玩法层零事件。**v1.96 对齐代码**：字段名 `id` → `name`，取值集合由旧列 profile/stamina/collection/leaderboard 改为现行五个；对局侧好友榜面板不属 meta overlay |
+| `meta:overlay` | `{open, name}` | **v1.28 新增（meta 域，不带 levelId）**：S10 → 视觉；overlay 入/出栈，`name ∈ {none, signin, settings, levels, skins, album, localRank, profile}`（`open=false` 时恒 `none`）；玩法层零事件。**v1.96 对齐代码**：字段名 `id` → `name`，取值集合由旧列 profile/stamina/collection/leaderboard 改为现行五个；**v1.102 批1 回加三个值**（album=图鉴 / localRank=本地榜 / profile=名片），与 v1.28 旧列一致的语义但由批1 正式落码；对局侧好友榜面板不属 meta overlay（走 `rank-panel.ts` 独立通道） |
 | `signin:claimed` | `{day, coins, hearts}` | **v1.28 新增**：S10 签到 → 视觉 toast；同日二次领零事件。**v1.96 对齐代码**：`stamina` → `hearts`（体力变动另由 `stamina:changed` 广播） |
 | `stamina:changed` | `{cur, max}` | **v1.28 新增**：S10 → 顶栏心胶囊（开局扣/恢复跳/~~回满~~ **广告加心**，v1.80 订正）。**v1.96 对齐代码**：补 `max`（= `STAMINA_MAX`，供顶栏画满格） |
 | `wallet:changed` | `{coins}` | **v1.28 新增**：S10 → 顶栏币胶囊。**v1.96 对齐代码**：删 `delta`（现行实现只发余额） |
