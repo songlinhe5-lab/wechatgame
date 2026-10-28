@@ -74,3 +74,4 @@
   ③ 未注入底图体的宿主必须**回落原层**（breakout / 未接线场景逐字节等价），⛔ 让新通道的缺席变成报错或丢图元；
   ④ 产物级自证法：把上层节点 `active = false` 截一张图 —— 沉底图元仍在 ⇒ 提交体确实换了（比读代码注释硬）。
   判例引用：`packages/framework/src/core/render/render-model.ts`（`back` 注释）、`packages/framework/src/adapters/cocos/cocos-renderer.ts`、`ADR-0030 §5.7`；同族 K-110（改渲染真源前先 grep 两侧消费方）、K-109（层序死结优先删对象）。
+  ⚠ 违反实例（2026-10-28，WXG-T-461 / d7c12850）：WXG-T-261 三批给托盘槽 tint 臂补「底 rect」（`bead-render.ts`）时**漏打 back**——承载珠下层的槽底色以矢量命令落主 `Graphics`（Cocos 层序在 BlitLayer **之上**）⇒ 真机 carrier=on 时深灰槽底盖住珠 blit（用户读作「豆子上盖着槽底色」）。两道既有门都**结构性**测不到：harness canvas2d 按命令序单趟（本标记无副作用＝缺陷也不显形）、封箱无 tint 运行时不覆盖该分支；浏览器 Cocos 又因构建档 mask 不齐 carrier 静默 off 而从未暴露（K-198）⇒ 只有真机 4/4 才踩到。修 = 一行 `back: true`；P2 探针读数 `mask__grid__holed|#4A5060` 全透明（槽底色全靠底 rect 承担）是定位铁证。规避补充：**⑤ 凡在 blit 宿主形态下新增「语义在珠下」的矢量图元，落码当批即打 back**（⛔ 等 harness 截图验证——它天然复现不了分层序），评审检查单对应加「新矢量图元的 Cocos 层归属」一条。

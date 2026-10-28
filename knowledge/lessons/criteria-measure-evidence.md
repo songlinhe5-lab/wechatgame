@@ -39,3 +39,15 @@
   复验（2026-10-28，真宿主而非替身）：`build:cocos:web` 重出 `web-mobile` 产物后在浏览器实测 —— 启动即写出 `wxgame.beads.save.v1` + `wxgame.beads.meta.v1`；拨「音乐」→ 真 `localStorage` 文档里 `settings.bgmMuted` false→true，且 spy 记到 save 键 `setItem` 恰 1 次；刷新后文档仍为 true，暂停面板渲染出「音乐 关」⇒ 用户可见症状正式关单。浏览器取证另有两坑：① 面板期 `__WXG_GAME_DEBUG().screen` 仍是 `play`，判「面板开没开」要读 `phase`；② 设计坐标→客户端像素别靠眼估（本轮 CTA 眼估偏了 16px），点完拿引擎自己的调试标签（`dsn`）或截图读数回验。
   反向用法（2026-10-28，微信 mock 腿 / QA SC-WX-01）：替身也可能**比真宿主多给一个假对象** —— `packages/framework/src/adapters/cocos/bindings.ts::_fitToGameCanvas()` 的 `doc?.querySelector` 只挡 `document` 缺失，而浏览器里的 wx mock 提供了一个**没有 `querySelector` 的 `document`** ⇒ 每次 `start()` 抛 `TypeError`，而真机（无 `document`）反而永不显形。⇒ 宿主探测一律挡**方法存在性**（`typeof x?.m === 'function'`），⛔ 只挡 null。同批把「必须走宿主工厂」固化成机检：`packages/framework/tests/platform/platform.test.ts`「宿主存储契约」逐宿主跑 `createStorage()`（⛔ 直接 `new WeappStorage(wx)`，那会绕过接线），断五方法齐全 + 写入落到宿主底层；敏感性已证（web / weapp 各自退回直传 ⇒ 各自那条腿判红）。
   关联：K-036（跑过 ≠ 检到）、K-195（同晚第二例：量具假阴性把可用判成死局）、K-174（同一映射两处登记必漂移）、K-010（宿主/沙箱环境差异造成的假读数）。
+
+- **[判据实测取证][K-198] 「三浏览器全干净」不等于真机干净：降级臂开关由资产齐不齐决定，浏览器可能从未走过真机路径**（来源 WXG-T-461 / cfc5432d，2026-10-28）
+  现象：托盘珠真机缺陷（豆顶被槽底色横带盖住），但 harness canvas2d / 浏览器 web-mobile Cocos / 微信模拟器三端全部复现不了；按「静态穷尽 + 三端干净」推演无元凶，差点把缺陷归为不可解。
+  根因：Cocos 真机珠渲染走 carrier（tint 图集 + Sprite 池）路径，而该路径**默认开的前提是 mask 需求集装载齐**（`TINT_MASK_GAUGE_PIN=null` ⇒ 需求 4 张；构建档包不全 ⇒ warmup `N/4` `< 4` ⇒ carrier 静默 off 回矢量臂）。浏览器构建档资产不齐 ⇒ 浏览器「干净」根本没测到真机那条腿——**验证矩阵看起来覆盖三端，实际目标路径只被真机踩过**。
+  规避/做法：① 判「某路径干净」前先用日志自证**该路径真的被走过**（`[BeadsBlitCarrier] masks=N/N carrier=on|off`），静默回退（K-108 同族）会让对照实验测的是另一条臂；② 真机专属路径的 A/B 对照用**宿主开关**（启动参数 `carrier=off`）做第一刀二分——同机同包同参数，比跨端对比干净；本例一刀把病灶从「整个渲染栈」钉到 carrier tint 腿；③ 「多端干净」的证据要按端列出**实际生效的渲染臂**，不是只列「没复现」。
+  关联：K-197（替身/遮蔽族）、K-108（静默回退看不出）、K-036（跑过 ≠ 检到）。
+
+- **[判据实测取证][K-199] 真机循环贵的缺陷：单文件多臂探针 + 启动参数选臂，一轮会话钉死环节**（来源 WXG-T-461 / cfc5432d→ea1b8892，2026-10-28）
+  现象：缺陷钉死在真机专属渲染腿后，内部仍有四层候选（Sprite 池序 / 图集 drawImage / `uploadData` 上传 / 合成层）；每轮真机循环 = 构建 + 出码 + 真机操作，逐层试错不可接受。
+  根因：真机取证的优势是「现象现场」，劣势是「每轮成本高」；把 N 个嫌疑拆成 N 轮，等于把最贵的资源用最浪费的方式花。
+  规避/做法：① **一次落齐多臂**：单文件加 `PROBE_MODE`（启动参数 `probe=1|2|3` 选臂），每臂单变量——P1 行为钳制（`setSiblingIndex` 强制本帧命令序）、P2 纯观测读回（合成后 `getImageData` 双采样打日志）、P3 行为替换（绕过嫌疑环节直贴）；② 读回采样点选**判别力最大**的位置（豆形外角 / 孔心 / 上缘 / 下缘），src 与 atlas 双份对照 ⇒ 一条日志同时切开「合成层 / drawImage 层 / 上传层」；③ 诊断件标注任务号、钉死后即撤（revert 独立成笔，历史可 cherry-pick 复用）；④ 本例战果：P1/P3 无效排除两项 + P2 `src≡atlas` 逐位一致（合成链干净）+ 槽 tile 全透明读数直指「槽底色靠矢量底 rect 承担」⇒ 两轮真机会话收敛根因（K-116 ⚠ 段）。
+  关联：K-194（读回口在哪先确认）、K-198（先证路径真被走过）、K-193（存了 ≠ 看了）。

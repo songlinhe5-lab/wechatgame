@@ -304,4 +304,6 @@
 | K-195 | 判据实测取证 | criteria-measure-evidence | 「UI 点了一下没反应」不能当规则判据；出口存在性要走引擎公开命令，道具类还须确认二次提交 | WXG-T-434 | 2026-10-27 | 0 | active |
 | K-196 | 判据实测取证 | criteria-measure-evidence | 想加「可解性/容量」类门禁前，先查 `levels:check` 已有的硬拦闸与已被撤回的错论，否则会造出把合法内容判红的弱门 | WXG-T-434 | 2026-10-27 | 0 | active |
 | K-197 | 判据实测取证 | criteria-measure-evidence | 宿主替身全绿 ≠ 真宿主能落盘：框架与 DOM 同名类型互相遮蔽，再加吞异常，一条存档链可以在浏览器里静默哑掉而 1928 例照绿 | WXG-T-434 | 2026-10-27 | 0 | active |
+| K-198 | 判据实测取证 | criteria-measure-evidence | 「三浏览器全干净」不等于真机干净：降级臂开关由资产齐不齐决定，浏览器可能从未走过真机路径 | WXG-T-461 | 2026-10-28 | 0 | active |
+| K-199 | 判据实测取证 | criteria-measure-evidence | 真机循环贵的缺陷：单文件多臂探针 + 启动参数选臂，一轮会话钉死环节 | WXG-T-461 | 2026-10-28 | 0 | active |
 <!-- kb:active:end -->

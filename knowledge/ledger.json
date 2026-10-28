@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 198,
+  "nextId": 200,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -1921,7 +1921,7 @@
       "file": "knowledge/lessons/engine-cocos.md",
       "category": "引擎Cocos",
       "title": "给渲染命令加「层归属」标记前，先枚举每个宿主的绘制模型：单趟按命令序绘制的宿主天然免疫，可能只有一个 adapter 需要改",
-      "contentHash": "ce8d7db6f831b942829f063977a560fbdbeb88889eb8a45126b4f15763eb743c",
+      "contentHash": "2916702ecc448e5c175ebce51fa45576aa1bd92814bd62cc04fabec38543bbbd",
       "sourceTask": "WXG-T-256",
       "addedDate": "2026-10-05",
       "lastAccess": "2026-10-05",
@@ -3302,6 +3302,40 @@
       "sourceTask": "WXG-T-434",
       "addedDate": "2026-10-27",
       "lastAccess": "2026-10-27",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-198",
+      "state": "active",
+      "file": "knowledge/lessons/criteria-measure-evidence.md",
+      "category": "判据实测取证",
+      "title": "「三浏览器全干净」不等于真机干净：降级臂开关由资产齐不齐决定，浏览器可能从未走过真机路径",
+      "contentHash": "f62c9d594a3c47ea8c4be960bb444ca34104755b2a959bc3aaa3042d365eaa7f",
+      "sourceTask": "WXG-T-461",
+      "addedDate": "2026-10-28",
+      "lastAccess": "2026-10-28",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-199",
+      "state": "active",
+      "file": "knowledge/lessons/criteria-measure-evidence.md",
+      "category": "判据实测取证",
+      "title": "真机循环贵的缺陷：单文件多臂探针 + 启动参数选臂，一轮会话钉死环节",
+      "contentHash": "47d942789d20d0430e358c81b83d7224c8c3ab70323c8123181ab3cafb3bdd1f",
+      "sourceTask": "WXG-T-461",
+      "addedDate": "2026-10-28",
+      "lastAccess": "2026-10-28",
       "accessCount": 0,
       "accessSources": [],
       "seen": [],
@@ -5405,6 +5439,25 @@
       "kind": "updated",
       "ids": [
         "K-197"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-28",
+      "taskId": "WXG-T-461",
+      "kind": "added",
+      "ids": [
+        "K-198",
+        "K-199"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-28",
+      "taskId": "WXG-T-461",
+      "kind": "updated",
+      "ids": [
+        "K-116"
       ],
       "note": null
     }
