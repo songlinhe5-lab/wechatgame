@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3981,
       "lines": 134,
-      "sha256": "e6e8f5bfffaba15382198c7084374a150e4174f48660ce700ca7edafb03ba1c2",
+      "sha256": "d6a48d82ff5f6cb948d504abca72488bed724719bd505acb9f999e1a818ff2b8",
       "tier": "normal",
       "sections": [
         {
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "80c159b89b8ebbe52566771c65044c7922faa15a03a24f69878c44d2020418a3",
+      "sha256": "cb6ceee2fb8a87555509d384361c171a9c00c950490efcb03f3382756765a0fd",
       "tier": "normal",
       "sections": [
         {
@@ -968,7 +968,7 @@
           ]
         },
         {
-          "anchor": "§`production/qa/beads/test-cases-a-core.md` — 129 行 / 9181 tok",
+          "anchor": "§`production/qa/beads/test-cases-a-core.md` — 129 行 / 9191 tok",
           "level": 2,
           "startLine": 91,
           "endLine": 95,
@@ -33242,9 +33242,9 @@
     },
     {
       "path": "games/beads/design/gdd/powerups-v2.md",
-      "tokens": 144755,
+      "tokens": 144877,
       "lines": 2328,
-      "sha256": "e813607cfc254d1efad3c5a8af9de507e2b347671aa90c51e5f9d22fb821b93a",
+      "sha256": "72822a9d366d6e72fa3af435607de151ebc6cee55847707b835aad8e35d62fab",
       "tier": "normal",
       "sections": [
         {
@@ -33252,7 +33252,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 2329,
-          "tokens": 144741,
+          "tokens": 144863,
           "summary": "项目：games/beads（拼豆错位归位）· 版本 v2.7 · 任务号 WXG-T-434（同一交付物延续修订，不新",
           "keywords": [
             "GDD",
@@ -33279,7 +33279,7 @@
           "level": 2,
           "startLine": 120,
           "endLine": 1291,
-          "tokens": 57440,
+          "tokens": 57452,
           "summary": "",
           "keywords": [
             "机制"
@@ -33317,7 +33317,7 @@
           "level": 3,
           "startLine": 879,
           "endLine": 927,
-          "tokens": 3839,
+          "tokens": 3851,
           "summary": "① 托盘清空率 = 100.00% · ② 托盘珠归位率 = 100.00%（30 组 × 2000 次，零例外）· ③",
           "keywords": [
             "新结论",
@@ -33416,7 +33416,7 @@
           "level": 2,
           "startLine": 1339,
           "endLine": 1751,
-          "tokens": 21989,
+          "tokens": 21992,
           "summary": "",
           "keywords": [
             "数值"
@@ -33459,7 +33459,7 @@
           "level": 3,
           "startLine": 1398,
           "endLine": 1413,
-          "tokens": 865,
+          "tokens": 869,
           "summary": "§5.3 的四条前置硬约束（v2.2 重写 · v2.4 第 3、4 条被用户裁定推翻、划线留档）",
           "keywords": [
             "§5.3",
@@ -33646,7 +33646,7 @@
           "level": 2,
           "startLine": 2205,
           "endLine": 2329,
-          "tokens": 25335,
+          "tokens": 25398,
           "summary": "v2.7 2026-10-28 QA/工程侧取证 → GDD 回写（WXG-T-434；用户拍板「甲」＝道具机制与数值一",
           "keywords": [
             "GDD",
@@ -33675,7 +33675,7 @@
           "level": 3,
           "startLine": 2232,
           "endLine": 2265,
-          "tokens": 6691,
+          "tokens": 6715,
           "summary": "R-1 systems-index §3.6 整节 POWERUP_TYPES 换两型（['windowRestore'",
           "keywords": [
             "§3.6",
@@ -33707,7 +33707,7 @@
           "level": 3,
           "startLine": 2287,
           "endLine": 2329,
-          "tokens": 2792,
+          "tokens": 2831,
           "summary": "见 §5.2 变更单建议表 T-1 ～ T-29 共 29 条（v2.4 新增 T-24～T-28；v2.5 新增 T-",
           "keywords": [
             "§5.2",
@@ -105123,9 +105123,9 @@
     },
     {
       "path": "production/qa/beads/test-cases-a-core.md",
-      "tokens": 9181,
+      "tokens": 9191,
       "lines": 129,
-      "sha256": "3e54ac651936d2b2a8620162fc7e3317361b469463c9cf92aee26d55a04a9848",
+      "sha256": "d7f8d306789cfbaaac363b44663980808bbd26ed9a4926e36b8d0e0c16b0ba5d",
       "tier": "normal",
       "sections": [
         {
@@ -105133,7 +105133,7 @@
           "level": 1,
           "startLine": 6,
           "endLine": 130,
-          "tokens": 9031,
+          "tokens": 9041,
           "summary": "v1.7 追加：§A4b（真链口径补充 TC-INP-01R/07R/08R + 三相位门禁判据 TC-INP-11/1",
           "keywords": [
             "A4b",
@@ -105226,7 +105226,7 @@
           "level": 2,
           "startLine": 106,
           "endLine": 130,
-          "tokens": 3990,
+          "tokens": 4000,
           "summary": "本组不计入上方「5 组 × 10 = 50」（先例 = §A4b）：它们不是 §8 现文的 1:1 映射，而是 2026",
           "keywords": [
             "§8",
@@ -105809,9 +105809,9 @@
     },
     {
       "path": "production/qa/beads/test-cases-history.md",
-      "tokens": 16776,
+      "tokens": 16784,
       "lines": 75,
-      "sha256": "eba39c67afe3ead6004d565ef8537c3d1334a7b381a914e4e3d14558c6faa51a",
+      "sha256": "02a14490457b6fd858af03da89fe5e2c3f8f4e4655c86c7b4cdd24c58d3d6506",
       "tier": "normal",
       "sections": [
         {
@@ -105819,7 +105819,7 @@
           "level": 1,
           "startLine": 6,
           "endLine": 35,
-          "tokens": 15068,
+          "tokens": 15077,
           "summary": "v1.0 2026-09-11 初版：§A 50 条（5 组 × 10，§8 判据 1:1）+ §B 派生 12 条 严",
           "keywords": [
             "§8",
