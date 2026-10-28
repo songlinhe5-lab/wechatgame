@@ -200,7 +200,21 @@
 - **状态**：⛔ **未执行**。原因 = 无 AppID + 上传密钥（`memory/MEMORY.md` §已知限制）；解除条件 = 补齐配置后扫码跑「拨开关 → 杀进程重进 → 读回」。
 - **盲区提示**：`production/qa/beads/g4-probe-v1.1.mjs:1798` 一类探针用 `new WebPlatform({ storage: new MemoryStorage() })` ⇒ 显式注入即**绕过** DOM 适配层，不得当作宿主适配证据（K-197）。
 
+## 微信产物模拟宿主冒烟（**v1.6 / WXG-T-434 复验批续**）
+
+> **依据**：上表 SC-SV-02 的真机腿在补齐 AppID 前先拿一半证据；工具链与路径口径 = `my-skills/wxgame-minigame-bridge` §1①（`workspacePath` 一律指构建产物）。
+> **效力边界（不得删）**：模拟宿主（浏览器里的 wx mock）**≠ 真机**，本条判绿**不解除** SC-SV-02；它只证「产物能起 + 存储链形状对」。
+
+### SC-WX-01 微信档起停 · 渲染 · 存储读写闭环 `[Mock]`
+
+- **前置**：`pnpm --filter @wxgame/beads run build:cocos`（默认即 release 基线档，判例 K-111）→ `games/beads/cocos/build/wechatgame/`（实测 **3.7MB**，主包红线 4MB 内）→ MCP `weixin-minigame-helper.run_game(workspacePath = 该目录绝对路径)` → `http://localhost:3847`。
+- **预期与本轮读数（2026-10-28）**：① 启动渲染 ✅（主菜单标题 / 画框 / 彩豆轮盘 / 「开始游戏」，图 `.screenshots/.tmp/wx-mock-after-fix.png` 已目视核对，K-193）；② 存储链 ✅：`wx.getStorageSync/setStorageSync` 命中 `wxgame.beads.save.v1` / `meta.v1` / `crash.v1`，mock 落 `localStorage` 前缀 `wx_storage_*`，**刷新后 `runs` 3→4 保留** ⇒ 微信侧适配层 `WeappStorage` 在真 `wx` 形状下读写闭环；③ 日志 ERROR 数 = 0（本轮修复后）。
+- **本轮修掉一条真缺陷**：`packages/framework/src/adapters/cocos/bindings.ts::_fitToGameCanvas()` 的 `doc?.querySelector(...)` 只挡 `document` **缺失**、不挡「有 `document` 但不是 DOM」⇒ mock 下每次 `start()` 抛 `TypeError: t.querySelector is not a function`（真机 `document` undefined 会被短路 ⇒ 不显，故它是**替身才能暴露的缺陷**，K-197 的反向用法）。补 `typeof doc?.querySelector === 'function'` 守卫（+ Cocos 镜像同步），重建 + `reload_game` 后日志 **零 ERROR**（阳性对照 = 同一日志窗口内存储 trace 仍在，K-060）。
+- **取证三坑（写死在此）**：① `run_game` 服务的是**拷贝件** —— 改完源码重建后，浏览器普通 reload 仍拿旧字节（实测 `Last-Modified` 停在旧时刻、报错列号一字不变），**必须 `reload_game`** 才重拷；② 游戏跑在 **iframe** 里，顶层 `globalThis.wx` / `__WXG_GAME_DEBUG` 全 `undefined` ⇒ 探针要进 `frames[0].window`（而 iframe 内的 `document` 是假 minigame document，无 `querySelector`）；③ **输入注入在本 mock 里做不到**（顶层 canvas `0×0`、iframe 无 DOM 布局）⇒ 「拨开关 → 跨刷新读回」的人工腿仍只能真机，本条只覆盖**启动 / 渲染 / 存储**三面。
+- **判红条件**：启动日志出任何 ERROR；`wx.setStorageSync` 无本档键调用；刷新后 `runs` 回落旧值。
+
 ## 变更记录
+
 
 | 版本 | 日期 | 变更 | 作者 |
 |---|---|---|---|
@@ -210,3 +224,4 @@
 | **v1.3** | 2026-09-26 | **WXG-T-211-F（风格与豆径族冒烟）**：新增 **SC-ST-01..04**（逐风格全量 `verify`+`harness:smoke`／`legacy-ten` SVG 逐字节零漂移（含"对照臂不得写错为四棱"的纠偏）／行4 两钮最短回路／06 出池门引用行）。依据 = `§12.2 C10/C6` + `§12.9 步 1/3/5` + `ADR-0024 J-5` + `S9 v1.7 §8-14~19` + `S8 v1.1 §8-11~13`。**四条效力边界随文**（纸面口径不得写性能改善／屏幕层待执行／落码前只拿红基线／SKIP≠测）。基线读数：`verify` PASS 17｜**SKIP 1（`check:size`）**｜FAIL 0；beads 592、framework 330、breakout 239；`harness:smoke` beads OK（**5943** commands/帧，**与 1587 不同夹具**）。**本族零条判绿** | 严守真（主对话代落盘） |
 | **v1.4** | 2026-10-07 | **WXG-T-269-S6（主菜单作品墙）**：① 新增 **SC-MN-01/02**（首屏停主菜单+作品墙点进关 / 未解锁格零响应），两条均 ⛔ 未执行；② 按 **K-053** 订正 **SC-01 / SC-11** 陈旧口径（~~无主菜单直进 L1~~ → 停主菜单；旧文划线留档，红线反转批 = WXG-T-180 + S6 T-2A）；③ 登记 ⚠ `[Harness]` 默认 `initialScreen:'play'` 与现口径不一致（**BD-56**，需主理人核对 shell 分流）；④ §0 表 + v1.0 原表同步订正链路名。硬判据见 `test-cases-m-menu.md §M`（TC-MN-01..40）| 严守真（readonly，主理人代落盘） |
 | **v1.5** | 2026-10-28 | **WXG-T-434（MVP 复验批收尾）**：新增 **SC-SV-01/02**（网页宿主存档落盘与跨刷新读回 / 微信真机侧同一条链）。背景 = 复验批唯一真缺陷 F4：`packages/framework/src/platform/web.ts` 把 `globalThis.localStorage` 当框架 `Storage` 直传，网页端写档静默丢（修复 `fc82b5f0`）；本段同时把「机检腿 + 真宿主腿步骤 + 取证两坑」固化，并登记旧探针用 `MemoryStorage` 注入的盲区（K-197）。SC-SV-01 ✅ 两条腿均实跑；SC-SV-02 ⛔ 未执行（无 AppID/密钥）| 主理人（CodeBuddy） |
+| **v1.6** | 2026-10-28 | **WXG-T-434（复验批续 · 微信产物模拟宿主腿）**：新增 **SC-WX-01**（`build:cocos` release 档 → `run_game` 起 mock 预览 → 启动/渲染/存储三面读数）。本轮成果：① 微信侧 `WeappStorage` 闭环实证（`runs` 3→4 跨刷新保留）；② 修掉一条**只有替身能暴露**的真缺陷（`bindings.ts::_fitToGameCanvas` 的 `doc?.querySelector` 不挡「有 `document` 但不是 DOM」，K-197 反向）；③ 登记三坑（`run_game` 服务拷贝件须 `reload_game`、游戏在 iframe、mock 内无法注入输入）。**SC-SV-02 真机腿仍 ⛔ 未解除**（本条不代替）| 主理人（CodeBuddy） |
