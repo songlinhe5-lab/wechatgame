@@ -204,10 +204,59 @@ if (!built) {
   process.exit(1);
 }
 
+bumpAndStampVersion({ game, gameDir, productDir, platform });
 stageExtraAssets({ gameDir, productDir });
 printSummary({ game, platform, productDir, entry, secs });
 printNextSteps({ cocosDir, gameDir, platform, productDir });
 process.exit(0);
+
+/**
+ * 版本腿（WXG-T-468，USER 2026-10-28 裁定：首发版本 = `1.0.x`，`x` = build 号，
+ * **生成最终产物时递增**）。
+ * - 真源 = `games/<game>/package.json` 的 `version`（第三段 = build 号）；
+ * - 仅 `platform=wechatgame`（族）且 **release 档**（非 `--debug`，K-111：debug 数字不作基线）递增；
+ * - 写回用**单行文本替换**（⛔ 不整文件 JSON.stringify——保原 CRLF/键序，diff 只有版本行）；
+ * - 同批给产物 `assets/main/index.js` 的 `version_label` 打号：源码基线串里的
+ *   `v{旧版}` → `v{新版}`（minify 保留字符串字面量；任一环节对不上 ⇒ warn 不失败，
+ *   产物退回显示源码基线值，不挡构建）；
+ * - web-mobile / debug 构建：不递增不替换（harness 恒显源码基线值）。
+ */
+function bumpAndStampVersion({ game, gameDir, productDir, platform }) {
+  if (game !== 'beads') return; // 版本裁定仅 beads 首发（USER 2026-10-28）；其他游戏领到策略后在此加入
+  if (platform !== 'wechatgame' && platform !== 'wechat-mini-game') return;
+  if (DEBUG) return;
+  const pkgPath = join(gameDir, 'package.json');
+  const pkgText = readFileSync(pkgPath, 'utf8');
+  const m = /"version":\s*"(\d+)\.(\d+)\.(\d+)"/.exec(pkgText);
+  if (!m) {
+    console.log('  ⚠️ 版本腿：package.json 未解析到 version ⇒ 跳过（不递增不打号）');
+    return;
+  }
+  const oldVer = `${m[1]}.${m[2]}.${m[3]}`;
+  const newVer = `${m[1]}.${m[2]}.${Number(m[3]) + 1}`;
+  writeFileSync(pkgPath, pkgText.replace(`"version": "${oldVer}"`, `"version": "${newVer}"`), 'utf8');
+  const tokensPath = join(gameDir, 'src', 'config', 'copy-tokens.ts');
+  const tokensText = readFileSync(tokensPath, 'utf8');
+  const labelM = /version_label:\s*'([^']+)'/m.exec(tokensText);
+  const idxPath = join(productDir, 'assets', 'main', 'index.js');
+  if (!labelM || !existsSync(idxPath)) {
+    console.log('  ⚠️ 版本腿：源 label 未解析或产物 index.js 缺失 ⇒ 产物显示源码基线值');
+    return;
+  }
+  const baseLabel = labelM[1];
+  const stamped = baseLabel.replace(`v${oldVer}`, `v${newVer}`);
+  if (stamped === baseLabel) {
+    console.log(`  ⚠️ 版本腿：源 label「${baseLabel}」不含 v${oldVer} ⇒ 无法打号（源码与 package.json 漂移？）`);
+    return;
+  }
+  const idxText = readFileSync(idxPath, 'utf8');
+  if (!idxText.includes(baseLabel)) {
+    console.log(`  ⚠️ 版本腿：产物内未见基线串「${baseLabel}」（minify 变形？）⇒ 跳过打号`);
+    return;
+  }
+  writeFileSync(idxPath, idxText.replace(baseLabel, stamped), 'utf8');
+  console.log(`  🔖 版本：v${oldVer} → v${newVer}（package.json 递增 + 产物 version_label 打号）`);
+}
 
 /**
  * 构建期资产装配（WXG-T-203）。**为什么必须显式拷**：Cocos 只打包被场景/预制静态引用、

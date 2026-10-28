@@ -500,7 +500,7 @@ describe('EP12-S6 Deliverable 5 · P-7 文案令牌单源（⛔ 屏内字面散�
     it('`COPY_TOKENS` 逐值对齐 `tokens.md §7` / `menu-architecture §6`（消费副本 ≠ 真源即红）', () => {
         expect(COPY_TOKENS.app_name).toBe('拼豆小铺');
         expect(COPY_TOKENS.app_slogan).toBe('一颗一颗，拼出你的小铺');
-        expect(COPY_TOKENS.version_label).toBe('v1.x · 演示版');
+        expect(COPY_TOKENS.version_label, 'WXG-T-468：发布基线 v1.0.0（产物构建时版本腿打实际 build 号）').toBe('v1.0.0 · 演示版');
         expect(COPY_TOKENS.btn_start_label, '§6：取实装值（原「开始拼豆」降为史证）').toBe('开始游戏');
         expect(COPY_TOKENS.btn_signin_label).toBe('签到');
         expect(COPY_TOKENS.btn_settings_label).toBe('设置');

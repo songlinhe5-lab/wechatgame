@@ -6591,3 +6591,22 @@ T-461 收口时的同族发现（K-116 违反实例第二处）：选中珠分�
 **⚠ 并发披露**：`WXG-T-466` 已被并发 CodeBuddy 会话登记为主表占位（Cocos 分层序：选中珠分离影 Graphics 盖珠 blit），本单领 **467** 避让（K-046 四路核：主表 466 已占、详情 466 缺席、git log 466/467 零命中、全仓 grep 467 零命中）。
 
 **门禁读数**（预期）：`check:frozen-values` STATUS OK（SKIP 19+48 不膨胀）；`check:tasks` 配对 **112 行 / 135 节**（比 T-465 时 111/134 各 +1）；`check:links` OK。
+
+## WXG-T-469
+
+**发布版本号机制（首发 1.0.x、x = build 号）+ 真机走查新增美术设计走查节 · 负责：主理人(CodeBuddy) · 状态：🔄 机制已落码、验证进行中（2026-10-28）**
+
+**背景**：MVP（首发提审）未完成清单盘点（用户令「继续找 mvp 未完成任务」+ 三项输入：版本号裁定「首发 1.0.x、x = build 号、生成最终产物时递增」+ 授权「现在可做」+ 指出「还缺一个美术设计走查」）。
+
+**① 版本号机制**（USER 2026-10-28 裁定）：
+- **真源** = `games/beads/package.json` `version`（第三段 = build 号），基线 `0.1.0` → **`1.0.0`**；
+- **版本腿**（`tools/scripts/build-cocos.mjs::bumpAndStampVersion`）：release 档 `wechatgame` 构建成功后 ① 递增 package.json（**单行文本替换**，保 CRLF/键序，diff 只有一行；⛔ 整文件 JSON.stringify 会掀 CRLF）；② 给产物 `assets/main/index.js` 的 `version_label` 打实际 build 号（源码基线串 `v1.0.0` → `v1.0.{N}`；任一环节对不上 ⇒ warn 不失败，不挡构建）；③ **仅 beads**（`game !== 'beads'` return——`pnpm -r` 并行构建下防其他游戏被无裁定递增）；
+- **源码基线对齐**：`copy-tokens.ts::version_label` `v1.x · 演示版` → **`v1.0.0 · 演示版`**（占位 v1.x 退役，注释原标注「归发布单」即本单）+ `meta-menu-wall.test.ts` 断言同步（30/30 绿）；
+- **验证状态**：递增已实证（首建 1.0.0→1.0.1 写回）；产物打号**待复证**（首建被 idle 超时中断于产物阶段 + 并行 WIP 挡 `framework:sync`，重跑前置红「拷贝件与源码不一致」——⛔ 不代并行会话 sync）；
+- **挂账**：「演示版」字样提审前去留 = USER 裁；微信后台版本号 = 首次 `cli upload` 填当次 build 号。
+
+**② 美术设计走查**（用户指出缺口）：`device-walkthrough.md` 新增 **Session 4b**（S4 技术渲染线之外的设计符合度审查）：art-bible v1.5-r27 对照六维度（色彩体系 / 版式与间距 / 字体阶梯 / 风格一致性 / 动效观感 / 文案含 version_label 实显），逐屏 6 屏，USER 逐屏看图拍板；`release-checklist` §1.1 版本号行现状更新 + 阶段三挂「美术设计走查」门。
+
+**⚠ 领号披露**：468 已被并行会话（crash-snapshot）在制品引用（T-246 行「WXG-T-468 验证闭环」，工作树未提交）⇒ 本单避让领 **469**（K-046）。
+
+**待办**：干净构建后复证产物打号（`v1.0.1 · 演示版` 上屏）；「演示版」去留；随真机走查批次推进 MVP 清单（release-checklist NO-GO ①③⑤）。

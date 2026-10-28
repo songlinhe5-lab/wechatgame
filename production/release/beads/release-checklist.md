@@ -29,7 +29,7 @@
 
 | ☐ | 检查项 | 判据 | 负责人 | 现状 / 证据 |
 |---|---|---|---|---|
-| ☐ | 🚦 版本号三处一致 | `games/beads/package.json`、游戏内 `version_label`、微信后台版本号按 `version-strategy.md` 对齐 | OPS | ⚠ 漂移：`package.json` = `0.1.0`，菜单 `copy-tokens.ts::version_label` = `v1.x · 演示版` |
+| ☐ | 🚦 版本号三处一致 | `games/beads/package.json`、游戏内 `version_label`、微信后台版本号按 `version-strategy.md` 对齐 | OPS | **机制已立（WXG-T-468，USER 2026-10-28 裁定：首发 = `1.0.x`、x = build 号、生成最终产物时递增）**：`build-cocos.mjs` 版本腿在 release 构建时递增 `package.json`（真源）并给产物 `version_label` 打实际 build 号（源码恒显基线 `v1.0.0`）；现值 `1.0.1`（首建已递增）。⚠ 待办：①「演示版」字样提审前去留 USER 裁；② 微信后台版本号 = 首次 `cli upload` 时填当次 build 号；③ 产物打号待一次干净构建（并行 WIP `framework:sync` 后）复证 |
 | ☐ | 发布范围冻结 | 关卡池、皮肤池、风格池以 `systems-index §3` 为准；未出池项（EP11 P-1…P-4）不混入 | DES + OPS | |
 | ☐ | 🚦 漂移登记已闭合或豁免 | `systems-index` 漂移登记 + 本节已知漂移逐条有结论 | ENG + DES | |
 | ☐ | 调试入口不进线上 | `studio=` 启动参数（beads-studio 导入，http 局域网）、`debugInfo` 覆层、`qa-probe` 不在提审包里可达 | ENG + QA | `BeadsBootstrap.ts` 只认 launch query `studio=` ⇒ 普通入口不可达；仍需在提审包上实测设置页无「导入」钮 |
@@ -95,6 +95,7 @@
 | ☐ | 🚦 存档 | 杀进程 / onHide-onShow / 设置字段回显（D-59/60/61）`PASS`；伪造高版本存档不崩 | QA |
 | ☐ | 🚦 真机覆盖 | ≥1 台 Android（L-A 畅享 ✅）+ ≥1 台 iOS 跑通 Session 1–3 | QA |
 | ☐ | 🚦 输入 P0 | TC-CAM-DEV-01/02/03 无 FAIL | QA |
+| ☐ | 美术设计走查 | `device-walkthrough.md` **Session 4b** 全过 + USER 逐屏拍板（art-bible 对照：色彩/版式/字体/风格/动效/文案） | ART + USER |
 | ☐ | 性能 | D1 产出（允许 `PASS*（单侧）`，残留写明缺 L-B / iOS 低配）；无 p10 <30fps 触发 | ENG + QA |
 | ☐ | 音频 | 真机确认 `createWebAudioContext` 存在且出声；否则登记 X-01 并由 USER 决定「静音首发」或改选型 | AUD + USER |
 | ☐ | 激励视频 | 有真实广告位 ⇒ 三分支实测；无 ⇒ 复活入口的首发处理由 USER 定（隐藏 / 保留不可用态） | ENG + USER |
