@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3981,
       "lines": 134,
-      "sha256": "0c7e12ff0d060f696180b11100fde1a233e50307f5f5e3a2ada14e509fc03b0d",
+      "sha256": "42df5cca8724e88c71858d5aa2cbf6b748c082f116827542f7d7d1b4d362f459",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 231719 6863 normal",
+          "summary": "1 production/TASKS-DETAIL.md 232349 6891 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "6824ccd0ce148426b10cbff12eaf45ee7279dcd4e9fad1ed6b72dcb65539b9e1",
+      "sha256": "5439b2feee72fc9e3ea90d9c8c92024a5f2153e0ab6b462cfceb821b0e73b6d2",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 175 行 / 76736 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 176 行 / 76969 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+176 · §待排（backlog，无号，立项时领取…=148+29",
+          "summary": "§WXG 任务台账（SSOT）=1+177 · §待排（backlog，无号，立项时领取…=149+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 6863 行 / 231719 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 6891 行 / 232349 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6864 · §WXG-T-467=6576+19 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6892 · §WXG-T-469=6595+20 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -87669,17 +87669,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 231719,
-      "lines": 6863,
-      "sha256": "0d76ef00e7ddd14ce1920279de87247e7c1cbc59522c254bc6061e7d21fc09d1",
+      "tokens": 232349,
+      "lines": 6891,
+      "sha256": "ecacae8f1c6f9c2cf86129b8f3c7788597cad7289239cf22a13f641689677c57",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 6864,
-          "tokens": 231702,
+          "endLine": 6892,
+          "tokens": 232332,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -95944,10 +95944,23 @@
           ]
         },
         {
-          "anchor": "§WXG-T-470",
+          "anchor": "§WXG-T-480",
           "level": 2,
           "startLine": 6797,
-          "endLine": 6819,
+          "endLine": 6824,
+          "tokens": 627,
+          "summary": "美术 review 第 3 步：资产逐件对账 · 负责：主理人(CodeBuddy) · 状态：🟢 已交付（2026-",
+          "keywords": [
+            "WXG",
+            "review",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-470",
+          "level": 2,
+          "startLine": 6825,
+          "endLine": 6847,
           "tokens": 511,
           "summary": "Meta 页族批1①：图鉴（album）· 负责：主理人(Trae) · 状态：🟡 立项（2026-10-28）",
           "keywords": [
@@ -95960,8 +95973,8 @@
         {
           "anchor": "§WXG-T-471",
           "level": 2,
-          "startLine": 6820,
-          "endLine": 6841,
+          "startLine": 6848,
+          "endLine": 6869,
           "tokens": 381,
           "summary": "Meta 页族批1②：本地榜（localRank）· 负责：主理人(Trae) · 状态：🟡 立项（2026-10-2",
           "keywords": [
@@ -95974,8 +95987,8 @@
         {
           "anchor": "§WXG-T-472",
           "level": 2,
-          "startLine": 6842,
-          "endLine": 6864,
+          "startLine": 6870,
+          "endLine": 6892,
           "tokens": 379,
           "summary": "Meta 页族批1③：名片（profile）· 负责：主理人(Trae) · 状态：🟡 立项（2026-10-28）",
           "keywords": [
@@ -95989,17 +96002,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 76736,
-      "lines": 175,
-      "sha256": "32d5042b8b144398392323a61255684d1f55b121e4f7f0693f6962fc6ca90d93",
+      "tokens": 76969,
+      "lines": 176,
+      "sha256": "d4c83a12ae47cb5c72a7c778392ef1d84e2f2913baf52829fe934b5388e0fd24",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 176,
-          "tokens": 76728,
+          "endLine": 177,
+          "tokens": 76960,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -96012,8 +96025,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 148,
-          "endLine": 176,
+          "startLine": 149,
+          "endLine": 177,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -99770,17 +99783,17 @@
     },
     {
       "path": "production/qa/beads/art-restoration-review.md",
-      "tokens": 2688,
-      "lines": 129,
-      "sha256": "ef228926661b1a498c894e3b96283eebf3038dc2b02edc75e0fd60d8493f52dc",
+      "tokens": 3212,
+      "lines": 148,
+      "sha256": "56d926cd8ba0b837d959d36664a0fb938a96df2de5f87bf5e360496bede66e10",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads 美术设计还原 review（定期审计 · 只读）",
           "level": 1,
           "startLine": 1,
-          "endLine": 130,
-          "tokens": 2669,
+          "endLine": 149,
+          "tokens": 3193,
           "summary": "方法正本 = my-skills/wxgame-art-review/SKILL.md（WXG-T-476 新建）。",
           "keywords": [
             "beads",
@@ -99882,8 +99895,8 @@
           "anchor": "§第 2 轮 · 2026-10-28（WXG-T-478 · 出图装置 + 骨架层比对）",
           "level": 2,
           "startLine": 88,
-          "endLine": 130,
-          "tokens": 1047,
+          "endLine": 132,
+          "tokens": 1049,
           "summary": "",
           "keywords": [
             "WXG",
@@ -99943,13 +99956,29 @@
           "anchor": "§本轮判定（更新）",
           "level": 3,
           "startLine": 120,
-          "endLine": 130,
-          "tokens": 280,
+          "endLine": 132,
+          "tokens": 281,
           "summary": "仍为 CONCERNS，且上限没有提高：出图装置只到「骨架层自证」，纹理与顶部区都要真机。",
           "keywords": [
             "CONCERNS",
             "本轮判定",
             "更新"
+          ]
+        },
+        {
+          "anchor": "§第 3 轮 · 2026-10-28（WXG-T-480 · 资产逐件对账）",
+          "level": 2,
+          "startLine": 133,
+          "endLine": 149,
+          "tokens": 505,
+          "summary": "口径：final/README.md「assets/menu 台账」↔ final/assets/menu/（原件）↔ ",
+          "keywords": [
+            "WXG",
+            "final",
+            "README",
+            "assets",
+            "menu",
+            "资产逐件对账"
           ]
         }
       ]

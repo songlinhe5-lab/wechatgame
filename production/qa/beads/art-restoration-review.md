@@ -127,3 +127,22 @@
 207×88、边距 24 / 间隔 24 镜像），名片并入签到弹窗（三钮一行，顺位 名片｜领取｜返回）。九步可达链实证 9/9；
 金样本 `level-select`/`level-select-mid`/`signin` 三态按 K-051 登记重抓，其余八态零漂移。
 ⇒ **`device-walkthrough` D-80 恢复可执行**，但门槛不变：纹理层与顶部区仍须真机，`CONCERNS` 未解除。
+
+---
+
+## 第 3 轮 · 2026-10-28（WXG-T-480 · 资产逐件对账）
+
+**口径**：`final/README.md`「assets/menu 台账」↔ `final/assets/menu/`（原件）↔ `cocos/assets/textures/`（接线件）↔ 产物 `build/wechatgame`。
+⚠ `assets-spec §1` **不是文件清单**（是绘制参数卡）⇒ 文件级对账只能以 `final/README.md` 台账为真源，本条修正首轮把 §1 当清单的误用。
+
+| 方向 | 结果 |
+|---|---|
+| 台账声明的已接线件 → 盘面 | **漏接线 0**：台账 21 件（除 `ui_menu_signboard`）**全部**在 `cocos/assets/textures/` 有同名 `.png + .meta` |
+| 在途件 | **1 件**：`ui_menu_signboard.png`（带绳整块版，与「绳不随切图走」旧裁冲突 ⇒ 双轨待 runtime 选型，台账已标 ⏳，⛔ 不算缺陷） |
+| 盘面有、台账无 | **0 件**（`tint-mask-asset-spec.md` 专项台账） |
+| 台账件数 | **漂移**：README 写「`menu/` 18 件」，盘面实为 **21 件**（含 `ui_menu_cta_label` / `ui_menu_seal_cleared` / `ui_menu_signboard`）⇒ P2 文档漂移，归 art 侧勘误（一字改） |
+| 反误报 | 4 个 `{bead,grid}-hole{,less}-tint-128-mask.png` 看似「未入账」，实为 blit 着色管线件，**已入 `design/art/specs/tint-mask-asset-spec.md` + ADR-0030**，消费方 `host/beads-blit-carrier.ts:85-88` ⇒ ⛔ 不报 |
+
+**命名口径差（非缺陷）**：`MENU_TEXTURES` 的 `bitmap__menu_case_frame` 对应文件 `ui_showcase_frame.png`、`plate` ↔ `ui_showcase_plate.png`、`cta`/`ctaPressed` ↔ `ui_btn_start_9s(_pressed)` ⇒ **token 名 ≠ 文件名**，与 skill §6-2「名映射误判」同族，对账时按 id 表查而非按词面匹配。
+
+**判定影响**：资产层 **无 P0/P1**。整体仍 `CONCERNS`（六屏真机图仍未取，纹理层是美术主体）。

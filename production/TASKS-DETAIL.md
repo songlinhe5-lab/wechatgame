@@ -6794,6 +6794,34 @@ T-461 收口时的同族发现（K-116 违反实例第二处）：选中珠分�
 
 **残留**：`metaLayout('album'|'localRank'|'profile')` 仍复用 `skinsLayout`（纯展示、只有通用返回钮热区，`[WXG-T-470/471/472]` 已注明）——本批不新增页内热区，故不扩张。
 
+## WXG-T-480
+
+**美术 review 第 3 步：资产逐件对账 · 负责：主理人(CodeBuddy) · 状态：🟢 已交付（2026-10-28）**
+
+**口径更正（重要）**：首轮把 `assets-spec §1` 当「资产清单」是**误用**——它是珠子/槽位/道具/HUD 的**绘制参数卡**（程序化），
+不是文件清单。文件级对账的真源是 `final/README.md` 的「assets/menu 台账」⇒ 本节起改用它。
+
+**四处对账**：`final/README.md` 台账 ↔ `final/assets/menu/`（原件）↔ `cocos/assets/textures/`（接线件）↔
+`cocos/build/wechatgame`（产物）。
+
+| 方向 | 结果 |
+|---|---|
+| 已接线件是否真在盘面 | **漏接线 0**：台账 21 件除 `ui_menu_signboard` 外，全部在 `cocos/assets/textures/` 有同名 `.png + .meta` |
+| 在途 | **1**：`ui_menu_signboard.png`（带绳整块版 vs「绳不随切图走」旧裁 ⇒ 双轨待 runtime 选型，台账已标 ⏳） |
+| 盘面有台账无 | **0** |
+| **P2 文档漂移** | README 写「`menu/` 18 件」，盘面实 **21 件**（含 `ui_menu_cta_label` / `ui_menu_seal_cleared` / `ui_menu_signboard`）⇒ 归 art 侧一字勘误，⛔ 本单不代改 art 正本 |
+
+**反误报（同样是「先查语义再报」）**：
+1. 四个 `{bead,grid}-hole{,less}-tint-128-mask.png` 看着像「未入账」，实为 blit 着色管线件，
+   **已在 `design/art/specs/tint-mask-asset-spec.md` + `ADR-0030`** 登记，消费方 `host/beads-blit-carrier.ts:85-88` ⇒ 不报。
+2. **命名口径差非缺陷**：`MENU_TEXTURES.caseFrame` ↔ 文件 `ui_showcase_frame.png`、`plate` ↔ `ui_showcase_plate.png`、
+   `cta`/`ctaPressed` ↔ `ui_btn_start_9s(_pressed)` ⇒ **token 名 ≠ 文件名**，对账必须按 `MENU_TEXTURES` id 表查，
+   ⛔ 按词面匹配会一口气假报 3 条（与 skill §6-2 同族）。
+3. 产物内 28 张图 ≠ 源件数：Cocos 导入改 uuid 命名，无法与源件一一对；字节等值层由 `check:cocos-mask` 与
+   `mask:diff` 机械守，本单不重复造轮子。
+
+**结论**：资产层**无 P0/P1**。整体判定仍 `CONCERNS`（六屏真机图未取，而纹理层正是美术主体）。
+
 ## WXG-T-470
 
 **Meta 页族批1①：图鉴（album）· 负责：主理人(Trae) · 状态：🟡 立项（2026-10-28）**
