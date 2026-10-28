@@ -656,7 +656,7 @@ describe('S6 §8-27(c) 候选集为空 ⇒ 该珠 skipped（现号；本批前�
 });
 
 describe('S6 §8-27(d) 中途终止不回滚（现号；本批前无腿）', () => {
-  it('第 3 颗的写入失败 ⇒ 前 2 颗的写入保留、该颗留槽（无回滚）', () => {
+  it('第 3 颗的写入失败 ⇒ 前 2 颗的写入保留、该颗留槽（无回滚）+ 未生效格可观测（§8-27(d) v2.7 现文）', () => {
     const h = mk('wxgame.beads.test.s6-8-27d');
     // 三色各一颗：目标 = 各色行主序第一个空格 ⇒ (0,0)/(0,1)/(0,2)，全走直填腿（零随机）。
     const slot1 = h.game.giveTrayBead(1);
@@ -665,6 +665,8 @@ describe('S6 §8-27(d) 中途终止不回滚（现号；本批前无腿）', () 
     expect([slot1, slot2, slot3]).toEqual([0, 1, 2]);
 
     // 异常注入 = 第 3 次 `fill`（`_execTrayPlan` 倒序执行 ⇒ 槽 0 那颗）失败，模拟动手帧中途终止。
+    const e0 = h.game.grid.fillableTotal - h.game.grid.filledCount;
+    const hold0 = h.game.tray.holdingCount;
     const grid = h.game.grid as unknown as {
       fill: (row: number, col: number, bead?: number) => boolean;
     };
@@ -687,9 +689,29 @@ describe('S6 §8-27(d) 中途终止不回滚（现号；本批前无腿）', () 
     expect(h.game.tray.slot(slot3)!.state).toBe('free');
     expect(h.game.grid.filledCount).toBe(2);
     expect(h.count('level:cleared')).toBe(0);
-    // ⚠ 判据末句「affectedCells 只含已生效格」**本腿不断言**：现实现的 `affectedCells` 来自动手前的
-    //   plan（§8-32(b) 要求它与 S3 写入格集合恒等 ⇒ 中途终止时二者会分叉）。修它要改
-    //   `src/game/beads-game.ts`，该文件本轮有并发会话在途改动 ⇒ 登记待改，⛔ 不在这里替分叉背书。
+
+    // ── v2.7（WXG-T-434 / R-28）改写后的本条断言：原判据末句「`affectedCells` 只含已生效格」**作废留痕**
+    //   （K-053；emit 早于动手，结构上做不到，与 §8-32(b) 的「逐格相等」互斥）。现文改断
+    //   **「未生效格必须可观测」**⇒ 意图集不收缩 + §8-32(b) 在本态必须红 + 守恒不破。
+    const payload = h.last<UsedPayload>('powerup:used')!;
+    expect(payload.affectedCells).toHaveLength(3);
+    expect(
+      payload.affectedCells,
+      '§8-27(d) 现文：affectedCells = 裁定时刻的**意图集**，不随执行收缩 ⇒ (0,0) 仍在点名里',
+    ).toContainEqual({ row: 0, col: 0 });
+    // §8-32(b) 的「正常路径下 S3 写入格集合 ≡ affectedCells」在本异常态**必须红**：点名 3 格、
+    // 实写 2 格 ⇒ 差集恰是那颗留槽珠的目标格 (0,0)。本腿把红签名钉住，⛔ 不得静默成「看起来全生效」。
+    const written = new Set(h.all<{ row: number; col: number }>('bead:placed').map((p) => p.row * 1024 + p.col));
+    expect(written.size, '§8-32(b) 红签名的右端：实际生效格集合 = 2 个').toBe(2);
+    expect(written.has(0), '§8-32(b) 红签名：(0,0) 在点名里但从未被写入 ⇒ 逐格比对在此态为红').toBe(false);
+    // 守恒（§8-26(d)）的**增量形式**：本夹具走 `giveTrayBead`（凭空造珠 ⇒ ⛔ 拿它断绝对守恒就是误用），
+    // 可断的是「空格减少数 ≡ 离槽颗数」：那颗失败的珠既没被吞掉，也没被硬塞进别的格。
+    expect(
+      e0 - (h.game.grid.fillableTotal - h.game.grid.filledCount),
+      '§8-26(d) 增量守恒：空格只少了「真写入的那 2 格」',
+    ).toBe(hold0 - h.game.tray.holdingCount);
+    // §8-33(a)「使用后托盘占用恒为 0」在本异常态就是**红**的（上面已断 `holdingCount = 1`）
+    // ⇒ 缺陷可观测，这正是 v2.7 把末句从「收缩」改成「可观测」的全部目的。
   });
 });
 

@@ -32,6 +32,14 @@ const CAPS = [12, 24, 48] as const;
 const TRIALS = 2000;
 const LEVEL_COUNT = 10;
 
+interface Dist {
+  n: number;
+  min: number;
+  p5: number;
+  p50: number;
+  p95: number;
+  max: number;
+}
 interface Row {
   level: number;
   cap: number;
@@ -40,20 +48,46 @@ interface Row {
   dwMean: number;
   dmMean: number;
   tMean: number;
+  tSum: number;
   violations: Record<string, number>;
+  /** R-25 扩口径（v2.7）：分布类读数 + 分支计数 + 落对率（表 2 / 表 3 / 表 4 / 表 5）。 */
+  dwDist: Dist | null;
+  dmDist: Dist | null;
+  dmLe0Pct: number | null;
+  dmLt0Pct: number | null;
+  branch: { swaps: number; directFills: number; skipped: number; rngCalls: number; moves: number };
+  evictHomePct: number | null;
+  rngEqSwapsUses: number;
+}
+interface Chi2Row {
+  level: number;
+  cap: number;
+  occupancyTarget: number;
+  occupancyActual: number | null;
+  poolSize: number | null;
+  bins: number;
+  df: number;
+  draws: number;
+  expectPerBin: number;
+  chi2: number;
+  crit: number;
+  pass: boolean;
+  poolDrift: number;
+  drawPointA: { exists: boolean; usesWithExtraDraw: number };
 }
 interface Account {
   used: number;
   rows: Row[];
   totals: Record<string, number>;
   dwMeanByCap: Record<string, number>;
+  chi2: Chi2Row[] | null;
 }
 
-function runAccount(): Account {
+function runAccount(extraArgs: string[] = []): Account {
   const proc = spawnSync(
     'node',
     ['--experimental-transform-types', '--import', `./${LOADER}`, SCRIPT,
-      `--levels=${LEVEL_COUNT}`, `--caps=${CAPS.join(',')}`, `--trials=${TRIALS}`],
+      `--levels=${LEVEL_COUNT}`, `--caps=${CAPS.join(',')}`, `--trials=${TRIALS}`, ...extraArgs],
     { cwd: REPO, encoding: 'utf8', timeout: 300_000 },
   );
   const out = `${proc.stdout ?? ''}`;
@@ -110,7 +144,8 @@ describe('S6 §8-33/34/35 全量核算（60000 次，⛔ 不得抽查）', () =>
     expect(t.dMneg, '§8-26(a) ΔM ≥ 0 恒成立（旧 P1 实测 −6.91）').toBe(0);
     expect(t.dMgtT, '§8-26(b) ΔM ≤ t（v2.5 勘误：上界是 t，不是 2t）').toBe(0);
     // ⚠ 口径诚实（powerups-v2 v2.7「复验范围声明」）：这里的「新增就位格数」是 `t + ΔM` **算**出来的
-    // 而非独立**数**出来的 ⇒ 表 7 I-3 不构成本批独立复验（脚本不输出盘面就位数直方图，同 R-25）。
+    // 而非独立**数**出来的 ⇒ 表 7 I-3 不构成本批独立复验（R-25 本批补的是**分布读数**，不含 I-3
+    // 要的「盘面就位数直方图」⇒ 那一句仍是未闭的独立复验缺口，⛔ 不得拿本条冒充）。
     expect(t.newSeatedGt2t, '§8-26(b) 新增就位格数 = t + ΔM ≤ 2t').toBe(0);
     expect(t.colorBeadDiff, '§8-26(c) 每色珠数前后完全相等（不造珠不灭珠）').toBe(0);
     expect(t.conservBefore, '§8-26(d) 裁定前 #empty ≡ 托盘占用').toBe(0);
@@ -144,6 +179,73 @@ describe('S6 §8-33/34/35 全量核算（60000 次，⛔ 不得抽查）', () =>
         `§8-35(c) ${cap} 槽档 ΔW 均值实测 ${mean} 偏离夹具 ${DW_CAP[i]} 超 5%`,
       ).toBe(true);
     });
+  });
+
+  it('R-25 分布腿自洽：分位数单调 + 与不变式同向 + 分支恒等式（表 2 / 3 / 5）', () => {
+    // 本腿不拿分布**定新阈值**（那是 §2.2.6 的回填活，归文策渊），只闸「分布口径与已有的
+    // 逐次计数器**不得互相矛盾**」——两条路径共用同一批样本，但各自独立累计 ⇒
+    // `dist()` / 分箱 / 分支计数写错时这里转红，而上面的计数器腿仍绿（= 真实的漏检面）。
+    for (const r of account.rows) {
+      const tag = `L${String(r.level).padStart(5, '0')} cap${r.cap}`;
+      expect(r.dwDist, `${tag} ΔW 分布不得为空（used > 0）`).not.toBeNull();
+      expect(r.dmDist, `${tag} ΔM 分布不得为空`).not.toBeNull();
+      for (const d of [r.dwDist!, r.dmDist!]) {
+        expect(d.n, `${tag} 样本数 ≡ used`).toBe(r.used);
+        expect(d.min <= d.p5 && d.p5 <= d.p50 && d.p50 <= d.p95 && d.p95 <= d.max, `${tag} 最近秩单调`).toBe(true);
+      }
+      // §8-35(a) 的分布形式：ΔW ≥ t ≥ 1（采样态保证托盘非空）⇒ 下分位不可能跌破 1。
+      expect(r.dwDist!.min, `${tag} §8-35(a) ΔW ≥ 1 逐次成立` ).toBeGreaterThanOrEqual(1);
+      // §8-26(a) 的分布形式：与计数器腿 `dMneg = 0` 同一事实、不同路径。
+      expect(r.dmDist!.min, `${tag} §8-26(a) ΔM ≥ 0`).toBeGreaterThanOrEqual(0);
+      expect(r.dmLt0Pct, `${tag} ΔM < 0 占比必与 dMneg 同步`).toBe(0);
+      expect(r.dmLt0Pct! <= r.dmLe0Pct!, `${tag} 占比单调（<0 ⊆ ≤0）`).toBe(true);
+      expect(r.dmLe0Pct! >= 0 && r.dmLe0Pct! <= 100, `${tag} ΔM ≤ 0 占比在 [0,100]`).toBe(true);
+      // 分支计数与采样总口径的**精确**恒等式：每颗输入珠要么交换、要么直放，无归宿的那颗计入 skipped。
+      expect(
+        r.branch.swaps + r.branch.directFills + r.branch.skipped,
+        `${tag} 交换 + 直放 + skipped ≡ Σt`,
+      ).toBe(r.tSum);
+      // 表 5 落对率口径：`ΔM ≡ 换出珠落对次数 ≤ 交换次数`（表 7 I-1）⇒ 百分比不得超 100。
+      if (r.evictHomePct !== null) {
+        expect(r.branch.swaps, `${tag} 落对率非 null ⇒ 分母（交换次数）> 0`).toBeGreaterThan(0);
+        expect(r.evictHomePct >= 0 && r.evictHomePct <= 100, `${tag} 落对率在 [0,100]`).toBe(true);
+      }
+      // ⚠ 有争议的 `rngCalls` 口径（§8-28(b)）——本腿**不选边**：
+      //   实测 60000 次全部 `rngCalls ≡ 交换次数`（`rngEqSwapsUses = used`、额外抽取次 = 0），
+      //   而 §8-28(b) 现文写的是 `1 + 交换次数` ⇒ 「目标格抽取」那一点在现行实现上结构不存在
+      //   （目标格 = 按色消费式行主序分配，无随机）⇒ 已登记待文策渊裁定（§8-28(d)「两处抽取点」同一事）。
+      //   这里只断两种读法**共同**下界（每次换出至少消耗一次随机），⛔ 不把「+1」写成恒常断言。
+      expect(r.branch.rngCalls, `${tag} 随机消费不得少于换出次数`).toBeGreaterThanOrEqual(r.branch.swaps);
+    }
+  });
+});
+
+// ───────────────── §8-28(d) 卡方均匀性臂（R-25 工具缺口的第二条腿）
+
+describe('S6 §8-28(d) 卡方均匀性（固定盘面、6000 次、α = 0.01）', () => {
+  /** 固定态重复抽样才使「每箱期望相等」成立 ⇒ 不能拿全量臂的轮转态直接跑 χ²（总体口径不同）。 */
+  const chi2Account = runAccount(['--chi2']);
+
+  it('两处抽取点中可测的那一处（换出珠落点）均匀⇒ χ² ≤ Wilson–Hilferty 临界值', () => {
+    expect(chi2Account.chi2, '--chi2 臂必须输出 chi2 行').not.toBeNull();
+    const rows = chi2Account.chi2!;
+    expect(rows.map((r) => r.level).sort((a, b) => a - b), '表 4 口径的两个盘面（L00007 / L00010）').toEqual([7, 10]);
+    for (const c of rows) {
+      const tag = `L${String(c.level).padStart(5, '0')}`;
+      // 退化守卫：找不到「占用 = 12」的采样态时脚本会取占用最大的真实态并如实报出——那是**另一个总体**。
+      expect(c.occupancyActual, `${tag} 固定态占用必须真的等于目标占用（否则口径已退化）`).toBe(c.occupancyTarget);
+      expect(c.poolSize, `${tag} 候选池非空`).not.toBeNull();
+      expect(c.poolDrift, `${tag} 候选池逐次恒定（χ² 的前提：固定盘面）`).toBe(0);
+      expect(c.bins, `${tag} 箱数 = min(20, 候选池)`).toBe(Math.min(20, c.poolSize!));
+      expect(c.draws, `${tag} 每次重复都抽到换出腿 ⇒ 样本量足额`).toBe(6000);
+      expect(c.pass, `${tag} χ² = ${c.chi2} ≤ 临界 ${c.crit}（df=${c.df}）`).toBe(true);
+    }
+    // ⚠ 两行读数相同（χ² = 9.96）系同 seed 序列 + 同抽取元数 `int(0, 11)` 的必然结果
+    // ⇒ **第二行不构成独立复验**（旧表两行同为 7.55 同源）。已在提交信息与 QA 登记面写明，
+    // ⛔ 不得拿本腿的「两条 PASS」当成两个独立样本。抽取点 A（第一颗目标格）在现行实现上
+    //   不存在（脚本如实输出 `drawPointA.exists = false`、本批实测 6000/6000 次无额外抽取）
+    //   ⇒ §8-28(d)「两处各测一次」现在只剩一处，与 §8-28(b) 的「+1」同一待裁定事，
+    //   本腿⛔ 不把「存在 / 不存在」任一方向写成断言（那要么恒红、要么反向迁就实现）。
   });
 });
 
