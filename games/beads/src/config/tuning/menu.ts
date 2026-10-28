@@ -312,7 +312,11 @@ export const MENU_LOCK_D = 220;
  * （源图重心偏左，按外接框中心摆会偏约 20px）。换图后重测这两个数。
  */
 export const MENU_PROGRESS = { h: 210, w: 171, mx: 0.381, my: 0.486 } as const;
-/** CTA 文案纹理：高 56，重心落在钮面自顶 42%（原型）。aspect = 源图 964/253。 */
+/**
+ * CTA 文案纹理：高 56，**框中心**落在钮面自顶 42%（原型口径，WXG-T-485 订正措辞）。
+ * aspect = 源图 964/253。实测源图 alpha bbox 全幅、**零透明边**、重心 49.76% ≈ 正中
+ * ⇒ 「中心」与「重心」等价，但落地单 v3.8 曾写「顶距钮顶 2」（与钮面 42% 互斥，已订正为 10.64）。
+ */
 export const MENU_CTA_LABEL = { h: 56, fromTop: 0.42, aspect: 964 / 253 } as const;
 /**
  * 走马灯手感。`flickPxPerMs` / `endFollow` / `snapMs` 是临时值，真机验收后回填落地单 §8。

@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3951,
       "lines": 133,
-      "sha256": "d9e83633715d3785e8529d3adbbd09f67aa9739c7ba177b58573a3efba48d4ba",
+      "sha256": "e4108e5ba35d8ae0555d4e3d1b50eff70d602b6863af8efed0c3f6a8805d7596",
       "tier": "normal",
       "sections": [
         {
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "cdc586416abde2dc019ba0d9c1de71d892cbe9af77f58e2c22556a030a0dff6f",
+      "sha256": "6db21b80240fc2eeb234282c5a95dd9cb8a11bcd455acaa695888b1c0e332338",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 92 行 / 17583 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 93 行 / 17848 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+93 · §待排（backlog，无号，立项时领取…=65+29",
+          "summary": "§WXG 任务台账（SSOT）=1+94 · §待排（backlog，无号，立项时领取…=66+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 3696 行 / 123991 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 3756 行 / 125025 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+3697 · §WXG-T-484=3115+43 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+3757 · §WXG-T-484=3115+43 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -28030,17 +28030,17 @@
     },
     {
       "path": "games/beads/design/art/specs/menu-layout-implementation-spec.md",
-      "tokens": 8924,
-      "lines": 183,
-      "sha256": "42d5cece5fc5c91284909c5bbdd6c723ce0158f26e8506ff8ebc2e27189abeaf",
+      "tokens": 9432,
+      "lines": 184,
+      "sha256": "ba9257620a653034466232ae577f11865366da76d63506d029bb11725d5347b1",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§主界面布局落地单 · 「拼豆小铺」菜单屏（规范 v3.8 定稿）",
           "level": 1,
           "startLine": 1,
-          "endLine": 184,
-          "tokens": 8898,
+          "endLine": 185,
+          "tokens": 9406,
           "summary": "用途：UI 布局落码的唯一施工依据。规则正本 = 本件；取证图 = ../coordinates/menu-master",
           "keywords": [
             "coordinates",
@@ -28054,8 +28054,8 @@
         {
           "anchor": "§1 坐标系与锚（全部设计 px = 750 宽基准，与 `DESIGN_W` 同域）",
           "level": 2,
-          "startLine": 7,
-          "endLine": 21,
+          "startLine": 8,
+          "endLine": 22,
           "tokens": 350,
           "summary": "k = 750 / windowWidth(dp)（getWindowInfo().windowWidth）。微信 rp",
           "keywords": [
@@ -28070,8 +28070,8 @@
         {
           "anchor": "§2 纵向链（自顶，全常量恒定，逐机只随锚平移）",
           "level": 2,
-          "startLine": 22,
-          "endLine": 45,
+          "startLine": 23,
+          "endLine": 46,
           "tokens": 694,
           "summary": "",
           "keywords": [
@@ -28084,9 +28084,9 @@
         {
           "anchor": "§3 元素清单（尺寸 / 横坐标逐机恒定 · 层序沿用 §5.2）",
           "level": 2,
-          "startLine": 46,
-          "endLine": 63,
-          "tokens": 1651,
+          "startLine": 47,
+          "endLine": 64,
+          "tokens": 1924,
           "summary": "招牌（结+板+绳一体） 图框 370×298 @x190，等比（960×772 × 370/960）；结顶 bow0 =",
           "keywords": [
             "§5.2",
@@ -28100,8 +28100,8 @@
         {
           "anchor": "§4 五档验收账（gap_top / gap_bot，**组隙**（条窗一体组上:下）必须落此表，v3.7 重出）",
           "level": 2,
-          "startLine": 64,
-          "endLine": 77,
+          "startLine": 65,
+          "endLine": 78,
           "tokens": 323,
           "summary": "SE 375×667@2x 40 112 0 1334 38 / 75",
           "keywords": [
@@ -28116,8 +28116,8 @@
         {
           "anchor": "§5 资源文件需求（对齐 `final/README.md` assets/menu 台账）",
           "level": 2,
-          "startLine": 78,
-          "endLine": 104,
+          "startLine": 79,
+          "endLine": 105,
           "tokens": 1965,
           "summary": "已入库可直接用（games/beads/cocos/assets/menu/，台账状态为准）：",
           "keywords": [
@@ -28132,8 +28132,8 @@
         {
           "anchor": "§6 落码改动面（开工清单）",
           "level": 2,
-          "startLine": 105,
-          "endLine": 117,
+          "startLine": 106,
+          "endLine": 118,
           "tokens": 503,
           "summary": "1. tuning.ts：新增链常量组（16/32/12/180/46/871/0.42）+ 四锚纯函数（裸换算版，与 ",
           "keywords": [
@@ -28145,8 +28145,8 @@
         {
           "anchor": "§7 施工状态（WXG-T-280 · 2026-10-15）",
           "level": 2,
-          "startLine": 118,
-          "endLine": 121,
+          "startLine": 119,
+          "endLine": 122,
           "tokens": 50,
           "summary": "本节全文已逐字节外移 → menu-layout-spec-s7-history.md（WXG-T-282 · B 预算",
           "keywords": [
@@ -28161,8 +28161,8 @@
         {
           "anchor": "§8 走马灯（v3.8 补 · 用户 2026-10-16 裁）",
           "level": 2,
-          "startLine": 122,
-          "endLine": 152,
+          "startLine": 123,
+          "endLine": 153,
           "tokens": 796,
           "summary": "结论：橱窗是店里的家具，不动；关卡是展品，只在玻璃里换。整窗滑动不采用：资源条嵌在橱窗顶（bar0 == case0）会",
           "keywords": [
@@ -28175,8 +28175,8 @@
         {
           "anchor": "§9 施工状态（v3.8 走马灯 · 2026-10-16）",
           "level": 2,
-          "startLine": 153,
-          "endLine": 165,
+          "startLine": 154,
+          "endLine": 166,
           "tokens": 428,
           "summary": "1. 素材：三件 WebP q90 在 final/assets/menu/，harness MENU_FILE 与 C",
           "keywords": [
@@ -28191,8 +28191,8 @@
         {
           "anchor": "§10 累计星进度件（v3.10 · 2026-10-22 · WXG-T-346 art 批；闭 `ux/arc-level-select-spec.md §8.2 TODO-8`）",
           "level": 2,
-          "startLine": 166,
-          "endLine": 184,
+          "startLine": 167,
+          "endLine": 185,
           "tokens": 1107,
           "summary": "射程：只钉「字号 / 色 / 位置 / 符号 / 装饰 / 令牌」六项。⛔ 不改判据与呈现位（告知规格正本 = ux/a",
           "keywords": [
@@ -87669,17 +87669,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 123991,
-      "lines": 3696,
-      "sha256": "463e9088a275c0c3b0be75c05ec77c4e5ea8d0115c31303e6e2f83d2a08ad2c7",
+      "tokens": 125025,
+      "lines": 3756,
+      "sha256": "c625d26f160122a3fd6be81c1f9490280cf6d446a6652259c40e56f0e57a3322",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 3697,
-          "tokens": 123974,
+          "endLine": 3757,
+          "tokens": 125009,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -90871,8 +90871,8 @@
           "anchor": "§WXG-T-483",
           "level": 2,
           "startLine": 3642,
-          "endLine": 3697,
-          "tokens": 1348,
+          "endLine": 3699,
+          "tokens": 1349,
           "summary": "台账三件收口：T-414 撞号裁定 + 行数观察哨量纲钉死 + check:tasks L 项新门（✅ 完成 · 202",
           "keywords": [
             "WXG",
@@ -90958,10 +90958,92 @@
           "anchor": "§6 遗留 (2)",
           "level": 3,
           "startLine": 3693,
-          "endLine": 3697,
-          "tokens": 152,
+          "endLine": 3699,
+          "tokens": 153,
           "summary": "1. 行数观察哨 20 是否重裁（属设计侧门限裁定，本批未擅改）三选项：甲 保持 20 + 纯披露（= 本批现状）／乙 ",
           "keywords": [
+            "遗留"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-485",
+          "level": 2,
+          "startLine": 3700,
+          "endLine": 3757,
+          "tokens": 1030,
+          "summary": "art-review P1-1 / P1-2 收口：落地单两处自相矛盾数值订正（✅ 完成 · 2026-10-28 · ",
+          "keywords": [
+            "WXG",
+            "art",
+            "review"
+          ]
+        },
+        {
+          "anchor": "§1 触发 (4)",
+          "level": 3,
+          "startLine": 3704,
+          "endLine": 3707,
+          "tokens": 78,
+          "summary": "用户点选 art-review 偏差表里的两条 P1。两条共同特征：代码没错，落地单数值与本件自身几何 / 纹理事实互斥",
+          "keywords": [
+            "art",
+            "review",
+            "触发"
+          ]
+        },
+        {
+          "anchor": "§2 P1-1 通关飘带",
+          "level": 3,
+          "startLine": 3708,
+          "endLine": 3720,
+          "tokens": 208,
+          "summary": "落地单 §3 元素表原写「在裁切区右上角内缩 12（x477, case0+142）」，三处互斥：",
+          "keywords": [
+            "§3",
+            "x477",
+            "case0",
+            "通关飘带"
+          ]
+        },
+        {
+          "anchor": "§3 P1-2 CTA 文案",
+          "level": 3,
+          "startLine": 3721,
+          "endLine": 3744,
+          "tokens": 420,
+          "summary": "落地单原写「高 56、水平居中、顶距钮顶 2」；代码 MENU_CTA_LABEL = {h:56, fromTop:0",
+          "keywords": [
+            "CTA",
+            "MENU_CTA_LABEL",
+            "fromTop",
+            "文案"
+          ]
+        },
+        {
+          "anchor": "§4 改动面（**零代码逻辑改动**）",
+          "level": 3,
+          "startLine": 3745,
+          "endLine": 3751,
+          "tokens": 113,
+          "summary": "design/art/specs/menu-layout-implementation-spec.md §3 飘带行（3",
+          "keywords": [
+            "§3",
+            "design",
+            "art",
+            "specs",
+            "menu",
+            "layout"
+          ]
+        },
+        {
+          "anchor": "§5 遗留 (2)",
+          "level": 3,
+          "startLine": 3752,
+          "endLine": 3757,
+          "tokens": 134,
+          "summary": "1. P1-3（招牌右界 560 与顶栏中档图标左界 560 净空 0）仍待设计裁定 —— 属 §3 链常量冲突，非实现",
+          "keywords": [
+            "§3",
             "遗留"
           ]
         }
@@ -90969,17 +91051,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 17583,
-      "lines": 92,
-      "sha256": "310dcbf42682313f6773ad29718b361ce7f34a887de6315f83eb34f3a64951f3",
+      "tokens": 17848,
+      "lines": 93,
+      "sha256": "9b7292c7465e1ad646e27d796d2c4b63e5e49fad414d925d1b0393afa4e616fc",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 93,
-          "tokens": 17574,
+          "endLine": 94,
+          "tokens": 17840,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -90992,8 +91074,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 65,
-          "endLine": 93,
+          "startLine": 66,
+          "endLine": 94,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
