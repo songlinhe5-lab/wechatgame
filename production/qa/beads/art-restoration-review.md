@@ -66,6 +66,7 @@
 | 同类既有做法 | `signin` / `skins` 走**单源常量**（`SIGNIN_TITLE` / `SKINS_TITLE`，`meta-view.ts:43,45` 导入） |
 | 差别 | 既有两页 = 「无令牌键但收在单源常量」（判例）；新增三页 = **既无键、也未收常量** |
 | 归属 | `wxgame-art-spec-programmatic` 定键（或按 signin 判例补 `*_TITLE` 常量），工程另开单落码 |
+| **处置** | ✅ **已修（WXG-T-477，2026-10-28）**：`tokens.md §7` 补 `panel_album_title` / `panel_local_rank_title` / `panel_profile_title` 三键；`meta-pages-content.ts` 导出 `ALBUM_TITLE` / `LOCAL_RANK_TITLE` / `PROFILE_TITLE` 单源常量；`meta-view.ts` 改 import 消费。守卫 `meta-menu-wall.test.ts` 正负两腿成对（常量在册 + 视图 import 消费 / 裸字面退场），**已做变异测试证明能红**（改回内联 ⇒ 1 failed，复原 ⇒ 31 passed）。金样本 sha 未变（值不变，只换来源） |
 
 **⑤ 在途件（不判缺陷）**：`ui_menu_signboard` 未转正双轨（落地单 §5-C4 待拍板）·
 选关弹框原型 `levelselect-v1-popup` 仍为草稿（未进运行时）。

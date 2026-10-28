@@ -6694,6 +6694,31 @@ T-461 收口时的同族发现（K-116 违反实例第二处）：选中珠分�
 
 **未覆盖（坦白）**：六屏出图比对（待真机走查同场取）· 观感层（`§5`/`§7` 无线，需 art-director 或用户拍板）· `assets-spec §1` 逐件清单对账（字节层已由 `check:cocos-mask` 覆盖）。
 
+## WXG-T-477
+
+**修 F1：Meta 批 1 三页标题补单源常量 + `tokens.md §7` 补三键 · 负责：主理人(CodeBuddy) · 状态：🟢 已交付（2026-10-28）**
+
+**动因**：WXG-T-476 首轮美术还原 review 的唯一实质偏差 F1（P2）——`meta-view.ts:166-168` 三页标题 `'图鉴'/'本地榜'/'名片'` 是**视图内联字面**，而 `signin`/`skins` 早已走 `SIGNIN_TITLE`/`SKINS_TITLE` 单源常量。用户选下一步选项 1 修它。
+
+**落码**：
+1. `tokens.md §7` 新增三键：`panel_album_title` = `图鉴` · `panel_local_rank_title` = `本地榜` · `panel_profile_title` = `名片`（状态「新·已落码」，用途列标注消费副本位置）。
+2. `view/meta-pages-content.ts` 导出 `ALBUM_TITLE` / `LOCAL_RANK_TITLE` / `PROFILE_TITLE`（真源 = §7，本处 = 消费副本，注释写明判例同 `SIGNIN_TITLE`）。
+3. `view/meta-view.ts` 改 `import` 三常量，`META_PAGES` 三行由字面量改写常量；注释记明「原为内联字面 = T-476 F1」。
+
+**守卫（K-144 正负配对 + K-089 先证能红）**：`meta-menu-wall.test.ts` 新增静态门
+「Meta 批 1 三页标题走单源常量」——
+- 正向：三常量在册且值 = §7；视图侧 `import` 在场且 `panelPage(ALBUM_TITLE` 等三处消费。
+  （⛔ 只做负向时「常量被删也绿」）
+- 负向：视图内不得再有 `panelPage('图鉴'` / `'本地榜'` / `'名片'` 裸字面。
+  （⛔ 只做正向时「又内联一遍也绿」）
+- **变异测试实证**：把 `ALBUM_TITLE` 改回 `'图鉴'` ⇒ `1 failed | 30 passed`；复原 ⇒ `31 passed`。
+
+**验证**：`meta-menu-wall` 31/31；全量 `verify` 的 `test` 步 **PASS**，**金样本十界面整帧 sha 未变**
+（本轮只换字符串来源、不改值 ⇒ 符合预期，不需重抓）。
+⚠ **全量 verify 仍有 3 红**（`typecheck` / `cocos:check` / `harness:build`），根因**全部**是
+`games/beads/src/game/beads-game.ts:1532` 的 `CellState` vs `"void"` 类型不匹配 —— 那是**并行会话的在制品**
+（该文件 src 与 mirror 均未纳入本单提交），⛔ 不是本单引入、也不代修。
+
 ## WXG-T-470
 
 **Meta 页族批1①：图鉴（album）· 负责：主理人(Trae) · 状态：🟡 立项（2026-10-28）**

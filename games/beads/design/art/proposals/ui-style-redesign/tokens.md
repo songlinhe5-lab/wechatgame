@@ -115,6 +115,9 @@
 | ~~`app_subtitle`~~ | ~~`—— 拼豆填色 ——`~~ | **退役**（✅ **已裁** 2026-10-07 · WXG-T-269-S6 子单 T-4；结束原 `承（未裁 [待确认]）` 的提案态） | ⛔ **不再上屏**：副行位由 `app_slogan`「一颗一颗，拼出你的小铺」**独占**（二者不得并存 ⇒ 本行从「二选一待选」升为「已择一」）。<br>**划档留话、不静默删（K-053）**；史证用途 = 旧名时代的品类副标题，与工程工作名《拼豆填色消除》撞语义（裁定理由正本 = `menu-architecture.md §6`）。<br>残留字面待 art 轨回写：`screens.md:22`、`ui-redesign.md:31` |
 | `btn_start_label` | **`开始游戏`** | **换**（✅ **已裁** 2026-10-07 · WXG-T-269-S6 子单 T-4；改值不改名） | 主菜单 / boot 屏唯一木主钮（T3 320×88）标签。**取代码实装值**（实测工作树 = `meta-view.ts:140-142` 主钮布局与注释、`:283` `label('start')` 返回字面 ⇒ 上游 `menu-architecture.md §6` 所记 `:274` 属**行号漂移**，本表以工作树为准）<br>史证：~~`开始拼豆`~~（初稿文案，降为史证留档不删；art 侧残留字面 = `screens.md:31`/`:39`、`../../archive/art-bible-proposal-v1-archive.md §2「治愈」行`、`ui-redesign.md:31` ⇒ 归林绘澄回写） |
 | `version_label` | `v1.x · 演示版` | 承 | boot 页底部 label 28 |
+| `panel_album_title` | **`图鉴`** | **新·已落码**（2026-10-28 · WXG-T-477 补键；补前为视图内联字面 = WXG-T-476 首轮 review 的 F1） | Meta 批 1「图鉴」弹窗标题；消费副本 = `view/meta-pages-content.ts::ALBUM_TITLE` |
+| `panel_local_rank_title` | **`本地榜`** | 同上 | 「本地榜」弹窗标题；消费副本 = `LOCAL_RANK_TITLE` |
+| `panel_profile_title` | **`名片`** | 同上 | 「名片」弹窗标题；消费副本 = `PROFILE_TITLE` |
 | `powerup_buy_confirm_title` | **`用 {n} 豆子再用一次？`** | **新·[待 art 确认]**（2026-10-22 · WXG-T-351 落码批草案：豆子出口（`systems-index §3.6` v1.80）需要一句确认语，设计表原无此键，故由工程侧提草案，**art 未签前按本值执行**） | 道具购买确认弹窗**标题**。`{n}` = 单价格（`POWERUP_BUY_PRICE_SOLVER/RANDOM/PLUS` = 20/30/45），**渲染期替换**，⛔ 余字不得改。<br>措辞依据：货币对外名 = 「豆子」（用户 2026-10-22 拍板），故不写「金币/币」 |
 | `btn_confirm_label` | **`确定`** | **新·[待 art 确认]**（同上） | 确认类弹窗**主钮**（当前唯一消费方 = 道具购买确认弹窗，accent 档 240×88） |
 | `btn_cancel_label` | **`取消`** | **新·[待 art 确认]**（同上） | 确认类弹窗**次钮**（ghost 档 240×88）；点板外与点此**同义**（均为零副作用关窗） |

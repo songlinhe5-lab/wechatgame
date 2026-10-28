@@ -16,6 +16,17 @@ import type { MetaLayout, MetaViewData } from './meta-types';
 import { overlayPlate } from './meta-layout';
 import { UI_FONT } from './ui-theme';
 
+/**
+ * 三页标题单源（`[WXG-T-477]` 补，WXG-T-476 首轮 review 的 F1）。
+ *
+ * 真源 = `tokens.md §7`（本批新补三键）；本处 = 运行时可 import 的**消费副本**。
+ * 判例同 `SIGNIN_TITLE` / `SKINS_TITLE` ⇒ `meta-view.ts` 只读常量，⛔ **不再内联字面**
+ * （守卫：`meta-menu-wall.test.ts` 断言视图侧无 `panelPage('<标题>'` 裸字面）。
+ */
+export const ALBUM_TITLE = '图鉴';
+export const LOCAL_RANK_TITLE = '本地榜';
+export const PROFILE_TITLE = '名片';
+
 /** 面板标题下沿：panelPage 标题画在 plate.y + plate.h - 50，这里从标题下 30 起。 */
 const TITLE_BOTTOM_OFFSET = 80;
 

@@ -43,7 +43,14 @@ import { drawSettingsContent, isSettingsAction } from './settings-content';
 import { SIGNIN_TITLE, drawSigninContent } from './signin-content';
 // WXG-T-363：装扮馆卡面画法单源 `skins-content`（卡热区仍进 `meta-layout` 的 `skinsLayout` ⇒ 画与撞同源）。
 import { SKINS_TITLE, drawSkinCard } from './skins-content';
-import { drawAlbumContent, drawLocalRankContent, drawProfileContent } from './meta-pages-content';
+import {
+    ALBUM_TITLE,
+    LOCAL_RANK_TITLE,
+    PROFILE_TITLE,
+    drawAlbumContent,
+    drawLocalRankContent,
+    drawProfileContent,
+} from './meta-pages-content';
 import {
     anchoredGeo,
     DEFAULT_MENU_ANCHORS,
@@ -162,10 +169,12 @@ const META_PAGES: Record<MetaOverlay, PageDraw> = {
         (builder, data, palette, layout) => drawSettingsContent(builder, data, palette, layout.buttons),
         isSettingsAction),
     skins: panelPage(SKINS_TITLE, UI_SCRIM.alpha),
-    // `[WXG-T-470/471/472]` 批 1 弹窗三页：图鉴 / 本地榜 / 名片（零新令牌，字面量同 signin 判例）。
-    album: panelPage('图鉴', UI_SCRIM.alpha, drawAlbumContent),
-    localRank: panelPage('本地榜', UI_SCRIM.alpha, drawLocalRankContent),
-    profile: panelPage('名片', UI_SCRIM.alpha, drawProfileContent),
+    // `[WXG-T-470/471/472]` 批 1 弹窗三页：图鉴 / 本地榜 / 名片。
+    // `[WXG-T-477]` 标题改读 `meta-pages-content` 单源常量（真源 = `tokens.md §7` 三键）——
+    // 原为内联字面，是 WXG-T-476 首轮 review 的 F1（文案未入册）。
+    album: panelPage(ALBUM_TITLE, UI_SCRIM.alpha, drawAlbumContent),
+    localRank: panelPage(LOCAL_RANK_TITLE, UI_SCRIM.alpha, drawLocalRankContent),
+    profile: panelPage(PROFILE_TITLE, UI_SCRIM.alpha, drawProfileContent),
 };
 
 /**

@@ -529,6 +529,28 @@ describe('EP12-S6 Deliverable 5 · P-7 文案令牌单源（⛔ 屏内字面散�
         expect(mv, "⛔ 代码里不再有 '拼豆' 裸字面（app_name 令牌单源）").not.toContain("'拼豆'");
         expect(mv, "⛔ 也不得出现旧钮字面 '开始拼豆'").not.toContain('开始拼豆');
     });
+
+    // `[WXG-T-477]` 补 WXG-T-476 首轮 review 的 F1：批 1 三页标题原为视图内联字面
+    // （`panelPage('图鉴', …)`），而 signin/skins 早走 `*_TITLE` 单源 ⇒ 收敛到同判例。
+    // 正负两腿成对（K-144：只做负向 = 常量被删也绿；只做正向 = 又内联一遍也绿）。
+    it('静态门：Meta 批 1 三页标题走单源常量（⛔ 内联字面已退场）', () => {
+        const content = CODE('view/meta-pages-content.ts');
+        expect(content, '正向：三常量在册（值 = tokens.md §7 panel_*_title）').toContain(
+            "export const ALBUM_TITLE = '图鉴';",
+        );
+        expect(content).toContain("export const LOCAL_RANK_TITLE = '本地榜';");
+        expect(content).toContain("export const PROFILE_TITLE = '名片';");
+
+        const mv = CODE('view/meta-view.ts');
+        expect(mv, '正向：视图侧 import 三常量').toContain('ALBUM_TITLE,');
+        expect(mv).toContain('panelPage(ALBUM_TITLE');
+        expect(mv).toContain('panelPage(LOCAL_RANK_TITLE');
+        expect(mv).toContain('panelPage(PROFILE_TITLE');
+
+        expect(mv, '负向：⛔ 视图内不得再有裸标题字面').not.toMatch(/panelPage\('图鉴'/);
+        expect(mv).not.toMatch(/panelPage\('本地榜'/);
+        expect(mv).not.toMatch(/panelPage\('名片'/);
+    });
 });
 
 describe('EP12-S6 Deliverable 1 + Q5① · 墙单源在选关整页 / 主菜单不再排墙（几何只一份）', () => {
