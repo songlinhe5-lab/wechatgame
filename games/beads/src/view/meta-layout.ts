@@ -103,10 +103,24 @@ function levelsLayout(rows: number): MetaLayout {
     const buttons: MetaButton[] = [];
     pushWallCells(buttons, LEVELS_GRID_LEFT, LEVELS_GRID_TOP, rows);
     // 返回（导航栏只放标题 ⇒ 返回仍走底部 `back`，240×88）
+    const backX = (DESIGN_W - LEVELS_BACK_W) / 2;
     buttons.push({
         id: 'back',
-        box: box((DESIGN_W - LEVELS_BACK_W) / 2, LEVELS_BACK_BOTTOM, LEVELS_BACK_W, TOUCH_MIN),
+        box: box(backX, LEVELS_BACK_BOTTOM, LEVELS_BACK_W, TOUCH_MIN),
     });
+    // `[WXG-T-479]` 批 1 入口（USER 2026-10-28 裁「乙·拆分」）：图鉴 / 本地榜与「返回」**同行两侧**。
+    // 几何：边距 24 + 与返回间隔 24 ⇒ 侧钮宽 (750 − 240 − 2×24 − 2×24) / 2 = 207，高 TOUCH_MIN；
+    // 左右镜像（x = 24 / 750−24−207 = 519）⇒ 三钮共中线对称，⛔ 不压关卡墙（墙底 = LEVELS_BACK_BOTTOM 之上）。
+    {
+        const margin = 24;
+        const gap = 24;
+        const sideW = (DESIGN_W - LEVELS_BACK_W - 2 * margin - 2 * gap) / 2;
+        buttons.push({ id: 'open-album', box: box(margin, LEVELS_BACK_BOTTOM, sideW, TOUCH_MIN) });
+        buttons.push({
+            id: 'open-local-rank',
+            box: box(DESIGN_W - margin - sideW, LEVELS_BACK_BOTTOM, sideW, TOUCH_MIN),
+        });
+    }
     return { buttons, signinCells: [] };
 }
 
@@ -115,14 +129,17 @@ function signinLayout(): MetaLayout {
     const buttons: MetaButton[] = [];
     // 7 格版式单源（UI-32）：4 + 3 居中，几何见 `view/signin-content.ts`。
     const cells = signinCellLayout(plate);
-    // 领取 + 返回
-    const btnW = 240;
+    // 领取 + 返回 ⇒ `[WXG-T-479]` 加「名片」（USER 2026-10-28 裁「乙·拆分」）后改**三钮一行**：
+    // 200 宽 ×、间隔 25、整行居中（3×200 + 2×25 = 650 @x50）⇒ 左右各留 50 边距；
+    // 顺位 = 名片｜领取｜返回（主行动居中，退出仍最右，与改前「领取在左、返回在右」的相对序一致）。
+    const btnW = 200;
     const btnY = plate.y + 60;
-    const gap = 30;
-    const total = btnW * 2 + gap;
+    const gap = 25;
+    const total = btnW * 3 + gap * 2;
     const left = plate.x + (plate.w - total) / 2;
-    buttons.push({ id: 'claim', box: box(left, btnY, btnW, TOUCH_MIN) });
-    buttons.push({ id: 'back', box: box(left + btnW + gap, btnY, btnW, TOUCH_MIN) });
+    buttons.push({ id: 'open-profile', box: box(left, btnY, btnW, TOUCH_MIN) });
+    buttons.push({ id: 'claim', box: box(left + btnW + gap, btnY, btnW, TOUCH_MIN) });
+    buttons.push({ id: 'back', box: box(left + (btnW + gap) * 2, btnY, btnW, TOUCH_MIN) });
     return { buttons, signinCells: cells };
 }
 

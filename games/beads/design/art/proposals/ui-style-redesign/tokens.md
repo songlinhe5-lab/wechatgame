@@ -118,6 +118,9 @@
 | `panel_album_title` | **`图鉴`** | **新·已落码**（2026-10-28 · WXG-T-477 补键；补前为视图内联字面 = WXG-T-476 首轮 review 的 F1） | Meta 批 1「图鉴」弹窗标题；消费副本 = `view/meta-pages-content.ts::ALBUM_TITLE` |
 | `panel_local_rank_title` | **`本地榜`** | 同上 | 「本地榜」弹窗标题；消费副本 = `LOCAL_RANK_TITLE` |
 | `panel_profile_title` | **`名片`** | 同上 | 「名片」弹窗标题；消费副本 = `PROFILE_TITLE` |
+| `btn_album_label` | **`图鉴`** | **新·已落码**（2026-10-28 · WXG-T-479；USER 裁「乙·拆分」入口落位） | 选关页底排左钮（与「返回」同行）；消费副本 = `copy-tokens.ts::COPY_TOKENS.btn_album_label` |
+| `btn_local_rank_label` | **`本地榜`** | 同上 | 选关页底排右钮 |
+| `btn_profile_label` | **`名片`** | 同上 | 签到弹窗左格（「领取」左侧） |
 | `powerup_buy_confirm_title` | **`用 {n} 豆子再用一次？`** | **新·[待 art 确认]**（2026-10-22 · WXG-T-351 落码批草案：豆子出口（`systems-index §3.6` v1.80）需要一句确认语，设计表原无此键，故由工程侧提草案，**art 未签前按本值执行**） | 道具购买确认弹窗**标题**。`{n}` = 单价格（`POWERUP_BUY_PRICE_SOLVER/RANDOM/PLUS` = 20/30/45），**渲染期替换**，⛔ 余字不得改。<br>措辞依据：货币对外名 = 「豆子」（用户 2026-10-22 拍板），故不写「金币/币」 |
 | `btn_confirm_label` | **`确定`** | **新·[待 art 确认]**（同上） | 确认类弹窗**主钮**（当前唯一消费方 = 道具购买确认弹窗，accent 档 240×88） |
 | `btn_cancel_label` | **`取消`** | **新·[待 art 确认]**（同上） | 确认类弹窗**次钮**（ghost 档 240×88）；点板外与点此**同义**（均为零副作用关窗） |

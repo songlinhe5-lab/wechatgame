@@ -55,6 +55,41 @@ const dataFor = (extra: Partial<MetaViewData> = {}): MetaViewData => {
 };
 
 const cells = () => metaLayout('levels', WALL_ROWS).buttons.filter((b) => b.id === 'pick-level');
+
+/**
+ * `[WXG-T-479]` 批 1 入口（USER 2026-10-28 裁「乙·拆分」）：图鉴 / 本地榜两只钮与「返回」同行两侧。
+ * 钉的是**几何不撞**（边距 24 / 间隔 24 / 对称）与触控地板 —— ⛔ 只钉「有这两个 id」会漏掉重叠。
+ */
+describe('WXG-T-479 · 选关页底排入口', () => {
+    it('图鉴 / 本地榜与「返回」同行，左右镜像且互不重叠', () => {
+        const btns = metaLayout('levels', WALL_ROWS).buttons;
+        const byId = (id: string) => btns.find((b) => b.id === id)!;
+        const back = byId('back');
+        const album = byId('open-album');
+        const rank = byId('open-local-rank');
+
+        expect(album.box.y).toBe(back.box.y);
+        expect(rank.box.y).toBe(back.box.y);
+        expect(album.box.h).toBe(TOUCH_MIN);
+        expect(rank.box.h).toBe(TOUCH_MIN);
+        expect(album.box.w).toBeGreaterThanOrEqual(TOUCH_MIN);
+
+        // 间隔 24，两侧边距 24，整排中线对称
+        expect(back.box.x - (album.box.x + album.box.w)).toBe(24);
+        expect(rank.box.x - (back.box.x + back.box.w)).toBe(24);
+        expect(album.box.x).toBe(24);
+        expect(rank.box.x + rank.box.w).toBe(DESIGN_W - 24);
+        expect(album.box.w).toBe(rank.box.w);
+    });
+
+    it('两钮可命中（不经 metaLayout 直取也算命中）', () => {
+        for (const id of ['open-album', 'open-local-rank']) {
+            const b = metaLayout('levels', WALL_ROWS).buttons.find((x) => x.id === id)!;
+            const hit = hitTestMeta('levels', b.box.x + b.box.w / 2, b.box.y + b.box.h / 2);
+            expect(hit?.id).toBe(id);
+        }
+    });
+});
 const inBox = (c: DrawCommand, b: { x: number; y: number; w: number; h: number }): boolean =>
     'x' in c && c.x >= b.x - 1 && c.x <= b.x + b.w + 1 &&
     'y' in c && c.y >= b.y - 1 && c.y <= b.y + b.h + 1;

@@ -14,6 +14,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { RenderModelBuilder } from '@wxgame/framework';
 import { hitTestMeta, metaLayout } from '../src/view/meta-view.js';
+import { TOUCH_MIN } from '../src/config/tuning.js';
 import {
     SIGNIN_TITLE,
     drawSigninContent,
@@ -87,14 +88,24 @@ describe('UI-32 · SigninContent', () => {
         expect(bottomRowBottom).toBeGreaterThanOrEqual(btnTop + 60);
     });
 
-    it('弹窗布局同源：metaLayout 的 7 格 = signinCellLayout，领取 / 返回两钮可命中', () => {
+    it('弹窗布局同源：metaLayout 的 7 格 = signinCellLayout，名片 / 领取 / 返回三钮可命中', () => {
         const layout = metaLayout('signin');
         expect(layout.signinCells).toEqual(signinCellLayout(PLATE));
-        expect(layout.buttons.map((b) => b.id)).toEqual(['claim', 'back']);
+        // `[WXG-T-479]`（USER 2026-10-28 裁「乙·拆分」）：名片入口并入签到弹窗 ⇒ 两钮改三钮，
+        // 顺位 = 名片｜领取｜返回（主行动居中、退出仍最右）。改前为 ['claim','back']。
+        expect(layout.buttons.map((b) => b.id)).toEqual(['open-profile', 'claim', 'back']);
         for (const b of layout.buttons) {
             const hit = hitTestMeta('signin', b.box.x + b.box.w / 2, b.box.y + b.box.h / 2);
             expect(hit?.id).toBe(b.id);
+            // 触控地板：三钮等宽 + 等间隔 + 整行居中（3×200 + 2×25 = 650 @x50），互不重叠。
+            expect(b.box.h).toBeGreaterThanOrEqual(TOUCH_MIN);
+            expect(b.box.w).toBeGreaterThanOrEqual(TOUCH_MIN);
         }
+        const [profile, claim, back] = layout.buttons;
+        expect(profile!.box.w).toBe(claim!.box.w);
+        expect(claim!.box.w).toBe(back!.box.w);
+        expect(claim!.box.x - (profile!.box.x + profile!.box.w)).toBe(25);
+        expect(back!.box.x - (claim!.box.x + claim!.box.w)).toBe(25);
     });
 
     it('三态格绘制：已领 ✓ / 今日 4px 主色描边 / 未领奖励文案', () => {
