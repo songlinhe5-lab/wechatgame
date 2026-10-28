@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3903,
       "lines": 132,
-      "sha256": "4162d1b5e77860b2ee53ac334fdd57a199cc317dc5c3669e3809e587df370169",
+      "sha256": "b68f41fa3338ea83ceb23acb718d4aecf5ba88820a7e79fbe30cb7f90815c9e7",
       "tier": "normal",
       "sections": [
         {
@@ -31668,17 +31668,17 @@
     },
     {
       "path": "games/beads/design/forensics/wxg-t-182-g3-derangement-deadlock.md",
-      "tokens": 2362,
-      "lines": 80,
-      "sha256": "263d1f16f37f2662613c3ff771027b2b69f708a112af0da8f6f39632d0be3440",
+      "tokens": 2834,
+      "lines": 81,
+      "sha256": "fe814af829bd5b7ec77d27f7496839ce7e20d8cd4fc40e14c7dd0d5286bb4d9c",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG-T-182 · G-3 取证：密集大盘「全错位」首步死锁可行性",
           "level": 1,
           "startLine": 1,
-          "endLine": 81,
-          "tokens": 2338,
+          "endLine": 82,
+          "tokens": 2810,
           "summary": "状态：取证完成，结论已采纳进设计决策。本文件是决策证据链留档（temp/ 被 gitignore，故归档于此）。",
           "keywords": [
             "WXG",
@@ -31767,8 +31767,8 @@
           "anchor": "§6 未覆盖 / 阻塞（诚实登记）",
           "level": 2,
           "startLine": 59,
-          "endLine": 67,
-          "tokens": 505,
+          "endLine": 68,
+          "tokens": 978,
           "summary": "[阻塞] 真机：无微信开发者工具 / AppID ⇒ 触控命中带（TRAY_HIT_SIZE=62 / EXPAND_B",
           "keywords": [
             "AppID",
@@ -31782,8 +31782,8 @@
         {
           "anchor": "§7 复现",
           "level": 2,
-          "startLine": 68,
-          "endLine": 75,
+          "startLine": 69,
+          "endLine": 76,
           "tokens": 101,
           "summary": "",
           "keywords": [
@@ -31793,8 +31793,8 @@
         {
           "anchor": "§8 归档清单",
           "level": 2,
-          "startLine": 76,
-          "endLine": 81,
+          "startLine": 77,
+          "endLine": 82,
           "tokens": 119,
           "summary": "g3/：g3-hooks.mjs g3-probe.ts g3-lib.ts g3-repro.ts g3-repro.",
           "keywords": [
@@ -44878,18 +44878,18 @@
     },
     {
       "path": "games/beads/design/ux/ux-spec.md",
-      "tokens": 51593,
-      "lines": 539,
-      "sha256": "13ca723ba381b65a82c22816d1d1d80d19beaa8e4c0e9d7a89bd924715afcad5",
+      "tokens": 52409,
+      "lines": 541,
+      "sha256": "3cd9ed70174910ce35868ea0ace8a43b1e99e4e22552e4b64def0442bbfd79cd",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§UX 规格（UX Spec）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 540,
-          "tokens": 51584,
-          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.30 · 任务号 无（用户直派，承 MVP 复验批 F3 残",
+          "endLine": 542,
+          "tokens": 52400,
+          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.31 · 任务号 无（用户直派，承 MVP 复验批 F3 残",
           "keywords": [
             "Spec",
             "beads",
@@ -44903,7 +44903,7 @@
           "level": 2,
           "startLine": 10,
           "endLine": 20,
-          "tokens": 1665,
+          "tokens": 1758,
           "summary": "1. 首屏即玩（v1.14 反转 · #1 WXG-T-180：原红线推翻，首屏改停主菜单——启动不再直进玩法、不自动扣",
           "keywords": [
             "skill",
@@ -45162,8 +45162,8 @@
           "anchor": "§8 决策记录与裁决项",
           "level": 2,
           "startLine": 438,
-          "endLine": 540,
-          "tokens": 17418,
+          "endLine": 542,
+          "tokens": 18033,
           "summary": "已裁定（沿袭）：~~无主菜单两路径（core-loop 判例）~~ v1.7 反转：主菜单恢复（WXG-T-164），启",
           "keywords": [
             "core",

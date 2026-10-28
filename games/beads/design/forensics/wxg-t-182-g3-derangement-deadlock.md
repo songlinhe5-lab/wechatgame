@@ -62,7 +62,8 @@
 - **策略近似 ≠ 可解性证明**：机器人失败只证该策略失败；「restricted 模型下 B<12 的盘是否一定可解」未做 144 格状态空间搜索证明。
 - **[回写 2026-10-28 · MVP 复验批 F3] 一次浏览器「死局」观测已撤回**：当时探针用**自算坐标**投递点击（未拿引擎自身读数回验）⇒ 属判例 **K-195「量具假阴性」**，不能当本文件 §2 命题在现行 §3 下的复现证据；现行规则（含 board 直填 T-162）未复现死局。
 - **[已落护栏] 首步死锁回归机检**：`games/beads/tests/worst-first-move.test.ts`（逐关断言「取回最大同色错位组之后盘面仍可推进」）= 本文件 §2「托盘中心模型 144/144 首步即死」那条命题的常检腿，防关卡母版/装配路径回退到首步死局。**它不覆盖「可发现性」**（那是玩家认知问题，机检不了）。
-- **[未落 · 诚实登记] §5 拟转的 TC-G3-1..5 至今零条进 QA**：全仓 `production/qa/` 搜 `TC-G3` **零命中**（2026-10-28 实测）⇒ 「交 quality-lead 转正式判据」那一步从未执行，不充已做。唯「可发现性」一条已于 **`ux/ux-spec.md` v1.30** §1 原则 3 载体④ 回写为规格（**代码未落**）；其余 TC-G3-1/2/4/5 仍待与 §6 真机腿同批处理。
+- ~~**[未落 · 诚实登记] §5 拟转的 TC-G3-1..5 至今零条进 QA**：全仓 `production/qa/` 搜 `TC-G3` **零命中**（2026-10-28 实测）⇒ 「交 quality-lead 转正式判据」那一步从未执行，不充已做。~~ ⇒ **[已闭合 · 同批 2026-10-28]** TC-G3-1..5 连同本批新立的 **TC-G3-6（可发现性）** 已进 `production/qa/beads/test-cases-a-core.md` **§A3b**（明标「不计入 5 组 × 10 = 50」，先例 = §A4b），变更记录见 `test-cases-history.md` **v1.25**。逐条现状（落笔前已 grep 核实，不空口引「已机检」）：G3-1 / G3-5 = ✅ 已机检（`worst-first-move.test.ts`、`misplaced-assembler.test.ts`；`level-derange.test.mjs` 只测行串工具、不覆盖三则）；G3-2 = ⛔ 待实现；G3-3 = ⚠ 仅部分（`misplaced-direct-fill.test.ts` 无满槽前提腿）；G3-4 = ⛔ 阻塞（取证时「solver 系」措辞已被 `systems-index` v1.95 推翻，须设计轨重述后才能进门）。
+- ~~唯「可发现性」一条已于 **`ux/ux-spec.md` v1.30** §1 原则 3 载体④ 回写为规格（**代码未落**）；其余 TC-G3-1/2/4/5 仍待与 §6 真机腿同批处理。~~ ⇒ **[已落码 · `ux-spec` v1.31]** 载体④ 三处：`game/beads-game.ts` 满槽色拒闩锁 `_trayFullRejected`（复位 = 落子成功，显示另受 `tray.freeCount === 0` 每帧重算 ⇒ 托盘一有空位自动撤）+ `game/beads-game/snapshot-projection.ts` 把 `hint` 指回该色可直填的首个空格（与引导①共用 `aimHintAtFirstFillable()`）+ `view/play-page.ts` 去掉 `snap.onboarding` 门。⛔ 不走 wrong-fx 腿（`WRONG_FX_MS = 200` 不足以完成「发现」）。`[Node]` 判据 = `tests/snapshot-projection.test.ts`「载体④ · 满槽色拒 ⇒ hint 指向可直填格」两条，突变敏感性已证（去掉投影那一行即红）。**仍欠**：G3-6 的真人腿（首步后 30s 内自行发现换选直填）与上面「[阻塞] 真机」条同批，本批只 `[Node]` ⇒ 屏幕/真机禁写 PASS（K-037）。
 - **夹具失真**：`mount()` 用 `noAssemble` + 手工 `fill` 绕过 BOOT；正式 TC-G3-5 须走新装配路径重跑。
 
 ## 7. 复现
