@@ -319,12 +319,6 @@
       "taskId": "WXG-T-434"
     },
     {
-      "path": "production/TASKS-DETAIL.md",
-      "reason": "beads 台账详情正本：主表行 ↔ `## <单号>` 小节**必须成对**（`check:tasks` C 项机械守），故每开一单必增一节。WXG-T-446/447 批实测：写入本单小节即越 tasksDetail 类别 205000 上限，删该节即 OK ⇒ 文件内无法腾挪（删存量节会断已完成单的取证链，删本单节则 C 项直接红）。动因 = 已入库体量硬拦本批提交（同 `powerups-v2` / WXG-T-418 跨轨代登记先例）；本批未改任何既有单正文。",
-      "note": "撤销条件（⛔ 不得靠豁免放任无界膨胀）：下一批提交前跑 `pnpm run tasks:archive --write`，把已完成老单的主表行与详情节**成对**搬进 `production/archive/TASKS-DETAIL-archive.md`，使主件回落到 ≤195000 tok 后撤销本豁免；⛔ 不得连续两批都靠豁免硬扛。登记人 = 主理人(CodeBuddy)",
-      "taskId": "WXG-T-446"
-    },
-    {
       "path": "games/beads/design/gdd/tray-spawner.md",
       "reason": "S4 供料与托盘 GDD 正本：§2 机制 / §2.4 取回落槽出口 / §8 判据族须同页互查（QA 按 §8 逐条造用例，本文件 §8 大量条目带「⛔ 作废 + 原文要点 + 替代」三段式标注，系 v2.0 供料关停时为防止假绿而故意保留的史证）；与 save-progress / meta-ui / pause-settings / score-combo / powerups-v2 同族「正本 + 改政留痕」文体，按 ctx 章节锚点局部读、开发期从不整读。本批（v2.6 = §8-7 与 §2.4 口径对齐）实测 9038 > 8000（越界 13%）",
       "note": "债务归属清楚：HEAD 态实测 ≈7866 tok（8000 上限的 98.3%），本批前已常驻 B 门边缘；K-053 要求旧注词删除线留档、⛔ 删存量正文，故文档内修正的净增不可压为零——本批已先把两条子注改为**指针式引用**（不在本文件另存上位口径正文，判例 K-174）9139→9038。撤销条件（⛔ 不得靠豁免放任无界膨胀，沿 ux-spec / arc-level-select-spec 先例口径）：下次修订前先做文档批，把头注版本链（行 3，v2.0–v2.6 逐批裁定留档）与 §9 变更记录外移为 `design/gdd/CHANGELOG-tray-spawner.md`（同步 `ctx/ROUTES.md` 锚点），顶回 ≤8000 即撤销本豁免；不得再靠豁免叠加第三次同类追加。登记人 = 主理人(Qoder)",
