@@ -6,7 +6,7 @@
  * 缓存分两档：默认行数 = 按 anchors 引用（WeakMap，逐机主菜单）；变参行数只服务 K-6 同帧差分腿。
  */
 
-import { DESIGN_H, DESIGN_W, LEVELS_BACK_BOTTOM, LEVELS_BACK_W, LEVELS_CELL, LEVELS_GAP, LEVELS_GRID_LEFT, LEVELS_GRID_TOP, MENU_ARROW_VISUAL_D, MENU_ARROW_X, MENU_BADGE, MENU_BAR_FRAME, MENU_BAR_H, MENU_BAR_TOP_INSET, MENU_BOSS_SLOT, MENU_CASE_FRAME, MENU_CASE_H, MENU_CLIP, MENU_CTA_H, MENU_CTA_X, MENU_DONE_ICON, MENU_PLATE, MENU_PRIMARY_W, MENU_SIGN_FRAME, MENU_TOPBAR_X, TOUCH_MIN, WALL_COLS, WALL_ROWS, dialogShiftY, menuAnchors, type MenuAnchors } from '../config/tuning.js';
+import { DESIGN_H, DESIGN_W, LEVELS_BACK_BOTTOM, LEVELS_BACK_W, LEVELS_CELL, LEVELS_GAP, LEVELS_GRID_LEFT, LEVELS_GRID_TOP, MENU_ARROW_VISUAL_D, MENU_ARROW_X, MENU_BADGE, MENU_BAR_FRAME, MENU_BAR_H, MENU_BAR_TOP_INSET, MENU_BOSS_SLOT, MENU_CASE_FRAME, MENU_CASE_H, MENU_CLIP, MENU_CTA_H, MENU_CTA_X, MENU_DONE_ICON, MENU_PLATE, MENU_PRIMARY_W, MENU_SIGN_FRAME, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_X, TOUCH_MIN, WALL_COLS, WALL_ROWS, dialogShiftY, menuAnchors, type MenuAnchors } from '../config/tuning.js';
 import { settingsContentButtons } from './settings-content.js';
 import { signinCellLayout } from './signin-content.js';
 import { skinCardBoxes } from './skins-content.js';
@@ -290,7 +290,12 @@ export function anchoredGeo(a: MenuAnchors): AnchoredMenuGeo {
         MENU_BAR_H,
     );
     const settingsHit = box(MENU_TOPBAR_X.settings, r(a.btTopY) - TOUCH_MIN, TOUCH_MIN, TOUCH_MIN);
-    const skinsHit = box(MENU_TOPBAR_X.skins, r(a.btTopY) - TOUCH_MIN, TOUCH_MIN, TOUCH_MIN);
+    const skinsHit = box(
+        MENU_TOPBAR_X.skins,
+        r(a.btTopY) - TOUCH_MIN - MENU_TOPBAR_ROW2_DY,
+        TOUCH_MIN,
+        TOUCH_MIN,
+    );
     const mailHit = box(MENU_TOPBAR_X.mail, r(a.btTopY) - TOUCH_MIN, TOUCH_MIN, TOUCH_MIN);
     const geo: AnchoredMenuGeo = {
         caseBox, bossBox, clipBox, badgeBox, plateBox, signBox, ctaBox, ctaHit,

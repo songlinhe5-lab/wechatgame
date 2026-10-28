@@ -129,7 +129,18 @@ export const MENU_TOPBAR_TOP_FALLBACK = SAFE_TOP_H + SAFE_EDGE_MARGIN;
  * 代价 = 公告位被占用（提案已列，回滚 = 键名与一颗钮改回预留空圆）。图标暂用该位原
  * 有的 `MENU_TEXTURES.iconSound`（喇叭）顶替 ⇒ `[待 UI 设计]`，见 `meta-view::drawTopbar`。
  */
-export const MENU_TOPBAR_X = { settings: 24, skins: 560, mail: 648 } as const;
+export const MENU_TOPBAR_X = { settings: 24, skins: 24, mail: 648 } as const;
+/**
+ * 顶栏**第二行**下移量（`WXG-T-486`，用户 2026-10-28 裁「右侧按钮可以放到左侧第二个布局」）：
+ * `skins` 自 `x560` 改挂左侧第二枚（设置正下方），行距 = `TOUCH_MIN`（88，热区边贴边）。
+ *
+ * 动机 = art-review P1-3：`x560` 与招牌框右界 `190+370=560` **净空 0**（边界相切），出图上
+ * 「拼豆小铺」第 4 字右端被该钮圆形压住。改挂左列后：两枚左钮右缘 112 < 招牌左界 190（净空 78），
+ * `mail` 仍 `x648` > 560（净空 88）⇒ 招牌左右两侧同时净空为正。
+ *
+ * ⚠ 左列两枚的 `settings` 仍在第一行、`mail` 仍在右上第一行 —— 顶栏由「一排三枚」变「左列两枚 + 右上单枚」。
+ */
+export const MENU_TOPBAR_ROW2_DY = 88;
 /**
  * 顶栏视觉圆直径 = 80（落地单 v3.5，用户 2026-10-15 裁：`ui_btn_circle_*` 与三枚 `ui_icon_*` 同为
  * 160×160 px @2x ⇒ 80 设计 px；旧 59/64 作废）。热区 88 同心包裹（视觉比热区小 8，邻钮视觉隙 8）。

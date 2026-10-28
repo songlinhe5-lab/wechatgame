@@ -396,25 +396,34 @@ describe('BeadsShell — 装扮馆 skins 弹窗：入口 · 卡区 · 买断闭�
             .map((c) => (c as { text: string }).text);
     }
 
-    it('入口 = 顶栏中档（三颗同一行、pitch 88）· 返回回主菜单（单层）· 发 meta:overlay', () => {
+    it('入口 = 左侧第二枚（WXG-T-486 自顶栏 x560 改挂）· 返回回主菜单（单层）· 发 meta:overlay', () => {
         const r = rig({ initialScreen: 'menu' });
         // 钉**具体数**（假绿守卫判例 K-089 同族）：三颗左缘 x = `MENU_TOPBAR_X`{24,560,648}，
         // 热区 88 ⇒ 中心 x = {68,604,692}；同一行 y（两颗之间不得漏注册 / 不得互叠）。
         const top = (['open-settings', 'open-skins', 'open-signin'] as const).map((id) => centerOf('none', id));
-        expect(top.map((c) => Math.round(c.x))).toEqual([68, 604, 692]);
-        expect(new Set(top.map((c) => Math.round(c.y))).size).toBe(1);
+        // `WXG-T-486`（用户 2026-10-28 裁「右侧按钮可以放到左侧第二个布局」）：skins 自 `x560`
+        // 改挂**左侧第二枚** ⇒ 前两枚同列（中心 x 68），skins 比 settings 低一行 =
+        // `MENU_TOPBAR_ROW2_DY`（88）；mail 仍在右上第一行（692）。
+        // ⚠ 原断言「三颗同一行、pitch 88」（`[68,604,692]` + y 全等）随该裁定作废 —— 保留本注释
+        // 以便后人知道 `[68,604,692]` 是历史值而非笔误。
+        expect(top.map((c) => Math.round(c.x))).toEqual([68, 68, 692]);
+        expect(Math.round(top[0].y - top[1].y)).toBe(88);
+        expect(Math.round(top[2].y)).toBe(Math.round(top[0].y));
         // 画法腿：中颗现在画的是**正常态圆**（⛔ 旧禁用态 α0.5 空圆残影）⇒ 命令流里该列 x 只有
         // 1 枚圆且不带 alpha（`MENU_TOPBAR_RESERVED_ALPHA` 已随预留位退场）。
         const mb = new RenderModelBuilder(750, 1334);
         mb.begin();
         r.shell.buildRenderModel(mb);
-        const mid = mb.end()
+        // `WXG-T-486` 后 skins 与 settings 同列（中心 x 68，y 相差一行）⇒ 该列应有 2 枚圆，
+        // 且**都不得带 alpha**（原意 = 不得留旧禁用态 α0.5 空圆残影，`MENU_TOPBAR_RESERVED_ALPHA`
+        // 已随预留位退场）。历史值 `x-604`（= 旧中档 560+44）随改挂作废。
+        const col = mb.end()
             .commands
             .filter((c) => c.kind === 'circle')
             .map((c) => c as unknown as { x: number; alpha?: number })
-            .filter((c) => Math.abs(c.x - 604) < 0.5);
-        expect(mid).toHaveLength(1);
-        expect(mid[0]!.alpha).toBeUndefined();
+            .filter((c) => Math.abs(c.x - 68) < 0.5);
+        expect(col.length).toBeGreaterThanOrEqual(2);
+        expect(col.every((c) => c.alpha === undefined)).toBe(true);
         openSkins(r);
         expect(r.overlayEvents.some((e) => e.open && e.name === 'skins')).toBe(true);
         const back = centerOf('skins', 'back');

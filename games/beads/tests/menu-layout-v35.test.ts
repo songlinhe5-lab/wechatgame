@@ -43,13 +43,19 @@ describe('v3.5 定案常量', () => {
         expect(MENU_TOPBAR_X.mail - MENU_TOPBAR_X.skins - MENU_TOPBAR_VISUAL_D).toBeGreaterThanOrEqual(0);
     });
 
-    it('v3.7 招牌板体不压顶栏钮：板体（logo 图内 x[11,948]/960）左右缘落在设置钮与中档钮视觉圆之间', () => {
+    it('招牌板体与顶栏钮净空为正（WXG-T-486 后：左列右缘 108 / mail 左缘 648）', () => {
         const k = MENU_SIGN_FRAME.w / 960;
         const boardL = MENU_SIGN_FRAME.x + 11 * k;
         const boardR = MENU_SIGN_FRAME.x + 948 * k;
         const pad = (TOUCH_MIN - MENU_TOPBAR_VISUAL_D) / 2;
-        expect(boardR).toBeLessThanOrEqual(MENU_TOPBAR_X.skins + pad);
+        // 左列两枚（settings / skins 同 x）视觉右缘；板体左缘须在其右。
         expect(boardL).toBeGreaterThanOrEqual(MENU_TOPBAR_X.settings + pad + MENU_TOPBAR_VISUAL_D);
+        // 右侧只剩 mail 一枚（x648）：板体右缘须落在其视觉左缘之左。
+        // ⚠ 原断言对 `MENU_TOPBAR_X.skins`（x560）取净空 —— 板体右界 555.4 与 skins 左缘 560
+        // 仅 4.6 净空，即 art-review P1-3 判定的「净空 0、字被压」根因。skins 改挂左列后该断言
+        // 改为对 mail 取，且净空从 4.6 提到 ~92.6。
+        expect(boardR).toBeLessThanOrEqual(MENU_TOPBAR_X.mail + pad);
+        expect(MENU_TOPBAR_X.mail - boardR).toBeGreaterThan(80);
         expect(MENU_SIGN_FRAME.x * 2 + MENU_SIGN_FRAME.w).toBe(DESIGN_W); // 居中
     });
 });
