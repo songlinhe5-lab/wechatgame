@@ -198,6 +198,25 @@ const archivedIds = new Set(
 );
 const detailArchiveIds = new Set(parseDetail(read(DETAIL_ARCHIVE)).sections.map((s) => s.id));
 
+// L：详情文件**同号不得出现多节**（WXG-T-483）——`detailParsed.sections` 是数组，而上面转 Set
+// 只留下「有没有」这一维，「几节」丢了 ⇒ `## WXG-T-414` 出现两次这类 dup / 撞号长期隐身。
+// 为什么要单独立门（实测代价）：`tasks:archive` 的成对搬运只按 ID 匹配，同号两节会被**一并**
+// 搬走 ⇒ 节数 ≠ 行数 ⇒ 守恒 fail loud、整批不落盘（WXG-T-482 实测 87 行 vs 89 节，整批被一行卡死）。
+// 判据只报「有 N 节」并**顺带区分 dup / 撞号**，⛔ 不裁定归属：dup（逐字节相同）删副本即可；
+// 撞号（内容不同）按 K-046 人工改号 —— 工具不代填、不自动合并。
+const sectionCount = detailParsed.sections.reduce((m, s) => m.set(s.id, (m.get(s.id) ?? 0) + 1), new Map());
+for (const [id, n] of [...sectionCount].filter(([, k]) => k >= 2).sort((a, b) => a[0].localeCompare(b[0]))) {
+  const blocks = detailParsed.sections.filter((s) => s.id === id).map((s) => s.block);
+  const identical = blocks.every((b) => b === blocks[0]);
+  failures.push(
+    `L: ${rel(DETAIL)} 有 ${n} 个 ## ${id} 小节 —— 同号多节（` +
+    (identical
+      ? '**逐字节相同 = dup**，删副本即可'
+      : '**内容不同 = 撞号**，按 K-046「提交信息署号者保号、后来者改号」人工裁定后改小节标题') +
+    `）；⛔ 不要靠 \`tasks:archive --skip-ids=${id.replace(/^WXG-T-/, '')}\` 长期绕开`,
+  );
+}
+
 for (const { id } of rows) {
   if (!detailIds.has(id)) {
     failures.push(
@@ -287,17 +306,30 @@ if (backlogStart < 0) {
   }
 }
 
-// H（观察哨，report-only）：主表行数提醒。只 WARN 不阻断 —— 对齐本仓「结构门硬、行为门软」
+// H（观察哨，report-only）：**主表行数**提醒。只 WARN 不阻断 —— 对齐本仓「结构门硬、行为门软」
 // 惯例（WXG-T-026 裁定）：行数取决于开发节奏，不该成为无关提交的硬门。
+// ⚠ **量纲（WXG-T-483 订正，实测踩过）**：本哨量的是**行数**，与 `tasks:archive --until-under=<N>`
+// 的 **token** 阈值是两把不相干的尺子。2026-10-28 曾把「观察哨 20」当 token 门槛去调归档档位，
+// 得出「压到 20 token 以下」这种永远达不到的假目标（全归档地板 56,660）⇒ 文案头一句现显式写「行」。
 // ⚠ 本条**只指路、不写死阈值**（判例 K-089 追记，WXG-T-400）：旧文案硬编码
 // `--detail-until-under=7000 --write`，而该驱动分支不看年龄、按号序一路删到底——
 // 详情文件涨到 202239 tok 后，7000 与 40000/80000 实测同读数（一次搬空 49 行，含当天两笔），
 // 照抄这条「收敛建议」反而把结果推向意图对面。真数字由 `tasks:archive` 的 dry-run 自己报。
 const ROW_SENTINEL = 20;
 if (rows.length > ROW_SENTINEL) {
+  // 分解（WXG-T-483）：哨兵只对**可归档**那部分有杠杆 —— 活跃行（🚧/🔄/⛔/📋/…）任何归档档位
+  // 都搬不走，故「活跃行数本身 ≥ 哨兵」时该哨是**结构性不可达**（与 T-407 拆 BACKLOG 前同型）：
+  // 此时要报「不是台账债务」，⛔ 不催归档、⛔ 本门不自调阈值（门限属安全余量设计，须设计侧裁定）。
+  const doneRows = rows.filter((r) => (splitCells(ledgerLines[r.line - 1])[4] ?? '').startsWith('✅')).length;
+  const activeRows = rows.length - doneRows;
   notes.push(
-    `H: 主表 ${rows.length} 行 > 观察哨 ${ROW_SENTINEL} —— 该归档/收敛了：` +
-    '先跑**不带 `--write`** 的 `pnpm run tasks:archive -- --days=<N>`（或 `--until-under=<上限以下>`），' +
+    `H: 主表 **${rows.length} 行** > 行数观察哨 ${ROW_SENTINEL}（⚠ 本哨量**行数**，与 --until-under 的 token 阈值无关）—— ` +
+    `分解：✅ 可归档 ${doneRows} 行 ／ 活跃 ${activeRows} 行。` +
+    (activeRows >= ROW_SENTINEL
+      ? `⚠ 活跃行 ${activeRows} 已 ≥ 哨兵 ⇒ 该哨在当前工作负载下**结构性不可达**（非台账债务，` +
+        '改它属门限裁定；⛔ 本门不自调、⛔ 不据此催归档）'
+      : '该归档/收敛了：') +
+    '若要真归档，先跑**不带 `--write`** 的 `pnpm run tasks:archive -- --days=<N>`（或 `--until-under=<上限以下>`），' +
     '读它自己打印的「计划归档 N 行 → 预计 X tokens」再拍档位；' +
     '确认无误才补 `--write`（成对搬详情节，守恒校验不过不落盘）',
   );
@@ -401,7 +433,7 @@ if (failures.length > 0) {
 }
 console.log(
   `✅ check:tasks OK —— 主表 ${rows.length} 行（名称均 ≤ ${TITLE_MAX} 字符且连续）、` +
-  `详情 ${detailIds.size} 节，配对完整` +
+  `详情 ${detailParsed.sections.length} 节（唯一 ID ${detailIds.size}），配对完整` +
   (detailArchiveIds.size > 0 ? `；详情归档 ${detailArchiveIds.size} 节与行归档成对` : ''),
 );
 for (const n of notes) console.log(`  note: ${n}`);

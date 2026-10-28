@@ -2,7 +2,7 @@
 
 > **格式（WXG-T-064 起）：标题制 + 详情分片。** 本表**只留标题**（名称列 ≤ 60 字符，由 `pnpm run check:tasks` 机械强制）；任务正文在 `production/TASKS-DETAIL.md` 的 `## WXG-T-0NN` 小节。**读取协议**：领号/看状态只读本表（≈ 2.2k tok）；要某任务详情时，从 `ctx/index.json` 取该小节的 `startLine`/`endLine`，`read_file(path, offset, limit)` **只读那一节**（中位 ≈ 290 tok），**不要整读详情文件**。归档时**行与小节成对搬走**。
 > 单号递增不回收。任何会话（WorkBuddy/Cursor/Qoder/CodeBuddy）开工前**先读本文件领号**，完成后回填状态——根治跨 IDE 撞号（教训：2026-09-12 CodeBuddy 独立会话撞用 T-013/T-014）。
-> **领号（机械校准锚，供 `pnpm run tasks:archive` 校准用）**：当前已分配至 **WXG-T-482**，下一可用号 **WXG-T-483**（**沿革已外移**：每个已分配号的批次摘要、冲突披露与 ADR 编号表 → `production/archive/TASKS-ledger-notes.md`，2026-10-28 由 WXG-T-482 原文照搬迁出；动机 = 该段占台账 39,909 tok 而 `tasks:archive` 只搬表行、对它零效力 ⇒ 台账撞 80k 门。⛔ 日常领号只认本行数值，**不要**去读那份沿革）。
+> **领号（机械校准锚，供 `pnpm run tasks:archive` 校准用）**：当前已分配至 **WXG-T-484**，下一可用号 **WXG-T-485**（**沿革已外移**：每个已分配号的批次摘要、冲突披露与 ADR 编号表 → `production/archive/TASKS-ledger-notes.md`，2026-10-28 由 WXG-T-482 原文照搬迁出；动机 = 该段占台账 39,909 tok 而 `tasks:archive` 只搬表行、对它零效力 ⇒ 台账撞 80k 门。⛔ 日常领号只认本行数值，**不要**去读那份沿革）。
 > 勘误（2026-09-13）：本注此前长期停在「已分配至 T-032」而表内已排到 T-035，曾致撞号（教训见 memory 记录）；WXG-T-040 归档落地后改为——**领号认本注（下一可用号），本注由 `tasks:archive` 校准**为「主表 ∪ 归档全局最大号 + 1」（归档会把老行移出主表，只看主表最大号必重号）；手工领号后请顺手核对本注（可运行 `pnpm run tasks:archive` 校准，0 行时不落盘）。
 > **用过号未自登主表清单**（K-137 只披露不代填）：222 / 257 / 280·281 / 282 / 283 / 285 / 286·287 / 289 （291 已由 WXG-T-292 代收口自登；203–207 属区间披露）——逐条正文与补账口径见 `production/archive/TASKS-ledger-notes.md` §A 末段。⛔ 仍不代填，待各会话自登。
 
@@ -50,6 +50,7 @@
 | WXG-T-480 | 美术 review 第 3 步：资产逐件对账 | 主理人(CodeBuddy)·beads 资产台账 | 🟢 **已交付（2026-10-28）**（口径：`final/README.md` 台账 ↔ `final/assets/menu` ↔ `cocos/assets/textures` ↔ 产物；⚠ 更正首轮误用——`assets-spec §1` 是绘制参数卡不是文件清单；**漏接线 0**（台账 21 件除 signboard 全在 textures）、**在途 1**（`ui_menu_signboard` 双轨待裁）、**盘面有台账无 0**；4 个 tint mask 已入 `tint-mask-asset-spec`+ADR-0030 ⇒ 不报；**P2 台账件数漂移**：README 写「18 件」盘面 21 件（归 art 侧一字勘误）；命名口径差 `case_frame`↔`ui_showcase_frame` 等 3 组非缺陷） | 见详情 |
 | WXG-T-481 | 勘误 art 台账：menu 件数 18→21 + 补三行 | 主理人(CodeBuddy)·art 交付台账 | 🟢 **已交付（2026-10-28）**（`final/README.md`：件数改 **21**；补 `ui_menu_badge_progress` / `ui_menu_seal_cleared` / `ui_menu_cta_label` 三行，来源均 `9c553e0c`（2026-10-16 · WXG-T-282 走马灯 v3.5–v3.9 + 纹理换代），接线状态按 `MENU_TEXTURES` → `host/beads-blit-carrier.ts:132-134` 实核为已接；⚠ 非「改数字」——原台账连**行都没有**，只改数字会是假勘误） | 见详情 |
 | WXG-T-482 | 台账瘦身：头注沿革外移 + 86 行归档（77150→17147 tok） | 主理人(CodeBuddy)·治理轨 | ✅ **完成（2026-10-28）**（用户拍板方案 B。头注沿革 39,909 tok **逐字节原文**外移 `production/archive/TASKS-ledger-notes.md`，主表只留机械锚 + 「用过号未自登清单」指针；`tasks:archive --until-under=17200 --skip-ids=414 --write` 归档 86 行 + 86 节（守恒通过），主表 127→41 行 / 详情 149→63 节；同批删 T-415 逐字节重复详情节、给归档器新增 `--skip-ids` 绕开撞号行） | 见详情 |
+| WXG-T-483 | 台账三件收口：414 撞号改号 + 观察哨量纲 + check:tasks L 项 | 主理人(CodeBuddy)·治理轨 | ✅ **完成（2026-10-28）**（承 T-482 §6 三条遗留：① 414 撞号裁定 —— 提案改领 **484**、414 归帧率档，依据 = 414 的**提交信息署号**在 `3bae99b1` 而提案登记提交 `c28c706f` 署的是 413 + 改号代价差一个数量级（14 处源码注释 vs 零代码引用）；② 行数观察哨口径钉死 —— `check-tasks.mjs` H 项文案显式写「**行数**」并给 ✅/活跃分解，活跃行 ≥ 哨兵时明报「结构性不可达（非债务）」且⛔ 自调阈值；③ 新增 **L 项**「详情同号多节」门，区分 dup（逐字节相同）与撞号（内容不同）并指 K-046；实测先红后绿：加门时 414 两节恰被拦 ⇒ 改号后转绿） | 见详情 |
 > 注 1：T-016/T-017 的产出实际由 CodeBuddy 侧会话完成（用户授权路径），本台账为跨 IDE 统一追认。
 > 注 2（第二次撞号追认）：CodeBuddy 会话后续又将 CI/CD 与 ADR-0009 误编为 016/017，已按 T-021/T-022 归位；其提交信息与任务单内嵌旧号不回改，以本台账为准。
 > 注 3：多会话并行时领号纪律——开工前读本文件取「下一可用号」并立即回填占位，完成后再更新状态行。
