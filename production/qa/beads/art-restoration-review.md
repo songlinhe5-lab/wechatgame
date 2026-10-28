@@ -140,7 +140,7 @@
 | 台账声明的已接线件 → 盘面 | **漏接线 0**：台账 21 件（除 `ui_menu_signboard`）**全部**在 `cocos/assets/textures/` 有同名 `.png + .meta` |
 | 在途件 | **1 件**：`ui_menu_signboard.png`（带绳整块版，与「绳不随切图走」旧裁冲突 ⇒ 双轨待 runtime 选型，台账已标 ⏳，⛔ 不算缺陷） |
 | 盘面有、台账无 | **0 件**（`tint-mask-asset-spec.md` 专项台账） |
-| 台账件数 | **漂移**：README 写「`menu/` 18 件」，盘面实为 **21 件**（含 `ui_menu_cta_label` / `ui_menu_seal_cleared` / `ui_menu_signboard`）⇒ P2 文档漂移，归 art 侧勘误（一字改） |
+| 台账件数 | **漂移**：README 写「`menu/` 18 件」，盘面实为 **21 件**（含 `ui_menu_cta_label` / `ui_menu_seal_cleared` / `ui_menu_signboard`）⇒ **已闭（WXG-T-481）**：件数改 21 + 补三行台账（`badge_progress`/`seal_cleared`/`cta_label`，来源 `9c553e0c`·WXG-T-282，均已在 `MENU_TEXTURES` → carrier:132-134 接线） |
 | 反误报 | 4 个 `{bead,grid}-hole{,less}-tint-128-mask.png` 看似「未入账」，实为 blit 着色管线件，**已入 `design/art/specs/tint-mask-asset-spec.md` + ADR-0030**，消费方 `host/beads-blit-carrier.ts:85-88` ⇒ ⛔ 不报 |
 
 **命名口径差（非缺陷）**：`MENU_TEXTURES` 的 `bitmap__menu_case_frame` 对应文件 `ui_showcase_frame.png`、`plate` ↔ `ui_showcase_plate.png`、`cta`/`ctaPressed` ↔ `ui_btn_start_9s(_pressed)` ⇒ **token 名 ≠ 文件名**，与 skill §6-2「名映射误判」同族，对账时按 id 表查而非按词面匹配。

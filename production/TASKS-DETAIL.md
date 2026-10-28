@@ -6823,6 +6823,25 @@ T-461 收口时的同族发现（K-116 违反实例第二处）：选中珠分�
 
 **结论**：资产层**无 P0/P1**。整体判定仍 `CONCERNS`（六屏真机图未取，而纹理层正是美术主体）。
 
+## WXG-T-481
+
+**勘误 art 台账：`menu/` 件数 18→21 + 补三行 · 负责：主理人(CodeBuddy) · 状态：🟢 已交付（2026-10-28）**
+
+**动因**：WXG-T-480 资产对账发现 `final/README.md` 的「`menu/` 18 件」与盘面 **21 件**不符。用户 2026-10-28 授权代改 art 正本。
+
+**先查再改（关键）**：核台账逐行 → `ui_menu_cta_label` / `ui_menu_seal_cleared` / `ui_menu_badge_progress` 三件**在台账里连行都没有**（`grep -c` 全为 0）。
+⇒ 若只把 18 改成 21 = **假勘误**（数字对了、来源仍黑箱）。故按「补行 + 改数」两步做。
+
+**来源取证（不编历史）**：三件均在同一提交入仓 ——
+`git log --diff-filter=A -- <path>` 三处一致 = **`9c553e0c`（2026-10-16「菜单走马灯 v3.5–v3.9 实装、主题 themes 分包与纹理换代 PNG」· WXG-T-282）**；
+接线状态不是抄旧记，而是**实核代码**：`MENU_TEXTURES.{badgeProgress,sealCleared,ctaLabel}`
+→ `cocos/assets/scripts/host/beads-blit-carrier.ts:132/133/134` 三条 path 映射齐备，且 `cocos/assets/textures/` 有同名件 ⇒ 均**已接**。
+
+**落笔**：README「三类目录」行改「`menu/` **21 件**」并留勘误注（点名三件 + 本单号）；台账表在 `ui_menu_badge_locked` 行后补三行，列「来源批次 / 接线状态（含 carrier 行号）」。
+台账行数 ≠ 件数（多行是多件合并，如 `ui_btn_circle_normal/pressed + ui_icon_sound/mail/settings` 行 = 5 件）⇒ 件数校验以 `ls` 为据：**21 = 18 + 3** ✓。
+
+**影响**：不涉代码、不涉金样本。WXG-T-480 报告里该 P2 项标已闭。
+
 ## WXG-T-470
 
 **Meta 页族批1①：图鉴（album）· 负责：主理人(Trae) · 状态：🟡 立项（2026-10-28）**
