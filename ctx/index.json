@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3903,
       "lines": 132,
-      "sha256": "25e6599aefeaff80b5cad6cc018352b120611f0919de9dc4bc6ac7d4a43f4117",
+      "sha256": "63fd699471d4a994b557edf82d38097b909e68fdaa1a47f38cb0ffff5194e7ab",
       "tier": "normal",
       "sections": [
         {
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "78408ff6af52b7e1d909270f9b7dcbb3e74c84b3aea3a9686800405784ed3422",
+      "sha256": "169d0554831414f0f22bf52b89e8e034dec7eab764e4a3b0c65245cd4c44b80c",
       "tier": "normal",
       "sections": [
         {
@@ -745,7 +745,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 164 行 / 73858 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 164 行 / 73852 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
@@ -95695,9 +95695,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 73858,
+      "tokens": 73852,
       "lines": 164,
-      "sha256": "72847ec1543852db8277c666089baca100918f140ada4ccc439a9158d64eccde",
+      "sha256": "1aa3a23fec378d07eba5e5797717d87f17754cde49cf93cc22ef93b76cca8f5e",
       "tier": "hot",
       "sections": [
         {
@@ -95705,7 +95705,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 165,
-          "tokens": 73849,
+          "tokens": 73843,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -95720,7 +95720,7 @@
           "level": 2,
           "startLine": 136,
           "endLine": 165,
-          "tokens": 1460,
+          "tokens": 1454,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
             "backlog",

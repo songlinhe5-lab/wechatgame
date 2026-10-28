@@ -154,7 +154,7 @@
 | **`build:cocos:wx` 脚本名漂移** | WXG-T-129 指引实测 | 仓库无此脚本，实际入口 = `build:cocos`（wechatgame 默认平台，**2026-10-18 WXG-T-292 起默认即 release 基线档**）；QA 文档 20+ 处待订正（历史报告不回改） |
 | **BD-62 末张卡 ◀▶ 可见性方向反了 + 敬请期待中央图案待设计** | 严守真 / WXG-T-294 | P2。修复 = 末张态「◀ 保留、▶ 隐藏」按规格翻转并补一条可截图判据；中央 7 颗灰点占位图交 ART 出定稿（林绘澄）。证据 = 真机四帧 hdc 截图 |
 | **beads F6：G4 探针未随 v2.5 时基翻转升级** | QA §A4c.4-F6 / T-169 收口 | `g4-probe tapChain` 仍单固定步 down+up；改两帧形后需复跑 §A4b/§H/§G 族，历史 `[Probe]` 读数待复核 |
-| **`meta:overlay` 字段名不一致：§4 写 `id`、现码 emit `name`** | meta-ui CH-6 / WXG-T-167 | 需主理人定是 §4 文本还是码侧命名（`beads-shell.ts:257`），同批补 `album` 值域 |
+| **`meta:overlay` 字段名 `id` / `name` 口径** | meta-ui CH-6 / WXG-T-167 | ✅ v1.96 已对齐 §3.14：统一 `name`、五值 `'none'|'signin'|'settings'|'levels'|'skins'`（album 移批1） |
 | **beads C-5：缩放后描边/缝隙是否随缩** | ADR-0015 C-5 / T-166 核销 | 现按「不随缩」占位并标 `[R]/[P]`；需 art 轨拍板，改后按 K-051 差分复算图元与包体 |
 | **beads §3 变更单：相机三占位值 + F3-b 底线** | T-169/172 移交 / T-166 核销 | fit 边距 / 缩放上限 / 位移阈值 + z<1×`TOUCH_MIN` 底线；须 playtest 或用户给值 |
 | **beads 元游戏批1（ui-kit 图元层 + 图鉴/本地榜/名片页；余 GDD 半边已由 T-167 交草案）** | WXG-T-164 收口 / T-167 执行批 | 前置 = 裁完 Q7/Q7-b 后 meta-ui 转正；ui-kit 仍无人领 |
