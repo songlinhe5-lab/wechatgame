@@ -692,6 +692,90 @@ describe('S6 §8-27(d) 中途终止不回滚（现号；本批前无腿）', () 
   });
 });
 
+// ──────── §8-33(b) / §8-34(a) 同色重复点名回归腿（2026-10-28 P1 缺陷的固定复现，⛔ 不得删）
+
+describe('S6 §8-33(b)/§8-34(a) 同色多颗托盘珠 ⇒ 归宿格互不重复（P1 回归腿）', () => {
+  /**
+   * 上位判据：§8-33(b)「`traySlots.length` 恒等于裁定时刻的 `t`」、§8-34(a)「每颗托盘珠的落点格
+   * `pattern` 恒等于该珠色」、§8-26(a)「`ΔM ≥ 0` 恒成立」。
+   *
+   * 缺陷本体（`src/game/beads-game.ts:_powerupInputs()` 旧实现）：每颗珠都取「行主序第一个匹配格」
+   * ⇒ 同色 N 颗指向**同一格**，违反 `systems/powerups.ts:planTray` 头注写明的前置「目标格互不重复
+   * 由调用方保证」。倒序执行时首格被 `setBead` 反复覆盖、被逐出的正是刚放下的那颗托盘珠 ⇒
+   * 实测「声称清 2 槽、实际只落 1 颗」。修法 = 按色消费式分配（第 k 颗 ⇒ 第 k 个候选格）。
+   *
+   * 夹具（两腿共用，`BEADS_DUP_FIXTURE`）：图案 `'123123'×5` 的 6×5 盘，逐行摆 `112233` 的一个
+   * 排列 ⇒ **每色珠数恒等于每色格数 = 10**（⛔ 非 §8-34(e) 的 P-1 伪造态，故本腿断言的是
+   * 「合法盘面上的 100% 清空/归位」）。色 1 珠占 (0,0)(0,5)(1,4)(1,5)(2,0)(2,3)(3,0)(3,3)(4,0)(4,1)
+   * ⇒ 错位 9 颗；其中 (0,5)-(1,5)-(1,4) 是一个 8 向连通组，整组取回后盘面恰好留下 3 个色 1 空格
+   * (0,3)(1,0)(1,3) ⇒ 「三颗同色珠 ≡ 三个同色归宿格」，旧实现下必然三珠争一格。
+   */
+  const BEADS_DUP_FIXTURE = ['123321', '223311', '123123', '123123', '112323'];
+
+  /** 行主序逐格摆珠（BOOT 装配原语 `grid.fill` 的第三参 = 珠色，⛔ 不走凭空造珠的 giveTrayBead）。 */
+  function loadDupFixture(h: Harness): void {
+    const grid = h.game.grid;
+    for (let r = 0; r < grid.rows; r++) {
+      for (let c = 0; c < grid.cols; c++) {
+        if (grid.isFillable(r, c)) grid.fill(r, c, Number(BEADS_DUP_FIXTURE[r]!.charAt(c)));
+      }
+    }
+  }
+
+  it('三格同色空 + 三颗同色珠 ⇒ 三格全就位、托盘清空、`traySlots` 不短于 t', () => {
+    const h = mk('wxgame.beads.test.s6-8-33-dup');
+    const grid = h.game.grid;
+    loadDupFixture(h);
+    expect(grid.misplacedCount, '每色珠 ≡ 每色格 ⇒ 错位恰 9（(0,3)(0,5)(1,0)(1,3)(1,4)(1,5)(4,1)(4,2)(4,3)）').toBe(9);
+
+    // 合法取回：色 1 的错位连通块 (0,5)-(1,5)-(1,4) ⇒ 整组 3 颗进托盘。
+    expect(h.game.selectBoardBead(0, 5)).toBe(true);
+    expect(h.game.retrieveSelectedGroup()).toBe(true);
+    expect(h.game.tray.holdingCount).toBe(3);
+    for (let s = 0; s < 3; s++) expect(h.game.tray.slot(s)!.colorIdx).toBe(1);
+    const emptiesBefore = grid.fillableTotal - grid.filledCount;
+    expect(emptiesBefore, '守恒：空格数 ≡ 托盘占用').toBe(3);
+    const mBefore = grid.misplacedCount;
+
+    expect(h.game.usePowerup('trayRestore')).toBe(true);
+    const payload = h.last<{ traySlots: number[]; affectedCells: { row: number; col: number }[] }>(
+      'powerup:used',
+    )!;
+    // §8-33(b)：清空槽数恒等于 t（旧缺陷这里给出 [0,1] 却只落 1 颗 ⇒ 本条先红）。
+    expect(payload.traySlots, 'traySlots.length ≡ t').toEqual([0, 1, 2]);
+    // §8-34(b) 落点判据：三个目标格互不重复。
+    const keys = new Set(payload.affectedCells.map((c) => c.row * 1024 + c.col));
+    expect(keys.size, 'affectedCells 无重复格（旧缺陷：三颗点同一格）').toBe(payload.affectedCells.length);
+    expect(h.game.tray.holdingCount, '§8-33(a) 托盘占用恒为 0').toBe(0);
+    for (const { row, col } of payload.affectedCells) {
+      expect(grid.cell(row, col)!.beadColorIdx, `§8-34(a) (${row},${col}) 落点色 ≡ 该格要求色`).toBe(
+        grid.requiredColor(row, col),
+      );
+    }
+    expect(grid.misplacedCount, '§8-26(a) ΔM ≥ 0（旧缺陷全量实测 −6.91）').toBeLessThanOrEqual(mBefore);
+    expect(mBefore - grid.misplacedCount, '本态 ΔM = +3（三颗全落对）').toBe(3);
+    expect(h.count('bead:placed'), '§8-32(c) bead:placed 条数 = 本次新增就位格数').toBe(3);
+  });
+
+  it('组选期间（托盘珠为 `selected`）点扫豆刷仍须生效 ⇒ 不得整次无效果', () => {
+    const h = mk('wxgame.beads.test.s6-8-33-selected');
+    const grid = h.game.grid;
+    loadDupFixture(h);
+    expect(h.game.selectBoardBead(0, 5)).toBe(true);
+    expect(h.game.retrieveSelectedGroup()).toBe(true);
+    // 点托盘同色块 ⇒ 整组转 `selected`（v2.2 组选；`Tray.holdingCount` 仍计入这些珠）。
+    expect(h.game.selectTraySlot(0)).toBe(true);
+    expect(h.game.tray.selectedCount).toBe(3);
+
+    expect(
+      h.game.usePowerup('trayRestore'),
+      '旧实现只收 `holding` 槽 ⇒ 组选期间点名清单为空 ⇒ 整次无效果（不扣次但也不干活）',
+    ).toBe(true);
+    expect(h.game.tray.holdingCount, '§8-33(a) selected 珠同样要被清空').toBe(0);
+    expect(grid.fillableTotal - grid.filledCount, '§8-33(a) 空格同步归零').toBe(0);
+  });
+});
+
 // ───────────────────────────────────── §3.6 v1.95 · 豆子购买（无上限 / 统一 100）
 
 describe('§3.6 v1.95 · 豆子购买（§8-18 / §8-31：统一 100 豆、不设次数上限）', () => {

@@ -1508,36 +1508,44 @@ export class BeadsGame {
   /**
    * 组装 S6 的 `PowerupInputs`（v1.95，WXG-T-431）：
    *  - `dims`：盘面尺寸（`windowRestore` 算最密集 6×6 贴边收缩窗口）；
-   *  - `tray` / `empties`：`trayRestore` 的托盘珠清单（每颗带它的唯一归宿格，行主序
-   *    第一个匹配格；锁定 / 无归宿的珠**不进清单**——S6 约定调用方预筛）与盘面空格。
-   * 全部**读取期**构造，S6 仍无状态（不持镜像）。
+   *  - `tray` / `empties`：`trayRestore` 的托盘珠清单与盘面空格。
+   *
+   * **归宿格 = 按色「消费式」分配**（同色第 k 颗 ⇒ 行主序第 k 个候选格，一格只准一颗）：
+   * `systems/powerups.ts:planTray` 头注写明的前置「目标格互不重复**由调用方保证**」就是本函数
+   * 的职责。旧实现每颗都取「行主序首格」⇒ 同色 N 颗指向同一格，倒序执行时前一颗被 `setBead`
+   * 反复覆盖、被逐出的正是刚放下的那颗托盘珠 ⇒ `traySlots.length < t`、`ΔM < 0`（判据
+   * §8-33(b) / §8-34(a) / §8-26(a) 全红，2026-10-28 QA 登记的 P1）。无候选格的珠**不进清单**
+   * ⇒ 留槽（§6 X-4「该珠 skipped」，结构上不可达，仅镜像漂移/改关时才出现）。
+   * 托盘珠口径 = `state !== 'free'`（含 `selected`，与 `Tray.holdingCount` 同定义）：旧实现只收
+   * `holding` ⇒ 组选期间（点过托盘同色块、尚未落子）点扫豆刷会**整次无效果**。
+   * 锁定 / 已就位格永不是候选（守恒 ⇒ 有珠在托盘就有格缺珠）。全部**读取期**构造，
+   * S6 仍无状态（不持镜像）。
    */
   private _powerupInputs(): PowerupInputs {
     const grid = this._grid;
-    const tray: TrayBead[] = [];
-    for (let slot = 0; slot < this._tray.capacity; slot++) {
-      const s = this._tray.slot(slot);
-      if (!s || s.state !== 'holding') continue;
-      // 归宿格 = 行主序第一个「要求色 == 珠色 且 (empty 或 misplaced)」的格；
-      // locked / 已就位格不可能是归宿（守恒 ⇒ 有珠在托盘就有格缺珠）。
-      for (let row = 0; row < grid.rows; row++) {
-        for (let col = 0; col < grid.cols; col++) {
-          if (grid.requiredColor(row, col) !== s.colorIdx) continue;
-          const cell = grid.cell(row, col)!;
-          if (cell.state === 'empty' || (cell.state === 'filled' && grid.isMisplaced(row, col))) {
-            tray.push({ colorIdx: s.colorIdx, slot, targetRow: row, targetCol: col });
-            row = grid.rows; // 找到即跳出双层
-            break;
-          }
-        }
-      }
-    }
+    // 单次行主序扫描：按色收集候选格（下标 = colorIdx）+ 全量空格清单。
+    const byColor: AffectedCell[][] = [];
     const empties: AffectedCell[] = [];
     for (let row = 0; row < grid.rows; row++) {
       for (let col = 0; col < grid.cols; col++) {
         const cell = grid.cell(row, col)!;
+        // ⚠ `CellState` = `'empty' | 'filled' | 'locked'`（`entities/grid.ts:27`）——本行原写
+        // `cell.state === 'void' || …`，那边界值不存在 ⇒ TS2367 卡住 typecheck / cocos:check /
+        // harness:build 三门（2026-10-28，WXG-T-477 代改，见台账）。`locked` 已是唯一「不可填」态。
+        if (cell.state === 'locked') continue;
+        const req = grid.requiredColor(row, col);
+        const misplaced = cell.state === 'filled' && grid.isMisplaced(row, col);
         if (cell.state === 'empty') empties.push({ row, col });
+        if (cell.state === 'empty' || misplaced) (byColor[req] ??= []).push({ row, col });
       }
+    }
+    const tray: TrayBead[] = [];
+    for (let slot = 0; slot < this._tray.capacity; slot++) {
+      const s = this._tray.slot(slot);
+      if (!s || s.state === 'free') continue;
+      const next = byColor[s.colorIdx]?.shift();
+      if (!next) continue; // 无归宿 ⇒ 不进清单 ⇒ 留槽（§6 X-4）
+      tray.push({ colorIdx: s.colorIdx, slot, targetRow: next.row, targetCol: next.col });
     }
     return { dims: { rows: grid.rows, cols: grid.cols }, tray, empties };
   }
