@@ -25,7 +25,7 @@
 | # | 文件 | 范围 | tokens |
 |---:|---|---|---:|
 | 1 | `test-cases.md` | 本页（索引 + 迁移表 + 追加规则） | 19 |
-| 2 | `test-cases-a-core.md` | 本片 = §A 头 + §A.0 / §A.0b / §A1–§A3；§A4 起（输入域）在下一片 | 4949 |
+| 2 | `test-cases-a-core.md` | 本片 = §A 头 + §A.0 / §A.0b / §A1–§A3 + **§A3b**（v1.25 G-3 补件，不计入 5×10）；§A4 起（输入域）在下一片 | 4949 |
 | 3 | `test-cases-a-input.md` | 本片 = §A4 / §A4b / §A4c / §A5；§B 起在下一片 | 11941 |
 | 4 | `test-cases-b-f.md` | 本片 = §B–§F（派生 / 冲刺 / 道具 / 帧序 / 结算）；§G 起在下一片 | 5359 |
 | 5 | `test-cases-g-perceptual.md` | 本片 = §G 可感知性判据（20 条）；§H 起在下一片 | 9670 |
@@ -42,7 +42,7 @@
 
 | 旧锚点（本页已无此节） | 新文件 |
 |---|---|
-| §A / §A.0 / §A.0b / §A1 / §A2 / §A3 | `test-cases-a-core.md` |
+| §A / §A.0 / §A.0b / §A1 / §A2 / §A3 / **§A3b** | `test-cases-a-core.md` |
 | §A4 / §A4b / §A4c / §A5 | `test-cases-a-input.md` |
 | §B / §C / §D / §E / §F | `test-cases-b-f.md` |
 | §G / §G.1 / §G.2 / §G.3 / §G.4 / §G.5 | `test-cases-g-perceptual.md` |
