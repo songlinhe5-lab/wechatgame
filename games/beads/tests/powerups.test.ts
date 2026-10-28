@@ -44,7 +44,8 @@ type UsedPayload = { type: string; affectedCells: readonly { row: number; col: n
 /** S6 专用 harness：一律用 6×5 三色测试关。 */
 function mk(saveKey: string, extra: HarnessOptions = {}): Harness {
   return createBeadsHarness({
-      noAssemble: true, levels: [simpleTestLevel()], saveKey, ...extra });
+    noAssemble: true, levels: [simpleTestLevel()], saveKey, ...extra
+  });
 }
 
 /** 装配错位局面：全部可填格就位，再做指定次数的两两对调（贪心找不同色格） ⇒ 受控错位局面。 */
@@ -754,7 +755,9 @@ describe('S6 §8-33(b)/§8-34(a) 同色多颗托盘珠 ⇒ 归宿格互不重复
     }
     expect(grid.misplacedCount, '§8-26(a) ΔM ≥ 0（旧缺陷全量实测 −6.91）').toBeLessThanOrEqual(mBefore);
     expect(mBefore - grid.misplacedCount, '本态 ΔM = +3（三颗全落对）').toBe(3);
-    expect(h.count('bead:placed'), '§8-32(c) bead:placed 条数 = 本次新增就位格数').toBe(3);
+    // §8-32(c) 口径（powerups-v2 **v2.7** 裁定后现文）：条数 ≡ **离槽颗数 `t`**、每份必带 `slot`；
+    // ⛔ 不等于「新增就位格数 `t + ΔM`」（换出珠顺手落对的那 `ΔM` 格不产 placed）——本态 `t = 3`。
+    expect(h.count('bead:placed'), '§8-32(c) bead:placed 条数 ≡ 离槽颗数 t（v2.7 现文）').toBe(3);
   });
 
   it('组选期间（托盘珠为 `selected`）点扫豆刷仍须生效 ⇒ 不得整次无效果', () => {

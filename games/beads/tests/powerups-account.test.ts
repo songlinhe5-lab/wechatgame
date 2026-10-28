@@ -109,6 +109,8 @@ describe('S6 §8-33/34/35 全量核算（60000 次，⛔ 不得抽查）', () =>
     const t = account.totals;
     expect(t.dMneg, '§8-26(a) ΔM ≥ 0 恒成立（旧 P1 实测 −6.91）').toBe(0);
     expect(t.dMgtT, '§8-26(b) ΔM ≤ t（v2.5 勘误：上界是 t，不是 2t）').toBe(0);
+    // ⚠ 口径诚实（powerups-v2 v2.7「复验范围声明」）：这里的「新增就位格数」是 `t + ΔM` **算**出来的
+    // 而非独立**数**出来的 ⇒ 表 7 I-3 不构成本批独立复验（脚本不输出盘面就位数直方图，同 R-25）。
     expect(t.newSeatedGt2t, '§8-26(b) 新增就位格数 = t + ΔM ≤ 2t').toBe(0);
     expect(t.colorBeadDiff, '§8-26(c) 每色珠数前后完全相等（不造珠不灭珠）').toBe(0);
     expect(t.conservBefore, '§8-26(d) 裁定前 #empty ≡ 托盘占用').toBe(0);
