@@ -375,3 +375,16 @@ export function runUiGoldenState(id: string): {
 export function runAllUiGoldenStates(): Array<{ record: UiGoldenStateRecord; flow: string[] }> {
     return STATES.map((s) => runUiGoldenState(s.id));
 }
+
+/**
+ * `[WXG-T-478]` **美术还原 review 出图腿**：把十一个金样本态各构一张 `RenderModel` 交调用方
+ * （`ui-shot-render.ts` 用它导 SVG，供与 `设计/art/final/prototypes` 原型定稿 PNG 比对）。
+ *
+ * ⛔ 与夹具对拍无关：只**读** `STATES`，不写 sha、不改覆盖集、不影响 `ui-golden.test.ts`。
+ */
+export function buildUiGoldenFrames(): Array<{ id: string; unit: string; note: string; model: RenderModel }> {
+    return STATES.map((s) => ({ id: s.id, unit: s.unit, note: s.note, model: frame(s.build()) }));
+}
+
+/** 出图腿复用的确定性 rig 与热区点击（⛔ 仅测试工具用，不进产品代码）。 */
+export { rig, tapMeta };

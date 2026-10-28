@@ -6733,6 +6733,38 @@ T-461 收口时的同族发现（K-116 违反实例第二处）：选中珠分�
 由对方提交其功能时一并带走。⚠ 遗留风险：对方若 `git checkout -- beads-game.ts` 或整文件覆盖，本行修正会丢
 （症状 = 三红复现，按本段处置即可）。
 
+## WXG-T-478
+
+**美术 review 第 2 步：出图装置 + 骨架层比对 · 负责：主理人(CodeBuddy) · 状态：🟢 已交付（2026-10-28）**
+
+**动因**：WXG-T-476 首轮 review 判定卡在「六屏缺图」。`device-walkthrough` 只到 Session 0 前置（无真机读数），
+故先把**确定性出图通道**建起来，别干等设备。
+
+**新装置（本轮建成，可复用）**：
+1. `games/beads/tests/ui-golden-scenes.ts::buildUiGoldenFrames()` —— 复用十一帧金样本态构 `RenderModel`。
+   ⛔ 只**读** `STATES`：不写 sha、不改覆盖集 ⇒ `ui-golden.test.ts` 与夹具零影响（`test` 步复跑仍绿）。
+2. `tools/scripts/render-ui-shots.mjs` —— 十一帧 → `temp/ui-shot/<stateId>.svg`。与金样本**同源同种子** ⇒ 实现自证。
+3. 光栅化：**无头 Chrome** `--window-size=750,1334 --screenshot`。
+   ⚠ 实坑：`qlmanage -t -s 750` 只产**正方形缩略图**（长边铺满即把画面下半裁掉），第一版图因此看起来「底部缺失」——
+   判图前必须 `sips -g pixelWidth -g pixelHeight` 核尺寸（本条已写入 skill §2 步 7）。
+
+**硬发现 F2 · P1 · 批 1 三页玩家不可达**：
+- `open-album` / `open-local-rank` / `open-profile` 全仓只在 `view/meta-types.ts:248/250/252`（`MetaAction` 联合）
+  与 `game/beads-shell.ts:666/672/678`（`switch` 分支）出现 —— **没有任何布局文件发射这些热区 id**。
+- 探针实证：主菜单热区 = `open-levels/open-rank/start/open-settings/open-skins/open-signin/carousel-prev/carousel-next`；
+  `levels` / `settings` / `signin` / `skins` 四屏热区表也无上述三 id。
+- 后果：图鉴 / 本地榜 / 名片**有页、有绘制、有动作分支，但没入口** ⇒ `device-walkthrough` D-80（本轮新增）**当前不可能被执行**；
+  美术侧也无法上屏验。归属工程（入口接线遗漏 or 计划在批 2），美术侧只登记不自修。
+
+**骨架层比对（harness 出图 ↔ `proto-v2-full` 原型定稿）**：
+- 可判且一致：CTA 324×92@x218 落点与原型同区 · 棋盘居中/橱窗白板层次正确 · 左右轮播箭头对称 · 底左「好友榜」与主 CTA 相对关系正确。
+- ⛔ 不可判（已在报告写死证据等级）：**纹理层全缺**（rig 用 `NullAssetProvider`，招牌木板/木框/玻璃/贴纸/高光都不出图，
+  而美术主体正在这层）；**顶部区几何不作数**（`menuAnchors()` 吃 `capsuleBottomDp`，无胶囊走 `MENU_TOPBAR_TOP_FALLBACK`，
+  初看「齿轮圆钮压题字」大概率是 fallback 位，按 `§0-4` 不当 P0）；**`boot` 屏不在金样本十一态内**。
+
+**判定**：仍 `CONCERNS`，**上限未提高**（只到骨架层自证）。解除条件 = 六屏真机截图 + 观感拍板，
+并新增前置：**批 1 三页入口须先接上**，否则 D-80 无法进走查。
+
 ## WXG-T-470
 
 **Meta 页族批1①：图鉴（album）· 负责：主理人(Trae) · 状态：🟡 立项（2026-10-28）**

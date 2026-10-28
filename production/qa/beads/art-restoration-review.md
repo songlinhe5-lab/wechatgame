@@ -82,3 +82,43 @@
 **`CONCERNS`** —— 机械层与版式层零 P0/P1，唯一实质偏差 = F1（P2，文案纪律）；
 但**六屏缺现包真机图** ⇒ 按判定上限不得给 `PASS`。解除条件 = 六屏真机截图 + 观感拍板
 （并入 `device-walkthrough` Session 4 / 4b 同场执行）。
+
+---
+
+## 第 2 轮 · 2026-10-28（WXG-T-478 · 出图装置 + 骨架层比对）
+
+### 新装置：可复现出图腿（本轮建成）
+
+| 件 | 位置 | 说明 |
+|---|---|---|
+| 导出钩子 | `games/beads/tests/ui-golden-scenes.ts::buildUiGoldenFrames()` | 复用十一帧金样本态构 `RenderModel`；⛔ 不写 sha、不改覆盖集、不影响 `ui-golden.test.ts` |
+| 出图脚本 | `tools/scripts/render-ui-shots.mjs` | 十一帧 → `temp/ui-shot/<stateId>.svg`（与金样本同源同种子 ⇒ 实现自证） |
+| 光栅化 | 无头 Chrome `--window-size=750,1334 --screenshot` | ⚠ `qlmanage -t` 只出**正方形缩略图**（长边铺满即裁掉画面下半）⇒ 判图前必须核 `sips -g pixelWidth/pixelHeight` |
+
+### 硬发现 F2 · `P1` 批 1 三页**玩家不可达**
+
+| 项 | 事实 |
+|---|---|
+| 证据 | `open-album` / `open-local-rank` / `open-profile` 全仓仅出现在 `view/meta-types.ts:248/250/252`（动作联合）与 `game/beads-shell.ts:666/672/678`（`switch` 分支）——**没有任何布局文件发射这些热区 id** |
+| 反证 | 探针实测各屏热区表：主菜单 `open-levels/open-rank/start/open-settings/open-skins/open-signin/carousel-prev/carousel-next`；`settings` / `signin` / `skins` / `levels` 均无上述三 id |
+| 后果 | 图鉴 / 本地榜 / 名片**有页面、有绘制、有动作分支，但无入口** ⇒ 真机走查无法验、美术还原无法上屏验；`device-walkthrough` D-80（本轮新增条目）当前**不可能被执行** |
+| 归属 | 工程（入口接线 = 批 2 或遗漏）；美术侧只需待入口就位后补验 |
+
+### 骨架层比对（harness 出图 ↔ 原型定稿 `proto-v2-full`）
+
+**可判（不依赖胶囊/纹理）**：CTA 位置与尺寸吻合（750 宽设计下 324×92 @x218，落点与原型粉色钮同区）·
+棋盘居中、橱窗内白板区层次正确 · 左右轮播箭头两侧对称 · 底左「好友榜」与主 CTA 的相对关系正确。
+
+**不可判（必须真机，本轮不给判定）**：
+1. **纹理层全缺**——金样本 rig 用 `NullAssetProvider` ⇒ 招牌木板、橱窗木框/玻璃、贴纸、珠子高光一律不出图；
+   而**美术主体恰恰在这一层**。
+2. **顶部区几何不作数**——`menuAnchors()` 吃 `capsuleBottomDp`（`tuning/menu.ts:406`），harness 无胶囊 ⇒ 走
+   `MENU_TOPBAR_TOP_FALLBACK`。初看「齿轮/公告圆钮压到题字」的差异，**大概率是 fallback 位而非实现缺陷**，
+   按 `device-walkthrough §0-4` 不作证据，⛔ 不当 P0 报。
+3. `boot` 屏不在金样本十一态内 ⇒ 骨架图也拿不到，只能真机取。
+
+### 本轮判定（更新）
+
+仍为 **`CONCERNS`**，且上限**没有提高**：出图装置只到「骨架层自证」，纹理与顶部区都要真机。
+新增 **F2（P1，不可达）** 已转工程；F1（P2）已闭。解除条件不变（六屏真机截图 + 观感拍板），
+并新增一条前置：**批 1 三页入口须先接上**，否则 D-80 无法进走查。

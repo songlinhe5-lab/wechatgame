@@ -56,6 +56,14 @@ review 的价值是证明**实现仍指向这四层**，而不是重画一套设
 7. **出图比对（人工层）**：六屏（boot / 主菜单 / 选关 / 玩法+托盘 / 设置 / 签到）截图 ↔
    原型定稿 PNG，逐屏比对构图 / 间距 / 对齐 / 层级。
    **证据等级**：`harness` 截图只能证明「实现自证」；⛔ **不得当真机证据**（`device-walkthrough §0-4`）。
+   - **现成装置**：`node --experimental-transform-types --import=./tools/scripts/lib/ts-js-resolve.mjs
+     tools/scripts/render-ui-shots.mjs` ⇒ `temp/ui-shot/<stateId>.svg`（与金样本同源同种子的十一帧）；
+     光栅化用**无头 Chrome** `--window-size=750,1334 --screenshot`。
+     ⚠ `qlmanage -t` 只产**正方形缩略图**（长边铺满即裁掉下半画面）⇒ 判图前先核 `sips -g pixelWidth/pixelHeight`。
+   - **harness 出图的两条硬边界**（2026-10-28 实测，⛔ 别当已覆盖）：① 纹理层全缺
+     （rig 用 `NullAssetProvider` ⇒ 招牌/木框/玻璃/贴纸/高光不出图，而美术主体就在这层）；
+     ② 顶部区几何不作数（`menuAnchors()` 吃 `capsuleBottomDp`，无胶囊时走
+     `MENU_TOPBAR_TOP_FALLBACK`）⇒ 涉及顶部图标 / 体力条 / 招牌位置的差异，**先排除 fallback 再报**。
 8. **观感裁定**：`§5 形状语言` / `§7 动效气质` / 冷暖对撞等**无通过线**的项，只出
    `PASS*` + 观察记录，交 `art-director` 或用户拍板；⛔ 不在 review 现场临时定线。
 
