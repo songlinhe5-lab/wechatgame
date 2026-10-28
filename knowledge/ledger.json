@@ -3349,7 +3349,7 @@
       "file": "knowledge/lessons/toolchain.md",
       "category": "工具链",
       "title": "改中文文档的批量补丁必带「三段自证」：`assert count(old)==1` → 落盘 → `git diff` 必须是纯插入",
-      "contentHash": "945ba4187b40e1b7f3b8bd3f5094283f76864e95fff584ae2e6440ee9cd97134",
+      "contentHash": "6c1ac9bf7efd488a783645040fd93aed83fc6e8eab4ad2ece8750e170bcd7b22",
       "sourceTask": "WXG-T-434",
       "addedDate": "2026-10-28",
       "lastAccess": "2026-10-28",
@@ -5520,6 +5520,15 @@
         "K-200",
         "K-201",
         "K-202"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-28",
+      "taskId": "WXG-T-434",
+      "kind": "updated",
+      "ids": [
+        "K-200"
       ],
       "note": null
     }
