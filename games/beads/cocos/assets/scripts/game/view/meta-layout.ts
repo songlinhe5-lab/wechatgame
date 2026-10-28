@@ -6,7 +6,7 @@
  * 缓存分两档：默认行数 = 按 anchors 引用（WeakMap，逐机主菜单）；变参行数只服务 K-6 同帧差分腿。
  */
 
-import { DESIGN_H, DESIGN_W, LEVELS_BACK_BOTTOM, LEVELS_BACK_W, LEVELS_CELL, LEVELS_GAP, LEVELS_GRID_LEFT, LEVELS_GRID_TOP, MENU_ARROW_VISUAL_D, MENU_ARROW_X, MENU_BADGE, MENU_BAR_FRAME, MENU_BAR_H, MENU_BAR_TOP_INSET, MENU_BOSS_SLOT, MENU_CASE_FRAME, MENU_CASE_H, MENU_CLIP, MENU_CTA_H, MENU_CTA_X, MENU_DONE_ICON, MENU_PLATE, MENU_PRIMARY_W, MENU_SIGN_FRAME, MENU_TOPBAR_X, TOUCH_MIN, WALL_COLS, WALL_ROWS, dialogShiftY, menuAnchors, type MenuAnchors } from '../config/tuning';
+import { DESIGN_H, DESIGN_W, LEVELS_BACK_BOTTOM, LEVELS_BACK_W, LEVELS_CELL, LEVELS_GAP, LEVELS_GRID_LEFT, LEVELS_GRID_TOP, MENU_ARROW_VISUAL_D, MENU_ARROW_X, MENU_BADGE, MENU_BAR_FRAME, MENU_BAR_H, MENU_BAR_TOP_INSET, MENU_BOSS_SLOT, MENU_CASE_FRAME, MENU_CASE_H, MENU_CLIP, MENU_CTA_H, MENU_CTA_X, MENU_DONE_ICON, MENU_PLATE, MENU_PRIMARY_W, MENU_SIGN_FRAME, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_X, TOUCH_MIN, WALL_COLS, WALL_ROWS, dialogShiftY, menuAnchors, type MenuAnchors } from '../config/tuning';
 import { settingsContentButtons } from './settings-content';
 import { signinCellLayout } from './signin-content';
 import { skinCardBoxes } from './skins-content';
@@ -269,7 +269,15 @@ export function anchoredGeo(a: MenuAnchors): AnchoredMenuGeo {
     // 招牌图框：图顶 = 结顶 + bowYOff（绳向上伸出结顶）；y-up 下框底 = 图顶 − h。
     const signBox = box(MENU_SIGN_FRAME.x, r(a.signTopY + MENU_SIGN_FRAME.bowYOff) - MENU_SIGN_FRAME.h, MENU_SIGN_FRAME.w, MENU_SIGN_FRAME.h);
     const ctaBox = box(MENU_CTA_X, r(a.ctaBotY), MENU_PRIMARY_W, MENU_CTA_H);
-    const rankBox = box(24, ctaBox.y + (MENU_CTA_H - TOUCH_MIN) / 2, 140, TOUCH_MIN);
+    // `WXG-T-487`（用户裁「把好友榜放到左上设计一个图标按钮，左上右上各两枚平衡入口」）：
+    // 好友榜自 CTA 左侧**纸面文字钮**（140×88）上提为**顶栏圆钮** = 左上第二枚，视觉 80 / 热区 88
+    // 与其余三钮同构。`rankBox` / `rankHit` 字段名保留（仍「绘制/热区同对象」）。
+    const rankBox = box(
+        MENU_TOPBAR_X.rank,
+        r(a.btTopY) - TOUCH_MIN - MENU_TOPBAR_ROW2_DY,
+        TOUCH_MIN,
+        TOUCH_MIN,
+    );
     // `[WXG-T-453]` **收回 `[WXG-T-448]` 的底隙下探**：热区回归与视觉重合（上下各内缩 2 设计 px，
     // `open-rank` 恢复「绘制/热区同对象」）。当初下探是为补「按钮下半点不上」，真因后来钉死为
     // Cocos 节点命中的 letterbox 死区（`[WXG-T-451]` 改全局 input 已修）⇒ 下探失去收益，只剩
@@ -290,7 +298,12 @@ export function anchoredGeo(a: MenuAnchors): AnchoredMenuGeo {
         MENU_BAR_H,
     );
     const settingsHit = box(MENU_TOPBAR_X.settings, r(a.btTopY) - TOUCH_MIN, TOUCH_MIN, TOUCH_MIN);
-    const skinsHit = box(MENU_TOPBAR_X.skins, r(a.btTopY) - TOUCH_MIN, TOUCH_MIN, TOUCH_MIN);
+    const skinsHit = box(
+        MENU_TOPBAR_X.skins,
+        r(a.btTopY) - TOUCH_MIN - MENU_TOPBAR_ROW2_DY,
+        TOUCH_MIN,
+        TOUCH_MIN,
+    );
     const mailHit = box(MENU_TOPBAR_X.mail, r(a.btTopY) - TOUCH_MIN, TOUCH_MIN, TOUCH_MIN);
     const geo: AnchoredMenuGeo = {
         caseBox, bossBox, clipBox, badgeBox, plateBox, signBox, ctaBox, ctaHit,

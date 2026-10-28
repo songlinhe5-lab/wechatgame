@@ -3,7 +3,7 @@
  * 几何一律取自 `meta-layout.ts` 的锚定档，控件画法取自 `meta-widgets.ts` ⇒ 页面只编排、不另算。
  */
 
-import { DESIGN_W, MENU_ARROW_ICON, MENU_BAR_ICON_D, MENU_BOSS_ART_D, MENU_CTA_LABEL, MENU_CTA_PRESSED_D, MENU_CTA_SLICE, MENU_CTA_SRC_H, MENU_DONE_ICON, MENU_LOCK_D, MENU_PLAQUE_BEVEL_INSET, MENU_PLAQUE_ICON_INSET, MENU_PLAQUE_RIVET_INSET, MENU_PLAQUE_RIVET_R, MENU_PLAQUE_STROKE, MENU_PLATE, MENU_PLATE_TITLE, MENU_PROGRESS, MENU_SEAL, MENU_SIGNIN_DOT_R, MENU_SIGN_FRAME, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, SIGN_BEAD_PITCH, SIGN_MATRIX_N, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning';
+import { DESIGN_W, MENU_ARROW_ICON, MENU_BAR_ICON_D, MENU_BOSS_ART_D, MENU_CTA_LABEL, MENU_CTA_PRESSED_D, MENU_CTA_SLICE, MENU_CTA_SRC_H, MENU_DONE_ICON, MENU_LOCK_D, MENU_PLAQUE_BEVEL_INSET, MENU_PLAQUE_ICON_INSET, MENU_PLAQUE_RIVET_INSET, MENU_PLAQUE_RIVET_R, MENU_PLAQUE_STROKE, MENU_PLATE, MENU_PLATE_TITLE, MENU_PROGRESS, MENU_SEAL, MENU_SIGNIN_DOT_R, MENU_SIGN_FRAME, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, SIGN_BEAD_PITCH, SIGN_MATRIX_N, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning';
 import { COPY_TOKENS } from '../config/copy-tokens';
 import { ARC_COMING_SOON } from '../config/arcs';
 import { plateFade } from '../config/menu-carousel';
@@ -163,7 +163,8 @@ function drawTopbar(
     // `[待 UI 设计]`（用户 2026-10-24 令「先用原入口图标代替，晚点再对 UI 设计」）。
     const skx = MENU_TOPBAR_X.skins + TOUCH_MIN / 2;
     const skinsPressed = isPressed(data, 'open-skins');
-    const skcy = cy + pressDy(data, skinsPressed);
+    // `WXG-T-486`：skins 挂左侧第二枚（设置正下方）⇒ 圆心随热区下移一行。
+    const skcy = cy - MENU_TOPBAR_ROW2_DY + pressDy(data, skinsPressed);
     if (circleReady) {
         const tex = skinsPressed && menuBitmapReady(MENU_TEXTURES.btnCirclePressed)
             ? MENU_TEXTURES.btnCirclePressed
@@ -180,6 +181,26 @@ function drawTopbar(
     if (menuBitmapReady(skinsIcon)) {
         const id = MENU_TOPBAR_ICON_D;
         builder.blit(skinsIcon, skx - id / 2, skcy - id / 2, id, id);
+    }
+    // ── 好友榜（`WXG-T-487` 用户 2026-10-28 裁：左上第二枚，与 skins 左右对称；左列 2 + 右列 2）──
+    // 底圆 / 按下纹与其余三钮同构。⚠ **缺图**：`MENU_TEXTURES` 仅有 iconSettings / iconSound /
+    // iconMail 三枚，无 `ui_icon_rank` ⇒ 按信封判例「⛔ 程序化腿不自造图标」**只留空圆底**，
+    // 不画替代图形。`[待 UI 设计]`：补切图 `ui_icon_rank`（160² @2x ⇒ 绘制 40²）后在此 blit 即可。
+    // ⛔ 上线前必须补齐 —— 空圆钮对玩家不可识别（已在台账登记为 P1）。
+    const rkx = MENU_TOPBAR_X.rank + TOUCH_MIN / 2;
+    const rankPressed = isPressed(data, 'open-rank');
+    const rkcy = cy - MENU_TOPBAR_ROW2_DY + pressDy(data, rankPressed);
+    if (circleReady) {
+        const tex = rankPressed && menuBitmapReady(MENU_TEXTURES.btnCirclePressed)
+            ? MENU_TEXTURES.btnCirclePressed
+            : circleTex;
+        builder.blit(tex, rkx - r, rkcy - r, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_VISUAL_D);
+    } else {
+        builder.circle(rkx, rkcy, r, {
+            fill: rankPressed ? palette.cardPressed : palette.panel,
+            stroke: palette.panelBorder,
+            lineWidth: 2,
+        });
     }
 }
 
@@ -516,13 +537,8 @@ export function drawMenuAnchored(
     } else {
         drawButton(builder, palette, g.ctaBox.x, g.ctaBox.y + pressDy(data, ctaPressed), g.ctaBox.w, g.ctaBox.h, 'accent', 14, label('start', data), UI_FONT.button, ctaPressed);
     }
-    // `[WXG-T-432]` 好友榜入口：CTA 左侧纸钮（T1 纸面；标签为菜单侧短名）。
-    const rankPressed = isPressed(data, 'open-rank');
-    drawButton(
-        builder, palette, g.rankBox.x, g.rankBox.y + pressDy(data, rankPressed),
-        g.rankBox.w, g.rankBox.h, 'paper', UI_CONTAINER.radiusCard,
-        '好友榜', UI_FONT.button, rankPressed,
-    );
+    // `[WXG-T-432]` 好友榜入口原为 CTA 左侧纸钮（T1 纸面 + 文字），`WXG-T-487` 上提为顶栏圆钮，
+    // 绘制已并入 `drawTopbar`（第四枚），此处不再画左下文字钮。
     builder.text(DESIGN_W / 2, g.versionY, COPY_TOKENS.version_label, {
         fill: palette.textDim,
         font: UI_FONT.label,

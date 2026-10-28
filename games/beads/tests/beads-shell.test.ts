@@ -406,7 +406,9 @@ describe('BeadsShell — 装扮馆 skins 弹窗：入口 · 卡区 · 买断闭�
         // `MENU_TOPBAR_ROW2_DY`（88）；mail 仍在右上第一行（692）。
         // ⚠ 原断言「三颗同一行、pitch 88」（`[68,604,692]` + y 全等）随该裁定作废 —— 保留本注释
         // 以便后人知道 `[68,604,692]` 是历史值而非笔误。
-        expect(top.map((c) => Math.round(c.x))).toEqual([68, 68, 692]);
+        // `WXG-T-487` 再裁「左上右上各两枚」⇒ 左列 `settings`+`rank`（x24 ⇒ 中心 68）、
+        // 右列 `mail`+`skins`（x648 ⇒ 中心 692）。此处三枚 = settings / skins / mail ⇒ `[68,692,692]`。
+        expect(top.map((c) => Math.round(c.x))).toEqual([68, 692, 692]);
         expect(Math.round(top[0].y - top[1].y)).toBe(88);
         expect(Math.round(top[2].y)).toBe(Math.round(top[0].y));
         // 画法腿：中颗现在画的是**正常态圆**（⛔ 旧禁用态 α0.5 空圆残影）⇒ 命令流里该列 x 只有

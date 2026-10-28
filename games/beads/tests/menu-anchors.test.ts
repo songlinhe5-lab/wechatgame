@@ -105,17 +105,22 @@ describe('`[WXG-T-453]` 底部热区收回（与视觉重合）', () => {
             expect(g.ctaBox.y).toBe(ctaBot);
             expect(g.ctaBox.h).toBe(MENU_CTA_H);
 
-            // ② 绘制/热区同对象（同源守卫恢复）。
+            // ② 绘制/热区同对象（同源守卫保留）。
+            // `WXG-T-487`（用户裁「把好友榜放到左上设计一个图标按钮，左上右上各两枚」）起
+            // 好友榜自 CTA 左侧纸钮**上提为顶栏左上第二枚** ⇒ 旧断言
+            // `rankHit.y === ctaBot + 2`（与 CTA 底缘同源）随该裁定作废，改为钉顶栏位：
+            // x = `MENU_TOPBAR_X.rank`（24）、y = 设置钮 y − `MENU_TOPBAR_ROW2_DY`（88）。
             expect(g.rankHit).toBe(g.rankBox);
-            expect(g.rankHit.y).toBe(ctaBot + 2);
             expect(g.rankHit.h).toBe(TOUCH_MIN);
+            expect(g.rankHit.w).toBe(TOUCH_MIN);
+            expect(g.rankBox.x).toBe(24);
+            expect(g.rankBox.y).toBe(g.settingsHit.y - 88);
 
-            // ③ 底隙带（热区下沿之下、安全区上沿之上）不响应；框内正常命中。
+            // ③ 底隙带（CTA 热区下沿之下、安全区上沿之上）不响应；框内正常命中。
+            // rank 已不在底部 ⇒ 本段只对 CTA 生效（原先 rank 那两行随之退场）。
             const belowHit = ctaBot + 1;
             expect(inBox(g.ctaHit, g.ctaBox.x + 10, belowHit)).toBe(false);
-            expect(inBox(g.rankHit, g.rankBox.x + 10, belowHit)).toBe(false);
             expect(inBox(g.ctaHit, g.ctaBox.x + 10, ctaBot + 40)).toBe(true);
-            expect(inBox(g.rankHit, g.rankBox.x + 10, ctaBot + 40)).toBe(true);
         });
     }
 });

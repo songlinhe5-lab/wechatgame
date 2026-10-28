@@ -366,17 +366,17 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 3951,
-      "lines": 133,
-      "sha256": "9c88b0be6401a744f1de4afe29f8641ba8d90c245d734d95e561d50ba564cdf2",
+      "tokens": 3911,
+      "lines": 132,
+      "sha256": "8eb1e677ecbe3e2245f20a2ee1fef9776f1e617b34f2d0b9522134602d396fb3",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文预算报表（ctx/BUDGET.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 134,
-          "tokens": 3938,
+          "endLine": 133,
+          "tokens": 3898,
           "summary": "生成：2026-10-28 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -420,8 +420,8 @@
           "anchor": "§3 超限清单（超过所属类别上限）",
           "level": 2,
           "startLine": 46,
-          "endLine": 108,
-          "tokens": 2440,
+          "endLine": 107,
+          "tokens": 2400,
           "summary": "上限按文档类别分档（WXG-T-377）：spec 8000（判据/规格/提案/ADR/GDD/UX/skill，未放松",
           "keywords": [
             "WXG",
@@ -435,8 +435,8 @@
         {
           "anchor": "§4 真实最常用章节与分布加权节省率（估算）",
           "level": 2,
-          "startLine": 109,
-          "endLine": 134,
+          "startLine": 108,
+          "endLine": 133,
           "tokens": 612,
           "summary": "数据源：ctx/usage-distribution.json（真实读事件账本），样本 457 次读取 / 20 会话；",
           "keywords": [
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "767bf3453bad286d537e47ad68221f1b31888aaad34d453aeb89ffe8f9f57370",
+      "sha256": "65f83b1c2ce4340ffe335b1672f534bcb8c5f74058c6b2a470d88b91715ced48",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 94 行 / 18069 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 95 行 / 18360 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+95 · §待排（backlog，无号，立项时领取…=67+29",
+          "summary": "§WXG 任务台账（SSOT）=1+96 · §待排（backlog，无号，立项时领取…=68+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 3802 行 / 125753 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 3859 行 / 126741 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+3803 · §WXG-T-484=3115+43 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+3860 · §WXG-T-484=3115+43 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -28030,9 +28030,9 @@
     },
     {
       "path": "games/beads/design/art/specs/menu-layout-implementation-spec.md",
-      "tokens": 9557,
+      "tokens": 9695,
       "lines": 184,
-      "sha256": "d68c76dbdbc2693a120db3a2e52fcf776bf4e5f4a02229c05865bd206cf98a2f",
+      "sha256": "b9936bda68752816c009b7d3dd037aafb6d9d2a419cbfed2331920f0f32c3b9a",
       "tier": "normal",
       "sections": [
         {
@@ -28040,7 +28040,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 185,
-          "tokens": 9531,
+          "tokens": 9669,
           "summary": "用途：UI 布局落码的唯一施工依据。规则正本 = 本件；取证图 = ../coordinates/menu-master",
           "keywords": [
             "coordinates",
@@ -28086,7 +28086,7 @@
           "level": 2,
           "startLine": 47,
           "endLine": 64,
-          "tokens": 2048,
+          "tokens": 2186,
           "summary": "招牌（结+板+绳一体） 图框 370×298 @x190，等比（960×772 × 370/960）；结顶 bow0 =",
           "keywords": [
             "§5.2",
@@ -87669,17 +87669,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 125753,
-      "lines": 3802,
-      "sha256": "6040697111819ab24d5413de634976b89e236cd013cdaf3331e4fd38c9058407",
+      "tokens": 126741,
+      "lines": 3859,
+      "sha256": "30c94a69e4679d679405ca222f58d9b7a18628a6f07686f5bc639aa85a10a20d",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 3803,
-          "tokens": 125737,
+          "endLine": 3860,
+          "tokens": 126724,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -91051,8 +91051,8 @@
           "anchor": "§WXG-T-486",
           "level": 2,
           "startLine": 3760,
-          "endLine": 3803,
-          "tokens": 724,
+          "endLine": 3805,
+          "tokens": 725,
           "summary": "P1-3 收口：顶栏 skins 自 x560 改挂左侧第二枚（✅ 完成 · 2026-10-28 · 主理人(Code",
           "keywords": [
             "WXG",
@@ -91136,12 +91136,121 @@
           "anchor": "§6 遗留 (3)",
           "level": 3,
           "startLine": 3798,
-          "endLine": 3803,
-          "tokens": 137,
+          "endLine": 3805,
+          "tokens": 138,
           "summary": "1. 顶栏图标语义错位仍在：skins 位图标暂用 iconSound（喇叭）顶替，[待 UI 设计]（原样未动）。",
           "keywords": [
             "skins",
             "iconSound",
+            "遗留"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-487",
+          "level": 2,
+          "startLine": 3806,
+          "endLine": 3860,
+          "tokens": 983,
+          "summary": "顶栏改四钮两列两行：好友榜自 CTA 左侧上提为左上第二枚（✅ 完成 · 2026-10-28 · 主理人(CodeBu",
+          "keywords": [
+            "WXG",
+            "CTA",
+            "CodeBu"
+          ]
+        },
+        {
+          "anchor": "§1 用户裁定 (2)",
+          "level": 3,
+          "startLine": 3810,
+          "endLine": 3813,
+          "tokens": 57,
+          "summary": "「把好友榜放到左上设计一个图标按钮，让左上右上分别有两个按钮，平衡入口」⇒ 顶栏从「左列 2 + 右单单 1」改为对称四",
+          "keywords": [
+            "用户裁定"
+          ]
+        },
+        {
+          "anchor": "§2 布局",
+          "level": 3,
+          "startLine": 3814,
+          "endLine": 3828,
+          "tokens": 202,
+          "summary": "",
+          "keywords": [
+            "布局"
+          ]
+        },
+        {
+          "anchor": "§3 净空（P1-3 的持续守护）",
+          "level": 3,
+          "startLine": 3829,
+          "endLine": 3832,
+          "tokens": 55,
+          "summary": "x560 已不是任何钮的坐标 ⇒ 招牌两侧净空同时为正：左列右缘 108 vs 板体左缘 194.2（+86）、右列左缘",
+          "keywords": [
+            "x560",
+            "净空",
+            "的持续守护"
+          ]
+        },
+        {
+          "anchor": "§4 ⚠ P1 遗留：好友榜图标缺图",
+          "level": 3,
+          "startLine": 3833,
+          "endLine": 3840,
+          "tokens": 215,
+          "summary": "MENU_TEXTURES 只有 iconSettings / iconSound / iconMail 三枚图标，没有",
+          "keywords": [
+            "MENU_TEXTURES",
+            "iconSettings",
+            "iconSound",
+            "iconMail",
+            "遗留",
+            "好友榜图标缺"
+          ]
+        },
+        {
+          "anchor": "§5 测试处置（设计变更的正当后果，非为过测放宽）",
+          "level": 3,
+          "startLine": 3841,
+          "endLine": 3849,
+          "tokens": 178,
+          "summary": "beads-shell 入口腿 中心 x [68,68,692] → [68,692,692]（skins 复位右列）；",
+          "keywords": [
+            "beads",
+            "shell",
+            "skins",
+            "测试处置",
+            "设计变更的正",
+            "当后果"
+          ]
+        },
+        {
+          "anchor": "§6 读数 (2)",
+          "level": 3,
+          "startLine": 3850,
+          "endLine": 3853,
+          "tokens": 26,
+          "summary": "pnpm run test = framework 550 / breakout 239 / beads 1411（+2",
+          "keywords": [
+            "pnpm",
+            "run",
+            "test",
+            "framework",
+            "breakout",
+            "beads"
+          ]
+        },
+        {
+          "anchor": "§7 遗留",
+          "level": 3,
+          "startLine": 3854,
+          "endLine": 3860,
+          "tokens": 138,
+          "summary": "1. P1 好友榜图标缺图（见 §4）—— 需切图 ui_icon_rank。",
+          "keywords": [
+            "§4",
+            "ui_icon_rank",
             "遗留"
           ]
         }
@@ -91149,17 +91258,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 18069,
-      "lines": 94,
-      "sha256": "49bec794b19d166bf6870fdae108300d066c24a53932fe6d8b4a59c1923dfee2",
+      "tokens": 18360,
+      "lines": 95,
+      "sha256": "e916a9c71f6c7ea6729f9c663b0cc08cd04f5846b62625179026e1b3c2ffda01",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 95,
-          "tokens": 18060,
+          "endLine": 96,
+          "tokens": 18351,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -91172,8 +91281,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 67,
-          "endLine": 95,
+          "startLine": 68,
+          "endLine": 96,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -100941,18 +101050,55 @@
       ]
     },
     {
+      "path": "production/qa/beads/test-cases-history-archive.md",
+      "tokens": 6913,
+      "lines": 40,
+      "sha256": "2e62ac051c5c8bdc012c8a982db6dbbc4c45f521ae97dbc2a2979428d7d0d0b8",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§变更记录 · 归档（v1.1–v1.19）",
+          "level": 1,
+          "startLine": 14,
+          "endLine": 41,
+          "tokens": 6410,
+          "summary": "v1.2 2026-09-12 增 §C 冲刺 11 条（WXG-T-028）+ 冲刺常量速查（systems-inde",
+          "keywords": [
+            "WXG",
+            "systems",
+            "inde",
+            "变更记录",
+            "归档"
+          ]
+        },
+        {
+          "anchor": "§归档说明（缺行声明照旧成立）",
+          "level": 2,
+          "startLine": 34,
+          "endLine": 41,
+          "tokens": 364,
+          "summary": "本件实存 13 个版本行：v1.2 / v1.3 / v1.4 / v1.5 / v1.6 / v1.7 / v1.8 ",
+          "keywords": [
+            "归档说明",
+            "缺行声明照旧",
+            "成立"
+          ]
+        }
+      ]
+    },
+    {
       "path": "production/qa/beads/test-cases-history.md",
-      "tokens": 16784,
-      "lines": 75,
-      "sha256": "02a14490457b6fd858af03da89fe5e2c3f8f4e4655c86c7b4cdd24c58d3d6506",
+      "tokens": 13234,
+      "lines": 64,
+      "sha256": "5e3e5552b81ca3ec196f1d3ba6c9c2bb972f806c8dec0698f446a0d1726fc348",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§变更记录",
           "level": 1,
-          "startLine": 6,
-          "endLine": 35,
-          "tokens": 15077,
+          "startLine": 7,
+          "endLine": 24,
+          "tokens": 11451,
           "summary": "v1.0 2026-09-11 初版：§A 50 条（5 组 × 10，§8 判据 1:1）+ §B 派生 12 条 严",
           "keywords": [
             "§8",
@@ -100962,8 +101108,8 @@
         {
           "anchor": "§J · v2.0 判据迁移（**WXG-T-144 / Epic T-133**，2026-09-17）——「错位归位」玩法反转的判据面整体换代",
           "level": 1,
-          "startLine": 36,
-          "endLine": 76,
+          "startLine": 25,
+          "endLine": 65,
           "tokens": 1534,
           "summary": "### J.0 范围铁声明",
           "keywords": [
@@ -100978,8 +101124,8 @@
         {
           "anchor": "§J.1 四族改判 ⛔（原供料/道具判据，随玩法反转整体作废）",
           "level": 2,
-          "startLine": 41,
-          "endLine": 49,
+          "startLine": 30,
+          "endLine": 38,
           "tokens": 404,
           "summary": "TC-LOOP-02 / TC-TRAY-01 供料节律（60s tray:spawned 恰 15 次 ±1） ⛔ 作",
           "keywords": [
@@ -100994,8 +101140,8 @@
         {
           "anchor": "§J.2 新玩法判据用例（**[N] 层新增**；与 E1–E5 单测一一对应，代码锚点见 `tests/misplaced*.ts` / `selection-anchor.test.ts`）",
           "level": 2,
-          "startLine": 50,
-          "endLine": 70,
+          "startLine": 39,
+          "endLine": 59,
           "tokens": 766,
           "summary": "TC-J-01 tray-spawner v2.0 §8-2 [Node] 60s 零 tray:spawned + 首",
           "keywords": [
@@ -101010,8 +101156,8 @@
         {
           "anchor": "§J.3 G4 结论联动",
           "level": 2,
-          "startLine": 71,
-          "endLine": 76,
+          "startLine": 60,
+          "endLine": 65,
           "tokens": 78,
           "summary": "E1–E6 落码后：G4 玩法判据面已整体换代（本节 J 系列），但 G4 探针（g4-probe-v1.1.mjs）尚",
           "keywords": [

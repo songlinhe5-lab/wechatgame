@@ -15,7 +15,7 @@ import { metaLayout } from '../src/view/meta-view.js';
 import {
     DESIGN_H, DESIGN_W, MENU_ARROW_VISUAL_D, MENU_ARROW_X, MENU_BAR_H, MENU_CASE_H, MENU_CTA_H,
     MENU_CTA_X, MENU_PRIMARY_W, MENU_SIGN_CHAIN_H, MENU_SIGN_FRAME, MENU_TOPBAR_ICON_D, MENU_TOPBAR_VISUAL_D,
-    MENU_TOPBAR_X, TOUCH_MIN, WALL_ROWS, menuAnchors,
+    MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_X, TOUCH_MIN, WALL_ROWS, menuAnchors,
 } from '../src/config/tuning.js';
 
 const TIERS = [
@@ -38,9 +38,14 @@ describe('v3.5 定案常量', () => {
         expect(MENU_TOPBAR_VISUAL_D).toBe(80);
         expect(MENU_TOPBAR_ICON_D).toBe(MENU_TOPBAR_VISUAL_D);
         expect(MENU_TOPBAR_VISUAL_D).toBeLessThanOrEqual(TOUCH_MIN);
-        // 右两颗热区 pitch 88 ⇒ 视觉隙 ≥ 0
-        // [WXG-T-365] 中档键名 notice → skins（公告预留位升格为装扮馆入口），坐标一字未变
-        expect(MENU_TOPBAR_X.mail - MENU_TOPBAR_X.skins - MENU_TOPBAR_VISUAL_D).toBeGreaterThanOrEqual(0);
+        // `WXG-T-487`（用户裁「把好友榜放到左上设计一个图标按钮，让左上右上分别有两个按钮，
+        // 平衡入口」）起顶栏 = **左列 2（settings / rank @24）+ 右列 2（mail / skins @648）**，
+        // 旧「右两颗横向 pitch 88」（`mail − skins − 80 ≥ 0`）随该裁定作废 —— 现在两者同 x。
+        // 同列两钮的**纵向**间距由 ROW2_DY 保证 ≥ 视觉直径 ⇒ 不互叠（热区边贴边 = 88 = TOUCH_MIN）。
+        expect(MENU_TOPBAR_X.rank).toBe(MENU_TOPBAR_X.settings);
+        expect(MENU_TOPBAR_X.skins).toBe(MENU_TOPBAR_X.mail);
+        expect(MENU_TOPBAR_ROW2_DY).toBeGreaterThanOrEqual(MENU_TOPBAR_VISUAL_D);
+        expect(MENU_TOPBAR_ROW2_DY).toBe(TOUCH_MIN);
     });
 
     it('招牌板体与顶栏钮净空为正（WXG-T-486 后：左列右缘 108 / mail 左缘 648）', () => {
@@ -48,12 +53,12 @@ describe('v3.5 定案常量', () => {
         const boardL = MENU_SIGN_FRAME.x + 11 * k;
         const boardR = MENU_SIGN_FRAME.x + 948 * k;
         const pad = (TOUCH_MIN - MENU_TOPBAR_VISUAL_D) / 2;
-        // 左列两枚（settings / skins 同 x）视觉右缘；板体左缘须在其右。
+        // 左列两枚（settings / rank 同 x24）视觉右缘；板体左缘须在其右。
         expect(boardL).toBeGreaterThanOrEqual(MENU_TOPBAR_X.settings + pad + MENU_TOPBAR_VISUAL_D);
-        // 右侧只剩 mail 一枚（x648）：板体右缘须落在其视觉左缘之左。
+        // 右列两枚（mail / skins 同 x648）视觉左缘；板体右缘须落在其左。
         // ⚠ 原断言对 `MENU_TOPBAR_X.skins`（x560）取净空 —— 板体右界 555.4 与 skins 左缘 560
-        // 仅 4.6 净空，即 art-review P1-3 判定的「净空 0、字被压」根因。skins 改挂左列后该断言
-        // 改为对 mail 取，且净空从 4.6 提到 ~92.6。
+        // 仅 4.6 净空，即 art-review P1-3 判定的「净空 0、字被压」根因。`skins` 两次搬移
+        // （T-486 左列 → T-487 右列）后 x560 已不是任何钮的坐标，净空从 4.6 提到 ~92.6。
         expect(boardR).toBeLessThanOrEqual(MENU_TOPBAR_X.mail + pad);
         expect(MENU_TOPBAR_X.mail - boardR).toBeGreaterThan(80);
         expect(MENU_SIGN_FRAME.x * 2 + MENU_SIGN_FRAME.w).toBe(DESIGN_W); // 居中

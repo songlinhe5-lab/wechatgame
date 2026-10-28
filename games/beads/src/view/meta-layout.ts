@@ -269,7 +269,15 @@ export function anchoredGeo(a: MenuAnchors): AnchoredMenuGeo {
     // 招牌图框：图顶 = 结顶 + bowYOff（绳向上伸出结顶）；y-up 下框底 = 图顶 − h。
     const signBox = box(MENU_SIGN_FRAME.x, r(a.signTopY + MENU_SIGN_FRAME.bowYOff) - MENU_SIGN_FRAME.h, MENU_SIGN_FRAME.w, MENU_SIGN_FRAME.h);
     const ctaBox = box(MENU_CTA_X, r(a.ctaBotY), MENU_PRIMARY_W, MENU_CTA_H);
-    const rankBox = box(24, ctaBox.y + (MENU_CTA_H - TOUCH_MIN) / 2, 140, TOUCH_MIN);
+    // `WXG-T-487`（用户裁「把好友榜放到左上设计一个图标按钮，左上右上各两枚平衡入口」）：
+    // 好友榜自 CTA 左侧**纸面文字钮**（140×88）上提为**顶栏圆钮** = 左上第二枚，视觉 80 / 热区 88
+    // 与其余三钮同构。`rankBox` / `rankHit` 字段名保留（仍「绘制/热区同对象」）。
+    const rankBox = box(
+        MENU_TOPBAR_X.rank,
+        r(a.btTopY) - TOUCH_MIN - MENU_TOPBAR_ROW2_DY,
+        TOUCH_MIN,
+        TOUCH_MIN,
+    );
     // `[WXG-T-453]` **收回 `[WXG-T-448]` 的底隙下探**：热区回归与视觉重合（上下各内缩 2 设计 px，
     // `open-rank` 恢复「绘制/热区同对象」）。当初下探是为补「按钮下半点不上」，真因后来钉死为
     // Cocos 节点命中的 letterbox 死区（`[WXG-T-451]` 改全局 input 已修）⇒ 下探失去收益，只剩

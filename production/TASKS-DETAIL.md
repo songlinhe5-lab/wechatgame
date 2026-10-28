@@ -3800,3 +3800,60 @@ alpha 重心 y = 125.9px = 框内 49.76%            ⇒ 重心 ≈ 中心
 1. 顶栏图标语义错位仍在：`skins` 位图标暂用 `iconSound`（喇叭）顶替，`[待 UI 设计]`（原样未动）。
 2. 左列两枚纵向间距取 88（= 热区边贴边），**视觉**上是否要在两圆之间留 8px 隙（如 pitch 96）未定 —— 现为热区最小合规值，观感待真机。
 3. P2 六条仍待处置（条高双值 / 死值徽标 / 注释 917 / assets-spec §1 / MENU_FILE 腿 / 4 孤儿件）。
+
+---
+
+## WXG-T-487
+
+**顶栏改四钮两列两行：好友榜自 CTA 左侧上提为左上第二枚**（✅ 完成 · 2026-10-28 · 主理人(CodeBuddy)·治理轨）
+
+### 1. 用户裁定
+
+「把好友榜放到左上设计一个图标按钮，让左上右上分别有两个按钮，平衡入口」⇒ 顶栏从「左列 2 + 右单单 1」改为**对称四钮**。
+
+### 2. 布局
+
+```
+左列 x24            右列 x648
+settings (行1)      mail   (行1)
+rank     (行2)      skins  (行2)     行距 MENU_TOPBAR_ROW2_DY = 88 = TOUCH_MIN
+```
+
+| 面 | 改动 |
+|---|---|
+| `tuning/layout.ts` | `MENU_TOPBAR_X = { settings:24, rank:24, mail:648, skins:648 }`（新增 `rank` 键；`skins` 由 24 复位 648） |
+| `view/meta-layout.ts` | `rankBox` 由 `box(24, ctaBox.y+(92−88)/2, **140**, 88)` → `box(24, btTopY−88−88, 88, 88)`；`rankHit = rankBox` 同对象保留 |
+| `view/meta-menu.ts` | 删左下纸面文字钮 `drawButton(...'paper', '好友榜')`；`drawTopbar` 增第四枚（底圆 + 按下纹） |
+| 落地单 §3 顶栏行 | 热区左缘改「左列 24 / 右列 648」+ 四钮两列两行说明 |
+
+### 3. 净空（P1-3 的持续守护）
+
+`x560` 已不是任何钮的坐标 ⇒ 招牌两侧净空同时为正：左列右缘 108 vs 板体左缘 194.2（+86）、右列左缘 652 vs 板体右缘 555.4（+96.6）。
+
+### 4. ⚠ P1 遗留：好友榜图标缺图
+
+`MENU_TEXTURES` 只有 `iconSettings` / `iconSound` / `iconMail` 三枚图标，**没有** `ui_icon_rank`。按信封判例「⛔ 程序化腿不自造图标（切图规格权威）」⇒ 该钮目前**只画空圆底**，不画替代图形。
+
+**后果**：玩家看到一个无标识圆钮，**不可识别**。上线前必须补切图 `ui_icon_rank`（160² @2x ⇒ 绘制 40²），落到 `MENU_TEXTURES.iconRank` 后在 `drawTopbar` 第四枚处 `blit` 即可（位置已就绪）。
+
+⚠ 四钮只对应三枚图标 ⇒ 必然有一枚语义错位：现 `skins` 仍借 `iconSound`（`[待 UI 设计]`，T-365 遗留）。补齐 rank 后仍缺「装扮」图标，建议与 `ui_icon_rank` 同批出图。
+
+### 5. 测试处置（设计变更的正当后果，非为过测放宽）
+
+| 测试 | 处置 |
+|---|---|
+| `beads-shell` 入口腿 | 中心 x `[68,68,692]` → `[68,692,692]`（skins 复位右列）；「skins 低 88 / mail 同行」保留 |
+| `menu-anchors` ×5 档 | ② 段由「rankHit.y === ctaBot+2（与 CTA 底缘同源）」→「rank 落顶栏：x=24、y=settingsHit.y−88、w/h=88」；③ 段删 rank 底部两行（已不在底部） |
+| `menu-layout-v35` | 「右两颗横向 pitch 88」断言作废 → 「`rank.x===settings.x`、`skins.x===mail.x`、`ROW2_DY ≥ 视觉 80 且 === TOUCH_MIN`」 |
+| `ui-golden` 十一帧 | `WXG298_SOURCE_REV` 重出基线（确定性自证 PASS） |
+
+### 6. 读数
+
+`pnpm run test` = framework **550** / breakout **239** / beads **1411**（+2 skipped）全绿。
+
+### 7. 遗留
+
+1. **P1** 好友榜图标缺图（见 §4）—— 需切图 `ui_icon_rank`。
+2. `skins` 图标仍借 `iconSound`（T-365 遗留），建议与上条同批出图。
+3. 左列/右列两枚纵向间距 88 = 热区贴边，视觉是否留 8px 隙待真机观感。
+4. 原「好友榜 = CTA 左侧」的布局不再存在 ⇒ 若日后要在 CTA 侧恢复任何入口，需重新领号评估（⛔ 不要与顶栏钮并存造成双入口）。

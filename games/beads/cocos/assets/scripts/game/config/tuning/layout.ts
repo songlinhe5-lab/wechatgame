@@ -129,7 +129,19 @@ export const MENU_TOPBAR_TOP_FALLBACK = SAFE_TOP_H + SAFE_EDGE_MARGIN;
  * 代价 = 公告位被占用（提案已列，回滚 = 键名与一颗钮改回预留空圆）。图标暂用该位原
  * 有的 `MENU_TEXTURES.iconSound`（喇叭）顶替 ⇒ `[待 UI 设计]`，见 `meta-view::drawTopbar`。
  */
-export const MENU_TOPBAR_X = { settings: 24, skins: 560, mail: 648 } as const;
+export const MENU_TOPBAR_X = { settings: 24, rank: 24, mail: 648, skins: 648 } as const;
+/**
+ * 顶栏**第二行**下移量 = `TOUCH_MIN`（88，热区边贴边）。
+ *
+ * 演进：`WXG-T-486`（用户裁「右侧按钮可以放到左侧第二个布局」）先把 `skins` 自 `x560` 挂到左列第二枚；
+ * **`WXG-T-487`（用户 2026-10-28 裁「把好友榜放到左上设计一个图标按钮，让左上右上分别有两个按钮，平衡入口」）**
+ * 改为**左列 2 + 右列 2** 的对称布局：`settings`/`rank` 同 `x24`，`mail`/`skins` 同 `x648`，两列各两行。
+ *
+ * 净空（P1-3 根因的持续守护）：左列视觉右缘 `24+4+80=108` vs 招牌板体左缘 `194.2` ⇒ +86；
+ * 右列视觉左缘 `648+4=652` vs 板体右缘 `555.4` ⇒ +96.6。原 P1-3 的「`x560` 与招牌右界 560 净空 0、
+ * 字被压」在两侧同列后彻底消失（560 不再是任何钮的 x）。
+ */
+export const MENU_TOPBAR_ROW2_DY = 88;
 /**
  * 顶栏视觉圆直径 = 80（落地单 v3.5，用户 2026-10-15 裁：`ui_btn_circle_*` 与三枚 `ui_icon_*` 同为
  * 160×160 px @2x ⇒ 80 设计 px；旧 59/64 作废）。热区 88 同心包裹（视觉比热区小 8，邻钮视觉隙 8）。
