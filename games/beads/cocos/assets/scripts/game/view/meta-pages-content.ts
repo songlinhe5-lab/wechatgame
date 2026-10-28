@@ -102,14 +102,15 @@ export function drawAlbumContent(
             });
 
             // 缩略图区（格上部）：真图待接 ARCS[].textureId，此处只给语义底
+            // （α 0.18 的旧值在白底上几乎不可见 ⇒ 提到 .45 / .3 让「图位」读得出来）
             builder.rect(
                 x + ALBUM_THUMB_INSET,
                 y + ALBUM_CELL - ALBUM_THUMB_INSET - ALBUM_THUMB_H,
                 ALBUM_CELL - ALBUM_THUMB_INSET * 2,
                 ALBUM_THUMB_H,
                 {
-                    fill: cleared ? palette.plaqueFace : palette.locked,
-                    alpha: cleared ? 0.18 : 0.25,
+                    fill: cleared ? palette.slotDashed : palette.locked,
+                    alpha: cleared ? 0.45 : 0.3,
                     radius: 8,
                 },
             );
@@ -117,24 +118,24 @@ export function drawAlbumContent(
             if (!cleared) {
                 // 程序化锁形（⛔ 不用 emoji：跨端字形不一、不进程序化图元体系）
                 const cx = x + ALBUM_CELL / 2;
-                const bodyY = y + ALBUM_CELL - ALBUM_THUMB_INSET - ALBUM_THUMB_H / 2 - 10;
+                const bodyY = y + ALBUM_CELL - ALBUM_THUMB_INSET - ALBUM_THUMB_H / 2 - 11;
                 builder.rect(cx - 13, bodyY, 26, 20, { fill: palette.locked, radius: 4 });
                 builder.rect(cx - 9, bodyY + 20, 18, 8, { stroke: palette.locked, lineWidth: 3, radius: 4 });
-            } else {
-                builder.text(x + ALBUM_CELL - 8, y + ALBUM_CELL - 12, `${idx + 1}`, {
-                    fill: palette.textDim,
-                    font: UI_FONT.cell,
-                    align: 'right',
-                    baseline: 'middle',
+            }
+
+            // 下带：关号（左）+ 三段星条（右）。⭐ 旧版画 22px 「★」字形，缩放后仅 ~8px 不可辨；
+            // 改块状星条后即便小屏也读得出「几星」。关号对未通关格同样显示（可知哪一关没开）。
+            builder.text(x + 10, y + ALBUM_CELL - ALBUM_THUMB_INSET - ALBUM_THUMB_H - 14, `${idx + 1}`, {
+                fill: cleared ? palette.textDim : palette.textDisabled,
+                font: UI_FONT.cell,
+                baseline: 'middle',
+            });
+            for (let s = 0; s < 3; s++) {
+                builder.rect(x + ALBUM_CELL * 0.44 + s * 17, y + 14, 14, 8, {
+                    fill: s < n ? palette.accentPrimary : palette.slotBorder,
+                    alpha: cleared ? 1 : 0.4,
+                    radius: 2,
                 });
-                for (let s = 0; s < 3; s++) {
-                    builder.text(x + ALBUM_CELL / 2 + (s - 1) * 24, y + 16, '★', {
-                        fill: s < n ? palette.accentPrimary : palette.textDisabled,
-                        font: UI_FONT.cell,
-                        align: 'center',
-                        baseline: 'middle',
-                    });
-                }
             }
         }
     }
@@ -217,8 +218,8 @@ export function drawLocalRankContent(
     const rowW = plate.w - RANK_SIDE_PAD * 2;
     const startX = plate.x + RANK_SIDE_PAD;
     const totalH = n * RANK_ROW_H + (n - 1) * RANK_ROW_GAP;
-    /** 首行上缘（带内垂直居中） */
-    const rowTop = bandBottom + (bandH + totalH) / 2;
+    /** 首行上缘（带内垂直居中 + 板中心补偿） */
+    const rowTop = bandBottom + (bandH + totalH) / 2 - CONTENT_CENTER_BIAS;
 
     for (let rank = 0; rank < n; rank++) {
         const it = RANK_POOL[rank]!;
@@ -234,7 +235,14 @@ export function drawLocalRankContent(
             alpha: isSelf ? 0.16 : dim ? 0.4 : 0.85,
         });
         if (isSelf) {
+            // 自身行：淡底 + 左竖条 + 2px 主色框。当前关通常是**未通关**（★0）⇒ 单靠淡底
+            // 会被未通关档的 α 一起压暗，加描边后才稳定可辨。
             builder.rect(startX, y, 4, RANK_ROW_H, { fill: palette.accentPrimary, radius: 2 });
+            builder.rect(startX, y, rowW, RANK_ROW_H, {
+                stroke: palette.accentPrimary,
+                lineWidth: 2,
+                radius: 10,
+            });
         }
 
         // 名次徽章：前三名主色递减 α，其余回落槽线色
@@ -301,8 +309,8 @@ export function drawProfileContent(
     const cardW = (plate.w - PROFILE_PAD_X * 2 - PROFILE_CARD_GAP) / 2;
     const blockH =
         PROFILE_CARD_H * 2 + PROFILE_CARD_GAP + PROFILE_SIGNIN_TITLE_GAP + PROFILE_SIGNIN_CELL;
-    /** 块上界（带内垂直居中） */
-    const blockTop = bandBottom + (bandH + blockH) / 2;
+    /** 块上界（带内垂直居中 + 板中心补偿） */
+    const blockTop = bandBottom + (bandH + blockH) / 2 - CONTENT_CENTER_BIAS;
 
     const totalStars = data.totalStars ?? 0;
     const clearedCount = data.clearedCount ?? 0;

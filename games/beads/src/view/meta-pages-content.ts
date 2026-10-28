@@ -1,15 +1,16 @@
 /**
  * 批 1（WXG-T-470/471/472）三个 Meta 弹窗的内容块绘制。
  * 纯绘制、无状态、无热区（只有 panelPage 通用「返回」钮）。
- * 面板几何 = overlayPlate()（600×720 居中），内部偏移硬编码。
+ * 面板几何 = overlayPlate()（600×720 居中）。
  *
- * | 函数 | overlay | 内容 |
- * |---|---|---|
- * | drawAlbumContent | album | 10 关缩略图墙 + 每关星级 |
- * | drawLocalRankContent | localRank | 每关星级排序 + 自身高亮 |
- * | drawProfileContent | profile | 累计星/通关/体力/钱包/签到 |
+ * ⚠ **坐标口径**（WXG-T-478 修正）：设计空间 **y 向上**，`builder.rect(x, y, w, h)` 的
+ * `y` = **下缘**、向上长 `h`；文字 `baseline: 'middle'` 的 `y` = 字行中线。
+ * ⇒ 内容带自 `CONTENT_TOP_GAP`（板顶下方）起、**逐行 y 递减**往下排。
+ * 旧写法用 `plate.y + 80`（板**底**）作起点并递增 y，导致三页内容贴底、列表倒序、
+ * 且首行压住返回钮（`plate.y+50 … +138`）——本版按内容带居中根治。
+ *
+ * 路由/标题单源在 `meta-view.ts`（`panelPage`）；本文件只负责「带内画什么」。
  */
-
 import type { RenderModelBuilder } from '@wxgame/framework';
 import type { BeadsPalette } from './palette.js';
 import type { MetaLayout, MetaViewData } from './meta-types.js';
@@ -27,13 +28,39 @@ export const ALBUM_TITLE = '图鉴';
 export const LOCAL_RANK_TITLE = '本地榜';
 export const PROFILE_TITLE = '名片';
 
-/** 面板标题下沿：panelPage 标题画在 plate.y + plate.h - 50，这里从标题下 30 起。 */
-const TITLE_BOTTOM_OFFSET = 80;
+/**
+ * 内容带上界 = 板顶下 90（`panelPage` 标题基线在板顶下 50，40px 字形自基线向上延约 20
+ * ⇒ 顶沿留 20px 净空）。
+ */
+const CONTENT_TOP_GAP = 90;
+/**
+ * 内容带下界 = 板底上移 150。返回钮占 `plate.y+50 … +138`（240×`TOUCH_MIN`88）
+ * ⇒ 带底留 12px 净空，画面与热区不再叠。
+ */
+const CONTENT_BOTTOM_GAP = 150;
+/**
+ * 内容块整体**下移**量。带下界要让返回钮 138（88 高 + 50 偏移）而带上界只要让标题 ~70
+ * ⇒ 带中心比板中心高 30；补偿后内容与板视觉居中（三页共用，避免各页各调）。
+ */
+const CONTENT_CENTER_BIAS = 30;
+
+/* ── 图鉴 ─────────────────────────────────────────────────────────── */
+const ALBUM_CELL = 96;
+const ALBUM_GAP = 20;
+const ALBUM_COLS = 5;
+const ALBUM_ROWS = 2;
+const ALBUM_ROW_GAP = 24;
+const ALBUM_THUMB_INSET = 6;
+const ALBUM_THUMB_H = 56;
+const ALBUM_STAT_H = 40;
+const ALBUM_STAT_GAP = 26;
 
 /**
- * 图鉴（album）：10 关缩略图 2×5 网格（每关 = 一个 ARC 内的 level）。
- * 缩略图尺寸 = 100×100，间距 20，整体居中。
- * 通关 ★n，未通关灰底 + 锁图标，当前关高亮边框。
+ * 图鉴（album）：`ALBUM_ROWS × ALBUM_COLS` 缩略图墙（每关一格）+ 带底成绩合计。
+ * 格内 = 缩略图区（上 `ALBUM_THUMB_H`）+ 星条（下）/ 锁形（未通关）；当前关主色 4px 描边。
+ *
+ * 缩略图正文待接 `ARCS[].textureId` ⇒ 本版先铺语义底（通关木色淡影 / 未通关锁灰），
+ * ⛔ 不在此处编纹理坐标。
  */
 export function drawAlbumContent(
     builder: RenderModelBuilder,
@@ -42,60 +69,120 @@ export function drawAlbumContent(
     _layout: MetaLayout,
 ): void {
     const plate = overlayPlate();
-    const contentTop = plate.y + TITLE_BOTTOM_OFFSET;
-    const cellSize = 100;
-    const gap = 20;
-    const cols = 5;
-    const rows = 2;
-    const gridW = cols * cellSize + (cols - 1) * gap;
-    const startX = plate.x + (plate.w - gridW) / 2;
-    const startY = contentTop;
+    const bandBottom = plate.y + CONTENT_BOTTOM_GAP;
+    const bandH = plate.h - CONTENT_TOP_GAP - CONTENT_BOTTOM_GAP;
 
-    for (let row = 0; row < rows; row++) {
-        for (let col = 0; col < cols; col++) {
-            const idx = row * cols + col;
-            const x = startX + col * (cellSize + gap);
-            const y = startY + row * (cellSize + gap);
-            const stars = data.starsByLevel?.[idx] ?? 0;
-            const cleared = stars > 0;
+    const gridW = ALBUM_COLS * ALBUM_CELL + (ALBUM_COLS - 1) * ALBUM_GAP;
+    const startX = plate.x + (plate.w - gridW) / 2;
+    const gridH = ALBUM_ROWS * ALBUM_CELL + (ALBUM_ROWS - 1) * ALBUM_ROW_GAP;
+    const blockH = gridH + ALBUM_STAT_GAP + ALBUM_STAT_H;
+    /** 块上界（带内垂直居中） */
+    const blockTop = bandBottom + (bandH + blockH) / 2 - CONTENT_CENTER_BIAS;
+
+    const stars = data.starsByLevel;
+    const levelN = stars?.length ?? 0;
+
+    for (let r = 0; r < ALBUM_ROWS; r++) {
+        for (let c = 0; c < ALBUM_COLS; c++) {
+            const idx = r * ALBUM_COLS + c;
+            const x = startX + c * (ALBUM_CELL + ALBUM_GAP);
+            // 逐行 y 递减（y 向上 ⇒ 第 0 行在最上）
+            const y = blockTop - r * (ALBUM_CELL + ALBUM_ROW_GAP) - ALBUM_CELL;
+            const n = stars?.[idx] ?? 0;
+            const cleared = n > 0;
             const isCurrent = idx === data.currentLevelIndex;
 
-            // 缩略图底
-            builder.rect(x, y, cellSize, cellSize, {
-                fill: cleared ? palette.slot : palette.slot,
+            builder.rect(x, y, ALBUM_CELL, ALBUM_CELL, {
+                fill: palette.slot,
                 stroke: isCurrent ? palette.accentPrimary : palette.slotBorder,
                 lineWidth: isCurrent ? 4 : 2,
                 radius: 12,
-                alpha: cleared ? 1 : 0.4,
+                // 通关 / 未通关靠 α 拉开（旧写法 `cleared ? slot : slot` 两边同值 = 无差别）
+                alpha: cleared ? 1 : 0.55,
             });
-            // 锁 / 关号 / 星级
+
+            // 缩略图区（格上部）：真图待接 ARCS[].textureId，此处只给语义底
+            // （α 0.18 的旧值在白底上几乎不可见 ⇒ 提到 .45 / .3 让「图位」读得出来）
+            builder.rect(
+                x + ALBUM_THUMB_INSET,
+                y + ALBUM_CELL - ALBUM_THUMB_INSET - ALBUM_THUMB_H,
+                ALBUM_CELL - ALBUM_THUMB_INSET * 2,
+                ALBUM_THUMB_H,
+                {
+                    fill: cleared ? palette.slotDashed : palette.locked,
+                    alpha: cleared ? 0.45 : 0.3,
+                    radius: 8,
+                },
+            );
+
             if (!cleared) {
-                builder.text(x + cellSize / 2, y + cellSize / 2, '🔒', {
-                    font: UI_FONT.button,
-                    align: 'center',
-                    baseline: 'middle',
-                });
-            } else {
-                builder.text(x + cellSize / 2, y + cellSize / 2 - 8, `${idx + 1}`, {
-                    fill: palette.textDim,
-                    font: UI_FONT.cell,
-                    align: 'center',
-                    baseline: 'middle',
-                });
-                builder.text(x + cellSize / 2, y + cellSize / 2 + 14, `★${stars}`, {
-                    fill: palette.accentPrimary,
-                    font: UI_FONT.button,
-                    align: 'center',
-                    baseline: 'middle',
+                // 程序化锁形（⛔ 不用 emoji：跨端字形不一、不进程序化图元体系）
+                const cx = x + ALBUM_CELL / 2;
+                const bodyY = y + ALBUM_CELL - ALBUM_THUMB_INSET - ALBUM_THUMB_H / 2 - 11;
+                builder.rect(cx - 13, bodyY, 26, 20, { fill: palette.locked, radius: 4 });
+                builder.rect(cx - 9, bodyY + 20, 18, 8, { stroke: palette.locked, lineWidth: 3, radius: 4 });
+            }
+
+            // 下带：关号（左）+ 三段星条（右）。⭐ 旧版画 22px 「★」字形，缩放后仅 ~8px 不可辨；
+            // 改块状星条后即便小屏也读得出「几星」。关号对未通关格同样显示（可知哪一关没开）。
+            builder.text(x + 10, y + ALBUM_CELL - ALBUM_THUMB_INSET - ALBUM_THUMB_H - 14, `${idx + 1}`, {
+                fill: cleared ? palette.textDim : palette.textDisabled,
+                font: UI_FONT.cell,
+                baseline: 'middle',
+            });
+            for (let s = 0; s < 3; s++) {
+                builder.rect(x + ALBUM_CELL * 0.44 + s * 17, y + 14, 14, 8, {
+                    fill: s < n ? palette.accentPrimary : palette.slotBorder,
+                    alpha: cleared ? 1 : 0.4,
+                    radius: 2,
                 });
             }
         }
     }
+
+    // 带底成绩合计（单趟整数累加，零分配）
+    let total = 0;
+    let clearedCount = 0;
+    for (let i = 0; i < levelN; i++) {
+        const s = stars?.[i] ?? 0;
+        total += s;
+        if (s > 0) clearedCount++;
+    }
+    builder.text(
+        plate.x + plate.w / 2,
+        blockTop - gridH - ALBUM_STAT_GAP / 2,
+        `★${total} / ${levelN * 3} 　 ${clearedCount} / ${levelN} 关`,
+        {
+            fill: palette.textDim,
+            font: UI_FONT.cell,
+            align: 'center',
+            baseline: 'middle',
+        },
+    );
+}
+
+/* ── 本地榜 ───────────────────────────────────────────────────────── */
+const RANK_ROW_H = 42;
+const RANK_ROW_GAP = 5;
+const RANK_SIDE_PAD = 40;
+/** 排序池容量上限（关池现为 10；超出按前 `RANK_MAX` 关截断）。 */
+const RANK_MAX = 32;
+
+interface RankItem {
+    levelIdx: number;
+    stars: number;
 }
 
 /**
- * 本地榜（localRank）：starsByLevel 展开排序 → 行列表。
- * 每行 = 排名序号 + 关卡名（或关号）+ ★n，自身行高亮。
+ * 排序池：模块级复用 ⇒ `buildRenderModel` 热路径**零分配**（不再每帧 new 数组 + 对象）。
+ * 脏位 `stars = -1` 恒排末尾，故 in-place `sort` 后取前 n 位即可。
+ */
+const RANK_POOL: RankItem[] = [];
+for (let i = 0; i < RANK_MAX; i++) RANK_POOL.push({ levelIdx: 0, stars: -1 });
+
+/**
+ * 本地榜（localRank）：`starsByLevel` 按 **星数降序 / 关号升序** 展开成行。
+ * 第 1 名在最上；前三名名次徽章用主色递减 α 分级；未通关行整体压淡；自身行左侧 4px 竖条。
  */
 export function drawLocalRankContent(
     builder: RenderModelBuilder,
@@ -104,55 +191,110 @@ export function drawLocalRankContent(
     _layout: MetaLayout,
 ): void {
     const plate = overlayPlate();
-    const contentTop = plate.y + TITLE_BOTTOM_OFFSET;
-    const rowH = 48;
-    const rowGap = 8;
-    const rowW = plate.w - 80;
-    const startX = plate.x + 40;
+    const bandBottom = plate.y + CONTENT_BOTTOM_GAP;
+    const bandH = plate.h - CONTENT_TOP_GAP - CONTENT_BOTTOM_GAP;
 
-    // 展开排序：从 data.starsByLevel 只读引用构造（10 关规模，零性能压力）
     const stars = data.starsByLevel;
-    if (!stars || stars.length === 0) return;
-    const items: { levelIdx: number; stars: number; cleared: boolean }[] = [];
-    for (let i = 0; i < stars.length; i++) {
-        items.push({ levelIdx: i, stars: stars[i] ?? 0, cleared: (stars[i] ?? 0) > 0 });
-    }
-    items.sort((a, b) => b.stars - a.stars || a.levelIdx - b.levelIdx);
+    const n = Math.min(stars?.length ?? 0, RANK_MAX);
 
-    for (let rank = 0; rank < items.length; rank++) {
-        const it = items[rank]!;
-        const y = contentTop + rank * (rowH + rowGap);
-        const isSelf = it.levelIdx === data.currentLevelIndex;
-
-        builder.rect(startX, y, rowW, rowH, {
-            fill: isSelf ? palette.accentPrimary : palette.slot,
-            radius: 10,
-            alpha: isSelf ? 0.15 : 0.6,
-        });
-
-        builder.text(startX + 30, y + rowH / 2, `${rank + 1}`, {
-            fill: isSelf ? palette.accentPrimary : palette.textDim,
+    if (n === 0) {
+        // 空态显式文案（旧写法直接 return ⇒ 面板只剩标题，读作「坏了」）
+        builder.text(plate.x + plate.w / 2, bandBottom + bandH / 2, '暂无记录', {
+            fill: palette.textDim,
             font: UI_FONT.button,
             align: 'center',
             baseline: 'middle',
         });
-        builder.text(startX + rowW - 50, y + rowH / 2, `★${it.stars}`, {
-            fill: it.cleared ? palette.accentPrimary : palette.textDim,
-            font: UI_FONT.button,
-            align: 'right',
+        return;
+    }
+
+    for (let i = 0; i < n; i++) {
+        RANK_POOL[i]!.levelIdx = i;
+        RANK_POOL[i]!.stars = stars![i] ?? 0;
+    }
+    for (let i = n; i < RANK_MAX; i++) RANK_POOL[i]!.stars = -1;
+    RANK_POOL.sort((a, b) => b.stars - a.stars || a.levelIdx - b.levelIdx);
+
+    const rowW = plate.w - RANK_SIDE_PAD * 2;
+    const startX = plate.x + RANK_SIDE_PAD;
+    const totalH = n * RANK_ROW_H + (n - 1) * RANK_ROW_GAP;
+    /** 首行上缘（带内垂直居中 + 板中心补偿） */
+    const rowTop = bandBottom + (bandH + totalH) / 2 - CONTENT_CENTER_BIAS;
+
+    for (let rank = 0; rank < n; rank++) {
+        const it = RANK_POOL[rank]!;
+        const yTop = rowTop - rank * (RANK_ROW_H + RANK_ROW_GAP);
+        const y = yTop - RANK_ROW_H;
+        const mid = y + RANK_ROW_H / 2;
+        const isSelf = it.levelIdx === data.currentLevelIndex;
+        const dim = it.stars === 0;
+
+        builder.rect(startX, y, rowW, RANK_ROW_H, {
+            fill: isSelf ? palette.accentPrimary : palette.slot,
+            radius: 10,
+            alpha: isSelf ? 0.16 : dim ? 0.4 : 0.85,
+        });
+        if (isSelf) {
+            // 自身行：淡底 + 左竖条 + 2px 主色框。当前关通常是**未通关**（★0）⇒ 单靠淡底
+            // 会被未通关档的 α 一起压暗，加描边后才稳定可辨。
+            builder.rect(startX, y, 4, RANK_ROW_H, { fill: palette.accentPrimary, radius: 2 });
+            builder.rect(startX, y, rowW, RANK_ROW_H, {
+                stroke: palette.accentPrimary,
+                lineWidth: 2,
+                radius: 10,
+            });
+        }
+
+        // 名次徽章：前三名主色递减 α，其余回落槽线色
+        const medal = rank < 3;
+        builder.circle(startX + 30, mid, 15, {
+            fill: medal ? palette.accentPrimary : palette.slotBorder,
+            alpha: medal ? (rank === 0 ? 1 : rank === 1 ? 0.72 : 0.46) : 0.6,
+        });
+        builder.text(startX + 30, mid, `${rank + 1}`, {
+            fill: medal ? palette.panel : palette.textDim,
+            font: UI_FONT.cell,
+            align: 'center',
             baseline: 'middle',
         });
-        builder.text(startX + 80, y + rowH / 2, `第 ${it.levelIdx + 1} 关`, {
-            fill: palette.text,
+
+        builder.text(startX + 58, mid, `第 ${it.levelIdx + 1} 关`, {
+            fill: dim ? palette.textDim : palette.text,
             font: UI_FONT.button,
+            baseline: 'middle',
+        });
+
+        // 三星级进度条（3 段）
+        for (let k = 0; k < 3; k++) {
+            builder.rect(startX + rowW - 150 + k * 26, mid - 6, 20, 12, {
+                fill: k < it.stars ? palette.accentPrimary : palette.slotBorder,
+                radius: 3,
+                alpha: dim ? 0.4 : 1,
+            });
+        }
+        builder.text(startX + rowW - 34, mid, `★${it.stars}`, {
+            fill: dim ? palette.textDim : palette.accentPrimary,
+            font: UI_FONT.cell,
+            align: 'right',
             baseline: 'middle',
         });
     }
 }
 
+/* ── 名片 ─────────────────────────────────────────────────────────── */
+const PROFILE_PAD_X = 40;
+const PROFILE_CARD_GAP = 12;
+const PROFILE_CARD_H = 92;
+const PROFILE_SIGNIN_TITLE_GAP = 34;
+const PROFILE_SIGNIN_CELL = 56;
+const PROFILE_SIGNIN_GAP = 14;
+const PROFILE_SIGNIN_N = 7;
+
 /**
- * 名片（profile）：五块统计卡水平排列。
- * 累计星 ★ / 通关关数 / 体力胶囊 ♥ / 钱包胶囊 ◆ / 签到周期（7 格）。
+ * 名片（profile）：2×2 统计卡（累计星 / 通关关数 / 体力 / 钱包）+ 签到周期带。
+ *
+ * 2 列而非 4 列：旧版卡宽 `(600-80-30)/4 = 122.5`，30px 字下 `◆1240` 必溢出；
+ * 2 列后卡宽 254，四位数仍有余量。数值字号走 `UI_FONT.hud`（bold 30）。
  */
 export function drawProfileContent(
     builder: RenderModelBuilder,
@@ -161,37 +303,56 @@ export function drawProfileContent(
     _layout: MetaLayout,
 ): void {
     const plate = overlayPlate();
-    const contentTop = plate.y + TITLE_BOTTOM_OFFSET;
-    const padX = 40;
-    const cardW = (plate.w - padX * 2 - 30) / 4;
-    const cardH = 120;
-    const gap = 10;
+    const bandBottom = plate.y + CONTENT_BOTTOM_GAP;
+    const bandH = plate.h - CONTENT_TOP_GAP - CONTENT_BOTTOM_GAP;
 
-    // 1. 累计星
+    const cardW = (plate.w - PROFILE_PAD_X * 2 - PROFILE_CARD_GAP) / 2;
+    const blockH =
+        PROFILE_CARD_H * 2 + PROFILE_CARD_GAP + PROFILE_SIGNIN_TITLE_GAP + PROFILE_SIGNIN_CELL;
+    /** 块上界（带内垂直居中 + 板中心补偿） */
+    const blockTop = bandBottom + (bandH + blockH) / 2 - CONTENT_CENTER_BIAS;
+
     const totalStars = data.totalStars ?? 0;
-    drawStatCard(builder, pad(plate, padX + 0 * (cardW + gap), contentTop, cardW, cardH), '累计星', `★${totalStars}`, palette);
-    // 2. 通关关数
     const clearedCount = data.clearedCount ?? 0;
-    drawStatCard(builder, pad(plate, padX + 1 * (cardW + gap), contentTop, cardW, cardH), '通关', `${clearedCount}`, palette);
-    // 3. 体力
-    drawStatCard(builder, pad(plate, padX + 2 * (cardW + gap), contentTop, cardW, cardH), '体力', `♥${data.stamina}/${data.staminaMax}`, palette);
-    // 4. 钱包
-    drawStatCard(builder, pad(plate, padX + 3 * (cardW + gap), contentTop, cardW, cardH), '豆子', `◆${data.coins}`, palette);
+    const levelN = data.starsByLevel?.length ?? 0;
 
-    // 5. 签到周期（下一行，通宽）
-    const signinTop = contentTop + cardH + 30;
-    const cellW = 60;
-    const cellGap = 12;
-    const signinTotalW = 7 * cellW + 6 * cellGap;
-    const signinStartX = plate.x + (plate.w - signinTotalW) / 2;
-    const signinDay = data.signinDay % 7;
-    const canClaim = data.canClaim;
+    const leftX = plate.x + PROFILE_PAD_X;
+    const rightX = leftX + cardW + PROFILE_CARD_GAP;
 
-    for (let i = 0; i < 7; i++) {
-        const x = signinStartX + i * (cellW + cellGap);
-        const y = signinTop;
-        const claimed = i < signinDay || (i === signinDay && !canClaim);
-        const today = i === signinDay;
+    drawStatCard(builder, leftX, blockTop - PROFILE_CARD_H, cardW, PROFILE_CARD_H, '累计星', `★${totalStars}`, palette);
+    drawStatCard(builder, rightX, blockTop - PROFILE_CARD_H, cardW, PROFILE_CARD_H, '通关关数', `${clearedCount} / ${levelN}`, palette);
+
+    const row2Top = blockTop - PROFILE_CARD_H - PROFILE_CARD_GAP;
+    drawStatCard(builder, leftX, row2Top - PROFILE_CARD_H, cardW, PROFILE_CARD_H, '体力', `♥${data.stamina} / ${data.staminaMax}`, palette);
+    // TODO(WXG-T-478)：label「豆子」需与 HUD / 商店的 coins 叫法统一到单一文案源。
+    drawStatCard(builder, rightX, row2Top - PROFILE_CARD_H, cardW, PROFILE_CARD_H, '豆子', `◆${data.coins}`, palette);
+
+    // 签到带：区标题（左）+ 周期读数（右）+ 7 格
+    const signinTitleY = row2Top - PROFILE_CARD_H - PROFILE_SIGNIN_TITLE_GAP / 2;
+    builder.text(leftX, signinTitleY, '签到周期', {
+        fill: palette.text,
+        font: UI_FONT.button,
+        baseline: 'middle',
+    });
+    builder.text(plate.x + plate.w - PROFILE_PAD_X, signinTitleY, `第 ${data.signinDay + 1} / ${PROFILE_SIGNIN_N} 天`, {
+        fill: palette.textDim,
+        font: UI_FONT.cell,
+        align: 'right',
+        baseline: 'middle',
+    });
+
+    const cellW = PROFILE_SIGNIN_CELL;
+    const totalW = PROFILE_SIGNIN_N * cellW + (PROFILE_SIGNIN_N - 1) * PROFILE_SIGNIN_GAP;
+    const startX = plate.x + (plate.w - totalW) / 2;
+    const cellTop = signinTitleY - 22 - 8;
+    const y = cellTop - cellW;
+
+    for (let i = 0; i < PROFILE_SIGNIN_N; i++) {
+        const x = startX + i * (cellW + PROFILE_SIGNIN_GAP);
+        // TODO(WXG-T-478)：`signinDay` 是 `claims % 7`（当日在周期内的格），跨周时
+        // `i < signinDay` 会把「本周已签」与「上周已签」混同 —— 需与 `signin-content` 原版口径对齐。
+        const claimed = i < data.signinDay || (i === data.signinDay && !data.canClaim);
+        const today = i === data.signinDay;
         builder.rect(x, y, cellW, cellW, {
             fill: claimed ? palette.slot : palette.panel,
             stroke: today ? palette.accentPrimary : palette.slotBorder,
@@ -208,39 +369,28 @@ export function drawProfileContent(
     }
 }
 
-/** 名片小卡 —— 纯绘制，不进 meta-layout。 */
+/** 名片小卡 —— 纯绘制，不进 meta-layout。`y` = 下缘（y 向上口径）。 */
 function drawStatCard(
     builder: RenderModelBuilder,
-    rect: { x: number; y: number; w: number; h: number },
+    x: number,
+    y: number,
+    w: number,
+    h: number,
     label: string,
     value: string,
     palette: BeadsPalette,
 ): void {
-    builder.rect(rect.x, rect.y, rect.w, rect.h, {
-        fill: palette.slot,
-        radius: 12,
-    });
-    builder.text(rect.x + rect.w / 2, rect.y + rect.h * 0.35, label, {
+    builder.rect(x, y, w, h, { fill: palette.slot, radius: 12 });
+    builder.text(x + w / 2, y + h * 0.68, label, {
         fill: palette.textDim,
         font: UI_FONT.cell,
         align: 'center',
         baseline: 'middle',
     });
-    builder.text(rect.x + rect.w / 2, rect.y + rect.h * 0.7, value, {
+    builder.text(x + w / 2, y + h * 0.3, value, {
         fill: palette.text,
-        font: UI_FONT.button,
+        font: UI_FONT.hud,
         align: 'center',
         baseline: 'middle',
     });
-}
-
-/** 面板内绝对定位小工具。 */
-function pad(
-    plate: { x: number; y: number },
-    x: number,
-    y: number,
-    w: number,
-    h: number,
-): { x: number; y: number; w: number; h: number } {
-    return { x: plate.x + x, y: plate.y + y, w, h };
 }
