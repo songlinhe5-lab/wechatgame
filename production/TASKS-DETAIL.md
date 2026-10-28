@@ -2212,6 +2212,48 @@ beads **777 绿 + 1 skipped** · `check:tasks` 29/29 · `verify` **PASS 19 / FAI
 
 ---
 
+### WXG-T-468 验证闭环（2026-10-28）
+
+**结论：旧代码 bug，现码架构重构已消除根因。** 搬回主表（从 BACKLOG），状态改 ✅。
+
+#### 链路名已过时（K-053 型漂移）
+
+本 DETAIL「链路」段写的 `startLevel(runMode, crash.levelIndex + 1, true)` + `crash?.take(levelIndex)` 是 **2026-10-04 当时旧 API 名字**。现码（截至 2026-10-28 HEAD）已重构为：
+
+- **BOOT 恢复路径**：`BeadsGame._boot()` → `BeadsGame.onPause()` 写快照 → BOOT 调 `this._crashIO.restore()` → `CrashSnapshotStore.read()` → `parseCrashSnapshot()` → `CrashSnapshotIO.apply()` **内部**按 `snapshot.levelIndex` 调 `h.setupLevel()` 重装配 → 位图盖回
+- **现码已不存在** `startLevel + levelIndex + 1`、`crash?.take()`、`btnRevive` 这些名字。三条候选根因**全部适用旧架构，现码已不成立**：
+  - 候选①「跨关索引错位」：现码 `apply()` 用 `snapshot.levelIndex` 直接装配，BOOT 先装的关会被覆盖
+  - 候选②「长度校验判无效」：`parseCrashSnapshot` 里 `fillableCountFor` 正确取 `crashFillableCountFor(snapshot.levelIndex)`
+  - 候选③「写盘时序覆盖」：BOOT 里无任何 `crashIO.clear()` 先于 restore
+
+#### 实证（beads 1386 全绿）
+
+1. `in-level-snapshot.test.ts` 现有 10 个 round-trip 测试全部通过（PLAYING→onPause→BOOT 恢复 phase/levelIndex/remaining 一致）
+2. **追加回归测试**（`in-level-snapshot.test.ts` WXG-T-246 节）：真实 `LEVELS`（10 关 2 章）+ `goToLevel(6)` 崩前关 = L7（BOOT 装配 L1，save `lastPlayedIndex` 仍是 0）+ 新 harness BOOT → 断言 `levelIndex === 6` + `cells` 全字一致 + `remaining` ≤ 0.05 差。11/11 PASS
+3. 全局 `pnpm run verify` 23/23 PASS
+
+#### 现码 BOOT 序列（beads-game.ts）
+
+```
+L2084: this._levelIndex = Math.max(0, Math.min(target - 1, this._levels.length - 1));
+L2085: this._setupLevel(this._levelIndex);               // 装配 BOOT 目标关
+
+// ... save patch runs +1 ...
+
+L2100: if (this._crashIO.restore()) return;
+//   → restore() 读 → parseCrashSnapshot → apply()
+//   → apply():
+//       L216: h.levelIndex = snapshot.levelIndex;       // 覆盖 BOOT 目标
+//       L217: h.setupLevel(snapshot.levelIndex);         // 重装配崩前关
+//       L227-236: 位图盖回
+```
+
+#### 搬回主表理由（WXG-T-407 拆分逆操作）
+
+WXG-T-407 拆 BACKLOG 时本单以「📝 已立项、未开工」搬入 BACKLOG。现经 WXG-T-468 实测验证现码链路已正确，**不是需要修的功能缺陷**，属于「代码自然演化消除了旧 bug」。搬回主表并改 ✅，DETAIL 追加验证段。
+
+---
+
 ## WXG-T-247
 
 **beads·Cocos 生产通道同源绘制（ADR-0030 载体决策）**

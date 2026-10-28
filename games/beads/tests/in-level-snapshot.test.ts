@@ -17,6 +17,7 @@ import {
   encodeFilledBits,
   parseCrashSnapshot,
 } from '../src/game/crash-snapshot.js';
+import { LEVELS } from '../src/config/levels.js';
 import { TRAY_BASE_SLOTS } from '../src/config/tuning.js';
 import { pausePanelLayout } from '../src/systems/pause-panel.js';
 import { multiplierForStreak, tierForStreak } from '../src/systems/sprint.js';
@@ -317,6 +318,71 @@ describe('S8 §8-11 崩溃档：onHide 写入与 S8 隔离', () => {
     expect(restored.levelIndex).toBe(before.levelIndex);
     expect(cellStates(restored)).toEqual(before.cells);
     expect(restored.remaining).toBeCloseTo(before.remaining, 6);
+  });
+
+  // **WXG-T-246 回归**：多关卡表（真实 LEVELS）+ BOOT 装配关 ≠ 快照崩前关。
+  // 现码 BOOT 流程：`bootLevel(save, lastPlayedIndex)` 算目标关 → _setupLevel(target) →
+  // `crashIO.restore()` 内部 `apply()` 再按 `snapshot.levelIndex` 重装配。
+  // 这是 DETAIL §三条候选「跨关索引错位」的现码覆盖（旧代码曾按 `levelIndex + 1` 顶到下一关）。
+  it('WXG-T-246 boot path restores correct level when boot target ≠ crash snapshot levelIndex', () => {
+    const inner = newStorage();
+    // 用真实多关卡表（10 关 2 章），不用 simpleTestLevel
+    const harness = boot(inner, { levels: [...LEVELS] });
+    const game = harness.game;
+
+    // BOOT 首次：runs=0 → bootLevel=1 → _setupLevel(0) 装配 L1
+    expect(game.levelIndex).toBe(0);
+    expect(game.phase).toBe('playing');
+
+    // goToLevel(6)：跳 L7，但不写档 → lastPlayedIndex 保持 0
+    game.goToLevel(6);
+    expect(game.levelIndex).toBe(6);
+    expect(game.phase).toBe('playing');
+
+    // 放 2 颗 → 制造局内态差异
+    let placed = 0;
+    for (let i = 0; i < 4 && placed < 2; i++) {
+      const cell = firstEmptyCell(game)!;
+      if (placeColor(game, game.grid.requiredColor(cell.row, cell.col), cell.row, cell.col)) {
+        placed += 1;
+      }
+    }
+    expect(placed).toBeGreaterThanOrEqual(2);
+
+    const cellStates = (g: typeof game): string[] => {
+      const out: string[] = [];
+      for (let r = 0; r < g.grid.rows; r++) {
+        for (let c = 0; c < g.grid.cols; c++) out.push(g.grid.cell(r, c)?.state ?? '-');
+      }
+      return out;
+    };
+    const before = {
+      levelIndex: game.levelIndex, // 6
+      cells: cellStates(game),
+      remaining: game.remaining,
+    };
+
+    // 写快照（crashIO.write → snapshot.levelIndex = 6）
+    game.onPause();
+    expect(game.phase).toBe('paused');
+
+    // 验证快照里 levelIndex 是 6（不是 BOOT 初始的 0）
+    const raw = crashRaw(inner);
+    expect(raw).not.toBeNull();
+    const snapshot = JSON.parse(raw!) as Record<string, unknown>;
+    expect(snapshot['levelIndex']).toBe(6); // ← 关键
+
+    // 新 harness 同 storage BOOT：
+    //   runs > 0 → bootLevel(save, lastPlayedIndex=0) = 1 → _setupLevel(0) 装配 L1
+    //   然后 crashIO.restore() 读快照里的 levelIndex=6 → apply() 重装配 L7 → 位图盖回
+    const relaunch = boot(inner, { levels: [...LEVELS] });
+    const restored = relaunch.game;
+
+    // 断言：恢复后 levelIndex = 6（快照里的值），cells 一致，phase = paused
+    expect(restored.levelIndex, 'levelIndex 应回到崩前关 (T-246 候选①)').toBe(before.levelIndex);
+    expect(restored.phase).toBe('paused');
+    expect(cellStates(restored), 'cells 应与崩前一致').toEqual(before.cells);
+    expect(restored.remaining, 'remaining 应与崩前一致').toBeCloseTo(before.remaining, 6);
   });
 
   // §8-16 道具次数：缺省字段不导致丢快照；越界按字段钳制而不丢整份。
