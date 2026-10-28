@@ -18,7 +18,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { createRng, type RewardedAdProvider } from '@wxgame/framework';
+import { createRng, type Rng, type RewardedAdProvider } from '@wxgame/framework';
 import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import {
   AD_PLACEMENTS,
@@ -95,6 +95,36 @@ function traySnapshot(h: Harness): string {
     slots.push(`${s.state}:${s.colorIdx}`);
   }
   return `${tray.selectedSlot}|${slots.join(',')}`;
+}
+
+/** 盘面读数（`state:beadColorIdx` 逐格串）——§8-27(a)「格态零变化」/ (c)「其余珠照常」/ (d)「写入保留」的比对对象。 */
+function gridDigest(h: Harness): string {
+  const grid = h.game.grid;
+  const out: string[] = [];
+  for (let r = 0; r < grid.rows; r++) {
+    for (let c = 0; c < grid.cols; c++) {
+      const cell = grid.cell(r, c)!;
+      out.push(`${cell.state}:${cell.beadColorIdx}`);
+    }
+  }
+  return out.join(',');
+}
+
+/** S6 的随机消费计数器（Proxy 包 `createRng`，只挂进 S6 ⇒ 不掺 game 侧 `services.rng` 的噪声）。 */
+function rngSpy(seed: string): { rng: Rng; calls: string[] } {
+  const calls: string[] = [];
+  const inner = createRng(seed);
+  const rng = new Proxy(inner, {
+    get(target, prop, receiver) {
+      const value = Reflect.get(target, prop, receiver);
+      if (typeof value !== 'function') return value;
+      return (...args: unknown[]) => {
+        calls.push(String(prop));
+        return (value as (...a: unknown[]) => unknown).apply(target, args);
+      };
+    },
+  }) as Rng;
+  return { rng, calls };
 }
 
 /** Count every call into a RewardedAdProvider（§8-8「零广告 API 调用」）。 */
@@ -512,6 +542,153 @@ describe('S6 §8-27(b) 镜像漂移（托盘非空 ∧ 无空格）⇒ 拒绝裁
     expect(result.kind).toBe('used');
     if (result.kind !== 'used') return;
     expect(result.affectedCells).toEqual([{ row: 0, col: 0 }]);
+  });
+});
+
+// ───────────── §8-27(a) 托盘空 / §8-27(c) 候选集空 / §8-27(d) 中途终止（本批补腿）
+
+describe('S6 §8-27(a) 托盘为空 ⇒ 整次零效果（现号；本批前无腿）', () => {
+  /** 额度逐字段读数：免费位 / 本关已用 / 豆子购买计数（§8-30 同族口径）。 */
+  const quotaOf = (sys: PowerupSystem): string[] =>
+    POWERUP_TYPES.map((t) => `${t}:${sys.freeUses(t)}/${sys.usedThisLevel[t]}/${sys.bought(t)}`);
+
+  it('点 10 次 ⇒ 零事件、零随机、格态与托盘不变、额度逐字段不变、不弹面板（§6 X-1）', () => {
+    let charged = 0;
+    const h = mk('wxgame.beads.test.s6-8-27a', {
+      // 豆子住在 MetaState，扣款腿由 shell 注入 ⇒ 本腿以「回调零调用」作「豆子不变」的口径。
+      onPowerupPurchase: () => {
+        charged += 1;
+        return true;
+      },
+    });
+    buildMisplaced(h, 2); // 盘上确有错位珠 ⇒ 与 §8-9「零错位不置位」那条腿区分开
+    expect(h.game.tray.holdingCount).toBe(0);
+
+    const spy = rngSpy('s6-8-27a');
+    h.game.powerups.attach(spy.rng);
+    const gridBefore = gridDigest(h);
+    const trayBefore = traySnapshot(h);
+    const quotaBefore = quotaOf(h.game.powerups);
+
+    for (let i = 0; i < 10; i++) {
+      expect(h.game.usePowerup('trayRestore'), `第 ${i + 1} 次点击应零效果`).toBe(false);
+    }
+    expect(h.count('powerup:used')).toBe(0);
+    expect(h.count('bead:placed')).toBe(0);
+    expect(spy.calls, '零随机消费（连换出腿都不该进）').toEqual([]);
+    expect(gridDigest(h), '格态零变化').toBe(gridBefore);
+    expect(traySnapshot(h), '托盘零写').toBe(trayBefore);
+    expect(quotaOf(h.game.powerups), '全部额度逐字段不变（免费位 + 本关计数 + 购买计数）').toEqual(
+      quotaBefore,
+    );
+    expect(charged, '零扣豆').toBe(0);
+    expect(h.game.pendingPowerupBuy, '§6 X-1：不弹面板（不卖用不了的东西）').toBeNull();
+    expect(h.game.powerupHint, '§6 X-1 / E-3：零噪声，不置占位提示').toBe('');
+  });
+});
+
+describe('S6 §8-27(c) 候选集为空 ⇒ 该珠 skipped（现号；本批前无腿）', () => {
+  /**
+   * 夹具 = §8-34(e) 的 **P-1 伪造态**（「某色珠比该色格多 1 颗」，6×5 三色测试盘）：
+   *  · 色 2 的每一格都**正确就位** ⇒ 托盘那颗色 2 珠没有任何归宿格 = 候选集为空；
+   *  · (0,0)（要求色 1）填成色 3 ⇒ 错位 ⇒ 色 1 珠的归宿格被占 ⇒ 走**换出腿**（本腿唯一真抽随机的
+   *    地方，用它证明「skipped 的珠不掺进随机」，而不是「整条腿压根没抽随机」）；
+   *  · 其余格留 `empty` ⇒ 换出珠有处可落（镜像合法：托盘非空 ∧ 有空格 ⇒ 不触发 §8-27(b) 守卫）。
+   */
+  function mkP1(saveKey: string): { h: Harness; spy: { rng: Rng; calls: string[] } } {
+    const h = mk(saveKey);
+    const grid = h.game.grid;
+    for (let r = 0; r < grid.rows; r++) {
+      for (let c = 0; c < grid.cols; c++) if (grid.requiredColor(r, c) === 2) grid.fill(r, c, 2);
+    }
+    grid.fill(0, 0, 3); // (0,0) 要求色 1、填色 3 ⇒ 行主序第一个色 1 归宿格被占
+    expect(grid.isMisplaced(0, 0)).toBe(true);
+    const spy = rngSpy('s6-8-27c'); // 两臂同 seed ⇒ 换出落点必须逐位相同
+    h.game.powerups.attach(spy.rng);
+    return { h, spy };
+  }
+
+  it('有归宿的珠照常换出归位、无归宿的珠 skipped 留槽且不消费随机、事件照发', () => {
+    const a = mkP1('wxgame.beads.test.s6-8-27c-both');
+    const slotHomeless = a.h.game.giveTrayBead(2); // 无归宿（色 2 全部已就位）
+    const slotHomed = a.h.game.giveTrayBead(1); // 有归宿 = (0,0)（被占 ⇒ 换出）
+
+    expect(a.h.game.usePowerup('trayRestore')).toBe(true);
+    expect(a.h.count('powerup:used'), '事件照发（不因有一颗没归宿就整次静默）').toBe(1);
+    const payload = a.h.last<UsedPayload & { traySlots?: readonly number[] }>('powerup:used')!;
+    expect(payload.affectedCells).toContainEqual({ row: 0, col: 0 });
+    expect(payload.affectedCells).toHaveLength(2); // 目标格 + 换出落格，无归宿那颗不进点名
+    expect(payload.traySlots, 'traySlots 只含真被清空的槽（§8-32(a)）').toEqual([slotHomed]);
+    expect(a.h.game.grid.cell(0, 0)!.beadColorIdx).toBe(1);
+    expect(a.h.game.grid.isMisplaced(0, 0), '有归宿那颗真归位了').toBe(false);
+    expect(a.h.game.tray.holdingCount, '无归宿那颗留在槽（⛔ 不得静默吞珠）').toBe(1);
+    expect(a.h.game.tray.slot(slotHomeless)!.state).toBe('holding');
+    expect(a.h.game.tray.slot(slotHomeless)!.colorIdx).toBe(2);
+    expect(a.h.game.tray.slot(slotHomed)!.state).toBe('free');
+    expect(a.spy.calls, '本腿只有换出腿抽了一次 ⇒ skipped 的珠未多消费随机').toHaveLength(1);
+
+    // 对照臂：同夹具、同 seed，只是**不放**那颗无归宿珠 ⇒ 点名与盘面必须逐字段相同（「其余珠照常」）。
+    const b = mkP1('wxgame.beads.test.s6-8-27c-alone');
+    b.h.game.giveTrayBead(1);
+    expect(b.h.game.usePowerup('trayRestore')).toBe(true);
+    expect(b.h.game.tray.holdingCount).toBe(0);
+    expect(b.spy.calls).toHaveLength(1);
+    expect(b.h.last<UsedPayload>('powerup:used')!.affectedCells, '两臂点名一致').toEqual(
+      payload.affectedCells,
+    );
+    expect(gridDigest(b.h), '两臂盘面一致 ⇒ 无归宿珠未影响任何格').toBe(gridDigest(a.h));
+  });
+
+  it('整批都无归宿 ⇒ 唯一合法出口是整次拒绝（零事件、零扣次、托盘不动 · §8-34(c)）', () => {
+    const c = mkP1('wxgame.beads.test.s6-8-27c-all');
+    c.h.game.giveTrayBead(2);
+    const freeBefore = c.h.game.powerups.freeUses('trayRestore');
+    const gridBefore = gridDigest(c.h);
+
+    expect(c.h.game.usePowerup('trayRestore')).toBe(false);
+    expect(c.h.count('powerup:used')).toBe(0);
+    expect(c.h.game.powerups.freeUses('trayRestore'), '零扣次').toBe(freeBefore);
+    expect(c.h.game.tray.holdingCount, '不存在「归位了一半」的中间态').toBe(1);
+    expect(gridDigest(c.h)).toBe(gridBefore);
+    expect(c.spy.calls).toEqual([]);
+  });
+});
+
+describe('S6 §8-27(d) 中途终止不回滚（现号；本批前无腿）', () => {
+  it('第 3 颗的写入失败 ⇒ 前 2 颗的写入保留、该颗留槽（无回滚）', () => {
+    const h = mk('wxgame.beads.test.s6-8-27d');
+    // 三色各一颗：目标 = 各色行主序第一个空格 ⇒ (0,0)/(0,1)/(0,2)，全走直填腿（零随机）。
+    const slot1 = h.game.giveTrayBead(1);
+    const slot2 = h.game.giveTrayBead(2);
+    const slot3 = h.game.giveTrayBead(3);
+    expect([slot1, slot2, slot3]).toEqual([0, 1, 2]);
+
+    // 异常注入 = 第 3 次 `fill`（`_execTrayPlan` 倒序执行 ⇒ 槽 0 那颗）失败，模拟动手帧中途终止。
+    const grid = h.game.grid as unknown as {
+      fill: (row: number, col: number, bead?: number) => boolean;
+    };
+    const realFill = grid.fill.bind(grid);
+    let fillCalls = 0;
+    grid.fill = (row, col, bead) => {
+      fillCalls += 1;
+      return fillCalls === 3 ? false : realFill(row, col, bead);
+    };
+
+    expect(h.game.usePowerup('trayRestore')).toBe(true);
+    expect(fillCalls, '三颗都该被动手过一轮').toBe(3);
+    expect(h.count('bead:placed'), '已生效的两颗各一条 bead:placed').toBe(2);
+    expect(h.game.grid.cell(0, 2)!.beadColorIdx).toBe(3); // 倒序第 1 颗
+    expect(h.game.grid.cell(0, 1)!.beadColorIdx).toBe(2); // 倒序第 2 颗
+    expect(h.game.grid.cell(0, 0)!.state, '第 3 颗未写').toBe('empty');
+    expect(h.game.tray.holdingCount, '不回滚：失败那颗留槽，前两颗的写入保留').toBe(1);
+    expect(h.game.tray.slot(slot1)!.colorIdx).toBe(1);
+    expect(h.game.tray.slot(slot2)!.state).toBe('free');
+    expect(h.game.tray.slot(slot3)!.state).toBe('free');
+    expect(h.game.grid.filledCount).toBe(2);
+    expect(h.count('level:cleared')).toBe(0);
+    // ⚠ 判据末句「affectedCells 只含已生效格」**本腿不断言**：现实现的 `affectedCells` 来自动手前的
+    //   plan（§8-32(b) 要求它与 S3 写入格集合恒等 ⇒ 中途终止时二者会分叉）。修它要改
+    //   `src/game/beads-game.ts`，该文件本轮有并发会话在途改动 ⇒ 登记待改，⛔ 不在这里替分叉背书。
   });
 });
 
