@@ -1,9 +1,10 @@
-import { describe, expect, it } from 'vitest';
+import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { NodePlatform } from '../../src/platform/node.js';
 import { WebPlatform } from '../../src/platform/web.js';
 import { WeappPlatform, WeappStorage, isWeapp, subpackageNamesOf } from '../../src/platform/weapp.js';
 import { detectPlatform, isBrowser } from '../../src/platform/index.js';
 import { MemoryStorage } from '../../src/core/save/storage.js';
+import type { Storage } from '../../src/core/save/storage.js';
 
 describe('Platform detection', () => {
   it('resolves to Node outside a browser and without wx', () => {
@@ -340,4 +341,55 @@ describe('BGM 分包预载（仅 assetFile 落在 subpackages/<name>/ 下才触�
     const platform = new WeappPlatform({ ...fakeWx(), createWebAudioContext: () => ({}) } as unknown as FakeWx);
     expect(() => platform.createAudioBackend({ voices: voicesWith('subpackages/audio/bgm_porch.mp3') } as never)).not.toThrow();
   });
+});
+
+/**
+ * 宿主存储契约（判例 K-197）：必须走**宿主工厂** `createStorage()`，⛔ 只直接构造适配类。
+ * 上面的 `WeappStorage` 用例是 `new WeappStorage(wx)` 直接构类 ⇒ 完全绕过接线；而 F4 恰恰是
+ * `WebPlatform.createStorage()` 把 DOM `localStorage` 当框架 `Storage` 直传，网页端写档静默丢
+ * 而 1928 例照绿。本契约只跑两个**真宿主**（node 侧就是 `MemoryStorage` 本身，跑它零信息）。
+ */
+function storageContract(name: string, make: () => Storage, hostHas: (key: string) => boolean): void {
+  it(`${name}：五方法齐全，且写入真的落到宿主底层`, () => {
+    const storage = make();
+    for (const method of ['get', 'set', 'remove', 'keys', 'clear'] as const) {
+      expect(typeof storage[method]).toBe('function');
+    }
+    storage.set('wxg.contract.key', 'v1');
+    expect(storage.get('wxg.contract.key')).toBe('v1');
+    expect(hostHas('wxg.contract.key')).toBe(true); // 真底层收到 ⇒ 不是只活在包装对象里
+    expect(storage.keys()).toContain('wxg.contract.key');
+    storage.remove('wxg.contract.key');
+    expect(storage.get('wxg.contract.key')).toBeNull();
+    expect(hostHas('wxg.contract.key')).toBe(false);
+    storage.set('wxg.contract.other', '1');
+    storage.clear();
+    expect(storage.keys()).toEqual([]);
+  });
+}
+
+describe('宿主存储契约（K-197 · 新宿主接入必过）', () => {
+  const dom = new Map<string, string>();
+  const g = globalThis as unknown as { localStorage?: unknown };
+  const wx = fakeWx();
+
+  const domShim = {
+    getItem: (k: string) => (dom.has(k) ? dom.get(k)! : null),
+    setItem: (k: string, v: string) => void dom.set(k, v),
+    removeItem: (k: string) => void dom.delete(k),
+    key: (i: number) => [...dom.keys()][i] ?? null,
+    get length() {
+      return dom.size;
+    },
+    clear: () => dom.clear(),
+  };
+  // 每条用例前重装：上面那批 `WebPlatform` 用例在 `finally` 里 `delete g.localStorage`，
+  // 而 vitest 不保证同文件里的 describe 顺序隔离 ⇒ 只在收集期装一次会被它们抹掉。
+  beforeEach(() => {
+    g.localStorage = domShim;
+  });
+  afterAll(() => delete g.localStorage);
+
+  storageContract('web', () => new WebPlatform().createStorage(), (k) => dom.has(k));
+  storageContract('weapp', () => new WeappPlatform(wx as never).createStorage(), (k) => wx.store.has(k));
 });
