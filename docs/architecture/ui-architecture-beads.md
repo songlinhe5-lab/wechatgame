@@ -214,6 +214,8 @@ games/beads/src/ui/
 
 **关键路径**：UI-00 → UI-01 → UI-10…14 → UI-20 → UI-22 / UI-25 → UI-30 → UI-31 → UI-41 → UI-42 → UI-50 → UI-53。UI-02（金样本）与 P1 可并行，但必须在 UI-30 前完成。
 
+> **[WXG-T-473] 金样本复评登记（2026-10-28）**：`copy-tokens.ts::version_label` 发布文案变更（`v1.x · 演示版` → `v1.0.0 · 演示版`，T-469 USER 版本号裁定「首发 1.0.x、x = build 号」）⇒ Meta 四屏（main-menu / level-select-mid / settings / signin）底部版本行文本变 ⇒ 整帧 sha 漂移（total / 种类数零变，纯文本内容）。复取器两遍确定性自证 PASS，夹具 `capturedFrom` = `2fbe8e4d`；对拍 **13/13 绿**。复取说明：工作树 src 面与 HEAD 零差异（dirty 仅 docs 台账两件），主树复取等价干净检出（K-167 精神，注记披露）。
+
 ## 13. 待你拍板
 
 D1–D5 均已裁定（见 [ADR-0032 §5](adr/ADR-0032-beads-ui-architecture.md)）：两层 / 分级复用 / 遮罩保留双档名 / 常量第一阶段并存 / 选关整页；选关整页版式已裁为**版式 P**（[确认单](../../games/beads/design/ux/level-select-page-layout.md)）。UI-00 已完成。**UI-34a 六项待核已于 2026-10-20（WXG-T-310）清零**（确认单 v0.2 §4.1）；**UI-34 落码已于 2026-10-20（WXG-T-311）完成**；**UI-42 已于 2026-10-20（WXG-T-316）完成壳标志位退役**（屏幕 / 覆盖层改由 `PhaseRouteBinder` 的 Navigator 栈投影，与 `UiRoot` 共用同一栈）；**UI-50 已于 2026-10-20（WXG-T-317）完成绘制入口收口**（`UiRoot` 唯一入口、并行开关退役）；**UI-51 已于 2026-10-20（WXG-T-318）完成文档回写**（目录 / 路由表 / `control-manifest §20` / ROUTES）；**UI-52 机械守已于 2026-10-20（WXG-T-319）落码**（§20 五条 + 负样本入 `selftest:fast`）；**UI-53 已于 2026-10-20（WXG-T-320）验收闭合**（`verify` PASS 22 + harness 双游 + `[R]` 阻塞已登记）。
