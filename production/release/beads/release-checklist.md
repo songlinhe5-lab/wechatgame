@@ -29,7 +29,7 @@
 
 | ☐ | 检查项 | 判据 | 负责人 | 现状 / 证据 |
 |---|---|---|---|---|
-| ☐ | 🚦 版本号三处一致 | `games/beads/package.json`、游戏内 `version_label`、微信后台版本号按 `version-strategy.md` 对齐 | OPS | **机制已立（WXG-T-468，USER 2026-10-28 裁定：首发 = `1.0.x`、x = build 号、生成最终产物时递增）**：`build-cocos.mjs` 版本腿在 release 构建时递增 `package.json`（真源）并给产物 `version_label` 打实际 build 号（源码恒显基线 `v1.0.0`）；现值 `1.0.1`（首建已递增）。⚠ 待办：①「演示版」字样提审前去留 USER 裁；② 微信后台版本号 = 首次 `cli upload` 时填当次 build 号；③ 产物打号待一次干净构建（并行 WIP `framework:sync` 后）复证 |
+| ☐ | 🚦 版本号三处一致 | `games/beads/package.json`、游戏内 `version_label`、微信后台版本号按 `version-strategy.md` 对齐 | OPS | **机制已立（WXG-T-468，USER 2026-10-28 裁定：首发 = `1.0.x`、x = build 号、生成最终产物时递增）**：`build-cocos.mjs` 版本腿在 release 构建时递增 `package.json`（真源）并给产物 `version_label` 打实际 build 号（源码恒显基线 `v1.0.0`）；现值 `1.0.3`。**「演示版」字样 = 分环境（USER 2026-10-28 裁 C，WXG-T-473 已落码）**：源码基线/harness/金样本恒显 `· 演示版`，**发布产物由版本腿连同后缀剥掉**（`tools/scripts/lib/version-label.mjs::stampReleaseLabel`，判别测试 `version-label.test.mjs` 进根 `test` 步）⇒ 提审包应只显 `vX.Y.Z`。⚠ 待办：① 微信后台版本号 = 首次 `cli upload` 时填当次 build 号；② 剥后缀需在一次**干净 release 构建**的产物上复证（同下条） |
 | ☐ | 发布范围冻结 | 关卡池、皮肤池、风格池以 `systems-index §3` 为准；未出池项（EP11 P-1…P-4）不混入 | DES + OPS | |
 | ☐ | 🚦 漂移登记已闭合或豁免 | `systems-index` 漂移登记 + 本节已知漂移逐条有结论 | ENG + DES | |
 | ☐ | 调试入口不进线上 | `studio=` 启动参数（beads-studio 导入，http 局域网）、`debugInfo` 覆层、`qa-probe` 不在提审包里可达 | ENG + QA | `BeadsBootstrap.ts` 只认 launch query `studio=` ⇒ 普通入口不可达；仍需在提审包上实测设置页无「导入」钮 |

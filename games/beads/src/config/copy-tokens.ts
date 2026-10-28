@@ -18,7 +18,7 @@ export const COPY_TOKENS = Object.freeze({
     app_name: '拼豆小铺',
     /** `tokens.md §7`（第三轮 Q3=①）：招牌下唯一副行（`font_label` 28 · `text_secondary`）。 */
     app_slogan: '一颗一颗，拼出你的小铺',
-    /** `tokens.md §7`：boot/主菜单底部 label 28。版本段 = 发布基线 `v1.0.0`（WXG-T-468：USER 裁首发 = `1.0.x`、x = build 号）；产物构建时由 `build-cocos.mjs` 版本腿把 `v1.0.0` 打成实际 build 号（源码恒显基线值）。「演示版」字样提审前去留 = 发布批 USER 裁定。 */
+    /** `tokens.md §7`：boot/主菜单底部 label 28。版本段 = 发布基线 `v1.0.0`（WXG-T-468：USER 裁首发 = `1.0.x`、x = build 号）；产物构建时由 `build-cocos.mjs` 版本腿把 `v1.0.0` 打成实际 build 号（源码恒显基线值）。「演示版」后缀 = **分环境**（WXG-T-473：USER 2026-10-28 裁 C）——源码基线/开发/harness/金样本恒显后缀，**发布产物由版本腿连带剥掉**（`lib/version-label.mjs`），提审包只显 `vX.Y.Z`。 */
     version_label: 'v1.0.0 · 演示版',
     /** `tokens.md §7` / §6：**取代码实装值**（原 `开始拼豆` 降为史证）；唯一木主钮标签。 */
     btn_start_label: '开始游戏',

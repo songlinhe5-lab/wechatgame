@@ -6636,6 +6636,21 @@ T-461 收口时的同族发现（K-116 违反实例第二处）：选中珠分�
 
 **待办（本单已无）**：金样本四态复评 ✅ `70f1f33c`（§12 登记）；scrim 静态门 ✅（见上②）；「演示版」字样去留 + 真机走查主会话 + `cli upload` 密钥 —— 三项**不在本单**，随 MVP 收尾推进（产物已就绪：v1.0.3 + 含判据 + 版本号实显）。
 
+## WXG-T-474
+
+**发布文案分环境：「演示版」后缀仅开发腿显、发布产物剥除 · 负责：主理人(CodeBuddy) · 状态：🟢 已交付（2026-10-28）**
+
+**动因**：T-473 待办里挂着的「「演示版」字样去留」＝发布文案裁定项，USER 2026-10-28 选 **C（分环境）**。**为什么不选 B（现在就删后缀）**：`version_label` 参与主菜单/选关/设置/签到四屏底部版本行的帧对拍，改源码值 ⇒ 金样本四屏必重抓（T-469 教训）；C 把差异压在构建期 ⇒ **零金样本重抓**，且发布包干净。
+
+**落码**：
+1. `tools/scripts/lib/version-label.mjs::stampReleaseLabel(baseLabel, newVer)` = 打号 + 剥后缀单源（版本段任意 `vMAJOR.MINOR.BUILD`，⛔ 不按字面旧号找——T-473「二建起永不打号」判例；后缀 `/ \s*·.*$/` 一并剥，基线段缺失 ⇒ `null` 由调用方 warn 不挡构建）。
+2. `tools/scripts/build-cocos.mjs` 版本腿改用该函数（仅 `platform=wechatgame*` 且非 `--debug`）；日志改为打印最终 label。
+3. `copy-tokens.ts::version_label` **值不动**（`v1.0.0 · 演示版`）——源码基线/harness/金样本/debug 恒显演示版，注释改记裁定 C。
+4. 判别测试 `tools/scripts/version-label.test.mjs`（4 例：打号剥后缀 / 无后缀只打号 / 基线漂移仍打号 / 无版本段 ⇒ null）并**挂进根 `test` 步**（`node --test … version-label.test.mjs`）——否则不会被 `verify` 看到。
+5. 文档同步：`release-checklist.md §1.1` 待办① 结清、`copy-tokens` 注释改记裁定。
+
+**验证**：新测试 4/4；全量 `verify` 待跑（本单提交后复跑）。⚠ **未做**：真 release 构建产物复证——本机此刻跑 release 构建会把 build 号顶到 `1.0.4` 并覆盖 `games/beads/cocos/build/wechatgame`（真机走查待用的 `v1.0.3` 产物），故留给下一次干净发布构建，已写进 release-checklist §1.1 待办②。
+
 ## WXG-T-470
 
 **Meta 页族批1①：图鉴（album）· 负责：主理人(Trae) · 状态：🟡 立项（2026-10-28）**

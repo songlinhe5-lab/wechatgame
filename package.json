@@ -10,7 +10,7 @@
   "packageManager": "pnpm@10.28.2",
   "scripts": {
     "prepare": "node tools/scripts/install-githooks.mjs",
-    "test": "pnpm -r run test && node --test tools/scripts/pattern-legibility.test.mjs",
+    "test": "pnpm -r run test && node --test tools/scripts/pattern-legibility.test.mjs tools/scripts/version-label.test.mjs",
     "typecheck": "pnpm -r run typecheck",
     "check:arch": "node tools/scripts/check-architecture.mjs",
     "check:es5spread": "node tools/scripts/check-es5-spread.mjs",

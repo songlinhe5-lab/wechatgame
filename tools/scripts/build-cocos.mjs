@@ -47,6 +47,7 @@ import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, statSyn
 import { basename, dirname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { stampReleaseLabel } from './lib/version-label.mjs';
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
 const COCOS_APP = '/Applications/Cocos/Creator/3.8.8/CocosCreator.app/Contents/MacOS/CocosCreator';
@@ -219,6 +220,9 @@ process.exit(0);
  * - 同批给产物 `assets/main/index.js` 的 `version_label` 打号：源码基线串里的
  *   `v{旧版}` → `v{新版}`（minify 保留字符串字面量；任一环节对不上 ⇒ warn 不失败，
  *   产物退回显示源码基线值，不挡构建）；
+ * - **分环境文案**（USER 2026-10-28 裁 C）：发布产物打号时**连带剥掉状态后缀**（` · 演示版`）
+ *   ⇒ 提审包装 `v1.0.3`；源码基线恒留后缀（harness / 金样本 / debug 显「演示版」）。
+ *   单源 = `lib/version-label.mjs::stampReleaseLabel`（判别测试 `version-label.test.mjs`）；
  * - web-mobile / debug 构建：不递增不替换（harness 恒显源码基线值）。
  */
 function bumpAndStampVersion({ game, gameDir, productDir, platform }) {
@@ -246,10 +250,11 @@ function bumpAndStampVersion({ game, gameDir, productDir, platform }) {
   const baseLabel = labelM[1];
   // ⛔ 不按字面 `v{oldVer}` 找：package.json 每建递增一次，而源 label 基线是静态常量——
   // 第二建起 oldVer 就与 label 漂移（首建后 1.0.1 vs label v1.0.0）⇒ 永不打号（T-473 实测）。
-  // 用「任意 MAJOR.MINOR.BUILD 段」正则替换：label 基线写哪个 build 号都能打上本次号。
-  const stamped = baseLabel.replace(/v\d+\.\d+\.\d+/, `v${newVer}`);
-  if (stamped === baseLabel) {
-    console.log(`  ⚠️ 版本腿：源 label「${baseLabel}」不含 v${oldVer} ⇒ 无法打号（源码与 package.json 漂移？）`);
+  // 打号 + 剥状态后缀（「· 演示版」）走 lib 单源：源码基线恒留后缀（开发/harness 腿），
+  // 发布产物只显 `v{本次build}`（USER 2026-10-28 裁 C：分环境）。
+  const stamped = stampReleaseLabel(baseLabel, newVer);
+  if (stamped === null) {
+    console.log(`  ⚠️ 版本腿：源 label「${baseLabel}」不含 v{MAJOR.MINOR.BUILD} ⇒ 无法打号（源码与 package.json 漂移？）`);
     return;
   }
   const idxText = readFileSync(idxPath, 'utf8');
@@ -258,7 +263,7 @@ function bumpAndStampVersion({ game, gameDir, productDir, platform }) {
     return;
   }
   writeFileSync(idxPath, idxText.replace(baseLabel, stamped), 'utf8');
-  console.log(`  🔖 版本：v${oldVer} → v${newVer}（package.json 递增 + 产物 version_label 打号）`);
+  console.log(`  🔖 版本：v${oldVer} → v${newVer}（package.json 递增 + 产物 version_label 打号 ⇒ 「${stamped}」）`);
 }
 
 /**
