@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3941,
       "lines": 133,
-      "sha256": "120bdd3e3d221a4e0442845c8097ad1b8686ef29e249c04a1abd6bc8ca16457b",
+      "sha256": "c601c519f370701473ed19f573ac6d60031047456e2cd895aad7d9190d95020f",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 227207 6720 normal",
+          "summary": "1 production/TASKS-DETAIL.md 228075 6740 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "525dd06bfdd1ca452ca03b6bb93716bd164cd04dabf3f90c1a62b20d6882d142",
+      "sha256": "9816045c8c1ef371cdf1fe5120de6a3b1e6dacb8b6e581916dc28d3d05ee41f6",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 169 行 / 75204 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 170 行 / 75486 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+170 · §待排（backlog，无号，立项时领取…=142+29",
+          "summary": "§WXG 任务台账（SSOT）=1+171 · §待排（backlog，无号，立项时领取…=143+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 6720 行 / 227207 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 6740 行 / 228075 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6721 · §WXG-T-462=6502+14 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6741 · §WXG-T-463=6516+16 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -87523,17 +87523,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 227207,
-      "lines": 6720,
-      "sha256": "613c73828df29a8a58e0df00f3bf1423be77c700f2b5ccd35f011bde5d2fa3b9",
+      "tokens": 228075,
+      "lines": 6740,
+      "sha256": "38c8df8f7a0767fb5374cc6ed30281fdd5330134a2120cd7f7f73128341a6ab6",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 6721,
-          "tokens": 227191,
+          "endLine": 6741,
+          "tokens": 228059,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -95729,10 +95729,23 @@
           ]
         },
         {
-          "anchor": "§WXG-T-470",
+          "anchor": "§WXG-T-475",
           "level": 2,
           "startLine": 6654,
-          "endLine": 6676,
+          "endLine": 6673,
+          "tokens": 865,
+          "summary": "真机走查 Session 0 前置重核（v1.0.3 现包）+ 走查单 v1.7 · 负责：主理人(CodeBuddy)",
+          "keywords": [
+            "WXG",
+            "Session",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-470",
+          "level": 2,
+          "startLine": 6674,
+          "endLine": 6696,
           "tokens": 511,
           "summary": "Meta 页族批1①：图鉴（album）· 负责：主理人(Trae) · 状态：🟡 立项（2026-10-28）",
           "keywords": [
@@ -95745,8 +95758,8 @@
         {
           "anchor": "§WXG-T-471",
           "level": 2,
-          "startLine": 6677,
-          "endLine": 6698,
+          "startLine": 6697,
+          "endLine": 6718,
           "tokens": 381,
           "summary": "Meta 页族批1②：本地榜（localRank）· 负责：主理人(Trae) · 状态：🟡 立项（2026-10-2",
           "keywords": [
@@ -95759,8 +95772,8 @@
         {
           "anchor": "§WXG-T-472",
           "level": 2,
-          "startLine": 6699,
-          "endLine": 6721,
+          "startLine": 6719,
+          "endLine": 6741,
           "tokens": 379,
           "summary": "Meta 页族批1③：名片（profile）· 负责：主理人(Trae) · 状态：🟡 立项（2026-10-28）",
           "keywords": [
@@ -95774,17 +95787,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 75204,
-      "lines": 169,
-      "sha256": "9fdddd05a34785c298be320335f43d227e12587c28645e79643bf57f9ecc6855",
+      "tokens": 75486,
+      "lines": 170,
+      "sha256": "375476bc48ed6f862b7d4e9e280d2793622dd6af62a0ebd7f19eaf91f94161ff",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 170,
-          "tokens": 75195,
+          "endLine": 171,
+          "tokens": 75477,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -95797,8 +95810,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 142,
-          "endLine": 170,
+          "startLine": 143,
+          "endLine": 171,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -99789,20 +99802,21 @@
     },
     {
       "path": "production/qa/beads/device-walkthrough.md",
-      "tokens": 10859,
-      "lines": 249,
-      "sha256": "b34031a337d652cd94f64d1d947d675d09651852bf9bb5918e75068b694615ed",
+      "tokens": 12097,
+      "lines": 253,
+      "sha256": "ed6bd4a95b3bb73fa0794b00a22b0dbd71e2f88eb9da000551fb5dd53828f307",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads 真机走查单（P4 · K-044 解除条件逐项走查）",
           "level": 1,
           "startLine": 1,
-          "endLine": 250,
-          "tokens": 10838,
-          "summary": "版本：v1.6 · 2026-10-19（v1.6 = D-79 的 6a 齿轮腿真机甲/乙双过（用户 2026-10-",
+          "endLine": 254,
+          "tokens": 12077,
+          "summary": "版本：v1.7 · 2026-10-28（v1.7 = Session 0 前置按 v1.0.3 现包重核 + 新增 D",
           "keywords": [
             "beads",
+            "Session",
             "真机走查单",
             "解除条件逐项",
             "走查"
@@ -99826,7 +99840,7 @@
           "level": 2,
           "startLine": 21,
           "endLine": 36,
-          "tokens": 1349,
+          "tokens": 1579,
           "summary": "☐ AppID 一致 构建 profile / 工程 / 产物三处 = wx8cf9f756e5390749 ✅ coc",
           "keywords": [
             "Session",
@@ -99857,8 +99871,8 @@
           "anchor": "§3 走查条目（按场次排，同场一次性走完）",
           "level": 2,
           "startLine": 49,
-          "endLine": 200,
-          "tokens": 5906,
+          "endLine": 203,
+          "tokens": 6316,
           "summary": "列说明：线 = 来源给的通过线（逐字，未定义 ⇒ 上限 PASS*）；另需 = AppID 之外的前提；判定 / 证据 ",
           "keywords": [
             "PASS",
@@ -99872,8 +99886,8 @@
           "anchor": "§Session 1 · 冒烟与首屏（先走，任何一条 FAIL 即停后续场次）",
           "level": 3,
           "startLine": 53,
-          "endLine": 92,
-          "tokens": 1708,
+          "endLine": 94,
+          "tokens": 1926,
           "summary": "D-39 qa/beads/test-cases.md DEV-02 build:cocos（wechatgame）出包",
           "keywords": [
             "Session",
@@ -99887,8 +99901,8 @@
         {
           "anchor": "§Session 2 · 适配（刘海 / 安全区 / 分辨率）",
           "level": 3,
-          "startLine": 93,
-          "endLine": 107,
+          "startLine": 95,
+          "endLine": 109,
           "tokens": 1116,
           "summary": "D-38 test-cases.md DEV-01 wx 宿主坐标链（getLocation / push）；小游戏无 ",
           "keywords": [
@@ -99903,9 +99917,9 @@
         {
           "anchor": "§Session 3 · 输入",
           "level": 3,
-          "startLine": 108,
-          "endLine": 124,
-          "tokens": 901,
+          "startLine": 110,
+          "endLine": 127,
+          "tokens": 1093,
           "summary": "D-46 test-cases.md TC-CAM-DEV-01（P0） zoom≠1（含大盘 fit）棋盘点哪落哪 点",
           "keywords": [
             "Session",
@@ -99919,8 +99933,8 @@
         {
           "anchor": "§Session 4 · 渲染观感（统一截图取证：每条同机同亮度，原图入库）",
           "level": 3,
-          "startLine": 125,
-          "endLine": 149,
+          "startLine": 128,
+          "endLine": 152,
           "tokens": 650,
           "summary": "D-12 ADR-0028；wxg-t-228-tint-criteria.md TC-TINT-20 / T2' wx",
           "keywords": [
@@ -99935,8 +99949,8 @@
         {
           "anchor": "§Session 4b · 美术设计走查（art-bible 对照 · USER 逐屏看图拍板；WXG-T-468 新增）",
           "level": 3,
-          "startLine": 150,
-          "endLine": 162,
+          "startLine": 153,
+          "endLine": 165,
           "tokens": 386,
           "summary": "正本 = games/beads/design/art/art-bible.md（v1.5-r27）+ assets-s",
           "keywords": [
@@ -99951,8 +99965,8 @@
         {
           "anchor": "§Session 5 · 性能（严格按 `render-perf-device-baseline.md §12` 执行序）",
           "level": 3,
-          "startLine": 163,
-          "endLine": 177,
+          "startLine": 166,
+          "endLine": 180,
           "tokens": 449,
           "summary": "D-03 baseline §7 · D7 WebGL/uniform/纹理能力矩阵（先做） 全机型 MAX_FRAGM",
           "keywords": [
@@ -99967,8 +99981,8 @@
         {
           "anchor": "§Session 6 · 音频 / 平台 API",
           "level": 3,
-          "startLine": 178,
-          "endLine": 187,
+          "startLine": 181,
+          "endLine": 190,
           "tokens": 214,
           "summary": "D-56 g4-regression-report.md A05-27 iOS 首手势出声；后台恢复；泄漏；首个 cli",
           "keywords": [
@@ -99983,8 +99997,8 @@
         {
           "anchor": "§Session 7 · 真人 Playtest（另排日程，需外部受试者）",
           "level": 3,
-          "startLine": 188,
-          "endLine": 200,
+          "startLine": 191,
+          "endLine": 203,
           "tokens": 264,
           "summary": "D-73 TC-PER-03；playtest-plan.md 第 1 轮 无文字 3s 看懂；首次落子 ≥80% 复述",
           "keywords": [
@@ -99999,8 +100013,8 @@
         {
           "anchor": "§4 真机解不了的阻塞（走查前须知，⛔ 不因真机在手而解除）",
           "level": 2,
-          "startLine": 201,
-          "endLine": 216,
+          "startLine": 204,
+          "endLine": 219,
           "tokens": 507,
           "summary": "X-01 音频出声（D-56/57/58） weapp.ts::createAudioBackend 只走 WebAud",
           "keywords": [
@@ -100015,8 +100029,8 @@
         {
           "anchor": "§5 走查后回填",
           "level": 2,
-          "startLine": 217,
-          "endLine": 223,
+          "startLine": 220,
+          "endLine": 226,
           "tokens": 148,
           "summary": "1. 每条判定回填到来源文档的状态列（本单只是索引）；PASS* 必写残留（缺哪一道）。",
           "keywords": [
@@ -100027,10 +100041,10 @@
         {
           "anchor": "§6 统计",
           "level": 2,
-          "startLine": 224,
-          "endLine": 238,
-          "tokens": 196,
-          "summary": "S1 冒烟 8 8",
+          "startLine": 227,
+          "endLine": 241,
+          "tokens": 206,
+          "summary": "S1 冒烟 9 8（D-80 新增，线未定义）",
           "keywords": [
             "统计"
           ]
@@ -100038,9 +100052,9 @@
         {
           "anchor": "§7 变更记录",
           "level": 2,
-          "startLine": 239,
-          "endLine": 250,
-          "tokens": 1614,
+          "startLine": 242,
+          "endLine": 254,
+          "tokens": 2060,
           "summary": "v1.0 2026-10-15 初稿：汇总全仓真机待验项 + K-044 判定上限 + 阻塞清单（P4）",
           "keywords": [
             "变更记录"
