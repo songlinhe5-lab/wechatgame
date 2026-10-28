@@ -8,7 +8,13 @@
  *     ⇒ `windowRestore` 窗口贴边收缩 = **整盘**（min(6,rows) × min(6,cols)），
  *     于是「最密集窗口」在小测试盘上恒覆盖全部错位珠。
  *  2. 错位局面一律用 grid.setBead() 装配（BOOT 装配原语，bead-grid §2.1）。
- *  3. 托盘珠用 `giveTrayBead` 死路径夹具装配（仅供 trayRestore 测试）。
+ *  3. 托盘珠用 `giveTrayBead` 死路径夹具装配（仅供 trayRestore 测试；⚠ 它凭空造珠
+ *     ⇒ **不得**用它做恒等式类断言，守恒腿走「取回 → 扫豆刷」的合法走子链）。
+ *
+ * 【编号口径 · 2026-10-28 对表】本文件 `describe` 一律引 `powerups-v2` §8 **现行编号**
+ * （判据表已扩到 35 条：v2.4 新增 26～32、v2.5 新增 33～35）。旧版编号（v2.0～v2.3 的
+ * 1～10 号段）与现号不同构，旧号一律以 `git log -L` 查本行以前的版本，⛔ 不在本文件
+ * 另存一份「旧号↔新号」映射表（判例 K-174：同一映射两处登记必漂移）。
  */
 
 import { describe, expect, it } from 'vitest';
@@ -135,7 +141,7 @@ describe('S6 §3.6 常量镜像（v1.95）', () => {
 
 // ───────────────────────────────────────────────────────────────────── §8-1
 
-describe('S6 §8-1 windowRestore 最密集窗口（原：solver 行主序首颗）', () => {
+describe('S6 §8-4 windowRestore 区域内全归位（6×6 最密集窗口 · 原：solver 行主序首颗）', () => {
   it('names every misplaced bead inside the densest window', () => {
     const h = mk('wxgame.beads.test.s6-1');
     const misplaced = buildMisplaced(h, 2); // 4 颗错位
@@ -162,7 +168,7 @@ describe('S6 §8-1 windowRestore 最密集窗口（原：solver 行主序首颗�
 
 // ───────────────────────────────────────────────────────────────────── §8-2
 
-describe('S6 §8-2 randomRestore 抽 RANDOM_RESTORE_COUNT 颗（原：solverPlus 上限 3）', () => {
+describe('S6 §8-16(b)(e) randomRestore 抽 min(12, M₀) 颗 · 无放回（原：solverPlus 上限 3）', () => {
   it('names at most RANDOM_RESTORE_COUNT cells, drawn without replacement', () => {
     const h = mk('wxgame.beads.test.s6-2a');
     const misplaced = buildMisplaced(h, 4); // 8 颗错位 < 12
@@ -195,7 +201,7 @@ describe('S6 §8-2 randomRestore 抽 RANDOM_RESTORE_COUNT 颗（原：solverPlus
 
 // ───────────────────────────────────────────────────────────────────── §8-3
 
-describe('S6 §8-3 归位几何：empty 目标格优先，否则交换（几何不变，沿用）', () => {
+describe('S6 §2.2.1 归位几何：empty 目标格优先，否则交换（守恒臂 = §8-5；几何不变，沿用）', () => {
   it('moves a misplaced bead into the empty home cell when one exists', () => {
     const h = mk('wxgame.beads.test.s6-3a');
     const grid = h.game.grid;
@@ -240,7 +246,7 @@ describe('S6 §8-3 归位几何：empty 目标格优先，否则交换（几何�
 
 // ───────────────────────────────────────────────────────────────────── §8-4
 
-describe('S6 §8-4 randomRestore 唯一随机源（原：solverRandom）', () => {
+describe('S6 §8-16(a)(c) + §8-15 randomRestore 唯一随机源 = 注入 rng（原：solverRandom）', () => {
   /** times 次抽取（每次重置**本关已用**计数；免费额度账号级，需手动复位耗尽标志）。 */
   function draw(seed: string, times: number, pool: number): { row: number; col: number }[][] {
     const sys = new PowerupSystem();
@@ -268,7 +274,7 @@ describe('S6 §8-4 randomRestore 唯一随机源（原：solverRandom）', () =>
 
 // ───────────────────────────────────────────────────────────────────── §8-5
 
-describe('S6 §8-5 不足数不补抽（沿用判例，randomRestore）', () => {
+describe('S6 §8-16(e) 不足数不补抽（沿用判例，randomRestore）', () => {
   it('names what exists and never conjures a bead', () => {
     const sys = new PowerupSystem();
     sys.attach(createRng('s6-5'));
@@ -280,7 +286,7 @@ describe('S6 §8-5 不足数不补抽（沿用判例，randomRestore）', () => 
 
 // ───────────────────────────────────────────────────────────────────── §8-6
 
-describe('S6 §8-6 棋盘道具不写托盘（v1.95：S6 对托盘只读，非「零读写」）', () => {
+describe('S6 §8-7(a) 棋盘道具不写托盘（v1.95：S6 对托盘只读，非「零读写」）', () => {
   it('never touches the tray via windowRestore/randomRestore: state before == state after', () => {
     const h = mk('wxgame.beads.test.s6-6a');
     expect(h.game.expandTray()).toBe(true); // 扩容后 24 槽
@@ -297,7 +303,7 @@ describe('S6 §8-6 棋盘道具不写托盘（v1.95：S6 对托盘只读，非�
 
 // ───────────────────────────────────────────────────────────────────── §8-7
 
-describe('S6 §8-7 只动错位珠（守恒不变式，沿用）', () => {
+describe('S6 §8-5 + §8-6 只动错位珠（每色珠数相等 · 就位/锁定逐格不变）', () => {
   it('leaves locked counts untouched and only relocates misplaced beads', () => {
     const h = mk('wxgame.beads.test.s6-7');
     const grid = h.game.grid;
@@ -319,7 +325,7 @@ describe('S6 §8-7 只动错位珠（守恒不变式，沿用）', () => {
 
 // ───────────────────────────────────────────────────────────────────── §8-8
 
-describe('S6 §8-8 免费额度（v1.95：账号级永久）与超限占位', () => {
+describe('S6 §8-10(a) + §8-21 免费额度（v1.95：账号级永久）与超限占位', () => {
   it('free use is account-level: exhausted stays exhausted across reset; purchase path opens', () => {
     const spy = adSpy();
     const h = mk('wxgame.beads.test.s6-8', { rewardedAd: spy.provider });
@@ -349,7 +355,7 @@ describe('S6 §8-8 免费额度（v1.95：账号级永久）与超限占位', ()
 
 // ───────────────────────────────────────────────────────────────────── §8-9
 
-describe('S6 §8-9 空作用 / 非法 type（沿用）', () => {
+describe('S6 §8-9 + §8-12(a) 零错位不置位 / 非法 type（沿用）', () => {
   it('treats an empty scope (zero misplaced) as a no-op and never charges a use', () => {
     const h = mk('wxgame.beads.test.s6-9'); // 全空盘 ⇒ 零错位
     expect(h.game.usePowerup('windowRestore')).toBe(false);
@@ -366,7 +372,7 @@ describe('S6 §8-9 空作用 / 非法 type（沿用）', () => {
 
 // ───────────────────────────────────────────────────────────────────── §8-10
 
-describe('S6 §8-10 bead:placed 语义与通关（沿用）', () => {
+describe('S6 §8-8 bead:placed 语义与通关（payload 1:1，沿用）', () => {
   it('emits bead:placed without a slot and clears the level on zero-misplaced', () => {
     const h = mk('wxgame.beads.test.s6-10');
     buildMisplaced(h, 1); // 一对交换错位 ⇒ 归位后即全归位
@@ -386,7 +392,7 @@ describe('S6 §8-10 bead:placed 语义与通关（沿用）', () => {
 
 // ───────────────────────────────────────────────── trayRestore（v1.95 新件）
 
-describe('S6 §2.2.5 trayRestore 托盘归位（用户原话口径的纯函数层）', () => {
+describe('S6 §2.2.5 trayRestore 托盘归位（判据族 = §8-26～§8-35）', () => {
   const empties = [
     { row: 0, col: 0 },
     { row: 1, col: 1 },
@@ -432,7 +438,7 @@ describe('S6 §2.2.5 trayRestore 托盘归位（用户原话口径的纯函数�
       { colorIdx: 1, slot: 0, targetRow: 0, targetCol: 0 }, // 被占 ⇒ 换出
       { colorIdx: 2, slot: 1, targetRow: 1, targetCol: 1 }, // 被占 ⇒ 换出
     ];
-    const result = sys.request('trayRestore', [], { tray, empties: [] });
+    const result = sys.request('trayRestore', [], { tray, empties: [{ row: 0, col: 0 }] });
     expect(result.kind).toBe('used');
     if (result.kind !== 'used') return;
     expect(result.affectedCells).toEqual([
@@ -442,9 +448,76 @@ describe('S6 §2.2.5 trayRestore 托盘归位（用户原话口径的纯函数�
   });
 });
 
+// ───────────────── §8-26(d) 守恒恒等式 / §8-27(b) 镜像漂移拒绝（本批补腿）
+
+describe('S6 §8-26(d) 守恒恒等式 `#empty = #trayBeads`（现号；本批前无腿）', () => {
+  /** 盘面空格数 = 可填格总数 − 已填格数（`grid.fillableTotal` / `filledCount`）。 */
+  const emptiesOf = (h: Harness): number => h.game.grid.fillableTotal - h.game.grid.filledCount;
+
+  it('合法走子链（填满 → 取回 k 颗 → 扫豆刷）前后恒等式均成立', () => {
+    const h = mk('wxgame.beads.test.s6-8-26d');
+    buildMisplaced(h, 3);
+    expect(emptiesOf(h)).toBe(0); // 装配后全盘就位/错位、零空格
+    expect(h.game.tray.holdingCount).toBe(0);
+
+    // 合法取回：盘面拿掉的每一颗都必须落进托盘（⛔ 不用 giveTrayBead 死路径夹具 ——
+    // 它会凭空造珠，恒等式在夹具层就已破，测不到真不变式）。
+    let anchor: { row: number; col: number } | null = null;
+    for (let r = 0; r < h.game.grid.rows && !anchor; r++) {
+      for (let c = 0; c < h.game.grid.cols && !anchor; c++) {
+        if (h.game.grid.isMisplaced(r, c)) anchor = { row: r, col: c };
+      }
+    }
+    expect(anchor, '夹具须至少造出一颗错位珠').not.toBeNull();
+    expect(h.game.selectBoardBead(anchor!.row, anchor!.col)).toBe(true);
+    expect(h.game.retrieveSelectedGroup()).toBe(true);
+
+    const before = emptiesOf(h);
+    expect(h.game.tray.holdingCount, '取回后恒等式（珠只换了住处）').toBe(before);
+    expect(before).toBeGreaterThan(0);
+
+    expect(h.game.usePowerup('trayRestore')).toBe(true);
+    // 同帧动手腿（v1.95 / WXG-T-431）：plan 与 `_execTrayPlan` 同一次调用内完成，无需相 B。
+
+    expect(h.game.tray.holdingCount, '使用后恒等式仍成立：空格与托盘珠等量递减').toBe(emptiesOf(h));
+    expect(h.game.tray.holdingCount).toBeLessThan(before);
+    expect(h.count('bead:rejected')).toBe(0);
+  });
+});
+
+describe('S6 §8-27(b) 镜像漂移（托盘非空 ∧ 无空格）⇒ 拒绝裁定（现号；本批前无腿）', () => {
+  /**
+   * 上位 = `powerups-v2 §6 X-9`（镜像漂移：零事件、零格变化、零扣次、零扣豆 + 记警告）
+   * 与 `§6 X-2`（守恒恒等式使「托盘非空 ∧ 无空格」结构上不可达 ⇒ 出现即漂移）。
+   * 判据原文只要求一件事：⛔ 不得「按镜像硬算」把珠写进已填格。
+   */
+  it('伪造镜像喂进裁定函数 ⇒ 走拒绝（empty）、不扣次、零 plan', () => {
+    const sys = new PowerupSystem();
+    sys.attach(createRng('s6-8-27b'));
+    const tray = [
+      { colorIdx: 1, slot: 0, targetRow: 0, targetCol: 0 },
+      { colorIdx: 2, slot: 1, targetRow: 1, targetCol: 1 },
+    ];
+    const freeBefore = sys.freeUses('trayRestore');
+    const result = sys.request('trayRestore', [], { tray, empties: [] });
+    expect(result.kind, '拒绝裁定 = 零事件零扣次，出口只能是 empty（§6 X-9）').toBe('empty');
+    expect(sys.freeUses('trayRestore'), '零扣次（§8-30 同族）').toBe(freeBefore);
+  });
+
+  it('反向臂：合法镜像（有空格）仍照常执行，拒绝不得把正常路径一并堵死', () => {
+    const sys = new PowerupSystem();
+    sys.attach(createRng('s6-8-27b-ok'));
+    const tray = [{ colorIdx: 1, slot: 0, targetRow: 0, targetCol: 0 }];
+    const result = sys.request('trayRestore', [], { tray, empties: [{ row: 0, col: 0 }] });
+    expect(result.kind).toBe('used');
+    if (result.kind !== 'used') return;
+    expect(result.affectedCells).toEqual([{ row: 0, col: 0 }]);
+  });
+});
+
 // ───────────────────────────────────── §3.6 v1.95 · 豆子购买（无上限 / 统一 100）
 
-describe('§3.6 v1.95 · 豆子购买（不设上限，价格是唯一门槛）', () => {
+describe('§3.6 v1.95 · 豆子购买（§8-18 / §8-31：统一 100 豆、不设次数上限）', () => {
   const pool: MisplacedBead[] = [
     { row: 0, col: 0, colorIdx: 1 },
     { row: 0, col: 1, colorIdx: 2 },

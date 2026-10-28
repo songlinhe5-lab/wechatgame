@@ -374,8 +374,10 @@ export class PowerupSystem {
   /**
    * `trayRestore` 点名计划（§2.2.5，用户原话口径）：托盘珠**逐颗（槽位序）**
    * 归位 —— 目标格在空格清单里 ⇒ 放入；否则 ⇒ 换出（目标格仍归位），换出的珠
-   * 从**剩余**空格里随机抽一格落位（允许制造新错位；空格耗尽 ⇒ 换出珠留托盘，
-   * 不产出落格，`evict = -1` 哨兵）。目标格互不重复的假设由调用方保证。
+   * 从**剩余**空格里随机抽一格落位（允许制造新错位；合法镜像下 `#empty = 托盘珠数`
+   * ⇒ 收尾恰好吃满，`evict = -1` 只在镜像漂移的异常序列里出现，不产落格、不凭空造
+   * 格）。**入口先校恒等式退化态**：托盘非空而空格为零 ⇒ 直接拒绝（§6 X-9 / §8-27(b)）。
+   * 目标格互不重复的假设由调用方保证。
    *
    * 输出 = `{ cells, trayPlan, traySlots }`：`cells`（affectedCells，行主序去重）
    * 供预警高亮；`trayPlan`（动手指令，槽位序）供 S4 同帧执行；`traySlots`（清空
@@ -385,6 +387,18 @@ export class PowerupSystem {
     tray: readonly TrayBead[],
     empties: readonly AffectedCell[],
   ): { cells: readonly AffectedCell[]; trayPlan: readonly TrayMove[]; traySlots: readonly number[] } {
+    // 【§6 X-9 镜像漂移守卫 · 判据 §8-27(b)】守恒恒等式 `#empty ≡ 托盘占用`（§2.2.5-⑥ /
+    // §6 X-2）使「托盘非空 ∧ 无空格」在合法盘面态下**结构不可达** ⇒ 进到这一步就是镜像
+    // 漂移。裁定 = **拒绝**（零事件、零格变化、零扣次、零扣豆），⛔ 不得「按镜像硬算」——
+    // 硬算会给出 `evict = -1` 的换出计划，等于把托盘珠写进 `filled` 格。返回零点名即
+    // 由 `request` 走既有 `empty` 出口（扣减时机在点名之后，故零扣次）。
+    if (tray.length > 0 && empties.length === 0) {
+      console.warn(
+        `[beads] S6 powerupMirrorDrift：trayRestore 收到「托盘非空 ∧ 无空格」镜像` +
+          `（tray=${tray.length}）⇒ 拒绝裁定（§6 X-9 / §8-27(b)）`,
+      );
+      return { cells: [], trayPlan: [], traySlots: [] };
+    }
     const free = new Set<number>(empties.map((c) => c.row * 1024 + c.col));
     const cells: { row: number; col: number }[] = [];
     const moves: TrayMove[] = [];
