@@ -212,7 +212,10 @@ export class Bootstrap extends Component {
     const doc = (globalThis as {
       document?: { querySelector(s: string): { clientWidth: number; clientHeight: number } | null };
     }).document;
-    const canvas = doc?.querySelector('#GameCanvas');
+    // 真机无 `document`（可选链短路），但**宿主替身可能给一个「有 `document` 却不是 DOM」的
+    // 对象** —— 微信小游戏浏览器 mock 即如此（`document` 存在而无 `querySelector`），
+    // 每帧 `start()` 抛 `TypeError`（判例 K-197 同族：挡类型不够，要挡方法存在性）。
+    const canvas = typeof doc?.querySelector === 'function' ? doc.querySelector('#GameCanvas') : null;
     if (!canvas || !canvas.clientWidth || !canvas.clientHeight) return;
     this._app.resize(canvas.clientWidth, canvas.clientHeight);
   }
