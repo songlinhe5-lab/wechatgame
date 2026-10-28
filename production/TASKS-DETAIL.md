@@ -6671,6 +6671,29 @@ T-461 收口时的同族发现（K-116 违反实例第二处）：选中珠分�
 
 **待 USER**：① 扫 `temp/wxg474-preview-qr.png`；② **先做「标定线定性」**（10-19 遗留、命中发布清单 §1.1 调试入口不进线上）：清微信小游戏缓存或换未玩过的新微信号冷启 —— 标定线仍在 ⇒ 开 BD；不再现 ⇒ 记存档态；③ 按 Session 1 → 4b 顺序回传读数（截图落 `device/2026-10-28/`）。
 
+## WXG-T-476
+
+**新增 `wxgame-art-review` skill + 首轮美术还原 review · 负责：主理人(CodeBuddy) · 状态：🟢 已交付（2026-10-28）**
+
+**动因**：用户令「开始 review 美术设计还原，增加美术设计相关 skill」。现状 = 域·美术只有 `wxgame-art-spec-programmatic`（**写**规格），没有审还原的只读面；而 `域·策划` 有 `gdd-review`、`域·技术` 有 `arch-review` 两个定期审计先例（WXG-T-455/456）⇒ 补第三块。
+
+**skill 设计（`my-skills/wxgame-art-review/SKILL.md` v1.0）**：
+1. **分层真源**（⛔ 不是单一文件）：UI token → `art-bible §3.1`（含 §3.1.1 名映射 + `wood_*/card_*` 消费声明）· 珠色 → `§3.2`（委托 `systems-index §3.2`）· 版式几何 → 落地单 + `final/prototypes` 原型定稿 PNG + `final/coordinates` · 资产 → `assets-spec §1/§4/§5` + `final/README.md` 接线台账 · 动效 → `§7`（服从 `ux-spec §5`）。
+2. **机械层 8 步**：机械门（`palettes:check`/`check:a11y`/`check:cocos-mask`/`check:bead-style-pool`/`framework:sync:check`/游戏 test 含金样本）→ hex 越界扫描 → **已登记漂移白名单对账** → token 覆盖 → 版式常量对账 → 资产接线 → 出图比对 → 观感裁定。
+3. **判定上限表**：`PASS` 需「机械门全绿 + 无 P0/P1 + 每屏有出图证据」；只有 harness 图 ⇒ `PASS*`；六屏缺图 ⇒ `CONCERNS`；出图通道不通 ⇒ `⛔`（⛔ 不得用「代码看着对」冒充）。
+4. **§6 常见误判 5 条**：已登记漂移当新债 · 名映射误判 token 新增 · harness 图当真机证据 · 在途件当缺陷 · 只跑门不看图（P3 那次门全绿而真机层级错乱）。
+5. 四 IDE 链接 + `.trae` 本地链接 + `my-skills/INDEX.md` 行（`check:links` = skills 49→50 绿）。
+
+**首轮 review（报告 `production/qa/beads/art-restoration-review.md`，现包 `v1.0.3`）**：
+- 机械门 6 项全绿（palettes 15 品牌/2104 色、a11y、bead-style-pool、cocos-mask、framework:sync:check、beads test 1391 passed）。
+- **hex 越界 = 0**：`src/view/**` 除 `palette.ts`（49 处消费副本）外，两处命中都在注释里 ⇒ token 单一真源纪律成立。
+- **菜单版式常量 8/8 一致**（CTA 324×92@218 · 招牌链 165 · 组 871 · 柜隙 1:2 · 顶/底隙 16/32 · 框 544×871@107 · 钮行 bt≥cap）。
+- **F1（P2）文案未入册**：`meta-view.ts:166-168` 三页标题 `'图鉴'/'本地榜'/'名片'` 内联字面；而 `signin`/`skins` 走 `SIGNIN_TITLE`/`SKINS_TITLE` 单源常量 ⇒ 新三页既无 `tokens.md §7` 键、也未收常量。
+- **判定 `CONCERNS`**：机械与版式层零 P0/P1，但六屏**缺现包真机图**（10-19 那批取自旧包，按「同一时点」纪律不可挪用）⇒ 不得给 `PASS`。
+- **反误报一条**（写进报告）：落地单「条 46」vs 代码 `MENU_BAR_H=32` 初看差 14px，实读注释才知 46 = `MENU_BAR_TOP_INSET 14` + 32 ⇒ 与 skill §6-2 名映射误判同族，**先查语义再报**。
+
+**未覆盖（坦白）**：六屏出图比对（待真机走查同场取）· 观感层（`§5`/`§7` 无线，需 art-director 或用户拍板）· `assets-spec §1` 逐件清单对账（字节层已由 `check:cocos-mask` 覆盖）。
+
 ## WXG-T-470
 
 **Meta 页族批1①：图鉴（album）· 负责：主理人(Trae) · 状态：🟡 立项（2026-10-28）**

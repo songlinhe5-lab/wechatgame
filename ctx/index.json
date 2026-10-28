@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3941,
       "lines": 133,
-      "sha256": "c601c519f370701473ed19f573ac6d60031047456e2cd895aad7d9190d95020f",
+      "sha256": "051365e131e5fd81fa2efdded9ad7a9f8647c202e62221aa796436e3d98007f5",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 228075 6740 normal",
+          "summary": "1 production/TASKS-DETAIL.md 229040 6763 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "9816045c8c1ef371cdf1fe5120de6a3b1e6dacb8b6e581916dc28d3d05ee41f6",
+      "sha256": "46599ca000955fecb2fe07de125af66f7675269c113fa83d90c9c08f333bb311",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 170 行 / 75486 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 171 行 / 75786 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+171 · §待排（backlog，无号，立项时领取…=143+29",
+          "summary": "§WXG 任务台账（SSOT）=1+172 · §待排（backlog，无号，立项时领取…=144+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -777,12 +777,12 @@
           ]
         },
         {
-          "anchor": "§`my-skills/INDEX.md` — 158 行 / 4569 tok / 实测读 61 次",
+          "anchor": "§`my-skills/INDEX.md` — 159 行 / 4685 tok / 实测读 61 次",
           "level": 2,
           "startLine": 36,
           "endLine": 40,
           "tokens": 133,
-          "summary": "§wxgame skill 家族 IND…=1+159 · §1 清单（现役 49 个挂四 IDE …=6+32 · §",
+          "summary": "§wxgame skill 家族 IND…=1+160 · §1 清单（现役 49 个挂四 IDE …=6+33 · §",
           "keywords": [
             "my-skills/INDEX.md",
             "§1",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 6740 行 / 228075 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 6763 行 / 229040 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6741 · §WXG-T-463=6516+16 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6764 · §WXG-T-464=6532+16 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -69327,17 +69327,17 @@
     },
     {
       "path": "my-skills/INDEX.md",
-      "tokens": 4569,
-      "lines": 158,
-      "sha256": "ffafee339d57555d818b3aa6a56959fe5f02060d853081f0902e306c350f38b8",
+      "tokens": 4685,
+      "lines": 159,
+      "sha256": "581a3d6a76d29a813ee88a2562e7e3773d52f7dee0dff41f40b44b595c13e001",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§wxgame skill 家族 INDEX",
           "level": 1,
           "startLine": 1,
-          "endLine": 159,
-          "tokens": 4562,
+          "endLine": 160,
+          "tokens": 4677,
           "summary": "本文件是 my-skills/ 全家族的统一约定（人读 + 编排者读）。",
           "keywords": [
             "wxgame",
@@ -69351,8 +69351,8 @@
           "anchor": "§1 清单（现役 49 个挂四 IDE 链接；存档 1 个仅本目录留档）",
           "level": 2,
           "startLine": 6,
-          "endLine": 37,
-          "tokens": 1424,
+          "endLine": 38,
+          "tokens": 1539,
           "summary": "编排 wxgame-orchestration 九阶段（0–8）流水线、spawn 模板（八要素，含必读 skill 路",
           "keywords": [
             "IDE",
@@ -69366,8 +69366,8 @@
         {
           "anchor": "§1b. 外来通用·AI 编程工作流（28 个挂四 IDE 链接；含 1b.1 五件 + 1b.2 七件）",
           "level": 2,
-          "startLine": 38,
-          "endLine": 106,
+          "startLine": 39,
+          "endLine": 107,
           "tokens": 2163,
           "summary": "来源均为标准 SKILL.md 格式（MIT），安全审计通过（无危险命令/外传行为）。正本在本目录，git 克隆留档 _",
           "keywords": [
@@ -69382,8 +69382,8 @@
         {
           "anchor": "§1b.1 2026-09-24 批（5 件）",
           "level": 3,
-          "startLine": 59,
-          "endLine": 86,
+          "startLine": 60,
+          "endLine": 87,
           "tokens": 873,
           "summary": "cloudflare/security-audit-skill security-audit 六阶段安全审计（侦察 → ",
           "keywords": [
@@ -69396,8 +69396,8 @@
         {
           "anchor": "§1b.2 2026-10-20 批（7 件：ponytail 家族 6 + headroom）",
           "level": 3,
-          "startLine": 87,
-          "endLine": 106,
+          "startLine": 88,
+          "endLine": 107,
           "tokens": 793,
           "summary": "DietrichGebert/ponytail ponytail 强制最简可用解（七级阶梯 / YAGNI，lite·f",
           "keywords": [
@@ -69412,8 +69412,8 @@
         {
           "anchor": "§2 默认管线顺序与何时不走全 SOP",
           "level": 2,
-          "startLine": 107,
-          "endLine": 114,
+          "startLine": 108,
+          "endLine": 115,
           "tokens": 140,
           "summary": "全 SOP（新游戏/大功能）：orchestration 阶段诊断 → 按九阶段表 spawn",
           "keywords": [
@@ -69427,8 +69427,8 @@
         {
           "anchor": "§3 Skill 优先级（冲突时高者胜）",
           "level": 2,
-          "startLine": 115,
-          "endLine": 133,
+          "startLine": 116,
+          "endLine": 134,
           "tokens": 312,
           "summary": "",
           "keywords": [
@@ -69440,8 +69440,8 @@
         {
           "anchor": "§4 路径约定",
           "level": 2,
-          "startLine": 134,
-          "endLine": 147,
+          "startLine": 135,
+          "endLine": 148,
           "tokens": 222,
           "summary": "游戏（策划/美术/源码） games/<game>/design · games/<game>/art · games/",
           "keywords": [
@@ -69455,8 +69455,8 @@
         {
           "anchor": "§5 冲突裁决链",
           "level": 2,
-          "startLine": 148,
-          "endLine": 154,
+          "startLine": 149,
+          "endLine": 155,
           "tokens": 85,
           "summary": "1. games/<game>/design/gdd/systems-index.md §3 冻结常量 是数值唯一真源",
           "keywords": [
@@ -69471,8 +69471,8 @@
         {
           "anchor": "§6 Provenance 说明",
           "level": 2,
-          "startLine": 155,
-          "endLine": 159,
+          "startLine": 156,
+          "endLine": 160,
           "tokens": 60,
           "summary": "除 audio-spec（框架版）外，各 wxgame-* 均提炼自 Breakout demo 的实际产物，",
           "keywords": [
@@ -85339,6 +85339,150 @@
       ]
     },
     {
+      "path": "my-skills/wxgame-art-review/SKILL.md",
+      "tokens": 2276,
+      "lines": 108,
+      "sha256": "2820da3b5513c1e9f7a70c8db831a75bd692bdfce30f559ae59c8f94ad2c99fe",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§wxgame 美术设计还原 review（偏差审计，只读）",
+          "level": 1,
+          "startLine": 6,
+          "endLine": 109,
+          "tokens": 2127,
+          "summary": "本 skill 属 wxgame 家族（管线顺序、优先级与冲突裁决见 my-skills/INDEX.md）。",
+          "keywords": [
+            "wxgame",
+            "review",
+            "skill",
+            "skills",
+            "INDEX",
+            "美术设计还原"
+          ]
+        },
+        {
+          "anchor": "§0 什么时候跑（触发节奏）",
+          "level": 2,
+          "startLine": 16,
+          "endLine": 22,
+          "tokens": 136,
+          "summary": "每个 Sprint / 里程碑收口前；发布门 G2 / G4 前（与 wxgame-quality-gate 并行，互不",
+          "keywords": [
+            "Sprint",
+            "wxgame",
+            "quality",
+            "gate",
+            "什么时候跑",
+            "触发节奏"
+          ]
+        },
+        {
+          "anchor": "§1 输入（只读，分层真源）",
+          "level": 2,
+          "startLine": 23,
+          "endLine": 37,
+          "tokens": 297,
+          "summary": "UI token art-bible §3.1（唯一真源，含 §3.1.1 wood_*/card_* 消费声明与名映射",
+          "keywords": [
+            "§3.1",
+            "§3.1.1",
+            "token",
+            "art",
+            "bible",
+            "wood_"
+          ]
+        },
+        {
+          "anchor": "§2 审计步骤（机械层先行，人只补门看不见的）",
+          "level": 2,
+          "startLine": 38,
+          "endLine": 61,
+          "tokens": 632,
+          "summary": "1. 机械门（只记录退出码与关键输出，⛔ 不修）：palettes:check、check:a11y、",
+          "keywords": [
+            "palettes",
+            "check",
+            "a11y",
+            "审计步骤",
+            "机械层先行",
+            "人只补门看不"
+          ]
+        },
+        {
+          "anchor": "§3 偏差表（报告主体）",
+          "level": 2,
+          "startLine": 62,
+          "endLine": 71,
+          "tokens": 154,
+          "summary": "",
+          "keywords": [
+            "偏差表",
+            "报告主体"
+          ]
+        },
+        {
+          "anchor": "§4 判定（上限由证据等级决定）",
+          "level": 2,
+          "startLine": 72,
+          "endLine": 83,
+          "tokens": 179,
+          "summary": "PASS 机械门全绿 + 偏差表无 P0/P1 + 每屏都有出图证据（真机优先）",
+          "keywords": [
+            "PASS",
+            "判定",
+            "上限由证据等",
+            "级决定"
+          ]
+        },
+        {
+          "anchor": "§5 边界（与兄弟 skill 分工）",
+          "level": 2,
+          "startLine": 84,
+          "endLine": 93,
+          "tokens": 118,
+          "summary": "写美术规格 / 色盲编码 / 包体预算承诺 wxgame-art-spec-programmatic",
+          "keywords": [
+            "skill",
+            "wxgame",
+            "art",
+            "spec",
+            "programmatic",
+            "边界"
+          ]
+        },
+        {
+          "anchor": "§6 常见误判（每条都踩过）",
+          "level": 2,
+          "startLine": 94,
+          "endLine": 103,
+          "tokens": 251,
+          "summary": "1. 把已登记漂移当新债：palette.ts 与 §3.1 的换代差（bg_base/panel_surface/pa",
+          "keywords": [
+            "§3.1",
+            "palette",
+            "bg_base",
+            "panel_surface",
+            "常见误判",
+            "每条都踩过"
+          ]
+        },
+        {
+          "anchor": "§变更记录",
+          "level": 2,
+          "startLine": 104,
+          "endLine": 109,
+          "tokens": 69,
+          "summary": "v1.0 2026-10-28 初版：分层真源 + 机械层/人工层双段审计 + 偏差表 + 判定上限；与 gdd-rev",
+          "keywords": [
+            "gdd",
+            "rev",
+            "变更记录"
+          ]
+        }
+      ]
+    },
+    {
       "path": "my-skills/wxgame-art-spec-programmatic/SKILL.md",
       "tokens": 914,
       "lines": 56,
@@ -87523,17 +87667,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 228075,
-      "lines": 6740,
-      "sha256": "38c8df8f7a0767fb5374cc6ed30281fdd5330134a2120cd7f7f73128341a6ab6",
+      "tokens": 229040,
+      "lines": 6763,
+      "sha256": "a3b912e503fadaa11440ba70b1fc1114d03ad691dabd6b4ce16d7943462f8bc0",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 6741,
-          "tokens": 228059,
+          "endLine": 6764,
+          "tokens": 229023,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -95742,10 +95886,26 @@
           ]
         },
         {
-          "anchor": "§WXG-T-470",
+          "anchor": "§WXG-T-476",
           "level": 2,
           "startLine": 6674,
           "endLine": 6696,
+          "tokens": 962,
+          "summary": "新增 wxgame-art-review skill + 首轮美术还原 review · 负责：主理人(CodeBudd",
+          "keywords": [
+            "WXG",
+            "wxgame",
+            "art",
+            "review",
+            "skill",
+            "CodeBudd"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-470",
+          "level": 2,
+          "startLine": 6697,
+          "endLine": 6719,
           "tokens": 511,
           "summary": "Meta 页族批1①：图鉴（album）· 负责：主理人(Trae) · 状态：🟡 立项（2026-10-28）",
           "keywords": [
@@ -95758,8 +95918,8 @@
         {
           "anchor": "§WXG-T-471",
           "level": 2,
-          "startLine": 6697,
-          "endLine": 6718,
+          "startLine": 6720,
+          "endLine": 6741,
           "tokens": 381,
           "summary": "Meta 页族批1②：本地榜（localRank）· 负责：主理人(Trae) · 状态：🟡 立项（2026-10-2",
           "keywords": [
@@ -95772,8 +95932,8 @@
         {
           "anchor": "§WXG-T-472",
           "level": 2,
-          "startLine": 6719,
-          "endLine": 6741,
+          "startLine": 6742,
+          "endLine": 6764,
           "tokens": 379,
           "summary": "Meta 页族批1③：名片（profile）· 负责：主理人(Trae) · 状态：🟡 立项（2026-10-28）",
           "keywords": [
@@ -95787,17 +95947,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 75486,
-      "lines": 170,
-      "sha256": "375476bc48ed6f862b7d4e9e280d2793622dd6af62a0ebd7f19eaf91f94161ff",
+      "tokens": 75786,
+      "lines": 171,
+      "sha256": "d4ecff5c32297d0d96caa0192bf095e253e15a63668b2d62a6f0cfbc9223eda3",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 171,
-          "tokens": 75477,
+          "endLine": 172,
+          "tokens": 75777,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -95810,8 +95970,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 143,
-          "endLine": 171,
+          "startLine": 144,
+          "endLine": 172,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -99562,6 +99722,118 @@
           "keywords": [
             "Epic",
             "统计"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "production/qa/beads/art-restoration-review.md",
+      "tokens": 1460,
+      "lines": 83,
+      "sha256": "af2ec42dcbcf0a0644e0a81c5aa6a40fc563327ad9d7a8e8886d0681966621dc",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§beads 美术设计还原 review（定期审计 · 只读）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 84,
+          "tokens": 1441,
+          "summary": "方法正本 = my-skills/wxgame-art-review/SKILL.md（WXG-T-476 新建）。",
+          "keywords": [
+            "beads",
+            "review",
+            "skills",
+            "wxgame",
+            "art",
+            "SKILL"
+          ]
+        },
+        {
+          "anchor": "§判定上限口径（先读）",
+          "level": 2,
+          "startLine": 7,
+          "endLine": 19,
+          "tokens": 162,
+          "summary": "机械门（palettes:check 等） 色板生成物 ↔ 真源一致、资产字节等值 token / 资产类 PASS",
+          "keywords": [
+            "palettes",
+            "check",
+            "token",
+            "PASS",
+            "判定上限口径",
+            "先读"
+          ]
+        },
+        {
+          "anchor": "§第 1 轮 · 2026-10-28（WXG-T-476 · 现包 `v1.0.3`）",
+          "level": 2,
+          "startLine": 20,
+          "endLine": 84,
+          "tokens": 1165,
+          "summary": "",
+          "keywords": [
+            "v1.0.3",
+            "WXG",
+            "现包"
+          ]
+        },
+        {
+          "anchor": "§机械门读数",
+          "level": 3,
+          "startLine": 22,
+          "endLine": 32,
+          "tokens": 126,
+          "summary": "palettes:check ✅ PASS（15 个品牌色板 / 2104 色，色板与 mm↔dip 表均与真源一致）",
+          "keywords": [
+            "palettes",
+            "check",
+            "PASS",
+            "dip",
+            "机械门读数"
+          ]
+        },
+        {
+          "anchor": "§审计结果",
+          "level": 3,
+          "startLine": 33,
+          "endLine": 72,
+          "tokens": 761,
+          "summary": "① hex 越界 = 0（正）：src/view/ 的 '#RRGGBB' 只出现在 palette.ts（49 处，消",
+          "keywords": [
+            "hex",
+            "src",
+            "view",
+            "RRGGBB",
+            "palette",
+            "审计结果"
+          ]
+        },
+        {
+          "anchor": "§未覆盖（本轮坦白）",
+          "level": 3,
+          "startLine": 73,
+          "endLine": 78,
+          "tokens": 158,
+          "summary": "六屏出图比对（skill §2 步 7）= 未做：现包零真机截图（10-19 那批取自旧包，按「产物必须同一时点」纪律不",
+          "keywords": [
+            "§2",
+            "skill",
+            "未覆盖",
+            "本轮坦白"
+          ]
+        },
+        {
+          "anchor": "§本轮判定（上限）",
+          "level": 3,
+          "startLine": 79,
+          "endLine": 84,
+          "tokens": 88,
+          "summary": "CONCERNS —— 机械层与版式层零 P0/P1，唯一实质偏差 = F1（P2，文案纪律）；",
+          "keywords": [
+            "CONCERNS",
+            "本轮判定",
+            "上限"
           ]
         }
       ]

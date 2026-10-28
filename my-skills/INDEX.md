@@ -15,6 +15,7 @@
 | 域·技术 | `wxgame-arch-review` | **定期架构漂移审计（只读）**：控制清单 / ADR / L1–L5 ↔ 依赖与目录现状；出漂移表 + ADR 缺口 + PASS/CONCERNS/FAIL（WXG-T-434） |
 | 域·技术 | `wxgame-epic-split` | Epic 拓扑序、Story 四要素（引用式验收 S\<n\>§8-\<k\>）、垂直切片；**§7 Story 实现 + §8 ready/done 门禁**（CCGS `dev-story`/`story-readiness`+`story-done` 吸收，WXG-T-175） |
 | 域·美术 | `wxgame-art-spec-programmatic` | 程序化美术三件套、色盲三重编码、包体预算承诺 |
+| 域·美术 | `wxgame-art-review` | **定期美术还原度审计（只读）**：分层真源（`§3.1` UI token / `§3.2` 珠色 / 落地单+原型定稿 / `assets-spec`）↔ 实现的 hex 越界·版式·资产接线·六屏出图；出偏差表 + PASS/CONCERNS/FAIL，不改文档与代码（WXG-T-476）。⚠ 机械门管不了构图与层级 ⇒ 出图人工层不可省 |
 | 域·音频 | `wxgame-audio-spec` | 音频五件套**框架版**（数值 `[TODO]`，实做后回写） |
 | 域·QA | `wxgame-qa-gates` | 测试计划/硬判据用例/冒烟/缺陷分级/Playtest |
 | 域·QA | `wxgame-quality-gate` | 执行 verify 全量门禁 + **强制工具调用报告表**（会话结论透明化，WXG-T-021） |
