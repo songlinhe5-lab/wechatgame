@@ -135,3 +135,7 @@ __pycache__/
 # 真机通道验证帧（手机桌面，非判据证据）不入库
 production/qa/beads/device/**/PRECHECK_*
 tools/mask-preview/cocos-assets/_variants/
+
+# 浏览器 / 模拟宿主取证截图的临时落盘地（取证只摘读数进 QA 文档，图不入库；
+# 正式资产图走 `games/*/assets/**`，与此无关）
+.screenshots/
