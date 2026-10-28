@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3903,
       "lines": 132,
-      "sha256": "ae3dd0756da37a9fa918ca5f6d4b52ead35cd7e901dd2b76f8d579868efab0bc",
+      "sha256": "4162d1b5e77860b2ee53ac334fdd57a199cc317dc5c3669e3809e587df370169",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 222300 6546 normal",
+          "summary": "1 production/TASKS-DETAIL.md 222559 6549 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5256,
       "lines": 165,
-      "sha256": "e8140018d90516b435d6257d1c18a5326a413ff6f92bd174409c564405069490",
+      "sha256": "7ed8ee9687397eacdf5e65dad11e41293e056bbc3b48e7bad5ed67f20b46aa86",
       "tier": "normal",
       "sections": [
         {
@@ -745,7 +745,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 163 行 / 73503 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 163 行 / 73534 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 6546 行 / 222300 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 6549 行 / 222559 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6547 · §WXG-T-456=6355+14 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6550 · §WXG-T-456=6355+14 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -87523,17 +87523,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 222300,
-      "lines": 6546,
-      "sha256": "1242a29b600a64904a996b2d1a4949921152bb971256650c6c25b7d1bb70fccf",
+      "tokens": 222559,
+      "lines": 6549,
+      "sha256": "5cf8dff807c91b08a1714dc9b1d07138f0ef77e2f61db82a1460d302562ff5a0",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 6547,
-          "tokens": 222283,
+          "endLine": 6550,
+          "tokens": 222542,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -95653,8 +95653,8 @@
           "anchor": "§WXG-T-466",
           "level": 2,
           "startLine": 6519,
-          "endLine": 6528,
-          "tokens": 275,
+          "endLine": 6531,
+          "tokens": 535,
           "summary": "Cocos 分层序同族：选中珠分离影（Graphics）盖珠 blit · 负责：主理人(CodeBuddy) · 状态",
           "keywords": [
             "WXG",
@@ -95667,8 +95667,8 @@
         {
           "anchor": "§WXG-T-467",
           "level": 2,
-          "startLine": 6529,
-          "endLine": 6547,
+          "startLine": 6532,
+          "endLine": 6550,
           "tokens": 661,
           "summary": "触发：T-465 全闭环后主理人复扫，发现 art-bible 内部跨节措辞还有 3 处未对齐 v1.84 三档制定义域",
           "keywords": [
@@ -95681,9 +95681,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 73503,
+      "tokens": 73534,
       "lines": 163,
-      "sha256": "13a2d897fefb9df8496fe8b96b6de60b02d5c8dc955475dd626c20cd010b2182",
+      "sha256": "9158ef2a2ef77dbbb414e20417bd1fcd761cb25ddf4ae40f0b8eb19abda94149",
       "tier": "hot",
       "sections": [
         {
@@ -95691,7 +95691,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 164,
-          "tokens": 73494,
+          "tokens": 73525,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
