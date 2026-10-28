@@ -101,19 +101,19 @@ export interface PowerupInputs {
 export type PowerupOutcome =
   /** 额度未耗尽且确有点名 ⇒ 调用方应执行归位并广播 `powerup:used`。 */
   | {
-      readonly kind: 'used';
-      readonly type: PowerupType;
-      /** 本次点名的格（行主序升序、去重）。`trayRestore` 含换出珠的落格。 */
-      readonly affectedCells: readonly AffectedCell[];
-      /**
-       * `trayRestore` 专用（v1.95 / `powerups-v2 §2.4`）：托盘动手指令清单（槽位序）。
-       * 动手帧**零重算**（同帧状态一致 ⇒ 不重消费 Rng）；托盘写入仍归 S4
-       * （调用方按指令调 `Tray` 写原语，S6 保持只读）。
-       */
-      readonly trayPlan?: readonly TrayMove[];
-      /** `trayPlan` 里被清空的托盘槽号（`powerup:used.traySlots` 载荷，§2.4）。 */
-      readonly traySlots?: readonly number[];
-    }
+    readonly kind: 'used';
+    readonly type: PowerupType;
+    /** 本次点名的格（行主序升序、去重）。`trayRestore` 含换出珠的落格。 */
+    readonly affectedCells: readonly AffectedCell[];
+    /**
+     * `trayRestore` 专用（v1.95 / `powerups-v2 §2.4`）：托盘动手指令清单（槽位序）。
+     * 动手帧**零重算**（同帧状态一致 ⇒ 不重消费 Rng）；托盘写入仍归 S4
+     * （调用方按指令调 `Tray` 写原语，S6 保持只读）。
+     */
+    readonly trayPlan?: readonly TrayMove[];
+    /** `trayPlan` 里被清空的托盘槽号（`powerup:used.traySlots` 载荷，§2.4）。 */
+    readonly traySlots?: readonly number[];
+  }
   /** 无可作用对象（棋盘无错位珠 / 托盘空）⇒ 零事件、**零扣次**（拒用不扣判例）。 */
   | { readonly kind: 'empty' }
   /** 免费额度已永久耗尽 ⇒ 仅占位反馈，调用方应弹双通道面板（购买 / 视频）。 */
@@ -395,11 +395,21 @@ export class PowerupSystem {
     if (tray.length > 0 && empties.length === 0) {
       console.warn(
         `[beads] S6 powerupMirrorDrift：trayRestore 收到「托盘非空 ∧ 无空格」镜像` +
-          `（tray=${tray.length}）⇒ 拒绝裁定（§6 X-9 / §8-27(b)）`,
+        `（tray=${tray.length}）⇒ 拒绝裁定（§6 X-9 / §8-27(b)）`,
       );
       return { cells: [], trayPlan: [], traySlots: [] };
     }
     const free = new Set<number>(empties.map((c) => c.row * 1024 + c.col));
+    // 【换出珠落点候选 = 空格 ∖ 本 plan 的全部目标格】
+    // `_execTrayPlan` 是**倒序**执行（`takeBead` 左移补位 ⇒ 正序会让 plan 里的槽号失效）。plan
+    // 时刻若只把「已处理那颗」占用的空格剔出落点池，就会漏掉**后续颗**的目标格：那颗的目标格
+    // 恰好是本颗的随机落点时，倒序下后续颗先动手把这格填掉 ⇒ 本颗 `fill(evict…)` 撞上已填格返回
+    // false ⇒ 该珠留槽 = 「部分清空」，§8-33(a)「托盘占用恒为 0」与 §8-33(b)「traySlots.length ≡ t」
+    // 双双转红（2026-10-28 全量核算实测：12 槽档 2000 次里 372 次留槽、ΔW 少 1）。
+    // 守恒恒等式 `#empty ≡ t`（§6 X-2）保证剔除后候选数恰等于需要换出的颗数 ⇒ 合法镜像下不耗尽。
+    const targetKeys = new Set<number>(tray.map((b) => b.targetRow * 1024 + b.targetCol));
+    const landings = new Set<number>();
+    for (const key of free) if (!targetKeys.has(key)) landings.add(key);
     const cells: { row: number; col: number }[] = [];
     const moves: TrayMove[] = [];
     const slots: number[] = [];
@@ -417,11 +427,12 @@ export class PowerupSystem {
       cells.push({ row: bead.targetRow, col: bead.targetCol });
       let evictRow = -1;
       let evictCol = -1;
-      const rest = Array.from(free);
+      const rest = Array.from(landings);
       if (rest.length > 0) {
         const pick = this._rng!.int(0, rest.length - 1);
         const key2 = rest[pick]!;
         free.delete(key2);
+        landings.delete(key2);
         evictRow = Math.floor(key2 / 1024);
         evictCol = key2 % 1024;
         cells.push({ row: evictRow, col: evictCol });
