@@ -306,4 +306,7 @@
 | K-197 | 判据实测取证 | criteria-measure-evidence | 宿主替身全绿 ≠ 真宿主能落盘：框架与 DOM 同名类型互相遮蔽，再加吞异常，一条存档链可以在浏览器里静默哑掉而 1928 例照绿 | WXG-T-434 | 2026-10-27 | 0 | active |
 | K-198 | 判据实测取证 | criteria-measure-evidence | 「三浏览器全干净」不等于真机干净：降级臂开关由资产齐不齐决定，浏览器可能从未走过真机路径 | WXG-T-461 | 2026-10-28 | 0 | active |
 | K-199 | 判据实测取证 | criteria-measure-evidence | 真机循环贵的缺陷：单文件多臂探针 + 启动参数选臂，一轮会话钉死环节 | WXG-T-461 | 2026-10-28 | 0 | active |
+| K-200 | 工具链 | toolchain | 改中文文档的批量补丁必带「三段自证」：`assert count(old)==1` → 落盘 → `git diff` 必须是纯插入 | WXG-T-434 | 2026-10-28 | 0 | active |
+| K-201 | 判据实测 | criteria-measure | 自造核算机前先读谓词的取值域：`isFillable` 只对 `empty` 格为真，⛔ 当「可落位」总称 | WXG-T-434 | 2026-10-28 | 0 | active |
+| K-202 | 测试 | testing | 反证臂两条纪律：夹具走规则可达的走子链、红签名由实测量推而非手算预设 | WXG-T-434 | 2026-10-28 | 0 | active |
 <!-- kb:active:end -->
