@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { gridLayoutFor } from '../src/config/tuning.js';
+import { gridLayoutFor, TRAY_BASE_SLOTS } from '../src/config/tuning.js';
 import { createBeadsHarness, simpleTestLevel, pinIdentityCamera, type Harness } from './helpers.js';
 import type { BeadsGame } from '../src/game/beads-game.js';
 
@@ -136,5 +136,34 @@ describe('WXG-T-162 · board 锚直填（任意距离）', () => {
     expect(game.tapDesign(p00.x, p00.y)).toBe(true);
     expect(g2.count('level:cleared')).toBe(1);
     expect(game.snapshot.phase).toBe('level-clear');
+  });
+
+  /**
+   * 【TC-G3-3（QA `production/qa/beads/test-cases-a-core.md §A3b`）】回归护栏：
+   * 直填**不吃满槽禁取门**（上位 = `bead-grid §2.3 路径 A 第 2 步` + `input-control §8-11`
+   * v2.9 收窄到路由 4b + G-3 取证 `forensics/wxg-t-182` §4 B2）。满槽死局的逃生就靠这一步：
+   * 取回被门拦住的同一局面，点「底色 = 组色」的棋盘空格仍须归位成功。
+   */
+  it('满槽不吃门：同一局面取回被拒、直填仍归位且托盘颗数不变', () => {
+    // 满槽前提（`retrieve-landing.test.ts` 同口径）：把基础槽全灌上珠。
+    for (let i = 0; i < TRAY_BASE_SLOTS; i++) {
+      expect(h.game.giveTrayBead((i % 3) + 1)).toBeGreaterThanOrEqual(0);
+    }
+    expect(h.game.tray.freeCount).toBe(0);
+    expect(h.game.selectBoardBead(1, 2)).toBe(true); // 锚 = board、组色 2（组员 (1,2) + (2,3)）
+    const heldBefore = h.game.tray.holdingCount;
+    const storedBefore = h.count('tray:stored');
+    // 门确实在拦：满槽 ⇒ 取回拒绝、零事件、零状态写（`bead-grid §2.3 路径 A`）。
+    expect(h.game.retrieveSelectedGroup()).toBe(false);
+    expect(h.count('tray:stored')).toBe(storedBefore);
+    expect(h.game.grid.cell(1, 2)!.state).toBe('filled');
+    // 但直填不吃这条门（board→board 搬移，不经托盘容量）。
+    const p = gridPoint(h.game, 1, 1); // (1,1) 底 2 = 组色、空
+    expect(h.game.tapDesign(p.x, p.y)).toBe(true);
+    expect(h.game.grid.cell(1, 1)!.state).toBe('filled');
+    expect(h.game.grid.cell(1, 1)!.beadColorIdx).toBe(2); // 就位
+    expect(h.game.grid.cell(1, 2)!.state).toBe('empty'); // 组珠已离格
+    expect(h.game.tray.holdingCount).toBe(heldBefore); // 托盘一颗未动
+    expect(h.count('tray:stored')).toBe(storedBefore);
   });
 });
