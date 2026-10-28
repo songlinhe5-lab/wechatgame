@@ -611,13 +611,14 @@ export function trayLayout(rows: number, width: number = DESIGN_W): TrayLayout {
 }
 
 /**
- * 虚线预览行是否留位（§3.4 v1.83 三档制的视觉配套）。
+ * 虚线预览行是否留位（§3.4 v1.84 三档制的视觉配套）。
  *
  * 判据 = 再加一行后面板底是否仍在 `btn_expand` **视觉框上沿**之上：
- * · 基础档 1 行 + 1 预览 ⇒ `panelBottom 324 ≥ 284` ✅ 留（玩家看得到「还差一行」）；
- * · 24 槽 2 行 + 1 预览 ⇒ `270 < 284` ❌ 不留（会压按钮 14dp，而此刻按钮**必须**可点：
- *   它正是升到 48 槽的入口）。
- * ⛔ 不另硬编 324/270：两侧都由 `trayLayout()` 与 `EXPAND_BTN_*` 派生。
+ * · 基础档 1 行 + 1 预览 ⇒ `panelBottom 378 ≥ 284` ✅ 留（玩家看得到「还差一行」）；
+ * · 24 槽 2 行 + 1 预览 ⇒ `324 ≥ 284` ✅ 留（v1.84 前旧值 270/284，带高 220 下压 14dp ⇒ 不留；
+ *   v1.97 带高 234 后 panelBottom 抬高到 324 ⇒ 不再压按钮，此档亦留）。
+ * ⛔ 不另硬编 378/324/284：两侧都由 `trayLayout()` 与 `EXPAND_BTN_*` 派生（284 由
+ *   `TRAY_BAND.yMin = 216` 与视觉 48px + 居中 20 + 热区顶派生，v1.97 后口径）。
  */
 export function trayPreviewFits(unlockedRows: number): boolean {
   const btnTop = TRAY_BAND.yMin + (EXPAND_BTN_HIT_H - EXPAND_BTN_H) / 2 + EXPAND_BTN_H;
