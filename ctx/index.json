@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3903,
       "lines": 132,
-      "sha256": "ea373389b27f1fb0568e084254834cb665e97777c0ebe4a6c798dc40ed261b2a",
+      "sha256": "156446a3bc412fee9ea12fe9f2db5c67566c27ad63ba063e42e4ea43bdc39f31",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 220553 6506 normal",
+          "summary": "1 production/TASKS-DETAIL.md 222075 6544 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5256,
       "lines": 165,
-      "sha256": "5bf223a7af0e8d0f05be113303edc84076d4df77c2d47bc35a03838154c8f0eb",
+      "sha256": "69a39e1123b271740f0f399063d212cd0f69cb97bf0e6471a6a9322163dca369",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 161 行 / 73046 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 163 行 / 73511 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+162 · §待排（backlog，无号，立项时领取…=133+30",
+          "summary": "§WXG 任务台账（SSOT）=1+164 · §待排（backlog，无号，立项时领取…=135+30",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 6506 行 / 220553 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 6544 行 / 222075 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6507 · §WXG-T-454=6326+19 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6545 · §WXG-T-456=6355+14 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -1160,12 +1160,12 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/art/specs/art-bible.md` — 529 行 / 37845 tok / 实测读 58 次",
+          "anchor": "§`games/beads/design/art/specs/art-bible.md` — 530 行 / 38368 tok / 实测读 58 次",
           "level": 2,
           "startLine": 150,
           "endLine": 154,
           "tokens": 238,
-          "summary": "§《拼豆》美术圣经（视觉身份规范）=1+530 · §1 视觉锚点=27+16 · §2 情绪板（文字描述）=43+12",
+          "summary": "§《拼豆》美术圣经（视觉身份规范）=1+531 · §1 视觉锚点=28+16 · §2 情绪板（文字描述）=44+12",
           "keywords": [
             "§1",
             "§2",
@@ -26576,17 +26576,17 @@
     },
     {
       "path": "games/beads/design/art/specs/art-bible.md",
-      "tokens": 37845,
-      "lines": 529,
-      "sha256": "50c93fb8ff8cac699195f2225088882674e66089844018e77327af3904a0c760",
+      "tokens": 38368,
+      "lines": 530,
+      "sha256": "e0d3dbdc92eff523c77d6389fb9c19c148d0a746c982c2e685ecccd148526f10",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§《拼豆》美术圣经（视觉身份规范）",
           "level": 1,
           "startLine": 1,
-          "endLine": 530,
-          "tokens": 37828,
+          "endLine": 531,
+          "tokens": 38351,
           "summary": "项目：微信小游戏矩阵 · 第二款《拼豆填色消除》",
           "keywords": [
             "拼豆",
@@ -26597,8 +26597,8 @@
         {
           "anchor": "§1 视觉锚点",
           "level": 2,
-          "startLine": 27,
-          "endLine": 42,
+          "startLine": 28,
+          "endLine": 43,
           "tokens": 417,
           "summary": "一句话锚点（v1.3 丙案）：冷调静底上唯一的高饱和暖珠子 —— 拼图区自带一圈极淡暖光，冷暖色温对撞让图案\"浮\"出画面",
           "keywords": [
@@ -26608,8 +26608,8 @@
         {
           "anchor": "§2 情绪板（文字描述）",
           "level": 2,
-          "startLine": 43,
-          "endLine": 54,
+          "startLine": 44,
+          "endLine": 55,
           "tokens": 744,
           "summary": "整体气质：手工艺感 × 糖果质感。参考实物拼豆/串珠的手作温度 + 现代休闲游戏的干净 UI。",
           "keywords": [
@@ -26620,9 +26620,9 @@
         {
           "anchor": "§3 配色系统（含具体 HEX）",
           "level": 2,
-          "startLine": 55,
-          "endLine": 168,
-          "tokens": 5023,
+          "startLine": 56,
+          "endLine": 169,
+          "tokens": 5063,
           "summary": "",
           "keywords": [
             "HEX",
@@ -26633,9 +26633,9 @@
         {
           "anchor": "§3.1 基础色板（**UI token 唯一真源**，v1.3 冷底定调） `[v1.3·F1]`",
           "level": 3,
-          "startLine": 57,
-          "endLine": 107,
-          "tokens": 2161,
+          "startLine": 58,
+          "endLine": 108,
+          "tokens": 2200,
           "summary": "真源声明（F1 对策）：自 v1.3 起，本节为 UI token 唯一真源；src/view/palette.ts::",
           "keywords": [
             "[v1.3·F1]",
@@ -26649,8 +26649,8 @@
         {
           "anchor": "§3.2 珠子色板（**核心**，10 色）",
           "level": 3,
-          "startLine": 108,
-          "endLine": 127,
+          "startLine": 109,
+          "endLine": 128,
           "tokens": 387,
           "summary": "设计原则：高饱和糖果色 × 明度分层；每色绑定唯一符号（§3.3），色盲下靠符号+明度可辨。",
           "keywords": [
@@ -26662,8 +26662,8 @@
         {
           "anchor": "§3.3 珠子三重编码（色盲友好硬要求）",
           "level": 3,
-          "startLine": 128,
-          "endLine": 138,
+          "startLine": 129,
+          "endLine": 139,
           "tokens": 1109,
           "summary": "① 颜色 §3.2 十色 HEX 第一通道，但不承担唯一识别",
           "keywords": [
@@ -26676,8 +26676,8 @@
         {
           "anchor": "§3.4 珠子状态视觉语义（对齐玩法状态；S3/S4 状态定义已核对，v1.1 确认）",
           "level": 3,
-          "startLine": 139,
-          "endLine": 154,
+          "startLine": 140,
+          "endLine": 155,
           "tokens": 941,
           "summary": "filled 已填 完整 3D 珠（高光+倒角+符号） 已正确放置",
           "keywords": [
@@ -26692,8 +26692,8 @@
         {
           "anchor": "§3.5 强调色纪律（铁律 4「一屏一焦点」的操作化） `[v1.3·F6]`",
           "level": 3,
-          "startLine": 155,
-          "endLine": 168,
+          "startLine": 156,
+          "endLine": 169,
           "tokens": 312,
           "summary": "暖橙 #F59B23（=珠色3） 仅珠子本体 任何 UI 填充/文字/角标/按钮",
           "keywords": [
@@ -26708,8 +26708,8 @@
         {
           "anchor": "§4 构图与布局",
           "level": 2,
-          "startLine": 169,
-          "endLine": 197,
+          "startLine": 170,
+          "endLine": 198,
           "tokens": 720,
           "summary": "",
           "keywords": [
@@ -26719,8 +26719,8 @@
         {
           "anchor": "§4.1 设计分辨率（权威定义）",
           "level": 3,
-          "startLine": 171,
-          "endLine": 175,
+          "startLine": 172,
+          "endLine": 176,
           "tokens": 58,
           "summary": "设计分辨率：750 × 1334（竖屏）（已裁定，与 breakout 一致）。",
           "keywords": [
@@ -26732,8 +26732,8 @@
         {
           "anchor": "§4.2 安全区（微信平台）",
           "level": 3,
-          "startLine": 176,
-          "endLine": 182,
+          "startLine": 177,
+          "endLine": 183,
           "tokens": 75,
           "summary": "顶部安全区 y ∈ [1214, 1334]（120px） 状态栏 + 胶囊按钮；右侧 x ∈ [560, 750] 为",
           "keywords": [
@@ -26744,8 +26744,8 @@
         {
           "anchor": "§4.3 纵向布局（已对齐 `systems-index.md` §3.1 布局带，v1.0 冻结值）",
           "level": 3,
-          "startLine": 183,
-          "endLine": 197,
+          "startLine": 184,
+          "endLine": 198,
           "tokens": 536,
           "summary": "顶部 HUD 条 y ∈ [1214, 1334]（HUD_BAND） 左：设置齿轮（88×88 热区）；中：倒计时胶囊",
           "keywords": [
@@ -26760,9 +26760,9 @@
         {
           "anchor": "§5 形状语言",
           "level": 2,
-          "startLine": 198,
-          "endLine": 207,
-          "tokens": 598,
+          "startLine": 199,
+          "endLine": 208,
+          "tokens": 646,
           "summary": "基础形状：圆角方形（珠子）、圆形（图标底/指示点）、胶囊（倒计时/按钮）、圆角矩形（面板/托盘）。",
           "keywords": [
             "形状语言"
@@ -26771,9 +26771,9 @@
         {
           "anchor": "§6 元素视觉语言（逐项）",
           "level": 2,
-          "startLine": 208,
-          "endLine": 223,
-          "tokens": 945,
+          "startLine": 209,
+          "endLine": 224,
+          "tokens": 1029,
           "summary": "背景 bg_base 冷底（[v1.5-r3] 以下层次叠层全部退役：屏面只剩这一色）+ ~~极淡冷色层次叠层~~（bg",
           "keywords": [
             "bg_base",
@@ -26784,8 +26784,8 @@
         {
           "anchor": "§7 动效气质与动态质感语言（毫秒值，已对齐 `design/ux/ux-spec.md` §5）",
           "level": 2,
-          "startLine": 224,
-          "endLine": 488,
+          "startLine": 225,
+          "endLine": 489,
           "tokens": 18194,
           "summary": "气质关键词：轻、软、落座感。下表数值为权威值，真源 = ux-spec §5；统一缓动：进入 ease-out、退出 e",
           "keywords": [
@@ -26800,8 +26800,8 @@
         {
           "anchor": "§7.1 冲刺模式连击三档特效（视觉语言增补）",
           "level": 3,
-          "startLine": 250,
-          "endLine": 268,
+          "startLine": 251,
+          "endLine": 269,
           "tokens": 733,
           "summary": "真源：ux-spec §5 连击三档行。色值全部沿用 §3 色板，本文不定义新色值。",
           "keywords": [
@@ -26816,8 +26816,8 @@
         {
           "anchor": "§7.2 动态质感四要素（v1.4 新增，G8 根因对策）",
           "level": 3,
-          "startLine": 269,
-          "endLine": 282,
+          "startLine": 270,
+          "endLine": 283,
           "tokens": 654,
           "summary": "G8 诊断：v1.3 把静态质感做满了（十层珠卡、暖光 band、冷底 token），但动态质感四项（G1–G4）全欠账",
           "keywords": [
@@ -26831,8 +26831,8 @@
         {
           "anchor": "§7.3 逐条视觉语言（G1–G7）",
           "level": 3,
-          "startLine": 283,
-          "endLine": 439,
+          "startLine": 284,
+          "endLine": 440,
           "tokens": 11288,
           "summary": "通用约定：① 所有 t 为该动效自触发起的毫秒数，p = t / 时长 ∈ [0,1]；② 所有几何量为设计空间 px（",
           "keywords": [
@@ -26842,8 +26842,8 @@
         {
           "anchor": "§7.4 性能纪律与 LOD 回退阀（v1.4 新增）",
           "level": 3,
-          "startLine": 440,
-          "endLine": 468,
+          "startLine": 441,
+          "endLine": 469,
           "tokens": 2890,
           "summary": "基线：珠子已 十层（§8 / assets-spec §1.1），最坏 13×12 = 156 珠 = 1560 图元/",
           "keywords": [
@@ -26858,8 +26858,8 @@
         {
           "anchor": "§7.5 红线核算汇总（v1.4 新增）",
           "level": 3,
-          "startLine": 469,
-          "endLine": 488,
+          "startLine": 470,
+          "endLine": 489,
           "tokens": 1244,
           "summary": "G1 §5 落座 120 ✓不改 关 scale/L0b，留 L0a α 单峰；⚠️ [v1.5-r2] D1 下 sc",
           "keywords": [
@@ -26874,8 +26874,8 @@
         {
           "anchor": "§8 材质与光照",
           "level": 2,
-          "startLine": 489,
-          "endLine": 512,
+          "startLine": 490,
+          "endLine": 513,
           "tokens": 1355,
           "summary": "单光源假设：左上顶光。全部物体的高光在左上、暗部在右下，全局一致，不得出现反向受光珠子。",
           "keywords": [
@@ -26885,8 +26885,8 @@
         {
           "anchor": "§9 变更记录",
           "level": 2,
-          "startLine": 513,
-          "endLine": 530,
+          "startLine": 514,
+          "endLine": 531,
           "tokens": 4703,
           "summary": "v1.0 2026-09-11 初稿：八节视觉身份（demo 程序化绘制，动效占位） 林绘澄",
           "keywords": [
@@ -87511,17 +87511,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 220553,
-      "lines": 6506,
-      "sha256": "7a967209fdaafd488f9348d4d216fe6311df2170e44acb22da734aaac1bbe0d9",
+      "tokens": 222075,
+      "lines": 6544,
+      "sha256": "eeb3f36796306ba9b29f05489a52a68647bb96c7262eec3dd2b6cde158aade4d",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 6507,
-          "tokens": 220536,
+          "endLine": 6545,
+          "tokens": 222058,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -95574,8 +95574,8 @@
           "anchor": "§WXG-T-461",
           "level": 2,
           "startLine": 6435,
-          "endLine": 6446,
-          "tokens": 643,
+          "endLine": 6455,
+          "tokens": 1222,
           "summary": "真机缺陷②：玩法底槽豆子被通宽白带横切 · 负责：主理人(CodeBuddy) · 状态：🔄 进行中（2026-10-",
           "keywords": [
             "WXG",
@@ -95585,8 +95585,8 @@
         {
           "anchor": "§WXG-T-462",
           "level": 2,
-          "startLine": 6447,
-          "endLine": 6460,
+          "startLine": 6456,
+          "endLine": 6469,
           "tokens": 672,
           "summary": "缩放控件条整条隐藏 · 负责：主理人(CodeBuddy) · 状态：🔄 进行中（2026-10-27）",
           "keywords": [
@@ -95597,8 +95597,8 @@
         {
           "anchor": "§WXG-T-463",
           "level": 2,
-          "startLine": 6461,
-          "endLine": 6476,
+          "startLine": 6470,
+          "endLine": 6485,
           "tokens": 565,
           "summary": "复核 D1 处置：assets-spec §1.3.2 标历史快照 + v1.97 指针 · 负责：主理人(Trae) ",
           "keywords": [
@@ -95612,8 +95612,8 @@
         {
           "anchor": "§WXG-T-464",
           "level": 2,
-          "startLine": 6477,
-          "endLine": 6492,
+          "startLine": 6486,
+          "endLine": 6501,
           "tokens": 711,
           "summary": "复核 D2/D3 处置：ux-spec §3.1 线框带标签 + art-bible §4.3 两行 + 提案年代标 ·",
           "keywords": [
@@ -95628,30 +95628,58 @@
         {
           "anchor": "§WXG-T-465",
           "level": 2,
-          "startLine": 6493,
-          "endLine": 6507,
+          "startLine": 6502,
+          "endLine": 6516,
           "tokens": 704,
           "summary": "触发：用户令「线框内 12 实线槽欠账 → 按选项①执行轻量回写」。v1.84 三档制（12→24→48）已在 syst",
           "keywords": [
             "WXG",
             "syst"
           ]
+        },
+        {
+          "anchor": "§WXG-T-466",
+          "level": 2,
+          "startLine": 6517,
+          "endLine": 6526,
+          "tokens": 275,
+          "summary": "Cocos 分层序同族：选中珠分离影（Graphics）盖珠 blit · 负责：主理人(CodeBuddy) · 状态",
+          "keywords": [
+            "WXG",
+            "Cocos",
+            "Graphics",
+            "blit",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-467",
+          "level": 2,
+          "startLine": 6527,
+          "endLine": 6545,
+          "tokens": 661,
+          "summary": "触发：T-465 全闭环后主理人复扫，发现 art-bible 内部跨节措辞还有 3 处未对齐 v1.84 三档制定义域",
+          "keywords": [
+            "WXG",
+            "art",
+            "bible"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 73046,
-      "lines": 161,
-      "sha256": "d26329a5d35deba134fbff258126fa1fe57fab59853494b1ea6d6295b8224096",
+      "tokens": 73511,
+      "lines": 163,
+      "sha256": "ec0817127ef5dea4ef8b587df297f5fcb7bde1d29134e9e10d7278477bdf6b4b",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 162,
-          "tokens": 73037,
+          "endLine": 164,
+          "tokens": 73502,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -95664,8 +95692,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 133,
-          "endLine": 162,
+          "startLine": 135,
+          "endLine": 164,
           "tokens": 1460,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
