@@ -207,6 +207,9 @@ export class BeadsShell implements Game {
         tapTrace: undefined as { x: number; y: number; label: string } | undefined,
         ghostSymbol: false,
         sfxMuted: false,
+        // `[WXG-T-470/471/472]` 批 1 派生投影字段（初始化占位，_metaViewData 运行期赋值）。
+        totalStars: 0,
+        clearedCount: 0,
         reduceMotion: false,
         largeText: false,
         vibrate: true,
@@ -657,6 +660,24 @@ export class BeadsShell implements Game {
             case 'open-skins':
                 this._cancelPageFx();
                 this._phase.openModal('skins');
+                this._emitOverlay(true);
+                return true;
+            // `[WXG-T-470]` 批 1 · 图鉴入口。
+            case 'open-album':
+                this._cancelPageFx();
+                this._phase.openModal('album');
+                this._emitOverlay(true);
+                return true;
+            // `[WXG-T-471]` 批 1 · 本地榜入口（与对局内好友榜 rank-panel 分属通道）。
+            case 'open-local-rank':
+                this._cancelPageFx();
+                this._phase.openModal('localRank');
+                this._emitOverlay(true);
+                return true;
+            // `[WXG-T-472]` 批 1 · 名片入口。
+            case 'open-profile':
+                this._cancelPageFx();
+                this._phase.openModal('profile');
                 this._emitOverlay(true);
                 return true;
             // `[WXG-T-432]` 主菜单好友榜：榜页唯一总榜 `settle-total`（ADR-0035 §3.2 Q1=B）。
@@ -1133,6 +1154,17 @@ export class BeadsShell implements Game {
         v.studioEnabled = this._studio !== undefined;
         // `[WXG-T-432]` 好友榜面板（复用视图对象，零分配）。
         v.rank = this.play.rankOpen ? this.play.rankView() : undefined;
+        // `[WXG-T-470/471/472]` 批 1 派生投影：遍历 starsByLevel（只读引用，零分配），
+        // 返回 number，不改数组 —— 热路径零分配纪律。
+        let ts = 0;
+        let cc = 0;
+        for (let i = 0; i < v.starsByLevel.length; i++) {
+            const s = v.starsByLevel[i] ?? 0;
+            ts += s;
+            if (s > 0) cc++;
+        }
+        v.totalStars = ts;
+        v.clearedCount = cc;
         return v;
     }
 

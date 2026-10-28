@@ -43,6 +43,7 @@ import { drawSettingsContent, isSettingsAction } from './settings-content.js';
 import { SIGNIN_TITLE, drawSigninContent } from './signin-content.js';
 // WXG-T-363：装扮馆卡面画法单源 `skins-content`（卡热区仍进 `meta-layout` 的 `skinsLayout` ⇒ 画与撞同源）。
 import { SKINS_TITLE, drawSkinCard } from './skins-content.js';
+import { drawAlbumContent, drawLocalRankContent, drawProfileContent } from './meta-pages-content.js';
 import {
     anchoredGeo,
     DEFAULT_MENU_ANCHORS,
@@ -161,6 +162,10 @@ const META_PAGES: Record<MetaOverlay, PageDraw> = {
         (builder, data, palette, layout) => drawSettingsContent(builder, data, palette, layout.buttons),
         isSettingsAction),
     skins: panelPage(SKINS_TITLE, UI_SCRIM.alpha),
+    // `[WXG-T-470/471/472]` 批 1 弹窗三页：图鉴 / 本地榜 / 名片（零新令牌，字面量同 signin 判例）。
+    album: panelPage('图鉴', UI_SCRIM.alpha, drawAlbumContent),
+    localRank: panelPage('本地榜', UI_SCRIM.alpha, drawLocalRankContent),
+    profile: panelPage('名片', UI_SCRIM.alpha, drawProfileContent),
 };
 
 /**
@@ -173,6 +178,10 @@ const BASE_PAGE: Record<MetaOverlay, MetaOverlay | null> = {
     signin: null,
     settings: null,
     skins: null,
+    // `[WXG-T-470/471/472]` 批 1：三页均弹窗态叠主菜单。
+    album: null,
+    localRank: null,
+    profile: null,
 };
 
 /**

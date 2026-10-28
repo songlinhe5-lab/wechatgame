@@ -180,6 +180,10 @@ const LAYOUT_BUILDERS: Record<MetaOverlay, (rows: number, a: MenuAnchors) => Met
     settings: () => settingsLayout(),
     levels: (rows) => levelsLayout(rows),
     skins: () => skinsLayout(),
+    // `[WXG-T-470/471/472]` 批 1 三弹窗：复用 skins 版面（纯展示，只有通用返回钮热区）。
+    album: () => skinsLayout(),
+    localRank: () => skinsLayout(),
+    profile: () => skinsLayout(),
 };
 
 // ───────────────────────────────────────────────── [WXG-T-280] anchored menu

@@ -15,7 +15,7 @@ import type { RankPanelView } from '../systems/rank-panel';
  * {@link overlayPlate} 容器）；入口 = 顶栏中档 `open-skins`（ux-spec §3.8 · 提案 P4-甲，
  * 由 **WXG-T-365** 自设置弹窗行5 左格上提）。
  */
-export type MetaOverlay = 'none' | 'signin' | 'settings' | 'levels' | 'skins';
+export type MetaOverlay = 'none' | 'signin' | 'settings' | 'levels' | 'skins' | 'album' | 'localRank' | 'profile';
 
 /** Everything the meta screens draw, assembled read-only by the shell. */
 export interface MetaViewData {
@@ -173,6 +173,12 @@ export interface MetaViewData {
     readonly pressed?: MetaButton | null;
     /** `[WXG-T-432]` 好友榜面板只读视图（shell 每帧覆盖；缺省 = 关档 ⇒ 不画）。 */
     readonly rank?: RankPanelView;
+    /**
+     * `[WXG-T-470/471/472]` 批1 元游戏派生投影（shell 只读计算 → 视图零分配消费）。
+     * 均从已有 `starsByLevel[]` / `meta.*` 派生，零新存档字段。
+     */
+    readonly totalStars?: number;
+    readonly clearedCount?: number;
 }
 
 /**
@@ -237,7 +243,13 @@ export type MetaAction =
      * `[WXG-T-363]` 装扮馆卡（点 = 已拥有则穿上 / 未拥有先买后穿，买断闭环归 shell）。
      * 卡序走 {@link MetaButton.slot}（= `registeredSkins()` 注册序下标），⛔ 视图不传 skinId。
      */
-    | 'skin-tap';
+    | 'skin-tap'
+    /** `[WXG-T-470]` 图鉴入口（批1）。 */
+    | 'open-album'
+    /** `[WXG-T-471]` 本地榜入口（批1，与对局内好友榜 rank-panel 分属通道）。 */
+    | 'open-local-rank'
+    /** `[WXG-T-472]` 名片入口（批1）。 */
+    | 'open-profile';
 
 export interface Box {
     readonly x: number;
