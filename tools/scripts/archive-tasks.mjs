@@ -120,6 +120,27 @@ if (
   console.error(`❌ --detail-until-under 需为 >0 的数字（收到：${args['detail-until-under']}）`);
   process.exit(1);
 }
+/**
+ * 撞号待裁定行的**跳过集**（WXG-T-482）：给了就按号排除候选，三种策略（年龄 / `--until-under` /
+ * `--detail-until-under`）一律生效。
+ *
+ * 存在的理由：主表行与详情节各自都合法，只因**同一个号被两批领用**（K-046 同型）时，
+ * `takeDetailSections` 只按 ID 匹配 ⇒ 会把两份同号节一起搬走，节数 ≠ 行数 ⇒ 守恒 fail loud
+ * 整批不落盘（实测 87 行 vs 89 节）。而撞号归属需人判（判例明令「⛔ 不代填 / 不自动合并」）
+ * ⇒ 归档器必须能**绕开**待裁定行继续治理其余部分，而不是被一行卡死。
+ */
+const SKIP_IDS = (() => {
+  const raw = args['skip-ids'];
+  if (raw === undefined) return new Set();
+  const parts = String(raw).split(',').map((s) => s.trim()).filter(Boolean);
+  const ids = parts.map(Number);
+  const bad = parts.filter((p, i) => !Number.isInteger(ids[i]) || ids[i] <= 0);
+  if (parts.length === 0 || bad.length > 0) {
+    console.error(`❌ --skip-ids 需为逗号分隔的正整数任务号（收到：${raw}；非法项：${bad.join(',') || '（空）'}）`);
+    process.exit(1);
+  }
+  return new Set(ids);
+})();
 const ROOT = normalize((args.root ?? gitRoot()).replace(/\/+$/, ''));
 const TASKS = args.tasks ? resolve(ROOT, args.tasks) : join(ROOT, 'production', 'TASKS.md');
 const ARCHIVE = args.archive ? resolve(ROOT, args.archive) : join(ROOT, 'production', 'archive', 'TASKS-archive.md');
@@ -186,6 +207,10 @@ for (let i = 0; i < lines.length; i += 1) {
   const cells = line.split('|').map((c) => c.trim());
   const status = cells[4] ?? '';
   if (!status.startsWith('✅')) continue;
+  if (SKIP_IDS.has(Number(m[1]))) {
+    console.log(`  ⏭ 行 ${i + 1}｜WXG-T-${m[1]}｜命中 --skip-ids（撞号 / 待裁定）——跳过，行与节均留在主表`);
+    continue;
+  }
   const t = completionTimeOf(line, i);
   if (t == null) {
     console.log(`  ⏭ 行 ${i + 1}｜WXG-T-${m[1]}｜状态 ✅ 但无日期证据（行内没写完成日期，且未提交 / blame 无元数据）——不动（宁漏勿错）`);
@@ -403,6 +428,12 @@ console.log(
   `  ${ruleText}｜全局最大号（主表∪归档）：WXG-T-${fmtId(globalMax)}` +
   (headerLed ? `（表内最大 T-${fmtId(tableMax)}，**头注领先故沿用头注**）` : ''),
 );
+if (SKIP_IDS.size > 0) {
+  console.log(
+    `  ⏭ --skip-ids：${[...SKIP_IDS].sort((a, b) => a - b).map((n) => `WXG-T-${fmtId(n)}`).join('、')}` +
+    '（撞号 / 待裁定 ⇒ 行与节均留在主表，⛔ 不在本命令内裁定归属）',
+  );
+}
 for (const c of candidates) {
   console.log(`  ${existingArchiveIds.has(c.id) ? '⚠️ 已在归档' : '→ 归档'}｜行 ${c.idx + 1}｜WXG-T-${c.id}｜完成日期 ${fmt(c.date)}｜${c.line.slice(0, 60)}…`);
 }
@@ -547,6 +578,8 @@ function eligibleRows() {
     if (!m) continue;
     const cells = lines[i].split('|').map((c) => c.trim());
     if (!(cells[4] ?? '').startsWith('✅')) continue;
+    // 撞号跳过集（WXG-T-482）在此**同一处**生效：三种策略共用本函数选行，⛔ 不在各策略内再内联一份。
+    if (SKIP_IDS.has(Number(m[1]))) continue;
     const t = completionTimeOf(lines[i], i);
     if (t == null) continue; // 无日期证据 → 不当作候选（宁漏勿错）
     out.push({ idx: i, id: Number(m[1]), line: lines[i], date: new Date(t * 1000) });
@@ -640,6 +673,10 @@ function printHelp() {
                      直到台账估值 < N tokens（估算口径 = lib/context-tokens.mjs，
                      与 ctx:check B 项**同一个函数**，避免两套计数漂移）。
                      用于「台账已撞 B 项但行都还年轻」的治理场景。
+  --skip-ids=<a,b>  按号排除候选（撞号 / 待裁定行）。三种策略一律生效；被排除行**留在主表**，
+                    其详情节也随之留下。用于「同一号被两批领用」时：详情节侧只有两份同号节，
+                    takeDetailSections 只按 ID 匹配 ⇒ 会一并搬走致节数 ≠ 行数 ⇒ 守恒 fail loud；
+                    撞号归属需人判（⛔ 不代填/不自动合并），绕开它即可继续治理其余部分。
   --tasks=<path>   台账（默认 production/TASKS.md）
   --archive=<path> 归档文件（默认 production/archive/TASKS-archive.md）
   --detail=<path>          详情文件（默认 production/TASKS-DETAIL.md）

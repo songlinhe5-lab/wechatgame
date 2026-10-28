@@ -557,6 +557,53 @@ assert_eq "$(run_k "$WORK/msg-unstaged.txt")" "1" "[14d] 登记行/节只在工�
 assert_contains "$( cd "$REPO_K" && node "$CHECK_CMD" --commit-msg="$WORK/msg-ghost.txt" 2>&1 )" "K: 本笔提交信息署" \
   "[14e] 拦下时得把 K 项诊断打印出来（⛔ 静默退出）"
 
+# 为什么要这一组：同一个号被两批领用（K-046 同型）时，主表行与详情节各自都合法，
+# 而 takeDetailSections 只按 ID 匹配 ⇒ 两份同号节会被一并搬走，节数 ≠ 行数 ⇒ 守恒 fail loud
+# 整批不落盘（实测 87 行 vs 89 节）。撞号归属需人判（⛔ 不代填），归档器必须能绕开它。
+# 四条腿覆盖**两个过滤点**：15b = 年龄档循环（candidates），15c = eligibleRows()（体积/详情档共用）
+# ⇒ 只删一处必有一条红，不会「改了一处就骗绿」。
+echo "—— [15] --skip-ids：撞号 / 待裁定行绕开（WXG-T-482）"
+REPO_S="$WORK/repo-skipids"
+new_repo "$REPO_S"
+cat >"$REPO_S/production/TASKS.md" <<EOS
+# 任务台账（桩）
+
+> 当前已分配至 **WXG-T-003**，下一可用号 **WXG-T-004**。
+
+| Task ID | 名称 | 负责 | 状态 | 产出 |
+|---|---|---|---|---|
+| WXG-T-001 | 甲行 | 甲 | ✅ **完成（${E_OLD}）** | 见详情 |
+| WXG-T-002 | 乙行（撞号待裁） | 乙 | ✅ **完成（${E_OLD}）** | 见详情 |
+| WXG-T-003 | 丙行 | 丙 | ✅ **完成（${E_OLD}）** | 见详情 |
+EOS
+cat >"$REPO_S/production/TASKS-DETAIL.md" <<EOS
+# 详情台账（桩）
+
+## WXG-T-001
+
+正文甲
+
+## WXG-T-002
+
+正文乙
+
+## WXG-T-003
+
+正文丙
+EOS
+stub_commit "$REPO_S" "$D_OLD_ISO"
+OUT_S0="$(node "$ARCHIVE_CMD" --root="$REPO_S" --days=30 2>&1)"
+# 基线：断言候选行形状（`WXG-T-2｜完成日期`），⛔ 不搜裸号（「全局最大号：WXG-T-003」会拼中）
+assert_contains "$OUT_S0" "WXG-T-2｜完成日期" "[15a] 无 --skip-ids ⇒ 002 入选（基线，后三条腿靠它证判别力）"
+OUT_S1="$(node "$ARCHIVE_CMD" --root="$REPO_S" --days=30 --skip-ids=002 2>&1)"
+assert_not_contains "$OUT_S1" "WXG-T-2｜" "[15b] 年龄档：002 被排除（candidates 循环那一处过滤）"
+assert_contains "$OUT_S1" "WXG-T-1｜完成日期" "[15b-2] 排除只作用于名单内 —— 001 仍入选"
+assert_contains "$OUT_S1" "命中 --skip-ids" "[15b-3] 跳过要留痕（⛔ 静默少搬一行）"
+OUT_S2="$(node "$ARCHIVE_CMD" --root="$REPO_S" --until-under=1 --skip-ids=002 2>&1)"
+assert_not_contains "$OUT_S2" "WXG-T-2｜" "[15c] 体积档：002 同样被排除（eligibleRows 那一处过滤）"
+assert_eq "$( node "$ARCHIVE_CMD" --root="$REPO_S" --skip-ids=abc >/dev/null 2>&1; echo $? )" "1" \
+  "[15d] 非法 --skip-ids ⇒ exit 1（fail loud，不静默当空集）"
+
 echo "=================================================================="
 echo "结果：PASS=$PASS FAIL=$FAIL"
 echo "=================================================================="
