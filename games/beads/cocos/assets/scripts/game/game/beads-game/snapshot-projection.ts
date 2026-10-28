@@ -103,6 +103,8 @@ export interface SnapshotSource {
     readonly input: InputRouter;
     readonly solverFx: SolverFxView | null;
     readonly boardSelected: BoardAnchor | null;
+    /** 载体④（ux-spec v1.30）：满槽 + 选中态色拒的闩锁，见 `BeadsGame._trayFullRejected`。 */
+    readonly trayFullRejected: boolean;
     readonly clearCoins: ClearCoinGrant | null;
     readonly lastStars: number;
     readonly lastSettleScore: number;
@@ -149,6 +151,25 @@ export function projectSnapshot(s: BeadsSnapshot, src: SnapshotSource): void {
     projectMenuShard(s, src);
     projectDebugShard(s, src);
     projectFxShard(s, src);
+}
+
+/**
+ * 引导①与载体④共用：行主序找**首个**「非 void 、空且底色 = `colorIdx`」的格，原地写
+ * `hintRow`/`hintCol`。单一指向（不多格同亮）= GAP-03 引导设计原则；找到即 return。
+ * 逐帧调用 ⇒ 不新建对象/集合（热路径零分配）。
+ */
+function aimHintAtFirstFillable(s: SnapshotPlay, colorIdx: number): void {
+    if (colorIdx < 0) return;
+    for (let i = 0; i < s.gridRows; i++) {
+        for (let j = 0; j < s.gridCols; j++) {
+            const c = s.cells[i * s.gridCols + j]!;
+            if (!c.void && c.state === 'empty' && c.colorIdx === colorIdx) {
+                s.hintRow = i;
+                s.hintCol = j;
+                return;
+            }
+        }
+    }
 }
 
 /** 片一 · 对局：相位 / 关卡 / 计时 / 棋盘 / 托盘 / 选择锚 / 相机 / 道具体 / 首屏引导。 */
@@ -269,23 +290,23 @@ function projectPlayShard(s: SnapshotPlay, src: SnapshotSource): void {
             }
         }
         s.guideSlot = guideSlot;
-        if (firstColor >= 0) {
-            // 行主序首个匹配该色的可填空槽（单一指向 = 引导设计原则，避免多格同亮）。
-            for (let i = 0; i < s.gridRows && s.hintRow < 0; i++) {
-                for (let j = 0; j < s.gridCols; j++) {
-                    const c = s.cells[i * s.gridCols + j]!;
-                    if (!c.void && c.state === 'empty' && c.colorIdx === firstColor) {
-                        s.hintRow = i;
-                        s.hintCol = j;
-                        break;
-                    }
-                }
-            }
-        }
+        // 行主序首个匹配该色的可填空槽（单一指向 = 引导设计原则，避免多格同亮）。
+        aimHintAtFirstFillable(s, firstColor);
     } else {
         s.hintRow = -1;
         s.hintCol = -1;
         s.guideSlot = -1;
+    }
+    // 载体④（ux-spec v1.30 新增；上位 = `forensics/wxg-t-182` §3 Q1「直填可发现性」硬判据）：
+    // 托盘已满 且 刚发生「选中态点洞被色拒」⇒ 把同一套 hint 指回该色可直填的错位格。
+    // 每帧重算 ⇒ 托盘一有空位（`freeCount > 0`）自动撤；`hintRow < 0` 前置 ⇒ 不覆盖引导目标。
+    if (
+        s.hintRow < 0
+        && src.trayFullRejected
+        && src.tray.freeCount === 0
+        && src.machine.current === 'playing'
+    ) {
+        aimHintAtFirstFillable(s, src.tray.selectedColor);
     }
 }
 

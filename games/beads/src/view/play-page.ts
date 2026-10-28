@@ -588,7 +588,9 @@ function drawGrid(
                     drawGhostSymbol(builder, bx, cy, snap.gridCell, cell.colorIdx, inks);
                 }
                 // GAP-03/04 引导：单一目标格 `hint` 蓝描边呼吸（叠加优先级：外描边 > E2 > E1）。
-                if (snap.onboarding && i === snap.hintRow && j === snap.hintCol) {
+                // 载体④（ux-spec v1.30）同一通道：满槽色拒时投影把 hint 指回可直填格，
+                // 故⛔ 不门 `snap.onboarding`（无提示时 `hintRow = -1`，坐标从不为负 ⇒ 天然不命中）。
+                if (i === snap.hintRow && j === snap.hintCol) {
                     drawStateRing(builder, bx, cy, snap.gridCell, palette.hintBlue, hintAlpha(snap.pulseClock, snap.reduceMotion));
                 }
                 // GAP-04 `wrong`：danger 描边**单次脉冲**（与抖动同格同帧，WXG-T-102/BD-29）。

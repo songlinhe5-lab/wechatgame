@@ -406,6 +406,14 @@ export class BeadsGame {
 
   private _onboardDone = true;
   /**
+   * 载体④（ux-spec v1.30 · `forensics/wxg-t-182-g3-derangement-deadlock.md` §3 Q1）：
+   * 托盘**已满**且选中态点洞被色拒 ⇒ 置真，由快照投影把 `hint` 指回该色可直填的错位格。
+   * 复位 = 本类托盘落子成功（`_placeSelected` 的 `placed` 分支）；显示另受
+   * `tray.freeCount === 0` 每帧重算 ⇒ 托盘一有空位自动撤。⛔ 不走 wrong-fx 腿（其时长
+   * `WRONG_FX_MS = 200` 不足以完成「发现」），也不新增计时器 / 时长值。
+   */
+  private _trayFullRejected = false;
+  /**
    * Why we entered PAUSED (WXG-T-055 D-04). `null` outside PAUSED.
    * Gear → `'manual'`; WeChat `onHide` → `'system'`. Both stay on the
    * panel until 继续 — `onResume` (foreground) never exits PAUSED.
@@ -642,6 +650,7 @@ export class BeadsGame {
       get failHint() { return self._failHint; },
       get beadLod() { return self._beadLod; },
       get onboardDone() { return self._onboardDone; },
+      get trayFullRejected() { return self._trayFullRejected; },
       get onboardingEnabled() { return BeadsGame.ONBOARDING_ENABLED; },
       get finishLevelCount() { return self._finishRowCount(); },
       get isArcFinalLevel() { return self._isArcFinalIndex(self._levelIndex); },
@@ -2792,6 +2801,8 @@ export class BeadsGame {
             break; // 过关已判 ⇒ 不再续填（同帧口径与单珠版一致）
           }
         }
+        // 载体④：落子成功 ⇒ 逃生路已走通，闩锁复位。
+        this._trayFullRejected = false;
         // [WXG-T-434] 本批落子结束 ⇒ 发一次最高档归位连击（组填充同批只响一次）。
         this._flushPlaceCombo();
         this._conservation.check('托盘落子 place'); // 每填一格必少一珠，混色重排写坏即报
@@ -2812,6 +2823,8 @@ export class BeadsGame {
         // `invalid-color`（越界编程错）只 console.warn，不给玩家反馈。
         if (verdict.reason === 'mismatch') {
           this._fx.armWrong(verdict.row, verdict.col);
+          // 载体④：满槽 + 色拒 ⇒ 闩锁置真（投影据此把 hint 指回可直填格）。
+          if (this._tray.freeCount === 0) this._trayFullRejected = true;
         }
         if (this._mode === 'sprint') {
           const reason = this._sprint.onRejected();

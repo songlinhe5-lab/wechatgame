@@ -22,6 +22,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { createSnapshot, type BeadsSnapshot } from '../src/game/state.js';
+import type { BeadsGame } from '../src/game/beads-game.js';
 import { DEFAULT_TUNING, powerupBuyPrice } from '../src/config/tuning.js';
 import { projectSnapshot } from '../src/game/beads-game/snapshot-projection.js';
 import { createBeadsHarness, placeColor, simpleTestLevel, type Harness } from './helpers.js';
@@ -153,5 +154,72 @@ describe('WXG-T-420 T6 · 快照投影契约（逐字段对拍一致 / 原地写
         expect(s2.traySlots).toBe(trayRef);
         expect(s2.powerupFreeUses).toBe(freeUsesRef); // 嵌套对象原地写回不重建
         expect(s2.solverCellRows).toBe(solverRowsRef);
+    });
+});
+
+/**
+ * 载体④（ux-spec v1.30 · `design/forensics/wxg-t-182-g3-derangement-deadlock.md` §3 Q1
+ * 「直填可发现性」硬判据）：托盘已满且选中态点洞被色拒 ⇒ 同一套 `hint` 指回该色
+ * 可直填的格子。
+ *
+ * 反假绿（K-042）：⛔ 把投影那段行主序扫描在测试里重抄一遍当期望值，只立**外部可验**
+ * 不变量——指引格必须真能被同一颗珠填上（引擎自己判），填上后指引自动撤。
+ */
+describe('载体④ · 满槽色拒 ⇒ hint 指向可直填格', () => {
+    /** 行主序首个底色 ≠ `held` 的格（两例共用；`noAssemble` 下盘面全空）。 */
+    function firstMismatchCell(g: BeadsGame, held: number): { row: number; col: number } {
+        for (let r = 0; r < g.grid.rows; r++) {
+            for (let c = 0; c < g.grid.cols; c++) {
+                if (g.grid.requiredColor(r, c) !== held) return { row: r, col: c };
+            }
+        }
+        throw new Error('夹具前提破：simpleTestLevel 底色至少两样');
+    }
+
+    /** 夹具：空盘 + 托盘填满手持色 + 已选中。 */
+    function trayFullMismatch(h: Harness): { held: number; wrongRow: number; wrongCol: number } {
+        const g = h.game;
+        const held = g.grid.requiredColor(0, 1);
+        const wrong = firstMismatchCell(g, held);
+        for (let i = 0; i < g.tray.capacity; i++) {
+            expect(g.giveTrayBead(held)).toBeGreaterThanOrEqual(0);
+        }
+        expect(g.tray.freeCount).toBe(0); // 前提：真的满槽
+        expect(g.selectTraySlot(0)).toBe(true);
+        h.advance(1 / 60); // 一帧：此时尚未拒绝 ⇒ hint 不该已经在亮
+        return { held, wrongRow: wrong.row, wrongCol: wrong.col };
+    }
+
+    it('拒绝后亮出指引，且指向的是手持色真能直填的空格；填上后指引撤', () => {
+        const h = booted();
+        const g = h.game;
+        const { held, wrongRow, wrongCol } = trayFullMismatch(h);
+        expect(g.snapshot.hintRow).toBe(-1);
+        // 选中态点异色洞 ⇒ 色拒（`_placeSelected` 的 `rejected`/`mismatch` 分支）
+        expect(g.tapGridCell(wrongRow, wrongCol)).toBe(false);
+        h.advance(1 / 60);
+        const s = g.snapshot;
+        expect(s.hintRow).toBeGreaterThanOrEqual(0);
+        expect(s.hintCol).toBeGreaterThanOrEqual(0);
+        const target = s.cells[s.hintRow * s.gridCols + s.hintCol]!;
+        expect(target.state).toBe('empty');
+        expect(target.colorIdx).toBe(held); // 指引格底色 = 手持色
+        // 真能填上（不靠测者算期望格）+ 填上后指引自动撤
+        expect(g.tapGridCell(s.hintRow, s.hintCol)).toBe(true);
+        h.advance(1 / 60);
+        expect(g.snapshot.hintRow).toBe(-1);
+    });
+
+    it('托盘未满是同样的色拒 ⇒ 不指路（只打满槽逃生道这一个触发态）', () => {
+        const h = booted();
+        const g = h.game;
+        const held = g.grid.requiredColor(0, 1);
+        const wrong = firstMismatchCell(g, held);
+        expect(g.giveTrayBead(held)).toBeGreaterThanOrEqual(0);
+        expect(g.tray.freeCount).toBeGreaterThan(0); // 前提：不满槽
+        expect(g.selectTraySlot(0)).toBe(true);
+        expect(g.tapGridCell(wrong.row, wrong.col)).toBe(false);
+        h.advance(1 / 60);
+        expect(g.snapshot.hintRow).toBe(-1);
     });
 });
