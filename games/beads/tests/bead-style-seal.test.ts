@@ -110,7 +110,6 @@ const REPO = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
  */
 
 /** 已登记的**非珠体族**插入差：缩放控件条 = 8 条（§3.3 v1.59 zoom T-217 换源后 +1 rect）。 */
-const HUD_ZOOM_CTRL_DELTA: Record<string, number> = { rect: 4, circle: 1, text: 3 };
 const HUD_ZOOM_CTRL_TOTAL = 8;
 /**
  * 已登记的**空槽内阴影阶梯**插入差（`731100c` / WXG-T-214·221 批，用户 2026-09-28 拍板
@@ -656,7 +655,6 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         // 每颗填格：十层 5 rect + 5 line + 2 circle → 四棱 1 rect + 4 polygon + **2 circle**
         //（六裁拆两枚：#6 HOLE_RING + #7 HOLE ⇒ 孔贡献由 `−1` 回 `0`）；
         // 另加**登记在案**的控件插入段（rect+4 / circle+1 / text+3，T-217 换源后 8 条）。
-        const ctrl = HUD_ZOOM_CTRL_DELTA;
         // 每颗填格：1 rect + 4 polygon + 2 circle（十层为 5 rect + 5 line + 2 circle）
         // ⇒ 珠体族贡献 rect `78 × (−4)`；**另加** `731100c` 空槽内阴影阶梯（每空槽 +2 rect，
         // 本帧 78 空槽 + 24 托盘槽 = `SOCKET_INNER_SHADE_FRAME78`，已登记）。

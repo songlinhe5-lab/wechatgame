@@ -22,7 +22,6 @@ import {
   HUD_BAND,
   TRAY_COLS,
   trayLayout,
-  ZOOM_CONTROLS_VISIBLE,
   zoomControlLayout,
 } from '../src/config/tuning.js';
 
