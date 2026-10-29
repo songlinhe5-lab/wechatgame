@@ -4,7 +4,7 @@
   "unit": "UI-02",
   "spec": "docs/architecture/ui-architecture-beads.md §5 / §9.4 / §12",
   "codeBaseline": "bd964a0",
-  "capturedFrom": "87324206 · 工作树（WXG-T-298）",
+  "capturedFrom": "d719491a · 工作树（WXG-T-298）",
   "fixture": {
     "viewport": {
       "width": 750,
@@ -31,17 +31,17 @@
         "overlay": "none",
         "phase": "playing"
       },
-      "total": 5637,
+      "total": 5636,
       "kinds": {
         "circle": 1531,
         "line": 295,
         "rect": 763,
-        "text": 6,
+        "text": 5,
         "clip": 1,
         "polygon": 3040,
         "unclip": 1
       },
-      "sha": "666e0a309576a391a3fc00be1787ccfa28449de8a130461df3e3c40434bf86e6",
+      "sha": "816a23393b5cb0a0fedafa45f62d0953fda9f5f882c347180336a6f99dee9052",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -74,17 +74,17 @@
         "overlay": "levels",
         "phase": "playing"
       },
-      "total": 7051,
+      "total": 7050,
       "kinds": {
         "circle": 1927,
         "line": 295,
         "rect": 974,
-        "text": 21,
+        "text": 20,
         "clip": 1,
         "polygon": 3832,
         "unclip": 1
       },
-      "sha": "7090aa201ad9a1a11cf0acc53dab9549207995265c9dadef6dc722a2cebe071b",
+      "sha": "0f8f4a32d906921dec5e1ca7511e90c525da0b4d607757dca40002812c17d966",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -109,7 +109,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "a7f20d295b1cc632e9d4ab270daafca1e8ca7df71cb79538b3ec8f2f6d75707c",
+      "sha": "2183170604636b5da46c26874a0d18820105c6b9e32df50119a553ee07168242",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -122,19 +122,19 @@
         "overlay": "signin",
         "phase": "playing"
       },
-      "total": 5669,
+      "total": 5668,
       "kinds": {
         "circle": 1531,
         "line": 295,
         "rect": 775,
-        "text": 24,
+        "text": 23,
         "clip": 1,
         "polygon": 3040,
         "unclip": 1,
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "2c04d6da64da241068aaa5b48c4f5fb7b7784bdda1b278d0804e37385d9364a5",
+      "sha": "07d11cd30face5c53e2dee99689c3c0c674cc4af207ee83caa818441b3eea3b6",
       "background": "#F1E8D8",
       "transform": null
     },
