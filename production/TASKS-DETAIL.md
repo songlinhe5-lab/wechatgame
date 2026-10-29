@@ -4310,3 +4310,51 @@ WXG-T-493 收尾时给出的三个后续选项，用户 2026-10-29 选 **1 = 公
 ### 6. 沉淀统计
 
 **未跑 `kb:sync`**（`knowledge/` 仍含并行会话 WXG-T-434 在制品，K-137）。候选 1 条：「图标归类以**看图核实**为准，不以资源名/id 为准 —— 本例 `ui_icon_sound` 实为 megaphone（公告），长期被文件名误读为音量开关」。统计 = 新增 0 / 修改 0 / 激活 0 / 归档 0（本批）。
+
+---
+
+## WXG-T-497
+
+### 1. 触发与三条裁定
+
+用户 2026-10-29 三句口述：「版本信息放到设置里」「信封我想替换成专门做日历 / 礼盒 签到、每日奖励」「现在没有运营后台，暂时不需要这个入口」；版本位置经追问选 **「放到设置页面关于信息里」**，签到图标四案选 **甲 日历 + 对勾**，公告入口三案选 **甲 暂缓入口、保留配置**。
+
+### 2. 签到图标（B10）
+
+| 项 | 读数 |
+| --- | --- |
+| 出图 | 云 `qwen-image-3.0` · 1024² · seed 301 · **0.18 元**（提示词：正面台历 + 顶部两小圆环装订 + 页中粗对勾；米白历页 + 深棕描边 + 珊瑚红装订条 + 草绿对勾；纯白底、无投影无文字） |
+| 切图 | 复用 `temp/gen-rank-trophy.py`：bbox **占宽 45% / 占高 50%**；不透明像素 **5382**；填充众数 **#FFF7E9** |
+| 入库 | `design/art/final/assets/menu/ui_icon_calendar.png`（160²@2x）+ `_source-1024.png`；`cocos/assets/textures/ui_icon_calendar.png` 与正本同源 |
+| `.meta` | 由 `pnpm run build:cocos`（18.5s，release 档，beads v1.0.8 → v1.0.9）资产导入生成；已实测进包（`build/wechatgame/assets/textures/config.json` 命中 `ui_icon_calendar`） |
+| 接线 | 四处：`MENU_TEXTURES.iconCalendar` → `meta-menu::drawTopbar`（签到钮）→ `dev/harness/main.ts::MENU_FILE` → `beads-blit-carrier.ts::BITMAP_ASSETS`；信封 `iconMail` 转零消费者（保留作消息中心候选） |
+
+### 3. 版本号迁设置页脚
+
+- **删除**主菜单屏底版本行（`meta-menu` 末段）+ `meta-layout::versionY` 字段（无第二消费者）。
+- **新增** `settings-content::drawSettingsAbout`：`关于 · {COPY_TOKENS.version_label}`，居中对齐、`palette.textDim`、`UI_FONT.label`（28px）、y = `plate.y + SETTINGS_GRID.footerFromBottom`（**30**）。
+  避让实算：返回钮下缘 = 板底 +50，页脚字面上下缘 = 30±14 ⇒ 与返回钮净空 6px、距板底 16px；**不注册热区**。
+- 结果：**全局仅一处版本号**（设置弹窗内），主菜单屏底净空带维持无文字。
+
+### 4. 公告入口暂缓（U19②）
+
+用户：「现在没有运营后台，暂时不需要这个入口」⇒ 面板实装 **暂缓**；`src/config/announcements.ts`（空表）与 `tests/announcements.test.ts` **保留不删**（零成本，将来重启直接用）；零 UI、零入口、零提示位。重启条件写进 ux-spec：有运营后台或有需发版的运营内容时，再定容器（原「并入信封」方向需随信封改日历一并重议）。
+
+### 5. 文档落点
+
+| 文档 | 改动 |
+| --- | --- |
+| `design/ux/ux-spec.md` | 升 **v1.37**：§2 `settings` 行增页脚「关于·版本」；`signin` 行改「签到弹窗（每日奖励）」+ 图标换日历 + 实装暂缓；§8 U19 ② 改「暂缓」+ 重启条件；计数注追加 v1.37；文末变更记录 |
+| `design/art/specs/menu-showcase-asset-spec.md` | 新增 **B10**（日历全规格 + 四案裁定 + 删图读数）；**B2** 行补「信封也转零消费者」 |
+| `design/art/specs/menu-layout-implementation-spec.md` | 资产表顶栏行：`settings/sound/mail` → `settings/rank/mail/skin/calendar`（`sound`/`mail` 零消费者） |
+| `docs/architecture/ui-architecture-beads.md` | §12 视觉变更登记：顶栏签到钮 + 设置页脚（金样本四态影响） |
+| `production/TASKS.md` / 本台账 | 头注 497/498 + 主表行 + 本节 |
+
+### 6. 红线自证与未清债
+
+**零 §3 冻结常量**、零新毫秒值、顶栏 2×2 坐标/热区/Ø80 **一字未动**；新增仅 1 枚切图 + 1 个资源 id + 1 个页脚常量（`footerFromBottom`）+ 1 个文本页脚。`.meta` 为构建产物（L1 合规）；镜像只由 `framework:sync` 写（写入 5 件）。旧口径划线留档（K-053）。
+**未清债**：① 公告面板（U19②）**暂缓**；② 首条公告内容待提审前填；③ 顶栏左右不对称 10 设计px；④ 坐标总图重烤；⑤ 顶栏观感与误触 `[待真机]`。
+
+### 7. 沉淀统计
+
+**未跑 `kb:sync`**（`knowledge/` 仍含并行会话 WXG-T-434 在制品，K-137）。候选 1 条：「换入口图标前先看图：`iconMail`/`iconSound` 这类按旧语义命名的资源，实际图形可能是另一回事；命名与形状对不上时，以图为准并在注释里钉死两种语义」。统计 = 新增 0 / 修改 0 / 激活 0 / 归档 0（本批）。

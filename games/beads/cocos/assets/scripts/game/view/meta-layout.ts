@@ -268,8 +268,6 @@ export interface AnchoredMenuGeo {
     readonly topbarCy: number;
     /** 完成态 boss icon 圆心 y。 */
     readonly doneCy: number;
-    /** 版本号基线 y = CTA 下缘与屏底**净空带**（Δ32 + sb）的中点 ⇒ 恒不侵入 CTA（静态档 `MENU_VERSION_Y` 在系高随档变深后会坐进钮带）。 */
-    readonly versionY: number;
 }
 
 const _anchoredGeo = new WeakMap<MenuAnchors, AnchoredMenuGeo>();
@@ -299,7 +297,7 @@ export function anchoredGeo(a: MenuAnchors): AnchoredMenuGeo {
     // `open-rank` 恢复「绘制/热区同对象」）。当初下探是为补「按钮下半点不上」，真因后来钉死为
     // Cocos 节点命中的 letterbox 死区（`[WXG-T-451]` 改全局 input 已修）⇒ 下探失去收益，只剩
     // 「框比按钮大一圈、点版本号带误触按钮」的观感/语义代价（用户 2026-10-27 拍板收回）。
-    // 底隙 32（`MENU_CHAIN_GAP_BOTTOM`）回归版本号带（不响应）。
+    // 底隙 32（`MENU_CHAIN_GAP_BOTTOM`）= CTA 与屏底的净空带（`[WXG-T-497]` 版本号已迁设置页脚 ⇒ 该带现无文字、仍不响应）。
     const ctaHit = box(ctaBox.x, ctaBox.y + (MENU_CTA_H - TOUCH_MIN) / 2, MENU_PRIMARY_W, TOUCH_MIN);
     const rankHit = rankBox;
     const arrowY = r(a.caseCenterY) - MENU_ARROW_VISUAL_D / 2;
@@ -328,7 +326,6 @@ export function anchoredGeo(a: MenuAnchors): AnchoredMenuGeo {
         arrowL, arrowLHit, arrowR, arrowRHit, barBox, settingsHit, skinsHit, mailHit,
         topbarCy: settingsHit.y + TOUCH_MIN / 2,
         doneCy: r(a.caseTopY - MENU_DONE_ICON.yOff),
-        versionY: r(a.ctaBotY) / 2,
     };
     _anchoredGeo.set(a, geo);
     return geo;

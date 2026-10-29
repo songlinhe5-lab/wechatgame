@@ -381,7 +381,17 @@ export const MENU_TEXTURES = {
    * 将来若需音量类图标，**另绘扬声器**，⛔ 复用本枚（同图两义 = 玩家误读源）。
    */
   iconSound: 'bitmap__menu_icon_sound',
+  /**
+   * 信封（切图规格 B2）。`[WXG-T-497]` 起**零消费者**：顶栏签到钮改挂 `iconCalendar`
+   * （用户 2026-10-29 裁「信封替换成日历 / 礼盒」）⇒ 本枚保留 = 将来消息中心（公告 / 奖励邮件）
+   * 的候选件（方向见 `ux-spec §8 U19`，入口暂缓）。
+   */
   iconMail: 'bitmap__menu_icon_mail',
+  /**
+   * `[WXG-T-497]` 签到 / 每日奖励（顶栏右上第一枚）：日历 + 对勾切图（规格 **B10**）。
+   * 用户 2026-10-29 裁：原信封语义（消息中心）与「签到」错位 ⇒ 换专用日历形。
+   */
+  iconCalendar: 'bitmap__menu_icon_calendar',
   /** `[WXG-T-488]` 好友榜（顶栏左上第二枚）。缺 ⇒ 空圆底（⛔ 不自造替代图形）。 */
   iconRank: 'bitmap__menu_icon_rank',
   /** `[WXG-T-493]` 装扮馆（顶栏右下第二枚）= 衣架 + 圆领小衫切图，闭 WXG-T-365 的 `[待 UI 设计]`。 */

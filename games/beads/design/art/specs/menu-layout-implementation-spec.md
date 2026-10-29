@@ -84,7 +84,7 @@ bt     = cap + 4                    # 顶栏钮顶（对齐胶囊底，不占布
 |---|---|---|
 | `ui_menu_logo.png`（960×772） | 招牌整块（含蝴蝶结+木牌+字；v3.9 绳加长 150px） | ✅ 已接；✅ 2026-10-18 已裁 = PNG 为现役（距投放件 1.98 vs webp 4.67），webp 已退役（判据与旧值留档 `production/qa/webp-png-duality-20261018.md` B-1） |
 | `asset-icon-coin.png` / `asset-icon-stamina.png` | 资源条币/心 | ✅ 已接（2026-10-15 双端；按目标位图框缩）；2026-10-18 由 webp 逐位一致转码，harness `MENU_FILE` 同批改指 PNG |
-| `ui_btn_circle_normal/pressed.png` + `ui_icon_settings/sound/mail.png` | 顶栏钮 | ✅ 已接（2026-10-15 双端） |
+| `ui_btn_circle_normal/pressed.png` + `ui_icon_settings/rank/mail/skin/calendar.png` | 顶栏钮（四枚 2×2） | ✅ 已接（2026-10-15 双端；`calendar` = WXG-T-497 新增，`sound` / `mail` 现为零消费者） |
 | `ui_btn_start_9s(_pressed).png` | CTA | ✅ 已接（2026-10-15 双端；9-slice：harness 预烘 / Cocos SLICED） |
 | `ui_showcase_plate.png`（422×172@2x） | 橱窗内木牌 | ✅ 已接（2026-10-15 双端；C2/C5 选型史证保留，实现形态以 carrier/harness 为准） |
 | `ui_showcase_frame.png`（1188×1892 RGBA） | 橱窗框体 | ✅ 已接（2026-10-15 双端；高清原图按框目标尺寸消费） |

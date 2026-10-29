@@ -125,7 +125,7 @@ function drawTopbar(
     } else {
         drawGear(builder, cxc, scy, palette);
     }
-    // ── 签到信封（2026-10-22 用户裁：入口回归；已领当日仍可打开看进度）──
+    // ── 签到 / 每日奖励（[WXG-T-497] 由信封改日历对勾；2026-10-22 用户裁：入口回归；已领当日仍可打开看进度）──
     // 热区常驻（见 `menuLayoutAnchored`），视觉与设置钮同构：底圆 + 40² 图标 + 按下纹。
     const mcx = MENU_TOPBAR_X.mail + TOUCH_MIN / 2;
     const mailPressed = isPressed(data, 'open-signin');
@@ -142,12 +142,12 @@ function drawTopbar(
             lineWidth: 2,
         });
     }
-    const mailIcon = MENU_TEXTURES.iconMail;
-    if (menuBitmapReady(mailIcon)) {
+    const signinIcon = MENU_TEXTURES.iconCalendar;
+    if (menuBitmapReady(signinIcon)) {
         const id = MENU_TOPBAR_ICON_D;
-        builder.blit(mailIcon, mcx - id / 2, mcy - id / 2, id, id);
+        builder.blit(signinIcon, mcx - id / 2, mcy - id / 2, id, id);
     }
-    // ⛔ 程序化腿不自造信封图标（切图规格 B2/B3 权威）⇒ 缺图只留空圆底，不画替代图形。
+    // ⛔ 程序化腿不自造日历图标（切图规格 B10 权威）⇒ 缺图只留空圆底，不画替代图形。
     // 未领小圆点：全局唯一提示位（不铺红点/不闪烁；色读既有 `danger`，零新 hex）。
     if (data.canClaim) {
         builder.circle(mcx + r * 0.72, mcy + r * 0.72, MENU_SIGNIN_DOT_R, {
@@ -544,11 +544,7 @@ export function drawMenuAnchored(
     }
     // `[WXG-T-432]` 好友榜入口原为 CTA 左侧纸钮（T1 纸面 + 文字），`WXG-T-487` 上提为顶栏圆钮，
     // 绘制已并入 `drawTopbar`（第四枚），此处不再画左下文字钮。
-    builder.text(DESIGN_W / 2, g.versionY, COPY_TOKENS.version_label, {
-        fill: palette.textDim,
-        font: UI_FONT.label,
-        align: 'center',
-        baseline: 'middle',
-    });
+    // `[WXG-T-497]` 版本号已迁设置页脚（`settings-content::drawSettingsAbout`）⇒ 本页不再画，
+    // 屏底净空带维持无文字（不注册热区）。
 }
 

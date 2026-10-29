@@ -18,6 +18,7 @@ import {
     type BeadSizeKind,
 } from '../config/tuning.js';
 import { skinLabel } from '../config/skins/registry.js';
+import { COPY_TOKENS } from '../config/copy-tokens.js';
 import type { BeadsPalette } from './palette.js';
 import { UI_FONT, pressOffset } from './ui-theme.js';
 import { drawButton } from './ui-widgets.js';
@@ -92,6 +93,11 @@ export const SETTINGS_GRID = Object.freeze({
     cols: 2,
     /** 首行钮下缘距 plate 底缘（= `plate.y + plate.h − 170`，避让实算见 `meta-view::settingsLayout` 注）。 */
     firstRowFromBottom: 170,
+    /**
+     * `[WXG-T-497]` 页脚「关于」中线距 plate 底缘。返回钮下缘 = 50（`meta-layout::settingsLayout`）、
+     * 页脚 28px 字面上下缘 = 30±14 ⇒ 与返回钮净空 6px、距板底 16px（⛔ 不注册热区）。
+     */
+    footerFromBottom: 30,
 });
 
 /**
@@ -298,4 +304,18 @@ export function drawSettingsContent(
             false,
         );
     }
+}
+
+/**
+ * `[WXG-T-497]` 设置页脚「关于」= 版本号唯一落点（用户 2026-10-29：「版本信息放到设置里 / 关于信息」）。
+ * 主菜单屏底那份已随本批删除 ⇒ 全局不再有第二处版本号。
+ * 只读信息行：**不注册热区**，也不参与任何开关/循环。
+ */
+export function drawSettingsAbout(builder: RenderModelBuilder, palette: BeadsPalette, plate: SettingsBox): void {
+    builder.text(plate.x + plate.w / 2, plate.y + SETTINGS_GRID.footerFromBottom, `关于 · ${COPY_TOKENS.version_label}`, {
+        fill: palette.textDim,
+        font: UI_FONT.label,
+        align: 'center',
+        baseline: 'middle',
+    });
 }

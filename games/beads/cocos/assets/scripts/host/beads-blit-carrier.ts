@@ -123,6 +123,7 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
     [MENU_TEXTURES.iconSettings]: { path: 'ui_icon_settings' },
     [MENU_TEXTURES.iconSound]: { path: 'ui_icon_sound' },
     [MENU_TEXTURES.iconMail]: { path: 'ui_icon_mail' },
+    [MENU_TEXTURES.iconCalendar]: { path: 'ui_icon_calendar' },
     [MENU_TEXTURES.iconRank]: { path: 'ui_icon_rank' },
     [MENU_TEXTURES.iconSkins]: { path: 'ui_icon_skin' },
     [MENU_TEXTURES.iconArrowLeft]: { path: 'ui_icon_arrow_left' },

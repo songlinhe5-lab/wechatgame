@@ -39,7 +39,7 @@ import { UI_DEBUG_SCOPE_ID, type RenderModelBuilder } from '../../framework/inde
 import { DEBUG_OUTLINE_TILE_HEX, type BeadsPalette } from './palette';
 import { drawHitBox, drawSafeGuideLines, drawTapTrace } from './debug-layer';
 import { UI_FONT, UI_SCRIM, scrimFill } from './ui-theme';
-import { drawSettingsContent, isSettingsAction } from './settings-content';
+import { drawSettingsAbout, drawSettingsContent, isSettingsAction } from './settings-content';
 import { SIGNIN_TITLE, drawSigninContent } from './signin-content';
 // WXG-T-363：装扮馆卡面画法单源 `skins-content`（卡热区仍进 `meta-layout` 的 `skinsLayout` ⇒ 画与撞同源）。
 import { SKINS_TITLE, drawSkinCard } from './skins-content';
@@ -166,7 +166,11 @@ const META_PAGES: Record<MetaOverlay, PageDraw> = {
     }),
     settings: panelPage(COPY_TOKENS.btn_settings_label, UI_SCRIM.settingsAlpha,
         // UI-30：设置内容块单一实现（10 钮）；返回 / 在线导入仍按弹窗 chrome 单独画。
-        (builder, data, palette, layout) => drawSettingsContent(builder, data, palette, layout.buttons),
+        // `[WXG-T-497]` 页脚「关于 · 版本」= 版本号唯一落点（只读、无热区）。
+        (builder, data, palette, layout) => {
+            drawSettingsContent(builder, data, palette, layout.buttons);
+            drawSettingsAbout(builder, palette, overlayPlate());
+        },
         isSettingsAction),
     skins: panelPage(SKINS_TITLE, UI_SCRIM.alpha),
     // `[WXG-T-470/471/472]` 批 1 弹窗三页：图鉴 / 本地榜 / 名片。

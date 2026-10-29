@@ -162,6 +162,7 @@ const MENU_FILE: Readonly<Record<string, string>> = {
   [MENU_TEXTURES.iconSettings]: 'ui_icon_settings.png',
   [MENU_TEXTURES.iconSound]: 'ui_icon_sound.png',
   [MENU_TEXTURES.iconMail]: 'ui_icon_mail.png',
+  [MENU_TEXTURES.iconCalendar]: 'ui_icon_calendar.png',
   [MENU_TEXTURES.iconRank]: 'ui_icon_rank.png',
   [MENU_TEXTURES.iconSkins]: 'ui_icon_skin.png',
   [MENU_TEXTURES.iconArrowLeft]: 'ui_icon_arrow_left.png',

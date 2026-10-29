@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3904,
       "lines": 132,
-      "sha256": "b646be5cfa96961d83531ba0600ff5cefc22f78235b71004ac4910f80f7be944",
+      "sha256": "724bc29a4fb977e4da64120e2efe9fe484101c0a0fe3db4a81cefa93e2a3f790",
       "tier": "normal",
       "sections": [
         {
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "bb51a33606ffcee301255de9574f22880f4f9b4a4c777236f404f98a79e1ef8b",
+      "sha256": "8786292db9af04253f839aae66d9a9413b7f3617c6a0d8a0a172694548b45687",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 104 行 / 20555 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 105 行 / 20890 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+105 · §待排（backlog，无号，立项时领取…=77+29",
+          "summary": "§WXG 任务台账（SSOT）=1+106 · §待排（backlog，无号，立项时领取…=78+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 4312 行 / 138601 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 4360 行 / 139927 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+4313 · §WXG-T-485=3700+60 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+4361 · §WXG-T-486=3760+46 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -14128,17 +14128,17 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 17337,
-      "lines": 223,
-      "sha256": "82ebbc6f016c18ebb655a23862c4c8bd0c352fee6ce05fae8361eda19c41785c",
+      "tokens": 17726,
+      "lines": 225,
+      "sha256": "7ef2617adfed7f9cdbbb2160b7ab18c947e5e94a0538406b1aba28cc8ddd808d",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads UI 架构（View / ViewModel / Presenter + 公共基础）",
           "level": 1,
           "startLine": 1,
-          "endLine": 224,
-          "tokens": 17318,
+          "endLine": 226,
+          "tokens": 17708,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -14308,8 +14308,8 @@
           "anchor": "§12 TODO 拆分",
           "level": 2,
           "startLine": 138,
-          "endLine": 220,
-          "tokens": 12265,
+          "endLine": 222,
+          "tokens": 12654,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -14320,8 +14320,8 @@
         {
           "anchor": "§13 待你拍板",
           "level": 2,
-          "startLine": 221,
-          "endLine": 224,
+          "startLine": 223,
+          "endLine": 226,
           "tokens": 323,
           "summary": "D1–D5 均已裁定（见 [ADR-0032 §5](adr/ADR-0032-beads-ui-architectur",
           "keywords": [
@@ -28030,9 +28030,9 @@
     },
     {
       "path": "games/beads/design/art/specs/menu-layout-implementation-spec.md",
-      "tokens": 10653,
+      "tokens": 10681,
       "lines": 184,
-      "sha256": "dee99b5f5dd2fd73252fd6c5314639cfb2d3906a660df5aea1fc9a389035c717",
+      "sha256": "f97280732dd58cfc289f48102e6bf0631742201ac4b6ce7dc3c2559d9c7e625e",
       "tier": "normal",
       "sections": [
         {
@@ -28040,7 +28040,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 185,
-          "tokens": 10626,
+          "tokens": 10655,
           "summary": "用途：UI 布局落码的唯一施工依据。规则正本 = 本件；取证图 = ../coordinates/menu-master",
           "keywords": [
             "coordinates",
@@ -28118,7 +28118,7 @@
           "level": 2,
           "startLine": 79,
           "endLine": 105,
-          "tokens": 1965,
+          "tokens": 1994,
           "summary": "已入库可直接用（games/beads/cocos/assets/menu/，台账状态为准）：",
           "keywords": [
             "final/README.md",
@@ -28249,17 +28249,17 @@
     },
     {
       "path": "games/beads/design/art/specs/menu-showcase-asset-spec.md",
-      "tokens": 10490,
-      "lines": 207,
-      "sha256": "ee009e24bf562921363e45b000bf85195ce02a782b594751540b62ec759a84b3",
+      "tokens": 10937,
+      "lines": 208,
+      "sha256": "f9cd5bf9aaeba929fa01db018c516692f22aa575db945d57663347cbe948ea3d",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§主菜单「单主题橱窗」切图资产规格（提案 · 待实装）",
           "level": 1,
           "startLine": 1,
-          "endLine": 208,
-          "tokens": 10465,
+          "endLine": 209,
+          "tokens": 10913,
           "summary": "状态：提案 / 待实装 / 未 commit。本单只把已定稿的主菜单视觉方案整理成可切图的美术规格，供切图设计开工；数值",
           "keywords": [
             "commit",
@@ -28311,8 +28311,8 @@
           "anchor": "§3 切图资产清单（切图设计主交付）",
           "level": 2,
           "startLine": 75,
-          "endLine": 107,
-          "tokens": 3523,
+          "endLine": 108,
+          "tokens": 3970,
           "summary": "命名遵 assets-spec §4：全小写下划线、{域}_{实体}_{变体}_{状态}、禁中文/大写/版本号/fina",
           "keywords": [
             "§4",
@@ -28326,8 +28326,8 @@
         {
           "anchor": "§4 文字与动态内容（切图设计的关键约束）",
           "level": 2,
-          "startLine": 108,
-          "endLine": 123,
+          "startLine": 109,
+          "endLine": 124,
           "tokens": 279,
           "summary": "能动态渲染的文字一律不烘焙进 PNG，只切\"底板\"，文字叠在上层：",
           "keywords": [
@@ -28340,8 +28340,8 @@
         {
           "anchor": "§5 图集 / 命名 / 分包",
           "level": 2,
-          "startLine": 124,
-          "endLine": 154,
+          "startLine": 125,
+          "endLine": 155,
           "tokens": 2195,
           "summary": "分包归属：菜单 UI 位图（A2–G1）进 textures Bundle（合并进主包）。Boss 原图（E2）进 th",
           "keywords": [
@@ -28356,8 +28356,8 @@
         {
           "anchor": "§5.1 工具与工作流（切图 → 入库）",
           "level": 3,
-          "startLine": 131,
-          "endLine": 154,
+          "startLine": 132,
+          "endLine": 155,
           "tokens": 1945,
           "summary": "环境事实：引擎 Cocos Creator 3.8.8，构建配置 packAutoAtlas: true 已开。",
           "keywords": [
@@ -28372,8 +28372,8 @@
         {
           "anchor": "§6 包体与红线（诚实登记，别当已达标）",
           "level": 2,
-          "startLine": 155,
-          "endLine": 165,
+          "startLine": 156,
+          "endLine": 166,
           "tokens": 891,
           "summary": "本方案把主菜单从\"0 位图程序化\"改为\"位图切图\"，主包位图从 0 KB 变正：",
           "keywords": [
@@ -28385,8 +28385,8 @@
         {
           "anchor": "§7 可访问性（三态不得只靠颜色）",
           "level": 2,
-          "startLine": 166,
-          "endLine": 178,
+          "startLine": 167,
+          "endLine": 179,
           "tokens": 218,
           "summary": "形/位 锁定=暗柜+灰化；进行中=纯名牌+顶部绶带；已通关=画框内成品图+角上金章 三态结构不同，非仅换色 ✓",
           "keywords": [
@@ -28398,8 +28398,8 @@
         {
           "anchor": "§8 未决 · 交主理人对账 · 待实测",
           "level": 2,
-          "startLine": 179,
-          "endLine": 191,
+          "startLine": 180,
+          "endLine": 192,
           "tokens": 608,
           "summary": "1. 招牌 logo：切图(A2) vs 程序化 beadText(卡 A) —— 本方案默认切图（AI 蝴蝶结吊牌造型",
           "keywords": [
@@ -28413,8 +28413,8 @@
         {
           "anchor": "§9 参考图（`games/beads/design/art/shots/menu-showcase-20261010/`）",
           "level": 2,
-          "startLine": 192,
-          "endLine": 208,
+          "startLine": 193,
+          "endLine": 209,
           "tokens": 919,
           "summary": "v1-mainmenu-final.png 主界面 v1 定稿留档（已通关态：logo 招牌 + 右上三图标 + 放大橱",
           "keywords": [
@@ -44880,24 +44880,23 @@
     },
     {
       "path": "games/beads/design/ux/ux-spec.md",
-      "tokens": 58421,
-      "lines": 555,
-      "sha256": "465a4f4cb5e599e067f44a3089f9c7aab6eeac6e7ba66a6312d8c8a0180339ca",
+      "tokens": 59479,
+      "lines": 557,
+      "sha256": "44dafec756dce7daee539bf5b8b22d39d951456506064c2918aa9f18e0d28c8e",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§UX 规格（UX Spec）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 556,
-          "tokens": 58412,
-          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.36 · 任务号 WXG-T-496（v1.36 = U19",
+          "endLine": 558,
+          "tokens": 59470,
+          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.37 · 任务号 WXG-T-497（v1.37 = 签到钮",
           "keywords": [
             "Spec",
             "beads",
             "games",
             "WXG",
-            "U19",
             "规格"
           ]
         },
@@ -44921,7 +44920,7 @@
           "level": 2,
           "startLine": 21,
           "endLine": 63,
-          "tokens": 1106,
+          "tokens": 1214,
           "summary": "",
           "keywords": [
             "Screen",
@@ -45165,8 +45164,8 @@
           "anchor": "§8 决策记录与裁决项",
           "level": 2,
           "startLine": 442,
-          "endLine": 556,
-          "tokens": 22199,
+          "endLine": 558,
+          "tokens": 22934,
           "summary": "已裁定（沿袭）：~~无主菜单两路径（core-loop 判例）~~ v1.7 反转：主菜单恢复（WXG-T-164），启",
           "keywords": [
             "core",
@@ -87671,17 +87670,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 138601,
-      "lines": 4312,
-      "sha256": "1444a59e76cd95e437bc9178c12be2e2fa8bef2c3c953b279dec081d27f2972f",
+      "tokens": 139927,
+      "lines": 4360,
+      "sha256": "c2a961702c0d812d67d040543a80e518dfdc5d75f73064f0a9617f0c8e6a99d5",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 4313,
-          "tokens": 138584,
+          "endLine": 4361,
+          "tokens": 139911,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -92170,8 +92169,8 @@
           "anchor": "§WXG-T-496",
           "level": 2,
           "startLine": 4282,
-          "endLine": 4313,
-          "tokens": 836,
+          "endLine": 4315,
+          "tokens": 837,
           "summary": "",
           "keywords": [
             "WXG"
@@ -92255,9 +92254,120 @@
           "anchor": "§6 沉淀统计",
           "level": 3,
           "startLine": 4310,
-          "endLine": 4313,
-          "tokens": 106,
+          "endLine": 4315,
+          "tokens": 107,
           "summary": "未跑 kb:sync（knowledge/ 仍含并行会话 WXG-T-434 在制品，K-137）。候选 1 条：「图标",
+          "keywords": [
+            "sync",
+            "knowledge",
+            "WXG",
+            "沉淀统计"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-497",
+          "level": 2,
+          "startLine": 4316,
+          "endLine": 4361,
+          "tokens": 1322,
+          "summary": "",
+          "keywords": [
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§1 触发与三条裁定",
+          "level": 3,
+          "startLine": 4318,
+          "endLine": 4321,
+          "tokens": 125,
+          "summary": "用户 2026-10-29 三句口述：「版本信息放到设置里」「信封我想替换成专门做日历 / 礼盒 签到、每日奖励」「现在",
+          "keywords": [
+            "触发与三条裁"
+          ]
+        },
+        {
+          "anchor": "§2 签到图标（B10）",
+          "level": 3,
+          "startLine": 4322,
+          "endLine": 4331,
+          "tokens": 290,
+          "summary": "出图 云 qwen-image-3.0 · 1024² · seed 301 · 0.18 元（提示词：正面台历 + 顶",
+          "keywords": [
+            "B10",
+            "qwen",
+            "image",
+            "seed",
+            "签到图标"
+          ]
+        },
+        {
+          "anchor": "§3 版本号迁设置页脚",
+          "level": 3,
+          "startLine": 4332,
+          "endLine": 4338,
+          "tokens": 177,
+          "summary": "删除主菜单屏底版本行（meta-menu 末段）+ meta-layout::versionY 字段（无第二消费者）。",
+          "keywords": [
+            "meta",
+            "menu",
+            "layout",
+            "versionY",
+            "版本号迁设置",
+            "页脚"
+          ]
+        },
+        {
+          "anchor": "§4 公告入口暂缓（U19②）",
+          "level": 3,
+          "startLine": 4339,
+          "endLine": 4342,
+          "tokens": 137,
+          "summary": "用户：「现在没有运营后台，暂时不需要这个入口」⇒ 面板实装 暂缓；src/config/announcements.ts",
+          "keywords": [
+            "U19",
+            "src",
+            "config",
+            "announcements",
+            "公告入口暂缓"
+          ]
+        },
+        {
+          "anchor": "§5 文档落点",
+          "level": 3,
+          "startLine": 4343,
+          "endLine": 4352,
+          "tokens": 249,
+          "summary": "design/ux/ux-spec.md 升 v1.37：§2 settings 行增页脚「关于·版本」；signin ",
+          "keywords": [
+            "§2",
+            "design",
+            "spec",
+            "settings",
+            "signin",
+            "文档落点"
+          ]
+        },
+        {
+          "anchor": "§6 红线自证与未清债 (3)",
+          "level": 3,
+          "startLine": 4353,
+          "endLine": 4357,
+          "tokens": 165,
+          "summary": "零 §3 冻结常量、零新毫秒值、顶栏 2×2 坐标/热区/Ø80 一字未动；新增仅 1 枚切图 + 1 个资源 id +",
+          "keywords": [
+            "§3",
+            "红线自证与未",
+            "清债"
+          ]
+        },
+        {
+          "anchor": "§7 沉淀统计 (3)",
+          "level": 3,
+          "startLine": 4358,
+          "endLine": 4361,
+          "tokens": 119,
+          "summary": "未跑 kb:sync（knowledge/ 仍含并行会话 WXG-T-434 在制品，K-137）。候选 1 条：「换入",
           "keywords": [
             "sync",
             "knowledge",
@@ -92269,17 +92379,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 20555,
-      "lines": 104,
-      "sha256": "5e921390b5e0790df6c22ebbc01e428a066c112e39e72a930a0240dd8239fb52",
+      "tokens": 20890,
+      "lines": 105,
+      "sha256": "0a0d497f7ec6e25836c57ac659981aab3f6fefa6aafc2c935a08814d104f3bbf",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 105,
-          "tokens": 20546,
+          "endLine": 106,
+          "tokens": 20881,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -92292,8 +92402,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 77,
-          "endLine": 105,
+          "startLine": 78,
+          "endLine": 106,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
