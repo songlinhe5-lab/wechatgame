@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3904,
       "lines": 132,
-      "sha256": "10f84df19a9e4fc5757c81c6e21274f93620e183d0728966d392c902a1064ca0",
+      "sha256": "e0c28aaf069d09ff7e50c1a9d8cf20b703958d9c9124feed5138c813db46ba93",
       "tier": "normal",
       "sections": [
         {
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "34704c946aea1e766de1e8ccdc8922f244543ec2b68f1046bf273fecc6f2b040",
+      "sha256": "30bcfef17c02e4533b990262436ccaca97cb7e43d69ab458fefa571aeb2f0811",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 106 行 / 21130 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 107 行 / 21307 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+107 · §待排（backlog，无号，立项时领取…=79+29",
+          "summary": "§WXG 任务台账（SSOT）=1+108 · §待排（backlog，无号，立项时领取…=80+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 4397 行 / 140743 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 4433 行 / 141372 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+4398 · §WXG-T-487=3806+57 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+4434 · §WXG-T-488=3863+77 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -87670,17 +87670,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 140743,
-      "lines": 4397,
-      "sha256": "6c588d0c65b6678af028293844da01470ccaaba56b19635c2a3a48cecb44d80e",
+      "tokens": 141372,
+      "lines": 4433,
+      "sha256": "c0bb22f084de625d280fb8cabd6c568040fdfbefb7e979d93454cfa404639726",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 4398,
-          "tokens": 140726,
+          "endLine": 4434,
+          "tokens": 141356,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -92379,8 +92379,8 @@
           "anchor": "§WXG-T-498",
           "level": 2,
           "startLine": 4364,
-          "endLine": 4398,
-          "tokens": 811,
+          "endLine": 4400,
+          "tokens": 813,
           "summary": "",
           "keywords": [
             "WXG"
@@ -92447,9 +92447,102 @@
           "anchor": "§5 沉淀统计",
           "level": 3,
           "startLine": 4395,
-          "endLine": 4398,
-          "tokens": 112,
+          "endLine": 4400,
+          "tokens": 113,
           "summary": "未跑 kb:sync（knowledge/ 仍含并行会话 WXG-T-434 在制品，K-137）。候选 1 条：「对称",
+          "keywords": [
+            "sync",
+            "knowledge",
+            "WXG",
+            "沉淀统计"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-499",
+          "level": 2,
+          "startLine": 4401,
+          "endLine": 4434,
+          "tokens": 625,
+          "summary": "",
+          "keywords": [
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§1 触发 (11)",
+          "level": 3,
+          "startLine": 4403,
+          "endLine": 4406,
+          "tokens": 58,
+          "summary": "用户 2026-10-29 选「1 + 看调整后的坐标图」⇒ 重烤坐标总图，把 T-497（签到日历 / 版本号进设置页",
+          "keywords": [
+            "触发"
+          ]
+        },
+        {
+          "anchor": "§2 脚本改动（`design/ai-workflows/menu-proto-coords.py`，零运行时）",
+          "level": 3,
+          "startLine": 4407,
+          "endLine": 4416,
+          "tokens": 195,
+          "summary": "顶栏坐标 TOPBAR_X = (24, 560, 648) TOPBAR_ITEMS = (14, 0, settin",
+          "keywords": [
+            "design",
+            "workflows",
+            "menu",
+            "proto",
+            "coords",
+            "TOPBAR_X"
+          ]
+        },
+        {
+          "anchor": "§3 输出（10 件，均重烤）",
+          "level": 3,
+          "startLine": 4417,
+          "endLine": 4421,
+          "tokens": 60,
+          "summary": "design/art/final/coordinates/：menu-master-coords.png（2160×26",
+          "keywords": [
+            "design",
+            "art",
+            "final",
+            "coordinates",
+            "menu",
+            "master"
+          ]
+        },
+        {
+          "anchor": "§4 目检",
+          "level": 3,
+          "startLine": 4422,
+          "endLine": 4426,
+          "tokens": 79,
+          "summary": "主图：顶栏 2×2 四钮位置正确（左 14 / 右 648）、右上为日历、右下为衣架；规范栏读数完整不截断；画布内不再有",
+          "keywords": [
+            "目检"
+          ]
+        },
+        {
+          "anchor": "§5 红线自证",
+          "level": 3,
+          "startLine": 4427,
+          "endLine": 4430,
+          "tokens": 68,
+          "summary": "零运行时改动（脚本只出标注图，不入包、不接线）；零 §3 冻结常量、零资产新增；真源仍 = tuning/layout.",
+          "keywords": [
+            "§3",
+            "tuning",
+            "layout",
+            "红线自证"
+          ]
+        },
+        {
+          "anchor": "§6 沉淀统计 (2)",
+          "level": 3,
+          "startLine": 4431,
+          "endLine": 4434,
+          "tokens": 109,
+          "summary": "未跑 kb:sync（knowledge/ 仍含并行会话 WXG-T-434 在制品，K-137）。候选 1 条：「坐标",
           "keywords": [
             "sync",
             "knowledge",
@@ -92461,17 +92554,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 21130,
-      "lines": 106,
-      "sha256": "a6d2530e47d26dd9dd0795e612cb0180da8eb619a3d15e408311f9fa9c4663b8",
+      "tokens": 21307,
+      "lines": 107,
+      "sha256": "8da77c4f807ba01cad651648a2eeb2f7ddff1fcf144274a4c702dd97a09c3642",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 107,
-          "tokens": 21121,
+          "endLine": 108,
+          "tokens": 21298,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -92484,8 +92577,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 79,
-          "endLine": 107,
+          "startLine": 80,
+          "endLine": 108,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

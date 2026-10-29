@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # 主界面原型 v3（三态 + 走马灯示意帧）+ 坐标总图 + 五档机型坐标图，同一份合成底图（零模型，纯 PIL）。
-# 布局 = 落地单 v3.8（§8 走马灯）/ tuning.ts `menuAnchors`；素材 = final/assets/menu 正本（顶栏钮/徽标/木牌/箭头）
-# + proto-v2 切件（资源条、曼陀罗豆画）。标注单位 = 750 设计px（rpx 语义）。
+# 布局 = 落地单 v3.13 + WXG-T-497（签到钮日历 / 版本号进设置）/ WXG-T-498（顶栏左右对称）/ tuning.ts `menuAnchors`；
+# 素材 = final/assets/menu 正本（顶栏钮/徽标/木牌/箭头）+ proto-v2 切件（资源条、曼陀罗豆画）。标注单位 = 750 设计px（rpx 语义）。
 # 用法（仓库根）：python3 games/beads/design/ai-workflows/menu-proto-coords.py
 import os
 import numpy as np
@@ -38,7 +38,9 @@ PLATE_TITLE = (30, 62)                        # 两行行心距牌顶（关序 2
 # palette woodFace / woodEdge
 WOOD_FACE, WOOD_EDGE = (138, 91, 52), (94, 59, 30)
 ARROW_X, ARROW_D, ARROW_ICON = (26, 660), 64, 36
-TOPBAR_X, TOPBAR_D, HIT = (24, 560, 648), 80, 88
+# 顶栏 2×2 四钮（`MENU_TOPBAR_X`；[WXG-T-498] 对称后：左列 14 / 右列 648，行距 88 = `TOUCH_MIN`）
+TOPBAR_ITEMS = ((14, 0, "settings"), (14, 88, "rank"), (648, 0, "calendar"), (648, 88, "skin"))
+TOPBAR_ROW_DY, TOPBAR_D, HIT = 88, 80, 88
 CTA_X, CTA_W = 218, 324
 
 v2 = Image.open(PROTO_V2).convert("RGB")
@@ -176,9 +178,9 @@ def compose(g, s, state, w750=750, content=True, plate_text=PLATE_TEXT):
         put(ic, x + (ARROW_D - iw) / 2, y +
             (ARROW_D - ARROW_ICON) / 2, iw, ARROW_ICON)
     put(Image.open(LOGO), SIGN[0], g["bow0"] - SIGN[3], SIGN[1], SIGN[2])
-    # 顶栏三钮：圆底 + 图标同框 80（热区 88 同心）
-    for hx, icon in zip(TOPBAR_X, ("settings", "sound", "mail")):
-        x, y = hx + (HIT - TOPBAR_D) / 2, g["bt"] + (HIT - TOPBAR_D) / 2
+    # 顶栏四钮 2×2：圆底 + 图标同框 80（热区 88 同心；左列 14 / 右列 648，行距 88）
+    for hx, dy, icon in TOPBAR_ITEMS:
+        x, y = hx + (HIT - TOPBAR_D) / 2, g["bt"] + dy + (HIT - TOPBAR_D) / 2
         put(Image.open(f"{A}/ui_btn_circle_normal.png"),
             x, y, TOPBAR_D, TOPBAR_D)
         put(Image.open(f"{A}/ui_icon_{icon}.png"), x, y, TOPBAR_D, TOPBAR_D)
@@ -281,11 +283,9 @@ def annotate(cv, g, s, fs):
         rect(x, g["arrow_cy"] - ARROW_D / 2, ARROW_D, ARROW_D, green)
     lab(6, g["arrow_cy"] + 36,
         f"◀▶ 64² x{ARROW_X[0]}/{ARROW_X[1]} 心y{g['arrow_cy']:.0f}", green)
-    for hx in TOPBAR_X:
-        rect(hx, g["bt"], HIT, HIT, green)
-        circ(hx + HIT / 2, g["bt"] + HIT / 2, TOPBAR_D / 2, orange)
-    lab(6, g["bt"] + HIT + 4,
-        f"钮行 bt={g['bt']:.0f} 热区88 视觉Ø80 x24/560/648", green)
+    for hx, dy, _icon in TOPBAR_ITEMS:
+        rect(hx, g["bt"] + dy, HIT, HIT, green)
+        circ(hx + HIT / 2, g["bt"] + dy + HIT / 2, TOPBAR_D / 2, orange)
     rect(CTA_X, g["cta0"], CTA_W, CTA_H, pink,
          f"CTA 324×92 @(218,{g['cta0']:.0f})")
     lab(CTA_X + 3, g["cta0"] + CTA_H + 4,
@@ -316,7 +316,7 @@ def master(out, legend_w=330):
         d.text((102 * s, (ya + yb) / 2 * s - 11), txt, font=f, fill=(200, 0, 0),
                stroke_width=3, stroke_fill="white")
     rows = [
-        ("坐标总图 · 主界面 = 布局规范 v3.8", 32, (0, 0, 0)),
+        ("坐标总图 · 主界面 = 布局规范 v3.13", 32, (0, 0, 0)),
         ("SE 档 375×667dp · st40 · H1334 · @2x", 22, (80, 80, 80)),
         ("底图 = 原型 v3（推关中态），现役素材按规范落位", 22, (80, 80, 80)),
         ("标注 = 设计px（750 基准，dp = px/2）", 22, (80, 80, 80)),
@@ -330,6 +330,7 @@ def master(out, legend_w=330):
         (f"柜隙下 {g['gap_bot']:.0f} = 2 × 上", 22, (20, 20, 20)),
         (f"CTA 324×92 底锚 = H − sb − 32 → {g['cta1']}", 22, (20, 20, 20)),
         (f"钮行 bt = 胶囊底 {g['cap']} + 4 = {g['bt']}", 22, (20, 20, 20)),
+        ("顶栏 2×2：x 左 14 / 右 648，行距 88；热区 88 / 视觉 80", 22, (20, 20, 20)),
         ("", 22, None),
         ("橱窗三态（v3.8，随窗顶平移）：", 26, (130, 0, 180)),
         ("未开启：豆画置灰 + 大锁 220，重心对齐花心", 22, (20, 20, 20)),
@@ -349,11 +350,10 @@ def master(out, legend_w=330):
         ("逐机柜隙 上/下：SE 38/75 · And 130/259", 22, (0, 100, 20)),
         ("X-14 95/191 · 岛 94/188 · 16PM 101/203", 22, (0, 100, 20)),
         ("", 22, None),
-        ("! 本次改图（v3.7 → v3.8，链不变）：", 22, (150, 60, 0)),
-        ("  未开启：置灰 + 大锁居中", 22, (150, 60, 0)),
-        ("  进行中：原色 + 沙漏章居中", 22, (150, 60, 0)),
-        ("  通关：飘带收进裁切区右上（随内容滑）", 22, (150, 60, 0)),
-        ("  CTA 文案改艺术字纹理", 22, (150, 60, 0)),
+        ("! 本次改图（v3.13 → 现势，链不变）：", 22, (150, 60, 0)),
+        ("  顶栏 2×2 四钮；左列 24 → 14 做左右对称", 22, (150, 60, 0)),
+        ("  签到钮 = 日历 + 对勾（信封退役）", 22, (150, 60, 0)),
+        ("  版本号已进设置页脚「关于」，屏底无版本行", 22, (150, 60, 0)),
         ("", 22, None),
         ("■ 蓝 招牌 / 橙 资源条 / 棕 橱窗·木牌", 22, (60, 60, 60)),
         ("■ 紫 Boss图位 / 青 裁切区 / 红 飘带 / 粉 CTA", 22, (60, 60, 60)),
