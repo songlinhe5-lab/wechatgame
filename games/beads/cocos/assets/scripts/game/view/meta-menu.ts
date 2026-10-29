@@ -523,7 +523,9 @@ export function drawMenuAnchored(
         builder.blit(bakedPress ? MENU_TEXTURES.ctaPressed : MENU_TEXTURES.cta, g.ctaBox.x, g.ctaBox.y + dy, g.ctaBox.w, g.ctaBox.h, {
             fx: nineSliceFx(MENU_CTA_SLICE.capX, MENU_CTA_SLICE.capY),
         });
-        if (menuBitmapReady(MENU_TEXTURES.ctaLabel)) {
+        // `[WXG-T-490]` 浏览态（§5.4 条 4）：艺术字切图恒写「开始游戏」⇒ 离开起点页时不画，
+        // 让位下方文字腿（`label('start')` 已切 `继续 · 第{n}关`）；缺省字段 = 起点页 ⇒ 逐字不变。
+        if (data.carouselOnStartPage !== false && menuBitmapReady(MENU_TEXTURES.ctaLabel)) {
             const lh = MENU_CTA_LABEL.h;
             const lw = lh * MENU_CTA_LABEL.aspect;
             const cx = g.ctaBox.x + g.ctaBox.w / 2;

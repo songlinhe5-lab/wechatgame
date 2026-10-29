@@ -77,6 +77,17 @@ describe('MainMenuPresenter（UI-40 走马灯状态机）', () => {
         expect(p.dx).toBe(0);
     });
 
+    it('`[WXG-T-490]` seek = 启动定位直接落位，越界钳边，不启吸附动画', () => {
+        const p = new MainMenuPresenter();
+        p.seek(1);
+        expect(p.offset).toBe(1);
+        expect(p.dx).toBe(0); // ⛔ 不走 nudge ⇒ 开机无逐页划过
+        p.seek(ARC_OPEN_MAX + 5);
+        expect(p.offset).toBe(p.pages - 1);
+        p.seek(-3);
+        expect(p.offset).toBe(0);
+    });
+
     it('首/末页到头：快甩与 ◀▶ 都不越界', () => {
         const p = new MainMenuPresenter();
         // 首项向右快甩（vx = 2.5 > 0.6 ⇒ 请求上一页）⇒ carouselPage 回 0。

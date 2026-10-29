@@ -253,6 +253,9 @@ export class BeadsShell implements Game {
         // [BD-62] 边界可见性（每帧由 `_metaViewData` 覆盖）。
         carouselFirst: false,
         carouselLast: false,
+        // `[WXG-T-490]` 起点页口径（每帧由 `_metaViewData` 覆盖）：初值 = 起点页 ⇒ 主钮文案逐字不变。
+        carouselOnStartPage: true,
+        startLevelSeq: 0,
         studioEnabled: false,
         /** 按下态：`hitTestMeta` 返回的缓存钮引用（每帧由 `_readMenuInput` 覆盖，零分配）。 */
         pressed: null as MetaButton | null,
@@ -402,6 +405,10 @@ export class BeadsShell implements Game {
             designHeight: services.viewport.designHeight,
         });
         this.play.init(services);
+        // `[WXG-T-490]` 橱窗启动定位（甲，`menu-architecture §5.4` 条 4）：载档后（`play.init` 内 `_boot`
+        // 才解出续玩位）无动画落到起点页 ⇒ 开机「看到的」与「开始游戏要打的」同主题。
+        // 旧行为 = 恒停第 1 页（T-334 真机报障「默认图」残留半边）。
+        this._menu.seek(this._startArcPage());
         // 菜单侧广告加心发奖（EP13-S3）：**广播**订阅，只认自己的在途标 ⇒ 不误接续时/加心腿。
         const ad = services.rewardedAd;
         this._adOffs.push(
@@ -906,7 +913,11 @@ export class BeadsShell implements Game {
             this._wallSlotsForCount = n;
             this._wallSlotsForArc = arc;
             // S-4：换页 / 关表变长 ⇒ 门票与 n/N 同批重算（非每帧：只在重建分支）。
-            this._refreshArcGate(this._phase.levelsArc);
+            // `[WXG-T-490]` 菜单态（overlay `none`）取**橱窗当前页**而非 `levelsArc`（后者在菜单下 =
+            // 上次开选关的页/默认 0）⇒ 与 {@link _refreshArcGateOnMenuPage}（WXG-T-346 裁定）同口径。
+            // 旧行为：开机落在章 2 页 ⇒ 首帧绘制走本重建腿拿 `levelsArc` 把木牌 n/N 擦成
+            // `undefined`（下一帧才自纠 ⇒ 实际为一帧错值，测试可捕）。
+            this._refreshArcGate(this._phase.overlay === 'none' ? this._menu.offset : this._phase.levelsArc);
         }
         return this._wallSlots;
     }
@@ -1067,6 +1078,16 @@ export class BeadsShell implements Game {
     }
 
     /**
+     * `[WXG-T-490]` 起点页 = 续玩关（`play.levelIndex`，即主钮真实目标）所属大关页；
+     * 无归属（dev 导入关 = `-1`）⇒ 首页兜底（⛔ 猜页）。与 `_arcIndexOfLevel` 同一条腿 ⇒
+     * 启动定位与每帧「在不在起点页」比较恒同源。
+     */
+    private _startArcPage(): number {
+        const arc = this._arcIndexOfLevel(this.play.levelIndex);
+        return arc < 0 ? 0 : arc;
+    }
+
+    /**
      * 跨章推进闸门（传给 `BeadsGame.canAdvanceAcrossArc`）：门票**只在章界那一刻**参与解锁位推进。
      * - 同章 / 无归属（dev 导入关）/ 非相邻跨章 ⇒ 放行（闸门只守相邻章界，⛔ 兜数据异常）；
      * - 相邻跨章（`to` = 下一章首关）⇒ 目标章门票（= 上一章全通关且累计星达标）。
@@ -1135,6 +1156,10 @@ export class BeadsShell implements Game {
         // ⇒ 视图不再画越界那一侧的箭头（旧行为 = 两端一直画，点了无反应）。
         v.carouselFirst = off <= 0;
         v.carouselLast = off >= this._menu.pages - 1;
+        // `[WXG-T-490]` 起点页投影（条 4）：离开起点页 ⇒ 主钮文案走浏览态、艺术字切图让位文字腿。
+        // 每次两 int 比较（零分配）；关号直读 `currentLevel.id`（装配下标 + 1，与关序显示同轴）。
+        v.carouselOnStartPage = off === this._startArcPage();
+        v.startLevelSeq = this.play.currentLevel.id;
         v.carouselLevel = soon ? undefined : this._arcBossLevel(off);
         v.carouselState = soon ? undefined : this._arcState(off);
         v.carouselTextureId = soon ? undefined : ARCS[off]?.textureId;

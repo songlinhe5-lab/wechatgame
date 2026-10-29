@@ -123,17 +123,19 @@ function openLevels(shell: BeadsShell, rigRef: Rig): void {
     draw(shell); // `chapterTitle` 等由 `_metaViewData` 每帧覆写 ⇒ 读值前先跑一帧
 }
 
-/** 翻到第 `page` 页（逐次点 ◀▶，动画推完）。 */
+/**
+ * 翻到第 `page` 页。`[WXG-T-490]` 旧实现 = 逐次点 ◀▶（隐含「启动恒停第 1 页」假设）；
+ * 启动定位（§5.4 条 4）后 pointer≥9 的夹具起点已在章 2 页 ⇒ 再点 ◀▶ 会多推一页打空。
+ * 改走 Presenter 同一落位腿 `seek`（无动画绝对定位）+ 推一帧（进度件刷新腿住 `update`）
+ * ⇒ 只换定位方式，断言目标页逐字不变；◀▶ 行为面另有 `main-menu-presenter.test.ts` 钉住。
+ * ⚠ 末尾的 `draw()` 不能省：首次绘制会走 `_wallSlotsFor()` 重建腿 ⇒ `[WXG-T-490]` 前该腿拿
+ *   `levelsArc`（菜单态恒 0）重算，会把当前页的 n/N 擦成 `undefined`（一帧错值）⇒ 本例钉住修复。
+ */
 function goPage(r: Rig, page: number): void {
-    for (let i = 0; i < page; i += 1) {
-        const next = metaLayout('none', WALL_ROWS, r.shell.menuAnchors).buttons.find((b) => b.id === 'carousel-next')!;
-        const c = centerOf(next.box);
-        expect(r.shell.tapMeta(c.x, c.y)).toBe(true);
-        r.now.t += 500;
-        r.shell.update(0.016);
-        r.now.t += 500;
-        r.shell.update(0.016);
-    }
+    (r.shell as unknown as { _menu: { seek(n: number): void } })._menu.seek(page);
+    r.now.t += 500;
+    r.shell.update(0.016);
+    draw(r.shell);
 }
 
 function wallCell(slot: number) {
@@ -176,13 +178,7 @@ describe('S-4 闸门：门票未达', () => {
         goPage(r, 1);
         const onPage = viewData(r.shell);
         expect([onPage.arcStarGot, onPage.arcStarNeed], '页位落定即算，⛔ 等开选关页').toEqual([20, 24]);
-        const prev = metaLayout('none', WALL_ROWS, r.shell.menuAnchors).buttons.find((b) => b.id === 'carousel-prev')!;
-        const c = centerOf(prev.box);
-        expect(r.shell.tapMeta(c.x, c.y)).toBe(true);
-        r.now.t += 500;
-        r.shell.update(0.016);
-        r.now.t += 500;
-        r.shell.update(0.016);
+        goPage(r, 0); // 回首页（定位方式同上方 goPage；◀▶ 行为面由 presenter 测试钉）
         expect(viewData(r.shell).arcStarNeed, '首章无阻断 ⇒ 不创建（⛔ 残留上一页数字）').toBeUndefined();
     });
 

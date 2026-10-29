@@ -32,6 +32,12 @@ export function label(id: MetaAction, data: MetaViewData): string {
     switch (id) {
         // EP12-S6 · P-7：**钮标签一律读文案表**（`tokens.md §7` / `menu-architecture §6`），⛔ 不落字面。
         case 'start':
+            // `[WXG-T-490]` 浏览态（甲+A，`menu-architecture §5.4` 条 4）：走马灯离开起点页 ⇒
+            // 主钮文案自证真实目标（续玩位关号，`{n}` 渲染期替换 = `powerup_buy_confirm_title` 同判例）；
+            // 缺省字段（旧调用方/夹具）= 起点页 ⇒ 逐字不变。
+            if (data.carouselOnStartPage === false && data.startLevelSeq) {
+                return COPY_TOKENS.btn_start_resume_label.replace('{n}', `${data.startLevelSeq}`);
+            }
             return COPY_TOKENS.btn_start_label;
         case 'open-signin':
             return COPY_TOKENS.btn_signin_label;

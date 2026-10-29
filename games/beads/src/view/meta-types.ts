@@ -172,6 +172,18 @@ export interface MetaViewData {
     readonly carouselFirst?: boolean;
     readonly carouselLast?: boolean;
     readonly carouselPeerComingSoon?: boolean;
+    /**
+     * `[WXG-T-490]` 走马灯是否停在**起点页**（= 续玩关所属大关页，`menu-architecture §5.4` 条 4）。
+     * 壳比较 `offset` 与起点页号得出；视图零语义只读。
+     * **可选**：缺省（旧调用方 / 夹具）= 起点页 ⇒ 主钮文案与艺术字逐字不变。
+     */
+    readonly carouselOnStartPage?: boolean;
+    /**
+     * `[WXG-T-490]` 主钮浏览态文案的真实目标关号（续玩位 1-based = `play.currentLevel.id`）。
+     * 仅 {@link carouselOnStartPage} 为 false 时被 {@link MetaAction} `start` 的文案腿消费；
+     * 缺省 0 ⇒ 不替换（防 `{n}` 空插值）。
+     */
+    readonly startLevelSeq?: number;
     /** 宿主配了 beads-studio 服务地址 ⇒ 设置页画「在线导入」钮（WXG-T-179；缺省不画）。 */
     readonly studioEnabled?: boolean;
     /**

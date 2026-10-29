@@ -121,6 +121,17 @@ export class MainMenuPresenter {
         this._startAnim(page, now);
     }
 
+    /**
+     * `[WXG-T-490]` 启动定位（无动画直接落位）：壳在 `init` 载档后把**起点页**
+     *（续玩关所属大关页，`menu-architecture §5.4` 条 4）喂进来；越界钳到 `[0, pages)`。
+     * ⛔ 走 `nudge`（那会带吸附动画，开机橱窗逐页划过 = 新缺陷）。
+     */
+    seek(page: number): void {
+        if (page < 0) page = 0;
+        if (page >= this._pages) page = this._pages - 1;
+        this._offset = page;
+    }
+
     /** 每帧推进吸附（`now` = 毫秒时钟）。 */
     step(now: number): void {
         if (this._dragging) return;

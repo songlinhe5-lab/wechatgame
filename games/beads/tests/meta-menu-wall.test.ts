@@ -54,6 +54,7 @@ import { ARCS } from '../src/config/arcs.js';
 import { difficultyOf } from '../src/game/difficulty.js';
 import { COPY_TOKENS } from '../src/config/copy-tokens.js';
 import { buildMetaView, hitTestMeta, metaLayout, type MetaViewData } from '../src/view/meta-view.js';
+import { label } from '../src/view/meta-widgets.js';
 import { rankPanelLayout } from '../src/systems/rank-panel.js';
 import { drawLevelThumb, levelThumbCells, SIGN_INK_COLOR_IDX } from '../src/view/menu-signage.js';
 import { drawFilledBead, type FilledBeadOptions } from '../src/view/bead-render.js';
@@ -502,9 +503,23 @@ describe('EP12-S6 Deliverable 5 · P-7 文案令牌单源（⛔ 屏内字面散�
         expect(COPY_TOKENS.app_slogan).toBe('一颗一颗，拼出你的小铺');
         expect(COPY_TOKENS.version_label, 'WXG-T-468：发布基线 v1.0.0（产物构建时版本腿打实际 build 号）').toBe('v1.0.0 · 演示版');
         expect(COPY_TOKENS.btn_start_label, '§6：取实装值（原「开始拼豆」降为史证）').toBe('开始游戏');
+        expect(COPY_TOKENS.btn_start_resume_label, '[WXG-T-490] 浏览态键 = tokens.md §7 同批新键').toBe('继续 · 第{n}关');
         expect(COPY_TOKENS.btn_signin_label).toBe('签到');
         expect(COPY_TOKENS.btn_settings_label).toBe('设置');
         expect(COPY_TOKENS.btn_levels_label, '退役键：入口退役 ≠ 字面作废（levels overlay 仍读）').toBe('选关');
+    });
+
+    it('`[WXG-T-490]` 主钮浏览态文案（§5.4 条 4）：离开起点页 ⇒ `继续 · 第{n}关`；缺省字段逐字不变', () => {
+        // 动态腿直驱（最小夹具 = label 纯函数只需两字段）。
+        expect(label('start', { carouselOnStartPage: false, startLevelSeq: 7 } as MetaViewData)).toBe('继续 · 第7关');
+        // 起点页（显式 true / 旧调用方缺省）⇒ 原令牌逐字不变。
+        expect(label('start', { carouselOnStartPage: true, startLevelSeq: 7 } as MetaViewData)).toBe(COPY_TOKENS.btn_start_label);
+        expect(label('start', {} as MetaViewData), '缺省 = 起点页 ⇒ 金样本/夹具零漂移').toBe(COPY_TOKENS.btn_start_label);
+        // 浏览态但无关号（异常夹具）⇒ 不产出 `{n}` 空插值串，回退原令牌。
+        expect(label('start', { carouselOnStartPage: false } as MetaViewData)).toBe(COPY_TOKENS.btn_start_label);
+        // rig 无存档 ⇒ 起点页 = 首页 ⇒ 菜单帧仍出「开始游戏」（既有钉 504 行同用例，本处钉浏览态不串回）。
+        const r = rig({ maxUnlocked: LEVELS.length });
+        expect(menuFrame(r.shell).some((k) => k.kind === 'text' && (k as { text?: string }).text === COPY_TOKENS.btn_start_label)).toBe(true);
     });
 
     it('钮标签读令牌（主钮）；顶栏圆钮⛔ 无文字（§5.1b 图标件）；白卡文字带退场 [WXG-T-281]', () => {

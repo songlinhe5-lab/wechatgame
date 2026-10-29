@@ -3979,3 +3979,35 @@ T-486/T-487 把设置、好友榜挪到**左上列 x=24** 之后，面板正面�
 ### 6. 用法
 
 `http://127.0.0.1:4173/?game=beads&meta=menu&hud=off` —— 目检 / 截图 / 交给无头浏览器取证时加这一个参数即可。
+
+## WXG-T-490
+
+### 1. 触发
+
+用户 review 主界面，第二轮就抛出核心疑问：橱窗走马灯该不该让人左右滑看「打过的 / 即将打的」大关，而「开始游戏」又要打当前推进的小关 —— 左右可滑会不会不聚焦、误解？我给的两问分解（问题1 开机停哪页：甲/乙/丙；问题2 浏览与 CTA 的聚焦补偿：A/B/C），用户 2026-10-29 拍板「**甲 + A**」。
+
+### 2. 判据（三处既有裁定，本批只是接通，⛔ 不新裁）
+
+- `menu-architecture.md §5.4` 条 1：主钮 = 唯一 1 次交互「继续」通道，**语义不变** ⇒ CTA 目标不跟随滑动是既有口径（本批新增条 4 写清「橱窗默认页 = 起点页」）。
+- `arc-level-select-spec.md §6`：翻页只换列表 = **浏览行为**，不计进关成本 ⇒ 左右滑合法。
+- `menu-showcase-asset-spec.md §1`：主 CTA 与橱窗同属「当前主题」语义组 ⇒ 开机必须让两者同屏成立（旧行为违背此不变式）。
+- `tokens.md §7`：`btn_start_resume_label` 新键 `继续 · 第{n}关`，`{n}` 渲染期替换（判例 = `powerup_buy_confirm_title`）。
+
+### 3. 落码（六件 + 镜像）
+
+- `ui/main-menu-presenter.ts`：新增 `seek(page)`（无动画绝对落位，钳到 `[0, pages)`；⛔ 走 `nudge` 会带吸附动画 = 开机逐页划过）。
+- `game/beads-shell.ts`：`init()` 在 `play.init`（`_boot` 解出续玩位）之后 `this._menu.seek(this._startArcPage())`；新增私有 `_startArcPage()` = 复用既有 `_arcIndexOfLevel(play.levelIndex)`，无归属（dev 导入关）⇒ 首页兜底；`_metaViewData()` 每帧投影 `carouselOnStartPage` / `startLevelSeq`（两 int 比较，零分配）。
+- **同批根因修**：`_wallSlotsFor()` 的门票重算腿原取 `_phase.levelsArc`（菜单态恒 0），与 `_refreshArcGateOnMenuPage`（WXG-T-346 裁定 = 菜单态取橱窗当前页）互相矛盾 ⇒ 开机落在章 2 页时，首帧绘制把木牌 `★ n/N` 擦成 `undefined`（下一帧才自纠 = 一帧错值）。改为 `overlay === 'none' ? _menu.offset : levelsArc`。
+- `view/meta-types.ts`：两枚**可选**字段（缺省 = 起点页 ⇒ 旧调用方/夹具/金样本零漂移）。
+- `view/meta-widgets.ts`：`label('start')` 动态腿 —— 离开起点页 ⇒ `btn_start_resume_label` 替换 `{n}`（无关号的异常夹具回退原令牌，⛔ 空插值）。
+- `view/meta-menu.ts`：CTA 艺术字位图 `ui_menu_cta_label` 恒写「开始游戏」⇒ 浏览态不画该位图，让位文字腿（切图不重出）。
+
+### 4. 测试与验证
+
+`main-menu-presenter.test.ts` +1（seek 落位/钳边/不启吸附）；`meta-menu-wall.test.ts` +1（浏览态文案四臂：动态/显式 true/缺省/无关号回退 + rig 帧仍出「开始游戏」）+ 令牌逐值行；`arc-ticket-gate.test.ts` 的 `goPage` helper 由「逐次点 ◀▶」改为 `seek` 绝对落位（旧 helper 隐含「启动恒停第 1 页」假设，本批后该假设不再成立；◀▶ 行为面仍由 presenter 测试钉住），并保留 `draw()` 以钉住 §3 那条一帧错值的修复。`pnpm run framework:sync` 已同步镜像；`pnpm run verify` = **22 PASS / 1 FAIL**，唯一 FAIL 是 `check:cocos-mask` 的 `ui_icon_rank`（他会话今日换源未 reimport，与本批无关）。金样本网测（`ui-golden.test.ts`）随全量绿 ⇒ 未重抓。
+
+### 5. 撞号与并发披露（⚠ 教训件）
+
+- **撞号**：开工前上下文里的旧头注记「下一可用号 489」，落码期间发现 **489 已被 CodeBuddy 会话占用并入库**（harness `?hud=off`）⇒ 本批改领 **490**，代码/文档标签已全量改号。教训 = 领号必须在**动手那一刻**重读 `TASKS.md` 头注，不能沿用上一轮结论（注 3 的「立即回填占位」我做到了完成时才登，跨会话窗口期内被占用）。
+- **文件被外部回滚**：`src/game/beads-shell.ts` 的编辑先后两次被精确还原成 HEAD 内容（mtime 落在测试/同步时刻；Cocos Creator 3.8.8 正开着本工程 + 疑同文件在编辑器内有旧缓冲）。第三次落码后先 `git add` 留副本再验 ⇒ 保住。**并行会话改同一文件时的自保口径 = 落码后立即 `git add` 并把改动面压到最小 hunk。**
+- 工作树内另有他人 in-flight 改动（`beads-game.ts` / `board-tap-router.ts` / `powerups-v2.md` / `meta-pages-content.ts` / `ui_icon_rank*.png`）⇒ 本批提交按 pathspec 只收自己的 17 件（代码 6 + 测试 3 + 设计文档 2 + Cocos 镜像 6），另加台账 2 件。
