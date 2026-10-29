@@ -39,7 +39,8 @@ describe('v3.5 定案常量', () => {
         expect(MENU_TOPBAR_ICON_D).toBe(MENU_TOPBAR_VISUAL_D);
         expect(MENU_TOPBAR_VISUAL_D).toBeLessThanOrEqual(TOUCH_MIN);
         // `WXG-T-487`（用户裁「把好友榜放到左上设计一个图标按钮，让左上右上分别有两个按钮，
-        // 平衡入口」）起顶栏 = **左列 2（settings / rank @24）+ 右列 2（mail / skins @648）**，
+        // 平衡入口」）起顶栏 = **左列 2（settings / rank @14）+ 右列 2（mail / skins @648）**，
+        // `[WXG-T-498]` 左列 24 → 14 做**左右对称**：两侧热区距屏边 14、视觉圆距屏边 18。
         // 旧「右两颗横向 pitch 88」（`mail − skins − 80 ≥ 0`）随该裁定作废 —— 现在两者同 x。
         // 同列两钮的**纵向**间距由 ROW2_DY 保证 ≥ 视觉直径 ⇒ 不互叠（热区边贴边 = 88 = TOUCH_MIN）。
         expect(MENU_TOPBAR_X.rank).toBe(MENU_TOPBAR_X.settings);

@@ -120,9 +120,15 @@ export function menuTopbarTop(capsuleBottomDp: number | null, windowWidthDp: num
  */
 export const MENU_TOPBAR_TOP_FALLBACK = SAFE_TOP_H + SAFE_EDGE_MARGIN;
 /**
- * 三颗热区**左缘** x（热区尺寸 = `TOUCH_MIN` 88，不新常量）。逐档实测依据 = §5.1b 落位表：
- * 左上那颗不受胶囊约束（x∈[24,112] 在定稿图内非背景占比 0.00%）；右上两颗按 **pitch = 88**
- * 排（定稿图视觉 pitch 70 ⇒ 两热区会重叠 18 px 误触），外颗右缘 736 ⇒ 距屏边 14。
+ * 四颗热区**左缘** x（热区尺寸 = `TOUCH_MIN` 88，不新常量）。逐档实测依据 = §5.1b 落位表。
+ *
+ * `[WXG-T-498]` **左右对称收口**（用户 2026-10-29 选「顶栏左右对称」）：左列 24 → **14**
+ * ⇒ 两侧热区距屏边均为 **14**、视觉圆（Ø80 同心）距屏边均为 **18**（此前左 28 / 右 18）。
+ * **为何是「左列外移」而非「右列内移」**：右列视觉左缘 652 与橱窗框右缘 651（x107 + w544）
+ * 仅 1px 净空 ⇒ 内移 10 会压住柜体右上角；对称只能由左列外移达成（左侧视觉右缘 98，
+ * 与橱窗左缘 107 反得 9px 净空）。
+ * `space_screen_edge = 24` 只约束**版面内容带**（招牌 / 橱窗，`W_avail = 750−2×24`），
+ * 顶栏圆钮属**浮层控件**、不参与该带 —— 右列自 2026-10-13 起即按 14 排（当时为避免两热区纵向贴边误触）。
  *
  * `[WXG-T-365]` 中档由预留位 `notice` 升格为 `skins`（装扮馆入口 = 提案 P4-甲，正本
  * `design/proposals/main-menu-entry-strategy.md` §P4-甲）⇒ **坐标零改动**，只换语义。
@@ -130,9 +136,10 @@ export const MENU_TOPBAR_TOP_FALLBACK = SAFE_TOP_H + SAFE_EDGE_MARGIN;
  * ⇒ **[WXG-T-493] 该暂替已卸**：装扮馆改挂真图标 `iconSkins`（`ui_icon_skin`）。
  * ⇒ **[WXG-T-494] 公告位去向已裁**（用户 2026-10-29 四案拍板「甲」）= 公告并入信封（消息中心）弹窗，
  * **⛔ 不回岗顶栏**（第五枚需落右列第三行 ⇒ 压橱窗右上且与选关热区相邻，需重出五档账）；
- * 公告本体 `[待实装]`，规格正本 = `design/ux/ux-spec.md` §3.8 债目 + §8 U19。
+ * ⇒ **[WXG-T-497] 该位改为签到专用日历图标**（公告入口暂缓）。公告本体 `[待实装]`，
+ * 规格正本 = `design/ux/ux-spec.md` §3.8 债目 + §8 U19。
  */
-export const MENU_TOPBAR_X = { settings: 24, rank: 24, mail: 648, skins: 648 } as const;
+export const MENU_TOPBAR_X = { settings: 14, rank: 14, mail: 648, skins: 648 } as const;
 /**
  * 顶栏**第二行**下移量 = `TOUCH_MIN`（88，热区边贴边）。
  *

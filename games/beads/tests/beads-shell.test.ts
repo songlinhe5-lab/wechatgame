@@ -398,17 +398,18 @@ describe('BeadsShell — 装扮馆 skins 弹窗：入口 · 卡区 · 买断闭�
 
     it('入口 = 左侧第二枚（WXG-T-486 自顶栏 x560 改挂）· 返回回主菜单（单层）· 发 meta:overlay', () => {
         const r = rig({ initialScreen: 'menu' });
-        // 钉**具体数**（假绿守卫判例 K-089 同族）：三颗左缘 x = `MENU_TOPBAR_X`{24,560,648}，
-        // 热区 88 ⇒ 中心 x = {68,604,692}；同一行 y（两颗之间不得漏注册 / 不得互叠）。
+        // 钉**具体数**（假绿守卫判例 K-089 同族）：四颗左缘 x = `MENU_TOPBAR_X`{14,14,648,648}，
+        // 热区 88 ⇒ 中心 x = {58,58,692,692}；同一行 y（两颗之间不得漏注册 / 不得互叠）。
         const top = (['open-settings', 'open-skins', 'open-signin'] as const).map((id) => centerOf('none', id));
         // `WXG-T-486`（用户 2026-10-28 裁「右侧按钮可以放到左侧第二个布局」）：skins 自 `x560`
-        // 改挂**左侧第二枚** ⇒ 前两枚同列（中心 x 68），skins 比 settings 低一行 =
+        // 改挂**左侧第二枚** ⇒ 前两枚同列（中心 x 58），skins 比 settings 低一行 =
         // `MENU_TOPBAR_ROW2_DY`（88）；mail 仍在右上第一行（692）。
         // ⚠ 原断言「三颗同一行、pitch 88」（`[68,604,692]` + y 全等）随该裁定作废 —— 保留本注释
         // 以便后人知道 `[68,604,692]` 是历史值而非笔误。
-        // `WXG-T-487` 再裁「左上右上各两枚」⇒ 左列 `settings`+`rank`（x24 ⇒ 中心 68）、
-        // 右列 `mail`+`skins`（x648 ⇒ 中心 692）。此处三枚 = settings / skins / mail ⇒ `[68,692,692]`。
-        expect(top.map((c) => Math.round(c.x))).toEqual([68, 692, 692]);
+        // `WXG-T-487` 再裁「左上右上各两枚」⇒ 左列 `settings`+`rank`（x14 ⇒ 中心 58）、
+        // 右列 `mail`+`skins`（x648 ⇒ 中心 692）。此处三枚 = settings / skins / mail ⇒ `[58,692,692]`。
+        // `[WXG-T-498]` 左列 24 → 14 做左右对称（两侧热区距屏边 14、视觉圆距屏边 18）。
+        expect(top.map((c) => Math.round(c.x))).toEqual([58, 692, 692]);
         expect(Math.round(top[0].y - top[1].y)).toBe(88);
         expect(Math.round(top[2].y)).toBe(Math.round(top[0].y));
         // 画法腿：中颗现在画的是**正常态圆**（⛔ 旧禁用态 α0.5 空圆残影）⇒ 命令流里该列 x 只有
@@ -416,14 +417,14 @@ describe('BeadsShell — 装扮馆 skins 弹窗：入口 · 卡区 · 买断闭�
         const mb = new RenderModelBuilder(750, 1334);
         mb.begin();
         r.shell.buildRenderModel(mb);
-        // `WXG-T-486` 后 skins 与 settings 同列（中心 x 68，y 相差一行）⇒ 该列应有 2 枚圆，
+        // `WXG-T-486` 后 skins 与 settings 同列（中心 x 58，y 相差一行）⇒ 该列应有 2 枚圆，
         // 且**都不得带 alpha**（原意 = 不得留旧禁用态 α0.5 空圆残影，`MENU_TOPBAR_RESERVED_ALPHA`
         // 已随预留位退场）。历史值 `x-604`（= 旧中档 560+44）随改挂作废。
         const col = mb.end()
             .commands
             .filter((c) => c.kind === 'circle')
             .map((c) => c as unknown as { x: number; alpha?: number })
-            .filter((c) => Math.abs(c.x - 68) < 0.5);
+            .filter((c) => Math.abs(c.x - 58) < 0.5);
         expect(col.length).toBeGreaterThanOrEqual(2);
         expect(col.every((c) => c.alpha === undefined)).toBe(true);
         openSkins(r);

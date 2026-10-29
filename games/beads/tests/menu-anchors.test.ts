@@ -109,11 +109,11 @@ describe('`[WXG-T-453]` 底部热区收回（与视觉重合）', () => {
             // `WXG-T-487`（用户裁「把好友榜放到左上设计一个图标按钮，左上右上各两枚」）起
             // 好友榜自 CTA 左侧纸钮**上提为顶栏左上第二枚** ⇒ 旧断言
             // `rankHit.y === ctaBot + 2`（与 CTA 底缘同源）随该裁定作废，改为钉顶栏位：
-            // x = `MENU_TOPBAR_X.rank`（24）、y = 设置钮 y − `MENU_TOPBAR_ROW2_DY`（88）。
+            // x = `MENU_TOPBAR_X.rank`（14）、y = 设置钮 y − `MENU_TOPBAR_ROW2_DY`（88）。
             expect(g.rankHit).toBe(g.rankBox);
             expect(g.rankHit.h).toBe(TOUCH_MIN);
             expect(g.rankHit.w).toBe(TOUCH_MIN);
-            expect(g.rankBox.x).toBe(24);
+            expect(g.rankBox.x).toBe(14);
             expect(g.rankBox.y).toBe(g.settingsHit.y - 88);
 
             // ③ 底隙带（CTA 热区下沿之下、安全区上沿之上）不响应；框内正常命中。
