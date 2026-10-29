@@ -27,14 +27,15 @@
 | `ui_menu_seal_cleared.png` | 同上（`9c553e0c` · WXG-T-282）—— **v3.8 通关飘带** | ✅ 已接：`MENU_TEXTURES.sealCleared`（`bitmap__menu_seal_cleared`）→ carrier:133；✅ 在 `textures/`（同上补账） |
 | `ui_menu_cta_label.png` | 同上（`9c553e0c` · WXG-T-282）—— **v3.8 CTA「开始游戏」艺术字**（缺资产时回退程序化字） | ✅ 已接：`MENU_TEXTURES.ctaLabel`（`bitmap__menu_cta_label`）→ carrier:134；✅ 在 `textures/`（同上补账） |
 
-## 选关（弹窗 · 版式 Q · 坐标图待重烤）
+## 选关（弹窗 · 版式 Q）
 
 | 件 | 来源 | 状态 |
 |---|---|---|
-| `prototypes/levelselect-v1-page-750x1334-at2x.png` | 脚本 `../../ai-workflows/levelselect-proto-coords.py`（PIL 程序化合成，零模型） | ⚠ **已过期**：该图仍为 T-500 的整页版式；T-503 已改回 **600×720 弹窗（格 120）**，坐标图待重烤 |
-| `coordinates/levelselect-coords-750x1334-at2x.png` | 同脚本 | ⚠ 同上（待重烤为弹窗版式） |
+| `prototypes/levelselect-v1-popup-750x1334-at2x.png` | 脚本 `../../ai-workflows/levelselect-proto-coords.py`（PIL 程序化合成，零模型） | ⏳ 草稿（未进运行时；缩略 = 盘面色块，T-502 平涂化） |
+| `coordinates/levelselect-coords-750x1334-at2x.png` | 同脚本，坐标 y 向上、单位 750 设计 px | ⏳ 草稿 |
 
-- 现役版面真源：`design/ux/level-select-page-layout.md` **v0.7 §2A**（弹窗 600×720；格 120/22；缩略 84；信息两行；返回 240×88 @357）；ADR-0032 **D5 已改判回弹窗**。
+- 现役版面真源：`design/ux/level-select-page-layout.md` **v0.7 §2A**（弹窗 600×720 @75,307；格 **120/22**；缩略 **84**；章名+星进度同行 925 / 判星 885；返回 240×88 @357）；ADR-0032 **D5 已改判回弹窗**（2026-10-29）并同步到代码 `levelsPanelMetrics()`。
+- 格状态（Q15 已裁）：未解锁与越界同走锁格（灰褪盘面 + 小锁 + 无星）；BOSS 格 = 金边 6px + 皇冠 + 珠圈 + 锁。
 - 生图风格底（**非定稿，未入 `final/prototypes/`**）：本地 2.1、denoise 0.8、以修过沙漏章的云 2.1-turbo s23 为基底，种子 23 / 7 / 42 硬规则通过；种子 11 的 0★ 未锁格被画成锁格，不可用。图在 `../../ai-workflows/bench/i2i-denoise-20261017/fixbase-local21-d0.8-s{23,7,42}.png`（明细见同目录 README 第四节）。
 - 已知问题（未决）：生图对锁态不可靠（0.7 种子 7、0.8 种子 11 均出现 0★ 格被画成锁格）。定稿时格状态须由 `levelselect-proto-coords.py` 的 CELLS 数据程序化重画，生图只提供风格，不决定格状态。
 

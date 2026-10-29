@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3904,
       "lines": 132,
-      "sha256": "254282efc92116070cf32cdced9fa4df52d7b7d5c39e453e54cbc7965ada8233",
+      "sha256": "bf41f58bb8975020c21b45e9d3ce982c592e7968df595e464ea48e6dff850967",
       "tier": "normal",
       "sections": [
         {
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "96d85b9cfcf956bd9696eaf284477f26b63165ed8a341552461d6bd3b12308fc",
+      "sha256": "67c5e9f3ddf4852a2ff3fe46fc33a385c1bc532c28c95e65cf3dc0931e806b0e",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 111 行 / 22151 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 112 行 / 22294 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+112 · §待排（backlog，无号，立项时领取…=84+29",
+          "summary": "§WXG 任务台账（SSOT）=1+113 · §待排（backlog，无号，立项时领取…=85+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 4589 行 / 144291 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 4622 行 / 144775 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+4590 · §WXG-T-492=4076+49 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+4623 · §WXG-T-493=4125+60 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -24177,17 +24177,17 @@
     },
     {
       "path": "games/beads/design/art/final/README.md",
-      "tokens": 3872,
-      "lines": 50,
-      "sha256": "73f9877699f4fc4076ead0963764ea55eacac4694a70f70c8b75dc4edde80642",
+      "tokens": 3927,
+      "lines": 51,
+      "sha256": "7e105c3dba24be580e75d355a0bd982bed57be37a863531ecf03576f0c1610b7",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§final —— 资源定稿区（开发统一取用）",
           "level": 1,
           "startLine": 1,
-          "endLine": 51,
-          "tokens": 3856,
+          "endLine": 52,
+          "tokens": 3911,
           "summary": "2026-10-14 用户裁定：资源定稿分三类；shots 只按日期存每日结论证据，本区是验收后的归集面（复制入库，原件",
           "keywords": [
             "final",
@@ -24226,16 +24226,16 @@
           ]
         },
         {
-          "anchor": "§选关（弹窗 · 版式 Q · 坐标图待重烤）",
+          "anchor": "§选关（弹窗 · 版式 Q）",
           "level": 2,
           "startLine": 30,
-          "endLine": 40,
-          "tokens": 373,
-          "summary": "prototypes/levelselect-v1-page-750x1334-at2x.png 脚本 ../../ai",
+          "endLine": 41,
+          "tokens": 435,
+          "summary": "prototypes/levelselect-v1-popup-750x1334-at2x.png 脚本 ../../a",
           "keywords": [
             "prototypes",
             "levelselect",
-            "page",
+            "popup",
             "x1334",
             "at2x",
             "png"
@@ -24244,8 +24244,8 @@
         {
           "anchor": "§入库判据",
           "level": 2,
-          "startLine": 41,
-          "endLine": 51,
+          "startLine": 42,
+          "endLine": 52,
           "tokens": 470,
           "summary": "1. 用户已对屏稿/规格拍板（引用 shots 批次或 spec 节号）；",
           "keywords": [
@@ -87688,17 +87688,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 144291,
-      "lines": 4589,
-      "sha256": "9deac2530263d309407f757087a68bca86dbafed2a75ea22ac3197d85b3066de",
+      "tokens": 144775,
+      "lines": 4622,
+      "sha256": "6860249c5c9f21d9d8b603eda3109edf2229d35532245245c21171812560a12e",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 4590,
-          "tokens": 144274,
+          "endLine": 4623,
+          "tokens": 144758,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -92844,8 +92844,8 @@
           "anchor": "§WXG-T-503",
           "level": 2,
           "startLine": 4554,
-          "endLine": 4590,
-          "tokens": 785,
+          "endLine": 4592,
+          "tokens": 786,
           "summary": "",
           "keywords": [
             "WXG"
@@ -92923,8 +92923,8 @@
           "anchor": "§6 沉淀统计 (4)",
           "level": 3,
           "startLine": 4587,
-          "endLine": 4590,
-          "tokens": 109,
+          "endLine": 4592,
+          "tokens": 111,
           "summary": "未跑 kb:sync（knowledge/ 仍含并行会话 WXG-T-434 在制品，K-137）。候选 1 条：「弹窗",
           "keywords": [
             "sync",
@@ -92932,22 +92932,98 @@
             "WXG",
             "沉淀统计"
           ]
+        },
+        {
+          "anchor": "§WXG-T-504",
+          "level": 2,
+          "startLine": 4593,
+          "endLine": 4623,
+          "tokens": 480,
+          "summary": "",
+          "keywords": [
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§1 触发 (13)",
+          "level": 3,
+          "startLine": 4595,
+          "endLine": 4598,
+          "tokens": 54,
+          "summary": "T-503 改回弹窗后，选关坐标图仍是 T-500 的整页版（README 已标「待重烤」）⇒ 本批把 levelsel",
+          "keywords": [
+            "README",
+            "levelsel",
+            "触发"
+          ]
+        },
+        {
+          "anchor": "§2 脚本改动",
+          "level": 3,
+          "startLine": 4599,
+          "endLine": 4609,
+          "tokens": 152,
+          "summary": "底 纯色页底，无遮罩/无板 主菜单原图 + 50% 遮罩 + 600×720 纸板",
+          "keywords": [
+            "脚本改动"
+          ]
+        },
+        {
+          "anchor": "§3 产出",
+          "level": 3,
+          "startLine": 4610,
+          "endLine": 4614,
+          "tokens": 68,
+          "summary": "重出 coordinates/levelselect-coords-750x1334-at2x.png（2300×266",
+          "keywords": [
+            "coordinates",
+            "levelselect",
+            "coords",
+            "x1334",
+            "at2x",
+            "png"
+          ]
+        },
+        {
+          "anchor": "§4 目检 (3)",
+          "level": 3,
+          "startLine": 4615,
+          "endLine": 4618,
+          "tokens": 44,
+          "summary": "主图：板/网格/两行/返回位置正确，刻度 x173/315/457、y861/719/577 可读，规范栏不截断，缩略为",
+          "keywords": [
+            "x173",
+            "y861",
+            "目检"
+          ]
+        },
+        {
+          "anchor": "§5 红线与沉淀",
+          "level": 3,
+          "startLine": 4619,
+          "endLine": 4623,
+          "tokens": 136,
+          "summary": "零运行时改动（脚本只出标注图）；零 §3 常量、零资产新增。",
+          "keywords": [
+            "§3",
+            "红线与沉淀"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 22151,
-      "lines": 111,
-      "sha256": "58dd3f2611487fa804a0f57746513f6b41dd22875e51f3c2f55e8feaa9b1fd40",
+      "tokens": 22294,
+      "lines": 112,
+      "sha256": "6d86a25462e993e31dd225a85c2119e577fab07df16857f4df410144627ef3ab",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 112,
-          "tokens": 22143,
+          "endLine": 113,
+          "tokens": 22285,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -92960,8 +93036,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 84,
-          "endLine": 112,
+          "startLine": 85,
+          "endLine": 113,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
