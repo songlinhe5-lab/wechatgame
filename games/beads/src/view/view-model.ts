@@ -542,6 +542,12 @@ function drawClearPanel(
     radius: UI_CONTAINER.radiusPanel,
     shadowAlpha: UI_CONTAINER.shadowAlphaPanel,
   });
+  // `[WXG-T-511]` 真机反馈：1px 暖沙边在 dpr3 下会碎成「虚线感」⇒ 加一圈 2px 木边（只结算面板）。
+  builder.rect(plate.xMin + 3, plate.yMin + 3, plate.xMax - plate.xMin - 6, plate.yMax - plate.yMin - 6, {
+    stroke: palette.woodEdge,
+    lineWidth: 2,
+    radius: UI_CONTAINER.radiusPanel - 3,
+  });
 
   // `[WXG-T-510]` A2：标题木牌骑在面板上沿（木底 + 木边 + 深字）。
   const plaqueW = CLEAR_PLAQUE_W;
@@ -553,20 +559,31 @@ function drawClearPanel(
     radius: 16,
   });
   builder.text(DESIGN_W / 2, layout.titleY, CLEAR_PANEL_TITLE, {
-    fill: palette.text,
+    fill: palette.woodText,
     font: UI_FONT.panelTitle,
     align: 'center',
     baseline: 'middle',
   });
 
-  // 星级：只画已入场的那些；最新一颗按弹跳缩放（0→1.2→1）。
+  // 星级（`[WXG-T-511]`）：投影 + 金面 + 深边 + 内高光，三层替代单层平涂。
   const starR = (CLEAR_STAR_SIZE / 2) * 0.92;
   for (let i = 0; i < snap.clearStarsShown; i++) {
     const scale =
       i === snap.clearStarsShown - 1 && !snap.reduceMotion ? snap.clearStarPopScale : 1;
     if (scale <= 0) continue;
-    builder.polygon(starPoints(layout.starX[i]!, layout.starsY, starR * scale, 5, 90), {
+    const cx = layout.starX[i]!;
+    const cy = layout.starsY;
+    const r = starR * scale;
+    builder.polygon(starPoints(cx, cy - 3, r, 5, 90), {
+      fill: withAlpha(palette.shadowInk, 0.28),
+    });
+    builder.polygon(starPoints(cx, cy, r, 5, 90), {
       fill: STAR_GOLD,
+      stroke: withAlpha(palette.shadowInk, 0.55),
+      lineWidth: 2,
+    });
+    builder.polygon(starPoints(cx, cy + 2, r * 0.55, 5, 90), {
+      fill: withAlpha(palette.panel, 0.55),
     });
   }
 
@@ -576,7 +593,7 @@ function drawClearPanel(
     const elapsedRaw = Math.max(0, critLevel.time - snap.clearRemaining);
     const elapsed = Math.floor(elapsedRaw);
     builder.text(DESIGN_W / 2, layout.timeY, `用时${formatDurationCn(elapsed)}`, {
-      fill: palette.textDim,
+      fill: palette.text,
       font: bodyFont(snap.largeText, 'sub'),
       align: 'center',
       baseline: 'middle',
@@ -588,7 +605,8 @@ function drawClearPanel(
       const gap = Math.max(0, Math.ceil(elapsedRaw - need));
       if (gap > 0) {
         builder.text(DESIGN_W / 2, layout.hintY, `再快${formatDurationCn(gap)}可得${nextTier}★`, {
-          fill: palette.textDim,
+          fill: palette.text,
+          alpha: 0.8,
           font: bodyFont(snap.largeText, 'sub'),
           align: 'center',
           baseline: 'middle',
@@ -600,8 +618,8 @@ function drawClearPanel(
   // 发豆（原因句不再占版面；封顶/未接经济层时只降色或不画）。
   if (snap.clearCoins > 0) {
     builder.text(DESIGN_W / 2, layout.rewardY, `+${snap.clearCoins} 豆`, {
-      fill: snap.clearCoinsCapped ? palette.textDim : STAR_GOLD,
-      font: bodyFont(snap.largeText, 'sub'),
+      fill: snap.clearCoinsCapped ? palette.text : STAR_GOLD,
+      font: UI_FONT.hud,
       align: 'center',
       baseline: 'middle',
     });
@@ -617,7 +635,19 @@ function drawClearPanel(
     if (button.id === 'next') {
       drawButton(builder, palette, button.rect.xMin, by, bw, bh, 'wood', UI_CONTAINER.radiusWood, label, UI_FONT.panelButton, pressed);
     } else {
-      drawButton(builder, palette, button.rect.xMin, by, bw, bh, 'paper', UI_CONTAINER.radiusCard, label, UI_FONT.body, pressed);
+      // `[WXG-T-511]` 真机反馈「按钮太弱」：2px 木边 + 深字 30，保留纸面弱于木主钮。
+      builder.rect(button.rect.xMin, by, bw, bh, {
+        fill: pressed ? palette.cardPressed : palette.panel,
+        stroke: palette.woodEdge,
+        lineWidth: 2,
+        radius: UI_CONTAINER.radiusCard,
+      });
+      builder.text(button.rect.xMin + bw / 2, by + bh / 2, label, {
+        fill: palette.text,
+        font: UI_FONT.button,
+        align: 'center',
+        baseline: 'middle',
+      });
     }
   }
 }
