@@ -344,7 +344,7 @@ export function drawProfileContent(
 
     const row2Top = blockTop - PROFILE_CARD_H - PROFILE_CARD_GAP;
     drawStatCard(builder, leftX, row2Top - PROFILE_CARD_H, cardW, PROFILE_CARD_H, '体力', `♥${data.stamina} / ${data.staminaMax}`, palette);
-    // TODO(WXG-T-478)：label「豆子」需与 HUD / 商店的 coins 叫法统一到单一文案源。
+    // 货币名「豆子」为项目统一对外名（copy-tokens.ts powerup_buy_confirm_title / 用户 2026-10-22 拍板）⇒ HUD 顶栏 + 签到带（🪙 emoji）+ 此处三轨同口径。
     drawStatCard(builder, rightX, row2Top - PROFILE_CARD_H, cardW, PROFILE_CARD_H, '豆子', `◆${data.coins}`, palette);
 
     // 签到带：区标题（左）+ 周期读数（右）+ 7 格
