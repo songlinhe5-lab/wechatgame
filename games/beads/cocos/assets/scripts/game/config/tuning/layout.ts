@@ -125,9 +125,12 @@ export const MENU_TOPBAR_TOP_FALLBACK = SAFE_TOP_H + SAFE_EDGE_MARGIN;
  * 排（定稿图视觉 pitch 70 ⇒ 两热区会重叠 18 px 误触），外颗右缘 736 ⇒ 距屏边 14。
  *
  * `[WXG-T-365]` 中档由预留位 `notice` 升格为 `skins`（装扮馆入口 = 提案 P4-甲，正本
- * `design/proposals/main-menu-entry-strategy.md` §P4-甲）⇒ **坐标零改动**，只换语义；
- * 代价 = 公告位被占用（提案已列，回滚 = 键名与一颗钮改回预留空圆）。图标暂用该位原
- * 有的 `MENU_TEXTURES.iconSound`（喇叭）顶替 ⇒ `[待 UI 设计]`，见 `meta-view::drawTopbar`。
+ * `design/proposals/main-menu-entry-strategy.md` §P4-甲）⇒ **坐标零改动**，只换语义。
+ * 当时代价 = 公告位被占用（提案已列），图标暂用该位原有的 `MENU_TEXTURES.iconSound`（喇叭）顶替。
+ * ⇒ **[WXG-T-493] 该暂替已卸**：装扮馆改挂真图标 `iconSkins`（`ui_icon_skin`）。
+ * ⇒ **[WXG-T-494] 公告位去向已裁**（用户 2026-10-29 四案拍板「甲」）= 公告并入信封（消息中心）弹窗，
+ * **⛔ 不回岗顶栏**（第五枚需落右列第三行 ⇒ 压橱窗右上且与选关热区相邻，需重出五档账）；
+ * 公告本体 `[待实装]`，规格正本 = `design/ux/ux-spec.md` §3.8 债目 + §8 U19。
  */
 export const MENU_TOPBAR_X = { settings: 24, rank: 24, mail: 648, skins: 648 } as const;
 /**
