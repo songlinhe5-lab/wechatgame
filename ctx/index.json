@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3909,
       "lines": 132,
-      "sha256": "9478a80a63148754329ca8be34dfbeb332e2db353ed5eb37c724497c41bc4a42",
+      "sha256": "e041101008deff16db4ad69da5da06d95ff2be12ef1143c7beb58c983fc0e75a",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 149336 4914 normal",
+          "summary": "1 production/TASKS-DETAIL.md 149574 4934 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "9171a9bae1844892153759cee03ce8e6fcb148568fe6c341758834c0b1a0d60d",
+      "sha256": "b231f2c95751a4ecd003ea7278afcfd1d9ca5bc29a011ca90dd6487a3bf2c5e9",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 120 行 / 23705 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 121 行 / 23800 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+121 · §待排（backlog，无号，立项时领取…=93+29",
+          "summary": "§WXG 任务台账（SSOT）=1+122 · §待排（backlog，无号，立项时领取…=94+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 4914 行 / 149336 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 4934 行 / 149574 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+4915 · §WXG-T-501=4474+37 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+4935 · §WXG-T-502=4511+43 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -24177,9 +24177,9 @@
     },
     {
       "path": "games/beads/design/art/final/README.md",
-      "tokens": 4019,
+      "tokens": 4023,
       "lines": 52,
-      "sha256": "cf78998903fbaef1d29704ae0b5ab26d242f375be206be285764585dc5b804b1",
+      "sha256": "2dfb3ec6a04baead1a91503b89a2763e0e47c684626fad6df02b102ad24ca22e",
       "tier": "normal",
       "sections": [
         {
@@ -24187,7 +24187,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 53,
-          "tokens": 4003,
+          "tokens": 4007,
           "summary": "2026-10-14 用户裁定：资源定稿分三类；shots 只按日期存每日结论证据，本区是验收后的归集面（复制入库，原件",
           "keywords": [
             "final",
@@ -24214,7 +24214,7 @@
           "level": 2,
           "startLine": 13,
           "endLine": 30,
-          "tokens": 1386,
+          "tokens": 1390,
           "summary": "ui_menu_logo.png（960×772） 招牌原件（v3.9 绳加长 150px；位图走原件） ✅ 已接 as",
           "keywords": [
             "assets",
@@ -87690,17 +87690,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 149336,
-      "lines": 4914,
-      "sha256": "0905753726f17e8d3111db77dd62108cb2142c653d7f25ab3300113867dff7d5",
+      "tokens": 149574,
+      "lines": 4934,
+      "sha256": "5d4a0fcd727fccd066b18dbd40d55b190bc2ffe5406559bf5430626c0c7b66ef",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 4915,
-          "tokens": 149320,
+          "endLine": 4935,
+          "tokens": 149557,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -93547,11 +93547,11 @@
           ]
         },
         {
-          "anchor": "§WXG-T-512",
+          "anchor": "§WXG-T-513",
           "level": 2,
           "startLine": 4861,
-          "endLine": 4887,
-          "tokens": 386,
+          "endLine": 4880,
+          "tokens": 234,
           "summary": "",
           "keywords": [
             "WXG"
@@ -93562,6 +93562,64 @@
           "level": 3,
           "startLine": 4863,
           "endLine": 4866,
+          "tokens": 56,
+          "summary": "用户选「按真机微调纹理」。未提供新截图 ⇒ 按小尺寸可读性先做柔和化对照：同一张纹理在 300×92 下按 0% / 2",
+          "keywords": [
+            "触发"
+          ]
+        },
+        {
+          "anchor": "§2 定稿",
+          "level": 3,
+          "startLine": 4867,
+          "endLine": 4870,
+          "tokens": 28,
+          "summary": "25%（40% 已发糊、0% 抢字）⇒ 覆盖 ui_wood_grain.png、重跑量化与构建。",
+          "keywords": [
+            "ui_wood_grain",
+            "png",
+            "定稿"
+          ]
+        },
+        {
+          "anchor": "§3 读数",
+          "level": 3,
+          "startLine": 4871,
+          "endLine": 4876,
+          "tokens": 61,
+          "summary": "主包 3524.2 KB / 123 文件（余 571.8 KB；比 1.0.13 少 21 KB）。",
+          "keywords": [
+            "读数"
+          ]
+        },
+        {
+          "anchor": "§4 沉淀统计",
+          "level": 3,
+          "startLine": 4877,
+          "endLine": 4880,
+          "tokens": 71,
+          "summary": "未跑 kb:sync。候选 1 条：「纹理在小控件上先按实际尺寸做对比条，再决定柔和度；只看 1024 原图会高估对比」",
+          "keywords": [
+            "sync",
+            "沉淀统计"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-512",
+          "level": 2,
+          "startLine": 4881,
+          "endLine": 4907,
+          "tokens": 386,
+          "summary": "",
+          "keywords": [
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§1 触发 (21)",
+          "level": 3,
+          "startLine": 4883,
+          "endLine": 4886,
           "tokens": 55,
           "summary": "用户：「希望木纹设计感更强一些，同时卡通感也更强一些，如果需要纹理设计，请用大模型生成纹理图片并拉伸使用。」",
           "keywords": [
@@ -93571,8 +93629,8 @@
         {
           "anchor": "§2 资产",
           "level": 3,
-          "startLine": 4867,
-          "endLine": 4872,
+          "startLine": 4887,
+          "endLine": 4892,
           "tokens": 103,
           "summary": "云 qwen-image-3.0 seed 511（0.18 元）：1024² 卡通木纹，横向纹路、暖蜜色。",
           "keywords": [
@@ -93585,8 +93643,8 @@
         {
           "anchor": "§3 绘制",
           "level": 3,
-          "startLine": 4873,
-          "endLine": 4878,
+          "startLine": 4893,
+          "endLine": 4898,
           "tokens": 75,
           "summary": "木牌：木底 rect → blit 木纹拉伸 → 3px 木边 → 奶白字。",
           "keywords": [
@@ -93598,8 +93656,8 @@
         {
           "anchor": "§4 验证",
           "level": 3,
-          "startLine": 4879,
-          "endLine": 4883,
+          "startLine": 4899,
+          "endLine": 4903,
           "tokens": 48,
           "summary": "check:cocos-mask OK（新纹理进包，产物等值）；",
           "keywords": [
@@ -93612,8 +93670,8 @@
         {
           "anchor": "§5 沉淀统计 (4)",
           "level": 3,
-          "startLine": 4884,
-          "endLine": 4887,
+          "startLine": 4904,
+          "endLine": 4907,
           "tokens": 84,
           "summary": "未跑 kb:sync。候选 1 条：「纹理类 UI 资产用大模型出 1024 方图后裁成目标比例的圆角条，再拉伸到木牌/",
           "keywords": [
@@ -93624,8 +93682,8 @@
         {
           "anchor": "§WXG-T-511",
           "level": 2,
-          "startLine": 4888,
-          "endLine": 4915,
+          "startLine": 4908,
+          "endLine": 4935,
           "tokens": 367,
           "summary": "",
           "keywords": [
@@ -93635,8 +93693,8 @@
         {
           "anchor": "§1 真机反馈",
           "level": 3,
-          "startLine": 4890,
-          "endLine": 4893,
+          "startLine": 4910,
+          "endLine": 4913,
           "tokens": 44,
           "summary": "用户：「结算面板标题颜色不太对，按钮太弱，边框有虚线，内容文字太弱，星星样式太简单。」",
           "keywords": [
@@ -93646,8 +93704,8 @@
         {
           "anchor": "§2 根因与修正",
           "level": 3,
-          "startLine": 4894,
-          "endLine": 4903,
+          "startLine": 4914,
+          "endLine": 4923,
           "tokens": 171,
           "summary": "标题颜色不对 深墨压在木牌上，对比低 改 palette.woodText 奶白",
           "keywords": [
@@ -93659,8 +93717,8 @@
         {
           "anchor": "§3 边界",
           "level": 3,
-          "startLine": 4904,
-          "endLine": 4907,
+          "startLine": 4924,
+          "endLine": 4927,
           "tokens": 29,
           "summary": "零内容与几何变更（仍 520×470 / 信息区 400×270 / 双钮）；只改绘制。",
           "keywords": [
@@ -93670,8 +93728,8 @@
         {
           "anchor": "§4 验证 (2)",
           "level": 3,
-          "startLine": 4908,
-          "endLine": 4911,
+          "startLine": 4928,
+          "endLine": 4931,
           "tokens": 29,
           "summary": "全量 1412 通过 / 2 跳过；clear 金样本重取后重建 1.0.12 并出码。",
           "keywords": [
@@ -93682,8 +93740,8 @@
         {
           "anchor": "§5 沉淀统计 (5)",
           "level": 3,
-          "startLine": 4912,
-          "endLine": 4915,
+          "startLine": 4932,
+          "endLine": 4935,
           "tokens": 67,
           "summary": "未跑 kb:sync。候选 1 条：「1px 低对比描边在高 DPR 上会读成虚线：要么加到 2px，要么改用更深的结构",
           "keywords": [
@@ -93696,17 +93754,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 23705,
-      "lines": 120,
-      "sha256": "612c3c47308b1817cee12a796b81797f3c5b783dbfd19549b714c18fbdbbabfa",
+      "tokens": 23800,
+      "lines": 121,
+      "sha256": "9be321dd44298829e8bdabfe04ba4dc2f916fc7d80a182f86e4b279a109dd1dc",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 121,
-          "tokens": 23697,
+          "endLine": 122,
+          "tokens": 23791,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -93719,8 +93777,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 93,
-          "endLine": 121,
+          "startLine": 94,
+          "endLine": 122,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -98367,9 +98425,9 @@
     },
     {
       "path": "production/qa/beads/device/2026-10-29/execution-card.md",
-      "tokens": 2508,
+      "tokens": 2497,
       "lines": 114,
-      "sha256": "4614d758870b3750bb3bd53dd178278560366bc586f5942072ea9213a7946bef",
+      "sha256": "81d58a09f613477fd01b40ae0ed990f958b5f53906db331f4b017267f9a85f30",
       "tier": "normal",
       "sections": [
         {
@@ -98377,7 +98435,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 115,
-          "tokens": 2482,
+          "tokens": 2470,
           "summary": "用途：把 2026-10-29 这一批 UI 改判（WXG-T-497 / 498 / 501 / 502 / 503）",
           "keywords": [
             "beads",
@@ -98393,7 +98451,7 @@
           "level": 2,
           "startLine": 7,
           "endLine": 19,
-          "tokens": 541,
+          "tokens": 529,
           "summary": "☐ 工作树干净 git status 无并行会话在制品（本轮开工时曾有 beads-game.ts / board-ta",
           "keywords": [
             "git",
@@ -107987,17 +108045,17 @@
     },
     {
       "path": "production/release/beads/release-checklist.md",
-      "tokens": 9117,
-      "lines": 218,
-      "sha256": "960dd4fa68ce1383d0ef416141318d01cec41ed91f80b37fd3ea3872033ec1e8",
+      "tokens": 9210,
+      "lines": 219,
+      "sha256": "337aa61821e7af3262417bcc5a7761cd21022a7b26d4e121e27ab92bf469ac22",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§发布清单（Release Checklist）· beads「拼豆小铺」",
           "level": 1,
           "startLine": 1,
-          "endLine": 219,
-          "tokens": 9098,
+          "endLine": 220,
+          "tokens": 9191,
           "summary": "版本：v1.6 · 2026-10-19（v1.6 = 包体数字再对齐到 23:29 现包 3201.0 KB / 余量",
           "keywords": [
             "Release",
@@ -108212,8 +108270,8 @@
           "anchor": "§9 变更记录",
           "level": 2,
           "startLine": 203,
-          "endLine": 219,
-          "tokens": 1883,
+          "endLine": 220,
+          "tokens": 1976,
           "summary": "v1.0 2026-10-15 初稿（P4）：beads 六阶段清单 + 实测包体基线 + AppID / 产物现状 +",
           "keywords": [
             "beads",
