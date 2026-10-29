@@ -11,6 +11,8 @@
 
 import type { RenderModelBuilder } from '../../framework/index';
 import {
+  CLEAR_PLAQUE_H,
+  CLEAR_PLAQUE_W,
   CLEAR_STAR_SIZE,
   DESIGN_W,
   FINISH_ROW_H,
@@ -541,14 +543,21 @@ function drawClearPanel(
     shadowAlpha: UI_CONTAINER.shadowAlphaPanel,
   });
 
-  // `[WXG-T-509]` 标题 + 细金线（去缎带、去 emoji）。
+  // `[WXG-T-510]` A2：标题木牌骑在面板上沿（木底 + 木边 + 深字）。
+  const plaqueW = CLEAR_PLAQUE_W;
+  const plaqueH = CLEAR_PLAQUE_H;
+  builder.rect(DESIGN_W / 2 - plaqueW / 2, layout.titleY - plaqueH / 2, plaqueW, plaqueH, {
+    fill: palette.woodFace,
+    stroke: palette.woodEdge,
+    lineWidth: 3,
+    radius: 16,
+  });
   builder.text(DESIGN_W / 2, layout.titleY, CLEAR_PANEL_TITLE, {
     fill: palette.text,
     font: UI_FONT.panelTitle,
     align: 'center',
     baseline: 'middle',
   });
-  builder.rect(DESIGN_W / 2 - 60, layout.dividerY, 120, 3, { fill: STAR_GOLD, radius: 2 });
 
   // 星级：只画已入场的那些；最新一颗按弹跳缩放（0→1.2→1）。
   const starR = (CLEAR_STAR_SIZE / 2) * 0.92;
@@ -598,14 +607,18 @@ function drawClearPanel(
     });
   }
 
-  // 主钮（唯一动作）：320×92 木钮。
+  // 双钮：主钮木面（30 粗）/ 次钮纸面（28，弱化）。
   for (const button of layout.buttons) {
     const bw = button.rect.xMax - button.rect.xMin;
     const bh = button.rect.yMax - button.rect.yMin;
     const label = clearPanelLabel(button.id, snap.clearLastLevel);
     const pressed = snap.pressedButton === button.id;
     const by = button.rect.yMin + pressDy(snap, button.id);
-    drawButton(builder, palette, button.rect.xMin, by, bw, bh, 'wood', UI_CONTAINER.radiusWood, label, UI_FONT.panelButton, pressed);
+    if (button.id === 'next') {
+      drawButton(builder, palette, button.rect.xMin, by, bw, bh, 'wood', UI_CONTAINER.radiusWood, label, UI_FONT.panelButton, pressed);
+    } else {
+      drawButton(builder, palette, button.rect.xMin, by, bw, bh, 'paper', UI_CONTAINER.radiusCard, label, UI_FONT.body, pressed);
+    }
   }
 }
 

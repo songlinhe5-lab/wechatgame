@@ -14,6 +14,10 @@ import {
   CLEAR_ACTION_H,
   CLEAR_ACTION_W,
   CLEAR_PANEL_SIZE,
+  CLEAR_PLAQUE_H,
+  CLEAR_PLAQUE_W,
+  CLEAR_SECONDARY_H,
+  CLEAR_SECONDARY_W,
   DESIGN_H,
   DESIGN_W,
   TOUCH_MIN,
@@ -59,27 +63,35 @@ function tapButton(harness: Harness, id: 'next' | 'sprint', lastLevel = false): 
   return harness.game.tapDesign((rect.xMin + rect.xMax) / 2, (rect.yMin + rect.yMax) / 2);
 }
 
-describe('S7 结算面板 · 精简几何（ux-spec §3.4 v1.40）', () => {
-  it('板 520×440 居中；单钮 320×92 居中且在板内', () => {
+describe('S7 结算面板 · 精简几何（ux-spec §3.4 v1.41）', () => {
+  it('板 520×470 居中；A2 木牌骑上沿；主钮 300×92 + 弱化 150×88', () => {
     const layout = clearPanelLayout(NORMAL);
     const plate = layout.panel;
     expect(plate.xMax - plate.xMin).toBe(CLEAR_PANEL_SIZE.w);
     expect(plate.yMax - plate.yMin).toBe(CLEAR_PANEL_SIZE.h);
     expect((plate.xMin + plate.xMax) / 2).toBe(DESIGN_W / 2);
     expect((plate.yMin + plate.yMax) / 2).toBe(DESIGN_H / 2);
+    expect(layout.titleY).toBe(plate.yMax);
+    expect(CLEAR_PLAQUE_W).toBe(200);
+    expect(CLEAR_PLAQUE_H).toBe(64);
 
-    expect(layout.buttons).toHaveLength(1);
-    const btn = layout.buttons[0]!.rect;
-    expect(btn.xMax - btn.xMin).toBe(CLEAR_ACTION_W);
-    expect(btn.yMax - btn.yMin).toBe(CLEAR_ACTION_H);
-    expect(btn.yMax - btn.yMin).toBeGreaterThanOrEqual(TOUCH_MIN);
-    expect((btn.xMin + btn.xMax) / 2).toBe(DESIGN_W / 2);
-    expect(btn.xMin).toBeGreaterThan(plate.xMin);
-    expect(btn.xMax).toBeLessThan(plate.xMax);
-    expect(btn.yMin).toBeGreaterThan(plate.yMin);
+    expect(layout.buttons).toHaveLength(2);
+    const [next, menu] = layout.buttons;
+    expect(next!.id).toBe('next');
+    expect(next!.rect.xMax - next!.rect.xMin).toBe(CLEAR_ACTION_W);
+    expect(next!.rect.yMax - next!.rect.yMin).toBe(CLEAR_ACTION_H);
+    expect(menu!.id).toBe('menu');
+    expect(menu!.rect.xMax - menu!.rect.xMin).toBe(CLEAR_SECONDARY_W);
+    expect(menu!.rect.yMax - menu!.rect.yMin).toBe(CLEAR_SECONDARY_H);
+    expect(menu!.rect.yMax - menu!.rect.yMin).toBeGreaterThanOrEqual(TOUCH_MIN);
+    // 同行、主左次右、都在板内。
+    expect((next!.rect.yMin + next!.rect.yMax) / 2).toBe((menu!.rect.yMin + menu!.rect.yMax) / 2);
+    expect(next!.rect.xMax).toBeLessThan(menu!.rect.xMin);
+    expect(next!.rect.xMin).toBeGreaterThan(plate.xMin);
+    expect(menu!.rect.xMax).toBeLessThan(plate.xMax);
   });
 
-  it('四行自上而下：标题 > 星 > 用时 > 豆 >（提示），且全在 400×192 内容区内', () => {
+  it('四行自上而下：牌 > 星 > 用时 > 豆 >（提示），且全在 400×270 内容区内', () => {
     const l = clearPanelLayout(NORMAL);
     expect(l.titleY).toBeGreaterThan(l.starsY);
     expect(l.starsY).toBeGreaterThan(l.timeY);
@@ -90,25 +102,27 @@ describe('S7 结算面板 · 精简几何（ux-spec §3.4 v1.40）', () => {
     const inside = (y: number): boolean => y > l.content.yMin && y < l.content.yMax;
     for (const y of [l.starsY, l.timeY, l.rewardY, l.hintY]) expect(inside(y), `y=${y}`).toBe(true);
     expect(l.content.xMax - l.content.xMin).toBe(400);
-    expect(l.content.yMax - l.content.yMin).toBe(192);
-    // 星（64 高）顶也在框内。
+    expect(l.content.yMax - l.content.yMin).toBe(270);
     expect(l.starsY + 32).toBeLessThan(l.content.yMax);
   });
 
-  it('标题 = 「过关」；末关主钮文案为「查看结果」', () => {
+  it('标题 = 「过关」；主钮 / 弱化次钮文案', () => {
     expect(CLEAR_PANEL_TITLE).toBe('过关');
     expect(clearPanelLabel('next', false)).toBe('下一关');
     expect(clearPanelLabel('next', true)).toBe('查看结果');
+    expect(clearPanelLabel('menu', false)).toBe('回主界面');
     expect(clearPanelLabel('sprint', false)).toBe('▶ 去冲刺');
   });
 
-  it('只命中主钮；原副钮位 / 好友 chip 位 / 板外均零命中', () => {
+  it('命中两钮；板外 / 原冲刺位零命中', () => {
     const layout = clearPanelLayout(NORMAL);
-    const btn = layout.buttons[0]!.rect;
-    const centre = [(btn.xMin + btn.xMax) / 2, (btn.yMin + btn.yMax) / 2] as const;
-    expect(hitClearPanel(...centre, NORMAL)).toBe('next');
-    expect(hitClearPanel(btn.xMax + 5, btn.yMin + 5, NORMAL)).toBeNull();
+    const [next, menu] = layout.buttons;
+    const centre = (r: { xMin: number; xMax: number; yMin: number; yMax: number }) =>
+      [(r.xMin + r.xMax) / 2, (r.yMin + r.yMax) / 2] as const;
+    expect(hitClearPanel(...centre(next!.rect), NORMAL)).toBe('next');
+    expect(hitClearPanel(...centre(menu!.rect), NORMAL)).toBe('menu');
     expect(hitClearPanel(0, 0, NORMAL)).toBeNull();
+    expect(hitClearPanel(next!.rect.xMin - 5, next!.rect.yMin + 5, NORMAL)).toBeNull();
   });
 });
 

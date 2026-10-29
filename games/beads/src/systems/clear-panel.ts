@@ -28,6 +28,8 @@ import {
   CLEAR_ACTION_H,
   CLEAR_ACTION_W,
   CLEAR_PANEL_SIZE,
+  CLEAR_SECONDARY_H,
+  CLEAR_SECONDARY_W,
   CLEAR_STAR_GAP,
   CLEAR_STAR_SIZE,
   CLEAR_STAR_STEP_MS,
@@ -38,8 +40,8 @@ import {
 import { rectContains, type PanelRect } from './pause-panel.js';
 import { ResultPanelClock } from './result-panel.js';
 
-/** 面板按钮能请求的两件事（动作由 `BeadsGame` 执行；`sprint` 入口仍隐藏）。 */
-export type ClearPanelAction = 'next' | 'sprint';
+/** 面板按钮能请求的三件事（动作由 `BeadsGame` 执行；`sprint` 入口仍隐藏）。 */
+export type ClearPanelAction = 'next' | 'sprint' | 'menu';
 
 export interface ClearButton {
   readonly id: ClearPanelAction;
@@ -47,14 +49,12 @@ export interface ClearButton {
 }
 
 export interface ClearPanelLayout {
-  /** 对话框底板（`[WXG-T-509]` 520×440，其他面板不受影响）。 */
+  /** 对话框底板（`[WXG-T-510]` 520×470，其他面板不受影响）。 */
   readonly panel: PanelRect;
-  /** 主钮（仅 `next`；`sprint` 入口仍隐藏）。 */
+  /** 主钮 + 弱化次钮（`menu`）；`sprint` 入口仍隐藏。 */
   readonly buttons: readonly ClearButton[];
-  /** 标题基线 y。 */
+  /** A2 木挂牌中心 y（= 面板上沿，挂牌骑在上沿）。 */
   readonly titleY: number;
-  /** 标题下细金线 y。 */
-  readonly dividerY: number;
   /** 星级行中心 y。 */
   readonly starsY: number;
   /** 用时行中心 y。 */
@@ -105,30 +105,38 @@ function build(lastLevel: boolean): ClearPanelLayout {
     CLEAR_PANEL_SIZE.w,
     CLEAR_PANEL_SIZE.h,
   );
-  const rowY = panel.yMin + 48;
+  const rowY = panel.yMin + 44;
+  // `[WXG-T-510]` 双钮：主 300×92（木）+ 弱化 150×88（纸）；总宽 466 居中。
+  const rowGap = 16;
+  const rowTotal = CLEAR_ACTION_W + rowGap + CLEAR_SECONDARY_W;
+  const rowLeft = (DESIGN_W - rowTotal) / 2;
   const buttons: ClearButton[] = [
-    { id: 'next', rect: rect((DESIGN_W - CLEAR_ACTION_W) / 2, rowY, CLEAR_ACTION_W, CLEAR_ACTION_H) },
+    { id: 'next', rect: rect(rowLeft, rowY, CLEAR_ACTION_W, CLEAR_ACTION_H) },
+    {
+      id: 'menu',
+      rect: rect(rowLeft + CLEAR_ACTION_W + rowGap, rowY + (CLEAR_ACTION_H - CLEAR_SECONDARY_H) / 2, CLEAR_SECONDARY_W, CLEAR_SECONDARY_H),
+    },
   ];
-  // `[WXG-T-509]` 四行信息（自上而下，y 向上）：标题 → 星 → 用时 → 豆 →（可选）差距提示。
-  const titleY = panel.yMax - 56;
-  const dividerY = titleY - 34;
-  const starsY = titleY - 74;
+  // `[WXG-T-510]` A2：标题木牌骑上沿；四行信息在牌下、双钮上。
+  const titleY = panel.yMax;
+  const starsY = panel.yMax - 102;
   const timeY = starsY - 56;
   const rewardY = starsY - 100;
   const hintY = starsY - 142;
-  // 核心信息区（限定 400×192）：星顶 789 ≤ 791，提示底 ≥ 599。
-  const contentTop = titleY - 40;
+  // 核心信息区（限定 400×270）：星顶 832 ≤ 850，提示底 ≥ 580。
+  const contentTop = panel.yMax - 52;
   const contentBottom = rowY + CLEAR_ACTION_H + 12;
   const content = rect((DESIGN_W - 400) / 2, contentBottom, 400, contentTop - contentBottom);
   const starsTotal = CLEAR_STAR_SIZE * 3 + CLEAR_STAR_GAP * 2;
   const firstStar = (DESIGN_W - starsTotal) / 2 + CLEAR_STAR_SIZE / 2;
   const starX = [0, 1, 2].map((i) => firstStar + i * (CLEAR_STAR_SIZE + CLEAR_STAR_GAP));
-  void lastLevel; // 两个变体只差按钮文案（见 clearPanelLabel），几何相同
-  return { panel, buttons, titleY, dividerY, starsY, timeY, rewardY, hintY, content, starX };
+  void lastLevel;
+  return { panel, buttons, titleY, starsY, timeY, rewardY, hintY, content, starX };
 }
 
 /** 按钮文案（`ux-spec §3.4`；末关主钮文案为派生项）。 */
 export function clearPanelLabel(id: ClearPanelAction, lastLevel: boolean): string {
+  if (id === 'menu') return '回主界面';
   if (id === 'sprint') return '▶ 去冲刺';
   return lastLevel ? '查看结果' : '下一关';
 }

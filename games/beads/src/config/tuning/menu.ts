@@ -107,11 +107,16 @@ export const CLEAR_STAR_SIZE = 64;
 /** 星与星的水平间隔。 */
 export const CLEAR_STAR_GAP = 28;
 
-/** `[WXG-T-509]` 结算面板专用尺寸（其他三面板仍用共享 `PANEL_SIZE`）。 */
-export const CLEAR_PANEL_SIZE = { w: 520, h: 440 } as const;
-/** `[WXG-T-509]` 结算主钮：320×92（结算页只有一个动作 ⇒ 通栏焦点）；⛔ 不复用 `CLEAR_BUTTON_W`（通关/冲刺面板共享）。 */
-export const CLEAR_ACTION_W = 320;
+/** `[WXG-T-510]` 结算面板专用尺寸（A2 木挂牌；其他三面板仍用共享 `PANEL_SIZE`）。 */
+export const CLEAR_PANEL_SIZE = { w: 520, h: 470 } as const;
+/** `[WXG-T-509/510]` 结算双钮：主 300×92（木）/ 弱化 150×88（纸）。 */
+export const CLEAR_ACTION_W = 300;
 export const CLEAR_ACTION_H = 92;
+export const CLEAR_SECONDARY_W = 150;
+export const CLEAR_SECONDARY_H = 88;
+/** `[WXG-T-510]` A2 标题木挂牌：200×64，骑在面板上沿。 */
+export const CLEAR_PLAQUE_W = 200;
+export const CLEAR_PLAQUE_H = 64;
 /** 主/副钮宽度：240 + 30 + 240 = 510 ≤ 560 − 2×20（面板内边距）⇒ 可并排落地（通关/冲刺面板）。 */
 export const CLEAR_BUTTON_W = PANEL_PRIMARY_W;
 export const CLEAR_BUTTON_GAP = 30;

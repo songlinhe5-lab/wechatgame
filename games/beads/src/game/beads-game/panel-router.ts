@@ -83,7 +83,7 @@ export class PanelRouter {
         h.sfx(AUDIO_CLIP_UI_TAP);
         if (action === 'next') h.advanceAfterClear();
         else if (action === 'sprint') h.startSprintRun();
-        else h.openLevelRank();
+        else h.openMenu();
         return true;
       }
       case 'finish': {
