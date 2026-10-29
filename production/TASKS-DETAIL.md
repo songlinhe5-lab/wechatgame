@@ -4660,3 +4660,40 @@ T-503 改回弹窗后，选关坐标图仍是 T-500 的整页版（README 已标
 ### 5. 沉淀统计
 
 **未跑 `kb:sync`**（`knowledge/` 仍含并行会话 WXG-T-434 在制品，K-137）。候选 1 条：「发布阻塞要先对旧账再列清单：『缺 AppID』可能早已解决，真正的阻塞往往只剩一个上传密钥」。统计 = 新增 0 / 修改 0 / 激活 0 / 归档 0（本批）。
+
+---
+
+## WXG-T-506
+
+### 1. 触发
+
+用户选「1 = 闭合版本号漂移」。发布清单 §1.1 把「版本号三处一致」列为 NO-GO 项：`package.json`、游戏内 `version_label`、微信后台版本号。
+
+### 2. 实测（漂移在哪）
+
+| 处 | 收口前 | 收口后 |
+|---|---|---|
+| `games/beads/package.json` | 仓内 **1.0.3**；工作树 **1.0.9**（六次 release 构建的递增一直未提交） | **1.0.9 已入库** |
+| 游戏内 `version_label`（源码基线） | `v1.0.0 · 演示版`（harness/金样本用的基线，按裁定保留） | 不变（分环境，符合预期） |
+| 发布产物 `version_label` | `cocos/build/wechatgame/assets/main/index.js` = **v1.0.9**，全文「演示版」**0 次** | 同左（已复证） |
+| 微信后台版本号 | 未设置（首次 `cli upload` 时填） | 仍属上传动作（不阻塞仓内） |
+
+**结论**：打号腿（`build-cocos.mjs::bumpAndStampVersion`）与剥后缀腿（`version-label.mjs::stampReleaseLabel`）在现产物上**同时成立**；真正的漂移只是 `package.json` 的递增没入库。
+
+### 3. 为何不重跑一次 release 构建
+
+工作树存在并行会话在制品（`beads-game.ts` / `board-tap-router.ts` / `powerups-v2.md` / `announcements.test.ts` / `knowledge/*`），此时重跑会把未完成的改动烘进产物。**本次只做「已发生构建的产物取证 + 版本真源入库」**；下一次干净 release 构建（上传前）会自然递增到 **1.0.10**，届时以那一次产物为准再核一次即可。
+
+### 4. 文档同步
+
+- `release-checklist.md` §1.1：现值 1.0.3 → **1.0.9**；待办② 销账（附产物路径与读数）；待办①（后台版本号）保留为上传时动作。
+- 同文前置声明 #2：NO-GO 第②条改为**已收口**。
+- 同文变更记录新增 **v1.7**。
+
+### 5. 并行在制品披露
+
+工作树另有并行会话改动（`games/beads/src/game/beads-game.ts`、`game/beads-game/board-tap-router.ts`、镜像两件、`design/gdd/powerups-v2.md`、`tests/announcements.test.ts`、`knowledge/*`）**未纳入本笔**（K-137 只披露不代填）。
+
+### 6. 沉淀统计
+
+**未跑 `kb:sync`**（同上，`knowledge/` 含并行在制品）。候选 1 条：「版本腿会自动递增 `package.json`，但构建者常忘了提交它 ⇒ 版本漂移的真正形态是『产物已新、真源仍旧』；收口动作 = 把构建后的 package.json 入库，而不是重跑构建」。统计 = 新增 0 / 修改 0 / 激活 0 / 归档 0（本批）。

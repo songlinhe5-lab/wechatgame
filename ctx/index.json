@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3904,
       "lines": 132,
-      "sha256": "5a95e967271ec72f4562365b70b0a90b92d7ab785db993ffae0f731e0a609d77",
+      "sha256": "3b47ca8ea38d882d81bc3bd1845f14dba2ded940aa97825c156616d7a2e966af",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 145396 4662 normal",
+          "summary": "1 production/TASKS-DETAIL.md 146154 4699 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "6668c53693870ba88a87b6352acea3c950d8c77bcce9a6e21149c7b34e8c7871",
+      "sha256": "05d6ea20a2a8683b979309285ffe12edaf4c97fe8840cc5948f701a92e2e2565",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 113 行 / 22489 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 114 行 / 22659 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+114 · §待排（backlog，无号，立项时领取…=86+29",
+          "summary": "§WXG 任务台账（SSOT）=1+115 · §待排（backlog，无号，立项时领取…=87+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 4662 行 / 145396 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 4699 行 / 146154 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+4663 · §WXG-T-494=4185+59 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+4700 · §WXG-T-495=4244+38 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -87688,17 +87688,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 145396,
-      "lines": 4662,
-      "sha256": "de1a1e5c52621c6d8d209a7e7620c5ddac095310554d91c4656953b5dc490b77",
+      "tokens": 146154,
+      "lines": 4699,
+      "sha256": "593294e322673edfc3e8148cf8fbb1d5261f41285b60eca413ace4018956dbaf",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 4663,
-          "tokens": 145379,
+          "endLine": 4700,
+          "tokens": 146137,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -93013,8 +93013,8 @@
           "anchor": "§WXG-T-505",
           "level": 2,
           "startLine": 4626,
-          "endLine": 4663,
-          "tokens": 617,
+          "endLine": 4665,
+          "tokens": 618,
           "summary": "",
           "keywords": [
             "WXG"
@@ -93081,8 +93081,8 @@
           "anchor": "§5 沉淀统计 (3)",
           "level": 3,
           "startLine": 4660,
-          "endLine": 4663,
-          "tokens": 95,
+          "endLine": 4665,
+          "tokens": 96,
           "summary": "未跑 kb:sync（knowledge/ 仍含并行会话 WXG-T-434 在制品，K-137）。候选 1 条：「发布",
           "keywords": [
             "sync",
@@ -93090,22 +93090,122 @@
             "WXG",
             "沉淀统计"
           ]
+        },
+        {
+          "anchor": "§WXG-T-506",
+          "level": 2,
+          "startLine": 4666,
+          "endLine": 4700,
+          "tokens": 754,
+          "summary": "",
+          "keywords": [
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§1 触发 (15)",
+          "level": 3,
+          "startLine": 4668,
+          "endLine": 4671,
+          "tokens": 57,
+          "summary": "用户选「1 = 闭合版本号漂移」。发布清单 §1.1 把「版本号三处一致」列为 NO-GO 项：package.json",
+          "keywords": [
+            "§1.1",
+            "package",
+            "json",
+            "触发"
+          ]
+        },
+        {
+          "anchor": "§2 实测（漂移在哪）",
+          "level": 3,
+          "startLine": 4672,
+          "endLine": 4682,
+          "tokens": 249,
+          "summary": "games/beads/package.json 仓内 1.0.3；工作树 1.0.9（六次 release 构建的递增",
+          "keywords": [
+            "games",
+            "beads",
+            "package",
+            "json",
+            "release",
+            "实测"
+          ]
+        },
+        {
+          "anchor": "§3 为何不重跑一次 release 构建",
+          "level": 3,
+          "startLine": 4683,
+          "endLine": 4686,
+          "tokens": 124,
+          "summary": "工作树存在并行会话在制品（beads-game.ts / board-tap-router.ts / powerups-",
+          "keywords": [
+            "release",
+            "beads",
+            "game",
+            "board",
+            "tap",
+            "router"
+          ]
+        },
+        {
+          "anchor": "§4 文档同步",
+          "level": 3,
+          "startLine": 4687,
+          "endLine": 4692,
+          "tokens": 83,
+          "summary": "release-checklist.md §1.1：现值 1.0.3 → 1.0.9；待办② 销账（附产物路径与读数）；",
+          "keywords": [
+            "§1.1",
+            "release",
+            "checklist",
+            "文档同步"
+          ]
+        },
+        {
+          "anchor": "§5 并行在制品披露",
+          "level": 3,
+          "startLine": 4693,
+          "endLine": 4696,
+          "tokens": 75,
+          "summary": "工作树另有并行会话改动（games/beads/src/game/beads-game.ts、game/beads-ga",
+          "keywords": [
+            "games",
+            "beads",
+            "src",
+            "game",
+            "并行在制品披"
+          ]
+        },
+        {
+          "anchor": "§6 沉淀统计 (5)",
+          "level": 3,
+          "startLine": 4697,
+          "endLine": 4700,
+          "tokens": 118,
+          "summary": "未跑 kb:sync（同上，knowledge/ 含并行在制品）。候选 1 条：「版本腿会自动递增 package.js",
+          "keywords": [
+            "sync",
+            "knowledge",
+            "package",
+            "沉淀统计"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 22489,
-      "lines": 113,
-      "sha256": "1e0cf3f3738b7638a4609524035c810ecdb666f6e88e18f04d7b629ecc143a67",
+      "tokens": 22659,
+      "lines": 114,
+      "sha256": "549b379dacbb8ad07b9bfa71ee5e3d6ac3bfaa048b5ebf1ae8c8c6d6672fa818",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 114,
-          "tokens": 22480,
+          "endLine": 115,
+          "tokens": 22651,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -93118,8 +93218,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 86,
-          "endLine": 114,
+          "startLine": 87,
+          "endLine": 115,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -107201,17 +107301,17 @@
     },
     {
       "path": "production/release/beads/release-checklist.md",
-      "tokens": 8397,
-      "lines": 213,
-      "sha256": "7718dc938edf853ce657e8ed08fcda8343f96d25e3551f2d1dc3e2bdfb1f06c5",
+      "tokens": 8666,
+      "lines": 214,
+      "sha256": "50af719bcece0a35914739c5871bf2ab86950e3a4167da2392a90a6aac9da26a",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§发布清单（Release Checklist）· beads「拼豆小铺」",
           "level": 1,
           "startLine": 1,
-          "endLine": 214,
-          "tokens": 8378,
+          "endLine": 215,
+          "tokens": 8647,
           "summary": "版本：v1.6 · 2026-10-19（v1.6 = 包体数字再对齐到 23:29 现包 3201.0 KB / 余量",
           "keywords": [
             "Release",
@@ -107226,7 +107326,7 @@
           "level": 2,
           "startLine": 10,
           "endLine": 19,
-          "tokens": 553,
+          "tokens": 624,
           "summary": "1. 平台红线 ≠ 内部目标，且两条已合流：红线 = 微信主包 ≤ 4096 KB、主包+分包 ≤ 20480 KB（现",
           "keywords": [
             "前置声明",
@@ -107253,7 +107353,7 @@
           "level": 2,
           "startLine": 26,
           "endLine": 77,
-          "tokens": 2000,
+          "tokens": 2056,
           "summary": "",
           "keywords": [
             "Pre",
@@ -107267,7 +107367,7 @@
           "level": 3,
           "startLine": 28,
           "endLine": 37,
-          "tokens": 520,
+          "tokens": 575,
           "summary": "☐ 🚦 版本号三处一致 games/beads/package.json、游戏内 version_label、微信后台",
           "keywords": [
             "games",
@@ -107426,8 +107526,8 @@
           "anchor": "§9 变更记录",
           "level": 2,
           "startLine": 203,
-          "endLine": 214,
-          "tokens": 1298,
+          "endLine": 215,
+          "tokens": 1440,
           "summary": "v1.0 2026-10-15 初稿（P4）：beads 六阶段清单 + 实测包体基线 + AppID / 产物现状 +",
           "keywords": [
             "beads",
