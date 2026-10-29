@@ -24177,17 +24177,17 @@
     },
     {
       "path": "games/beads/design/art/final/README.md",
-      "tokens": 4047,
-      "lines": 53,
-      "sha256": "91b3010266d86104d5c0f814843224389bf1385648c5675d6daa31b4c531719b",
+      "tokens": 3872,
+      "lines": 50,
+      "sha256": "73f9877699f4fc4076ead0963764ea55eacac4694a70f70c8b75dc4edde80642",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§final —— 资源定稿区（开发统一取用）",
           "level": 1,
           "startLine": 1,
-          "endLine": 54,
-          "tokens": 4030,
+          "endLine": 51,
+          "tokens": 3856,
           "summary": "2026-10-14 用户裁定：资源定稿分三类；shots 只按日期存每日结论证据，本区是验收后的归集面（复制入库，原件",
           "keywords": [
             "final",
@@ -24226,11 +24226,11 @@
           ]
         },
         {
-          "anchor": "§选关整页（版式 P · 坐标图）",
+          "anchor": "§选关（弹窗 · 版式 Q · 坐标图待重烤）",
           "level": 2,
           "startLine": 30,
-          "endLine": 43,
-          "tokens": 551,
+          "endLine": 40,
+          "tokens": 373,
           "summary": "prototypes/levelselect-v1-page-750x1334-at2x.png 脚本 ../../ai",
           "keywords": [
             "prototypes",
@@ -24244,8 +24244,8 @@
         {
           "anchor": "§入库判据",
           "level": 2,
-          "startLine": 44,
-          "endLine": 54,
+          "startLine": 41,
+          "endLine": 51,
           "tokens": 470,
           "summary": "1. 用户已对屏稿/规格拍板（引用 shots 批次或 spec 节号）；",
           "keywords": [

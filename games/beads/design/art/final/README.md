@@ -27,17 +27,14 @@
 | `ui_menu_seal_cleared.png` | 同上（`9c553e0c` · WXG-T-282）—— **v3.8 通关飘带** | ✅ 已接：`MENU_TEXTURES.sealCleared`（`bitmap__menu_seal_cleared`）→ carrier:133；✅ 在 `textures/`（同上补账） |
 | `ui_menu_cta_label.png` | 同上（`9c553e0c` · WXG-T-282）—— **v3.8 CTA「开始游戏」艺术字**（缺资产时回退程序化字） | ✅ 已接：`MENU_TEXTURES.ctaLabel`（`bitmap__menu_cta_label`）→ carrier:134；✅ 在 `textures/`（同上补账） |
 
-## 选关整页（版式 P · 坐标图）
+## 选关（弹窗 · 版式 Q · 坐标图待重烤）
 
 | 件 | 来源 | 状态 |
 |---|---|---|
-| `prototypes/levelselect-v1-page-750x1334-at2x.png` | 脚本 `../../ai-workflows/levelselect-proto-coords.py`（PIL 程序化合成，零模型）；**整页**无遮罩/无纸面板；3×3 格 170、导航带 88、底排三钮（图鉴/返回/本地榜） | ⏳ 草稿（未进运行时；真图 = 珠拼缩略） |
-| `coordinates/levelselect-coords-750x1334-at2x.png` | 同脚本，坐标 y 向上、单位 750 设计 px | ⏳ 草稿 |
+| `prototypes/levelselect-v1-page-750x1334-at2x.png` | 脚本 `../../ai-workflows/levelselect-proto-coords.py`（PIL 程序化合成，零模型） | ⚠ **已过期**：该图仍为 T-500 的整页版式；T-503 已改回 **600×720 弹窗（格 120）**，坐标图待重烤 |
+| `coordinates/levelselect-coords-750x1334-at2x.png` | 同脚本 | ⚠ 同上（待重烤为弹窗版式） |
 
-- 几何真源：`design/ux/level-select-page-layout.md` v0.6 §2 + `tuning/menu.ts` 的 `LEVELS_*`（格 170 / 间距 30 / 左缘 90 / 上沿 822 / 导航带 88 / 底排 y=116）；ADR-0032 D5 定「选关 = 整页」，旧「600×720 弹框 + 50% 遮罩」形态已作废。
-- 空带三行：章名 972 / 累计星进度 928 / 判星对照 884（判星行**不在格内**：28px 两栏 ≈ 178 > 格宽 170，v0.5 星带分栏作废）。
-- Q15 已裁（用户 2026-10-17）且已落码：未解锁与越界空槽**同走锁格**（灰褪缩略 + 小锁 + 无星），虚线空槽在墙格路径退场。
-- 占位：关卡缩略图形为 5×5 示意珠阵；BOSS 格与普通格同 170（金边 6px + 皇冠 + 珠圈）。
+- 现役版面真源：`design/ux/level-select-page-layout.md` **v0.7 §2A**（弹窗 600×720；格 120/22；缩略 84；信息两行；返回 240×88 @357）；ADR-0032 **D5 已改判回弹窗**。
 - 生图风格底（**非定稿，未入 `final/prototypes/`**）：本地 2.1、denoise 0.8、以修过沙漏章的云 2.1-turbo s23 为基底，种子 23 / 7 / 42 硬规则通过；种子 11 的 0★ 未锁格被画成锁格，不可用。图在 `../../ai-workflows/bench/i2i-denoise-20261017/fixbase-local21-d0.8-s{23,7,42}.png`（明细见同目录 README 第四节）。
 - 已知问题（未决）：生图对锁态不可靠（0.7 种子 7、0.8 种子 11 均出现 0★ 格被画成锁格）。定稿时格状态须由 `levelselect-proto-coords.py` 的 CELLS 数据程序化重画，生图只提供风格，不决定格状态。
 

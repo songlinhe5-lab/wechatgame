@@ -4,7 +4,7 @@
   "unit": "UI-02",
   "spec": "docs/architecture/ui-architecture-beads.md §5 / §9.4 / §12",
   "codeBaseline": "bd964a0",
-  "capturedFrom": "a30d32f8 · 工作树（WXG-T-298）",
+  "capturedFrom": "94a5ce57 · 工作树（WXG-T-298）",
   "fixture": {
     "viewport": {
       "width": 750,
@@ -54,12 +54,19 @@
         "overlay": "levels",
         "phase": "playing"
       },
-      "total": 221,
+      "total": 2189,
       "kinds": {
-        "text": 13,
-        "rect": 208
+        "circle": 307,
+        "line": 295,
+        "rect": 973,
+        "text": 18,
+        "clip": 1,
+        "unclip": 1,
+        "polygon": 592,
+        "container": 1,
+        "containerEnd": 1
       },
-      "sha": "f679d968830ab0e880b6137a590b48f3b1960c47ee7ba78ba31b0c3f8cbe4598",
+      "sha": "fb258f762a7e525174c3067a31d608272ecd7d3b8854f2f5188d1e63aa256963",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -72,17 +79,19 @@
         "overlay": "levels",
         "phase": "playing"
       },
-      "total": 2186,
+      "total": 2189,
       "kinds": {
         "circle": 307,
         "line": 295,
-        "rect": 972,
+        "rect": 973,
         "text": 18,
         "clip": 1,
         "unclip": 1,
-        "polygon": 592
+        "polygon": 592,
+        "container": 1,
+        "containerEnd": 1
       },
-      "sha": "9dcde9f10c70cb920bca1ba82ddd8ab664b5e97cbae61dae4d6f6912ea8a0ce1",
+      "sha": "5e590ae17e1ac809a26bb0895c7507fb579c5a4ab31a6144d140829a8f9f43f5",
       "background": "#F1E8D8",
       "transform": null
     },
