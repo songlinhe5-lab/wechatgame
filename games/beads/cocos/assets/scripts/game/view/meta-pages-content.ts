@@ -185,6 +185,12 @@ export function drawAlbumContent(
 const RANK_ROW_H = 42;
 const RANK_ROW_GAP = 5;
 const RANK_SIDE_PAD = 40;
+/**
+ * `[WXG-T-478]` 本地榜专属带下界。三页共用的 CONTENT_BOTTOM_GAP=150（→ bandBottom=457）
+ * 对 10 行星降序 + 居中 + CONTENT_CENTER_BIAS 后末行底=434.5 < 返回钮顶 445，叠 10.5px
+ * （2026-10-29 真帧出图暴露）。独立拉到 194 → bandBottom=501，末行底=456.5，净空 11.5px ✅。
+ */
+const RANK_BOTTOM_GAP = 194;
 /** 排序池容量上限（关池现为 10；超出按前 `RANK_MAX` 关截断）。 */
 const RANK_MAX = 32;
 
@@ -211,8 +217,8 @@ export function drawLocalRankContent(
     _layout: MetaLayout,
 ): void {
     const plate = overlayPlate();
-    const bandBottom = plate.y + CONTENT_BOTTOM_GAP;
-    const bandH = plate.h - CONTENT_TOP_GAP - CONTENT_BOTTOM_GAP;
+    const bandBottom = plate.y + RANK_BOTTOM_GAP;
+    const bandH = plate.h - CONTENT_TOP_GAP - RANK_BOTTOM_GAP;
 
     const stars = data.starsByLevel;
     const n = Math.min(stars?.length ?? 0, RANK_MAX);
