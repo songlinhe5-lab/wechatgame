@@ -98497,9 +98497,9 @@
     },
     {
       "path": "production/qa/beads/device/2026-10-29/execution-card.md",
-      "tokens": 2497,
+      "tokens": 2500,
       "lines": 114,
-      "sha256": "81d58a09f613477fd01b40ae0ed990f958b5f53906db331f4b017267f9a85f30",
+      "sha256": "3145211b10afed6ddb6342ee24fe67bdb658e555a19a78a9677f096c754085bf",
       "tier": "normal",
       "sections": [
         {
@@ -98507,7 +98507,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 115,
-          "tokens": 2470,
+          "tokens": 2473,
           "summary": "用途：把 2026-10-29 这一批 UI 改判（WXG-T-497 / 498 / 501 / 502 / 503）",
           "keywords": [
             "beads",
@@ -98523,7 +98523,7 @@
           "level": 2,
           "startLine": 7,
           "endLine": 19,
-          "tokens": 529,
+          "tokens": 532,
           "summary": "☐ 工作树干净 git status 无并行会话在制品（本轮开工时曾有 beads-game.ts / board-ta",
           "keywords": [
             "git",
@@ -108117,17 +108117,17 @@
     },
     {
       "path": "production/release/beads/release-checklist.md",
-      "tokens": 9210,
-      "lines": 219,
-      "sha256": "337aa61821e7af3262417bcc5a7761cd21022a7b26d4e121e27ab92bf469ac22",
+      "tokens": 9306,
+      "lines": 220,
+      "sha256": "0f6ea669144b243ff98dde820dbb422e072193ad8db684f1fdfca56e5907490a",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§发布清单（Release Checklist）· beads「拼豆小铺」",
           "level": 1,
           "startLine": 1,
-          "endLine": 220,
-          "tokens": 9191,
+          "endLine": 221,
+          "tokens": 9287,
           "summary": "版本：v1.6 · 2026-10-19（v1.6 = 包体数字再对齐到 23:29 现包 3201.0 KB / 余量",
           "keywords": [
             "Release",
@@ -108342,8 +108342,8 @@
           "anchor": "§9 变更记录",
           "level": 2,
           "startLine": 203,
-          "endLine": 220,
-          "tokens": 1976,
+          "endLine": 221,
+          "tokens": 2072,
           "summary": "v1.0 2026-10-15 初稿（P4）：beads 六阶段清单 + 实测包体基线 + AppID / 产物现状 +",
           "keywords": [
             "beads",

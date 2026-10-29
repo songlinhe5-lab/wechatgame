@@ -9,13 +9,13 @@
 | ☐ | 关卡 | 怎么算过 | 现状 |
 |---|---|---|---|
 | ☐ | 工作树干净 | `git status` 无并行会话在制品（本轮开工时曾有 `beads-game.ts` / `board-tap-router.ts` / `knowledge/*` 等未提交改动） | ✅ **2026-10-29 21:00 核**：`git diff -w -- games/beads/src games/beads/cocos/assets/scripts/game` 为空 ⇒ 运行时改动为**纯格式**（内容等价）；其余未提交项为文档/知识库/测试，不进包 |
-| ☐ | 新包构建 | `pnpm run framework:sync` → `pnpm --filter @wxgame/beads build:cocos`（release 档） | ✅ **2026-10-29 22:56**：14.9s；`package.json` → **1.0.14**；产物 mtime 22:56 |
-| ☐ | 版本与扫码 | 构建后 `package.json` = **1.0.14**；产物 `version_label` = `v1.0.14`（无「演示版」）；`cli preview` 生成新码 | ✅ 三者均中：label **v1.0.14**、「演示版」**0 次**；`cli preview` TOTAL **3,566,897 B**；扫码图 `temp/wxg-t513-preview-qr.png`（本机，不入库） |
+| ☐ | 新包构建 | `pnpm run framework:sync` → `pnpm --filter @wxgame/beads build:cocos`（release 档） | ✅ **2026-10-29 23:03**：16.0s；`package.json` → **1.0.15**；产物 mtime 23:03 |
+| ☐ | 版本与扫码 | 构建后 `package.json` = **1.0.15**；产物 `version_label` = `v1.0.15`（无「演示版」）；`cli preview` 生成新码 | ✅ 三者均中：label **v1.0.15**、「演示版」**0 次**；`cli preview` TOTAL **3,747,754 B**；扫码图 `temp/wxg-t514-preview-qr.png`（本机，不入库） |
 | ☐ | G1–G3 已过 | `pnpm run verify` 全绿（G1 类型 + G2 单测 + G3 冒烟）；**未过 G1–G3 不得进真机**（`wxgame-qa-gates` 纪律） | ✅ **2026-10-29 21:00**：`pnpm run verify` **PASS 23 / FAIL 0 / SKIP 0** |
 
 > 构建会把这些天所有已提交改动一起烘进包（含选关弹窗、缩略平涂、顶栏对称、设置页脚）。构建前先确认没有半成品改动。
 
-**构建记录（2026-10-29 22:56）**：木纹柔和 25%；主包 **3524.2 KB / 123 文件**，余 **571.8 KB**；产物内 `回主界面` ×1 / `过关` ×2；`version_label` = **v1.0.14**、`演示版` **0** 次；`cli preview` TOTAL **3,566,897 B**。⚠ 本包还含 **WXG-T-509/510 结算精简 + A2 木挂牌 + 回主界面**（本卡原四块之外，建议顺手目检：标题木牌、四行信息、双钮、中文时长）。
+**构建记录（2026-10-29 23:03）**：主包 **3700.8 KB / 126 文件**，余 **395.2 KB**（外框木纹环 +180 KB）；产物内 `回主界面` ×1 / `过关` ×2；`version_label` = **v1.0.15**、`演示版` **0** 次；`cli preview` TOTAL **3,747,754 B**。⚠ 本包还含 **WXG-T-509/510 结算精简 + A2 木挂牌 + 回主界面**（本卡原四块之外，建议顺手目检：标题木牌、四行信息、双钮、中文时长）。
 
 ## 1. 环境记录（开测先填）
 
