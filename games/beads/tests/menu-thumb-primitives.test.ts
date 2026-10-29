@@ -22,7 +22,6 @@ import { describe, expect, it } from 'vitest';
 import { RenderModelBuilder, type DrawCommand } from '@wxgame/framework';
 import {
     BEAD_GAP,
-    BEAD_STYLE_MAX_COMMANDS,
     DESIGN_H,
     DESIGN_W,
     SIGN_FACE_FLOOR,
@@ -33,23 +32,21 @@ import {
     THUMB_TIERS,
     THUMB_TOP_INSET,
     WALL_CELL,
-    thumbOuterFor,
     thumbPitchFor,
 } from '../src/config/tuning.js';
 import { LEVELS } from '../src/config/levels.js';
 import { BEAD_COLOR_MAX } from '../src/config/tuning.js';
-import { beadInksFor, DEFAULT_PALETTE } from '../src/view/palette.js';
+import { beadColorOf, beadInksFor, DEFAULT_PALETTE } from '../src/view/palette.js';
 import {
     drawLevelThumb,
     levelThumbBeads,
     levelThumbCells,
     thumbFaceB,
 } from '../src/view/menu-signage.js';
-import { drawFilledBead } from '../src/view/bead-render.js';
 import { simpleTestLevel } from './helpers.js';
 import type { BeadsLevelRaw } from '../src/config/levels-data.js';
 
-type CircleCmd = Extract<DrawCommand, { kind: 'circle' }>;
+type RectCmd = Extract<DrawCommand, { kind: 'rect' }>;
 
 /** 表 → `(r,c)` 键集，用于「唯一性 / 覆盖性」断言。 */
 function cellKeys(cells: readonly number[]): string[] {
@@ -193,12 +190,11 @@ describe('[T-2B] 单格 ≤ THUMB_BEADS_MAX(25) 硬判据（T-1 §3.3）', () =>
         expect(big.rows * big.cols).toBeGreaterThan(THUMB_BEADS_MAX * 10);
     });
 
-    it('渲染实测珠数 ≡ 聚合表读数（不是两套数）', () => {
+    it('渲染实测盘面格数 ≡ 聚合表读数（一块一条 rect，不画珠子）', () => {
         for (const lv of LEVELS) {
             const cmds = paintThumb(lv);
-            const circles = cmds.filter((c) => c.kind === 'circle') as CircleCmd[];
-            expect(circles.length / 2).toBe(levelThumbBeads(lv, THUMB_MATRIX_N));
-            expect(cmds.length).toBe(levelThumbBeads(lv) * BEAD_STYLE_MAX_COMMANDS);
+            expect(cmds.every((c) => c.kind === 'rect'), `L${lv.id} 只应发 rect`).toBe(true);
+            expect(cmds.length).toBe(levelThumbBeads(lv, THUMB_MATRIX_N));
         }
     });
 });
@@ -229,21 +225,21 @@ describe('[T-2B] 聚合结果一次性缓存（§2 热路径零分配）', () =>
 });
 
 describe('[T-2B] 案乙几何与珠体通道（T-1 §3.2 / §3.4 / §3.7）', () => {
-    it('缩略区 = 格顶内缩 THUMB_TOP_INSET 的 THUMB_AREA 见方；下部 THUMB_STAR_BAND 留给星（不叠珠）', () => {
+    it('缩略区 = 格顶内缩 THUMB_TOP_INSET 的 THUMB_AREA 见方；下部 THUMB_STAR_BAND 留给星（不叠色块）', () => {
         expect(THUMB_AREA).toBe(WALL_CELL - THUMB_TOP_INSET - THUMB_STAR_BAND);
-        const circles = paintThumb(LEVELS[4]!).filter((c) => c.kind === 'circle') as CircleCmd[];
-        expect(circles.length).toBeGreaterThan(0);
-        for (const c of circles) {
-            expect(c.x).toBeGreaterThanOrEqual(GRID_X);
-            expect(c.x).toBeLessThanOrEqual(GRID_X + THUMB_AREA);
-            expect(c.y).toBeGreaterThanOrEqual(GRID_TOP - THUMB_AREA);
-            expect(c.y).toBeLessThanOrEqual(GRID_TOP);
+        const blocks = paintThumb(LEVELS[4]!).filter((c) => c.kind === 'rect') as RectCmd[];
+        expect(blocks.length).toBeGreaterThan(0);
+        for (const c of blocks) {
+            expect(c.x).toBeGreaterThanOrEqual(GRID_X - 0.01);
+            expect(c.x + c.w).toBeLessThanOrEqual(GRID_X + THUMB_AREA + 0.01);
+            expect(c.y).toBeGreaterThanOrEqual(GRID_TOP - THUMB_AREA - 0.01);
+            expect(c.y + c.h).toBeLessThanOrEqual(GRID_TOP + 0.01);
         }
-        // 星带内**无珠**（缩略不侵入文字带 ⇒ 版面不移位）。
-        expect(circles.every((c) => c.y > 200 + THUMB_STAR_BAND)).toBe(true);
+        // 星带内**无色块**（缩略不侵入文字带 ⇒ 版面不移位）。
+        expect(blocks.every((c) => c.y > 200 + THUMB_STAR_BAND)).toBe(true);
     });
 
-    it('逐字节 ≡ 直接调 `drawFilledBead`（size = thumbOuterFor(n)，墨 = beadInksFor(level)）的参照流', () => {
+    it('逐字节 ≡ 直接画盘面 rect（size = pitch − BEAD_GAP，色 = beadColorOf）的参照流', () => {
         const level = LEVELS[3]!;
         const n = THUMB_MATRIX_N;
         const ref = new RenderModelBuilder(DESIGN_W, DESIGN_H);
@@ -251,11 +247,12 @@ describe('[T-2B] 案乙几何与珠体通道（T-1 §3.2 / §3.4 / §3.7）', ()
         const pitch = thumbPitchFor(n);
         const cells = levelThumbCells(level, n);
         const inks = beadInksFor(level);
+        const block = pitch - BEAD_GAP;
         for (let i = 0; i < cells.length; i += 3) {
-            drawFilledBead(ref, GRID_X + (cells[i + 1]! + 0.5) * pitch, GRID_TOP - (cells[i]! + 0.5) * pitch, cells[i + 2]!, {
-                size: thumbOuterFor(n),
-                inks,
-                targetColorIdx: cells[i + 2]!,
+            const cx = GRID_X + (cells[i + 1]! + 0.5) * pitch;
+            const cy = GRID_TOP - (cells[i]! + 0.5) * pitch;
+            ref.rect(cx - block / 2, cy - block / 2, block, block, {
+                fill: beadColorOf(inks, cells[i + 2]!),
             });
         }
         const refFlow = ref.end().commands.map((c) => JSON.stringify(c));

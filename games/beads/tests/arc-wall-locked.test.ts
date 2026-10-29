@@ -19,7 +19,7 @@ import { buildMetaView, metaLayout, setMenuBitmapResolver, type MetaButton, type
 import { LEVELS } from '../src/config/levels.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import {
-    DESIGN_H, DESIGN_W, LEVELS_CELL, LEVELS_GAP, MENU_TEXTURES, WALL_COLS, WALL_CAPACITY, WALL_ROWS,
+    DESIGN_H, DESIGN_W, LEVELS_CELL, LEVELS_GAP, LEVELS_THUMB_AREA, MENU_TEXTURES, THUMB_TOP_INSET, WALL_COLS, WALL_CAPACITY, WALL_ROWS,
 } from '../src/config/tuning.js';
 
 /** 单点图元是否落在该格框内（框含 1px 容差，锁章与珠阵均按格心布点）。 */
@@ -37,6 +37,19 @@ const dashedInCell = (c: DrawCommand, b: MetaButton): boolean => {
         x >= b.box.x - 1 && x <= b.box.x + b.box.w + 1 && y >= b.box.y - 1 && y <= b.box.y + b.box.h + 1;
     return inside(c.x1, c.y1) || inside(c.x2, c.y2);
 };
+
+/** 缩略区框（与 `drawLevelThumb` 同取顶口径）⇒ 只统计盘面色块，不把格底/星带算进来。 */
+const thumbBox = (b: MetaButton): { x: number; y: number; w: number; h: number } => ({
+    x: b.box.x + (b.box.w - LEVELS_THUMB_AREA) / 2,
+    y: b.box.y + b.box.h - THUMB_TOP_INSET - LEVELS_THUMB_AREA,
+    w: LEVELS_THUMB_AREA,
+    h: LEVELS_THUMB_AREA,
+});
+
+/** `[WXG-T-502]` 缩略图只画盘面 ⇒ 色块是 `rect`（非 polygon/circle）。 */
+const inThumbRect = (c: DrawCommand, box: { x: number; y: number; w: number; h: number }): boolean =>
+    c.kind === 'rect' && c.x >= box.x - 1 && c.x <= box.x + box.w + 1 &&
+    c.y >= box.y - 1 && c.y <= box.y + box.h + 1;
 
 const dataFor = (extra: Partial<MetaViewData> = {}): MetaViewData => {
     const slots: number[] = [];
@@ -103,10 +116,10 @@ describe('EP13-FU-1 锁格合形（A2 / §7 锁形通道）', () => {
         expect(dashed).toHaveLength(0);
         // ② 锁形通道在位（非色相通道，§7）。
         expect(cmds.some((c) => c.kind === 'blit' && c.textureId === MENU_TEXTURES.badgeLocked && inCell(c, locked))).toBe(true);
-        // ③ 珠阵零饱和（灰度值本身未裁 ⇒ 只断言非彩色，跟进单 §4 兜底）。
-        const beads = cmds.filter((c) => (c.kind === 'polygon' || c.kind === 'circle') && inCell(c, locked));
-        expect(beads.length).toBeGreaterThan(0);
-        expect(beads.every((c) => isGrayHex('fill' in c ? c.fill : undefined))).toBe(true);
+        // ③ 盘面零饱和（灰度值本身未裁 ⇒ 只断言非彩色，跟进单 §4 兜底）。
+        const blocks = cmds.filter((c) => inThumbRect(c, thumbBox(locked)));
+        expect(blocks.length).toBeGreaterThan(0);
+        expect(blocks.every((c) => isGrayHex('fill' in c ? c.fill : undefined))).toBe(true);
         // ④ 无星：格内不写 ★/☆。
         expect(cmds.some((c) => c.kind === 'text' && inCell(c, locked) && /[★☆]/.test(String(c.text ?? '')))).toBe(false);
     });
@@ -130,8 +143,8 @@ describe('EP13-FU-1 锁格合形（A2 / §7 锁形通道）', () => {
         const cmds = frame(dataFor({ starsByLevel: [2] }));
 
         expect(cmds.some((c) => c.kind === 'text' && inCell(c, open) && c.text === '★★☆')).toBe(true);
-        const beads = cmds.filter((c) => (c.kind === 'polygon' || c.kind === 'circle') && inCell(c, open));
-        expect(beads.some((c) => !isGrayHex('fill' in c ? c.fill : undefined))).toBe(true);
+        const blocks = cmds.filter((c) => inThumbRect(c, thumbBox(open)));
+        expect(blocks.some((c) => !isGrayHex('fill' in c ? c.fill : undefined))).toBe(true);
     });
 
     it('锁格零事件：热区仍在（`pick-level` 槽位不变），闸门由 shell 承担（A4 前置）', () => {

@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3904,
       "lines": 132,
-      "sha256": "1206bb20f006d0aafca69676b43da05fc2e756bbeb2a98447365e9ccd8ec62b4",
+      "sha256": "c18f392e02c034d10f854d30d5ed3207d69b1a149146770eb273f2e173177151",
       "tier": "normal",
       "sections": [
         {
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "5ea577662e73fb8d97a6a571678cb8c5f6516d6518987264e51838abe31a461d",
+      "sha256": "53908362fd39f4dad6ef33b8673c55474e80350caf2475925fdaf58eb910bbfb",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 109 行 / 21725 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 110 行 / 21935 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+110 · §待排（backlog，无号，立项时领取…=82+29",
+          "summary": "§WXG 任务台账（SSOT）=1+111 · §待排（backlog，无号，立项时领取…=83+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 4507 行 / 142772 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 4550 行 / 143502 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+4508 · §WXG-T-490=3983+32 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+4551 · §WXG-T-491=4015+61 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -14128,17 +14128,17 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 18344,
-      "lines": 229,
-      "sha256": "bc82f40f93552cc767988cef35b5edcb4c9de3255b4a52f08eb51037eb31effa",
+      "tokens": 18625,
+      "lines": 231,
+      "sha256": "ccf5b78dc9156a745eb5883907f1fcf2731514f521cffdf21428efaa4ef2c512",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads UI 架构（View / ViewModel / Presenter + 公共基础）",
           "level": 1,
           "startLine": 1,
-          "endLine": 230,
-          "tokens": 18325,
+          "endLine": 232,
+          "tokens": 18607,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -14308,8 +14308,8 @@
           "anchor": "§12 TODO 拆分",
           "level": 2,
           "startLine": 138,
-          "endLine": 226,
-          "tokens": 13272,
+          "endLine": 228,
+          "tokens": 13553,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -14320,8 +14320,8 @@
         {
           "anchor": "§13 待你拍板",
           "level": 2,
-          "startLine": 227,
-          "endLine": 230,
+          "startLine": 229,
+          "endLine": 232,
           "tokens": 323,
           "summary": "D1–D5 均已裁定（见 [ADR-0032 §5](adr/ADR-0032-beads-ui-architectur",
           "keywords": [
@@ -28430,17 +28430,17 @@
     },
     {
       "path": "games/beads/design/art/specs/menu-wall-signage-spec.md",
-      "tokens": 14763,
-      "lines": 520,
-      "sha256": "94ba4136b6af27e9b5bcedbefa7d63e479b65df5f8219412c3cd3894f4168ded",
+      "tokens": 15299,
+      "lines": 531,
+      "sha256": "29d1d438d0d4571ee664d0a3dc8a81ecd54a77c84652902536b7444b4fc20da5",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§主菜单「拼豆小铺」招牌字形 / 木框橱窗 / 作品格珠拼缩略 —— 绘制规格卡",
           "level": 1,
           "startLine": 1,
-          "endLine": 521,
-          "tokens": 14730,
+          "endLine": 532,
+          "tokens": 15267,
           "summary": "WXG-T-269-S6 · 子单 T-1 ｜ 作者：林绘澄（美术指导）｜ 日期：2026-10-07",
           "keywords": [
             "WXG",
@@ -28454,8 +28454,8 @@
         {
           "anchor": "§0 前置约定（落码方直接引用）",
           "level": 2,
-          "startLine": 7,
-          "endLine": 74,
+          "startLine": 8,
+          "endLine": 75,
           "tokens": 1794,
           "summary": "",
           "keywords": [
@@ -28466,8 +28466,8 @@
         {
           "anchor": "§0.1 权威来源与冲突序",
           "level": 3,
-          "startLine": 9,
-          "endLine": 19,
+          "startLine": 10,
+          "endLine": 20,
           "tokens": 289,
           "summary": "接线约束（硬 5 条） games/beads/design/art/proposals/ui-style-redesi",
           "keywords": [
@@ -28482,8 +28482,8 @@
         {
           "anchor": "§0.2 度量单位与计数规则",
           "level": 3,
-          "startLine": 20,
-          "endLine": 24,
+          "startLine": 21,
+          "endLine": 25,
           "tokens": 161,
           "summary": "图元 = 一枚 RenderModel 绘制命令（rect / circle / line / polygon / te",
           "keywords": [
@@ -28498,8 +28498,8 @@
         {
           "anchor": "§0.3 每颗珠系数 = **7 命令**（不是 6，不是 11）",
           "level": 3,
-          "startLine": 25,
-          "endLine": 44,
+          "startLine": 26,
+          "endLine": 45,
           "tokens": 462,
           "summary": "现行默认皮肤（facet-4） 7 / 颗（1 rect plate + 4 polygon 圆角扇 + 1 circl",
           "keywords": [
@@ -28514,8 +28514,8 @@
         {
           "anchor": "§0.4 珠面（可画边长）地板：**三口径并列，不自择**",
           "level": 3,
-          "startLine": 45,
-          "endLine": 54,
+          "startLine": 46,
+          "endLine": 55,
           "tokens": 290,
           "summary": "A · §5.3 字面 face = d − BEAD_GAP(2) ≥ 8 menu-architecture §5.",
           "keywords": [
@@ -28530,8 +28530,8 @@
         {
           "anchor": "§0.5 位表语义（⛔ 位序歧义是首要风险）",
           "level": 3,
-          "startLine": 55,
-          "endLine": 64,
+          "startLine": 56,
+          "endLine": 65,
           "tokens": 265,
           "summary": "行主序（row-major），每行一枚定长字符串；# = 该格位有珠，. = 无珠。布尔位表，不是美术文件、不是字体文件",
           "keywords": [
@@ -28545,8 +28545,8 @@
         {
           "anchor": "§0.6 色：零新 hex（本单硬承诺）",
           "level": 3,
-          "startLine": 65,
-          "endLine": 68,
+          "startLine": 66,
+          "endLine": 69,
           "tokens": 112,
           "summary": "本文件不引入任何新 hex，全部为既有 token 的引用（逐枚见 §2.1 / §3.5）。palette.ts 的 ",
           "keywords": [
@@ -28561,8 +28561,8 @@
         {
           "anchor": "§0.7 新常量落点（⛔ 不进 §3）",
           "level": 3,
-          "startLine": 69,
-          "endLine": 74,
+          "startLine": 70,
+          "endLine": 75,
           "tokens": 106,
           "summary": "招牌档一律进 src/config/tuning.ts 的 SIGN_* 常量组（menu-architecture §",
           "keywords": [
@@ -28577,8 +28577,8 @@
         {
           "anchor": "§1 卡 A · 招牌字形 `beadText`「拼豆小铺」",
           "level": 2,
-          "startLine": 75,
-          "endLine": 229,
+          "startLine": 76,
+          "endLine": 230,
           "tokens": 3541,
           "summary": "",
           "keywords": [
@@ -28590,8 +28590,8 @@
         {
           "anchor": "§1.1 总结论（一句话）",
           "level": 3,
-          "startLine": 77,
-          "endLine": 80,
+          "startLine": 78,
+          "endLine": 81,
           "tokens": 118,
           "summary": "8×8 不可辨 —— 不是「看着糊」，是「放不下」（行预算不足 + 实测三类结构损失）⇒ 必须升档；推荐 10×10 @",
           "keywords": [
@@ -28602,8 +28602,8 @@
         {
           "anchor": "§1.2 基线档 8×8 位表（§5.3 原档）",
           "level": 3,
-          "startLine": 81,
-          "endLine": 114,
+          "startLine": 82,
+          "endLine": 115,
           "tokens": 520,
           "summary": "",
           "keywords": [
@@ -28616,8 +28616,8 @@
         {
           "anchor": "§1.3 8×8 不可辨的三条独立证据（不靠审美印象）",
           "level": 3,
-          "startLine": 115,
-          "endLine": 131,
+          "startLine": 116,
+          "endLine": 132,
           "tokens": 498,
           "summary": "1. 行预算证明（决定性）：相邻平行横笔画之间须留 ≥1 空行，否则并成一条。",
           "keywords": [
@@ -28629,8 +28629,8 @@
         {
           "anchor": "§1.4 档公式重算（回 §5.3 口径）",
           "level": 3,
-          "startLine": 132,
-          "endLine": 156,
+          "startLine": 133,
+          "endLine": 157,
           "tokens": 521,
           "summary": "§5.3 原文：字模 n×n、4 字、字间 = 半字 = (n/2)·d ⇒",
           "keywords": [
@@ -28642,8 +28642,8 @@
         {
           "anchor": "§1.5 推荐档 `10×10 @ d=12` 位表",
           "level": 3,
-          "startLine": 157,
-          "endLine": 196,
+          "startLine": 158,
+          "endLine": 197,
           "tokens": 733,
           "summary": "",
           "keywords": [
@@ -28655,8 +28655,8 @@
         {
           "anchor": "§1.6 `12×12 @ d=10` 备选：口径待裁 ⇒ **本单不预支位表**",
           "level": 3,
-          "startLine": 197,
-          "endLine": 201,
+          "startLine": 198,
+          "endLine": 202,
           "tokens": 164,
           "summary": "可行性完全押在 §0.4 口径之争：A 下珠面压线 8（勉强），B 下 6.93 直接破地板；且珠数 ≈ 190–210",
           "keywords": [
@@ -28670,8 +28670,8 @@
         {
           "anchor": "§1.7 墨与色（零新增，S0 硬约束③）",
           "level": 3,
-          "startLine": 202,
-          "endLine": 207,
+          "startLine": 203,
+          "endLine": 208,
           "tokens": 216,
           "summary": "招牌 = 单色珠拼：4 字共用一枚珠色索引 SIGN_INK_IDX。",
           "keywords": [
@@ -28684,8 +28684,8 @@
         {
           "anchor": "§1.8 S0 接线约束逐条对照（5 条硬约束）",
           "level": 3,
-          "startLine": 208,
-          "endLine": 217,
+          "startLine": 209,
+          "endLine": 218,
           "tokens": 349,
           "summary": "① 只复用珠体绘制，⛔ 不改珠面 recipe（层集/系数/倒角/风格池零涉） 招牌与缩略一律走既有 renderer ",
           "keywords": [
@@ -28699,8 +28699,8 @@
         {
           "anchor": "§1.9 诚实登记：**三条「看似可用」的杠杆其实不减图元**",
           "level": 3,
-          "startLine": 218,
-          "endLine": 229,
+          "startLine": 219,
+          "endLine": 230,
           "tokens": 271,
           "summary": "标题改单色珠拼 risks.md K-6 列为回退杠杆 省 0 命令 —— 本规格招牌本来就是单色；单色只减墨水解析/色",
           "keywords": [
@@ -28715,8 +28715,8 @@
         {
           "anchor": "§2 卡 B · 木框橱窗（L1）",
           "level": 2,
-          "startLine": 230,
-          "endLine": 283,
+          "startLine": 231,
+          "endLine": 284,
           "tokens": 1739,
           "summary": "现装已实装容器（EP12-S6 作品墙）⇒ 本卡以现装实测量为基准做规格化，⛔ 不另提一套冲突规格。",
           "keywords": [
@@ -28727,8 +28727,8 @@
         {
           "anchor": "§2.1 图元逐枚 + token 引用（零新色相）",
           "level": 3,
-          "startLine": 234,
-          "endLine": 254,
+          "startLine": 235,
+          "endLine": 255,
           "tokens": 791,
           "summary": "自外向内绘制序（= 命令序）：",
           "keywords": [
@@ -28741,8 +28741,8 @@
         {
           "anchor": "§2.2 与招牌带的垂直分层（硬要求）",
           "level": 3,
-          "startLine": 255,
-          "endLine": 272,
+          "startLine": 256,
+          "endLine": 273,
           "tokens": 629,
           "summary": "关系不变式（这才是判据，y 值不是）：",
           "keywords": [
@@ -28754,8 +28754,8 @@
         {
           "anchor": "§2.3 模块名**不上屏**（我的 art 裁定）",
           "level": 3,
-          "startLine": 273,
-          "endLine": 277,
+          "startLine": 274,
+          "endLine": 278,
           "tokens": 156,
           "summary": "§5.2 L1 行把「是否上屏显示」明确交给我。§10.5 第四轮回退后 wall_module_name = 拼豆小铺",
           "keywords": [
@@ -28770,8 +28770,8 @@
         {
           "anchor": "§2.4 热区",
           "level": 3,
-          "startLine": 278,
-          "endLine": 283,
+          "startLine": 279,
+          "endLine": 284,
           "tokens": 67,
           "summary": "框与纸底 零热区（§5.2 L1「仅格可点」）；已解锁格热区 = 格 120×120 ≥ TOUCH_MIN 88 ✓；",
           "keywords": [
@@ -28783,9 +28783,9 @@
         {
           "anchor": "§3 卡 C · 作品格珠拼缩略（120×120 格内）",
           "level": 2,
-          "startLine": 284,
-          "endLine": 409,
-          "tokens": 3756,
+          "startLine": 285,
+          "endLine": 420,
+          "tokens": 4214,
           "summary": "",
           "keywords": [
             "作品格珠拼缩",
@@ -28795,8 +28795,8 @@
         {
           "anchor": "§3.1 主色块聚合 / 降采样规则（**保识别不保细节**，用户已裁）",
           "level": 3,
-          "startLine": 286,
-          "endLine": 302,
+          "startLine": 287,
+          "endLine": 303,
           "tokens": 369,
           "summary": "把关卡 pattern（rows × cols 字符行）等比切成 n × n 块，每块取主色：",
           "keywords": [
@@ -28811,8 +28811,8 @@
         {
           "anchor": "§3.2 档位实测（9 关全量，系数 ×7）",
           "level": 3,
-          "startLine": 303,
-          "endLine": 317,
+          "startLine": 304,
+          "endLine": 318,
           "tokens": 297,
           "summary": "逐关 fill（非 ./x 珠数）：128, 143, 79, 122, 148, 133, 82, 70, 427；最",
           "keywords": [
@@ -28825,8 +28825,8 @@
         {
           "anchor": "§3.3 单格图元上限（K-6 关键输入，请作为判据入册）",
           "level": 3,
-          "startLine": 318,
-          "endLine": 328,
+          "startLine": 319,
+          "endLine": 329,
           "tokens": 201,
           "summary": "",
           "keywords": [
@@ -28838,8 +28838,8 @@
         {
           "anchor": "§3.4 缩略区版面（两案，⛔ 不与编号/星叠压）",
           "level": 3,
-          "startLine": 329,
-          "endLine": 339,
+          "startLine": 330,
+          "endLine": 340,
           "tokens": 274,
           "summary": "现装格内已有编号（cx, y+h/2−8）与星（cx, y+h/2+28）两条 text，珠拼进场会压在文字下（z 序内",
           "keywords": [
@@ -28853,8 +28853,8 @@
         {
           "anchor": "§3.5 pattern 字符 → 珠色映射（复用既有珠色，禁新增）",
           "level": 3,
-          "startLine": 340,
-          "endLine": 347,
+          "startLine": 341,
+          "endLine": 348,
           "tokens": 329,
           "summary": "字符集 .x1–9A–Z（BEAD_CHARSET，§3 冻结）；. / x → 无墨（不计入 tally、不画珠）。",
           "keywords": [
@@ -28869,8 +28869,8 @@
         {
           "anchor": "§3.6 星位 / 当前高亮 / 未解锁虚线空槽（沿用既有语言，**不加文字**）",
           "level": 3,
-          "startLine": 348,
-          "endLine": 359,
+          "startLine": 349,
+          "endLine": 360,
           "tokens": 476,
           "summary": "星位 STAR_LABELS = ['☆☆☆','★☆☆','★★☆','★★★']，text，stars > 0 用 ",
           "keywords": [
@@ -28885,14 +28885,14 @@
         {
           "anchor": "§3.7 缩略与招牌的同一纪律",
           "level": 3,
-          "startLine": 360,
-          "endLine": 363,
-          "tokens": 87,
-          "summary": "缩略珠与招牌珠同 recipe、同系数（7）、同风格池 ⇒ 珠面 seal 不触发（S0 ④）；两族的墨都走 beadI",
+          "startLine": 361,
+          "endLine": 364,
+          "tokens": 161,
+          "summary": "~~缩略珠与招牌珠同 recipe、同系数（7）、同风格池 ⇒ 珠面 seal 不触发（S0 ④）；两族的墨都走 bea",
           "keywords": [
             "recipe",
             "seal",
-            "beadI",
+            "bea",
             "缩略与招牌的",
             "同一纪律"
           ]
@@ -28900,9 +28900,9 @@
         {
           "anchor": "§3.8 回退序（预置杠杆，K-6 用；单位 = **省下命令**）",
           "level": 3,
-          "startLine": 364,
-          "endLine": 380,
-          "tokens": 495,
+          "startLine": 365,
+          "endLine": 381,
+          "tokens": 542,
           "summary": "⚠ 走马灯改造后：序 1/2/3（陈列格行数 / 缩略档）现量选关页墙帧（基线 wall.rows3），不再量菜单帧；序",
           "keywords": [
             "wall",
@@ -28914,10 +28914,25 @@
           ]
         },
         {
+          "anchor": "§3.8.1 缩略平涂化（用户裁定 · WXG-T-502 · 2026-10-29）",
+          "level": 3,
+          "startLine": 382,
+          "endLine": 391,
+          "tokens": 316,
+          "summary": "裁定：作品格 / Boss 图位回退 / 通关书架的缩略图只画盘面 —— 保留 5×5 主色聚合表（§3.1 不变），每",
+          "keywords": [
+            "§3.1",
+            "WXG",
+            "Boss",
+            "缩略平涂化",
+            "用户裁定"
+          ]
+        },
+        {
           "anchor": "§3.9 选关整页（版式 P）· 页专用版面与三项核对（WXG-T-310 · 2026-10-20）",
           "level": 3,
-          "startLine": 381,
-          "endLine": 409,
+          "startLine": 392,
+          "endLine": 420,
           "tokens": 1023,
           "summary": "裁定来源 = [ADR-0032](../../../../docs/architecture/adr/ADR-0032",
           "keywords": [
@@ -28932,8 +28947,8 @@
         {
           "anchor": "§4 整帧合成与 K-6 输入（实测口径，⛔ 非「已达标」）",
           "level": 2,
-          "startLine": 410,
-          "endLine": 434,
+          "startLine": 421,
+          "endLine": 445,
           "tokens": 811,
           "summary": "⚠ 走马灯改造（menu-architecture §1.3 第五轮）后口径：主菜单主区由整墙→单张走马灯小卡、作品墙整",
           "keywords": [
@@ -28948,8 +28963,8 @@
         {
           "anchor": "§5 包体与可访问性承诺",
           "level": 2,
-          "startLine": 435,
-          "endLine": 448,
+          "startLine": 446,
+          "endLine": 459,
           "tokens": 347,
           "summary": "位图/美术文件 +0（S0 ②）：位表 = 布尔数据（40 行字符串 ≈ 0.4 KB 源内；按位打包 ≈ 50 B），",
           "keywords": [
@@ -28960,8 +28975,8 @@
         {
           "anchor": "§6 回写清单（⛔ 本单不代改正本，交主理人中转）",
           "level": 2,
-          "startLine": 449,
-          "endLine": 484,
+          "startLine": 460,
+          "endLine": 495,
           "tokens": 1130,
           "summary": "",
           "keywords": [
@@ -28973,8 +28988,8 @@
         {
           "anchor": "§6.1 → `games/beads/design/art/specs/assets-spec.md`",
           "level": 3,
-          "startLine": 451,
-          "endLine": 459,
+          "startLine": 462,
+          "endLine": 470,
           "tokens": 327,
           "summary": "§1 新增节（建议 §1.11） 「菜单屏图元参数卡（beadText 招牌 / 木框橱窗 / 作品格缩略）」整卡：本文",
           "keywords": [
@@ -28989,8 +29004,8 @@
         {
           "anchor": "§6.2 → `games/beads/design/art/specs/art-bible.md`",
           "level": 3,
-          "startLine": 460,
-          "endLine": 468,
+          "startLine": 471,
+          "endLine": 479,
           "tokens": 349,
           "summary": "§5 形状语言 · 描边规范 虚线槽线宽口径：正本现写「虚线槽 2px」，现装与 UI_CONTAINER.stroke",
           "keywords": [
@@ -29005,8 +29020,8 @@
         {
           "anchor": "§6.3 → `games/beads/design/art/proposals/ui-style-redesign/risks.md`",
           "level": 3,
-          "startLine": 469,
-          "endLine": 475,
+          "startLine": 480,
+          "endLine": 486,
           "tokens": 140,
           "summary": "K-6 回退杠杆表更正：删除/改述「标题改单色珠拼」（省 0 命令，§1.9），加「陈列格 3→2 / 缩略 5→4→3",
           "keywords": [
@@ -29021,8 +29036,8 @@
         {
           "anchor": "§6.4 → `games/beads/design/art/proposals/ui-style-redesign/menu-architecture.md`",
           "level": 3,
-          "startLine": 476,
-          "endLine": 484,
+          "startLine": 487,
+          "endLine": 495,
           "tokens": 247,
           "summary": "§5.3 ① 档公式由 44d 泛化为 5.5·n·d（n=8 退化等价），并登记不变式 n·d = 120 ⇒ 总宽恒",
           "keywords": [
@@ -29037,8 +29052,8 @@
         {
           "anchor": "§7 未决问题 / 漂移登记 / 待实测清单",
           "level": 2,
-          "startLine": 485,
-          "endLine": 515,
+          "startLine": 496,
+          "endLine": 526,
           "tokens": 1030,
           "summary": "",
           "keywords": [
@@ -29050,8 +29065,8 @@
         {
           "anchor": "§7.1 需主理人裁定（我不自决）",
           "level": 3,
-          "startLine": 487,
-          "endLine": 495,
+          "startLine": 498,
+          "endLine": 506,
           "tokens": 255,
           "summary": "U-1 珠面地板口径 A vs B（§0.4）——决定 12×12 生死与「小档 d=11」合规性 设计按 B、对照列 ",
           "keywords": [
@@ -29063,8 +29078,8 @@
         {
           "anchor": "§7.2 现装漂移登记（我⛔ 不改码，交主理人中转工程单）",
           "level": 3,
-          "startLine": 496,
-          "endLine": 507,
+          "startLine": 507,
+          "endLine": 518,
           "tokens": 351,
           "summary": "D-1 MENU_TITLE_Y = 1040 按 baseline 语义时，beadText（120 高）顶 ≈ 11",
           "keywords": [
@@ -29079,8 +29094,8 @@
         {
           "anchor": "§7.3 `[待实测]` / `[待真机]` 全清单",
           "level": 3,
-          "startLine": 508,
-          "endLine": 515,
+          "startLine": 519,
+          "endLine": 526,
           "tokens": 371,
           "summary": "[待实测]：菜单整帧总数（须含 N₀）· 招牌/缩略各档落码后 K-051 差分与封箱复评 · 六裁后玩法帧推算 119",
           "keywords": [
@@ -29094,8 +29109,8 @@
         {
           "anchor": "§8 证据与复现",
           "level": 2,
-          "startLine": 516,
-          "endLine": 521,
+          "startLine": 527,
+          "endLine": 532,
           "tokens": 304,
           "summary": "实测探针（唯一证据源，只读取证、gitignored temp/）：temp/wxg-t-269-s6-t1-probe",
           "keywords": [
@@ -87670,17 +87685,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 142772,
-      "lines": 4507,
-      "sha256": "5a7c7c8b2b543ff7a5c2f80cecfc32b0117e29e8d810a5f00b2b989640623540",
+      "tokens": 143502,
+      "lines": 4550,
+      "sha256": "f61f0902d6dd30940340c4830d7f0f3bcbe132235437e04b3cb4ff9cb80042cf",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 4508,
-          "tokens": 142755,
+          "endLine": 4551,
+          "tokens": 143485,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -92647,8 +92662,8 @@
           "anchor": "§WXG-T-501",
           "level": 2,
           "startLine": 4474,
-          "endLine": 4508,
-          "tokens": 682,
+          "endLine": 4510,
+          "tokens": 683,
           "summary": "",
           "keywords": [
             "WXG"
@@ -92714,8 +92729,8 @@
           "anchor": "§5 沉淀统计 (2)",
           "level": 3,
           "startLine": 4505,
-          "endLine": 4508,
-          "tokens": 111,
+          "endLine": 4510,
+          "tokens": 113,
           "summary": "未跑 kb:sync（knowledge/ 仍含并行会话 WXG-T-434 在制品，K-137）。候选 1 条：「下线",
           "keywords": [
             "sync",
@@ -92723,22 +92738,120 @@
             "WXG",
             "沉淀统计"
           ]
+        },
+        {
+          "anchor": "§WXG-T-502",
+          "level": 2,
+          "startLine": 4511,
+          "endLine": 4551,
+          "tokens": 726,
+          "summary": "",
+          "keywords": [
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§1 裁定 (3)",
+          "level": 3,
+          "startLine": 4513,
+          "endLine": 4516,
+          "tokens": 57,
+          "summary": "用户 2026-10-29：「珠子样式可以在缩略图里面不展示，只是展示盘面即可」⇒ 缩略图的程序化腿只画盘面纯色格，不调",
+          "keywords": [
+            "裁定"
+          ]
+        },
+        {
+          "anchor": "§2 实现（单点改动）",
+          "level": 3,
+          "startLine": 4517,
+          "endLine": 4528,
+          "tokens": 185,
+          "summary": "view/menu-signage.ts::drawLevelThumb 程序化腿：",
+          "keywords": [
+            "view",
+            "menu",
+            "signage",
+            "drawLevelThumb",
+            "实现",
+            "单点改动"
+          ]
+        },
+        {
+          "anchor": "§3 影响面",
+          "level": 3,
+          "startLine": 4529,
+          "endLine": 4533,
+          "tokens": 67,
+          "summary": "四处调用同步生效：选关 9 格（含置灰格）、主菜单 Boss 图位回退腿、通关画面书架。",
+          "keywords": [
+            "Boss",
+            "影响面"
+          ]
+        },
+        {
+          "anchor": "§4 测试改写",
+          "level": 3,
+          "startLine": 4534,
+          "endLine": 4542,
+          "tokens": 154,
+          "summary": "menu-thumb-primitives.test.ts 渲染断言由「circle 对 / 7 命令」改为「一块一条 ",
+          "keywords": [
+            "menu",
+            "thumb",
+            "primitives",
+            "test",
+            "circle",
+            "测试改写"
+          ]
+        },
+        {
+          "anchor": "§5 金样本（6 态）",
+          "level": 3,
+          "startLine": 4543,
+          "endLine": 4546,
+          "tokens": 66,
+          "summary": "main-menu（Boss 回退）、settings / signin / level-select-mid（菜单垫底",
+          "keywords": [
+            "main",
+            "menu",
+            "Boss",
+            "settings",
+            "signin",
+            "level"
+          ]
+        },
+        {
+          "anchor": "§6 红线与沉淀",
+          "level": 3,
+          "startLine": 4547,
+          "endLine": 4551,
+          "tokens": 157,
+          "summary": "零新 hex（基色来自墨集）、零 §3 常量、零资产、零布局改动；规格回写 menu-wall-signage-spec",
+          "keywords": [
+            "§3",
+            "hex",
+            "menu",
+            "wall",
+            "signage",
+            "spec"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 21725,
-      "lines": 109,
-      "sha256": "36bda047b9153f2b15f3b8613e316783ad8636917a8038d073316b3ffc7fcfce",
+      "tokens": 21935,
+      "lines": 110,
+      "sha256": "16838a0193bfa06c5f4011e1824ede835ba84482ea58fcbb9a196df9ee7b51e4",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 110,
-          "tokens": 21716,
+          "endLine": 111,
+          "tokens": 21926,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -92751,8 +92864,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 82,
-          "endLine": 110,
+          "startLine": 83,
+          "endLine": 111,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

@@ -58,7 +58,7 @@ import { label } from '../src/view/meta-widgets.js';
 import { rankPanelLayout } from '../src/systems/rank-panel.js';
 import { drawLevelThumb, levelThumbCells, SIGN_INK_COLOR_IDX } from '../src/view/menu-signage.js';
 import { drawFilledBead, type FilledBeadOptions } from '../src/view/bead-render.js';
-import { DEBUG_OUTLINE_TILE_HEX, DEFAULT_PALETTE, DEMO_BEAD_INKS, beadGrayInksFor, beadInksFor } from '../src/view/palette.js';
+import { DEBUG_OUTLINE_TILE_HEX, DEFAULT_PALETTE, DEMO_BEAD_INKS, beadFadedInksFor, beadGrayInksFor, beadInksFor } from '../src/view/palette.js';
 import {
     DESIGN_H,
     DESIGN_W,
@@ -224,9 +224,8 @@ function centerTuple(box: { x: number; y: number; w: number; h: number }): [numb
 }
 
 /**
- * 珠体族图元的**空间签名**（格内 `circle` 序列 = 每珠两枚同心圆 ⇒ 珠心坐标 + 孔墨）。
- * T-2B 起「格内容 = 珠拼缩略」⇒ 编号文本已退场（本文件旧 `cellNumber()` 通道作废）；
- * 陈列序证据改由 {@link thumbOracle} 对照给出。
+ * 盘面色块的**空间签名**（`[WXG-T-502]`：缩略只画盘面 ⇒ 一格一块 `rect`）。
+ * 只收**缩略区内的块**（格底 `rect` 的 x 恰在框缘 ⇒ 用严格 `>` 排除）。
  */
 function beadSignatureIn(
     cmds: readonly DrawCommand[],
@@ -234,13 +233,13 @@ function beadSignatureIn(
 ): string {
     return cmds
         .filter((k) => {
-            if (k.kind !== 'circle') return false;
+            if (k.kind !== 'rect') return false;
             const c = k as { x: number; y: number };
-            return c.x >= box.x && c.x <= box.x + box.w && c.y >= box.y && c.y <= box.y + box.h;
+            return c.x > box.x + 1 && c.x < box.x + box.w - 1 && c.y > box.y + 1 && c.y < box.y + box.h - 1;
         })
         .map((k) => {
-            const c = k as { x: number; y: number; r: number; fill?: string };
-            return `${c.x}|${c.y}|${c.r}|${c.fill ?? ''}`;
+            const c = k as { x: number; y: number; w: number; h: number; fill?: string };
+            return `${c.x}|${c.y}|${c.w}|${c.h}|${c.fill ?? ''}`;
         })
         .join('\n');
 }
@@ -269,9 +268,9 @@ function levelIdByThumb(cmds: readonly DrawCommand[], cell: { box: { x: number; 
     return 0;
 }
 
-/** 格内珠体数（= 缩略实际画出的珠；未解锁 / 越界槽必为 0）。 */
+/** 格内盘面色块数（= 缩略实际画出的块；未解锁 / 越界槽必为 0）。 */
 function beadsInCell(cmds: readonly DrawCommand[], cell: { box: { x: number; y: number; w: number; h: number } }): number {
-    return beadSignatureIn(cmds, cell.box).split('\n').filter((s) => s.length > 0).length / 2;
+    return beadSignatureIn(cmds, cell.box).split('\n').filter((s) => s.length > 0).length;
 }
 
 /** 格内星带文本数（★/☆ 串）——「锁格⛔ 无星」的机械证据（EP13-FU-1 · tls §4 Q15 合形）。 */
@@ -669,6 +668,9 @@ function beadChannelColors(): Set<string> {
     };
     for (const lv of LEVELS) {
         const inks = beadInksFor(lv);
+        // `[WXG-T-502]` 缩略盘面直接取墨集**基色** ⇒ 基色同属「珠体通道可发射色」（同源，非新色）。
+        for (const hex of inks.hexes) set.add(hex);
+        for (const hex of beadFadedInksFor(lv).hexes) set.add(hex);
         for (let i = 1; i <= inks.hexes.length; i++) push(inks, i);
         // `[WXG-T-281]` 在册灰度墨集（`palette.ts::beadGrayInksFor`，单源 = 关卡墨置灰）⇒ 同通道，非第二份色源。
         const gray = beadGrayInksFor(lv);

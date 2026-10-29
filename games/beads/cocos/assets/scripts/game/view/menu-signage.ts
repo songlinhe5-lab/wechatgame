@@ -9,9 +9,11 @@
  * **装配点仍在 `meta-view::buildMetaView`** ⇒ 本模块不自行决定「画不画、画在哪一带」（L5 同族纪律）。
  *
  * ## S0 五条硬接线约束（`games/beads/design/art/proposals/ui-style-redesign/screens.md` §42–§47）逐条落点
- * ① **只复用珠体绘制、⛔ 不改珠面 recipe**：两条腿都只调 `bead-render.ts::drawFilledBead`（与盘面/托盘珠
- *   **同一通道**）⇒ 系数恒 **7 命令/颗**（`facet-4` = 1 `rect` plate + 4 `polygon` 扇 + 2 `circle` 孔，
- *   T-1 §0.3）；层集 / 系数 / 倒角 / 风格池零涉入，蜡笔不入，⛔ 不造「UI 简化珠」第二通道（T-1 §3.7）。
+ * ① **招牌腿复用珠体绘制、⛔ 不改珠面 recipe**：招牌 `beadText` 只调 `bead-render.ts::drawFilledBead`（与盘面/托盘珠
+ *   **同一通道**）⇒ 系 数恒 **7 命令/颗**（`facet-4` = 1 `rect` plate + 4 `polygon` 扇 + 2 `circle` 孔，
+ *   T-1 §0.3）；层集 / 系数 / 倒角 / 风格池零涉入，蜡笔不入。
+ *   **缩略腿（作品格 / Boss 图位回退 / 通关书架）自 WXG-T-502 起改为「只画盘面」**：保留 5×5 聚合表，
+ *   每块 = **1 条纯色 `rect`**（不画珠子描边/体积）⇒ 缩略图不随珠子样式变化，指令数从 7/颗降到 1/块（用户 2026-10-29 裁）。
  *   ⚠ **不传 `maskGauge` ⇒ tint 臂与烘焙臂都不命中 ⇒ 恒走矢量臂**（`bead-render.ts` 分流注「不传（默认）
  *   ⇒ tint 臂永不命中 ⇒ 矢量臂逐字节 = 今日」）⇒ 菜单帧图元数**确定可复算**（K-6 的前提）。
  * ② 新增只有布尔位表 ⇒ 位图 +0 KB：字模住 `config/sign-glyphs.ts`，本文件零资产引用、零字体。
@@ -53,7 +55,7 @@ import {
 import { signGlyphOf } from '../config/sign-glyphs';
 import { colorIndexOfChar } from '../config/bead-charset';
 import type { BeadsLevelRaw } from '../config/levels-data';
-import { DEMO_BEAD_INKS, beadInksFor, relativeLuminance, type BeadInks } from './palette';
+import { DEMO_BEAD_INKS, beadColorOf, beadInksFor, relativeLuminance, type BeadInks } from './palette';
 import { drawFilledBead, type FilledBeadOptions } from './bead-render';
 
 /**
@@ -290,16 +292,17 @@ export function levelThumbBeads(level: BeadsLevelRaw, n: number = THUMB_MATRIX_N
  * 画一格作品缩略（**案乙**：格顶内缩 `THUMB_TOP_INSET` ⇒ `THUMB_AREA` 见方，底部 `THUMB_STAR_BAND`
  * 留给星；现装占位格几何不动 ⇒ 零版面扰动、零 §3 变更）。
  *
- * 与盘面珠**同 recipe、同系数（7）、同风格池**（T-1 §3.7）；墨走 `beadInksFor(level)` ⇒ 与关卡色板同源
- * （C3 色源唯一，⛔ 不建「UI 简化色表」、不做色号压缩映射）。珠面同走口径 B：外缘 `thumbOuterFor(n)`
- * `= d − BEAD_GAP`，经 `targetColorIdx` 内缩 `×26/30` ⇒ 5 档面 = 12.83 ≥ 8（T-1 §3.4 表）。
+ * 墨走 `beadInksFor(level)` ⇒ 与关卡色板同源（C3 色源唯一，⛔ 不建「UI 简化色表」）。
+ * `[WXG-T-502]`（用户 2026-10-29：「珠子样式可以在缩略图里面不展示，只是展示盘面」）：
+ * **只画盘面** —— 聚合表不动，每块画一个纯色方块（`pitch − BEAD_GAP`），不调珠子绘制腿
+ * ⇒ 缩略图不随珠子风格/描边变化，指令数从 7/颗降到 1/块。
  *
  * @param x       格**左缘**
  * @param yBottom 格**下缘**（本设计空间 y 向上）
  * @param w       格宽
  * @param h       格高
  * @param n       缩略档（缺省 `THUMB_MATRIX_N`；K-6 差分传 4 / 3 ⇒ 同帧对照）
- * @param area    缩略区边长（缺省 `THUMB_AREA` ⇒ 橱窗格逐字节不变；Boss 图位传图位宽 ⇒ 大图）
+ * @param area    缩略区边长（缺省 `THUMB_AREA`；Boss 图位传图位宽 ⇒ 大图）
  * @param inkOverride `[WXG-T-281]` 墨集覆盖（未通关置灰传 `palette.beadGrayInksFor`）；
  *                    给了 ⇒ **不走位图臂**（预烘彩图无灰度版）⇒ 落程序化缩略。
  */
@@ -320,7 +323,6 @@ export function drawLevelThumb(
     if (cells.length === 0) return;
     // `area` 缺省 = `THUMB_AREA` ⇒ pitch/outer 逐字 = 旧 `thumbPitchFor(n)`/`thumbOuterFor(n)`（向后兼容）。
     const pitch = area / n;
-    const outer = pitch - BEAD_GAP;
     const left = x + (w - area) / 2;
     const top = yBottom + h - THUMB_TOP_INSET;
     // `[WXG-T-271 / ADR-0031 DEC=C′]` 位图臂：宿主命中 textureId ⇒ 原图按面铺满缩略区（1 条 blit）；
@@ -330,17 +332,21 @@ export function drawLevelThumb(
         builder.blit(texId, left, top - area, area, area, alpha !== undefined && alpha < 1 ? { alpha } : undefined);
         return;
     }
-    // ponytail: 程序化缩略没有逐珠 alpha。减少动效的淡变在 0.5 处硬切，位图缩略才真淡。
-    if (alpha !== undefined && alpha < 0.5) return;
+    // `[WXG-T-502]` 程序化腿 = **只画盘面**：每聚合块一个纯色方块（不画珠子描边/体积）。
+    // 尺寸 = `pitch − BEAD_GAP` ⇒ 保留格缝、读作拼豆网格；色取关卡墨集（C3 单源）。
     const inks = inkOverride ?? beadInksFor(level);
+    const block = pitch - BEAD_GAP;
+    const fillAlpha = alpha !== undefined && alpha < 1 ? { alpha } : undefined;
     for (let i = 0; i < cells.length; i += 3) {
         const r = cells[i]!;
         const c = cells[i + 1]!;
         const idx = cells[i + 2]!;
-        beadOpts.size = outer;
-        beadOpts.inks = inks;
-        beadOpts.targetColorIdx = idx;
-        drawFilledBead(builder, left + (c + 0.5) * pitch, top - (r + 0.5) * pitch, idx, beadOpts);
+        const cx = left + (c + 0.5) * pitch;
+        const cy = top - (r + 0.5) * pitch;
+        builder.rect(cx - block / 2, cy - block / 2, block, block, {
+            fill: beadColorOf(inks, idx),
+            ...(fillAlpha ?? {}),
+        });
     }
 }
 

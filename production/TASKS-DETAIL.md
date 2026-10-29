@@ -4505,3 +4505,46 @@ WXG-T-493 收尾时给出的三个后续选项，用户 2026-10-29 选 **1 = 公
 ### 5. 沉淀统计
 
 **未跑 `kb:sync`**（`knowledge/` 仍含并行会话 WXG-T-434 在制品，K-137）。候选 1 条：「下线一个入口要连通『热区 + 行动 id + overlay 类型 + 路由表 + 绘制 + 令牌 + 测试 + 金样本』八处一起摘，漏一处就是死代码或类型假阳性」。统计 = 新增 0 / 修改 0 / 激活 0 / 归档 0（本批）。
+
+---
+
+## WXG-T-502
+
+### 1. 裁定
+
+用户 2026-10-29：「珠子样式可以在缩略图里面不展示，只是展示盘面即可」⇒ 缩略图的程序化腿**只画盘面纯色格**，不调珠子绘制。
+
+### 2. 实现（单点改动）
+
+`view/menu-signage.ts::drawLevelThumb` 程序化腿：
+
+| 项 | 旧 | 新 |
+| --- | --- | --- |
+| 每块图元 | `drawFilledBead`（`facet-4` 口径 = 7 命令/颗） | **1 条 `rect`**（边长 `pitch − BEAD_GAP`） |
+| 取色 | 珠子端点 mix 派生 | **`beadColorOf(inks, colorIdx)`**（墨集基色，C3 单源） |
+| alpha | <0.5 硬切（无逐珠 alpha） | `rect` 直接带 alpha（转场可真淡） |
+
+**不变**：5×5 主色聚合规则与缓存（`levelThumbCells`）、缩略区几何（`THUMB_AREA` / 顶内缩 / 星带）、墨源（`beadInksFor` / `beadFadedInksFor`）、位图臂（命中 = 恰 1 条 `blit`）。
+
+### 3. 影响面
+
+四处调用同步生效：选关 9 格（含置灰格）、主菜单 Boss 图位**回退腿**、通关画面书架。
+命令数：缩略族 **1351 → ≤225**（5×5×9 上限，按空格位实际更少）。
+
+### 4. 测试改写
+
+| 文件 | 改动 |
+| --- | --- |
+| `menu-thumb-primitives.test.ts` | 渲染断言由「circle 对 / 7 命令」改为「一块一条 rect」；参照流改 `rect` + `beadColorOf` |
+| `arc-wall-locked.test.ts` | 锁格 / 解锁格的缩略图元过滤由 polygon/circle 改为**缩略区内 rect** |
+| `arc-level-select.test.ts` | `beadsIn` 改为统计缩略区内 rect |
+| `meta-menu-wall.test.ts` | 缩略签名改 rect（格底 rect 用严格 `>` 排除）；零新 hex 门补入**墨集基色**（同源，非新色） |
+
+### 5. 金样本（6 态）
+
+`main-menu`（Boss 回退）、`settings` / `signin` / `level-select-mid`（菜单垫底）、`level-select`（9 格）、`finish`（通关书架）——total 与 sha 全变；在可复现锚重取，两遍逐态全等。
+
+### 6. 红线与沉淀
+
+零新 hex（基色来自墨集）、零 §3 常量、零资产、零布局改动；规格回写 `menu-wall-signage-spec §3.7 / §3.8 / §3.8.1`（含「与硬约束①的关系」与已接受代价）。
+**未跑 `kb:sync`**（`knowledge/` 仍含并行会话 WXG-T-434 在制品，K-137）。候选 1 条：「缩略图与盘面共享聚合表、不共享画法：想降图元数只换绘制腿，聚合/缓存/几何一行不动」。统计 = 新增 0 / 修改 0 / 激活 0 / 归档 0（本批）。

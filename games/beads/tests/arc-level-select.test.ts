@@ -131,18 +131,18 @@ function frameOf(shell: BeadsShell): readonly DrawCommand[] {
     return builder.end().commands;
 }
 
-/** 格内珠数（缩略 = 同心圆对 ⇒ 每珠 2 枚 circle）。 */
+/** 格内盘面色块数（`[WXG-T-502]`：缩略只画盘面 ⇒ 每块一条 rect）。 */
 function beadsIn(cmds: readonly DrawCommand[], cell: { box: { x: number; y: number; w: number; h: number } }): number {
     const b = cell.box;
-    const n = cmds.filter(
+    // `[WXG-T-502]` 缩略只画盘面 ⇒ 每块一条 rect；格底 rect 的 x 恰在框缘 ⇒ 用严格 `>` 排除。
+    return cmds.filter(
         (k) =>
-            k.kind === 'circle' &&
-            (k as { x: number }).x >= b.x &&
-            (k as { x: number }).x <= b.x + b.w &&
-            (k as { y: number }).y >= b.y &&
-            (k as { y: number }).y <= b.y + b.h,
+            k.kind === 'rect' &&
+            (k as { x: number }).x > b.x + 1 &&
+            (k as { x: number }).x < b.x + b.w - 1 &&
+            (k as { y: number }).y > b.y + 1 &&
+            (k as { y: number }).y < b.y + b.h - 1,
     ).length;
-    return n / 2;
 }
 
 /** 格内星带文本数（★/☆）——「锁格⛔ 无星」的机械证据（EP13-FU-1 · Q15 合形）。 */
