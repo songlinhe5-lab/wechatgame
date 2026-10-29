@@ -45,12 +45,12 @@ export const COPY_TOKENS = Object.freeze({
      */
     btn_levels_label: '选关',
     /**
-     * `tokens.md §7` **新增·已落码**（2026-10-28 · WXG-T-479）：Meta 批 1 三页入口钮文案。
+     * `tokens.md §7` **新增·已落码**（2026-10-28 · WXG-T-479）：Meta 批 1 入口钮文案。
      * 落位（USER 2026-10-28 裁「乙·拆分」）：图鉴/本地榜 = 选关页底排（与「返回」同行两侧），
-     * 名片 = 签到弹窗（「领取」左侧）。⛔ 不落字面：`meta-widgets::label()` 读本表。
+     * 名片 = 签到弹窗（「领取」左侧）。`[WXG-T-501]`（2026-10-29）：图鉴 / 本地榜两入口下线
+     * ⇒ `btn_album_label` / `btn_local_rank_label` 退场（`tokens.md §7` 同步划线留档），
+     * 只剩名片仍被消费。⛔ 不落字面：`meta-widgets::label()` 读本表。
      */
-    btn_album_label: '图鉴',
-    btn_local_rank_label: '本地榜',
     btn_profile_label: '名片',
     /**
      * `tokens.md §7` **新增·[待 art 确认]**（2026-10-22 · WXG-T-351 落码批草案）：

@@ -52,11 +52,7 @@ export function label(id: MetaAction, data: MetaViewData): string {
             return data.canClaim ? '领取' : '已领取';
         case 'back':
             return '返回';
-        // `[WXG-T-479]` 批 1 三页入口钮（落位见 `meta-layout`：选关页底排两侧 / 签到弹窗左格）。
-        case 'open-album':
-            return COPY_TOKENS.btn_album_label;
-        case 'open-local-rank':
-            return COPY_TOKENS.btn_local_rank_label;
+        // `[WXG-T-472]` 名片入口钮（[WXG-T-501] 图鉴 / 本地榜两入口下线）。
         case 'open-profile':
             return COPY_TOKENS.btn_profile_label;
         // UI-30：设置内容块（文案 / 绘制）由 `view/settings-content.ts` 单源；

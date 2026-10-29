@@ -29,11 +29,11 @@ import type { UiRoute } from './ui-root.js';
 export type ShellScreen = 'play' | 'menu';
 
 /** 菜单侧覆盖层（与 `MetaOverlay` 的呈现侧取值一一对应）。 */
-export type MenuOverlay = 'signin' | 'settings' | 'skins' | 'album' | 'localRank' | 'profile';
+export type MenuOverlay = 'signin' | 'settings' | 'skins' | 'profile';
 
-/** `[WXG-T-470/471/472]` 批 1：菜单侧覆盖层合法路由名（含 levels 页 + 所有弹窗）。 */
+/** `[WXG-T-470/471/472]` 批 1：菜单侧覆盖层合法路由名（含 levels 页 + 弹窗；`[WXG-T-501]` 图鉴 / 本地榜下线）。 */
 const MENU_OVERLAY_NAMES: ReadonlySet<MetaOverlay> = new Set<MetaOverlay>([
-    'none', 'levels', 'signin', 'settings', 'skins', 'album', 'localRank', 'profile',
+    'none', 'levels', 'signin', 'settings', 'skins', 'profile',
 ]);
 
 /**
@@ -118,9 +118,7 @@ export class PhaseRouteBinder {
             settings: { name: 'settings', kind: 'modal', draw: (b) => drawers.modal(b, 'settings') },
             /** `[WXG-T-363]` 装扮馆弹窗（入口 = 设置弹窗行5 左格 `open-skins`）。 */
             skins: { name: 'skins', kind: 'modal', draw: (b) => drawers.modal(b, 'skins') },
-            // `[WXG-T-470/471/472]` 批 1：图鉴 / 本地榜 / 名片三弹窗。
-            album: { name: 'album', kind: 'modal', draw: (b) => drawers.modal(b, 'album') },
-            localRank: { name: 'localRank', kind: 'modal', draw: (b) => drawers.modal(b, 'localRank') },
+            // `[WXG-T-472]` 批 1：名片弹窗（`[WXG-T-501]` 图鉴 / 本地榜下线）。
             profile: { name: 'profile', kind: 'modal', draw: (b) => drawers.modal(b, 'profile') },
         };
         // `[WXG-T-440]` 相位面板路由（构造期一次建表；`draw` 与 `presenter` 同源，⛔ 两处真源）。

@@ -43,14 +43,7 @@ import { drawSettingsAbout, drawSettingsContent, isSettingsAction } from './sett
 import { SIGNIN_TITLE, drawSigninContent } from './signin-content.js';
 // WXG-T-363：装扮馆卡面画法单源 `skins-content`（卡热区仍进 `meta-layout` 的 `skinsLayout` ⇒ 画与撞同源）。
 import { SKINS_TITLE, drawSkinCard } from './skins-content.js';
-import {
-    ALBUM_TITLE,
-    LOCAL_RANK_TITLE,
-    PROFILE_TITLE,
-    drawAlbumContent,
-    drawLocalRankContent,
-    drawProfileContent,
-} from './meta-pages-content.js';
+import { PROFILE_TITLE, drawProfileContent } from './meta-pages-content.js';
 import {
     anchoredGeo,
     DEFAULT_MENU_ANCHORS,
@@ -173,11 +166,8 @@ const META_PAGES: Record<MetaOverlay, PageDraw> = {
         },
         isSettingsAction),
     skins: panelPage(SKINS_TITLE, UI_SCRIM.alpha),
-    // `[WXG-T-470/471/472]` 批 1 弹窗三页：图鉴 / 本地榜 / 名片。
-    // `[WXG-T-477]` 标题改读 `meta-pages-content` 单源常量（真源 = `tokens.md §7` 三键）——
-    // 原为内联字面，是 WXG-T-476 首轮 review 的 F1（文案未入册）。
-    album: panelPage(ALBUM_TITLE, UI_SCRIM.alpha, drawAlbumContent),
-    localRank: panelPage(LOCAL_RANK_TITLE, UI_SCRIM.alpha, drawLocalRankContent),
+    // `[WXG-T-472]` 名片页（批 1）；`[WXG-T-501]` 图鉴 / 本地榜两页下线，只剩名片。
+    // 标题读 `meta-pages-content` 单源常量（真源 = `tokens.md §7`）。
     profile: panelPage(PROFILE_TITLE, UI_SCRIM.alpha, drawProfileContent),
 };
 
@@ -191,9 +181,7 @@ const BASE_PAGE: Record<MetaOverlay, MetaOverlay | null> = {
     signin: null,
     settings: null,
     skins: null,
-    // `[WXG-T-470/471/472]` 批 1：三页均弹窗态叠主菜单。
-    album: null,
-    localRank: null,
+    // `[WXG-T-470/471/472]` 批 1：名片页弹窗态叠主菜单（`[WXG-T-501]` 图鉴 / 本地榜下线）。
     profile: null,
 };
 

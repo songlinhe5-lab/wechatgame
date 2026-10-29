@@ -15,7 +15,7 @@ import type { RankPanelView } from '../systems/rank-panel.js';
  * {@link overlayPlate} 容器）；入口 = 顶栏中档 `open-skins`（ux-spec §3.8 · 提案 P4-甲，
  * 由 **WXG-T-365** 自设置弹窗行5 左格上提）。
  */
-export type MetaOverlay = 'none' | 'signin' | 'settings' | 'levels' | 'skins' | 'album' | 'localRank' | 'profile';
+export type MetaOverlay = 'none' | 'signin' | 'settings' | 'levels' | 'skins' | 'profile';
 
 /** Everything the meta screens draw, assembled read-only by the shell. */
 export interface MetaViewData {
@@ -92,14 +92,6 @@ export interface MetaViewData {
      * ⛔ 不拷贝、不持有、不排序（L5）。
      */
     readonly wallLevels: readonly (BeadsLevelRaw | undefined)[];
-    /**
-     * `[WXG-T-478]` **图鉴 → 全量关卡引用**（`albumLevels[0-based 关索引]`，与 {@link starsByLevel}
-     * 同轴）。图鉴格画珠拼缩略需要关卡 `pattern` 本体（理由同 {@link wallLevels}：
-     * 视图侧 ⛔ 不得 `import { LEVELS }`，宿主可下传自定义关表）。
-     * shell 构造期取一次同一引用 ⇒ 每帧只读、零分配（L5）。
-     * 缺省 / 该档无引用 ⇒ 该格回落语义色块占位（旧调用方 / 合成数据零漂移）。
-     */
-    readonly albumLevels?: readonly BeadsLevelRaw[];
     /**
      * `[WXG-T-345]` **章入口闸门**只读布尔（S-4；`ux v1.10 §4.1（3-补）` 的「章锁态」）。
      * = 该章页门票成立 ∨ 既有推进位已越过章首（棘轮 I7）；首章无前置 ⇒ `true`。
@@ -264,10 +256,6 @@ export type MetaAction =
      * 卡序走 {@link MetaButton.slot}（= `registeredSkins()` 注册序下标），⛔ 视图不传 skinId。
      */
     | 'skin-tap'
-    /** `[WXG-T-470]` 图鉴入口（批1）。 */
-    | 'open-album'
-    /** `[WXG-T-471]` 本地榜入口（批1，与对局内好友榜 rank-panel 分属通道）。 */
-    | 'open-local-rank'
     /** `[WXG-T-472]` 名片入口（批1）。 */
     | 'open-profile';
 

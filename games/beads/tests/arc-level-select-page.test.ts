@@ -57,37 +57,26 @@ const dataFor = (extra: Partial<MetaViewData> = {}): MetaViewData => {
 const cells = () => metaLayout('levels', WALL_ROWS).buttons.filter((b) => b.id === 'pick-level');
 
 /**
- * `[WXG-T-479]` 批 1 入口（USER 2026-10-28 裁「乙·拆分」）：图鉴 / 本地榜两只钮与「返回」同行两侧。
- * 钉的是**几何不撞**（边距 24 / 间隔 24 / 对称）与触控地板 —— ⛔ 只钉「有这两个 id」会漏掉重叠。
+ * `[WXG-T-501]` 图鉴 / 本地榜两入口下线（用户 2026-10-29）：图鉴 = 无专属设计的每小关缩略图墙，
+ * 本地榜 = 与首页好友榜重叠 ⇒ 选关底排只剩**居中返回**；⛔ 不得再注册两侧入口热区。
  */
-describe('WXG-T-479 · 选关页底排入口', () => {
-    it('图鉴 / 本地榜与「返回」同行，左右镜像且互不重叠', () => {
+describe('WXG-T-501 · 选关页底排只留返回', () => {
+    it('返回居中，且图鉴 / 本地榜热区已退场', () => {
         const btns = metaLayout('levels', WALL_ROWS).buttons;
-        const byId = (id: string) => btns.find((b) => b.id === id)!;
-        const back = byId('back');
-        const album = byId('open-album');
-        const rank = byId('open-local-rank');
-
-        expect(album.box.y).toBe(back.box.y);
-        expect(rank.box.y).toBe(back.box.y);
-        expect(album.box.h).toBe(TOUCH_MIN);
-        expect(rank.box.h).toBe(TOUCH_MIN);
-        expect(album.box.w).toBeGreaterThanOrEqual(TOUCH_MIN);
-
-        // 间隔 24，两侧边距 24，整排中线对称
-        expect(back.box.x - (album.box.x + album.box.w)).toBe(24);
-        expect(rank.box.x - (back.box.x + back.box.w)).toBe(24);
-        expect(album.box.x).toBe(24);
-        expect(rank.box.x + rank.box.w).toBe(DESIGN_W - 24);
-        expect(album.box.w).toBe(rank.box.w);
+        const back = btns.find((b) => b.id === 'back')!;
+        expect(back.box.w).toBe(LEVELS_BACK_W);
+        expect(back.box.x).toBe((DESIGN_W - back.box.w) / 2);
+        expect(back.box.y).toBe(LEVELS_BACK_BOTTOM);
+        expect(back.box.h).toBe(TOUCH_MIN);
+        const ids: string[] = btns.map((b) => b.id);
+        expect(ids).not.toContain('open-album');
+        expect(ids).not.toContain('open-local-rank');
     });
 
-    it('两钮可命中（不经 metaLayout 直取也算命中）', () => {
-        for (const id of ['open-album', 'open-local-rank']) {
-            const b = metaLayout('levels', WALL_ROWS).buttons.find((x) => x.id === id)!;
-            const hit = hitTestMeta('levels', b.box.x + b.box.w / 2, b.box.y + b.box.h / 2);
-            expect(hit?.id).toBe(id);
-        }
+    it('返回可命中', () => {
+        const b = metaLayout('levels', WALL_ROWS).buttons.find((x) => x.id === 'back')!;
+        const hit = hitTestMeta('levels', b.box.x + b.box.w / 2, b.box.y + b.box.h / 2);
+        expect(hit?.id).toBe('back');
     });
 });
 const inBox = (c: DrawCommand, b: { x: number; y: number; w: number; h: number }): boolean =>

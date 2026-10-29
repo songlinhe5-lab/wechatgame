@@ -108,19 +108,8 @@ function levelsLayout(rows: number): MetaLayout {
         id: 'back',
         box: box(backX, LEVELS_BACK_BOTTOM, LEVELS_BACK_W, TOUCH_MIN),
     });
-    // `[WXG-T-479]` 批 1 入口（USER 2026-10-28 裁「乙·拆分」）：图鉴 / 本地榜与「返回」**同行两侧**。
-    // 几何：边距 24 + 与返回间隔 24 ⇒ 侧钮宽 (750 − 240 − 2×24 − 2×24) / 2 = 207，高 TOUCH_MIN；
-    // 左右镜像（x = 24 / 750−24−207 = 519）⇒ 三钮共中线对称，⛔ 不压关卡墙（墙底 = LEVELS_BACK_BOTTOM 之上）。
-    {
-        const margin = 24;
-        const gap = 24;
-        const sideW = (DESIGN_W - LEVELS_BACK_W - 2 * margin - 2 * gap) / 2;
-        buttons.push({ id: 'open-album', box: box(margin, LEVELS_BACK_BOTTOM, sideW, TOUCH_MIN) });
-        buttons.push({
-            id: 'open-local-rank',
-            box: box(DESIGN_W - margin - sideW, LEVELS_BACK_BOTTOM, sideW, TOUCH_MIN),
-        });
-    }
+    // `[WXG-T-501]` **图鉴 / 本地榜两入口下线**（用户 2026-10-29：「本地榜应该没啥用」+「图鉴是每小关陈列、无专属设计」）
+    // ⇒ 底排只留居中返回（原三钮同行两侧的几何随入口一并删除；底排不再靠近安全区两侧）。
     return { buttons, signinCells: [] };
 }
 
@@ -214,9 +203,7 @@ const LAYOUT_BUILDERS: Record<MetaOverlay, (rows: number, a: MenuAnchors) => Met
     settings: () => settingsLayout(),
     levels: (rows) => levelsLayout(rows),
     skins: () => skinsLayout(),
-    // `[WXG-T-470/471/472]` 批 1 三弹窗：纯展示版面（只含返回钮，内容块无热区）。
-    album: () => infoPageLayout(),
-    localRank: () => infoPageLayout(),
+    // `[WXG-T-470/471/472]` 批 1 三弹窗 → `[WXG-T-501]` 图鉴 / 本地榜下线，只剩名片。
     profile: () => infoPageLayout(),
 };
 

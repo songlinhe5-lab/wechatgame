@@ -4468,3 +4468,40 @@ WXG-T-493 收尾时给出的三个后续选项，用户 2026-10-29 选 **1 = 公
 ### 6. 沉淀统计
 
 **未跑 `kb:sync`**（`knowledge/` 仍含并行会话 WXG-T-434 在制品，K-137）。候选 1 条：「标注脚本要把『形态变更』当重大版本：选关从弹框改整页时，旧脚本没改，图在两版之后仍在发 ⇒ 重烤前先对一遍脚本开头的形态描述」。统计 = 新增 0 / 修改 0 / 激活 0 / 归档 0（本批）。
+
+---
+
+## WXG-T-501
+
+### 1. 裁定
+
+用户 2026-10-29：「好友榜在首页已经有了，本地榜应该没啥用」+「图鉴现在设计是主界面的 boss 图，没有给每个小关做设计；是否真的有这个需求对每个小关都做记录并陈列？」⇒ 两个入口**下线**；未来图鉴若重启，按**大关级作品图**重新设计，不做每小关陈列。
+
+### 2. 改动面
+
+| 文件 | 改动 |
+| --- | --- |
+| `view/meta-layout.ts` | `levelsLayout` 删两枚侧钮（原 24 边距 + 24 间隔 = 207 宽）⇒ 底排只剩居中返回；`LAYOUT_BUILDERS` 删两行 |
+| `view/meta-types.ts` | `MetaOverlay` 减 2 值；`MetaAction` 减 2 值；删 `albumLevels` 字段 |
+| `view/meta-view.ts` | 删两页 import / `META_PAGES` 两行 / `BASE_PAGE` 两行 |
+| `view/meta-pages-content.ts` | 删 `drawAlbumContent` + `drawLocalRankContent` 与全部 ALBUM_*/RANK_* 常量（423 → 160 行，只剩名片） |
+| `view/meta-widgets.ts` | 删两个 label case |
+| `game/beads-shell.ts` | 删两个 case；删 `albumLevels` 默认值与赋值 |
+| `ui/phase-route-binder.ts` | `MenuOverlay` 与路由表各减两项 |
+| `config/copy-tokens.ts` | 删 `btn_album_label` / `btn_local_rank_label` |
+| `design/.../tokens.md` | 四行（两标题 + 两钮标）划线留档（K-053） |
+| 测试 | `meta-album-thumb.test.ts` 删除；`meta-menu-wall` / `arc-level-select-page` / `bead-style-settings` 三处断言改写 |
+
+### 3. 门禁与金样本
+
+- `tsc --noEmit` 0 错；全量 **117 文件 / 1415 通过**（删掉的 `meta-album-thumb` 含 2 例）
+- 金样本 `level-select` / `level-select-mid` **各 −4**（两枚纸钮的 rect + text）；其余九态不变
+
+### 4. 未做 / 后续
+
+- 图鉴若重启：按**大关级作品图**（复用 boss/大关图）+ 通关印章重新设计，不再做每小关缩略图墙
+- 选关形态（弹窗 vs 整页）仍待单独裁定（本批只摘入口，不动版面形态）
+
+### 5. 沉淀统计
+
+**未跑 `kb:sync`**（`knowledge/` 仍含并行会话 WXG-T-434 在制品，K-137）。候选 1 条：「下线一个入口要连通『热区 + 行动 id + overlay 类型 + 路由表 + 绘制 + 令牌 + 测试 + 金样本』八处一起摘，漏一处就是死代码或类型假阳性」。统计 = 新增 0 / 修改 0 / 激活 0 / 归档 0（本批）。
