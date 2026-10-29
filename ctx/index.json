@@ -97954,17 +97954,17 @@
     },
     {
       "path": "production/qa/beads/device/2026-10-29/execution-card.md",
-      "tokens": 1764,
-      "lines": 92,
-      "sha256": "279f4a77ac59255a2ea5c65636cb664d7401a6d89518e08780a6f60e969ddc18",
+      "tokens": 2211,
+      "lines": 111,
+      "sha256": "64963b816d6dc479b1802fcdbd31d99d944c9d63dc826beb5959e363ced3bfe5",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads 真机执行卡 · 2026-10-29（选关弹窗 / 顶栏四钮 / 设置页脚）",
           "level": 1,
           "startLine": 1,
-          "endLine": 93,
-          "tokens": 1738,
+          "endLine": 112,
+          "tokens": 2185,
           "summary": "用途：把 2026-10-29 这一批 UI 改判（WXG-T-497 / 498 / 501 / 502 / 503）",
           "keywords": [
             "beads",
@@ -97979,8 +97979,8 @@
           "anchor": "§0 先过三关（任一不过不开测）",
           "level": 2,
           "startLine": 7,
-          "endLine": 16,
-          "tokens": 263,
+          "endLine": 17,
+          "tokens": 321,
           "summary": "☐ 工作树干净 git status 无并行会话在制品（本轮开工时曾有 beads-game.ts / board-ta",
           "keywords": [
             "git",
@@ -97994,8 +97994,8 @@
         {
           "anchor": "§1 环境记录（开测先填）",
           "level": 2,
-          "startLine": 17,
-          "endLine": 32,
+          "startLine": 18,
+          "endLine": 33,
           "tokens": 138,
           "summary": "日期 / 执行人",
           "keywords": [
@@ -98006,8 +98006,8 @@
         {
           "anchor": "§2 三分钟冒烟（任一 FAIL 即停）",
           "level": 2,
-          "startLine": 33,
-          "endLine": 41,
+          "startLine": 34,
+          "endLine": 42,
           "tokens": 105,
           "summary": "☐ 冷启动 停在主菜单；logo / 橱窗 / CTA 位图不空白",
           "keywords": [
@@ -98022,8 +98022,8 @@
         {
           "anchor": "§3 A · 选关弹窗（T-503 主检）",
           "level": 2,
-          "startLine": 42,
-          "endLine": 53,
+          "startLine": 43,
+          "endLine": 54,
           "tokens": 360,
           "summary": "D-82 形态与遮罩 600×720 纸板居中；底页主菜单可见但压暗（α0.5）；无整页替换感",
           "keywords": [
@@ -98034,8 +98034,8 @@
         {
           "anchor": "§4 B · 顶栏四钮（T-497 / 498）",
           "level": 2,
-          "startLine": 54,
-          "endLine": 61,
+          "startLine": 55,
+          "endLine": 62,
           "tokens": 155,
           "summary": "D-89 2×2 布局 左列（设置/好友榜）与右列（签到/装扮）对称；热区距屏边 14、视觉圆距边 18；两行行距 88",
           "keywords": [
@@ -98045,8 +98045,8 @@
         {
           "anchor": "§5 C · 设置页脚（T-497）",
           "level": 2,
-          "startLine": 62,
-          "endLine": 67,
+          "startLine": 63,
+          "endLine": 68,
           "tokens": 81,
           "summary": "D-92 「关于 · 版本」 页脚居中一行 关于 · v1.0.10；不注册热区（点了无反应）；与返回钮不重叠、离板底 ",
           "keywords": [
@@ -98056,8 +98056,8 @@
         {
           "anchor": "§6 D · 回归（只测被这批改动碰到的路径）",
           "level": 2,
-          "startLine": 68,
-          "endLine": 75,
+          "startLine": 69,
+          "endLine": 76,
           "tokens": 143,
           "summary": "D-93 旧档升级 保留上一版存档进新包：解锁进度 / 星级 / 设置 / 皮肤 / 豆径全部还在",
           "keywords": [
@@ -98069,9 +98069,9 @@
         {
           "anchor": "§7 判定与出口",
           "level": 2,
-          "startLine": 76,
-          "endLine": 81,
-          "tokens": 122,
+          "startLine": 77,
+          "endLine": 99,
+          "tokens": 440,
           "summary": "判定符：PASS / PASS* / FAIL / ⛔ / —（同走查单 §0）。",
           "keywords": [
             "§0",
@@ -98081,10 +98081,38 @@
           ]
         },
         {
+          "anchor": "§7.1 缺陷分级（引 `production/qa/beads/bug-severity.md`）",
+          "level": 3,
+          "startLine": 83,
+          "endLine": 94,
+          "tokens": 217,
+          "summary": "P0 Blocker 主链路不可用 / 崩溃 / 数据损坏 弹窗打不开导致无法进关；存档丢档",
+          "keywords": [
+            "production",
+            "beads",
+            "bug",
+            "severity",
+            "Blocker",
+            "缺陷分级"
+          ]
+        },
+        {
+          "anchor": "§7.2 证据要求",
+          "level": 3,
+          "startLine": 95,
+          "endLine": 99,
+          "tokens": 79,
+          "summary": "每个 FAIL 至少 1 张截图或 1 段录屏；层序类（D-83）必须原图（不得截图后再压缩/标注遮住问题）。",
+          "keywords": [
+            "FAIL",
+            "证据要求"
+          ]
+        },
+        {
           "anchor": "§8 证据命名",
           "level": 2,
-          "startLine": 82,
-          "endLine": 87,
+          "startLine": 100,
+          "endLine": 105,
           "tokens": 56,
           "summary": "production/qa/beads/device/2026-10-29/<条目ID>_<机型档>_<序号>.png ",
           "keywords": [
@@ -98098,9 +98126,9 @@
         {
           "anchor": "§9 变更记录",
           "level": 2,
-          "startLine": 88,
-          "endLine": 93,
-          "tokens": 59,
+          "startLine": 106,
+          "endLine": 112,
+          "tokens": 129,
           "summary": "v1.0 2026-10-29 初稿（WXG-T-507）：四块新界面 + 层序回归 + 三关前置（工作树干净 / 新包",
           "keywords": [
             "WXG",
