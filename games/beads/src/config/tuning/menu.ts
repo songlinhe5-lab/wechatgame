@@ -419,6 +419,8 @@ export const MENU_TEXTURES = {
   sealCleared: 'bitmap__menu_seal_cleared',
   /** v3.8 CTA「开始游戏」艺术字。缺资产回退程序化字。 */
   ctaLabel: 'bitmap__menu_cta_label',
+  /** `[WXG-T-512]` 卡通木纹条（云 qwen-image-3.0 seed 511 生成，1024×320 圆角）：结算木牌与主钮拉伸使用。 */
+  woodGrain: 'bitmap__ui_wood_grain',
 } as const;
 
 /**

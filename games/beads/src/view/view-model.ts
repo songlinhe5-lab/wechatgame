@@ -18,6 +18,7 @@ import {
   FINISH_ROW_H,
   FINISH_ROW_W,
   FINISH_STAR_SIZE,
+  MENU_TEXTURES,
   tierSecondsFor,
   THUMB_MATRIX_N,
   THUMB_TOP_INSET,
@@ -548,12 +549,26 @@ function drawClearPanel(
     lineWidth: 2,
     radius: UI_CONTAINER.radiusPanel - 3,
   });
+  // `[WXG-T-512]` 四角豆钉：木作 + 拼豆语言的卡通收口。
+  for (const [tx, ty] of [
+    [plate.xMin + 16, plate.yMin + 16],
+    [plate.xMax - 16, plate.yMin + 16],
+    [plate.xMin + 16, plate.yMax - 16],
+    [plate.xMax - 16, plate.yMax - 16],
+  ]) {
+    builder.circle(tx!, ty!, 5, { fill: palette.woodFace, stroke: palette.woodEdge, lineWidth: 2 });
+  }
 
   // `[WXG-T-510]` A2：标题木牌骑在面板上沿（木底 + 木边 + 深字）。
   const plaqueW = CLEAR_PLAQUE_W;
   const plaqueH = CLEAR_PLAQUE_H;
   builder.rect(DESIGN_W / 2 - plaqueW / 2, layout.titleY - plaqueH / 2, plaqueW, plaqueH, {
     fill: palette.woodFace,
+    radius: 16,
+  });
+  // `[WXG-T-512]` 木纹贴图（拉伸 + 圆角 alpha）→ 再压描边与奶白字。
+  builder.blit(MENU_TEXTURES.woodGrain, DESIGN_W / 2 - plaqueW / 2, layout.titleY - plaqueH / 2, plaqueW, plaqueH);
+  builder.rect(DESIGN_W / 2 - plaqueW / 2, layout.titleY - plaqueH / 2, plaqueW, plaqueH, {
     stroke: palette.woodEdge,
     lineWidth: 3,
     radius: 16,
@@ -634,6 +649,19 @@ function drawClearPanel(
     const by = button.rect.yMin + pressDy(snap, button.id);
     if (button.id === 'next') {
       drawButton(builder, palette, button.rect.xMin, by, bw, bh, 'wood', UI_CONTAINER.radiusWood, label, UI_FONT.panelButton, pressed);
+      // `[WXG-T-512]` 主钮叠木纹（原 drawButton 的字被盖 ⇒ 后重绘字与描边）。
+      builder.blit(MENU_TEXTURES.woodGrain, button.rect.xMin, by, bw, bh);
+      if (pressed) {
+        builder.rect(button.rect.xMin, by, bw, bh, {
+          fill: withAlpha(palette.shadowInk, 0.16), radius: UI_CONTAINER.radiusWood,
+        });
+      }
+      builder.rect(button.rect.xMin, by, bw, bh, {
+        stroke: palette.woodEdge, lineWidth: 3, radius: UI_CONTAINER.radiusWood,
+      });
+      builder.text(button.rect.xMin + bw / 2, by + bh / 2, label, {
+        fill: palette.woodText, font: UI_FONT.panelButton, align: 'center', baseline: 'middle',
+      });
     } else {
       // `[WXG-T-511]` 真机反馈「按钮太弱」：2px 木边 + 深字 30，保留纸面弱于木主钮。
       builder.rect(button.rect.xMin, by, bw, bh, {
