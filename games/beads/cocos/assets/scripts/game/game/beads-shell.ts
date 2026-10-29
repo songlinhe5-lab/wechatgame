@@ -230,6 +230,8 @@ export class BeadsShell implements Game {
         wallSlots: [] as readonly number[],
         // 槽位 → 关卡引用（T-2B 缩略聚合的 pattern 入口；与 wallSlots 同批缓存，每帧只读）。
         wallLevels: [] as readonly (BeadsLevelRaw | undefined)[],
+        // `[WXG-T-478]` 图鉴格 → 全量关表引用（`_wallBaseLevels` 同一对象；每帧只读，零分配）。
+        albumLevels: [] as readonly BeadsLevelRaw[],
         // `[WXG-T-345]` S-4 只读告知件（由 `_refreshArcGate` 在非帧事件里写；⛔ 每帧算）。
         // 默认 = 首章口径（无阻断 ⇒ 章开、不建进度件）；⛔ 造 `0/0`。
         arcTicketOpen: true,
@@ -1121,6 +1123,8 @@ export class BeadsShell implements Game {
         v.wallSlots = this._wallSlotsFor();
         // 槽位 → 关卡引用（同一缓存批，T-2B 缩略聚合的只读入口）。
         v.wallLevels = this._wallLevelsFor();
+        // `[WXG-T-478]` 图鉴用全量关表（`wallLevels` 只覆盖当前大关，图鉴要跨章全表）。
+        v.albumLevels = this._wallBaseLevels;
         // 走马灯 = **大关页**（EP13-S4，C-2 ③⑤；Q16 = 甲）：代表图 = 该大关收尾关（boss）的橱窗图
         // （`ARCS[页].textureId`），三态 = `ARCS[页].levelRefs` 归约（判据见 {@link _arcState}）。
         // 末页 `ARC_OPEN_MAX` = 空橱窗（无大关实体 ⇒ 点图零事件，R13）。

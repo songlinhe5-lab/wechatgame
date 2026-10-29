@@ -187,6 +187,23 @@ function skinsLayout(): MetaLayout {
 }
 
 /**
+ * `[WXG-T-478]` **纯展示弹窗版面**（图鉴 / 本地榜 / 名片）：只有底部「返回」钮。
+ * 原三页复用 {@link skinsLayout} ⇒ 多出两张 `skin-tap` 卡热区，且 `panelPage` 对 `skin-tap`
+ * 一律调 `drawSkinCard` ⇒ 皮肤卡盖住内容块（2026-10-28 真帧出图暴露）。返回钮几何与
+ * `skinsLayout` 逐字一致（240 × `TOUCH_MIN` @ 板底 + 50 居中）。
+ */
+function infoPageLayout(): MetaLayout {
+    const plate = overlayPlate();
+    const backW = 240;
+    return {
+        buttons: [
+            { id: 'back', box: box(plate.x + (plate.w - backW) / 2, plate.y + 50, backW, TOUCH_MIN) },
+        ],
+        signinCells: [],
+    };
+}
+
+/**
  * overlay → 版面构造器（**表查**，⛔ 不串判导航态）。签名统一吃 `(rows, a)`：
  * 只有 `none`（逐机主菜单）读 `a`、只有 `levels` 读 `rows`，其余页面 = 常量版面 ⇒ 忽略入参
  * （行为与表化前的 `buildLayout` 逐字一致）。
@@ -197,10 +214,10 @@ const LAYOUT_BUILDERS: Record<MetaOverlay, (rows: number, a: MenuAnchors) => Met
     settings: () => settingsLayout(),
     levels: (rows) => levelsLayout(rows),
     skins: () => skinsLayout(),
-    // `[WXG-T-470/471/472]` 批 1 三弹窗：复用 skins 版面（纯展示，只有通用返回钮热区）。
-    album: () => skinsLayout(),
-    localRank: () => skinsLayout(),
-    profile: () => skinsLayout(),
+    // `[WXG-T-470/471/472]` 批 1 三弹窗：纯展示版面（只含返回钮，内容块无热区）。
+    album: () => infoPageLayout(),
+    localRank: () => infoPageLayout(),
+    profile: () => infoPageLayout(),
 };
 
 // ───────────────────────────────────────────────── [WXG-T-280] anchored menu

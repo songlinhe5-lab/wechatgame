@@ -93,6 +93,14 @@ export interface MetaViewData {
      */
     readonly wallLevels: readonly (BeadsLevelRaw | undefined)[];
     /**
+     * `[WXG-T-478]` **图鉴 → 全量关卡引用**（`albumLevels[0-based 关索引]`，与 {@link starsByLevel}
+     * 同轴）。图鉴格画珠拼缩略需要关卡 `pattern` 本体（理由同 {@link wallLevels}：
+     * 视图侧 ⛔ 不得 `import { LEVELS }`，宿主可下传自定义关表）。
+     * shell 构造期取一次同一引用 ⇒ 每帧只读、零分配（L5）。
+     * 缺省 / 该档无引用 ⇒ 该格回落语义色块占位（旧调用方 / 合成数据零漂移）。
+     */
+    readonly albumLevels?: readonly BeadsLevelRaw[];
+    /**
      * `[WXG-T-345]` **章入口闸门**只读布尔（S-4；`ux v1.10 §4.1（3-补）` 的「章锁态」）。
      * = 该章页门票成立 ∨ 既有推进位已越过章首（棘轮 I7）；首章无前置 ⇒ `true`。
      *

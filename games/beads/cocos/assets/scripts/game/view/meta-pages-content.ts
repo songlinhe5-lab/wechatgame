@@ -12,9 +12,11 @@
  * 路由/标题单源在 `meta-view.ts`（`panelPage`）；本文件只负责「带内画什么」。
  */
 import type { RenderModelBuilder } from '../../framework/index';
-import type { BeadsPalette } from './palette';
+import { THUMB_MATRIX_N, THUMB_TOP_INSET } from '../config/tuning';
+import { beadFadedInksFor, type BeadsPalette } from './palette';
 import type { MetaLayout, MetaViewData } from './meta-types';
 import { overlayPlate } from './meta-layout';
+import { drawLevelThumb } from './menu-signage';
 import { UI_FONT } from './ui-theme';
 
 /**
@@ -50,8 +52,10 @@ const ALBUM_GAP = 20;
 const ALBUM_COLS = 5;
 const ALBUM_ROWS = 2;
 const ALBUM_ROW_GAP = 24;
-const ALBUM_THUMB_INSET = 6;
-const ALBUM_THUMB_H = 56;
+/** 底部信息带高（关号 + 星条）。 */
+const ALBUM_FOOTER_H = 32;
+/** 缩略区高 = 格高 − 顶内缩 − 底带（顶内缩与选关格同档 ⇒ 与 `drawLevelThumb` 同一取顶口径）。 */
+const ALBUM_THUMB_H = ALBUM_CELL - THUMB_TOP_INSET - ALBUM_FOOTER_H;
 const ALBUM_STAT_H = 40;
 const ALBUM_STAT_GAP = 26;
 
@@ -59,8 +63,9 @@ const ALBUM_STAT_GAP = 26;
  * 图鉴（album）：`ALBUM_ROWS × ALBUM_COLS` 缩略图墙（每关一格）+ 带底成绩合计。
  * 格内 = 缩略图区（上 `ALBUM_THUMB_H`）+ 星条（下）/ 锁形（未通关）；当前关主色 4px 描边。
  *
- * 缩略图正文待接 `ARCS[].textureId` ⇒ 本版先铺语义底（通关木色淡影 / 未通关锁灰），
- * ⛔ 不在此处编纹理坐标。
+ * 缩略图走 `drawLevelThumb`（与选关格**同一聚合表 / 同一 renderer**）：关卡本体由 shell 经
+ * `data.albumLevels` 下传（视图 ⛔ 不 import 全局关表）。未通关传灰墨集 ⇒ 珠阵置灰（与锁格同口径）；
+ * 无引用（旧调用方 / 合成数据）⇒ 只留语义底占位。
  */
 export function drawAlbumContent(
     builder: RenderModelBuilder,
@@ -101,12 +106,11 @@ export function drawAlbumContent(
                 alpha: cleared ? 1 : 0.55,
             });
 
-            // 缩略图区（格上部）：真图待接 ARCS[].textureId，此处只给语义底
-            // （α 0.18 的旧值在白底上几乎不可见 ⇒ 提到 .45 / .3 让「图位」读得出来）
+            // 缩略图底槽（语义底：无引用时即最终画面；有引用时留在珠阵下当「图位」衬底）
             builder.rect(
-                x + ALBUM_THUMB_INSET,
-                y + ALBUM_CELL - ALBUM_THUMB_INSET - ALBUM_THUMB_H,
-                ALBUM_CELL - ALBUM_THUMB_INSET * 2,
+                x + THUMB_TOP_INSET,
+                y + ALBUM_CELL - THUMB_TOP_INSET - ALBUM_THUMB_H,
+                ALBUM_CELL - THUMB_TOP_INSET * 2,
                 ALBUM_THUMB_H,
                 {
                     fill: cleared ? palette.slotDashed : palette.locked,
@@ -114,18 +118,34 @@ export function drawAlbumContent(
                     radius: 8,
                 },
             );
+            const level = data.albumLevels?.[idx];
+            if (level !== undefined) {
+                // 珠拼缩略（选关格同一 renderer / 同一聚合表）；未通关走灰墨集
+                // （`inkOverride` 同时关闭位图臂：预烘彩图无灰度版）。
+                drawLevelThumb(
+                    builder,
+                    level,
+                    x,
+                    y,
+                    ALBUM_CELL,
+                    ALBUM_CELL,
+                    THUMB_MATRIX_N,
+                    ALBUM_THUMB_H,
+                    cleared ? undefined : beadFadedInksFor(level),
+                );
+            }
 
             if (!cleared) {
                 // 程序化锁形（⛔ 不用 emoji：跨端字形不一、不进程序化图元体系）
                 const cx = x + ALBUM_CELL / 2;
-                const bodyY = y + ALBUM_CELL - ALBUM_THUMB_INSET - ALBUM_THUMB_H / 2 - 11;
+                const bodyY = y + ALBUM_CELL - THUMB_TOP_INSET - ALBUM_THUMB_H / 2 - 11;
                 builder.rect(cx - 13, bodyY, 26, 20, { fill: palette.locked, radius: 4 });
                 builder.rect(cx - 9, bodyY + 20, 18, 8, { stroke: palette.locked, lineWidth: 3, radius: 4 });
             }
 
             // 下带：关号（左）+ 三段星条（右）。⭐ 旧版画 22px 「★」字形，缩放后仅 ~8px 不可辨；
             // 改块状星条后即便小屏也读得出「几星」。关号对未通关格同样显示（可知哪一关没开）。
-            builder.text(x + 10, y + ALBUM_CELL - ALBUM_THUMB_INSET - ALBUM_THUMB_H - 14, `${idx + 1}`, {
+            builder.text(x + 10, y + ALBUM_FOOTER_H - 14, `${idx + 1}`, {
                 fill: cleared ? palette.textDim : palette.textDisabled,
                 font: UI_FONT.cell,
                 baseline: 'middle',
