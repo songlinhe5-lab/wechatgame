@@ -53,7 +53,7 @@ import { LEVELS } from '../src/config/levels.js';
 import { ARCS } from '../src/config/arcs.js';
 import { difficultyOf } from '../src/game/difficulty.js';
 import { COPY_TOKENS } from '../src/config/copy-tokens.js';
-import { buildMetaView, hitTestMeta, metaLayout, type MetaViewData } from '../src/view/meta-view.js';
+import { buildMetaModal, buildMetaView, hitTestMeta, metaLayout, type MetaViewData } from '../src/view/meta-view.js';
 import { label } from '../src/view/meta-widgets.js';
 import { rankPanelLayout } from '../src/systems/rank-panel.js';
 import { drawLevelThumb, levelThumbCells, SIGN_INK_COLOR_IDX } from '../src/view/menu-signage.js';
@@ -62,11 +62,10 @@ import { DEBUG_OUTLINE_TILE_HEX, DEFAULT_PALETTE, DEMO_BEAD_INKS, beadFadedInksF
 import {
     DESIGN_H,
     DESIGN_W,
-    LEVELS_CELL,
-    LEVELS_GAP,
-    LEVELS_THUMB_AREA,
+    BEAD_GAP,
     MENU_BOSS_SLOT,
     PANEL_IN_MS,
+    THUMB_AREA,
     THUMB_MATRIX_N,
     WALL_CAPACITY,
     WALL_CELL,
@@ -223,9 +222,12 @@ function centerTuple(box: { x: number; y: number; w: number; h: number }): [numb
     return [c.x, c.y];
 }
 
+/** 选关弹窗缩略块边长（与 `drawLevelThumb` 同式）：用于把底页菜单的回退缩略排除在签名外。 */
+const THUMB_BLOCK = THUMB_AREA / THUMB_MATRIX_N - BEAD_GAP;
+
 /**
  * 盘面色块的**空间签名**（`[WXG-T-502]`：缩略只画盘面 ⇒ 一格一块 `rect`）。
- * 只收**缩略区内的块**（格底 `rect` 的 x 恰在框缘 ⇒ 用严格 `>` 排除）。
+ * 只收**选关弹窗自己的**缩略块：范围内 + 边长 = 5×5 档块（底页菜单的回退缩略尺寸不同 ⇒ 排除）。
  */
 function beadSignatureIn(
     cmds: readonly DrawCommand[],
@@ -234,8 +236,9 @@ function beadSignatureIn(
     return cmds
         .filter((k) => {
             if (k.kind !== 'rect') return false;
-            const c = k as { x: number; y: number };
-            return c.x > box.x + 1 && c.x < box.x + box.w - 1 && c.y > box.y + 1 && c.y < box.y + box.h - 1;
+            const c = k as { x: number; y: number; w: number };
+            return c.x > box.x + 1 && c.x < box.x + box.w - 1 && c.y > box.y + 1 && c.y < box.y + box.h - 1 &&
+                Math.abs(c.w - THUMB_BLOCK) < 0.01;
         })
         .map((k) => {
             const c = k as { x: number; y: number; w: number; h: number; fill?: string };
@@ -252,7 +255,7 @@ function beadSignatureIn(
 function thumbOracle(level: (typeof LEVELS)[number], box: { x: number; y: number; w: number; h: number }): string {
     const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
     builder.begin();
-    drawLevelThumb(builder, level, box.x, box.y, box.w, box.h, THUMB_MATRIX_N, LEVELS_THUMB_AREA);
+    drawLevelThumb(builder, level, box.x, box.y, box.w, box.h, THUMB_MATRIX_N, THUMB_AREA);
     return beadSignatureIn(builder.end().commands, box);
 }
 
@@ -565,19 +568,19 @@ describe('EP12-S6 Deliverable 5 · P-7 文案令牌单源（⛔ 屏内字面散�
     });
 });
 
-describe('EP12-S6 Deliverable 1 + Q5① · 墙单源在选关整页 / 主菜单不再排墙（几何只一份）', () => {
-    it('墙 = 3×3 共 9 格（只住选关整页，版式 P）；主菜单 ⛔ 无墙格 ⇒ 几何单份、永不各排一份', () => {
+describe('EP12-S6 Deliverable 1 + Q5① · 墙单源在选关弹窗 / 主菜单不再排墙（几何 只一份）', () => {
+    it('墙 = 3×3 共 9 格（只住选关弹窗）；主菜单 ⛔ 无墙格 ⇒ 几何单份、永不各排一份', () => {
         const overlay = metaLayout('levels').buttons.filter((b) => b.id === 'pick-level');
         expect(overlay.length).toBe(WALL_CAPACITY);
         for (const cell of overlay) {
-            expect(cell.box.w, '格宽 = 页专用常量').toBe(LEVELS_CELL);
-            expect(cell.box.h).toBe(LEVELS_CELL);
+            expect(cell.box.w, '格宽 = 与作品墙同一套').toBe(WALL_CELL);
+            expect(cell.box.h).toBe(WALL_CELL);
         }
         // 列/行步进同源自洽（同一 `levelsLayout` 一次算定）。
         const step = (list: typeof overlay, i: number) => list[i + 1]!.box.x - list[i]!.box.x;
         expect(step(overlay, 1), '列步进一致').toBe(step(overlay, 0));
         const rowStep = overlay[0]!.box.y - overlay[WALL_COLS]!.box.y;
-        expect(rowStep, '行步进 = 格宽 + 缝').toBe(LEVELS_CELL + LEVELS_GAP);
+        expect(rowStep, '行步进 = 格宽 + 缝').toBe(WALL_CELL + WALL_GAP);
         // 主菜单版面⛔ 无墙格（走马灯卡取代主区）⇒ 选关入口 = `open-levels`。
         expect(metaLayout('none').buttons.filter((b) => b.id === 'pick-level').length).toBe(0);
         expect(metaLayout('none').buttons.some((b) => b.id === 'open-levels')).toBe(true);
@@ -614,6 +617,8 @@ describe('EP12-S6 Deliverable 1 + Q5① · 墙单源在选关整页 / 主菜单�
         const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
         builder.begin();
         buildMetaView(builder, data, DEFAULT_PALETTE);
+        // `[WXG-T-503]` 选关 = 弹窗：视图帧 = 底页菜单 + 弹窗腿。
+        buildMetaModal(builder, data, DEFAULT_PALETTE);
         const cmds = builder.end().commands;
         const title = cmds.find((k) => k.kind === 'text' && (k as { text?: string }).text === COPY_TOKENS.btn_levels_label);
         expect(title, 'overlay 标题仍读表').toBeDefined();
@@ -744,16 +749,6 @@ describe('EP12-S6 边界与铁律自证 · 珠体族只进菜单帧 / 零新色 
             'WALL_FRAME_INSET',
             'WALL_GRID_TOP',
             'WALL_SLOT_DASH',
-            // UI-34 选关整页版面（版式 P，正本 = `level-select-page-layout.md` v0.2）：页专用 ⇒ ⛔ 不入 §3。
-            'LEVELS_CELL',
-            'LEVELS_GAP',
-            'LEVELS_GRID_LEFT',
-            'LEVELS_GRID_TOP',
-            'LEVELS_THUMB_AREA',
-            'LEVELS_BACK_W',
-            'LEVELS_BACK_BOTTOM',
-            'LEVELS_NAV_H',
-            'LEVELS_NAV_TOP',
             // T-2B 新增两组（SIGN_* / THUMB_*）同样只住 `tuning.ts` 派生区（判例 DIFFICULTY / PAUSE_PANEL_H）。
             'SIGN_MATRIX_N',
             'SIGN_BEAD_PITCH',

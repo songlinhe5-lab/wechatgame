@@ -43,13 +43,13 @@ describe('UI-42 · PhaseRouteBinder', () => {
         expect(play.b.overlay).toBe('none');
     });
 
-    it('选关页是页路由：压栈后 overlay=levels 且携带大关上下文；关栈顶回菜单', () => {
+    it('选关是弹窗路由（`[WXG-T-503]`）：压栈后 overlay=levels 且携带大关上下文；关栈顶回菜单', () => {
         const { nav, b } = binder();
         b.openLevels(2);
         expect(b.overlay).toBe('levels');
         expect(b.levelsArc).toBe(2);
         expect(nav.depth).toBe(2);
-        expect(nav.top?.kind).toBe('page');
+        expect(nav.top?.kind).toBe('modal');
 
         b.close();
         expect(b.overlay).toBe('none');

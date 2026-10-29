@@ -33,7 +33,7 @@ import {
     zoomControlLayout,
 } from '../src/config/tuning.js';
 import { buildBeadsFrame } from '../src/view/view-model.js';
-import { buildMetaView, metaLayout, type MetaViewData } from '../src/view/meta-view.js';
+import { buildMetaModal, buildMetaView, metaLayout, type MetaViewData } from '../src/view/meta-view.js';
 import { failPanelLayout } from '../src/systems/fail-panel.js';
 import { RenderModelBuilder, type DrawCommand } from '@wxgame/framework';
 import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
@@ -259,7 +259,12 @@ function metaFrameCmds(opts: {
     };
     const builder = new RenderModelBuilder(750, 1334);
     builder.begin();
-    buildMetaView(builder, data, DEFAULT_PALETTE);
+    if (data.overlay === 'levels') {
+        // `[WXG-T-503]` 选关 = 弹窗：本臂只测墙格内容 ⇒ 只画弹窗腿（底页菜单不参与断言）。
+        buildMetaModal(builder, data, DEFAULT_PALETTE);
+    } else {
+        buildMetaView(builder, data, DEFAULT_PALETTE);
+    }
     return builder.end().commands;
 }
 

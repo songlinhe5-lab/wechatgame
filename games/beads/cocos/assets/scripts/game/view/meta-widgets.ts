@@ -3,7 +3,7 @@
  * 位图可用性注入（`setMenuBitmapResolver`）。主菜单与选关页共用 ⇒ 位于二者之下、⛔ 不反依赖页面。
  */
 
-import { LEVELS_THUMB_AREA, MENU_BADGE, MENU_SEAL, MENU_TEXTURES, THUMB_STAR_BAND, UI_CONTAINER } from '../config/tuning';
+import { MENU_BADGE, MENU_SEAL, MENU_TEXTURES, THUMB_AREA, THUMB_STAR_BAND, UI_CONTAINER } from '../config/tuning';
 import { COPY_TOKENS } from '../config/copy-tokens';
 import { type RenderModelBuilder } from '../../framework/index';
 import { beadFadedInksFor, type BeadsPalette } from './palette';
@@ -152,7 +152,7 @@ function drawLockedWallCell(
         radius: UI_CONTAINER.radiusChip,
     });
     if (level !== undefined) {
-        drawLevelThumb(builder, level, cell.x, cell.y, cell.w, cell.h, thumbN, LEVELS_THUMB_AREA, beadFadedInksFor(level));
+        drawLevelThumb(builder, level, cell.x, cell.y, cell.w, cell.h, thumbN, THUMB_AREA, beadFadedInksFor(level));
     }
     const d = MENU_BADGE.d;
     const inset = MENU_SEAL.inset;
@@ -222,7 +222,7 @@ export function drawWallCell(
         });
         return;
     }
-    drawLevelThumb(builder, level, b.box.x, y, b.box.w, b.box.h, thumbN, LEVELS_THUMB_AREA);
+    drawLevelThumb(builder, level, b.box.x, y, b.box.w, b.box.h, thumbN, THUMB_AREA);
 }
 
 /**

@@ -52,7 +52,7 @@ import {
 } from './meta-layout';
 import { drawMetaButton } from './meta-widgets';
 import { drawMenuAnchored } from './meta-menu';
-import { drawLevelsPage } from './meta-levels-page';
+import { drawLevelsContent } from './meta-levels-page';
 // `[WXG-T-432]` 好友榜面板占位视图（叠在菜单页之上；见下方 `buildMetaView` 末段）。
 import { drawRankPanel } from './rank-view';
 import { rankPanelLayout } from '../systems/rank-panel';
@@ -76,8 +76,8 @@ type PageDraw = (
     thumbN: number,
 ) => void;
 
-/** 内容块（弹窗纸面板之上、通用钮之前）：`signin` 七日格 / `settings` 10 钮。 */
-type ContentDraw = (builder: RenderModelBuilder, data: MetaViewData, palette: BeadsPalette, layout: MetaLayout) => void;
+/** 内容块（弹窗纸面板之上、通用钮之前）：`signin` 七日格 / `settings` 10 钮 / `levels` 格墙。 */
+type ContentDraw = (builder: RenderModelBuilder, data: MetaViewData, palette: BeadsPalette, layout: MetaLayout, thumbN: number) => void;
 
 /**
  * 弹窗三页共用的 chrome：遮罩 → 纸面板 → 标题 → 内容块 → 通用钮。
@@ -96,7 +96,7 @@ function panelPage(
     content?: ContentDraw,
     skipContentAction?: (id: MetaAction) => boolean,
 ): PageDraw {
-    return (builder, data, palette, layout, a) => {
+    return (builder, data, palette, layout, a, _withSignage, thumbN) => {
         builder.rect(0, 0, DESIGN_W, a.H, { fill: scrimFill(UI_SCRIM.overlay, scrimAlpha) });
         const plate = overlayPlate();
         builder.rect(plate.x, plate.y, plate.w, plate.h, { fill: palette.panel, radius: UI_CONTAINER.radiusPanel });
@@ -106,7 +106,7 @@ function panelPage(
             align: 'center',
             baseline: 'middle',
         });
-        content?.(builder, data, palette, layout);
+        content?.(builder, data, palette, layout, thumbN);
         for (const b of layout.buttons) {
             // 内容块自己画过的钮（`settings` 十钮）与选关格恒不由本循环铺；未配服务的导入钮不画也不该被点。
             if (skipContentAction?.(b.id)) continue;
@@ -140,10 +140,12 @@ const MENU_PAGE: PageDraw = (builder, data, palette, _layout, a, withSignage) =>
     }
 };
 
-/** 选关**整页**：页底 = `palette.background`（不透明）⇒ ⛔ 不画遮罩、不画纸面板，标题住导航栏带。 */
-const LEVELS_PAGE: PageDraw = (builder, data, palette, layout, _a, _withSignage, thumbN) => {
-    drawLevelsPage(builder, data, palette, layout.buttons, thumbN);
-};
+/** 选关**弹窗**（`[WXG-T-503]` 改判回弹窗）：与设置/签到同走 `panelPage`（遮罩 + 纸面板 + 标题 + 通用钮）。 */
+const LEVELS_PAGE: PageDraw = panelPage(
+    COPY_TOKENS.btn_levels_label,
+    UI_SCRIM.alpha,
+    (builder, data, palette, layout, thumbN) => drawLevelsContent(builder, data, palette, layout.buttons, thumbN),
+);
 
 /**
  * `overlay → 页面` 表（行序 = 屏序，取代原 `buildMetaView` 的四段 `overlay ===` 串判）。
@@ -177,7 +179,8 @@ const META_PAGES: Record<MetaOverlay, PageDraw> = {
  */
 const BASE_PAGE: Record<MetaOverlay, MetaOverlay | null> = {
     none: 'none',
-    levels: 'levels',
+    // `[WXG-T-503]` 选关改回**弹窗**（叠主菜单）⇒ 底页 = `none`。
+    levels: null,
     signin: null,
     settings: null,
     skins: null,
@@ -209,19 +212,9 @@ export function buildMetaView(
     const base: MetaOverlay = BASE_PAGE[data.overlay] ?? 'none';
     // 钮表只在 `metaLayout` 缓存里取（`pressed` 对象身份比对依赖同一引用）。
     const layout = metaLayout(base, rows);
-    // UI-42 前置（WXG-T-314）：菜单 ↔ 选关页转场。`pageFade` = 选关页不透明度，底页恒为主菜单；
-    // 淡入 / 淡出都只变选关页（含自身不透明页底）的组透明度，⛔ 不新增动画时钟。
-    // `undefined`（缺省）⇒ 原路径逐字不变（金样本 / 封箱基线零漂移）。
-    const pageFade = data.pageFade;
-    if (pageFade !== undefined && pageFade < 1) {
-        MENU_PAGE(builder, data, palette, layout, A, withSignage, thumbN);
-        builder.setAlpha(pageFade);
-        // 整页不透明：不加这层，淡入时菜单会从格缝里透出来（页底 = 背景色，与静息帧同色）。
-        builder.rect(0, 0, DESIGN_W, A.H, { fill: palette.background });
-        LEVELS_PAGE(builder, data, palette, layout, A, withSignage, thumbN);
-    } else {
-        META_PAGES[base](builder, data, palette, layout, A, withSignage, thumbN);
-    }
+    // `[WXG-T-503]` 选关改回弹窗后，菜单↔选关的 `pageFade` 转场由 `buildMetaModal` 在
+    // 弹窗容器内施加（见该函数）⇒ 本函数只负责画底页。
+    META_PAGES[base](builder, data, palette, layout, A, withSignage, thumbN);
     // 四条腿历史上都在末尾画标定线 ⇒ 表化后统一提到一处（顺序与内容与改前逐字一致）。
     // `[ADR-0033 §S1]` 标定线同属调试层 ⇒ 走恒置顶容器，弹窗打开时也不被遮罩压掉。
     if (data.debugGuides) {
@@ -276,7 +269,12 @@ export function buildMetaModal(
     const withSignage = variant?.signage !== false;
     const A = data.anchors ?? DEFAULT_MENU_ANCHORS;
     const layout = metaLayout(data.overlay, rows);
+    // `[WXG-T-503]` 选关改回弹窗：保留菜单↔选关的 `pageFade`（100ms/200ms）⇒ 只把不透明度
+    // 施加在**弹窗自己的命令**上（底页菜单已由另一条页面路由画完，不跟着淡）。
+    const fade = data.pageFade;
+    if (fade !== undefined && fade < 1) builder.setAlpha(fade);
     META_PAGES[data.overlay](builder, data, palette, layout, A, withSignage, thumbN);
+    if (fade !== undefined && fade < 1) builder.resetAlpha();
 }
 
 /**

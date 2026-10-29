@@ -16,7 +16,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { RenderModelBuilder, type DrawCommand } from '@wxgame/framework';
-import { buildMetaView, metaLayout, type MetaButton, type MetaViewData } from '../src/view/meta-view.js';
+import { buildMetaModal, metaLayout, type MetaButton, type MetaViewData } from '../src/view/meta-view.js';
 import { LEVELS } from '../src/config/levels.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import { DESIGN_H, DESIGN_W, UI_PRESS_SINK, WALL_ROWS } from '../src/config/tuning.js';
@@ -54,7 +54,8 @@ const dataFor = (extra: Partial<MetaViewData> = {}): MetaViewData => {
 const frame = (data: MetaViewData): readonly DrawCommand[] => {
     const b = new RenderModelBuilder(DESIGN_W, DESIGN_H);
     b.begin();
-    buildMetaView(b, data, DEFAULT_PALETTE);
+    // `[WXG-T-503]` 选关 = 弹窗：本文件只测格按下态 ⇒ 只画弹窗腿（底页菜单不参与断言）。
+    buildMetaModal(b, data, DEFAULT_PALETTE);
     return b.end().commands;
 };
 

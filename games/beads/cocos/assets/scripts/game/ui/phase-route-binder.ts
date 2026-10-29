@@ -3,17 +3,15 @@
  *
  * 把「屏幕相位 + 菜单覆盖层」翻译成框架 {@link Navigator} 的 push / pop：
  * 栈底恒有且只有一个基础页（`menu` 或 `play`），菜单侧覆盖层压在它上面 ——
- * `levels` 是**页**（不透明，盖住菜单），`signin` / `settings` 是**弹窗**（透明）。
+ * `[WXG-T-503]` 选关改判回**弹窗**：`levels` 与 `signin` / `settings` 同属透明弹窗（叠在菜单上）。
  * 壳不再持 `_screen` / `_overlay` 标志位：`screen` / `overlay` 都从栈上**投影**出来
  * （DEC-3：栈即导航状态）。
  *
  * 热路径零分配：转场只推 / 弹引用；投影只读栈顶。三条内容路由（menu / play / levels）
  * 由构造期闭包给出 `draw`（UI-50：`UiRoot` 是唯一绘制入口），弹窗路由是模块级单例。
  *
- * ⚠ 边界 ①：`levels` 是**页**（盖住菜单）⇒ 它的 `draw` 复用菜单腿入口（视图按 overlay 走页分支）；
- * `signin` / `settings` / `skins` 是**透明弹窗**，`[UI-60 P1 / ADR-0033 DEC-1]` 起**自持 `draw`**
- * （`drawers.modal` ⇒ `buildMetaModal`），由 `UiRoot.draw` 包一层容器边界 ⇒ 底下 menu 路由照常
- * 画底页（半透遮罩有东西可透），弹窗容器整体压在其上。
+ * ⚠ 边界 ①：`[WXG-T-503]` 起 `levels` 也是**弹窗**（自持 `draw` ⇒ `drawers.modal`），由 `UiRoot.draw`
+ * 包容器边界 ⇒ 底下 menu 路由照常画底页（半透遮罩有东西可透），弹窗整体压在其上。
  * `[WXG-T-440]` 边界 ② 已收口：对局腿的相位面板（`paused` / `level-clear` / `game-over` /
  * `finish`）**注册成 modal 路由**（{@link PhaseModal}），渲染与命中都从本表出。
  * 相位状态本身仍由 `BeadsGame` 持有（唯一真源）—— 本类只做 `syncPhase()` 的**幂等对账**，
@@ -29,7 +27,7 @@ import type { UiRoute } from './ui-root';
 export type ShellScreen = 'play' | 'menu';
 
 /** 菜单侧覆盖层（与 `MetaOverlay` 的呈现侧取值一一对应）。 */
-export type MenuOverlay = 'signin' | 'settings' | 'skins' | 'profile';
+export type MenuOverlay = 'levels' | 'signin' | 'settings' | 'skins' | 'profile';
 
 /** `[WXG-T-470/471/472]` 批 1：菜单侧覆盖层合法路由名（含 levels 页 + 弹窗；`[WXG-T-501]` 图鉴 / 本地榜下线）。 */
 const MENU_OVERLAY_NAMES: ReadonlySet<MetaOverlay> = new Set<MetaOverlay>([
@@ -96,7 +94,6 @@ export class PhaseRouteBinder {
     /** 基础页路由（每个壳一份：`draw` 闭包绑到该壳的视图入口）。 */
     private readonly _menuRoute: UiRoute;
     private readonly _playRoute: UiRoute;
-    private readonly _levelsRoute: UiRoute;
     /** 弹窗路由表（`MenuOverlay` 全覆盖 ⇒ `openModal` 无三元链、新增一档只加一行）。 */
     private readonly _modals: Record<MenuOverlay, UiRoute>;
     /** `[WXG-T-440]` 相位面板路由表（`PhaseModal` 全覆盖）。 */
@@ -110,10 +107,10 @@ export class PhaseRouteBinder {
     ) {
         this._menuRoute = { name: 'menu', kind: 'page', draw: (b) => drawers.menu(b) };
         this._playRoute = { name: 'play', kind: 'page', draw: (b) => drawers.play(b) };
-        // 页路由挡住菜单 ⇒ 必须自己画；复用菜单腿入口（`data.overlay === 'levels'` 选页分支）。
-        this._levelsRoute = { name: 'levels', kind: 'page', draw: (b) => drawers.menu(b) };
         // `[UI-60 P1 / ADR-0033 DEC-1]` 弹窗自持绘制（构造期一次建表，⛔ 每帧不新建）。
         this._modals = {
+            // `[WXG-T-503]` 选关 = 弹窗（格 120；底页菜单照常画 ⇒ 遮罩可透）。
+            levels: { name: 'levels', kind: 'modal', draw: (b) => drawers.modal(b, 'levels') },
             signin: { name: 'signin', kind: 'modal', draw: (b) => drawers.modal(b, 'signin') },
             settings: { name: 'settings', kind: 'modal', draw: (b) => drawers.modal(b, 'settings') },
             /** `[WXG-T-363]` 装扮馆弹窗（入口 = 设置弹窗行5 左格 `open-skins`）。 */
@@ -161,10 +158,10 @@ export class PhaseRouteBinder {
         this._nav.reset([screen === 'play' ? this._playRoute : this._menuRoute]);
     }
 
-    /** 主菜单 → 选关页（页路由），同时记下大关上下文。 */
+    /** 主菜单 → 选关弹窗（modal），同时记下大关上下文。 */
     openLevels(arc: number): void {
         this._levelsArc = arc;
-        this._nav.push(this._levelsRoute);
+        this._nav.push(this._modals.levels);
     }
 
     /** 菜单 → 弹窗（透明，底下仍画主菜单）。 */

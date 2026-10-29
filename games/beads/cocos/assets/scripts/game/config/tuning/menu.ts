@@ -1,6 +1,6 @@
 import { ARCS } from '../arcs';
 import { BEAD_CELL, BEAD_GAP, TOUCH_MIN } from './board';
-import { DESIGN_H, DESIGN_W, MENU_TOPBAR_VISUAL_D, SAFE_BOTTOM_H, SAFE_EDGE_MARGIN, SAFE_TOP_H, menuTopbarTop } from './layout';
+import { DESIGN_H, DESIGN_W, MENU_TOPBAR_VISUAL_D, SAFE_BOTTOM_H, SAFE_TOP_H, menuTopbarTop } from './layout';
 import { BEAD_DRAW_INSET } from './visual';
 
 // ─────────────────────────────────────────────────────── §3.6b finish screen
@@ -699,31 +699,10 @@ export const THUMB_AREA = WALL_CELL - THUMB_TOP_INSET - THUMB_STAR_BAND;
  */
 export const THUMB_BEADS_MAX = THUMB_MATRIX_N * THUMB_MATRIX_N;
 
-// ─────────── 选关**整页**版面档（版式 P；正本 = `design/ux/level-select-page-layout.md` v0.2 §2，
-//   ADR-0032 D5：选关从 600×720 弹窗改整页；美术侧同值 = `menu-wall-signage-spec §3.9`）
-//   ⚠ **页专用**：⛔ 不改 `WALL_CELL`（120，`THUMB_AREA` 由它派生）与 `WALL_CAPACITY`（9）；
-//   缩略走 `drawLevelThumb` 既有 `area` 入参 ⇒ 零新增绘制分支。
-/** 页格边长（170 ≈ 原 120 × 1.4；热区 ≥ `TOUCH_MIN` 88 ✔）。 */
-export const LEVELS_CELL = 170;
-/** 页格间距（30）。 */
-export const LEVELS_GAP = 30;
-/** 网格左缘（x∈[90,660] ⇒ 三列列左缘 90 / 290 / 490）。 */
-export const LEVELS_GRID_LEFT = 90;
-/** 网格**上沿** y（第 1 行格上边；行区间 [652,822] / [452,622] / [252,422]）。 */
-export const LEVELS_GRID_TOP = 822;
-/** 缩略区边长 = `LEVELS_CELL − THUMB_TOP_INSET − THUMB_STAR_BAND`（= **134**：格径增量 +50 全给缩略）。 */
-export const LEVELS_THUMB_AREA = LEVELS_CELL - THUMB_TOP_INSET - THUMB_STAR_BAND;
-/** 返回钮宽（240×88 @ x∈[255,495]；高度 = `TOUCH_MIN`）。 */
-export const LEVELS_BACK_W = 240;
-/** 返回钮**下缘** y = 安全底边兜底 68 + 48（确认单 §2 原值；真机安全区下移留待后续批）。 */
-export const LEVELS_BACK_BOTTOM = SAFE_BOTTOM_H + 48;
-/** 导航栏标题带高（仅标题，⛔ 无返回键；返回走底部 `back`）。 */
-export const LEVELS_NAV_H = 88;
-/**
- * 标题带**顶缘**兜底 y（= `DESIGN_H − (SAFE_TOP_H + SAFE_EDGE_MARGIN)` = **1210**）。
- * 真机消费侧优先读 `MenuAnchors.btTopY`（胶囊底缘派生）⇒ 本值只兜底无接口宿主。
- */
-export const LEVELS_NAV_TOP = DESIGN_H - (SAFE_TOP_H + SAFE_EDGE_MARGIN);
+// ─────────── 选关版面（`[WXG-T-503]` 改判回弹窗；正本 = `design/ux/level-select-page-layout.md` v0.7 §2）
+//   弹窗 600×720 内 3×3 格 = **`WALL_CELL`(120) / `WALL_GAP`(22)**（与作品墙同一套，⛔ 不造第二套格径），
+//   缩略 = `THUMB_AREA`(84)；返回 240×88 @ 板底 +50。
+//   ⚠ 原整页档 `LEVELS_CELL/GAP/GRID_*/THUMB_AREA/BACK_*/NAV_*` 已随 WXG-T-503 退场（ADR-0032 D5 改判）。
 
 /**
  * `[WXG-T-271 / ADR-0031 DEC=C′]` boss 关缩略**静态位图**映射（`level.id` → `textureId`）。

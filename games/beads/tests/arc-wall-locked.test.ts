@@ -15,11 +15,11 @@
 
 import { describe, it, expect, afterEach } from 'vitest';
 import { RenderModelBuilder, type DrawCommand } from '@wxgame/framework';
-import { buildMetaView, metaLayout, setMenuBitmapResolver, type MetaButton, type MetaViewData } from '../src/view/meta-view.js';
+import { buildMetaModal, metaLayout, setMenuBitmapResolver, type MetaButton, type MetaViewData } from '../src/view/meta-view.js';
 import { LEVELS } from '../src/config/levels.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import {
-    DESIGN_H, DESIGN_W, LEVELS_CELL, LEVELS_GAP, LEVELS_THUMB_AREA, MENU_TEXTURES, THUMB_TOP_INSET, WALL_COLS, WALL_CAPACITY, WALL_ROWS,
+    DESIGN_H, DESIGN_W, MENU_TEXTURES, THUMB_AREA, THUMB_TOP_INSET, WALL_CELL, WALL_COLS, WALL_CAPACITY, WALL_GAP, WALL_ROWS,
 } from '../src/config/tuning.js';
 
 /** 单点图元是否落在该格框内（框含 1px 容差，锁章与珠阵均按格心布点）。 */
@@ -40,10 +40,10 @@ const dashedInCell = (c: DrawCommand, b: MetaButton): boolean => {
 
 /** 缩略区框（与 `drawLevelThumb` 同取顶口径）⇒ 只统计盘面色块，不把格底/星带算进来。 */
 const thumbBox = (b: MetaButton): { x: number; y: number; w: number; h: number } => ({
-    x: b.box.x + (b.box.w - LEVELS_THUMB_AREA) / 2,
-    y: b.box.y + b.box.h - THUMB_TOP_INSET - LEVELS_THUMB_AREA,
-    w: LEVELS_THUMB_AREA,
-    h: LEVELS_THUMB_AREA,
+    x: b.box.x + (b.box.w - THUMB_AREA) / 2,
+    y: b.box.y + b.box.h - THUMB_TOP_INSET - THUMB_AREA,
+    w: THUMB_AREA,
+    h: THUMB_AREA,
 });
 
 /** `[WXG-T-502]` 缩略图只画盘面 ⇒ 色块是 `rect`（非 polygon/circle）。 */
@@ -74,7 +74,8 @@ const dataFor = (extra: Partial<MetaViewData> = {}): MetaViewData => {
 const frame = (data: MetaViewData): readonly DrawCommand[] => {
     const b = new RenderModelBuilder(DESIGN_W, DESIGN_H);
     b.begin();
-    buildMetaView(b, data, DEFAULT_PALETTE);
+    // `[WXG-T-503]` 选关 = 弹窗：本文件只测墙格内容 ⇒ **只画弹窗腿**（底页菜单不参与断言）。
+    buildMetaModal(b, data, DEFAULT_PALETTE);
     return b.end().commands;
 };
 
@@ -90,17 +91,17 @@ const isGrayHex = (fill: unknown): boolean => {
 
 afterEach(() => setMenuBitmapResolver());
 
-describe('EP13-FU-1 墙几何 3×3（A1；UI-34 起 = 整页版式 P）', () => {
-    it('列数 3 ⇒ 容量 9、热区 9 格、网格 570×570（格 170 / 间距 30）', () => {
+describe('EP13-FU-1 墙几何 3×3（A1；`[WXG-T-503]` 起 = 弹窗版式）', () => {
+    it('列数 3 ⇒ 容量 9、热区 9 格、网格 404×404（格 120 / 间距 22）', () => {
         expect(WALL_COLS).toBe(3);
         expect(WALL_CAPACITY).toBe(9);
         const cs = cells();
         expect(cs).toHaveLength(WALL_COLS * WALL_ROWS);
         const left = cs[0]!.box.x;
-        const right = cs[cs.length - 1]!.box.x + LEVELS_CELL;
-        expect(right - left).toBe(WALL_COLS * LEVELS_CELL + (WALL_COLS - 1) * LEVELS_GAP);
+        const right = cs[cs.length - 1]!.box.x + WALL_CELL;
+        expect(right - left).toBe(WALL_COLS * WALL_CELL + (WALL_COLS - 1) * WALL_GAP);
         // 行序与竖向几何不变（逐行下推一格 + 一缝）。
-        expect(cs[3]!.box.y).toBe(cs[0]!.box.y - (LEVELS_CELL + LEVELS_GAP));
+        expect(cs[3]!.box.y).toBe(cs[0]!.box.y - (WALL_CELL + WALL_GAP));
     });
 });
 
@@ -168,7 +169,7 @@ describe('K-6 台账重采（capturedFrom = 本文件现算）', () => {
     const frameVariant = (data: MetaViewData, wallRows: number): readonly DrawCommand[] => {
         const b = new RenderModelBuilder(DESIGN_W, DESIGN_H);
         b.begin();
-        buildMetaView(b, data, DEFAULT_PALETTE, { wallRows });
+        buildMetaModal(b, data, DEFAULT_PALETTE, { wallRows });
         return b.end().commands;
     };
 
@@ -180,7 +181,7 @@ describe('K-6 台账重采（capturedFrom = 本文件现算）', () => {
         const floor = (() => {
             const b = new RenderModelBuilder(DESIGN_W, DESIGN_H);
             b.begin();
-            buildMetaView(b, dataFor({ maxUnlockedLevel: 1 }), DEFAULT_PALETTE, { wallRows: 2, thumbN: 3, signage: false });
+            buildMetaModal(b, dataFor({ maxUnlockedLevel: 1 }), DEFAULT_PALETTE, { wallRows: 2, thumbN: 3, signage: false });
             return b.end().commands;
         })();
         console.info(

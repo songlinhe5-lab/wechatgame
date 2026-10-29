@@ -39,8 +39,9 @@ import { DESIGN_H, DESIGN_W } from '../src/config/tuning.js';
  */
 const CONTAINER_EXPECT: Readonly<Record<string, number>> = {
     'main-menu': 0,
-    'level-select': 0,
-    'level-select-mid': 0,
+    // `[WXG-T-503]` 选关改回弹窗 ⇒ 整页/转场中点都自持一个容器。
+    'level-select': 1,
+    'level-select-mid': 1,
     settings: 1,
     signin: 1,
     play: 0,

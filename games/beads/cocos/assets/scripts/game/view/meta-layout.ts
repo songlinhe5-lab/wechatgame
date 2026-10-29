@@ -6,7 +6,7 @@
  * 缓存分两档：默认行数 = 按 anchors 引用（WeakMap，逐机主菜单）；变参行数只服务 K-6 同帧差分腿。
  */
 
-import { DESIGN_H, DESIGN_W, LEVELS_BACK_BOTTOM, LEVELS_BACK_W, LEVELS_CELL, LEVELS_GAP, LEVELS_GRID_LEFT, LEVELS_GRID_TOP, MENU_ARROW_VISUAL_D, MENU_ARROW_X, MENU_BADGE, MENU_BAR_FRAME, MENU_BAR_H, MENU_BAR_TOP_INSET, MENU_BOSS_SLOT, MENU_CASE_FRAME, MENU_CASE_H, MENU_CLIP, MENU_CTA_H, MENU_CTA_X, MENU_DONE_ICON, MENU_PLATE, MENU_PRIMARY_W, MENU_SIGN_FRAME, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_X, TOUCH_MIN, WALL_COLS, WALL_ROWS, dialogShiftY, menuAnchors, type MenuAnchors } from '../config/tuning';
+import { DESIGN_H, DESIGN_W, MENU_ARROW_VISUAL_D, MENU_ARROW_X, MENU_BADGE, MENU_BAR_FRAME, MENU_BAR_H, MENU_BAR_TOP_INSET, MENU_BOSS_SLOT, MENU_CASE_FRAME, MENU_CASE_H, MENU_CLIP, MENU_CTA_H, MENU_CTA_X, MENU_DONE_ICON, MENU_PLATE, MENU_PRIMARY_W, MENU_SIGN_FRAME, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_X, TOUCH_MIN, WALL_CELL, WALL_COLS, WALL_GAP, WALL_ROWS, dialogShiftY, menuAnchors, type MenuAnchors } from '../config/tuning';
 import { settingsContentButtons } from './settings-content';
 import { signinCellLayout } from './signin-content';
 import { skinCardBoxes } from './skins-content';
@@ -65,12 +65,11 @@ export function overlayPlate(): Box {
     return _overlayPlate;
 }
 /**
- * 生成 `WALL_COLS × rows` 个作品格热区（选关**整页**，版式 P：格 `LEVELS_CELL` / 间距 `LEVELS_GAP`）。
+ * 生成 `WALL_COLS × rows` 个作品格热区（选关**弹窗**，格 = `WALL_CELL` / 间距 = `WALL_GAP`，与作品墙同一套）。
  * 只带**槽位**——关索引由 shell 的 `wallSlots` 映射解析 ⇒ 视图侧无从「按槽当关」。
  *
  * 坐标口径（本设计空间 **y 向上**、`box.y` = 下缘）：`topY` = 网格**上沿**（第 1 行格的上边），
- * 第 r 行格下缘 = `topY − LEVELS_CELL − r×(LEVELS_CELL+LEVELS_GAP)` ⇒ 整墙占
- * `[topY − 570, topY]`（3 行 ⇒ 570 高，= 确认单 §2 的 y∈[252,822]）。
+ * 第 r 行格下缘 = `topY − WALL_CELL − r×(WALL_CELL+WALL_GAP)`。
  *
  * `rows`（缺省 `WALL_ROWS`）= K-6 差分腿的陈列行数（回退序 1「格 3→2 行」）⇒ 槽数 `WALL_COLS × rows`，
  * 列几何与行序**逐字不变**（只是少画一行）；默认档 = `WALL_CAPACITY`（3×3 = 9）。
@@ -84,32 +83,73 @@ function pushWallCells(buttons: MetaButton[], startX: number, topY: number, rows
             id: 'pick-level',
             slot,
             box: box(
-                startX + col * (LEVELS_CELL + LEVELS_GAP),
-                topY - LEVELS_CELL - row * (LEVELS_CELL + LEVELS_GAP),
-                LEVELS_CELL,
-                LEVELS_CELL,
+                startX + col * (WALL_CELL + WALL_GAP),
+                topY - WALL_CELL - row * (WALL_CELL + WALL_GAP),
+                WALL_CELL,
+                WALL_CELL,
             ),
         });
     }
 }
 
 /**
- * 选关**整页**（ADR-0032 D5 / 版式 P）：格墙直接落不透明页底 ⇒ ⛔ 无遮罩、无纸面板。
- * 版面数值唯一真源 = `design/ux/level-select-page-layout.md` v0.3 §2；页专用常量 = `tuning::LEVELS_*`
- * （⛔ 不改共享 `WALL_CELL` / `WALL_CAPACITY`；缩略 134 走 `drawLevelThumb` 既有 `area` 入参）。
- * 入口仍由 shell 的 `levels` 态驱动（UiRoot 页面路由接线归 UI-40 / UI-42，本批不改路由语义）。
+ * 选关**弹窗**版面度量（单源，绘制与热区共读；`[WXG-T-503]` 改判）。
+ * 正本 = `design/ux/level-select-page-layout.md` v0.7 §2：600×720 纸面板内 3×3 格
+ * （`WALL_CELL` 120 / `WALL_GAP` 22）、返回 240×88 @ 板底 +50；章名与星进度 **同行**，
+ * 判星对照行在网格上方（两行信息）。
+ */
+export interface LevelsPanelMetrics {
+    readonly plate: Box;
+    readonly gridLeft: number;
+    readonly gridTop: number;
+    readonly gridW: number;
+    readonly gridH: number;
+    readonly cell: number;
+    readonly gap: number;
+    readonly backY: number;
+    readonly backW: number;
+    readonly backH: number;
+    readonly chapterY: number;
+    readonly progressY: number;
+    readonly criteriaY: number;
+}
+
+export function levelsPanelMetrics(rows: number = WALL_ROWS): LevelsPanelMetrics {
+    const plate = overlayPlate();
+    const gridW = WALL_COLS * WALL_CELL + (WALL_COLS - 1) * WALL_GAP;
+    const gridH = rows * WALL_CELL + (rows - 1) * WALL_GAP;
+    const gridLeft = plate.x + (plate.w - gridW) / 2;
+    const backY = plate.y + 50;
+    const gridTop = backY + TOUCH_MIN + 12 + gridH;
+    return {
+        plate,
+        gridLeft,
+        gridTop,
+        gridW,
+        gridH,
+        cell: WALL_CELL,
+        gap: WALL_GAP,
+        backY,
+        backW: 240,
+        backH: TOUCH_MIN,
+        chapterY: gridTop + 64,
+        progressY: gridTop + 64,
+        criteriaY: gridTop + 24,
+    };
+}
+
+/**
+ * 选关**弹窗**：格墙 + 居中返回（标题 / 遮罩 / 纸面板由 `panelPage` 负责）。
+ * `[WXG-T-501]` 图鉴 / 本地榜两入口下线 ⇒ 底排只剩返回。
  */
 function levelsLayout(rows: number): MetaLayout {
+    const m = levelsPanelMetrics(rows);
     const buttons: MetaButton[] = [];
-    pushWallCells(buttons, LEVELS_GRID_LEFT, LEVELS_GRID_TOP, rows);
-    // 返回（导航栏只放标题 ⇒ 返回仍走底部 `back`，240×88）
-    const backX = (DESIGN_W - LEVELS_BACK_W) / 2;
+    pushWallCells(buttons, m.gridLeft, m.gridTop, rows);
     buttons.push({
         id: 'back',
-        box: box(backX, LEVELS_BACK_BOTTOM, LEVELS_BACK_W, TOUCH_MIN),
+        box: box((DESIGN_W - m.backW) / 2, m.backY, m.backW, m.backH),
     });
-    // `[WXG-T-501]` **图鉴 / 本地榜两入口下线**（用户 2026-10-29：「本地榜应该没啥用」+「图鉴是每小关陈列、无专属设计」）
-    // ⇒ 底排只留居中返回（原三钮同行两侧的几何随入口一并删除；底排不再靠近安全区两侧）。
     return { buttons, signinCells: [] };
 }
 
