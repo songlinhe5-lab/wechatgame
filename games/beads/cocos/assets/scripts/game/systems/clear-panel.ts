@@ -20,30 +20,26 @@
  * 而 `ux-spec §4` 的流转表写的是「LEVEL_CLEAR → 下一关 / 去冲刺*(U1) → 玩法·n+1 / 玩法·冲刺」
  * ⇒ **面板必须等按钮**，自动推进已删除（`LEVEL_CLEAR_DELAY_S` 随之退休）。
  *
- * `[WXG-T-432]` 按钮行右侧追加「好友 / 这关榜」纸 chip：ADR-0035 §5.2 S-3 的结算面板上下文入口
- * （`settle` 榜），与主钮同排、右缘贴 `panel.xMax - PANEL_PADDING`；`PANEL_SIZE` 零改动。
+ * `[WXG-T-509]` 精简为 **A·静纸卡**：面板 520×440、四类内容（星/用时/豆/差距提示）、
+ * 单钮 320×92。品质分与「好友这关榜」chip 从面板退场（品质分仍算、仍进榜；好友榜仍在首页）。
  */
 
 import {
-  // `[WXG-T-432]` 复引入 `CLEAR_BUTTON_GAP`：好友榜 chip 与主钮同排的间距。
-  CLEAR_BUTTON_GAP,
-  CLEAR_BUTTON_W,
+  CLEAR_ACTION_H,
+  CLEAR_ACTION_W,
+  CLEAR_PANEL_SIZE,
   CLEAR_STAR_GAP,
   CLEAR_STAR_SIZE,
   CLEAR_STAR_STEP_MS,
   DESIGN_H,
   DESIGN_W,
-  PANEL_BUTTON_H,
-  PANEL_PADDING,
-  PANEL_ROW_GAP,
-  PANEL_SIZE,
   dialogShiftY,
 } from '../config/tuning';
 import { rectContains, type PanelRect } from './pause-panel';
 import { ResultPanelClock } from './result-panel';
 
-/** 面板按钮能请求的三件事（动作由 `BeadsGame` 执行）。 */
-export type ClearPanelAction = 'next' | 'sprint' | 'rank';
+/** 面板按钮能请求的两件事（动作由 `BeadsGame` 执行；`sprint` 入口仍隐藏）。 */
+export type ClearPanelAction = 'next' | 'sprint';
 
 export interface ClearButton {
   readonly id: ClearPanelAction;
@@ -51,34 +47,24 @@ export interface ClearButton {
 }
 
 export interface ClearPanelLayout {
-  /** 对话框底板。 */
+  /** 对话框底板（`[WXG-T-509]` 520×440，其他面板不受影响）。 */
   readonly panel: PanelRect;
-  /** 两个按钮，视觉优先级序（主钮在前）。 */
+  /** 主钮（仅 `next`；`sprint` 入口仍隐藏）。 */
   readonly buttons: readonly ClearButton[];
-  /** 好友这关榜纸 chip（ADR-0035 S-3）：与主钮同排，右缘抵 `panel.xMax - PANEL_PADDING`。 */
-  readonly rankChip: PanelRect;
-  /** 缎带标题基线 y。 */
+  /** 标题基线 y。 */
   readonly titleY: number;
-  /**
-   * 品质分行中心 y（ADR-0035 §3.2.1 ②）——缎带顶与面板顶缘之间的空带中点。
-   * 面板共用 560×480 冻结几何，`PANEL_SIZE` 零改动（只吃既有 98px 净空）。
-   */
-  readonly qualityY: number;
+  /** 标题下细金线 y。 */
+  readonly dividerY: number;
   /** 星级行中心 y。 */
   readonly starsY: number;
-  /**
-   * 结算发豆行中心 y（§3.14 v1.81）——**星级正下方**（星底 = `starsY + CLEAR_STAR_SIZE/2 = +32`，
-   * 缎带顶 ≈ `titleY − 40` ⇒ 净空 32~70，取中点 `starsY + 56`）。
-   */
+  /** 用时行中心 y。 */
+  readonly timeY: number;
+  /** 发豆行中心 y。 */
   readonly rewardY: number;
-  /**
-   * 判星对照行中心 y（ux-spec §3.4 v1.23）——夹在次要信息行与星级行之间。
-   * 旧口径「星级行中心 = `infoY + 70`」下该带净空只有 ~32 设计像素，容不下
-   * art-bible 最小字号 28 的一行 ⇒ WXG-T-355 把星级行抬到 `infoY + 92`，本行取中点。
-   */
-  readonly criteriaY: number;
-  /** 次要信息基线 y（「剩余 mm:ss ｜ 道具 n/3」）。 */
-  readonly infoY: number;
+  /** 差距提示行中心 y（仅未满 3★ 时画）。 */
+  readonly hintY: number;
+  /** 核心信息区（限定 400×192）：星 / 用时 / 豆 / 提示 必须落在框内。 */
+  readonly content: PanelRect;
   /** 三颗星的中心 x（索引 0 = 最左）。 */
   readonly starX: readonly number[];
 }
@@ -91,12 +77,8 @@ export interface ClearPanelOptions {
   readonly lastLevel: boolean;
 }
 
-/** 缎带标题（ux-spec §3.4）。 */
-export const CLEAR_PANEL_TITLE = '🎉 闯关成功';
-/** 金色缎带高度（ux-spec §3.4；视图与布局共用，⛔ 两处各写 84）。 */
-export const CLEAR_RIBBON_H = 84;
-/** 好友这关榜纸 chip 宽（`[WXG-T-432]`；ADR-0035 §5.2 S-3 结算面板上下文入口）。 */
-export const CLEAR_RANK_CHIP_W = 110;
+/** 标题（`[WXG-T-509]` 精简：去 emoji、去缎带）。 */
+export const CLEAR_PANEL_TITLE = '过关';
 
 function rect(x: number, y: number, w: number, h: number): PanelRect {
   return { xMin: x, yMin: y, xMax: x + w, yMax: y + h };
@@ -117,46 +99,36 @@ export function clearPanelLayout(opts: ClearPanelOptions): ClearPanelLayout {
 
 function build(lastLevel: boolean): ClearPanelLayout {
   const panel = rect(
-    (DESIGN_W - PANEL_SIZE.w) / 2,
-    // `[WXG-T-323]` 与暂停面板同源位移 ⇒ 中心对齐手机中心（基准档 427 逐字不变）。
-    (DESIGN_H - PANEL_SIZE.h) / 2 + dialogShiftY(),
-    PANEL_SIZE.w,
-    PANEL_SIZE.h,
+    (DESIGN_W - CLEAR_PANEL_SIZE.w) / 2,
+    // `[WXG-T-323]` 与暂停面板同源位移 ⇒ 中心对齐手机中心。
+    (DESIGN_H - CLEAR_PANEL_SIZE.h) / 2 + dialogShiftY(),
+    CLEAR_PANEL_SIZE.w,
+    CLEAR_PANEL_SIZE.h,
   );
-  const rowY = panel.yMin + PANEL_PADDING;
-  // WXG-T-177（用户 2026-09-19「去冲刺按钮先隐藏」）：冲刺入口隐藏 ⇒ 仅「下一关」
-  // 单按钮并**居中**（旧口径「下一关 / ▶去冲刺」2 格均分见 `ux-spec §3.4` 图，
-  // 已按 K-053 删划线留档；`ClearPanelAction` 保留 `'sprint'` 成员与文案分支，
-  // 便于将来按 U1 原口径复建，但本函数不再产出该按钮 ⇒ 该动作永不可达）。
-  const startX = (DESIGN_W - CLEAR_BUTTON_W) / 2;
+  const rowY = panel.yMin + 48;
   const buttons: ClearButton[] = [
-    { id: 'next', rect: rect(startX, rowY, CLEAR_BUTTON_W, PANEL_BUTTON_H) },
+    { id: 'next', rect: rect((DESIGN_W - CLEAR_ACTION_W) / 2, rowY, CLEAR_ACTION_W, CLEAR_ACTION_H) },
   ];
-  // `[WXG-T-432]` 好友这关榜 chip（ADR-0035 §5.2 S-3）：主钮右侧、同一行；
-  // 右缘 = `startX + CLEAR_BUTTON_W + CLEAR_BUTTON_GAP + CLEAR_RANK_CHIP_W` = `panel.xMax - PANEL_PADDING`。
-  const rankChip = rect(startX + CLEAR_BUTTON_W + CLEAR_BUTTON_GAP, rowY, CLEAR_RANK_CHIP_W, PANEL_BUTTON_H);
-  const infoY = rowY + PANEL_BUTTON_H + PANEL_ROW_GAP;
-  // WXG-T-355：判星对照行落 `infoY + 41`（上下各留 ~13 净空），星级行随之抬到 +92；
-  // 缎带行距（`titleY = starsY + 110`）不动 ⇒ 面板顶缘余量由 120 收到 98，`PANEL_SIZE` 零改动。
-  const criteriaY = infoY + 41;
-  const starsY = infoY + 92;
+  // `[WXG-T-509]` 四行信息（自上而下，y 向上）：标题 → 星 → 用时 → 豆 →（可选）差距提示。
+  const titleY = panel.yMax - 56;
+  const dividerY = titleY - 34;
+  const starsY = titleY - 74;
+  const timeY = starsY - 56;
+  const rewardY = starsY - 100;
+  const hintY = starsY - 142;
+  // 核心信息区（限定 400×192）：星顶 789 ≤ 791，提示底 ≥ 599。
+  const contentTop = titleY - 40;
+  const contentBottom = rowY + CLEAR_ACTION_H + 12;
+  const content = rect((DESIGN_W - 400) / 2, contentBottom, 400, contentTop - contentBottom);
   const starsTotal = CLEAR_STAR_SIZE * 3 + CLEAR_STAR_GAP * 2;
   const firstStar = (DESIGN_W - starsTotal) / 2 + CLEAR_STAR_SIZE / 2;
   const starX = [0, 1, 2].map((i) => firstStar + i * (CLEAR_STAR_SIZE + CLEAR_STAR_GAP));
   void lastLevel; // 两个变体只差按钮文案（见 clearPanelLabel），几何相同
-  // §3.14 v1.81 结算发豆行：夹在**星底（starsY+32）**与**缎带顶（titleY−40）**之间取中点，
-  // `PANEL_SIZE` 与缎带行距（+110）均零改动。
-  const rewardY = starsY + 56;
-  const titleY = starsY + 110;
-  // 品质分行（ADR-0035 §3.2.1 ②）：缎带顶（y 向上 = `titleY + 缎带半高`）到面板顶缘的
-  // 98px 净空带取中点 ⇒ 不挤压既有六行、`PANEL_SIZE` / 缎带行距均零改动。
-  const qualityY = (titleY + CLEAR_RIBBON_H / 2 + panel.yMax) / 2;
-  return { panel, buttons, rankChip, titleY, qualityY, starsY, rewardY, criteriaY, infoY, starX };
+  return { panel, buttons, titleY, dividerY, starsY, timeY, rewardY, hintY, content, starX };
 }
 
 /** 按钮文案（`ux-spec §3.4`；末关主钮文案为派生项）。 */
 export function clearPanelLabel(id: ClearPanelAction, lastLevel: boolean): string {
-  if (id === 'rank') return '好友这关榜';
   if (id === 'sprint') return '▶ 去冲刺';
   return lastLevel ? '查看结果' : '下一关';
 }
@@ -167,7 +139,6 @@ export function hitClearPanel(x: number, y: number, opts: ClearPanelOptions): Cl
   for (const button of layout.buttons) {
     if (rectContains(button.rect, x, y)) return button.id;
   }
-  if (rectContains(layout.rankChip, x, y)) return 'rank';
   return null;
 }
 

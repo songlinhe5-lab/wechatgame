@@ -1,29 +1,26 @@
 /**
- * S7 结算·过关面板判据（WXG-T-063）。
+ * S7 结算·过关面板判据（WXG-T-063；`[WXG-T-509]` 精简重设计）。
  *
- * 冻结来源：`ux/ux-spec.md` §3.4（面板内容与双钮）、§4（流转表 ⇒ `LEVEL_CLEAR` **等按钮**）、
+ * 冻结来源：`ux/ux-spec.md` §3.4（v1.40：四行内容 + 单钮）、§4（`LEVEL_CLEAR` 等按钮）、
  * §5（星入场逐颗 150ms）。数值与几何镜像在 `config/tuning.ts`。
  *
- * ⚠️ 本文件替代的旧行为：`LEVEL_CLEAR` 曾是「1.4s 后自动进下一关」的占位——§4 的流转表
- * 写的是「LEVEL_CLEAR → 下一关 / 去冲刺*(U1) → 玩法·n+1 / 玩法·冲刺」，故**存在不推进**
- * 与**两条按钮出口**两个方向都要钉住（第一条是这次改动的回归闸门）。
+ * 本文件钉三件事：① 新几何（520×440 / 内容区 400×192 / 320×92 单钮）；
+ * ② 内容精简（只留 星 / 用时 / 豆 / 差距提示）；③ 时长文案（<60 秒 → `41秒`，≥60 → `1分05秒`）。
  */
 
 import { describe, expect, it } from 'vitest';
 import { RenderModelBuilder, type DrawCommand } from '@wxgame/framework';
 import {
+  CLEAR_ACTION_H,
+  CLEAR_ACTION_W,
+  CLEAR_PANEL_SIZE,
   DESIGN_H,
   DESIGN_W,
-  PANEL_BUTTON_H,
-  PANEL_PADDING,
-  PANEL_SIZE,
   TOUCH_MIN,
   normalSettleScore,
 } from '../src/config/tuning.js';
 import {
   CLEAR_PANEL_TITLE,
-  CLEAR_RANK_CHIP_W,
-  CLEAR_RIBBON_H,
   ClearPanel,
   clearPanelLabel,
   clearPanelLayout,
@@ -31,14 +28,15 @@ import {
 } from '../src/systems/clear-panel.js';
 import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
 import { buildBeadsFrame } from '../src/view/view-model.js';
+import { formatDurationCn } from '../src/view/ui-theme.js';
 import { createBeadsHarness, simpleTestLevel, advancePastClearWave, type Harness } from './helpers.js';
 
 const NORMAL = { lastLevel: false } as const;
 
-function render(harness: Harness): readonly DrawCommand[] {
+function render(harness: Harness, patch: Partial<Harness['game']['snapshot']> = {}): readonly DrawCommand[] {
   const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
   builder.begin();
-  buildBeadsFrame(builder, harness.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
+  buildBeadsFrame(builder, { ...harness.game.snapshot, ...patch }, DEFAULT_PALETTE, DEMO_BEAD_INKS);
   return builder.end().commands;
 }
 
@@ -61,68 +59,139 @@ function tapButton(harness: Harness, id: 'next' | 'sprint', lastLevel = false): 
   return harness.game.tapDesign((rect.xMin + rect.xMax) / 2, (rect.yMin + rect.yMax) / 2);
 }
 
-describe('S7 结算·过关面板（ux-spec §3.4/§4/§5）', () => {
-  it('lays the plate on panel_dialog with one ≥TOUCH_MIN button inside it（WXG-T-177：去冲刺隐藏后仅主钮）', () => {
+describe('S7 结算面板 · 精简几何（ux-spec §3.4 v1.40）', () => {
+  it('板 520×440 居中；单钮 320×92 居中且在板内', () => {
     const layout = clearPanelLayout(NORMAL);
     const plate = layout.panel;
-    expect(plate.xMax - plate.xMin).toBe(PANEL_SIZE.w);
-    expect(plate.yMax - plate.yMin).toBe(PANEL_SIZE.h);
+    expect(plate.xMax - plate.xMin).toBe(CLEAR_PANEL_SIZE.w);
+    expect(plate.yMax - plate.yMin).toBe(CLEAR_PANEL_SIZE.h);
     expect((plate.xMin + plate.xMax) / 2).toBe(DESIGN_W / 2);
     expect((plate.yMin + plate.yMax) / 2).toBe(DESIGN_H / 2);
 
-    // WXG-T-177（用户 2026-09-19「去冲刺按钮先隐藏，咱不需要这个功能」）：原 2 钮
-    //（下一关 / ▶去冲刺）收敛为**单钮居中**；去冲刺入口不再产出
-    //（恢复时按 `ux-spec §8` U1 原口径复建）。
     expect(layout.buttons).toHaveLength(1);
-    for (const button of layout.buttons) {
-      expect(button.rect.yMax - button.rect.yMin).toBe(PANEL_BUTTON_H);
-      expect(button.rect.yMax - button.rect.yMin).toBeGreaterThanOrEqual(TOUCH_MIN);
-      // 按钮完全落在底板内。
-      expect(button.rect.xMin).toBeGreaterThan(plate.xMin);
-      expect(button.rect.xMax).toBeLessThan(plate.xMax);
-      expect(button.rect.yMin).toBeGreaterThan(plate.yMin);
-    }
-    // 单钮水平居中（WXG-T-177 新口径，替代旧「主/副钮不重叠、主钮在左」）。
-    const onlyBtn = layout.buttons[0]!.rect;
-    expect((onlyBtn.xMin + onlyBtn.xMax) / 2).toBe(DESIGN_W / 2);
-    // 标题/星级/信息三行自上而下排布（y 向上）。
-    expect(layout.titleY).toBeGreaterThan(layout.starsY);
-    expect(layout.starsY).toBeGreaterThan(layout.infoY);
+    const btn = layout.buttons[0]!.rect;
+    expect(btn.xMax - btn.xMin).toBe(CLEAR_ACTION_W);
+    expect(btn.yMax - btn.yMin).toBe(CLEAR_ACTION_H);
+    expect(btn.yMax - btn.yMin).toBeGreaterThanOrEqual(TOUCH_MIN);
+    expect((btn.xMin + btn.xMax) / 2).toBe(DESIGN_W / 2);
+    expect(btn.xMin).toBeGreaterThan(plate.xMin);
+    expect(btn.xMax).toBeLessThan(plate.xMax);
+    expect(btn.yMin).toBeGreaterThan(plate.yMin);
   });
 
-  // `[WXG-T-432]` ADR-0035 §5.2 S-3：结算面板上下文入口 = 主钮右侧「好友 / 这关榜」纸 chip。
-  // 几何与主钮同排，右缘正好抵 `panel.xMax - PANEL_PADDING`（`PANEL_SIZE` 零改动）。
-  it('好友这关榜 chip：右缘抵面板右内边距、110×PANEL_BUTTON_H，中心命中 rank', () => {
-    const layout = clearPanelLayout(NORMAL);
-    const chip = layout.rankChip;
-    expect(chip.xMax).toBe(layout.panel.xMax - PANEL_PADDING);
-    expect(chip.xMax - chip.xMin).toBe(110);
-    expect(chip.xMax - chip.xMin).toBe(CLEAR_RANK_CHIP_W);
-    expect(chip.yMax - chip.yMin).toBe(PANEL_BUTTON_H);
-    // 与主钮同一行（按钮行 y 区间）。
-    expect(chip.yMin).toBe(layout.buttons[0]!.rect.yMin);
-    expect(hitClearPanel((chip.xMin + chip.xMax) / 2, (chip.yMin + chip.yMax) / 2, NORMAL)).toBe('rank');
+  it('四行自上而下：标题 > 星 > 用时 > 豆 >（提示），且全在 400×192 内容区内', () => {
+    const l = clearPanelLayout(NORMAL);
+    expect(l.titleY).toBeGreaterThan(l.starsY);
+    expect(l.starsY).toBeGreaterThan(l.timeY);
+    expect(l.timeY).toBeGreaterThan(l.rewardY);
+    expect(l.rewardY).toBeGreaterThan(l.hintY);
+    expect(l.hintY).toBeGreaterThan(l.buttons[0]!.rect.yMax);
+
+    const inside = (y: number): boolean => y > l.content.yMin && y < l.content.yMax;
+    for (const y of [l.starsY, l.timeY, l.rewardY, l.hintY]) expect(inside(y), `y=${y}`).toBe(true);
+    expect(l.content.xMax - l.content.xMin).toBe(400);
+    expect(l.content.yMax - l.content.yMin).toBe(192);
+    // 星（64 高）顶也在框内。
+    expect(l.starsY + 32).toBeLessThan(l.content.yMax);
   });
 
-  it('switches the primary label on the last level only', () => {
+  it('标题 = 「过关」；末关主钮文案为「查看结果」', () => {
+    expect(CLEAR_PANEL_TITLE).toBe('过关');
     expect(clearPanelLabel('next', false)).toBe('下一关');
     expect(clearPanelLabel('next', true)).toBe('查看结果');
     expect(clearPanelLabel('sprint', false)).toBe('▶ 去冲刺');
-    expect(CLEAR_PANEL_TITLE).toContain('闯关成功');
   });
 
-  it('resolves hits only inside the single button（WXG-T-177：原副钮位零命中）', () => {
+  it('只命中主钮；原副钮位 / 好友 chip 位 / 板外均零命中', () => {
     const layout = clearPanelLayout(NORMAL);
-    const primary = layout.buttons[0]!.rect;
-    const centre = (r: { xMin: number; xMax: number; yMin: number; yMax: number }) =>
-      [(r.xMin + r.xMax) / 2, (r.yMin + r.yMax) / 2] as const;
-
-    expect(hitClearPanel(...centre(primary), NORMAL)).toBe('next');
-    // 主钮右侧（原副钮「▶去冲刺」所在区域）现为空白 ⇒ 零命中（入口已隐藏）。
-    expect(hitClearPanel(primary.xMax + 5, primary.yMin + 5, NORMAL)).toBeNull();
+    const btn = layout.buttons[0]!.rect;
+    const centre = [(btn.xMin + btn.xMax) / 2, (btn.yMin + btn.yMax) / 2] as const;
+    expect(hitClearPanel(...centre, NORMAL)).toBe('next');
+    expect(hitClearPanel(btn.xMax + 5, btn.yMin + 5, NORMAL)).toBeNull();
     expect(hitClearPanel(0, 0, NORMAL)).toBeNull();
   });
+});
 
+describe('S7 结算面板 · 时长文案（[WXG-T-509]）', () => {
+  it('formatDurationCn：<60 秒用「秒」，≥60 秒进位，整分省略 00 秒', () => {
+    expect(formatDurationCn(0)).toBe('0秒');
+    expect(formatDurationCn(41)).toBe('41秒');
+    expect(formatDurationCn(59)).toBe('59秒');
+    expect(formatDurationCn(60)).toBe('1分');
+    expect(formatDurationCn(65)).toBe('1分05秒');
+    expect(formatDurationCn(120)).toBe('2分');
+    expect(formatDurationCn(125)).toBe('2分05秒');
+  });
+
+  it('渲染串 = `用时41秒`（不是 mm:ss），且不含浮点尾数', () => {
+    const h = createBeadsHarness({
+      noAssemble: true,
+      levels: [simpleTestLevel({ id: 93 })],
+      saveKey: 'wxgame.beads.test.cp-time',
+    });
+    fillBoard(h);
+    advancePastClearWave(h);
+    const level = h.game.snapshot.finishLevels[0]!;
+    // 注入：本关用时 = 41 秒（剩余 = time − 41）⇒ 不依赖帧数。
+    const cmds = render(h, { clearRemaining: level.time - 41 });
+    const time = cmds.find((c) => c.kind === 'text' && c.text.startsWith('用时')) as
+      | Extract<DrawCommand, { kind: 'text' }>
+      | undefined;
+    expect(time?.text).toBe('用时41秒');
+    expect(time!.text).not.toContain(':');
+    expect(time!.text).not.toContain('.');
+  });
+
+  it('满 3★：不画差距提示；2★：给出「再快N秒可得3★」；续时局不画', () => {
+    const h = createBeadsHarness({
+      noAssemble: true,
+      levels: [simpleTestLevel({ id: 94 })],
+      saveKey: 'wxgame.beads.test.cp-hint',
+    });
+    fillBoard(h);
+    advancePastClearWave(h);
+    const level = h.game.snapshot.finishLevels[0]!;
+    // 3★（用时 0）⇒ 提示不出现。
+    const full = render(h, { clearStars: 3, clearStarsShown: 3, clearRemaining: level.time });
+    expect(full.some((c) => c.kind === 'text' && c.text.startsWith('再快'))).toBe(false);
+
+    // 2★：elapsed 220s，3★ 线 210s ⇒ 再快 10 秒。
+    const two = render(h, { clearStars: 2, clearStarsShown: 2, clearRemaining: level.time - 220 });
+    const hint = two.find((c) => c.kind === 'text' && c.text.startsWith('再快')) as
+      | Extract<DrawCommand, { kind: 'text' }>
+      | undefined;
+    expect(hint?.text).toBe('再快10秒可得3★');
+
+    // 续时局：星级与用时无关 ⇒ 整行不画。
+    const revived = render(h, {
+      clearStars: 2, clearStarsShown: 2, clearRemaining: level.time - 220, revived: true,
+    });
+    expect(revived.some((c) => c.kind === 'text' && c.text.startsWith('再快'))).toBe(false);
+  });
+});
+
+describe('S7 结算面板 · 内容精简（[WXG-T-509]）', () => {
+  it('只画四类内容：标题 / 星 / 用时 / 豆；品质分、判星长串、剩余/道具/动作、好友榜全部退场', () => {
+    const h = createBeadsHarness({
+      noAssemble: true,
+      levels: [simpleTestLevel({ id: 95 })],
+      saveKey: 'wxgame.beads.test.cp-clean',
+    });
+    fillBoard(h);
+    advancePastClearWave(h);
+    const cmds = render(h, { clearCoins: 45, clearQualityScore: 4200, clearQualityBest: 5000 });
+
+    const texts = cmds.filter((c) => c.kind === 'text').map((c) => String((c as { text?: string }).text ?? ''));
+    expect(texts).toContain('过关');
+    expect(texts.some((t) => t.startsWith('用时'))).toBe(true);
+    expect(texts).toContain('+45 豆');
+    for (const banned of ['品质分', '剩余', '动作', '好友', '这关榜', '3★ 用时']) {
+      expect(texts.some((t) => t.includes(banned)), `不应再画「${banned}」`).toBe(false);
+    }
+  });
+});
+
+describe('S7 结算面板 · 时序与流转（不改）', () => {
   it('ramps progress 0→1 on open and 1→0 on close, and blocks taps while fading out', () => {
     const panel = new ClearPanel();
     expect(panel.visible).toBe(false);
@@ -139,9 +208,8 @@ describe('S7 结算·过关面板（ux-spec §3.4/§4/§5）', () => {
     expect(panel.progress).toBe(1);
 
     panel.close();
-    expect(panel.interactive).toBe(false); // 淡出期不接受点击
-    const layout = clearPanelLayout(NORMAL);
-    const primary = layout.buttons[0]!.rect;
+    expect(panel.interactive).toBe(false);
+    const primary = clearPanelLayout(NORMAL).buttons[0]!.rect;
     expect(panel.hitTest((primary.xMin + primary.xMax) / 2, (primary.yMin + primary.yMax) / 2, NORMAL)).toBeNull();
     panel.update(150);
     expect(panel.visible).toBe(false);
@@ -151,26 +219,24 @@ describe('S7 结算·过关面板（ux-spec §3.4/§4/§5）', () => {
   it('enters stars one every CLEAR_STAR_STEP_MS with a 0→1.2→1 pop', () => {
     const panel = new ClearPanel();
     panel.open();
-    // 第 1 颗在 t=0 入场（ux-spec §5「逐颗 150ms」⇒ 三颗共 450ms），其余每 150ms 一颗。
     expect(panel.starsShown(3)).toBe(1);
     panel.update(150);
     expect(panel.starsShown(3)).toBe(2);
     panel.update(150);
     expect(panel.starsShown(3)).toBe(3);
-    panel.update(150); // 再等也不会多出第 4 颗（上限 = 星级）
+    panel.update(150);
     expect(panel.starsShown(3)).toBe(3);
 
     const fresh = new ClearPanel();
     fresh.open();
-    expect(fresh.starScale(0)).toBe(0); // 还没入场
-    fresh.update(75); // 半程 ⇒ 冲到 1.2
+    expect(fresh.starScale(0)).toBe(0);
+    fresh.update(75);
     expect(fresh.starScale(0)).toBeCloseTo(1.2, 6);
-    fresh.update(75); // 全程结束 ⇒ 回到 1
+    fresh.update(75);
     expect(fresh.starScale(0)).toBe(1);
   });
 
-  it('opens on clear, does NOT auto-advance, and leaves via either button', () => {
-    // ① 2 关表：过关后面板开、时间流逝不推进；点主钮 → 第 2 关。
+  it('opens on clear, does NOT auto-advance, and leaves via the single button', () => {
     const h = createBeadsHarness({
       noAssemble: true,
       levels: [simpleTestLevel({ id: 91 }), simpleTestLevel({ id: 92 })],
@@ -178,12 +244,10 @@ describe('S7 结算·过关面板（ux-spec §3.4/§4/§5）', () => {
     });
     fillBoard(h);
     expect(h.game.phase).toBe('level-clear');
-    // 裁定 1（WXG-T-146）：面板不等波浪演完不开 ⇒ 同帧 `visible === false` 是**新契约**，
-    // 本例意图不变（开 / 不自动推进 / 两个按钮都能退场），故推进过门再断言。
     advancePastClearWave(h);
     expect(h.game.clearPanel.visible).toBe(true);
 
-    h.advance(3); // 旧实现会在 1.4s 自动进下一关 —— 现在必须原地等按钮
+    h.advance(3);
     expect(h.game.phase).toBe('level-clear');
     expect(h.game.levelIndex).toBe(0);
 
@@ -192,9 +256,7 @@ describe('S7 结算·过关面板（ux-spec §3.4/§4/§5）', () => {
     expect(h.game.phase).toBe('playing');
     expect(h.game.levelIndex).toBe(1);
 
-    // ② WXG-T-177（用户 2026-09-19「去冲刺按钮先隐藏，咱不需要这个功能」）：
-    // 原第二出口「▶去冲刺」已隐藏 ⇒ **该出口不可达**：面板不再产出 `'sprint'` 按钮，
-    // 原副钮位点击零响应、相位与模式均不变（冲刺模式实现保留，仅入口收敛）。
+    // 原副钮位（主钮右侧）零响应。
     const hidden = createBeadsHarness({
       noAssemble: true,
       levels: [simpleTestLevel({ id: 91 }), simpleTestLevel({ id: 92 })],
@@ -202,9 +264,8 @@ describe('S7 结算·过关面板（ux-spec §3.4/§4/§5）', () => {
     });
     fillBoard(hidden);
     advancePastClearWave(hidden);
-    expect(hidden.game.clearPanel.visible).toBe(true);
     const onlyBtn = clearPanelLayout(NORMAL).buttons[0]!.rect;
-    hidden.game.tapDesign(onlyBtn.xMax + 5, onlyBtn.yMin + 5); // 原副钮位
+    hidden.game.tapDesign(onlyBtn.xMax + 5, onlyBtn.yMin + 5);
     expect(hidden.game.phase).toBe('level-clear');
     expect(hidden.game.mode).toBe('normal');
   });
@@ -216,9 +277,6 @@ describe('S7 结算·过关面板（ux-spec §3.4/§4/§5）', () => {
       saveKey: 'wxgame.beads.test.cp-3',
     });
     fillBoard(h);
-
-    // §3.7 v1.78（K-053 换形）：旧 v1.50「1★ 档快通也只给 1★」作废 ⇒ 档内按用时判星，
-    // 不推进时钟（elapsed ≈ 0 ≤ 3★ 线）当场跳 3★；`ratio` 仍如实上报。
     expect(h.game.lastStars).toBe(3);
     const cleared = h.last<{ ratio: number; stars: number }>('level:cleared')!;
     expect(cleared.stars).toBe(3);
@@ -226,108 +284,8 @@ describe('S7 结算·过关面板（ux-spec §3.4/§4/§5）', () => {
     expect(h.game.lastSettleScore).toBe(
       normalSettleScore(cleared.stars, cleared.ratio, 0, false),
     );
-    // C7（v1.78 换形）：3×1000 + round(1×1000) − 0 + 200（未用扩展）= 4200。
     expect(h.game.lastSettleScore).toBe(4200);
-
-    // 快照同步给视图的料：星级与「道具 n/3」分母。
-    // （v1.78 换形）快照星级 = 本局用时判星结果，与 `lastStars` 同源 ⇒ 3。
     expect(h.game.snapshot.clearStars).toBe(3);
     expect(h.game.snapshot.clearLastLevel).toBe(true);
-  });
-
-  // BD-47（WXG-T-127，原 N1 补登）回归：结算面板「剩余 mm:ss」不得漏浮点尾数。
-  // 实测曾显示「剩余 02:50.1999999999997174」——两层都修：快照 clearRemaining 取整
-  // （ceil，与 HUD remaining 同口径）+ 视图 formatTime 兜底 floor。
-  it('BD-47 回归：clearRemaining is an integer and the panel shows bare mm:ss', () => {
-    const h = createBeadsHarness({
-      noAssemble: true,
-      levels: [simpleTestLevel({ id: 93 })],
-      saveKey: 'wxgame.beads.test.cp-t127',
-    });
-    // 先推进 0.5s：0.5s = 30 个 1/60 步整 ⇒ remaining = 总量 − 0.5，必然带小数。
-    // （只推 0.5s 而非更久：供料会塞满托盘，令 fillBoard 的 giveTrayBead 无位可用。）
-    h.advance(0.5);
-    fillBoard(h);
-    expect(h.game.phase).toBe('level-clear');
-    advancePastClearWave(h); // 面板未开 ⇒ 无绘制命令（裁定 1）
-
-    const remaining = h.game.snapshot.clearRemaining;
-    expect(Number.isInteger(remaining), `clearRemaining 应为整秒，实为 ${remaining}`).toBe(true);
-
-    const info = render(h).find(
-      (c) => c.kind === 'text' && c.text.startsWith('剩余'),
-    ) as Extract<DrawCommand, { kind: 'text' }> | undefined;
-    expect(info, '结算面板「剩余 …」行未渲染').toBeDefined();
-    // 第三项 = playtest 计量件：**有效动作数**（定星口径）括号内附含误点的原始点击数；
-    // 格式变更同步 ux-spec §3.4。
-    expect(info!.text).toMatch(/^剩余 \d{2}:\d{2} ｜ 道具 \d\/3 ｜ \d+ 动作（\d+ 击）$/);
-    expect(info!.text).not.toContain('.');
-  });
-
-  // WXG-T-355（ux-spec §3.4 v1.23）：判星门槛以前只活在 `computeClearStars` 里，玩家看不见。
-  // 本例钉三件事：① 门槛串印的是 §3.7 三档时钟的字面值（关表 time=300 ⇒ 3★ 210s / 2★ 255s）；
-  // ② 行位排在次要信息行与星级行之间（旧 `infoY + 70` 的带净空容不下 28px 一行）；
-  // ③ 续时局不印（星级走 §3.7 保底腿、与用时无关）。
-  it('判星对照行：门槛 = §3.7 三档时钟，排在信息行与星级行之间，续时局不印', () => {
-    const h = createBeadsHarness({
-      noAssemble: true,
-      levels: [simpleTestLevel({ id: 96 })],
-      saveKey: 'wxgame.beads.test.cp-t355',
-    });
-    fillBoard(h);
-    expect(h.game.phase).toBe('level-clear');
-    advancePastClearWave(h);
-
-    const crit = render(h).find(
-      (c) => c.kind === 'text' && c.text.startsWith('3★'),
-    ) as Extract<DrawCommand, { kind: 'text' }> | undefined;
-    expect(crit?.text, '结算面板未渲染判星对照行').toBe('3★ 用时 ≤ 03:30 ｜ 2★ 用时 ≤ 04:15');
-
-    const { infoY, criteriaY, starsY } = clearPanelLayout(NORMAL);
-    expect(criteriaY > infoY && criteriaY < starsY, `行位未夹在信息行与星级行之间：${infoY}/${criteriaY}/${starsY}`).toBe(true);
-
-    // 同一快照只改 `revived` ⇒ 行消失（视图 ⛔ 自持状态，故走快照注入）。
-    const revived = { ...h.game.snapshot, revived: true };
-    const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
-    builder.begin();
-    buildBeadsFrame(builder, revived, DEFAULT_PALETTE, DEMO_BEAD_INKS);
-    expect(
-      builder.end().commands.some((c) => c.kind === 'text' && c.text.startsWith('3★')),
-      '续时局仍印了判星门槛',
-    ).toBe(false);
-  });
-
-  // ADR-0035 §3.2.1 ②（用户 2026-10-26「结算面板加一行」）：品质分要能被玩家看见，
-  // 否则排行榜数值对玩家是黑箱。行位 = 缎带顶与面板顶缘之间的空带（`PANEL_SIZE` 零改动）。
-  it('品质分行：落在缎带上方空带，首通只印本局分，破纪录后追加「最佳」', () => {
-    const layout = clearPanelLayout(NORMAL);
-    // 几何：缎带顶（y 向上）= titleY + 半高 < 品质行 < 面板顶缘。
-    expect(layout.qualityY).toBeGreaterThan(layout.titleY + CLEAR_RIBBON_H / 2);
-    expect(layout.qualityY).toBeLessThan(layout.panel.yMax);
-    expect(layout.panel.yMax - layout.panel.yMin).toBe(PANEL_SIZE.h);
-
-    const h = createBeadsHarness({
-      noAssemble: true,
-      levels: [simpleTestLevel({ id: 97 })],
-      saveKey: 'wxgame.beads.test.cp-quality',
-    });
-    fillBoard(h);
-    expect(h.game.phase).toBe('level-clear');
-    advancePastClearWave(h);
-
-    const quality = render(h).find(
-      (c) => c.kind === 'text' && c.text.startsWith('品质分'),
-    ) as Extract<DrawCommand, { kind: 'text' }> | undefined;
-    expect(quality?.text, '结算面板未渲染品质分行').toBe('品质分 4200');
-
-    // 同快照只改分数对（视图只读快照）⇒ 「本局 · 最佳」双值形态。
-    const withBest = { ...h.game.snapshot, clearQualityScore: 2400, clearQualityBest: 4200 };
-    const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
-    builder.begin();
-    buildBeadsFrame(builder, withBest, DEFAULT_PALETTE, DEMO_BEAD_INKS);
-    const dual = builder.end().commands.find(
-      (c) => c.kind === 'text' && c.text.startsWith('品质分'),
-    ) as Extract<DrawCommand, { kind: 'text' }> | undefined;
-    expect(dual?.text).toBe('品质分 2400 · 最佳 4200');
   });
 });

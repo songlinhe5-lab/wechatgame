@@ -16,8 +16,7 @@ import {
   FINISH_ROW_H,
   FINISH_ROW_W,
   FINISH_STAR_SIZE,
-  PANEL_PADDING,
-  POWERUP_TYPES,
+  tierSecondsFor,
   THUMB_MATRIX_N,
   THUMB_TOP_INSET,
   UI_CONTAINER,
@@ -39,7 +38,6 @@ import { failPanelLabel, failPanelLayout } from '../systems/fail-panel.js';
 import { CONFETTI_COLORS, STAR_GOLD, withAlpha, type BeadInks, type BeadsPalette } from './palette.js';
 import {
   CLEAR_PANEL_TITLE,
-  CLEAR_RIBBON_H,
   clearPanelLabel,
   clearPanelLayout,
 } from '../systems/clear-panel.js';
@@ -65,7 +63,7 @@ import {
 import type { ConfettiBeadState } from './scene-vfx.js';
 import { drawModalFrame, drawModalScrim, frameFont, frameLen, frameX, frameY } from './modal-frame.js';
 import { drawButton, drawDashedRect } from './ui-widgets.js';
-import { UI_FONT, UI_SCRIM, bodyFont, drawPaperPanel, formatTime, pressOffset, starCriteriaText } from './ui-theme.js';
+import { UI_FONT, UI_SCRIM, bodyFont, drawPaperPanel, formatDurationCn, pressOffset } from './ui-theme.js';
 import { drawPlayPage } from './play-page.js';
 import { drawRankPanel } from './rank-view.js';
 import { starPoints } from './shape-utils.js';
@@ -531,7 +529,6 @@ function drawClearPanel(
   if (!snap.clearPanelVisible) return;
   const layout = clearPanelLayout({ lastLevel: snap.clearLastLevel });
   const plate = layout.panel;
-  const w = plate.xMax - plate.xMin;
 
   // UI-22：遮罩 + 纸面板（静止态，progress = 1）。
   drawModalFrame(builder, {
@@ -544,121 +541,72 @@ function drawClearPanel(
     shadowAlpha: UI_CONTAINER.shadowAlphaPanel,
   });
 
-  // 金色缎带横幅 + 标题（ux-spec §3.4 首行）。
-  const ribbonH = CLEAR_RIBBON_H;
-  builder.rect(plate.xMin + PANEL_PADDING, layout.titleY - ribbonH / 2, w - PANEL_PADDING * 2, ribbonH, {
-    fill: withAlpha(STAR_GOLD, 0.22), // F6：缎带金 → STAR_GOLD（资产色，暖橙让位）。
-    radius: 16,
-  });
+  // `[WXG-T-509]` 标题 + 细金线（去缎带、去 emoji）。
   builder.text(DESIGN_W / 2, layout.titleY, CLEAR_PANEL_TITLE, {
     fill: palette.text,
     font: UI_FONT.panelTitle,
     align: 'center',
     baseline: 'middle',
   });
-
-  // 品质分（ADR-0035 §3.2.1 ②）：缎带上方空带一行「品质分 N · 最佳 M」。
-  // 两值相等（首通 / 本局即最佳）⇒ 只印本局分，不重复同一数字。
-  if (snap.clearQualityScore > 0) {
-    const best = snap.clearQualityBest;
-    builder.text(
-      DESIGN_W / 2,
-      layout.qualityY,
-      best > snap.clearQualityScore
-        ? `品质分 ${snap.clearQualityScore} · 最佳 ${best}`
-        : `品质分 ${snap.clearQualityScore}`,
-      { fill: palette.textDim, font: bodyFont(snap.largeText, 'sub'), align: 'center', baseline: 'middle' },
-    );
-  }
+  builder.rect(DESIGN_W / 2 - 60, layout.dividerY, 120, 3, { fill: STAR_GOLD, radius: 2 });
 
   // 星级：只画已入场的那些；最新一颗按弹跳缩放（0→1.2→1）。
   const starR = (CLEAR_STAR_SIZE / 2) * 0.92;
   for (let i = 0; i < snap.clearStarsShown; i++) {
-    // D1 减弱动效：完成星弹跳缩放 → 静态高亮（最新一颗不再弹跳）。
     const scale =
       i === snap.clearStarsShown - 1 && !snap.reduceMotion ? snap.clearStarPopScale : 1;
     if (scale <= 0) continue;
     builder.polygon(starPoints(layout.starX[i]!, layout.starsY, starR * scale, 5, 90), {
-      fill: STAR_GOLD, // F6：完成星 → STAR_GOLD（结算场景珠面不在场，无 §3.5 冲突）。
+      fill: STAR_GOLD,
     });
   }
 
-  // 判星对照（ux-spec §3.4 v1.23）：成串收进 `ui-theme.ts::starCriteriaText`（门槛 = §3.7 同一个
-  // `tierSecondsFor`，与 `computeClearStars` 同源）⇒ 与选关整页空带（WXG-T-356）**共读一条文案**。
-  // 关表本体走快照的只读引用 `finishLevels`（state.ts 注：视图 ⛔ 不 import LEVELS）。
-  // 1★ 无用时门槛（只要打完就算）⇒ 本行不写；续时局星级走 §3.7 保底腿、与用时无关 ⇒ 不印。
+  // 用时 / 豆 / 差距提示（`[WXG-T-509]` 四行内容；核心信息区 = 400×192）。
   const critLevel = snap.finishLevels[snap.levelIndex];
-  if (critLevel && !snap.revived) {
-    builder.text(
-      DESIGN_W / 2,
-      layout.criteriaY,
-      starCriteriaText(critLevel.time, critLevel.starTierK),
-      { fill: palette.textDim, font: bodyFont(snap.largeText, 'sub'), align: 'center', baseline: 'middle' },
-    );
-  }
-
-  // 结算发豆（§3.14 v1.81；用户 2026-10-26 令「星级下方一行 + 把原因说清楚」）：
-  // 文案**整句由 `MetaState.grantClearCoins` 产出**（含「首通 ★★★ 奖励」/「复刷奖励（今日 23/45）」/
-  // 「今日复刷奖励已达 45，仅发安慰奖」三种），⛔ 前端不拼原因 —— 否则口径一改就漂。
-  // 空串 / 缺字段 = 未接经济层（无 shell 的独立 BeadsGame、金样本静态快照）⇒ 本行不画（后向兼容）。
-  if (snap.clearCoinReason) {
-    builder.text(
-      DESIGN_W / 2,
-      layout.rewardY,
-      `+${snap.clearCoins} 🪙 · ${snap.clearCoinReason}`,
-      {
-        fill: snap.clearCoinsCapped ? palette.textDim : STAR_GOLD,
-        font: bodyFont(snap.largeText, 'sub'),
-        align: 'center',
-        baseline: 'middle',
-      },
-    );
-  }
-
-  // 次要信息（ux-spec §3.4 第三行）。
-  builder.text(
-    DESIGN_W / 2,
-    layout.infoY,
-    `剩余 ${formatTime(snap.clearRemaining)} ｜ 道具 ${snap.clearPowerupsUsed}/${POWERUP_TYPES.length} ｜ ${snap.clearActions} 动作（${snap.clearTaps} 击）`,
-    { fill: palette.textDim, font: bodyFont(snap.largeText, 'sub'), align: 'center', baseline: 'middle' },
-  );
-
-  // 主/副双钮：主钮 accent_primary 白字（F6：金底作废，§3.5 中性强调），副钮白底深字；
-  // 文案归 `clear-panel.ts`。
-  for (const button of layout.buttons) {
-    const bw = button.rect.xMax - button.rect.xMin;
-    const bh = button.rect.yMax - button.rect.yMin;
-    const primary = button.id === 'next';
-    const label = clearPanelLabel(button.id, snap.clearLastLevel);
-    const pressed = snap.pressedButton === button.id;
-    const by = button.rect.yMin + pressDy(snap, button.id);
-    if (primary) {
-      // T3 木主钮（下一关，screens.md S3 §100）。
-      drawButton(builder, palette, button.rect.xMin, by, bw, bh, 'wood', UI_CONTAINER.radiusWood, label, UI_FONT.panelButton, pressed);
-    } else {
-      // T1 纸次钮。
-      drawButton(builder, palette, button.rect.xMin, by, bw, bh, 'paper', UI_CONTAINER.radiusCard, label, UI_FONT.panelButton, pressed);
+  if (critLevel) {
+    const elapsedRaw = Math.max(0, critLevel.time - snap.clearRemaining);
+    const elapsed = Math.floor(elapsedRaw);
+    builder.text(DESIGN_W / 2, layout.timeY, `用时${formatDurationCn(elapsed)}`, {
+      fill: palette.textDim,
+      font: bodyFont(snap.largeText, 'sub'),
+      align: 'center',
+      baseline: 'middle',
+    });
+    // 只在「未满 3★」时提示差距；续时局不印（星级与用时无关）。
+    if (!snap.revived && snap.clearStars < 3) {
+      const nextTier = snap.clearStars + 1;
+      const need = tierSecondsFor(critLevel.time, nextTier, critLevel.starTierK);
+      const gap = Math.max(0, Math.ceil(elapsedRaw - need));
+      if (gap > 0) {
+        builder.text(DESIGN_W / 2, layout.hintY, `再快${formatDurationCn(gap)}可得${nextTier}★`, {
+          fill: palette.textDim,
+          font: bodyFont(snap.largeText, 'sub'),
+          align: 'center',
+          baseline: 'middle',
+        });
+      }
     }
   }
 
-  // 好友这关榜 chip（ADR-0035 §5.2 S-3）：纸面 + 两行字，几何/动作全在 `clear-panel.ts`。
-  const chip = layout.rankChip;
-  const chipPressed = snap.pressedButton === 'rank';
-  const chipY = chip.yMin + pressDy(snap, 'rank');
-  builder.rect(chip.xMin, chipY, chip.xMax - chip.xMin, chip.yMax - chip.yMin, {
-    fill: chipPressed ? palette.cardPressed : palette.panel,
-    stroke: palette.panelBorder,
-    lineWidth: UI_CONTAINER.strokePanel,
-    radius: UI_CONTAINER.radiusCard,
-  });
-  const chipCx = (chip.xMin + chip.xMax) / 2;
-  const chipFont = bodyFont(snap.largeText, 'hudSmall');
-  builder.text(chipCx, chipY + 60, '好友', {
-    fill: palette.text, font: chipFont, align: 'center', baseline: 'middle',
-  });
-  builder.text(chipCx, chipY + 30, '这关榜', {
-    fill: palette.text, font: chipFont, align: 'center', baseline: 'middle',
-  });
+  // 发豆（原因句不再占版面；封顶/未接经济层时只降色或不画）。
+  if (snap.clearCoins > 0) {
+    builder.text(DESIGN_W / 2, layout.rewardY, `+${snap.clearCoins} 豆`, {
+      fill: snap.clearCoinsCapped ? palette.textDim : STAR_GOLD,
+      font: bodyFont(snap.largeText, 'sub'),
+      align: 'center',
+      baseline: 'middle',
+    });
+  }
+
+  // 主钮（唯一动作）：320×92 木钮。
+  for (const button of layout.buttons) {
+    const bw = button.rect.xMax - button.rect.xMin;
+    const bh = button.rect.yMax - button.rect.yMin;
+    const label = clearPanelLabel(button.id, snap.clearLastLevel);
+    const pressed = snap.pressedButton === button.id;
+    const by = button.rect.yMin + pressDy(snap, button.id);
+    drawButton(builder, palette, button.rect.xMin, by, bw, bh, 'wood', UI_CONTAINER.radiusWood, label, UI_FONT.panelButton, pressed);
+  }
 }
 
 

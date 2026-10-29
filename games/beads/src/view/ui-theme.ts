@@ -88,6 +88,20 @@ export function starCriteriaText(levelTime: number, starTierK?: readonly number[
     return `3★ 用时 ≤ ${formatTime(tierSecondsFor(levelTime, 3, starTierK))} ｜ 2★ 用时 ≤ ${formatTime(tierSecondsFor(levelTime, 2, starTierK))}`;
 }
 
+/**
+ * `[WXG-T-509]` 面向玩家的中文时长（结算面板）：
+ * - < 60 秒 → `41秒`
+ * - ≥ 60 秒 → `1分05秒`（秒补两位）；整分 → `2分`（省略「00秒」）
+ * ⛔ 不再用 `mm:ss`（那是计时器/门槛的口径，不是玩家语言）。
+ */
+export function formatDurationCn(totalSeconds: number): string {
+    const s = Math.max(0, Math.floor(totalSeconds));
+    if (s < 60) return `${s}秒`;
+    const m = Math.floor(s / 60);
+    const rest = s % 60;
+    return rest === 0 ? `${m}分` : `${m}分${String(rest).padStart(2, '0')}秒`;
+}
+
 /** 遮罩色族 + 双档 α（α 名保留自 `tuning`，此处只做聚合视图）。 */
 export const UI_SCRIM = Object.freeze({
     /** 画布侧：覆盖棋盘与托盘（对局 / 结算面板）。 */
