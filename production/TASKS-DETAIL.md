@@ -4072,3 +4072,50 @@ T-488 第 3 项目检结论：`ui_icon_rank` 在 80px 下读作**三个人并排
 | `build:cocos` | ✅ 18.1s（增量重构建；build 顺带把 `package.json` patch ++，该文件属他人基线，本笔未纳入） |
 | `check:size` | ✅ beads 主包 3430.4 KB（距 4096 红线余量 665.6 KB） |
 | 单测 | ⚠ 1414 通过 / **1 红**：`arc-ticket-gate.test.ts` S-4「走马灯翻到章 2 页」期望 `[20,24]` 得 `[undefined,undefined]`。**归因 `7a4ecda9`（T-490「开机定位到当前大关」改了走马灯初始页位）**，非本笔 —— 本笔零 `src` 改动，且在 `2922b90a` 时该套件 1413 全绿 |
+
+## WXG-T-492
+
+### 1. 触发
+
+主界面 review 的 UI 面（B 组）第二项：顶栏实装自 **WXG-T-486 / 487**（用户 2026-10-28 两裁）已改为 **2×2 四钮**，
+但 UX 规格与三份美术规格文档仍记「三颗 / 中档 x=560 / Ø59」⇒ **在册 ≠ 在码**。用户 2026-10-29 批准 **B2 甲方案 = 纯文档回写批**。
+
+### 2. 取证判据（改文档前先核现状）
+
+| 项 | 读数 | 出处 |
+| --- | --- | --- |
+| 热区左缘 | `settings:24 / rank:24 / mail:648 / skins:648` | `games/beads/src/config/tuning/layout.ts:132`（`MENU_TOPBAR_X`） |
+| 视觉圆 / 行距 | Ø80（`MENU_TOPBAR_VISUAL_D`）· 88（`MENU_TOPBAR_ROW2_DY` = `TOUCH_MIN`） | 同文件 `:144` / `:149` |
+| 绘制与热区同源 | `anchoredGeo` 同一对象 ⇒ 「画 A 位按 B 位」结构性不可能 | `games/beads/src/view/meta-layout.ts:288+` |
+| 装扮馆图标 | 用 `MENU_TEXTURES.iconSound`（喇叭占位） | `games/beads/src/view/meta-menu.ts:180`（注释 `:162-163` 已登 `[待 UI 设计]`） |
+| 出图取证 | `tools/scripts/render-ui-shots.mjs` → SVG → `qlmanage` PNG；脚本头注自证「实现自证，⛔ 非真机像素」 | `temp/ui-shot/main-menu.svg{,.png}` |
+
+⚠ **纠正上一轮说过重的一句**：主工作树金样本 = `games/beads/tests/__fixtures__/wxg-t-298-ui-golden.json`，对拍的是 **RenderModel 指令流**（不含贴图层级）⇒ 「ui-golden 跑绿 ⇒ 视觉未漂移」不成立，本批以常量实算 + SVG 出图为据。
+
+### 3. 四份文档落点
+
+| 文档 | 改动 |
+| --- | --- |
+| `design/ux/ux-spec.md` | 升 **v1.32**：§2 路由表 `skins` 行改记「顶栏·右列第二枚钮」；§3.8 追加回写段（旧「中档 x=560 / 三颗」转史证，不删）；文末新增「变更记录 · v1.32」含红线自证 |
+| `design/art/proposals/ui-style-redesign/menu-architecture.md` | §5.1b 三颗表下加 ⚠ 史证提示；新增 **「第十三批回写」** 节 = 落位链四次改政表 + 现行四钮读数 + 四钮同构口径 + 与招牌净空复算（78 / 88）+ 未清债四条 |
+| `design/art/specs/menu-showcase-asset-spec.md` | **B2** 行追加 `[WXG-T-492 现状订正]`（喇叭自 WXG-T-365 被装扮馆借走 ⇒ 在册「公告」≠ 在码「装扮馆」）；**新增 B8** = 顶栏第四枚 `ui_icon_rank`（原 B1–B3 漏登；含 T-488→T-491 沿革、切图管线、80px 读数、平涂 vs 体积感的已接受差异） |
+| `design/art/specs/menu-layout-implementation-spec.md` | **v3.11**：元素清单两行订正 = 顶栏行（行标题「三钮」→「四枚 2×2」；图标列补 `ui_icon_rank`，「喇叭暂代公告」订正为「现挂装扮馆 = `[待 UI 设计]` 占位」）+ 招牌行（旧称「公告钮视觉左缘 564」订正为 2×2 档读数 652 ⇒ 净空 96 / 左列 108 ⇒ 净空 86，**结论不变、旧值划线留档**） |
+
+### 4. 红线自证
+
+零 `src/**` 改动 · 零 GDD §3 冻结常量 · 零新毫秒/新几何值 · 金样本与单测零扰动（未重跑 `verify`）· 旧口径一律 `~~划线~~` 留档不静默删（K-053）· 未改坐标总图（其自认过期，另单）。
+
+### 5. 未清债（结转，本批只登记不裁）
+
+1. 装扮馆真图标 `ui_icon_skin` = `[待 UI 设计]`（喇叭借位自 WXG-T-365 至今）；
+2. 公告语义位去向 = `[待产品]`（B2 在册为「公告」，顶栏已无该位）；
+3. 顶栏左右不对称：左列视觉左缘 24 vs 右列距屏边 14（§5.1b 第十三批回写已记，非违例、属观感）；
+4. 版本水印在无 Home 条机型上下各仅 2 设计px（`versionY = r(a.ctaBotY)/2`，字号 28）= B3 项，未在本批范围。
+
+### 6. 本批事故自纠（工具用法，⛔ 不入库为判例，理由见 §7）
+
+SearchReplace 的 JSON 参数用 `\u` 转义写中文 ⇒ 落盘成「三铢/四铢」（颗 U+9897 误作 铢 U+94E2）；另一处 `original_text` 含 `### 5.2` 标题而 `new_text` 未回写 ⇒ **小节标题被删**。均以 python 带 `assert count==1` 修复并复核（铢残留 0、标题计数 1）。**后续纪律：中文一律直写字符，不用转义；插入型替换的标题行必须原样回写。**
+
+### 7. 沉淀统计
+
+本批 **未跑 `kb:sync`**：工作树 `knowledge/`（INDEX / ledger / CHANGELOG / lessons 两文件）含并行会话 **WXG-T-434** 未提交在制品，同提即混账（K-137 只披露不代填）。§6 两条工具用法教训作为**候选**回传用户，待其拍板后由下一次干净 kb 批入账。统计 = 新增 0 / 修改 0 / 激活 0 / 归档 0（本批）。
