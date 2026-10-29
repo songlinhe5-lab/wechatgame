@@ -4119,3 +4119,63 @@ SearchReplace 的 JSON 参数用 `\u` 转义写中文 ⇒ 落盘成「三铢/四
 ### 7. 沉淀统计
 
 本批 **未跑 `kb:sync`**：工作树 `knowledge/`（INDEX / ledger / CHANGELOG / lessons 两文件）含并行会话 **WXG-T-434** 未提交在制品，同提即混账（K-137 只披露不代填）。§6 两条工具用法教训作为**候选**回传用户，待其拍板后由下一次干净 kb 批入账。统计 = 新增 0 / 修改 0 / 激活 0 / 归档 0（本批）。
+
+---
+
+## WXG-T-493
+
+### 1. 触发
+
+WXG-T-492 收尾时给出的三个后续选项，用户 2026-10-29 选 **1 = B1 甲「补装扮馆真图标 `ui_icon_skin`」** ⇒ 结清自 **WXG-T-365**（2026-10-24）起「装扮馆入口借喇叭图标顶替」这笔 `[待 UI 设计]` 债（§5.1b 未清债第 ① 条 / ux-spec §3.8 债目）。
+
+**开工前先核阻塞是否仍存在**（判例 K-096：勿把快照日限制当永久事实）：v1.25 曾记「无编辑器做不出 `.meta`」，已被 v1.26 证伪 ⇒ 本批实测 `pgrep` 查到 **Cocos Creator 3.8.8 在跑**（pid 3391 · project = `games/beads/cocos`），`.meta` 可由编辑器/构建导入合法生成 ⇒ **L1 不构成阻塞**。
+
+### 2. 造型裁定（用户拍板，四案对比后进账）
+
+| 案 | 图形 | 判定 |
+| --- | --- | --- |
+| **甲（采纳）** | 衣架 + 圆领小衫 | 与入口名「装扮馆」同一隐喻（店招 = 衣架），80px 内两形不糊 |
+| 乙 | 魔法棒 + 星闪 | 「变换」语义强，但与「装扮 = 买外观」的商品属性偏 |
+| 丙 | 双门衣柜 | 家具语义压过「换装」，且 80px 内门缝/把手易丢 |
+| 丁 | 一颗大珠子 + 色点 | 语义最贴（馆内实卖珠子材质外观，GDD v1.83），**但会被读成货币/关卡**⇒ 未采纳 |
+
+### 3. 生产口径与读数
+
+| 项 | 读数 | 出处 |
+| --- | --- | --- |
+| 出图 | 云 `qwen-image-3.0` · 1024² · seed 202 · **0.18 元** | 本地 ComfyUI 探活返回 `000` ⇒ 走云；提示词 `temp/prompt-skin.txt` |
+| 切图 | bbox **占宽 49% / 占高 50%**；不透明像素 **3618**；填充众数 **#97CF9A**（草绿） | 复用 T-491 一次性脚本 `temp/gen-rank-trophy.py`（⛔ 不入库） |
+| 入库 | `design/art/final/assets/menu/ui_icon_skin.png`（160²@2x）+ `_source-1024.png`；`cocos/assets/textures/ui_icon_skin.png` 与正本 **md5 一致** | `check:cocos-mask` → 「ui_icon_skin 字节相同」STATUS: OK |
+| `.meta` | uuid `03dd1236-e5de-4a0b-811d-29e44e0cbb10`，由 `pnpm run build:cocos`（CLI 自带资产导入）**生成**，非手写 | GUI 编辑器 `touch` + 等 20s 未自动 reimport ⇒ 改走构建路径；L1 合规 |
+| 接线 | 四处：`MENU_TEXTURES.iconSkins` → `meta-menu.ts::drawTopbar` → `dev/harness/main.ts::MENU_FILE` → `beads-blit-carrier.ts::BITMAP_ASSETS`；`cocos/assets/scripts/game/**` 两件镜像由 `pnpm run framework:sync` 产出 | 坐标 / 尺寸 / 热区 **零改动**（沿用右下位 648·第二行·Ø80） |
+
+### 4. 真渲染目检（80px）
+
+取证链两次改道：① Chrome `--screenshot --virtual-time-budget` 在 RAF 恒动的游戏页永不收敛（180s 超时被杀）⇒ 自写 `temp/cdp-shot.mjs` 走 CDP；② Cocos 编辑器预览（7456）在 headless 下只有调试条 + 黑画布 ⇒ 改打 `pnpm run harness`（4173），URL `?game=beads&meta=menu&hud=off`，1500×2668（DPR2）。
+**读数**：小衫主体清晰、衣架钩可辨；与灰齿轮 / 紫奖杯 / 蓝信封四色不混 ⇒ 通过。同批刷新 `effect-topbar.png`（750×380）/ `effect-closeup.png`（2010×480）为真渲染（先采样旧 closeup 四格主色 `#A19D99/#8676CD/红点/#FECB67` 复现版式与顺序，⛔ 不沿用上批被批评的 mock 口径）。
+
+### 5. 门禁读数
+
+beads 单测 **118 文件 / 1415 通过 / 2 跳过** · `tsc --noEmit` **0 错** · `check:cocos-mask` **OK** · `check:size` beads 主包 **3437.4 KB / 117 文件**（距 4096 红线余量 658.6 KB）· `build:cocos` 18.0s（release 档，beads 版本 v1.0.7 → v1.0.8，⚠ 该 `package.json` bump 不随本批提交，归构建轨另计）· `check:links` / `check:tasks` 见收尾。
+
+### 6. 文档落点（四份 + 本台账）
+
+| 文档 | 改动 |
+| --- | --- |
+| `menu-showcase-asset-spec.md` | **新增 B9** = `ui_icon_skin` 全规格（造型裁定链 / 切图管线 / 80px 目检 / `.meta` 生成路径）；**B2** 行追加「借腿已撤、本枚零消费者在册」 |
+| `ux-spec.md` | 升 **v1.33**：§3.8 债目第 ① 条改结清（旧句 `~~划线~~`）；文末「变更记录 · v1.33」 |
+| `menu-architecture.md` | §5.1b「未清债」第 ① 条闭账注（指向 B9 / v1.33），②③④ 原样保留 |
+| `menu-layout-implementation-spec.md` | **v3.12**：顶栏行资源列 `…/sound` → `…/skin`；同行顺带订正「可点」旧记「现仅设置」（四热区与处理器均在 `meta-layout.ts` / `beads-shell.ts` 在册） |
+
+### 7. 红线自证与未清债
+
+零 GDD §3 冻结常量 · 零几何/新毫秒 · 热区与绘制同源未动 · `.meta` 为编辑器产物 · 旧口径划线留档（K-053）· 镜像件只由 `framework:sync` 写。
+**未清债（结转）**：① 公告语义位去向 = `[待产品]`（喇叭枚现零消费者，删它收益仅 2.9 KB，本批保留在册）；② 顶栏左右不对称 10 设计px = 另单；③ 版本水印贴底 = B3 项未做；④ 顶栏观感与误触 = `[待真机]`。
+
+### 8. 本批事故自纠（工具用法，⛔ 不入库）
+
+① zsh 通配吞参：`--size 1024*1024` / `--include=*.md` 报 `no matches found` ⇒ 一律加引号；② 后台启动用 `(... &)` 触沙箱 `nice(5) failed` ⇒ 改工具的 `is_background`；③ TS 注释误用 markdown `**` ⇒ 改「」。中文仍按上批纪律直写。
+
+### 9. 沉淀统计
+
+本批 **未跑 `kb:sync`**（同 T-492 口径：`knowledge/` 五件仍含并行会话 **WXG-T-434** 未提交在制品，K-137）。候选 2 条待干净 kb 批入账：「GUI 编辑器不自动 reimport 时，CLI 构建的资产导入同样满足 L1」、「headless 截 RAF 游戏页要用 CDP，`--virtual-time-budget` 永不收敛」。统计 = 新增 0 / 修改 0 / 激活 0 / 归档 0（本批）。

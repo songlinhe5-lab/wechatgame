@@ -157,13 +157,13 @@ function drawTopbar(
         });
     }
     // ── 装扮馆入口（`[WXG-T-365]` · 提案 P4-甲 = 原公告预留位升格，坐标零改动）──
-    // 与设置 / 信封三同构：底圆 + 按下纹 + 40² 图标；⛔ 程序化腿不自造图标（信封判例
-    // = 形状归切图规格权威）⇒ 缺图只留空圆底。
-    // ⚠ 图标暂用该位原有的 `MENU_TEXTURES.iconSound`（喇叭）顶替 ⇒ 语义错位属已知代价
-    // `[待 UI 设计]`（用户 2026-10-24 令「先用原入口图标代替，晚点再对 UI 设计」）。
+    // 与另三钮同构：底圆 + 按下纹 + `MENU_TOPBAR_ICON_D`（= 圆 80²）图标；⛔ 程序化腿不自造
+    // 图标（信封判例 = 形状归切图规格权威）⇒ 缺图只留空圆底。
+    // 图标 = `ui_icon_skin`（衣架 + 圆领小衫）⇒ [WXG-T-493] 结清自 WXG-T-365 起借
+    // `iconSound`（喇叭）顶替的语义错位债（旧口径 `[待 UI 设计]` 见 `ux-spec §3.8` v1.26 记录）。
     const skx = MENU_TOPBAR_X.skins + TOUCH_MIN / 2;
     const skinsPressed = isPressed(data, 'open-skins');
-    // `WXG-T-486`：skins 挂左侧第二枚（设置正下方）⇒ 圆心随热区下移一行。
+    // `WXG-T-486` 曾迁左列第二枚 ⇒ `WXG-T-487`（2026-10-28）复位「右列第二枚」，与左列好友榜钮同一行距。
     const skcy = cy - MENU_TOPBAR_ROW2_DY + pressDy(data, skinsPressed);
     if (circleReady) {
         const tex = skinsPressed && menuBitmapReady(MENU_TEXTURES.btnCirclePressed)
@@ -177,7 +177,7 @@ function drawTopbar(
             lineWidth: 2,
         });
     }
-    const skinsIcon = MENU_TEXTURES.iconSound;
+    const skinsIcon = MENU_TEXTURES.iconSkins;
     if (menuBitmapReady(skinsIcon)) {
         const id = MENU_TOPBAR_ICON_D;
         builder.blit(skinsIcon, skx - id / 2, skcy - id / 2, id, id);

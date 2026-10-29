@@ -371,10 +371,17 @@ export const MENU_TEXTURES = {
   btnArrow: 'bitmap__menu_btn_arrow',
   btnArrowPressed: 'bitmap__menu_btn_arrow_pressed',
   iconSettings: 'bitmap__menu_icon_settings',
+  /**
+   * 喇叭（在册语义 = 公告，切图规格 B2）。[WXG-T-493] 起**零消费者**：该枚自 WXG-T-365
+   * 被借去顶替装扮馆入口，本批装扮馆换上真图标 `iconSkins` ⇒ 本键不再被任何画法引用。
+   * 保留 = 公告位去向仍 `[待产品]`（删它要连动切图规格与两宿主资产表，收益仅省 2.9 KB）。
+   */
   iconSound: 'bitmap__menu_icon_sound',
   iconMail: 'bitmap__menu_icon_mail',
   /** `[WXG-T-488]` 好友榜（顶栏左上第二枚）。缺 ⇒ 空圆底（⛔ 不自造替代图形）。 */
   iconRank: 'bitmap__menu_icon_rank',
+  /** `[WXG-T-493]` 装扮馆（顶栏右下第二枚）= 衣架 + 圆领小衫切图，闭 WXG-T-365 的 `[待 UI 设计]`。 */
+  iconSkins: 'bitmap__menu_icon_skin',
   iconArrowLeft: 'bitmap__menu_icon_arrow_left',
   iconArrowRight: 'bitmap__menu_icon_arrow_right',
   iconCoin: 'bitmap__menu_icon_coin',
