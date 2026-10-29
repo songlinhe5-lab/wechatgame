@@ -183,10 +183,8 @@ function drawTopbar(
         builder.blit(skinsIcon, skx - id / 2, skcy - id / 2, id, id);
     }
     // ── 好友榜（`WXG-T-487` 用户 2026-10-28 裁：左上第二枚，与 skins 左右对称；左列 2 + 右列 2）──
-    // 底圆 / 按下纹与其余三钮同构。⚠ **缺图**：`MENU_TEXTURES` 仅有 iconSettings / iconSound /
-    // iconMail 三枚，无 `ui_icon_rank` ⇒ 按信封判例「⛔ 程序化腿不自造图标」**只留空圆底**，
-    // 不画替代图形。`[待 UI 设计]`：补切图 `ui_icon_rank`（160² @2x ⇒ 绘制 40²）后在此 blit 即可。
-    // ⛔ 上线前必须补齐 —— 空圆钮对玩家不可识别（已在台账登记为 P1）。
+    // 底圆 / 按下纹与其余三钮同构；图标 `ui_icon_rank`（`[WXG-T-488]` 切图 160² @2x ⇒ 同圆 80 绘制，
+    // 领奖台三台阶 + 嵌入圆点表名次位）。缺图 ⇒ 按信封判例「⛔ 程序化腿不自造图标」只留空圆底。
     const rkx = MENU_TOPBAR_X.rank + TOUCH_MIN / 2;
     const rankPressed = isPressed(data, 'open-rank');
     const rkcy = cy - MENU_TOPBAR_ROW2_DY + pressDy(data, rankPressed);
@@ -201,6 +199,11 @@ function drawTopbar(
             stroke: palette.panelBorder,
             lineWidth: 2,
         });
+    }
+    const rankIcon = MENU_TEXTURES.iconRank;
+    if (menuBitmapReady(rankIcon)) {
+        const id = MENU_TOPBAR_ICON_D;
+        builder.blit(rankIcon, rkx - id / 2, rkcy - id / 2, id, id);
     }
 }
 

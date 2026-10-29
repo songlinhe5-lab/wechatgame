@@ -3919,9 +3919,20 @@ v1 的顶面浅色层次在 80px 绘制下仅约 4–5px，起「台阶 = 名次
 
 **成本**：云 2 张 × 0.18 元 = **0.36 元**；本地 0 张。
 
-### 6. 待办（本单未做，须真机/编辑器侧）
+### 6. 收口（2026-10-29：待办 1/2 已落地）
 
-1. **`.meta` 缺失** —— Cocos 纹理需编辑器导入生成 `.meta`（含 uuid）。⛔ 按 L1 禁手工编辑 `.meta`，本批不伪造。**在编辑器打开 `games/beads/cocos/assets/textures/` 导入 `ui_icon_rank.png` 即可**。
-2. **接线**：`MENU_TEXTURES` 增 `iconRank: 'bitmap__menu_icon_rank'`；`drawTopbar` 第四枚在底圆之后加 80² `blit`（位置已就绪，见 T-487 §4 注释）。因纹理 ID → 文件的映射不在 TS 侧（全仓仅 `MENU_TEXTURES` 出现该字面量），须与编辑器导入后的资源名对齐后再接线，否则 `menuBitmapReady` 恒 false、仍走空圆（无害但无收益）。
-3. **真机目检**：80px 下「像不像排行榜」需真机确认；若被读作「三个人物」，可换 v1 的 1024 源图重切（加大描边间距）或改出「奖杯」语义。
-4. harness 出图无法验证本件 —— `NullAssetProvider` ⇒ 纹理层全缺，只有真机/编辑器预览可看。
+1. ✅ **`.meta` 已由编辑器生成**（2026-10-29 08:49 编辑器导入产出，uuid `b01fa1bb-273f-4730-9e25-b47e5a458872`，sprite-frame trim 74×80 / offset 0,0）⇒ L1 合规（非手编）。
+2. ✅ **接线完成**：`MENU_TEXTURES.iconRank = 'bitmap__menu_icon_rank'`（`config/tuning/menu.ts`）；`drawTopbar` 在好友榜底圆之后按 `MENU_TOPBAR_ICON_D`（= 圆 80²）blit，缺图仍只留空圆底（信封判例不变）；两个宿主的 texId → 资产表同步：Cocos `host/beads-blit-carrier.ts::BITMAP_ASSETS`（`ui_icon_rank`）、harness `dev/harness/main.ts::MENU_FILE`（`ui_icon_rank.png`；`/menu-assets/` 本就是**目录映射**白名单 ⇒ 无需逐件登记）。
+3. ⏳ **真机 80px 目检（仅剩项）**：管线侧已证「进包且字节一致」，但「像不像排行榜」是观感判据，须真机/编辑器预览确认；若被读作「三个人物」，用 `ui_icon_rank_source-1024.png` 重切（加大台阶描边间距）或改「奖杯」语义。
+4. **口径修正（推翻原文第 4 条）**：「harness 无法验证」不成立 —— 只有 **Node 帧导出**（`preview:frames:beads`）看不见位图腿（`menuBitmapReady` 在 Node 侧恒 false ⇒ 程序化腿），**浏览器 harness** 会经 `/menu-assets/` 真加载菜单纹理；故目检应在浏览器 harness / 真机做。
+
+### 7. 验证（2026-10-29）
+
+| 门 | 结论 |
+|---|---|
+| `typecheck`（beads） | ✅ 0 错 |
+| `test`（beads） | ✅ 118 文件 / 1413 通过 + 2 skip |
+| `framework:sync:check` | ✅ 拷贝件与源码一致（game 108） |
+| `check:cocos-mask` | ✅ STATUS: OK（`ui_icon_rank` 字节相同、已进包；**重构建前为 FAIL「不进包」**） |
+| `build:cocos` | ✅ 55.7s（构建顺带把 beads `package.json` 记到 v1.0.5） |
+| `check:size` | ✅ beads 主包 3430.3 KB（距 4096 红线余量 665.7 KB） |

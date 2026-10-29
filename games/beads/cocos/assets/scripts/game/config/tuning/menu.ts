@@ -373,6 +373,8 @@ export const MENU_TEXTURES = {
   iconSettings: 'bitmap__menu_icon_settings',
   iconSound: 'bitmap__menu_icon_sound',
   iconMail: 'bitmap__menu_icon_mail',
+  /** `[WXG-T-488]` 好友榜（顶栏左上第二枚）。缺 ⇒ 空圆底（⛔ 不自造替代图形）。 */
+  iconRank: 'bitmap__menu_icon_rank',
   iconArrowLeft: 'bitmap__menu_icon_arrow_left',
   iconArrowRight: 'bitmap__menu_icon_arrow_right',
   iconCoin: 'bitmap__menu_icon_coin',
