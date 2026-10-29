@@ -8,12 +8,14 @@
 
 | ☐ | 关卡 | 怎么算过 | 现状 |
 |---|---|---|---|
-| ☐ | 工作树干净 | `git status` 无并行会话在制品（本轮开工时曾有 `beads-game.ts` / `board-tap-router.ts` / `knowledge/*` 等未提交改动） | ⚠ **当前未过**；等并行批次提交后再构建 |
-| ☐ | 新包构建 | `pnpm run framework:sync` → `pnpm --filter @wxgame/beads build:cocos`（release 档） | ☐ 现包 `assets/main/index.js` mtime = 10-29 **16:33**，**早于 T-503（选关弹窗）落码** ⇒ 必须重建 |
-| ☐ | 版本与扫码 | 构建后 `package.json` = **1.0.10**；产物 `version_label` = `v1.0.10`（无「演示版」）；`cli preview` 生成新码 | ☐ 旧码指向旧包，⛔ 不得复用 |
-| ☐ | G1–G3 已过 | `pnpm run verify` 全绿（G1 类型 + G2 单测 + G3 冒烟）；**未过 G1–G3 不得进真机**（`wxgame-qa-gates` 纪律） | ☐ 与「工作树干净」同批检查 |
+| ☐ | 工作树干净 | `git status` 无并行会话在制品（本轮开工时曾有 `beads-game.ts` / `board-tap-router.ts` / `knowledge/*` 等未提交改动） | ✅ **2026-10-29 21:00 核**：`git diff -w -- games/beads/src games/beads/cocos/assets/scripts/game` 为空 ⇒ 运行时改动为**纯格式**（内容等价）；其余未提交项为文档/知识库/测试，不进包 |
+| ☐ | 新包构建 | `pnpm run framework:sync` → `pnpm --filter @wxgame/beads build:cocos`（release 档） | ✅ **2026-10-29 21:03**：16.2s；`package.json` → **1.0.10**；产物 mtime 21:03 |
+| ☐ | 版本与扫码 | 构建后 `package.json` = **1.0.10**；产物 `version_label` = `v1.0.10`（无「演示版」）；`cli preview` 生成新码 | ✅ 三者均中：label **v1.0.10**、「演示版」**0 次**；`cli preview` TOTAL **3,481,429 B**；扫码图 `temp/wxg-t508-preview-qr.png`（本机，不入库） |
+| ☐ | G1–G3 已过 | `pnpm run verify` 全绿（G1 类型 + G2 单测 + G3 冒烟）；**未过 G1–G3 不得进真机**（`wxgame-qa-gates` 纪律） | ✅ **2026-10-29 21:00**：`pnpm run verify` **PASS 23 / FAIL 0 / SKIP 0** |
 
 > 构建会把这些天所有已提交改动一起烘进包（含选关弹窗、缩略平涂、顶栏对称、设置页脚）。构建前先确认没有半成品改动。
+
+**构建记录（2026-10-29 21:03）**：`check:size` 主包 **3440.7 KB / 120 文件**，距 4096 KB 红线余量 **655.3 KB**；产物内 `选关` ×1 / `关于 · ` ×1（新界面确实进包）；`version_label` = **v1.0.10**、`演示版` **0** 次；`cli preview` TOTAL **3,481,429 B**。
 
 ## 1. 环境记录（开测先填）
 
@@ -109,3 +111,4 @@
 |---|---|---|
 | v1.0 | 2026-10-29 | 初稿（WXG-T-507）：四块新界面 + 层序回归 + 三关前置（工作树干净 / 新包 / 新码）；新 ID D-82 ~ D-95 |
 | v1.1 | 2026-10-29 | 按 `wxgame-qa-gates` 补齐：§0 增 **G1–G3 前置**（`verify` 全绿尚未过则不得进真机）；§7 增 **P0–P4 缺陷分级**与每条缺陷必含模板、证据要求（层序类必须原图） |
+| v1.2 | 2026-10-29 | **执行卡四关全部打勾（21:03 实跑）**：`verify` 23/23；release 构建 16.2s → `1.0.10`；主包 3440.7 KB / 120 文件（余 655.3 KB）；`version_label` = v1.0.10、无「演示版」；新扫码图 = `temp/wxg-t508-preview-qr.png` |
