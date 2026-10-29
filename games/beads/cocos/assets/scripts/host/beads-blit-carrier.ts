@@ -136,6 +136,7 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
     [MENU_TEXTURES.sealCleared]: { path: 'ui_menu_seal_cleared' },
     [MENU_TEXTURES.ctaLabel]: { path: 'ui_menu_cta_label' },
     [MENU_TEXTURES.woodGrain]: { path: 'ui_wood_grain' },
+    [MENU_TEXTURES.woodFrame]: { path: 'ui_wood_frame' },
 };
 
 /**

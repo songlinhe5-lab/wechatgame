@@ -25,6 +25,7 @@
 | `ui_menu_badge_locked.png`（128² @2x） | 2026-10-15 P3 未开启锁（云端 qwen-image-3.0，seed 7） | ✅ 在用（同名 webp 已于 2026-10-18 退役，投放件反推父本 = PNG：0.87 vs 24.99）。播放钮 `ui_menu_badge_pushing` 与完成章 `ui_menu_badge_done` 已删（2026-10-16，改沙漏 / 飘带） |
 | `ui_menu_badge_progress.png` | `9c553e0c`（2026-10-16 · WXG-T-282：走马灯 v3.5–v3.9 实装 + 纹理换代 PNG）—— **v3.8 进行中沙漏（花心）** | ✅ 已接运行时：`MENU_TEXTURES.badgeProgress`（`bitmap__menu_badge_progress`）→ `cocos/assets/scripts/host/beads-blit-carrier.ts:132`；✅ 同名件在 `cocos/assets/textures/`（2026-10-28 WXG-T-481 补账） |
 | `ui_menu_seal_cleared.png` | 同上（`9c553e0c` · WXG-T-282）—— **v3.8 通关飘带** | ✅ 已接：`MENU_TEXTURES.sealCleared`（`bitmap__menu_seal_cleared`）→ carrier:133；✅ 在 `textures/`（同上补账） |
+| `ui_wood_frame.png` | 由 `ui_wood_grain` 派生（2026-10-29）——**外框木纹环** 780×705、12px 宽、圆角 alpha | ✅ 已接：`MENU_TEXTURES.woodFrame` → 结算面板外框；投放件量化 + 构建生成 `.meta` |
 | `ui_wood_grain.png` | 云 `qwen-image-3.0` seed 511（2026-10-29，0.18 元）——**卡通木纹条** 1024×320（裁切+色彩对齐+圆角 alpha+**柔和 25%**） | ✅ 已接：`MENU_TEXTURES.woodGrain`（`bitmap__ui_wood_grain`）→ 结算木牌/主钮拉伸；投放件 `cocos/assets/textures/`（量化）+ 构建生成 `.meta` |
 | `ui_menu_cta_label.png` | 同上（`9c553e0c` · WXG-T-282）—— **v3.8 CTA「开始游戏」艺术字**（缺资产时回退程序化字） | ✅ 已接：`MENU_TEXTURES.ctaLabel`（`bitmap__menu_cta_label`）→ carrier:134；✅ 在 `textures/`（同上补账） |
 

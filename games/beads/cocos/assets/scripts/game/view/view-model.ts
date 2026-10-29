@@ -543,21 +543,16 @@ function drawClearPanel(
     radius: UI_CONTAINER.radiusPanel,
     shadowAlpha: UI_CONTAINER.shadowAlphaPanel,
   });
-  // `[WXG-T-511]` 真机反馈：1px 暖沙边在 dpr3 下会碎成「虚线感」⇒ 加一圈 2px 木边（只结算面板）。
-  builder.rect(plate.xMin + 3, plate.yMin + 3, plate.xMax - plate.xMin - 6, plate.yMax - plate.yMin - 6, {
-    stroke: palette.woodEdge,
-    lineWidth: 2,
-    radius: UI_CONTAINER.radiusPanel - 3,
+  // `[WXG-T-514]` 外框：木纹环贴图（12px 宽）+ 内外两条均匀描边；按钮不再用纹理。
+  const pw = plate.xMax - plate.xMin;
+  const ph = plate.yMax - plate.yMin;
+  builder.blit(MENU_TEXTURES.woodFrame, plate.xMin, plate.yMin, pw, ph);
+  builder.rect(plate.xMin, plate.yMin, pw, ph, {
+    stroke: palette.woodEdge, lineWidth: 2, radius: UI_CONTAINER.radiusPanel,
   });
-  // `[WXG-T-512]` 四角豆钉：木作 + 拼豆语言的卡通收口。
-  for (const [tx, ty] of [
-    [plate.xMin + 16, plate.yMin + 16],
-    [plate.xMax - 16, plate.yMin + 16],
-    [plate.xMin + 16, plate.yMax - 16],
-    [plate.xMax - 16, plate.yMax - 16],
-  ]) {
-    builder.circle(tx!, ty!, 5, { fill: palette.woodFace, stroke: palette.woodEdge, lineWidth: 2 });
-  }
+  builder.rect(plate.xMin + 12, plate.yMin + 12, pw - 24, ph - 24, {
+    stroke: palette.woodEdge, lineWidth: 2, radius: UI_CONTAINER.radiusPanel - 12,
+  });
 
   // `[WXG-T-510]` A2：标题木牌骑在面板上沿（木底 + 木边 + 深字）。
   const plaqueW = CLEAR_PLAQUE_W;
@@ -589,6 +584,9 @@ function drawClearPanel(
     const cx = layout.starX[i]!;
     const cy = layout.starsY;
     const r = starR * scale;
+    builder.polygon(starPoints(cx, cy, r + 5, 5, 90), {
+      fill: withAlpha(STAR_GOLD, 0.16),
+    });
     builder.polygon(starPoints(cx, cy - 3, r, 5, 90), {
       fill: withAlpha(palette.shadowInk, 0.28),
     });
@@ -609,7 +607,7 @@ function drawClearPanel(
     const elapsed = Math.floor(elapsedRaw);
     builder.text(DESIGN_W / 2, layout.timeY, `用时${formatDurationCn(elapsed)}`, {
       fill: palette.text,
-      font: bodyFont(snap.largeText, 'sub'),
+      font: UI_FONT.hud,
       align: 'center',
       baseline: 'middle',
     });
@@ -621,8 +619,8 @@ function drawClearPanel(
       if (gap > 0) {
         builder.text(DESIGN_W / 2, layout.hintY, `再快${formatDurationCn(gap)}可得${nextTier}★`, {
           fill: palette.text,
-          alpha: 0.8,
-          font: bodyFont(snap.largeText, 'sub'),
+          alpha: 0.9,
+          font: UI_FONT.body,
           align: 'center',
           baseline: 'middle',
         });
@@ -634,7 +632,7 @@ function drawClearPanel(
   if (snap.clearCoins > 0) {
     builder.text(DESIGN_W / 2, layout.rewardY, `+${snap.clearCoins} 豆`, {
       fill: snap.clearCoinsCapped ? palette.text : STAR_GOLD,
-      font: UI_FONT.hud,
+      font: UI_FONT.stat,
       align: 'center',
       baseline: 'middle',
     });
@@ -648,14 +646,14 @@ function drawClearPanel(
     const pressed = snap.pressedButton === button.id;
     const by = button.rect.yMin + pressDy(snap, button.id);
     if (button.id === 'next') {
+      // `[WXG-T-514]` 按钮回归纯色调：木面 + 顶高光/底暗边 + 3px 描边（立体），⛔ 无纹理横线。
       drawButton(builder, palette, button.rect.xMin, by, bw, bh, 'wood', UI_CONTAINER.radiusWood, label, UI_FONT.panelButton, pressed);
-      // `[WXG-T-512]` 主钮叠木纹（原 drawButton 的字被盖 ⇒ 后重绘字与描边）。
-      builder.blit(MENU_TEXTURES.woodGrain, button.rect.xMin, by, bw, bh);
-      if (pressed) {
-        builder.rect(button.rect.xMin, by, bw, bh, {
-          fill: withAlpha(palette.shadowInk, 0.16), radius: UI_CONTAINER.radiusWood,
-        });
-      }
+      builder.rect(button.rect.xMin + 10, by + bh - 7, bw - 20, 3, {
+        fill: withAlpha(palette.panel, 0.35), radius: 2,
+      });
+      builder.rect(button.rect.xMin + 10, by + 5, bw - 20, 3, {
+        fill: withAlpha(palette.shadowInk, 0.22), radius: 2,
+      });
       builder.rect(button.rect.xMin, by, bw, bh, {
         stroke: palette.woodEdge, lineWidth: 3, radius: UI_CONTAINER.radiusWood,
       });
@@ -669,6 +667,9 @@ function drawClearPanel(
         stroke: palette.woodEdge,
         lineWidth: 2,
         radius: UI_CONTAINER.radiusCard,
+      });
+      builder.rect(button.rect.xMin + 8, by + bh - 5, bw - 16, 2, {
+        fill: withAlpha(palette.woodFace, 0.35), radius: 1,
       });
       builder.text(button.rect.xMin + bw / 2, by + bh / 2, label, {
         fill: palette.text,

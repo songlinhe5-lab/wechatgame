@@ -103,7 +103,7 @@ describe('S7 结算面板 · 精简几何（ux-spec §3.4 v1.41）', () => {
     for (const y of [l.starsY, l.timeY, l.rewardY, l.hintY]) expect(inside(y), `y=${y}`).toBe(true);
     expect(l.content.xMax - l.content.xMin).toBe(400);
     expect(l.content.yMax - l.content.yMin).toBe(270);
-    expect(l.starsY + 32).toBeLessThan(l.content.yMax);
+    expect(l.starsY + 36).toBeLessThan(l.content.yMax);
   });
 
   it('标题 = 「过关」；主钮 / 弱化次钮文案', () => {

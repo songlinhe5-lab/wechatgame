@@ -41,6 +41,8 @@ export const UI_FONT = {
     hud: 'bold 30px sans-serif',
     /** 菜单钮 / 正文钮 30。 */
     button: '30px sans-serif',
+    /** 结算读数 34 粗体。 */
+    stat: 'bold 34px sans-serif',
     /** 面板按钮 30 粗体。 */
     panelButton: 'bold 30px sans-serif',
     /** 正文 28。 */

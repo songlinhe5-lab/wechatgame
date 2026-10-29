@@ -164,6 +164,7 @@ const MENU_FILE: Readonly<Record<string, string>> = {
   [MENU_TEXTURES.iconMail]: 'ui_icon_mail.png',
   [MENU_TEXTURES.iconCalendar]: 'ui_icon_calendar.png',
   [MENU_TEXTURES.woodGrain]: 'ui_wood_grain.png',
+  [MENU_TEXTURES.woodFrame]: 'ui_wood_frame.png',
   [MENU_TEXTURES.iconRank]: 'ui_icon_rank.png',
   [MENU_TEXTURES.iconSkins]: 'ui_icon_skin.png',
   [MENU_TEXTURES.iconArrowLeft]: 'ui_icon_arrow_left.png',

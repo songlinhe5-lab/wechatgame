@@ -103,9 +103,9 @@ export const PANEL_TITLE_BAND_H = 100;
 /** 每颗星入场的间隔（ms）—— ux-spec §5「结算星入场 逐颗 150ms（150×3）」。 */
 export const CLEAR_STAR_STEP_MS = 150;
 /** 单颗星的外接直径：ux-spec §3.4 未定尺寸 ⇒ 本项派生（三颗等距排在面板中部）。 */
-export const CLEAR_STAR_SIZE = 64;
+export const CLEAR_STAR_SIZE = 72;
 /** 星与星的水平间隔。 */
-export const CLEAR_STAR_GAP = 28;
+export const CLEAR_STAR_GAP = 32;
 
 /** `[WXG-T-510]` 结算面板专用尺寸（A2 木挂牌；其他三面板仍用共享 `PANEL_SIZE`）。 */
 export const CLEAR_PANEL_SIZE = { w: 520, h: 470 } as const;
@@ -421,6 +421,8 @@ export const MENU_TEXTURES = {
   ctaLabel: 'bitmap__menu_cta_label',
   /** `[WXG-T-512]` 卡通木纹条（云 qwen-image-3.0 seed 511 生成，1024×320 圆角）：结算木牌与主钮拉伸使用。 */
   woodGrain: 'bitmap__ui_wood_grain',
+  /** `[WXG-T-514]` 结算外框木纹环（780×705 圆角环，12px 宽）；按钮不再用纹理。 */
+  woodFrame: 'bitmap__ui_wood_frame',
 } as const;
 
 /**
