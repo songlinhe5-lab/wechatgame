@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3904,
       "lines": 132,
-      "sha256": "c0a544dcd1957517799d7afce49a0e5b2bc5ee1f159eb29dc0851a6756421f40",
+      "sha256": "3bc435bb254d941c28622b91914966b50b5a53f61e2202a361e480468aeb68b9",
       "tier": "normal",
       "sections": [
         {
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "3b451e9753bd39e9acfb8976c796248c159f2a8cdc95bab7734ebe7273fb8a82",
+      "sha256": "95ba8a2f0f0707e1fc3fd7ab65a045d9edba6dad07935be5f0cc6c835fb5589c",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 102 行 / 19990 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 103 行 / 20356 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+103 · §待排（backlog，无号，立项时领取…=75+29",
+          "summary": "§WXG 任务台账（SSOT）=1+104 · §待排（backlog，无号，立项时领取…=76+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 4240 行 / 136668 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 4278 行 / 137760 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+4241 · §WXG-T-484=3115+43 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+4279 · §WXG-T-484=3115+43 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -44880,18 +44880,18 @@
     },
     {
       "path": "games/beads/design/ux/ux-spec.md",
-      "tokens": 56897,
-      "lines": 551,
-      "sha256": "2a2058f05a70b2086f754d88080d267d0aeff2505be5ef2532ced774db454dc3",
+      "tokens": 57725,
+      "lines": 553,
+      "sha256": "7936a9ef88d229ce799c4027f4029046ab5e0ccb8a6c2f41e2976acac3f01e42",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§UX 规格（UX Spec）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 552,
-          "tokens": 56888,
-          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.34 · 任务号 WXG-T-494（v1.34 = 公告位",
+          "endLine": 554,
+          "tokens": 57716,
+          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.35 · 任务号 WXG-T-495（v1.35 = 公告内",
           "keywords": [
             "Spec",
             "beads",
@@ -45164,8 +45164,8 @@
           "anchor": "§8 决策记录与裁决项",
           "level": 2,
           "startLine": 442,
-          "endLine": 552,
-          "tokens": 20957,
+          "endLine": 554,
+          "tokens": 21633,
           "summary": "已裁定（沿袭）：~~无主菜单两路径（core-loop 判例）~~ v1.7 反转：主菜单恢复（WXG-T-164），启",
           "keywords": [
             "core",
@@ -87670,17 +87670,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 136668,
-      "lines": 4240,
-      "sha256": "ae27516772573ead874f684f06dd3f0eaf8f30de2ea77258e1634d78d0500f52",
+      "tokens": 137760,
+      "lines": 4278,
+      "sha256": "17db137e0aec17b5a0ba82c976bc96f66962b9f2681b3efdb064fb851dca9ea1",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 4241,
-          "tokens": 136651,
+          "endLine": 4279,
+          "tokens": 137743,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -91934,8 +91934,8 @@
           "anchor": "§WXG-T-494",
           "level": 2,
           "startLine": 4185,
-          "endLine": 4241,
-          "tokens": 2042,
+          "endLine": 4243,
+          "tokens": 2043,
           "summary": "",
           "keywords": [
             "WXG"
@@ -92044,9 +92044,120 @@
           "anchor": "§8 沉淀统计",
           "level": 3,
           "startLine": 4238,
-          "endLine": 4241,
-          "tokens": 179,
+          "endLine": 4243,
+          "tokens": 180,
           "summary": "本批 未跑 kb:sync（knowledge/ 五件仍含并行会话 WXG-T-434 未提交在制品，K-137；沿 T",
+          "keywords": [
+            "sync",
+            "knowledge",
+            "WXG",
+            "沉淀统计"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-495",
+          "level": 2,
+          "startLine": 4244,
+          "endLine": 4279,
+          "tokens": 1088,
+          "summary": "",
+          "keywords": [
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§1 触发与裁定",
+          "level": 3,
+          "startLine": 4246,
+          "endLine": 4249,
+          "tokens": 135,
+          "summary": "用户确认前提（公告是否必须后端）后下令：「首版不做强运营，用公告跟着版本走（版本说明、维护通知）即可，可以按照这个思路实",
+          "keywords": [
+            "触发与裁定"
+          ]
+        },
+        {
+          "anchor": "§2 落码（零 UI，只落配置层）",
+          "level": 3,
+          "startLine": 4250,
+          "endLine": 4256,
+          "tokens": 216,
+          "summary": "games/beads/src/config/announcements.ts（新增） 类型 AnnouncementE",
+          "keywords": [
+            "games",
+            "beads",
+            "src",
+            "config",
+            "announcements",
+            "AnnouncementE"
+          ]
+        },
+        {
+          "anchor": "§3 三个「为何」",
+          "level": 3,
+          "startLine": 4257,
+          "endLine": 4262,
+          "tokens": 197,
+          "summary": "为何空表：当前没有已发生的对外发布事件，写日期就是造假（K-035 同精神）⇒ 首条在提审前由运营填，形状已写在文件头。",
+          "keywords": [
+            "三个",
+            "为何"
+          ]
+        },
+        {
+          "anchor": "§4 文档落点",
+          "level": 3,
+          "startLine": 4263,
+          "endLine": 4266,
+          "tokens": 126,
+          "summary": "design/ux/ux-spec.md 升 v1.35 五处：头注；§8 U19 ① 改已裁（点明远端三档与「当前未就",
+          "keywords": [
+            "§8",
+            "design",
+            "spec",
+            "U19",
+            "文档落点"
+          ]
+        },
+        {
+          "anchor": "§5 门禁读数 (2)",
+          "level": 3,
+          "startLine": 4267,
+          "endLine": 4270,
+          "tokens": 49,
+          "summary": "tests/announcements.test.ts 4/4 · beads tsc --noEmit 0 错 · c",
+          "keywords": [
+            "tests",
+            "announcements",
+            "test",
+            "beads",
+            "tsc",
+            "noEmit"
+          ]
+        },
+        {
+          "anchor": "§6 红线自证与未清债 (2)",
+          "level": 3,
+          "startLine": 4271,
+          "endLine": 4275,
+          "tokens": 184,
+          "summary": "零 UI、零几何、零新资产、零新毫秒值、零新 hex、零 §3 冻结常量；未新增快照字段与热区；copy-tokens ",
+          "keywords": [
+            "§3",
+            "hex",
+            "copy",
+            "tokens",
+            "红线自证与未",
+            "清债"
+          ]
+        },
+        {
+          "anchor": "§7 沉淀统计 (2)",
+          "level": 3,
+          "startLine": 4276,
+          "endLine": 4279,
+          "tokens": 124,
+          "summary": "未跑 kb:sync（knowledge/ 仍含并行会话 WXG-T-434 在制品，K-137）。候选 1 条待干净 ",
           "keywords": [
             "sync",
             "knowledge",
@@ -92058,17 +92169,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 19990,
-      "lines": 102,
-      "sha256": "0d7bb29b4788cbc20ce0b17341c7f74370efe3d4c3fb9cce52c1c11d55442cd1",
+      "tokens": 20356,
+      "lines": 103,
+      "sha256": "0f07ec4b8d1363e428ee43f41f41d383299e4fb83457d2fbfce4087e8b21a6c2",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 103,
-          "tokens": 19981,
+          "endLine": 104,
+          "tokens": 20347,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -92081,8 +92192,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 75,
-          "endLine": 103,
+          "startLine": 76,
+          "endLine": 104,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
