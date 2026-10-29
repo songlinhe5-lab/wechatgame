@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3904,
       "lines": 132,
-      "sha256": "3b47ca8ea38d882d81bc3bd1845f14dba2ded940aa97825c156616d7a2e966af",
+      "sha256": "c04c068ee382f30ecfa8e92e69df7f6e31adbfee0626fbe7dc10e4495b880465",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 146154 4699 normal",
+          "summary": "1 production/TASKS-DETAIL.md 146816 4738 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "05d6ea20a2a8683b979309285ffe12edaf4c97fe8840cc5948f701a92e2e2565",
+      "sha256": "a63346fbe2509e89ffafd1e0264951683d161a595a1202fa7175497dd5ef9ffc",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 114 行 / 22659 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 115 行 / 22835 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+115 · §待排（backlog，无号，立项时领取…=87+29",
+          "summary": "§WXG 任务台账（SSOT）=1+116 · §待排（backlog，无号，立项时领取…=88+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 4699 行 / 146154 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 4738 行 / 146816 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+4700 · §WXG-T-495=4244+38 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+4739 · §WXG-T-496=4282+34 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -87688,17 +87688,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 146154,
-      "lines": 4699,
-      "sha256": "593294e322673edfc3e8148cf8fbb1d5261f41285b60eca413ace4018956dbaf",
+      "tokens": 146816,
+      "lines": 4738,
+      "sha256": "79e38f849b196b74b4079312606a318e3aa9d8b1a8e281787cd3e65221e60a2a",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 4700,
-          "tokens": 146137,
+          "endLine": 4739,
+          "tokens": 146799,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -93095,8 +93095,8 @@
           "anchor": "§WXG-T-506",
           "level": 2,
           "startLine": 4666,
-          "endLine": 4700,
-          "tokens": 754,
+          "endLine": 4702,
+          "tokens": 755,
           "summary": "",
           "keywords": [
             "WXG"
@@ -93181,8 +93181,8 @@
           "anchor": "§6 沉淀统计 (5)",
           "level": 3,
           "startLine": 4697,
-          "endLine": 4700,
-          "tokens": 118,
+          "endLine": 4702,
+          "tokens": 120,
           "summary": "未跑 kb:sync（同上，knowledge/ 含并行在制品）。候选 1 条：「版本腿会自动递增 package.js",
           "keywords": [
             "sync",
@@ -93190,22 +93190,110 @@
             "package",
             "沉淀统计"
           ]
+        },
+        {
+          "anchor": "§WXG-T-507",
+          "level": 2,
+          "startLine": 4703,
+          "endLine": 4739,
+          "tokens": 658,
+          "summary": "",
+          "keywords": [
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§1 触发 (16)",
+          "level": 3,
+          "startLine": 4705,
+          "endLine": 4708,
+          "tokens": 71,
+          "summary": "用户选「1 = 真机走查执行卡」。全量走查单 device-walkthrough.md 停留在 v1.7（2026-1",
+          "keywords": [
+            "device",
+            "walkthrough",
+            "触发"
+          ]
+        },
+        {
+          "anchor": "§2 产出",
+          "level": 3,
+          "startLine": 4709,
+          "endLine": 4721,
+          "tokens": 210,
+          "summary": "production/qa/beads/device/2026-10-29/execution-card.md：",
+          "keywords": [
+            "production",
+            "beads",
+            "device",
+            "execution",
+            "card",
+            "产出"
+          ]
+        },
+        {
+          "anchor": "§3 为什么单开一张卡",
+          "level": 3,
+          "startLine": 4722,
+          "endLine": 4725,
+          "tokens": 91,
+          "summary": "全量单 253 行、多数条目与本批无关；单开卡只装「这批改动可能碰坏的路径」，并把最容易漏的真机屏幕层序（遮罩能否压住菜",
+          "keywords": [
+            "为什么单开一",
+            "张卡"
+          ]
+        },
+        {
+          "anchor": "§4 前置现状（写卡时）",
+          "level": 3,
+          "startLine": 4726,
+          "endLine": 4731,
+          "tokens": 97,
+          "summary": "工作树有并行在制品 ⇒ 三关中的「干净」未过，此时构建会把半成品烘进包。",
+          "keywords": [
+            "前置现状",
+            "写卡时"
+          ]
+        },
+        {
+          "anchor": "§5 边界",
+          "level": 3,
+          "startLine": 4732,
+          "endLine": 4735,
+          "tokens": 46,
+          "summary": "零真机读数（本批只出卡）；判定与证据由执行人回填。定量性能仍回全量单 D-01/D-07，本卡只记观感。",
+          "keywords": [
+            "边界"
+          ]
+        },
+        {
+          "anchor": "§6 沉淀统计 (6)",
+          "level": 3,
+          "startLine": 4736,
+          "endLine": 4739,
+          "tokens": 104,
+          "summary": "未跑 kb:sync（knowledge/ 仍含并行在制品）。候选 1 条：「UI 改判批次要单开增量执行卡，并把『遮罩",
+          "keywords": [
+            "sync",
+            "knowledge",
+            "沉淀统计"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 22659,
-      "lines": 114,
-      "sha256": "549b379dacbb8ad07b9bfa71ee5e3d6ac3bfaa048b5ebf1ae8c8c6d6672fa818",
+      "tokens": 22835,
+      "lines": 115,
+      "sha256": "43ed6221bbfb84c37dc8291bd20c5499eecd273ed950179c8462e28c7d2dacd3",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 115,
-          "tokens": 22651,
+          "endLine": 116,
+          "tokens": 22827,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -93218,8 +93306,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 87,
-          "endLine": 115,
+          "startLine": 88,
+          "endLine": 116,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -97412,17 +97500,17 @@
     },
     {
       "path": "production/qa/beads/device-walkthrough.md",
-      "tokens": 12097,
-      "lines": 253,
-      "sha256": "ed6bd4a95b3bb73fa0794b00a22b0dbd71e2f88eb9da000551fb5dd53828f307",
+      "tokens": 12189,
+      "lines": 254,
+      "sha256": "929fff23daeb586087bf81fdfeab233a7b8d5bf843e8313f7875362d1c9c09dd",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads 真机走查单（P4 · K-044 解除条件逐项走查）",
           "level": 1,
           "startLine": 1,
-          "endLine": 254,
-          "tokens": 12077,
+          "endLine": 255,
+          "tokens": 12168,
           "summary": "版本：v1.7 · 2026-10-28（v1.7 = Session 0 前置按 v1.0.3 现包重核 + 新增 D",
           "keywords": [
             "beads",
@@ -97435,8 +97523,8 @@
         {
           "anchor": "§0 判定规则（先读，K-044）",
           "level": 2,
-          "startLine": 11,
-          "endLine": 20,
+          "startLine": 12,
+          "endLine": 21,
           "tokens": 315,
           "summary": "1. 判定上限由判据完备性决定，不由实现进度决定。来源未给通过线（本单「线」列 = 未定义）的条目，走查后最多判 PAS",
           "keywords": [
@@ -97448,8 +97536,8 @@
         {
           "anchor": "§1 前置（Session 0 · 全部打勾才开走查）",
           "level": 2,
-          "startLine": 21,
-          "endLine": 36,
+          "startLine": 22,
+          "endLine": 37,
           "tokens": 1579,
           "summary": "☐ AppID 一致 构建 profile / 工程 / 产物三处 = wx8cf9f756e5390749 ✅ coc",
           "keywords": [
@@ -97464,8 +97552,8 @@
         {
           "anchor": "§2 设备矩阵（引 `render-perf-device-baseline.md §2 / §2.1`）",
           "level": 2,
-          "startLine": 37,
-          "endLine": 48,
+          "startLine": 38,
+          "endLine": 49,
           "tokens": 259,
           "summary": "L-A 低端主判 ✅ 华为畅享 90 Pro Max（ohos，Mali-G610，dpr3；鸿蒙资格三关已过）。202",
           "keywords": [
@@ -97480,8 +97568,8 @@
         {
           "anchor": "§3 走查条目（按场次排，同场一次性走完）",
           "level": 2,
-          "startLine": 49,
-          "endLine": 203,
+          "startLine": 50,
+          "endLine": 204,
           "tokens": 6316,
           "summary": "列说明：线 = 来源给的通过线（逐字，未定义 ⇒ 上限 PASS*）；另需 = AppID 之外的前提；判定 / 证据 ",
           "keywords": [
@@ -97495,8 +97583,8 @@
         {
           "anchor": "§Session 1 · 冒烟与首屏（先走，任何一条 FAIL 即停后续场次）",
           "level": 3,
-          "startLine": 53,
-          "endLine": 94,
+          "startLine": 54,
+          "endLine": 95,
           "tokens": 1926,
           "summary": "D-39 qa/beads/test-cases.md DEV-02 build:cocos（wechatgame）出包",
           "keywords": [
@@ -97511,8 +97599,8 @@
         {
           "anchor": "§Session 2 · 适配（刘海 / 安全区 / 分辨率）",
           "level": 3,
-          "startLine": 95,
-          "endLine": 109,
+          "startLine": 96,
+          "endLine": 110,
           "tokens": 1116,
           "summary": "D-38 test-cases.md DEV-01 wx 宿主坐标链（getLocation / push）；小游戏无 ",
           "keywords": [
@@ -97527,8 +97615,8 @@
         {
           "anchor": "§Session 3 · 输入",
           "level": 3,
-          "startLine": 110,
-          "endLine": 127,
+          "startLine": 111,
+          "endLine": 128,
           "tokens": 1093,
           "summary": "D-46 test-cases.md TC-CAM-DEV-01（P0） zoom≠1（含大盘 fit）棋盘点哪落哪 点",
           "keywords": [
@@ -97543,8 +97631,8 @@
         {
           "anchor": "§Session 4 · 渲染观感（统一截图取证：每条同机同亮度，原图入库）",
           "level": 3,
-          "startLine": 128,
-          "endLine": 152,
+          "startLine": 129,
+          "endLine": 153,
           "tokens": 650,
           "summary": "D-12 ADR-0028；wxg-t-228-tint-criteria.md TC-TINT-20 / T2' wx",
           "keywords": [
@@ -97559,8 +97647,8 @@
         {
           "anchor": "§Session 4b · 美术设计走查（art-bible 对照 · USER 逐屏看图拍板；WXG-T-468 新增）",
           "level": 3,
-          "startLine": 153,
-          "endLine": 165,
+          "startLine": 154,
+          "endLine": 166,
           "tokens": 386,
           "summary": "正本 = games/beads/design/art/art-bible.md（v1.5-r27）+ assets-s",
           "keywords": [
@@ -97575,8 +97663,8 @@
         {
           "anchor": "§Session 5 · 性能（严格按 `render-perf-device-baseline.md §12` 执行序）",
           "level": 3,
-          "startLine": 166,
-          "endLine": 180,
+          "startLine": 167,
+          "endLine": 181,
           "tokens": 449,
           "summary": "D-03 baseline §7 · D7 WebGL/uniform/纹理能力矩阵（先做） 全机型 MAX_FRAGM",
           "keywords": [
@@ -97591,8 +97679,8 @@
         {
           "anchor": "§Session 6 · 音频 / 平台 API",
           "level": 3,
-          "startLine": 181,
-          "endLine": 190,
+          "startLine": 182,
+          "endLine": 191,
           "tokens": 214,
           "summary": "D-56 g4-regression-report.md A05-27 iOS 首手势出声；后台恢复；泄漏；首个 cli",
           "keywords": [
@@ -97607,8 +97695,8 @@
         {
           "anchor": "§Session 7 · 真人 Playtest（另排日程，需外部受试者）",
           "level": 3,
-          "startLine": 191,
-          "endLine": 203,
+          "startLine": 192,
+          "endLine": 204,
           "tokens": 264,
           "summary": "D-73 TC-PER-03；playtest-plan.md 第 1 轮 无文字 3s 看懂；首次落子 ≥80% 复述",
           "keywords": [
@@ -97623,8 +97711,8 @@
         {
           "anchor": "§4 真机解不了的阻塞（走查前须知，⛔ 不因真机在手而解除）",
           "level": 2,
-          "startLine": 204,
-          "endLine": 219,
+          "startLine": 205,
+          "endLine": 220,
           "tokens": 507,
           "summary": "X-01 音频出声（D-56/57/58） weapp.ts::createAudioBackend 只走 WebAud",
           "keywords": [
@@ -97639,8 +97727,8 @@
         {
           "anchor": "§5 走查后回填",
           "level": 2,
-          "startLine": 220,
-          "endLine": 226,
+          "startLine": 221,
+          "endLine": 227,
           "tokens": 148,
           "summary": "1. 每条判定回填到来源文档的状态列（本单只是索引）；PASS* 必写残留（缺哪一道）。",
           "keywords": [
@@ -97651,8 +97739,8 @@
         {
           "anchor": "§6 统计",
           "level": 2,
-          "startLine": 227,
-          "endLine": 241,
+          "startLine": 228,
+          "endLine": 242,
           "tokens": 206,
           "summary": "S1 冒烟 9 8（D-80 新增，线未定义）",
           "keywords": [
@@ -97662,8 +97750,8 @@
         {
           "anchor": "§7 变更记录",
           "level": 2,
-          "startLine": 242,
-          "endLine": 254,
+          "startLine": 243,
+          "endLine": 255,
           "tokens": 2060,
           "summary": "v1.0 2026-10-15 初稿：汇总全仓真机待验项 + K-044 判定上限 + 阻塞清单（P4）",
           "keywords": [
@@ -97860,6 +97948,163 @@
             "perf",
             "三条禁忌",
             "防假绿"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "production/qa/beads/device/2026-10-29/execution-card.md",
+      "tokens": 1764,
+      "lines": 92,
+      "sha256": "279f4a77ac59255a2ea5c65636cb664d7401a6d89518e08780a6f60e969ddc18",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§beads 真机执行卡 · 2026-10-29（选关弹窗 / 顶栏四钮 / 设置页脚）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 93,
+          "tokens": 1738,
+          "summary": "用途：把 2026-10-29 这一批 UI 改判（WXG-T-497 / 498 / 501 / 502 / 503）",
+          "keywords": [
+            "beads",
+            "WXG",
+            "真机执行卡",
+            "选关弹窗",
+            "顶栏四钮",
+            "设置页脚"
+          ]
+        },
+        {
+          "anchor": "§0 先过三关（任一不过不开测）",
+          "level": 2,
+          "startLine": 7,
+          "endLine": 16,
+          "tokens": 263,
+          "summary": "☐ 工作树干净 git status 无并行会话在制品（本轮开工时曾有 beads-game.ts / board-ta",
+          "keywords": [
+            "git",
+            "status",
+            "beads",
+            "game",
+            "board",
+            "先过三关"
+          ]
+        },
+        {
+          "anchor": "§1 环境记录（开测先填）",
+          "level": 2,
+          "startLine": 17,
+          "endLine": 32,
+          "tokens": 138,
+          "summary": "日期 / 执行人",
+          "keywords": [
+            "环境记录",
+            "开测先填"
+          ]
+        },
+        {
+          "anchor": "§2 三分钟冒烟（任一 FAIL 即停）",
+          "level": 2,
+          "startLine": 33,
+          "endLine": 41,
+          "tokens": 105,
+          "summary": "☐ 冷启动 停在主菜单；logo / 橱窗 / CTA 位图不空白",
+          "keywords": [
+            "FAIL",
+            "logo",
+            "CTA",
+            "三分钟冒烟",
+            "任一",
+            "即停"
+          ]
+        },
+        {
+          "anchor": "§3 A · 选关弹窗（T-503 主检）",
+          "level": 2,
+          "startLine": 42,
+          "endLine": 53,
+          "tokens": 360,
+          "summary": "D-82 形态与遮罩 600×720 纸板居中；底页主菜单可见但压暗（α0.5）；无整页替换感",
+          "keywords": [
+            "选关弹窗",
+            "主检"
+          ]
+        },
+        {
+          "anchor": "§4 B · 顶栏四钮（T-497 / 498）",
+          "level": 2,
+          "startLine": 54,
+          "endLine": 61,
+          "tokens": 155,
+          "summary": "D-89 2×2 布局 左列（设置/好友榜）与右列（签到/装扮）对称；热区距屏边 14、视觉圆距边 18；两行行距 88",
+          "keywords": [
+            "顶栏四钮"
+          ]
+        },
+        {
+          "anchor": "§5 C · 设置页脚（T-497）",
+          "level": 2,
+          "startLine": 62,
+          "endLine": 67,
+          "tokens": 81,
+          "summary": "D-92 「关于 · 版本」 页脚居中一行 关于 · v1.0.10；不注册热区（点了无反应）；与返回钮不重叠、离板底 ",
+          "keywords": [
+            "设置页脚"
+          ]
+        },
+        {
+          "anchor": "§6 D · 回归（只测被这批改动碰到的路径）",
+          "level": 2,
+          "startLine": 68,
+          "endLine": 75,
+          "tokens": 143,
+          "summary": "D-93 旧档升级 保留上一版存档进新包：解锁进度 / 星级 / 设置 / 皮肤 / 豆径全部还在",
+          "keywords": [
+            "回归",
+            "只测被这批改",
+            "动碰到的路径"
+          ]
+        },
+        {
+          "anchor": "§7 判定与出口",
+          "level": 2,
+          "startLine": 76,
+          "endLine": 81,
+          "tokens": 122,
+          "summary": "判定符：PASS / PASS* / FAIL / ⛔ / —（同走查单 §0）。",
+          "keywords": [
+            "§0",
+            "PASS",
+            "FAIL",
+            "判定与出口"
+          ]
+        },
+        {
+          "anchor": "§8 证据命名",
+          "level": 2,
+          "startLine": 82,
+          "endLine": 87,
+          "tokens": 56,
+          "summary": "production/qa/beads/device/2026-10-29/<条目ID>_<机型档>_<序号>.png ",
+          "keywords": [
+            "production",
+            "beads",
+            "device",
+            "png",
+            "证据命名"
+          ]
+        },
+        {
+          "anchor": "§9 变更记录",
+          "level": 2,
+          "startLine": 88,
+          "endLine": 93,
+          "tokens": 59,
+          "summary": "v1.0 2026-10-29 初稿（WXG-T-507）：四块新界面 + 层序回归 + 三关前置（工作树干净 / 新包",
+          "keywords": [
+            "WXG",
+            "变更记录"
           ]
         }
       ]
