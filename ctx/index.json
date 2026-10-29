@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3904,
       "lines": 132,
-      "sha256": "bf41f58bb8975020c21b45e9d3ce982c592e7968df595e464ea48e6dff850967",
+      "sha256": "5a95e967271ec72f4562365b70b0a90b92d7ab785db993ffae0f731e0a609d77",
       "tier": "normal",
       "sections": [
         {
@@ -406,14 +406,14 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 games/beads/design/gdd/powerups-v2.md 144877 2328 normal",
+          "summary": "1 production/TASKS-DETAIL.md 145396 4662 normal",
           "keywords": [
             "Top",
             "tokens",
-            "games",
-            "beads",
-            "design",
-            "gdd"
+            "production",
+            "TASKS",
+            "DETAIL",
+            "normal"
           ]
         },
         {
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "67c5e9f3ddf4852a2ff3fe46fc33a385c1bc532c28c95e65cf3dc0931e806b0e",
+      "sha256": "6668c53693870ba88a87b6352acea3c950d8c77bcce9a6e21149c7b34e8c7871",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 112 行 / 22294 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 113 行 / 22489 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+113 · §待排（backlog，无号，立项时领取…=85+29",
+          "summary": "§WXG 任务台账（SSOT）=1+114 · §待排（backlog，无号，立项时领取…=86+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 4622 行 / 144775 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 4662 行 / 145396 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+4623 · §WXG-T-493=4125+60 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+4663 · §WXG-T-494=4185+59 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -87688,17 +87688,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 144775,
-      "lines": 4622,
-      "sha256": "6860249c5c9f21d9d8b603eda3109edf2229d35532245245c21171812560a12e",
+      "tokens": 145396,
+      "lines": 4662,
+      "sha256": "de1a1e5c52621c6d8d209a7e7620c5ddac095310554d91c4656953b5dc490b77",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 4623,
-          "tokens": 144758,
+          "endLine": 4663,
+          "tokens": 145379,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -92937,8 +92937,8 @@
           "anchor": "§WXG-T-504",
           "level": 2,
           "startLine": 4593,
-          "endLine": 4623,
-          "tokens": 480,
+          "endLine": 4625,
+          "tokens": 481,
           "summary": "",
           "keywords": [
             "WXG"
@@ -93001,29 +93001,111 @@
           "anchor": "§5 红线与沉淀",
           "level": 3,
           "startLine": 4619,
-          "endLine": 4623,
-          "tokens": 136,
+          "endLine": 4625,
+          "tokens": 138,
           "summary": "零运行时改动（脚本只出标注图）；零 §3 常量、零资产新增。",
           "keywords": [
             "§3",
             "红线与沉淀"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-505",
+          "level": 2,
+          "startLine": 4626,
+          "endLine": 4663,
+          "tokens": 617,
+          "summary": "",
+          "keywords": [
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§1 触发 (14)",
+          "level": 3,
+          "startLine": 4628,
+          "endLine": 4631,
+          "tokens": 59,
+          "summary": "用户选「1 = 发布前置清单」。目标 = 把 AppID / 上传密钥 / 备案域名 / 云开发四件事变成可勾选清单，解",
+          "keywords": [
+            "AppID",
+            "触发"
+          ]
+        },
+        {
+          "anchor": "§2 关键事实订正（先查旧账）",
+          "level": 3,
+          "startLine": 4632,
+          "endLine": 4642,
+          "tokens": 198,
+          "summary": "AppID 缺 ✅ 已有 wx8cf9f756e5390749；cli preview 已跑通（包 3.1 MB）",
+          "keywords": [
+            "AppID",
+            "wx8cf9f756e5390749",
+            "cli",
+            "preview",
+            "关键事实订正",
+            "先查旧账"
+          ]
+        },
+        {
+          "anchor": "§3 产出 (2)",
+          "level": 3,
+          "startLine": 4643,
+          "endLine": 4653,
+          "tokens": 144,
+          "summary": "production/release/beads/launch-prerequisites.md：",
+          "keywords": [
+            "production",
+            "release",
+            "beads",
+            "launch",
+            "prerequisites",
+            "产出"
+          ]
+        },
+        {
+          "anchor": "§4 未做（属 USER 平台操作）",
+          "level": 3,
+          "startLine": 4654,
+          "endLine": 4659,
+          "tokens": 80,
+          "summary": "后台生成上传密钥、配 IP 白名单（AI 不可代办，且不得记录密钥）",
+          "keywords": [
+            "USER",
+            "未做",
+            "平台操作"
+          ]
+        },
+        {
+          "anchor": "§5 沉淀统计 (3)",
+          "level": 3,
+          "startLine": 4660,
+          "endLine": 4663,
+          "tokens": 95,
+          "summary": "未跑 kb:sync（knowledge/ 仍含并行会话 WXG-T-434 在制品，K-137）。候选 1 条：「发布",
+          "keywords": [
+            "sync",
+            "knowledge",
+            "WXG",
+            "沉淀统计"
           ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 22294,
-      "lines": 112,
-      "sha256": "6d86a25462e993e31dd225a85c2119e577fab07df16857f4df410144627ef3ab",
+      "tokens": 22489,
+      "lines": 113,
+      "sha256": "1e0cf3f3738b7638a4609524035c810ecdb666f6e88e18f04d7b629ecc143a67",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 113,
-          "tokens": 22285,
+          "endLine": 114,
+          "tokens": 22480,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -93036,8 +93118,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 85,
-          "endLine": 113,
+          "startLine": 86,
+          "endLine": 114,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -106970,18 +107052,166 @@
       ]
     },
     {
+      "path": "production/release/beads/launch-prerequisites.md",
+      "tokens": 1648,
+      "lines": 75,
+      "sha256": "7bb4de474845d2abe28aaad3a867f6d1082c2abf77943ef7a59de6d01bfa24a2",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§beads · 发布通道前置清单（账号 / 密钥 / 域名 / 云开发）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 76,
+          "tokens": 1624,
+          "summary": "用途：把「要真机验证 / 要远端公告」之前必须办掉的平台侧四件事列成可勾选清单，避免每次讨论都从头确认。",
+          "keywords": [
+            "beads",
+            "发布通道前置",
+            "清单",
+            "账号",
+            "密钥",
+            "域名"
+          ]
+        },
+        {
+          "anchor": "§0 结论摘要",
+          "level": 2,
+          "startLine": 7,
+          "endLine": 18,
+          "tokens": 331,
+          "summary": "AppID ✅ 已有：wx8cf9f756e5390749（2026-10-19 cli preview 已跑通，包 3",
+          "keywords": [
+            "AppID",
+            "wx8cf9f756e5390749",
+            "cli",
+            "preview",
+            "结论摘要"
+          ]
+        },
+        {
+          "anchor": "§1 逐项说明",
+          "level": 2,
+          "startLine": 19,
+          "endLine": 49,
+          "tokens": 720,
+          "summary": "",
+          "keywords": [
+            "逐项说明"
+          ]
+        },
+        {
+          "anchor": "§1.1 AppID（✅ 已满足）",
+          "level": 3,
+          "startLine": 21,
+          "endLine": 26,
+          "tokens": 119,
+          "summary": "值：wx8cf9f756e5390749（profile / 工程 / 产物一致；⚠ 产物目录只打开 games/bea",
+          "keywords": [
+            "AppID",
+            "wx8cf9f756e5390749",
+            "profile",
+            "games",
+            "bea",
+            "已满足"
+          ]
+        },
+        {
+          "anchor": "§1.2 上传密钥 + IP 白名单（❌ 待办，首版唯一硬前置）",
+          "level": 3,
+          "startLine": 27,
+          "endLine": 34,
+          "tokens": 166,
+          "summary": "位置：微信公众平台 → 开发管理 → 开发设置 → 「小程序代码上传」。",
+          "keywords": [
+            "上传密钥",
+            "白名单",
+            "待办",
+            "首版唯一硬前"
+          ]
+        },
+        {
+          "anchor": "§1.3 ICP 备案域名（❌ 无；首版不需要）",
+          "level": 3,
+          "startLine": 35,
+          "endLine": 41,
+          "tokens": 193,
+          "summary": "只在这些情况需要：公告走远端接口 / 热更下载 / 任何 wx.request。",
+          "keywords": [
+            "ICP",
+            "request",
+            "备案域名",
+            "首版不需要"
+          ]
+        },
+        {
+          "anchor": "§1.4 云开发环境（❌ 未开通；可选）",
+          "level": 3,
+          "startLine": 42,
+          "endLine": 49,
+          "tokens": 176,
+          "summary": "适合：想让公告「不发版就能改」，但不想买域名/走备案。",
+          "keywords": [
+            "云开发环境",
+            "未开通",
+            "可选"
+          ]
+        },
+        {
+          "anchor": "§2 可勾选清单（照此办）",
+          "level": 2,
+          "startLine": 50,
+          "endLine": 60,
+          "tokens": 226,
+          "summary": "☐ 确认 AppID 与产物目录（wx8cf9f756e5390749 / build/wechatgame/）",
+          "keywords": [
+            "AppID",
+            "wx8cf9f756e5390749",
+            "build",
+            "wechatgame",
+            "可勾选清单",
+            "照此办"
+          ]
+        },
+        {
+          "anchor": "§3 依赖顺序（建议）",
+          "level": 2,
+          "startLine": 61,
+          "endLine": 70,
+          "tokens": 104,
+          "summary": "",
+          "keywords": [
+            "依赖顺序",
+            "建议"
+          ]
+        },
+        {
+          "anchor": "§4 变更记录",
+          "level": 2,
+          "startLine": 71,
+          "endLine": 76,
+          "tokens": 70,
+          "summary": "v1.0 2026-10-29 初稿（WXG-T-505）：四项通道现状 + 可勾选清单 + 依赖顺序；事实依据 = 2",
+          "keywords": [
+            "WXG",
+            "变更记录"
+          ]
+        }
+      ]
+    },
+    {
       "path": "production/release/beads/release-checklist.md",
-      "tokens": 8335,
-      "lines": 211,
-      "sha256": "e81d62b708d119a2921697d60f041f0ae08e97f232a34c336c30bd2a2eb04de3",
+      "tokens": 8397,
+      "lines": 213,
+      "sha256": "7718dc938edf853ce657e8ed08fcda8343f96d25e3551f2d1dc3e2bdfb1f06c5",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§发布清单（Release Checklist）· beads「拼豆小铺」",
           "level": 1,
           "startLine": 1,
-          "endLine": 212,
-          "tokens": 8316,
+          "endLine": 214,
+          "tokens": 8378,
           "summary": "版本：v1.6 · 2026-10-19（v1.6 = 包体数字再对齐到 23:29 现包 3201.0 KB / 余量",
           "keywords": [
             "Release",
@@ -107022,8 +107252,8 @@
           "anchor": "§1 阶段一：构建前（Pre-Build）",
           "level": 2,
           "startLine": 26,
-          "endLine": 75,
-          "tokens": 1938,
+          "endLine": 77,
+          "tokens": 2000,
           "summary": "",
           "keywords": [
             "Pre",
@@ -107068,14 +107298,13 @@
           "anchor": "§1.3 依赖与工具就绪（2026-10-15 核实）",
           "level": 3,
           "startLine": 62,
-          "endLine": 75,
-          "tokens": 450,
-          "summary": "☐ 🚦 pnpm run verify 22/22 PASS ✅（P3 批末次）",
+          "endLine": 77,
+          "tokens": 512,
+          "summary": "通道层前置（AppID / 上传密钥 / 备案域名 / 云开发）的逐项现状与可勾选清单见 [launch-prerequ",
           "keywords": [
-            "pnpm",
-            "run",
-            "verify",
-            "PASS",
+            "AppID",
+            "launch",
+            "prerequ",
             "依赖与工具就",
             "核实"
           ]
@@ -107083,8 +107312,8 @@
         {
           "anchor": "§2 阶段二：构建（Build）",
           "level": 2,
-          "startLine": 76,
-          "endLine": 87,
+          "startLine": 78,
+          "endLine": 89,
           "tokens": 239,
           "summary": "☐ 干净构建 先 pnpm run framework:sync，再 pnpm --filter @wxgame/bea",
           "keywords": [
@@ -107099,8 +107328,8 @@
         {
           "anchor": "§3 阶段三：自测（真机）",
           "level": 2,
-          "startLine": 88,
-          "endLine": 105,
+          "startLine": 90,
+          "endLine": 107,
           "tokens": 381,
           "summary": "执行单：production/qa/beads/device-walkthrough.md（Session 0–7，K-",
           "keywords": [
@@ -107115,8 +107344,8 @@
         {
           "anchor": "§4 阶段四：提交审核",
           "level": 2,
-          "startLine": 106,
-          "endLine": 114,
+          "startLine": 108,
+          "endLine": 116,
           "tokens": 152,
           "summary": "☐ 🚦 主体与类目 mp 后台主体、游戏类目已选定 USER",
           "keywords": [
@@ -107128,8 +107357,8 @@
         {
           "anchor": "§5 阶段五：上线",
           "level": 2,
-          "startLine": 115,
-          "endLine": 122,
+          "startLine": 117,
+          "endLine": 124,
           "tokens": 105,
           "summary": "☐ 🚦 审核通过 + USER 批准发布 人工审批，不可自动 USER",
           "keywords": [
@@ -107141,8 +107370,8 @@
         {
           "anchor": "§6 阶段六：上线后观察",
           "level": 2,
-          "startLine": 123,
-          "endLine": 132,
+          "startLine": 125,
+          "endLine": 134,
           "tokens": 107,
           "summary": "☐ 错误监控 mp 后台运营数据 / 错误日志无致命崩溃 ENG",
           "keywords": [
@@ -107154,8 +107383,8 @@
         {
           "anchor": "§7 门控汇总（Go / No-Go）",
           "level": 2,
-          "startLine": 133,
-          "endLine": 146,
+          "startLine": 135,
+          "endLine": 148,
           "tokens": 419,
           "summary": "进入提审的硬门控（全绿才 go）：§1.1 版本一致 · §1.2 主包红线 + 总包红线 + 守卫有牙（内部目标已与红",
           "keywords": [
@@ -107167,8 +107396,8 @@
         {
           "anchor": "§8 分包 / 远程包选型（**发布批拍板，本清单不代裁**）",
           "level": 2,
-          "startLine": 147,
-          "endLine": 200,
+          "startLine": 149,
+          "endLine": 202,
           "tokens": 2721,
           "summary": "以 2026-10-18 release 重建实测（主包 3188.2 KB / 108 文件）为选型基线；23:29 ",
           "keywords": [
@@ -107182,8 +107411,8 @@
         {
           "anchor": "§8.1 决策点（v1.2 收口，给 USER 拍板用）",
           "level": 3,
-          "startLine": 179,
-          "endLine": 200,
+          "startLine": 181,
+          "endLine": 202,
           "tokens": 933,
           "summary": "包体已达标 ⇒ 本表只剩一个真问题：低端机首屏要下多少字节，愿意为它付多少复杂度。按「改动量 / 下载收益」排序：",
           "keywords": [
@@ -107196,8 +107425,8 @@
         {
           "anchor": "§9 变更记录",
           "level": 2,
-          "startLine": 201,
-          "endLine": 212,
+          "startLine": 203,
+          "endLine": 214,
           "tokens": 1298,
           "summary": "v1.0 2026-10-15 初稿（P4）：beads 六阶段清单 + 实测包体基线 + AppID / 产物现状 +",
           "keywords": [

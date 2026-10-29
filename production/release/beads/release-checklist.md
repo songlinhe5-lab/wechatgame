@@ -61,6 +61,8 @@
 
 ### 1.3 依赖与工具就绪（2026-10-15 核实）
 
+> **通道层前置**（AppID / 上传密钥 / 备案域名 / 云开发）的逐项现状与可勾选清单见 [`launch-prerequisites.md`](launch-prerequisites.md)（WXG-T-505）；本表不重复展开。
+
 | ☐ | 检查项 | 判据 | 现状 |
 |---|---|---|---|
 | ☐ | 🚦 `pnpm run verify` | 22/22 PASS | ✅（P3 批末次） |
