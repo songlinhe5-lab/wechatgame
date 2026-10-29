@@ -3936,3 +3936,46 @@ v1 的顶面浅色层次在 80px 绘制下仅约 4–5px，起「台阶 = 名次
 | `check:cocos-mask` | ✅ STATUS: OK（`ui_icon_rank` 字节相同、已进包；**重构建前为 FAIL「不进包」**） |
 | `build:cocos` | ✅ 55.7s（构建顺带把 beads `package.json` 记到 v1.0.5） |
 | `check:size` | ✅ beads 主包 3430.3 KB（距 4096 红线余量 665.7 KB） |
+
+## WXG-T-489
+
+### 1. 触发
+
+用户 2026-10-29 问「启动时候为什么设置面板盖在主界面」——指 harness 截图里压在左上角那块深色板。核对：那是 `dev/harness/index.html` 的调试层（`#hud` 信息条 + `#controls` 按钮组 + `#help` 说明块），
+**不是游戏 UI，也不进 Cocos 构建产物 / 微信包**。
+
+### 2. 遮挡量测（750x1334 视口实拍）
+
+| 对象 | 占位（CSS px） |
+| --- | --- |
+| `#controls` | x 10..~270、y 56..~180（含「说明」行时更高） |
+| 设置钮 bbox | x 28..108、y 119..199 |
+| 相交 | 约八成 ⇒ 齿轮只剩底部一条 |
+
+好友榜在第二行（y 199..279）恰好避开。
+
+### 3. 根因
+
+面板定位是**按旧顶栏**放的：`index.html` 里 T-113 注释原文写「1280x720 下齿轮中心 screen(461.3, 32.4) 正落在本条 y∈[10,46] 内」——那时设置钮在画面中部 x≈461。
+T-486/T-487 把设置、好友榜挪到**左上列 x=24** 之后，面板正面压上来；而 T-113 只做了「不许吃掉画布点击」（`pointer-events: none`，仅控件 `auto`）⇒ **点得着但看不见**，视觉遮挡这一半没管。
+
+### 4. 改动（harness 侧，零包体影响）
+
+| 文件 | 改动 |
+| --- | --- |
+| `dev/harness/index.html` | 新增 `body.hud-off` 规则：`#hud` / `#controls` / `#help` 一律 `display: none`；注释记遮挡成因与量测 |
+| `dev/harness/main.ts` | `?hud=off`（或 `0` / `false`）⇒ `document.body?.classList?.add('hud-off')`；⛔ 默认不隐藏 |
+
+选型理由：加开关优于改默认布局（开发仍要靠 HUD 读 fps / 关卡 / 重开），也优于每次截图用 CDP 临时抹层（不可复现、无记录）。
+
+### 5. 验证（同一 URL 两档对照）
+
+| 档 | 结果 |
+| --- | --- |
+| 默认 `?game=beads&meta=menu` | ✅ 调试层照旧存在（齿轮仍被压）⇒ 无回归 |
+| `&hud=off` | ✅ 调试层全隐，顶栏四钮（齿轮 / 好友榜 / 信箱 / 喇叭）全部露出 |
+| `pnpm run harness:smoke` | ✅ 双游戏通过（`document.body?.` 可选链保证 DOM stub 下不炸） |
+
+### 6. 用法
+
+`http://127.0.0.1:4173/?game=beads&meta=menu&hud=off` —— 目检 / 截图 / 交给无头浏览器取证时加这一个参数即可。

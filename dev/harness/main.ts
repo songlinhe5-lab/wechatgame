@@ -54,6 +54,9 @@ const hud = must<HTMLDivElement>('#hud');
 const harnessQuery =
   typeof window.location?.search === 'string' ? window.location.search : '';
 const harnessParams = new URLSearchParams(harnessQuery);
+// `[WXG-T-489]` `?hud=off`（或 `0` / `false`）⇒ 藏掉调试层，供目检 / 截图；缺省保留（开发要读数）。
+// 遮挡成因与量测见 `index.html` 的 `body.hud-off` 注释。DOM 必须按可选链访问：smoke 的 DOM stub 无 body。
+if (/^(off|0|false)$/i.test(harnessParams.get('hud') ?? '')) document.body?.classList?.add('hud-off');
 const isBeads = harnessParams.get('game') === 'beads';
 // `?meta=menu` boots beads straight into the shell's main menu (批0 路由验证)；
 // 默认 'play' 保持首启直进玩法红线。

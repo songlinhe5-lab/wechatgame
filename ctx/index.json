@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3903,
       "lines": 132,
-      "sha256": "9e2128f80921847061952f12f704b10475f73cd384e7703b3108ca5fb12305e7",
+      "sha256": "c78d54d8aa5faeab64ea86f1e0dcedbe22fe3cf7f3c53859afbf89d42b264513",
       "tier": "normal",
       "sections": [
         {
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "3ea5a08783b917577ed75733595df101af39eb434aec3093cf51100caadeeee8",
+      "sha256": "c4ac2c4bf805d7756143159d7180e23c98fb9bfeea36d8f2bab64f256a35ae91",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 96 行 / 18745 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 97 行 / 18961 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+97 · §待排（backlog，无号，立项时领取…=69+29",
+          "summary": "§WXG 任务台账（SSOT）=1+98 · §待排（backlog，无号，立项时领取…=70+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 3938 行 / 128420 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 3981 行 / 129080 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+3939 · §WXG-T-484=3115+43 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+3982 · §WXG-T-484=3115+43 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -87670,17 +87670,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 128420,
-      "lines": 3938,
-      "sha256": "eca6c1285f8451059924db75d054a8a7d65d57d2966e76ef508bde35f27f1f71",
+      "tokens": 129080,
+      "lines": 3981,
+      "sha256": "8269385f6141a8895517cfb239863738cc42c34344cdd31f95e6deb4a8be7665",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 3939,
-          "tokens": 128403,
+          "endLine": 3982,
+          "tokens": 129064,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -91369,22 +91369,122 @@
             "beads",
             "验证"
           ]
+        },
+        {
+          "anchor": "§WXG-T-489",
+          "level": 2,
+          "startLine": 3940,
+          "endLine": 3982,
+          "tokens": 657,
+          "summary": "",
+          "keywords": [
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§1 触发 (6)",
+          "level": 3,
+          "startLine": 3942,
+          "endLine": 3946,
+          "tokens": 99,
+          "summary": "用户 2026-10-29 问「启动时候为什么设置面板盖在主界面」——指 harness 截图里压在左上角那块深色板。核",
+          "keywords": [
+            "harness",
+            "触发"
+          ]
+        },
+        {
+          "anchor": "§2 遮挡量测（750x1334 视口实拍）",
+          "level": 3,
+          "startLine": 3947,
+          "endLine": 3956,
+          "tokens": 80,
+          "summary": "#controls x 10..~270、y 56..~180（含「说明」行时更高）",
+          "keywords": [
+            "x1334",
+            "controls",
+            "遮挡量测",
+            "视口实拍"
+          ]
+        },
+        {
+          "anchor": "§3 根因",
+          "level": 3,
+          "startLine": 3957,
+          "endLine": 3961,
+          "tokens": 140,
+          "summary": "面板定位是按旧顶栏放的：index.html 里 T-113 注释原文写「1280x720 下齿轮中心 screen(4",
+          "keywords": [
+            "index",
+            "html",
+            "x720",
+            "screen",
+            "根因"
+          ]
+        },
+        {
+          "anchor": "§4 改动（harness 侧，零包体影响）",
+          "level": 3,
+          "startLine": 3962,
+          "endLine": 3970,
+          "tokens": 143,
+          "summary": "dev/harness/index.html 新增 body.hud-off 规则：#hud / #controls /",
+          "keywords": [
+            "harness",
+            "dev",
+            "index",
+            "html",
+            "body",
+            "hud"
+          ]
+        },
+        {
+          "anchor": "§5 验证（同一 URL 两档对照）",
+          "level": 3,
+          "startLine": 3971,
+          "endLine": 3978,
+          "tokens": 101,
+          "summary": "默认 ?game=beads&meta=menu ✅ 调试层照旧存在（齿轮仍被压）⇒ 无回归",
+          "keywords": [
+            "URL",
+            "game",
+            "beads",
+            "meta",
+            "menu",
+            "验证"
+          ]
+        },
+        {
+          "anchor": "§6 用法",
+          "level": 3,
+          "startLine": 3979,
+          "endLine": 3982,
+          "tokens": 40,
+          "summary": "http://127.0.0.1:4173/?game=beads&meta=menu&hud=off —— 目检 / ",
+          "keywords": [
+            "http",
+            "game",
+            "beads",
+            "meta",
+            "menu",
+            "hud"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 18745,
-      "lines": 96,
-      "sha256": "6b67c0ded9a68bff93c5e8dc30fb33f37f096f31040e8d8ba700e7707d9c088f",
+      "tokens": 18961,
+      "lines": 97,
+      "sha256": "2436ad393a4736cdb264f0171bbe2bfdb58dc567a355e527b23790dfa875a0b8",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 97,
-          "tokens": 18736,
+          "endLine": 98,
+          "tokens": 18952,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -91397,8 +91497,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 69,
-          "endLine": 97,
+          "startLine": 70,
+          "endLine": 98,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

@@ -55,6 +55,16 @@
         pointer-events: none;
       }
       #hud strong { color: var(--accent); }
+      /**
+       * `[WXG-T-489]` `?hud=off` ⇒ 藏掉整个调试层（信息条 / 控制面板 / 说明块），供目检与截图。
+       * 动机：T-486/T-487 把设置、好友榜挪到**左上列 x=24** 后，`#controls`（top 56 / left 10 /
+       * 宽 ≤260）实占 CSS y 56..~180，与设置钮 bbox (x 28..108 × y 119..199) 相交约八成 ⇒
+       * 「点得着但看不见」（T-113 只关了 `pointer-events`，没管视觉遮挡）。⛔ 默认不隐藏：
+       * 开发靠它读 fps / 关卡 / 重开，只有显式 `?hud=off` 才让位。
+       */
+      body.hud-off #hud,
+      body.hud-off #controls,
+      body.hud-off #help { display: none; }
       #controls {
         top: 56px;
         left: 10px;

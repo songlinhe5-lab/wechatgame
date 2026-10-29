@@ -23,7 +23,7 @@
 | # | 文件 | tokens | 行数 | tier |
 |---:|---|---:|---:|:--:|
 | 1 | `games/beads/design/gdd/powerups-v2.md` | 144877 | 2328 | normal |
-| 2 | `production/TASKS-DETAIL.md` | 128420 | 3938 | normal |
+| 2 | `production/TASKS-DETAIL.md` | 129080 | 3981 | normal |
 | 3 | `games/beads/design/art/specs/assets-spec.md` | 121738 | 2109 | normal |
 | 4 | `production/qa/beads/g4-regression-report.md` | 86807 | 2201 | normal |
 | 5 | `games/beads/design/gdd/systems-index-changelog.md` | 52773 | 108 | normal |
@@ -41,7 +41,7 @@
 | 17 | `games/beads/design/proposals/star-economy-and-retention.md` | 22195 | 763 | normal |
 | 18 | `games/beads/design/gdd/input-control.md` | 19665 | 206 | normal |
 | 19 | `knowledge/CHANGELOG.md` | 19468 | 611 | normal |
-| 20 | `production/TASKS.md` | 18745 | 96 | hot |
+| 20 | `production/TASKS.md` | 18961 | 97 | hot |
 
 ## 3. 超限清单（超过所属类别上限）
 
