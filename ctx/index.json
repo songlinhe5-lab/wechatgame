@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3903,
       "lines": 132,
-      "sha256": "8cec1c1001a24b0c9f6495b87922a1fc4fe5a1a4477a153c4f82b1be93451e6c",
+      "sha256": "b7b3740e57acd245a91c33f108cb9ad4b77d1631598b3d2963c5cc28b190a6f3",
       "tier": "normal",
       "sections": [
         {
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "e753d51c1016c43cf0cfd1da182a6c8f0e8b4bb2312f4be40c7cc823ba7d7b51",
+      "sha256": "41035561e5e1a0c2a4ea84db3e33ce65878612d9b35c6d91ff9cd99758686bd8",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 98 行 / 19038 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 99 行 / 19265 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+99 · §待排（backlog，无号，立项时领取…=71+29",
+          "summary": "§WXG 任务台账（SSOT）=1+100 · §待排（backlog，无号，立项时领取…=72+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 4013 行 / 130450 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 4074 行 / 131586 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+4014 · §WXG-T-484=3115+43 · §WXG-T-4",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+4075 · §WXG-T-484=3115+43 · §WXG-T-4",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -87670,17 +87670,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 130450,
-      "lines": 4013,
-      "sha256": "6e4da5a905852ae4fa7176abf480a9bd62acd8191a5feb45c7718917618b9109",
+      "tokens": 131586,
+      "lines": 4074,
+      "sha256": "fd994dec84871c2ebe2b1ac9ccce08d640e6f582e0881f99d392e3a204c68037",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 4014,
-          "tokens": 130433,
+          "endLine": 4075,
+          "tokens": 131569,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -91553,22 +91553,136 @@
             "撞号与并发披",
             "教训件"
           ]
+        },
+        {
+          "anchor": "§WXG-T-491",
+          "level": 2,
+          "startLine": 4015,
+          "endLine": 4075,
+          "tokens": 1133,
+          "summary": "",
+          "keywords": [
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§1 触发 (8)",
+          "level": 3,
+          "startLine": 4017,
+          "endLine": 4022,
+          "tokens": 126,
+          "summary": "T-488 第 3 项目检结论：ui_icon_rank 在 80px 下读作三个人并排站，不读作排行榜（6x 放大 +",
+          "keywords": [
+            "ui_icon_rank",
+            "触发"
+          ]
+        },
+        {
+          "anchor": "§2 生成",
+          "level": 3,
+          "startLine": 4023,
+          "endLine": 4031,
+          "tokens": 152,
+          "summary": "模型 云 qwen-image-3.0（单元素切图第二选；本地 ComfyUI 192.168.1.16:8188 探活",
+          "keywords": [
+            "qwen",
+            "image",
+            "ComfyUI",
+            "生成"
+          ]
+        },
+        {
+          "anchor": "§3 切图口径（沿用 T-488；脚本 `temp/gen-rank-trophy.py`，⛔ 不入库）",
+          "level": 3,
+          "startLine": 4032,
+          "endLine": 4035,
+          "tokens": 82,
+          "summary": "四角 floodfill(thresh=24) 品红哨兵取外部背景 ∪ 近白 min(r,g,b) ≥ 244 补封闭孔",
+          "keywords": [
+            "temp/gen-rank-trophy.py",
+            "temp",
+            "gen",
+            "rank",
+            "trophy",
+            "floodfill"
+          ]
+        },
+        {
+          "anchor": "§4 判据读数（160² @2x）",
+          "level": 3,
+          "startLine": 4036,
+          "endLine": 4047,
+          "tokens": 145,
+          "summary": "settings 44% 44% 2129 #A19C99",
+          "keywords": [
+            "settings",
+            "A19C99",
+            "判据读数"
+          ]
+        },
+        {
+          "anchor": "§5 真渲染目检（不是 mock）",
+          "level": 3,
+          "startLine": 4048,
+          "endLine": 4055,
+          "tokens": 165,
+          "summary": "?game=beads&meta=menu&hud=off → headless Chrome DPR 2 截图（150",
+          "keywords": [
+            "mock",
+            "game",
+            "beads",
+            "meta",
+            "menu",
+            "hud"
+          ]
+        },
+        {
+          "anchor": "§6 产出与替换",
+          "level": 3,
+          "startLine": 4056,
+          "endLine": 4066,
+          "tokens": 203,
+          "summary": "design/art/final/assets/menu/ui_icon_rank.png 覆盖（旧件见 git d8c",
+          "keywords": [
+            "design",
+            "art",
+            "final",
+            "assets",
+            "menu",
+            "ui_icon_rank"
+          ]
+        },
+        {
+          "anchor": "§7 验证",
+          "level": 3,
+          "startLine": 4067,
+          "endLine": 4075,
+          "tokens": 193,
+          "summary": "check:cocos-mask ✅ STATUS: OK（ui_icon_rank 字节相同、已进包）",
+          "keywords": [
+            "check",
+            "cocos",
+            "mask",
+            "STATUS",
+            "ui_icon_rank",
+            "验证"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 19038,
-      "lines": 98,
-      "sha256": "1d9dc365d350cd500504c120ca555eae0fb15388388325cf905e51ecc72a347f",
+      "tokens": 19265,
+      "lines": 99,
+      "sha256": "dbed77c27b554061e9f5a822c1509f7478613c8050f89aa710b20b444035585f",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 99,
-          "tokens": 19029,
+          "endLine": 100,
+          "tokens": 19256,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -91581,8 +91695,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 71,
-          "endLine": 99,
+          "startLine": 72,
+          "endLine": 100,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

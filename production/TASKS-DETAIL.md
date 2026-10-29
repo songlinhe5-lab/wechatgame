@@ -4011,3 +4011,64 @@ T-486/T-487 把设置、好友榜挪到**左上列 x=24** 之后，面板正面�
 - **撞号**：开工前上下文里的旧头注记「下一可用号 489」，落码期间发现 **489 已被 CodeBuddy 会话占用并入库**（harness `?hud=off`）⇒ 本批改领 **490**，代码/文档标签已全量改号。教训 = 领号必须在**动手那一刻**重读 `TASKS.md` 头注，不能沿用上一轮结论（注 3 的「立即回填占位」我做到了完成时才登，跨会话窗口期内被占用）。
 - **文件被外部回滚**：`src/game/beads-shell.ts` 的编辑先后两次被精确还原成 HEAD 内容（mtime 落在测试/同步时刻；Cocos Creator 3.8.8 正开着本工程 + 疑同文件在编辑器内有旧缓冲）。第三次落码后先 `git add` 留副本再验 ⇒ 保住。**并行会话改同一文件时的自保口径 = 落码后立即 `git add` 并把改动面压到最小 hunk。**
 - 工作树内另有他人 in-flight 改动（`beads-game.ts` / `board-tap-router.ts` / `powerups-v2.md` / `meta-pages-content.ts` / `ui_icon_rank*.png`）⇒ 本批提交按 pathspec 只收自己的 17 件（代码 6 + 测试 3 + 设计文档 2 + Cocos 镜像 6），另加台账 2 件。
+
+## WXG-T-491
+
+### 1. 触发
+
+T-488 第 3 项目检结论：`ui_icon_rank` 在 80px 下读作**三个人并排站**，不读作排行榜（6x 放大 + 四枚真尺寸并排取证），
+且实物形态与 T-488 记述的「领奖台三台阶、圆点嵌顶面」不符 —— 实际就是当时被驳的「柱 + 悬浮圆点」形态。
+用户 2026-10-29 裁定**选项 A：改奖杯**（排行榜通用符号，80px 最稳）。
+
+### 2. 生成
+
+| 项 | 值 |
+| --- | --- |
+| 模型 | 云 `qwen-image-3.0`（单元素切图第二选；本地 ComfyUI `192.168.1.16:8188` 探活 connection refused ⇒ 走云） |
+| seed / 尺寸 | `101` / `1024*1024`，1 张 |
+| 提示约束 | 正视对称；倒梯形杯体 + 两侧对称弧形把手 + 细颈 + 方底座；单色 `#7C6FD9` 平涂 + `#4A3FA0` 描边；纯白均匀背景；居中约 60%；无透视 / 渐变 / 高光 / 投影 / 光晕 / 文字 |
+| 成本 | 云 **1 张 × 0.18 = 0.18 元**；本地 0 张 |
+
+### 3. 切图口径（沿用 T-488；脚本 `temp/gen-rank-trophy.py`，⛔ 不入库）
+
+四角 `floodfill(thresh=24)` 品红哨兵取外部背景 ∪ 近白 `min(r,g,b) ≥ 244` 补封闭孔（杯把内圈）→ alpha `MinFilter(3)` 内退 1px 去白边（⛔ 不用 `MaxFilter`）→ alpha bbox 裁 → **长边归一 50%** → 居中落 160² 透明画布 → `LANCZOS`。
+
+### 4. 判据读数（160² @2x）
+
+| 图标 | 占宽 | 占高 | 不透明像素 | 主色 |
+| --- | ---: | ---: | ---: | --- |
+| settings | 44% | 44% | 2129 | `#A19C99` |
+| sound | 56% | 49% | 3098 | `#FDCA67` |
+| mail | 48% | 38% | 3810 | `#B3DAFA` |
+| **rank 新（奖杯）** | **40%** | **50%** | **2678** | `#8070C0` / 描边 `#5040A0` |
+| ~~rank 旧（三人）~~ | 46% | 50% | 4127 | `#7C6FD9` / `#4A3FA0` |
+
+奖杯天然窄高 ⇒ 占宽 40% 是全族最窄，占高 50% 与旧件持平（上界）。主色与既有紫族 `#7C6FD9` 同色相。
+
+### 5. 真渲染目检（不是 mock）
+
+`?game=beads&meta=menu&hud=off` → headless Chrome DPR 2 截图（1500×2668）：
+
+- **6x 放大**：杯体 + 双手把 + 颈 + 底座清晰，白描边零残留，紫色与另三枚同族；
+- **四枚真尺寸并排**：齿轮（灰）/ **奖杯（紫）** / 信封（蓝）/ 喇叭（橙）—— 语义互不混淆；
+- 已知差异：奖杯为纯平涂，另三枚带轻微体积感（渐变 / 内阴影）。按 T-488 同档接受 —— 切图管线要求「无渐变 / 无高光」才能干净抠白底，两者互斥。
+
+### 6. 产出与替换
+
+| 文件 | 状态 |
+| --- | --- |
+| `design/art/final/assets/menu/ui_icon_rank.png` | 覆盖（旧件见 git `d8cc556d`） |
+| `design/art/final/assets/menu/ui_icon_rank_source-1024.png` | 覆盖为奖杯源图 |
+| `design/art/final/assets/menu/effect-topbar.png` | 覆盖为**真渲染**顶栏条带 750×380（替代原手工 mock，且原 mock 记的是旧形态） |
+| `design/art/final/assets/menu/effect-closeup.png` | 覆盖为四枚真尺寸并排（3x 展示） |
+| `cocos/assets/textures/ui_icon_rank.png` | 同字节（md5 一致） |
+| `cocos/assets/textures/ui_icon_rank.png.meta` | 编辑器 reimport **自动重写**：`trimX 48 / trimY 40 / 64×80`（size 变了 trim 必变）——⛔ 非手编，L1 合规 |
+
+### 7. 验证
+
+| 门 | 读数 |
+| --- | --- |
+| `check:cocos-mask` | ✅ `STATUS: OK`（`ui_icon_rank` 字节相同、已进包） |
+| `build:cocos` | ✅ 18.1s（增量重构建；build 顺带把 `package.json` patch ++，该文件属他人基线，本笔未纳入） |
+| `check:size` | ✅ beads 主包 3430.4 KB（距 4096 红线余量 665.6 KB） |
+| 单测 | ⚠ 1414 通过 / **1 红**：`arc-ticket-gate.test.ts` S-4「走马灯翻到章 2 页」期望 `[20,24]` 得 `[undefined,undefined]`。**归因 `7a4ecda9`（T-490「开机定位到当前大关」改了走马灯初始页位）**，非本笔 —— 本笔零 `src` 改动，且在 `2922b90a` 时该套件 1413 全绿 |
