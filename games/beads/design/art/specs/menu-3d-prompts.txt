@@ -1,0 +1,133 @@
+# 主菜单 3D 素材 · 可直接复制的提示词
+# 规格正本：games/beads/design/art/specs/menu-3d-asset-brief.md
+# 用法：每件单独生成一张图。不要一次生成多件，不要出整页。
+# 平台差异：qwen-image 不支持负向词（写「不要 X」会强化 X），用该平台时删掉 NEG 段；
+#           Midjourney 用 `--no` ；即梦/Seedream 有独立负向输入框。
+
+======================================================================
+# 01_menu_signboard   交付像素 740x596
+======================================================================
+【正向】
+3D cartoon illustration, handcrafted wooden toy, thick painterly rendering, warm caramel-brown wood with visible grain, soft rounded bevels and chamfers, warm key light from upper-left with soft falloff, gentle bounce light at bottom, slightly saturated, candy-warm palette, no outline, no cel shading, single isolated object, centered, generous transparent margin on all sides, flat clean transparent background, high detail, soft edges, a hanging wooden shop signboard, arched plank with carved border, a pink ribbon bow on top center, two twisted hemp ropes going up out of frame, blank plank area in the middle, small heart carving
+【负向】
+text, letters, logo, watermark, ground shadow, cast shadow, drop shadow, background scene, multiple objects, overlapping objects, outline, ink line, photorealistic, 3d render, octane, harsh specular, mirror reflection, cropped, cut off, frame border, checkerboard
+
+======================================================================
+# 02_menu_case   交付像素 1088x1742
+======================================================================
+【正向】
+3D cartoon illustration, handcrafted wooden toy, thick painterly rendering, warm caramel-brown wood with visible grain, soft rounded bevels and chamfers, warm key light from upper-left with soft falloff, gentle bounce light at bottom, slightly saturated, candy-warm palette, no outline, no cel shading, single isolated object, centered, generous transparent margin on all sides, flat clean transparent background, high detail, soft edges, a wooden display cabinet seen from the front, arched crown with a carved heart in the center, thick rounded frame, four glass panes, the glass area fully transparent hollowed out so the background shows through, warm wooden base, small feet
+【负向】
+text, letters, logo, watermark, ground shadow, cast shadow, drop shadow, background scene, multiple objects, overlapping objects, outline, ink line, photorealistic, 3d render, octane, harsh specular, mirror reflection, cropped, cut off, frame border, checkerboard
+
+======================================================================
+# 03_case_plate   交付像素 428x200
+======================================================================
+【正向】
+3D cartoon illustration, handcrafted wooden toy, thick painterly rendering, warm caramel-brown wood with visible grain, soft rounded bevels and chamfers, warm key light from upper-left with soft falloff, gentle bounce light at bottom, slightly saturated, candy-warm palette, no outline, no cel shading, single isolated object, centered, generous transparent margin on all sides, flat clean transparent background, high detail, soft edges, a small wooden name plate, rounded rectangle plank, four tiny rivets at corners, completely blank center
+【负向】
+text, letters, logo, watermark, ground shadow, cast shadow, drop shadow, background scene, multiple objects, overlapping objects, outline, ink line, photorealistic, 3d render, octane, harsh specular, mirror reflection, cropped, cut off, frame border, checkerboard
+
+======================================================================
+# 04_btn_start   交付像素 648x184
+======================================================================
+【正向】
+3D cartoon illustration, handcrafted wooden toy, thick painterly rendering, warm caramel-brown wood with visible grain, soft rounded bevels and chamfers, warm key light from upper-left with soft falloff, gentle bounce light at bottom, slightly saturated, candy-warm palette, no outline, no cel shading, single isolated object, centered, generous transparent margin on all sides, flat clean transparent background, high detail, soft edges, a large rounded wooden button, caramel wood, glossy top highlight, thick bottom edge, completely blank face, uniform wood grain at both left and right ends
+【负向】
+text, letters, logo, watermark, ground shadow, cast shadow, drop shadow, background scene, multiple objects, overlapping objects, outline, ink line, photorealistic, 3d render, octane, harsh specular, mirror reflection, cropped, cut off, frame border, checkerboard
+
+======================================================================
+# 05_btn_start_pressed   交付像素 648x184
+======================================================================
+【正向】
+3D cartoon illustration, handcrafted wooden toy, thick painterly rendering, warm caramel-brown wood with visible grain, soft rounded bevels and chamfers, warm key light from upper-left with soft falloff, gentle bounce light at bottom, slightly saturated, candy-warm palette, no outline, no cel shading, single isolated object, centered, generous transparent margin on all sides, flat clean transparent background, high detail, soft edges, a large rounded wooden button pressed down, caramel wood, highlight reduced, bottom edge compressed, completely blank face
+【负向】
+text, letters, logo, watermark, ground shadow, cast shadow, drop shadow, background scene, multiple objects, overlapping objects, outline, ink line, photorealistic, 3d render, octane, harsh specular, mirror reflection, cropped, cut off, frame border, checkerboard
+
+======================================================================
+# 06_btn_arrow_left   交付像素 160x160
+======================================================================
+【正向】
+3D cartoon illustration, handcrafted wooden toy, thick painterly rendering, warm caramel-brown wood with visible grain, soft rounded bevels and chamfers, warm key light from upper-left with soft falloff, gentle bounce light at bottom, slightly saturated, candy-warm palette, no outline, no cel shading, single isolated object, centered, generous transparent margin on all sides, flat clean transparent background, high detail, soft edges, a round wooden button, thick rounded rim, a cream-colored chevron arrow in the center pointing left
+【负向】
+text, letters, logo, watermark, ground shadow, cast shadow, drop shadow, background scene, multiple objects, overlapping objects, outline, ink line, photorealistic, 3d render, octane, harsh specular, mirror reflection, cropped, cut off, frame border, checkerboard
+
+======================================================================
+# 07_btn_arrow_right   交付像素 160x160
+======================================================================
+【正向】
+3D cartoon illustration, handcrafted wooden toy, thick painterly rendering, warm caramel-brown wood with visible grain, soft rounded bevels and chamfers, warm key light from upper-left with soft falloff, gentle bounce light at bottom, slightly saturated, candy-warm palette, no outline, no cel shading, single isolated object, centered, generous transparent margin on all sides, flat clean transparent background, high detail, soft edges, a round wooden button, thick rounded rim, a cream-colored chevron arrow in the center pointing right
+【负向】
+text, letters, logo, watermark, ground shadow, cast shadow, drop shadow, background scene, multiple objects, overlapping objects, outline, ink line, photorealistic, 3d render, octane, harsh specular, mirror reflection, cropped, cut off, frame border, checkerboard
+
+======================================================================
+# 08_btn_circle   交付像素 160x160
+======================================================================
+【正向】
+3D cartoon illustration, handcrafted wooden toy, thick painterly rendering, warm caramel-brown wood with visible grain, soft rounded bevels and chamfers, warm key light from upper-left with soft falloff, gentle bounce light at bottom, slightly saturated, candy-warm palette, no outline, no cel shading, single isolated object, centered, generous transparent margin on all sides, flat clean transparent background, high detail, soft edges, a round wooden button, thin rounded rim, blank cream face, soft inner shadow, no icon
+【负向】
+text, letters, logo, watermark, ground shadow, cast shadow, drop shadow, background scene, multiple objects, overlapping objects, outline, ink line, photorealistic, 3d render, octane, harsh specular, mirror reflection, cropped, cut off, frame border, checkerboard
+
+======================================================================
+# 09_btn_circle_pressed   交付像素 160x160
+======================================================================
+【正向】
+3D cartoon illustration, handcrafted wooden toy, thick painterly rendering, warm caramel-brown wood with visible grain, soft rounded bevels and chamfers, warm key light from upper-left with soft falloff, gentle bounce light at bottom, slightly saturated, candy-warm palette, no outline, no cel shading, single isolated object, centered, generous transparent margin on all sides, flat clean transparent background, high detail, soft edges, a round wooden button pressed down, thin rounded rim, blank cream face, slightly darker, no icon
+【负向】
+text, letters, logo, watermark, ground shadow, cast shadow, drop shadow, background scene, multiple objects, overlapping objects, outline, ink line, photorealistic, 3d render, octane, harsh specular, mirror reflection, cropped, cut off, frame border, checkerboard
+
+======================================================================
+# 10_menu_pot   交付像素 210x414
+======================================================================
+【正向】
+3D cartoon illustration, handcrafted wooden toy, thick painterly rendering, warm caramel-brown wood with visible grain, soft rounded bevels and chamfers, warm key light from upper-left with soft falloff, gentle bounce light at bottom, slightly saturated, candy-warm palette, no outline, no cel shading, single isolated object, centered, generous transparent margin on all sides, flat clean transparent background, high detail, soft edges, a small terracotta flower pot with a cluster of pink and white blossoms and green leaves
+【负向】
+text, letters, logo, watermark, ground shadow, cast shadow, drop shadow, background scene, multiple objects, overlapping objects, outline, ink line, photorealistic, 3d render, octane, harsh specular, mirror reflection, cropped, cut off, frame border, checkerboard
+
+======================================================================
+# 11_icon_settings   交付像素 120x120
+======================================================================
+【正向】
+3D cartoon illustration, handcrafted wooden toy, thick painterly rendering, warm caramel-brown wood with visible grain, soft rounded bevels and chamfers, warm key light from upper-left with soft falloff, gentle bounce light at bottom, slightly saturated, candy-warm palette, no outline, no cel shading, single isolated object, centered, generous transparent margin on all sides, flat clean transparent background, high detail, soft edges, a small cream-and-wood gear icon, eight teeth, warm white face
+【负向】
+text, letters, logo, watermark, ground shadow, cast shadow, drop shadow, background scene, multiple objects, overlapping objects, outline, ink line, photorealistic, 3d render, octane, harsh specular, mirror reflection, cropped, cut off, frame border, checkerboard
+
+======================================================================
+# 12_icon_calendar   交付像素 120x120
+======================================================================
+【正向】
+3D cartoon illustration, handcrafted wooden toy, thick painterly rendering, warm caramel-brown wood with visible grain, soft rounded bevels and chamfers, warm key light from upper-left with soft falloff, gentle bounce light at bottom, slightly saturated, candy-warm palette, no outline, no cel shading, single isolated object, centered, generous transparent margin on all sides, flat clean transparent background, high detail, soft edges, a calendar icon, cream paper with a wooden top bar, a green check mark
+【负向】
+text, letters, logo, watermark, ground shadow, cast shadow, drop shadow, background scene, multiple objects, overlapping objects, outline, ink line, photorealistic, 3d render, octane, harsh specular, mirror reflection, cropped, cut off, frame border, checkerboard
+
+======================================================================
+# 13_icon_rank   交付像素 120x120
+======================================================================
+【正向】
+3D cartoon illustration, handcrafted wooden toy, thick painterly rendering, warm caramel-brown wood with visible grain, soft rounded bevels and chamfers, warm key light from upper-left with soft falloff, gentle bounce light at bottom, slightly saturated, candy-warm palette, no outline, no cel shading, single isolated object, centered, generous transparent margin on all sides, flat clean transparent background, high detail, soft edges, a trophy icon standing on a three-step podium, warm cream and wood
+【负向】
+text, letters, logo, watermark, ground shadow, cast shadow, drop shadow, background scene, multiple objects, overlapping objects, outline, ink line, photorealistic, 3d render, octane, harsh specular, mirror reflection, cropped, cut off, frame border, checkerboard
+
+======================================================================
+# 14_icon_skin   交付像素 120x120
+======================================================================
+【正向】
+3D cartoon illustration, handcrafted wooden toy, thick painterly rendering, warm caramel-brown wood with visible grain, soft rounded bevels and chamfers, warm key light from upper-left with soft falloff, gentle bounce light at bottom, slightly saturated, candy-warm palette, no outline, no cel shading, single isolated object, centered, generous transparent margin on all sides, flat clean transparent background, high detail, soft edges, a clothes hanger with a small round-neck shirt, cream and wood
+【负向】
+text, letters, logo, watermark, ground shadow, cast shadow, drop shadow, background scene, multiple objects, overlapping objects, outline, ink line, photorealistic, 3d render, octane, harsh specular, mirror reflection, cropped, cut off, frame border, checkerboard
+
+======================================================================
+# 15_icon_coin   交付像素 120x120
+======================================================================
+【正向】
+3D cartoon illustration, handcrafted wooden toy, thick painterly rendering, warm caramel-brown wood with visible grain, soft rounded bevels and chamfers, warm key light from upper-left with soft falloff, gentle bounce light at bottom, slightly saturated, candy-warm palette, no outline, no cel shading, single isolated object, centered, generous transparent margin on all sides, flat clean transparent background, high detail, soft edges, a gold coin with a bead pattern embossed on the face, warm gold
+【负向】
+text, letters, logo, watermark, ground shadow, cast shadow, drop shadow, background scene, multiple objects, overlapping objects, outline, ink line, photorealistic, 3d render, octane, harsh specular, mirror reflection, cropped, cut off, frame border, checkerboard
+
+======================================================================
+# 16_icon_stamina   交付像素 120x120
+======================================================================
+【正向】
+3D cartoon illustration, handcrafted wooden toy, thick painterly rendering, warm caramel-brown wood with visible grain, soft rounded bevels and chamfers, warm key light from upper-left with soft falloff, gentle bounce light at bottom, slightly saturated, candy-warm palette, no outline, no cel shading, single isolated object, centered, generous transparent margin on all sides, flat clean transparent background, high detail, soft edges, a heart icon made of tiny beads, warm pink
+【负向】
+text, letters, logo, watermark, ground shadow, cast shadow, drop shadow, background scene, multiple objects, overlapping objects, outline, ink line, photorealistic, 3d render, octane, harsh specular, mirror reflection, cropped, cut off, frame border, checkerboard
