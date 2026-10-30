@@ -4891,6 +4891,61 @@ git diff -w -- games/beads/src games/beads/cocos/assets/scripts/game
 
 **未跑 `kb:sync`**。候选 1 条：「外采 AI 素材的规格里必须写死『一件一张 + 真 alpha + 无投影 + 8% 安全边』——整页图切件必然踩分辨率、元素咬合、遮挡区不可分割三个坑」。统计 = 新增 0 / 修改 0 / 激活 0 / 归档 0（本批）。
 
+## WXG-T-520
+
+### 1. 触发
+
+用户提供本地 ComfyUI 配置清单（SAM 2.1 权重到 `models/sams/`、big-lama.pt 到 `models/inpaint/`、Fooocus Inpaint 补丁），要求「用专业级自动化工作流 ComfyUI（LayerStyle + SAM 2 节点）抠出顶板、橱窗、开始按钮、左右按钮」。
+
+### 2. 实际可用的链路
+
+`GroundingDinoModelLoader` 一加载就报 `'BertModel' object has no attribute 'get_extended_attention_mask'`（transformers 版本不兼容），文本定位整条链路不可用；而 `.pt` 那套 SAM2（`SAM2ModelLoader (segment anything2)`）唯一搭配就是 `GroundingDinoSAM2Segment`，因此用户配的 `sam2.1_hiera_*.pt` 用不上。
+
+改用 `.safetensors` 那套：
+
+```
+裁剪元素区域 → upload/image
+  → DownloadAndLoadSAM2Model(segmentor=single_image, fp16, cuda)
+  → LayerUtility: String（点坐标 JSON）
+  → Sam2Segmentation(individual_objects=False, keep_model_loaded=True)
+  → MaskToImage → SaveImage → /view 取回
+  → Python 后处理 → 原图 RGB + mask → RGBA → 裁 bbox → 256 色量化
+```
+
+后处理三步，每步都对应一个真实缺陷：
+
+| 步骤 | 解决什么 |
+|---|---|
+| `keep_largest` | SAM2 在边缘带进来的墙屑 |
+| `fill_spans`（逐行+逐列扫首个到末个 True） | 橱窗左边框上一条 8–12px 的**贯穿性竖缝**，四方向扫描填不上 |
+| `fill_holes`（四方向累积取交集） | 板上的文字、彩豆被 SAM2 当成独立物体挖空 |
+
+### 3. 三个必须知道的坑
+
+1. **点坐标 y > 700 时 SAM2 返回空 mask**（`need at least one array to stack`），y ≤ 700 全部成功 ⇒ 必须先裁出元素区域、在局部坐标里点。
+2. **负向点传非空必崩**：`coordinates_negative` 报 `all the input arrays must have same number of dimensions`，`[[x,y]]` / `[x,y]` / 单点 / 多点四种格式全试过 ⇒ 只能靠正向点密度 + 后处理。
+3. **`Sam2AutoSegmentation` 不能拆件**：它把全图物体并成一张 mask，`MaskToImage → SaveImage` 只落 1 张。
+
+### 4. 产出
+
+`games/beads/design/art/proposals/menu-3d-style-20261030/sam2-parts/`
+
+| 件 | 尺寸 | 量化 |
+|---|---|---|
+| `signboard` | 548×254 | 36.8 KB |
+| `case` | 556×704 | 104.1 KB |
+| `btn_start` | 376×174 | 16.0 KB |
+| `btn_arrow_left` | 110×115 | 4.5 KB |
+| `btn_arrow_right` | 109×116 | 4.3 KB |
+| **合计** | | **166.9 KB** |
+
+### 5. 关键教训与遗留
+
+- **点坐标必须用网格图逐个读**（`grid_top.png`：2x + 25px 网格 + 坐标标注）。前两轮靠估点，招牌点落在墙上、箭头落在 v 图标上，整件失败；换成网格读点后一次全过。
+- 顶板 548×254，落地 370 设计 px = 1.48x，低于 @2x 的 740。
+- 橱窗左右在箭头遮挡处被 `fill_spans` 填平（框体完整，但与真实遮挡轮廓不同）。
+- **LaMa 未安装**：`object_info` 1537 个节点里没有任何 LaMa / `ComfyUI-Inpaint-Nodes` 节点。只放 `big-lama.pt` 到 `models/inpaint/` 不够，需装插件并重启，之后才能补「元素抹除后的干净背景层」。
+
 ## WXG-T-519
 
 ### 1. 触发
