@@ -1,0 +1,148 @@
+{
+ "menu_signboard": {
+  "file": "parts/menu_signboard.png",
+  "origin": [
+   108,
+   0
+  ],
+  "size": [
+   526,
+   304
+  ],
+  "content": [
+   2,
+   0,
+   524,
+   302
+  ],
+  "kb": 217.4
+ },
+ "menu_case": {
+  "file": "parts/menu_case.png",
+  "origin": [
+   95,
+   319
+  ],
+  "size": [
+   550,
+   761
+  ],
+  "content": [
+   0,
+   2,
+   550,
+   759
+  ],
+  "kb": 575.4
+ },
+ "work_cat": {
+  "file": "parts/work_cat.png",
+  "origin": [
+   200,
+   500
+  ],
+  "size": [
+   345,
+   358
+  ],
+  "content": [
+   0,
+   0,
+   345,
+   358
+  ],
+  "kb": 199.6
+ },
+ "case_shelf": {
+  "file": "parts/case_shelf.png",
+  "origin": [
+   170,
+   880
+  ],
+  "size": [
+   420,
+   50
+  ],
+  "content": [
+   0,
+   0,
+   420,
+   50
+  ],
+  "kb": 25.6
+ },
+ "case_plate": {
+  "file": "parts/case_plate.png",
+  "origin": [
+   195,
+   928
+  ],
+  "size": [
+   350,
+   112
+  ],
+  "content": [
+   0,
+   0,
+   350,
+   112
+  ],
+  "kb": 61.5
+ },
+ "btn_arrow_left": {
+  "file": "parts/btn_arrow_left.png",
+  "origin": [
+   9,
+   689
+  ],
+  "size": [
+   129,
+   129
+  ],
+  "content": [
+   0,
+   0,
+   129,
+   129
+  ],
+  "kb": 27.9
+ },
+ "btn_arrow_right": {
+  "file": "parts/btn_arrow_right.png",
+  "origin": [
+   586,
+   689
+  ],
+  "size": [
+   129,
+   129
+  ],
+  "content": [
+   0,
+   0,
+   129,
+   129
+  ],
+  "kb": 28.0
+ },
+ "btn_start": {
+  "file": "parts/btn_start.png",
+  "origin": [
+   173,
+   1075
+  ],
+  "size": [
+   389,
+   142
+  ],
+  "content": [
+   2,
+   0,
+   387,
+   140
+  ],
+  "kb": 88.6
+ },
+ "_total_kb_quantized": 136.6,
+ "_total_kb_lossless": 1224.0
+}
