@@ -1,0 +1,40 @@
+{
+  "task": "WXG-T-519",
+  "title": "顶部招牌·从实景设计稿原样抠图（保留彩豆/绿叶/白花）",
+  "date": "2026-10-30",
+  "source": {
+    "file": "会话附件 0a5c7de9-8430-4ba9-b90e-a2f121cbcf86.png（整版木屋设计稿）",
+    "size": "752x1344",
+    "why": "棋盘格那张（21a1c562，720x1280）的招牌本身没有彩豆/白花，只有木纹+字+绳；用户要的是实景稿这一版"
+  },
+  "method": {
+    "auto_threshold_rejected": "实景木墙 #A4602F 与板面 #8B5A2E 的亮度差约 10、饱和度差 17、色相差 6°，三种判据实测都分不开（自动吸附 v3 边界撕裂）",
+    "board": "几何多边形（拱顶 23 点 + 波浪底 22 点），坐标从 mask-vis.png 1:1 读出，±3px",
+    "decor": "板外三件按颜色 mask 并入（粉珠 R>170&R-G>55、绿珠 G-R>22、白花 R>198 且低饱和），限定窗口避免抓到橱窗彩珠",
+    "ropes": "两条四边形（左 180-210、右 555-570，实测自 rope-zoom.png）",
+    "edge": "内收 1px + 0.9px 高斯羽化；不做反预乘（实景墙是浅色，反预乘会把半透明边算成白边）"
+  },
+  "readings": {
+    "deliver": "sign-740.png 740x391 RGBA",
+    "native": "559x293",
+    "upscale": "1.32x Lanczos",
+    "alpha": "0-255 真透明，透明占比 31.2%",
+    "quantized_256": "57.4 KB（sign-q8.png）",
+    "quantized_160": "51.0 KB",
+    "landing_1x": "370x196（MENU_SIGN_FRAME.h = 298，余 102px 透明）",
+    "source_resolution_ratio": "原生 559 宽 / 落地 370 = 1.51x（低于 @2x 的 740，放大到 740 是插值）"
+  },
+  "files": {
+    "sign-740.png": "交付正本（无损 RGBA）",
+    "sign-q8.png": "256 色调色板量化版（入库用，微信包白名单不含 WebP）",
+    "preview9.png": "棋盘格预览",
+    "mock-1x.png": "370px 实际落地（bg_base #F1E8D8 + 顶栏 72）",
+    "compare3.png": "三版并排：A 生图版 / B 棋盘格稿 / C 实景稿"
+  },
+  "known_issues": [
+    "板比旧框矮：落地 196px vs MENU_SIGN_FRAME.h 298（旧框是给旧招牌量的），框内上下各空 51px",
+    "绳可见段约 50px（@1x），接入时需把顶端藏进顶栏，或程序化补一段绳纹",
+    "板左缘与板底的边缘带 1-2px 半透明过渡（370 落地时 <1px，不可见）"
+  ],
+  "reproduce": "脚本 temp/sign-cut2/cut6.py（temp 被 gitignore，几何坐标已全部写在本 JSON 与脚本注释里，可照数重建）"
+}
