@@ -23,6 +23,10 @@ Flux 类（SamplerCustomAdvanced，如 flux-dev-sticker.api.json）同分支自�
   正向 = 沿 guider→conditioning 链回溯到 CLIPTextEncode（可穿 FluxGuidance）；
   无负面入口（单条件引导，--negative 会告警忽略）；种子 = RandomNoise.noise_seed；
   尺寸 = EmptySD3LatentImage（也兼容 EmptyLatentImage）。
+
+Qwen 指令编辑类（TextEncodeQwenImageEditPlus，如 qwen-image-2.1-edit*.api.json）：
+  正向 = 该节点的 prompt 字段（参考图走 image1，不是 img2img 的噪声降噪）；种子 = KSampler.seed；
+  无负面入口（cfg=1）；--image 支持「节点id=路径」定位单个 LoadImage（带遮罩的工作流有两个 LoadImage，必须分开传）。
 """
 import argparse
 import json
@@ -88,6 +92,17 @@ def _find_text_encode(wf: dict, io, depth: int = 0) -> str | None:
 
 
 def patch_workflow(wf: dict, args: argparse.Namespace) -> None:
+    edit = [n for n in wf.values() if n.get("class_type") == "TextEncodeQwenImageEditPlus"]
+    if edit:
+        # Qwen 指令编辑：提示词在 prompt 字段；cfg=1 无负面入口
+        if args.prompt:
+            edit[0]["inputs"]["prompt"] = args.prompt
+        if args.negative:
+            print("WARN: Qwen 编辑类工作流 cfg=1，--negative 忽略", file=sys.stderr)
+        ks = next((n for n in wf.values() if n.get("class_type") == "KSampler"), None)
+        if ks and args.seed is not None:
+            ks["inputs"]["seed"] = args.seed
+        return
     if any(n.get("class_type") == "CLIPTextEncode" for n in wf.values()):
         # 通用分支：标准 KSampler（SDXL 类）或 SamplerCustomAdvanced（Flux 类）
         ks = next((n for n in wf.values() if n.get("class_type") == "KSampler"), None)
@@ -158,7 +173,10 @@ def main() -> int:
     ap.add_argument("--ratio", help='如 "1:1 (Square)"')
     ap.add_argument("--mp", type=float, help="megapixels，2048x2048 ≈ 4")
     ap.add_argument("--out", default="temp/comfyui-out")
-    ap.add_argument("--image", help="上传到 ComfyUI 并填进 workflow 的 LoadImage 节点（inpaint 用带 alpha 遮罩的 RGBA PNG）")
+    ap.add_argument("--image", action="append", metavar="[NODE=]PATH",
+                    help="上传到 ComfyUI 并填进 LoadImage（inpaint 用带 alpha 遮罩的 RGBA PNG）。"
+                         "不带节点号时填所有 LoadImage；带节点号只改那一个，可重复",
+                    )
     ap.add_argument("--override", action="append", metavar="NODE:KEY=VAL",
                     help='临时改任意节点输入，如 "18:strength_model=0"（可重复）')
     ap.add_argument("--timeout", type=int, default=600)
@@ -166,14 +184,17 @@ def main() -> int:
 
     wf = json.loads(Path(args.workflow).read_text())
     patch_workflow(wf, args)
-    if args.image:
-        name = upload_image(args.host, args.image)
-        hit = [n for n in wf.values() if n.get("class_type") == "LoadImage"]
-        if not hit:
+    for spec in args.image or []:
+        node_id, _, path = spec.rpartition("=")
+        if node_id and node_id not in wf:
+            sys.exit(f"--image 节点号不存在：{node_id}")
+        name = upload_image(args.host, path if node_id else spec)
+        targets = [wf[node_id]] if node_id else [n for n in wf.values() if n.get("class_type") == "LoadImage"]
+        if not targets:
             print("WARN: workflow 无 LoadImage 节点，--image 未生效", file=sys.stderr)
-        for n in hit:
+        for n in targets:
             n["inputs"]["image"] = name
-        print(f"uploaded {args.image} -> {name}", flush=True)
+        print(f"uploaded {path if node_id else spec} -> {name}", flush=True)
     for ov in getattr(args, "override", None) or []:
         nid, kv = ov.split(":", 1)
         k, v = kv.split("=", 1)

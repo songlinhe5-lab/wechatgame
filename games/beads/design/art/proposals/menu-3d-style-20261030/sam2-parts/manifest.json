@@ -14,7 +14,8 @@
     "btn_start.png": "376×174，16.0 KB",
     "btn_arrow_left.png": "110×115，4.5 KB",
     "btn_arrow_right.png": "109×116，4.3 KB",
-    "合计": "166.9 KB（256 色调色板 PNG）"
+    "rope_l.png / rope_r.png": "51×72 / 52×72，各 6 KB。不走 SAM2：绳子过细，沿用已被 LaMa 链路验证过的几何矩形 mask（x175-226 / x529-581, y0-72）+ 8 px 羽化，矩形边缘融进重绘墙面、绳子本体不受羽化影响",
+    "合计": "166.9 KB（五件 256 色调色板 PNG）+ 12 KB（两根吊绳）= 178.9 KB"
   },
   "environment_findings": {
     "GroundingDINO 不可用": "`GroundingDinoModelLoader` 加载即报 `'BertModel' object has no attribute 'get_extended_attention_mask'`（transformers 版本不兼容）⇒ 文本定位链路整条不可用；`.pt` 那套 SAM2（SAM2ModelLoader）只配它，因此用不上",
@@ -27,7 +28,8 @@
     "顶板 548×254，落地 370 设计 px = 1.48x，低于 @2x 的 740（放大是插值）",
     "橱窗左右两侧在箭头遮挡处被 fill_spans 填平（框体变完整，但与真实遮挡轮廓不同）",
     "SAM2 分不出顶板的独立轮廓（板与背景木墙亮度差仅 10），本版靠多点 + 填洞得到，边缘为多边形近似",
-    "锚点：所有件的 bbox 左上角由原图坐标反推，接入时需按 bbox 反算落位"
+    "锚点：所有件的 bbox 左上角由原图坐标反推，接入时需按 bbox 反算落位",
+    "吊绳切件从 y=0 起，与招牌 bbox（y=45 起）在 y45–72 重叠；回贴时必须先贴吊绳再贴招牌，顺序反了会把绳子盖掉"
   ],
   "reproduce": "脚本 temp/comfy-cut/pipeline.py（temp 被 gitignore；坐标、box、后处理参数全部写在本 JSON 与脚本 TARGETS 里）",
   "inpaint": {
