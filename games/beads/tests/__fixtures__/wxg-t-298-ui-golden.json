@@ -4,7 +4,7 @@
   "unit": "UI-02",
   "spec": "docs/architecture/ui-architecture-beads.md §5 / §9.4 / §12",
   "codeBaseline": "bd964a0",
-  "capturedFrom": "5e2cfa22 · 工作树（WXG-T-298）",
+  "capturedFrom": "6ce7a00c · 工作树（WXG-T-298）",
   "fixture": {
     "viewport": {
       "width": 750,
@@ -31,17 +31,17 @@
         "overlay": "none",
         "phase": "playing"
       },
-      "total": 1964,
+      "total": 1977,
       "kinds": {
-        "circle": 307,
-        "line": 295,
-        "rect": 763,
+        "rect": 772,
+        "line": 297,
+        "circle": 309,
         "text": 5,
         "clip": 1,
         "unclip": 1,
         "polygon": 592
       },
-      "sha": "a31d9ae908bfba32c3456468d55ea7859e84d590ae656d27ee1d83deb680da12",
+      "sha": "83d302946b4136ea4525fa60492baf9ce99ed6f8514e04715ca7fb55e1a98ddc",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -54,11 +54,11 @@
         "overlay": "levels",
         "phase": "playing"
       },
-      "total": 2189,
+      "total": 2202,
       "kinds": {
-        "circle": 307,
-        "line": 295,
-        "rect": 973,
+        "rect": 982,
+        "line": 297,
+        "circle": 309,
         "text": 18,
         "clip": 1,
         "unclip": 1,
@@ -66,7 +66,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "fb258f762a7e525174c3067a31d608272ecd7d3b8854f2f5188d1e63aa256963",
+      "sha": "35cede6bc7cecb534577570c3d172f64392fd00b560afa7d6d680f54a38f7d6b",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -79,11 +79,11 @@
         "overlay": "levels",
         "phase": "playing"
       },
-      "total": 2189,
+      "total": 2202,
       "kinds": {
-        "circle": 307,
-        "line": 295,
-        "rect": 973,
+        "rect": 982,
+        "line": 297,
+        "circle": 309,
         "text": 18,
         "clip": 1,
         "unclip": 1,
@@ -91,7 +91,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "5e590ae17e1ac809a26bb0895c7507fb579c5a4ab31a6144d140829a8f9f43f5",
+      "sha": "c769e0cc4cbcf6e3fd2da6aaf9132839a8d3f1238bbdf4e09d4c414af5baf047",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -104,11 +104,11 @@
         "overlay": "settings",
         "phase": "playing"
       },
-      "total": 1992,
+      "total": 2005,
       "kinds": {
-        "circle": 307,
-        "line": 295,
-        "rect": 776,
+        "rect": 785,
+        "line": 297,
+        "circle": 309,
         "text": 18,
         "clip": 1,
         "unclip": 1,
@@ -116,7 +116,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "5882b35552f136589e61c39af8434b88a47c26d122cfdb8909d4037b311788e4",
+      "sha": "b0d4e7aa0ac08330f29706e95e93900cb909021367014c189eb5ee31651b3478",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -129,11 +129,11 @@
         "overlay": "signin",
         "phase": "playing"
       },
-      "total": 1996,
+      "total": 2009,
       "kinds": {
-        "circle": 307,
-        "line": 295,
-        "rect": 775,
+        "rect": 784,
+        "line": 297,
+        "circle": 309,
         "text": 23,
         "clip": 1,
         "unclip": 1,
@@ -141,7 +141,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "8f62598efa99fd7b4bb7fcadd0f2141a2626f83f19e6cfdc9cc89e9411e1a828",
+      "sha": "51c0ae52c5b71323b6661a5889214a8fcd57b11643c88b7f8aa31f643c8fd110",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -198,18 +198,18 @@
         "overlay": "none",
         "phase": "level-clear"
       },
-      "total": 642,
+      "total": 637,
       "kinds": {
-        "rect": 271,
+        "rect": 266,
         "circle": 63,
         "line": 103,
-        "text": 16,
+        "text": 15,
         "polygon": 185,
         "container": 1,
-        "blit": 2,
+        "blit": 3,
         "containerEnd": 1
       },
-      "sha": "b03b8c57e8766d4352ea67f16b31d8920d36439a622fb31455ea78c09245da24",
+      "sha": "444c1499023b4c8742ad8183987ac01d6ef0bcde41803bc34f11a10a2d7cc7c1",
       "background": "#F1E8D8",
       "transform": null
     },

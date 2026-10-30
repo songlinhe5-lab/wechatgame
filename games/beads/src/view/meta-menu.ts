@@ -3,7 +3,7 @@
  * 几何一律取自 `meta-layout.ts` 的锚定档，控件画法取自 `meta-widgets.ts` ⇒ 页面只编排、不另算。
  */
 
-import { DESIGN_W, MENU_ARROW_ICON, MENU_BAR_ICON_D, MENU_BOSS_ART_D, MENU_CTA_LABEL, MENU_CTA_PRESSED_D, MENU_CTA_SLICE, MENU_CTA_SRC_H, MENU_DONE_ICON, MENU_LOCK_D, MENU_PLAQUE_BEVEL_INSET, MENU_PLAQUE_ICON_INSET, MENU_PLAQUE_RIVET_INSET, MENU_PLAQUE_RIVET_R, MENU_PLAQUE_STROKE, MENU_PLATE, MENU_PLATE_TITLE, MENU_PROGRESS, MENU_SEAL, MENU_SIGNIN_DOT_R, MENU_SIGN_FRAME, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, SIGN_BEAD_PITCH, SIGN_MATRIX_N, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning.js';
+import { DESIGN_W, type MenuAnchors, MENU_ARROW_ICON, MENU_BAR_ICON_D, MENU_BOSS_ART_D, MENU_CTA_LABEL, MENU_CTA_PRESSED_D, MENU_CTA_SLICE, MENU_CTA_SRC_H, MENU_DONE_ICON, MENU_LOCK_D, MENU_PLAQUE_BEVEL_INSET, MENU_PLAQUE_ICON_INSET, MENU_PLAQUE_RIVET_INSET, MENU_PLAQUE_RIVET_R, MENU_PLAQUE_STROKE, MENU_PLATE, MENU_PLATE_TITLE, MENU_PROGRESS, MENU_SEAL, MENU_SIGNIN_DOT_R, MENU_SIGN_FRAME, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, SIGN_BEAD_PITCH, SIGN_MATRIX_N, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning.js';
 import { COPY_TOKENS } from '../config/copy-tokens.js';
 import { ARC_COMING_SOON } from '../config/arcs.js';
 import { plateFade } from '../config/menu-carousel.js';
@@ -442,6 +442,129 @@ function drawPlateTitle(
     }
 }
 
+/**
+ * `[P0 静态温暖 · 2026-10-30 用户令「太空、要暖，但保持静态」]`
+ * 背景 / 陈列层参数。全部低对比、零位图、零动画：脏帧门控照常生效（静止帧零重绘）。
+ * 本批为验证参数，拍板后按 art 变更单迁入 `tuning/menu.ts`；⛔ 不新增 palette hex。
+ */
+const MENU_WARM = {
+    deskH: 140,
+    deskAlpha: 0.07,
+    deskEdgeAlpha: 0.03,
+    vignette: 0.032,
+    vignetteSpan: 96,
+    // 左上斜射光束：一张带 alpha 的暖白图，blit 一次。
+    // ⚠ 曾用 8 层同心三角形：每层 alpha 0.0075 只能提亮 0.8/255（bg_base 241 到白共 14 级），
+    // 实测量出来完全不可感，却白占 8 个 DrawCall ⇒ 改位图。
+    // 图内 alpha 峰值 0.857（241→253 所需）、跳 0–219 共 219 级 ⇒ 无 banding，无需抖动。
+    beamW: 400 / 750,
+    beamH: 650 / 1334,
+    // 陶盆：左下行环境件。宽度按 DESIGN_W 定、高度按图宽高比推导，
+    // 底边按锚定高度比例落在地面线上（750×1334 实测：底边距屏底 194）。
+    potX: 0.0067,
+    potW: 0.140,
+    potAspect: 415 / 210,
+    potBottom: 0.1454,
+    shelfInset: 10,
+    shelfH: 12,
+    // 层板对齐 Boss 图**可视底部**（不是 clip 底）：l9 原图 alpha bbox 44..211/256、
+    // MENU_BOSS_ART_D 540、doneCy 偏移 394 ⇒ 可视底 = clipBox.y + 114。
+    // 换 Boss 图（不同 bbox）时需重标此值，否则作品会悬空或压住台面。
+    shelfLift: 114,
+    riserW: 240,
+    riserH: 16,
+    shadowW: 300,
+    shadowH: 16,
+    coneAlpha: 0.018,
+} as const;
+
+/**
+ * 背景静态暖层（画在全部内容之下）：桌面暖带 + 左上斜射光束 + 四角暗角 + 陶盆。
+ * 全部低对比、零动画 ⇒ 首帧/状态变化才重绘（脏帧门控照常生效）。
+ */
+export function drawMenuBackdrop(
+    builder: RenderModelBuilder,
+    palette: BeadsPalette,
+    a: MenuAnchors,
+): void {
+    // 桌面暖带 + 分界线（CTA 后画，会盖住它）
+    builder.rect(0, 0, DESIGN_W, MENU_WARM.deskH, {
+        fill: palette.woodSheen,
+        alpha: MENU_WARM.deskAlpha,
+    });
+    builder.line(0, MENU_WARM.deskH, DESIGN_W, MENU_WARM.deskH, palette.woodEdge, 1, MENU_WARM.deskEdgeAlpha);
+    // 四角暗角：四条边带，把视线压回橱窗
+    const v = MENU_WARM.vignette;
+    const s = MENU_WARM.vignetteSpan;
+    builder.rect(0, 0, DESIGN_W, s, { fill: palette.shadowInk, alpha: v * 0.9 });
+    builder.rect(0, a.H - s, DESIGN_W, s, { fill: palette.shadowInk, alpha: v * 0.7 });
+    builder.rect(0, 0, s, a.H, { fill: palette.shadowInk, alpha: v * 0.8 });
+    builder.rect(DESIGN_W - s, 0, s, a.H, { fill: palette.shadowInk, alpha: v * 0.8 });
+    // 左上斜射光束：画在暗角之上（光连边缘一起照亮，否则会被左上两条边带吃掉约 8/255）。
+    // 边界与衰减取自 lock-s88 实测（顶边 0.40·W、左边 0.34·H、羽化 170px）。
+    // 缺图则该层缺席——光照是润色，不承担任何可读性，⛔ 不用程序化件顶替。
+    if (menuBitmapReady(MENU_TEXTURES.beam)) {
+        builder.blit(MENU_TEXTURES.beam, 0, a.H * (1 - MENU_WARM.beamH),
+            DESIGN_W * MENU_WARM.beamW, a.H * MENU_WARM.beamH);
+    }
+    // 左下陶盆（位图腿）。环境装饰 ⇒ 缺图不画、不占位，也不自造矢量替代件。
+    if (menuBitmapReady(MENU_TEXTURES.pot)) {
+        const pw = DESIGN_W * MENU_WARM.potW;
+        builder.blit(MENU_TEXTURES.pot, DESIGN_W * MENU_WARM.potX,
+            a.H * MENU_WARM.potBottom, pw, pw * MENU_WARM.potAspect);
+    }
+}
+
+/** 橱窗落地投影（画在窗框之前，只露出框下缘）。 */
+function drawCaseShadow(builder: RenderModelBuilder, palette: BeadsPalette, g: AnchoredMenuGeo): void {
+    const { caseBox } = g;
+    builder.rect(caseBox.x + caseBox.w * 0.2, caseBox.y - 10, caseBox.w * 0.6, 20, {
+        fill: palette.shadowInk,
+        alpha: 0.07,
+        radius: 10,
+    });
+}
+
+/** 橱窗陈列层（画在作品之后）：层板 + 木托 + 接触阴影。 */
+function drawCaseStage(builder: RenderModelBuilder, palette: BeadsPalette, g: AnchoredMenuGeo): void {
+    const { clipBox } = g;
+    const cx = clipBox.x + clipBox.w / 2;
+    const shelfY = clipBox.y + MENU_WARM.shelfLift;
+    builder.rect(clipBox.x + MENU_WARM.shelfInset, shelfY,
+        clipBox.w - MENU_WARM.shelfInset * 2, MENU_WARM.shelfH, {
+            fill: palette.woodSheen,
+            radius: 6,
+        });
+    builder.line(clipBox.x + MENU_WARM.shelfInset, shelfY,
+        clipBox.x + clipBox.w - MENU_WARM.shelfInset, shelfY, palette.woodEdge, 1, 0.55);
+    builder.rect(cx - MENU_WARM.riserW / 2, shelfY + MENU_WARM.shelfH - 4,
+        MENU_WARM.riserW, MENU_WARM.riserH, {
+            fill: palette.woodFace,
+            alpha: 0.45,
+            radius: MENU_WARM.riserH / 2,
+        });
+    builder.rect(cx - MENU_WARM.shadowW / 2, shelfY + MENU_WARM.shelfH,
+        MENU_WARM.shadowW, MENU_WARM.shadowH, {
+            fill: palette.shadowInk,
+            alpha: 0.10,
+            radius: MENU_WARM.shadowH / 2,
+        });
+}
+
+/** 橱窗射灯光锥（画在作品之后）：两层圆叠出中心提亮，被 clip 裁到玻璃内。 */
+function drawCaseLight(builder: RenderModelBuilder, palette: BeadsPalette, g: AnchoredMenuGeo): void {
+    const { clipBox } = g;
+    const cx = clipBox.x + clipBox.w / 2;
+    builder.circle(cx, clipBox.y + clipBox.h * 0.68, clipBox.w * 0.42, {
+        fill: palette.woodText,
+        alpha: MENU_WARM.coneAlpha,
+    });
+    builder.circle(cx, clipBox.y + clipBox.h * 0.72, clipBox.w * 0.26, {
+        fill: palette.woodText,
+        alpha: MENU_WARM.coneAlpha * 0.7,
+    });
+}
+
 export function drawMenuAnchored(
     builder: RenderModelBuilder,
     data: MetaViewData,
@@ -450,6 +573,7 @@ export function drawMenuAnchored(
     withSignage: boolean,
 ): void {
     drawTopbar(builder, data, palette, g);
+    drawCaseShadow(builder, palette, g);
     // 展示窗框：位图整件 / 未就绪 ⇒ 虚线空槽（同 §5.4 口径，⛔ 不自造第二套框语言）。
     if (menuBitmapReady(MENU_TEXTURES.caseFrame)) {
         builder.blit(MENU_TEXTURES.caseFrame, g.caseBox.x, g.caseBox.y, g.caseBox.w, g.caseBox.h);
@@ -472,6 +596,8 @@ export function drawMenuAnchored(
     const slide = data.reduceMotion ? 0 : (data.carouselDx ?? 0);
     const travel = data.carouselT ?? 0;
     builder.clip(g.clipBox.x, g.clipBox.y, g.clipBox.w, g.clipBox.h);
+    // 射灯光晕先于作品：只落在背板上，不改变作品本身颜色（避免在平涂块上出硬弧）。
+    drawCaseLight(builder, palette, g);
     drawShowcaseItem(builder, palette, g, data.carouselLevel, state, slide, data.reduceMotion ? 1 - travel : 1, data.carouselComingSoon === true, data.carouselTextureId);
     if ((data.carouselPeer !== undefined || data.carouselPeerComingSoon === true) && travel > 0) {
         const sign = data.carouselPeerSign ?? (slide < 0 ? 1 : -1);
@@ -482,6 +608,7 @@ export function drawMenuAnchored(
             data.carouselPeerTextureId,
         );
     }
+    drawCaseStage(builder, palette, g);
     builder.unclip();
     // 木牌板固定。文字按 travel 两段淡变（先出后进，不重叠）。
     if (menuBitmapReady(MENU_TEXTURES.plate)) {

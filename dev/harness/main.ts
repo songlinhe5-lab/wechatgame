@@ -165,6 +165,11 @@ const MENU_FILE: Readonly<Record<string, string>> = {
   [MENU_TEXTURES.iconCalendar]: 'ui_icon_calendar.png',
   [MENU_TEXTURES.woodGrain]: 'ui_wood_grain.png',
   [MENU_TEXTURES.woodFrame]: 'ui_wood_frame.png',
+  [MENU_TEXTURES.panelFrame]: 'ui_panel_frame_9s.png',
+  [MENU_TEXTURES.panelFace]: 'ui_panel_face_9s.png',
+  [MENU_TEXTURES.btnWood]: 'ui_btn_wood_9s.png',
+  [MENU_TEXTURES.btnWoodPressed]: 'ui_btn_wood_9s_pressed.png',
+  [MENU_TEXTURES.btnPaper]: 'ui_btn_paper_9s.png',
   [MENU_TEXTURES.iconRank]: 'ui_icon_rank.png',
   [MENU_TEXTURES.iconSkins]: 'ui_icon_skin.png',
   [MENU_TEXTURES.iconArrowLeft]: 'ui_icon_arrow_left.png',
@@ -176,6 +181,10 @@ const MENU_FILE: Readonly<Record<string, string>> = {
   [MENU_TEXTURES.badgeProgress]: 'ui_menu_badge_progress.png',
   [MENU_TEXTURES.sealCleared]: 'ui_menu_seal_cleared.png',
   [MENU_TEXTURES.ctaLabel]: 'ui_menu_cta_label.png',
+  // `[P0 静态温暖]` 左下陶盆（210×415 RGBA，源 = qwen-image-3.0 lock seed 88 切图）。
+  [MENU_TEXTURES.pot]: 'ui_menu_pot.png',
+  // `[P0 静态温暖]` 左上光束（400×650 RGBA 白，alpha 承载提亮强度）。
+  [MENU_TEXTURES.beam]: 'ui_menu_beam.png',
 };
 const tintCache = new TintSpriteCache(
   // 离屏 canvas 工厂（结构化注入 ⇒ framework/core 层 ⛔ 不碰 DOM，L2 合规）

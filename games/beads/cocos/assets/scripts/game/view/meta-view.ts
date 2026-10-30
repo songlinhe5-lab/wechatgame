@@ -51,7 +51,7 @@ import {
     overlayPlate,
 } from './meta-layout';
 import { drawMetaButton } from './meta-widgets';
-import { drawMenuAnchored } from './meta-menu';
+import { drawMenuAnchored, drawMenuBackdrop } from './meta-menu';
 import { drawLevelsContent } from './meta-levels-page';
 // `[WXG-T-432]` 好友榜面板占位视图（叠在菜单页之上；见下方 `buildMetaView` 末段）。
 import { drawRankPanel } from './rank-view';
@@ -128,6 +128,8 @@ const RANK_SCOPE_ID = 'rank';
 /** 主菜单页（`overlay = none`）：几何读调用方同一 `anchors` 派生的 {@link anchoredGeo} ⇒ 与热区恒同源。
  * `[WXG-T-432]` 好友榜面板叠在本页之上（含遮罩）；进度全读 `view.progress`。 */
 const MENU_PAGE: PageDraw = (builder, data, palette, _layout, a, withSignage) => {
+    // `[P0 静态温暖 · 2026-10-30]` 背景暖层（桌面/窗光/暗角）先于全部内容；零位图、零动画。
+    drawMenuBackdrop(builder, palette, a);
     drawMenuAnchored(builder, data, palette, anchoredGeo(a), withSignage);
     // `[WXG-T-441 / ADR-0033 DEC-1]` 菜单好友榜**必须自持容器**：它内部的遮罩走 `Graphics` 通道，
     // 而走马灯橱窗的位图腿（`BlitLayerUI`）与页面全部文字（`Labels`）都排在 `Graphics` **之后**

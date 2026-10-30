@@ -135,8 +135,17 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
     [MENU_TEXTURES.badgeProgress]: { path: 'ui_menu_badge_progress' },
     [MENU_TEXTURES.sealCleared]: { path: 'ui_menu_seal_cleared' },
     [MENU_TEXTURES.ctaLabel]: { path: 'ui_menu_cta_label' },
+    // `[P0 静态温暖]` 左下陶盆（环境装饰）。未导入 ⇒ 不登记 ⇒ `drawMenuBackdrop` 不画该件。
+    [MENU_TEXTURES.pot]: { path: 'ui_menu_pot' },
+    [MENU_TEXTURES.beam]: { path: 'ui_menu_beam' },
     [MENU_TEXTURES.woodGrain]: { path: 'ui_wood_grain' },
     [MENU_TEXTURES.woodFrame]: { path: 'ui_wood_frame' },
+    // `[WXG-T-515]` 结算 9-slice 四件（源图与设计 px 1:1，端帽见 `CLEAR_*_SLICE`）。
+    [MENU_TEXTURES.panelFrame]: { path: 'ui_panel_frame_9s' },
+    [MENU_TEXTURES.panelFace]: { path: 'ui_panel_face_9s' },
+    [MENU_TEXTURES.btnWood]: { path: 'ui_btn_wood_9s' },
+    [MENU_TEXTURES.btnWoodPressed]: { path: 'ui_btn_wood_9s_pressed' },
+    [MENU_TEXTURES.btnPaper]: { path: 'ui_btn_paper_9s' },
 };
 
 /**

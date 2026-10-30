@@ -114,6 +114,14 @@ export const CLEAR_ACTION_W = 300;
 export const CLEAR_ACTION_H = 92;
 export const CLEAR_SECONDARY_W = 150;
 export const CLEAR_SECONDARY_H = 88;
+/** `[WXG-T-515]` 结算 9-slice 端帽（源纹 px）：框 60 / 底 36 / 木钮 76·46 / 纸钮 52·44。
+ *  ⛔ 端帽必须盖住圆角 + 描边 + 内壁装饰；超出部分的边条只允许线性渐变（可拉伸）。 */
+export const CLEAR_FRAME_SLICE = { capX: 60, capY: 60 } as const;
+export const CLEAR_FACE_SLICE = { capX: 36, capY: 36 } as const;
+export const CLEAR_BTN_SLICE = { capX: 76, capY: 46 } as const;
+export const CLEAR_PAPER_BTN_SLICE = { capX: 52, capY: 44 } as const;
+/** 框厚（设计 px）：内底贴在框内壁，距面板外缘此值。 */
+export const CLEAR_FRAME_INSET = 18;
 /** `[WXG-T-510]` A2 标题木挂牌：200×64，骑在面板上沿。 */
 export const CLEAR_PLAQUE_W = 200;
 export const CLEAR_PLAQUE_H = 64;
@@ -419,10 +427,27 @@ export const MENU_TEXTURES = {
   sealCleared: 'bitmap__menu_seal_cleared',
   /** v3.8 CTA「开始游戏」艺术字。缺资产回退程序化字。 */
   ctaLabel: 'bitmap__menu_cta_label',
+  /**
+   * `[P0 静态温暖 · 2026-10-30]` 左下角陶盆（qwen-image-3.0 lock seed 88 切图，210×415）。
+   * 环境装饰、不属布局骨架 ⇒ 缺位图**不画**，不占位、不回退程序化（同 boss 缩略口径）。
+   */
+  pot: 'bitmap__menu_pot',
+  /**
+   * `[P0 静态温暖 · 2026-10-30]` 左上斜射光束（400×650 RGBA 白，alpha 峰值 0.857）。
+   * 用 alpha 承载提亮强度而非用低 alpha 叠色 —— bg_base 241 → 253 只有 14 级，
+   * alpha 低于 0.1 的白几乎提不动（实测 0.06 只变 0.8/255）。缺 ⇒ 该层缺席。
+   */
+  beam: 'bitmap__menu_beam',
   /** `[WXG-T-512]` 卡通木纹条（云 qwen-image-3.0 seed 511 生成，1024×320 圆角）：结算木牌与主钮拉伸使用。 */
   woodGrain: 'bitmap__ui_wood_grain',
   /** `[WXG-T-514]` 结算外框木纹环（780×705 圆角环，12px 宽）；按钮不再用纹理。 */
   woodFrame: 'bitmap__ui_wood_frame',
+  /** `[WXG-T-515]` 结算 9-slice 四件：外框（中空）/ 内底（纸面内凹）/ 木主钮 / 纸次钮。 */
+  panelFrame: 'bitmap__ui_panel_frame_9s',
+  panelFace: 'bitmap__ui_panel_face_9s',
+  btnWood: 'bitmap__ui_btn_wood_9s',
+  btnWoodPressed: 'bitmap__ui_btn_wood_9s_pressed',
+  btnPaper: 'bitmap__ui_btn_paper_9s',
 } as const;
 
 /**

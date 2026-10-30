@@ -1,6 +1,6 @@
 # 上下文预算报表（ctx/BUDGET.md）
 
-> 生成：2026-10-29 · 由 `tools/scripts/build-context-index.mjs` 自动生成，**请勿手改**。
+> 生成：2026-10-30 · 由 `tools/scripts/build-context-index.mjs` 自动生成，**请勿手改**。
 > token 为**估算值**（CJK≈1/字、ASCII≈1/4 字符；非精确 tokenizer），仅用于排行与阈值护栏。
 > 面向 agent 的阅读入口是 `ctx/ROUTES.md`；本表用于**人**复核预算与超限。
 
@@ -22,7 +22,7 @@
 
 | # | 文件 | tokens | 行数 | tier |
 |---:|---|---:|---:|:--:|
-| 1 | `production/TASKS-DETAIL.md` | 149967 | 4961 | normal |
+| 1 | `production/TASKS-DETAIL.md` | 150798 | 4991 | normal |
 | 2 | `games/beads/design/gdd/powerups-v2.md` | 144877 | 2328 | normal |
 | 3 | `games/beads/design/art/specs/assets-spec.md` | 121738 | 2109 | normal |
 | 4 | `production/qa/beads/g4-regression-report.md` | 86807 | 2201 | normal |
@@ -38,9 +38,9 @@
 | 14 | `games/beads/design/art/specs/accessibility.md` | 37140 | 201 | normal |
 | 15 | `memory/2026-10-04.md` | 28255 | 930 | normal |
 | 16 | `games/beads/design/gdd/save-progress.md` | 26135 | 305 | normal |
-| 17 | `production/TASKS.md` | 23916 | 122 | hot |
+| 17 | `production/TASKS.md` | 24258 | 123 | hot |
 | 18 | `games/beads/design/proposals/star-economy-and-retention.md` | 22195 | 763 | normal |
-| 19 | `docs/architecture/ui-architecture-beads.md` | 19886 | 243 | normal |
+| 19 | `docs/architecture/ui-architecture-beads.md` | 20393 | 253 | normal |
 | 20 | `games/beads/design/gdd/input-control.md` | 19665 | 206 | normal |
 
 ## 3. 超限清单（超过所属类别上限）
@@ -65,7 +65,7 @@
 | `memory/2026-10-04.md` | 28255 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/gdd/save-progress.md` | 26135 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/proposals/star-economy-and-retention.md` | 22195 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `docs/architecture/ui-architecture-beads.md` | 19886 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `docs/architecture/ui-architecture-beads.md` | 20393 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/gdd/input-control.md` | 19665 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/ux/arc-level-select-spec.md` | 18524 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `memory/details/2026-10-03-s01-t226.md` | 17901 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
