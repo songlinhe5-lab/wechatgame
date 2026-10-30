@@ -29,5 +29,24 @@
     "SAM2 分不出顶板的独立轮廓（板与背景木墙亮度差仅 10），本版靠多点 + 填洞得到，边缘为多边形近似",
     "锚点：所有件的 bbox 左上角由原图坐标反推，接入时需按 bbox 反算落位"
   ],
-  "reproduce": "脚本 temp/comfy-cut/pipeline.py（temp 被 gitignore；坐标、box、后处理参数全部写在本 JSON 与脚本 TARGETS 里）"
+  "reproduce": "脚本 temp/comfy-cut/pipeline.py（temp 被 gitignore；坐标、box、后处理参数全部写在本 JSON 与脚本 TARGETS 里）",
+  "inpaint": {
+    "laMa_nodes": "INPAINT_LoadInpaintModel（model_name='big-lama.pt'）+ INPAINT_InpaintWithModel",
+    "peer_nodes": [
+      "INPAINT_ExpandMask",
+      "INPAINT_ShrinkMask",
+      "INPAINT_ColorMatch",
+      "INPAINT_MaskedFill（OpenCV 三种 fill，非 LaMa）",
+      "INPAINT_LoadFooocusInpaint / INPAINT_ApplyFooocusInpaint"
+    ],
+    "models_seen": [
+      "big-lama.pt",
+      "fooocus_inpaint_head.pth",
+      "inpaint_v26.fooocus.patch"
+    ],
+    "pipeline": "LoadImage(RGBA) → [LoadImage 自带 MASK 输出] → INPAINT_ExpandMask(grow=28,blur=10) → INPAINT_LoadInpaintModel(big-lama.pt) → INPAINT_InpaintWithModel → SaveImage",
+    "pitfall": "ComfyUI 的 mask 语义与 alpha 相反：alpha=0 才是「选中要补的区域」。第一次按 alpha=255 传，结果补到了背景上",
+    "result": "bg-lama-raw.png 752×1344：五件全被抹除，但合并 mask 占 55.9% 面积，墙面被补成大块平滑色，木纹细节丢失、底部桌面有彩珠残影",
+    "conclusion": "LaMa 适合小面积（按钮、箭头级别）；橱窗/招牌这种大面积必须走 Fooocus Inpaint + SDXL 重绘"
+  }
 }
