@@ -41,3 +41,14 @@ temp/ 不入库 ⇒ 丢了按下面重建；HarmonicFill 是 5 点均值 Jacobi�
 柜内云补了一个圆形展示台（原稿转台的延续），比三步版的糊面可用 —— 程序化贴拼豆作品正好落在它上面。
 产物：bg-plate-clean-cloud-q3.png（**背板基准件**）；cmp-backdrop-local-vs-cloud.png 为两路线对照。
 
+⑥ 本地 edit 模式对照（⛔ 不带蒙版 ⇒ 整图重写，2026-10-30 那张「空房间」local_q21_edit.png 就是这么出的）
+  LQ_SRC=<源图> python3 temp/online-inpaint/local_qwen.py temp/plate-cut-20261031/p-cloud-clean2.txt local-edit-plate-s42 0 25 1.0 42 edit
+  与 ⑤ 同一条指令、同一套蒙版回贴，输出尺寸严格 = 输入 752×1344。
+
+读数（同口径）：本地 平移 dx0 dy0（零几何校正）、保留区 MAE 10.97；云端 平移 dx+2 dy+3、校正后 10.40。两者锁死区 maxΔ 均为 0。
+代价差：本地 0 元但单卡要 15~20min（显存吃紧时整台 ComfyUI 会假死十几分钟，任务仍在跑 —— 轮询必须吞掉超时继续等，
+  local_qwen.py 已改）；云 0.18 元 / 35s，且天然回 2× 正本（本地只有 1×）。
+目测胜负（cmp-cloud-vs-local-edit.png 三行：柜内 / 顶带 / 地板）：
+  柜内 —— 本地补出射灯但光斑是一圈硬边圆盘，木纹比云软一档，且**整图重写后玻璃反光全没了**（回贴版靠原稿玻璃边补回）；
+  顶带与地板 —— 本地墙面发花、绿植被重画得比原稿大；云更贴原稿的平涂度与锐度。
+结论：**背板基准件仍取云（bg-plate-clean-cloud-q3.png）**；本地产物 bg-plate-clean-local-q21edit.png 作为零成本/零校正的备选与回退腿存档。
