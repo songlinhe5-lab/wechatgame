@@ -1,6 +1,6 @@
 {
   "name": "@wxgame/beads",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "private": true,
   "type": "module",
   "description": "Beads (拼豆填色消除) — game logic, levels and view model for the WeChat mini-game matrix.",
