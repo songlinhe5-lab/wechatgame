@@ -5025,7 +5025,9 @@ git diff -w -- games/beads/src games/beads/cocos/assets/scripts/game
 
 ### 4. 产出
 
-`games/beads/design/art/proposals/menu-3d-style-20261030/sam2-parts/`
+> ⛔ **2026-10-31 用户裁定：整个 `sam2-parts/` 已删除作废**（「抠大图后，补全的背景非常模糊，也不能要」）。实测佐证：`bg-lama-raw.png` 补全区（mask 占 38.0%）可见**原物体颜色残影与波纹涂抹**，高频 3.69 vs 原区 2.59（不是平滑，而是涂抹噪声）。**可复用口径**：SAM2 点分割链路与四个环境硬伤见 §3（仍有效）；大面物抠除后的背景补全不能靠 LaMa，后续只能走 i2i 重绘（同 T-522 的空橱窗做法）。下表尺寸留档。
+
+`games/beads/design/art/proposals/menu-3d-style-20261030/sam2-parts/`（已删除）
 
 | 件 | 尺寸 | 量化 |
 |---|---|---|
