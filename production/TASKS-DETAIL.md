@@ -5128,7 +5128,9 @@ git diff -w -- games/beads/src games/beads/cocos/assets/scripts/game
 
 ### 3. 产出
 
-`games/beads/design/art/proposals/menu-3d-style-20261030/`：`parts/`（256 色，136.6 KB）+ `parts-lossless/`（1224 KB）+ `reassemble.png`（按原坐标拼回的完整性验证）+ `contact-sheet.png` + `manifest.json`。八件：`menu_signboard` 526×304、`menu_case` 550×761、`work_cat` 345×358、`case_shelf` 420×50、`case_plate` 350×112、`btn_arrow_left/right` 129×129、`btn_start` 389×142。
+> ⛔ **2026-10-31 用户裁定：`parts/` 与 `parts-lossless/` 已删除作废**（「裁剪的不全」）。实测依据：八件除箭头外，`case_plate` / `case_shelf` / `work_cat` 四条边全是不透明（贴 bbox 硬切，圆角与投影被切掉）、`menu_case` 左右贴边、`menu_signboard` 与 `btn_start` 上缘贴边；仅 `btn_arrow_left/right` 是干净切图（四缘各 1px 切点）——**包内 `ui_btn_arrow_left/right.png` 就来自这一份，已验证未被切坏，继续有效**。下表留档供将来重切时对照尺寸。
+
+`games/beads/design/art/proposals/menu-3d-style-20261030/`（`parts/` 与 `parts-lossless/` 已删除）：`parts/`（256 色，136.6 KB）+ `parts-lossless/`（1224 KB）+ `reassemble.png`（按原坐标拼回的完整性验证）+ `contact-sheet.png` + `manifest.json`。 八件：`menu_signboard` 526×304、`menu_case` 550×761、`work_cat` 345×358、`case_shelf` 420×50、`case_plate` 350×112、`btn_arrow_left/right` 129×129、`btn_start` 389×142。
 
 ### 4. 三条未解约束（决定这批能不能上线）
 
