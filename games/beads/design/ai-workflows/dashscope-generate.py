@@ -25,8 +25,13 @@ wan2.7-image 等），提示词从 temp/beads-positive.sh 正本取（与本地�
   python3 dashscope-generate.py --model wan2.7-image --text "A flat vector red heart ..."
   # 指定出图尺寸（竖屏原型）：不给 --size 时 qwen 线一律回 2048x2048 方图
   python3 dashscope-generate.py --model qwen-image-3.0 --text "..." --size 1152*2048
+  # 交互式编辑（框选，**仅 wan2.7 线认**）：只改框内，坐标＝底图绝对像素 x1,y1,x2,y2
+  python3 dashscope-generate.py --profile token-plan --model wan2.7-image \\
+      --ref <底图.png> --bbox 152,392,620,888 --size 752*1344 --text "<编辑指令>"
 
-出图落 temp/dashscope-out/<level>/<model>.png（不入库），供走 studio /api/generate 比对。
+出图落 temp/dashscope-out/<tag>/<slug>.png（不入库），tag = 给了 --text 时恒为 custom，
+slug = 模型名去 `.` 、`-`→`_`（例：wan2.7-image → wan27_image.png）。⚠ **同模型连跑必覆盖**
+⇒ 每次调用后立刻 mv（上一轮因猜错 slug 白费一张）。
 仅标准库（urllib）。key 按 --profile 取：maas → `DASHSCOPE_API_KEY`，
 token-plan → `TOKEN_PLAN_API_KEY` + `TOKEN_PLAN_BASE_URL`（端点由 base_url 剥掉
 `/compatible-mode` 尾巴推得，⛔ 不硬编码 host）；两者都读 `.env.local`。
@@ -82,7 +87,9 @@ def resolve(profile):
         raise SystemExit("未找到 TOKEN_PLAN_BASE_URL（.env.local）")
     return base.split("/compatible-mode")[0].rstrip("/") + NATIVE_PATH
 
-# 已注册云端模型 → 单图 parameters（wan2.7 示例是 sequential 多图，这里取单图档）
+# 已注册云端模型 → 单图 parameters。
+# ⚠ prompt_extend 属 **qwen 线**参数，wan2.7 官方 parameters 表里没有（实测传了不报错，是否被忽略未取证）
+#   ⇒ wan 线留空对象；seed 腿仍会显式带 prompt_extend=False，对 qwen 才是关改写。
 MODELS = {
     # 非 pro 3.0：model-matrix §1 ②③ 基准（背景最纯，0.18 元/张）。
     # ⚠ 仅 maas 有；token-plan 侧不在册，只认 qwen-image-3.0-pro / wan2.7-image[-pro]。
@@ -90,7 +97,8 @@ MODELS = {
     "qwen-image-3.0-pro": {"prompt_extend": True},
     "qwen-image-2.1-pro": {"prompt_extend": True},
     "qwen-image-2.1-turbo": {"prompt_extend": True},
-    "wan2.7-image": {"prompt_extend": True},
+    "wan2.7-image": {},
+    "wan2.7-image-pro": {},
 }
 
 
@@ -164,6 +172,7 @@ def download(url, path):
 def _parse_args(argv):
     models, level, text, ref, seed = [], "boss", None, None, None
     size = None
+    bbox = None
     profile = "maas"
     i = 0
     while i < len(argv):
@@ -191,21 +200,49 @@ def _parse_args(argv):
         elif a == "--size":
             i += 1
             size = argv[i]  # 形如 1152*2048；不给则服务端默认（qwen 线恒为 2048 方图）
+        elif a == "--bbox":
+            # 交互式编辑框选（**仅 wan2.7 线认**）：x1,y1,x2,y2 原图绝对像素，左上角 (0,0)。
+            i += 1
+            v = [int(x) for x in argv[i].replace(" ", "").split(",")]
+            if len(v) != 4:
+                raise SystemExit("--bbox 需要四个整数：x1,y1,x2,y2")
+            bbox = v
         elif a in ("-h", "--help"):
             print(__doc__)
             raise SystemExit
         else:
             models.append(a)  # 兼容旧位置参数：直接给模型名
         i += 1
-    return models, level, text, ref, seed, size, profile
+    return models, level, text, ref, seed, size, profile, bbox
+
+
+def _self_check():
+    """最小自检：--bbox 解析与 bbox_list 形状（长度必须等于输入图数）。改过解析腿必跑。"""
+    m, _lv, _t, ref, _s, size, prof, bbox = _parse_args(
+        ["--profile", "token-plan", "--model", "wan2.7-image", "--ref", "a.png",
+         "--bbox", "152,392,620,888", "--size", "752*1344", "--text", "x"])
+    assert bbox == [152, 392, 620, 888] and ref == "a.png" and size == "752*1344", bbox
+    assert m == ["wan2.7-image"] and prof == "token-plan"
+    assert {"bbox_list": [[bbox]]}["bbox_list"] == [[[152, 392, 620, 888]]]  # 1 图 → 1 层嵌套
+    try:
+        _parse_args(["--bbox", "1,2,3"])
+        raise AssertionError("--bbox 三元组应报错")
+    except SystemExit:
+        pass
+    print("check ok")
+    return 0
 
 
 def main():
     argv = __import__("sys").argv[1:]
-    models, level, text, ref, seed, size, profile = _parse_args(argv)
+    if "--check" in argv:
+        raise SystemExit(_self_check())
+    models, level, text, ref, seed, size, profile, bbox = _parse_args(argv)
     # 不给 --model 时只跑该 profile 在册的模型（token-plan 侧无 2.1 系与非 pro 3.0，
     # 拿全列表去撞会逐条 404 Model not exist）。
     models = models or (list(MODELS) if profile == "maas" else ["qwen-image-3.0-pro", "wan2.7-image"])
+    if bbox and not ref:
+        raise SystemExit("--bbox 必须配 --ref（bbox_list 是「每张输入图一栏」，无图即无栏）")
     prompt = text or load_prompt(level)
     tag = "custom" if text else level
     out_dir = os.path.join(OUT, tag)
@@ -225,8 +262,10 @@ def main():
             params = {**params, "seed": seed, "prompt_extend": False}
         if size:
             params = {**params, "size": size}
+        if bbox:
+            params = {**params, "bbox_list": [[bbox]]}  # 单图输入 → 外层长度 1
         slug = model.replace(".", "").replace("-", "_")
-        print(f"\n=== {model} · {profile} · {tag}{' · i2i' if ref else ''}{' · ' + size if size else ''}{' · seed' + str(seed) if seed is not None else ''} ===")
+        print(f"\n=== {model} · {profile} · {tag}{' · i2i' if ref else ''}{' · bbox' + str(bbox) if bbox else ''}{' · ' + size if size else ''}{' · seed' + str(seed) if seed is not None else ''} ===")
         t0 = time.time()
         try:
             resp = call(model, params, content, key, endpoint)

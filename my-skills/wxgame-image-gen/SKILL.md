@@ -24,13 +24,18 @@ description: 生成或修改小游戏图像（原型、二级页、切图、局�
 | **① 原型设计**（新页面首稿、版面探索） | 云 **qwen-image-2.1-turbo** | 云 **qwen-image-3.0**（要更贴成品平涂时；RPM 20 需串行） | `--size 1152*2048 --seed`；版面三轮 6/6 全绿 | 0.10 / 0.18 元/张 |
 | **② 固定风格二级页**（延续首页身份） | 云 **qwen-image-3.0**（`--ref` 首页基线） | 云 **qwen-image-2.1-turbo**（版面稳、平涂度稍逊） | 平涂度两轮唯一最贴基线（26.66/27.03 vs 27.10），**须配目测** | 同上 |
 | **③ 单元素切图** | **本地 qwen-image-2.1 t2i** | 云 **qwen-image-3.0**（要背景最纯时，环 std 0.1–0.3） | `--ratio "1:1 (Square)" --mp 1`，25 步；出图**一律 bbox 自动裁** | 本地 0 元 / 云 0.18 |
-| **④ 定稿局部微调**（擦/换，别处不许动） | **本地 qwen-image-2.1 + mask inpaint** | 本地 **SDXL inpaint**（`sdxl-inpaint.api.json`，steps 32；像素锁同样 0，但 mask 内平涂填充不稳、会刷渐变纹理，写中文必乱 → 只在非平涂素材上兜底）；⚠ 云 **无此腿**（见下行） | `backend=qwen shape=point feather=0` | 0 元 |
+| **④ 定稿局部微调**（擦/换，别处不许动） | **本地 qwen-image-2.1 + mask inpaint** | 本地 **SDXL inpaint**（`sdxl-inpaint.api.json`，steps 32；像素锁同样 0，但 mask 内平涂填充不稳、会刷渐变纹理，写中文必乱 → 只在非平涂素材上兜底）；⚠ 千问线 **无此腿**，云 wan2.7 只有 **bbox 半条腿**（见下注） | `backend=qwen shape=point feather=0` | 0 元 |
 
-> **云没有「只改框内」的能力**（`qwen-image-3.0-pro`，Token Plan，2026-11-01 两 seed 实测）：
+> **千问线没有「只改框内」的能力**（`qwen-image-3.0-pro`，Token Plan，2026-11-01 两 seed 实测）：
 > `parameters.mask_image_url` **不报错也不生效**（`input_image_count` 仍为 1）⇒ 只能指令编辑，
 > 整图重绘：锁死区 MAE **13.26 / 13.64**、整体 **dx +8 px**。要拿它交付必须接**程序化回贴**
 > （对齐后锁死区 **maxΔ = 0**）。价值位 = **背景有结构**的剔除（`remove-box-fill` 不适用、
 > 而本地 inpaint 效果不够时）；否则不花这张。证据 `production/qa/pro30-edit-cut-20261101.md`。
+>
+> ✅ **但云上有半条腿**：`wan2.7-image` 认 `parameters.bbox_list`（框选坐标，单图最多 2 框）——
+> 同一条指令同一张底图实测：框外漂移 **meanΔ 7.57（比千问降 43%）且 dx+0 dy+0 零平移**、框内 99.99% 重绘。
+> ⚠ **bbox 是指引不是像素锁**（框外 maxΔ 仍 165）⇒ ④ 的硬判据「mask 外 maxdiff=0」**单发仍不达标**，
+> 回贴必需、但**可省掉对齐那一步**。证据 `production/qa/wan27-token-plan-20261101.md`。
 
 ⚠ 本表价目与首选**均指按量付费（maas）通道**。Token Plan 订阅通道（`--profile token-plan`，Credits
 计量）**无 qwen-image-2.1 系、无非 pro 3.0**，只有 `qwen-image-3.0-pro` / `wan2.7-image[-pro]`；
@@ -89,7 +94,7 @@ python3 temp/menu-states/inpaint-add.py <tag> <seed_x> <seed_y> <半径> <半径
   `128` 找"灌不到的洞"（自动填文字/图标）→ `MaxFilter(7)`＝半径 3 膨胀吃抗锯齿边。
   实测：轮廓＝手输矩形面积的 **56.8%（CTA 胶囊）/ 38.2%（箭头钮）**，重绘时少刷 43%/62% 无关背景。
 - 批量切图走连通域（`cut-sprites-local` / `badge-contour.py`），缩放靠 40px 标准口径。
-- **为什么不用模型抠**：① 本地 2.1 输出**确为 RGBA 但 alpha 无语义**（`alpha=0` 占 0.00%、`alpha>128` 占 100%）；② SAM2 auto 在扁平 UI 只出**合并单 mask**、点提示 `coordinates_positive` 不可脚本化；③ 只要让模型重绘边界，它就刷一圈更亮的奶油色（接触阴影外环亮度 **+18.4** vs 程序化叠放 **−10.8**）→ **加法贴章一律不走 AI**；④ **云端也不行**（`qwen-image-3.0-pro` 实测：要「背景完全透明」⇒ 回图 `mode=RGB`，把**透明棋盘格直接画进 RGB**）——假透明的另一形态，比「没透明」危险：不查 `Image.mode` 就会当成品入库。
+- **为什么不用模型抠**：① 本地 2.1 输出**确为 RGBA 但 alpha 无语义**（`alpha=0` 占 0.00%、`alpha>128` 占 100%）；② SAM2 auto 在扁平 UI 只出**合并单 mask**、点提示 `coordinates_positive` 不可脚本化；③ 只要让模型重绘边界，它就刷一圈更亮的奶油色（接触阴影外环亮度 **+18.4** vs 程序化叠放 **−10.8**）→ **加法贴章一律不走 AI**；④ **云端也不行**，且假透明有**三种形态**：`qwen-image-3.0-pro` 要「背景完全透明」⇒ 回图 `mode=RGB` 并把**透明棋盘格直接画进 RGB**；`wan2.7-image` ⇒ 回图 **`mode=RGBA` 但 `alpha=0` 占 0.00%、min 253**（通道存在但无语义）。⚠ **只查 `Image.mode` 不够**（RGBA 会骗过它）——验收必须查 **alpha 分布**。
 - **何时才值得上分割模型**：照片级/渐变背景。此时唯一建议下载的权重＝ **SAM3.1 fp16（<2GB）**，用通用 `CheckpointLoaderSimple` 驱动 `SAM3_Detect`（提示词 `button:4` 可出多个**独立** mask）。GroundingDINO / ControlNet / 超分 / Layered 均判为不下（依据矩阵 §6.1）。
 - 两个必踩过的坑：`Image.fromarray()` 返回的图 `readonly=1`，`floodfill` 写入**静默落到副本**（必须 `.convert("L")`）；numpy 索引是 `[y, x]` 与 PIL 的 `(x, y)` 相反。
 
@@ -120,7 +125,7 @@ python3 games/beads/design/ai-workflows/remove-box-fill.py --check   # 内置合
 
 ## 5. 硬禁忌（均已实测确诊，勿重走）
 
-本地 i2i 做单元素资产（构图污染，bbox 77%）｜本地 i2i 做固定风格（锚不动版式）｜整图 `denoise=0.85` 当局部编辑（只会贴字）｜SDXL 写中文（必乱）｜矩形/椭圆 mask 做贴章（背景被一起重绘出白边接缝）｜**本地 8 步档做 t2i**（欠采样，高光 >250 占比 73–80%；8 步只在有底图约束的 inpaint/i2i 合法）｜小字：整屏多标签一律运行时程序化绘制（2.1 系出伪汉字、3.0 写拉丁、wan 留空），**单元素短文案可烧进图**（本地 25 步 4/4 全对，代价＝改文案要重出）。
+本地 i2i 做单元素资产（构图污染，bbox 77%）｜本地 i2i 做固定风格（锚不动版式）｜整图 `denoise=0.85` 当局部编辑（只会贴字）｜SDXL 写中文（必乱）｜矩形/椭圆 mask 做贴章（背景被一起重绘出白边接缝）｜**本地 8 步档做 t2i**（欠采样，高光 >250 占比 73–80%；8 步只在有底图约束的 inpaint/i2i 合法）｜小字：整屏多标签一律运行时程序化绘制（2.1 系出伪汉字、3.0 写拉丁、wan 留空），**单元素短文案可烧进图**（本地 25 步 4/4 全对；云 **wan2.7-image 3/3**，招牌「拼豆小铺」×2 seed + CTA「开始游戏」，8 汉字逐字无错、**12s**，代价＝改文案要重出）。
 
 ## 6. 交付纪律
 
