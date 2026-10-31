@@ -4891,6 +4891,39 @@ git diff -w -- games/beads/src games/beads/cocos/assets/scripts/game
 
 **未跑 `kb:sync`**。候选 1 条：「外采 AI 素材的规格里必须写死『一件一张 + 真 alpha + 无投影 + 8% 安全边』——整页图切件必然踩分辨率、元素咬合、遮挡区不可分割三个坑」。统计 = 新增 0 / 修改 0 / 激活 0 / 归档 0（本批）。
 
+## WXG-T-521
+
+### 1. 触发
+
+主菜单自 WXG-T-516 起已有「程序化暖带 + 四条暗角 + 左上光束 + 左下陶盆」。用户看过三态对照（`temp/online-inpaint/cmp_backdrop_3way.png`）后选 **右图形态**：整屏木屋照片当底、程序化光束与陶盆一并退场，并令「保留并提交」；橱窗底座浅色托板 **留到下一轮**（属既有 `caseFrame` 素材，单独改）。
+
+### 2. 改动（一条守卫、可逆）
+
+| 文件 | 改动 |
+|---|---|
+| `games/beads/src/config/tuning/menu.ts` | 新增 `MENU_TEXTURES.backdrop = 'bitmap__menu_backdrop'` |
+| `games/beads/src/view/meta-menu.ts` | `drawMenuBackdrop` 分两条腿：命中背板 ⇒ 1 次整屏 `blit`；缺图 ⇒ 原 `5 rect + 1 line` 逐字保留 |
+| `dev/harness/main.ts` | `MENU_FILE` 注册 `ui_menu_backdrop.png` |
+| `games/beads/cocos/assets/scripts/host/beads-blit-carrier.ts` | `BITMAP_ASSETS` 加 `ui_menu_backdrop`（未导入 ⇒ 不登记 ⇒ 回程序化腿） |
+| `games/beads/design/art/final/assets/menu/ui_menu_backdrop.png` + `cocos/assets/textures/` 同名拷贝 | 752×1344 · 32 色 · 187.9 KB |
+| `games/beads/tests/menu-backdrop.test.ts` | 4 条守卫（缺图 / 命中 / 光束陶盆退场 / 无背板时装饰照画） |
+
+为什么光束与陶盆也一起退场：背板里已自带左上斜射光与左下陶盆 + 木箱，叠上去会出现 **双花盆**（三态对照中图实测）。
+
+构建侧附带：本次构建为 `ui_menu_beam.png` / `ui_menu_pot.png` 补出了此前缺失的 `.meta`（两张图自 WXG-T-516 入库后一直无 `.meta` ⇒ 真机能否导入未验），同批入库。
+
+### 3. 验证
+
+- `npx tsc --noEmit`（beads）0 错；`pnpm run cocos:check` 2/2 通过（含镜像里的新键）
+- beads `vitest run` **118 文件 / 1413 通过 + 2 skipped**
+- `build:cocos`（release 基线档）49.7s → **v1.0.16**；`check:size` 主包 **3986.9 KB / 150 文件（余 109.1 KB）**；`check:cocos-mask` 全绿（`ui_menu_backdrop` 字节相同）
+
+### 4. 还账与风险
+
+1. **余量只剩 109.1 KB**（背板自身 187.9 KB）。beads 内部目标 = 平台红线 4096 KB ⇒ 下一张位图就可能撞墙。降本选项：0.75× 缩放或 32→16 色，估算可回到 ~250 KB 余量。
+2. 本次 1.0.16 产物 **同时包含工作树里未提交的 WXG-T-515 9-slice 改动**（5 张 9s 图 ≈ 64 KB）；版本号按构建递增，不按提交切分。
+3. 橱窗底座浅色托板未处理（用户裁定留到下一轮）。
+
 ## WXG-T-520
 
 ### 1. 触发

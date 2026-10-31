@@ -479,36 +479,45 @@ const MENU_WARM = {
 } as const;
 
 /**
- * 背景静态暖层（画在全部内容之下）：桌面暖带 + 左上斜射光束 + 四角暗角 + 陶盆。
- * 全部低对比、零动画 ⇒ 首帧/状态变化才重绘（脏帧门控照常生效）。
+ * 背景静态暖层（画在全部内容之下）：整屏木屋背板位 → 否则退回程序化底。
+ * `[P0 静态温暖 · 2026-10-31]` 位图腿命中时**不再叠**桌面暖带 / 分界线 / 四角暗角：
+ * 这三类已经烘进图里，叠上去会双重压暗（且多 0.51 Mpx 填充）。缺图 ⇒ 原程序化行为逐字不变。
+ * 光束与陶盆同理退场：背板里已带左上斜射光与左下陶盆/木箱，再叠会出「双花盆」。
  */
 export function drawMenuBackdrop(
     builder: RenderModelBuilder,
     palette: BeadsPalette,
     a: MenuAnchors,
 ): void {
-    // 桌面暖带 + 分界线（CTA 后画，会盖住它）
-    builder.rect(0, 0, DESIGN_W, MENU_WARM.deskH, {
-        fill: palette.woodSheen,
-        alpha: MENU_WARM.deskAlpha,
-    });
-    builder.line(0, MENU_WARM.deskH, DESIGN_W, MENU_WARM.deskH, palette.woodEdge, 1, MENU_WARM.deskEdgeAlpha);
-    // 四角暗角：四条边带，把视线压回橱窗
-    const v = MENU_WARM.vignette;
-    const s = MENU_WARM.vignetteSpan;
-    builder.rect(0, 0, DESIGN_W, s, { fill: palette.shadowInk, alpha: v * 0.9 });
-    builder.rect(0, a.H - s, DESIGN_W, s, { fill: palette.shadowInk, alpha: v * 0.7 });
-    builder.rect(0, 0, s, a.H, { fill: palette.shadowInk, alpha: v * 0.8 });
-    builder.rect(DESIGN_W - s, 0, s, a.H, { fill: palette.shadowInk, alpha: v * 0.8 });
+    const hasBackdrop = menuBitmapReady(MENU_TEXTURES.backdrop);
+    if (hasBackdrop) {
+        builder.blit(MENU_TEXTURES.backdrop, 0, 0, DESIGN_W, a.H);
+    } else {
+        // 桌面暖带 + 分界线（CTA 后画，会盖住它）
+        builder.rect(0, 0, DESIGN_W, MENU_WARM.deskH, {
+            fill: palette.woodSheen,
+            alpha: MENU_WARM.deskAlpha,
+        });
+        builder.line(0, MENU_WARM.deskH, DESIGN_W, MENU_WARM.deskH, palette.woodEdge, 1, MENU_WARM.deskEdgeAlpha);
+        // 四角暗角：四条边带，把视线压回橱窗
+        const v = MENU_WARM.vignette;
+        const s = MENU_WARM.vignetteSpan;
+        builder.rect(0, 0, DESIGN_W, s, { fill: palette.shadowInk, alpha: v * 0.9 });
+        builder.rect(0, a.H - s, DESIGN_W, s, { fill: palette.shadowInk, alpha: v * 0.7 });
+        builder.rect(0, 0, s, a.H, { fill: palette.shadowInk, alpha: v * 0.8 });
+        builder.rect(DESIGN_W - s, 0, s, a.H, { fill: palette.shadowInk, alpha: v * 0.8 });
+    }
     // 左上斜射光束：画在暗角之上（光连边缘一起照亮，否则会被左上两条边带吃掉约 8/255）。
     // 边界与衰减取自 lock-s88 实测（顶边 0.40·W、左边 0.34·H、羽化 170px）。
     // 缺图则该层缺席——光照是润色，不承担任何可读性，⛔ 不用程序化件顶替。
-    if (menuBitmapReady(MENU_TEXTURES.beam)) {
+    // 背板自带光照 ⇒ 命中背板时本层不画（否则光束把橱窗中部冲淡）。
+    if (!hasBackdrop && menuBitmapReady(MENU_TEXTURES.beam)) {
         builder.blit(MENU_TEXTURES.beam, 0, a.H * (1 - MENU_WARM.beamH),
             DESIGN_W * MENU_WARM.beamW, a.H * MENU_WARM.beamH);
     }
     // 左下陶盆（位图腿）。环境装饰 ⇒ 缺图不画、不占位，也不自造矢量替代件。
-    if (menuBitmapReady(MENU_TEXTURES.pot)) {
+    // 背板左下已带陶盆 ⇒ 命中背板时本层不画（否则双花盆压在木箱上）。
+    if (!hasBackdrop && menuBitmapReady(MENU_TEXTURES.pot)) {
         const pw = DESIGN_W * MENU_WARM.potW;
         builder.blit(MENU_TEXTURES.pot, DESIGN_W * MENU_WARM.potX,
             a.H * MENU_WARM.potBottom, pw, pw * MENU_WARM.potAspect);

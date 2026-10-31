@@ -428,6 +428,12 @@ export const MENU_TEXTURES = {
   /** v3.8 CTA「开始游戏」艺术字。缺资产回退程序化字。 */
   ctaLabel: 'bitmap__menu_cta_label',
   /**
+   * `[P0 静态温暖 · 2026-10-31]` 整屏木屋背景（本地 Qwen-Image-2.1 重绘，752×1344 转 32 色）。
+   * 暗角与桌面暖带已烘进图里 ⇒ 命中时 `drawMenuBackdrop` 不再叠程序化那 5 条（否则双重压暗）；
+   * 缺位图 ⇒ 退回原程序化底（Cocos 宿主未注册本键时行为不变）。
+   */
+  backdrop: 'bitmap__menu_backdrop',
+  /**
    * `[P0 静态温暖 · 2026-10-30]` 左下角陶盆（qwen-image-3.0 lock seed 88 切图，210×415）。
    * 环境装饰、不属布局骨架 ⇒ 缺位图**不画**，不占位、不回退程序化（同 boss 缩略口径）。
    */

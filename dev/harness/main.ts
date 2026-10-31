@@ -185,6 +185,8 @@ const MENU_FILE: Readonly<Record<string, string>> = {
   [MENU_TEXTURES.pot]: 'ui_menu_pot.png',
   // `[P0 静态温暖]` 左上光束（400×650 RGBA 白，alpha 承载提亮强度）。
   [MENU_TEXTURES.beam]: 'ui_menu_beam.png',
+  // `[P0 静态温暖 · 2026-10-31]` 整屏木屋背板（752×1344 转 32 色，188 KB）。
+  [MENU_TEXTURES.backdrop]: 'ui_menu_backdrop.png',
 };
 const tintCache = new TintSpriteCache(
   // 离屏 canvas 工厂（结构化注入 ⇒ framework/core 层 ⛔ 不碰 DOM，L2 合规）
