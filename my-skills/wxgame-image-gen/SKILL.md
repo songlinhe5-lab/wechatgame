@@ -13,8 +13,8 @@ description: 生成或修改小游戏图像（原型、二级页、切图、局�
 
 | 项 | 内容 |
 |---|---|
-| 真源 | `games/beads/design/ai-workflows/model-matrix.md`（§1 首选、§3 排除、§4 判据、§5 本地能力边界、§6.1 待授权下载） |
-| 脚本 | 云 `games/beads/design/ai-workflows/dashscope-generate.py`；本地 `submit-comfyui.py`（服务 `192.168.1.16:8188`，ComfyUI 0.39.0、显存 11.8GB）；局部重绘 `temp/menu-states/inpaint-add.py`；程序化擦除 `remove-box-fill.py`（同目录，见 §3.1） |
+| 真源 | `games/beads/design/ai-workflows/model-matrix.md`（§1 首选、§2.1 Token Plan 通道、§3 排除、§4 判据、§5 本地能力边界、§6.1 待授权下载）；**云端端点/参数实测值** → `backend-token-plan.md`（同目录） |
+| 脚本 | 云 `games/beads/design/ai-workflows/dashscope-generate.py`（`--profile maas｜token-plan`，两通道 key/base_url 完全隔离）；本地 `submit-comfyui.py`（服务 `192.168.1.16:8188`，ComfyUI 0.39.0、显存 11.8GB）；局部重绘 `temp/menu-states/inpaint-add.py`；程序化擦除 `remove-box-fill.py`（同目录，见 §3.1） |
 | 铁规 | ① 改判门槛＝同一判据 **≥2 个 seed 复测且结论一致**，单 seed 不得翻案；② 本端**无 SSH/无写接口**，要权重只能出清单让用户在服务端下（`/upload/image` 只进 `input/`） |
 
 ## 1. 四条能力 → 用哪个模型（top2）
@@ -26,6 +26,10 @@ description: 生成或修改小游戏图像（原型、二级页、切图、局�
 | **③ 单元素切图** | **本地 qwen-image-2.1 t2i** | 云 **qwen-image-3.0**（要背景最纯时，环 std 0.1–0.3） | `--ratio "1:1 (Square)" --mp 1`，25 步；出图**一律 bbox 自动裁** | 本地 0 元 / 云 0.18 |
 | **④ 定稿局部微调**（擦/换，别处不许动） | **本地 qwen-image-2.1 + mask inpaint** | 本地 **SDXL inpaint**（`sdxl-inpaint.api.json`，steps 32；像素锁同样 0，但 mask 内平涂填充不稳、会刷渐变纹理，写中文必乱 → 只在非平涂素材上兜底） | `backend=qwen shape=point feather=0` | 0 元 |
 
+⚠ 本表价目与首选**均指按量付费（maas）通道**。Token Plan 订阅通道（`--profile token-plan`，Credits
+计量）**无 qwen-image-2.1 系、无非 pro 3.0**，只有 `qwen-image-3.0-pro` / `wan2.7-image[-pro]`；
+是否因此改判「pro 排除」属矩阵 §2.1 的**待裁事项**，未裁前首选表不变。
+
 ## 2. 命令模板（照抄可用）
 
 **云 · 文生图**（`--ref` 才是图生图；`--seed` 会自动关掉 `prompt_extend`，否则云侧改写你的提示词）
@@ -34,6 +38,16 @@ description: 生成或修改小游戏图像（原型、二级页、切图、局�
 python3 games/beads/design/ai-workflows/dashscope-generate.py \
   --model qwen-image-2.1-turbo --size 1152*2048 --seed 42 --text "<正向提示词>"
 ```
+
+**云 · Token Plan 通道**（图与**图像编辑**同一端点；编辑＝`--ref <底图>` + 指令，实测 10.8s）
+
+```bash
+python3 games/beads/design/ai-workflows/dashscope-generate.py \
+  --profile token-plan --model qwen-image-3.0-pro --ref <底图.png> --text "<编辑指令>" --size '768*1024'
+```
+
+⛔ 两通道**不能混**：Token Plan 的 key 打专属实例 → `401 InvalidApiKey`；反向会**走按量通道意外扣费**。
+⚠ `--size` 不加引号会被 zsh 当 glob 吃掉（`no matches found`，本仓反复踩过）。
 
 **本地 · t2i**（描述体，**不能吃编辑指令**；提交器只认 `--host/--workflow/--prompt/--seed/--ratio/--mp/--out/--image/--override`，**没有 `--local` / `-p` / `--prefix`**——那是云脚本的参数）
 

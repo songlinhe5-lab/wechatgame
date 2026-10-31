@@ -1,6 +1,6 @@
 # 上下文预算报表（ctx/BUDGET.md）
 
-> 生成：2026-10-31 · 由 `tools/scripts/build-context-index.mjs` 自动生成，**请勿手改**。
+> 生成：2026-11-01 · 由 `tools/scripts/build-context-index.mjs` 自动生成，**请勿手改**。
 > token 为**估算值**（CJK≈1/字、ASCII≈1/4 字符；非精确 tokenizer），仅用于排行与阈值护栏。
 > 面向 agent 的阅读入口是 `ctx/ROUTES.md`；本表用于**人**复核预算与超限。
 
@@ -22,7 +22,7 @@
 
 | # | 文件 | tokens | 行数 | tier |
 |---:|---|---:|---:|:--:|
-| 1 | `production/TASKS-DETAIL.md` | 163508 | 5445 | normal |
+| 1 | `production/TASKS-DETAIL.md` | 165248 | 5504 | normal |
 | 2 | `games/beads/design/gdd/powerups-v2.md` | 144877 | 2328 | normal |
 | 3 | `games/beads/design/art/specs/assets-spec.md` | 121738 | 2109 | normal |
 | 4 | `production/qa/beads/g4-regression-report.md` | 86807 | 2201 | normal |
@@ -37,7 +37,7 @@
 | 13 | `games/beads/design/art/proposals/ui-style-redesign/menu-architecture.md` | 37618 | 978 | normal |
 | 14 | `games/beads/design/art/specs/accessibility.md` | 37140 | 201 | normal |
 | 15 | `memory/2026-10-04.md` | 28255 | 930 | normal |
-| 16 | `production/TASKS.md` | 26536 | 132 | hot |
+| 16 | `production/TASKS.md` | 26802 | 133 | hot |
 | 17 | `games/beads/design/gdd/save-progress.md` | 26135 | 305 | normal |
 | 18 | `games/beads/design/proposals/star-economy-and-retention.md` | 22195 | 763 | normal |
 | 19 | `docs/architecture/ui-architecture-beads.md` | 20393 | 253 | normal |

@@ -7,6 +7,7 @@
 
 | 层级 | skill | 职责 |
 |---|---|---|
+| 说明 | — | **云端 AI 能力的 key/端点与实测值不在 skill 里复述**（两处漂移风险）：唯一事实单 = `games/beads/design/ai-workflows/backend-token-plan.md`；标定证据 = `production/qa/decision-model-calibration-20261031.md` |
 | 编排 | `wxgame-orchestration` | 九阶段（0–8）流水线、spawn 模板（八要素，含必读 skill 路径）、成员→skill 路由表、PASS/CONCERNS/FAIL 与 G1–G4 挂钩、**§定期联审（工作室级节奏与汇总裁决，WXG-T-456）** |
 | 域·策划 | `wxgame-gdd-writer` | 一页纸概念 → systems-index（冻结常量）→ 八节 GDD → 十查评审；**§5 数值平衡核对**（CCGS `balance-check` 吸收，WXG-T-175；其 ① 漂移比对已改由 `check:frozen-values` 机械守，WXG-T-456） |
 | 域·策划 | `wxgame-gdd-review` | **定期 GDD 漂移审计（只读）**：§3 冻结常量 ↔ 代码 tuning ↔ 各分册三方比对；出漂移表 + PASS/CONCERNS/FAIL，不改文档与代码（WXG-T-434）。数值层已由 `check:frozen-values` 机械守 ⇒ 人只补门看不见的（SKIP 清单 + 魔法数字/范围蔓延） |
@@ -17,7 +18,7 @@
 | 域·美术 | `wxgame-art-spec-programmatic` | 程序化美术三件套、色盲三重编码、包体预算承诺 |
 | 域·美术 | `wxgame-art-review` | **定期美术还原度审计（只读）**：分层真源（`§3.1` UI token / `§3.2` 珠色 / 落地单+原型定稿 / `assets-spec`）↔ 实现的 hex 越界·版式·资产接线·六屏出图；出偏差表 + PASS/CONCERNS/FAIL，不改文档与代码（WXG-T-476）。⚠ 机械门管不了构图与层级 ⇒ 出图人工层不可省 |
 | 域·音频 | `wxgame-audio-spec` | 音频五件套**框架版**（数值 `[TODO]`，实做后回写） |
-| 域·QA | `wxgame-qa-gates` | 测试计划/硬判据用例/冒烟/缺陷分级/Playtest |
+| 域·QA | `wxgame-qa-gates` | 测试计划/硬判据用例/冒烟/缺陷分级/Playtest；**§4.1 可选预分类：领域决策模型给【归口+级别建议】，不替人定级、不得判是否阻断发布** |
 | 域·QA | `wxgame-quality-gate` | 执行 verify 全量门禁 + **强制工具调用报告表**（会话结论透明化，WXG-T-021） |
 | 域·发布 | `wxgame-release-checklist` | 六阶段发布、微信上架、版本策略、回滚预案 |
 | 域·数值 | `game-numeric-design` | 数值策划方法论（五特性模型 / 设定流程 / 公式工具库）；**冻结值仍以 systems-index §3 为准，本 skill 只供方法论** |
@@ -25,9 +26,9 @@
 | 域·平台 | `wxgame-minigame-bridge` | 微信小游戏**执行层·本仓适配**：预览 / 热重载 / 日志 / 真机二维码 / 上传开发版。能力同源 `@weadmin/weixin-minigame-helper-mcp@0.1.13`（根 `.mcp.json` + `.cursor/mcp.json` 锚定；vendor 留档 `my-plugins/`）。**现状：双前置未通——Cocos 编辑器未装、构建链未通（ADR-0009 P2），`games/<g>/build/wechatgame/` 不存在 → 全场景暂不可用**。原 `weixin-minigame-helper` 副本已改名改造消解同名双注册（ADR-0010） |
 | 域·AI | `game-ai-design` | NPC AI 三层解耦（decide/steer/path）、行为树、寻路；当前无 NPC 玩法，备用 |
 | 执行 | `indie-game-ost-pack` | 生成 8–15 首原创配乐（audio-spec 的执行层） |
-| 执行 | `game-ui-voice-pack` | 生成 UI 口播语音文件（audio-spec 的执行层） |
-| 执行 | `wxgame-audio-gen` | **生成音频资产并接工程**：BGM 走阿里云百炼 `fun-music`（同步返回音频 url，需 key+业务空间 ID，计费），音效走本地 `jsfxr`（零网络、零付费、确定性）。不依赖 Beatra ⇒ 无云账号也能交付。**接线现状：产物可用，运行时消费者未接 ⇒ 只生成文件不会响** |
-| 执行 | `wxgame-image-gen` | **生成/修改图像资产**：四能力（原型・固定风格二级页・单元素切图・定稿局部微调）各配 top2 模型与可复制命令；**抠图默认本地 PIL 洪水填充，默认不上大模型**。选型裁定正本仍是 `games/beads/design/ai-workflows/model-matrix.md` ⇒ 冲突以矩阵为准 |
+| 执行 | `game-ui-voice-pack` | 生成 UI 口播语音文件（audio-spec 的执行层）；需 Beatra 授权。**本仓已开 Token Plan ⇒ 口播默认先走 `wxgame-audio-gen §1.3`**（见该件运行纪律④） |
+| 执行 | `wxgame-audio-gen` | **生成音频资产并接工程**（三条产出路）：BGM 走阿里云百炼 `fun-music`（同步返回音频 url，需 key+业务空间 ID，计费）；音效走本地 `jsfxr`（零网络、零付费、确定性）；**UI 口播走 §1.3 云端 TTS（`gen-tts.py`，Token Plan，零 Beatra 依赖）**。⇒ 不装外部 pack 也能交付全套音频。**接线现状：产物可用，运行时消费者未接 ⇒ 只生成文件不会响** |
+| 执行 | `wxgame-image-gen` | **生成/修改图像资产**：四能力（原型・固定风格二级页・单元素切图・定稿局部微调）各配 top2 模型与可复制命令；**两条云后端 `--profile maas｜token-plan`**（后者多一条**图像编辑**腿，但无 2.1 系、无非 pro 3.0）；**抠图默认本地 PIL 洪水填充，默认不上大模型**。选型裁定正本仍是 `games/beads/design/ai-workflows/model-matrix.md`（端点参数实测值→同目录 `backend-token-plan.md`）⇒ 冲突以矩阵为准 |
 | 点名兜底 | `game-studio` | 通用引擎知识库（Godot/Unity/Unreal）；`disable-model-invocation: true`，仅明确点名时加载；references 按需单文件读取 |
 | 存档 | `game-dev-tool-free` | 市场 Boilerplate，不可用；未挂链接，留档备查 |
 

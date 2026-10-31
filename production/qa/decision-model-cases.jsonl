@@ -1,0 +1,18 @@
+{"state": {"现象": "存档非法导致启动崩溃卡死（currentLevel=99、version>1、半截 JSON）", "后果": "玩家再也进不去游戏"}, "expect": {"severity": "4", "owner": "save", "blocks_release": "true"}}
+{"state": {"现象": "杀进程后重启无法续进，从 L1 重来", "后果": "进度资产丢失，违反「回来能继续」承诺"}, "expect": {"severity": "4", "owner": "save", "blocks_release": "true"}}
+{"state": {"现象": "钢砖被炸弹破坏", "后果": "该关永远无法通关，形成必输死局"}, "expect": {"severity": "4", "owner": "gameplay", "blocks_release": "true"}}
+{"state": {"现象": "3 命耗尽不触发 GameOver", "后果": "生命系统失效，失败-重开闭环断裂"}, "expect": {"severity": "4", "owner": "gameplay", "blocks_release": "true"}}
+{"state": {"现象": "暂停期间世界仍在动", "后果": "玩家因系统而非操作丢命，被扣命且无法挽回"}, "expect": {"severity": "4", "owner": "gameplay", "blocks_release": "true"}}
+{"state": {"现象": "炸弹波及范围与 GDD 不符（对角 6224 也当命中）", "后果": "直接改变关卡策略与难度，视觉与伤害不同符会误导玩家，但关卡仍可通"}, "expect": {"severity": "3", "owner": "gameplay", "blocks_release": "true"}}
+{"state": {"现象": "连击倍率阶梯错误（comboStep≠3 或上限≠5）", "后果": "经济系统核心数值错误，破坏公平性，游戏仍可玩"}, "expect": {"severity": "3", "owner": "gameplay", "blocks_release": "true"}}
+{"state": {"现象": "减弱动效开启后仍播放屏震与粒子", "后果": "对前庭敏感玩家造成不适，可访问性承诺未兑现"}, "expect": {"severity": "3", "owner": "ui", "blocks_release": "true"}}
+{"state": {"现象": "重玩第 1 关清除了已解锁关卡与最高分", "后果": "进度资产被误删，玩家需从头打"}, "expect": {"severity": "3", "owner": "save", "blocks_release": "true"}}
+{"state": {"现象": "硬砖受损态在黑白/色盲下视觉不可辨", "后果": "血量可读性受损，但游戏可继续"}, "expect": {"severity": "2", "owner": "ui", "blocks_release": "false"}}
+{"state": {"现象": "重开本关后残留裂纹视觉（HP 已重置但图未刷新）", "后果": "状态误导，玩家以为还是受损态，可继续玩"}, "expect": {"severity": "2", "owner": "ui", "blocks_release": "false"}}
+{"state": {"现象": "最终结算面板不显示 NEW BEST", "后果": "正向反馈缺失，不影响成绩记录本身"}, "expect": {"severity": "2", "owner": "ui", "blocks_release": "false"}}
+{"state": {"现象": "场上道具 >3 或球数 >9（无上限保护）", "后果": "视觉混乱与性能风险，非死局"}, "expect": {"severity": "2", "owner": "gameplay", "blocks_release": "false"}}
+{"state": {"现象": "钢砖被播了破碎粒子但砖仍在", "后果": "仅视觉误导，无任何功能影响"}, "expect": {"severity": "2", "owner": "ui", "blocks_release": "false"}}
+{"state": {"现象": "分数飘字时长 700ms 偏离 600ms", "后果": "观感微差，不影响理解"}, "expect": {"severity": "1", "owner": "ui", "blocks_release": "false"}}
+{"state": {"现象": "连击数字从 ×5 变 ×10 时 HUD 轻微挤压未换行", "后果": "排版瑕疵，信息仍可读"}, "expect": {"severity": "1", "owner": "ui", "blocks_release": "false"}}
+{"state": {"现象": "assets-spec 资产替换提示词的拼写优化", "后果": "非玩家可见，无任何玩家侧影响"}, "expect": {"severity": "0", "owner": "tooling", "blocks_release": "false"}}
+{"state": {"现象": "v2 才做的慢放/磁吸/激光参数表未落", "后果": "非本期范围，当前版本无此功能"}, "expect": {"severity": "0", "owner": "tooling", "blocks_release": "false"}}

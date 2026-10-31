@@ -13,10 +13,10 @@ description: 生成可入库的 BGM（百炼 fun-music）或音效（本地 jsfx
 | 用 | 不用 |
 |---|---|
 | 运行时合成音色达不到要求，需要真素材（本仓 beads 即此例：v1.51/v1.52 改判） | 只想要事件表、bus、循环要求、响度关系 → `wxgame-audio-spec` |
-| 要一把生成整套 SFX 并出 base64 资产表 | 要 UI 口播语音 → `game-ui-voice-pack` |
+| 要一把生成整套 SFX 并出 base64 资产表 | 要 UI 口播语音 → §1.3 云端口播（零外部 pack）；或 `game-ui-voice-pack`（需 Beatra 授权） |
 | 要把资产算进包体预算并出实测表 | 要改玩法/时序数值 → 那是 `systems-index §3` 变更单 |
 
-## 1. 两条产出路径
+## 1. 三条产出路径
 
 ### 1.1 音效 —— 本地 jsfxr（推荐默认）
 
@@ -61,6 +61,27 @@ node my-skills/wxgame-audio-gen/scripts/gen-music.mjs \
 - ⚠ 该模型**不承诺无缝循环**：`--loop N` 只是裁到 N 秒并淡出；接缝质量必须真听复验，
   规格里（`audio-spec §3.2`）在验过之前不得写"无缝"。
 
+### 1.3 UI 口播 —— 云端口播 TTS（零 Beatra 依赖，需 Token Plan key）
+
+```bash
+# 单条
+python3 my-skills/wxgame-audio-gen/scripts/gen-tts.py --text "开始游戏" --id start \
+  --out games/beads/audio/voice/
+# 批量：每行 `id<TAB>文本`
+python3 my-skills/wxgame-audio-gen/scripts/gen-tts.py --list lines.tsv --out games/beads/audio/voice/
+```
+
+- 模型 `qwen-audio-3.0-tts-plus`（2026-10-31 实测可用）；key 读 `TOKEN_PLAN_API_KEY`，
+  端点从 `TOKEN_PLAN_BASE_URL` 剥出。**⚠ 这是订阅通道**，与 §1.2 按量付费的
+  `DASHSCOPE_API_KEY` **不互通**（混用 401 或走错计费通道），细则见
+  `games/beads/design/ai-workflows/backend-token-plan.md`。
+- 实测：「开始游戏」1248 ms / 24.5 KB；「这一关过了，去下一关」2304 ms / 45.1 KB（mp3）。
+- ⚠ **音色清单 `[TODO]`**：只验过 `longanhuan_v3.6`；非法音色回 `Engine error [411]` 且**不吐枚举**，
+  其余音色名需查官方页再填，**不得猜**。
+- 与 §1.2 同病：`output.audio.url` **24h 过期** ⇒ 脚本设当场下载，不只存 url。
+- 本脚本**不截断、不改 id、不发明规格**：时长上限与是否进 `AUDIO_CLIP_*` 闭合集，仍看
+  `wxgame-audio-spec`；接进 `audio-voices.ts` 时按 §2 末两行判「走 `asset` 还是 `assetFile`」。
+
 ## 2. 接线状态（诚实清单，别把"有文件"当"有声音"）
 
 | 环节 | 状态 |
@@ -93,4 +114,5 @@ weapp 真机 | ⚠ `[R]` **未取证**：`wx.createWebAudioContext` 是否提供
 - `wxgame-audio-spec` = 规格（要什么音、多长、多响、什么红线）；**本 skill 不发明规格**，只照它产资产。
 - `indie-game-ost-pack` / `game-ui-voice-pack` = 依赖 Beatra 授权与 credits 的外部 pack；本 skill **不依赖它们**，
   目的是在"无服务器、未开云账号"时也能交付音频资产（音效全本地；音乐可选百炼，需 key）。
+  ⚠ 口播已有第二条零 Beatra 的路（§1.3 云端 TTS），**开了 Token Plan 就优先走它**，不必装外部 pack。
 - 与玩法数值无关：不改 `§3` 时长/时序冻结值；`AUDIO_CLIP_TOTAL` 之类是**闭合集**，加/减 clip 必须走变更单并六方原子批。

@@ -6,19 +6,30 @@ games/beads/design/ai-workflows/dashscope-generate.py —— 阿里云百炼（D
 本地 qwen-image 2.1 走 submit-comfyui.py；本脚本管**云端**后端（qwen-image-3.0-pro、
 wan2.7-image 等），提示词从 temp/beads-positive.sh 正本取（与本地逐字一致，便于横比）。
 
+**两套云端后端（--profile）**，key 与 base_url 完全隔离、混用会 401 或走错计费通道：
+  · `maas`（缺省）＝ 按量付费专属实例，读 `DASHSCOPE_API_KEY`；
+  · `token-plan` ＝ Token Plan 订阅，读 `TOKEN_PLAN_API_KEY` + `TOKEN_PLAN_BASE_URL`。
+    请求/响应格式与 maas 逐字兼容（2026-10-31 实测），差别只在**在册模型集**：
+    token-plan 侧无 qwen-image-2.1 系与非 pro 3.0，只有 qwen-image-3.0-pro / wan2.7-image[-pro]。
+
 用法：
   # 单模型 × 指定关（boss 或 1–8 号 subject）
   python3 dashscope-generate.py --model qwen-image-3.0-pro --level boss
   python3 dashscope-generate.py --model wan2.7-image --level 5
-  # 多模型 × 同一关（横比）；不给 --model 则跑全部已注册模型
+  # 多模型 × 同一关（横比）；不给 --model 则跑该 profile 的全部已注册模型
   python3 dashscope-generate.py --model qwen-image-3.0-pro --model wan2.7-image --level boss
+  # 走 Token Plan（生图与图像编辑同一端点，编辑＝加 --ref）
+  python3 dashscope-generate.py --profile token-plan --model qwen-image-3.0-pro \\
+      --ref <底图.png> --text "<编辑指令>" --size 768*1024
   # 直接给提示词（临时试构图）
   python3 dashscope-generate.py --model wan2.7-image --text "A flat vector red heart ..."
   # 指定出图尺寸（竖屏原型）：不给 --size 时 qwen 线一律回 2048x2048 方图
   python3 dashscope-generate.py --model qwen-image-3.0 --text "..." --size 1152*2048
 
 出图落 temp/dashscope-out/<level>/<model>.png（不入库），供走 studio /api/generate 比对。
-仅标准库（urllib）；DASHSCOPE_API_KEY 读 .env.local。
+仅标准库（urllib）。key 按 --profile 取：maas → `DASHSCOPE_API_KEY`，
+token-plan → `TOKEN_PLAN_API_KEY` + `TOKEN_PLAN_BASE_URL`（端点由 base_url 剥掉
+`/compatible-mode` 尾巴推得，⛔ 不硬编码 host）；两者都读 `.env.local`。
 """
 import json
 import os
@@ -40,13 +51,41 @@ def _repo_root(start):
 
 REPO = _repo_root(os.path.dirname(os.path.abspath(__file__)))
 POSITIVE = os.path.join(REPO, "temp", "beads-positive.sh")
-ENDPOINT = ("https://llm-0jiu1fyll3llwwn0.cn-beijing.maas.aliyuncs.com"
-            "/api/v1/services/aigc/multimodal-generation/generation")
+NATIVE_PATH = "/api/v1/services/aigc/multimodal-generation/generation"
 OUT = os.path.join(REPO, "temp", "dashscope-out")
+
+
+def _env(name):
+    for fn in (".env.local", ".env"):
+        p = os.path.join(REPO, fn)
+        if os.path.exists(p):
+            m = re.search(rf"^{name}=(.+)$", open(p).read(), re.M)
+            if m:
+                return m.group(1).strip().strip('"').strip("'")
+    return None
+
+
+# profile → (endpoint, key 变量名)。token-plan 的 host 从 TOKEN_PLAN_BASE_URL 剥掉
+# /compatible-mode 尾巴得到——⛔ 不得硬编码那串 URL，它随套餐地域变。
+PROFILES = {
+    "maas": ("https://llm-0jiu1fyll3llwwn0.cn-beijing.maas.aliyuncs.com" + NATIVE_PATH,
+             "DASHSCOPE_API_KEY"),
+    "token-plan": (None, "TOKEN_PLAN_API_KEY"),
+}
+
+
+def resolve(profile):
+    if profile != "token-plan":
+        return PROFILES[profile][0]
+    base = _env("TOKEN_PLAN_BASE_URL")
+    if not base:
+        raise SystemExit("未找到 TOKEN_PLAN_BASE_URL（.env.local）")
+    return base.split("/compatible-mode")[0].rstrip("/") + NATIVE_PATH
 
 # 已注册云端模型 → 单图 parameters（wan2.7 示例是 sequential 多图，这里取单图档）
 MODELS = {
-    # 非 pro 3.0：model-matrix §1 ③ 云端备选（背景最纯，0.18 元/张）；pro 版按用户指示排除。
+    # 非 pro 3.0：model-matrix §1 ②③ 基准（背景最纯，0.18 元/张）。
+    # ⚠ 仅 maas 有；token-plan 侧不在册，只认 qwen-image-3.0-pro / wan2.7-image[-pro]。
     "qwen-image-3.0": {"prompt_extend": True},
     "qwen-image-3.0-pro": {"prompt_extend": True},
     "qwen-image-2.1-pro": {"prompt_extend": True},
@@ -55,14 +94,11 @@ MODELS = {
 }
 
 
-def load_key():
-    for fn in (".env.local", ".env"):
-        p = os.path.join(REPO, fn)
-        if os.path.exists(p):
-            m = re.search(r"^DASHSCOPE_API_KEY=(.+)$", open(p).read(), re.M)
-            if m:
-                return m.group(1).strip().strip('"').strip("'")
-    raise SystemExit("未找到 DASHSCOPE_API_KEY（.env.local）")
+def load_key(profile="maas"):
+    p = _env(PROFILES[profile][1])
+    if not p:
+        raise SystemExit(f"未找到 {PROFILES[profile][1]}（.env.local）")
+    return p
 
 
 def _parse_positive():
@@ -103,7 +139,7 @@ def find_image_urls(obj):
     return urls
 
 
-def call(model, params, prompt, key):
+def call(model, params, prompt, key, endpoint=None):
     # prompt 可为字符串（纯文生图）或 content 列表（图生图：[{image},{text}]）
     content = [{"text": prompt}] if isinstance(prompt, str) else prompt
     body = {
@@ -112,7 +148,7 @@ def call(model, params, prompt, key):
         "parameters": params,
     }
     req = urllib.request.Request(
-        ENDPOINT, data=json.dumps(body).encode(), method="POST",
+        endpoint or PROFILES["maas"][0], data=json.dumps(body).encode(), method="POST",
         headers={"Content-Type": "application/json", "Authorization": f"Bearer {key}"})
     ctx = ssl.create_default_context()
     with urllib.request.urlopen(req, timeout=300, context=ctx) as r:
@@ -128,10 +164,16 @@ def download(url, path):
 def _parse_args(argv):
     models, level, text, ref, seed = [], "boss", None, None, None
     size = None
+    profile = "maas"
     i = 0
     while i < len(argv):
         a = argv[i]
-        if a == "--model":
+        if a == "--profile":
+            i += 1
+            if argv[i] not in PROFILES:
+                raise SystemExit(f"未知 --profile {argv[i]}（可用 {'/'.join(PROFILES)}）")
+            profile = argv[i]
+        elif a == "--model":
             i += 1
             models.append(argv[i])
         elif a == "--level":
@@ -155,18 +197,20 @@ def _parse_args(argv):
         else:
             models.append(a)  # 兼容旧位置参数：直接给模型名
         i += 1
-    return models, level, text, ref, seed, size
+    return models, level, text, ref, seed, size, profile
 
 
 def main():
     argv = __import__("sys").argv[1:]
-    models, level, text, ref, seed, size = _parse_args(argv)
-    models = models or list(MODELS)
+    models, level, text, ref, seed, size, profile = _parse_args(argv)
+    # 不给 --model 时只跑该 profile 在册的模型（token-plan 侧无 2.1 系与非 pro 3.0，
+    # 拿全列表去撞会逐条 404 Model not exist）。
+    models = models or (list(MODELS) if profile == "maas" else ["qwen-image-3.0-pro", "wan2.7-image"])
     prompt = text or load_prompt(level)
     tag = "custom" if text else level
     out_dir = os.path.join(OUT, tag)
     os.makedirs(out_dir, exist_ok=True)
-    key = load_key()
+    key, endpoint = load_key(profile), resolve(profile)
     content = []
     if ref:  # 图生图：把参考图 base64 内联进 content（qwen-image-edit / wan 参考图腿）
         import base64
@@ -182,10 +226,10 @@ def main():
         if size:
             params = {**params, "size": size}
         slug = model.replace(".", "").replace("-", "_")
-        print(f"\n=== {model} · {tag}{' · i2i' if ref else ''}{' · ' + size if size else ''}{' · seed' + str(seed) if seed is not None else ''} ===")
+        print(f"\n=== {model} · {profile} · {tag}{' · i2i' if ref else ''}{' · ' + size if size else ''}{' · seed' + str(seed) if seed is not None else ''} ===")
         t0 = time.time()
         try:
-            resp = call(model, params, content, key)
+            resp = call(model, params, content, key, endpoint)
         except urllib.error.HTTPError as e:
             msg = e.read().decode()[:400]
             print(f"  ✗ HTTP {e.code}: {msg}")

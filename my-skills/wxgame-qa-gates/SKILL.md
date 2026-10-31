@@ -52,6 +52,32 @@ description: 写 QA 文档（测试计划、用例、冒烟、缺陷分级、Pla
 **报告模板（每条 Bug 必含）**：`[P?] 一句话标题（现象，不写猜测）` +
 复现步骤 / 期望 vs 实际 / 环境 / 证据链接。分级要落到本项目风险登记表对应条目。
 
+### 4.1 可选预分类：领域决策模型（**不替人定级**）
+
+`decision-model-preview`（阿里云 Token Plan，限时免费）可一次前向给出【归口 + 级别建议】，
+服务端 46–75 ms、零输出 token：
+
+```bash
+python3 tools/scripts/decision-model.py --check     # 离线自检（不联网）
+python3 tools/scripts/decision-model.py \
+  --cases production/qa/decision-model-cases.jsonl \
+  --questions production/qa/decision-model-questions.json    # 重标定（改过问题表必跑）
+```
+
+接线边界（2026-10-31 用 18 条 `bug-severity.md` 真实场景标定，正本
+`production/qa/decision-model-calibration-20261031.md`）：
+
+| 边界 | 依据 |
+|---|---|
+| ✅ **归口建议**（owner）可用：把人从「找谁」里解放 | 17/18 且可分（阈值 0.51） |
+| ⚠ **级别只当提示**：看它给的那档 ±1 复核；**P0–P4 裁定权仍在 `bug-severity.md`** | MAE 1.00 档 |
+| ⛔ **不得判「是否阻断发布」** | `true` 侧全错，漏判 P0 代价不可逆 |
+| ⛔ **confidence 不得当自动放行依据** | 错样最高置信 0.94 ⇒ 置信度与对错脱钩 |
+| ⛔ **不进游戏运行时**（做 DDA 等） | state 只吃文本、吃套餐配额、隐私与审核面（报告 §5 四条） |
+
+⚠ 写问题表时：**选项是穷举分类就别补 `other` 兜底项**（实测补了会把一半样本吸走，
+命中从 18/18 跌到 9/18）——这与官方文档建议相反。
+
 ## 5. Playtest 计划（`playtest-plan.md`）
 
 - **三轮框架**：① 新玩家首次体验（FTUE）→ ② 中盘与难度曲线 →

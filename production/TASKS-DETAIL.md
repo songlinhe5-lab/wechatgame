@@ -4891,6 +4891,65 @@ git diff -w -- games/beads/src games/beads/cocos/assets/scripts/game
 
 **未跑 `kb:sync`**。候选 1 条：「外采 AI 素材的规格里必须写死『一件一张 + 真 alpha + 无投影 + 8% 安全边』——整页图切件必然踩分辨率、元素咬合、遮挡区不可分割三个坑」。统计 = 新增 0 / 修改 0 / 激活 0 / 归档 0（本批）。
 
+## WXG-T-526
+
+### 1. 触发与范围
+
+用户接入阿里云 **Token Plan**（21 项模型清单），令：「配置到 .env 里，然后挑出一些可以使用的能力，**集成到 skill 里**，尤其是生图、生语音、生视频、图像编辑；**着重看到领域模型如何集成到我现在的系统里**」。key/端点配置已在上轮落 `.env.local`（三变量，gitignore 覆盖）；**本单交付的是「集成」这一半**。
+
+落点取向（ponytail 阶梯结论）：**不新建 skill**，在既有四件执行层上各加一条腿 ⇒ 生图复用现脚本加 `--profile`，语音新建一条 TTS 脚本，领域模型新建一条标定脚本，视频**不写代码**（只异步、真跑即吃 Credits，YAGNI）。
+
+| 产物 | 件 | 性质 |
+|---|---|---|
+| 生图双后端 | `games/beads/design/ai-workflows/dashscope-generate.py` | 加 `--profile maas｜token-plan`；`load_key`/`call` 给默认参保 caller（`boss-tune.py:48`）零改动 |
+| 云端 TTS | `my-skills/wxgame-audio-gen/scripts/gen-tts.py` | 新建，零 Beatra 依赖 |
+| 领域模型 | `tools/scripts/decision-model.py` | 新建，带 `--check` 离线自检 + 标定 + 阈值建议 |
+| 事实单 | `games/beads/design/ai-workflows/backend-token-plan.md` | 新建，key/端点/实测值**唯一集中处** |
+| 标定证据 | `production/qa/decision-model-calibration-20261031.md` + `…-questions.json` + `…-cases.jsonl` | 18 条真样本三版对照 |
+| skill 回写 | `my-skills/{INDEX,wxgame-image-gen,wxgame-audio-gen,wxgame-qa-gates,game-ui-voice-pack}/SKILL.md` | 只留**指针**，不复述端点 |
+
+### 2. 四条腿实测（端点靠存在性探测法定位）
+
+探测法 = POST `{"model":"__probe__"}`：回 `Model not exist` 而非 path 404 ⇒ 端点存在 + 鉴权已过 + **零成本**。四条腿全靠它定位。
+
+| 能力 | 端点轨 | 实测 |
+|---|---|---|
+| 生图 | 原生 `multimodal-generation` | `qwen-image-3.0-pro` 768\*1024 自由档直出；512² 23.9 s；usage 记号 `qima_input_1k/qima_output_1k` |
+| 图像编辑 | **同一端点**，多张 `--ref` | ref=背板基准件 → 200、10.8 s、`input_image_count: 1` |
+| 语音合成 | `/services/audio/tts/SpeechSynthesizer` | 2 条 mp3（1248 ms/24.5 KB、2304 ms/45.1 KB）；service 段是 **audio** 非 aigc |
+| 视频 | **只异步**（同步 403） | 未实跑，未写脚本 |
+| 决策模型 | `POST {BASE}/systemone` | 262–275 input tok、服务端 46–75 ms、**零输出 token** |
+
+**两个致命缺口**（决定「云 api 为基准」这条裁定不能直接迁到 Token Plan）：`qwen-image-2.1` 系**不在册**（矩阵 §1 ① 首选打不到）、**非 pro 的 3.0 不在册**（§1 ②⑤ 基准稿产线用的正是它）；`happyhorse` 三个与 `fun-music` 亦不在册。⇒ 矩阵只加 §2.1 短注，**未擅自翻「两个 pro 排除」案的**，改判待用户拍板。
+
+### 3. 领域模型标定：三版对照，两条与官方文档相反
+
+样本取 `production/qa/bug-severity.md` 的 P0–P4 **真实场景**（该文档自注「所有示例均为本项目真实场景」）⇒ 期望值非编造。
+
+| 版 | 变量 | owner | severity | blocks |
+|---|---|---|---|---|
+| A | state 只有标题、owner 带 `other` 兜底 | 9/18（9 条被吸进 other） | 0/18（**假象**，见下） | 10/18 |
+| B | 去掉 `other` | **18/18** | 同上 | 同上 |
+| C | state 补「后果」字段 | 17/18（阈值 0.51 可分） | 11/18 **MAE 1.00 档** | 15/18 仍不可分 |
+
+三条硬结论：① **`other` 兜底项会吸走样本**，与官方文档「建议补 other」直接冲突 ⇒ 穷举分类别补兜底；② `score` 返回的是**概率加权等级索引（浮点 3.75）不是整数**，我首版拿字符串比 ⇒ 报出假 0/18，正确口径是最近邻 round + 有序量表看 MAE（已写成 `--check` 断言防回退）；③ **confidence 与对错脱钩**（错样最高置信 **0.94**）⇒ 标定不出可分离阈值，不得当自动放行依据。
+
+**接线裁定**：owner ✅ 可接（预分类）／severity ⚠ 只当提示／blocks_release ⛔ 不接／**游戏运行时 DDA ⛔ 不接**（四条理由：延迟配额、隐私域名、不确定可复现、本仓**根本没有连败干预机制** —— grep `games/beads/src` 只有静态 `difficultyOf` 分带，凭空塞模型=发明需求）。
+
+### 4. 预算与坑（本轮撞到的两处）
+
+- **ctx:check B 项**：`model-matrix.md` 已 7160/8000 tok（剩 840）⇒ 详情**必须**另立 `backend-token-plan.md`，矩阵只加短注。这也是「skill 里只留指针」的同一动机：key/端点/实测值集中一处，否则必两处漂移。
+- **`zsh` 把 `--size 512*512` 当 glob** → `no matches found`（老坑，`memory/2026-10-12` 在册），加引号；提醒已写进 `wxgame-image-gen §2`。
+- **改函数签名前先 grep caller**：`load_key()` 有外部 caller ⇒ 用默认参保零改动。
+
+### 5. 遗留
+
+① 两个 pro 在新计量下是否改判（待裁）；② TTS 音色清单 `[TODO]`（只验过 `longanhuan_v3.6`，非法值回 411 且不吐枚举）；③ `wan3.0-video` 异步链路与 ASR **未实跑**；④ **安全债**：key 明文进过对话历史，建议轮换（事实单 §1 已记）。
+
+### 6. 沉淀统计
+
+**未跑 `kb:sync`**（本批纯工具链与文档，未碰玩法/冻结值）。候选 3 条：①「穷举分类的选项集里加 `other` 兜底项会把样本吸走，命中从 18/18 跌到 9/18 —— 与官方建议相反」；②「有序量表输出若是概率加权浮点索引，拿字符串比标注会报出假的全错；判据口径要先于结论」；③「新云后端的能力清单先做存在性探测（`__probe__` 回 Model not exist = 零成本确诊端点+鉴权），再谈实跑」。统计 = 新增 0 / 修改 0 / 激活 0 / 归档 0（本批）。
+
 ## WXG-T-525
 
 ### 1. 触发与裁定

@@ -7,6 +7,9 @@ description: 当用户要生成游戏 UI 口播/语音文件时使用：按已�
 > ① 首次使用先执行 `python3 scripts/mcp_client.py update --auto off` 关闭静默自动更新——未确认即替换文件对 monorepo 风险过高；如需升级先用 `--check` 查版本，经用户确认后再 `update`。
 > ② 本包不路由任何相邻/第三方 skill；用户提及本家族之外的 Beatra 包（如 short-video-bgm-studio）时，如实告知本仓未安装、不可路由。
 > ③ 通用安装/计费/任务参考文档在共享层 `my-skills/_beatra-runtime/references/`（本包 references 内对应文件为相对符号链接）；`scripts/` 因含各包安装常量而各自独立，均为唯一正本。
+> ④ **本仓已开阿里云 Token Plan** ⇒ 口播多了一条**零 Beatra 依赖、零外部授权**的路：见 `my-skills/wxgame-audio-gen/SKILL.md §1.3`（`gen-tts.py`，2026-10-31 实测可用）。
+> 两路并存时：**默认先走 §1.3**（不吃 Beatra credits）；需 Beatra 特有的标签/发音能力时回本包。
+> 本条不是“伪回退”——§2 那句“不发明回退路径”仍适用于**未安装**的相邻 Beatra 包。
 
 
 # 游戏配音·UI语音
