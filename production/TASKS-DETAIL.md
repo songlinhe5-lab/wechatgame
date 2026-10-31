@@ -5079,7 +5079,9 @@ git diff -w -- games/beads/src games/beads/cocos/assets/scripts/game
 
 ### 4. 产出与读数
 
-`games/beads/design/art/proposals/menu-3d-style-20261030/cut-sign-scene/`：
+> ⛔ **2026-10-31 用户裁定：抠图源内容已改 ⇒ 本目录（`cut-sign-scene/`）与 `cut-sign/` 已整体删除作废**。下表行留档，供将来重抠时对照口径（几何多边形读点、关反预乘、1px 内收 + 0.9px 羽化）。招牌新稿待重抠后再接。
+
+`games/beads/design/art/proposals/menu-3d-style-20261030/cut-sign-scene/`（已删除）：
 
 | 文件 | 内容 |
 |---|---|
