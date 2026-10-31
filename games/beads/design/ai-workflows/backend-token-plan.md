@@ -79,6 +79,11 @@ python3 games/beads/design/ai-workflows/dashscope-generate.py \
 
 读数与完整实验设置（两 seed 对照 + 目测）→ `production/qa/pro30-edit-cut-20261101.md`。
 
+**能力位补充**（同日续测 ① 新页面首稿 / ② 固定风格二级页，各两 seed vs 按量腿）：**均未优于现首选**
+—— ② 机检两项反向、目测持平（两者都直接继承参考图实景背景）；① 只赢在「两张已拥有」这类**数量词**
+精确遵循（2/2 vs 0/2），输在把**实景道具**画进界面（0/2 vs 2/2）。⇒ 本通道图像的价值 =
+「背景有结构时的剔除」那一张，**不是「更好的生图」**。证据 `production/qa/pro30-proto-bench-20261101.md`。
+
 ## 4. UI 口播 TTS（已实测 ✓）
 
 ```bash
