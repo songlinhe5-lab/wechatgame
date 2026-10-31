@@ -19,3 +19,25 @@ temp/ 不入库 ⇒ 丢了按下面重建；HarmonicFill 是 5 点均值 Jacobi�
 
 产物：bg-plate-clean-hybrid.png（定稿候选）；step1-ai-masked-v{1,2}.png / step2-harmonic-fill.png 为过程证据。
 判据口径：masked 编辑**没有**像素锁（框外 meanΔ 1~14，随 mask 面积涨），要 maxΔ0 只能走程序化填充。
+
+───────────────────────────────────────────────────────────────
+⑤ 云端路线（用户 2026-10-31 判「本地三步效果不太行」后改走）＝ **基准件**
+模型 云 qwen-image-3.0（指令编辑，无 mask/bbox ⇒ 整图重生成），0.18 元/张，33~35s。本轮共 2 张 = 0.36 元。
+
+  python3 games/beads/design/ai-workflows/dashscope-generate.py \
+    --model qwen-image-3.0 --ref <源图> --text "$(cat p-cloud-clean.txt)" --seed 7
+  → 输出固定 1520×2736（cloud-q3-s7-2x.png，2× 正本）；缩回 1× 用 LANCZOS。
+
+回贴（temp/plate-cut-20261031/cloudpaste.py，WXG-T-523 口径：只取编辑区，框外逐像素锁原图）
+  python3 cloudpaste.py <源图> <云图1x> mask-cloud-all.png bg-plate-clean-cloud-q3.png 5
+  锚点位移门：保留区最佳平移 dx+2 dy+3（≤10px ⇒ 通过，⛔ 仿射回正）；保留区 MAE 13.1 → 10.4。
+  锁死区（羽化权重为 0 的 45.3%）maxΔ = 0。⚠ 判据必须按**羽化外**算，按 mask 外算会被 GaussianBlur 长尾误报 maxΔ 89。
+
+两轮差异（确诊）：seed 7 第一轮云侧在招牌上方画了一根漂浮木条 + 一颗蓝珠 —— 其实**是原图招牌上沿与压珠没被蒙版盖住**：
+  cut-sign.sh 那 21 顶点的上沿读低了近 25px（真实上沿 y65..90）。maskgen-plate.py 已补 rect(140,62,630,112)。
+  同一条指令加一句「墙面与横梁上不得残留任何搁板、木条、挂钩、珠子或漂浮物」后重出，顶带干净。
+
+命中：顶板 / 吊绳 / 四钮 / 两箭头（箭头落在柜柱上，云把柱子补回来了 —— 这是程序化填充做不到的）/ CTA 地板 / 橱窗齿轮。
+柜内云补了一个圆形展示台（原稿转台的延续），比三步版的糊面可用 —— 程序化贴拼豆作品正好落在它上面。
+产物：bg-plate-clean-cloud-q3.png（**背板基准件**）；cmp-backdrop-local-vs-cloud.png 为两路线对照。
+
