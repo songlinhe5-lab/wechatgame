@@ -187,6 +187,9 @@ const MENU_FILE: Readonly<Record<string, string>> = {
   [MENU_TEXTURES.beam]: 'ui_menu_beam.png',
   // `[P0 静态温暖 · 2026-10-31]` 整屏木屋背板（752×1344 转 32 色，188 KB）。
   [MENU_TEXTURES.backdrop]: 'ui_menu_backdrop.png',
+  // `[WXG-T-522]` 左右翻页钮（整枚一张，木框 + 奶油箭头）。
+  [MENU_TEXTURES.btnArrowLeft]: 'ui_btn_arrow_left.png',
+  [MENU_TEXTURES.btnArrowRight]: 'ui_btn_arrow_right.png',
 };
 const tintCache = new TintSpriteCache(
   // 离屏 canvas 工厂（结构化注入 ⇒ framework/core 层 ⛔ 不碰 DOM，L2 合规）

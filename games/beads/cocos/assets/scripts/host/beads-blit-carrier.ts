@@ -138,6 +138,9 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
     // `[P0 静态温暖]` 左下陶盆（环境装饰）。未导入 ⇒ 不登记 ⇒ `drawMenuBackdrop` 不画该件。
     [MENU_TEXTURES.pot]: { path: 'ui_menu_pot' },
     [MENU_TEXTURES.beam]: { path: 'ui_menu_beam' },
+    // `[WXG-T-522]` 左右翻页钮。未导入 ⇒ 不登记 ⇒ 回旧圆钮+图标双腿。
+    [MENU_TEXTURES.btnArrowLeft]: { path: 'ui_btn_arrow_left' },
+    [MENU_TEXTURES.btnArrowRight]: { path: 'ui_btn_arrow_right' },
     // `[P0 静态温暖 · 2026-10-31]` 整屏木屋背板。未导入 ⇒ 不登记 ⇒ `drawMenuBackdrop` 走程序化底。
     [MENU_TEXTURES.backdrop]: { path: 'ui_menu_backdrop' },
     [MENU_TEXTURES.woodGrain]: { path: 'ui_wood_grain' },

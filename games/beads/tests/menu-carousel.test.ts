@@ -64,7 +64,7 @@ describe('翻页状态机', () => {
 describe('橱窗绘制', () => {
     const lv = LEVELS[0]!;
 
-    it('通关飘带整枚在裁切区里，进行中画沙漏不画旧的 64² 章', () => {
+    it('通关飘带整枚在裁切区里；进行中不画沙漏也不画旧 64² 章（单一作品）', () => {
         setMenuBitmapResolver(() => true);
         const cleared = frame(dataFor(lv, { carouselState: 'cleared' }));
         const clip = cleared.find((c) => c.kind === 'clip') as { x: number; y: number; w: number; h: number };
@@ -78,7 +78,8 @@ describe('橱窗绘制', () => {
         expect(seal.y + seal.h).toBeLessThanOrEqual(clip.y + clip.h + 0.01);
         const pushing = frame(dataFor(lv, { carouselState: 'pushing' }));
         expect(pushing.some((c) => c.kind === 'blit' && c.textureId === ARCS[0].textureId)).toBe(true);
-        expect(pushing.some((c) => c.kind === 'blit' && c.textureId === MENU_TEXTURES.badgeProgress)).toBe(true);
+        // `[WXG-T-522]` 单品作品：中央沙漏退场，画面只留作品。
+        expect(pushing.some((c) => c.kind === 'blit' && c.textureId === MENU_TEXTURES.badgeProgress)).toBe(false);
         expect(pushing.some((c) => c.kind === 'blit' && c.textureId === 'bitmap__menu_badge_pushing')).toBe(false);
     });
 
@@ -92,15 +93,16 @@ describe('橱窗绘制', () => {
         expect(cmds.some((c) => c.kind === 'blit' && (c.textureId === MENU_TEXTURES.badgeProgress || c.textureId === MENU_TEXTURES.badgeLocked || c.textureId === MENU_TEXTURES.sealCleared))).toBe(false);
     });
 
-    it('滑动时盖章跟着走；减少动效时不平移', () => {
+    it('滑动时通关飘带跟着走；减少动效时不平移', () => {
         setMenuBitmapResolver(() => true);
+        const cleared = { carouselState: 'cleared' as const };
         const xOf = (data: MetaViewData) => {
-            const b = frame(data).find((c) => c.kind === 'blit' && c.textureId === MENU_TEXTURES.badgeProgress) as { x: number };
+            const b = frame(data).find((c) => c.kind === 'blit' && c.textureId === MENU_TEXTURES.sealCleared) as { x: number };
             return b.x;
         };
-        const rest = xOf(dataFor(lv));
-        expect(xOf(dataFor(lv, { carouselDx: 80, carouselT: 0.2 }))).toBeCloseTo(rest + 80);
-        expect(xOf(dataFor(lv, { carouselDx: 80, carouselT: 0.2, reduceMotion: true }))).toBeCloseTo(rest);
+        const rest = xOf(dataFor(lv, cleared));
+        expect(xOf(dataFor(lv, { ...cleared, carouselDx: 80, carouselT: 0.2 }))).toBeCloseTo(rest + 80);
+        expect(xOf(dataFor(lv, { ...cleared, carouselDx: 80, carouselT: 0.2, reduceMotion: true }))).toBeCloseTo(rest);
     });
 
     it('木牌在进度 0.25 只留旧字、0.75 只留新字', () => {

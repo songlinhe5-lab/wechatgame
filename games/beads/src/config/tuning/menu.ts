@@ -354,6 +354,17 @@ export const MENU_BADGE = { x: 538, yOff: 142, d: 64 } as const;
 export const MENU_DONE_ICON = { cx: 380, yOff: 394, d: 160 } as const;
 /** 橱窗 Boss 原图边长。源图 256²，花约占 2/3；540 时花约 360，重心与盖章同心。 */
 export const MENU_BOSS_ART_D = 540;
+/**
+ * `[WXG-T-522]` 橱窗内景已烘进 `ui_showcase_frame`（壁龛 + 圆台 + 灯位，2× 1088×1742）：
+ * true ⇒ 走**单一作品腿**（无层板/无中央沙漏，光晕仍由引擎画）；
+ * 缺框位图时白卡不存在，仍旧虚线空槽腿不变。
+ */
+export const MENU_CASE_INTERIOR_BAKED = true;
+/**
+ * `[WXG-T-522]` 单一作品位：每页只画一件大关图（⛔ 徽章/进度沙漏/通关飘带/层板）。
+ * d=340（256 源 ⇒ 1.33×，比旧 540 的 2.1× 清楚）；内容底缘 = 窗底 + 114（与 `shelfLift` 同轴）。
+ */
+export const MENU_SHOWCASE_ART = { cx: 380, yOff: 459, d: 340 } as const;
 /** 橱窗内木牌（`ui_showcase_plate`）定稿含影实测框 214×100，中心 x 381、窗内偏移顶 y=652（§8.7 牌宽口径待对账）。 */
 export const MENU_PLATE = { cx: 381, yOff: 652, w: 214, h: 100 } as const;
 /**
@@ -433,6 +444,9 @@ export const MENU_TEXTURES = {
    * 缺位图 ⇒ 退回原程序化底（Cocos 宿主未注册本键时行为不变）。
    */
   backdrop: 'bitmap__menu_backdrop',
+  /** `[WXG-T-522]` 左右翻页钮（木框 + 奶油箭头，整枚一张）：按下只做下沉，不换图。 */
+  btnArrowLeft: 'bitmap__btn_arrow_left',
+  btnArrowRight: 'bitmap__btn_arrow_right',
   /**
    * `[P0 静态温暖 · 2026-10-30]` 左下角陶盆（qwen-image-3.0 lock seed 88 切图，210×415）。
    * 环境装饰、不属布局骨架 ⇒ 缺位图**不画**，不占位、不回退程序化（同 boss 缩略口径）。

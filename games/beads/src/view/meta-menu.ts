@@ -3,7 +3,7 @@
  * 几何一律取自 `meta-layout.ts` 的锚定档，控件画法取自 `meta-widgets.ts` ⇒ 页面只编排、不另算。
  */
 
-import { DESIGN_W, type MenuAnchors, MENU_ARROW_ICON, MENU_BAR_ICON_D, MENU_BOSS_ART_D, MENU_CTA_LABEL, MENU_CTA_PRESSED_D, MENU_CTA_SLICE, MENU_CTA_SRC_H, MENU_DONE_ICON, MENU_LOCK_D, MENU_PLAQUE_BEVEL_INSET, MENU_PLAQUE_ICON_INSET, MENU_PLAQUE_RIVET_INSET, MENU_PLAQUE_RIVET_R, MENU_PLAQUE_STROKE, MENU_PLATE, MENU_PLATE_TITLE, MENU_PROGRESS, MENU_SEAL, MENU_SIGNIN_DOT_R, MENU_SIGN_FRAME, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, SIGN_BEAD_PITCH, SIGN_MATRIX_N, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning.js';
+import { DESIGN_W, type MenuAnchors, MENU_ARROW_ICON, MENU_CASE_INTERIOR_BAKED, MENU_BAR_ICON_D, MENU_BOSS_ART_D, MENU_CTA_LABEL, MENU_CTA_PRESSED_D, MENU_CTA_SLICE, MENU_CTA_SRC_H, MENU_DONE_ICON, MENU_LOCK_D, MENU_PLAQUE_BEVEL_INSET, MENU_PLAQUE_ICON_INSET, MENU_PLAQUE_RIVET_INSET, MENU_PLAQUE_RIVET_R, MENU_PLAQUE_STROKE, MENU_PLATE, MENU_PLATE_TITLE, MENU_PROGRESS, MENU_SEAL, MENU_SIGNIN_DOT_R, MENU_SIGN_FRAME, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, SIGN_BEAD_PITCH, SIGN_MATRIX_N, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning.js';
 import { COPY_TOKENS } from '../config/copy-tokens.js';
 import { ARC_COMING_SOON } from '../config/arcs.js';
 import { plateFade } from '../config/menu-carousel.js';
@@ -243,6 +243,12 @@ function drawArrow(
     const dy = pressDy(data, pressed);
     const cx = b.x + b.w / 2;
     const cy = b.y + b.h / 2 + dy;
+    // `[WXG-T-522]` 独立整枚钮（木框 + 奶油箭头一张图）优先：按下只下沉、不换图。
+    const solo = dir === 'left' ? MENU_TEXTURES.btnArrowLeft : MENU_TEXTURES.btnArrowRight;
+    if (menuBitmapReady(solo)) {
+        builder.blit(solo, b.x, b.y + dy, b.w, b.h);
+        return;
+    }
     const iconTex = dir === 'left' ? MENU_TEXTURES.iconArrowLeft : MENU_TEXTURES.iconArrowRight;
     if (menuBitmapReady(MENU_TEXTURES.btnArrow)) {
         const bg = pressed && menuBitmapReady(MENU_TEXTURES.btnArrowPressed) ? MENU_TEXTURES.btnArrowPressed : MENU_TEXTURES.btnArrow;
@@ -354,6 +360,60 @@ function drawShowcaseItem(
         fill: locked ? palette.textDim : palette.panel,
         font: UI_FONT.button, align: 'center', baseline: 'middle',
     });
+}
+
+/**
+ * `[WXG-T-522]` 单一作品腿（内景背板位图命中时）：每页只画一件大关图。
+ * 与 `drawShowcaseItem` 的差别 = 去**中央进度沙漏**与层板（二者占画面中心），
+ * 通关飘带与锁定小锁仍作为**角落状态位**保留（信息不丢、不压作品）；其余状态靠木牌文字与星。
+ */
+function drawShowcaseArt(
+    builder: RenderModelBuilder,
+    palette: BeadsPalette,
+    g: AnchoredMenuGeo,
+    level: BeadsLevelRaw | undefined,
+    state: MetaBossState,
+    dx: number,
+    alpha: number,
+    comingSoon: boolean,
+    textureId?: string,
+): void {
+    if (alpha <= 0) return;
+    const ink = alpha < 1 ? alpha : undefined;
+    const b = g.showcaseArtBox;
+    const x = b.x + dx;
+    if (comingSoon) {
+        drawComingSoonMark(builder, palette, b.x + b.w / 2 + dx, b.y + b.h / 2, ink);
+        return;
+    }
+    if (level !== undefined && textureId !== undefined && menuBitmapReady(textureId)) {
+        builder.blit(textureId, x, b.y, b.w, b.h, ink === undefined ? undefined : { alpha: ink });
+    } else if (level !== undefined) {
+        drawLevelThumb(
+            builder, level, x, b.y, b.w, b.h,
+            Math.max(level.rows, level.cols), b.w,
+            state === 'locked' ? beadFadedInksFor(level) : undefined,
+            ink,
+        );
+    } else {
+        drawDashedSocket(builder, { x, y: b.y, w: b.w, h: b.h }, palette.slotDashed);
+    }
+    if (state === 'cleared') {
+        // 通关飘带 = 右上角小旗（保留：状态信号不丢，且不占画面中心）。
+        const top = g.clipBox.y + g.clipBox.h;
+        const sx = g.clipBox.x + g.clipBox.w - MENU_SEAL.inset - MENU_SEAL.w + dx;
+        const sy = top - MENU_SEAL.inset - MENU_SEAL.h;
+        if (menuBitmapReady(MENU_TEXTURES.sealCleared)) {
+            builder.blit(MENU_TEXTURES.sealCleared, sx, sy, MENU_SEAL.w, MENU_SEAL.h,
+                ink === undefined ? undefined : { alpha: ink });
+        }
+        return;
+    }
+    if (state === 'locked' && menuBitmapReady(MENU_TEXTURES.badgeLocked)) {
+        const badge = g.badgeBox;
+        builder.blit(MENU_TEXTURES.badgeLocked, badge.x, badge.y, badge.w, badge.h,
+            ink === undefined ? undefined : { alpha: ink });
+    }
 }
 
 /** 空橱窗中央的置灰花。半径写死，热路径不分配。 */
@@ -589,6 +649,8 @@ export function drawMenuAnchored(
     } else {
         drawDashedSocket(builder, g.caseBox, palette.slotDashed);
     }
+    // `[WXG-T-522]` 窗框已烘内景（壁龛 + 圆台 + 灯位）⇒ 走单一作品腿；缺框 ⇒ 旧虚线空槽腿不变。
+    const bakedInterior = MENU_CASE_INTERIOR_BAKED && menuBitmapReady(MENU_TEXTURES.caseFrame);
     // 资源条嵌在橱窗顶部（v3.6）：画在窗框之后，覆盖楣的上 46 px。
     drawResourceBar(builder, data, palette, g.barBox);
     // 走马灯（落地单 §8）：窗框不动，豆画 + 盖章在玻璃内水平滑，裁到 clipBox。
@@ -605,19 +667,35 @@ export function drawMenuAnchored(
     const slide = data.reduceMotion ? 0 : (data.carouselDx ?? 0);
     const travel = data.carouselT ?? 0;
     builder.clip(g.clipBox.x, g.clipBox.y, g.clipBox.w, g.clipBox.h);
-    // 射灯光晕先于作品：只落在背板上，不改变作品本身颜色（避免在平涂块上出硬弧）。
-    drawCaseLight(builder, palette, g);
-    drawShowcaseItem(builder, palette, g, data.carouselLevel, state, slide, data.reduceMotion ? 1 - travel : 1, data.carouselComingSoon === true, data.carouselTextureId);
-    if ((data.carouselPeer !== undefined || data.carouselPeerComingSoon === true) && travel > 0) {
-        const sign = data.carouselPeerSign ?? (slide < 0 ? 1 : -1);
-        const peerDx = data.reduceMotion ? 0 : slide + sign * g.clipBox.w;
-        drawShowcaseItem(
-            builder, palette, g, data.carouselPeer, data.carouselPeerState ?? 'cleared',
-            peerDx, data.reduceMotion ? travel : 1, data.carouselPeerComingSoon === true,
-            data.carouselPeerTextureId,
-        );
+    if (bakedInterior) {
+        // 单一作品腿：台面/内景已烘进窗框 ⇒ 只画引擎光晕 + 一件作品（无徽章/沙漏/层板）。
+        drawCaseLight(builder, palette, g);
+        drawShowcaseArt(builder, palette, g, data.carouselLevel, state, slide,
+            data.reduceMotion ? 1 - travel : 1, data.carouselComingSoon === true, data.carouselTextureId);
+        if ((data.carouselPeer !== undefined || data.carouselPeerComingSoon === true) && travel > 0) {
+            const sign = data.carouselPeerSign ?? (slide < 0 ? 1 : -1);
+            const peerDx = data.reduceMotion ? 0 : slide + sign * g.clipBox.w;
+            drawShowcaseArt(
+                builder, palette, g, data.carouselPeer, data.carouselPeerState ?? 'cleared',
+                peerDx, data.reduceMotion ? travel : 1, data.carouselPeerComingSoon === true,
+                data.carouselPeerTextureId,
+            );
+        }
+    } else {
+        // 射灯光晕先于作品：只落在背板上，不改变作品本身颜色（避免在平涂块上出硬弧）。
+        drawCaseLight(builder, palette, g);
+        drawShowcaseItem(builder, palette, g, data.carouselLevel, state, slide, data.reduceMotion ? 1 - travel : 1, data.carouselComingSoon === true, data.carouselTextureId);
+        if ((data.carouselPeer !== undefined || data.carouselPeerComingSoon === true) && travel > 0) {
+            const sign = data.carouselPeerSign ?? (slide < 0 ? 1 : -1);
+            const peerDx = data.reduceMotion ? 0 : slide + sign * g.clipBox.w;
+            drawShowcaseItem(
+                builder, palette, g, data.carouselPeer, data.carouselPeerState ?? 'cleared',
+                peerDx, data.reduceMotion ? travel : 1, data.carouselPeerComingSoon === true,
+                data.carouselPeerTextureId,
+            );
+        }
+        drawCaseStage(builder, palette, g);
     }
-    drawCaseStage(builder, palette, g);
     builder.unclip();
     // 木牌板固定。文字按 travel 两段淡变（先出后进，不重叠）。
     if (menuBitmapReady(MENU_TEXTURES.plate)) {

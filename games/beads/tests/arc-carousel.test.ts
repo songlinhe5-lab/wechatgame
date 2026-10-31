@@ -185,7 +185,8 @@ describe('EP13-S4 橱窗三态 = 大关集合归约（TODO-6 / Q16 = 甲）', ()
     it('任一关可进未通 ⇒ pushing', () => {
         setMenuBitmapResolver(() => true);
         const ids = blitIdsOf(frameOf(rig({ maxUnlocked: 1 }).shell));
-        expect(ids).toContain(MENU_TEXTURES.badgeProgress);
+        // `[WXG-T-522]` 单一作品：中央进度沙漏进厂（占画面中心），状态改由木牌文字/星承担。
+        expect(ids).not.toContain(MENU_TEXTURES.badgeProgress);
         expect(ids).not.toContain(MENU_TEXTURES.sealCleared);
     });
 

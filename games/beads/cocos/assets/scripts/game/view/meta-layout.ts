@@ -6,7 +6,7 @@
  * 缓存分两档：默认行数 = 按 anchors 引用（WeakMap，逐机主菜单）；变参行数只服务 K-6 同帧差分腿。
  */
 
-import { DESIGN_H, DESIGN_W, MENU_ARROW_VISUAL_D, MENU_ARROW_X, MENU_BADGE, MENU_BAR_FRAME, MENU_BAR_H, MENU_BAR_TOP_INSET, MENU_BOSS_SLOT, MENU_CASE_FRAME, MENU_CASE_H, MENU_CLIP, MENU_CTA_H, MENU_CTA_X, MENU_DONE_ICON, MENU_PLATE, MENU_PRIMARY_W, MENU_SIGN_FRAME, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_X, TOUCH_MIN, WALL_CELL, WALL_COLS, WALL_GAP, WALL_ROWS, dialogShiftY, menuAnchors, type MenuAnchors } from '../config/tuning';
+import { DESIGN_H, DESIGN_W, MENU_ARROW_VISUAL_D, MENU_ARROW_X, MENU_BADGE, MENU_BAR_FRAME, MENU_BAR_H, MENU_BAR_TOP_INSET, MENU_BOSS_SLOT, MENU_CASE_FRAME, MENU_CASE_H, MENU_CLIP, MENU_CTA_H, MENU_CTA_X, MENU_DONE_ICON, MENU_PLATE, MENU_PRIMARY_W, MENU_SHOWCASE_ART, MENU_SIGN_FRAME, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_X, TOUCH_MIN, WALL_CELL, WALL_COLS, WALL_GAP, WALL_ROWS, dialogShiftY, menuAnchors, type MenuAnchors } from '../config/tuning';
 import { settingsContentButtons } from './settings-content';
 import { signinCellLayout } from './signin-content';
 import { skinCardBoxes } from './skins-content';
@@ -283,6 +283,8 @@ export interface AnchoredMenuGeo {
     readonly arrowR: Box;
     readonly arrowRHit: Box;
     readonly barBox: Box;
+    /** `[WXG-T-522]` 单一作品框：每页只画一件大关图（以图心定位）。 */
+    readonly showcaseArtBox: Box;
     readonly settingsHit: Box;
     /**
      * `[WXG-T-365]` 装扮馆入口热区（顶栏中档 x=560，提案 P4-甲：原公告预留位升格）。
@@ -339,6 +341,10 @@ export function anchoredGeo(a: MenuAnchors): AnchoredMenuGeo {
         MENU_BAR_FRAME.w,
         MENU_BAR_H,
     );
+    // `[WXG-T-522]` 单一作品位：yOff 自柜顶向下量（与 MENU_CLIP 同轴）。
+    const artCy = r(a.caseTopY - MENU_SHOWCASE_ART.yOff);
+    const showcaseArtBox = box(MENU_SHOWCASE_ART.cx - MENU_SHOWCASE_ART.d / 2, artCy - MENU_SHOWCASE_ART.d / 2,
+        MENU_SHOWCASE_ART.d, MENU_SHOWCASE_ART.d);
     const settingsHit = box(MENU_TOPBAR_X.settings, r(a.btTopY) - TOUCH_MIN, TOUCH_MIN, TOUCH_MIN);
     const skinsHit = box(
         MENU_TOPBAR_X.skins,
@@ -351,6 +357,7 @@ export function anchoredGeo(a: MenuAnchors): AnchoredMenuGeo {
         caseBox, bossBox, clipBox, badgeBox, plateBox, signBox, ctaBox, ctaHit,
         rankBox, rankHit,
         arrowL, arrowLHit, arrowR, arrowRHit, barBox, settingsHit, skinsHit, mailHit,
+        showcaseArtBox,
         topbarCy: settingsHit.y + TOUCH_MIN / 2,
         doneCy: r(a.caseTopY - MENU_DONE_ICON.yOff),
     };
