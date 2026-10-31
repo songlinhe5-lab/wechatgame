@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3909,
       "lines": 132,
-      "sha256": "85a64970e0614a35c61ce0958e3fc2cb037bb240cef3b9e62db42d1d3df2adf5",
+      "sha256": "4e1e450b82778f2d3aa4a7b5981084c052c645592ba6bdd16f22adbf05023c64",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 157392 5281 normal",
+          "summary": "1 production/TASKS-DETAIL.md 157413 5281 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "9c74f5bf99a9738b93e583a2e978838483a8328d5c1742f007110fd6ca786187",
+      "sha256": "da70cfc3385ca674a67fd6bb70c6c8bd438813a24cf0855f185d2a2daadd6f85",
       "tier": "normal",
       "sections": [
         {
@@ -1016,7 +1016,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 5281 行 / 157392 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 5281 行 / 157413 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
@@ -87919,9 +87919,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 157392,
+      "tokens": 157413,
       "lines": 5281,
-      "sha256": "040a8a63be0e7d7c81eb466a30a36bd448a95de5e71ee4e687c5d964da24871c",
+      "sha256": "75f0e06b724e9d591297dc45e73b53d23c4a959afef2c5a290f5e7725c3f78a4",
       "tier": "normal",
       "sections": [
         {
@@ -87929,7 +87929,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 5282,
-          "tokens": 157375,
+          "tokens": 157397,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -94212,7 +94212,7 @@
           "level": 2,
           "startLine": 5114,
           "endLine": 5150,
-          "tokens": 1141,
+          "tokens": 1162,
           "summary": "",
           "keywords": [
             "WXG"
@@ -94246,7 +94246,7 @@
           "level": 3,
           "startLine": 5131,
           "endLine": 5136,
-          "tokens": 294,
+          "tokens": 315,
           "summary": "⛔ 2026-10-31 用户裁定：parts/ 与 parts-lossless/ 已删除作废（「裁剪的不全」）。实测",
           "keywords": [
             "parts",
