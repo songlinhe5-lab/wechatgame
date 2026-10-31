@@ -1,0 +1,21 @@
+基准稿擦件出背板 · 可复现配方（2026-10-31，WXG-T-525 追加）
+源图 games/beads/design/art/proposals/menu-design-v2-20261031/edit-20261031/v4-20261031/v4-cloud-plate-clean-20261031.png（752×1344）
+
+几何正本 = temp/plate-cut-20261031/maskgen-plate.py 的 shapes()（与抠件同一批读数，⛔ 两处坐标）。
+temp/ 不入库 ⇒ 丢了按下面重建；HarmonicFill 是 5 点均值 Jacobi（粗网格 1/8 收敛 600 次 + 全分辨率 400 次收尾）。
+
+① AI 局部重绘（本地 ComfyUI · Qwen-Image-2.1 masked，steps 25 / cfg 1.0 / seed 42 / denoise 1.0，约 150s，0 元）
+   LQ_SRC=<源图> python3 temp/online-inpaint/local_qwen.py p-plate-clean-v2.txt <tag> 0 25 1.0 42 masked 1.0 mask-plate-clean.png
+   命中：顶板 / 顶栏四钮 / 左右箭头。失手：吊绳（模型重画一根）、橱窗内齿轮与木牌（照抄参考图）、CTA（画成地板上的椭圆糊块）。
+   ⇒ 结论：masked 模式**挡不住「参考图里有的大物体被抄回来」**，⛔ 别指望它擦橱窗内的陈列物。
+
+② 零模型调和填充（temp/plate-cut-20261031/harmonicfill.py），只对**被擦物背后是单调平滑面**的区域用：
+   顺序 art（柜内背板，Ø400 @ 378,646）→ cta（地板改动实测 bbox x168..584 y1049..1241）→ rope（x165..240 / x512..587，y0..152）
+   锁死区 maxΔ = 0（逐像素不动，与 remove-box-fill.py 同级）；代价是填充区被解成平滑延拓 ⇒ 木纹/板缝糊掉。
+
+③ 再补一轮 ① 的 masked（mask = mask-retexture.png = rope ∪ cta，提示词 p-retexture.txt）
+   关键：**此时参考图里已经没有这些物体** ⇒ 模型无得可抄，只把糊块还原成木纹与地毯边缘。两处均命中。
+   mask 外 meanΔ 1.05（VAE 往返，非像素锁）。
+
+产物：bg-plate-clean-hybrid.png（定稿候选）；step1-ai-masked-v{1,2}.png / step2-harmonic-fill.png 为过程证据。
+判据口径：masked 编辑**没有**像素锁（框外 meanΔ 1~14，随 mask 面积涨），要 maxΔ0 只能走程序化填充。

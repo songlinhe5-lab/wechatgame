@@ -6,7 +6,7 @@
 |---|---|---|
 | `proj`（默认）| AI 出的「一件一图 + 平色底」| 投到背景单位向量的投影法（下表步骤 1–3）|
 | `lum` | **整屏设计稿**（同色相背景）| 与 `--seed` 连通的亮面（`--lum-min`）或暗面（`--lum-max`）+ `--grow` 补回暗倒角 |
-| `shape` | **整屏设计稿**里的几何形件（正圆钮 / 胶囊钮）| 按形状给蒙版（`disc,cx,cy,r` / `pill,x0,y0,x1,y1,r`），⛔ 不判色 |
+| `shape` | **整屏设计稿**里的几何形件（正圆钮 / 胶囊钮 / 异形件）| 按形状给蒙版（`disc,cx,cy,r` / `pill,x0,y0,x1,y1,r` / `poly,x,y,…`），⛔ 不判色 |
 
 与 `cut-sprites-local.py` 的分工：那张吃**整页 mood 图**（多元素、按连通域拆件）；
 本张吃**单件**（AI 单件图，或从设计稿里按区域抠出的单件）。
@@ -27,6 +27,7 @@
 ⚠ 2/3 两步的连通域与洪泛跑在**1/F 粗网格**上（纯 Python BFS，1M px 太慢），
   结果膨胀回全分辨率后再与全分辨率 fg 相与 ⇒ 边缘不啮、最终件精度不受影响。
 ⚠ `lum` 只在主体坐**均匀暗带**上时可用（木牌✓）；四周背景有亮斑时会漏成整屏（顶栏钮实测失败 ⇒ 改 `shape`）。
+  主体四周背景本身干净、但画面远处有同亮度区时，**配 `--box` 把判定域关进窗口**即可用（CTA 实测）。
 
 用法：
   # AI 单件图去底
@@ -34,6 +35,9 @@
   # 从整屏设计稿抠（亮主体 / 几何形）
   python3 cut-single-local.py SHEET.png OUT_DIR --target 304x83 --mode lum  --seed 373,915 --grow 3 --name plate
   python3 cut-single-local.py SHEET.png OUT_DIR --target 64x64  --mode shape --shape disc,42,154,32 --name btn
+  # 只在一个窗口里判前景（坐标仍写整屏绝对值，输出里的 @ 源图 也是绝对值）
+  python3 cut-single-local.py SHEET.png OUT_DIR --target 376x168 --mode lum --lum-max 150 \
+      --box 180,1050,575,1245 --seed 375,1140 --name cta
 
 退出码：机检不过 ⇒ 1（打印 FAIL 行），过 ⇒ 0。`--check` 跑内置合成自检（改过算法必跑）。
 """
@@ -97,7 +101,8 @@ def _close(mask: np.ndarray, size: int = 3) -> np.ndarray:
 def _upsample(mask: np.ndarray, shape: tuple[int, int]) -> np.ndarray:
     h, w = shape
     out = np.zeros((h, w), dtype=bool)
-    out[: mask.shape[0] * F, : mask.shape[1] * F] = np.repeat(np.repeat(mask, F, 0), F, 1)
+    big = np.repeat(np.repeat(mask, F, 0), F, 1)   # 奇数边长时 big 会比 shape 大 1 ⇒ 切而不拼
+    out[: min(h, big.shape[0]), : min(w, big.shape[1])] = big[:h, :w]
     return out
 
 
@@ -105,6 +110,8 @@ def component_at(fg: np.ndarray, seed: tuple[int, int]) -> np.ndarray:
     """只灌包含 seed 的那一块（8 邻接，粗网格）。seed 落在非前景时就近找一个。"""
     small = fg[::F, ::F]
     sy, sx = seed[1] // F, seed[0] // F
+    if not (0 <= sy < small.shape[0] and 0 <= sx < small.shape[1]):
+        raise SystemExit(f"FAIL: seed {seed} 不在判定域内（负索引会绕到图另一侧 ⇒ 窗口得包住主体）")
     if not small[sy, sx]:
         found = None
         for rad in range(1, 12):
@@ -171,8 +178,25 @@ def largest_component(fg: np.ndarray) -> np.ndarray:
 
 def cut(src: str, out_dir: str, target: tuple[int, int], thresh: int, pad: float, name: str,
         mode: str = "proj", lum_min: int = 130, seed: tuple[int, int] | None = None,
-        grow: int = 0, shape: str | None = None, lum_max: int | None = None) -> int:
+        grow: int = 0, shape: str | None = None, lum_max: int | None = None,
+        box: tuple[int, int, int, int] | None = None) -> int:
     im = Image.open(src).convert("RGB")
+    ox = oy = 0
+    if box:   # 窗口：只在设计稿的这块区域里判前景（⛔ 不改像素，只缩小判定域）
+        ox, oy, bx1, by1 = box
+        im = im.crop((ox, oy, bx1, by1))
+        if seed:            # 命令行里的坐标一律写整屏绝对值，进窗口前换回相对值
+            seed = (seed[0] - ox, seed[1] - oy)
+        if shape:
+            k, *n = shape.split(",")
+            n = [int(v) for v in n]
+            if k == "disc":
+                n = [n[0] - ox, n[1] - oy] + n[2:]
+            elif k == "pill":
+                n = [n[0] - ox, n[1] - oy, n[2] - ox, n[3] - oy] + n[4:]
+            elif k == "poly":   # poly = 成对的 x,y
+                n = [v - (ox if i % 2 == 0 else oy) for i, v in enumerate(n)]
+            shape = ",".join([k] + [str(v) for v in n])
     a = np.asarray(im, dtype=np.int16)
     h, w = a.shape[:2]
 
@@ -180,8 +204,9 @@ def cut(src: str, out_dir: str, target: tuple[int, int], thresh: int, pad: float
                              a[:, 0:4].reshape(-1, 3), a[:, -4:].reshape(-1, 3)])
     C = np.median(border, axis=0)
     if mode == "shape":
-        # 设计里本就是几何形的件（正圆钮 / 胶囊钮）：蒙版按形状给，⛔ 不做任何亮度/颜色判定
-        # ⇒ 像素 100% 原样。实测亮度键对暗底圆钮无效（种子 72 vs 四周 73，分不开）。
+        # 设计里本就是几何形的件（正圆钮 / 胶囊钮 / 木纹招牌类）：蒙版按形状给，⛔ 不做任何亮度/颜色判定
+        # ⇒ 像素 100% 原样。实测亮度键对暗底圆钮无效（种子 72 vs 四周 73，分不开），
+        #   而招牌面与木板墙亮度重叠（96-108 vs 64-149）⇒ lum / proj 均判废，只能给形。
         m = Image.new("L", (w, h), 0)
         d = ImageDraw.Draw(m)
         kind, *nums = shape.split(",")
@@ -191,8 +216,13 @@ def cut(src: str, out_dir: str, target: tuple[int, int], thresh: int, pad: float
         elif kind == "pill":
             bx0, by0, bx1, by1, r = (int(v) for v in nums)
             d.rounded_rectangle([bx0, by0, bx1 - 1, by1 - 1], radius=r, fill=255)
+        elif kind == "poly":   # 异形静态件（木纹招牌类）：顶点手读自带网格的放大图
+            pts = [(int(nums[i]), int(nums[i + 1])) for i in range(0, len(nums) - 1, 2)]
+            if len(pts) < 3:
+                raise SystemExit("FAIL: poly 至少要三个顶点")
+            d.polygon(pts, fill=255)
         else:
-            raise SystemExit(f"FAIL: --shape 只认 disc,cx,cy,r / pill,x0,y0,x1,y1,r，收到 {shape}")
+            raise SystemExit(f"FAIL: --shape 只认 disc,cx,cy,r / pill,x0,y0,x1,y1,r / poly,x,y,...，收到 {shape}")
         fg = np.asarray(m) > 127
     elif mode == "lum":
         # 设计稿整屏里抠单件用这条（⛔ 颜色键出）：同色相背景下“主体面 + 暗倒角围墙”比色距稳定。
@@ -204,8 +234,6 @@ def cut(src: str, out_dir: str, target: tuple[int, int], thresh: int, pad: float
         else:
             fg = lum > lum_min
         fg = fg & (component_at(fg, seed) if seed else largest_component(fg))
-        if grow:
-            fg = _grow(fg, 2 * grow + 1)
     else:
         # 背景判据沿用 cut-sprites-local.py 的 KEEP_SHADOW=0 口径（⛔ 自创「距背景够远就算前景」，
         # 那条会把中性灰的落地投影一起吃进来，实测底部 6 行不透明率 85-94%）：
@@ -218,6 +246,9 @@ def cut(src: str, out_dir: str, target: tuple[int, int], thresh: int, pad: float
         perp = np.linalg.norm(a - t[:, :, None] * u, axis=2)
         fg = ~((perp < thresh) & (t <= cn + 2) & (t >= cn - 90))
         fg = fg & largest_component(fg)   # 相与 ⇒ 膨胀环不会把背景带进来
+    # --grow 对三种模式都可用：lum 补暗倒角、shape 把「内缩多边形」外推回真实轮廓
+    if grow:
+        fg = _grow(fg, 2 * grow + 1)
     small = fg[::F, ::F]
     reached = _bfs_reach(~small, _border_seeds(*small.shape))
     holes = _upsample(~small & ~reached, fg.shape)   # 非主体且从外部灌不到 = 洞
@@ -264,7 +295,7 @@ def cut(src: str, out_dir: str, target: tuple[int, int], thresh: int, pad: float
     # scale < 1 时按定义会有重采样差，只能跳过并在 detail 里写明（⛔ 默判通过而不声明）。
     if scale == 1.0:
         back = im.copy()
-        back.paste(content, (x0, y0), content)   # content 不含安全边，其原点就是源图 bbox 左上角
+        back.paste(content, (x0, y0), content)   # content 不含安全边，其原点就是源图 bbox 左上角（均相对窗口）
         changed = int((np.asarray(ImageChops.difference(im, back)).astype(int).sum(axis=2) > 0).sum())
     else:
         changed = -1
@@ -278,8 +309,9 @@ def cut(src: str, out_dir: str, target: tuple[int, int], thresh: int, pad: float
         ("回贴 maxdiff = 0", changed <= 0,
          "已缩到目标宽，重采样不可比 ⇒ 跳过" if changed < 0 else f"改动像素 {changed}"),
     ]
-    print(f"背景中位色 = ({int(C[0])},{int(C[1])},{int(C[2])})  主体 bbox = {bw}x{bh} @ 源图({x0},{y0})  洞 = {int(holes.sum())} px"
-          + ("  ⚠ 源图主体贴画框" if touches else ""))
+    print(f"背景中位色 = ({int(C[0])},{int(C[1])},{int(C[2])})  主体 bbox = {bw}x{bh} @ 源图({x0 + ox},{y0 + oy})"
+          f"  洞 = {int(holes.sum())} px"
+          + ("  ⚠ 主体贴画框/窗口边" if touches else ""))
     ok = True
     for label, passed, detail in checks:
         print(f"  {'PASS' if passed else 'FAIL'}  {label}  {detail}")
@@ -335,7 +367,8 @@ def main() -> int:
     ap.add_argument("--lum-min", type=int, default=130, help="lum 模式的亮面阈值")
     ap.add_argument("--lum-max", type=int, help="lum 模式反向：取暗于该值的连通块（暗盘亮图标件）")
     ap.add_argument("--seed", help="lum 模式：主体内部一点 x,y（图坐标）")
-    ap.add_argument("--grow", type=int, default=0, help="lum 模式：向外补回暗倒角圈的半径 px")
+    ap.add_argument("--grow", type=int, default=0, help="向外补回 N px（lum 的暗倒角 / shape 内缩多边形的回推）")
+    ap.add_argument("--box", help="只在整屏稿的这块窗口里判前景 x0,y0,x1,y1（图坐标，⛔ 不改像素）")
     ap.add_argument("--check", action="store_true", help="跑内置合成自检，改过算法必跑")
     args = ap.parse_args()
     if args.check:
@@ -345,7 +378,8 @@ def main() -> int:
     tw, th = (int(v) for v in args.target.lower().split("x"))
     sd = tuple(int(v) for v in args.seed.split(",")) if args.seed else None
     return cut(args.src, args.out_dir, (tw, th), args.thresh, args.pad, args.name,
-               args.mode, args.lum_min, sd, args.grow, args.shape, args.lum_max)
+               args.mode, args.lum_min, sd, args.grow, args.shape, args.lum_max,
+               tuple(int(v) for v in args.box.split(",")) if args.box else None)
 
 
 if __name__ == "__main__":
