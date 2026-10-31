@@ -22,7 +22,7 @@
 
 | # | 文件 | tokens | 行数 | tier |
 |---:|---|---:|---:|:--:|
-| 1 | `production/TASKS-DETAIL.md` | 169130 | 5630 | normal |
+| 1 | `production/TASKS-DETAIL.md` | 171156 | 5682 | normal |
 | 2 | `games/beads/design/gdd/powerups-v2.md` | 144877 | 2328 | normal |
 | 3 | `games/beads/design/art/specs/assets-spec.md` | 121738 | 2109 | normal |
 | 4 | `production/qa/beads/g4-regression-report.md` | 86807 | 2201 | normal |
@@ -37,7 +37,7 @@
 | 13 | `games/beads/design/art/proposals/ui-style-redesign/menu-architecture.md` | 37618 | 978 | normal |
 | 14 | `games/beads/design/art/specs/accessibility.md` | 37140 | 201 | normal |
 | 15 | `memory/2026-10-04.md` | 28255 | 930 | normal |
-| 16 | `production/TASKS.md` | 27565 | 136 | hot |
+| 16 | `production/TASKS.md` | 27947 | 137 | hot |
 | 17 | `games/beads/design/gdd/save-progress.md` | 26135 | 305 | normal |
 | 18 | `games/beads/design/proposals/star-economy-and-retention.md` | 22195 | 763 | normal |
 | 19 | `docs/architecture/ui-architecture-beads.md` | 20393 | 253 | normal |
