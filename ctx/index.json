@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3909,
       "lines": 132,
-      "sha256": "f4e65a4a266d857557c791f8c0021a37586cf5c7377af5e55d8e9198d425f737",
+      "sha256": "881a7b7c6e453d582785b0664be4af11a860748562c3e08a45c339f027199fc4",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 162597 5427 normal",
+          "summary": "1 production/TASKS-DETAIL.md 163508 5445 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "a4cf7a25758c2a2d16f821a0f6e0864f658f8cc5fbce926069af9da748f20bb7",
+      "sha256": "235f8772a27fcff07d2af6c342ba22c31bd1b4c21add6eaa6f7b3cd37ab94f1e",
       "tier": "normal",
       "sections": [
         {
@@ -745,7 +745,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 132 行 / 26426 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 132 行 / 26536 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 5427 行 / 162597 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 5445 行 / 163508 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+5428 · §WXG-T-518=4861+33 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+5446 · §WXG-T-518=4861+33 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -28070,17 +28070,17 @@
     },
     {
       "path": "games/beads/design/art/specs/menu-3d-asset-brief.md",
-      "tokens": 4198,
-      "lines": 220,
-      "sha256": "4e7e88be2e83ef652b2b569eca963008ce6cc07cf77199f451c771587c832c90",
+      "tokens": 5172,
+      "lines": 250,
+      "sha256": "12204ce26e3879ba33086be350dc0a9bd027b5c168d8a731d4b7c8622277a90c",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§主菜单 3D 木屋风 · 分层素材交付规格",
           "level": 1,
           "startLine": 1,
-          "endLine": 221,
-          "tokens": 4182,
+          "endLine": 251,
+          "tokens": 5156,
           "summary": "v0.2 · 2026-10-31 · 关联 WXG-T-517（切图提案）/ WXG-T-518（本规格）/ WXG-",
           "keywords": [
             "WXG",
@@ -28299,8 +28299,8 @@
           "anchor": "§9 v0.2 三项裁定（用户 2026-10-31 · WXG-T-525）",
           "level": 2,
           "startLine": 202,
-          "endLine": 221,
-          "tokens": 698,
+          "endLine": 251,
+          "tokens": 1672,
           "summary": "",
           "keywords": [
             "WXG",
@@ -28309,37 +28309,37 @@
           ]
         },
         {
-          "anchor": "§① 分辨率路线 = 丙（混合）",
+          "anchor": "§① 出图路线（2026-10-31 二次裁定：**⛔ 逐件重绘 ⇒ 一律从设计稿抠**）",
           "level": 3,
           "startLine": 204,
-          "endLine": 212,
-          "tokens": 349,
-          "summary": "整屏稿切（云 qwen-image-3.0 --size 1152*2048） 仅 #1 招牌 + #4/#5 开始钮（",
+          "endLine": 229,
+          "tokens": 823,
+          "summary": "裁定链：初裁「丙 · 混合分辨率」（原表划线留档于下）→ 终裁「从 v2/v4 整屏稿按区域抠件」。依据 = 用户 20",
           "keywords": [
-            "qwen",
-            "image",
-            "size",
-            "分辨率路线",
-            "混合"
+            "出图路线",
+            "二次裁定",
+            "逐件重绘",
+            "一律从设计稿"
           ]
         },
         {
-          "anchor": "§② 含字例外（两件）",
+          "anchor": "§② 含字两件（口径随 ① 变更）",
           "level": 3,
-          "startLine": 213,
-          "endLine": 216,
-          "tokens": 115,
-          "summary": "招牌烧「拼豆小铺」、开始钮烧「开始游戏」（其余各件仍 ⛔ 无字）。依据 = 单元素短文案可烧图（本地 25 步实测 4/",
+          "startLine": 230,
+          "endLine": 246,
+          "tokens": 594,
+          "summary": "原裁 = 招牌烧「拼豆小铺」、开始钮烧「开始游戏」（其余各件仍 ⛔ 无字）。依据 = 单元 素短文案可烧图（本地 25 ",
           "keywords": [
-            "含字例外",
-            "两件"
+            "含字两件",
+            "口径随",
+            "变更"
           ]
         },
         {
           "anchor": "§③ 背景与橱窗 = 视觉一体、绘制分件",
           "level": 3,
-          "startLine": 217,
-          "endLine": 221,
+          "startLine": 247,
+          "endLine": 251,
           "tokens": 194,
           "summary": "用户要「背景图包括橱窗」⇒ 采 观感一体、绘制仍分两件（背景件 + 橱窗件）。",
           "keywords": [
@@ -88171,17 +88171,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 162597,
-      "lines": 5427,
-      "sha256": "8aa6d926c2d20b85d199c2e24b6832c29edf18bb3c7aa4f68aca1d3d3ee2dadd",
+      "tokens": 163508,
+      "lines": 5445,
+      "sha256": "7cb9dbc56cd374844485d9defe05b1cac7913ef9ae45388062f4393ef8f9ab9c",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 5428,
-          "tokens": 162580,
+          "endLine": 5446,
+          "tokens": 163492,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -94124,8 +94124,8 @@
           "anchor": "§WXG-T-525",
           "level": 2,
           "startLine": 4894,
-          "endLine": 4939,
-          "tokens": 2185,
+          "endLine": 4957,
+          "tokens": 3097,
           "summary": "",
           "keywords": [
             "WXG"
@@ -94179,8 +94179,8 @@
           "anchor": "§4 三项裁定的落地（用户裁 ① 丙 + ② 破例含字 + ③ 乙）",
           "level": 3,
           "startLine": 4917,
-          "endLine": 4929,
-          "tokens": 689,
+          "endLine": 4931,
+          "tokens": 739,
           "summary": "文档回写（往 §9 集中，免得口径散落）：",
           "keywords": [
             "§9",
@@ -94190,11 +94190,27 @@
           ]
         },
         {
-          "anchor": "§5 未做 / 阻塞",
+          "anchor": "§5 抠稿二次裁定（用户令：⛔ 逐件重绘 ⇒ 从设计稿抠）",
           "level": 3,
-          "startLine": 4930,
-          "endLine": 4935,
-          "tokens": 167,
+          "startLine": 4932,
+          "endLine": 4946,
+          "tokens": 725,
+          "summary": "用户原话：「本地api应该从设计图中抠出元素，不要把抠出的元素设计给改了」。归因：§4 的逐件 t2i 路线把设计改动了",
+          "keywords": [
+            "§4",
+            "api",
+            "t2i",
+            "抠稿二次裁定",
+            "用户令",
+            "逐件重绘"
+          ]
+        },
+        {
+          "anchor": "§6 未做 / 阻塞",
+          "level": 3,
+          "startLine": 4947,
+          "endLine": 4953,
+          "tokens": 202,
           "summary": "本批零代码、零测试改动（§6 五条落码面仍挂换牌批，前提 = 新牌位图定稿）。",
           "keywords": [
             "§6",
@@ -94203,11 +94219,11 @@
           ]
         },
         {
-          "anchor": "§6 沉淀统计 (11)",
+          "anchor": "§7 沉淀统计 (4)",
           "level": 3,
-          "startLine": 4936,
-          "endLine": 4939,
-          "tokens": 229,
+          "startLine": 4954,
+          "endLine": 4957,
+          "tokens": 307,
           "summary": "未跑 kb:sync（knowledge/ 四件另有轨在飞，同 WXG-T-524 口径）。候选 3 条：①「新需求清单",
           "keywords": [
             "sync",
@@ -94219,8 +94235,8 @@
         {
           "anchor": "§WXG-T-524",
           "level": 2,
-          "startLine": 4940,
-          "endLine": 4986,
+          "startLine": 4958,
+          "endLine": 5004,
           "tokens": 1565,
           "summary": "",
           "keywords": [
@@ -94230,8 +94246,8 @@
         {
           "anchor": "§1 触发与裁定 (3)",
           "level": 3,
-          "startLine": 4942,
-          "endLine": 4947,
+          "startLine": 4960,
+          "endLine": 4965,
           "tokens": 212,
           "summary": "用户令（接上轮三选项中的第 3 项）：「3：剔除文字内容，并给出程序化文字颜色尺寸位置信息，制作文字控件。」⇒ ① 从基",
           "keywords": [
@@ -94241,8 +94257,8 @@
         {
           "anchor": "§2 无字版产物（局部微调能力 · 零模型）",
           "level": 3,
-          "startLine": 4948,
-          "endLine": 4951,
+          "startLine": 4966,
+          "endLine": 4969,
           "tokens": 127,
           "summary": "两遍 remove-box-fill.py（逐行中位数回填，⛔ 禁平移贴补）→ …/menu-design-v2-202",
           "keywords": [
@@ -94257,8 +94273,8 @@
         {
           "anchor": "§3 量测法与踩过的坑",
           "level": 3,
-          "startLine": 4952,
-          "endLine": 4957,
+          "startLine": 4970,
+          "endLine": 4975,
           "tokens": 164,
           "summary": "自动阈值 / 梯度法三试判废（暖棕同色相下把木台、框边、铆钉一起吃进 bbox）⇒ 沿 WXG-T-520 教训改 3×",
           "keywords": [
@@ -94271,8 +94287,8 @@
         {
           "anchor": "§4 读数（规格真源 = `design/art/specs/menu-plate-text-control-spec.md`）",
           "level": 3,
-          "startLine": 4958,
-          "endLine": 4969,
+          "startLine": 4976,
+          "endLine": 4987,
           "tokens": 226,
           "summary": "牌面 304×83 cx373 214×100 cx381 随换牌同批改 MENU_PLATE",
           "keywords": [
@@ -94287,8 +94303,8 @@
         {
           "anchor": "§5 文档与台账动作（含一笔旧豁免债的执行）",
           "level": 3,
-          "startLine": 4970,
-          "endLine": 4976,
+          "startLine": 4988,
+          "endLine": 4994,
           "tokens": 307,
           "summary": "menu-layout-implementation-spec.md：§5 资源文件需求整节逐字节外移（执行 WXG-T",
           "keywords": [
@@ -94303,8 +94319,8 @@
         {
           "anchor": "§6 未做 / 待拍板",
           "level": 3,
-          "startLine": 4977,
-          "endLine": 4982,
+          "startLine": 4995,
+          "endLine": 5000,
           "tokens": 258,
           "summary": "代码零改动。理由：现网牌位图 ui_showcase_plate.png（422×172，中位 #F1C189 浅奶油卡",
           "keywords": [
@@ -94316,10 +94332,10 @@
           ]
         },
         {
-          "anchor": "§7 沉淀统计 (4)",
+          "anchor": "§7 沉淀统计 (5)",
           "level": 3,
-          "startLine": 4983,
-          "endLine": 4986,
+          "startLine": 5001,
+          "endLine": 5004,
           "tokens": 177,
           "summary": "未跑 kb:sync：工作树 knowledge/ 四件（CHANGELOG / INDEX / ledger.json",
           "keywords": [
@@ -94334,8 +94350,8 @@
         {
           "anchor": "§WXG-T-523",
           "level": 2,
-          "startLine": 4987,
-          "endLine": 5039,
+          "startLine": 5005,
+          "endLine": 5057,
           "tokens": 1424,
           "summary": "",
           "keywords": [
@@ -94345,8 +94361,8 @@
         {
           "anchor": "§1 触发与裁定 (4)",
           "level": 3,
-          "startLine": 4989,
-          "endLine": 4998,
+          "startLine": 5007,
+          "endLine": 5016,
           "tokens": 250,
           "summary": "上一轮（WXG-T-520 链路）在主界面设计 v2 基准稿 compose-rgb.png（752×1344）上做的两",
           "keywords": [
@@ -94360,8 +94376,8 @@
         {
           "anchor": "§2 五条意见的处置",
           "level": 3,
-          "startLine": 4999,
-          "endLine": 5008,
+          "startLine": 5017,
+          "endLine": 5026,
           "tokens": 263,
           "summary": "① 中层横板要去掉 橱窗内部整段交模型重绘为上下贯通的单一空间（本地 masked inpaint 做不到——只会「填平",
           "keywords": [
@@ -94373,8 +94389,8 @@
         {
           "anchor": "§3 两产线读数",
           "level": 3,
-          "startLine": 5009,
-          "endLine": 5020,
+          "startLine": 5027,
+          "endLine": 5038,
           "tokens": 314,
           "summary": "本地（ComfyUI 192.168.1.16:8188 · Qwen-Image-2.1，edit 整图指令编辑而非 ",
           "keywords": [
@@ -94388,8 +94404,8 @@
         {
           "anchor": "§4 选型登记（正本同步）",
           "level": 3,
-          "startLine": 5021,
-          "endLine": 5029,
+          "startLine": 5039,
+          "endLine": 5047,
           "tokens": 269,
           "summary": "games/beads/design/ai-workflows/model-matrix.md：",
           "keywords": [
@@ -94404,8 +94420,8 @@
         {
           "anchor": "§5 产物",
           "level": 3,
-          "startLine": 5030,
-          "endLine": 5033,
+          "startLine": 5048,
+          "endLine": 5051,
           "tokens": 120,
           "summary": "games/beads/design/art/proposals/menu-design-v2-20261031/edi",
           "keywords": [
@@ -94420,8 +94436,8 @@
         {
           "anchor": "§6 未做与后续",
           "level": 3,
-          "startLine": 5034,
-          "endLine": 5039,
+          "startLine": 5052,
+          "endLine": 5057,
           "tokens": 161,
           "summary": "木牌文案「小猫咪 第1关」仍画死在图里，未改；",
           "keywords": [
@@ -94431,8 +94447,8 @@
         {
           "anchor": "§WXG-T-522",
           "level": 2,
-          "startLine": 5040,
-          "endLine": 5077,
+          "startLine": 5058,
+          "endLine": 5095,
           "tokens": 803,
           "summary": "",
           "keywords": [
@@ -94442,8 +94458,8 @@
         {
           "anchor": "§1 触发与拍板",
           "level": 3,
-          "startLine": 5042,
-          "endLine": 5045,
+          "startLine": 5060,
+          "endLine": 5063,
           "tokens": 101,
           "summary": "用户：「背景都换了，应该用设计稿抠出来的图做替换，整体主界面全部替换元素」。先拿现有设计稿切件对齐清晰度：箭头 1.01",
           "keywords": [
@@ -94453,8 +94469,8 @@
         {
           "anchor": "§2 出图（云 qwen-image-3.0）",
           "level": 3,
-          "startLine": 5046,
-          "endLine": 5056,
+          "startLine": 5064,
+          "endLine": 5074,
           "tokens": 278,
           "summary": "以旧 ui_showcase_frame.png 作 i2i 参考，size=1088*1742、seed 88，指令：",
           "keywords": [
@@ -94469,8 +94485,8 @@
         {
           "anchor": "§3 代码",
           "level": 3,
-          "startLine": 5057,
-          "endLine": 5065,
+          "startLine": 5075,
+          "endLine": 5083,
           "tokens": 163,
           "summary": "tuning/menu.ts 新增 MENU_CASE_INTERIOR_BAKED=true、MENU_SHOWCAS",
           "keywords": [
@@ -94485,8 +94501,8 @@
         {
           "anchor": "§4 验证",
           "level": 3,
-          "startLine": 5066,
-          "endLine": 5071,
+          "startLine": 5084,
+          "endLine": 5089,
           "tokens": 120,
           "summary": "tsc --noEmit 0 错；beads vitest 120 文件 / 1422 通过 + 2 skipped（含",
           "keywords": [
@@ -94501,8 +94517,8 @@
         {
           "anchor": "§5 风险与还账",
           "level": 3,
-          "startLine": 5072,
-          "endLine": 5077,
+          "startLine": 5090,
+          "endLine": 5095,
           "tokens": 109,
           "summary": "1. 光锥由引擎画：MENU_WARM.coneAlpha=0.018 为旧白卡口径，现图上偏淡；如需更亮只调该常量（不",
           "keywords": [
@@ -94514,8 +94530,8 @@
         {
           "anchor": "§WXG-T-521",
           "level": 2,
-          "startLine": 5078,
-          "endLine": 5136,
+          "startLine": 5096,
+          "endLine": 5154,
           "tokens": 1280,
           "summary": "",
           "keywords": [
@@ -94525,8 +94541,8 @@
         {
           "anchor": "§1 触发 (21)",
           "level": 3,
-          "startLine": 5080,
-          "endLine": 5083,
+          "startLine": 5098,
+          "endLine": 5101,
           "tokens": 123,
           "summary": "主菜单自 WXG-T-516 起已有「程序化暖带 + 四条暗角 + 左上光束 + 左下陶盆」。用户看过三态对照（temp",
           "keywords": [
@@ -94538,8 +94554,8 @@
         {
           "anchor": "§2 改动（一条守卫、可逆）",
           "level": 3,
-          "startLine": 5084,
-          "endLine": 5098,
+          "startLine": 5102,
+          "endLine": 5116,
           "tokens": 334,
           "summary": "games/beads/src/config/tuning/menu.ts 新增 MENU_TEXTURES.backd",
           "keywords": [
@@ -94554,8 +94570,8 @@
         {
           "anchor": "§3 验证",
           "level": 3,
-          "startLine": 5099,
-          "endLine": 5104,
+          "startLine": 5117,
+          "endLine": 5122,
           "tokens": 99,
           "summary": "npx tsc --noEmit（beads）0 错；pnpm run cocos:check 2/2 通过（含镜像里的",
           "keywords": [
@@ -94570,8 +94586,8 @@
         {
           "anchor": "§4 还账与风险",
           "level": 3,
-          "startLine": 5105,
-          "endLine": 5110,
+          "startLine": 5123,
+          "endLine": 5128,
           "tokens": 142,
           "summary": "1. 余量只剩 109.1 KB（背板自身 187.9 KB）。beads 内部目标 = 平台红线 4096 KB ⇒ ",
           "keywords": [
@@ -94582,8 +94598,8 @@
         {
           "anchor": "§5 二轮：色数/体积复核（2026-10-31，用户见 32 色降质）",
           "level": 3,
-          "startLine": 5111,
-          "endLine": 5136,
+          "startLine": 5129,
+          "endLine": 5154,
           "tokens": 530,
           "summary": "用户对比 6 张样图（3 母版 × 32 色/RGB）后问「32 色是否适合游戏、哪个 RGB 质量好又省体」。量测结论",
           "keywords": [
@@ -94598,8 +94614,8 @@
         {
           "anchor": "§WXG-T-520",
           "level": 2,
-          "startLine": 5137,
-          "endLine": 5193,
+          "startLine": 5155,
+          "endLine": 5211,
           "tokens": 1062,
           "summary": "",
           "keywords": [
@@ -94609,8 +94625,8 @@
         {
           "anchor": "§1 触发 (22)",
           "level": 3,
-          "startLine": 5139,
-          "endLine": 5142,
+          "startLine": 5157,
+          "endLine": 5160,
           "tokens": 84,
           "summary": "用户提供本地 ComfyUI 配置清单（SAM 2.1 权重到 models/sams/、big-lama.pt 到 m",
           "keywords": [
@@ -94625,8 +94641,8 @@
         {
           "anchor": "§2 实际可用的链路",
           "level": 3,
-          "startLine": 5143,
-          "endLine": 5165,
+          "startLine": 5161,
+          "endLine": 5183,
           "tokens": 326,
           "summary": "GroundingDinoModelLoader 一加载就报 'BertModel' object has no att",
           "keywords": [
@@ -94641,8 +94657,8 @@
         {
           "anchor": "§3 三个必须知道的坑",
           "level": 3,
-          "startLine": 5166,
-          "endLine": 5171,
+          "startLine": 5184,
+          "endLine": 5189,
           "tokens": 152,
           "summary": "1. 点坐标 y > 700 时 SAM2 返回空 mask（need at least one array to st",
           "keywords": [
@@ -94657,8 +94673,8 @@
         {
           "anchor": "§4 产出",
           "level": 3,
-          "startLine": 5172,
-          "endLine": 5186,
+          "startLine": 5190,
+          "endLine": 5204,
           "tokens": 263,
           "summary": "⛔ 2026-10-31 用户裁定：整个 sam2-parts/ 已删除作废（「抠大图后，补全的背景非常模糊，也不能要」",
           "keywords": [
@@ -94670,8 +94686,8 @@
         {
           "anchor": "§5 关键教训与遗留",
           "level": 3,
-          "startLine": 5187,
-          "endLine": 5193,
+          "startLine": 5205,
+          "endLine": 5211,
           "tokens": 201,
           "summary": "点坐标必须用网格图逐个读（grid_top.png：2x + 25px 网格 + 坐标标注）。前两轮靠估点，招牌点落在墙",
           "keywords": [
@@ -94683,8 +94699,8 @@
         {
           "anchor": "§WXG-T-519",
           "level": 2,
-          "startLine": 5194,
-          "endLine": 5259,
+          "startLine": 5212,
+          "endLine": 5277,
           "tokens": 1532,
           "summary": "",
           "keywords": [
@@ -94694,8 +94710,8 @@
         {
           "anchor": "§1 触发 (23)",
           "level": 3,
-          "startLine": 5196,
-          "endLine": 5201,
+          "startLine": 5214,
+          "endLine": 5219,
           "tokens": 97,
           "summary": "用户看完成对图后说：「直接给我抠图吧，生成的图不太能还原」，随后补充「直接把顶板原样抠出来，不要把彩豆和白花什么元素给去",
           "keywords": [
@@ -94705,8 +94721,8 @@
         {
           "anchor": "§2 换源图的关键判断",
           "level": 3,
-          "startLine": 5202,
-          "endLine": 5212,
+          "startLine": 5220,
+          "endLine": 5230,
           "tokens": 154,
           "summary": "手上两张稿的招牌不是同一块：",
           "keywords": [
@@ -94717,8 +94733,8 @@
         {
           "anchor": "§3 技术路径",
           "level": 3,
-          "startLine": 5213,
-          "endLine": 5227,
+          "startLine": 5231,
+          "endLine": 5245,
           "tokens": 377,
           "summary": "自动判据全部证伪：实景木墙 #A4602F 与板面 #8B5A2E 的亮度差 10、饱和度差 17、色相差 6°，低于可",
           "keywords": [
@@ -94730,8 +94746,8 @@
         {
           "anchor": "§4 产出与读数",
           "level": 3,
-          "startLine": 5228,
-          "endLine": 5248,
+          "startLine": 5246,
+          "endLine": 5266,
           "tokens": 562,
           "summary": "⛔ 2026-10-31 用户裁定：抠图源内容已改 ⇒ 本目录（cut-sign-scene/）与 cut-sign/ ",
           "keywords": [
@@ -94744,8 +94760,8 @@
         {
           "anchor": "§5 未解约束",
           "level": 3,
-          "startLine": 5249,
-          "endLine": 5254,
+          "startLine": 5267,
+          "endLine": 5272,
           "tokens": 170,
           "summary": "1. 板比旧框矮：MENU_SIGN_FRAME.h = 298（tuning/menu.ts:312）是给旧招牌量的，",
           "keywords": [
@@ -94758,8 +94774,8 @@
         {
           "anchor": "§6 沉淀候选（0 条已入）",
           "level": 3,
-          "startLine": 5255,
-          "endLine": 5259,
+          "startLine": 5273,
+          "endLine": 5277,
           "tokens": 127,
           "summary": "反预乘的方向性：反预乘只适用于「深色背景 + 浅色主体」；主体比背景浅时，半透明边会被算成白边。深色实景背景（木墙）上抠",
           "keywords": [
@@ -94770,8 +94786,8 @@
         {
           "anchor": "§WXG-T-517",
           "level": 2,
-          "startLine": 5260,
-          "endLine": 5296,
+          "startLine": 5278,
+          "endLine": 5314,
           "tokens": 1162,
           "summary": "",
           "keywords": [
@@ -94781,8 +94797,8 @@
         {
           "anchor": "§1 触发 (24)",
           "level": 3,
-          "startLine": 5262,
-          "endLine": 5265,
+          "startLine": 5280,
+          "endLine": 5283,
           "tokens": 90,
           "summary": "用户提供两张 AI 生成稿（整版木屋场景 + 单橱窗透明版），要求「以整版页面为基调，以单一橱窗页面为元素，抠出顶板、按",
           "keywords": [
@@ -94792,8 +94808,8 @@
         {
           "anchor": "§2 技术路径",
           "level": 3,
-          "startLine": 5266,
-          "endLine": 5276,
+          "startLine": 5284,
+          "endLine": 5294,
           "tokens": 327,
           "summary": "棋盘格是假透明：图1 的 alpha 全 255，棋盘格画进像素里，两色 254/239、周期 ~22px 但有亚像素漂",
           "keywords": [
@@ -94804,8 +94820,8 @@
         {
           "anchor": "§3 产出 (3)",
           "level": 3,
-          "startLine": 5277,
-          "endLine": 5282,
+          "startLine": 5295,
+          "endLine": 5300,
           "tokens": 315,
           "summary": "⛔ 2026-10-31 用户裁定：parts/ 与 parts-lossless/ 已删除作废（「裁剪的不全」）。实测",
           "keywords": [
@@ -94817,8 +94833,8 @@
         {
           "anchor": "§4 三条未解约束（决定这批能不能上线）",
           "level": 3,
-          "startLine": 5283,
-          "endLine": 5288,
+          "startLine": 5301,
+          "endLine": 5306,
           "tokens": 163,
           "summary": "1. 分辨率：图稿 720 宽，全部件只有 @2x 需求的 48%，需放大 2.08x。参照 2026-10-13 判例",
           "keywords": [
@@ -94830,8 +94846,8 @@
         {
           "anchor": "§5 整屏背景为何没做",
           "level": 3,
-          "startLine": 5289,
-          "endLine": 5292,
+          "startLine": 5307,
+          "endLine": 5310,
           "tokens": 110,
           "summary": "图2 的橱窗占中央 73% 宽、54% 高，擦掉后需重建拱形木楣、两面木墙（含货架/绿植）、木柜台。本仓无 inpain",
           "keywords": [
@@ -94841,10 +94857,10 @@
           ]
         },
         {
-          "anchor": "§6 沉淀统计 (12)",
+          "anchor": "§6 沉淀统计 (11)",
           "level": 3,
-          "startLine": 5293,
-          "endLine": 5296,
+          "startLine": 5311,
+          "endLine": 5314,
           "tokens": 108,
           "summary": "未跑 kb:sync。候选 1 条：「拿 AI 整页稿当素材库前先量三件事——分辨率是否够 @2x、画风是否同一体系、被",
           "keywords": [
@@ -94855,8 +94871,8 @@
         {
           "anchor": "§WXG-T-516",
           "level": 2,
-          "startLine": 5297,
-          "endLine": 5326,
+          "startLine": 5315,
+          "endLine": 5344,
           "tokens": 828,
           "summary": "",
           "keywords": [
@@ -94866,8 +94882,8 @@
         {
           "anchor": "§1 触发 (25)",
           "level": 3,
-          "startLine": 5299,
-          "endLine": 5302,
+          "startLine": 5317,
+          "endLine": 5320,
           "tokens": 79,
           "summary": "用户令「现在的主界面符合设计风格，但是太空了，缺少温暖的感觉，还是保持静态显示，不要动画或者粒子效果」。随后在「生图点缀",
           "keywords": [
@@ -94877,8 +94893,8 @@
         {
           "anchor": "§2 实验结论（决定了最终形态）",
           "level": 3,
-          "startLine": 5303,
-          "endLine": 5309,
+          "startLine": 5321,
+          "endLine": 5327,
           "tokens": 343,
           "summary": "白名单法有效：「独立物体数量与参考图完全一致 + 唯一允许新增一处」⇒ 视觉密度 3.05x → 2.49x（六版最低）",
           "keywords": [
@@ -94889,8 +94905,8 @@
         {
           "anchor": "§3 落地",
           "level": 3,
-          "startLine": 5310,
-          "endLine": 5315,
+          "startLine": 5328,
+          "endLine": 5333,
           "tokens": 123,
           "summary": "drawMenuBackdrop：桌面暖带 + 分界线 + 四角暗角 + 光束 blit + 陶盆 blit；drawC",
           "keywords": [
@@ -94903,8 +94919,8 @@
         {
           "anchor": "§4 验收",
           "level": 3,
-          "startLine": 5316,
-          "endLine": 5322,
+          "startLine": 5334,
+          "endLine": 5340,
           "tokens": 138,
           "summary": "pnpm test 1413 通过 / 2 跳过；check:arch OK；framework:sync:check ",
           "keywords": [
@@ -94919,8 +94935,8 @@
         {
           "anchor": "§5 沉淀统计 (4)",
           "level": 3,
-          "startLine": 5323,
-          "endLine": 5326,
+          "startLine": 5341,
+          "endLine": 5344,
           "tokens": 113,
           "summary": "未跑 kb:sync。候选 2 条：① 「提亮幅度受背景色上限约束：亮底上唯一有效的提亮手段是高位 alpha + 白，",
           "keywords": [
@@ -94932,8 +94948,8 @@
         {
           "anchor": "§WXG-T-514",
           "level": 2,
-          "startLine": 5327,
-          "endLine": 5353,
+          "startLine": 5345,
+          "endLine": 5371,
           "tokens": 390,
           "summary": "",
           "keywords": [
@@ -94943,8 +94959,8 @@
         {
           "anchor": "§1 触发 (26)",
           "level": 3,
-          "startLine": 5329,
-          "endLine": 5332,
+          "startLine": 5347,
+          "endLine": 5350,
           "tokens": 51,
           "summary": "用户：外框要有木纹；按钮按色调即可并加立体；周围线条均匀；「下一关」周边不要横线；信息与星星要突出。",
           "keywords": [
@@ -94954,8 +94970,8 @@
         {
           "anchor": "§2 资产",
           "level": 3,
-          "startLine": 5333,
-          "endLine": 5336,
+          "startLine": 5351,
+          "endLine": 5354,
           "tokens": 47,
           "summary": "ui_wood_frame.png：由柔和木纹派生 780×705（1.5x）圆角环，环宽 12px@1x，中心透明；量",
           "keywords": [
@@ -94967,8 +94983,8 @@
         {
           "anchor": "§3 绘制",
           "level": 3,
-          "startLine": 5337,
-          "endLine": 5344,
+          "startLine": 5355,
+          "endLine": 5362,
           "tokens": 140,
           "summary": "外框：纸面板 → blit 木环 → 外/内各 2px woodEdge 均匀描边（内描边 = 环内缘 12px）。",
           "keywords": [
@@ -94980,8 +94996,8 @@
         {
           "anchor": "§4 验证 (2)",
           "level": 3,
-          "startLine": 5345,
-          "endLine": 5349,
+          "startLine": 5363,
+          "endLine": 5367,
           "tokens": 46,
           "summary": "全量 1412 通过 / 2 跳过（金样本随批重取）。",
           "keywords": [
@@ -94991,8 +95007,8 @@
         {
           "anchor": "§5 沉淀统计 (5)",
           "level": 3,
-          "startLine": 5350,
-          "endLine": 5353,
+          "startLine": 5368,
+          "endLine": 5371,
           "tokens": 85,
           "summary": "未跑 kb:sync。候选 1 条：「木纹要给外框就做成『环形 alpha 贴图 + 内外两条均匀描边』，比给整块面板贴",
           "keywords": [
@@ -95004,8 +95020,8 @@
         {
           "anchor": "§WXG-T-513",
           "level": 2,
-          "startLine": 5354,
-          "endLine": 5373,
+          "startLine": 5372,
+          "endLine": 5391,
           "tokens": 234,
           "summary": "",
           "keywords": [
@@ -95015,8 +95031,8 @@
         {
           "anchor": "§1 触发 (27)",
           "level": 3,
-          "startLine": 5356,
-          "endLine": 5359,
+          "startLine": 5374,
+          "endLine": 5377,
           "tokens": 56,
           "summary": "用户选「按真机微调纹理」。未提供新截图 ⇒ 按小尺寸可读性先做柔和化对照：同一张纹理在 300×92 下按 0% / 2",
           "keywords": [
@@ -95026,8 +95042,8 @@
         {
           "anchor": "§2 定稿",
           "level": 3,
-          "startLine": 5360,
-          "endLine": 5363,
+          "startLine": 5378,
+          "endLine": 5381,
           "tokens": 28,
           "summary": "25%（40% 已发糊、0% 抢字）⇒ 覆盖 ui_wood_grain.png、重跑量化与构建。",
           "keywords": [
@@ -95039,8 +95055,8 @@
         {
           "anchor": "§3 读数",
           "level": 3,
-          "startLine": 5364,
-          "endLine": 5369,
+          "startLine": 5382,
+          "endLine": 5387,
           "tokens": 61,
           "summary": "主包 3524.2 KB / 123 文件（余 571.8 KB；比 1.0.13 少 21 KB）。",
           "keywords": [
@@ -95050,8 +95066,8 @@
         {
           "anchor": "§4 沉淀统计",
           "level": 3,
-          "startLine": 5370,
-          "endLine": 5373,
+          "startLine": 5388,
+          "endLine": 5391,
           "tokens": 71,
           "summary": "未跑 kb:sync。候选 1 条：「纹理在小控件上先按实际尺寸做对比条，再决定柔和度；只看 1024 原图会高估对比」",
           "keywords": [
@@ -95062,8 +95078,8 @@
         {
           "anchor": "§WXG-T-512",
           "level": 2,
-          "startLine": 5374,
-          "endLine": 5400,
+          "startLine": 5392,
+          "endLine": 5418,
           "tokens": 386,
           "summary": "",
           "keywords": [
@@ -95073,8 +95089,8 @@
         {
           "anchor": "§1 触发 (28)",
           "level": 3,
-          "startLine": 5376,
-          "endLine": 5379,
+          "startLine": 5394,
+          "endLine": 5397,
           "tokens": 55,
           "summary": "用户：「希望木纹设计感更强一些，同时卡通感也更强一些，如果需要纹理设计，请用大模型生成纹理图片并拉伸使用。」",
           "keywords": [
@@ -95084,8 +95100,8 @@
         {
           "anchor": "§2 资产 (2)",
           "level": 3,
-          "startLine": 5380,
-          "endLine": 5385,
+          "startLine": 5398,
+          "endLine": 5403,
           "tokens": 103,
           "summary": "云 qwen-image-3.0 seed 511（0.18 元）：1024² 卡通木纹，横向纹路、暖蜜色。",
           "keywords": [
@@ -95098,8 +95114,8 @@
         {
           "anchor": "§3 绘制 (2)",
           "level": 3,
-          "startLine": 5386,
-          "endLine": 5391,
+          "startLine": 5404,
+          "endLine": 5409,
           "tokens": 75,
           "summary": "木牌：木底 rect → blit 木纹拉伸 → 3px 木边 → 奶白字。",
           "keywords": [
@@ -95111,8 +95127,8 @@
         {
           "anchor": "§4 验证 (3)",
           "level": 3,
-          "startLine": 5392,
-          "endLine": 5396,
+          "startLine": 5410,
+          "endLine": 5414,
           "tokens": 48,
           "summary": "check:cocos-mask OK（新纹理进包，产物等值）；",
           "keywords": [
@@ -95125,8 +95141,8 @@
         {
           "anchor": "§5 沉淀统计 (6)",
           "level": 3,
-          "startLine": 5397,
-          "endLine": 5400,
+          "startLine": 5415,
+          "endLine": 5418,
           "tokens": 84,
           "summary": "未跑 kb:sync。候选 1 条：「纹理类 UI 资产用大模型出 1024 方图后裁成目标比例的圆角条，再拉伸到木牌/",
           "keywords": [
@@ -95137,8 +95153,8 @@
         {
           "anchor": "§WXG-T-511",
           "level": 2,
-          "startLine": 5401,
-          "endLine": 5428,
+          "startLine": 5419,
+          "endLine": 5446,
           "tokens": 367,
           "summary": "",
           "keywords": [
@@ -95148,8 +95164,8 @@
         {
           "anchor": "§1 真机反馈",
           "level": 3,
-          "startLine": 5403,
-          "endLine": 5406,
+          "startLine": 5421,
+          "endLine": 5424,
           "tokens": 44,
           "summary": "用户：「结算面板标题颜色不太对，按钮太弱，边框有虚线，内容文字太弱，星星样式太简单。」",
           "keywords": [
@@ -95159,8 +95175,8 @@
         {
           "anchor": "§2 根因与修正",
           "level": 3,
-          "startLine": 5407,
-          "endLine": 5416,
+          "startLine": 5425,
+          "endLine": 5434,
           "tokens": 171,
           "summary": "标题颜色不对 深墨压在木牌上，对比低 改 palette.woodText 奶白",
           "keywords": [
@@ -95172,8 +95188,8 @@
         {
           "anchor": "§3 边界",
           "level": 3,
-          "startLine": 5417,
-          "endLine": 5420,
+          "startLine": 5435,
+          "endLine": 5438,
           "tokens": 29,
           "summary": "零内容与几何变更（仍 520×470 / 信息区 400×270 / 双钮）；只改绘制。",
           "keywords": [
@@ -95183,8 +95199,8 @@
         {
           "anchor": "§4 验证 (4)",
           "level": 3,
-          "startLine": 5421,
-          "endLine": 5424,
+          "startLine": 5439,
+          "endLine": 5442,
           "tokens": 29,
           "summary": "全量 1412 通过 / 2 跳过；clear 金样本重取后重建 1.0.12 并出码。",
           "keywords": [
@@ -95195,8 +95211,8 @@
         {
           "anchor": "§5 沉淀统计 (7)",
           "level": 3,
-          "startLine": 5425,
-          "endLine": 5428,
+          "startLine": 5443,
+          "endLine": 5446,
           "tokens": 67,
           "summary": "未跑 kb:sync。候选 1 条：「1px 低对比描边在高 DPR 上会读成虚线：要么加到 2px，要么改用更深的结构",
           "keywords": [
@@ -95209,9 +95225,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 26426,
+      "tokens": 26536,
       "lines": 132,
-      "sha256": "cdbee938ddd29ac4c9ae838ee9c6c895be3538b4bb2316231aef670591ffe7fe",
+      "sha256": "bec78748d964b868ca623350b63189487c98cfcb0ac5010e1da2b015f3eadab6",
       "tier": "hot",
       "sections": [
         {
@@ -95219,7 +95235,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 133,
-          "tokens": 26417,
+          "tokens": 26527,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
