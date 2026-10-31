@@ -1,0 +1,31 @@
+主界面设计 v2 · 本地/云端改稿记录（2026-10-31）
+
+基准：../compose-rgb.png（752×1344）
+坐标口径：顶栏圆钮视觉直径 80、圆心 (58,169)/(58,257)/(692,169)/(692,257)，
+与 tuning/layout.ts 的 MENU_TOPBAR_X=14/648、TOUCH_MIN=88、ROW2_DY=88 对齐。
+橱窗可编辑区：x152..620, y392..888。
+
+本地路线（Qwen-Image 2.1 / ComfyUI 192.168.1.16:8188）
+1) 清空橱窗：qwen-image-2.1-edit-masked，mask=masks/mask-showcase.png，seed 42，steps 25，denoise 1.0
+   产出 temp/online-inpaint/local-showcase-empty.png（mask 内重绘，成品再按 mask 回贴锁外区）
+2) 设置摆件：qwen-image-2.1 t2i 1:1，seed 42 → assets/settings-item-source-teal.png
+   深青底按色相差 key 成 assets/settings-item-cut.png，贴在橱窗中层层板，高 266
+3) 顶栏四钮：沿用本地 t2i 四钮切图 assets/btn-0..3-*.png，盘面 80，程序化贴放
+合成：temp/menu-v2-edit/compose-finals.py
+
+云端路线（阿里云百炼 wan2.7-image，bbox_list）
+1) 顶栏：src=compose-rgb.png，bbox=[[14,125,102,301],[650,125,738,301]]，seed 11
+   产出 temp/online-inpaint/cloud-buttons-v2.png
+   注意：seed 11 版日历无文字，但圆盘下方多写了“排行/换肤”，回贴时按 r=47 圆域裁掉
+   （v1 seed42 日历上有伪文字；v3 seed23 文字写进盘内，均弃用）
+2) 橱窗：bbox=[[152,392,620,888]]，seed 31
+   产出 temp/online-inpaint/cloud-showcase-v2.png（齿轮约占橱窗 2/3，保留中层隔板）
+3) 回贴：只贴 bbox/圆域并做羽化，框外逐像素锁原图（wan 输出 1531×2737，先缩回 752×1344）
+
+产物
+- v2-local-20261031.png：本地路线成稿
+- v2-cloud-20261031.png：云端路线成稿
+- v2-compare-20261031.png：原图/本地/云端三栏
+- v2-compare-top-20261031.png、v2-compare-showcase-20261031.png：顶栏/橱窗细节三栏
+
+未做：木牌“小猫咪 第1关”文案未改；正式切图与 meta-menu.ts 接线待设计定稿。
