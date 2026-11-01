@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3909,
       "lines": 132,
-      "sha256": "411d929fa48f542a7a096eb08d728a910b462c6f395a5eb2b203db60ac46ab5b",
+      "sha256": "fcc428aac1be20f65538bf8c9fa5e8a99f7d7f66cf239cfe68373a47a4a1fba3",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 171363 5684 normal",
+          "summary": "1 production/TASKS-DETAIL.md 171484 5684 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "71c22fe49198f5ecc6d2aacd1c154eb2f41ab134820bd387ed5433ad331977cf",
+      "sha256": "db7c007ecd7db07e5a75471296345222b313d222059953de10042b19ec99004f",
       "tier": "normal",
       "sections": [
         {
@@ -1016,7 +1016,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 5684 行 / 171363 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 5684 行 / 171484 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
@@ -88382,9 +88382,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 171363,
+      "tokens": 171484,
       "lines": 5684,
-      "sha256": "0f0dffb5f12e93105dc2634059e191432a5f416195e71a835505cb29ae2bed15",
+      "sha256": "683a8229f2e7620ad45bb8e1e933fdc9066d596ecc1840c3918ea60fc782f22a",
       "tier": "normal",
       "sections": [
         {
@@ -88392,7 +88392,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 5685,
-          "tokens": 171346,
+          "tokens": 171467,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -94336,7 +94336,7 @@
           "level": 2,
           "startLine": 4894,
           "endLine": 4947,
-          "tokens": 2230,
+          "tokens": 2351,
           "summary": "",
           "keywords": [
             "WXG"
@@ -94448,7 +94448,7 @@
           "level": 3,
           "startLine": 4942,
           "endLine": 4947,
-          "tokens": 375,
+          "tokens": 496,
           "summary": "未跑 kb:sync（本轮未碰玩法与冻结值）。候选 2 条：① 「自证的机检判据必须配一条能证伪的判据」——回贴 max",
           "keywords": [
             "sync",
@@ -110454,17 +110454,17 @@
     },
     {
       "path": "production/qa/token-plan-usage-ledger.md",
-      "tokens": 1525,
-      "lines": 66,
-      "sha256": "8325d6577c148a0fab5790f6666e9e787d73856cdb338a3d73c3162ecab7cbd3",
+      "tokens": 2086,
+      "lines": 81,
+      "sha256": "643a7c035ec575e819d6aa9e7a96091414bc8d843362f20d6b2c98da78ded30a",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Token Plan 生图用量台账（建账 2026-11-01）",
           "level": 1,
           "startLine": 1,
-          "endLine": 67,
-          "tokens": 1509,
+          "endLine": 82,
+          "tokens": 2070,
           "summary": "本件只管「花了多少次、出了几张图、留在哪」，是追加型台账（按时间序加行，⛔ 不回改历史行）。",
           "keywords": [
             "Token",
@@ -110558,6 +110558,22 @@
           "keywords": [
             "复算方法",
             "想自己核一遍"
+          ]
+        },
+        {
+          "anchor": "§6 temp 生图存量（2026-11-01 清理一次，用户令「把 temp 里的生图都清理掉」）",
+          "level": 2,
+          "startLine": 68,
+          "endLine": 82,
+          "tokens": 528,
+          "summary": "清理前 3642 张 / temp 共 2.3 GB",
+          "keywords": [
+            "temp",
+            "生图存量",
+            "清理一次",
+            "用户令",
+            "里的生图都清",
+            "理掉"
           ]
         }
       ]
