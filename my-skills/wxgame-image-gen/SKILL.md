@@ -53,6 +53,17 @@ python3 games/beads/design/ai-workflows/dashscope-generate.py \
   --model qwen-image-2.1-turbo --size 1152*2048 --seed 42 --text "<正向提示词>"
 ```
 
+**云 · 色彩锁定（仅 wan2.7 线）**——本仓首个可脚本化的风格色彩开关，实测跨 seed 整幅平均色 ΔE 10.6 → 0.6/1.1：
+
+```bash
+python3 games/beads/design/ai-workflows/dashscope-generate.py --check   # 改过 --palette 解析腿必跑
+python3 games/beads/design/ai-workflows/dashscope-generate.py \
+  --profile token-plan --model wan2.7-image --size "752*1344" --seed 7 \
+  --palette "#F1E8D8:36.00,#F7CD9D:16.00,…（3–10 色，ratio 总和恰 100.00）" --text "<正向提示词>"
+```
+
+三条实测边界（正本 `model-matrix.md` §2 注 + `production/qa/wan27-token-plan-20261101.md` §9）：**色板必须按设计意图手挑**（喂自动中位切分板会把底色一起拖深）；**≤ 4% 的高饱和 accent 会归零或乱长成边缘大色块**（小面积强调色留给运行时程序化上色）；**只锁色彩不锁版面**。
+
 **云 · Token Plan 通道**（图与**图像编辑**同一端点；编辑＝`--ref <底图>` + 指令，实测 10.8s）
 
 ```bash

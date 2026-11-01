@@ -173,6 +173,7 @@ def _parse_args(argv):
     models, level, text, ref, seed = [], "boss", None, None, None
     size = None
     bbox = None
+    palette = None
     profile = "maas"
     i = 0
     while i < len(argv):
@@ -207,18 +208,36 @@ def _parse_args(argv):
             if len(v) != 4:
                 raise SystemExit("--bbox 需要四个整数：x1,y1,x2,y2")
             bbox = v
+        elif a == "--palette":
+            # wan2.7 线 `color_palette`：3–10 色 `"#RRGGBB:20.00"`（**服务端形状是
+            # {"hex": "#RRGGBB", "ratio": "20.00%"}——ratio 是带百分号的字符串**，写成
+            # 数字或键名用 color 都会 400 InvalidParameter，实测 request_id 119559e9…）。
+            # CLI 上写裸数字更省事，这里补 `%`。⛔ qwen 线不认此参数；官方口径「仅关组图模式可用」。
+            i += 1
+            pal = []
+            for it in [x for x in argv[i].replace(" ", "").split(",") if x]:
+                c, _, r = it.partition(":")
+                if not c.startswith("#") or len(c) != 7 or not r:
+                    raise SystemExit('--palette 形如 "#RRGGBB:20.00,#…（3–10 色）"')
+                pal.append({"hex": c.upper(), "ratio": "%.2f%%" % float(r)})
+            if not 3 <= len(pal) <= 10:
+                raise SystemExit("--palette 需要 3–10 色（当前 %d）" % len(pal))
+            tot = sum(float(p["ratio"][:-1]) for p in pal)
+            if abs(tot - 100.00) > 0.005:
+                raise SystemExit("--palette 的 ratio 总和必须恰为 100.00（当前 %.2f）" % tot)
+            palette = pal
         elif a in ("-h", "--help"):
             print(__doc__)
             raise SystemExit
         else:
             models.append(a)  # 兼容旧位置参数：直接给模型名
         i += 1
-    return models, level, text, ref, seed, size, profile, bbox
+    return models, level, text, ref, seed, size, profile, bbox, palette
 
 
 def _self_check():
-    """最小自检：--bbox 解析与 bbox_list 形状（长度必须等于输入图数）。改过解析腿必跑。"""
-    m, _lv, _t, ref, _s, size, prof, bbox = _parse_args(
+    """最小自检：--bbox / --palette 的解析与透传形状。改过解析腿必跑。"""
+    m, _lv, _t, ref, _s, size, prof, bbox, _pal = _parse_args(
         ["--profile", "token-plan", "--model", "wan2.7-image", "--ref", "a.png",
          "--bbox", "152,392,620,888", "--size", "752*1344", "--text", "x"])
     assert bbox == [152, 392, 620, 888] and ref == "a.png" and size == "752*1344", bbox
@@ -229,6 +248,15 @@ def _self_check():
         raise AssertionError("--bbox 三元组应报错")
     except SystemExit:
         pass
+    *_, pal = _parse_args(["--palette",
+                           "#F1E8D8:40.00,#FFFCF6:30.00,#8C5C2A:30.00"])
+    assert pal[0] == {"hex": "#F1E8D8", "ratio": "40.00%"} and len(pal) == 3, pal
+    for bad in ("#FFFFFF:50.00,#000000:40.00", "#FFFFFF:33.30,#000000:33.30,#111111:33.30"):
+        try:
+            _parse_args(["--palette", bad])
+            raise AssertionError("ratio 总和 ≠100 应报错：" + bad)
+        except SystemExit:
+            pass
     print("check ok")
     return 0
 
@@ -237,7 +265,7 @@ def main():
     argv = __import__("sys").argv[1:]
     if "--check" in argv:
         raise SystemExit(_self_check())
-    models, level, text, ref, seed, size, profile, bbox = _parse_args(argv)
+    models, level, text, ref, seed, size, profile, bbox, palette = _parse_args(argv)
     # 不给 --model 时只跑该 profile 在册的模型（token-plan 侧无 2.1 系与非 pro 3.0，
     # 拿全列表去撞会逐条 404 Model not exist）。
     models = models or (list(MODELS) if profile == "maas" else ["qwen-image-3.0-pro", "wan2.7-image"])
@@ -264,8 +292,10 @@ def main():
             params = {**params, "size": size}
         if bbox:
             params = {**params, "bbox_list": [[bbox]]}  # 单图输入 → 外层长度 1
+        if palette:
+            params = {**params, "color_palette": palette}
         slug = model.replace(".", "").replace("-", "_")
-        print(f"\n=== {model} · {profile} · {tag}{' · i2i' if ref else ''}{' · bbox' + str(bbox) if bbox else ''}{' · ' + size if size else ''}{' · seed' + str(seed) if seed is not None else ''} ===")
+        print(f"\n=== {model} · {profile} · {tag}{' · i2i' if ref else ''}{' · bbox' + str(bbox) if bbox else ''}{' · palette' + str(len(palette)) if palette else ''}{' · ' + size if size else ''}{' · seed' + str(seed) if seed is not None else ''} ===")
         t0 = time.time()
         try:
             resp = call(model, params, content, key, endpoint)
