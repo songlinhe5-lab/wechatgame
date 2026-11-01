@@ -110939,17 +110939,17 @@
     },
     {
       "path": "production/qa/token-plan-usage-ledger.md",
-      "tokens": 2278,
-      "lines": 83,
-      "sha256": "ccc7cf4f4351ea3ab06d3a783c714944b7bfb3381a6f03b67a87fc5e4f30a744",
+      "tokens": 2526,
+      "lines": 85,
+      "sha256": "5728c53b127774e2221db75d42e4147976bd2bd3bcbc7a4214b450c89ee75c5b",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Token Plan 生图用量台账（建账 2026-11-01）",
           "level": 1,
           "startLine": 1,
-          "endLine": 84,
-          "tokens": 2261,
+          "endLine": 86,
+          "tokens": 2510,
           "summary": "本件只管「花了多少次、出了几张图、留在哪」，是追加型台账（按时间序加行，⛔ 不回改历史行）。",
           "keywords": [
             "Token",
@@ -111049,8 +111049,8 @@
           "anchor": "§6 temp 生图存量（2026-11-01 清理一次，用户令「把 temp 里的生图都清理掉」）",
           "level": 2,
           "startLine": 68,
-          "endLine": 84,
-          "tokens": 720,
+          "endLine": 86,
+          "tokens": 969,
           "summary": "清理前 3642 张 / temp 共 2.3 GB",
           "keywords": [
             "temp",
@@ -111065,9 +111065,9 @@
     },
     {
       "path": "production/qa/wan27-token-plan-20261101.md",
-      "tokens": 3080,
+      "tokens": 3154,
       "lines": 97,
-      "sha256": "98f2f0c9241e071f2f240fcb8c60aac5102aea290fcdb71d07a6b8160ddf2210",
+      "sha256": "a19d3c2f28ad2a01391d1d8a0cd388526ff02d30bfdfdada5b3dc6504bce097c",
       "tier": "normal",
       "sections": [
         {
@@ -111075,7 +111075,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 98,
-          "tokens": 3052,
+          "tokens": 3126,
           "summary": "触发 = 用户令「如果 3.0 pro 真的这么差，wan2.7-image / -pro 是否可以弥补一些能力缺失」，",
           "keywords": [
             "wan2",
@@ -111123,7 +111123,7 @@
           "level": 2,
           "startLine": 30,
           "endLine": 46,
-          "tokens": 525,
+          "tokens": 598,
           "summary": "bbox_list 交互式编辑 ✅ 坐标 [x1,y1,x2,y2] 原图绝对像素、左上角 (0,0)；单图最多 2 框",
           "keywords": [
             "bbox_list",

@@ -80,4 +80,6 @@ ls temp/wan27-probe-20261101 temp/wan27-full-20261101 \
 2. temp 一次性脚本里共 150 条写死的图路径，其中 **148 条已不在磁盘** ⇒ 重跑旧脚本必须换新输入图（它们不自动失败，只是需重指）。
 3. **代码侧证据链未受影响**（删后复查）：`games/` `packages/` `dev/` `tools/` 源码注释共引用 temp 路径 15 条，其中**图片类断链 0 条**（本次只删图，剩下 4 条断的是 `.txt`/`.mjs` 类引用，早于本次已不在磁盘）；三门全绿且无一个构建/测试产物读 temp 图。
 
+**追加（2026-11-01 WXG-T-532 · 透明通道终判）**：补上 `wan2.7-image-pro` 那一格在册标「未测」的读数。Token Plan 通道 **2 次调用**（`--size 1024*1024`，seed 7 / 42 各一发，36.7 s / 20.3 s，套餐内零额外花费），出图 2 张落 `temp/pro-wan27-alpha/{s7,s42}.png`。判据 = alpha 分布：**`mode=RGBA` 但 `alpha=0` 占 0.00%、`alpha` min 254、连通域 1（整幅）**；所谓「透明背景」被画成灰白底，且底色跨 seed 不稳（左上 16×16 均值 211 ↔ 245）。⇒ **判负**，云生成线四模型（`qwen-image-3.0` / `-3.0-pro` / `wan2.7-image` / `-pro`）**无一能输出真透明**，与 `qwen-image-2.1-pro` 35 次「透明只能继承不能生成」同律。本批零新增资产，仅作方向关闭；⛔ 清 `temp/pro-wan27-alpha/` 前先看这一条。
+
 **追加（2026-11-01 WXG-T-531）**：上面 ③ 那两张「尚未入库正本」（`master-single-bg.png`、`hero2x-e1.png`）**已转正入库** → `games/beads/design/art/proposals/menu-3d-style-20261030/plate-cut-20261031/`（连同编辑指令正本 `p-master-single.txt` 与抠件源稿 `menu-design-master-20261031.png`）；6 个生成脚本同期由 temp 转正入 `ai-workflows/`。① 那 **45 张判据原 PNG 仍在 temp**（本批零花费、零出图，未动）。⇒ 本次清理暴露的口径已立为硬纪律：**归档件的原图与产出脚本须与图同批入库**，统一登记面 = `production/qa/asset-provenance.md`。
