@@ -79,7 +79,7 @@ TTS `qwen-audio-3.0-tts-plus`、视频 `wan3.0-video`（只异步）、**领域�
 > **不排他**（⛔ 禁色闸门）；**只锁色彩不锁版面**。qwen 线不认此参数、wan2.7 在 ② 已判负 ⇒ **② 首选不变**。
 > 读数 → 上一注 §9/§10
 
-**本地 vs 云盈亏平衡点**（换算值，不是实测）：本地不花钱，花的是**单卡排队 + 守候时间**；云 2.1-turbo 一张 0.10 元、8–14s。按切图一轮 20–30 张算：云 ≈ 2–5.4 元（3.0 受 RPM 20 串行），本地 ≈ 0 元但 ≈ 10–75min 且同时只能跑一个任务。→ **批量迭代（≥10 张/轮）走本地；少量需「版面 / 文案语义正确」的定稿张走云**。但选型真正的判据不是价格，而是 §1 的机制性判据。
+**本地 vs 云盈亏平衡点**（换算值，非实测）：本地花的是**单卡排队 + 守候时间**；云 2.1-turbo 一张 0.10 元、8–14s。切图一轮 20–30 张：云 ≈ 2–5.4 元（3.0 受 RPM 20 串行），本地 ≈ 0 元但 ≈ 10–75min 且只能跑一个任务。→ **批量迭代（≥10 张/轮）走本地；少量要「版面 / 文案语义正确」的定稿张走云**。但选型判据不是价格，而是 §1 的机制性判据。
 
 ## §3 排除项（含理由，勿重走）
 
@@ -126,11 +126,11 @@ TTS `qwen-audio-3.0-tts-plus`、视频 `wan3.0-video`（只异步）、**领域�
 | 采样档 | t2i 用 **25 步 euler/simple**；8 步 euler/normal 只可用于**有底图约束的 i2i/inpaint**。8 步做 t2i = 欠采样 → 高光>250 占比 73%（int8）/ 80%（Q5_K），首页基线 2.9%、云 4.7–11.6%；**换量化救不了** |
 | 历史称呼 | 「本地 qwen-image-2.1-turbo」**作废**——那是采样档不是模型，一律改称「本地 qwen-image-2.1（8 步档）」 |
 | 文本编码器 | `qwen3vl_8b_int8_convrot.safetensors`（type `qwen_image`）+ PE `qwen3.5_9b_qwen_image_2.1_pe_i2i` |
-| ❌ `Qwen-Image-2.1-Turbo-*.gguf` | **两个位置都试过，均不可用**：当 CLIP → KSampler 内 rms_norm 报 `normalized_shape=[4096]` vs 输入 `12288`（它吐 3× 宽度，2.1 的 DiT 只吃 4096）；当 PE → 现役 t2i 的 `ComfySwitchNode switch=false` 走原文分支，换它**像素零差**。移文件本身已生效（`CLIPLoaderGGUF` 可见，**无需重启**） |
+| ❌ `Qwen-Image-2.1-Turbo-*.gguf` | **两个位置都试过，均不可用**：当 CLIP → KSampler rms_norm 报 `normalized_shape=[4096]` vs 输入 `12288`（它吐 3× 宽度）；当 PE → `ComfySwitchNode switch=false` 走原文分支，换它**像素零差**。移文件已生效（`CLIPLoaderGGUF` 可见，**无需重启**） |
 | **本地 VLM 看图裁判** | ✅ **可用（零下载）**：同一 qwen3vl 权重接 `TextGenerate(prompt=提问, image=LoadImage)` 即成裁判。实测 4/4 判对（过曝图判"washed out"、云 3.0 小标签判"corrupted"、首页定稿无误报）。⚠ 判文字时「是否像真词」有假阳性（乱码碰巧成词），须改判「是否等于期望文案」 |
 | LoRA | 7 个在盘：`flat-illus-flux-v1`、`Flat style-000014`、`StickersRedmond`、`SDXL-StickerSheet`、`lineartSDXL`、`STICKER_FLUX`、`EnvyFluxKawaiiSticker01`（**均为 SDXL/Flux 系**，配 `flux1-dev-Q5_K_S.gguf`）；云侧 6 模型**都不吃 LoRA** |
 | 本地 Flux-dev（**已测，2 seed**） | 全套在盘零下载（`flux1-dev-Q5_K_S` + t5xxl/clip_l + ae VAE，`workflows/flux-dev-sticker.api.json`）。**结构 prior 确实强于 SDXL**（两 seed 均零空心/零多主体），但**背景与边距随 seed 漂**：同配方同题 heart，seed 4201 黑底留白但多一圈模切白边，seed 4211 直接**白底 + 撑满触边**→ 底图产线**不切换**（详见 §6）|
-| 分割 / 抠图（**已实测**） | SAM2 权重在盘（`DownloadAndLoadSAM2Model` 列 8 个 hiera 变体，零下载）**能跑**，但三条路都不合用：① `Sam2AutoSegmentation` 在这类扁平 UI 上出的是**合并单 mask**（服务端 history 就返 1 张），按钮只圈出细环、面板整体被当背景 → 不能当元素轮廓；② 点提示 `Sam2Segmentation.coordinates_positive` **不吃字面串**（原样塞给 predictor → `can't convert np.ndarray of type numpy.str_`），全服务唯一能产坐标串的节点是需 Florence2 权重的 `Florence2toCoordinates`；③ 最合用的核心节点 `SAM3_Detect`（文本 conditioning + JSON 点提示 + `individual_masks`，返 MASK/BOUNDING_BOX）**只缺权重**——上一版我记的「无加载器」**错了一半**：它吃的 `MODEL` 可由通用 `CheckpointLoaderSimple` 产出（SAM3.1 fp16 是完整 checkpoint，非适配器），只是当时盘上无文件所以 Loader 选项里看不到。→ 债改由本地洪水填充还（见 §6），下钻路线见 §6.1 |
+| 分割 / 抠图（**已实测**） | SAM2 权重在盘（`DownloadAndLoadSAM2Model` 列 8 个 hiera 变体，零下载）**能跑**，但三条路都不合用：① `Sam2AutoSegmentation` 在扁平 UI 只出**合并单 mask**（按钮只圈细环、面板整体被当背景）；② 点提示 `coordinates_positive` **不吃字面串**（直塞 predictor 报 `numpy.str_`），能产坐标串的 `Florence2toCoordinates` 需 Florence2 权重；③ 核心节点 `SAM3_Detect` **只缺权重**——其 `MODEL` 可由通用 `CheckpointLoaderSimple` 产出（SAM3.1 fp16 是完整 checkpoint，非适配器），上一版「无加载器」系错记。→ 债改由本地洪水填充还（见 §6），下钻见 §6.1；三路逐条故障原文 → `model-matrix-changelog.md` §7.3 |
 | ❌ 指令式 edit（文字指令改图） | `TextEncodeQwenImageEdit(Plus)` 节点在，**edit 专用权重无** → 本地不能吃「把 X 换成 Y」这类指令。⚠ 区别于**遮罩式 inpaint**：`InpaintModelConditioning` + 2.1 底座可用，本会话已实测出图（`temp/menu-states/pt-cta-qwen-f0.png`） |
 | ❌ 原生透明分层（**已实测，2026-10-12**） | `EmptyQwenImageLayeredLatentImage` + `LayeredNoiseToLatent` 节点在，**Layered 专用权重无**。实测现有权重的 alpha 路（本地 qwen-image-2.1 t2i，512²、seed 4321，提示词要「transparent background / no backdrop」）：输出**确为 RGBA**（`qwen_image_2.1_vae_bf16` 就是 RGBA VAE，通道能力已端到端打通），但 alpha **无语义**：`alpha=0` 占比 **0.00%**、`alpha>128` 占比 **100%**、四边均值 255、底面 RGB≈(251,253,254) 纯白 → **底座 2.1 画不出真透明**（与 §2 云侧 P0「带 alpha 但无有效透明」一致）。→ ③ 透明底资产不能靠现有权重零下载拿到；平色 UI 继续用 §6 的 `shape=point` 轮廓直接当 alpha |
 | ❌ ControlNet | 节点全套，`control_net_name: []`（`style-brief-for-lora.md` §6 重启条件 1 卡在此） |
@@ -150,15 +150,17 @@ TTS `qwen-audio-3.0-tts-plus`、视频 `wan3.0-video`（只异步）、**领域�
 
 - 工作流参数入口：本地 `qwen-image-2.1-turbo-i2i.api.json` 的 KSampler 节点 `8`，经 `submit-comfyui.py --override "8:denoise=0.9"` 临时改；云端 `--ref` 无 denoise 参数，走服务端默认。
 - 实证对照（同参考图、同种子 23、同描述体提示词）：见 §7 变更记录 2026-10-17 条。
-- 第三轮（以修过沙漏章的云 2.1-turbo s23 为基底，本地 2.1 25 步，种子 23 / 7 / 11 / 42）：
+- 第三轮逐格读数（0.7 / **0.8** / 0.9 × 种子 23 / 7 / 11 / 42、风格变化量级）→ `model-matrix-changelog.md` §7.3；
+  0.7 与 0.9 仅测 2 个种子，只作方向。图与明细：`bench/i2i-denoise-20261017/README.md` 第三、四节。
 
-| denoise | 种子 23 | 种子 7 | 种子 11 | 种子 42 | 风格变化 |
-|---|---|---|---|---|---|
-| 0.7 | 硬规则通过 | 锁格错（0★ 带锁） | 未测 | 未测 | 小 |
-| **0.8** | 通过 | 通过 | 0★ 格被画成锁格 | 通过 | 中 |
-| 0.9 | 返回钮丢失 | 通过，背景换成实景 | 未测 | 未测 | 大 |
+### §5.y 区域约束（box / mask）判定 —— 2026-11-01 六线探针
 
-  0.7 与 0.9 仅测 2 个种子，结论只作方向。图与明细：`bench/i2i-denoise-20261017/README.md` 第三、四节。
+**只有 `wan2.7-image` / `wan2.7-image-pro` 真认 `--bbox`**（框外均差 6.9 / 5.7）；
+`qwen-image-3.0` / `3.0-pro` / `2.1-pro` **静默忽略**（42.5 / 41.7 / 25.1，比不传框的整图重绘 19–21 还差）
+⇒ `dashscope-generate.py::bbox_guard` 已对 qwen 线硬拦。本地 2.1 masked 框外均差 1.1 不越界，但框内不执行。
+
+不论哪条线，出货都走**贴回三步**：`α = blur(M)×M`（只向内羽化）→ 合成 → `C[~M] = A[~M]` 硬拷回，
+区外 maxdiff 必须 = 0（漏硬拷回残留几十像素 Δ1）。六线读数与证据 → `model-matrix-changelog.md` §7.3。
 
 ## §6 未决与下一步
 
@@ -166,7 +168,7 @@ TTS `qwen-audio-3.0-tts-plus`、视频 `wan3.0-video`（只异步）、**领域�
 |---|---|---|
 | Flux-dev + 平涂 LoRA 冒烟（heart 单题） | **已测毕·不改判**（2026-10-09 九关 + 2026-10-12 二 seed） | 底图产线维持 qwen-image 2.1 v5：结构 prior 强（零空心/零多主体）**但背景/边距随 seed 跑**（4201 多一圈模切白边 + 双层心叠影；4211 白底撑满触边）⇒ 未过「≥2 seed 一致」改判门。配方 `temp/comfy-flux-batch.sh`（steps 28、max_shift 1.6）；能力行见 §5，全量读数 → `model-matrix-changelog.md` 2026-10-12（同日第 4 次）。⚠ `README.md` §workflows「9/9 达标」＝单 seed 结论，已就地标注；黑底产线**不需也不应要求黑色描边**（`style-brief-for-lora.md` §1 那条硬指标属白底时代）|
 | SAM 自动出 mask → 喂本地 inpaint | **已测毕·路线改道（债已还，零下载）** | SAM 三条路都不合用（详见 §5 分割行）→ 改 `temp/menu-states/inpaint-add.py` 的 `shape=point`（种子点 + 搜索半径代替手输矩形，自动填字洞）。实测两元素少刷 43%/62% 背景，端到端轮廓外 maxdiff=0。**口径与参数正本** = skill `wxgame-image-gen` §3 + `model-matrix-changelog.md` 2026-10-12（同日第 5 次）。天花板：只适用背景与元素色差明显的平色 UI；照片级/渐变背景等 SAM3.1（§6.1）|
-| Turbo 编码器 A/B | **已测毕·路线关闭**（文件已移入 `clip` 键，`CLIPLoaderGGUF` 可见且无需重启） | 两个位置都不通：当 CLIP → 维度 12288 vs 4096，KSampler 直接 RuntimeError；当 PE → 现役工作流 PE 分支 `switch=false` 不进图（换它像素零差，兼作确定性第三样本）。→ **本地换文本编码器不影响小字/版面**，该轴不要再投入；要改 PE 得先改接线（属另一变量，不是编码器变量） |
+| Turbo 编码器 A/B | **已测毕·路线关闭**（文件已移入 `clip` 键，`CLIPLoaderGGUF` 可见且无需重启） | 两个位置都不通（CLIP 位维度 12288≠4096 报错、PE 位 `switch=false` 不进图，机理见 §5 该行）→ **本地换文本编码器不影响小字/版面**，该轴不要再投入；要改 PE 得先改接线（属另一变量，不是编码器变量） |
 | 待授权重下载 | **清单已定（§6.1），本批只建议 1 项** | 本端无 SSH/无写接口，权重只能用户在服务端下；SAM3.1 以外均建议不下或先零下载实测 |
 | **判据证据目录 `temp/model-bench/out/` 已丢** | **本日发现·本地不可恢** | 该目录存着本文件正文引用的全部对比图（v4/v5 对、out-b1/b2、Flux・SDXL 对比张）。`temp/` 被 gitignore → 无版本兜底；本地 `8188` 从未生成过它们，云端 `8143` 当时 **503** ⇒ 暂捞不回。数字已记录在表，**目视复核需重跑**（v4/v5 对 = ¥6.84）或待云端实例恢复。教训：判据证据不得只存 `temp/` |
 | 判据脚本入库（`style-metrics.py` / `c-metrics.py` / `badge-contour.py` / `vlm-check.py`）+ **局部重绘入口** | 暂留 `temp/`（不入库） | 口径已抄录本文件 §4/§5；要长期复测建议提到本目录。⚠ 但 skill `wxgame-image-gen` 的④命令入口就是 `temp/menu-states/inpaint-add.py`（连其 qwen 后端 `temp/menu-states/qwen-turbo-inpaint.api.json`，10 节点：UNETLoader + CLIPLoader + VAELoader，`LoadImage → VAEEncodeForInpaint → KSampler(8 步) → VAEDecode → SaveImage`；mask 极性＝`putalpha(invert(hard))`，透明＝重绘）⇒ **temp 一清即断**。重建口径：以已入库的 `workflows/sdxl-inpaint.api.json` 为骨架换回 qwen 三 Loader + `VAEEncodeForInpaint`，尺寸档走 `--ratio/--mp` |
@@ -193,4 +195,4 @@ curl -s http://192.168.1.16:8188/object_info/CheckpointLoaderSimple \
 
 ## §7 变更记录
 
-逐轮追加的变更史已外移至 `model-matrix-changelog.md`（WXG-T-523；动机 = 本文件受 `ctx:check` B 项 8000 token 上限，追加式历史会把选型判据挤出预算）。**新轮次写进那份，不要写回本节。**
+变更史（§7.1）与外移明细（§7.3）已移至 `model-matrix-changelog.md`（WXG-T-523；动机 = 本文件受 `ctx:check` B 项 8000 token 上限，追加式历史会把选型判据挤出预算）。**新轮次写进那份，不要写回本节。**

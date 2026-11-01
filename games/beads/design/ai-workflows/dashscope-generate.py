@@ -28,6 +28,9 @@ wan2.7-image 等），提示词从 temp/beads-positive.sh 正本取（与本地�
   # 交互式编辑（框选，**仅 wan2.7 线认**）：只改框内，坐标＝底图绝对像素 x1,y1,x2,y2
   python3 dashscope-generate.py --profile token-plan --model wan2.7-image \\
       --ref <底图.png> --bbox 152,392,620,888 --size 752*1344 --text "<编辑指令>"
+  ⚠ qwen 线（3.0 / 3.0-pro / 2.1-pro）**静默忽略 bbox**：接口收下不报错，出图照样改全图，
+    框外均差 25–42（≈不传 bbox 的整图重绘水平）⇒ 本脚本对 qwen + bbox 直接 FAIL 退出，
+    那三条线请走「整图生成 + 遮罩贴回」。实测数据见 model-matrix.md §5 bbox 判定表。
 
 出图落 temp/dashscope-out/<tag>/<slug>.png（不入库），tag = 给了 --text 时恒为 custom，
 slug = 模型名去 `.` 、`-`→`_`（例：wan2.7-image → wan27_image.png）。⚠ **同模型连跑必覆盖**
@@ -235,6 +238,22 @@ def _parse_args(argv):
     return models, level, text, ref, seed, size, profile, bbox, palette
 
 
+def bbox_guard(models, bbox):
+    """仅 wan2.7 线认 bbox；qwen 线静默忽略 ⇒ 硬拦，⛔ 不留「收下参数但不生效」的坑。
+
+    2026-11-01 同题探针（左上 140x140 框内涂纯蓝）：wan2.7 / wan2.7-pro 框内变蓝 88.5%/96.4%、
+    框外均差 6.9/5.7；qwen3.0 / 3.0-pro / 2.1-pro 框内 0%、框外均差 42.5/41.7/25.1（比不传框还差）。
+    """
+    if not bbox:
+        return
+    bad = [m for m in models if not m.startswith("wan2.7")]
+    if bad:
+        raise SystemExit(
+            f"FAIL: {'/'.join(bad)} 会静默忽略 --bbox（实测框外均差 25–42，等同整图重绘）"
+            " —— 只有 wan2.7 线认区域约束。这三条线请改走「整图生成 + 遮罩贴回」，"
+            "并把区外 maxdiff 校验到 0。")
+
+
 def _self_check():
     """最小自检：--bbox / --palette 的解析与透传形状。改过解析腿必跑。"""
     m, _lv, _t, ref, _s, size, prof, bbox, _pal = _parse_args(
@@ -248,6 +267,15 @@ def _self_check():
         raise AssertionError("--bbox 三元组应报错")
     except SystemExit:
         pass
+    # bbox 只对 wan2.7 线放行，qwen 线必须被拦下（实测静默忽略，见 bbox_guard 注释）
+    bbox_guard(["wan2.7-image", "wan2.7-image-pro"], [1, 2, 3, 4])
+    for bad in ("qwen-image-3.0", "qwen-image-3.0-pro", "qwen-image-2.1-pro"):
+        try:
+            bbox_guard([bad], [1, 2, 3, 4])
+            raise AssertionError(f"{bad} + bbox 应被拦下")
+        except SystemExit:
+            pass
+    bbox_guard(["qwen-image-3.0"], None)   # 不给框就不拦
     *_, pal = _parse_args(["--palette",
                            "#F1E8D8:40.00,#FFFCF6:30.00,#8C5C2A:30.00"])
     assert pal[0] == {"hex": "#F1E8D8", "ratio": "40.00%"} and len(pal) == 3, pal
@@ -271,6 +299,7 @@ def main():
     models = models or (list(MODELS) if profile == "maas" else ["qwen-image-3.0-pro", "wan2.7-image"])
     if bbox and not ref:
         raise SystemExit("--bbox 必须配 --ref（bbox_list 是「每张输入图一栏」，无图即无栏）")
+    bbox_guard(models, bbox)
     prompt = text or load_prompt(level)
     tag = "custom" if text else level
     out_dir = os.path.join(OUT, tag)
