@@ -79,3 +79,5 @@ ls temp/wan27-probe-20261101 temp/wan27-full-20261101 \
 1. **矩阵与 skill 里所有像素读数目前仍可复算**，因为靠的就是上面那 45 张原始 PNG（入库的 webp 有损，⛔ 不能拿来算 maxdiff）。⇒ 本批木牌/箭头接线收口前不要清这四个目录；收口后一并删除并在此追加一行。
 2. temp 一次性脚本里共 150 条写死的图路径，其中 **148 条已不在磁盘** ⇒ 重跑旧脚本必须换新输入图（它们不自动失败，只是需重指）。
 3. **代码侧证据链未受影响**（删后复查）：`games/` `packages/` `dev/` `tools/` 源码注释共引用 temp 路径 15 条，其中**图片类断链 0 条**（本次只删图，剩下 4 条断的是 `.txt`/`.mjs` 类引用，早于本次已不在磁盘）；三门全绿且无一个构建/测试产物读 temp 图。
+
+**追加（2026-11-01 WXG-T-531）**：上面 ③ 那两张「尚未入库正本」（`master-single-bg.png`、`hero2x-e1.png`）**已转正入库** → `games/beads/design/art/proposals/menu-3d-style-20261030/plate-cut-20261031/`（连同编辑指令正本 `p-master-single.txt` 与抠件源稿 `menu-design-master-20261031.png`）；6 个生成脚本同期由 temp 转正入 `ai-workflows/`。① 那 **45 张判据原 PNG 仍在 temp**（本批零花费、零出图，未动）。⇒ 本次清理暴露的口径已立为硬纪律：**归档件的原图与产出脚本须与图同批入库**，统一登记面 = `production/qa/asset-provenance.md`。
