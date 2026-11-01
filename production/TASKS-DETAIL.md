@@ -4891,6 +4891,66 @@ git diff -w -- games/beads/src games/beads/cocos/assets/scripts/game
 
 **未跑 `kb:sync`**。候选 1 条：「外采 AI 素材的规格里必须写死『一件一张 + 真 alpha + 无投影 + 8% 安全边』——整页图切件必然踩分辨率、元素咬合、遮挡区不可分割三个坑」。统计 = 新增 0 / 修改 0 / 激活 0 / 归档 0（本批）。
 
+## WXG-T-531
+
+### 1. 触发
+
+上一轮收尾给的三个下一步里，用户选 **2** 并加装口径：「**统一使用图片生成文档，记录生成历史，包括每张归档资源的生成来源（如有生成脚本需要归档），如果有原图需要指明原图是哪个并归档**」。
+
+动手前查了三件事，确认「统一」二字是真需求而不是新造文档：① `final/README.md` 的台账只有 **14 行**、字段是「来源批次 + 接线状态」，⛔ 无模型/seed/脚本/原图，而 `final/assets/menu/` 实有 **38 件**；② 批内**已有两份** `generation-record*.txt`（`proposals/menu-design-v2-20261031/edit-20261031/` 与其 `v3-20261031/`），格式恰好是用户要的（基准图 → 逐步模型/mask/seed/steps/denoise → 产出路径 → 合成脚本）⇒ **就地升级为全仓统一**，⛔ 另造一套；③ 来源散在 TASKS-DETAIL 各节与 QA 件里，每问一次要重翻（与用量台账同一动机）。
+
+三问答用户拍板：**落位** `production/qa/asset-provenance.md`（ledger 档 16000，可长期追加；⛔ 落 `games/**/design/` 会受 spec 8000 门）· **覆盖**只本周批 · **力度** = 归档现存 + 已丢的写复现配方（零花费）。
+
+### 2. 归档动作（本批唯一的新增面）
+
+| 类 | 入库件 | 说明 |
+|---|---|---|
+| 生成脚本 ×6 | `ai-workflows/{gen-settle-9slice,local-qwen-masked,inpaint-add,bake-env,param-env,quantize-kmeans-weighted}.py` | **原样搬运**，只用 `sed` 把 docstring 里的用法路径改指新位置，⛔ 不改算法（改了就对不上当时的像素读数）。`temp/` 原件保留不删 |
+| 原图/正本 ×3 + 指令 ×1 | `proposals/menu-3d-style-20261030/menu-design-master-20261031.png`（752×1344 RGBA，**全部抠件批的源稿**，此前只在工作树未 commit）· 新目录 `plate-cut-20261031/{master-single-bg.png,hero2x-e1.png,p-master-single.txt}` | 前两张正是用量台账 §6 记的「尚未入库正本」；`p-master-single.txt` 是 master-single-bg 的**编辑指令正本**（单层空柜 / 只留中间一盏射灯 / 背板锐度不得虚化） |
+| 补 commit 资源 ×6 | `final/assets/menu/{ui_panel_frame_9s,ui_panel_face_9s,ui_btn_wood_9s,ui_btn_wood_9s_pressed,ui_btn_paper_9s,ui_menu_env}.png` | WXG-T-521 §4 早就写着「工作树里未提交的 5 张 9s 图」，本批兑现 |
+
+⛔ 未夹带：`cocos/assets/textures/*.png` + `.meta` 那批运行时投放件（属接线批，未在本次范围）；`proposals/menu-style-candidates-20261030/` 5 张 8.6MB 风格候选（非在册件母版，留给用户另裁，⛔ 不擅自把 8.6MB 提进仓）。
+
+### 3. 来源账（12 件读数，实测非记忆）
+
+| 件（实测规格） | 一句话来源 | 三要素缺口 |
+|---|---|---|
+| 9-slice 五件（520×470 / 300×92×2 / 150×88 RGBA） | 零模型，PIL 程序化九宫格（cap 60/36/76/52） | ✅ 齐（原图 = 在册 `ui_wood_grain.png` + `proto-v3-pushing`） |
+| `ui_menu_beam` 400×650 RGBA | 光照场提取，强度写进 alpha（峰值 0.857，0–219 级 ⇒ 无 banding） | ⚠ 脚本未留档 + 原图 `lock-s88.png` **已失** |
+| `ui_menu_pot` 210×415 P(256) | 同批环境件 | ⚠ 同上 |
+| `ui_menu_env` 192×341 **RGB 无 alpha** | ⚠ **待查**：全仓零引用（文档 / `MENU_TEXTURES` / `MENU_FILE` / 测试均无） | ⛔ 三项全缺 ⇒ 不算已归档，待裁 |
+| `ui_menu_backdrop` 677×1210 P(128) | 三母版对照 → 0.9× → k-means 加权 128 色（细节区 33.2 dB vs 中位切分 22.2） | ⚠ 三张 RGB 母版**已失**、seed/提示词未登记 |
+| `ui_showcase_frame` 1088×1742 P(32) | 云 `qwen-image-3.0` i2i（size 1088*1742、seed 88）+ 三步后处理（bbox 裁 / 四角色键 / σ=90 去光） | ⚠ 处理脚本未留档（口径在 WXG-T-522 §2 可重建）；参考原图已被本版覆盖 |
+| `ui_btn_arrow_{left,right}` 129×129 P(256) | `parts/` 八件里唯一切净的两件（四缘各 1px 切点） | ⚠ 切件脚本未留档 + 517 整版源稿（宽 720，用户所供）**从未入库** |
+
+**账面合计**：三项齐备 5 / 原图已失 5 / 脚本未留档 3 / 待查 1。⇒ 没有任何一件能直接重跑复现，**重跑前必须先补 seed 与提示词**（provenance §3 三条配方）。
+
+### 4. 本批暴露的一处自伤（如实记）
+
+三处「原图不可得」里，`lock-s88.png` 与三张背板母版是 **WXG-T-530 收尾那轮 temp 清理删掉的**（当时按「无文档引用的一次性试验图」口径，逐路径清单留档 `temp/clean-20261101-del-list.txt`）。用户本批的口径恰好点出这类删除的代价：**归档件的原图没了，判据与二次改件就断根**。⇒ 已把「图入 `final/` 同批必须归档脚本与原件」写成硬纪律（下节），而不是留成一句口头教训。
+
+### 5. 纪律回写（两处，就地改写不新增长段）
+
+- `my-skills/wxgame-image-gen/SKILL.md`：**新增 §6.5「归档资源必须有生成史」**三步（批内 `generation-record.txt` → 图入库同批归档脚本与原图 → provenance 占一行）；§0 脚本行与 §2 命令模板把 `inpaint-add.py` 改指 `ai-workflows/`（⚠ 原「temp 一清即断」警告已因转正而失效，就地改写，并保留 `qwen-turbo-inpaint.api.json` **仍无兜底**这一条）；§6.2 补一句「入库 webp 有损，⛔ 不能复算像素判据」。
+- `games/beads/design/art/final/README.md`：顶部加**指针行**（生成史正本不在本件）；入库判据 3 从「来源/日期/接线」扩为**再加生成史三要素，缺项不得转正**；顺手勘误 `menu/` **21 件 → 38 件**（实测 `find` 计数）。
+
+### 6. 验证
+
+- 三门全绿：`check:tasks`（主表 **89 行** · 详情 **112 节**，配对完整）· `check:links` OK（agents=7 skills=50）· `ctx:check` OK（新件走 ledger 档，`spec 8000` 三件均改写未扩行）
+- `pnpm run verify`：**PASS 23 / FAIL 0**（本批 ⛔ 未碰 `src/**` 与运行时资产，全量绿是回归而非新增覆盖）
+- 6 个入库脚本做**语法门**：`python3 -m py_compile` 全过；`remove-box-fill.py --check` / `cut-single-local.py --check` 两个在册自检另跑一次仍绿（证明搬运没碰坏邻居）
+
+### 7. 遗留（本单不擅自选路）
+
+1. **`ui_menu_env` 待裁**：移出 `final/` 还是补来源转正（它无 alpha，⛔ 不能当贴章件用）。
+2. **5 条 seed / 提示词未登记**（backdrop 三母版 + `lock-s88` t2i）：要补只能重跑或从旧会话考古，⛔ 不凭记忆填。
+3. `proposals/menu-style-candidates-20261030/` 5 张 8.6MB：入库 or 清出，待拍。
+4. @2x 分辨率墙四条出路、`menu-3d-asset-brief` §3 尺寸表与稿不符、选关页 ★ 显隐、两个 pro 是否改判 —— 均仍欠（WXG-T-530 §7 原样有效）。
+
+### 8. 沉淀统计
+
+**未跑 `kb:sync`**（本批零玩法、零冻结值）。候选 2 条：① 「**归档资产与它的母版必须同批入库**」——图进 `final/` 时脚本与原图不同批归档，日后既不能复算判据也不能二次改件，且事后考古的失败率极高（本批 12 件里 3 件脚本、5 件原图直接查无）；② 「**清 temp 前要先量『谁还在引用』与『谁是唯一像素副本』**」——无引用不等于无价值，入库件的母版往往正是那份无文档引用的原件。统计 = 新增 0 / 修改 0 / 激活 0 / 归档 0（本批）。
+
 ## WXG-T-530
 
 ### 1. 触发

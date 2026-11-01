@@ -14,7 +14,7 @@ description: 生成或修改小游戏图像（原型、二级页、切图、局�
 | 项 | 内容 |
 |---|---|
 | 真源 | `games/beads/design/ai-workflows/model-matrix.md`（§1 首选、§2.1 Token Plan 通道、§3 排除、§4 判据、§5 本地能力边界、§6.1 待授权下载）；**云端端点/参数实测值** → `backend-token-plan.md`（同目录） |
-| 脚本 | 云 `games/beads/design/ai-workflows/dashscope-generate.py`（`--profile maas｜token-plan`，两通道 key/base_url 完全隔离）；本地 `submit-comfyui.py`（服务 `192.168.1.16:8188`，ComfyUI 0.39.0、显存 11.8GB）；局部重绘 `temp/menu-states/inpaint-add.py`；程序化擦除 `remove-box-fill.py`（同目录，见 §3.1） |
+| 脚本 | 云 `games/beads/design/ai-workflows/dashscope-generate.py`（`--profile maas｜token-plan`，两通道 key/base_url 完全隔离）；本地 `submit-comfyui.py`（服务 `192.168.1.16:8188`，ComfyUI 0.39.0、显存 11.8GB）；局部重绘 `ai-workflows/inpaint-add.py`；本地指令/masked 编辑 `ai-workflows/local-qwen-masked.py`；程序化擦除 `remove-box-fill.py`（同目录，见 §3.1） |
 | 铁规 | ① 改判门槛＝同一判据 **≥2 个 seed 复测且结论一致**，单 seed 不得翻案；② 本端**无 SSH/无写接口**，要权重只能出清单让用户在服务端下（`/upload/image` 只进 `input/`） |
 
 ## 1. 四条能力 → 用哪个模型（top2）
@@ -75,15 +75,15 @@ python3 games/beads/design/ai-workflows/submit-comfyui.py \
 **局部重绘**（shape=point 时**坐标换义**：`(x0,y0)`＝元素内一个种子点，`(x1,y1)`＝搜索半径，传 0 → 默认 320；半径只需大到包住元素，**不必贴合**）
 
 ```bash
-python3 temp/menu-states/inpaint-add.py <tag> <seed_x> <seed_y> <半径> <半径> \
+python3 games/beads/design/ai-workflows/inpaint-add.py <tag> <seed_x> <seed_y> <半径> <半径> \
   <prompt-file> 6.0 qwen point 0 1.0
 ```
 
 脚本尾行自带判据，必须看到 **`硬区外 maxdiff = 0  外溢像素 = 0`**；不等于 0 就是 mask 漏了或羽化没设 0。
 
-⚠ 本仓约定「一次性批跑与判据脚本住 `temp/`、不入库」⇒ 上面这条入口脚本与它的 qwen 后端工作流
-（`temp/menu-states/qwen-turbo-inpaint.api.json`）**没有版本兜底**，temp 一清即断；丢了按
-矩阵 §6「局部重绘入口」行的节点清单重建（骨架用已入库的 `workflows/sdxl-inpaint.api.json`）。
+⚠ 入口脚本已于 2026-11-01 由 `temp/` 转正入 `ai-workflows/`（连同 `gen-settle-9slice.py` / `bake-env.py` / `param-env.py` / `quantize-kmeans-weighted.py`）；它的 qwen 后端工作流
+（`temp/menu-states/qwen-turbo-inpaint.api.json`）**仍无版本兜底** ⇒ 丢了按矩阵 §6「局部重绘入口」行的节点清单重建（骨架用已入库的 `workflows/sdxl-inpaint.api.json`）。
+**一次性批跑/判据脚本仍住 `temp/`**，但凡有产物要进 `final/`，产出脚本得按 §6.5 同批归档。
 
 > **i2i denoise 分档（2026-10-17 用户令）**：参考风格 → 高 denoise（0.9 起）；局部修改 → 低 denoise（0.3–0.5）；默认 0.65 只作兜底。正本见 `model-matrix.md §5.x`。
 
@@ -134,5 +134,10 @@ python3 games/beads/design/ai-workflows/remove-box-fill.py --check   # 内置合
    **Token Plan 生图每一批追加一行到 `production/qa/token-plan-usage-ledger.md`**（调用 / 出图 / 留档 三口径分列，
    与按量通道**分开报**，⛔ 不混加；对照价按模型逐行取，⛔ 不互套）。
 2. 判据证据**不得只存 `temp/`**（`temp/` 被 gitignore，本仓已因此丢过整个对比图目录）→ 需长期复核的产物落 `production/qa/**` 或至少在文档写死可复现配方（脚本 + workflow + seed + 尺寸参数）。
-3. 不擅自 `git commit`；需要新权重先给清单（体积/放置目录/解锁能力/验收命令）让用户拍板。
+   ⚠ 入库的 `webp` 有损，⛔ 不能拿来复算像素判据。
+3. **不擅自 `git commit`**；需要新权重先给清单（体积/放置目录/解锁能力/验收命令）让用户拍板。
 4. 本地队列是单卡：一轮 20–30 张 ≈ 10–75min，批量迭代走本地，"版面/文案语义必须正确"的定稿张走云。
+5. **归档资源必须有生成史（用户 2026-11-01 令，统一口径正本 = `production/qa/asset-provenance.md`）**：
+   ① 每批出图在该批目录（`design/art/proposals/<批>/`）落一份 `generation-record.txt`（基准图 → 逐步模型/通道/mask/seed/steps/denoise → 产出路径 → 合成脚本）；
+   ② 图入 `final/` 的**同一批内**，产出脚本提副本入 `ai-workflows/`、原图提副本入 `proposals/<批>/`（指不到原图就写复现配方 + 标 ⚠ 不可得，⛔ 留空）；
+   ③ 入库件在 provenance 占一行。事后考古已三次把来源挖丢（`lock-s88.png` / 三张背板母版 / 517 整版稿）。
