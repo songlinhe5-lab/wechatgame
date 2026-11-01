@@ -309,4 +309,8 @@
 | K-200 | 工具链 | toolchain | 改中文文档的批量补丁必带「三段自证」：`assert count(old)==1` → 落盘 → `git diff` 必须是纯插入 | WXG-T-434 | 2026-10-28 | 0 | active |
 | K-201 | 判据实测 | criteria-measure | 自造核算机前先读谓词的取值域：`isFillable` 只对 `empty` 格为真，⛔ 当「可落位」总称 | WXG-T-434 | 2026-10-28 | 0 | active |
 | K-202 | 测试 | testing | 反证臂两条纪律：夹具走规则可达的走子链、红签名由实测量推而非手算预设 | WXG-T-434 | 2026-10-28 | 0 | active |
+| K-203 | 流程门禁 | process-gate | 别人回填进文档的表格读数，收尾要用实测 JSON 生成期望串逐格对账；对账器的 MISS 必须先定性再动文档 | WXG-T-434 | 2026-10-28 | 0 | active |
+| K-204 | 判据实测取证 | criteria-measure-evidence | 换盘面 ≠ 换样本：同一随机流 + 相同抽取值域的两次「复验」，统计量必然逐箱相同 | WXG-T-434 | 2026-10-28 | 0 | active |
+| K-205 | 工具链图像 | toolchain-image | inpainting 的成败由 mask 是否「刚好覆盖」决定，膨胀没有统一安全值 | WXG-T-535 | 2026-11-01 | 0 | active |
+| K-206 | 工具链图像 | toolchain-image | SAM 类分割模型只切「物体」不切文字，纯文字目标必须换语义型模型 | WXG-T-535 | 2026-11-01 | 0 | active |
 <!-- kb:active:end -->

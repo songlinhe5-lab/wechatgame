@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 203,
+  "nextId": 207,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -3393,6 +3393,74 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-203",
+      "state": "active",
+      "file": "knowledge/lessons/process-gate.md",
+      "category": "流程门禁",
+      "title": "别人回填进文档的表格读数，收尾要用实测 JSON 生成期望串逐格对账；对账器的 MISS 必须先定性再动文档",
+      "contentHash": "cef08fd6c69c8e7765aa1cae96468136e606f71652b17d63aac540fd4b0fd385",
+      "sourceTask": "WXG-T-434",
+      "addedDate": "2026-10-28",
+      "lastAccess": "2026-10-28",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-204",
+      "state": "active",
+      "file": "knowledge/lessons/criteria-measure-evidence.md",
+      "category": "判据实测取证",
+      "title": "换盘面 ≠ 换样本：同一随机流 + 相同抽取值域的两次「复验」，统计量必然逐箱相同",
+      "contentHash": "0e91e46bfb03d6b616f41e8b0c244252b84a1c281034a9d48dc4ab70e0b9b05a",
+      "sourceTask": "WXG-T-434",
+      "addedDate": "2026-10-28",
+      "lastAccess": "2026-10-28",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-205",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain-image.md",
+      "category": "工具链图像",
+      "title": "inpainting 的成败由 mask 是否「刚好覆盖」决定，膨胀没有统一安全值",
+      "contentHash": "06e3960e7e0570572704820c665260161eabca00d6a5018b1712c8d353ce299e",
+      "sourceTask": "WXG-T-535",
+      "addedDate": "2026-11-01",
+      "lastAccess": "2026-11-01",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-206",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain-image.md",
+      "category": "工具链图像",
+      "title": "SAM 类分割模型只切「物体」不切文字，纯文字目标必须换语义型模型",
+      "contentHash": "d01abc57ad1896550880563228234ad9fc12c814c48efeaf1a4b2696304be8fd",
+      "sourceTask": "WXG-T-535",
+      "addedDate": "2026-11-01",
+      "lastAccess": "2026-11-01",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -5529,6 +5597,26 @@
       "kind": "updated",
       "ids": [
         "K-200"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-10-28",
+      "taskId": "WXG-T-434",
+      "kind": "added",
+      "ids": [
+        "K-203",
+        "K-204"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-11-01",
+      "taskId": "WXG-T-535",
+      "kind": "added",
+      "ids": [
+        "K-205",
+        "K-206"
       ],
       "note": null
     }
