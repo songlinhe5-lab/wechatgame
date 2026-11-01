@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3909,
       "lines": 132,
-      "sha256": "2259518954e1d9aad941b2408a5568ca671c134c14bf3c526f7e349349a0b2a6",
+      "sha256": "64ea4b3387354b8ac9631d05b8c1eee68f0a0052bb4651d00f24221c20c2aef2",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 173711 5744 normal",
+          "summary": "1 production/TASKS-DETAIL.md 173822 5744 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "79d1a7c4d3f0ae6d45d8972c4f5fb4db8001f4ef1b16941cd0096656221d7844",
+      "sha256": "b57956f33abe686ab0fb0df07aad6db04f4a9c4a8e2e9cf543479a91a78e5487",
       "tier": "normal",
       "sections": [
         {
@@ -1016,7 +1016,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 5744 行 / 173711 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 5744 行 / 173822 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
@@ -24396,9 +24396,9 @@
     },
     {
       "path": "games/beads/design/art/final/README.md",
-      "tokens": 4182,
+      "tokens": 4249,
       "lines": 54,
-      "sha256": "f23d896950404620a64914cbeefd16567758036c344359701edc8ddb8ad7d461",
+      "sha256": "627a04817a272bf709ba13ed065d755a80a5f2f3b2f6122fe6da68a859b40c54",
       "tier": "normal",
       "sections": [
         {
@@ -24406,7 +24406,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 55,
-          "tokens": 4166,
+          "tokens": 4232,
           "summary": "2026-10-14 用户裁定：资源定稿分三类；shots 只按日期存每日结论证据，本区是验收后的归集面（复制入库，原件",
           "keywords": [
             "final",
@@ -24420,7 +24420,7 @@
           "level": 2,
           "startLine": 6,
           "endLine": 13,
-          "tokens": 1595,
+          "tokens": 1662,
           "summary": "prototypes/ 原型设计：整屏视觉原型（定稿版面） 现行（v3.8，2026-10-16）= proto-v3-",
           "keywords": [
             "prototypes",
@@ -88382,9 +88382,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 173711,
+      "tokens": 173822,
       "lines": 5744,
-      "sha256": "ee0e4a5598b56eea11768cfe2db7510583dc044529ef3822c8b26f22cbe2412d",
+      "sha256": "e3f45b1e0202c7a28cd536c6ad89ae94035af1610fd79dfb68b96b9adfa004e8",
       "tier": "normal",
       "sections": [
         {
@@ -88392,7 +88392,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 5745,
-          "tokens": 173694,
+          "tokens": 173805,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -94336,7 +94336,7 @@
           "level": 2,
           "startLine": 4894,
           "endLine": 4953,
-          "tokens": 2223,
+          "tokens": 2335,
           "summary": "",
           "keywords": [
             "WXG"
@@ -94374,7 +94374,7 @@
           "level": 3,
           "startLine": 4914,
           "endLine": 4927,
-          "tokens": 457,
+          "tokens": 508,
           "summary": "9-slice 五件（520×470 / 300×92×2 / 150×88 RGBA） 零模型，PIL 程序化九宫格（",
           "keywords": [
             "slice",
@@ -94436,12 +94436,12 @@
           "level": 3,
           "startLine": 4943,
           "endLine": 4949,
-          "tokens": 160,
-          "summary": "1. ui_menu_env 待裁：移出 final/ 还是补来源转正（它无 alpha，⛔ 不能当贴章件用）。",
+          "tokens": 221,
+          "summary": "1. ~~ui_menu_env 待裁~~ 已裁（2026-11-01 用户令）：移出 final/ ⇒ 移到 temp",
           "keywords": [
             "ui_menu_env",
             "final",
-            "alpha",
+            "temp",
             "遗留",
             "本单不擅自选"
           ]
@@ -99901,9 +99901,9 @@
     },
     {
       "path": "production/qa/asset-provenance.md",
-      "tokens": 3339,
+      "tokens": 3547,
       "lines": 73,
-      "sha256": "3b945b79fa02342d6708609f6dfd989458eeffa533fa595a1ddb99f043bb1218",
+      "sha256": "a4389239973503920b0a531094fad384b3f4613355a9ebcac9e8b443ba7fa8c6",
       "tier": "normal",
       "sections": [
         {
@@ -99911,7 +99911,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 74,
-          "tokens": 3325,
+          "tokens": 3533,
           "summary": "本件是「每张进 final/ 的图从哪来」的唯一正本。 建件 = 用户 2026-11-01 令「统一使用图片生成文档，",
           "keywords": [
             "Asset",
@@ -99941,7 +99941,7 @@
           "level": 2,
           "startLine": 19,
           "endLine": 38,
-          "tokens": 1479,
+          "tokens": 1625,
           "summary": "范围 = final/assets/menu/ 中 mtime ≥ 2026-10-30 的 12 件（其余件来源见 f",
           "keywords": [
             "final",
@@ -99957,7 +99957,7 @@
           "level": 3,
           "startLine": 33,
           "endLine": 38,
-          "tokens": 176,
+          "tokens": 198,
           "summary": "12 件按件数分档：三项齐备（生成方式 + 脚本 + 原图都在册）= 5 件（9-slice 族）；原图已失 = 5 件",
           "keywords": [
             "slice",
@@ -99969,7 +99969,7 @@
           "level": 2,
           "startLine": 39,
           "endLine": 55,
-          "tokens": 522,
+          "tokens": 556,
           "summary": "ai-workflows/gen-settle-9slice.py temp/gen-settle-9slice.py",
           "keywords": [
             "workflows",
@@ -100001,12 +100001,12 @@
           "level": 2,
           "startLine": 67,
           "endLine": 74,
-          "tokens": 265,
-          "summary": "1. ui_menu_env 待裁（零引用 + 无 alpha）：移出 final/ 还是补来源转正，需拍板。",
+          "tokens": 292,
+          "summary": "1. ~~ui_menu_env 待裁~~ 已闭（2026-11-01 用户令：移出 final/），隔离于 temp/",
           "keywords": [
             "ui_menu_env",
-            "alpha",
             "final",
+            "temp",
             "缺口与纪律",
             "本档欠的账"
           ]

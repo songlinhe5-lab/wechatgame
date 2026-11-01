@@ -4918,12 +4918,12 @@ git diff -w -- games/beads/src games/beads/cocos/assets/scripts/game
 | 9-slice 五件（520×470 / 300×92×2 / 150×88 RGBA） | 零模型，PIL 程序化九宫格（cap 60/36/76/52） | ✅ 齐（原图 = 在册 `ui_wood_grain.png` + `proto-v3-pushing`） |
 | `ui_menu_beam` 400×650 RGBA | 光照场提取，强度写进 alpha（峰值 0.857，0–219 级 ⇒ 无 banding） | ⚠ 脚本未留档 + 原图 `lock-s88.png` **已失** |
 | `ui_menu_pot` 210×415 P(256) | 同批环境件 | ⚠ 同上 |
-| `ui_menu_env` 192×341 **RGB 无 alpha** | ⚠ **待查**：全仓零引用（文档 / `MENU_TEXTURES` / `MENU_FILE` / 测试均无） | ⛔ 三项全缺 ⇒ 不算已归档，待裁 |
+| `ui_menu_env` 192×341 **RGB 无 alpha** | 全仓零引用（文档 / `MENU_TEXTURES` / `MENU_FILE` / 测试均无）、无 alpha 不可作贴章件 | ⛔ 三项全缺 ⇒ **2026-11-01 用户裁定移出 `final/`**，隔离 `temp/retired-20261101/`（本批曾误随 5 张 9s 一并补入库） |
 | `ui_menu_backdrop` 677×1210 P(128) | 三母版对照 → 0.9× → k-means 加权 128 色（细节区 33.2 dB vs 中位切分 22.2） | ⚠ 三张 RGB 母版**已失**、seed/提示词未登记 |
 | `ui_showcase_frame` 1088×1742 P(32) | 云 `qwen-image-3.0` i2i（size 1088*1742、seed 88）+ 三步后处理（bbox 裁 / 四角色键 / σ=90 去光） | ⚠ 处理脚本未留档（口径在 WXG-T-522 §2 可重建）；参考原图已被本版覆盖 |
 | `ui_btn_arrow_{left,right}` 129×129 P(256) | `parts/` 八件里唯一切净的两件（四缘各 1px 切点） | ⚠ 切件脚本未留档 + 517 整版源稿（宽 720，用户所供）**从未入库** |
 
-**账面合计**：三项齐备 5 / 原图已失 5 / 脚本未留档 3 / 待查 1。⇒ 没有任何一件能直接重跑复现，**重跑前必须先补 seed 与提示词**（provenance §3 三条配方）。
+**账面合计**：三项齐备 5 / 原图已失 5 / 脚本未留档 3 / 待查 1（`ui_menu_env` ⇒ 同日裁定移出，在册实数 11）。⇒ 没有任何一件能直接重跑复现，**重跑前必须先补 seed 与提示词**（provenance §3 三条配方）。
 
 ### 4. 本批暴露的一处自伤（如实记）
 
@@ -4942,7 +4942,7 @@ git diff -w -- games/beads/src games/beads/cocos/assets/scripts/game
 
 ### 7. 遗留（本单不擅自选路）
 
-1. **`ui_menu_env` 待裁**：移出 `final/` 还是补来源转正（它无 alpha，⛔ 不能当贴章件用）。
+1. ~~`ui_menu_env` 待裁~~ **已裁（2026-11-01 用户令）**：移出 `final/` ⇒ 移到 `temp/retired-20261101/ui_menu_env.png`（磁盘副本保留，`git rm --cached` 不入库；像素可由 `git show afb05b35:<原路径>` 取回），provenance §1/§2/§4 与 `final/README.md` 件数同步改账；来源不再考古。
 2. **5 条 seed / 提示词未登记**（backdrop 三母版 + `lock-s88` t2i）：要补只能重跑或从旧会话考古，⛔ 不凭记忆填。
 3. `proposals/menu-style-candidates-20261030/` 5 张 8.6MB：入库 or 清出，待拍。
 4. @2x 分辨率墙四条出路、`menu-3d-asset-brief` §3 尺寸表与稿不符、选关页 ★ 显隐、两个 pro 是否改判 —— 均仍欠（WXG-T-530 §7 原样有效）。
