@@ -5873,3 +5873,44 @@ qwen 三条线均为**接口接受 `bbox`、不报错、出图照旧改全图**�
 ### 5. 沉淀统计
 
 **未跑 `kb:sync`**。候选 1 条：「1px 低对比描边在高 DPR 上会读成虚线：要么加到 2px，要么改用更深的结构色」。统计 = 新增 0 / 修改 0 / 激活 0 / 归档 0（本批）。
+
+## WXG-T-535
+
+**工具链·局部擦除/抠图三腿分派判据（SAM3.1 + erase 覆盖边界）** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-01）
+
+### 1. 触发与取向
+
+用户令「验证局部擦除与抠图能力」，随后给底图 `art/proposals/menu-3d-style-20261030/menu-design-master-20261031.png`（752×1344，3D 写实）要求「抠出按钮 + 抹去按钮、小猫咪、第1关字样」，最后选「落盘判据」并要求「处理图片时主动提示处理方法，有多个选择就提供选择」。本单只做判据沉淀，不改选型矩阵（正本 `model-matrix.md` 已 7971/8000）。
+
+### 2. 三腿分派（结论先行）
+
+| 意图 | 该走谁 | 硬前提 |
+|---|---|---|
+| 抠图取 alpha | **SAM3.1**（`SAM3_Detect`） | 目标须是有实体轮廓的物体；**文字切不出** |
+| 3D 写实去文字/标签 | **wan2.7 bbox + prompt** | 只需矩形框，8.5–8.9s |
+| 3D 写实去独立物件 | wan2.7（省事）或 erase（免费，**必须外扩 15px**） | erase 欠覆盖必出怪物 |
+| 平涂稿去文字 | erase-completion | mask 外扩到位 |
+| 擦掉并换成 X | wan2.7 bbox | 唯一有 prompt 的框级腿 |
+
+### 3. 关键读数
+
+- **SAM3.1**：权重 `models/checkpoints/sam3.1_multiplex_fp16.safetensors`（1.75 GB，`CheckpointLoaderSimple` 直载）；抠图 `alpha==0` 占 **94.20%**（按钮）/ **98.23%**（铭牌）；分割胶囊 0.31%、按钮 5.80%、猫 1.86%；**切「小猫咪」0 像素**（`threshold 0.2` + `refine 4` 仍 0）；文本提示「button」误检墙面 0.25%，长描述精确命中按钮 2.53%。
+- **erase 覆盖边界**：按钮 +4px → 白黄怪物 + 轮廓残影；+15px → 木纹无痕；铭牌文字 +12px → 啃掉牌右缘（越界）；精确 mask 不膨胀 → 文字被**重写**成潦草笔画。擦猫后**幻觉出盆栽**。传 `prompt` 静默忽略。
+- **wan2.7 bbox**：铭牌「小猫咪+第1关」8.9s 干净；底部「开始」按钮 8.5s 干净（均按 bbox 羽化回贴）。
+- **云四模型**：`wan2.7[-pro]` 无 mask 参数、alpha 0.00%；`qwen-image-3.0` 传 `mask_image_url` 回 200 但 `input_image_count=1`（静默忽略），保留区 meanΔ 34.36 / >8 占 69.46%；`3.0-pro` MAE 13.26/13.64 + 右移 8px + 棋盘格画进 RGB。
+- 贴回后**区外 maxdiff 一律 0**（erase 线 meanΔ 6.6–6.7、wan 线 5.7–7.6，均需硬拷回）。
+
+### 4. 交付
+
+- 判据正文：`games/beads/design/ai-workflows/model-matrix-changelog.md` §7.4（7.4.1 分派 / 7.4.2 erase 三边界 / 7.4.3 SAM 边界 / 7.4.4 云四模型判定 / 7.4.5 出货纪律）+ §7.1 同日第四批变更史行
+- 正本指针：`model-matrix.md` §7 一句（+10 tok，7961→7971）
+- 产物（`temp/` 不入库）：`sam3-out/{cut-btn.png, m-*.png, ov-*}`, `erase-out/{cmp2-*, cmp3-plate, cmp4-wan-plate, cmp5-wan-btn, final-menu-v2, final-wan-txt, final-wan-btn}`
+- 探针脚本（`temp/` 不入库）：`sam3-run.py`（ComfyUI SAM3 分割）、`erase-probe.py`（erase 异步调用）、`q30-mask-probe.py`（qwen-3.0 mask/alpha）
+
+### 5. 成本与边界
+
+erase 8 次（免费额度 500 张内）、wan2.7 2 张（Token Plan Credits）、本地 SAM 4 次 0 元。**未做**：猫的 wan2.7 对照、`individual_masks=true` 多目标批量、SAM 点提示（`shape=point` 那条既有腿未与本轮复测对接）。
+
+### 6. 沉淀统计
+
+**未跑 `kb:sync`**。候选 2 条：① 「inpainting 的成败由 mask 是否刚好覆盖决定：欠覆盖→续画、越界→啃结构，膨胀上限 = 目标到材质边界的最小距离」；② 「SAM 只切物体不切文字，纯文字目标必须换语义型模型（有 prompt）而非分割型」。

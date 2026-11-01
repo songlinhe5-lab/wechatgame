@@ -195,4 +195,4 @@ curl -s http://192.168.1.16:8188/object_info/CheckpointLoaderSimple \
 
 ## §7 变更记录
 
-变更史（§7.1）与外移明细（§7.3）已移至 `model-matrix-changelog.md`（WXG-T-523；动机 = 本文件受 `ctx:check` B 项 8000 token 上限，追加式历史会把选型判据挤出预算）。**新轮次写进那份，不要写回本节。**
+变更史（§7.1）、外移明细（§7.3）、擦除/抠图判据（§7.4）已移至 `model-matrix-changelog.md`（WXG-T-523；动机 = 本文件受 `ctx:check` B 项 8000 token 上限，追加式历史会把选型判据挤出预算）。**新轮次写进那份，不要写回本节。**

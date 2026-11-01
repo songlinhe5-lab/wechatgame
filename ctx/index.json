@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3909,
       "lines": 132,
-      "sha256": "d49b52a8372c8011cb04c88693e8904764501c276478cb651a646bd763967cc4",
+      "sha256": "94706ce49f01122bed527c0326fc297ec97a20b94cc92b8386498102a6374892",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 177210 5875 normal",
+          "summary": "1 production/TASKS-DETAIL.md 178300 5916 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "8f7dc40f71f2235547671bd2196917d2d5706a89c7b034334f95714037b28d14",
+      "sha256": "3eb1f619131c2d3ccdf5817cbd3a442e8e16864b8ab481da2e5d539548d6f0e7",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 140 行 / 29156 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 141 行 / 29644 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+141 · §待排（backlog，无号，立项时领取…=113+29",
+          "summary": "§WXG 任务台账（SSOT）=1+142 · §待排（backlog，无号，立项时领取…=114+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -952,7 +952,7 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/ai-workflows/model-matrix.md` — 198 行 / 7961 tok",
+          "anchor": "§`games/beads/design/ai-workflows/model-matrix.md` — 198 行 / 7971 tok",
           "level": 2,
           "startLine": 86,
           "endLine": 90,
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 5875 行 / 177210 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 5916 行 / 178300 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+5876 · §WXG-T-534=4894+46 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+5917 · §WXG-T-534=4894+46 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -24021,17 +24021,17 @@
     },
     {
       "path": "games/beads/design/ai-workflows/model-matrix-changelog.md",
-      "tokens": 3632,
-      "lines": 58,
-      "sha256": "80536c021c4f9faaa6aa83c63aed7253ea08ad018acd4c70bbf29281ab41d69e",
+      "tokens": 5701,
+      "lines": 112,
+      "sha256": "252f6a12ff7547a3b96f58a3aaffc16736c2af28608cc8922b23abbb9e57604d",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§AI 生图选型矩阵 · 变更记录（正本 §7 外移件）",
           "level": 1,
           "startLine": 1,
-          "endLine": 59,
-          "tokens": 3612,
+          "endLine": 113,
+          "tokens": 5680,
           "summary": "正本 = model-matrix.md（四方向选型矩阵本体）。本件只收逐轮追加的变更史（§7.1）与正本腾预算外移的明",
           "keywords": [
             "§7",
@@ -24046,8 +24046,8 @@
           "anchor": "§7.1 变更史（2026-10-12 起）",
           "level": 3,
           "startLine": 8,
-          "endLine": 24,
-          "tokens": 2660,
+          "endLine": 25,
+          "tokens": 3180,
           "summary": "2026-10-12 首版（三轮复测 + 竖屏/量化对照后定稿）。同日两处改判：① 「本地 turbo t2i 过曝＝模",
           "keywords": [
             "turbo",
@@ -24058,8 +24058,8 @@
         {
           "anchor": "§7.3 正本外移明细（2026-11-01 腾预算，原文照搬）",
           "level": 3,
-          "startLine": 25,
-          "endLine": 59,
+          "startLine": 26,
+          "endLine": 60,
           "tokens": 732,
           "summary": "动因 = §5.y 区域约束判定入正本后实测 8210 tok 越 ctx:check B 项 8000 门（HEAD ",
           "keywords": [
@@ -24070,14 +24070,30 @@
             "HEAD",
             "正本外移明细"
           ]
+        },
+        {
+          "anchor": "§7.4 局部擦除 / 抠图 分派判据（2026-11-01 同日第四批实测）",
+          "level": 3,
+          "startLine": 61,
+          "endLine": 113,
+          "tokens": 1524,
+          "summary": "触发 = 用户令「验证局部擦除与抠图能力」。底图 = design/art/proposals/menu-3d-styl",
+          "keywords": [
+            "design",
+            "art",
+            "proposals",
+            "menu",
+            "styl",
+            "局部擦除"
+          ]
         }
       ]
     },
     {
       "path": "games/beads/design/ai-workflows/model-matrix.md",
-      "tokens": 7961,
+      "tokens": 7971,
       "lines": 198,
-      "sha256": "5e44872995f4295a9e0f9445c698b6fac72e6afe9be119d8557fe681a12466cd",
+      "sha256": "beea712e1fb7522b19a892823d11a15fd7f1216c73fe18eb0a537870b4860c63",
       "tier": "normal",
       "sections": [
         {
@@ -24085,7 +24101,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 199,
-          "tokens": 7942,
+          "tokens": 7953,
           "summary": "本文件是「哪个方向用哪个模型 / 哪条通路」的裁定正本。数值类冻结常量仍以",
           "keywords": [
             "生图选型矩阵",
@@ -24257,15 +24273,15 @@
           "level": 2,
           "startLine": 196,
           "endLine": 199,
-          "tokens": 80,
-          "summary": "变更史（§7.1）与外移明细（§7.3）已移至 model-matrix-changelog.md（WXG-T-523；",
+          "tokens": 91,
+          "summary": "变更史（§7.1）、外移明细（§7.3）、擦除/抠图判据（§7.4）已移至 model-matrix-changelog",
           "keywords": [
             "§7",
             "§7.1",
             "§7.3",
+            "§7.4",
             "model",
-            "matrix",
-            "changelog"
+            "matrix"
           ]
         }
       ]
@@ -88414,17 +88430,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 177210,
-      "lines": 5875,
-      "sha256": "afa53f4c690cc3296cac30498070f2b1483960727d01fb5be72d62373eb00382",
+      "tokens": 178300,
+      "lines": 5916,
+      "sha256": "d9d252e1e68952bb1559e9e4cac2d4a3444dbc04f837a89606c12ce055e67e95",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 5876,
-          "tokens": 177193,
+          "endLine": 5917,
+          "tokens": 178284,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -96371,22 +96387,128 @@
             "DPR",
             "沉淀统计"
           ]
+        },
+        {
+          "anchor": "§WXG-T-535",
+          "level": 2,
+          "startLine": 5877,
+          "endLine": 5917,
+          "tokens": 1088,
+          "summary": "工具链·局部擦除/抠图三腿分派判据（SAM3.1 + erase 覆盖边界） · 负责：主理人(CodeBuddy) ·",
+          "keywords": [
+            "WXG",
+            "SAM3",
+            "erase",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§1 触发与取向",
+          "level": 3,
+          "startLine": 5881,
+          "endLine": 5884,
+          "tokens": 139,
+          "summary": "用户令「验证局部擦除与抠图能力」，随后给底图 art/proposals/menu-3d-style-20261030/",
+          "keywords": [
+            "art",
+            "proposals",
+            "menu",
+            "style",
+            "触发与取向"
+          ]
+        },
+        {
+          "anchor": "§2 三腿分派（结论先行）",
+          "level": 3,
+          "startLine": 5885,
+          "endLine": 5894,
+          "tokens": 150,
+          "summary": "抠图取 alpha SAM3.1（SAM3_Detect） 目标须是有实体轮廓的物体；文字切不出",
+          "keywords": [
+            "alpha",
+            "SAM3",
+            "SAM3_Detect",
+            "三腿分派",
+            "结论先行"
+          ]
+        },
+        {
+          "anchor": "§3 关键读数",
+          "level": 3,
+          "startLine": 5895,
+          "endLine": 5902,
+          "tokens": 349,
+          "summary": "SAM3.1：权重 models/checkpoints/sam3.1_multiplex_fp16.safetenso",
+          "keywords": [
+            "SAM3",
+            "models",
+            "checkpoints",
+            "sam3",
+            "multiplex_fp16",
+            "safetenso"
+          ]
+        },
+        {
+          "anchor": "§4 交付",
+          "level": 3,
+          "startLine": 5903,
+          "endLine": 5909,
+          "tokens": 182,
+          "summary": "判据正文：games/beads/design/ai-workflows/model-matrix-changelog.",
+          "keywords": [
+            "games",
+            "beads",
+            "design",
+            "workflows",
+            "model",
+            "matrix"
+          ]
+        },
+        {
+          "anchor": "§5 成本与边界",
+          "level": 3,
+          "startLine": 5910,
+          "endLine": 5913,
+          "tokens": 79,
+          "summary": "erase 8 次（免费额度 500 张内）、wan2.7 2 张（Token Plan Credits）、本地 SAM",
+          "keywords": [
+            "erase",
+            "wan2",
+            "Token",
+            "Plan",
+            "Credits",
+            "SAM"
+          ]
+        },
+        {
+          "anchor": "§6 沉淀统计 (14)",
+          "level": 3,
+          "startLine": 5914,
+          "endLine": 5917,
+          "tokens": 99,
+          "summary": "未跑 kb:sync。候选 2 条：① 「inpainting 的成败由 mask 是否刚好覆盖决定：欠覆盖→续画、越界",
+          "keywords": [
+            "sync",
+            "inpainting",
+            "mask",
+            "沉淀统计"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 29156,
-      "lines": 140,
-      "sha256": "13c5f58aa87d54b4ad26e8ce3355a7f47a960339d33966cbbf1724cdebd6d753",
+      "tokens": 29644,
+      "lines": 141,
+      "sha256": "a3131e45c4d7629b5ea48449510c48e8a6aaa6af16923e88c0b6664f088e9446",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 141,
-          "tokens": 29147,
+          "endLine": 142,
+          "tokens": 29635,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -96399,8 +96521,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 113,
-          "endLine": 141,
+          "startLine": 114,
+          "endLine": 142,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
