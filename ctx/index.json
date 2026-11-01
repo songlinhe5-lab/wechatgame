@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "bfbe4a3256af1819dfe98b443b11647a300e5ff089e788147d3777cedf5068eb",
+      "sha256": "35fb8efab2f76028bbae966538c625b1d997a749dba080c33ac21515ab4a2de7",
       "tier": "normal",
       "sections": [
         {
@@ -952,12 +952,12 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/ai-workflows/model-matrix.md` — 192 行 / 8000 tok",
+          "anchor": "§`games/beads/design/ai-workflows/model-matrix.md` — 196 行 / 7989 tok",
           "level": 2,
           "startLine": 86,
           "endLine": 90,
           "tokens": 145,
-          "summary": "§AI 生图选型矩阵（四方向 · 云/本…=1+193 · §1 四方向首选矩阵=12+27 · §2 候选池 · 价目",
+          "summary": "§AI 生图选型矩阵（四方向 · 云/本…=1+197 · §1 四方向首选矩阵=12+27 · §2 候选池 · 价目",
           "keywords": [
             "§1",
             "§2",
@@ -24021,17 +24021,17 @@
     },
     {
       "path": "games/beads/design/ai-workflows/model-matrix-changelog.md",
-      "tokens": 2174,
-      "lines": 21,
-      "sha256": "31ca3073401ca5e38cf9a2a26c9f6a72b73d7f8bf102212bc7c5fc8aa36c9e3f",
+      "tokens": 2498,
+      "lines": 22,
+      "sha256": "cd5d404e83065d80216bc52f147d0627085db516f98daf0d3c10044df2bc9aff",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§AI 生图选型矩阵 · 变更记录（正本 §7 外移件）",
           "level": 1,
           "startLine": 1,
-          "endLine": 22,
-          "tokens": 2153,
+          "endLine": 23,
+          "tokens": 2477,
           "summary": "正本 = model-matrix.md（四方向选型矩阵本体）。本件只收逐轮追加的变更史，2026-10-31 由 WX",
           "keywords": [
             "§7",
@@ -24046,8 +24046,8 @@
           "anchor": "§7.1 变更史（2026-10-12 起）",
           "level": 3,
           "startLine": 8,
-          "endLine": 22,
-          "tokens": 1974,
+          "endLine": 23,
+          "tokens": 2298,
           "summary": "2026-10-12 首版（三轮复测 + 竖屏/量化对照后定稿）。同日两处改判：① 「本地 turbo t2i 过曝＝模",
           "keywords": [
             "turbo",
@@ -24059,17 +24059,17 @@
     },
     {
       "path": "games/beads/design/ai-workflows/model-matrix.md",
-      "tokens": 8000,
-      "lines": 192,
-      "sha256": "bdf329cd72185cd603f51120fd644a65436f4006779e8c398cf486ca6337089e",
+      "tokens": 7989,
+      "lines": 196,
+      "sha256": "4280e1526817ef522d1f3098200e8711e1a0ce0dfc8bfd1cc701fc4d94fc5628",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§AI 生图选型矩阵（四方向 · 云/本地分工）",
           "level": 1,
           "startLine": 1,
-          "endLine": 193,
-          "tokens": 7981,
+          "endLine": 197,
+          "tokens": 7970,
           "summary": "本文件是「哪个方向用哪个模型 / 哪条通路」的裁定正本。数值类冻结常量仍以",
           "keywords": [
             "生图选型矩阵",
@@ -24097,8 +24097,8 @@
           "anchor": "§2 候选池 · 价目 · 限流（2026-10-12 官方页核实）",
           "level": 2,
           "startLine": 39,
-          "endLine": 79,
-          "tokens": 1129,
+          "endLine": 83,
+          "tokens": 1118,
           "summary": "qwen-image-3.0 0.02 元/张 0.18 元/张（1K=2K 同价，竖屏不加价） 20 输入输出共 10",
           "keywords": [
             "§2",
@@ -24113,8 +24113,8 @@
           "anchor": "§2.1 Token Plan 通道（2026-10-31 开通，**不改本矩阵任何选型裁定**）",
           "level": 3,
           "startLine": 53,
-          "endLine": 79,
-          "tokens": 871,
+          "endLine": 83,
+          "tokens": 860,
           "summary": "第二条云端腿，Credits 计量 ⇒ 上表元/张口径不适用；key 与 base_url 与按量付费完全隔离，",
           "keywords": [
             "§2.1",
@@ -24128,8 +24128,8 @@
         {
           "anchor": "§3 排除项（含理由，勿重走）",
           "level": 2,
-          "startLine": 80,
-          "endLine": 91,
+          "startLine": 84,
+          "endLine": 95,
           "tokens": 223,
           "summary": "本地 i2i 做单元素资产 构图污染：把参考图整个橱窗画进来（背景 std 4.1、bbox 77%）",
           "keywords": [
@@ -24144,8 +24144,8 @@
         {
           "anchor": "§4 判据纪律（哪些能排序，哪些不能）",
           "level": 2,
-          "startLine": 92,
-          "endLine": 113,
+          "startLine": 96,
+          "endLine": 117,
           "tokens": 590,
           "summary": "已作废（种子噪声 > 模型差，换 seed 后排序洗牌，不得用于选型）：",
           "keywords": [
@@ -24159,8 +24159,8 @@
         {
           "anchor": "§5 本地 ComfyUI 能力边界（2026-10-12 权重清单实证）",
           "level": 2,
-          "startLine": 114,
-          "endLine": 158,
+          "startLine": 118,
+          "endLine": 162,
           "tokens": 2328,
           "summary": "服务：192.168.1.16:8188（RTX 2080 Ti 11GB，ComfyUI 0.39.0）。断言能力前查",
           "keywords": [
@@ -24175,8 +24175,8 @@
         {
           "anchor": "§5.x 图生图 denoise 分档（2026-10-17 用户令，按图生图类型调整）",
           "level": 3,
-          "startLine": 138,
-          "endLine": 158,
+          "startLine": 142,
+          "endLine": 162,
           "tokens": 518,
           "summary": "参考风格（取画风/配色/质感，允许重排版面，如选关原型） 高；本地 2.1（25 步）当前推荐 0.8（待定稿） 高 d",
           "keywords": [
@@ -24191,8 +24191,8 @@
         {
           "anchor": "§6 未决与下一步",
           "level": 2,
-          "startLine": 159,
-          "endLine": 189,
+          "startLine": 163,
+          "endLine": 193,
           "tokens": 1864,
           "summary": "Flux-dev + 平涂 LoRA 冒烟（heart 单题） 已测毕·不改判（2026-10-09 九关 + 2026",
           "keywords": [
@@ -24207,8 +24207,8 @@
         {
           "anchor": "§6.1 待授权下载清单（本端无 SSH/无写接口，只能用户在服务端下）",
           "level": 3,
-          "startLine": 171,
-          "endLine": 189,
+          "startLine": 175,
+          "endLine": 193,
           "tokens": 773,
           "summary": "显存天花板：11.8GB（/system_stats 实测）；本地 ComfyUI 0.39.0。选型铁规：新模型必须能",
           "keywords": [
@@ -24223,8 +24223,8 @@
         {
           "anchor": "§7 变更记录",
           "level": 2,
-          "startLine": 190,
-          "endLine": 193,
+          "startLine": 194,
+          "endLine": 197,
           "tokens": 75,
           "summary": "逐轮追加的变更史已外移至 model-matrix-changelog.md（WXG-T-523；动机 = 本文件受 c",
           "keywords": [
@@ -86941,9 +86941,9 @@
     },
     {
       "path": "my-skills/wxgame-image-gen/SKILL.md",
-      "tokens": 4588,
+      "tokens": 4679,
       "lines": 154,
-      "sha256": "78096f73adf2289245fe9c29bd21b02902bc793636da13a74961920ab518fd0d",
+      "sha256": "853d07f50b198cd072389b15506ac7d8929dd404bfc16fc0909d35c549d57ab8",
       "tier": "normal",
       "sections": [
         {
@@ -86951,7 +86951,7 @@
           "level": 1,
           "startLine": 6,
           "endLine": 155,
-          "tokens": 4479,
+          "tokens": 4570,
           "summary": "本 skill 属 wxgame 家族（管线顺序与冲突裁决见 my-skills/INDEX.md）。它是执行层：",
           "keywords": [
             "wxgame",
@@ -86999,7 +86999,7 @@
           "level": 2,
           "startLine": 47,
           "endLine": 100,
-          "tokens": 990,
+          "tokens": 1080,
           "summary": "云 · 文生图（--ref 才是图生图；--seed 会自动关掉 prompt_extend，否则云侧改写你的提示词）",
           "keywords": [
             "ref",
@@ -110939,17 +110939,17 @@
     },
     {
       "path": "production/qa/token-plan-usage-ledger.md",
-      "tokens": 2756,
-      "lines": 87,
-      "sha256": "7970b3e22b47e60aaaa4e51bec8931a5bb14b4f8e94b185910ddeb878f2cda79",
+      "tokens": 3246,
+      "lines": 92,
+      "sha256": "cd01a60dc9938b49d59c654f5fbed257b1de19367ef33f3867f35e62d5363cf8",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Token Plan 生图用量台账（建账 2026-11-01）",
           "level": 1,
           "startLine": 1,
-          "endLine": 88,
-          "tokens": 2740,
+          "endLine": 93,
+          "tokens": 3230,
           "summary": "本件只管「花了多少次、出了几张图、留在哪」，是追加型台账（按时间序加行，⛔ 不回改历史行）。",
           "keywords": [
             "Token",
@@ -110977,8 +110977,8 @@
           "anchor": "§2 账目",
           "level": 2,
           "startLine": 20,
-          "endLine": 42,
-          "tokens": 554,
+          "endLine": 45,
+          "tokens": 797,
           "summary": "2026-10-31 接入探针（backend-token-plan.md 建件，未单领号） qwen-image-3.",
           "keywords": [
             "backend",
@@ -110992,9 +110992,9 @@
         {
           "anchor": "§累计（截至 2026-11-01）",
           "level": 3,
-          "startLine": 31,
-          "endLine": 42,
-          "tokens": 188,
+          "startLine": 34,
+          "endLine": 45,
+          "tokens": 218,
           "summary": "qwen-image-3.0-pro 11 11 7 11 × 0.25 = ≈2.75 元量级（1K 档价；2K 档另",
           "keywords": [
             "qwen",
@@ -111007,8 +111007,8 @@
         {
           "anchor": "§3 一处更正（建账时确诊，此前口径有误）",
           "level": 2,
-          "startLine": 43,
-          "endLine": 48,
+          "startLine": 46,
+          "endLine": 51,
           "tokens": 116,
           "summary": "qwen-image-3.0-pro 的按量对照价应为 0.25 元/张（1K 档），此前口头报数时误取了 wan2.7",
           "keywords": [
@@ -111023,8 +111023,8 @@
         {
           "anchor": "§4 追加规则（谁跑谁记，一轮一行）",
           "level": 2,
-          "startLine": 49,
-          "endLine": 57,
+          "startLine": 52,
+          "endLine": 60,
           "tokens": 223,
           "summary": "1. 每批云图跑完，在本表追加一行（同批次多模型则多行），字段照表头，⛔ 不合并不同模型的行。",
           "keywords": [
@@ -111036,8 +111036,8 @@
         {
           "anchor": "§5 复算方法（想自己核一遍时）",
           "level": 2,
-          "startLine": 58,
-          "endLine": 67,
+          "startLine": 61,
+          "endLine": 70,
           "tokens": 135,
           "summary": "",
           "keywords": [
@@ -111048,9 +111048,9 @@
         {
           "anchor": "§6 temp 生图存量（2026-11-01 清理一次，用户令「把 temp 里的生图都清理掉」）",
           "level": 2,
-          "startLine": 68,
-          "endLine": 88,
-          "tokens": 1199,
+          "startLine": 71,
+          "endLine": 93,
+          "tokens": 1446,
           "summary": "清理前 3642 张 / temp 共 2.3 GB",
           "keywords": [
             "temp",
@@ -111065,17 +111065,17 @@
     },
     {
       "path": "production/qa/wan27-token-plan-20261101.md",
-      "tokens": 4571,
-      "lines": 142,
-      "sha256": "b9ae22f64fa63f5b06c3d52758dd2f7c1a78c2dfc185c7d265e983e6dba3e107",
+      "tokens": 5549,
+      "lines": 169,
+      "sha256": "2e156569604a6242625abb28f787014cb7fcb630860e0619cad8f6fcc11937f4",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§wan2.7-image 在 Token Plan 上的能力实测：补 pro 3.0 的两条缺失（2026-11-01）",
           "level": 1,
           "startLine": 1,
-          "endLine": 143,
-          "tokens": 4544,
+          "endLine": 170,
+          "tokens": 5522,
           "summary": "触发 = 用户令「如果 3.0 pro 真的这么差，wan2.7-image / -pro 是否可以弥补一些能力缺失」，",
           "keywords": [
             "wan2",
@@ -111208,7 +111208,7 @@
           "anchor": "§9 续测 `color_palette` 风格锁定（2026-11-01 第三批，用户选 1：色彩一致性能不能交给参数）",
           "level": 2,
           "startLine": 99,
-          "endLine": 143,
+          "endLine": 142,
           "tokens": 1360,
           "summary": "设：同一提示词、同尺寸 752*1344、seed 7 / 42，三条件对照 = ① 无 palette（对照）② pa",
           "keywords": [
@@ -111218,6 +111218,22 @@
             "续测",
             "风格锁定",
             "第三批"
+          ]
+        },
+        {
+          "anchor": "§10 拿实测配方出批次稿（同日第四批：6 色板 × 两页面 × 两 seed，验「同色温 + 不同版面」能不能批量）",
+          "level": 2,
+          "startLine": 143,
+          "endLine": 170,
+          "tokens": 933,
+          "summary": "设：按 §9 结论 2/3 重配色板 —— palette.ts token 剔除两枚小面积高饱和 accent（#3D",
+          "keywords": [
+            "§9",
+            "seed",
+            "palette",
+            "token",
+            "accent",
+            "拿实测配方出"
           ]
         }
       ]
