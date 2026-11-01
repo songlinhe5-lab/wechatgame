@@ -7,7 +7,7 @@
 - 生效：2026-10-12｜依据：三轮反漂移复测（云 40 张 + 本地 17 次 + inpaint 7 次）+ 竖屏档与量化对照
 - 候选池：云 qwen-image-3.0 / 2.1-pro / 2.1-turbo / wan2.7-image（**两个 pro 已按用户指示排除**）+ 本地 qwen-image-2.1
   ⚠ 本行与下文 §2 价目**只适用按量付费通道**；2026-10-31 开通的 Token Plan 在册集不同，见 §2.1
-- 复现脚本：本目录 `dashscope-generate.py`（`--profile maas|token-plan`）/ `submit-comfyui.py`；一次性批跑与判据脚本在 `temp/`（**不入库**，口径已抄录于 §4、§5）
+- 复现脚本：本目录 `dashscope-generate.py`（`--profile maas|token-plan`）/ `submit-comfyui.py`；一次性批跑与判据脚本在 `temp/`（不入库，口径见 §4/§5）
 
 ## §1 四方向首选矩阵
 
@@ -59,8 +59,8 @@ TTS `qwen-audio-3.0-tts-plus`、视频 `wan3.0-video`（只异步）、**领域�
 `decision-model-preview`**（免费，结构化判定而非对话）。
 
 ⇒ 端点/参数/实测值的事实单：本目录 **`backend-token-plan.md`**；领域模型接线裁定：
-`production/qa/decision-model-calibration-20261031.md`。**「两个 pro 排除」是否在新计量下改判，
-待用户拍板**；在此之前 §1 各方向首选不变。
+`production/qa/decision-model-calibration-20261031.md`。**pro 排除仅按量通道维持**；Token Plan
+通道内两 pro 已解禁（2026-11-01 用户裁定），§1 首选未变。
 
 > **2026-11-01 `qwen-image-3.0-pro` 实测**（用户令验「局部修改 + 抠图」，两 seed 一致）：**无 mask 输入**
 > （`mask_image_url` 被静默忽略）⇒ 框外锁不住，只能配程序化回贴；**无 alpha 输出**且把**透明棋盘格画进 RGB**
