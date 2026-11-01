@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""单元素切图：一张图 → 真 alpha 透明底件 + 六道机检。三种背景判定（`--mode`）：
+"""单元素切图：一张图 → 真 alpha 透明底件 + 六道机检。**四种**背景判定（`--mode`）：
 
 | mode | 吃什么图 | 前景判据 |
 |---|---|---|
 | `proj`（默认）| AI 出的「一件一图 + 平色底」| 投到背景单位向量的投影法（下表步骤 1–3）|
 | `lum` | **整屏设计稿**（同色相背景）| 与 `--seed` 连通的亮面（`--lum-min`）或暗面（`--lum-max`）+ `--grow` 补回暗倒角 |
 | `shape` | **整屏设计稿**里的几何形件（正圆钮 / 胶囊钮 / 异形件）| 按形状给蒙版（`disc,cx,cy,r` / `pill,x0,y0,x1,y1,r` / `poly,x,y,…`），⛔ 不判色 |
+| `sam3` | **整屏设计稿**里的非平色件（木纹 / 渐变 / 带纹理的图标）| 经 ComfyUI HTTP 跑 `SAM3_Detect`，**文本提示**出蒙版（⛔ 零手输坐标）；蒙版可 `--dump-mask` 留档 |
 
 与 `cut-sprites-local.py` 的分工：那张吃**整页 mood 图**（多元素、按连通域拆件）；
 本张吃**单件**（AI 单件图，或从设计稿里按区域抠出的单件）。
@@ -38,6 +39,11 @@
   # 只在一个窗口里判前景（坐标仍写整屏绝对值，输出里的 @ 源图 也是绝对值）
   python3 cut-single-local.py SHEET.png OUT_DIR --target 376x168 --mode lum --lum-max 150 \
       --box 180,1050,575,1245 --seed 375,1140 --name cta
+  # [WXG-T-492] 非平色件：文本提示自动出蒙版（需 ComfyUI 在跑 + sam3.1_multiplex_fp16）
+  python3 cut-single-local.py SHEET.png OUT_DIR --target 700x1100 --mode sam3 --prompt "wooden frame" \
+      --host http://192.168.1.16:8188 --dump-mask temp/mask-frame.png --name frame
+  # 复算/离线：把上次 dump 的蒙版直接喂回来（⛔ 不重跑 GPU，判据可复现）
+  python3 cut-single-local.py SHEET.png OUT_DIR --target 700x1100 --mode sam3 --mask temp/mask-frame.png
 
 退出码：机检不过 ⇒ 1（打印 FAIL 行），过 ⇒ 0。`--check` 跑内置合成自检（改过算法必跑）。
 """
@@ -176,15 +182,111 @@ def largest_component(fg: np.ndarray) -> np.ndarray:
     return _grow(_upsample(best, fg.shape), 2 * F + 1)
 
 
+# `[WXG-T-492]` 权重 = ComfyUI 官方重打包件（`Comfy-Org/SAM3`），放 `ComfyUI/models/checkpoints/`。
+# 节点 `SAM3_Detect` 来自 **core 自带** `comfy_extras.nodes_sam3` ⇒ 无需第三方节点包。
+SAM3_CKPT = "sam3.1_multiplex_fp16.safetensors"
+
+
+def _sam3_mask(host: str, src: str, prompt: str, threshold: float = 0.5,
+               poll_s: int = 900) -> np.ndarray:
+    """经 ComfyUI HTTP 跑 `SAM3_Detect`（文本提示 → 蒙版），返回与源图同尺寸的 bool 蒙版。
+
+    ⛔ 不引第三方依赖：只用标准库 + PIL/numpy（本脚本「零外部依赖」的红线不破，HTTP 用 urllib）。
+    取回的蒙版可能已被模型侧缩过，故按源图尺寸 `NEAREST` 还原 —— 蒙版是二值的，⛔ 不能用双线性
+    （会把边界刷成灰，再阈值就抖）。
+    """
+    import io
+    import json
+    import mimetypes
+    import time
+    import urllib.error
+    import urllib.request
+    import uuid
+
+    base = host.rstrip("/")
+    name = os.path.basename(src)
+    boundary = uuid.uuid4().hex
+    body = b""
+    for k, v in (("overwrite", "true"), ("type", "input")):
+        body += f'--{boundary}\r\nContent-Disposition: form-data; name="{k}"\r\n\r\n{v}\r\n'.encode()
+    body += (f'--{boundary}\r\nContent-Disposition: form-data; name="image"; filename="{name}"\r\n'
+             f'Content-Type: {mimetypes.guess_type(name)[0] or "image/png"}\r\n\r\n').encode()
+    body += open(src, "rb").read() + f"\r\n--{boundary}--\r\n".encode()
+    req = urllib.request.Request(
+        f"{base}/upload/image", data=body,
+        headers={"Content-Type": f"multipart/form-data; boundary={boundary}"})
+    uploaded = json.load(urllib.request.urlopen(req, timeout=180))["name"]
+
+    wf = {
+        "1": {"class_type": "LoadImage", "inputs": {"image": uploaded}},
+        "2": {"class_type": "CheckpointLoaderSimple", "inputs": {"ckpt_name": SAM3_CKPT}},
+        "3": {"class_type": "CLIPTextEncode", "inputs": {"text": prompt, "clip": ["2", 1]}},
+        "4": {"class_type": "SAM3_Detect",
+              "inputs": {"model": ["2", 0], "image": ["1", 0], "threshold": float(threshold),
+                         "refine_iterations": 2, "individual_masks": False,
+                         "conditioning": ["3", 0]}},
+        "5": {"class_type": "MaskPreview", "inputs": {"mask": ["4", 0]}},
+    }
+    req = urllib.request.Request(
+        f"{base}/prompt", data=json.dumps({"prompt": wf, "client_id": "cut-single-local"}).encode(),
+        headers={"Content-Type": "application/json"})
+    try:
+        pid = json.load(urllib.request.urlopen(req, timeout=60))["prompt_id"]
+    except urllib.error.HTTPError as e:
+        raise SystemExit(f"FAIL: ComfyUI 拒收工作流 HTTP {e.code}：{e.read().decode()[:400]}")
+    except urllib.error.URLError as e:
+        raise SystemExit(f"FAIL: 连不上 ComfyUI（{base}）：{e.reason}")
+
+    deadline = time.time() + poll_s
+    filename = None
+    while time.time() < deadline:
+        time.sleep(1)
+        try:
+            h = json.load(urllib.request.urlopen(f"{base}/history/{pid}", timeout=30))
+        except urllib.error.URLError as e:
+            raise SystemExit(f"FAIL: 轮询 ComfyUI 失败：{e.reason}")
+        if pid not in h:
+            continue
+        st = h[pid].get("status", {})
+        if st.get("status_str") == "error":
+            msg = json.dumps(st.get("messages", []), ensure_ascii=False)
+            i = msg.find("exception_message")
+            raise SystemExit(f"FAIL: SAM3 执行报错 {msg[i:i + 300] if i > 0 else msg[:300]}")
+        for out in h[pid].get("outputs", {}).values():
+            for im in out.get("images", []):
+                filename = im.get("filename")
+        if filename:
+            break
+    if not filename:
+        raise SystemExit(f"FAIL: SAM3 超时（{poll_s}s 内未产出蒙版）")
+
+    raw = urllib.request.urlopen(f"{base}/view?filename={filename}&type=temp", timeout=180).read()
+    mask = Image.open(io.BytesIO(raw)).convert("L")
+    with Image.open(src) as src_im:
+        want = src_im.size
+    if mask.size != want:
+        mask = mask.resize(want, Image.NEAREST)
+    m = np.asarray(mask) > 127
+    if not m.any():
+        raise SystemExit(f"FAIL: SAM3 蒙版为空（prompt={prompt!r} threshold={threshold}）"
+                         f" —— 换措辞或降 threshold 后重试")
+    print(f"SAM3  蒙版 {m.sum()} px（{100 * m.mean():.1f}% 画面）  prompt={prompt!r}  "
+          f"threshold={threshold}  ckpt={SAM3_CKPT}")
+    return m
+
+
 def cut(src: str, out_dir: str, target: tuple[int, int], thresh: int, pad: float, name: str,
         mode: str = "proj", lum_min: int = 130, seed: tuple[int, int] | None = None,
         grow: int = 0, shape: str | None = None, lum_max: int | None = None,
-        box: tuple[int, int, int, int] | None = None) -> int:
+        box: tuple[int, int, int, int] | None = None,
+        sam_mask: np.ndarray | None = None, sam_open: int = 0) -> int:
     im = Image.open(src).convert("RGB")
     ox = oy = 0
     if box:   # 窗口：只在设计稿的这块区域里判前景（⛔ 不改像素，只缩小判定域）
         ox, oy, bx1, by1 = box
         im = im.crop((ox, oy, bx1, by1))
+        if sam_mask is not None:      # sam3 的蒙版是源图全幅的，窗口同样要跟着裁
+            sam_mask = sam_mask[oy:by1, ox:bx1]
         if seed:            # 命令行里的坐标一律写整屏绝对值，进窗口前换回相对值
             seed = (seed[0] - ox, seed[1] - oy)
         if shape:
@@ -234,6 +336,21 @@ def cut(src: str, out_dir: str, target: tuple[int, int], thresh: int, pad: float
         else:
             fg = lum > lum_min
         fg = fg & (component_at(fg, seed) if seed else largest_component(fg))
+    elif mode == "sam3":
+        # `[WXG-T-492]` 蒙版由 `SAM3_Detect` 的**文本提示**给出（见 `_sam3_mask` / `--mask`）。
+        # 本模式只接管后处理：⛔ 不判色也不判亮度，像素 100% 原样 ⇒ 与 `shape` 同族，
+        # 「回贴 maxdiff = 0」这条硬判据照样成立。
+        if sam_mask is None:
+            raise SystemExit("FAIL: --mode sam3 需要蒙版：给 --prompt（现场跑）或 --mask（复用 PNG）")
+        if sam_mask.shape != (h, w):
+            raise SystemExit(f"FAIL: 蒙版尺寸 {sam_mask.shape[1]}x{sam_mask.shape[0]} ≠ 判定域 {w}x{h}"
+                             "（与 --box 同用时，--mask 必须是**源图全幅**蒙版）")
+        fg = sam_mask.copy()
+        if sam_open:
+            # `[WXG-T-492]` 形态学**开运算**去蒙版毛刺：SAM3 在纹理边界（木框内窗沿）会留 2–6px 的
+            # 孤立碎点，直接入 alpha 会成脏边。开运算 = 先缩后胀，只吃掉比核小的碎块，⛔ 不动粗大轮廓。
+            k = 2 * sam_open + 1
+            fg = _grow(_shrink(fg, k), k)
     else:
         # 背景判据沿用 cut-sprites-local.py 的 KEEP_SHADOW=0 口径（⛔ 自创「距背景够远就算前景」，
         # 那条会把中性灰的落地投影一起吃进来，实测底部 6 行不透明率 85-94%）：
@@ -246,13 +363,20 @@ def cut(src: str, out_dir: str, target: tuple[int, int], thresh: int, pad: float
         perp = np.linalg.norm(a - t[:, :, None] * u, axis=2)
         fg = ~((perp < thresh) & (t <= cn + 2) & (t >= cn - 90))
         fg = fg & largest_component(fg)   # 相与 ⇒ 膨胀环不会把背景带进来
-    # --grow 对三种模式都可用：lum 补暗倒角、shape 把「内缩多边形」外推回真实轮廓
+    # --grow 对四种模式都可用：lum 补暗倒角、shape 把「内缩多边形」外推回真实轮廓
     if grow:
         fg = _grow(fg, 2 * grow + 1)
-    small = fg[::F, ::F]
-    reached = _bfs_reach(~small, _border_seeds(*small.shape))
-    holes = _upsample(~small & ~reached, fg.shape)   # 非主体且从外部灌不到 = 洞
-    fg = _close(fg | holes)
+    if mode == "sam3":
+        # `[WXG-T-492]` 语义蒙版自带**正确的内部空腔**（橱窗内窗 / 把手内圈 / 图标留白）⇒ ⛔ 不填洞：
+        # 实测木框按「填洞」跑会把 1.37M px 的内窗并入 fg ⇒ alpha 覆盖整幅（26% 变 100%），
+        # 语义被抹平。闭运算保留（只缝 ≤1px 粗网格缝，不改拓扑）。
+        holes = np.zeros_like(fg)
+        fg = _close(fg)
+    else:
+        small = fg[::F, ::F]
+        reached = _bfs_reach(~small, _border_seeds(*small.shape))
+        holes = _upsample(~small & ~reached, fg.shape)   # 非主体且从外部灌不到 = 洞
+        fg = _close(fg | holes)
 
     ys, xs = np.nonzero(fg)
     if len(ys) == 0:
@@ -360,9 +484,17 @@ def main() -> int:
     ap.add_argument("--thresh", type=int, default=28, help="背景线色度分量 perp 阈值（默认 28）")
     ap.add_argument("--pad", type=float, default=0.08, help="安全边比例（默认 8%%）")
     ap.add_argument("--name", default="sprite")
-    ap.add_argument("--mode", choices=("proj", "lum", "shape"), default="proj",
+    ap.add_argument("--mode", choices=("proj", "lum", "shape", "sam3"), default="proj",
                     help="proj = 平色底 AI 单件图（默认）；lum = 从整屏设计稿里抠单件（亮度+连通）；"
-                         "shape = 几何蒙版抠几何形件（⛔ 不判色）")
+                         "shape = 几何蒙版抠几何形件（⛔ 不判色）；"
+                         "sam3 = 文本提示自动出蒙版（需 --prompt/--host 或 --mask）")
+    ap.add_argument("--host", default="http://192.168.1.16:8188", help="sam3 模式：ComfyUI 地址")
+    ap.add_argument("--prompt", help="sam3 模式：文本提示（英文，如 'gear icon' / 'wooden frame'）")
+    ap.add_argument("--sam-thresh", type=float, default=0.5, help="sam3 模式：SAM3_Detect 置信阈值（默认 0.5）")
+    ap.add_argument("--mask", help="sam3 模式：复用现成蒙版 PNG（源图全幅，跳过 GPU 调用）")
+    ap.add_argument("--dump-mask", help="sam3 模式：把本次蒙版另存一份 PNG（判据留档/复算用）")
+    ap.add_argument("--sam-open", type=int, default=0,
+                    help="sam3 模式：形态学开运算核半径（去蒙版毛刺；纹理边界建议 3–4，平色件留 0）")
     ap.add_argument("--shape", help="shape 模式：disc,cx,cy,r 或 pill,x0,y0,x1,y1,r（图坐标）")
     ap.add_argument("--lum-min", type=int, default=130, help="lum 模式的亮面阈值")
     ap.add_argument("--lum-max", type=int, help="lum 模式反向：取暗于该值的连通块（暗盘亮图标件）")
@@ -377,9 +509,25 @@ def main() -> int:
         ap.error("需 src / out_dir / --target（或用 --check）")
     tw, th = (int(v) for v in args.target.lower().split("x"))
     sd = tuple(int(v) for v in args.seed.split(",")) if args.seed else None
+    mask = None
+    if args.mode == "sam3":
+        if args.mask:      # 离线/复算腿：读现成蒙版，⛔ 不碰 GPU
+            with Image.open(args.mask) as m:
+                mask = np.asarray(m.convert("L")) > 127
+            if not mask.any():
+                ap.error(f"--mask {args.mask} 是全黑蒙版（无前景）")
+        elif args.prompt:
+            mask = _sam3_mask(args.host, args.src, args.prompt, args.sam_thresh)
+        else:
+            ap.error("--mode sam3 需 --prompt（现场跑）或 --mask（复用蒙版）")
+        if args.dump_mask:
+            os.makedirs(os.path.dirname(os.path.abspath(args.dump_mask)), exist_ok=True)
+            Image.fromarray(np.where(mask, 255, 0).astype(np.uint8)).save(args.dump_mask)
+            print(f"蒙版留档 → {args.dump_mask}")
     return cut(args.src, args.out_dir, (tw, th), args.thresh, args.pad, args.name,
                args.mode, args.lum_min, sd, args.grow, args.shape, args.lum_max,
-               tuple(int(v) for v in args.box.split(",")) if args.box else None)
+               tuple(int(v) for v in args.box.split(",")) if args.box else None,
+               mask, args.sam_open)
 
 
 if __name__ == "__main__":
