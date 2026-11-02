@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3905,
       "lines": 132,
-      "sha256": "4dc709616485503e5affe6932ddb32d92b2a4ae5b1619165f98b6224238af126",
+      "sha256": "656db98f1f8771ae39b19014e1f1a2385e1f0c64b1d74e5e8fd99eef4d5fb05f",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 189697 6579 normal",
+          "summary": "1 production/TASKS-DETAIL.md 190390 6624 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "e77d5aea6c560da3c890336520a6d8384539f462d03eace25803eb98a125c4c5",
+      "sha256": "b6caeaf8879003756b6d9f46c5284febba544bbaf0d647b45459376aab8c6fd7",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 153 行 / 34210 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 154 行 / 34571 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+154 · §待排（backlog，无号，立项时领取…=126+29",
+          "summary": "§WXG 任务台账（SSOT）=1+155 · §待排（backlog，无号，立项时领取…=127+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 6579 行 / 189697 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 6624 行 / 190390 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6580 · §WXG-T-536=5877+39 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6625 · §WXG-T-537=5963+57 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -88474,17 +88474,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 189697,
-      "lines": 6579,
-      "sha256": "55b5023525228f7f5a9d2cc732a00d3979a93db42a60e18de0759a555829d523",
+      "tokens": 190390,
+      "lines": 6624,
+      "sha256": "dc99ddd5603ac191918af4dc66c79bbb47e36991047c048741b5a59abe6d2fd6",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 6580,
-          "tokens": 189680,
+          "endLine": 6625,
+          "tokens": 190373,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -97756,22 +97756,113 @@
             "bbox",
             "沉淀"
           ]
+        },
+        {
+          "anchor": "§WXG-T-548",
+          "level": 2,
+          "startLine": 6581,
+          "endLine": 6625,
+          "tokens": 689,
+          "summary": "美术·木质底圆改满幅内缘刻印（弃外投影） · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-0",
+          "keywords": [
+            "WXG",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§1 症状",
+          "level": 3,
+          "startLine": 6585,
+          "endLine": 6588,
+          "tokens": 66,
+          "summary": "用户报「底下阴影也有被裁的部分」。量测：T-547 版盘体 y 8..151、投影下移 3 + 高斯扩散后延伸到 y≈1",
+          "keywords": [
+            "症状"
+          ]
+        },
+        {
+          "anchor": "§2 为什么不能简单地「再缩小一点」",
+          "level": 3,
+          "startLine": 6589,
+          "endLine": 6594,
+          "tokens": 109,
+          "summary": "源底托 bbox 占满 0..159，要容纳完整外投影，盘体必须缩到约 0.88–0.90。但运行时 MENU_TOPB",
+          "keywords": [
+            "bbox",
+            "MENU_TOPB",
+            "为什么不能简",
+            "单地",
+            "再缩小一点"
+          ]
+        },
+        {
+          "anchor": "§3 改法：满幅 + 内缘刻印",
+          "level": 3,
+          "startLine": 6595,
+          "endLine": 6604,
+          "tokens": 165,
+          "summary": "盘体 满幅 160×160，不缩不位移（bbox 与源件逐边相同）",
+          "keywords": [
+            "bbox",
+            "改法",
+            "满幅",
+            "内缘刻印"
+          ]
+        },
+        {
+          "anchor": "§4 四边核对（与源件对照）",
+          "level": 3,
+          "startLine": 6605,
+          "endLine": 6614,
+          "tokens": 75,
+          "summary": "源底托 26 24 24 26 y 0..159 / x 0..159",
+          "keywords": [
+            "四边核对",
+            "与源件对照"
+          ]
+        },
+        {
+          "anchor": "§5 验证 (2)",
+          "level": 3,
+          "startLine": 6615,
+          "endLine": 6619,
+          "tokens": 69,
+          "summary": "1. harness 菜单页重截：四钮圆弧与外环完整、无任何切边；内缘刻印在 80px 下可见（放大件 temp/men",
+          "keywords": [
+            "harness",
+            "temp",
+            "men",
+            "验证"
+          ]
+        },
+        {
+          "anchor": "§6 沉淀 (3)",
+          "level": 3,
+          "startLine": 6620,
+          "endLine": 6625,
+          "tokens": 109,
+          "summary": "无新增条目。三条硬约束（不位移 / 不缩小 / 不加外投影）已写进脚本 docstring 顶部，并在 asset-pr",
+          "keywords": [
+            "docstring",
+            "asset",
+            "沉淀"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 34210,
-      "lines": 153,
-      "sha256": "1aa2b8450c989d4b493818200576f672fa89a7ed59d59d20a52b0e3335d2b960",
+      "tokens": 34571,
+      "lines": 154,
+      "sha256": "ed4de00f88dfa5ef0768e369b9ab919e3ddd58ba7fdf36461d9a9813bbba6377",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 154,
-          "tokens": 34201,
+          "endLine": 155,
+          "tokens": 34562,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -97784,8 +97875,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 126,
-          "endLine": 154,
+          "startLine": 127,
+          "endLine": 155,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -101542,9 +101633,9 @@
     },
     {
       "path": "production/qa/asset-provenance.md",
-      "tokens": 4335,
+      "tokens": 4365,
       "lines": 77,
-      "sha256": "5da17dc4936204d65426ee9240667ac303f9fd6ba4f762c081d36de1b5d9d921",
+      "sha256": "fdf2ecd2c6c7e91da2ea16f1c3683eb5fbf23a5b708afa631388421b265d72df",
       "tier": "normal",
       "sections": [
         {
@@ -101552,7 +101643,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 78,
-          "tokens": 4321,
+          "tokens": 4351,
           "summary": "本件是「每张进 final/ 的图从哪来」的唯一正本。 建件 = 用户 2026-11-01 令「统一使用图片生成文档，",
           "keywords": [
             "Asset",
@@ -101582,7 +101673,7 @@
           "level": 2,
           "startLine": 19,
           "endLine": 42,
-          "tokens": 2412,
+          "tokens": 2443,
           "summary": "范围 = final/assets/menu/ 中 mtime ≥ 2026-10-30 的 12 件（其余件来源见 f",
           "keywords": [
             "final",
