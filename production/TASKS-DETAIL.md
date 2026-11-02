@@ -7120,3 +7120,33 @@ T-554 当时按「清理掉重新做 v2」把 14 件 `git rm` 了；本单按用
 
 1. **WXG-T-522 单一作品腿**未回写出图脚本与落地单（需 v2 橱窗框含烘焙内景 + 单作品大图，见 `menu-3d-asset-brief.md:242`）。
 2. 取证图（`coordinates/`、`prototypes/`）自 T-554/556 起清空待 v2；本轮产物只在 `temp/`，**未入库**。
+
+## WXG-T-562
+
+**美术·菜单原型 4 张重出 + 三态状态图标补齐** · 负责：主理人(CodeBuddy)·美术轨 · 状态：✅ 完成（2026-11-02）
+
+### 1. 用户令
+
+「先把这块内容补齐（`design/art/final/prototypes`），再把关卡开启、正在、置灰状态图标补齐」。
+
+### 2. 处置
+
+| 面 | 变化 |
+|---|---|
+| `final/prototypes/` | 自 WXG-T-554/556 清空后**重出 4 件**：`proto-v3-{pushing,locked,done}-750x1334-at2x.png` + `proto-v3-swipe-750x1334-at2x.png` |
+| 底素材口径 | v1 分层件（`ui_showcase_frame` 1088×1742 **含 T-522 烘焙内景**、`ui_showcase_plate`、`ui_btn_start_9s`、三态章）+ 现役 v2 木钮顶栏 + 现役 `ui_menu_logo`；软链合成 `temp/align-check-20261102/src`，脚本走 `MENU_SRC`/`MENU_OUT` 外置口 |
+| 脚本 | 新增 `--proto-only` 开关：只出 prototypes，**不动 `coordinates/`**（旧版面的坐标图会误导落码，留空待 v2 版面） |
+| 三态状态图标 | 自 `final/v1/assets/menu/` **复制**回现役 `final/assets/menu/` 三件：`ui_menu_badge_locked`（置灰）/ `ui_menu_badge_progress`（进行中·沙漏，210）/ `ui_menu_seal_cleared`（已通关·金章飘带）⇒ 现役 **8 → 11 件** |
+| 快照边界 | v1 **一件未动**（33 件不变），三件与现役逐字节一致（md5 `d17f111a…`）；README 两处 + `v1/VERSION.txt` 一致性行由「两集合无交集」改「交集 3 件（复制非移出）」 |
+
+### 3. 验证
+
+- `pnpm run harness:smoke` → **OK**（beads + breakout）。⚠ node 环境打印「[menu] 位图腿就绪：0/37」属预期（无 `Image`，真浏览器才加载）⇒ **三件补入后的实际显示未在真机/浏览器验**，只能确认文件与映射路径正确。
+- 出图自检：`seal_xy → (445, 444)` 断言通过（SE 档，T-561 口径）。
+- 目检 4 张：locked = 豆画置灰 + 大锁 220 居中；pushing = 原色 + 沙漏；done = 原色 + 金章飘带贴裁切区右上；swipe = 通关项左滑 35%、木牌字淡出。
+
+### 4. 遗留（须裁定）
+
+1. **三态图标仍是 v1 风格**（白盘大锁 / 沙漏 / 金章双飘带）。v2 是 3D 木作语言，若要重绘需定风格与生成腿（i2i 旧件 / 全新文生图 / 本地 qwen）。
+2. **`MENU_CASE_INTERIOR_BAKED = true` 时运行时不再绘制三态章**（`meta-menu.ts` 单一作品腿：⛔ 徽章/沙漏/飘带/层板）⇒ 本次补的 3 件在真机上**不会被画出**，只在 `caseFrame` 缺图回退腿或改回三态腿时生效。要「开启/正在/置灰」在 v2 界面可见，需设计侧先定三态在单一作品腿下的表现形式（或改回三态），属工程 + 设计双改。
+3. `coordinates/` 仍空，待 v2 版面分层件就位后重出。

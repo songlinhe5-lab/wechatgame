@@ -4,6 +4,7 @@
 # 素材 = final/assets/menu 正本（顶栏钮/徽标/木牌/箭头）+ proto-v2 切件（资源条、曼陀罗豆画）。标注单位 = 750 设计px（rpx 语义）。
 # 用法（仓库根）：python3 games/beads/design/ai-workflows/menu-proto-coords.py
 import os
+import sys
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageOps
 
@@ -459,6 +460,8 @@ if __name__ == "__main__":
     out = f"{OUT}/prototypes/proto-v3-swipe-750x1334-at2x.png"
     swipe(se, 2, "done", "pushing", 0.35).save(out, quality=90)
     print("写出", out)
+    if "--proto-only" in sys.argv:     # 只补 prototypes（coordinates 待 v2 版面重做）
+        sys.exit(0)
     master(f"{OUT}/coordinates/menu-master-coords.png")
     for t, e in zip(TIERS, EXPECT_GAPS):
         tier(*t, e)
