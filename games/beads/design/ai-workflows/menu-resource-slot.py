@@ -46,6 +46,7 @@ PIT_FLUSH = (32, 16, 8, 205)  # 开槽口径：无外沿的半透深底
 CARVE = {
     'flat':  ((56, 31, 14, 150), (86, 50, 24, 120)),   # 无阴影档（用户 2026-11-02：「删除槽阴影试试」）
     'flatline': ((56, 31, 14, 150), (86, 50, 24, 120)),  # 无阴影 + 两道 1px 硬刻线（不用模糊=不算阴影）
+    'bbox': ((0, 0, 0, 255), (0, 0, 0, 255)),           # bbox 口径：占位（真实色由 --fill 给，恒不透明）
     'light': ((92, 54, 26, 86), (146, 94, 50, 56)),    # 浅刻：只比梁面暗一档，最贴版面
     'mid':   ((66, 37, 17, 138), (120, 74, 38, 96)),   # 中刻：看得出凹陷，仍是木色
     'warm':  ((50, 27, 12, 168), (104, 63, 30, 122)),  # 暖刻：凹陷明显但仍留木色（V4）
@@ -99,7 +100,8 @@ def slot(im: Image.Image, x: int, y: int, w: int, h: int, icon: str, label: str,
 
 def bar(im: Image.Image, x0: int, y0: int, x1: int, y1: int, icon_px: int, style: str,
         icon_l: Path | None = None, icon_r: Path | None = None, recolor: bool = True,
-        num_scale: float = 1.0, carve: str = 'mid') -> None:
+        num_scale: float = 1.0, carve: str = 'mid', bbox_fill: str = '#8C5C2A',
+        bbox_radius: int = 8, bbox_stroke: str | None = None) -> None:
     """单条贯通凹槽（WXG-T-560）：水平、圆头、无倾角，图标居两端、数值贴图标内侧、中间留空。
 
     槽体仍是「原梁面开槽」口径（无外沿/无新增槽图案）：半透深底 + 顶部内阴影 + 下沿反光。
@@ -135,6 +137,20 @@ def bar(im: Image.Image, x0: int, y0: int, x1: int, y1: int, icon_px: int, style
         d.rounded_rectangle((bx0 + 1, by0 + 1, bx1 - 1, by1 - 1), radius=r - 1,
                             outline=(28, 14, 6, 130), width=1)
         d.rounded_rectangle((bx0 + 2, by1 - 3, bx1 - 2, by1 - 2), radius=r - 2, fill=LIP_CRISP)
+        ico_l = _fit(icon_l or ICON_HEART, icon_px, ICON_LIGHT if recolor else None)
+        ico_r = _fit(icon_r or ICON_BEAD, icon_px, ICON_LIGHT if recolor else None)
+        _seat(tile, ico_l, bx0 + 16, cy)
+        _seat(tile, ico_r, bx1 - 16 - ico_r.width, cy)
+        _number(tile, bx0 + 16 + ico_l.width + 11, cy, '12/20', style, anchor='lm', scale=num_scale)
+        _number(tile, bx1 - 16 - ico_r.width - 11, cy, '480', style, anchor='rm', scale=num_scale)
+        im.alpha_composite(tile, (x0 - pad, y0 - pad))
+        return
+    if carve == 'bbox':                                                            # bbox 口径：一条不透明 rect
+        cy = (by0 + by1) // 2
+        rad = bbox_radius
+        d.rounded_rectangle((bx0, by0, bx1, by1), radius=rad, fill=bbox_fill)
+        if bbox_stroke:
+            d.rounded_rectangle((bx0, by0, bx1, by1), radius=rad, outline=bbox_stroke, width=1)
         ico_l = _fit(icon_l or ICON_HEART, icon_px, ICON_LIGHT if recolor else None)
         ico_r = _fit(icon_r or ICON_BEAD, icon_px, ICON_LIGHT if recolor else None)
         _seat(tile, ico_l, bx0 + 16, cy)
@@ -255,6 +271,9 @@ def main() -> None:
     ap.add_argument('--num-scale', type=float, default=1.0, help='数值字号缩放')
     ap.add_argument('--carve', default='mid', choices=list(CARVE), help='槽深档 light/mid/deep')
     ap.add_argument('--out', help='输出路径覆盖（比稿稿落 temp/，不覆盖定稿件）')
+    ap.add_argument('--fill', dest='fill', default='#8C5C2A', help='bbox 口径槽底色（不透明；默认 plaque_face）')
+    ap.add_argument('--radius', dest='radius', type=int, default=8, help='bbox 口径圆角半径（RectCommand.radius）')
+    ap.add_argument('--stroke', dest='stroke', default=None, help='bbox 口径 1px 描边色（RectCommand.stroke）')
     a = ap.parse_args()
 
     im = Image.open(a.src or BASE).convert('RGBA') if a.bar else Image.open(BASE).convert('RGBA')
@@ -263,7 +282,7 @@ def main() -> None:
         out = Path(a.out).resolve() if a.out else PROPOSALS / f'menu-design-baseline-cat-topbar-final-slotbar-{a.style}-20261102.png'
         bar(im, a.left, a.y, a.left + a.w, a.y + a.h, a.icon, a.style,
             Path(a.iconl) if a.iconl else None, Path(a.iconr) if a.iconr else None,
-            not a.no_recolor, a.num_scale, a.carve)
+            not a.no_recolor, a.num_scale, a.carve, a.fill, a.radius, a.stroke)
         im.save(out)
         print(f'✅ {out.relative_to(ROOT)} （单槽口径 · 样式 {a.style}）'
               f' 槽 x={a.left}..{a.left + a.w} y={a.y}..{a.y + a.h} 图标 {a.icon}px')
