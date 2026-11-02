@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3905,
       "lines": 132,
-      "sha256": "656db98f1f8771ae39b19014e1f1a2385e1f0c64b1d74e5e8fd99eef4d5fb05f",
+      "sha256": "e6bd2b5e609d195809568dbb45fd9698ad3bebbf0b3a201df1081d95437b591c",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 190390 6624 normal",
+          "summary": "1 production/TASKS-DETAIL.md 190893 6657 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "b6caeaf8879003756b6d9f46c5284febba544bbaf0d647b45459376aab8c6fd7",
+      "sha256": "f68e981140ed02ad1f085c44a6f03c3dd8a62e838fed8190cc3066ac7f20e7a7",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 154 行 / 34571 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 155 行 / 34814 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+155 · §待排（backlog，无号，立项时领取…=127+29",
+          "summary": "§WXG 任务台账（SSOT）=1+156 · §待排（backlog，无号，立项时领取…=128+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 6624 行 / 190390 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 6657 行 / 190893 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6625 · §WXG-T-537=5963+57 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6658 · §WXG-T-538=6020+62 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -88474,17 +88474,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 190390,
-      "lines": 6624,
-      "sha256": "dc99ddd5603ac191918af4dc66c79bbb47e36991047c048741b5a59abe6d2fd6",
+      "tokens": 190893,
+      "lines": 6657,
+      "sha256": "f032b85f0905ed64362b303494e6a7f54b0f7eba6e054773fd3966487eebc940",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 6625,
-          "tokens": 190373,
+          "endLine": 6658,
+          "tokens": 190877,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -97847,22 +97847,96 @@
             "asset",
             "沉淀"
           ]
+        },
+        {
+          "anchor": "§WXG-T-549",
+          "level": 2,
+          "startLine": 6626,
+          "endLine": 6658,
+          "tokens": 501,
+          "summary": "美术·顶栏四钮效果图正位与更新约定 · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-02）",
+          "keywords": [
+            "WXG",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§1 触发 (45)",
+          "level": 3,
+          "startLine": 6630,
+          "endLine": 6633,
+          "tokens": 75,
+          "summary": "用户令「现在哪个图是效果图，我看一下，之后把调整后的效果图都需要提供链接」。此前每轮效果图都只落在 temp/（被 gi",
+          "keywords": [
+            "temp",
+            "触发"
+          ]
+        },
+        {
+          "anchor": "§2 落位 (7)",
+          "level": 3,
+          "startLine": 6634,
+          "endLine": 6644,
+          "tokens": 150,
+          "summary": "新建效果图正位：games/beads/design/art/shots/topbar-20261102/（与既有 sh",
+          "keywords": [
+            "games",
+            "beads",
+            "design",
+            "art",
+            "shots",
+            "topbar"
+          ]
+        },
+        {
+          "anchor": "§3 约定",
+          "level": 3,
+          "startLine": 6645,
+          "endLine": 6648,
+          "tokens": 66,
+          "summary": "任何影响顶栏外观的改动（图标、底托、红点、坐标）完成后：重出这三张 → 同名覆盖 → 会话里给链接。命令与坐标写死在 R",
+          "keywords": [
+            "约定"
+          ]
+        },
+        {
+          "anchor": "§4 踩点",
+          "level": 3,
+          "startLine": 6649,
+          "endLine": 6652,
+          "tokens": 74,
+          "summary": "首版裁切框按 y=148..248 取，实际切到了下一行按钮。真实坐标为：行 1 圆心 y=156（bt=116 + 4",
+          "keywords": [
+            "踩点"
+          ]
+        },
+        {
+          "anchor": "§5 沉淀 (3)",
+          "level": 3,
+          "startLine": 6653,
+          "endLine": 6658,
+          "tokens": 77,
+          "summary": "无新增条目。「效果图必须落可长期引用的入库路径」属输出纪律的自然延伸，已在 README 内固化，暂不单列知识库。",
+          "keywords": [
+            "README",
+            "沉淀"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 34571,
-      "lines": 154,
-      "sha256": "ed4de00f88dfa5ef0768e369b9ab919e3ddd58ba7fdf36461d9a9813bbba6377",
+      "tokens": 34814,
+      "lines": 155,
+      "sha256": "2756fde6d21cf2cb7d322658a98f35333b15da3998657b2e32a76f1414e155d1",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 155,
-          "tokens": 34562,
+          "endLine": 156,
+          "tokens": 34805,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -97875,8 +97949,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 127,
-          "endLine": 155,
+          "startLine": 128,
+          "endLine": 156,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
