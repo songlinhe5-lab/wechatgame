@@ -6441,3 +6441,61 @@ T-541 交付后两处不达标：① 图标外接圆按「圆牌可用面 ≈ 40
 无新增条目。本轮为选型横比，结论已写入产物说明；pro 的「贵而不优」与矩阵 §3 既有结论同向，不重复登记。
 
 `kb:sync` 本轮未跑（无新增）。`ctx:build` 已随本次改动刷新。
+
+## WXG-T-545
+
+**美术·顶栏四钮图标接入运行时（替换线上彩色图标）** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-02）
+
+### 1. 触发
+
+用户在「维持本地版并接入游戏」选项下确认。目标 = 把 T-543 定稿的深棕线条四枚图标落到顶部栏按钮的真实渲染里。
+
+### 2. 接入通道（视图层零改动）
+
+探查结论：顶栏四钮在 `src/view/meta-menu.ts:97-208` 的 `drawTopbar` 里逐枚画，形态固定为「底圆 blit + 图标 blit」。图标走 `textureId`：
+
+| 钮 | textureId | id 定义 | Cocos 映射 | harness 映射 |
+|---|---|---|---|---|
+| 设置 | `bitmap__menu_icon_settings` | `config/tuning/menu.ts:403` | `beads-blit-carrier.ts:109-135` | `dev/harness/main.ts:151-179` |
+| 好友榜 | `bitmap__menu_icon_rank` | `menu.ts:426` | 同上 | 同上 |
+| 打卡 | `bitmap__menu_icon_calendar` | `menu.ts:424` | 同上 | 同上 |
+| 换肤 | `bitmap__menu_icon_skin` | `menu.ts:428` | 同上 | 同上 |
+
+四件 id 与两处宿主映射**早已登记**，绘制点写死 `builder.blit(icon, cx − id/2, cy − id/2, id, id)`，其中 `id = MENU_TOPBAR_ICON_D = MENU_TOPBAR_VISUAL_D = 80`。⇒ 接入 = **只替换 PNG 文件内容**，代码零改动。
+
+### 3. 落位（4 件 ×2 处）
+
+| 位置 | 作用 |
+|---|---|
+| `games/beads/design/art/final/assets/menu/ui_icon_{settings,rank,calendar,skin}.png` | 美术真源；harness 经 `/menu-assets/` 直接读 |
+| `games/beads/cocos/assets/textures/ui_icon_{...}.png` | Cocos 投放件（bundle `textures`，path 无扩展名） |
+
+尺寸：新件 160×160 RGBA，与 `MENU_TOPBAR_VISUAL_D = 80` 的 @2x 口径一致，无需缩放。
+`.meta` 未手改：Cocos 构建时自动重算 trim（`trimX/trimY/width/height/vertices`），**uuid 未变**，故 `BITMAP_ASSETS` 引用不受影响。
+
+### 4. 尺寸校验（160² 画布）
+
+| 钮 | 最大半径 | 白圆实体半径 | 判定 |
+|---|---|---|---|
+| 设置 | 54.0 px | 59.0 px | ✅ |
+| 好友榜 | 55.9 px | 59.0 px | ✅ |
+| 打卡 | 56.1 px | 59.0 px | ✅ |
+| 换肤 | 56.4 px | 59.0 px | ✅ |
+
+原彩色图标更小 ⇒ 视觉显空；新件余量约 3–5px，饱满但不压边。
+
+### 5. 验证
+
+1. `pnpm --filter @wxgame/beads test` ⇒ **120 文件 / 1422 通过 / 2 skipped**（资产替换不触红）。
+2. `pnpm run build:cocos` ⇒ release 档成功 19.9s，版本 v1.0.19 → v1.0.20，产物 `cocos/build/wechatgame` 正常。
+3. Chrome headless 截图菜单页（`http://127.0.0.1:4173/?game=beads&meta=menu&hud=off`）⇒ 四钮全部上屏、无一越界；游戏内 HUD 同图同参亦正确。证据留存 `temp/menu-shot-clean.png`（`temp/` 不入库）。
+
+### 6. 回滚
+
+原件备份在 `temp/backup-ui-icon-20261102/`（`final_*` / `cocos_*` 各 4 张，`temp/` 不入库，下轮清理会带走）；git 历史亦可回滚。
+
+### 7. 沉淀
+
+无新增条目。「接入前先查 textureId 是否已登记」这条属常规，已有 `final/README.md` 台账兜底。
+
+`kb:sync` 本轮未跑（无新增）。`ctx:build` 已随本次改动刷新。

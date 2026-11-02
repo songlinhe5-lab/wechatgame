@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3905,
       "lines": 132,
-      "sha256": "3b6beaacfb7ee565faad9e18b5a669555f19580fab9090b42c65e09e821b5afe",
+      "sha256": "4d3ca0d53ab54da1ac957093cdb8482cfbb7515eadc8761e2c7d51ed0af61405",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 187520 6443 normal",
+          "summary": "1 production/TASKS-DETAIL.md 188405 6501 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "7c259907f487e530e5b2ebd87b8438251f28cc63713cb9501e7cd474e6cf0c75",
+      "sha256": "f421f83bceeed089b268e8bfe2c538de779feafc3788e43cd44729130950e03d",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 150 行 / 33172 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 151 行 / 33556 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+151 · §待排（backlog，无号，立项时领取…=123+29",
+          "summary": "§WXG 任务台账（SSOT）=1+152 · §待排（backlog，无号，立项时领取…=124+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 6443 行 / 187520 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 6501 行 / 188405 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6444 · §WXG-T-534=4894+46 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6502 · §WXG-T-534=4894+46 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -88474,17 +88474,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 187520,
-      "lines": 6443,
-      "sha256": "a4ac0436e2acd15fe5bd91e50eb988529cac80d30c46c4d1c3e95330ee304a2a",
+      "tokens": 188405,
+      "lines": 6501,
+      "sha256": "52ad7a324cbea4a1249c9160977be6a65a0f84d7abdaa2ad8f2b1c8f2e35eeb2",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 6444,
-          "tokens": 187503,
+          "endLine": 6502,
+          "tokens": 188388,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -97465,22 +97465,135 @@
             "pro",
             "沉淀"
           ]
+        },
+        {
+          "anchor": "§WXG-T-545",
+          "level": 2,
+          "startLine": 6445,
+          "endLine": 6502,
+          "tokens": 882,
+          "summary": "美术·顶栏四钮图标接入运行时（替换线上彩色图标） · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-",
+          "keywords": [
+            "WXG",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§1 触发 (43)",
+          "level": 3,
+          "startLine": 6449,
+          "endLine": 6452,
+          "tokens": 52,
+          "summary": "用户在「维持本地版并接入游戏」选项下确认。目标 = 把 T-543 定稿的深棕线条四枚图标落到顶部栏按钮的真实渲染里。",
+          "keywords": [
+            "触发"
+          ]
+        },
+        {
+          "anchor": "§2 接入通道（视图层零改动）",
+          "level": 3,
+          "startLine": 6453,
+          "endLine": 6465,
+          "tokens": 242,
+          "summary": "探查结论：顶栏四钮在 src/view/meta-menu.ts:97-208 的 drawTopbar 里逐枚画，形态",
+          "keywords": [
+            "src",
+            "view",
+            "meta",
+            "menu",
+            "drawTopbar",
+            "接入通道"
+          ]
+        },
+        {
+          "anchor": "§3 落位（4 件 ×2 处）",
+          "level": 3,
+          "startLine": 6466,
+          "endLine": 6475,
+          "tokens": 155,
+          "summary": "games/beads/design/art/final/assets/menu/ui_icon_{settings,r",
+          "keywords": [
+            "games",
+            "beads",
+            "design",
+            "art",
+            "final",
+            "assets"
+          ]
+        },
+        {
+          "anchor": "§4 尺寸校验（160² 画布）",
+          "level": 3,
+          "startLine": 6476,
+          "endLine": 6486,
+          "tokens": 89,
+          "summary": "设置 54.0 px 59.0 px ✅",
+          "keywords": [
+            "尺寸校验",
+            "画布"
+          ]
+        },
+        {
+          "anchor": "§5 验证",
+          "level": 3,
+          "startLine": 6487,
+          "endLine": 6492,
+          "tokens": 135,
+          "summary": "1. pnpm --filter @wxgame/beads test ⇒ 120 文件 / 1422 通过 / 2 s",
+          "keywords": [
+            "pnpm",
+            "filter",
+            "wxgame",
+            "beads",
+            "test",
+            "验证"
+          ]
+        },
+        {
+          "anchor": "§6 回滚",
+          "level": 3,
+          "startLine": 6493,
+          "endLine": 6496,
+          "tokens": 47,
+          "summary": "原件备份在 temp/backup-ui-icon-20261102/（final_* / cocos_* 各 4 张，",
+          "keywords": [
+            "temp",
+            "backup",
+            "icon",
+            "final_",
+            "cocos_",
+            "回滚"
+          ]
+        },
+        {
+          "anchor": "§7 沉淀 (3)",
+          "level": 3,
+          "startLine": 6497,
+          "endLine": 6502,
+          "tokens": 64,
+          "summary": "无新增条目。「接入前先查 textureId 是否已登记」这条属常规，已有 final/README.md 台账兜底。",
+          "keywords": [
+            "textureId",
+            "final",
+            "README",
+            "沉淀"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 33172,
-      "lines": 150,
-      "sha256": "ab71f16d1b18b988f860ee78528b9e765337ebdab709b2b196a8146d94281f59",
+      "tokens": 33556,
+      "lines": 151,
+      "sha256": "b00fae1e07f3eedae7291c9d775484e0b34866929143e8c8aa6e8d69b4c0f205",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 151,
-          "tokens": 33163,
+          "endLine": 152,
+          "tokens": 33548,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -97493,8 +97606,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 123,
-          "endLine": 151,
+          "startLine": 124,
+          "endLine": 152,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -101251,17 +101364,17 @@
     },
     {
       "path": "production/qa/asset-provenance.md",
-      "tokens": 3547,
-      "lines": 73,
-      "sha256": "a4389239973503920b0a531094fad384b3f4613355a9ebcac9e8b443ba7fa8c6",
+      "tokens": 3950,
+      "lines": 74,
+      "sha256": "d7f51346860ea6c50b9872bd88eade99e85dde1b708c41cbb6fcca3a4feedc50",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§归档资源生成史（Asset Provenance）",
           "level": 1,
           "startLine": 1,
-          "endLine": 74,
-          "tokens": 3533,
+          "endLine": 75,
+          "tokens": 3937,
           "summary": "本件是「每张进 final/ 的图从哪来」的唯一正本。 建件 = 用户 2026-11-01 令「统一使用图片生成文档，",
           "keywords": [
             "Asset",
@@ -101290,8 +101403,8 @@
           "anchor": "§1 本批（2026-10-30 → 11-01）逐件来源账",
           "level": 2,
           "startLine": 19,
-          "endLine": 38,
-          "tokens": 1625,
+          "endLine": 39,
+          "tokens": 2028,
           "summary": "范围 = final/assets/menu/ 中 mtime ≥ 2026-10-30 的 12 件（其余件来源见 f",
           "keywords": [
             "final",
@@ -101306,8 +101419,8 @@
           "anchor": "§累计状态",
           "level": 3,
           "startLine": 33,
-          "endLine": 38,
-          "tokens": 198,
+          "endLine": 39,
+          "tokens": 279,
           "summary": "12 件按件数分档：三项齐备（生成方式 + 脚本 + 原图都在册）= 5 件（9-slice 族）；原图已失 = 5 件",
           "keywords": [
             "slice",
@@ -101317,8 +101430,8 @@
         {
           "anchor": "§2 本批归档动作清单（可核对）",
           "level": 2,
-          "startLine": 39,
-          "endLine": 55,
+          "startLine": 40,
+          "endLine": 56,
           "tokens": 556,
           "summary": "ai-workflows/gen-settle-9slice.py temp/gen-settle-9slice.py",
           "keywords": [
@@ -101333,8 +101446,8 @@
         {
           "anchor": "§3 原图缺口的复现配方（重跑时照此，⛔ 凭记忆）",
           "level": 2,
-          "startLine": 56,
-          "endLine": 66,
+          "startLine": 57,
+          "endLine": 67,
           "tokens": 404,
           "summary": "① ui_menu_{beam,pot} 的底图 lock-s88.png（WXG-T-516）",
           "keywords": [
@@ -101349,8 +101462,8 @@
         {
           "anchor": "§4 缺口与纪律（本档欠的账）",
           "level": 2,
-          "startLine": 67,
-          "endLine": 74,
+          "startLine": 68,
+          "endLine": 75,
           "tokens": 292,
           "summary": "1. ~~ui_menu_env 待裁~~ 已闭（2026-11-01 用户令：移出 final/），隔离于 temp/",
           "keywords": [
