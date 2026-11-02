@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3942,
       "lines": 133,
-      "sha256": "6523331857adc3c80b5ed04f77b3d83a07bffbafbb7f04a2e861e572706ff6e6",
+      "sha256": "6941cf73b5a5b2b44994faf75bf77c3349c5bf50332afee83347682e81cd880b",
       "tier": "normal",
       "sections": [
         {
@@ -377,7 +377,7 @@
           "startLine": 1,
           "endLine": 134,
           "tokens": 3929,
-          "summary": "生成：2026-11-02 · 由 tools/scripts/build-context-index.mjs 自动生成",
+          "summary": "生成：2026-11-03 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
             "BUDGET",
@@ -112901,17 +112901,17 @@
     },
     {
       "path": "production/qa/menu-tri-state-gray-20261102.md",
-      "tokens": 1051,
-      "lines": 77,
-      "sha256": "554d58d0a167564c9e2157f0a741dfd46d51cdab500819f9638a4ac3cd401f20",
+      "tokens": 1211,
+      "lines": 83,
+      "sha256": "36b9de1c391a172716b1e510e73422314bd157485aae88518a8bbb905aee083f",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§主菜单三态灰度 · Phase 0 对照取证（WXG-T-566）",
           "level": 1,
           "startLine": 1,
-          "endLine": 78,
-          "tokens": 1032,
+          "endLine": 84,
+          "tokens": 1192,
           "summary": "日期：2026-11-02",
           "keywords": [
             "Phase",
@@ -112990,8 +112990,8 @@
           "anchor": "§6 最终裁决与落码验证（2026-11-02）",
           "level": 2,
           "startLine": 62,
-          "endLine": 78,
-          "tokens": 306,
+          "endLine": 84,
+          "tokens": 467,
           "summary": "用户裁：推关不再是整图 0.55，而是「从下到上的彩色 mask」，比例 = 当前大关已完成小关 / 总小关；",
           "keywords": [
             "mask",

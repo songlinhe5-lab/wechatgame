@@ -72,6 +72,12 @@
 | 逐行像素 / 缓存 / 无离屏 | `packages/framework/tests/adapters/gray-blit-resolver.test.ts` | PASS（含 `grayWipe` 5 例） |
 | 三态 fx / 进度 3/8、6/8 / 对页独立 | `games/beads/tests/menu-tri-state.test.ts` | PASS |
 | 走马灯三态 / 章退场 | `menu-carousel.test.ts` / `arc-carousel.test.ts` / `showcase-single.test.ts` | PASS |
-| 金样本 | `ui-golden.test.ts` | 菜单族 5 态待按登记复取（total −2） |
+| 金样本 | `ui-golden.test.ts` | PASS（已在干净 commit 锚上按登记复取，菜单族 5 态 total −2） |
+| 全量 | `pnpm run verify` | PASS 23 / WARN 0 / FAIL 0（含 `cocos:check`） |
 
-⏳ cocos 构建验证（`build:cocos:web`）在本机超过单次命令窗口，结果另记；⛔ 未真机。
+⏳ **cocos 构建验证（`build:cocos:web`）= CONCERNS（环境阻塞，非代码问题）**：
+2026-11-02 23:56 在沙箱外重跑，编辑器启动即报
+`TypeError: (0 , browser_1.init) is not a function`（`@editor/creator/dist/startup/protected/browser`），
+构建进程挂起且 `build/web-mobile` 未更新（mtime 仍是 2026-10-28）。
+解除条件：用 CocosCreator GUI 打开 `games/beads/cocos` 后由 GUI 构建，或修复本机 CLI 启动环境；
+`cocos:check`（类型面）已 PASS，载体代码本身无类型阻塞。⛔ 未真机。
