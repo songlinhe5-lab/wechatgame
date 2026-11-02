@@ -12,11 +12,12 @@
 | 项 | 内容 |
 |---|---|
 | 基准提交 | `21a8e52d`（docs(art): 顶栏四钮效果图正位 + 每次改动同步更新约定 / WXG-T-549） |
-| 封存内容 | `v1/assets/menu/` **35 件**（增补见下两行：T-551 撤 9 件 → 32 件；T-557 再入 3 件 → 35 件）+ **`v1/coordinates/` 7 件 9.5 MB** + **`v1/prototypes/` 7 件 9.6 MB** + `v1/README-v1.md`（封存当时的 `final/README.md` 台账） |
-| **增补（2026-11-02 用户令 · WXG-T-557）** | 用户令「`final/assets/menu` 里 `ui_btn_circle_normal` / `ui_btn_arrow_right` / `ui_icon_{skin,settings,rank,calendar}` **保留**，其他归档 v1」⇒ 现役面 41 件中 **35 件移入本快照**（其中 32 件与本目录既有件逐字节一致、3 件为新增：`ui_btn_circle_pressed` · `ui_btn_arrow_left` · `ui_menu_backdrop`）。现役 `assets/menu/` 只剩那 6 件保留集。 |
+| 封存内容 | `v1/assets/menu/` **33 件**（增补见下三行：T-551 撤 9 件 → 32 件；T-557 再入 3 件 → 35 件；T-559 再撤 2 件 → 33 件）+ **`v1/coordinates/` 7 件 9.5 MB** + **`v1/prototypes/` 7 件 9.6 MB** + `v1/README-v1.md`（封存当时的 `final/README.md` 台账） |
+| **增补（2026-11-02 用户令 · WXG-T-557）** | 用户令「`final/assets/menu` 里 `ui_btn_circle_normal` / `ui_btn_arrow_right` / `ui_icon_{skin,settings,rank,calendar}` **保留**，其他归档 v1」⇒ 现役面 41 件中 **35 件移入本快照**（其中 32 件与本目录既有件逐字节一致、3 件为新增：`ui_btn_circle_pressed` · `ui_btn_arrow_left` · `ui_menu_backdrop`）。现役 `assets/menu/` 只剩那 6 件保留集。<br>⚠ 上述 3 件「新增」里的 `ui_btn_circle_pressed` · `ui_btn_arrow_left` 属 **v2 起步件**，已由 **WXG-T-559** 再撤出（见下一行）。 |
+| **再撤件（2026-11-02 用户三次裁定 · WXG-T-559）** | 用户贴两件图（`ui_btn_arrow_left` · `ui_btn_circle_pressed`）令「移动回设计，这个不是 v1 版本的」⇒ 与 T-551 同判据：二者是 2026-10-31 / 11-02 顶栏换代（木质圆牌底托 + 深棕线条箭头）的 **v2 起步件**，只是 T-557 批量归档时因「v1 快照内本无同件」被记成新增而收进来 ⇒ `git mv` 移回现役 `final/assets/menu/`，本快照 **35 → 33 件**。移出件与 `cocos/assets/textures/` 投放件逐字节一致（md5 `62deeffe9df5eb281bb0d2639477ce42` / `d5f4e3db636e23585b5b75542029ff31`），Cocos 侧零改动。 |
 | **补归档（2026-11-02 用户令 · WXG-T-556）** | 用户令「`final/coordinates` 与 `final/prototypes` 这两个目录需要归档到 v1 里」⇒ 从基准提交 `21a8e52d` 逐件导出到 `v1/coordinates/`、`v1/prototypes/`，**14/14 逐字节 md5 校验一致**；`final/` 下两目录留给 v2 重做（保留空目录 + `.gitkeep`）。<br>⚠ 本条**推翻初封时的「体积大、属中间稿不入快照」裁定**（那条只是当时的省事口径，不是不可改的设计约束）。 |
 | **未封存（2026-11-02 用户二次裁定 · WXG-T-551）** | 初封把那批件当 v1 存了，但用户认定它们**属 v2 设计** ⇒ 已从本快照**撤出 9 件**、只留现役 `assets/menu/` 一份：`ui_menu_backdrop` · `ui_icon_{skin,rank,settings,calendar}` · `ui_btn_circle_{normal,pressed}` · `ui_btn_arrow_{left,right}`。<br>判据：这 9 件与 2026-11-02 12:24/12:51 的顶栏换代（深棕线条四图标 + 木质圆牌底托，WXG-T-545/546）是同一批 v2 起步件，⚠ 撤回前的旧版（白盘底圆 / 旧四图标）只存在于 `temp/backup-ui-icon-20261102/`、`temp/backup-ui-circle-20261102/`（按当时裁定不入库）⇒ **本快照在这 9 个品类上无老版留存**，考古需走 git：`git show 21a8e52d:games/beads/design/art/final/assets/menu/<文件名>`（取的是 v2 起步件，非更早的 v1 原件） |
-| 一致性 | 初封时逐件 md5 集合校验：`v1/assets/menu` 与 `assets/menu` 相同（集合 md5 `bfa3f01b3859a98d7f46c6c03c95f83d`）；**T-551 撤出 9 件后不再相同**（v1 为 32 件的子集，无新增/无替换） |
+| 一致性 | 初封时逐件 md5 集合校验：`v1/assets/menu` 与 `assets/menu` 相同（集合 md5 `bfa3f01b3859a98d7f46c6c03c95f83d`）；**T-551 撤出 9 件后不再相同**（v1 为 32 件的子集，无新增/无替换）。**T-557 再入 3 件 / T-559 再撤 2 件后**：v1 = 33 件、现役 = 8 件，两集合**无交集**（现役件全部来自 v2 批次；v1 侧不再持有 `ui_btn_circle_{normal,pressed}` 与 `ui_btn_arrow_{left,right}` 任何一份） |
 
 ■ 封存那一刻的设计状态（给未来考古用）
 - 顶栏四钮图标 = **深棕线条矢量**（`#5A2606`，本地 qwen-image-2.1 出线稿 → 位图追踪转矢量；

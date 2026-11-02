@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3905,
       "lines": 132,
-      "sha256": "921959b55646d9ba236399028080c9b8a1fff761da1d15687dbe957d58a1735e",
+      "sha256": "5a2e3d0e77c8849e5f6052c04de383155ad5311a508a11b5c0dbcdbec14546c4",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 197122 6943 normal",
+          "summary": "1 production/TASKS-DETAIL.md 198529 7014 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "d6eaaf060baa463628c2af32527c39a45e68a90bedcb81a0f599cd59e2aeb9f2",
+      "sha256": "ca12162c5ef76fd5452b2e2f66963585baeaf6ce8a6d0bb0def5a44aba91be6f",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 163 行 / 37086 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 165 行 / 37695 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+164 · §待排（backlog，无号，立项时领取…=136+29",
+          "summary": "§WXG 任务台账（SSOT）=1+166 · §待排（backlog，无号，立项时领取…=138+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 6943 行 / 197122 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 7014 行 / 198529 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6944 · §WXG-T-546=6503+39 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7015 · §WXG-T-548=6581+45 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -24021,17 +24021,17 @@
     },
     {
       "path": "games/beads/design/ai-workflows/model-matrix-changelog.md",
-      "tokens": 5701,
-      "lines": 112,
-      "sha256": "252f6a12ff7547a3b96f58a3aaffc16736c2af28608cc8922b23abbb9e57604d",
+      "tokens": 6135,
+      "lines": 113,
+      "sha256": "2d09535642ba0fd5de6d0e95a0776d864aeafba4013219ff437d245c30cba75c",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§AI 生图选型矩阵 · 变更记录（正本 §7 外移件）",
           "level": 1,
           "startLine": 1,
-          "endLine": 113,
-          "tokens": 5680,
+          "endLine": 114,
+          "tokens": 6114,
           "summary": "正本 = model-matrix.md（四方向选型矩阵本体）。本件只收逐轮追加的变更史（§7.1）与正本腾预算外移的明",
           "keywords": [
             "§7",
@@ -24046,8 +24046,8 @@
           "anchor": "§7.1 变更史（2026-10-12 起）",
           "level": 3,
           "startLine": 8,
-          "endLine": 25,
-          "tokens": 3180,
+          "endLine": 26,
+          "tokens": 3614,
           "summary": "2026-10-12 首版（三轮复测 + 竖屏/量化对照后定稿）。同日两处改判：① 「本地 turbo t2i 过曝＝模",
           "keywords": [
             "turbo",
@@ -24058,8 +24058,8 @@
         {
           "anchor": "§7.3 正本外移明细（2026-11-01 腾预算，原文照搬）",
           "level": 3,
-          "startLine": 26,
-          "endLine": 60,
+          "startLine": 27,
+          "endLine": 61,
           "tokens": 732,
           "summary": "动因 = §5.y 区域约束判定入正本后实测 8210 tok 越 ctx:check B 项 8000 门（HEAD ",
           "keywords": [
@@ -24074,8 +24074,8 @@
         {
           "anchor": "§7.4 局部擦除 / 抠图 分派判据（2026-11-01 同日第四批实测）",
           "level": 3,
-          "startLine": 61,
-          "endLine": 113,
+          "startLine": 62,
+          "endLine": 114,
           "tokens": 1524,
           "summary": "触发 = 用户令「验证局部擦除与抠图能力」。底图 = design/art/proposals/menu-3d-styl",
           "keywords": [
@@ -24444,17 +24444,17 @@
     },
     {
       "path": "games/beads/design/art/final/README.md",
-      "tokens": 4911,
-      "lines": 58,
-      "sha256": "a77fd33c63c6003ab762f26e5675c688a9030bfb36f905526cee568e8b6c9a77",
+      "tokens": 5111,
+      "lines": 59,
+      "sha256": "8bd4640055a9713892f6bf2418c5b9cffb4b543a69486a94245ddc634bacb150",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§final —— 资源定稿区（开发统一取用）",
           "level": 1,
           "startLine": 1,
-          "endLine": 59,
-          "tokens": 4894,
+          "endLine": 60,
+          "tokens": 5095,
           "summary": "2026-10-14 用户裁定：资源定稿分三类；shots 只按日期存每日结论证据，本区是验收后的归集面（复制入库，原件",
           "keywords": [
             "final",
@@ -24466,9 +24466,9 @@
         {
           "anchor": "§三类目录",
           "level": 2,
-          "startLine": 8,
-          "endLine": 15,
-          "tokens": 1785,
+          "startLine": 9,
+          "endLine": 16,
+          "tokens": 1821,
           "summary": "prototypes/ 原型设计：整屏视觉原型（定稿版面） ⏸ 已清空待重做 v2（2026-11-02 用户令）——目",
           "keywords": [
             "prototypes",
@@ -24478,10 +24478,10 @@
         {
           "anchor": "§assets/menu 台账（来源 → 接线状态）",
           "level": 2,
-          "startLine": 16,
-          "endLine": 36,
-          "tokens": 1687,
-          "summary": "⚠ 2026-11-02 起（WXG-T-557 用户令）：下表记录的件除 6 件保留集外已全部归档至 ../v1/as",
+          "startLine": 17,
+          "endLine": 37,
+          "tokens": 1694,
+          "summary": "⚠ 2026-11-02 起（WXG-T-557 用户令，T-559 修正）：下表记录的件除 8 件现役集外已全部归档至",
           "keywords": [
             "assets",
             "menu",
@@ -24494,8 +24494,8 @@
         {
           "anchor": "§选关（弹窗 · 版式 Q）",
           "level": 2,
-          "startLine": 37,
-          "endLine": 48,
+          "startLine": 38,
+          "endLine": 49,
           "tokens": 479,
           "summary": "prototypes/levelselect-v1-popup-750x1334-at2x.png 脚本 ../../a",
           "keywords": [
@@ -24510,8 +24510,8 @@
         {
           "anchor": "§入库判据",
           "level": 2,
-          "startLine": 49,
-          "endLine": 59,
+          "startLine": 50,
+          "endLine": 60,
           "tokens": 516,
           "summary": "1. 用户已对屏稿/规格拍板（引用 shots 批次或 spec 节号）；",
           "keywords": [
@@ -88554,17 +88554,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 197122,
-      "lines": 6943,
-      "sha256": "6a6403ab969ee61ce3531da87cb6d2d809878c46458a935f95e686e45ef25598",
+      "tokens": 198529,
+      "lines": 7014,
+      "sha256": "891ead00621cd1525656fe0b0c5d32e767d20d2cff105d0466a167a6ea7fe6b4",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 6944,
-          "tokens": 197105,
+          "endLine": 7015,
+          "tokens": 198512,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -98660,22 +98660,180 @@
             "CTA",
             "遗留"
           ]
+        },
+        {
+          "anchor": "§WXG-T-558",
+          "level": 2,
+          "startLine": 6945,
+          "endLine": 6973,
+          "tokens": 692,
+          "summary": "美术·资源槽两枚图标（心数 / 豆数）定形，质感路线判负 · 负责：主理人(CodeBuddy)·美术轨 · 状态：✅ ",
+          "keywords": [
+            "WXG",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§1 用户令 (7)",
+          "level": 3,
+          "startLine": 6949,
+          "endLine": 6952,
+          "tokens": 52,
+          "summary": "「资源槽里的心数 / 豆数图标单独设计，icon 跟四个顶栏钮一个风格。」（豆 = 拼豆圆片、带中心孔，用户当日拍板）",
+          "keywords": [
+            "icon",
+            "用户令"
+          ]
+        },
+        {
+          "anchor": "§2 处置：两阶段，第二阶段判负",
+          "level": 3,
+          "startLine": 6953,
+          "endLine": 6959,
+          "tokens": 299,
+          "summary": "① 定形（入册） 走 SVG 贝塞尔 + resvg 栅格（PIL line(joint='curve') 在心形尖点出",
+          "keywords": [
+            "SVG",
+            "resvg",
+            "PIL",
+            "line",
+            "joint",
+            "curve"
+          ]
+        },
+        {
+          "anchor": "§3 用户裁定",
+          "level": 3,
+          "startLine": 6960,
+          "endLine": 6963,
+          "tokens": 35,
+          "summary": "A：34 px 档直接用平涂定形版；质感版不入库；木刻质感只在 ≥64 px 场景另议。",
+          "keywords": [
+            "用户裁定"
+          ]
+        },
+        {
+          "anchor": "§4 工具链两条坑（已修）",
+          "level": 3,
+          "startLine": 6964,
+          "endLine": 6968,
+          "tokens": 100,
+          "summary": "1. 去白反解若先把 RGBA 转 RGB（失 alpha）会把透明区变黑 ⇒ 纸色估错、残留米白底块。正确做法：先合成",
+          "keywords": [
+            "RGBA",
+            "RGB",
+            "alpha",
+            "工具链两条坑",
+            "已修"
+          ]
+        },
+        {
+          "anchor": "§5 遗留 (8)",
+          "level": 3,
+          "startLine": 6969,
+          "endLine": 6973,
+          "tokens": 113,
+          "summary": "质感若要在小尺寸顶住，唯一可行方向是低频化（刻痕 6–10px + 高对比）或程序化刻痕（定形 alpha 当骨架、只在",
+          "keywords": [
+            "alpha",
+            "遗留"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-559",
+          "level": 2,
+          "startLine": 6974,
+          "endLine": 7015,
+          "tokens": 708,
+          "summary": "美术·v1 快照再撤 2 件（ui_btn_arrow_left / ui_btn_circle_pressed）移回现",
+          "keywords": [
+            "WXG",
+            "ui_btn_arrow_left",
+            "ui_btn_circle_pressed"
+          ]
+        },
+        {
+          "anchor": "§1 用户令 (8)",
+          "level": 3,
+          "startLine": 6978,
+          "endLine": 6981,
+          "tokens": 35,
+          "summary": "「（贴 ui_btn_arrow_left.png / ui_btn_circle_pressed.png）移动回设计，",
+          "keywords": [
+            "ui_btn_arrow_left",
+            "png",
+            "ui_btn_circle_pressed",
+            "用户令"
+          ]
+        },
+        {
+          "anchor": "§2 判据与核查",
+          "level": 3,
+          "startLine": 6982,
+          "endLine": 6994,
+          "tokens": 217,
+          "summary": "与 WXG-T-551 同一条判据：这两件属 v2 起步件（2026-10-31 箭头 / 2026-11-02 12:",
+          "keywords": [
+            "WXG",
+            "判据与核查"
+          ]
+        },
+        {
+          "anchor": "§3 处置",
+          "level": 3,
+          "startLine": 6995,
+          "endLine": 7005,
+          "tokens": 174,
+          "summary": "final/v1/assets/menu/ 35 件 → 33 件（撤出 ui_btn_circle_pressed ·",
+          "keywords": [
+            "final",
+            "assets",
+            "menu",
+            "ui_btn_circle_pressed",
+            "处置"
+          ]
+        },
+        {
+          "anchor": "§4 文档回写",
+          "level": 3,
+          "startLine": 7006,
+          "endLine": 7010,
+          "tokens": 105,
+          "summary": "final/README.md：新增「v1 再撤件」注记；assets/ 行 6 → 8 件；台账头注改为 8 件现役集",
+          "keywords": [
+            "final",
+            "README",
+            "assets",
+            "文档回写"
+          ]
+        },
+        {
+          "anchor": "§5 遗留 (9)",
+          "level": 3,
+          "startLine": 7011,
+          "endLine": 7015,
+          "tokens": 100,
+          "summary": "ui_menu_backdrop 仍是 v1 侧唯一「新增件」，若后续确认它也是 v2 起步件，按同法再撤。",
+          "keywords": [
+            "ui_menu_backdrop",
+            "遗留"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 37086,
-      "lines": 163,
-      "sha256": "85ef00273eea1022f345681ce29cc3799ef83e6dd9121151138933e26b8f5625",
+      "tokens": 37695,
+      "lines": 165,
+      "sha256": "9c518a26168897297685108c2f32ed09b8a97b7ba1a49a8aecf7bd29a8042917",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 164,
-          "tokens": 37077,
+          "endLine": 166,
+          "tokens": 37686,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -98688,8 +98846,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 136,
-          "endLine": 164,
+          "startLine": 138,
+          "endLine": 166,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
