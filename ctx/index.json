@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3905,
       "lines": 132,
-      "sha256": "e3cf6663a4a21c1e099efbbb802827344ea9a52ee0cbe1ecf3ff69a1ef021c3f",
+      "sha256": "6596fcbba693a889e4ac6010eee7ae693df23789c300f90776a89a7aae3a9613",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 195132 6842 normal",
+          "summary": "1 production/TASKS-DETAIL.md 195843 6878 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "7ec6beefc33949a424758da664a9b2512d6755df51c0470adc2ac9adeca74122",
+      "sha256": "d52d83ee4292f8d845edc5361763a42bab28a1c3059b7b1a6fed4909e51c6cec",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 160 行 / 36376 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 161 行 / 36610 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+161 · §待排（backlog，无号，立项时领取…=133+29",
+          "summary": "§WXG 任务台账（SSOT）=1+162 · §待排（backlog，无号，立项时领取…=134+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 6842 行 / 195132 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 6878 行 / 195843 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6843 · §WXG-T-543=6333+64 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6879 · §WXG-T-544=6397+48 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -88554,17 +88554,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 195132,
-      "lines": 6842,
-      "sha256": "95c8b188571dd647e3096e944af3ad3c73726222cca4d659b97711c59933f4ca",
+      "tokens": 195843,
+      "lines": 6878,
+      "sha256": "f222f4ef95b51c7f077e5eb0d340e958c20614d4e325b10ea7911026edc2469d",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 6843,
-          "tokens": 195115,
+          "endLine": 6879,
+          "tokens": 195826,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -98418,22 +98418,106 @@
             "prototypes",
             "遗留"
           ]
+        },
+        {
+          "anchor": "§WXG-T-555",
+          "level": 2,
+          "startLine": 6844,
+          "endLine": 6879,
+          "tokens": 708,
+          "summary": "美术·资源读数改「原梁面开槽」口径（否首版嵌板方案） · 负责：主理人(CodeBuddy) · 状态：✅ 完成（202",
+          "keywords": [
+            "WXG",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§1 用户令 (5)",
+          "level": 3,
+          "startLine": 6848,
+          "endLine": 6851,
+          "tokens": 49,
+          "summary": "「menu-design-baseline-cat-topbar-final-slot-20261102.png 这个不",
+          "keywords": [
+            "menu",
+            "design",
+            "baseline",
+            "cat",
+            "topbar",
+            "final"
+          ]
+        },
+        {
+          "anchor": "§2 口径差别（首版 → 二版）",
+          "level": 3,
+          "startLine": 6852,
+          "endLine": 6859,
+          "tokens": 226,
+          "summary": "形态 梁上新增两块木质嵌板：亮木圆角槽沿 + 深底（视觉上前景物件） 原梁面直接挖凹陷：无外沿、无描边、不加任何新木牌",
+          "keywords": [
+            "口径差别",
+            "首版",
+            "二版"
+          ]
+        },
+        {
+          "anchor": "§3 产物 (3)",
+          "level": 3,
+          "startLine": 6860,
+          "endLine": 6868,
+          "tokens": 173,
+          "summary": "proposals/menu-3d-style-20261030/menu-design-baseline-cat-to",
+          "keywords": [
+            "proposals",
+            "menu",
+            "style",
+            "design",
+            "baseline",
+            "cat"
+          ]
+        },
+        {
+          "anchor": "§4 校验 (5)",
+          "level": 3,
+          "startLine": 6869,
+          "endLine": 6874,
+          "tokens": 101,
+          "summary": "云端重绘一次（wan2.7-image / token-plan / bbox 130,295,645,400，8.8 ",
+          "keywords": [
+            "wan2",
+            "image",
+            "token",
+            "plan",
+            "bbox",
+            "校验"
+          ]
+        },
+        {
+          "anchor": "§5 遗留 (6)",
+          "level": 3,
+          "startLine": 6875,
+          "endLine": 6879,
+          "tokens": 82,
+          "summary": "图标仍为现成件复用，「图标单独设计」仍待另单（用户已明确要单独设计）。",
+          "keywords": [
+            "遗留"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 36376,
-      "lines": 160,
-      "sha256": "093a9ea4c0fe8841f962662bee673bccf816bff631b64c06b8eddd205ff5b450",
+      "tokens": 36610,
+      "lines": 161,
+      "sha256": "14d2349a3e9c22911ea073aec0447ed10a8c5e97e8401f051c1c48a253a0eb3b",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 161,
-          "tokens": 36367,
+          "endLine": 162,
+          "tokens": 36601,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -98446,8 +98530,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 133,
-          "endLine": 161,
+          "startLine": 134,
+          "endLine": 162,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

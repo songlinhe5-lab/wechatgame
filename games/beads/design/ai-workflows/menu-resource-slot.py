@@ -33,19 +33,29 @@ FONT = '/System/Library/Fonts/STHeiti Medium.ttc'
 INK = (255, 241, 214)        # 数值字色（米白）
 RIM = (94, 56, 26)           # 槽沿外圈（亮木）
 PIT = (46, 25, 12, 235)      # 槽内深底（半透明，让木纹隐透）
+PIT_FLUSH = (32, 16, 8, 205)  # 开槽口径：无外沿的半透深底
+LIP = (176, 126, 74, 120)     # 开槽下沿反光
 GLOW = (0, 0, 0)             # 顶部内阴影
 
 
 def slot(im: Image.Image, x: int, y: int, w: int, h: int, icon: str, label: str, icon_px: int, tilt: float,
-         plate: bool = True, empty: bool = False) -> None:
-    """一块嵌槽；tilt 随拱弧微倾（度）。plate=False 时不画底板（--cloud：底板由云图出），
-    empty=True 时不画图标数字（--empty：给云端的空槽参考底）。"""
+         plate: bool = True, empty: bool = False, flush: bool = False) -> None:
+    """一处数值位；tilt 随拱弧微倾（度）。plate=False 时不画底板（--cloud：底板由云图出），
+    empty=True 时不画图标数字（--empty：给云端的参考底），
+    flush=True 走**开槽**口径：无外沿/无新增槽图案，只在原梁面上挖出凹陷（用户 2026-11-02 二令）。"""
     pad = 24
     tile = Image.new('RGBA', (w + pad * 2, h + pad * 2), (0, 0, 0, 0))
     d = ImageDraw.Draw(tile)
     r = h // 2 - 6
     x0, y0, x1, y1 = pad, pad, pad + w, pad + h
-    if plate:
+    if plate and flush:
+        d.rounded_rectangle((x0, y0, x1, y1), radius=r, fill=PIT_FLUSH)               # 凹陷底（半透，木纹透出）
+        sh = Image.new('L', tile.size, 0)                                             # 顶部内阴影（挖槽吃光）
+        ImageDraw.Draw(sh).rounded_rectangle((x0 + 2, y0 + 1, x1 - 2, y0 + h // 2), radius=r, fill=150)
+        sh = sh.filter(ImageFilter.GaussianBlur(5))
+        tile.paste(Image.new('RGBA', tile.size, GLOW), (0, 0), sh)
+        d.rounded_rectangle((x0 + 6, y1 - 3, x1 - 6, y1 - 1), radius=2, fill=LIP)     # 槽底反光（挖槽下沿受光）
+    elif plate:
         d.rounded_rectangle((x0, y0, x1, y1), radius=r, fill=RIM)                     # 槽沿
         d.rounded_rectangle((x0 + 4, y0 + 4, x1 - 4, y1 - 4), radius=max(r - 4, 4), fill=PIT)
         sh = Image.new('L', tile.size, 0)                                             # 顶部内阴影
@@ -80,11 +90,14 @@ def main() -> None:
     ap.add_argument('--empty', action='store_true', help='只画空槽（云端重绘参考底，无图标无数字）')
     ap.add_argument('--cloud', help='云端回图路径：按 --bbox 贴回（框外硬拷回）后再叠图标与数字')
     ap.add_argument('--bbox', default='130,295,645,400', help='云端重绘框（与 --cloud 配套；x1,y1,x2,y2）')
+    ap.add_argument('--flush', action='store_true', help='开槽口径：无外沿/无新增槽图案，只在原梁面挖凹陷')
     a = ap.parse_args()
 
     im = Image.open(BASE).convert('RGBA')
     out = OUT
-    if a.empty:  # 空槽版是云端中间产物，落 temp 不入库
+    if a.flush:
+        out = PROPOSALS / 'menu-design-baseline-cat-topbar-final-slot-flush-20261102.png'
+    if a.empty:  # 参考底是云端中间产物，落 temp 不入库
         out = ROOT / 'temp/dashscope-out/custom/slot-empty-src.png'
         out.parent.mkdir(parents=True, exist_ok=True)
     if a.cloud:
@@ -101,8 +114,8 @@ def main() -> None:
         print(f'↳ 云图已贴回 bbox={a.bbox}（羽化只向内 3px，框外逐字节 = 定位稿）')
     empty = a.empty and not a.cloud
     plate = not a.cloud
-    slot(im, a.left, a.y, a.w, a.h, 'asset-icon-stamina.png', '12/20', a.icon, a.tilt, plate, empty)
-    slot(im, a.right, a.y, a.w, a.h, 'asset-icon-coin.png', '480', a.icon, -a.tilt, plate, empty)
+    slot(im, a.left, a.y, a.w, a.h, 'asset-icon-stamina.png', '12/20', a.icon, a.tilt, plate, empty, a.flush)
+    slot(im, a.right, a.y, a.w, a.h, 'asset-icon-coin.png', '480', a.icon, -a.tilt, plate, empty, a.flush)
     im.save(out)
     mode = '（空槽版，云端参考底）' if a.empty else ('（云图贴回 + 图标数字）' if a.cloud else '（PIL 定位稿）')
     print(f'✅ {out.relative_to(ROOT)} {mode} 左槽 x={a.left} 右槽 x={a.right} y={a.y} h={a.h} w={a.w} tilt=±{a.tilt}')
