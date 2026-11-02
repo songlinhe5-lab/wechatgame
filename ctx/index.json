@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3905,
       "lines": 132,
-      "sha256": "c8111481f8d9959297961f04f9bd2c4a728f6d40b037d065e790ee87f901cd40",
+      "sha256": "38cb89e9c8e8d3f6ea3dc3c527fd2d5f0ed4726e23df01465deebf229c781923",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 200447 7087 normal",
+          "summary": "1 production/TASKS-DETAIL.md 201329 7122 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -421,7 +421,7 @@
           "level": 2,
           "startLine": 46,
           "endLine": 107,
-          "tokens": 2400,
+          "tokens": 2401,
           "summary": "上限按文档类别分档（WXG-T-377）：spec 8000（判据/规格/提案/ADR/GDD/UX/skill，未放松",
           "keywords": [
             "WXG",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "658ca8f5aba3df7132561b212c30c77e7e91e535f77510d4f7768bb3fb7e8936",
+      "sha256": "d5fd0e71b78a0789bdb10c2329d84ba0d6f469d7d7d1f6509ad86a3aac226417",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 166 行 / 38406 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 167 行 / 38740 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+167 · §待排（backlog，无号，立项时领取…=139+29",
+          "summary": "§WXG 任务台账（SSOT）=1+168 · §待排（backlog，无号，立项时领取…=140+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 7087 行 / 200447 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 7122 行 / 201329 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7088 · §WXG-T-549=6626+33 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7123 · §WXG-T-550=6659+35 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -28700,9 +28700,9 @@
     },
     {
       "path": "games/beads/design/art/specs/menu-layout-implementation-spec.md",
-      "tokens": 9631,
+      "tokens": 10077,
       "lines": 169,
-      "sha256": "a5d6367cda9c80c575aba9c06b0effe46469d2da035d57aa0a952c8e30f22cee",
+      "sha256": "b8e3d17fdb14f3bf864f9e157e3a6de1733f4dc06b2bebeb3bf9ec1d7a5c979f",
       "tier": "normal",
       "sections": [
         {
@@ -28710,7 +28710,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 170,
-          "tokens": 9605,
+          "tokens": 10051,
           "summary": "用途：UI 布局落码的唯一施工依据。规则正本 = 本件；取证图 = ../coordinates/menu-master",
           "keywords": [
             "coordinates",
@@ -28756,7 +28756,7 @@
           "level": 2,
           "startLine": 47,
           "endLine": 64,
-          "tokens": 2631,
+          "tokens": 2772,
           "summary": "招牌（结+板+绳一体） 图框 370×298 @x190，等比（960×772 × 370/960）；结顶 bow0 =",
           "keywords": [
             "§5.2",
@@ -88554,17 +88554,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 200447,
-      "lines": 7087,
-      "sha256": "e08d302c2f79f23398a23e9f40cc66beafda1dc9fae9ad6d169b04349c199479",
+      "tokens": 201329,
+      "lines": 7122,
+      "sha256": "ef0d8539af7769603d1e410afab4e3af9009296498bf521a3f9f1e8757cc7f3b",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 7088,
-          "tokens": 200430,
+          "endLine": 7123,
+          "tokens": 201312,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -98927,22 +98927,106 @@
             "末轮",
             "口径定稿"
           ]
+        },
+        {
+          "anchor": "§WXG-T-561",
+          "level": 2,
+          "startLine": 7089,
+          "endLine": 7123,
+          "tokens": 879,
+          "summary": "设计·菜单出图口径对齐真源（裁切区 / 飘带 / 沙漏）+ 落地单 v3.16 · 负责：主理人(CodeBuddy)·",
+          "keywords": [
+            "WXG",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§1 用户令 (9)",
+          "level": 3,
+          "startLine": 7093,
+          "endLine": 7096,
+          "tokens": 39,
+          "summary": "「需要对对账结果中差异地方对齐，如果有资源需要输出，请告诉我并生图看效果」。",
+          "keywords": [
+            "用户令"
+          ]
+        },
+        {
+          "anchor": "§2 对账与处置（脚本 vs 真源）",
+          "level": 3,
+          "startLine": 7097,
+          "endLine": 7107,
+          "tokens": 294,
+          "summary": "1 走马灯裁切区 MENU_CLIP = x197 / yOff168 / 361×527（tuning/menu.ts",
+          "keywords": [
+            "MENU_CLIP",
+            "x197",
+            "yOff168",
+            "tuning",
+            "menu",
+            "对账与处置"
+          ]
+        },
+        {
+          "anchor": "§3 推翻落地单 v3.9 的 y 半条订正（本轮新发现）",
+          "level": 3,
+          "startLine": 7108,
+          "endLine": 7111,
+          "tokens": 160,
+          "summary": "§3「通关飘带」的 v3.9（WXG-T-485）只对了 x、y 半条改错：写 顶 = clipTop+clipH−in",
+          "keywords": [
+            "§3",
+            "WXG",
+            "clipTop",
+            "clipH",
+            "推翻落地单",
+            "半条订正"
+          ]
+        },
+        {
+          "anchor": "§4 取证（全部在 `temp/align-check-20261102/`，⛔ 未写 final）",
+          "level": 3,
+          "startLine": 7112,
+          "endLine": 7118,
+          "tokens": 180,
+          "summary": "素材口径：final/v1/（只读）+ 现役 8 件软链合成 .../src；脚本新增 MENU_SRC / MENU_",
+          "keywords": [
+            "temp/align-check-20261102/",
+            "temp",
+            "align",
+            "check",
+            "final",
+            "src"
+          ]
+        },
+        {
+          "anchor": "§5 遗留 (10)",
+          "level": 3,
+          "startLine": 7119,
+          "endLine": 7123,
+          "tokens": 86,
+          "summary": "1. WXG-T-522 单一作品腿未回写出图脚本与落地单（需 v2 橱窗框含烘焙内景 + 单作品大图，见 menu-3",
+          "keywords": [
+            "WXG",
+            "menu",
+            "遗留"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 38406,
-      "lines": 166,
-      "sha256": "7bab9797c7820a42a45a0737fe29fe07dd809f428fff7cf6a92ff80b4ea3ec10",
+      "tokens": 38740,
+      "lines": 167,
+      "sha256": "e7438b3c9afe320f96f3dd917058cf978c491b1264316831f5bf2fcb733dc3fb",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 167,
-          "tokens": 38397,
+          "endLine": 168,
+          "tokens": 38731,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -98955,8 +99039,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 139,
-          "endLine": 167,
+          "startLine": 140,
+          "endLine": 168,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

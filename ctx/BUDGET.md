@@ -22,7 +22,7 @@
 
 | # | 文件 | tokens | 行数 | tier |
 |---:|---|---:|---:|:--:|
-| 1 | `production/TASKS-DETAIL.md` | 200447 | 7087 | normal |
+| 1 | `production/TASKS-DETAIL.md` | 201329 | 7122 | normal |
 | 2 | `games/beads/design/gdd/powerups-v2.md` | 144877 | 2328 | normal |
 | 3 | `games/beads/design/art/specs/assets-spec.md` | 121738 | 2109 | normal |
 | 4 | `production/qa/beads/g4-regression-report.md` | 86807 | 2201 | normal |
@@ -33,7 +33,7 @@
 | 9 | `games/beads/design/gdd/systems-index.md` | 42379 | 323 | hot |
 | 10 | `docs/architecture/adr/ADR-0034-beads-save-uid-index-flatten.md` | 41181 | 502 | normal |
 | 11 | `games/beads/design/levels/levels-spec.md` | 39938 | 914 | normal |
-| 12 | `production/TASKS.md` | 38406 | 166 | hot |
+| 12 | `production/TASKS.md` | 38740 | 167 | hot |
 | 13 | `games/beads/design/art/specs/art-bible.md` | 38368 | 530 | normal |
 | 14 | `games/beads/design/art/proposals/ui-style-redesign/menu-architecture.md` | 37618 | 978 | normal |
 | 15 | `games/beads/design/art/specs/accessibility.md` | 37140 | 201 | normal |
@@ -92,9 +92,9 @@
 | `games/beads/design/proposals/sec3-color-max-35-and-mis-max.md` | 10521 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/art/specs/tint-mask-asset-spec.md` | 10247 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/gdd/meta-ui.md` | 10203 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/beads/design/art/specs/menu-layout-implementation-spec.md` | 10077 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/gdd/core-loop.md` | 9905 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `docs/architecture/control-manifest.md` | 9879 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `games/beads/design/art/specs/menu-layout-implementation-spec.md` | 9631 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/audio/audio-events.md` | 9482 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/gdd/score-combo.md` | 9277 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/gdd/tray-spawner.md` | 9267 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |

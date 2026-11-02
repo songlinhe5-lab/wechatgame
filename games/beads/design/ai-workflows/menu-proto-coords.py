@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # 主界面原型 v3（三态 + 走马灯示意帧）+ 坐标总图 + 五档机型坐标图，同一份合成底图（零模型，纯 PIL）。
-# 布局 = 落地单 v3.13 + WXG-T-497（签到钮日历 / 版本号进设置）/ WXG-T-498（顶栏左右对称）/ tuning.ts `menuAnchors`；
+# 布局 = 落地单 v3.15 + WXG-T-497（签到钮日历 / 版本号进设置）/ WXG-T-498（顶栏左右对称）/ tuning.ts `menuAnchors`；
 # 素材 = final/assets/menu 正本（顶栏钮/徽标/木牌/箭头）+ proto-v2 切件（资源条、曼陀罗豆画）。标注单位 = 750 设计px（rpx 语义）。
 # 用法（仓库根）：python3 games/beads/design/ai-workflows/menu-proto-coords.py
 import os
@@ -8,9 +8,14 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageOps
 
 ART = "games/beads/design/art/final"
-A = f"{ART}/assets/menu"
+# v2 重建期（WXG-T-554/557）：素材已归档 `final/v1/`（只读）、coordinates/prototypes 清空待重做
+# ⇒ 输入 / 输出根各留一个外置口，默认都指现役 final（v2 落地后行为不变）。
+#   验旧链：MENU_SRC=.../final/v1 MENU_OUT=temp/<批次>（⛔ 不写 v1 快照）
+SRC = os.environ.get("MENU_SRC", ART)
+OUT = os.environ.get("MENU_OUT", ART)
+A = f"{SRC}/assets/menu"
 # 2026-10-18 webp 退役 ⇒ 输入也走 PNG
-PROTO_V2 = f"{ART}/prototypes/proto-v2-full-750x1334-at2x.png"
+PROTO_V2 = f"{SRC}/prototypes/proto-v2-full-750x1334-at2x.png"
 LOGO = "games/beads/assets/menu/ui_menu_logo.png"
 F_LIGHT = "/System/Library/Fonts/STHeiti Light.ttc"
 F_BOLD = "/System/Library/Fonts/STHeiti Medium.ttc"
@@ -27,11 +32,10 @@ SIGN = (190, 370, 298, 119)
 BAR = (154, 442)                              # 圆角不探出框肩，中心 375
 CASE = (107, 544)
 BOSS = (146, 130, 468, 528)                   # x, yOff, w, h
-# 走马灯滑动裁切区 = 玻璃内壁（橱窗位图实测 x167..590）
-CLIP = (168, 130, 422, 528)
+# 走马灯滑动裁切区 = 橱窗白卡（真源 `MENU_CLIP`，tuning/menu.ts:324）
+CLIP = (197, 168, 361, 527)
 SEAL_H, SEAL_INSET = 140, 12                  # 通关飘带随内容滑动 ⇒ 整枚落在裁切区内
 NEXT_TEXT = ("第 10 关", "小雏菊")             # 滑动示意里的下一项（占位）
-BADGE = (538, 142, 64)
 DONE = (380, 394, 160)                        # cx, yOff, d
 PLATE = (381, 652, 214, 100)                  # cx, yOff, w, h
 PLATE_TITLE = (30, 62)                        # 两行行心距牌顶（关序 28 / 关名 30，E1 地板 28）
@@ -39,7 +43,8 @@ PLATE_TITLE = (30, 62)                        # 两行行心距牌顶（关序 2
 WOOD_FACE, WOOD_EDGE = (138, 91, 52), (94, 59, 30)
 ARROW_X, ARROW_D, ARROW_ICON = (26, 660), 64, 36
 # 顶栏 2×2 四钮（`MENU_TOPBAR_X`；[WXG-T-498] 对称后：左列 14 / 右列 648，行距 88 = `TOUCH_MIN`）
-TOPBAR_ITEMS = ((14, 0, "settings"), (14, 88, "rank"), (648, 0, "calendar"), (648, 88, "skin"))
+TOPBAR_ITEMS = ((14, 0, "settings"), (14, 88, "rank"),
+                (648, 0, "calendar"), (648, 88, "skin"))
 TOPBAR_ROW_DY, TOPBAR_D, HIT = 88, 80, 88
 CTA_X, CTA_W = 218, 324
 
@@ -131,7 +136,7 @@ def content_layer(g, s, state):
             f"{A}/ui_menu_badge_locked.png"), cx, cy, 220, 220)
     elif state == "pushing":
         badge = Image.open(f"{A}/ui_menu_badge_progress.png")
-        bh = 200
+        bh = 210                              # 真源 MENU_PROGRESS.h
         put_centered(badge, cx, cy, bh * badge.width / badge.height, bh)
     else:
         seal = Image.open(f"{A}/ui_menu_seal_cleared.png")
@@ -267,7 +272,7 @@ def annotate(cv, g, s, fs):
              CLIP[2] - 2 * i, CLIP[3] - 2 * i, teal)
     lab(CLIP[0] + 4, c0 + CLIP[1] + 4,
         f"滑动裁切区 {CLIP[2]}×{CLIP[3]} @({CLIP[0]},{c0 + CLIP[1]:.0f})", teal)
-    lab(CLIP[0] + 4, c0 + CLIP[1] + 4 + fs / s + 2, "= 玻璃内壁 · 豆画+盖章 滑", teal)
+    lab(CLIP[0] + 4, c0 + CLIP[1] + 4 + fs / s + 2, "= 橱窗白卡 · 豆画+盖章 滑", teal)
     circ(DONE[0], c0 + DONE[1], 100, purple)
     lab(DONE[0], c0 + DONE[1] + 114, "沙漏 / 大锁 按纹理重心居中于花心", purple, "ma")
     sw = SEAL_H * 441 / 610
@@ -316,7 +321,7 @@ def master(out, legend_w=330):
         d.text((102 * s, (ya + yb) / 2 * s - 11), txt, font=f, fill=(200, 0, 0),
                stroke_width=3, stroke_fill="white")
     rows = [
-        ("坐标总图 · 主界面 = 布局规范 v3.13", 32, (0, 0, 0)),
+        ("坐标总图 · 主界面 = 布局规范 v3.15", 32, (0, 0, 0)),
         ("SE 档 375×667dp · st40 · H1334 · @2x", 22, (80, 80, 80)),
         ("底图 = 原型 v3（推关中态），现役素材按规范落位", 22, (80, 80, 80)),
         ("标注 = 设计px（750 基准，dp = px/2）", 22, (80, 80, 80)),
@@ -334,13 +339,15 @@ def master(out, legend_w=330):
         ("", 22, None),
         ("橱窗三态（v3.8，随窗顶平移）：", 26, (130, 0, 180)),
         ("未开启：豆画置灰 + 大锁 220，重心对齐花心", 22, (20, 20, 20)),
-        ("进行中：豆画原色 + 沙漏章，重心对齐花心", 22, (20, 20, 20)),
+        ("进行中：豆画原色 + 沙漏章 210，重心对齐花心", 22, (20, 20, 20)),
         ("通关：豆画原色 + 金章飘带「通关」裁切区右上", 22, (20, 20, 20)),
+        ("! WXG-T-522 后运行时改单一作品腿（无章/无飘带/无层板）", 22, (150, 60, 0)),
+        ("  本图仍按 v3.8 出，三态盖法待落地单补节后重出", 22, (150, 60, 0)),
         ("  花心 (380, 窗顶+394)", 22, (20, 20, 20)),
         ("", 22, None),
         ("走马灯（v3.8 裁定）：", 26, (0, 130, 130)),
         ("固定：窗框·资源条·灯·◀▶·木牌板·玻璃高光", 22, (20, 20, 20)),
-        (f"滑动：豆画 + 盖章，裁到 {CLIP[2]}×{CLIP[3]} 玻璃内壁", 22, (20, 20, 20)),
+        (f"滑动：豆画 + 盖章，裁到 {CLIP[2]}×{CLIP[3]} 橱窗白卡", 22, (20, 20, 20)),
         ("木牌文字：交叉淡变；翻页阈 30% 槽宽 / 快甩", 22, (20, 20, 20)),
         ("两端回弹不循环；点按/滑动分界 10px", 22, (20, 20, 20)),
         ("木牌 214×100 心x381 @窗顶+652", 22, (20, 20, 20)),
@@ -430,7 +437,7 @@ def tier(fname, model, w, h, dpr, st_dp, sb_dp, cap_dp, notch, expect):
                         radius=ch / 2 * s, outline=(20, 20, 20), width=2 * dpr)
     d.text(((cx0 + cw) * s, (g["cap"] + 4) * s), f"胶囊底 {g['cap']}系", font=f, fill=(20, 20, 20),
            anchor="ra", stroke_width=2 * dpr, stroke_fill="white")
-    out = f"{ART}/coordinates/{fname}"
+    out = f"{OUT}/coordinates/{fname}"
     cv.save(out)
     print("写出", out, cv.size, f"柜隙 {g['gap_top']:.0f}/{g['gap_bot']:.0f}")
 
@@ -439,14 +446,19 @@ if __name__ == "__main__":
     se = anchors(40, 0, 112, 1334)
     assert (se["sign1"], round(se["case0"]),
             se["cta1"]) == (226, 264, 1302), se
+    # 出图口径对真源（MENU_CLIP 白卡 + MENU_SEAL 右上贴顶内缩）：SE 档飘带 = x445 / 顶 case0+180
+    _sx, _sy = seal_xy(se["case0"], 101)
+    assert (round(_sx), round(_sy)) == (445, 444), (_sx, _sy)
+    os.makedirs(f"{OUT}/prototypes", exist_ok=True)
+    os.makedirs(f"{OUT}/coordinates", exist_ok=True)
     for st in ("pushing", "locked", "done"):
         # 2026-10-17 起统一 PNG（小程序不支持 webp）
-        out = f"{ART}/prototypes/proto-v3-{st}-750x1334-at2x.png"
+        out = f"{OUT}/prototypes/proto-v3-{st}-750x1334-at2x.png"
         compose(se, 2, st).save(out, quality=90)
         print("写出", out)
-    out = f"{ART}/prototypes/proto-v3-swipe-750x1334-at2x.png"
+    out = f"{OUT}/prototypes/proto-v3-swipe-750x1334-at2x.png"
     swipe(se, 2, "done", "pushing", 0.35).save(out, quality=90)
     print("写出", out)
-    master(f"{ART}/coordinates/menu-master-coords.png")
+    master(f"{OUT}/coordinates/menu-master-coords.png")
     for t, e in zip(TIERS, EXPECT_GAPS):
         tier(*t, e)
