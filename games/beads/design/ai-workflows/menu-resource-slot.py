@@ -44,6 +44,8 @@ PIT = (46, 25, 12, 235)      # 槽内深底（半透明，让木纹隐透）
 PIT_FLUSH = (32, 16, 8, 205)  # 开槽口径：无外沿的半透深底
 # 槽内渐变三档（用户 2026-11-02 三否之二：白字/近黑底不搭版面 ⇒ 槽整体往「浅木牌」收）
 CARVE = {
+    'flat':  ((56, 31, 14, 150), (86, 50, 24, 120)),   # 无阴影档（用户 2026-11-02：「删除槽阴影试试」）
+    'flatline': ((56, 31, 14, 150), (86, 50, 24, 120)),  # 无阴影 + 两道 1px 硬刻线（不用模糊=不算阴影）
     'light': ((92, 54, 26, 86), (146, 94, 50, 56)),    # 浅刻：只比梁面暗一档，最贴版面
     'mid':   ((66, 37, 17, 138), (120, 74, 38, 96)),   # 中刻：看得出凹陷，仍是木色
     'warm':  ((50, 27, 12, 168), (104, 63, 30, 122)),  # 暖刻：凹陷明显但仍留木色（V4）
@@ -128,6 +130,29 @@ def bar(im: Image.Image, x0: int, y0: int, x1: int, y1: int, icon_px: int, style
         a = round(255 * (1 - i / 26) ** 1.6)
         rd.line([(bx0 - pad + i, 0), (bx0 - pad + i, tile.height)], fill=a)
         rd.line([(bx1 + pad - i - 1, 0), (bx1 + pad - i - 1, tile.height)], fill=a)
+    if carve == 'flatline':                                                        # 无阴影 + 1px 上暗/下亮硬刻线
+        cy = (by0 + by1) // 2
+        d.rounded_rectangle((bx0 + 1, by0 + 1, bx1 - 1, by1 - 1), radius=r - 1,
+                            outline=(28, 14, 6, 130), width=1)
+        d.rounded_rectangle((bx0 + 2, by1 - 3, bx1 - 2, by1 - 2), radius=r - 2, fill=LIP_CRISP)
+        ico_l = _fit(icon_l or ICON_HEART, icon_px, ICON_LIGHT if recolor else None)
+        ico_r = _fit(icon_r or ICON_BEAD, icon_px, ICON_LIGHT if recolor else None)
+        _seat(tile, ico_l, bx0 + 16, cy)
+        _seat(tile, ico_r, bx1 - 16 - ico_r.width, cy)
+        _number(tile, bx0 + 16 + ico_l.width + 11, cy, '12/20', style, anchor='lm', scale=num_scale)
+        _number(tile, bx1 - 16 - ico_r.width - 11, cy, '480', style, anchor='rm', scale=num_scale)
+        im.alpha_composite(tile, (x0 - pad, y0 - pad))
+        return
+    if carve == 'flat':                                                            # 无阴影档：只有填充，边界全靠色差
+        cy = (by0 + by1) // 2
+        ico_l = _fit(icon_l or ICON_HEART, icon_px, ICON_LIGHT if recolor else None)
+        ico_r = _fit(icon_r or ICON_BEAD, icon_px, ICON_LIGHT if recolor else None)
+        _seat(tile, ico_l, bx0 + 16, cy)
+        _seat(tile, ico_r, bx1 - 16 - ico_r.width, cy)
+        _number(tile, bx0 + 16 + ico_l.width + 11, cy, '12/20', style, anchor='lm', scale=num_scale)
+        _number(tile, bx1 - 16 - ico_r.width - 11, cy, '480', style, anchor='rm', scale=num_scale)
+        im.alpha_composite(tile, (x0 - pad, y0 - pad))
+        return
     # ⛔ 不画外侧接触影、不画两端内壁暗角（用户 2026-11-02 三否之一：「凹槽一周有阴影，与版面不贴合」
     #    —— 整圈暗影会让槽读成贴上去的药丸；真凹槽只有**内壁上沿吃光**与**内壁下沿受光**两条）
     sh = Image.new('L', tile.size, 0)                                              # 内壁上沿阴影（只吃上半，窄而硬）
@@ -179,6 +204,7 @@ NUM_SPEC = {                       # (字号, 字色, 描边宽, 描边色, 附�
     'e': (27, (255, 241, 214), 0, None, 'plain_bold'),  # 纯色粗体档（米白）
     'f': (27, (74, 35, 8), 0, None, 'plain_bold'),      # 纯色粗体·深棕（浅刻档配套，与四钮同族）
     'g': (27, (247, 205, 157), 0, None, 'plain_bold'),  # 纯色粗体·暖金（plaque_bevel 色系）
+    'h': (27, (247, 195, 132), 0, None, 'plain_bold'),  # 纯色粗体·logo 珠面实测色 #F7C384
 }
 
 
