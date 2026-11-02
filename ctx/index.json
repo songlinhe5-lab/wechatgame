@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3905,
       "lines": 132,
-      "sha256": "0d7bb50b77c18138c8ba240c94f05e843a6529ea57d7be1565b2acc2be7d679b",
+      "sha256": "1ebfd292dac3aba54e59aa4f3b3b7e8ab44be9d49c3519ea2ba6a94c8380924f",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 192364 6726 normal",
+          "summary": "1 production/TASKS-DETAIL.md 193247 6765 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "57915d1dfedc3b2a369352cc70938c447560381c46b76bfb113829f7cade42ed",
+      "sha256": "89d47659395efae317d49189a541fd5976b42c45e110d9fba4348b133b201654",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 157 行 / 35435 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 158 行 / 35703 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+158 · §待排（backlog，无号，立项时领取…=130+29",
+          "summary": "§WXG 任务台账（SSOT）=1+159 · §待排（backlog，无号，立项时领取…=131+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 6726 行 / 192364 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 6765 行 / 193247 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6727 · §WXG-T-540=6134+69 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6766 · §WXG-T-541=6203+73 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -88555,17 +88555,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 192364,
-      "lines": 6726,
-      "sha256": "fb2eb6c94260aa9262309aab03901893fa6ce6acab24fec409cb1ab0d7b46530",
+      "tokens": 193247,
+      "lines": 6765,
+      "sha256": "6beb661ae3e135d41ffdb4627260c33524a8c5479afc4f8baa3e8c15179b18d1",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 6727,
-          "tokens": 192347,
+          "endLine": 6766,
+          "tokens": 193230,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -98168,22 +98168,103 @@
             "git",
             "遗留与沉淀"
           ]
+        },
+        {
+          "anchor": "§WXG-T-552",
+          "level": 2,
+          "startLine": 6728,
+          "endLine": 6766,
+          "tokens": 880,
+          "summary": "美术·v2 设计基准图合成顶栏四钮（两档对比设计稿） · 负责：主理人(CodeBuddy) · 状态：✅ 完成（202",
+          "keywords": [
+            "WXG",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§1 用户令 (3)",
+          "level": 3,
+          "startLine": 6732,
+          "endLine": 6739,
+          "tokens": 211,
+          "summary": "2026-11-02：贴 menu-design-baseline-cat-20261101.png（v2「橱窗单元素」",
+          "keywords": [
+            "menu",
+            "design",
+            "baseline",
+            "cat",
+            "png",
+            "用户令"
+          ]
+        },
+        {
+          "anchor": "§2 产物",
+          "level": 3,
+          "startLine": 6740,
+          "endLine": 6750,
+          "tokens": 239,
+          "summary": "proposals/menu-3d-style-20261030/menu-design-baseline-cat-to",
+          "keywords": [
+            "proposals",
+            "menu",
+            "style",
+            "design",
+            "baseline",
+            "cat"
+          ]
+        },
+        {
+          "anchor": "§3 关键口径",
+          "level": 3,
+          "startLine": 6751,
+          "endLine": 6755,
+          "tokens": 115,
+          "summary": "底图按 1:1 设计 px 读 ⇒ --diameter 56 即图上 56 px。",
+          "keywords": [
+            "diameter",
+            "关键口径"
+          ]
+        },
+        {
+          "anchor": "§4 已知取舍（已写入说明件，勿当缺陷重报）",
+          "level": 3,
+          "startLine": 6756,
+          "endLine": 6761,
+          "tokens": 153,
+          "summary": "1. 左上压绿植、右上压珠罐——「让位招牌」方案的必然结果；四钮是浮层控件，压在场景前合理，但叶尖与罐口会从钮侧露出。",
+          "keywords": [
+            "已知取舍",
+            "已写入说明件",
+            "勿当缺陷重报"
+          ]
+        },
+        {
+          "anchor": "§5 校验",
+          "level": 3,
+          "startLine": 6762,
+          "endLine": 6766,
+          "tokens": 75,
+          "summary": "两版均从同一底图生成，除四钮外底图像素零改动（脚本只做 alpha_composite，不改底图任何区域）。",
+          "keywords": [
+            "alpha_composite",
+            "校验"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 35435,
-      "lines": 157,
-      "sha256": "ebb016bf50df63bff84ee105bb0332c4b19b1d5389345e0605c7825c39453f69",
+      "tokens": 35703,
+      "lines": 158,
+      "sha256": "0d234932a3337cae11b69066324523643631c8e7c89218505e7760ab993b98af",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 158,
-          "tokens": 35426,
+          "endLine": 159,
+          "tokens": 35694,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -98196,8 +98277,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 130,
-          "endLine": 158,
+          "startLine": 131,
+          "endLine": 159,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
