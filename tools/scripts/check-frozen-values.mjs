@@ -137,7 +137,7 @@ export function parseDocEquations(md) {
   const V = '[^' + BT + '\\s|，、；。）、（]+';
   const re = new RegExp(
     BT + '([A-Z][A-Z0-9_]{2,})' + BT + '?\\s*[=＝]\\s*(' + V + ')' +
-      '|' + BT + '([A-Z][A-Z0-9_]{2,})[=＝](' + V + ')' + BT,
+    '|' + BT + '([A-Z][A-Z0-9_]{2,})[=＝](' + V + ')' + BT,
     'g',
   );
   for (const [, line] of md.split('\n').entries()) {
@@ -202,8 +202,10 @@ function checkGame(game) {
       if (!basis) continue; // 既不在 §3 也不在代码 ⇒ 不归本门管
       docEq++;
       if (!equalAtom(basis, atom)) {
-        problems.push({ side: 'B', game, name: eq.name, file: rel, raw: eq.raw,
-          detail: `${rel} 写 \`${eq.name}=${eq.raw}\` ｜ ${src} 现值 = ${fmt(basis)}${src === '代码' ? `（${code.get(eq.name).file}）` : ''}` });
+        problems.push({
+          side: 'B', game, name: eq.name, file: rel, raw: eq.raw,
+          detail: `${rel} 写 \`${eq.name}=${eq.raw}\` ｜ ${src} 现值 = ${fmt(basis)}${src === '代码' ? `（${code.get(eq.name).file}）` : ''}`
+        });
       }
     }
   }

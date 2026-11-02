@@ -23,7 +23,8 @@ F_BOLD = "/System/Library/Fonts/STHeiti Medium.ttc"
 # ── tuning/menu.ts + meta-layout.ts 常量（750 系，y 向上）──
 DESIGN_W, DESIGN_H = 750, 1334
 PLATE_W, PLATE_H = 600, 720
-PLATE_X, PLATE_Y = (DESIGN_W - PLATE_W) / 2, (DESIGN_H - PLATE_H) / 2   # 75 / 307
+PLATE_X, PLATE_Y = (DESIGN_W - PLATE_W) / \
+    2, (DESIGN_H - PLATE_H) / 2   # 75 / 307
 COLS, ROWS = 3, 3
 CELL, GAP = 120, 22                              # WALL_CELL / WALL_GAP
 GRID_W = COLS * CELL + (COLS - 1) * GAP          # 404
@@ -157,7 +158,8 @@ def compose(s):
     d.rounded_rectangle([px, py, px + PLATE_W * s, py + PLATE_H * s], radius=28 * s,
                         fill=PAPER, outline=WOOD_EDGE, width=6 * s)
     # 标题 / 章名+星进度（同行） / 判星对照
-    d.text((DESIGN_W / 2 * s, y_down(TITLE_CY) * s), "选关", font=f_title, fill=INK, anchor="mm")
+    d.text((DESIGN_W / 2 * s, y_down(TITLE_CY) * s),
+           "选关", font=f_title, fill=INK, anchor="mm")
     d.text((DESIGN_W / 2 * s, y_down(CHAP_CY) * s), "曼陀罗",
            font=f_chap, fill=INK, anchor="mm")
     d.text(((PLATE_X + PLATE_W - 40) * s, y_down(PROG_CY) * s), "★ 2/9",
@@ -185,14 +187,16 @@ def compose(s):
         tsize = THUMB_AREA * s
         if boss:
             draw_ring(d, tcx, tcy, tsize, faded=True)
-            draw_crown(d, tcx, tcy - THUMB_AREA * 0.22 * s, 22 * s, (170, 170, 170))
+            draw_crown(d, tcx, tcy - THUMB_AREA *
+                       0.22 * s, 22 * s, (170, 170, 170))
         else:
             draw_matrix(d, tcx, tcy, tsize, PATTERNS[pat], faded=locked)
         if locked:
             lock = Image.open(f"{A}/ui_menu_badge_locked.png").convert("RGBA")
             lw = 52 * s
             lock = lock.resize((lw, lw), Image.LANCZOS)
-            cv.alpha_composite(lock, (round(tcx - lw / 2), round(tcy - lw / 2)))
+            cv.alpha_composite(
+                lock, (round(tcx - lw / 2), round(tcy - lw / 2)))
         # 星带 28（锁格无星）
         if not locked:
             band_cy = y_down(yb + THUMB_STAR_BAND / 2) * s
@@ -229,7 +233,8 @@ def annotate(cv, s, fs):
         (0, 80, 220), (210, 0, 0), (0, 140, 0), (130, 0, 180), (230, 120, 0), (0, 130, 130), (140, 80, 20))
     # 纸面板
     rect(PLATE_X, PLATE_Y, PLATE_W, PLATE_H, blue)
-    lab(PLATE_X + 4, PLATE_Y + PLATE_H - 4, "板 600×720 @(75,307) · 遮罩 α0.5", blue, "ld")
+    lab(PLATE_X + 4, PLATE_Y + PLATE_H - 4,
+        "板 600×720 @(75,307) · 遮罩 α0.5", blue, "ld")
     lab(DESIGN_W / 2, TITLE_CY + 30, "标题「选关」 y=977", brown, "ma")
     # 两行信息
     for y_up, txt in ((CHAP_CY, f"章名 + 星进度 {CHAP_CY:.0f}（同行）"), (CRIT_CY, f"判星对照 {CRIT_CY:.0f}")):
@@ -248,7 +253,8 @@ def annotate(cv, s, fs):
     for idx, (kind, stars, pat) in enumerate(CELLS):
         r, c = divmod(idx, COLS)
         x0, yb = cell_origin(r, c)
-        col = purple if kind == "boss" else (orange if kind == "lock" else teal)
+        col = purple if kind == "boss" else (
+            orange if kind == "lock" else teal)
         rect(x0, yb, CELL, CELL, col)
         rect(x0, yb + THUMB_STAR_BAND, CELL, THUMB_AREA, green)
         rect(x0, yb, CELL, THUMB_STAR_BAND, green)
@@ -262,7 +268,8 @@ def legend(d, _f, x, y, rows):
     yy = y
     for txt, size, col in rows:
         if txt:
-            d.text((x, yy), txt, font=ImageFont.truetype(F_LIGHT, size), fill=col)
+            d.text((x, yy), txt, font=ImageFont.truetype(
+                F_LIGHT, size), fill=col)
         yy += size + 14
 
 
@@ -270,7 +277,8 @@ def main():
     s = 2
     cv = compose(s)
     legend_w = 400
-    canvas = Image.new("RGB", ((DESIGN_W + legend_w) * s, DESIGN_H * s), (255, 255, 255))
+    canvas = Image.new("RGB", ((DESIGN_W + legend_w) *
+                       s, DESIGN_H * s), (255, 255, 255))
     canvas.paste(cv.convert("RGB"), (0, 0))
     ann_layer = canvas.convert("RGBA")
     d, f = annotate(ann_layer, s, 20)
@@ -282,8 +290,10 @@ def main():
         ("弹窗 600×720 @75,307 · 遮罩 α0.5（叠主菜单）", 22, (80, 80, 80)),
         ("", 22, None),
         ("版面（meta-layout.ts::levelsPanelMetrics）：", 26, (0, 130, 0)),
-        (f"网格 3×3 · 格 {CELL} · 间距 {GAP} · 左缘 {GRID_LEFT} · 上沿 {GRID_TOP}", 22, (20, 20, 20)),
-        (f"缩略 {THUMB_AREA}（距格顶 {THUMB_TOP_INSET}）· 星带 {THUMB_STAR_BAND} 在格底", 22, (20, 20, 20)),
+        (f"网格 3×3 · 格 {CELL} · 间距 {GAP} · 左缘 {GRID_LEFT} · 上沿 {GRID_TOP}",
+         22, (20, 20, 20)),
+        (f"缩略 {THUMB_AREA}（距格顶 {THUMB_TOP_INSET}）· 星带 {THUMB_STAR_BAND} 在格底",
+         22, (20, 20, 20)),
         (f"章名 + 星进度 同行 y={CHAP_CY:.0f}（进度右对齐 x=635）", 22, (20, 20, 20)),
         (f"判星对照 y={CRIT_CY:.0f}（与结算共读 starCriteriaText）", 22, (20, 20, 20)),
         (f"返回 {BACK_W}×{BACK_H} @x255, y{BACK_Y}（板底 +50）", 22, (20, 20, 20)),

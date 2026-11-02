@@ -30,13 +30,16 @@
 | 4 | `test-cases-b-f.md` | 本片 = §B–§F（派生 / 冲刺 / 道具 / 帧序 / 结算）；§G 起在下一片 | 5359 |
 | 5 | `test-cases-g-perceptual.md` | 本片 = §G 可感知性判据（20 条）；§H 起在下一片 | 9670 |
 | 6 | `test-cases-h-i.md` | 本片 = §H 未映射补编 + §I 宿主坐标归一化；变更记录与 §J 在下一片 | 5740 |
-| 7 | `test-cases-history.md` | 本片 = 变更记录 + §J v2.0 判据迁移；§K 起在下一片 | 9519 |
+| 7 | `test-cases-history.md` | 本片 = 变更记录 + §J v2.0 判据迁移（⚠ 早期行 v1.1–v1.19 已外移，见表内指针行）；§K 起在下一片 | 13234 |
 | 8 | `test-cases-k-style.md` | 本片 = §K 头 + §K.0–§K.4（风格 / 面板 / 门禁 / 落档 / 凹槽）；§K.5 台账起在下一片 | 7238 |
 | 9 | `test-cases-k-ledger-1.md` | 本片 = §K.5 台账前段（K.5.0 / K.5.1 / 至第 2 次补登）；第 3 次补登起在下一片 | 9149 |
 | 10 | `test-cases-k-ledger-2.md` | 本片 = §K.5.1 第 3–11 次补登 + §K.6 / §K.7；§L 起在下一片 | 13585 |
 | 11 | `test-cases-l-tint.md` | 本片 = §L tint 臂判据（L.1–L.4）；§M 起在下一片 | 1192 |
 | 12 | `test-cases-m-menu.md` | 本片 = §M 头 + §M.1–§M.9；§M.10 质量门结论起在下一片 | 11261 |
 | 13 | `test-cases-m-gate.md` | 本片 = §M.10 / §M.11 / BD-61 / §N / §O（质量门与缺陷收口）；本片为末片 | 6286 |
+| 附 | `test-cases-history-archive.md` | **附属归档片（不占上方 13 片主链编号）**：7 号片「变更记录」的早期行 v1.1–v1.19（实存 13 行 + v1.17「缺行」声明行，共 14 行）逐字留档；v1.30 批外移，履行 `ctx/budget-exempt.json` WXG-T-434 条的撤销条件（顶回 ≤16000 后豁免已撤）；判据**零改动零删除**（K-051/K-053），⛔ 本件不再追加 | 6913 |
+
+> **tokens 列口径**：各片建片（WXG-T-225）时的一次性读数，⛔ 非实时（实时体积以生成物 `ctx/BUDGET.md` 为准）；7 号片与附属归档片已按门禁**同一估算函数** `estimateTokens()` 于 v1.30 批实算回写。
 
 ## §锚点迁移表（旧锚点 → 新文件；只到 § 级）
 
@@ -48,6 +51,7 @@
 | §G / §G.1 / §G.2 / §G.3 / §G.4 / §G.5 | `test-cases-g-perceptual.md` |
 | §H / §H1 / §H2 / §H3 / §H.4 / §I | `test-cases-h-i.md` |
 | 变更记录 / §J | `test-cases-history.md` |
+| 变更记录 · 早期行 v1.1–v1.19（v1.2…v1.19 + v1.17「缺行」声明） | `test-cases-history-archive.md`（7 号片的附属归档片，v1.30 批外移） |
 | §K / §K.0 / §K.1 / §K.2 / §K.3 / §K.4 | `test-cases-k-style.md` |
 | §K.5 / §K.5.0 / §K.5.1 / 第 1–2 次补登 | `test-cases-k-ledger-1.md` |
 | 第 3–11 次补登 / §K.6 / §K.7 | `test-cases-k-ledger-2.md` |

@@ -9,8 +9,13 @@
  * pause / clear / fail / sprint-settle / finish / banners + confetti sandwich.
  */
 
-import type { RenderModelBuilder } from '../../framework/index';
+import { nineSliceFx, type RenderModelBuilder } from '../../framework/index';
 import {
+  CLEAR_BTN_SLICE,
+  CLEAR_FACE_SLICE,
+  CLEAR_FRAME_INSET,
+  CLEAR_FRAME_SLICE,
+  CLEAR_PAPER_BTN_SLICE,
   CLEAR_PLAQUE_H,
   CLEAR_PLAQUE_W,
   CLEAR_STAR_SIZE,
@@ -66,6 +71,7 @@ import {
 import type { ConfettiBeadState } from './scene-vfx';
 import { drawModalFrame, drawModalScrim, frameFont, frameLen, frameX, frameY } from './modal-frame';
 import { drawButton, drawDashedRect } from './ui-widgets';
+import { menuBitmapReady } from './meta-widgets';
 import { UI_FONT, UI_SCRIM, bodyFont, drawPaperPanel, formatDurationCn, pressOffset } from './ui-theme';
 import { drawPlayPage } from './play-page';
 import { drawRankPanel } from './rank-view';
@@ -543,15 +549,17 @@ function drawClearPanel(
     radius: UI_CONTAINER.radiusPanel,
     shadowAlpha: UI_CONTAINER.shadowAlphaPanel,
   });
-  // `[WXG-T-514]` 外框：木纹环贴图（12px 宽）+ 内外两条均匀描边；按钮不再用纹理。
+  // `[WXG-T-515]` 结算面板 = 9-slice 双层：内底（纸面内凹）+ 外框（木框中空）。
+  // `drawModalFrame` 的纸面板仍先画 —— 它提供遮罩 / 投影兜底；内底与外框下辖覆盖中心与四边。
+  // ⛔ 两层都走 fx 九宫格：端帽固定、边条与中心只拉线性渐变，面板可纵横缩放而不变形。
   const pw = plate.xMax - plate.xMin;
   const ph = plate.yMax - plate.yMin;
-  builder.blit(MENU_TEXTURES.woodFrame, plate.xMin, plate.yMin, pw, ph);
-  builder.rect(plate.xMin, plate.yMin, pw, ph, {
-    stroke: palette.woodEdge, lineWidth: 2, radius: UI_CONTAINER.radiusPanel,
+  builder.blit(MENU_TEXTURES.panelFace, plate.xMin + CLEAR_FRAME_INSET, plate.yMin + CLEAR_FRAME_INSET,
+    pw - CLEAR_FRAME_INSET * 2, ph - CLEAR_FRAME_INSET * 2, {
+    fx: nineSliceFx(CLEAR_FACE_SLICE.capX, CLEAR_FACE_SLICE.capY),
   });
-  builder.rect(plate.xMin + 12, plate.yMin + 12, pw - 24, ph - 24, {
-    stroke: palette.woodEdge, lineWidth: 2, radius: UI_CONTAINER.radiusPanel - 12,
+  builder.blit(MENU_TEXTURES.panelFrame, plate.xMin, plate.yMin, pw, ph, {
+    fx: nineSliceFx(CLEAR_FRAME_SLICE.capX, CLEAR_FRAME_SLICE.capY),
   });
 
   // `[WXG-T-510]` A2：标题木牌骑在面板上沿（木底 + 木边 + 深字）。
@@ -646,19 +654,35 @@ function drawClearPanel(
     const pressed = snap.pressedButton === button.id;
     const by = button.rect.yMin + pressDy(snap, button.id);
     if (button.id === 'next') {
-      // `[WXG-T-514]` 按钮回归纯色调：木面 + 顶高光/底暗边 + 3px 描边（立体），⛔ 无纹理横线。
-      drawButton(builder, palette, button.rect.xMin, by, bw, bh, 'wood', UI_CONTAINER.radiusWood, label, UI_FONT.panelButton, pressed);
-      builder.rect(button.rect.xMin + 10, by + bh - 7, bw - 20, 3, {
-        fill: withAlpha(palette.panel, 0.35), radius: 2,
+      // `[WXG-T-515]` 木主钮 = 垂直光照 9-slice（源 300×92，横向端帽 76）；按下降压不换形。
+      const btnTex = pressed && menuBitmapReady(MENU_TEXTURES.btnWoodPressed)
+        ? MENU_TEXTURES.btnWoodPressed
+        : MENU_TEXTURES.btnWood;
+      if (menuBitmapReady(MENU_TEXTURES.btnWood)) {
+        builder.blit(btnTex, button.rect.xMin, by, bw, bh, {
+          fx: nineSliceFx(CLEAR_BTN_SLICE.capX, CLEAR_BTN_SLICE.capY),
+        });
+        builder.text(button.rect.xMin + bw / 2, by + bh / 2, label, {
+          fill: palette.woodText, font: UI_FONT.panelButton, align: 'center', baseline: 'middle',
+        });
+      } else {
+        drawButton(builder, palette, button.rect.xMin, by, bw, bh, 'wood', UI_CONTAINER.radiusWood, label, UI_FONT.panelButton, pressed);
+      }
+    } else if (menuBitmapReady(MENU_TEXTURES.btnPaper)) {
+      // `[WXG-T-515]` 纸次钮 = 横向可拉伸 9-slice（源 150×88，端帽 52）。
+      builder.blit(MENU_TEXTURES.btnPaper, button.rect.xMin, by, bw, bh, {
+        fx: nineSliceFx(CLEAR_PAPER_BTN_SLICE.capX, CLEAR_PAPER_BTN_SLICE.capY),
       });
-      builder.rect(button.rect.xMin + 10, by + 5, bw - 20, 3, {
-        fill: withAlpha(palette.shadowInk, 0.22), radius: 2,
-      });
-      builder.rect(button.rect.xMin, by, bw, bh, {
-        stroke: palette.woodEdge, lineWidth: 3, radius: UI_CONTAINER.radiusWood,
-      });
+      if (pressed) {
+        builder.rect(button.rect.xMin, by, bw, bh, {
+          fill: withAlpha(palette.shadowInk, 0.10), radius: UI_CONTAINER.radiusCard,
+        });
+      }
       builder.text(button.rect.xMin + bw / 2, by + bh / 2, label, {
-        fill: palette.woodText, font: UI_FONT.panelButton, align: 'center', baseline: 'middle',
+        fill: palette.text,
+        font: UI_FONT.button,
+        align: 'center',
+        baseline: 'middle',
       });
     } else {
       // `[WXG-T-511]` 真机反馈「按钮太弱」：2px 木边 + 深字 30，保留纸面弱于木主钮。

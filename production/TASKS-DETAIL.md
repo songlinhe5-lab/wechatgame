@@ -5772,6 +5772,57 @@ qwen 三条线均为**接口接受 `bbox`、不报错、出图照旧改全图**�
 
 **未跑 `kb:sync`**。候选 2 条：① 「提亮幅度受背景色上限约束：亮底上唯一有效的提亮手段是高位 alpha + 白，而不是低 alpha 叠色」；② 「大面积遮挡的图不要试图 inpaint 回原像素，改为提取『光照场』或参数化重建」。统计 = 新增 0 / 修改 0 / 激活 0 / 归档 0（本批）。
 
+## WXG-T-515
+
+### 1. 触发
+
+WXG-T-514 结算面板单层 `blit(woodFrame)` 木纹环 + 纯色调立体按钮在真机视觉上仍显"拉伸感"——木纹被横向拉宽（固定纹理纵横比 ≠ 面板纵横比），按钮高光/暗边只是程序化 rect 叠加、缺少真实按钮的厚度感。用户要求「面板和按钮都用纹理，但要能缩放不变形」。
+
+### 2. 设计口径
+
+**面板 9-slice 双层**（替代原单层木纹 blit）：
+- 外框 `panelFrame`：木框中空，端帽 capX=capY=18px 固定，中间可横向/纵向拉伸
+- 内底 `panelFace`：纸面内凹，端帽 capX=capY=12px 固定；inset = 18px（面板四边各内缩 18px 铺纸面）
+- 两层都走 `builder.blit(tex, x, y, w, h, { fx: nineSliceFx(capX, capY) })`
+
+**按钮 9-slice**（替代原 `drawButton` 纯色调）：
+- 木主钮 `btnWood`（默认）/ `btnWoodPressed`（按下态）：capX=76, capY=28（端帽各保留 76/28 px 不拉伸）
+- 纸副钮 `btnPaper`：同 cap 口径
+- ⛔ 按下态不换形（只换纹理），保持按钮 hitbox 几何稳定
+- `menuBitmapReady(tex)` fallback：纹理未就绪时走原纯色调 `drawButton`，零视觉断裂
+
+**常量抽取**（view-model.ts）：
+- `CLEAR_FRAME_INSET = 18`（面板内底 inset）
+- `CLEAR_FACE_SLICE.capX=12, capY=12`
+- `CLEAR_FRAME_SLICE.capX=18, capY=18`
+- `CLEAR_BTN_SLICE.capX=76, capY=28`
+- `CLEAR_PAPER_BTN_SLICE`（同 btn 口径）
+
+### 3. 落地
+
+- `src/view/view-model.ts::drawClearPanel`：面板 blit 改双层 9-slice；按钮纯色调改纹理 9-slice + menuBitmapReady fallback
+- `cocos/assets/scripts/game/view/` 同步两份
+- 新增 5 枚纹理 + .meta（L1：由 Cocos 导入生成 .meta，⛔ 不手建）：
+  - `ui_btn_wood_9s.png`（300×92 木主钮）
+  - `ui_btn_wood_9s_pressed.png`（300×92 木主钮按下态）
+  - `ui_btn_paper_9s.png`（150×88 纸副钮）
+  - `ui_panel_frame_9s.png`（500×470 面板外框）
+  - `ui_panel_face_9s.png`（464×434 面板内底）
+- `MENU_TEXTURES` / `MENU_TEXTURES.woodFrame → panelFrame` 重命名，适配 9-slice 新纹理
+- `tests/announcements.test.ts` / `arc-level-select-page.test.ts` 渲染命令对齐
+- `meta-view.ts` 缩进修复（prettier）
+
+### 4. 验收
+
+- `tsc --noEmit` ✅
+- `pnpm test` **120 文件 / 1422 通过 / 2 跳过** ✅
+- 纹理端帽固定 → 面板纵横缩放不变形（真机实测 4:3 / 16:9 两档均无木纹拉伸）
+- fallback 路径：删掉一枚纹理 → 自动走纯色调，结算面板不崩
+
+### 5. 沉淀统计
+
+**未跑 `kb:sync`**。候选 1 条：「9-slice 纹理切分口径 = cap 是端帽固定像素，不是百分比；纵横面板/按钮的 capX/capY 可不同」。统计 = 新增 0 / 修改 0 / 激活 0 / 归档 0（本批）。
+
 ## WXG-T-514
 
 ### 1. 触发

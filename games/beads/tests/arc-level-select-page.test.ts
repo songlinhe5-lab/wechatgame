@@ -130,7 +130,7 @@ describe('WXG-T-503 · 弹窗性质（遮罩 + 纸面板 + 标题）', () => {
 describe('WXG-T-503 · 信息两行（章名+星进度同行 / 判星对照行）', () => {
     const textsOf = (extra: Partial<MetaViewData>) =>
         modalFrame(dataFor(extra)).filter((c) => c.kind === 'text') as unknown as
-            { text: string; x: number; y: number; font?: string; fill?: string; align?: string }[];
+        { text: string; x: number; y: number; font?: string; fill?: string; align?: string }[];
 
     it('章名 925（居中）/ 星进度 925（右侧 · 右对齐）', () => {
         const ts = textsOf({ chapterTitle: '曼陀罗', arcStarGot: 18, arcStarNeed: 21 });

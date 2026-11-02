@@ -101,7 +101,7 @@ function panelPage(
         const plate = overlayPlate();
         builder.rect(plate.x, plate.y, plate.w, plate.h, { fill: palette.panel, radius: UI_CONTAINER.radiusPanel });
         builder.text(plate.x + plate.w / 2, plate.y + plate.h - 50, title, {
-            fill: palette.text,
+        fill: palette.text,
             font: UI_FONT.overlayTitle,
             align: 'center',
             baseline: 'middle',
