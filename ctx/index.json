@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3905,
       "lines": 132,
-      "sha256": "d470afb2fb83e96828a4d6d43e81539d42124452f98fe0d84d491216e19865e3",
+      "sha256": "8b44b8738b7c2c6fc37920ab42ffbacdde9d63435da1c420aa951f7d1a34abf8",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 193494 6771 normal",
+          "summary": "1 production/TASKS-DETAIL.md 194392 6810 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "e607e4e02be60e13dfd639bdacd34396026f654e7cfbea7932e8d89f7c2be38b",
+      "sha256": "f106979c7e3d7b9967a5e265561272400601e0b2fc5b641fbbe79f819c15d179",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 158 行 / 35773 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 159 行 / 36114 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+159 · §待排（backlog，无号，立项时领取…=131+29",
+          "summary": "§WXG 任务台账（SSOT）=1+160 · §待排（backlog，无号，立项时领取…=132+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 6771 行 / 193494 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 6810 行 / 194392 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6772 · §WXG-T-541=6203+73 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6811 · §WXG-T-542=6276+57 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -88555,17 +88555,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 193494,
-      "lines": 6771,
-      "sha256": "1f4aae6d008936f750ad4eb7ce16776aedbc38a016e61709a46dc8d7a6d4f992",
+      "tokens": 194392,
+      "lines": 6810,
+      "sha256": "04824620b01bdc89515b12c99dc98fe68708e6314242a417d0f78124f6e7ac8d",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 6772,
-          "tokens": 193478,
+          "endLine": 6811,
+          "tokens": 194375,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -98249,22 +98249,103 @@
             "alpha_composite",
             "校验"
           ]
+        },
+        {
+          "anchor": "§WXG-T-553",
+          "level": 2,
+          "startLine": 6773,
+          "endLine": 6811,
+          "tokens": 894,
+          "summary": "美术·橱窗顶部心数/豆数槽板（PIL 定位 + 云端补质感） · 负责：主理人(CodeBuddy) · 状态：✅ 完成",
+          "keywords": [
+            "WXG",
+            "PIL",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§1 用户令与拍板",
+          "level": 3,
+          "startLine": 6777,
+          "endLine": 6782,
+          "tokens": 129,
+          "summary": "「在这个图（顶栏四钮定稿件）橱窗顶部设计，星数，豆数的显示，要融合在外框上」→ 问后拍板：",
+          "keywords": [
+            "用户令与拍板"
+          ]
+        },
+        {
+          "anchor": "§2 产物 (2)",
+          "level": 3,
+          "startLine": 6783,
+          "endLine": 6792,
+          "tokens": 182,
+          "summary": "proposals/menu-3d-style-20261030/menu-design-baseline-cat-to",
+          "keywords": [
+            "proposals",
+            "menu",
+            "style",
+            "design",
+            "baseline",
+            "cat"
+          ]
+        },
+        {
+          "anchor": "§3 流程与取证",
+          "level": 3,
+          "startLine": 6793,
+          "endLine": 6799,
+          "tokens": 251,
+          "summary": "1. PIL 定位：三轮迭代（浮在木墙 → 下移嵌梁带倾角 → 收窄内收），得深色胶囊定位稿。",
+          "keywords": [
+            "PIL",
+            "流程与取证"
+          ]
+        },
+        {
+          "anchor": "§4 运行时关系（⛔ 落码前必读）",
+          "level": 3,
+          "startLine": 6800,
+          "endLine": 6805,
+          "tokens": 130,
+          "summary": "运行时资源条已嵌橱窗顶部（meta-menu.ts v3.6「覆盖楣的上 46 px」），现两项 = 体力 + 金币。",
+          "keywords": [
+            "meta",
+            "menu",
+            "运行时关系",
+            "落码前必读"
+          ]
+        },
+        {
+          "anchor": "§5 遗留与取舍",
+          "level": 3,
+          "startLine": 6806,
+          "endLine": 6811,
+          "tokens": 116,
+          "summary": "1. 图标是现成件复用（红心 asset-icon-stamina / 金币 asset-icon-coin）；「图标单",
+          "keywords": [
+            "asset",
+            "icon",
+            "stamina",
+            "coin",
+            "遗留与取舍"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 35773,
-      "lines": 158,
-      "sha256": "451b92f67421bc1e2cec0377ef02ce37d1b0ff5bff5dea36ce6bc27ffaa10b3e",
+      "tokens": 36114,
+      "lines": 159,
+      "sha256": "20b0178836d7e59a4d9a6f00f672dfd8ab13d1e66edd0d47548ef7cdf1289ecb",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 159,
-          "tokens": 35764,
+          "endLine": 160,
+          "tokens": 36105,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -98277,8 +98358,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 131,
-          "endLine": 159,
+          "startLine": 132,
+          "endLine": 160,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
