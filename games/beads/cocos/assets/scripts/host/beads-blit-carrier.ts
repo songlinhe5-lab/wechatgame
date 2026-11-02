@@ -521,7 +521,7 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
         const tex = baseFrame.texture;
         const w = tex.width;
         const h = tex.height;
-        const image = (tex.image as unknown as AnyObj | null)?.data as object | undefined;
+        const image = ((tex as unknown as AnyObj).image as AnyObj | null)?.data as object | undefined;
         if (!image || w === 0 || h === 0) return undefined;
         const canvas = createOffscreen(w, h);
         const ctx = canvas ? canvas.getContext('2d') : null;
@@ -546,7 +546,9 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
         // 真实宿主只收 `ImageData` 实例；`getImageData` 的返回值就是实例（⛔ 不重造）。
         ctx.putImageData(pixels as object, 0, 0);
         if (reuse !== undefined) {
-            reuse.texture.uploadData(canvas as never);
+            // `SpriteFrame.texture` 的类型面是基类 `TextureBase`（无 `uploadData`）；运行时实例是
+            // `Texture2D`（本文件创建），且 `carrier-bench` 已验证重复 upload 同尺寸可行。
+            (reuse.texture as unknown as { uploadData(src: never): void }).uploadData(canvas as never);
             return reuse;
         }
         const outTex = new Texture2D();
