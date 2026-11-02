@@ -366,17 +366,17 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 3905,
-      "lines": 132,
-      "sha256": "cdae363364eb82452c5d46f7fe60e82ac9395ddd12b4434f7c929f4e29be544f",
+      "tokens": 3942,
+      "lines": 133,
+      "sha256": "6523331857adc3c80b5ed04f77b3d83a07bffbafbb7f04a2e861e572706ff6e6",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文预算报表（ctx/BUDGET.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 133,
-          "tokens": 3892,
+          "endLine": 134,
+          "tokens": 3929,
           "summary": "生成：2026-11-02 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 204834 7299 normal",
+          "summary": "1 production/TASKS-DETAIL.md 206144 7360 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -420,8 +420,8 @@
           "anchor": "§3 超限清单（超过所属类别上限）",
           "level": 2,
           "startLine": 46,
-          "endLine": 107,
-          "tokens": 2401,
+          "endLine": 108,
+          "tokens": 2438,
           "summary": "上限按文档类别分档（WXG-T-377）：spec 8000（判据/规格/提案/ADR/GDD/UX/skill，未放松",
           "keywords": [
             "WXG",
@@ -435,8 +435,8 @@
         {
           "anchor": "§4 真实最常用章节与分布加权节省率（估算）",
           "level": 2,
-          "startLine": 108,
-          "endLine": 133,
+          "startLine": 109,
+          "endLine": 134,
           "tokens": 612,
           "summary": "数据源：ctx/usage-distribution.json（真实读事件账本），样本 457 次读取 / 20 会话；",
           "keywords": [
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "ba9f013ee0e6259bee14cac0d86a91e122883e83f0cdbce687164774deb73f62",
+      "sha256": "89d0902a4572eedbe797d7118bb31f9972793e8670abdadaf28fe99f5b7fc008",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 172 行 / 40202 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 173 行 / 40450 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+173 · §待排（backlog，无号，立项时领取…=145+29",
+          "summary": "§WXG 任务台账（SSOT）=1+174 · §待排（backlog，无号，立项时领取…=146+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 7299 行 / 204834 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 7360 行 / 206144 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7300 · §WXG-T-554=6863+32 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7361 · §WXG-T-555=6895+36 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -10097,17 +10097,17 @@
     },
     {
       "path": "docs/architecture/adr/ADR-0029-beads-tint-mask-pipeline-adoption.md",
-      "tokens": 4898,
-      "lines": 201,
-      "sha256": "60f7aa0d1138a2056170548b70cef0c79f3959ea8d7e256067b7c29206704758",
+      "tokens": 5137,
+      "lines": 203,
+      "sha256": "944753b2389854422f477b6bd987c258c08e50851e9a8da7d9ae715b97739dc1",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§ADR-0029 — 豆面/格面 tint mask 正式管线接入（载体 / 孔底 / 真源 / 档位四决策）",
           "level": 1,
           "startLine": 1,
-          "endLine": 202,
-          "tokens": 4866,
+          "endLine": 204,
+          "tokens": 5105,
           "summary": "状态：Accepted（Q1–Q5 已由用户 2026-10-02 逐项拍板；落码分批交付，载体一批延后）",
           "keywords": [
             "ADR",
@@ -10359,8 +10359,8 @@
           "anchor": "§8 补充（2026-10-03 · WXG-T-226 B3/B4 四轮 review 收敛）",
           "level": 2,
           "startLine": 139,
-          "endLine": 189,
-          "tokens": 1391,
+          "endLine": 191,
+          "tokens": 1631,
           "summary": "DEC-1「本批 = 命令层 + Canvas2D」在落码 review 后细化为三条实现契约（不改 DEC 的结论，只",
           "keywords": [
             "WXG",
@@ -10375,8 +10375,8 @@
           "anchor": "§8.4 `fx` 键名约定表（**效果键名的唯一正本** · 2026-10-03 接线批）",
           "level": 3,
           "startLine": 157,
-          "endLine": 176,
-          "tokens": 466,
+          "endLine": 178,
+          "tokens": 705,
           "summary": "BlitCommand 只有一个效果槽 fx?: BlitFx（§8.2 规则 1）。键名不进 core 类型 ⇒ co",
           "keywords": [
             "fx",
@@ -10390,8 +10390,8 @@
         {
           "anchor": "§8.5 方法论：**推理出的结论必须用 A/B 实测复核**（2026-10-03 血泪）",
           "level": 3,
-          "startLine": 177,
-          "endLine": 189,
+          "startLine": 179,
+          "endLine": 191,
           "tokens": 292,
           "summary": "本批两次「绿而功能为零 / 越修越错」都由未验证的推理造成：",
           "keywords": [
@@ -10405,8 +10405,8 @@
         {
           "anchor": "§9 S5 Cocos 载体的方向（2026-10-03 用户裁定：甲 = 按色图集）",
           "level": 2,
-          "startLine": 190,
-          "endLine": 202,
+          "startLine": 192,
+          "endLine": 204,
           "tokens": 300,
           "summary": "DEC-1 保留「载体形态待真机数据」，但方向已定（不再是三选一）：",
           "keywords": [
@@ -14128,17 +14128,17 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 20393,
-      "lines": 253,
-      "sha256": "16b92099e35cf8481cf8dcf136623ab67ffff5377a3ab84a240161e188b06720",
+      "tokens": 20780,
+      "lines": 255,
+      "sha256": "83fd3d1692eb5432f80081fa9e14f1634b5c677e6b19e7e9aa4e68b1253bed3a",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads UI 架构（View / ViewModel / Presenter + 公共基础）",
           "level": 1,
           "startLine": 1,
-          "endLine": 254,
-          "tokens": 20374,
+          "endLine": 256,
+          "tokens": 20761,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -14308,8 +14308,8 @@
           "anchor": "§12 TODO 拆分",
           "level": 2,
           "startLine": 138,
-          "endLine": 250,
-          "tokens": 15321,
+          "endLine": 252,
+          "tokens": 15708,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -14320,8 +14320,8 @@
         {
           "anchor": "§13 待你拍板",
           "level": 2,
-          "startLine": 251,
-          "endLine": 254,
+          "startLine": 253,
+          "endLine": 256,
           "tokens": 323,
           "summary": "D1–D5 均已裁定（见 [ADR-0032 §5](adr/ADR-0032-beads-ui-architectur",
           "keywords": [
@@ -88554,17 +88554,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 204834,
-      "lines": 7299,
-      "sha256": "aebdea726b3bf76dee5c01af875de1b4f853d4234119f85ec0355232a21d1b8e",
+      "tokens": 206144,
+      "lines": 7360,
+      "sha256": "cd58daecd5882cf07d1ffec80d4e14267414107f4f5a22630b95b980b4955575",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 7300,
-          "tokens": 204817,
+          "endLine": 7361,
+          "tokens": 206127,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -99231,10 +99231,113 @@
           ]
         },
         {
-          "anchor": "§WXG-T-565",
+          "anchor": "§WXG-T-566",
           "level": 2,
           "startLine": 7235,
-          "endLine": 7266,
+          "endLine": 7295,
+          "tokens": 1307,
+          "summary": "设计·主菜单走马灯三态：去章 + 竖向揭彩 + 柜灯 · 负责：主理人(Trae)·设计轨 · 状态：🔄 进行中（20",
+          "keywords": [
+            "WXG",
+            "Trae"
+          ]
+        },
+        {
+          "anchor": "§1 用户令（逐条）",
+          "level": 3,
+          "startLine": 7239,
+          "endLine": 7248,
+          "tokens": 221,
+          "summary": "1. 新原型目录 games/beads/design/art/final/prototypes/，「三个状态效果都不太",
+          "keywords": [
+            "games",
+            "beads",
+            "design",
+            "art",
+            "final",
+            "prototypes"
+          ]
+        },
+        {
+          "anchor": "§2 现状与根因",
+          "level": 3,
+          "startLine": 7249,
+          "endLine": 7254,
+          "tokens": 131,
+          "summary": "games/beads/src/view/meta-menu.ts::drawShowcaseArt 的 blit 分支",
+          "keywords": [
+            "games",
+            "beads",
+            "src",
+            "view",
+            "meta",
+            "menu"
+          ]
+        },
+        {
+          "anchor": "§3 设计裁决（最终，用户 2026-11-02）",
+          "level": 3,
+          "startLine": 7255,
+          "endLine": 7265,
+          "tokens": 183,
+          "summary": ".trae/specs/menu-tri-state-gray/{spec,tasks,checklist}.md",
+          "keywords": [
+            "trae",
+            "specs",
+            "menu",
+            "tri",
+            "state",
+            "gray"
+          ]
+        },
+        {
+          "anchor": "§4 Phase 0 对照（已完成）",
+          "level": 3,
+          "startLine": 7266,
+          "endLine": 7277,
+          "tokens": 269,
+          "summary": "改动仅 dev/harness/main.ts：新增 ?artGray=0..1 调试参数，在 blitSource.g",
+          "keywords": [
+            "Phase",
+            "dev",
+            "harness",
+            "main",
+            "artGray",
+            "blitSource"
+          ]
+        },
+        {
+          "anchor": "§5 落码（2026-11-02，竖向揭彩）",
+          "level": 3,
+          "startLine": 7278,
+          "endLine": 7287,
+          "tokens": 221,
+          "summary": "框架：bake/gray-fx.ts 新增 grayWipeFx(progress, soft) / grayWipeR",
+          "keywords": [
+            "bake",
+            "gray",
+            "grayWipeFx",
+            "progress",
+            "soft",
+            "grayWipeR"
+          ]
+        },
+        {
+          "anchor": "§6 观测与遗留",
+          "level": 3,
+          "startLine": 7288,
+          "endLine": 7295,
+          "tokens": 172,
+          "summary": "1. 居中沙漏章已随本批删除（用户裁「一并删掉」）。",
+          "keywords": [
+            "观测与遗留"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-565",
+          "level": 2,
+          "startLine": 7296,
+          "endLine": 7327,
           "tokens": 525,
           "summary": "工具链·.trae/ 破例入库 + 工作区垃圾清理 · 负责：主理人(Trae)·工具链轨 · 状态：✅ 完成（2026",
           "keywords": [
@@ -99246,8 +99349,8 @@
         {
           "anchor": "§1 用户令 (12)",
           "level": 3,
-          "startLine": 7239,
-          "endLine": 7242,
+          "startLine": 7300,
+          "endLine": 7303,
           "tokens": 31,
           "summary": "用户「提交。trae」，二进制确认后选「都做：清垃圾 + 入库 .trae」。",
           "keywords": [
@@ -99258,8 +99361,8 @@
         {
           "anchor": "§2 裁定反转（此前为「不入库」）",
           "level": 3,
-          "startLine": 7243,
-          "endLine": 7248,
+          "startLine": 7304,
+          "endLine": 7309,
           "tokens": 122,
           "summary": "WXG-T-412 时用户裁定 .trae/ 为本地个人配置、不入库（上一轮试提交被 ctx 索引器「点目录跳过」拦死，",
           "keywords": [
@@ -99274,8 +99377,8 @@
         {
           "anchor": "§3 落地 (3)",
           "level": 3,
-          "startLine": 7249,
-          "endLine": 7257,
+          "startLine": 7310,
+          "endLine": 7318,
           "tokens": 173,
           "summary": "入库 .trae/skills/ 51 链接 + .trae/agents/ 7 链接 + .trae/rules/ag",
           "keywords": [
@@ -99289,8 +99392,8 @@
         {
           "anchor": "§4 验收 (3)",
           "level": 3,
-          "startLine": 7258,
-          "endLine": 7262,
+          "startLine": 7319,
+          "endLine": 7323,
           "tokens": 34,
           "summary": "node tools/scripts/check-ide-links.mjs → OK（agents=7 skills=",
           "keywords": [
@@ -99305,8 +99408,8 @@
         {
           "anchor": "§5 沉淀统计 (9)",
           "level": 3,
-          "startLine": 7263,
-          "endLine": 7266,
+          "startLine": 7324,
+          "endLine": 7327,
           "tokens": 86,
           "summary": "未跑 kb:sync。候选 1 条：「同一目录的入库裁定可能被用户反转，改裁定点须一次性收齐全部文档表述（6 文件 7 ",
           "keywords": [
@@ -99317,8 +99420,8 @@
         {
           "anchor": "§WXG-T-564",
           "level": 2,
-          "startLine": 7267,
-          "endLine": 7300,
+          "startLine": 7328,
+          "endLine": 7361,
           "tokens": 671,
           "summary": "美术·三态章 v2 木刻重绘（i2i）+ 原型换章 · 负责：主理人(CodeBuddy)·美术轨 · 状态：✅ 完成（",
           "keywords": [
@@ -99330,8 +99433,8 @@
         {
           "anchor": "§1 用户令 (13)",
           "level": 3,
-          "startLine": 7271,
-          "endLine": 7274,
+          "startLine": 7332,
+          "endLine": 7335,
           "tokens": 37,
           "summary": "T-563 结束时给三选（A 以 v1 三件 i2i 重出 / B 全新文生图 / C 本地 qwen），用户回「A」。",
           "keywords": [
@@ -99343,8 +99446,8 @@
         {
           "anchor": "§2 处置 (6)",
           "level": 3,
-          "startLine": 7275,
-          "endLine": 7287,
+          "startLine": 7336,
+          "endLine": 7348,
           "tokens": 322,
           "summary": "通道 云 DashScope Token Plan · wan2.7-image i2i（--ref）",
           "keywords": [
@@ -99359,8 +99462,8 @@
         {
           "anchor": "§3 不入库（有意，须记录）",
           "level": 3,
-          "startLine": 7288,
-          "endLine": 7294,
+          "startLine": 7349,
+          "endLine": 7355,
           "tokens": 143,
           "summary": "三件 v2 章不进 final/assets/menu/ 与 cocos/assets/textures/：",
           "keywords": [
@@ -99375,8 +99478,8 @@
         {
           "anchor": "§4 产出与登记",
           "level": 3,
-          "startLine": 7295,
-          "endLine": 7300,
+          "startLine": 7356,
+          "endLine": 7361,
           "tokens": 97,
           "summary": "批目录 design/art/proposals/menu-3d-style-20261030/badge-v2-202",
           "keywords": [
@@ -99392,17 +99495,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 40202,
-      "lines": 172,
-      "sha256": "03f737552309156a4d4ba9d567717934cfa7550f993bae97d4484839aeefe395",
+      "tokens": 40450,
+      "lines": 173,
+      "sha256": "f1b69bd01e35f227f24c94f4168d3d3f57399c1bddf64a463891a1dd688f89d6",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 173,
-          "tokens": 40193,
+          "endLine": 174,
+          "tokens": 40441,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -99415,8 +99518,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 145,
-          "endLine": 173,
+          "startLine": 146,
+          "endLine": 174,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -112792,6 +112895,108 @@
           "summary": "",
           "keywords": [
             "复现"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "production/qa/menu-tri-state-gray-20261102.md",
+      "tokens": 1051,
+      "lines": 77,
+      "sha256": "554d58d0a167564c9e2157f0a741dfd46d51cdab500819f9638a4ac3cd401f20",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§主菜单三态灰度 · Phase 0 对照取证（WXG-T-566）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 78,
+          "tokens": 1032,
+          "summary": "日期：2026-11-02",
+          "keywords": [
+            "Phase",
+            "WXG",
+            "主菜单三态灰",
+            "对照取证"
+          ]
+        },
+        {
+          "anchor": "§1 目的",
+          "level": 2,
+          "startLine": 7,
+          "endLine": 11,
+          "tokens": 66,
+          "summary": "用户拍板「先渲染对照」，确认同一张大关 PNG 在 全灰 / 部分灰 / 全彩 三档下的观感，",
+          "keywords": [
+            "PNG",
+            "目的"
+          ]
+        },
+        {
+          "anchor": "§2 配方（可复现）",
+          "level": 2,
+          "startLine": 12,
+          "endLine": 31,
+          "tokens": 240,
+          "summary": "1. 构建：pnpm harness:build",
+          "keywords": [
+            "pnpm",
+            "harness",
+            "build",
+            "配方",
+            "可复现"
+          ]
+        },
+        {
+          "anchor": "§3 产物",
+          "level": 2,
+          "startLine": 32,
+          "endLine": 42,
+          "tokens": 101,
+          "summary": "原彩（cleared） raw-none.png",
+          "keywords": [
+            "cleared",
+            "raw",
+            "none",
+            "png",
+            "产物"
+          ]
+        },
+        {
+          "anchor": "§4 实测",
+          "level": 2,
+          "startLine": 43,
+          "endLine": 54,
+          "tokens": 89,
+          "summary": "作品区（截图坐标 130,310–470,680）平均饱和度 r−g + g−b ：",
+          "keywords": [
+            "实测"
+          ]
+        },
+        {
+          "anchor": "§5 观测（影响裁决的两条）",
+          "level": 2,
+          "startLine": 55,
+          "endLine": 61,
+          "tokens": 127,
+          "summary": "1. 居中沙漏章 badgeProgress 不随作品变灰：全灰帧里它仍是高饱和的彩色补丁，",
+          "keywords": [
+            "badgeProgress",
+            "观测",
+            "影响裁决的两"
+          ]
+        },
+        {
+          "anchor": "§6 最终裁决与落码验证（2026-11-02）",
+          "level": 2,
+          "startLine": 62,
+          "endLine": 78,
+          "tokens": 306,
+          "summary": "用户裁：推关不再是整图 0.55，而是「从下到上的彩色 mask」，比例 = 当前大关已完成小关 / 总小关；",
+          "keywords": [
+            "mask",
+            "最终裁决与落",
+            "码验证"
           ]
         }
       ]

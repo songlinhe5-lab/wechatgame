@@ -168,14 +168,16 @@ export type BlitFxValue = string | number | boolean | readonly number[];
  *    （`JSON.stringify` 按插入序输出 ⇒ 同语义不同 sha ⇒ 封箱基准误报失败）。
  * 5. ⛔ `alpha` **不是**效果（blit 图元参数）⇒ 保持在 `alpha`，⛔ 不进 `fx`。
  *
- * ## 现状键名（正本 = `ADR-0029 §8.2`）
+ * ## 现状键名（正本 = `ADR-0029 §8.4`）
  *
  * | 键 | 含义 | 状态 |
  * |---|---|---|
  * | `base` | 着色基色（hex） | ✅ 本批（原 `tint` 迁入） |
  * | `strength` | 着色强度 0–1 | 预留（core 0 改动） |
+ * | `gray` | 灰度强度 0–1（1 = 全灰） | ✅ `[WXG-T-566]`（`bake/gray-fx.ts`） |
+ * | `grayWipe` | 竖向揭彩 `[progress, soft]`（彩色自下而上 / 柔带占比） | ✅ `[WXG-T-566]`（`bake/gray-fx.ts`） |
  * | `blend` | blend 模式名 | 将来 |
- * | `matrix` | color matrix（`number[]`） | 将来 |
+ * | `matrix` | color matrix（对比度 / 通道矩阵） | 将来 |
  */
 export type BlitFx = Readonly<Record<string, BlitFxValue>>;
 

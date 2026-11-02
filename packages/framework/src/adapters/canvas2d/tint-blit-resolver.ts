@@ -8,13 +8,14 @@
  * | 层 | 只知道 |
  * |---|---|
  * | 渲染器 | 「把 blit 变成一个可贴对象」（⛔ 不知道 base / 颜色 / mask） |
- * | 本文件 | 键名 `base`（借 `tintFxBase()`）+ 「有 fx 走合成、无 fx 走注册表」 |
+ * | 本文件 | 键名 `base`（借 `tintFxBase()`）/ `gray`（借 `grayFxRead()`）+「有 fx 走效果、无 fx 走注册表」 |
  * | 合成数学 | `(mask, rgb) → 像素`（⛔ 不知道 blit / 命令 / 颜色从哪来） |
  *
  * ⇒ 换一种效果 = 换一个 resolver 实现；**渲染器与 core 都不动**（`ADR-0029 §8.2` 规则 1）。
  */
 
 import { tintFxBase } from '../../core/bake/tint-composite.js';
+import { grayFxRead, grayWipeRead } from '../../core/bake/gray-fx.js';
 import { nineSliceFxRead } from '../../core/bake/nine-slice-fx.js';
 import type { BlitResolver, TextureRegistry } from './canvas2d-renderer.js';
 import type { BlitCommand } from '../../core/render/render-model.js';
@@ -22,8 +23,12 @@ import type { TintSpriteCache } from './tint-sprite-cache.js';
 
 /** 可 `drawImage` 的源（与注册表同源）。 */
 type Source = { width: number; height: number };
+/** `getImageData` / `putImageData` 的最小结构（framework ⛔ 不假设 lib.dom）。 */
+type ImageDataLike = { readonly data: Uint8ClampedArray };
 type Ctx2DLike = {
   drawImage(image: Source, sx: number, sy: number, sw: number, sh: number, dx: number, dy: number, dw: number, dh: number): void;
+  getImageData(sx: number, sy: number, sw: number, sh: number): ImageDataLike;
+  putImageData(data: ImageDataLike, dx: number, dy: number): void;
 };
 type CanvasLike = Source & { getContext(t: '2d'): Ctx2DLike | null };
 
@@ -80,10 +85,108 @@ function bakeNineSlice(
 }
 
 /**
- * 着色策略：`fx` 有 `base` ⇒ 取 CPU 预合成 sprite；否则 ⇒ 原纹理注册表。
+ * `[WXG-T-566]` 灰度预烘：对整张纹理做线性去饱和，命中缓存后每帧零拷贝。
  *
- * ⛔ `fx` 存在但 `base` 不可用 ⇒ 返回 `undefined`（**跳过**，⛔ 不回落贴裸 mask）。
+ * 键 = `texId|gray`（生产侧只三档 ⇒ 每个纹理最多 2 张灰化副本）。
+ * 公式与 `bake/gray-fx.ts` 头注逐字同一式：`luma = Rec.709`、`out = c·(1−g) + luma·g`，alpha 原样。
+ * ⛔ 不用 `ctx.filter = 'grayscale()'`：微信小游戏 Canvas 2D 的 filter 支持不保证（跨端不确定）。
+ */
+const _graySlices = new Map<string, CanvasLike>();
+function bakeGray(
+    textureId: string,
+    src: Source,
+    gray: number,
+    create: (w: number, h: number) => CanvasLike | null,
+): CanvasLike | undefined {
+  const g = gray < 0 ? 0 : gray > 1 ? 1 : gray;
+  const key = `${textureId}|${g}`;
+  const hit = _graySlices.get(key);
+  if (hit !== undefined) return hit;
+  const canvas = create(Math.max(1, Math.round(src.width)), Math.max(1, Math.round(src.height)));
+  const ctx = canvas?.getContext('2d');
+  if (!canvas || !ctx) return undefined;
+  ctx.drawImage(src, 0, 0, src.width, src.height, 0, 0, canvas.width, canvas.height);
+  const image = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const p = image.data;
+  for (let i = 0; i < p.length; i += 4) {
+    const r = p[i]!;
+    const gr = p[i + 1]!;
+    const b = p[i + 2]!;
+    const luma = 0.2126 * r + 0.7152 * gr + 0.0722 * b;
+    p[i] = r * (1 - g) + luma * g;
+    p[i + 1] = gr * (1 - g) + luma * g;
+    p[i + 2] = b * (1 - g) + luma * g;
+  }
+  ctx.putImageData(image, 0, 0);
+  _graySlices.set(key, canvas);
+  return canvas;
+}
+
+/**
+ * `[WXG-T-566]` 竖向揭彩预烘：底部 `progress` 比例保持原色，顶部保持灰度，交界处按 `soft`
+ * 做线性过渡（`soft = 0` ⇒ 硬边）。
+ *
+ * 行号约定：像素数组自**顶**向下（canvas `getImageData` 的原生行序）⇒ 彩色区
+ * = `y ≥ height·(1−progress)`。柔带半宽 `band = soft·height/2`（`soft` 是总带宽占比）。
+ * 公式与 `bakeGray` 同一式：`luma = Rec.709`、`out = c·(1−g) + luma·g`，alpha 原样。
+ *
+ * **缓存粒度 = 每纹理最新一档**（⛔ 不按 `progress` 累加）：生产侧进度单调递增，
+ * 旧档不会再被显示 ⇒ 只留最新副本，显存上限 = 大关纹理数（不是「关数 × 档数」）。
+ */
+interface WipeSlice {
+  readonly p: number;
+  readonly s: number;
+  readonly canvas: CanvasLike;
+}
+const _wipeSlices = new Map<string, WipeSlice>();
+function bakeGrayWipe(
+    textureId: string,
+    src: Source,
+    progress: number,
+    soft: number,
+    create: (w: number, h: number) => CanvasLike | null,
+): CanvasLike | undefined {
+  const p = progress < 0 ? 0 : progress > 1 ? 1 : progress;
+  const s = soft < 0 ? 0 : soft > 1 ? 1 : soft;
+  const hit = _wipeSlices.get(textureId);
+  if (hit !== undefined && hit.p === p && hit.s === s) return hit.canvas;
+  const canvas = create(Math.max(1, Math.round(src.width)), Math.max(1, Math.round(src.height)));
+  const ctx = canvas?.getContext('2d');
+  if (!canvas || !ctx) return undefined;
+  ctx.drawImage(src, 0, 0, src.width, src.height, 0, 0, canvas.width, canvas.height);
+  const image = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const px = image.data;
+  const w = canvas.width;
+  const h = canvas.height;
+  const boundary = h * (1 - p);
+  const band = s > 0 ? Math.max(1, (s * h) / 2) : 0;
+  for (let y = 0; y < h; y++) {
+    const t = band > 0
+      ? (y < boundary - band ? 0 : y > boundary + band ? 1 : (y - (boundary - band)) / (2 * band))
+      : (y >= boundary ? 1 : 0);
+    const g = 1 - t;
+    for (let i = y * w * 4; i < (y + 1) * w * 4; i += 4) {
+      const r = px[i]!;
+      const gr = px[i + 1]!;
+      const b = px[i + 2]!;
+      const luma = 0.2126 * r + 0.7152 * gr + 0.0722 * b;
+      px[i] = r * (1 - g) + luma * g;
+      px[i + 1] = gr * (1 - g) + luma * g;
+      px[i + 2] = b * (1 - g) + luma * g;
+    }
+  }
+  ctx.putImageData(image, 0, 0);
+  _wipeSlices.set(textureId, { p, s, canvas });
+  return canvas;
+}
+
+/**
+ * 着色/灰度策略：`fx` 有 `base` ⇒ 取 CPU 预合成 sprite；有 `gray` ⇒ 取灰化副本；
+ * 有 `grayWipe` ⇒ 取竖向揭彩副本；否则 ⇒ 原纹理注册表。
+ *
+ * ⛔ `fx` 存在但键都不可用 ⇒ 返回 `undefined`（**跳过**，⛔ 不回落贴裸 mask）。
  * ⛔ 合成失败（低端机 OOM 等）由 `TintSpriteCache` 内部降级 + 负缓存，此处只透传 `undefined`。
+ * 分派顺序刻意把 `base` 放在 `gray` 前 ⇒ 同一 `fx` 混用两键时 `base` 优先。
  */
 export function createTintBlitResolver(
     cache: TintSpriteCache,
@@ -101,7 +204,20 @@ export function createTintBlitResolver(
                 return bakeNineSlice(cmd.textureId, src, cmd.w, cmd.h, slice.capX, slice.capY, createCanvas);
             }
             const base = tintFxBase(cmd.fx);
-            return base === undefined ? undefined : cache.get(cmd.textureId, base);
+            if (base !== undefined) return cache.get(cmd.textureId, base);
+            const gray = grayFxRead(cmd.fx);
+            if (gray !== undefined) {
+                const src = registry.get(cmd.textureId) as Source | undefined;
+                if (src === undefined || createCanvas === undefined) return undefined;
+                return bakeGray(cmd.textureId, src, gray, createCanvas);
+            }
+            const wipe = grayWipeRead(cmd.fx);
+            if (wipe !== undefined) {
+                const src = registry.get(cmd.textureId) as Source | undefined;
+                if (src === undefined || createCanvas === undefined) return undefined;
+                return bakeGrayWipe(cmd.textureId, src, wipe[0]!, wipe[1]!, createCanvas);
+            }
+            return undefined;
         },
     };
 }

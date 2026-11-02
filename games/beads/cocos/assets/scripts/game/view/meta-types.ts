@@ -135,6 +135,14 @@ export interface MetaViewData {
      */
     readonly carouselState?: MetaBossState;
     /**
+     * `[WXG-T-566]` 当前大关页的**已完成小关数 / 总小关数**（用户 2026-11-02 裁：
+     * 「当前完成小关数量 / 总小关数量 = 当前大关的进度」）。木牌第二行直拼 `N/M`。
+     * shell 与 {@link carouselState} 同源遍历 `levelRefs` 产出；视图只渲染、⛔ 自算（L5）。
+     * 空橱窗页 / 无归属 ⇒ `undefined`（⛔ 造 `0/0`）。
+     */
+    readonly carouselArcDone?: number;
+    readonly carouselArcTotal?: number;
+    /**
      * 当前大关页的橱窗图（EP13-S4：shell 按 `ARCS[页].textureId` 取图，⛔ 视图不查表）。
      * 缺省 ⇒ 落程序化缩略（旧调用方/合成数据兼容，不硬绑首个大关图）。
      */
@@ -151,6 +159,12 @@ export interface MetaViewData {
     /** 正在露出的相邻项。没有则不画。 */
     readonly carouselPeer?: BeadsLevelRaw;
     readonly carouselPeerState?: MetaBossState;
+    /**
+     * `[WXG-T-566]` 相邻大关页的完成度（与 {@link carouselArcDone} 同源、同口径）。
+     * 对页推关态的竖向揭彩按它算 ⇒ 滑动中的两页各自进度，⛔ 不借用主车进度（会跳变）。
+     */
+    readonly carouselPeerArcDone?: number;
+    readonly carouselPeerArcTotal?: number;
     /** 相邻项在哪一侧：+1 在右（下一项），-1 在左。缺省按 `carouselDx` 的符号猜。 */
     readonly carouselPeerSign?: -1 | 1;
     /** 下标 = `ARC_OPEN_MAX` 的空橱窗。中间置灰花，木牌写「敬请期待」。 */

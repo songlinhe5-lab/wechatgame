@@ -3,11 +3,11 @@
  * 几何一律取自 `meta-layout.ts` 的锚定档，控件画法取自 `meta-widgets.ts` ⇒ 页面只编排、不另算。
  */
 
-import { DESIGN_W, type MenuAnchors, MENU_ARROW_ICON, MENU_CASE_INTERIOR_BAKED, MENU_BAR_ICON_D, MENU_BOSS_ART_D, MENU_CTA_LABEL, MENU_CTA_PRESSED_D, MENU_CTA_SLICE, MENU_CTA_SRC_H, MENU_DONE_ICON, MENU_LOCK_D, MENU_PLAQUE_BEVEL_INSET, MENU_PLAQUE_ICON_INSET, MENU_PLAQUE_RIVET_INSET, MENU_PLAQUE_RIVET_R, MENU_PLAQUE_STROKE, MENU_PLATE, MENU_PLATE_TITLE, MENU_PROGRESS, MENU_SEAL, MENU_SIGNIN_DOT_R, MENU_SIGN_FRAME, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, SIGN_BEAD_PITCH, SIGN_MATRIX_N, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning';
+import { DESIGN_W, type MenuAnchors, MENU_ARROW_ICON, MENU_CASE_INTERIOR_BAKED, MENU_BAR_ICON_D, MENU_BOSS_ART_D, MENU_CTA_LABEL, MENU_CTA_PRESSED_D, MENU_CTA_SLICE, MENU_CTA_SRC_H, MENU_DONE_ICON, MENU_GRAY, MENU_GRAY_WIPE, MENU_LIGHT, MENU_PLAQUE_BEVEL_INSET, MENU_PLAQUE_ICON_INSET, MENU_PLAQUE_RIVET_INSET, MENU_PLAQUE_RIVET_R, MENU_PLAQUE_STROKE, MENU_PLATE, MENU_PLATE_TITLE, MENU_SIGNIN_DOT_R, MENU_SIGN_FRAME, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, SIGN_BEAD_PITCH, SIGN_MATRIX_N, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning';
 import { COPY_TOKENS } from '../config/copy-tokens';
 import { ARC_COMING_SOON } from '../config/arcs';
 import { plateFade } from '../config/menu-carousel';
-import { nineSliceFx, type RenderModelBuilder } from '../../framework/index';
+import { grayFx, grayWipeFx, nineSliceFx, type BlitFx, type RenderModelBuilder } from '../../framework/index';
 import { beadFadedInksFor, type BeadsPalette } from './palette';
 import { drawBeadText, drawLevelThumb } from './menu-signage';
 import { drawGear } from './play-page';
@@ -17,6 +17,44 @@ import { drawButton } from './ui-widgets';
 import type { AnchoredMenuGeo } from './meta-layout';
 import type { Box, MetaBossState, MetaViewData } from './meta-types';
 import { heartBarLabel, isPressed, label, menuBitmapReady, pressDy } from './meta-widgets';
+
+/**
+ * `[WXG-T-566]` 三态 fx（模块级常量 / 缓存 ⇒ 键序固定、同进度每帧零分配）。
+ * - 未开启 = 整图全灰（`MENU_GRAY.locked`）；
+ * - 推关 = **竖向揭彩**（`grayWipe`，彩色比例 = 已完成小关 / 总小关；用户 2026-11-02 裁）；
+ * - 已通关 = 不传 fx（全彩）；⛔ 不传 `gray: 0`（多一个键 = 多一次 sha 漂移，且无效果）。
+ */
+const MENU_GRAY_FX_LOCKED = grayFx(MENU_GRAY.locked);
+
+/**
+ * 揭彩 fx 缓存：键 = 进度千分位。生产侧进度 = `done/total`（离散，章内 ≤ 10 档）
+ * ⇒ 缓存 ≤ 11 项；量化只为防「有人喂连续动画进度」把 Map 撑大（0.001 ≈ 0.34px @340）。
+ */
+const WIPE_FX = new Map<number, BlitFx>();
+
+function wipeFx(done: number | undefined, total: number | undefined): BlitFx {
+    const p = done === undefined || total === undefined || total <= 0 ? 0 : done / total;
+    const key = Math.round(p * 1000);
+    let fx = WIPE_FX.get(key);
+    if (fx === undefined) {
+        fx = grayWipeFx(key / 1000, MENU_GRAY_WIPE.soft);
+        WIPE_FX.set(key, fx);
+    }
+    return fx;
+}
+
+function triStateFx(state: MetaBossState, done?: number, total?: number): BlitFx | undefined {
+    if (state === 'locked') return MENU_GRAY_FX_LOCKED;
+    if (state === 'pushing') return wipeFx(done, total);
+    return undefined;
+}
+
+function triStateLight(state: MetaBossState): number {
+    if (state === 'locked') return MENU_LIGHT.locked;
+    if (state === 'pushing') return MENU_LIGHT.pushing;
+    return MENU_LIGHT.cleared;
+}
+
 function drawResourceBar(
     builder: RenderModelBuilder,
     data: MetaViewData,
@@ -278,11 +316,12 @@ function drawArrow(
  * 锚定主菜单（`[WXG-T-280]` shell 实链路；施工依据 = 落地单 v3.4 §3）。
  * 每个元素两条腿：位图就绪（{@link setMenuBitmapResolver} 宿主注入）⇒ blit；缺 ⇒ 既有程序化图元。
  * 热区全走 {@link menuLayoutAnchored}（与 `g` 同源），本函数内⛔ 不新建任何命中面。
- * 层序：资源条 → 顶栏 → 橱窗框 → Boss 图位（白板+图）→ 三态徽标 → 木牌 → ◀▶ → 招牌 → slogan → CTA → 版本号。
+ * 层序：资源条 → 顶栏 → 橱窗框 → Boss 图位（白板+图）→ 三态效果 → 木牌 → ◀▶ → 招牌 → slogan → CTA → 版本号。
  */
 /**
- * 玻璃里的一项：Boss 原图 + 三态盖章，整体平移 `dx`。原图未装上才回退豆阵。
+ * 玻璃里的一项：Boss 原图 + 三态效果，整体平移 `dx`。原图未装上才回退豆阵。
  * `alpha` < 1 只在 `reduceMotion` 的交叉淡变里出现。
+ * `arcDone` / `arcTotal` = 该页大关完成度（仅推关态消费：竖向揭彩比例，见 `triStateFx`）。
  */
 function drawShowcaseItem(
     builder: RenderModelBuilder,
@@ -294,6 +333,8 @@ function drawShowcaseItem(
     alpha: number,
     comingSoon: boolean,
     textureId?: string,
+    arcDone?: number,
+    arcTotal?: number,
 ): void {
     if (alpha <= 0) return;
     const ink = alpha < 1 ? alpha : undefined;
@@ -303,12 +344,16 @@ function drawShowcaseItem(
     }
     if (level !== undefined && textureId !== undefined && menuBitmapReady(textureId)) {
         const d = MENU_BOSS_ART_D;
+        const fx = triStateFx(state, arcDone, arcTotal);
+        const opts = fx === undefined
+            ? (ink === undefined ? undefined : { alpha: ink })
+            : (ink === undefined ? { fx } : { alpha: ink, fx });
         builder.blit(
             textureId,
             MENU_DONE_ICON.cx + dx - d / 2,
             g.doneCy - d / 2,
             d, d,
-            ink === undefined ? undefined : { alpha: ink },
+            opts,
         );
     } else if (level !== undefined) {
         drawLevelThumb(
@@ -320,52 +365,16 @@ function drawShowcaseItem(
     } else {
         drawDashedSocket(builder, { x: g.bossBox.x + dx, y: g.bossBox.y, w: g.bossBox.w, h: g.bossBox.h }, palette.slotDashed);
     }
-    const cx = MENU_DONE_ICON.cx + dx;
-    const cy = g.doneCy;
-    if (state === 'cleared') {
-        const top = g.clipBox.y + g.clipBox.h;
-        const x = g.clipBox.x + g.clipBox.w - MENU_SEAL.inset - MENU_SEAL.w + dx;
-        const y = top - MENU_SEAL.inset - MENU_SEAL.h;
-        if (menuBitmapReady(MENU_TEXTURES.sealCleared)) {
-            builder.blit(MENU_TEXTURES.sealCleared, x, y, MENU_SEAL.w, MENU_SEAL.h, ink === undefined ? undefined : { alpha: ink });
-        } else {
-            builder.circle(x + MENU_SEAL.w / 2, y + MENU_SEAL.h / 2, 28, { fill: palette.panel, stroke: palette.success, lineWidth: 2 });
-            builder.text(x + MENU_SEAL.w / 2, y + MENU_SEAL.h / 2, '通', {
-                fill: palette.success, font: UI_FONT.button, align: 'center', baseline: 'middle',
-                ...(ink === undefined ? {} : { alpha: ink }),
-            });
-        }
-        return;
-    }
-    const locked = state === 'locked';
-    const tex = locked ? MENU_TEXTURES.badgeLocked : MENU_TEXTURES.badgeProgress;
-    if (menuBitmapReady(tex)) {
-        if (locked) {
-            builder.blit(tex, cx - MENU_LOCK_D / 2, cy - MENU_LOCK_D / 2, MENU_LOCK_D, MENU_LOCK_D, ink === undefined ? undefined : { alpha: ink });
-        } else {
-            const w = MENU_PROGRESS.w;
-            const h = MENU_PROGRESS.h;
-            // 源图重心不在外接框中心：my 从图片顶边量起，设计空间 y 向上。
-            builder.blit(tex, cx - MENU_PROGRESS.mx * w, cy - (1 - MENU_PROGRESS.my) * h, w, h, ink === undefined ? undefined : { alpha: ink });
-        }
-        return;
-    }
-    const d = locked ? MENU_LOCK_D : 160;
-    builder.circle(cx, cy, d / 2, {
-        fill: locked ? palette.slot : palette.accentPrimary,
-        stroke: locked ? palette.slotBorder : palette.accentPrimary,
-        lineWidth: 2,
-    });
-    builder.text(cx, cy, locked ? '锁' : '推', {
-        fill: locked ? palette.textDim : palette.panel,
-        font: UI_FONT.button, align: 'center', baseline: 'middle',
-    });
+    // `[WXG-T-566]` 状态标记全退场（用户 2026-11-02 裁：右上角徽标 / 通关飘带 / 居中沙漏一并删）
+    // ⇒ 三态只由「作品灰度 + 柜灯」表达（`triStateFx` / `triStateLight`），⛔ 不往玻璃上贴纸。
 }
 
 /**
  * `[WXG-T-522]` 单一作品腿（内景背板位图命中时）：每页只画一件大关图。
- * 与 `drawShowcaseItem` 的差别 = 去**中央进度沙漏**与层板（二者占画面中心），
- * 通关飘带与锁定小锁仍作为**角落状态位**保留（信息不丢、不压作品）；其余状态靠木牌文字与星。
+ * `[WXG-T-566]` 三态 = **同一张图的灰度差异**（锁定全灰 / 推关竖向揭彩 / 通关全彩），
+ * 状态标记（通关飘带 / 锁定小锁 / 中央沙漏）**全部退场**（用户 2026-11-02 裁）；
+ * 其余状态靠柜灯强度与木牌 `N/M`。
+ * `arcDone` / `arcTotal` = 该页大关完成度（揭彩比例唯一定义处见 `wipeFx`）。
  */
 function drawShowcaseArt(
     builder: RenderModelBuilder,
@@ -377,6 +386,8 @@ function drawShowcaseArt(
     alpha: number,
     comingSoon: boolean,
     textureId?: string,
+    arcDone?: number,
+    arcTotal?: number,
 ): void {
     if (alpha <= 0) return;
     const ink = alpha < 1 ? alpha : undefined;
@@ -387,7 +398,11 @@ function drawShowcaseArt(
         return;
     }
     if (level !== undefined && textureId !== undefined && menuBitmapReady(textureId)) {
-        builder.blit(textureId, x, b.y, b.w, b.h, ink === undefined ? undefined : { alpha: ink });
+        const fx = triStateFx(state, arcDone, arcTotal);
+        const opts = fx === undefined
+            ? (ink === undefined ? undefined : { alpha: ink })
+            : (ink === undefined ? { fx } : { alpha: ink, fx });
+        builder.blit(textureId, x, b.y, b.w, b.h, opts);
     } else if (level !== undefined) {
         drawLevelThumb(
             builder, level, x, b.y, b.w, b.h,
@@ -397,22 +412,6 @@ function drawShowcaseArt(
         );
     } else {
         drawDashedSocket(builder, { x, y: b.y, w: b.w, h: b.h }, palette.slotDashed);
-    }
-    if (state === 'cleared') {
-        // 通关飘带 = 右上角小旗（保留：状态信号不丢，且不占画面中心）。
-        const top = g.clipBox.y + g.clipBox.h;
-        const sx = g.clipBox.x + g.clipBox.w - MENU_SEAL.inset - MENU_SEAL.w + dx;
-        const sy = top - MENU_SEAL.inset - MENU_SEAL.h;
-        if (menuBitmapReady(MENU_TEXTURES.sealCleared)) {
-            builder.blit(MENU_TEXTURES.sealCleared, sx, sy, MENU_SEAL.w, MENU_SEAL.h,
-                ink === undefined ? undefined : { alpha: ink });
-        }
-        return;
-    }
-    if (state === 'locked' && menuBitmapReady(MENU_TEXTURES.badgeLocked)) {
-        const badge = g.badgeBox;
-        builder.blit(MENU_TEXTURES.badgeLocked, badge.x, badge.y, badge.w, badge.h,
-            ink === undefined ? undefined : { alpha: ink });
     }
 }
 
@@ -464,6 +463,8 @@ function drawComingSoonPlate(
 /** 木牌上的关序 / 关名（有累计星进度件时上移到第一行，进度落第二行）。`alpha` ≤ 0 不画。
  * `[WXG-T-346]` 进度件：两行槽复用 `MENU_PLATE_TITLE.line1Off/line2Off`（在册常量，零新数值）；
  * 数字直接拼 `★ n/门槛`，与顶栏 `❤ n/n` 同族（无新文案令牌）。缺省不传 ⇒ 原单行逐字不变。
+ * `[WXG-T-566]` 大关进度：`arcDone/arcTotal` 有值 ⇒ 第一行关名、第二行 `N/M`（用户 2026-11-02 裁：
+ * 「当前完成小关数量 / 总小关数量 = 当前大关的进度」）。门票进度件优先级更高（信息不丢）。
  * `[art 批·TODO-8 已裁]` 第二行字号 / 色 = `font_label` 28 + `wood_face`（木牌定尺，⛔ 随 E2 放大，
  * 理由与对比度自证见 `art/specs/menu-layout-implementation-spec.md §10`）。 */
 function drawPlateTitle(
@@ -474,6 +475,8 @@ function drawPlateTitle(
     alpha: number,
     starGot?: number,
     starNeed?: number,
+    arcDone?: number,
+    arcTotal?: number,
 ): void {
     if (alpha <= 0) return;
     const top = g.plateBox.y + g.plateBox.h;
@@ -485,6 +488,15 @@ function drawPlateTitle(
             ...(a === undefined ? {} : { alpha: a }),
         });
         builder.text(MENU_PLATE.cx, top - MENU_PLATE_TITLE.line2Off, `★ ${starGot ?? 0}/${starNeed}`, {
+            fill: palette.woodFace, font: UI_FONT.sub, align: 'center', baseline: 'middle',
+            ...(a === undefined ? {} : { alpha: a }),
+        });
+    } else if (arcTotal !== undefined && arcTotal > 0) {
+        builder.text(MENU_PLATE.cx, top - MENU_PLATE_TITLE.line1Off, lv.title || seq, {
+            fill: palette.woodEdge, font: UI_FONT.button, align: 'center', baseline: 'middle',
+            ...(a === undefined ? {} : { alpha: a }),
+        });
+        builder.text(MENU_PLATE.cx, top - MENU_PLATE_TITLE.line2Off, `${arcDone ?? 0}/${arcTotal}`, {
             fill: palette.woodFace, font: UI_FONT.sub, align: 'center', baseline: 'middle',
             ...(a === undefined ? {} : { alpha: a }),
         });
@@ -620,17 +632,22 @@ function drawCaseStage(builder: RenderModelBuilder, palette: BeadsPalette, g: An
         });
 }
 
-/** 橱窗射灯光锥（画在作品之后）：两层圆叠出中心提亮，被 clip 裁到玻璃内。 */
-function drawCaseLight(builder: RenderModelBuilder, palette: BeadsPalette, g: AnchoredMenuGeo): void {
+/**
+ * 橱窗射灯光锥（画在作品之后）：两层圆叠出中心提亮，被 clip 裁到玻璃内。
+ * `[WXG-T-566]` `strength` = 三态柜灯档（`MENU_LIGHT`：未开启 0.35 / 推关 0.70 / 通关 1.00），
+ * 只乘到既有 `MENU_WARM.coneAlpha` ⇒ 零新色、零新几何。
+ */
+function drawCaseLight(builder: RenderModelBuilder, palette: BeadsPalette, g: AnchoredMenuGeo, strength: number): void {
     const { clipBox } = g;
     const cx = clipBox.x + clipBox.w / 2;
+    const cone = MENU_WARM.coneAlpha * strength;
     builder.circle(cx, clipBox.y + clipBox.h * 0.68, clipBox.w * 0.42, {
         fill: palette.woodText,
-        alpha: MENU_WARM.coneAlpha,
+        alpha: cone,
     });
     builder.circle(cx, clipBox.y + clipBox.h * 0.72, clipBox.w * 0.26, {
         fill: palette.woodText,
-        alpha: MENU_WARM.coneAlpha * 0.7,
+        alpha: cone * 0.7,
     });
 }
 
@@ -666,32 +683,34 @@ export function drawMenuAnchored(
     }
     const slide = data.reduceMotion ? 0 : (data.carouselDx ?? 0);
     const travel = data.carouselT ?? 0;
+    const light = triStateLight(state);
     builder.clip(g.clipBox.x, g.clipBox.y, g.clipBox.w, g.clipBox.h);
     if (bakedInterior) {
         // 单一作品腿：台面/内景已烘进窗框 ⇒ 只画引擎光晕 + 一件作品（无徽章/沙漏/层板）。
-        drawCaseLight(builder, palette, g);
+        drawCaseLight(builder, palette, g, light);
         drawShowcaseArt(builder, palette, g, data.carouselLevel, state, slide,
-            data.reduceMotion ? 1 - travel : 1, data.carouselComingSoon === true, data.carouselTextureId);
+            data.reduceMotion ? 1 - travel : 1, data.carouselComingSoon === true, data.carouselTextureId,
+            data.carouselArcDone, data.carouselArcTotal);
         if ((data.carouselPeer !== undefined || data.carouselPeerComingSoon === true) && travel > 0) {
             const sign = data.carouselPeerSign ?? (slide < 0 ? 1 : -1);
             const peerDx = data.reduceMotion ? 0 : slide + sign * g.clipBox.w;
             drawShowcaseArt(
                 builder, palette, g, data.carouselPeer, data.carouselPeerState ?? 'cleared',
                 peerDx, data.reduceMotion ? travel : 1, data.carouselPeerComingSoon === true,
-                data.carouselPeerTextureId,
+                data.carouselPeerTextureId, data.carouselPeerArcDone, data.carouselPeerArcTotal,
             );
         }
     } else {
         // 射灯光晕先于作品：只落在背板上，不改变作品本身颜色（避免在平涂块上出硬弧）。
-        drawCaseLight(builder, palette, g);
-        drawShowcaseItem(builder, palette, g, data.carouselLevel, state, slide, data.reduceMotion ? 1 - travel : 1, data.carouselComingSoon === true, data.carouselTextureId);
+        drawCaseLight(builder, palette, g, light);
+        drawShowcaseItem(builder, palette, g, data.carouselLevel, state, slide, data.reduceMotion ? 1 - travel : 1, data.carouselComingSoon === true, data.carouselTextureId, data.carouselArcDone, data.carouselArcTotal);
         if ((data.carouselPeer !== undefined || data.carouselPeerComingSoon === true) && travel > 0) {
             const sign = data.carouselPeerSign ?? (slide < 0 ? 1 : -1);
             const peerDx = data.reduceMotion ? 0 : slide + sign * g.clipBox.w;
             drawShowcaseItem(
                 builder, palette, g, data.carouselPeer, data.carouselPeerState ?? 'cleared',
                 peerDx, data.reduceMotion ? travel : 1, data.carouselPeerComingSoon === true,
-                data.carouselPeerTextureId,
+                data.carouselPeerTextureId, data.carouselPeerArcDone, data.carouselPeerArcTotal,
             );
         }
         drawCaseStage(builder, palette, g);
@@ -702,7 +721,7 @@ export function drawMenuAnchored(
         builder.blit(MENU_TEXTURES.plate, g.plateBox.x, g.plateBox.y, g.plateBox.w, g.plateBox.h);
         const fade = plateFade(travel);
         if (data.carouselComingSoon === true) drawComingSoonPlate(builder, g, palette, fade[0]);
-        else if (data.carouselLevel !== undefined) drawPlateTitle(builder, data.carouselLevel, g, palette, fade[0], data.arcStarGot, data.arcStarNeed);
+        else if (data.carouselLevel !== undefined) drawPlateTitle(builder, data.carouselLevel, g, palette, fade[0], data.arcStarGot, data.arcStarNeed, data.carouselArcDone, data.carouselArcTotal);
         if (data.carouselPeerComingSoon === true) drawComingSoonPlate(builder, g, palette, fade[1]);
         else if (data.carouselPeer !== undefined) drawPlateTitle(builder, data.carouselPeer, g, palette, fade[1]);
     }

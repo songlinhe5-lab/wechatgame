@@ -76,17 +76,23 @@ describe('WXG-T-522 橱窗单一作品', () => {
         expect(art[0]!.h).toBe(MENU_SHOWCASE_ART.d);
     });
 
-    it('单一作品：中央进度沙漏退场、通关飘带保留在角上（状态信号不丢）', () => {
-        hostWith(MENU_TEXTURES.caseFrame, BOSS_ART, MENU_TEXTURES.sealCleared, MENU_TEXTURES.badgeProgress);
+    it('`[WXG-T-566]` 通关页：状态标记全退场，作品全彩（不传 fx）', () => {
+        hostWith(MENU_TEXTURES.caseFrame, BOSS_ART, MENU_TEXTURES.sealCleared,
+            MENU_TEXTURES.badgeProgress, MENU_TEXTURES.badgeLocked);
         const cmds = frame(data());
-        expect(blitsOf(cmds, MENU_TEXTURES.sealCleared).length, '角上飘带保住状态信号').toBe(1);
+        const art = blitsOf(cmds, BOSS_ART)[0] as { fx?: Record<string, number> };
+        expect(art.fx, '通关 = 全彩').toBeUndefined();
+        expect(blitsOf(cmds, MENU_TEXTURES.sealCleared).length, '通关飘带退场').toBe(0);
         expect(blitsOf(cmds, MENU_TEXTURES.badgeProgress).length, '中央沙漏退场').toBe(0);
+        expect(blitsOf(cmds, MENU_TEXTURES.badgeLocked).length, '右上小锁退场').toBe(0);
     });
 
-    it('锁定态：保留右上小锁兜底（信息不丢），仍不画进度沙漏', () => {
+    it('`[WXG-T-566]` 锁定态：整图全灰（fx.gray=1），不贴小锁 / 沙漏', () => {
         hostWith(MENU_TEXTURES.caseFrame, BOSS_ART, MENU_TEXTURES.badgeLocked, MENU_TEXTURES.badgeProgress);
         const cmds = frame(data({ carouselState: 'locked' as const }));
-        expect(blitsOf(cmds, MENU_TEXTURES.badgeLocked).length).toBe(1);
+        const art = blitsOf(cmds, BOSS_ART)[0] as { fx?: Record<string, number> };
+        expect(art.fx, '锁定 = 全灰').toEqual({ gray: 1 });
+        expect(blitsOf(cmds, MENU_TEXTURES.badgeLocked).length).toBe(0);
         expect(blitsOf(cmds, MENU_TEXTURES.badgeProgress).length).toBe(0);
     });
 

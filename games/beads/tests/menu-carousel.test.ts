@@ -8,7 +8,7 @@ import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import { LEVELS } from '../src/config/levels.js';
 import { carouselDamp, carouselPage, plateFade } from '../src/config/menu-carousel.js';
 import { ARC_COMING_SOON, ARCS } from '../src/config/arcs.js';
-import { DESIGN_H, DESIGN_W, MENU_BOSS_SLOT, MENU_CLIP, MENU_TEXTURES } from '../src/config/tuning.js';
+import { DESIGN_H, DESIGN_W, MENU_BOSS_SLOT, MENU_CLIP, MENU_GRAY_WIPE, MENU_TEXTURES } from '../src/config/tuning.js';
 import { createBeadsShell } from '../src/game/beads-shell.js';
 import { buildMetaView, setMenuBitmapResolver, type MetaViewData } from '../src/view/meta-view.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
@@ -64,23 +64,21 @@ describe('翻页状态机', () => {
 describe('橱窗绘制', () => {
     const lv = LEVELS[0]!;
 
-    it('通关飘带整枚在裁切区里；进行中不画沙漏也不画旧 64² 章（单一作品）', () => {
+    it('`[WXG-T-566]` 三态 = 同一张大关图的灰度差异；状态标记全退场', () => {
         setMenuBitmapResolver(() => true);
+        const artOf = (d: MetaViewData) => frame(d).find(
+            (c) => c.kind === 'blit' && (c as { textureId: string }).textureId === ARCS[0].textureId,
+        ) as { fx?: Record<string, unknown> } | undefined;
         const cleared = frame(dataFor(lv, { carouselState: 'cleared' }));
-        const clip = cleared.find((c) => c.kind === 'clip') as { x: number; y: number; w: number; h: number };
-        const seal = cleared.find((c) => c.kind === 'blit' && c.textureId === MENU_TEXTURES.sealCleared) as {
-            x: number; y: number; w: number; h: number;
-        };
-        expect(clip).toBeTruthy();
-        expect(seal.x).toBeGreaterThanOrEqual(clip.x);
-        expect(seal.y).toBeGreaterThanOrEqual(clip.y);
-        expect(seal.x + seal.w).toBeLessThanOrEqual(clip.x + clip.w + 0.01);
-        expect(seal.y + seal.h).toBeLessThanOrEqual(clip.y + clip.h + 0.01);
-        const pushing = frame(dataFor(lv, { carouselState: 'pushing' }));
-        expect(pushing.some((c) => c.kind === 'blit' && c.textureId === ARCS[0].textureId)).toBe(true);
-        // `[WXG-T-522]` 单品作品：中央沙漏退场，画面只留作品。
-        expect(pushing.some((c) => c.kind === 'blit' && c.textureId === MENU_TEXTURES.badgeProgress)).toBe(false);
-        expect(pushing.some((c) => c.kind === 'blit' && c.textureId === 'bitmap__menu_badge_pushing')).toBe(false);
+        expect(artOf(dataFor(lv, { carouselState: 'cleared' }))?.fx, '通关 = 全彩（不传 fx）').toBeUndefined();
+        expect(artOf(dataFor(lv, { carouselState: 'pushing' }))?.fx, '推关 = 竖向揭彩（此处进度 0）')
+            .toEqual({ grayWipe: [0, MENU_GRAY_WIPE.soft] });
+        expect(artOf(dataFor(lv, { carouselState: 'locked' }))?.fx, '未开启 = 全灰').toEqual({ gray: 1 });
+        expect(cleared.some((c) => c.kind === 'blit' && (
+            c.textureId === MENU_TEXTURES.badgeProgress
+            || c.textureId === MENU_TEXTURES.badgeLocked
+            || c.textureId === MENU_TEXTURES.sealCleared
+        ))).toBe(false);
     });
 
     it('空橱窗只写敬请期待，不画主题图和章', () => {
@@ -93,13 +91,15 @@ describe('橱窗绘制', () => {
         expect(cmds.some((c) => c.kind === 'blit' && (c.textureId === MENU_TEXTURES.badgeProgress || c.textureId === MENU_TEXTURES.badgeLocked || c.textureId === MENU_TEXTURES.sealCleared))).toBe(false);
     });
 
-    it('滑动时通关飘带跟着走；减少动效时不平移', () => {
+    it('`[WXG-T-566]` 滑动时作品图跟着走；减少动效时不平移', () => {
         setMenuBitmapResolver(() => true);
-        const cleared = { carouselState: 'cleared' as const };
         const xOf = (data: MetaViewData) => {
-            const b = frame(data).find((c) => c.kind === 'blit' && c.textureId === MENU_TEXTURES.sealCleared) as { x: number };
+            const b = frame(data).find(
+                (c) => c.kind === 'blit' && (c as { textureId: string }).textureId === ARCS[0].textureId,
+            ) as { x: number };
             return b.x;
         };
+        const cleared = { carouselState: 'cleared' as const };
         const rest = xOf(dataFor(lv, cleared));
         expect(xOf(dataFor(lv, { ...cleared, carouselDx: 80, carouselT: 0.2 }))).toBeCloseTo(rest + 80);
         expect(xOf(dataFor(lv, { ...cleared, carouselDx: 80, carouselT: 0.2, reduceMotion: true }))).toBeCloseTo(rest);

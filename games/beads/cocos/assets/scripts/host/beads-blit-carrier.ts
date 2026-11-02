@@ -35,6 +35,7 @@ import { maskTileInnerPx } from '../framework/core/bake/mask-tile';
 import { BEAD_PITCH, BOSS_THUMB_TEXTURES, MENU_TEXTURES, TILE_BLEED } from '../game/config/tuning';
 import { OPEN_ARCS } from '../game/config/arcs';
 import { tintFxBase } from '../framework/core/bake/tint-composite';
+import { grayFxRead, grayWipeRead } from '../framework/core/bake/gray-fx';
 import { nineSliceFxRead } from '../framework/core/bake/nine-slice-fx';
 import { createWhitelistBeadTintRuntime, setBeadTintRuntime } from '../game/view/bead-render';
 import { requiredTintMaskIds } from '../game/view/bead-tint-mask';
@@ -206,6 +207,21 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
     private readonly _masks = new Map<string, object>();
     /** `[WXG-T-271 / ADR-0031 C′]` `textureId` → 预载全彩位图 `SpriteFrame`（静态位图注册表腿）。 */
     private readonly _bitmaps = new Map<string, SpriteFrame>();
+    /**
+     * `[WXG-T-566]` `textureId|gray` → 预烘灰化 `SpriteFrame`（菜单三态）。
+     *
+     * 为什么在 CPU 烘而不是走 `tint-mask.effect`：那张 effect 只采样 `maskTexture`
+     * （R/G/B 是 tint 系数），全彩 PNG 进它的 R 通道不是暗系数 ⇒ 灰化结果错。
+     * 大关原图仅 256²（`OPEN_ARCS[].art`）⇒ 只有 `locked` 一档非零值 × 全部开放章 ≈ 0.75 MiB，
+     * 可接受；且与既有 `TintSpriteCache` 的 CPU 合成架构同源（零 material / 零编辑器资产）。
+     */
+    private readonly _grayBitmaps = new Map<string, SpriteFrame>();
+    /**
+     * `[WXG-T-566]` **每纹理最新一档**竖向揭彩帧（推关三态）。进度单调递增 ⇒ 旧档不再显示，
+     * 只留最新；换档时**复用同一 `Texture2D` 重新 upload**（`carrier-bench` 同款做法）⇒
+     * 显存上限 = 大关纹理数，不是「关数 × 档数」。
+     */
+    private readonly _wipeFrames = new Map<string, { frame: SpriteFrame; p: number; s: number }>();
     private readonly _pool: Sprite[] = [];
     private _used = 0;
     private _ready = false;
@@ -321,12 +337,32 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
         // `[WXG-T-280]` 第三条腿：nine-slice fx ⇒ 静态位图 + 引擎原生 SLICED（端帽首见时烘进
         // SpriteFrame border，同纹恒一值 ⇒ 一次算定）。canvas2d 腿是预烘单张，这里零离屏成本。
         const ns = base === undefined ? nineSliceFxRead(cmd.fx) : undefined;
-        // `[WXG-T-271 / ADR-0031 DEC=C′]` 两条腿：带 fx.base → tint 图集格；无 fx.base → 静态位图注册表（boss 缩略等全彩图）。
+        // `[WXG-T-566]` 三态灰度：`gray` fx 走 CPU 预烘变体（与 tint/nineSlice 同属总责语义）；
+        // 推关态走 `grayWipe`（按行烘竖向揭彩，见 `_wipeFrame`）。
+        const gray = base === undefined && ns === undefined ? grayFxRead(cmd.fx) : undefined;
+        const wipe = base === undefined && ns === undefined && gray === undefined
+            ? grayWipeRead(cmd.fx)
+            : undefined;
+        // `[WXG-T-271 / ADR-0031 DEC=C′]` 三条腿：带 fx.base → tint 图集格；带 fx.gray → 灰化变体；
+        // 带 fx.grayWipe → 竖向揭彩变体；无 fx → 静态位图注册表（boss 缩略等全彩图）。
         const frame = base !== undefined
             ? this._cell(cmd.textureId, base)
-            : this._bitmaps.get(cmd.textureId);
+            : gray !== undefined && gray > 0
+                ? this._grayFrame(cmd.textureId, gray)
+                : wipe !== undefined
+                    ? this._wipeFrame(cmd.textureId, wipe[0]!, wipe[1]!)
+                    : this._bitmaps.get(cmd.textureId);
         if (frame === undefined) {
-            return this._bail(base !== undefined ? '图集格解不出（缓存未命中或格用尽）' : '静态位图未装载（注册表腿未命中）', cmd);
+            return this._bail(
+                base !== undefined
+                    ? '图集格解不出（缓存未命中或格用尽）'
+                    : gray !== undefined && gray > 0
+                        ? '灰度变体烘不出（纹理不可读或离屏不可用）'
+                        : wipe !== undefined
+                            ? '揭彩变体烘不出（纹理不可读或离屏不可用）'
+                            : '静态位图未装载（注册表腿未命中）',
+                cmd,
+            );
         }
         if (ns !== undefined) this._ensureSliceBorder(cmd.textureId, frame, ns.capX, ns.capY);
         const sp = this._borrow();
@@ -424,6 +460,101 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
         });
         sf.packable = false;
         this._cells.set(key, sf);
+        return sf;
+    }
+
+    /**
+     * `[WXG-T-566]` 灰度变体：首见即烘（`out = c·(1−g) + luma·g`，alpha 原样），缓存到
+     * `_grayBitmaps`。⛔ 不进每帧路径；缺纹理 / 离屏不可用 ⇒ `undefined`（调用方 `_bail` 嚷一次）。
+     *
+     * 键含强度：本版只有 `MENU_GRAY.locked` 一档非零值，缓存大小 = 开放章 × 1。
+     */
+    private _grayFrame(textureId: string, g: number): SpriteFrame | undefined {
+        const key = `${textureId}|${g}`;
+        const hit = this._grayBitmaps.get(key);
+        if (hit) return hit;
+        const frame = this._bakeGrayFrame(textureId, () => g);
+        if (frame !== undefined) this._grayBitmaps.set(key, frame);
+        return frame;
+    }
+
+    /**
+     * `[WXG-T-566]` 竖向揭彩变体：底部 `progress` 比例原色、顶部灰度、交界按 `soft` 线性过渡。
+     * 与 canvas2d 适配层 `bakeGrayWipe` **同一行序与同一式**（像素数组自顶向下）。
+     * 换档复用同一 `Texture2D`（重新 `uploadData`）⇒ 每纹理只占一份显存。
+     */
+    private _wipeFrame(textureId: string, progress: number, soft: number): SpriteFrame | undefined {
+        const p = progress < 0 ? 0 : progress > 1 ? 1 : progress;
+        const s = soft < 0 ? 0 : soft > 1 ? 1 : soft;
+        const hit = this._wipeFrames.get(textureId);
+        if (hit !== undefined && hit.p === p && hit.s === s) return hit.frame;
+        const frame = this._bakeGrayFrame(textureId, (y, h) => {
+            const boundary = h * (1 - p);
+            const band = s > 0 ? Math.max(1, (s * h) / 2) : 0;
+            if (band <= 0) return y >= boundary ? 0 : 1;
+            const t = y < boundary - band ? 0 : y > boundary + band ? 1 : (y - (boundary - band)) / (2 * band);
+            return 1 - t;
+        }, hit?.frame);
+        if (frame !== undefined) {
+            if (hit !== undefined) {
+                hit.p = p;
+                hit.s = s;
+            } else {
+                this._wipeFrames.set(textureId, { frame, p, s });
+            }
+        }
+        return frame;
+    }
+
+    /**
+     * `_grayFrame` / `_wipeFrame` 的共用烘体：`grayAt(y, h)` 返回该行灰度强度（0–1）。
+     * 缓存未命中才进来 ⇒ 闭包 / 离屏分配都不在每帧路径。
+     * `reuse` 非空 ⇒ 复用它已有的 `Texture2D`（同尺寸）重新上传，只换像素不换显存。
+     */
+    private _bakeGrayFrame(
+        textureId: string,
+        grayAt: (y: number, h: number) => number,
+        reuse?: SpriteFrame,
+    ): SpriteFrame | undefined {
+        const baseFrame = this._bitmaps.get(textureId);
+        if (baseFrame === undefined) return undefined;
+        const tex = baseFrame.texture;
+        const w = tex.width;
+        const h = tex.height;
+        const image = (tex.image as unknown as AnyObj | null)?.data as object | undefined;
+        if (!image || w === 0 || h === 0) return undefined;
+        const canvas = createOffscreen(w, h);
+        const ctx = canvas ? canvas.getContext('2d') : null;
+        if (!canvas || !ctx) return undefined;
+        ctx.drawImage(image, 0, 0, w, h);
+        const pixels = ctx.getImageData(0, 0, w, h);
+        const px = pixels.data;
+        for (let y = 0; y < h; y++) {
+            const raw = grayAt(y, h);
+            const g = raw < 0 ? 0 : raw > 1 ? 1 : raw;
+            const keep = 1 - g;
+            for (let i = y * w * 4; i < (y + 1) * w * 4; i += 4) {
+                const r = px[i]!;
+                const gg = px[i + 1]!;
+                const b = px[i + 2]!;
+                const luma = 0.2126 * r + 0.7152 * gg + 0.0722 * b;
+                px[i] = r * keep + luma * g;
+                px[i + 1] = gg * keep + luma * g;
+                px[i + 2] = b * keep + luma * g;
+            }
+        }
+        // 真实宿主只收 `ImageData` 实例；`getImageData` 的返回值就是实例（⛔ 不重造）。
+        ctx.putImageData(pixels as object, 0, 0);
+        if (reuse !== undefined) {
+            reuse.texture.uploadData(canvas as never);
+            return reuse;
+        }
+        const outTex = new Texture2D();
+        outTex.reset({ width: w, height: h });
+        outTex.uploadData(canvas as never);
+        const sf = new SpriteFrame();
+        sf.reset({ texture: outTex, originalSize: new Size(w, h), rect: new Rect(0, 0, w, h) });
+        sf.packable = false;
         return sf;
     }
 

@@ -322,15 +322,13 @@ export const MENU_CASE_FRAME = { x: 107, w: 544 } as const;
 export const MENU_BOSS_SLOT = { x: 146, yOff: 130, w: 468, h: 528 } as const;
 /** 走马灯裁切区 = 橱窗白底。`ui_showcase_frame` 白卡：x197、宽 361，距柜顶 168、高 527。 */
 export const MENU_CLIP = { x: 197, yOff: 168, w: 361, h: 527 } as const;
-/** 通关飘带：整枚落在裁切区内，右上内缩。跟内容一起滑。 */
-export const MENU_SEAL = { w: 101, h: 140, inset: 12 } as const;
-/** 未开启大锁边长（花心居中）。 */
-export const MENU_LOCK_D = 220;
 /**
- * 进行中沙漏。宽按源图 820×1008 等比。mx/my = 不透明像素重心占图幅的比例
- * （源图重心偏左，按外接框中心摆会偏约 20px）。换图后重测这两个数。
+ * `[WXG-T-566]` 通关飘带 / 未开启大锁 / 进行中沙漏**已全部退场**（用户 2026-11-02 裁：
+ * 状态由「作品灰度 + 柜灯」表达，⛔ 不往玻璃上贴纸）。
+ * `MENU_SEAL` 仅保留 `inset`（选关墙锁定格的角标内缩复用，见 `meta-widgets.ts`）；
+ * `MENU_LOCK_D` / `MENU_PROGRESS` 随三章一并删除（⛔ 别为历史留死常量）。
  */
-export const MENU_PROGRESS = { h: 210, w: 171, mx: 0.381, my: 0.486 } as const;
+export const MENU_SEAL = { w: 101, h: 140, inset: 12 } as const;
 /**
  * CTA 文案纹理：高 56，**框中心**落在钮面自顶 42%（原型口径，WXG-T-485 订正措辞）。
  * aspect = 源图 964/253。实测源图 alpha bbox 全幅、**零透明边**、重心 49.76% ≈ 正中
@@ -360,6 +358,28 @@ export const MENU_BOSS_ART_D = 540;
  * 缺框位图时白卡不存在，仍旧虚线空槽腿不变。
  */
 export const MENU_CASE_INTERIOR_BAKED = true;
+/**
+ * `[WXG-T-566]` 走马灯三态 = **同一张大关 PNG 的灰度差异**（用户 2026-11-02 裁决：
+ * 「都是用大关 PNG，只是全灰、部分灰、全彩的区别」）。
+ * - 未开启 ⇒ 整图全灰（`MENU_GRAY.locked`）；
+ * - 推关 ⇒ **竖向揭彩**（`grayWipe`：彩色自下而上，比例 = `done/total`，柔带见
+ *   {@link MENU_GRAY_WIPE}）；
+ * - 通关 ⇒ 不传 fx（全彩）。
+ * ⛔ 不得把推关改回固定 0.55 整图灰（用户明确改为「从下到上的彩色 mask」）。
+ * 进度仍由木牌 `N/M` 精确表达。档位口径 = `_arcState`（未开启 = 无小关解锁，
+ * ⛔ 不用 `done === 0` 判：首关已解锁未通关也算「正在推关」）。
+ */
+export const MENU_GRAY = { locked: 1 } as const;
+/**
+ * `[WXG-T-566]` 竖向揭彩交界柔带**总高度占作品高度的比例**（0.08 @ 340px ≈ 27px）。
+ * 硬度上限 = 相邻小关进度差（章内 8–10 关 ⇒ 每档 ≈ 10–12%），柔带略窄于档距才能看出台阶。
+ */
+export const MENU_GRAY_WIPE = { soft: 0.08 } as const;
+/**
+ * `[WXG-T-566]` 柜灯强度（乘到既有 `MENU_WARM.coneAlpha`，⛔ 不新增 palette 色）：
+ * 灯灭看灰、灯亮看彩，状态由「展品 + 灯光」表达，⛔ 不往玻璃上贴纸。
+ */
+export const MENU_LIGHT = { locked: 0.35, pushing: 0.7, cleared: 1 } as const;
 /**
  * `[WXG-T-522]` 单一作品位：每页只画一件大关图（⛔ 徽章/进度沙漏/通关飘带/层板）。
  * d=340（256 源 ⇒ 1.33×，比旧 540 的 2.1× 清楚）；内容底缘 = 窗底 + 114（与 `shelfLift` 同轴）。

@@ -239,12 +239,18 @@ export class BeadsShell implements Game {
         // 走马灯 = 大关页（EP13-S4）：代表关 = 该大关收尾关（boss），图 = `ARCS[页].textureId`。
         carouselLevel: undefined as BeadsLevelRaw | undefined,
         carouselState: undefined as MetaBossState | undefined,
+        // `[WXG-T-566]` 当前大关「已完成小关 / 总小关」（每帧由 `_metaViewData` 覆写；空页 = undefined）。
+        carouselArcDone: undefined as number | undefined,
+        carouselArcTotal: undefined as number | undefined,
         carouselTextureId: undefined as string | undefined,
         carouselPeerTextureId: undefined as string | undefined,
         carouselDx: 0,
         carouselT: 0,
         carouselPeer: undefined as BeadsLevelRaw | undefined,
         carouselPeerState: undefined as MetaBossState | undefined,
+        // `[WXG-T-566]` 对页完成度（滑动中两页各自的揭彩比例，⛔ 不借用主车进度）。
+        carouselPeerArcDone: undefined as number | undefined,
+        carouselPeerArcTotal: undefined as number | undefined,
         carouselPeerSign: undefined as (-1 | 1) | undefined,
         carouselComingSoon: false,
         carouselPeerComingSoon: false,
@@ -953,6 +959,36 @@ export class BeadsShell implements Game {
     }
 
     /**
+     * `[WXG-T-566]` 大关小关完成度：`_arcDone` / `_arcTotal` = 该页已通关（≥1★）小关数 / 清单总关数。
+     * 与 {@link _arcState} 同源（同一 `levelRefs` 展开 + 同一 `starsByLevelRaw`），单趟整数循环、零分配。
+     * ⛔ 不供三态判档（判档仍走 `_arcState`：首关已解锁未通关 = 推关中，此时 done 可为 0）。
+     */
+    private _arcProgress(arcIdx: number): void {
+        const refs = ARCS[arcIdx]?.levelRefs;
+        const stars = this.play.starsByLevelRaw;
+        const n = this.play.levelCount;
+        let done = 0;
+        let total = 0;
+        if (refs) {
+            for (let r = 0; r < refs.length; r++) {
+                const range = refs[r]!;
+                for (let lv = range[0]; lv <= range[1] && lv <= n; lv++) {
+                    total++;
+                    if ((stars[lv - 1] ?? 0) > 0) done++;
+                }
+            }
+        }
+        this._arcDone = done;
+        this._arcTotal = total;
+    }
+
+    /**
+     * `_arcProgress` 的伴随计数（仅在该调用后有效；热路径复用，零分配）。
+     */
+    private _arcDone = 0;
+    private _arcTotal = 0;
+
+    /**
      * 大关三态归约（`tls §8.2 TODO-6` 已裁 = 甲，只换数据源）：
      * 任一关可进未通 ⇒ `pushing`；全通关 ⇒ `cleared`；一关未开 ⇒ `locked`；空清单 ⇒ `undefined`（R12）。
      * 单趟整数循环、零分配（本池 9 关 ⇒ 每帧至多两页 × 9）。
@@ -1146,6 +1182,15 @@ export class BeadsShell implements Game {
         v.startLevelSeq = this.play.currentLevel.id;
         v.carouselLevel = soon ? undefined : this._arcBossLevel(off);
         v.carouselState = soon ? undefined : this._arcState(off);
+        // `[WXG-T-566]` 木牌 `N/M` 数据（与 `_arcState` 同一 `levelRefs` 遍历口径，单趟整数、零分配）。
+        if (soon) {
+            v.carouselArcDone = undefined;
+            v.carouselArcTotal = undefined;
+        } else {
+            this._arcProgress(off);
+            v.carouselArcDone = this._arcDone;
+            v.carouselArcTotal = this._arcTotal;
+        }
         v.carouselTextureId = soon ? undefined : ARCS[off]?.textureId;
         v.carouselDx = this._menu.dx;
         v.carouselT = this._menu.t;
@@ -1159,10 +1204,16 @@ export class BeadsShell implements Game {
             v.carouselPeer = undefined;
             v.carouselPeerState = undefined;
             v.carouselPeerTextureId = undefined;
+            v.carouselPeerArcDone = undefined;
+            v.carouselPeerArcTotal = undefined;
         } else {
             v.carouselPeer = this._arcBossLevel(peerPage);
             v.carouselPeerState = this._arcState(peerPage);
             v.carouselPeerTextureId = ARCS[peerPage]?.textureId;
+            // `[WXG-T-566]` 对页揭彩比例：与主车同源同口径（主车值已拷进 v，重算不会覆盖它）。
+            this._arcProgress(peerPage);
+            v.carouselPeerArcDone = this._arcDone;
+            v.carouselPeerArcTotal = this._arcTotal;
         }
         v.studioEnabled = this._studio !== undefined;
         // `[WXG-T-432]` 好友榜面板（复用视图对象，零分配）。

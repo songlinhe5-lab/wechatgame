@@ -164,8 +164,10 @@ DEC-1「本批 = 命令层 + Canvas2D」在落码 review 后**细化为三条实
 |---|---|---|---|---|
 | `base` | `string`（hex） | **着色基色**：透过 d/l mask 的颜色变换，`rgb = base·d + (1−base)·l`、`a = shape/255`（【WXG-T-259】`l` ⛔ 不乘 shape，与 shader / 规约 §5.1 同式）| ✅ 现行（WXG-T-226 B3・式修 WXG-T-259） | `TintSpriteCache` + `compositeTintMask` |
 | `strength` | `number` | 着色强度 0–1（与 `base` 连用） | 预留（启用 **core 0 改动**） | 同上 |
+| `gray` | `number` | **灰度强度** 0–1（1 = 全灰）：`out = c·(1−g) + luma·g`，`luma` 取 Rec.709 权重，alpha 不变（【WXG-T-566】`bake/gray-fx.ts` 具象化；与 `base` 同时出现 ⇒ `base` 优先） | ✅ 现行（WXG-T-566） | `tint-blit-resolver` 的 `bakeGray` |
+| `grayWipe` | `readonly number[]` = `[progress, soft]` | **竖向揭彩**：彩色自图像底部向上展开，`progress`（0–1）= 彩色区占高度的比例，`soft`（0–1）= 交界柔带总高占比（0 = 硬边）。像素式与 `gray` 同一式，仅 `g` 逐行取值（`g = 1 − t`）。缓存**每纹理最新一档**（进度单调递增 ⇒ 旧档不再显示）⇒ 显存上限 = 大关纹理数；⛔ 不按 `progress` 累加缓存 | ✅ 现行（WXG-T-566） | `tint-blit-resolver` 的 `bakeGrayWipe` / cocos `_wipeFrame` |
 | `blend` | `string` | blend 模式名 | 将来（⛔ 禁外推浏览器 `globalCompositeOperation` 到真机，K-054） | 新 resolver |
-| `matrix` | `readonly number[]` | color matrix（灰度 / 对比度 / 通道矩阵） | 将来 | 新 resolver |
+| `matrix` | `readonly number[]` | color matrix（对比度 / 通道矩阵） | 将来 | 新 resolver |
 
 **迁移史**：`tint?: string`（WXG-T-226 S2 具名字段）→ **2026-10-03 收口为 `fx.base`**。
 理由：具名字段每加一种效果就要动 core 一次；`fx` 袋 + 效果模块具象化后，

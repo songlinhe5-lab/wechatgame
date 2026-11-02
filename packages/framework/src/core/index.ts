@@ -35,4 +35,5 @@ export * from './bake/mask-spec.js';
 export * from './bake/mask-field.js';
 export * from './bake/mask-tile.js';
 export * from './bake/tint-composite.js';
+export * from './bake/gray-fx.js';
 export * from './bake/nine-slice-fx.js';

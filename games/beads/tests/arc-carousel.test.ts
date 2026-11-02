@@ -38,7 +38,7 @@ import { ARC_COMING_SOON, ARC_OPEN_MAX, ARCS } from '../src/config/arcs.js';
 import { LEVELS } from '../src/config/levels.js';
 // 星账夹具助手（轴从 `LEVELS` 派生，⛔ 手抄 token；K-152）。
 import { starsLedger } from './helpers.js';
-import { DESIGN_H, DESIGN_W, MENU_TEXTURES, WALL_ROWS } from '../src/config/tuning.js';
+import { DESIGN_H, DESIGN_W, MENU_GRAY_WIPE, MENU_TEXTURES, WALL_ROWS } from '../src/config/tuning.js';
 import { buildMetaView, metaLayout, setMenuBitmapResolver, type MetaViewData } from '../src/view/meta-view.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 
@@ -182,19 +182,32 @@ describe('EP13-S4 走马灯 = 大关集合（页数与代表图）', () => {
 });
 
 describe('EP13-S4 橱窗三态 = 大关集合归约（TODO-6 / Q16 = 甲）', () => {
-    it('任一关可进未通 ⇒ pushing', () => {
+    const artFxOf = (ids: readonly DrawCommand[]): Record<string, unknown> | undefined => {
+        const art = ids.find((c) => c.kind === 'blit' && (c as { textureId: string }).textureId === ARCS[0].textureId) as
+            { fx?: Record<string, unknown> } | undefined;
+        return art?.fx;
+    };
+
+    it('任一关可进未通 ⇒ pushing（竖向揭彩，无章）', () => {
         setMenuBitmapResolver(() => true);
-        const ids = blitIdsOf(frameOf(rig({ maxUnlocked: 1 }).shell));
-        // `[WXG-T-522]` 单一作品：中央进度沙漏进厂（占画面中心），状态改由木牌文字/星承担。
+        const cmds = frameOf(rig({ maxUnlocked: 1 }).shell);
+        const ids = blitIdsOf(cmds);
+        // `[WXG-T-566]` 三态只由灰度 + 柜灯表达，状态标记全部退场。
+        // 桁架：maxUnlocked=1 且零星 ⇒ 完成 0/章内总关 ⇒ 揭彩进度 0（底部仅柔带渗透）。
+        expect(artFxOf(cmds)).toEqual({ grayWipe: [0, MENU_GRAY_WIPE.soft] });
         expect(ids).not.toContain(MENU_TEXTURES.badgeProgress);
         expect(ids).not.toContain(MENU_TEXTURES.sealCleared);
+        expect(ids).not.toContain(MENU_TEXTURES.badgeLocked);
     });
 
-    it('全通关 ⇒ cleared（整页盖通关章）', () => {
+    it('全通关 ⇒ cleared（整图全彩，无通关章）', () => {
         setMenuBitmapResolver(() => true);
-        const ids = blitIdsOf(frameOf(rig({ maxUnlocked: LEVELS.length, stars: LEVELS.map(() => 3) }).shell));
-        expect(ids).toContain(MENU_TEXTURES.sealCleared);
+        const cmds = frameOf(rig({ maxUnlocked: LEVELS.length, stars: LEVELS.map(() => 3) }).shell);
+        const ids = blitIdsOf(cmds);
+        expect(artFxOf(cmds), '全彩 = 不传 fx').toBeUndefined();
+        expect(ids).not.toContain(MENU_TEXTURES.sealCleared);
         expect(ids).not.toContain(MENU_TEXTURES.badgeProgress);
+        expect(ids).not.toContain(MENU_TEXTURES.badgeLocked);
     });
 
     it('locked 在本版不可达（首关恒解锁）⇒ 只登记，不伪造观测', () => {

@@ -7232,6 +7232,67 @@ T-554 当时按「清理掉重新做 v2」把 14 件 `git rm` 了；本单按用
 2. 置灰只到玻璃内壁矩形，**圆台仍全彩**；若要求「整柜冷灰」需扩遮罩。
 3. `coordinates/` 仍空（v2 无分层件，出坐标图会误导落码）。
 
+## WXG-T-566
+
+**设计·主菜单走马灯三态：去章 + 竖向揭彩 + 柜灯** · 负责：主理人(Trae)·设计轨 · 状态：🔄 进行中（2026-11-02）
+
+### 1. 用户令（逐条）
+
+1. 新原型目录 `games/beads/design/art/final/prototypes/`，「三个状态效果都不太满意，能否给我重新设计一套展示思路让我裁决，要求符合场景一致性」。
+2. 「用本地大模型给我生成三种状态下的图，让我看下效果」⇒ 本地 qwen-image-2.1 出 3 张（`temp/menu-states-v3/Qwen_image_2.1_0019{2,3,4}.png`，seed 42）。
+3. 连续拍板四条：
+   - **右上角标记全去掉**（走马灯滑动时标记会跟着作品漂）；
+   - 进度数据 = **当前大关已完成小关数 / 总小关数**；
+   - **都是用大关 PNG，只是全灰 / 部分灰 / 全彩的区别**；
+   - **先渲染对照**（确认"素到什么程度"再落码）。
+
+### 2. 现状与根因
+
+- `games/beads/src/view/meta-menu.ts::drawShowcaseArt` 的 **blit 分支不看 `state`**：有大关 PNG 时三态底层图完全相同（全彩）。
+- `locked` 只叠 `badgeLocked`、`cleared` 只叠 `sealCleared`（坐标含 `dx` ⇒ 走马灯里随作品漂）；`pushing` 叠居中沙漏 `badgeProgress`。
+- ⇒ 三态的"状态感"全部来自贴章，作品本身不参与叙事；章挡作品、材质与暖木橱窗不符。
+
+### 3. 设计裁决（最终，用户 2026-11-02）
+
+`.trae/specs/menu-tri-state-gray/{spec,tasks,checklist}.md`
+
+- **推关 = 竖向揭彩**（用户纠正：半灰不是整图 0.55，而是「从下到上的彩色 mask」）：
+  同一张大关 PNG，底部 `progress = 已完成小关 / 总小关` 比例全彩，顶部全灰，交界柔带 `soft = 0.08`；
+- `locked = gray 1.0`（全灰）；`cleared = 全彩`（不传 fx）；
+- 柜灯随态：`0.35 / 0.70 / 1.00`；进度由铭牌 `N/M` 表达；
+- 状态章全删（右上二徽标 + 居中沙漏）；
+- 未开启磨砂玻璃 = **暂缓**（用户裁「先实现竖向揭彩效果」）。
+
+### 4. Phase 0 对照（已完成）
+
+- 改动仅 `dev/harness/main.ts`：新增 `?artGray=0..1` 调试参数，在 `blitSource.get()` 外包一层，
+  只对大关 `textureId` 生效；灰化公式 `out = c·(1−g) + luma·g`，`luma = 0.2126R + 0.7152G + 0.0722B`，
+  模块级缓存 `id|gray`。缺省 / 非数字 / `0` ⇒ **与今日逐字节一致**。
+- 取图方式：headless Chrome（`--headless=new --window-size=752,1344 --virtual-time-budget=8000`），
+  同一机位 4 帧 → `temp/menu-states-v3/compare/`。
+- 实测作品区饱和度（`|r−g|+|g−b|` 均值）：原彩 **34.3** / `0.55` **22.4** / `1.0` **12.4** ⇒ 三档可辨。
+- v2 原型三态合成对照（用户认可方向）：`temp/menu-states-v3/v2b-tri-state-proposal.png`
+  （未开启 = 全灰，推关 = 5/9 竖向揭彩，通关 = 全彩）。
+- 拼图：`temp/menu-states-v3/compare/sheet-gray-3tiers.png`（证据副本 `production/qa/beads/evidence/menu-tri-state-gray-20261102.png`）。
+
+### 5. 落码（2026-11-02，竖向揭彩）
+
+- 框架：`bake/gray-fx.ts` 新增 `grayWipeFx(progress, soft)` / `grayWipeRead`；`BlitFx` 键表 +
+  `ADR-0029 §8.4` 登记 `grayWipe`；
+- canvas2d：`tint-blit-resolver::bakeGrayWipe`（逐行 `g = 1 − t`，每纹理只留最新一档，⛔ 不按进度累加）；
+- cocos：`beads-blit-carrier::_wipeFrame` + `_bakeGrayFrame`（CPU 预烘，换档复用同一 `Texture2D`）；
+- 数据：`MetaViewData` 增 `carouselArcDone/Total` + `carouselPeerArcDone/Total`，shell 各自填充；
+- 视图：`triStateFx(state, done, total)`（千分位缓存）→ `drawShowcaseArt` / `drawShowcaseItem` 分传主/对页进度；
+- 验证：框架 `grayWipe` 判据 5 条 + 菜单三态 5 条全绿；单测全量仅金样本菜单族 5 态待复取（命令数 −2）。
+
+### 6. 观测与遗留
+
+1. **居中沙漏章**已随本批删除（用户裁「一并删掉」）。
+2. 现役 `games/beads/design/art/final/assets/menu/` **缺** `ui_menu_backdrop` / `ui_menu_logo` / `ui_showcase_frame`
+   （33 件在 `v1/assets/menu/`）⇒ 本轮截图缺装饰件与橱窗木框；**不影响灰度判定**，但真机/完整版面需先补齐现役件。
+3. 磨砂玻璃（未开启态）暂缓，后续候选 = 半透明暖白雾层（真机避免实时模糊）。
+4. golden 复取须在干净 commit 上跑（`ui-golden-capture.ts` 的 `WXG298_SOURCE_REV` 守卫）。
+
 ## WXG-T-565
 
 **工具链·`.trae/` 破例入库 + 工作区垃圾清理** · 负责：主理人(Trae)·工具链轨 · 状态：✅ 完成（2026-11-02）

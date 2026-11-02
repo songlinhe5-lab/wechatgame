@@ -54,6 +54,17 @@ const hud = must<HTMLDivElement>('#hud');
 const harnessQuery =
   typeof window.location?.search === 'string' ? window.location.search : '';
 const harnessParams = new URLSearchParams(harnessQuery);
+/**
+ * `[WXG-T-566]` `?artGray=0..1` 调试参数：把大关作品图的取图结果换成**同公式灰化版**
+ * （`out = c·(1−g) + luma·g`，Rec.709 权重），供三态灰度观感对照。
+ * 缺省 / 非数字 / `0` ⇒ 不生效（与今日逐字节一致）。⛔ 只影响 harness 取图，不进框架。
+ */
+const artGray = (() => {
+  const raw = harnessParams.get('artGray');
+  if (raw === null) return undefined;
+  const v = Number(raw);
+  return Number.isFinite(v) && v > 0 ? Math.min(1, v) : undefined;
+})();
 // `[WXG-T-489]` `?hud=off`（或 `0` / `false`）⇒ 藏掉调试层，供目检 / 截图；缺省保留（开发要读数）。
 // 遮挡成因与量测见 `index.html` 的 `body.hud-off` 注释。DOM 必须按可选链访问：smoke 的 DOM stub 无 body。
 if (/^(off|0|false)$/i.test(harnessParams.get('hud') ?? '')) document.body?.classList?.add('hud-off');
@@ -218,8 +229,41 @@ const tintCache = new TintSpriteCache(
 );
 // `[WXG-T-280]` 取图注册表合并菜单位图（无 fx 的 blit 直走本表）；第三参 = nine-slice
 // 烘面离屏工厂（CTA 预烘用；与 tintCache 工厂同一 DOM 能力，framework ⛔ 不碰 DOM）。
+// `[WXG-T-566]` `?artGray` 用：大关作品 id 集合 + 灰化缓存（键 `id|gray`，只 3 档）。
+const ARC_TEXTURE_IDS = new Set(OPEN_ARCS.map((t) => t.textureId));
+const artGrayCache = new Map<string, HTMLCanvasElement>();
+/** 同公式灰化一张已解码纹理（alpha 原样保留）；⛔ 只在 harness 侧，不进框架。 */
+function grayArtTexture(id: string, img: HTMLImageElement, g: number): HTMLCanvasElement {
+  const key = `${id}|${g}`;
+  const hit = artGrayCache.get(key);
+  if (hit !== undefined) return hit;
+  const canvas = document.createElement('canvas');
+  canvas.width = img.naturalWidth;
+  canvas.height = img.naturalHeight;
+  const ctx = canvas.getContext('2d');
+  if (ctx === null) return canvas;
+  ctx.drawImage(img, 0, 0);
+  const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const p = data.data;
+  for (let i = 0; i < p.length; i += 4) {
+    const r = p[i]!;
+    const gr = p[i + 1]!;
+    const b = p[i + 2]!;
+    const luma = 0.2126 * r + 0.7152 * gr + 0.0722 * b;
+    p[i] = r * (1 - g) + luma * g;
+    p[i + 1] = gr * (1 - g) + luma * g;
+    p[i + 2] = b * (1 - g) + luma * g;
+  }
+  ctx.putImageData(data, 0, 0);
+  artGrayCache.set(key, canvas);
+  return canvas;
+}
 const blitSource: TextureRegistry = {
-  get: (id: string) => menuRegistry.get(id) ?? maskRegistry.get(id),
+  get: (id: string) => {
+    const tex = menuRegistry.get(id) ?? maskRegistry.get(id);
+    if (tex === undefined || artGray === undefined || !ARC_TEXTURE_IDS.has(id)) return tex;
+    return grayArtTexture(id, tex as HTMLImageElement, artGray);
+  },
 };
 // `CanvasLike` 是 resolver 模块内私有型 ⇒ 同 `TintCanvasFactory` 判例在宿主侧 `as unknown` 注入。
 type NineSliceCanvasFactory = NonNullable<Parameters<typeof createTintBlitResolver>[2]>;
