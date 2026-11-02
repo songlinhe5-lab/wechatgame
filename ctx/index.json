@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3905,
       "lines": 132,
-      "sha256": "e4d19b24813e149440855da90229fcf1b1ad3f36a06995f77689dbd46d3a5527",
+      "sha256": "57149c518c021938cc17c3012d8ca956b8b06c10d46c0eb5a399652c453dc4ec",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 181467 6079 normal",
+          "summary": "1 production/TASKS-DETAIL.md 182463 6130 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "8ba953ea45d4edf604721dc55169052c31b6dab644f726aa39920112d665689d",
+      "sha256": "5ed60d3689518989108ce54a5d83f975b671c8c76bd6028a4325362c7270000f",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 144 行 / 30819 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 145 行 / 31173 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+145 · §待排（backlog，无号，立项时领取…=117+29",
+          "summary": "§WXG 任务台账（SSOT）=1+146 · §待排（backlog，无号，立项时领取…=118+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 6079 行 / 181467 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 6130 行 / 182463 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6080 · §WXG-T-534=4894+46 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6131 · §WXG-T-534=4894+46 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -88474,17 +88474,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 181467,
-      "lines": 6079,
-      "sha256": "4c8c9f9f7b1741cc30eaf9b2019e4af9ca42ed0e6a0f9bca8eb5a1b8042d7c9b",
+      "tokens": 182463,
+      "lines": 6130,
+      "sha256": "bbcd58a9923620a7cc81bdf37f05b5c67ef4bc0805144e92a31c839c17c69f5f",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 6080,
-          "tokens": 181451,
+          "endLine": 6131,
+          "tokens": 182446,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -96738,8 +96738,8 @@
           "anchor": "§WXG-T-538",
           "level": 2,
           "startLine": 6020,
-          "endLine": 6080,
-          "tokens": 1124,
+          "endLine": 6081,
+          "tokens": 1125,
           "summary": "美术·顶栏 2×2 四钮木质圆牌化（好友榜/打卡/换肤 + 设置重出） · 负责：主理人(CodeBuddy) · 状态",
           "keywords": [
             "WXG",
@@ -96832,12 +96832,101 @@
           "anchor": "§7 沉淀",
           "level": 3,
           "startLine": 6074,
-          "endLine": 6080,
-          "tokens": 120,
+          "endLine": 6081,
+          "tokens": 121,
           "summary": "本批无新增条目：语义与判据已被 K-207（立体感来自方向光 ⇒ 先比环/面均值）、K-208（LANCZOS alph",
           "keywords": [
             "LANCZOS",
             "alph",
+            "沉淀"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-539",
+          "level": 2,
+          "startLine": 6082,
+          "endLine": 6131,
+          "tokens": 991,
+          "summary": "美术·顶栏钮分层化（共用底托 + 图标覆盖层） · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-1",
+          "keywords": [
+            "WXG",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§1 触发 (37)",
+          "level": 3,
+          "startLine": 6086,
+          "endLine": 6089,
+          "tokens": 70,
+          "summary": "用户令「四个按钮风格一致，可以实现一个底托，加中间三个icon」。即把 T-538 的四张「图标烧进木牌」整图，重构为「",
+          "keywords": [
+            "icon",
+            "触发"
+          ]
+        },
+        {
+          "anchor": "§2 落位 (4)",
+          "level": 3,
+          "startLine": 6090,
+          "endLine": 6101,
+          "tokens": 146,
+          "summary": "games/beads/design/art/proposals/menu-3d-style-20261030/btn-",
+          "keywords": [
+            "games",
+            "beads",
+            "design",
+            "art",
+            "proposals",
+            "menu"
+          ]
+        },
+        {
+          "anchor": "§3 关键做法 (2)",
+          "level": 3,
+          "startLine": 6102,
+          "endLine": 6109,
+          "tokens": 265,
+          "summary": "① 底托走新一轮生成，不做擦除。 同工作流同 seed 11，仅把图标从句替成「圆片表面保持纯净的浅暖色木纹，没有任何图",
+          "keywords": [
+            "seed",
+            "关键做法"
+          ]
+        },
+        {
+          "anchor": "§4 校验",
+          "level": 3,
+          "startLine": 6110,
+          "endLine": 6117,
+          "tokens": 74,
+          "summary": "合成 alpha 覆盖（四枚） 均 80.1%（与单张版一致）",
+          "keywords": [
+            "alpha",
+            "校验"
+          ]
+        },
+        {
+          "anchor": "§5 如实标注的四条限制",
+          "level": 3,
+          "startLine": 6118,
+          "endLine": 6124,
+          "tokens": 228,
+          "summary": "1. 底托木纹与单张版不同：底托是另一次生成，横向纹路走向与四张原图不一样。要求逐像素一致就只能用原图当底托，那就无法共",
+          "keywords": [
+            "如实标注的四",
+            "条限制"
+          ]
+        },
+        {
+          "anchor": "§6 沉淀",
+          "level": 3,
+          "startLine": 6125,
+          "endLine": 6131,
+          "tokens": 133,
+          "summary": "本批无新增条目。可复用结论已被 K-207（立体感来自方向光）/ K-208（LANCZOS alpha 振铃）覆盖；本",
+          "keywords": [
+            "LANCZOS",
+            "alpha",
             "沉淀"
           ]
         }
@@ -96845,17 +96934,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 30819,
-      "lines": 144,
-      "sha256": "e3a59acb257ef9c97d81e7d046144b95436f6f7af22e6adfceb504b276041bc5",
+      "tokens": 31173,
+      "lines": 145,
+      "sha256": "cca8493dc498b828a96482c4f6b2ef08023ac5aece5b134d1c97a4ebdb25034e",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 145,
-          "tokens": 30810,
+          "endLine": 146,
+          "tokens": 31164,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -96868,8 +96957,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 117,
-          "endLine": 145,
+          "startLine": 118,
+          "endLine": 146,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
