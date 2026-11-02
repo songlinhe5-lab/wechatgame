@@ -6727,7 +6727,7 @@ pressed 与源底托逐边一致；normal 的左右/下方数值更大，是投�
 
 ## WXG-T-552
 
-**美术·v2 设计基准图合成顶栏四钮（两档对比设计稿）** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-02）
+**美术·v2 设计基准图合成顶栏四钮（C1 已定稿）** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-02）· C1 用户定稿
 
 ### 1. 用户令
 
@@ -6741,20 +6741,22 @@ pressed 与源底托逐边一致；normal 的左右/下方数值更大，是投�
 
 | 路径 | 内容 |
 |---|---|
-| `proposals/menu-3d-style-20261030/menu-design-baseline-cat-topbar-C1-20261102.png` | Ø92 / 边距 14 / 隙 10 / 列 y=116,218（现行大档） |
-| `...-topbar-C2-20261102.png` | Ø80 / 边距 14 / 隙 10 / 列 y=116,206（运行时同尺寸档） |
-| `proposals/menu-3d-style-20261030/p-menu-design-baseline-cat-topbar.txt` | 用途、坐标表、迭代史、复现命令、⛔「不是运行时坐标」声明、三条已知取舍 |
+| `proposals/menu-3d-style-20261030/menu-design-baseline-cat-topbar-final-20261102.png` | **定稿件**：Ø92 / 边距 14 / 隙 10 / 列 y=116,218 |
+| `proposals/menu-3d-style-20261030/p-menu-design-baseline-cat-topbar.txt` | 定稿值表、迭代史、复现命令、⛔「不是运行时坐标」声明、三条已知取舍（并注明评审时不得当缺陷重报） |
 | `design/ai-workflows/menu-topbar-compose.py` | 参数化合成脚本（`--diameter/--gap/--edge/--center-y/--suffix`），底图零改动 |
 
 列序与运行时一致：左列 settings（齿轮）/ rank（奖杯），右列 calendar（日历）/ skin（T 恤）；叠法与运行时同口径（底托 + 图标同 160 画布合成后整体降采样）。
 
-**同日修订（用户看到 A 档后）**：「按钮尺寸再大一些，可以盖住一点 logo 面板，位置再靠下一些，因为要留出胶囊区域。」
-⇒ 三条同时满足的唯一取值带 = **直径 ≥80 + 首枚顶缘 y=116**（运行时首行钮顶）。A1(Ø56/顶60)、A2(Ø72/顶44)、
-B1(Ø80/顶100)、B2(Ø92/顶100) 四档全部作废并从仓库撤出（B 档从未入库，A 档已入库后删除），本目录只留 C1/C2。
+**定稿经过（三条用户令）**：
+1. 「在这个图左上右上增加之前 4 个按钮，调整合适布局」⇒ 先问方法与排布（程序化贴装 + 让位招牌）→ 出 A 档。
+2. 「按钮尺寸再大一些，可以盖住一点 logo 面板，位置再靠下一些，因为要留出胶囊区域」
+   ⇒ 三条同时满足的唯一取值带 = **直径 ≥80 + 首枚顶缘 y=116**（运行时首行钮顶）→ 出 C1/C2。
+3. 「C1 定稿设计」⇒ C1 转正为 `...-topbar-final-20261102.png`，C2 删除。
+   A1(Ø56/顶60)、A2(Ø72/顶44)、B1(Ø80/顶100)、B2(Ø92/顶100) 全部作废并从仓库撤出（回看走 git）。
 
 ### 3. 关键口径
 
-- 底图按 **1:1 设计 px** 读 ⇒ `--diameter 56` 即图上 56 px。
+- 底图按 **1:1 设计 px** 读 ⇒ 定稿的 `--diameter 92` 即图上 92 px。
 - ⛔ **本稿不是运行时坐标**：图上招牌板体约 548 px，落地单 `menu-layout-implementation-spec` 是 370 px ⇒ 本稿 Ø 与间距只服务设计稿观感；真源仍是 `games/beads/src/config/tuning/layout.ts` 的 `MENU_TOPBAR_X`（14/648）· `MENU_TOPBAR_ROW2_DY`（88）· `MENU_TOPBAR_VISUAL_D`（80）。
 
 ### 4. 已知取舍（已写入说明件，勿当缺陷重报）
@@ -6765,5 +6767,5 @@ B1(Ø80/顶100)、B2(Ø92/顶100) 四档全部作废并从仓库撤出（B 档�
 
 ### 5. 校验
 
-- 两版均从同一底图生成，除四钮外**底图像素零改动**（脚本只做 `alpha_composite`，不改底图任何区域）。
-- 复现：`python3 games/beads/design/ai-workflows/menu-topbar-compose.py [--diameter 72 --edge 16 --suffix A2]`。
+- 定稿件从原基准图生成，除四钮外**底图像素零改动**（脚本只做 `alpha_composite`，不改底图任何区域）。
+- 逐字节复现定稿：`python3 games/beads/design/ai-workflows/menu-topbar-compose.py --diameter 92 --edge 14 --gap 10 --center-y 213 --suffix final`。

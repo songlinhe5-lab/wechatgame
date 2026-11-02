@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3905,
       "lines": 132,
-      "sha256": "abf3fb67ccb0ee34913909d9b7e586330a37175e34738c0e9400b6316776dfec",
+      "sha256": "d470afb2fb83e96828a4d6d43e81539d42124452f98fe0d84d491216e19865e3",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 193436 6769 normal",
+          "summary": "1 production/TASKS-DETAIL.md 193494 6771 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "ee0a21c49c1fc9dec44b7ffc1fef0ad547f9b4c0e2197c7d82e30d78fec50de6",
+      "sha256": "e607e4e02be60e13dfd639bdacd34396026f654e7cfbea7932e8d89f7c2be38b",
       "tier": "normal",
       "sections": [
         {
@@ -745,7 +745,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 158 行 / 35794 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 158 行 / 35773 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 6769 行 / 193436 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 6771 行 / 193494 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6770 · §WXG-T-541=6203+73 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6772 · §WXG-T-541=6203+73 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -88555,17 +88555,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 193436,
-      "lines": 6769,
-      "sha256": "024399dafa053fd97ed13c83779987514616aa57faff6a6d8ba2b314a0697ff9",
+      "tokens": 193494,
+      "lines": 6771,
+      "sha256": "1f4aae6d008936f750ad4eb7ce16776aedbc38a016e61709a46dc8d7a6d4f992",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 6770,
-          "tokens": 193419,
+          "endLine": 6772,
+          "tokens": 193478,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -98173,9 +98173,9 @@
           "anchor": "§WXG-T-552",
           "level": 2,
           "startLine": 6728,
-          "endLine": 6770,
-          "tokens": 1069,
-          "summary": "美术·v2 设计基准图合成顶栏四钮（两档对比设计稿） · 负责：主理人(CodeBuddy) · 状态：✅ 完成（202",
+          "endLine": 6772,
+          "tokens": 1127,
+          "summary": "美术·v2 设计基准图合成顶栏四钮（C1 已定稿） · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026",
           "keywords": [
             "WXG",
             "CodeBuddy"
@@ -98201,8 +98201,8 @@
           "anchor": "§2 产物",
           "level": 3,
           "startLine": 6740,
-          "endLine": 6754,
-          "tokens": 384,
+          "endLine": 6756,
+          "tokens": 426,
           "summary": "proposals/menu-3d-style-20261030/menu-design-baseline-cat-to",
           "keywords": [
             "proposals",
@@ -98216,10 +98216,10 @@
         {
           "anchor": "§3 关键口径",
           "level": 3,
-          "startLine": 6755,
-          "endLine": 6759,
-          "tokens": 115,
-          "summary": "底图按 1:1 设计 px 读 ⇒ --diameter 56 即图上 56 px。",
+          "startLine": 6757,
+          "endLine": 6761,
+          "tokens": 119,
+          "summary": "底图按 1:1 设计 px 读 ⇒ 定稿的 --diameter 92 即图上 92 px。",
           "keywords": [
             "diameter",
             "关键口径"
@@ -98228,8 +98228,8 @@
         {
           "anchor": "§4 已知取舍（已写入说明件，勿当缺陷重报）",
           "level": 3,
-          "startLine": 6760,
-          "endLine": 6765,
+          "startLine": 6762,
+          "endLine": 6767,
           "tokens": 198,
           "summary": "1. 左上压绿植、右上压珠罐——「让位招牌」方案的必然结果；四钮是浮层控件，压在场景前合理，但叶尖与罐口会从钮侧露出。",
           "keywords": [
@@ -98241,10 +98241,10 @@
         {
           "anchor": "§5 校验",
           "level": 3,
-          "startLine": 6766,
-          "endLine": 6770,
-          "tokens": 75,
-          "summary": "两版均从同一底图生成，除四钮外底图像素零改动（脚本只做 alpha_composite，不改底图任何区域）。",
+          "startLine": 6768,
+          "endLine": 6772,
+          "tokens": 86,
+          "summary": "定稿件从原基准图生成，除四钮外底图像素零改动（脚本只做 alpha_composite，不改底图任何区域）。",
           "keywords": [
             "alpha_composite",
             "校验"
@@ -98254,9 +98254,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 35794,
+      "tokens": 35773,
       "lines": 158,
-      "sha256": "7c1c1da94b4cbe8f38cbbccbd2551bce448595ad35ae2636c47e93e576571c07",
+      "sha256": "451b92f67421bc1e2cec0377ef02ce37d1b0ff5bff5dea36ce6bc27ffaa10b3e",
       "tier": "hot",
       "sections": [
         {
@@ -98264,7 +98264,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 159,
-          "tokens": 35786,
+          "tokens": 35764,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
