@@ -11,6 +11,8 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageOps
 
 ART = "games/beads/design/art/final"
+# 三态章目录可外置（试新批章时指向 `<批>/cut/`，文件名与现役同名）
+BADGE_DIR = os.environ.get("BADGE_DIR", f"{ART}/assets/menu")
 BASE = ("games/beads/design/art/proposals/menu-3d-style-20261030/"
         "menu-design-baseline-cat-topbar-final-slotbar-20261102.png")
 OUT = "games/beads/design/art/final/prototypes"
@@ -18,7 +20,7 @@ OUT = "games/beads/design/art/final/prototypes"
 GLASS = (178, 395, 592, 758)            # 玻璃内壁（基准图坐标，手工量；顶在资源条之下）
 GLASS_C = ((GLASS[0] + GLASS[2]) // 2, (GLASS[1] + GLASS[3]) // 2)
 LOCK_D, HOUR_H = 190, 210
-SEAL_W, SEAL_H, SEAL_INSET = 101, 140, 12
+SEAL_W, SEAL_H, SEAL_INSET = 120, 160, 12   # v2 章图 768×1024（3:4）⇒ 同比例
 
 
 def glass_mask(size, radius=24, blur=12):
@@ -39,7 +41,7 @@ def faded(im, mask):
 
 def stamp(cv, name, cx, cy, w, h, anchor="center"):
     """贴三态章。anchor = center（锁/沙漏，按纹理重心居中）或 topleft。"""
-    im = Image.open(f"{ART}/assets/menu/{name}").convert("RGBA")
+    im = Image.open(f"{BADGE_DIR}/{name}").convert("RGBA")
     kw, kh = max(1, round(w)), max(1, round(h))
     im = im.resize((kw, kh), Image.LANCZOS)
     if anchor == "center":

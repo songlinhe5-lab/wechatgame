@@ -1,0 +1,45 @@
+三态章 v2（木刻语言）生成记录 · WXG-T-564 · 2026-11-02
+================================================================
+
+用户令（选 A）：「以 v1 三件 i2i 重出三态章」——保留辨识度、最省改动、走云端。
+
+## 1. 输入
+- 基准件 = `final/assets/menu/ui_menu_{badge_locked,badge_progress,seal_cleared}.png`（v1，2026-10-16）
+- ⚠ 原件 128² / 820×1008 / 441×610 **直传会被拒**：`HTTP 400 InvalidParameter — Error validating image`
+  ⇒ 先中灰底（#808080）合成为 **长边 1024** 的 `_ref/*-1024.png` 再传。
+
+## 2. 生成（云 DashScope Token Plan · wan2.7-image i2i）
+
+| 件 | ref | size | seed | palette | 产物 | 耗时 |
+|---|---|---|---|---|---|---|
+| 挂锁 | `_ref/ui_menu_badge_locked-1024.png` | 1024*1024 | 11 | — | `lock-s11.png` **定稿** | 5.7s |
+| 沙漏 | `_ref/ui_menu_badge_progress-1024.png` | 1024*1024 | 11 | — | `hourglass-s11.png` 弃（沙是薄荷绿+粉，无木刻感） | 5.6s |
+| 沙漏 | 同上 | 1024*1024 | 22 | 6 色 | `hourglass-s22-pal.png` 弃（骨架光滑塑料感） | 5.8s |
+| 沙漏 | 同上 | 1024*1024 | 33 | 5 色 | `hourglass-s33.png` **定稿** | 6.3s |
+| 通关章 | `_ref/ui_menu_seal_cleared-1024.png` | 768*1024 | 11 | — | `seal-s11.png` **定稿** | 6.4s |
+
+palette（s33）= `#8B5A2E:36.00,#C08A52:24.00,#F1E0C0:16.00,#5A2606:18.00,#808080:6.00`
+（ratio 总和须**恰为 100.00**，脚本会 FAIL 拒绝；⛔ `color_palette` 是软引导、不是禁色闸门）
+
+提示词要点（三件共用同一套「木刻图标语言」）：
+暖棕木牌 `#8B5A2E` + 细木纹 + 柔和方向光 / 主体深棕木刻 `#5A2606` + 奶油描边 `#F1E0C0` /
+纯中灰背景 `#808080` / 无文字（通关章除外）/ 无投影 / 无外描边。
+
+## 3. 抠图（零模型，真 alpha）
+`games/beads/design/ai-workflows/cut-badge-v2.py`
+中灰距阈 20 → MaxFilter(5)+MinFilter(5) 闭运算 → MinFilter(3) + GaussianBlur(0.6) 收边
+⇒ `cut/ui_menu_badge_{locked,progress,seal_cleared}.png`，不透明覆盖 **70.2% / 79.4% / 68.0%**
+
+## 4. 合成
+`games/beads/design/ai-workflows/proto-from-baseline.py`（`BADGE_DIR=…/cut`）
+⇒ `final/prototypes/proto-menu-v2-{locked,pushing,cleared}-752x1344.png`
+
+## 5. 未入库（有意）
+三件 v2 章**不进** `final/assets/menu/` 与 `cocos/assets/textures/`：
+- 运行时 `MENU_CASE_INTERIOR_BAKED = true` 走单一作品腿，⛔ 不画徽章/沙漏/飘带（WXG-T-522）；
+- 主包余量仅 **29.6 KB**（`check:size` 2026-11-02），换图只增不减且无运行时收益。
+- 恢复三态腿时同步改：`MENU_PROGRESS.w` 171 → 210（v2 章为方形，否则纵向拉伸 1.23×）、
+  `MENU_SEAL` 101×140 → 120×160（v2 章为 3:4）。
+
+## 6. 成本
+Token Plan **5 次调用 / 出图 4 张 / 浪费 1 次**（底图过小被 400 拒），套餐内零额外花费。

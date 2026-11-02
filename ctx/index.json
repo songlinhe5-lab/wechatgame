@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3905,
       "lines": 132,
-      "sha256": "f58c8c3d91888a275154137af566f19ebee86d16e2c60a275e530230f29e2a7e",
+      "sha256": "3a95ce739168f68d87203f27b00d3e4b2e84bd84e10a9893a0934d4b85156c4b",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 202828 7182 normal",
+          "summary": "1 production/TASKS-DETAIL.md 203503 7216 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "a85ec1434cc5f465ae3bec210620d9579531f4f9bfeb3cf82e164db694fe5d9a",
+      "sha256": "a03d59b77ab8280468de32d4fe0db4db992d1de69e50f6abfe2498984c4cfd17",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 169 行 / 39465 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 170 行 / 39781 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+170 · §待排（backlog，无号，立项时领取…=142+29",
+          "summary": "§WXG 任务台账（SSOT）=1+171 · §待排（backlog，无号，立项时领取…=143+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 7182 行 / 202828 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 7216 行 / 203503 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7183 · §WXG-T-552=6728+45 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7217 · §WXG-T-553=6773+39 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -24444,9 +24444,9 @@
     },
     {
       "path": "games/beads/design/art/final/README.md",
-      "tokens": 5416,
+      "tokens": 5455,
       "lines": 59,
-      "sha256": "4ec4474ce40d0f11d798e354c20a30a715488c6dc6e4ba3edd59fcdce25e1eae",
+      "sha256": "475c22f706ca7a995ad9e2122d13e7d44db394d53fd76d45e6ac9e026ed960f3",
       "tier": "normal",
       "sections": [
         {
@@ -24454,7 +24454,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 60,
-          "tokens": 5399,
+          "tokens": 5439,
           "summary": "2026-10-14 用户裁定：资源定稿分三类；shots 只按日期存每日结论证据，本区是验收后的归集面（复制入库，原件",
           "keywords": [
             "final",
@@ -24468,7 +24468,7 @@
           "level": 2,
           "startLine": 9,
           "endLine": 16,
-          "tokens": 2103,
+          "tokens": 2142,
           "summary": "prototypes/ 原型设计：整屏视觉原型（定稿版面） ✅ 2026-11-02 WXG-T-563 换成 v2 三",
           "keywords": [
             "prototypes",
@@ -88555,17 +88555,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 202828,
-      "lines": 7182,
-      "sha256": "a797ecd1dbcd422ec6195e5687d46752e8cfd5dfd8090c43bf0eed7e237721ee",
+      "tokens": 203503,
+      "lines": 7216,
+      "sha256": "8bc649a856daed2c28a63f6bc15461ed558d43d775fe3f43cbab65b054450c97",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 7183,
-          "tokens": 202812,
+          "endLine": 7217,
+          "tokens": 203486,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -99149,22 +99149,96 @@
             "遗留",
             "须裁定"
           ]
+        },
+        {
+          "anchor": "§WXG-T-564",
+          "level": 2,
+          "startLine": 7184,
+          "endLine": 7217,
+          "tokens": 671,
+          "summary": "美术·三态章 v2 木刻重绘（i2i）+ 原型换章 · 负责：主理人(CodeBuddy)·美术轨 · 状态：✅ 完成（",
+          "keywords": [
+            "WXG",
+            "i2i",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§1 用户令 (12)",
+          "level": 3,
+          "startLine": 7188,
+          "endLine": 7191,
+          "tokens": 37,
+          "summary": "T-563 结束时给三选（A 以 v1 三件 i2i 重出 / B 全新文生图 / C 本地 qwen），用户回「A」。",
+          "keywords": [
+            "i2i",
+            "qwen",
+            "用户令"
+          ]
+        },
+        {
+          "anchor": "§2 处置 (6)",
+          "level": 3,
+          "startLine": 7192,
+          "endLine": 7204,
+          "tokens": 322,
+          "summary": "通道 云 DashScope Token Plan · wan2.7-image i2i（--ref）",
+          "keywords": [
+            "DashScope",
+            "Token",
+            "Plan",
+            "wan2",
+            "image",
+            "i2i"
+          ]
+        },
+        {
+          "anchor": "§3 不入库（有意，须记录）",
+          "level": 3,
+          "startLine": 7205,
+          "endLine": 7211,
+          "tokens": 143,
+          "summary": "三件 v2 章不进 final/assets/menu/ 与 cocos/assets/textures/：",
+          "keywords": [
+            "final",
+            "assets",
+            "menu",
+            "cocos",
+            "textures",
+            "不入库"
+          ]
+        },
+        {
+          "anchor": "§4 产出与登记",
+          "level": 3,
+          "startLine": 7212,
+          "endLine": 7217,
+          "tokens": 97,
+          "summary": "批目录 design/art/proposals/menu-3d-style-20261030/badge-v2-202",
+          "keywords": [
+            "design",
+            "art",
+            "proposals",
+            "menu",
+            "style",
+            "badge"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 39465,
-      "lines": 169,
-      "sha256": "0d480af3dc4a9a47d09c6aa1d984099eca3c0f7be09f835834224c2669500fa5",
+      "tokens": 39781,
+      "lines": 170,
+      "sha256": "b9f5214ae39b5dc0683d0e207afcbb40c3dc62813eb6ffcd95f328a7f43d7d76",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 170,
-          "tokens": 39457,
+          "endLine": 171,
+          "tokens": 39772,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -99177,8 +99251,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 142,
-          "endLine": 170,
+          "startLine": 143,
+          "endLine": 171,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -113844,17 +113918,17 @@
     },
     {
       "path": "production/qa/token-plan-usage-ledger.md",
-      "tokens": 3246,
-      "lines": 92,
-      "sha256": "cd01a60dc9938b49d59c654f5fbed257b1de19367ef33f3867f35e62d5363cf8",
+      "tokens": 3476,
+      "lines": 94,
+      "sha256": "34f11166c21acb016e635a007391a9571c97278a6307e38636f3c80f609dcf2a",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Token Plan 生图用量台账（建账 2026-11-01）",
           "level": 1,
           "startLine": 1,
-          "endLine": 93,
-          "tokens": 3230,
+          "endLine": 95,
+          "tokens": 3460,
           "summary": "本件只管「花了多少次、出了几张图、留在哪」，是追加型台账（按时间序加行，⛔ 不回改历史行）。",
           "keywords": [
             "Token",
@@ -113954,8 +114028,8 @@
           "anchor": "§6 temp 生图存量（2026-11-01 清理一次，用户令「把 temp 里的生图都清理掉」）",
           "level": 2,
           "startLine": 71,
-          "endLine": 93,
-          "tokens": 1446,
+          "endLine": 95,
+          "tokens": 1676,
           "summary": "清理前 3642 张 / temp 共 2.3 GB",
           "keywords": [
             "temp",

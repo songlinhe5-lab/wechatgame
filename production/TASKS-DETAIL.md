@@ -7180,3 +7180,37 @@ T-554 当时按「清理掉重新做 v2」把 14 件 `git rm` 了；本单按用
 1. **三态章仍是 v1 白盘语言**（浅色圆底 + 图形），在 v2 暖木 3D 场景里像贴纸。重绘三选：① 以 v1 三件 i2i 出木刻/浮雕版；② 全新文生图（3D 木作）；③ 本地 qwen 2.1 t2i。**未裁**。
 2. 置灰只到玻璃内壁矩形，**圆台仍全彩**；若要求「整柜冷灰」需扩遮罩。
 3. `coordinates/` 仍空（v2 无分层件，出坐标图会误导落码）。
+
+## WXG-T-564
+
+**美术·三态章 v2 木刻重绘（i2i）+ 原型换章** · 负责：主理人(CodeBuddy)·美术轨 · 状态：✅ 完成（2026-11-02）
+
+### 1. 用户令
+
+T-563 结束时给三选（A 以 v1 三件 i2i 重出 / B 全新文生图 / C 本地 qwen），用户回「**A**」。
+
+### 2. 处置
+
+| 面 | 内容 |
+|---|---|
+| 通道 | 云 DashScope **Token Plan** · `wan2.7-image` **i2i**（`--ref`） |
+| 用量 | **5 次调用 / 出图 4 张 / 浪费 1**：128² 原图直传被 `HTTP 400 Error validating image` 拒 ⇒ 先把三件合成到中灰底 `#808080`、长边放大到 1024 再传 |
+| 定稿 | `lock-s11.png`（1024²）/ `hourglass-s33.png`（1024²，5 色 palette）/ `seal-s11.png`（768×1024，"通关"逐字正确） |
+| 弃稿 | `hourglass-s11`（沙色薄荷绿+粉）、`hourglass-s22-pal`（骨架光滑塑料感） |
+| palette | `#8B5A2E:36 / #C08A52:24 / #F1E0C0:16 / #5A2606:18 / #808080:6`（**和须恰 100.00**，否则脚本 FAIL） |
+| 语言统一 | 暖棕木牌 `#8B5A2E` + 深棕木刻 `#5A2606` + 奶油描边 `#F1E0C0`，与顶栏木钮（T-537/538）同族 |
+| 抠图 | `ai-workflows/cut-badge-v2.py`：中灰距阈 20 → Max/MinFilter(5) 闭运算 → MinFilter(3)+Blur(0.6)；不透明覆盖 **70.2% / 79.4% / 68.0%** |
+| 合成 | `ai-workflows/proto-from-baseline.py`（新增 `BADGE_DIR` 外置口）⇒ 三张原型重出；金章按 v2 素材 3:4 由 101×140 放大到 **120×160** |
+
+### 3. 不入库（有意，须记录）
+
+三件 v2 章**不进** `final/assets/menu/` 与 `cocos/assets/textures/`：
+1. `MENU_CASE_INTERIOR_BAKED = true` ⇒ 运行时单一作品腿 ⛔ 不画徽章/沙漏/飘带（T-522），换图**零运行时收益**；
+2. 主包余量仅 **29.6 KB**（`check:size`），换图只增不减。
+3. 若日后恢复三态腿，须同步改两条 tuning：`MENU_PROGRESS.w` **171 → 210**（v2 为方图，否则纵向拉伸 1.23×）、`MENU_SEAL` **101×140 → 120×160**（v2 为 3:4）。
+
+### 4. 产出与登记
+
+- 批目录 `design/art/proposals/menu-3d-style-20261030/badge-v2-20261102/`：5 张原图 + `_ref/` 放大底图 + `cut/` 真 alpha 三件 + `generation-record.txt`（配方正本）
+- 用量 → `production/qa/token-plan-usage-ledger.md`（本批追加段）
+- 脚本 2 支转正入 `ai-workflows/`：`cut-badge-v2.py`、`proto-from-baseline.py`
