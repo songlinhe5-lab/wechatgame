@@ -6499,3 +6499,42 @@ T-541 交付后两处不达标：① 图标外接圆按「圆牌可用面 ≈ 40
 无新增条目。「接入前先查 textureId 是否已登记」这条属常规，已有 `final/README.md` 台账兜底。
 
 `kb:sync` 本轮未跑（无新增）。`ctx:build` 已随本次改动刷新。
+
+## WXG-T-546
+
+**美术·顶栏底圆换木质圆牌（两态派生）** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-02）
+
+### 1. 触发
+
+T-545 接完图标后，底圆仍是白盘 + 无斜面，与深棕线条图标和木屋场景都不搭。用户选「换木质底托」。
+
+### 2. 落位与影响面
+
+`ui_btn_circle_normal` / `ui_btn_circle_pressed`，各落 `final/assets/menu/`（美术真源）+ `cocos/assets/textures/`（投放件），共 4 个 PNG，文件名不变 ⇒ 视图层仍零改动。
+
+影响面核查：全仓 `ui_btn_circle` 的消费点只有 `MENU_TEXTURES.btnCircle/btnCirclePressed`（顶栏四钮），Cocos 侧 `beads-blit-carrier.ts:119-120`、harness 侧 `dev/harness/main.ts:158-159`。其余按钮走 `ui_btn_wood_9s` / `ui_btn_paper_9s` 等，不受影响。
+
+### 3. 两态怎么来的
+
+| 态 | 做法 | 为什么 |
+|---|---|---|
+| normal | 底托取 `btn-base-2x-160.png`，盘体上移 4px；投影 = 盘体 alpha 下移 7px → 高斯模糊 4 → 40% 深棕黑；合成到 160² | 木牌原图**无内投影**，直接上屏会浮在背景上不立 |
+| pressed | 同盘体亮度 **×0.90**、**不带投影**、不位移 | 白盘版的按下语义是「投影紧贴变窄」（`shots/20261010` 口径），木牌没有投影可用 ⇒ 改为「去投影 + 压暗」，80px 下可辨 |
+
+⛔ 未做「缩放 3%」那版：实测在 80px 下几乎看不出，且会与图标层（不缩放）产生相对错位。
+
+### 4. 验证
+
+1. harness 菜单页截图（`http://127.0.0.1:4173/?game=beads&meta=menu&hud=off`）：四钮木牌上屏、投影自然、签到红点在木底上清晰，图标未压到深色外环。证据 `temp/menu-shot-wood.png`（`temp/` 不入库）。
+2. `pnpm run build:cocos` release 档：beads 18.3s 成功，v1.0.20 → v1.0.21；Cocos 自动重算四件底圆的 meta trim。
+3. 两态对照图（含图标）留 `temp/m10-base-compare.png`。
+
+### 5. 回滚
+
+白盘原件在 `temp/backup-ui-circle-20261102/`（`final_*` / `cocos_*` 各 2 张，`temp/` 不入库，下轮清理会带走）；git 历史同样可回滚。
+
+### 6. 沉淀
+
+无新增条目。「一次性派生脚本提副本入 `ai-workflows/`」已是既定口径（`asset-provenance.md` §0 #3），本单照做并入册。
+
+`kb:sync` 本轮未跑（无新增）。`ctx:build` 已随本次改动刷新。

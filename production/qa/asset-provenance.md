@@ -30,12 +30,15 @@
 | `ui_showcase_frame` 1088×1742 P(32) 188.4 KB | 云 `qwen-image-3.0` **i2i**：以旧窗框为参考，`size=1088*1742`、seed 88；后处理三步 = 裁到柜体 bbox → 四角色键转 alpha → **去光**（σ=90 低频模糊场相除，除同心色带；光晕改由引擎 `drawCaseLight` 画） | 处理脚本**未留档**（三步口径完整记在 WXG-T-522 §2，可按其重建）；抠件工具另见 `ai-workflows/cut-single-local.py` | ⚠ 参考原图 = 旧 `ui_showcase_frame.png`（1188×1892，用户 2026-10-14 供高清正本，已被本版覆盖；史证在 `final/README.md` 台账行与 `art/shots/`）；同链正本 `master-single-bg.png` **本批已入库** → `proposals/menu-3d-style-20261030/plate-cut-20261031/` | WXG-T-522 §2 |
 | `ui_btn_arrow_left` / `ui_btn_arrow_right` 129×129 P(256) 4.3 KB | 从整版 AI 稿切件（256 色量化）；`parts/` 八件里**仅此两件切净**（四缘各 1px 切点），其余六件 2026-10-31 用户裁定删除作废 | 切件脚本**未留档**（`parts/` 与 `sam2-parts/` 均已清空）；2026-11-01 复切走在册 `ai-workflows/cut-single-local.py --mode shape --shape disc,72,661,55` → 110×110，⛔ 未达 @2x（分辨率墙，见 `production/qa/menu-small-parts-cut-20261101.md`） | ⚠ 原图不可得：用户 2026-10-30 所供「整版木屋场景稿」（宽 720）**从未入库**，temp 副本已随清理删除 ⇒ 复现须重新取得原件，判据法见 WXG-T-517 §2（假透明双峰 ±5 + 5px 闭运算）。同批**抠件源稿**已入库：`proposals/menu-3d-style-20261030/menu-design-master-20261031.png`（752×1344 RGBA） | WXG-T-517 §2/§3 || `ui_icon_settings` / `ui_icon_rank` / `ui_icon_calendar` / `ui_icon_skin` 各 160×160 RGBA<br>（`final/assets/menu/` 美术真源 + `cocos/assets/textures/` 投放件两份同名；`.meta` 的 trim 由 Cocos 重算、uuid 未变） | **2026-11-02 替换**（原为彩色扁平图标，灰齿轮/紫奖杯/橙日历/绿T恤）：本地 ComfyUI `Qwen_image_2.1`（int8，25 步 / cfg 1.0 / euler-simple / 1024²，seed 11 或 222）出线稿底图 → **位图追踪转矢量**（crack-following → Chaikin(2) → RDP(0.9) → 按外接圆归一 35.0/100 → SVG 单 path `evenodd`）→ 栅格化 160² | `ai-workflows/trace-icon-lineart.py`（本批新入库，原 `temp/m8-trace.py` 原样搬运） | ⚠ 原图不可得：底图在 `temp/comfyui-out/m8-{rank-v2-s11,calendar-s11,skin-v2-s222}/`（`temp/` 不入库）。复现配方（逐字提示词 + seed + 参数 + 择优理由）见 `proposals/menu-3d-style-20261030/btn-topbar-traced-v2-20261102/p-btn-traced-v2.txt`；同族云端横比对照片见 `…/btn-topbar-traced-cloud-20261102/p-btn-traced-cloud.txt` | WXG-T-541/542/543（出图与定稿）+ WXG-T-545（接入运行时） |
 
+| `ui_btn_circle_normal` / `ui_btn_circle_pressed` 各 160×160 RGBA<br>（`final/assets/menu/` 美术真源 + `cocos/assets/textures/` 投放件两份同名） | **2026-11-02 替换**（原为「白圆盘 + 宽柔投影」，按下 = 投影变窄）：底托取 T-539 共用木牌 `btn-base-2x-160.png`。常态 = 盘体上移 4px 后叠投影（盘体 alpha 下移 7px → 高斯模糊 4 → 40% 深棕黑）；按下 = 同盘体亮度 ×0.90、**无投影**（木牌本身无内投影，故不再沿用白盘版「投影紧贴变窄」的口径） | `ai-workflows/gen-circle-base-2state.py`（本批新入库，原 `temp/m10-base-gen.py` 原样搬运） | ✅ 底托原图在册：`proposals/menu-3d-style-20261030/btn-topbar-layered-20261102/btn-base-2x-160.png`（来源见 T-539 批次说明；该件本身是从模型出图抽取的共用底托） | WXG-T-539（底托）+ WXG-T-546（接入运行时） |
+
 ### 累计状态
 
 - 12 件按件数分档：**三项齐备（生成方式 + 脚本 + 原图都在册）= 5 件**（9-slice 族）；**原图已失 = 5 件**（`beam` / `pot` / `backdrop` / 箭头两件）；**脚本未留档 = 3 件**（beam+pot 共一条、showcase_frame、箭头两件）；**已裁移出 = 1 件**（`ui_menu_env`，零引用且无 alpha ⇒ 2026-11-01 用户令移出 `final/`，故本批在册件为 11）。
 - ⇒ 没有任何一件是「四项全缺」，也没有一件能直接重跑复现：**要重跑必须先补 §3 的 seed/提示词**。
 - 本批新入库：**6 个脚本** + **3 张原图/正本**（含 1 份指令文本）。
 - **2026-11-02 补录 4 件**（`ui_icon_{settings,rank,calendar,skin}`，替换原有彩色扁平图标）：属**范围外补录**（mtime 晚于本批统计窗），三项里「原图」= ⚠ 不可得、「脚本」= 已入库、「生成方式」= 齐备。
+- **2026-11-02 再补录 2 件**（`ui_btn_circle_normal/pressed`，白圆盘换木质圆牌）：三项**齐备**（生成方式 + 脚本 + 原图均在册），是本档少见的可直接重跑件。
 
 ## 2. 本批归档动作清单（可核对）
 
