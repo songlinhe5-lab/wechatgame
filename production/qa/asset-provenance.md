@@ -32,6 +32,8 @@
 
 | `ui_btn_circle_normal` / `ui_btn_circle_pressed` 各 160×160 RGBA<br>（`final/assets/menu/` 美术真源 + `cocos/assets/textures/` 投放件两份同名） | **2026-11-02 替换**（原为「白圆盘 + 宽柔投影」，按下 = 投影变窄）：底托取 T-539 共用木牌 `btn-base-2x-160.png`，**满幅不缩不位移**（⛔ 源 bbox 占满 0..159：上移会把盘顶切平＝T-546 首版；加外投影会溢出被裁＝T-547 版）。立体感改由**内缘刻印**表达：内缘环 = 盘体 alpha 减 `MinFilter(7)` 腐蚀版，上缘深、下缘浅，叠 28% 深棕黑；按下 = 整体亮度 ×0.90 + 内缘加深到 44%。⛔ 不缩盘体（缩到 0.90 才能容纳完整外投影，但 `MENU_TOPBAR_VISUAL_D = 80` 按满幅铺满绘制 ⇒ 盘体实显只剩 Ø72，四钮会明显小于其他 UI） | `ai-workflows/gen-circle-base-2state.py`（本批新入库，原 `temp/m10-base-gen.py` 原样搬运） | ✅ 底托原图在册：`proposals/menu-3d-style-20261030/btn-topbar-layered-20261102/btn-base-2x-160.png`（来源见 T-539 批次说明；该件本身是从模型出图抽取的共用底托） | WXG-T-539（底托）+ WXG-T-546（接入运行时） |
 
+| `final/v1/assets/menu/`（**归档快照**，41 件 5.8 MB，非现役件） | 2026-11-02 用户令「把现在老的一套设计资源归档 v1」：以 `21a8e52d` 为基准提交，逐件 `cp -a` 复制成品 41 件 + 当时 `README.md` 台账副本（`v1/README-v1.md`）；`coordinates/`（7 件 9.5 MB）与 `prototypes/`（7 件 9.6 MB）属中间稿、体积大**不入快照**，回看走 `git show 21a8e52d:games/beads/design/art/final/<dir>/<file>` | 无（纯复制归档，不涉生成） | ✅ 原图即所列各批次原件（本表上述各行） | WXG-T-550（v1 归档）；一致性校验：`v1/assets/menu` 与 `assets/menu` 的 md5 集合同为 `bfa3f01b3859a98d7f46c6c03c95f83d` |
+
 ### 累计状态
 
 - 12 件按件数分档：**三项齐备（生成方式 + 脚本 + 原图都在册）= 5 件**（9-slice 族）；**原图已失 = 5 件**（`beam` / `pot` / `backdrop` / 箭头两件）；**脚本未留档 = 3 件**（beam+pot 共一条、showcase_frame、箭头两件）；**已裁移出 = 1 件**（`ui_menu_env`，零引用且无 alpha ⇒ 2026-11-01 用户令移出 `final/`，故本批在册件为 11）。

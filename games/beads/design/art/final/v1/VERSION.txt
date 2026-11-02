@@ -1,0 +1,32 @@
+【主菜单设计资源 · v1 归档快照】　封存于 2026-11-02
+
+■ 这是什么
+主菜单第一套定稿设计（v1）的**只读快照**。用户 2026-11-02 令「把现在老的一套设计资源归档 v1 版本，
+现在做 v2 版本的新的设计」⇒ 从此日起：
+- **`v1/` = 封存只读**，⛔ 任何改动/替换/删除（含图标微调、底托换代、压缩重出）都不得落在这里；
+- **`assets/menu/` = 现役工作区**（v2 就地迭代，路径与文件名保持不变 ⇒ harness 白名单、
+  `check-cocos-mask` 的 `MENU_SRC`、Cocos `textures` bundle 全部零改动）；
+- 需要回看 v1 的某件，读 `v1/assets/menu/`；需要拿去对比/复算，复制出去再改，⛔ 不改原件。
+
+■ 快照边界
+| 项 | 内容 |
+|---|---|
+| 基准提交 | `21a8e52d`（docs(art): 顶栏四钮效果图正位 + 每次改动同步更新约定 / WXG-T-549） |
+| 封存内容 | `v1/assets/menu/` **41 件**（5.8 MB）+ `v1/README-v1.md`（封存当时的 `final/README.md` 台账） |
+| 未封存 | `coordinates/`（7 件 9.5 MB）与 `prototypes/`（7 件 9.6 MB）—— 体积大、属中间稿，按需从 git 历史取：<br>`git show 21a8e52d:games/beads/design/art/final/coordinates/<文件名>`<br>`git show 21a8e52d:games/beads/design/art/final/prototypes/<文件名>` |
+| 一致性 | 封存时逐件 md5 集合校验：`v1/assets/menu` 与 `assets/menu` 相同（集合 md5 `bfa3f01b3859a98d7f46c6c03c95f83d`） |
+
+■ 封存那一刻的设计状态（给未来考古用）
+- 顶栏四钮图标 = **深棕线条矢量**（`#5A2606`，本地 qwen-image-2.1 出线稿 → 位图追踪转矢量；
+  生成史见 `production/qa/asset-provenance.md`，配方见 `proposals/menu-3d-style-20261030/btn-topbar-traced-v2-20261102/p-btn-traced-v2.txt`）
+- 顶栏底圆 = **木质圆牌满幅 + 内缘刻印**（⛔ 不位移、不缩小、不加外投影；派生脚本
+  `design/ai-workflows/gen-circle-base-2state.py`）
+- 主菜单其余件 = 木屋整屏背景（k-means 128 色）、橱窗框（去光+人钥）、木纹 9-slice 族、招牌 logo 珠字
+- Cocos 产物版本 = v1.0.23；顶栏效果图见 `design/art/shots/topbar-20261102/`
+- 已知问题（v2 要处理的输入）：① 木牌入口与木墙同色系、不够醒目；② 内缘刻印的浮起感弱于外投影；
+  ③ 顶栏图标与底托的对比度偏低
+
+■ 与既有目录的关系
+- 本目录**不参与任何构建/校验/运行时加载**（纯归档，不被 `serve-harness` 白名单、`check-cocos-mask`、
+  `MENU_TEXTURES`、harness `MENU_FILE` 引用）。
+- 台账分工不变：接线状态 → `../README.md`；生成史 → `production/qa/asset-provenance.md`。

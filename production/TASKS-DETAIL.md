@@ -6655,3 +6655,38 @@ pressed 与源底托逐边一致；normal 的左右/下方数值更大，是投�
 无新增条目。「效果图必须落可长期引用的入库路径」属输出纪律的自然延伸，已在 README 内固化，暂不单列知识库。
 
 `kb:sync` 本轮未跑（无新增）。`ctx:build` 已随本次改动刷新。
+
+## WXG-T-550
+
+### 1. 用户令
+
+> 2026-11-02：「把现在老的一套设计资源归档 v1 版本，现在做 v2 版本的新的设计。」
+
+⇒ 老的一套（主菜单第一套定稿）封存只读，当前迭代面转为 v2。
+
+### 2. 落法（为什么不新建 `assets/menu-v2/`）
+
+现役 `games/beads/design/art/final/assets/menu/` 的**文件名 = 运行时资产名**，被三处硬接线消费：harness 菜单白名单、`tools/scripts/check-cocos-mask` 的 `MENU_SRC`、Cocos `textures` bundle 的同名投放件。若 v2 另起目录，则三处都要改，且每次"这版算 v1 还是 v2"的判定都会落到接线层。
+
+⇒ 采用**归档面 + 现役面**双轨：v1 复制进 `final/v1/`（只读），现役 `assets/menu/` 原地演进 = v2。路径零改动，跨版本对比靠 `diff` 两份目录。
+
+### 3. 产物
+
+| 路径 | 内容 |
+|---|---|
+| `final/v1/assets/menu/` | 41 件成品 PNG，`cp -a` 保留时间戳 |
+| `final/v1/README-v1.md` | 封存当时的 `final/README.md` 台账副本 |
+| `final/v1/VERSION.txt` | 快照边界、基准提交、md5 校验、封存时设计状态与已知问题 |
+| `final/README.md` | 顶部新增版本分界段（v1 只读 / `assets/menu` = v2 工作区） |
+| `production/qa/asset-provenance.md` | 补录 `final/v1/assets/menu/` 归档快照行 |
+
+### 4. 校验
+
+- 件数：`find final/v1 -type f` = 43（41 成品 + `README-v1.md` + `VERSION.txt`）
+- 体积：5.8 MB
+- 一致性：`v1/assets/menu` 与 `assets/menu` 逐件 md5 集合相同（集合 md5 `bfa3f01b3859a98d7f46c6c03c95f83d`）
+- 不入快照：`coordinates/`（7 件 9.5 MB）、`prototypes/`（7 件 9.6 MB）——中间稿，回看 `git show 21a8e52d:games/beads/design/art/final/<dir>/<file>`
+
+### 5. 沉淀
+
+「版本封存改归档面、不改现役面路径」：当资产名与运行时绑定且被多处硬编码消费时，换代应按**只读快照 + 现役目录原地演进**落，而非新建平行目录——否则每次换代都要改动所有接线点，且历史对比能力反而变差。可作候选入 `knowledge/`，本轮未跑 `kb:sync`。

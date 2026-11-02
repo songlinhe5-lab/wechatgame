@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3905,
       "lines": 132,
-      "sha256": "e6bd2b5e609d195809568dbb45fd9698ad3bebbf0b3a201df1081d95437b591c",
+      "sha256": "7aa2f5bc6040dfb50d169d4714665f409e30047203169168bbb7ab7add74608a",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 190893 6657 normal",
+          "summary": "1 production/TASKS-DETAIL.md 191519 6692 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "f68e981140ed02ad1f085c44a6f03c3dd8a62e838fed8190cc3066ac7f20e7a7",
+      "sha256": "e0e70aaf7da5a5e09c7abc50eb332ef16f8b20b762a2d7b419a576522b1f1c98",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 155 行 / 34814 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 156 行 / 35113 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+156 · §待排（backlog，无号，立项时领取…=128+29",
+          "summary": "§WXG 任务台账（SSOT）=1+157 · §待排（backlog，无号，立项时领取…=129+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 6657 行 / 190893 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 6692 行 / 191519 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6658 · §WXG-T-538=6020+62 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6693 · §WXG-T-539=6082+52 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -24444,6 +24444,87 @@
     },
     {
       "path": "games/beads/design/art/final/README.md",
+      "tokens": 4478,
+      "lines": 55,
+      "sha256": "6793a668c9b560b4fdf7daa69b5094a9df8eb50c2f73d60bb3cab4598672194a",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§final —— 资源定稿区（开发统一取用）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 56,
+          "tokens": 4462,
+          "summary": "2026-10-14 用户裁定：资源定稿分三类；shots 只按日期存每日结论证据，本区是验收后的归集面（复制入库，原件",
+          "keywords": [
+            "final",
+            "shots",
+            "资源定稿区",
+            "开发统一取用"
+          ]
+        },
+        {
+          "anchor": "§三类目录",
+          "level": 2,
+          "startLine": 7,
+          "endLine": 14,
+          "tokens": 1662,
+          "summary": "prototypes/ 原型设计：整屏视觉原型（定稿版面） 现行（v3.8，2026-10-16）= proto-v3-",
+          "keywords": [
+            "prototypes",
+            "proto",
+            "三类目录"
+          ]
+        },
+        {
+          "anchor": "§assets/menu 台账（来源 → 接线状态）",
+          "level": 2,
+          "startLine": 15,
+          "endLine": 33,
+          "tokens": 1531,
+          "summary": "ui_menu_logo.png（960×772） 招牌原件（v3.9 绳加长 150px；位图走原件） ✅ 已接 as",
+          "keywords": [
+            "assets",
+            "menu",
+            "ui_menu_logo",
+            "png",
+            "台账",
+            "来源"
+          ]
+        },
+        {
+          "anchor": "§选关（弹窗 · 版式 Q）",
+          "level": 2,
+          "startLine": 34,
+          "endLine": 45,
+          "tokens": 435,
+          "summary": "prototypes/levelselect-v1-popup-750x1334-at2x.png 脚本 ../../a",
+          "keywords": [
+            "prototypes",
+            "levelselect",
+            "popup",
+            "x1334",
+            "at2x",
+            "png"
+          ]
+        },
+        {
+          "anchor": "§入库判据",
+          "level": 2,
+          "startLine": 46,
+          "endLine": 56,
+          "tokens": 516,
+          "summary": "1. 用户已对屏稿/规格拍板（引用 shots 批次或 spec 节号）；",
+          "keywords": [
+            "shots",
+            "spec",
+            "入库判据"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "games/beads/design/art/final/v1/README-v1.md",
       "tokens": 4324,
       "lines": 54,
       "sha256": "194ee94f542cd39590ce5cb0c9fe834d15c659c07b25ed143bafb17e96dadc0b",
@@ -88474,17 +88555,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 190893,
-      "lines": 6657,
-      "sha256": "f032b85f0905ed64362b303494e6a7f54b0f7eba6e054773fd3966487eebc940",
+      "tokens": 191519,
+      "lines": 6692,
+      "sha256": "91a02101692f1d19ee7d7c9d9c79fb3c8502a708f291970bdfc01bd73c4474eb",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 6658,
-          "tokens": 190877,
+          "endLine": 6693,
+          "tokens": 191502,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -97921,22 +98002,102 @@
             "README",
             "沉淀"
           ]
+        },
+        {
+          "anchor": "§WXG-T-550",
+          "level": 2,
+          "startLine": 6659,
+          "endLine": 6693,
+          "tokens": 623,
+          "summary": "",
+          "keywords": [
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§1 用户令",
+          "level": 3,
+          "startLine": 6661,
+          "endLine": 6666,
+          "tokens": 65,
+          "summary": "2026-11-02：「把现在老的一套设计资源归档 v1 版本，现在做 v2 版本的新的设计。」",
+          "keywords": [
+            "用户令"
+          ]
+        },
+        {
+          "anchor": "§2 落法（为什么不新建 `assets/menu-v2/`）",
+          "level": 3,
+          "startLine": 6667,
+          "endLine": 6672,
+          "tokens": 162,
+          "summary": "现役 games/beads/design/art/final/assets/menu/ 的文件名 = 运行时资产名，被",
+          "keywords": [
+            "assets/menu-v2/",
+            "assets",
+            "menu",
+            "games",
+            "beads",
+            "design"
+          ]
+        },
+        {
+          "anchor": "§3 产物",
+          "level": 3,
+          "startLine": 6673,
+          "endLine": 6682,
+          "tokens": 137,
+          "summary": "final/v1/assets/menu/ 41 件成品 PNG，cp -a 保留时间戳",
+          "keywords": [
+            "final",
+            "assets",
+            "menu",
+            "PNG",
+            "产物"
+          ]
+        },
+        {
+          "anchor": "§4 校验 (2)",
+          "level": 3,
+          "startLine": 6683,
+          "endLine": 6689,
+          "tokens": 111,
+          "summary": "件数：find final/v1 -type f = 43（41 成品 + README-v1.md + VERSION",
+          "keywords": [
+            "find",
+            "final",
+            "type",
+            "README",
+            "VERSION",
+            "校验"
+          ]
+        },
+        {
+          "anchor": "§5 沉淀 (4)",
+          "level": 3,
+          "startLine": 6690,
+          "endLine": 6693,
+          "tokens": 114,
+          "summary": "「版本封存改归档面、不改现役面路径」：当资产名与运行时绑定且被多处硬编码消费时，换代应按只读快照 + 现役目录原地演进落",
+          "keywords": [
+            "沉淀"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 34814,
-      "lines": 155,
-      "sha256": "2756fde6d21cf2cb7d322658a98f35333b15da3998657b2e32a76f1414e155d1",
+      "tokens": 35113,
+      "lines": 156,
+      "sha256": "389e97ee199c5f695e01bce60c237f2ce4dab580e682e85b1f0f5435cb167dc9",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 156,
-          "tokens": 34805,
+          "endLine": 157,
+          "tokens": 35104,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -97949,8 +98110,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 128,
-          "endLine": 156,
+          "startLine": 129,
+          "endLine": 157,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -101707,17 +101868,17 @@
     },
     {
       "path": "production/qa/asset-provenance.md",
-      "tokens": 4365,
-      "lines": 77,
-      "sha256": "fdf2ecd2c6c7e91da2ea16f1c3683eb5fbf23a5b708afa631388421b265d72df",
+      "tokens": 4573,
+      "lines": 79,
+      "sha256": "39d2578524abfb8ade83f5d7a6d8b4dee93947de1f76fe4e7770d1807310f84b",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§归档资源生成史（Asset Provenance）",
           "level": 1,
           "startLine": 1,
-          "endLine": 78,
-          "tokens": 4351,
+          "endLine": 80,
+          "tokens": 4559,
           "summary": "本件是「每张进 final/ 的图从哪来」的唯一正本。 建件 = 用户 2026-11-01 令「统一使用图片生成文档，",
           "keywords": [
             "Asset",
@@ -101746,8 +101907,8 @@
           "anchor": "§1 本批（2026-10-30 → 11-01）逐件来源账",
           "level": 2,
           "startLine": 19,
-          "endLine": 42,
-          "tokens": 2443,
+          "endLine": 44,
+          "tokens": 2650,
           "summary": "范围 = final/assets/menu/ 中 mtime ≥ 2026-10-30 的 12 件（其余件来源见 f",
           "keywords": [
             "final",
@@ -101761,8 +101922,8 @@
         {
           "anchor": "§累计状态",
           "level": 3,
-          "startLine": 35,
-          "endLine": 42,
+          "startLine": 37,
+          "endLine": 44,
           "tokens": 341,
           "summary": "12 件按件数分档：三项齐备（生成方式 + 脚本 + 原图都在册）= 5 件（9-slice 族）；原图已失 = 5 件",
           "keywords": [
@@ -101773,8 +101934,8 @@
         {
           "anchor": "§2 本批归档动作清单（可核对）",
           "level": 2,
-          "startLine": 43,
-          "endLine": 59,
+          "startLine": 45,
+          "endLine": 61,
           "tokens": 556,
           "summary": "ai-workflows/gen-settle-9slice.py temp/gen-settle-9slice.py",
           "keywords": [
@@ -101789,8 +101950,8 @@
         {
           "anchor": "§3 原图缺口的复现配方（重跑时照此，⛔ 凭记忆）",
           "level": 2,
-          "startLine": 60,
-          "endLine": 70,
+          "startLine": 62,
+          "endLine": 72,
           "tokens": 404,
           "summary": "① ui_menu_{beam,pot} 的底图 lock-s88.png（WXG-T-516）",
           "keywords": [
@@ -101805,8 +101966,8 @@
         {
           "anchor": "§4 缺口与纪律（本档欠的账）",
           "level": 2,
-          "startLine": 71,
-          "endLine": 78,
+          "startLine": 73,
+          "endLine": 80,
           "tokens": 292,
           "summary": "1. ~~ui_menu_env 待裁~~ 已闭（2026-11-01 用户令：移出 final/），隔离于 temp/",
           "keywords": [
