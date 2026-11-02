@@ -6876,3 +6876,34 @@ pressed 与源底托逐边一致；normal 的左右/下方数值更大，是投�
 
 - 图标仍为现成件复用，「图标单独设计」仍待另单（用户已明确要单独设计）。
 - 若后续要落运行时：槽位口径需按 750 版面重出（本图非 1:1），并随「豆数 = coins 改叫法」走设计裁定。
+
+## WXG-T-556
+
+**美术·`coordinates` / `prototypes` 归档进 v1（改判 T-554 的删除处置）** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-02）
+
+### 1. 用户令与改判
+
+> 「这两个目录需要归档到 v1 里。」
+
+T-554 当时按「清理掉重新做 v2」把 14 件 `git rm` 了；本单按用户明令改判为**归档**：
+从基准提交 `21a8e52d` 逐件导出到 `v1/` 下，⛔ 不覆盖现役面（`final/` 下两目录仍为空目录 + `.gitkeep`，等 v2 重做落位）。
+
+### 2. 产物
+
+| 路径 | 内容 |
+|---|---|
+| `final/v1/coordinates/` | **7 件 9.5 MB**：`menu-master-coords` 总图 + 五档机型图（SE375 / Android360 / iPhoneX375 / 岛393 / Max440）+ `levelselect-coords-750x1334-at2x` |
+| `final/v1/prototypes/` | **7 件 9.6 MB**：`proto-v3-{pushing,locked,done}-750x1334-at2x` 三态 + `proto-v3-swipe` 示意帧 + `proto-v2-full` 素材源 + `levelselect-v1-{page,popup}-750x1334-at2x` |
+| `final/v1/VERSION.txt` | 快照边界改写：封存内容加两目录；新增「补归档（WXG-T-556）」行，并明确**推翻**初封的「体积大不入快照」口径 |
+| `final/README.md` | 四处指向改为「已归档至 `v1/…`」：`prototypes/` 行、`coordinates/` 行、选关节两行 |
+
+### 3. 校验
+
+- **14/14 逐件 md5 与 `21a8e52d` 逐字节一致**（`git show 21a8e52d:<path> | md5` vs 目标文件 md5）。
+- 归档件不参与任何构建/校验/运行时加载（沿用 `v1/` 只读快照约定：不被 harness 白名单、`check-cocos-mask` 的 `MENU_SRC`、`MENU_TEXTURES`、`MENU_FILE` 引用）。
+- `check:tasks` OK / `check:links` OK / `ctx:check OK`。
+
+### 4. 影响面
+
+- 仓库体积 +19.1 MB（两目录 PNG 入库）。这是用户明令的代价，已在 VERSION.txt 记为"推翻初封口径"。
+- 后续 v2 出件仍落 `final/coordinates/`、`final/prototypes/`（路径不变），与 `v1/` 形成"只读快照 vs 现役"双轨。
