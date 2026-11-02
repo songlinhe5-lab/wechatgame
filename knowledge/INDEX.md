@@ -313,4 +313,6 @@
 | K-204 | 判据实测取证 | criteria-measure-evidence | 换盘面 ≠ 换样本：同一随机流 + 相同抽取值域的两次「复验」，统计量必然逐箱相同 | WXG-T-434 | 2026-10-28 | 0 | active |
 | K-205 | 工具链图像 | toolchain-image | inpainting 的成败由 mask 是否「刚好覆盖」决定，膨胀没有统一安全值 | WXG-T-535 | 2026-11-01 | 0 | active |
 | K-206 | 工具链图像 | toolchain-image | SAM 类分割模型只切「物体」不切文字，纯文字目标必须换语义型模型 | WXG-T-535 | 2026-11-01 | 0 | active |
+| K-207 | 工具链图像 | toolchain-image | 参考 UI 件的立体感可能来自方向光而非描边 ⇒ 加深色描边前先比「环均值 vs 面均值」 | WXG-T-537 | 2026-11-02 | 0 | active |
+| K-208 | 工具链图像 | toolchain-image | 硬边 alpha 经 LANCZOS 缩放会振铃出光晕，覆盖率高于理论圆面积 ⇒ 交付透明 PNG 前按低 α 归零 | WXG-T-537 | 2026-11-02 | 0 | active |
 <!-- kb:active:end -->
