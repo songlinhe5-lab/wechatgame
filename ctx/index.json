@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3905,
       "lines": 132,
-      "sha256": "59a83606dd75c8fc3928160327564e4f6b4f8158c6a4351fdd24fcba1dc423de",
+      "sha256": "98790bca54c484687c08f29e27408ed28bc4235164845dab0790fbfae1e0d20d",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 184840 6274 normal",
+          "summary": "1 production/TASKS-DETAIL.md 185678 6331 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "1d7181476377688fade433ba309df8d1e9dbee787696de3cea84804a8f169dcf",
+      "sha256": "a0e8c222e934c386d1b838e38ad83f7fdd5292b2ac6e9256535f089660fe398e",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 147 行 / 32006 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 148 行 / 32348 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+148 · §待排（backlog，无号，立项时领取…=120+29",
+          "summary": "§WXG 任务台账（SSOT）=1+149 · §待排（backlog，无号，立项时领取…=121+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 6274 行 / 184840 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 6331 行 / 185678 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6275 · §WXG-T-534=4894+46 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6332 · §WXG-T-534=4894+46 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -88474,17 +88474,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 184840,
-      "lines": 6274,
-      "sha256": "b52024ff3962de4ee99585d2d59122bf769df82518a2eb5003d29dec03e3bdae",
+      "tokens": 185678,
+      "lines": 6331,
+      "sha256": "97dfe2a5ca51a9186d18e6abd8a28b9f17f6c8f12dcf928b90bdcb2a92a24513",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 6275,
-          "tokens": 184824,
+          "endLine": 6332,
+          "tokens": 185661,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -97180,22 +97180,120 @@
             "odd",
             "沉淀"
           ]
+        },
+        {
+          "anchor": "§WXG-T-542",
+          "level": 2,
+          "startLine": 6276,
+          "endLine": 6332,
+          "tokens": 835,
+          "summary": "美术·顶栏四钮图标：收回斜面外溢 + 线宽重定档 · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-",
+          "keywords": [
+            "WXG",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§1 触发 (40)",
+          "level": 3,
+          "startLine": 6280,
+          "endLine": 6283,
+          "tokens": 81,
+          "summary": "T-541 交付后两处不达标：① 图标外接圆按「圆牌可用面 ≈ 40」估算，80px 档最大半径 32.0px，已压进底",
+          "keywords": [
+            "触发"
+          ]
+        },
+        {
+          "anchor": "§2 底托几何口径（单一事实来源）",
+          "level": 3,
+          "startLine": 6284,
+          "endLine": 6295,
+          "tokens": 98,
+          "summary": "取 m5-layered.py 的倒角链，0..100 画布 = 圆盘直径：",
+          "keywords": [
+            "layered",
+            "底托几何口径",
+            "单一事实来源"
+          ]
+        },
+        {
+          "anchor": "§3 越界断言（把「目视是否压斜面」变成数值）",
+          "level": 3,
+          "startLine": 6296,
+          "endLine": 6299,
+          "tokens": 70,
+          "summary": "对每个图标的 80px 栅格取 alpha > 8 的像素，算到圆心 (39.5, 39.5) 的最大半径，须 ≤ FA",
+          "keywords": [
+            "alpha",
+            "越界断言",
+            "目视是否压斜",
+            "变成数值"
+          ]
+        },
+        {
+          "anchor": "§4 线宽重定档",
+          "level": 3,
+          "startLine": 6300,
+          "endLine": 6303,
+          "tokens": 74,
+          "summary": "档位 0/4/8/12 → 6/8/10/12，定 +10：+8 在木纹底上偏轻；+12 起齿轮齿槽、奖杯把手与杯身间隙",
+          "keywords": [
+            "线宽重定档"
+          ]
+        },
+        {
+          "anchor": "§5 线宽度量（新增，可回归）",
+          "level": 3,
+          "startLine": 6304,
+          "endLine": 6317,
+          "tokens": 166,
+          "summary": "2 × 墨面积 / 边界长 估平均笔画（边界 = ink 与其 3×3 腐蚀之差），320px 档折算设计单位：",
+          "keywords": [
+            "ink",
+            "线宽度量",
+            "新增",
+            "可回归"
+          ]
+        },
+        {
+          "anchor": "§6 实测 (3)",
+          "level": 3,
+          "startLine": 6318,
+          "endLine": 6326,
+          "tokens": 117,
+          "summary": "设置 4 257 3.51 u 16.2% 0.977 27.1 / 29.6 px ✅ 3.7 KB",
+          "keywords": [
+            "实测"
+          ]
+        },
+        {
+          "anchor": "§7 沉淀 (2)",
+          "level": 3,
+          "startLine": 6327,
+          "endLine": 6332,
+          "tokens": 115,
+          "summary": "无新增条目。两条做法可复用但各仅一例，先以脚本常量 + 注释固化：① 图标可用半径必须从底托倒角链推导（FACE_R /",
+          "keywords": [
+            "FACE_R",
+            "沉淀"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 32006,
-      "lines": 147,
-      "sha256": "0e6bb0ddaee1ccb7b04732b49f74724c262549a6cfd6c4903ef88e0f03426d32",
+      "tokens": 32348,
+      "lines": 148,
+      "sha256": "e40ff2c0083666b74d5758726e6758444c419a1f12b3f4586d0f1aec68bffba0",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 148,
-          "tokens": 31997,
+          "endLine": 149,
+          "tokens": 32340,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -97208,8 +97306,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 120,
-          "endLine": 148,
+          "startLine": 121,
+          "endLine": 149,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
