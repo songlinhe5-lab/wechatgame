@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3905,
       "lines": 132,
-      "sha256": "75094d02c5225ad82dfc0c293b838cb23673fb483b4bbb848ea865d9970f6368",
+      "sha256": "59a83606dd75c8fc3928160327564e4f6b4f8158c6a4351fdd24fcba1dc423de",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 183552 6199 normal",
+          "summary": "1 production/TASKS-DETAIL.md 184840 6274 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "bcfb8c84b321ab09450bb3d77eee2de627d9447e5d2d19895b4f1c188eda8b47",
+      "sha256": "1d7181476377688fade433ba309df8d1e9dbee787696de3cea84804a8f169dcf",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 146 行 / 31582 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 147 行 / 32006 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+147 · §待排（backlog，无号，立项时领取…=119+29",
+          "summary": "§WXG 任务台账（SSOT）=1+148 · §待排（backlog，无号，立项时领取…=120+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 6199 行 / 183552 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 6274 行 / 184840 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6200 · §WXG-T-534=4894+46 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6275 · §WXG-T-534=4894+46 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -88474,17 +88474,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 183552,
-      "lines": 6199,
-      "sha256": "212259932b3cff90b4b078f2df40e640927d50d56135a78e1644217f03ce366b",
+      "tokens": 184840,
+      "lines": 6274,
+      "sha256": "b52024ff3962de4ee99585d2d59122bf769df82518a2eb5003d29dec03e3bdae",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 6200,
-          "tokens": 183535,
+          "endLine": 6275,
+          "tokens": 184824,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -96934,8 +96934,8 @@
           "anchor": "§WXG-T-540",
           "level": 2,
           "startLine": 6134,
-          "endLine": 6200,
-          "tokens": 1085,
+          "endLine": 6202,
+          "tokens": 1086,
           "summary": "美术·顶栏四钮图标重画为矢量线稿（统一线宽 + 木牌暗部色） · 负责：主理人(CodeBuddy) · 状态：✅ 完成",
           "keywords": [
             "WXG",
@@ -97042,10 +97042,142 @@
           "anchor": "§8 沉淀",
           "level": 3,
           "startLine": 6195,
-          "endLine": 6200,
-          "tokens": 84,
+          "endLine": 6202,
+          "tokens": 85,
           "summary": "本批无新增条目。两条做法（矢量几何「接点切线须匹配否则出尖角」、以及「先白母版后上色」）证据仅本批一例，暂不单列。",
           "keywords": [
+            "沉淀"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-541",
+          "level": 2,
+          "startLine": 6203,
+          "endLine": 6275,
+          "tokens": 1284,
+          "summary": "美术·顶栏四钮图标：模型出效果图 + 位图追踪转矢量 · 负责：主理人(CodeBuddy) · 状态：✅ 完成（202",
+          "keywords": [
+            "WXG",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§1 触发 (39)",
+          "level": 3,
+          "startLine": 6207,
+          "endLine": 6210,
+          "tokens": 74,
+          "summary": "用户令「让大模型出四个 icon 效果图，再生成矢量图，不要直接设计矢量图」。即 T-540 的手绘矢量路线作废，改为「",
+          "keywords": [
+            "icon",
+            "触发"
+          ]
+        },
+        {
+          "anchor": "§2 落位 (6)",
+          "level": 3,
+          "startLine": 6211,
+          "endLine": 6223,
+          "tokens": 165,
+          "summary": "games/beads/design/art/proposals/menu-3d-style-20261030/btn-",
+          "keywords": [
+            "games",
+            "beads",
+            "design",
+            "art",
+            "proposals",
+            "menu"
+          ]
+        },
+        {
+          "anchor": "§3 出图与选图",
+          "level": 3,
+          "startLine": 6224,
+          "endLine": 6234,
+          "tokens": 116,
+          "summary": "本地 ComfyUI Qwen_image_2.1，复用 temp/m4-wf-base.json 只换提示词，4 图标",
+          "keywords": [
+            "ComfyUI",
+            "Qwen_image_2",
+            "temp",
+            "base",
+            "json",
+            "出图与选图"
+          ]
+        },
+        {
+          "anchor": "§4 矢量化（本机无 potrace / cv2 / skimage，全部自实现）",
+          "level": 3,
+          "startLine": 6235,
+          "endLine": 6238,
+          "tokens": 104,
+          "summary": "裁墨迹 bbox → 缩 480 → Otsu 二值 → 装正方形画布 → 去对角（把仅对角相接的像素补成 4 连通）→",
+          "keywords": [
+            "potrace",
+            "cv2",
+            "skimage",
+            "bbox",
+            "Otsu",
+            "矢量化"
+          ]
+        },
+        {
+          "anchor": "§5 线宽定档",
+          "level": 3,
+          "startLine": 6239,
+          "endLine": 6242,
+          "tokens": 77,
+          "summary": "模型线宽在 1024 图上仅 ~1.7%，80px 档看不见，故膨胀加粗：先定尺寸、再膨胀（1 次 ≈ +1px/边 @",
+          "keywords": [
+            "线宽定档"
+          ]
+        },
+        {
+          "anchor": "§6 实测 (2)",
+          "level": 3,
+          "startLine": 6243,
+          "endLine": 6251,
+          "tokens": 73,
+          "summary": "设置 4 263 20.2% 0.974 3.7 KB",
+          "keywords": [
+            "实测"
+          ]
+        },
+        {
+          "anchor": "§7 本轮踩并修掉的四个坑",
+          "level": 3,
+          "startLine": 6252,
+          "endLine": 6262,
+          "tokens": 323,
+          "summary": "1 Chaikin 作用在稀疏多边形 长直边角点被切掉约 1/4 边长，方角变 45° 大斜口（日历右上角整块楔形填色）",
+          "keywords": [
+            "Chaikin",
+            "本轮踩并修掉",
+            "的四个坑"
+          ]
+        },
+        {
+          "anchor": "§8 如实标注的四条限制",
+          "level": 3,
+          "startLine": 6263,
+          "endLine": 6269,
+          "tokens": 125,
+          "summary": "1. 线宽仍略轻于 T-540 手绘版（80px 墨量 12.3–20.2% vs 手绘 18.0–26.1%）；再往上",
+          "keywords": [
+            "如实标注的四",
+            "条限制"
+          ]
+        },
+        {
+          "anchor": "§9 沉淀",
+          "level": 3,
+          "startLine": 6270,
+          "endLine": 6275,
+          "tokens": 109,
+          "summary": "本批无新增条目。四个坑里有三条（平滑顺序、even-odd 必要性、膨胀与归一化的冲突）具备复用价值，但均已在脚本内以注",
+          "keywords": [
+            "even",
+            "odd",
             "沉淀"
           ]
         }
@@ -97053,17 +97185,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 31582,
-      "lines": 146,
-      "sha256": "f0f96dc85649c74fd9784d24ac152c0a01a16e72004ed370291ec5600dddb921",
+      "tokens": 32006,
+      "lines": 147,
+      "sha256": "0e6bb0ddaee1ccb7b04732b49f74724c262549a6cfd6c4903ef88e0f03426d32",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 147,
-          "tokens": 31573,
+          "endLine": 148,
+          "tokens": 31997,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -97076,8 +97208,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 119,
-          "endLine": 147,
+          "startLine": 120,
+          "endLine": 148,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
