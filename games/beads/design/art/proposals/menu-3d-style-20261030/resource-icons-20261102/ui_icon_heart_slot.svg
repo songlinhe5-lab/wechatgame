@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160">
-  <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFDF2"/><stop offset="0.45" stop-color="#FFF1D6"/><stop offset="1" stop-color="#DFBE92"/></linearGradient></defs>
-  <path d="M 80,138 C 44,110 12,86 12,58 C 12,34 30,18 50,18 C 64,18 74,27 80,37 C 86,27 96,18 110,18 C 130,18 148,34 148,58 C 148,86 116,110 80,138 Z" fill="url(#g)"/>
-  <path d="M 80,138 C 44,110 12,86 12,58 C 12,34 30,18 50,18 C 64,18 74,27 80,37 C 86,27 96,18 110,18 C 130,18 148,34 148,58 C 148,86 116,110 80,138 Z" fill="none" stroke="#FFFDF2" stroke-width="2.5" opacity="0.85"/>
+  <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF6E4"/><stop offset="0.5" stop-color="#F2D9AC"/><stop offset="1" stop-color="#CFA470"/></linearGradient></defs>
+  <path d="M 80,138 C 44,110 12,86 12,58 C 12,34 30,18 50,18 C 64,18 74,27 80,37 C 86,27 96,18 110,18 C 130,18 148,34 148,58 C 148,86 116,110 80,138 Z" fill="url(#g)" stroke="#5E3B1E" stroke-width="4"/>
+  <path d="M 80,138 C 44,110 12,86 12,58 C 12,34 30,18 50,18 C 64,18 74,27 80,37 C 86,27 96,18 110,18 C 130,18 148,34 148,58 C 148,86 116,110 80,138 Z" fill="none" stroke="#FFF6E4" stroke-width="3" opacity="0.85" transform="translate(0,3) scale(0.94) translate(5,5)"/>
 </svg>

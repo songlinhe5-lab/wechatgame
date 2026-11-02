@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3905,
       "lines": 132,
-      "sha256": "cb7c55374706c1c24dd9b685e3c1066d0188aa3a2b76b9b71737b88a899e76f3",
+      "sha256": "4546ae595ec78f0dfca06377f6fe01e3d9f54964ff481652a72360d729318668",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 199521 7056 normal",
+          "summary": "1 production/TASKS-DETAIL.md 199974 7069 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "2f46255f26d73577e580141603ce76328d1957a65f5b36f37e2cc8573012eb62",
+      "sha256": "7759c65089250e7e395aa3d31bc942efc2278a381f670576494afdd9f068d2b1",
       "tier": "normal",
       "sections": [
         {
@@ -745,7 +745,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 166 行 / 38028 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 166 行 / 38209 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 7056 行 / 199521 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 7069 行 / 199974 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7057 · §WXG-T-549=6626+33 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7070 · §WXG-T-549=6626+33 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -88554,17 +88554,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 199521,
-      "lines": 7056,
-      "sha256": "67d3ce7bdf638da23cee63d0db05c3e9f37897055b1b9b6321454223b52bf137",
+      "tokens": 199974,
+      "lines": 7069,
+      "sha256": "cb2eac0c53fe1c9d102b917d32eba8468d185482a5e275a0dcbee2d803a4a0fa",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 7057,
-          "tokens": 199504,
+          "endLine": 7070,
+          "tokens": 199957,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -98823,8 +98823,8 @@
           "anchor": "§WXG-T-560",
           "level": 2,
           "startLine": 7016,
-          "endLine": 7057,
-          "tokens": 989,
+          "endLine": 7070,
+          "tokens": 1442,
           "summary": "美术·橱窗顶部资源读数改为「单条贯通凹槽」 · 负责：主理人(CodeBuddy)·美术轨 · 状态：✅ 完成（2026",
           "keywords": [
             "WXG",
@@ -98900,14 +98900,27 @@
             "遗留",
             "接入前置"
           ]
+        },
+        {
+          "anchor": "§6 修订（2026-11-02 末轮 · 用户三否）",
+          "level": 3,
+          "startLine": 7058,
+          "endLine": 7070,
+          "tokens": 438,
+          "summary": "① 「凹槽一周有阴影，与版面不贴合」 删掉外侧接触影与两端内壁暗角；只保留内壁上沿吃光 + 内壁下沿受光两条 整圈暗影让",
+          "keywords": [
+            "修订",
+            "末轮",
+            "用户三否"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 38028,
+      "tokens": 38209,
       "lines": 166,
-      "sha256": "41fd9d7905b268be9d6e71101002c1c19356c4cedb93afbfa35dbc20359761d2",
+      "sha256": "7d866fdc7f0d79faadc80809327423902f9b639132c978864b7640823f894373",
       "tier": "hot",
       "sections": [
         {
@@ -98915,7 +98928,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 167,
-          "tokens": 38019,
+          "tokens": 38200,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",

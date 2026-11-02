@@ -38,7 +38,10 @@ HEART = ('M 80,138 C 44,110 12,86 12,58 C 12,34 30,18 50,18 '
          'C 148,86 116,110 80,138 Z')
 BEAD_OUT_R = 58
 BEAD_HOLE_R = 19    # ≈ 0.33 × 外径，与盘面拼豆同比例
-SLOT_HI, SLOT_MID, SLOT_LOW = '#FFFDF2', '#FFF1D6', '#DFBE92'   # 槽内实心档的竖向渐变（米白→暖沙）
+# 槽内档（WXG-T-560 修订）：珠面材质 —— 暖奶白渐变 + 深棕勾边 + 亮缘。
+# 用户 2026-11-02 三否之三「图标设计有纹理的，现在白色形状，不搭」⇒ 冷白平涂改珠面。
+SLOT_HI, SLOT_MID, SLOT_LOW = '#FFF6E4', '#F2D9AC', '#CFA470'
+SLOT_EDGE = '#5E3B1E'      # 勾边（与四钮/招牌珠字同族的深棕）
 
 
 def _svg(body: str) -> str:
@@ -53,7 +56,7 @@ def _svg_slot(body: str) -> str:
     return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{SIZE}" height="{SIZE}" '
             f'viewBox="0 0 {SIZE} {SIZE}">\n'
             f'  <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">'
-            f'<stop offset="0" stop-color="{SLOT_HI}"/><stop offset="0.45" stop-color="{SLOT_MID}"/>'
+            f'<stop offset="0" stop-color="{SLOT_HI}"/><stop offset="0.5" stop-color="{SLOT_MID}"/>'
             f'<stop offset="1" stop-color="{SLOT_LOW}"/></linearGradient></defs>\n{body}\n</svg>\n')
 
 
@@ -90,16 +93,17 @@ def main() -> None:
     # 叠进深槽底时孔位透出槽色；心形同步给亮缘，两枚材质一致。
     slot_icons = {
         'ui_icon_heart_slot': (
-            f'  <path d="{HEART}" fill="url(#g)"/>\n'
-            f'  <path d="{HEART}" fill="none" stroke="{SLOT_HI}" stroke-width="2.5" opacity="0.85"/>'),
+            f'  <path d="{HEART}" fill="url(#g)" stroke="{SLOT_EDGE}" stroke-width="4"/>\n'
+            f'  <path d="{HEART}" fill="none" stroke="{SLOT_HI}" stroke-width="3" opacity="0.85" '
+            f'transform="translate(0,3) scale(0.94) translate(5,5)"/>'),
         'ui_icon_bead_slot': (
-            f'  <path fill-rule="evenodd" fill="url(#g)" '
+            f'  <path fill-rule="evenodd" fill="url(#g)" stroke="{SLOT_EDGE}" stroke-width="4" '
             f'd="M 80,{80 - BEAD_OUT_R} a {BEAD_OUT_R},{BEAD_OUT_R} 0 1,0 0.01,0 Z '
             f'M 80,{80 - BEAD_HOLE_R} a {BEAD_HOLE_R},{BEAD_HOLE_R} 0 1,1 -0.01,0 Z"/>\n'
-            f'  <circle cx="80" cy="80" r="{BEAD_OUT_R - 1.5}" fill="none" stroke="{SLOT_HI}" '
-            f'stroke-width="2" opacity="0.75"/>\n'
-            f'  <circle cx="80" cy="80" r="{BEAD_HOLE_R + 1.2}" fill="none" stroke="{SLOT_HI}" '
-            f'stroke-width="1.6" opacity="0.5"/>'),
+            f'  <circle cx="80" cy="80" r="{BEAD_OUT_R - 5}" fill="none" stroke="{SLOT_HI}" '
+            f'stroke-width="3" opacity="0.8"/>\n'
+            f'  <circle cx="80" cy="80" r="{BEAD_HOLE_R + 3}" fill="none" stroke="{SLOT_EDGE}" '
+            f'stroke-width="2.5" opacity="0.55"/>'),
     }
     for name, body in slot_icons.items():
         svg = DST / f'{name}.svg'

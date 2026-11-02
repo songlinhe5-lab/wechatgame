@@ -42,8 +42,14 @@ INK = (255, 241, 214)        # 数值字色（米白）
 RIM = (94, 56, 26)           # 槽沿外圈（亮木）
 PIT = (46, 25, 12, 235)      # 槽内深底（半透明，让木纹隐透）
 PIT_FLUSH = (32, 16, 8, 205)  # 开槽口径：无外沿的半透深底
-PIT_TOP = (34, 17, 7, 198)    # 单槽口径：槽内渐变（上暗；暖棕，⛔ 不能用近黑，否则像贴片不像挖槽）
-PIT_BOT = (96, 56, 26, 148)   # 单槽口径：槽内渐变（下亮，木纹略透）
+# 槽内渐变三档（用户 2026-11-02 三否之二：白字/近黑底不搭版面 ⇒ 槽整体往「浅木牌」收）
+CARVE = {
+    'light': ((92, 54, 26, 86), (146, 94, 50, 56)),    # 浅刻：只比梁面暗一档，最贴版面
+    'mid':   ((66, 37, 17, 138), (120, 74, 38, 96)),   # 中刻：看得出凹陷，仍是木色
+    'warm':  ((50, 27, 12, 168), (104, 63, 30, 122)),  # 暖刻：凹陷明显但仍留木色（V4）
+    'deep':  ((34, 17, 7, 198), (96, 56, 26, 148)),    # 深槽：旧稿口径（已判不搭）
+}
+PIT_TOP, PIT_BOT = CARVE['mid']
 LIP_CRISP = (198, 148, 92, 165)  # 下沿硬反光（1-2px 亮线 = 挖槽受光边）
 LIP = (176, 126, 74, 120)     # 开槽下沿反光
 GLOW = (0, 0, 0)             # 顶部内阴影
@@ -91,7 +97,7 @@ def slot(im: Image.Image, x: int, y: int, w: int, h: int, icon: str, label: str,
 
 def bar(im: Image.Image, x0: int, y0: int, x1: int, y1: int, icon_px: int, style: str,
         icon_l: Path | None = None, icon_r: Path | None = None, recolor: bool = True,
-        num_scale: float = 1.0) -> None:
+        num_scale: float = 1.0, carve: str = 'mid') -> None:
     """单条贯通凹槽（WXG-T-560）：水平、圆头、无倾角，图标居两端、数值贴图标内侧、中间留空。
 
     槽体仍是「原梁面开槽」口径（无外沿/无新增槽图案）：半透深底 + 顶部内阴影 + 下沿反光。
@@ -107,11 +113,12 @@ def bar(im: Image.Image, x0: int, y0: int, x1: int, y1: int, icon_px: int, style
     r = h // 2
     mask = Image.new('L', (w, h), 0)
     ImageDraw.Draw(mask).rounded_rectangle((0, 0, w - 1, h - 1), radius=r, fill=255)
+    top_c, bot_c = CARVE[carve]
     grad = Image.new('RGBA', (w, h))                                               # 上暗下亮的竖直渐变（槽内受光）
     gd = ImageDraw.Draw(grad)
     for i in range(h):
         t = i / max(h - 1, 1)
-        col = tuple(round(PIT_TOP[c] + (PIT_BOT[c] - PIT_TOP[c]) * t) for c in range(4))
+        col = tuple(round(top_c[c] + (bot_c[c] - top_c[c]) * t) for c in range(4))
         gd.line([(0, i), (w, i)], fill=col)
     tile.paste(grad, (bx0, by0), mask)
     d = ImageDraw.Draw(tile)
@@ -121,33 +128,35 @@ def bar(im: Image.Image, x0: int, y0: int, x1: int, y1: int, icon_px: int, style
         a = round(255 * (1 - i / 26) ** 1.6)
         rd.line([(bx0 - pad + i, 0), (bx0 - pad + i, tile.height)], fill=a)
         rd.line([(bx1 + pad - i - 1, 0), (bx1 + pad - i - 1, tile.height)], fill=a)
-    out_sh = Image.new('L', tile.size, 0)                                          # 槽顶上缘的外侧接触影（凹陷感的关键）
-    ImageDraw.Draw(out_sh).rounded_rectangle((bx0, by0 - 5, bx1, by0 + 2), radius=r, fill=95)
-    tile.paste(Image.new('RGBA', tile.size, (0, 0, 0)), (0, 0), out_sh.filter(ImageFilter.GaussianBlur(3)))
-    sh = Image.new('L', tile.size, 0)                                              # 顶部内阴影（挖槽吃光，加深加宽）
-    ImageDraw.Draw(sh).rounded_rectangle((bx0 + 1, by0 - 1, bx1 - 1, by0 + 7), radius=r, fill=225)
-    sh = sh.filter(ImageFilter.GaussianBlur(4))
+    # ⛔ 不画外侧接触影、不画两端内壁暗角（用户 2026-11-02 三否之一：「凹槽一周有阴影，与版面不贴合」
+    #    —— 整圈暗影会让槽读成贴上去的药丸；真凹槽只有**内壁上沿吃光**与**内壁下沿受光**两条）
+    sh = Image.new('L', tile.size, 0)                                              # 内壁上沿阴影（只吃上半，窄而硬）
+    ImageDraw.Draw(sh).rounded_rectangle((bx0 + 1, by0 - 1, bx1 - 1, by0 + 5), radius=r, fill=200)
+    sh = sh.filter(ImageFilter.GaussianBlur(3))
     tile.paste(Image.new('RGBA', tile.size, (0, 0, 0)), (0, 0), Image.composite(sh, Image.new('L', tile.size, 0), ramp))
-    side = Image.new('L', tile.size, 0)                                            # 两端内壁暗角
-    sd = ImageDraw.Draw(side)
-    sd.ellipse((bx0 - 12, by0 + 3, bx0 + 18, by1 - 3), fill=110)
-    sd.ellipse((bx1 - 18, by0 + 3, bx1 + 12, by1 - 3), fill=110)
-    tile.paste(Image.new('RGBA', tile.size, (0, 0, 0)), (0, 0), side.filter(ImageFilter.GaussianBlur(6)))
-    pool = Image.new('L', tile.size, 0)                                            # 槽底受光（下沿反光的柔光）
-    ImageDraw.Draw(pool).rounded_rectangle((bx0 + 6, by1 - 13, bx1 - 6, by1 - 3), radius=max(r - 4, 3), fill=78)
-    tile.paste(Image.new('RGBA', tile.size, LIP), (0, 0), Image.composite(pool.filter(ImageFilter.GaussianBlur(4)), Image.new('L', tile.size, 0), ramp))
-    lip = Image.new('L', tile.size, 0)                                             # 槽底下沿硬反光（端部渐隐）
-    ImageDraw.Draw(lip).rounded_rectangle((bx0 + 9, by1 - 4, bx1 - 9, by1 - 2), radius=3, fill=255)
+    pool = Image.new('L', tile.size, 0)                                            # 内壁下沿受光（柔光）
+    ImageDraw.Draw(pool).rounded_rectangle((bx0 + 6, by1 - 11, bx1 - 6, by1 - 3), radius=max(r - 4, 3), fill=64)
+    tile.paste(Image.new('RGBA', tile.size, LIP), (0, 0), Image.composite(pool.filter(ImageFilter.GaussianBlur(3)), Image.new('L', tile.size, 0), ramp))
+    lip = Image.new('L', tile.size, 0)                                             # 内壁下沿硬反光（端部渐隐）
+    ImageDraw.Draw(lip).rounded_rectangle((bx0 + 9, by1 - 3, bx1 - 9, by1 - 1), radius=3, fill=255)
     tile.paste(Image.new('RGBA', tile.size, LIP_CRISP), (0, 0), Image.composite(lip, Image.new('L', tile.size, 0), ramp))
     cy = (by0 + by1) // 2
 
     ico_l = _fit(icon_l or ICON_HEART, icon_px, ICON_LIGHT if recolor else None)
     ico_r = _fit(icon_r or ICON_BEAD, icon_px, ICON_LIGHT if recolor else None)
-    tile.alpha_composite(ico_l, (bx0 + 16, cy - ico_l.height // 2))
-    tile.alpha_composite(ico_r, (bx1 - 16 - ico_r.width, cy - ico_r.height // 2))
+    _seat(tile, ico_l, bx0 + 16, cy)                                               # 先落贴附投影，再压图标本体
+    _seat(tile, ico_r, bx1 - 16 - ico_r.width, cy)
     _number(tile, bx0 + 16 + ico_l.width + 11, cy, '12/20', style, anchor='lm', scale=num_scale)
     _number(tile, bx1 - 16 - ico_r.width - 11, cy, '480', style, anchor='rm', scale=num_scale)
     im.alpha_composite(tile, (x0 - pad, y0 - pad))
+
+
+def _seat(tile: Image.Image, ico: Image.Image, x: int, cy: int) -> None:
+    """图标贴附投影：1px 下沉 + 暖黑影，让珠面读成「贴在牌面上」而不是浮着。"""
+    sh = Image.new('RGBA', ico.size, (26, 12, 4, 255))
+    sh.putalpha(ico.getchannel('A').point(lambda v: int(v * 0.55)))
+    tile.alpha_composite(sh, (x, cy - ico.height // 2 + 2))
+    tile.alpha_composite(ico, (x, cy - ico.height // 2))
 
 
 def _fit(path: Path, px: int, recolor: tuple[int, int, int] | None = None) -> Image.Image:
@@ -167,7 +176,9 @@ NUM_SPEC = {                       # (字号, 字色, 描边宽, 描边色, 附�
     'b': (30, (255, 217, 138), 3, (56, 28, 10), 'hilite'),
     'c': (28, (255, 246, 228), 2, (38, 19, 8), 'emboss'),
     'd': (26, (255, 241, 214), 0, None, 'plain'),   # 纯色档：⛔ 无描边无投影（运行时 TextCommand 支持不到）
-    'e': (27, (255, 241, 214), 0, None, 'plain_bold'),  # 纯色粗体档（推荐：控件层可 1:1 还原）
+    'e': (27, (255, 241, 214), 0, None, 'plain_bold'),  # 纯色粗体档（米白）
+    'f': (27, (74, 35, 8), 0, None, 'plain_bold'),      # 纯色粗体·深棕（浅刻档配套，与四钮同族）
+    'g': (27, (247, 205, 157), 0, None, 'plain_bold'),  # 纯色粗体·暖金（plaque_bevel 色系）
 }
 
 
@@ -216,15 +227,17 @@ def main() -> None:
     ap.add_argument('--iconr', help='右端图标 PNG（默认 T-558 拼豆圆片线条件）')
     ap.add_argument('--no-recolor', action='store_true', help='图标保留原色（新设计的自带米白时用）')
     ap.add_argument('--num-scale', type=float, default=1.0, help='数值字号缩放')
+    ap.add_argument('--carve', default='mid', choices=list(CARVE), help='槽深档 light/mid/deep')
+    ap.add_argument('--out', help='输出路径覆盖（比稿稿落 temp/，不覆盖定稿件）')
     a = ap.parse_args()
 
     im = Image.open(a.src or BASE).convert('RGBA') if a.bar else Image.open(BASE).convert('RGBA')
     out = OUT
     if a.bar:
-        out = PROPOSALS / f'menu-design-baseline-cat-topbar-final-slotbar-{a.style}-20261102.png'
+        out = Path(a.out).resolve() if a.out else PROPOSALS / f'menu-design-baseline-cat-topbar-final-slotbar-{a.style}-20261102.png'
         bar(im, a.left, a.y, a.left + a.w, a.y + a.h, a.icon, a.style,
             Path(a.iconl) if a.iconl else None, Path(a.iconr) if a.iconr else None,
-            not a.no_recolor, a.num_scale)
+            not a.no_recolor, a.num_scale, a.carve)
         im.save(out)
         print(f'✅ {out.relative_to(ROOT)} （单槽口径 · 样式 {a.style}）'
               f' 槽 x={a.left}..{a.left + a.w} y={a.y}..{a.y + a.h} 图标 {a.icon}px')
