@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3905,
       "lines": 132,
-      "sha256": "0dba1cf17e9d28ad9a125e281c2556e948ca72e47d8a154ac99ed477bb42dfd5",
+      "sha256": "3b6beaacfb7ee565faad9e18b5a669555f19580fab9090b42c65e09e821b5afe",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 186725 6395 normal",
+          "summary": "1 production/TASKS-DETAIL.md 187520 6443 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "74f2f383da98e13ae57fa1190fc4d7837490419baa0d2635720fb9d4a5e650df",
+      "sha256": "7c259907f487e530e5b2ebd87b8438251f28cc63713cb9501e7cd474e6cf0c75",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 149 行 / 32787 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 150 行 / 33172 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+150 · §待排（backlog，无号，立项时领取…=122+29",
+          "summary": "§WXG 任务台账（SSOT）=1+151 · §待排（backlog，无号，立项时领取…=123+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 6395 行 / 186725 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 6443 行 / 187520 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6396 · §WXG-T-534=4894+46 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6444 · §WXG-T-534=4894+46 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -88474,17 +88474,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 186725,
-      "lines": 6395,
-      "sha256": "c89bd7bd3cbbfe89826d1dcc1649188b1172e72ae6af30262b318114e118796f",
+      "tokens": 187520,
+      "lines": 6443,
+      "sha256": "a4ac0436e2acd15fe5bd91e50eb988529cac80d30c46c4d1c3e95330ee304a2a",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 6396,
-          "tokens": 186709,
+          "endLine": 6444,
+          "tokens": 187503,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -97389,22 +97389,98 @@
           "keywords": [
             "沉淀"
           ]
+        },
+        {
+          "anchor": "§WXG-T-544",
+          "level": 2,
+          "startLine": 6397,
+          "endLine": 6444,
+          "tokens": 791,
+          "summary": "美术·顶栏三钮图标：云端 3.0 与 3.0-pro 横比 · 负责：主理人(CodeBuddy) · 状态：✅ 完成（",
+          "keywords": [
+            "WXG",
+            "pro",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§1 触发 (42)",
+          "level": 3,
+          "startLine": 6401,
+          "endLine": 6404,
+          "tokens": 53,
+          "summary": "用户令「image 3.0 和 image 3.0 pro 各生成三个矢量图对比」。属横比批，不替换已采用件（当前采用仍",
+          "keywords": [
+            "image",
+            "pro",
+            "触发"
+          ]
+        },
+        {
+          "anchor": "§2 方法与记账",
+          "level": 3,
+          "startLine": 6405,
+          "endLine": 6416,
+          "tokens": 177,
+          "summary": "同提示词、同 seed 11、同 1024²，两模型各出三枚，再走与本地版完全相同的追踪参数（FIT_R 35.0 / ",
+          "keywords": [
+            "seed",
+            "FIT_R",
+            "方法与记账"
+          ]
+        },
+        {
+          "anchor": "§3 实测（含本地基准）",
+          "level": 3,
+          "startLine": 6417,
+          "endLine": 6430,
+          "tokens": 202,
+          "summary": "好友榜 云 3.0 5 141 57.5 12.6% 0.991 28.4 ✅",
+          "keywords": [
+            "实测",
+            "含本地基准"
+          ]
+        },
+        {
+          "anchor": "§4 结论",
+          "level": 3,
+          "startLine": 6431,
+          "endLine": 6438,
+          "tokens": 214,
+          "summary": "1. 3.0 与 pro 无可判别质量差：外框长边三枚完全相同（57.5/57.5/62.5）、墨量差 ≤0.7 点、I",
+          "keywords": [
+            "pro",
+            "结论"
+          ]
+        },
+        {
+          "anchor": "§5 沉淀",
+          "level": 3,
+          "startLine": 6439,
+          "endLine": 6444,
+          "tokens": 75,
+          "summary": "无新增条目。本轮为选型横比，结论已写入产物说明；pro 的「贵而不优」与矩阵 §3 既有结论同向，不重复登记。",
+          "keywords": [
+            "§3",
+            "pro",
+            "沉淀"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 32787,
-      "lines": 149,
-      "sha256": "2ac9c91d66507383a0a905f937b83c3f39389fc9e4b21ed7b4824ad53f159352",
+      "tokens": 33172,
+      "lines": 150,
+      "sha256": "ab71f16d1b18b988f860ee78528b9e765337ebdab709b2b196a8146d94281f59",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 150,
-          "tokens": 32778,
+          "endLine": 151,
+          "tokens": 33163,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -97417,8 +97493,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 122,
-          "endLine": 150,
+          "startLine": 123,
+          "endLine": 151,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
