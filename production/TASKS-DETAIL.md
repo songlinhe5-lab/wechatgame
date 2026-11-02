@@ -6808,3 +6808,35 @@ pressed 与源底托逐边一致；normal 的左右/下方数值更大，是投�
 1. **图标是现成件复用**（红心 `asset-icon-stamina` / 金币 `asset-icon-coin`）；「图标单独设计」为**下一单**（可走顶栏图标同链：模型出图 → 位图追踪）。
 2. 数值为占位读数，接运行时数据时由 UI 渲染。
 3. 云端重跑产物会略不同（无 seed 复现保证）；定稿件以本单所指 PNG 为准。
+
+## WXG-T-554
+
+**美术·清空 `final/coordinates` 与 `final/prototypes` 的 v1 内容（待重做 v2）** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-02）
+
+### 1. 用户令
+
+> 「`games/beads/design/art/final/coordinates` 与 `.../prototypes` 里面内容已经是 v1 版本的了，需要清理掉重新做 v2 的。」
+
+### 2. 处置
+
+| 动作 | 内容 |
+|---|---|
+| `git rm` | **14 件**：`coordinates/` 7（总图 + 五档机型图 + levelselect 坐标图）、`prototypes/` 7（proto-v3 三态 + 走马灯示意帧 + proto-v2-full + levelselect 页面/弹窗） |
+| 目录 | 两目录**保留为空**（各放 `.gitkeep`）⇒ v2 重做件直接落原位，README 路径不变 |
+| v1 原件回看 | `git show 21a8e52d:games/beads/design/art/final/<dir>/<file>`（与 T-550 封存口径一致：两目录当时就"不入快照"） |
+| README | 四处注记：`prototypes/` 表行、`coordinates/` 表行、选关节两行（levelselect 两件）⇒ 全部标「⏸ 已清空（2026-11-02 用户令：现存内容属 v1，待重做 v2）」 |
+| 连带 | `tests/ui-golden-scenes.ts` 注释里指向 `final/prototypes` 的失效路径已订正（该处仅注释，不加载文件 ⇒ 无测试影响，已 grep 确认全仓仅此一处引用） |
+
+### 3. 同步处置的并发事故（如实登记）
+
+- `final/v1/coordinates/`、`final/v1/prototypes/`：另一会话在 13:20 前后把 `final/` 下两目录**移动**（非复制）进 v1 产生的未跟踪副本 —— 随本单清除（正式件回看走 git，且本次按用户令整体清退 ⇒ 无信息损失）。
+- `final/assets/menu/`：同一并发操作**两次**搬走 32 件现役资源（13:20 一次、本单执行中又一次，磁盘从 41 → 9 / 11 件）。已两次 `git restore --source=HEAD` 恢复至 **41 件**。⚠ 该并发来源未定位（无 git/mv 进程在跑时文件已消失），需用户侧确认是否有另一会话在动 `final/`。
+
+### 4. 校验
+
+- 引用面：`grep` 全仓 `final/prototypes|final/coordinates` 命中 1 处且仅注释（`ui-golden-scenes.ts`）⇒ 删除不破坏测试、harness 白名单、`check-cocos-mask` 的 `MENU_SRC`。
+- `check:tasks` OK（110 行 / 133 节）、`check:links` OK、`ctx:check` OK。
+
+### 5. 遗留
+
+- v2 的 coordinates（总图 + 五档机型）与 prototypes（三态 + 走马灯帧）**尚未重做** —— 按版面是否随 v2 改（顶栏 Ø92/贴边 14、资源槽板）而定，需先定 v2 版面口径再出图。

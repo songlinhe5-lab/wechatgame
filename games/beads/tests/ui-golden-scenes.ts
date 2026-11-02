@@ -378,7 +378,8 @@ export function runAllUiGoldenStates(): Array<{ record: UiGoldenStateRecord; flo
 
 /**
  * `[WXG-T-478]` **美术还原 review 出图腿**：把十一个金样本态各构一张 `RenderModel` 交调用方
- * （`ui-shot-render.ts` 用它导 SVG，供与 `设计/art/final/prototypes` 原型定稿 PNG 比对）。
+ * （`ui-shot-render.ts` 用它导 SVG，供与原型定稿 PNG 比对；⚠ `final/prototypes` 已于 2026-11-02 清空待重做 v2，
+ * 现行原型件位置见 `design/art/final/README.md` 的 `prototypes/` 行）。
  *
  * ⛔ 与夹具对拍无关：只**读** `STATES`，不写 sha、不改覆盖集、不影响 `ui-golden.test.ts`。
  */

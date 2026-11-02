@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3905,
       "lines": 132,
-      "sha256": "8b44b8738b7c2c6fc37920ab42ffbacdde9d63435da1c420aa951f7d1a34abf8",
+      "sha256": "e3cf6663a4a21c1e099efbbb802827344ea9a52ee0cbe1ecf3ff69a1ef021c3f",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 194392 6810 normal",
+          "summary": "1 production/TASKS-DETAIL.md 195132 6842 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "f106979c7e3d7b9967a5e265561272400601e0b2fc5b641fbbe79f819c15d179",
+      "sha256": "7ec6beefc33949a424758da664a9b2512d6755df51c0470adc2ac9adeca74122",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 159 行 / 36114 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 160 行 / 36376 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+160 · §待排（backlog，无号，立项时领取…=132+29",
+          "summary": "§WXG 任务台账（SSOT）=1+161 · §待排（backlog，无号，立项时领取…=133+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 6810 行 / 194392 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 6842 行 / 195132 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6811 · §WXG-T-542=6276+57 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6843 · §WXG-T-543=6333+64 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -24444,9 +24444,9 @@
     },
     {
       "path": "games/beads/design/art/final/README.md",
-      "tokens": 4588,
+      "tokens": 4750,
       "lines": 56,
-      "sha256": "a56b482f2bb05f82fea3d27b0d293502a89a1aa20ae957547912d868188b2e6b",
+      "sha256": "2595f93ef48fb0516181a09e54bc89fe3f01d8a9d3a4d206548c521975d893db",
       "tier": "normal",
       "sections": [
         {
@@ -24454,7 +24454,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 57,
-          "tokens": 4572,
+          "tokens": 4733,
           "summary": "2026-10-14 用户裁定：资源定稿分三类；shots 只按日期存每日结论证据，本区是验收后的归集面（复制入库，原件",
           "keywords": [
             "final",
@@ -24468,11 +24468,10 @@
           "level": 2,
           "startLine": 8,
           "endLine": 15,
-          "tokens": 1662,
-          "summary": "prototypes/ 原型设计：整屏视觉原型（定稿版面） 现行（v3.8，2026-10-16）= proto-v3-",
+          "tokens": 1776,
+          "summary": "prototypes/ 原型设计：整屏视觉原型（定稿版面） ⏸ 已清空（2026-11-02 用户令：现存内容属 v1，",
           "keywords": [
             "prototypes",
-            "proto",
             "三类目录"
           ]
         },
@@ -24497,7 +24496,7 @@
           "level": 2,
           "startLine": 35,
           "endLine": 46,
-          "tokens": 435,
+          "tokens": 483,
           "summary": "prototypes/levelselect-v1-popup-750x1334-at2x.png 脚本 ../../a",
           "keywords": [
             "prototypes",
@@ -88555,17 +88554,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 194392,
-      "lines": 6810,
-      "sha256": "04824620b01bdc89515b12c99dc98fe68708e6314242a417d0f78124f6e7ac8d",
+      "tokens": 195132,
+      "lines": 6842,
+      "sha256": "95c8b188571dd647e3096e944af3ad3c73726222cca4d659b97711c59933f4ca",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 6811,
-          "tokens": 194375,
+          "endLine": 6843,
+          "tokens": 195115,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -98330,22 +98329,111 @@
             "coin",
             "遗留与取舍"
           ]
+        },
+        {
+          "anchor": "§WXG-T-554",
+          "level": 2,
+          "startLine": 6812,
+          "endLine": 6843,
+          "tokens": 737,
+          "summary": "美术·清空 final/coordinates 与 final/prototypes 的 v1 内容（待重做 v2） ·",
+          "keywords": [
+            "WXG",
+            "final",
+            "coordinates",
+            "prototypes"
+          ]
+        },
+        {
+          "anchor": "§1 用户令 (4)",
+          "level": 3,
+          "startLine": 6816,
+          "endLine": 6819,
+          "tokens": 44,
+          "summary": "「games/beads/design/art/final/coordinates 与 .../prototypes 里",
+          "keywords": [
+            "games",
+            "beads",
+            "design",
+            "art",
+            "final",
+            "coordinates"
+          ]
+        },
+        {
+          "anchor": "§2 处置",
+          "level": 3,
+          "startLine": 6820,
+          "endLine": 6829,
+          "tokens": 270,
+          "summary": "git rm 14 件：coordinates/ 7（总图 + 五档机型图 + levelselect 坐标图）、pro",
+          "keywords": [
+            "git",
+            "coordinates",
+            "levelselect",
+            "pro",
+            "处置"
+          ]
+        },
+        {
+          "anchor": "§3 同步处置的并发事故（如实登记）",
+          "level": 3,
+          "startLine": 6830,
+          "endLine": 6834,
+          "tokens": 191,
+          "summary": "final/v1/coordinates/、final/v1/prototypes/：另一会话在 13:20 前后把 f",
+          "keywords": [
+            "final",
+            "coordinates",
+            "prototypes",
+            "同步处置的并",
+            "发事故",
+            "如实登记"
+          ]
+        },
+        {
+          "anchor": "§4 校验 (4)",
+          "level": 3,
+          "startLine": 6835,
+          "endLine": 6839,
+          "tokens": 80,
+          "summary": "引用面：grep 全仓 final/prototypes final/coordinates 命中 1 处且仅注释（ui",
+          "keywords": [
+            "grep",
+            "final",
+            "prototypes",
+            "coordinates",
+            "校验"
+          ]
+        },
+        {
+          "anchor": "§5 遗留 (5)",
+          "level": 3,
+          "startLine": 6840,
+          "endLine": 6843,
+          "tokens": 70,
+          "summary": "v2 的 coordinates（总图 + 五档机型）与 prototypes（三态 + 走马灯帧）尚未重做 —— 按版",
+          "keywords": [
+            "coordinates",
+            "prototypes",
+            "遗留"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 36114,
-      "lines": 159,
-      "sha256": "20b0178836d7e59a4d9a6f00f672dfd8ab13d1e66edd0d47548ef7cdf1289ecb",
+      "tokens": 36376,
+      "lines": 160,
+      "sha256": "093a9ea4c0fe8841f962662bee673bccf816bff631b64c06b8eddd205ff5b450",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 160,
-          "tokens": 36105,
+          "endLine": 161,
+          "tokens": 36367,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -98358,8 +98446,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 132,
-          "endLine": 160,
+          "startLine": 133,
+          "endLine": 161,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
