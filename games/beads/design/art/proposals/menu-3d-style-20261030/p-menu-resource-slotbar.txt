@@ -1,0 +1,67 @@
+
+【设计稿】menu-design-baseline-cat-topbar-final-slotbar-20261102.png
+落盘：2026-11-02　·　WXG-T-560　·　用途 = 橱窗顶部资源读数的**单槽口径**定稿
+
+■ 它是什么（用户 2026-11-02 三令）
+底图 = `menu-design-baseline-cat-topbar-final-20261102.png`（顶栏四钮定稿件）。
+三条令逐步收口：
+1. 首令「在橱窗顶部设计星数豆数的显示，要融合在外框上」⇒ 双槽版 `...-final-slot-flush-20261102.png`（WXG-T-553/555）。
+2. 否令「这个设计不行，需要把中间心型去掉，并拉成一条整体凹槽，水平放置，并将图标放置两端，数字样式需要设计」
+   ⇒ 本稿：**抹掉中缝镂空心形** + **一条贯通水平凹槽** + 图标居两端 + 数值重排。
+3. 修令「凹槽不完全嵌入框边，凹槽可以再下移一点，并缩短一点，两端图标先出设计再贴进去」
+   ⇒ 槽下移 8px、由 398×36 收到 **356×34**、两端留 13–16px 余量；图标先出概念比稿再入册。
+
+■ 几何（这张基准图的 1:1 设计 px）
+| 项 | 值 |
+|---|---|
+| 凹槽 | **x 202..558（356）· y 358..392（34）· 圆头 r=17 · 倾角 0（严格水平）** |
+| 距梁面上缘 | 左端 ≈16px / 右端 ≈13px（该处梁面上缘 y≈345 / 347）——**完整嵌在梁面内，不压框边** |
+| 距梁面下沿 | ≈5px（梁面下沿 y≈397） |
+| 图标 | 26px（槽内高 34，34px 图标会顶穿）；左 = 心、右 = 拼豆圆片 |
+| 数值 | 左「12/20」左对齐于图标右 11px；右「480」右对齐于图标左 11px；中段整段留空 |
+
+■ 图标（概念2「珠面高光」，用户拍板）
+- 入册：`resource-icons-20261102/ui_icon_{heart,bead}_slot.svg` + `.png`（160² 母版）
+- 生成器：`design/ai-workflows/gen-resource-icons.py`（`_svg_slot()` 分支，与 T-558 的线条件同族）
+- 做法：米白竖向渐变 `#FFFDF2 → #FFF1D6 → #DFBE92` + 亮缘；拼豆圆片的**孔用 `fill-rule="evenodd"` 真镂空**，
+  叠进深槽底时孔位透出槽色（不是叠一个深色圆——那样会读成灰点）。
+- 被否的两档：概念1 实心无渐变（死板）、概念3 粗线条件（26px 下心形读成空心轮廓、圆片丢孔）。
+
+■ 数值样式（用户令：以能程序化实现为准）
+| 项 | 定值 | 说明 |
+|---|---|---|
+| 字色 | `#FFF1D6` 米白 | 深槽底上对比足够 |
+| 字号 | 本图 27px bold | 运行时对应 `bold sans-serif` 档 |
+| 描边 / 投影 | **无** | 运行时做不到，见下节 |
+
+⛔ **描边/投影为何去掉（实测，不是审美取舍）**
+- `packages/framework/src/core/render/render-model.ts` 的 `TextCommand` 只有 `fill / font / align / baseline / alpha`
+  —— **没有 stroke、没有 shadow**；`adapters/canvas2d/canvas2d-renderer.ts` 的文字分支只调 `ctx.fillText()`。
+- 全仓 `strokeText` / `shadowBlur` / `LabelOutline` / `LabelShadow` 命中数 **0**。
+- 要加描边只能改框架（`TextCommand` 增字段 + canvas2d 与 Cocos 两条 adapter 同步 + 测试），属框架级新单，本轮不做。
+- 投影理论上可用「两条偏移 text 叠画」模拟（零框架改动），但深槽底是均匀色，投影收益极低 ⇒ 一并去掉。
+- 顺带：运行时字体全部是 `sans-serif`（`view/ui-theme.ts` 的 `UI_FONT`），**没有 SF Pro Rounded**；
+  本稿数值按 bold sans-serif 出，运行时可 1:1 还原。若确要招牌级的圆体数字，须走 `wx.loadFont` 载 ttf（包体代价）或位图数字条。
+
+■ 方法链（可复现）
+| 步 | 命令 | 说明 |
+|---|---|---|
+| 1. 抹心形 | `dashscope-generate.py --profile token-plan --model wan2.7-image --ref menu-design-baseline-cat-topbar-final-20261102.png --bbox 334,324,422,392 --size "752*1344" --text "<抹平镂空心形、木纹连续、不新增图案>"` | 9.1s；wan2.7 全图漂移（框外 meanΔ 9.45 / maxΔ 206）⇒ 必须贴回 |
+| 2. 贴回 | 三步：`α=blur(M)×M` 只向内羽化 → 合成 → `C[~M]=A[~M]` 硬拷回 | **框外 maxΔ = 0**（逐字节）；框内 meanΔ 13.6 |
+| 3. 图标 | `python3 design/ai-workflows/gen-resource-icons.py` | 出 4 件（两枚线条件 + 两枚槽内实心档） |
+| 4. 出稿 | `python3 design/ai-workflows/menu-resource-slot.py --bar --style e --src <贴回图> --left 202 --w 356 --y 358 --h 34 --icon 26 --iconl <…/ui_icon_heart_slot.png> --iconr <…/ui_icon_bead_slot.png> --no-recolor` | 槽体全程序化（渐变/内阴影/外侧接触影/下沿反光/端部渐隐） |
+
+■ ⛔ 与运行时的关系（接入前置条件）
+1. **槽高只有 34 本图 px**，而现役运行时资源条是 **46px**（`meta-menu.ts` v3.6「覆盖楣的上 46 px」）——
+   本图约 1.48× 运行时（招牌 548 vs 落地单 370），46 运行时 ≈ 68 本图 px，**水平直槽在拱梁上装不下**
+   （梁面在两端只有 ≈44px 高）。⇒ 接入时二者必须择一：改矮运行时资源条，或把槽加高并相应缩短。
+2. 槽体的**渐变/内阴影/下沿反光** `RectCommand` 表达不了（只有单色 fill + stroke）⇒ 真接入须做 **9-slice 凹槽贴图**
+   （走 `gen-settle-9slice.py` 生产线），否则运行时只剩一块平色圆角矩。
+3. 坐标 ⛔ 直接照抄（本图非 1:1 版面）；真源 = `tuning/layout.ts` + `meta-menu.ts`。
+4. 右项语义 = coins 改叫「豆数」，属文案/数据项改动，须另走裁定。
+
+■ 已知取舍
+1. 中缝心形是**原始梁面雕刻**，已用模型抹掉；但抹除区随贴回**不入库**（底图为仓库内件，中间图在 `temp/`），
+   复现需重跑上表第 1–2 步（模型无 seed 复现保证）。
+2. 数值为占位读数（12/20 心数、480 豆数），接运行时数据由 UI 渲染。
+3. 双槽旧稿 `...-final-slot-flush-20261102.png` 保留在库（不同口径的历史件），已被本稿取代。

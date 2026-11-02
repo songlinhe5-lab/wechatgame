@@ -7012,3 +7012,45 @@ T-554 当时按「清理掉重新做 v2」把 14 件 `git rm` 了；本单按用
 
 - `ui_menu_backdrop` 仍是 v1 侧唯一「新增件」，若后续确认它也是 v2 起步件，按同法再撤。
 - v1 快照在这四个品类（四钮）上**无老版留存**（旧版白盘底圆只在 `temp/backup-ui-circle-20261102/`，按当时裁定不入库）；真 v1 件的考古口径仍见 T-551 行。
+
+## WXG-T-560
+
+**美术·橱窗顶部资源读数改为「单条贯通凹槽」** · 负责：主理人(CodeBuddy)·美术轨 · 状态：✅ 完成（2026-11-02）
+
+### 1. 用户令（三令收口）
+
+1. 「在橱窗顶部设计星数豆数的显示，要融合在外框上」→ 双槽版（WXG-T-553/555）。
+2. 「这个设计不行，需要把中间心型去掉，并拉成一条整体凹槽，水平放置，并将图标放置两端，数字样式需要设计。」
+3. 「凹槽不完全嵌入框边，凹槽可以再下移一点，并缩短一点，两端图标先出设计再贴进去。」
+
+### 2. 处置
+
+| 面 | 变化 |
+|---|---|
+| 中缝镂空心形 | wan2.7 bbox `334,324,422,392`（9.1s）抹平 → 贴回三步（羽化只向内 / 合成 / 框外硬拷回）⇒ **框外 maxΔ=0**，框内 meanΔ 13.6，木纹连续无残迹 |
+| 凹槽 | 双槽（各 190×48、±5° 倾角）→ **单槽 356×34**、**严格水平无倾角**、圆头 r=17；位置 (202,358)，两端距梁面上缘 ≈16/13px（完整嵌入）、距下沿 ≈5px |
+| 图标 | 换 T-558 线条件试装后发现深槽上深棕线看不见 → 先出**三档概念比稿**（实心剪影 / 珠面高光 / 粗线条件），用户拍板**概念2** 后入册 `ui_icon_{heart,bead}_slot`（SVG+PNG 160²） |
+| 数值 | 米白 `#FFF1D6` bold 27px；左「12/20」贴图标右 11px，右「480」贴图标左 11px，中段留空；**无描边无投影** |
+
+### 3. 关键实测：描边/投影在控件层做不到
+
+- `packages/framework/src/core/render/render-model.ts` 的 `TextCommand` 字段 = `fill / font / align / baseline / alpha`（无 stroke/shadow）。
+- `packages/framework/src/adapters/canvas2d/canvas2d-renderer.ts` 文字分支只调 `ctx.fillText()`（237/241 行）。
+- 全仓 `strokeText` / `shadowBlur` / `LabelOutline` / `LabelShadow` 命中 **0**。
+- ⇒ 用户令「如果不能，描边投影就不要了」按此执行；要加属框架级新单（`TextCommand` 扩字段 + 两条 adapter + 测试）。
+- 同时记下：运行时字体全部 `sans-serif`（`view/ui-theme.ts` `UI_FONT`），**无 SF Pro Rounded** ⇒ 设计稿按 bold sans-serif 出。
+
+### 4. 产出
+
+- 定稿 `proposals/menu-3d-style-20261030/menu-design-baseline-cat-topbar-final-slotbar-20261102.png`
+- 说明件 `…/p-menu-resource-slotbar.txt`（几何表 / 方法链 / 复现命令 / 与运行时的 4 条前置条件）
+- 图标 `…/resource-icons-20261102/ui_icon_{heart,bead}_slot.{svg,png}`；生成器 `ai-workflows/gen-resource-icons.py` 增 `_svg_slot()` 分支
+- 脚本 `ai-workflows/menu-resource-slot.py` 增 `--bar` 单槽模式（`--style a/b/c/d/e`、`--iconl/--iconr/--no-recolor/--num-scale`）
+
+### 5. 遗留（接入前置）
+
+1. **槽高 34（本图 px）vs 现役运行时资源条 46px 互斥**——本图约 1.48× 运行时，46 运行时 ≈ 68 本图 px，
+   而拱梁两端梁面只有 ≈44px 高，水平直槽装不下 ⇒ 接入须择一：改矮运行时资源条，或把槽加高并缩短。
+2. 槽体渐变/内阴影/下沿反光 `RectCommand` 表达不了（只有单色 fill+stroke）⇒ 真接入须做 **9-slice 凹槽贴图**。
+3. 坐标非 1:1（本图招牌 548 vs 落地单 370），真源仍 `tuning/layout.ts` + `meta-menu.ts`。
+4. 右项「豆数」= coins 改称，属文案/数据项改动，另走裁定。

@@ -38,6 +38,7 @@ HEART = ('M 80,138 C 44,110 12,86 12,58 C 12,34 30,18 50,18 '
          'C 148,86 116,110 80,138 Z')
 BEAD_OUT_R = 58
 BEAD_HOLE_R = 19    # ≈ 0.33 × 外径，与盘面拼豆同比例
+SLOT_HI, SLOT_MID, SLOT_LOW = '#FFFDF2', '#FFF1D6', '#DFBE92'   # 槽内实心档的竖向渐变（米白→暖沙）
 
 
 def _svg(body: str) -> str:
@@ -47,8 +48,17 @@ def _svg(body: str) -> str:
             f'stroke-linecap="round" stroke-linejoin="round">\n{body}\n  </g>\n</svg>\n')
 
 
-def _raster(svg_path: Path, png_path: Path) -> None:
-    """用隔离空间的 resvg 把 SVG 栅格化到 SIZE×SIZE。
+def _svg_slot(body: str) -> str:
+    """槽内实心档（概念2「珠面高光」）：米白竖向渐变 + 亮缘，深槽底上必须浅色实心才站得住。"""
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{SIZE}" height="{SIZE}" '
+            f'viewBox="0 0 {SIZE} {SIZE}">\n'
+            f'  <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">'
+            f'<stop offset="0" stop-color="{SLOT_HI}"/><stop offset="0.45" stop-color="{SLOT_MID}"/>'
+            f'<stop offset="1" stop-color="{SLOT_LOW}"/></linearGradient></defs>\n{body}\n</svg>\n')
+
+
+def _raster(svg_path: Path, png_path: Path, size: int = SIZE) -> None:
+    """用隔离空间的 resvg 把 SVG 栅格化到 size×size。
 
     ⚠ 必须走 CJS（`node -e` 默认模式）：ESM 的 `import` 不认 `NODE_PATH`（实测 ERR_MODULE_NOT_FOUND）。
     """
@@ -56,7 +66,7 @@ def _raster(svg_path: Path, png_path: Path) -> None:
         "const {Resvg}=require('@resvg/resvg-js');"
         "const {readFileSync,writeFileSync}=require('node:fs');"
         f"const s=readFileSync({str(svg_path)!r},'utf8');"
-        f"writeFileSync({str(png_path)!r}, new Resvg(s,{{fitTo:{{mode:'width',value:{SIZE}}}}}).render().asPng());"
+        f"writeFileSync({str(png_path)!r}, new Resvg(s,{{fitTo:{{mode:'width',value:{size}}}}}).render().asPng());"
     )
     env = {**os.environ, 'NODE_PATH': str(RESVG_NM)}
     subprocess.run(['node', '-e', js], check=True, env=env)
@@ -75,6 +85,27 @@ def main() -> None:
         svg.write_text(_svg(body), encoding='utf-8')
         _raster(svg, DST / f'{name}.png')
         print(f'✅ {(DST / f"{name}.svg").relative_to(ROOT)} + .png')
+
+    # 槽内实心档（WXG-T-560）：概念2「珠面高光」——拼豆圆片的孔用 evenodd 真镂空，
+    # 叠进深槽底时孔位透出槽色；心形同步给亮缘，两枚材质一致。
+    slot_icons = {
+        'ui_icon_heart_slot': (
+            f'  <path d="{HEART}" fill="url(#g)"/>\n'
+            f'  <path d="{HEART}" fill="none" stroke="{SLOT_HI}" stroke-width="2.5" opacity="0.85"/>'),
+        'ui_icon_bead_slot': (
+            f'  <path fill-rule="evenodd" fill="url(#g)" '
+            f'd="M 80,{80 - BEAD_OUT_R} a {BEAD_OUT_R},{BEAD_OUT_R} 0 1,0 0.01,0 Z '
+            f'M 80,{80 - BEAD_HOLE_R} a {BEAD_HOLE_R},{BEAD_HOLE_R} 0 1,1 -0.01,0 Z"/>\n'
+            f'  <circle cx="80" cy="80" r="{BEAD_OUT_R - 1.5}" fill="none" stroke="{SLOT_HI}" '
+            f'stroke-width="2" opacity="0.75"/>\n'
+            f'  <circle cx="80" cy="80" r="{BEAD_HOLE_R + 1.2}" fill="none" stroke="{SLOT_HI}" '
+            f'stroke-width="1.6" opacity="0.5"/>'),
+    }
+    for name, body in slot_icons.items():
+        svg = DST / f'{name}.svg'
+        svg.write_text(_svg_slot(body), encoding='utf-8')
+        _raster(svg, DST / f'{name}.png')
+        print(f'✅ {(DST / f"{name}.svg").relative_to(ROOT)} + .png（槽内实心档）')
 
 
 if __name__ == '__main__':
