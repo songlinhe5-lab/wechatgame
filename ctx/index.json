@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3905,
       "lines": 132,
-      "sha256": "57149c518c021938cc17c3012d8ca956b8b06c10d46c0eb5a399652c453dc4ec",
+      "sha256": "75094d02c5225ad82dfc0c293b838cb23673fb483b4bbb848ea865d9970f6368",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 182463 6130 normal",
+          "summary": "1 production/TASKS-DETAIL.md 183552 6199 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "5ed60d3689518989108ce54a5d83f975b671c8c76bd6028a4325362c7270000f",
+      "sha256": "bcfb8c84b321ab09450bb3d77eee2de627d9447e5d2d19895b4f1c188eda8b47",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 145 行 / 31173 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 146 行 / 31582 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+146 · §待排（backlog，无号，立项时领取…=118+29",
+          "summary": "§WXG 任务台账（SSOT）=1+147 · §待排（backlog，无号，立项时领取…=119+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 6130 行 / 182463 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 6199 行 / 183552 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6131 · §WXG-T-534=4894+46 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6200 · §WXG-T-534=4894+46 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -88474,17 +88474,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 182463,
-      "lines": 6130,
-      "sha256": "bbcd58a9923620a7cc81bdf37f05b5c67ef4bc0805144e92a31c839c17c69f5f",
+      "tokens": 183552,
+      "lines": 6199,
+      "sha256": "212259932b3cff90b4b078f2df40e640927d50d56135a78e1644217f03ce366b",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 6131,
-          "tokens": 182446,
+          "endLine": 6200,
+          "tokens": 183535,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -96845,8 +96845,8 @@
           "anchor": "§WXG-T-539",
           "level": 2,
           "startLine": 6082,
-          "endLine": 6131,
-          "tokens": 991,
+          "endLine": 6133,
+          "tokens": 992,
           "summary": "美术·顶栏钮分层化（共用底托 + 图标覆盖层） · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-1",
           "keywords": [
             "WXG",
@@ -96921,12 +96921,131 @@
           "anchor": "§6 沉淀",
           "level": 3,
           "startLine": 6125,
-          "endLine": 6131,
-          "tokens": 133,
+          "endLine": 6133,
+          "tokens": 134,
           "summary": "本批无新增条目。可复用结论已被 K-207（立体感来自方向光）/ K-208（LANCZOS alpha 振铃）覆盖；本",
           "keywords": [
             "LANCZOS",
             "alpha",
+            "沉淀"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-540",
+          "level": 2,
+          "startLine": 6134,
+          "endLine": 6200,
+          "tokens": 1085,
+          "summary": "美术·顶栏四钮图标重画为矢量线稿（统一线宽 + 木牌暗部色） · 负责：主理人(CodeBuddy) · 状态：✅ 完成",
+          "keywords": [
+            "WXG",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§1 触发 (38)",
+          "level": 3,
+          "startLine": 6138,
+          "endLine": 6141,
+          "tokens": 90,
+          "summary": "用户令「重新设计四个矢量图，要求线条简单，有宽度，替换为木牌暗部值」。即放弃 T-539 里「从成品图按亮度抽取」的做法",
+          "keywords": [
+            "触发"
+          ]
+        },
+        {
+          "anchor": "§2 落位 (5)",
+          "level": 3,
+          "startLine": 6142,
+          "endLine": 6152,
+          "tokens": 123,
+          "summary": "games/beads/design/art/proposals/menu-3d-style-20261030/btn-",
+          "keywords": [
+            "games",
+            "beads",
+            "design",
+            "art",
+            "proposals",
+            "menu"
+          ]
+        },
+        {
+          "anchor": "§3 暗部值取定（实测，非拍脑袋）",
+          "level": 3,
+          "startLine": 6153,
+          "endLine": 6165,
+          "tokens": 161,
+          "summary": "招牌整块 (110,60)–(650,240)，排除奶油色字与高光（亮度 <235）后按亮度分位取：",
+          "keywords": [
+            "暗部值取定",
+            "实测",
+            "非拍脑袋"
+          ]
+        },
+        {
+          "anchor": "§4 几何返工两次（本轮主要成本）",
+          "level": 3,
+          "startLine": 6166,
+          "endLine": 6173,
+          "tokens": 190,
+          "summary": "v1 线宽 8（80px 档 6.4px）过粗，齿轮线条覆盖 52.47%；奖杯双耳用纯圆弧，两端脱开杯壁成了悬浮 C；",
+          "keywords": [
+            "几何返工两次",
+            "本轮主要成本"
+          ]
+        },
+        {
+          "anchor": "§5 技术点",
+          "level": 3,
+          "startLine": 6174,
+          "endLine": 6178,
+          "tokens": 71,
+          "summary": "8× 超采样：800×800 上以 width = STROKE × 8 描边，LANCZOS 降到 80 / 160 ",
+          "keywords": [
+            "width",
+            "STROKE",
+            "LANCZOS",
+            "技术点"
+          ]
+        },
+        {
+          "anchor": "§6 实测",
+          "level": 3,
+          "startLine": 6179,
+          "endLine": 6187,
+          "tokens": 84,
+          "summary": "80px 线条覆盖 settings 22.50% / rank 17.91% / calendar 16.18% / ",
+          "keywords": [
+            "settings",
+            "rank",
+            "calendar",
+            "实测"
+          ]
+        },
+        {
+          "anchor": "§7 如实标注的四条限制",
+          "level": 3,
+          "startLine": 6188,
+          "endLine": 6194,
+          "tokens": 168,
+          "summary": "1. 线端为方头：PIL 的 joint='curve' 只圆化折点不圆化端点；要圆头须逐段加端帽或换 SVG 渲染。",
+          "keywords": [
+            "PIL",
+            "joint",
+            "curve",
+            "SVG",
+            "如实标注的四",
+            "条限制"
+          ]
+        },
+        {
+          "anchor": "§8 沉淀",
+          "level": 3,
+          "startLine": 6195,
+          "endLine": 6200,
+          "tokens": 84,
+          "summary": "本批无新增条目。两条做法（矢量几何「接点切线须匹配否则出尖角」、以及「先白母版后上色」）证据仅本批一例，暂不单列。",
+          "keywords": [
             "沉淀"
           ]
         }
@@ -96934,17 +97053,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 31173,
-      "lines": 145,
-      "sha256": "cca8493dc498b828a96482c4f6b2ef08023ac5aece5b134d1c97a4ebdb25034e",
+      "tokens": 31582,
+      "lines": 146,
+      "sha256": "f0f96dc85649c74fd9784d24ac152c0a01a16e72004ed370291ec5600dddb921",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 146,
-          "tokens": 31164,
+          "endLine": 147,
+          "tokens": 31573,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -96957,8 +97076,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 118,
-          "endLine": 146,
+          "startLine": 119,
+          "endLine": 147,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
