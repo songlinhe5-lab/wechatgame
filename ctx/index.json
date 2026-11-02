@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3905,
       "lines": 132,
-      "sha256": "98790bca54c484687c08f29e27408ed28bc4235164845dab0790fbfae1e0d20d",
+      "sha256": "0dba1cf17e9d28ad9a125e281c2556e948ca72e47d8a154ac99ed477bb42dfd5",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 185678 6331 normal",
+          "summary": "1 production/TASKS-DETAIL.md 186725 6395 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "a0e8c222e934c386d1b838e38ad83f7fdd5292b2ac6e9256535f089660fe398e",
+      "sha256": "74f2f383da98e13ae57fa1190fc4d7837490419baa0d2635720fb9d4a5e650df",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 148 行 / 32348 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 149 行 / 32787 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+149 · §待排（backlog，无号，立项时领取…=121+29",
+          "summary": "§WXG 任务台账（SSOT）=1+150 · §待排（backlog，无号，立项时领取…=122+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 6331 行 / 185678 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 6395 行 / 186725 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6332 · §WXG-T-534=4894+46 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+6396 · §WXG-T-534=4894+46 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -88474,17 +88474,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 185678,
-      "lines": 6331,
-      "sha256": "97dfe2a5ca51a9186d18e6abd8a28b9f17f6c8f12dcf928b90bdcb2a92a24513",
+      "tokens": 186725,
+      "lines": 6395,
+      "sha256": "c89bd7bd3cbbfe89826d1dcc1649188b1172e72ae6af30262b318114e118796f",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 6332,
-          "tokens": 185661,
+          "endLine": 6396,
+          "tokens": 186709,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -97278,22 +97278,133 @@
             "FACE_R",
             "沉淀"
           ]
+        },
+        {
+          "anchor": "§WXG-T-543",
+          "level": 2,
+          "startLine": 6333,
+          "endLine": 6396,
+          "tokens": 1044,
+          "summary": "美术·顶栏四钮图标 v2：核心尺寸对齐（三枚重出） · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026",
+          "keywords": [
+            "WXG",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§1 触发 (41)",
+          "level": 3,
+          "startLine": 6337,
+          "endLine": 6340,
+          "tokens": 84,
+          "summary": "用户令「尽量保持核心部分尺寸一致，榜单、每日签到、换肤三个矢量图重新生成」。经确认：设置（齿轮）沿用不动，造型除设置外可",
+          "keywords": [
+            "触发"
+          ]
+        },
+        {
+          "anchor": "§2 根因量化（为什么三个看起来小一圈）",
+          "level": 3,
+          "startLine": 6341,
+          "endLine": 6353,
+          "tokens": 183,
+          "summary": "320px 档实测外框（单位 = 设计单位）：",
+          "keywords": [
+            "根因量化",
+            "为什么三个看",
+            "起来小一圈"
+          ]
+        },
+        {
+          "anchor": "§3 几何天花板（已向用户声明，非调参可解）",
+          "level": 3,
+          "startLine": 6354,
+          "endLine": 6357,
+          "tokens": 106,
+          "summary": "外接圆半径 35.0 时：圆内接正方形边长上限 2×35/√2 = 49.5，圆形图标可到 70。⇒ 方形/扁形图标面积",
+          "keywords": [
+            "几何天花板",
+            "已向用户声明",
+            "非调参可解"
+          ]
+        },
+        {
+          "anchor": "§4 出图（本地，未上云）",
+          "level": 3,
+          "startLine": 6358,
+          "endLine": 6369,
+          "tokens": 152,
+          "summary": "qwen-image-2.1-t2i.api.json，25 步 / cfg 1.0 / 1024²，459:474 C",
+          "keywords": [
+            "qwen",
+            "image",
+            "t2i",
+            "api",
+            "json",
+            "cfg"
+          ]
+        },
+        {
+          "anchor": "§5 转矢量参数变化",
+          "level": 3,
+          "startLine": 6370,
+          "endLine": 6377,
+          "tokens": 83,
+          "summary": "FIT_R 33.5（安全边 3.5） 35.0（安全边 2.0）",
+          "keywords": [
+            "FIT_R",
+            "转矢量参数变"
+          ]
+        },
+        {
+          "anchor": "§6 实测 (4)",
+          "level": 3,
+          "startLine": 6378,
+          "endLine": 6386,
+          "tokens": 112,
+          "summary": "好友榜 4 155 62.5 u 12.3% 0.986 28.2 / 29.6 px ✅",
+          "keywords": [
+            "实测"
+          ]
+        },
+        {
+          "anchor": "§7 踩的坑",
+          "level": 3,
+          "startLine": 6387,
+          "endLine": 6390,
+          "tokens": 113,
+          "summary": "提示词写「图标几乎占满整个画面」对成品尺寸完全无效——追踪前会按墨迹 bbox 裁切再归一化，画面占比只影响分辨率利用率",
+          "keywords": [
+            "bbox",
+            "踩的坑"
+          ]
+        },
+        {
+          "anchor": "§8 沉淀 (2)",
+          "level": 3,
+          "startLine": 6391,
+          "endLine": 6396,
+          "tokens": 88,
+          "summary": "无新增条目。本轮两条经验均属 T-542 已固化原则的延伸（约束从底托几何推导、判据可回归），证据各仅一例，写进 p-b",
+          "keywords": [
+            "沉淀"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 32348,
-      "lines": 148,
-      "sha256": "e40ff2c0083666b74d5758726e6758444c419a1f12b3f4586d0f1aec68bffba0",
+      "tokens": 32787,
+      "lines": 149,
+      "sha256": "2ac9c91d66507383a0a905f937b83c3f39389fc9e4b21ed7b4824ad53f159352",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 149,
-          "tokens": 32340,
+          "endLine": 150,
+          "tokens": 32778,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -97306,8 +97417,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 121,
-          "endLine": 149,
+          "startLine": 122,
+          "endLine": 150,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
