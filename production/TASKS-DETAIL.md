@@ -6907,3 +6907,37 @@ T-554 当时按「清理掉重新做 v2」把 14 件 `git rm` 了；本单按用
 
 - 仓库体积 +19.1 MB（两目录 PNG 入库）。这是用户明令的代价，已在 VERSION.txt 记为"推翻初封口径"。
 - 后续 v2 出件仍落 `final/coordinates/`、`final/prototypes/`（路径不变），与 `v1/` 形成"只读快照 vs 现役"双轨。
+
+## WXG-T-557
+
+**美术·`final/assets/menu` 除点名 6 件外全部归档 v1** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-02）
+
+### 1. 用户令
+
+> 「`final/assets/menu` 里 `ui_btn_circle_normal` / `ui_btn_arrow_right` / `ui_icon_skin` / `ui_icon_settings` / `ui_icon_rank` / `ui_icon_calendar` **保留**，其他归档 v1。」
+
+### 2. 处置
+
+| 面 | 变化 |
+|---|---|
+| `final/assets/menu/` | 41 件 → **6 件**（保留集：`ui_btn_circle_normal` · `ui_btn_arrow_right` · `ui_icon_{skin,settings,rank,calendar}`） |
+| `final/v1/assets/menu/` | 32 件 → **35 件**（移入 35 件；其中 32 件与既有件**逐字节 md5 一致**，3 件新增：`ui_btn_circle_pressed` · `ui_btn_arrow_left` · `ui_menu_backdrop`） |
+| 方式 | `mv`（归档即移动，不是复制）⇒ 现役面确实只剩 6 件，符合用户"其他归档"的语义 |
+
+### 3. 影响面实证（归档前先量，避免"静默破坏运行时"）
+
+- **消费端引用**：`dev/harness/main.ts` 的位图映射引用 **28 个**件名；归档后 **22 件缺图**。
+- **运行时行为**：代码本就有 `menuBitmapReady()` 判定 + 程序化回退分支 ⇒ 缺图不崩，退化为程序化绘制。
+- **门禁读数**：`pnpm run harness:smoke` **全绿**（beads/breakout 均通过）；`check:cocos-mask` **OK**；`check:size` **OK**（beads 4066.4/4096 KB，读的是 Cocos 产物，与源目录无关）。
+- ⇒ 当前状态可开发、可验证，但**harness 实机画面会比归档前"素"**（背景/招牌/橱窗框/资源条等回退为程序化画法），属预期副作用。
+
+### 4. 文档同步
+
+- `README` 的 `assets/<页面>/` 行改写为「**6 件（保留集）** + 35 件已归档」。
+- `README` 的「assets/menu 台账」标题下加归档期注记：表内"接线状态"保留归档前事实仅供追溯，并写明缺图回退与 smoke 实证。
+- `v1/VERSION.txt`：封存内容 32 → 35 件，新增「增补（WXG-T-557）」行。
+
+### 5. 遗留
+
+- 现役面只剩 6 件 ⇒ 后续 v2 若需背景/招牌/橱窗框/CTA/资源条等，必须**新出件**（不能指望现役目录），或从 `v1/assets/menu/` 复制出来改。
+- 顶栏四钮在运行时需要 `ui_btn_circle_pressed`（按下态）与 `ui_btn_arrow_left`（左箭头），二者已归档 ⇒ 若要让四钮完整显示，需确认这两件是否要从 v1 取回现役。
