@@ -7232,6 +7232,38 @@ T-554 当时按「清理掉重新做 v2」把 14 件 `git rm` 了；本单按用
 2. 置灰只到玻璃内壁矩形，**圆台仍全彩**；若要求「整柜冷灰」需扩遮罩。
 3. `coordinates/` 仍空（v2 无分层件，出坐标图会误导落码）。
 
+## WXG-T-565
+
+**工具链·`.trae/` 破例入库 + 工作区垃圾清理** · 负责：主理人(Trae)·工具链轨 · 状态：✅ 完成（2026-11-02）
+
+### 1. 用户令
+
+用户「提交。trae」，二进制确认后选「**都做：清垃圾 + 入库 .trae**」。
+
+### 2. 裁定反转（此前为「不入库」）
+
+WXG-T-412 时用户裁定 `.trae/` 为**本地个人配置、不入库**（上一轮试提交被 ctx 索引器「点目录跳过」拦死，仅撤回暂存）。本次用户明确要求入库，`check:links` 已支持 `.trae` 参与校验（`OPTIONAL_IDE_DIRS`）。
+
+改前实测 `check:links` 已绿：agents=7 / skills=50，说明 `.trae/` 链接拓扑本就合规，入库无机检风险。
+
+### 3. 落地
+
+| 面 | 内容 |
+|---|---|
+| 入库 | `.trae/skills/` 51 链接 + `.trae/agents/` 7 链接 + `.trae/rules/agents-md.md` + `.trae/specs/` 2 套 6 件 |
+| 文书反转 | `my-rules/agents-md.md`（四→五 IDE 入库）、`docs/agent/routing.md`（3 处）、`my-agents/INDEX.md`、`my-skills/INDEX.md`（2 处）、`docs/agent/ide-capability-matrix.md`、`tools/scripts/check-ide-links.mjs`（头注 + 常量注） |
+| 清理 | 删 `1500` / `200`（curl cookie 文本，`file` 实测 Netscape cookie） |
+| 忽略 | `.gitignore` 新增 `games/*/.vitest-tmp/`（系统盘紧张时 TMPDIR 落在仓内的临时目录） |
+
+### 4. 验收
+
+- `node tools/scripts/check-ide-links.mjs` → **OK**（agents=7 skills=50）
+- `git status` 干净（无残留 `?? .trae/`）
+
+### 5. 沉淀统计
+
+**未跑 `kb:sync`**。候选 1 条：「同一目录的入库裁定可能被用户反转，改裁定点须一次性收齐全部文档表述（6 文件 7 处），否则门禁与文档口径分叉」。统计 = 新增 0 / 修改 0 / 激活 0 / 归档 0（本批）。
+
 ## WXG-T-564
 
 **美术·三态章 v2 木刻重绘（i2i）+ 原型换章** · 负责：主理人(CodeBuddy)·美术轨 · 状态：✅ 完成（2026-11-02）

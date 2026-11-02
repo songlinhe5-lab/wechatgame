@@ -15,19 +15,18 @@
 orchestration > wxgame-* 域 skill > 执行 pack > 外来通用（仅点名）
 ```
 
-## Skill 正本与 IDE 链接（四 IDE 入库 + Trae 本地）
+## Skill 正本与 IDE 链接（五 IDE 全部入库）
 
-**Skill 正本**：`my-skills/<name>/`。四处入库 IDE 链接（相对符号链接，随仓库提交）：
+**Skill 正本**：`my-skills/<name>/`。五处入库 IDE 链接（相对符号链接，随仓库提交）：
 
-- `.cursor/skills/` · `.codebuddy/skills/` · `.workbuddy/skills/` · `.qoder/skills/`
-- Trae（本地可选，不入库）：`.trae/skills/`（存在时 `check:links` 按同一规则校验）
+- `.cursor/skills/` · `.codebuddy/skills/` · `.workbuddy/skills/` · `.qoder/skills/` · `.trae/skills/`（WXG-T-565 起入库，`check:links` 同一规则校验）
 
-新增 skill：正本进 `my-skills/`，四处各建 `../../my-skills/<name>` 链接；Trae 本地另建同目标链接。
+新增 skill：正本进 `my-skills/`，五处各建 `../../my-skills/<name>` 链接。
 
-## SubAgent IDE 路径（四 IDE 入库 + Trae 本地）
+## SubAgent IDE 路径（五 IDE 全部入库）
 
 工作室成员委派：正本 `my-agents/`（6 成员 + `studio-orchestrator`）；委派时 `subagent_type` = `<name>`。
-四 IDE：`.cursor|.codebuddy|.workbuddy|.qoder/agents/<name>.md` → `../../my-agents/<name>.md`；Trae 本地 `.trae/agents/<name>.md` 同目标（不入库）。清单见 `my-agents/INDEX.md`。
+五 IDE：`.cursor|.codebuddy|.workbuddy|.qoder|.trae/agents/<name>.md` → `../../my-agents/<name>.md`。清单见 `my-agents/INDEX.md`。
 
 ## 跨域先交编排
 
@@ -49,7 +48,7 @@ orchestration > wxgame-* 域 skill > 执行 pack > 外来通用（仅点名）
 | CodeBuddy | `.codebuddy/rules/agents-md/RULE.mdc` → `../../../my-rules/agents-md.md` |
 | WorkBuddy | `.workbuddy/rules/agents-md/RULE.mdc` → `../../../my-rules/agents-md.md` |
 | Qoder | `.qoder/rules/agents-md.md` → `../../my-rules/agents-md.md` |
-| Trae | `.trae/rules/agents-md.md` → `../../my-rules/agents-md.md`（本地可选、不入库；`alwaysApply: true`；同目录递归 ≤3 层） |
+| Trae | `.trae/rules/agents-md.md` → `../../my-rules/agents-md.md`（入库；`alwaysApply: true`；同目录递归 ≤3 层） |
 
 **二、长期笔记 MEMORY（四 IDE 可索引 + Trae 直读）**
 

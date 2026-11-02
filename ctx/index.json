@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3905,
       "lines": 132,
-      "sha256": "3e48a4ea1fecba88982fe86a5c4edd77ba12dc6e2bbc9677cd46bf843e6d9bf3",
+      "sha256": "cdae363364eb82452c5d46f7fe60e82ac9395ddd12b4434f7c929f4e29be544f",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 204306 7267 normal",
+          "summary": "1 production/TASKS-DETAIL.md 204834 7299 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "d8d22eb12d476c7a5acdfeb0fd69117dff63db10b60e878281ff369e3315af36",
+      "sha256": "ba9f013ee0e6259bee14cac0d86a91e122883e83f0cdbce687164774deb73f62",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 171 行 / 39974 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 172 行 / 40202 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+172 · §待排（backlog，无号，立项时领取…=144+29",
+          "summary": "§WXG 任务台账（SSOT）=1+173 · §待排（backlog，无号，立项时领取…=145+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -777,7 +777,7 @@
           ]
         },
         {
-          "anchor": "§`my-skills/INDEX.md` — 160 行 / 4926 tok / 实测读 61 次",
+          "anchor": "§`my-skills/INDEX.md` — 160 行 / 4927 tok / 实测读 61 次",
           "level": 2,
           "startLine": 36,
           "endLine": 40,
@@ -825,7 +825,7 @@
           ]
         },
         {
-          "anchor": "§`my-agents/INDEX.md` — 47 行 / 904 tok / 实测读 18 次",
+          "anchor": "§`my-agents/INDEX.md` — 47 行 / 901 tok / 实测读 18 次",
           "level": 2,
           "startLine": 51,
           "endLine": 54,
@@ -889,12 +889,12 @@
           ]
         },
         {
-          "anchor": "§`docs/agent/routing.md` — 64 行 / 1168 tok",
+          "anchor": "§`docs/agent/routing.md` — 63 行 / 1120 tok",
           "level": 2,
           "startLine": 69,
           "endLine": 72,
           "tokens": 86,
-          "summary": "§默认路由细节（docs/agent/r…=1+65 · §Hooks / 提交门禁 / Head…=7+5 · §Sk",
+          "summary": "§默认路由细节（docs/agent/r…=1+64 · §Hooks / 提交门禁 / Head…=7+5 · §Sk",
           "keywords": [
             "docs/agent/routing.md",
             "docs",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 7267 行 / 204306 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 7299 行 / 204834 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7268 · §WXG-T-553=6824+39 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7300 · §WXG-T-554=6863+32 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -2752,9 +2752,9 @@
     },
     {
       "path": "docs/agent/ide-capability-matrix.md",
-      "tokens": 1718,
+      "tokens": 1714,
       "lines": 41,
-      "sha256": "b544b4487e0c0816e98efcafbfd7dce998939434d39dd09cec75801550f3ef0d",
+      "sha256": "eb06491dedd9a01448df4b8d70f901cc2e7f1a06c0fb907b41b60b6345df82d9",
       "tier": "normal",
       "sections": [
         {
@@ -2762,7 +2762,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 42,
-          "tokens": 1699,
+          "tokens": 1696,
           "summary": "来源：主理人盘点（2026-09-13，WXG-T-045）。结论先行的分工：开发在 CodeBuddy / Curso",
           "keywords": [
             "IDE",
@@ -3144,17 +3144,17 @@
     },
     {
       "path": "docs/agent/routing.md",
-      "tokens": 1168,
-      "lines": 64,
-      "sha256": "06a64f21ea72fb672419966b8b8ec8dbec0323901e8aeb81688affe27b61d259",
+      "tokens": 1120,
+      "lines": 63,
+      "sha256": "f9f4cbb80421c3cb17f25e8051268685bfc6c0936d2ca4919cf08a3b338ce7c9",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§默认路由细节（docs/agent/routing.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 65,
-          "tokens": 1154,
+          "endLine": 64,
+          "tokens": 1106,
           "summary": "来源：自 AGENTS.md §2「默认怎么干活」迁出的细节部分（skill 优先级、四 IDE 路径、新增 skill",
           "keywords": [
             "§2",
@@ -3195,42 +3195,42 @@
           ]
         },
         {
-          "anchor": "§Skill 正本与 IDE 链接（四 IDE 入库 + Trae 本地）",
+          "anchor": "§Skill 正本与 IDE 链接（五 IDE 全部入库）",
           "level": 2,
           "startLine": 18,
-          "endLine": 26,
-          "tokens": 126,
-          "summary": "Skill 正本：my-skills/<name>/。四处入库 IDE 链接（相对符号链接，随仓库提交）：",
+          "endLine": 25,
+          "tokens": 105,
+          "summary": "Skill 正本：my-skills/<name>/。五处入库 IDE 链接（相对符号链接，随仓库提交）：",
           "keywords": [
             "Skill",
             "IDE",
-            "Trae",
             "skills",
             "name",
-            "正本与"
+            "正本与",
+            "链接"
           ]
         },
         {
-          "anchor": "§SubAgent IDE 路径（四 IDE 入库 + Trae 本地）",
+          "anchor": "§SubAgent IDE 路径（五 IDE 全部入库）",
           "level": 2,
-          "startLine": 27,
-          "endLine": 31,
-          "tokens": 90,
+          "startLine": 26,
+          "endLine": 30,
+          "tokens": 73,
           "summary": "工作室成员委派：正本 my-agents/（6 成员 + studio-orchestrator）；委派时 subage",
           "keywords": [
             "SubAgent",
             "IDE",
-            "Trae",
             "agents",
             "studio",
-            "orchestrator"
+            "orchestrator",
+            "subage"
           ]
         },
         {
           "anchor": "§跨域先交编排",
           "level": 2,
-          "startLine": 32,
-          "endLine": 39,
+          "startLine": 31,
+          "endLine": 38,
           "tokens": 119,
           "summary": "跨域或「整款游戏从哪开始」→ 先交编排，不要自己跳着写全套文档。",
           "keywords": [
@@ -3240,9 +3240,9 @@
         {
           "anchor": "§规则件与 MEMORY 件的四 IDE 落位（+ Trae 本地）",
           "level": 2,
-          "startLine": 40,
-          "endLine": 65,
-          "tokens": 519,
+          "startLine": 39,
+          "endLine": 64,
+          "tokens": 513,
           "summary": "迁出缘由（2026-10-18 · WXG-T-292 瘦身续批）：AGENTS.md 受 ctx:check A 项常",
           "keywords": [
             "MEMORY",
@@ -68364,9 +68364,9 @@
     },
     {
       "path": "my-agents/INDEX.md",
-      "tokens": 904,
+      "tokens": 901,
       "lines": 47,
-      "sha256": "77b6848dfabe10a8cdf19c10c18644b5eea38b0b448f4378a2c20a633fe45253",
+      "sha256": "0d6a5c0c2dc5b01c65eab1c861f5d12e84676cbaf64bab9d7f21ba5193ba7de6",
       "tier": "normal",
       "sections": [
         {
@@ -68374,7 +68374,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 48,
-          "tokens": 893,
+          "tokens": 890,
           "summary": "与 my-skills/ 同级：角色执行者定义在此；方法论在 skill。",
           "keywords": [
             "agents",
@@ -68406,7 +68406,7 @@
           "level": 2,
           "startLine": 18,
           "endLine": 27,
-          "tokens": 108,
+          "tokens": 105,
           "summary": "Cursor .cursor/agents/<name>.md → ../../my-agents/<name>.md",
           "keywords": [
             "IDE",
@@ -70157,9 +70157,9 @@
     },
     {
       "path": "my-rules/agents-md.md",
-      "tokens": 497,
+      "tokens": 487,
       "lines": 27,
-      "sha256": "5afebf4b2f78206c4e7710b2c1471378fb49940b98c49db3682047f395b05943",
+      "sha256": "7c62b30985f3b2abc0c989f5f5f79a26423a943800366bb1f2d66388d665119e",
       "tier": "always",
       "sections": [
         {
@@ -70167,24 +70167,24 @@
           "level": 1,
           "startLine": 8,
           "endLine": 28,
-          "tokens": 451,
-          "summary": "正本：my-rules/agents-md.md。四 IDE 规则路径均为指向本文件的相对符号链接（Trae 为本地可选",
+          "tokens": 441,
+          "summary": "正本：my-rules/agents-md.md；五 IDE 规则路径均指向本文件（相对符号链接，已入库）。",
           "keywords": [
             "AGENTS",
             "MEMORY",
             "rules",
             "agents",
             "IDE",
-            "Trae"
+            "遵循项目"
           ]
         }
       ]
     },
     {
       "path": "my-skills/INDEX.md",
-      "tokens": 4926,
+      "tokens": 4927,
       "lines": 160,
-      "sha256": "a74ca66ee971892065642c7cfda68f993033befda1b23c6924212f3c2f4115cb",
+      "sha256": "da3b246710c86c973368c5a96a0025c82e9ae114c4ae0370092f7b738c3eed2b",
       "tier": "normal",
       "sections": [
         {
@@ -70192,7 +70192,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 161,
-          "tokens": 4918,
+          "tokens": 4919,
           "summary": "本文件是 my-skills/ 全家族的统一约定（人读 + 编排者读）。",
           "keywords": [
             "wxgame",
@@ -70297,7 +70297,7 @@
           "level": 2,
           "startLine": 136,
           "endLine": 149,
-          "tokens": 222,
+          "tokens": 223,
           "summary": "游戏（策划/美术/源码） games/<game>/design · games/<game>/art · games/",
           "keywords": [
             "games",
@@ -88554,17 +88554,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 204306,
-      "lines": 7267,
-      "sha256": "3f016abee76f8f240090e13fb1c70c098d1593c1477a561fcb229361efeae990",
+      "tokens": 204834,
+      "lines": 7299,
+      "sha256": "aebdea726b3bf76dee5c01af875de1b4f853d4234119f85ec0355232a21d1b8e",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 7268,
-          "tokens": 204289,
+          "endLine": 7300,
+          "tokens": 204817,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -99231,10 +99231,94 @@
           ]
         },
         {
-          "anchor": "§WXG-T-564",
+          "anchor": "§WXG-T-565",
           "level": 2,
           "startLine": 7235,
-          "endLine": 7268,
+          "endLine": 7266,
+          "tokens": 525,
+          "summary": "工具链·.trae/ 破例入库 + 工作区垃圾清理 · 负责：主理人(Trae)·工具链轨 · 状态：✅ 完成（2026",
+          "keywords": [
+            "WXG",
+            "trae",
+            "Trae"
+          ]
+        },
+        {
+          "anchor": "§1 用户令 (12)",
+          "level": 3,
+          "startLine": 7239,
+          "endLine": 7242,
+          "tokens": 31,
+          "summary": "用户「提交。trae」，二进制确认后选「都做：清垃圾 + 入库 .trae」。",
+          "keywords": [
+            "trae",
+            "用户令"
+          ]
+        },
+        {
+          "anchor": "§2 裁定反转（此前为「不入库」）",
+          "level": 3,
+          "startLine": 7243,
+          "endLine": 7248,
+          "tokens": 122,
+          "summary": "WXG-T-412 时用户裁定 .trae/ 为本地个人配置、不入库（上一轮试提交被 ctx 索引器「点目录跳过」拦死，",
+          "keywords": [
+            "WXG",
+            "trae",
+            "ctx",
+            "裁定反转",
+            "此前为",
+            "不入库"
+          ]
+        },
+        {
+          "anchor": "§3 落地 (3)",
+          "level": 3,
+          "startLine": 7249,
+          "endLine": 7257,
+          "tokens": 173,
+          "summary": "入库 .trae/skills/ 51 链接 + .trae/agents/ 7 链接 + .trae/rules/ag",
+          "keywords": [
+            "trae",
+            "skills",
+            "agents",
+            "rules",
+            "落地"
+          ]
+        },
+        {
+          "anchor": "§4 验收 (3)",
+          "level": 3,
+          "startLine": 7258,
+          "endLine": 7262,
+          "tokens": 34,
+          "summary": "node tools/scripts/check-ide-links.mjs → OK（agents=7 skills=",
+          "keywords": [
+            "node",
+            "tools",
+            "scripts",
+            "check",
+            "ide",
+            "links"
+          ]
+        },
+        {
+          "anchor": "§5 沉淀统计 (9)",
+          "level": 3,
+          "startLine": 7263,
+          "endLine": 7266,
+          "tokens": 86,
+          "summary": "未跑 kb:sync。候选 1 条：「同一目录的入库裁定可能被用户反转，改裁定点须一次性收齐全部文档表述（6 文件 7 ",
+          "keywords": [
+            "sync",
+            "沉淀统计"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-564",
+          "level": 2,
+          "startLine": 7267,
+          "endLine": 7300,
           "tokens": 671,
           "summary": "美术·三态章 v2 木刻重绘（i2i）+ 原型换章 · 负责：主理人(CodeBuddy)·美术轨 · 状态：✅ 完成（",
           "keywords": [
@@ -99244,10 +99328,10 @@
           ]
         },
         {
-          "anchor": "§1 用户令 (12)",
+          "anchor": "§1 用户令 (13)",
           "level": 3,
-          "startLine": 7239,
-          "endLine": 7242,
+          "startLine": 7271,
+          "endLine": 7274,
           "tokens": 37,
           "summary": "T-563 结束时给三选（A 以 v1 三件 i2i 重出 / B 全新文生图 / C 本地 qwen），用户回「A」。",
           "keywords": [
@@ -99259,8 +99343,8 @@
         {
           "anchor": "§2 处置 (6)",
           "level": 3,
-          "startLine": 7243,
-          "endLine": 7255,
+          "startLine": 7275,
+          "endLine": 7287,
           "tokens": 322,
           "summary": "通道 云 DashScope Token Plan · wan2.7-image i2i（--ref）",
           "keywords": [
@@ -99275,8 +99359,8 @@
         {
           "anchor": "§3 不入库（有意，须记录）",
           "level": 3,
-          "startLine": 7256,
-          "endLine": 7262,
+          "startLine": 7288,
+          "endLine": 7294,
           "tokens": 143,
           "summary": "三件 v2 章不进 final/assets/menu/ 与 cocos/assets/textures/：",
           "keywords": [
@@ -99291,8 +99375,8 @@
         {
           "anchor": "§4 产出与登记",
           "level": 3,
-          "startLine": 7263,
-          "endLine": 7268,
+          "startLine": 7295,
+          "endLine": 7300,
           "tokens": 97,
           "summary": "批目录 design/art/proposals/menu-3d-style-20261030/badge-v2-202",
           "keywords": [
@@ -99308,17 +99392,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 39974,
-      "lines": 171,
-      "sha256": "26b3584441d56ff49a5d025241602d5914c738e02a7717b34f3fc1aa9dd3eb19",
+      "tokens": 40202,
+      "lines": 172,
+      "sha256": "03f737552309156a4d4ba9d567717934cfa7550f993bae97d4484839aeefe395",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 172,
-          "tokens": 39965,
+          "endLine": 173,
+          "tokens": 40193,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -99331,8 +99415,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 144,
-          "endLine": 172,
+          "startLine": 145,
+          "endLine": 173,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

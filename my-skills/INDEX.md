@@ -142,8 +142,8 @@ wxgame-orchestration（流程与裁决）
 | QA 产物 | `production/qa/` |
 | 发布产物 | `production/release/` |
 | Epic/冲刺 | `production/epics/` · `production/sprints/` |
-| skill 正本 | `my-skills/<name>/`（四 IDE 目录均为相对符号链接；Trae 本地可选） |
-| SubAgent 正本 | `my-agents/<name>.md`（四 IDE `.*/agents/` 相对符号链接；见 `my-agents/INDEX.md`） |
+| skill 正本 | `my-skills/<name>/`（五 IDE 目录均为相对符号链接，含 Trae，均入库） |
+| SubAgent 正本 | `my-agents/<name>.md`（五 IDE `.*/agents/` 相对符号链接；见 `my-agents/INDEX.md`） |
 | 项目常驻记忆 | 根目录 `AGENTS.md`（四 IDE alwaysApply 指针见该文件文首） |
 | 长期笔记 | `memory/MEMORY.md`（四 IDE 经 `.*/memory` 索引，见 `AGENTS.md`；Trae 按规则直读） |
 

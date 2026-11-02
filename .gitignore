@@ -19,6 +19,8 @@ dev/harness/.smoke/
 
 # 测试与覆盖率
 coverage/
+# vitest 临时目录（系统盘紧张时用 TMPDIR 指到仓内，见 memory/MEMORY.md §已知限制）
+games/*/.vitest-tmp/
 
 # IDE 会话工具产物（Agent 运行时计划文件，非项目资产）
 .codebuddy/plans/

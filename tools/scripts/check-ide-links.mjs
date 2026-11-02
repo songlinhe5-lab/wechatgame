@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 四 IDE（Cursor / CodeBuddy / WorkBuddy / Qoder）链接 + 本地 Trae 可选链接 + SubAgent frontmatter 完整性检查。
+ * 五 IDE（Cursor / CodeBuddy / WorkBuddy / Qoder / Trae）链接 + SubAgent frontmatter 完整性检查。
  * 真源：扫描 my-agents/*.md（除 INDEX）与 my-skills 下各包的 SKILL.md（除存档与下划线前缀目录）。
  * 失败时 exit 1，供 pre-commit 与 Cursor beforeShellExecution 拦提交。
  *
@@ -23,7 +23,7 @@ const AS_JSON = process.argv.includes('--json');
 
 const IDE_DIRS = ['.cursor', '.codebuddy', '.workbuddy', '.qoder'];
 
-/** `.trae` 为本地个人配置（不入库，索引器跳过点目录）；存在时按四 IDE 同一规则校验。 */
+/** `.trae` 自 WXG-T-565 起入库（与四 IDE 同规则）；保留 OPTIONAL 是因为副本环境可能未建该目录。 */
 const OPTIONAL_IDE_DIRS = ['.trae'];
 
 /** 不挂四 IDE 的 skill 目录 */
@@ -401,7 +401,7 @@ if (AS_JSON) {
   process.stdout.write(JSON.stringify(summary, null, 2) + '\n');
 } else if (ok) {
   process.stdout.write(
-    `check:links OK — agents=${AGENT_NAMES.length} skills=${SKILL_NAMES.length}；frontmatter / INDEX / 路由表 / IDE 链接完整（四 IDE + 本地 Trae 可选）\n`,
+    `check:links OK — agents=${AGENT_NAMES.length} skills=${SKILL_NAMES.length}；frontmatter / INDEX / 路由表 / IDE 链接完整（五 IDE，含 Trae）\n`,
   );
   for (const w of warnings) process.stderr.write(`  warn: ${w}\n`);
 } else {
