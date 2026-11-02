@@ -9,7 +9,7 @@ from PIL import Image, ImageEnhance, ImageFilter
 BASE = ('games/beads/design/art/proposals/menu-3d-style-20261030/'
         'btn-topbar-layered-20261102/btn-base-2x-160.png')
 S = 160
-LIFT = 4            # 盘体上移，给投影留空间
+LIFT = 0            # ⛔ 不得上移：源底托 bbox 已占满 0..159，任何上移都会把盘顶切平（WXG-T-546 首版即此错）
 BLUR = 4            # 投影模糊半径
 SHADOW_ALPHA = 0.40  # 投影最深处不透明度
 PRESS_DARKEN = 0.90  # 按下态亮度系数
@@ -21,7 +21,7 @@ body.alpha_composite(src, (0, -LIFT))
 
 a = body.getchannel('A')
 sh = Image.new('L', (S, S), 0)
-sh.paste(a, (0, LIFT + 3))                      # 投影落在盘体下方
+sh.paste(a, (0, 5))                             # 投影只在下方溢出（与旧白盘同口径，溢出被画布裁掉）
 sh = sh.filter(ImageFilter.GaussianBlur(BLUR))
 shadow = Image.new('RGBA', (S, S), (24, 12, 4, 0))
 shadow.putalpha(sh.point(lambda v: int(v * SHADOW_ALPHA)))
