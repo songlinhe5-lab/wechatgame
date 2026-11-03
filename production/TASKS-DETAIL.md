@@ -7626,3 +7626,39 @@ Figma 官方文档（remote-server-installation）：远程端点 `https://mcp.f
 ### 6. 提交
 
 - 台账登记 WXG-T-572；PNG 与台账同一提交推送。
+
+## WXG-T-573
+
+**美术·删除菜单翻页钮 ui_btn_arrow_left/right** · 负责：主理人(Cursor)·美术轨 · 状态：✅ 完成（2026-11-03）
+
+> 用户令「这两个不要了」（贴 `ui_btn_arrow_left.png` / `ui_btn_arrow_right.png` 两图）。先查引用，发现两件被运行时代码与 Cocos 投放件使用，经 AskQuestion 两轮确认后选定：**彻底删除 + 橱窗 ◀▶ 回退到旧圆底 + 箭头图标**。
+
+### 删除范围
+
+| 位置 | 处理 |
+|---|---|
+| `games/beads/design/art/final/assets/menu/ui_btn_arrow_{left,right}.png` | `git rm` |
+| `games/beads/cocos/assets/textures/ui_btn_arrow_{left,right}.png` + `.meta` | `git rm`（投放件，与 final 件逐字节一致） |
+| `games/beads/src/config/tuning/menu.ts` | 去掉 `btnArrowLeft` / `btnArrowRight` 纹理键 |
+| `games/beads/cocos/assets/scripts/host/beads-blit-carrier.ts` | 去掉两条登记 |
+| `dev/harness/main.ts` | 去掉两条映射 |
+| `games/beads/src/view/meta-menu.ts` `drawArrow` | 去掉「整枚独立钮优先」分支，直接走 `btnArrow` 底 + 向标；未就绪时仍回退程序化圆 + ◀/▶ 字模 |
+| `games/beads/tests/showcase-single.test.ts` | 原断言「整枚钮 1 次 + 旧圆钮退场」改为回退路径断言：圆钮底 2 次、左右向标各 1 次；删除不再使用的 `MENU_ARROW_VISUAL_D` 导入 |
+
+### 效果变化（已告知并确认）
+
+- 橱窗左右翻页钮从「木框 + 奶油箭头整枚一张」（WXG-T-522）回到「旧圆钮底 + 矢量箭头图标」（`ui_btn_arrow_bg_normal/pressed` + `ui_icon_arrow_left/right`）。这是**可见的视觉回退**，用户已选定。
+
+### 验证
+
+- `games/beads` 下 `npx vitest run`：**121 文件 / 1430 用例通过**（2 个 skipped 为既有用例）。
+- 仓库内 `rg` 检索 `btn_arrow_left|btn_arrow_right|btnArrowLeft|btnArrowRight`：代码与测试已无残留；历史台账（T-557/T-559 等）与归档快照按口径保留，不改写。
+
+### 文档
+
+- `games/beads/design/art/final/README.md` 现役 `assets/menu/` 清单同步更新（删去两件，件数 11 → 9）。
+- `v1/VERSION.txt` 与历史台账不追改（归档史）。
+
+### 提交
+
+- 台账登记 WXG-T-573；代码、测试、素材删除与台账同一提交推送。

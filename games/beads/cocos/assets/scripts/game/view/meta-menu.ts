@@ -268,6 +268,7 @@ function drawDashedSocket(builder: RenderModelBuilder, b: Box, color: string): v
 /**
  * 橱窗 ◀▶（`[WXG-T-280]` 落地单 §3）：位图腿 = `btnArrow` 底 + 向标 icon；未就绪 ⇒
  * 程序化圆 + ◀/▶ 字模（同纸格语言，零新 hex）。几何由 {@link anchoredGeo} 传入，本函数不复算。
+ * `[2026-11-03]` 整枚翻页钮位图（`ui_btn_arrow_left/right`）已删除 ⇒ 不再有独立整枚腿，直接回退到旧圆底 + 向标。
  */
 function drawArrow(
     builder: RenderModelBuilder,
@@ -282,12 +283,6 @@ function drawArrow(
     const dy = pressDy(data, pressed);
     const cx = b.x + b.w / 2;
     const cy = b.y + b.h / 2 + dy;
-    // `[WXG-T-522]` 独立整枚钮（木框 + 奶油箭头一张图）优先：按下只下沉、不换图。
-    const solo = dir === 'left' ? MENU_TEXTURES.btnArrowLeft : MENU_TEXTURES.btnArrowRight;
-    if (menuBitmapReady(solo)) {
-        builder.blit(solo, b.x, b.y + dy, b.w, b.h);
-        return;
-    }
     const iconTex = dir === 'left' ? MENU_TEXTURES.iconArrowLeft : MENU_TEXTURES.iconArrowRight;
     if (menuBitmapReady(MENU_TEXTURES.btnArrow)) {
         const bg = pressed && menuBitmapReady(MENU_TEXTURES.btnArrowPressed) ? MENU_TEXTURES.btnArrowPressed : MENU_TEXTURES.btnArrow;

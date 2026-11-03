@@ -14,7 +14,6 @@ import { LEVELS } from '../src/config/levels.js';
 import {
     DESIGN_H,
     DESIGN_W,
-    MENU_ARROW_VISUAL_D,
     MENU_BOSS_ART_D,
     MENU_FROST,
     MENU_SHOWCASE_ART,
@@ -98,15 +97,11 @@ describe('WXG-T-522 橱窗单一作品', () => {
         expect(blitsOf(cmds, MENU_TEXTURES.badgeProgress).length, '旧沙漏退场').toBe(0);
     });
 
-    it('翻页钮独立位图：命中整枚钮后不再叠旧圆钮底与矢量箭头图标', () => {
-        hostWith(MENU_TEXTURES.caseFrame, BOSS_ART, MENU_TEXTURES.btnArrowLeft, MENU_TEXTURES.btnArrowRight,
-            MENU_TEXTURES.btnArrow, MENU_TEXTURES.iconArrowLeft, MENU_TEXTURES.iconArrowRight);
+    it('翻页钮无整枚位图（已删 ui_btn_arrow_left/right）：回退旧圆钮底 + 矢量箭头图标', () => {
+        hostWith(MENU_TEXTURES.caseFrame, BOSS_ART, MENU_TEXTURES.btnArrow, MENU_TEXTURES.iconArrowLeft, MENU_TEXTURES.iconArrowRight);
         const cmds = frame(data());
-        expect(blitsOf(cmds, MENU_TEXTURES.btnArrowLeft).length).toBe(1);
-        expect(blitsOf(cmds, MENU_TEXTURES.btnArrowRight).length).toBe(1);
-        expect(blitsOf(cmds, MENU_TEXTURES.btnArrow).length, '旧圆钮底退场').toBe(0);
-        expect(blitsOf(cmds, MENU_TEXTURES.iconArrowLeft).length, '旧矢量图标退场').toBe(0);
-        const left = blitsOf(cmds, MENU_TEXTURES.btnArrowLeft)[0]!;
-        expect([left.w, left.h]).toEqual([MENU_ARROW_VISUAL_D, MENU_ARROW_VISUAL_D]);
+        expect(blitsOf(cmds, MENU_TEXTURES.btnArrow).length, '圆钮底两枚').toBe(2);
+        expect(blitsOf(cmds, MENU_TEXTURES.iconArrowLeft).length, '左向标').toBe(1);
+        expect(blitsOf(cmds, MENU_TEXTURES.iconArrowRight).length, '右向标').toBe(1);
     });
 });

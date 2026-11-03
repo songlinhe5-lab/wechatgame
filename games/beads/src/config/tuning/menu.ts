@@ -475,9 +475,6 @@ export const MENU_TEXTURES = {
    * 缺位图 ⇒ 退回原程序化底（Cocos 宿主未注册本键时行为不变）。
    */
   backdrop: 'bitmap__menu_backdrop',
-  /** `[WXG-T-522]` 左右翻页钮（木框 + 奶油箭头，整枚一张）：按下只做下沉，不换图。 */
-  btnArrowLeft: 'bitmap__btn_arrow_left',
-  btnArrowRight: 'bitmap__btn_arrow_right',
   /**
    * `[P0 静态温暖 · 2026-10-30]` 左下角陶盆（qwen-image-3.0 lock seed 88 切图，210×415）。
    * 环境装饰、不属布局骨架 ⇒ 缺位图**不画**，不占位、不回退程序化（同 boss 缩略口径）。
