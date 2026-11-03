@@ -7568,13 +7568,27 @@ mask:diff 四档 mean=0 max=0、typecheck 全绿、verify 23/23 PASS。
 
 Figma 官方文档（remote-server-installation）：远程端点 `https://mcp.figma.com/mcp` 只走 OAuth 登录；仅 MCP catalog 内的客户端可连。Qoder/CodeBuddy/Trae 不在其列 ⇒ 远程路线不可用。`FIGMA_API_KEY`（PAT）是 REST API 凭证，远程 MCP 不吃它，故未用于 MCP。
 
+**2026-11-03 补：远程 OAuth 实证判负（四次零成本探测，无花费）**
+
+| 探测 | 读数 | 判语 |
+|---|---|---|
+| `POST https://mcp.figma.com/mcp`（无 token） | 401 + `www-authenticate: Bearer … scope="mcp:connect"` `resource_metadata=…/.well-known/oauth-protected-resource` | 端点活着，走标准 OAuth 保护资源协议 |
+| `GET /.well-known/oauth-protected-resource` + `api.figma.com/.well-known/oauth-authorization-server` | AS：授权 `www.figma.com/oauth/mcp` · 令牌 `v1/oauth/token` · **注册 `v1/oauth/mcp/register`** · PKCE S256 | 三要素齐全，理论上任何客户端都能发起授权 |
+| `POST v1/oauth/mcp/register`（匿名 + 带 PAT + 带 UA，两档 `token_endpoint_auth_method`） | **403 `Forbidden`**（纯文本，非 OAuth JSON） | **动态注册被服务端白名单拦死** ⇒ 拿不到 `client_id`，授权码流程根本无法起步 |
+| Qoder 侧留档 `…/QoderCN/SharedClientCache/cache/mcp_oauth_tokens.json` | 18:24 建条目，`access_token` **长度为 0**、`token_type` 空，仅存 `oauth_context.protected_resource_metadata_url` | IDE 只走到「发现元数据」那步就断；用户级配置缺 `type: "http"` 与否都不是主因 |
+
+附带取证：`GET api.figma.com/v1/me` 带 PAT ⇒ **200**（账号可读，PAT 有效），故**stdio + PAT 路线**（不依赖 OAuth）是可用备选。
+
 ### 3. 改动
 
 - `my-mcp/servers.json`（正本）新增 `figma-desktop`（http，`127.0.0.1:3845/mcp`），经 `pnpm run mcp:build` 生成 `.mcp.json` / `.cursor/mcp.json` / `.codebuddy/mcp.json`；远程 `figma` 条目随之移除。
 - `.trae/mcp.json`（未跟踪、不在生成清单）：手写同地址。
-- `~/.qoder/mcp.json`（工作区外，沙箱不可写）：**待手改**，加 `figma-desktop` 同地址条目。
+- `~/.qoder/mcp.json`（工作区外）：`figma-desktop`（`type: "http"` + `127.0.0.1:3845/mcp`）已落。
+- `~/.qoder-cn/mcp.json`（本会话所在 IDE 的用户级配置，工作区外）：2026-11-03 由本会话改写 —— 原为 `figma-remote`（`https://mcp.figma.com/mcp`、**无** `type`），现整条替换为 `figma-desktop` 同地址同写法；原文件备份在 `~/.qoder-cn/mcp.json.bak-20261103`。远程条目按上行 403 取证删除。
 
 ### 4. 待办 / 风险
 
-- 本机 `127.0.0.1:3845` 探测不通：需先打开 Figma 桌面 App 并启用桌面 MCP（需 Dev/Full 座位）。
-- 桌面版需要 Dev/Full 座位；无座位则需另选方案（社区 stdio MCP 读 `FIGMA_API_KEY`，或仅 REST 脚本）。
+- **唯一剩余阻塞**：本机 `127.0.0.1:3845` 仍未监听（`nc -z` CLOSED、`GET /mcp` 连不上）。Figma 桌面 App 已在跑（PID 87396，v126.11.7），其 `settings.json` 里 `desktop_make_local_mcp_enabled` / `desktop_make_local_devserver_mcp_tools` / `desktop_make_local_mcp_proxy_mode` 三个开关均为 `True`，但 `mcpAllowedDirectoriesByUser` = `{}`、`installedMcpClients` = `["cursor"]` ⇒ **服务器未在 App 内启用，且未授权任何工作目录**（需 Dev/Full 座位，在 App 内手动开启，开启后 Figma 会弹窗请求目录授权）。
+- 配置生效需**重启会话**让 IDE 重新装载 MCP；装载成功判据 = `SharedClientCache/.../mcps/` 出现 `figma-desktop` 目录且工具列表非空。
+- 桌面版需要 Dev/Full 座位；无座位则改走 stdio + PAT 路线（社区 MCP 读 `FIGMA_API_KEY`，PAT 已实测 200 可用，且 stdio 不触 `check:mcp` C3 回环门 ⇒ 可进仓库正本），或仅用 REST 脚本。
+- 远程 OAuth 已按上行取证**判负**，不再重试；若 Figma 日后把 Qoder 收进 MCP catalog，再解禁 `figma-remote`。
