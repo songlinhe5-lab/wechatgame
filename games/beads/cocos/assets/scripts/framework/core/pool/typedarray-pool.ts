@@ -26,9 +26,10 @@ function bucketIndex(requested: number): number {
     return -1; // 超出最大桶 → 不池化，每次 new
 }
 
-/** 池化存储：Uint8ClampedArray 与 Uint8Array 各一套（类型不可互换）。 */
+/** 池化存储：Uint8ClampedArray / Uint8Array / Float64Array 各一套（类型不可互换）。 */
 const _clamped = BUCKETS.map(() => [] as Uint8ClampedArray[]);
 const _uint8 = BUCKETS.map(() => [] as Uint8Array[]);
+const _float64 = BUCKETS.map(() => [] as Float64Array[]);
 
 export type AnyUint8 = Uint8Array | Uint8ClampedArray;
 
@@ -82,10 +83,33 @@ export function releaseUint8(buf: Uint8Array): void {
     idle.push(buf);
 }
 
+/** 同 {@link acquireUint8} 但类型为 Float64Array。 */
+export function acquireFloat64(requested: number): Float64Array {
+    const i = bucketIndex(requested);
+    if (i < 0) return new Float64Array(Math.max(requested, 1));
+    const idle = _float64[i]!;
+    if (idle.length > 0) {
+        const buf = idle.pop()!;
+        buf.fill(0);
+        return buf;
+    }
+    return new Float64Array(BUCKETS[i]! / 8); // BUCKETS 是字节数，Float64 每项 8B
+}
+
+/** 归还 Float64Array 到池。 */
+export function releaseFloat64(buf: Float64Array): void {
+    const i = bucketIndex(buf.byteLength);
+    if (i < 0) return;
+    const idle = _float64[i]!;
+    if (idle.length >= MAX_PER_BUCKET) return;
+    idle.push(buf);
+}
+
 /** 清空所有池（测试 / 内存告警时用）。 */
 export function clearTypedArrayPool(): void {
     for (let i = 0; i < BUCKETS.length; i++) {
         _clamped[i]!.length = 0;
         _uint8[i]!.length = 0;
+        _float64[i]!.length = 0;
     }
 }
