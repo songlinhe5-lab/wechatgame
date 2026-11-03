@@ -88,13 +88,14 @@ describe('WXG-T-522 橱窗单一作品', () => {
         expect(blitsOf(cmds, MENU_TEXTURES.badgeLocked).length, '右上小锁退场').toBe(0);
     });
 
-    it('`[WXG-T-566 / WXG-T-567]` 锁定态：磨砂玻璃（fx.frost=半径），不贴小锁 / 沙漏', () => {
+    it('`[WXG-T-566 / WXG-T-567]` 锁定态：磨砂玻璃+半透明灰叠加管线（fx={frost,gray}），锁形独立 Sprite，不画旧沙漏', () => {
         hostWith(MENU_TEXTURES.caseFrame, BOSS_ART, MENU_TEXTURES.badgeLocked, MENU_TEXTURES.badgeProgress);
         const cmds = frame(data({ carouselState: 'locked' as const }));
         const art = blitsOf(cmds, BOSS_ART)[0] as { fx?: Record<string, number> };
-        expect(art.fx, '锁定 = 磨砂玻璃').toEqual({ frost: MENU_FROST.radius });
-        expect(blitsOf(cmds, MENU_TEXTURES.badgeLocked).length).toBe(0);
-        expect(blitsOf(cmds, MENU_TEXTURES.badgeProgress).length).toBe(0);
+        expect(art.fx, '锁定 = 磨砂玻璃 + 半透明灰叠加管线').toEqual({ frost: MENU_FROST.radius, gray: MENU_FROST.gray });
+        // WXG-T-567 新增：locked 态画独立锁形 Sprite（与 frost+gray 合成纹理解耦）
+        expect(blitsOf(cmds, MENU_TEXTURES.badgeLocked).length, '独立锁形 Sprite').toBe(1);
+        expect(blitsOf(cmds, MENU_TEXTURES.badgeProgress).length, '旧沙漏退场').toBe(0);
     });
 
     it('翻页钮独立位图：命中整枚钮后不再叠旧圆钮底与矢量箭头图标', () => {

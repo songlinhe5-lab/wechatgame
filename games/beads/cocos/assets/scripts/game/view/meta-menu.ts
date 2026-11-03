@@ -3,11 +3,11 @@
  * 几何一律取自 `meta-layout.ts` 的锚定档，控件画法取自 `meta-widgets.ts` ⇒ 页面只编排、不另算。
  */
 
-import { DESIGN_W, type MenuAnchors, MENU_ARROW_ICON, MENU_CASE_INTERIOR_BAKED, MENU_BAR_ICON_D, MENU_BOSS_ART_D, MENU_CTA_LABEL, MENU_CTA_PRESSED_D, MENU_CTA_SLICE, MENU_CTA_SRC_H, MENU_DONE_ICON, MENU_FROST, MENU_GRAY_WIPE, MENU_LIGHT, MENU_PLAQUE_BEVEL_INSET, MENU_PLAQUE_ICON_INSET, MENU_PLAQUE_RIVET_INSET, MENU_PLAQUE_RIVET_R, MENU_PLAQUE_STROKE, MENU_PLATE, MENU_PLATE_TITLE, MENU_SIGNIN_DOT_R, MENU_SIGN_FRAME, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, SIGN_BEAD_PITCH, SIGN_MATRIX_N, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning';
+import { DESIGN_W, type MenuAnchors, MENU_ARROW_ICON, MENU_CASE_INTERIOR_BAKED, MENU_BAR_ICON_D, MENU_BOSS_ART_D, MENU_CTA_LABEL, MENU_CTA_PRESSED_D, MENU_CTA_SLICE, MENU_CTA_SRC_H, MENU_DONE_ICON, MENU_FROST, MENU_GRAY_WIPE, MENU_LIGHT, MENU_LOCKED_ICON, MENU_PLAQUE_BEVEL_INSET, MENU_PLAQUE_ICON_INSET, MENU_PLAQUE_RIVET_INSET, MENU_PLAQUE_RIVET_R, MENU_PLAQUE_STROKE, MENU_PLATE, MENU_PLATE_TITLE, MENU_SIGNIN_DOT_R, MENU_SIGN_FRAME, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, SIGN_BEAD_PITCH, SIGN_MATRIX_N, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning';
 import { COPY_TOKENS } from '../config/copy-tokens';
 import { ARC_COMING_SOON } from '../config/arcs';
 import { plateFade } from '../config/menu-carousel';
-import { frostFx, grayWipeFx, nineSliceFx, type BlitFx, type RenderModelBuilder } from '../../framework/index';
+import { frostGrayFx, grayWipeFx, nineSliceFx, type BlitFx, type RenderModelBuilder } from '../../framework/index';
 import { beadFadedInksFor, type BeadsPalette } from './palette';
 import { drawBeadText, drawLevelThumb } from './menu-signage';
 import { drawGear } from './play-page';
@@ -19,12 +19,13 @@ import type { Box, MetaBossState, MetaViewData } from './meta-types';
 import { heartBarLabel, isPressed, label, menuBitmapReady, pressDy } from './meta-widgets';
 
 /**
- * `[WXG-T-566]` 三态 fx（模块级常量 / 缓存 ⇒ 键序固定、同进度每帧零分配）。
- * - 未开启 = **磨砂玻璃**（`frost`：1/4 下采样模糊 + 全灰；用户 2026-11-03 裁）；
+ * `[WXG-T-566 / WXG-T-567]` 三态 fx（模块级常量 / 缓存 ⇒ 键序固定、同进度每帧零分配）。
+ * - 未开启 = **磨砂玻璃 + 半透明灰**（叠加管线 `frost(radius=8) + gray(0.3)`：frost 先做 1/4 下采样
+ *   模糊，再在 blur 产物上叠 gray 0.3 保留 30% 原色；独立锁形 Sprite 由 `drawLockedBadge` 单独画）；
  * - 推关 = **竖向揭彩**（`grayWipe`，彩色比例 = 已完成小关 / 总小关；用户 2026-11-02 裁）；
  * - 已通关 = 不传 fx（全彩）；⛔ 不传 `gray: 0`（多一个键 = 多一次 sha 漂移，且无效果）。
  */
-const MENU_FROST_FX_LOCKED = frostFx(MENU_FROST.radius);
+const MENU_FROST_FX_LOCKED = frostGrayFx(MENU_FROST.radius, MENU_FROST.gray);
 
 /**
  * 揭彩 fx 缓存：键 = 进度千分位。生产侧进度 = `done/total`（离散，章内 ≤ 10 档）
@@ -367,6 +368,37 @@ function drawShowcaseItem(
     }
     // `[WXG-T-566]` 状态标记全退场（用户 2026-11-02 裁：右上角徽标 / 通关飘带 / 居中沙漏一并删）
     // ⇒ 三态只由「作品灰度 + 柜灯」表达（`triStateFx` / `triStateLight`），⛔ 不往玻璃上贴纸。
+    // `[WXG-T-567]` 锁定态锁形独立 Sprite —— 叠加在作品之上（与 frost+gray 合成纹理解耦，
+    // 以后可独立调尺寸/alpha/动画）。
+    if (state === 'locked') {
+        const d = MENU_BOSS_ART_D;
+        drawLockedBadge(builder, MENU_DONE_ICON.cx + dx - d / 2, g.doneCy - d / 2, d, ink);
+    }
+}
+
+/**
+ * 锁定态锁形独立 Sprite：画在 frost+gray 合成作品之上，位置居中、尺寸 = 作品宽度 × 比例。
+ * ⛔ 不合成进 frost 纹理 —— 锁形是静态图、可独立调尺寸/alpha/动画。
+ */
+function drawLockedBadge(
+    builder: RenderModelBuilder,
+    bx: number,
+    by: number,
+    bw: number,
+    ink: number | undefined,
+): void {
+    if (!menuBitmapReady(MENU_LOCKED_ICON.textureId)) return;
+    const size = bw * MENU_LOCKED_ICON.scale;
+    const cx = bx + bw / 2;
+    const cy = by + bw / 2;
+    const opts = ink === undefined ? undefined : { alpha: ink };
+    builder.blit(
+        MENU_LOCKED_ICON.textureId,
+        cx - size / 2,
+        cy - size / 2,
+        size, size,
+        opts,
+    );
 }
 
 /**
@@ -413,6 +445,8 @@ function drawShowcaseArt(
     } else {
         drawDashedSocket(builder, { x, y: b.y, w: b.w, h: b.h }, palette.slotDashed);
     }
+    // `[WXG-T-567]` 锁定态锁形独立 Sprite（同 drawShowcaseItem 口径，用 showcaseArtBox 尺寸）。
+    if (state === 'locked') drawLockedBadge(builder, x, b.y, b.w, ink);
 }
 
 /** 空橱窗中央的置灰花。半径写死，热路径不分配。 */

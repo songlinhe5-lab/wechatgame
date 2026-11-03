@@ -224,10 +224,11 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
      */
     private readonly _wipeFrames = new Map<string, { frame: SpriteFrame; p: number; s: number }>();
     /**
-     * `[WXG-T-567]` **每纹理最新一档**磨砂帧（未开启态）。半径恒定 ⇒ 每纹理最多一张；
-     * 产物是 1/4 尺寸纹理（`frostPixels` 的下采样倍数），显存 ≈ 29 KiB/张。
+     * `[WXG-T-567]` **每纹理（radius+gray 组合）**磨砂帧（未开启态）。gray=1 默认全灰；
+     * gray<1 是叠加管线产物（frost 后叠 gray，保留部分原色）。
+     * 缓存键 = `textureId|frost:${r},gray:${g}` ⇒ 每 (r,g) 组合一份，显存 ≈29 KiB/张。
      */
-    private readonly _frostFrames = new Map<string, { frame: SpriteFrame; radius: number }>();
+    private readonly _frostFrames = new Map<string, { frame: SpriteFrame; radius: number; gray: number }>();
     private readonly _pool: Sprite[] = [];
     private _used = 0;
     private _ready = false;
@@ -343,27 +344,31 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
         // `[WXG-T-280]` 第三条腿：nine-slice fx ⇒ 静态位图 + 引擎原生 SLICED（端帽首见时烘进
         // SpriteFrame border，同纹恒一值 ⇒ 一次算定）。canvas2d 腿是预烘单张，这里零离屏成本。
         const ns = base === undefined ? nineSliceFxRead(cmd.fx) : undefined;
+        const tint = base === undefined ? undefined : base;
         // `[WXG-T-566]` 三态灰度：`gray` fx 走 CPU 预烘变体（与 tint/nineSlice 同属总责语义）；
         // 推关态走 `grayWipe`（按行烘竖向揭彩，见 `_wipeFrame`）。
         const gray = base === undefined && ns === undefined ? grayFxRead(cmd.fx) : undefined;
         const wipe = base === undefined && ns === undefined && gray === undefined
             ? grayWipeRead(cmd.fx)
             : undefined;
-        // `[WXG-T-567]` 未开启态：`frost` ⇒ 磨砂玻璃变体（1/4 尺寸模糊 + 全灰）。
-        const frost = base === undefined && ns === undefined && gray === undefined && wipe === undefined
+        // `[WXG-T-567]` 磨砂玻璃 + 叠加管线：frost 单独 ⇒ 全灰（gray=1，保持旧语义）；
+        // frost + gray 同时存在 ⇒ 叠加管线（frost 先跑、gray 在其 blur 产物上再跑）。
+        const frost = base === undefined && ns === undefined && wipe === undefined
             ? frostRead(cmd.fx)
             : undefined;
-        // `[WXG-T-271 / ADR-0031 DEC=C′]` 四条腿：带 fx.base → tint 图集格；带 fx.gray → 灰化变体；
-        // 带 fx.grayWipe → 竖向揭彩变体；带 fx.frost → 磨砂玻璃变体；无 fx → 静态位图注册表。
-        const frame = base !== undefined
-            ? this._cell(cmd.textureId, base)
-            : gray !== undefined && gray > 0
-                ? this._grayFrame(cmd.textureId, gray)
-                : wipe !== undefined
-                    ? this._wipeFrame(cmd.textureId, wipe[0]!, wipe[1]!)
-                    : frost !== undefined
-                        ? this._frostFrame(cmd.textureId, frost)
-                        : this._bitmaps.get(cmd.textureId);
+        // 叠加管线判定：frost + gray(0..1) 同时存在。gray=1 时 frost 自身已全灰，
+        // 叠加无增益 ⇒ 走 frost 单独腿（缓存键短一档）。
+        const combinedFrostGray = frost !== undefined && gray !== undefined && gray < 1;
+        // `[WXG-T-271 / ADR-0031 DEC=C′]` 效果叠加管线（frost+gray 组合）→ 先 frost 再叠 gray；
+        // 其余效果腿（tint / nineSlice / gray 单独 / grayWipe / frost 单独）保持互斥。
+        let frame: SpriteFrame | undefined;
+        if (tint !== undefined) frame = this._cell(cmd.textureId, tint);
+        else if (ns !== undefined) frame = undefined; // nineSlice 走 bakeNineSlice（无 fx.base）
+        else if (wipe !== undefined) frame = this._wipeFrame(cmd.textureId, wipe[0]!, wipe[1]!);
+        else if (combinedFrostGray) frame = this._frostFrame(cmd.textureId, frost!, gray!);
+        else if (frost !== undefined) frame = this._frostFrame(cmd.textureId, frost, 1);
+        else if (gray !== undefined && gray > 0) frame = this._grayFrame(cmd.textureId, gray);
+        else frame = this._bitmaps.get(cmd.textureId);
         if (frame === undefined) {
             return this._bail(
                 base !== undefined
@@ -521,14 +526,17 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
     }
 
     /**
-     * `[WXG-T-567]` 磨砂玻璃变体：`frostPixels`（1/4 下采样 + 盒式模糊 + 全灰）→ 1/4 尺寸纹理。
+     * `[WXG-T-567]` 磨砂玻璃变体：`frostPixels`（1/4 下采样 + 盒式模糊 + 灰度）→ 1/4 尺寸纹理。
      * 与 canvas2d 适配层 `bakeFrost` **共用同一纯函数** ⇒ 两条宿主腿像素级同源。
-     * 半径恒定 ⇒ 每纹理一份；节点仍按命令 `w/h` 放大贴，双线性插值补足柔和。
+     * 半径 + 灰度强度组成缓存键（gray=1 默认全灰；gray<1 保留部分原色供叠加管线）。
+     * 节点仍按命令 `w/h` 放大贴，双线性插值补足柔和。
      */
-    private _frostFrame(textureId: string, radius: number): SpriteFrame | undefined {
+    private _frostFrame(textureId: string, radius: number, gray: number): SpriteFrame | undefined {
         const r = radius < 0 ? 0 : radius > 32 ? 32 : radius;
-        const hit = this._frostFrames.get(textureId);
-        if (hit !== undefined && hit.radius === r) return hit.frame;
+        const g = gray < 0 ? 0 : gray > 1 ? 1 : gray;
+        const key = `${textureId}|frost:${r},gray:${g}`;
+        const hit = this._frostFrames.get(key);
+        if (hit !== undefined && hit.radius === r && hit.gray === g) return hit.frame;
         const baseFrame = this._bitmaps.get(textureId);
         if (baseFrame === undefined) return undefined;
         const tex = baseFrame.texture;
@@ -540,7 +548,7 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
         const readCtx = read ? read.getContext('2d') : null;
         if (!read || !readCtx) return undefined;
         readCtx.drawImage(image, 0, 0, w, h);
-        const baked = frostPixels(readCtx.getImageData(0, 0, w, h).data, w, h, r);
+        const baked = frostPixels(readCtx.getImageData(0, 0, w, h).data, w, h, r, g);
         const canvas = createOffscreen(baked.width, baked.height);
         const ctx = canvas ? canvas.getContext('2d') : null;
         if (!canvas || !ctx) return undefined;
@@ -557,7 +565,7 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
             rect: new Rect(0, 0, baked.width, baked.height),
         });
         sf.packable = false;
-        this._frostFrames.set(textureId, { frame: sf, radius: r });
+        this._frostFrames.set(key, { frame: sf, radius: r, gray: g });
         return sf;
     }
 

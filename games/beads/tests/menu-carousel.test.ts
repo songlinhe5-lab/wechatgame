@@ -64,7 +64,7 @@ describe('翻页状态机', () => {
 describe('橱窗绘制', () => {
     const lv = LEVELS[0]!;
 
-    it('`[WXG-T-566]` 三态 = 同一张大关图的灰度差异；状态标记全退场', () => {
+    it('`[WXG-T-566 / WXG-T-567]` 三态 = 同一张大关图的灰度差异 + 叠加管线；旧状态标记全退场，locked 画独立锁形', () => {
         setMenuBitmapResolver(() => true);
         const artOf = (d: MetaViewData) => frame(d).find(
             (c) => c.kind === 'blit' && (c as { textureId: string }).textureId === ARCS[0].textureId,
@@ -73,11 +73,11 @@ describe('橱窗绘制', () => {
         expect(artOf(dataFor(lv, { carouselState: 'cleared' }))?.fx, '通关 = 全彩（不传 fx）').toBeUndefined();
         expect(artOf(dataFor(lv, { carouselState: 'pushing' }))?.fx, '推关 = 竖向揭彩（此处进度 0）')
             .toEqual({ grayWipe: [0, MENU_GRAY_WIPE.soft] });
-        expect(artOf(dataFor(lv, { carouselState: 'locked' }))?.fx, '未开启 = 磨砂玻璃')
-            .toEqual({ frost: MENU_FROST.radius });
+        expect(artOf(dataFor(lv, { carouselState: 'locked' }))?.fx, '未开启 = 磨砂玻璃+半透明灰叠加管线')
+            .toEqual({ frost: MENU_FROST.radius, gray: MENU_FROST.gray });
+        // cleared 态不画任何状态标记（含独立锁形——锁形只在 locked 态）。
         expect(cleared.some((c) => c.kind === 'blit' && (
             c.textureId === MENU_TEXTURES.badgeProgress
-            || c.textureId === MENU_TEXTURES.badgeLocked
             || c.textureId === MENU_TEXTURES.sealCleared
         ))).toBe(false);
     });

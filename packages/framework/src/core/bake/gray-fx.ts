@@ -132,6 +132,21 @@ export function frostRead(fx: BlitFx | undefined): number | undefined {
     return typeof v === 'number' && Number.isFinite(v) ? v : undefined;
 }
 
+/**
+ * 构造「磨砂玻璃 + 灰度」**叠加管线**的 `fx`（多键，消费侧 frost 先跑、gray 在其产物上再跑）。
+ *
+ * @param radius 模糊半径（源纹理像素）；越界夹取到 `0..32`
+ * @param gray 灰度强度（0–1，默认 1 = 全灰）；<1 时 blur 产物保留部分原色
+ *   ⇒ 叠加管线比「先 frost(全灰) 再 gray」有意义（后者在全灰图上再灰一次等于 no-op）
+ */
+export function frostGrayFx(radius: number, gray = 1): BlitFx {
+    const r = radius < 0 ? 0 : radius > 32 ? 32 : radius;
+    const g = gray < 0 ? 0 : gray > 1 ? 1 : gray;
+    // 键序固定（frost 前、gray 后）⇒ 同参数同 JSON.stringify 输出。
+    // 但消费侧**不从键序推断叠加顺序**——顺序硬编码在 carrier 里。
+    return { [FROST_FX_KEY]: r, [GRAY_FX_KEY]: g };
+}
+
 /** {@link frostPixels} 的产物：1/4 尺寸的 RGBA 像素（`data` 长度为 `width*height*4`）。 */
 export interface FrostPixels {
     readonly width: number;
@@ -140,12 +155,15 @@ export interface FrostPixels {
 }
 
 /**
- * 纯像素实现（⛔ 无 canvas / DOM）：源 RGBA → 1/4 下采样 → 盒式模糊 → 全灰。
+ * 纯像素实现（⛔ 无 canvas / DOM）：源 RGBA → 1/4 下采样 → 盒式模糊 → 灰度（默认全灰）。
  *
  * `radius` 为**源纹理像素**；内部折算到 1/4 网格（`round(radius / 4)`，上限 8）。
  * alpha 一并下采样与模糊（磨砂会把作品轮廓糊开），灰度只改 RGB。
+ *
+ * @param gray 灰度强度（0–1，默认 1 = 全灰）。设 <1 时 blur 后保留部分原色，
+ *   供叠加管线 frost+gray 组合使用。
  */
-export function frostPixels(src: ArrayLike<number>, sw: number, sh: number, radius: number): FrostPixels {
+export function frostPixels(src: ArrayLike<number>, sw: number, sh: number, radius: number, gray = 1): FrostPixels {
     const q = FROST_DOWNSCALE;
     const w = Math.max(1, Math.floor(sw / q));
     const h = Math.max(1, Math.floor(sh / q));
@@ -230,14 +248,23 @@ export function frostPixels(src: ArrayLike<number>, sw: number, sh: number, radi
         }
         small.set(out);
     }
-    for (let i = 0; i < small.length; i += 4) {
-        const r = small[i]!;
-        const g = small[i + 1]!;
-        const b = small[i + 2]!;
-        const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-        small[i] = luma;
-        small[i + 1] = luma;
-        small[i + 2] = luma;
+    const g = gray < 0 ? 0 : gray > 1 ? 1 : gray;
+    if (g > 0) {
+        for (let i = 0; i < small.length; i += 4) {
+            const r = small[i]!;
+            const b = small[i + 2]!;
+            const luma = 0.2126 * r + 0.7152 * small[i + 1]! + 0.0722 * b;
+            if (g >= 1) {
+                small[i] = luma;
+                small[i + 1] = luma;
+                small[i + 2] = luma;
+            } else {
+                const keep = 1 - g;
+                small[i] = r * keep + luma * g;
+                small[i + 1] = small[i + 1]! * keep + luma * g;
+                small[i + 2] = b * keep + luma * g;
+            }
+        }
     }
     return { width: w, height: h, data: small };
 }

@@ -181,45 +181,52 @@ function bakeGrayWipe(
 }
 
 /**
- * `[WXG-T-567]` 磨砂玻璃预烘：`frostPixels`（1/4 下采样 + 盒式模糊 + 全灰）之后上传到
+ * `[WXG-T-567]` 磨砂玻璃预烘：`frostPixels`（1/4 下采样 + 盒式模糊 + 灰度）之后上传到
  * **1/4 尺寸**画布；渲染器按命令的 `w/h` 放大贴，双线性插值补足柔和（观感等价于全尺寸模糊）。
  *
- * 键粒度 = **每纹理最新一档**（同 {@link bakeGrayWipe} 的理由：锁定态半径恒定，旧档不再显示）。
+ * gray 默认 1 = 全灰（旧语义）；gray<1 时 blur 产物保留部分原色，供叠加管线 frost+gray 组合。
+ * 缓存键 = `textureId|frost:${r},gray:${g}` ⇒ 每 (r,g) 组合一份。
  */
-const _frostSlices = new Map<string, { radius: number; canvas: CanvasLike }>();
+const _frostSlices = new Map<string, { radius: number; gray: number; canvas: CanvasLike }>();
 function bakeFrost(
     textureId: string,
     src: Source,
     radius: number,
+    gray: number,
     create: (w: number, h: number) => CanvasLike | null,
 ): CanvasLike | undefined {
   const r = radius < 0 ? 0 : radius > 32 ? 32 : radius;
-  const hit = _frostSlices.get(textureId);
-  if (hit !== undefined && hit.radius === r) return hit.canvas;
+  const g = gray < 0 ? 0 : gray > 1 ? 1 : gray;
+  const key = `${textureId}|frost:${r},gray:${g}`;
+  const hit = _frostSlices.get(key);
+  if (hit !== undefined && hit.radius === r && hit.gray === g) return hit.canvas;
   // 先读整张源图（与 bakeGray 同一步），下采样与模糊在纯 JS 里做（两条宿主腿同源）。
   const read = create(Math.max(1, Math.round(src.width)), Math.max(1, Math.round(src.height)));
   const readCtx = read?.getContext('2d');
   if (!read || !readCtx) return undefined;
   readCtx.drawImage(src, 0, 0, src.width, src.height, 0, 0, read.width, read.height);
-  const baked = frostPixels(readCtx.getImageData(0, 0, read.width, read.height).data, read.width, read.height, r);
+  const baked = frostPixels(readCtx.getImageData(0, 0, read.width, read.height).data, read.width, read.height, r, g);
   const canvas = create(baked.width, baked.height);
   const ctx = canvas?.getContext('2d');
   if (!canvas || !ctx) return undefined;
   const out = ctx.getImageData(0, 0, baked.width, baked.height);
   out.data.set(baked.data);
   ctx.putImageData(out, 0, 0);
-  _frostSlices.set(textureId, { radius: r, canvas });
+  _frostSlices.set(key, { radius: r, gray: g, canvas });
   return canvas;
 }
 
 /**
  * 着色/灰度策略：`fx` 有 `base` ⇒ 取 CPU 预合成 sprite；有 `gray` ⇒ 取灰化副本；
- * 有 `grayWipe` ⇒ 取竖向揭彩副本；有 `frost` ⇒ 取磨砂玻璃副本（1/4 尺寸模糊 + 全灰）；
+ * 有 `grayWipe` ⇒ 取竖向揭彩副本；有 `frost` ⇒ 取磨砂玻璃副本（1/4 尺寸模糊 + 灰度）；
+ * frost + gray 同时存在（gray<1）⇒ **叠加管线**（frost 先跑、gray 在其 blur 产物上再跑）。
  * 否则 ⇒ 原纹理注册表。
  *
  * ⛔ `fx` 存在但键都不可用 ⇒ 返回 `undefined`（**跳过**，⛔ 不回落贴裸 mask）。
  * ⛔ 合成失败（低端机 OOM 等）由 `TintSpriteCache` 内部降级 + 负缓存，此处只透传 `undefined`。
- * 分派顺序刻意把 `base` 放在 `gray` 前 ⇒ 同一 `fx` 混用两键时 `base` 优先。
+ *
+ * 分派顺序刻意：nineSlice → base → gray → grayWipe → frost+gray → frost 单独；
+ * frost 单独默认 gray=1（全灰），gray=1 时 frost 自身已全灰、叠加无增益 ⇒ 走 frost 单独腿。
  */
 export function createTintBlitResolver(
     cache: TintSpriteCache,
@@ -230,31 +237,37 @@ export function createTintBlitResolver(
     return {
         resolve(cmd: BlitCommand): object | undefined {
             if (cmd.fx === undefined) return registry.get(cmd.textureId);
-            const slice = nineSliceFxRead(cmd.fx);
-            if (slice !== undefined) {
+            const ns = nineSliceFxRead(cmd.fx);
+            if (ns !== undefined) {
                 const src = registry.get(cmd.textureId) as Source | undefined;
                 if (src === undefined || createCanvas === undefined) return undefined;
-                return bakeNineSlice(cmd.textureId, src, cmd.w, cmd.h, slice.capX, slice.capY, createCanvas);
+                return bakeNineSlice(cmd.textureId, src, cmd.w, cmd.h, ns.capX, ns.capY, createCanvas);
             }
             const base = tintFxBase(cmd.fx);
             if (base !== undefined) return cache.get(cmd.textureId, base);
             const gray = grayFxRead(cmd.fx);
-            if (gray !== undefined) {
+            const wipe = grayWipeRead(cmd.fx);
+            const frost = frostRead(cmd.fx);
+            // 叠加管线：frost + gray(0..1) 同时存在（gray=1 时 frost 自身已全灰、叠加无增益）。
+            if (frost !== undefined && gray !== undefined && gray < 1) {
                 const src = registry.get(cmd.textureId) as Source | undefined;
                 if (src === undefined || createCanvas === undefined) return undefined;
-                return bakeGray(cmd.textureId, src, gray, createCanvas);
+                return bakeFrost(cmd.textureId, src, frost, gray, createCanvas);
             }
-            const wipe = grayWipeRead(cmd.fx);
             if (wipe !== undefined) {
                 const src = registry.get(cmd.textureId) as Source | undefined;
                 if (src === undefined || createCanvas === undefined) return undefined;
                 return bakeGrayWipe(cmd.textureId, src, wipe[0]!, wipe[1]!, createCanvas);
             }
-            const frost = frostRead(cmd.fx);
             if (frost !== undefined) {
                 const src = registry.get(cmd.textureId) as Source | undefined;
                 if (src === undefined || createCanvas === undefined) return undefined;
-                return bakeFrost(cmd.textureId, src, frost, createCanvas);
+                return bakeFrost(cmd.textureId, src, frost, 1, createCanvas);
+            }
+            if (gray !== undefined) {
+                const src = registry.get(cmd.textureId) as Source | undefined;
+                if (src === undefined || createCanvas === undefined) return undefined;
+                return bakeGray(cmd.textureId, src, gray, createCanvas);
             }
             return undefined;
         },
