@@ -7316,7 +7316,7 @@ T-554 当时按「清理掉重新做 v2」把 14 件 `git rm` 了；本单按用
 - cocos `beads-blit-carrier::_frostFrame`（同一纯函数 → 1/4 `Texture2D`）；
 - 数据/视图：`MENU_FROST.radius = 8`；`triStateFx('locked')` = `{ frost: 8 }`（推关揭彩 / 通关全彩零改动）；
 - 文档：`ADR-0029 §8.4` + `render-model.ts` fx 键表 + `ui-architecture-beads.md` 视觉变更登记；
-- 验证：框架 `frostPixels` 3 例 + resolver `frost` 4 例 + 菜单三态 / 单橱窗 / 走马灯断言全绿；金样本按登记在干净锚复取。
+- 验证：框架 `frostPixels` 3 例 + resolver `frost` 4 例 + 菜单三态 / 单橱窗 / 走马灯断言全绿；金样本在 `676ae2db` 干净锚复取 = **11 态 sha 全未变**（十一帧未绘制锁定页 ⇒ frost 由单测判据覆盖，夹具仅 `capturedFrom` 更新）。
 
 ## WXG-T-565
 

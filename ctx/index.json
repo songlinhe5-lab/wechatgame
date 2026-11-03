@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3942,
       "lines": 133,
-      "sha256": "dd248875354f997fadcaff3f24422267127e824f23d30de72e5868127c97ee35",
+      "sha256": "187ebaf6a728b07734cf86e4659aa6d90d45ad5747f7cd9d264a883a332cf001",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 206690 7385 normal",
+          "summary": "1 production/TASKS-DETAIL.md 206728 7385 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "6f8ae786d27c37452374bb5602b6135edcddda7ebdc2773cb0a306014d409782",
+      "sha256": "c43f194d225b357129eb360cfc18954aac7c76f2cf00d12b5ca1864cb674431f",
       "tier": "normal",
       "sections": [
         {
@@ -745,7 +745,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 174 行 / 40611 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 174 行 / 40633 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
@@ -1016,7 +1016,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 7385 行 / 206690 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 7385 行 / 206728 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
@@ -14128,9 +14128,9 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 21087,
+      "tokens": 21103,
       "lines": 257,
-      "sha256": "e38929848dcf0b89fa42e1372cbb5ea0f467529015b80363c83cc1d8b5d7dda4",
+      "sha256": "59d4de8061584c3ffb02b4b186c35799278e7ad425a8092c01050a84b50dfaa8",
       "tier": "normal",
       "sections": [
         {
@@ -14138,7 +14138,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 258,
-          "tokens": 21068,
+          "tokens": 21084,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -14309,7 +14309,7 @@
           "level": 2,
           "startLine": 138,
           "endLine": 254,
-          "tokens": 16015,
+          "tokens": 16031,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -88554,9 +88554,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 206690,
+      "tokens": 206728,
       "lines": 7385,
-      "sha256": "60f846fc989e3f4ebc2199174e18ddcb5c5b4705b0ba1d9352fe88be5c6f1db1",
+      "sha256": "a194bd5d332d3b20138af67f11350b045131105197ba119b5ee5edaf5d7471d6",
       "tier": "normal",
       "sections": [
         {
@@ -88564,7 +88564,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 7386,
-          "tokens": 206673,
+          "tokens": 206711,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -99338,7 +99338,7 @@
           "level": 2,
           "startLine": 7296,
           "endLine": 7320,
-          "tokens": 535,
+          "tokens": 574,
           "summary": "设计·未开启态磨砂玻璃（预烘模糊） · 负责：主理人(Trae)·设计轨 · 状态：✅ 完成（2026-11-03）",
           "keywords": [
             "WXG",
@@ -99379,7 +99379,7 @@
           "level": 3,
           "startLine": 7312,
           "endLine": 7320,
-          "tokens": 213,
+          "tokens": 252,
           "summary": "框架 bake/gray-fx.ts：frostFx(radius) / frostRead / 纯函数 frostPi",
           "keywords": [
             "bake",
@@ -99552,9 +99552,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 40611,
+      "tokens": 40633,
       "lines": 174,
-      "sha256": "fa729d81cf52e97598bddb7cf56364aa62ac1979157caa31ab2a6f0001546d18",
+      "sha256": "5e81b554f1a945fdae490431698dc35312676ef11a15a5dff7650b21cf5e06c6",
       "tier": "hot",
       "sections": [
         {
@@ -99562,7 +99562,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 175,
-          "tokens": 40602,
+          "tokens": 40625,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
