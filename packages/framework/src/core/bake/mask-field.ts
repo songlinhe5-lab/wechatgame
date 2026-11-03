@@ -98,15 +98,21 @@ function applyLayerSet(p: Planes, render: number, px: number, layers: readonly M
 
 /** 珠形 B 通道（圆角方 − 真透孔 + 0.5dp smoothstep 羽化；无孔档 = 满幅圆角方）。 */
 function beadShapePlane(spec: MaskGaugeSpec, render: number, px: number): Uint8Array {
-    const shape = new Uint8Array(render * render);
+    const n = render * render;
+    const _s = acquireUint8(n);
+    const shape = _s.subarray(0, n);
     const o0 = ((spec.cellDp - spec.beadDp) / 2) * px;
     const o1 = ((spec.cellDp + spec.beadDp) / 2) * px;
     fillRoundedRectMask(shape, render, render, o0, o0, o1, o1, spec.beadCornerDp * px, 255);
-    if (spec.holeDp <= 0) return shape;
+    if (spec.holeDp <= 0) {
+        // 无孔档直接 return shape 池化 buffer；调用方用完后 releaseUint8 归槽
+        return shape;
+    }
     const c = render / 2;
     const holeR = (spec.holeDp / 2) * px;
     const feather = spec.holeFeatherDp * px;
-    const out = new Uint8Array(render * render);
+    const _o = acquireUint8(n);
+    const out = _o.subarray(0, n);
     for (let y = 0; y < render; y++) {
         const dy = y - c;
         for (let x = 0; x < render; x++) {
@@ -117,6 +123,9 @@ function beadShapePlane(spec: MaskGaugeSpec, render: number, px: number): Uint8A
             out[y * render + x] = cInt(shape[y * render + x]! * k);
         }
     }
+    // shape 已用完，归还
+    releaseUint8(_s);
+    // return 池化的 out 给调用方，调用方用完后 releaseUint8
     return out;
 }
 
@@ -206,7 +215,10 @@ function computeBeadPlanes(spec: MaskGaugeSpec, size: number): Planes {
     paintFrameLight(p, spec, render, px);
     const br = resampleSquare(p.r, render, size);
     const bg = resampleSquare(p.g, render, size);
-    const bb = applyShapeFloor(resampleSquare(beadShapePlane(spec, render, px), render, size));
+    // beadShapePlane return 池化 buffer → resampleSquare 用完后归还
+    const _bs = beadShapePlane(spec, render, px);
+    const bb = applyShapeFloor(resampleSquare(_bs, render, size));
+    releaseUint8(_bs);
     releaseUint8(_r);
     releaseUint8(_g);
     releaseUint8(_b);
@@ -214,13 +226,15 @@ function computeBeadPlanes(spec: MaskGaugeSpec, size: number): Planes {
 }
 
 function cellShapePlane(spec: MaskGaugeSpec, size: number): Uint8Array {
+    const n = size * size;
+    const _o = acquireUint8(n);
+    const out = _o.subarray(0, n);
     const px = size / MASK_CELL_DP;
     const c = size / 2;
     const q = (spec.slotHalfDp - spec.slotCornerDp) * px;
     const cornerPx = spec.slotCornerDp * px;
     const ringOnly = spec.gauge !== 'holeless';
     const edgePx = spec.slotEdgeDp * px;
-    const out = new Uint8Array(size * size);
     for (let y = 0; y < size; y += 1) {
         const dy = y - c;
         for (let x = 0; x < size; x += 1) {
@@ -305,5 +319,13 @@ export function computeMaskField(kind: BeadMaskKind, spec: MaskGaugeSpec, size: 
         throw new Error(`computeMaskField: size=${size} must be divisible by MASK_SUPERSAMPLE=${MASK_SUPERSAMPLE}`);
     }
     const planes = kind === 'bead' ? computeBeadPlanes(spec, size) : computeCellPlanes(spec, size);
-    return { width: size, height: size, data: packRGBA(planes, size) };
+    try {
+        const data = packRGBA(planes, size);
+        return { width: size, height: size, data };
+    } finally {
+        // cellShapePlane return 的池化 out → Planes.b → packRGBA 用完后归还
+        // beadShapePlane 无孔档池化 shape 也走 Planes.b，同一处覆盖
+        // releaseUint8 对非池化 buffer 安全（bucketIndex 找不到桶就跳过）
+        releaseUint8(planes.b);
+    }
 }
