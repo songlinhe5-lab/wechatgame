@@ -17,6 +17,7 @@
 | 域·技术 | `wxgame-epic-split` | Epic 拓扑序、Story 四要素（引用式验收 S\<n\>§8-\<k\>）、垂直切片；**§7 Story 实现 + §8 ready/done 门禁**（CCGS `dev-story`/`story-readiness`+`story-done` 吸收，WXG-T-175） |
 | 域·美术 | `wxgame-art-spec-programmatic` | 程序化美术三件套、色盲三重编码、包体预算承诺 |
 | 域·美术 | `wxgame-art-review` | **定期美术还原度审计（只读）**：分层真源（`§3.1` UI token / `§3.2` 珠色 / 落地单+原型定稿 / `assets-spec`）↔ 实现的 hex 越界·版式·资产接线·六屏出图；出偏差表 + PASS/CONCERNS/FAIL，不改文档与代码（WXG-T-476）。⚠ 机械门管不了构图与层级 ⇒ 出图人工层不可省 |
+| 域·美术 | `wxgame-figma` | **Figma 只读取数/导出**（`FIGMA_API_KEY` + REST，五 IDE 同一脚本）：`me` 验凭证 / `tree` 定位 node-id / `node` 取几何与样式 / `img` 导出切图。**不走 MCP**——远程端点 OAuth 动态注册实测 `403`（白名单制）、本地 `3845` 需 Dev/Full 座位 + 人工开关，两路均已作废（WXG-T-571 实测记录见该 skill §0） |
 | 域·音频 | `wxgame-audio-spec` | 音频五件套**框架版**（数值 `[TODO]`，实做后回写） |
 | 域·QA | `wxgame-qa-gates` | 测试计划/硬判据用例/冒烟/缺陷分级/Playtest；**§4.1 可选预分类：领域决策模型给【归口+级别建议】，不替人定级、不得判是否阻断发布** |
 | 域·QA | `wxgame-quality-gate` | 执行 verify 全量门禁 + **强制工具调用报告表**（会话结论透明化，WXG-T-021） |

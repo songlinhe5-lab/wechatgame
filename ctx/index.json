@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "bbacda8c8a42383b46424fec241c222edc33810ae652d961bf3c32e881e0a75f",
+      "sha256": "3d9163beb5538d1f1339ada6a56a3cfcc1253c33df852ce9183911d84e20e9fa",
       "tier": "normal",
       "sections": [
         {
@@ -777,12 +777,12 @@
           ]
         },
         {
-          "anchor": "§`my-skills/INDEX.md` — 160 行 / 4927 tok / 实测读 61 次",
+          "anchor": "§`my-skills/INDEX.md` — 161 行 / 5047 tok / 实测读 61 次",
           "level": 2,
           "startLine": 36,
           "endLine": 40,
           "tokens": 133,
-          "summary": "§wxgame skill 家族 IND…=1+161 · §1 清单（现役 49 个挂四 IDE …=6+34 · §",
+          "summary": "§wxgame skill 家族 IND…=1+162 · §1 清单（现役 49 个挂四 IDE …=6+35 · §",
           "keywords": [
             "my-skills/INDEX.md",
             "§1",
@@ -70205,17 +70205,17 @@
     },
     {
       "path": "my-skills/INDEX.md",
-      "tokens": 4927,
-      "lines": 160,
-      "sha256": "da3b246710c86c973368c5a96a0025c82e9ae114c4ae0370092f7b738c3eed2b",
+      "tokens": 5047,
+      "lines": 161,
+      "sha256": "60aaa3f85a22db8d8721bc5e47b05387351cedc1a248737ac3cc0b76a039645a",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§wxgame skill 家族 INDEX",
           "level": 1,
           "startLine": 1,
-          "endLine": 161,
-          "tokens": 4919,
+          "endLine": 162,
+          "tokens": 5040,
           "summary": "本文件是 my-skills/ 全家族的统一约定（人读 + 编排者读）。",
           "keywords": [
             "wxgame",
@@ -70229,8 +70229,8 @@
           "anchor": "§1 清单（现役 49 个挂四 IDE 链接；存档 1 个仅本目录留档）",
           "level": 2,
           "startLine": 6,
-          "endLine": 39,
-          "tokens": 1780,
+          "endLine": 40,
+          "tokens": 1900,
           "summary": "说明 — 云端 AI 能力的 key/端点与实测值不在 skill 里复述（两处漂移风险）：唯一事实单 = games/",
           "keywords": [
             "IDE",
@@ -70244,8 +70244,8 @@
         {
           "anchor": "§1b. 外来通用·AI 编程工作流（28 个挂四 IDE 链接；含 1b.1 五件 + 1b.2 七件）",
           "level": 2,
-          "startLine": 40,
-          "endLine": 108,
+          "startLine": 41,
+          "endLine": 109,
           "tokens": 2163,
           "summary": "来源均为标准 SKILL.md 格式（MIT），安全审计通过（无危险命令/外传行为）。正本在本目录，git 克隆留档 _",
           "keywords": [
@@ -70260,8 +70260,8 @@
         {
           "anchor": "§1b.1 2026-09-24 批（5 件）",
           "level": 3,
-          "startLine": 61,
-          "endLine": 88,
+          "startLine": 62,
+          "endLine": 89,
           "tokens": 873,
           "summary": "cloudflare/security-audit-skill security-audit 六阶段安全审计（侦察 → ",
           "keywords": [
@@ -70274,8 +70274,8 @@
         {
           "anchor": "§1b.2 2026-10-20 批（7 件：ponytail 家族 6 + headroom）",
           "level": 3,
-          "startLine": 89,
-          "endLine": 108,
+          "startLine": 90,
+          "endLine": 109,
           "tokens": 793,
           "summary": "DietrichGebert/ponytail ponytail 强制最简可用解（七级阶梯 / YAGNI，lite·f",
           "keywords": [
@@ -70290,8 +70290,8 @@
         {
           "anchor": "§2 默认管线顺序与何时不走全 SOP",
           "level": 2,
-          "startLine": 109,
-          "endLine": 116,
+          "startLine": 110,
+          "endLine": 117,
           "tokens": 140,
           "summary": "全 SOP（新游戏/大功能）：orchestration 阶段诊断 → 按九阶段表 spawn",
           "keywords": [
@@ -70305,8 +70305,8 @@
         {
           "anchor": "§3 Skill 优先级（冲突时高者胜）",
           "level": 2,
-          "startLine": 117,
-          "endLine": 135,
+          "startLine": 118,
+          "endLine": 136,
           "tokens": 312,
           "summary": "",
           "keywords": [
@@ -70318,8 +70318,8 @@
         {
           "anchor": "§4 路径约定",
           "level": 2,
-          "startLine": 136,
-          "endLine": 149,
+          "startLine": 137,
+          "endLine": 150,
           "tokens": 223,
           "summary": "游戏（策划/美术/源码） games/<game>/design · games/<game>/art · games/",
           "keywords": [
@@ -70333,8 +70333,8 @@
         {
           "anchor": "§5 冲突裁决链",
           "level": 2,
-          "startLine": 150,
-          "endLine": 156,
+          "startLine": 151,
+          "endLine": 157,
           "tokens": 85,
           "summary": "1. games/<game>/design/gdd/systems-index.md §3 冻结常量 是数值唯一真源",
           "keywords": [
@@ -70349,8 +70349,8 @@
         {
           "anchor": "§6 Provenance 说明",
           "level": 2,
-          "startLine": 157,
-          "endLine": 161,
+          "startLine": 158,
+          "endLine": 162,
           "tokens": 60,
           "summary": "除 audio-spec（框架版）外，各 wxgame-* 均提炼自 Breakout demo 的实际产物，",
           "keywords": [
@@ -86897,6 +86897,147 @@
             "sprints",
             "sprint",
             "后续衔接"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "my-skills/wxgame-figma/SKILL.md",
+      "tokens": 1369,
+      "lines": 78,
+      "sha256": "3f8262c822ba9b0d2c01d0c6fc6aa1914dda018771e6fc6d4fc654440721ac19",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§wxgame-figma — Figma 只读取数/导出（PAT · 五 IDE 统一）",
+          "level": 1,
+          "startLine": 6,
+          "endLine": 79,
+          "tokens": 1261,
+          "summary": "本 skill 是执行层：把「拿到一个 figma.com 链接之后敲什么命令、产物落哪、怎么验收」排好。",
+          "keywords": [
+            "wxgame",
+            "figma",
+            "Figma",
+            "PAT",
+            "IDE",
+            "skill"
+          ]
+        },
+        {
+          "anchor": "§0 为什么不走 MCP（2026-11-03 实测，别再重跑）",
+          "level": 2,
+          "startLine": 10,
+          "endLine": 17,
+          "tokens": 243,
+          "summary": "远程 https://mcp.figma.com/mcp 无凭证 401；X-Figma-Token: <PAT> 仍 ",
+          "keywords": [
+            "MCP",
+            "https",
+            "mcp",
+            "figma",
+            "com",
+            "Figma"
+          ]
+        },
+        {
+          "anchor": "§1 凭证",
+          "level": 2,
+          "startLine": 18,
+          "endLine": 28,
+          "tokens": 108,
+          "summary": "FIGMA_API_KEY（figd_ 开头）—— 优先级：环境变量 → 仓库根 .env.local。脚本自己读，不要",
+          "keywords": [
+            "FIGMA_API_KEY",
+            "figd_",
+            "env",
+            "local",
+            "凭证"
+          ]
+        },
+        {
+          "anchor": "§2 四条命令",
+          "level": 2,
+          "startLine": 29,
+          "endLine": 44,
+          "tokens": 300,
+          "summary": "脚本：my-skills/wxgame-figma/scripts/figma.mjs（Node 内置 fetch，零 ",
+          "keywords": [
+            "skills",
+            "wxgame",
+            "figma",
+            "scripts",
+            "mjs",
+            "Node"
+          ]
+        },
+        {
+          "anchor": "§3 标准流程",
+          "level": 2,
+          "startLine": 45,
+          "endLine": 50,
+          "tokens": 96,
+          "summary": "1. 先 tree 看清层级，拿到目标 node-id —— 不要一上来 node 整个页面。",
+          "keywords": [
+            "tree",
+            "node",
+            "标准流程"
+          ]
+        },
+        {
+          "anchor": "§4 产物落位",
+          "level": 2,
+          "startLine": 51,
+          "endLine": 58,
+          "tokens": 109,
+          "summary": "中间产物、比对图 temp/figma/（不入库）",
+          "keywords": [
+            "temp",
+            "figma",
+            "产物落位"
+          ]
+        },
+        {
+          "anchor": "§5 能力边界（写清，免得白试）",
+          "level": 2,
+          "startLine": 59,
+          "endLine": 65,
+          "tokens": 147,
+          "summary": "只读。Figma REST 不能写画布；POST /v1/files/... 一类写入能力不在 PAT 常规权限内。",
+          "keywords": [
+            "Figma",
+            "REST",
+            "POST",
+            "files",
+            "PAT",
+            "能力边界"
+          ]
+        },
+        {
+          "anchor": "§6 自检",
+          "level": 2,
+          "startLine": 66,
+          "endLine": 73,
+          "tokens": 46,
+          "summary": "",
+          "keywords": [
+            "自检"
+          ]
+        },
+        {
+          "anchor": "§7 与其它 skill 的关系",
+          "level": 2,
+          "startLine": 74,
+          "endLine": 79,
+          "tokens": 103,
+          "summary": "出图/mockup：wxgame-image-gen（本 skill 只取设计稿，不生成）",
+          "keywords": [
+            "skill",
+            "mockup",
+            "wxgame",
+            "image",
+            "gen",
+            "与其它"
           ]
         }
       ]
