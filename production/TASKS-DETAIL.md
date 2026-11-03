@@ -7383,3 +7383,63 @@ T-563 结束时给三选（A 以 v1 三件 i2i 重出 / B 全新文生图 / C �
 - 批目录 `design/art/proposals/menu-3d-style-20261030/badge-v2-20261102/`：5 张原图 + `_ref/` 放大底图 + `cut/` 真 alpha 三件 + `generation-record.txt`（配方正本）
 - 用量 → `production/qa/token-plan-usage-ledger.md`（本批追加段）
 - 脚本 2 支转正入 `ai-workflows/`：`cut-badge-v2.py`、`proto-from-baseline.py`
+
+## WXG-T-568
+
+**叠加管线判定去重 + TypedArray 池扩展（2026-11-03）**
+
+### 1. 任务源
+
+WXG-T-567 续作，用户问："1/2/3"（叠加管线消费侧+生产侧改造 / TypedArray 池覆盖 mask-lanczos 低频路径 / 更多消费侧接入 / 锁形独立层扩展）。全链路复盘后裁定：① 架构重构反简化、跳过；② 状态标记独立层等用户重新拍板；③ 务实版 = 叠加判定去重 + TypedArray 池扩展 + breakout/选关页接入确认。
+
+### 2. 叠加管线判定去重
+
+gray-fx.ts 新增共享判定函数 `frostGrayCombined(fx: BlitFx | undefined): {frost: number; gray: number} | undefined`，统一两条腿原注释一字不差的 if 条件：`frost !== undefined && gray !== undefined && gray < 1`（gray=1 时 frost 自身已全灰、叠加无增益）。
+
+改动：
+- `packages/framework/src/core/bake/gray-fx.ts` — 新增 frostGrayCombined
+- `packages/framework/src/adapters/canvas2d/tint-blit-resolver.ts` — 改调用
+- `games/beads/cocos/assets/scripts/host/beads-blit-carrier.ts` — 改调用（同文件还有 `frost` 单独腿判定需确认 frostGrayCombined 返回 undefined 时仍走 frost 单独腿）
+
+### 3. TypedArray 池扩展 Float64 + mask-lanczos 接入
+
+typedarray-pool.ts 扩展 `_float64` 桶（镜像 Uint8Clamped/Uint8 三桶结构），`acquireFloat64`/`releaseFloat64`/`clearTypedArrayPool` 覆盖。接入 mask-lanczos.ts 两处一次性临时缓冲：
+
+| 变量 | 函数 | 类型 | 生命周期 |
+|------|------|------|---------|
+| `pre` | lanczosCoeffs | Float64 | try/finally |
+| `temp` | resampleSquare | Uint8 | try/finally |
+
+跳过：bounds/k（Int32，return 给调用方）、out（Uint8，return 给调用方）。
+
+### 4. TypedArray 池完整版图（WXG-T-567 + WXG-T-568 合）
+
+| 模块 | 函数 | 临时缓冲数 | 类型 |
+|------|------|-----------|------|
+| frostPixels | — | 2 | Uint8Clamped |
+| mask-field | applyLayerSet | 1 mask | Uint8 |
+| mask-field | beadShapePlane | shape + out | Uint8 |
+| mask-field | paintFrameLight | outer + inner | Uint8 |
+| mask-field | computeBeadPlanes | r + g + b planes | Uint8 |
+| mask-field | cellShapePlane | out | Uint8 |
+| mask-field | computeCellPlanes | rHi + gHi | Uint8 |
+| mask-field | computeMaskField | planes.b 释放 | Uint8 |
+| mask-lanczos | lanczosCoeffs | pre | Float64 |
+| mask-lanczos | resampleSquare | temp | Uint8 |
+
+### 5. breakout 暂停态 + 选关页接入确认（跳过）
+
+- breakout：纯 Canvas 矢量 renderer，零 BlitFx / blitResolver 管线。暂停态 overlay = 简单 alpha 淡出画面，无 bitmap 路径可挂 frost。**结构上接不了**。
+- beads 选关页锁定大关（drawLockedWallCell）：已有 beadFadedInksFor 灰度珠拼缩略 + 独立锁形 Sprite（MENU_TEXTURES.badgeLocked）。与主菜单锁定态处理一致，**无额外接 frost 的必要**。
+
+### 6. 产出
+
+| commit | 内容 |
+|--------|------|
+| `021b407c` | Float64 池 + mask-lanczos pre/temp 池化 |
+| `bacf400d` | beadShapePlane/cellShapePlane return buffer 池化 |
+| `HEAD` | 叠加管线判定去重 frostGrayCombined |
+
+### 7. 验证
+
+mask:diff 四档 mean=0 max=0、typecheck 全绿、verify 23/23 PASS。

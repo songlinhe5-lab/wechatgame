@@ -35,7 +35,7 @@ import { maskTileInnerPx } from '../framework/core/bake/mask-tile';
 import { BEAD_PITCH, BOSS_THUMB_TEXTURES, MENU_TEXTURES, TILE_BLEED } from '../game/config/tuning';
 import { OPEN_ARCS } from '../game/config/arcs';
 import { tintFxBase } from '../framework/core/bake/tint-composite';
-import { frostPixels, frostRead, grayFxRead, grayWipeRead } from '../framework/core/bake/gray-fx';
+import { frostGrayCombined, frostPixels, frostRead, grayFxRead, grayWipeRead } from '../framework/core/bake/gray-fx';
 import { nineSliceFxRead } from '../framework/core/bake/nine-slice-fx';
 import { createWhitelistBeadTintRuntime, setBeadTintRuntime } from '../game/view/bead-render';
 import { requiredTintMaskIds } from '../game/view/bead-tint-mask';
@@ -352,20 +352,19 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
             ? grayWipeRead(cmd.fx)
             : undefined;
         // `[WXG-T-567]` 磨砂玻璃 + 叠加管线：frost 单独 ⇒ 全灰（gray=1，保持旧语义）；
-        // frost + gray 同时存在 ⇒ 叠加管线（frost 先跑、gray 在其 blur 产物上再跑）。
-        const frost = base === undefined && ns === undefined && wipe === undefined
+        // frost + gray 同时存在（gray<1）⇒ 叠加管线。
+        const frost = base === undefined && ns === undefined && wipe === undefined && gray === undefined
             ? frostRead(cmd.fx)
             : undefined;
-        // 叠加管线判定：frost + gray(0..1) 同时存在。gray=1 时 frost 自身已全灰，
-        // 叠加无增益 ⇒ 走 frost 单独腿（缓存键短一档）。
-        const combinedFrostGray = frost !== undefined && gray !== undefined && gray < 1;
+        // 叠加管线判定共享自 gray-fx.ts（frost + gray(0..1)）。
+        const combined = frostGrayCombined(cmd.fx);
         // `[WXG-T-271 / ADR-0031 DEC=C′]` 效果叠加管线（frost+gray 组合）→ 先 frost 再叠 gray；
         // 其余效果腿（tint / nineSlice / gray 单独 / grayWipe / frost 单独）保持互斥。
         let frame: SpriteFrame | undefined;
         if (tint !== undefined) frame = this._cell(cmd.textureId, tint);
         else if (ns !== undefined) frame = undefined; // nineSlice 走 bakeNineSlice（无 fx.base）
         else if (wipe !== undefined) frame = this._wipeFrame(cmd.textureId, wipe[0]!, wipe[1]!);
-        else if (combinedFrostGray) frame = this._frostFrame(cmd.textureId, frost!, gray!);
+        else if (combined !== undefined) frame = this._frostFrame(cmd.textureId, combined.frost, combined.gray);
         else if (frost !== undefined) frame = this._frostFrame(cmd.textureId, frost, 1);
         else if (gray !== undefined && gray > 0) frame = this._grayFrame(cmd.textureId, gray);
         else frame = this._bitmaps.get(cmd.textureId);

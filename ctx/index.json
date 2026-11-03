@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3942,
       "lines": 133,
-      "sha256": "187ebaf6a728b07734cf86e4659aa6d90d45ad5747f7cd9d264a883a332cf001",
+      "sha256": "4a56c33b5bf73caac007aa1cba8841d05b24f93ba3959ce81468ac30aed5d4e1",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 206728 7385 normal",
+          "summary": "1 production/TASKS-DETAIL.md 207621 7445 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "c43f194d225b357129eb360cfc18954aac7c76f2cf00d12b5ca1864cb674431f",
+      "sha256": "7b074c99be9e9fbe892a9be41d8d7d9c263d9ef19276bf453d72db6fa85b033e",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 174 行 / 40633 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 175 行 / 40754 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+175 · §待排（backlog，无号，立项时领取…=147+29",
+          "summary": "§WXG 任务台账（SSOT）=1+176 · §待排（backlog，无号，立项时领取…=148+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 7385 行 / 206728 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 7445 行 / 207621 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7386 · §WXG-T-556=6931+31 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7446 · §WXG-T-557=6962+34 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -88554,17 +88554,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 206728,
-      "lines": 7385,
-      "sha256": "a194bd5d332d3b20138af67f11350b045131105197ba119b5ee5edaf5d7471d6",
+      "tokens": 207621,
+      "lines": 7445,
+      "sha256": "dbdc9de3f2fed41377fcbb02e711685c5f03ca70168049e40c7c5f01087178f4",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 7386,
-          "tokens": 206711,
+          "endLine": 7446,
+          "tokens": 207604,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -99547,22 +99547,143 @@
             "style",
             "badge"
           ]
+        },
+        {
+          "anchor": "§WXG-T-568",
+          "level": 2,
+          "startLine": 7387,
+          "endLine": 7446,
+          "tokens": 890,
+          "summary": "叠加管线判定去重 + TypedArray 池扩展（2026-11-03）",
+          "keywords": [
+            "WXG",
+            "TypedArray"
+          ]
+        },
+        {
+          "anchor": "§1 任务源",
+          "level": 3,
+          "startLine": 7391,
+          "endLine": 7394,
+          "tokens": 121,
+          "summary": "WXG-T-567 续作，用户问：\"1/2/3\"（叠加管线消费侧+生产侧改造 / TypedArray 池覆盖 mask",
+          "keywords": [
+            "WXG",
+            "TypedArray",
+            "mask",
+            "任务源"
+          ]
+        },
+        {
+          "anchor": "§2 叠加管线判定去重",
+          "level": 3,
+          "startLine": 7395,
+          "endLine": 7403,
+          "tokens": 182,
+          "summary": "gray-fx.ts 新增共享判定函数 frostGrayCombined(fx: BlitFx undefined):",
+          "keywords": [
+            "gray",
+            "frostGrayCombined",
+            "BlitFx",
+            "undefined",
+            "叠加管线判定",
+            "去重"
+          ]
+        },
+        {
+          "anchor": "§3 TypedArray 池扩展 Float64 + mask-lanczos 接入",
+          "level": 3,
+          "startLine": 7404,
+          "endLine": 7414,
+          "tokens": 134,
+          "summary": "typedarray-pool.ts 扩展 _float64 桶（镜像 Uint8Clamped/Uint8 三桶结构）",
+          "keywords": [
+            "TypedArray",
+            "Float64",
+            "mask",
+            "lanczos",
+            "typedarray",
+            "pool"
+          ]
+        },
+        {
+          "anchor": "§4 TypedArray 池完整版图（WXG-T-567 + WXG-T-568 合）",
+          "level": 3,
+          "startLine": 7415,
+          "endLine": 7429,
+          "tokens": 154,
+          "summary": "frostPixels — 2 Uint8Clamped",
+          "keywords": [
+            "TypedArray",
+            "WXG",
+            "frostPixels",
+            "Uint8Clamped",
+            "池完整版图"
+          ]
+        },
+        {
+          "anchor": "§5 breakout 暂停态 + 选关页接入确认（跳过）",
+          "level": 3,
+          "startLine": 7430,
+          "endLine": 7434,
+          "tokens": 122,
+          "summary": "breakout：纯 Canvas 矢量 renderer，零 BlitFx / blitResolver 管线。暂停态",
+          "keywords": [
+            "breakout",
+            "Canvas",
+            "renderer",
+            "BlitFx",
+            "blitResolver",
+            "暂停态"
+          ]
+        },
+        {
+          "anchor": "§6 产出",
+          "level": 3,
+          "startLine": 7435,
+          "endLine": 7442,
+          "tokens": 60,
+          "summary": "021b407c Float64 池 + mask-lanczos pre/temp 池化",
+          "keywords": [
+            "b407c",
+            "Float64",
+            "mask",
+            "lanczos",
+            "pre",
+            "temp"
+          ]
+        },
+        {
+          "anchor": "§7 验证 (2)",
+          "level": 3,
+          "startLine": 7443,
+          "endLine": 7446,
+          "tokens": 20,
+          "summary": "mask:diff 四档 mean=0 max=0、typecheck 全绿、verify 23/23 PASS。",
+          "keywords": [
+            "mask",
+            "diff",
+            "mean",
+            "max",
+            "typecheck",
+            "verify"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 40633,
-      "lines": 174,
-      "sha256": "5e81b554f1a945fdae490431698dc35312676ef11a15a5dff7650b21cf5e06c6",
+      "tokens": 40754,
+      "lines": 175,
+      "sha256": "238d05c843086efb4cbacaef7cf1f9849ff82d1e53d41170549ff976db750a87",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 175,
-          "tokens": 40625,
+          "endLine": 176,
+          "tokens": 40745,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -99575,8 +99696,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 147,
-          "endLine": 175,
+          "startLine": 148,
+          "endLine": 176,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

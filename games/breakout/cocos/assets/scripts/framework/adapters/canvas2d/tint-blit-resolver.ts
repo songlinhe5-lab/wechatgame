@@ -15,7 +15,7 @@
  */
 
 import { tintFxBase } from '../../core/bake/tint-composite';
-import { frostPixels, frostRead, grayFxRead, grayWipeRead } from '../../core/bake/gray-fx';
+import { frostGrayCombined, frostPixels, frostRead, grayFxRead, grayWipeRead } from '../../core/bake/gray-fx';
 import { nineSliceFxRead } from '../../core/bake/nine-slice-fx';
 import type { BlitResolver, TextureRegistry } from './canvas2d-renderer';
 import type { BlitCommand } from '../../core/render/render-model';
@@ -248,11 +248,12 @@ export function createTintBlitResolver(
             const gray = grayFxRead(cmd.fx);
             const wipe = grayWipeRead(cmd.fx);
             const frost = frostRead(cmd.fx);
-            // 叠加管线：frost + gray(0..1) 同时存在（gray=1 时 frost 自身已全灰、叠加无增益）。
-            if (frost !== undefined && gray !== undefined && gray < 1) {
+            const combined = frostGrayCombined(cmd.fx);
+            // 叠加管线判定共享自 gray-fx.ts（frost + gray(0..1)）。
+            if (combined !== undefined) {
                 const src = registry.get(cmd.textureId) as Source | undefined;
                 if (src === undefined || createCanvas === undefined) return undefined;
-                return bakeFrost(cmd.textureId, src, frost, gray, createCanvas);
+                return bakeFrost(cmd.textureId, src, combined.frost, combined.gray, createCanvas);
             }
             if (wipe !== undefined) {
                 const src = registry.get(cmd.textureId) as Source | undefined;

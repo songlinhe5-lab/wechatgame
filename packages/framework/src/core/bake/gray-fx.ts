@@ -148,6 +148,21 @@ export function frostGrayFx(radius: number, gray = 1): BlitFx {
     return { [FROST_FX_KEY]: r, [GRAY_FX_KEY]: g };
 }
 
+/**
+ * `[WXG-T-568]` 叠加管线判定共享函数（canvas2d + cocos 两条腿复用）。
+ *
+ * frost + gray(0..1) 同时存在才是叠加管线。gray=1 时 frost 自身已全灰、
+ * 叠加无增益 ⇒ 走 frost 单独腿（缓存键短一档）。
+ *
+ * @returns `{ frost, gray }` 是叠加管线；`undefined` 不是
+ */
+export function frostGrayCombined(fx: BlitFx | undefined): { frost: number; gray: number } | undefined {
+    const frost = frostRead(fx);
+    const gray = grayFxRead(fx);
+    if (frost !== undefined && gray !== undefined && gray < 1) return { frost, gray };
+    return undefined;
+}
+
 /** {@link frostPixels} 的产物：1/4 尺寸的 RGBA 像素（`data` 长度为 `width*height*4`）。 */
 export interface FrostPixels {
     readonly width: number;
