@@ -60224,17 +60224,17 @@
     },
     {
       "path": "knowledge/lessons/testing-change.md",
-      "tokens": 3429,
-      "lines": 44,
-      "sha256": "a21d996fe338237965348a1571a10e27ffdb7cbb3662c92c871a6f6052eb1363",
+      "tokens": 4150,
+      "lines": 50,
+      "sha256": "eee5610f8c2ba8f59fa9254f80c58f4ca9f4618e539f8b56e6f4659224bc3efd",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§lessons · `testing-change` 分片（标签 `测试变更`）",
           "level": 1,
           "startLine": 1,
-          "endLine": 45,
-          "tokens": 3411,
+          "endLine": 51,
+          "tokens": 4132,
           "summary": "立项缘由（WXG-T-364 收尾批二，2026-10-24）：测试守卫 片实测 7971 tok，ctx:check ",
           "keywords": [
             "testing-change",
@@ -60249,8 +60249,8 @@
           "anchor": "§测试变更",
           "level": 2,
           "startLine": 15,
-          "endLine": 45,
-          "tokens": 3076,
+          "endLine": 51,
+          "tokens": 3797,
           "summary": "[测试变更][K-125] 语义从「取大」换到「优先」时，≥ 型不变式没有判别力，必须补一条相等式（来源 安全区接口优先",
           "keywords": [
             "测试变更"
