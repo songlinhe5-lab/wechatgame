@@ -7593,3 +7593,34 @@ Figma 官方文档（remote-server-installation）：远程端点 `https://mcp.f
 - 配置生效需**重启会话**让 IDE 重新装载 MCP；装载成功判据 = `SharedClientCache/.../mcps/` 出现 `figma-desktop` 目录且工具列表非空。
 - 桌面版需要 Dev/Full 座位；无座位则改走 stdio + PAT 路线（社区 MCP 读 `FIGMA_API_KEY`，PAT 已实测 200 可用，且 stdio 不触 `check:mcp` C3 回环门 ⇒ 可进仓库正本），**或直接用已落地的 `wxgame-figma` skill（PAT + REST，五 IDE 通用；本次即走此路，MCP 两路判负后不再作为交付路径）**。
 - 远程 OAuth 已按上行取证**判负**，不再重试；若 Figma 日后把 Qoder 收进 MCP catalog，再解禁 `figma-remote`。
+
+## WXG-T-572
+
+**美术·菜单基准图落 prototypes + Figma 写入权限验证** · 负责：主理人(Cursor)·美术轨 · 状态：🔄 进行中（2026-11-03）
+
+### 1. 用户令
+
+「这三个图的原始图是哪个，放到 prototypes 目录里，并作为测试文件验证权限」⇒ 追令「台账里新登记一个」「先加载 figma-use skill」。
+
+### 2. 来源确认
+
+三张 `proto-menu-v2-{cleared,locked,pushing}-752x1344.png` 由 `games/beads/design/ai-workflows/proto-from-baseline.py` 派生，其 `BASE` 指向 `games/beads/design/art/proposals/menu-3d-style-20261030/menu-design-baseline-cat-topbar-final-slotbar-20261102.png`（752×1344，SHA-256 `a708af9c…4f34308e`）。
+
+### 3. 改动
+
+- 复制基准图到 `games/beads/design/art/final/prototypes/`（原名保留，校验和与源一致）。
+
+### 4. Figma 写入权限验证（已通过）
+
+- 计划：`stephenhe`（`team::1651994456241229957`，Full / admin）。
+- 测试文件：「MCP权限测试-菜单基准图」，fileKey `PBIK3RbfGlfzFsAnd97ZsP`（草稿，可删）。
+- `create_new_file` ✅ → `create_session` ✅ → `upload_assets(count=1)` ✅ → multipart POST 到 submitUrl，HTTP 200，`placedOnNodeId: 1:2` ✅ → `get_screenshot` 读回，画面为菜单基准图 ✅。
+- 结论：新建、上传、读回三项写权限均可用。
+
+### 5. 待办
+
+- `use_figma` 局部修改写入：按用户令先加载 `figma-use` skill，再验证。
+
+### 6. 提交
+
+- 台账登记 WXG-T-572；PNG 与台账同一提交推送。
