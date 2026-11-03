@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3942,
       "lines": 133,
-      "sha256": "8dfc797e33ac533dfb404d050bcff8ada9d08c9a9db41db8430238ee8ce654ce",
+      "sha256": "aca95cc2e078488c17a2ce977a7d04bf9e4e11acaf3f68f3a2974beecb6e800f",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 208391 7486 normal",
+          "summary": "1 production/TASKS-DETAIL.md 210350 7557 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "3c5d0483cdac3b16078f9b809f867eee63a88f2d67e4c2bcc5875e003b33fa9e",
+      "sha256": "a7ab9049d67b1b8110e1226b6153ad3e13ef29999065f0b9f6b90daaf6c3132c",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 176 行 / 41093 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 177 行 / 41145 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+177 · §待排（backlog，无号，立项时领取…=149+29",
+          "summary": "§WXG 任务台账（SSOT）=1+178 · §待排（backlog，无号，立项时领取…=150+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 7486 行 / 208391 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 7557 行 / 210350 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7487 · §WXG-T-558=6996+29 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7558 · §WXG-T-559=7025+42 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -24444,9 +24444,9 @@
     },
     {
       "path": "games/beads/design/art/final/README.md",
-      "tokens": 5455,
+      "tokens": 5747,
       "lines": 59,
-      "sha256": "475c22f706ca7a995ad9e2122d13e7d44db394d53fd76d45e6ac9e026ed960f3",
+      "sha256": "ef38d8d96f9a3f0cdebd089b5dea9397332348b63191faa3707e3266658b5763",
       "tier": "normal",
       "sections": [
         {
@@ -24454,7 +24454,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 60,
-          "tokens": 5439,
+          "tokens": 5730,
           "summary": "2026-10-14 用户裁定：资源定稿分三类；shots 只按日期存每日结论证据，本区是验收后的归集面（复制入库，原件",
           "keywords": [
             "final",
@@ -24468,8 +24468,8 @@
           "level": 2,
           "startLine": 9,
           "endLine": 16,
-          "tokens": 2142,
-          "summary": "prototypes/ 原型设计：整屏视觉原型（定稿版面） ✅ 2026-11-02 WXG-T-563 换成 v2 三",
+          "tokens": 2434,
+          "summary": "prototypes/ 原型设计：整屏视觉原型（定稿版面） ✅ 2026-11-03 WXG-T-570 重出三态原型 ",
           "keywords": [
             "prototypes",
             "WXG",
@@ -88577,17 +88577,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 208391,
-      "lines": 7486,
-      "sha256": "17ca10ba31b63773c9aa1da07ee174b0775e6d49edaaccbab2602663e4d02422",
+      "tokens": 210350,
+      "lines": 7557,
+      "sha256": "8ec66f0e04461076f8e570b161fb15c1af4f2dc7b3b336282a6bc26b9f31a120",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 7487,
-          "tokens": 208374,
+          "endLine": 7558,
+          "tokens": 210333,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -99778,22 +99778,160 @@
             "typecheck",
             "verify"
           ]
+        },
+        {
+          "anchor": "§WXG-T-570",
+          "level": 2,
+          "startLine": 7488,
+          "endLine": 7558,
+          "tokens": 1956,
+          "summary": "美术·主菜单 v2 三态原型图优化（全彩 / 金边满星 / 置灰 / 揭彩进度） · 负责：主理人(Qoder)·美术轨",
+          "keywords": [
+            "WXG",
+            "Qoder"
+          ]
+        },
+        {
+          "anchor": "§1 用户令 (15)",
+          "level": 3,
+          "startLine": 7492,
+          "endLine": 7497,
+          "tokens": 175,
+          "summary": "「proto-menu-v2-cleared-752x1344.png proto-menu-v2-locked-752",
+          "keywords": [
+            "proto",
+            "menu",
+            "cleared",
+            "x1344",
+            "png",
+            "locked"
+          ]
+        },
+        {
+          "anchor": "§2 改前缺陷（承接 T-563 未提交的工作树产物）",
+          "level": 3,
+          "startLine": 7498,
+          "endLine": 7509,
+          "tokens": 244,
+          "summary": "git status 显示脚本 + 三张图已被上一会话改过未提交；逐张目检得五处缺陷：",
+          "keywords": [
+            "git",
+            "status",
+            "改前缺陷",
+            "承接",
+            "未提交的工作",
+            "树产物"
+          ]
+        },
+        {
+          "anchor": "§3 三态口径（与运行时同式同向）",
+          "level": 3,
+          "startLine": 7510,
+          "endLine": 7521,
+          "tokens": 357,
+          "summary": "数值真源 = games/beads/src/config/tuning/menu.ts；灰度式 = packages/",
+          "keywords": [
+            "games",
+            "beads",
+            "src",
+            "config",
+            "tuning",
+            "menu"
+          ]
+        },
+        {
+          "anchor": "§4 金色腿取舍：金边 vs 金底（用户给「或者」）",
+          "level": 3,
+          "startLine": 7522,
+          "endLine": 7528,
+          "tokens": 167,
+          "summary": "先实现双型出 A/B 对照（temp/proto-menu-fix/），目检判负 金底：会把整块豆画作品染黄，与「通关要",
+          "keywords": [
+            "temp",
+            "proto",
+            "menu",
+            "fix",
+            "金色腿取舍",
+            "金边"
+          ]
+        },
+        {
+          "anchor": "§5 手工量框（基准图 752×1344，脚本内常量）",
+          "level": 3,
+          "startLine": 7529,
+          "endLine": 7533,
+          "tokens": 106,
+          "summary": "量法：基准图叠 20/50px 网格（temp/proto-menu-fix/grid-case*.png）逐边读数。",
+          "keywords": [
+            "temp",
+            "proto",
+            "menu",
+            "fix",
+            "grid",
+            "case"
+          ]
+        },
+        {
+          "anchor": "§6 验证 (4)",
+          "level": 3,
+          "startLine": 7534,
+          "endLine": 7542,
+          "tokens": 264,
+          "summary": "python3 games/beads/design/ai-workflows/proto-from-baseline.",
+          "keywords": [
+            "python3",
+            "games",
+            "beads",
+            "design",
+            "workflows",
+            "proto"
+          ]
+        },
+        {
+          "anchor": "§7 登记与遗留",
+          "level": 3,
+          "startLine": 7543,
+          "endLine": 7550,
+          "tokens": 371,
+          "summary": "闭环 T-563 §4 遗留 1（三态章 v1 白盘 → 脚本 BADGE_DIR 默认改 badge-v2-20261",
+          "keywords": [
+            "§4",
+            "BADGE_DIR",
+            "badge",
+            "登记与遗留"
+          ]
+        },
+        {
+          "anchor": "§8 产出",
+          "level": 3,
+          "startLine": 7551,
+          "endLine": 7558,
+          "tokens": 118,
+          "summary": "games/beads/design/ai-workflows/proto-from-baseline.py 整体重写（",
+          "keywords": [
+            "games",
+            "beads",
+            "design",
+            "workflows",
+            "proto",
+            "from"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 41093,
-      "lines": 176,
-      "sha256": "d1fcaa1d3ac00858100a64571cdb1c993e2fa8c52a161c7d45f807a78c0aa1c8",
+      "tokens": 41145,
+      "lines": 177,
+      "sha256": "8577154661eed97b65dbcc2f13190db7f419fd23a6320533efb879ee9c7798c9",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 177,
-          "tokens": 41084,
+          "endLine": 178,
+          "tokens": 41136,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -99806,8 +99944,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 149,
-          "endLine": 177,
+          "startLine": 150,
+          "endLine": 178,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
