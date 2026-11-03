@@ -315,4 +315,8 @@
 | K-206 | 工具链图像 | toolchain-image | SAM 类分割模型只切「物体」不切文字，纯文字目标必须换语义型模型 | WXG-T-535 | 2026-11-01 | 0 | active |
 | K-207 | 工具链图像 | toolchain-image | 参考 UI 件的立体感可能来自方向光而非描边 ⇒ 加深色描边前先比「环均值 vs 面均值」 | WXG-T-537 | 2026-11-02 | 0 | active |
 | K-208 | 工具链图像 | toolchain-image | 硬边 alpha 经 LANCZOS 缩放会振铃出光晕，覆盖率高于理论圆面积 ⇒ 交付透明 PNG 前按低 α 归零 | WXG-T-537 | 2026-11-02 | 0 | active |
+| K-209 | 测试变更 | testing-change | "逐字节复刻"类文件（mask-field.ts 等）不能一步拆分 835 行——必须逐模块 `mask:diff` 对拍绿后再拆下一模块，否则 1-bit 差异会导致四档漂移 | WXG-T-567 | 2026-11-03 | 0 | active |
+| K-210 | 接入 | onboarding | 装外来 skill 前先读完 SKILL.md 正文：只写「Call the Skill tool for X,Y」的是薄壳，能力全在依赖件里 | WXG-T-569 | 2026-11-03 | 0 | active |
+| K-211 | 接入 | onboarding | 外来 skill 先过「配置面 / SSOT 面 / 门禁面」三问，再谈装不装 | WXG-T-569 | 2026-11-03 | 0 | active |
+| K-212 | 接入 | onboarding | 「一键装整套 skill」类安装器一律不进本仓：它写宿主目录，绕过四 IDE 链接与 `check:links` | WXG-T-569 | 2026-11-03 | 0 | active |
 <!-- kb:active:end -->

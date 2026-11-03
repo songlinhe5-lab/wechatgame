@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 209,
+  "nextId": 213,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -3495,6 +3495,74 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-209",
+      "state": "active",
+      "file": "knowledge/lessons/testing-change.md",
+      "category": "测试变更",
+      "title": "\"逐字节复刻\"类文件（mask-field.ts 等）不能一步拆分 835 行——必须逐模块 `mask:diff` 对拍绿后再拆下一模块，否则 1-bit 差异会导致四档漂移",
+      "contentHash": "1e91674b513d0c4b0c5217600f5bff33a0300ce3a344b2f5dc18137365a17bc9",
+      "sourceTask": "WXG-T-567",
+      "addedDate": "2026-11-03",
+      "lastAccess": "2026-11-03",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-210",
+      "state": "active",
+      "file": "knowledge/lessons/onboarding.md",
+      "category": "接入",
+      "title": "装外来 skill 前先读完 SKILL.md 正文：只写「Call the Skill tool for X,Y」的是薄壳，能力全在依赖件里",
+      "contentHash": "8c29544076c0addefb8d2800d9494866df877838cc15174ea5bbdf77af62a8a4",
+      "sourceTask": "WXG-T-569",
+      "addedDate": "2026-11-03",
+      "lastAccess": "2026-11-03",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-211",
+      "state": "active",
+      "file": "knowledge/lessons/onboarding.md",
+      "category": "接入",
+      "title": "外来 skill 先过「配置面 / SSOT 面 / 门禁面」三问，再谈装不装",
+      "contentHash": "25ed67eb55d2deb996d9700d5e20bda2110d4a23ad9299fff78e562fccb73ba3",
+      "sourceTask": "WXG-T-569",
+      "addedDate": "2026-11-03",
+      "lastAccess": "2026-11-03",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-212",
+      "state": "active",
+      "file": "knowledge/lessons/onboarding.md",
+      "category": "接入",
+      "title": "「一键装整套 skill」类安装器一律不进本仓：它写宿主目录，绕过四 IDE 链接与 `check:links`",
+      "contentHash": "74ee9b71b52cebd40a30a98d1c0864c0cdf2ec8b36f4221eb8d3ec5f2c91bafc",
+      "sourceTask": "WXG-T-569",
+      "addedDate": "2026-11-03",
+      "lastAccess": "2026-11-03",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -5661,6 +5729,18 @@
       "ids": [
         "K-207",
         "K-208"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-11-03",
+      "taskId": "WXG-T-569",
+      "kind": "added",
+      "ids": [
+        "K-209",
+        "K-210",
+        "K-211",
+        "K-212"
       ],
       "note": null
     }

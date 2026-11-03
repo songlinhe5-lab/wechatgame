@@ -25,9 +25,9 @@
 
 §wechatgame 项目长期笔记=1+81 · §日志蒸馏规程（R2 · WXG-T-0…=7+6 · §项目约定=13+22 · §常用脚本=35+11 · §SubAgent=46+4 · §Rules=50+3 · §Hooks=53+7 · §Headless / CI=60+8 · §已知限制=68+14
 
-## `production/TASKS.md` — 175 行 / 40754 tok / 实测读 4 次
+## `production/TASKS.md` — 176 行 / 41093 tok / 实测读 4 次
 
-§WXG 任务台账（SSOT）=1+176 · §待排（backlog，无号，立项时领取…=148+29
+§WXG 任务台账（SSOT）=1+177 · §待排（backlog，无号，立项时领取…=149+29
 
 ## `production/qa/beads/test-cases.md` — 67 行 / 3997 tok / 实测读 15 次
 
@@ -98,15 +98,15 @@
 §A4 · 输入与操控（S2）— 来源 …=6+31 · §A4b · 真链口径补充 + 三相位门…=37+50 · §A4c · 棋盘缩放/平移 + 抬起才…=87+68 · §A5 · 倒计时与失败（S5）— 来源…=155+18
 > 本表只列 4 / 9 节：其余 5 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
 
-## `knowledge/INDEX.md` — 318 行 / 15469 tok
+## `knowledge/INDEX.md` — 322 行 / 15704 tok
 
-§knowledge/ — 工作室知识库…=1+319 · §1 读取协议（开发前期）=7+10 · §2 写入协议（任务收尾）=17+28 · §3 文件分工=45+10 · §4 维护=55+12 · §5 生命周期（访问记账 → 归档 → …=67+41 · §6 活跃条目（自动生成）=108+212
+§knowledge/ — 工作室知识库…=1+323 · §1 读取协议（开发前期）=7+10 · §2 写入协议（任务收尾）=17+28 · §3 文件分工=45+10 · §4 维护=55+12 · §5 生命周期（访问记账 → 归档 → …=67+41 · §6 活跃条目（自动生成）=108+216
 > 本表只列 7 / 11 节：其余 4 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
 
-## `production/TASKS-DETAIL.md` — 7445 行 / 207621 tok
+## `production/TASKS-DETAIL.md` — 7486 行 / 208391 tok
 
-§WXG 任务台账 · 详情（标题制正文…=1+7446 · §WXG-T-557=6962+34 · §WXG-T-558=6996+29 · §WXG-T-559=7025+42 · §WXG-T-560=7067+73 · §WXG-T-561=7140+35 · §WXG-T-562=7175+30 · §WXG-T-563=7205+30 · §WXG-T-566=7235+61 · §WXG-T-567=7296+25 · §WXG-T-565=7321+32 · §WXG-T-564=7353+34 · §WXG-T-568=7387+60
-> 本表只列 13 / 805 节：其余 792 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
+§WXG 任务台账 · 详情（标题制正文…=1+7487 · §WXG-T-558=6996+29 · §WXG-T-559=7025+42 · §WXG-T-560=7067+73 · §WXG-T-561=7140+35 · §WXG-T-562=7175+30 · §WXG-T-563=7205+30 · §WXG-T-566=7235+61 · §WXG-T-567=7296+25 · §WXG-T-565=7321+32 · §WXG-T-564=7353+34 · §WXG-T-569=7387+41 · §WXG-T-568=7428+60
+> 本表只列 13 / 811 节：其余 798 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
 
 ## `games/breakout/design/concept.md` — 143 行 / 3113 tok / 实测读 217 次
 

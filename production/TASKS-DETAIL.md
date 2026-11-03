@@ -7384,6 +7384,47 @@ T-563 结束时给三选（A 以 v1 三件 i2i 重出 / B 全新文生图 / C �
 - 用量 → `production/qa/token-plan-usage-ledger.md`（本批追加段）
 - 脚本 2 支转正入 `ai-workflows/`：`cut-badge-v2.py`、`proto-from-baseline.py`
 
+## WXG-T-569
+
+**流程·外来 skill 接入判据三则入库** · 负责：主理人(CodeBuddy)·流程轨 · 状态：✅ 完成（2026-11-03）
+
+### 1. 用户令
+
+上一轮对用户贴的「全球下载量 TOP10 Skill」抖音截图做了逐条核对（本仓 `my-skills/` = 49 项目件 + 28 外来件，`_repos/mattpocock-skills` v1.2.3 上游全套留档）。收尾建议「把判断经验固化成 2 条条目 + 1 条硬规则」，用户回「**开始吧**」⇒ 本单只做沉淀，**不装任何 skill、零代码改动**。
+
+### 2. 核对结论（判据来源）
+
+| 榜单件 | 本仓状态 | 判定 |
+|---|---|---|
+| find-skills | IDE 内置（`use_skill` 可调，磁盘/市场均无副本） | ✅ 已在用 |
+| grill-me | 已 vendoring + 配套 `grilling` | ✅ 已装 |
+| grill-with-docs | 上游有未装；正文只一句 `Call the Skill tool twice, for grilling and domain-modeling` | ⭕ 唯一值得装，但须连 `domain-modeling` |
+| improve-codebase-architecture | 上游有未装；依赖 `codebase-design`/`CONTEXT.md`/`docs/adr/`（本仓 ADR 在 `docs/architecture/adr/`） | ⭕ 与 `wxgame-arch-review` + `ponytail-audit` 重叠 |
+| tdd | 已装（superpowers `test-driven-development`） | ✅ 已装（等价） |
+| frontend-design | 未装；本仓渲染是 canvas2d / Cocos | ⛔ 价值低 |
+| agent-browser | 已在用（市场 `agent-browser-core`）；另有 `browser-skill` / `playwright-cli` | ✅ 已在用 |
+| setup-matt-pocock-skills | 上游有未装；「一键装整套」写宿主目录 | ⛔ 与 `check:links` 冲突 |
+| handoff | 上游/市场均有未装；要求写 OS 临时目录 | ⛔ 与本仓「证据必入库」冲突 |
+| triage | 上游有未装；要 GitHub issue-tracker | ⛔ 本仓任务源是 `TASKS.md` |
+
+⚠ 榜单「下载量」数字不可核实（营销号文案），但 skill 名对应的 `obra/superpowers`、`mattpocock/skills` 两个仓库真实存在且本仓有留档。
+
+### 3. 落地
+
+`knowledge/lessons/onboarding.md`（标签 `接入`）追加 **3 条**，ID 由 `kb:sync` 分配：
+1. 薄壳识别（入口件 vs 方法本体，须同批装）
+2. 接入三问（配置面 / SSOT 面 / 门禁面）
+3. 绿色安装器禁入（写宿主目录 ⇒ 绕过四 IDE 链接与 `check:links`）
+
+### 4. 未做（有意）
+
+- **未安装任何 skill**（含唯一推荐的 `grill-with-docs` + `domain-modeling`）：用户本轮只要「固化」，装包须另行下令。
+- 未改 `my-skills/INDEX.md`（无新增件）。
+
+### 5. 沉淀统计（`kb:sync`）
+
+见下方会话结论摘录（新增 3 / 修改 0 / 激活 0 / 归档 0）。
+
 ## WXG-T-568
 
 **叠加管线判定去重 + TypedArray 池扩展（2026-11-03）**

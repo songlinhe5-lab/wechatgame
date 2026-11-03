@@ -6,6 +6,12 @@
 > 数据源 = `knowledge/ledger.json` 的 `events`（**append-only** 追加日志）+ 条目台账（标题取自台账）；
 > 日期倒序，同一日期内按 Task ID 分组。
 
+## 2026-11-03
+
+### WXG-T-569
+
+- **新增**（added）：K-209「"逐字节复刻"类文件（mask-field.ts 等）不能一步拆分 835 行——必须逐模块 `mask:diff` 对拍绿后再拆下一模块，否则 1-bit 差异会导致四档漂移」、K-210「装外来 skill 前先读完 SKILL.md 正文：只写「Call the Skill tool for X,Y」的是薄壳，能力全在依赖件里」、K-211「外来 skill 先过「配置面 / SSOT 面 / 门禁面」三问，再谈装不装」、K-212「「一键装整套 skill」类安装器一律不进本仓：它写宿主目录，绕过四 IDE 链接与 `check:links`」
+
 ## 2026-11-02
 
 ### WXG-T-537
