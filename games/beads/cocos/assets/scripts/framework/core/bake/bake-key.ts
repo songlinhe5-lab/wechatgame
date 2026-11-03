@@ -1,9 +1,10 @@
 /**
  * `[WXG-T-220 / ADR-0025 DEC-1]` Bake key derivation.
  *
- * ⛔ **[WXG-T-221 八裁 2026-09-28] 冻结**：运行时烘焙路线转历史归档（ADR-0025/0028）；
+ * ⛔ **[WXG-T-221 八裁 2026-09-28] 冻结 · @deprecated**：运行时烘焙路线转历史归档（ADR-0025/0028）；
  * 本模块不再演进。tint 目标制（ADR-0028）下 key 去 `colorIdx`（style×color → style），
  * 本三元组仅作路线史保留；复活或删除均须新 ADR。
+ * 消费侧：`BakeLru` 仍引用本模块（同属冻结路），不新增消费方。
  *
  * The key uniquely identifies a baked texture in the LRU cache. It is a
  * deterministic serialization of the inputs that affect the visual output:

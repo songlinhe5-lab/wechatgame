@@ -27,6 +27,7 @@
  */
 
 import type { BlitFx } from '../render/render-model';
+import { acquireClamped, releaseClamped } from '../pool/typedarray-pool';
 
 /** 灰度强度键名（`ADR-0029 §8.4` 键名表的代码侧正本）。 */
 export const GRAY_FX_KEY = 'gray';
@@ -199,54 +200,62 @@ export function frostPixels(src: ArrayLike<number>, sw: number, sh: number, radi
     }
     const rad = Math.min(8, Math.max(0, Math.round(radius / q)));
     if (rad > 0) {
-        const tmp = new Uint8ClampedArray(w * h * 4);
-        const out = new Uint8ClampedArray(w * h * 4);
-        const n = rad * 2 + 1;
-        for (let y = 0; y < h; y++) {
-            const row = y * w * 4;
-            for (let x = 0; x < w; x++) {
-                let sr = 0;
-                let sg = 0;
-                let sb = 0;
-                let sa = 0;
-                for (let dx = -rad; dx <= rad; dx++) {
-                    const xx = x + dx < 0 ? 0 : x + dx >= w ? w - 1 : x + dx;
-                    const i = row + xx * 4;
-                    sr += small[i]!;
-                    sg += small[i + 1]!;
-                    sb += small[i + 2]!;
-                    sa += small[i + 3]!;
+        // `[WXG-T-567]` TypedArray 池化：tmp/out 是每帧一次的中间缓冲，
+        // 池化后避免烘焙 miss 时的 GC 抖动。release 在 finally 里保证归还。
+        const byteLen = w * h * 4;
+        const tmp = acquireClamped(byteLen);
+        const out = acquireClamped(byteLen);
+        try {
+            const n = rad * 2 + 1;
+            for (let y = 0; y < h; y++) {
+                const row = y * w * 4;
+                for (let x = 0; x < w; x++) {
+                    let sr = 0;
+                    let sg = 0;
+                    let sb = 0;
+                    let sa = 0;
+                    for (let dx = -rad; dx <= rad; dx++) {
+                        const xx = x + dx < 0 ? 0 : x + dx >= w ? w - 1 : x + dx;
+                        const i = row + xx * 4;
+                        sr += small[i]!;
+                        sg += small[i + 1]!;
+                        sb += small[i + 2]!;
+                        sa += small[i + 3]!;
+                    }
+                    const o = row + x * 4;
+                    tmp[o] = sr / n;
+                    tmp[o + 1] = sg / n;
+                    tmp[o + 2] = sb / n;
+                    tmp[o + 3] = sa / n;
                 }
-                const o = row + x * 4;
-                tmp[o] = sr / n;
-                tmp[o + 1] = sg / n;
-                tmp[o + 2] = sb / n;
-                tmp[o + 3] = sa / n;
             }
-        }
-        for (let y = 0; y < h; y++) {
-            const row = y * w * 4;
-            for (let x = 0; x < w; x++) {
-                let sr = 0;
-                let sg = 0;
-                let sb = 0;
-                let sa = 0;
-                for (let dy = -rad; dy <= rad; dy++) {
-                    const yy = y + dy < 0 ? 0 : y + dy >= h ? h - 1 : y + dy;
-                    const i = (yy * w + x) * 4;
-                    sr += tmp[i]!;
-                    sg += tmp[i + 1]!;
-                    sb += tmp[i + 2]!;
-                    sa += tmp[i + 3]!;
+            for (let y = 0; y < h; y++) {
+                const row = y * w * 4;
+                for (let x = 0; x < w; x++) {
+                    let sr = 0;
+                    let sg = 0;
+                    let sb = 0;
+                    let sa = 0;
+                    for (let dy = -rad; dy <= rad; dy++) {
+                        const yy = y + dy < 0 ? 0 : y + dy >= h ? h - 1 : y + dy;
+                        const i = (yy * w + x) * 4;
+                        sr += tmp[i]!;
+                        sg += tmp[i + 1]!;
+                        sb += tmp[i + 2]!;
+                        sa += tmp[i + 3]!;
+                    }
+                    const o = row + x * 4;
+                    out[o] = sr / n;
+                    out[o + 1] = sg / n;
+                    out[o + 2] = sb / n;
+                    out[o + 3] = sa / n;
                 }
-                const o = row + x * 4;
-                out[o] = sr / n;
-                out[o + 1] = sg / n;
-                out[o + 2] = sb / n;
-                out[o + 3] = sa / n;
             }
+            small.set(out.subarray(0, byteLen));
+        } finally {
+            releaseClamped(tmp);
+            releaseClamped(out);
         }
-        small.set(out);
     }
     const g = gray < 0 ? 0 : gray > 1 ? 1 : gray;
     if (g > 0) {
