@@ -8,7 +8,7 @@
 
 | Task ID | 名称 | 负责 | 状态 | 产出 |
 |---|---|---|---|---|
-| WXG-T-572 | 美术·菜单基准图落 prototypes + Figma 写入权限验证 | 主理人(Cursor)·美术轨 | 🔄 **进行中（2026-11-03）**（基准图已落 `final/prototypes/`；测试文件写入 / 读回已通过，`use_figma` 待验证） | 见详情 |
+| WXG-T-572 | 美术·菜单基准图落 prototypes + Figma 写入权限验证 | 主理人(Cursor)·美术轨 | ✅ **完成（2026-11-03）**（基准图已落 `final/prototypes/`；新建 / 上传 / 读回 / `use_figma` 写入均已通过） | 见详情 |
 | WXG-T-571 | 工具链·Figma MCP 改接本地桌面版 | 主理人(Cursor·CodeBuddy)·工具链轨 | ✅ **完成（2026-11-03·方案改判）**（MCP 两路均判负：远程 OAuth 动态注册 403 白名单、本地 `3845` 需 Dev/Full 座位且恒不监听 ⇒ 用户令「用 `FIGMA_API_KEY` 走统一 skill」；已落地 `my-skills/wxgame-figma`（PAT+REST，`me`/`tree`/`node`/`img`+selftest，零依赖）+ 五 IDE 符号链接，`check:links` skills=51 OK） | 见详情 |
 | WXG-T-570 | 美术·主菜单 v2 三态原型图优化（全彩/金边/置灰/揭彩进度） | 主理人(Qoder)·美术轨 | ✅ **完成（2026-11-03）** | 见详情 |
 | WXG-T-569 | 流程·外来 skill 接入判据三则入库 | 主理人(CodeBuddy)·流程轨 | ✅ **完成（2026-11-03）**（用户令「开始吧」⇒ 把上一轮对「TOP10 Skill 榜单」的核对结论固化成 `接入` 片三则：① **薄壳识别**——`grill-with-docs` 全文只有 `Call the Skill tool twice, for "grilling" and "domain-modeling"`，榜首下载量 ≠ 能力，入口件须与依赖件同批装（本仓已有 `grilling`、缺 `domain-modeling`）；② **落地三问**（配置面 / SSOT 面 / 门禁面）——榜单 10 件里 4 件在本仓跑不起来（`triage` 要 GitHub issue-tracker、`improve-codebase-architecture` 读 `docs/adr/`（本仓在 `docs/architecture/adr/`）、`handoff` 要写 OS 临时目录、`frontend-design` 面向 Web 前端）；③ **绿色安装器禁入**——`setup-matt-pocock-skills` 写仓外宿主目录、绕过四 IDE 链接与 `check:links`。**落地判定表**：已可用 4 件（find-skills / grill-me+grilling / tdd / agent-browser）、唯一值得装 1 件（`grill-with-docs`+`domain-modeling`，**未装，仅结论**）、明确不装 5 件。零代码改动 | 见详情 |

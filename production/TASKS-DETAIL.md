@@ -7596,7 +7596,7 @@ Figma 官方文档（remote-server-installation）：远程端点 `https://mcp.f
 
 ## WXG-T-572
 
-**美术·菜单基准图落 prototypes + Figma 写入权限验证** · 负责：主理人(Cursor)·美术轨 · 状态：🔄 进行中（2026-11-03）
+**美术·菜单基准图落 prototypes + Figma 写入权限验证** · 负责：主理人(Cursor)·美术轨 · 状态：✅ 完成（2026-11-03）
 
 ### 1. 用户令
 
@@ -7617,9 +7617,11 @@ Figma 官方文档（remote-server-installation）：远程端点 `https://mcp.f
 - `create_new_file` ✅ → `create_session` ✅ → `upload_assets(count=1)` ✅ → multipart POST 到 submitUrl，HTTP 200，`placedOnNodeId: 1:2` ✅ → `get_screenshot` 读回，画面为菜单基准图 ✅。
 - 结论：新建、上传、读回三项写权限均可用。
 
-### 5. 待办
+### 5. use_figma 写入验证（已通过）
 
-- `use_figma` 局部修改写入：按用户令先加载 `figma-use` skill，再验证。
+- 按用户令先加载 `figma-use` skill，再调用 `use_figma`（`skillNames: figma-use`）。
+- 在测试文件里用 `$fig.autoLayout` 创建「use_figma 写入测试」框（文字 + 色块），节点 `3:2`，`.screenshot()` 读回正常。
+- 结论：`use_figma` 写入权限可用。
 
 ### 6. 提交
 
