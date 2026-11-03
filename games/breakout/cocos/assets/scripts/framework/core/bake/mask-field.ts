@@ -39,6 +39,7 @@ import {
 import {
     fillRectMask, fillPolygonMask, fillRoundedRectMask,
 } from './mask-fill';
+import { acquireUint8, releaseUint8 } from '../pool/typedarray-pool';
 
 /** 场计算产物：交错 RGBA，**已按 DEC-6 编码**（`R=d / G=l / B=形状 / A=255`）。 */
 export interface MaskField {
@@ -58,34 +59,40 @@ interface Planes {
 
 /** 层集逐层覆盖（R/G **无条件双写** —— DEC-6 承 WXG-T-229 D1 修复：跳过 ⇒ 底层 d 渗漏）。 */
 function applyLayerSet(p: Planes, render: number, px: number, layers: readonly MaskLayer[]): void {
-    const mask = new Uint8Array(render * render);
-    const xs: number[] = [];
-    const ys: number[] = [];
-    for (const layer of layers) {
-        if (layer.kind === 'circle') continue;
-        mask.fill(0);
-        if (layer.kind === 'rect') {
-            const x0 = layer.x * px;
-            const y0 = render - layer.y * px - layer.h * px;
-            const w = layer.w * px;
-            const h = layer.h * px;
-            const r = layer.r * px;
-            if (r > 0) fillRoundedRectMask(mask, render, render, x0, y0, x0 + w, y0 + h, r, 255);
-            else fillRectMask(mask, render, render, pyround(x0), pyround(y0), pyround(x0 + w), pyround(y0 + h), 255);
-        } else {
-            xs.length = 0; ys.length = 0;
-            const pts = layer.pts;
-            for (let i = 0; i + 1 < pts.length; i += 2) {
-                xs.push(cInt(pts[i]! * px));
-                ys.push(cInt(render - pts[i + 1]! * px));
+    const n = render * render;
+    const _buf = acquireUint8(n);
+    const mask = _buf.subarray(0, n);
+    try {
+        const xs: number[] = [];
+        const ys: number[] = [];
+        for (const layer of layers) {
+            if (layer.kind === 'circle') continue;
+            mask.fill(0);
+            if (layer.kind === 'rect') {
+                const x0 = layer.x * px;
+                const y0 = render - layer.y * px - layer.h * px;
+                const w = layer.w * px;
+                const h = layer.h * px;
+                const r = layer.r * px;
+                if (r > 0) fillRoundedRectMask(mask, render, render, x0, y0, x0 + w, y0 + h, r, 255);
+                else fillRectMask(mask, render, render, pyround(x0), pyround(y0), pyround(x0 + w), pyround(y0 + h), 255);
+            } else {
+                xs.length = 0; ys.length = 0;
+                const pts = layer.pts;
+                for (let i = 0; i + 1 < pts.length; i += 2) {
+                    xs.push(cInt(pts[i]! * px));
+                    ys.push(cInt(render - pts[i + 1]! * px));
+                }
+                fillPolygonMask(mask, render, render, xs, ys, 255);
             }
-            fillPolygonMask(mask, render, render, xs, ys, 255);
+            const dr = to8(layer.d <= 1 ? layer.d : 1);
+            const lg = to8(layer.l <= 1 ? layer.l : 1);
+            for (let i = 0; i < mask.length; i++) {
+                if (mask[i]! > 0) { p.r[i] = dr; p.g[i] = lg; }
+            }
         }
-        const dr = to8(layer.d <= 1 ? layer.d : 1);
-        const lg = to8(layer.l <= 1 ? layer.l : 1);
-        for (let i = 0; i < mask.length; i++) {
-            if (mask[i]! > 0) { p.r[i] = dr; p.g[i] = lg; }
-        }
+    } finally {
+        releaseUint8(_buf);
     }
 }
 
@@ -141,27 +148,35 @@ function paintFrameLight(p: Planes, spec: MaskGaugeSpec, render: number, px: num
     const o0 = ((spec.cellDp - spec.beadDp) / 2) * px;
     const o1 = ((spec.cellDp + spec.beadDp) / 2) * px;
     const w = spec.frameDp * px;
-    const outer = new Uint8Array(render * render);
-    fillRoundedRectMask(outer, render, render, o0, o0, o1, o1, spec.beadCornerDp * px, 255);
-    const inner = new Uint8Array(render * render);
-    fillRoundedRectMask(
-        inner, render, render,
-        o0 + w, o0 + w, o1 - w, o1 - w,
-        Math.max(0, spec.beadCornerDp * px - w), 255,
-    );
-    const c = render / 2;
-    for (let y = 0; y < render; y++) {
-        const dy = y - c;
-        for (let x = 0; x < render; x++) {
-            const i = y * render + x;
-            if (outer[i]! === 0 || inner[i]! > 0) continue;
-            const dx = x - c;
-            const up = upMembership(dx, dy);
-            const sw = frameSideWeights(dx, dy);
-            const sideD = FRAME_SIDE_D_BASE + FRAME_SIDE_D_SPAN * (up + FRAME_LEFT_W * sw.left + FRAME_RIGHT_W * sw.right);
-            p.r[i] = to8(sideD + FRAME_EDGE_D);
-            p.g[i] = to8(spec.litL * up);
+    const n = render * render;
+    const _o = acquireUint8(n);
+    const _i = acquireUint8(n);
+    const outer = _o.subarray(0, n);
+    const inner = _i.subarray(0, n);
+    try {
+        fillRoundedRectMask(outer, render, render, o0, o0, o1, o1, spec.beadCornerDp * px, 255);
+        fillRoundedRectMask(
+            inner, render, render,
+            o0 + w, o0 + w, o1 - w, o1 - w,
+            Math.max(0, spec.beadCornerDp * px - w), 255,
+        );
+        const c = render / 2;
+        for (let y = 0; y < render; y++) {
+            const dy = y - c;
+            for (let x = 0; x < render; x++) {
+                const i = y * render + x;
+                if (outer[i]! === 0 || inner[i]! > 0) continue;
+                const dx = x - c;
+                const up = upMembership(dx, dy);
+                const sw = frameSideWeights(dx, dy);
+                const sideD = FRAME_SIDE_D_BASE + FRAME_SIDE_D_SPAN * (up + FRAME_LEFT_W * sw.left + FRAME_RIGHT_W * sw.right);
+                p.r[i] = to8(sideD + FRAME_EDGE_D);
+                p.g[i] = to8(spec.litL * up);
+            }
         }
+    } finally {
+        releaseUint8(_o);
+        releaseUint8(_i);
     }
     void FRAME_T_INNER;
 }
@@ -181,15 +196,21 @@ function applyShapeFloor(plane: Uint8Array): Uint8Array {
 function computeBeadPlanes(spec: MaskGaugeSpec, size: number): Planes {
     const render = size * MASK_SUPERSAMPLE;
     const px = render / MASK_CELL_DP;
-    const p: Planes = { r: new Uint8Array(render * render), g: new Uint8Array(render * render), b: new Uint8Array(render * render) };
+    const n = render * render;
+    const _r = acquireUint8(n);
+    const _g = acquireUint8(n);
+    const _b = acquireUint8(n);
+    const p: Planes = { r: _r.subarray(0, n), g: _g.subarray(0, n), b: _b.subarray(0, n) };
     applyLayerSet(p, render, px, spec.beadLayers);
     paintHoleRing(p, spec, render, px);
     paintFrameLight(p, spec, render, px);
-    return {
-        r: resampleSquare(p.r, render, size),
-        g: resampleSquare(p.g, render, size),
-        b: applyShapeFloor(resampleSquare(beadShapePlane(spec, render, px), render, size)),
-    };
+    const br = resampleSquare(p.r, render, size);
+    const bg = resampleSquare(p.g, render, size);
+    const bb = applyShapeFloor(resampleSquare(beadShapePlane(spec, render, px), render, size));
+    releaseUint8(_r);
+    releaseUint8(_g);
+    releaseUint8(_b);
+    return { r: br, g: bg, b: bb };
 }
 
 function cellShapePlane(spec: MaskGaugeSpec, size: number): Uint8Array {
@@ -221,8 +242,11 @@ function computeCellPlanes(spec: MaskGaugeSpec, size: number): Planes {
     const edgePx = spec.slotEdgeDp * px;
     const q = (spec.slotHalfDp - spec.slotCornerDp) * px;
     const cornerPx = spec.slotCornerDp * px;
-    const rHi = new Uint8Array(render * render);
-    const gHi = new Uint8Array(render * render);
+    const n = render * render;
+    const _rh = acquireUint8(n);
+    const _gh = acquireUint8(n);
+    const rHi = _rh.subarray(0, n);
+    const gHi = _gh.subarray(0, n);
     for (let y = 0; y < render; y++) {
         const dy = y - c;
         for (let x = 0; x < render; x++) {
@@ -246,9 +270,13 @@ function computeCellPlanes(spec: MaskGaugeSpec, size: number): Planes {
             gHi[i] = to8(l);
         }
     }
+    const br = resampleSquare(rHi, render, size);
+    const bg = resampleSquare(gHi, render, size);
+    releaseUint8(_rh);
+    releaseUint8(_gh);
     return {
-        r: resampleSquare(rHi, render, size),
-        g: resampleSquare(gHi, render, size),
+        r: br,
+        g: bg,
         b: cellShapePlane(spec, size),
     };
 }
