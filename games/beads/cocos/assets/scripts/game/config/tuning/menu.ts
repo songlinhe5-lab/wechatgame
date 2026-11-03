@@ -359,9 +359,9 @@ export const MENU_BOSS_ART_D = 540;
  */
 export const MENU_CASE_INTERIOR_BAKED = true;
 /**
- * `[WXG-T-566]` 走马灯三态 = **同一张大关 PNG 的灰度差异**（用户 2026-11-02 裁决：
- * 「都是用大关 PNG，只是全灰、部分灰、全彩的区别」）。
- * - 未开启 ⇒ 整图全灰（`MENU_GRAY.locked`）；
+ * `[WXG-T-566]` 走马灯三态 = **同一张大关 PNG 的灰度 / 模糊差异**（用户 2026-11-02 裁决：
+ * 「都是用大关 PNG，只是全灰、部分灰、全彩的区别」；2026-11-03 追加磨砂玻璃）。
+ * - 未开启 ⇒ **磨砂玻璃**（`frost`：1/4 下采样 + 盒式模糊 + 全灰，半径见 {@link MENU_FROST}）；
  * - 推关 ⇒ **竖向揭彩**（`grayWipe`：彩色自下而上，比例 = `done/total`，柔带见
  *   {@link MENU_GRAY_WIPE}）；
  * - 通关 ⇒ 不传 fx（全彩）。
@@ -369,7 +369,7 @@ export const MENU_CASE_INTERIOR_BAKED = true;
  * 进度仍由木牌 `N/M` 精确表达。档位口径 = `_arcState`（未开启 = 无小关解锁，
  * ⛔ 不用 `done === 0` 判：首关已解锁未通关也算「正在推关」）。
  */
-export const MENU_GRAY = { locked: 1 } as const;
+export const MENU_FROST = { radius: 8 } as const;
 /**
  * `[WXG-T-566]` 竖向揭彩交界柔带**总高度占作品高度的比例**（0.08 @ 340px ≈ 27px）。
  * 硬度上限 = 相邻小关进度差（章内 8–10 关 ⇒ 每档 ≈ 10–12%），柔带略窄于档距才能看出台阶。

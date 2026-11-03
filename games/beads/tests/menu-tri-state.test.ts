@@ -1,8 +1,8 @@
 /**
- * `[WXG-T-566]` 主菜单走马灯三态：同一张大关 PNG 的灰度差异 + 柜灯强度 + 木牌 `N/M`。
+ * `[WXG-T-566]` 主菜单走马灯三态：同一张大关 PNG 的灰度 / 模糊差异 + 柜灯强度 + 木牌 `N/M`。
  *
  * 用户 2026-11-02 裁决：
- *  - 未开启 = 整图全灰（`MENU_GRAY.locked`）；
+ *  - 未开启 = **磨砂玻璃**（`frost`：1/4 下采样模糊 + 全灰；用户 2026-11-03 裁）；
  *  - 推关 = **竖向揭彩**（`grayWipe`，彩色自下而上，比例 = 已完成小关 / 总小关）；
  *  - 通关 = 全彩（不传 fx）；
  *  - 状态标记全部退场（右上角徽标 / 通关飘带 / 居中沙漏）。
@@ -17,7 +17,7 @@ import { buildMetaView, setMenuBitmapResolver, type MetaViewData } from '../src/
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import { LEVELS } from '../src/config/levels.js';
 import { ARCS } from '../src/config/arcs.js';
-import { DESIGN_H, DESIGN_W, MENU_GRAY, MENU_GRAY_WIPE, MENU_LIGHT, MENU_TEXTURES } from '../src/config/tuning.js';
+import { DESIGN_H, DESIGN_W, MENU_FROST, MENU_GRAY_WIPE, MENU_LIGHT, MENU_TEXTURES } from '../src/config/tuning.js';
 
 /** 柜灯 α 基数（`meta-menu.ts::MENU_WARM.coneAlpha`，局部常量不在 tuning 导出）。 */
 const CONE_ALPHA = 0.018;
@@ -53,7 +53,7 @@ afterEach(() => setMenuBitmapResolver());
 
 describe('`[WXG-T-566]` 三态效果', () => {
     const states = [
-        ['locked', { gray: MENU_GRAY.locked }],
+        ['locked', { frost: MENU_FROST.radius }],
         ['pushing', { grayWipe: [0, MENU_GRAY_WIPE.soft] }],
         ['cleared', undefined],
     ] as const;

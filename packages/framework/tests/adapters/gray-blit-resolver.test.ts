@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createTintBlitResolver } from '../../src/adapters/canvas2d/tint-blit-resolver.js';
-import { grayFx, grayWipeFx } from '../../src/core/bake/gray-fx.js';
+import { frostFx, grayFx, grayWipeFx } from '../../src/core/bake/gray-fx.js';
 import type { TintSpriteCache } from '../../src/adapters/canvas2d/tint-sprite-cache.js';
 import type { BlitCommand } from '../../src/core/render/render-model.js';
 
@@ -131,6 +131,61 @@ describe('createTintBlitResolver · gray', () => {
         const registry = { get: () => makeSource(1, 1, [1, 2, 3, 255]) };
         const resolver = createTintBlitResolver({} as TintSpriteCache, registry);
         expect(resolver.resolve(cmd('t', grayFx(1)))).toBeUndefined();
+    });
+});
+
+/**
+ * `[WXG-T-567]` 磨砂玻璃：1/4 下采样 + 盒式模糊 + 全灰；产物 = 1/4 尺寸画布。
+ * 源 = 8×8（左半红 / 右半蓝）⇒ 下采样 2×2，红格 luma 54 / 蓝格 18。
+ */
+describe('createTintBlitResolver · frost', () => {
+    const halves = (): FakeSource => {
+        const rgba: number[] = [];
+        for (let y = 0; y < 8; y++) {
+            for (let x = 0; x < 8; x++) {
+                const red = x < 4;
+                rgba.push(red ? 255 : 0, 0, red ? 0 : 255, 255);
+            }
+        }
+        return makeSource(8, 8, rgba);
+    };
+    const make = () => {
+        const registry = { get: () => halves() };
+        const { create, created } = makeFactory();
+        return { resolver: createTintBlitResolver({} as TintSpriteCache, registry, create), created };
+    };
+
+    it('radius 0 ⇒ 只 1/4 块平均 + 全灰，画布 2×2', () => {
+        const { resolver } = make();
+        const out = resolver.resolve(cmd('t-frost0', frostFx(0))) as FakeCanvas;
+        expect(out.width).toBe(2);
+        expect(out.height).toBe(2);
+        expect(Array.from(out.pixels)).toEqual([54, 54, 54, 255, 18, 18, 18, 255,
+            54, 54, 54, 255, 18, 18, 18, 255]);
+    });
+
+    it('radius 8 ⇒ 1/4 网格 r=2，边缘夹取 ⇒ 左右格 40 / 33', () => {
+        const { resolver } = make();
+        const out = resolver.resolve(cmd('t-frost8', frostFx(8))) as FakeCanvas;
+        expect(Array.from(out.pixels)).toEqual([40, 40, 40, 255, 33, 33, 33, 255,
+            40, 40, 40, 255, 33, 33, 33, 255]);
+    });
+
+    it('缓存按纹理最新一档：同半径复用、换半径重烘（每次烘 = 读画布 + 产物画布）', () => {
+        const { resolver, created } = make();
+        const a = resolver.resolve(cmd('t-frost-cache', frostFx(8)));
+        const b = resolver.resolve(cmd('t-frost-cache', frostFx(8)));
+        expect(a).toBe(b);
+        expect(created).toHaveLength(2);
+        const c = resolver.resolve(cmd('t-frost-cache', frostFx(4)));
+        expect(c).not.toBe(a);
+        expect(created).toHaveLength(4);
+    });
+
+    it('无离屏能力 ⇒ 跳过（undefined）', () => {
+        const registry = { get: () => halves() };
+        const resolver = createTintBlitResolver({} as TintSpriteCache, registry);
+        expect(resolver.resolve(cmd('t', frostFx(8)))).toBeUndefined();
     });
 });
 

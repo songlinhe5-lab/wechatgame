@@ -35,7 +35,7 @@ import { maskTileInnerPx } from '../framework/core/bake/mask-tile';
 import { BEAD_PITCH, BOSS_THUMB_TEXTURES, MENU_TEXTURES, TILE_BLEED } from '../game/config/tuning';
 import { OPEN_ARCS } from '../game/config/arcs';
 import { tintFxBase } from '../framework/core/bake/tint-composite';
-import { grayFxRead, grayWipeRead } from '../framework/core/bake/gray-fx';
+import { frostPixels, frostRead, grayFxRead, grayWipeRead } from '../framework/core/bake/gray-fx';
 import { nineSliceFxRead } from '../framework/core/bake/nine-slice-fx';
 import { createWhitelistBeadTintRuntime, setBeadTintRuntime } from '../game/view/bead-render';
 import { requiredTintMaskIds } from '../game/view/bead-tint-mask';
@@ -212,8 +212,9 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
      *
      * 为什么在 CPU 烘而不是走 `tint-mask.effect`：那张 effect 只采样 `maskTexture`
      * （R/G/B 是 tint 系数），全彩 PNG 进它的 R 通道不是暗系数 ⇒ 灰化结果错。
-     * 大关原图仅 256²（`OPEN_ARCS[].art`）⇒ 只有 `locked` 一档非零值 × 全部开放章 ≈ 0.75 MiB，
-     * 可接受；且与既有 `TintSpriteCache` 的 CPU 合成架构同源（零 material / 零编辑器资产）。
+     * 大关原图仅 256²（`OPEN_ARCS[].art`）⇒ 每纹理一档，显存可接受；且与既有
+     * `TintSpriteCache` 的 CPU 合成架构同源（零 material / 零编辑器资产）。
+     * `[WXG-T-567]` 菜单未开启态已改走 `frost`（模糊 + 全灰），本腿保留为框架通用档位。
      */
     private readonly _grayBitmaps = new Map<string, SpriteFrame>();
     /**
@@ -222,6 +223,11 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
      * 显存上限 = 大关纹理数，不是「关数 × 档数」。
      */
     private readonly _wipeFrames = new Map<string, { frame: SpriteFrame; p: number; s: number }>();
+    /**
+     * `[WXG-T-567]` **每纹理最新一档**磨砂帧（未开启态）。半径恒定 ⇒ 每纹理最多一张；
+     * 产物是 1/4 尺寸纹理（`frostPixels` 的下采样倍数），显存 ≈ 29 KiB/张。
+     */
+    private readonly _frostFrames = new Map<string, { frame: SpriteFrame; radius: number }>();
     private readonly _pool: Sprite[] = [];
     private _used = 0;
     private _ready = false;
@@ -343,15 +349,21 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
         const wipe = base === undefined && ns === undefined && gray === undefined
             ? grayWipeRead(cmd.fx)
             : undefined;
-        // `[WXG-T-271 / ADR-0031 DEC=C′]` 三条腿：带 fx.base → tint 图集格；带 fx.gray → 灰化变体；
-        // 带 fx.grayWipe → 竖向揭彩变体；无 fx → 静态位图注册表（boss 缩略等全彩图）。
+        // `[WXG-T-567]` 未开启态：`frost` ⇒ 磨砂玻璃变体（1/4 尺寸模糊 + 全灰）。
+        const frost = base === undefined && ns === undefined && gray === undefined && wipe === undefined
+            ? frostRead(cmd.fx)
+            : undefined;
+        // `[WXG-T-271 / ADR-0031 DEC=C′]` 四条腿：带 fx.base → tint 图集格；带 fx.gray → 灰化变体；
+        // 带 fx.grayWipe → 竖向揭彩变体；带 fx.frost → 磨砂玻璃变体；无 fx → 静态位图注册表。
         const frame = base !== undefined
             ? this._cell(cmd.textureId, base)
             : gray !== undefined && gray > 0
                 ? this._grayFrame(cmd.textureId, gray)
                 : wipe !== undefined
                     ? this._wipeFrame(cmd.textureId, wipe[0]!, wipe[1]!)
-                    : this._bitmaps.get(cmd.textureId);
+                    : frost !== undefined
+                        ? this._frostFrame(cmd.textureId, frost)
+                        : this._bitmaps.get(cmd.textureId);
         if (frame === undefined) {
             return this._bail(
                 base !== undefined
@@ -360,7 +372,9 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
                         ? '灰度变体烘不出（纹理不可读或离屏不可用）'
                         : wipe !== undefined
                             ? '揭彩变体烘不出（纹理不可读或离屏不可用）'
-                            : '静态位图未装载（注册表腿未命中）',
+                            : frost !== undefined
+                                ? '磨砂变体烘不出（纹理不可读或离屏不可用）'
+                                : '静态位图未装载（注册表腿未命中）',
                 cmd,
             );
         }
@@ -467,7 +481,7 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
      * `[WXG-T-566]` 灰度变体：首见即烘（`out = c·(1−g) + luma·g`，alpha 原样），缓存到
      * `_grayBitmaps`。⛔ 不进每帧路径；缺纹理 / 离屏不可用 ⇒ `undefined`（调用方 `_bail` 嚷一次）。
      *
-     * 键含强度：本版只有 `MENU_GRAY.locked` 一档非零值，缓存大小 = 开放章 × 1。
+     * 键含强度：`gray` 是框架保留的通用档位（本游戏菜单已改走 `frost`），缓存大小 = 纹理数 × 档数。
      */
     private _grayFrame(textureId: string, g: number): SpriteFrame | undefined {
         const key = `${textureId}|${g}`;
@@ -504,6 +518,47 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
             }
         }
         return frame;
+    }
+
+    /**
+     * `[WXG-T-567]` 磨砂玻璃变体：`frostPixels`（1/4 下采样 + 盒式模糊 + 全灰）→ 1/4 尺寸纹理。
+     * 与 canvas2d 适配层 `bakeFrost` **共用同一纯函数** ⇒ 两条宿主腿像素级同源。
+     * 半径恒定 ⇒ 每纹理一份；节点仍按命令 `w/h` 放大贴，双线性插值补足柔和。
+     */
+    private _frostFrame(textureId: string, radius: number): SpriteFrame | undefined {
+        const r = radius < 0 ? 0 : radius > 32 ? 32 : radius;
+        const hit = this._frostFrames.get(textureId);
+        if (hit !== undefined && hit.radius === r) return hit.frame;
+        const baseFrame = this._bitmaps.get(textureId);
+        if (baseFrame === undefined) return undefined;
+        const tex = baseFrame.texture;
+        const w = tex.width;
+        const h = tex.height;
+        const image = ((tex as unknown as AnyObj).image as AnyObj | null)?.data as object | undefined;
+        if (!image || w === 0 || h === 0) return undefined;
+        const read = createOffscreen(w, h);
+        const readCtx = read ? read.getContext('2d') : null;
+        if (!read || !readCtx) return undefined;
+        readCtx.drawImage(image, 0, 0, w, h);
+        const baked = frostPixels(readCtx.getImageData(0, 0, w, h).data, w, h, r);
+        const canvas = createOffscreen(baked.width, baked.height);
+        const ctx = canvas ? canvas.getContext('2d') : null;
+        if (!canvas || !ctx) return undefined;
+        const pixels = ctx.getImageData(0, 0, baked.width, baked.height);
+        pixels.data.set(baked.data);
+        ctx.putImageData(pixels as object, 0, 0);
+        const outTex = new Texture2D();
+        outTex.reset({ width: baked.width, height: baked.height });
+        outTex.uploadData(canvas as never);
+        const sf = new SpriteFrame();
+        sf.reset({
+            texture: outTex,
+            originalSize: new Size(baked.width, baked.height),
+            rect: new Rect(0, 0, baked.width, baked.height),
+        });
+        sf.packable = false;
+        this._frostFrames.set(textureId, { frame: sf, radius: r });
+        return sf;
     }
 
     /**

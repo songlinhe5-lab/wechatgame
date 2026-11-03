@@ -176,6 +176,7 @@ export type BlitFxValue = string | number | boolean | readonly number[];
  * | `strength` | 着色强度 0–1 | 预留（core 0 改动） |
  * | `gray` | 灰度强度 0–1（1 = 全灰） | ✅ `[WXG-T-566]`（`bake/gray-fx.ts`） |
  * | `grayWipe` | 竖向揭彩 `[progress, soft]`（彩色自下而上 / 柔带占比） | ✅ `[WXG-T-566]`（`bake/gray-fx.ts`） |
+ * | `frost` | 磨砂玻璃 `radius`（1/4 下采样 + 盒式模糊 + 全灰） | ✅ `[WXG-T-567]`（`bake/gray-fx.ts`） |
  * | `blend` | blend 模式名 | 将来 |
  * | `matrix` | color matrix（对比度 / 通道矩阵） | 将来 |
  */

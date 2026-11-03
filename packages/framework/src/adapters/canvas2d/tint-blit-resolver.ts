@@ -15,7 +15,7 @@
  */
 
 import { tintFxBase } from '../../core/bake/tint-composite.js';
-import { grayFxRead, grayWipeRead } from '../../core/bake/gray-fx.js';
+import { frostPixels, frostRead, grayFxRead, grayWipeRead } from '../../core/bake/gray-fx.js';
 import { nineSliceFxRead } from '../../core/bake/nine-slice-fx.js';
 import type { BlitResolver, TextureRegistry } from './canvas2d-renderer.js';
 import type { BlitCommand } from '../../core/render/render-model.js';
@@ -24,7 +24,7 @@ import type { TintSpriteCache } from './tint-sprite-cache.js';
 /** 可 `drawImage` 的源（与注册表同源）。 */
 type Source = { width: number; height: number };
 /** `getImageData` / `putImageData` 的最小结构（framework ⛔ 不假设 lib.dom）。 */
-type ImageDataLike = { readonly data: Uint8ClampedArray };
+type ImageDataLike = { data: Uint8ClampedArray };
 type Ctx2DLike = {
   drawImage(image: Source, sx: number, sy: number, sw: number, sh: number, dx: number, dy: number, dw: number, dh: number): void;
   getImageData(sx: number, sy: number, sw: number, sh: number): ImageDataLike;
@@ -181,8 +181,41 @@ function bakeGrayWipe(
 }
 
 /**
+ * `[WXG-T-567]` 磨砂玻璃预烘：`frostPixels`（1/4 下采样 + 盒式模糊 + 全灰）之后上传到
+ * **1/4 尺寸**画布；渲染器按命令的 `w/h` 放大贴，双线性插值补足柔和（观感等价于全尺寸模糊）。
+ *
+ * 键粒度 = **每纹理最新一档**（同 {@link bakeGrayWipe} 的理由：锁定态半径恒定，旧档不再显示）。
+ */
+const _frostSlices = new Map<string, { radius: number; canvas: CanvasLike }>();
+function bakeFrost(
+    textureId: string,
+    src: Source,
+    radius: number,
+    create: (w: number, h: number) => CanvasLike | null,
+): CanvasLike | undefined {
+  const r = radius < 0 ? 0 : radius > 32 ? 32 : radius;
+  const hit = _frostSlices.get(textureId);
+  if (hit !== undefined && hit.radius === r) return hit.canvas;
+  // 先读整张源图（与 bakeGray 同一步），下采样与模糊在纯 JS 里做（两条宿主腿同源）。
+  const read = create(Math.max(1, Math.round(src.width)), Math.max(1, Math.round(src.height)));
+  const readCtx = read?.getContext('2d');
+  if (!read || !readCtx) return undefined;
+  readCtx.drawImage(src, 0, 0, src.width, src.height, 0, 0, read.width, read.height);
+  const baked = frostPixels(readCtx.getImageData(0, 0, read.width, read.height).data, read.width, read.height, r);
+  const canvas = create(baked.width, baked.height);
+  const ctx = canvas?.getContext('2d');
+  if (!canvas || !ctx) return undefined;
+  const out = ctx.getImageData(0, 0, baked.width, baked.height);
+  out.data.set(baked.data);
+  ctx.putImageData(out, 0, 0);
+  _frostSlices.set(textureId, { radius: r, canvas });
+  return canvas;
+}
+
+/**
  * 着色/灰度策略：`fx` 有 `base` ⇒ 取 CPU 预合成 sprite；有 `gray` ⇒ 取灰化副本；
- * 有 `grayWipe` ⇒ 取竖向揭彩副本；否则 ⇒ 原纹理注册表。
+ * 有 `grayWipe` ⇒ 取竖向揭彩副本；有 `frost` ⇒ 取磨砂玻璃副本（1/4 尺寸模糊 + 全灰）；
+ * 否则 ⇒ 原纹理注册表。
  *
  * ⛔ `fx` 存在但键都不可用 ⇒ 返回 `undefined`（**跳过**，⛔ 不回落贴裸 mask）。
  * ⛔ 合成失败（低端机 OOM 等）由 `TintSpriteCache` 内部降级 + 负缓存，此处只透传 `undefined`。
@@ -216,6 +249,12 @@ export function createTintBlitResolver(
                 const src = registry.get(cmd.textureId) as Source | undefined;
                 if (src === undefined || createCanvas === undefined) return undefined;
                 return bakeGrayWipe(cmd.textureId, src, wipe[0]!, wipe[1]!, createCanvas);
+            }
+            const frost = frostRead(cmd.fx);
+            if (frost !== undefined) {
+                const src = registry.get(cmd.textureId) as Source | undefined;
+                if (src === undefined || createCanvas === undefined) return undefined;
+                return bakeFrost(cmd.textureId, src, frost, createCanvas);
             }
             return undefined;
         },

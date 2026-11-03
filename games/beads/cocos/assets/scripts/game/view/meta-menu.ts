@@ -3,11 +3,11 @@
  * 几何一律取自 `meta-layout.ts` 的锚定档，控件画法取自 `meta-widgets.ts` ⇒ 页面只编排、不另算。
  */
 
-import { DESIGN_W, type MenuAnchors, MENU_ARROW_ICON, MENU_CASE_INTERIOR_BAKED, MENU_BAR_ICON_D, MENU_BOSS_ART_D, MENU_CTA_LABEL, MENU_CTA_PRESSED_D, MENU_CTA_SLICE, MENU_CTA_SRC_H, MENU_DONE_ICON, MENU_GRAY, MENU_GRAY_WIPE, MENU_LIGHT, MENU_PLAQUE_BEVEL_INSET, MENU_PLAQUE_ICON_INSET, MENU_PLAQUE_RIVET_INSET, MENU_PLAQUE_RIVET_R, MENU_PLAQUE_STROKE, MENU_PLATE, MENU_PLATE_TITLE, MENU_SIGNIN_DOT_R, MENU_SIGN_FRAME, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, SIGN_BEAD_PITCH, SIGN_MATRIX_N, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning';
+import { DESIGN_W, type MenuAnchors, MENU_ARROW_ICON, MENU_CASE_INTERIOR_BAKED, MENU_BAR_ICON_D, MENU_BOSS_ART_D, MENU_CTA_LABEL, MENU_CTA_PRESSED_D, MENU_CTA_SLICE, MENU_CTA_SRC_H, MENU_DONE_ICON, MENU_FROST, MENU_GRAY_WIPE, MENU_LIGHT, MENU_PLAQUE_BEVEL_INSET, MENU_PLAQUE_ICON_INSET, MENU_PLAQUE_RIVET_INSET, MENU_PLAQUE_RIVET_R, MENU_PLAQUE_STROKE, MENU_PLATE, MENU_PLATE_TITLE, MENU_SIGNIN_DOT_R, MENU_SIGN_FRAME, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, SIGN_BEAD_PITCH, SIGN_MATRIX_N, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning';
 import { COPY_TOKENS } from '../config/copy-tokens';
 import { ARC_COMING_SOON } from '../config/arcs';
 import { plateFade } from '../config/menu-carousel';
-import { grayFx, grayWipeFx, nineSliceFx, type BlitFx, type RenderModelBuilder } from '../../framework/index';
+import { frostFx, grayWipeFx, nineSliceFx, type BlitFx, type RenderModelBuilder } from '../../framework/index';
 import { beadFadedInksFor, type BeadsPalette } from './palette';
 import { drawBeadText, drawLevelThumb } from './menu-signage';
 import { drawGear } from './play-page';
@@ -20,11 +20,11 @@ import { heartBarLabel, isPressed, label, menuBitmapReady, pressDy } from './met
 
 /**
  * `[WXG-T-566]` 三态 fx（模块级常量 / 缓存 ⇒ 键序固定、同进度每帧零分配）。
- * - 未开启 = 整图全灰（`MENU_GRAY.locked`）；
+ * - 未开启 = **磨砂玻璃**（`frost`：1/4 下采样模糊 + 全灰；用户 2026-11-03 裁）；
  * - 推关 = **竖向揭彩**（`grayWipe`，彩色比例 = 已完成小关 / 总小关；用户 2026-11-02 裁）；
  * - 已通关 = 不传 fx（全彩）；⛔ 不传 `gray: 0`（多一个键 = 多一次 sha 漂移，且无效果）。
  */
-const MENU_GRAY_FX_LOCKED = grayFx(MENU_GRAY.locked);
+const MENU_FROST_FX_LOCKED = frostFx(MENU_FROST.radius);
 
 /**
  * 揭彩 fx 缓存：键 = 进度千分位。生产侧进度 = `done/total`（离散，章内 ≤ 10 档）
@@ -44,7 +44,7 @@ function wipeFx(done: number | undefined, total: number | undefined): BlitFx {
 }
 
 function triStateFx(state: MetaBossState, done?: number, total?: number): BlitFx | undefined {
-    if (state === 'locked') return MENU_GRAY_FX_LOCKED;
+    if (state === 'locked') return MENU_FROST_FX_LOCKED;
     if (state === 'pushing') return wipeFx(done, total);
     return undefined;
 }

@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3942,
       "lines": 133,
-      "sha256": "6941cf73b5a5b2b44994faf75bf77c3349c5bf50332afee83347682e81cd880b",
+      "sha256": "dd248875354f997fadcaff3f24422267127e824f23d30de72e5868127c97ee35",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 206144 7360 normal",
+          "summary": "1 production/TASKS-DETAIL.md 206690 7385 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "89d0902a4572eedbe797d7118bb31f9972793e8670abdadaf28fe99f5b7fc008",
+      "sha256": "6f8ae786d27c37452374bb5602b6135edcddda7ebdc2773cb0a306014d409782",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 173 行 / 40450 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 174 行 / 40611 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+174 · §待排（backlog，无号，立项时领取…=146+29",
+          "summary": "§WXG 任务台账（SSOT）=1+175 · §待排（backlog，无号，立项时领取…=147+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 7360 行 / 206144 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 7385 行 / 206690 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7361 · §WXG-T-555=6895+36 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7386 · §WXG-T-556=6931+31 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -10097,17 +10097,17 @@
     },
     {
       "path": "docs/architecture/adr/ADR-0029-beads-tint-mask-pipeline-adoption.md",
-      "tokens": 5137,
-      "lines": 203,
-      "sha256": "944753b2389854422f477b6bd987c258c08e50851e9a8da7d9ae715b97739dc1",
+      "tokens": 5286,
+      "lines": 204,
+      "sha256": "343817b36b145531ec1b90ba0a98a260e5bd486278e002df467b56fff038d680",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§ADR-0029 — 豆面/格面 tint mask 正式管线接入（载体 / 孔底 / 真源 / 档位四决策）",
           "level": 1,
           "startLine": 1,
-          "endLine": 204,
-          "tokens": 5105,
+          "endLine": 205,
+          "tokens": 5254,
           "summary": "状态：Accepted（Q1–Q5 已由用户 2026-10-02 逐项拍板；落码分批交付，载体一批延后）",
           "keywords": [
             "ADR",
@@ -10359,8 +10359,8 @@
           "anchor": "§8 补充（2026-10-03 · WXG-T-226 B3/B4 四轮 review 收敛）",
           "level": 2,
           "startLine": 139,
-          "endLine": 191,
-          "tokens": 1631,
+          "endLine": 192,
+          "tokens": 1780,
           "summary": "DEC-1「本批 = 命令层 + Canvas2D」在落码 review 后细化为三条实现契约（不改 DEC 的结论，只",
           "keywords": [
             "WXG",
@@ -10375,8 +10375,8 @@
           "anchor": "§8.4 `fx` 键名约定表（**效果键名的唯一正本** · 2026-10-03 接线批）",
           "level": 3,
           "startLine": 157,
-          "endLine": 178,
-          "tokens": 705,
+          "endLine": 179,
+          "tokens": 854,
           "summary": "BlitCommand 只有一个效果槽 fx?: BlitFx（§8.2 规则 1）。键名不进 core 类型 ⇒ co",
           "keywords": [
             "fx",
@@ -10390,8 +10390,8 @@
         {
           "anchor": "§8.5 方法论：**推理出的结论必须用 A/B 实测复核**（2026-10-03 血泪）",
           "level": 3,
-          "startLine": 179,
-          "endLine": 191,
+          "startLine": 180,
+          "endLine": 192,
           "tokens": 292,
           "summary": "本批两次「绿而功能为零 / 越修越错」都由未验证的推理造成：",
           "keywords": [
@@ -10405,8 +10405,8 @@
         {
           "anchor": "§9 S5 Cocos 载体的方向（2026-10-03 用户裁定：甲 = 按色图集）",
           "level": 2,
-          "startLine": 192,
-          "endLine": 204,
+          "startLine": 193,
+          "endLine": 205,
           "tokens": 300,
           "summary": "DEC-1 保留「载体形态待真机数据」，但方向已定（不再是三选一）：",
           "keywords": [
@@ -14128,17 +14128,17 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 20780,
-      "lines": 255,
-      "sha256": "83fd3d1692eb5432f80081fa9e14f1634b5c677e6b19e7e9aa4e68b1253bed3a",
+      "tokens": 21087,
+      "lines": 257,
+      "sha256": "e38929848dcf0b89fa42e1372cbb5ea0f467529015b80363c83cc1d8b5d7dda4",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads UI 架构（View / ViewModel / Presenter + 公共基础）",
           "level": 1,
           "startLine": 1,
-          "endLine": 256,
-          "tokens": 20761,
+          "endLine": 258,
+          "tokens": 21068,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -14308,8 +14308,8 @@
           "anchor": "§12 TODO 拆分",
           "level": 2,
           "startLine": 138,
-          "endLine": 252,
-          "tokens": 15708,
+          "endLine": 254,
+          "tokens": 16015,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -14320,8 +14320,8 @@
         {
           "anchor": "§13 待你拍板",
           "level": 2,
-          "startLine": 253,
-          "endLine": 256,
+          "startLine": 255,
+          "endLine": 258,
           "tokens": 323,
           "summary": "D1–D5 均已裁定（见 [ADR-0032 §5](adr/ADR-0032-beads-ui-architectur",
           "keywords": [
@@ -65067,9 +65067,9 @@
     },
     {
       "path": "memory/INDEX.md",
-      "tokens": 15148,
+      "tokens": 15151,
       "lines": 358,
-      "sha256": "883eb9461c6fb29893c19465b68f2b49280b55a097492cb1b63885821209f69a",
+      "sha256": "3613df9279c82677c49756905246660d50509abd45983f4aef0183256ff6c0ad",
       "tier": "normal",
       "sections": [
         {
@@ -65077,7 +65077,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 359,
-          "tokens": 15125,
+          "tokens": 15129,
           "summary": "memory/ 是跨会话的运行时记忆，分四层：MEMORY.md（蒸馏后的常驻摘要）→",
           "keywords": [
             "memory",
@@ -65148,7 +65148,7 @@
           "level": 2,
           "startLine": 67,
           "endLine": 359,
-          "tokens": 13486,
+          "tokens": 13490,
           "summary": "<!-- memory:index:start（由 pnpm run ctx:build 生成，勿手改）-->",
           "keywords": [
             "memory",
@@ -65160,7 +65160,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-22.md` — 398 tok｜0 节｜**蒸馏到期 2026-11-21**（剩 19 天）",
+          "anchor": "§`memory/2026-10-22.md` — 398 tok｜0 节｜**蒸馏到期 2026-11-21**（剩 18 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,
@@ -65174,7 +65174,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-21.md` — 5,478 tok｜10 节｜**蒸馏到期 2026-11-20**（剩 18 天）",
+          "anchor": "§`memory/2026-10-21.md` — 5,478 tok｜10 节｜**蒸馏到期 2026-11-20**（剩 17 天）",
           "level": 3,
           "startLine": 78,
           "endLine": 92,
@@ -65190,7 +65190,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-20.md` — 1,785 tok｜4 节｜**蒸馏到期 2026-11-19**（剩 17 天）",
+          "anchor": "§`memory/2026-10-20.md` — 1,785 tok｜4 节｜**蒸馏到期 2026-11-19**（剩 16 天）",
           "level": 3,
           "startLine": 93,
           "endLine": 101,
@@ -65206,7 +65206,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-14.md` — 142 tok｜2 节｜2 节已外移｜**蒸馏到期 2026-11-13**（剩 11 天）",
+          "anchor": "§`memory/2026-10-14.md` — 142 tok｜2 节｜2 节已外移｜**蒸馏到期 2026-11-13**（剩 10 天）",
           "level": 3,
           "startLine": 102,
           "endLine": 108,
@@ -65222,7 +65222,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-13.md` — 4,542 tok｜8 节｜5 节已外移｜**蒸馏到期 2026-11-12**（剩 10 天）",
+          "anchor": "§`memory/2026-10-13.md` — 4,542 tok｜8 节｜5 节已外移｜**蒸馏到期 2026-11-12**（剩 9 天）",
           "level": 3,
           "startLine": 109,
           "endLine": 121,
@@ -65238,7 +65238,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-12.md` — 6,315 tok｜7 节｜**蒸馏到期 2026-11-11**（剩 9 天）",
+          "anchor": "§`memory/2026-10-12.md` — 6,315 tok｜7 节｜**蒸馏到期 2026-11-11**（剩 8 天）",
           "level": 3,
           "startLine": 122,
           "endLine": 133,
@@ -65253,7 +65253,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-10.md` — 2,825 tok｜2 节｜**蒸馏到期 2026-11-09**（剩 7 天）",
+          "anchor": "§`memory/2026-10-10.md` — 2,825 tok｜2 节｜**蒸馏到期 2026-11-09**（剩 6 天）",
           "level": 3,
           "startLine": 134,
           "endLine": 140,
@@ -65267,7 +65267,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-09.md` — 358 tok｜0 节｜**蒸馏到期 2026-11-08**（剩 6 天）",
+          "anchor": "§`memory/2026-10-09.md` — 358 tok｜0 节｜**蒸馏到期 2026-11-08**（剩 5 天）",
           "level": 3,
           "startLine": 141,
           "endLine": 145,
@@ -65281,7 +65281,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-07.md` — 5,905 tok｜4 节｜**蒸馏到期 2026-11-06**（剩 4 天）",
+          "anchor": "§`memory/2026-10-07.md` — 5,905 tok｜4 节｜**蒸馏到期 2026-11-06**（剩 3 天）",
           "level": 3,
           "startLine": 146,
           "endLine": 154,
@@ -65297,7 +65297,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-06.md` — 2,680 tok｜2 节｜**蒸馏到期 2026-11-05**（剩 3 天）",
+          "anchor": "§`memory/2026-10-06.md` — 2,680 tok｜2 节｜**蒸馏到期 2026-11-05**（剩 2 天）",
           "level": 3,
           "startLine": 155,
           "endLine": 161,
@@ -65313,7 +65313,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-05.md` — 4,344 tok｜0 节｜**蒸馏到期 2026-11-04**（剩 2 天）",
+          "anchor": "§`memory/2026-10-05.md` — 4,344 tok｜0 节｜**蒸馏到期 2026-11-04**（剩 1 天）",
           "level": 3,
           "startLine": 162,
           "endLine": 166,
@@ -65327,7 +65327,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 28,255 tok｜14 节｜14 节已外移｜**蒸馏到期 2026-11-03**（剩 1 天）",
+          "anchor": "§`memory/2026-10-04.md` — 28,255 tok｜14 节｜14 节已外移｜**蒸馏已到期（2026-11-03，已过期 0 天）**",
           "level": 3,
           "startLine": 167,
           "endLine": 185,
@@ -65343,7 +65343,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-03.md` — 79 tok｜1 节｜1 节已外移｜**蒸馏已到期（2026-11-02，已过期 0 天）**",
+          "anchor": "§`memory/2026-10-03.md` — 79 tok｜1 节｜1 节已外移｜**蒸馏已到期（2026-11-02，已过期 1 天）**",
           "level": 3,
           "startLine": 186,
           "endLine": 191,
@@ -65359,7 +65359,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-29.md` — 7,239 tok｜0 节｜**蒸馏已到期（2026-10-29，已过期 4 天）**",
+          "anchor": "§`memory/2026-09-29.md` — 7,239 tok｜0 节｜**蒸馏已到期（2026-10-29，已过期 5 天）**",
           "level": 3,
           "startLine": 192,
           "endLine": 196,
@@ -65374,7 +65374,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-28.md` — 1,352 tok｜10 节｜9 节已外移｜**蒸馏已到期（2026-10-28，已过期 5 天）**",
+          "anchor": "§`memory/2026-09-28.md` — 1,352 tok｜10 节｜9 节已外移｜**蒸馏已到期（2026-10-28，已过期 6 天）**",
           "level": 3,
           "startLine": 197,
           "endLine": 211,
@@ -65390,7 +65390,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-27.md` — 6,212 tok｜3 节｜**蒸馏已到期（2026-10-27，已过期 6 天）**",
+          "anchor": "§`memory/2026-09-27.md` — 6,212 tok｜3 节｜**蒸馏已到期（2026-10-27，已过期 7 天）**",
           "level": 3,
           "startLine": 212,
           "endLine": 219,
@@ -65406,7 +65406,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-22.md` — 1,263 tok｜1 节｜**蒸馏已到期（2026-10-22，已过期 11 天）**",
+          "anchor": "§`memory/2026-09-22.md` — 1,263 tok｜1 节｜**蒸馏已到期（2026-10-22，已过期 12 天）**",
           "level": 3,
           "startLine": 220,
           "endLine": 225,
@@ -65422,7 +65422,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-17.md` — 6,817 tok｜12 节｜**蒸馏已到期（2026-10-17，已过期 16 天）**",
+          "anchor": "§`memory/2026-09-17.md` — 6,817 tok｜12 节｜**蒸馏已到期（2026-10-17，已过期 17 天）**",
           "level": 3,
           "startLine": 226,
           "endLine": 242,
@@ -65438,7 +65438,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-16.md` — 4,236 tok｜7 节｜1 节已外移｜**蒸馏已到期（2026-10-16，已过期 17 天）**",
+          "anchor": "§`memory/2026-09-16.md` — 4,236 tok｜7 节｜1 节已外移｜**蒸馏已到期（2026-10-16，已过期 18 天）**",
           "level": 3,
           "startLine": 243,
           "endLine": 254,
@@ -65454,7 +65454,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏已到期（2026-10-15，已过期 18 天）**",
+          "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏已到期（2026-10-15，已过期 19 天）**",
           "level": 3,
           "startLine": 255,
           "endLine": 271,
@@ -65470,7 +65470,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏已到期（2026-10-14，已过期 19 天）**",
+          "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏已到期（2026-10-14，已过期 20 天）**",
           "level": 3,
           "startLine": 272,
           "endLine": 299,
@@ -65486,7 +65486,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏已到期（2026-10-13，已过期 20 天）**",
+          "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏已到期（2026-10-13，已过期 21 天）**",
           "level": 3,
           "startLine": 300,
           "endLine": 320,
@@ -65502,7 +65502,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏已到期（2026-10-12，已过期 21 天）**",
+          "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏已到期（2026-10-12，已过期 22 天）**",
           "level": 3,
           "startLine": 321,
           "endLine": 338,
@@ -65518,7 +65518,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏已到期（2026-10-11，已过期 22 天）**",
+          "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏已到期（2026-10-11，已过期 23 天）**",
           "level": 3,
           "startLine": 339,
           "endLine": 359,
@@ -88554,17 +88554,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 206144,
-      "lines": 7360,
-      "sha256": "cd58daecd5882cf07d1ffec80d4e14267414107f4f5a22630b95b980b4955575",
+      "tokens": 206690,
+      "lines": 7385,
+      "sha256": "60f846fc989e3f4ebc2199174e18ddcb5c5b4705b0ba1d9352fe88be5c6f1db1",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 7361,
-          "tokens": 206127,
+          "endLine": 7386,
+          "tokens": 206673,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -99235,7 +99235,7 @@
           "level": 2,
           "startLine": 7235,
           "endLine": 7295,
-          "tokens": 1307,
+          "tokens": 1314,
           "summary": "设计·主菜单走马灯三态：去章 + 竖向揭彩 + 柜灯 · 负责：主理人(Trae)·设计轨 · 状态：🔄 进行中（20",
           "keywords": [
             "WXG",
@@ -99327,17 +99327,74 @@
           "level": 3,
           "startLine": 7288,
           "endLine": 7295,
-          "tokens": 172,
+          "tokens": 179,
           "summary": "1. 居中沙漏章已随本批删除（用户裁「一并删掉」）。",
           "keywords": [
             "观测与遗留"
           ]
         },
         {
-          "anchor": "§WXG-T-565",
+          "anchor": "§WXG-T-567",
           "level": 2,
           "startLine": 7296,
-          "endLine": 7327,
+          "endLine": 7320,
+          "tokens": 535,
+          "summary": "设计·未开启态磨砂玻璃（预烘模糊） · 负责：主理人(Trae)·设计轨 · 状态：✅ 完成（2026-11-03）",
+          "keywords": [
+            "WXG",
+            "Trae"
+          ]
+        },
+        {
+          "anchor": "§1 用户令（逐条） (2)",
+          "level": 3,
+          "startLine": 7300,
+          "endLine": 7304,
+          "tokens": 56,
+          "summary": "1. 「能否用 tint 模拟实时磨砂效果」；",
+          "keywords": [
+            "tint",
+            "用户令",
+            "逐条"
+          ]
+        },
+        {
+          "anchor": "§2 结论：tint 的能力边界",
+          "level": 3,
+          "startLine": 7305,
+          "endLine": 7311,
+          "tokens": 201,
+          "summary": "现有 tint-mask.effect 只采样 maskTexture（R/G/B 是 tint 系数），不采样美术图 ",
+          "keywords": [
+            "tint",
+            "mask",
+            "effect",
+            "maskTexture",
+            "结论",
+            "的能力边界"
+          ]
+        },
+        {
+          "anchor": "§3 落码 (2)",
+          "level": 3,
+          "startLine": 7312,
+          "endLine": 7320,
+          "tokens": 213,
+          "summary": "框架 bake/gray-fx.ts：frostFx(radius) / frostRead / 纯函数 frostPi",
+          "keywords": [
+            "bake",
+            "gray",
+            "frostFx",
+            "radius",
+            "frostRead",
+            "frostPi"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-565",
+          "level": 2,
+          "startLine": 7321,
+          "endLine": 7352,
           "tokens": 525,
           "summary": "工具链·.trae/ 破例入库 + 工作区垃圾清理 · 负责：主理人(Trae)·工具链轨 · 状态：✅ 完成（2026",
           "keywords": [
@@ -99349,8 +99406,8 @@
         {
           "anchor": "§1 用户令 (12)",
           "level": 3,
-          "startLine": 7300,
-          "endLine": 7303,
+          "startLine": 7325,
+          "endLine": 7328,
           "tokens": 31,
           "summary": "用户「提交。trae」，二进制确认后选「都做：清垃圾 + 入库 .trae」。",
           "keywords": [
@@ -99361,8 +99418,8 @@
         {
           "anchor": "§2 裁定反转（此前为「不入库」）",
           "level": 3,
-          "startLine": 7304,
-          "endLine": 7309,
+          "startLine": 7329,
+          "endLine": 7334,
           "tokens": 122,
           "summary": "WXG-T-412 时用户裁定 .trae/ 为本地个人配置、不入库（上一轮试提交被 ctx 索引器「点目录跳过」拦死，",
           "keywords": [
@@ -99377,8 +99434,8 @@
         {
           "anchor": "§3 落地 (3)",
           "level": 3,
-          "startLine": 7310,
-          "endLine": 7318,
+          "startLine": 7335,
+          "endLine": 7343,
           "tokens": 173,
           "summary": "入库 .trae/skills/ 51 链接 + .trae/agents/ 7 链接 + .trae/rules/ag",
           "keywords": [
@@ -99392,8 +99449,8 @@
         {
           "anchor": "§4 验收 (3)",
           "level": 3,
-          "startLine": 7319,
-          "endLine": 7323,
+          "startLine": 7344,
+          "endLine": 7348,
           "tokens": 34,
           "summary": "node tools/scripts/check-ide-links.mjs → OK（agents=7 skills=",
           "keywords": [
@@ -99408,8 +99465,8 @@
         {
           "anchor": "§5 沉淀统计 (9)",
           "level": 3,
-          "startLine": 7324,
-          "endLine": 7327,
+          "startLine": 7349,
+          "endLine": 7352,
           "tokens": 86,
           "summary": "未跑 kb:sync。候选 1 条：「同一目录的入库裁定可能被用户反转，改裁定点须一次性收齐全部文档表述（6 文件 7 ",
           "keywords": [
@@ -99420,8 +99477,8 @@
         {
           "anchor": "§WXG-T-564",
           "level": 2,
-          "startLine": 7328,
-          "endLine": 7361,
+          "startLine": 7353,
+          "endLine": 7386,
           "tokens": 671,
           "summary": "美术·三态章 v2 木刻重绘（i2i）+ 原型换章 · 负责：主理人(CodeBuddy)·美术轨 · 状态：✅ 完成（",
           "keywords": [
@@ -99433,8 +99490,8 @@
         {
           "anchor": "§1 用户令 (13)",
           "level": 3,
-          "startLine": 7332,
-          "endLine": 7335,
+          "startLine": 7357,
+          "endLine": 7360,
           "tokens": 37,
           "summary": "T-563 结束时给三选（A 以 v1 三件 i2i 重出 / B 全新文生图 / C 本地 qwen），用户回「A」。",
           "keywords": [
@@ -99446,8 +99503,8 @@
         {
           "anchor": "§2 处置 (6)",
           "level": 3,
-          "startLine": 7336,
-          "endLine": 7348,
+          "startLine": 7361,
+          "endLine": 7373,
           "tokens": 322,
           "summary": "通道 云 DashScope Token Plan · wan2.7-image i2i（--ref）",
           "keywords": [
@@ -99462,8 +99519,8 @@
         {
           "anchor": "§3 不入库（有意，须记录）",
           "level": 3,
-          "startLine": 7349,
-          "endLine": 7355,
+          "startLine": 7374,
+          "endLine": 7380,
           "tokens": 143,
           "summary": "三件 v2 章不进 final/assets/menu/ 与 cocos/assets/textures/：",
           "keywords": [
@@ -99478,8 +99535,8 @@
         {
           "anchor": "§4 产出与登记",
           "level": 3,
-          "startLine": 7356,
-          "endLine": 7361,
+          "startLine": 7381,
+          "endLine": 7386,
           "tokens": 97,
           "summary": "批目录 design/art/proposals/menu-3d-style-20261030/badge-v2-202",
           "keywords": [
@@ -99495,17 +99552,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 40450,
-      "lines": 173,
-      "sha256": "f1b69bd01e35f227f24c94f4168d3d3f57399c1bddf64a463891a1dd688f89d6",
+      "tokens": 40611,
+      "lines": 174,
+      "sha256": "fa729d81cf52e97598bddb7cf56364aa62ac1979157caa31ab2a6f0001546d18",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 174,
-          "tokens": 40441,
+          "endLine": 175,
+          "tokens": 40602,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -99518,8 +99575,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 146,
-          "endLine": 174,
+          "startLine": 147,
+          "endLine": 175,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

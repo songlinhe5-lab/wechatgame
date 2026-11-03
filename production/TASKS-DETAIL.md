@@ -7290,8 +7290,33 @@ T-554 当时按「清理掉重新做 v2」把 14 件 `git rm` 了；本单按用
 1. **居中沙漏章**已随本批删除（用户裁「一并删掉」）。
 2. 现役 `games/beads/design/art/final/assets/menu/` **缺** `ui_menu_backdrop` / `ui_menu_logo` / `ui_showcase_frame`
    （33 件在 `v1/assets/menu/`）⇒ 本轮截图缺装饰件与橱窗木框；**不影响灰度判定**，但真机/完整版面需先补齐现役件。
-3. 磨砂玻璃（未开启态）暂缓，后续候选 = 半透明暖白雾层（真机避免实时模糊）。
+3. 磨砂玻璃（未开启态）由 **WXG-T-567** 完成（本批原方案「暖白雾层」被对照图否决，改预烘模糊）。
 4. golden 复取须在干净 commit 上跑（`ui-golden-capture.ts` 的 `WXG298_SOURCE_REV` 守卫）。
+
+## WXG-T-567
+
+**设计·未开启态磨砂玻璃（预烘模糊）** · 负责：主理人(Trae)·设计轨 · 状态：✅ 完成（2026-11-03）
+
+### 1. 用户令（逐条）
+
+1. 「能否用 tint 模拟实时磨砂效果」；
+2. 看过 A（整窗雾层）/ A2（轮廓雾）/ B（预烘模糊）三方案对照后裁「**落 B（推荐）**」。
+
+### 2. 结论：tint 的能力边界
+
+- 现有 `tint-mask.effect` 只采样 `maskTexture`（R/G/B 是 tint 系数），**不采样美术图** ⇒ 只能改色，做不了邻域采样（模糊）；`base` 是 multiply，加不出「奶白」。
+- 大关图 **63% 像素透明**（作品浮在柜内玻璃上）⇒「整窗雾层」会露出方形边界；要让雾只贴作品轮廓必须读 alpha ⇒ 反正要预烘。
+- `frost` 落为独立效果键：**1/4 盒式下采样 + 1/4 网格盒式模糊 + Rec.709 全灰**，产物存 1/4 尺寸（≈29 KiB/张，两章 ≈58 KiB）。
+- 对照图：`temp/menu-states-v3/frost-ab-20261103-v2.png`（现状 / A / A2 / B，含 1:1 运行时尺寸）。
+
+### 3. 落码
+
+- 框架 `bake/gray-fx.ts`：`frostFx(radius)` / `frostRead` / 纯函数 `frostPixels`（两条宿主腿共用 ⇒ 像素级同源）；
+- canvas2d `tint-blit-resolver::bakeFrost`（读整图 → `frostPixels` → 1/4 画布；按纹理最新一档缓存）；
+- cocos `beads-blit-carrier::_frostFrame`（同一纯函数 → 1/4 `Texture2D`）；
+- 数据/视图：`MENU_FROST.radius = 8`；`triStateFx('locked')` = `{ frost: 8 }`（推关揭彩 / 通关全彩零改动）；
+- 文档：`ADR-0029 §8.4` + `render-model.ts` fx 键表 + `ui-architecture-beads.md` 视觉变更登记；
+- 验证：框架 `frostPixels` 3 例 + resolver `frost` 4 例 + 菜单三态 / 单橱窗 / 走马灯断言全绿；金样本按登记在干净锚复取。
 
 ## WXG-T-565
 

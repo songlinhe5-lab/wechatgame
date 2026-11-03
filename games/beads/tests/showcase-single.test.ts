@@ -16,6 +16,7 @@ import {
     DESIGN_W,
     MENU_ARROW_VISUAL_D,
     MENU_BOSS_ART_D,
+    MENU_FROST,
     MENU_SHOWCASE_ART,
     MENU_TEXTURES,
 } from '../src/config/tuning.js';
@@ -87,11 +88,11 @@ describe('WXG-T-522 橱窗单一作品', () => {
         expect(blitsOf(cmds, MENU_TEXTURES.badgeLocked).length, '右上小锁退场').toBe(0);
     });
 
-    it('`[WXG-T-566]` 锁定态：整图全灰（fx.gray=1），不贴小锁 / 沙漏', () => {
+    it('`[WXG-T-566 / WXG-T-567]` 锁定态：磨砂玻璃（fx.frost=半径），不贴小锁 / 沙漏', () => {
         hostWith(MENU_TEXTURES.caseFrame, BOSS_ART, MENU_TEXTURES.badgeLocked, MENU_TEXTURES.badgeProgress);
         const cmds = frame(data({ carouselState: 'locked' as const }));
         const art = blitsOf(cmds, BOSS_ART)[0] as { fx?: Record<string, number> };
-        expect(art.fx, '锁定 = 全灰').toEqual({ gray: 1 });
+        expect(art.fx, '锁定 = 磨砂玻璃').toEqual({ frost: MENU_FROST.radius });
         expect(blitsOf(cmds, MENU_TEXTURES.badgeLocked).length).toBe(0);
         expect(blitsOf(cmds, MENU_TEXTURES.badgeProgress).length).toBe(0);
     });

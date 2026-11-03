@@ -8,7 +8,7 @@ import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import { LEVELS } from '../src/config/levels.js';
 import { carouselDamp, carouselPage, plateFade } from '../src/config/menu-carousel.js';
 import { ARC_COMING_SOON, ARCS } from '../src/config/arcs.js';
-import { DESIGN_H, DESIGN_W, MENU_BOSS_SLOT, MENU_CLIP, MENU_GRAY_WIPE, MENU_TEXTURES } from '../src/config/tuning.js';
+import { DESIGN_H, DESIGN_W, MENU_BOSS_SLOT, MENU_CLIP, MENU_FROST, MENU_GRAY_WIPE, MENU_TEXTURES } from '../src/config/tuning.js';
 import { createBeadsShell } from '../src/game/beads-shell.js';
 import { buildMetaView, setMenuBitmapResolver, type MetaViewData } from '../src/view/meta-view.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
@@ -73,7 +73,8 @@ describe('橱窗绘制', () => {
         expect(artOf(dataFor(lv, { carouselState: 'cleared' }))?.fx, '通关 = 全彩（不传 fx）').toBeUndefined();
         expect(artOf(dataFor(lv, { carouselState: 'pushing' }))?.fx, '推关 = 竖向揭彩（此处进度 0）')
             .toEqual({ grayWipe: [0, MENU_GRAY_WIPE.soft] });
-        expect(artOf(dataFor(lv, { carouselState: 'locked' }))?.fx, '未开启 = 全灰').toEqual({ gray: 1 });
+        expect(artOf(dataFor(lv, { carouselState: 'locked' }))?.fx, '未开启 = 磨砂玻璃')
+            .toEqual({ frost: MENU_FROST.radius });
         expect(cleared.some((c) => c.kind === 'blit' && (
             c.textureId === MENU_TEXTURES.badgeProgress
             || c.textureId === MENU_TEXTURES.badgeLocked
