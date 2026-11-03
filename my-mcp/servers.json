@@ -34,6 +34,10 @@
         "mcp",
         "serve"
       ]
+    },
+    "figma-desktop": {
+      "transport": "http",
+      "url": "http://127.0.0.1:3845/mcp"
     }
   }
 }

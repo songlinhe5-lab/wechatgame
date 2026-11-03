@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3942,
       "lines": 133,
-      "sha256": "aca95cc2e078488c17a2ce977a7d04bf9e4e11acaf3f68f3a2974beecb6e800f",
+      "sha256": "e17e6398ef149af5efd6c5a0f6be8c2481c99434e2cbd8afac0dbc024e8212f8",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 210350 7557 normal",
+          "summary": "1 production/TASKS-DETAIL.md 210749 7580 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "a7ab9049d67b1b8110e1226b6153ad3e13ef29999065f0b9f6b90daaf6c3132c",
+      "sha256": "c0bae63f94c88754c4cfcb000952158e48797725b85c26d5897fd85e852c72c7",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 177 行 / 41145 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 178 行 / 41231 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+178 · §待排（backlog，无号，立项时领取…=150+29",
+          "summary": "§WXG 任务台账（SSOT）=1+179 · §待排（backlog，无号，立项时领取…=151+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 7557 行 / 210350 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 7580 行 / 210749 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7558 · §WXG-T-559=7025+42 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7581 · §WXG-T-560=7067+73 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -88577,17 +88577,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 210350,
-      "lines": 7557,
-      "sha256": "8ec66f0e04461076f8e570b161fb15c1af4f2dc7b3b336282a6bc26b9f31a120",
+      "tokens": 210749,
+      "lines": 7580,
+      "sha256": "cfb0e44680f822bcb1bc4416c0011d36d956341a54e7ab2bce44a584549a6be7",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 7558,
-          "tokens": 210333,
+          "endLine": 7581,
+          "tokens": 210733,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -99916,22 +99916,100 @@
             "proto",
             "from"
           ]
+        },
+        {
+          "anchor": "§WXG-T-571",
+          "level": 2,
+          "startLine": 7559,
+          "endLine": 7581,
+          "tokens": 396,
+          "summary": "工具链·Figma MCP 改接本地桌面版 · 负责：主理人(Cursor)·工具链轨 · 状态：🔄 进行中（2026",
+          "keywords": [
+            "WXG",
+            "Figma",
+            "MCP",
+            "Cursor"
+          ]
+        },
+        {
+          "anchor": "§1 用户令 (16)",
+          "level": 3,
+          "startLine": 7563,
+          "endLine": 7566,
+          "tokens": 50,
+          "summary": "「Qoder、CodeBuddy、Trae 里 Figma 的 OAuth 不能用」⇒ 用户选「本地桌面版 MCP（ht",
+          "keywords": [
+            "Qoder",
+            "CodeBuddy",
+            "Trae",
+            "Figma",
+            "OAuth",
+            "MCP"
+          ]
+        },
+        {
+          "anchor": "§2 依据",
+          "level": 3,
+          "startLine": 7567,
+          "endLine": 7570,
+          "tokens": 91,
+          "summary": "Figma 官方文档（remote-server-installation）：远程端点 https://mcp.figm",
+          "keywords": [
+            "Figma",
+            "remote",
+            "server",
+            "installation",
+            "https",
+            "mcp"
+          ]
+        },
+        {
+          "anchor": "§3 改动",
+          "level": 3,
+          "startLine": 7571,
+          "endLine": 7576,
+          "tokens": 120,
+          "summary": "my-mcp/servers.json（正本）新增 figma-desktop（http，127.0.0.1:3845/",
+          "keywords": [
+            "mcp",
+            "servers",
+            "json",
+            "figma",
+            "desktop",
+            "http"
+          ]
+        },
+        {
+          "anchor": "§4 待办 / 风险",
+          "level": 3,
+          "startLine": 7577,
+          "endLine": 7581,
+          "tokens": 76,
+          "summary": "本机 127.0.0.1:3845 探测不通：需先打开 Figma 桌面 App 并启用桌面 MCP（需 Dev/Ful",
+          "keywords": [
+            "Figma",
+            "App",
+            "MCP",
+            "Dev",
+            "Ful",
+            "待办"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 41145,
-      "lines": 177,
-      "sha256": "8577154661eed97b65dbcc2f13190db7f419fd23a6320533efb879ee9c7798c9",
+      "tokens": 41231,
+      "lines": 178,
+      "sha256": "9685e85d010357a63ea681bfc91ffd33133ba9a16f6e20881213a14e3ad5a35e",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 178,
-          "tokens": 41136,
+          "endLine": 179,
+          "tokens": 41222,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -99944,8 +100022,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 150,
-          "endLine": 178,
+          "startLine": 151,
+          "endLine": 179,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

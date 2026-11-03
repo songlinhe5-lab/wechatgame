@@ -7555,3 +7555,26 @@ mask:diff 四档 mean=0 max=0、typecheck 全绿、verify 23/23 PASS。
 | `games/beads/design/ai-workflows/proto-from-baseline.py` | 整体重写（232 行）：重量框 / 揭彩同向 / 删进度条 / 真五角星 / 金边腿 / `BADGE_DIR` 切 v2 / 新增 `selfcheck()` |
 | `final/prototypes/proto-menu-v2-{locked,pushing,cleared}-752x1344.png` | 三张重出覆盖 |
 | `temp/proto-menu-fix/` | 量框网格图 + A/B 对照 + 目检截图（**不入库**） |
+
+## WXG-T-571
+
+**工具链·Figma MCP 改接本地桌面版** · 负责：主理人(Cursor)·工具链轨 · 状态：🔄 进行中（2026-11-03）
+
+### 1. 用户令
+
+「Qoder、CodeBuddy、Trae 里 Figma 的 OAuth 不能用」⇒ 用户选「本地桌面版 MCP（`http://127.0.0.1:3845/mcp`）」，三 IDE 统一改接该地址。
+
+### 2. 依据
+
+Figma 官方文档（remote-server-installation）：远程端点 `https://mcp.figma.com/mcp` 只走 OAuth 登录；仅 MCP catalog 内的客户端可连。Qoder/CodeBuddy/Trae 不在其列 ⇒ 远程路线不可用。`FIGMA_API_KEY`（PAT）是 REST API 凭证，远程 MCP 不吃它，故未用于 MCP。
+
+### 3. 改动
+
+- `my-mcp/servers.json`（正本）新增 `figma-desktop`（http，`127.0.0.1:3845/mcp`），经 `pnpm run mcp:build` 生成 `.mcp.json` / `.cursor/mcp.json` / `.codebuddy/mcp.json`；远程 `figma` 条目随之移除。
+- `.trae/mcp.json`（未跟踪、不在生成清单）：手写同地址。
+- `~/.qoder/mcp.json`（工作区外，沙箱不可写）：**待手改**，加 `figma-desktop` 同地址条目。
+
+### 4. 待办 / 风险
+
+- 本机 `127.0.0.1:3845` 探测不通：需先打开 Figma 桌面 App 并启用桌面 MCP（需 Dev/Full 座位）。
+- 桌面版需要 Dev/Full 座位；无座位则需另选方案（社区 stdio MCP 读 `FIGMA_API_KEY`，或仅 REST 脚本）。
