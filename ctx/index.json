@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3942,
       "lines": 133,
-      "sha256": "0cdc1adf0000ba6d446518812fbe1989e96fbc261419acafca206f4d502a5936",
+      "sha256": "0e0e1269d0042a5e9a9d5ba47bc22fb62c8db922f8c571bc94097814ed97c7d2",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 211490 7594 normal",
+          "summary": "1 production/TASKS-DETAIL.md 211692 7595 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "3d9163beb5538d1f1339ada6a56a3cfcc1253c33df852ce9183911d84e20e9fa",
+      "sha256": "d86af1a721318615f6c71914b667c1f6aef3ef537be32add154870471d36dd31",
       "tier": "normal",
       "sections": [
         {
@@ -745,7 +745,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 178 行 / 41249 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 178 行 / 41286 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 7594 行 / 211490 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 7595 行 / 211692 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7595 · §WXG-T-560=7067+73 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7596 · §WXG-T-560=7067+73 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -88718,17 +88718,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 211490,
-      "lines": 7594,
-      "sha256": "8b884a0f67dad4349a953544ef7ddcaa293ac4eb18a6237f5718ae6975e81907",
+      "tokens": 211692,
+      "lines": 7595,
+      "sha256": "03fdc21781c6507caf032193fd8f6e41659f844e3d6f59f3db247e9949683c97",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 7595,
-          "tokens": 211473,
+          "endLine": 7596,
+          "tokens": 211676,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -100062,8 +100062,8 @@
           "anchor": "§WXG-T-571",
           "level": 2,
           "startLine": 7559,
-          "endLine": 7595,
-          "tokens": 1137,
+          "endLine": 7596,
+          "tokens": 1339,
           "summary": "工具链·Figma MCP 改接本地桌面版 · 负责：主理人(Cursor)·工具链轨 · 状态：🔄 进行中（2026",
           "keywords": [
             "WXG",
@@ -100108,8 +100108,8 @@
           "anchor": "§3 改动",
           "level": 3,
           "startLine": 7582,
-          "endLine": 7588,
-          "tokens": 219,
+          "endLine": 7589,
+          "tokens": 382,
           "summary": "my-mcp/servers.json（正本）新增 figma-desktop（http，127.0.0.1:3845/",
           "keywords": [
             "mcp",
@@ -100123,9 +100123,9 @@
         {
           "anchor": "§4 待办 / 风险",
           "level": 3,
-          "startLine": 7589,
-          "endLine": 7595,
-          "tokens": 327,
+          "startLine": 7590,
+          "endLine": 7596,
+          "tokens": 366,
           "summary": "唯一剩余阻塞：本机 127.0.0.1:3845 仍未监听（nc -z CLOSED、GET /mcp 连不上）。Fig",
           "keywords": [
             "CLOSED",
@@ -100140,9 +100140,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 41249,
+      "tokens": 41286,
       "lines": 178,
-      "sha256": "a8cd3a74adb583ee519e4f2a1c203d928d198453f8a3c28c51a10519d2c49756",
+      "sha256": "4ce07e4acf3c88c27e45d2156cc7414e4296c3f14f31dab19be375902fda2757",
       "tier": "hot",
       "sections": [
         {
@@ -100150,7 +100150,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 179,
-          "tokens": 41240,
+          "tokens": 41278,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
