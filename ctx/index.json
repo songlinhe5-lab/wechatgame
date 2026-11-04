@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3942,
       "lines": 133,
-      "sha256": "6a098b586c225138c3e60af0ee8b1e8e892f514435097bb6613b3cd296b39dbc",
+      "sha256": "ee7ab68c31ac6e19ffac1f0a1d07f5baaa1c1db136d669c309fe2ffccc903315",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 216351 7770 normal",
+          "summary": "1 production/TASKS-DETAIL.md 216536 7776 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "84ec5c69bddb41dd165cd46618d2a400d43d7120e773693ba0fbcf2daed1bc20",
+      "sha256": "f30eb858f91c142dd08df88d60cc62c44bc782af411cb34dd57be92782928c55",
       "tier": "normal",
       "sections": [
         {
@@ -745,7 +745,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 182 行 / 42089 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 182 行 / 42106 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 7770 行 / 216351 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 7776 行 / 216536 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7771 · §WXG-T-566=7235+61 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7777 · §WXG-T-566=7235+61 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -88748,17 +88748,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 216351,
-      "lines": 7770,
-      "sha256": "a2edad5475ba41c0c7cce1247bc5ef119fe64543aad6b908196d8eac9eafa83d",
+      "tokens": 216536,
+      "lines": 7776,
+      "sha256": "70bd757a30ff48a03db07d16d8bd327324a079977767797415d48fe06838f879",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 7771,
-          "tokens": 216334,
+          "endLine": 7777,
+          "tokens": 216519,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -100486,8 +100486,8 @@
           "anchor": "§WXG-T-575",
           "level": 2,
           "startLine": 7735,
-          "endLine": 7771,
-          "tokens": 1194,
+          "endLine": 7777,
+          "tokens": 1379,
           "summary": "美术·Figma v2 菜单切图入库（背景 / 招牌 / 按钮默认+高亮两态 16 件） · 负责：主理人(CodeBu",
           "keywords": [
             "WXG",
@@ -100576,20 +100576,38 @@
           "level": 3,
           "startLine": 7768,
           "endLine": 7771,
-          "tokens": 20,
-          "summary": "素材、README、生成史、台账同一批提交推送。",
+          "tokens": 42,
+          "summary": "素材、README、生成史、台账同一批提交推送（f35961c8）；另补一笔把 kb:sync 沉淀统计摘入台账。",
           "keywords": [
             "README",
+            "f35961c8",
+            "sync",
             "提交"
+          ]
+        },
+        {
+          "anchor": "§7 沉淀统计与候选",
+          "level": 3,
+          "startLine": 7772,
+          "endLine": 7777,
+          "tokens": 155,
+          "summary": "pnpm run kb:sync --task=WXG-T-575：新增 0 / 修改 0 / 激活 0 / 归档 0；",
+          "keywords": [
+            "pnpm",
+            "run",
+            "sync",
+            "task",
+            "WXG",
+            "沉淀统计与候"
           ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 42089,
+      "tokens": 42106,
       "lines": 182,
-      "sha256": "cc0b9d4ea02d13586740f20f383f7c8dd42d83f8aa4636461b90a957e7c27a7a",
+      "sha256": "ab122bcf67353c1bed7fbc852e1b9155ed7eb94516f4a584b8c63c04acb131f0",
       "tier": "hot",
       "sections": [
         {
@@ -100597,7 +100615,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 183,
-          "tokens": 42081,
+          "tokens": 42098,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
