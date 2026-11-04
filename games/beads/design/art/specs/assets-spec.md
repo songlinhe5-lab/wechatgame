@@ -2042,11 +2042,11 @@ TRAY_PLATE_SHADOW_A_R   = 0.02   // 右缘单段 α（3px；光源左上故弱�
 
 ## 4. 命名规范
 
-- 全小写 + 下划线；模式 `{域}_{实体}_{变体}_{状态}.{ext}`。
+- 全小写 + 下划线；模式 `{域}_{实体}_{变体}_{状态}[@2x].{ext}`。**倍率后缀 `@2x` 是唯一允许的非下划线字符**，紧贴扩展名前，标识「设计 px × 2」的切图（WXG-T-576 用户裁定；`final/assets/menu/` 全部 2x 件统一使用）。
 - **域**：`bg` / `bead` / `tray` / `item` / `hud` / `vfx` / `ui` / `audio`
 - 示例：`bead_orange_filled.png`、`bead_lime_locked.png`（`bead_` + 色名英文）、`tray_panel.png`、`item_area_clear.png`、`hud_timer_normal.png`。
 - 色名英文对照：`white/lime/orange/green/red/purple/blue/brown/darkbrown/black`。
-- 禁止版本号、`final`、空格、中文、大写。
+- 禁止版本号、`final`、空格、中文、大写；倍率后缀 `@2x` 为上条明确列出的唯一例外。
 
 ---
 

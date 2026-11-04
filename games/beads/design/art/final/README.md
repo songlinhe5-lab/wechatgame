@@ -1,6 +1,6 @@
 # final —— 资源定稿区（开发统一取用）
 
-> 2026-10-14 用户裁定：资源定稿分**三类**；shots 只按日期存每日结论证据，本区是验收后的归集面（复制入库，原件留批次）。开发接线一律从 `final/assets/<页面>/` 取，文件名 = 运行时资产名。
+> 2026-10-14 用户裁定：资源定稿分**三类**；shots 只按日期存每日结论证据，本区是验收后的归集面（复制入库，原件留批次）。开发接线一律从 `final/assets/<页面>/` 取。**WXG-T-576 起**文件名带 `@2x` 倍率后缀并按用途分子目录，运行时扁平资产名由同目录 `asset-map.json` 映射（门禁与 harness 均读此表）。
 > **生成史（哪次生成 / 哪个脚本 / 哪张原图）正本不在本件** → `production/qa/asset-provenance.md`（2026-11-01 用户令统一）。
 > **版本分界（2026-11-02 用户令「把现在老的一套设计资源归档 v1，现在做 v2」）**：主菜单第一套定稿已封存为 **v1** → `v1/`（**只读**，⛔ 不再改动/替换/压缩重出）；**现役 `assets/menu/` 即 v2 工作区**，路径与文件名保持不变 ⇒ harness 白名单、`check-cocos-mask` 的 `MENU_SRC`、Cocos `textures` bundle 全部零改动。v1 快照的边界、md5 校验与「封存那一刻的设计状态/已知问题」见 `v1/VERSION.txt`。
 > **v1 撤件（2026-11-02 用户二次裁定 · WXG-T-551）**：初封误把这批件当 v1，用户认定**属 v2** ⇒ 已从 `v1/assets/menu/` 撤出 9 件（41→32 件），只留现役 `assets/menu/` 一份：`ui_menu_backdrop` · `ui_icon_{skin,rank,settings,calendar}` · `ui_btn_circle_{normal,pressed}` · `ui_btn_arrow_{left,right}`。现役件与 Cocos 投放件零改动。
@@ -38,6 +38,8 @@
 v2 三态 `proto-menu-v2-{locked,pushing,cleared}-752x1344.png` 已按用户令从目录移除（git 历史可取回）。**接线目标：原型设计，不进运行时 `assets/`**。
 
 ### 1c. 2026-11-04 Figma v2 菜单切图（WXG-T-575）
+
+> 本表保留 WXG-T-575 时的扁平名作史证；**现行路径见 `asset-map.json`**（WXG-T-576 起加 `@2x` 并按用途分子目录）。
 
 用户令「从 figma 获取相关资源，切图，背景图，高亮状态等纹理」+「按照建议执行」；追加令「重新拉一套背景/高亮图替代圆牌两态、图标做矢量」。开工前均声明方法 = Figma REST 节点导出（纯下载、零重绘、零模型）+ 图标位图追踪转真 SVG。
 

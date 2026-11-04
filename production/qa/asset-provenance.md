@@ -144,3 +144,18 @@ python3 games/beads/design/ai-workflows/trace-figma-icons.py
 ```
 
 **实测**：四个 `base` 共用同一 `imageRef ffe4b37c…`，高亮仅 `exposure +0.12` ⇒ 无独立第二套图；四个 `icon` 是 IMAGE 填充（⛔ 非矢量），故必须追踪；`23:19` / `19:7` 为 80×80 设计 px ⇒ @2x 恰 160×160，与现役圆牌同尺寸。4/4 SVG 无内嵌位图；两态底托 4 个文件 md5 与导出件相等、`.meta` uuid 未改。8 张整钮 `git rm`，历史可取回。构建与门禁读数见 `production/TASKS-DETAIL.md §WXG-T-575 §8`。
+
+## 8. 2026-11-04 批（WXG-T-576 · 2x 重组）
+
+| 件 | 生成方式 | 产出脚本 | 原图 |
+|---|---|---|---|
+| `assets/menu/{background,buttons,icons,badges}/*@2x.png` 共 15 件 | 纯文件重组（`rename`），零像素改动 | `games/beads/design/ai-workflows/reorg-menu-assets.py` | ✅ 各自前一版同名 PNG（git 历史 + 本档 §6/§7） |
+| `badges/ui_menu_badge_progress@2x.png` 342×420 | PIL `LANCZOS` 降采样（820×1008 → 342×420），零模型零重绘 | 同上 | ✅ `proposals/menu-3d-style-20261030/badge-source-20261104/ui_menu_badge_progress-source.png` |
+| `badges/ui_menu_seal_cleared@2x.png` 202×280 | 同上（441×610 → 202×280） | 同上 | ✅ 同目录 `ui_menu_seal_cleared-source.png` |
+| `assets/menu/asset-map.json` | 脚本按分组生成（17 条：Cocos 扁平原名 → 子目录/`@2x` 路径） | 同上 | — |
+
+**目标尺寸依据**：`badge_progress` = 最后一次在册 `MENU_PROGRESS {w:171,h:210}` ×2（比例 0.814 vs 源图 0.813）；`seal_cleared` = 现行 `MENU_SEAL {w:101,h:140}` ×2（0.721 vs 0.723）。台账里「v2 方图 210×210 / 3:4 120×160」写明是「**若日后恢复三态腿**才改」的未落地口径，本批不适用。
+
+**复现**：`python3 games/beads/design/ai-workflows/reorg-menu-assets.py`（可续跑，已处理件幂等跳过）。
+
+**接线**：`dev/harness/main.ts::MENU_FILE` 在册 9 件改指子目录路径；`check-cocos-mask.mjs` 归属腿改读 `asset-map.json`，缺映射或路径不存在即 fail loud；Cocos 投放侧保持扁平原名。⚠ 两件重采样后与 Cocos 侧旧高清件尺寸不同，门禁以显式 SKIP 清单列出（⛔ 非已验，K-036），详见 `production/TASKS-DETAIL.md §WXG-T-576`。

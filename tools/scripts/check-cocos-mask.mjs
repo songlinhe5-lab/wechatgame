@@ -189,10 +189,11 @@ const KEEP_MIN = 0.5;
 /** 真差小于此值时两态本就几乎一样，保持率无判别力 ⇒ 不判。 */
 const KEEP_TRUTH_MIN = 2.0;
 const NEAREST_PY = [
-    'import sys, os',
+    'import sys, os, json',
     'import numpy as np',
     'from PIL import Image',
-    'shipped_dir, src_dir = sys.argv[1], sys.argv[2]',
+    'shipped_dir, src_dir, map_path = sys.argv[1], sys.argv[2], sys.argv[3]',
+    'rel_of = json.load(open(map_path))',
     'def arr(path, ref):',
     '    im = Image.open(path).convert("RGBA")',
     '    if im.size != ref: im = im.resize(ref)',
@@ -205,45 +206,66 @@ const NEAREST_PY = [
     '    elif stem.endswith("_normal"): cands = [stem[:-7] + "_pressed.png"]',
     '    else: cands = [stem + "_pressed.png"]',
     '    return next((c for c in cands if c in srcs), "")',
-    'srcs = sorted(f for f in os.listdir(src_dir) if f.endswith(".png"))',
-    'size_of = {f: Image.open(os.path.join(src_dir, f)).size for f in srcs}',
+    '# 映射表键 = Cocos 扁平原名；值 = 设计真源侧「子目录/…@2x.png」。',
+    '# 缺任一条即 fail loud，⛔ 不得静默少判一件（K-036）。',
+    'path_of = {}',
+    'for k, v in rel_of.items():',
+    '    p = os.path.join(src_dir, v)',
+    '    if not os.path.isfile(p):',
+    '        print("MISSING", k, v)',
+    '        sys.exit(2)',
+    '    path_of[k] = p',
+    'srcs = sorted(path_of)',
+    'size_of = {f: Image.open(path_of[f]).size for f in srcs}',
     'for s in sorted(os.listdir(shipped_dir)):',
     '    if not s.endswith(".png") or s not in srcs: continue',
     '    sp = os.path.join(shipped_dir, s)',
     '    ref = Image.open(sp).size',
     '    a = arr(sp, ref)',
-    '    own = mean(a, arr(os.path.join(src_dir, s), ref))',
+    '    own = mean(a, arr(path_of[s], ref))',
+    '    if size_of[s] != ref:',
+    '        # 设计真源与投放件尺寸不同 ⇒ 显式列出，⛔ 不静默跳过归属判定（K-036）。',
+    '        print("sizediff", s, "%dx%d" % size_of[s], "%dx%d" % ref)',
     '    # 只与**同尺寸**正本比：跨尺寸靠 resize 拉齐后的差值不是同类比较。',
     '    cands = [o for o in srcs if o != s and size_of[o] == ref]',
     '    best, who = -1.0, "-"',
     '    for o in cands:',
-    '        d = mean(a, arr(os.path.join(src_dir, o), ref))',
+    '        d = mean(a, arr(path_of[o], ref))',
     '        if best < 0 or d < best: best, who = d, o',
-    '    # exact = 在册件是否恰好等于「RGBA octree(正本)」⇒ 区分「量化塌缩」与「装错件」',
-    '    ex = mean(np.asarray(Image.open(sp).convert("RGBA"), dtype=np.int16),',
-    '             np.asarray(Image.open(os.path.join(src_dir, s)).convert("RGBA").quantize(colors=256, method=Image.FASTOCTREE).convert("RGBA"), dtype=np.int16)) == 0',
+    '    # exact = 在册件是否恰好等于「RGBA octree(正本)」⇒ 区分「量化塌缩」与「装错件」。',
+    '    # 尺寸不同时原始像素不可广播 ⇒ 直接判 False（⛔ 不靠 resize 伪造等值）。',
+    '    ex = False',
+    '    if size_of[s] == ref:',
+    '        ex = mean(np.asarray(Image.open(sp).convert("RGBA"), dtype=np.int16),',
+    '                  np.asarray(Image.open(path_of[s]).convert("RGBA").quantize(colors=256, method=Image.FASTOCTREE).convert("RGBA"), dtype=np.int16)) == 0',
     '    print("own", s, round(own, 4), round(best, 4), who, int(ex))',
     '    q = pair(s[:-4], srcs)',
     '    bp = os.path.join(shipped_dir, q)',
     '    if q and os.path.exists(bp):',
-    '        t = mean(arr(os.path.join(src_dir, s), ref), arr(os.path.join(src_dir, q), ref))',
+    '        t = mean(arr(path_of[s], ref), arr(path_of[q], ref))',
     '        k = mean(a, arr(bp, ref))',
     '        print("keep", s, q, round(t, 4), round(k, 4))',
 ].join('\n');
 
 let menuFail = false, nown = 0, nocomp = 0, nkeep = 0;
 const menuSrcDir = join(ROOT, MENU_SRC);
+const menuMapPath = join(menuSrcDir, 'asset-map.json');
 if (existsSync(menuSrcDir)) {
     console.log(`\n菜单纹理（① 归属余量 ≥ ${NEAREST_MARGIN}；② 同族互异保持率 ≥ ${KEEP_MIN}）：`);
     let out = '';
     try {
-        out = execFileSync('python3', ['-c', NEAREST_PY, join(ROOT, SHIPPED), menuSrcDir], { encoding: 'utf8' });
+        out = execFileSync('python3', ['-c', NEAREST_PY, join(ROOT, SHIPPED), menuSrcDir, menuMapPath], { encoding: 'utf8' });
     } catch {
         console.log('  ❌ 取不了证（python3 / PIL 调用失败）⇒ 本腿按 FAIL 计，⛔ 静默报绿（K-036）');
         menuFail = true;
     }
+    const sizediff = [];
     for (const line of out.trim().split('\n').filter(Boolean)) {
         const f = line.split(/\s+/);
+        if (f[0] === 'sizediff') {
+            sizediff.push(`${f[1]}（正本 ${f[2]} / 投放 ${f[3]}）`);
+            continue;
+        }
         if (f[0] === 'own') {
             const [, name, own, best, other, exact] = f;
             const o = Number(own), b = Number(best);
@@ -262,6 +284,9 @@ if (existsSync(menuSrcDir)) {
             console.log(`  ❌ ${name} 与同族「${pair}」互异保持率 ${rate.toFixed(2)} < ${KEEP_MIN}（正本真差 ${t.toFixed(2)} → 投放件只剩 ${k.toFixed(2)}）⇒ 态差被量化吃掉`);
             menuFail = true;
         }
+    }
+    if (sizediff.length) {
+        console.log(`  ⚠ 尺寸不一致 ⇒ 跳过归属判定（⛔ 非已验，K-036）：${sizediff.join('；')}`);
     }
     console.log(`  （归属 ${nown - nocomp}/${nown} 件参与判定，${nocomp} 件无同尺寸可比对象；互异保持率 ${nkeep} 对）`);
 }

@@ -7788,3 +7788,43 @@ Figma 官方文档（remote-server-installation）：远程端点 `https://mcp.f
 ⚠ **语义代价（用户已拍板接受）**：现役 pressed 原为压暗 0.90 + 内缘加深，Figma 高亮为提亮 ⇒ 替换后**按下变亮**，与旧交互反馈相反。
 
 **未决**：`_highlight` 后缀仍未回写 `menu-showcase-asset-spec.md §3`；6 件翻页/开始按钮候选仍未转正；SVG 若要进运行时需另开栅格化接线单。
+
+## WXG-T-576
+
+**美术·菜单资源 2x 梳理与重组** · 负责：主理人(CodeBuddy)·美术轨 · 状态：✅ 完成（2026-11-04）
+
+### 1. 用户令与拍板
+
+用户令「梳理里面资源是否都是 2x 的，可以文件名 @2x 标识一下，我需要的资源都是 2x 的，另外目录只有 menu，需要整理到不同目录」。先只读盘点 17 件、列出三处硬约束，再列四组选项；用户拍板 **坚持 @2x / 按用途分 4 类 / 两件重出严格 2x / 只改设计真源侧**。按图像处理开工前提示令，声明方法 = PIL LANCZOS 降采样（零模型零重绘）后执行。
+
+### 2. 盘点结论
+
+- 严格 2x = 14 件（Figma 节点派生，尺寸 = 设计 px ×2）；标称 2x = 1 件（`ui_menu_badge_locked` 128²）；**非 2x = 2 件**（`ui_menu_badge_progress` 820×1008、`ui_menu_seal_cleared` 441×610，后者宽为奇数）。README §1c 原写「现行件 PNG @2x」把这两件算进去了，本批订正。
+- 两件非 2x 是 WXG-T-282 换版的高清源图，靠运行时重缩；WXG-T-566 三态标记已退场，但 `MENU_TEXTURES` / `BITMAP_ASSETS` 仍保留 ⇒ 仍进包。
+- 硬约束：① `assets-spec §4` 原规定全小写下划线，`@` 不在字符集（`final/` 零先例）；② `final/README.md` 原规定「文件名 = 运行时资产名」，harness `MENU_FILE` 硬编码 9 个名、Cocos 同名 9 件；③ `/menu-assets/` 与 `MENU_SRC` 硬编码目录。
+- 范围事实：Cocos `textures/` 37 件，与 final 同名交集仅 9 件，另 28 件在 `final/` 无同名正本。
+
+### 3. 改动面
+
+- `final/assets/menu/` 分 4 个子目录、17 件全部加 `@2x`：`background/` 2 · `buttons/` 8 · `icons/` 4 · `badges/` 3；根目录新增 `asset-map.json`（17 条映射）。扁平 PNG 全部移走。
+- 两件严格 2x 重采样：820×1008 → **342×420**、441×610 → **202×280**；原高清件归档 `proposals/menu-3d-style-20261030/badge-source-20261104/` 作母版。
+- 脚本 `games/beads/design/ai-workflows/reorg-menu-assets.py` 入库（可续跑，已处理件幂等跳过；开发期两次断言失败已修：`偶数` 断言对象应是目标尺寸而非源图、归档步骤须容忍源图已移走）。
+- `assets-spec.md §4` 允许 `@2x` 为唯一非下划线字符；`final/README.md §0/§1c` 订正；`asset-provenance.md §8` 补生成史。
+- `dev/harness/main.ts::MENU_FILE` 在册 9 件改指子目录；`tools/scripts/serve-harness.mjs` 注释登记子目录（映射根不变，`resolveTarget` 本就支持子路径）；`tools/scripts/check-cocos-mask.mjs` 归属腿改读映射表，缺条 fail loud。
+- **Cocos 投放侧零改动**（用户拍板）：37 件保持扁平原名与旧内容。
+
+### 4. 判据与读数
+
+- 17/17 新路径存在、尺寸符合 2x 定义；`asset-map.json` 17 条与磁盘一一对应；两件重采样后逐枚目视通过（沙漏圆牌 / 通关金章，无变形）、alpha 满幅未裁切。
+- `check:cocos-mask`：归属 6/9 件参与判定、互异保持率 2 对、33 件源↔产物等值全绿；两件尺寸不一致以**显式 SKIP 清单**列出（⛔ 非已验，K-036）。顺带修一处既有隐含假设：`exact` 计算默认正本与投放件同尺寸，尺寸不同时 numpy broadcast 报错 ⇒ 门按 FAIL 计（未静默报绿），改为尺寸不等直接判 False。
+- `harness:build` + `harness:smoke` OK（Node 环境位图腿 0/35 属预期）；`check:links` OK；`pnpm run verify` 见提交总结。
+
+### 5. 遗留
+
+- 两件在 Cocos 侧仍是旧高清图，与 2x 正本不同源；门禁以 SKIP 显式列出，接线/上架前须同步两侧并重建产物。
+- 28 件 Cocos 投放件在 `final/` 无同名正本（历史真源在只读 `v1/`），未纳管。
+- `_highlight` 后缀未回写 `menu-showcase-asset-spec.md §3`；6 件翻页/开始按钮候选未转正。
+
+### 6. 沉淀统计
+
+`pnpm run kb:sync --task=WXG-T-576`：**新增 0 / 修改 0 / 激活 0 / 归档 0**（活跃 209，写入「无」）。

@@ -1,0 +1,19 @@
+{
+  "ui_menu_backdrop_figma.png": "background/ui_menu_backdrop_figma@2x.png",
+  "ui_menu_signboard_figma.png": "background/ui_menu_signboard_figma@2x.png",
+  "ui_btn_circle_normal.png": "buttons/ui_btn_circle_normal@2x.png",
+  "ui_btn_circle_pressed.png": "buttons/ui_btn_circle_pressed@2x.png",
+  "ui_btn_prev_normal.png": "buttons/ui_btn_prev_normal@2x.png",
+  "ui_btn_prev_highlight.png": "buttons/ui_btn_prev_highlight@2x.png",
+  "ui_btn_next_normal.png": "buttons/ui_btn_next_normal@2x.png",
+  "ui_btn_next_highlight.png": "buttons/ui_btn_next_highlight@2x.png",
+  "ui_btn_start_normal.png": "buttons/ui_btn_start_normal@2x.png",
+  "ui_btn_start_highlight.png": "buttons/ui_btn_start_highlight@2x.png",
+  "ui_icon_settings.png": "icons/ui_icon_settings@2x.png",
+  "ui_icon_rank.png": "icons/ui_icon_rank@2x.png",
+  "ui_icon_calendar.png": "icons/ui_icon_calendar@2x.png",
+  "ui_icon_skin.png": "icons/ui_icon_skin@2x.png",
+  "ui_menu_badge_locked.png": "badges/ui_menu_badge_locked@2x.png",
+  "ui_menu_badge_progress.png": "badges/ui_menu_badge_progress@2x.png",
+  "ui_menu_seal_cleared.png": "badges/ui_menu_seal_cleared@2x.png"
+}

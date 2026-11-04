@@ -63,7 +63,7 @@ function syncCocosMirror() {
  *
  * 白名单表（前缀 → 仓内真源目录）：
  * - `/mask-assets/*`   ⇒ `tools/mask-preview/cocos-assets/*`（4 张定稿 tint mask）
- * - `/menu-assets/*`   ⇒ `games/beads/design/art/final/assets/menu/*`（主菜单定稿位图）
+ * - `/menu-assets/*`   ⇒ `games/beads/design/art/final/assets/menu/*`（主菜单定稿位图；WXG-T-576 起按用途分子目录 + `@2x` 后缀，URL 需带子目录，映射根不变）
  * - `/level-assets/*`  ⇒ `games/beads/design/levels/assets/*`（Boss 原图）
  *
  * 存在的理由：harness 的静态服务**只服务 `dev/harness/`**（见 `resolveTarget` 的目录守卫），
