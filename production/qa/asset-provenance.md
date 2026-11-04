@@ -159,3 +159,18 @@ python3 games/beads/design/ai-workflows/trace-figma-icons.py
 **复现**：`python3 games/beads/design/ai-workflows/reorg-menu-assets.py`（可续跑，已处理件幂等跳过）。
 
 **接线**：`dev/harness/main.ts::MENU_FILE` 在册 9 件改指子目录路径；`check-cocos-mask.mjs` 归属腿改读 `asset-map.json`，缺映射或路径不存在即 fail loud；Cocos 投放侧保持扁平原名。⚠ 两件重采样后与 Cocos 侧旧高清件尺寸不同，门禁以显式 SKIP 清单列出（⛔ 非已验，K-036），详见 `production/TASKS-DETAIL.md §WXG-T-576`。
+
+## 9. 2026-11-04 批（WXG-T-577 · badges 三件套替换）
+
+| 件 | 生成方式 | 产出脚本 | 原图 |
+|---|---|---|---|
+| `badges/ui_menu_lock@2x.png` 192×260 | Figma `@scale 2` 切图 + 右补 1px 全透明边（零缩放零重采样） | `games/beads/design/ai-workflows/replace-menu-badges.py` | ✅ `proposals/.../figma-elements-20261104/ui_menu_badge_locked_figma.png`（Figma `47:19`，191×260） |
+| `badges/ui_menu_frame@2x.png` 854×854 | 同上（右下各补 1px） | 同上 | ✅ 同目录 `ui_menu_frame_pearls.png`（`46:21`，853×853；中空真透明、75% alpha=0，⛔ 无需抠图） |
+| `badges/ui_menu_seal@2x.png` 180×180 | 同上（下补 1px） | 同上 | ✅ 同目录 `ui_menu_seal_cleared_figma.png`（`47:20`，180×179） |
+| `proposals/.../badges-retired-20261104/*.png` | `git mv` 归档老三件（白盘锁 / 沙漏 / 通关飘带），零像素改动 | 无 | ✅ 即所列三件自身 |
+
+**自证**：三件原内容逐像素不变（`numpy` 断言 `new[:h,:w] == src`），新增边 RGBA 全 0（全透明）；偶数尺寸符合 2x 口径。
+
+**改名与接线**：`MENU_TEXTURES.badgeLocked/badgeProgress/sealCleared` → `lock/frame/seal`（textureId 同步改 `bitmap__menu_lock/frame/seal`），连动 `src/view/meta-widgets.ts`、5 个测试文件、`dev/harness/main.ts`、`beads-blit-carrier.ts` 的键；Cocos 镜像由 `pnpm run framework:sync` 生成（⛔ 未手改）。`asset-map.json` 键仍为 Cocos 扁原名、值改指新三件；Cocos `textures/` 文件名与内容保持旧值（用户拍板只改设计真源侧）。
+
+**门禁**：`check:cocos-mask` 三件尺寸与投放件不同，进显式 SKIP 清单（⛔ 非已验，K-036）；其余归属 6/9、互异保持率 2 对、33 件源↔产物等值全绿。详见 `production/TASKS-DETAIL.md §WXG-T-577`。

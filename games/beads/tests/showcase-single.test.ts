@@ -77,24 +77,24 @@ describe('WXG-T-522 橱窗单一作品', () => {
     });
 
     it('`[WXG-T-566]` 通关页：状态标记全退场，作品全彩（不传 fx）', () => {
-        hostWith(MENU_TEXTURES.caseFrame, BOSS_ART, MENU_TEXTURES.sealCleared,
-            MENU_TEXTURES.badgeProgress, MENU_TEXTURES.badgeLocked);
+        hostWith(MENU_TEXTURES.caseFrame, BOSS_ART, MENU_TEXTURES.seal,
+            MENU_TEXTURES.frame, MENU_TEXTURES.lock);
         const cmds = frame(data());
         const art = blitsOf(cmds, BOSS_ART)[0] as { fx?: Record<string, number> };
         expect(art.fx, '通关 = 全彩').toBeUndefined();
-        expect(blitsOf(cmds, MENU_TEXTURES.sealCleared).length, '通关飘带退场').toBe(0);
-        expect(blitsOf(cmds, MENU_TEXTURES.badgeProgress).length, '中央沙漏退场').toBe(0);
-        expect(blitsOf(cmds, MENU_TEXTURES.badgeLocked).length, '右上小锁退场').toBe(0);
+        expect(blitsOf(cmds, MENU_TEXTURES.seal).length, '通关飘带退场').toBe(0);
+        expect(blitsOf(cmds, MENU_TEXTURES.frame).length, '中央沙漏退场').toBe(0);
+        expect(blitsOf(cmds, MENU_TEXTURES.lock).length, '右上小锁退场').toBe(0);
     });
 
     it('`[WXG-T-566 / WXG-T-567]` 锁定态：磨砂玻璃+半透明灰叠加管线（fx={frost,gray}），锁形独立 Sprite，不画旧沙漏', () => {
-        hostWith(MENU_TEXTURES.caseFrame, BOSS_ART, MENU_TEXTURES.badgeLocked, MENU_TEXTURES.badgeProgress);
+        hostWith(MENU_TEXTURES.caseFrame, BOSS_ART, MENU_TEXTURES.lock, MENU_TEXTURES.frame);
         const cmds = frame(data({ carouselState: 'locked' as const }));
         const art = blitsOf(cmds, BOSS_ART)[0] as { fx?: Record<string, number> };
         expect(art.fx, '锁定 = 磨砂玻璃 + 半透明灰叠加管线').toEqual({ frost: MENU_FROST.radius, gray: MENU_FROST.gray });
         // WXG-T-567 新增：locked 态画独立锁形 Sprite（与 frost+gray 合成纹理解耦）
-        expect(blitsOf(cmds, MENU_TEXTURES.badgeLocked).length, '独立锁形 Sprite').toBe(1);
-        expect(blitsOf(cmds, MENU_TEXTURES.badgeProgress).length, '旧沙漏退场').toBe(0);
+        expect(blitsOf(cmds, MENU_TEXTURES.lock).length, '独立锁形 Sprite').toBe(1);
+        expect(blitsOf(cmds, MENU_TEXTURES.frame).length, '旧沙漏退场').toBe(0);
     });
 
     it('翻页钮无整枚位图（已删 ui_btn_arrow_left/right）：回退旧圆钮底 + 矢量箭头图标', () => {

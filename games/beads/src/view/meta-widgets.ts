@@ -158,8 +158,8 @@ function drawLockedWallCell(
     const inset = MENU_SEAL.inset;
     const cx = cell.x + cell.w - d / 2 - inset;
     const cy = cell.y + cell.h - d / 2 - inset;
-    if (menuBitmapReady(MENU_TEXTURES.badgeLocked)) {
-        builder.blit(MENU_TEXTURES.badgeLocked, cx - d / 2, cy - d / 2, d, d);
+    if (menuBitmapReady(MENU_TEXTURES.lock)) {
+        builder.blit(MENU_TEXTURES.lock, cx - d / 2, cy - d / 2, d, d);
         return;
     }
     builder.circle(cx, cy, d / 2, { fill: palette.slot, stroke: palette.slotBorder, lineWidth: 2 });

@@ -77,8 +77,8 @@ describe('橱窗绘制', () => {
             .toEqual({ frost: MENU_FROST.radius, gray: MENU_FROST.gray });
         // cleared 态不画任何状态标记（含独立锁形——锁形只在 locked 态）。
         expect(cleared.some((c) => c.kind === 'blit' && (
-            c.textureId === MENU_TEXTURES.badgeProgress
-            || c.textureId === MENU_TEXTURES.sealCleared
+            c.textureId === MENU_TEXTURES.frame
+            || c.textureId === MENU_TEXTURES.seal
         ))).toBe(false);
     });
 
@@ -89,7 +89,7 @@ describe('橱窗绘制', () => {
         expect(text).toBeTruthy();
         expect(cmds.filter((c) => c.kind === 'circle').length).toBeGreaterThanOrEqual(7);
         expect(cmds.some((c) => c.kind === 'blit' && c.textureId === ARCS[0].textureId)).toBe(false);
-        expect(cmds.some((c) => c.kind === 'blit' && (c.textureId === MENU_TEXTURES.badgeProgress || c.textureId === MENU_TEXTURES.badgeLocked || c.textureId === MENU_TEXTURES.sealCleared))).toBe(false);
+        expect(cmds.some((c) => c.kind === 'blit' && (c.textureId === MENU_TEXTURES.frame || c.textureId === MENU_TEXTURES.lock || c.textureId === MENU_TEXTURES.seal))).toBe(false);
     });
 
     it('`[WXG-T-566]` 滑动时作品图跟着走；减少动效时不平移', () => {

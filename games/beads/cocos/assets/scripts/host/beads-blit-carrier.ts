@@ -131,10 +131,10 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
     [MENU_TEXTURES.iconArrowRight]: { path: 'ui_icon_arrow_right' },
     [MENU_TEXTURES.iconCoin]: { path: 'asset-icon-coin' },
     [MENU_TEXTURES.iconStamina]: { path: 'asset-icon-stamina' },
-    [MENU_TEXTURES.badgeLocked]: { path: 'ui_menu_badge_locked' },
-    // v3.8：沙漏 / 通关飘带 / CTA 艺术字。未导入 ⇒ 该元素走程序化腿。
-    [MENU_TEXTURES.badgeProgress]: { path: 'ui_menu_badge_progress' },
-    [MENU_TEXTURES.sealCleared]: { path: 'ui_menu_seal_cleared' },
+    [MENU_TEXTURES.lock]: { path: 'ui_menu_badge_locked' },
+    // WXG-T-577：path 仍为 Cocos 扁平原名（投放件未改名），键按语义改名；未导入 ⇒ 走程序化腿。
+    [MENU_TEXTURES.frame]: { path: 'ui_menu_badge_progress' },
+    [MENU_TEXTURES.seal]: { path: 'ui_menu_seal_cleared' },
     [MENU_TEXTURES.ctaLabel]: { path: 'ui_menu_cta_label' },
     // `[P0 静态温暖]` 左下陶盆（环境装饰）。未导入 ⇒ 不登记 ⇒ `drawMenuBackdrop` 不画该件。
     [MENU_TEXTURES.pot]: { path: 'ui_menu_pot' },

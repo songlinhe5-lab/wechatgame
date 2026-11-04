@@ -376,8 +376,8 @@ export const MENU_FROST = { radius: 8, gray: 0.3 } as const;
  * 位置/alpha；以后想做呼吸动画也方便）。锁形尺寸 = 展示作品尺寸 × 比例。
  */
 export const MENU_LOCKED_ICON = {
-    /** 锁形纹理 id（= `MENU_TEXTURES.badgeLocked`）。 */
-    textureId: 'bitmap__menu_badge_locked',
+    /** 锁形纹理 id（= `MENU_TEXTURES.lock`）。 */
+    textureId: 'bitmap__menu_lock',
     /** 锁形占展示作品宽度的比例（≈30%，视觉上醒目但不盖花）。 */
     scale: 0.30,
 } as const;
@@ -461,12 +461,12 @@ export const MENU_TEXTURES = {
   iconArrowRight: 'bitmap__menu_icon_arrow_right',
   iconCoin: 'bitmap__menu_icon_coin',
   iconStamina: 'bitmap__menu_icon_stamina',
-  /** 未开启大锁。 */
-  badgeLocked: 'bitmap__menu_badge_locked',
-  /** v3.8 进行中沙漏（花心）。 */
-  badgeProgress: 'bitmap__menu_badge_progress',
-  /** v3.8 通关飘带。 */
-  sealCleared: 'bitmap__menu_seal_cleared',
+  /** Figma v2 拼豆锁（`47:19`）；选关墙锁定格的独立锁形 Sprite 仍消费本键。 */
+  lock: 'bitmap__menu_lock',
+  /** Figma v2 金色珠圈框（`46:21`，满星态装裱框）；⚠ 旧键名 `badgeProgress` 语义已废。 */
+  frame: 'bitmap__menu_frame',
+  /** Figma v2 通关金章（`47:20`）；⚠ 旧键名 `sealCleared` 语义已废。 */
+  seal: 'bitmap__menu_seal',
   /** v3.8 CTA「开始游戏」艺术字。缺资产回退程序化字。 */
   ctaLabel: 'bitmap__menu_cta_label',
   /**

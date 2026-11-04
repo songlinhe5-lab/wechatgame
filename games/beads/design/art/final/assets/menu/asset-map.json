@@ -13,7 +13,7 @@
   "ui_icon_rank.png": "icons/ui_icon_rank@2x.png",
   "ui_icon_calendar.png": "icons/ui_icon_calendar@2x.png",
   "ui_icon_skin.png": "icons/ui_icon_skin@2x.png",
-  "ui_menu_badge_locked.png": "badges/ui_menu_badge_locked@2x.png",
-  "ui_menu_badge_progress.png": "badges/ui_menu_badge_progress@2x.png",
-  "ui_menu_seal_cleared.png": "badges/ui_menu_seal_cleared@2x.png"
+  "ui_menu_badge_locked.png": "badges/ui_menu_lock@2x.png",
+  "ui_menu_badge_progress.png": "badges/ui_menu_frame@2x.png",
+  "ui_menu_seal_cleared.png": "badges/ui_menu_seal@2x.png"
 }

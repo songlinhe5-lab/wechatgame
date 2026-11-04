@@ -96,7 +96,7 @@ describe('`[WXG-T-566]` 三态效果', () => {
         setMenuBitmapResolver(() => true);
         // WXG-T-567 新增：locked 态画锁形独立 Sprite（与 frost+gray 合成纹理解耦）。
         // 飘带/沙漏旧标记三档都不画。
-        const legacyMarks = [MENU_TEXTURES.sealCleared, MENU_TEXTURES.badgeProgress];
+        const legacyMarks = [MENU_TEXTURES.seal, MENU_TEXTURES.frame];
         for (const [state] of states) {
             const ids = frame(data({ carouselState: state }))
                 .filter((c) => c.kind === 'blit')

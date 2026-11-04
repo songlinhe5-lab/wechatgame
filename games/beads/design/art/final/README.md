@@ -39,7 +39,7 @@ v2 三态 `proto-menu-v2-{locked,pushing,cleared}-752x1344.png` 已按用户令�
 
 ### 1c. 2026-11-04 Figma v2 菜单切图（WXG-T-575）
 
-> 本表保留 WXG-T-575 时的扁平名作史证；**现行路径见 `asset-map.json`**（WXG-T-576 起加 `@2x` 并按用途分子目录）。
+> 本表保留 WXG-T-575 时的扁平名作史证；**现行路径见 `asset-map.json`**（WXG-T-576 起加 `@2x` 并按用途分子目录）。`badges/` 自 WXG-T-577 起为 Figma v2 锁/框/通关三件套，老资源归档 `proposals/…/badges-retired-20261104/`。
 
 用户令「从 figma 获取相关资源，切图，背景图，高亮状态等纹理」+「按照建议执行」；追加令「重新拉一套背景/高亮图替代圆牌两态、图标做矢量」。开工前均声明方法 = Figma REST 节点导出（纯下载、零重绘、零模型）+ 图标位图追踪转真 SVG。
 

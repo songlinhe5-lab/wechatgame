@@ -116,7 +116,7 @@ describe('EP13-FU-1 锁格合形（A2 / §7 锁形通道）', () => {
         const dashed = cmds.filter((c) => dashedInCell(c, locked));
         expect(dashed).toHaveLength(0);
         // ② 锁形通道在位（非色相通道，§7）。
-        expect(cmds.some((c) => c.kind === 'blit' && c.textureId === MENU_TEXTURES.badgeLocked && inCell(c, locked))).toBe(true);
+        expect(cmds.some((c) => c.kind === 'blit' && c.textureId === MENU_TEXTURES.lock && inCell(c, locked))).toBe(true);
         // ③ 盘面零饱和（灰度值本身未裁 ⇒ 只断言非彩色，跟进单 §4 兜底）。
         const blocks = cmds.filter((c) => inThumbRect(c, thumbBox(locked)));
         expect(blocks.length).toBeGreaterThan(0);
@@ -133,7 +133,7 @@ describe('EP13-FU-1 锁格合形（A2 / §7 锁形通道）', () => {
 
         const dashed = cmds.filter((c) => dashedInCell(c, overflow));
         expect(dashed).toHaveLength(0);
-        expect(cmds.some((c) => c.kind === 'blit' && c.textureId === MENU_TEXTURES.badgeLocked && inCell(c, overflow))).toBe(true);
+        expect(cmds.some((c) => c.kind === 'blit' && c.textureId === MENU_TEXTURES.lock && inCell(c, overflow))).toBe(true);
         expect(cmds.some((c) => c.kind === 'text' && inCell(c, overflow) && /[★☆]/.test(String(c.text ?? '')))).toBe(false);
     });
 

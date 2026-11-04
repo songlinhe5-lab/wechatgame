@@ -7828,3 +7828,34 @@ Figma 官方文档（remote-server-installation）：远程端点 `https://mcp.f
 ### 6. 沉淀统计
 
 `pnpm run kb:sync --task=WXG-T-576`：**新增 0 / 修改 0 / 激活 0 / 归档 0**（活跃 209，写入「无」）。
+
+## WXG-T-577
+
+**美术·badges 三件套替换为 Figma v2 锁/框/通关** · 负责：主理人(CodeBuddy)·美术轨 · 状态：✅ 完成（2026-11-04）
+
+### 1. 用户令与拍板
+
+用户 @ 三件 `badges/` 资源并指出「这三个是老资源，应该是锁，框，通关三个贴图资源」。只读核查确认：`ui_menu_badge_locked` 是白盘灰锁、`ui_menu_badge_progress` 是 v3.8 沙漏圆牌、`ui_menu_seal_cleared` 是 v3.8 通关飘带（三态标记 WXG-T-566 已退场，但仍「在册、进包、零消费者」）；而 Figma v2 的 `47:19` 拼豆锁 / `46:21` 金色珠圈框 / `47:20` 通关金章三件真 alpha 切图一直在 `proposals/.../figma-elements-20261104/`，`proto-from-figma.py` 用它们出四态。
+
+按图像处理开工前提示令声明方法 = Figma 切图直接复制（零模型零重绘）+ 右/下补 1px 全透明边；三组选项拍板 **按语义改名 / 旧件归档 proposals / 补 1px 透明边**。珠圈框中央实测真透明（alpha=0 占 75%），⛔ 无需抠图。
+
+### 2. 改动面
+
+- `badges/` 换成 `ui_menu_lock@2x.png` 192×260、`ui_menu_frame@2x.png` 854×854、`ui_menu_seal@2x.png` 180×180；老三件 `git mv` 到 `proposals/menu-3d-style-20261030/badges-retired-20261104/`。
+- 新增脚本 `games/beads/design/ai-workflows/replace-menu-badges.py`（可续跑；断言原内容逐像素不变、新增边全透明、目标偶数）。
+- **语义改名（用户拍板）**：`MENU_TEXTURES.badgeLocked/badgeProgress/sealCleared` → `lock/frame/seal`，textureId → `bitmap__menu_lock/frame/seal`；连动 `src/config/tuning/menu.ts`（含 `MENU_LOCKED_ICON.textureId`）、`src/view/meta-widgets.ts`、`beads-blit-carrier.ts` 键、5 个测试文件、`dev/harness/main.ts` 键与值、`asset-map.json` 3 条值。查证发现改动面比选项描述更广（6 个测试文件 + 选关墙锁形 Sprite + Cocos 镜像），按拍板一并处理。
+- Cocos 镜像 2 件由 `pnpm run framework:sync` 生成（⛔ 未手改），`framework:sync:check` 绿；Cocos `textures/` 文件名与 `BITMAP_ASSETS` 的 `path` 保持旧值，避免动 `.meta`（L1）。
+- 文档：`final/README.md` 注、`asset-provenance.md §9`、主表与详情。
+
+### 3. 判据与读数
+
+- 3/3 原内容逐像素不变、新增边全 0；17 件 `asset-map.json` 与磁盘一一对应，缺条 fail loud 机制不变。
+- `pnpm run verify` **23/23 PASS**；`framework:sync:check` 绿；`check:cocos-mask` 归属 6/9 件参与判定、互异保持率 2 对、33 件源↔产物等值全绿。
+- ⚠ 三件新贴图与 Cocos 侧旧件尺寸不同（192×260/128×128、854×854/820×1008、180×180/441×610），门禁以**显式 SKIP 清单**列出（⛔ 非已验，K-036），不是通过。
+- 沉淀统计：新增 0 / 修改 0 / 激活 0 / 归档 0（活跃 209，写入「无」）。
+
+### 4. 遗留
+
+- Cocos 侧三件仍是老资源内容，接线/上架前须同步并按 release 档重建产物，才能消掉 SKIP。
+- `asset-map.json` 的键仍是 Cocos 扁原名（如 `ui_menu_badge_progress.png → badges/ui_menu_frame@2x.png`），是刻意保留的桥：键改了会让归属腿少判 3 件。
+- 文档历史台账行（v1/README-v1.md、旧 QA 文书）仍写旧键名与旧贴图，按史证保留，未回改。

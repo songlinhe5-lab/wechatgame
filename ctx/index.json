@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3942,
       "lines": 133,
-      "sha256": "756b65657e60b877bd0d0a13bd819c27627e80518ad9f09a1c37ab2b65efc70b",
+      "sha256": "dc19ab1d200b9088eba4088969086a07ec03f6ade63c99aa3f3d74b64d51baf1",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 218665 7830 normal",
+          "summary": "1 production/TASKS-DETAIL.md 219638 7861 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "e9374747473ba3235015cf90bdb2e3521cd5cef5d500c79592552567f518e7ac",
+      "sha256": "b462f5beaa89e0a2583c788ca6efe325037f83ca5b9302b5dff9fbc0a95013c9",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 183 行 / 42399 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 184 行 / 42721 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+184 · §待排（backlog，无号，立项时领取…=156+29",
+          "summary": "§WXG 任务台账（SSOT）=1+185 · §待排（backlog，无号，立项时领取…=157+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 7830 行 / 218665 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 7861 行 / 219638 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7831 · §WXG-T-566=7235+61 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7862 · §WXG-T-566=7235+61 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -24444,9 +24444,9 @@
     },
     {
       "path": "games/beads/design/art/final/README.md",
-      "tokens": 7759,
+      "tokens": 7794,
       "lines": 106,
-      "sha256": "e584a86b8960ad87350c6785bc65a24747acf36060ad4523b7c70f8d6c61de64",
+      "sha256": "506de11e22a60f08f1aa3d4318d995e945887056ab25e48abef6eb8dffeb0027",
       "tier": "normal",
       "sections": [
         {
@@ -24454,7 +24454,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 107,
-          "tokens": 7742,
+          "tokens": 7777,
           "summary": "2026-10-14 用户裁定：资源定稿分三类；shots 只按日期存每日结论证据，本区是验收后的归集面（复制入库，原件",
           "keywords": [
             "final",
@@ -24468,7 +24468,7 @@
           "level": 2,
           "startLine": 9,
           "endLine": 63,
-          "tokens": 4402,
+          "tokens": 4438,
           "summary": "prototypes/ 原型设计：整屏视觉原型（定稿版面） ✅ 2026-11-04 起现行口径见 §1b（WXG-T-",
           "keywords": [
             "§1b",
@@ -24496,7 +24496,7 @@
           "level": 3,
           "startLine": 40,
           "endLine": 63,
-          "tokens": 707,
+          "tokens": 742,
           "summary": "本表保留 WXG-T-575 时的扁平名作史证；现行路径见 asset-map.json（WXG-T-576 起加 @2",
           "keywords": [
             "Figma",
@@ -88750,17 +88750,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 218665,
-      "lines": 7830,
-      "sha256": "b511cdb02bb9d4cb0af3c2b2fea1890d128d13b02c952f3886921720b5fb9d95",
+      "tokens": 219638,
+      "lines": 7861,
+      "sha256": "a2c6c10b53ead03fb41027219b6c2ded68dc9a828fe3b8002e54ca13a2956630",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 7831,
-          "tokens": 218649,
+          "endLine": 7862,
+          "tokens": 219621,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -100714,22 +100714,94 @@
             "WXG",
             "沉淀统计"
           ]
+        },
+        {
+          "anchor": "§WXG-T-577",
+          "level": 2,
+          "startLine": 7832,
+          "endLine": 7862,
+          "tokens": 970,
+          "summary": "美术·badges 三件套替换为 Figma v2 锁/框/通关 · 负责：主理人(CodeBuddy)·美术轨 · 状",
+          "keywords": [
+            "WXG",
+            "badges",
+            "Figma",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§1 用户令与拍板 (3)",
+          "level": 3,
+          "startLine": 7836,
+          "endLine": 7841,
+          "tokens": 261,
+          "summary": "用户 @ 三件 badges/ 资源并指出「这三个是老资源，应该是锁，框，通关三个贴图资源」。只读核查确认：ui_men",
+          "keywords": [
+            "badges",
+            "ui_men",
+            "用户令与拍板"
+          ]
+        },
+        {
+          "anchor": "§2 改动面 (3)",
+          "level": 3,
+          "startLine": 7842,
+          "endLine": 7849,
+          "tokens": 331,
+          "summary": "badges/ 换成 ui_menu_lock@2x.png 192×260、ui_menu_frame@2x.png ",
+          "keywords": [
+            "badges",
+            "ui_menu_lock",
+            "png",
+            "ui_menu_frame",
+            "改动面"
+          ]
+        },
+        {
+          "anchor": "§3 判据与读数",
+          "level": 3,
+          "startLine": 7850,
+          "endLine": 7856,
+          "tokens": 180,
+          "summary": "3/3 原内容逐像素不变、新增边全 0；17 件 asset-map.json 与磁盘一一对应，缺条 fail loud",
+          "keywords": [
+            "asset",
+            "map",
+            "json",
+            "fail",
+            "loud",
+            "判据与读数"
+          ]
+        },
+        {
+          "anchor": "§4 遗留",
+          "level": 3,
+          "startLine": 7857,
+          "endLine": 7862,
+          "tokens": 131,
+          "summary": "Cocos 侧三件仍是老资源内容，接线/上架前须同步并按 release 档重建产物，才能消掉 SKIP。",
+          "keywords": [
+            "Cocos",
+            "release",
+            "SKIP",
+            "遗留"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 42399,
-      "lines": 183,
-      "sha256": "8ec0cbc1c7d3f06e24a4fc7984fa6674d73b7c708a016385e51b6dad7b1bdb3e",
+      "tokens": 42721,
+      "lines": 184,
+      "sha256": "e91006ff025483b3047988ac680226d9a20092a17263d1bae9b550d7d3ab6722",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 184,
-          "tokens": 42391,
+          "endLine": 185,
+          "tokens": 42712,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -100742,8 +100814,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 156,
-          "endLine": 184,
+          "startLine": 157,
+          "endLine": 185,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -104500,17 +104572,17 @@
     },
     {
       "path": "production/qa/asset-provenance.md",
-      "tokens": 7567,
-      "lines": 161,
-      "sha256": "6cfdce939de4851c349e85e90aa3043e885a5dec9e397f821dbc5025b171072d",
+      "tokens": 8091,
+      "lines": 176,
+      "sha256": "5a6ae299952ed150bcbe7907b3668ae705c47202a9f2f6a0a69d0207c6ad2545",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§归档资源生成史（Asset Provenance）",
           "level": 1,
           "startLine": 1,
-          "endLine": 162,
-          "tokens": 7553,
+          "endLine": 177,
+          "tokens": 8077,
           "summary": "本件是「每张进 final/ 的图从哪来」的唯一正本。 建件 = 用户 2026-11-01 令「统一使用图片生成文档，",
           "keywords": [
             "Asset",
@@ -104672,6 +104744,22 @@
             "background",
             "buttons",
             "icons"
+          ]
+        },
+        {
+          "anchor": "§9 2026-11-04 批（WXG-T-577 · badges 三件套替换）",
+          "level": 2,
+          "startLine": 163,
+          "endLine": 177,
+          "tokens": 506,
+          "summary": "badges/ui_menu_lock@2x.png 192×260 Figma @scale 2 切图 + 右补 1p",
+          "keywords": [
+            "WXG",
+            "badges",
+            "ui_menu_lock",
+            "png",
+            "Figma",
+            "scale"
           ]
         }
       ]
