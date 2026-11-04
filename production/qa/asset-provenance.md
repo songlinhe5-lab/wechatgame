@@ -77,3 +77,14 @@
 3. **原图缺口 3 处**（§3）根因同一个：temp 无版本兜底 + 归档动作滞后。⇒ 立为硬纪律：**「图入 `final/` 的同一批内，脚本与原件必须一起入库或写明配方」**，已同步进 `my-skills/wxgame-image-gen/SKILL.md §6`。
 4. `shots/` 与 `production/qa/menu-b*/` 的 53 件取证快照**保持原格式**（含 `.webp`），换格式会破坏当时读数的逐字节复现（K-131），⛔ 不迁。
 5. 追加方式：新批次**在本表上方追加一节**（按日期倒序），⛔ 不回改历史行；用量仍记 `token-plan-usage-ledger.md`。
+
+## 5. 2026-11-04 批（WXG-T-574 · 原型 v3 三态 + Figma 坐标图）
+
+| 件 | 生成方式 | 产出脚本 | 原图 |
+|---|---|---|---|
+| `final/prototypes/menu-design-figma-v2-20261104.png` | Figma REST 下载（`img`），零重绘 | `my-skills/wxgame-figma/scripts/figma.mjs` | Figma `PBIK3RbfGlfzFsAnd97ZsP` · `2:81` |
+| `final/coordinates/menu-master-coords-v2-20261104.png` | 同上 | 同上 | 同上 · `50:113` |
+| `final/prototypes/proto-menu-v3-{locked,pushing,cleared}-752x1344.png` | 程序化像素变换（贴回三步 + 磨砂 / 竖向揭彩 / 满星行），零模型 | `games/beads/design/ai-workflows/proto-from-figma.py` | 既有基准图 + `proposals/menu-3d-style-20261030/figma-elements-20261104/` 三件（Figma `46:21` / `47:19` / `47:20`）+ 木刻沙漏章 |
+| `proposals/.../figma-elements-20261104/*.png` | Figma REST 切图（`@scale 2`，真 alpha） | 同上 `figma.mjs` | 同上三个节点 |
+
+判据：三次贴回**区外 maxdiff = 0**（脚本 assert）；接线目标 = 原型设计，**不进运行时 assets**。基准图 `menu-design-baseline-cat-topbar-final-slotbar-20261102.png` 未改动；v2 三态按用户令从目录移除（git 历史可取回）。

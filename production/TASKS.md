@@ -2,12 +2,13 @@
 
 > **格式（WXG-T-064 起）：标题制 + 详情分片。** 本表**只留标题**（名称列 ≤ 60 字符，由 `pnpm run check:tasks` 机械强制）；任务正文在 `production/TASKS-DETAIL.md` 的 `## WXG-T-0NN` 小节。**读取协议**：领号/看状态只读本表（≈ 2.2k tok）；要某任务详情时，从 `ctx/index.json` 取该小节的 `startLine`/`endLine`，`read_file(path, offset, limit)` **只读那一节**（中位 ≈ 290 tok），**不要整读详情文件**。归档时**行与小节成对搬走**。
 > 单号递增不回收。任何会话（WorkBuddy/Cursor/Qoder/CodeBuddy）开工前**先读本文件领号**，完成后回填状态——根治跨 IDE 撞号（教训：2026-09-12 CodeBuddy 独立会话撞用 T-013/T-014）。
-> **领号（机械校准锚，供 `pnpm run tasks:archive` 校准用）**：当前已分配至 **WXG-T-573**，下一可用号 **WXG-T-574**（**沿革已外移**：每个已分配号的批次摘要、冲突披露与 ADR 编号表 → `production/archive/TASKS-ledger-notes.md`，2026-10-28 由 WXG-T-482 原文照搬迁出；动机 = 该段占台账 39,909 tok 而 `tasks:archive` 只搬表行、对它零效力 ⇒ 台账撞 80k 门。⛔ 日常领号只认本行数值，**不要**去读那份沿革）。
+> **领号（机械校准锚，供 `pnpm run tasks:archive` 校准用）**：当前已分配至 **WXG-T-574**，下一可用号 **WXG-T-575**（**沿革已外移**：每个已分配号的批次摘要、冲突披露与 ADR 编号表 → `production/archive/TASKS-ledger-notes.md`，2026-10-28 由 WXG-T-482 原文照搬迁出；动机 = 该段占台账 39,909 tok 而 `tasks:archive` 只搬表行、对它零效力 ⇒ 台账撞 80k 门。⛔ 日常领号只认本行数值，**不要**去读那份沿革）。
 > 勘误（2026-09-13）：本注此前长期停在「已分配至 T-032」而表内已排到 T-035，曾致撞号（教训见 memory 记录）；WXG-T-040 归档落地后改为——**领号认本注（下一可用号），本注由 `tasks:archive` 校准**为「主表 ∪ 归档全局最大号 + 1」（归档会把老行移出主表，只看主表最大号必重号）；手工领号后请顺手核对本注（可运行 `pnpm run tasks:archive` 校准，0 行时不落盘）。
 > **用过号未自登主表清单**（K-137 只披露不代填）：222 / 257 / 280·281 / 282 / 283 / 285 / 286·287 / 289 （291 已由 WXG-T-292 代收口自登；203–207 属区间披露）——逐条正文与补账口径见 `production/archive/TASKS-ledger-notes.md` §A 末段。⛔ 仍不代填，待各会话自登。
 
 | Task ID | 名称 | 负责 | 状态 | 产出 |
 |---|---|---|---|---|
+| WXG-T-574 | 美术·Figma v2 设计图/坐标图落库 + v3 三态原型 | 主理人(CodeBuddy)·美术轨 | ✅ **完成（2026-11-04）**（用户令「基准不动、下载新设计图、参考旧三态做新三态、坐标图落 coordinates、去掉之前的」⇒ 方法选「分层切图贴回」：`2:81` 新设计图 + `50:113` 坐标图经 PAT+REST 下载落库；`46:21`/`47:19`/`47:20` 三件真 alpha 切图 + `proto-from-figma.py` 出 v3 三态，三次贴回区外 maxdiff=0；v2 三态移除；README §1b / asset-provenance §5 登记） | 见详情 |
 | WXG-T-573 | 美术·删除菜单翻页钮 ui_btn_arrow_left/right | 主理人(Cursor)·美术轨 | ✅ **完成（2026-11-03）**（用户令「这两个不要了」⇒ 经两次确认选「删除 + 回退旧圆底」：删现役 `final/assets/menu/` 2 件与 Cocos 投放 2 件（png + meta）；清 `tuning/menu.ts` 两个纹理键、`beads-blit-carrier.ts` 与 `dev/harness/main.ts` 映射；`meta-menu.ts` 去掉整枚腿分支，橱窗 ◀▶ 回退 `ui_btn_arrow_bg_*` + `ui_icon_arrow_*`；`showcase-single.test.ts` 改断言为回退路径。beads 全量 vitest 121 文件 / 1430 用例全绿。详见 TASKS-DETAIL） | 见详情 |
 | WXG-T-572 | 美术·菜单基准图落 prototypes + Figma 写入权限验证 | 主理人(Cursor)·美术轨 | ✅ **完成（2026-11-03）**（基准图已落 `final/prototypes/`；新建 / 上传 / 读回 / `use_figma` 写入均已通过） | 见详情 |
 | WXG-T-571 | 工具链·Figma MCP 改接本地桌面版 | 主理人(Cursor·CodeBuddy)·工具链轨 | ✅ **完成（2026-11-03·方案改判）**（MCP 两路均判负：远程 OAuth 动态注册 403 白名单、本地 `3845` 需 Dev/Full 座位且恒不监听 ⇒ 用户令「用 `FIGMA_API_KEY` 走统一 skill」；已落地 `my-skills/wxgame-figma`（PAT+REST，`me`/`tree`/`node`/`img`+selftest，零依赖）+ 五 IDE 符号链接，`check:links` skills=51 OK） | 见详情 |

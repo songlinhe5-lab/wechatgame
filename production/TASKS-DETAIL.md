@@ -7662,3 +7662,36 @@ Figma 官方文档（remote-server-installation）：远程端点 `https://mcp.f
 ### 提交
 
 - 台账登记 WXG-T-573；代码、测试、素材删除与台账同一提交推送。
+
+## WXG-T-574
+
+**美术·Figma v2 设计图/坐标图落库 + v3 三态原型** · 负责：主理人(CodeBuddy)·美术轨 · 状态：✅ 完成（2026-11-04）
+
+### 1. 用户令
+
+「更新原型图目录，去掉之前的」→「基准不动，figma 下载新的设计图，[v2 三态] 参考做新的三态图，坐标图下载到 `final/coordinates`」。按图像任务开工前提示令，列三法后用户选 **「分层切图贴回」**（零模型、纯像素变换）。
+
+### 2. 前置与探测
+
+- WXG-T-571 已判负 MCP 两路 ⇒ 取数走 `my-skills/wxgame-figma`（`FIGMA_API_KEY` + REST，Node 零依赖）。Figma 文件 `PBIK3RbfGlfzFsAnd97ZsP`。
+- 导出可用性：`2:78` SECTION、`36:19` Generated Image **不返回图片**；可导出 = `2:81`（750×1334 新设计）、`50:113`（1300×1334 坐标图）、`46:21` 珠圈框、`47:19` 拼豆锁、`47:20` 通关圆章（后三件均真 alpha，`@scale 2`）。
+- 新设计 `2:81` 自带金框/锁/通关章，⛔ 不能整张当 v2 脚本底图（会双份叠章）；且 750×1334 ≠ 脚本框常量 752×1344。
+
+### 3. 改动
+
+- 落库 `final/prototypes/menu-design-figma-v2-20261104.png`（`2:81`）、`final/coordinates/menu-master-coords-v2-20261104.png`（`50:113`）；**基准图未改动**。
+- 元素原图 → `proposals/menu-3d-style-20261030/figma-elements-20261104/`（3 件）。
+- 新增 `games/beads/design/ai-workflows/proto-from-figma.py`：import 复用 `proto-from-baseline.py` 的磨砂 / 竖向揭彩 / 满星行；珠圈框三态共用，`locked` 用 Figma 拼豆锁、`pushing` 沿用木刻沙漏（Figma 未给）、`cleared` 用 Figma 通关圆章且**不再叠 v2 金边**。坐标按 750→752 / 1334→1344 换算。
+- `git rm` v2 三态 `proto-menu-v2-{locked,pushing,cleared}-752x1344.png`（用户令「去掉之前的」；git 历史可取回）。
+- `final/README.md` 追加 §1b 现行口径 + 生成史三要素；`production/qa/asset-provenance.md` 追加 §5。
+
+### 4. 判据与读数
+
+- 贴回三步（α=blur(M)×M 向内羽化 → 合成 → 区外硬拷回）：**三次贴回区外 maxdiff = 0**（脚本 `assert` 硬失败）。
+- 饱和度分档：柜内 base 96.3 / locked 2.3 / pushing 灰 5.3·彩 94.0 / cleared 103.9。
+- 目视：`pushing` 珠圈框上灰下金，与运行时 `grayWipeFx` 同式同向；三态作品形状逐像素不变（零重绘）。
+- 接线目标 = 原型设计，**不进运行时 `assets/`**。
+
+### 5. 提交
+
+代码、素材、README、生成史、台账同一批提交推送。
