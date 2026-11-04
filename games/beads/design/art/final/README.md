@@ -37,6 +37,34 @@
 
 v2 三态 `proto-menu-v2-{locked,pushing,cleared}-752x1344.png` 已按用户令从目录移除（git 历史可取回）。**接线目标：原型设计，不进运行时 `assets/`**。
 
+### 1c. 2026-11-04 Figma v2 菜单切图入库（WXG-T-575）
+
+用户令：「从 figma 获取相关资源，切图，背景图，高亮状态等纹理等等」+「按照建议执行」。方法（开工前声明）= **Figma REST 节点导出（纯下载、零重绘、零模型）**，高亮态直取现成 `State=Highlight` 组件，⛔ 不用滤镜二次生成。覆盖策略按建议 = **不覆盖现役 9 件**（逐字节未动），新增件入库。
+
+**入库 16 件**，全部 PNG @2x，与 Figma 导出件 md5 **逐字节一致**（未压缩、未量化、未重采样）：
+
+| 落库件 | 尺寸 @2x | Figma 节点 | 说明 |
+|---|---|---|---|
+| `ui_menu_backdrop_figma.png` | 1500×2668 | `2:98` 背景 | 整屏 750×1334，全不透明（alpha 恒 255） |
+| `ui_menu_signboard_figma.png` | 1098×674 | `2:82` 招牌 | 549×337 设计 px，真 alpha |
+| `ui_btn_{settings,rank}_normal.png` | 160×158 | `23:4` / `23:11` | 顶栏左列两钮默认态 |
+| `ui_btn_{settings,rank}_highlight.png` | 160×158 | `23:7` / `23:14` | 同名两钮高亮态 |
+| `ui_btn_{calendar,skin}_normal.png` | 160×160 | `23:18` / `23:25` | 顶栏右列两钮默认态 |
+| `ui_btn_{calendar,skin}_highlight.png` | 160×160 | `23:21` / `23:28` | 同名两钮高亮态 |
+| `ui_btn_prev_{normal,highlight}.png` | 220×232 | `23:32` / `23:34` | 左翻页钮两态 |
+| `ui_btn_next_{normal,highlight}.png` | 218×232 | `23:37` / `23:39` | 右翻页钮两态 |
+| `ui_btn_start_{normal,highlight}.png` | 756×358 | `23:42` / `23:44` | 开始按钮两态 |
+
+**未入库（非遗漏）**：`19:*` 是 `23:*` 的派生分层副本，内容重复；`29:*` 是设计稿实例，其中 `29:8` / `29:16` / `29:18` 自带 `mask` + `gold` 层，不等于纯默认态，故两态统一取 `23:*` 组件保证同源；`50:*` 是坐标标注区，不是切图。
+
+**命名避让（本批关键）**：`ui_menu_backdrop` / `ui_menu_signboard` 在 `games/beads/cocos/assets/textures/` 与 `../v1/assets/menu/` 已有同名件。若同名落库，`check-cocos-mask.mjs` 会把新图当成旧投放件的「正本」做归属判定 ⇒ 必然判不同源。故这两件带 `_figma` 后缀；14 件按钮无同名冲突，按 `menu-showcase-asset-spec.md §3/§4` 的规范名落库，将来接线零改名。
+
+**台账三要素**：来源 = Figma 文件 `PBIK3RbfGlfzFsAnd97ZsP` 上表节点（2026-11-04 导出）；定稿日期 = 2026-11-04；接线目标 = **当前无** —— 本批是**候选切图**，未进 `MENU_TEXTURES`、未投放 `cocos/assets/textures/`、未生成 `.meta`。生成史三要素见 `production/qa/asset-provenance.md §6`。
+
+⚠ **未转正的两条硬理由**：① `_highlight` 是 Figma 原生命名，而 `menu-showcase-asset-spec.md §3` 列的状态后缀是 `_normal/_pressed/_disabled`，规格未回写前不得接线；② 原图只存在于 Figma 云端节点、不在仓内（`asset-provenance.md §0` 第 4 条），复现靠 REST 重取，配方已逐字登记 ⇒ 按「缺原图不得转正」判为候选。入包前另须按 `spec §5.1` 压缩并复跑 `check:size`。
+
+**现役 9 件逐字节未动**：`ui_btn_circle_{normal,pressed}` · `ui_icon_{skin,settings,rank,calendar}` · `ui_menu_badge_locked` · `ui_menu_badge_progress` · `ui_menu_seal_cleared`。
+
 ## assets/menu 台账（来源 → 接线状态）
 
 > **⚠ 2026-11-02 起（WXG-T-557 用户令，T-559 修正）**：下表记录的件**除 11 件现役集外已全部归档**至 `../v1/assets/menu/`（33 件；其中三态三件于 WXG-T-561 自 v1 复制回现役，v1 侧保留）。表内「接线状态」保留**归档前**的事实，仅供追溯来源与生成史；现役 `assets/menu/` = `ui_btn_circle_{normal,pressed}` · `ui_btn_arrow_{right,left}` · `ui_icon_{skin,settings,rank,calendar}`。⚠ 缺图时运行时走既有 `menuBitmapReady()` 回退分支（程序化绘制），harness 仍可跑但视觉退化 —— 实证：`pnpm run harness:smoke` 全绿。

@@ -7731,3 +7731,40 @@ Figma 官方文档（remote-server-installation）：远程端点 `https://mcp.f
 - 新增 `sat_box()` 局部饱和度判据：原 `pb.selfcheck` 固定采样框含大量背景（读数 `灰 92.7 / 彩 76.2` 具误导性），改只量豆画 bbox 上/下半 ⇒ **基准 95.8 / 75.8 → pushing 46.2 / 64.4**（上半降 49.6 真灰化，下半降 11.4 仅柔带跨中线）。
 - 目视：框与沙漏消失，猫上半灰下半彩，柜内背景 / 木牌 / 资源条全彩未动，柔带过渡自然。
 - 五次贴回/合成区外 maxdiff = 0；`pushing` 改动 4.5%、包围盒 (239,541)-(564,742) 止于豆画中线之上。README §1b、asset-provenance §5 同步回写；仍署 WXG-T-574，未改运行时代码。
+
+## WXG-T-575
+
+**美术·Figma v2 菜单切图入库（背景 / 招牌 / 按钮默认+高亮两态 16 件）** · 负责：主理人(CodeBuddy)·美术轨 · 状态：✅ 完成（2026-11-04）
+
+### 1. 用户令与方法
+
+用户令：「`final/assets/menu` 从 figma 获取相关资源，切图，背景图，高亮状态等纹理等等」，随后令「按照建议执行」。按图像处理开工前提示令，声明方法 = **Figma REST 节点导出（纯下载、零重绘、零模型）**，高亮态直接取现成 `State=Highlight` 组件、不用滤镜二次生成；覆盖策略按建议 = **不覆盖现役 9 件**，新增件入库。
+
+### 2. 领号口径订正（本批一条实操坑）
+
+机械口径 `grep -oh 'WXG-T-[0-9]\{3\}' production/TASKS.md production/TASKS-DETAIL.md | sort -n | tail -1` 返回 **575**，但该 575 只出现在主表头注「下一可用号 **WXG-T-575**」这句话里，属**头注自指**，不是已分配任务号；全仓 `grep -rn 'WXG-T-575'` 仅此一处、`git log --grep` 零命中。按 SSOT 头注「当前已分配至 574 / 下一可用 575」⇒ 本批领 **575**，⛔ 不跳号改领 576。K-046 的机械口径用于发现「头注落后于实际用号」，不能把头注自己的预留号读成占用号。
+
+### 3. 探测与映射
+
+- `me` 验凭证 200（何松林）；`tree --depth 6 --max 900` 拿到节点真名：`2:98` 背景 / `2:82` 招牌 / `29:*` 设计稿实例 / `19:2` 高亮派生（测试）/ `23:2` 菜单按钮 State 变体（测试）/ `50:*` 坐标标注区。
+- `19:*` 是 `23:*` 的派生分层副本（内容重复）；`29:8` / `29:16` / `29:18` 含 `mask` + `gold` 覆盖层 ⇒ 不等于纯默认态。故**两态统一取 `23:*` 组件**（`State=Default` / `State=Highlight`），保证同源；`19:*` / `29:*` / `50:*` 均不入库。
+- 补导 7 个 `State=Default`（`23:4/11/18/25/32/37/42`），与上轮已探的 7 个 `State=Highlight` 及背景/招牌合计 16 件；上轮 `assets-probe/` 已有件直接复用，未重复下载。
+
+### 4. 改动面
+
+- 新增 16 件 PNG 到 `final/assets/menu/`：背景 `ui_menu_backdrop_figma`、招牌 `ui_menu_signboard_figma`，以及 `ui_btn_{settings,rank,calendar,skin,prev,next,start}_{normal,highlight}` 共 14 件。全部 `@scale 2`，与 Figma 导出件 md5 逐字节一致（未压缩/未量化/未重采样）。
+- **命名避让**：`ui_menu_backdrop` / `ui_menu_signboard` 在 `games/beads/cocos/assets/textures/` 与 `../v1/assets/menu/` 已有同名件，同名落库会让 `check-cocos-mask.mjs` 把新图当旧投放件的正本做归属判定 ⇒ 两件带 `_figma` 后缀；14 件按钮无同名冲突，按 `menu-showcase-asset-spec.md §3/§4` 规范名落库。
+- `final/README.md` 新增 §1c（映射表 / 未入库理由 / 命名避让 / 台账三要素 / 未转正理由 / 现役 9 件未动）。
+- `production/qa/asset-provenance.md` 新增 §6（生成史三要素 + 逐字复现配方 + 零改动判据）。
+- `production/TASKS.md` 头注推进至 575 / 下一可用 576，主表新增本行。
+- **零代码改动**：未进 `MENU_TEXTURES`、未投放 Cocos、未生成 `.meta`、未跑构建。
+
+### 5. 判据与读数
+
+- 16/16 目标路径复制前 `assert not exists`（硬拒覆盖），复制后 md5 与源件相等；现役 9 件逐字节未动。
+- 规格：背景 1500×2668 RGBA、alpha 恒 255（全不透明）；其余 15 件 RGBA 且 alpha 覆盖 0–255（真透明）；尺寸 ÷ 2 = 设计 px，与 `menu-showcase-asset-spec.md §5.1` 的 PNG@2x 口径一致。
+- **未转正两条硬理由**：① `_highlight` 是 Figma 原生命名，`spec §3` 列的是 `_normal/_pressed/_disabled`，规格未回写前不接线；② 原图只在 Figma 云端、不在仓内（`asset-provenance.md §0` 第 4 条），复现靠 REST 重取 ⇒ 按「缺原图不得转正」判候选。入包前须按 `spec §5.1` 压缩并复跑 `check:size`。
+
+### 6. 提交
+
+素材、README、生成史、台账同一批提交推送。

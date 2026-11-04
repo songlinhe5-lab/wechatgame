@@ -96,3 +96,32 @@
 **模板匹配实测（本批关键）**：`44:64` 切图与基准图豆画 RGB 逐点匹配 ⇒ 位移 **(+26,+7)**、scale 1.0、MAE 5.38；脚本以 `ART_SHIFT` 常量固定，置灰 mask / 框 / 章 / 锁全部按真实图案位置落位。零新依赖（numpy）。五次贴回与合成区外 maxdiff = 0。运行时接线差异见 `final/README.md §1b`（WXG-T-566 三态标记已退场，本批原型属设计示意，未改代码）。
 
 **第三次追加令（同日）**：`pushing` 去框、去中间沙漏、小猫图案本身上半置灰。方法 = 程序化局部置灰（零模型）：`art_mask()` 真 alpha 抽为共用函数，`gray_art_top()` 给 mask 乘竖向揭彩 ramp（灰自上而下 / 彩自下而上，彩高度 `PROGRESS=0.40`，柔带 `WIPE_SOFT=0.08`）；`FRAME_BOX` 常量与整个 `framed` / `fade` / `pb.stamp` 沙漏分支**删除**。判据：区外 maxdiff=0，改动 4.5% 且包围盒止于 y=742（豆画中线之上）；豆画饱和度基准上/下 95.8/75.8 → 46.2/64.4。灰/彩分界沿用既有 0.40 推关口径（未改成精确 1:1）。
+
+## 6. 2026-11-04 批（WXG-T-575 · Figma v2 菜单切图 16 件）
+
+| 件 | 生成方式 | 产出脚本 | 原图 |
+|---|---|---|---|
+| `final/assets/menu/ui_menu_backdrop_figma.png` | Figma REST `img` 节点导出（`@scale 2` / PNG），**纯下载、零重绘、零模型**；高亮态直接取现成 `State=Highlight` 组件，⛔ 无滤镜二次生成、无合成 | `my-skills/wxgame-figma/scripts/figma.mjs`（`me` 验凭证 → `tree --depth 6` 定位 → `img --ids` 导出） | ⚠ **原图不在仓内**：Figma 云端文件 `PBIK3RbfGlfzFsAnd97ZsP` 节点 `2:98`；复现配方见下 |
+| `final/assets/menu/ui_menu_signboard_figma.png` | 同上 | 同上 | ⚠ 同上 · `2:82` |
+| `final/assets/menu/ui_btn_{settings,rank}_{normal,highlight}.png`（4 件） | 同上 | 同上 | ⚠ 同上 · `23:4` / `23:11` / `23:7` / `23:14` |
+| `final/assets/menu/ui_btn_{calendar,skin}_{normal,highlight}.png`（4 件） | 同上 | 同上 | ⚠ 同上 · `23:18` / `23:25` / `23:21` / `23:28` |
+| `final/assets/menu/ui_btn_prev_{normal,highlight}.png`（2 件） | 同上 | 同上 | ⚠ 同上 · `23:32` / `23:34` |
+| `final/assets/menu/ui_btn_next_{normal,highlight}.png`（2 件） | 同上 | 同上 | ⚠ 同上 · `23:37` / `23:39` |
+| `final/assets/menu/ui_btn_start_{normal,highlight}.png`（2 件） | 同上 | 同上 | ⚠ 同上 · `23:42` / `23:44` |
+
+**复现配方（逐字，⛔ 凭记忆）**：凭证 `FIGMA_API_KEY`（环境变量或仓根 `.env.local`，`figd_` 开头）；工作目录 = 仓根。
+
+```bash
+node my-skills/wxgame-figma/scripts/figma.mjs me
+node my-skills/wxgame-figma/scripts/figma.mjs img "https://www.figma.com/design/PBIK3RbfGlfzFsAnd97ZsP/x" \
+  --ids "2:98,2:82,23:4,23:7,23:11,23:14,23:18,23:21,23:25,23:28,23:32,23:34,23:37,23:39,23:42,23:44" \
+  --out temp/figma/assets-probe --format png --scale 2
+```
+
+导出件文件名形如 `23-7.png`（`:` → `-`），按 `final/README.md §1c` 的映射表改名复制进 `final/assets/menu/`。本批中间导出件留在 `temp/figma/assets-probe/`（`temp/` 不入库）。
+
+**三要素自证**：生成方式 / 产出脚本齐备；**原图 = ⚠ 云端不可得**（这是本批按 `§0` 第 4 条与 `final/README.md §入库判据 3` 判为「候选、未转正」的硬理由）。入库件本身即 Figma 导出的逐字节副本（16/16 md5 与 `temp/figma/assets-probe/` 源件一致），可作复现对照，但按 §0 口径「入库件不能拿来当母版」，故不冒充原图。
+
+**零改动判据**：复制时对每个目标路径先 `assert not exists`（硬拒覆盖），复制后 16/16 md5 相等；现役 9 件未被读写。尺寸/模式/alpha 读数：背景 1500×2668 alpha 恒 255，其余 15 件均 RGBA 且 alpha 覆盖 0–255（真透明）；全部 `@scale 2`，设计 px = 尺寸 ÷ 2。
+
+**接线目标**：无（候选件）。`19:*` 派生副本、`29:*` 设计稿实例、`50:*` 坐标标注区均未入库，理由见 `final/README.md §1c`。

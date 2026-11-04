@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3942,
       "lines": 133,
-      "sha256": "a9dbb0c944e2c02e1deb8b061c2ca1a84bcbf380e4266d159cb323e8d1a37429",
+      "sha256": "6a098b586c225138c3e60af0ee8b1e8e892f514435097bb6613b3cd296b39dbc",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 215153 7733 normal",
+          "summary": "1 production/TASKS-DETAIL.md 216351 7770 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "5de65037e12a025c0d7e281528717bbfa2a24911555ff94d3009fbab90c25b8a",
+      "sha256": "84ec5c69bddb41dd165cd46618d2a400d43d7120e773693ba0fbcf2daed1bc20",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 181 行 / 41805 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 182 行 / 42089 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+182 · §待排（backlog，无号，立项时领取…=154+29",
+          "summary": "§WXG 任务台账（SSOT）=1+183 · §待排（backlog，无号，立项时领取…=155+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 7733 行 / 215153 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 7770 行 / 216351 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7734 · §WXG-T-563=7205+30 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7771 · §WXG-T-566=7235+61 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -24444,17 +24444,17 @@
     },
     {
       "path": "games/beads/design/art/final/README.md",
-      "tokens": 6993,
-      "lines": 82,
-      "sha256": "762b2f4f6a94f4347eaf018f361e4fb0de9351288997bb28bd950d232fbe1bf3",
+      "tokens": 7949,
+      "lines": 110,
+      "sha256": "dcfa483794d1e5aa173dcafb508d8f6a17eff65a1b17ca7a07b33d15edb7af77",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§final —— 资源定稿区（开发统一取用）",
           "level": 1,
           "startLine": 1,
-          "endLine": 83,
-          "tokens": 6977,
+          "endLine": 111,
+          "tokens": 7932,
           "summary": "2026-10-14 用户裁定：资源定稿分三类；shots 只按日期存每日结论证据，本区是验收后的归集面（复制入库，原件",
           "keywords": [
             "final",
@@ -24467,8 +24467,8 @@
           "anchor": "§三类目录",
           "level": 2,
           "startLine": 9,
-          "endLine": 39,
-          "tokens": 3680,
+          "endLine": 67,
+          "tokens": 4636,
           "summary": "prototypes/ 原型设计：整屏视觉原型（定稿版面） ✅ 2026-11-04 起现行口径见 §1b（WXG-T-",
           "keywords": [
             "§1b",
@@ -24492,10 +24492,24 @@
           ]
         },
         {
+          "anchor": "§1c. 2026-11-04 Figma v2 菜单切图入库（WXG-T-575）",
+          "level": 3,
+          "startLine": 40,
+          "endLine": 67,
+          "tokens": 938,
+          "summary": "用户令：「从 figma 获取相关资源，切图，背景图，高亮状态等纹理等等」+「按照建议执行」。方法（开工前声明）= Fi",
+          "keywords": [
+            "Figma",
+            "WXG",
+            "figma",
+            "菜单切图入库"
+          ]
+        },
+        {
           "anchor": "§assets/menu 台账（来源 → 接线状态）",
           "level": 2,
-          "startLine": 40,
-          "endLine": 60,
+          "startLine": 68,
+          "endLine": 88,
           "tokens": 1717,
           "summary": "⚠ 2026-11-02 起（WXG-T-557 用户令，T-559 修正）：下表记录的件除 11 件现役集外已全部归档",
           "keywords": [
@@ -24510,8 +24524,8 @@
         {
           "anchor": "§选关（弹窗 · 版式 Q）",
           "level": 2,
-          "startLine": 61,
-          "endLine": 72,
+          "startLine": 89,
+          "endLine": 100,
           "tokens": 479,
           "summary": "prototypes/levelselect-v1-popup-750x1334-at2x.png 脚本 ../../a",
           "keywords": [
@@ -24526,8 +24540,8 @@
         {
           "anchor": "§入库判据",
           "level": 2,
-          "startLine": 73,
-          "endLine": 83,
+          "startLine": 101,
+          "endLine": 111,
           "tokens": 516,
           "summary": "1. 用户已对屏稿/规格拍板（引用 shots 批次或 spec 节号）；",
           "keywords": [
@@ -88734,17 +88748,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 215153,
-      "lines": 7733,
-      "sha256": "594d55267e39239ea23cb0389ee1bcf2f4c345fdc35abb4999045be5cbb08b07",
+      "tokens": 216351,
+      "lines": 7770,
+      "sha256": "a2edad5475ba41c0c7cce1247bc5ef119fe64543aad6b908196d8eac9eafa83d",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 7734,
-          "tokens": 215137,
+          "endLine": 7771,
+          "tokens": 216334,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -100467,22 +100481,123 @@
             "去框去沙漏",
             "只灰小猫上半"
           ]
+        },
+        {
+          "anchor": "§WXG-T-575",
+          "level": 2,
+          "startLine": 7735,
+          "endLine": 7771,
+          "tokens": 1194,
+          "summary": "美术·Figma v2 菜单切图入库（背景 / 招牌 / 按钮默认+高亮两态 16 件） · 负责：主理人(CodeBu",
+          "keywords": [
+            "WXG",
+            "Figma",
+            "CodeBu"
+          ]
+        },
+        {
+          "anchor": "§1 用户令与方法",
+          "level": 3,
+          "startLine": 7739,
+          "endLine": 7742,
+          "tokens": 136,
+          "summary": "用户令：「final/assets/menu 从 figma 获取相关资源，切图，背景图，高亮状态等纹理等等」，随后令「",
+          "keywords": [
+            "final",
+            "assets",
+            "menu",
+            "figma",
+            "用户令与方法"
+          ]
+        },
+        {
+          "anchor": "§2 领号口径订正（本批一条实操坑）",
+          "level": 3,
+          "startLine": 7743,
+          "endLine": 7746,
+          "tokens": 172,
+          "summary": "机械口径 grep -oh 'WXG-T-[0-9]\\{3\\}' production/TASKS.md product",
+          "keywords": [
+            "grep",
+            "WXG",
+            "production",
+            "TASKS",
+            "product",
+            "领号口径订正"
+          ]
+        },
+        {
+          "anchor": "§3 探测与映射",
+          "level": 3,
+          "startLine": 7747,
+          "endLine": 7752,
+          "tokens": 218,
+          "summary": "me 验凭证 200（何松林）；tree --depth 6 --max 900 拿到节点真名：2:98 背景 / 2:",
+          "keywords": [
+            "tree",
+            "depth",
+            "max",
+            "探测与映射"
+          ]
+        },
+        {
+          "anchor": "§4 改动面",
+          "level": 3,
+          "startLine": 7753,
+          "endLine": 7761,
+          "tokens": 327,
+          "summary": "新增 16 件 PNG 到 final/assets/menu/：背景 ui_menu_backdrop_figma、招",
+          "keywords": [
+            "PNG",
+            "final",
+            "assets",
+            "menu",
+            "ui_menu_backdrop_figma",
+            "改动面"
+          ]
+        },
+        {
+          "anchor": "§5 判据与读数",
+          "level": 3,
+          "startLine": 7762,
+          "endLine": 7767,
+          "tokens": 219,
+          "summary": "16/16 目标路径复制前 assert not exists（硬拒覆盖），复制后 md5 与源件相等；现役 9 件逐字",
+          "keywords": [
+            "assert",
+            "not",
+            "exists",
+            "md5",
+            "判据与读数"
+          ]
+        },
+        {
+          "anchor": "§6 提交 (2)",
+          "level": 3,
+          "startLine": 7768,
+          "endLine": 7771,
+          "tokens": 20,
+          "summary": "素材、README、生成史、台账同一批提交推送。",
+          "keywords": [
+            "README",
+            "提交"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 41805,
-      "lines": 181,
-      "sha256": "2bf206f7e8ac73f2c88ca2094aec697668323674c60c2717a4eeb176e6c1e0d1",
+      "tokens": 42089,
+      "lines": 182,
+      "sha256": "cc0b9d4ea02d13586740f20f383f7c8dd42d83f8aa4636461b90a957e7c27a7a",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 182,
-          "tokens": 41796,
+          "endLine": 183,
+          "tokens": 42081,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -100495,8 +100610,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 154,
-          "endLine": 182,
+          "startLine": 155,
+          "endLine": 183,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -104253,17 +104368,17 @@
     },
     {
       "path": "production/qa/asset-provenance.md",
-      "tokens": 5676,
-      "lines": 98,
-      "sha256": "87d3db2c9c310205b35abd24c6d9e702f2f0d72c9a7b668fc5287da7fc10aa82",
+      "tokens": 6522,
+      "lines": 127,
+      "sha256": "6b543a5b36f473edf4a5b186657745887f3b6aeb01076a9b15bbe58e1486dd6d",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§归档资源生成史（Asset Provenance）",
           "level": 1,
           "startLine": 1,
-          "endLine": 99,
-          "tokens": 5662,
+          "endLine": 128,
+          "tokens": 6508,
           "summary": "本件是「每张进 final/ 的图从哪来」的唯一正本。 建件 = 用户 2026-11-01 令「统一使用图片生成文档，",
           "keywords": [
             "Asset",
@@ -104377,6 +104492,22 @@
             "prototypes",
             "menu",
             "design"
+          ]
+        },
+        {
+          "anchor": "§6 2026-11-04 批（WXG-T-575 · Figma v2 菜单切图 16 件）",
+          "level": 2,
+          "startLine": 100,
+          "endLine": 128,
+          "tokens": 827,
+          "summary": "final/assets/menu/ui_menu_backdrop_figma.png Figma REST img ",
+          "keywords": [
+            "WXG",
+            "Figma",
+            "final",
+            "assets",
+            "menu",
+            "ui_menu_backdrop_figma"
           ]
         }
       ]
