@@ -125,3 +125,22 @@ node my-skills/wxgame-figma/scripts/figma.mjs img "https://www.figma.com/design/
 **零改动判据**：复制时对每个目标路径先 `assert not exists`（硬拒覆盖），复制后 16/16 md5 相等；现役 9 件未被读写。尺寸/模式/alpha 读数：背景 1500×2668 alpha 恒 255，其余 15 件均 RGBA 且 alpha 覆盖 0–255（真透明）；全部 `@scale 2`，设计 px = 尺寸 ÷ 2。
 
 **接线目标**：无（候选件）。`19:*` 派生副本、`29:*` 设计稿实例、`50:*` 坐标标注区均未入库，理由见 `final/README.md §1c`。
+
+## 7. 2026-11-04 二次令（WXG-T-575 · 分层底托 + 真矢量图标）
+
+用户令「重新拉一套背景/高亮图替代圆牌两态，按钮图中 icon 做为矢量图」；四组选项拍板 = 追踪转真 SVG / 设计+Cocos 同步覆盖 / 高亮照 Figma 原样 / 删 8 张整钮。
+
+| 件 | 生成方式 | 产出脚本 | 原图 |
+|---|---|---|---|
+| `final/assets/menu/ui_btn_circle_{normal,pressed}.png` + `cocos/assets/textures/` 同名两件 | Figma REST `img` 分层节点导出（@2x），纯下载零重绘 | `my-skills/wxgame-figma/scripts/figma.mjs` | ⚠ 云端 `23:19` / `19:7`；配方见下 |
+| `proposals/.../btn-topbar-figma-20261104/icon-{settings,rank,calendar,skin}.svg` | 位图追踪转真矢量（白底合成 → crack-following 轮廓 → Chaikin(2) → RDP(0.9) → 外接圆归一 → `evenodd` path） | `games/beads/design/ai-workflows/trace-figma-icons.py`（复用 `trace-icon-lineart.py` 函数段，⛔ 不改历史脚本） | ✅ 在仓内：同目录 `icon-*-source-white.png`（Figma `23:6/13/20/27` 透明底位图合成白底） |
+| 同目录 `icon-*-2x-160.png` | SVG 扫描线栅格预览 | 同上 | 同上 |
+
+**复现配方**：
+
+```bash
+node my-skills/wxgame-figma/scripts/figma.mjs img "https://www.figma.com/design/PBIK3RbfGlfzFsAnd97ZsP/x" --ids "23:19,19:7,23:6,23:13,23:20,23:27" --out temp/figma/layered-20261104 --format png --scale 2
+python3 games/beads/design/ai-workflows/trace-figma-icons.py
+```
+
+**实测**：四个 `base` 共用同一 `imageRef ffe4b37c…`，高亮仅 `exposure +0.12` ⇒ 无独立第二套图；四个 `icon` 是 IMAGE 填充（⛔ 非矢量），故必须追踪；`23:19` / `19:7` 为 80×80 设计 px ⇒ @2x 恰 160×160，与现役圆牌同尺寸。4/4 SVG 无内嵌位图；两态底托 4 个文件 md5 与导出件相等、`.meta` uuid 未改。8 张整钮 `git rm`，历史可取回。构建与门禁读数见 `production/TASKS-DETAIL.md §WXG-T-575 §8`。

@@ -37,33 +37,27 @@
 
 v2 三态 `proto-menu-v2-{locked,pushing,cleared}-752x1344.png` 已按用户令从目录移除（git 历史可取回）。**接线目标：原型设计，不进运行时 `assets/`**。
 
-### 1c. 2026-11-04 Figma v2 菜单切图入库（WXG-T-575）
+### 1c. 2026-11-04 Figma v2 菜单切图（WXG-T-575）
 
-用户令：「从 figma 获取相关资源，切图，背景图，高亮状态等纹理等等」+「按照建议执行」。方法（开工前声明）= **Figma REST 节点导出（纯下载、零重绘、零模型）**，高亮态直取现成 `State=Highlight` 组件，⛔ 不用滤镜二次生成。覆盖策略按建议 = **不覆盖现役 9 件**（逐字节未动），新增件入库。
+用户令「从 figma 获取相关资源，切图，背景图，高亮状态等纹理」+「按照建议执行」；追加令「重新拉一套背景/高亮图替代圆牌两态、图标做矢量」。开工前均声明方法 = Figma REST 节点导出（纯下载、零重绘、零模型）+ 图标位图追踪转真 SVG。
 
-**入库 16 件**，全部 PNG @2x，与 Figma 导出件 md5 **逐字节一致**（未压缩、未量化、未重采样）：
+**现行件**（PNG @2x，与 Figma 导出件 md5 逐字节一致）：
 
-| 落库件 | 尺寸 @2x | Figma 节点 | 说明 |
-|---|---|---|---|
-| `ui_menu_backdrop_figma.png` | 1500×2668 | `2:98` 背景 | 整屏 750×1334，全不透明（alpha 恒 255） |
-| `ui_menu_signboard_figma.png` | 1098×674 | `2:82` 招牌 | 549×337 设计 px，真 alpha |
-| `ui_btn_{settings,rank}_normal.png` | 160×158 | `23:4` / `23:11` | 顶栏左列两钮默认态 |
-| `ui_btn_{settings,rank}_highlight.png` | 160×158 | `23:7` / `23:14` | 同名两钮高亮态 |
-| `ui_btn_{calendar,skin}_normal.png` | 160×160 | `23:18` / `23:25` | 顶栏右列两钮默认态 |
-| `ui_btn_{calendar,skin}_highlight.png` | 160×160 | `23:21` / `23:28` | 同名两钮高亮态 |
-| `ui_btn_prev_{normal,highlight}.png` | 220×232 | `23:32` / `23:34` | 左翻页钮两态 |
-| `ui_btn_next_{normal,highlight}.png` | 218×232 | `23:37` / `23:39` | 右翻页钮两态 |
-| `ui_btn_start_{normal,highlight}.png` | 756×358 | `23:42` / `23:44` | 开始按钮两态 |
+| 件 | Figma 节点 | 说明 |
+|---|---|---|
+| `ui_menu_backdrop_figma.png` 1500×2668 | `2:98` | 整屏，全不透明 |
+| `ui_menu_signboard_figma.png` 1098×674 | `2:82` | 招牌，真 alpha |
+| `ui_btn_{prev,next,start}_{normal,highlight}.png` | `23:32/34/37/39/42/44` | 翻页与开始按钮两态，6 件候选 |
+| `ui_btn_circle_{normal,pressed}.png` 160² | `23:19` / `19:7` | **同步覆盖**设计真源 + Cocos 投放件；高亮 = 同图提亮 12%，照用户令当按下态 |
+| `icon-{settings,rank,calendar,skin}.svg` | `23:6/13/20/27` | 真矢量 path，落 `proposals/…/btn-topbar-figma-20261104/` |
 
-**未入库（非遗漏）**：`19:*` 是 `23:*` 的派生分层副本，内容重复；`29:*` 是设计稿实例，其中 `29:8` / `29:16` / `29:18` 自带 `mask` + `gold` 层，不等于纯默认态，故两态统一取 `23:*` 组件保证同源；`50:*` 是坐标标注区，不是切图。
+**关键事实**：四枚按钮 `base` 共用同一 `imageRef`，高亮层是同一图加 `exposure +0.12` ⇒ 只需一套两态底托；图标层是 `IMAGE` 填充（非矢量），故用 `trace-figma-icons.py` 追踪成 SVG path（`fill-rule=evenodd`，⛔ 无内嵌位图）。8 张顶栏整钮图已按用户令删除，git 历史可取回；现役 4 枚 `ui_icon_*.png` 未动；图标白底原图随 SVG 归档在 `proposals/`。
 
-**命名避让（本批关键）**：`ui_menu_backdrop` / `ui_menu_signboard` 在 `games/beads/cocos/assets/textures/` 与 `../v1/assets/menu/` 已有同名件。若同名落库，`check-cocos-mask.mjs` 会把新图当成旧投放件的「正本」做归属判定 ⇒ 必然判不同源。故这两件带 `_figma` 后缀；14 件按钮无同名冲突，按 `menu-showcase-asset-spec.md §3/§4` 的规范名落库，将来接线零改名。
+**命名避让**：`ui_menu_backdrop` / `ui_menu_signboard` 在 Cocos 投放件与 `../v1/` 已有同名，同名落库会被 `check-cocos-mask.mjs` 当成旧投放件的正本 ⇒ 两件带 `_figma` 后缀。
 
-**台账三要素**：来源 = Figma 文件 `PBIK3RbfGlfzFsAnd97ZsP` 上表节点（2026-11-04 导出）；定稿日期 = 2026-11-04；接线目标 = **当前无** —— 本批是**候选切图**，未进 `MENU_TEXTURES`、未投放 `cocos/assets/textures/`、未生成 `.meta`。生成史三要素见 `production/qa/asset-provenance.md §6`。
+**台账三要素**：来源 = Figma `PBIK3RbfGlfzFsAnd97ZsP` 上述节点（2026-11-04）；定稿日期 = 2026-11-04；接线目标 = 圆牌两态已接（同名覆盖、`.meta` uuid 未改、release 档重建产物）、SVG 为设计正本未接运行时（小程序不吃 SVG 位图）、6 件候选无。生成史与复现配方见 `production/qa/asset-provenance.md §6/§7`。
 
-⚠ **未转正的两条硬理由**：① `_highlight` 是 Figma 原生命名，而 `menu-showcase-asset-spec.md §3` 列的状态后缀是 `_normal/_pressed/_disabled`，规格未回写前不得接线；② 原图只存在于 Figma 云端节点、不在仓内（`asset-provenance.md §0` 第 4 条），复现靠 REST 重取，配方已逐字登记 ⇒ 按「缺原图不得转正」判为候选。入包前另须按 `spec §5.1` 压缩并复跑 `check:size`。
-
-**现役 9 件逐字节未动**：`ui_btn_circle_{normal,pressed}` · `ui_icon_{skin,settings,rank,calendar}` · `ui_menu_badge_locked` · `ui_menu_badge_progress` · `ui_menu_seal_cleared`。
+⚠ 候选件未转正：`_highlight` 后缀未回写 `menu-showcase-asset-spec.md §3`；入包前须压缩并复跑 `check:size`（重建后主包 4069.1 KB，余量 26.9 KB）。
 
 ## assets/menu 台账（来源 → 接线状态）
 

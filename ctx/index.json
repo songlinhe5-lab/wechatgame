@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3942,
       "lines": 133,
-      "sha256": "ee7ab68c31ac6e19ffac1f0a1d07f5baaa1c1db136d669c309fe2ffccc903315",
+      "sha256": "459bbe08abdbb9d4c05a7bb4ba6493da2d05468c50222660299c0219736ca6d5",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 216536 7776 normal",
+          "summary": "1 production/TASKS-DETAIL.md 217459 7790 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "f30eb858f91c142dd08df88d60cc62c44bc782af411cb34dd57be92782928c55",
+      "sha256": "c25b5642de4e517f7065dbb158d8e3291339335f5f4209d446d8e3fcbc66de6d",
       "tier": "normal",
       "sections": [
         {
@@ -745,7 +745,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 182 行 / 42106 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 182 行 / 42111 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 7776 行 / 216536 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 7790 行 / 217459 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7777 · §WXG-T-566=7235+61 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7791 · §WXG-T-566=7235+61 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -24444,17 +24444,17 @@
     },
     {
       "path": "games/beads/design/art/final/README.md",
-      "tokens": 7949,
-      "lines": 110,
-      "sha256": "dcfa483794d1e5aa173dcafb508d8f6a17eff65a1b17ca7a07b33d15edb7af77",
+      "tokens": 7671,
+      "lines": 104,
+      "sha256": "bdef77409f6e9b4d339d0443a739fcb1f8bbd62b7c99e54b188039d6f0fa43b8",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§final —— 资源定稿区（开发统一取用）",
           "level": 1,
           "startLine": 1,
-          "endLine": 111,
-          "tokens": 7932,
+          "endLine": 105,
+          "tokens": 7655,
           "summary": "2026-10-14 用户裁定：资源定稿分三类；shots 只按日期存每日结论证据，本区是验收后的归集面（复制入库，原件",
           "keywords": [
             "final",
@@ -24467,8 +24467,8 @@
           "anchor": "§三类目录",
           "level": 2,
           "startLine": 9,
-          "endLine": 67,
-          "tokens": 4636,
+          "endLine": 61,
+          "tokens": 4358,
           "summary": "prototypes/ 原型设计：整屏视觉原型（定稿版面） ✅ 2026-11-04 起现行口径见 §1b（WXG-T-",
           "keywords": [
             "§1b",
@@ -24492,24 +24492,24 @@
           ]
         },
         {
-          "anchor": "§1c. 2026-11-04 Figma v2 菜单切图入库（WXG-T-575）",
+          "anchor": "§1c. 2026-11-04 Figma v2 菜单切图（WXG-T-575）",
           "level": 3,
           "startLine": 40,
-          "endLine": 67,
-          "tokens": 938,
-          "summary": "用户令：「从 figma 获取相关资源，切图，背景图，高亮状态等纹理等等」+「按照建议执行」。方法（开工前声明）= Fi",
+          "endLine": 61,
+          "tokens": 663,
+          "summary": "用户令「从 figma 获取相关资源，切图，背景图，高亮状态等纹理」+「按照建议执行」；追加令「重新拉一套背景/高亮图替",
           "keywords": [
             "Figma",
             "WXG",
             "figma",
-            "菜单切图入库"
+            "菜单切图"
           ]
         },
         {
           "anchor": "§assets/menu 台账（来源 → 接线状态）",
           "level": 2,
-          "startLine": 68,
-          "endLine": 88,
+          "startLine": 62,
+          "endLine": 82,
           "tokens": 1717,
           "summary": "⚠ 2026-11-02 起（WXG-T-557 用户令，T-559 修正）：下表记录的件除 11 件现役集外已全部归档",
           "keywords": [
@@ -24524,8 +24524,8 @@
         {
           "anchor": "§选关（弹窗 · 版式 Q）",
           "level": 2,
-          "startLine": 89,
-          "endLine": 100,
+          "startLine": 83,
+          "endLine": 94,
           "tokens": 479,
           "summary": "prototypes/levelselect-v1-popup-750x1334-at2x.png 脚本 ../../a",
           "keywords": [
@@ -24540,8 +24540,8 @@
         {
           "anchor": "§入库判据",
           "level": 2,
-          "startLine": 101,
-          "endLine": 111,
+          "startLine": 95,
+          "endLine": 105,
           "tokens": 516,
           "summary": "1. 用户已对屏稿/规格拍板（引用 shots 批次或 spec 节号）；",
           "keywords": [
@@ -88748,17 +88748,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 216536,
-      "lines": 7776,
-      "sha256": "70bd757a30ff48a03db07d16d8bd327324a079977767797415d48fe06838f879",
+      "tokens": 217459,
+      "lines": 7790,
+      "sha256": "1ad906c28468c3c4c81dd0e1a78c7dd2613ff70f1b271a02213b125b6497e8fc",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 7777,
-          "tokens": 216519,
+          "endLine": 7791,
+          "tokens": 217442,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -100486,8 +100486,8 @@
           "anchor": "§WXG-T-575",
           "level": 2,
           "startLine": 7735,
-          "endLine": 7777,
-          "tokens": 1379,
+          "endLine": 7791,
+          "tokens": 2302,
           "summary": "美术·Figma v2 菜单切图入库（背景 / 招牌 / 按钮默认+高亮两态 16 件） · 负责：主理人(CodeBu",
           "keywords": [
             "WXG",
@@ -100600,14 +100600,30 @@
             "WXG",
             "沉淀统计与候"
           ]
+        },
+        {
+          "anchor": "§8 四次追加令（2026-11-04）：分层两件套替代圆牌两态 + 图标真矢量",
+          "level": 3,
+          "startLine": 7778,
+          "endLine": 7791,
+          "tokens": 894,
+          "summary": "用户令：「重新从 figma 拉一套背景/高亮图替代 ui_btn_circle_normal/pressed，按钮图中",
+          "keywords": [
+            "figma",
+            "ui_btn_circle_normal",
+            "pressed",
+            "四次追加令",
+            "分层两件套替",
+            "代圆牌两态"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 42106,
+      "tokens": 42111,
       "lines": 182,
-      "sha256": "ab122bcf67353c1bed7fbc852e1b9155ed7eb94516f4a584b8c63c04acb131f0",
+      "sha256": "66a5e717bdf587ebdc9483c0fe338a39b1f8564f05cd96d0b0d4566aec29f8b3",
       "tier": "hot",
       "sections": [
         {
@@ -100615,7 +100631,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 183,
-          "tokens": 42098,
+          "tokens": 42103,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -104386,17 +104402,17 @@
     },
     {
       "path": "production/qa/asset-provenance.md",
-      "tokens": 6522,
-      "lines": 127,
-      "sha256": "6b543a5b36f473edf4a5b186657745887f3b6aeb01076a9b15bbe58e1486dd6d",
+      "tokens": 7074,
+      "lines": 146,
+      "sha256": "42dead762d801e344fa8694c71eb2b6a5a10fdf715d6914abc0bbcc7b0fd3e14",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§归档资源生成史（Asset Provenance）",
           "level": 1,
           "startLine": 1,
-          "endLine": 128,
-          "tokens": 6508,
+          "endLine": 147,
+          "tokens": 7061,
           "summary": "本件是「每张进 final/ 的图从哪来」的唯一正本。 建件 = 用户 2026-11-01 令「统一使用图片生成文档，",
           "keywords": [
             "Asset",
@@ -104526,6 +104542,22 @@
             "assets",
             "menu",
             "ui_menu_backdrop_figma"
+          ]
+        },
+        {
+          "anchor": "§7 2026-11-04 二次令（WXG-T-575 · 分层底托 + 真矢量图标）",
+          "level": 2,
+          "startLine": 129,
+          "endLine": 147,
+          "tokens": 530,
+          "summary": "用户令「重新拉一套背景/高亮图替代圆牌两态，按钮图中 icon 做为矢量图」；四组选项拍板 = 追踪转真 SVG / 设",
+          "keywords": [
+            "WXG",
+            "icon",
+            "SVG",
+            "二次令",
+            "分层底托",
+            "真矢量图标"
           ]
         }
       ]

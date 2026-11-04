@@ -7774,3 +7774,17 @@ Figma 官方文档（remote-server-installation）：远程端点 `https://mcp.f
 `pnpm run kb:sync --task=WXG-T-575`：**新增 0 / 修改 0 / 激活 0 / 归档 0**；活跃条目 209、`nextId` 213、写入「无」（工作树与产物一致）。
 
 回传 **1 条沉淀候选（未入账，待裁定是否并入 K-046）**：机械领号 `grep ... | sort -n | tail -1` 取到的最大号，可能只是台账头注「下一可用号 WXG-T-xxx」这句自指，并非真实占用号；领号前须回查该号在正文与提交里有无实际任务，否则会白白跳号。
+
+### 8. 四次追加令（2026-11-04）：分层两件套替代圆牌两态 + 图标真矢量
+
+用户令：「重新从 figma 拉一套背景/高亮图替代 `ui_btn_circle_normal/pressed`，按钮图中 icon 做为矢量图」，并 @ 了 8 张整钮图。按图像处理开工前提示令，先只读探测再列四组选项；用户拍板 **追踪转真 SVG / 设计+Cocos 同步覆盖 / 高亮照 Figma 原样当按下 / 删除 8 张整钮**。
+
+**探测结论（改变做法的三条）**：① `23:5/12/19/26` 四个 `base` 与 `19:3/5/7/9` 四个高亮底托共用同一 `imageRef ffe4b37c…`，高亮只多 `exposure +0.12 / contrast +0.012` ⇒ Figma 里没有独立第二套高亮图，只是同一张位图提亮 12%；② `23:6/13/20/27` 四个 `icon` 是 `RECTANGLE` + `IMAGE` 填充、无 `strokes`、无矢量路径 ⇒ `--format svg` 只会得到内嵌位图的假矢量，真矢量必须走位图追踪；③ 上一批导的是整钮组件并把 `19:*` 判为重复副本未入库，本批正好用 `19:*` 的「底托/图标」分层，无需重画；`23:19` / `19:7` 为 80×80 设计 px ⇒ @2x 正好 160×160，与现役圆牌同尺寸，零补边零拉伸。
+
+**改动面**：覆盖 4 个文件 —— `final/assets/menu/` 与 `cocos/assets/textures/` 的 `ui_btn_circle_normal.png`（`23:19`）、`ui_btn_circle_pressed.png`（`19:7`），`.meta` uuid 未改（`2cc11ea4…` / `9f3a4b02…`）。新增 `games/beads/design/ai-workflows/trace-figma-icons.py`：复用 `trace-icon-lineart.py` 的函数段（`exec` 截到 `base1 = Image.open(` 之前），⛔ 不改写历史脚本、不重跑旧批次、零新依赖；产物 12 件入 `proposals/menu-3d-style-20261030/btn-topbar-figma-20261104/`（4 SVG + 4 白底原图 + 4 栅格预览）。`git rm` 8 张顶栏整钮图；`final/README.md §1c` 改写为现行口径；`asset-provenance.md §7` 补生成史。**零运行时代码改动**：4 枚现役 `ui_icon_*.png` 未动，SVG 为设计正本未接线（小程序不吃 SVG 位图）。
+
+**判据与读数**：4/4 SVG 无 `<image` / `base64`（真矢量），轮廓数 4/4/3/2，栅格预览逐枚目视通过（齿轮 / 奖杯 / 日历对勾 / 小衫）；两态底托 4 个目标文件 md5 与 Figma 导出件相等。`check:cocos-mask` 首次如预期 **FAIL**（两件产物 ≠ 源，BD-61 型半修）⇒ 跑 `pnpm run build:cocos`（默认 release 基线档，K-111 合规）重建后 **33 件源↔产物等值全绿**；`check:size` 主包 4069.1 KB / 150 文件 / 余量 26.9 KB 达标。构建副产物：`games/beads/package.json` 版本 v1.0.23→v1.0.24（随本单提交）；另生成 10 份框架脚本 `.meta`（编辑器产物，非本单，⛔ 未纳入提交）。
+
+⚠ **语义代价（用户已拍板接受）**：现役 pressed 原为压暗 0.90 + 内缘加深，Figma 高亮为提亮 ⇒ 替换后**按下变亮**，与旧交互反馈相反。
+
+**未决**：`_highlight` 后缀仍未回写 `menu-showcase-asset-spec.md §3`；6 件翻页/开始按钮候选仍未转正；SVG 若要进运行时需另开栅格化接线单。
