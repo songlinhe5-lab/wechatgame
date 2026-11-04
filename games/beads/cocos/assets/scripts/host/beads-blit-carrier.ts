@@ -134,6 +134,8 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
     // WXG-T-577：path 仍为 Cocos 扁平原名（投放件未改名），键按语义改名；未导入 ⇒ 走程序化腿。
     // WXG-T-578：旧 `frame`（沙漏圆牌）/ `seal`（通关飘带）两条映射随件退场 —— 两件已出包。
     [MENU_TEXTURES.lock]: { path: 'ui_menu_badge_locked' },
+    // `[WXG-T-579]` 满星态珠圈框（正本 854² → 投放 518² pal-256，1x；@2x 需 158 KB 超出主包余量）。
+    [MENU_TEXTURES.arcRing]: { path: 'ui_menu_arc_ring' },
     [MENU_TEXTURES.ctaLabel]: { path: 'ui_menu_cta_label' },
     // `[P0 静态温暖]` 左下陶盆（环境装饰）。未导入 ⇒ 不登记 ⇒ `drawMenuBackdrop` 不画该件。
     [MENU_TEXTURES.pot]: { path: 'ui_menu_pot' },

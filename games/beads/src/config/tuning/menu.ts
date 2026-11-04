@@ -375,6 +375,12 @@ export const MENU_FROST = { radius: 8, gray: 0.3 } as const;
  * `[WXG-T-567]` 锁定态锁形独立 Sprite 配置。⛔ 不合成进 frost 纹理（锁形静态图、可独立调尺寸/
  * 位置/alpha；以后想做呼吸动画也方便）。锁形尺寸 = 展示作品尺寸 × 比例。
  */
+/**
+ * `[WXG-T-579]` 满星态珠圈框：**显示边长 = 作品框宽 × 本比例**（两条作品腿共用，故不钉死像素）。
+ * 推导 = 设计稿「中空区占框宽 0.695」× 花心占作品框 2/3 ⇒ 框宽 ≈ 360 / 0.695 ≈ 518（`MENU_BOSS_ART_D` 540）。
+ * ⚠ 该 518 已是主包能容的极限（pal-256 53.5 KB）；再往上就得上 `themes` 分包。
+ */
+export const MENU_FULLSTAR_FRAME = { k: 518 / 540 } as const;
 export const MENU_LOCKED_ICON = {
     /** 锁形纹理 id（= `MENU_TEXTURES.lock`）。 */
     textureId: 'bitmap__menu_lock',
@@ -472,6 +478,11 @@ export const MENU_TEXTURES = {
    * 只在测试里当负断言的空靶子；Cocos 两件一并出包（省 43.5 KB 主包）。
    */
   lock: 'bitmap__menu_lock',
+  /**
+   * `[WXG-T-579]` Figma v2 金色珠圈装裱框（`46:21`），**满星态**专用。缺 ⇒ 不画框（⛔ 不自造替代）。
+   * ⚠ 只有 1x（518²，pal-256 53.5 KB）—— `@2x` 需 ≈158 KB，超出主包余量。
+   */
+  arcRing: 'bitmap__menu_arc_ring',
   /** v3.8 CTA「开始游戏」艺术字。缺资产回退程序化字。 */
   ctaLabel: 'bitmap__menu_cta_label',
   /**

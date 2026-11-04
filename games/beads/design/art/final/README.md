@@ -41,7 +41,7 @@ v2 三态 `proto-menu-v2-{locked,pushing,cleared}-752x1344.png` 已按用户令�
 
 > 本表保留 WXG-T-575 时的扁平名作史证；**现行路径见 `asset-map.json`**（WXG-T-576 起加 `@2x` 并按用途分子目录）。`badges/` 自 WXG-T-577 起为 Figma v2 锁/框/通关三件套，老资源归档 `proposals/…/badges-retired-20261104/`。
 >
-> **WXG-T-578：三件套只剩 `ui_menu_lock@2x.png` 在役** —— `frame`/`seal` 源码零消费者，两键与 Cocos 投放件已删（主包省 43.5 KB），两图留本目录作待接线候选（⛔ 未入包）。锁投放件 pal-256 量化（192×260，与正本同尺寸 ⇒ 归属腿可判）；`MENU_LOCKED_ICON.aspect` 让两处锁形按宽高比出高。⚠ 珠圈框接不进主包：满星态 ≈518² @1x 53.5 KB 可放、@2x 需 158 KB ⇒ 尺寸待拍板，账见 TASKS-DETAIL。
+> **WXG-T-578/579 起在役两件**：`ui_menu_lock@2x`（选关墙 + 橱窗锁形，投放名 `ui_menu_badge_locked`）、`ui_menu_frame@2x`（满星态珠圈框，投放名 `ui_menu_arc_ring`）。旧 `frame`/`seal` 键已删（源码零消费者，省 43.5 KB）。两条投放件均 pal-256 量化：锁 192×260 与正本同尺寸 ⇒ 归属腿可判；框 518² 只有 1x（`@2x` 需 158 KB、超主包余量 ⇒ 归属腿显式 SKIP）。`ui_menu_seal@2x` 仍未入包。
 
 用户令「从 figma 获取相关资源，切图，背景图，高亮状态等纹理」+「按照建议执行」；追加令「重新拉一套背景/高亮图替代圆牌两态、图标做矢量」。开工前均声明方法 = Figma REST 节点导出（纯下载、零重绘、零模型）+ 图标位图追踪转真 SVG。
 
@@ -61,7 +61,7 @@ v2 三态 `proto-menu-v2-{locked,pushing,cleared}-752x1344.png` 已按用户令�
 
 **台账三要素**：来源 = Figma `PBIK3RbfGlfzFsAnd97ZsP` 上述节点（2026-11-04）；定稿日期 = 2026-11-04；接线目标 = 圆牌两态已接（同名覆盖、`.meta` uuid 未改、release 档重建产物）、SVG 为设计正本未接运行时（小程序不吃 SVG 位图）、6 件候选无。生成史与复现配方见 `production/qa/asset-provenance.md §6/§7`。
 
-⚠ 候选件未转正：`_highlight` 后缀未回写 `menu-showcase-asset-spec.md §3`；入包前须压缩并复跑 `check:size`（WXG-T-578 重建后主包 4036.8 KB，余量 59.2 KB）。
+⚠ 候选件未转正：`_highlight` 后缀未回写 `menu-showcase-asset-spec.md §3`；入包前须压缩并复跑 `check:size`（WXG-T-579 重建后主包 4091.7 KB，余量 4.3 KB —— 再进任何位图都须先腾地方）。
 
 ## assets/menu 台账（来源 → 接线状态）
 

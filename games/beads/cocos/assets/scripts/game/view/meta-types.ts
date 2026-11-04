@@ -300,8 +300,8 @@ export interface MetaLayout {
 }
 
 /**
- * `[WXG-T-280]` 橱窗 Boss 图位三态（语义归 shell，视图只读；图形资产待裁 ⇒ 程序化占位）。
- * `locked` 未开启 / `pushing` 推关中 = 右上角徽标；`cleared` 完成 = 另亮中央 boss icon。
+ * `[WXG-T-280]` 橱窗 Boss 图位状态（语义归 shell，视图只读）。
+ * `locked` 未开启 / `pushing` 推关中 / `cleared` 全通关 / `fullstar` 全满星（`[WXG-T-579]`，画珠圈框）。
  */
-export type MetaBossState = 'locked' | 'pushing' | 'cleared';
+export type MetaBossState = 'locked' | 'pushing' | 'cleared' | 'fullstar';
 

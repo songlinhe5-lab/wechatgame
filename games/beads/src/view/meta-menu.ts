@@ -3,7 +3,7 @@
  * 几何一律取自 `meta-layout.ts` 的锚定档，控件画法取自 `meta-widgets.ts` ⇒ 页面只编排、不另算。
  */
 
-import { DESIGN_W, type MenuAnchors, MENU_ARROW_ICON, MENU_CASE_INTERIOR_BAKED, MENU_BAR_ICON_D, MENU_BOSS_ART_D, MENU_CTA_LABEL, MENU_CTA_PRESSED_D, MENU_CTA_SLICE, MENU_CTA_SRC_H, MENU_DONE_ICON, MENU_FROST, MENU_GRAY_WIPE, MENU_LIGHT, MENU_LOCKED_ICON, MENU_PLAQUE_BEVEL_INSET, MENU_PLAQUE_ICON_INSET, MENU_PLAQUE_RIVET_INSET, MENU_PLAQUE_RIVET_R, MENU_PLAQUE_STROKE, MENU_PLATE, MENU_PLATE_TITLE, MENU_SIGNIN_DOT_R, MENU_SIGN_FRAME, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, SIGN_BEAD_PITCH, SIGN_MATRIX_N, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning.js';
+import { DESIGN_W, type MenuAnchors, MENU_ARROW_ICON, MENU_CASE_INTERIOR_BAKED, MENU_BAR_ICON_D, MENU_BOSS_ART_D, MENU_CTA_LABEL, MENU_CTA_PRESSED_D, MENU_CTA_SLICE, MENU_CTA_SRC_H, MENU_DONE_ICON, MENU_FROST, MENU_FULLSTAR_FRAME, MENU_GRAY_WIPE, MENU_LIGHT, MENU_LOCKED_ICON, MENU_PLAQUE_BEVEL_INSET, MENU_PLAQUE_ICON_INSET, MENU_PLAQUE_RIVET_INSET, MENU_PLAQUE_RIVET_R, MENU_PLAQUE_STROKE, MENU_PLATE, MENU_PLATE_TITLE, MENU_SIGNIN_DOT_R, MENU_SIGN_FRAME, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, SIGN_BEAD_PITCH, SIGN_MATRIX_N, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning.js';
 import { COPY_TOKENS } from '../config/copy-tokens.js';
 import { ARC_COMING_SOON } from '../config/arcs.js';
 import { plateFade } from '../config/menu-carousel.js';
@@ -44,12 +44,14 @@ function wipeFx(done: number | undefined, total: number | undefined): BlitFx {
     return fx;
 }
 
+/** `cleared` 与 `fullstar` 都是全彩（不传 fx）—— 满星的差别只在珠圈框，不在灰度。 */
 function triStateFx(state: MetaBossState, done?: number, total?: number): BlitFx | undefined {
     if (state === 'locked') return MENU_FROST_FX_LOCKED;
     if (state === 'pushing') return wipeFx(done, total);
     return undefined;
 }
 
+/** `fullstar` 同 `cleared` 取满亮柜灯（`[WXG-T-579]`：满星不额外调光，靠框区分）。 */
 function triStateLight(state: MetaBossState): number {
     if (state === 'locked') return MENU_LIGHT.locked;
     if (state === 'pushing') return MENU_LIGHT.pushing;
@@ -369,6 +371,27 @@ function drawShowcaseItem(
         const d = MENU_BOSS_ART_D;
         drawLockedBadge(builder, MENU_DONE_ICON.cx + dx - d / 2, g.doneCy - d / 2, d, ink);
     }
+    // `[WXG-T-579]` 满星态珠圈装裱框（中空真透明 ⇒ 压在作品之上即为「装裱」，⛔ 不必切两层）。
+    if (state === 'fullstar') {
+        drawFullStarRing(builder, MENU_DONE_ICON.cx + dx, g.doneCy, MENU_BOSS_ART_D, ink);
+    }
+}
+
+/**
+ * `[WXG-T-579]` 满星态珠圈框：以作品中心为心、边长 = `artW × MENU_FULLSTAR_FRAME.k`。
+ * 画在作品**之上**（框图中央是真透明空心，正好露出花心）。
+ */
+function drawFullStarRing(
+    builder: RenderModelBuilder,
+    cx: number,
+    cy: number,
+    artW: number,
+    ink: number | undefined,
+): void {
+    if (!menuBitmapReady(MENU_TEXTURES.arcRing)) return;
+    const d = artW * MENU_FULLSTAR_FRAME.k;
+    const opts = ink === undefined ? undefined : { alpha: ink };
+    builder.blit(MENU_TEXTURES.arcRing, cx - d / 2, cy - d / 2, d, d, opts);
 }
 
 /**
@@ -445,6 +468,8 @@ function drawShowcaseArt(
     }
     // `[WXG-T-567]` 锁定态锁形独立 Sprite（同 drawShowcaseItem 口径，用 showcaseArtBox 尺寸）。
     if (state === 'locked') drawLockedBadge(builder, x, b.y, b.w, ink);
+    // `[WXG-T-579]` 满星态珠圈框（同口径，边长随作品框宽缩放 ⇒ 两条腿不各钉一个像素）。
+    if (state === 'fullstar') drawFullStarRing(builder, x + b.w / 2, b.y + b.h / 2, b.w, ink);
 }
 
 /** 空橱窗中央的置灰花。半径写死，热路径不分配。 */

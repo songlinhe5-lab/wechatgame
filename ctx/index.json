@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3942,
       "lines": 133,
-      "sha256": "dd0f74ee078dab788c0d9f4d442113ad29fd4651c8128eb6e23af773311500fd",
+      "sha256": "9da6336c36668183281aeeb67f11d8df574db11ba9f2d1be6e4c3715ac6512c1",
       "tier": "normal",
       "sections": [
         {
@@ -377,7 +377,7 @@
           "startLine": 1,
           "endLine": 134,
           "tokens": 3929,
-          "summary": "生成：2026-11-04 · 由 tools/scripts/build-context-index.mjs 自动生成",
+          "summary": "生成：2026-11-05 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
             "BUDGET",
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 220799 7907 normal",
+          "summary": "1 production/TASKS-DETAIL.md 221870 7941 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "02ac33b55b6b47cb685557f40a8bb6b3ad1cd5ffeb70410c353d82de4abff2f1",
+      "sha256": "24ec3fca5c4186d661d91b411748450d614aec6cca326e8867e927dbc56b595e",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 185 行 / 43168 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 186 行 / 43510 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+186 · §待排（backlog，无号，立项时领取…=158+29",
+          "summary": "§WXG 任务台账（SSOT）=1+187 · §待排（backlog，无号，立项时领取…=159+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 7907 行 / 220799 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 7941 行 / 221870 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7908 · §WXG-T-567=7296+25 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7942 · §WXG-T-569=7387+41 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -24444,9 +24444,9 @@
     },
     {
       "path": "games/beads/design/art/final/README.md",
-      "tokens": 7946,
+      "tokens": 7953,
       "lines": 108,
-      "sha256": "5f73df1abed0babd5af4f7590fd436efe0b40d31317c09f452efcd4f0bd53b12",
+      "sha256": "a0a155a7bc8628cea40f4e68c527ac4beb4b3e23736b5719c89175e22cbb7153",
       "tier": "normal",
       "sections": [
         {
@@ -24454,7 +24454,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 109,
-          "tokens": 7930,
+          "tokens": 7936,
           "summary": "2026-10-14 用户裁定：资源定稿分三类；shots 只按日期存每日结论证据，本区是验收后的归集面（复制入库，原件",
           "keywords": [
             "final",
@@ -24468,7 +24468,7 @@
           "level": 2,
           "startLine": 9,
           "endLine": 65,
-          "tokens": 4590,
+          "tokens": 4596,
           "summary": "prototypes/ 原型设计：整屏视觉原型（定稿版面） ✅ 2026-11-04 起现行口径见 §1b（WXG-T-",
           "keywords": [
             "§1b",
@@ -24496,7 +24496,7 @@
           "level": 3,
           "startLine": 40,
           "endLine": 65,
-          "tokens": 894,
+          "tokens": 901,
           "summary": "本表保留 WXG-T-575 时的扁平名作史证；现行路径见 asset-map.json（WXG-T-576 起加 @2",
           "keywords": [
             "Figma",
@@ -88750,17 +88750,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 220799,
-      "lines": 7907,
-      "sha256": "2ec6e1e955cef416038e86e1e7dd053c2e5660386453d8e59775810869604a86",
+      "tokens": 221870,
+      "lines": 7941,
+      "sha256": "640ac3ccc6522bb6fcfffe6ecd3f20fe0a479398bfab6a0c5b907cb0063a415a",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 7908,
-          "tokens": 220782,
+          "endLine": 7942,
+          "tokens": 221854,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -100856,22 +100856,89 @@
             "未完成",
             "需拍板"
           ]
+        },
+        {
+          "anchor": "§WXG-T-579",
+          "level": 2,
+          "startLine": 7909,
+          "endLine": 7942,
+          "tokens": 1068,
+          "summary": "美术·满星态珠圈框接入（第四条状态） · 负责：主理人(CodeBuddy)·美术轨 · 状态：✅ 完成（2026-11",
+          "keywords": [
+            "WXG",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§1 用户令与拍板 (5)",
+          "level": 3,
+          "startLine": 7913,
+          "endLine": 7918,
+          "tokens": 151,
+          "summary": "承 WXG-T-578 §4 遗留（珠圈框因体积进不了主包，尺寸待拍板）。补算得满星态显示尺寸 = ≈518×518（M",
+          "keywords": [
+            "§4",
+            "WXG",
+            "用户令与拍板"
+          ]
+        },
+        {
+          "anchor": "§2 改动面 (5)",
+          "level": 3,
+          "startLine": 7919,
+          "endLine": 7927,
+          "tokens": 365,
+          "summary": "src/view/meta-types.ts：MetaBossState 加第四值 fullstar（原 locked ",
+          "keywords": [
+            "src",
+            "view",
+            "meta",
+            "types",
+            "MetaBossState",
+            "fullstar"
+          ]
+        },
+        {
+          "anchor": "§3 判据与读数 (3)",
+          "level": 3,
+          "startLine": 7928,
+          "endLine": 7936,
+          "tokens": 373,
+          "summary": "主包 4036.8 → 4091.7 KB，余量 59.2 → 4.3 KB，check:size 仍达标（余量已近底线",
+          "keywords": [
+            "check",
+            "size",
+            "判据与读数"
+          ]
+        },
+        {
+          "anchor": "§4 遗留 (2)",
+          "level": 3,
+          "startLine": 7937,
+          "endLine": 7942,
+          "tokens": 112,
+          "summary": "珠圈框止步 1x（518²）。要上 @2x（1036² / ≈158 KB）必须先让 themes 真分包（产物 gam",
+          "keywords": [
+            "themes",
+            "gam",
+            "遗留"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 43168,
-      "lines": 185,
-      "sha256": "d3d84c14448abf93b3f6f957639ea6fae0717224e66aaa071e0abb9c4059d5c6",
+      "tokens": 43510,
+      "lines": 186,
+      "sha256": "bcdf764094e506903c7fbf29ca4eb3169a86007a3e990a889a4c878259916237",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 186,
-          "tokens": 43159,
+          "endLine": 187,
+          "tokens": 43501,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -100884,8 +100951,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 158,
-          "endLine": 186,
+          "startLine": 159,
+          "endLine": 187,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

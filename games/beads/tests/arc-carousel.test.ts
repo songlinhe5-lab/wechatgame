@@ -38,7 +38,7 @@ import { ARC_COMING_SOON, ARC_OPEN_MAX, ARCS } from '../src/config/arcs.js';
 import { LEVELS } from '../src/config/levels.js';
 // 星账夹具助手（轴从 `LEVELS` 派生，⛔ 手抄 token；K-152）。
 import { starsLedger } from './helpers.js';
-import { DESIGN_H, DESIGN_W, MENU_GRAY_WIPE, MENU_TEXTURES, WALL_ROWS } from '../src/config/tuning.js';
+import { DESIGN_H, DESIGN_W, MENU_GRAY_WIPE, MENU_TEXTURES, STAR_MAX, WALL_ROWS } from '../src/config/tuning.js';
 import { buildMetaView, metaLayout, setMenuBitmapResolver, type MetaViewData } from '../src/view/meta-view.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 
@@ -199,12 +199,23 @@ describe('EP13-S4 橱窗三态 = 大关集合归约（TODO-6 / Q16 = 甲）', ()
         expect(ids).not.toContain(MENU_TEXTURES.lock);
     });
 
-    it('全通关 ⇒ cleared（整图全彩，无通关章）', () => {
+    it('全通关但未满星 ⇒ cleared（整图全彩，无珠圈框）', () => {
         setMenuBitmapResolver(() => true);
-        const cmds = frameOf(rig({ maxUnlocked: LEVELS.length, stars: LEVELS.map(() => 3) }).shell);
+        const cmds = frameOf(rig({ maxUnlocked: LEVELS.length, stars: LEVELS.map(() => 1) }).shell);
         const ids = blitIdsOf(cmds);
         expect(artFxOf(cmds), '全彩 = 不传 fx').toBeUndefined();
         expect(ids).not.toContain(MENU_TEXTURES.lock);
+        expect(ids, '未满星不画珠圈框').not.toContain(MENU_TEXTURES.arcRing);
+    });
+
+    // `[WXG-T-579]` 全满星 = 第四条状态：全彩 + 珠圈装裱框。
+    it('全满星 ⇒ fullstar（全彩 + 珠圈框居中）', () => {
+        setMenuBitmapResolver(() => true);
+        const cmds = frameOf(rig({ maxUnlocked: LEVELS.length, stars: LEVELS.map(() => STAR_MAX) }).shell);
+        const ids = blitIdsOf(cmds);
+        expect(artFxOf(cmds), '满星也是全彩 = 不传 fx').toBeUndefined();
+        expect(ids, '满星画珠圈框').toContain(MENU_TEXTURES.arcRing);
+        expect(ids, '满星不画锁形').not.toContain(MENU_TEXTURES.lock);
     });
 
     it('locked 在本版不可达（首关恒解锁）⇒ 只登记，不伪造观测', () => {

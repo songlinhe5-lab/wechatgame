@@ -40,6 +40,7 @@ import { LOW_MEMORY_BAKE_BUDGET_BYTES } from '../../framework/index';
 import {
     FACET4_STYLE_ID,
     BEAD_SIZE_DEFAULT,
+    STAR_MAX,
     STAMINA_START_COST,
     STAMINA_REFILL_PLACEMENT,
     WALL_CAPACITY,
@@ -989,8 +990,9 @@ export class BeadsShell implements Game {
     private _arcTotal = 0;
 
     /**
-     * 大关三态归约（`tls §8.2 TODO-6` 已裁 = 甲，只换数据源）：
-     * 任一关可进未通 ⇒ `pushing`；全通关 ⇒ `cleared`；一关未开 ⇒ `locked`；空清单 ⇒ `undefined`（R12）。
+     * 大关状态归约（`tls §8.2 TODO-6` 已裁 = 甲，只换数据源）：
+     * 任一关可进未通 ⇒ `pushing`；全通关 ⇒ `cleared`；全满星 ⇒ `fullstar`（`[WXG-T-579]`）；
+     * 一关未开 ⇒ `locked`；空清单 ⇒ `undefined`（R12）。
      * 单趟整数循环、零分配（本池 9 关 ⇒ 每帧至多两页 × 9）。
      */
     private _arcState(arcIdx: number): MetaBossState | undefined {
@@ -1002,16 +1004,20 @@ export class BeadsShell implements Game {
         let anyLevel = false;
         let anyUnlocked = false;
         let allCleared = true;
+        let allFullStar = true;
         for (let r = 0; r < refs.length; r++) {
             const range = refs[r]!;
             for (let lv = range[0]; lv <= range[1] && lv <= n; lv++) {
                 anyLevel = true;
                 if (lv <= maxUnlocked) anyUnlocked = true;
-                if ((stars[lv - 1] ?? 0) <= 0) allCleared = false;
+                const got = stars[lv - 1] ?? 0;
+                if (got <= 0) allCleared = false;
+                if (got < STAR_MAX) allFullStar = false;
             }
         }
         if (!anyLevel) return undefined;
         if (!anyUnlocked) return 'locked';
+        if (allFullStar) return 'fullstar';
         return allCleared ? 'cleared' : 'pushing';
     }
 

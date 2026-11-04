@@ -17,7 +17,7 @@ import { buildMetaView, setMenuBitmapResolver, type MetaViewData } from '../src/
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import { LEVELS } from '../src/config/levels.js';
 import { ARCS } from '../src/config/arcs.js';
-import { DESIGN_H, DESIGN_W, MENU_FROST, MENU_GRAY_WIPE, MENU_LIGHT, MENU_LOCKED_ICON } from '../src/config/tuning.js';
+import { DESIGN_H, DESIGN_W, MENU_FROST, MENU_GRAY_WIPE, MENU_LIGHT, MENU_LOCKED_ICON, MENU_TEXTURES } from '../src/config/tuning.js';
 
 /** 柜灯 α 基数（`meta-menu.ts::MENU_WARM.coneAlpha`，局部常量不在 tuning 导出）。 */
 const CONE_ALPHA = 0.018;
@@ -56,9 +56,11 @@ describe('`[WXG-T-566]` 三态效果', () => {
         ['locked', { frost: MENU_FROST.radius, gray: MENU_FROST.gray }],
         ['pushing', { grayWipe: [0, MENU_GRAY_WIPE.soft] }],
         ['cleared', undefined],
+        // `[WXG-T-579]` 满星 = 全彩（差别只在珠圈框，不在灰度）。
+        ['fullstar', undefined],
     ] as const;
 
-    it('窗框就绪（单一作品腿）：同一张图按档带 fx；通关不传 fx', () => {
+    it('窗框就绪（单一作品腿）：同一张图按档带 fx；通关/满星不传 fx', () => {
         setMenuBitmapResolver(() => true);
         for (const [state, fx] of states) {
             expect(artOf(frame(data({ carouselState: state })))?.fx, `${state} 效果档`).toEqual(fx);
@@ -92,10 +94,11 @@ describe('`[WXG-T-566]` 三态效果', () => {
         expect(fx).toEqual({ grayWipe: [0.25, MENU_GRAY_WIPE.soft] });
     });
 
-    it('状态标记退场 + WXG-T-567 锁形独立 Sprite：locked 画锁形；pushing/cleared 三档都不画', () => {
+    it('状态标记：locked 画锁形；满星画珠圈框；两件互斥且其余档都不画', () => {
         setMenuBitmapResolver(() => true);
         // WXG-T-567 新增：locked 态画锁形独立 Sprite（与 frost+gray 合成纹理解耦）。
         // `[WXG-T-578]` 飘带/沙漏两件已出包，其负断言随键退场。
+        // `[WXG-T-579]` 新增 fullstar ⇒ 珠圈框（与锁形互斥，其余档两件都不画）。
         for (const [state] of states) {
             const ids = frame(data({ carouselState: state }))
                 .filter((c) => c.kind === 'blit')
@@ -104,6 +107,11 @@ describe('`[WXG-T-566]` 三态效果', () => {
                 expect(ids, 'locked 画独立锁形 Sprite').toContain(MENU_LOCKED_ICON.textureId);
             } else {
                 expect(ids, `${state} 不画锁形`).not.toContain(MENU_LOCKED_ICON.textureId);
+            }
+            if (state === 'fullstar') {
+                expect(ids, 'fullstar 画珠圈框').toContain(MENU_TEXTURES.arcRing);
+            } else {
+                expect(ids, `${state} 不画珠圈框`).not.toContain(MENU_TEXTURES.arcRing);
             }
         }
     });
@@ -114,6 +122,8 @@ describe('`[WXG-T-566]` 三态效果', () => {
             ['locked', MENU_LIGHT.locked],
             ['pushing', MENU_LIGHT.pushing],
             ['cleared', MENU_LIGHT.cleared],
+            // `[WXG-T-579]` 满星不额外调光（同 cleared），靠珠圈框区分。
+            ['fullstar', MENU_LIGHT.cleared],
         ] as const) {
             const [inner, outer] = caseLight(frame(data({ carouselState: state })));
             expect(inner, `${state} 内圈`).toBeCloseTo(CONE_ALPHA * light);

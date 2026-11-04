@@ -7905,3 +7905,37 @@ Figma 官方文档（remote-server-installation）：远程端点 `https://mcp.f
 
   ⇒ 主包只够 **≈1x**（与全仓 `@2x` 规范冲突，视网膜上会糊），`@2x` 必须走 `themes` 真分包（需先让产物 `game.json` 出 `subPackages`）。另：满星态本身尚未入 `MetaBossState`（现为 locked/pushing/cleared 三态），接线需新增状态判定（`arcStarGot === arcStarNeed`）与画法。
 - `asset-map.json` 键仍是 Cocos 扁原名（`ui_menu_badge_locked.png`），刻意保留的桥：键改了会让归属腿少判。
+
+## WXG-T-579
+
+**美术·满星态珠圈框接入（第四条状态）** · 负责：主理人(CodeBuddy)·美术轨 · 状态：✅ 完成（2026-11-05）
+
+### 1. 用户令与拍板
+
+承 `WXG-T-578 §4 遗留`（珠圈框因体积进不了主包，尺寸待拍板）。补算得满星态显示尺寸 = **≈518×518**（`MENU_BOSS_ART_D` 540 × 花心占比 2/3 ÷ 中空占框宽 0.695），据此给四组选项，用户拍板 = **518² @1x 256 色**，并要求**满星态接线一并做**。
+
+图像处理方法沿用 `WXG-T-578` 已声明口径：**PIL LANCZOS 降采样 + pal-256（FASTOCTREE）量化**，零重绘零生成，`design/art/final` 854² 源件留作母版。
+
+### 2. 改动面
+
+- `src/view/meta-types.ts`：`MetaBossState` 加第四值 **`fullstar`**（原 `locked | pushing | cleared`）。
+- `src/game/beads-shell.ts::_arcState`：归约加 `allFullStar`（章内每关 `stars[lv-1] >= STAR_MAX` 恒成立）分支，判定序 `locked → fullstar → cleared → pushing`；单趟整数循环、零分配不变。
+- `src/config/tuning/menu.ts`：新增 `MENU_TEXTURES.arcRing = 'bitmap__menu_arc_ring'` 与 `MENU_FULLSTAR_FRAME.k = 518 / 540`（**边长随作品框宽缩放**，两条作品腿共用 ⇒ ⛔ 不各钉一个像素）。
+- `src/view/meta-menu.ts`：新增 `drawFullStarRing`（以作品中心为心、边长 = `artW × k`，画在作品**之上** —— 框图中央真透明空心，正好露出花心）；`drawShowcaseItem` 与 `drawShowcaseArt` 两条腿各接一处。`triStateFx` / `triStateLight` 对 `fullstar` 取「全彩 + 满亮柜灯」，与 `cleared` 同档（满星的差别只在框，不在灰度）。
+- 投放件 `cocos/assets/textures/ui_menu_arc_ring.png` = 518×518 pal-256 / **54,758 B**；`.meta` 由 CLI 构建**自动生成**（⛔ 未手写，守 L1）。
+- 映射三处：`beads-blit-carrier.ts`（`{ path: 'ui_menu_arc_ring' }`）、`dev/harness/main.ts`（`badges/ui_menu_frame@2x.png`）、`asset-map.json`。
+
+### 3. 判据与读数
+
+- 主包 **4036.8 → 4091.7 KB**，余量 **59.2 → 4.3 KB**，`check:size` 仍达标（余量已近底线，登记为后续任何位图入包的前置约束）。
+- 产物自证：`build/.../textures/native/59/59a3966a-….png` = **518×518 / 54,758 B**；`ui_menu_arc_ring.png.meta` 由构建生成（uuid `59a3966a-…`）。
+- 量化质量复核（numpy 对 LANCZOS 参考）：alpha 主体均值 **253.7**、全图平均差 **0.64**、差 >32 的像素仅 **0.17%** 且全在边缘 ⇒ 无整体性半透明塌陷。合成预览（`/tmp`，未入库）确认花心恰好落在框中空区。
+- 测试：`arc-carousel` 原「全通关 ⇒ cleared」用例的 `stars: 3` 会落进满星 ⇒ 改为 `stars: 1` 保留 cleared 语义，并新增「全满星 ⇒ fullstar（全彩 + 珠圈框居中）」；`menu-tri-state` 的 states 表加 `fullstar`（fx = undefined）、柜灯表加 `fullstar`（同 cleared），状态标记用例加「fullstar 画框、其余档不画」互斥断言。
+- beads **121 文件 / 1431 用例全绿**；`verify` **23/23 PASS**；`check:cocos-mask` **STATUS: OK**，`ui_menu_arc_ring.png` 因正本 854² / 投放 518² 走**显式 SKIP**（⛔ 非已验，K-036）。
+- 沉淀统计：新增 0 / 修改 0 / 激活 0 / 归档 0。
+
+### 4. 遗留
+
+- 珠圈框止步 **1x**（518²）。要上 `@2x`（1036² / ≈158 KB）必须先让 `themes` 真分包（产物 `game.json` 出 `subPackages`），否则主包放不下。
+- 主包余量只剩 **4.3 KB**，后续任何位图入包前须先腾地方。
+- `asset-map.json` 键仍为 Cocos 扁原名，是刻意保留的桥（键改了会让归属腿少判）。
