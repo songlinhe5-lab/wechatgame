@@ -16,7 +16,7 @@
 
 ### 1b. 2026-11-04 现行口径（WXG-T-574）
 
-用户令：**基准图不动**；从 Figma 下载新设计图；参考 v2 三态做新三态；坐标图落 `coordinates/`；**之前的三态去掉**。追加令：`cleared` 通关**不加框、不加底座三颗星**；另增**满星**态（加框、图案居中于框）。
+用户令：**基准图不动**；从 Figma 下载新设计图；参考 v2 三态做新三态；坐标图落 `coordinates/`；**之前的三态去掉**。追加令：通关去框去星、另增满星态；再追加令（本批）：`fullstar` 框居中且正好框住图案、去三颗星；`cleared` 通关章移到图案矩形右上角（随内容左右滚动）；`locked` 去蒙版、只灰小猫、去框、锁居中。
 
 | 目录 | 现行件 | 来源 |
 |---|---|---|
@@ -25,11 +25,15 @@
 | `prototypes/` | `proto-menu-v3-{locked,pushing,cleared,fullstar}-752x1344.png` | 本批新四态（752×1344） |
 | `coordinates/` | `menu-master-coords-v2-20261104.png` | Figma `50:113` 坐标图（1300×1334，安全区 + 胶囊区 + 元素实测框） |
 
-**四态分工**：`locked` 磨砂 + 拼豆锁 · `pushing` 竖向揭彩 + 木刻沙漏（两者珠圈框按原 Figma 位）· `cleared` **无框无星**，只留 Figma 通关圆章 · `fullstar` 珠圈框 + 底座三颗金星，框中心平移到豆画 alpha 重心（dx −13.8 / dy +38.5 设计 px），金星随框下移仍落圆台。
+**四态分工（现行）**：`locked` = **无蒙版、无框**，只按 `44:64` 真 alpha 把小猫置灰（`gray_layer` blur=0），拼豆锁贴豆画 bbox 正中 · `pushing` = 竖向揭彩 + 木刻沙漏 + 原 Figma 位珠圈框（用户未点名此态，未改）· `cleared` = 全彩**无框无星**，通关圆章贴豆画 bbox 右上内缩 8px（属走马灯内容层）· `fullstar` = 珠圈框放大到 **488×455**（中空区占框宽 0.695 / 高 0.717，恰好容纳豆画 323×310 并留 8px 边）、中心对齐豆画 bbox，**⛔ 无三颗星**。
 
-**生成史三要素**：① 生成方式 = Figma REST 下载 + 程序化像素变换（**零模型、零重绘**）；② 产出脚本 = `my-skills/wxgame-figma/scripts/figma.mjs`（下载）、`../../ai-workflows/proto-from-figma.py`（四态；复用 `proto-from-baseline.py` 的磨砂 / 竖向揭彩 / 满星行函数）；③ 原图 = Figma 文件 `PBIK3RbfGlfzFsAnd97ZsP` 节点 `2:81` / `50:113` / `46:21` / `47:19` / `47:20` / `44:64`，**四件**透明切图存 `proposals/menu-3d-style-20261030/figma-elements-20261104/`（真 alpha；新增 `ui_menu_art_cat.png` 供重心计算）。
+**关键实测**：模板匹配（numpy，零新依赖）显示基准图里的豆画相对 Figma `44:64` 节点 **右移 26 / 下移 7**（scale 1.0，MAE 5.38）⇒ 脚本 `ART_SHIFT=(26,7)`，一切以「图案」为准的落点（置灰 mask / 框中心 / 通关章 / 锁）均加此位移；否则 mask 偏左会留一圈未置灰的深色珠子。豆画真实 bbox = (239,539)-(562,849)。
 
-**贴回判据**：α = blur(M)×M 向内羽化 → 合成 → 区外硬拷回；四次贴回实测 **区外 maxdiff = 0**（脚本 assert 硬失败）。饱和度分档 locked 2.3 / pushing 灰 5.3·彩 94.0 / cleared 96.9（全彩，仅通关章改动 0.6%）；`pushing` 的珠圈框上灰下金，与运行时 `grayWipeFx` 同式同向。
+**生成史三要素**：① 生成方式 = Figma REST 下载 + 程序化像素变换（**零模型、零重绘**）；② 产出脚本 = `my-skills/wxgame-figma/scripts/figma.mjs`（下载）、`../../ai-workflows/proto-from-figma.py`（四态；复用 `proto-from-baseline.py` 的去饱和 / 竖向揭彩函数）；③ 原图 = Figma 文件 `PBIK3RbfGlfzFsAnd97ZsP` 节点 `2:81` / `50:113` / `46:21` / `47:19` / `47:20` / `44:64`，**四件**透明切图存 `proposals/menu-3d-style-20261030/figma-elements-20261104/`（真 alpha；`ui_menu_art_cat.png` 供 bbox / 置灰 mask / 模板匹配）。
+
+**贴回判据**：α = blur(M)×M 向内羽化 → 合成 → 区外硬拷回；五次贴回/合成实测 **区外 maxdiff = 0**（脚本 assert 硬失败）。`locked` 改动仅 7.7%（包围盒 239,541–564,856 = 豆画区），柜内饱和度 68.0（背景/木牌/资源条全彩未动）；`cleared` 96.2（全彩）；`pushing` 灰 5.3·彩 94.0，与运行时 `grayWipeFx` 同式同向。
+
+⚠ **接线现状（未改代码）**：`src/view/meta-menu.ts:364-365` 记载 WXG-T-566 已把三态标记（通关飘带 / 锁 / 沙漏）**全部退场**，运行时只靠「作品灰度 + 柜灯」表达三态。本批原型上的通关章 / 锁属设计示意；若日后接线，通关章须挂在**走马灯内容层**随小猫图案一起左右滚动，⛔ 不得钉在玻璃框上 —— 另立任务。
 
 v2 三态 `proto-menu-v2-{locked,pushing,cleared}-752x1344.png` 已按用户令从目录移除（git 历史可取回）。**接线目标：原型设计，不进运行时 `assets/`**。
 
