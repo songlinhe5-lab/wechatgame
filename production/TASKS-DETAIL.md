@@ -7721,3 +7721,13 @@ Figma 官方文档（remote-server-installation）：远程端点 `https://mcp.f
 **接线现状**：`src/view/meta-menu.ts:364-365` 记载 WXG-T-566 已把通关飘带 / 锁 / 沙漏**全部退场**，运行时只靠「作品灰度 + 柜灯」表达三态。本批原型上的章/锁属设计示意；若日后接线，通关章须挂走马灯内容层随图案左右滚动，⛔ 不得钉玻璃框 —— 另立任务，**本批未改代码**。
 
 判据：五次贴回/合成区外 **maxdiff = 0**（脚本 assert）；三张点名图逐张目视通过。README §1b、asset-provenance §5 同步回写；仍署 WXG-T-574。
+
+### 8. 三次追加令（2026-11-04）：pushing 去框去沙漏、只灰小猫上半
+
+用户令：「清除框去掉中间沙漏图标，小猫图案本身上半置灰」。方法（开工前提示）= 程序化局部置灰，零模型、零重绘，不抠图不擦除；灰/彩分界沿用既有 `PROGRESS=0.40`（与运行时 `grayWipeFx` 同式同向），若要精确 1:1 只改一个常量。
+
+- `art_mask()` 从 `gray_art()` 抽出共用（真 alpha + `ART_SHIFT` + MaxFilter 5 + 向内羽化）；新增 `gray_art_top(base, progress)`：mask × 竖向 ramp（灰自上而下、彩自下而上，柔带 `WIPE_SOFT=0.08`），再走 `local_composite()` 区外硬拷回。
+- **删除**：`FRAME_BOX` 常量、原框位 `framed` 贴回、`fade` / `pb.wipe_ramp` / `pb.shape(CASE)` 磨砂链、`pb.stamp` 木刻沙漏分支。四态至此**只有 `fullstar` 有框**，只有 `locked`/`cleared` 有章/锁。
+- 新增 `sat_box()` 局部饱和度判据：原 `pb.selfcheck` 固定采样框含大量背景（读数 `灰 92.7 / 彩 76.2` 具误导性），改只量豆画 bbox 上/下半 ⇒ **基准 95.8 / 75.8 → pushing 46.2 / 64.4**（上半降 49.6 真灰化，下半降 11.4 仅柔带跨中线）。
+- 目视：框与沙漏消失，猫上半灰下半彩，柜内背景 / 木牌 / 资源条全彩未动，柔带过渡自然。
+- 五次贴回/合成区外 maxdiff = 0；`pushing` 改动 4.5%、包围盒 (239,541)-(564,742) 止于豆画中线之上。README §1b、asset-provenance §5 同步回写；仍署 WXG-T-574，未改运行时代码。

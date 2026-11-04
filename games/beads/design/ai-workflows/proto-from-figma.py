@@ -5,7 +5,7 @@
 
 四态口径（2026-11-04 用户令）：
   locked   = ⛔ 无蒙版、无框；只按 44:64 真 alpha 把小猫置灰；锁贴豆画 bbox 正中
-  pushing  = 竖向揭彩（灰自上而下、彩自下而上）+ 木刻沙漏，珠圈框按 Figma 原位
+  pushing  = ⛔ 无框、无沙漏、无蒙版；只把小猫上半置灰（竖向揭彩，彩高度 = PROGRESS）
   cleared  = 全彩；通关圆章贴豆画 bbox 右上内缩 8px（内容层，随走马灯左右滚动）
   fullstar = 珠圈框放大到中空区恰好容纳豆画并居中于 bbox；⛔ 无底座三颗星
 
@@ -32,7 +32,6 @@ OUT = ART / "final/prototypes"
 # Figma 画布 750×1334 → 基准底图 752×1344
 SX, SY = 752 / 750, 1344 / 1334
 
-FRAME_BOX = (164, 450, 426, 426)       # 46:21 原框位（仅 pushing 用）
 ART_BOX_FIGMA = (212, 530, 325, 314)   # 44:64 关卡图案（猫咪拼豆）
 # 模板匹配实测：基准图里的豆画相对 Figma 节点右移 26 / 下移 7（scale 1.0，MAE 5.38）
 # ⇒ 一切以「图案」为准的落点（置灰 mask / 框中心 / 通关章 / 锁）都要加此位移
@@ -107,8 +106,8 @@ def local_composite(base, layer, mask):
     return Image.fromarray(o.astype(np.uint8)), maxdiff
 
 
-def gray_art(base):
-    """只置灰小猫：44:64 真 alpha 当 mask，纯去饱和（blur=0），⛔ 无蒙版、无框。"""
+def art_mask():
+    """豆画真 alpha mask（局部 L，按 ART_SHIFT 对齐 + 外扩 2px + 向内羽化）。"""
     with Image.open(ELEM / "ui_menu_art_cat.png") as im:
         m = im.convert("RGBA").getchannel("A")
     ax, ay, aw, ah = ART_BOX_FIGMA
@@ -119,9 +118,37 @@ def gray_art(base):
     # 对齐后仍外扩 2px 盖住豆画外缘描边珠子
     m = m.filter(ImageFilter.MaxFilter(5))
     m = ImageChops.multiply(m.filter(ImageFilter.GaussianBlur(1.2)), m)
+    return m, (X, Y, W, H)
+
+
+def gray_art(base):
+    """只置灰小猫：纯去饱和（blur=0），⛔ 无蒙版、无框。"""
+    m, (X, Y, _, _) = art_mask()
     full = Image.new("L", base.size, 0)
     full.paste(m, (X, Y))
     return local_composite(base, pb.gray_layer(base), full)
+
+
+def gray_art_top(base, progress):
+    """只把小猫上半置灰：alpha mask × 竖向揭彩 ramp；⛔ 无框、无蒙版、无沙漏。"""
+    m, (X, Y, W, H) = art_mask()
+    x0, y0, x1, y1 = art_bbox()
+    boundary = (y0 + (y1 - y0) * (1.0 - progress)) * SY
+    band = max(1.0, pb.WIPE_SOFT * (y1 - y0) * SY)
+    ys = np.arange(H, dtype=np.float32) + Y
+    ramp = np.clip((boundary - ys) / band + 0.5, 0.0, 1.0)[:, None]  # 1=灰（上）·0=彩（下）
+    a = np.asarray(m, dtype=np.float32) / 255.0
+    patch = Image.fromarray(np.rint(np.clip(a * ramp, 0.0, 1.0) * 255).astype(np.uint8))
+    full = Image.new("L", base.size, 0)
+    full.paste(patch, (X, Y))
+    return local_composite(base, pb.gray_layer(base), full)
+
+
+def sat_box(im, box):
+    """只量指定框内的平均色差（饱和度代理），避免整屏采样被背景稀释。"""
+    a = np.asarray(im.crop(tuple(map(round, box))), dtype=np.int16)
+    return round((np.abs(a[:, :, 0] - a[:, :, 1])
+                  + np.abs(a[:, :, 1] - a[:, :, 2])).mean(), 1)
 
 
 def main():
@@ -130,13 +157,6 @@ def main():
     print("base", size, "progress", pb.PROGRESS,
           "豆画 bbox", tuple(round(v, 1) for v in art_bbox()))
 
-    # 原位置珠圈框：仅 pushing 用（用户未点名此态）
-    with Image.open(ELEM / "ui_menu_frame_pearls.png") as el:
-        framed, d0 = feather_paste(base, el, FRAME_BOX)
-    print("pushing 框 贴回 区外 maxdiff", d0)
-
-    fade = pb.bottom_fade(size, pb.CASE[3] - pb.CASE_FADE, pb.CASE[3] + 10)
-
     # locked：只灰小猫 + 锁居中；⛔ 无磨砂蒙版、无框
     locked, d4 = gray_art(base)
     print("locked 小猫置灰 区外 maxdiff", d4)
@@ -144,13 +164,9 @@ def main():
         locked, d1 = feather_paste(locked, el, centered_box(LOCK_WH))
     print("locked 锁 贴回 区外 maxdiff", d1)
 
-    # pushing：竖向揭彩（上灰下彩）+ 木刻沙漏（Figma 未给此章）
-    ramp = pb.wipe_ramp(size, pb.PROGRESS, pb.WIPE_SOFT) * fade
-    pushing = Image.composite(
-        pb.gray_layer(framed, blur=0, lift=64, scale=0.66, veil=0.10), framed,
-        pb.shape(pb.CASE, size, blur=10, ramp=ramp))
-    pb.stamp(pushing, "ui_menu_badge_progress.png",
-             pb.ART_C[0], pb.ART_C[1] + 4, pb.HOUR_D, pb.HOUR_D)
+    # pushing：只把小猫上半置灰（灰自上而下、彩自下而上）；⛔ 无框、无沙漏、无蒙版
+    pushing, d5 = gray_art_top(base, pb.PROGRESS)
+    print("pushing 小猫上半置灰 区外 maxdiff", d5)
 
     # cleared：全彩 + 通关章贴豆画 bbox 右上；⛔ 无框、无底座三颗星
     cleared = base.copy()
@@ -172,6 +188,12 @@ def main():
         cv.save(p)
         print("写出", p, cv.size)
     pb.selfcheck(base, states)
+    x0, y0, x1, y1 = art_bbox()
+    mid = (y0 + y1) / 2
+    up = (x0 * SX, y0 * SY, x1 * SX, mid * SY)
+    dn = (x0 * SX, mid * SY, x1 * SX, y1 * SY)
+    print("豆画饱和度 基准 上/下", sat_box(base, up), sat_box(base, dn),
+          "| pushing 上/下", sat_box(pushing, up), sat_box(pushing, dn))
 
 
 if __name__ == "__main__":

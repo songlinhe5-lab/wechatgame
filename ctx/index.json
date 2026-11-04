@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3942,
       "lines": 133,
-      "sha256": "1cb3dfc04ec45bcc3fe68495bce79d54b4e5e85dde373aeb36afae9efc9e33b5",
+      "sha256": "a9dbb0c944e2c02e1deb8b061c2ca1a84bcbf380e4266d159cb323e8d1a37429",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 214683 7723 normal",
+          "summary": "1 production/TASKS-DETAIL.md 215153 7733 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "6ebd61f8b89b571dd1ec7e5380406c3db3ac6e7ba3b495427c6af769906a9383",
+      "sha256": "5de65037e12a025c0d7e281528717bbfa2a24911555ff94d3009fbab90c25b8a",
       "tier": "normal",
       "sections": [
         {
@@ -745,7 +745,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 181 行 / 41784 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 181 行 / 41805 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 7723 行 / 214683 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 7733 行 / 215153 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7724 · §WXG-T-563=7205+30 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7734 · §WXG-T-563=7205+30 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -24444,9 +24444,9 @@
     },
     {
       "path": "games/beads/design/art/final/README.md",
-      "tokens": 6831,
+      "tokens": 6993,
       "lines": 82,
-      "sha256": "1b7ce1ca78fc1f30fcf08cb9c088ec80da9938eb588cf02ebf39732d711c8022",
+      "sha256": "762b2f4f6a94f4347eaf018f361e4fb0de9351288997bb28bd950d232fbe1bf3",
       "tier": "normal",
       "sections": [
         {
@@ -24454,7 +24454,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 83,
-          "tokens": 6814,
+          "tokens": 6977,
           "summary": "2026-10-14 用户裁定：资源定稿分三类；shots 只按日期存每日结论证据，本区是验收后的归集面（复制入库，原件",
           "keywords": [
             "final",
@@ -24468,7 +24468,7 @@
           "level": 2,
           "startLine": 9,
           "endLine": 39,
-          "tokens": 3518,
+          "tokens": 3680,
           "summary": "prototypes/ 原型设计：整屏视觉原型（定稿版面） ✅ 2026-11-04 起现行口径见 §1b（WXG-T-",
           "keywords": [
             "§1b",
@@ -24482,7 +24482,7 @@
           "level": 3,
           "startLine": 17,
           "endLine": 39,
-          "tokens": 1063,
+          "tokens": 1226,
           "summary": "用户令：基准图不动；从 Figma 下载新设计图；参考 v2 三态做新三态；坐标图落 coordinates/；之前的三",
           "keywords": [
             "WXG",
@@ -88734,17 +88734,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 214683,
-      "lines": 7723,
-      "sha256": "0e8e547aef86779d69d7ed341f71f56ea2b93ece002f2fe9e40276df1b728ce4",
+      "tokens": 215153,
+      "lines": 7733,
+      "sha256": "594d55267e39239ea23cb0389ee1bcf2f4c345fdc35abb4999045be5cbb08b07",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 7724,
-          "tokens": 214666,
+          "endLine": 7734,
+          "tokens": 215137,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -100347,8 +100347,8 @@
           "anchor": "§WXG-T-574",
           "level": 2,
           "startLine": 7666,
-          "endLine": 7724,
-          "tokens": 1819,
+          "endLine": 7734,
+          "tokens": 2290,
           "summary": "美术·Figma v2 设计图/坐标图落库 + v3 三态原型 · 负责：主理人(CodeBuddy)·美术轨 · 状态",
           "keywords": [
             "WXG",
@@ -100453,14 +100453,28 @@
             "图案真实位置",
             "重出"
           ]
+        },
+        {
+          "anchor": "§8 三次追加令（2026-11-04）：pushing 去框去沙漏、只灰小猫上半",
+          "level": 3,
+          "startLine": 7725,
+          "endLine": 7734,
+          "tokens": 444,
+          "summary": "用户令：「清除框去掉中间沙漏图标，小猫图案本身上半置灰」。方法（开工前提示）= 程序化局部置灰，零模型、零重绘，不抠图不",
+          "keywords": [
+            "pushing",
+            "三次追加令",
+            "去框去沙漏",
+            "只灰小猫上半"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 41784,
+      "tokens": 41805,
       "lines": 181,
-      "sha256": "8e6b18ea89e17acf25d0c68ec2b16617d13b463e4c34d2dcd8bd1e421b7c118f",
+      "sha256": "2bf206f7e8ac73f2c88ca2094aec697668323674c60c2717a4eeb176e6c1e0d1",
       "tier": "hot",
       "sections": [
         {
@@ -100468,7 +100482,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 182,
-          "tokens": 41775,
+          "tokens": 41796,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -104239,17 +104253,17 @@
     },
     {
       "path": "production/qa/asset-provenance.md",
-      "tokens": 5479,
-      "lines": 96,
-      "sha256": "0786b610c437808eaaf6d7f0d87a39ecbf284eae960c432753e47b54b3ea6c1a",
+      "tokens": 5676,
+      "lines": 98,
+      "sha256": "87d3db2c9c310205b35abd24c6d9e702f2f0d72c9a7b668fc5287da7fc10aa82",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§归档资源生成史（Asset Provenance）",
           "level": 1,
           "startLine": 1,
-          "endLine": 97,
-          "tokens": 5465,
+          "endLine": 99,
+          "tokens": 5662,
           "summary": "本件是「每张进 final/ 的图从哪来」的唯一正本。 建件 = 用户 2026-11-01 令「统一使用图片生成文档，",
           "keywords": [
             "Asset",
@@ -104353,8 +104367,8 @@
           "anchor": "§5 2026-11-04 批（WXG-T-574 · 原型 v3 三态 + Figma 坐标图）",
           "level": 2,
           "startLine": 81,
-          "endLine": 97,
-          "tokens": 744,
+          "endLine": 99,
+          "tokens": 941,
           "summary": "final/prototypes/menu-design-figma-v2-20261104.png Figma RES",
           "keywords": [
             "WXG",
