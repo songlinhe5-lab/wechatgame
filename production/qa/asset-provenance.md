@@ -84,7 +84,9 @@
 |---|---|---|---|
 | `final/prototypes/menu-design-figma-v2-20261104.png` | Figma REST 下载（`img`），零重绘 | `my-skills/wxgame-figma/scripts/figma.mjs` | Figma `PBIK3RbfGlfzFsAnd97ZsP` · `2:81` |
 | `final/coordinates/menu-master-coords-v2-20261104.png` | 同上 | 同上 | 同上 · `50:113` |
-| `final/prototypes/proto-menu-v3-{locked,pushing,cleared}-752x1344.png` | 程序化像素变换（贴回三步 + 磨砂 / 竖向揭彩 / 满星行），零模型 | `games/beads/design/ai-workflows/proto-from-figma.py` | 既有基准图 + `proposals/menu-3d-style-20261030/figma-elements-20261104/` 三件（Figma `46:21` / `47:19` / `47:20`）+ 木刻沙漏章 |
-| `proposals/.../figma-elements-20261104/*.png` | Figma REST 切图（`@scale 2`，真 alpha） | 同上 `figma.mjs` | 同上三个节点 |
+| `final/prototypes/proto-menu-v3-{locked,pushing,cleared,fullstar}-752x1344.png` | 程序化像素变换（贴回三步 + 磨砂 / 竖向揭彩 / 满星行），零模型 | `games/beads/design/ai-workflows/proto-from-figma.py` | 既有基准图 + `proposals/menu-3d-style-20261030/figma-elements-20261104/` 四件（Figma `46:21` / `47:19` / `47:20` / `44:64`）+ 木刻沙漏章 |
+| `proposals/.../figma-elements-20261104/*.png` | Figma REST 切图（`@scale 2`，真 alpha） | 同上 `figma.mjs` | 同上四个节点（`ui_menu_art_cat.png` 新增，供豆画 alpha 重心计算） |
 
-判据：三次贴回**区外 maxdiff = 0**（脚本 assert）；接线目标 = 原型设计，**不进运行时 assets**。基准图 `menu-design-baseline-cat-topbar-final-slotbar-20261102.png` 未改动；v2 三态按用户令从目录移除（git 历史可取回）。
+判据：四次贴回**区外 maxdiff = 0**（脚本 assert）；接线目标 = 原型设计，**不进运行时 assets**。基准图 `menu-design-baseline-cat-topbar-final-slotbar-20261102.png` 未改动；v2 三态按用户令从目录移除（git 历史可取回）。
+
+**追加令（同日）**：`cleared` 去框、去底座三颗星（只留通关圆章）；新增 `fullstar` = 珠圈框 + 三颗金星，框 bbox 平移到 `44:64` 豆画 alpha 重心（dx −13.8 / dy +38.5 设计 px），金星随框同步下移仍落圆台。方案按用户令在「移框对齐 / 移框不带星 / 重贴豆画」三法中选**移框对齐**（零抠图、零擦除、零模型）。

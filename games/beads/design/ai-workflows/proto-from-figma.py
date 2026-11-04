@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""以 Figma 设计稿三件透明切图 + 既有基准底图，派生 v3 三态原型（纯像素变换，零模型）。
+"""以 Figma 设计稿四件透明切图 + 既有基准底图，派生 v3 四态原型（纯像素变换，零模型）。
 
 贴回三步（区外 maxdiff 必须 0）：α = blur(M)×M 向内羽化 → 合成 → 区外硬拷回。
 
@@ -32,6 +32,25 @@ SX, SY = 752 / 750, 1344 / 1334
 FRAME_BOX = (164, 450, 426, 426)   # 46:21 满星装裱框·实例
 LOCK_BOX = (327, 622, 95, 130)     # 47:19 锁·关卡图案中心
 SEAL_BOX = (545, 405, 90, 89)      # 47:20 通关标记·框右上
+ART_BOX_FIGMA = (212, 530, 325, 314)   # 44:64 关卡图案（猫咪拼豆）
+
+
+def art_center():
+    """豆画 alpha 重心 → 基准图坐标；切图 @scale 2 ⇒ 2 切图 px = 1 设计 px。"""
+    with Image.open(ELEM / "ui_menu_art_cat.png") as im:
+        a = np.asarray(im.convert("RGBA").getchannel("A"))
+    ys, xs = np.nonzero(a > 32)
+    return ((ART_BOX_FIGMA[0] + xs.mean() / 2) * SX,
+            (ART_BOX_FIGMA[1] + ys.mean() / 2) * SY)
+
+
+def aligned_frame_box():
+    """把珠圈框中心平移到豆画 alpha 重心（返回 Figma 坐标 box）。"""
+    cx, cy = art_center()
+    fx, fy, fw, fh = FRAME_BOX
+    dx = (cx - (fx + fw / 2) * SX) / SX
+    dy = (cy - (fy + fh / 2) * SY) / SY
+    return (fx + dx, fy + dy, fw, fh)
 
 
 def feather_paste(base, el, box, feather=1.2):
@@ -87,13 +106,27 @@ def main():
     pb.stamp(pushing, "ui_menu_badge_progress.png",
              pb.ART_C[0], pb.ART_C[1] + 4, pb.HOUR_D, pb.HOUR_D)
 
-    # cleared：全彩 + 满星行 + Figma 通关圆章（⛔ 不再叠 v2 金边，珠圈框已承担）
-    cleared = pb.star_row(framed)
+    # cleared：全彩 + Figma 通关圆章（⛔ 无框、无底座三颗星）
+    cleared = base.copy()
     with Image.open(ELEM / "ui_menu_seal_cleared_figma.png") as el:
         cleared, d2 = feather_paste(cleared, el, SEAL_BOX)
     print("cleared 章 贴回 区外 maxdiff", d2)
 
-    states = {"locked": locked, "pushing": pushing, "cleared": cleared}
+    # fullstar：珠圈框中心对齐豆画 alpha 重心 + 底座三颗金星
+    box = aligned_frame_box()
+    print("fullstar 框平移(dx,dy 设计px)", round((box[0] - FRAME_BOX[0]) * SX, 1),
+          round((box[1] - FRAME_BOX[1]) * SY, 1))
+    with Image.open(ELEM / "ui_menu_frame_pearls.png") as el:
+        fullstar, d3 = feather_paste(base, el, box)
+    # 三颗星随框同步下移，仍落在「底座」圆台上而非金框柱上
+    star_y0 = pb.STAR_Y
+    pb.STAR_Y = star_y0 + round((box[1] - FRAME_BOX[1]) * SY)
+    fullstar = pb.star_row(fullstar)
+    pb.STAR_Y = star_y0
+    print("fullstar 框 贴回 区外 maxdiff", d3)
+
+    states = {"locked": locked, "pushing": pushing, "cleared": cleared,
+              "fullstar": fullstar}
     for name, cv in states.items():
         p = OUT / f"proto-menu-v3-{name}-752x1344.png"
         cv.save(p)

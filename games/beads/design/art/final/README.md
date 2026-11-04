@@ -16,18 +16,20 @@
 
 ### 1b. 2026-11-04 现行口径（WXG-T-574）
 
-用户令：**基准图不动**；从 Figma 下载新设计图；参考 v2 三态做新三态；坐标图落 `coordinates/`；**之前的三态去掉**。
+用户令：**基准图不动**；从 Figma 下载新设计图；参考 v2 三态做新三态；坐标图落 `coordinates/`；**之前的三态去掉**。追加令：`cleared` 通关**不加框、不加底座三颗星**；另增**满星**态（加框、图案居中于框）。
 
 | 目录 | 现行件 | 来源 |
 |---|---|---|
 | `prototypes/` | `menu-design-baseline-cat-topbar-final-slotbar-20261102.png`（**未改动**） | 既有基准 752×1344 |
 | `prototypes/` | `menu-design-figma-v2-20261104.png` | Figma `2:81` 抠图源（750×1334；金色珠圈装裱框 + 锁 + 通关章） |
-| `prototypes/` | `proto-menu-v3-{locked,pushing,cleared}-752x1344.png` | 本批新三态（752×1344） |
+| `prototypes/` | `proto-menu-v3-{locked,pushing,cleared,fullstar}-752x1344.png` | 本批新四态（752×1344） |
 | `coordinates/` | `menu-master-coords-v2-20261104.png` | Figma `50:113` 坐标图（1300×1334，安全区 + 胶囊区 + 元素实测框） |
 
-**生成史三要素**：① 生成方式 = Figma REST 下载 + 程序化像素变换（**零模型、零重绘**）；② 产出脚本 = `my-skills/wxgame-figma/scripts/figma.mjs`（下载）、`../../ai-workflows/proto-from-figma.py`（三态；复用 `proto-from-baseline.py` 的磨砂 / 竖向揭彩 / 满星行函数）；③ 原图 = Figma 文件 `PBIK3RbfGlfzFsAnd97ZsP` 节点 `2:81` / `50:113` / `46:21` / `47:19` / `47:20`，三件透明切图存 `proposals/menu-3d-style-20261030/figma-elements-20261104/`（真 alpha）。
+**四态分工**：`locked` 磨砂 + 拼豆锁 · `pushing` 竖向揭彩 + 木刻沙漏（两者珠圈框按原 Figma 位）· `cleared` **无框无星**，只留 Figma 通关圆章 · `fullstar` 珠圈框 + 底座三颗金星，框中心平移到豆画 alpha 重心（dx −13.8 / dy +38.5 设计 px），金星随框下移仍落圆台。
 
-**贴回判据**：α = blur(M)×M 向内羽化 → 合成 → 区外硬拷回；三次贴回实测 **区外 maxdiff = 0**（脚本 assert 硬失败）。三态饱和度分档 locked 2.3 / pushing 灰 5.3·彩 94.0 / cleared 103.9；`pushing` 的珠圈框上灰下金，与运行时 `grayWipeFx` 同式同向。⛔ `cleared` 不再叠 v2 金边（珠圈框已承担）。
+**生成史三要素**：① 生成方式 = Figma REST 下载 + 程序化像素变换（**零模型、零重绘**）；② 产出脚本 = `my-skills/wxgame-figma/scripts/figma.mjs`（下载）、`../../ai-workflows/proto-from-figma.py`（四态；复用 `proto-from-baseline.py` 的磨砂 / 竖向揭彩 / 满星行函数）；③ 原图 = Figma 文件 `PBIK3RbfGlfzFsAnd97ZsP` 节点 `2:81` / `50:113` / `46:21` / `47:19` / `47:20` / `44:64`，**四件**透明切图存 `proposals/menu-3d-style-20261030/figma-elements-20261104/`（真 alpha；新增 `ui_menu_art_cat.png` 供重心计算）。
+
+**贴回判据**：α = blur(M)×M 向内羽化 → 合成 → 区外硬拷回；四次贴回实测 **区外 maxdiff = 0**（脚本 assert 硬失败）。饱和度分档 locked 2.3 / pushing 灰 5.3·彩 94.0 / cleared 96.9（全彩，仅通关章改动 0.6%）；`pushing` 的珠圈框上灰下金，与运行时 `grayWipeFx` 同式同向。
 
 v2 三态 `proto-menu-v2-{locked,pushing,cleared}-752x1344.png` 已按用户令从目录移除（git 历史可取回）。**接线目标：原型设计，不进运行时 `assets/`**。
 
