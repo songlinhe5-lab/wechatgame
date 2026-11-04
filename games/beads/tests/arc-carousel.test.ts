@@ -195,8 +195,7 @@ describe('EP13-S4 橱窗三态 = 大关集合归约（TODO-6 / Q16 = 甲）', ()
         // `[WXG-T-566]` 三态只由灰度 + 柜灯表达，状态标记全部退场。
         // 桁架：maxUnlocked=1 且零星 ⇒ 完成 0/章内总关 ⇒ 揭彩进度 0（底部仅柔带渗透）。
         expect(artFxOf(cmds)).toEqual({ grayWipe: [0, MENU_GRAY_WIPE.soft] });
-        expect(ids).not.toContain(MENU_TEXTURES.frame);
-        expect(ids).not.toContain(MENU_TEXTURES.seal);
+        // `[WXG-T-578]` 旧 `frame`/`seal` 两键已删，负断言随靶子退场。
         expect(ids).not.toContain(MENU_TEXTURES.lock);
     });
 
@@ -205,8 +204,6 @@ describe('EP13-S4 橱窗三态 = 大关集合归约（TODO-6 / Q16 = 甲）', ()
         const cmds = frameOf(rig({ maxUnlocked: LEVELS.length, stars: LEVELS.map(() => 3) }).shell);
         const ids = blitIdsOf(cmds);
         expect(artFxOf(cmds), '全彩 = 不传 fx').toBeUndefined();
-        expect(ids).not.toContain(MENU_TEXTURES.seal);
-        expect(ids).not.toContain(MENU_TEXTURES.frame);
         expect(ids).not.toContain(MENU_TEXTURES.lock);
     });
 

@@ -7859,3 +7859,49 @@ Figma 官方文档（remote-server-installation）：远程端点 `https://mcp.f
 - Cocos 侧三件仍是老资源内容，接线/上架前须同步并按 release 档重建产物，才能消掉 SKIP。
 - `asset-map.json` 的键仍是 Cocos 扁原名（如 `ui_menu_badge_progress.png → badges/ui_menu_frame@2x.png`），是刻意保留的桥：键改了会让归属腿少判 3 件。
 - 文档历史台账行（v1/README-v1.md、旧 QA 文书）仍写旧键名与旧贴图，按史证保留，未回改。
+
+## WXG-T-578
+
+**美术·撤菜单零消费者两件 + 锁形换图按比例** · 负责：主理人(CodeBuddy)·美术轨 · 状态：✅ 完成（2026-11-04）
+
+### 1. 用户令与拍板
+
+承 `WXG-T-577 §4 遗留`（Cocos 侧三件仍是老内容、尺寸与正本不符）。开工前只读核查得两条硬事实：
+
+- `MENU_TEXTURES.frame` / `.seal` 在 `src/` **零消费者**，只出现在 4 个测试里作「必须不出现」的负断言；`MENU_TEXTURES.lock` 才有真消费者两处（`meta-widgets.ts` 选关墙角标 + `meta-menu.ts` 橱窗锁定态）。
+- `check:size` 实测主包 **4069.1 KB / 余量 26.9 KB**，判据来源写明「无分包信息 ⇒ 全部计入主包」（`themes` 虽是独立 bundle 且 `compressionType.wechatgame = subpackage`，但产物 `game.json` **无 `subPackages`** ⇒ 未真分包）。
+
+三组选项拍板 = **彻底删 frame/seal** / **珠圈框重出小尺寸进主包** / **lock 同名覆盖 + 改按比例画**。
+
+图像处理方法（按用户开工前提示令声明）：**PIL LANCZOS 降采样 + pal-256（FASTOCTREE 256 色）量化**，零重绘零生成，`design/art/final` 源件保留作母版。
+
+### 2. 改动面
+
+- `src/config/tuning/menu.ts`：删 `MENU_TEXTURES.frame` / `.seal` 两键；`MENU_LOCKED_ICON` 加 `aspect = 192 / 260`。
+- `src/view/meta-menu.ts::drawLockedBadge`：宽 = 作品宽 × `scale`，高 = 宽 / `aspect`（⛔ 不再 `size × size`）。
+- `src/view/meta-widgets.ts::drawLockedWallCell`：同上按比例出高，底边维持原内缩 ⇒ 只向上长。
+- Cocos 侧 `git rm` `ui_menu_badge_progress.png{,.meta}`、`ui_menu_seal_cleared.png{,.meta}`；`ui_menu_badge_locked.png` 同名覆盖为 192×260 pal-256（74,073 B → 16,230 B），`.meta` **未手改**（L1），由 CLI 构建自动重导。
+- `cocos/assets/scripts/host/beads-blit-carrier.ts`：删两条映射；`dev/harness/main.ts`：删两条 `MENU_FILE` 条目。
+- 4 个测试的负断言随之退场（`menu-carousel` / `menu-tri-state` / `arc-carousel` / `showcase-single`），`showcase-single` 新增锁形「高 = 宽 / aspect」断言。
+- `design/art/final/assets/menu/asset-map.json`：删两条；`final/README.md §1c` 补现状注与框体预算账。
+
+### 3. 判据与读数
+
+- 主包 **4069.1 → 4036.8 KB**（净省 32.3 KB；余量 **26.9 → 59.2 KB**），release 档重建后 `check:size` 达标。
+- `verify` **23/23 PASS**（首轮 `harness:build` FAIL = `MENU_FILE` 残留两键，补删后复跑全绿）。
+- `check:cocos-mask` **STATUS: OK** —— T-577 遗留的三件尺寸不符 SKIP 清单已消；lock 投放件与正本**同尺寸 192×260** ⇒ 归属腿仍参与判定（归属 6/7 件、互异保持率 2 对）。
+- 产物自证：`build/.../textures/native/9f/9f811e47-….png` = 162×219→**192×260 / 16,230 B**，两件旧贴图在产物内**零命中**。
+- 沉淀统计：新增 0 / 修改 0 / 激活 0 / 归档 0。
+
+### 4. 遗留（⛔ 未完成，需拍板）
+
+- **珠圈框（`badges/ui_menu_frame@2x.png` 854×854 / 455.6 KB）未接入运行时**。按设计「中空区占框宽 0.695 / 高 0.717」与 `MENU_BOSS_ART_D = 540`（注释：源图 256²、花约占 2/3 ⇒ 花心 ≈ 360 px）反推，满星态显示 ≈ **518×518**。实测体积：
+
+  | 边长 | 缩放 | pal-256 | 对 59.2 KB 余量 |
+  |---|---|---|---|
+  | 518² | 1.00x | 53.5 KB | 余 5.7 KB |
+  | 610² | 1.18x | 53.2 KB（128 色） | 余 6.0 KB |
+  | 1036² | 2.00x | 158.0 KB（256 色）/ 93.8 KB（128 色） | **超 34.6 KB** |
+
+  ⇒ 主包只够 **≈1x**（与全仓 `@2x` 规范冲突，视网膜上会糊），`@2x` 必须走 `themes` 真分包（需先让产物 `game.json` 出 `subPackages`）。另：满星态本身尚未入 `MetaBossState`（现为 locked/pushing/cleared 三态），接线需新增状态判定（`arcStarGot === arcStarNeed`）与画法。
+- `asset-map.json` 键仍是 Cocos 扁原名（`ui_menu_badge_locked.png`），刻意保留的桥：键改了会让归属腿少判。

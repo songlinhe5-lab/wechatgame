@@ -76,10 +76,8 @@ describe('橱窗绘制', () => {
         expect(artOf(dataFor(lv, { carouselState: 'locked' }))?.fx, '未开启 = 磨砂玻璃+半透明灰叠加管线')
             .toEqual({ frost: MENU_FROST.radius, gray: MENU_FROST.gray });
         // cleared 态不画任何状态标记（含独立锁形——锁形只在 locked 态）。
-        expect(cleared.some((c) => c.kind === 'blit' && (
-            c.textureId === MENU_TEXTURES.frame
-            || c.textureId === MENU_TEXTURES.seal
-        ))).toBe(false);
+        // `[WXG-T-578]` 旧 `frame`/`seal` 两键已删，负断言随靶子退场。
+        expect(cleared.some((c) => c.kind === 'blit' && c.textureId === MENU_TEXTURES.lock)).toBe(false);
     });
 
     it('空橱窗只写敬请期待，不画主题图和章', () => {
@@ -89,7 +87,7 @@ describe('橱窗绘制', () => {
         expect(text).toBeTruthy();
         expect(cmds.filter((c) => c.kind === 'circle').length).toBeGreaterThanOrEqual(7);
         expect(cmds.some((c) => c.kind === 'blit' && c.textureId === ARCS[0].textureId)).toBe(false);
-        expect(cmds.some((c) => c.kind === 'blit' && (c.textureId === MENU_TEXTURES.frame || c.textureId === MENU_TEXTURES.lock || c.textureId === MENU_TEXTURES.seal))).toBe(false);
+        expect(cmds.some((c) => c.kind === 'blit' && c.textureId === MENU_TEXTURES.lock)).toBe(false);
     });
 
     it('`[WXG-T-566]` 滑动时作品图跟着走；减少动效时不平移', () => {

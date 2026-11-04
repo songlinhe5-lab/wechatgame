@@ -3,7 +3,7 @@
  * 位图可用性注入（`setMenuBitmapResolver`）。主菜单与选关页共用 ⇒ 位于二者之下、⛔ 不反依赖页面。
  */
 
-import { MENU_BADGE, MENU_SEAL, MENU_TEXTURES, THUMB_AREA, THUMB_STAR_BAND, UI_CONTAINER } from '../config/tuning.js';
+import { MENU_BADGE, MENU_LOCKED_ICON, MENU_SEAL, MENU_TEXTURES, THUMB_AREA, THUMB_STAR_BAND, UI_CONTAINER } from '../config/tuning.js';
 import { COPY_TOKENS } from '../config/copy-tokens.js';
 import { type RenderModelBuilder } from '@wxgame/framework';
 import { beadFadedInksFor, type BeadsPalette } from './palette.js';
@@ -159,7 +159,9 @@ function drawLockedWallCell(
     const cx = cell.x + cell.w - d / 2 - inset;
     const cy = cell.y + cell.h - d / 2 - inset;
     if (menuBitmapReady(MENU_TEXTURES.lock)) {
-        builder.blit(MENU_TEXTURES.lock, cx - d / 2, cy - d / 2, d, d);
+        // `[WXG-T-578]` 锁形按纹理宽高比出高（Figma v2 竖长件），底边维持原内缩 ⇒ 只向上长。
+        const h = d / MENU_LOCKED_ICON.aspect;
+        builder.blit(MENU_TEXTURES.lock, cx - d / 2, cell.y + cell.h - inset - h, d, h);
         return;
     }
     builder.circle(cx, cy, d / 2, { fill: palette.slot, stroke: palette.slotBorder, lineWidth: 2 });

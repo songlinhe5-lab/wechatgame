@@ -378,8 +378,13 @@ export const MENU_FROST = { radius: 8, gray: 0.3 } as const;
 export const MENU_LOCKED_ICON = {
     /** 锁形纹理 id（= `MENU_TEXTURES.lock`）。 */
     textureId: 'bitmap__menu_lock',
-    /** 锁形占展示作品宽度的比例（≈30%，视觉上醒目但不盖花）。 */
+    /** 锁形**宽度**占展示作品宽度的比例（≈30%，视觉上醒目但不盖花）。 */
     scale: 0.30,
+    /**
+     * `[WXG-T-578]` 纹理宽高比（Figma v2 拼豆锁 192×260 @2x ⇒ 0.7385）。
+     * 出图按宽 × 1/aspect 求高，⛔ 不许拉成正方形（旧 128² 白盘锁时代是方形槽位，已不适用）。
+     */
+    aspect: 192 / 260,
 } as const;
 /**
  * `[WXG-T-566]` 竖向揭彩交界柔带**总高度占作品高度的比例**（0.08 @ 340px ≈ 27px）。
@@ -461,12 +466,12 @@ export const MENU_TEXTURES = {
   iconArrowRight: 'bitmap__menu_icon_arrow_right',
   iconCoin: 'bitmap__menu_icon_coin',
   iconStamina: 'bitmap__menu_icon_stamina',
-  /** Figma v2 拼豆锁（`47:19`）；选关墙锁定格的独立锁形 Sprite 仍消费本键。 */
+  /**
+   * Figma v2 拼豆锁（`47:19`）；消费者两处：选关墙锁定格 + 橱窗锁定态。
+   * `[WXG-T-578]` 旧 `frame`（沙漏圆牌）/ `seal`（通关飘带）两键**已删** —— 源码零消费者，
+   * 只在测试里当负断言的空靶子；Cocos 两件一并出包（省 43.5 KB 主包）。
+   */
   lock: 'bitmap__menu_lock',
-  /** Figma v2 金色珠圈框（`46:21`，满星态装裱框）；⚠ 旧键名 `badgeProgress` 语义已废。 */
-  frame: 'bitmap__menu_frame',
-  /** Figma v2 通关金章（`47:20`）；⚠ 旧键名 `sealCleared` 语义已废。 */
-  seal: 'bitmap__menu_seal',
   /** v3.8 CTA「开始游戏」艺术字。缺资产回退程序化字。 */
   ctaLabel: 'bitmap__menu_cta_label',
   /**

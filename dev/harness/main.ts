@@ -187,10 +187,9 @@ const MENU_FILE: Readonly<Record<string, string>> = {
   [MENU_TEXTURES.iconArrowRight]: 'ui_icon_arrow_right.png',
   [MENU_TEXTURES.iconCoin]: 'asset-icon-coin.png',
   [MENU_TEXTURES.iconStamina]: 'asset-icon-stamina.png',
-  // WXG-T-577：锁 / 框 / 通关三件套（Figma v2 切图，右/下补 1px 透明边到偶数尺寸）。
+  // WXG-T-577：锁（Figma v2 切图，右/下补 1px 透明边到偶数尺寸）。
+  // WXG-T-578：框 / 通关两键已删（源码零消费者，Cocos 两件一并出包）。
   [MENU_TEXTURES.lock]: 'badges/ui_menu_lock@2x.png',
-  [MENU_TEXTURES.frame]: 'badges/ui_menu_frame@2x.png',
-  [MENU_TEXTURES.seal]: 'badges/ui_menu_seal@2x.png',
   [MENU_TEXTURES.ctaLabel]: 'ui_menu_cta_label.png',
   // `[P0 静态温暖]` 左下陶盆（210×415 RGBA，源 = qwen-image-3.0 lock seed 88 切图）。
   [MENU_TEXTURES.pot]: 'ui_menu_pot.png',

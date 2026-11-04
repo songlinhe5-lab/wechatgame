@@ -372,7 +372,9 @@ function drawShowcaseItem(
 }
 
 /**
- * 锁定态锁形独立 Sprite：画在 frost+gray 合成作品之上，位置居中、尺寸 = 作品宽度 × 比例。
+ * 锁定态锁形独立 Sprite：画在 frost+gray 合成作品之上，位置居中、宽度 = 作品宽度 × 比例，
+ * 高度按纹理宽高比（`MENU_LOCKED_ICON.aspect`）求 —— `[WXG-T-578]` Figma v2 拼豆锁是 192×260
+ * 的竖长件，⛔ 不再按方形拉（旧 128² 白盘锁才配方形槽）。
  * ⛔ 不合成进 frost 纹理 —— 锁形是静态图、可独立调尺寸/alpha/动画。
  */
 function drawLockedBadge(
@@ -383,15 +385,16 @@ function drawLockedBadge(
     ink: number | undefined,
 ): void {
     if (!menuBitmapReady(MENU_LOCKED_ICON.textureId)) return;
-    const size = bw * MENU_LOCKED_ICON.scale;
+    const w = bw * MENU_LOCKED_ICON.scale;
+    const h = w / MENU_LOCKED_ICON.aspect;
     const cx = bx + bw / 2;
     const cy = by + bw / 2;
     const opts = ink === undefined ? undefined : { alpha: ink };
     builder.blit(
         MENU_LOCKED_ICON.textureId,
-        cx - size / 2,
-        cy - size / 2,
-        size, size,
+        cx - w / 2,
+        cy - h / 2,
+        w, h,
         opts,
     );
 }
