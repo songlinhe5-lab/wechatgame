@@ -1,6 +1,8 @@
-# 发布清单（Release Checklist）· beads「拼豆小铺」
+# 发布清单（Release Checklist）· beads「千面拼豆」
 
-- 版本：**v1.17** · 2026-11-05（v1.17 = **引擎分离定为 beads 发布档**，`build:cocos` 默认产出引擎分离包；历史沿革见 §9）
+> ⚠ 称名沿革：本清单 2026-10 创建至 2026-11-05 期间标题为「拼豆小铺」；因该名称在微信注册页被判重 ⇒ 改名「千面拼豆」（裁定正本 `menu-architecture.md §10.6`，工单 WXG-T-584）。正文内历史读数仍按当时旧名书写，⛔ 不追改（K-053）。
+
+- 版本：**v1.18** · 2026-11-05（v1.18 = **改名「千面拼豆」三腿同步已闭**（`app_name` + 珠拼字模 + 顶板 logo，产物 v1.0.34）；v1.17 = **引擎分离定为 beads 发布档**，`build:cocos` 默认产出引擎分离包；历史沿革见 §9）
 - 适用发布类型：**首次提审发布（首发）**；后续热修沿用 `production/release/rollback.md §5` 简化流程
 - 模板来源：`production/release/release-checklist.md`（breakout 版，六阶段 + 门控结构沿用）
 - 状态：**待执行**（P4 文档批；真机走查与发布批未开）
@@ -29,7 +31,7 @@
 
 | ☐ | 检查项 | 判据 | 负责人 | 现状 / 证据 |
 |---|---|---|---|---|
-| ☐ | 🚦 版本号三处一致 | `games/beads/package.json`、游戏内 `version_label`、微信后台版本号按 `version-strategy.md` 对齐 | OPS | **机制已立（WXG-T-468，USER 2026-10-28 裁定：首发 = `1.0.x`、x = build 号、生成最终产物时递增）**：`build-cocos.mjs` 版本腿在 release 构建时递增 `package.json`（真源）并给产物 `version_label` 打实际 build 号（源码恒显基线 `v1.0.0`）；**现值 `1.0.19`（2026-10-31 11:1x release 构建，WXG-T-522）**。**「演示版」字样 = 分环境（USER 2026-10-28 裁 C，WXG-T-473 已落码）**：源码基线/harness/金样本恒显 `· 演示版`，**发布产物由版本腿连同后缀剥掉**（`tools/scripts/lib/version-label.mjs::stampReleaseLabel`，判别测试 `version-label.test.mjs` 进根 `test` 步）。✅ **2026-10-29 复证（T-506 + T-508 + T-510）**：新包 `cocos/build/wechatgame/assets/main/index.js` = **v1.0.15**、全文「演示版」**0 次**（产物 mtime 10-29 23:03）⇒ 剥后缀与打号腿成立。⚠ 仅剩：微信后台版本号 = 首次 `cli upload` 时填当次 build 号（下一次干净 release 构建会递增到 `1.0.16`，以那时产物为准） |
+| ☐ | 🚦 版本号三处一致 | `games/beads/package.json`、游戏内 `version_label`、微信后台版本号按 `version-strategy.md` 对齐 | OPS | **机制已立（WXG-T-468，USER 2026-10-28 裁定：首发 = `1.0.x`、x = build 号、生成最终产物时递增）**：`build-cocos.mjs` 版本腿在 release 构建时递增 `package.json`（真源）并给产物 `version_label` 打实际 build 号（源码恒显基线 `v1.0.0`）；**现值 `1.0.19`（2026-10-31 11:1x release 构建，WXG-T-522）**。**现值订正（2026-11-05）**= **`1.0.34`**（WXG-T-584 ③a 顶板 logo 换代后的 release 重建；上一档 1.0.33 = T-583定档未构建）。**「演示版」字样 = 分环境（USER 2026-10-28 裁 C，WXG-T-473 已落码）**：源码基线/harness/金样本恒显 `· 演示版`，**发布产物由版本腿连同后缀剥掉**（`tools/scripts/lib/version-label.mjs::stampReleaseLabel`，判别测试 `version-label.test.mjs` 进根 `test` 步）。✅ **2026-10-29 复证（T-506 + T-508 + T-510）**：新包 `cocos/build/wechatgame/assets/main/index.js` = **v1.0.15**、全文「演示版」**0 次**（产物 mtime 10-29 23:03）⇒ 剥后缀与打号腿成立。⚠ 仅剩：微信后台版本号 = 首次 `cli upload` 时填当次 build 号（下一次干净 release 构建会递增到 `1.0.16`，以那时产物为准） |
 | ☐ | 发布范围冻结 | 关卡池、皮肤池、风格池以 `systems-index §3` 为准；未出池项（EP11 P-1…P-4）不混入 | DES + OPS | |
 | ☐ | 🚦 漂移登记已闭合或豁免 | `systems-index` 漂移登记 + 本节已知漂移逐条有结论 | ENG + DES | |
 | ☐ | 调试入口不进线上 | `studio=` 启动参数（beads-studio 导入，http 局域网）、`debugInfo` 覆层、`qa-probe` 不在提审包里可达 | ENG + QA | `BeadsBootstrap.ts` 只认 launch query `studio=` ⇒ 普通入口不可达；仍需在提审包上实测设置页无「导入」钮 |
@@ -37,7 +39,7 @@
 
 ### 1.2 包体预算（**v1.6 对齐：2026-10-19 23:29 release 现包实测**，产物 `cocos/build/wechatgame`，108 文件；括号内为 10-18 基线对比）
 
-> 口径：`check:size` 按**原始字节**判定（gzip 仅参考）；产物必须是 **release 档**（`build:cocos` 默认即此档，旧默认 debug 已于 WXG-T-292 翻面；debug 数字不可作基线）。**自 2026-11-05 起 beads 的 release 档 = 引擎分离**（`games/beads/package.json` 的 `cocosRelease.separateEngine`，WXG-T-583）⇒ 下表 **3201.0 KB 系引擎内联旧基线**，与分离档不可混用；下一次干净 release 构建的基线以产物实测为准（T-582 分离档实测 2755.5 KB）。
+> 口径：`check:size` 按**原始字节**判定（gzip 仅参考）；产物必须是 **release 档**（`build:cocos` 默认即此档，旧默认 debug 已于 WXG-T-292 翻面；debug 数字不可作基线）。**自 2026-11-05 起 beads 的 release 档 = 引擎分离**（`games/beads/package.json` 的 `cocosRelease.separateEngine`，WXG-T-583）⇒ 下表 **3201.0 KB 系引擎内联旧基线**，与分离档不可混用；下一次干净 release 构建的基线以产物实测为准（T-582 分离档实测 2755.5 KB；**2026-11-05 WXG-T-584 二批重建 = 2745.3 KB / 145 文件，余量 1350.7 KB**）。
 > 逐组明细 = 同一份产物按文件原始字节求和，合计与 `check:size` 逐值相符。**v1.6** 对 23:29 现包重跑同一算法（`find -type f -exec stat -f%z` 求和）：合计 **3201.0 KB**，较 10-18 基线 3188.2 增 **+12.8 KB**，全部落在 `assets/main`（527.2 → 540.1，本日夜间未提交工作，含本轮对局 safe area / 胶囊避让）；其余组逐值不变。⚠ **B′ 分包按用户裁定仍未落码 ⇒ 本表仍按「无分包」计**，§8 的 2731.8 KB 只是落码后的预期值。
 
 | 组成 | KB | 说明 |
@@ -112,7 +114,7 @@
 | ☐ | 检查项 | 判据 | 负责人 |
 |---|---|---|---|
 | ☐ | 🚦 主体与类目 | mp 后台主体、游戏类目已选定 | USER |
-| ☐ | 🚦 游戏名称 | 微信注册页名称唯一性校验通过，且后台填写名 / 包内 `app_name` / 招牌字模 / 软著名四处一致。**现名「拼豆小铺」已于 2026-11-05 被判「与已有小程序名称重复」⇒ 不可用**；改名四域联动单 = `production/TASKS-DETAIL.md §WXG-T-584`（定名「千面拼豆」，待校验） | USER + OPS |
+| ☐ | 🚦 游戏名称 | 微信注册页名称唯一性校验通过，且后台填写名 / 包内 `app_name` / 招牌字模 / 软著名四处一致。**现名「千面拼豆」已过校验（8/30 字符）**；仓内三腿已一致：`app_name` ✅ / 珠拼字模（§1.5-b）✅ / 顶板 logo ✅（v1.0.34 已入产物，`check:cocos-mask` OK）⇒ **仅剩 USER 侧：后台帐号名 + 简称 + 软著名 + TapTap 文案**；简称建议填 `千面`（已有 **284** 家用「拼豆」作简称 ⇒ ⛔ 不用通用词，次选留空）。工单 = `production/TASKS-DETAIL.md §WXG-T-584` | USER + OPS |
 | ☐ | ⚠ 资质材料 | 按 `production/release/wechat-submission.md` 逐项确认 beads 适用性（**有激励广告 ⇒ 比 breakout 多流量主相关材料**，以官方为准） | USER + OPS |
 | ☐ | 体验版 | 上传开发版 → 设为体验版 → 内部扫码复跑走查单 Session 1 | OPS |
 | ☐ | 🚦 提审 | 记录提交时间、版本、审核单号 | USER |
@@ -146,7 +148,7 @@
 - 音频（X-01）与激励视频（X-07）的首发处理未定；
 - 引擎分离发布档的**后台硬前提**：微信公众平台已添加「Cocos 引擎」官方插件（provider 取产物 `game.json`）；未做则开发者工具报插件未注册 / 真机白屏（WXG-T-583 定档后新增门控）；
 - **AppID 性质**：当前 `wx8cf9…0749` 是「小游戏测试号」而非正式小游戏后台，测试号无插件管理 ⇒ 引擎插件发布档无法授权；提审/发布需正式小游戏 AppID（2026-11-05 核实）；
-- **游戏名称**：「拼豆小铺」在注册页被判重 ⇒ 提审前必须定名并过唯一性校验；且名称变更连带招牌新增 `千/面` 两枚字模与顶板 logo 重出（工单 WXG-T-584）；
+- **游戏名称**：~~「拼豆小铺」在注册页被判重~~ ⇒ **已改名「千面拼豆」并过唯一性校验；仓内三腿（app_name / 字模 / 顶板 logo）已一致（v1.0.34）**⇒ 本项剩下的不是仓内阻塞，而是 **USER 侧外部称名**（后台帐号名与简称 / 软著 / TapTap），未齐则提审材料仍不自洽（工单 WXG-T-584 ⑤）；
 - ~~§8 选型未拍板~~ ⇒ **已拍板 = B′（USER 2026-10-19），但按裁定节奏「先登记、暂不落码」** ⇒ 阻塞性质从「未定」变为「待实施 + 待真机验 D-78」；
 - 上传腿**已跑通一半（2026-10-19 实测）**：`cli preview` 成功（`✔ preview`，包 **3.1 MB** < 4 MB 主包上限，走 IDE 登录态、不需上传密钥）⇒ 平台侧接受当前包；仍未做的是 `cli upload`（上传开发版，才需密钥 + IP 白名单）与提审后的体验版链路。
 

@@ -366,17 +366,17 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 3942,
-      "lines": 133,
-      "sha256": "64bb6c143488558dcbe361168ca22d06a34d3dda03918870703e4a95de07514b",
+      "tokens": 3980,
+      "lines": 134,
+      "sha256": "5dafb45e5c024035790530b61bd1d808a98c48ddb0116ac8487b7ea09f70992c",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文预算报表（ctx/BUDGET.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 134,
-          "tokens": 3929,
+          "endLine": 135,
+          "tokens": 3967,
           "summary": "生成：2026-11-05 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 229797 8182 normal",
+          "summary": "1 production/TASKS-DETAIL.md 230238 8187 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -420,8 +420,8 @@
           "anchor": "§3 超限清单（超过所属类别上限）",
           "level": 2,
           "startLine": 46,
-          "endLine": 108,
-          "tokens": 2438,
+          "endLine": 109,
+          "tokens": 2476,
           "summary": "上限按文档类别分档（WXG-T-377）：spec 8000（判据/规格/提案/ADR/GDD/UX/skill，未放松",
           "keywords": [
             "WXG",
@@ -435,8 +435,8 @@
         {
           "anchor": "§4 真实最常用章节与分布加权节省率（估算）",
           "level": 2,
-          "startLine": 109,
-          "endLine": 134,
+          "startLine": 110,
+          "endLine": 135,
           "tokens": 612,
           "summary": "数据源：ctx/usage-distribution.json（真实读事件账本），样本 457 次读取 / 20 会话；",
           "keywords": [
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "e1ee68226431c833bb58a062c4bcae435c9be61381045c60c48b8ecc3c70801c",
+      "sha256": "88e9b098d3e808ee5a2007bee6d7e8cddf5f4005e3da9729d189d1c8ef6e30e5",
       "tier": "normal",
       "sections": [
         {
@@ -745,7 +745,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 191 行 / 45709 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 191 行 / 45698 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 8182 行 / 229797 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 8187 行 / 230238 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+8183 · §WXG-T-573=7630+36 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+8188 · §WXG-T-573=7630+36 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -24444,9 +24444,9 @@
     },
     {
       "path": "games/beads/design/art/final/README.md",
-      "tokens": 7993,
+      "tokens": 8028,
       "lines": 109,
-      "sha256": "d07e62f08b05f3f9eb1b0293fdd5ce40a6e8f402b24973b7f837f42246ed5828",
+      "sha256": "47d75051c68146bfc2c9fce9bee2ecd05be72abb6dc6a0e09117b6eb2f521f96",
       "tier": "normal",
       "sections": [
         {
@@ -24454,7 +24454,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 110,
-          "tokens": 7977,
+          "tokens": 8011,
           "summary": "2026-10-14 用户裁定：资源定稿分三类；shots 只按日期存每日结论证据，本区是验收后的归集面（复制入库，原件",
           "keywords": [
             "final",
@@ -24512,7 +24512,7 @@
           "level": 2,
           "startLine": 67,
           "endLine": 87,
-          "tokens": 1727,
+          "tokens": 1762,
           "summary": "⚠ 2026-11-02 起（WXG-T-557 用户令，T-559 修正）：下表记录的件除 11 件现役集外已全部归档",
           "keywords": [
             "assets",
@@ -88781,17 +88781,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 229797,
-      "lines": 8182,
-      "sha256": "eff6097aa6d6fc8fe3e7acd3eaf09e9353f069b7812831c04e16d115362a19ef",
+      "tokens": 230238,
+      "lines": 8187,
+      "sha256": "5bf869896812d6376fea747984de3bd7e0497396f870e8e6dbb01f698e85ee41",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 8183,
-          "tokens": 229781,
+          "endLine": 8188,
+          "tokens": 230222,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -101324,8 +101324,8 @@
           "anchor": "§WXG-T-584",
           "level": 2,
           "startLine": 8131,
-          "endLine": 8183,
-          "tokens": 2920,
+          "endLine": 8188,
+          "tokens": 3361,
           "summary": "命名·游戏名「拼豆小铺」改「千面拼豆」（四域联动） · 负责：主理人(Qoder)·跨域（设计轨 + 美术轨 + 工程轨",
           "keywords": [
             "WXG",
@@ -101375,8 +101375,8 @@
           "anchor": "§3b. 执行记录（2026-11-05）",
           "level": 3,
           "startLine": 8162,
-          "endLine": 8170,
-          "tokens": 563,
+          "endLine": 8174,
+          "tokens": 1006,
           "summary": "① 已过：注册页返 8/30 + 「名字可以使用」。",
           "keywords": [
             "执行记录"
@@ -101385,8 +101385,8 @@
         {
           "anchor": "§4 验收判据",
           "level": 3,
-          "startLine": 8171,
-          "endLine": 8174,
+          "startLine": 8175,
+          "endLine": 8178,
           "tokens": 68,
           "summary": "pnpm run verify 全绿 + menu-signage-beadtext 四枚字模珠数逐字对撞 + harn",
           "keywords": [
@@ -101401,9 +101401,9 @@
         {
           "anchor": "§5 遗留 / 阻塞",
           "level": 3,
-          "startLine": 8175,
-          "endLine": 8183,
-          "tokens": 588,
+          "startLine": 8179,
+          "endLine": 8188,
+          "tokens": 584,
           "summary": "~~① 名称唯一性尚未校验~~ ⇒ 已过（2026-11-05）：微信注册页填「千面拼豆」返 8/30 字符 + 「你的",
           "keywords": [
             "遗留",
@@ -101414,9 +101414,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 45709,
+      "tokens": 45698,
       "lines": 191,
-      "sha256": "b3036b7118b13c47f24992da36d3914d3f6fd181bcef2056070337e5099fcda1",
+      "sha256": "baa1949da1f63848041e25189aabfe6f93b917bfd2b55e96ba094dd286680c9f",
       "tier": "hot",
       "sections": [
         {
@@ -101424,7 +101424,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 192,
-          "tokens": 45700,
+          "tokens": 45689,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -105195,17 +105195,17 @@
     },
     {
       "path": "production/qa/asset-provenance.md",
-      "tokens": 8091,
-      "lines": 176,
-      "sha256": "5a6ae299952ed150bcbe7907b3668ae705c47202a9f2f6a0a69d0207c6ad2545",
+      "tokens": 8542,
+      "lines": 187,
+      "sha256": "829a62dc29067ae7b8d11b0935aebdfaa7691a7f184787d68208341a490befe4",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§归档资源生成史（Asset Provenance）",
           "level": 1,
           "startLine": 1,
-          "endLine": 177,
-          "tokens": 8077,
+          "endLine": 188,
+          "tokens": 8528,
           "summary": "本件是「每张进 final/ 的图从哪来」的唯一正本。 建件 = 用户 2026-11-01 令「统一使用图片生成文档，",
           "keywords": [
             "Asset",
@@ -105383,6 +105383,22 @@
             "png",
             "Figma",
             "scale"
+          ]
+        },
+        {
+          "anchor": "§10 2026-11-05 批（WXG-T-584 ③a · 顶板 logo 改名重出）",
+          "level": 2,
+          "startLine": 178,
+          "endLine": 188,
+          "tokens": 432,
+          "summary": "final/v1/assets/menu/ui_menu_logo.png 960×772 RGBA Token Pla",
+          "keywords": [
+            "WXG",
+            "logo",
+            "final",
+            "assets",
+            "menu",
+            "ui_menu_logo"
           ]
         }
       ]
@@ -116286,17 +116302,17 @@
     },
     {
       "path": "production/qa/token-plan-usage-ledger.md",
-      "tokens": 3476,
-      "lines": 94,
-      "sha256": "34f11166c21acb016e635a007391a9571c97278a6307e38636f3c80f609dcf2a",
+      "tokens": 3692,
+      "lines": 96,
+      "sha256": "d4d098ea62b1d4d3601afc39de0e8b844f166b58c2cef557917dcaf151cd40f2",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Token Plan 生图用量台账（建账 2026-11-01）",
           "level": 1,
           "startLine": 1,
-          "endLine": 95,
-          "tokens": 3460,
+          "endLine": 97,
+          "tokens": 3676,
           "summary": "本件只管「花了多少次、出了几张图、留在哪」，是追加型台账（按时间序加行，⛔ 不回改历史行）。",
           "keywords": [
             "Token",
@@ -116396,8 +116412,8 @@
           "anchor": "§6 temp 生图存量（2026-11-01 清理一次，用户令「把 temp 里的生图都清理掉」）",
           "level": 2,
           "startLine": 71,
-          "endLine": 95,
-          "tokens": 1676,
+          "endLine": 97,
+          "tokens": 1892,
           "summary": "清理前 3642 张 / temp 共 2.3 GB",
           "keywords": [
             "temp",
@@ -116867,32 +116883,31 @@
     },
     {
       "path": "production/release/beads/release-checklist.md",
-      "tokens": 11499,
-      "lines": 240,
-      "sha256": "763abe0a8428c65297698e2bd014f72c1ac4bbf88845701f174749f2019fd377",
+      "tokens": 11816,
+      "lines": 242,
+      "sha256": "4a9d6bbaf3b319fa0db365374b4b78a778237ebbd283bdd12c7c8495ef98fbf0",
       "tier": "normal",
       "sections": [
         {
-          "anchor": "§发布清单（Release Checklist）· beads「拼豆小铺」",
+          "anchor": "§发布清单（Release Checklist）· beads「千面拼豆」",
           "level": 1,
           "startLine": 1,
-          "endLine": 241,
-          "tokens": 11480,
-          "summary": "版本：v1.17 · 2026-11-05（v1.17 = 引擎分离定为 beads 发布档，build:cocos 默",
+          "endLine": 243,
+          "tokens": 11797,
+          "summary": "⚠ 称名沿革：本清单 2026-10 创建至 2026-11-05 期间标题为「拼豆小铺」；因该名称在微信注册页被判重 ",
           "keywords": [
             "Release",
             "Checklist",
             "beads",
-            "build",
-            "cocos",
-            "发布清单"
+            "发布清单",
+            "千面拼豆"
           ]
         },
         {
           "anchor": "§⛔ 前置声明（务必先读）",
           "level": 2,
-          "startLine": 10,
-          "endLine": 19,
+          "startLine": 12,
+          "endLine": 21,
           "tokens": 624,
           "summary": "1. 平台红线 ≠ 内部目标，且两条已合流：红线 = 微信主包 ≤ 4096 KB、主包+分包 ≤ 20480 KB（现",
           "keywords": [
@@ -116903,8 +116918,8 @@
         {
           "anchor": "§0 使用说明",
           "level": 2,
-          "startLine": 20,
-          "endLine": 25,
+          "startLine": 22,
+          "endLine": 27,
           "tokens": 73,
           "summary": "每项四要素：判据 / 负责人（角色）/ 证据 / 勾选。角色代号同 breakout 版：ENG QA DES ART ",
           "keywords": [
@@ -116918,9 +116933,9 @@
         {
           "anchor": "§1 阶段一：构建前（Pre-Build）",
           "level": 2,
-          "startLine": 26,
-          "endLine": 78,
-          "tokens": 2444,
+          "startLine": 28,
+          "endLine": 80,
+          "tokens": 2512,
           "summary": "",
           "keywords": [
             "Pre",
@@ -116932,9 +116947,9 @@
         {
           "anchor": "§1.1 版本与范围冻结",
           "level": 3,
-          "startLine": 28,
-          "endLine": 37,
-          "tokens": 585,
+          "startLine": 30,
+          "endLine": 39,
+          "tokens": 629,
           "summary": "☐ 🚦 版本号三处一致 games/beads/package.json、游戏内 version_label、微信后台",
           "keywords": [
             "games",
@@ -116948,9 +116963,9 @@
         {
           "anchor": "§1.2 包体预算（**v1.6 对齐：2026-10-19 23:29 release 现包实测**，产物 `cocos/build/wechatgame`，108 文件；括号内为 10-18 基线对比）",
           "level": 3,
-          "startLine": 38,
-          "endLine": 61,
-          "tokens": 989,
+          "startLine": 40,
+          "endLine": 63,
+          "tokens": 1012,
           "summary": "口径：check:size 按原始字节判定（gzip 仅参考）；产物必须是 release 档（build:cocos ",
           "keywords": [
             "cocos/build/wechatgame",
@@ -116964,8 +116979,8 @@
         {
           "anchor": "§1.3 依赖与工具就绪（2026-10-15 核实）",
           "level": 3,
-          "startLine": 62,
-          "endLine": 78,
+          "startLine": 64,
+          "endLine": 80,
           "tokens": 798,
           "summary": "通道层前置（AppID / 上传密钥 / 备案域名 / 云开发）的逐项现状与可勾选清单见 [launch-prerequ",
           "keywords": [
@@ -116979,8 +116994,8 @@
         {
           "anchor": "§2 阶段二：构建（Build）",
           "level": 2,
-          "startLine": 79,
-          "endLine": 91,
+          "startLine": 81,
+          "endLine": 93,
           "tokens": 312,
           "summary": "☐ 干净构建 先 pnpm run framework:sync，再 pnpm --filter @wxgame/bea",
           "keywords": [
@@ -116995,8 +117010,8 @@
         {
           "anchor": "§3 阶段三：自测（真机）",
           "level": 2,
-          "startLine": 92,
-          "endLine": 109,
+          "startLine": 94,
+          "endLine": 111,
           "tokens": 381,
           "summary": "执行单：production/qa/beads/device-walkthrough.md（Session 0–7，K-",
           "keywords": [
@@ -117011,9 +117026,9 @@
         {
           "anchor": "§4 阶段四：提交审核",
           "level": 2,
-          "startLine": 110,
-          "endLine": 119,
-          "tokens": 268,
+          "startLine": 112,
+          "endLine": 121,
+          "tokens": 334,
           "summary": "☐ 🚦 主体与类目 mp 后台主体、游戏类目已选定 USER",
           "keywords": [
             "USER",
@@ -117024,8 +117039,8 @@
         {
           "anchor": "§5 阶段五：上线",
           "level": 2,
-          "startLine": 120,
-          "endLine": 127,
+          "startLine": 122,
+          "endLine": 129,
           "tokens": 105,
           "summary": "☐ 🚦 审核通过 + USER 批准发布 人工审批，不可自动 USER",
           "keywords": [
@@ -117037,8 +117052,8 @@
         {
           "anchor": "§6 阶段六：上线后观察",
           "level": 2,
-          "startLine": 128,
-          "endLine": 137,
+          "startLine": 130,
+          "endLine": 139,
           "tokens": 107,
           "summary": "☐ 错误监控 mp 后台运营数据 / 错误日志无致命崩溃 ENG",
           "keywords": [
@@ -117050,9 +117065,9 @@
         {
           "anchor": "§7 门控汇总（Go / No-Go）",
           "level": 2,
-          "startLine": 138,
-          "endLine": 154,
-          "tokens": 635,
+          "startLine": 140,
+          "endLine": 156,
+          "tokens": 686,
           "summary": "进入提审的硬门控（全绿才 go）：§1.1 版本一致 · §1.2 主包红线 + 总包红线 + 守卫有牙（内部目标已与红",
           "keywords": [
             "§1.1",
@@ -117063,8 +117078,8 @@
         {
           "anchor": "§8 分包 / 远程包选型（**发布批拍板，本清单不代裁**）",
           "level": 2,
-          "startLine": 155,
-          "endLine": 218,
+          "startLine": 157,
+          "endLine": 220,
           "tokens": 3533,
           "summary": "以 2026-10-18 release 重建实测（主包 3188.2 KB / 108 文件）为选型基线；23:29 ",
           "keywords": [
@@ -117078,8 +117093,8 @@
         {
           "anchor": "§8.1 决策点（v1.2 收口，给 USER 拍板用）",
           "level": 3,
-          "startLine": 197,
-          "endLine": 218,
+          "startLine": 199,
+          "endLine": 220,
           "tokens": 933,
           "summary": "包体已达标 ⇒ 本表只剩一个真问题：低端机首屏要下多少字节，愿意为它付多少复杂度。按「改动量 / 下载收益」排序：",
           "keywords": [
@@ -117092,8 +117107,8 @@
         {
           "anchor": "§9 变更记录",
           "level": 2,
-          "startLine": 219,
-          "endLine": 241,
+          "startLine": 221,
+          "endLine": 243,
           "tokens": 2732,
           "summary": "v1.0 2026-10-15 初稿（P4）：beads 六阶段清单 + 实测包体基线 + AppID / 产物现状 +",
           "keywords": [

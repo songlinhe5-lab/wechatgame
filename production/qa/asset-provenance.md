@@ -174,3 +174,14 @@ python3 games/beads/design/ai-workflows/trace-figma-icons.py
 **改名与接线**：`MENU_TEXTURES.badgeLocked/badgeProgress/sealCleared` → `lock/frame/seal`（textureId 同步改 `bitmap__menu_lock/frame/seal`），连动 `src/view/meta-widgets.ts`、5 个测试文件、`dev/harness/main.ts`、`beads-blit-carrier.ts` 的键；Cocos 镜像由 `pnpm run framework:sync` 生成（⛔ 未手改）。`asset-map.json` 键仍为 Cocos 扁原名、值改指新三件；Cocos `textures/` 文件名与内容保持旧值（用户拍板只改设计真源侧）。
 
 **门禁**：`check:cocos-mask` 三件尺寸与投放件不同，进显式 SKIP 清单（⛔ 非已验，K-036）；其余归属 6/9、互异保持率 2 对、33 件源↔产物等值全绿。详见 `production/TASKS-DETAIL.md §WXG-T-577`。
+
+## 10. 2026-11-05 批（WXG-T-584 ③a · 顶板 logo 改名重出）
+
+| 件（实测规格） | 生成方式 | 生成脚本（入库路径） | 原图（入库路径 / 状态） | 批次出处 |
+|---|---|---|---|---|
+| `final/v1/assets/menu/ui_menu_logo.png` 960×772 RGBA | Token Plan `wan2.7-image` i2i + `bbox_list` 框选，**3 次调用 / 3 张 / 零浪费**（seed 4201 弃件、4202 全字区、4203 仅首字）→ 确定性合成（框外逐像素取原图 + 蝴蝶结矩形回取） | `games/beads/design/ai-workflows/logo-rename-compose.py` | ✅ 底图 = 同路径旧版（git `HEAD` 前一版可取，已入库）；三张云图原样留档 | `design/art/proposals/logo-rename-20261105/`（`generation-record.txt` + `s4201/4202/4203.png`） |
+| `cocos/assets/textures/ui_menu_logo.png` 960×772 P256 107.1 KB | 现役 octree 配方（`quantize-cocos-textures.py::ship_rgba_octree`），⛔ 不用 `ship()`（存 RGBA 多花 225 KB，而它防的同族态抹平对本件不适用） | 同上脚本（`--apply` 一并写） | ✅ 即上行 RGBA 正本 | 同上 |
+
+**自证**：保留区被改动像素 = 0（木牌 / 双绳 / 蝴蝶结逐像素不变）；真透明自证 = alpha=0 占比 48.56%、极值 0..255（⛔ 只查 mode 会被 RGBA 假透明骗过）；投放件回读逐位一致。
+
+**读数**：投放件 117.3 → 107.1 KB（−10.2）；重建后主包 2755.5 → **2745.3 KB**（引擎分离档，余量 1350.7 KB）；版本 v1.0.33 → **v1.0.34**；`check:cocos-mask` 由 FAIL（产物陈旧）转 **OK**；`verify` 23/23。

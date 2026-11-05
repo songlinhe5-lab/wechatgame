@@ -1,0 +1,47 @@
+顶板 logo 改名重出 · 生成史（WXG-T-584 ③a · 2026-11-05 · 主理人 Qoder）
+====================================================================
+
+用途：游戏名「拼豆小铺」被微信注册页判重 ⇒ 改名「千面拼豆」，顶板烧字位图随名换代。
+本目录 = 三张云图原样留档（含 1 张弃件）；合成腿 = `games/beads/design/ai-workflows/logo-rename-compose.py`。
+
+基准图（底图）
+  games/beads/design/art/final/v1/assets/menu/ui_menu_logo.png   960×772 RGBA
+  = 在册真源（`final/README.md:73`「招牌原件，v3.9 绳加长 150px；2026-10-18 已裁 PNG 为现役真源」）
+  旧字实测几何：四字列块 x 66..878、核心行 y 472..667（HSV sat>110 & V>110 & 非木色）
+  蝴蝶结 pink bbox = x 373..597 / y 304..446  ⇒ 与旧字顶行重叠 ⇒ 需单独掩码
+
+逐步调用（全部 Token Plan 通道 · `wan2.7-image` · i2i + `bbox_list` 框选 · `--size 960*772`）
+  1) s4201.png   seed 4201   bbox 55,460,890,705   7.4 s   **弃**
+     失败原因 = 框上沿 460 切进旧字顶行 ⇒ 合成后木牌上留下一排半截旧珠（可见缺陷）。
+  2) s4202.png   seed 4202   bbox 50,430,895,715   8.1 s   采用（第 2、3、4 字）
+     四字逐字正确、风格与原件一致；唯一缺陷 = 首字「千」的撇被画成一排水平珠 ⇒ 读作「干」。
+  3) s4203.png   seed 4203   bbox 48,430,290,715   7.3 s   采用（仅首字）
+     底图 = 第 2 步的合成结果（`composite2`），指令显式禁止「字顶画水平横排」并给出三笔形状。
+
+合成（确定性，零模型）
+  脚本：python3 games/beads/design/ai-workflows/logo-rename-compose.py [--apply]
+  次序：原图 → paste s4202[50,430,895,715] → paste s4203[48,430,290,715] → paste 原图[348,288,622,456]（蝴蝶结逐像素取回）
+  为什么必须合成而不是直接用云图：`bbox_list` 是**指引不是像素锁**（框外 maxΔ 实测 165，
+    见 production/qa/wan27-token-plan-20261101.md）⇒ 框外一律回取原图。
+
+判据读数（2026-11-05 实跑）
+  保留区被改动像素 = 0
+  真透明自证 = alpha=0 占比 48.56%、极值 0..255（⛔ 只查 mode 会被 RGBA 假透明骗过）
+  投放件 = 117.3K → 107.1K（Δ −10.2K）；距正本 1.83（在册读数 1.98）；alpha 并档 maxΔ = 57
+  投放件配方 = `quantize-cocos-textures.py::ship_rgba_octree`（现役 octree，**不是** `ship()`）
+    理由：`ship()` 存 RGBA 要多花 225 KB，而它防的是「同族两态被并色抹平」（BD-61）——本件无同族态；
+    且本件走 octree 的 alpha=0 像素数与在册件逐数全等（365107）⇒ 无口径漂移。
+
+产出落点
+  games/beads/design/art/final/v1/assets/menu/ui_menu_logo.png   （正本，RGBA）
+  games/beads/assets/menu/ui_menu_logo.png                        （carrier / harness 同源副本，md5 与正本一致）
+  games/beads/cocos/assets/textures/ui_menu_logo.png              （投放件，P256 + 透明）
+
+用量报数
+  Token Plan 3 次调用 / 出图 3 张 / 浪费 0 次（s4201 属判负弃件，非调用失败）；单发 7.3–8.1 s；套餐内零额外花费。
+
+未闭项（⛔ 别提前关单）
+  ① 未回 Cocos 编辑器 reimport、未重建 release 产物 ⇒ **构建产物里仍是旧字**（判例 BD-61）；
+     下次 `pnpm --filter @wxgame/beads build:cocos` 会自动带上（`.meta` 未动：同名同尺寸，编辑器维护）。
+  ② 观感 = `[待真机]`：107 KB 投放件在真机上的边缘/半透明表现未测；harness 目测已过（见工单 3b）。
+  ③ 本批只做「顶板 logo」；程序化珠拼回落腿（字模）已随 WXG-T-584 ③b 入库，两腿互斥、各已换代。

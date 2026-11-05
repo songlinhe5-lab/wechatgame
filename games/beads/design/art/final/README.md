@@ -70,7 +70,7 @@ v2 三态 `proto-menu-v2-{locked,pushing,cleared}-752x1344.png` 已按用户令�
 
 | 件 | 来源批次 | 接线状态 |
 |---|---|---|
-| `ui_menu_logo.png`（960×772） | 招牌原件（v3.9 绳加长 150px；位图走原件） | ✅ 已接 `assets/menu/` 运行时；✅ **2026-10-18 已裁 = PNG 为现役真源**（判据：距 Cocos 投放件 1.98 vs webp 4.67），同名 webp 已退役（隔离于 `temp/webp-retired-20261018/`），清单见 `production/qa/webp-png-duality-20261018.md` B-1 |
+| `ui_menu_logo.png`（960×772） | 招牌原件（v3.9 绳加长 150px；位图走原件） | ✅ 已接 `assets/menu/` 运行时；✅ **2026-10-18 已裁 = PNG 为现役真源**（判据：距 Cocos 投放件 1.98 vs webp 4.67），同名 webp 已退役（隔离于 `temp/webp-retired-20261018/`），清单见 `production/qa/webp-png-duality-20261018.md` B-1；⚠ 2026-11-05 烧字随改名换代为「千面拼豆」（WXG-T-584 ③a，来源账 `asset-provenance.md §10`） |
 | `ui_menu_signboard.png`（707×459 RGBA） | 用户 2026-10-14 供带绳整块版（绳+结+板+珠字一体，透明底），令「资源落 final」 | ⏳ 未转正未接线；⚠ 与第十四批「绳不随切图走」旧裁口径不同，双轨并存待 runtime 选型拍板（真源登记在落地单 §5-C4） |
 | `asset-icon-coin/stamina.png`（948×946 / 734×690 RGBA） | shots/20261013 `l4-resource-bar/` | ✅ **已转正（2026-10-14 用户令「落 final」，与 shots 源像素级 maxΔ0 验过）**；✅ 已接运行时（WXG-T-280/281）（接线时按目标尺寸重缩，⚠ 现尺寸为原图非 @2x 切图规格）；✅ 2026-10-18 由 `.webp` 逐位一致转码（maxΔ 0），webp 退役，harness `MENU_FILE` 同批改指 PNG |
 | `ui_btn_circle_normal/pressed` + `ui_icon_sound/mail/settings` | shots/20261010 `btn-circle/` | ✅ **已转正（2026-10-14 用户令「组件落 final」，与 shots 源逐字节一致 cmp 验过）**；✅ 已接运行时（WXG-T-280/281）。**2026-11-02 换代（WXG-T-545/546）**：四枚 `ui_icon_*` 换深棕线条版、底圆 `ui_btn_circle_*` 换木质圆牌（白盘版退役，原件在 `temp/backup-ui-circle-20261102/`，⛔ 不入库），生成史见 `production/qa/asset-provenance.md` |
