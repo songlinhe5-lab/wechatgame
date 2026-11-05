@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3980,
       "lines": 134,
-      "sha256": "5dafb45e5c024035790530b61bd1d808a98c48ddb0116ac8487b7ea09f70992c",
+      "sha256": "02e76925c83b9d832452e4a0410efefed650b952576bf029e369a9b0b61b7302",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 230238 8187 normal",
+          "summary": "1 production/TASKS-DETAIL.md 230350 8187 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "88e9b098d3e808ee5a2007bee6d7e8cddf5f4005e3da9729d189d1c8ef6e30e5",
+      "sha256": "1c122f879c4d680e623b1e5d8ea758efe751fdb1ede099db23572619978392d2",
       "tier": "normal",
       "sections": [
         {
@@ -1016,7 +1016,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 8187 行 / 230238 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 8187 行 / 230350 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
@@ -88781,9 +88781,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 230238,
+      "tokens": 230350,
       "lines": 8187,
-      "sha256": "5bf869896812d6376fea747984de3bd7e0497396f870e8e6dbb01f698e85ee41",
+      "sha256": "ed35e8f159014e5770e7a7b9312259dae773550a21eac5e28ada014dba5b5c26",
       "tier": "normal",
       "sections": [
         {
@@ -88791,7 +88791,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 8188,
-          "tokens": 230222,
+          "tokens": 230334,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -101325,7 +101325,7 @@
           "level": 2,
           "startLine": 8131,
           "endLine": 8188,
-          "tokens": 3361,
+          "tokens": 3473,
           "summary": "命名·游戏名「拼豆小铺」改「千面拼豆」（四域联动） · 负责：主理人(Qoder)·跨域（设计轨 + 美术轨 + 工程轨",
           "keywords": [
             "WXG",
@@ -101376,7 +101376,7 @@
           "level": 3,
           "startLine": 8162,
           "endLine": 8174,
-          "tokens": 1006,
+          "tokens": 1118,
           "summary": "① 已过：注册页返 8/30 + 「名字可以使用」。",
           "keywords": [
             "执行记录"
@@ -116883,9 +116883,9 @@
     },
     {
       "path": "production/release/beads/release-checklist.md",
-      "tokens": 11816,
+      "tokens": 11835,
       "lines": 242,
-      "sha256": "4a9d6bbaf3b319fa0db365374b4b78a778237ebbd283bdd12c7c8495ef98fbf0",
+      "sha256": "44a503e3ecea9501c7ea73206342ef84d3e40e008b22813c95d991c8af4539d9",
       "tier": "normal",
       "sections": [
         {
@@ -116893,7 +116893,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 243,
-          "tokens": 11797,
+          "tokens": 11816,
           "summary": "⚠ 称名沿革：本清单 2026-10 创建至 2026-11-05 期间标题为「拼豆小铺」；因该名称在微信注册页被判重 ",
           "keywords": [
             "Release",
@@ -117028,7 +117028,7 @@
           "level": 2,
           "startLine": 112,
           "endLine": 121,
-          "tokens": 334,
+          "tokens": 353,
           "summary": "☐ 🚦 主体与类目 mp 后台主体、游戏类目已选定 USER",
           "keywords": [
             "USER",
