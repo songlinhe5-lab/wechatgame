@@ -8020,3 +8020,64 @@ Figma 官方文档（remote-server-installation）：远程端点 `https://mcp.f
 
 - `final/README.md` 已顶到 `ctx:check` 的 **8000 token 上限**（现 8000 整，本单为塞进这两处订正曾三度压缩他处文字）。**下一单再往这个文件加字就会 FAIL**，需先拆分（如把 §1b/§1c 的批次史迁到 `final/CHANGELOG-archive.md`）或走 `ctx/budget-exempt.json` 登记。
 - 包体瘦身 ② 分包 / ③ 引擎分离 / ④ 音频，按用户定的顺序待做。
+
+## WXG-T-582
+
+**工具链·引擎分离传参失效修复 + 实测（包体瘦身 ③）** · 负责：主理人(CodeBuddy)·工具链 · 状态：✅ 完成（2026-11-05）
+
+### 1. 出发点
+
+承 T-581 遗留「包体瘦身四项按用户定的顺序做」的 **③ 引擎分离**（② 分包 / ④ 音频 未做）。上一版脚本已加 `--separate-engine`，但**构建产物与不开时一模一样**——本单的任务不是"加开关"，而是查清"开关为什么没生效"。
+
+### 2. 根因（三次实测定位）
+
+| 证据 | 内容 |
+|---|---|
+| ① 构建日志顶层 | `"separateEngine":"true"` —— 参数**确实传进去了**，但落在**顶层** |
+| ② 构建日志平台层 | `"packages":{"wechatgame":{..., "separateEngine":false, ...}}` —— 与 ① 并存 |
+| ③ 产物读数 | `cocos-js` 恒 **1360 KB**、`game.json` 无 `plugins` 键 ⇒ 引擎未分离 |
+
+机制：`--build "k=v;k=v"` 的键是**扁平字面键**，不是路径。写 `packages.wechatgame.separateEngine=true` 只会得到顶层字符串键 `"packages.wechatgame.separateEngine":"true"`（实测日志逐字可见），**不会**合进嵌套的 `packages` 对象；而 wechatgame builder 消费的是 `packages.<platform>.separateEngine`，该值来自 `profiles/v2/packages/wechatgame.json` 的 `builder.options.wechatgame`（现值 `false`）⇒ **静默覆盖**，无任何报错。
+
+⇒ 教训形态与 K-092（"走预构建产物的工具，参数表现为静默不生效而不是报错"）同族，但触发点不同：这里是**参数落在了错的层级**。
+
+### 3. 修法
+
+`configPath=<json>` 是 Cocos CLI 唯一能改到**平台层**的入口：该 json **覆盖式合入**构建配置，未写的键仍从 profile 补齐（实测 `mainBundleCompressionType` / `startScene` / `appid` / `overwriteProjectSettings` 全部照旧继承）。
+
+实现（`tools/scripts/build-cocos.mjs`）：
+
+- 新增 `separateEngineBuildConfig({cocosDir, platform, debug})`：读 `profiles/v2/packages/<platform>.json` 的平台选项 → 全量继承 → 叠加 `separateEngine: true`（**真 boolean**）→ 写 `cocos/temp/build-config-<platform>.json`（`.gitignore` 已覆盖）→ 返回 `configPath=<绝对路径>`。
+- `--separate-engine` 只在 wechatgame 族生效；其他平台打印忽略提示。
+- 构建后 `printNextSteps` 打印**硬前提**（后台添加 Cocos 引擎插件 + provider + 首屏字节不省的口径提醒）。
+- ⛔ 不写相对 `configPath`：Cocos 侧按进程 cwd 解析，本脚本 cwd = 仓库根，相对路径必指错。
+
+### 4. 读数（release 档，两轮构建复现）
+
+| 项 | 关 | 开 | 差 |
+|---|---|---|---|
+| 主包（原始字节） | 3908.4 KB / 145 文件 | **2755.5 KB** / 145 文件 | **−1152.9 KB** |
+| 距 4096 KB 红线余量 | 187.6 KB | **1340.5 KB** | +1152.9 KB |
+| `cocos-js/` | 1360 KB（`cc.js` 为引擎本体） | **216 KB**（`cc.js` 仅 3012 B） | −1144 KB |
+
+产物形态取证：`game.json` 多出 `"plugins": {"cocos": {"version": "3.8.8", "provider": "wx…（16 位十六进制，⛔ 不入仓，取产物原值）"}}`；`cocos-js/cc.js` 退化为 `System.register(["plugin:cocos/2d.js", ...])` 的壳；`game.js` 内 `'plugin:'` 前缀走 `requirePlugin(urlNoSchema)`。
+
+`check:size` 读数不变于两轮（2755.5 KB / 145 文件）；**STATUS: OK**。
+
+⚠ 判据诚实性：**`cocos-js/cc.js` 从 ~1.3 MB 主体缩到 3012 B 的壳**才是"引擎已剥离"的直接证据；不能只凭主包总数下降推断（版本号打号也会小幅改变总数）。
+
+### 5. 未验证项（环境限制，如实登记）
+
+- **未真机 / 未开微信开发者工具**：引擎插件要求微信公众平台后台「插件管理 → 添加 Cocos 引擎官方插件」；后台账号不在本会话，故**产物能否实际启动未经取证**。缺此前提大概率"plugin 未注册"或白屏。
+- **未验证插件包实际下载体积**：微信侧对插件的版本分发与缓存策略属平台行为，本地无从测量。
+
+### 6. 结论与口径
+
+- 本单交付的是**可用开关 + 实测读数**，⛔ 未把 `separateEngine` 改为默认开：属发布口径变更（`release-checklist §8` 原在此列为"不下结论的调研项"），且依赖外部后台配置，须 USER 拍板。
+- 需同时对齐两条口径：插件包**不计入主包 4 MB**（判定口径变好），但玩家首启**仍要下载插件**（首屏字节数不变）。`release-checklist §8` 已按此回写。
+- 沉淀统计：新增 0 / 修改 0 / 激活 0 / 归档 0（沉淀候选见会话结论：CLI 参数层级覆盖类教训，待 `kb:sync` 时入 `engine-cocos-build` 片）。
+
+### 7. 遗留
+
+- 包体瘦身 ④ 音频待做（② 分包仍未做）。
+- `pnpm run check:tasks` 的名称列上限 60 字符：本行名称 25 字符，未触门。

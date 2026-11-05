@@ -80,6 +80,30 @@ const OPEN_PANEL = argv.includes('--open-panel');
  * ⇒ 要调试得显式 `--debug`；`--release` 保留为**显式 release**（与默认同果，旧指令 / 旧文书不会反转）。
  */
 const DEBUG = argv.includes('--debug') && !argv.includes('--release');
+/**
+ * 引擎分离（`[WXG-T-582]`）：把引擎代码从主包剥离，改走**微信引擎插件**
+ * （产物 `game.json` 多出 `plugins.cocos = { version, provider }`，
+ * `cocos-js/cc.js` 从 ~1.3 MB 主体退化成 `plugin:cocos/*` 的 required 壳）。
+ * 仅 wechatgame 族有意义。
+ * ⛔ `provider` 是 16 位十六进制的插件 ID，形同 AppID ⇒ **不入仓**（`check:secrets` 判红线，
+ *    ADR-0010 §4.2-5）；需要核对时从产物 `game.json` 的 `plugins.cocos.provider` 读。
+ *
+ * ⛔ 2026-11-05 实测：CLI **顶层** `separateEngine=true` 无效 —— `--build` 的 `k=v` 按**扁平键**
+ *    塞进 build options（传 `packages.wechatgame.separateEngine=true` 只会多出一个同名的
+ *    顶层字符串键），而 wechatgame builder 真正消费的是 `packages.<platform>.separateEngine`
+ *    （源自 `profiles/v2/packages/<platform>.json`，本工程为 `false`）⇒ 静默覆盖为 false，
+ *    产物外观毫无变化（旧实现即此处踩空，`cocos-js` 仍是 1360 KB，日志可证：
+ *    顶层 `"separateEngine":"true"` 与 `packages.wechatgame.separateEngine:false` 并存）。
+ * ✅ 有效路径 = `configPath=<json>`：该 json **覆盖式合入**构建配置（未写的键仍从 profile 补齐，
+ *    实测 `mainBundleCompressionType` / `startScene` 等照旧继承），在里面写
+ *    `packages.<platform>.separateEngine = true`（**真 boolean**）⇒ 日志与产物双确认生效。
+ *
+ * ⛔ 默认关 —— 开与不开的主包差 ≈1.3 MB，且**要求微信公众平台后台已添加「Cocos 引擎」官方插件**
+ *    （即产物 `plugins.cocos.provider` 那个 ID），属**发布口径变更**：必须显式传参，
+ *    重建后复跑 `check:size`。
+ */
+const SEPARATE_ENGINE = argv.includes('--separate-engine');
+const SEPARATE_ENGINE_SUPPORTED = platform === 'wechatgame' || platform === 'wechat-mini-game';
 
 /** 判定游戏：`--game=` 优先，否则取 cwd 的 basename（per-package 调用的正常路径）。 */
 const game = gameArg ? gameArg.slice('--game='.length) : basename(process.cwd());
@@ -175,14 +199,22 @@ if (DEBUG) {
   console.log('     本档包体数字不可作基线（`check:size` 会报「疑似 debug」）；排错完成后不带参数重跑即可恢复基线档。');
 }
 
+if (SEPARATE_ENGINE && !SEPARATE_ENGINE_SUPPORTED) {
+  console.log(`  ⚠️  --separate-engine 只对 wechatgame 族生效，platform=${platform} 忽略该开关`);
+}
+
 console.log('');
 console.log(
-  `  🔨 命令行构建中（${platform}${DEBUG ? ' · debug' : ' · release'}）… 日志：${rel(logFile)}`,
+  `  🔨 命令行构建中（${platform}${DEBUG ? ' · debug' : ' · release'}${SEPARATE_ENGINE && SEPARATE_ENGINE_SUPPORTED ? ' · 引擎分离' : ''}）… 日志：${rel(logFile)}`,
 );
 const started = Date.now();
+const buildConfig =
+  SEPARATE_ENGINE && SEPARATE_ENGINE_SUPPORTED
+    ? separateEngineBuildConfig({ cocosDir, platform, debug: DEBUG })
+    : [`platform=${platform}`, `debug=${DEBUG ? 'true' : 'false'}`].join(';');
 const run = spawnSync(
   COCOS_APP,
-  ['--project', cocosDir, '--build', `platform=${platform};debug=${DEBUG ? 'true' : 'false'}`],
+  ['--project', cocosDir, '--build', buildConfig],
   { cwd: ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 },
 );
 const secs = ((Date.now() - started) / 1000).toFixed(1);
@@ -359,6 +391,13 @@ function printNextSteps({ cocosDir, gameDir, platform, productDir }) {
     console.log(`    · 包体校验：pnpm run check:size ${rel(productDir)}`);
     console.log('      本脚本**默认即 release 基线档**（minify on / sourcemap off）⇒ 直接跑 check:size 即可；');
     console.log('      ⚠️ 若刚用过 `--debug`，包体数字不可作基线，需不带参数重跑一次再测。');
+    if (SEPARATE_ENGINE && SEPARATE_ENGINE_SUPPORTED) {
+      console.log('');
+      console.log('    ⛔ 引擎分离产物的**硬前提**（未做则开发者工具报 plugin 未注册 / 真机白屏）：');
+      console.log('       微信公众平台 → 设置 → 第三方设置 → 插件管理 → 添加「Cocos 引擎」官方插件');
+      console.log(`       核对用 ID = 产物 ${rel(productDir)}/game.json 的 plugins.cocos.provider（⛔ 该值不入仓）`);
+      console.log('       插件包**不计入主包 4 MB**，但玩家首启仍需下载它 ⇒ 判定口径变好、首屏字节数不变。');
+    }
     console.log('    · 真机预览：微信开发者工具打开产物目录 —— 需 AppID + 上传密钥 + IP 白名单');
     console.log('      （密钥严禁入仓；见 control-manifest §10 / ADR-0010 §4.2-5）');
   } else {
@@ -370,6 +409,33 @@ function printNextSteps({ cocosDir, gameDir, platform, productDir }) {
 }
 
 // ─────────────────────────────────────────────────────────── helpers ────────
+
+/**
+ * 生成**带引擎分离**的 `--build` 串（WXG-T-582）。
+ * 依据见文件头 `SEPARATE_ENGINE` 注释：顶层键静默无效，只有 `configPath` 里的
+ * `packages.<platform>.separateEngine` 会被 wechatgame builder 读到。
+ * · 落 `cocos/temp/`（`.gitignore` 已覆盖），保留现场便于按构建日志复核；
+ * · profile 的平台选项**全量继承**再叠加开关（缺键虽会补齐，显式继承更可读）；
+ * · ⛔ 别改写成相对的 `configPath` —— Cocos 侧按进程 cwd 解析，本脚本 cwd=仓库根会指错。
+ */
+function separateEngineBuildConfig({ cocosDir, platform, debug }) {
+  const profilePath = join(cocosDir, 'profiles', 'v2', 'packages', `${platform}.json`);
+  let platformOptions = {};
+  try {
+    platformOptions = JSON.parse(readFileSync(profilePath, 'utf8'))?.builder?.options?.[platform] ?? {};
+  } catch {
+    console.log(`  ℹ️  未读到平台 profile（${rel(profilePath)}）⇒ 只覆盖 separateEngine 一项`);
+  }
+  const cfgPath = join(cocosDir, 'temp', `build-config-${platform}.json`);
+  mkdirSync(dirname(cfgPath), { recursive: true });
+  writeFileSync(
+    cfgPath,
+    `${JSON.stringify({ platform, debug, packages: { [platform]: { ...platformOptions, separateEngine: true } } }, null, 2)}\n`,
+    'utf8',
+  );
+  console.log(`  🧩 引擎分离经 configPath 覆盖：${rel(cfgPath)}（packages.${platform}.separateEngine = true）`);
+  return `configPath=${cfgPath}`;
+}
 
 /** GET /health（MCP 服务有该端点；`/mcp` 的 GET 恒 404，不可用于探活）。 */
 async function probeHealth() {
@@ -434,6 +500,10 @@ function printHelp() {
   --no-build       只做前置检查，不执行构建
   --open-panel     改经 MCP 打开编辑器构建面板（不执行 CLI 构建）
   --game=<name>    显式指定游戏（默认取 cwd 的 basename —— per-package 调用的正常路径）
+  --separate-engine  引擎分离：引擎改走微信引擎插件（仅 wechatgame 族），经 configPath 覆盖平台层
+                   packages.<platform>.separateEngine —— ⛔ 3.8.8 下**顶层** separateEngine=true 静默无效。
+                   ⛔ 发布口径变更（实测主包 −1152.9 KB），且需微信后台已添加「Cocos 引擎」插件
+                   （provider 见产物 game.json 的 plugins.cocos）；开启后必须重建并复跑 check:size（WXG-T-582）
   -h, --help       本帮助
 
 构建能力来源（两轮实测）：
