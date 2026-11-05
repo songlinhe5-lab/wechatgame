@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3942,
       "lines": 133,
-      "sha256": "896c3532774deb688544d3d0a56edc5603081c5a2b6e5adbd3ba263350a7a7ac",
+      "sha256": "0f2adb2e2f1c282a53dee34bbe4ef9bdc59daaabf1a46af449f97726d0a14f00",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 226319 8124 normal",
+          "summary": "1 production/TASKS-DETAIL.md 226483 8125 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "70d8caadc01da88d432e4646ce69449a5c1d658a945e3962017679a616b460fa",
+      "sha256": "f364b5cb9bf010e47d5e38d44d59e23c09fef36a7d1bc26813650972fe0a85e7",
       "tier": "normal",
       "sections": [
         {
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 8124 行 / 226319 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 8125 行 / 226483 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+8125 · §WXG-T-572=7597+33 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+8126 · §WXG-T-572=7597+33 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -88750,17 +88750,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 226319,
-      "lines": 8124,
-      "sha256": "7f3e12aec1bb52a8c584398076bab45dcdd3395625de3db7b04b6023615d2970",
+      "tokens": 226483,
+      "lines": 8125,
+      "sha256": "6d6ac02b6a738c2d129053ef48b9f482d151ed9631c1e8ca3392d7b797df5dbf",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 8125,
-          "tokens": 226302,
+          "endLine": 8126,
+          "tokens": 226466,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -101204,8 +101204,8 @@
           "anchor": "§WXG-T-583",
           "level": 2,
           "startLine": 8085,
-          "endLine": 8125,
-          "tokens": 1066,
+          "endLine": 8126,
+          "tokens": 1230,
           "summary": "工具链·beads 发布档定为引擎分离（默认开） · 负责：主理人(Qoder)·工具链 · 状态：✅ 完成（2026-",
           "keywords": [
             "WXG",
@@ -101280,12 +101280,12 @@
           "anchor": "§5 遗留 / 风险",
           "level": 3,
           "startLine": 8120,
-          "endLine": 8125,
-          "tokens": 191,
-          "summary": "后台插件仍未确认：微信公众平台「插件管理 → 添加 Cocos 引擎官方插件」需 USER 在后台操作；未做则发布档产物",
+          "endLine": 8126,
+          "tokens": 355,
+          "summary": "后台插件未添加（2026-11-05 09:52 实测取证）：对 T-582 分离档产物跑 cli preview（工程",
           "keywords": [
-            "Cocos",
-            "USER",
+            "cli",
+            "preview",
             "遗留",
             "风险"
           ]
@@ -116747,9 +116747,9 @@
     },
     {
       "path": "production/release/beads/release-checklist.md",
-      "tokens": 10850,
+      "tokens": 10892,
       "lines": 235,
-      "sha256": "120480ffd9cf4c0379aee0d601ea42cacf33997dc5120c0b839b666f76bb7ffb",
+      "sha256": "11d258108284e7592576498e3b0667390024d738c0c8bbbe804e1d12cd4fc28e",
       "tier": "normal",
       "sections": [
         {
@@ -116757,7 +116757,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 236,
-          "tokens": 10831,
+          "tokens": 10873,
           "summary": "版本：v1.17 · 2026-11-05（v1.17 = 引擎分离定为 beads 发布档，build:cocos 默",
           "keywords": [
             "Release",
@@ -116800,7 +116800,7 @@
           "level": 2,
           "startLine": 26,
           "endLine": 78,
-          "tokens": 2254,
+          "tokens": 2296,
           "summary": "",
           "keywords": [
             "Pre",
@@ -116846,7 +116846,7 @@
           "level": 3,
           "startLine": 62,
           "endLine": 78,
-          "tokens": 608,
+          "tokens": 650,
           "summary": "通道层前置（AppID / 上传密钥 / 备案域名 / 云开发）的逐项现状与可勾选清单见 [launch-prerequ",
           "keywords": [
             "AppID",

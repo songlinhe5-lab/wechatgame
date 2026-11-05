@@ -67,7 +67,7 @@
 |---|---|---|---|
 | ☐ | 🚦 `pnpm run verify` | 22/22 PASS | ✅（P3 批末次） |
 | ☐ | 🚦 AppID | profile / 工程 / 产物一致 = `wx8cf9f756e5390749` | ✅；⚠ `cocos/build/project.config.json` 的 `wx63c62151a1c0cf3b` 为误开父目录生成，开发者工具**只打开 `build/wechatgame/`** |
-| ☐ | 🚦 Cocos 引擎插件 | 微信公众平台 → 设置 → 第三方设置 → 插件管理已添加「Cocos 引擎」官方插件；provider 与产物 `game.json` 的 `plugins.cocos.provider` 一致（⛔ 该值不入仓） | ⏳ 待 USER 在后台确认——引擎分离定档后**不加 = 产物不可启动** |
+| ☐ | 🚦 Cocos 引擎插件 | 微信公众平台 → 设置 → 第三方设置 → 插件管理已添加「Cocos 引擎」官方插件；provider 与产物 `game.json` 的 `plugins.cocos.provider` 一致（⛔ 该值不入仓） | ❌ **2026-11-05 09:52 实测未添加**：`cli preview` 返回 `code 10 / 80082, get plugin(... version: 3.8.8) failed, permission deny` ⇒ **当前发布档产物不可预览/启动**；解除 = 后台添加插件后重跑 preview 取证 |
 | ☐ | 微信开发者工具 | 已装、已登录有开发权限的微信号；上传密钥 + IP 白名单（**仅 `upload` 需要**） | ✅ 2026-10-19 实测：`cli islogin` 返回 `{"login":true}`；`cli preview` 跑通并出二维码（包 3.1 MB）⇒ **预览腿不需密钥/白名单**，原写「登录/密钥待 USER 确认」只对 upload 成立 | ENG + OPS |
 | ☐ | Cocos Creator | 版本 = 工程约定 | ✅ 3.8.8 |
 | ☐ | 产物目录唯一 | 只留一个产物目录 | ✅ 2026-10-19 已处置：`build/wechatgame-001`（09-29 旧包）改名 `build/_archive-wechatgame-001-20260929`，profile `outputName` 改指 `wechatgame`（本地工程设置，未入仓）⇒ 现只剩 `wechatgame` + `web-mobile`（非微信产物） |

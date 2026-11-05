@@ -8119,6 +8119,7 @@ USER 令「把 --separate-engine 定为 beads 发布档」。T-582 已证明机�
 
 ### 5. 遗留 / 风险
 
-- **后台插件仍未确认**：微信公众平台「插件管理 → 添加 Cocos 引擎官方插件」需 USER 在后台操作；未做则发布档产物不可启动。本会话无后台账号，真机可启动未取证。
+- **后台插件未添加（2026-11-05 09:52 实测取证）**：对 T-582 分离档产物跑 `cli preview`（工程 AppID，产物 `cocos/build/wechatgame`），返回 `code 10 / 80082, get plugin(... version: 3.8.8) failed, permission deny` ⇒ 账号未添加「Cocos 引擎」插件，**当前发布档产物不可预览/启动**。解除条件 = 微信公众平台「插件管理 → 添加 Cocos 引擎官方插件」；添加后重跑同一条 preview 命令取证（QR 图落 `temp/`，不入仓）。
+- **本地 preview 命令备忘**：`cli open --project <绝对路径>` 先打开工程，再 `cli preview --project <绝对路径> --qr-format image --qr-output temp/…png`；相对路径曾报 `code 19 project.config.json 无效`，改绝对路径后进入 AppID 校验与插件检查。
 - 首次按新默认构建时，`check:size` 基线会从 3201.0 KB（引擎内联）切到约 2755.5 KB（T-582 实测）；发布清单 §1.2 的逐组明细需在该次构建后按实包回填。
 - 沉淀统计：新增 0 / 修改 0 / 激活 0 / 归档 0（候选：发布档「数据声明 + 产物断言」做法，待 `kb:sync` 时评估入 `engine-cocos-build` 片）。
