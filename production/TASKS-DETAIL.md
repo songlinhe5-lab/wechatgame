@@ -8120,6 +8120,7 @@ USER 令「把 --separate-engine 定为 beads 发布档」。T-582 已证明机�
 ### 5. 遗留 / 风险
 
 - **后台插件未添加（2026-11-05 09:52 / 14:17 两次实测取证）**：对 T-582 分离档产物跑 `cli preview`（工程 AppID，产物 `cocos/build/wechatgame`），两次均返回 `code 10 / 80082, get plugin(... version: 3.8.8) failed, permission deny` ⇒ 账号未授权该插件，**当前发布档产物不可预览/启动**。解除条件 = 微信公众平台「插件管理 → 添加 Cocos 引擎官方插件」；若后台已添加仍报错，逐项核对账号 AppID、插件 ID、授权版本三者一致，并重启开发者工具再试。
+- **账号性质（2026-11-05 核实）**：工程 AppID `wx8cf9…0749` 的后台页面是「**小游戏测试号**」（只有开发者 ID / AppSecret / 服务器域名，无「设置 → 第三方设置 → 插件管理」）⇒ 测试号无法添加 Cocos 引擎插件；解锁条件 = 提供**正式小游戏 AppID** 并在其后台添加插件（提审/发布同样需要）。⚠ 该页面截图含 AppSecret，已提示用户立即重置；本仓不记录密钥。
 - **本地 preview 命令备忘**：`cli open --project <绝对路径>` 先打开工程，再 `cli preview --project <绝对路径> --qr-format image --qr-output temp/…png`；相对路径曾报 `code 19 project.config.json 无效`，改绝对路径后进入 AppID 校验与插件检查。
 - **配置核查（Cocos 3.8/4.0 发布文档）**：① 发布档构建日志 `nativeCodeBundleMode: wasm`，而文档注明「微信小游戏引擎插件目前仅支持 js 模式」⇒ 切 `js` 需重建验证，未改；② Cocos GUI 构建读 `profiles/v2/packages/wechatgame.json`（`separateEngine: false`），CLI release 靠 configPath 覆盖为 true ⇒ 发布包只走 `pnpm --filter @wxgame/beads build:cocos`，⛔ 不要用 GUI 构建；若要让 GUI 也默认分离，另改 profile（待裁）。
 - 首次按新默认构建时，`check:size` 基线会从 3201.0 KB（引擎内联）切到约 2755.5 KB（T-582 实测）；发布清单 §1.2 的逐组明细需在该次构建后按实包回填。
