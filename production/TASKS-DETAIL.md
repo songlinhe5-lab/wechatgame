@@ -8074,7 +8074,7 @@ Figma 官方文档（remote-server-installation）：远程端点 `https://mcp.f
 ### 6. 结论与口径
 
 - 本单交付的是**可用开关 + 实测读数**，⛔ 未把 `separateEngine` 改为默认开：属发布口径变更（`release-checklist §8` 原在此列为"不下结论的调研项"），且依赖外部后台配置，须 USER 拍板。
-- 需同时对齐两条口径：插件包**不计入主包 4 MB**（判定口径变好），但玩家首启**仍要下载插件**（首屏字节数不变）。`release-checklist §8` 已按此回写。
+- **4 MB 口径修正（2026-11-05，按 Cocos 3.8/4.0 文档 Q&A）**：本地产物 2755.5 KB **不含插件**；文档明确「启用引擎插件后，引擎代码仍然会计算在首包包体中」⇒ **平台 4 MB 红线余量不得用本地 check:size 推算**，须以实际 preview/upload 读数为准。已确认收益 = 引擎插件客户端共享缓存（下载/启动），不是包体红线。`release-checklist §8` 已按此回写。
 - 沉淀统计：新增 0 / 修改 0 / 激活 0 / 归档 0（沉淀候选见会话结论：CLI 参数层级覆盖类教训，待 `kb:sync` 时入 `engine-cocos-build` 片）。
 
 ### 7. 遗留
@@ -8121,5 +8121,6 @@ USER 令「把 --separate-engine 定为 beads 发布档」。T-582 已证明机�
 
 - **后台插件未添加（2026-11-05 09:52 / 14:17 两次实测取证）**：对 T-582 分离档产物跑 `cli preview`（工程 AppID，产物 `cocos/build/wechatgame`），两次均返回 `code 10 / 80082, get plugin(... version: 3.8.8) failed, permission deny` ⇒ 账号未授权该插件，**当前发布档产物不可预览/启动**。解除条件 = 微信公众平台「插件管理 → 添加 Cocos 引擎官方插件」；若后台已添加仍报错，逐项核对账号 AppID、插件 ID、授权版本三者一致，并重启开发者工具再试。
 - **本地 preview 命令备忘**：`cli open --project <绝对路径>` 先打开工程，再 `cli preview --project <绝对路径> --qr-format image --qr-output temp/…png`；相对路径曾报 `code 19 project.config.json 无效`，改绝对路径后进入 AppID 校验与插件检查。
+- **配置核查（Cocos 3.8/4.0 发布文档）**：① 发布档构建日志 `nativeCodeBundleMode: wasm`，而文档注明「微信小游戏引擎插件目前仅支持 js 模式」⇒ 切 `js` 需重建验证，未改；② Cocos GUI 构建读 `profiles/v2/packages/wechatgame.json`（`separateEngine: false`），CLI release 靠 configPath 覆盖为 true ⇒ 发布包只走 `pnpm --filter @wxgame/beads build:cocos`，⛔ 不要用 GUI 构建；若要让 GUI 也默认分离，另改 profile（待裁）。
 - 首次按新默认构建时，`check:size` 基线会从 3201.0 KB（引擎内联）切到约 2755.5 KB（T-582 实测）；发布清单 §1.2 的逐组明细需在该次构建后按实包回填。
 - 沉淀统计：新增 0 / 修改 0 / 激活 0 / 归档 0（候选：发布档「数据声明 + 产物断言」做法，待 `kb:sync` 时评估入 `engine-cocos-build` 片）。

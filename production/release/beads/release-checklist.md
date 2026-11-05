@@ -178,11 +178,13 @@
 
 > 引擎 `cc.js` 1356.9 KB（gzip 后 355.5 KB）是包体数字上的最大项（占主包 43%）。Cocos 的「分离引擎 / 引擎插件」（profile `separateEngine: false`）~~**是否计入主包、对首发是否可用，以[微信官方](https://developers.weixin.qq.com/minigame/dev/guide/)与 Cocos 文档为准**，本清单不下结论，列为发布批调研项。~~
 >
-> ✅ **本节该项收口（WXG-T-582，2026-11-05 实测）**：机制可用，读数已取证 —— 主包 **3908.4 → 2755.5 KB（−1152.9 KB）**、距 4096 KB 红线余量 **187.6 → 1340.5 KB**、`cocos-js` **1360 → 216 KB**；产物 `game.json` 增 `plugins.cocos = {version:"3.8.8", provider:"wx…（16 位十六进制，⛔ 不入仓，取产物原值）"}`，`cc.js` 退化为 `plugin:cocos/*` 的 required 壳。开关 = **beads 发布档默认**（`games/beads/package.json` 的 `cocosRelease.separateEngine: true`，WXG-T-583 定档）⇒ `pnpm --filter @wxgame/beads run build:cocos` 即产出分离档，`--no-separate-engine` 仅作对照（⛔ 早前脚本传**顶层** `separateEngine=true` 会被平台层 profile 的 `false` 静默覆盖、产物零变化，已改走 `configPath` 覆盖平台层）。⚠ 本节读数以该注为**最新时点**；文本上方的包体数字属 2026-10-19 与更早批次，未随逐次瘦身回填。
+> ✅ **本节该项收口（WXG-T-582，2026-11-05 实测）**：机制可用，读数已取证 —— 主包 **3908.4 → 2755.5 KB（−1152.9 KB，本地产物口径）**、本地产物距 4096 KB 余量 **187.6 → 1340.5 KB（⚠ 不含插件，平台口径见下）**、`cocos-js` **1360 → 216 KB**；产物 `game.json` 增 `plugins.cocos = {version:"3.8.8", provider:"wx…（16 位十六进制，⛔ 不入仓，取产物原值）"}`，`cc.js` 退化为 `plugin:cocos/*` 的 required 壳。开关 = **beads 发布档默认**（`games/beads/package.json` 的 `cocosRelease.separateEngine: true`，WXG-T-583 定档）⇒ `pnpm --filter @wxgame/beads run build:cocos` 即产出分离档，`--no-separate-engine` 仅作对照（⛔ 早前脚本传**顶层** `separateEngine=true` 会被平台层 profile 的 `false` 静默覆盖、产物零变化，已改走 `configPath` 覆盖平台层）。⚠ 本节读数以该注为**最新时点**；文本上方的包体数字属 2026-10-19 与更早批次，未随逐次瘦身回填。
 >
 > ⛔ **启用硬前提**：微信公众平台 → 设置 → 第三方设置 → 插件管理 → 添加「Cocos 引擎」官方插件（provider = 产物 `game.json` 的 `plugins.cocos.provider`；该 ID 形同 AppID，⛔ 不抄进仓库）。未做则该档产物在开发者工具报插件未注册 / 真机白屏 ⇒ **提审前必须先确认此项**。本会话无后台账号，故「产物真机可启动」**未取证**。
 >
-> ⚠ 口径两条仍需分开：插件包**不计入主包 4 MB**（判定口径变好），但玩家首启**仍要下载插件**（首屏字节数不变、甚至多一次插件版本协商）⇒ 它解决的是"红线余量"，不是"首屏时长"。
+> 💡 **同效路径（Cocos 3.8/4.0 文档 Q&A）**：开发者工具提示「插件未授权使用」时点「添加插件」→ 选择 CocosCreator → 重新编译；若列表为空，先「清缓存 → 全部清除」再试（[3.8 引擎插件说明](https://docs.cocos.com/creator/3.8/manual/zh/editor/publish/wechatgame-plugin.html)）。
+>
+> ⚠ **4 MB 口径必须按平台读数，不能用本地 `check:size` 推算**：本地产物 2755.5 KB **不含插件**；Cocos 3.8/4.0 文档 Q&A 明确「启用引擎插件后，引擎代码仍然会计算在首包包体中」⇒ 平台 4 MB 红线余量须以**实际 preview/upload 读数**为准。已确认的收益 = 引擎插件在客户端共享缓存（下载/启动），不是包体红线；玩家首启仍要下载插件（首屏字节数不变、甚至多一次插件版本协商）。
 >
 > ✅ **定档（USER 2026-11-05 拍板，WXG-T-583）**：**引擎分离 = beads 发布档**。落地为 `games/beads/package.json` 的 `cocosRelease.separateEngine: true`（数据驱动），release 构建默认生效；`--no-separate-engine` 仅用于对照包 / 后台插件未就绪时排错；`--debug` 不套发布档。构建脚本在产物 `game.json` 缺 `plugins.cocos.provider` 时**直接失败**（防再次静默不生效），且失败发生在版本号递增之前。
 >
