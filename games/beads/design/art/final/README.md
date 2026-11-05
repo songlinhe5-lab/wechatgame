@@ -42,7 +42,7 @@ v2 三态 `proto-menu-v2-{locked,pushing,cleared}-752x1344.png` 已按用户令�
 > 本表保留 WXG-T-575 时的扁平名作史证；**现行路径见 `asset-map.json`**（WXG-T-576 起加 `@2x` 并按用途分子目录）。`badges/` 自 WXG-T-577 起为 Figma v2 锁/框/通关三件套，老资源归档 `proposals/…/badges-retired-20261104/`。
 >
 > **WXG-T-578/579**：`ui_menu_lock@2x`→`ui_menu_badge_locked`（锁形）、`ui_menu_frame@2x`→`ui_menu_arc_ring`（满星珠圈框）。旧 `frame`/`seal` 键已删（零消费者，省 43.5 KB）。两件投放件均 pal-256：锁 192×260 与正本同尺寸 ⇒ 归属腿可判；框 518² 只 1x（`@2x` 需 158 KB 超余量 ⇒ 显式 SKIP）。
-> **WXG-T-580 无损**：17 件正本经 `lossless-optimize-menu-assets.py` 重压，省 208,838 B（5.7%）、逐像素断言不变；已投放 6 件同步入包省 3.7 KB。`seal` 仍未入包。
+> **WXG-T-580 无损**：17 件正本经 `lossless-optimize-menu-assets.py` 重压，省 208,838 B（5.7%）逐像素不变；入包省 3.7 KB。`seal` 仍未入包。
 
 用户令「从 figma 获取相关资源，切图，背景图，高亮状态等纹理」+「按照建议执行」；追加令「重新拉一套背景/高亮图替代圆牌两态、图标做矢量」。开工前均声明方法 = Figma REST 节点导出（纯下载、零重绘、零模型）+ 图标位图追踪转真 SVG。
 
@@ -81,7 +81,7 @@ v2 三态 `proto-menu-v2-{locked,pushing,cleared}-752x1344.png` 已按用户令�
 | `ui_menu_badge_locked.png`（128² @2x） | 2026-10-15 P3 未开启锁（云端 qwen-image-3.0，seed 7） | ✅ 在用（同名 webp 已于 2026-10-18 退役，投放件反推父本 = PNG：0.87 vs 24.99）。播放钮 `ui_menu_badge_pushing` 与完成章 `ui_menu_badge_done` 已删（2026-10-16，改沙漏 / 飘带） |
 | `ui_menu_badge_progress.png` | `9c553e0c`（2026-10-16 · WXG-T-282：走马灯 v3.5–v3.9 实装 + 纹理换代 PNG）—— **v3.8 进行中沙漏（花心）** | ✅ 已接运行时：`MENU_TEXTURES.badgeProgress`（`bitmap__menu_badge_progress`）→ `cocos/assets/scripts/host/beads-blit-carrier.ts:132`；✅ 同名件在 `cocos/assets/textures/`（2026-10-28 WXG-T-481 补账） |
 | `ui_menu_seal_cleared.png` | 同上（`9c553e0c` · WXG-T-282）—— **v3.8 通关飘带** | ✅ 已接：`MENU_TEXTURES.sealCleared`（`bitmap__menu_seal_cleared`）→ carrier:133；✅ 在 `textures/`（同上补账） |
-| `ui_wood_frame.png` | 由 `ui_wood_grain` 派生（2026-10-29）——**外框木纹环** 780×705、12px 宽、圆角 alpha | ✅ 已接：`MENU_TEXTURES.woodFrame` → 结算面板外框；投放件量化 + 构建生成 `.meta` |
+| `ui_wood_frame.png` | 由 `ui_wood_grain` 派生（2026-10-29）——**外框木纹环** 780×705、12px 宽、圆角 alpha | ⛔ **T-581 删键出包**（原记「已接结算面板外框」过期，自 T-515 走 9-slice 双层）；零消费者、175.6 KB |
 | `ui_wood_grain.png` | 云 `qwen-image-3.0` seed 511（2026-10-29，0.18 元）——**卡通木纹条** 1024×320（裁切+色彩对齐+圆角 alpha+**柔和 25%**） | ✅ 已接：`MENU_TEXTURES.woodGrain`（`bitmap__ui_wood_grain`）→ 结算木牌/主钮拉伸；投放件 `cocos/assets/textures/`（量化）+ 构建生成 `.meta` |
 | `ui_menu_cta_label.png` | 同上（`9c553e0c` · WXG-T-282）—— **v3.8 CTA「开始游戏」艺术字**（缺资产时回退程序化字） | ✅ 已接：`MENU_TEXTURES.ctaLabel`（`bitmap__menu_cta_label`）→ carrier:134；✅ 在 `textures/`（同上补账） |
 

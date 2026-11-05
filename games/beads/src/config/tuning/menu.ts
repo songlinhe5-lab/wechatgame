@@ -453,12 +453,10 @@ export const MENU_TEXTURES = {
    * 将来若需音量类图标，**另绘扬声器**，⛔ 复用本枚（同图两义 = 玩家误读源）。
    */
   iconSound: 'bitmap__menu_icon_sound',
-  /**
-   * 信封（切图规格 B2）。`[WXG-T-497]` 起**零消费者**：顶栏签到钮改挂 `iconCalendar`
-   * （用户 2026-10-29 裁「信封替换成日历 / 礼盒」）⇒ 本枚保留 = 将来消息中心（公告 / 奖励邮件）
-   * 的候选件（方向见 `ux-spec §8 U19`，入口暂缓）。
-   */
-  iconMail: 'bitmap__menu_icon_mail',
+  // `[WXG-T-581]` 信封 `iconMail` **已删键出包**：`[WXG-T-497]` 起签到钮改挂 `iconCalendar`
+  // （用户 2026-10-29 裁「信封替换成日历 / 礼盒」）⇒ 本枚零消费者，长期占包 2.1 KB。
+  // 消息中心（公告 / 奖励邮件）方向见 `ux-spec §8 U19`，入口暂缓；真要做时图仍在
+  // `design/art/final/assets/menu/icons/`，按 §5 预算流程重新入包。
   /**
    * `[WXG-T-497]` 签到 / 每日奖励（顶栏右上第一枚）：日历 + 对勾切图（规格 **B10**）。
    * 用户 2026-10-29 裁：原信封语义（消息中心）与「签到」错位 ⇒ 换专用日历形。
@@ -504,8 +502,10 @@ export const MENU_TEXTURES = {
   beam: 'bitmap__menu_beam',
   /** `[WXG-T-512]` 卡通木纹条（云 qwen-image-3.0 seed 511 生成，1024×320 圆角）：结算木牌与主钮拉伸使用。 */
   woodGrain: 'bitmap__ui_wood_grain',
-  /** `[WXG-T-514]` 结算外框木纹环（780×705 圆角环，12px 宽）；按钮不再用纹理。 */
-  woodFrame: 'bitmap__ui_wood_frame',
+  // `[WXG-T-581]` 结算外框木纹环 `woodFrame`（780×705，175.6 KB）**已删键出包**：它是
+  // `[WXG-T-514]` 的单件方案，已被 `[WXG-T-515]` 的 9-slice 双层（`panelFace` 内底 +
+  // `panelFrame` 中空外框，见 `view-model.ts:552-563`）取代 ⇒ 零消费者，日志登记却仍写
+  // 「已接结算面板外框」（该行属过期登记，本次一并订正）。
   /** `[WXG-T-515]` 结算 9-slice 四件：外框（中空）/ 内底（纸面内凹）/ 木主钮 / 纸次钮。 */
   panelFrame: 'bitmap__ui_panel_frame_9s',
   panelFace: 'bitmap__ui_panel_face_9s',

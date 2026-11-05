@@ -123,7 +123,7 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
     [MENU_TEXTURES.btnArrowPressed]: { path: 'ui_btn_arrow_bg_pressed' },
     [MENU_TEXTURES.iconSettings]: { path: 'ui_icon_settings' },
     [MENU_TEXTURES.iconSound]: { path: 'ui_icon_sound' },
-    [MENU_TEXTURES.iconMail]: { path: 'ui_icon_mail' },
+    // `[WXG-T-581]` iconMail / woodFrame 两件零消费者已删键出包（日志登记过期，见 tuning 注）。
     [MENU_TEXTURES.iconCalendar]: { path: 'ui_icon_calendar' },
     [MENU_TEXTURES.iconRank]: { path: 'ui_icon_rank' },
     [MENU_TEXTURES.iconSkins]: { path: 'ui_icon_skin' },
@@ -143,7 +143,7 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
     // `[P0 静态温暖 · 2026-10-31]` 整屏木屋背板。未导入 ⇒ 不登记 ⇒ `drawMenuBackdrop` 走程序化底。
     [MENU_TEXTURES.backdrop]: { path: 'ui_menu_backdrop' },
     [MENU_TEXTURES.woodGrain]: { path: 'ui_wood_grain' },
-    [MENU_TEXTURES.woodFrame]: { path: 'ui_wood_frame' },
+
     // `[WXG-T-515]` 结算 9-slice 四件（源图与设计 px 1:1，端帽见 `CLEAR_*_SLICE`）。
     [MENU_TEXTURES.panelFrame]: { path: 'ui_panel_frame_9s' },
     [MENU_TEXTURES.panelFace]: { path: 'ui_panel_face_9s' },

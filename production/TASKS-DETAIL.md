@@ -7978,3 +7978,45 @@ Figma 官方文档（remote-server-installation）：远程端点 `https://mcp.f
 
 - **未投放 10 件（约 3.3 MB）— 用户 2026-11-05 裁 = 继续留在设计库，保持现状**。理由：这批本就是 T-575 登记的候选件；主包余量只有 8.0 KB，直接导入必超 4096 KB 红线，且降采样后约 700 KB 仍放不下 ⇒ 唯一正路是 `themes` 真分包，本次不做。**⛔ 未入包、未登记 `asset-map.json`，勿据本单以为已接线。**
 - `lock` / `arc_ring` 投放件仍是有损 pal-256（主包所限）；若将来走分包可换回无损。
+
+## WXG-T-581
+
+**美术·删菜单两件零消费者贴图（包体瘦身 ①）** · 负责：主理人(CodeBuddy)·美术轨 · 状态：✅ 完成（2026-11-05）
+
+### 1. 用户令与判定法
+
+用户令「顺序开始」= 执行包体瘦身审计四项中的 ①（先删零消费者资源）。
+
+判定法（本单确立，**取代按文件名 grep 的土办法**）：抽 `MENU_TEXTURES` 全部 32 个键 → 在 `src/` 与 `cocos/assets/scripts/game` 逐键统计 `MENU_TEXTURES.<key>` 出现次数（**排除 tuning 定义本身**，且 **carrier 的映射行 ⛔ 不算消费**）⇒ 计数为 0 即零消费者。
+
+⚠ 土办法会误判：按文件名在 `cocos/assets/textures` 逐件 grep 时，carrier 里的 `path: 'ui_xxx'` 时而命中时而漏（取决于循环中的引号与子目录展开），首轮跑出「36 件里大半无引用」的假结果。键级计数一次性给出干净结论。
+
+### 2. 命中两件
+
+| 键 | Cocos 件 | 体积 | 为何零消费者 |
+|---|---|---|---|
+| `woodFrame` | `ui_wood_frame.png` | **175.6 KB** | 它是 `[WXG-T-514]` 的**单件外框**方案；`[WXG-T-515]` 结算面板已改成 `panelFace`（纸面内底）+ `panelFrame`（中空外框）的 **9-slice 双层**（`src/view/view-model.ts:552-563`）⇒ 本件被取代、全仓仅剩 carrier 一行映射 |
+| `iconMail` | `ui_icon_mail.png` | 2.1 KB | `[WXG-T-497]` 顶栏签到钮已由「信封」改「日历 + 对勾」（用户 2026-10-29 裁），tuning 注释自己都写了「起零消费者」 |
+
+### 3. 文档漂移（本单订正）
+
+- `final/README.md` 的 `ui_wood_frame.png` 行原写「✅ 已接：`MENU_TEXTURES.woodFrame` → 结算面板外框」—— **过期登记**，与代码断言冲突。已改为「T-581 删键出包 + 原登记过期，自 T-515 走 9-slice 双层」。
+- `src/view/meta-menu.ts` 顶栏注释原写「右上 信箱 = 白圆 + `ui_icon_mail`」，而实装早在 T-497 就是 `iconCalendar`。已订正为日历口径，并注明信封于本单出包。
+
+### 4. 改动面
+
+- `src/config/tuning/menu.ts`：删 `MENU_TEXTURES.woodFrame` / `.iconMail` 两键，原注释改写为「已删键出包 + 为何零消费者 + 将来要用时图仍在 design 侧」。
+- Cocos 侧 `git rm` `ui_wood_frame.png{,.meta}`、`ui_icon_mail.png{,.meta}`（4 文件）。
+- `beads-blit-carrier.ts` 删 2 条映射；`dev/harness/main.ts` 删 2 条 `MENU_FILE`。
+- Cocos 镜像由 `framework:sync` 生成（写入 2 件）。
+
+### 5. 判据与读数
+
+- 主包 **4088.0 → 3908.4 KB**，余量 **8.0 → 187.6 KB**（省 179.6 KB；预估 177.7 KB，差 1.9 KB 为两个 `.meta` 出包）。
+- beads **121 文件 / 1431 用例全绿**；`typecheck` 0 错；`check:cocos-mask` **STATUS: OK**；`verify` 通过。
+- 沉淀统计：新增 0 / 修改 0 / 激活 0 / 归档 0。
+
+### 6. 遗留
+
+- `final/README.md` 已顶到 `ctx:check` 的 **8000 token 上限**（现 8000 整，本单为塞进这两处订正曾三度压缩他处文字）。**下一单再往这个文件加字就会 FAIL**，需先拆分（如把 §1b/§1c 的批次史迁到 `final/CHANGELOG-archive.md`）或走 `ctx/budget-exempt.json` 登记。
+- 包体瘦身 ② 分包 / ③ 引擎分离 / ④ 音频，按用户定的顺序待做。

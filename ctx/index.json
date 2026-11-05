@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3942,
       "lines": 133,
-      "sha256": "fec8458434c33d9f635028370d08619080929e03badd582c0e1db5f802205e9b",
+      "sha256": "0cb3241bed0bb87ef5a85bd6832c753834149df253b0261dea0d735e988375f2",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 222853 7980 normal",
+          "summary": "1 production/TASKS-DETAIL.md 223815 8022 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "1eb9fd937e0af1d9131ed9cd243f3a8391eaa45dc6d99b942107a71946b777ab",
+      "sha256": "44fd2a1b38d089c5a2148939ee1d225439054c28edcaa01b876935f539753e04",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 187 行 / 43951 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 188 行 / 44319 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+188 · §待排（backlog，无号，立项时领取…=160+29",
+          "summary": "§WXG 任务台账（SSOT）=1+189 · §待排（backlog，无号，立项时领取…=161+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 7980 行 / 222853 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 8022 行 / 223815 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+7981 · §WXG-T-569=7387+41 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+8023 · §WXG-T-570=7488+71 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -24446,7 +24446,7 @@
       "path": "games/beads/design/art/final/README.md",
       "tokens": 7993,
       "lines": 109,
-      "sha256": "455e5d317d7e16ab56ec90a7d9ecadd8538a8d0e0f7bc42c6484a19d7c5c8907",
+      "sha256": "d07e62f08b05f3f9eb1b0293fdd5ce40a6e8f402b24973b7f837f42246ed5828",
       "tier": "normal",
       "sections": [
         {
@@ -24454,7 +24454,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 110,
-          "tokens": 7976,
+          "tokens": 7977,
           "summary": "2026-10-14 用户裁定：资源定稿分三类；shots 只按日期存每日结论证据，本区是验收后的归集面（复制入库，原件",
           "keywords": [
             "final",
@@ -24468,7 +24468,7 @@
           "level": 2,
           "startLine": 9,
           "endLine": 66,
-          "tokens": 4636,
+          "tokens": 4627,
           "summary": "prototypes/ 原型设计：整屏视觉原型（定稿版面） ✅ 2026-11-04 起现行口径见 §1b（WXG-T-",
           "keywords": [
             "§1b",
@@ -24496,7 +24496,7 @@
           "level": 3,
           "startLine": 40,
           "endLine": 66,
-          "tokens": 941,
+          "tokens": 931,
           "summary": "本表保留 WXG-T-575 时的扁平名作史证；现行路径见 asset-map.json（WXG-T-576 起加 @2",
           "keywords": [
             "Figma",
@@ -24512,7 +24512,7 @@
           "level": 2,
           "startLine": 67,
           "endLine": 87,
-          "tokens": 1717,
+          "tokens": 1727,
           "summary": "⚠ 2026-11-02 起（WXG-T-557 用户令，T-559 修正）：下表记录的件除 11 件现役集外已全部归档",
           "keywords": [
             "assets",
@@ -88750,17 +88750,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 222853,
-      "lines": 7980,
-      "sha256": "ee63719762d0428e50888406e665ef7a61331581ce633ad36d8e5f248b300207",
+      "tokens": 223815,
+      "lines": 8022,
+      "sha256": "17dc91c527a3fc97f1729107ebd84f631dd53a1241b321a711e2c2f0ec12c715",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 7981,
-          "tokens": 222836,
+          "endLine": 8023,
+          "tokens": 223798,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -100999,22 +100999,119 @@
           "keywords": [
             "裁定与遗留"
           ]
+        },
+        {
+          "anchor": "§WXG-T-581",
+          "level": 2,
+          "startLine": 7982,
+          "endLine": 8023,
+          "tokens": 959,
+          "summary": "美术·删菜单两件零消费者贴图（包体瘦身 ①） · 负责：主理人(CodeBuddy)·美术轨 · 状态：✅ 完成（202",
+          "keywords": [
+            "WXG",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§1 用户令与判定法",
+          "level": 3,
+          "startLine": 7986,
+          "endLine": 7993,
+          "tokens": 221,
+          "summary": "用户令「顺序开始」= 执行包体瘦身审计四项中的 ①（先删零消费者资源）。",
+          "keywords": [
+            "用户令与判定"
+          ]
+        },
+        {
+          "anchor": "§2 命中两件",
+          "level": 3,
+          "startLine": 7994,
+          "endLine": 8000,
+          "tokens": 170,
+          "summary": "woodFrame ui_wood_frame.png 175.6 KB 它是 [WXG-T-514] 的单件外框方案；",
+          "keywords": [
+            "woodFrame",
+            "ui_wood_frame",
+            "png",
+            "WXG",
+            "命中两件"
+          ]
+        },
+        {
+          "anchor": "§3 文档漂移（本单订正）",
+          "level": 3,
+          "startLine": 8001,
+          "endLine": 8005,
+          "tokens": 136,
+          "summary": "final/README.md 的 ui_wood_frame.png 行原写「✅ 已接：MENU_TEXTURES.w",
+          "keywords": [
+            "final",
+            "README",
+            "ui_wood_frame",
+            "png",
+            "MENU_TEXTURES",
+            "文档漂移"
+          ]
+        },
+        {
+          "anchor": "§4 改动面 (2)",
+          "level": 3,
+          "startLine": 8006,
+          "endLine": 8012,
+          "tokens": 125,
+          "summary": "src/config/tuning/menu.ts：删 MENU_TEXTURES.woodFrame / .iconM",
+          "keywords": [
+            "src",
+            "config",
+            "tuning",
+            "menu",
+            "MENU_TEXTURES",
+            "woodFrame"
+          ]
+        },
+        {
+          "anchor": "§5 判据与读数 (2)",
+          "level": 3,
+          "startLine": 8013,
+          "endLine": 8018,
+          "tokens": 92,
+          "summary": "主包 4088.0 → 3908.4 KB，余量 8.0 → 187.6 KB（省 179.6 KB；预估 177.7 ",
+          "keywords": [
+            "判据与读数"
+          ]
+        },
+        {
+          "anchor": "§6 遗留 (6)",
+          "level": 3,
+          "startLine": 8019,
+          "endLine": 8023,
+          "tokens": 125,
+          "summary": "final/README.md 已顶到 ctx:check 的 8000 token 上限（现 8000 整，本单为塞进",
+          "keywords": [
+            "final",
+            "README",
+            "ctx",
+            "check",
+            "token",
+            "遗留"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 43951,
-      "lines": 187,
-      "sha256": "c41e106344651ea1f13333e06a1f96758a7135f6eb0d70655bbc0196f61aab15",
+      "tokens": 44319,
+      "lines": 188,
+      "sha256": "a72ac747e1f2e3bf1323ae705c448f8dcda3acb9ce40abdb39def63281d2c348",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 188,
-          "tokens": 43942,
+          "endLine": 189,
+          "tokens": 44310,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -101027,8 +101124,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 160,
-          "endLine": 188,
+          "startLine": 161,
+          "endLine": 189,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
