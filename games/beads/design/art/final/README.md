@@ -41,11 +41,12 @@ v2 三态 `proto-menu-v2-{locked,pushing,cleared}-752x1344.png` 已按用户令�
 
 > 本表保留 WXG-T-575 时的扁平名作史证；**现行路径见 `asset-map.json`**（WXG-T-576 起加 `@2x` 并按用途分子目录）。`badges/` 自 WXG-T-577 起为 Figma v2 锁/框/通关三件套，老资源归档 `proposals/…/badges-retired-20261104/`。
 >
-> **WXG-T-578/579 起在役两件**：`ui_menu_lock@2x`（选关墙 + 橱窗锁形，投放名 `ui_menu_badge_locked`）、`ui_menu_frame@2x`（满星态珠圈框，投放名 `ui_menu_arc_ring`）。旧 `frame`/`seal` 键已删（源码零消费者，省 43.5 KB）。两条投放件均 pal-256 量化：锁 192×260 与正本同尺寸 ⇒ 归属腿可判；框 518² 只有 1x（`@2x` 需 158 KB、超主包余量 ⇒ 归属腿显式 SKIP）。`ui_menu_seal@2x` 仍未入包。
+> **WXG-T-578/579**：`ui_menu_lock@2x`→`ui_menu_badge_locked`（锁形）、`ui_menu_frame@2x`→`ui_menu_arc_ring`（满星珠圈框）。旧 `frame`/`seal` 键已删（零消费者，省 43.5 KB）。两件投放件均 pal-256：锁 192×260 与正本同尺寸 ⇒ 归属腿可判；框 518² 只 1x（`@2x` 需 158 KB 超余量 ⇒ 显式 SKIP）。
+> **WXG-T-580 无损**：17 件正本经 `lossless-optimize-menu-assets.py` 重压，省 208,838 B（5.7%）、逐像素断言不变；已投放 6 件同步入包省 3.7 KB。`seal` 仍未入包。
 
 用户令「从 figma 获取相关资源，切图，背景图，高亮状态等纹理」+「按照建议执行」；追加令「重新拉一套背景/高亮图替代圆牌两态、图标做矢量」。开工前均声明方法 = Figma REST 节点导出（纯下载、零重绘、零模型）+ 图标位图追踪转真 SVG。
 
-**现行件**（PNG @2x，与 Figma 导出件 md5 逐字节一致）：
+**现行件**（PNG @2x；⚠ WXG-T-580 起经**无损重编码** ⇒ 像素与 Figma 导出件逐字节相同，但**文件 md5 已变**）：
 
 | 件 | Figma 节点 | 说明 |
 |---|---|---|
