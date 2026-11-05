@@ -501,7 +501,7 @@ describe('EP12-S6 Deliverable 3 · 三条硬口径（§5.4）+ 未解锁零热�
 
 describe('EP12-S6 Deliverable 5 · P-7 文案令牌单源（⛔ 屏内字面散落）', () => {
     it('`COPY_TOKENS` 逐值对齐 `tokens.md §7` / `menu-architecture §6`（消费副本 ≠ 真源即红）', () => {
-        expect(COPY_TOKENS.app_name).toBe('拼豆小铺');
+        expect(COPY_TOKENS.app_name, 'WXG-T-584 第五轮改名（拼豆小铺 → 千面拼豆，旧名被微信判重）').toBe('千面拼豆');
         expect(COPY_TOKENS.app_slogan).toBe('一颗一颗，拼出你的小铺');
         expect(COPY_TOKENS.version_label, 'WXG-T-468：发布基线 v1.0.0（产物构建时版本腿打实际 build 号）').toBe('v1.0.0 · 演示版');
         expect(COPY_TOKENS.btn_start_label, '§6：取实装值（原「开始拼豆」降为史证）').toBe('开始游戏');

@@ -1,7 +1,7 @@
 /**
  * **[EP12-S6 · T-2B]** 招牌 `beadText` 位表渲染判据套（WXG-T-269-S6 子单 T-2B / Deliverable 5）。
  * ─────────────────────────────────────────────────────────────────────────────
- * 真源：`games/beads/design/art/specs/menu-wall-signage-spec.md`（林绘澄 T-1）**§0.5 位表语义** + **§1.5 `10×10 @ d=12` 位表**；
+ * 真源：`games/beads/design/art/specs/menu-wall-signage-spec.md`（林绘澄 T-1）**§0.5 位表语义** + **§1.5-b 改名批位表（`10×10 @ d=12`，WXG-T-584）**；
  * 换算实现 = `src/view/menu-signage.ts::drawBeadText`；位表数据 = `src/config/sign-glyphs.ts`。
  *
  * ## 本套盯的三个失败模式
@@ -133,7 +133,7 @@ beforeEach(() => {
     resetSignageWarnings();
 });
 
-describe('[T-2B] 位表数据完整性（T-1 §1.5 逐字转写的保真门）', () => {
+describe('[T-2B] 位表数据完整性（T-1 §1.5-b 逐字转写的保真门）', () => {
     it('四枚字模 = n×n 方阵，字符集闭于 {# , .}，且 n ≡ SIGN_MATRIX_N', () => {
         expect(SIGN_GLYPHS.length).toBe(4);
         for (const g of SIGN_GLYPHS) {
@@ -147,11 +147,11 @@ describe('[T-2B] 位表数据完整性（T-1 §1.5 逐字转写的保真门）',
         }
     });
 
-    it('每枚字模珠数 ≡ T-1 §1.6 登记表（37 / 38 / 19 / 54；合计 148）', () => {
+    it('每枚字模珠数 ≡ T-1 §1.5-b 登记表（20 / 45 / 37 / 38；合计 140）', () => {
         // 转写保真门：本工程文件是规格件的逐字转写，计数是最廉价的指纹（见文件头「失败模式 2」）。
         const counted = Object.fromEntries(SIGN_GLYPHS.map((g) => [g.char, g.beads]));
-        expect(counted).toEqual({ 拼: 37, 豆: 38, 小: 19, 铺: 54 });
-        expect(signGlyphBeadsOf(APP)).toBe(37 + 38 + 19 + 54);
+        expect(counted).toEqual({ 千: 20, 面: 45, 拼: 37, 豆: 38 });
+        expect(signGlyphBeadsOf(APP)).toBe(20 + 45 + 37 + 38);
     });
 
     it('app_name 的每个码点都有字模（⇒ 生产链路不会静默跳字、不会走文字回落臂）', () => {

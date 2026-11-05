@@ -685,7 +685,7 @@ export const SIGN_MATRIX_N = 10;
  * ⚠ 验收③ 的「`d ∈ [10,15]`」由 {@link signPitchFor} 的档换算式覆盖（`n=8→15`、`n=10→12`、`n=12→10` 破地板）。
  */
 export const SIGN_BEAD_PITCH = 12;
-/** 招牌字数（`app_name` = 拼豆小铺 ⇒ 4；⛔ 视图侧不散字面，串本体读 `copy-tokens.ts::app_name`）。 */
+/** 招牌字数（`app_name` = 千面拼豆 ⇒ 4；WXG-T-584 第五轮改名后仍 4 字 ⇒ 本常量与 `SIGN_MATRIX_N` 零变更；⛔ 视图侧不散字面，串本体读 `copy-tokens.ts::app_name`）。 */
 export const SIGN_GLYPH_COUNT = 4;
 /** 字间 / 单字框 之比（`menu-wall-signage-spec §0.5`「字间 = 半字宽」⇒ 120×0.5 = 60）。 */
 export const SIGN_GLYPH_GAP_RATIO = 0.5;

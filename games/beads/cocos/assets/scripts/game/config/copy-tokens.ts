@@ -10,12 +10,12 @@
  * - ⛔ 零 `systems-index §3` 变更：文案不是冻结数值，不住 `tuning.ts`（数值）也不住 `palette`（颜色）。
  *
  * 键名口径：以设计表全名为准（`btn_*_label`）；任务单口语写作 `btn_signin`/`btn_settings` 同指本表。
- * 未收键（诚实登记）：`wall_module_name` = `拼豆小铺`（§6/§10.5 第四轮终裁）—— 该键**不上屏**
+ * 未收键（诚实登记）：`wall_module_name` = `千面拼豆`（§6/§10.6 第五轮改名随游戏名同步；第四轮「只留一个词」纪律沿用）—— 该键**不上屏**
  * 「是否显示归 art 单（林绘澄）」（`tokens.md §7` 同行注），故**不设未被消费的令牌**，待其消费批再入表。
  */
 export const COPY_TOKENS = Object.freeze({
-    /** `tokens.md §7` / `menu-architecture §6`：招牌 4 字、对外称名唯一出处（本批 = 系统字体占位，珠拼归 T-2B）。 */
-    app_name: '拼豆小铺',
+    /** `tokens.md §7` / `menu-architecture §6`：招牌 4 字、对外称名唯一出处。**第五轮改名（2026-11-05 · WXG-T-584）**：~~`拼豆小铺`~~ 因微信注册页判重不可用 ⇒ 现名 `千面拼豆`（裁定正本 = `menu-architecture §10.6`；字模集 = `sign-glyphs.ts` 转写自 `menu-wall-signage-spec §1.5-b`）。 */
+    app_name: '千面拼豆',
     /** `tokens.md §7`（第三轮 Q3=①）：招牌下唯一副行（`font_label` 28 · `text_secondary`）。 */
     app_slogan: '一颗一颗，拼出你的小铺',
     /** `tokens.md §7`：boot/主菜单底部 label 28。版本段 = 发布基线 `v1.0.0`（WXG-T-468：USER 裁首发 = `1.0.x`、x = build 号）；产物构建时由 `build-cocos.mjs` 版本腿把 `v1.0.0` 打成实际 build 号（源码恒显基线值）。「演示版」后缀 = **分环境**（WXG-T-473：USER 2026-10-28 裁 C）——源码基线/开发/harness/金样本恒显后缀，**发布产物由版本腿连带剥掉**（`lib/version-label.mjs`），提审包只显 `vX.Y.Z`。 */
