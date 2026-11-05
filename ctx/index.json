@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3942,
       "lines": 133,
-      "sha256": "37f4b49179e6b5ea5ebe4c85c79c7bd09ea90dca4fe8d2463ce1df2cf4da5868",
+      "sha256": "896c3532774deb688544d3d0a56edc5603081c5a2b6e5adbd3ba263350a7a7ac",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 225250 8083 normal",
+          "summary": "1 production/TASKS-DETAIL.md 226319 8124 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "892bbc39b81e5ede89cedb08a754b5a682cb0560952402681568a3ecea184028",
+      "sha256": "70d8caadc01da88d432e4646ce69449a5c1d658a945e3962017679a616b460fa",
       "tier": "normal",
       "sections": [
         {
@@ -729,12 +729,12 @@
           ]
         },
         {
-          "anchor": "§`memory/MEMORY.md` — 80 行 / 4761 tok / 实测读 16 次",
+          "anchor": "§`memory/MEMORY.md` — 81 行 / 4906 tok / 实测读 16 次",
           "level": 2,
           "startLine": 24,
           "endLine": 27,
           "tokens": 64,
-          "summary": "§wechatgame 项目长期笔记=1+81 · §日志蒸馏规程（R2 · WXG-T-0…=7+6 · §项目约定=",
+          "summary": "§wechatgame 项目长期笔记=1+82 · §日志蒸馏规程（R2 · WXG-T-0…=7+6 · §项目约定=",
           "keywords": [
             "memory/MEMORY.md",
             "memory",
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 189 行 / 44886 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 190 行 / 45309 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+190 · §待排（backlog，无号，立项时领取…=162+29",
+          "summary": "§WXG 任务台账（SSOT）=1+191 · §待排（backlog，无号，立项时领取…=163+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 8083 行 / 225250 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 8124 行 / 226319 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+8084 · §WXG-T-571=7559+38 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+8125 · §WXG-T-572=7597+33 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -65592,17 +65592,17 @@
     },
     {
       "path": "memory/MEMORY.md",
-      "tokens": 4761,
-      "lines": 80,
-      "sha256": "7303dc37b880b92618c028436540aa65dbd52b9a2a4805cc2b5230fa2dbe7329",
+      "tokens": 4906,
+      "lines": 81,
+      "sha256": "7955c57d13152bebfe9b90fa723ef393ddea10362e67c88bb795086589cebc76",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§wechatgame 项目长期笔记",
           "level": 1,
           "startLine": 1,
-          "endLine": 81,
-          "tokens": 4751,
+          "endLine": 82,
+          "tokens": 4896,
           "summary": "正本路径：仓库根 memory/MEMORY.md。",
           "keywords": [
             "wechatgame",
@@ -65721,8 +65721,8 @@
           "anchor": "§已知限制",
           "level": 2,
           "startLine": 68,
-          "endLine": 81,
-          "tokens": 1436,
+          "endLine": 82,
+          "tokens": 1581,
           "summary": "需要安装 @resvg/resvg-js 到 WorkBuddy 托管 Node workspace：cd ~/.wor",
           "keywords": [
             "resvg",
@@ -88750,17 +88750,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 225250,
-      "lines": 8083,
-      "sha256": "3432e30cce8b1dd4608ed8d7a487bb4abef7c4067514474ca731950f40de052f",
+      "tokens": 226319,
+      "lines": 8124,
+      "sha256": "7f3e12aec1bb52a8c584398076bab45dcdd3395625de3db7b04b6023615d2970",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 8084,
-          "tokens": 225233,
+          "endLine": 8125,
+          "tokens": 226302,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -101199,22 +101199,112 @@
           "keywords": [
             "遗留"
           ]
+        },
+        {
+          "anchor": "§WXG-T-583",
+          "level": 2,
+          "startLine": 8085,
+          "endLine": 8125,
+          "tokens": 1066,
+          "summary": "工具链·beads 发布档定为引擎分离（默认开） · 负责：主理人(Qoder)·工具链 · 状态：✅ 完成（2026-",
+          "keywords": [
+            "WXG",
+            "beads",
+            "Qoder"
+          ]
+        },
+        {
+          "anchor": "§1 出发点 (2)",
+          "level": 3,
+          "startLine": 8089,
+          "endLine": 8092,
+          "tokens": 118,
+          "summary": "USER 令「把 --separate-engine 定为 beads 发布档」。T-582 已证明机制可用（主包 −1",
+          "keywords": [
+            "USER",
+            "separate",
+            "engine",
+            "beads",
+            "出发点"
+          ]
+        },
+        {
+          "anchor": "§2 落法（数据驱动，不把游戏名写进共享脚本）",
+          "level": 3,
+          "startLine": 8093,
+          "endLine": 8102,
+          "tokens": 304,
+          "summary": "games/beads/package.json 新增 cocosRelease.separateEngine: tru",
+          "keywords": [
+            "games",
+            "beads",
+            "package",
+            "json",
+            "cocosRelease",
+            "separateEngine"
+          ]
+        },
+        {
+          "anchor": "§3 验证 (4)",
+          "level": 3,
+          "startLine": 8103,
+          "endLine": 8114,
+          "tokens": 236,
+          "summary": "node --check tools/scripts/build-cocos.mjs ✅",
+          "keywords": [
+            "node",
+            "check",
+            "tools",
+            "scripts",
+            "build",
+            "cocos"
+          ]
+        },
+        {
+          "anchor": "§4 文档回写 (2)",
+          "level": 3,
+          "startLine": 8115,
+          "endLine": 8119,
+          "tokens": 129,
+          "summary": "production/release/beads/release-checklist.md v1.17：§1.2 标注旧",
+          "keywords": [
+            "§1.2",
+            "production",
+            "release",
+            "beads",
+            "checklist",
+            "文档回写"
+          ]
+        },
+        {
+          "anchor": "§5 遗留 / 风险",
+          "level": 3,
+          "startLine": 8120,
+          "endLine": 8125,
+          "tokens": 191,
+          "summary": "后台插件仍未确认：微信公众平台「插件管理 → 添加 Cocos 引擎官方插件」需 USER 在后台操作；未做则发布档产物",
+          "keywords": [
+            "Cocos",
+            "USER",
+            "遗留",
+            "风险"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 44886,
-      "lines": 189,
-      "sha256": "de3361694a73d846c22a3767fa639d1a5fb7e101f0f792ffd9c5df14e60318e5",
+      "tokens": 45309,
+      "lines": 190,
+      "sha256": "a34cf23be30ceb9175c9adbbdf5f6356a7636110a93a3050875c0b84c750156f",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 190,
-          "tokens": 44878,
+          "endLine": 191,
+          "tokens": 45301,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -101227,8 +101317,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 162,
-          "endLine": 190,
+          "startLine": 163,
+          "endLine": 191,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -116657,24 +116747,25 @@
     },
     {
       "path": "production/release/beads/release-checklist.md",
-      "tokens": 10187,
-      "lines": 229,
-      "sha256": "9e0dd3bee488a39c3fcb23aea3cf5b0d866796222f1c6476e4e63c5c251eb26d",
+      "tokens": 10850,
+      "lines": 235,
+      "sha256": "120480ffd9cf4c0379aee0d601ea42cacf33997dc5120c0b839b666f76bb7ffb",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§发布清单（Release Checklist）· beads「拼豆小铺」",
           "level": 1,
           "startLine": 1,
-          "endLine": 230,
-          "tokens": 10168,
-          "summary": "版本：v1.6 · 2026-10-19（v1.6 = 包体数字再对齐到 23:29 现包 3201.0 KB / 余量",
+          "endLine": 236,
+          "tokens": 10831,
+          "summary": "版本：v1.17 · 2026-11-05（v1.17 = 引擎分离定为 beads 发布档，build:cocos 默",
           "keywords": [
             "Release",
             "Checklist",
             "beads",
-            "发布清单",
-            "拼豆小铺"
+            "build",
+            "cocos",
+            "发布清单"
           ]
         },
         {
@@ -116708,8 +116799,8 @@
           "anchor": "§1 阶段一：构建前（Pre-Build）",
           "level": 2,
           "startLine": 26,
-          "endLine": 77,
-          "tokens": 2065,
+          "endLine": 78,
+          "tokens": 2254,
           "summary": "",
           "keywords": [
             "Pre",
@@ -116739,7 +116830,7 @@
           "level": 3,
           "startLine": 38,
           "endLine": 61,
-          "tokens": 896,
+          "tokens": 989,
           "summary": "口径：check:size 按原始字节判定（gzip 仅参考）；产物必须是 release 档（build:cocos ",
           "keywords": [
             "cocos/build/wechatgame",
@@ -116754,8 +116845,8 @@
           "anchor": "§1.3 依赖与工具就绪（2026-10-15 核实）",
           "level": 3,
           "startLine": 62,
-          "endLine": 77,
-          "tokens": 512,
+          "endLine": 78,
+          "tokens": 608,
           "summary": "通道层前置（AppID / 上传密钥 / 备案域名 / 云开发）的逐项现状与可勾选清单见 [launch-prerequ",
           "keywords": [
             "AppID",
@@ -116768,9 +116859,9 @@
         {
           "anchor": "§2 阶段二：构建（Build）",
           "level": 2,
-          "startLine": 78,
-          "endLine": 89,
-          "tokens": 239,
+          "startLine": 79,
+          "endLine": 91,
+          "tokens": 312,
           "summary": "☐ 干净构建 先 pnpm run framework:sync，再 pnpm --filter @wxgame/bea",
           "keywords": [
             "Build",
@@ -116784,8 +116875,8 @@
         {
           "anchor": "§3 阶段三：自测（真机）",
           "level": 2,
-          "startLine": 90,
-          "endLine": 107,
+          "startLine": 92,
+          "endLine": 109,
           "tokens": 381,
           "summary": "执行单：production/qa/beads/device-walkthrough.md（Session 0–7，K-",
           "keywords": [
@@ -116800,8 +116891,8 @@
         {
           "anchor": "§4 阶段四：提交审核",
           "level": 2,
-          "startLine": 108,
-          "endLine": 116,
+          "startLine": 110,
+          "endLine": 118,
           "tokens": 152,
           "summary": "☐ 🚦 主体与类目 mp 后台主体、游戏类目已选定 USER",
           "keywords": [
@@ -116813,8 +116904,8 @@
         {
           "anchor": "§5 阶段五：上线",
           "level": 2,
-          "startLine": 117,
-          "endLine": 124,
+          "startLine": 119,
+          "endLine": 126,
           "tokens": 105,
           "summary": "☐ 🚦 审核通过 + USER 批准发布 人工审批，不可自动 USER",
           "keywords": [
@@ -116826,8 +116917,8 @@
         {
           "anchor": "§6 阶段六：上线后观察",
           "level": 2,
-          "startLine": 125,
-          "endLine": 134,
+          "startLine": 127,
+          "endLine": 136,
           "tokens": 107,
           "summary": "☐ 错误监控 mp 后台运营数据 / 错误日志无致命崩溃 ENG",
           "keywords": [
@@ -116839,9 +116930,9 @@
         {
           "anchor": "§7 门控汇总（Go / No-Go）",
           "level": 2,
-          "startLine": 135,
-          "endLine": 148,
-          "tokens": 419,
+          "startLine": 137,
+          "endLine": 151,
+          "tokens": 495,
           "summary": "进入提审的硬门控（全绿才 go）：§1.1 版本一致 · §1.2 主包红线 + 总包红线 + 守卫有牙（内部目标已与红",
           "keywords": [
             "§1.1",
@@ -116852,9 +116943,9 @@
         {
           "anchor": "§8 分包 / 远程包选型（**发布批拍板，本清单不代裁**）",
           "level": 2,
-          "startLine": 149,
-          "endLine": 208,
-          "tokens": 3157,
+          "startLine": 152,
+          "endLine": 213,
+          "tokens": 3330,
           "summary": "以 2026-10-18 release 重建实测（主包 3188.2 KB / 108 文件）为选型基线；23:29 ",
           "keywords": [
             "release",
@@ -116867,8 +116958,8 @@
         {
           "anchor": "§8.1 决策点（v1.2 收口，给 USER 拍板用）",
           "level": 3,
-          "startLine": 187,
-          "endLine": 208,
+          "startLine": 192,
+          "endLine": 213,
           "tokens": 933,
           "summary": "包体已达标 ⇒ 本表只剩一个真问题：低端机首屏要下多少字节，愿意为它付多少复杂度。按「改动量 / 下载收益」排序：",
           "keywords": [
@@ -116881,9 +116972,9 @@
         {
           "anchor": "§9 变更记录",
           "level": 2,
-          "startLine": 209,
-          "endLine": 230,
-          "tokens": 2516,
+          "startLine": 214,
+          "endLine": 236,
+          "tokens": 2732,
           "summary": "v1.0 2026-10-15 初稿（P4）：beads 六阶段清单 + 实测包体基线 + AppID / 产物现状 +",
           "keywords": [
             "beads",

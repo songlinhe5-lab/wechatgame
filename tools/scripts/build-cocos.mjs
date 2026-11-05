@@ -34,11 +34,13 @@
  *
  * ── 用法 ────────────────────────────────────────────────────────────────
  *   node tools/scripts/build-cocos.mjs                       # 默认 platform=wechatgame、**默认 release 档**
+ *                                                            # （beads 的 release 档 = 引擎分离，见下）
  *   node tools/scripts/build-cocos.mjs --debug               # 调试档（sourcemap + 不压缩，包体数字不可作基线）
  *   node tools/scripts/build-cocos.mjs --platform=web-mobile # 手机浏览器预览用
  *   node tools/scripts/build-cocos.mjs --no-build            # 只做前置检查，不构建
  *   node tools/scripts/build-cocos.mjs --open-panel          # 改经 MCP 打开构建面板（不构建）
  *   node tools/scripts/build-cocos.mjs --game=breakout       # 显式指定游戏（任意 cwd）
+ *   node tools/scripts/build-cocos.mjs --no-separate-engine  # 本次出引擎内联对照包（不套发布档）
  *
  * 退出码：0 = 成功；1 = 前置或构建失败；2 = 用法错误。
  */
@@ -98,11 +100,17 @@ const DEBUG = argv.includes('--debug') && !argv.includes('--release');
  *    实测 `mainBundleCompressionType` / `startScene` 等照旧继承），在里面写
  *    `packages.<platform>.separateEngine = true`（**真 boolean**）⇒ 日志与产物双确认生效。
  *
- * ⛔ 默认关 —— 开与不开的主包差 ≈1.3 MB，且**要求微信公众平台后台已添加「Cocos 引擎」官方插件**
- *    （即产物 `plugins.cocos.provider` 那个 ID），属**发布口径变更**：必须显式传参，
- *    重建后复跑 `check:size`。
+ * ✅ 定档（WXG-T-583，USER 2026-11-05）：**beads 的 release 档 = 引擎分离**。
+ *    声明在 `games/beads/package.json` 的 `cocosRelease.separateEngine: true`（数据驱动，
+ *    ⛔ 不把游戏名硬编码进本脚本）⇒ release 构建**无需再传** `--separate-engine`。
+ *    · `--no-separate-engine` = 唯一退路（出对照包 / 微信后台插件未就绪时排错）；
+ *    · `--debug` 不套发布档（K-111：debug 数字不可作基线，也不要求后台插件）；
+ *    · 构建后**强制校验**产物 `game.json` 的 `plugins.cocos.provider`，缺失即失败退出
+ *      （防再次出现「以为开了、产物没变」的静默不生效）。
+ * ⛔ 未声明发布档的游戏默认关：显式传 `--separate-engine` 才开。
  */
-const SEPARATE_ENGINE = argv.includes('--separate-engine');
+const EXPLICIT_SEPARATE_ENGINE = argv.includes('--separate-engine');
+const NO_SEPARATE_ENGINE = argv.includes('--no-separate-engine');
 const SEPARATE_ENGINE_SUPPORTED = platform === 'wechatgame' || platform === 'wechat-mini-game';
 
 /** 判定游戏：`--game=` 优先，否则取 cwd 的 basename（per-package 调用的正常路径）。 */
@@ -122,7 +130,26 @@ if (!existsSync(COCOS_APP)) {
   process.exit(2);
 }
 
+/**
+ * 发布档解析（per-game）：`games/<game>/package.json` 的 `cocosRelease`。
+ * 只有 **release + wechatgame 族** 才套用；显式 `--separate-engine` 可越档开（含 debug），
+ * `--no-separate-engine` 优先级最高。声明缺失 ⇒ 等价 `{}`（默认关）。
+ */
+const RELEASE_PROFILE = readReleaseProfile(gameDir);
+const PROFILE_SEPARATE_ENGINE = RELEASE_PROFILE.separateEngine === true;
+const SEPARATE_ENGINE =
+  SEPARATE_ENGINE_SUPPORTED &&
+  !NO_SEPARATE_ENGINE &&
+  (EXPLICIT_SEPARATE_ENGINE || (!DEBUG && PROFILE_SEPARATE_ENGINE));
+
 console.log(`Cocos 构建 — game=${game} platform=${platform}${NO_BUILD ? '（--no-build：仅检查）' : ''}`);
+if (SEPARATE_ENGINE || NO_SEPARATE_ENGINE || (DEBUG && PROFILE_SEPARATE_ENGINE)) {
+  const tier = DEBUG ? 'debug' : 'release';
+  let why = 'debug 档不套发布档';
+  if (NO_SEPARATE_ENGINE) why = '--no-separate-engine 显式关闭';
+  else if (SEPARATE_ENGINE) why = EXPLICIT_SEPARATE_ENGINE ? '--separate-engine 显式开启' : '发布档 cocosRelease.separateEngine';
+  console.log(`  档位：${tier} · ${SEPARATE_ENGINE ? '引擎分离' : '引擎内联'}（${why}）`);
+}
 console.log('');
 
 const problems = [];
@@ -199,7 +226,9 @@ if (DEBUG) {
   console.log('     本档包体数字不可作基线（`check:size` 会报「疑似 debug」）；排错完成后不带参数重跑即可恢复基线档。');
 }
 
-if (SEPARATE_ENGINE && !SEPARATE_ENGINE_SUPPORTED) {
+if (EXPLICIT_SEPARATE_ENGINE && NO_SEPARATE_ENGINE) {
+  console.log('  ⚠️  同时传了 --separate-engine 与 --no-separate-engine：以 --no-separate-engine 为准');
+} else if (EXPLICIT_SEPARATE_ENGINE && !SEPARATE_ENGINE_SUPPORTED) {
   console.log(`  ⚠️  --separate-engine 只对 wechatgame 族生效，platform=${platform} 忽略该开关`);
 }
 
@@ -237,6 +266,7 @@ if (!built) {
   process.exit(1);
 }
 
+if (SEPARATE_ENGINE) assertSeparateEngineProduct(productDir);
 bumpAndStampVersion({ game, gameDir, productDir, platform });
 stageExtraAssets({ gameDir, productDir });
 printSummary({ game, platform, productDir, entry, secs });
@@ -389,7 +419,7 @@ function printNextSteps({ cocosDir, gameDir, platform, productDir }) {
     console.log('');
     console.log('  微信小游戏后续：');
     console.log(`    · 包体校验：pnpm run check:size ${rel(productDir)}`);
-    console.log('      本脚本**默认即 release 基线档**（minify on / sourcemap off）⇒ 直接跑 check:size 即可；');
+    console.log(`      本脚本**默认即 release 基线档**（minify on / sourcemap off${SEPARATE_ENGINE ? ' · beads 发布档含引擎分离' : ''}）⇒ 直接跑 check:size 即可；`);
     console.log('      ⚠️ 若刚用过 `--debug`，包体数字不可作基线，需不带参数重跑一次再测。');
     if (SEPARATE_ENGINE && SEPARATE_ENGINE_SUPPORTED) {
       console.log('');
@@ -409,6 +439,43 @@ function printNextSteps({ cocosDir, gameDir, platform, productDir }) {
 }
 
 // ─────────────────────────────────────────────────────────── helpers ────────
+
+/**
+ * 读 per-game 发布档声明（`package.json.cocosRelease`）。解析失败 / 缺失 ⇒ `{}`（默认关）；
+ * ⛔ 不因坏声明确止构建：发布档只决定「开不开」，真正的门在构建后的产物断言。
+ */
+function readReleaseProfile(gameDir) {
+  try {
+    const pkg = JSON.parse(readFileSync(join(gameDir, 'package.json'), 'utf8'));
+    return pkg && typeof pkg.cocosRelease === 'object' && pkg.cocosRelease !== null ? pkg.cocosRelease : {};
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * 发布档产物断言（WXG-T-583）：请求了引擎分离 ⇒ 产物 `game.json` 必须含
+ * `plugins.cocos.provider`。直接证据是这份配置，不是主包变小（版本打号也会改变总数）。
+ * 缺失 ⇒ **不递增版本号**、exit 1：避免把非发布档产物当发布档提审。
+ */
+function assertSeparateEngineProduct(productDir) {
+  try {
+    const cfg = JSON.parse(readFileSync(join(productDir, 'game.json'), 'utf8'));
+    const provider = cfg?.plugins?.cocos?.provider;
+    if (typeof provider === 'string' && provider.length > 0) {
+      console.log('  🧩 发布档校验：产物 game.json 含 plugins.cocos（引擎分离已生效；provider ⛔ 不入仓）');
+      return;
+    }
+  } catch {
+    /* 落到失败分支 */
+  }
+  console.error('');
+  console.error('❌ 发布档校验失败：请求了引擎分离，但产物 game.json 无 plugins.cocos.provider。');
+  console.error('   ⇒ 该产物不是 beads 发布档，⛔ 不递增版本号、不得提审。');
+  console.error('   处置：确认 Cocos 版本 / 平台 profile 接受 separateEngine 后重跑；');
+  console.error('        若只想出对照包，显式加 --no-separate-engine（产物退回引擎内联档）。');
+  process.exit(1);
+}
 
 /**
  * 生成**带引擎分离**的 `--build` 串（WXG-T-582）。
@@ -500,10 +567,13 @@ function printHelp() {
   --no-build       只做前置检查，不执行构建
   --open-panel     改经 MCP 打开编辑器构建面板（不执行 CLI 构建）
   --game=<name>    显式指定游戏（默认取 cwd 的 basename —— per-package 调用的正常路径）
-  --separate-engine  引擎分离：引擎改走微信引擎插件（仅 wechatgame 族），经 configPath 覆盖平台层
+  --separate-engine  显式开引擎分离（仅 wechatgame 族），经 configPath 覆盖平台层
                    packages.<platform>.separateEngine —— ⛔ 3.8.8 下**顶层** separateEngine=true 静默无效。
-                   ⛔ 发布口径变更（实测主包 −1152.9 KB），且需微信后台已添加「Cocos 引擎」插件
-                   （provider 见产物 game.json 的 plugins.cocos）；开启后必须重建并复跑 check:size（WXG-T-582）
+                   beads 的 release 档**已默认开**（games/beads/package.json 的 cocosRelease.separateEngine）；
+                   本开关留给未定档的游戏 / debug 档验插件行为。
+  --no-separate-engine  仅本次关闭引擎分离（对照包 / 微信后台插件未就绪时排错）；优先级最高。
+                   ⛔ 引擎分离需微信后台已添加「Cocos 引擎」插件（provider 见产物 game.json 的
+                   plugins.cocos）；定档后构建脚本会强制校验该键，缺失即失败（WXG-T-583）
   -h, --help       本帮助
 
 构建能力来源（两轮实测）：

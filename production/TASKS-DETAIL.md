@@ -8081,3 +8081,44 @@ Figma 官方文档（remote-server-installation）：远程端点 `https://mcp.f
 
 - 包体瘦身 ④ 音频待做（② 分包仍未做）。
 - `pnpm run check:tasks` 的名称列上限 60 字符：本行名称 25 字符，未触门。
+
+## WXG-T-583
+
+**工具链·beads 发布档定为引擎分离（默认开）** · 负责：主理人(Qoder)·工具链 · 状态：✅ 完成（2026-11-05）
+
+### 1. 出发点
+
+USER 令「把 --separate-engine 定为 beads 发布档」。T-582 已证明机制可用（主包 −1152.9 KB），但当时刻意未改默认：属发布口径变更，`release-checklist §8` 原文写「是否把该档定为发布档，待 USER 拍板」。本单把拍板落成机制：**beads 的 release 档默认 = 引擎分离**，而不是靠人每次记得加参数。
+
+### 2. 落法（数据驱动，不把游戏名写进共享脚本）
+
+- `games/beads/package.json` 新增 `cocosRelease.separateEngine: true`（per-game 发布档声明）。
+- `tools/scripts/build-cocos.mjs`：读 `games/<game>/package.json` 的 `cocosRelease`；仅 **release + wechatgame 族** 套用。
+  - `--separate-engine` 保留为显式开关（未定档的游戏 / debug 档验插件行为）；
+  - 新增 `--no-separate-engine`（唯一退路：对照包 / 微信后台插件未就绪时排错），优先级最高；
+  - `--debug` 不套发布档（K-111：debug 数字不可作基线，也不要求后台插件）；
+  - 构建日志新增「档位：release · 引擎分离（发布档 cocosRelease.separateEngine）」。
+- **发布档断言**：请求引擎分离 ⇒ 构建后读产物 `game.json`，必须含 `plugins.cocos.provider`；缺失则打印诊断并 **exit 1，且发生在版本号递增之前**。理由 = T-582 的直接教训：不能只凭主包变小推断（版本打号也会改变总数），直接证据是 `plugins.cocos` 这份配置。
+
+### 3. 验证
+
+- `node --check tools/scripts/build-cocos.mjs` ✅
+- `--no-build` 四路分流：
+  - `beads`（默认）：`档位：release · 引擎分离（发布档 cocosRelease.separateEngine）` ✅
+  - `beads --debug`：`档位：debug · 引擎内联（debug 档不套发布档）` ✅
+  - `beads --no-separate-engine`：`档位：release · 引擎内联（--no-separate-engine 显式关闭）` ✅
+  - `breakout`（未定档）：无档位行、引擎内联 ✅
+  - 另测 `beads --platform=web-mobile`：发布档静默忽略（非 wechatgame 族）✅
+- `pnpm run verify`：**PASS 23 / WARN 0 / SKIP 0 / FAIL 0** ✅
+- ⚠ **本轮未构建**：不递增 `games/beads/package.json` 版本（仍 1.0.33），未改写产物；引擎分离机制与读数取证见 T-582，定档后的首次发布构建按新默认执行。
+
+### 4. 文档回写
+
+- `production/release/beads/release-checklist.md` **v1.17**：§1.2 标注旧 3201.0 KB 系引擎内联基线、与分离档不可混用；§1.3 新增「Cocos 引擎插件」硬门控；§2 新增「发布档取证」；§7 登记后台硬前提；§8 记录 USER 定档与 `--no-separate-engine` 退路。
+- `memory/MEMORY.md §已知限制`：新增一条长期约定（发布档、退路、硬前提、产物断言）。
+
+### 5. 遗留 / 风险
+
+- **后台插件仍未确认**：微信公众平台「插件管理 → 添加 Cocos 引擎官方插件」需 USER 在后台操作；未做则发布档产物不可启动。本会话无后台账号，真机可启动未取证。
+- 首次按新默认构建时，`check:size` 基线会从 3201.0 KB（引擎内联）切到约 2755.5 KB（T-582 实测）；发布清单 §1.2 的逐组明细需在该次构建后按实包回填。
+- 沉淀统计：新增 0 / 修改 0 / 激活 0 / 归档 0（候选：发布档「数据声明 + 产物断言」做法，待 `kb:sync` 时评估入 `engine-cocos-build` 片）。

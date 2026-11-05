@@ -1,6 +1,6 @@
 # 发布清单（Release Checklist）· beads「拼豆小铺」
 
-- 版本：**v1.6** · 2026-10-19（v1.6 = 包体数字再对齐到 **23:29 现包 3201.0 KB / 余量 895.0 KB**（对局 safe area + 胶囊避让，较 22:47 增 +0.7 KB），B′ 仍未落码；v1.5 = 包体数字对齐到 22:47 现包 **3200.3 KB / 余量 895.7 KB**，B′ 仍未落码；v1.4 上传腿、v1.3 B′ 拍板、v1.2 §8 两口径、v1.1 包体论证重算）
+- 版本：**v1.17** · 2026-11-05（v1.17 = **引擎分离定为 beads 发布档**，`build:cocos` 默认产出引擎分离包；历史沿革见 §9）
 - 适用发布类型：**首次提审发布（首发）**；后续热修沿用 `production/release/rollback.md §5` 简化流程
 - 模板来源：`production/release/release-checklist.md`（breakout 版，六阶段 + 门控结构沿用）
 - 状态：**待执行**（P4 文档批；真机走查与发布批未开）
@@ -37,7 +37,7 @@
 
 ### 1.2 包体预算（**v1.6 对齐：2026-10-19 23:29 release 现包实测**，产物 `cocos/build/wechatgame`，108 文件；括号内为 10-18 基线对比）
 
-> 口径：`check:size` 按**原始字节**判定（gzip 仅参考）；产物必须是 **release 档**（`build:cocos` 默认即此档，旧默认 debug 已于 WXG-T-292 翻面；debug 数字不可作基线）。
+> 口径：`check:size` 按**原始字节**判定（gzip 仅参考）；产物必须是 **release 档**（`build:cocos` 默认即此档，旧默认 debug 已于 WXG-T-292 翻面；debug 数字不可作基线）。**自 2026-11-05 起 beads 的 release 档 = 引擎分离**（`games/beads/package.json` 的 `cocosRelease.separateEngine`，WXG-T-583）⇒ 下表 **3201.0 KB 系引擎内联旧基线**，与分离档不可混用；下一次干净 release 构建的基线以产物实测为准（T-582 分离档实测 2755.5 KB）。
 > 逐组明细 = 同一份产物按文件原始字节求和，合计与 `check:size` 逐值相符。**v1.6** 对 23:29 现包重跑同一算法（`find -type f -exec stat -f%z` 求和）：合计 **3201.0 KB**，较 10-18 基线 3188.2 增 **+12.8 KB**，全部落在 `assets/main`（527.2 → 540.1，本日夜间未提交工作，含本轮对局 safe area / 胶囊避让）；其余组逐值不变。⚠ **B′ 分包按用户裁定仍未落码 ⇒ 本表仍按「无分包」计**，§8 的 2731.8 KB 只是落码后的预期值。
 
 | 组成 | KB | 说明 |
@@ -67,6 +67,7 @@
 |---|---|---|---|
 | ☐ | 🚦 `pnpm run verify` | 22/22 PASS | ✅（P3 批末次） |
 | ☐ | 🚦 AppID | profile / 工程 / 产物一致 = `wx8cf9f756e5390749` | ✅；⚠ `cocos/build/project.config.json` 的 `wx63c62151a1c0cf3b` 为误开父目录生成，开发者工具**只打开 `build/wechatgame/`** |
+| ☐ | 🚦 Cocos 引擎插件 | 微信公众平台 → 设置 → 第三方设置 → 插件管理已添加「Cocos 引擎」官方插件；provider 与产物 `game.json` 的 `plugins.cocos.provider` 一致（⛔ 该值不入仓） | ⏳ 待 USER 在后台确认——引擎分离定档后**不加 = 产物不可启动** |
 | ☐ | 微信开发者工具 | 已装、已登录有开发权限的微信号；上传密钥 + IP 白名单（**仅 `upload` 需要**） | ✅ 2026-10-19 实测：`cli islogin` 返回 `{"login":true}`；`cli preview` 跑通并出二维码（包 3.1 MB）⇒ **预览腿不需密钥/白名单**，原写「登录/密钥待 USER 确认」只对 upload 成立 | ENG + OPS |
 | ☐ | Cocos Creator | 版本 = 工程约定 | ✅ 3.8.8 |
 | ☐ | 产物目录唯一 | 只留一个产物目录 | ✅ 2026-10-19 已处置：`build/wechatgame-001`（09-29 旧包）改名 `build/_archive-wechatgame-001-20260929`，profile `outputName` 改指 `wechatgame`（本地工程设置，未入仓）⇒ 现只剩 `wechatgame` + `web-mobile`（非微信产物） |
@@ -79,7 +80,8 @@
 
 | ☐ | 检查项 | 判据 | 负责人 |
 |---|---|---|---|
-| ☐ | 干净构建 | 先 `pnpm run framework:sync`，再 `pnpm --filter @wxgame/beads build:cocos`；产物 mtime 晚于最后一次源码改动——✅ **2026-10-19 09:19 实跑**（CLI 默认 release 档，38.1s）；另新增前置「包内资产与仓内等值」（判例 BD-61：“改了投放件但包里仍旧”只能靠归属腿发现） | ENG |
+| ☐ | 干净构建 | 先 `pnpm run framework:sync`，再 `pnpm --filter @wxgame/beads build:cocos`；**默认 release 档 = 引擎分离**（无需再传 `--separate-engine`，WXG-T-583）；产物 mtime 晚于最后一次源码改动；另新增前置「包内资产与仓内等值」（判例 BD-61：“改了投放件但包里仍旧”只能靠归属腿发现） | ENG |
+| ☐ | 🚦 发布档取证 | 构建日志含「档位：release · 引擎分离」+「发布档校验：产物 game.json 含 plugins.cocos」；`game.json` 的 `plugins.cocos.provider` 与 §1.3 后台插件一致 | ENG + OPS |
 | ☐ | 🚦 包体 | `check:size` 输出主包 / 分包数值并入本清单 §1.2 | ENG + OPS |
 | ☐ | 分包/远程结构合规 | 按 §8 选定方案；`game.json` `subpackages` 或远程域名配置与方案一致 | ENG |
 | ☐ | 无调试后门 | 无刷屏日志、无探针入口、无 dev 快捷键 | ENG + QA |
@@ -141,6 +143,7 @@
 - ~~主包 3166 KB 越内部目标 2000 KB，§8 未拍板~~ ⇒ 按 §3.9 v1.51（内部目标 = 4096 KB）**该理由已作废**：现值 3201.0 KB 已达标；仍成立的是「§8 选型未拍板」（动机从「为达标」变为「为余量与首屏下载」）；
 - 版本号漂移未闭合（§1.1）；
 - 音频（X-01）与激励视频（X-07）的首发处理未定；
+- 引擎分离发布档的**后台硬前提**：微信公众平台已添加「Cocos 引擎」官方插件（provider 取产物 `game.json`）；未做则开发者工具报插件未注册 / 真机白屏（WXG-T-583 定档后新增门控）；
 - ~~§8 选型未拍板~~ ⇒ **已拍板 = B′（USER 2026-10-19），但按裁定节奏「先登记、暂不落码」** ⇒ 阻塞性质从「未定」变为「待实施 + 待真机验 D-78」；
 - 上传腿**已跑通一半（2026-10-19 实测）**：`cli preview` 成功（`✔ preview`，包 **3.1 MB** < 4 MB 主包上限，走 IDE 登录态、不需上传密钥）⇒ 平台侧接受当前包；仍未做的是 `cli upload`（上传开发版，才需密钥 + IP 白名单）与提审后的体验版链路。
 
@@ -175,11 +178,13 @@
 
 > 引擎 `cc.js` 1356.9 KB（gzip 后 355.5 KB）是包体数字上的最大项（占主包 43%）。Cocos 的「分离引擎 / 引擎插件」（profile `separateEngine: false`）~~**是否计入主包、对首发是否可用，以[微信官方](https://developers.weixin.qq.com/minigame/dev/guide/)与 Cocos 文档为准**，本清单不下结论，列为发布批调研项。~~
 >
-> ✅ **本节该项收口（WXG-T-582，2026-11-05 实测）**：机制可用，读数已取证 —— 主包 **3908.4 → 2755.5 KB（−1152.9 KB）**、距 4096 KB 红线余量 **187.6 → 1340.5 KB**、`cocos-js` **1360 → 216 KB**；产物 `game.json` 增 `plugins.cocos = {version:"3.8.8", provider:"wx…（16 位十六进制，⛔ 不入仓，取产物原值）"}`，`cc.js` 退化为 `plugin:cocos/*` 的 required 壳。开关 = `pnpm --filter @wxgame/beads run build:cocos -- --separate-engine`（⛔ 早前脚本传**顶层** `separateEngine=true` 会被平台层 profile 的 `false` 静默覆盖、产物零变化，已改走 `configPath` 覆盖平台层）。⚠ 本节读数以该注为**最新时点**；文本上方的包体数字属 2026-10-19 与更早批次，未随逐次瘦身回填。
+> ✅ **本节该项收口（WXG-T-582，2026-11-05 实测）**：机制可用，读数已取证 —— 主包 **3908.4 → 2755.5 KB（−1152.9 KB）**、距 4096 KB 红线余量 **187.6 → 1340.5 KB**、`cocos-js` **1360 → 216 KB**；产物 `game.json` 增 `plugins.cocos = {version:"3.8.8", provider:"wx…（16 位十六进制，⛔ 不入仓，取产物原值）"}`，`cc.js` 退化为 `plugin:cocos/*` 的 required 壳。开关 = **beads 发布档默认**（`games/beads/package.json` 的 `cocosRelease.separateEngine: true`，WXG-T-583 定档）⇒ `pnpm --filter @wxgame/beads run build:cocos` 即产出分离档，`--no-separate-engine` 仅作对照（⛔ 早前脚本传**顶层** `separateEngine=true` 会被平台层 profile 的 `false` 静默覆盖、产物零变化，已改走 `configPath` 覆盖平台层）。⚠ 本节读数以该注为**最新时点**；文本上方的包体数字属 2026-10-19 与更早批次，未随逐次瘦身回填。
 >
 > ⛔ **启用硬前提**：微信公众平台 → 设置 → 第三方设置 → 插件管理 → 添加「Cocos 引擎」官方插件（provider = 产物 `game.json` 的 `plugins.cocos.provider`；该 ID 形同 AppID，⛔ 不抄进仓库）。未做则该档产物在开发者工具报插件未注册 / 真机白屏 ⇒ **提审前必须先确认此项**。本会话无后台账号，故「产物真机可启动」**未取证**。
 >
-> ⚠ 口径两条仍需分开：插件包**不计入主包 4 MB**（判定口径变好），但玩家首启**仍要下载插件**（首屏字节数不变、甚至多一次插件版本协商）⇒ 它解决的是"红线余量"，不是"首屏时长"。是否把该档定为发布档，待 USER 拍板。
+> ⚠ 口径两条仍需分开：插件包**不计入主包 4 MB**（判定口径变好），但玩家首启**仍要下载插件**（首屏字节数不变、甚至多一次插件版本协商）⇒ 它解决的是"红线余量"，不是"首屏时长"。
+>
+> ✅ **定档（USER 2026-11-05 拍板，WXG-T-583）**：**引擎分离 = beads 发布档**。落地为 `games/beads/package.json` 的 `cocosRelease.separateEngine: true`（数据驱动），release 构建默认生效；`--no-separate-engine` 仅用于对照包 / 后台插件未就绪时排错；`--debug` 不套发布档。构建脚本在产物 `game.json` 缺 `plugins.cocos.provider` 时**直接失败**（防再次静默不生效），且失败发生在版本号递增之前。
 >
 > ~~只靠 B 或 C 仍略高于 2000 KB（≈2040），要真正达标需叠加 D 或引擎侧方案；否则仍需 USER 对内部目标豁免 ≈40 KB。~~
 > ✅ **v1.1 作废该句**：它建在「内部目标 2000 KB」上。按现值（4096 KB）：A 方案 3201.0 KB 已达标，B/C 方案是把主包压到 ≈2289.6 KB 以**换余量与首屏下载**，不是为达标 ⇒ 选择标准 = 首屏下载体验 vs 异步加载复杂度，由发布批按上表拍板。
@@ -227,3 +232,4 @@
 | **v1.14** | 2026-10-31 | **1.0.16 包产出（WXG-T-521）**：主菜单整屏木屋背板入库；release 构建 49.7s → **1.0.16**；主包 **3986.9 KB / 150 文件**（较 1.0.15 涨 **286.1 KB** / +24 文件，其中背板自身 187.9 KB + 未提交的 T-515 五张 9s 图 ≈ 64 KB），距红线余量 **109.1 KB**（⚠ 已进入「下一张位图就可能撞墙」区）；`check:cocos-mask` OK（`ui_menu_backdrop` 字节相同）；本轮**未跑** `cli preview`（需开发者工具登录态） |
 | **v1.15** | 2026-10-31 | **1.0.17 包产出（WXG-T-521 二轮·色数复核）**：背板换 **qwen-image-3.0 母版 + k-means 128 色 @0.9×（677×1210 / 178.6 KB）**（原 local 32 色 / 187.9 KB）；release 构建 12.9s → **1.0.17**；主包 **3977.6 KB / 150 文件**（较 1.0.16 **反降 9.3 KB**），余量 **109.1 → 118.4 KB**；质量：全图 PSNR 27.4→**37.1** / 细节区 22.2→**33.2**；`check:cocos-mask` OK（纹理字节与产物等值）；`.meta` 由重导入改为 677×1210（未手改）；未跑 `cli preview` |
 | **v1.16** | 2026-10-31 | **1.0.19 包产出（WXG-T-522）**：橱窗整窗换 **qwen-image-3.0 i2i 2× 新稿**（1088×1742，壁龛+圆台+灯位；去光后 32 色 188.4 KB，旧 1188×1892/102.9 KB）+ 箭头整枚切图 + 两张大关作品归一化（30.4→9.4、84.3→16.9 KB）；release 构建 → **1.0.19**；主包 **3986.6 KB / 156 文件**（余 **109.4 KB**）；`check:cocos-mask` OK；光晕改引擎画（`coneAlpha` 待观感回调）；未跑 `cli preview` |
+| **v1.17** | 2026-11-05 | **引擎分离定为 beads 发布档（WXG-T-583，USER 拍板）**：① 新增 per-game 发布档声明 `games/beads/package.json` → `cocosRelease.separateEngine: true`，`build:cocos` 的 release 档默认引擎分离，**不再需要** `--separate-engine`；② `build-cocos.mjs` 新增 `--no-separate-engine` 退路 + 构建后强制校验产物 `game.json` 的 `plugins.cocos.provider`（缺失即失败、不递增版本号）；③ §1.3 新增「Cocos 引擎插件」门控、§2 新增「发布档取证」项、§7 登记后台硬前提、§1.2 标注旧 3201.0 KB 基线为引擎内联档不可混用；④ `--debug` 明确不套发布档（K-111）。⚠ 本轮零构建、零版本号变更 |

@@ -10,6 +10,9 @@
     "./tuning": "./src/config/tuning.ts",
     "./levels": "./src/config/levels.ts"
   },
+  "cocosRelease": {
+    "separateEngine": true
+  },
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
