@@ -66,7 +66,7 @@
 | ☐ | 检查项 | 判据 | 现状 |
 |---|---|---|---|
 | ☐ | 🚦 `pnpm run verify` | 22/22 PASS | ✅（P3 批末次） |
-| ☐ | 🚦 AppID | profile / 工程 / 产物一致 = `wx8cf9f756e5390749` | ❌ **2026-11-05 核实：该 AppID 是「小游戏测试号」，不是正式小游戏后台**（页面只有开发者 ID / AppSecret / 服务器域名，无「设置 → 第三方设置 → 插件管理」）⇒ 引擎插件无法在此账号授权，**提审/发布也需正式小游戏 AppID**；`wx63c62151a1c0cf3b` 为误开父目录生成，开发者工具只打开 `build/wechatgame/` |
+| ☐ | 🚦 AppID | profile / 工程 / 产物一致 = `wx8cf9f756e5390749` | ❌ **2026-11-05 核实：该 AppID 是「小游戏测试号」，不是正式小游戏后台**（页面只有开发者 ID / AppSecret / 服务器域名，无「设置 → 第三方设置 → 插件管理」）⇒ 引擎插件无法在此账号授权，**提审/发布也需正式小游戏 AppID**（注册步骤见 `launch-prerequisites.md §1.1`）；`wx63c62151a1c0cf3b` 为误开父目录生成，开发者工具只打开 `build/wechatgame/` |
 | ☐ | 🚦 Cocos 引擎插件 | 微信公众平台 → 设置 → 第三方设置 → 插件管理已添加「Cocos 引擎」官方插件；provider 与产物 `game.json` 的 `plugins.cocos.provider` 一致（⛔ 该值不入仓） | ❌ **2026-11-05 09:52 / 14:17 两次实测均未通过**：`cli preview` 返回 `code 10 / 80082, get plugin(... version: 3.8.8) failed, permission deny` ⇒ **当前发布档产物不可预览/启动**。若后台已添加，逐项核对：① 登录账号拥有工程 AppID；② 插件 ID 与产物 `plugins.cocos.provider` 完全一致；③ 授权版本含 3.8.8；核对后重启开发者工具再跑 preview |
 | ☐ | 微信开发者工具 | 已装、已登录有开发权限的微信号；上传密钥 + IP 白名单（**仅 `upload` 需要**） | ✅ 2026-10-19 实测：`cli islogin` 返回 `{"login":true}`；`cli preview` 跑通并出二维码（包 3.1 MB）⇒ **预览腿不需密钥/白名单**，原写「登录/密钥待 USER 确认」只对 upload 成立 | ENG + OPS |
 | ☐ | Cocos Creator | 版本 = 工程约定 | ✅ 3.8.8 |
