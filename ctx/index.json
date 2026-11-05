@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3942,
       "lines": 133,
-      "sha256": "df283b291c5641d4108ad18ca7188a34c9e0e2f8f95f2fe1128f49e188dd1e21",
+      "sha256": "81a92d7f6aa42711a2b972a56a86504638aa2f45500e3fa01f77d6546cfda76d",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 228474 8170 normal",
+          "summary": "1 production/TASKS-DETAIL.md 228926 8171 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "81bea62d11c0ad2e550fbc5507115efa2ce8455bcc01e6d375ee6bbbd03f4e89",
+      "sha256": "c135e2c1c3d8a12a7459079707b0e4f2742ba850f9d5d33d9ed1fe7cd9c4cc28",
       "tier": "normal",
       "sections": [
         {
@@ -745,7 +745,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 191 行 / 45703 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 191 行 / 45649 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 8170 行 / 228474 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 8171 行 / 228926 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+8171 · §WXG-T-573=7630+36 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+8172 · §WXG-T-573=7630+36 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -88750,17 +88750,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 228474,
-      "lines": 8170,
-      "sha256": "d5c83aa8d027d5c9d3f2a07f0571fcd4f388cf6c4574f5450aee63dba953b3b6",
+      "tokens": 228926,
+      "lines": 8171,
+      "sha256": "d5899122ea12fe03702ab134cd7b63d608a0aa1b6b155cd0d6d92574e247d3af",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 8171,
-          "tokens": 228457,
+          "endLine": 8172,
+          "tokens": 228909,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -101293,8 +101293,8 @@
           "anchor": "§WXG-T-584",
           "level": 2,
           "startLine": 8131,
-          "endLine": 8171,
-          "tokens": 1597,
+          "endLine": 8172,
+          "tokens": 2048,
           "summary": "命名·游戏名「拼豆小铺」改「千面拼豆」（四域联动） · 负责：主理人(Qoder)·跨域（设计轨 + 美术轨 + 工程轨",
           "keywords": [
             "WXG",
@@ -101317,7 +101317,7 @@
           "level": 3,
           "startLine": 8145,
           "endLine": 8154,
-          "tokens": 466,
+          "tokens": 508,
           "summary": "① USER 微信注册页校验 千面拼豆 唯一性（公开搜索只索引已发布账号，注册页才是权威）；被占则回退 拼豆千面屋 → ",
           "keywords": [
             "USER",
@@ -101329,23 +101329,22 @@
           "anchor": "§3 已核实的坑（本单最易踩的一条）",
           "level": 3,
           "startLine": 8155,
-          "endLine": 8160,
-          "tokens": 261,
-          "summary": "③④ 必须同批落：view/menu-signage.ts::drawBeadText 对未知字符的处理是「跳过该字、保",
+          "endLine": 8161,
+          "tokens": 544,
+          "summary": "招牌两腿互斥，主腿是位图不是字模（2026-11-05 查渲染链订正，⚠ 本单初版写反了主次）：view/meta-me",
           "keywords": [
             "view",
-            "menu",
-            "signage",
-            "drawBeadText",
+            "meta",
             "已核实的坑",
-            "本单最易踩的"
+            "本单最易踩的",
+            "一条"
           ]
         },
         {
           "anchor": "§4 验收判据",
           "level": 3,
-          "startLine": 8161,
-          "endLine": 8164,
+          "startLine": 8162,
+          "endLine": 8165,
           "tokens": 68,
           "summary": "pnpm run verify 全绿 + menu-signage-beadtext 四枚字模珠数逐字对撞 + harn",
           "keywords": [
@@ -101360,12 +101359,11 @@
         {
           "anchor": "§5 遗留 / 阻塞",
           "level": 3,
-          "startLine": 8165,
-          "endLine": 8171,
-          "tokens": 174,
-          "summary": "① 名称唯一性尚未校验（USER 侧）⇒ 本单在拿到「注册页通过」回执前不得进入 ②。",
+          "startLine": 8166,
+          "endLine": 8172,
+          "tokens": 297,
+          "summary": "~~① 名称唯一性尚未校验~~ ⇒ 已过（2026-11-05）：微信注册页填「千面拼豆」返 8/30 字符 + 「你的",
           "keywords": [
-            "USER",
             "遗留",
             "阻塞"
           ]
@@ -101374,9 +101372,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 45703,
+      "tokens": 45649,
       "lines": 191,
-      "sha256": "cec0ab9fcdf8d89abb4b1a69c4d47935f9beaf62b61e9e454348227b062dc88f",
+      "sha256": "6f204f40eba05f8d171e569ab47e230247f00cb6d913b513a1f54b9bcb152fb1",
       "tier": "hot",
       "sections": [
         {
@@ -101384,7 +101382,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 192,
-          "tokens": 45695,
+          "tokens": 45640,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
