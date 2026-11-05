@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3942,
       "lines": 133,
-      "sha256": "4e4d5aa1596b7f9bcb0a0e2b393fba66d8c36d28f9bf0646602f9fdf22fd01d4",
+      "sha256": "df283b291c5641d4108ad18ca7188a34c9e0e2f8f95f2fe1128f49e188dd1e21",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 226873 8127 normal",
+          "summary": "1 production/TASKS-DETAIL.md 228474 8170 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "d4ee0d8b6db703d180b69ac5c7bff89d85cf2bbabe3ea63121fb4ef15f1eb063",
+      "sha256": "81bea62d11c0ad2e550fbc5507115efa2ce8455bcc01e6d375ee6bbbd03f4e89",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 190 行 / 45393 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 191 行 / 45703 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+191 · §待排（backlog，无号，立项时领取…=163+29",
+          "summary": "§WXG 任务台账（SSOT）=1+192 · §待排（backlog，无号，立项时领取…=164+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 8127 行 / 226873 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 8170 行 / 228474 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+8128 · §WXG-T-572=7597+33 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+8171 · §WXG-T-573=7630+36 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -88750,17 +88750,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 226873,
-      "lines": 8127,
-      "sha256": "f33d8a34b387222e20c7492378f2a99ffbbfb8bd87c1124d456c3b3d6f2ebb93",
+      "tokens": 228474,
+      "lines": 8170,
+      "sha256": "d5c83aa8d027d5c9d3f2a07f0571fcd4f388cf6c4574f5450aee63dba953b3b6",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 8128,
-          "tokens": 226856,
+          "endLine": 8171,
+          "tokens": 228457,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -101204,8 +101204,8 @@
           "anchor": "§WXG-T-583",
           "level": 2,
           "startLine": 8085,
-          "endLine": 8128,
-          "tokens": 1545,
+          "endLine": 8130,
+          "tokens": 1546,
           "summary": "工具链·beads 发布档定为引擎分离（默认开） · 负责：主理人(Qoder)·工具链 · 状态：✅ 完成（2026-",
           "keywords": [
             "WXG",
@@ -101280,30 +101280,111 @@
           "anchor": "§5 遗留 / 风险",
           "level": 3,
           "startLine": 8120,
-          "endLine": 8128,
-          "tokens": 670,
+          "endLine": 8130,
+          "tokens": 671,
           "summary": "后台插件未添加（2026-11-05 09:52 / 14:17 两次实测取证）：对 T-582 分离档产物跑 cli ",
           "keywords": [
             "cli",
             "遗留",
             "风险"
           ]
+        },
+        {
+          "anchor": "§WXG-T-584",
+          "level": 2,
+          "startLine": 8131,
+          "endLine": 8171,
+          "tokens": 1597,
+          "summary": "命名·游戏名「拼豆小铺」改「千面拼豆」（四域联动） · 负责：主理人(Qoder)·跨域（设计轨 + 美术轨 + 工程轨",
+          "keywords": [
+            "WXG",
+            "Qoder"
+          ]
+        },
+        {
+          "anchor": "§1 出发点 (3)",
+          "level": 3,
+          "startLine": 8135,
+          "endLine": 8144,
+          "tokens": 506,
+          "summary": "直接触发：拼豆小铺 在微信注册页被判「该名称与已有小程序名称重复」（读数 8/30 字符），而微信搜索查不到占用者（未发",
+          "keywords": [
+            "出发点"
+          ]
+        },
+        {
+          "anchor": "§2 范围与硬顺序（① 未过不得动 ②③④⑤）",
+          "level": 3,
+          "startLine": 8145,
+          "endLine": 8154,
+          "tokens": 466,
+          "summary": "① USER 微信注册页校验 千面拼豆 唯一性（公开搜索只索引已发布账号，注册页才是权威）；被占则回退 拼豆千面屋 → ",
+          "keywords": [
+            "USER",
+            "范围与硬顺序",
+            "未过不得动"
+          ]
+        },
+        {
+          "anchor": "§3 已核实的坑（本单最易踩的一条）",
+          "level": 3,
+          "startLine": 8155,
+          "endLine": 8160,
+          "tokens": 261,
+          "summary": "③④ 必须同批落：view/menu-signage.ts::drawBeadText 对未知字符的处理是「跳过该字、保",
+          "keywords": [
+            "view",
+            "menu",
+            "signage",
+            "drawBeadText",
+            "已核实的坑",
+            "本单最易踩的"
+          ]
+        },
+        {
+          "anchor": "§4 验收判据",
+          "level": 3,
+          "startLine": 8161,
+          "endLine": 8164,
+          "tokens": 68,
+          "summary": "pnpm run verify 全绿 + menu-signage-beadtext 四枚字模珠数逐字对撞 + harn",
+          "keywords": [
+            "pnpm",
+            "run",
+            "verify",
+            "menu",
+            "signage",
+            "beadtext"
+          ]
+        },
+        {
+          "anchor": "§5 遗留 / 阻塞",
+          "level": 3,
+          "startLine": 8165,
+          "endLine": 8171,
+          "tokens": 174,
+          "summary": "① 名称唯一性尚未校验（USER 侧）⇒ 本单在拿到「注册页通过」回执前不得进入 ②。",
+          "keywords": [
+            "USER",
+            "遗留",
+            "阻塞"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 45393,
-      "lines": 190,
-      "sha256": "5b9afda304712c2d7507f2e3e1af2844df21814598e537aba263f78a37407d85",
+      "tokens": 45703,
+      "lines": 191,
+      "sha256": "cec0ab9fcdf8d89abb4b1a69c4d47935f9beaf62b61e9e454348227b062dc88f",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 191,
-          "tokens": 45384,
+          "endLine": 192,
+          "tokens": 45695,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -101316,8 +101397,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 163,
-          "endLine": 191,
+          "startLine": 164,
+          "endLine": 192,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -116746,17 +116827,17 @@
     },
     {
       "path": "production/release/beads/release-checklist.md",
-      "tokens": 11315,
-      "lines": 238,
-      "sha256": "712a0c5edd0890249810e399155a4d6a5ba74307f04c1a55e99fd69aab3c3b2d",
+      "tokens": 11499,
+      "lines": 240,
+      "sha256": "763abe0a8428c65297698e2bd014f72c1ac4bbf88845701f174749f2019fd377",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§发布清单（Release Checklist）· beads「拼豆小铺」",
           "level": 1,
           "startLine": 1,
-          "endLine": 239,
-          "tokens": 11296,
+          "endLine": 241,
+          "tokens": 11480,
           "summary": "版本：v1.17 · 2026-11-05（v1.17 = 引擎分离定为 beads 发布档，build:cocos 默",
           "keywords": [
             "Release",
@@ -116891,8 +116972,8 @@
           "anchor": "§4 阶段四：提交审核",
           "level": 2,
           "startLine": 110,
-          "endLine": 118,
-          "tokens": 152,
+          "endLine": 119,
+          "tokens": 268,
           "summary": "☐ 🚦 主体与类目 mp 后台主体、游戏类目已选定 USER",
           "keywords": [
             "USER",
@@ -116903,8 +116984,8 @@
         {
           "anchor": "§5 阶段五：上线",
           "level": 2,
-          "startLine": 119,
-          "endLine": 126,
+          "startLine": 120,
+          "endLine": 127,
           "tokens": 105,
           "summary": "☐ 🚦 审核通过 + USER 批准发布 人工审批，不可自动 USER",
           "keywords": [
@@ -116916,8 +116997,8 @@
         {
           "anchor": "§6 阶段六：上线后观察",
           "level": 2,
-          "startLine": 127,
-          "endLine": 136,
+          "startLine": 128,
+          "endLine": 137,
           "tokens": 107,
           "summary": "☐ 错误监控 mp 后台运营数据 / 错误日志无致命崩溃 ENG",
           "keywords": [
@@ -116929,9 +117010,9 @@
         {
           "anchor": "§7 门控汇总（Go / No-Go）",
           "level": 2,
-          "startLine": 137,
-          "endLine": 152,
-          "tokens": 567,
+          "startLine": 138,
+          "endLine": 154,
+          "tokens": 635,
           "summary": "进入提审的硬门控（全绿才 go）：§1.1 版本一致 · §1.2 主包红线 + 总包红线 + 守卫有牙（内部目标已与红",
           "keywords": [
             "§1.1",
@@ -116942,8 +117023,8 @@
         {
           "anchor": "§8 分包 / 远程包选型（**发布批拍板，本清单不代裁**）",
           "level": 2,
-          "startLine": 153,
-          "endLine": 216,
+          "startLine": 155,
+          "endLine": 218,
           "tokens": 3533,
           "summary": "以 2026-10-18 release 重建实测（主包 3188.2 KB / 108 文件）为选型基线；23:29 ",
           "keywords": [
@@ -116957,8 +117038,8 @@
         {
           "anchor": "§8.1 决策点（v1.2 收口，给 USER 拍板用）",
           "level": 3,
-          "startLine": 195,
-          "endLine": 216,
+          "startLine": 197,
+          "endLine": 218,
           "tokens": 933,
           "summary": "包体已达标 ⇒ 本表只剩一个真问题：低端机首屏要下多少字节，愿意为它付多少复杂度。按「改动量 / 下载收益」排序：",
           "keywords": [
@@ -116971,8 +117052,8 @@
         {
           "anchor": "§9 变更记录",
           "level": 2,
-          "startLine": 217,
-          "endLine": 239,
+          "startLine": 219,
+          "endLine": 241,
           "tokens": 2732,
           "summary": "v1.0 2026-10-15 初稿（P4）：beads 六阶段清单 + 实测包体基线 + AppID / 产物现状 +",
           "keywords": [

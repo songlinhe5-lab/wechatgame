@@ -8125,3 +8125,46 @@ USER 令「把 --separate-engine 定为 beads 发布档」。T-582 已证明机�
 - **配置核查（Cocos 3.8/4.0 发布文档）**：① 发布档构建日志 `nativeCodeBundleMode: wasm`，而文档注明「微信小游戏引擎插件目前仅支持 js 模式」⇒ 切 `js` 需重建验证，未改；② Cocos GUI 构建读 `profiles/v2/packages/wechatgame.json`（`separateEngine: false`），CLI release 靠 configPath 覆盖为 true ⇒ 发布包只走 `pnpm --filter @wxgame/beads build:cocos`，⛔ 不要用 GUI 构建；若要让 GUI 也默认分离，另改 profile（待裁）。
 - 首次按新默认构建时，`check:size` 基线会从 3201.0 KB（引擎内联）切到约 2755.5 KB（T-582 实测）；发布清单 §1.2 的逐组明细需在该次构建后按实包回填。
 - 沉淀统计：新增 0 / 修改 0 / 激活 0 / 归档 0（候选：发布档「数据声明 + 产物断言」做法，待 `kb:sync` 时评估入 `engine-cocos-build` 片）。
+
+---
+
+## WXG-T-584
+
+**命名·游戏名「拼豆小铺」改「千面拼豆」（四域联动）** · 负责：主理人(Qoder)·跨域（设计轨 + 美术轨 + 工程轨 + 发布台账） · 状态：⏳ 待执行（2026-11-05 开单）
+
+### 1. 出发点
+
+- **直接触发**：`拼豆小铺` 在微信注册页被判「该名称与已有小程序名称重复」（读数 8/30 字符），而微信搜索查不到占用者（未发布/下线小程序、同名公众号或审核预留均可致此）⇒ 现名**不可用**，必须换。
+- **命名要求**（USER 2026-11-05）：一看就知道是拼豆游戏 + 能换外观。
+- **为什么不用「换装」二字**（本轮取证结论，⛔ 后续不得凭印象重辩）：本作可切换项的实体量 =
+  珠面风格 **4 款**（`config/bead-styles/registry.ts`：复刻·四棱刻面默认 / 18 线稿描边 / 13 双色对角 / handdrawn 手绘轮廓，其中 handdrawn 是未过 `bead-visual-style-spec §12.6` 入池评审的原型档）
+  × 豆径 **2 档**（标准/小巧，`tuning/bead-style.ts::BEAD_SIZE_LABELS`；S9 定为「一种设计两套皮肤」）
+  \+ 整套配色皮肤 **2 款**（`config/skins/registry.ts`：暖纸默认 + cool-violet；头注写死「作用域 = UI 令牌族，珠色基色/几何/动效不入肤 ⇒ 换肤生效帧内珠体族输出零变更」）。
+  **无角色/服饰实体**（全 `games/beads` grep「换装/服饰/穿搭」仅命中图标注释与 AI workflow 记录）⇒ 「拼豆换装」属强品类词，有「名称与实际内容不符」审核风险 + 玩家预期落差。`千面` 是虚数修辞、同时暗含多扮相，风险最低且仍一秒读出「能换」。已否备选：`拼豆换装`（风险高）/ `拼豆衣橱`（已有《公主拼豆衣橱》在跑，混淆风险）/ `拼豆换脸`（「换脸」属 AI 换脸敏感语义）。
+
+### 2. 范围与硬顺序（① 未过不得动 ②③④⑤）
+
+| 步 | 域 | 做什么 | 正本 / 落点 |
+|---|---|---|---|
+| ① | USER | 微信注册页校验 `千面拼豆` 唯一性（公开搜索只索引已发布账号，**注册页才是权威**）；被占则回退 `拼豆千面屋` → `拼豆多面手` 重起名，**本单作废重开** | — |
+| ② | 设计轨 | 先改两张设计表再改代码（文档冲突先改文档）：`app_name` 与 **`app_slogan`**（原「一颗一颗，拼出你的小铺」中的「小铺」不再对应店名 ⇒ 同批重裁）；未收键 `wall_module_name` 一并处理 | `games/beads/design/art/proposals/ui-style-redesign/tokens.md §7` ⇄ `menu-architecture.md §6` |
+| ③ | 美术轨 | 新增 **`千` / `面`** 两枚 10×10 @ d=12 字模（`拼` `豆` 复用）；重出含字顶板 logo `ui_menu_logo` 960×772（现役件烧有「拼豆小铺」珠字）；同批复核 `check:size`（主菜单背板接入后余量紧） | 正本 `games/beads/design/art/specs/menu-wall-signage-spec.md §1.5`；⛔ 工程侧不得自拟字形 |
+| ④ | 工程轨 | `COPY_TOKENS.app_name` 改值；`config/sign-glyphs.ts` 逐字转写 ③ 的新字模（含每字珠数，⛔ 抄错即红）；`tuning/menu.ts::SIGN_GLYPH_COUNT` 注释里的「= 拼豆小铺」订正（**字数仍 4 ⇒ 常量值不动**）；测试 `tests/menu-signage-beadtext.test.ts` 珠数逐字对撞同步回填 | `games/beads/src/config/copy-tokens.ts:18` |
+| ⑤ | 台账 / 外部 | 发布清单标题与正文称名、软著名称、TapTap 文案；本单回填 | `production/release/beads/release-checklist.md` 等 |
+
+### 3. 已核实的坑（本单最易踩的一条）
+
+- **③④ 必须同批落**：`view/menu-signage.ts::drawBeadText` 对未知字符的处理是「**跳过该字、保留字槽** + 一次性告警」。⇒ 若只改 `app_name` 而不补 `千/面` 字模，主菜单招牌会渲染成**两个空洞 + 拼豆**；且此时返回的珠数 ≠ 0，**不会**触发 `meta-menu.ts:796` 的系统字体回落分支 ⇒ 属于「门禁全绿、画面坏了」那一类，肉眼验屏不可省。
+- 4 字名 ⇒ `SIGN_MATRIX_N`（10）与 `SIGN_GLYPH_COUNT`（4）均不变，改名成本只集中在**两枚字模 + logo 重出**；若换成 5 字名（如 `拼豆千面屋`）则招牌几何需重排，成本高一档。
+- 字模位表是从美术规格**逐字转写**的产物（`sign-glyphs.ts` 头注：不自拟字形）⇒ 没有美术轨交付件之前，工程侧无法独立完成 ④。
+
+### 4. 验收判据
+
+`pnpm run verify` 全绿 + `menu-signage-beadtext` 四枚字模珠数逐字对撞 + harness 主菜单肉眼确认四字逐字落槽无空洞 + `ui_menu_logo` 重出件过 `check:size` 与 `check:cocos-mask` + `pnpm run check:links`。
+
+### 5. 遗留 / 阻塞
+
+- ① 名称唯一性**尚未校验**（USER 侧）⇒ 本单在拿到「注册页通过」回执前不得进入 ②。
+- 正式小游戏 AppID 未取得（T-583 遗留）⇒ 新名最终要填在**正式号**后台，测试号无法提审。
+- 测试号页面截图含 AppSecret，已提示重置，**未见回执**。
+- 沉淀统计：新增 0 / 修改 0 / 激活 0 / 归档 0（候选：「改游戏名 = 设计表→字模→代码三跳必须同批，否则招牌出空洞且不触发回落」属可复用的坑，待 `kb:sync` 评估归档）。
