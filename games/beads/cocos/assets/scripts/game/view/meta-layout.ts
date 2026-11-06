@@ -321,7 +321,7 @@ export function anchoredGeo(a: MenuAnchors): AnchoredMenuGeo {
 
 /**
  * `[WXG-T-585]` v2 腿：**绝对坐标**（`MENU_V2`，坐标图读数）代替 v1 的链式推导。
- * 背板底对齐屏幕底 ⇒ 全部件由 `H − y − h` 翻 y-up，逐机 H 变化时与背板相对位置不变。
+ * 背板**顶对齐屏顶** ⇒ 全部件由 `H − y − h` 翻 y-up，逐机 H 变化时与背板逐像素对齐（多出的高度落屏底）。
  * 顶栏四钮仍走逐机接口值（`btTopY`，判例 K-124 接口优先），⛔ 不钉坐标图的 134/222。
  */
 function anchoredGeoV2(a: MenuAnchors): AnchoredMenuGeo {

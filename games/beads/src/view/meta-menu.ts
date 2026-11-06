@@ -3,7 +3,7 @@
  * 几何一律取自 `meta-layout.ts` 的锚定档，控件画法取自 `meta-widgets.ts` ⇒ 页面只编排、不另算。
  */
 
-import { DESIGN_H, DESIGN_W, type MenuAnchors, MENU_ARROW_ICON, MENU_CASE_INTERIOR_BAKED, MENU_BAR_ICON_D, MENU_BOSS_ART_D, MENU_CTA_LABEL, MENU_CTA_PRESSED_D, MENU_CTA_SLICE, MENU_CTA_SRC_H, MENU_DONE_ICON, MENU_FROST, MENU_FULLSTAR_FRAME, MENU_GRAY_WIPE, MENU_LIGHT, MENU_LOCKED_ICON, MENU_PLAQUE_BEVEL_INSET, MENU_PLAQUE_ICON_INSET, MENU_PLAQUE_RIVET_INSET, MENU_PLAQUE_RIVET_R, MENU_PLAQUE_STROKE, MENU_SIGNIN_DOT_R, MENU_SIGN_FRAME, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, MENU_V2_BAKED, SIGN_BEAD_PITCH, SIGN_MATRIX_N, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning.js';
+import { DESIGN_H, DESIGN_W, type MenuAnchors, MENU_ARROW_ICON, MENU_CASE_INTERIOR_BAKED, MENU_BAR_ICON_D, MENU_BOSS_ART_D, MENU_CTA_LABEL, MENU_CTA_PRESSED_D, MENU_CTA_SLICE, MENU_CTA_SRC_H, MENU_DONE_ICON, MENU_FROST, MENU_FULLSTAR_FRAME, MENU_GRAY_WIPE, MENU_LIGHT, MENU_LOCKED_ICON, MENU_PLAQUE_BEVEL_INSET, MENU_PLAQUE_ICON_INSET, MENU_PLAQUE_RIVET_INSET, MENU_PLAQUE_RIVET_R, MENU_PLAQUE_STROKE, MENU_SIGNIN_DOT_R, MENU_SIGN_FRAME, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, MENU_V2_BAKED, MENU_V2_DESK_FILL, SIGN_BEAD_PITCH, SIGN_MATRIX_N, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning.js';
 import { COPY_TOKENS } from '../config/copy-tokens.js';
 import { ARC_COMING_SOON } from '../config/arcs.js';
 import { plateFade } from '../config/menu-carousel.js';
@@ -630,12 +630,15 @@ export function drawMenuBackdrop(
     if (hasBackdrop) {
         // `[WXG-T-585]` v2 背板 = 750×1334 **整屏烘焙场景**（木屋 / 玻璃柜 / 射灯 / 层板 / 空木牌 /
         // 左右陈设 / 桌面拼豆全在图里）⇒ 只按 1:1 贴，⛔ 不拉高（纵向拉伸会把柜体与圆台拉变形）。
-        // 高屏机 H > 1334 时多出的高度先铺一条木墙色，背板底对齐屏幕底 ⇒ 所有 v2 坐标按「自屏底量」成立。
-        // ponytail: 顶部那条是纯色补带，要纹理化再上九宫切片，别先写切片逻辑。
+        // **顶对齐**（图顶 = 屏顶，招牌绳正好接屏顶）⇒ `MENU_V2` 的「自屏顶向下」读数与背板逐像素对齐；
+        // 高屏机 H > 1334 时多出的高度落在**底部**（桌面），铺一条背板同源的 `MENU_V2_DESK_FILL`。
+        // ⛔ 反过来「底对齐 + 顶部补墙」不成立：顶栏贴屏顶、背板贴屏底 ⇒ 两者间距随 H 漂
+        // （实测 H=1625 档柜体与全部 v2 件错位 291 px）。
+        // ponytail: 补带是纯色（桌面本身即大色块 + 虚化，接缝不可见）；要纹理化再给背板做切片。
         if (a.H > DESIGN_H) {
-            builder.rect(0, 0, DESIGN_W, a.H - DESIGN_H, { fill: palette.woodSheen });
+            builder.rect(0, 0, DESIGN_W, a.H - DESIGN_H, { fill: MENU_V2_DESK_FILL });
         }
-        builder.blit(MENU_TEXTURES.backdrop, 0, 0, DESIGN_W, DESIGN_H);
+        builder.blit(MENU_TEXTURES.backdrop, 0, a.H - DESIGN_H, DESIGN_W, DESIGN_H);
     } else {
         // 桌面暖带 + 分界线（CTA 后画，会盖住它）
         builder.rect(0, 0, DESIGN_W, MENU_WARM.deskH, {

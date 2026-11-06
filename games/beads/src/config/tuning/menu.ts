@@ -423,7 +423,8 @@ export const MENU_PLATE_TITLE = { line1Off: 30, line2Off: 62, singleOff: 46 } as
  * **绝对落位**；程序化柜体系列（落地影 / 窗框 / 层板 / 射灯 / 木牌本体）整批退场。
  *
  * 读数口径：本对象的 `x / y` 一律**自屏顶向下**（与坐标图逐字一致），进视图后由
- * `H − y − h` 翻成 y-up。背板底对齐屏幕底 ⇒ 逐机 H 变化时全组随屏底一起长高，与背板相对位置不变。
+ * `H − y − h` 翻成 y-up。背板**顶对齐屏顶** ⇒ 逐机 H 变化时全组与背板逐像素对齐，
+ * 多出的高度落屏底（桌面补带），⛔ 不参与本组坐标。
  */
 /**
  * `[WXG-T-585]` v2 烘焙背板档开关：true ⇒ 几何走 {@link MENU_V2} 绝对坐标、绘制退场程序化柜体系列。
@@ -460,6 +461,12 @@ export const MENU_V2 = {
   plateTitle: { x: 313, y: 901, w: 124, h: 42 },
   plateSub: { x: 330, y: 950, w: 90, h: 17 },
 } as const;
+/**
+ * `[WXG-T-585]` 高屏档（H > 1334）屏底补带色 = 背板**最底 40 行桌面实测均值** `(194,128,66)`。
+ * ⛔ 不进 palette（那是 UI token 表，`ui-warm-paper-tokens` 守「零新 hex」）；本值是背板取色，
+ * 与图同源，换背板必须同批重取。
+ */
+export const MENU_V2_DESK_FILL = '#C28042';
 /** ◀▶ 翻页钮视觉 64² 左缘 x（右缘 = 750−26−64=660 ⇒ 镜像；热区 88² 同心）。 */
 export const MENU_ARROW_X = { left: 26, right: 660 } as const;
 /** ◀▶ 视觉边长（热区 `TOUCH_MIN` 同心包裹）。 */
