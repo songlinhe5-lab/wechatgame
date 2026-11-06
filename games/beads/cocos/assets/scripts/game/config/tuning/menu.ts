@@ -493,10 +493,10 @@ export let MENU_V3_BAKED = false;
 export function setMenuV3Baked(on: boolean): void { MENU_V3_BAKED = on; }
 export const MENU_V3 = {
     /**
-     * 招牌**板体顶**（不含绳）**贴住**顶安全区下缘（缝隙 0）。用户 2026-11-06 终裁：
-     * 「招牌面板顶部要贴住安全区 top，同时绳子又不能超过屏幕外面，不是贴住胶囊边界」。
+     * 招牌**板体顶**（不含绳）与顶安全区下缘留的**一点点距离**（用户 2026-11-06 终裁：
+     * 「留一点点距离」，不再是 0 缝）。基准仍是 `st`，⛔ 不是胶囊底。
      */
-    boardGap: 0,
+    boardGap: 4,
     /**
      * 招牌整图 549×337，**板体（木牌）上沿实测 = 图内 y 108**（`ui_menu_signboard_figma@2x.png`
      * 逐行 alpha/棕色宽度扫描：y≤100 每行仅 ~80 图 px 宽 = 两根绳；y=108 起棕色宽 >400 图 px = 板体）。
@@ -506,6 +506,12 @@ export const MENU_V3 = {
     boardOff: 108,
     /** CTA 底距**底安全区上缘** = 固定距离（v1 `MENU_CHAIN_GAP_BOTTOM` 同口径 32）。 */
     ctaGap: 32,
+    /**
+     * **SE 档（H=1334）例外**：CTA 底（y-down）= 坐标图读数 1230。
+     * 柜底 1058、CTA 高 179 ⇒ CTA 顶 1051 **盖进橱窗 7 px**（用户「与概念图一样盖一部分在橱窗上」）。
+     * 其余档仍按 `ctaGap` 固定距安全区，⛔ 不跟着压柜体。
+     */
+    seCtaBottom: 1230,
     /** 橱窗（柜体）在背板内 353..1058。 */
     caseH: 705,
     signH: 337,
@@ -514,11 +520,11 @@ export const MENU_V3 = {
 /**
  * `[WXG-T-585]` 用户 2026-11-06 终裁的三条规则（彼此**解耦**）：
  * 1. **背景图居中展示** ⇒ `topPad = max(0, (H−1334)/2)`，上下补带等量；柜体等场景件随之居中；
- * 2. **CTA 独立贴底** ⇒ `ctaBottom = H − sb − 32`（固定距离，⛔ 不再由背板带出）；
- * 3. **招牌独立贴顶**：`boardTop = st`（板体顶**严格贴住安全区 top** 线，缝隙 0，
- *    ⛔ 不拿胶囊底当基准）；`signTop = boardTop − 108` = 绳顶。
- *    ⚠ 这张位图的绳长 108，六档 st 仅 40~103 ⇒ 绳顶恒为负、上段被屏顶裁掉 5~68 px；
- *    「板体贴线」与「绳不出屏」在本图上不可兼得，彻底解要裁短绳段（美术侧，待裁）。
+ * 2. **CTA 独立贴底** ⇒ 常规档 `ctaBottom = H − sb − 32`；SE（H=1334）走 `seCtaBottom = 1230`
+ *    ⇒ CTA 顶 1051 盖进柜底 1058 共 7 px（与概念图一致）；
+ * 3. **招牌独立贴顶** ⇒ `boardTop = max(st + 4, 108)`：板体顶与 safe top 留**一点点缝**，
+ *    下限 108 = 实测绳高 ⇒ `signTop ≥ 0`，绳子完整、绝不跑到屏幕外；`cap` 完全不参与。
+ *    ⚠ st 浅的档由下限接管（SE 缝 68、Android 48）；要这两档也只留一点点，需裁短绳段（美术侧，待裁）。
  *
  * 招牌与 CTA 都是独立件（背板只含墙/柜/桌面场景）⇒ 它们与背板**不锁相对位置**，
  * 这正是「背景居中」与「两端贴安全区」能同时成立的前提。
@@ -529,11 +535,12 @@ export function menuV3Placement(H: number, st: number, sb: number): {
     readonly bandTop: number; readonly bandBottom: number; readonly gap: number;
 } {
     const C = MENU_V3;
-    // 板体顶**严格贴住** safe top 线（`cap` 完全不参与）。⚠ 不再设绳高下限 ⇒ 绳上段被屏顶裁，
-    // 这是「贴线优先」的明确取舍；两全方案见文件内 §冲突说明（裁短绳段）。
-    const boardTop = st + C.boardGap;
+    // 板体顶 = safe top + 4（一点点缝），再受绳高下限约束 ⇒ `signTop ≥ 0`，绳子完整不出屏。
+    // `cap` 完全不参与。⚠ st < 104 的档由下限接管，缝隙会变大（SE 68 / Android 48），
+    // 这是「长绳位图 + 绳完整」的硬代价；要这两档也只留一点点，需裁短绳段（美术侧，待裁）。
+    const boardTop = Math.max(st + C.boardGap, C.boardOff);
     const signTop = boardTop - C.boardOff;
-    const ctaBottom = H - sb - C.ctaGap;
+    const ctaBottom = H === DESIGN_H ? C.seCtaBottom : H - sb - C.ctaGap;
     const bandTop = signTop + C.signH;
     const bandBottom = ctaBottom - C.ctaH;
     const topPad = Math.max(0, Math.round((H - DESIGN_H) / 2));
