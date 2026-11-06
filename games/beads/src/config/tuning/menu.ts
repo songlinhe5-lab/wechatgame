@@ -498,12 +498,13 @@ export const MENU_V3 = {
      */
     boardGap: 4,
     /**
-     * 招牌整图 549×337，**板体（木牌）上沿实测 = 图内 y 108**（`ui_menu_signboard_figma@2x.png`
-     * 逐行 alpha/棕色宽度扫描：y≤100 每行仅 ~80 图 px 宽 = 两根绳；y=108 起棕色宽 >400 图 px = 板体）。
-     * ⇒ 绳高 108，⛔ 不是「337 − 板体高 295 = 42」那个旧假设（错的 66 px，正是板体没贴住 safe 线的真因）。
+     * 招牌整图 549×337，**板体（木牌）上沿实测 = 图内 y 94**。
+     * 2026-11-06 Figma 重新生成并重下载后逐行重扫：y≤85 每行仅 ~80 图 px 宽 = 两根绳；
+     * y=94 起棕色宽 >400 图 px = 板体。旧版该值是 108（去背重生成后绳缩短 14 px），
+     * 更早还误按「337 − 板体高 295 = 42」推过一次 —— ⛔ 换招牌图必须同批重扫本值。
      * `signTop = boardTop − boardOff` = 整图顶（绳顶）。
      */
-    boardOff: 108,
+    boardOff: 94,
     /**
      * CTA 底距**底安全区上缘** = **104**（用户 2026-11-06 裁：拿 SE 档的距离作为全档统一值）。
      * 反推 = SE `H=1334, sb=0, CTA 底 1230` ⇒ `1334 − 0 − 1230 = 104`；
@@ -524,9 +525,9 @@ export const MENU_V3 = {
  * 2. **CTA 独立贴底** ⇒ `ctaBottom = H − sb − 104`（104 = SE 档实测距底安全区，
  *    用户 2026-11-06 裁「其他都保持这个距离」）；SE 自然回到 1230 ⇒ CTA 顶 1051
  *    盖进柜底 1058 共 7 px（概念图口径），⛔ 不再有档位特例；
- * 3. **招牌独立贴顶** ⇒ `boardTop = max(st + 4, 108)`：板体顶与 safe top 留**一点点缝**，
- *    下限 108 = 实测绳高 ⇒ `signTop ≥ 0`，绳子完整、绝不跑到屏幕外；
- *    ⚠ st 浅的档由下限接管（SE 缝 68、Android 48）；要这两档也只留一点点，需裁短绳段（美术侧，待裁）；
+ * 3. **招牌独立贴顶** ⇒ `boardTop = max(st + 4, 94)`：板体顶与 safe top 留**一点点缝**，
+ *    下限 94 = 新图实测绳高 ⇒ `signTop ≥ 0`，绳子完整、绝不跑到屏幕外；
+ *    ⚠ 绳缩短后主流四档缝隙已收到 4 px，仅 st 最浅的 SE 54 / Android 34 仍由下限接管；
  * 4. **顶栏四钮** ⇒ `topbarTop = max(signTop + 134, cap + 8)`：常规跟招牌，
  *    胶囊深的档由 `cap` 接管 ⇒ 右上两枚不压进原生胶囊区。
  *
@@ -541,7 +542,7 @@ export function menuV3Placement(H: number, st: number, cap: number, sb: number):
 } {
     const C = MENU_V3;
     // 板体顶 = safe top + 4（一点点缝），再受绳高下限约束 ⇒ `signTop ≥ 0`，绳子完整不出屏。
-    // ⚠ st 浅的档由下限接管（SE 缝 68 / Android 48），要再压需裁短绳段（美术侧，待裁）。
+    // ⚠ st 最浅的档由下限接管（SE 缝 54 / Android 34），要再压需裁短绳段（美术侧，待裁）。
     const boardTop = Math.max(st + C.boardGap, C.boardOff);
     const signTop = boardTop - C.boardOff;
     const ctaBottom = H - sb - C.ctaGap;
