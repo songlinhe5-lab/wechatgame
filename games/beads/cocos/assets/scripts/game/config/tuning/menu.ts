@@ -492,16 +492,16 @@ export function menuV2TopPad(H: number, btTop: number): number {
 export let MENU_V3_BAKED = false;
 export function setMenuV3Baked(on: boolean): void { MENU_V3_BAKED = on; }
 export const MENU_V3 = {
-    /** 招牌**板体顶**（不含绳）距顶安全区下缘的小缝隙。 */
-    boardGap: 8,
-    /** 招牌整图 549×337：板体顶 42、板体底 337 ⇒ 上方 42 是绳。 */
-    boardOff: 42,
     /**
-     * 板体顶距屏顶的**下限** = 绳高 42 + 绳顶再留 24。用户 2026-11-06 追加裁：
-     * 「不算绳子的招牌顶部，与安全区 top 和屏幕顶部都要保持一定距离」⇒ 安全区很浅的机型
-     * （SE st=40）优先保绳子完整，板体顶不许跟着贴到屏顶。
+     * 招牌**板体顶**（不含绳）**贴住**顶安全区下缘（缝隙 0）。用户 2026-11-06 终裁：
+     * 「招牌面板顶部要贴住安全区 top，同时绳子又不能超过屏幕外面，不是贴住胶囊边界」。
      */
-    minBoardTop: 66,
+    boardGap: 0,
+    /**
+     * 招牌整图 549×337：板体顶 42、板体底 337 ⇒ 上方 42 是绳。
+     * 同时是板体顶的**下限**：`boardTop ≥ 42` ⇔ 绳顶 `signTop ≥ 0` ⇒ 绳子绝不超出屏幕上沿。
+     */
+    boardOff: 42,
     /** CTA 底距**底安全区上缘** = 固定距离（v1 `MENU_CHAIN_GAP_BOTTOM` 同口径 32）。 */
     ctaGap: 32,
     /** 橱窗（柜体）在背板内 353..1058。 */
@@ -513,8 +513,9 @@ export const MENU_V3 = {
  * `[WXG-T-585]` 用户 2026-11-06 终裁的三条规则（彼此**解耦**）：
  * 1. **背景图居中展示** ⇒ `topPad = max(0, (H−1334)/2)`，上下补带等量；柜体等场景件随之居中；
  * 2. **CTA 独立贴底** ⇒ `ctaBottom = H − sb − 32`（固定距离，⛔ 不再由背板带出）；
- * 3. **招牌独立贴顶**：`boardTop = max(st+8, 66)`（板体顶贴安全区 top 留小缝、且距屏顶留足绳高），
- *    `signTop = boardTop − 42` = 绳顶。招牌按「板体顶」定，⛔ 不再拿整图顶去贴胶囊底。
+ * 3. **招牌独立贴顶**：`boardTop = max(st, 42)` —— 板体顶**贴住安全区 top**（缝隙 0，
+ *    ⛔ 不拿胶囊底当基准），下限 42 = 绳高 ⇒ 绳顶 `signTop = boardTop − 42 ≥ 0`，
+ *    绳子再浅的安全区档也不会伸到屏幕外面。
  *
  * 招牌与 CTA 都是独立件（背板只含墙/柜/桌面场景）⇒ 它们与背板**不锁相对位置**，
  * 这正是「背景居中」与「两端贴安全区」能同时成立的前提。
@@ -525,7 +526,8 @@ export function menuV3Placement(H: number, st: number, sb: number): {
     readonly bandTop: number; readonly bandBottom: number; readonly gap: number;
 } {
     const C = MENU_V3;
-    const boardTop = Math.max(st + C.boardGap, C.minBoardTop);
+    // 贴住安全区 top；下限 = 绳高 ⇒ 绳顶 ≥ 0（不出屏）。`cap` 完全不参与本式。
+    const boardTop = Math.max(st + C.boardGap, C.boardOff);
     const signTop = boardTop - C.boardOff;
     const ctaBottom = H - sb - C.ctaGap;
     const bandTop = signTop + C.signH;
