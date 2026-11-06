@@ -414,6 +414,52 @@ export const MENU_PLATE = { cx: 381, yOff: 652, w: 214, h: 100 } as const;
  * 无关名 ⇒ 关序单行居牌面心（用户 2026-10-16 裁「橱窗下板子补关卡标题」）。
  */
 export const MENU_PLATE_TITLE = { line1Off: 30, line2Off: 62, singleOff: 46 } as const;
+// ─────────── v2 烘焙背板档（`WXG-T-585`；读数 = `final/coordinates/menu-master-coords-v2-20261104.png`）
+/**
+ * `[WXG-T-585]` v2 主界面 = **整屏烘焙背板 + 绝对坐标件**。
+ *
+ * 背板 `ui_menu_backdrop`（750×1334）已烘「橱窗木框 / 玻璃 / 射灯 / 层板 / 圆台 / 空木牌 / 左右陈设 /
+ * 桌面拼豆」⇒ 版面不再由 {@link menuAnchors} 链式推导（v1 那套以程序化柜体为基准），改按坐标图
+ * **绝对落位**；程序化柜体系列（落地影 / 窗框 / 层板 / 射灯 / 木牌本体）整批退场。
+ *
+ * 读数口径：本对象的 `x / y` 一律**自屏顶向下**（与坐标图逐字一致），进视图后由
+ * `H − y − h` 翻成 y-up。背板底对齐屏幕底 ⇒ 逐机 H 变化时全组随屏底一起长高，与背板相对位置不变。
+ */
+/**
+ * `[WXG-T-585]` v2 烘焙背板档开关：true ⇒ 几何走 {@link MENU_V2} 绝对坐标、绘制退场程序化柜体系列。
+ * ⛔ 与位图就绪与否解耦（配置错了要立刻露空，别让绘制层静默降级回 v1 版面 —— 那会出「v2 几何 + v1 柜体」的怪图）。
+ */
+export let MENU_V2_BAKED = false;
+/**
+ * `[WXG-T-585]` **过渡测具**：v2 档默认关闭（既有 24 条版面/金样本断言仍钉 v1 读数），
+ * harness 用 `?v2=1` 打开目视对照。收口语义：断言与规格同批改完后，把上一行改成 `true`
+ * 并删本函数（+ `dev/harness/main.ts` 的调用点）。
+ */
+export function setMenuV2Baked(on: boolean): void {
+    MENU_V2_BAKED = on;
+}
+export const MENU_V2 = {
+  /**
+   * 招牌整图 549×337 @(**101, 0**)：板体 549×295 在图内下方（`y=42..337`），上方 42 是绳，
+   * 绳顶正好接屏顶 ⇒ 坐标图上该框的绿色标线首行即 `y=0`（`2:82 101,0 · 549×295` 的「0」）。
+   */
+  sign: { x: 101, y: 0, w: 549, h: 337 },
+  /** 开始钮 378×179（「开始」二字已烘进图 ⇒ 起点页不再叠 `ctaLabel`）。 */
+  cta: { x: 186, y: 1051, w: 378, h: 179 },
+  prev: { x: 18, y: 605, w: 110, h: 116 },
+  next: { x: 625, y: 605, w: 109, h: 116 },
+  /** 橱窗展品框 325×314（作品按 325² 居中画；锁 = 0.30 宽 ≈ 97.5，与坐标图 95.3 同档）。 */
+  art: { x: 212, y: 530, w: 325, h: 314 },
+  /** 玻璃区裁切（走马灯滑动边界）：展品框外扩，仍落在背板烘好的玻璃内。 */
+  clip: { x: 150, y: 470, w: 450, h: 434 },
+  /** 通关章 90×89.5（玻璃右上角）。 */
+  seal: { x: 545, y: 405, w: 90, h: 90 },
+  /** 资源条：心/豆图标位 `245:355 · 95×30` 与 `415:355 · 95×30` 反推条体。 */
+  bar: { x: 225, y: 342, w: 305, h: 46 },
+  /** 木牌两行文字框（牌体已烘进背板，⛔ 不再贴 `ui_showcase_plate`）。两框中心 x 同为 375。 */
+  plateTitle: { x: 313, y: 901, w: 124, h: 42 },
+  plateSub: { x: 330, y: 950, w: 90, h: 17 },
+} as const;
 /** ◀▶ 翻页钮视觉 64² 左缘 x（右缘 = 750−26−64=660 ⇒ 镜像；热区 88² 同心）。 */
 export const MENU_ARROW_X = { left: 26, right: 660 } as const;
 /** ◀▶ 视觉边长（热区 `TOUCH_MIN` 同心包裹）。 */
@@ -468,6 +514,16 @@ export const MENU_TEXTURES = {
   iconSkins: 'bitmap__menu_icon_skin',
   iconArrowLeft: 'bitmap__menu_icon_arrow_left',
   iconArrowRight: 'bitmap__menu_icon_arrow_right',
+  /**
+   * `[WXG-T-585]` v2 翻页钮 = **整枚位图**（木圆盘 + 箭头已烘进图，左右件像素不同 ⇒ 不能共用一键）。
+   * 四态两两成族（normal ↔ highlight）⇒ 宿主侧必须各自登记，⛔ 不得退回 `btnArrow` 圆底 + 向标两段拼。
+   */
+  prevBtn: 'bitmap__menu_prev',
+  prevBtnPressed: 'bitmap__menu_prev_pressed',
+  nextBtn: 'bitmap__menu_next',
+  nextBtnPressed: 'bitmap__menu_next_pressed',
+  /** `[WXG-T-585]` 通关章 90×89.5（玻璃右上），`[WXG-T-566]` 退场后本批按 v2 坐标图复位。 */
+  seal: 'bitmap__menu_seal',
   iconCoin: 'bitmap__menu_icon_coin',
   iconStamina: 'bitmap__menu_icon_stamina',
   /**

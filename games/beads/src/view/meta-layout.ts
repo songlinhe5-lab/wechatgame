@@ -6,7 +6,7 @@
  * 缓存分两档：默认行数 = 按 anchors 引用（WeakMap，逐机主菜单）；变参行数只服务 K-6 同帧差分腿。
  */
 
-import { DESIGN_H, DESIGN_W, MENU_ARROW_VISUAL_D, MENU_ARROW_X, MENU_BADGE, MENU_BAR_FRAME, MENU_BAR_H, MENU_BAR_TOP_INSET, MENU_BOSS_SLOT, MENU_CASE_FRAME, MENU_CASE_H, MENU_CLIP, MENU_CTA_H, MENU_CTA_X, MENU_DONE_ICON, MENU_PLATE, MENU_PRIMARY_W, MENU_SHOWCASE_ART, MENU_SIGN_FRAME, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_X, TOUCH_MIN, WALL_CELL, WALL_COLS, WALL_GAP, WALL_ROWS, dialogShiftY, menuAnchors, type MenuAnchors } from '../config/tuning.js';
+import { DESIGN_H, DESIGN_W, MENU_ARROW_VISUAL_D, MENU_ARROW_X, MENU_BADGE, MENU_BAR_FRAME, MENU_BAR_H, MENU_BAR_TOP_INSET, MENU_BOSS_SLOT, MENU_CASE_FRAME, MENU_CASE_H, MENU_CLIP, MENU_CTA_H, MENU_CTA_X, MENU_DONE_ICON, MENU_PLATE, MENU_PLATE_TITLE, MENU_PRIMARY_W, MENU_SHOWCASE_ART, MENU_SIGN_FRAME, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_X, MENU_V2, MENU_V2_BAKED, TOUCH_MIN, WALL_CELL, WALL_COLS, WALL_GAP, WALL_ROWS, dialogShiftY, menuAnchors, type MenuAnchors } from '../config/tuning.js';
 import { settingsContentButtons } from './settings-content.js';
 import { signinCellLayout } from './signin-content.js';
 import { skinCardBoxes } from './skins-content.js';
@@ -271,6 +271,16 @@ export interface AnchoredMenuGeo {
     readonly clipBox: Box;
     readonly badgeBox: Box;
     readonly plateBox: Box;
+    /**
+     * `[WXG-T-585]` 木牌两行文字的落位（v2 背板已烘牌体 ⇒ 本体不画，只按这两行画字）。
+     * v1 腿由 `plateBox` + `MENU_PLATE_TITLE` 现式推出（逐字不变）；v2 腿读 `MENU_V2.plateTitle/plateSub`。
+     */
+    readonly plateCx: number;
+    readonly plateLine1Cy: number;
+    readonly plateLine2Cy: number;
+    readonly plateSingleCy: number;
+    /** `[WXG-T-585]` 通关章框（仅 v2；v1 腿为 `undefined` ⇒ 不画）。 */
+    readonly sealBox: Box | undefined;
     readonly signBox: Box;
     readonly ctaBox: Box;
     readonly ctaHit: Box;
@@ -304,6 +314,70 @@ const _anchoredGeo = new WeakMap<MenuAnchors, AnchoredMenuGeo>();
 export function anchoredGeo(a: MenuAnchors): AnchoredMenuGeo {
     const hit = _anchoredGeo.get(a);
     if (hit !== undefined) return hit;
+    const geo = MENU_V2_BAKED ? anchoredGeoV2(a) : anchoredGeoV1(a);
+    _anchoredGeo.set(a, geo);
+    return geo;
+}
+
+/**
+ * `[WXG-T-585]` v2 腿：**绝对坐标**（`MENU_V2`，坐标图读数）代替 v1 的链式推导。
+ * 背板底对齐屏幕底 ⇒ 全部件由 `H − y − h` 翻 y-up，逐机 H 变化时与背板相对位置不变。
+ * 顶栏四钮仍走逐机接口值（`btTopY`，判例 K-124 接口优先），⛔ 不钉坐标图的 134/222。
+ */
+function anchoredGeoV2(a: MenuAnchors): AnchoredMenuGeo {
+    const r = Math.round;
+    const V = MENU_V2;
+    /** 屏顶量 → 设计 y-up（框底）。 */
+    const up = (yDown: number, h: number): number => r(a.H - yDown - h);
+    /** 以绝对框为心、`TOUCH_MIN` 见方的热区（视觉件普遍大于 88，用同心包裹口径）。 */
+    const around = (x: number, yDown: number, w: number, h: number): Box => {
+        const cx = x + w / 2;
+        const cy = up(yDown, h) + h / 2;
+        return box(r(cx - TOUCH_MIN / 2), r(cy - TOUCH_MIN / 2), TOUCH_MIN, TOUCH_MIN);
+    };
+    const signBox = box(V.sign.x, up(V.sign.y, V.sign.h), V.sign.w, V.sign.h);
+    const ctaBox = box(V.cta.x, up(V.cta.y, V.cta.h), V.cta.w, V.cta.h);
+    const ctaHit = around(V.cta.x, V.cta.y, V.cta.w, V.cta.h);
+    const arrowL = box(V.prev.x, up(V.prev.y, V.prev.h), V.prev.w, V.prev.h);
+    const arrowR = box(V.next.x, up(V.next.y, V.next.h), V.next.w, V.next.h);
+    const arrowLHit = around(V.prev.x, V.prev.y, V.prev.w, V.prev.h);
+    const arrowRHit = around(V.next.x, V.next.y, V.next.w, V.next.h);
+    const clipBox = box(V.clip.x, up(V.clip.y, V.clip.h), V.clip.w, V.clip.h);
+    const showcaseArtBox = box(V.art.x, up(V.art.y, V.art.h), V.art.w, V.art.h);
+    const sealBox = box(V.seal.x, up(V.seal.y, V.seal.h), V.seal.w, V.seal.h);
+    const plateBox = box(V.plateTitle.x, up(V.plateTitle.y, V.plateTitle.h + V.plateSub.h + 7),
+        V.plateTitle.w, V.plateTitle.h + V.plateSub.h + 7);
+    // 顶栏（逐机接口值；第二行 = `MENU_TOPBAR_ROW2_DY` 下移，与 v1 同式）。
+    const settingsHit = box(MENU_TOPBAR_X.settings, r(a.btTopY) - TOUCH_MIN, TOUCH_MIN, TOUCH_MIN);
+    const mailHit = box(MENU_TOPBAR_X.mail, r(a.btTopY) - TOUCH_MIN, TOUCH_MIN, TOUCH_MIN);
+    const rankBox = box(MENU_TOPBAR_X.rank,
+        r(a.btTopY) - TOUCH_MIN - MENU_TOPBAR_ROW2_DY, TOUCH_MIN, TOUCH_MIN);
+    const skinsHit = box(MENU_TOPBAR_X.skins,
+        r(a.btTopY) - TOUCH_MIN - MENU_TOPBAR_ROW2_DY, TOUCH_MIN, TOUCH_MIN);
+    return {
+        // v2 腿不画柜体/窗框：`caseBox` / `bossBox` / `badgeBox` 只服务 v1 消费点与 `open-levels` 热区。
+        caseBox: box(V.clip.x, clipBox.y, V.clip.w, V.clip.h),
+        bossBox: showcaseArtBox,
+        clipBox,
+        badgeBox: box(V.art.x, up(V.art.y, V.art.h), 0, 0),
+        plateBox,
+        plateCx: V.plateTitle.x + V.plateTitle.w / 2,
+        plateLine1Cy: r(a.H - (V.plateTitle.y + V.plateTitle.h / 2)),
+        plateLine2Cy: r(a.H - (V.plateSub.y + V.plateSub.h / 2)),
+        plateSingleCy: r(a.H - (V.plateTitle.y + V.plateTitle.h / 2)),
+        sealBox,
+        signBox, ctaBox, ctaHit,
+        rankBox, rankHit: rankBox,
+        arrowL, arrowLHit, arrowR, arrowRHit,
+        barBox: box(V.bar.x, up(V.bar.y, V.bar.h), V.bar.w, V.bar.h),
+        settingsHit, skinsHit, mailHit,
+        showcaseArtBox,
+        topbarCy: settingsHit.y + TOUCH_MIN / 2,
+        doneCy: showcaseArtBox.y + showcaseArtBox.h / 2,
+    };
+}
+
+function anchoredGeoV1(a: MenuAnchors): AnchoredMenuGeo {
     const r = Math.round;
     const caseBox = box(MENU_CASE_FRAME.x, r(a.caseTopY) - MENU_CASE_H, MENU_CASE_FRAME.w, MENU_CASE_H);
     const bossBox = box(MENU_BOSS_SLOT.x, r(a.caseTopY - MENU_BOSS_SLOT.yOff) - MENU_BOSS_SLOT.h, MENU_BOSS_SLOT.w, MENU_BOSS_SLOT.h);
@@ -353,16 +427,21 @@ export function anchoredGeo(a: MenuAnchors): AnchoredMenuGeo {
         TOUCH_MIN,
     );
     const mailHit = box(MENU_TOPBAR_X.mail, r(a.btTopY) - TOUCH_MIN, TOUCH_MIN, TOUCH_MIN);
-    const geo: AnchoredMenuGeo = {
-        caseBox, bossBox, clipBox, badgeBox, plateBox, signBox, ctaBox, ctaHit,
+    return {
+        caseBox, bossBox, clipBox, badgeBox, plateBox,
+        // 木牌文字 = v1 现式（`plateBox` 顶 − 在册行偏移）⇒ 逐字不变。
+        plateCx: MENU_PLATE.cx,
+        plateLine1Cy: plateBox.y + plateBox.h - MENU_PLATE_TITLE.line1Off,
+        plateLine2Cy: plateBox.y + plateBox.h - MENU_PLATE_TITLE.line2Off,
+        plateSingleCy: plateBox.y + plateBox.h - MENU_PLATE_TITLE.singleOff,
+        sealBox: undefined,
+        signBox, ctaBox, ctaHit,
         rankBox, rankHit,
         arrowL, arrowLHit, arrowR, arrowRHit, barBox, settingsHit, skinsHit, mailHit,
         showcaseArtBox,
         topbarCy: settingsHit.y + TOUCH_MIN / 2,
         doneCy: r(a.caseTopY - MENU_DONE_ICON.yOff),
     };
-    _anchoredGeo.set(a, geo);
-    return geo;
 }
 
 /** 锚定主菜单热区版面（与绘制共读 {@link anchoredGeo} ⇒ 「画 A 位、按 B 位」结构性不可能）。

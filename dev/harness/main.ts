@@ -24,7 +24,7 @@ import {
   maskTileInnerPx,
   tintFx,
 } from '@wxgame/framework';
-import { BEAD_PITCH, MENU_TEXTURES, TILE_BLEED } from '../../games/beads/src/config/tuning.js';
+import { BEAD_PITCH, MENU_TEXTURES, TILE_BLEED, setMenuV2Baked } from '../../games/beads/src/config/tuning.js';
 import { OPEN_ARCS } from '../../games/beads/src/config/arcs.js';
 import { setMenuBitmapResolver } from '../../games/beads/src/view/meta-view.js';
 import { requiredTintMaskIds } from '../../games/beads/src/view/bead-tint-mask.js';
@@ -54,6 +54,9 @@ const hud = must<HTMLDivElement>('#hud');
 const harnessQuery =
   typeof window.location?.search === 'string' ? window.location.search : '';
 const harnessParams = new URLSearchParams(harnessQuery);
+// `[WXG-T-585]` `?v2=1` ⇒ 主界面走 v2 烘焙背板档（绝对坐标 + 程序化柜体退场）。
+// 默认关：既有 24 条版面/金样本断言仍钉 v1 读数 ⇒ 收口时改成默认开并删本调试点（见 `setMenuV2Baked` 注）。
+if (harnessParams.get('v2') === '1') setMenuV2Baked(true);
 /**
  * `[WXG-T-566]` `?artGray=0..1` 调试参数：把大关作品图的取图结果换成**同公式灰化版**
  * （`out = c·(1−g) + luma·g`，Rec.709 权重），供三态灰度观感对照。
@@ -161,11 +164,13 @@ const MENU_URL_PREFIX = '/menu-assets/';
  * `production/qa/webp-png-duality-20261018.md`。 */
 const MENU_FILE: Readonly<Record<string, string>> = {
   ...Object.fromEntries(OPEN_ARCS.map((t) => [t.textureId, `/level-assets/${t.art}.png`])),
-  [MENU_TEXTURES.logo]: 'ui_menu_logo.png',
+  // `[WXG-T-585]` v2：招牌（板体 549×295 + 绳，正本 1098×674 @2x）取代 v1 `ui_menu_logo`。
+  [MENU_TEXTURES.logo]: 'background/ui_menu_signboard_figma@2x.png',
   [MENU_TEXTURES.caseFrame]: 'ui_showcase_frame.png',
   [MENU_TEXTURES.plate]: 'ui_showcase_plate.png',
-  [MENU_TEXTURES.cta]: 'ui_btn_start_9s.png',
-  [MENU_TEXTURES.ctaPressed]: 'ui_btn_start_9s_pressed.png',
+  // `[WXG-T-585]` v2 开始钮（整枚 756×358 @2x ⇒ 378×179，「开始」已烘进图）。
+  [MENU_TEXTURES.cta]: 'buttons/ui_btn_start_normal@2x.png',
+  [MENU_TEXTURES.ctaPressed]: 'buttons/ui_btn_start_highlight@2x.png',
   [MENU_TEXTURES.btnCircle]: 'buttons/ui_btn_circle_normal@2x.png',
   [MENU_TEXTURES.btnCirclePressed]: 'buttons/ui_btn_circle_pressed@2x.png',
   [MENU_TEXTURES.btnArrow]: 'ui_btn_arrow_bg_normal.png',
@@ -194,8 +199,15 @@ const MENU_FILE: Readonly<Record<string, string>> = {
   [MENU_TEXTURES.pot]: 'ui_menu_pot.png',
   // `[P0 静态温暖]` 左上光束（400×650 RGBA 白，alpha 承载提亮强度）。
   [MENU_TEXTURES.beam]: 'ui_menu_beam.png',
-  // `[P0 静态温暖 · 2026-10-31]` 整屏木屋背板（752×1344 转 32 色，188 KB）。
-  [MENU_TEXTURES.backdrop]: 'ui_menu_backdrop.png',
+  // `[WXG-T-585]` v2 整屏烘焙背板（正本 1500×2668 @2x；Cocos 投放件 = 750×1334 JPEG q85，125.4 KB）。
+  [MENU_TEXTURES.backdrop]: 'background/ui_menu_backdrop_figma@2x.png',
+  // `[WXG-T-585]` v2 翻页钮（整枚 220×232 / 218×232 @2x，左右件像素不同 ⇒ 四键分开登记）。
+  [MENU_TEXTURES.prevBtn]: 'buttons/ui_btn_prev_normal@2x.png',
+  [MENU_TEXTURES.prevBtnPressed]: 'buttons/ui_btn_prev_highlight@2x.png',
+  [MENU_TEXTURES.nextBtn]: 'buttons/ui_btn_next_normal@2x.png',
+  [MENU_TEXTURES.nextBtnPressed]: 'buttons/ui_btn_next_highlight@2x.png',
+  // `[WXG-T-585]` v2 通关章 90×89.5。
+  [MENU_TEXTURES.seal]: 'badges/ui_menu_seal@2x.png',
 };
 const tintCache = new TintSpriteCache(
   // 离屏 canvas 工厂（结构化注入 ⇒ framework/core 层 ⛔ 不碰 DOM，L2 合规）
