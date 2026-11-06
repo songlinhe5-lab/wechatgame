@@ -493,11 +493,12 @@ export let MENU_V3_BAKED = false;
 export function setMenuV3Baked(on: boolean): void { MENU_V3_BAKED = on; }
 export const MENU_V3 = {
     /**
-     * 招牌**板体顶**（不含绳）与顶安全区下缘的**避开距离**。
-     * 用户 2026-11-06 再调：4 px 太贴线（洋红 safe 线几乎压着木牌上沿）⇒ 加大到 12 px，
-     * 板体明确落在安全区线**下方**，绳顶也随之下移 8 px（更完整）。基准仍是 `st`，⛔ 不是胶囊底。
+     * **统一避让距离 = 12**（用户 2026-11-06 裁：「左右上四个按钮离开胶囊底线一定距离，
+     * 招牌面板顶部也离安全区 top 这么多距离」）⇒ 两处共读这一枚常量，⛔ 不许各自钉值后漂移。
+     * 消费点：① 招牌板体顶 = `st + safeGap`；② 顶栏四钮顶 = `cap + safeGap`。
+     * 取值沿用上一轮已调大的 12（原顶栏 8、板体 4 均作废；基准分别是 `st` / `cap`，⛔ 不混用）。
      */
-    boardGap: 12,
+    safeGap: 12,
     /**
      * 招牌整图 549×337，**板体（木牌）上沿实测 = 图内 y 94**。
      * 2026-11-06 Figma 重新生成并重下载后逐行重扫：y≤85 每行仅 ~80 图 px 宽 = 两根绳；
@@ -513,8 +514,6 @@ export const MENU_V3 = {
      * 全档统一后 SE 结果不变（仍是 1230），其余档 CTA 上移 72 px。
      */
     ctaGap: 104,
-    /** 顶栏四钮顶缘距**胶囊底**的最小距离（用户「避开胶囊区域下缘一点距离」）。 */
-    topbarGap: 8,
     /** 橱窗（柜体）在背板内 353..1058。 */
     caseH: 705,
     signH: 337,
@@ -526,10 +525,10 @@ export const MENU_V3 = {
  * 2. **CTA 独立贴底** ⇒ `ctaBottom = H − sb − 104`（104 = SE 档实测距底安全区，
  *    用户 2026-11-06 裁「其他都保持这个距离」）；SE 自然回到 1230 ⇒ CTA 顶 1051
  *    盖进柜底 1058 共 7 px（概念图口径），⛔ 不再有档位特例；
- * 3. **招牌独立贴顶** ⇒ `boardTop = max(st + 12, 94)`：板体顶明确避开 safe top 线 12 px，
+ * 3. **招牌独立贴顶** ⇒ `boardTop = max(st + safeGap, 94)`：板体顶明确避开 safe top 线 safeGap px，
  *    下限 94 = 新图实测绳高 ⇒ `signTop ≥ 0`，绳子完整、绝不跑到屏幕外；
  *    ⚠ 主流四档缝隙 12 px；仅 st 最浅的 SE 54 / Android 34 仍由下限接管；
- * 4. **顶栏四钮** ⇒ `topbarTop = max(signTop + 134, cap + 8)`：常规跟招牌，
+ * 4. **顶栏四钮** ⇒ `topbarTop = max(signTop + 134, cap + safeGap)`：常规跟招牌，
  *    胶囊深的档由 `cap` 接管 ⇒ 右上两枚不压进原生胶囊区。
  *
  * 招牌与 CTA 都是独立件（背板只含墙/柜/桌面场景）⇒ 它们与背板**不锁相对位置**，
@@ -544,12 +543,12 @@ export function menuV3Placement(H: number, st: number, cap: number, sb: number):
     const C = MENU_V3;
     // 板体顶 = safe top + 4（一点点缝），再受绳高下限约束 ⇒ `signTop ≥ 0`，绳子完整不出屏。
     // ⚠ st 最浅的档由下限接管（SE 缝 54 / Android 34），要再压需裁短绳段（美术侧，待裁）。
-    const boardTop = Math.max(st + C.boardGap, C.boardOff);
+    const boardTop = Math.max(st + C.safeGap, C.boardOff);
     const signTop = boardTop - C.boardOff;
     const ctaBottom = H - sb - C.ctaGap;
-    // 顶栏四钮：常规跟招牌（图内 y=134），但**必须避开胶囊底 + 8**（用户 2026-11-06 裁）。
+    // 顶栏四钮：常规跟招牌（图内 y=134），但必须**避开胶囊底 + safeGap**（与板体同一枚距离）。
     // 高胶囊档由 `cap` 接管 ⇒ 右上两枚（日历 / 装扮）不会压进原生胶囊区。
-    const topbarTop = Math.max(signTop + MENU_V2_TOPBAR_Y, cap + C.topbarGap);
+    const topbarTop = Math.max(signTop + MENU_V2_TOPBAR_Y, cap + C.safeGap);
     const bandTop = signTop + C.signH;
     const bandBottom = ctaBottom - C.ctaH;
     const topPad = Math.max(0, Math.round((H - DESIGN_H) / 2));
