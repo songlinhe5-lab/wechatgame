@@ -468,12 +468,6 @@ export const MENU_V2 = {
  */
 export const MENU_V2_DESK_FILL = '#C28042';
 /**
- * `[WXG-T-585]` 背板上下延展条的高度（设计 px）= 21:9 极值档的单侧补带量 208。
- * 条图正本 1500×416 @2x ⇒ 绘制 750×208；条图靠「超出屏幕被裁」取到紧邻原图的一端，
- * 无需 `blit` 源矩形（框架不支持）。
- */
-export const MENU_V2_EXT_H = 208;
-/**
  * `[WXG-T-585]` **整张扩图档**（用户 2026-11-06 裁「甲」）：Figma `2:98 背景` 已扩成
  * `750×1750 @0,-208`，即上下各 `MENU_V2_BG_EXPAND = 208` 设计 px。
  * 整图一次 blit 覆盖全部机型（框底 = `H − topPad − (E + 1334)`），图内元素屏位恒为
@@ -676,9 +670,6 @@ export const MENU_TEXTURES = {
   backdrop: 'bitmap__menu_backdrop',
   /** `[WXG-T-585]` Figma 整张扩图（750×1750 设计 / @2x 1500×3500）；就绪即走一次 blit，缺图自动回退三图。 */
   backdropFull: 'bitmap__menu_backdrop_expanded',
-  /** `[WXG-T-585]` 背板上下延展条（云端 outpaint，各 750×208 设计 px / @2x 1500×416）。 */
-  backdropExtTop: 'bitmap__menu_backdrop_ext_top',
-  backdropExtBottom: 'bitmap__menu_backdrop_ext_bottom',
   /**
    * `[P0 静态温暖 · 2026-10-30]` 左下角陶盆（qwen-image-3.0 lock seed 88 切图，210×415）。
    * 环境装饰、不属布局骨架 ⇒ 缺位图**不画**，不占位、不回退程序化（同 boss 缩略口径）。

@@ -3,7 +3,7 @@
  * 几何一律取自 `meta-layout.ts` 的锚定档，控件画法取自 `meta-widgets.ts` ⇒ 页面只编排、不另算。
  */
 
-import { DESIGN_H, DESIGN_W, type MenuAnchors, MENU_ARROW_ICON, MENU_CASE_INTERIOR_BAKED, MENU_BAR_ICON_D, MENU_BOSS_ART_D, MENU_CTA_LABEL, MENU_CTA_PRESSED_D, MENU_CTA_SLICE, MENU_CTA_SRC_H, MENU_DONE_ICON, MENU_FROST, MENU_FULLSTAR_FRAME, MENU_GRAY_WIPE, MENU_LIGHT, MENU_LOCKED_ICON, MENU_PLAQUE_BEVEL_INSET, MENU_PLAQUE_ICON_INSET, MENU_PLAQUE_RIVET_INSET, MENU_PLAQUE_RIVET_R, MENU_PLAQUE_STROKE, MENU_SIGNIN_DOT_R, MENU_SIGN_FRAME, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, MENU_V2_BAKED, MENU_V2_BG_EXPAND, MENU_V2_BG_H, MENU_V2_DESK_FILL, MENU_V2_EXT_H,
+import { DESIGN_H, DESIGN_W, type MenuAnchors, MENU_ARROW_ICON, MENU_CASE_INTERIOR_BAKED, MENU_BAR_ICON_D, MENU_BOSS_ART_D, MENU_CTA_LABEL, MENU_CTA_PRESSED_D, MENU_CTA_SLICE, MENU_CTA_SRC_H, MENU_DONE_ICON, MENU_FROST, MENU_FULLSTAR_FRAME, MENU_GRAY_WIPE, MENU_LIGHT, MENU_LOCKED_ICON, MENU_PLAQUE_BEVEL_INSET, MENU_PLAQUE_ICON_INSET, MENU_PLAQUE_RIVET_INSET, MENU_PLAQUE_RIVET_R, MENU_PLAQUE_STROKE, MENU_SIGNIN_DOT_R, MENU_SIGN_FRAME, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, MENU_V2_BAKED, MENU_V2_BG_EXPAND, MENU_V2_BG_H, MENU_V2_DESK_FILL,
     SIGN_BEAD_PITCH, menuBackdropTopPad, SIGN_MATRIX_N, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning.js';
 import { COPY_TOKENS } from '../config/copy-tokens.js';
 import { ARC_COMING_SOON } from '../config/arcs.js';
@@ -648,19 +648,9 @@ export function drawMenuBackdrop(
                     0, a.H - topPad - (MENU_V2_BG_EXPAND + DESIGN_H),
                     DESIGN_W, MENU_V2_BG_H);
             } else {
-                // 整图未到位（harness 里该文件 404）⇒ 回退三图拼接 / 纯色补带，逐字保留原逻辑。
-                const hasExt = menuBitmapReady(MENU_TEXTURES.backdropExtTop)
-                    && menuBitmapReady(MENU_TEXTURES.backdropExtBottom);
-                if (hasExt) {
-                    // 条图整张 208 高，靠「超出屏幕被裁」取到紧邻原图的一端，无需 blit 源矩形。
-                    if (topPad > 0) builder.blit(MENU_TEXTURES.backdropExtTop,
-                        0, a.H - topPad, DESIGN_W, MENU_V2_EXT_H);
-                    if (botPad > 0) builder.blit(MENU_TEXTURES.backdropExtBottom,
-                        0, botPad - MENU_V2_EXT_H, DESIGN_W, MENU_V2_EXT_H);
-                } else {
-                    if (topPad > 0) builder.rect(0, a.H - topPad, DESIGN_W, topPad, { fill: palette.plaqueFace });
-                    if (botPad > 0) builder.rect(0, 0, DESIGN_W, botPad, { fill: MENU_V2_DESK_FILL });
-                }
+                // 整图缺失的降级腿：纯色补带 + 原 1334 背板，保证画面不空（正常路径已不需要）。
+                if (topPad > 0) builder.rect(0, a.H - topPad, DESIGN_W, topPad, { fill: palette.plaqueFace });
+                if (botPad > 0) builder.rect(0, 0, DESIGN_W, botPad, { fill: MENU_V2_DESK_FILL });
                 builder.blit(MENU_TEXTURES.backdrop, 0, a.H - topPad - DESIGN_H, DESIGN_W, DESIGN_H);
             }
         }
