@@ -498,10 +498,12 @@ export const MENU_V3 = {
      */
     boardGap: 0,
     /**
-     * 招牌整图 549×337：板体顶 42、板体底 337 ⇒ 上方 42 是绳。
-     * 同时是板体顶的**下限**：`boardTop ≥ 42` ⇔ 绳顶 `signTop ≥ 0` ⇒ 绳子绝不超出屏幕上沿。
+     * 招牌整图 549×337，**板体（木牌）上沿实测 = 图内 y 108**（`ui_menu_signboard_figma@2x.png`
+     * 逐行 alpha/棕色宽度扫描：y≤100 每行仅 ~80 图 px 宽 = 两根绳；y=108 起棕色宽 >400 图 px = 板体）。
+     * ⇒ 绳高 108，⛔ 不是「337 − 板体高 295 = 42」那个旧假设（错的 66 px，正是板体没贴住 safe 线的真因）。
+     * `signTop = boardTop − boardOff` = 整图顶（绳顶）。
      */
-    boardOff: 42,
+    boardOff: 108,
     /** CTA 底距**底安全区上缘** = 固定距离（v1 `MENU_CHAIN_GAP_BOTTOM` 同口径 32）。 */
     ctaGap: 32,
     /** 橱窗（柜体）在背板内 353..1058。 */
@@ -513,9 +515,10 @@ export const MENU_V3 = {
  * `[WXG-T-585]` 用户 2026-11-06 终裁的三条规则（彼此**解耦**）：
  * 1. **背景图居中展示** ⇒ `topPad = max(0, (H−1334)/2)`，上下补带等量；柜体等场景件随之居中；
  * 2. **CTA 独立贴底** ⇒ `ctaBottom = H − sb − 32`（固定距离，⛔ 不再由背板带出）；
- * 3. **招牌独立贴顶**：`boardTop = max(st, 42)` —— 板体顶**贴住安全区 top**（缝隙 0，
- *    ⛔ 不拿胶囊底当基准），下限 42 = 绳高 ⇒ 绳顶 `signTop = boardTop − 42 ≥ 0`，
- *    绳子再浅的安全区档也不会伸到屏幕外面。
+ * 3. **招牌独立贴顶**：`boardTop = st`（板体顶**严格贴住安全区 top** 线，缝隙 0，
+ *    ⛔ 不拿胶囊底当基准）；`signTop = boardTop − 108` = 绳顶。
+ *    ⚠ 这张位图的绳长 108，六档 st 仅 40~103 ⇒ 绳顶恒为负、上段被屏顶裁掉 5~68 px；
+ *    「板体贴线」与「绳不出屏」在本图上不可兼得，彻底解要裁短绳段（美术侧，待裁）。
  *
  * 招牌与 CTA 都是独立件（背板只含墙/柜/桌面场景）⇒ 它们与背板**不锁相对位置**，
  * 这正是「背景居中」与「两端贴安全区」能同时成立的前提。
@@ -526,8 +529,9 @@ export function menuV3Placement(H: number, st: number, sb: number): {
     readonly bandTop: number; readonly bandBottom: number; readonly gap: number;
 } {
     const C = MENU_V3;
-    // 贴住安全区 top；下限 = 绳高 ⇒ 绳顶 ≥ 0（不出屏）。`cap` 完全不参与本式。
-    const boardTop = Math.max(st + C.boardGap, C.boardOff);
+    // 板体顶**严格贴住** safe top 线（`cap` 完全不参与）。⚠ 不再设绳高下限 ⇒ 绳上段被屏顶裁，
+    // 这是「贴线优先」的明确取舍；两全方案见文件内 §冲突说明（裁短绳段）。
+    const boardTop = st + C.boardGap;
     const signTop = boardTop - C.boardOff;
     const ctaBottom = H - sb - C.ctaGap;
     const bandTop = signTop + C.signH;
