@@ -6,7 +6,7 @@
  * 缓存分两档：默认行数 = 按 anchors 引用（WeakMap，逐机主菜单）；变参行数只服务 K-6 同帧差分腿。
  */
 
-import { DESIGN_H, DESIGN_W, MENU_ARROW_VISUAL_D, MENU_ARROW_X, MENU_BADGE, MENU_BAR_FRAME, MENU_BAR_H, MENU_BAR_TOP_INSET, MENU_BOSS_SLOT, MENU_CASE_FRAME, MENU_CASE_H, MENU_CLIP, MENU_CTA_H, MENU_CTA_X, MENU_DONE_ICON, MENU_PLATE, MENU_PLATE_TITLE, MENU_PRIMARY_W, MENU_SHOWCASE_ART, MENU_SIGN_FRAME, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_X, MENU_V2, MENU_V2_BAKED, TOUCH_MIN, WALL_CELL, WALL_COLS, WALL_GAP, WALL_ROWS, dialogShiftY, menuAnchors, type MenuAnchors } from '../config/tuning';
+import { DESIGN_H, DESIGN_W, MENU_ARROW_VISUAL_D, MENU_ARROW_X, MENU_BADGE, MENU_BAR_FRAME, MENU_BAR_H, MENU_BAR_TOP_INSET, MENU_BOSS_SLOT, MENU_CASE_FRAME, MENU_CASE_H, MENU_CLIP, MENU_CTA_H, MENU_CTA_X, MENU_DONE_ICON, MENU_PLATE, MENU_PLATE_TITLE, MENU_PRIMARY_W, MENU_SHOWCASE_ART, MENU_SIGN_FRAME, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_X, MENU_V2, MENU_V2_BAKED, MENU_V2_TOPBAR_Y, TOUCH_MIN, WALL_CELL, WALL_COLS, WALL_GAP, WALL_ROWS, dialogShiftY, menuAnchors, menuV2TopPad, type MenuAnchors } from '../config/tuning';
 import { settingsContentButtons } from './settings-content';
 import { signinCellLayout } from './signin-content';
 import { skinCardBoxes } from './skins-content';
@@ -321,14 +321,16 @@ export function anchoredGeo(a: MenuAnchors): AnchoredMenuGeo {
 
 /**
  * `[WXG-T-585]` v2 腿：**绝对坐标**（`MENU_V2`，坐标图读数）代替 v1 的链式推导。
- * 背板**顶对齐屏顶** ⇒ 全部件由 `H − y − h` 翻 y-up，逐机 H 变化时与背板逐像素对齐（多出的高度落屏底）。
- * 顶栏四钮仍走逐机接口值（`btTopY`，判例 K-124 接口优先），⛔ 不钉坐标图的 134/222。
+ * 背板 750×1334 不拉伸，垂直落位由 {@link menuV2TopPad} 给（居中优先 + 顶栏避让胶囊下限），
+ * 全部件由 `H − topPad − y − h` 翻 y-up ⇒ 与背板逐像素对齐，高屏多出的高度上下同时补。
+ * 顶栏四钮**跟随背板**（图内 y=134），⛔ 不独立贴屏顶（那样高屏档钮浮在补墙上、与招牌错开）。
  */
 function anchoredGeoV2(a: MenuAnchors): AnchoredMenuGeo {
     const r = Math.round;
     const V = MENU_V2;
-    /** 屏顶量 → 设计 y-up（框底）。 */
-    const up = (yDown: number, h: number): number => r(a.H - yDown - h);
+    const topPad = menuV2TopPad(a.H, a.H - a.btTopY);
+    /** 背板内量（自屏顶 = `topPad + 图内 y`）→ 设计 y-up（框底）。 */
+    const up = (yDown: number, h: number): number => r(a.H - topPad - yDown - h);
     /** 以绝对框为心、`TOUCH_MIN` 见方的热区（视觉件普遍大于 88，用同心包裹口径）。 */
     const around = (x: number, yDown: number, w: number, h: number): Box => {
         const cx = x + w / 2;
@@ -347,13 +349,14 @@ function anchoredGeoV2(a: MenuAnchors): AnchoredMenuGeo {
     const sealBox = box(V.seal.x, up(V.seal.y, V.seal.h), V.seal.w, V.seal.h);
     const plateBox = box(V.plateTitle.x, up(V.plateTitle.y, V.plateTitle.h + V.plateSub.h + 7),
         V.plateTitle.w, V.plateTitle.h + V.plateSub.h + 7);
-    // 顶栏（逐机接口值；第二行 = `MENU_TOPBAR_ROW2_DY` 下移，与 v1 同式）。
-    const settingsHit = box(MENU_TOPBAR_X.settings, r(a.btTopY) - TOUCH_MIN, TOUCH_MIN, TOUCH_MIN);
-    const mailHit = box(MENU_TOPBAR_X.mail, r(a.btTopY) - TOUCH_MIN, TOUCH_MIN, TOUCH_MIN);
+    // 顶栏：跟随背板（图内顶缘 y=134），第二行 = `MENU_TOPBAR_ROW2_DY` 下移（与 v1 同式）。
+    const btTop = r(a.H - topPad - MENU_V2_TOPBAR_Y);
+    const settingsHit = box(MENU_TOPBAR_X.settings, btTop - TOUCH_MIN, TOUCH_MIN, TOUCH_MIN);
+    const mailHit = box(MENU_TOPBAR_X.mail, btTop - TOUCH_MIN, TOUCH_MIN, TOUCH_MIN);
     const rankBox = box(MENU_TOPBAR_X.rank,
-        r(a.btTopY) - TOUCH_MIN - MENU_TOPBAR_ROW2_DY, TOUCH_MIN, TOUCH_MIN);
+        btTop - TOUCH_MIN - MENU_TOPBAR_ROW2_DY, TOUCH_MIN, TOUCH_MIN);
     const skinsHit = box(MENU_TOPBAR_X.skins,
-        r(a.btTopY) - TOUCH_MIN - MENU_TOPBAR_ROW2_DY, TOUCH_MIN, TOUCH_MIN);
+        btTop - TOUCH_MIN - MENU_TOPBAR_ROW2_DY, TOUCH_MIN, TOUCH_MIN);
     return {
         // v2 腿不画柜体/窗框：`caseBox` / `bossBox` / `badgeBox` 只服务 v1 消费点与 `open-levels` 热区。
         caseBox: box(V.clip.x, clipBox.y, V.clip.w, V.clip.h),
@@ -362,9 +365,9 @@ function anchoredGeoV2(a: MenuAnchors): AnchoredMenuGeo {
         badgeBox: box(V.art.x, up(V.art.y, V.art.h), 0, 0),
         plateBox,
         plateCx: V.plateTitle.x + V.plateTitle.w / 2,
-        plateLine1Cy: r(a.H - (V.plateTitle.y + V.plateTitle.h / 2)),
-        plateLine2Cy: r(a.H - (V.plateSub.y + V.plateSub.h / 2)),
-        plateSingleCy: r(a.H - (V.plateTitle.y + V.plateTitle.h / 2)),
+        plateLine1Cy: r(a.H - topPad - (V.plateTitle.y + V.plateTitle.h / 2)),
+        plateLine2Cy: r(a.H - topPad - (V.plateSub.y + V.plateSub.h / 2)),
+        plateSingleCy: r(a.H - topPad - (V.plateTitle.y + V.plateTitle.h / 2)),
         sealBox,
         signBox, ctaBox, ctaHit,
         rankBox, rankHit: rankBox,

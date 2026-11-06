@@ -467,6 +467,25 @@ export const MENU_V2 = {
  * 与图同源，换背板必须同批重取。
  */
 export const MENU_V2_DESK_FILL = '#C28042';
+/** `[WXG-T-585]` v2 背板内顶栏钮**顶缘** y（坐标图读数 `29:9 14:134`，自背板顶量）。 */
+export const MENU_V2_TOPBAR_Y = 134;
+/**
+ * `[WXG-T-585]` v2 背板**垂直落位**（y-down，自屏顶）= 高屏补带的上下分配量。
+ *
+ * 背板 750×1334 不可拉伸（一拉柜体/圆台就变形）⇒ 逐机 `H = 750×屏高/屏宽`（无上限，实测
+ * 1334~1750 档）比 1334 高出的部分**上下同时补**：上补木墙、下补桌面。
+ *
+ * 判据 = **居中优先**，再受一条硬下限约束：背板里的顶栏钮（图内 y=134）是**可点元素**，
+ * 必须落在胶囊底缘之下（坐标图注：绳允许入顶安全区，文字/可点元素一律在禁区外）。
+ * 故 `topPad = max(居中, 顶栏允许顶 − 134)`；`btTop` = 顶栏钮顶（自屏顶，`H − btTopY` 的接口值）。
+ *
+ * ⛔ 不要让顶栏独立贴屏顶：那样高屏档钮浮在补墙上、与招牌错开（实测 H=1625 差 145 px）。
+ */
+export function menuV2TopPad(H: number, btTop: number): number {
+    const center = Math.round((H - DESIGN_H) / 2);
+    const floor = Math.round(btTop) - MENU_V2_TOPBAR_Y;
+    return Math.max(center, floor, 0);
+}
 /** ◀▶ 翻页钮视觉 64² 左缘 x（右缘 = 750−26−64=660 ⇒ 镜像；热区 88² 同心）。 */
 export const MENU_ARROW_X = { left: 26, right: 660 } as const;
 /** ◀▶ 视觉边长（热区 `TOUCH_MIN` 同心包裹）。 */
