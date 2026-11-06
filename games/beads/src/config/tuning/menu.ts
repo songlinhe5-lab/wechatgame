@@ -504,14 +504,15 @@ export const MENU_V3 = {
      * `signTop = boardTop − boardOff` = 整图顶（绳顶）。
      */
     boardOff: 108,
-    /** CTA 底距**底安全区上缘** = 固定距离（v1 `MENU_CHAIN_GAP_BOTTOM` 同口径 32）。 */
-    ctaGap: 32,
     /**
-     * **SE 档（H=1334）例外**：CTA 底（y-down）= 坐标图读数 1230。
-     * 柜底 1058、CTA 高 179 ⇒ CTA 顶 1051 **盖进橱窗 7 px**（用户「与概念图一样盖一部分在橱窗上」）。
-     * 其余档仍按 `ctaGap` 固定距安全区，⛔ 不跟着压柜体。
+     * CTA 底距**底安全区上缘** = **104**（用户 2026-11-06 裁：拿 SE 档的距离作为全档统一值）。
+     * 反推 = SE `H=1334, sb=0, CTA 底 1230` ⇒ `1334 − 0 − 1230 = 104`；
+     * 该 1230 是坐标图读数，CTA 顶 1051 盖进柜底 1058 共 7 px（概念图口径）。
+     * 全档统一后 SE 结果不变（仍是 1230），其余档 CTA 上移 72 px。
      */
-    seCtaBottom: 1230,
+    ctaGap: 104,
+    /** 顶栏四钮顶缘距**胶囊底**的最小距离（用户「避开胶囊区域下缘一点距离」）。 */
+    topbarGap: 8,
     /** 橱窗（柜体）在背板内 353..1058。 */
     caseH: 705,
     signH: 337,
@@ -520,36 +521,46 @@ export const MENU_V3 = {
 /**
  * `[WXG-T-585]` 用户 2026-11-06 终裁的三条规则（彼此**解耦**）：
  * 1. **背景图居中展示** ⇒ `topPad = max(0, (H−1334)/2)`，上下补带等量；柜体等场景件随之居中；
- * 2. **CTA 独立贴底** ⇒ 常规档 `ctaBottom = H − sb − 32`；SE（H=1334）走 `seCtaBottom = 1230`
- *    ⇒ CTA 顶 1051 盖进柜底 1058 共 7 px（与概念图一致）；
+ * 2. **CTA 独立贴底** ⇒ `ctaBottom = H − sb − 104`（104 = SE 档实测距底安全区，
+ *    用户 2026-11-06 裁「其他都保持这个距离」）；SE 自然回到 1230 ⇒ CTA 顶 1051
+ *    盖进柜底 1058 共 7 px（概念图口径），⛔ 不再有档位特例；
  * 3. **招牌独立贴顶** ⇒ `boardTop = max(st + 4, 108)`：板体顶与 safe top 留**一点点缝**，
- *    下限 108 = 实测绳高 ⇒ `signTop ≥ 0`，绳子完整、绝不跑到屏幕外；`cap` 完全不参与。
- *    ⚠ st 浅的档由下限接管（SE 缝 68、Android 48）；要这两档也只留一点点，需裁短绳段（美术侧，待裁）。
+ *    下限 108 = 实测绳高 ⇒ `signTop ≥ 0`，绳子完整、绝不跑到屏幕外；
+ *    ⚠ st 浅的档由下限接管（SE 缝 68、Android 48）；要这两档也只留一点点，需裁短绳段（美术侧，待裁）；
+ * 4. **顶栏四钮** ⇒ `topbarTop = max(signTop + 134, cap + 8)`：常规跟招牌，
+ *    胶囊深的档由 `cap` 接管 ⇒ 右上两枚不压进原生胶囊区。
  *
  * 招牌与 CTA 都是独立件（背板只含墙/柜/桌面场景）⇒ 它们与背板**不锁相对位置**，
  * 这正是「背景居中」与「两端贴安全区」能同时成立的前提。
  * `bandTop/bandBottom/gap` 只作**诊断读数**（招牌底 ↔ CTA 顶这条带扣掉柜体高的余量），⛔ 不驱动落位。
  */
-export function menuV3Placement(H: number, st: number, sb: number): {
-    readonly signTop: number; readonly boardTop: number; readonly ctaBottom: number; readonly topPad: number;
+export function menuV3Placement(H: number, st: number, cap: number, sb: number): {
+    readonly signTop: number; readonly boardTop: number; readonly ctaBottom: number;
+    readonly topbarTop: number; readonly topPad: number;
     readonly bandTop: number; readonly bandBottom: number; readonly gap: number;
 } {
     const C = MENU_V3;
     // 板体顶 = safe top + 4（一点点缝），再受绳高下限约束 ⇒ `signTop ≥ 0`，绳子完整不出屏。
-    // `cap` 完全不参与。⚠ st < 104 的档由下限接管，缝隙会变大（SE 68 / Android 48），
-    // 这是「长绳位图 + 绳完整」的硬代价；要这两档也只留一点点，需裁短绳段（美术侧，待裁）。
+    // ⚠ st 浅的档由下限接管（SE 缝 68 / Android 48），要再压需裁短绳段（美术侧，待裁）。
     const boardTop = Math.max(st + C.boardGap, C.boardOff);
     const signTop = boardTop - C.boardOff;
-    const ctaBottom = H === DESIGN_H ? C.seCtaBottom : H - sb - C.ctaGap;
+    const ctaBottom = H - sb - C.ctaGap;
+    // 顶栏四钮：常规跟招牌（图内 y=134），但**必须避开胶囊底 + 8**（用户 2026-11-06 裁）。
+    // 高胶囊档由 `cap` 接管 ⇒ 右上两枚（日历 / 装扮）不会压进原生胶囊区。
+    const topbarTop = Math.max(signTop + MENU_V2_TOPBAR_Y, cap + C.topbarGap);
     const bandTop = signTop + C.signH;
     const bandBottom = ctaBottom - C.ctaH;
     const topPad = Math.max(0, Math.round((H - DESIGN_H) / 2));
-    return { signTop, boardTop, ctaBottom, topPad, bandTop, bandBottom,
+    return { signTop, boardTop, ctaBottom, topbarTop, topPad, bandTop, bandBottom,
         gap: (bandBottom - bandTop - C.caseH) / 2 };
+}
+/** 从 `MenuAnchors` 直取 v3 落位（胶囊底 = `H − btTopY − SAFE_EDGE_MARGIN`）。 */
+export function menuV3FromAnchors(H: number, st: number, btTopY: number, sb: number): ReturnType<typeof menuV3Placement> {
+    return menuV3Placement(H, st, H - btTopY - SAFE_EDGE_MARGIN, sb);
 }
 /** 背板垂直落位的**单一真源**：geo 与 `drawMenuBackdrop` 共读，⛔ 两边各算一次。 */
 export function menuBackdropTopPad(H: number, btTopY: number, st: number, sb: number): number {
-    if (MENU_V3_BAKED) return menuV3Placement(H, st, sb).topPad;
+    if (MENU_V3_BAKED) return menuV3FromAnchors(H, st, btTopY, sb).topPad;
     return menuV2TopPad(H, H - btTopY);
 }
 /** ◀▶ 翻页钮视觉 64² 左缘 x（右缘 = 750−26−64=660 ⇒ 镜像；热区 88² 同心）。 */
