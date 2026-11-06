@@ -6,7 +6,7 @@
  * 缓存分两档：默认行数 = 按 anchors 引用（WeakMap，逐机主菜单）；变参行数只服务 K-6 同帧差分腿。
  */
 
-import { DESIGN_H, DESIGN_W, MENU_ARROW_VISUAL_D, MENU_ARROW_X, MENU_BADGE, MENU_BAR_FRAME, MENU_BAR_H, MENU_BAR_TOP_INSET, MENU_BOSS_SLOT, MENU_CASE_FRAME, MENU_CASE_H, MENU_CLIP, MENU_CTA_H, MENU_CTA_X, MENU_DONE_ICON, MENU_PLATE, MENU_PLATE_TITLE, MENU_PRIMARY_W, MENU_SHOWCASE_ART, MENU_SIGN_FRAME, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_X, MENU_V2, MENU_V2_BAKED, MENU_V2_TOPBAR_Y, MENU_V3_BAKED, TOUCH_MIN, WALL_CELL, WALL_COLS, WALL_GAP, WALL_ROWS, dialogShiftY, menuAnchors, menuBackdropTopPad, menuV3FromAnchors, type MenuAnchors } from '../config/tuning.js';
+import { DESIGN_H, DESIGN_W, MENU_ARROW_VISUAL_D, MENU_ARROW_X, MENU_BADGE, MENU_BAR_FRAME, MENU_BAR_H, MENU_BAR_TOP_INSET, MENU_BOSS_SLOT, MENU_CASE_FRAME, MENU_CASE_H, MENU_CLIP, MENU_CTA_H, MENU_CTA_X, MENU_DONE_ICON, MENU_PLATE, MENU_PLATE_TITLE, MENU_PRIMARY_W, MENU_SHOWCASE_ART, MENU_SIGN_FRAME, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_X, MENU_V2, MENU_V2_BAKED, MENU_V2_TOPBAR_Y, MENU_V3_BAKED, TOUCH_MIN, WALL_CELL, WALL_COLS, WALL_GAP, WALL_ROWS, dialogShiftY, menuAnchors, menuBackdropTopPad, menuV3Placement, type MenuAnchors } from '../config/tuning.js';
 import { settingsContentButtons } from './settings-content.js';
 import { signinCellLayout } from './signin-content.js';
 import { skinCardBoxes } from './skins-content.js';
@@ -329,8 +329,8 @@ function anchoredGeoV2(a: MenuAnchors): AnchoredMenuGeo {
     const r = Math.round;
     const V = MENU_V2;
     // v3 档：招牌 / CTA **脱离背板**独立贴安全区与屏高比例，其余件仍跟随背板（柜体场景）。
-    const v3 = MENU_V3_BAKED ? menuV3FromAnchors(a.H, a.btTopY, a.sb) : null;
-    const topPad = menuBackdropTopPad(a.H, a.btTopY, a.sb);
+    const v3 = MENU_V3_BAKED ? menuV3Placement(a.H, a.st, a.sb) : null;
+    const topPad = menuBackdropTopPad(a.H, a.btTopY, a.st, a.sb);
     /** 背板内量（自屏顶 = `topPad + 图内 y`）→ 设计 y-up（框底）。 */
     const up = (yDown: number, h: number): number => r(a.H - topPad - yDown - h);
     /** 以绝对框为心、`TOUCH_MIN` 见方的热区（视觉件普遍大于 88，用同心包裹口径）。 */

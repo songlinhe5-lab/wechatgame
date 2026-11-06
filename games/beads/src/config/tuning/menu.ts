@@ -492,18 +492,20 @@ export function menuV2TopPad(H: number, btTop: number): number {
 export let MENU_V3_BAKED = false;
 export function setMenuV3Baked(on: boolean): void { MENU_V3_BAKED = on; }
 export const MENU_V3 = {
-    /** 招牌整图顶距胶囊底 = 固定距离。 */
-    signGap: 8,
+    /** 招牌**板体顶**（不含绳）距顶安全区下缘的小缝隙。 */
+    boardGap: 8,
+    /** 招牌整图 549×337：板体顶 42、板体底 337 ⇒ 上方 42 是绳。 */
+    boardOff: 42,
     /**
-     * 绳顶距屏顶的**最小距离**。用户 2026-11-06 裁：「如果绳子展示高度不够，优先展示足够绳子高度」
-     * ⇒ 贴安全区把绳挤没时，宁可让招牌整体下移，也不许把绳顶压到屏顶之下。
+     * 板体顶距屏顶的**下限** = 绳高 42 + 绳顶再留 24。用户 2026-11-06 追加裁：
+     * 「不算绳子的招牌顶部，与安全区 top 和屏幕顶部都要保持一定距离」⇒ 安全区很浅的机型
+     * （SE st=40）优先保绳子完整，板体顶不许跟着贴到屏顶。
      */
-    minSignTop: 24,
+    minBoardTop: 66,
     /** CTA 底距**底安全区上缘** = 固定距离（v1 `MENU_CHAIN_GAP_BOTTOM` 同口径 32）。 */
     ctaGap: 32,
     /** 橱窗（柜体）在背板内 353..1058。 */
     caseH: 705,
-    caseCyInBackdrop: 705.5,
     signH: 337,
     ctaH: 179,
 } as const;
@@ -511,32 +513,30 @@ export const MENU_V3 = {
  * `[WXG-T-585]` 用户 2026-11-06 终裁的三条规则（彼此**解耦**）：
  * 1. **背景图居中展示** ⇒ `topPad = max(0, (H−1334)/2)`，上下补带等量；柜体等场景件随之居中；
  * 2. **CTA 独立贴底** ⇒ `ctaBottom = H − sb − 32`（固定距离，⛔ 不再由背板带出）；
- * 3. **招牌独立贴顶** ⇒ `signTop = max(胶囊底+8, 24)`（固定距离，绳高优先）。
+ * 3. **招牌独立贴顶**：`boardTop = max(st+8, 66)`（板体顶贴安全区 top 留小缝、且距屏顶留足绳高），
+ *    `signTop = boardTop − 42` = 绳顶。招牌按「板体顶」定，⛔ 不再拿整图顶去贴胶囊底。
  *
  * 招牌与 CTA 都是独立件（背板只含墙/柜/桌面场景）⇒ 它们与背板**不锁相对位置**，
  * 这正是「背景居中」与「两端贴安全区」能同时成立的前提。
  * `bandTop/bandBottom/gap` 只作**诊断读数**（招牌底 ↔ CTA 顶这条带扣掉柜体高的余量），⛔ 不驱动落位。
  */
-export function menuV3Placement(H: number, cap: number, sb: number): {
-    readonly signTop: number; readonly ctaBottom: number; readonly topPad: number;
+export function menuV3Placement(H: number, st: number, sb: number): {
+    readonly signTop: number; readonly boardTop: number; readonly ctaBottom: number; readonly topPad: number;
     readonly bandTop: number; readonly bandBottom: number; readonly gap: number;
 } {
     const C = MENU_V3;
-    const signTop = Math.max(cap + C.signGap, C.minSignTop);
+    const boardTop = Math.max(st + C.boardGap, C.minBoardTop);
+    const signTop = boardTop - C.boardOff;
     const ctaBottom = H - sb - C.ctaGap;
     const bandTop = signTop + C.signH;
     const bandBottom = ctaBottom - C.ctaH;
     const topPad = Math.max(0, Math.round((H - DESIGN_H) / 2));
-    return { signTop, ctaBottom, topPad, bandTop, bandBottom,
+    return { signTop, boardTop, ctaBottom, topPad, bandTop, bandBottom,
         gap: (bandBottom - bandTop - C.caseH) / 2 };
 }
-/** 从 `MenuAnchors` 直接取 v3 落位（胶囊底 = `H − btTopY − SAFE_EDGE_MARGIN`）。 */
-export function menuV3FromAnchors(H: number, btTopY: number, sb: number): ReturnType<typeof menuV3Placement> {
-    return menuV3Placement(H, H - btTopY - SAFE_EDGE_MARGIN, sb);
-}
 /** 背板垂直落位的**单一真源**：geo 与 `drawMenuBackdrop` 共读，⛔ 两边各算一次。 */
-export function menuBackdropTopPad(H: number, btTopY: number, sb: number): number {
-    if (MENU_V3_BAKED) return menuV3FromAnchors(H, btTopY, sb).topPad;
+export function menuBackdropTopPad(H: number, btTopY: number, st: number, sb: number): number {
+    if (MENU_V3_BAKED) return menuV3Placement(H, st, sb).topPad;
     return menuV2TopPad(H, H - btTopY);
 }
 /** ◀▶ 翻页钮视觉 64² 左缘 x（右缘 = 750−26−64=660 ⇒ 镜像；热区 88² 同心）。 */

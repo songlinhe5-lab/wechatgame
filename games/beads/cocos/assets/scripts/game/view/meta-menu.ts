@@ -642,7 +642,7 @@ export function drawMenuBackdrop(
             // 居中优先 + 顶栏避让胶囊下限 ⇒ 胶囊比图内 134 更深的机型，背板自动下移、底部裁一点。
             // ⛔ 单侧补不成立：贴顶 ⇒ 底空；贴底 ⇒ 顶空且顶栏与招牌错位（实测 H=1625 差 291 px）。
             // ponytail: 两条补带都是纯色（墙面/桌面本身即大色块 + 虚化，接缝不可见）；要纹理化再给背板切片。
-            const topPad = menuBackdropTopPad(a.H, a.btTopY, a.sb);
+            const topPad = menuBackdropTopPad(a.H, a.btTopY, a.st, a.sb);
             const botPad = Math.max(0, a.H - topPad - DESIGN_H);
             if (topPad > 0) builder.rect(0, a.H - topPad, DESIGN_W, topPad, { fill: palette.plaqueFace });
             if (botPad > 0) builder.rect(0, 0, DESIGN_W, botPad, { fill: MENU_V2_DESK_FILL });
