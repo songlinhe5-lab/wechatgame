@@ -467,6 +467,12 @@ export const MENU_V2 = {
  * 与图同源，换背板必须同批重取。
  */
 export const MENU_V2_DESK_FILL = '#C28042';
+/**
+ * `[WXG-T-585]` 背板上下延展条的高度（设计 px）= 21:9 极值档的单侧补带量 208。
+ * 条图正本 1500×416 @2x ⇒ 绘制 750×208；条图靠「超出屏幕被裁」取到紧邻原图的一端，
+ * 无需 `blit` 源矩形（框架不支持）。
+ */
+export const MENU_V2_EXT_H = 208;
 /** `[WXG-T-585]` v2 背板内顶栏钮**顶缘** y（坐标图读数 `29:9 14:134`，自背板顶量）。 */
 export const MENU_V2_TOPBAR_Y = 134;
 /**
@@ -659,6 +665,9 @@ export const MENU_TEXTURES = {
    * 缺位图 ⇒ 退回原程序化底（Cocos 宿主未注册本键时行为不变）。
    */
   backdrop: 'bitmap__menu_backdrop',
+  /** `[WXG-T-585]` 背板上下延展条（云端 outpaint，各 750×208 设计 px / @2x 1500×416）。 */
+  backdropExtTop: 'bitmap__menu_backdrop_ext_top',
+  backdropExtBottom: 'bitmap__menu_backdrop_ext_bottom',
   /**
    * `[P0 静态温暖 · 2026-10-30]` 左下角陶盆（qwen-image-3.0 lock seed 88 切图，210×415）。
    * 环境装饰、不属布局骨架 ⇒ 缺位图**不画**，不占位、不回退程序化（同 boss 缩略口径）。

@@ -221,6 +221,9 @@ const MENU_FILE: Readonly<Record<string, string>> = {
   [MENU_TEXTURES.beam]: 'ui_menu_beam.png',
   // `[WXG-T-585]` v2 整屏烘焙背板（正本 1500×2668 @2x；Cocos 投放件 = 750×1334 JPEG q85，125.4 KB）。
   [MENU_TEXTURES.backdrop]: 'background/ui_menu_backdrop_figma@2x.png',
+  // `[WXG-T-585]` 上下延展条：云端 outpaint 生成，A/B 与纯色补带对照用（Cocos 侧未登记 ⇒ 真机回退纯色）。
+  [MENU_TEXTURES.backdropExtTop]: 'background/ui_menu_backdrop_ext_top@2x.png',
+  [MENU_TEXTURES.backdropExtBottom]: 'background/ui_menu_backdrop_ext_bottom@2x.png',
   // `[WXG-T-585]` v2 翻页钮（整枚 220×232 / 218×232 @2x，左右件像素不同 ⇒ 四键分开登记）。
   [MENU_TEXTURES.prevBtn]: 'buttons/ui_btn_prev_normal@2x.png',
   [MENU_TEXTURES.prevBtnPressed]: 'buttons/ui_btn_prev_highlight@2x.png',
