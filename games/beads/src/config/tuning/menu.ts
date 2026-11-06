@@ -473,6 +473,15 @@ export const MENU_V2_DESK_FILL = '#C28042';
  * 无需 `blit` 源矩形（框架不支持）。
  */
 export const MENU_V2_EXT_H = 208;
+/**
+ * `[WXG-T-585]` **整张扩图档**（用户 2026-11-06 裁「甲」）：Figma `2:98 背景` 已扩成
+ * `750×1750 @0,-208`，即上下各 `MENU_V2_BG_EXPAND = 208` 设计 px。
+ * 整图一次 blit 覆盖全部机型（框底 = `H − topPad − (E + 1334)`），图内元素屏位恒为
+ * `topPad + 原 y` ⇒ `MENU_V2.*` 全部 y 读数零改动。
+ * ⚠ 中间 1334 设计 px 必须硬拷回现役原背板（贴回三步，区外 maxdiff=0），只取上下扩展区。
+ */
+export const MENU_V2_BG_EXPAND = 208;
+export const MENU_V2_BG_H = DESIGN_H + 2 * MENU_V2_BG_EXPAND;
 /** `[WXG-T-585]` v2 背板内顶栏钮**顶缘** y（坐标图读数 `29:9 14:134`，自背板顶量）。 */
 export const MENU_V2_TOPBAR_Y = 134;
 /**
@@ -665,6 +674,8 @@ export const MENU_TEXTURES = {
    * 缺位图 ⇒ 退回原程序化底（Cocos 宿主未注册本键时行为不变）。
    */
   backdrop: 'bitmap__menu_backdrop',
+  /** `[WXG-T-585]` Figma 整张扩图（750×1750 设计 / @2x 1500×3500）；就绪即走一次 blit，缺图自动回退三图。 */
+  backdropFull: 'bitmap__menu_backdrop_expanded',
   /** `[WXG-T-585]` 背板上下延展条（云端 outpaint，各 750×208 设计 px / @2x 1500×416）。 */
   backdropExtTop: 'bitmap__menu_backdrop_ext_top',
   backdropExtBottom: 'bitmap__menu_backdrop_ext_bottom',
