@@ -491,6 +491,15 @@ export function menuV2TopPad(H: number, btTop: number): number {
 /** dev 测具：`?v3=1` 打开；Cocos / 单测恒 false ⇒ 产品链逐字节不变。 */
 export let MENU_V3_BAKED = false;
 export function setMenuV3Baked(on: boolean): void { MENU_V3_BAKED = on; }
+/**
+ * `[WXG-T-585]` dev 测具：背板垂直落位系数（1 = 整图居中，<1 = 背板/柜体略上移）。
+ * 只由 harness `?pad=` 设置；Cocos / 单测恒 1 ⇒ 产品链逐字节不变。
+ * 用途：目视对照「主视觉略偏上」是否能把招牌↔柜体 / 柜体↔CTA 的上下留白调匀。
+ */
+export let MENU_V3_TOPPAD_SCALE = 1;
+export function setMenuV3TopPadScale(k: number): void {
+    MENU_V3_TOPPAD_SCALE = Number.isFinite(k) && k > 0 && k <= 2 ? k : 1;
+}
 export const MENU_V3 = {
     /**
      * **统一避让距离 = 12**（用户 2026-11-06 裁：「左右上四个按钮离开胶囊底线一定距离，
@@ -521,7 +530,8 @@ export const MENU_V3 = {
 } as const;
 /**
  * `[WXG-T-585]` 用户 2026-11-06 终裁的三条规则（彼此**解耦**）：
- * 1. **背景图居中展示** ⇒ `topPad = max(0, (H−1334)/2)`，上下补带等量；柜体等场景件随之居中；
+ * 1. **背景图居中展示** ⇒ `topPad = max(0, (H−1334)/2 × MENU_V3_TOPPAD_SCALE)`，
+ *    系数 1（默认）时上下补带等量；dev `?pad=0.8` 可让背板/柜体略上移做观感对照；
  * 2. **CTA 独立贴底** ⇒ `ctaBottom = H − sb − 104`（104 = SE 档实测距底安全区，
  *    用户 2026-11-06 裁「其他都保持这个距离」）；SE 自然回到 1230 ⇒ CTA 顶 1051
  *    盖进柜底 1058 共 7 px（概念图口径），⛔ 不再有档位特例；
@@ -551,7 +561,7 @@ export function menuV3Placement(H: number, st: number, cap: number, sb: number):
     const topbarTop = Math.max(signTop + MENU_V2_TOPBAR_Y, cap + C.safeGap);
     const bandTop = signTop + C.signH;
     const bandBottom = ctaBottom - C.ctaH;
-    const topPad = Math.max(0, Math.round((H - DESIGN_H) / 2));
+    const topPad = Math.max(0, Math.round(((H - DESIGN_H) / 2) * MENU_V3_TOPPAD_SCALE));
     return { signTop, boardTop, ctaBottom, topbarTop, topPad, bandTop, bandBottom,
         gap: (bandBottom - bandTop - C.caseH) / 2 };
 }

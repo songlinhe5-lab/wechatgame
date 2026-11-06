@@ -24,7 +24,7 @@ import {
   maskTileInnerPx,
   tintFx,
 } from '@wxgame/framework';
-import { BEAD_PITCH, MENU_TEXTURES, TILE_BLEED, setMenuV2Baked, setMenuV3Baked } from '../../games/beads/src/config/tuning.js';
+import { BEAD_PITCH, MENU_TEXTURES, TILE_BLEED, setMenuV2Baked, setMenuV3Baked, setMenuV3TopPadScale } from '../../games/beads/src/config/tuning.js';
 import { setDevSafeInsets, setShowSafeGuides } from '../../games/beads/src/config/tuning/layout.js';
 import { OPEN_ARCS } from '../../games/beads/src/config/arcs.js';
 import { setMenuBitmapResolver } from '../../games/beads/src/view/meta-view.js';
@@ -74,6 +74,9 @@ if (qSt !== null || qCap !== null || qSb !== null) {
   setDevSafeInsets({ st: qSt ?? 0, cap: qCap ?? 0, sb: qSb ?? 0 });
 }
 if (harnessParams.get('guides') === '1') setShowSafeGuides(true);
+// `[WXG-T-585]` dev-only：`?pad=0.8` ⇒ 背板/柜体略上移，做「主视觉偏上」观感对照（默认 1 = 居中）。
+const qPad = qNum('pad');
+if (qPad !== null) setMenuV3TopPadScale(qPad);
 /**
  * `[WXG-T-566]` `?artGray=0..1` 调试参数：把大关作品图的取图结果换成**同公式灰化版**
  * （`out = c·(1−g) + luma·g`，Rec.709 权重），供三态灰度观感对照。
