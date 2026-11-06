@@ -3,7 +3,7 @@
  * 几何一律取自 `meta-layout.ts` 的锚定档，控件画法取自 `meta-widgets.ts` ⇒ 页面只编排、不另算。
  */
 
-import { DESIGN_H, DESIGN_W, type MenuAnchors, MENU_ARROW_ICON, MENU_CASE_INTERIOR_BAKED, MENU_BAR_ICON_D, MENU_BOSS_ART_D, MENU_CTA_LABEL, MENU_CTA_PRESSED_D, MENU_CTA_SLICE, MENU_CTA_SRC_H, MENU_DONE_ICON, MENU_FROST, MENU_FULLSTAR_FRAME, MENU_GRAY_WIPE, MENU_LIGHT, MENU_LOCKED_ICON, MENU_PLAQUE_BEVEL_INSET, MENU_PLAQUE_ICON_INSET, MENU_PLAQUE_RIVET_INSET, MENU_PLAQUE_RIVET_R, MENU_PLAQUE_STROKE, MENU_SIGNIN_DOT_R, MENU_SIGN_FRAME, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, MENU_V2_BAKED, MENU_V2_DESK_FILL, SIGN_BEAD_PITCH, menuV2TopPad, SIGN_MATRIX_N, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning';
+import { DESIGN_H, DESIGN_W, type MenuAnchors, MENU_ARROW_ICON, MENU_CASE_INTERIOR_BAKED, MENU_BAR_ICON_D, MENU_BOSS_ART_D, MENU_CTA_LABEL, MENU_CTA_PRESSED_D, MENU_CTA_SLICE, MENU_CTA_SRC_H, MENU_DONE_ICON, MENU_FROST, MENU_FULLSTAR_FRAME, MENU_GRAY_WIPE, MENU_LIGHT, MENU_LOCKED_ICON, MENU_PLAQUE_BEVEL_INSET, MENU_PLAQUE_ICON_INSET, MENU_PLAQUE_RIVET_INSET, MENU_PLAQUE_RIVET_R, MENU_PLAQUE_STROKE, MENU_SIGNIN_DOT_R, MENU_SIGN_FRAME, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, MENU_V2_BAKED, MENU_V2_DESK_FILL, SIGN_BEAD_PITCH, menuBackdropTopPad, SIGN_MATRIX_N, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning';
 import { COPY_TOKENS } from '../config/copy-tokens';
 import { ARC_COMING_SOON } from '../config/arcs';
 import { plateFade } from '../config/menu-carousel';
@@ -634,13 +634,15 @@ export function drawMenuBackdrop(
             // v1 腿：背板只是底图，按屏高拉伸（版面由锚链推导，柜体系列程序化件盖在上面）。
             builder.blit(MENU_TEXTURES.backdrop, 0, 0, DESIGN_W, a.H);
         } else {
+            // 先铺一层全屏墙色：背板 + 两条补带之间若出现亚像素缝，也不会透出画布底色（浅米）。
+            builder.rect(0, 0, DESIGN_W, a.H, { fill: palette.plaqueFace });
             // v2 腿：背板不可拉伸（一拉柜体/圆台就变形）⇒ 多出的高度**上下同时补**：
             // 上补木墙（`plaqueFace` 实测 `(140,92,42)` vs 背板顶墙 `(149,89,48)`，差 ≤9/255）、
             // 下补桌面（`MENU_V2_DESK_FILL` = 背板最底 40 行实测均值）。落位判据见 `menuV2TopPad`：
             // 居中优先 + 顶栏避让胶囊下限 ⇒ 胶囊比图内 134 更深的机型，背板自动下移、底部裁一点。
             // ⛔ 单侧补不成立：贴顶 ⇒ 底空；贴底 ⇒ 顶空且顶栏与招牌错位（实测 H=1625 差 291 px）。
             // ponytail: 两条补带都是纯色（墙面/桌面本身即大色块 + 虚化，接缝不可见）；要纹理化再给背板切片。
-            const topPad = menuV2TopPad(a.H, a.H - a.btTopY);
+            const topPad = menuBackdropTopPad(a.H, a.btTopY, a.sb);
             const botPad = Math.max(0, a.H - topPad - DESIGN_H);
             if (topPad > 0) builder.rect(0, a.H - topPad, DESIGN_W, topPad, { fill: palette.plaqueFace });
             if (botPad > 0) builder.rect(0, 0, DESIGN_W, botPad, { fill: MENU_V2_DESK_FILL });

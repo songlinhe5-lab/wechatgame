@@ -24,7 +24,8 @@ import {
   maskTileInnerPx,
   tintFx,
 } from '@wxgame/framework';
-import { BEAD_PITCH, MENU_TEXTURES, TILE_BLEED, setMenuV2Baked } from '../../games/beads/src/config/tuning.js';
+import { BEAD_PITCH, MENU_TEXTURES, TILE_BLEED, setMenuV2Baked, setMenuV3Baked } from '../../games/beads/src/config/tuning.js';
+import { setDevSafeInsets, setShowSafeGuides } from '../../games/beads/src/config/tuning/layout.js';
 import { OPEN_ARCS } from '../../games/beads/src/config/arcs.js';
 import { setMenuBitmapResolver } from '../../games/beads/src/view/meta-view.js';
 import { requiredTintMaskIds } from '../../games/beads/src/view/bead-tint-mask.js';
@@ -56,7 +57,23 @@ const harnessQuery =
 const harnessParams = new URLSearchParams(harnessQuery);
 // `[WXG-T-585]` `?v2=1` ⇒ 主界面走 v2 烘焙背板档（绝对坐标 + 程序化柜体退场）。
 // 默认关：既有 24 条版面/金样本断言仍钉 v1 读数 ⇒ 收口时改成默认开并删本调试点（见 `setMenuV2Baked` 注）。
-if (harnessParams.get('v2') === '1') setMenuV2Baked(true);
+if (harnessParams.get('v2') === '1' || harnessParams.get('v3') === '1') setMenuV2Baked(true);
+if (harnessParams.get('v3') === '1') setMenuV3Baked(true);
+// `[WXG-T-585]` dev-only：按真机档注入安全区/胶囊区（设计 px），并叠加可视化。
+// 6 档读数来自 `tests/menu-layout-v35.test.ts` 的 TIERS + 21:9 极值，⛔ 不进产品链。
+const qNum = (k: string): number | null => {
+  const raw = harnessParams.get(k);
+  if (raw === null) return null;
+  const n = Number(raw);
+  return Number.isFinite(n) ? n : null;
+};
+const qSt = qNum('st');
+const qCap = qNum('cap');
+const qSb = qNum('sb');
+if (qSt !== null || qCap !== null || qSb !== null) {
+  setDevSafeInsets({ st: qSt ?? 0, cap: qCap ?? 0, sb: qSb ?? 0 });
+}
+if (harnessParams.get('guides') === '1') setShowSafeGuides(true);
 /**
  * `[WXG-T-566]` `?artGray=0..1` 调试参数：把大关作品图的取图结果换成**同公式灰化版**
  * （`out = c·(1−g) + luma·g`，Rec.709 权重），供三态灰度观感对照。

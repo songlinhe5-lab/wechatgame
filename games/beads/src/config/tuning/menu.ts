@@ -1,6 +1,6 @@
 import { ARCS } from '../arcs.js';
 import { BEAD_CELL, BEAD_GAP, TOUCH_MIN } from './board.js';
-import { DESIGN_H, DESIGN_W, MENU_TOPBAR_VISUAL_D, SAFE_BOTTOM_H, SAFE_TOP_H, menuTopbarTop } from './layout.js';
+import { DESIGN_H, DESIGN_W, getDevSafeInsets, MENU_TOPBAR_VISUAL_D, SAFE_BOTTOM_H, SAFE_EDGE_MARGIN, SAFE_TOP_H, menuTopbarTop } from './layout.js';
 import { BEAD_DRAW_INSET } from './visual.js';
 
 // ─────────────────────────────────────────────────────── §3.6b finish screen
@@ -486,6 +486,59 @@ export function menuV2TopPad(H: number, btTop: number): number {
     const floor = Math.round(btTop) - MENU_V2_TOPBAR_Y;
     return Math.max(center, floor, 0);
 }
+
+// ─────────── `[WXG-T-585]` v3 档（用户 2026-11-06 裁）：招牌贴安全区 / CTA 按比例 / 橱窗带内居中
+/** dev 测具：`?v3=1` 打开；Cocos / 单测恒 false ⇒ 产品链逐字节不变。 */
+export let MENU_V3_BAKED = false;
+export function setMenuV3Baked(on: boolean): void { MENU_V3_BAKED = on; }
+export const MENU_V3 = {
+    /** 招牌整图顶距胶囊底 = 固定距离。 */
+    signGap: 8,
+    /**
+     * 绳顶距屏顶的**最小距离**。用户 2026-11-06 裁：「如果绳子展示高度不够，优先展示足够绳子高度」
+     * ⇒ 贴安全区把绳挤没时，宁可让招牌整体下移，也不许把绳顶压到屏顶之下。
+     */
+    minSignTop: 24,
+    /** CTA 底距**底安全区上缘** = 固定距离（v1 `MENU_CHAIN_GAP_BOTTOM` 同口径 32）。 */
+    ctaGap: 32,
+    /** 橱窗（柜体）在背板内 353..1058。 */
+    caseH: 705,
+    caseCyInBackdrop: 705.5,
+    signH: 337,
+    ctaH: 179,
+} as const;
+/**
+ * `[WXG-T-585]` 用户 2026-11-06 终裁的三条规则（彼此**解耦**）：
+ * 1. **背景图居中展示** ⇒ `topPad = max(0, (H−1334)/2)`，上下补带等量；柜体等场景件随之居中；
+ * 2. **CTA 独立贴底** ⇒ `ctaBottom = H − sb − 32`（固定距离，⛔ 不再由背板带出）；
+ * 3. **招牌独立贴顶** ⇒ `signTop = max(胶囊底+8, 24)`（固定距离，绳高优先）。
+ *
+ * 招牌与 CTA 都是独立件（背板只含墙/柜/桌面场景）⇒ 它们与背板**不锁相对位置**，
+ * 这正是「背景居中」与「两端贴安全区」能同时成立的前提。
+ * `bandTop/bandBottom/gap` 只作**诊断读数**（招牌底 ↔ CTA 顶这条带扣掉柜体高的余量），⛔ 不驱动落位。
+ */
+export function menuV3Placement(H: number, cap: number, sb: number): {
+    readonly signTop: number; readonly ctaBottom: number; readonly topPad: number;
+    readonly bandTop: number; readonly bandBottom: number; readonly gap: number;
+} {
+    const C = MENU_V3;
+    const signTop = Math.max(cap + C.signGap, C.minSignTop);
+    const ctaBottom = H - sb - C.ctaGap;
+    const bandTop = signTop + C.signH;
+    const bandBottom = ctaBottom - C.ctaH;
+    const topPad = Math.max(0, Math.round((H - DESIGN_H) / 2));
+    return { signTop, ctaBottom, topPad, bandTop, bandBottom,
+        gap: (bandBottom - bandTop - C.caseH) / 2 };
+}
+/** 从 `MenuAnchors` 直接取 v3 落位（胶囊底 = `H − btTopY − SAFE_EDGE_MARGIN`）。 */
+export function menuV3FromAnchors(H: number, btTopY: number, sb: number): ReturnType<typeof menuV3Placement> {
+    return menuV3Placement(H, H - btTopY - SAFE_EDGE_MARGIN, sb);
+}
+/** 背板垂直落位的**单一真源**：geo 与 `drawMenuBackdrop` 共读，⛔ 两边各算一次。 */
+export function menuBackdropTopPad(H: number, btTopY: number, sb: number): number {
+    if (MENU_V3_BAKED) return menuV3FromAnchors(H, btTopY, sb).topPad;
+    return menuV2TopPad(H, H - btTopY);
+}
 /** ◀▶ 翻页钮视觉 64² 左缘 x（右缘 = 750−26−64=660 ⇒ 镜像；热区 88² 同心）。 */
 export const MENU_ARROW_X = { left: 26, right: 660 } as const;
 /** ◀▶ 视觉边长（热区 `TOUCH_MIN` 同心包裹）。 */
@@ -672,8 +725,11 @@ export interface MenuAnchors {
 export function menuAnchors(input: MenuAnchorsInput): MenuAnchors {
   const { safeTopDp, capsuleBottomDp, safeBottomDp, windowWidthDp, designHeight } = input;
   const k = windowWidthDp > 0 ? DESIGN_W / windowWidthDp : 0;
-  const st = safeTopDp !== null && safeTopDp >= 0 && k > 0 ? Math.round(safeTopDp * k) : SAFE_TOP_H;
-  const sb = safeBottomDp !== null && safeBottomDp >= 0 && k > 0 ? Math.round(safeBottomDp * k) : SAFE_BOTTOM_H;
+  // dev 测具（harness `?st=&cap=&sb=`）优先：真机接口的 safeArea 在浏览器里读不到，
+  // 不注入则 6 档机型全走兜底、胶囊差异看不出来。宿主/单测不注入 ⇒ 下面三行逐字不变。
+  const dev = getDevSafeInsets();
+  const st = dev ? dev.st : (safeTopDp !== null && safeTopDp >= 0 && k > 0 ? Math.round(safeTopDp * k) : SAFE_TOP_H);
+  const sb = dev ? dev.sb : (safeBottomDp !== null && safeBottomDp >= 0 && k > 0 ? Math.round(safeBottomDp * k) : SAFE_BOTTOM_H);
   const H = designHeight > 0 ? designHeight : DESIGN_H;
   // ── 链式（顶部深度系，落地单 §2 逐行）
   // 结顶 = 安全区下固定 16；无刘海时不低于 MENU_BOW_MIN_FROM_TOP，否则绳子被屏顶裁掉、牌子贴顶。
@@ -691,7 +747,7 @@ export function menuAnchors(input: MenuAnchorsInput): MenuAnchors {
   const case0 = sign1 + gapTop;
   const bar0 = case0;
   const case1 = case0 + MENU_CASE_H;
-  const bt = menuTopbarTop(capsuleBottomDp, windowWidthDp);
+  const bt = dev ? dev.cap + SAFE_EDGE_MARGIN : menuTopbarTop(capsuleBottomDp, windowWidthDp);
   // ── 翻 y-up
   return {
     H, st, sb, zone, gapTop, gapBot,

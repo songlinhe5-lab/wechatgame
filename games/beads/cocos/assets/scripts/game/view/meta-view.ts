@@ -28,6 +28,7 @@
 
 import {
     DESIGN_W,
+    SHOW_SAFE_GUIDES,
     THUMB_MATRIX_N,
     type MenuAnchors,
     UI_CONTAINER,
@@ -140,6 +141,8 @@ const MENU_PAGE: PageDraw = (builder, data, palette, _layout, a, withSignage) =>
         drawRankPanel(builder, palette, data.rank);
         builder.endContainer();
     }
+    // `[WXG-T-585]` dev-only（`?guides=1`）：安全区 / 胶囊区可视化，画在最上层便于逐档对照。
+    if (SHOW_SAFE_GUIDES) drawSafeAreas(builder, a);
 };
 
 /** 选关**弹窗**（`[WXG-T-503]` 改判回弹窗）：与设置/签到同走 `panelPage`（遮罩 + 纸面板 + 标题 + 通用钮）。 */
@@ -286,4 +289,27 @@ export function buildMetaModal(
 function drawSafeGuides(builder: RenderModelBuilder, a: MenuAnchors): void {
     // 与对局页共用同一绘制（`debug-layer::drawSafeGuideLines`）⇒ 两屏划线口径不会漂。
     drawSafeGuideLines(builder, a.H, a.st, Math.round(a.H - a.btTopY - 4), a.sb);
+}
+
+/**
+ * `[WXG-T-585]` dev-only（`?guides=1`）：三条标定线之上再画**安全区带**与**胶囊区框**，
+ * 供 6 档真机比例对照。⛔ 不改造 `drawSafeGuides` —— 那条在 Debug 开关下被 `beads-shell.test.ts`
+ * 按「每颗钮一条 rect」硬钉（K-444），多一条 rect 就会破断言。
+ */
+function drawSafeAreas(builder: RenderModelBuilder, a: MenuAnchors): void {
+    const cap = Math.round(a.H - a.btTopY - 4);
+    const ink = DEBUG_OUTLINE_TILE_HEX;
+    if (a.st > 0) builder.rect(0, a.H - a.st, DESIGN_W, a.st, { fill: ink, alpha: 0.14 });
+    if (a.sb > 0) builder.rect(0, 0, DESIGN_W, a.sb, { fill: ink, alpha: 0.14 });
+    const CAP_W = 174;
+    const CAP_H = 64;
+    const CAP_EDGE = 14;
+    // 胶囊底缘（y-down）= cap ⇒ y-up 框底 = H − cap，框向上延伸 CAP_H。
+    builder.rect(DESIGN_W - CAP_EDGE - CAP_W, a.H - cap, CAP_W, CAP_H, {
+        fill: ink, alpha: 0.25, stroke: ink, lineWidth: 2, radius: 30,
+    });
+    builder.text(DESIGN_W - CAP_EDGE - CAP_W / 2, a.H - cap + CAP_H / 2, 'capsule', {
+        fill: ink, font: UI_FONT.cell, align: 'center', baseline: 'middle',
+    });
+    drawSafeGuideLines(builder, a.H, a.st, cap, a.sb);
 }

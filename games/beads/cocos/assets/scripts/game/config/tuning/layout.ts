@@ -183,4 +183,18 @@ export const PUZZLE_BAND = { yMin: 560, yMax: 1120 } as const;
  * 该号已由 `REVIVE_BONUS_SEC` 占用 ⇒ 本改判实际登记于 **v1.97**。
  * 基础态 2 行（panelH 120，y∈[330,450]）与 `btn_expand` 热区净空随按钮整体 −14 ⇒ 12→**26px**。 */
 export const TRAY_BAND = { yMin: 216, yMax: 450 } as const;
+
+// ─────────── dev-only：真机安全区/胶囊区注入与可视化（harness `?st=&cap=&sb=&guides=1`）
+/**
+ * 浏览器 harness 没有 `wx.getWindowInfo()` ⇒ `menuAnchors` 全走兜底，6 档机型的刘海/胶囊
+ * 差异看不出来。本组是 **dev 测具**：只有 harness 调 `setDevSafeInsets`；小游戏宿主与单测
+ * 恒为 `null` ⇒ 产品链逐字节不变。`cap` / `st` / `sb` 单位 = **设计 px**（已换算，不再乘 k）。
+ */
+export interface DevSafeInsets { readonly st: number; readonly cap: number; readonly sb: number; }
+let devInsets: DevSafeInsets | null = null;
+export function setDevSafeInsets(v: DevSafeInsets | null): void { devInsets = v; }
+export function getDevSafeInsets(): DevSafeInsets | null { return devInsets; }
+/** `?guides=1`：主菜单叠加安全区带 / 胶囊区框 / 三条标定线。Cocos 侧永不置位。 */
+export let SHOW_SAFE_GUIDES = false;
+export function setShowSafeGuides(on: boolean): void { SHOW_SAFE_GUIDES = on; }
 /** Powerup band (3 white cards — S6 landed in WXG-T-060). */

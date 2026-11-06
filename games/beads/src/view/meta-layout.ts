@@ -6,7 +6,7 @@
  * 缓存分两档：默认行数 = 按 anchors 引用（WeakMap，逐机主菜单）；变参行数只服务 K-6 同帧差分腿。
  */
 
-import { DESIGN_H, DESIGN_W, MENU_ARROW_VISUAL_D, MENU_ARROW_X, MENU_BADGE, MENU_BAR_FRAME, MENU_BAR_H, MENU_BAR_TOP_INSET, MENU_BOSS_SLOT, MENU_CASE_FRAME, MENU_CASE_H, MENU_CLIP, MENU_CTA_H, MENU_CTA_X, MENU_DONE_ICON, MENU_PLATE, MENU_PLATE_TITLE, MENU_PRIMARY_W, MENU_SHOWCASE_ART, MENU_SIGN_FRAME, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_X, MENU_V2, MENU_V2_BAKED, MENU_V2_TOPBAR_Y, TOUCH_MIN, WALL_CELL, WALL_COLS, WALL_GAP, WALL_ROWS, dialogShiftY, menuAnchors, menuV2TopPad, type MenuAnchors } from '../config/tuning.js';
+import { DESIGN_H, DESIGN_W, MENU_ARROW_VISUAL_D, MENU_ARROW_X, MENU_BADGE, MENU_BAR_FRAME, MENU_BAR_H, MENU_BAR_TOP_INSET, MENU_BOSS_SLOT, MENU_CASE_FRAME, MENU_CASE_H, MENU_CLIP, MENU_CTA_H, MENU_CTA_X, MENU_DONE_ICON, MENU_PLATE, MENU_PLATE_TITLE, MENU_PRIMARY_W, MENU_SHOWCASE_ART, MENU_SIGN_FRAME, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_X, MENU_V2, MENU_V2_BAKED, MENU_V2_TOPBAR_Y, MENU_V3_BAKED, TOUCH_MIN, WALL_CELL, WALL_COLS, WALL_GAP, WALL_ROWS, dialogShiftY, menuAnchors, menuBackdropTopPad, menuV3FromAnchors, type MenuAnchors } from '../config/tuning.js';
 import { settingsContentButtons } from './settings-content.js';
 import { signinCellLayout } from './signin-content.js';
 import { skinCardBoxes } from './skins-content.js';
@@ -328,7 +328,9 @@ export function anchoredGeo(a: MenuAnchors): AnchoredMenuGeo {
 function anchoredGeoV2(a: MenuAnchors): AnchoredMenuGeo {
     const r = Math.round;
     const V = MENU_V2;
-    const topPad = menuV2TopPad(a.H, a.H - a.btTopY);
+    // v3 档：招牌 / CTA **脱离背板**独立贴安全区与屏高比例，其余件仍跟随背板（柜体场景）。
+    const v3 = MENU_V3_BAKED ? menuV3FromAnchors(a.H, a.btTopY, a.sb) : null;
+    const topPad = menuBackdropTopPad(a.H, a.btTopY, a.sb);
     /** 背板内量（自屏顶 = `topPad + 图内 y`）→ 设计 y-up（框底）。 */
     const up = (yDown: number, h: number): number => r(a.H - topPad - yDown - h);
     /** 以绝对框为心、`TOUCH_MIN` 见方的热区（视觉件普遍大于 88，用同心包裹口径）。 */
@@ -337,9 +339,15 @@ function anchoredGeoV2(a: MenuAnchors): AnchoredMenuGeo {
         const cy = up(yDown, h) + h / 2;
         return box(r(cx - TOUCH_MIN / 2), r(cy - TOUCH_MIN / 2), TOUCH_MIN, TOUCH_MIN);
     };
-    const signBox = box(V.sign.x, up(V.sign.y, V.sign.h), V.sign.w, V.sign.h);
-    const ctaBox = box(V.cta.x, up(V.cta.y, V.cta.h), V.cta.w, V.cta.h);
-    const ctaHit = around(V.cta.x, V.cta.y, V.cta.w, V.cta.h);
+    const signBox = v3
+        ? box(V.sign.x, r(a.H - v3.signTop - V.sign.h), V.sign.w, V.sign.h)
+        : box(V.sign.x, up(V.sign.y, V.sign.h), V.sign.w, V.sign.h);
+    const ctaBox = v3
+        ? box(V.cta.x, r(a.H - v3.ctaBottom), V.cta.w, V.cta.h)
+        : box(V.cta.x, up(V.cta.y, V.cta.h), V.cta.w, V.cta.h);
+    const ctaHit = v3
+        ? box(ctaBox.x, ctaBox.y + (V.cta.h - TOUCH_MIN) / 2, V.cta.w, TOUCH_MIN)
+        : around(V.cta.x, V.cta.y, V.cta.w, V.cta.h);
     const arrowL = box(V.prev.x, up(V.prev.y, V.prev.h), V.prev.w, V.prev.h);
     const arrowR = box(V.next.x, up(V.next.y, V.next.h), V.next.w, V.next.h);
     const arrowLHit = around(V.prev.x, V.prev.y, V.prev.w, V.prev.h);
@@ -350,7 +358,7 @@ function anchoredGeoV2(a: MenuAnchors): AnchoredMenuGeo {
     const plateBox = box(V.plateTitle.x, up(V.plateTitle.y, V.plateTitle.h + V.plateSub.h + 7),
         V.plateTitle.w, V.plateTitle.h + V.plateSub.h + 7);
     // 顶栏：跟随背板（图内顶缘 y=134），第二行 = `MENU_TOPBAR_ROW2_DY` 下移（与 v1 同式）。
-    const btTop = r(a.H - topPad - MENU_V2_TOPBAR_Y);
+    const btTop = v3 ? r(a.H - v3.signTop - MENU_V2_TOPBAR_Y) : r(a.H - topPad - MENU_V2_TOPBAR_Y);
     const settingsHit = box(MENU_TOPBAR_X.settings, btTop - TOUCH_MIN, TOUCH_MIN, TOUCH_MIN);
     const mailHit = box(MENU_TOPBAR_X.mail, btTop - TOUCH_MIN, TOUCH_MIN, TOUCH_MIN);
     const rankBox = box(MENU_TOPBAR_X.rank,
