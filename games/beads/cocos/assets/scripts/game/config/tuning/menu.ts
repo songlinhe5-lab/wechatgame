@@ -456,8 +456,13 @@ export const MENU_V2 = {
   clip: { x: 150, y: 470, w: 450, h: 434 },
   /** 通关章 90×89.5（玻璃右上角）。 */
   seal: { x: 545, y: 405, w: 90, h: 90 },
-  /** 资源条：心/豆图标位 `245:355 · 95×30` 与 `415:355 · 95×30` 反推条体。 */
-  bar: { x: 225, y: 342, w: 305, h: 46 },
+  /**
+   * 资源条**条体实测框**（背板已烘条体 + 两端图标）：x219..538 / y353..388
+   * （`ui_menu_backdrop@2x.png` 逐行逐列扫，2026-11-07）。
+   * 原 `225,342,305,46` 是 Figma 图标节点反推值，比实拍**高 11、窄 14** ⇒ 文本垂直居中会偏高。
+   * ⛔ 换背板必须同批重扫；本框只服务资源条绘制（零热区）。
+   */
+  bar: { x: 219, y: 353, w: 319, h: 35 },
   /** 木牌两行文字框（牌体已烘进背板，⛔ 不再贴 `ui_showcase_plate`）。两框中心 x 同为 375。 */
   plateTitle: { x: 313, y: 901, w: 124, h: 42 },
   plateSub: { x: 330, y: 950, w: 90, h: 17 },
@@ -607,6 +612,12 @@ export const MENU_TOPBAR_ICON_D = MENU_TOPBAR_VISUAL_D;
 /** 向标源图 58×87。方框 36² 会把字拉扁；高 36、宽 24（36×58/87）居中画在圆钮上。 */
 export const MENU_ARROW_ICON = { w: 24, h: 36 } as const;
 export const MENU_BAR_ICON_D = 24;
+/**
+ * `[WXG-T-585]` baked 腿资源条**文本内缩距条体端缘 = 28**。
+ * = 背板已烘图标宽 20（红心 x219..239 / 拼豆白环 x517..538，实测自 `ui_menu_backdrop@2x.png`）
+ * + 图标与数值的间隙 8。⛔ 换背板必须同批重扫这两段。
+ */
+export const MENU_BAR_BAKED_LABEL_INSET = 28;
 /** 顶栏钮视觉直径复用在册 `MENU_TOPBAR_VISUAL_D`；热区左缘复用 `MENU_TOPBAR_X`。 */
 
 /**

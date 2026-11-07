@@ -3,7 +3,7 @@
  * 几何一律取自 `meta-layout.ts` 的锚定档，控件画法取自 `meta-widgets.ts` ⇒ 页面只编排、不另算。
  */
 
-import { DESIGN_H, DESIGN_W, type MenuAnchors, MENU_ARROW_ICON, MENU_CASE_INTERIOR_BAKED, MENU_BAR_ICON_D, MENU_BOSS_ART_D, MENU_CTA_LABEL, MENU_CTA_PRESSED_D, MENU_CTA_SLICE, MENU_CTA_SRC_H, MENU_DONE_ICON, MENU_FROST, MENU_FULLSTAR_FRAME, MENU_GRAY_WIPE, MENU_LIGHT, MENU_LOCKED_ICON, MENU_PLAQUE_BEVEL_INSET, MENU_PLAQUE_ICON_INSET, MENU_PLAQUE_RIVET_INSET, MENU_PLAQUE_RIVET_R, MENU_PLAQUE_STROKE, MENU_SIGNIN_DOT_R, MENU_SIGN_FRAME, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, MENU_V2_BAKED, MENU_V2_BG_EXPAND, MENU_V2_BG_H, MENU_V2_DESK_FILL,
+import { DESIGN_H, DESIGN_W, type MenuAnchors, MENU_ARROW_ICON, MENU_BAR_BAKED_LABEL_INSET, MENU_CASE_INTERIOR_BAKED, MENU_BAR_ICON_D, MENU_BOSS_ART_D, MENU_CTA_LABEL, MENU_CTA_PRESSED_D, MENU_CTA_SLICE, MENU_CTA_SRC_H, MENU_DONE_ICON, MENU_FROST, MENU_FULLSTAR_FRAME, MENU_GRAY_WIPE, MENU_LIGHT, MENU_LOCKED_ICON, MENU_PLAQUE_BEVEL_INSET, MENU_PLAQUE_ICON_INSET, MENU_PLAQUE_RIVET_INSET, MENU_PLAQUE_RIVET_R, MENU_PLAQUE_STROKE, MENU_SIGNIN_DOT_R, MENU_SIGN_FRAME, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, MENU_V2_BAKED, MENU_V2_BG_EXPAND, MENU_V2_BG_H, MENU_V2_DESK_FILL,
     SIGN_BEAD_PITCH, menuBackdropTopPad, SIGN_MATRIX_N, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning.js';
 import { COPY_TOKENS } from '../config/copy-tokens.js';
 import { ARC_COMING_SOON } from '../config/arcs.js';
@@ -59,6 +59,16 @@ function triStateLight(state: MetaBossState): number {
     return MENU_LIGHT.cleared;
 }
 
+/**
+ * 资源条（❤ 8/8 ｜ 0 ⊙）。
+ *
+ * `[WXG-T-585]` v2 背板**已烘**条体本体、上沿受光线、两端铆钉，以及两枚图标
+ * （红心 x219..239 / 拼豆白环 x517..538，实测自 `ui_menu_backdrop@2x.png`）
+ * ⇒ baked 腿**只画两枚数值**，⛔ 不再叠程序化 rect / 描边 / 铆钉 / 图标
+ * （叠了就是「假条体压真图案 + 白心盖红心 + 灰圆盖白环」，用户 2026-11-07 判退）。
+ * 数值内缩 = 图标宽（20），与烘图标的间隙由 `MENU_V2.bar` 实测框给出。
+ * 非 baked（v1 腿，条体仍靠程序化画）逐字不变。
+ */
 function drawResourceBar(
     builder: RenderModelBuilder,
     data: MetaViewData,
@@ -68,6 +78,22 @@ function drawResourceBar(
     const x = g.x;
     const y = g.y;
     const cy = y + g.h / 2;
+    if (MENU_V2_BAKED) {
+        // 图标已烘进背板 ⇒ 文本自图标外缘再让一个间隙起排（`MENU_BAR_BAKED_LABEL_INSET` = 20+8）。
+        builder.text(x + MENU_BAR_BAKED_LABEL_INSET, cy, heartBarLabel(data.stamina, data.staminaMax, data.heartAdsLeft), {
+            fill: palette.woodText,
+            font: UI_FONT.label,
+            align: 'left',
+            baseline: 'middle',
+        });
+        builder.text(x + g.w - MENU_BAR_BAKED_LABEL_INSET, cy, `${data.coins}`, {
+            fill: palette.woodText,
+            font: UI_FONT.label,
+            align: 'right',
+            baseline: 'middle',
+        });
+        return;
+    }
     builder.rect(x, y, g.w, g.h, {
         fill: palette.plaqueFace,
         stroke: palette.plaqueEdge,
