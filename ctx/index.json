@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3980,
       "lines": 134,
-      "sha256": "4d45e56255677dbd15e0cfe8d7b9900afea97aeda4aca1099f45f85aaa3f8e5b",
+      "sha256": "540329c41c971df823ff7927eea12e8371ae901c66985848f12777a5f8585abb",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 237998 8551 normal",
+          "summary": "1 production/TASKS-DETAIL.md 239198 8615 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "fdea666a296c2efce0d9830775feecdd5327840d377a19f4032c8ec00daea19a",
+      "sha256": "0a4914c21f0d416d0d954f0c9184e2259dde8cbb31d694e9377c10aff443e167",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 197 行 / 49383 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 198 行 / 49983 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+198 · §待排（backlog，无号，立项时领取…=170+29",
+          "summary": "§WXG 任务台账（SSOT）=1+199 · §待排（backlog，无号，立项时领取…=171+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 8551 行 / 237998 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 8615 行 / 239198 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+8552 · §WXG-T-579=7909+34 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+8616 · §WXG-T-580=7943+39 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -88886,17 +88886,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 237998,
-      "lines": 8551,
-      "sha256": "e2c7bacdc5bda87036b3de6546b310a691cfb0273e3f20e03146798264e1f935",
+      "tokens": 239198,
+      "lines": 8615,
+      "sha256": "e30c2c0f4c4893ef222fbf6157a2e6b106c0e197066410f4284afaac07eaafc3",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 8552,
-          "tokens": 237981,
+          "endLine": 8616,
+          "tokens": 239182,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -102074,22 +102074,117 @@
             "评估后",
             "建议不做"
           ]
+        },
+        {
+          "anchor": "§WXG-T-591",
+          "level": 2,
+          "startLine": 8553,
+          "endLine": 8616,
+          "tokens": 1197,
+          "summary": "发布·称名三字段核官方口径 + 自审报告草稿 · 负责：主理人(CodeBuddy)·发布轨 · 状态：✅ 完成（202",
+          "keywords": [
+            "WXG",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§1 为什么做这一批",
+          "level": 3,
+          "startLine": 8557,
+          "endLine": 8561,
+          "tokens": 84,
+          "summary": "用户多轮点「去后台把称名填掉」。后台登录、实名、版权中心登记都只能本人操作，仓内能做的是",
+          "keywords": [
+            "为什么做这一"
+          ]
+        },
+        {
+          "anchor": "§2 纠正一：简介旧稿超限",
+          "level": 3,
+          "startLine": 8562,
+          "endLine": 8575,
+          "tokens": 208,
+          "summary": "官方口径 1 个汉字 = 2 个字符（kf.qq.com 名称/简称设置规范原文，名称 4–30 字符即 2–15 汉字",
+          "keywords": [
+            "com",
+            "纠正一",
+            "简介旧稿超限"
+          ]
+        },
+        {
+          "anchor": "§3 纠正二：软著不是「待核实」而是硬性要求",
+          "level": 3,
+          "startLine": 8576,
+          "endLine": 8586,
+          "tokens": 254,
+          "summary": "wechat-submission.md 里长期挂着「软著是否被强制要求 [待核实]」。本轮查到官方 Q&A 原文：",
+          "keywords": [
+            "wechat",
+            "submission",
+            "纠正二",
+            "软著不是",
+            "待核实",
+            "而是硬性要求"
+          ]
+        },
+        {
+          "anchor": "§4 新入档的两条官方硬规则",
+          "level": 3,
+          "startLine": 8587,
+          "endLine": 8597,
+          "tokens": 205,
+          "summary": "名称 4–30 字符，1 汉字 = 2 字符 千面拼豆 = 8 字符 ✅",
+          "keywords": [
+            "新入档的两条",
+            "官方硬规则"
+          ]
+        },
+        {
+          "anchor": "§5 新增交付物：自审报告草稿",
+          "level": 3,
+          "startLine": 8598,
+          "endLine": 8611,
+          "tokens": 234,
+          "summary": "production/release/beads/self-audit-report-draft.md —— 可直接打印",
+          "keywords": [
+            "production",
+            "release",
+            "beads",
+            "self",
+            "audit",
+            "report"
+          ]
+        },
+        {
+          "anchor": "§6 仍是纯用户侧的项（本轮无法代做，如实登记）",
+          "level": 3,
+          "startLine": 8612,
+          "endLine": 8616,
+          "tokens": 76,
+          "summary": "登录公众平台填名称/简称/简介、办软著（版权中心）、打印签署自审报告、ICP 备案、开通流量主。",
+          "keywords": [
+            "ICP",
+            "仍是纯用户侧",
+            "的项",
+            "本轮无法代做",
+            "如实登记"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 49383,
-      "lines": 197,
-      "sha256": "9bb1d39925d53a0e00e3acc1283442765e2137c3eb6e9a000157ab3a986cd181",
+      "tokens": 49983,
+      "lines": 198,
+      "sha256": "dac1c42cde16cc960425d61251c9da17091e19c9606a0f0fbd42d34e6d599dfd",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 198,
-          "tokens": 49374,
+          "endLine": 199,
+          "tokens": 49975,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -102102,8 +102197,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 170,
-          "endLine": 198,
+          "startLine": 171,
+          "endLine": 199,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -117416,17 +117511,17 @@
     },
     {
       "path": "production/release/beads/launch-prerequisites.md",
-      "tokens": 3874,
-      "lines": 123,
-      "sha256": "4d1dc4bcdc3b95864d9ec50a2cb5eedec36cb77b7baaa6cba115bd4c273a2dc3",
+      "tokens": 4790,
+      "lines": 141,
+      "sha256": "bf60205d1414b0b28f1bf057cc5e530564eee1e48a962e4517653dd85f8d46e4",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads · 发布通道前置清单（账号 / 密钥 / 域名 / 云开发）",
           "level": 1,
           "startLine": 1,
-          "endLine": 124,
-          "tokens": 3850,
+          "endLine": 142,
+          "tokens": 4765,
           "summary": "用途：把「要真机验证 / 要远端公告」之前必须办掉的平台侧四件事列成可勾选清单，避免每次讨论都从头确认。",
           "keywords": [
             "beads",
@@ -117455,8 +117550,8 @@
           "anchor": "§1 逐项说明",
           "level": 2,
           "startLine": 19,
-          "endLine": 87,
-          "tokens": 2281,
+          "endLine": 103,
+          "tokens": 2927,
           "summary": "",
           "keywords": [
             "逐项说明"
@@ -117525,8 +117620,8 @@
           "anchor": "§1.5 外部称名四项填写卡（WXG-T-584 ⑤ 收口物料）",
           "level": 3,
           "startLine": 57,
-          "endLine": 87,
-          "tokens": 1037,
+          "endLine": 103,
+          "tokens": 1683,
           "summary": "改名「千面拼豆」在仓内已三腿一致（app_name / 珠拼字模 / 顶板 logo，产物 v1.0.34 起）。",
           "keywords": [
             "WXG",
@@ -117540,9 +117635,9 @@
         {
           "anchor": "§2 可勾选清单（照此办）",
           "level": 2,
-          "startLine": 88,
-          "endLine": 105,
-          "tokens": 448,
+          "startLine": 104,
+          "endLine": 122,
+          "tokens": 515,
           "summary": "☐ 注册正式小游戏账号并取得正式 AppID（当前 wx8cf9…0749 是测试号）",
           "keywords": [
             "AppID",
@@ -117554,8 +117649,8 @@
         {
           "anchor": "§3 依赖顺序（建议）",
           "level": 2,
-          "startLine": 106,
-          "endLine": 115,
+          "startLine": 123,
+          "endLine": 132,
           "tokens": 117,
           "summary": "",
           "keywords": [
@@ -117566,13 +117661,12 @@
         {
           "anchor": "§4 变更记录",
           "level": 2,
-          "startLine": 116,
-          "endLine": 124,
-          "tokens": 446,
-          "summary": "v1.3 2026-11-07 §1.5 末段由「待你裁定」升级为已核查结论：全量审计上屏文本（app_name / 公",
+          "startLine": 133,
+          "endLine": 142,
+          "tokens": 648,
+          "summary": "v1.4 2026-11-07 §1.5 按官方口径重核三字段并纠正两处：① 简介旧稿 81 汉字 = 162 字符超 ",
           "keywords": [
             "§1.5",
-            "app_name",
             "变更记录"
           ]
         }
@@ -117812,6 +117906,57 @@
             "beads",
             "AppID",
             "变更记录"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "production/release/beads/self-audit-report-draft.md",
+      "tokens": 1703,
+      "lines": 87,
+      "sha256": "7909e79892129ef368dca84657d89c5a3acd62edcfa95eb270817efb98379160",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§《游戏自审自查报告》草稿（千面拼豆）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 88,
+          "tokens": 1684,
+          "summary": "用途：微信小游戏提审所需资质文件之一（个人主体须交《计算机软件著作权登记证书》+ 本报告）。",
+          "keywords": [
+            "游戏自审自查",
+            "报告",
+            "草稿",
+            "千面拼豆"
+          ]
+        },
+        {
+          "anchor": "§报告正文（打印这一段）",
+          "level": 2,
+          "startLine": 11,
+          "endLine": 74,
+          "tokens": 1063,
+          "summary": "游戏自审自查报告",
+          "keywords": [
+            "报告正文",
+            "打印这一段"
+          ]
+        },
+        {
+          "anchor": "§事实项的仓库核查依据（不必打印）",
+          "level": 2,
+          "startLine": 75,
+          "endLine": 88,
+          "tokens": 354,
+          "summary": "不调用登录与用户信息接口 全仓搜 wx.login / getUserInfo / getUserProfile / g",
+          "keywords": [
+            "login",
+            "getUserInfo",
+            "getUserProfile",
+            "事实项的仓库",
+            "核查依据",
+            "不必打印"
           ]
         }
       ]
