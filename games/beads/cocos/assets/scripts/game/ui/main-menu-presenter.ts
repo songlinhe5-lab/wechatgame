@@ -12,7 +12,7 @@
  */
 import { ARC_OPEN_MAX } from '../config/arcs';
 import { carouselDamp, carouselPage } from '../config/menu-carousel';
-import { MENU_CAROUSEL, MENU_CLIP } from '../config/tuning';
+import { MENU_CAROUSEL, MENU_V2 } from '../config/tuning';
 
 /** 玻璃松手结果：`open` = 点按（壳去开选关）；`page` = 已启动翻页 / 回弹；`none` = 空橱窗零事件。 */
 export type GlassRelease = 'open' | 'page' | 'none';
@@ -147,8 +147,10 @@ export class MainMenuPresenter {
             this._setSlide(0);
             return;
         }
+        // `[WXG-T-602]` 三次**渐入渐出**（端点导数 0）：旧 easeOutCubic 起步 3·Δ/T，
+        // 松手瞬间速度远快于手指 ⇒ 猛窜；新曲线起步/收尾都连续，配合 240ms 消除顿挫。
         const inv = 1 - u;
-        const e = 1 - inv * inv * inv;
+        const e = u < 0.5 ? 4 * u * u * u : 1 - 4 * inv * inv * inv;
         this._setSlide(this._animFrom + (this._animTo - this._animFrom) * e);
     }
 
@@ -162,7 +164,10 @@ export class MainMenuPresenter {
 
     private _startAnim(page: -1 | 0 | 1, now: number): void {
         this._animFrom = this._dx;
-        this._animTo = page === 0 ? 0 : page === 1 ? -MENU_CLIP.w : MENU_CLIP.w;
+        // `[WXG-T-602]` 终点 = **v2 玻璃槽宽**（视图对页按 `g.clipBox.w` 摆位）。
+        // 旧用 361 ⇒ 结束帧对页还在 ±89px，下一帧归零即跳 89px（顿挫主因）。
+        const w = MENU_V2.clip.w;
+        this._animTo = page === 0 ? 0 : page === 1 ? -w : w;
         this._animDir = page;
         this._animStart = now;
         this._animOn = this._animFrom !== this._animTo;
@@ -171,7 +176,7 @@ export class MainMenuPresenter {
 
     private _setSlide(dx: number): void {
         this._dx = dx;
-        const w = MENU_CLIP.w;
+        const w = MENU_V2.clip.w;
         this._t = w > 0 ? Math.min(1, Math.abs(dx) / w) : 0;
     }
 }

@@ -8,7 +8,7 @@ import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import { LEVELS } from '../src/config/levels.js';
 import { carouselDamp, carouselPage, plateFade } from '../src/config/menu-carousel.js';
 import { ARC_COMING_SOON, ARCS } from '../src/config/arcs.js';
-import { DESIGN_H, DESIGN_W, MENU_CLIP, MENU_FROST, MENU_GRAY_WIPE, MENU_TEXTURES } from '../src/config/tuning.js';
+import { DESIGN_H, DESIGN_W, MENU_FROST, MENU_GRAY_WIPE, MENU_TEXTURES, MENU_V2 } from '../src/config/tuning.js';
 import { createBeadsShell } from '../src/game/beads-shell.js';
 import { buildMetaView, setMenuBitmapResolver, type MetaViewData } from '../src/view/meta-view.js';
 import { anchoredGeo } from '../src/view/meta-layout.js';
@@ -36,7 +36,8 @@ const frame = (data: MetaViewData) => {
 afterEach(() => setMenuBitmapResolver());
 
 describe('翻页状态机', () => {
-    const w = MENU_CLIP.w;
+    /** `[WXG-T-602]` 槽宽认 v2 玻璃裁切（旧 `MENU_CLIP.w=361` 已退场，K-053 留档）。 */
+    const w = MENU_V2.clip.w;
 
     it('过 30% 才翻，快甩无视距离，到头回 0', () => {
         expect(carouselPage(-w * 0.3 - 1, 0, 0, 3)).toBe(1);

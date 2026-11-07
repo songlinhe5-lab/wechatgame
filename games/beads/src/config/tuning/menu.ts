@@ -258,7 +258,12 @@ export const SKINS_CARD_TOP_INSET = 82;
 /** 橱窗高（含楣，v3.3 裁定**恒定不拉伸**）。 */
 export const MENU_CASE_H = 871;
 
-/** 走马灯裁切区 = 橱窗白底。`ui_showcase_frame` 白卡：x197、宽 361，距柜顶 168、高 527。 */
+/**
+ * 走马灯裁切区 = 橱窗白底。`ui_showcase_frame` 白卡：x197、宽 361，距柜顶 168、高 527。
+ * `[WXG-T-602]` **v1 白卡几何留档**：⛔ 不再驱动走马灯槽宽——v2 视图的相邻页间距与
+ * 裁切都取 `MENU_V2.clip.w`(450)，继续用 361 会让吸附终点与对页摆位差 89px ⇒ 结束帧跳变。
+ * 槽宽唯一真源 = `MENU_V2.clip.w`（`menu-carousel.ts` / `main-menu-presenter.ts` 共读）。
+ */
 export const MENU_CLIP = { x: 197, yOff: 168, w: 361, h: 527 } as const;
 /**
  * `[WXG-T-566]` 通关飘带 / 未开启大锁 / 进行中沙漏**已全部退场**（用户 2026-11-02 裁：
@@ -269,14 +274,17 @@ export const MENU_CLIP = { x: 197, yOff: 168, w: 361, h: 527 } as const;
 export const MENU_SEAL = { w: 101, h: 140, inset: 12 } as const;
 /**
  * 走马灯手感。`flickPxPerMs` / `endFollow` / `snapMs` 是临时值，真机验收后回填落地单 §8。
- * ponytail: 到头只乘一个系数、松手用三次缓出。手感不够再换曲线，别先加弹簧。
+ * ponytail: 到头只乘一个系数、松手用一条三次曲线，别先加弹簧。
+ * `[WXG-T-602]` 顿挫修复：`snapMs` ~~180~~ → **240**（easeOutCubic 在 180ms 内初速
+ * 3·450/180 = 7.5 px/ms，远快于手指 ≈1–2 px/ms ⇒ 松手猛窜）；曲线改**渐入渐出**
+ * （`easeInOutCubic`，端点导数 0）⇒ 起步与收尾都连续。旧值划线留档（K-053）。
  */
 export const MENU_CAROUSEL = {
   tapPx: 10,
   pageFrac: 0.3,
   flickPxPerMs: 0.6,
   endFollow: 0.35,
-  snapMs: 180,
+  snapMs: 240,
 } as const;
 /** 状态徽标 64² @x[538,602]，窗内偏移顶 y=142（玻璃区右上角、内缩 12；三态图形资产待裁 ⇒ 程序化占位）。 */
 export const MENU_BADGE = { x: 538, yOff: 142, d: 64 } as const;

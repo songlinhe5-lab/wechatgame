@@ -9126,3 +9126,20 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **判据升级**：`expectArtOnShelf` 增锁「内容顶 = clip 顶」「垂直中心 = (clip 顶+台面)/2」「水平中心 = 展品框中心 374.5（与橱窗中心差既有半像素，非本批引入）」「内容左右不越出玻璃裁切」；旧「内容左右缘 = 展品框左右缘」随放大基准退场（K-053）。
 - **金样本**：菜单族 5 态 sha 变、`total`/`kinds` 逐态全等；对局族 6 态零漂移；`ui-golden-capture.ts` 干净锚重抓。
 - **对照图**：`temp/showcase-actual.png`（一轮）/ `temp/showcase-centered.png`（二轮），本地取证不入库。
+
+## WXG-T-602
+
+**UI·走马灯翻页动画顿挫修复（槽宽统一 + 缓动换档）** · 负责：主理人(CodeBuddy)·beads 工程 · 状态：✅ 完成（2026-11-07）
+
+- **上位**：用户 2026-11-07 令「调整走马灯移动后，有顿挫感的动画」；登记见 `docs/architecture/ui-architecture-beads.md §12`。无 §3 数值变更（纯交互曲线/几何一致性）。
+- **根因一（结构性，顿挫主因）**：`MainMenuPresenter` / `config/menu-carousel.ts` 的翻页阈值、到头 `carouselDamp` clamp、吸附终点 `_animTo` 与 `t = |dx|/w` 全用 **v1 白卡 `MENU_CLIP.w = 361`**；而 v2 视图 `drawMenuAnchored` 把相邻页摆在 `slide ± g.clipBox.w`（= **`MENU_V2.clip.w = 450`**）。⇒ 翻页吸附走完 361 时，对页还在 `450 − 361 = 89px` 外；下一帧 `offset += dir` + `_setSlide(0)` 令主项归零、对页成为主项 ⇒ **瞬间跳 89px**。拖动到头亦在 ±361 提前卡住（视图还能再走 89px）。
+- **根因二（手感）**：旧 `easeOutCubic` 的 `e = 1 − (1−u)³` 在 `u=0` 导数 3 ⇒ 初速 `3·450/180 = 7.5 px/ms`，而手指典型 1–2 px/ms（快甩 2.5）⇒ 松手瞬间速度突增「猛窜」；`snapMs=180` 又偏短，整体急促。
+- **交付**：
+  - `config/tuning/menu.ts`：`MENU_CLIP` 加注退场（K-053 保留为 v1 白卡几何留档，槽宽真源改 `MENU_V2.clip.w`）；`MENU_CAROUSEL.snapMs` ~~180~~ → **240**（旧值划线留档）。
+  - `config/menu-carousel.ts`：新增 `SLOT_W = MENU_V2.clip.w`，`carouselPage` / `carouselDamp` 共用（零新魔法数）。
+  - `ui/main-menu-presenter.ts`：`_animTo` 与 `t` 归一化改 `MENU_V2.clip.w`；`step()` 曲线改 **`easeInOutCubic`**（`u<0.5 ? 4u³ : 1−4(1−u)³`，端点导数 0、中点恰 0.5）。
+  - `tests/main-menu-presenter.test.ts`：槽宽判据由 `MENU_CLIP.w` 迁移到 `MENU_V2.clip.w`；新增结构性守卫一例（`carouselDamp` clamp 同槽宽 / 起步 10% 位移 <2% 槽宽 / 中点恰半程 / 末帧逼近 −W / 归零后 offset+1）。
+  - `tests/menu-carousel.test.ts`：同步槽宽迁移。`arc-carousel.test.ts` 注释里的 180 属历史日志不回改。
+- **金样本**：**零漂移**——动画只改交互中的 `carouselDx`，十一态静态帧 `dx = t = 0` ⇒ sha / `total` / `kinds` 逐字未变，⛔ 无需重抓（全量单测已证）。
+- **门禁读数**：全量单测 **1428 passed / 2 skipped（121 文件全绿）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；`typecheck` 0 错。
+- **设计取舍**：⛔ 未引入弹簧/惯性物理引擎（用户要「调整动画」不是重写手势）；`easeInOutCubic` 起步导数为 0，与手指速度仍非严格连续，但比「起步 7.5 px/ms 猛窜」显著平顺，且翻页是离散动作而非惯性跟随。若真机仍觉起步「发黏」，下一步可调 `snapMs` 或改 `easeOutSine`（按 K-053 另裁）。

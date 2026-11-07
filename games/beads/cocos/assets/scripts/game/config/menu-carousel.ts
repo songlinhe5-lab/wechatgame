@@ -1,11 +1,17 @@
 /**
  * 主菜单走马灯的纯计算（落地单 §8）。状态由 `MainMenuPresenter` 持有，视图只读偏移。
  */
-import { MENU_CAROUSEL, MENU_CLIP } from './tuning';
+import { MENU_CAROUSEL, MENU_V2 } from './tuning';
+
+/**
+ * `[WXG-T-602]` 槽宽 = **v2 玻璃裁切宽**（视图 `g.clipBox.w` 同源）。⛔ 旧用 v1 白卡
+ * `MENU_CLIP.w=361`，与视图相邻页间距 450 差 89px ⇒ 翻页阈值、拖动到头、吸附终点全错。
+ */
+const SLOT_W = MENU_V2.clip.w;
 
 /** 翻页：-1 上一项，+1 下一项，0 回弹。`vx` = 设计 px/ms，正 = 手指向右。到头返回 0。 */
 export function carouselPage(dx: number, vx: number, index: number, count: number): -1 | 0 | 1 {
-    const w = MENU_CLIP.w;
+    const w = SLOT_W;
     const flick = Math.abs(vx) >= MENU_CAROUSEL.flickPxPerMs;
     let page: -1 | 0 | 1 = 0;
     if (flick && vx < 0) page = 1;
@@ -18,7 +24,7 @@ export function carouselPage(dx: number, vx: number, index: number, count: numbe
 
 /** 到头只跟住手指的一部分，并且不超过一槽宽。 */
 export function carouselDamp(dx: number, index: number, count: number): number {
-    const w = MENU_CLIP.w;
+    const w = SLOT_W;
     let x = dx;
     if ((index <= 0 && x > 0) || (index >= count - 1 && x < 0)) x *= MENU_CAROUSEL.endFollow;
     if (x > w) x = w;

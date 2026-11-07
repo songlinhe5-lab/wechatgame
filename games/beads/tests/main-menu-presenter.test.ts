@@ -6,10 +6,12 @@
  */
 import { describe, expect, it } from 'vitest';
 import { ARC_OPEN_MAX } from '../src/config/arcs.js';
-import { MENU_CAROUSEL, MENU_CLIP } from '../src/config/tuning.js';
+import { MENU_CAROUSEL, MENU_V2 } from '../src/config/tuning.js';
+import { carouselDamp } from '../src/config/menu-carousel.js';
 import { MainMenuPresenter } from '../src/ui/main-menu-presenter.js';
 
-const W = MENU_CLIP.w;
+/** `[WXG-T-602]` 槽宽判据改认 v2 玻璃裁切（旧 `MENU_CLIP.w=361` 与视图 450 差 89px，K-053 留档）。 */
+const W = MENU_V2.clip.w;
 const SNAP = MENU_CAROUSEL.snapMs;
 
 /** 按下 → 横拖到 `x` → 松手（默认 100ms 拖行，速度可辨）。 */
@@ -75,6 +77,28 @@ describe('MainMenuPresenter（UI-40 走马灯状态机）', () => {
         p.step(150 + SNAP);
         expect(p.offset).toBe(0);
         expect(p.dx).toBe(0);
+    });
+
+    it('`[WXG-T-602]` 顿挫修复：吸附终点 = 视图对页间距（零跳变）+ 曲线渐入渐出', () => {
+        // 结构性守卫：拖动到头的 clamp 与吸附终点必须同槽宽，否则结束帧对页还差一截。
+        expect(carouselDamp(-9999, 0, 3)).toBe(-W);
+
+        const p = new MainMenuPresenter();
+        p.nudge(1, 0);
+        // 起步 10%：easeInOutCubic e = 4·0.1³ = 0.004 ⇒ 位移 < 2% 槽宽
+        // （旧 easeOutCubic 在 10% 已走 27% ⇒ 松手猛窜，这条会红）。
+        p.step(SNAP * 0.1);
+        expect(Math.abs(p.dx)).toBeLessThan(W * 0.02);
+        // 中点恰半程（曲线对称、无断点）
+        p.step(SNAP * 0.5);
+        expect(p.dx).toBeCloseTo(-W / 2, 6);
+        // 末帧逼近 -W ⇒ 下一帧归零时与对页（slide + W）位置重合，无 89px 跳变
+        p.step(SNAP - 1);
+        expect(p.dx).toBeCloseTo(-W, 0);
+        p.step(SNAP);
+        expect(p.offset).toBe(1);
+        expect(p.dx).toBe(0);
+        expect(p.t).toBe(0);
     });
 
     it('`[WXG-T-490]` seek = 启动定位直接落位，越界钳边，不启吸附动画', () => {
