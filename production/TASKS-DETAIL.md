@@ -8905,7 +8905,12 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 
 - 取证 SVG 实到：`曼陀罗` `fill="#563113" font-size="40" font-weight="bold"`；`0/9` `fill="#E8D098" font-size="28" font-weight="bold"`；胶囊 `rect x=310 y=359.5 w=130 h=33 rx=16.5 fill="#795127"`。
 - 单测：名牌守卫通过；仅余五态金样本漂移（该件不在十态帧内，漂移只来自关名放大）。
-- `pnpm run verify` 与重抓读数见收口。
+### 5.1 取证（收口读数）
+
+- **重抓**：`WXG298_SOURCE_REV=0a22fb8c` 锚重抓，十一帧**两遍逐态记录全等 = PASS**。
+  五态 `total` / `kinds` 与上一批（T-596）**逐条完全相同**（`main-menu` 1623 / `level-select`·`-mid` 1848 / `settings` 1651 / `signin` 1655；rect 759/969/772/771）⇒ 本批**只换 font 串与色值、零增删命令**，这是「字体调整」应有的形状。
+- `pnpm run verify` **PASS 23 / FAIL 0 / SKIP 0**；beads 单测 **1421 passed / 2 skipped**。
+- 色表锁 **53 / `248d326a306c`**（三枚新令牌的机械校验）。
 
 ### 6. 与在册值的偏离（唯一一处）
 
