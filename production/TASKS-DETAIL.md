@@ -8392,4 +8392,6 @@ USER 令「最新主界面资源，请更细到游戏主界面，并根据坐标
 ### 7. 未闭
 
 - 真机六档目视未做（本轮取证仍为 harness 浏览器截图）。
-- 招牌主腿 `ui_menu_logo` 烧旧字问题属 **T-584 ③a**，与本批无关（本批只删了它的**键与文件**，主腿早已换 `signboard`）。
+- 招牌主腿换代属 **T-584 ③a**，**早已闭**（2026-11-05 二批重出 `ui_menu_logo`；T-585 主腿再换 v2 `ui_menu_signboard.png`）——
+  本批只把它**删键 + 删文件出包**。2026-11-07 目视复核：生产投放件 `cocos/assets/textures/ui_menu_signboard.png`
+  与正本 `final/assets/menu/background/ui_menu_signboard_figma@2x.png`（1098×722）均为「千面拼豆」四字 ⇒ 现役菜单无烧旧字位图。

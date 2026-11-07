@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3980,
       "lines": 134,
-      "sha256": "87521383dc0394195618bf9bde571fce1f263e6da70a3d3e8c6f3f1c1c7ca051",
+      "sha256": "11563e02865e41d8010fb521a0c2677bef5592eb4b38ef177e5b3864a2bf2b2e",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 234671 8395 normal",
+          "summary": "1 production/TASKS-DETAIL.md 234751 8397 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "384942880036a9248ec785e2b78bf1cd585bef95fa09f93b881386e8ee3670f8",
+      "sha256": "f2e14be34bb3be5fe45222baba18afd021adadc08f6a65dda499672e89517157",
       "tier": "normal",
       "sections": [
         {
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 8395 行 / 234671 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 8397 行 / 234751 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+8396 · §WXG-T-576=7792+40 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+8398 · §WXG-T-576=7792+40 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -14128,9 +14128,9 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 22016,
+      "tokens": 22156,
       "lines": 257,
-      "sha256": "5ab785b28e7376d51a70eac607c31a73b0522268d73509416ee5b4d94783d228",
+      "sha256": "bc2eef16def1dc9b97a580cb8b15ba46a6732ae82e3f8d3a25ab95ce41e3a830",
       "tier": "normal",
       "sections": [
         {
@@ -14138,7 +14138,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 258,
-          "tokens": 21998,
+          "tokens": 22137,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -14309,7 +14309,7 @@
           "level": 2,
           "startLine": 138,
           "endLine": 254,
-          "tokens": 16944,
+          "tokens": 17084,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -25755,9 +25755,9 @@
     },
     {
       "path": "games/beads/design/art/proposals/ui-style-redesign/menu-architecture.md",
-      "tokens": 38334,
+      "tokens": 38402,
       "lines": 996,
-      "sha256": "3f7bcb1634a0937f2bf5c41ebafe27781515c9021a73dfa3dc55936ad8459591",
+      "sha256": "32a1065b47af0a58d2084a2968483bc42a9e7fc0e79744cd3c4ad0e46ab1b6a5",
       "tier": "normal",
       "sections": [
         {
@@ -25765,7 +25765,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 997,
-          "tokens": 38316,
+          "tokens": 38384,
           "summary": "角色：文策渊（设计策略）· 接 WXG-T-265（林绘澄「暖纸拼豆台」四件：screens.md / tokens.m",
           "keywords": [
             "WXG",
@@ -26277,7 +26277,7 @@
           "level": 2,
           "startLine": 912,
           "endLine": 969,
-          "tokens": 1486,
+          "tokens": 1553,
           "summary": "1 抬头 / §1 加「第三轮裁定稿」；§1 补 1.1 逐条修正表、1.2 走马灯口径一句话",
           "keywords": [
             "§1",
@@ -26305,7 +26305,7 @@
           "level": 3,
           "startLine": 950,
           "endLine": 969,
-          "tokens": 666,
+          "tokens": 734,
           "summary": "触发 = 平台侧不可用，不是审美重拟：「拼豆小铺」在微信注册页被判「该名称与已有小程序名称重复」（8/30 字符），公开",
           "keywords": [
             "WXG",
@@ -88886,17 +88886,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 234671,
-      "lines": 8395,
-      "sha256": "f78192fd9d93303aecee387ef6ce6262d6fd7632fc6e224b0d7b51732d0e5a39",
+      "tokens": 234751,
+      "lines": 8397,
+      "sha256": "0f2f71b5146a476c3f2832055bee2c7bb5b15935cd2e9b8e140512d1e2f55f22",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 8396,
-          "tokens": 234654,
+          "endLine": 8398,
+          "tokens": 234734,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -101735,8 +101735,8 @@
           "anchor": "§WXG-T-587",
           "level": 2,
           "startLine": 8342,
-          "endLine": 8396,
-          "tokens": 1059,
+          "endLine": 8398,
+          "tokens": 1139,
           "summary": "工程·beads 主界面落位转正 + v1 老图出包 · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ 完成",
           "keywords": [
             "WXG",
@@ -101836,8 +101836,8 @@
           "anchor": "§7 未闭",
           "level": 3,
           "startLine": 8392,
-          "endLine": 8396,
-          "tokens": 74,
+          "endLine": 8398,
+          "tokens": 154,
           "summary": "真机六档目视未做（本轮取证仍为 harness 浏览器截图）。",
           "keywords": [
             "harness",
