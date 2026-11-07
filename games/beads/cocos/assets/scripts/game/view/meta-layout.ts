@@ -6,7 +6,7 @@
  * 缓存分两档：默认行数 = 按 anchors 引用（WeakMap，逐机主菜单）；变参行数只服务 K-6 同帧差分腿。
  */
 
-import { DESIGN_H, DESIGN_W, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_X, MENU_V2, MENU_V2_TOPBAR_Y, MENU_V3_BAKED, TOUCH_MIN, WALL_CELL, WALL_COLS, WALL_GAP, WALL_ROWS, dialogShiftY, menuAnchors, menuBackdropTopPad, menuV3FromAnchors, type MenuAnchors } from '../config/tuning';
+import { DESIGN_H, DESIGN_W, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_X, MENU_V2, TOUCH_MIN, WALL_CELL, WALL_COLS, WALL_GAP, WALL_ROWS, dialogShiftY, menuAnchors, menuBackdropTopPad, menuPlacementFromAnchors, type MenuAnchors } from '../config/tuning';
 import { settingsContentButtons } from './settings-content';
 import { signinCellLayout } from './signin-content';
 import { skinCardBoxes } from './skins-content';
@@ -332,9 +332,10 @@ export function anchoredGeo(a: MenuAnchors): AnchoredMenuGeo {
 function anchoredGeoV2(a: MenuAnchors): AnchoredMenuGeo {
     const r = Math.round;
     const V = MENU_V2;
-    // v3 档：招牌 / CTA **脱离背板**独立贴安全区与屏高比例，其余件仍跟随背板（柜体场景）。
-    const v3 = MENU_V3_BAKED ? menuV3FromAnchors(a.H, a.st, a.btTopY, a.sb) : null;
-    const topPad = menuBackdropTopPad(a.H, a.btTopY, a.st, a.sb);
+    // `[WXG-T-587]` 生产档：招牌 / CTA **脱离背板**独立贴安全区与屏高比例（用户 2026-11-06 三条裁），
+    // 其余件仍跟随背板（柜体场景）。
+    const place = menuPlacementFromAnchors(a.H, a.st, a.btTopY, a.sb);
+    const topPad = menuBackdropTopPad(a.H, a.st, a.btTopY, a.sb);
     /** 背板内量（自屏顶 = `topPad + 图内 y`）→ 设计 y-up（框底）。 */
     const up = (yDown: number, h: number): number => r(a.H - topPad - yDown - h);
     /**
@@ -348,12 +349,8 @@ function anchoredGeoV2(a: MenuAnchors): AnchoredMenuGeo {
         const h = Math.max(b.h, TOUCH_MIN);
         return box(r(b.x + b.w / 2 - w / 2), r(b.y + b.h / 2 - h / 2), w, h);
     };
-    const signBox = v3
-        ? box(V.sign.x, r(a.H - v3.signTop - V.sign.h), V.sign.w, V.sign.h)
-        : box(V.sign.x, up(V.sign.y, V.sign.h), V.sign.w, V.sign.h);
-    const ctaBox = v3
-        ? box(V.cta.x, r(a.H - v3.ctaBottom), V.cta.w, V.cta.h)
-        : box(V.cta.x, up(V.cta.y, V.cta.h), V.cta.w, V.cta.h);
+    const signBox = box(V.sign.x, r(a.H - place.signTop - V.sign.h), V.sign.w, V.sign.h);
+    const ctaBox = box(V.cta.x, r(a.H - place.ctaBottom), V.cta.w, V.cta.h);
     const arrowL = box(V.prev.x, up(V.prev.y, V.prev.h), V.prev.w, V.prev.h);
     const arrowR = box(V.next.x, up(V.next.y, V.next.h), V.next.w, V.next.h);
     // 热区与视觉同框（v2 三件均 ≥ `TOUCH_MIN`；v3 档 CTA 只挪位、不改尺寸 ⇒ 同一口径）。
@@ -365,8 +362,8 @@ function anchoredGeoV2(a: MenuAnchors): AnchoredMenuGeo {
     const sealBox = box(V.seal.x, up(V.seal.y, V.seal.h), V.seal.w, V.seal.h);
     const plateBox = box(V.plateTitle.x, up(V.plateTitle.y, V.plateTitle.h + V.plateSub.h + 7),
         V.plateTitle.w, V.plateTitle.h + V.plateSub.h + 7);
-    // 顶栏：跟随背板（图内顶缘 y=134），第二行 = `MENU_TOPBAR_ROW2_DY` 下移（与 v1 同式）。
-    const btTop = v3 ? r(a.H - v3.topbarTop) : r(a.H - topPad - MENU_V2_TOPBAR_Y);
+    // 顶栏：常规跟招牌（图内顶缘 y=134），必须避开胶囊底 + `safeGap`；第二行 = `MENU_TOPBAR_ROW2_DY` 下移。
+    const btTop = r(a.H - place.topbarTop);
     const settingsHit = box(MENU_TOPBAR_X.settings, btTop - TOUCH_MIN, TOUCH_MIN, TOUCH_MIN);
     const mailHit = box(MENU_TOPBAR_X.mail, btTop - TOUCH_MIN, TOUCH_MIN, TOUCH_MIN);
     const rankBox = box(MENU_TOPBAR_X.rank,

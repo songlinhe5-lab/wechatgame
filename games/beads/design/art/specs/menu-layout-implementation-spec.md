@@ -244,7 +244,40 @@ bt     = cap + 4                    # 顶栏钮顶（对齐胶囊底，不占布
 | `MENU_CTA_SLICE`(76/96) / `MENU_CTA_LABEL` | 九宫端帽 / 艺术字切图 | v2 件非九宫、「开始」已烘进图 |
 | `MENU_PLAQUE_STROKE/ICON_INSET/RIVET_R/RIVET_INSET/BEVEL_INSET` | 程序化条体细节档 | 已烘进背板 |
 | `SIGN_ORIGIN_X` / `SIGN_FALLBACK_PITCH` / `SIGN_GLYPH_COUNT` | v1 招牌排字派生量 | `SIGN_BEAD_PITCH` / `SIGN_MATRIX_N`（未退役） |
+| `MENU_SIGN_FRAME` | v1 招牌图框 370×298 + `boardCyOff` 216 | `MENU_V2.sign`（549×361）+ `MENU_PLACEMENT.boardOff/signH` 现算板心 |
+| `MENU_V3_BAKED` / `setMenuV3Baked` / `MENU_V3_TOPPAD_SCALE` / `setMenuV3TopPadScale` / `MENU_V3` | v3 dev 档开关与观感测具 | 无开关：`MENU_PLACEMENT` + `menuPlacement()` 即生产档 |
+| `menuV2TopPad` | v2「居中 + 顶栏避开胶囊」取大者 | 被 `menuPlacement().topPad`（纯居中）取代 |
+| `MENU_TEXTURES.logo/caseFrame/plate/cta/ctaPressed/btnArrow/btnArrowPressed/iconArrowLeft/iconArrowRight/iconCoin/iconStamina/ctaLabel` | v1 位图键（12 枚，≈414.7 KB） | 整批删键出包；v2 件见 `signboard`/`ctaV2`/`prevBtn`/`nextBtn`/`seal` |
+| `BELOW_GRAPHICS` | 只装 `caseFrame` 的「压到 Graphics 之下」名单 | 空集删除；`below` 判据只剩珠腿 |
 
 **测试同批删 10 条**：`menu-anchors` 的五档验收账（gapTop/gapBot 对表 5 条）与 `menu-layout-v35` 的
 五档堆叠不变式（5 条）——它们测的都是已删除的链式代码。**新增 1 条结构钉**：
 「`menuAnchors()` 只产出 `H`/`st`/`sb`/`btTopY`」防链式字段被无意识补回。
+
+### 12.6 落位转正（`WXG-T-587` · 2026-11-07 切生产）
+
+⚠ **本节改写 §12.1 的落位口径**：背板仍居中，但**招牌 / CTA / 顶栏三件已脱离背板**，按安全区独立落位
+（用户 2026-11-06 三条裁的落地）。因此 §12.2 表里的 `sign.y` / `cta.y` **只等于 SE 档的巧合读数**，
+其余档位由下面四条公式给出（真源 `tuning/menu.ts::menuPlacement`，⛔ 不要按表里的 y 反推）：
+
+| 件 | 落位公式（自屏顶 y-down） | 说明 |
+|---|---|---|
+| 背板 | `topPad = max(0, (H − 1334) / 2)` | 高屏档上下等量补带；⛔ 不拉伸 |
+| 招牌 | `boardTop = max(st + 12, 94)`；`signTop = boardTop − 118` | 板体贴安全区下 12；浅档 94 兜底；**绳顶允许出屏**（`signTop` 可为负） |
+| 开始钮 | `ctaBottom = H − sb − 104` | 104 = SE 档实测距底安全区，全档统一 |
+| 顶栏四钮 | `topbarTop = max(signTop + 134, cap + 12)` | 常规跟招牌，胶囊深的档由 `cap` 接管 |
+
+- `safeGap = 12` 一枚常量两处共用（板体顶 / 顶栏顶），⛔ 不许各自钉值后漂移。
+- 招牌 / CTA 与背板**不锁相对位置**是这套口径成立的前提；柜体（橱窗）仍随背板 ⇒ 两端贴边、中段居中。
+- 原 `?v3=1` / `?pad=` 两个 dev 测具已随转正删除，**菜单已无任何档位参数**可切。
+- 取证：六档浏览器截图（`temp/menu-tiers-7-v3prod/`）与切生产前用户已审的 `?v3=1` 样张
+  **逐像素相同**（`diff bbox = None`）。
+
+**牌体中心（同批修的缺陷）**：原 `MENU_SIGN_FRAME.boardCyOff = 216` 是 v1（298 高图）读数，
+v2 招牌 361 高 ⇒ 缺位图时珠字回落偏高 ≈23 px。现由 `boardOff + (signH − boardOff)/2` 现算，
+`MENU_SIGN_FRAME` 整枚退役（见 §12.5）。
+
+**老件出包（同批）**：`logo` / `caseFrame` / `plate` / `cta`+`ctaPressed` / `btnArrow`+`btnArrowPressed` /
+`iconArrowLeft`+`iconArrowRight` / `iconCoin`+`iconStamina` / `ctaLabel` 共 12 枚位图删键 + 删宿主注册
++ 删文件（≈414.7 KB）。`pot` / `beam` **保留**：背板缺失时的程序化降级腿仍要画它们。
+主包 3066.1 → **2638.4 KB**（172 → 136 文件），距 4096 红线余量 1457.6 KB。

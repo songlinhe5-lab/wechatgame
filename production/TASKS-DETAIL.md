@@ -8338,3 +8338,58 @@ USER 令「最新主界面资源，请更细到游戏主界面，并根据坐标
 | `ctaLabel` | `ui_menu_cta_label` | 28.5 KB |
 
 合计 ≈ **414.7 KB**（`pot` / `beam` 仍在用：背板缺失时的降级腿要画，⛔ 不可删）。
+
+## WXG-T-587
+
+**工程·beads 主界面落位转正 + v1 老图出包** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ 完成（2026-11-07 同日收口）
+
+### 1. 出发点
+
+用户 2026-11-06 三条裁（① 背板在屏幕中垂直居中、高屏上下等量补带；② 招牌与 CTA 脱离背板、按安全区独立落位；
+③ 顶栏跟招牌、胶囊深的档由胶囊接管）此前只活在 `?v3=1` dev 档里。本轮把它转成**生产唯一实现**，
+并同批收掉 T-586 登记的 `boardCyOff` 缺陷、把 12 枚零引用 v1 老位图**出包**。
+
+### 2. 落位公式（生产档真源 `tuning/menu.ts::menuPlacement` + `MENU_PLACEMENT`）
+
+| 件 | 公式（自屏顶 y-down） | 说明 |
+|---|---|---|
+| 背板 | `topPad = max(0, (H − 1334) / 2)` | 高屏上下等量补带；⛔ 不拉伸 |
+| 招牌 | `boardTop = max(st + 12, 94)`；`signTop = boardTop − 118` | 板体贴安全区下 12；浅档 94 兜底；绳顶允许出屏 |
+| 开始钮 | `ctaBottom = H − sb − 104` | 104 = SE 档实测距底安全区，全档统一 |
+| 顶栏四钮 | `topbarTop = max(signTop + 134, cap + 12)` | 常规跟招牌，胶囊深的档由胶囊接管 |
+
+`safeGap = 12` 一枚常量两处共用（板体顶 / 顶栏顶）。招牌 / CTA 与背板**不锁相对位置**是口径成立的前提；
+柜体（橱窗）仍随背板 ⇒ 两端贴边、中段居中。
+
+### 3. 下线面（本批删除，⛔ 不要再补回）
+
+`?v3=1` / `?pad=` 两个 dev 测具 + `MENU_V3_BAKED` / `setMenuV3Baked` / `MENU_V3_TOPPAD_SCALE` /
+`setMenuV3TopPadScale` / `MENU_V3`（改名 `MENU_PLACEMENT`）/ `menuV2TopPad` / `BELOW_GRAPHICS`。
+⇒ **菜单已无任何档位参数**，harness 也无法再切版本。
+
+### 4. 缺陷修复（T-586 登记待裁项，本批收口）
+
+`MENU_SIGN_FRAME.boardCyOff = 216` 是 v1（298 高图）的读数；v2 招牌图 361 高 ⇒ 缺位图时珠字回落偏高 ≈23px。
+改由 `boardOff + (signH − boardOff) / 2` 现算板心，`MENU_SIGN_FRAME` 整枚退役。
+生产路径有整枚位图，属回落腿缺陷（玩家不可见），但会污染降级腿的观感对照。
+
+### 5. 出包与体积
+
+12 枚删键 + 删宿主注册 + 删文件（体积账见上节表，合计 ≈414.7 KB）；`pot` / `beam` 保留（背板缺失时的降级腿要画）。
+主包 **3066.1 → 2638.4 KB**（172 → 136 文件），距 4096 红线余量 **1457.6 KB**。
+`pnpm run check:size` STATUS: OK；读数取自 `games/beads/cocos/build/wechatgame`（mtime 11:00 晚于全部源码，产物新鲜）。
+
+### 6. 取证
+
+- 六档浏览器截图 `temp/menu-tiers-7-v3prod/` 与用户已审 `?v3=1` 样张**逐像素相同**（`diff bbox = None`）。
+- 金样本**五态重抓，指令数不变、sha 变**（同一批命令换了 y）：`main-menu` 1622 / `level-select` 与 `-mid` 1847 /
+  `settings` 1650 / `signin` 1654；其余六态逐字未变。夹具 `capturedFrom` 指向 `a61bd30a · WXG-T-587`。
+- `pnpm run verify` **PASS 23 / FAIL 0 / SKIP 0**。
+- 残留引用复核：`MENU_SIGN_FRAME` / `MENU_V3*` / `BELOW_GRAPHICS` 在代码里只剩**解释性注释**，
+  另把 `design/ai-workflows/signboard-rope-extend.py` 的提示注释从 `MENU_V3.*` 改为 `MENU_PLACEMENT.*`
+  （防下次换图按旧名改空）。历史规格 / 提案 / 日记里的旧名按归档不动。
+
+### 7. 未闭
+
+- 真机六档目视未做（本轮取证仍为 harness 浏览器截图）。
+- 招牌主腿 `ui_menu_logo` 烧旧字问题属 **T-584 ③a**，与本批无关（本批只删了它的**键与文件**，主腿早已换 `signboard`）。

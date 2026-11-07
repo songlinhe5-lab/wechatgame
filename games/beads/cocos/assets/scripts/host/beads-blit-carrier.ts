@@ -123,31 +123,19 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
     // `[WXG-T-280]` 主菜单位图 16 件（正本 = `design/art/final/assets/menu/`，拷入现成 `textures` Bundle；
     // ⛔ 不新分包）。全部入库为调色板量化 PNG（微信包内白名单不含 webp，见代码包文档）；
     // 未导入/解不出 ⇒ 不登记 ⇒ 该元素程序化腿（同 boss 缩略语义，不 gate `_ready`）。
-    [MENU_TEXTURES.logo]: { path: 'ui_menu_logo' },
-    [MENU_TEXTURES.caseFrame]: { path: 'ui_showcase_frame' },
-    [MENU_TEXTURES.plate]: { path: 'ui_showcase_plate' },
-    [MENU_TEXTURES.cta]: { path: 'ui_btn_start_9s' },
-    [MENU_TEXTURES.ctaPressed]: { path: 'ui_btn_start_9s_pressed' },
     [MENU_TEXTURES.btnCircle]: { path: 'ui_btn_circle_normal' },
     [MENU_TEXTURES.btnCirclePressed]: { path: 'ui_btn_circle_pressed' },
-    [MENU_TEXTURES.btnArrow]: { path: 'ui_btn_arrow_bg_normal' },
-    [MENU_TEXTURES.btnArrowPressed]: { path: 'ui_btn_arrow_bg_pressed' },
     [MENU_TEXTURES.iconSettings]: { path: 'ui_icon_settings' },
     [MENU_TEXTURES.iconSound]: { path: 'ui_icon_sound' },
     // `[WXG-T-581]` iconMail / woodFrame 两件零消费者已删键出包（日志登记过期，见 tuning 注）。
     [MENU_TEXTURES.iconCalendar]: { path: 'ui_icon_calendar' },
     [MENU_TEXTURES.iconRank]: { path: 'ui_icon_rank' },
     [MENU_TEXTURES.iconSkins]: { path: 'ui_icon_skin' },
-    [MENU_TEXTURES.iconArrowLeft]: { path: 'ui_icon_arrow_left' },
-    [MENU_TEXTURES.iconArrowRight]: { path: 'ui_icon_arrow_right' },
-    [MENU_TEXTURES.iconCoin]: { path: 'asset-icon-coin' },
-    [MENU_TEXTURES.iconStamina]: { path: 'asset-icon-stamina' },
     // WXG-T-577：path 仍为 Cocos 扁平原名（投放件未改名），键按语义改名；未导入 ⇒ 走程序化腿。
     // WXG-T-578：旧 `frame`（沙漏圆牌）/ `seal`（通关飘带）两条映射随件退场 —— 两件已出包。
     [MENU_TEXTURES.lock]: { path: 'ui_menu_badge_locked' },
     // `[WXG-T-579]` 满星态珠圈框（正本 854² → 投放 518² pal-256，1x；@2x 需 158 KB 超出主包余量）。
     [MENU_TEXTURES.arcRing]: { path: 'ui_menu_arc_ring' },
-    [MENU_TEXTURES.ctaLabel]: { path: 'ui_menu_cta_label' },
     // `[P0 静态温暖]` 左下陶盆（环境装饰）。未导入 ⇒ 不登记 ⇒ `drawMenuBackdrop` 不画该件。
     [MENU_TEXTURES.pot]: { path: 'ui_menu_pot' },
     [MENU_TEXTURES.beam]: { path: 'ui_menu_beam' },
@@ -183,7 +171,6 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
  * Cocos 分层：Graphics（矢量）在 BlitLayer 之上，静态位图默认在 Graphics 之上 ⇒ 不透明的橱窗框
  * 会把框内的矢量图元（资源条板、缩略珠）整个盖住。把框放到 Graphics 之下，两端叠序一致。
  */
-const BELOW_GRAPHICS: ReadonlySet<string> = new Set([MENU_TEXTURES.caseFrame]);
 
 type AnyObj = Record<string, any>;
 
@@ -409,7 +396,9 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
         const sp = this._borrow();
         // 两条腿不同层：珠（tint 图集）在 `Graphics` 之下、静态位图在其上。池位是同一条，
         // 只在层真变了时 setParent（选关墙同屏仅此 1 条位图命令，热路径仍零分配）。
-        const below = base !== undefined || BELOW_GRAPHICS.has(cmd.textureId);
+        // `[WXG-T-587]` 原 `BELOW_GRAPHICS`（只为橱窗框这类不透明大件留的「压到 Graphics 下」名单）
+        // 随 `caseFrame` 删键出包 ⇒ 空集删除，判据只剩「珠腿（tint 图集）在 Graphics 之下」。
+        const below = base !== undefined;
         // `[UI-60 / ADR-0033 DEC-3]` 静态位图腿（above）跟着**作用域**走：容器内发出的位图
         // 挂到该容器自己的 `BlitLayerUI` 下，才不会被本容器的 `Graphics` 盖住、也不会跨容器
         // 串层。珠腿（below）**恒留全局 BlitLayer**（DEC-7：世界层不容器化）。

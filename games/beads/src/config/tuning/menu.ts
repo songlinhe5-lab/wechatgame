@@ -253,13 +253,6 @@ export const SKINS_CARD_TOP_INSET = 82;
 /** 橱窗高（含楣，v3.3 裁定**恒定不拉伸**）。 */
 export const MENU_CASE_H = 871;
 
-/**
- * 招牌整块（`ui_menu_logo`，含绳）图框：370×298 @x190（居中），**等比**（960×772 × 370/960）。
- * v3.9（用户 2026-10-16）：绳向上加长 150px（622→772），灵动岛档结顶 119 时绳顶接到屏顶。
- * `bowYOff` = 图顶到结顶（图内 y=309 → 119）。`boardCyOff` = 图顶到板心（图内 y≈560 → 216），无位图时字样居中。
- * 板体图内 x[11,948] 未动 ⇒ 绘制右缘 ≈ 556，与公告钮视觉左缘 564 留 8。
- */
-export const MENU_SIGN_FRAME = { x: 190, w: 370, h: 298, bowYOff: 119, boardCyOff: 216 } as const;
 /** 走马灯裁切区 = 橱窗白底。`ui_showcase_frame` 白卡：x197、宽 361，距柜顶 168、高 527。 */
 export const MENU_CLIP = { x: 197, yOff: 168, w: 361, h: 527 } as const;
 /**
@@ -366,38 +359,12 @@ export const MENU_V2_BG_EXPAND = 208;
 export const MENU_V2_BG_H = DESIGN_H + 2 * MENU_V2_BG_EXPAND;
 /** `[WXG-T-585]` v2 背板内顶栏钮**顶缘** y（坐标图读数 `29:9 14:134`，自背板顶量）。 */
 export const MENU_V2_TOPBAR_Y = 134;
-/**
- * `[WXG-T-585]` v2 背板**垂直落位**（y-down，自屏顶）= 高屏补带的上下分配量。
- *
- * 背板 750×1334 不可拉伸（一拉柜体/圆台就变形）⇒ 逐机 `H = 750×屏高/屏宽`（无上限，实测
- * 1334~1750 档）比 1334 高出的部分**上下同时补**：上补木墙、下补桌面。
- *
- * 判据 = **居中优先**，再受一条硬下限约束：背板里的顶栏钮（图内 y=134）是**可点元素**，
- * 必须落在胶囊底缘之下（坐标图注：绳允许入顶安全区，文字/可点元素一律在禁区外）。
- * 故 `topPad = max(居中, 顶栏允许顶 − 134)`；`btTop` = 顶栏钮顶（自屏顶，`H − btTopY` 的接口值）。
- *
- * ⛔ 不要让顶栏独立贴屏顶：那样高屏档钮浮在补墙上、与招牌错开（实测 H=1625 差 145 px）。
- */
-export function menuV2TopPad(H: number, btTop: number): number {
-    const center = Math.round((H - DESIGN_H) / 2);
-    const floor = Math.round(btTop) - MENU_V2_TOPBAR_Y;
-    return Math.max(center, floor, 0);
-}
 
-// ─────────── `[WXG-T-585]` v3 档（用户 2026-11-06 裁）：招牌贴安全区 / CTA 按比例 / 橱窗带内居中
-/** dev 测具：`?v3=1` 打开；Cocos / 单测恒 false ⇒ 产品链逐字节不变。 */
-export let MENU_V3_BAKED = false;
-export function setMenuV3Baked(on: boolean): void { MENU_V3_BAKED = on; }
-/**
- * `[WXG-T-585]` dev 测具：背板垂直落位系数（1 = 整图居中，<1 = 背板/柜体略上移）。
- * 只由 harness `?pad=` 设置；Cocos / 单测恒 1 ⇒ 产品链逐字节不变。
- * 用途：目视对照「主视觉略偏上」是否能把招牌↔柜体 / 柜体↔CTA 的上下留白调匀。
- */
-export let MENU_V3_TOPPAD_SCALE = 1;
-export function setMenuV3TopPadScale(k: number): void {
-    MENU_V3_TOPPAD_SCALE = Number.isFinite(k) && k > 0 && k <= 2 ? k : 1;
-}
-export const MENU_V3 = {
+// ─────────── 主界面落位（用户 2026-11-06 三条裁）：背景居中 / 招牌贴安全区 / CTA 贴安全区
+// `[WXG-T-587]` 2026-11-07 **切生产**：原 `?v3=1` dev 档（`MENU_V3_BAKED` + `MENU_V3_TOPPAD_SCALE`）
+// 转正 ⇒ 开关与两个测具 setter 删除，代码只剩这一条落位。旧名 `MENU_V3` 已改 `MENU_PLACEMENT`
+// （「v3」是开发期的档位编号，留在生产码里只会让人以为还有别的档）。
+export const MENU_PLACEMENT = {
     /**
      * **统一避让距离 = 12**（用户 2026-11-06 裁：「左右上四个按钮离开胶囊底线一定距离，
      * 招牌面板顶部也离安全区 top 这么多距离」）⇒ 两处共读这一枚常量，⛔ 不许各自钉值后漂移。
@@ -436,9 +403,8 @@ export const MENU_V3 = {
     ctaH: 179,
 } as const;
 /**
- * `[WXG-T-585]` 用户 2026-11-06 终裁的三条规则（彼此**解耦**）：
- * 1. **背景图居中展示** ⇒ `topPad = max(0, (H−1334)/2 × MENU_V3_TOPPAD_SCALE)`，
- *    系数 1（默认）时上下补带等量；dev `?pad=0.8` 可让背板/柜体略上移做观感对照；
+ * **主界面落位（生产档 · 用户 2026-11-06 三条裁 · `[WXG-T-587]` 2026-11-07 转正）**：
+ * 1. **背景图居中展示** ⇒ `topPad = max(0, (H−1334)/2)`，上下补带等量（原 `?pad=` 观感测具已删）；
  * 2. **CTA 独立贴底** ⇒ `ctaBottom = H − sb − 104`（104 = SE 档实测距底安全区，
  *    用户 2026-11-06 裁「其他都保持这个距离」）；SE 自然回到 1230 ⇒ CTA 顶 1051
  *    盖进柜底 1058 共 7 px（概念图口径），⛔ 不再有档位特例；
@@ -454,12 +420,12 @@ export const MENU_V3 = {
  * 这正是「背景居中」与「两端贴安全区」能同时成立的前提。
  * `bandTop/bandBottom/gap` 只作**诊断读数**（招牌底 ↔ CTA 顶这条带扣掉柜体高的余量），⛔ 不驱动落位。
  */
-export function menuV3Placement(H: number, st: number, cap: number, sb: number): {
+export function menuPlacement(H: number, st: number, cap: number, sb: number): {
     readonly signTop: number; readonly boardTop: number; readonly ctaBottom: number;
     readonly topbarTop: number; readonly topPad: number;
     readonly bandTop: number; readonly bandBottom: number; readonly gap: number;
 } {
-    const C = MENU_V3;
+    const C = MENU_PLACEMENT;
     // 板体顶 = max(safe top + safeGap, minBoardTop)；`signTop` 可为负 = 绳顶出屏被裁。
     // 拆两枚常量的原因：绳高（118）只服务「绳顶够不够到屏顶」，下限（94）只服务版面；
     // 合成一枚会把浅档板体推低 24 ⇒ SE 招牌底 361 压住橱窗顶 353（实测 gap −7.5）。
@@ -471,18 +437,17 @@ export function menuV3Placement(H: number, st: number, cap: number, sb: number):
     const topbarTop = Math.max(signTop + MENU_V2_TOPBAR_Y, cap + C.safeGap);
     const bandTop = signTop + C.signH;
     const bandBottom = ctaBottom - C.ctaH;
-    const topPad = Math.max(0, Math.round(((H - DESIGN_H) / 2) * MENU_V3_TOPPAD_SCALE));
+    const topPad = Math.max(0, Math.round((H - DESIGN_H) / 2));
     return { signTop, boardTop, ctaBottom, topbarTop, topPad, bandTop, bandBottom,
         gap: (bandBottom - bandTop - C.caseH) / 2 };
 }
-/** 从 `MenuAnchors` 直取 v3 落位（胶囊底 = `H − btTopY − SAFE_EDGE_MARGIN`）。 */
-export function menuV3FromAnchors(H: number, st: number, btTopY: number, sb: number): ReturnType<typeof menuV3Placement> {
-    return menuV3Placement(H, st, H - btTopY - SAFE_EDGE_MARGIN, sb);
+/** 从 `MenuAnchors` 直取落位（胶囊底 = `H − btTopY − SAFE_EDGE_MARGIN`）。 */
+export function menuPlacementFromAnchors(H: number, st: number, btTopY: number, sb: number): ReturnType<typeof menuPlacement> {
+    return menuPlacement(H, st, H - btTopY - SAFE_EDGE_MARGIN, sb);
 }
 /** 背板垂直落位的**单一真源**：geo 与 `drawMenuBackdrop` 共读，⛔ 两边各算一次。 */
-export function menuBackdropTopPad(H: number, btTopY: number, st: number, sb: number): number {
-    if (MENU_V3_BAKED) return menuV3FromAnchors(H, st, btTopY, sb).topPad;
-    return menuV2TopPad(H, H - btTopY);
+export function menuBackdropTopPad(H: number, st: number, btTopY: number, sb: number): number {
+    return menuPlacementFromAnchors(H, st, btTopY, sb).topPad;
 }
 /** 位图腿的目标绘制尺寸（源图 @2x/高清 ⇒ 按屏上框重缩，落地单 §5「接线时按目标尺寸重缩」）。 */
 /** 顶栏图标：`ui_icon_*` 画布与圆底同为 160² ⇒ 与圆同尺寸 80 绘制（字形自带留白，旧 40 会把字形缩到 ≈24）。 */
@@ -502,26 +467,19 @@ export const MENU_BAR_BAKED_LABEL_INSET = 28;
  * Cocos `beads-blit-carrier.ts::BITMAP_ASSETS`）。后缀选型 = 宿主约定，不入本表。
  */
 export const MENU_TEXTURES = {
-  logo: 'bitmap__menu_logo',
-  caseFrame: 'bitmap__menu_case_frame',
-  plate: 'bitmap__menu_plate',
-  cta: 'bitmap__menu_cta',
-  ctaPressed: 'bitmap__menu_cta_pressed',
   /**
-   * `[WXG-T-585]` **v2 专用 key 组**（2026-11-07 宿主接入批）。
-   * 为什么要独立 key 而不共用：v1 腿仍钉老投放件（`logo`→`ui_menu_logo` 960×772 比例 1.243、
-   * `cta`→`ui_btn_start_9s` 324×92 走九宫拉伸），v2 件比例/尺寸都不同（招牌 1098×722 = 1.521、
-   * CTA 378×179 整枚）。共用 key 换图 ⇒ v1 腿拿 v2 比例去填 v1 框，当场变形。
-   * `[WXG-T-586]` 切生产后只有 v2 一条腿：消费侧直接用 v2 key（`pickTex` 选图器已删）；
-   * 缺件时按各绘制点自己的缺图兜底走，⛔ 不再回退 v1 key —— 那等于拿 v2 比例去填 v1 框。
+   * `[WXG-T-587]` 2026-11-07 **v1 老件整批删键出包**（用户令「删那 12 枚零消费位图」）：
+   * `logo`(ui_menu_logo 960×772) / `caseFrame`(ui_showcase_frame) / `plate`(ui_showcase_plate) /
+   * `cta`+`ctaPressed`(ui_btn_start_9s 九宫件) / `btnArrow`+`btnArrowPressed`(圆底) /
+   * `iconArrowLeft`+`iconArrowRight`(矢量向标) / `iconCoin`+`iconStamina`(条体图标) /
+   * `ctaLabel`(艺术字) —— 切 v2 后全部零消费者，资产与本表一并下线（≈414.7 KB）。
+   * 现存 `pot` / `beam` 仍是「背板缺失 ⇒ 程序化降级腿」的绘制件，⛔ 不可跟着删。
    */
   signboard: 'bitmap__menu_signboard',
   ctaV2: 'bitmap__menu_cta_v2',
   ctaPressedV2: 'bitmap__menu_cta_pressed_v2',
   btnCircle: 'bitmap__menu_btn_circle',
   btnCirclePressed: 'bitmap__menu_btn_circle_pressed',
-  btnArrow: 'bitmap__menu_btn_arrow',
-  btnArrowPressed: 'bitmap__menu_btn_arrow_pressed',
   iconSettings: 'bitmap__menu_icon_settings',
   /**
    * 喇叭（在册语义 = 公告，切图规格 B2）。[WXG-T-493] 起**零消费者**：该枚自 WXG-T-365
@@ -546,8 +504,6 @@ export const MENU_TEXTURES = {
   iconRank: 'bitmap__menu_icon_rank',
   /** `[WXG-T-493]` 装扮馆（顶栏右下第二枚）= 衣架 + 圆领小衫切图，闭 WXG-T-365 的 `[待 UI 设计]`。 */
   iconSkins: 'bitmap__menu_icon_skin',
-  iconArrowLeft: 'bitmap__menu_icon_arrow_left',
-  iconArrowRight: 'bitmap__menu_icon_arrow_right',
   /**
    * `[WXG-T-585]` v2 翻页钮 = **整枚位图**（木圆盘 + 箭头已烘进图，左右件像素不同 ⇒ 不能共用一键）。
    * 四态两两成族（normal ↔ highlight）⇒ 宿主侧必须各自登记，⛔ 不得退回 `btnArrow` 圆底 + 向标两段拼。
@@ -558,8 +514,6 @@ export const MENU_TEXTURES = {
   nextBtnPressed: 'bitmap__menu_next_pressed',
   /** `[WXG-T-585]` 通关章 90×89.5（玻璃右上），`[WXG-T-566]` 退场后本批按 v2 坐标图复位。 */
   seal: 'bitmap__menu_seal',
-  iconCoin: 'bitmap__menu_icon_coin',
-  iconStamina: 'bitmap__menu_icon_stamina',
   /**
    * Figma v2 拼豆锁（`47:19`）；消费者两处：选关墙锁定格 + 橱窗锁定态。
    * `[WXG-T-578]` 旧 `frame`（沙漏圆牌）/ `seal`（通关飘带）两键**已删** —— 源码零消费者，
@@ -571,8 +525,6 @@ export const MENU_TEXTURES = {
    * ⚠ 只有 1x（518²，pal-256 53.5 KB）—— `@2x` 需 ≈158 KB，超出主包余量。
    */
   arcRing: 'bitmap__menu_arc_ring',
-  /** v3.8 CTA「开始游戏」艺术字。缺资产回退程序化字。 */
-  ctaLabel: 'bitmap__menu_cta_label',
   /**
    * `[P0 静态温暖 · 2026-10-31]` 整屏木屋背景（本地 Qwen-Image-2.1 重绘，752×1344 转 32 色）。
    * 暗角与桌面暖带已烘进图里 ⇒ 命中时 `drawMenuBackdrop` 不再叠程序化那 5 条（否则双重压暗）；

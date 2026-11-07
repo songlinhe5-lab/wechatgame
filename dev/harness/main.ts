@@ -24,7 +24,7 @@ import {
   maskTileInnerPx,
   tintFx,
 } from '@wxgame/framework';
-import { BEAD_PITCH, MENU_TEXTURES, TILE_BLEED, setMenuV3Baked, setMenuV3TopPadScale } from '../../games/beads/src/config/tuning.js';
+import { BEAD_PITCH, MENU_TEXTURES, TILE_BLEED } from '../../games/beads/src/config/tuning.js';
 import { setDevSafeInsets, setShowSafeGuides } from '../../games/beads/src/config/tuning/layout.js';
 import { OPEN_ARCS } from '../../games/beads/src/config/arcs.js';
 import { setMenuBitmapResolver } from '../../games/beads/src/view/meta-view.js';
@@ -56,10 +56,10 @@ const harnessQuery =
   typeof window.location?.search === 'string' ? window.location.search : '';
 const harnessParams = new URLSearchParams(harnessQuery);
 // `[WXG-T-585]` v2 烘焙背板档已于 2026-11-07 **切生产** ⇒ `?v2=1` 测具下线；
-// `[WXG-T-586]` 清理后连「v1/v2 档」开关本身都没了（代码只剩 v2 一条腿，⛔ 无参数可切）。
-// `?v3=1` 仍是 dev 测具（招牌贴安全区 / CTA 按比例 / 橱窗带内居中），v3 建立在 v2 几何之上。
-if (harnessParams.get('v3') === '1') setMenuV3Baked(true);
-// `[WXG-T-585]` dev-only：按真机档注入安全区/胶囊区（设计 px），并叠加可视化。
+// `[WXG-T-586]` 清理后连「v1/v2 档」开关本身都没了（代码只剩 v2 一条腿）；
+// `[WXG-T-587]` 原 `?v3=1`（招牌贴安全区 / CTA 贴底 / 背景居中）也已**转正为生产档**，
+// 连同 `?pad=` 观感测具一起下线 ⇒ 菜单已**无任何档位参数**可切。
+// dev-only：按真机档注入安全区/胶囊区（设计 px），并叠加可视化。
 // 6 档读数来自 `tests/menu-layout-v35.test.ts` 的 TIERS + 21:9 极值，⛔ 不进产品链。
 const qNum = (k: string): number | null => {
   const raw = harnessParams.get(k);
@@ -74,9 +74,6 @@ if (qSt !== null || qCap !== null || qSb !== null) {
   setDevSafeInsets({ st: qSt ?? 0, cap: qCap ?? 0, sb: qSb ?? 0 });
 }
 if (harnessParams.get('guides') === '1') setShowSafeGuides(true);
-// `[WXG-T-585]` dev-only：`?pad=0.8` ⇒ 背板/柜体略上移，做「主视觉偏上」观感对照（默认 1 = 居中）。
-const qPad = qNum('pad');
-if (qPad !== null) setMenuV3TopPadScale(qPad);
 /**
  * `[WXG-T-566]` `?artGray=0..1` 调试参数：把大关作品图的取图结果换成**同公式灰化版**
  * （`out = c·(1−g) + luma·g`，Rec.709 权重），供三态灰度观感对照。
@@ -184,22 +181,14 @@ const MENU_URL_PREFIX = '/menu-assets/';
  * `production/qa/webp-png-duality-20261018.md`。 */
 const MENU_FILE: Readonly<Record<string, string>> = {
   ...Object.fromEntries(OPEN_ARCS.map((t) => [t.textureId, `/level-assets/${t.art}.png`])),
-  // `[WXG-T-585]` v2：招牌（板体 549×295 + 绳，正本 1098×722 @2x）取代 v1 `ui_menu_logo`。
-  // 2026-11-07 宿主接入批：v2 件改挂**独立 key**（`signboard` / `ctaV2` / `ctaPressedV2`），
-  // 消费侧 `pickTex` 按 `MENU_V2_BAKED` 选；下列同语义的老 key 保持原映射（v1 腿现状不变）。
-  [MENU_TEXTURES.logo]: 'background/ui_menu_signboard_figma@2x.png',
+  // `[WXG-T-587]` 只剩 v2 件：招牌（板体 549×295 + 绳，正本 1098×722 @2x）/ 开始钮 / 翻页钮 /
+  // 通关章。v1 的 logo / cta / plate / caseFrame / btnArrow / iconArrow* / iconCoin|Stamina 已删键出包。
   [MENU_TEXTURES.signboard]: 'background/ui_menu_signboard_figma@2x.png',
   [MENU_TEXTURES.ctaV2]: 'buttons/ui_btn_start_normal@2x.png',
   [MENU_TEXTURES.ctaPressedV2]: 'buttons/ui_btn_start_highlight@2x.png',
-  [MENU_TEXTURES.caseFrame]: 'ui_showcase_frame.png',
-  [MENU_TEXTURES.plate]: 'ui_showcase_plate.png',
   // `[WXG-T-585]` v2 开始钮（整枚 756×358 @2x ⇒ 378×179，「开始」已烘进图）。
-  [MENU_TEXTURES.cta]: 'buttons/ui_btn_start_normal@2x.png',
-  [MENU_TEXTURES.ctaPressed]: 'buttons/ui_btn_start_highlight@2x.png',
   [MENU_TEXTURES.btnCircle]: 'buttons/ui_btn_circle_normal@2x.png',
   [MENU_TEXTURES.btnCirclePressed]: 'buttons/ui_btn_circle_pressed@2x.png',
-  [MENU_TEXTURES.btnArrow]: 'ui_btn_arrow_bg_normal.png',
-  [MENU_TEXTURES.btnArrowPressed]: 'ui_btn_arrow_bg_pressed.png',
   [MENU_TEXTURES.iconSettings]: 'icons/ui_icon_settings@2x.png',
   [MENU_TEXTURES.iconSound]: 'ui_icon_sound.png',
   [MENU_TEXTURES.iconCalendar]: 'icons/ui_icon_calendar@2x.png',
@@ -211,15 +200,10 @@ const MENU_FILE: Readonly<Record<string, string>> = {
   [MENU_TEXTURES.btnPaper]: 'ui_btn_paper_9s.png',
   [MENU_TEXTURES.iconRank]: 'icons/ui_icon_rank@2x.png',
   [MENU_TEXTURES.iconSkins]: 'icons/ui_icon_skin@2x.png',
-  [MENU_TEXTURES.iconArrowLeft]: 'ui_icon_arrow_left.png',
-  [MENU_TEXTURES.iconArrowRight]: 'ui_icon_arrow_right.png',
-  [MENU_TEXTURES.iconCoin]: 'asset-icon-coin.png',
-  [MENU_TEXTURES.iconStamina]: 'asset-icon-stamina.png',
   // WXG-T-577：锁（Figma v2 切图，右/下补 1px 透明边到偶数尺寸）。
   // WXG-T-578：框 / 通关两键已删（源码零消费者，Cocos 两件一并出包）。
   [MENU_TEXTURES.lock]: 'badges/ui_menu_lock@2x.png',
   [MENU_TEXTURES.arcRing]: 'badges/ui_menu_frame@2x.png',
-  [MENU_TEXTURES.ctaLabel]: 'ui_menu_cta_label.png',
   // `[P0 静态温暖]` 左下陶盆（210×415 RGBA，源 = qwen-image-3.0 lock seed 88 切图）。
   [MENU_TEXTURES.pot]: 'ui_menu_pot.png',
   // `[P0 静态温暖]` 左上光束（400×650 RGBA 白，alpha 承载提亮强度）。

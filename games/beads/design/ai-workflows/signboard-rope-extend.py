@@ -10,7 +10,7 @@
 # 镜像只发生在**绳区**（原图 y<EXT 时板体尚未开始，非绳列本就 alpha=0）。
 # 代价：镜像段纹理方向反转；麻绳编织在 0.5 缩放下不可辨（以 6 档效果图比对为准）。
 #
-# ⚠ 换图后必须同批改 4 处：`MENU_V3.boardOff` / `MENU_V3.signH` / `MENU_V2.sign.h`
+# ⚠ 换图后必须同批改 4 处：`MENU_PLACEMENT.boardOff` / `MENU_PLACEMENT.signH` / `MENU_V2.sign.h`
 #   （games/beads/src/config/tuning/menu.ts）+ `menu-v2-ship.py` 的 JOBS 招牌目标尺寸。
 # ⚠ Cocos 投放件 `.meta` 里的 size 由编辑器 reimport 更新（L1，本脚本永不触碰）。
 #

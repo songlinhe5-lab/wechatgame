@@ -72,8 +72,8 @@ describe('WXG-T-522 橱窗单一作品', () => {
         expect(art[0]!.h).toBe(MENU_V2.art.h);
     });
 
-    it('窗框就绪：作品尺寸同源不变（325×314），内景已烘 ⇒ 不再画层板/光锥', () => {
-        hostWith(MENU_TEXTURES.caseFrame, BOSS_ART);
+    it('背板就绪：作品尺寸同源不变（325×314），内景已烘 ⇒ 不再画层板/光锥', () => {
+        hostWith(MENU_TEXTURES.backdrop, BOSS_ART);
         const art = blitsOf(frame(data()), BOSS_ART);
         expect(art.length).toBe(1);
         expect(art[0]!.w).toBe(MENU_V2.art.w);
@@ -81,7 +81,7 @@ describe('WXG-T-522 橱窗单一作品', () => {
     });
 
     it('`[WXG-T-566]` 通关页：状态标记全退场，作品全彩（不传 fx）', () => {
-        hostWith(MENU_TEXTURES.caseFrame, BOSS_ART, MENU_TEXTURES.lock);
+        hostWith(MENU_TEXTURES.backdrop, BOSS_ART, MENU_TEXTURES.lock);
         const cmds = frame(data());
         const art = blitsOf(cmds, BOSS_ART)[0] as { fx?: Record<string, number> };
         expect(art.fx, '通关 = 全彩').toBeUndefined();
@@ -90,7 +90,7 @@ describe('WXG-T-522 橱窗单一作品', () => {
     });
 
     it('`[WXG-T-566 / WXG-T-567]` 锁定态：磨砂玻璃+半透明灰叠加管线（fx={frost,gray}），锁形独立 Sprite', () => {
-        hostWith(MENU_TEXTURES.caseFrame, BOSS_ART, MENU_TEXTURES.lock);
+        hostWith(MENU_TEXTURES.backdrop, BOSS_ART, MENU_TEXTURES.lock);
         const cmds = frame(data({ carouselState: 'locked' as const }));
         const art = blitsOf(cmds, BOSS_ART)[0] as { fx?: Record<string, number> };
         expect(art.fx, '锁定 = 磨砂玻璃 + 半透明灰叠加管线').toEqual({ frost: MENU_FROST.radius, gray: MENU_FROST.gray });
@@ -102,14 +102,16 @@ describe('WXG-T-522 橱窗单一作品', () => {
         expect(lb.h).toBeCloseTo(lb.w / MENU_LOCKED_ICON.aspect, 6);
     });
 
-    it('`[WXG-T-585]` 切生产：翻页钮恒整枚位图（`prevBtn`/`nextBtn`），⛔ 不叠圆底 + 向标', () => {
-        hostWith(MENU_TEXTURES.caseFrame, BOSS_ART, MENU_TEXTURES.btnArrow, MENU_TEXTURES.iconArrowLeft, MENU_TEXTURES.iconArrowRight,
-            MENU_TEXTURES.prevBtn, MENU_TEXTURES.nextBtn);
+    // `[WXG-T-587]` v1 的圆底 `btnArrow` / 矢量向标 `iconArrow*` 已**删键出包** ⇒ 本判据只剩正向部分：
+    // 有整枚件就画整枚件，且落位 = `MENU_V2.prev/next` 读数。
+    it('翻页钮 = 整枚位图（`prevBtn`/`nextBtn`），落位按 `MENU_V2.prev/next`', () => {
+        hostWith(MENU_TEXTURES.backdrop, BOSS_ART, MENU_TEXTURES.prevBtn, MENU_TEXTURES.nextBtn);
         const cmds = frame(data());
-        expect(blitsOf(cmds, MENU_TEXTURES.btnArrow).length, '圆钮底退场').toBe(0);
-        expect(blitsOf(cmds, MENU_TEXTURES.iconArrowLeft).length, '矢量左向标退场').toBe(0);
-        expect(blitsOf(cmds, MENU_TEXTURES.iconArrowRight).length, '矢量右向标退场').toBe(0);
-        expect(blitsOf(cmds, MENU_TEXTURES.prevBtn).length, '左钮 = 整枚位图').toBe(1);
-        expect(blitsOf(cmds, MENU_TEXTURES.nextBtn).length, '右钮 = 整枚位图').toBe(1);
+        const left = blitsOf(cmds, MENU_TEXTURES.prevBtn);
+        const right = blitsOf(cmds, MENU_TEXTURES.nextBtn);
+        expect(left.length, '左钮 = 整枚位图').toBe(1);
+        expect(right.length, '右钮 = 整枚位图').toBe(1);
+        expect([left[0]!.w, left[0]!.h]).toEqual([MENU_V2.prev.w, MENU_V2.prev.h]);
+        expect([right[0]!.w, right[0]!.h]).toEqual([MENU_V2.next.w, MENU_V2.next.h]);
     });
 });

@@ -13,7 +13,7 @@ import { createBeadsShell } from '../src/game/beads-shell.js';
 import { COPY_TOKENS } from '../src/config/copy-tokens.js';
 import { metaLayout } from '../src/view/meta-view.js';
 import {
-    DESIGN_H, DESIGN_W, MENU_SIGN_FRAME, MENU_TOPBAR_ICON_D, MENU_TOPBAR_VISUAL_D,
+    DESIGN_H, DESIGN_W, MENU_TOPBAR_ICON_D, MENU_TOPBAR_VISUAL_D,
     MENU_V2,
     MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_X, TOUCH_MIN, WALL_ROWS, menuAnchors,
 } from '../src/config/tuning.js';
@@ -48,20 +48,17 @@ describe('顶栏与招牌版面定案（v2 档）', () => {
         expect(MENU_TOPBAR_ROW2_DY).toBe(TOUCH_MIN);
     });
 
-    it('招牌板体与顶栏钮净空为正（WXG-T-486 后：左列右缘 108 / mail 左缘 648）', () => {
-        const k = MENU_SIGN_FRAME.w / 960;
-        const boardL = MENU_SIGN_FRAME.x + 11 * k;
-        const boardR = MENU_SIGN_FRAME.x + 948 * k;
+    it('招牌图框水平居中且四钮落在图两侧（不压图）', () => {
+        // `[WXG-T-587]` 起招牌走 `MENU_V2.sign`（549×361 整图，含绳与两侧装饰叶），
+        // v1 的 `MENU_SIGN_FRAME`（370×298）已随 v2 版面删除 ⇒ 净空改按**真实绘制框**判。
+        // 坐标图读数 x=101 / w=549 ⇒ 左右各 101 / 100（差 1 px，读数分辨率内），按 ±2 判居中。
+        expect(Math.abs(MENU_V2.sign.x * 2 + MENU_V2.sign.w - DESIGN_W)).toBeLessThanOrEqual(2);
         const pad = (TOUCH_MIN - MENU_TOPBAR_VISUAL_D) / 2;
-        // 左列两枚（settings / rank 同 x24）视觉右缘；板体左缘须在其右。
-        expect(boardL).toBeGreaterThanOrEqual(MENU_TOPBAR_X.settings + pad + MENU_TOPBAR_VISUAL_D);
-        // 右列两枚（mail / skins 同 x648）视觉左缘；板体右缘须落在其左。
-        // ⚠ 原断言对 `MENU_TOPBAR_X.skins`（x560）取净空 —— 板体右界 555.4 与 skins 左缘 560
-        // 仅 4.6 净空，即 art-review P1-3 判定的「净空 0、字被压」根因。`skins` 两次搬移
-        // （T-486 左列 → T-487 右列）后 x560 已不是任何钮的坐标，净空从 4.6 提到 ~92.6。
-        expect(boardR).toBeLessThanOrEqual(MENU_TOPBAR_X.mail + pad);
-        expect(MENU_TOPBAR_X.mail - boardR).toBeGreaterThan(80);
-        expect(MENU_SIGN_FRAME.x * 2 + MENU_SIGN_FRAME.w).toBe(DESIGN_W); // 居中
+        const visualL = MENU_TOPBAR_X.settings + pad;             // 左列视觉左缘
+        const visualR = visualL + MENU_TOPBAR_VISUAL_D;           // 左列视觉右缘
+        const rightVisualL = MENU_TOPBAR_X.mail + pad;            // 右列视觉左缘
+        expect(visualR).toBeLessThanOrEqual(MENU_V2.sign.x);      // 左列不与招牌图框相交
+        expect(rightVisualL).toBeGreaterThanOrEqual(MENU_V2.sign.x + MENU_V2.sign.w); // 右列同理
     });
 });
 

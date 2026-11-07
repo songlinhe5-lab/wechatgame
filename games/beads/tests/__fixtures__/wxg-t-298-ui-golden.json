@@ -4,7 +4,7 @@
   "unit": "UI-02",
   "spec": "docs/architecture/ui-architecture-beads.md §5 / §9.4 / §12",
   "codeBaseline": "bd964a0",
-  "capturedFrom": "73e6952d · WXG-T-585 切生产（v2 烘焙背板档）",
+  "capturedFrom": "a61bd30a · WXG-T-587 落位转正 + 老图出包（工作树取值，代码同笔提交）",
   "fixture": {
     "viewport": {
       "width": 750,
@@ -42,7 +42,7 @@
         "blit": 1,
         "polygon": 560
       },
-      "sha": "1866be6c55e4c3d132123e9d8da0c29e933028da412c60dc9b291945294a479a",
+      "sha": "caa023f2c062c7ecc3fd976bdb1dbf6e6f1f0441b82b78f4ed0d1bd6dab1a305",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -68,7 +68,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "63b933440ba75ebe836c8bb07a5e829fd1d23df28b6c48b63cc98783a4024ea7",
+      "sha": "e13628ced933b4c80021376ffb121e3c09f5722f24c3507de70ca05c04d159bd",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -94,7 +94,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "45019f7d0a7353c53b9581d0f5fa0ad5d608525a446cab1c33ef67d52feadc01",
+      "sha": "22e4989db062c52fd0c6b4456e40468af45e082f60558d8be534f525995491bf",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -120,7 +120,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "e6bc8752e5c5cd9796a9920ca288f50349a9963eab72d409f92868cade70e92c",
+      "sha": "662080f3fce6af59c235043e9389ef4798e8f1b760a86c7ba358233f1caba7c2",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -146,7 +146,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "091dcfb1f8f4b94aff237ec85f6eac211552e909b734ca70ac40beef9f6a7efd",
+      "sha": "d624ee76052bd589c51c1d452d2f95f6aaf7faf0f9d298aea569dc0d4b4e1a90",
       "background": "#F1E8D8",
       "transform": null
     },

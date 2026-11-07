@@ -3,7 +3,7 @@
  * 几何一律取自 `meta-layout.ts` 的锚定档，控件画法取自 `meta-widgets.ts` ⇒ 页面只编排、不另算。
  */
 
-import { DESIGN_H, DESIGN_W, type MenuAnchors, MENU_BAR_BAKED_LABEL_INSET, MENU_CTA_PRESSED_D, MENU_CTA_SRC_H, MENU_FROST, MENU_FULLSTAR_FRAME, MENU_GRAY_WIPE, MENU_LOCKED_ICON, MENU_SIGNIN_DOT_R, MENU_SIGN_FRAME, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, MENU_V2_BG_EXPAND, MENU_V2_BG_H, MENU_V2_DESK_FILL,
+import { DESIGN_H, DESIGN_W, type MenuAnchors, MENU_BAR_BAKED_LABEL_INSET, MENU_CTA_PRESSED_D, MENU_CTA_SRC_H, MENU_FROST, MENU_FULLSTAR_FRAME, MENU_GRAY_WIPE, MENU_LOCKED_ICON, MENU_PLACEMENT, MENU_SIGNIN_DOT_R, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, MENU_V2_BG_EXPAND, MENU_V2_BG_H, MENU_V2_DESK_FILL,
     SIGN_BEAD_PITCH, menuBackdropTopPad, SIGN_MATRIX_N, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning.js';
 import { COPY_TOKENS } from '../config/copy-tokens.js';
 import { ARC_COMING_SOON } from '../config/arcs.js';
@@ -497,7 +497,7 @@ export function drawMenuBackdrop(
         // 先铺一层全屏墙色：背板 + 两条补带之间若出现亚像素缝，也不会透出画布底色（浅米）。
         builder.rect(0, 0, DESIGN_W, a.H, { fill: palette.plaqueFace });
         // 背板不可拉伸（一拉柜体/圆台就变形）。落位判据见 `menuBackdropTopPad`。
-        const topPad = menuBackdropTopPad(a.H, a.btTopY, a.st, a.sb);
+        const topPad = menuBackdropTopPad(a.H, a.st, a.btTopY, a.sb);
         const botPad = Math.max(0, a.H - topPad - DESIGN_H);
         if (menuBitmapReady(MENU_TEXTURES.backdropFull)) {
             // `[WXG-T-585]` 甲案：Figma 整张扩图（750×1750）**一次 blit** 覆盖全部机型。
@@ -602,7 +602,11 @@ export function drawMenuAnchored(
         builder.blit(MENU_TEXTURES.signboard, g.signBox.x, g.signBox.y, g.signBox.w, g.signBox.h);
     } else if (withSignage) {
         // 字样居中于板心（图顶 − boardCyOff），非图框中心（图框含绳，板心偏下）。
-        const signCy = g.signBox.y + g.signBox.h - MENU_SIGN_FRAME.boardCyOff;
+        // `[WXG-T-587]` 板心由「绳高 + 板体高」现算（`MENU_PLACEMENT` 单一真源），
+        // ⛔ 不再读 `MENU_SIGN_FRAME.boardCyOff` —— 那枚是 v1 的读数（298 高图取 216），
+        // 换 v2 的 361 高图后会偏高 ≈23 px（WXG-T-586 登记的同批缺陷）。
+        const signCy = g.signBox.y + g.signBox.h
+            - (MENU_PLACEMENT.boardOff + (MENU_PLACEMENT.signH - MENU_PLACEMENT.boardOff) / 2);
         const beads = drawBeadText(builder, COPY_TOKENS.app_name, signCy, SIGN_MATRIX_N, SIGN_BEAD_PITCH);
         if (beads === 0) {
             builder.text(DESIGN_W / 2, signCy, COPY_TOKENS.app_name, {

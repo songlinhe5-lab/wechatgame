@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3980,
       "lines": 134,
-      "sha256": "e4e935d044b2108b12e00c4baa8975faca272fbec41a3ce4a360ef2d83795660",
+      "sha256": "87521383dc0394195618bf9bde571fce1f263e6da70a3d3e8c6f3f1c1c7ca051",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 233609 8340 normal",
+          "summary": "1 production/TASKS-DETAIL.md 234671 8395 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "2832504409ac29ed684a2967340ac71b476653a235969c0d564aed7f1165e7a0",
+      "sha256": "384942880036a9248ec785e2b78bf1cd585bef95fa09f93b881386e8ee3670f8",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 193 行 / 47276 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 194 行 / 47858 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+194 · §待排（backlog，无号，立项时领取…=166+29",
+          "summary": "§WXG 任务台账（SSOT）=1+195 · §待排（backlog，无号，立项时领取…=167+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 8340 行 / 233609 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 8395 行 / 234671 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+8341 · §WXG-T-575=7735+57 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+8396 · §WXG-T-576=7792+40 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -14128,9 +14128,9 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 21663,
+      "tokens": 22016,
       "lines": 257,
-      "sha256": "b893bb50d3758b505ba3bd0b68e912708482e6d7d69d9b96b117e3fec2b11407",
+      "sha256": "5ab785b28e7376d51a70eac607c31a73b0522268d73509416ee5b4d94783d228",
       "tier": "normal",
       "sections": [
         {
@@ -14138,7 +14138,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 258,
-          "tokens": 21644,
+          "tokens": 21998,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -14309,7 +14309,7 @@
           "level": 2,
           "startLine": 138,
           "endLine": 254,
-          "tokens": 16591,
+          "tokens": 16944,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -28746,17 +28746,17 @@
     },
     {
       "path": "games/beads/design/art/specs/menu-layout-implementation-spec.md",
-      "tokens": 12114,
-      "lines": 250,
-      "sha256": "94f9b86cc5432a131c7c8e5715f074f7a3d2d2bb08211f997afb1a2108b8762b",
+      "tokens": 13008,
+      "lines": 283,
+      "sha256": "d582c5b76252ed2454a2708fae7d0b6cf625997d18b9db812a53ccc864542b71",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§主界面布局落地单 · 「拼豆小铺」菜单屏（规范 v3.8 定稿）",
           "level": 1,
           "startLine": 1,
-          "endLine": 251,
-          "tokens": 12088,
+          "endLine": 284,
+          "tokens": 12982,
           "summary": "用途：UI 布局落码的唯一施工依据。规则正本 = 本件；取证图 = ../coordinates/menu-master",
           "keywords": [
             "coordinates",
@@ -28924,8 +28924,8 @@
           "anchor": "§12 v2 烘焙背板档（WXG-T-585 · 2026-11-07 **切生产**）",
           "level": 2,
           "startLine": 171,
-          "endLine": 251,
-          "tokens": 2017,
+          "endLine": 284,
+          "tokens": 2911,
           "summary": "射程：本节只钉「v2 档几何 = 绝对坐标 + 热区口径 + 垂直落位」。数值真源仍是",
           "keywords": [
             "WXG",
@@ -28997,8 +28997,8 @@
           "anchor": "§12.5 退役清单（`WXG-T-586` 死代码清理 · 2026-11-07）",
           "level": 3,
           "startLine": 225,
-          "endLine": 251,
-          "tokens": 751,
+          "endLine": 256,
+          "tokens": 984,
           "summary": "⚠ 下列名称在代码里已不存在，旧文档（含本页 §1–§11 与 menu-layout-spec-s7-history ",
           "keywords": [
             "WXG-T-586",
@@ -29007,6 +29007,22 @@
             "WXG",
             "menu",
             "layout"
+          ]
+        },
+        {
+          "anchor": "§12.6 落位转正（`WXG-T-587` · 2026-11-07 切生产）",
+          "level": 3,
+          "startLine": 257,
+          "endLine": 284,
+          "tokens": 643,
+          "summary": "⚠ 本节改写 §12.1 的落位口径：背板仍居中，但招牌 / CTA / 顶栏三件已脱离背板，按安全区独立落位",
+          "keywords": [
+            "WXG-T-587",
+            "§12.1",
+            "WXG",
+            "CTA",
+            "落位转正",
+            "切生产"
           ]
         }
       ]
@@ -88870,17 +88886,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 233609,
-      "lines": 8340,
-      "sha256": "6a14907848635ae5ce4187db14216b2b2711e577fb8557053544cfc958fcb832",
+      "tokens": 234671,
+      "lines": 8395,
+      "sha256": "f78192fd9d93303aecee387ef6ce6262d6fd7632fc6e224b0d7b51732d0e5a39",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 8341,
-          "tokens": 233592,
+          "endLine": 8396,
+          "tokens": 234654,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -101714,22 +101730,135 @@
             "删产物",
             "待用户点头"
           ]
+        },
+        {
+          "anchor": "§WXG-T-587",
+          "level": 2,
+          "startLine": 8342,
+          "endLine": 8396,
+          "tokens": 1059,
+          "summary": "工程·beads 主界面落位转正 + v1 老图出包 · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ 完成",
+          "keywords": [
+            "WXG",
+            "beads",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§1 出发点 (5)",
+          "level": 3,
+          "startLine": 8346,
+          "endLine": 8351,
+          "tokens": 123,
+          "summary": "用户 2026-11-06 三条裁（① 背板在屏幕中垂直居中、高屏上下等量补带；② 招牌与 CTA 脱离背板、按安全区独",
+          "keywords": [
+            "CTA",
+            "出发点"
+          ]
+        },
+        {
+          "anchor": "§2 落位公式（生产档真源 `tuning/menu.ts::menuPlacement` + `MENU_PLACEMENT`）",
+          "level": 3,
+          "startLine": 8352,
+          "endLine": 8363,
+          "tokens": 212,
+          "summary": "背板 topPad = max(0, (H − 1334) / 2) 高屏上下等量补带；⛔ 不拉伸",
+          "keywords": [
+            "tuning/menu.ts::menuPlacement",
+            "MENU_PLACEMENT",
+            "tuning",
+            "menu",
+            "menuPlacement",
+            "topPad"
+          ]
+        },
+        {
+          "anchor": "§3 下线面（本批删除，⛔ 不要再补回）",
+          "level": 3,
+          "startLine": 8364,
+          "endLine": 8369,
+          "tokens": 76,
+          "summary": "?v3=1 / ?pad= 两个 dev 测具 + MENU_V3_BAKED / setMenuV3Baked / M",
+          "keywords": [
+            "pad",
+            "dev",
+            "MENU_V3_BAKED",
+            "setMenuV3Baked",
+            "下线面",
+            "本批删除"
+          ]
+        },
+        {
+          "anchor": "§4 缺陷修复（T-586 登记待裁项，本批收口）",
+          "level": 3,
+          "startLine": 8370,
+          "endLine": 8375,
+          "tokens": 104,
+          "summary": "MENU_SIGN_FRAME.boardCyOff = 216 是 v1（298 高图）的读数；v2 招牌图 361 ",
+          "keywords": [
+            "MENU_SIGN_FRAME",
+            "boardCyOff",
+            "缺陷修复",
+            "登记待裁项",
+            "本批收口"
+          ]
+        },
+        {
+          "anchor": "§5 出包与体积",
+          "level": 3,
+          "startLine": 8376,
+          "endLine": 8381,
+          "tokens": 116,
+          "summary": "12 枚删键 + 删宿主注册 + 删文件（体积账见上节表，合计 ≈414.7 KB）；pot / beam 保留（背板缺",
+          "keywords": [
+            "pot",
+            "beam",
+            "出包与体积"
+          ]
+        },
+        {
+          "anchor": "§6 取证",
+          "level": 3,
+          "startLine": 8382,
+          "endLine": 8391,
+          "tokens": 224,
+          "summary": "六档浏览器截图 temp/menu-tiers-7-v3prod/ 与用户已审 ?v3=1 样张逐像素相同（diff b",
+          "keywords": [
+            "temp",
+            "menu",
+            "tiers",
+            "v3prod",
+            "diff",
+            "取证"
+          ]
+        },
+        {
+          "anchor": "§7 未闭",
+          "level": 3,
+          "startLine": 8392,
+          "endLine": 8396,
+          "tokens": 74,
+          "summary": "真机六档目视未做（本轮取证仍为 harness 浏览器截图）。",
+          "keywords": [
+            "harness",
+            "未闭"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 47276,
-      "lines": 193,
-      "sha256": "b46f10ac656d55e3f49c7edb6d1c5674923ecf5dd7e6abf6bae5970de2e5371a",
+      "tokens": 47858,
+      "lines": 194,
+      "sha256": "29b0853e81bd17f5d96f1c87f9639f6808f645b8ed144e59ea27e6b6aa35ad26",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 194,
-          "tokens": 47268,
+          "endLine": 195,
+          "tokens": 47849,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -101742,8 +101871,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 166,
-          "endLine": 194,
+          "startLine": 167,
+          "endLine": 195,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
