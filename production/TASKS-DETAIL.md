@@ -8789,3 +8789,11 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 ### 6. 未做（另案）
 
 数值两端内缩：稿 `257 / 503` vs 码 `247 / 510`（码靠外 7–10px）。改它要动 `MENU_BAR_BAKED_LABEL_INSET`（28 = 烘图图标宽 20 + 间隙 8），而背板注释明令「换背板/改图标位必须同批重扫」⇒ 属排版微调另案，本批不动。
+
+### 7. 附带修：离线取证图丢粗体
+
+`tools/scripts/lib/render-model-svg.mjs::parseFont` 原正则是 `/(\d+(?:\.\d+)?)px\s+(.+)/`，只拆 `size` / `family`。CSS 简写把 weight 放在 size **之前**（`bold 28px sans-serif`）⇒ weight 被整段丢弃，**导出 SVG 里所有粗体都渲染成常规**。
+
+后果：`tools/scripts/render-ui-shots.mjs` 是 art review 的主要目视装置，若拿它复核本单，会看到「资源条没加粗」的假象（而 canvas 真渲染 `ctx.font = cmd.font` 原样吃字符串、是对的）。
+
+修法：拆出 `bold|bolder|lighter|[1-9]00` 并输出 `font-weight`。复跑取证：`main-menu` 资源条 2 处、`pause` 7 处、`clear` 5 处、`play` 1 处、`level-select`/`settings` 各 2 处现均带 `font-weight`；非粗体文本输出逐字不变（不影响既有取证图）。`pnpm run verify` 仍 PASS 23 / FAIL 0。

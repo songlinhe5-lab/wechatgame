@@ -14,10 +14,22 @@ const XML_ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'"
 const esc = (value) => String(value).replace(/[&<>"']/g, (ch) => XML_ESCAPES[ch]);
 const num = (value) => (Number.isFinite(value) ? Number(Number(value).toFixed(2)) : 0);
 
-/** Split a CSS `font` shorthand into SVG `font-size` / `font-family`. */
+/**
+ * Split a CSS `font` shorthand into SVG `font-size` / `font-family` / `font-weight`.
+ *
+ * ⚠ `font-weight` 必须单独拆出来：CSS 简写把 weight 放在 size **之前**（`bold 28px sans-serif`），
+ * 只抓 `Npx family` 会把它丢掉 ⇒ 离线取证图里粗体全变常规，art 复核被误导
+ * （实例：WXG-T-595 资源条数值 `bold 28px` 在导出 SVG 里看不出加粗，而 canvas 真渲染是对的）。
+ */
 function parseFont(shorthand) {
-  const match = /(\d+(?:\.\d+)?)px\s+(.+)/.exec(shorthand ?? '');
-  return { size: match ? Number(match[1]) : 24, family: match ? match[2].trim() : 'sans-serif' };
+  const src = shorthand ?? '';
+  const weight = /(?:^|\s)(bold|bolder|lighter|[1-9]00)(?=\s)/.exec(src)?.[1] ?? null;
+  const match = /(\d+(?:\.\d+)?)px\s+(.+)/.exec(src);
+  return {
+    size: match ? Number(match[1]) : 24,
+    family: match ? match[2].trim() : 'sans-serif',
+    weight,
+  };
 }
 
 const ANCHOR = { left: 'start', center: 'middle', right: 'end' };
@@ -98,6 +110,7 @@ export function modelToSvg(model) {
           // Counter-flip so glyphs read the right way up inside the y-flipped group.
           `<g transform="translate(${num(cmd.x)} ${num(cmd.y)}) scale(1 -1)">` +
           `<text x="0" y="0" fill="${esc(cmd.fill ?? '#ffffff')}" font-size="${num(font.size)}" ` +
+          (font.weight ? `font-weight="${esc(font.weight)}" ` : '') +
           `font-family="${esc(font.family)}" text-anchor="${ANCHOR[cmd.align ?? 'left'] ?? 'start'}" ` +
           `dominant-baseline="${BASELINE[cmd.baseline ?? 'middle'] ?? 'central'}"${opacity}>` +
           `${esc(cmd.text)}</text></g>`,
