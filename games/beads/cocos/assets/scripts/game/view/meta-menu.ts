@@ -378,7 +378,12 @@ function drawComingSoonMark(
     }
 }
 
-/** 木牌上的「敬请期待」。`alpha` ≤ 0 不画。 */
+/** 木牌上的「敬请期待」。`alpha` ≤ 0 不画。
+ *
+ * `[WXG-T-600]` 字型与**单行关序同档**（{@link PLATE_TITLE_FONT}）。旧稿写死 `UI_FONT.button`（30）
+ * 的理由是「提示语不是关名」—— 但两者落的是**同一个槽**（`plateSingleCy`，牌面正中），
+ * 30 与 34 并排会看出「同一位置、两套字号」，翻到空橱窗页时牌面会突然缩水一圈。
+ */
 function drawComingSoonPlate(
     builder: RenderModelBuilder,
     g: AnchoredMenuGeo,
@@ -389,9 +394,9 @@ function drawComingSoonPlate(
     const a = alpha < 1 ? alpha : undefined;
     builder.text(g.plateCx, g.plateSingleCy, ARC_COMING_SOON, {
         // `[WXG-T-597]` 同压牌面亮木 ⇒ 与关名同墨（`wood_edge` 4.68:1 够用，但既然牌面墨已独立成
-        // 令牌，这里跟着走，避免牌上出现两种深棕）。字型不动（提示语不是关名）。
+        // 令牌，这里跟着走，避免牌上出现两种深棕）。
         fill: palette.plateTitleInk,
-        font: UI_FONT.button,
+        font: PLATE_TITLE_FONT,
         align: 'center',
         baseline: 'middle',
         ...(a === undefined ? {} : { alpha: a }),

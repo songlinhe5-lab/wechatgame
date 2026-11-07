@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3980,
       "lines": 134,
-      "sha256": "fc118c2e7a37740d2510270b3320d72d3ceaea1f06d2597199854492488ba602",
+      "sha256": "4790ed28fa0c20d1a3cfffb3f1d303962ceaaa837f69f7d8de20bf17416db065",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 248343 9046 normal",
+          "summary": "1 production/TASKS-DETAIL.md 249323 9099 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5273,
       "lines": 165,
-      "sha256": "ac24b21ed40da12730579a68821e284980a497832e756e3ab25d31fe140d67c1",
+      "sha256": "60b6ec5c4ccaa56ffad99d655e0fd8a8dbca324f6911819ab6bc8614e28ec0d1",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 206 行 / 54289 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 207 行 / 54706 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+207 · §待排（backlog，无号，立项时领取…=179+29",
+          "summary": "§WXG 任务台账（SSOT）=1+208 · §待排（backlog，无号，立项时领取…=180+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 9046 行 / 248343 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 9099 行 / 249323 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+9047 · §WXG-T-588=8411+33 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+9100 · §WXG-T-589=8444+49 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -86652,17 +86652,17 @@
     },
     {
       "path": "my-skills/wxgame-art-review/SKILL.md",
-      "tokens": 2536,
-      "lines": 116,
-      "sha256": "2cb690c708d55b4f238494e118ab2170471528ffdca31e776a9e536f5ebb21ad",
+      "tokens": 3305,
+      "lines": 139,
+      "sha256": "78607d56203acfafd8ab0596144ad91ed18316853e2bf3be2783887c48986d72",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§wxgame 美术设计还原 review（偏差审计，只读）",
           "level": 1,
           "startLine": 6,
-          "endLine": 117,
-          "tokens": 2386,
+          "endLine": 140,
+          "tokens": 3156,
           "summary": "本 skill 属 wxgame 家族（管线顺序、优先级与冲突裁决见 my-skills/INDEX.md）。",
           "keywords": [
             "wxgame",
@@ -86709,8 +86709,8 @@
           "anchor": "§2 审计步骤（机械层先行，人只补门看不见的）",
           "level": 2,
           "startLine": 38,
-          "endLine": 69,
-          "tokens": 891,
+          "endLine": 87,
+          "tokens": 1399,
           "summary": "1. 机械门（只记录退出码与关键输出，⛔ 不修）：palettes:check、check:a11y、",
           "keywords": [
             "palettes",
@@ -86724,8 +86724,8 @@
         {
           "anchor": "§3 偏差表（报告主体）",
           "level": 2,
-          "startLine": 70,
-          "endLine": 79,
+          "startLine": 88,
+          "endLine": 97,
           "tokens": 154,
           "summary": "",
           "keywords": [
@@ -86736,8 +86736,8 @@
         {
           "anchor": "§4 判定（上限由证据等级决定）",
           "level": 2,
-          "startLine": 80,
-          "endLine": 91,
+          "startLine": 98,
+          "endLine": 109,
           "tokens": 179,
           "summary": "PASS 机械门全绿 + 偏差表无 P0/P1 + 每屏都有出图证据（真机优先）",
           "keywords": [
@@ -86750,8 +86750,8 @@
         {
           "anchor": "§5 边界（与兄弟 skill 分工）",
           "level": 2,
-          "startLine": 92,
-          "endLine": 101,
+          "startLine": 110,
+          "endLine": 119,
           "tokens": 118,
           "summary": "写美术规格 / 色盲编码 / 包体预算承诺 wxgame-art-spec-programmatic",
           "keywords": [
@@ -86766,9 +86766,9 @@
         {
           "anchor": "§6 常见误判（每条都踩过）",
           "level": 2,
-          "startLine": 102,
-          "endLine": 111,
-          "tokens": 251,
+          "startLine": 120,
+          "endLine": 133,
+          "tokens": 418,
           "summary": "1. 把已登记漂移当新债：palette.ts 与 §3.1 的换代差（bg_base/panel_surface/pa",
           "keywords": [
             "§3.1",
@@ -86782,9 +86782,9 @@
         {
           "anchor": "§变更记录",
           "level": 2,
-          "startLine": 112,
-          "endLine": 117,
-          "tokens": 69,
+          "startLine": 134,
+          "endLine": 140,
+          "tokens": 163,
           "summary": "v1.0 2026-10-28 初版：分层真源 + 机械层/人工层双段审计 + 偏差表 + 判定上限；与 gdd-rev",
           "keywords": [
             "gdd",
@@ -89152,17 +89152,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 248343,
-      "lines": 9046,
-      "sha256": "3f65fdd20fc7642f780654d05499ce55855f5c76d83347b664fe3a54b5799735",
+      "tokens": 249323,
+      "lines": 9099,
+      "sha256": "23998159c4ef99273259dccf7429a849d908dbfbfcc9a522c0ff6112fd88b6d7",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 9047,
-          "tokens": 248326,
+          "endLine": 9100,
+          "tokens": 249306,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -103217,22 +103217,109 @@
             "sha",
             "重抓读数"
           ]
+        },
+        {
+          "anchor": "§WXG-T-600",
+          "level": 2,
+          "startLine": 9048,
+          "endLine": 9100,
+          "tokens": 976,
+          "summary": "美术·量尺归一写进 review 步骤 + 木牌单行槽同档 + 像素复核 · 负责：主理人(CodeBuddy)·美术/",
+          "keywords": [
+            "WXG",
+            "review",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§1 像素复核（把「数值对了」升级成「画出来就是这个数」）",
+          "level": 3,
+          "startLine": 9054,
+          "endLine": 9072,
+          "tokens": 310,
+          "summary": "装置：render-ui-shots.mjs 出 main-menu.svg → 把木牌区单独包成子 SVG（viewB",
+          "keywords": [
+            "render",
+            "shots",
+            "mjs",
+            "main",
+            "menu",
+            "svg"
+          ]
+        },
+        {
+          "anchor": "§2 判例写进流程（防第三轮再犯）",
+          "level": 3,
+          "startLine": 9073,
+          "endLine": 9081,
+          "tokens": 189,
+          "summary": "my-skills/wxgame-art-review 升 v1.1：",
+          "keywords": [
+            "skills",
+            "wxgame",
+            "art",
+            "review",
+            "判例写进流程",
+            "防第三轮再犯"
+          ]
+        },
+        {
+          "anchor": "§3 木牌单行槽同档",
+          "level": 3,
+          "startLine": 9082,
+          "endLine": 9088,
+          "tokens": 125,
+          "summary": "木牌单行槽（plateSingleCy）只有两种内容：无展示名的「第 N 关」（plateTitle 34）与空橱窗的",
+          "keywords": [
+            "plateSingleCy",
+            "plateTitle",
+            "木牌单行槽同"
+          ]
+        },
+        {
+          "anchor": "§4 取证 (4)",
+          "level": 3,
+          "startLine": 9089,
+          "endLine": 9094,
+          "tokens": 116,
+          "summary": "证据档：production/qa/beads/evidence/wxg-t-600-plate-scale.md + ",
+          "keywords": [
+            "production",
+            "beads",
+            "evidence",
+            "wxg",
+            "plate",
+            "scale"
+          ]
+        },
+        {
+          "anchor": "§4.1 金样本零漂移（实测）",
+          "level": 3,
+          "startLine": 9095,
+          "endLine": 9100,
+          "tokens": 92,
+          "summary": "ui-golden 13/13 绿，夹具未动。原因：十态帧里主菜单恒为「有实体大关页」，",
+          "keywords": [
+            "golden",
+            "金样本零漂移",
+            "实测"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 54289,
-      "lines": 206,
-      "sha256": "5c694b9eaf414d7c4ec1a1995e47c5000df5e7d1a94e168857f77d4e71518a69",
+      "tokens": 54706,
+      "lines": 207,
+      "sha256": "c2a2c10f32f7eb2496342a1655639160bd332e879d968d310a48d22e315ddffa",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 207,
-          "tokens": 54280,
+          "endLine": 208,
+          "tokens": 54697,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -103245,8 +103332,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 179,
-          "endLine": 207,
+          "startLine": 180,
+          "endLine": 208,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -109042,6 +109129,106 @@
             "c8af2dc9",
             "好友榜面板",
             "验收"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "production/qa/beads/evidence/wxg-t-600-plate-scale.md",
+      "tokens": 1016,
+      "lines": 70,
+      "sha256": "deb5f996260db8e2e2189781b4ae271c77e761aeb7f0e9baad3aa31bce7afa86",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§WXG-T-600 · 木牌字号「像素级」复核（同尺归一后）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 71,
+          "tokens": 994,
+          "summary": "证据等级 = 实现自证（device-walkthrough §0-4）：下面所有读数都来自「渲染模型 → SVG → ",
+          "keywords": [
+            "§0",
+            "WXG",
+            "device",
+            "walkthrough",
+            "SVG",
+            "木牌字号"
+          ]
+        },
+        {
+          "anchor": "§1 要回答的问题",
+          "level": 2,
+          "startLine": 7,
+          "endLine": 11,
+          "tokens": 66,
+          "summary": "WXG-T-599 把木牌改成 关名 34 粗 / 次行 22 粗 / 胶囊 130×27 之后，实际画出来是不是就是这",
+          "keywords": [
+            "WXG",
+            "要回答的问题"
+          ]
+        },
+        {
+          "anchor": "§2 可复现步骤",
+          "level": 2,
+          "startLine": 12,
+          "endLine": 26,
+          "tokens": 189,
+          "summary": "",
+          "keywords": [
+            "可复现步骤"
+          ]
+        },
+        {
+          "anchor": "§3 读数（设计 px）",
+          "level": 2,
+          "startLine": 27,
+          "endLine": 42,
+          "tokens": 155,
+          "summary": "胶囊宽 130 130.0 0",
+          "keywords": [
+            "读数",
+            "设计"
+          ]
+        },
+        {
+          "anchor": "§4 与稿的残差（同尺归一 1.32 之后）",
+          "level": 2,
+          "startLine": 43,
+          "endLine": 54,
+          "tokens": 145,
+          "summary": "关名墨高 31.6 29.5 +7%",
+          "keywords": [
+            "与稿的残差",
+            "同尺归一",
+            "之后"
+          ]
+        },
+        {
+          "anchor": "§5 对照图（**本地产物，不入库**）",
+          "level": 2,
+          "startLine": 55,
+          "endLine": 65,
+          "tokens": 169,
+          "summary": "production/qa/*/evidence//*.png 由 .gitignore:105 排除（取证图只留本地）",
+          "keywords": [
+            "production",
+            "evidence",
+            "png",
+            "gitignore",
+            "对照图",
+            "本地产物"
+          ]
+        },
+        {
+          "anchor": "§6 复算口径备忘",
+          "level": 2,
+          "startLine": 66,
+          "endLine": 71,
+          "tokens": 105,
+          "summary": "字身 → 墨高换算用系统中文黑体实测：粗体 ≈ 0.88 em（40→35、34→31.6、22→20.2 三档同斜率）",
+          "keywords": [
+            "复算口径备忘"
           ]
         }
       ]

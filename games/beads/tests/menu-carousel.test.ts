@@ -13,6 +13,7 @@ import { createBeadsShell } from '../src/game/beads-shell.js';
 import { buildMetaView, setMenuBitmapResolver, type MetaViewData } from '../src/view/meta-view.js';
 import { anchoredGeo } from '../src/view/meta-layout.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
+import { UI_FONT } from '../src/view/ui-theme.js';
 import type { BeadsLevelRaw } from '../src/config/levels-data.js';
 
 const dataFor = (lv: BeadsLevelRaw, extra: Partial<MetaViewData> = {}): MetaViewData => ({
@@ -89,6 +90,21 @@ describe('橱窗绘制', () => {
         expect(cmds.filter((c) => c.kind === 'circle').length).toBeGreaterThanOrEqual(7);
         expect(cmds.some((c) => c.kind === 'blit' && c.textureId === ARCS[0].textureId)).toBe(false);
         expect(cmds.some((c) => c.kind === 'blit' && c.textureId === MENU_TEXTURES.lock)).toBe(false);
+    });
+
+    // `[WXG-T-600]` 木牌**单行槽**只有两种内容：无展示名的「第 N 关」与空橱窗的「敬请期待」。
+    // 两者落同一 y（`plateSingleCy`）⇒ 字号必须同档，否则翻到空橱窗页会看出「牌面缩水一圈」。
+    // 旧值 = 提示语走 `UI_FONT.button`（30）、关序走 `plateTitle`（34）。
+    it('`[WXG-T-600]` 单行槽同档：敬请期待与单行关序同字型', () => {
+        setMenuBitmapResolver(() => true);
+        const fontOf = (d: MetaViewData, label: string) =>
+            frame(d).find((c) => c.kind === 'text' && c.text === label) as { font?: string } | undefined;
+
+        const soon = fontOf(dataFor(lv, { carouselLevel: undefined, carouselComingSoon: true }), ARC_COMING_SOON);
+        // `LEVELS[0]` 无展示名（同 `menu-plate-title` 的「无展示名 ⇒ 单行关序」用例）⇒ 走单行槽。
+        const seq = fontOf(dataFor(lv), `第 ${lv.id} 关`);
+        expect(seq?.font, '单行关序 = plateTitle').toBe(UI_FONT.plateTitle);
+        expect(soon?.font, '敬请期待同档（⛔ 退回 button 30）').toBe(seq!.font);
     });
 
     it('`[WXG-T-566]` 滑动时作品图跟着走；减少动效时不平移', () => {
