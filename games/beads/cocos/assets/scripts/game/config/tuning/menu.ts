@@ -441,10 +441,11 @@ export function setMenuV2Baked(on: boolean): void {
 }
 export const MENU_V2 = {
   /**
-   * 招牌整图 549×337 @(**101, 0**)：板体 549×295 在图内下方（`y=42..337`），上方 42 是绳，
-   * 绳顶正好接屏顶 ⇒ 坐标图上该框的绿色标线首行即 `y=0`（`2:82 101,0 · 549×295` 的「0」）。
+   * 招牌整图 549×**361** @(**101, 0**)：板体 549×243 在图内下方（`y=118..361`），上方 118 是绳，
+   * 绳顶正好接屏顶 ⇒ 坐标图上该框的绿色标线首行即 `y=0`。
+   * 2026-11-07 绳加长 24（正本 674→722 图 px，见 `signboard-rope-extend.py`）：原 337 / 绳 94。
    */
-  sign: { x: 101, y: 0, w: 549, h: 337 },
+  sign: { x: 101, y: 0, w: 549, h: 361 },
   /** 开始钮 378×179（「开始」二字已烘进图 ⇒ 起点页不再叠 `ctaLabel`）。 */
   cta: { x: 186, y: 1051, w: 378, h: 179 },
   prev: { x: 18, y: 605, w: 110, h: 116 },
@@ -518,13 +519,22 @@ export const MENU_V3 = {
      */
     safeGap: 12,
     /**
-     * 招牌整图 549×337，**板体（木牌）上沿实测 = 图内 y 94**。
-     * 2026-11-06 Figma 重新生成并重下载后逐行重扫：y≤85 每行仅 ~80 图 px 宽 = 两根绳；
-     * y=94 起棕色宽 >400 图 px = 板体。旧版该值是 108（去背重生成后绳缩短 14 px），
-     * 更早还误按「337 − 板体高 295 = 42」推过一次 —— ⛔ 换招牌图必须同批重扫本值。
-     * `signTop = boardTop − boardOff` = 整图顶（绳顶）。
+     * **图内绳高**（图顶 → 板体上沿）= 118，招牌整图 549×361 的 `y=118..361` 是板体。
+     * 2026-11-07 加长 24 设计 px（原 94，正本 674→722 图 px，见 `signboard-rope-extend.py`）：
+     * 原绳高只够 SE/Android/21:9 三档贴顶，X-14 / 灵动岛 / 16 Pro Max 各留 12 / 21 / 10 px 悬空。
+     * 口径沿用 2026-11-06 逐行重扫（`y≤85` 每行 ~80 图 px 宽 = 两绳；其下棕色宽 >400 图 px = 板体）。
+     * `signTop = boardTop − boardOff` = 整图顶（绳顶）；**允许为负** = 绳顶出屏被裁
+     * （加长段的用途就是让深档够长、浅档多余部分裁掉，⛔ 不再拿绳高当板体顶下限）。
+     * ⛔ 换招牌图必须同批重扫本值，⛔ 不要按「图高 − 板体高」反推。
      */
-    boardOff: 94,
+    boardOff: 118,
+    /**
+     * **板体顶距屏顶的下限 = 94**（与绳高解耦，2026-11-07 拆分）。
+     * 版面语义：浅安全区档（SE st=40 / Android 60 / 21:9 60）`st + safeGap` 只有 52~72，
+     * 若照此落位招牌会离柜体太远；94 是 2026-11-06 起调好的版面读数，⛔ 不随绳长变。
+     * ⇒ 浅档 `signTop` 为负（绳顶出屏 24），深档（st≥82）由 `st + safeGap` 接管。
+     */
+    minBoardTop: 94,
     /**
      * CTA 底距**底安全区上缘** = **104**（用户 2026-11-06 裁：拿 SE 档的距离作为全档统一值）。
      * 反推 = SE `H=1334, sb=0, CTA 底 1230` ⇒ `1334 − 0 − 1230 = 104`；
@@ -534,7 +544,8 @@ export const MENU_V3 = {
     ctaGap: 104,
     /** 橱窗（柜体）在背板内 353..1058。 */
     caseH: 705,
-    signH: 337,
+    /** 招牌整图高（含绳）：2026-11-07 绳加长 24 ⇒ 337 → 361，与 `MENU_V2.sign.h` 同源。 */
+    signH: 361,
     ctaH: 179,
 } as const;
 /**
@@ -544,9 +555,11 @@ export const MENU_V3 = {
  * 2. **CTA 独立贴底** ⇒ `ctaBottom = H − sb − 104`（104 = SE 档实测距底安全区，
  *    用户 2026-11-06 裁「其他都保持这个距离」）；SE 自然回到 1230 ⇒ CTA 顶 1051
  *    盖进柜底 1058 共 7 px（概念图口径），⛔ 不再有档位特例；
- * 3. **招牌独立贴顶** ⇒ `boardTop = max(st + safeGap, 94)`：板体顶明确避开 safe top 线 safeGap px，
- *    下限 94 = 新图实测绳高 ⇒ `signTop ≥ 0`，绳子完整、绝不跑到屏幕外；
- *    ⚠ 主流四档缝隙 12 px；仅 st 最浅的 SE 54 / Android 34 仍由下限接管；
+ * 3. **招牌独立贴顶** ⇒ `boardTop = max(st + safeGap, minBoardTop=94)`：板体顶避开 safe top 线
+ *    safeGap px，浅档由 94 兜底；`signTop = boardTop − 绳高118` **可为负**（绳顶出屏被裁，
+ *    2026-11-07 加长后浅档 −24 / 深档 −3~−14，全档绳顶都够到屏顶、零悬空）；
+ *    ⚠ 加长的收益正体现在深档：原 94 时 X-14 / 灵动岛 / 16 Pro Max 各留 12/21/10 px 悬空；
+ *    ⚠ 「绳子完整不跑到屏幕外」这条旧约束已作废（它会把浅档板体推低 24 ⇒ 压橱窗顶）；
  * 4. **顶栏四钮** ⇒ `topbarTop = max(signTop + 134, cap + safeGap)`：常规跟招牌，
  *    胶囊深的档由 `cap` 接管 ⇒ 右上两枚不压进原生胶囊区。
  *
@@ -560,9 +573,10 @@ export function menuV3Placement(H: number, st: number, cap: number, sb: number):
     readonly bandTop: number; readonly bandBottom: number; readonly gap: number;
 } {
     const C = MENU_V3;
-    // 板体顶 = safe top + 4（一点点缝），再受绳高下限约束 ⇒ `signTop ≥ 0`，绳子完整不出屏。
-    // ⚠ st 最浅的档由下限接管（SE 缝 54 / Android 34），要再压需裁短绳段（美术侧，待裁）。
-    const boardTop = Math.max(st + C.safeGap, C.boardOff);
+    // 板体顶 = max(safe top + safeGap, minBoardTop)；`signTop` 可为负 = 绳顶出屏被裁。
+    // 拆两枚常量的原因：绳高（118）只服务「绳顶够不够到屏顶」，下限（94）只服务版面；
+    // 合成一枚会把浅档板体推低 24 ⇒ SE 招牌底 361 压住橱窗顶 353（实测 gap −7.5）。
+    const boardTop = Math.max(st + C.safeGap, C.minBoardTop);
     const signTop = boardTop - C.boardOff;
     const ctaBottom = H - sb - C.ctaGap;
     // 顶栏四钮：常规跟招牌（图内 y=134），但必须**避开胶囊底 + safeGap**（与板体同一枚距离）。

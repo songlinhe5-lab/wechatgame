@@ -37,7 +37,7 @@ BG_QUALITY = 85
 # 'pair' = 有同族两态，必须走航 `ship()` 保按下反馈（BD-61）
 JOBS = [
     ('background/ui_menu_backdrop_figma@2x.png',  'ui_menu_backdrop.jpg',          BG_SIZE, 'jpg'),
-    ('background/ui_menu_signboard_figma@2x.png', 'ui_menu_signboard.png',         (549, 337), 'octree'),
+    ('background/ui_menu_signboard_figma@2x.png', 'ui_menu_signboard.png',         (549, 361), 'octree'),
     ('badges/ui_menu_frame@2x.png',               'ui_menu_arc_ring.png',          (518, 518), 'octree'),
     ('badges/ui_menu_lock@2x.png',                'ui_menu_badge_locked.png',      None,     'octree'),
     ('badges/ui_menu_seal@2x.png',                'ui_menu_seal.png',              (90, 90), 'octree'),
