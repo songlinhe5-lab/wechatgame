@@ -388,7 +388,9 @@ function drawComingSoonPlate(
     if (alpha <= 0) return;
     const a = alpha < 1 ? alpha : undefined;
     builder.text(g.plateCx, g.plateSingleCy, ARC_COMING_SOON, {
-        fill: palette.woodEdge,
+        // `[WXG-T-597]` 同压牌面亮木 ⇒ 与关名同墨（`wood_edge` 4.68:1 够用，但既然牌面墨已独立成
+        // 令牌，这里跟着走，避免牌上出现两种深棕）。字型不动（提示语不是关名）。
+        fill: palette.plateTitleInk,
         font: UI_FONT.button,
         align: 'center',
         baseline: 'middle',
@@ -397,26 +399,25 @@ function drawComingSoonPlate(
 }
 
 /**
- * `[WXG-T-596]` 木牌第一行（关名）字型：**30 粗体**。
+ * 木牌第一行（关名）字型：**40 粗体**（`[WXG-T-597]`，用户 2026-11-07 选 A 档）。
  *
- * 稿面（`menu-design-baseline-cat-topbar-final-slotbar-20261102.png`）字高 30px、笔画明显粗于
- * 常规档 ⇒ 原 `UI_FONT.button`（`30px` 常规）加粗即可；`panelButton` 恰是 `bold 30px sans-serif`，
- * **复用在册字型、不动 `UI_FONT` 表**。墨仍 `wood_edge #5E3B1E`（对牌面 `#E9A45C` = **4.68:1** ✓，
- * 与稿的 `#652500` 同族、ΔE 小 ⇒ 不为此新增令牌）。
+ * 演进：`UI_FONT.button`（30 常规）→ `panelButton`（`bold 30px`，WXG-T-596）→ **`plateTitle`**
+ * （`bold 40px`，本批）。放大依据 = 稿面「关名字身 ÷ 次行字身」= **1.70**，而 30/28 只有 1.08
+ * （两行几乎一样大、主次不分）；40px 把它拉到 **1.43**，且最长关名「照片冒烟 32」仍只占牌净宽
+ * 214/245。⛔ 超过 42 会顶破牌宽（详见 {@link UI_FONT.plateTitle} 注释）。
  */
-const PLATE_TITLE_FONT = UI_FONT.panelButton;
+const PLATE_TITLE_FONT = UI_FONT.plateTitle;
 /**
- * `[WXG-T-596]` 木牌第二行：**深棕药丸底 + 米白粗体**（设计稿对齐）。
+ * 木牌第二行：**胶囊底 + 次行墨**（`[WXG-T-596]` 立件，`[WXG-T-597]` 换稿值）。
  *
  * 为什么不直接压墨：牌面亮木实测 `(233,164,92)`，旧墨 `wood_face #8A5B34` 压上去只有
- * **2.74:1 ❌**（既有 a11y 缺陷）。稿的做法正是「深棕药丸 + 米白墨」⇒ 本仓取**同一对在册值**
- * （`wood_face` 当底 / `wood_text` 当墨 = **5.4:1** ✓）⇒ **零新 hex**，且与稿的
- * `#89491C` / `#FFE9C8` 同族。
+ * **2.74:1 ❌**（既有 a11y 缺陷、且违反拆册件 §4 早已定的 `woodText` 口径）。稿的做法是
+ * 「深棕胶囊 + 浅暖墨」，本批起**改用稿实测值**（`plate_pill #795127` / `plate_sub_ink #E8D098`
+ * = **4.61:1** ✓），不再借 `wood_face`/`wood_text`。
  *
- * 几何见 {@link MENU_PLATE_PILL}：`130×26 · r13` 与拆册件 `menu-plate-text-control-spec §2` 一致、
- * 也与稿实测吻合（`x311..440 / y951..976`）。⚠ 稿的次行字高 18（折算 ≈20px），我们守 **E1 地板 28**
- * ⇒ 27 号字的字身 ≈25 会**顶满**这层 26 高的胶囊（上下各余 0.5px）；这是「在册几何 + 地板字号」
- * 共同决定的必然结果，⛔ 不靠缩字号解决（那会破 E1）。
+ * 几何见 {@link MENU_PLATE_PILL}：宽 130 照稿与拆册件；**高 26 → 33** —— 次行守 E1 的 28（字身
+ * ≈25.2，不降到稿的 ≈18）⇒ 只能加厚胶囊，让「字身 ÷ 胶囊高」回到稿的 0.72 档（实得 0.76）。
+ * ⛔ 别再厚：牌高 85，关名 36 + 胶囊 33 = 69 已占 81%。
  */
 function drawPlateSub(
     builder: RenderModelBuilder,
@@ -427,12 +428,12 @@ function drawPlateSub(
 ): void {
     builder.rect(g.plateCx - MENU_PLATE_PILL.w / 2, g.plateLine2Cy - MENU_PLATE_PILL.h / 2,
         MENU_PLATE_PILL.w, MENU_PLATE_PILL.h, {
-            fill: palette.woodFace,
+            fill: palette.platePill,
             radius: MENU_PLATE_PILL.h / 2,
             ...(a === undefined ? {} : { alpha: a }),
         });
     builder.text(g.plateCx, g.plateLine2Cy, text, {
-        fill: palette.woodText, font: UI_FONT.labelBold, align: 'center', baseline: 'middle',
+        fill: palette.plateSubInk, font: UI_FONT.labelBold, align: 'center', baseline: 'middle',
         ...(a === undefined ? {} : { alpha: a }),
     });
 }
@@ -463,25 +464,25 @@ function drawPlateTitle(
     const a = alpha < 1 ? alpha : undefined;
     if (lv.title && starNeed !== undefined) {
         builder.text(g.plateCx, g.plateLine1Cy, lv.title, {
-            fill: palette.woodEdge, font: PLATE_TITLE_FONT, align: 'center', baseline: 'middle',
+            fill: palette.plateTitleInk, font: PLATE_TITLE_FONT, align: 'center', baseline: 'middle',
             ...(a === undefined ? {} : { alpha: a }),
         });
         drawPlateSub(builder, g, palette, `★ ${starGot ?? 0}/${starNeed}`, a);
     } else if (arcTotal !== undefined && arcTotal > 0) {
         builder.text(g.plateCx, g.plateLine1Cy, lv.title || seq, {
-            fill: palette.woodEdge, font: PLATE_TITLE_FONT, align: 'center', baseline: 'middle',
+            fill: palette.plateTitleInk, font: PLATE_TITLE_FONT, align: 'center', baseline: 'middle',
             ...(a === undefined ? {} : { alpha: a }),
         });
         drawPlateSub(builder, g, palette, `${arcDone ?? 0}/${arcTotal}`, a);
     } else if (lv.title) {
         // (b) 有展示名 ⇒ 只画名字、隐关序（用户 2026-10-21 裁；偏离 v3.7「关序+关名两行」原型）。
         builder.text(g.plateCx, g.plateSingleCy, lv.title, {
-            fill: palette.woodEdge, font: PLATE_TITLE_FONT, align: 'center', baseline: 'middle',
+            fill: palette.plateTitleInk, font: PLATE_TITLE_FONT, align: 'center', baseline: 'middle',
             ...(a === undefined ? {} : { alpha: a }),
         });
     } else {
         builder.text(g.plateCx, g.plateSingleCy, seq, {
-            fill: palette.woodEdge, font: PLATE_TITLE_FONT, align: 'center', baseline: 'middle',
+            fill: palette.plateTitleInk, font: PLATE_TITLE_FONT, align: 'center', baseline: 'middle',
             ...(a === undefined ? {} : { alpha: a }),
         });
     }

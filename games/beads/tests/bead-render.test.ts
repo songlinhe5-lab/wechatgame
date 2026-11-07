@@ -1144,11 +1144,16 @@ describe('v1.57 art 硬约束（assets-spec §1.10.9 四条）', () => {
   //    `bar_value #F7C384`（稿面 `12/20`/`480` 字面像素众数实测；对条体底色均值 5.86:1 ✓）——
   //    它压在**背板烘出的暖棕条体**上、与 `wood_text`（木钮 5.4:1）底不同，属**新底新墨**而非换值
   //    ⇒ 49 → **50** 条 / `5f97298f7361`→`0f3c4490ba31`。
+  //    [WXG-T-597 · 2026-11-07 用户裁定「A 档 + 新增 3 枚令牌」] **橱窗木牌三枚**入表（真源
+  //    tokens.md §1）：`plate_title_ink #563113`（稿实测，对牌面 5.38:1 ✓）/ `plate_sub_ink #E8D098`
+  //    （稿 `#E6CC90` 提亮 9/255 —— 稿值压稿胶囊只有 4.44:1，提亮换 4.61:1 ✓）/
+  //    `plate_pill #795127`（稿实测）。三种都是「压在**烘图亮木牌面**上的专用墨/底」，与
+  //    `wood_*` 的钮面底不同底 ⇒ 同样是**新底新墨**而非换值 ⇒ 50 → **53** 条 / `…ba31`→`248d326a306c`。
   it('④ 色表锁：palette.ts 代码内 hex 条数与指纹不变（§1.9.7①）', () => {
     const src = readFileSync(new URL('../src/view/palette.ts', import.meta.url), 'utf8');
     const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
     const hexes = code.match(/#[0-9A-Fa-f]{6}/g) ?? [];
-    expect(hexes.length).toBe(50);
-    expect(createHash('sha1').update(hexes.join('|')).digest('hex').slice(0, 12)).toBe('0f3c4490ba31');
+    expect(hexes.length).toBe(53);
+    expect(createHash('sha1').update(hexes.join('|')).digest('hex').slice(0, 12)).toBe('248d326a306c');
   });
 });

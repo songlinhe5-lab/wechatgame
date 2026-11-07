@@ -49,6 +49,11 @@ const COOL_VIOLET_TOKENS: BeadsPalette = Object.freeze({
     // [WXG-T-595] 资源条数值墨**跨肤同值**（不发明新色相，也不走冷化）：资源条背板是 v2 烘图、
     // 与肤无关 ⇒ 条体恒为暖棕，字墨必须配同一底色（对比实测 5.86:1）。判例同 `STAR_GOLD` 跨肤不变。
     barValue: '#F7C384',
+    // [WXG-T-597] 木牌三色同样**跨肤同值**：木牌本体（含亮木牌面）是 v2 背板烘图、与肤无关
+    // ⇒ 牌面恒暖木，三色必须配同一底色，⛔ 不走冷化（否则对比判据全部失效）。
+    plateTitleInk: '#563113',
+    plateSubInk: '#E8D098',
+    platePill: '#795127',
     cardPressed: '#F7F6FB', // ≡ slot（纸面深一档的冷对应）
     cardDisabled: '#F7F6FB',
     cardDisabledBorder: '#D8D5E6', // ≡ slotBorder

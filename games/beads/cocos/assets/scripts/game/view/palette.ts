@@ -308,6 +308,23 @@ export interface BeadsPalette {
    * ⛔ 不随肤变：资源条背板（v2 烘图）与肤无关 ⇒ 冷紫灰肤给**同值**（配同一暖棕条体）。
    */
   readonly barValue: string;
+  /**
+   * `[WXG-T-597]` **橱窗木牌关名墨**（稿 `#563113`）：对牌面亮木 `#E9A45C` = **5.38:1** ✓。
+   * 稿实测 `(86,49,19)`，比旧用的 `wood_edge #5E3B1E` 更暗更偏红 —— 关名字号放大后色差变显眼，故单独立令牌。
+   */
+  readonly plateTitleInk: string;
+  /**
+   * `[WXG-T-597]` **橱窗木牌次行墨**：稿实测 `(230,204,144)` = `#E6CC90`，但它压稿的胶囊
+   * `#8D491D`/`#795127` 只有 **4.44:1** ⇒ 提亮 9/255 到 **`#E8D098`** 得 **4.61:1** ✓
+   * （与稿色 RGB 距离 9.2，肉眼不可辨；28px 属 WCAG 大字号本只需 3:1，此处多留余量）。
+   * ⚠ **必须配 {@link platePill} 一起用**：该墨压牌面亮木只有 **1.35:1**，胶囊缺失即不可读。
+   */
+  readonly plateSubInk: string;
+  /**
+   * `[WXG-T-597]` **橱窗木牌次行胶囊底**（稿实测 `(121,81,39)` = `#795127`）。
+   * 它是次行墨的**唯一合法地色**（见 {@link plateSubInk}）；旧法用 `wood_face #8A5B34` 偏亮偏灰。
+   */
+  readonly platePill: string;
   /** 纸钮/纸卡按下态面（tokens.md `card_pressed`）。 */
   readonly cardPressed: string;
   /** 纸钮禁用态面（tokens.md `card_disabled`）。 */
@@ -370,6 +387,9 @@ export const DEFAULT_PALETTE: BeadsPalette = {
   woodSheen: '#B98A5C', // wood_sheen 顶缘 1px 受光线
   woodText: '#FFF6E8', // wood_text 米白字（对 wood_face 5.4:1 ✓）
   barValue: '#F7C384', // bar_value 资源条数值暖橙（WXG-T-595 设计稿实测；对条体均值 5.86:1 ✓）
+  plateTitleInk: '#563113', // plate_title_ink 木牌关名墨（WXG-T-597 稿实测；对牌面 5.38:1 ✓）
+  plateSubInk: '#E8D098', // plate_sub_ink 木牌次行墨（稿 #E6CC90 提亮 9/255 换 4.61:1 ✓；配 plate_pill）
+  platePill: '#795127', // plate_pill 木牌次行胶囊底（WXG-T-597 稿实测；plate_sub_ink 的唯一合法地色）
   cardPressed: '#F4EAD7', // card_pressed
   cardDisabled: '#F7F2E6', // card_disabled
   cardDisabledBorder: '#EAE0CC', // card_disabled_border

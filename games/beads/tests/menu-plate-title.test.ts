@@ -89,27 +89,36 @@ describe('累计星进度件（WXG-T-346 · ux v1.11 §4.1 甲臂）', () => {
     // 22px 属「普通文本」档需 4.5:1，而实测对牌底 `wood_face` 3.60:1 / `text_secondary` 2.95:1 ⇒ 都不达标。
     //
     // `[WXG-T-596]` 2026-11-07 用户令「按设计稿改橱窗名牌的字体字样」：第二行由「`wood_face` 直接压
-    // 牌面」改为稿面的「**深棕药丸 + 米白粗体**」。旧法对牌面亮木实测 `(233,164,92)` 只有
-    // **2.74:1 ❌**（破门）；新法 `wood_text` 压 `wood_face` = **5.4:1** ✓。字号仍 28（E1 地板 +
-    // 本件判例），加粗取 `labelBold`。
-    it('第二行 = 深棕药丸(woodFace) + 米白粗体 28，E2 开也仍 28（牌面定尺，⛔ 回退 22 档）', () => {
+    // 牌面」改为稿面的「**深棕胶囊 + 浅暖粗体**」。旧法对牌面亮木实测 `(233,164,92)` 只有
+    // **2.74:1 ❌**（破门）。
+    //
+    // `[WXG-T-597]` 用户裁「A 档（守 E1）+ 新增 3 枚令牌」：两行改**稿实测值**
+    // （`plate_title_ink` / `plate_sub_ink` / `plate_pill`），关名 30 → **40 粗**，次行仍 28，
+    // 胶囊 26 → **33**（守 E1 只能加厚胶囊换回稿的「字身÷胶囊」比例）。现对比：
+    // 关名 5.38:1 ✓ / 次行 4.61:1 ✓。
+    it('两行 = 胶囊(platePill) + 次行墨 28 粗 + 关名墨 40 粗，E2 开也仍 28（牌面定尺，⛔ 回退 22 档）', () => {
         setMenuBitmapResolver(() => true);
         // largeText 强制开：木牌侧「不随 E2 放大」是 §10 的在册例外，必须在这一例里一并守住。
         const cmds = allCmds({ ...dataFor(named, 'pushing'), largeText: true, arcStarGot: 18, arcStarNeed: 21 });
-        const bar = cmds.filter((c) => c.kind === 'text')
-            .map((c) => c as unknown as { text: string; font?: string; fill?: string })
-            .find((c) => c.text === '★ 18/21')!;
-        expect(bar.font, '字号 = 28 粗体（labelBold），E2 档下也不得变 35').toBe(UI_FONT.labelBold);
+        const texts = cmds.filter((c) => c.kind === 'text')
+            .map((c) => c as unknown as { text: string; font?: string; fill?: string });
+        const bar = texts.find((c) => c.text === '★ 18/21')!;
+        expect(bar.font, '次行字号 = 28 粗体（labelBold），E2 档下也不得变 35').toBe(UI_FONT.labelBold);
         expect(bar.font, '⛔ 回到 cell 22 档（22px 需 4.5:1）').not.toBe(UI_FONT.cell);
-        expect(bar.fill, '墨 = wood_text（压深棕药丸 5.4:1 ✓）').toBe(DEFAULT_PALETTE.woodText);
+        expect(bar.fill, '次行墨 = plate_sub_ink（压胶囊 4.61:1 ✓）').toBe(DEFAULT_PALETTE.plateSubInk);
 
-        // 药丸底必须真画出来：缺了它，米白墨压亮木牌面只有 1.79:1（比旧法更糟）。
+        const title = texts.find((c) => c.text === '曼陀罗')!;
+        expect(title.font, '关名字型 = plateTitle（bold 40，稿「关名÷次行」1.70 的宽度上限内解）')
+            .toBe(UI_FONT.plateTitle);
+        expect(title.fill, '关名墨 = plate_title_ink（压牌面亮木 5.38:1 ✓）').toBe(DEFAULT_PALETTE.plateTitleInk);
+
+        // 胶囊底必须真画出来：缺了它，次行墨压亮木牌面只有 1.35:1（比旧法更糟）。
         const pill = cmds.filter((c) => c.kind === 'rect')
             .map((c) => c as unknown as { w: number; h: number; radius?: number; fill?: string })
-            .find((c) => c.fill === DEFAULT_PALETTE.woodFace && c.w === 130);
-        expect(pill, '药丸底（wood_face / 宽照稿 130）必须存在').toBeTruthy();
-        expect(pill!.h, '高 26 = 拆册件 §2 在册值（也与稿 949..975 吻合）').toBe(26);
-        expect(pill!.radius, '圆角 = 高/2 = 13（全圆端，同稿 r13）').toBe(pill!.h / 2);
+            .find((c) => c.fill === DEFAULT_PALETTE.platePill && c.w === 130);
+        expect(pill, '胶囊底（plate_pill / 宽照稿 130）必须存在').toBeTruthy();
+        expect(pill!.h, '高 33 = A 档定义式（次行 28 字身 25.2 ÷ 33 = 0.76 ≈ 稿 0.72）').toBe(33);
+        expect(pill!.radius, '圆角 = 高/2（全圆端，同稿）').toBe(pill!.h / 2);
     });
 });
 
