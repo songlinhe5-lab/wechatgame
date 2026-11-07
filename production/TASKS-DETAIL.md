@@ -8918,7 +8918,7 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 
 ## WXG-T-598
 
-**UX·木牌只留关名 + 关序（撤 ★ 与大关 N/M）** · 负责：主理人(CodeBuddy)·UX/视图轨 · 状态：🔄 进行中
+**UX·木牌只留关名 + 关序（撤 ★ 与大关 N/M）** · 负责：主理人(CodeBuddy)·UX/视图轨 · 状态：✅ 完成（2026-11-07）
 
 ### 1. 用户令与在册欠账
 
@@ -8960,4 +8960,18 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 ### 5. 取证
 
 - 单测：`menu-plate-title` 6/6、`menu-tri-state` 8/8 绿。
-- 金样本：待本笔落码提交后在可复现锚重抓（读数见 §5.1）。
+- 金样本：`WXG298_SOURCE_REV=4f69cdcb` 锚重抓，十一帧**两遍逐态记录全等 = PASS**。
+
+### 5.1 重抓读数（判「只有文本内容变」的机械证据）
+
+十态 `total` 与逐 kind 计数**全部逐条不变**（`main-menu` 1623 / `level-select`·`-mid` 1848 / `settings` 1651 / `signin` 1655，text 计数亦不变 —— 换的是同槽同一条 text），仅五态 sha 变：
+
+| 态 | 旧 sha | 新 sha |
+|---|---|---|
+| `main-menu` | `c14822b3…` | `faf8fdeb…` |
+| `level-select` | `0a5d7f12…` | `dcfa08ea…` |
+| `level-select-mid` | `c45c94aa…` | `02a1999e…` |
+| `settings` | `8a839439…` | `bc1b8bef…` |
+| `signin` | `5b90eabf…` | `65bf13f5…` |
+
+其余六态（play / pause / clear / fail / sprint-settle / finish）逐字未变。⚠ 五态一起动不是「菜单木牌被别的界面看到」，而是 `settings` / `signin` 属**菜单背屏 overlay**（共用同一帧菜单）；`level-select` 两态同源。⛔ 未手改夹具（K-051 / K-053）。

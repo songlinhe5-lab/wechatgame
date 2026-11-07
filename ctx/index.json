@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3980,
       "lines": 134,
-      "sha256": "1e3bac83a9c9391002954ba2bec212a3c83301e11b7e6a6b859b8299a334371e",
+      "sha256": "850c323719b43e11605c2954746822fb643002088bdfb3b24bea7b8b8e6c5a3f",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 246897 8963 normal",
+          "summary": "1 production/TASKS-DETAIL.md 247155 8977 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5273,
       "lines": 165,
-      "sha256": "a51e0f7622646bb9e262f39efd732e7b61d8f7efa970e6cd63f060e4cf4a22dc",
+      "sha256": "c4b7104c701aff787443e5d434fe787c26b35041b871f40abd1a77b3e0bd0ee9",
       "tier": "normal",
       "sections": [
         {
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 8963 行 / 246897 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 8977 行 / 247155 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+8964 · §WXG-T-587=8354+57 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+8978 · §WXG-T-587=8354+57 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -14128,17 +14128,17 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 23952,
-      "lines": 266,
-      "sha256": "5da2e601a739676d7f6daab60c9cb7751ae5668bedf7310ecfab1b4d751a39ec",
+      "tokens": 24388,
+      "lines": 268,
+      "sha256": "be45bc06c37dc29274232bc314d0888ecd52d8bb0c512318c33f8e28b1c57e2b",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads UI 架构（View / ViewModel / Presenter + 公共基础）",
           "level": 1,
           "startLine": 1,
-          "endLine": 267,
-          "tokens": 23933,
+          "endLine": 269,
+          "tokens": 24370,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -14308,8 +14308,8 @@
           "anchor": "§12 TODO 拆分",
           "level": 2,
           "startLine": 138,
-          "endLine": 263,
-          "tokens": 18880,
+          "endLine": 265,
+          "tokens": 19316,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -14320,8 +14320,8 @@
         {
           "anchor": "§13 待你拍板",
           "level": 2,
-          "startLine": 264,
-          "endLine": 267,
+          "startLine": 266,
+          "endLine": 269,
           "tokens": 323,
           "summary": "D1–D5 均已裁定（见 [ADR-0032 §5](adr/ADR-0032-beads-ui-architectur",
           "keywords": [
@@ -89060,17 +89060,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 246897,
-      "lines": 8963,
-      "sha256": "82fa5dfdec21eca0d5c936807fc8fed32121bcd1cea4052e8185073fdb7180f9",
+      "tokens": 247155,
+      "lines": 8977,
+      "sha256": "2f2ad9e7f18e7c44dab8697a933337d34a147a8321b2c42b20f79e1939c7d5ec",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 8964,
-          "tokens": 246880,
+          "endLine": 8978,
+          "tokens": 247138,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -102912,8 +102912,8 @@
           "anchor": "§WXG-T-598",
           "level": 2,
           "startLine": 8919,
-          "endLine": 8964,
-          "tokens": 810,
+          "endLine": 8978,
+          "tokens": 1068,
           "summary": "UX·木牌只留关名 + 关序（撤 ★ 与大关 N/M） · 负责：主理人(CodeBuddy)·UX/视图轨 · 状态：",
           "keywords": [
             "WXG",
@@ -102985,7 +102985,7 @@
           "level": 3,
           "startLine": 8960,
           "endLine": 8964,
-          "tokens": 45,
+          "tokens": 49,
           "summary": "单测：menu-plate-title 6/6、menu-tri-state 8/8 绿。",
           "keywords": [
             "menu",
@@ -102994,6 +102994,22 @@
             "tri",
             "state",
             "取证"
+          ]
+        },
+        {
+          "anchor": "§5.1 重抓读数（判「只有文本内容变」的机械证据）",
+          "level": 3,
+          "startLine": 8965,
+          "endLine": 8978,
+          "tokens": 228,
+          "summary": "十态 total 与逐 kind 计数全部逐条不变（main-menu 1623 / level-select·-mid",
+          "keywords": [
+            "total",
+            "kind",
+            "main",
+            "menu",
+            "level",
+            "select"
           ]
         }
       ]
