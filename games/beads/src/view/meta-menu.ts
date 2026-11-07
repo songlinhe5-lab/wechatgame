@@ -3,12 +3,12 @@
  * 几何一律取自 `meta-layout.ts` 的锚定档，控件画法取自 `meta-widgets.ts` ⇒ 页面只编排、不另算。
  */
 
-import { DESIGN_H, DESIGN_W, type MenuAnchors, MENU_ARROW_ICON, MENU_BAR_BAKED_LABEL_INSET, MENU_CASE_INTERIOR_BAKED, MENU_BAR_ICON_D, MENU_BOSS_ART_D, MENU_CTA_LABEL, MENU_CTA_PRESSED_D, MENU_CTA_SLICE, MENU_CTA_SRC_H, MENU_DONE_ICON, MENU_FROST, MENU_FULLSTAR_FRAME, MENU_GRAY_WIPE, MENU_LIGHT, MENU_LOCKED_ICON, MENU_PLAQUE_BEVEL_INSET, MENU_PLAQUE_ICON_INSET, MENU_PLAQUE_RIVET_INSET, MENU_PLAQUE_RIVET_R, MENU_PLAQUE_STROKE, MENU_SIGNIN_DOT_R, MENU_SIGN_FRAME, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, MENU_V2_BAKED, MENU_V2_BG_EXPAND, MENU_V2_BG_H, MENU_V2_DESK_FILL,
+import { DESIGN_H, DESIGN_W, type MenuAnchors, MENU_BAR_BAKED_LABEL_INSET, MENU_CTA_PRESSED_D, MENU_CTA_SRC_H, MENU_FROST, MENU_FULLSTAR_FRAME, MENU_GRAY_WIPE, MENU_LOCKED_ICON, MENU_SIGNIN_DOT_R, MENU_SIGN_FRAME, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, MENU_V2_BG_EXPAND, MENU_V2_BG_H, MENU_V2_DESK_FILL,
     SIGN_BEAD_PITCH, menuBackdropTopPad, SIGN_MATRIX_N, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning.js';
 import { COPY_TOKENS } from '../config/copy-tokens.js';
 import { ARC_COMING_SOON } from '../config/arcs.js';
 import { plateFade } from '../config/menu-carousel.js';
-import { frostGrayFx, grayWipeFx, nineSliceFx, type BlitFx, type RenderModelBuilder } from '@wxgame/framework';
+import { frostGrayFx, grayWipeFx, type BlitFx, type RenderModelBuilder } from '@wxgame/framework';
 import { beadFadedInksFor, type BeadsPalette } from './palette.js';
 import { drawBeadText, drawLevelThumb } from './menu-signage.js';
 import { drawGear } from './play-page.js';
@@ -52,31 +52,15 @@ function triStateFx(state: MetaBossState, done?: number, total?: number): BlitFx
     return undefined;
 }
 
-/** `fullstar` 同 `cleared` 取满亮柜灯（`[WXG-T-579]`：满星不额外调光，靠框区分）。 */
-function triStateLight(state: MetaBossState): number {
-    if (state === 'locked') return MENU_LIGHT.locked;
-    if (state === 'pushing') return MENU_LIGHT.pushing;
-    return MENU_LIGHT.cleared;
-}
-
-/**
- * `[WXG-T-585]` v1/v2 同语义件选图：baked 且 v2 件已注册 ⇒ v2，否则回退 v1 老件。
- * ⛔ 不许把 v2 图换进 v1 的 key（比例/尺寸不同，v1 腿会当场变形）；v2 件缺失时也不报错，
- * 自动走 v1（Cocos 未登记新件的旧包行为逐字节不变）。
- */
-function pickTex(v1: string, v2: string): string {
-    return MENU_V2_BAKED && menuBitmapReady(v2) ? v2 : v1;
-}
-
 /**
  * 资源条（❤ 8/8 ｜ 0 ⊙）。
  *
  * `[WXG-T-585]` v2 背板**已烘**条体本体、上沿受光线、两端铆钉，以及两枚图标
  * （红心 x219..239 / 拼豆白环 x517..538，实测自 `ui_menu_backdrop@2x.png`）
- * ⇒ baked 腿**只画两枚数值**，⛔ 不再叠程序化 rect / 描边 / 铆钉 / 图标
+ * ⇒ 本函数**只画两枚数值**，⛔ 不再叠程序化 rect / 描边 / 铆钉 / 图标
  * （叠了就是「假条体压真图案 + 白心盖红心 + 灰圆盖白环」，用户 2026-11-07 判退）。
  * 数值内缩 = 图标宽（20），与烘图标的间隙由 `MENU_V2.bar` 实测框给出。
- * 非 baked（v1 腿，条体仍靠程序化画）逐字不变。
+ * ⚠ 2026-11-07 切生产后 v1 的「程序化条体 + 铆钉 + 图标位图」整条腿已删除。
  */
 function drawResourceBar(
     builder: RenderModelBuilder,
@@ -85,73 +69,20 @@ function drawResourceBar(
     g: Box,
 ): void {
     const x = g.x;
-    const y = g.y;
-    const cy = y + g.h / 2;
-    if (MENU_V2_BAKED) {
-        // 图标已烘进背板 ⇒ 文本自图标外缘再让一个间隙起排（`MENU_BAR_BAKED_LABEL_INSET` = 20+8）。
-        builder.text(x + MENU_BAR_BAKED_LABEL_INSET, cy, heartBarLabel(data.stamina, data.staminaMax, data.heartAdsLeft), {
-            fill: palette.woodText,
-            font: UI_FONT.label,
-            align: 'left',
-            baseline: 'middle',
-        });
-        builder.text(x + g.w - MENU_BAR_BAKED_LABEL_INSET, cy, `${data.coins}`, {
-            fill: palette.woodText,
-            font: UI_FONT.label,
-            align: 'right',
-            baseline: 'middle',
-        });
-        return;
-    }
-    builder.rect(x, y, g.w, g.h, {
-        fill: palette.plaqueFace,
-        stroke: palette.plaqueEdge,
-        lineWidth: MENU_PLAQUE_STROKE,
-        radius: UI_CONTAINER.radiusChip,
+    const cy = g.y + g.h / 2;
+    // 图标已烘进背板 ⇒ 文本自图标外缘再让一个间隙起排（`MENU_BAR_BAKED_LABEL_INSET` = 20+8）。
+    builder.text(x + MENU_BAR_BAKED_LABEL_INSET, cy, heartBarLabel(data.stamina, data.staminaMax, data.heartAdsLeft), {
+        fill: palette.woodText,
+        font: UI_FONT.label,
+        align: 'left',
+        baseline: 'middle',
     });
-    // 上沿受光线（与描边同档宽）：坐在顶缘描边**内侧**，⛔ 压住圆角段。
-    const sheenY = y + g.h - MENU_PLAQUE_STROKE;
-    builder.line(
-        x + MENU_PLAQUE_BEVEL_INSET, sheenY,
-        x + g.w - MENU_PLAQUE_BEVEL_INSET, sheenY,
-        palette.plaqueBevel, MENU_PLAQUE_STROKE,
-    );
-    builder.circle(x + MENU_PLAQUE_RIVET_INSET, cy, MENU_PLAQUE_RIVET_R, { fill: palette.plaqueBevel });
-    builder.circle(x + g.w - MENU_PLAQUE_RIVET_INSET, cy, MENU_PLAQUE_RIVET_R, { fill: palette.plaqueBevel });
-    const staminaIcon = MENU_TEXTURES.iconStamina;
-    const coinIcon = MENU_TEXTURES.iconCoin;
-    if (menuBitmapReady(staminaIcon) && menuBitmapReady(coinIcon)) {
-        const d = MENU_BAR_ICON_D;
-        // 铆钉在端缘内 18、半径 3.5。图标从铆钉外缘再让 6，避免心/星压住点。
-        const iconX = MENU_PLAQUE_RIVET_INSET + MENU_PLAQUE_RIVET_R + 6;
-        builder.blit(staminaIcon, x + iconX, cy - d / 2, d, d);
-        builder.blit(coinIcon, x + g.w - iconX - d, cy - d / 2, d, d);
-        builder.text(x + iconX + d + 8, cy, heartBarLabel(data.stamina, data.staminaMax, data.heartAdsLeft), {
-            fill: palette.woodText,
-            font: UI_FONT.label,
-            align: 'left',
-            baseline: 'middle',
-        });
-        builder.text(x + g.w - iconX - d - 8, cy, `${data.coins}`, {
-            fill: palette.woodText,
-            font: UI_FONT.label,
-            align: 'right',
-            baseline: 'middle',
-        });
-    } else {
-        builder.text(x + MENU_PLAQUE_ICON_INSET, cy, `❤ ${heartBarLabel(data.stamina, data.staminaMax, data.heartAdsLeft)}`, {
-            fill: palette.woodText,
-            font: UI_FONT.label,
-            align: 'left',
-            baseline: 'middle',
-        });
-        builder.text(x + g.w - MENU_PLAQUE_ICON_INSET, cy, `${data.coins} 🪙`, {
-            fill: palette.woodText,
-            font: UI_FONT.label,
-            align: 'right',
-            baseline: 'middle',
-        });
-    }
+    builder.text(x + g.w - MENU_BAR_BAKED_LABEL_INSET, cy, `${data.coins}`, {
+        fill: palette.woodText,
+        font: UI_FONT.label,
+        align: 'right',
+        baseline: 'middle',
+    });
 }
 
 /**
@@ -305,122 +236,25 @@ function drawDashedSocket(builder: RenderModelBuilder, b: Box, color: string): v
 }
 
 /**
- * 橱窗 ◀▶（`[WXG-T-280]` 落地单 §3）：位图腿 = `btnArrow` 底 + 向标 icon；未就绪 ⇒
- * 程序化圆 + ◀/▶ 字模（同纸格语言，零新 hex）。几何由 {@link anchoredGeo} 传入，本函数不复算。
- * `[2026-11-03]` 整枚翻页钮位图（`ui_btn_arrow_left/right`）已删除 ⇒ 不再有独立整枚腿，直接回退到旧圆底 + 向标。
+ * 橱窗 ◀▶（`[WXG-T-280]` 落地单 §3 · `[WXG-T-585]` 切生产后）：
+ * **整枚位图**（木圆盘 + 箭头烘在同一张图，左右件像素不同）⇒ 一次 blit 完事，
+ * ⛔ 不叠圆底 + 向标两段拼，也⛔ 不画 ◀/▶ 字模降级腿（缺图即露空，按切生产口径不静默降级）。
+ * 几何由 {@link anchoredGeo} 传入，本函数不复算。
  */
 function drawArrow(
     builder: RenderModelBuilder,
     data: MetaViewData,
     b: Box,
     dir: 'left' | 'right',
-    palette: BeadsPalette,
 ): void {
     const pressed = isPressed(data, dir === 'left' ? 'carousel-prev' : 'carousel-next');
     // `[BD-62]` 边界隐藏：首张不画 ◀、末张不画 ▶（与 `_nudge` 的 clamp 语义一致）。
     if (dir === 'left' ? data.carouselFirst : data.carouselLast) return;
     const dy = pressDy(data, pressed);
-    // `[WXG-T-585]` v2 = **整枚位图**（木圆盘 + 箭头烘在同一张图，左右件像素不同）⇒ 一次 blit 完事，
-    // ⛔ 不再叠圆底 + 向标两段拼（v1 那两段是缺图降级腿）。
-    if (MENU_V2_BAKED) {
-        const tex = dir === 'left'
-            ? (pressed ? MENU_TEXTURES.prevBtnPressed : MENU_TEXTURES.prevBtn)
-            : (pressed ? MENU_TEXTURES.nextBtnPressed : MENU_TEXTURES.nextBtn);
-        builder.blit(tex, b.x, b.y + dy, b.w, b.h);
-        return;
-    }
-    const cx = b.x + b.w / 2;
-    const cy = b.y + b.h / 2 + dy;
-    const iconTex = dir === 'left' ? MENU_TEXTURES.iconArrowLeft : MENU_TEXTURES.iconArrowRight;
-    if (menuBitmapReady(MENU_TEXTURES.btnArrow)) {
-        const bg = pressed && menuBitmapReady(MENU_TEXTURES.btnArrowPressed) ? MENU_TEXTURES.btnArrowPressed : MENU_TEXTURES.btnArrow;
-        builder.blit(bg, b.x, b.y + dy, b.w, b.h);
-        if (menuBitmapReady(iconTex)) {
-            const iw = MENU_ARROW_ICON.w;
-            const ih = MENU_ARROW_ICON.h;
-            builder.blit(iconTex, cx - iw / 2, cy - ih / 2, iw, ih);
-            return;
-        }
-    } else {
-        builder.circle(cx, cy, b.w / 2, {
-            fill: pressed ? palette.cardPressed : palette.panel,
-            stroke: palette.panelBorder,
-            lineWidth: 2,
-        });
-    }
-    builder.text(cx, cy, dir === 'left' ? '◀' : '▶', {
-        fill: palette.text,
-        font: UI_FONT.button,
-        align: 'center',
-        baseline: 'middle',
-    });
-}
-
-/**
- * 锚定主菜单（`[WXG-T-280]` shell 实链路；施工依据 = 落地单 v3.4 §3）。
- * 每个元素两条腿：位图就绪（{@link setMenuBitmapResolver} 宿主注入）⇒ blit；缺 ⇒ 既有程序化图元。
- * 热区全走 {@link menuLayoutAnchored}（与 `g` 同源），本函数内⛔ 不新建任何命中面。
- * 层序：资源条 → 顶栏 → 橱窗框 → Boss 图位（白板+图）→ 三态效果 → 木牌 → ◀▶ → 招牌 → slogan → CTA → 版本号。
- */
-/**
- * 玻璃里的一项：Boss 原图 + 三态效果，整体平移 `dx`。原图未装上才回退豆阵。
- * `alpha` < 1 只在 `reduceMotion` 的交叉淡变里出现。
- * `arcDone` / `arcTotal` = 该页大关完成度（仅推关态消费：竖向揭彩比例，见 `triStateFx`）。
- */
-function drawShowcaseItem(
-    builder: RenderModelBuilder,
-    palette: BeadsPalette,
-    g: AnchoredMenuGeo,
-    level: BeadsLevelRaw | undefined,
-    state: MetaBossState,
-    dx: number,
-    alpha: number,
-    comingSoon: boolean,
-    textureId?: string,
-    arcDone?: number,
-    arcTotal?: number,
-): void {
-    if (alpha <= 0) return;
-    const ink = alpha < 1 ? alpha : undefined;
-    if (comingSoon) {
-        drawComingSoonMark(builder, palette, MENU_DONE_ICON.cx + dx, g.doneCy, ink);
-        return;
-    }
-    if (level !== undefined && textureId !== undefined && menuBitmapReady(textureId)) {
-        const d = MENU_BOSS_ART_D;
-        const fx = triStateFx(state, arcDone, arcTotal);
-        const opts = fx === undefined
-            ? (ink === undefined ? undefined : { alpha: ink })
-            : (ink === undefined ? { fx } : { alpha: ink, fx });
-        builder.blit(
-            textureId,
-            MENU_DONE_ICON.cx + dx - d / 2,
-            g.doneCy - d / 2,
-            d, d,
-            opts,
-        );
-    } else if (level !== undefined) {
-        drawLevelThumb(
-            builder, level, g.bossBox.x + dx, g.bossBox.y, g.bossBox.w, g.bossBox.h,
-            Math.max(level.rows, level.cols), g.bossBox.w,
-            state === 'locked' ? beadFadedInksFor(level) : undefined,
-            ink,
-        );
-    } else {
-        drawDashedSocket(builder, { x: g.bossBox.x + dx, y: g.bossBox.y, w: g.bossBox.w, h: g.bossBox.h }, palette.slotDashed);
-    }
-    // `[WXG-T-566]` 状态标记全退场（用户 2026-11-02 裁：右上角徽标 / 通关飘带 / 居中沙漏一并删）
-    // ⇒ 三态只由「作品灰度 + 柜灯」表达（`triStateFx` / `triStateLight`），⛔ 不往玻璃上贴纸。
-    // `[WXG-T-567]` 锁定态锁形独立 Sprite —— 叠加在作品之上（与 frost+gray 合成纹理解耦，
-    // 以后可独立调尺寸/alpha/动画）。
-    if (state === 'locked') {
-        const d = MENU_BOSS_ART_D;
-        drawLockedBadge(builder, MENU_DONE_ICON.cx + dx - d / 2, g.doneCy - d / 2, d, ink);
-    }
-    // `[WXG-T-579]` 满星态珠圈装裱框（中空真透明 ⇒ 压在作品之上即为「装裱」，⛔ 不必切两层）。
-    if (state === 'fullstar') {
-        drawFullStarRing(builder, MENU_DONE_ICON.cx + dx, g.doneCy, MENU_BOSS_ART_D, ink);
-    }
+    const tex = dir === 'left'
+        ? (pressed ? MENU_TEXTURES.prevBtnPressed : MENU_TEXTURES.prevBtn)
+        : (pressed ? MENU_TEXTURES.nextBtnPressed : MENU_TEXTURES.nextBtn);
+    builder.blit(tex, b.x, b.y + dy, b.w, b.h);
 }
 
 /**
@@ -562,8 +396,9 @@ function drawComingSoonPlate(
     });
 }
 
-/** 木牌上的关序 / 关名（有累计星进度件时上移到第一行，进度落第二行）。`alpha` ≤ 0 不画。
- * `[WXG-T-346]` 进度件：两行槽复用 `MENU_PLATE_TITLE.line1Off/line2Off`（在册常量，零新数值）；
+/** 木牌上的关序 / 关名（进度落第二行）。`alpha` ≤ 0 不画。
+ * `[WXG-T-346]` 进度件：两行槽 = `MENU_V2.plateTitle / plateSub`（`[WXG-T-586]` 起改用绝对槽，
+ * 关名不再为第二行让位；`MENU_PLATE_TITLE` 已退役）；
  * 数字直接拼 `★ n/门槛`，与顶栏 `❤ n/n` 同族（无新文案令牌）。缺省不传 ⇒ 原单行逐字不变。
  * `[WXG-T-566]` 大关进度：`arcDone/arcTotal` 有值 ⇒ 第一行关名、第二行 `N/M`（用户 2026-11-02 裁：
  * 「当前完成小关数量 / 总小关数量 = 当前大关的进度」）。门票进度件优先级更高（信息不丢）。
@@ -638,17 +473,9 @@ const MENU_WARM = {
     potW: 0.140,
     potAspect: 415 / 210,
     potBottom: 0.1454,
-    shelfInset: 10,
-    shelfH: 12,
-    // 层板对齐 Boss 图**可视底部**（不是 clip 底）：l9 原图 alpha bbox 44..211/256、
-    // MENU_BOSS_ART_D 540、doneCy 偏移 394 ⇒ 可视底 = clipBox.y + 114。
-    // 换 Boss 图（不同 bbox）时需重标此值，否则作品会悬空或压住台面。
-    shelfLift: 114,
-    riserW: 240,
-    riserH: 16,
-    shadowW: 300,
-    shadowH: 16,
-    coneAlpha: 0.018,
+    // `[WXG-T-586]` 层板 / 台座 / 落地影 / 光锥 的 8 个参数（`shelfInset` / `shelfH` / `shelfLift` /
+    // `riserW` / `riserH` / `shadowW` / `shadowH` / `coneAlpha`）已随 v1 绘制腿删除 ——
+    // 这些件全部烘进背板，参数无消费者。
 } as const;
 
 /**
@@ -664,30 +491,26 @@ export function drawMenuBackdrop(
 ): void {
     const hasBackdrop = menuBitmapReady(MENU_TEXTURES.backdrop);
     if (hasBackdrop) {
-        // `[WXG-T-585]` v2 背板 = 750×1334 **整屏烘焙场景**（木屋 / 玻璃柜 / 射灯 / 层板 / 空木牌 /
-        // 左右陈设 / 桌面拼豆全在图里）⇒ 只按 1:1 贴，⛔ 不拉高（纵向拉伸会把柜体与圆台拉变形）。
-        if (!MENU_V2_BAKED) {
-            // v1 腿：背板只是底图，按屏高拉伸（版面由锚链推导，柜体系列程序化件盖在上面）。
-            builder.blit(MENU_TEXTURES.backdrop, 0, 0, DESIGN_W, a.H);
+        // `[WXG-T-585]` 背板 = 750×1334 **整屏烘焙场景**（木屋 / 玻璃柜 / 射灯 / 层板 / 空木牌 /
+        // 左右陈设 / 桌面拼豆全在图里）⇒ 只按 1:1 贴，⛔ 不拉高（纵向拉伸会把柜体与圆台拉变形；
+        // v1「把背板拉满屏」的腿已随切生产删除）。
+        // 先铺一层全屏墙色：背板 + 两条补带之间若出现亚像素缝，也不会透出画布底色（浅米）。
+        builder.rect(0, 0, DESIGN_W, a.H, { fill: palette.plaqueFace });
+        // 背板不可拉伸（一拉柜体/圆台就变形）。落位判据见 `menuBackdropTopPad`。
+        const topPad = menuBackdropTopPad(a.H, a.btTopY, a.st, a.sb);
+        const botPad = Math.max(0, a.H - topPad - DESIGN_H);
+        if (menuBitmapReady(MENU_TEXTURES.backdropFull)) {
+            // `[WXG-T-585]` 甲案：Figma 整张扩图（750×1750）**一次 blit** 覆盖全部机型。
+            // 框底 = H − topPad − (E + 1334) ⇒ 图内 y=E 恒落在屏 y=topPad；屏内窗口随 H
+            // 自动滑到「上扩 pad + 原 1334 + 下扩 pad」，`MENU_V2.*` 全部 y 读数零改动、零接缝。
+            builder.blit(MENU_TEXTURES.backdropFull,
+                0, a.H - topPad - (MENU_V2_BG_EXPAND + DESIGN_H),
+                DESIGN_W, MENU_V2_BG_H);
         } else {
-            // 先铺一层全屏墙色：背板 + 两条补带之间若出现亚像素缝，也不会透出画布底色（浅米）。
-            builder.rect(0, 0, DESIGN_W, a.H, { fill: palette.plaqueFace });
-            // 背板不可拉伸（一拉柜体/圆台就变形）。落位判据见 `menuBackdropTopPad`。
-            const topPad = menuBackdropTopPad(a.H, a.btTopY, a.st, a.sb);
-            const botPad = Math.max(0, a.H - topPad - DESIGN_H);
-            if (menuBitmapReady(MENU_TEXTURES.backdropFull)) {
-                // `[WXG-T-585]` 甲案：Figma 整张扩图（750×1750）**一次 blit** 覆盖全部机型。
-                // 框底 = H − topPad − (E + 1334) ⇒ 图内 y=E 恒落在屏 y=topPad；屏内窗口随 H
-                // 自动滑到「上扩 pad + 原 1334 + 下扩 pad」，`MENU_V2.*` 全部 y 读数零改动、零接缝。
-                builder.blit(MENU_TEXTURES.backdropFull,
-                    0, a.H - topPad - (MENU_V2_BG_EXPAND + DESIGN_H),
-                    DESIGN_W, MENU_V2_BG_H);
-            } else {
-                // 整图缺失的降级腿：纯色补带 + 原 1334 背板，保证画面不空（正常路径已不需要）。
-                if (topPad > 0) builder.rect(0, a.H - topPad, DESIGN_W, topPad, { fill: palette.plaqueFace });
-                if (botPad > 0) builder.rect(0, 0, DESIGN_W, botPad, { fill: MENU_V2_DESK_FILL });
-                builder.blit(MENU_TEXTURES.backdrop, 0, a.H - topPad - DESIGN_H, DESIGN_W, DESIGN_H);
-            }
+            // 整图缺失的降级腿：纯色补带 + 原 1334 背板，保证画面不空（正常路径已不需要）。
+            if (topPad > 0) builder.rect(0, a.H - topPad, DESIGN_W, topPad, { fill: palette.plaqueFace });
+            if (botPad > 0) builder.rect(0, 0, DESIGN_W, botPad, { fill: MENU_V2_DESK_FILL });
+            builder.blit(MENU_TEXTURES.backdrop, 0, a.H - topPad - DESIGN_H, DESIGN_W, DESIGN_H);
         }
     } else {
         // 桌面暖带 + 分界线（CTA 后画，会盖住它）
@@ -721,61 +544,6 @@ export function drawMenuBackdrop(
     }
 }
 
-/** 橱窗落地投影（画在窗框之前，只露出框下缘）。 */
-function drawCaseShadow(builder: RenderModelBuilder, palette: BeadsPalette, g: AnchoredMenuGeo): void {
-    const { caseBox } = g;
-    builder.rect(caseBox.x + caseBox.w * 0.2, caseBox.y - 10, caseBox.w * 0.6, 20, {
-        fill: palette.shadowInk,
-        alpha: 0.07,
-        radius: 10,
-    });
-}
-
-/** 橱窗陈列层（画在作品之后）：层板 + 木托 + 接触阴影。 */
-function drawCaseStage(builder: RenderModelBuilder, palette: BeadsPalette, g: AnchoredMenuGeo): void {
-    const { clipBox } = g;
-    const cx = clipBox.x + clipBox.w / 2;
-    const shelfY = clipBox.y + MENU_WARM.shelfLift;
-    builder.rect(clipBox.x + MENU_WARM.shelfInset, shelfY,
-        clipBox.w - MENU_WARM.shelfInset * 2, MENU_WARM.shelfH, {
-            fill: palette.woodSheen,
-            radius: 6,
-        });
-    builder.line(clipBox.x + MENU_WARM.shelfInset, shelfY,
-        clipBox.x + clipBox.w - MENU_WARM.shelfInset, shelfY, palette.woodEdge, 1, 0.55);
-    builder.rect(cx - MENU_WARM.riserW / 2, shelfY + MENU_WARM.shelfH - 4,
-        MENU_WARM.riserW, MENU_WARM.riserH, {
-            fill: palette.woodFace,
-            alpha: 0.45,
-            radius: MENU_WARM.riserH / 2,
-        });
-    builder.rect(cx - MENU_WARM.shadowW / 2, shelfY + MENU_WARM.shelfH,
-        MENU_WARM.shadowW, MENU_WARM.shadowH, {
-            fill: palette.shadowInk,
-            alpha: 0.10,
-            radius: MENU_WARM.shadowH / 2,
-        });
-}
-
-/**
- * 橱窗射灯光锥（画在作品之后）：两层圆叠出中心提亮，被 clip 裁到玻璃内。
- * `[WXG-T-566]` `strength` = 三态柜灯档（`MENU_LIGHT`：未开启 0.35 / 推关 0.70 / 通关 1.00），
- * 只乘到既有 `MENU_WARM.coneAlpha` ⇒ 零新色、零新几何。
- */
-function drawCaseLight(builder: RenderModelBuilder, palette: BeadsPalette, g: AnchoredMenuGeo, strength: number): void {
-    const { clipBox } = g;
-    const cx = clipBox.x + clipBox.w / 2;
-    const cone = MENU_WARM.coneAlpha * strength;
-    builder.circle(cx, clipBox.y + clipBox.h * 0.68, clipBox.w * 0.42, {
-        fill: palette.woodText,
-        alpha: cone,
-    });
-    builder.circle(cx, clipBox.y + clipBox.h * 0.72, clipBox.w * 0.26, {
-        fill: palette.woodText,
-        alpha: cone * 0.7,
-    });
-}
-
 export function drawMenuAnchored(
     builder: RenderModelBuilder,
     data: MetaViewData,
@@ -784,79 +552,41 @@ export function drawMenuAnchored(
     withSignage: boolean,
 ): void {
     drawTopbar(builder, data, palette, g);
-    // `[WXG-T-585]` v2 背板已烘「橱窗木框 + 玻璃 + 射灯 + 层板 + 圆台 + 空木牌」⇒ 程序化柜体系列
-    // （落地影 / 窗框 / 层板木托 / 射灯光晕）整体退场，否则双框、双台座、双层板。缺图 ⇒ 旧程序化腿逐字不变。
-    const baked = MENU_V2_BAKED;
-    if (!baked) {
-        drawCaseShadow(builder, palette, g);
-        // 展示窗框：位图整件 / 未就绪 ⇒ 虚线空槽（同 §5.4 口径，⛔ 不自造第二套框语言）。
-        if (menuBitmapReady(MENU_TEXTURES.caseFrame)) {
-            builder.blit(MENU_TEXTURES.caseFrame, g.caseBox.x, g.caseBox.y, g.caseBox.w, g.caseBox.h);
-        } else {
-            drawDashedSocket(builder, g.caseBox, palette.slotDashed);
-        }
-    }
-    // `[WXG-T-522]` 窗框已烘内景（壁龛 + 圆台 + 灯位）⇒ 走单一作品腿；缺框 ⇒ 旧虚线空槽腿不变。
-    const bakedInterior = MENU_CASE_INTERIOR_BAKED && (baked || menuBitmapReady(MENU_TEXTURES.caseFrame));
-    // 资源条嵌在橱窗顶部（v3.6）：画在窗框之后，覆盖楣的上 46 px。
+    // `[WXG-T-585]` 背板已烘「橱窗木框 + 玻璃 + 射灯 + 层板 + 圆台 + 空木牌」⇒ 程序化柜体系列
+    // （落地影 / 窗框 / 层板木托 / 射灯光晕 / 虚线空槽）整体退场，否则双框、双台座、双层板。
+    // ⚠ 2026-11-07 切生产后这些 v1 件已从代码删除（`drawCaseShadow` / `drawCaseStage` /
+    // `drawCaseLight` / `drawShowcaseItem` / `MENU_CASE_INTERIOR_BAKED` 分支）。
+    // 资源条嵌在橱窗顶部（v3.6）：覆盖楣的上 46 px。
     drawResourceBar(builder, data, palette, g.barBox);
     // 走马灯（落地单 §8）：窗框不动，豆画 + 盖章在玻璃内水平滑，裁到 clipBox。
     const state: MetaBossState =
         data.carouselState ?? (data.carouselLevel !== undefined ? 'cleared' : data.maxUnlockedLevel > 0 ? 'pushing' : 'locked');
-    if (!baked && !menuBitmapReady(MENU_TEXTURES.caseFrame)) {
-        builder.rect(g.bossBox.x, g.bossBox.y, g.bossBox.w, g.bossBox.h, {
-            fill: palette.slot,
-            stroke: palette.slotBorder,
-            lineWidth: 2,
-            radius: UI_CONTAINER.radiusChip,
-        });
-    }
     const slide = data.reduceMotion ? 0 : (data.carouselDx ?? 0);
     const travel = data.carouselT ?? 0;
-    const light = triStateLight(state);
     builder.clip(g.clipBox.x, g.clipBox.y, g.clipBox.w, g.clipBox.h);
-    if (bakedInterior) {
-        // 单一作品腿：台面/内景已烘进窗框 ⇒ 只画引擎光晕 + 一件作品（无徽章/沙漏/层板）。
-        // v2 背板自带射灯 ⇒ 光晕不再叠（否则灯下再压一层亮斑）。
-        if (!baked) drawCaseLight(builder, palette, g, light);
-        drawShowcaseArt(builder, palette, g, data.carouselLevel, state, slide,
-            data.reduceMotion ? 1 - travel : 1, data.carouselComingSoon === true, data.carouselTextureId,
-            data.carouselArcDone, data.carouselArcTotal);
-        if ((data.carouselPeer !== undefined || data.carouselPeerComingSoon === true) && travel > 0) {
-            const sign = data.carouselPeerSign ?? (slide < 0 ? 1 : -1);
-            const peerDx = data.reduceMotion ? 0 : slide + sign * g.clipBox.w;
-            drawShowcaseArt(
-                builder, palette, g, data.carouselPeer, data.carouselPeerState ?? 'cleared',
-                peerDx, data.reduceMotion ? travel : 1, data.carouselPeerComingSoon === true,
-                data.carouselPeerTextureId, data.carouselPeerArcDone, data.carouselPeerArcTotal,
-            );
-        }
-    } else {
-        // 射灯光晕先于作品：只落在背板上，不改变作品本身颜色（避免在平涂块上出硬弧）。
-        drawCaseLight(builder, palette, g, light);
-        drawShowcaseItem(builder, palette, g, data.carouselLevel, state, slide, data.reduceMotion ? 1 - travel : 1, data.carouselComingSoon === true, data.carouselTextureId, data.carouselArcDone, data.carouselArcTotal);
-        if ((data.carouselPeer !== undefined || data.carouselPeerComingSoon === true) && travel > 0) {
-            const sign = data.carouselPeerSign ?? (slide < 0 ? 1 : -1);
-            const peerDx = data.reduceMotion ? 0 : slide + sign * g.clipBox.w;
-            drawShowcaseItem(
-                builder, palette, g, data.carouselPeer, data.carouselPeerState ?? 'cleared',
-                peerDx, data.reduceMotion ? travel : 1, data.carouselPeerComingSoon === true,
-                data.carouselPeerTextureId, data.carouselPeerArcDone, data.carouselPeerArcTotal,
-            );
-        }
-        drawCaseStage(builder, palette, g);
+    // 单一作品腿：台面/内景/射灯已烘进背板 ⇒ 只画一件作品（无光晕/徽章/沙漏/层板）。
+    drawShowcaseArt(builder, palette, g, data.carouselLevel, state, slide,
+        data.reduceMotion ? 1 - travel : 1, data.carouselComingSoon === true, data.carouselTextureId,
+        data.carouselArcDone, data.carouselArcTotal);
+    if ((data.carouselPeer !== undefined || data.carouselPeerComingSoon === true) && travel > 0) {
+        const sign = data.carouselPeerSign ?? (slide < 0 ? 1 : -1);
+        const peerDx = data.reduceMotion ? 0 : slide + sign * g.clipBox.w;
+        drawShowcaseArt(
+            builder, palette, g, data.carouselPeer, data.carouselPeerState ?? 'cleared',
+            peerDx, data.reduceMotion ? travel : 1, data.carouselPeerComingSoon === true,
+            data.carouselPeerTextureId, data.carouselPeerArcDone, data.carouselPeerArcTotal,
+        );
     }
     builder.unclip();
-    // `[WXG-T-585]` v2 通关章（玻璃右上 90×89.5）：只在「已通关 / 满星」两态盖，
-    // 锁定与推关不盖（进度已达意，⛔ 不等于盖章）。v1 腿 `sealBox` 缺席 ⇒ 不画。
-    if (baked && g.sealBox !== undefined && (state === 'cleared' || state === 'fullstar')
+    // `[WXG-T-585]` 通关章（玻璃右上 90×89.5）：只在「已通关 / 满星」两态盖，
+    // 锁定与推关不盖（进度已达意，⛔ 不等于盖章）。
+    if (g.sealBox !== undefined && (state === 'cleared' || state === 'fullstar')
         && menuBitmapReady(MENU_TEXTURES.seal)) {
         builder.blit(MENU_TEXTURES.seal, g.sealBox.x, g.sealBox.y, g.sealBox.w, g.sealBox.h);
     }
     // 木牌板固定。文字按 travel 两段淡变（先出后进，不重叠）。
-    // `[WXG-T-585]` v2 背板已烘空白木牌本体 ⇒ 本体 blit 退场（再贴一次会盖住烘好的牌面与铆钉），只留两行文字。
-    if (baked || menuBitmapReady(MENU_TEXTURES.plate)) {
-        if (!baked) builder.blit(MENU_TEXTURES.plate, g.plateBox.x, g.plateBox.y, g.plateBox.w, g.plateBox.h);
+    // `[WXG-T-585]` 背板已烘空白木牌本体 ⇒ 本体 blit 退场（再贴一次会盖住烘好的牌面与铆钉），只留两行文字。
+    {
         const fade = plateFade(travel);
         if (data.carouselComingSoon === true) drawComingSoonPlate(builder, g, palette, fade[0]);
         else if (data.carouselLevel !== undefined) drawPlateTitle(builder, data.carouselLevel, g, palette, fade[0], data.arcStarGot, data.arcStarNeed, data.carouselArcDone, data.carouselArcTotal);
@@ -864,13 +594,12 @@ export function drawMenuAnchored(
         else if (data.carouselPeer !== undefined) drawPlateTitle(builder, data.carouselPeer, g, palette, fade[1]);
     }
     // ◀▶ 翻页（热区 = `carousel-prev/next`；无热区语义 ⇒ 壳侧处理）。
-    drawArrow(builder, data, g.arrowL, 'left', palette);
-    drawArrow(builder, data, g.arrowR, 'right', palette);
-    // 招牌：位图 logo 优先；缺 ⇒ beadText / 系统字体回落（两腿互斥，同静态档；中心 = signBox 中心）。
-    // `[WXG-T-585]` v2 招牌（1098×722，绳 118）走独立 key ⇒ v1 腿仍用 `ui_menu_logo`（960×772）。
-    const signTex = pickTex(MENU_TEXTURES.logo, MENU_TEXTURES.signboard);
-    if (menuBitmapReady(signTex)) {
-        builder.blit(signTex, g.signBox.x, g.signBox.y, g.signBox.w, g.signBox.h);
+    drawArrow(builder, data, g.arrowL, 'left');
+    drawArrow(builder, data, g.arrowR, 'right');
+    // 招牌：位图优先（`ui_menu_signboard` 1098×722，绳 118）；缺 ⇒ beadText / 系统字体回落
+    // （两腿互斥，同静态档；中心 = signBox 中心）。`ui_menu_logo` 960×772 的 v1 件已随切生产退场。
+    if (menuBitmapReady(MENU_TEXTURES.signboard)) {
+        builder.blit(MENU_TEXTURES.signboard, g.signBox.x, g.signBox.y, g.signBox.w, g.signBox.h);
     } else if (withSignage) {
         // 字样居中于板心（图顶 − boardCyOff），非图框中心（图框含绳，板心偏下）。
         const signCy = g.signBox.y + g.signBox.h - MENU_SIGN_FRAME.boardCyOff;
@@ -885,40 +614,20 @@ export function drawMenuAnchored(
         }
     }
     // slogan 已退场（落地单 v3.5，用户 2026-10-15 裁：五档坐标图本无此元素，SE 档板→条仅 19px 放不下）。
-    // CTA：九宫格位图（fx 槽 = 唯一拉伸通道）+ 文本；缺 ⇒ 旧纸钮（热区恒 `ctaHit`，与绘制同心）。
+    // CTA：**整枚位图**（源图 756×358 恰为目标尺寸，「开始」已烘进图）+ 浏览态文字；缺 ⇒ 旧纸钮。
     // 按下：pressed 源纹自带台面下移（D=16 源 px，⛔ 不再叠运行时位移）⇒ 文案按 D/源高 同比下沉；
     // 缺 pressed 纹 ⇒ normal 纹 + 运行时下沉（与纸钮同口径）。
+    // ⚠ 2026-11-07 切生产后 `ui_btn_start_9s` 九宫腿与 `ctaLabel` 艺术字腿已删除（v2 件非九宫、文字已烘）。
     const ctaPressed = isPressed(data, 'start');
-    // `[WXG-T-585]` v2 开始钮（整枚 378×179）走独立 key ⇒ v1 腿仍九宫拉伸 `ui_btn_start_9s`。
-    const ctaTex = pickTex(MENU_TEXTURES.cta, MENU_TEXTURES.ctaV2);
-    const ctaTexPressed = pickTex(MENU_TEXTURES.ctaPressed, MENU_TEXTURES.ctaPressedV2);
-    if (menuBitmapReady(ctaTex)) {
-        const bakedPress = ctaPressed && menuBitmapReady(ctaTexPressed);
+    if (menuBitmapReady(MENU_TEXTURES.ctaV2)) {
+        const bakedPress = ctaPressed && menuBitmapReady(MENU_TEXTURES.ctaPressedV2);
         const dy = bakedPress ? 0 : pressDy(data, ctaPressed);
         const textDy = bakedPress ? -Math.round((MENU_CTA_PRESSED_D * g.ctaBox.h) / MENU_CTA_SRC_H) : dy;
-        // `[WXG-T-585]` v2 件 = **整枚 378×179 位图**（源图 756×358 恰为目标尺寸，「开始」已烘进图）
-        // ⇒ 走九宫拉伸反而会吃掉按钮圆角；起点页也不再叠 `ctaLabel`。缺 v2 件 ⇒ 旧九宫腿逐字不变。
-        builder.blit(bakedPress ? ctaTexPressed : ctaTex, g.ctaBox.x, g.ctaBox.y + dy, g.ctaBox.w, g.ctaBox.h,
-            MENU_V2_BAKED ? undefined : { fx: nineSliceFx(MENU_CTA_SLICE.capX, MENU_CTA_SLICE.capY) });
-        // `[WXG-T-490]` 浏览态（§5.4 条 4）：艺术字切图恒写「开始游戏」⇒ 离开起点页时不画，
-        // 让位下方文字腿（`label('start')` 已切 `继续 · 第{n}关`）；缺省字段 = 起点页 ⇒ 逐字不变。
-        if (data.carouselOnStartPage !== false) {
-            // 起点页：v2 图已烘「开始」⇒ 不叠字；v1 腿叠 `ctaLabel`（缺图 ⇒ 落到下方文字腿）。
-            if (!MENU_V2_BAKED && menuBitmapReady(MENU_TEXTURES.ctaLabel)) {
-                const lh = MENU_CTA_LABEL.h;
-                const lw = lh * MENU_CTA_LABEL.aspect;
-                const cx = g.ctaBox.x + g.ctaBox.w / 2;
-                const cy = g.ctaBox.y + g.ctaBox.h * (1 - MENU_CTA_LABEL.fromTop) + textDy;
-                builder.blit(MENU_TEXTURES.ctaLabel, cx - lw / 2, cy - lh / 2, lw, lh);
-            } else if (!MENU_V2_BAKED) {
-                builder.text(g.ctaBox.x + g.ctaBox.w / 2, g.ctaBox.y + g.ctaBox.h / 2 + textDy, label('start', data), {
-                    fill: palette.panel,
-                    font: UI_FONT.button,
-                    align: 'center',
-                    baseline: 'middle',
-                });
-            }
-        } else {
+        builder.blit(bakedPress ? MENU_TEXTURES.ctaPressedV2 : MENU_TEXTURES.ctaV2,
+            g.ctaBox.x, g.ctaBox.y + dy, g.ctaBox.w, g.ctaBox.h);
+        // `[WXG-T-490]` 浏览态（§5.4 条 4）：起点页不叠字（图已烘「开始」），离开起点页才写字
+        // （`label('start')` 已切 `继续 · 第{n}关`）。
+        if (data.carouselOnStartPage === false) {
             builder.text(g.ctaBox.x + g.ctaBox.w / 2, g.ctaBox.y + g.ctaBox.h / 2 + textDy, label('start', data), {
                 fill: palette.panel,
                 font: UI_FONT.button,

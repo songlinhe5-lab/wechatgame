@@ -6,7 +6,7 @@
  * 缓存分两档：默认行数 = 按 anchors 引用（WeakMap，逐机主菜单）；变参行数只服务 K-6 同帧差分腿。
  */
 
-import { DESIGN_H, DESIGN_W, MENU_ARROW_VISUAL_D, MENU_ARROW_X, MENU_BADGE, MENU_BAR_FRAME, MENU_BAR_H, MENU_BAR_TOP_INSET, MENU_BOSS_SLOT, MENU_CASE_FRAME, MENU_CASE_H, MENU_CLIP, MENU_CTA_H, MENU_CTA_X, MENU_DONE_ICON, MENU_PLATE, MENU_PLATE_TITLE, MENU_PRIMARY_W, MENU_SHOWCASE_ART, MENU_SIGN_FRAME, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_X, MENU_V2, MENU_V2_BAKED, MENU_V2_TOPBAR_Y, MENU_V3_BAKED, TOUCH_MIN, WALL_CELL, WALL_COLS, WALL_GAP, WALL_ROWS, dialogShiftY, menuAnchors, menuBackdropTopPad, menuV3FromAnchors, type MenuAnchors } from '../config/tuning.js';
+import { DESIGN_H, DESIGN_W, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_X, MENU_V2, MENU_V2_TOPBAR_Y, MENU_V3_BAKED, TOUCH_MIN, WALL_CELL, WALL_COLS, WALL_GAP, WALL_ROWS, dialogShiftY, menuAnchors, menuBackdropTopPad, menuV3FromAnchors, type MenuAnchors } from '../config/tuning.js';
 import { settingsContentButtons } from './settings-content.js';
 import { signinCellLayout } from './signin-content.js';
 import { skinCardBoxes } from './skins-content.js';
@@ -273,7 +273,8 @@ export interface AnchoredMenuGeo {
     readonly plateBox: Box;
     /**
      * `[WXG-T-585]` 木牌两行文字的落位（v2 背板已烘牌体 ⇒ 本体不画，只按这两行画字）。
-     * v1 腿由 `plateBox` + `MENU_PLATE_TITLE` 现式推出（逐字不变）；v2 腿读 `MENU_V2.plateTitle/plateSub`。
+     * 现式读 `MENU_V2.plateTitle / plateSub` 两个绝对槽（`[WXG-T-586]` 起 v1 的
+     * `plateBox + MENU_PLATE_TITLE` 推导腿与那两个常量都已删除）。
      */
     readonly plateCx: number;
     readonly plateLine1Cy: number;
@@ -314,14 +315,17 @@ const _anchoredGeo = new WeakMap<MenuAnchors, AnchoredMenuGeo>();
 export function anchoredGeo(a: MenuAnchors): AnchoredMenuGeo {
     const hit = _anchoredGeo.get(a);
     if (hit !== undefined) return hit;
-    const geo = MENU_V2_BAKED ? anchoredGeoV2(a) : anchoredGeoV1(a);
+    const geo = anchoredGeoV2(a);
     _anchoredGeo.set(a, geo);
     return geo;
 }
 
 /**
- * `[WXG-T-585]` v2 腿：**绝对坐标**（`MENU_V2`，坐标图读数）代替 v1 的链式推导。
- * 背板 750×1334 不拉伸，垂直落位由 {@link menuV2TopPad} 给（居中优先 + 顶栏避让胶囊下限），
+ * `[WXG-T-585]` 主界面几何：**绝对坐标**（`MENU_V2`，坐标图读数）。
+ * ⚠ 2026-11-07 切生产后 v1 的链式推导腿已删除（`anchoredGeoV1`）—— 版面不再由
+ * `menuAnchors()` 的 gap/sign/case/cta 链推，`MenuAnchors` 现只提供 `H` / `st` / `sb` / `btTopY`
+ * 给垂直落位与胶囊避让用。
+ * 背板 750×1334 不拉伸，垂直落位由 {@link menuBackdropTopPad} 给（居中优先 + 顶栏避让胶囊下限），
  * 全部件由 `H − topPad − y − h` 翻 y-up ⇒ 与背板逐像素对齐，高屏多出的高度上下同时补。
  * 顶栏四钮**跟随背板**（图内 y=134），⛔ 不独立贴屏顶（那样高屏档钮浮在补墙上、与招牌错开）。
  */
@@ -389,73 +393,6 @@ function anchoredGeoV2(a: MenuAnchors): AnchoredMenuGeo {
         showcaseArtBox,
         topbarCy: settingsHit.y + TOUCH_MIN / 2,
         doneCy: showcaseArtBox.y + showcaseArtBox.h / 2,
-    };
-}
-
-function anchoredGeoV1(a: MenuAnchors): AnchoredMenuGeo {
-    const r = Math.round;
-    const caseBox = box(MENU_CASE_FRAME.x, r(a.caseTopY) - MENU_CASE_H, MENU_CASE_FRAME.w, MENU_CASE_H);
-    const bossBox = box(MENU_BOSS_SLOT.x, r(a.caseTopY - MENU_BOSS_SLOT.yOff) - MENU_BOSS_SLOT.h, MENU_BOSS_SLOT.w, MENU_BOSS_SLOT.h);
-    const clipBox = box(MENU_CLIP.x, r(a.caseTopY - MENU_CLIP.yOff) - MENU_CLIP.h, MENU_CLIP.w, MENU_CLIP.h);
-    const badgeBox = box(MENU_BADGE.x, r(a.caseTopY - MENU_BADGE.yOff) - MENU_BADGE.d, MENU_BADGE.d, MENU_BADGE.d);
-    const plateBox = box(MENU_PLATE.cx - MENU_PLATE.w / 2, r(a.caseTopY - MENU_PLATE.yOff) - MENU_PLATE.h, MENU_PLATE.w, MENU_PLATE.h);
-    // 招牌图框：图顶 = 结顶 + bowYOff（绳向上伸出结顶）；y-up 下框底 = 图顶 − h。
-    const signBox = box(MENU_SIGN_FRAME.x, r(a.signTopY + MENU_SIGN_FRAME.bowYOff) - MENU_SIGN_FRAME.h, MENU_SIGN_FRAME.w, MENU_SIGN_FRAME.h);
-    const ctaBox = box(MENU_CTA_X, r(a.ctaBotY), MENU_PRIMARY_W, MENU_CTA_H);
-    // `WXG-T-487`（用户裁「把好友榜放到左上设计一个图标按钮，左上右上各两枚平衡入口」）：
-    // 好友榜自 CTA 左侧**纸面文字钮**（140×88）上提为**顶栏圆钮** = 左上第二枚，视觉 80 / 热区 88
-    // 与其余三钮同构。`rankBox` / `rankHit` 字段名保留（仍「绘制/热区同对象」）。
-    const rankBox = box(
-        MENU_TOPBAR_X.rank,
-        r(a.btTopY) - TOUCH_MIN - MENU_TOPBAR_ROW2_DY,
-        TOUCH_MIN,
-        TOUCH_MIN,
-    );
-    // `[WXG-T-453]` **收回 `[WXG-T-448]` 的底隙下探**：热区回归与视觉重合（上下各内缩 2 设计 px，
-    // `open-rank` 恢复「绘制/热区同对象」）。当初下探是为补「按钮下半点不上」，真因后来钉死为
-    // Cocos 节点命中的 letterbox 死区（`[WXG-T-451]` 改全局 input 已修）⇒ 下探失去收益，只剩
-    // 「框比按钮大一圈、点版本号带误触按钮」的观感/语义代价（用户 2026-10-27 拍板收回）。
-    // 底隙 32（`MENU_CHAIN_GAP_BOTTOM`）= CTA 与屏底的净空带（`[WXG-T-497]` 版本号已迁设置页脚 ⇒ 该带现无文字、仍不响应）。
-    const ctaHit = box(ctaBox.x, ctaBox.y + (MENU_CTA_H - TOUCH_MIN) / 2, MENU_PRIMARY_W, TOUCH_MIN);
-    const rankHit = rankBox;
-    const arrowY = r(a.caseCenterY) - MENU_ARROW_VISUAL_D / 2;
-    const arrowL = box(MENU_ARROW_X.left, arrowY, MENU_ARROW_VISUAL_D, MENU_ARROW_VISUAL_D);
-    const arrowR = box(MENU_ARROW_X.right, arrowY, MENU_ARROW_VISUAL_D, MENU_ARROW_VISUAL_D);
-    const arrowPad = (TOUCH_MIN - MENU_ARROW_VISUAL_D) / 2;
-    const arrowLHit = box(arrowL.x - arrowPad, arrowY - arrowPad, TOUCH_MIN, TOUCH_MIN);
-    const arrowRHit = box(arrowR.x - arrowPad, arrowY - arrowPad, TOUCH_MIN, TOUCH_MIN);
-    const barBox = box(
-        MENU_BAR_FRAME.x,
-        r(a.barTopY) - MENU_BAR_TOP_INSET - MENU_BAR_H,
-        MENU_BAR_FRAME.w,
-        MENU_BAR_H,
-    );
-    // `[WXG-T-522]` 单一作品位：yOff 自柜顶向下量（与 MENU_CLIP 同轴）。
-    const artCy = r(a.caseTopY - MENU_SHOWCASE_ART.yOff);
-    const showcaseArtBox = box(MENU_SHOWCASE_ART.cx - MENU_SHOWCASE_ART.d / 2, artCy - MENU_SHOWCASE_ART.d / 2,
-        MENU_SHOWCASE_ART.d, MENU_SHOWCASE_ART.d);
-    const settingsHit = box(MENU_TOPBAR_X.settings, r(a.btTopY) - TOUCH_MIN, TOUCH_MIN, TOUCH_MIN);
-    const skinsHit = box(
-        MENU_TOPBAR_X.skins,
-        r(a.btTopY) - TOUCH_MIN - MENU_TOPBAR_ROW2_DY,
-        TOUCH_MIN,
-        TOUCH_MIN,
-    );
-    const mailHit = box(MENU_TOPBAR_X.mail, r(a.btTopY) - TOUCH_MIN, TOUCH_MIN, TOUCH_MIN);
-    return {
-        caseBox, bossBox, clipBox, badgeBox, plateBox,
-        // 木牌文字 = v1 现式（`plateBox` 顶 − 在册行偏移）⇒ 逐字不变。
-        plateCx: MENU_PLATE.cx,
-        plateLine1Cy: plateBox.y + plateBox.h - MENU_PLATE_TITLE.line1Off,
-        plateLine2Cy: plateBox.y + plateBox.h - MENU_PLATE_TITLE.line2Off,
-        plateSingleCy: plateBox.y + plateBox.h - MENU_PLATE_TITLE.singleOff,
-        sealBox: undefined,
-        signBox, ctaBox, ctaHit,
-        rankBox, rankHit,
-        arrowL, arrowLHit, arrowR, arrowRHit, barBox, settingsHit, skinsHit, mailHit,
-        showcaseArtBox,
-        topbarCy: settingsHit.y + TOUCH_MIN / 2,
-        doneCy: r(a.caseTopY - MENU_DONE_ICON.yOff),
     };
 }
 

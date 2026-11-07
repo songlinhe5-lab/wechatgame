@@ -55,7 +55,8 @@ const hud = must<HTMLDivElement>('#hud');
 const harnessQuery =
   typeof window.location?.search === 'string' ? window.location.search : '';
 const harnessParams = new URLSearchParams(harnessQuery);
-// `[WXG-T-585]` v2 烘焙背板档已于 2026-11-07 **切生产**（`MENU_V2_BAKED` 恒 true）⇒ `?v2=1` 测具下线。
+// `[WXG-T-585]` v2 烘焙背板档已于 2026-11-07 **切生产** ⇒ `?v2=1` 测具下线；
+// `[WXG-T-586]` 清理后连「v1/v2 档」开关本身都没了（代码只剩 v2 一条腿，⛔ 无参数可切）。
 // `?v3=1` 仍是 dev 测具（招牌贴安全区 / CTA 按比例 / 橱窗带内居中），v3 建立在 v2 几何之上。
 if (harnessParams.get('v3') === '1') setMenuV3Baked(true);
 // `[WXG-T-585]` dev-only：按真机档注入安全区/胶囊区（设计 px），并叠加可视化。

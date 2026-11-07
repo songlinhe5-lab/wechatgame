@@ -13,8 +13,7 @@ import { createBeadsShell } from '../src/game/beads-shell.js';
 import { COPY_TOKENS } from '../src/config/copy-tokens.js';
 import { metaLayout } from '../src/view/meta-view.js';
 import {
-    DESIGN_H, DESIGN_W, MENU_ARROW_VISUAL_D, MENU_ARROW_X, MENU_BAR_H, MENU_CASE_H, MENU_CTA_H,
-    MENU_CTA_X, MENU_PRIMARY_W, MENU_SIGN_CHAIN_H, MENU_SIGN_FRAME, MENU_TOPBAR_ICON_D, MENU_TOPBAR_VISUAL_D,
+    DESIGN_H, DESIGN_W, MENU_SIGN_FRAME, MENU_TOPBAR_ICON_D, MENU_TOPBAR_VISUAL_D,
     MENU_V2,
     MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_X, TOUCH_MIN, WALL_ROWS, menuAnchors,
 } from '../src/config/tuning.js';
@@ -30,12 +29,11 @@ const TIERS = [
 const anchorsOf = (t: (typeof TIERS)[number]) =>
     menuAnchors({ safeTopDp: t.st, capsuleBottomDp: t.cap, safeBottomDp: t.sb, windowWidthDp: t.wW, designHeight: t.H });
 
-describe('v3.5 定案常量', () => {
-    it('CTA 324×92 @x218；◀▶ 左右镜像；顶栏视觉 80（图标同画布同尺寸）且不超热区', () => {
-        expect(MENU_PRIMARY_W).toBe(324);
-        expect(MENU_CTA_X).toBe(218);
-        expect(MENU_CTA_H).toBe(92);
-        expect(MENU_ARROW_X.right).toBe(DESIGN_W - MENU_ARROW_X.left - MENU_ARROW_VISUAL_D); // 660
+describe('顶栏与招牌版面定案（v2 档）', () => {
+    it('顶栏视觉 80（图标同画布同尺寸）且不超热区；CTA / ◀▶ 改由 `MENU_V2` 钉（见 v2 版面那组）', () => {
+        // ⚠ `[WXG-T-585]` 2026-11-07 切生产后，v1 的 `MENU_PRIMARY_W`(=324) / `MENU_CTA_X`(=218) /
+        // `MENU_CTA_H`(=92) / `MENU_ARROW_X` / `MENU_ARROW_VISUAL_D` 已随 v1 版面删除 ⇒
+        // CTA 与翻页钮的读数改钉 `MENU_V2.cta` / `MENU_V2.prev` / `MENU_V2.next`（下方 v2 版面那组）。
         expect(MENU_TOPBAR_VISUAL_D).toBe(80);
         expect(MENU_TOPBAR_ICON_D).toBe(MENU_TOPBAR_VISUAL_D);
         expect(MENU_TOPBAR_VISUAL_D).toBeLessThanOrEqual(TOUCH_MIN);
@@ -67,25 +65,11 @@ describe('v3.5 定案常量', () => {
     });
 });
 
-describe('五档版面不变式（y-up：上元素的下缘 ≥ 下元素的上缘）', () => {
+// `[WXG-T-585]` v1 的「招牌 / 资源条 / 橱窗 / CTA 自上而下互不相交」链式不变式已随
+// 排版链（`menuAnchors` 的 gap/sign/case/cta 字段）一并删除 —— v2 版面由坐标图读数逐件钉死，
+// 不再由链推导 ⇒ 相交性由设计图保证，用测试重述已无对应代码。留 CTA / 翻页钮这条活判据：
+describe('五档 v2 版面（绝对坐标）', () => {
     for (const t of TIERS) {
-        it(`${t.name}：招牌 / 资源条 / 橱窗 / CTA 自上而下互不相交且全在屏内`, () => {
-            const a = anchorsOf(t);
-            // 各元素 [底, 顶]（y-up）
-            const sign = [a.signBotY, a.signTopY];
-            const bar = [a.barTopY - MENU_BAR_H, a.barTopY];
-            const showcase = [a.caseBotY, a.caseTopY];
-            const cta = [a.ctaBotY, a.ctaBotY + MENU_CTA_H];
-            expect(sign[1]! - sign[0]!).toBe(MENU_SIGN_CHAIN_H);
-            expect(showcase[1]! - showcase[0]!).toBe(MENU_CASE_H);
-            expect(sign[0]!).toBeGreaterThanOrEqual(bar[1]!); // 招牌底 ≥ 条顶
-            expect(bar[1]!).toBeCloseTo(showcase[1]!, 9); // 条顶 = 窗顶（v3.6 嵌窗顶）
-            expect(bar[0]!).toBeGreaterThanOrEqual(showcase[0]! - 1e-9); // 条底仍在窗内
-            expect(showcase[0]!).toBeGreaterThanOrEqual(cta[1]!); // 窗底 ≥ CTA 顶
-            expect(cta[0]!).toBeGreaterThanOrEqual(a.sb); // CTA 不入 Home 条
-            expect(sign[1]!).toBeLessThanOrEqual(a.H);
-        });
-
         // `[WXG-T-585]` 2026-11-07 切生产：主界面改 v2 绝对坐标档 ⇒
         // CTA 378×179 @x186（v1 的 324×92 @x218 退场），热区与视觉同框；
         // ◀▶ = 坐标图读数 110×116 @18 / 109×116 @625（两枚读数自身差 1~2 px）⇒ 镜像按读数分辨率判（±3）。

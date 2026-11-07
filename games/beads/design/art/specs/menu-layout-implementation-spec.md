@@ -218,6 +218,33 @@ bt     = cap + 4                    # 顶栏钮顶（对齐胶囊底，不占布
   `menu-backdrop`（整图一次 blit）、`menu-plate-title`（牌体已烘 2 条）、`menu-tri-state`（柜灯烘焙 ⇒ 零光锥）、
   `meta-menu-wall`（图位 325×314）、`showcase-single`（作品恒 325×314 + 翻页钮整枚位图）、
   `ui-warm-paper-tokens`（纸卡容器退场）。
-- 金样本（`docs/architecture/ui-architecture-beads.md §12` UI-40 登记）五态重抓：
+- 金样本（`docs/architecture/ui-architecture-beads.md §12` UI-40 登记）五态重抓（`WXG-T-586` 清理后 sha 零漂移）：
   `main-menu` 1919→**1622**、`level-select` / `level-select-mid` 2144→**1847**、`settings` 1947→**1650**、
   `signin` 1951→**1654**（菜单背屏共用背板 ⇒ 五态同批变，其余六态逐字未变）。
+
+### 12.5 退役清单（`WXG-T-586` 死代码清理 · 2026-11-07）
+
+⚠ **下列名称在代码里已不存在**，旧文档（含本页 §1–§11 与 `menu-layout-spec-s7-history` /
+`menu-plate-text-control-spec` / `accessibility` / `arc-level-select-spec` / `assets-spec` /
+`menu-wall-signage-spec` / `menu-3d-asset-brief`）里出现的引用一律按本节读：
+
+| 退役对象 | 原值 / 原职责 | 现行替代 |
+|---|---|---|
+| `MENU_V2_BAKED` | v1/v2 档总开关（切生产前为 `false`） | **无开关**：代码只剩 v2 一条腿 |
+| `MENU_CASE_INTERIOR_BAKED` | 「窗框已烘内景」二选一 | 内景恒烘 ⇒ 单一作品腿 |
+| `anchoredGeoV1` | v1 链式推导几何 | `anchoredGeo()`（= 原 `anchoredGeoV2`） |
+| `MenuAnchors.zone/gapTop/gapBot/signTopY/signBotY/barTopY/caseTopY/caseBotY/ctaTopY/ctaBotY/caseCenterY` | v1 版面链 11 字段 | 只留 `H`/`st`/`sb`/`btTopY`；落位看 `MENU_V2` |
+| `MENU_CHAIN_GAP_TOP` / `MENU_CHAIN_GAP_BOTTOM` / `MENU_BOW_MIN_FROM_TOP` / `MENU_SIGN_CHAIN_H` / `MENU_CASE_GROUP_H` / `MENU_CASE_GAP_RATIO` / `MENU_CASE_SPLIT` / `MENU_BAR_H` / `SIGN_BAND_PAD` | 链式算式常量 | 无（`menuBackdropTopPad` 只需要 `H`/`btTopY`/`st`/`sb`） |
+| `MENU_PRIMARY_W`(324) / `MENU_CTA_X`(218) / `MENU_CTA_H`(92) | v1 主钮视觉框 | `MENU_V2.cta`（378×179 @x186） |
+| `MENU_ARROW_X` / `MENU_ARROW_VISUAL_D`(64) / `MENU_ARROW_ICON`(24×36) | v1 翻页钮圆底 + 向标 | `MENU_V2.prev` / `MENU_V2.next`（整枚 110×116 / 109×116） |
+| `MENU_BOSS_SLOT`(468×528 @146) | v1 作品图位 | `MENU_V2.art`（325×314 @212） |
+| `MENU_SHOWCASE_ART`(340) / `MENU_BOSS_ART_D`(540) | v1 作品两条尺寸腿 | `MENU_V2.art`（随框绘制） |
+| `MENU_PLATE`(214×100) / `MENU_PLATE_TITLE`(line1Off 30 / line2Off 62 / singleOff 46) | v1 木牌本体 + 两行槽 | 牌体已烘；两行 = `MENU_V2.plateTitle` / `MENU_V2.plateSub` |
+| `MENU_CASE_FRAME` / `MENU_BAR_FRAME` / `MENU_BAR_TOP_INSET` / `MENU_DONE_ICON` / `MENU_LIGHT` | v1 窗框/条体框/徽章/柜灯三档 | 全部已烘进背板 |
+| `MENU_CTA_SLICE`(76/96) / `MENU_CTA_LABEL` | 九宫端帽 / 艺术字切图 | v2 件非九宫、「开始」已烘进图 |
+| `MENU_PLAQUE_STROKE/ICON_INSET/RIVET_R/RIVET_INSET/BEVEL_INSET` | 程序化条体细节档 | 已烘进背板 |
+| `SIGN_ORIGIN_X` / `SIGN_FALLBACK_PITCH` / `SIGN_GLYPH_COUNT` | v1 招牌排字派生量 | `SIGN_BEAD_PITCH` / `SIGN_MATRIX_N`（未退役） |
+
+**测试同批删 10 条**：`menu-anchors` 的五档验收账（gapTop/gapBot 对表 5 条）与 `menu-layout-v35` 的
+五档堆叠不变式（5 条）——它们测的都是已删除的链式代码。**新增 1 条结构钉**：
+「`menuAnchors()` 只产出 `H`/`st`/`sb`/`btTopY`」防链式字段被无意识补回。

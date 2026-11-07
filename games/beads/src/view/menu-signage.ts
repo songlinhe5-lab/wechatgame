@@ -126,7 +126,8 @@ function signBoxOf(n: number, d: number): { box: number; gap: number } {
 }
 
 /**
- * 招牌带**外接框**（T-1 §2.2 关系不变式的读数口：`sign.yMin ≥ 橱窗 frameTop + SIGN_BAND_PAD`）。
+ * 招牌带**外接框**（T-1 §2.2 关系不变式的读数口；`SIGN_BAND_PAD` 已随 v1 链退役 ⇒ v2 档净空由
+ * `MENU_V2.sign` 与 `MENU_V2.art` 的坐标图读数直接保证）。
  * `centerY` 语义 = **外接框中心**（主理人裁定；替 T-2A 系统字体的 `baseline: 'middle'`，
  * 闭合漂移 D-1：按 baseline 生长时字高 120 的顶会撞资源条带）。
  */

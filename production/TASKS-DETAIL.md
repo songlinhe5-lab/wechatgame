@@ -8256,3 +8256,85 @@ USER 令「最新主界面资源，请更细到游戏主界面，并根据坐标
 
 - 未在 Cocos 编辑器 GUI 里 reimport 目检（.meta 由构建自动生成，已入包并通过 mask 门禁）。
 - 新件在真机上的表现（尤其 JPEG 背景的块感、pal-256 招牌的渐变）未测。
+
+## WXG-T-586
+
+**工程·beads 主界面 v1 版面死代码清理** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ 完成（2026-11-07 同日收口）
+
+### 1. 出发点
+
+用户 2026-11-07 令「3」= 取 T-585 切生产后的三选一里的「清理 v1 死代码」。
+切生产（`MENU_V2_BAKED` 恒 `true`）之后，v1 版面腿在构造上不可达：`anchoredGeoV1`、`meta-menu.ts` 的五处
+`!baked` 分支、以及一批只服务它们的常量全部变成死码。本条单只做**删除 + 同批改断言**，⛔ 不改任何玩家可见行为。
+
+### 2. 清理面
+
+**A. 布局层（`meta-layout.ts` / `tuning/menu.ts`）**
+
+- 删 `anchoredGeoV1` 全段；`anchoredGeo()` 直接走 v2（原 `anchoredGeoV2`）。
+- `MenuAnchors` 由 15 字段收成 4 字段（`H` / `st` / `sb` / `btTopY`）：删掉 `zone`、`gapTop`、`gapBot`、
+  `signTopY`、`signBotY`、`barTopY`、`caseTopY`、`caseBotY`、`ctaTopY`、`ctaBotY`、`caseCenterY`。
+- `menuAnchors()` 由 40 行链式算式收成「输入 → 四件」，仍在同文件（纯函数、Node 可测不变）。
+
+**B. 绘制层（`meta-menu.ts`）**
+
+- 删四处 v1 专用绘制函数：`drawShowcaseItem`（旧双腿作品）/ `drawCaseShadow`（落地影）/
+  `drawCaseStage`（层板台座）/ `drawCaseLight`（射灯光锥），以及 `triStateLight`（柜灯三档）与
+  `pickTex`（v1/v2 选图器，随 v1 key 一起退场）。
+- 剩余分支收成 v2 一条腿：资源条只画两枚数值；背板只 1:1 整图（保留「整图缺失 ⇒ 纯色补带」降级腿，
+  那是缺件兜底不是 v1 版面）；招牌 / 开始钮 / 翻页钮 / 通关章 / 木牌全走整枚位图；九宫 `fx` 与
+  `ctaLabel` 艺术字腿删除。
+- `MENU_WARM` 裁 8 个无消费者的柜体参数（`shelfInset/shelfH/shelfLift/riserW/riserH/shadowW/shadowH/coneAlpha`）。
+
+**C. 常量（净删 38 枚）**
+
+- 23 枚彻底零引用：`MENU_V2_BAKED`、`MENU_CASE_INTERIOR_BAKED`、`MENU_LIGHT`、`MENU_BOSS_ART_D`(540)、
+  `MENU_SHOWCASE_ART`(340)、`MENU_PLATE`、`MENU_PLATE_TITLE`、`MENU_CTA_SLICE`、`MENU_CTA_LABEL`、
+  `MENU_PLAQUE_{STROKE,ICON_INSET,RIVET_R,RIVET_INSET,BEVEL_INSET}`、`MENU_BAR_{TOP_INSET,FRAME,ICON_D}`、
+  `MENU_CASE_FRAME`、`MENU_DONE_ICON`、`MENU_ARROW_ICON`、`SIGN_GLYPH_COUNT`、`SIGN_FALLBACK_PITCH`、
+  `SIGN_ORIGIN_X`。
+- 15 枚链式与 v1 定案：`MENU_CHAIN_GAP_{TOP,BOTTOM}`、`MENU_BOW_MIN_FROM_TOP`、`MENU_SIGN_CHAIN_H`、
+  `MENU_BAR_H`、`MENU_CASE_GROUP_H`、`MENU_CASE_GAP_RATIO`、`MENU_CASE_SPLIT`、`MENU_BOSS_SLOT`、
+  `SIGN_BAND_PAD`、`MENU_PRIMARY_W`、`MENU_CTA_X`、`MENU_CTA_H`、`MENU_ARROW_X`、`MENU_ARROW_VISUAL_D`。
+
+**D. 测试同批**
+
+- 删 **10 条只测 v1 腿**的用例：`menu-anchors` 的五档验收账（gapTop/gapBot 对表 5 条）、
+  `menu-layout-v35` 的五档堆叠不变式（5 条）——它们断言的都是已删除的链式代码。
+- 改 **2 条**：`menu-anchors` 的接口语义组改钉「0 合法 / `null` 兜底 + `st`/`sb`/`H`/`btTopY`」；
+  `menu-layout-v35` 的定案常量组只留顶栏四项（CTA / 翻页钮判据移到 v2 版面那组）。
+- 加 **1 条结构钉**：`menuAnchors()` 的键集恒为 `['H','btTopY','sb','st']` —— 防链式字段被无意识补回。
+- `menu-carousel` 的合成触点从 `caseTopY − MENU_BOSS_SLOT.yOff` 改读 `anchoredGeo().bossBox`。
+
+### 3. 验收判据 = **零视觉漂移**
+
+死代码删除不该产生任何像素变化，所以本单的通过条件不是「测试绿」而是「**金样本 sha 逐字节不变**」：
+
+- 11 态 sha 与清理前**全等**（`main-menu` 1622 / `level-select`+`-mid` 1847 / `settings` 1650 / `signin` 1654…），
+  夹具文件本身**未被改写**（`git status` 干净）。
+- 单测 1422 passed / 2 skipped；`tsc` 双端 0 错；`framework:sync:check` OK。
+- 真实构建 `v1.0.39 → v1.0.40` 通过；主包 **3070.4 → 3066.1 KB**（死码消失后压缩产物略小，−4.3 KB）。
+
+### 4. 同批发现（未修，登记待裁）
+
+`MENU_SIGN_FRAME.boardCyOff = 216` 仍是 v1 的读数（对应 298 高图）。v2 招牌图高 361、板体在图内
+`y 118..361`（中心距顶 ≈ **239.5**）⇒ **缺位图时的珠字回落位置偏高 ≈ 23 px**。
+生产路径有整枚位图（1098×722 已入包）⇒ 不出图、不触达玩家；只有「招牌位图未注册」的降级路径可见。
+改动它会让金样本 `main-menu` 漂移（金样本正是走回落腿），故留待与金样本重抓同批处理。
+
+### 5. 后续候选（**删产物，待用户点头**）
+
+清理后 12 个位图键在生产代码里零消费（测试里只剩「不该画」的计数断言），对应资产仍在包内：
+
+| 键 | 资产 | 体积 |
+|---|---|---|
+| `logo` | `ui_menu_logo` | 107.1 KB |
+| `caseFrame` | `ui_showcase_frame` | 188.4 KB |
+| `plate` | `ui_showcase_plate` | 6.1 KB |
+| `cta` / `ctaPressed` | `ui_btn_start_9s`(+`_pressed`) | 5.5 + 4.3 KB |
+| `btnArrow` / `btnArrowPressed` | `ui_btn_arrow_bg_normal/pressed` | 2.3 + 2.5 KB |
+| `iconArrowLeft` / `iconArrowRight` | `ui_icon_arrow_left/right` | 1.4 + 1.4 KB |
+| `iconCoin` / `iconStamina` | `asset-icon-coin` / `asset-icon-stamina` | 49.0 + 18.2 KB |
+| `ctaLabel` | `ui_menu_cta_label` | 28.5 KB |
+
+合计 ≈ **414.7 KB**（`pot` / `beam` 仍在用：背板缺失时的降级腿要画，⛔ 不可删）。

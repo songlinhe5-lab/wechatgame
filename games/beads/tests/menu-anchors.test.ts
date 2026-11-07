@@ -1,28 +1,28 @@
 /**
- * WXG-T-280 · P-6 — 菜单锚定链 `menuAnchors()` 的五档验收账 + 不变式（落地单 §2/§4）。
+ * 菜单输入解算 `menuAnchors()` 的接口语义 + 五档热区判据。
+ *
+ * ⚠ `[WXG-T-585]` 2026-11-07 切生产后 `menuAnchors()` 只产出 v2 落位要用的四件
+ * （`H` / `st` / `sb` / `btTopY`）—— v1 的 gap/sign/case/cta 链式字段与「五档验收账」
+ * 已随 `anchoredGeoV1` 一并删除（正本 `menu-layout-implementation-spec.md §12`）。
  *
  * 判据真源（⛔ 本文件零新数值）：
- *  - `games/beads/design/art/specs/menu-layout-implementation-spec.md` §4 五档验收账
- *    （gapTop/gapBot 设计 px 逐档对表）与 §2 链式算式（不变式即链式的代数重述）；
- *  - `games/beads/src/config/tuning.ts` `menuAnchors` 顶部注释：接口优先语义（0 = 合法值，
- *    仅 `null` 走 `SAFE_TOP_H`/`SAFE_BOTTOM_H` 兜底，判例 K-124）。
- *
- * 母本 = `temp/menu-landing/anchors-check.mts`（落地期一次性自检脚本），此处为常驻化。
+ *  - `src/config/tuning.ts` `menuAnchors` 顶部注释：接口优先语义（0 = 合法值，
+ *    仅 `null` 走 `SAFE_TOP_H`/`SAFE_BOTTOM_H` 兜底，判例 K-124）；
+ *  - `src/view/meta-layout.ts` `anchoredGeoV2`：热区 = `max(视觉, TOUCH_MIN)` 同框。
  */
 
 import { describe, expect, it } from 'vitest';
-import { menuAnchors, MENU_CTA_H, MENU_V2, SIGN_BAND_PAD, TOUCH_MIN } from '../src/config/tuning.js';
+import { menuAnchors, MENU_V2, SAFE_BOTTOM_H, SAFE_TOP_H, TOUCH_MIN } from '../src/config/tuning.js';
 import type { MenuAnchorsInput } from '../src/config/tuning.js';
 import { anchoredGeo, inBox } from '../src/view/meta-layout.js';
 
-/** st/cap/sb = **dp 原值**（×k 后应落 §4 表的设计 px）。 */
+/** st/cap/sb = **dp 原值**（×k 后进设计 px 空间）。 */
 const TIERS = [
-    // v3.7：招牌缩至 370×240（链 165）+ 资源条嵌窗顶（组高 871）后的五档账（真值由公式算出，见 tuning 注释）。
-    { name: 'SE', st: 20, cap: 56, sb: 0, wW: 375, H: 1334, gap: [38, 75] },
-    { name: 'Android 挖孔', st: 29, cap: 64, sb: 0, wW: 360, H: 1625, gap: [130, 259] },
-    { name: 'X-14', st: 47, cap: 80, sb: 34, wW: 375, H: 1624, gap: [95, 191] },
-    { name: '灵动岛', st: 54, cap: 83, sb: 34, wW: 393, H: 1626, gap: [94, 188] },
-    { name: '16 Pro Max', st: 54, cap: 90, sb: 34, wW: 440, H: 1630, gap: [101, 203] },
+    { name: 'SE', st: 20, cap: 56, sb: 0, wW: 375, H: 1334 },
+    { name: 'Android 挖孔', st: 29, cap: 64, sb: 0, wW: 360, H: 1625 },
+    { name: 'X-14', st: 47, cap: 80, sb: 34, wW: 375, H: 1624 },
+    { name: '灵动岛', st: 54, cap: 83, sb: 34, wW: 393, H: 1626 },
+    { name: '16 Pro Max', st: 54, cap: 90, sb: 34, wW: 440, H: 1630 },
 ] as const;
 
 const toInput = (t: (typeof TIERS)[number]): MenuAnchorsInput => ({
@@ -33,31 +33,14 @@ const toInput = (t: (typeof TIERS)[number]): MenuAnchorsInput => ({
     designHeight: t.H,
 });
 
-/** y-down 量的换算：输出已翻 y-up（原点左下），从顶深度的量 = H − 字段。 */
-const fromTop = (H: number, yUp: number) => H - yUp;
-
-describe('menuAnchors · 五档验收账（落地单 §4）', () => {
-    for (const t of TIERS) {
-        it(`${t.name}：gapTop/gapBot 对表 + 不变式①②⑤`, () => {
-            const a = menuAnchors(toInput(t));
-            expect(Math.round(a.gapTop)).toBe(t.gap[0]);
-            expect(Math.round(a.gapBot)).toBe(t.gap[1]);
-
-            // ① 链闭合：case 底缘 → gapBot → CTA → 底隙 32 → sb 恰好铺到 H。
-            const caseFromTop = fromTop(a.H, a.caseBotY);
-            expect(caseFromTop + a.gapBot + MENU_CTA_H + 32 + a.sb).toBeCloseTo(a.H, 9);
-            // ② 比例隙：gapBot = 2×gapTop（钳未触发档，浮点域精确）。
-            expect(a.gapBot).toBeCloseTo(2 * a.gapTop, 9);
-            // ⑤a 资源条嵌窗顶（v3.6）：条顶 = 橱窗顶（条覆盖楣的上 46 px，不占堆叠高度）。
-            expect(fromTop(a.H, a.caseTopY)).toBeCloseTo(fromTop(a.H, a.barTopY), 9);
-            // ⑤b 板底组隙下限：bar ≥ sign1 + SIGN_BAND_PAD。
-            expect(fromTop(a.H, a.barTopY)).toBeGreaterThanOrEqual(fromTop(a.H, a.signBotY) + SIGN_BAND_PAD - 1e-9);
-        });
-    }
-});
-
 describe('menuAnchors · 接口优先语义与 fallback（tuning 注释口径）', () => {
-    it('0 是合法接口值（SE/Android sb=0 进链），不触发兜底', () => {
+    it('只产出 v2 落位四件（H / st / sb / btTopY）—— 链式字段已随 v1 版面删除', () => {
+        for (const t of TIERS) {
+            expect(Object.keys(menuAnchors(toInput(t))).sort()).toEqual(['H', 'btTopY', 'sb', 'st']);
+        }
+    });
+
+    it('0 是合法接口值（SE/Android sb=0 进解算），不触发兜底', () => {
         const a = menuAnchors({
             safeTopDp: 20, capsuleBottomDp: 56, safeBottomDp: 0,
             windowWidthDp: 375, designHeight: 1334,
@@ -66,15 +49,17 @@ describe('menuAnchors · 接口优先语义与 fallback（tuning 注释口径）
         expect(a.H).toBe(1334);
     });
 
-    it('null（web/node 无接口）⇒ SAFE_TOP_H/SAFE_BOTTOM_H 兜底 + gapTop 钳 ≥ SIGN_BAND_PAD 不穿模', () => {
+    it('null（web/node 无接口）⇒ SAFE_TOP_H/SAFE_BOTTOM_H 兜底 + H 走 DESIGN_H', () => {
         const fb = menuAnchors({
             safeTopDp: null, capsuleBottomDp: null, safeBottomDp: null,
             windowWidthDp: 0, designHeight: 0,
         });
-        expect(fb.gapTop).toBe(SIGN_BAND_PAD); // 钳位生效（raw 为负）
+        expect(fb.st).toBe(SAFE_TOP_H);
+        expect(fb.sb).toBe(SAFE_BOTTOM_H);
         expect(fb.H).toBe(1334); // designHeight ≤0 ⇒ DESIGN_H 兜底
-        // 退化档 gapBot 可为负（zone < 917）⇒ 只钉「CTA 不越屏底」这条底线。
-        expect(fb.ctaBotY).toBeGreaterThanOrEqual(0);
+        // 顶栏钮不得进胶囊禁区：btTopY 必须落在 H − 胶囊带之下。
+        expect(fb.btTopY).toBeGreaterThan(0);
+        expect(fb.btTopY).toBeLessThan(fb.H);
     });
 });
 

@@ -244,64 +244,14 @@ export const SKINS_CARD_H = 300;
  */
 export const SKINS_CARD_TOP_INSET = 82;
 
-// ─────────── 主菜单（shell 屏）几何（来源：ux-spec v1.7 §2 流程 + meta-ui 线框；
-//             EP12-S6 版面族扩充，来源 `menu-architecture.md §5.1/§7.4`——**派生版面值，⛔ 不进 §3**）
-/** 主菜单主钮「开始游戏」宽 = mock 框 324（落地单 v3.5，用户 2026-10-15 裁；旧 320 作废）。 */
-export const MENU_PRIMARY_W = 324;
-/** 主菜单主钮左缘 x = mock 框 218（与橱窗/Boss 位同一套 mock 坐标，⛔ 不再按 750 居中重算）。 */
-export const MENU_CTA_X = 218;
 // 2026-10-13 用户裁定第二批：底部次级行（签到 / 设置纸钮）**整行退役** ⇒
 // `MENU_SECONDARY_W` / `MENU_ROW_GAP` / `MENU_SECONDARY_GAP` 三常量零消费者已删
 //（设置改左上顶栏圆钮，签到待信箱实装；`menu-architecture §5.1/§5.1b` 留档，需重建时读那里）。
 // **第十四批静态锚（`MENU_TITLE_Y`/`MENU_SLOGAN_Y`/`MENU_PRIMARY_Y`/`MENU_VERSION_Y`）已随
 // [WXG-T-280] 锚定档唯一整体退场**（零生产消费者；历史坐标与推导读 git 史 / 落地单 §6）。
 
-// ─────────── 主菜单落位链（**WXG-T-280**；唯一施工依据 = `design/art/specs/menu-layout-implementation-spec.md` v3.4 §1–§2）
-//   菜单几何自此**只有一套**：旧第十四批静态值（SE 档快照）已删，真值恒由 {@link menuAnchors}
-//   逐机输出（系高 H 随 Viewport 动态档，⛔ 禁钉 1334）。
-//   ⛔ 不进 systems-index §3（菜单屏版面派生值，判例同 `WALL_*`/`MENU_*` flat 命名；指针登记见落地单 §6 条 5）。
-// ─────────── 主菜单落位链常量（真值算式见文件末尾 {@link menuAnchors}）
-/** 顶隙（st → 结顶，已含边距语义 ⇒ 裸换算，⛔ 不再 +`SAFE_EDGE_MARGIN`，落地单 §1 防双加注）。 */
-export const MENU_CHAIN_GAP_TOP = 16;
-/**
- * 无刘海 / 无灵动岛时结顶距屏顶的下限（设计 px）。= 加长前的绳长：结顶至少这么远，原图那段绳子才完整露出。
- * 加长段只服务安全区更深的机型（灵动岛结顶 119，绳要接到屏顶），浅档多出来的绳允许被屏顶裁掉。
- */
-export const MENU_BOW_MIN_FROM_TOP = 61;
-/** 底隙（CTA 底缘 → safeBottom 上缘，同上已含边距）。 */
-export const MENU_CHAIN_GAP_BOTTOM = 32;
-/**
- * 招牌链高：结顶 `bow0` → 板底 `sign1`。v3.7 图内结顶 y=159、板底 y=586，等比 370/960 后链高 ≈ 165。
- * v3.9 只在图顶加了 150px 绳子，结与板的图内间距不变，链高仍是 165。
- */
-export const MENU_SIGN_CHAIN_H = 165;
-/**
- * 资源条体高。v3.9（用户 2026-10-16「太高、不能超过背景板」）：46 的顶缘探出橱窗木纹
- * （框图顶约 5px 透明 + 描边 3 居中）。顶板木纹厚约 22，但数值字是 28 的地板，条高收到 32 才能把字包住。
- */
-export const MENU_BAR_H = 32;
-/**
- * 条顶相对橱窗图框下移。框顶木盖约在图内 4–27px（亮面在上、立面在下）。
- * 7 时条顶还压在盖的亮面上，看起来骑在框外。14 让亮面留在条上方，条身嵌进上沿立面。
- */
-export const MENU_BAR_TOP_INSET = 14;
 /** 橱窗高（含楣，v3.3 裁定**恒定不拉伸**）。 */
 export const MENU_CASE_H = 871;
-/**
- * 纵向堆叠组高 = 橱窗 871。⚠ v3.6（用户 2026-10-15）：资源条**嵌在橱窗顶部**（覆盖楣的上 46 px），
- * 不再占堆叠高度；v3.4 的「条 46 + 缝 0 + 窗 871 = 917」作废。不变式 ⑤a 改为 `bar 顶 == case 顶`。
- */
-export const MENU_CASE_GROUP_H = MENU_CASE_H;
-/** 自由区分隙：组上隙 = (zone − 917)/3、下隙 = 2×上隙（柜隙上:下 = 1:2，v3.3 裁定迁整组口径）。 */
-export const MENU_CASE_GAP_RATIO = 2;
-/** 走马灯卡 / ◀▶ 圆心的窗内纵向分割（定稿实测：顶 = case0 + 0.42×871 + 卡半高）。 */
-export const MENU_CASE_SPLIT = 0.42;
-/**
- * CTA 视觉高（mock 实测框 324×92）。⚠ 热区仍 = `TOUCH_MIN` 88（同心）⇒ 视觉/热区差 4
- * 属落地单 §3 登记漂移（「高 92 或维持 88 开工时定」本批取 92：五档验收账即按此算）。
- */
-export const MENU_CTA_H = 92;
-/** Δ12 只作组隙下限（五档最小 gap_top = 39 ✓）⇒ 复用在册 `SIGN_BAND_PAD`，零新常量。 */
 
 /**
  * 招牌整块（`ui_menu_logo`，含绳）图框：370×298 @x190（居中），**等比**（960×772 × 370/960）。
@@ -310,16 +260,6 @@ export const MENU_CTA_H = 92;
  * 板体图内 x[11,948] 未动 ⇒ 绘制右缘 ≈ 556，与公告钮视觉左缘 564 留 8。
  */
 export const MENU_SIGN_FRAME = { x: 190, w: 370, h: 298, bowYOff: 119, boardCyOff: 216 } as const;
-/**
- * 资源条本体框 442×32 @x154（中心 375）。
- * 462 的圆角贴上框肩，描边探出木纹。收到 442 后，条顶那一行（木纹 x[151,597]）
- * 直边落在约 166–584，两端各留一截肩。
- */
-export const MENU_BAR_FRAME = { x: 154, w: 442 } as const;
-/** 橱窗框体 544×871 @x107（mock 实测框；`ui_showcase_frame` 重缩后目标框）。 */
-export const MENU_CASE_FRAME = { x: 107, w: 544 } as const;
-/** Boss 关图位（玻璃白板区）468×528 @x[146,614]，窗内偏移 y[130,658]（定稿实测）。点击热区仍是这块。 */
-export const MENU_BOSS_SLOT = { x: 146, yOff: 130, w: 468, h: 528 } as const;
 /** 走马灯裁切区 = 橱窗白底。`ui_showcase_frame` 白卡：x197、宽 361，距柜顶 168、高 527。 */
 export const MENU_CLIP = { x: 197, yOff: 168, w: 361, h: 527 } as const;
 /**
@@ -329,12 +269,6 @@ export const MENU_CLIP = { x: 197, yOff: 168, w: 361, h: 527 } as const;
  * `MENU_LOCK_D` / `MENU_PROGRESS` 随三章一并删除（⛔ 别为历史留死常量）。
  */
 export const MENU_SEAL = { w: 101, h: 140, inset: 12 } as const;
-/**
- * CTA 文案纹理：高 56，**框中心**落在钮面自顶 42%（原型口径，WXG-T-485 订正措辞）。
- * aspect = 源图 964/253。实测源图 alpha bbox 全幅、**零透明边**、重心 49.76% ≈ 正中
- * ⇒ 「中心」与「重心」等价，但落地单 v3.8 曾写「顶距钮顶 2」（与钮面 42% 互斥，已订正为 10.64）。
- */
-export const MENU_CTA_LABEL = { h: 56, fromTop: 0.42, aspect: 964 / 253 } as const;
 /**
  * 走马灯手感。`flickPxPerMs` / `endFollow` / `snapMs` 是临时值，真机验收后回填落地单 §8。
  * ponytail: 到头只乘一个系数、松手用三次缓出。手感不够再换曲线，别先加弹簧。
@@ -348,16 +282,6 @@ export const MENU_CAROUSEL = {
 } as const;
 /** 状态徽标 64² @x[538,602]，窗内偏移顶 y=142（玻璃区右上角、内缩 12；三态图形资产待裁 ⇒ 程序化占位）。 */
 export const MENU_BADGE = { x: 538, yOff: 142, d: 64 } as const;
-/** 完成态 boss icon Ø160，圆心 = 窗内偏移 y 394（cx 380，居中于 Boss 图位）。 */
-export const MENU_DONE_ICON = { cx: 380, yOff: 394, d: 160 } as const;
-/** 橱窗 Boss 原图边长。源图 256²，花约占 2/3；540 时花约 360，重心与盖章同心。 */
-export const MENU_BOSS_ART_D = 540;
-/**
- * `[WXG-T-522]` 橱窗内景已烘进 `ui_showcase_frame`（壁龛 + 圆台 + 灯位，2× 1088×1742）：
- * true ⇒ 走**单一作品腿**（无层板/无中央沙漏，光晕仍由引擎画）；
- * 缺框位图时白卡不存在，仍旧虚线空槽腿不变。
- */
-export const MENU_CASE_INTERIOR_BAKED = true;
 /**
  * `[WXG-T-566]` 走马灯三态 = **同一张大关 PNG 的灰度 / 模糊差异**（用户 2026-11-02 裁决：
  * 「都是用大关 PNG，只是全灰、部分灰、全彩的区别」；2026-11-03 追加磨砂玻璃；11-03 追加叠加管线 + 锁形独立层）。
@@ -377,7 +301,7 @@ export const MENU_FROST = { radius: 8, gray: 0.3 } as const;
  */
 /**
  * `[WXG-T-579]` 满星态珠圈框：**显示边长 = 作品框宽 × 本比例**（两条作品腿共用，故不钉死像素）。
- * 推导 = 设计稿「中空区占框宽 0.695」× 花心占作品框 2/3 ⇒ 框宽 ≈ 360 / 0.695 ≈ 518（`MENU_BOSS_ART_D` 540）。
+ * 推导 = 设计稿「中空区占框宽 0.695」× 花心占作品框 2/3 ⇒ 框宽 ≈ 360 / 0.695 ≈ 518（原分母 540 = 已退役的 v1 图位 `MENU_BOSS_ART_D`）。
  * ⚠ 该 518 已是主包能容的极限（pal-256 53.5 KB）；再往上就得上 `themes` 分包。
  */
 export const MENU_FULLSTAR_FRAME = { k: 518 / 540 } as const;
@@ -397,43 +321,6 @@ export const MENU_LOCKED_ICON = {
  * 硬度上限 = 相邻小关进度差（章内 8–10 关 ⇒ 每档 ≈ 10–12%），柔带略窄于档距才能看出台阶。
  */
 export const MENU_GRAY_WIPE = { soft: 0.08 } as const;
-/**
- * `[WXG-T-566]` 柜灯强度（乘到既有 `MENU_WARM.coneAlpha`，⛔ 不新增 palette 色）：
- * 灯灭看灰、灯亮看彩，状态由「展品 + 灯光」表达，⛔ 不往玻璃上贴纸。
- */
-export const MENU_LIGHT = { locked: 0.35, pushing: 0.7, cleared: 1 } as const;
-/**
- * `[WXG-T-522]` 单一作品位：每页只画一件大关图（⛔ 徽章/进度沙漏/通关飘带/层板）。
- * d=340（256 源 ⇒ 1.33×，比旧 540 的 2.1× 清楚）；内容底缘 = 窗底 + 114（与 `shelfLift` 同轴）。
- */
-export const MENU_SHOWCASE_ART = { cx: 380, yOff: 459, d: 340 } as const;
-/** 橱窗内木牌（`ui_showcase_plate`）定稿含影实测框 214×100，中心 x 381、窗内偏移顶 y=652（§8.7 牌宽口径待对账）。 */
-export const MENU_PLATE = { cx: 381, yOff: 652, w: 214, h: 100 } as const;
-/**
- * 木牌标题行心（距牌顶，设计px；牌面心 ≈ 46，下缘为投影）。有关名 ⇒ 两行（关序 28 / 关名 30，E1 地板 28），
- * 无关名 ⇒ 关序单行居牌面心（用户 2026-10-16 裁「橱窗下板子补关卡标题」）。
- */
-export const MENU_PLATE_TITLE = { line1Off: 30, line2Off: 62, singleOff: 46 } as const;
-// ─────────── v2 烘焙背板档（`WXG-T-585`；读数 = `final/coordinates/menu-master-coords-v2-20261104.png`）
-/**
- * `[WXG-T-585]` v2 主界面 = **整屏烘焙背板 + 绝对坐标件**。
- *
- * 背板 `ui_menu_backdrop`（750×1334）已烘「橱窗木框 / 玻璃 / 射灯 / 层板 / 圆台 / 空木牌 / 左右陈设 /
- * 桌面拼豆」⇒ 版面不再由 {@link menuAnchors} 链式推导（v1 那套以程序化柜体为基准），改按坐标图
- * **绝对落位**；程序化柜体系列（落地影 / 窗框 / 层板 / 射灯 / 木牌本体）整批退场。
- *
- * 读数口径：本对象的 `x / y` 一律**自屏顶向下**（与坐标图逐字一致），进视图后由
- * `H − y − h` 翻成 y-up。背板**顶对齐屏顶** ⇒ 逐机 H 变化时全组与背板逐像素对齐，
- * 多出的高度落屏底（桌面补带），⛔ 不参与本组坐标。
- */
-/**
- * `[WXG-T-585]` v2 烘焙背板档开关：true ⇒ 几何走 {@link MENU_V2} 绝对坐标、绘制退场程序化柜体系列。
- * ⛔ 与位图就绪与否解耦（配置错了要立刻露空，别让绘制层静默降级回 v1 版面 —— 那会出「v2 几何 + v1 柜体」的怪图）。
- *
- * 2026-11-07 **切生产**：恒 `true`（v1 腿的版面/金样本断言同批改到 v2 读数）。
- * 过渡测具 `setMenuV2Baked` / harness `?v2=1` 已按收口语义删除。
- */
-export const MENU_V2_BAKED = true;
 export const MENU_V2 = {
   /**
    * 招牌整图 549×**361** @(**101, 0**)：板体 549×243 在图内下方（`y=118..361`），上方 118 是绳，
@@ -597,16 +484,9 @@ export function menuBackdropTopPad(H: number, btTopY: number, st: number, sb: nu
     if (MENU_V3_BAKED) return menuV3FromAnchors(H, st, btTopY, sb).topPad;
     return menuV2TopPad(H, H - btTopY);
 }
-/** ◀▶ 翻页钮视觉 64² 左缘 x（右缘 = 750−26−64=660 ⇒ 镜像；热区 88² 同心）。 */
-export const MENU_ARROW_X = { left: 26, right: 660 } as const;
-/** ◀▶ 视觉边长（热区 `TOUCH_MIN` 同心包裹）。 */
-export const MENU_ARROW_VISUAL_D = 64;
 /** 位图腿的目标绘制尺寸（源图 @2x/高清 ⇒ 按屏上框重缩，落地单 §5「接线时按目标尺寸重缩」）。 */
 /** 顶栏图标：`ui_icon_*` 画布与圆底同为 160² ⇒ 与圆同尺寸 80 绘制（字形自带留白，旧 40 会把字形缩到 ≈24）。 */
 export const MENU_TOPBAR_ICON_D = MENU_TOPBAR_VISUAL_D;
-/** 向标源图 58×87。方框 36² 会把字拉扁；高 36、宽 24（36×58/87）居中画在圆钮上。 */
-export const MENU_ARROW_ICON = { w: 24, h: 36 } as const;
-export const MENU_BAR_ICON_D = 24;
 /**
  * `[WXG-T-585]` baked 腿资源条**文本内缩距条体端缘 = 28**。
  * = 背板已烘图标宽 20（红心 x219..239 / 拼豆白环 x517..538，实测自 `ui_menu_backdrop@2x.png`）
@@ -632,7 +512,8 @@ export const MENU_TEXTURES = {
    * 为什么要独立 key 而不共用：v1 腿仍钉老投放件（`logo`→`ui_menu_logo` 960×772 比例 1.243、
    * `cta`→`ui_btn_start_9s` 324×92 走九宫拉伸），v2 件比例/尺寸都不同（招牌 1098×722 = 1.521、
    * CTA 378×179 整枚）。共用 key 换图 ⇒ v1 腿拿 v2 比例去填 v1 框，当场变形。
-   * 消费侧一律经 `pickTex(v1, v2)`：`MENU_V2_BAKED && ready(v2)` 才用 v2，⛔ 未注册自动回退 v1。
+   * `[WXG-T-586]` 切生产后只有 v2 一条腿：消费侧直接用 v2 key（`pickTex` 选图器已删）；
+   * 缺件时按各绘制点自己的缺图兜底走，⛔ 不再回退 v1 key —— 那等于拿 v2 比例去填 v1 框。
    */
   signboard: 'bitmap__menu_signboard',
   ctaV2: 'bitmap__menu_cta_v2',
@@ -731,11 +612,6 @@ export const MENU_TEXTURES = {
  */
 export const UI_PRESS_SINK = 2;
 
-/**
- * CTA 9-slice 端帽（源纹 200×240 @2x 实测：corner~top 80/96、left 76 ⇒ 对称化取整，
- * 落码单位 = 源纹理 px，与 `nineSliceFx` 入参同口径）。
- */
-export const MENU_CTA_SLICE = { capX: 76, capY: 96 } as const;
 /** CTA pressed 源纹的台面下移量（源 px，menu-showcase-asset-spec §5.1「逐列下移 D=16」）⇒ 文案随台面同比下沉。 */
 export const MENU_CTA_PRESSED_D = 16;
 /** CTA 源纹高（源 px，同上 200×240）。 */
@@ -756,9 +632,14 @@ export interface MenuAnchorsInput {
 }
 
 /**
- * 逐机锚输出。**链式算式在本文件**（顶部深度系，与落地单 §2 逐行同名可对着验），
- * 输出已翻成视图设计空间（**y 向上**、原点左下）。gap 留浮点（验收账按 `round` 读数，
- * 不变式② `gapBot == 2×gapTop` 在浮点域精确成立）；像素落位由消费侧各自 `round`。
+ * 逐机输入解算产物。
+ *
+ * `[WXG-T-585]` 2026-11-07 切生产后**只留四件**：v2 版面是坐标图绝对坐标，全部件位置由
+ * `MENU_V2` + `menuBackdropTopPad(H, btTopY, st, sb)` 定 ⇒ 输入侧只剩「屏高 / 上下安全区 /
+ * 顶栏钮顶」需要逐机算。v1 的 gap/sign/case/cta 链式字段（`zone` / `gapTop` / `gapBot` /
+ * `signTopY` / `signBotY` / `barTopY` / `caseTopY` / `caseBotY` / `ctaTopY` / `ctaBotY` /
+ * `caseCenterY`）已随 `anchoredGeoV1` 一并删除，⛔ 不要按旧文档再补回来。
+ * 输出已翻成视图设计空间（**y 向上**、原点左下）。
  */
 export interface MenuAnchors {
   readonly H: number;
@@ -766,36 +647,18 @@ export interface MenuAnchors {
   readonly st: number;
   /** 底 inset（设计 px，裸换算）。 */
   readonly sb: number;
-  /** 板底↔CTA顶 自由区高。 */
-  readonly zone: number;
-  readonly gapTop: number;
-  readonly gapBot: number;
-  /** 结顶（招牌整块上缘）。 */
-  readonly signTopY: number;
-  /** 板底（slogan 带、资源条组都从它往下排）。 */
-  readonly signBotY: number;
-  /** 资源条上缘 = 橱窗上缘（v3.6：条嵌在橱窗顶部，向下覆盖 MENU_BAR_H）。 */
-  readonly barTopY: number;
-  /** 橱窗上缘（= barTopY）。 */
-  readonly caseTopY: number;
-  /** 橱窗下缘（恒定高，⛔ 不拉伸）。 */
-  readonly caseBotY: number;
-  readonly ctaTopY: number;
-  readonly ctaBotY: number;
   /** 顶栏钮**顶缘**（y-up）= H − bt，bt = cap+4（走 `menuTopbarTop`，+4 只此一处）。 */
   readonly btTopY: number;
-  /** 走马灯卡 / ◀▶ 同心圆心 = caseTopY − 0.42×871。 */
-  readonly caseCenterY: number;
 }
 
 /**
- * 四锚 → 全链落位（**纯函数**：只接五个数，不 import cc/wx/DOM ⇒ Node 可测，L2/L3）。
+ * 输入 → 逐机四件（**纯函数**：只接五个数，不 import cc/wx/DOM ⇒ Node 可测，L2/L3）。
  *
  * 接口优先语义沿用 v1.75（判例 K-124）：接口在场就只信接口，⛔ 不 `max` 静态宏。
  * ⚠ 与 `safeEdgeInset` 的一处**有意差异**：顶/底 inset 的 **0 是合法接口值**（非刘海机顶隙 0/
  * 无 Home 条机底隙 0，落地单 §4 SE・Android 两档即此），只有 `null`（宿主读不到接口）才走兜底；
  * 胶囊底维持旧口径（真值恒 > 0，适配层已把脏值归一 `null`）。
- * ⚠ **裸换算**（`round(dp×k)`）：链隙值 16/32 已含边距语义 ⇒ 本函数内 ⛔ 不 +`SAFE_EDGE_MARGIN`
+ * ⚠ **裸换算**（`round(dp×k)`）：本函数内 ⛔ 不 +`SAFE_EDGE_MARGIN`
  * （唯一例外 = bt，经 `menuTopbarTop` 自带 +4，与落地单 `bt = cap + 4` 同值不双加）。
  */
 export function menuAnchors(input: MenuAnchorsInput): MenuAnchors {
@@ -807,36 +670,9 @@ export function menuAnchors(input: MenuAnchorsInput): MenuAnchors {
   const st = dev ? dev.st : (safeTopDp !== null && safeTopDp >= 0 && k > 0 ? Math.round(safeTopDp * k) : SAFE_TOP_H);
   const sb = dev ? dev.sb : (safeBottomDp !== null && safeBottomDp >= 0 && k > 0 ? Math.round(safeBottomDp * k) : SAFE_BOTTOM_H);
   const H = designHeight > 0 ? designHeight : DESIGN_H;
-  // ── 链式（顶部深度系，落地单 §2 逐行）
-  // 结顶 = 安全区下固定 16；无刘海时不低于 MENU_BOW_MIN_FROM_TOP，否则绳子被屏顶裁掉、牌子贴顶。
-  const bow0 = Math.max(st + MENU_CHAIN_GAP_TOP, MENU_BOW_MIN_FROM_TOP);
-  const sign1 = bow0 + MENU_SIGN_CHAIN_H;
-  const cta1 = H - sb - MENU_CHAIN_GAP_BOTTOM;
-  const cta0 = cta1 - MENU_CTA_H;
-  const zone = cta0 - sign1;
-  const gapTopRaw = (zone - MENU_CASE_GROUP_H) / (1 + MENU_CASE_GAP_RATIO);
-  // Δ12 只作组隙下限（落地单 §2）：五档接口档最小 gapTop ≈38（SE，v3.9 结顶下限 61）⇒ 钳位不触发、不变式② 在浮点域精确；
-  // 只在 fallback 档（无接口 st=120/sb=68 叠 H=1334 ⇒ zone < 871）防负隙穿模。
-  const gapTop = Math.max(gapTopRaw, SIGN_BAND_PAD);
-  const gapBot = zone - MENU_CASE_GROUP_H - gapTop;
-  // 资源条嵌在橱窗顶部：橱窗顶 = 招牌底 + gapTop；条顶 = 橱窗顶（条覆盖楣的上 MENU_BAR_H）。
-  const case0 = sign1 + gapTop;
-  const bar0 = case0;
-  const case1 = case0 + MENU_CASE_H;
   const bt = dev ? dev.cap + SAFE_EDGE_MARGIN : menuTopbarTop(capsuleBottomDp, windowWidthDp);
-  // ── 翻 y-up
-  return {
-    H, st, sb, zone, gapTop, gapBot,
-    signTopY: H - bow0,
-    signBotY: H - sign1,
-    barTopY: H - bar0,
-    caseTopY: H - case0,
-    caseBotY: H - case1,
-    ctaTopY: H - cta0,
-    ctaBotY: H - cta1,
-    btTopY: H - bt,
-    caseCenterY: H - case0 - MENU_CASE_SPLIT * MENU_CASE_H,
-  };
+  // 翻 y-up（原点左下）
+  return { H, st, sb, btTopY: H - bt };
 }
 
 
@@ -899,8 +735,6 @@ export const SIGN_MATRIX_N = 10;
  * ⚠ 验收③ 的「`d ∈ [10,15]`」由 {@link signPitchFor} 的档换算式覆盖（`n=8→15`、`n=10→12`、`n=12→10` 破地板）。
  */
 export const SIGN_BEAD_PITCH = 12;
-/** 招牌字数（`app_name` = 千面拼豆 ⇒ 4；WXG-T-584 第五轮改名后仍 4 字 ⇒ 本常量与 `SIGN_MATRIX_N` 零变更；⛔ 视图侧不散字面，串本体读 `copy-tokens.ts::app_name`）。 */
-export const SIGN_GLYPH_COUNT = 4;
 /** 字间 / 单字框 之比（`menu-wall-signage-spec §0.5`「字间 = 半字宽」⇒ 120×0.5 = 60）。 */
 export const SIGN_GLYPH_GAP_RATIO = 0.5;
 /**
@@ -910,11 +744,6 @@ export const SIGN_GLYPH_GAP_RATIO = 0.5;
 export const SIGN_WIDTH_COEF = 5.5;
 /** 屏边距（`tokens.md §4` `space_screen_edge` = **24**，在册值 ⇒ 可用宽 `750 − 2×24 = 702`）。 */
 export const SIGN_PAGE_EDGE = 24;
-/**
- * 招牌带与橱窗框顶的净空下限 `Δ`（`tokens.md §4` `space_band_pad` = **12**）。
- * 关系不变式（T-1 §2.2，**这才是判据、具体 y 值不是**）：`sign.yMin ≥ frameTop + Δ`。
- */
-export const SIGN_BAND_PAD = 12;
 /** 珠面地板（T-1 §0.4 的 ≥8 下界；主理人裁**口径 B = 真几何**为准、A 为对照）。 */
 export const SIGN_FACE_FLOOR = 8;
 /**
@@ -933,8 +762,6 @@ export const SIGN_PITCH_MIN_A = 10;
 export const SIGN_PITCH_MAX = 15;
 /** 回落档字模阵（T-1 §3.8 回退序 **5**：性能不达标时招牌回落 `8×8`，省 343 命令，代价 = 不可辨性回归）。 */
 export const SIGN_FALLBACK_MATRIX_N = 8;
-/** 回落档珠距（守不变式 `n·d = 120` ⇒ 版面 footprint 逐值不变；面 B = 11.27 合规）。 */
-export const SIGN_FALLBACK_PITCH = 15;
 /**
  * 招牌珠色索引（S0 硬约束③ ⇒ **既有珠色**，走 `beadInksFor`/`endpointOf` 通道，⛔ 不取 UI token）。
  * **0 = art 未定值**（T-1 §1.7 明文「本轮不写死」，索引待 `[待真机]` 观感裁定后由回写单定）
@@ -950,8 +777,6 @@ export const SIGN_GLYPH_GAP = SIGN_GLYPH_BOX * SIGN_GLYPH_GAP_RATIO;
 export const SIGN_TOTAL_W = SIGN_WIDTH_COEF * SIGN_MATRIX_N * SIGN_BEAD_PITCH;
 /** 可用宽 `W_avail = DESIGN_W − 2·space_screen_edge`（= **702**）。 */
 export const SIGN_AVAIL_W = DESIGN_W - 2 * SIGN_PAGE_EDGE;
-/** 招牌带**左缘**（居中排布，`MENU_TITLE_Y` 语义 = 外接框中心 ⇒ 视图只加半宽/半高）。 */
-export const SIGN_ORIGIN_X = (DESIGN_W - SIGN_TOTAL_W) / 2;
 
 /**
  * 档换算（T-1 §1.4 上界反解）：给定字模阵 `n` ⇒ **守版面宽度上限**的 `d = ⌊W_avail / (5.5·n)⌋`，
@@ -973,28 +798,6 @@ export function signFaceA(d: number): number {
 export function signTierOk(n: number): boolean {
   return signFaceB(signPitchFor(n)) >= SIGN_FACE_FLOOR;
 }
-
-// ─────────── L4 门楣价目牌（❤/🪙；`menu-architecture §5.1b-2` 第九批设计 / 第十一批落码 2026-10-13）
-//   小铺语言 = 「上方麻绳吊招牌、**价目牌钉在展示窗门楣**」⇒ 运行时的「展示窗」= 走马灯小卡
-//   （§1.3 第五轮：作品墙下移 `levels` overlay，卡为其继承者）。
-// ⛔ **不进 `systems-index §3`**（菜单屏版面派生值，判例同 `SIGN_*` / `CAROUSEL_*`）。
-// ⚠ **第九批那组坐标本批作废重登**（`menu-architecture §5.1b-2` 第九批表：牌体自顶 255–293
-//   = y-up 1041–1079）：那是从**定稿图**门楣量出来的，从未对**现役程序化版面**核对 ⇒
-//   与招牌珠拼带 `[980,1100]`（`MENU_TITLE_Y` 中心 ± 半字框 `SIGN_GLYPH_BOX/2`）**交集 38 px
-//   = 整条牌全压在招牌字上**（第八批「非背景占比不构成不撞车的证据」同一根因重演）。
-//   本批按 §7.4 P-6 **不变式 ⑤「资源条带让位优先于招牌缩字」**走让位腿（⛔ 不动 `SIGN_*` 档）。
-// [WXG-T-280] 锚定档：牌体几何（W/H/X/Y）已退场 ⇒ 落位恒由 `anchoredGeo.barBox`（MENU_BAR_FRAME × MENU_BAR_H）算定；
-//   下列只留**绘制细节档**（描边/铆钉/内缩，程序化腿与位图腿共用）。
-/** 牌体描边宽（图内实测 3；圆角复用 `UI_CONTAINER.radiusChip` 12，不新造档）。 */
-export const MENU_PLAQUE_STROKE = 3;
-/** 图标中心距牌体端缘（实测 42 ⇒ 左 x 192 / 右 x 558）。 */
-export const MENU_PLAQUE_ICON_INSET = 42;
-/** 铆钉半径（图内实测 r 3.5）。 */
-export const MENU_PLAQUE_RIVET_R = 3.5;
-/** 铆钉距牌体端缘（实测 18）。 */
-export const MENU_PLAQUE_RIVET_INSET = 18;
-/** 上沿受光线两端内缩（不吃进 r12 圆角段 ⇒ 亮线在直边上）。 */
-export const MENU_PLAQUE_BEVEL_INSET = 8;
 
 // ─────────── 作品格珠拼缩略档（EP12-S6 · 子单 T-2B；正本 = `menu-wall-signage-spec` §3.1/§3.2/§3.3/§3.4）
 //   主理人裁定：**案乙**（缩略区 84、现装占位几何不动）+ **5×5 主色块聚合** + **单格 ≤ 25 珠硬判据**。

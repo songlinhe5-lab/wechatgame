@@ -8,9 +8,10 @@ import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import { LEVELS } from '../src/config/levels.js';
 import { carouselDamp, carouselPage, plateFade } from '../src/config/menu-carousel.js';
 import { ARC_COMING_SOON, ARCS } from '../src/config/arcs.js';
-import { DESIGN_H, DESIGN_W, MENU_BOSS_SLOT, MENU_CLIP, MENU_FROST, MENU_GRAY_WIPE, MENU_TEXTURES } from '../src/config/tuning.js';
+import { DESIGN_H, DESIGN_W, MENU_CLIP, MENU_FROST, MENU_GRAY_WIPE, MENU_TEXTURES } from '../src/config/tuning.js';
 import { createBeadsShell } from '../src/game/beads-shell.js';
 import { buildMetaView, setMenuBitmapResolver, type MetaViewData } from '../src/view/meta-view.js';
+import { anchoredGeo } from '../src/view/meta-layout.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import type { BeadsLevelRaw } from '../src/config/levels-data.js';
 
@@ -138,10 +139,11 @@ describe('玻璃上的手势', () => {
         const shell = createBeadsShell({ clock: () => now, metaKey: 'test.carousel.meta', play: { saveKey: 'test.carousel.play' } });
         shell.init(services);
         const a = shell.menuAnchors!;
-        const top = Math.round(a.caseTopY - MENU_BOSS_SLOT.yOff);
-        const cy = top - MENU_BOSS_SLOT.h / 2;
-        const cx = MENU_BOSS_SLOT.x + MENU_BOSS_SLOT.w / 2;
-        const sy = DESIGN_H - cy;
+        // `[WXG-T-585]` 切生产：图位改由 `anchoredGeo().bossBox`（= `MENU_V2.art`）给，
+        // ⛔ 不再由 `caseTopY − MENU_BOSS_SLOT.yOff` 推（v1 链已删）。
+        const boss = anchoredGeo(a).bossBox;
+        const cx = boss.x + boss.w / 2;
+        const sy = a.H - (boss.y + boss.h / 2);
         const poke = (phase: 'down' | 'move' | 'up', x: number, y: number, t: number) => {
             now = t;
             input.push({ id: 1, phase, x, y, time: t });
