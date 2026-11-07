@@ -67,7 +67,11 @@ export const COPY_TOKENS = Object.freeze({
      * 结算面板分享卡片标题（`effects-dispatch.ts::fireShare` → `services.share({ title })`）。
      * 约束：平台限 **30 字**（`ShareOptions.title` 注释，超长微信自行截断）；⛔ 不含旧名
      * 「拼豆小铺」、⛔ 不写皮肤款数、⛔ 不写「免费 / 无限」（对外文案三条红线）。
-     * 卡片配图 `imageUrl` 仍缺 ⇒ 走平台默认（游戏图标），出图另立单。
+     *
+     * 2026-11-07 订正（WXG-T-592，用户指正）：原稿「一颗一颗，拼满一整幅」**与玩法不符** ——
+     * 一次操作不是放一颗，而是**同色整组归位、批量填回**（`input-control §2.1 v2.4` 路由 5b /
+     * `bead-grid §2.3 路径 B` v2.1：锚 = 托盘时「同色全组批量填充」）。现行值按玩法重写。
+     * 卡片配图见 `SHARE_IMAGE_REL`（WXG-T-590 已补，不再走平台默认）。
      */
-    share_title: '一颗一颗，拼满一整幅。',
+    share_title: '打乱的拼豆，一组组拼回来。',
 } as const);
