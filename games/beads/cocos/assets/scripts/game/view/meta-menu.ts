@@ -326,6 +326,8 @@ function drawShowcaseArt(
     const ink = alpha < 1 ? alpha : undefined;
     const b = g.showcaseArtBox;
     const x = b.x + dx;
+    /** `[WXG-T-601]` 玻璃裁切顶 ↔ 圆台面(框底) 的可用高度（y-up，实测 374 设计 px）。 */
+    const avail = g.clipBox.y + g.clipBox.h - b.y;
     if (comingSoon) {
         drawComingSoonMark(builder, palette, b.x + b.w / 2 + dx, b.y + b.h / 2, ink);
         return;
@@ -335,19 +337,18 @@ function drawShowcaseArt(
         const opts = fx === undefined
             ? (ink === undefined ? undefined : { alpha: ink })
             : (ink === undefined ? { fx } : { alpha: ink, fx });
-        // `[WXG-T-601]` 原图四周透明留白直接铺框会让图案悬空约 61px ⇒ 按内容宽放大到
-        // 「内容恰铺满展品框」，并把**内容底缘**压在 b.y（= 圆台台面，⛔ 不是 blit 框底）。
-        const k = b.w / MENU_ARC_ART_CONTENT.w;
+        // `[WXG-T-601]` 橱窗内居中：可用高度 = `clip` 顶 ↔ 圆台面(框底)，等比放大到内容
+        // 铺满这段 ⇒ 顶 = clip 顶、底 = 台面（底缘仍坐台，中心抬到玻璃内框中心 ±5px）。
+        // ⛔ 直接上移会重新悬空；底缘固定时只有放大能把中心抬上去。
+        const k = avail / MENU_ARC_ART_CONTENT.h;
         const size = MENU_ARC_ART_SRC * k;
         const bottomInset = MENU_ARC_ART_SRC - MENU_ARC_ART_CONTENT.y - MENU_ARC_ART_CONTENT.h;
         builder.blit(textureId, x + b.w / 2 - size / 2, b.y - bottomInset * k, size, size, opts);
     } else if (level !== undefined) {
-        // `[WXG-T-601]` 展品底缘坐圆台台面（图内 y≈844 = 框底）。`drawLevelThumb` 按
-        // 「格顶内缩 THUMB_TOP_INSET」定位 ⇒ 传 h = 边长 + 内缩，图案底才恰 = yBottom；
-        // 传框高 b.h(314) 会让 325² 图案沉入台面 19px。
+        // 程序化降级腿同口径：`h = 边长 + 内缩` ⇒ 图案底恰 = yBottom（传框高会沉入台面）。
         drawLevelThumb(
-            builder, level, x, b.y, b.w, b.w + THUMB_TOP_INSET,
-            Math.max(level.rows, level.cols), b.w,
+            builder, level, x, b.y, b.w, avail + THUMB_TOP_INSET,
+            Math.max(level.rows, level.cols), avail,
             state === 'locked' ? beadFadedInksFor(level) : undefined,
             ink,
         );

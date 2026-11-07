@@ -64,25 +64,36 @@ afterEach(() => {
 });
 
 /**
- * `[WXG-T-601]` 作品位判据：大图 256² 四周有透明留白（底部 45px）⇒ blit 必须按**内容宽**
- * 放大到恰铺满展品框，并把**内容底缘**压在框底（= 背板圆台台面），否则图案悬空约 61px。
+ * `[WXG-T-601]` 作品位判据：大图 256² 四周透明留白（底部 45px）⇒ 必须按**内容**等比放大到
+ * 铺满「玻璃裁切顶 ↔ 圆台面」这段可用高度，且内容底缘压在台面 ⇒ 图案在橱窗内居中，
+ * 同时仍坐在圆台上（⛔ 直接上移会重新悬空）。
  * 旧判据「blit 尺寸恒 = `MENU_V2.art` 325×314」随「连透明边一起铺框」退场（K-053 划线留档）。
  */
 const expectArtOnShelf = (cmds: readonly DrawCommand[]): void => {
     const art = blitsOf(cmds, BOSS_ART);
     expect(art.length).toBe(1);
-    const k = MENU_V2.art.w / MENU_ARC_ART_CONTENT.w;
+    const shelfY = MENU_V2.art.y + MENU_V2.art.h; // 844 = 圆台台面
+    const avail = shelfY - MENU_V2.clip.y;        // 374 = clip 顶 ↔ 台面
+    const k = avail / MENU_ARC_ART_CONTENT.h;
     const size = MENU_ARC_ART_SRC * k;
     const bottomInset = MENU_ARC_ART_SRC - MENU_ARC_ART_CONTENT.y - MENU_ARC_ART_CONTENT.h;
     const a = art[0]!;
     expect(a.w).toBe(size);
     expect(a.h).toBe(size);
-    // 内容左右缘 = 展品框左右缘（放大后恰铺满，不溢出圆台）
-    expect(a.x + MENU_ARC_ART_CONTENT.x * k).toBeCloseTo(MENU_V2.art.x, 6);
+    const contentBottomYUp = a.y + bottomInset * k;
+    // 内容底缘（y-up）= 展品框底 → 坐在圆台上；旧腿会高出 bottomInset*k ≈ 94px
+    expect(contentBottomYUp).toBeCloseTo(DESIGN_H - shelfY, 6);
+    // 内容顶缘 = 玻璃裁切顶 ⇒ 铺满可用高度（不高不低）
+    expect(contentBottomYUp + MENU_ARC_ART_CONTENT.h * k).toBeCloseTo(DESIGN_H - MENU_V2.clip.y, 6);
+    // 水平中心 = 展品框中心 374.5（= 橱窗中心 375 差既有半像素，非本批引入）
+    expect(a.x + (MENU_ARC_ART_CONTENT.x + MENU_ARC_ART_CONTENT.w / 2) * k)
+        .toBeCloseTo(MENU_V2.art.x + MENU_V2.art.w / 2, 6);
+    expect(a.x + MENU_ARC_ART_CONTENT.x * k).toBeGreaterThanOrEqual(MENU_V2.clip.x);
     expect(a.x + (MENU_ARC_ART_CONTENT.x + MENU_ARC_ART_CONTENT.w) * k)
-        .toBeCloseTo(MENU_V2.art.x + MENU_V2.art.w, 6);
-    // 内容底缘（y-up）= 展品框底 → 坐在圆台上；旧腿会高出 bottomInset*k ≈ 80px
-    expect(a.y + bottomInset * k).toBeCloseTo(DESIGN_H - MENU_V2.art.y - MENU_V2.art.h, 6);
+        .toBeLessThanOrEqual(MENU_V2.clip.x + MENU_V2.clip.w);
+    // 垂直中心 = 「clip 顶 ↔ 台面」中点 657（背板玻璃内框实测中心 652.5，差 4.5px）
+    expect(DESIGN_H - (contentBottomYUp + MENU_ARC_ART_CONTENT.h * k / 2))
+        .toBeCloseTo((MENU_V2.clip.y + shelfY) / 2, 6);
 };
 
 describe('WXG-T-522 橱窗单一作品', () => {
