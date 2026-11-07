@@ -105,19 +105,25 @@ describe('木牌第二行 = 关序（`[WXG-T-598]` 起进度件自木牌退场�
     // （`plate_title_ink` / `plate_sub_ink` / `plate_pill`），关名 30 → **40 粗**，次行仍 28，
     // 胶囊 26 → **33**（守 E1 只能加厚胶囊换回稿的「字身÷胶囊」比例）。现对比：
     // 关名 5.38:1 ✓ / 次行 4.61:1 ✓。`[WXG-T-598]` 换件不改版式 ⇒ 断言载体由 `★ 18/21` 改关序。
-    it('两行 = 胶囊(platePill) + 关序墨 28 粗 + 关名墨 40 粗，E2 开也仍 28（牌面定尺，⛔ 回退 22 档）', () => {
+    //
+    // `[WXG-T-599]` 用户 2026-11-07 判「相比设计稿，现在字号有点大」⇒ 按胶囊宽归一后关名 40→**34**、
+    // 次行 28→**22**、胶囊 33→**27**。28 那个「E1 地板」不再拦：它当年的理由只是「22px 落普通文本档
+    // 需 4.5:1」，而换令牌后次行墨压胶囊已是 **4.61:1** ✓ —— 故本例的「⛔ 回退 22 档」守卫已作废，
+    // 改为守「次行必须是 plateSub（22 粗），⛔ 不得退回 labelBold 28（那是资源条专用）」。
+    it('两行 = 胶囊(platePill) + 关序 22 粗 + 关名 34 粗，E2 开也不放大（牌面定尺）', () => {
         setMenuBitmapResolver(() => true);
         // largeText 强制开：木牌侧「不随 E2 放大」是 §10 的在册例外，必须在这一例里一并守住。
         const cmds = allCmds({ ...dataFor(named, 'pushing'), largeText: true, arcStarGot: 18, arcStarNeed: 21 });
         const texts = cmds.filter((c) => c.kind === 'text')
             .map((c) => c as unknown as { text: string; font?: string; fill?: string });
         const sub = texts.find((c) => c.text === seq)!;
-        expect(sub.font, '次行字号 = 28 粗体（labelBold），E2 档下也不得变 35').toBe(UI_FONT.labelBold);
-        expect(sub.font, '⛔ 回到 cell 22 档（22px 需 4.5:1）').not.toBe(UI_FONT.cell);
-        expect(sub.fill, '次行墨 = plate_sub_ink（压胶囊 4.61:1 ✓）').toBe(DEFAULT_PALETTE.plateSubInk);
+        expect(sub.font, '次行字号 = 22 粗体（plateSub），E2 档下也不得变 35').toBe(UI_FONT.plateSub);
+        expect(sub.font, '⛔ 退回 labelBold 28（资源条数值专用，会把木牌又撑大）').not.toBe(UI_FONT.labelBold);
+        expect(sub.fill, '次行墨 = plate_sub_ink（压胶囊 4.61:1 ✓，22px 也过普通文本档 4.5）')
+            .toBe(DEFAULT_PALETTE.plateSubInk);
 
         const title = texts.find((c) => c.text === '曼陀罗')!;
-        expect(title.font, '关名字型 = plateTitle（bold 40，稿「关名÷次行」1.70 的宽度上限内解）')
+        expect(title.font, '关名字型 = plateTitle（bold 34；墨高 ≈29.9 ≈ 稿归一后的 29.5）')
             .toBe(UI_FONT.plateTitle);
         expect(title.fill, '关名墨 = plate_title_ink（压牌面亮木 5.38:1 ✓）').toBe(DEFAULT_PALETTE.plateTitleInk);
 
@@ -126,7 +132,7 @@ describe('木牌第二行 = 关序（`[WXG-T-598]` 起进度件自木牌退场�
             .map((c) => c as unknown as { w: number; h: number; radius?: number; fill?: string })
             .find((c) => c.fill === DEFAULT_PALETTE.platePill && c.w === 130);
         expect(pill, '胶囊底（plate_pill / 宽照稿 130）必须存在').toBeTruthy();
-        expect(pill!.h, '高 33 = A 档定义式（次行 28 字身 25.2 ÷ 33 = 0.76 ≈ 稿 0.72）').toBe(33);
+        expect(pill!.h, '高 27 = 0.72 定义式（次行 22 字身 19.4 ÷ 27 = 0.72 ≈ 稿 0.70）').toBe(27);
         expect(pill!.radius, '圆角 = 高/2（全圆端，同稿）').toBe(pill!.h / 2);
     });
 });

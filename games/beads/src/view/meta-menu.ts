@@ -399,25 +399,25 @@ function drawComingSoonPlate(
 }
 
 /**
- * 木牌第一行（关名）字型：**40 粗体**（`[WXG-T-597]`，用户 2026-11-07 选 A 档）。
+ * 木牌第一行（关名）字型：**34 粗体**（`[WXG-T-599]`；`[WXG-T-597]` 曾是 40）。
  *
- * 演进：`UI_FONT.button`（30 常规）→ `panelButton`（`bold 30px`，WXG-T-596）→ **`plateTitle`**
- * （`bold 40px`，本批）。放大依据 = 稿面「关名字身 ÷ 次行字身」= **1.70**，而 30/28 只有 1.08
- * （两行几乎一样大、主次不分）；40px 把它拉到 **1.43**，且最长关名「照片冒烟 32」仍只占牌净宽
- * 214/245。⛔ 超过 42 会顶破牌宽（详见 {@link UI_FONT.plateTitle} 注释）。
+ * 演进：`UI_FONT.button`（30 常规）→ `panelButton`（`bold 30px`，WXG-T-596）→ `plateTitle`
+ * （`bold 40px`，WXG-T-597）→ **34px**（本批：用户 2026-11-07 判「相比设计稿，现在字号有点大」）。
+ * 40 那批把稿的「1.70 层级」当唯一目标、却没先把「稿像素 ↔ 设计像素」归一，于是整体偏大 19%；
+ * 本批按胶囊宽归一（1.32）重算，34px 墨高 ≈29.9 ≈ 稿的 29.5 ⇒ 与稿持平，层级 34/22 = **1.55**。
  */
 const PLATE_TITLE_FONT = UI_FONT.plateTitle;
 /**
- * 木牌第二行：**胶囊底 + 次行墨**（`[WXG-T-596]` 立件，`[WXG-T-597]` 换稿值）。
+ * 木牌第二行：**胶囊底 + 次行墨**（`[WXG-T-596]` 立件，`[WXG-T-597]` 换稿值，`[WXG-T-599]` 缩档）。
  *
  * 为什么不直接压墨：牌面亮木实测 `(233,164,92)`，旧墨 `wood_face #8A5B34` 压上去只有
  * **2.74:1 ❌**（既有 a11y 缺陷、且违反拆册件 §4 早已定的 `woodText` 口径）。稿的做法是
- * 「深棕胶囊 + 浅暖墨」，本批起**改用稿实测值**（`plate_pill #795127` / `plate_sub_ink #E8D098`
+ * 「深棕胶囊 + 浅暖墨」，`WXG-T-597` 起**改用稿实测值**（`plate_pill #795127` / `plate_sub_ink #E8D098`
  * = **4.61:1** ✓），不再借 `wood_face`/`wood_text`。
  *
- * 几何见 {@link MENU_PLATE_PILL}：宽 130 照稿与拆册件；**高 26 → 33** —— 次行守 E1 的 28（字身
- * ≈25.2，不降到稿的 ≈18）⇒ 只能加厚胶囊，让「字身 ÷ 胶囊高」回到稿的 0.72 档（实得 0.76）。
- * ⛔ 别再厚：牌高 85，关名 36 + 胶囊 33 = 69 已占 81%。
+ * 几何见 {@link MENU_PLATE_PILL}：宽 130 照稿与拆册件；高 `26 → 33 → 27`。33 是为「次行锁死 28
+ * 时保住稿的 0.72 比值」而加厚；本批次行缩到 22（`UI_FONT.plateSub`）⇒ 胶囊按同一比值回落到
+ * `22×0.88 / 0.72 ≈ 27`，实得 **0.72** ✓。
  */
 function drawPlateSub(
     builder: RenderModelBuilder,
@@ -433,7 +433,7 @@ function drawPlateSub(
             ...(a === undefined ? {} : { alpha: a }),
         });
     builder.text(g.plateCx, g.plateLine2Cy, text, {
-        fill: palette.plateSubInk, font: UI_FONT.labelBold, align: 'center', baseline: 'middle',
+        fill: palette.plateSubInk, font: UI_FONT.plateSub, align: 'center', baseline: 'middle',
         ...(a === undefined ? {} : { alpha: a }),
     });
 }
@@ -449,9 +449,10 @@ function drawPlateSub(
  * ⚠ 信息影响（在册已裁，不是丢失 bug）：主菜单木牌不再显示门票 ★ 进度，该读数在选关页
  * （`arc-level-select`）仍有。若日后要回木牌，⛔ 别塞回第二行 —— 应另立第三行或换件。
  *
- * 字号 = `font_label` **28**（木牌定尺，⛔ 随 E2 放大；见 `menu-layout-implementation-spec §10`）；
- * 墨与底 = `plate_sub_ink` / `plate_pill`（WXG-T-597）；关名 = {@link PLATE_TITLE_FONT} + `plateTitleInk`。
- * 宽度：`第 12 关` 在 28px 下 ≈ 95 < 胶囊 130 ⇒ 用户 2026-11-07 裁「宽度暂不增加」成立。
+ * 字号 = 关名 {@link PLATE_TITLE_FONT}（34 粗）/ 次行 `plateSub`（22 粗，`WXG-T-599` 缩档；
+ * ⛔ 仍随 E2 放大，见 `menu-layout-implementation-spec §10`）；墨与底 = `plate_sub_ink` / `plate_pill`；
+ * 关名墨 = `plateTitleInk`。
+ * 宽度：`第 12 关` 在 22px 下 ≈ 75 < 胶囊 130 ⇒ 「宽度暂不增加」的裁定余量更足。
  */
 function drawPlateTitle(
     builder: RenderModelBuilder,
