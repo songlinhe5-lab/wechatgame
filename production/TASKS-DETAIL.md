@@ -8395,3 +8395,36 @@ USER 令「最新主界面资源，请更细到游戏主界面，并根据坐标
 - 招牌主腿换代属 **T-584 ③a**，**早已闭**（2026-11-05 二批重出 `ui_menu_logo`；T-585 主腿再换 v2 `ui_menu_signboard.png`）——
   本批只把它**删键 + 删文件出包**。2026-11-07 目视复核：生产投放件 `cocos/assets/textures/ui_menu_signboard.png`
   与正本 `final/assets/menu/background/ui_menu_signboard_figma@2x.png`（1098×722）均为「千面拼豆」四字 ⇒ 现役菜单无烧旧字位图。
+
+## WXG-T-588
+
+**基建·补登 framework 五模块漏登元文件** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ 完成（2026-11-07）
+
+### 1. 病灶
+
+framework 同步链上有五个纯逻辑模块的 Cocos 元文件（`<file>.ts.meta`）**历史上从未入库**：
+
+| 模块 | 所属 | 缺几份 |
+|---|---|---|
+| `gray-fx` / `mask-fill` / `mask-geometry` / `mask-lanczos` | `framework/core/bake`（遮罩烘焙族） | beads / breakout 各 1 |
+| `typedarray-pool` | `framework/core/pool` | beads / breakout 各 1 |
+
+后果：每次构建编辑器重新导入都把它们吐成未跟踪文件，工作树长期带噪；更糟的是它们**极易被并发会话
+`git add -A` 顺手带进不相干单据**（本仓有 K-045 判例：提交 = 索引全集，非本次 add）。
+
+### 2. 为何可以安全入库
+
+- 五模块均**无 `@ccclass`**（`framework/core/**` 按 L2 铁律为引擎无关纯逻辑）⇒ 元文件 uuid
+  **不被任何 `.scene` / `.prefab` 引用**，入库不改变任何构建输入，也不影响 `check:cocos-mask` 的 uuid 派生。
+- 两游戏 uuid 各自独立（beads / breakout 是两个独立 Cocos 工程，同名模块 uuid 天然不同）。
+
+### 3. 做法
+
+只把编辑器产物原样 `git add`——⛔ 未手写、未改任何 uuid（L1 精神：不伪造编辑器产物）。
+逐枚核过与同目录兄弟文件同构：`ver` 4.0.24 / `importer` typescript / uuid 36 位。
+
+### 4. 取证
+
+- 工作树内 Cocos 资产已无「缺同名 .meta」项：`.ts` 与 `.png` 全扫（含两个游戏），**0 例**。
+- `pnpm run verify` **PASS 23 / FAIL 0 / SKIP 0**。
+- `git status` 收尾后只剩两件与本次无关的工具配置（`.cursor/settings.json` / `.trae/mcp.json`）。

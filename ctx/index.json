@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3980,
       "lines": 134,
-      "sha256": "11563e02865e41d8010fb521a0c2677bef5592eb4b38ef177e5b3864a2bf2b2e",
+      "sha256": "c02c974d3b1c6fa7768dc6a146e9bf402ab4fd49f98878d30b874357e1eb11e7",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 234751 8397 normal",
+          "summary": "1 production/TASKS-DETAIL.md 235267 8430 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "f2e14be34bb3be5fe45222baba18afd021adadc08f6a65dda499672e89517157",
+      "sha256": "5f72cfd014ae9c34e1101469e75fe1d09b65a11e794dc07c2d3b61949ab81b41",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 194 行 / 47858 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 195 行 / 48242 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+195 · §待排（backlog，无号，立项时领取…=167+29",
+          "summary": "§WXG 任务台账（SSOT）=1+196 · §待排（backlog，无号，立项时领取…=168+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 8397 行 / 234751 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 8430 行 / 235267 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+8398 · §WXG-T-576=7792+40 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+8431 · §WXG-T-577=7832+31 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -88886,17 +88886,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 234751,
-      "lines": 8397,
-      "sha256": "0f2f71b5146a476c3f2832055bee2c7bb5b15935cd2e9b8e140512d1e2f55f22",
+      "tokens": 235267,
+      "lines": 8430,
+      "sha256": "fe2bc6e45519be7fd3aafb71beacf04cf2cf72760aefe2a5c402856443a0d6cc",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 8398,
-          "tokens": 234734,
+          "endLine": 8431,
+          "tokens": 235250,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -101843,22 +101843,94 @@
             "harness",
             "未闭"
           ]
+        },
+        {
+          "anchor": "§WXG-T-588",
+          "level": 2,
+          "startLine": 8399,
+          "endLine": 8431,
+          "tokens": 513,
+          "summary": "基建·补登 framework 五模块漏登元文件 · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ 完成（2",
+          "keywords": [
+            "WXG",
+            "framework",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§1 病灶",
+          "level": 3,
+          "startLine": 8403,
+          "endLine": 8414,
+          "tokens": 186,
+          "summary": "framework 同步链上有五个纯逻辑模块的 Cocos 元文件（<file>.ts.meta）历史上从未入库：",
+          "keywords": [
+            "framework",
+            "Cocos",
+            "file",
+            "meta",
+            "病灶"
+          ]
+        },
+        {
+          "anchor": "§2 为何可以安全入库",
+          "level": 3,
+          "startLine": 8415,
+          "endLine": 8420,
+          "tokens": 111,
+          "summary": "五模块均无 @ccclass（framework/core/ 按 L2 铁律为引擎无关纯逻辑）⇒ 元文件 uuid",
+          "keywords": [
+            "ccclass",
+            "framework",
+            "core",
+            "uuid",
+            "为何可以安全",
+            "入库"
+          ]
+        },
+        {
+          "anchor": "§3 做法",
+          "level": 3,
+          "startLine": 8421,
+          "endLine": 8425,
+          "tokens": 67,
+          "summary": "只把编辑器产物原样 git add——⛔ 未手写、未改任何 uuid（L1 精神：不伪造编辑器产物）。",
+          "keywords": [
+            "git",
+            "add",
+            "uuid",
+            "做法"
+          ]
+        },
+        {
+          "anchor": "§4 取证",
+          "level": 3,
+          "startLine": 8426,
+          "endLine": 8431,
+          "tokens": 86,
+          "summary": "工作树内 Cocos 资产已无「缺同名 .meta」项：.ts 与 .png 全扫（含两个游戏），0 例。",
+          "keywords": [
+            "Cocos",
+            "meta",
+            "png",
+            "取证"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 47858,
-      "lines": 194,
-      "sha256": "29b0853e81bd17f5d96f1c87f9639f6808f645b8ed144e59ea27e6b6aa35ad26",
+      "tokens": 48242,
+      "lines": 195,
+      "sha256": "253a6317f5fd68dc4f645077f13205bf7a9d9595d7969520c709be539c1a9073",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 195,
-          "tokens": 47849,
+          "endLine": 196,
+          "tokens": 48233,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -101871,8 +101943,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 167,
-          "endLine": 195,
+          "startLine": 168,
+          "endLine": 196,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
