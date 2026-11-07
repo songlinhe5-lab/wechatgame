@@ -9115,5 +9115,5 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
   - 同函数程序化降级腿（`drawLevelThumb`）：`h` 由 `b.h`(314) 改 `b.w + THUMB_TOP_INSET`(333) ⇒ 图案底 = `yBottom`（原传框高使 325² 图案沉入台面 19px）；两条腿现在都底对齐 844。
   - `games/beads/tests/showcase-single.test.ts`：旧两条「blit 尺寸恒 = `MENU_V2.art` 325×314」按 K-053 迁移为 `expectArtOnShelf`（blit 恒等比、内容左右缘 = 框左右缘、内容底缘 = 框底），旧值在注释划线留档。
 - **金样本**：菜单族 **5 态**（`main-menu` / `level-select` / `level-select-mid` / `settings` / `signin`）sha 变——一条 blit 的坐标与尺寸，`total`/`kinds` 逐字不变；对局族 6 态零漂移。由 `tests/ui-golden-capture.ts` 在干净锚重抓（⛔ 不手改夹具，K-051 / K-053）。
-- **处置纪律**：视觉变更先登记 `ui-architecture-beads §12` 再复取；对照图 `temp/showcase-align-check.png`（蓝 = 修复前图案区、绿 = 修复后、红线 = 台面接触线 844）。
+- **处置纪律**：视觉变更先登记 `ui-architecture-beads §12` 再复取；对照图 `temp/showcase-align-check.png`（蓝 = 修复前可见图案区、绿 = 修复后、红线 = 台面接触线 844；本地取证，`temp/` 属 gitignore 不入库，⚠ 非真机证据）。
 - **⚠ 遗留**：两枚大关图留白不同，统一用较宽的 mandala 口径 ⇒ smoke 图放大后每侧窄约 7px；若未来要求逐图精确铺满，应把包围盒改为按 `textureId` 查表（本批 2 图、差异 <7px，按 YAGNI 不做）。
