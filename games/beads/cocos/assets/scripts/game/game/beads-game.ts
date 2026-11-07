@@ -518,7 +518,7 @@ export class BeadsGame {
   private readonly _canStartRun?: () => boolean;
   /** 广告加心发奖回调（options.onStaminaRefill；无 shell 时 undefined）。 */
   private readonly _onStaminaRefill?: () => void;
-  /** 广告加心是否还可用（options.canWatchStaminaAd；日限/满心闸门，无 shell 时 undefined ⇒ 不设门）。 */
+  /** 广告加心是否还可用（options.canWatchStaminaAd；§3.14 v1.99 闸门 = 仅日限，无 shell 时 undefined ⇒ 不设门）。 */
   private readonly _canWatchStaminaAd?: () => boolean;
   /** 道具超限豆子购买闸门（options.onPowerupPurchase；无 shell 时 undefined ⇒ 占位提示）。 */
   private readonly _onPowerupPurchase?: (type: PowerupType) => boolean;
@@ -1828,7 +1828,7 @@ export class BeadsGame {
     if (this._watchingAd) return;
     const ad = this._services?.rewardedAd;
     if (!ad || !this._onStaminaRefill) return;
-    // §3.14 v1.80 日限/满心闸门：不可加心时不拉广告（避免「看完啥也没有」）。
+    // §3.14 v1.99 闸门 = 仅日限：不可加心时不拉广告（避免「看完啥也没有」）。
     if (this._canWatchStaminaAd && !this._canWatchStaminaAd()) return;
     this._failHint = '';
     this._adKind = 'staminaRefill';

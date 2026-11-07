@@ -92,19 +92,19 @@ export function isPressed(data: MetaViewData, id: MetaAction): boolean {
  *   字 `wood_text`（对牌面 5.3:1 ✓）⇒ 视图内零 hex 字面（control-manifest §3）。
  */
 /**
- * 资源条「心」端文案（§3.14 v1.80 日限可见，WXG-T-351 续）：
+ * 资源条「心」端文案（§3.14 **v1.99**，用户 2026-11-07 裁定）：
  *
- * - 满心（`stamina >= max`）⇒ 广告**不可用** ⇒ ⛔ 不显示次数（印「▶5」会误导成「现在能看」）；
- * - 未满心 ⇒ 追 ` ▶N`（N 可为 0 = 「今天没额度了」，明确而非隐藏）；
- * - `adsLeft === undefined`（未接线）⇒ 只显示 `心 n/n`（旧行为，零回归）。
+ * - **只出 `cur/max`**，⛔ 不再追 ` ▶N` 广告次数（v1.80 的日限可见尾段**已废**，K-053 留档）——
+ *   加心入口不再挂在心的数量旁，改由「点开始按钮时」判断体力并给出提示；
+ * - `stamina` 可 **> max**（看广告加心可突破上限）⇒ **如实显示**，如 `11/8`（⛔ 不钳成 `8/8`）。
  *
  * 单条 text ⇒ 每端仍是 1 条绘制命令（`menu-architecture §5.1b-2` 第十一批口径不变）。
  */
-export function heartBarLabel(stamina: number, max: number, adsLeft?: number): string {
-    const base = `${stamina}/${max}`;
-    if (adsLeft === undefined) return base;
-    if (stamina >= max) return base;
-    return `${base} ▶${adsLeft}`;
+export function heartBarLabel(stamina: number, max: number): string {
+    // §3.14 **v1.99**（用户 2026-11-07 裁定）：广告加心入口**不再挂在心的数量旁**
+    // （原 `3/8 ▶2` 的尾段），改由「点开始按钮时」判断体力并弹框提示 ⇒ 本函数只出 `cur/max`。
+    // ⚠ `stamina` 可 > `max`（看广告加心允许突破上限）⇒ 如实显示，如 `11/8`。
+    return `${stamina}/${max}`;
 }
 
 /** 防御臂告警门（一次性；判例 = `palette.ts::resetPaletteFallbackWarnings`）。 */

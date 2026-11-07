@@ -91,7 +91,7 @@ function rig(): BeadsShell {
     const platform = new NodePlatform({ width: SCREEN_W_DP, height: SCREEN_H_DP, pixelRatio: 3 });
     const storage = platform.createStorage();
     storage.set(PLAY_KEY, JSON.stringify(defaultBeadsSave()));
-    storage.set(META_KEY, JSON.stringify({ ...defaultBeadsMeta(), staminaCur: 99 }));
+    storage.set(META_KEY, JSON.stringify({ ...defaultBeadsMeta(), staminaCur: 8 }));
     const viewport = new Viewport(DESIGN_W, DESIGN_H, /* dynamicHeight */ true);
     viewport.resize(SCREEN_W_DP, SCREEN_H_DP);
     const services: GameServices = {

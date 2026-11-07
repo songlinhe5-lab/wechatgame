@@ -86,7 +86,7 @@ const fixture = {
         clock: UI_GOLDEN_CLOCK,
         step: UI_GOLDEN_STEP,
         level: 'simpleTestLevel() 6×5（fail 场景 time=30，冲刺场景 sprintTime=90）',
-        menuSeed: { staminaCur: 99, maxUnlockedLevel: 9 },
+        menuSeed: { staminaCur: 8, maxUnlockedLevel: 9 },
         stepPolicy: 'shell.update(1/60) 固定步长；菜单态不推进对局',
     },
     states: records,

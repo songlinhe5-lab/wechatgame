@@ -65,7 +65,7 @@ function rig(opts: RigOptions = {}): BeadsShell {
         storage.set(SAVE_KEY, JSON.stringify({ ...defaultBeadsSave(), maxUnlockedLevel: opts.unlocked }));
     }
     // 体力给满：菜单态不因体力横幅的变化换出另一种帧。
-    storage.set(META_KEY, JSON.stringify({ ...defaultBeadsMeta(), staminaCur: 99 }));
+    storage.set(META_KEY, JSON.stringify({ ...defaultBeadsMeta(), staminaCur: 8 }));
     const services: GameServices = {
         events: new EventBus(),
         input: new InputManager(),

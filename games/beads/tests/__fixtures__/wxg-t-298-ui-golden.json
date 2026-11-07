@@ -16,7 +16,7 @@
     "step": 0.016666666666666666,
     "level": "simpleTestLevel() 6×5（fail 场景 time=30，冲刺场景 sprintTime=90）",
     "menuSeed": {
-      "staminaCur": 99,
+      "staminaCur": 8,
       "maxUnlockedLevel": 9
     },
     "stepPolicy": "shell.update(1/60) 固定步长；菜单态不推进对局"

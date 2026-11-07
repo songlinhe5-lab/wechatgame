@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3980,
       "lines": 134,
-      "sha256": "bfc7def145b5e7e3a13a28f03f363d9fc0257df58db97d994c6f6e704f2e5e96",
+      "sha256": "00a79a40a8f1904dcd92607a1a74addc214d30c3ee9918d0298815b6a95e1eb9",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 240955 8695 normal",
+          "summary": "1 production/TASKS-DETAIL.md 241972 8741 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "a7463e974a0dab046063ffaad29ae6814411d880da5e63c4fdfbe3579bbd3100",
+      "sha256": "1175bfeac2549a37bdc2b84af8b97215711ea54eb94b92bbf62ba4afadd018cf",
       "tier": "normal",
       "sections": [
         {
@@ -713,7 +713,7 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/gdd/systems-index.md` — 323 行 / 42379 tok / 实测读 170 次",
+          "anchor": "§`games/beads/design/gdd/systems-index.md` — 323 行 / 42824 tok / 实测读 170 次",
           "level": 2,
           "startLine": 20,
           "endLine": 23,
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 200 行 / 50900 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 201 行 / 51397 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+201 · §待排（backlog，无号，立项时领取…=173+29",
+          "summary": "§WXG 任务台账（SSOT）=1+202 · §待排（backlog，无号，立项时领取…=174+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 8695 行 / 240955 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 8741 行 / 241972 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+8696 · §WXG-T-582=8024+61 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+8742 · §WXG-T-583=8085+46 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -25755,9 +25755,9 @@
     },
     {
       "path": "games/beads/design/art/proposals/ui-style-redesign/menu-architecture.md",
-      "tokens": 38402,
+      "tokens": 38455,
       "lines": 996,
-      "sha256": "32a1065b47af0a58d2084a2968483bc42a9e7fc0e79744cd3c4ad0e46ab1b6a5",
+      "sha256": "9c4e299807ab7a36f9190c0d12a938af2166c924a33c868646af1310e5d58a91",
       "tier": "normal",
       "sections": [
         {
@@ -25765,7 +25765,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 997,
-          "tokens": 38384,
+          "tokens": 38437,
           "summary": "角色：文策渊（设计策略）· 接 WXG-T-265（林绘澄「暖纸拼豆台」四件：screens.md / tokens.m",
           "keywords": [
             "WXG",
@@ -25980,7 +25980,7 @@
           "level": 2,
           "startLine": 223,
           "endLine": 762,
-          "tokens": 23912,
+          "tokens": 23966,
           "summary": "",
           "keywords": [
             "logo",
@@ -26020,7 +26020,7 @@
           "level": 3,
           "startLine": 393,
           "endLine": 691,
-          "tokens": 13484,
+          "tokens": 13537,
           "summary": "规则式（自顶口径，单位 = 设计 px）：",
           "keywords": [
             "裁定",
@@ -33731,9 +33731,9 @@
     },
     {
       "path": "games/beads/design/gdd/meta-ui.md",
-      "tokens": 10203,
+      "tokens": 10211,
       "lines": 189,
-      "sha256": "b80594f15aa0660542be591a4bd6a5787da852afa3e465fb9f20dd4b19c538a0",
+      "sha256": "71748b111b1b83eee326da0650758e13130ed25e05c1c9188f565182bfdcea5d",
       "tier": "normal",
       "sections": [
         {
@@ -33741,7 +33741,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 190,
-          "tokens": 10186,
+          "tokens": 10193,
           "summary": "项目：games/beads · 版本 v0.6（草案 · 已含六项裁定 + WXG-T-283 三裁定 + 同批续裁 ",
           "keywords": [
             "GDD",
@@ -33769,7 +33769,7 @@
           "level": 2,
           "startLine": 18,
           "endLine": 91,
-          "tokens": 4969,
+          "tokens": 4976,
           "summary": "",
           "keywords": [
             "机制"
@@ -33837,7 +33837,7 @@
           "level": 3,
           "startLine": 59,
           "endLine": 64,
-          "tokens": 399,
+          "tokens": 406,
           "summary": "§3.14 现文 = STAMINA_START_COST 1，语义「普通局开局消耗；第二模式入口当前不存在，其余模式消",
           "keywords": [
             "§3.14",
@@ -35717,17 +35717,17 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index-changelog.md",
-      "tokens": 52773,
-      "lines": 108,
-      "sha256": "cabc7e9637af7f6853a79b5670c71b2f57a9976629ac3806d4ff252ed50ae856",
+      "tokens": 53260,
+      "lines": 109,
+      "sha256": "8eb054f7d4a9bbb482833ca748dd079dd3f4c065b339f0c5c1fed83a3fa6f0d4",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§GDD · systems-index §6 变更记录（拆分件）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 109,
-          "tokens": 52755,
+          "endLine": 110,
+          "tokens": 53242,
           "summary": "项目：games/beads · 归属：systems-index.md 的 §6 变更记录",
           "keywords": [
             "§6",
@@ -35742,8 +35742,8 @@
           "anchor": "§6 变更记录",
           "level": 2,
           "startLine": 7,
-          "endLine": 109,
-          "tokens": 52596,
+          "endLine": 110,
+          "tokens": 53084,
           "summary": "v1.0 2026-09-11 初版：9 系统清单 + 拓扑 + §3 冻结令（含 8 项 [待确认] 提案值） WXG",
           "keywords": [
             "§3",
@@ -35755,9 +35755,9 @@
     },
     {
       "path": "games/beads/design/gdd/systems-index.md",
-      "tokens": 42379,
+      "tokens": 42824,
       "lines": 323,
-      "sha256": "c5b73fb91024b457960a8d96151520f2f17fcfda74de3277a15580e644fbabab",
+      "sha256": "d749fdba2dccf9a4e3ff76742f039743d9e11b2847693e04f0c03be5532805a9",
       "tier": "hot",
       "sections": [
         {
@@ -35765,8 +35765,8 @@
           "level": 1,
           "startLine": 1,
           "endLine": 324,
-          "tokens": 42362,
-          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.98 · 任务号 WXG-T-459（v1.98 = §3.",
+          "tokens": 42807,
+          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.99 · 任务号 WXG-T-594（v1.99 = §3.",
           "keywords": [
             "§3",
             "Systems",
@@ -35808,7 +35808,7 @@
           "level": 2,
           "startLine": 56,
           "endLine": 277,
-          "tokens": 28861,
+          "tokens": 29053,
           "summary": "本项目唯一真源（Single Source of Truth）——适用范围：游戏数值与常量（分辨率 / 安全区 / 网格",
           "keywords": [
             "Global",
@@ -35969,7 +35969,7 @@
           "level": 3,
           "startLine": 227,
           "endLine": 236,
-          "tokens": 411,
+          "tokens": 432,
           "summary": "REVIVE_BONUS_SEC 180 s 失败页激励视频看完（onRewarded）后写入可玩钟的秒数。v1.25 ",
           "keywords": [
             "§10.5",
@@ -35985,7 +35985,7 @@
           "level": 3,
           "startLine": 237,
           "endLine": 248,
-          "tokens": 1518,
+          "tokens": 1689,
           "summary": "STAMINA_MAX 8 体力（心）上限（宽容包 B，用户拍板）",
           "keywords": [
             "Stamina",
@@ -45853,9 +45853,9 @@
     },
     {
       "path": "games/beads/design/ux/ux-spec.md",
-      "tokens": 62584,
+      "tokens": 62587,
       "lines": 590,
-      "sha256": "1d14bdf2f53a8c4deb203b61ccc9350ce9c69e60c62e38716d7284e10c14e0cb",
+      "sha256": "369fd16a3ed5166806d8bf5bd865df87ceb322558db3e780455ba86f905484c3",
       "tier": "normal",
       "sections": [
         {
@@ -45863,7 +45863,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 591,
-          "tokens": 62574,
+          "tokens": 62577,
           "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.44 · 任务号 WXG-T-514（v1.44 = 结算外",
           "keywords": [
             "Spec",
@@ -45906,7 +45906,7 @@
           "level": 2,
           "startLine": 64,
           "endLine": 271,
-          "tokens": 8224,
+          "tokens": 8227,
           "summary": "",
           "keywords": [
             "§3.1",
@@ -45975,7 +45975,7 @@
           "level": 3,
           "startLine": 198,
           "endLine": 220,
-          "tokens": 654,
+          "tokens": 657,
           "summary": "",
           "keywords": [
             "结算",
@@ -88886,17 +88886,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 240955,
-      "lines": 8695,
-      "sha256": "4459250a539fa4fa14a2c41119be0b4b6b8be2e0bd7d0ea26dfc2564d60107db",
+      "tokens": 241972,
+      "lines": 8741,
+      "sha256": "b61b5ededa9cf3db1dd3db3dd8cae3fda61fb30621fac52d54aba19edcfe95a8",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 8696,
-          "tokens": 240938,
+          "endLine": 8742,
+          "tokens": 241955,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -102318,22 +102318,104 @@
             "FAIL",
             "SKIP"
           ]
+        },
+        {
+          "anchor": "§WXG-T-594",
+          "level": 2,
+          "startLine": 8697,
+          "endLine": 8742,
+          "tokens": 1014,
+          "summary": "数值·广告加心解钳上限（心可超上限） · 负责：主理人(CodeBuddy)·数值/UX轨 · 状态：✅ 完成（2026",
+          "keywords": [
+            "WXG",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§1 口径变更（§3.14 v1.99）",
+          "level": 3,
+          "startLine": 8701,
+          "endLine": 8711,
+          "tokens": 202,
+          "summary": "① 单次数值 HEART_AD_GAIN = 3 5（8 min/心 × 5 = 40 分钟「时间等价」）",
+          "keywords": [
+            "§3.14",
+            "HEART_AD_GAIN",
+            "min",
+            "口径变更"
+          ]
+        },
+        {
+          "anchor": "§2 三处会「吃掉溢出」的隐患（本批一道修）",
+          "level": 3,
+          "startLine": 8712,
+          "endLine": 8721,
+          "tokens": 276,
+          "summary": "改完主腿后逐个复核「写档 ↔ 装载 ↔ 恢复」链，发现溢出在三个环节会被静默抹掉：",
+          "keywords": [
+            "三处会",
+            "吃掉溢出",
+            "的隐患",
+            "本批一道修"
+          ]
+        },
+        {
+          "anchor": "§3 测试",
+          "level": 3,
+          "startLine": 8722,
+          "endLine": 8730,
+          "tokens": 243,
+          "summary": "广告加心三例 「钳上限 7+3 ⇒ 8」「满心不加、不计次」两例按新口径改写；锚点保留用例改到不超上限区间（8→2 心）",
+          "keywords": [
+            "测试"
+          ]
+        },
+        {
+          "anchor": "§4 文档回写 (3)",
+          "level": 3,
+          "startLine": 8731,
+          "endLine": 8736,
+          "tokens": 106,
+          "summary": "真源：systems-index.md 头部版本行 + §3.14「广告加心」行 + §3.11「激励主位」行；",
+          "keywords": [
+            "§3.14",
+            "§3.11",
+            "systems",
+            "index",
+            "文档回写"
+          ]
+        },
+        {
+          "anchor": "§5 取证",
+          "level": 3,
+          "startLine": 8737,
+          "endLine": 8742,
+          "tokens": 70,
+          "summary": "pnpm run verify ⇒ PASS 23 / FAIL 0 / SKIP 0（含 check:frozen-v",
+          "keywords": [
+            "pnpm",
+            "run",
+            "verify",
+            "PASS",
+            "FAIL",
+            "SKIP"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 50900,
-      "lines": 200,
-      "sha256": "ac7fcd0ffd716cd5b81991429382aed2ebeb40d007e0665d6ff3bf5b4f3a3fe4",
+      "tokens": 51397,
+      "lines": 201,
+      "sha256": "266819c1767d5d3d29f4ec8a2a63fad1ce9adb97dea7eea0af0cba282998b58f",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 201,
-          "tokens": 50892,
+          "endLine": 202,
+          "tokens": 51389,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -102346,8 +102428,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 173,
-          "endLine": 201,
+          "startLine": 174,
+          "endLine": 202,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

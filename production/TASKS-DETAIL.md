@@ -8693,3 +8693,49 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - `pnpm run verify` ⇒ **PASS 23 / FAIL 0 / SKIP 0**。
 - **金样本零漂移**：`main-menu` 等五态均在**起点页**，按旧逻辑本就不叠字 ⇒ 本单不影响任何 sha（这也侧面验证了「叠字只在浏览态出现」）。
 - harness 已重启（`http://127.0.0.1:4174/index.html?game=beads`）供目视；⚠ `:4173` 上仍挂着 2026-11-06 09:49 启动的旧实例，跑的是改前代码。
+
+## WXG-T-594
+
+**数值·广告加心解钳上限（心可超上限）** · 负责：主理人(CodeBuddy)·数值/UX轨 · 状态：✅ 完成（2026-11-07 · 用户裁定「加心不钳上限、满心也能看、心条只显示数量」）
+
+### 1. 口径变更（§3.14 v1.99）
+
+| # | 面 | 旧（v1.80） | 新（v1.99） |
+|---|---|---|---|
+| ① | 单次数值 | `HEART_AD_GAIN = 3` | **5**（8 min/心 × 5 = 40 分钟「时间等价」） |
+| ② | 上限交互 | 钳 `STAMINA_MAX`、**溢出即弃** | **可突破上限**（上限只约束自然恢复；6/8 看一次 ⇒ 11/8） |
+| ③ | 满心 | 不可看、**不计次** | **可看、计次** ⇒ `canWatchHeartAd` 判据只剩日限 |
+| ④ | 心条标签 | `3/8 ▶2`（追日限次数） | **只出 `cur/max`**，超上限如实显示 `11/8` |
+
+⛔ 未改：`STAMINA_MAX` 8 / `STAMINA_REGEN_MIN` 8 min / `STAMINA_START_COST` 1 / `HEART_AD_DAILY_LIMIT` 5 / 签到「溢出即弃」/ `AD_PLACEMENTS` 4 / 锚点不重置。
+
+### 2. 三处会「吃掉溢出」的隐患（本批一道修）
+
+改完主腿后逐个复核「写档 ↔ 装载 ↔ 恢复」链，发现溢出在三个环节会被静默抹掉：
+
+| # | 位置 | 病灶 | 修法 |
+|---|---|---|---|
+| ① | `meta-save-schema.ts::normalizeBeadsMeta` | 装载上界恒钳 `STAMINA_MAX` ⇒ 加心到 11 写档，重启装载被钳回 8 =「溢出即弃」换了个时机 | 上界改派生式 `STAMINA_CUR_CEIL = STAMINA_MAX + HEART_AD_DAILY_LIMIT × HEART_AD_GAIN` = **33**（自然恢复永不超过 8 ⇒ 33 是玩家合法可达的绝对上限） |
+| ② | `meta-state.ts::addStamina`（签到腿） | 无条件 `Math.min(MAX, cur + n)` ⇒ 11 心时签到送 1 心反而变 8（**反向扣心**） | cap 已满即 no-op，`_cur < MAX` 时才加 ⇒「签到溢出即弃」语义保持、广告溢出不被砍 |
+| ③ | `meta-state.ts::refresh` | 复核确认：`_cur >= MAX` 时锚点跟随 now 且不改 `_cur` ⇒ 已安全 | 仅补注说明，零行为改动 |
+
+### 3. 测试
+
+| 面 | 处置 |
+|---|---|
+| 广告加心三例 | 「钳上限 7+3 ⇒ 8」「满心不加、不计次」两例按新口径改写；**锚点保留**用例改到**不超上限**区间（8→2 心）验证 —— 否则「半档 + 半档 = 一档」会被突破上限掩掉（超上限时下限恢复本就停摆） |
+| 新增 2 例 | ① 溢出**跨重启保留**（写档 11 ⇒ 新 rig 装载仍 11）；② 超上限时 `addStamina` 只作废、**不砍溢出** |
+| 心条标签 | `heart-bar-label.test.ts` 整文件按新口径重写：只出 `cur/max`、允许超上限、**无 ▶** |
+| 夹具 | 8 处 `staminaCur: 99`（本意「给满」）→ `8`：新上界下 99 会钳到 33 而非 8，会让金样本菜单帧从 `8/8` 漂到 `33/8`；改 8 语义等价、**金样本零漂移** |
+
+### 4. 文档回写
+
+- 真源：`systems-index.md` 头部版本行 + §3.14「广告加心」行 + §3.11「激励主位」行；
+- 台账：`systems-index-changelog.md` 追加 **v1.99** 行；
+- 下游：`gdd/meta-ui.md §2.5`、`ux/ux-spec.md`（重试扣心段）、`art/proposals/ui-style-redesign/menu-architecture.md §5.1b`（心端配额后缀整条按 K-053 划线留档）。
+
+### 5. 取证
+
+- `pnpm run verify` ⇒ **PASS 23 / FAIL 0 / SKIP 0**（含 `check:frozen-values` 三方一致）。
+- beads 单测 ⇒ **1426 passed / 2 skipped**（121 文件）。
+- Cocos 两副本：`framework:sync` 写入 7 件，`framework:sync:check` 通过。

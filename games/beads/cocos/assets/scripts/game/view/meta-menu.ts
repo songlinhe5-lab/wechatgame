@@ -71,7 +71,7 @@ function drawResourceBar(
     const x = g.x;
     const cy = g.y + g.h / 2;
     // 图标已烘进背板 ⇒ 文本自图标外缘再让一个间隙起排（`MENU_BAR_BAKED_LABEL_INSET` = 20+8）。
-    builder.text(x + MENU_BAR_BAKED_LABEL_INSET, cy, heartBarLabel(data.stamina, data.staminaMax, data.heartAdsLeft), {
+    builder.text(x + MENU_BAR_BAKED_LABEL_INSET, cy, heartBarLabel(data.stamina, data.staminaMax), {
         fill: palette.woodText,
         font: UI_FONT.label,
         align: 'left',

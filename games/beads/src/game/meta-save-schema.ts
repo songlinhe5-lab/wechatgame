@@ -14,12 +14,23 @@
  */
 
 import type { SaveDocument } from '@wxgame/framework';
-import { STAMINA_MAX } from '../config/tuning.js';
+import { STAMINA_MAX, HEART_AD_GAIN, HEART_AD_DAILY_LIMIT } from '../config/tuning.js';
 import { DEFAULT_SKIN_ID } from '../config/skins/registry.js';
+
+/**
+ * 体力可持久化上界（§3.14 **v1.99** 派生式，⛔ 不进 §3 冻结表）：自然恢复永不超过
+ * `STAMINA_MAX`，广告加心每日至多 `HEART_AD_DAILY_LIMIT × HEART_AD_GAIN` ⇒ 玩家**合法可达**
+ * 的绝对上限 = 二者之和（8 + 5×5 = 33）。旧口径恒钳 `STAMINA_MAX`，v1.99 起会把溢出没收。
+ */
+const STAMINA_CUR_CEIL = STAMINA_MAX + HEART_AD_DAILY_LIMIT * HEART_AD_GAIN;
 
 export interface BeadsMeta extends SaveDocument {
     version: 2;
-    /** 当前体力（心），钳 `[0, STAMINA_MAX]`。 */
+    /**
+     * 当前体力（心），钳 `[0, STAMINA_MAX + HEART_AD_DAILY_LIMIT × HEART_AD_GAIN]`。
+     * §3.14 **v1.99**：广告加心可**突破** `STAMINA_MAX`（上限只限自然恢复）⇒ 上界不再
+     * 是 `STAMINA_MAX`，否则溢出会在重启装载时被静默没收。
+     */
     staminaCur: number;
     /**
      * 体力恢复锚点（wallClock ms）：当前「未满一档」的计时起点。离线恢复
@@ -181,7 +192,9 @@ export function normalizeBeadsMeta(raw: unknown): MetaNormalizeResult {
 
     const meta: BeadsMeta = {
         version: META_SAVE_VERSION,
-        staminaCur: Math.max(0, Math.min(STAMINA_MAX, int(raw['staminaCur'], STAMINA_MAX))),
+        // §3.14 v1.99：广告加心可突破上限 ⇒ 装载上界 = 上限 + 单日理论最大加心量
+        // （自然恢复永不超过 `STAMINA_MAX`，故 8 + 5×5 = 33 是玩家合法可达的绝对上限）。
+        staminaCur: Math.max(0, Math.min(STAMINA_CUR_CEIL, int(raw['staminaCur'], STAMINA_MAX))),
         staminaAnchorMs: anchor,
         coins: int(raw['coins'], 0),
         signinClaims: int(raw['signinClaims'], 0),

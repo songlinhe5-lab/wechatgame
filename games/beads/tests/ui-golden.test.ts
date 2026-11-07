@@ -130,7 +130,7 @@ describe('WXG-T-298 UI-02 金样本（十界面 × 关键状态整帧对拍）',
         expect(GOLDEN.fixture.viewport).toEqual({ width: DESIGN_W, height: DESIGN_H, pixelRatio: UI_GOLDEN_PIXEL_RATIO });
         expect(GOLDEN.fixture.seed).toBe(UI_GOLDEN_SEED);
         expect(GOLDEN.fixture.step).toBe(UI_GOLDEN_STEP);
-        expect(GOLDEN.fixture.menuSeed).toEqual({ staminaCur: 99, maxUnlockedLevel: 9 });
+        expect(GOLDEN.fixture.menuSeed).toEqual({ staminaCur: 8, maxUnlockedLevel: 9 });
         // 场景自证必须记全（防「抓到的其实是另一屏」）。
         for (const s of GOLDEN.states) expect(s.proof.screen).toMatch(/^(menu|play)$/);
     });

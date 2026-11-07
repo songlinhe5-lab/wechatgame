@@ -286,30 +286,35 @@ describe('MetaState — persistence', () => {
 
 /**
  * §3.14 v1.80（WXG-T-351）：体力回满 → **广告加心（固定量 + 日限）**。
- * 判据 = 提案 `bean-currency-economy §7.2`（+3 恰好 / 钳上限 / 满心不计次 / 日限 / 跨日复位 / 锚点不重置）。
+ * **v1.99（用户 2026-11-07 裁定）改判**：固定量 3→5、**可突破 `STAMINA_MAX`**（旧「钳上限 /
+ * 溢出即弃」废）、**满心也计次可看**（旧「满心不计次」废）⇒ 唯一拒绝判据 = 日限。
+ * 判据 = 提案 `bean-currency-economy §7.2`（+GAIN 恰好 / 日限 / 跨日复位 / 锚点不重置）。
  */
-describe('§3.14 v1.80 · 广告加心（固定量 + 日限）', () => {
+describe('§3.14 v1.80/v1.99 · 广告加心（固定量 + 日限 · 可破上限）', () => {
     it('一次恰 +HEART_AD_GAIN；且**锚点不重置**（不吃掉已累积的恢复进度）', () => {
         const r = rig();
         expect(r.meta.spendStamina(STAMINA_MAX), '清空到 0 心').toBe(true);
         expect(r.meta.grantAdHearts()).toBe(true);
         expect(r.meta.stamina, '恰为 +HEART_AD_GAIN（不是回满）').toBe(HEART_AD_GAIN);
 
-        // 先进半档（4 分钟）再加心：若实现重锚，这 4 分钟会被清零。
-        r.advance(4 * 60 * 1000);
-        expect(r.meta.grantAdHearts()).toBe(true);
-        r.advance(4 * 60 * 1000);
-        r.meta.refresh();
-        expect(r.meta.stamina, '锚点保留 ⇒ 半档 + 半档 = 满一档 +1').toBe(HEART_AD_GAIN * 2 + 1);
+        // 锚点不重置：在**不超上限**的区间验证（v1.99 加心可超上限，超了下限恢复会停摆）。
+        const r2 = rig();
+        expect(r2.meta.spendStamina(6), '8 → 2 心').toBe(true);
+        r2.advance(4 * 60 * 1000); // 先攒半档
+        expect(r2.meta.grantAdHearts()).toBe(true);
+        expect(r2.meta.stamina, '2 + HEART_AD_GAIN（≤上限）').toBe(2 + HEART_AD_GAIN);
+        r2.advance(4 * 60 * 1000); // 半档补齐
+        r2.meta.refresh();
+        expect(r2.meta.stamina, '锚点保留 ⇒ 半档 + 半档 = 满一档 +1').toBe(3 + HEART_AD_GAIN);
     });
 
-    it('满心 ⇒ 不加、不计次（日限名额不被白看浪费）', () => {
+    it('满心也可看（v1.99）：STAMINA_MAX +GAIN ⇒ 突破上限、且计入日限', () => {
         const r = rig();
         expect(r.meta.stamina).toBe(STAMINA_MAX);
-        expect(r.meta.grantAdHearts()).toBe(false);
-        expect(r.meta.stamina).toBe(STAMINA_MAX);
-        expect(r.meta.heartAdsLeft).toBe(HEART_AD_DAILY_LIMIT);
-        expect(r.meta.canWatchHeartAd, '满心 ⇒ 闸门关闭（不拉广告）').toBe(false);
+        expect(r.meta.grantAdHearts(), '满心不再被拒（上限只限自然恢复）').toBe(true);
+        expect(r.meta.stamina, '加心可超上限').toBe(STAMINA_MAX + HEART_AD_GAIN);
+        expect(r.meta.heartAdsLeft, '本次计入日限').toBe(HEART_AD_DAILY_LIMIT - 1);
+        expect(r.meta.canWatchHeartAd, '满心也能继续看').toBe(true);
     });
 
     it('日限 HEART_AD_DAILY_LIMIT 次后拒绝；跨日复位', () => {
@@ -330,12 +335,32 @@ describe('§3.14 v1.80 · 广告加心（固定量 + 日限）', () => {
         expect(r.meta.grantAdHearts()).toBe(true);
     });
 
-    it('钳 STAMINA_MAX：7 心 +3 ⇒ 8（溢出即弃，签到同口径）', () => {
+    it('⛔ 不再钳上限（v1.99）：7 心 +GAIN ⇒ 7+GAIN，溢出归玩家', () => {
         const r = rig();
         expect(r.meta.spendStamina(1), '8 → 7 心').toBe(true);
         expect(r.meta.stamina).toBe(7);
         expect(r.meta.grantAdHearts()).toBe(true);
-        expect(r.meta.stamina).toBe(STAMINA_MAX);
+        expect(r.meta.stamina, '旧口径「溢出即弃 / 钳 STAMINA_MAX」已废').toBe(7 + HEART_AD_GAIN);
+    });
+
+    it('⛔ 溢出不被存档没收（v1.99）：加心超上限 ⇒ 重载仍是 11，而非钳回 8', () => {
+        const store = storage();
+        const a = rigOn(store);
+        expect(a.meta.spendStamina(2), '8 → 6 心').toBe(true);
+        expect(a.meta.grantAdHearts()).toBe(true);
+        expect(a.meta.stamina, '6 + GAIN（已超上限）').toBe(6 + HEART_AD_GAIN);
+
+        const b = rigOn(store);
+        expect(b.meta.stamina, '装载上界 = 上限 + 日限×单次 ⇒ 溢出跨重启保留').toBe(6 + HEART_AD_GAIN);
+    });
+
+    it('超上限时签到送心只作废，⛔ 不把溢出的心砍回上限', () => {
+        const r = rig();
+        expect(r.meta.grantAdHearts()).toBe(true);
+        const before = r.meta.stamina; // 8 + GAIN > STAMINA_MAX
+        expect(before).toBeGreaterThan(STAMINA_MAX);
+        r.meta.addStamina(1); // 签到腿「溢出即弃」
+        expect(r.meta.stamina, 'cap 已满 ⇒ 赠心无效果，溢出原样保留').toBe(before);
     });
 });
 

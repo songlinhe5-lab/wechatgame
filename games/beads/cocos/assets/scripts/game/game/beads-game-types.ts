@@ -118,8 +118,9 @@ export interface BeadsGameOptions {
      */
     readonly onClearCoins?: (stars: number, isBoss: boolean, prevStars: number) => ClearCoinGrant | undefined;
     /**
-     * 广告加心是否还可用（§3.14 v1.80 日限 + 满心闸门）：`false` ⇒ 不拉起 `stamina-refill` 位
-     * （避免「看完广告什么都没加」）。缺省 = 不设门（后向兼容）。
+     * 广告加心是否还可用（§3.14 **v1.99** 闸门 = **只剩日限**；旧「满心闸门」已废 —— 加心可突破
+     * 上限）：`false` ⇒ 不拉起 `stamina-refill` 位（避免「看完广告什么都没加」）。
+     * 缺省 = 不设门（后向兼容）。
      */
     readonly canWatchStaminaAd?: () => boolean;
     /**

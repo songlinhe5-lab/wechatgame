@@ -312,9 +312,9 @@ export class BeadsShell implements Game {
             onMenuRequest: () => this.showMenu(),
             // 新局开局体力闸门（§3.14）：retry/restart 前扣 1 心；0 心返回 false（play 转广告加心位）。
             canStartRun: () => (this.meta ? this.meta.spendStamina(STAMINA_START_COST) : true),
-            // 广告加心发奖（§3.11 第二 live 位；§3.14 v1.80 由「回满」改固定 HEART_AD_GAIN）。
+            // 广告加心发奖（§3.11 第二 live 位；§3.14 v1.99 固定 HEART_AD_GAIN，可突破上限）。
             onStaminaRefill: () => this.meta?.grantAdHearts(),
-            // §3.14 v1.80 日限/满心闸门：不可加心时不拉广告。
+            // §3.14 v1.99 闸门 = 仅日限（满心也可看）：不可加心时不拉广告。
             canWatchStaminaAd: () => this.meta?.canWatchHeartAd ?? false,
             // §3.6 v1.80 唯一豆子出口：道具超限购买的扣款腿（限额由 play 侧 PowerupSystem 判）。
             onPowerupPurchase: (type) => this._buyPowerup(type),
@@ -420,7 +420,7 @@ export class BeadsShell implements Game {
             ad.onRewarded(() => {
                 if (!this._refillPending) return;
                 this._refillPending = false;
-                this.meta?.grantAdHearts(); // §3.14 v1.80：固定 +HEART_AD_GAIN（溢出即弃）
+                this.meta?.grantAdHearts(); // §3.14 v1.99：固定 +HEART_AD_GAIN（可突破上限、满心也计次）
             }),
             ad.onClose(() => {
                 this._refillPending = false;
@@ -578,13 +578,13 @@ export class BeadsShell implements Game {
     }
 
     /**
-     * 菜单侧 0 心广告加心位（§3.11 第二 live 位；§3.14 v1.80 由「回满」改固定加心）。
+     * 菜单侧 0 心广告加心位（§3.11 第二 live 位；§3.14 v1.99 固定加心、可突破上限）。
      * 无广告服务/无 meta/已有在飞/日限用尽 ⇒ 零副作用（被拒即停在本页，可再点）。
      */
     private _requestStaminaRefill(): void {
         const ad = this._services?.rewardedAd;
         if (!ad || !this.meta || this._refillPending) return;
-        if (!this.meta.canWatchHeartAd) return; // 满心 / 日限用尽 ⇒ 不拉广告
+        if (!this.meta.canWatchHeartAd) return; // 日限用尽 ⇒ 不拉广告（满心也可看，§3.14 v1.99）
         this._refillPending = true;
         ad.load(STAMINA_REFILL_PLACEMENT);
         ad.show();
@@ -1133,7 +1133,7 @@ export class BeadsShell implements Game {
         const m = this.meta;
         v.stamina = m ? m.stamina : 0;
         v.staminaMax = m ? m.staminaMax : 0;
-        // §3.14 v1.80 日限可见：菜单资源条「心」端在未满心时显示今日剩余广告加心次数。
+        // §3.14 v1.99：心条只出 `cur/max`（旧「未满心时追 ▶N 日限尾段」已废）；本字段仅留作只读快照。
         v.heartAdsLeft = m ? m.heartAdsLeft : 0;
         v.coins = m ? m.coins : 0;
         v.overlay = this._phase.overlay;

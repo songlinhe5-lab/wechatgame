@@ -67,7 +67,7 @@ function rig(opts: { maxUnlocked?: number; stars?: number[] } = {}): Rig {
             starsByUid: starsLedger(opts.stars ?? [], LEVELS),
         }),
     );
-    storage.set(META_KEY, JSON.stringify({ ...defaultBeadsMeta(), staminaCur: 99 }));
+    storage.set(META_KEY, JSON.stringify({ ...defaultBeadsMeta(), staminaCur: 8 }));
     const events = new EventBus<EventMap>();
     const overlayEvents: unknown[] = [];
     (events as unknown as { on: (t: string, cb: (p: unknown) => void) => void }).on('meta:overlay', (p) =>

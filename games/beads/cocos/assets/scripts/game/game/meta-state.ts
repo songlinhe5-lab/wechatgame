@@ -8,7 +8,9 @@
  *  - 扣心时机 = 新局开局 / 重试（PAUSED 恢复与菜单在途续进不重复扣）——扣心本身由
  *    shell 在路由到玩法时调用 {@link spendStamina}，本模块只管余额与恢复；
  *  - 签到 = 循环制（`claims % 7`），断签不清零，`signinLastDate` 防同日二领；
- *  - 签到心溢出即弃（{@link addStamina} 钳上限）；买心不允许溢出（满心不可买）。
+ *  - 签到心溢出即弃（{@link addStamina} 钳上限）；买心不允许溢出（满心不可买）；
+ *  - §3.14 **v1.99**：**广告加心**（{@link grantAdHearts}）**可突破 `STAMINA_MAX`**（上限只限
+ *    自然恢复、溢出归玩家）⇒ 本模块余额上界 = `STAMINA_MAX + HEART_AD_DAILY_LIMIT × HEART_AD_GAIN`。
  *
  * **L5 discipline**: every getter is read-only (fields + injected clock, no
  * writes). {@link refresh} is the one mutator and is called from the shell's
@@ -185,9 +187,11 @@ export class MetaState {
         return Math.max(0, HEART_AD_DAILY_LIMIT - used);
     }
 
-    /** 今日广告加心是否还可用（未满心 + 日限未用尽）。 */
+    /** 今日广告加心是否还可用（§3.14 **v1.99**：**只看日限** —— 满心也可看、加心可突破上限）。 */
     get canWatchHeartAd(): boolean {
-        return this._cur < STAMINA_MAX && this.heartAdsLeft > 0;
+        // §3.14 **v1.99**（用户 2026-11-07 裁定）：上限只约束**自然恢复**，看广告加心可突破上限
+        // ⇒ 去掉旧 `_cur < STAMINA_MAX` 拦截（旧口径「满心不计次」同步作废），唯一约束 = 日限。
+        return this.heartAdsLeft > 0;
     }
 
     /** 该皮肤是否已拥有（只看落档集合，⛔ 不查星数等派生量，提案 §4.3）。 */
@@ -263,18 +267,26 @@ export class MetaState {
         return true;
     }
 
-    /** 加心（签到等其它来源的赠送），钳上限——溢出即弃（§3.14）。 */
+    /**
+     * 加心（**签到**等其它来源的赠送）：**溢出即弃**（§3.14，cap 已满 ⇒ 该次赠心无效果）。
+     *
+     * ⚠ **v1.99 修为守卫**：`_cur` 现可因广告加心**突破** `STAMINA_MAX`（如 11/8）⇒ 这里⛔ 不能再
+     * 无条件写 `Math.min(MAX, cur + amount)`（那会把 11 心砍回 8 = 反向扣心）。走广告加心请用
+     * {@link grantAdHearts}（可突破上限）。
+     */
     addStamina(amount: number): void {
         if (amount <= 0) return;
-        this._cur = Math.min(STAMINA_MAX, this._cur + amount);
+        if (this._cur < STAMINA_MAX) this._cur = Math.min(STAMINA_MAX, this._cur + amount);
         this._anchor = this._clock();
         this._persistStamina();
     }
 
     /**
-     * 激励视频加心（§3.14 v1.80 第二 live 位；**取代「回满」**）：一次 `HEART_AD_GAIN` 颗，
-     * 钳 `STAMINA_MAX`、**溢出即弃**（签到同口径）；**锚点不动**（奖励不吃掉已累积的恢复进度）。
-     * 满心 / 日限用尽 ⇒ 零副作用返回 false（调用方据此不扣次、不写档、不拉广告）。
+     * 激励视频加心（§3.14 **v1.99** 第二 live 位；**取代「回满」**）：一次 `HEART_AD_GAIN` 颗，
+     * **⛔ 不钳 `STAMINA_MAX`** —— 上限只约束**自然恢复**，「看广告加心」**允许突破上限**
+     * （6/8 ⇒ 11/8，溢出归玩家；旧「溢出即弃」已废）。**满心也可看**（旧「满心即拒」作废）。
+     * **锚点不动**（奖励不吃掉已累积的恢复进度）。
+     * 唯一拒绝判据 = **日限用尽** ⇒ 零副作用返回 false（调用方据此不扣次、不写档、不拉广告）。
      */
     grantAdHearts(): boolean {
         this.refresh();
@@ -283,10 +295,11 @@ export class MetaState {
             this._heartAds = 0;
             this._heartAdDate = today;
         }
-        if (this._cur >= STAMINA_MAX) return false;
         if (this._heartAds >= HEART_AD_DAILY_LIMIT) return false;
         this._heartAds += 1;
-        this._cur = Math.min(STAMINA_MAX, this._cur + HEART_AD_GAIN);
+        // §3.14 **v1.99**：可突破 `STAMINA_MAX`（上限只限自然恢复）⇒ 不再 `Math.min` 钳制、
+        // 不再「满心即拒」。溢出保留给玩家（旧口径「溢出即弃」已废）。
+        this._cur = this._cur + HEART_AD_GAIN;
         this._save.patch({
             staminaCur: this._cur,
             staminaAnchorMs: this._anchor,
