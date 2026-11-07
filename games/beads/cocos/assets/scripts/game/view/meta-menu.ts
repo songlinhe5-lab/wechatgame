@@ -3,7 +3,7 @@
  * 几何一律取自 `meta-layout.ts` 的锚定档，控件画法取自 `meta-widgets.ts` ⇒ 页面只编排、不另算。
  */
 
-import { DESIGN_H, DESIGN_W, type MenuAnchors, MENU_BAR_BAKED_LABEL_INSET, MENU_FROST, MENU_FULLSTAR_FRAME, MENU_GRAY_WIPE, MENU_LOCKED_ICON, MENU_PLACEMENT, MENU_SIGNIN_DOT_R, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, MENU_V2_BG_EXPAND, MENU_V2_BG_H, MENU_V2_DESK_FILL,
+import { DESIGN_H, DESIGN_W, type MenuAnchors, MENU_BAR_BAKED_LABEL_INSET, MENU_FROST, MENU_FULLSTAR_FRAME, MENU_GRAY_WIPE, MENU_LOCKED_ICON, MENU_PLACEMENT, MENU_PLATE_PILL, MENU_SIGNIN_DOT_R, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, MENU_V2_BG_EXPAND, MENU_V2_BG_H, MENU_V2_DESK_FILL,
     SIGN_BEAD_PITCH, menuBackdropTopPad, SIGN_MATRIX_N, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning';
 import { COPY_TOKENS } from '../config/copy-tokens';
 import { ARC_COMING_SOON } from '../config/arcs';
@@ -396,14 +396,57 @@ function drawComingSoonPlate(
     });
 }
 
+/**
+ * `[WXG-T-596]` 木牌第一行（关名）字型：**30 粗体**。
+ *
+ * 稿面（`menu-design-baseline-cat-topbar-final-slotbar-20261102.png`）字高 30px、笔画明显粗于
+ * 常规档 ⇒ 原 `UI_FONT.button`（`30px` 常规）加粗即可；`panelButton` 恰是 `bold 30px sans-serif`，
+ * **复用在册字型、不动 `UI_FONT` 表**。墨仍 `wood_edge #5E3B1E`（对牌面 `#E9A45C` = **4.68:1** ✓，
+ * 与稿的 `#652500` 同族、ΔE 小 ⇒ 不为此新增令牌）。
+ */
+const PLATE_TITLE_FONT = UI_FONT.panelButton;
+/**
+ * `[WXG-T-596]` 木牌第二行：**深棕药丸底 + 米白粗体**（设计稿对齐）。
+ *
+ * 为什么不直接压墨：牌面亮木实测 `(233,164,92)`，旧墨 `wood_face #8A5B34` 压上去只有
+ * **2.74:1 ❌**（既有 a11y 缺陷）。稿的做法正是「深棕药丸 + 米白墨」⇒ 本仓取**同一对在册值**
+ * （`wood_face` 当底 / `wood_text` 当墨 = **5.4:1** ✓）⇒ **零新 hex**，且与稿的
+ * `#89491C` / `#FFE9C8` 同族。
+ *
+ * 几何见 {@link MENU_PLATE_PILL}：`130×26 · r13` 与拆册件 `menu-plate-text-control-spec §2` 一致、
+ * 也与稿实测吻合（`x311..440 / y951..976`）。⚠ 稿的次行字高 18（折算 ≈20px），我们守 **E1 地板 28**
+ * ⇒ 27 号字的字身 ≈25 会**顶满**这层 26 高的胶囊（上下各余 0.5px）；这是「在册几何 + 地板字号」
+ * 共同决定的必然结果，⛔ 不靠缩字号解决（那会破 E1）。
+ */
+function drawPlateSub(
+    builder: RenderModelBuilder,
+    g: AnchoredMenuGeo,
+    palette: BeadsPalette,
+    text: string,
+    a: number | undefined,
+): void {
+    builder.rect(g.plateCx - MENU_PLATE_PILL.w / 2, g.plateLine2Cy - MENU_PLATE_PILL.h / 2,
+        MENU_PLATE_PILL.w, MENU_PLATE_PILL.h, {
+            fill: palette.woodFace,
+            radius: MENU_PLATE_PILL.h / 2,
+            ...(a === undefined ? {} : { alpha: a }),
+        });
+    builder.text(g.plateCx, g.plateLine2Cy, text, {
+        fill: palette.woodText, font: UI_FONT.labelBold, align: 'center', baseline: 'middle',
+        ...(a === undefined ? {} : { alpha: a }),
+    });
+}
 /** 木牌上的关序 / 关名（进度落第二行）。`alpha` ≤ 0 不画。
  * `[WXG-T-346]` 进度件：两行槽 = `MENU_V2.plateTitle / plateSub`（`[WXG-T-586]` 起改用绝对槽，
  * 关名不再为第二行让位；`MENU_PLATE_TITLE` 已退役）；
  * 数字直接拼 `★ n/门槛`，与顶栏 `❤ n/n` 同族（无新文案令牌）。缺省不传 ⇒ 原单行逐字不变。
  * `[WXG-T-566]` 大关进度：`arcDone/arcTotal` 有值 ⇒ 第一行关名、第二行 `N/M`（用户 2026-11-02 裁：
  * 「当前完成小关数量 / 总小关数量 = 当前大关的进度」）。门票进度件优先级更高（信息不丢）。
- * `[art 批·TODO-8 已裁]` 第二行字号 / 色 = `font_label` 28 + `wood_face`（木牌定尺，⛔ 随 E2 放大，
- * 理由与对比度自证见 `art/specs/menu-layout-implementation-spec.md §10`）。 */
+ * `[art 批·TODO-8 已裁]` 第二行字号 = `font_label` **28**（木牌定尺，⛔ 随 E2 放大；
+ * 理由与对比度自证见 `art/specs/menu-layout-implementation-spec.md §10`）。
+ * `[WXG-T-596]` 第二行**墨与底**改了（字号仍 28）：旧「`wood_face` 直接压牌面」实测只有
+ * **2.74:1 ❌** ⇒ 改成稿面的「深棕药丸 + 米白墨」= `wood_face` 当底 / `wood_text` 当墨（**5.4:1** ✓），
+ * 详见 {@link drawPlateSub}。第一行同步加粗（{@link PLATE_TITLE_FONT}）。 */
 function drawPlateTitle(
     builder: RenderModelBuilder,
     lv: BeadsLevelRaw,
@@ -420,31 +463,25 @@ function drawPlateTitle(
     const a = alpha < 1 ? alpha : undefined;
     if (lv.title && starNeed !== undefined) {
         builder.text(g.plateCx, g.plateLine1Cy, lv.title, {
-            fill: palette.woodEdge, font: UI_FONT.button, align: 'center', baseline: 'middle',
+            fill: palette.woodEdge, font: PLATE_TITLE_FONT, align: 'center', baseline: 'middle',
             ...(a === undefined ? {} : { alpha: a }),
         });
-        builder.text(g.plateCx, g.plateLine2Cy, `★ ${starGot ?? 0}/${starNeed}`, {
-            fill: palette.woodFace, font: UI_FONT.sub, align: 'center', baseline: 'middle',
-            ...(a === undefined ? {} : { alpha: a }),
-        });
+        drawPlateSub(builder, g, palette, `★ ${starGot ?? 0}/${starNeed}`, a);
     } else if (arcTotal !== undefined && arcTotal > 0) {
         builder.text(g.plateCx, g.plateLine1Cy, lv.title || seq, {
-            fill: palette.woodEdge, font: UI_FONT.button, align: 'center', baseline: 'middle',
+            fill: palette.woodEdge, font: PLATE_TITLE_FONT, align: 'center', baseline: 'middle',
             ...(a === undefined ? {} : { alpha: a }),
         });
-        builder.text(g.plateCx, g.plateLine2Cy, `${arcDone ?? 0}/${arcTotal}`, {
-            fill: palette.woodFace, font: UI_FONT.sub, align: 'center', baseline: 'middle',
-            ...(a === undefined ? {} : { alpha: a }),
-        });
+        drawPlateSub(builder, g, palette, `${arcDone ?? 0}/${arcTotal}`, a);
     } else if (lv.title) {
         // (b) 有展示名 ⇒ 只画名字、隐关序（用户 2026-10-21 裁；偏离 v3.7「关序+关名两行」原型）。
         builder.text(g.plateCx, g.plateSingleCy, lv.title, {
-            fill: palette.woodEdge, font: UI_FONT.button, align: 'center', baseline: 'middle',
+            fill: palette.woodEdge, font: PLATE_TITLE_FONT, align: 'center', baseline: 'middle',
             ...(a === undefined ? {} : { alpha: a }),
         });
     } else {
         builder.text(g.plateCx, g.plateSingleCy, seq, {
-            fill: palette.woodEdge, font: UI_FONT.button, align: 'center', baseline: 'middle',
+            fill: palette.woodEdge, font: PLATE_TITLE_FONT, align: 'center', baseline: 'middle',
             ...(a === undefined ? {} : { alpha: a }),
         });
     }

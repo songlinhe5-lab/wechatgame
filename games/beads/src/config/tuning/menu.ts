@@ -348,6 +348,20 @@ export const MENU_V2 = {
   plateSub: { x: 330, y: 950, w: 90, h: 17 },
 } as const;
 /**
+ * `[WXG-T-596]` **橱窗木牌第二行的药丸底**（设计稿
+ * `art/final/prototypes/menu-design-baseline-cat-topbar-final-slotbar-20261102.png`）。
+ *
+ * 稿实测：药丸 `x311..440 / y951..976`（**130×26**，深棕 `#89491C`）+ 米白墨 ≈`#FFE9C8`。
+ * **几何与在册完全一致** —— 拆册件 `art/specs/menu-plate-text-control-spec.md §2` 已定
+ * `130×26 · r13 · cx 374`，本批**不动这两个数**。
+ *
+ * ⚠ **来源腿改判（B 甲 → 乙）**：拆册件裁定「随新牌位图**烘焙**」，但**现役 v2 背板里并没有
+ * 这层胶囊**（`ui_menu_backdrop@2x.png` 牌面是空的），而本批不重出图 ⇒ 只能先**程序化补底**
+ * （`builder.rect` + `radius`，同文件先例 = `drawResourceBar` 的圆角条）。⛔ 背板一旦补烘
+ * 这层底，这里必须同批删掉，否则会叠出双层深木。
+ */
+export const MENU_PLATE_PILL = { w: 130, h: 26 } as const;
+/**
  * `[WXG-T-585]` 高屏档（H > 1334）屏底补带色 = 背板**最底 40 行桌面实测均值** `(194,128,66)`。
  * ⛔ 不进 palette（那是 UI token 表，`ui-warm-paper-tokens` 守「零新 hex」）；本值是背板取色，
  * 与图同源，换背板必须同批重取。

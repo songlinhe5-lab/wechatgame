@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3980,
       "lines": 134,
-      "sha256": "183f57925e9148cad547e05f8a3c2a96574e7bf73b7fe0bc6f6512fd273d936f",
+      "sha256": "1ec55cd4ef102e71bf7c7cb0fd5a84aee776587be0b79ce820ba6cfbbf0ad3f6",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 243266 8799 normal",
+          "summary": "1 production/TASKS-DETAIL.md 244550 8852 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "331b988bcc96e58882cdfce01afa9e7f1be7803ed12d297cebad54a894f3a0c4",
+      "sha256": "b74e9c337c78ed4bbda380a6f7420f9772e51de1e3b7583c09a8bd4c9e109096",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 202 行 / 52119 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 203 行 / 52692 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+203 · §待排（backlog，无号，立项时领取…=175+29",
+          "summary": "§WXG 任务台账（SSOT）=1+204 · §待排（backlog，无号，立项时领取…=176+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 8799 行 / 243266 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 8852 行 / 244550 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+8800 · §WXG-T-584=8131+70 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+8853 · §WXG-T-585=8201+71 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -14128,17 +14128,17 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 22969,
-      "lines": 262,
-      "sha256": "be9113d8af1d1812f10e5437cf21b27a1d09111f17797ebaffb9a869010704d3",
+      "tokens": 23509,
+      "lines": 264,
+      "sha256": "7f2dd6b7895457171285c476034af0a0488ff628e8a49ff44f23383f807191f8",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads UI 架构（View / ViewModel / Presenter + 公共基础）",
           "level": 1,
           "startLine": 1,
-          "endLine": 263,
-          "tokens": 22950,
+          "endLine": 265,
+          "tokens": 23490,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -14308,8 +14308,8 @@
           "anchor": "§12 TODO 拆分",
           "level": 2,
           "startLine": 138,
-          "endLine": 259,
-          "tokens": 17897,
+          "endLine": 261,
+          "tokens": 18437,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -14320,8 +14320,8 @@
         {
           "anchor": "§13 待你拍板",
           "level": 2,
-          "startLine": 260,
-          "endLine": 263,
+          "startLine": 262,
+          "endLine": 265,
           "tokens": 323,
           "summary": "D1–D5 均已裁定（见 [ADR-0032 §5](adr/ADR-0032-beads-ui-architectur",
           "keywords": [
@@ -29070,17 +29070,17 @@
     },
     {
       "path": "games/beads/design/art/specs/menu-plate-text-control-spec.md",
-      "tokens": 2660,
-      "lines": 77,
-      "sha256": "32b3d7edc6c3270d6d3cac93cf2d6cb0b55538d9fb56a05cafff27ee93d3b3a5",
+      "tokens": 3877,
+      "lines": 120,
+      "sha256": "b79ed6605600423b31a5b487f99e63efe4b7506adcc620207e7dd4368b75abe9",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§木牌程序化文字控件 · 色 / 字号 / 位置（基准稿 v2 无字版 · WXG-T-524）",
           "level": 1,
           "startLine": 1,
-          "endLine": 78,
-          "tokens": 2630,
+          "endLine": 121,
+          "tokens": 3847,
           "summary": "本件 = menu-layout-implementation-spec.md §11 拆册（2026-10-31；动因",
           "keywords": [
             "§11",
@@ -29182,6 +29182,102 @@
             "menu",
             "MENU_PLATE",
             "yOff"
+          ]
+        },
+        {
+          "anchor": "§7 `[WXG-T-596]` 2026-11-07 落码回写（用户令「按设计稿改橱窗内名牌的字体字样」）",
+          "level": 2,
+          "startLine": 79,
+          "endLine": 121,
+          "tokens": 1183,
+          "summary": "触发稿 = art/final/prototypes/menu-design-baseline-cat-topbar-f",
+          "keywords": [
+            "[WXG-T-596]",
+            "WXG",
+            "art",
+            "final",
+            "prototypes",
+            "menu"
+          ]
+        },
+        {
+          "anchor": "§7.1 本批改了什么（**只动字重 / 墨 / 底，零几何零新色**）",
+          "level": 3,
+          "startLine": 83,
+          "endLine": 94,
+          "tokens": 274,
+          "summary": "① 行1 关名字重 UI_FONT.button（30px 常规） UI_FONT.panelButton（bold 3",
+          "keywords": [
+            "UI_FONT",
+            "button",
+            "panelButton",
+            "bold",
+            "本批改了什么",
+            "只动字重"
+          ]
+        },
+        {
+          "anchor": "§7.2 顺手修掉一处**代码漂移**（不是新问题）",
+          "level": 3,
+          "startLine": 95,
+          "endLine": 100,
+          "tokens": 204,
+          "summary": "本件 §4 早就把行2 墨定为 woodText（对胶囊 6.32:1 ✓），并明文警告「现 woodFace 于同一底",
+          "keywords": [
+            "§4",
+            "woodText",
+            "woodFace",
+            "顺手修掉一处",
+            "代码漂移",
+            "不是新问题"
+          ]
+        },
+        {
+          "anchor": "§7.3 胶囊来源腿：B **甲 → 乙**（本批唯一的口径改动，须登记）",
+          "level": 3,
+          "startLine": 101,
+          "endLine": 108,
+          "tokens": 239,
+          "summary": "§5-B 原裁 甲 = 随新牌位图烘焙。但现役 v2 背板 ui_menu_backdrop@2x.png 里并没有这层",
+          "keywords": [
+            "§5",
+            "ui_menu_backdrop",
+            "png",
+            "胶囊来源腿",
+            "本批唯一的口",
+            "径改动"
+          ]
+        },
+        {
+          "anchor": "§7.4 与稿的**有意偏离**（两条，都已在上文给理由）",
+          "level": 3,
+          "startLine": 109,
+          "endLine": 115,
+          "tokens": 125,
+          "summary": "行2 字号 字高 18 ≈ 20px 28 E1 地板 = 28（accessibility.md E1；22px 已两",
+          "keywords": [
+            "accessibility",
+            "与稿的",
+            "有意偏离",
+            "两条",
+            "都已在上文给",
+            "理由"
+          ]
+        },
+        {
+          "anchor": "§7.5 取证",
+          "level": 3,
+          "startLine": 116,
+          "endLine": 121,
+          "tokens": 152,
+          "summary": "tests/menu-plate-title.test.ts 视觉守卫按新口径改写：断言行2 = labelBold +",
+          "keywords": [
+            "tests",
+            "menu",
+            "plate",
+            "title",
+            "test",
+            "labelBold"
           ]
         }
       ]
@@ -88886,17 +88982,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 243266,
-      "lines": 8799,
-      "sha256": "568664aa0c5eec35dac618267a04f1b7439f10dcafa1857db093f931715e4126",
+      "tokens": 244550,
+      "lines": 8852,
+      "sha256": "59a27a481b143a1dab7375193723bd116910e1479a6aa4b680e49778b3a163f9",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 8800,
-          "tokens": 243249,
+          "endLine": 8853,
+          "tokens": 244533,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -102515,22 +102611,127 @@
             "model",
             "svg"
           ]
+        },
+        {
+          "anchor": "§WXG-T-596",
+          "level": 2,
+          "startLine": 8801,
+          "endLine": 8853,
+          "tokens": 1281,
+          "summary": "美术·橱窗木牌字体对齐设计稿 · 负责：主理人(CodeBuddy)·美术/UI轨 · 状态：🔄 进行中（2026-1",
+          "keywords": [
+            "WXG",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§1 稿面逐像素读数",
+          "level": 3,
+          "startLine": 8805,
+          "endLine": 8817,
+          "tokens": 206,
+          "summary": "稿 = design/art/final/prototypes/menu-design-baseline-cat-top",
+          "keywords": [
+            "design",
+            "art",
+            "final",
+            "prototypes",
+            "menu",
+            "baseline"
+          ]
+        },
+        {
+          "anchor": "§2 落地（只动字重 / 墨 / 底；零几何零新色）",
+          "level": 3,
+          "startLine": 8818,
+          "endLine": 8829,
+          "tokens": 198,
+          "summary": "① 关名字型 UI_FONT.button（30px 常规） UI_FONT.panelButton（bold 30px",
+          "keywords": [
+            "UI_FONT",
+            "button",
+            "panelButton",
+            "bold",
+            "落地",
+            "只动字重"
+          ]
+        },
+        {
+          "anchor": "§3 顺手修掉一处**代码漂移**（非本批引入）",
+          "level": 3,
+          "startLine": 8830,
+          "endLine": 8833,
+          "tokens": 133,
+          "summary": "拆册件 art/specs/menu-plate-text-control-spec.md §4 早已把行2 墨定为 w",
+          "keywords": [
+            "§4",
+            "art",
+            "specs",
+            "menu",
+            "plate",
+            "text"
+          ]
+        },
+        {
+          "anchor": "§4 胶囊来源腿 B 甲 → 乙（本批唯一口径改动）",
+          "level": 3,
+          "startLine": 8834,
+          "endLine": 8839,
+          "tokens": 154,
+          "summary": "§5-B 原裁 甲 = 随新牌位图烘焙。但现役 v2 背板 ui_menu_backdrop@2x.png 里没有这层胶",
+          "keywords": [
+            "§5",
+            "ui_menu_backdrop",
+            "png",
+            "胶囊来源腿",
+            "本批唯一口径",
+            "改动"
+          ]
+        },
+        {
+          "anchor": "§5 与稿的有意偏离（两条）",
+          "level": 3,
+          "startLine": 8840,
+          "endLine": 8846,
+          "tokens": 195,
+          "summary": "行2 字号 字高 18 ≈ 20px 28 E1 地板 = 28 设计 px（accessibility.md E1；2",
+          "keywords": [
+            "accessibility",
+            "与稿的有意偏",
+            "两条"
+          ]
+        },
+        {
+          "anchor": "§6 取证 (2)",
+          "level": 3,
+          "startLine": 8847,
+          "endLine": 8853,
+          "tokens": 243,
+          "summary": "tests/menu-plate-title.test.ts 视觉守卫按新口径改写：行2 = labelBold + w",
+          "keywords": [
+            "tests",
+            "menu",
+            "plate",
+            "title",
+            "test",
+            "labelBold"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 52119,
-      "lines": 202,
-      "sha256": "665f4513da440fcc929784b88d63c311bd2df238ddc4788b1924fa8206d0c6a7",
+      "tokens": 52692,
+      "lines": 203,
+      "sha256": "9f778e557647ef1f20d9d4b30a83ba1638111c3d93aca41116418663a5797968",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 203,
-          "tokens": 52110,
+          "endLine": 204,
+          "tokens": 52683,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -102543,8 +102744,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 175,
-          "endLine": 203,
+          "startLine": 176,
+          "endLine": 204,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
