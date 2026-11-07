@@ -185,3 +185,18 @@ python3 games/beads/design/ai-workflows/trace-figma-icons.py
 **自证**：保留区被改动像素 = 0（木牌 / 双绳 / 蝴蝶结逐像素不变）；真透明自证 = alpha=0 占比 48.56%、极值 0..255（⛔ 只查 mode 会被 RGBA 假透明骗过）；投放件回读逐位一致。
 
 **读数**：投放件 117.3 → 107.1 KB（−10.2）；重建后主包 2755.5 → **2745.3 KB**（引擎分离档，余量 1350.7 KB）；版本 v1.0.33 → **v1.0.34**；`check:cocos-mask` 由 FAIL（产物陈旧）转 **OK**；`verify` 23/23。
+
+---
+
+### 分享卡配图（WXG-T-590 · 2026-11-07）
+
+| 资产 | 生成/处理 | 脚本 | 可复现锚 | 生成史 |
+|---|---|---|---|---|
+| `design/art/proposals/share-card-20261107/s74.png` 1280×1024 RGB | 云 **`qwen-image-3.0`** t2i（按量通道 maas），**4 次调用 / 4 张 / 浪费 0**（s41 实物感强且珠阵不可辨、s52 单色备选、s63 心形未成形、s74 定稿） | `games/beads/design/ai-workflows/dashscope-generate.py` | ✅ 四张原样留档 + 提示词与 seed 全留 | `design/art/proposals/share-card-20261107/`（`generation-record.txt` + `s41/s52/s63/s74.png`） |
+| `games/beads/share/share-card.jpg` 640×512 baseline JPEG 48.2 KB | PIL `convert('RGB').resize((640,512), LANCZOS)` + `quality=85, optimize=True`；⛔ 不用 PNG（同图 PNG-P256 = 178.8 KB，而分享卡不需要透明） | 无（一次性确定性缩放，完整命令写进生成史） | ✅ 即上行正本 | 同上 |
+
+**自证**：四张均**无文字**（目视复核，⛔ 未出伪汉字）；发布件尺寸 640×512 恰为 **5:4**（微信分享卡建议比例）；
+编码为 **baseline JPEG**（非 progressive，解码兼容面最广）。
+
+**读数**：装配后主包 2638.4 → **2686.7 KB**（137 文件，距 4096 红线余量 **1409.3 KB**）；
+版本 v1.0.41 → **v1.0.42**；产物体积 **49365 字节**，与仓内正本逐字节一致。

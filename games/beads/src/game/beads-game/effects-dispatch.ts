@@ -140,17 +140,26 @@ export function fireRewardedAd(ad: RewardedAdProvider, placement: RewardedAdPlac
 }
 
 /**
+ * 分享卡配图（WXG-T-590）：仓内正本 = `games/beads/share/share-card.jpg`（640×512 · 5:4，
+ * 云端 qwen-image-3.0 出图，生成史见 `design/art/proposals/share-card-20261107/`）。
+ * 构建期由 `tools/scripts/build-cocos.mjs::stageShareAssets` 拷到产物**根目录同名文件**
+ * （Cocos 依赖分析不认运行期字符串路径 ⇒ 图放 `assets/` 会被剔除或落进 uuid 分桶）。
+ * 微信 `shareAppMessage.imageUrl` 接受**代码包内相对路径** ⇒ 此处只写文件名。
+ */
+const SHARE_IMAGE_REL = 'share-card.jpg';
+
+/**
  * 分享透传（WXG-T-405）：直接交给平台层 `services.share?.()`，宿主无分享能力（Node/harness）
  * 时静默 noop，分享抛错一律吞掉（⛔ 分享失败不得打断玩法）。
  *
- * 卡片内容（WXG-T-589）：标题读 `COPY_TOKENS.share_title`（设计表 `tokens.md §7` 已登记，
- * ⛔ 不在本模块散落字面）；`imageUrl` 仍未定 ⇒ 走平台默认（游戏图标），出图另立单。
+ * 卡片内容：标题读 `COPY_TOKENS.share_title`（WXG-T-589，设计表 `tokens.md §7` 已登记，
+ * ⛔ 不在本模块散落字面）；配图走 `SHARE_IMAGE_REL`（WXG-T-590）。
  */
 export function fireShare(services: GameServices): void {
   const share = services.share;
   if (!share) return;
   try {
-    share({ title: COPY_TOKENS.share_title });
+    share({ title: COPY_TOKENS.share_title, imageUrl: SHARE_IMAGE_REL });
   } catch {
     /* ignore */
   }

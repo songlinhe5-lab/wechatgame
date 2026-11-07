@@ -1,0 +1,66 @@
+分享卡配图生成史 —— WXG-T-590（2026-11-07）
+================================================================
+
+用途：微信小游戏「分享卡片」配图（结算面板 share → wx.shareAppMessage.imageUrl）
+规格：5:4 横构图；不透明（分享卡不走透明）；⛔ 不含文字（标题由卡片文字区渲染）
+
+通道与模型
+----------------------------------------------------------------
+云端 阿里云百炼 DashScope · 按量付费通道（maas，key = .env.local: DASHSCOPE_API_KEY）
+模型 qwen-image-3.0（0.18 元/张）
+脚本 games/beads/design/ai-workflows/dashscope-generate.py
+命令模板：
+  python3 games/beads/design/ai-workflows/dashscope-generate.py \
+    --model qwen-image-3.0 --size '1280*1024' --seed <seed> --text "<prompt>"
+⚠ 同模型连跑会覆盖 temp/dashscope-out/custom/qwen_image_30.png ⇒ 每次调用后立刻 mv
+
+四次调用（4 张，零浪费）
+----------------------------------------------------------------
+1. seed 41 → s41.png
+   prompt: A top-down close-up of a finished fuse-bead artwork: bright round plastic beads
+           with center holes, arranged into a full colorful pattern on a clear square pegboard,
+           warm cream paper background (#F1E8D8), sliver of wooden desk at the edge, soft
+           daylight from upper left, flat vector illustration, no text, wide horizontal 5:4
+   判：实物俯拍感重、珠阵密到不可辨、配色像噪点 ⇒ 缩略图场景不可用，弃
+
+2. seed 52 → s52.png
+   prompt: Extreme close-up of a small finished fuse-bead shape: a bright coral-red heart made
+           of large round plastic beads with visible center holes, only about 12 beads across
+           the frame, generous empty cream space around the heart, no text, 5:4
+   判：单色心形、干净、构图为缩略图友好 ⇒ 备选（色相单一，与「多色拼豆」关联弱）
+
+3. seed 63 → s63.png
+   prompt: … four pastel colors … a few loose colorful beads scattered beside it …
+   判：多色达成但心形未成形、散珠抢焦点 ⇒ 弃
+
+4. seed 74 → s74.png  ★ 定稿
+   prompt: Flat vector illustration: a heart silhouette completely filled by large round fuse
+           beads, four pastel colors in a simple checker pattern (coral red, warm yellow,
+           soft mint, pale sky blue), every bead touching its neighbours so the heart outline
+           reads perfectly, no loose or scattered beads anywhere, centered on warm cream paper
+           background (#F1E8D8), soft short shadow, thick clean outlines, flat color fills,
+           no text, no letters, no watermark
+   判：四色拼满心形、轮廓清晰、平涂干净、无文字无 watermark ⇒ 定稿
+
+定稿 → 发布件
+----------------------------------------------------------------
+正本   design/art/proposals/share-card-20261107/s74.png   1280×1024 RGB
+发布件 games/beads/share/share-card.jpg   640×512 baseline JPEG q85 = 48.2 KB
+  PIL 步骤：Image.open(s74).convert('RGB').resize((640,512), LANCZOS)
+            .save(quality=85, optimize=True)   # baseline，非 progressive
+  ⛔ 不用 PNG：同图 PNG-P256 = 178.8 KB；分享卡不需要透明 ⇒ JPEG 体积为 1/3.7
+  ⛔ 不用 progressive：微信各版本解码兼容面按 baseline 最稳
+
+落位与接线
+----------------------------------------------------------------
+构建  tools/scripts/build-cocos.mjs::stageShareAssets（约定 games/<game>/share/** ⇒ 产物根同名文件）
+      为什么不能直接放 cocos/assets/：依赖分析只认 .prefab/.scene/.mtl 引用，运行期字符串路径
+      不算引用 ⇒ 会被剔除或落进 uuid 分桶（同 check:cocos-mask 的「存在≠进包」墙）
+代码  effects-dispatch.ts::fireShare → share({ title: COPY_TOKENS.share_title, imageUrl: 'share-card.jpg' })
+取证  产物 games/beads/cocos/build/wechatgame/share-card.jpg = 49365 字节
+      主包 2638.4 → 2686.7 KB（137 文件），距 4096 红线余量 1409.3 KB
+
+成本
+----------------------------------------------------------------
+云 4 次调用 / 出图 4 张 / 浪费 0 / 4 × 0.18 = 0.72 元（按量通道 maas；
+Token Plan 台账 production/qa/token-plan-usage-ledger.md 本批不涉及，两通道不混加）

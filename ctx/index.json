@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3980,
       "lines": 134,
-      "sha256": "ca396c2e40dabbd544e11d67a02b28e354ae06eb187bb6e25b9c5ad5a5c8bc19",
+      "sha256": "643f8b1d1575c67350ce63ed70d5e05ede1ff600271d99fd38cbab8a34810910",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 236771 8491 normal",
+          "summary": "1 production/TASKS-DETAIL.md 237701 8542 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "83e72da253607058e68cea95b9af22d8bb38248b66e1deb83dd2f690120fd2bf",
+      "sha256": "596b4c3fee24bb1ed041189519a86d62a16e7b395e21f3fb3aa675685cdc57f5",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 196 行 / 48903 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 197 行 / 49383 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+197 · §待排（backlog，无号，立项时领取…=169+29",
+          "summary": "§WXG 任务台账（SSOT）=1+198 · §待排（backlog，无号，立项时领取…=170+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 8491 行 / 236771 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 8542 行 / 237701 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+8492 · §WXG-T-578=7863+46 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+8543 · §WXG-T-579=7909+34 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -88886,17 +88886,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 236771,
-      "lines": 8491,
-      "sha256": "d1db2ec776a99484f591c4a7175b5aa192cec8ea2b86e242f5ab684b59b809aa",
+      "tokens": 237701,
+      "lines": 8542,
+      "sha256": "2f393d6fee6c0b948baef0b5744de810b554710f92b19df70487606fd4a1c80a",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 8492,
-          "tokens": 236754,
+          "endLine": 8543,
+          "tokens": 237684,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -101982,22 +101982,111 @@
             "effects",
             "dispatch"
           ]
+        },
+        {
+          "anchor": "§WXG-T-590",
+          "level": 2,
+          "startLine": 8493,
+          "endLine": 8543,
+          "tokens": 927,
+          "summary": "美术·分享卡配图与进包链路 · 负责：主理人(CodeBuddy)·美术/工程轨 · 状态：✅ 完成（2026-11-0",
+          "keywords": [
+            "WXG",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§1 出图（云 · 按提示词）",
+          "level": 3,
+          "startLine": 8497,
+          "endLine": 8510,
+          "tokens": 249,
+          "summary": "用户令「2 云端按提示词出图」⇒ 走 dashscope-generate.py · 模型 qwen-image-3.0",
+          "keywords": [
+            "dashscope",
+            "generate",
+            "qwen",
+            "image",
+            "出图",
+            "按提示词"
+          ]
+        },
+        {
+          "anchor": "§2 发布件",
+          "level": 3,
+          "startLine": 8511,
+          "endLine": 8517,
+          "tokens": 98,
+          "summary": "games/beads/share/share-card.jpg — 640×512（恰 5:4）baseline JP",
+          "keywords": [
+            "games",
+            "beads",
+            "share",
+            "card",
+            "jpg",
+            "baseline"
+          ]
+        },
+        {
+          "anchor": "§3 进包链路（本批真正的坑）",
+          "level": 3,
+          "startLine": 8518,
+          "endLine": 8527,
+          "tokens": 189,
+          "summary": "Cocos 构建期的依赖分析只认 .prefab / .scene / .mtl 引用，运行期字符串路径",
+          "keywords": [
+            "Cocos",
+            "prefab",
+            "scene",
+            "mtl",
+            "进包链路",
+            "本批真正的坑"
+          ]
+        },
+        {
+          "anchor": "§4 接线与取证",
+          "level": 3,
+          "startLine": 8528,
+          "endLine": 8537,
+          "tokens": 192,
+          "summary": "effects-dispatch.ts::fireShare（两副本）增加 imageUrl: 'share-card.",
+          "keywords": [
+            "effects",
+            "dispatch",
+            "fireShare",
+            "imageUrl",
+            "share",
+            "card"
+          ]
+        },
+        {
+          "anchor": "§5 仍未接的一条腿（如实登记）",
+          "level": 3,
+          "startLine": 8538,
+          "endLine": 8543,
+          "tokens": 105,
+          "summary": "被动分享（右上角菜单「转发」）在 weapp.ts 仍返回空对象 {} ⇒ 标题/配图走平台默认。",
+          "keywords": [
+            "weapp",
+            "仍未接的一条",
+            "如实登记"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 48903,
-      "lines": 196,
-      "sha256": "bda7f5af263c5dd8a36bd016942f968fba19ff792cf49f56a77c99a72c1bc707",
+      "tokens": 49383,
+      "lines": 197,
+      "sha256": "9bb1d39925d53a0e00e3acc1283442765e2137c3eb6e9a000157ab3a986cd181",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 197,
-          "tokens": 48894,
+          "endLine": 198,
+          "tokens": 49374,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -102010,8 +102099,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 169,
-          "endLine": 197,
+          "startLine": 170,
+          "endLine": 198,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -105768,17 +105857,17 @@
     },
     {
       "path": "production/qa/asset-provenance.md",
-      "tokens": 8542,
-      "lines": 187,
-      "sha256": "829a62dc29067ae7b8d11b0935aebdfaa7691a7f184787d68208341a490befe4",
+      "tokens": 8938,
+      "lines": 202,
+      "sha256": "6e816091e62a0dd972d4aace90dbec0d0b31159e9cd7e94d0660cc3ca1aeed12",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§归档资源生成史（Asset Provenance）",
           "level": 1,
           "startLine": 1,
-          "endLine": 188,
-          "tokens": 8528,
+          "endLine": 203,
+          "tokens": 8924,
           "summary": "本件是「每张进 final/ 的图从哪来」的唯一正本。 建件 = 用户 2026-11-01 令「统一使用图片生成文档，",
           "keywords": [
             "Asset",
@@ -105962,8 +106051,8 @@
           "anchor": "§10 2026-11-05 批（WXG-T-584 ③a · 顶板 logo 改名重出）",
           "level": 2,
           "startLine": 178,
-          "endLine": 188,
-          "tokens": 432,
+          "endLine": 203,
+          "tokens": 828,
           "summary": "final/v1/assets/menu/ui_menu_logo.png 960×772 RGBA Token Pla",
           "keywords": [
             "WXG",
@@ -105972,6 +106061,22 @@
             "assets",
             "menu",
             "ui_menu_logo"
+          ]
+        },
+        {
+          "anchor": "§分享卡配图（WXG-T-590 · 2026-11-07）",
+          "level": 3,
+          "startLine": 191,
+          "endLine": 203,
+          "tokens": 381,
+          "summary": "design/art/proposals/share-card-20261107/s74.png 1280×1024 R",
+          "keywords": [
+            "WXG",
+            "design",
+            "art",
+            "proposals",
+            "share",
+            "card"
           ]
         }
       ]

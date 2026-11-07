@@ -269,6 +269,7 @@ if (!built) {
 if (SEPARATE_ENGINE) assertSeparateEngineProduct(productDir);
 bumpAndStampVersion({ game, gameDir, productDir, platform });
 stageExtraAssets({ gameDir, productDir });
+stageShareAssets({ gameDir, productDir });
 printSummary({ game, platform, productDir, entry, secs });
 printNextSteps({ cocosDir, gameDir, platform, productDir });
 process.exit(0);
@@ -369,6 +370,38 @@ function stageExtraAssets({ gameDir, productDir }) {
     console.log(`  📦 资产装配：${staged.length} 个文件 ≈ ${(kb / 1024).toFixed(2)} MB → ${staged.join('、')}`);
   }
   declareSubpackages(productDir, staged);
+  return staged;
+}
+
+/**
+ * 分享卡等「非引擎资源」装配（WXG-T-590）。
+ *
+ * 为什么必须单独走这一步：Cocos 构建期的依赖分析只认 `.prefab` / `.scene` / `.mtl` 引用，
+ * 运行期字符串路径（`wx.shareAppMessage({ imageUrl })`）**不算**引用 ⇒ 图放 `cocos/assets/`
+ * 里要么被剔除、要么落到按 uuid 分桶的目录（路径不可写死）。这与 `check:cocos-mask` 记录的
+ * 「存在≠进包」是同一堵墙，解法同 `stageExtraAssets`：构建后从仓内正本补拷。
+ *
+ * 约定（⛔ 只认这一处）：`games/<game>/share/**` ⇒ 产物根**同名相对路径**。
+ *   例：`games/beads/share/share-card.jpg` ⇒ `<产品目录>/share-card.jpg`
+ *   运行时 `imageUrl` 直接写包内相对路径（微信 `shareAppMessage` 接受代码包内文件路径）。
+ *
+ * 无该目录的游戏（如 breakout）零行为变化；体积由 `check:size` 自动计入主包，红线不靠人记。
+ */
+function stageShareAssets({ gameDir, productDir }) {
+  const dir = join(gameDir, 'share');
+  if (!existsSync(dir)) return [];
+  const staged = [];
+  let kb = 0;
+  for (const name of readdirSync(dir)) {
+    const src = join(dir, name);
+    if (!statSync(src).isFile()) continue;
+    copyFileSync(src, join(productDir, name));
+    kb += statSync(src).size / 1024;
+    staged.push(name);
+  }
+  if (staged.length > 0) {
+    console.log(`  🖼️ 分享件装配：${staged.length} 个文件 ≈ ${kb.toFixed(1)} KB → ${staged.join('、')}`);
+  }
   return staged;
 }
 

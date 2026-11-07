@@ -8489,3 +8489,54 @@ framework 同步链上有五个纯逻辑模块的 Cocos 元文件（`<file>.ts.m
 - `npx vitest run tests/effects-dispatch.test.ts` ⇒ **14 例全过**（含新增标题契约用例）。
 - `pnpm run verify` ⇒ **PASS 23 / FAIL 0 / SKIP 0**（含 `cocos:check` 的两副本一致性校验与金样本对拍——
   分享不参与绘制，故金样本零漂移）。
+
+## WXG-T-590
+
+**美术·分享卡配图与进包链路** · 负责：主理人(CodeBuddy)·美术/工程轨 · 状态：✅ 完成（2026-11-07）
+
+### 1. 出图（云 · 按提示词）
+
+用户令「2 云端按提示词出图」⇒ 走 `dashscope-generate.py` · 模型 `qwen-image-3.0`（0.18 元/张）· 按量通道 maas。
+四次调用、四张、**零浪费**，判据与提示词全文见 `design/art/proposals/share-card-20261107/generation-record.txt`：
+
+| seed | 方向 | 判 |
+|---|---|---|
+| 41 | 拼豆成品俯拍全景 | ❌ 实物感重、珠阵密到不可辨、配色像噪点 |
+| 52 | 单色珊瑚红心形特写 | ○ 干净可辨，但色相单一，与「多色拼豆」关联弱 |
+| 63 | 四色 + 散珠 | ❌ 心形未成形，散珠抢焦点 |
+| **74** | **四色拼满心形（禁散珠）** | ✅ **定稿** — 轮廓清晰、平涂干净、无文字无 watermark |
+
+成本 **4 × 0.18 = 0.72 元**（按量通道，⛔ 不写 `token-plan-usage-ledger.md`，两通道口径不混加）。
+
+### 2. 发布件
+
+`games/beads/share/share-card.jpg` — 640×512（恰 5:4）**baseline** JPEG q85 = **48.2 KB**。
+PIL：`convert('RGB').resize((640,512), LANCZOS).save(quality=85, optimize=True)`。
+⛔ 不用 PNG：同图 PNG-P256 = 178.8 KB，而分享卡**不需要透明** ⇒ JPEG 体积为其 1/3.7。
+⛔ 不用 progressive：解码兼容面按 baseline 最稳。
+
+### 3. 进包链路（本批真正的坑）
+
+Cocos 构建期的依赖分析**只认 `.prefab` / `.scene` / `.mtl` 引用**，运行期字符串路径
+（`wx.shareAppMessage({ imageUrl })`）不算引用 ⇒ 图直接放 `cocos/assets/` 要么被剔除、要么落进按 uuid
+分桶的目录（路径不可写死）。这与 `check:cocos-mask` 记录的「存在≠进包」是**同一堵墙**。
+
+解法沿用既有的 `stageExtraAssets` 思路：新增 `build-cocos.mjs::stageShareAssets`，约定
+**`games/<game>/share/**` ⇒ 产物根同名相对路径**。`breakout` 没有该目录 ⇒ 零行为变化；
+体积由 `check:size` 自动计入主包，红线不靠人记。
+
+### 4. 接线与取证
+
+`effects-dispatch.ts::fireShare`（两副本）增加 `imageUrl: 'share-card.jpg'`（微信接受代码包内相对路径）；
+配图路径以 `SHARE_IMAGE_REL` 单常量承载，⛔ 不散落。
+
+- 构建日志：`🖼️ 分享件装配：1 个文件 ≈ 48.2 KB → share-card.jpg`
+- 产物 `games/beads/cocos/build/wechatgame/share-card.jpg` = **49365 字节**，与仓内正本逐字节一致
+- 主包 2638.4 → **2686.7 KB**（137 文件，距 4096 红线余量 **1409.3 KB**）；版本 v1.0.41 → **v1.0.42**
+- 单测 `effects-dispatch` **15 例全过**，新增契约「配图正本必须存在于 `games/beads/share/`」（防接线指向空气）
+
+### 5. 仍未接的一条腿（如实登记）
+
+**被动分享**（右上角菜单「转发」）在 `weapp.ts` 仍返回空对象 `{}` ⇒ 标题/配图走平台默认。
+它与主动分享是两条腿，要统一须给框架层加「默认分享参数」注入点（`PlatformOptions` 扩展），
+影响两个游戏，属跨域改动 ⇒ 单独立单，未在本批动手。

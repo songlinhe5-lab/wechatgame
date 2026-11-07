@@ -12,6 +12,8 @@
  * 「接线证明」（K-106：新模块须被运行时真正走到，而不只是被 typecheck 看到）。
  */
 
+import { existsSync } from 'node:fs';
+
 import { describe, expect, it, vi } from 'vitest';
 
 import { EventBus, type EventMap, type GameServices, type RewardedAdProvider } from '@wxgame/framework';
@@ -182,11 +184,18 @@ describe('fireRewardedAd · 广告 / 体力弹窗的 load+show 单点', () => {
 });
 
 describe('fireShare · 分享透传（WXG-T-405）', () => {
-  it('宿主有 share ⇒ 以定制标题调用一次（WXG-T-589 起不再是空 opts）', () => {
+  it('宿主有 share ⇒ 以定制标题 + 配图调用一次（WXG-T-589/590 起不再是空 opts）', () => {
     const share = vi.fn();
     fireShare({ share } as unknown as GameServices);
     expect(share).toHaveBeenCalledTimes(1);
-    expect(share).toHaveBeenCalledWith({ title: COPY_TOKENS.share_title });
+    expect(share).toHaveBeenCalledWith({
+      title: COPY_TOKENS.share_title,
+      imageUrl: 'share-card.jpg',
+    });
+  });
+
+  it('分享配图契约：正本在约定目录 `games/beads/share/`（构建期拷到产物根同名文件）', () => {
+    expect(existsSync(new URL('../share/share-card.jpg', import.meta.url))).toBe(true);
   });
 
   it('分享标题契约：非空 / ≤30 字（平台上限）/ 不含旧名', () => {
