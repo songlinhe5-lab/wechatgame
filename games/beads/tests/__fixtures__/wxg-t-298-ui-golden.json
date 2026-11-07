@@ -4,7 +4,7 @@
   "unit": "UI-02",
   "spec": "docs/architecture/ui-architecture-beads.md §5 / §9.4 / §12",
   "codeBaseline": "bd964a0",
-  "capturedFrom": "a61bd30a · WXG-T-587 落位转正 + 老图出包（工作树取值，代码同笔提交）",
+  "capturedFrom": "f68307dc · 工作树（WXG-T-298）",
   "fixture": {
     "viewport": {
       "width": 750,
@@ -25,7 +25,7 @@
     {
       "id": "main-menu",
       "unit": "MainMenuPage",
-      "note": "菜单首页：体力 99 + 解锁到第 9 关（卡片/轮播满档）",
+      "note": "菜单首页：体力给满（8/8）+ 解锁到第 9 关（卡片/轮播满档）",
       "proof": {
         "screen": "menu",
         "overlay": "none",
@@ -42,7 +42,7 @@
         "blit": 1,
         "polygon": 560
       },
-      "sha": "caa023f2c062c7ecc3fd976bdb1dbf6e6f1f0441b82b78f4ed0d1bd6dab1a305",
+      "sha": "73bf4eb9ba1892d311672238caf949e81ea350aecb8d7c3e3257bc5a0ca4ca31",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -68,7 +68,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "e13628ced933b4c80021376ffb121e3c09f5722f24c3507de70ca05c04d159bd",
+      "sha": "3fc60cbf141b9866780eaf111d5096d00e69a14844d4d06329dd628a57813ee8",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -94,7 +94,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "22e4989db062c52fd0c6b4456e40468af45e082f60558d8be534f525995491bf",
+      "sha": "fa911d329886ac6567d2198091d9e3e1045f1453c41b8f6fa7459c936650ac8a",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -120,7 +120,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "662080f3fce6af59c235043e9389ef4798e8f1b760a86c7ba358233f1caba7c2",
+      "sha": "f867a0c310ab79ff055fade151eee039be23bb3c9888b0138938d1631396eb6c",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -146,7 +146,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "d624ee76052bd589c51c1d452d2f95f6aaf7faf0f9d298aea569dc0d4b4e1a90",
+      "sha": "7455ccc334271113e46c116c1f04379a4ac1890faac6a5d818ad9b83cf7ac881",
       "background": "#F1E8D8",
       "transform": null
     },

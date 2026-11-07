@@ -28,7 +28,7 @@
 | 4 | `production/qa/beads/g4-regression-report.md` | 86807 | 2201 | normal |
 | 5 | `games/beads/design/ux/ux-spec.md` | 62587 | 590 | normal |
 | 6 | `games/beads/design/gdd/systems-index-changelog.md` | 53260 | 109 | normal |
-| 7 | `production/TASKS.md` | 51918 | 202 | hot |
+| 7 | `production/TASKS.md` | 52018 | 202 | hot |
 | 8 | `docs/architecture/adr/ADR-0030-beads-cocos-production-blit-carrier.md` | 45150 | 1307 | normal |
 | 9 | `games/beads/design/proposals/bead-visual-style-spec.md` | 43650 | 1206 | normal |
 | 10 | `games/beads/design/gdd/systems-index.md` | 42824 | 323 | hot |
