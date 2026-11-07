@@ -8739,3 +8739,53 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - `pnpm run verify` ⇒ **PASS 23 / FAIL 0 / SKIP 0**（含 `check:frozen-values` 三方一致）。
 - beads 单测 ⇒ **1426 passed / 2 skipped**（121 文件）。
 - Cocos 两副本：`framework:sync` 写入 7 件，`framework:sync:check` 通过。
+
+## WXG-T-595
+
+**美术·资源条数值对齐设计稿** · 负责：主理人(CodeBuddy)·美术/UI轨 · 状态：🔄 进行中（2026-11-07 · 用户令「对照设计稿调整字体样式」）
+
+### 1. 稿面逐像素读数（可复算）
+
+稿 = `games/beads/design/art/final/prototypes/menu-design-baseline-cat-topbar-final-slotbar-20261102.png`（752×1344 RGBA）。取样脚本走本地 PIL（不改图）：
+
+| 量 | 读数 | 取法 |
+|---|---|---|
+| 字色 | **`(247,195,132)` = `#F7C384`** | 两串数值字面像素众数（573 / 436 px 样本，占绝对多数） |
+| 数字高 | **19 px** | `12/20` 与 `480` 的 y 包围盒均为 363..381 |
+| 竖笔画宽 | **4 px** | 行扫连通段（`(261,4)`/`(303,4)`/`(500,4)` 等） ⇒ 4/19 ≈ **21%** |
+| 字色 vs 底色 | 对文字**压住的**底色均值 `#6B3922` = **5.86:1** ✓ | 包围盒内非文字像素均值（832 / 524 样本） |
+| 两端内缩 | 稿 257 / 503 vs 码 247 / 510 | ⇒ 码比稿靠外 7–10px（**本批未动**） |
+
+**字重判读**：21% 笔画比高于常规档（≈10–12%）、也高于系统 `bold`（≈15–17%）⇒ 稿更像 extra-bold/圆体。**可用档只有系统 `bold`（700）**：canvas 数值字重跨端支持不稳，⛔ 不写 `800`。
+
+### 2. 字号为什么不按稿降
+
+稿面按字宽反推 ≈ 25–26px，但：
+1. **数字高 19 vs 28px 的 cap ≈20** 只差 1px ⇒ 落在生成图容差内，视为一致；
+2. **E1 地板 = 28 设计 px**（`accessibility.md` E1；`hudSmall=22` 已被 F7⑤ 判假绿、`WXG-T-346` 同型再现一例）⇒ 下调即破门。
+
+⇒ **字号保持 28**，只改字重与墨色。
+
+### 3. 落码三件
+
+| # | 位置 | 改法 |
+|---|---|---|
+| ① | `view/ui-theme.ts` | 新增 `labelBold = 'bold 28px sans-serif'`（与 `label` 同档不同重，语义键分列便于单调） |
+| ② | `view/palette.ts` + `config/skins/cool-violet.ts` | 新增令牌 `bar_value = #F7C384`；**冷紫灰肤给同值**——资源条背板是 v2 烘图、与肤无关 ⇒ 条体恒暖棕，墨必须配同一底色（判例同 `STAR_GOLD` 跨肤不变） |
+| ③ | `view/meta-menu.ts::drawResourceBar` | 两枚数值 `fill` → `palette.barValue`、`font` → `UI_FONT.labelBold`；几何/对齐/内缩**零改动** |
+
+**同步面**：色表锁 49 → **50** / `5f97298f7361` → `0f3c4490ba31`（`bead-render.test.ts` ④，含追改说明）；`tokens.md §1` 新增 `bar_value` 行；`ui-architecture-beads` 新增视觉变更登记。
+
+### 4. 顺手补登上一单的漏项
+
+`ui-architecture-beads` 的 2026-10-23「心日限可见」登记（`▶N` 后缀）在 **WXG-T-594 v1.99 取消该后缀时未回写** ⇒ 本批同批补登：旧句按 K-053 保留史证并标注失效，另加 v1.99 条目。
+
+### 5. 金样本
+
+受影响 = 五个含主菜单资源条的态：`main-menu` / `level-select` / `level-select-mid` / `settings` / `signin`。
+实测 `total` 与 `kinds` **逐态不变**（只换 fill/font，不增删命令），仅 `sha` 变；其余六态逐字未动 ⇒ 改动面精准落在资源条两条 text 上。
+按 T-375 纪律：先在提交锚落代码，再由 `tests/ui-golden-capture.ts`（`WXG298_SOURCE_REV` = 该 commit）重抓，⛔ 不手改夹具。
+
+### 6. 未做（另案）
+
+数值两端内缩：稿 `257 / 503` vs 码 `247 / 510`（码靠外 7–10px）。改它要动 `MENU_BAR_BAKED_LABEL_INSET`（28 = 烘图图标宽 20 + 间隙 8），而背板注释明令「换背板/改图标位必须同批重扫」⇒ 属排版微调另案，本批不动。

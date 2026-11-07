@@ -175,7 +175,7 @@ const STATES: readonly GoldenStateDef[] = [
     {
         id: 'main-menu',
         unit: 'MainMenuPage',
-        note: '菜单首页：体力 99 + 解锁到第 9 关（卡片/轮播满档）',
+        note: '菜单首页：体力给满（8/8）+ 解锁到第 9 关（卡片/轮播满档）',
         build: () => {
             const shell = rig({ unlocked: 9 });
             requireScreen(shell, 'menu', 'none');

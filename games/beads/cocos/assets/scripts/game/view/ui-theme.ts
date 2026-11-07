@@ -53,6 +53,13 @@ export const UI_FONT = {
     hudSmall: '28px sans-serif',
     /** slogan / 版本号 28。 */
     label: '28px sans-serif',
+    /**
+     * 资源条数值 **28 粗体**（WXG-T-595 设计稿对齐）。
+     * 稿面 `12/20` / `480` 笔画 4px ÷ 数字高 19px ≈ **21%** ⇒ 明显粗于常规档（系统 `bold` = 700，
+     * 最接近可用档；canvas 数值字重跨端支持不稳，⛔ 不用 `800`）。字号仍 **28** ——
+     * 稿的数字高 19 vs 28px 的 cap ≈20 只差 1px（生成图容差），且 E1 地板 = 28，**不得下调**。
+     */
+    labelBold: 'bold 28px sans-serif',
     /** 小字 22。 */
     cell: '22px sans-serif',
     /** 行 3 辅助开关 22（更长文案）。 */

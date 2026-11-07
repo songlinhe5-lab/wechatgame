@@ -1140,11 +1140,15 @@ describe('v1.57 art 硬约束（assets-spec §1.10.9 四条）', () => {
   //    [§5.1b-2 第十一批 · 2026-10-13 用户裁定「牌面色加令牌」] L4 门楣价目牌三枚入表
   //    （真源 tokens.md §1）：`plaque_face #8C5C2A` / `plaque_edge #603C1A` / `plaque_bevel #F7CD9D`；
   //    数值墨复用在册 `wood_text`（⇒ 零第四枚）⇒ 46 → **49** 条 / `68a4b509bb65`→`5f97298f7361`。
+  //    [WXG-T-595 · 2026-11-07 用户令「对照设计稿调整字体样式」] 主菜单**资源条数值墨**独立成令牌
+  //    `bar_value #F7C384`（稿面 `12/20`/`480` 字面像素众数实测；对条体底色均值 5.86:1 ✓）——
+  //    它压在**背板烘出的暖棕条体**上、与 `wood_text`（木钮 5.4:1）底不同，属**新底新墨**而非换值
+  //    ⇒ 49 → **50** 条 / `5f97298f7361`→`0f3c4490ba31`。
   it('④ 色表锁：palette.ts 代码内 hex 条数与指纹不变（§1.9.7①）', () => {
     const src = readFileSync(new URL('../src/view/palette.ts', import.meta.url), 'utf8');
     const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
     const hexes = code.match(/#[0-9A-Fa-f]{6}/g) ?? [];
-    expect(hexes.length).toBe(49);
-    expect(createHash('sha1').update(hexes.join('|')).digest('hex').slice(0, 12)).toBe('5f97298f7361');
+    expect(hexes.length).toBe(50);
+    expect(createHash('sha1').update(hexes.join('|')).digest('hex').slice(0, 12)).toBe('0f3c4490ba31');
   });
 });

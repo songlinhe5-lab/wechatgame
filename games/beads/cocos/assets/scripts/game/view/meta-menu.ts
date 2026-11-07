@@ -72,14 +72,14 @@ function drawResourceBar(
     const cy = g.y + g.h / 2;
     // 图标已烘进背板 ⇒ 文本自图标外缘再让一个间隙起排（`MENU_BAR_BAKED_LABEL_INSET` = 20+8）。
     builder.text(x + MENU_BAR_BAKED_LABEL_INSET, cy, heartBarLabel(data.stamina, data.staminaMax), {
-        fill: palette.woodText,
-        font: UI_FONT.label,
+        fill: palette.barValue,
+        font: UI_FONT.labelBold,
         align: 'left',
         baseline: 'middle',
     });
     builder.text(x + g.w - MENU_BAR_BAKED_LABEL_INSET, cy, `${data.coins}`, {
-        fill: palette.woodText,
-        font: UI_FONT.label,
+        fill: palette.barValue,
+        font: UI_FONT.labelBold,
         align: 'right',
         baseline: 'middle',
     });

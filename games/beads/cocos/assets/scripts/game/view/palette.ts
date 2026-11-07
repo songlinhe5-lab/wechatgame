@@ -296,6 +296,18 @@ export interface BeadsPalette {
   readonly woodSheen: string;
   /** 木面文字/▶（tokens.md `wood_text`，对 wood_face 5.4:1 ✓）。 */
   readonly woodText: string;
+  /**
+   * 资源条数值墨（WXG-T-595 设计稿对齐）：暖橙 **`#F7C384`**，取自
+   * `art/final/prototypes/menu-design-baseline-cat-topbar-final-slotbar-20261102.png`
+   * 资源条 `12/20` / `480` 字面像素众数（实测 `(247,195,132)`）。
+   *
+   * 对比判据（口径 = 文字压住的实际底色，非整条均值）：条体底色均值 `#6B3922` ⇒ **5.86:1** ✓。
+   * ⚠ 条体木纹高光局部（`#B98658`）仅 ≈2:1 —— 那是**背板位图固有**的亮纹，现行 `woodText`
+   * 在同处也只有 2.96:1，非本批新增风险；换背板须同批复测。
+   *
+   * ⛔ 不随肤变：资源条背板（v2 烘图）与肤无关 ⇒ 冷紫灰肤给**同值**（配同一暖棕条体）。
+   */
+  readonly barValue: string;
   /** 纸钮/纸卡按下态面（tokens.md `card_pressed`）。 */
   readonly cardPressed: string;
   /** 纸钮禁用态面（tokens.md `card_disabled`）。 */
@@ -357,6 +369,7 @@ export const DEFAULT_PALETTE: BeadsPalette = {
   woodEdge: '#5E3B1E', // wood_edge 底缘 2px
   woodSheen: '#B98A5C', // wood_sheen 顶缘 1px 受光线
   woodText: '#FFF6E8', // wood_text 米白字（对 wood_face 5.4:1 ✓）
+  barValue: '#F7C384', // bar_value 资源条数值暖橙（WXG-T-595 设计稿实测；对条体均值 5.86:1 ✓）
   cardPressed: '#F4EAD7', // card_pressed
   cardDisabled: '#F7F2E6', // card_disabled
   cardDisabledBorder: '#EAE0CC', // card_disabled_border

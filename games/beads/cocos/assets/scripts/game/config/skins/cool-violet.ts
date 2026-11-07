@@ -46,6 +46,9 @@ const COOL_VIOLET_TOKENS: BeadsPalette = Object.freeze({
     woodEdge: '#1E2033',
     woodSheen: '#6E7288', // ≡ textDim 灰（T3 受光缘，冷肤弱化）
     woodText: '#FFFFFF', // ≡ 改值前 EXPAND_BTN_TEXT
+    // [WXG-T-595] 资源条数值墨**跨肤同值**（不发明新色相，也不走冷化）：资源条背板是 v2 烘图、
+    // 与肤无关 ⇒ 条体恒为暖棕，字墨必须配同一底色（对比实测 5.86:1）。判例同 `STAR_GOLD` 跨肤不变。
+    barValue: '#F7C384',
     cardPressed: '#F7F6FB', // ≡ slot（纸面深一档的冷对应）
     cardDisabled: '#F7F6FB',
     cardDisabledBorder: '#D8D5E6', // ≡ slotBorder
