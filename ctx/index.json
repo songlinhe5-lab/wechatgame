@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3980,
       "lines": 134,
-      "sha256": "643f8b1d1575c67350ce63ed70d5e05ede1ff600271d99fd38cbab8a34810910",
+      "sha256": "4d45e56255677dbd15e0cfe8d7b9900afea97aeda4aca1099f45f85aaa3f8e5b",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 237701 8542 normal",
+          "summary": "1 production/TASKS-DETAIL.md 237998 8551 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "596b4c3fee24bb1ed041189519a86d62a16e7b395e21f3fb3aa675685cdc57f5",
+      "sha256": "fdea666a296c2efce0d9830775feecdd5327840d377a19f4032c8ec00daea19a",
       "tier": "normal",
       "sections": [
         {
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 8542 行 / 237701 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 8551 行 / 237998 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+8543 · §WXG-T-579=7909+34 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+8552 · §WXG-T-579=7909+34 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -88886,17 +88886,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 237701,
-      "lines": 8542,
-      "sha256": "2f393d6fee6c0b948baef0b5744de810b554710f92b19df70487606fd4a1c80a",
+      "tokens": 237998,
+      "lines": 8551,
+      "sha256": "e2c7bacdc5bda87036b3de6546b310a691cfb0273e3f20e03146798264e1f935",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 8543,
-          "tokens": 237684,
+          "endLine": 8552,
+          "tokens": 237981,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -101987,8 +101987,8 @@
           "anchor": "§WXG-T-590",
           "level": 2,
           "startLine": 8493,
-          "endLine": 8543,
-          "tokens": 927,
+          "endLine": 8552,
+          "tokens": 1224,
           "summary": "美术·分享卡配图与进包链路 · 负责：主理人(CodeBuddy)·美术/工程轨 · 状态：✅ 完成（2026-11-0",
           "keywords": [
             "WXG",
@@ -102060,16 +102060,19 @@
           ]
         },
         {
-          "anchor": "§5 仍未接的一条腿（如实登记）",
+          "anchor": "§5 被动分享（右上角转发）—— 评估后**建议不做**，理由登记在此",
           "level": 3,
           "startLine": 8538,
-          "endLine": 8543,
-          "tokens": 105,
-          "summary": "被动分享（右上角菜单「转发」）在 weapp.ts 仍返回空对象 {} ⇒ 标题/配图走平台默认。",
+          "endLine": 8552,
+          "tokens": 388,
+          "summary": "weapp.ts 里 onShareAppMessage(() => ({})) 仍返回空对象 ⇒ 被动转发走平台默认。",
           "keywords": [
             "weapp",
-            "仍未接的一条",
-            "如实登记"
+            "onShareAppMessage",
+            "被动分享",
+            "右上角转发",
+            "评估后",
+            "建议不做"
           ]
         }
       ]
