@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3980,
       "lines": 134,
-      "sha256": "0c48ffbd34e0d2642c40ea1f3907c3699d19ac20914dc1d447a414e324385004",
+      "sha256": "bfc7def145b5e7e3a13a28f03f363d9fc0257df58db97d994c6f6e704f2e5e96",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 240174 8658 normal",
+          "summary": "1 production/TASKS-DETAIL.md 240955 8695 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5272,
       "lines": 165,
-      "sha256": "f27d3b00d367f93ba04bd29f7ed254d63e8d5dc8326c302656bf11638de3c7a4",
+      "sha256": "a7463e974a0dab046063ffaad29ae6814411d880da5e63c4fdfbe3579bbd3100",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 199 行 / 50459 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 200 行 / 50900 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+200 · §待排（backlog，无号，立项时领取…=172+29",
+          "summary": "§WXG 任务台账（SSOT）=1+201 · §待排（backlog，无号，立项时领取…=173+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 8658 行 / 240174 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 8695 行 / 240955 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+8659 · §WXG-T-581=7982+42 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+8696 · §WXG-T-582=8024+61 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -26725,9 +26725,9 @@
     },
     {
       "path": "games/beads/design/art/proposals/ui-style-redesign/tokens.md",
-      "tokens": 4715,
+      "tokens": 4789,
       "lines": 133,
-      "sha256": "c7e0c2436ee939287c67db7f44611ce8196275079f85c414cc890313ed4d251a",
+      "sha256": "41ff4cd572687c4424ece317498531b850673644d0161fee35c924be9fd472ea",
       "tier": "normal",
       "sections": [
         {
@@ -26735,7 +26735,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 134,
-          "tokens": 4690,
+          "tokens": 4765,
           "summary": "定稿声明（2026-10-07）：用户已裁 D-2 = 甲案「暖纸拼豆台」⇒ 本表全部取值定稿，不再是提案值；art-b",
           "keywords": [
             "tokens",
@@ -26838,7 +26838,7 @@
           "level": 2,
           "startLine": 106,
           "endLine": 134,
-          "tokens": 2397,
+          "tokens": 2471,
           "summary": "文案也走令牌：UI 侧不散落字面，落码一律读本表（与「颜色进 palette.ts」同一纪律）。",
           "keywords": [
             "copy",
@@ -88886,17 +88886,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 240174,
-      "lines": 8658,
-      "sha256": "bee6d58b9547dd6d58e617e4f28299fde85c8c6609d74a3ef9452a54c4d1085c",
+      "tokens": 240955,
+      "lines": 8695,
+      "sha256": "4459250a539fa4fa14a2c41119be0b4b6b8be2e0bd7d0ea26dfc2564d60107db",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 8659,
-          "tokens": 240158,
+          "endLine": 8696,
+          "tokens": 240938,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -102246,22 +102246,94 @@
             "slogan",
             "明确不动的"
           ]
+        },
+        {
+          "anchor": "§WXG-T-593",
+          "level": 2,
+          "startLine": 8660,
+          "endLine": 8696,
+          "tokens": 777,
+          "summary": "UX·主菜单按钮去掉续关字样 · 负责：主理人(CodeBuddy)·UX轨 · 状态：✅ 完成（2026-11-07 ",
+          "keywords": [
+            "WXG",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§1 病灶：不是两处文案，是一处**叠字事故**",
+          "level": 3,
+          "startLine": 8664,
+          "endLine": 8674,
+          "tokens": 180,
+          "summary": "用户说的「继续。第一关」其实是同一行：继续 · 第1关。它的成因是两层文案叠在一枚按钮上：",
+          "keywords": [
+            "病灶",
+            "不是两处文案",
+            "是一处",
+            "叠字事故"
+          ]
+        },
+        {
+          "anchor": "§2 改动 (2)",
+          "level": 3,
+          "startLine": 8675,
+          "endLine": 8686,
+          "tokens": 327,
+          "summary": "① meta-menu.ts CTA 段 恒不叠字：删掉 carouselOnStartPage === false 的",
+          "keywords": [
+            "meta",
+            "menu",
+            "CTA",
+            "carouselOnStartPage",
+            "false",
+            "改动"
+          ]
+        },
+        {
+          "anchor": "§3 为什么没顺手删「继续」",
+          "level": 3,
+          "startLine": 8687,
+          "endLine": 8690,
+          "tokens": 52,
+          "summary": "暂停面板的「继续」按钮（panelLabel('resume')）是恢复游戏的功能钮，删了玩家无法离开暂停态 ⇒ 与本单",
+          "keywords": [
+            "panelLabel",
+            "resume",
+            "为什么没顺手",
+            "继续"
+          ]
+        },
+        {
+          "anchor": "§4 取证 (3)",
+          "level": 3,
+          "startLine": 8691,
+          "endLine": 8696,
+          "tokens": 125,
+          "summary": "pnpm run verify ⇒ PASS 23 / FAIL 0 / SKIP 0。",
+          "keywords": [
+            "pnpm",
+            "run",
+            "verify",
+            "PASS",
+            "FAIL",
+            "SKIP"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 50459,
-      "lines": 199,
-      "sha256": "f5c569ca62204569c1713dcca0fa88d832a7ffe3f121d0849669d09f17a5fcb1",
+      "tokens": 50900,
+      "lines": 200,
+      "sha256": "ac7fcd0ffd716cd5b81991429382aed2ebeb40d007e0665d6ff3bf5b4f3a3fe4",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 200,
-          "tokens": 50451,
+          "endLine": 201,
+          "tokens": 50892,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -102274,8 +102346,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 172,
-          "endLine": 200,
+          "startLine": 173,
+          "endLine": 201,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

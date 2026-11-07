@@ -8656,3 +8656,40 @@ T-589 定的分享标题与 T-591 定的微信简介里都写着「**一次摆�
 `slogan`「一颗一颗，拼出你的小铺」**保持原样**：① 它**已不上屏**（2026-11-05 用户裁「已经不展示了，不需要修改」·
 WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② 上一轮已登记不再改。⚠ 但它描述玩法同样不准，
 **若将来重新上屏，须先按本单口径改写**。
+
+## WXG-T-593
+
+**UX·主菜单按钮去掉续关字样** · 负责：主理人(CodeBuddy)·UX轨 · 状态：✅ 完成（2026-11-07 · 用户令「去掉继续。第一关字样」）
+
+### 1. 病灶：不是两处文案，是一处**叠字事故**
+
+用户说的「继续。第一关」其实是同一行：**`继续 · 第1关`**。它的成因是两层文案叠在一枚按钮上：
+
+| 层 | 来源 | 内容 |
+|---|---|---|
+| 底 | `MENU_TEXTURES.ctaV2` **整枚位图** | 图上**已烘「开始」**两字（`ui_btn_start_9s` 九宫腿与 `ctaLabel` 艺术字腿已于 T-587 出包删除） |
+| 面 | `meta-menu.ts` 浏览态叠字（`[WXG-T-490]`） | `carouselOnStartPage === false` 时再写 `label('start')` = **`继续 · 第{n}关`** |
+
+⇒ 烙字「开始」与叠字「继续 · 第1关」压在同一块木牌上，既重复又脏。
+
+### 2. 改动
+
+| # | 位置 | 改法 |
+|---|---|---|
+| ① | `meta-menu.ts` CTA 段 | **恒不叠字**：删掉 `carouselOnStartPage === false` 的叠加块；`textDy`（按下态同比例下沉的写字基准）随退役；`MENU_CTA_PRESSED_D` / `MENU_CTA_SRC_H` 两个只服务它的常量从 import 移除（tuning 定义保留） |
+| ② | `meta-widgets.ts::label('start')` | 去掉续关分支 ⇒ **主钮恒为 `开始游戏`**（原 `[WXG-T-490]` 浏览态自证腿退场） |
+| ③ | `btn_start_resume_label` 令牌 | **保留、值不改、零引用、不上屏**（K-053 留档）；`tokens.md §7` 与 `copy-tokens.ts` 双处标注「2026-11-07 起不上屏」 |
+| ④ | `tests/meta-menu-wall.test.ts` | 契约改写：不论走马灯停在哪一页，`label('start')` 恒为 `开始游戏`；另加 `not.toContain('继续')` 防回潮；令牌值对齐断言保留 |
+
+**两副本**：`games/beads/src/view/*` 与 `games/beads/cocos/assets/scripts/game/view/*` 同改，`framework:sync:check` 通过
+（中间曾因只改了 src 侧 `copy-tokens` 注释导致 `framework:sync:check` 红灯，跑 `framework:sync` 后自愈）。
+
+### 3. 为什么没顺手删「继续」
+
+暂停面板的「继续」按钮（`panelLabel('resume')`）是**恢复游戏的功能钮**，删了玩家无法离开暂停态 ⇒ 与本单无关，⛔ 未动。
+
+### 4. 取证
+
+- `pnpm run verify` ⇒ **PASS 23 / FAIL 0 / SKIP 0**。
+- **金样本零漂移**：`main-menu` 等五态均在**起点页**，按旧逻辑本就不叠字 ⇒ 本单不影响任何 sha（这也侧面验证了「叠字只在浏览态出现」）。
+- harness 已重启（`http://127.0.0.1:4174/index.html?game=beads`）供目视；⚠ `:4173` 上仍挂着 2026-11-06 09:49 启动的旧实例，跑的是改前代码。

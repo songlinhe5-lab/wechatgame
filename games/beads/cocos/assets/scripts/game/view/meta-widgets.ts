@@ -32,12 +32,9 @@ export function label(id: MetaAction, data: MetaViewData): string {
     switch (id) {
         // EP12-S6 · P-7：**钮标签一律读文案表**（`tokens.md §7` / `menu-architecture §6`），⛔ 不落字面。
         case 'start':
-            // `[WXG-T-490]` 浏览态（甲+A，`menu-architecture §5.4` 条 4）：走马灯离开起点页 ⇒
-            // 主钮文案自证真实目标（续玩位关号，`{n}` 渲染期替换 = `powerup_buy_confirm_title` 同判例）；
-            // 缺省字段（旧调用方/夹具）= 起点页 ⇒ 逐字不变。
-            if (data.carouselOnStartPage === false && data.startLevelSeq) {
-                return COPY_TOKENS.btn_start_resume_label.replace('{n}', `${data.startLevelSeq}`);
-            }
+            // `[WXG-T-593]` 2026-11-07 用户令：**去掉续关字样**（原 `继续 · 第{n}关`）⇒ 主钮恒为 `开始游戏`。
+            // 原 `[WXG-T-490]` 浏览态自证（走马灯离开起点页时换文案）随之退场；且 CTA 整枚位图已烘「开始」，
+            // 视觉上只剩烙字。`btn_start_resume_label` 令牌保留（K-053 留档）但**当前无引用、不上屏**。
             return COPY_TOKENS.btn_start_label;
         case 'open-signin':
             return COPY_TOKENS.btn_signin_label;

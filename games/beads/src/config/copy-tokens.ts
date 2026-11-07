@@ -23,9 +23,10 @@ export const COPY_TOKENS = Object.freeze({
     /** `tokens.md §7` / §6：**取代码实装值**（原 `开始拼豆` 降为史证）；唯一木主钮标签。 */
     btn_start_label: '开始游戏',
     /**
-     * `tokens.md §7` **新增·已裁**（2026-10-29 · WXG-T-490 用户裁「甲 + A」）：主菜单木主钮
-     * **浏览态**文案（走马灯离开起点页 ⇒ `menu-architecture §5.4` 条 4）。`{n}` = 续玩关 1-based
-     * 关号，**渲染期替换**（`powerup_buy_confirm_title` 同判例），余字不改。
+     * `tokens.md §7` **新增·已裁**（2026-10-29 · WXG-T-490 用户裁「甲 + A」）；**2026-11-07 起不上屏**
+     * （WXG-T-593 用户令「去掉『继续 · 第N关』字样」）：原为主菜单木主钮**浏览态**文案，现主钮恒读
+     * `btn_start_label`、本键**零引用**，仅按 K-053 留档（值不改 ⇒ 与 `tokens.md §7` 逐值一致仍成立）。
+     * `{n}` = 续玩关 1-based 关号，渲染期替换（`powerup_buy_confirm_title` 同判例）。
      */
     btn_start_resume_label: '继续 · 第{n}关',
     /** §6「承（实装值）」：次级纸钮 1。 */

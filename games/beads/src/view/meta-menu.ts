@@ -3,7 +3,7 @@
  * 几何一律取自 `meta-layout.ts` 的锚定档，控件画法取自 `meta-widgets.ts` ⇒ 页面只编排、不另算。
  */
 
-import { DESIGN_H, DESIGN_W, type MenuAnchors, MENU_BAR_BAKED_LABEL_INSET, MENU_CTA_PRESSED_D, MENU_CTA_SRC_H, MENU_FROST, MENU_FULLSTAR_FRAME, MENU_GRAY_WIPE, MENU_LOCKED_ICON, MENU_PLACEMENT, MENU_SIGNIN_DOT_R, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, MENU_V2_BG_EXPAND, MENU_V2_BG_H, MENU_V2_DESK_FILL,
+import { DESIGN_H, DESIGN_W, type MenuAnchors, MENU_BAR_BAKED_LABEL_INSET, MENU_FROST, MENU_FULLSTAR_FRAME, MENU_GRAY_WIPE, MENU_LOCKED_ICON, MENU_PLACEMENT, MENU_SIGNIN_DOT_R, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, MENU_V2_BG_EXPAND, MENU_V2_BG_H, MENU_V2_DESK_FILL,
     SIGN_BEAD_PITCH, menuBackdropTopPad, SIGN_MATRIX_N, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning.js';
 import { COPY_TOKENS } from '../config/copy-tokens.js';
 import { ARC_COMING_SOON } from '../config/arcs.js';
@@ -626,19 +626,12 @@ export function drawMenuAnchored(
     if (menuBitmapReady(MENU_TEXTURES.ctaV2)) {
         const bakedPress = ctaPressed && menuBitmapReady(MENU_TEXTURES.ctaPressedV2);
         const dy = bakedPress ? 0 : pressDy(data, ctaPressed);
-        const textDy = bakedPress ? -Math.round((MENU_CTA_PRESSED_D * g.ctaBox.h) / MENU_CTA_SRC_H) : dy;
         builder.blit(bakedPress ? MENU_TEXTURES.ctaPressedV2 : MENU_TEXTURES.ctaV2,
             g.ctaBox.x, g.ctaBox.y + dy, g.ctaBox.w, g.ctaBox.h);
-        // `[WXG-T-490]` 浏览态（§5.4 条 4）：起点页不叠字（图已烘「开始」），离开起点页才写字
-        // （`label('start')` 已切 `继续 · 第{n}关`）。
-        if (data.carouselOnStartPage === false) {
-            builder.text(g.ctaBox.x + g.ctaBox.w / 2, g.ctaBox.y + g.ctaBox.h / 2 + textDy, label('start', data), {
-                fill: palette.panel,
-                font: UI_FONT.button,
-                align: 'center',
-                baseline: 'middle',
-            });
-        }
+        // `[WXG-T-593]` 2026-11-07 用户令「去掉『继续 · 第N关』字样」：整枚 CTA 位图**已烘「开始」**，
+        // 任何再叠字都会与烙字压在一起（旧逻辑在离开起点页时叠 `继续 · 第{n}关`）⇒ **恒不叠字**。
+        // `textDy`（按下态同比例下沉的写字基准）随之退役 —— 无文字消费方；
+        // `carouselOnStartPage` / `startLevelSeq` 字段保留（走马灯其它语义仍用），但 CTA 不再消费。
     } else {
         drawButton(builder, palette, g.ctaBox.x, g.ctaBox.y + pressDy(data, ctaPressed), g.ctaBox.w, g.ctaBox.h, 'accent', 14, label('start', data), UI_FONT.button, ctaPressed);
     }
