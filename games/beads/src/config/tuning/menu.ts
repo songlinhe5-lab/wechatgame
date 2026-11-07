@@ -347,6 +347,18 @@ export const MENU_V2 = {
   plateTitle: { x: 313, y: 901, w: 124, h: 42 },
   plateSub: { x: 330, y: 950, w: 90, h: 17 },
 } as const;
+
+/**
+ * `[WXG-T-601]` 橱窗大图 256² 的**实际内容包围盒**（源 px，alpha 逐行实测 2026-11-07）：
+ * `l9-boss-mandala-256` = (37,31,219,211)、`photo32-smoke-boss-256` = (41,32,215,210)。
+ * 取**较宽**的 mandala 做统一口径（smoke 放大后略窄 7px/侧，⛔ 不会溢出台面）。
+ * 原图四周留白（尤其底部 45px）若连透明边一起铺框 ⇒ 图案视觉底缘悬空约 61px，
+ * 落在不了背板烘好的圆台上（台面椭圆后缘 835 / 高光 848-850 / 前缘 852，接触线 = 展品框底 844）。
+ */
+export const MENU_ARC_ART_CONTENT = { x: 37, y: 31, w: 182, h: 180 } as const;
+/** 橱窗大图源边长（OPEN_ARCS 两枚均 256²）。 */
+export const MENU_ARC_ART_SRC = 256;
+
 /**
  * **橱窗木牌第二行的胶囊底**（设计稿
  * `art/final/prototypes/menu-design-baseline-cat-topbar-final-slotbar-20261102.png`）。

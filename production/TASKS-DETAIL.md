@@ -9097,3 +9097,23 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 `ui-golden` **13/13 绿**，夹具未动。原因：十态帧里主菜单恒为「有实体大关页」，
 **空橱窗（`carouselComingSoon`）不在十一帧内** ⇒ 本批改的那条腿不进帧。
 空橱窗态的字型由 `tests/menu-carousel.test.ts` 单测守（不靠整帧对拍）。
+
+## WXG-T-601
+
+**UI·橱窗图案落在圆台上（放大 + 底对齐）** · 负责：主理人(CodeBuddy)·beads 工程 · 状态：✅ 完成（2026-11-07）
+
+- **上位**：用户 2026-11-07 令「橱窗中图案没有落在底板上，可以考虑放大图案或者与底部对齐」；`games/beads/design/gdd/systems-index.md` 无对应数值（纯版面/资产留白问题），登记见 `docs/architecture/ui-architecture-beads.md §12`。
+- **根因（像素实测，非坐标猜测）**：
+  - `OPEN_ARCS` 两枚大关原图均 `256²` 且四周**带透明留白**：`l9-boss-mandala-256.png` alpha 包围盒 `(37,31,219,211)`（内容 182×180、下留白 45）、`photo32-smoke-boss-256.png` `(41,32,215,210)`（内容 174×178、下留白 46）。
+  - 旧 `builder.blit(textureId, x, b.y, b.w, b.h)` 把**透明边一起**铺进 `MENU_V2.art` 325×314 展品框 ⇒ 下留白 45/256×314 ≈ 55px 被同比放大，视觉图案底缘停在 y-down ≈ **789**。
+  - 背板 `ui_menu_backdrop@2x.png` 橱窗圆台椭圆逐行扫描（@2x → 设计换算 `y = y2x/2 − 208`）：后缘 **835**、高光带 **848–850**、前缘 **852**、台体 852–890、下沿高光 892 ⇒ 台面接触线 ≈ **844**（= 展品框底 530+314）。
+  - ⇒ **图案悬空 55–61px**，即用户所见「没落在底板上」。
+- **为什么两个方案要组合**（只做一个都不成立）：只放大不底对齐 ⇒ 留白同比放大、仍悬空；只底对齐不放大 ⇒ 图案仅 ≈231px 宽，明显小于 325px 台面，橱窗显空。用户「放大图案或者与底部对齐」两措合一后正好等于按内容包围盒裁白 + 底对齐。
+- **交付**：
+  - `games/beads/src/config/tuning/menu.ts`：新增 `MENU_ARC_ART_CONTENT = {x:37,y:31,w:182,h:180}` / `MENU_ARC_ART_SRC = 256`（取**较宽**的 mandala 统一口径 ⇒ smoke 放大后窄 7px/侧，⛔ 不溢出台面）。
+  - `games/beads/src/view/meta-menu.ts::drawShowcaseArt` 位图腿：`k = b.w / MENU_ARC_ART_CONTENT.w`(=325/182≈1.786)，blit 边长 `256k ≈ 457`，x 居中、`y = b.y − 下留白×k` ⇒ **内容左右缘 = 展品框 212..537、内容底缘 = 框底 844（台面）**。blit 框超出 `clipBox`(150..600 / 470..904) 的部分全是透明留白 ⇒ 裁剪零视觉损失。
+  - 同函数程序化降级腿（`drawLevelThumb`）：`h` 由 `b.h`(314) 改 `b.w + THUMB_TOP_INSET`(333) ⇒ 图案底 = `yBottom`（原传框高使 325² 图案沉入台面 19px）；两条腿现在都底对齐 844。
+  - `games/beads/tests/showcase-single.test.ts`：旧两条「blit 尺寸恒 = `MENU_V2.art` 325×314」按 K-053 迁移为 `expectArtOnShelf`（blit 恒等比、内容左右缘 = 框左右缘、内容底缘 = 框底），旧值在注释划线留档。
+- **金样本**：菜单族 **5 态**（`main-menu` / `level-select` / `level-select-mid` / `settings` / `signin`）sha 变——一条 blit 的坐标与尺寸，`total`/`kinds` 逐字不变；对局族 6 态零漂移。由 `tests/ui-golden-capture.ts` 在干净锚重抓（⛔ 不手改夹具，K-051 / K-053）。
+- **处置纪律**：视觉变更先登记 `ui-architecture-beads §12` 再复取；对照图 `temp/showcase-align-check.png`（蓝 = 修复前图案区、绿 = 修复后、红线 = 台面接触线 844）。
+- **⚠ 遗留**：两枚大关图留白不同，统一用较宽的 mandala 口径 ⇒ smoke 图放大后每侧窄约 7px；若未来要求逐图精确铺满，应把包围盒改为按 `textureId` 查表（本批 2 图、差异 <7px，按 YAGNI 不做）。

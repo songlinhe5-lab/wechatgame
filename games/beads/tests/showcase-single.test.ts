@@ -15,6 +15,8 @@ import { LEVELS } from '../src/config/levels.js';
 import {
     DESIGN_H,
     DESIGN_W,
+    MENU_ARC_ART_CONTENT,
+    MENU_ARC_ART_SRC,
     MENU_FROST,
     MENU_LOCKED_ICON,
     MENU_TEXTURES,
@@ -61,23 +63,39 @@ afterEach(() => {
     setMenuBitmapResolver(undefined);
 });
 
+/**
+ * `[WXG-T-601]` 作品位判据：大图 256² 四周有透明留白（底部 45px）⇒ blit 必须按**内容宽**
+ * 放大到恰铺满展品框，并把**内容底缘**压在框底（= 背板圆台台面），否则图案悬空约 61px。
+ * 旧判据「blit 尺寸恒 = `MENU_V2.art` 325×314」随「连透明边一起铺框」退场（K-053 划线留档）。
+ */
+const expectArtOnShelf = (cmds: readonly DrawCommand[]): void => {
+    const art = blitsOf(cmds, BOSS_ART);
+    expect(art.length).toBe(1);
+    const k = MENU_V2.art.w / MENU_ARC_ART_CONTENT.w;
+    const size = MENU_ARC_ART_SRC * k;
+    const bottomInset = MENU_ARC_ART_SRC - MENU_ARC_ART_CONTENT.y - MENU_ARC_ART_CONTENT.h;
+    const a = art[0]!;
+    expect(a.w).toBe(size);
+    expect(a.h).toBe(size);
+    // 内容左右缘 = 展品框左右缘（放大后恰铺满，不溢出圆台）
+    expect(a.x + MENU_ARC_ART_CONTENT.x * k).toBeCloseTo(MENU_V2.art.x, 6);
+    expect(a.x + (MENU_ARC_ART_CONTENT.x + MENU_ARC_ART_CONTENT.w) * k)
+        .toBeCloseTo(MENU_V2.art.x + MENU_V2.art.w, 6);
+    // 内容底缘（y-up）= 展品框底 → 坐在圆台上；旧腿会高出 bottomInset*k ≈ 80px
+    expect(a.y + bottomInset * k).toBeCloseTo(DESIGN_H - MENU_V2.art.y - MENU_V2.art.h, 6);
+};
+
 describe('WXG-T-522 橱窗单一作品', () => {
     // `[WXG-T-585]` 2026-11-07 切生产：v2 作品位 = **绝对框** `MENU_V2.art` 325×314，
     // 与「窗框位图就绪与否」解耦（⛔ 不再降级回 v1 的 `MENU_BOSS_ART_D` 540 / `MENU_SHOWCASE_ART` 340 两条腿）。
-    it('最差宿主（窗框/背板全缺）：作品仍按 `MENU_V2.art` 325×314 落位', () => {
+    it('最差宿主（窗框/背板全缺）：作品仍按 `MENU_V2.art` 落位，图案底缘坐台面', () => {
         hostWith(BOSS_ART);
-        const art = blitsOf(frame(data()), BOSS_ART);
-        expect(art.length).toBe(1);
-        expect(art[0]!.w).toBe(MENU_V2.art.w);
-        expect(art[0]!.h).toBe(MENU_V2.art.h);
+        expectArtOnShelf(frame(data()));
     });
 
-    it('背板就绪：作品尺寸同源不变（325×314），内景已烘 ⇒ 不再画层板/光锥', () => {
+    it('背板就绪：作品落位同源不变，内景已烘 ⇒ 不再画层板/光锥', () => {
         hostWith(MENU_TEXTURES.backdrop, BOSS_ART);
-        const art = blitsOf(frame(data()), BOSS_ART);
-        expect(art.length).toBe(1);
-        expect(art[0]!.w).toBe(MENU_V2.art.w);
-        expect(art[0]!.h).toBe(MENU_V2.art.h);
+        expectArtOnShelf(frame(data()));
     });
 
     it('`[WXG-T-566]` 通关页：状态标记全退场，作品全彩（不传 fx）', () => {

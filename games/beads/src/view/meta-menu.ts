@@ -3,8 +3,8 @@
  * 几何一律取自 `meta-layout.ts` 的锚定档，控件画法取自 `meta-widgets.ts` ⇒ 页面只编排、不另算。
  */
 
-import { DESIGN_H, DESIGN_W, type MenuAnchors, MENU_BAR_BAKED_LABEL_INSET, MENU_FROST, MENU_FULLSTAR_FRAME, MENU_GRAY_WIPE, MENU_LOCKED_ICON, MENU_PLACEMENT, MENU_PLATE_PILL, MENU_SIGNIN_DOT_R, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, MENU_V2_BG_EXPAND, MENU_V2_BG_H, MENU_V2_DESK_FILL,
-    SIGN_BEAD_PITCH, menuBackdropTopPad, SIGN_MATRIX_N, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning.js';
+import { DESIGN_H, DESIGN_W, type MenuAnchors, MENU_ARC_ART_CONTENT, MENU_ARC_ART_SRC, MENU_BAR_BAKED_LABEL_INSET, MENU_FROST, MENU_FULLSTAR_FRAME, MENU_GRAY_WIPE, MENU_LOCKED_ICON, MENU_PLACEMENT, MENU_PLATE_PILL, MENU_SIGNIN_DOT_R, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, MENU_V2_BG_EXPAND, MENU_V2_BG_H, MENU_V2_DESK_FILL,
+    SIGN_BEAD_PITCH, menuBackdropTopPad, SIGN_MATRIX_N, THUMB_TOP_INSET, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning.js';
 import { COPY_TOKENS } from '../config/copy-tokens.js';
 import { ARC_COMING_SOON } from '../config/arcs.js';
 import { plateFade } from '../config/menu-carousel.js';
@@ -335,10 +335,18 @@ function drawShowcaseArt(
         const opts = fx === undefined
             ? (ink === undefined ? undefined : { alpha: ink })
             : (ink === undefined ? { fx } : { alpha: ink, fx });
-        builder.blit(textureId, x, b.y, b.w, b.h, opts);
+        // `[WXG-T-601]` 原图四周透明留白直接铺框会让图案悬空约 61px ⇒ 按内容宽放大到
+        // 「内容恰铺满展品框」，并把**内容底缘**压在 b.y（= 圆台台面，⛔ 不是 blit 框底）。
+        const k = b.w / MENU_ARC_ART_CONTENT.w;
+        const size = MENU_ARC_ART_SRC * k;
+        const bottomInset = MENU_ARC_ART_SRC - MENU_ARC_ART_CONTENT.y - MENU_ARC_ART_CONTENT.h;
+        builder.blit(textureId, x + b.w / 2 - size / 2, b.y - bottomInset * k, size, size, opts);
     } else if (level !== undefined) {
+        // `[WXG-T-601]` 展品底缘坐圆台台面（图内 y≈844 = 框底）。`drawLevelThumb` 按
+        // 「格顶内缩 THUMB_TOP_INSET」定位 ⇒ 传 h = 边长 + 内缩，图案底才恰 = yBottom；
+        // 传框高 b.h(314) 会让 325² 图案沉入台面 19px。
         drawLevelThumb(
-            builder, level, x, b.y, b.w, b.h,
+            builder, level, x, b.y, b.w, b.w + THUMB_TOP_INSET,
             Math.max(level.rows, level.cols), b.w,
             state === 'locked' ? beadFadedInksFor(level) : undefined,
             ink,
