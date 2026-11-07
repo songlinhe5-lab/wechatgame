@@ -276,7 +276,9 @@ function wallBoxes() {
 }
 
 describe('[§1.3 第五轮] 走马灯小卡 + `levels` 墙 消费既有 token（⛔ 零新 hex）', () => {
-    it('走马灯小卡（有 boss）：卡容器 = slot 面 + slot_border 描边（同作品格/次级钮纸格语言）', () => {
+    // `[WXG-T-585]` 2026-11-07 切生产：v2 背板已烘「玻璃 + 台座」⇒ 纸卡容器整件退场
+    // （再贴一次 slot 面会盖住烘好的玻璃与内景投影）；作品直接落在 `MENU_V2.art` 绝对框内。
+    it('走马灯小卡（有 boss）：玻璃内不再贴纸卡容器（slot/slot_border 卡随 v1 腿退场）', () => {
         const cmds = metaFrameCmds({ overlay: 'none', currentLevelIndex: 0, carouselLevel: LEVELS[0] });
         const cardBox = metaLayout('none').buttons.find((b) => b.id === 'open-levels')!.box;
         const card = cmds.find(
@@ -284,10 +286,14 @@ describe('[§1.3 第五轮] 走马灯小卡 + `levels` 墙 消费既有 token（
                 c.kind === 'rect' &&
                 c.x === cardBox.x &&
                 c.w === cardBox.w &&
-                c.fill === DEFAULT_PALETTE.slot &&
-                c.stroke === DEFAULT_PALETTE.slotBorder,
+                c.fill === DEFAULT_PALETTE.slot,
         );
-        expect(card, '卡容器 = slot/slot_border（零新 hex）').toBeDefined();
+        expect(card, 'v2 ⇒ 无纸卡容器').toBeUndefined();
+        // 反面自检：玻璃区仍有作品（不是空帧）。
+        expect(
+            cmds.some((c) => c.kind !== 'line' && 'x' in c && c.x >= cardBox.x && c.x <= cardBox.x + cardBox.w),
+            '玻璃内仍有作品',
+        ).toBe(true);
     });
 
     it('走马灯小卡（一关未通）：虚线空卡 = slot_dashed（与作品格空槽同一既有语言）', () => {

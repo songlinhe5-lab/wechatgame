@@ -1,8 +1,9 @@
 /**
  * `[WXG-T-522]` 橱窗：内景烘进窗框 + 单一作品 + 独立翻页钮。
  *
- * 判据真源：`games/beads/src/config/tuning/menu.ts` 的 `MENU_CASE_INTERIOR_BAKED` / `MENU_SHOWCASE_ART`
- * 与 `drawMenuAnchored` 的注释（窗框就绪 ⇒ 单一作品腿：无层板/无中央沙漏；缺图 ⇒ 旧双腿逐字不变）。
+ * 判据真源：`games/beads/src/config/tuning/menu.ts` 的 `MENU_V2.art` / `MENU_CASE_INTERIOR_BAKED`
+ * 与 `drawMenuAnchored` 的注释（v2 背板已烘内景 ⇒ 单一作品腿：无层板/无中央沙漏/无纸卡容器）。
+ * ⚠ `[WXG-T-585]` 2026-11-07 切生产后，v1 的 540 / 340 两条尺寸腿已随 v1 版面退场。
  */
 
 import { describe, it, expect, afterEach } from 'vitest';
@@ -14,11 +15,10 @@ import { LEVELS } from '../src/config/levels.js';
 import {
     DESIGN_H,
     DESIGN_W,
-    MENU_BOSS_ART_D,
     MENU_FROST,
     MENU_LOCKED_ICON,
-    MENU_SHOWCASE_ART,
     MENU_TEXTURES,
+    MENU_V2,
 } from '../src/config/tuning.js';
 
 const BOSS_ART = 'bitmap__boss_l9';
@@ -62,19 +62,22 @@ afterEach(() => {
 });
 
 describe('WXG-T-522 橱窗单一作品', () => {
-    it('缺窗框位图：走旧腿（作品按 MENU_BOSS_ART_D=540 绘制，层板/光锥由代码画）', () => {
+    // `[WXG-T-585]` 2026-11-07 切生产：v2 作品位 = **绝对框** `MENU_V2.art` 325×314，
+    // 与「窗框位图就绪与否」解耦（⛔ 不再降级回 v1 的 `MENU_BOSS_ART_D` 540 / `MENU_SHOWCASE_ART` 340 两条腿）。
+    it('最差宿主（窗框/背板全缺）：作品仍按 `MENU_V2.art` 325×314 落位', () => {
         hostWith(BOSS_ART);
         const art = blitsOf(frame(data()), BOSS_ART);
         expect(art.length).toBe(1);
-        expect(art[0]!.w).toBe(MENU_BOSS_ART_D);
+        expect(art[0]!.w).toBe(MENU_V2.art.w);
+        expect(art[0]!.h).toBe(MENU_V2.art.h);
     });
 
-    it('窗框就绪（内景已烘）：作品改按 MENU_SHOWCASE_ART=340 绘制', () => {
+    it('窗框就绪：作品尺寸同源不变（325×314），内景已烘 ⇒ 不再画层板/光锥', () => {
         hostWith(MENU_TEXTURES.caseFrame, BOSS_ART);
         const art = blitsOf(frame(data()), BOSS_ART);
         expect(art.length).toBe(1);
-        expect(art[0]!.w).toBe(MENU_SHOWCASE_ART.d);
-        expect(art[0]!.h).toBe(MENU_SHOWCASE_ART.d);
+        expect(art[0]!.w).toBe(MENU_V2.art.w);
+        expect(art[0]!.h).toBe(MENU_V2.art.h);
     });
 
     it('`[WXG-T-566]` 通关页：状态标记全退场，作品全彩（不传 fx）', () => {
@@ -99,11 +102,14 @@ describe('WXG-T-522 橱窗单一作品', () => {
         expect(lb.h).toBeCloseTo(lb.w / MENU_LOCKED_ICON.aspect, 6);
     });
 
-    it('翻页钮无整枚位图（已删 ui_btn_arrow_left/right）：回退旧圆钮底 + 矢量箭头图标', () => {
-        hostWith(MENU_TEXTURES.caseFrame, BOSS_ART, MENU_TEXTURES.btnArrow, MENU_TEXTURES.iconArrowLeft, MENU_TEXTURES.iconArrowRight);
+    it('`[WXG-T-585]` 切生产：翻页钮恒整枚位图（`prevBtn`/`nextBtn`），⛔ 不叠圆底 + 向标', () => {
+        hostWith(MENU_TEXTURES.caseFrame, BOSS_ART, MENU_TEXTURES.btnArrow, MENU_TEXTURES.iconArrowLeft, MENU_TEXTURES.iconArrowRight,
+            MENU_TEXTURES.prevBtn, MENU_TEXTURES.nextBtn);
         const cmds = frame(data());
-        expect(blitsOf(cmds, MENU_TEXTURES.btnArrow).length, '圆钮底两枚').toBe(2);
-        expect(blitsOf(cmds, MENU_TEXTURES.iconArrowLeft).length, '左向标').toBe(1);
-        expect(blitsOf(cmds, MENU_TEXTURES.iconArrowRight).length, '右向标').toBe(1);
+        expect(blitsOf(cmds, MENU_TEXTURES.btnArrow).length, '圆钮底退场').toBe(0);
+        expect(blitsOf(cmds, MENU_TEXTURES.iconArrowLeft).length, '矢量左向标退场').toBe(0);
+        expect(blitsOf(cmds, MENU_TEXTURES.iconArrowRight).length, '矢量右向标退场').toBe(0);
+        expect(blitsOf(cmds, MENU_TEXTURES.prevBtn).length, '左钮 = 整枚位图').toBe(1);
+        expect(blitsOf(cmds, MENU_TEXTURES.nextBtn).length, '右钮 = 整枚位图').toBe(1);
     });
 });

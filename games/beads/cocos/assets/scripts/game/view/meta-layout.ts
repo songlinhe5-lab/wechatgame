@@ -333,11 +333,16 @@ function anchoredGeoV2(a: MenuAnchors): AnchoredMenuGeo {
     const topPad = menuBackdropTopPad(a.H, a.btTopY, a.st, a.sb);
     /** 背板内量（自屏顶 = `topPad + 图内 y`）→ 设计 y-up（框底）。 */
     const up = (yDown: number, h: number): number => r(a.H - topPad - yDown - h);
-    /** 以绝对框为心、`TOUCH_MIN` 见方的热区（视觉件普遍大于 88，用同心包裹口径）。 */
-    const around = (x: number, yDown: number, w: number, h: number): Box => {
-        const cx = x + w / 2;
-        const cy = up(yDown, h) + h / 2;
-        return box(r(cx - TOUCH_MIN / 2), r(cy - TOUCH_MIN / 2), TOUCH_MIN, TOUCH_MIN);
+    /**
+     * `[WXG-T-585]` 视零件热区 = **max(视觉, `TOUCH_MIN`) 同心包裹**。
+     * ⛔ 不可「一律缩成 88 见方」：v2 件普遍比 `TOUCH_MIN` 大（CTA 378×179、翻页钮 110×116），
+     * 缩成 88 会出现「按钮看得见、边上一圈点不上」，与 `[WXG-T-453]` 收回 T-448 时的
+     * 「热区与视觉重合」判定同源（当年踩的就是这类触摸死区）。
+     */
+    const hitAt = (b: Box): Box => {
+        const w = Math.max(b.w, TOUCH_MIN);
+        const h = Math.max(b.h, TOUCH_MIN);
+        return box(r(b.x + b.w / 2 - w / 2), r(b.y + b.h / 2 - h / 2), w, h);
     };
     const signBox = v3
         ? box(V.sign.x, r(a.H - v3.signTop - V.sign.h), V.sign.w, V.sign.h)
@@ -345,13 +350,12 @@ function anchoredGeoV2(a: MenuAnchors): AnchoredMenuGeo {
     const ctaBox = v3
         ? box(V.cta.x, r(a.H - v3.ctaBottom), V.cta.w, V.cta.h)
         : box(V.cta.x, up(V.cta.y, V.cta.h), V.cta.w, V.cta.h);
-    const ctaHit = v3
-        ? box(ctaBox.x, ctaBox.y + (V.cta.h - TOUCH_MIN) / 2, V.cta.w, TOUCH_MIN)
-        : around(V.cta.x, V.cta.y, V.cta.w, V.cta.h);
     const arrowL = box(V.prev.x, up(V.prev.y, V.prev.h), V.prev.w, V.prev.h);
     const arrowR = box(V.next.x, up(V.next.y, V.next.h), V.next.w, V.next.h);
-    const arrowLHit = around(V.prev.x, V.prev.y, V.prev.w, V.prev.h);
-    const arrowRHit = around(V.next.x, V.next.y, V.next.w, V.next.h);
+    // 热区与视觉同框（v2 三件均 ≥ `TOUCH_MIN`；v3 档 CTA 只挪位、不改尺寸 ⇒ 同一口径）。
+    const ctaHit = hitAt(ctaBox);
+    const arrowLHit = hitAt(arrowL);
+    const arrowRHit = hitAt(arrowR);
     const clipBox = box(V.clip.x, up(V.clip.y, V.clip.h), V.clip.w, V.clip.h);
     const showcaseArtBox = box(V.art.x, up(V.art.y, V.art.h), V.art.w, V.art.h);
     const sealBox = box(V.seal.x, up(V.seal.y, V.seal.h), V.seal.w, V.seal.h);

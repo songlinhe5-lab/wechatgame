@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3980,
       "lines": 134,
-      "sha256": "bc96c4648e61b33f2696afc2efc52dee43dbadbc928e07efb29dc0d55638788f",
+      "sha256": "1ce6cd64c0994fe308b95c7947f70c7cf12e587e6c3633a330d1cead81e5591f",
       "tier": "normal",
       "sections": [
         {
@@ -14128,9 +14128,9 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 21327,
+      "tokens": 21634,
       "lines": 257,
-      "sha256": "f7350aefb03612c2c986991b3cfcb10acf25193ff592ce1b6c95d8d020744725",
+      "sha256": "890e8f147875625da8e3488e0d71f1d0d3ca95c68ff815e6339d0ddd46c4e9d9",
       "tier": "normal",
       "sections": [
         {
@@ -14138,7 +14138,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 258,
-          "tokens": 21308,
+          "tokens": 21615,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -14309,7 +14309,7 @@
           "level": 2,
           "startLine": 138,
           "endLine": 254,
-          "tokens": 16255,
+          "tokens": 16562,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -28746,17 +28746,17 @@
     },
     {
       "path": "games/beads/design/art/specs/menu-layout-implementation-spec.md",
-      "tokens": 10077,
-      "lines": 169,
-      "sha256": "b8e3d17fdb14f3bf864f9e157e3a6de1733f4dc06b2bebeb3bf9ec1d7a5c979f",
+      "tokens": 11331,
+      "lines": 223,
+      "sha256": "213aaaa1ae057ac237af09138235bad4cc40cf8152d67a8568722760588411e1",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§主界面布局落地单 · 「拼豆小铺」菜单屏（规范 v3.8 定稿）",
           "level": 1,
           "startLine": 1,
-          "endLine": 170,
-          "tokens": 10051,
+          "endLine": 224,
+          "tokens": 11305,
           "summary": "用途：UI 布局落码的唯一施工依据。规则正本 = 本件；取证图 = ../coordinates/menu-master",
           "keywords": [
             "coordinates",
@@ -28918,6 +28918,79 @@
             "arc",
             "level",
             "select"
+          ]
+        },
+        {
+          "anchor": "§12 v2 烘焙背板档（WXG-T-585 · 2026-11-07 **切生产**）",
+          "level": 2,
+          "startLine": 171,
+          "endLine": 224,
+          "tokens": 1234,
+          "summary": "射程：本节只钉「v2 档几何 = 绝对坐标 + 热区口径 + 垂直落位」。数值真源仍是",
+          "keywords": [
+            "WXG",
+            "烘焙背板档",
+            "切生产"
+          ]
+        },
+        {
+          "anchor": "§12.1 版面 = 一张烘焙背板 + 绝对坐标件",
+          "level": 3,
+          "startLine": 179,
+          "endLine": 188,
+          "tokens": 277,
+          "summary": "背板 ui_menu_backdrop 750×1334 已烘「橱窗木框 / 玻璃 / 射灯 / 层板 / 圆台 / 空",
+          "keywords": [
+            "ui_menu_backdrop",
+            "版面",
+            "一张烘焙背板",
+            "绝对坐标件"
+          ]
+        },
+        {
+          "anchor": "§12.2 坐标表（自屏顶 y-down · 设计 px）",
+          "level": 3,
+          "startLine": 189,
+          "endLine": 202,
+          "tokens": 309,
+          "summary": "招牌整图 101 / 0 / 549 / 361 板体在图内 y=118..361（上方 118 是绳；2026-11-",
+          "keywords": [
+            "down",
+            "坐标表",
+            "自屏顶",
+            "设计"
+          ]
+        },
+        {
+          "anchor": "§12.3 热区口径（2026-11-07 切生产同批纠回）",
+          "level": 3,
+          "startLine": 203,
+          "endLine": 214,
+          "tokens": 192,
+          "summary": "热区 = max(视觉, TOUCH_MIN=88) 同心包裹（meta-layout.ts::anchoredGeoV",
+          "keywords": [
+            "max",
+            "TOUCH_MIN",
+            "meta",
+            "layout",
+            "anchoredGeoV",
+            "热区口径"
+          ]
+        },
+        {
+          "anchor": "§12.4 断言与规格同批回写（本轮）",
+          "level": 3,
+          "startLine": 215,
+          "endLine": 224,
+          "tokens": 220,
+          "summary": "钉 v1 读数的版面/金样本断言逐条改到 v2 读数：menu-anchors（5 档热区）、menu-layout-v",
+          "keywords": [
+            "menu",
+            "anchors",
+            "layout",
+            "断言与规格同",
+            "批回写",
+            "本轮"
           ]
         }
       ]

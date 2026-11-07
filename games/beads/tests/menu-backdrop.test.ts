@@ -55,15 +55,21 @@ describe('P0 静态温暖 · 背板两条腿', () => {
         expect(blits(cmds)).toEqual([]);
     });
 
-    it('命中背板：整屏一次 blit，程序化底全退场（暖带/暗角/分界线一条不留）', () => {
-        hostWith(MENU_TEXTURES.backdrop);
+    // `[WXG-T-585]` 2026-11-07 切生产：v2 背板 = **750×1750 整张扩图**一次 blit（用户 2026-11-06 裁「甲」），
+    // 屏内窗口随 H 自动滑位 ⇒ 版面不再由「拉高背板」承担；程序化暖带/暗角/分界线同样整批退场，
+    // 只剩一层全屏墙色底（背板与补带之间的亚像素缝兜底，免透出画布浅米）。
+    it('命中整图（750×1750 扩图）：全屏一次 blit，程序化底全退场（暖带/暗角/分界线一条不留）', () => {
+        hostWith(MENU_TEXTURES.backdrop, MENU_TEXTURES.backdropFull);
         const cmds = frame();
-        expect(blits(cmds)).toEqual([MENU_TEXTURES.backdrop]);
-        expect(count(cmds, 'rect'), '叠上去会双重压暗 ⇒ 必须为 0').toBe(0);
+        expect(blits(cmds)).toEqual([MENU_TEXTURES.backdropFull]);
+        expect(count(cmds, 'rect'), '叠上去会双重压暗 ⇒ 只剩墙色底').toBe(1);
         expect(count(cmds, 'line')).toBe(0);
 
         const full = cmds.find((c) => c.kind === 'blit') as { x: number; y: number; w: number; h: number };
-        expect([full.x, full.y, full.w, full.h]).toEqual([0, 0, DESIGN_W, ANCHORS.H]);
+        // 整图覆盖全屏：框下缘 ≤ 0 且上缘 ≥ H（屏内窗口 = 上扩 pad + 原 1334 + 下扩 pad）。
+        expect([full.x, full.w]).toEqual([0, DESIGN_W]);
+        expect(full.y).toBeLessThanOrEqual(0);
+        expect(full.y + full.h).toBeGreaterThanOrEqual(ANCHORS.H);
     });
 
     it('命中背板：光束与陶盆一并退场（背板自带，否则双花盆）', () => {

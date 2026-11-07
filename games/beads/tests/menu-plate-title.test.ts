@@ -48,22 +48,26 @@ describe('木牌标题', () => {
         expect(named).toContain('曼陀罗');
     });
 
-    it('木牌位图未就绪 ⇒ 不画标题（无底面不写字）', () => {
-        expect(texts(dataFor(lv, 'pushing'))).not.toContain(`第 ${lv.id} 关`);
+    // `[WXG-T-585]` 2026-11-07 切生产：v2 背板已烘**空白木牌本体** ⇒ 标题不再依赖 `ui_menu_plate`
+    // 位图（v1 那条「无底面不写字」的守卫随 v1 版面退场；配置缺失时按切生产口径「露空」而不降级）。
+    it('牌体烘进背板 ⇒ 标题不依赖 `ui_menu_plate` 位图（切生产后恒画）', () => {
+        expect(texts(dataFor(lv, 'pushing'))).toContain(`第 ${lv.id} 关`);
     });
 });
 
 describe('累计星进度件（WXG-T-346 · ux v1.11 §4.1 甲臂）', () => {
     const named = { ...LEVELS[0]!, title: '曼陀罗' };
 
-    it('有门槛 ⇒ 两行：关名上移，第二行 ★ n/门槛（在册 line1/line2 槽）', () => {
+    it('有门槛 ⇒ 两行：★ n/门槛 落在第二行槽，关名不动（v2 绝对槽）', () => {
         setMenuBitmapResolver(() => true);
         const solo = textCmds(dataFor(named, 'pushing')).find((c) => c.text === '曼陀罗')!;
         const both = textCmds({ ...dataFor(named, 'pushing'), arcStarGot: 18, arcStarNeed: 21 });
         const title = both.find((c) => c.text === '曼陀罗')!;
         const bar = both.find((c) => c.text === '★ 18/21')!;
         expect(bar, '第二行画出进度').toBeDefined();
-        expect(title.y, '关名让位给第二行').not.toBe(solo.y);
+        // `[WXG-T-585]` 切生产：v2 两行 = `MENU_V2.plateTitle` / `plateSub` 两个**绝对槽** ⇒
+        // 出第二行时关名不挪位（v1「关名上移让位」那条链式位移已随 v1 版面退场）。
+        expect(title.y, '关名守 line1 槽').toBe(solo.y);
         expect(bar.y, '进度在关名之下（y 向上 ⇒ 更小）').toBeLessThan(title.y);
     });
 

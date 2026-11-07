@@ -11,7 +11,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { menuAnchors, MENU_CTA_H, SIGN_BAND_PAD, TOUCH_MIN } from '../src/config/tuning.js';
+import { menuAnchors, MENU_CTA_H, MENU_V2, SIGN_BAND_PAD, TOUCH_MIN } from '../src/config/tuning.js';
 import type { MenuAnchorsInput } from '../src/config/tuning.js';
 import { anchoredGeo, inBox } from '../src/view/meta-layout.js';
 
@@ -87,40 +87,42 @@ describe('menuAnchors · 接口优先语义与 fallback（tuning 注释口径）
  * 大一圈、点版本号带误触按钮」的代价。底隙 32 归版本号带（**不响应**）。
  *
  * 判据（逐档）：
- *  ① CTA 热区 = `ctaBotY+2` 起、高 `TOUCH_MIN`（T-448 前口径逐值还原）；
+ *  ① CTA 热区与**视觉同框**（`max(视觉, TOUCH_MIN)`）。⚠ `[WXG-T-585]` 2026-11-07 切生产后
+ *     视觉 = v2 整枚位图 378×179（v1 的「324×92 视觉 + 324×88 内缩带」已随 v1 版面退场）；
  *  ② `rankHit` 与 `rankBox` **同一对象**（绘制/热区同源守卫恢复）；
- *  ③ 底隙带（热区下沿之下）**不响应**；框内正常命中。
+ *  ③ 视觉外沿之外（下缘之下一像素）**不响应**；框内正常命中。
  */
 describe('`[WXG-T-453]` 底部热区收回（与视觉重合）', () => {
     for (const t of TIERS) {
-        it(`${t.name}：热区还原 T-448 前口径 · rankHit===rankBox · 底隙带不响应`, () => {
+        it(`${t.name}：热区与视觉重合（v2 绝对坐标）· rankHit===rankBox · 框外不响应`, () => {
             const a = menuAnchors(toInput(t));
             const g = anchoredGeo(a);
-            const ctaBot = Math.round(a.ctaBotY);
 
-            // ① 还原 T-448 前口径：下缘 = 视觉下缘内缩 2，高 = TOUCH_MIN。
-            expect(g.ctaHit.y).toBe(ctaBot + 2);
-            expect(g.ctaHit.h).toBe(TOUCH_MIN);
-            expect(g.ctaHit.y + g.ctaHit.h).toBe(ctaBot + 90);
-            expect(g.ctaBox.y).toBe(ctaBot);
-            expect(g.ctaBox.h).toBe(MENU_CTA_H);
+            // ① `[WXG-T-585]` 2026-11-07 切生产：CTA = **378×179 整枚位图**（坐标图读数），
+            // 热区与视觉**同框**（`max(视觉, TOUCH_MIN)`），⛔ 不再沿用 v1 的「324×88 内缩带」。
+            expect(g.ctaBox.w, 'CTA 视觉宽').toBe(MENU_V2.cta.w);
+            expect(g.ctaBox.h, 'CTA 视觉高').toBe(MENU_V2.cta.h);
+            expect([g.ctaHit.x, g.ctaHit.y, g.ctaHit.w, g.ctaHit.h]).toEqual([
+                g.ctaBox.x, g.ctaBox.y, g.ctaBox.w, g.ctaBox.h,
+            ]);
+            expect(g.ctaHit.h, '热区不得小于触控下限').toBeGreaterThanOrEqual(TOUCH_MIN);
 
             // ② 绘制/热区同对象（同源守卫保留）。
             // `WXG-T-487`（用户裁「把好友榜放到左上设计一个图标按钮，左上右上各两枚」）起
             // 好友榜自 CTA 左侧纸钮**上提为顶栏左上第二枚** ⇒ 旧断言
             // `rankHit.y === ctaBot + 2`（与 CTA 底缘同源）随该裁定作废，改为钉顶栏位：
-            // x = `MENU_TOPBAR_X.rank`（14）、y = 设置钮 y − `MENU_TOPBAR_ROW2_DY`（88）。
+            // x = `MENU_TOPBAR_X.rank`（14）、y = 设置钮 y − `MENU_TOPBAR_ROW_DY`（88）。
             expect(g.rankHit).toBe(g.rankBox);
             expect(g.rankHit.h).toBe(TOUCH_MIN);
             expect(g.rankHit.w).toBe(TOUCH_MIN);
             expect(g.rankBox.x).toBe(14);
             expect(g.rankBox.y).toBe(g.settingsHit.y - 88);
 
-            // ③ 底隙带（CTA 热区下沿之下、安全区上沿之上）不响应；框内正常命中。
+            // ③ 视觉外沿之下一像素不响应；框内正常命中。
             // rank 已不在底部 ⇒ 本段只对 CTA 生效（原先 rank 那两行随之退场）。
-            const belowHit = ctaBot + 1;
+            const belowHit = g.ctaBox.y - 1;
             expect(inBox(g.ctaHit, g.ctaBox.x + 10, belowHit)).toBe(false);
-            expect(inBox(g.ctaHit, g.ctaBox.x + 10, ctaBot + 40)).toBe(true);
+            expect(inBox(g.ctaHit, g.ctaBox.x + 10, g.ctaBox.y + 40)).toBe(true);
         });
     }
 });

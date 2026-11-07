@@ -63,7 +63,7 @@ import {
     DESIGN_H,
     DESIGN_W,
     BEAD_GAP,
-    MENU_BOSS_SLOT,
+    MENU_V2,
     PANEL_IN_MS,
     THUMB_AREA,
     THUMB_MATRIX_N,
@@ -484,18 +484,19 @@ describe('EP12-S6 Deliverable 3 · 三条硬口径（§5.4）+ 未解锁零热�
         ] as const) {
             expect(hitTestMeta('none', b.x + dx, b.y + dy)?.id, `图位内 (${dx},${dy}) = 选关热区`).toBe('open-levels');
         }
-        // ② 图位左/右留白落空（图位宽 468 ≪ 750 ⇒ 两侧各留白 141）。
+        // ② 图位左/右留白落空（图位宽 325 ≪ 750 ⇒ 两侧各留白 212 / 213）。
         const outside: [number, number][] = [
             [b.x - 30, b.y + b.h / 2],
             [b.x + b.w + 30, b.y + b.h / 2],
         ];
         for (const [x, y] of outside) expect(hitTestMeta('none', x, y), `图位外 (${x},${y})`).toBeNull();
-        // ③ 结构面：热区清单里没有任何「整屏 / 整墙」尺寸的对象（图位是唯一大块，尺寸恒 = `MENU_BOSS_SLOT` 预算）。
+        // ③ 结构面：热区清单里没有任何「整屏 / 整墙」尺寸的对象（图位是唯一大块，尺寸恒 = `MENU_V2.art` 预算）。
         for (const btn of metaLayout('none').buttons) {
             expect(btn.box.w >= DESIGN_W * 0.9 && btn.box.h >= GRID_H, '纸底级热区不得存在').toBe(false);
         }
-        expect(b.w).toBe(MENU_BOSS_SLOT.w);
-        expect(b.h).toBe(MENU_BOSS_SLOT.h);
+        // `[WXG-T-585]` 2026-11-07 切生产：v2 图位 = 坐标图读数 325×314（v1 的 `MENU_BOSS_SLOT` 468×528 退场）。
+        expect(b.w).toBe(MENU_V2.art.w);
+        expect(b.h).toBe(MENU_V2.art.h);
     });
 });
 

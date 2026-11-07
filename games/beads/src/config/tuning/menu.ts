@@ -429,16 +429,11 @@ export const MENU_PLATE_TITLE = { line1Off: 30, line2Off: 62, singleOff: 46 } as
 /**
  * `[WXG-T-585]` v2 烘焙背板档开关：true ⇒ 几何走 {@link MENU_V2} 绝对坐标、绘制退场程序化柜体系列。
  * ⛔ 与位图就绪与否解耦（配置错了要立刻露空，别让绘制层静默降级回 v1 版面 —— 那会出「v2 几何 + v1 柜体」的怪图）。
+ *
+ * 2026-11-07 **切生产**：恒 `true`（v1 腿的版面/金样本断言同批改到 v2 读数）。
+ * 过渡测具 `setMenuV2Baked` / harness `?v2=1` 已按收口语义删除。
  */
-export let MENU_V2_BAKED = false;
-/**
- * `[WXG-T-585]` **过渡测具**：v2 档默认关闭（既有 24 条版面/金样本断言仍钉 v1 读数），
- * harness 用 `?v2=1` 打开目视对照。收口语义：断言与规格同批改完后，把上一行改成 `true`
- * 并删本函数（+ `dev/harness/main.ts` 的调用点）。
- */
-export function setMenuV2Baked(on: boolean): void {
-    MENU_V2_BAKED = on;
-}
+export const MENU_V2_BAKED = true;
 export const MENU_V2 = {
   /**
    * 招牌整图 549×**361** @(**101, 0**)：板体 549×243 在图内下方（`y=118..361`），上方 118 是绳，

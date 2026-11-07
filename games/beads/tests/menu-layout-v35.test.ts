@@ -15,6 +15,7 @@ import { metaLayout } from '../src/view/meta-view.js';
 import {
     DESIGN_H, DESIGN_W, MENU_ARROW_VISUAL_D, MENU_ARROW_X, MENU_BAR_H, MENU_CASE_H, MENU_CTA_H,
     MENU_CTA_X, MENU_PRIMARY_W, MENU_SIGN_CHAIN_H, MENU_SIGN_FRAME, MENU_TOPBAR_ICON_D, MENU_TOPBAR_VISUAL_D,
+    MENU_V2,
     MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_X, TOUCH_MIN, WALL_ROWS, menuAnchors,
 } from '../src/config/tuning.js';
 
@@ -85,15 +86,20 @@ describe('五档版面不变式（y-up：上元素的下缘 ≥ 下元素的上�
             expect(sign[1]!).toBeLessThanOrEqual(a.H);
         });
 
-        it(`${t.name}：CTA 热区 = 324 宽 @x218 且点中心命中 start；◀▶ 热区关于屏中线镜像`, () => {
+        // `[WXG-T-585]` 2026-11-07 切生产：主界面改 v2 绝对坐标档 ⇒
+        // CTA 378×179 @x186（v1 的 324×92 @x218 退场），热区与视觉同框；
+        // ◀▶ = 坐标图读数 110×116 @18 / 109×116 @625（两枚读数自身差 1~2 px）⇒ 镜像按读数分辨率判（±3）。
+        it(`${t.name}：CTA 热区 = 378×179 @x186 且点中心命中 start；◀▶ 热区关于屏中线镜像（±3）`, () => {
             const a = anchorsOf(t);
             const btns = metaLayout('none', WALL_ROWS, a).buttons;
             const start = btns.find((b) => b.id === 'start')!.box;
-            expect(start.x).toBe(MENU_CTA_X);
-            expect(start.w).toBe(MENU_PRIMARY_W);
+            expect(start.x).toBe(MENU_V2.cta.x);
+            expect(start.w).toBe(MENU_V2.cta.w);
+            expect(start.h).toBe(MENU_V2.cta.h);
+            expect(start.x + start.w / 2).toBeCloseTo(DESIGN_W / 2, 6); // 水平居中
             const prev = btns.find((b) => b.id === 'carousel-prev')!.box;
             const next = btns.find((b) => b.id === 'carousel-next')!.box;
-            expect(prev.x + prev.w / 2 + (next.x + next.w / 2)).toBe(DESIGN_W);
+            expect(Math.abs(prev.x + prev.w / 2 + (next.x + next.w / 2) - DESIGN_W)).toBeLessThanOrEqual(3);
             expect(prev.y).toBe(next.y);
         });
     }

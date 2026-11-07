@@ -17,10 +17,7 @@ import { buildMetaView, setMenuBitmapResolver, type MetaViewData } from '../src/
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import { LEVELS } from '../src/config/levels.js';
 import { ARCS } from '../src/config/arcs.js';
-import { DESIGN_H, DESIGN_W, MENU_FROST, MENU_GRAY_WIPE, MENU_LIGHT, MENU_LOCKED_ICON, MENU_TEXTURES } from '../src/config/tuning.js';
-
-/** 柜灯 α 基数（`meta-menu.ts::MENU_WARM.coneAlpha`，局部常量不在 tuning 导出）。 */
-const CONE_ALPHA = 0.018;
+import { DESIGN_H, DESIGN_W, MENU_FROST, MENU_GRAY_WIPE, MENU_LOCKED_ICON, MENU_TEXTURES } from '../src/config/tuning.js';
 
 const data = (extra: Partial<MetaViewData> = {}): MetaViewData => ({
     stamina: 5, staminaMax: 5, coins: 0, overlay: 'none', signinDay: 0, canClaim: false,
@@ -116,18 +113,13 @@ describe('`[WXG-T-566]` 三态效果', () => {
         }
     });
 
-    it('柜灯强度三档：0.35 / 0.70 / 1.00 只乘既有 coneAlpha', () => {
+    // `[WXG-T-585]` 2026-11-07 切生产：v2 背板已烘「射灯 + 玻璃」，程序化光锥整批退场
+    // （`drawCaseLight` 只在 v1 腿调用）⇒ 三态差异只剩作品灰度档（上两例）与珠圈框，
+    // ⛔ 不可再叠光锥（灯下再压亮斑）。`MENU_LIGHT` 现只服务 v1 腿。
+    it('柜灯由背板烘焙 ⇒ 程序化光锥零枚（三态皆然）', () => {
         setMenuBitmapResolver(() => true);
-        for (const [state, light] of [
-            ['locked', MENU_LIGHT.locked],
-            ['pushing', MENU_LIGHT.pushing],
-            ['cleared', MENU_LIGHT.cleared],
-            // `[WXG-T-579]` 满星不额外调光（同 cleared），靠珠圈框区分。
-            ['fullstar', MENU_LIGHT.cleared],
-        ] as const) {
-            const [inner, outer] = caseLight(frame(data({ carouselState: state })));
-            expect(inner, `${state} 内圈`).toBeCloseTo(CONE_ALPHA * light);
-            expect(outer, `${state} 外圈`).toBeCloseTo(CONE_ALPHA * light * 0.7);
+        for (const [state] of states) {
+            expect(caseLight(frame(data({ carouselState: state }))), `${state} 零光锥`).toEqual([]);
         }
     });
 });

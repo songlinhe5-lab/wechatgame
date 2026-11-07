@@ -24,7 +24,7 @@ import {
   maskTileInnerPx,
   tintFx,
 } from '@wxgame/framework';
-import { BEAD_PITCH, MENU_TEXTURES, TILE_BLEED, setMenuV2Baked, setMenuV3Baked, setMenuV3TopPadScale } from '../../games/beads/src/config/tuning.js';
+import { BEAD_PITCH, MENU_TEXTURES, TILE_BLEED, setMenuV3Baked, setMenuV3TopPadScale } from '../../games/beads/src/config/tuning.js';
 import { setDevSafeInsets, setShowSafeGuides } from '../../games/beads/src/config/tuning/layout.js';
 import { OPEN_ARCS } from '../../games/beads/src/config/arcs.js';
 import { setMenuBitmapResolver } from '../../games/beads/src/view/meta-view.js';
@@ -55,9 +55,8 @@ const hud = must<HTMLDivElement>('#hud');
 const harnessQuery =
   typeof window.location?.search === 'string' ? window.location.search : '';
 const harnessParams = new URLSearchParams(harnessQuery);
-// `[WXG-T-585]` `?v2=1` ⇒ 主界面走 v2 烘焙背板档（绝对坐标 + 程序化柜体退场）。
-// 默认关：既有 24 条版面/金样本断言仍钉 v1 读数 ⇒ 收口时改成默认开并删本调试点（见 `setMenuV2Baked` 注）。
-if (harnessParams.get('v2') === '1' || harnessParams.get('v3') === '1') setMenuV2Baked(true);
+// `[WXG-T-585]` v2 烘焙背板档已于 2026-11-07 **切生产**（`MENU_V2_BAKED` 恒 true）⇒ `?v2=1` 测具下线。
+// `?v3=1` 仍是 dev 测具（招牌贴安全区 / CTA 按比例 / 橱窗带内居中），v3 建立在 v2 几何之上。
 if (harnessParams.get('v3') === '1') setMenuV3Baked(true);
 // `[WXG-T-585]` dev-only：按真机档注入安全区/胶囊区（设计 px），并叠加可视化。
 // 6 档读数来自 `tests/menu-layout-v35.test.ts` 的 TIERS + 21:9 极值，⛔ 不进产品链。
