@@ -160,6 +160,13 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
     [MENU_TEXTURES.signboard]: { path: 'ui_menu_signboard' },
     [MENU_TEXTURES.ctaV2]: { path: 'ui_menu_cta' },
     [MENU_TEXTURES.ctaPressedV2]: { path: 'ui_menu_cta_highlight' },
+    // 翻页钮四件两两成族（normal ↔ highlight）+ 通关章：`drawArrow` / 盖章处本来就有 baked 分支
+    // ⇒ 登记后 v2 档走整枚位图，未登记时仍回退 v1「圆底 + 向标」与「不盖章」，零回归。
+    [MENU_TEXTURES.prevBtn]: { path: 'ui_menu_arrow_left' },
+    [MENU_TEXTURES.prevBtnPressed]: { path: 'ui_menu_arrow_left_highlight' },
+    [MENU_TEXTURES.nextBtn]: { path: 'ui_menu_arrow_right' },
+    [MENU_TEXTURES.nextBtnPressed]: { path: 'ui_menu_arrow_right_highlight' },
+    [MENU_TEXTURES.seal]: { path: 'ui_menu_seal' },
     [MENU_TEXTURES.woodGrain]: { path: 'ui_wood_grain' },
 
     // `[WXG-T-515]` 结算 9-slice 四件（源图与设计 px 1:1，端帽见 `CLEAR_*_SLICE`）。
