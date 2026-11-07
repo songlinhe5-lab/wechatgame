@@ -42,6 +42,7 @@ import {
   AUDIO_CLIP_URGENT_BEAT,
   TIMER_URGENT_T,
 } from '../../config/tuning.js';
+import { COPY_TOKENS } from '../../config/copy-tokens.js';
 
 /**
  * 事件 → haptic kind 映射表（WXG-T-403）。
@@ -140,14 +141,16 @@ export function fireRewardedAd(ad: RewardedAdProvider, placement: RewardedAdPlac
 
 /**
  * 分享透传（WXG-T-405）：直接交给平台层 `services.share?.()`，宿主无分享能力（Node/harness）
- * 时静默 noop，分享抛错一律吞掉（⛔ 分享失败不得打断玩法）。卡片内容待真机验证后定制，
- * 当前只透传空 opts。
+ * 时静默 noop，分享抛错一律吞掉（⛔ 分享失败不得打断玩法）。
+ *
+ * 卡片内容（WXG-T-589）：标题读 `COPY_TOKENS.share_title`（设计表 `tokens.md §7` 已登记，
+ * ⛔ 不在本模块散落字面）；`imageUrl` 仍未定 ⇒ 走平台默认（游戏图标），出图另立单。
  */
 export function fireShare(services: GameServices): void {
   const share = services.share;
   if (!share) return;
   try {
-    share({});
+    share({ title: COPY_TOKENS.share_title });
   } catch {
     /* ignore */
   }

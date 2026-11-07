@@ -62,4 +62,12 @@ export const COPY_TOKENS = Object.freeze({
     btn_confirm_label: '确定',
     /** `tokens.md §7` **新增·[待 art 确认]**（同上）：确认类弹窗次钮（点板外同义）。 */
     btn_cancel_label: '取消',
+    /**
+     * `tokens.md §7` **新增·[待发布侧确认]**（2026-11-07 · WXG-T-589）：
+     * 结算面板分享卡片标题（`effects-dispatch.ts::fireShare` → `services.share({ title })`）。
+     * 约束：平台限 **30 字**（`ShareOptions.title` 注释，超长微信自行截断）；⛔ 不含旧名
+     * 「拼豆小铺」、⛔ 不写皮肤款数、⛔ 不写「免费 / 无限」（对外文案三条红线）。
+     * 卡片配图 `imageUrl` 仍缺 ⇒ 走平台默认（游戏图标），出图另立单。
+     */
+    share_title: '一颗一颗，拼满一整幅。',
 } as const);

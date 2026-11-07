@@ -8440,3 +8440,52 @@ framework 同步链上有五个纯逻辑模块的 Cocos 元文件（`<file>.ts.m
 - 工作树内 Cocos 资产已无「缺同名 .meta」项：`.ts` 与 `.png` 全扫（含两个游戏），**0 例**。
 - `pnpm run verify` **PASS 23 / FAIL 0 / SKIP 0**。
 - `git status` 收尾后只剩两件与本次无关的工具配置（`.cursor/settings.json` / `.trae/mcp.json`）。
+
+## WXG-T-589
+
+**UX·结算分享卡片标题定稿与接线** · 负责：主理人(CodeBuddy)·UX/工程轨 · 状态：✅ 完成（2026-11-07）
+
+### 1. 出发点与前一轮判断纠错
+
+用户 2026-11-07 令「3」= 给分享功能定文案。**上一轮我说「游戏侧一个调用都没有」是错的**——
+那次只 grep 了 `shareAppMessage` 关键字，而游戏侧是走 `services.share()` 抽象层调的。实际现状：
+
+| 环节 | 现状（查证后） |
+|---|---|
+| 入口 | **结算面板**的次级按钮（`panel-router` 的 action `share` → `BeadsGame._share` → `fireShare`），WXG-T-405 已接 |
+| 主动分享 | `services.share()` → `wx.shareAppMessage`，**传的是空 opts** |
+| 被动分享 | `weapp.ts` 注册了 `onShareAppMessage(() => ({}))`，同样空 |
+| 主菜单分享入口 | 按 `ux-spec` 第 42 行**置灰**（批 2 范围） |
+
+⇒ 真正的缺口不是「接线」，而是**卡片内容为空**——原注释写得很直白：「卡片内容待真机验证后定制，当前只透传空 opts」。
+
+### 2. 本批落的内容
+
+**令牌登记（先表后码，纪律不许自加键）**：`tokens.md §7` 新增 `share_title`：
+
+> **`一颗一颗，拼满一整幅。`**（11 字）
+
+- 标 `[待发布侧确认]`：照 `powerup_buy_confirm_title` 判例，工程侧提草案、未签前按本值执行。
+- 措辞依据：与 slogan「一颗一颗，拼出你的小铺」**同句式起头**（品牌感一致），落点在**通关后的完成感**
+  （分享发生在结算面板，语境就是「刚拼完一幅」）；不夸大、不写款数、不写免费/无限（对外文案三条红线）。
+- 平台约束：`ShareOptions.title` 限 **30 字**，超长微信自行截断 ⇒ 11 字余量充足。
+
+**落码**：`copy-tokens.ts` 加键（`src/config` 与 `cocos/assets/scripts/game/config` **两副本逐字节一致**）；
+`effects-dispatch.ts::fireShare` 由 `share({})` 改为 `share({ title: COPY_TOKENS.share_title })`（两副本同改，
+⛔ 标题不散落字面，UI 侧只读令牌）。
+
+**契约测试**（`tests/effects-dispatch.test.ts`）：原断言「以空 opts 调用一次」改为「带 `share_title` 调用一次」，
+并新增三判据 —— 非空 / **≤30 字**（平台上限）/ **不含旧名「拼豆小铺」**。
+
+### 3. 未落（如实登记）
+
+- **卡片配图 `imageUrl` 仍缺** ⇒ 走平台默认（游戏图标）。出图属美术轨，且**必须先裁定生成方法**再开工。
+- **主菜单的分享入口仍置灰**（`ux-spec` 批 2 范围，本批未动）。
+- 被动分享（右上角菜单「转发」）仍返回空对象：它与主动分享是两条腿，本批只定了主动腿的标题；
+  被动腿要不要也用同一标题，取决于框架层是否愿意暴露「默认分享参数」的注入点（属框架 API 扩展，未做）。
+
+### 4. 取证
+
+- `npx vitest run tests/effects-dispatch.test.ts` ⇒ **14 例全过**（含新增标题契约用例）。
+- `pnpm run verify` ⇒ **PASS 23 / FAIL 0 / SKIP 0**（含 `cocos:check` 的两副本一致性校验与金样本对拍——
+  分享不参与绘制，故金样本零漂移）。

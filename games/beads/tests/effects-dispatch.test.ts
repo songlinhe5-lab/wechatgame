@@ -22,6 +22,7 @@ import {
   fireShare,
   hapticKindFor,
 } from '../src/game/beads-game/effects-dispatch.js';
+import { COPY_TOKENS } from '../src/config/copy-tokens.js';
 import {
   AUDIO_CLIP_CLEAR,
   AUDIO_CLIP_COMBO_BREAK,
@@ -181,11 +182,18 @@ describe('fireRewardedAd · 广告 / 体力弹窗的 load+show 单点', () => {
 });
 
 describe('fireShare · 分享透传（WXG-T-405）', () => {
-  it('宿主有 share ⇒ 以空 opts 调用一次', () => {
+  it('宿主有 share ⇒ 以定制标题调用一次（WXG-T-589 起不再是空 opts）', () => {
     const share = vi.fn();
     fireShare({ share } as unknown as GameServices);
     expect(share).toHaveBeenCalledTimes(1);
-    expect(share).toHaveBeenCalledWith({});
+    expect(share).toHaveBeenCalledWith({ title: COPY_TOKENS.share_title });
+  });
+
+  it('分享标题契约：非空 / ≤30 字（平台上限）/ 不含旧名', () => {
+    const title = COPY_TOKENS.share_title;
+    expect(title.trim().length).toBeGreaterThan(0);
+    expect(title.length).toBeLessThanOrEqual(30);
+    expect(title).not.toContain('拼豆小铺');
   });
 
   it('宿主无 share（Node/harness）⇒ 静默 noop，不抛', () => {
