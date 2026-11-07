@@ -8849,4 +8849,7 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - `tests/menu-plate-title.test.ts` 视觉守卫按新口径改写：行2 = `labelBold` + `woodText`；**新增胶囊断言**（`wood_face` 底、宽 130、高 26、圆角 13、必须存在 —— 缺它则米白压亮木只剩 1.79:1，比旧法更糟）。
 - 金样本：该件**不在十态帧内**（现存五态均走「只画关名」的单行分支）⇒ 漂移**只来自行1 加粗**；胶囊与行2 由上述单测单独守（与 `menu-layout-implementation-spec §10` 的「本件不在金样本里」说明一致）。
 - 取证 SVG（`tools/scripts/render-ui-shots.mjs`）实测：四态关名均为 `fill="#5E3B1E" font-size="30" font-weight="bold"`；该工具本批前丢 `font-weight`，已在 `WXG-T-595` 附批修好，本次正好用上。
-- `pnpm run verify` 与重抓读数见收口。
+- **重抓取证**（提交锚 `e636d04a`，`WXG298_SOURCE_REV=e636d04a`）：十一帧**两遍逐态记录全等 = PASS**。五态 rect **各 +1**（`main-menu` 758→759 / `level-select`·`-mid` 968→969 / `settings` 771→772 / `signin` 770→771，即胶囊那一条），`text` 与其它图元数**一个没动**；另六态逐字未变。
+- **取证 SVG 实到值**：`rect x=310 y=363 w=130 h=26 rx=13 fill=#8A5B34`（= 胶囊）+ 行1 `曼陀罗` `#5E3B1E / 30 bold` + 行2 `0/9` `#FFF6E8 / 28 bold`。
+- `pnpm run verify` **PASS 23 / FAIL 0 / SKIP 0**；beads 单测 **1421 passed / 2 skipped**。
+- 色表锁仍 **50 / `0f3c4490ba31`**（本批零新 hex，这条同时是对「复用而非新增令牌」决定的机械校验）。
