@@ -306,7 +306,7 @@ function drawLockedBadge(
  * `[WXG-T-522]` 单一作品腿（内景背板位图命中时）：每页只画一件大关图。
  * `[WXG-T-566]` 三态 = **同一张图的灰度差异**（锁定全灰 / 推关竖向揭彩 / 通关全彩），
  * 状态标记（通关飘带 / 锁定小锁 / 中央沙漏）**全部退场**（用户 2026-11-02 裁）；
- * 其余状态靠柜灯强度与木牌 `N/M`。
+ * 其余状态靠柜灯强度与（`[WXG-T-598]` 起唯一的）竖向揭彩比例表达 —— 木牌不再印 `N/M`。
  * `arcDone` / `arcTotal` = 该页大关完成度（揭彩比例唯一定义处见 `wipeFx`）。
  */
 function drawShowcaseArt(
@@ -437,49 +437,38 @@ function drawPlateSub(
         ...(a === undefined ? {} : { alpha: a }),
     });
 }
-/** 木牌上的关序 / 关名（进度落第二行）。`alpha` ≤ 0 不画。
- * `[WXG-T-346]` 进度件：两行槽 = `MENU_V2.plateTitle / plateSub`（`[WXG-T-586]` 起改用绝对槽，
- * 关名不再为第二行让位；`MENU_PLATE_TITLE` 已退役）；
- * 数字直接拼 `★ n/门槛`，与顶栏 `❤ n/n` 同族（无新文案令牌）。缺省不传 ⇒ 原单行逐字不变。
- * `[WXG-T-566]` 大关进度：`arcDone/arcTotal` 有值 ⇒ 第一行关名、第二行 `N/M`（用户 2026-11-02 裁：
- * 「当前完成小关数量 / 总小关数量 = 当前大关的进度」）。门票进度件优先级更高（信息不丢）。
- * `[art 批·TODO-8 已裁]` 第二行字号 = `font_label` **28**（木牌定尺，⛔ 随 E2 放大；
- * 理由与对比度自证见 `art/specs/menu-layout-implementation-spec.md §10`）。
- * `[WXG-T-596]` 第二行**墨与底**改了（字号仍 28）：旧「`wood_face` 直接压牌面」实测只有
- * **2.74:1 ❌** ⇒ 改成稿面的「深棕药丸 + 米白墨」= `wood_face` 当底 / `wood_text` 当墨（**5.4:1** ✓），
- * 详见 {@link drawPlateSub}。第一行同步加粗（{@link PLATE_TITLE_FONT}）。 */
+/** 木牌上的关名 / 关序（`[WXG-T-598]` 起第二行**恒为关序**）。`alpha` ≤ 0 不画。
+ *
+ * 只剩两条分支：**有展示名** ⇒ 两行（关名 / `第 N 关`）；**无** ⇒ 单行 `第 N 关`。
+ *
+ * `[WXG-T-524 §5-A 乙]` 早已裁定「木牌第二行 = 关序『第 N 关』」，`★ n/m`（WXG-T-346）与
+ * 大关 `N/M`（WXG-T-566）两个进度件**自木牌退场**（选关页仍保留），但一直没落码。
+ * `[WXG-T-598]` 用户令「应该是关序『第 N 关』、胶囊宽度暂不需要增加」⇒ 本批补齐，
+ * 函数**不再接进度实参**（传了也没处画）。
+ *
+ * ⚠ 信息影响（在册已裁，不是丢失 bug）：主菜单木牌不再显示门票 ★ 进度，该读数在选关页
+ * （`arc-level-select`）仍有。若日后要回木牌，⛔ 别塞回第二行 —— 应另立第三行或换件。
+ *
+ * 字号 = `font_label` **28**（木牌定尺，⛔ 随 E2 放大；见 `menu-layout-implementation-spec §10`）；
+ * 墨与底 = `plate_sub_ink` / `plate_pill`（WXG-T-597）；关名 = {@link PLATE_TITLE_FONT} + `plateTitleInk`。
+ * 宽度：`第 12 关` 在 28px 下 ≈ 95 < 胶囊 130 ⇒ 用户 2026-11-07 裁「宽度暂不增加」成立。
+ */
 function drawPlateTitle(
     builder: RenderModelBuilder,
     lv: BeadsLevelRaw,
     g: AnchoredMenuGeo,
     palette: BeadsPalette,
     alpha: number,
-    starGot?: number,
-    starNeed?: number,
-    arcDone?: number,
-    arcTotal?: number,
 ): void {
     if (alpha <= 0) return;
     const seq = `第 ${lv.id} 关`;
     const a = alpha < 1 ? alpha : undefined;
-    if (lv.title && starNeed !== undefined) {
+    if (lv.title) {
         builder.text(g.plateCx, g.plateLine1Cy, lv.title, {
             fill: palette.plateTitleInk, font: PLATE_TITLE_FONT, align: 'center', baseline: 'middle',
             ...(a === undefined ? {} : { alpha: a }),
         });
-        drawPlateSub(builder, g, palette, `★ ${starGot ?? 0}/${starNeed}`, a);
-    } else if (arcTotal !== undefined && arcTotal > 0) {
-        builder.text(g.plateCx, g.plateLine1Cy, lv.title || seq, {
-            fill: palette.plateTitleInk, font: PLATE_TITLE_FONT, align: 'center', baseline: 'middle',
-            ...(a === undefined ? {} : { alpha: a }),
-        });
-        drawPlateSub(builder, g, palette, `${arcDone ?? 0}/${arcTotal}`, a);
-    } else if (lv.title) {
-        // (b) 有展示名 ⇒ 只画名字、隐关序（用户 2026-10-21 裁；偏离 v3.7「关序+关名两行」原型）。
-        builder.text(g.plateCx, g.plateSingleCy, lv.title, {
-            fill: palette.plateTitleInk, font: PLATE_TITLE_FONT, align: 'center', baseline: 'middle',
-            ...(a === undefined ? {} : { alpha: a }),
-        });
+        drawPlateSub(builder, g, palette, seq, a);
     } else {
         builder.text(g.plateCx, g.plateSingleCy, seq, {
             fill: palette.plateTitleInk, font: PLATE_TITLE_FONT, align: 'center', baseline: 'middle',
@@ -627,7 +616,9 @@ export function drawMenuAnchored(
     {
         const fade = plateFade(travel);
         if (data.carouselComingSoon === true) drawComingSoonPlate(builder, g, palette, fade[0]);
-        else if (data.carouselLevel !== undefined) drawPlateTitle(builder, data.carouselLevel, g, palette, fade[0], data.arcStarGot, data.arcStarNeed, data.carouselArcDone, data.carouselArcTotal);
+        // `[WXG-T-598]` 木牌只吃关名 + 关序；门票 ★ / 大关 N/M 两组读数自木牌退场（选关页仍有），
+        // 故不再往下传进度实参。
+        else if (data.carouselLevel !== undefined) drawPlateTitle(builder, data.carouselLevel, g, palette, fade[0]);
         if (data.carouselPeerComingSoon === true) drawComingSoonPlate(builder, g, palette, fade[1]);
         else if (data.carouselPeer !== undefined) drawPlateTitle(builder, data.carouselPeer, g, palette, fade[1]);
     }

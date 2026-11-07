@@ -1,5 +1,6 @@
 /**
- * `[WXG-T-566]` 主菜单走马灯三态：同一张大关 PNG 的灰度 / 模糊差异 + 柜灯强度 + 木牌 `N/M`。
+ * `[WXG-T-566]` 主菜单走马灯三态：同一张大关 PNG 的灰度 / 模糊差异 + 柜灯强度
+ * （木牌侧的 `N/M` 已由 `[WXG-T-598]` 摘下，见文件末节）。
  *
  * 用户 2026-11-02 裁决：
  *  - 未开启 = **磨砂玻璃**（`frost`：1/4 下采样模糊 + 全灰；用户 2026-11-03 裁）；
@@ -124,23 +125,32 @@ describe('`[WXG-T-566]` 三态效果', () => {
     });
 });
 
-describe('`[WXG-T-566]` 木牌大关进度 N/M', () => {
+// `[WXG-T-598]` 2026-11-07 用户令「木牌只留关名 + 关序」⇒ `N/M` 自木牌退场（推翻 WXG-T-566 的
+// 「第二行直拼 N/M」）。该读数现只剩一个消费面：橱窗竖向揭彩比例（`wipeFx`）。木牌侧改守
+// 「实参传了也不画」，进度侧守「揭彩比例 = 完成数 / 总数」。
+describe('`[WXG-T-566]` 大关进度 N/M（`[WXG-T-598]` 起不进木牌）', () => {
     const texts = (cmds: readonly DrawCommand[]): string[] =>
         cmds.filter((c) => c.kind === 'text').map((c) => (c as { text: string }).text);
 
-    it('0 / 中间 / 满：完成数原样拼接总小关数', () => {
+    it('传了完成度也不画 N/M（木牌只剩关名 + 关序）', () => {
         setMenuBitmapResolver(() => true);
         for (const [done, total] of [[0, 8], [3, 8], [8, 8]] as const) {
-            expect(texts(frame(data({ carouselArcDone: done, carouselArcTotal: total }))), `${done}/${total}`)
-                .toContain(`${done}/${total}`);
+            const t = texts(frame(data({ carouselArcDone: done, carouselArcTotal: total })));
+            expect(t, `${done}/${total} 不上牌`).not.toContain(`${done}/${total}`);
+            expect(t, '关序仍在第二行').toContain(`第 ${LEVELS[0]!.id} 关`);
         }
     });
 
-    it('总数为 0 或缺省 ⇒ 不造进度行（空页不写 0/0）', () => {
+    // 进度数据没变成死字段：竖向揭彩按它算比例（本条守住字段仍有消费者）。
+    it('进度改由橱窗揭彩消费：推关比例 = 完成数 / 总数；总数 0 / 缺省 ⇒ 0', () => {
         setMenuBitmapResolver(() => true);
-        const base = texts(frame(data()));
-        expect(base).not.toContain('0/0');
-        expect(texts(frame(data({ carouselArcDone: 0, carouselArcTotal: 0 }))), '总数 0 = 不加行').toEqual(base);
-        expect(texts(frame(data({ carouselArcDone: 3 }))), '缺总数 = 不加行').toEqual(base);
+        const wipe = (done: number | undefined, total?: number): number | undefined =>
+            (artOf(frame(data({ carouselArcDone: done, carouselArcTotal: total })))?.fx as
+                { grayWipe?: [number, number] } | undefined)?.grayWipe?.[0];
+        expect(wipe(0, 8), '0 完成 = 全灰').toBe(0);
+        expect(wipe(3, 8), '3/8 = 37.5% 揭彩').toBeCloseTo(0.375, 3);
+        expect(wipe(8, 8), '满 = 全彩').toBe(1);
+        expect(wipe(3, 0), '总数 0 不造 NaN').toBe(0);
+        expect(wipe(3), '缺总数不造 NaN').toBe(0);
     });
 });

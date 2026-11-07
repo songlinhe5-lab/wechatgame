@@ -8915,3 +8915,49 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 ### 6. 与在册值的偏离（唯一一处）
 
 拆册件 §2 记胶囊 `130×26`，本批 **h → 33**（宽未动）。原因：A 档锁死次行 28 后 26 装不下（旧态字顶满、上下各余 0.5px，正是用户要改掉的观感）。⛔ 不可反过来把字缩到 20 去迁就 26（破 E1）。
+
+## WXG-T-598
+
+**UX·木牌只留关名 + 关序（撤 ★ 与大关 N/M）** · 负责：主理人(CodeBuddy)·UX/视图轨 · 状态：🔄 进行中
+
+### 1. 用户令与在册欠账
+
+用户 2026-11-07：「应该是关序『第 N 关』」+「胶囊宽度暂不需要增加」。
+
+这条**不是新增需求**，是补落 `WXG-T-524 §5-A 乙` 早已裁定、但一直没落码的欠账：木牌第二行应为关序。
+欠账期间第二行被两个进度件占着 —— `WXG-T-346` 门票 `★ n/门槛`（优先级更高）与 `WXG-T-566` 大关 `N/M`。
+两个件都是「信息没地方放就塞木牌」的产物，木牌因此承载三种语义（关名 / 门票 / 大关进度），
+玩家在牌上读到的第一眼不是「这是第几关」。
+
+### 2. 改动（信息架构）
+
+`view/meta-menu.ts::drawPlateTitle` 只剩两条分支：
+
+| 关卡 | 第一行 | 第二行 |
+|---|---|---|
+| 有展示名（章收尾关，`BeadsLevelRaw.title`） | 关名（`plateTitle` 40 粗 + `plate_title_ink`） | **`第 N 关`**（`labelBold` 28 + `plate_sub_ink`，深棕胶囊 `plate_pill`） |
+| 无展示名 | — | `第 N 关`（单行，`plateSingleCy`） |
+
+函数**删掉 4 个进度实参**（`arcStarGot` / `arcStarNeed` / `carouselArcDone` / `carouselArcTotal`）——
+参数留着而没人画，是「下次有人以为它还在生效」的陷阱。
+
+### 3. 两组读数的去处（⛔ 都不是死字段）
+
+| 读数 | 退场后唯一消费面 | 证据 |
+|---|---|---|
+| 门票 `★ n/门槛`（`arcStarGot/arcStarNeed`） | 选关页空带章名下方（`view/meta-levels-page.ts`） | `tests/arc-level-select-page.test.ts` / `arc-ticket-gate.test.ts` 仍全绿 |
+| 大关 `N/M`（`carouselArcDone/carouselArcTotal`） | 橱窗竖向揭彩比例（`view/meta-menu.ts::wipeFx` → `triStateFx`） | 本批新增断言：`3/8 ⇒ grayWipe 0.375`、总数 0 / 缺省 ⇒ 0（不造 NaN） |
+
+`view/meta-types.ts` 两处字段注释按 K-053 口径订正（旧句「木牌第二行直拼」划线留档为新口径说明）。
+
+### 4. 测试面
+
+| 文件 | 变化 |
+|---|---|
+| `tests/menu-plate-title.test.ts` | 断言载体由 `★ 18/21` 改 `第 N 关`；**新增**「有展示名也必须两行」（旧口径是只画关名、隐关序）。字体（`labelBold`/`plateTitle`）、墨（`plate_sub_ink`/`plate_title_ink`）、胶囊（130×33、r=h/2、E2 不放大）三组守卫**逐条保留** |
+| `tests/menu-tri-state.test.ts` | `WXG-T-566` 那节从「木牌拼出 N/M」改为「传了也不画 N/M」+「揭彩比例 = 完成数/总数」 |
+
+### 5. 取证
+
+- 单测：`menu-plate-title` 6/6、`menu-tri-state` 8/8 绿。
+- 金样本：待本笔落码提交后在可复现锚重抓（读数见 §5.1）。

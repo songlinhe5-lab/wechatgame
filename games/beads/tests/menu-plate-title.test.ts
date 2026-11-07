@@ -48,11 +48,13 @@ afterEach(() => setMenuBitmapResolver());
 describe('木牌标题', () => {
     const lv = LEVELS[0]!;
 
-    it('无展示名 ⇒ 只画关序「第 N 关」；有展示名 ⇒ 只画关名（隐关序，(b) 口径）', () => {
+    // `[WXG-T-598]` 2026-11-07 用户令「应该是关序『第 N 关』」⇒ 补落 `WXG-T-524 §5-A 乙` 的欠账：
+    // 第二行由进度件改为**关序**，于是「有展示名」也必须两行（旧口径是只画关名、隐关序）。
+    it('无展示名 ⇒ 单行关序；有展示名 ⇒ 两行（关名 + 关序）', () => {
         setMenuBitmapResolver(() => true);
         expect(texts(dataFor(lv, 'pushing'))).toContain(`第 ${lv.id} 关`);
         const named = texts(dataFor({ ...lv, title: '曼陀罗' }, 'pushing'));
-        expect(named).not.toContain(`第 ${lv.id} 关`);
+        expect(named, '有展示名也要把关序补在第二行').toContain(`第 ${lv.id} 关`);
         expect(named).toContain('曼陀罗');
     });
 
@@ -63,25 +65,32 @@ describe('木牌标题', () => {
     });
 });
 
-describe('累计星进度件（WXG-T-346 · ux v1.11 §4.1 甲臂）', () => {
+describe('木牌第二行 = 关序（`[WXG-T-598]` 起进度件自木牌退场）', () => {
     const named = { ...LEVELS[0]!, title: '曼陀罗' };
+    const seq = `第 ${named.id} 关`;
 
-    it('有门槛 ⇒ 两行：★ n/门槛 落在第二行槽，关名不动（v2 绝对槽）', () => {
+    // `[WXG-T-524 §5-A 乙]` 早裁「木牌第二行 = 关序『第 N 关』」；`[WXG-T-598]` 用户令
+    // 「应该是关序『第 N 关』」后落码，★ n/门槛（WXG-T-346）与大关 N/M（WXG-T-566）退出木牌。
+    // 本例守「实参传了也不画」——旧版是这两件占第二行。
+    it('有门槛字段 ⇒ 木牌不画 ★ 进度；两行 = 关名 + 关序，关名不动（v2 绝对槽）', () => {
         setMenuBitmapResolver(() => true);
         const solo = textCmds(dataFor(named, 'pushing')).find((c) => c.text === '曼陀罗')!;
         const both = textCmds({ ...dataFor(named, 'pushing'), arcStarGot: 18, arcStarNeed: 21 });
+        expect(both.some((c) => c.text.startsWith('★ ')), '★ 进度不再上牌（选关页仍有）').toBe(false);
         const title = both.find((c) => c.text === '曼陀罗')!;
-        const bar = both.find((c) => c.text === '★ 18/21')!;
-        expect(bar, '第二行画出进度').toBeDefined();
+        const sub = both.find((c) => c.text === seq)!;
+        expect(sub, '第二行 = 关序').toBeDefined();
         // `[WXG-T-585]` 切生产：v2 两行 = `MENU_V2.plateTitle` / `plateSub` 两个**绝对槽** ⇒
         // 出第二行时关名不挪位（v1「关名上移让位」那条链式位移已随 v1 版面退场）。
         expect(title.y, '关名守 line1 槽').toBe(solo.y);
-        expect(bar.y, '进度在关名之下（y 向上 ⇒ 更小）').toBeLessThan(title.y);
+        expect(sub.y, '关序在关名之下（y 向上 ⇒ 更小）').toBeLessThan(title.y);
     });
 
-    it('无门槛字段 ⇒ 不画进度件（原单行逐字不变）', () => {
+    it('无展示名 ⇒ 单行关序，且实参带门槛也不画进度件', () => {
         setMenuBitmapResolver(() => true);
-        expect(texts(dataFor(named, 'pushing')).some((t) => t.startsWith('★ '))).toBe(false);
+        const t = texts({ ...dataFor(LEVELS[0]!, 'pushing'), arcStarGot: 18, arcStarNeed: 21 });
+        expect(t).toContain(`第 ${LEVELS[0]!.id} 关`);
+        expect(t.some((s) => s.startsWith('★ '))).toBe(false);
     });
 
     // 视觉裁决守卫（art 规格 `menu-layout-implementation-spec.md §10` v3.10 · WXG-T-346 art 批）：
@@ -95,17 +104,17 @@ describe('累计星进度件（WXG-T-346 · ux v1.11 §4.1 甲臂）', () => {
     // `[WXG-T-597]` 用户裁「A 档（守 E1）+ 新增 3 枚令牌」：两行改**稿实测值**
     // （`plate_title_ink` / `plate_sub_ink` / `plate_pill`），关名 30 → **40 粗**，次行仍 28，
     // 胶囊 26 → **33**（守 E1 只能加厚胶囊换回稿的「字身÷胶囊」比例）。现对比：
-    // 关名 5.38:1 ✓ / 次行 4.61:1 ✓。
-    it('两行 = 胶囊(platePill) + 次行墨 28 粗 + 关名墨 40 粗，E2 开也仍 28（牌面定尺，⛔ 回退 22 档）', () => {
+    // 关名 5.38:1 ✓ / 次行 4.61:1 ✓。`[WXG-T-598]` 换件不改版式 ⇒ 断言载体由 `★ 18/21` 改关序。
+    it('两行 = 胶囊(platePill) + 关序墨 28 粗 + 关名墨 40 粗，E2 开也仍 28（牌面定尺，⛔ 回退 22 档）', () => {
         setMenuBitmapResolver(() => true);
         // largeText 强制开：木牌侧「不随 E2 放大」是 §10 的在册例外，必须在这一例里一并守住。
         const cmds = allCmds({ ...dataFor(named, 'pushing'), largeText: true, arcStarGot: 18, arcStarNeed: 21 });
         const texts = cmds.filter((c) => c.kind === 'text')
             .map((c) => c as unknown as { text: string; font?: string; fill?: string });
-        const bar = texts.find((c) => c.text === '★ 18/21')!;
-        expect(bar.font, '次行字号 = 28 粗体（labelBold），E2 档下也不得变 35').toBe(UI_FONT.labelBold);
-        expect(bar.font, '⛔ 回到 cell 22 档（22px 需 4.5:1）').not.toBe(UI_FONT.cell);
-        expect(bar.fill, '次行墨 = plate_sub_ink（压胶囊 4.61:1 ✓）').toBe(DEFAULT_PALETTE.plateSubInk);
+        const sub = texts.find((c) => c.text === seq)!;
+        expect(sub.font, '次行字号 = 28 粗体（labelBold），E2 档下也不得变 35').toBe(UI_FONT.labelBold);
+        expect(sub.font, '⛔ 回到 cell 22 档（22px 需 4.5:1）').not.toBe(UI_FONT.cell);
+        expect(sub.fill, '次行墨 = plate_sub_ink（压胶囊 4.61:1 ✓）').toBe(DEFAULT_PALETTE.plateSubInk);
 
         const title = texts.find((c) => c.text === '曼陀罗')!;
         expect(title.font, '关名字型 = plateTitle（bold 40，稿「关名÷次行」1.70 的宽度上限内解）')
