@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3980,
       "lines": 134,
-      "sha256": "e2474ea0e64a5f4e1f1a0241b11a842f4546ae4abbf680c31816db1ce524e5a6",
+      "sha256": "fc118c2e7a37740d2510270b3320d72d3ceaea1f06d2597199854492488ba602",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 248114 9031 normal",
+          "summary": "1 production/TASKS-DETAIL.md 248343 9046 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5273,
       "lines": 165,
-      "sha256": "7145166b3ded8490a72630ee0521b7fe730f8fa3ff80b52b77d8382b45b332d0",
+      "sha256": "ac24b21ed40da12730579a68821e284980a497832e756e3ab25d31fe140d67c1",
       "tier": "normal",
       "sections": [
         {
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 9031 行 / 248114 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 9046 行 / 248343 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+9032 · §WXG-T-588=8411+33 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+9047 · §WXG-T-588=8411+33 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -14128,17 +14128,17 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 24388,
-      "lines": 268,
-      "sha256": "be45bc06c37dc29274232bc314d0888ecd52d8bb0c512318c33f8e28b1c57e2b",
+      "tokens": 24865,
+      "lines": 270,
+      "sha256": "bb9adb68c211b6011d8ce00da47e27ae7af66a2ee944fb0aab7aabf943f014e0",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads UI 架构（View / ViewModel / Presenter + 公共基础）",
           "level": 1,
           "startLine": 1,
-          "endLine": 269,
-          "tokens": 24370,
+          "endLine": 271,
+          "tokens": 24847,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -14308,8 +14308,8 @@
           "anchor": "§12 TODO 拆分",
           "level": 2,
           "startLine": 138,
-          "endLine": 265,
-          "tokens": 19316,
+          "endLine": 267,
+          "tokens": 19793,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -14320,8 +14320,8 @@
         {
           "anchor": "§13 待你拍板",
           "level": 2,
-          "startLine": 266,
-          "endLine": 269,
+          "startLine": 268,
+          "endLine": 271,
           "tokens": 323,
           "summary": "D1–D5 均已裁定（见 [ADR-0032 §5](adr/ADR-0032-beads-ui-architectur",
           "keywords": [
@@ -28746,17 +28746,17 @@
     },
     {
       "path": "games/beads/design/art/specs/menu-layout-implementation-spec.md",
-      "tokens": 13008,
-      "lines": 283,
-      "sha256": "d582c5b76252ed2454a2708fae7d0b6cf625997d18b9db812a53ccc864542b71",
+      "tokens": 13214,
+      "lines": 285,
+      "sha256": "f296bc9527e796bf0e3dc7e0ac3f6201e62696e1874f302f139faf6dbdcf2f8b",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§主界面布局落地单 · 「拼豆小铺」菜单屏（规范 v3.8 定稿）",
           "level": 1,
           "startLine": 1,
-          "endLine": 284,
-          "tokens": 12982,
+          "endLine": 286,
+          "tokens": 13188,
           "summary": "用途：UI 布局落码的唯一施工依据。规则正本 = 本件；取证图 = ../coordinates/menu-master",
           "keywords": [
             "coordinates",
@@ -28908,8 +28908,8 @@
           "anchor": "§10 累计星进度件（v3.10 · 2026-10-22 · WXG-T-346 art 批；闭 `ux/arc-level-select-spec.md §8.2 TODO-8`）",
           "level": 2,
           "startLine": 146,
-          "endLine": 170,
-          "tokens": 1477,
+          "endLine": 172,
+          "tokens": 1683,
           "summary": "射程：只钉「字号 / 色 / 位置 / 符号 / 装饰 / 令牌」六项。⛔ 不改判据与呈现位（告知规格正本 = ux/a",
           "keywords": [
             "§8.2",
@@ -28923,8 +28923,8 @@
         {
           "anchor": "§12 v2 烘焙背板档（WXG-T-585 · 2026-11-07 **切生产**）",
           "level": 2,
-          "startLine": 171,
-          "endLine": 284,
+          "startLine": 173,
+          "endLine": 286,
           "tokens": 2911,
           "summary": "射程：本节只钉「v2 档几何 = 绝对坐标 + 热区口径 + 垂直落位」。数值真源仍是",
           "keywords": [
@@ -28936,8 +28936,8 @@
         {
           "anchor": "§12.1 版面 = 一张烘焙背板 + 绝对坐标件",
           "level": 3,
-          "startLine": 179,
-          "endLine": 188,
+          "startLine": 181,
+          "endLine": 190,
           "tokens": 277,
           "summary": "背板 ui_menu_backdrop 750×1334 已烘「橱窗木框 / 玻璃 / 射灯 / 层板 / 圆台 / 空",
           "keywords": [
@@ -28950,8 +28950,8 @@
         {
           "anchor": "§12.2 坐标表（自屏顶 y-down · 设计 px）",
           "level": 3,
-          "startLine": 189,
-          "endLine": 202,
+          "startLine": 191,
+          "endLine": 204,
           "tokens": 309,
           "summary": "招牌整图 101 / 0 / 549 / 361 板体在图内 y=118..361（上方 118 是绳；2026-11-",
           "keywords": [
@@ -28964,8 +28964,8 @@
         {
           "anchor": "§12.3 热区口径（2026-11-07 切生产同批纠回）",
           "level": 3,
-          "startLine": 203,
-          "endLine": 214,
+          "startLine": 205,
+          "endLine": 216,
           "tokens": 192,
           "summary": "热区 = max(视觉, TOUCH_MIN=88) 同心包裹（meta-layout.ts::anchoredGeoV",
           "keywords": [
@@ -28980,8 +28980,8 @@
         {
           "anchor": "§12.4 断言与规格同批回写（本轮）",
           "level": 3,
-          "startLine": 215,
-          "endLine": 224,
+          "startLine": 217,
+          "endLine": 226,
           "tokens": 233,
           "summary": "钉 v1 读数的版面/金样本断言逐条改到 v2 读数：menu-anchors（5 档热区）、menu-layout-v",
           "keywords": [
@@ -28996,8 +28996,8 @@
         {
           "anchor": "§12.5 退役清单（`WXG-T-586` 死代码清理 · 2026-11-07）",
           "level": 3,
-          "startLine": 225,
-          "endLine": 256,
+          "startLine": 227,
+          "endLine": 258,
           "tokens": 984,
           "summary": "⚠ 下列名称在代码里已不存在，旧文档（含本页 §1–§11 与 menu-layout-spec-s7-history ",
           "keywords": [
@@ -29012,8 +29012,8 @@
         {
           "anchor": "§12.6 落位转正（`WXG-T-587` · 2026-11-07 切生产）",
           "level": 3,
-          "startLine": 257,
-          "endLine": 284,
+          "startLine": 259,
+          "endLine": 286,
           "tokens": 643,
           "summary": "⚠ 本节改写 §12.1 的落位口径：背板仍居中，但招牌 / CTA / 顶栏三件已脱离背板，按安全区独立落位",
           "keywords": [
@@ -29070,17 +29070,17 @@
     },
     {
       "path": "games/beads/design/art/specs/menu-plate-text-control-spec.md",
-      "tokens": 5103,
-      "lines": 172,
-      "sha256": "93ad1171016a3bcdc6e3c779c7be96f801b2f3856b4a3c2e3607ae0bb50bd4d0",
+      "tokens": 6031,
+      "lines": 214,
+      "sha256": "0e35811cb442be43d031d88c45968132dda2f5ad0d8991cf3a12ad7a098f2935",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§木牌程序化文字控件 · 色 / 字号 / 位置（基准稿 v2 无字版 · WXG-T-524）",
           "level": 1,
           "startLine": 1,
-          "endLine": 173,
-          "tokens": 5073,
+          "endLine": 215,
+          "tokens": 6001,
           "summary": "本件 = menu-layout-implementation-spec.md §11 拆册（2026-10-31；动因",
           "keywords": [
             "§11",
@@ -29356,6 +29356,98 @@
             "skins",
             "cool",
             "violet"
+          ]
+        },
+        {
+          "anchor": "§9 `[WXG-T-599]` 2026-11-07 用户令「相比设计稿，现在字号有点大」的落码",
+          "level": 2,
+          "startLine": 174,
+          "endLine": 215,
+          "tokens": 899,
+          "summary": "",
+          "keywords": [
+            "[WXG-T-599]",
+            "WXG",
+            "用户令",
+            "相比设计稿",
+            "现在字号有点",
+            "的落码"
+          ]
+        },
+        {
+          "anchor": "§9.1 根因 = **上一批没归一就比**（不是「当初选大了」）",
+          "level": 3,
+          "startLine": 176,
+          "endLine": 186,
+          "tokens": 200,
+          "summary": "§8.2 把稿的像素读数（关名墨 39 / 次行墨 23 / 胶囊高 32）直接对设计像素（40 / 28 / 33）。",
+          "keywords": [
+            "§8.2",
+            "根因",
+            "上一批没归一",
+            "就比",
+            "不是",
+            "当初选大了"
+          ]
+        },
+        {
+          "anchor": "§9.2 落码（用户 2026-11-07 选**甲档「两行都缩」**）",
+          "level": 3,
+          "startLine": 187,
+          "endLine": 198,
+          "tokens": 239,
+          "summary": "关名 UI_FONT.plateTitle bold 40px bold 34px 34 × 0.88 = 29.9 ≈",
+          "keywords": [
+            "UI_FONT",
+            "plateTitle",
+            "bold",
+            "落码",
+            "用户",
+            "甲档"
+          ]
+        },
+        {
+          "anchor": "§9.3 「次行不得低于 28」的解除（理由留档，供将来反查）",
+          "level": 3,
+          "startLine": 199,
+          "endLine": 206,
+          "tokens": 167,
+          "summary": "menu-layout-implementation-spec.md §10 把次行锁 28 的理由只有一条：22px ",
+          "keywords": [
+            "§10",
+            "menu",
+            "layout",
+            "implementation",
+            "spec",
+            "次行不得低于"
+          ]
+        },
+        {
+          "anchor": "§9.4 牌高预算",
+          "level": 3,
+          "startLine": 207,
+          "endLine": 210,
+          "tokens": 53,
+          "summary": "关名 30 + 胶囊 27 = 57 / 85 = 67%（§8.2 是 81%）⇒ 上下留白回到稿的观感。层级「关名÷",
+          "keywords": [
+            "§8.2",
+            "牌高预算"
+          ]
+        },
+        {
+          "anchor": "§9.5 取证",
+          "level": 3,
+          "startLine": 211,
+          "endLine": 215,
+          "tokens": 158,
+          "summary": "SVG 实到值（tools/scripts/render-ui-shots.mjs，与金样本同源同种子）：关名 font",
+          "keywords": [
+            "SVG",
+            "tools",
+            "scripts",
+            "render",
+            "shots",
+            "mjs"
           ]
         }
       ]
@@ -89060,17 +89152,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 248114,
-      "lines": 9031,
-      "sha256": "bb6701deead66663fefbcc51b73a4f9d96c91cfa0a5def2cd3d2e43cd04009af",
+      "tokens": 248343,
+      "lines": 9046,
+      "sha256": "3f65fdd20fc7642f780654d05499ce55855f5c76d83347b664fe3a54b5799735",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 9032,
-          "tokens": 248097,
+          "endLine": 9047,
+          "tokens": 248326,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -103016,8 +103108,8 @@
           "anchor": "§WXG-T-599",
           "level": 2,
           "startLine": 8979,
-          "endLine": 9032,
-          "tokens": 956,
+          "endLine": 9047,
+          "tokens": 1185,
           "summary": "美术·木牌字号按稿归一缩档（关名 34 / 次行 22 / 胶囊 27） · 负责：主理人(CodeBuddy)·美术/",
           "keywords": [
             "WXG",
@@ -103099,8 +103191,8 @@
           "anchor": "§6 取证 (3)",
           "level": 3,
           "startLine": 9028,
-          "endLine": 9032,
-          "tokens": 50,
+          "endLine": 9033,
+          "tokens": 117,
           "summary": "单测：menu-plate-title 6/6、menu-tri-state 8/8、ui-theme 4/4 绿。",
           "keywords": [
             "menu",
@@ -103109,6 +103201,21 @@
             "tri",
             "state",
             "theme"
+          ]
+        },
+        {
+          "anchor": "§6.1 重抓读数",
+          "level": 3,
+          "startLine": 9034,
+          "endLine": 9047,
+          "tokens": 152,
+          "summary": "十态 total / 逐 kind 计数逐条不变（改的是同一条 text 指令的字号字段，命令条数不动），五态 sha ",
+          "keywords": [
+            "total",
+            "kind",
+            "text",
+            "sha",
+            "重抓读数"
           ]
         }
       ]

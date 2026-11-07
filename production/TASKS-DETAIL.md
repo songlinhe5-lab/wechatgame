@@ -8978,7 +8978,7 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 
 ## WXG-T-599
 
-**美术·木牌字号按稿归一缩档（关名 34 / 次行 22 / 胶囊 27）** · 负责：主理人(CodeBuddy)·美术/UI轨 · 状态：🔄 进行中
+**美术·木牌字号按稿归一缩档（关名 34 / 次行 22 / 胶囊 27）** · 负责：主理人(CodeBuddy)·美术/UI轨 · 状态：✅ 完成（2026-11-07）
 
 ### 1. 用户令与本批的自查结论
 
@@ -9028,4 +9028,19 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 ### 6. 取证
 
 - 单测：`menu-plate-title` 6/6、`menu-tri-state` 8/8、`ui-theme` 4/4 绿。
-- 金样本：待本笔落码提交后在可复现锚重抓（读数见 §6.1）。
+- 金样本：`WXG298_SOURCE_REV=8ab9d1ac` 锚重抓，十一帧**两遍逐态记录全等 = PASS**。
+- SVG 实到值（`render-ui-shots.mjs`，与金样本同源同种子）：关名 `font-size="34" font-weight="bold"`、次行 `font-size="22" font-weight="bold"`、胶囊 `rect x=310 width=130 height=27 rx=13.5 fill="#795127"`。
+
+### 6.1 重抓读数
+
+十态 `total` / 逐 kind 计数**逐条不变**（改的是同一条 text 指令的字号字段，命令条数不动），五态 sha 变：
+
+| 态 | 旧 sha | 新 sha |
+|---|---|---|
+| `main-menu` | `faf8fdeb…` | `bf74eb9e…` |
+| `level-select` | `dcfa08ea…` | `8dd9040f…` |
+| `level-select-mid` | `02a1999e…` | `314899b7…` |
+| `settings` | `bc1b8bef…` | `981cc08f…` |
+| `signin` | `65bf13f5…` | `968d5609…` |
+
+其余六态（play / pause / clear / fail / sprint-settle / finish）逐字未变。⛔ 未手改夹具（K-051 / K-053）。
