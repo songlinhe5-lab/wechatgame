@@ -37,6 +37,9 @@ BG_QUALITY = 85
 # 'pair' = 有同族两态，必须走航 `ship()` 保按下反馈（BD-61）
 JOBS = [
     ('background/ui_menu_backdrop_figma@2x.png',  'ui_menu_backdrop.jpg',          BG_SIZE, 'jpg'),
+    # `[WXG-T-585]` 甲案整张扩图（正本 1500×3500 = 750×1750 设计 @2x，上下各扩 208）：
+    # 只被 baked 腿的「一次 blit」消费 ⇒ 缺件时自动回退三图/纯色（`menuBitmapReady` 门）。
+    ('background/ui_menu_backdrop@2x.png',        'ui_menu_backdrop_expanded.jpg', (750, 1750), 'jpg'),
     ('background/ui_menu_signboard_figma@2x.png', 'ui_menu_signboard.png',         (549, 361), 'octree'),
     ('badges/ui_menu_frame@2x.png',               'ui_menu_arc_ring.png',          (518, 518), 'octree'),
     ('badges/ui_menu_lock@2x.png',                'ui_menu_badge_locked.png',      None,     'octree'),

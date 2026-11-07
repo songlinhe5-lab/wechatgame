@@ -632,6 +632,16 @@ export const MENU_TEXTURES = {
   plate: 'bitmap__menu_plate',
   cta: 'bitmap__menu_cta',
   ctaPressed: 'bitmap__menu_cta_pressed',
+  /**
+   * `[WXG-T-585]` **v2 专用 key 组**（2026-11-07 宿主接入批）。
+   * 为什么要独立 key 而不共用：v1 腿仍钉老投放件（`logo`→`ui_menu_logo` 960×772 比例 1.243、
+   * `cta`→`ui_btn_start_9s` 324×92 走九宫拉伸），v2 件比例/尺寸都不同（招牌 1098×722 = 1.521、
+   * CTA 378×179 整枚）。共用 key 换图 ⇒ v1 腿拿 v2 比例去填 v1 框，当场变形。
+   * 消费侧一律经 `pickTex(v1, v2)`：`MENU_V2_BAKED && ready(v2)` 才用 v2，⛔ 未注册自动回退 v1。
+   */
+  signboard: 'bitmap__menu_signboard',
+  ctaV2: 'bitmap__menu_cta_v2',
+  ctaPressedV2: 'bitmap__menu_cta_pressed_v2',
   btnCircle: 'bitmap__menu_btn_circle',
   btnCirclePressed: 'bitmap__menu_btn_circle_pressed',
   btnArrow: 'bitmap__menu_btn_arrow',

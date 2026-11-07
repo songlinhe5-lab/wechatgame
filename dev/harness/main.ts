@@ -184,8 +184,13 @@ const MENU_URL_PREFIX = '/menu-assets/';
  * `production/qa/webp-png-duality-20261018.md`。 */
 const MENU_FILE: Readonly<Record<string, string>> = {
   ...Object.fromEntries(OPEN_ARCS.map((t) => [t.textureId, `/level-assets/${t.art}.png`])),
-  // `[WXG-T-585]` v2：招牌（板体 549×295 + 绳，正本 1098×674 @2x）取代 v1 `ui_menu_logo`。
+  // `[WXG-T-585]` v2：招牌（板体 549×295 + 绳，正本 1098×722 @2x）取代 v1 `ui_menu_logo`。
+  // 2026-11-07 宿主接入批：v2 件改挂**独立 key**（`signboard` / `ctaV2` / `ctaPressedV2`），
+  // 消费侧 `pickTex` 按 `MENU_V2_BAKED` 选；下列同语义的老 key 保持原映射（v1 腿现状不变）。
   [MENU_TEXTURES.logo]: 'background/ui_menu_signboard_figma@2x.png',
+  [MENU_TEXTURES.signboard]: 'background/ui_menu_signboard_figma@2x.png',
+  [MENU_TEXTURES.ctaV2]: 'buttons/ui_btn_start_normal@2x.png',
+  [MENU_TEXTURES.ctaPressedV2]: 'buttons/ui_btn_start_highlight@2x.png',
   [MENU_TEXTURES.caseFrame]: 'ui_showcase_frame.png',
   [MENU_TEXTURES.plate]: 'ui_showcase_plate.png',
   // `[WXG-T-585]` v2 开始钮（整枚 756×358 @2x ⇒ 378×179，「开始」已烘进图）。

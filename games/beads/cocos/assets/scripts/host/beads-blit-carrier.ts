@@ -106,6 +106,17 @@ const MASK_IDS: readonly string[] = requiredTintMaskIds();
  * 装载失败 / 资产未导 ⇒ 不登记 ⇒ 该元素回退程序化（不 gate `_ready`）。
  */
 const ARC_TEXTURE_IDS: ReadonlySet<string> = new Set(OPEN_ARCS.map((t) => t.textureId));
+/**
+ * `[WXG-T-585]` **必须 `trim = false` 的帧**（四周有透明边，靠原图留白对齐）。
+ * 起因：`Sprite.trim = true` 时 Cocos 用导入后的 trimmed rect 当 uv 并**铺满节点 contentSize**
+ * ⇒ 内容被拉伸、留白丢失。招牌 1098×722 的实测裁剪是 548×343（底部 18 设计 px 透明带），
+ * 拉满 549×361 会纵向 +5.2% 变形；关掉 trim 才按 originalSize 居中。
+ * ⛔ 新增「四周透明边」的帧必须同时登记到这里，判断口径 = meta 的 `width/height ≠ rawWidth/rawHeight`。
+ */
+const NO_TRIM_TEXTURE_IDS: ReadonlySet<string> = new Set<string>([
+    ...ARC_TEXTURE_IDS,
+    MENU_TEXTURES.signboard,
+]);
 
 const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>> = {
     ...Object.fromEntries(OPEN_ARCS.map((t) => [t.textureId, { path: t.art, bundle: t.bundle }])),
@@ -142,6 +153,13 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
     [MENU_TEXTURES.beam]: { path: 'ui_menu_beam' },
     // `[P0 静态温暖 · 2026-10-31]` 整屏木屋背板。未导入 ⇒ 不登记 ⇒ `drawMenuBackdrop` 走程序化底。
     [MENU_TEXTURES.backdrop]: { path: 'ui_menu_backdrop' },
+    // `[WXG-T-585]` 甲案整张扩图（750×1750，JPEG q85）。只在 baked 腿消费 ⇒ 未导入时自动回退三图。
+    [MENU_TEXTURES.backdropFull]: { path: 'ui_menu_backdrop_expanded' },
+    // `[WXG-T-585]` 2026-11-07 宿主接入批：v2 件**独立 key**（v1 腿仍用上面的老件，⛔ 不许换 key 共用）。
+    // 招牌 1098×722（绳 118）；开始钮整枚 378×179（「开始」已烘进图，源 756×358）。
+    [MENU_TEXTURES.signboard]: { path: 'ui_menu_signboard' },
+    [MENU_TEXTURES.ctaV2]: { path: 'ui_menu_cta' },
+    [MENU_TEXTURES.ctaPressedV2]: { path: 'ui_menu_cta_highlight' },
     [MENU_TEXTURES.woodGrain]: { path: 'ui_wood_grain' },
 
     // `[WXG-T-515]` 结算 9-slice 四件（源图与设计 px 1:1，端帽见 `CLEAR_*_SLICE`）。
@@ -402,7 +420,7 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
         sp.type = ns !== undefined ? Sprite.Type.SLICED : Sprite.Type.SIMPLE;
         // Boss 原图四周是透明边。默认 trim 会把花拉满内容框；关掉才按原图留白居中。
         if (sp.type === Sprite.Type.SIMPLE) {
-            const trim = !ARC_TEXTURE_IDS.has(cmd.textureId);
+            const trim = !NO_TRIM_TEXTURE_IDS.has(cmd.textureId);
             if (sp.trim !== trim) sp.trim = trim;
         }
         // Cocos 把 inset（源纹 px）直接当内容 px 摆顶点。目标比源纹矮时圆角被压扁。

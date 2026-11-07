@@ -60,6 +60,15 @@ function triStateLight(state: MetaBossState): number {
 }
 
 /**
+ * `[WXG-T-585]` v1/v2 同语义件选图：baked 且 v2 件已注册 ⇒ v2，否则回退 v1 老件。
+ * ⛔ 不许把 v2 图换进 v1 的 key（比例/尺寸不同，v1 腿会当场变形）；v2 件缺失时也不报错，
+ * 自动走 v1（Cocos 未登记新件的旧包行为逐字节不变）。
+ */
+function pickTex(v1: string, v2: string): string {
+    return MENU_V2_BAKED && menuBitmapReady(v2) ? v2 : v1;
+}
+
+/**
  * 资源条（❤ 8/8 ｜ 0 ⊙）。
  *
  * `[WXG-T-585]` v2 背板**已烘**条体本体、上沿受光线、两端铆钉，以及两枚图标
@@ -858,8 +867,10 @@ export function drawMenuAnchored(
     drawArrow(builder, data, g.arrowL, 'left', palette);
     drawArrow(builder, data, g.arrowR, 'right', palette);
     // 招牌：位图 logo 优先；缺 ⇒ beadText / 系统字体回落（两腿互斥，同静态档；中心 = signBox 中心）。
-    if (menuBitmapReady(MENU_TEXTURES.logo)) {
-        builder.blit(MENU_TEXTURES.logo, g.signBox.x, g.signBox.y, g.signBox.w, g.signBox.h);
+    // `[WXG-T-585]` v2 招牌（1098×722，绳 118）走独立 key ⇒ v1 腿仍用 `ui_menu_logo`（960×772）。
+    const signTex = pickTex(MENU_TEXTURES.logo, MENU_TEXTURES.signboard);
+    if (menuBitmapReady(signTex)) {
+        builder.blit(signTex, g.signBox.x, g.signBox.y, g.signBox.w, g.signBox.h);
     } else if (withSignage) {
         // 字样居中于板心（图顶 − boardCyOff），非图框中心（图框含绳，板心偏下）。
         const signCy = g.signBox.y + g.signBox.h - MENU_SIGN_FRAME.boardCyOff;
@@ -878,13 +889,16 @@ export function drawMenuAnchored(
     // 按下：pressed 源纹自带台面下移（D=16 源 px，⛔ 不再叠运行时位移）⇒ 文案按 D/源高 同比下沉；
     // 缺 pressed 纹 ⇒ normal 纹 + 运行时下沉（与纸钮同口径）。
     const ctaPressed = isPressed(data, 'start');
-    if (menuBitmapReady(MENU_TEXTURES.cta)) {
-        const bakedPress = ctaPressed && menuBitmapReady(MENU_TEXTURES.ctaPressed);
+    // `[WXG-T-585]` v2 开始钮（整枚 378×179）走独立 key ⇒ v1 腿仍九宫拉伸 `ui_btn_start_9s`。
+    const ctaTex = pickTex(MENU_TEXTURES.cta, MENU_TEXTURES.ctaV2);
+    const ctaTexPressed = pickTex(MENU_TEXTURES.ctaPressed, MENU_TEXTURES.ctaPressedV2);
+    if (menuBitmapReady(ctaTex)) {
+        const bakedPress = ctaPressed && menuBitmapReady(ctaTexPressed);
         const dy = bakedPress ? 0 : pressDy(data, ctaPressed);
         const textDy = bakedPress ? -Math.round((MENU_CTA_PRESSED_D * g.ctaBox.h) / MENU_CTA_SRC_H) : dy;
         // `[WXG-T-585]` v2 件 = **整枚 378×179 位图**（源图 756×358 恰为目标尺寸，「开始」已烘进图）
         // ⇒ 走九宫拉伸反而会吃掉按钮圆角；起点页也不再叠 `ctaLabel`。缺 v2 件 ⇒ 旧九宫腿逐字不变。
-        builder.blit(bakedPress ? MENU_TEXTURES.ctaPressed : MENU_TEXTURES.cta, g.ctaBox.x, g.ctaBox.y + dy, g.ctaBox.w, g.ctaBox.h,
+        builder.blit(bakedPress ? ctaTexPressed : ctaTex, g.ctaBox.x, g.ctaBox.y + dy, g.ctaBox.w, g.ctaBox.h,
             MENU_V2_BAKED ? undefined : { fx: nineSliceFx(MENU_CTA_SLICE.capX, MENU_CTA_SLICE.capY) });
         // `[WXG-T-490]` 浏览态（§5.4 条 4）：艺术字切图恒写「开始游戏」⇒ 离开起点页时不画，
         // 让位下方文字腿（`label('start')` 已切 `继续 · 第{n}关`）；缺省字段 = 起点页 ⇒ 逐字不变。

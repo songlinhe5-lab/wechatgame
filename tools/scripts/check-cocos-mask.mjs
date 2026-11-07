@@ -103,7 +103,11 @@ function listNativeImages(buildDir) {
         for (const shard of readdirSync(native)) {
             const d = join(native, shard);
             if (!existsSync(d)) continue;
-            for (const f of readdirSync(d)) if (f.endsWith('.png') || f.endsWith('.webp')) out.push(`${bundleName}/native/${shard}/${f}`);
+            // `[WXG-T-585]` 整屏背板/扩图投放为 JPEG（写实渐变 pal-256 会 banding）⇒ 必须一起收，
+            // ⛔ 只收 png/webp 会把 jpg 件一律判成「不进包」。
+            for (const f of readdirSync(d)) {
+                if (f.endsWith('.png') || f.endsWith('.webp') || f.endsWith('.jpg')) out.push(`${bundleName}/native/${shard}/${f}`);
+            }
         }
     }
     return out;
@@ -331,9 +335,13 @@ for (const buildDir of found) {
         const pairs = [];
         console.log(`\n菜单纹理 源 ↔ 产物等值（${BITMAPS.length} 件；需求集 = 载体 BITMAP_ASSETS）：`);
         for (const b of BITMAPS) {
-            const srcFile = join(ROOT, 'games/beads/cocos/assets', b.bundle, `${b.path}.png`);
-            const metaFile = srcFile + '.meta';
-            if (!existsSync(srcFile) || !existsSync(metaFile)) {
+            // `[WXG-T-585]` 投放件有 PNG 也有 JPEG（整屏背板 / 扩图，实写渐变用 PNG 会 banding）
+            // ⇒ 按扩展名探测；⛔ 只认 .png 会让 jpg 件全部「源件缺失」或错配同名 png 老图。
+            const srcFile = ['.png', '.jpg']
+                .map((ext) => join(ROOT, 'games/beads/cocos/assets', b.bundle, `${b.path}${ext}`))
+                .find((p) => existsSync(p));
+            const metaFile = `${srcFile ?? ''}.meta`;
+            if (!srcFile || !existsSync(metaFile)) {
                 console.log(`  ❌ ${b.path}：源件或 .meta 缺失（bundle = ${b.bundle}）`);
                 stale = true; continue;
             }
