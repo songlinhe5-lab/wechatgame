@@ -107130,17 +107130,17 @@
     },
     {
       "path": "production/qa/asset-provenance.md",
-      "tokens": 9265,
-      "lines": 211,
-      "sha256": "aa35d492d9f60b6b03ad8b43f9f7fd570db711b1c4e46590799719e2cd61c1a6",
+      "tokens": 9470,
+      "lines": 212,
+      "sha256": "6d78af2f44567861d6f590420d9905c51b181f0eb32a2dda01f4e1ab42def01a",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§归档资源生成史（Asset Provenance）",
           "level": 1,
           "startLine": 1,
-          "endLine": 212,
-          "tokens": 9251,
+          "endLine": 213,
+          "tokens": 9456,
           "summary": "本件是「每张进 final/ 的图从哪来」的唯一正本。 建件 = 用户 2026-11-01 令「统一使用图片生成文档，",
           "keywords": [
             "Asset",
@@ -107356,8 +107356,8 @@
           "anchor": "§11 2026-11-08 批（道具图标 · 熨贴片 / 抖豆筛 / 扫豆刷）",
           "level": 2,
           "startLine": 204,
-          "endLine": 212,
-          "tokens": 304,
+          "endLine": 213,
+          "tokens": 509,
           "summary": "final/assets/powerup/powerup_window_restore.png 512×512 RGBA",
           "keywords": [
             "final",

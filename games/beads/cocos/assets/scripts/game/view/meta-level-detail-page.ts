@@ -12,13 +12,13 @@
  * 绘制时再加 `plate.x` / `plate.y` ⇒ 逐机位移（`dialogShiftY`）与板高变更都不会撕裂内容带。
  */
 
-import { DESIGN_W, POWERUP_TYPES } from '../config/tuning';
+import { DESIGN_W, POWERUP_TILE_TEXTURES, POWERUP_TYPES } from '../config/tuning';
 import { type RenderModelBuilder } from '../../framework/index';
 import { POWERUP_LABELS } from '../systems/powerups';
 import { type BeadsPalette } from './palette';
 import { UI_FONT, bodyFont, starCriteriaText } from './ui-theme';
 import { drawLevelThumb } from './menu-signage';
-import { STAR_LABELS } from './meta-widgets';
+import { STAR_LABELS, menuBitmapReady } from './meta-widgets';
 import { overlayPlate } from './meta-layout';
 import type { MetaLayout, MetaViewData } from './meta-types';
 
@@ -90,17 +90,23 @@ export function drawLevelDetailContent(
     let x = cx - rowW / 2 + ITEM_R;
     for (let i = 0; i < ITEM_GLYPHS.length; i++) {
         const cy = plate.y + ITEM_CY;
-        builder.circle(x, cy, ITEM_R, {
-            fill: palette.slot,
-            stroke: palette.slotBorder,
-            lineWidth: 2,
-        });
-        builder.text(x, cy, ITEM_GLYPHS[i]!, {
-            fill: palette.text,
-            font: UI_FONT.cell,
-            align: 'center',
-            baseline: 'middle',
-        });
+        // 位图腿：框图（含木框 + 米底 + 道具本体）按 84×84 blit；宿主未导入 ⇒ 程序化单字徽章回退。
+        const texId = POWERUP_TILE_TEXTURES[POWERUP_TYPES[i]!];
+        if (menuBitmapReady(texId)) {
+            builder.blit(texId, x - ITEM_R, cy - ITEM_R, ITEM_R * 2, ITEM_R * 2);
+        } else {
+            builder.circle(x, cy, ITEM_R, {
+                fill: palette.slot,
+                stroke: palette.slotBorder,
+                lineWidth: 2,
+            });
+            builder.text(x, cy, ITEM_GLYPHS[i]!, {
+                fill: palette.text,
+                font: UI_FONT.cell,
+                align: 'center',
+                baseline: 'middle',
+            });
+        }
         // 角标：可用数（小圆点 + 数字；0 档转灰 = 「已用」，且灰底亮字保证可读）。
         const n = stocks[i] ?? 0;
         const bx = x + ITEM_R * 0.72;

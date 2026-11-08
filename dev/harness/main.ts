@@ -24,7 +24,7 @@ import {
   maskTileInnerPx,
   tintFx,
 } from '@wxgame/framework';
-import { BEAD_PITCH, MENU_TEXTURES, TILE_BLEED } from '../../games/beads/src/config/tuning.js';
+import { BEAD_PITCH, MENU_TEXTURES, POWERUP_TILE_TEXTURES, TILE_BLEED } from '../../games/beads/src/config/tuning.js';
 import { setDevSafeInsets, setShowSafeGuides } from '../../games/beads/src/config/tuning/layout.js';
 import { OPEN_ARCS } from '../../games/beads/src/config/arcs.js';
 import { setMenuBitmapResolver } from '../../games/beads/src/view/meta-view.js';
@@ -220,6 +220,11 @@ const MENU_FILE: Readonly<Record<string, string>> = {
   [MENU_TEXTURES.nextBtnPressed]: 'buttons/ui_btn_next_highlight@2x.png',
   // `[WXG-T-585]` v2 通关章 90×89.5。
   [MENU_TEXTURES.seal]: 'badges/ui_menu_seal@2x.png',
+  // `[WXG-T-601]` 关卡详情道具行三枚框图（正本 336² @4x ⇒ 84×84 设计尺度；图内已含框与底）。
+  // 路径带 `/` 前缀 ⇒ `loadImage` 直取（serve-harness 白名单 `/powerup-assets/`）。
+  [POWERUP_TILE_TEXTURES.windowRestore]: '/powerup-assets/tiles/powerup_window_restore_tile.png',
+  [POWERUP_TILE_TEXTURES.randomRestore]: '/powerup-assets/tiles/powerup_random_restore_tile.png',
+  [POWERUP_TILE_TEXTURES.trayRestore]: '/powerup-assets/tiles/powerup_tray_restore_tile.png',
 };
 const tintCache = new TintSpriteCache(
   // 离屏 canvas 工厂（结构化注入 ⇒ framework/core 层 ⛔ 不碰 DOM，L2 合规）

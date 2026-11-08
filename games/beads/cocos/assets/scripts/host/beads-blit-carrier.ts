@@ -32,7 +32,7 @@ import {
 } from '../framework/adapters/canvas2d/tint-sprite-cache';
 import { MASK_CANONICAL_SIZE } from '../framework/core/bake/mask-spec';
 import { maskTileInnerPx } from '../framework/core/bake/mask-tile';
-import { BEAD_PITCH, BOSS_THUMB_TEXTURES, MENU_TEXTURES, TILE_BLEED } from '../game/config/tuning';
+import { BEAD_PITCH, BOSS_THUMB_TEXTURES, MENU_TEXTURES, POWERUP_TILE_TEXTURES, TILE_BLEED } from '../game/config/tuning';
 import { OPEN_ARCS } from '../game/config/arcs';
 import { tintFxBase } from '../framework/core/bake/tint-composite';
 import { frostGrayCombined, frostPixels, frostRead, grayFxRead, grayWipeRead } from '../framework/core/bake/gray-fx';
@@ -156,6 +156,12 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
     [MENU_TEXTURES.nextBtnPressed]: { path: 'ui_menu_arrow_right_highlight' },
     [MENU_TEXTURES.seal]: { path: 'ui_menu_seal' },
     [MENU_TEXTURES.woodGrain]: { path: 'ui_wood_grain' },
+
+    // `[WXG-T-601]` 关卡详情道具行三枚框图（336² @4x）。投放件未导入 `textures` Bundle 前
+    // ⇒ `loadBitmapSpriteFrame` 返 null ⇒ 不登记 ⇒ 详情页该枚走程序化单字徽章（零回归）。
+    [POWERUP_TILE_TEXTURES.windowRestore]: { path: 'powerup_window_restore_tile' },
+    [POWERUP_TILE_TEXTURES.randomRestore]: { path: 'powerup_random_restore_tile' },
+    [POWERUP_TILE_TEXTURES.trayRestore]: { path: 'powerup_tray_restore_tile' },
 
     // `[WXG-T-515]` 结算 9-slice 四件（源图与设计 px 1:1，端帽见 `CLEAR_*_SLICE`）。
     [MENU_TEXTURES.panelFrame]: { path: 'ui_panel_frame_9s' },

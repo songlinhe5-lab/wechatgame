@@ -1,6 +1,19 @@
 import { POWERUP_BAND, POWERUP_CARD_GAP, POWERUP_CARD_H, POWERUP_CARD_W, POWERUP_LABEL_GAP, POWERUP_LABEL_H } from './visual.js';
 import { DESIGN_W } from './layout.js';
-import { POWERUP_TYPES } from './gameplay.js';
+import { POWERUP_TYPES, type PowerupType } from './gameplay.js';
+
+/**
+ * `[WXG-T-601]` 道具**框图** textureId（正本 = `design/art/final/assets/powerup/tiles/`，
+ * 336² @4x ⇒ 设计尺度 84×84；图内已含圆角木框 + 米底 + 道具本体 ⇒ 视图只需 blit，⛔ 不再叠圆底）。
+ *
+ * 与 {@link POWERUP_TYPES} 同键 ⇒ 逐型一一对应；宿主未导入/解不出时该 id 查不到
+ * （`menuBitmapReady` 返 false）⇒ 视图走程序化单字徽章回退，不留空位。
+ */
+export const POWERUP_TILE_TEXTURES: Readonly<Record<PowerupType, string>> = {
+  windowRestore: 'bitmap__powerup_window_tile',
+  randomRestore: 'bitmap__powerup_random_tile',
+  trayRestore: 'bitmap__powerup_tray_tile',
+};
 
 /** One powerup card's rect (`x`/`bottom` = design-space bottom-left corner). */
 export interface PowerupCardRect {

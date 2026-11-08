@@ -65,6 +65,7 @@ function syncCocosMirror() {
  * - `/mask-assets/*`   ⇒ `tools/mask-preview/cocos-assets/*`（4 张定稿 tint mask）
  * - `/menu-assets/*`   ⇒ `games/beads/design/art/final/assets/menu/*`（主菜单定稿位图；WXG-T-576 起按用途分子目录 + `@2x` 后缀，URL 需带子目录，映射根不变）
  * - `/level-assets/*`  ⇒ `games/beads/design/levels/assets/*`（Boss 原图）
+ * - `/powerup-assets/*` ⇒ `games/beads/design/art/final/assets/powerup/*`（道具框图 / 图标）
  *
  * 存在的理由：harness 的静态服务**只服务 `dev/harness/`**（见 `resolveTarget` 的目录守卫），
  * 而产物真源在别处 ⇒ 不映射就 fetch 不到。⛔ 只读、只这条前缀、⛔ 不得用于任意目录
@@ -74,6 +75,8 @@ const ASSET_MAPS = [
   { prefix: '/mask-assets/', dir: join(ROOT, 'tools', 'mask-preview', 'cocos-assets') },
   { prefix: '/menu-assets/', dir: join(ROOT, 'games', 'beads', 'design', 'art', 'final', 'assets', 'menu') },
   { prefix: '/level-assets/', dir: join(ROOT, 'games', 'beads', 'design', 'levels', 'assets') },
+  // `[WXG-T-601]` 关卡详情道具框图（`design/art/final/assets/powerup/tiles/*_tile.png`）。
+  { prefix: '/powerup-assets/', dir: join(ROOT, 'games', 'beads', 'design', 'art', 'final', 'assets', 'powerup') },
 ];
 const HOST = argValue('--host', '127.0.0.1');
 const SKIP_BUILD = hasFlag('--no-build');
