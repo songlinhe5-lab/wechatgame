@@ -1,0 +1,102 @@
+# 关卡详情弹窗 · 木牌背板纹理 · 生成记录（2026-11-08）
+
+任务：关卡详情弹窗（`dialog-v25b`，750×1334）中，标题「关卡详情」下方的木牌背板。原背板烫着旧标题字，需要换成无字纹理，并保留木牌外轮廓、四角铆钉与严丝合缝的边界。
+用户裁定（按时间）：①「木纹给擦掉算了」→ 平板 ②「保持整块板的轮廓，重新生成轮廓内的木纹，要求严丝合缝，不要有不连续的区域」→ 程序化木纹 ③「更想要 AI 那种更自然的木纹」→ AI 高频木纹 + 严丝合缝底色（当前定稿）。
+
+## 基准图（所有步骤共用的源）
+
+- `source/dialog-v25b-750x1334-rgb.png`：RGB 750×1334，带烫字标题的原弹窗底图（**只读源**，所有擦除/替换都从它出发，不改它）。
+- 来源：`dialog-v25b` 底图（带烫字标题）的 RGB 版（无 alpha 通道）。RGBA 版抠图会泛红，故只用 RGB 版。
+
+## 逐步
+
+### S1 · 程序化木纹（已上 Figma，已被 S3 替代）
+
+- 通道/模型：**零模型**，本地 numpy。
+- 脚本：`ai-workflows/wood_plate.py`（拉普拉斯调和底色 + FFT 高斯噪声 + 扭曲正弦年轮 + 边界 taper 归零）。
+- 参数：`IX1,IX2=169,600; IY1,IY2=225,332; R_IN=10; GRAIN_AMP=3.5; TAPER=7.0; SEED=11`。
+- 产出：`out/wood-plate.png`。⚠ 接缝 ≈0（左 1.2 / 右 0.4 亮度单位），但木纹偏「规整」，用户要求更自然，故被 S3 替代。
+
+### S2 · 平板（作废）
+
+- 通道/模型：零模型。脚本 `ai-workflows/flat_plaque_full2.py`（外轮廓 OX 167..602 / OY 223..334，INSET 2，R_OUT 12，左缘 notch 行 262–288 插值）。
+- 产出：`out/flat-plaque-full3.png`。作废原因：用户「木纹给擦掉算了」后判实际效果不行，之后改为木纹。
+
+### S3 · AI 高频木纹 + 严丝合缝底色（**当前定稿，已上 Figma `92:37`、`97:36`**）
+
+- 通道/模型：**零新增模型**，复用 S4 的 qwen-3.0-pro 输出 `raw/q3pro-s7.png` 作高频来源。
+- 脚本：`ai-workflows/ai_grain_plate.py`。
+- 算法（不改，仅记录）：
+  1. 底色 = 拉普拉斯调和（边界取左右两侧干净木板色，3000 次 Jacobi），与 S1 同配方；保证贴边界颜色连续。
+  2. 高频 = `q3pro-s7` 缩放到 1x（430×128，crop 170..600 × 212..340）→ 垂直上移 DY=4（qwen 固定位移）→ 高斯高通（σ_y 2.5 / σ_x 6）→ 按 std 归一 → 截断 ±2.2σ（去掉 qwen 的块状台阶）→ 再归一。
+  3. 去 AI 伪影：铆钉周围 14 px 内纹理淡出（qwen 在铆钉外重画了软垫）；左侧木板接缝 y≈273、x 166..192 处纹理压掉（qwen 原图的接缝线）。
+  4. 纹理 × taper（边界 SDF / 6 px，外侧归零）⇒ 贴边界 = 底色，严丝合缝。
+  5. 外轮廓、四角铆钉保留原图像素（alpha 合成，内缩 INSET 2，铆钉软遮罩 r 10→13）。
+- 指标：`ai-workflows/tone_step.py` ⇒ 左 1.1 / 右 0.4（亮度单位，≈0 视为无可见接缝）。
+- 产出：`out/ai-grain-plate4.png`（RGB 750×1334，已 upload `92:37` / `97:36`，hash `b7038d0a…`）；缩放视图 `out/ai-grain4-zoom.png`。
+- 废弃中间版：`ai-grain-plate.png`（未截断，块状台阶明显）、`ai-grain-plate2.png`（截断后仍有铆钉方块与接缝线）、`ai-grain-plate3.png`（修反了接缝遮罩极性）。不入库。
+
+### S4 · qwen-3.0-pro 去字（**AI 高频来源**）
+
+- 通道/模型：**token-plan / qwen-image-3.0-pro**，i2i（`--ref`），`--size '1536*456'`，档位 1K。
+- 参考图：`source/crop-up.png`（1536×456，由 `dialog-v25b` 裁 170..600 × 212..340 的牌面后 LANCZOS 放大 ×3.6）。
+- seed：**7（采用）** / 42（留样，未采用）。
+- 脚本/命令（照抄可用）：
+```bash
+python3 games/beads/design/ai-workflows/dashscope-generate.py \
+  --profile token-plan --model qwen-image-3.0-pro --ref games/beads/design/art/proposals/plaque-texture-20261108/source/crop-up.png \
+  --size '1536*456' --seed 7 --text "严格保持参考图的木牌外形、边框、四角铆钉、木纹配色和光照，只把木牌中央区域的所有文字、立体字和阴影去掉，牌面变为干净统一的同一种厚木纹，横向木纹细腻自然，无任何文字、笔画、图案。木牌之外的木板背景保持不变，构图与比例一致。"
+# seed 42 同上，仅 --seed 42
+```
+- 产出：`raw/q3pro-s7.png`、`raw/q3pro-s42.png`（1536×456 RGB）。
+- 判据：去字 ✅；bbox 不生效（qwen 无 mask，脚本 `bbox_guard` 拦截 qwen+bbox）；整体上移 ≈4 px（DY 对齐）；铆钉与边框保留良好。
+
+### S5 · wan2.7-image bbox（三次，未采用为定稿，留档）
+
+- 通道/模型：**token-plan / wan2.7-image**，i2i + `--bbox`，`--size '750*1334'`，档位 1K。
+- 参考图：`source/plaque-src-v3.png`（无字 v3 参考）。
+- 命令（照抄可用）：
+```bash
+python3 games/beads/design/ai-workflows/dashscope-generate.py \
+  --profile token-plan --model wan2.7-image --ref games/beads/design/art/proposals/plaque-texture-20261108/source/plaque-src-v3.png \
+  --bbox 198,226,576,330 --size '750*1334' --seed 7 --text "只修改方框内的木牌表面：改为与周围一致的浅棕橙色厚木板，横向木纹细腻自然，顶部略亮、底部略暗，光照与周围统一。方框内不得出现任何文字、笔画、图案、螺丝或阴影斑块。方框外的画面保持完全不变。"
+# seed 42 同上，仅 --seed 42
+```
+- 产出：`raw/wan-s7.png`、`raw/wan-s42.png`（RGBA，alpha 253–255 无语义）。
+- 处理：框外不可控（maxΔ ≈196，mean ≈6.5）⇒ 必须 paste-back：`ai-workflows/composite_wan.py`（FEATHER 14）⇒ 再经 `ai-workflows/composite_tone.py`（低频色调替换 σ 30/4，HF 0.6）⇒ 产 `out/comp-tone06-s7.png`（seed 7 的采用版，接缝 ≈ 1 单位）。seed 42 留样未采用。
+- 结论：木纹质感可以，但框外漂移与贴回接缝难以做到严丝合缝，用户要求零断缝，故改走 S3。
+
+### S6 · wan2.7-image 原图直擦（测试，判负）
+
+- 参考图：`source/dialog-v25b-750x1334-rgb.png`（带字原图）。
+- 命令同 S5，仅 `--ref` 换为原图、seed 7、文案改为「擦除木牌上的所有文字、立体字、阴影与高光……」。
+- 产出：`raw/wan-orig-s7.png`。判负：字影残留为幽灵凸起、整体偏暗（需 −8 色调，被驳回）。计入「出图」，不计浪费（非调用失败，属判负弃件）。
+
+## 产出与留档
+
+| 文件 | 类型 | 去向 |
+|---|---|---|
+| `source/dialog-v25b-750x1334-rgb.png` | 源（只读） | 仓内留档 |
+| `source/plaque-src-v3.png` · `source/crop-up.png` | 模型参考图 | 仓内留档 |
+| `raw/q3pro-s7.png` · `raw/q3pro-s42.png` | 模型原始输出 | 仓内留档 |
+| `raw/wan-s7.png` · `raw/wan-s42.png` · `raw/wan-orig-s7.png` | 模型原始输出 | 仓内留档 |
+| `out/ai-grain-plate4.png` | **定稿背板（已上 Figma）** | 仓内留档 |
+| `out/wood-plate.png` · `out/flat-plaque-full3.png` · `out/comp-tone06-s7.png` | 中间版（评估用） | 仓内留档 |
+
+## 脚本副本（已入库 `games/beads/design/ai-workflows/`）
+
+- `ai_grain_plate.py`（S3 定稿）· `wood_plate.py`（S1）· `flat_plaque_full2.py`（S2）
+- `paste_plaque.py`（S4 qwen 贴回，DY 4 / FEATHER 6）
+- `composite_wan.py`（S5 wan 贴回）· `composite_tone.py`（S5 色调修正）· `tone_step.py`（接缝量化）
+
+## 用量台账
+
+已追加到 `production/qa/token-plan-usage-ledger.md`：
+- wan2.7-image：调用 3 / 出图 3 / 留档 3（S5 ×2 + S6 ×1）
+- qwen-image-3.0-pro：调用 2 / 出图 2 / 留档 2（S4 ×2）
+- 合计 5 次 / 5 张 / 5 张留档（Token Plan Credits，元/张不适用）。
+
+## 备注
+
+- 本批所有 Token Plan 调用均已登记在上表；本批不含 Figma 节点操作的模型调用（`upload_assets` 只是上传，不生成图像）。
+- 已知遗留：「曼陀罗·第5关」字样仍烫在背景底图的下方区域，不在本批范围内。

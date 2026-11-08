@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3980,
       "lines": 134,
-      "sha256": "11ab99069239fa363b59be738a5826052d46226d6c4c18547e49b468429e3c1c",
+      "sha256": "c10aa12fe718b5c9e6e930610e8a0da262ff11aaed4c2d597a515ee1a6e59a1a",
       "tier": "normal",
       "sections": [
         {
@@ -377,7 +377,7 @@
           "startLine": 1,
           "endLine": 135,
           "tokens": 3967,
-          "summary": "生成：2026-11-07 · 由 tools/scripts/build-context-index.mjs 自动生成",
+          "summary": "生成：2026-11-08 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
             "BUDGET",
@@ -65523,9 +65523,9 @@
     },
     {
       "path": "memory/INDEX.md",
-      "tokens": 15163,
+      "tokens": 15167,
       "lines": 358,
-      "sha256": "8f4dbd0f44e539a38f241a60ff83c42aa988998cf646e6778f963a0efe55ef59",
+      "sha256": "df598ba6f1990d69e7371397149bf0069a85afe599fc8d6e56d88e468cac6fc7",
       "tier": "normal",
       "sections": [
         {
@@ -65533,7 +65533,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 359,
-          "tokens": 15140,
+          "tokens": 15144,
           "summary": "memory/ 是跨会话的运行时记忆，分四层：MEMORY.md（蒸馏后的常驻摘要）→",
           "keywords": [
             "memory",
@@ -65604,7 +65604,7 @@
           "level": 2,
           "startLine": 67,
           "endLine": 359,
-          "tokens": 13501,
+          "tokens": 13505,
           "summary": "<!-- memory:index:start（由 pnpm run ctx:build 生成，勿手改）-->",
           "keywords": [
             "memory",
@@ -65616,7 +65616,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-22.md` — 398 tok｜0 节｜**蒸馏到期 2026-11-21**（剩 14 天）",
+          "anchor": "§`memory/2026-10-22.md` — 398 tok｜0 节｜**蒸馏到期 2026-11-21**（剩 13 天）",
           "level": 3,
           "startLine": 73,
           "endLine": 77,
@@ -65630,7 +65630,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-21.md` — 5,478 tok｜10 节｜**蒸馏到期 2026-11-20**（剩 13 天）",
+          "anchor": "§`memory/2026-10-21.md` — 5,478 tok｜10 节｜**蒸馏到期 2026-11-20**（剩 12 天）",
           "level": 3,
           "startLine": 78,
           "endLine": 92,
@@ -65646,7 +65646,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-20.md` — 1,785 tok｜4 节｜**蒸馏到期 2026-11-19**（剩 12 天）",
+          "anchor": "§`memory/2026-10-20.md` — 1,785 tok｜4 节｜**蒸馏到期 2026-11-19**（剩 11 天）",
           "level": 3,
           "startLine": 93,
           "endLine": 101,
@@ -65662,7 +65662,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-14.md` — 142 tok｜2 节｜2 节已外移｜**蒸馏到期 2026-11-13**（剩 6 天）",
+          "anchor": "§`memory/2026-10-14.md` — 142 tok｜2 节｜2 节已外移｜**蒸馏到期 2026-11-13**（剩 5 天）",
           "level": 3,
           "startLine": 102,
           "endLine": 108,
@@ -65678,7 +65678,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-13.md` — 4,542 tok｜8 节｜5 节已外移｜**蒸馏到期 2026-11-12**（剩 5 天）",
+          "anchor": "§`memory/2026-10-13.md` — 4,542 tok｜8 节｜5 节已外移｜**蒸馏到期 2026-11-12**（剩 4 天）",
           "level": 3,
           "startLine": 109,
           "endLine": 121,
@@ -65694,7 +65694,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-12.md` — 6,315 tok｜7 节｜**蒸馏到期 2026-11-11**（剩 4 天）",
+          "anchor": "§`memory/2026-10-12.md` — 6,315 tok｜7 节｜**蒸馏到期 2026-11-11**（剩 3 天）",
           "level": 3,
           "startLine": 122,
           "endLine": 133,
@@ -65709,7 +65709,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-10.md` — 2,825 tok｜2 节｜**蒸馏到期 2026-11-09**（剩 2 天）",
+          "anchor": "§`memory/2026-10-10.md` — 2,825 tok｜2 节｜**蒸馏到期 2026-11-09**（剩 1 天）",
           "level": 3,
           "startLine": 134,
           "endLine": 140,
@@ -65723,7 +65723,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-09.md` — 358 tok｜0 节｜**蒸馏到期 2026-11-08**（剩 1 天）",
+          "anchor": "§`memory/2026-10-09.md` — 358 tok｜0 节｜**蒸馏已到期（2026-11-08，已过期 0 天）**",
           "level": 3,
           "startLine": 141,
           "endLine": 145,
@@ -65733,11 +65733,12 @@
             "memory/2026-10-09.md",
             "memory",
             "tok",
-            "蒸馏到期"
+            "蒸馏已到期",
+            "已过期"
           ]
         },
         {
-          "anchor": "§`memory/2026-10-07.md` — 5,905 tok｜4 节｜**蒸馏已到期（2026-11-06，已过期 1 天）**",
+          "anchor": "§`memory/2026-10-07.md` — 5,905 tok｜4 节｜**蒸馏已到期（2026-11-06，已过期 2 天）**",
           "level": 3,
           "startLine": 146,
           "endLine": 154,
@@ -65753,7 +65754,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-06.md` — 2,680 tok｜2 节｜**蒸馏已到期（2026-11-05，已过期 2 天）**",
+          "anchor": "§`memory/2026-10-06.md` — 2,680 tok｜2 节｜**蒸馏已到期（2026-11-05，已过期 3 天）**",
           "level": 3,
           "startLine": 155,
           "endLine": 161,
@@ -65769,7 +65770,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-05.md` — 4,344 tok｜0 节｜**蒸馏已到期（2026-11-04，已过期 3 天）**",
+          "anchor": "§`memory/2026-10-05.md` — 4,344 tok｜0 节｜**蒸馏已到期（2026-11-04，已过期 4 天）**",
           "level": 3,
           "startLine": 162,
           "endLine": 166,
@@ -65784,7 +65785,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 28,255 tok｜14 节｜14 节已外移｜**蒸馏已到期（2026-11-03，已过期 4 天）**",
+          "anchor": "§`memory/2026-10-04.md` — 28,255 tok｜14 节｜14 节已外移｜**蒸馏已到期（2026-11-03，已过期 5 天）**",
           "level": 3,
           "startLine": 167,
           "endLine": 185,
@@ -65800,7 +65801,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-03.md` — 79 tok｜1 节｜1 节已外移｜**蒸馏已到期（2026-11-02，已过期 5 天）**",
+          "anchor": "§`memory/2026-10-03.md` — 79 tok｜1 节｜1 节已外移｜**蒸馏已到期（2026-11-02，已过期 6 天）**",
           "level": 3,
           "startLine": 186,
           "endLine": 191,
@@ -65816,7 +65817,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-29.md` — 7,239 tok｜0 节｜**蒸馏已到期（2026-10-29，已过期 9 天）**",
+          "anchor": "§`memory/2026-09-29.md` — 7,239 tok｜0 节｜**蒸馏已到期（2026-10-29，已过期 10 天）**",
           "level": 3,
           "startLine": 192,
           "endLine": 196,
@@ -65831,7 +65832,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-28.md` — 1,352 tok｜10 节｜9 节已外移｜**蒸馏已到期（2026-10-28，已过期 10 天）**",
+          "anchor": "§`memory/2026-09-28.md` — 1,352 tok｜10 节｜9 节已外移｜**蒸馏已到期（2026-10-28，已过期 11 天）**",
           "level": 3,
           "startLine": 197,
           "endLine": 211,
@@ -65847,7 +65848,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-27.md` — 6,212 tok｜3 节｜**蒸馏已到期（2026-10-27，已过期 11 天）**",
+          "anchor": "§`memory/2026-09-27.md` — 6,212 tok｜3 节｜**蒸馏已到期（2026-10-27，已过期 12 天）**",
           "level": 3,
           "startLine": 212,
           "endLine": 219,
@@ -65863,7 +65864,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-22.md` — 1,263 tok｜1 节｜**蒸馏已到期（2026-10-22，已过期 16 天）**",
+          "anchor": "§`memory/2026-09-22.md` — 1,263 tok｜1 节｜**蒸馏已到期（2026-10-22，已过期 17 天）**",
           "level": 3,
           "startLine": 220,
           "endLine": 225,
@@ -65879,7 +65880,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-17.md` — 6,817 tok｜12 节｜**蒸馏已到期（2026-10-17，已过期 21 天）**",
+          "anchor": "§`memory/2026-09-17.md` — 6,817 tok｜12 节｜**蒸馏已到期（2026-10-17，已过期 22 天）**",
           "level": 3,
           "startLine": 226,
           "endLine": 242,
@@ -65895,7 +65896,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-16.md` — 4,236 tok｜7 节｜1 节已外移｜**蒸馏已到期（2026-10-16，已过期 22 天）**",
+          "anchor": "§`memory/2026-09-16.md` — 4,236 tok｜7 节｜1 节已外移｜**蒸馏已到期（2026-10-16，已过期 23 天）**",
           "level": 3,
           "startLine": 243,
           "endLine": 254,
@@ -65911,7 +65912,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏已到期（2026-10-15，已过期 23 天）**",
+          "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏已到期（2026-10-15，已过期 24 天）**",
           "level": 3,
           "startLine": 255,
           "endLine": 271,
@@ -65927,7 +65928,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏已到期（2026-10-14，已过期 24 天）**",
+          "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏已到期（2026-10-14，已过期 25 天）**",
           "level": 3,
           "startLine": 272,
           "endLine": 299,
@@ -65943,7 +65944,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏已到期（2026-10-13，已过期 25 天）**",
+          "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏已到期（2026-10-13，已过期 26 天）**",
           "level": 3,
           "startLine": 300,
           "endLine": 320,
@@ -65959,7 +65960,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏已到期（2026-10-12，已过期 26 天）**",
+          "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏已到期（2026-10-12，已过期 27 天）**",
           "level": 3,
           "startLine": 321,
           "endLine": 338,
@@ -65975,7 +65976,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏已到期（2026-10-11，已过期 27 天）**",
+          "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏已到期（2026-10-11，已过期 28 天）**",
           "level": 3,
           "startLine": 339,
           "endLine": 359,
@@ -118339,17 +118340,17 @@
     },
     {
       "path": "production/qa/token-plan-usage-ledger.md",
-      "tokens": 3692,
-      "lines": 96,
-      "sha256": "d4d098ea62b1d4d3601afc39de0e8b844f166b58c2cef557917dcaf151cd40f2",
+      "tokens": 6070,
+      "lines": 112,
+      "sha256": "387bb83b1ec8b45d24df47a961e06773023832a661f7518b798ae4d8765f5204",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Token Plan 生图用量台账（建账 2026-11-01）",
           "level": 1,
           "startLine": 1,
-          "endLine": 97,
-          "tokens": 3676,
+          "endLine": 113,
+          "tokens": 6054,
           "summary": "本件只管「花了多少次、出了几张图、留在哪」，是追加型台账（按时间序加行，⛔ 不回改历史行）。",
           "keywords": [
             "Token",
@@ -118377,23 +118378,21 @@
           "anchor": "§2 账目",
           "level": 2,
           "startLine": 20,
-          "endLine": 45,
-          "tokens": 797,
-          "summary": "2026-10-31 接入探针（backend-token-plan.md 建件，未单领号） qwen-image-3.",
+          "endLine": 61,
+          "tokens": 3175,
+          "summary": "2026-11-07 关卡详情弹窗 V1 暖纸平台（风格作废） qwen-image-3.0-pro 1K 2 2 2 ",
           "keywords": [
-            "backend",
-            "token",
-            "plan",
             "qwen",
             "image",
+            "pro",
             "账目"
           ]
         },
         {
           "anchor": "§累计（截至 2026-11-01）",
           "level": 3,
-          "startLine": 34,
-          "endLine": 45,
+          "startLine": 50,
+          "endLine": 61,
           "tokens": 218,
           "summary": "qwen-image-3.0-pro 11 11 7 11 × 0.25 = ≈2.75 元量级（1K 档价；2K 档另",
           "keywords": [
@@ -118407,8 +118406,8 @@
         {
           "anchor": "§3 一处更正（建账时确诊，此前口径有误）",
           "level": 2,
-          "startLine": 46,
-          "endLine": 51,
+          "startLine": 62,
+          "endLine": 67,
           "tokens": 116,
           "summary": "qwen-image-3.0-pro 的按量对照价应为 0.25 元/张（1K 档），此前口头报数时误取了 wan2.7",
           "keywords": [
@@ -118423,8 +118422,8 @@
         {
           "anchor": "§4 追加规则（谁跑谁记，一轮一行）",
           "level": 2,
-          "startLine": 52,
-          "endLine": 60,
+          "startLine": 68,
+          "endLine": 76,
           "tokens": 223,
           "summary": "1. 每批云图跑完，在本表追加一行（同批次多模型则多行），字段照表头，⛔ 不合并不同模型的行。",
           "keywords": [
@@ -118436,8 +118435,8 @@
         {
           "anchor": "§5 复算方法（想自己核一遍时）",
           "level": 2,
-          "startLine": 61,
-          "endLine": 70,
+          "startLine": 77,
+          "endLine": 86,
           "tokens": 135,
           "summary": "",
           "keywords": [
@@ -118448,8 +118447,8 @@
         {
           "anchor": "§6 temp 生图存量（2026-11-01 清理一次，用户令「把 temp 里的生图都清理掉」）",
           "level": 2,
-          "startLine": 71,
-          "endLine": 97,
+          "startLine": 87,
+          "endLine": 113,
           "tokens": 1892,
           "summary": "清理前 3642 张 / temp 共 2.3 GB",
           "keywords": [
