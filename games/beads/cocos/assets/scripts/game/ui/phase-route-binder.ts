@@ -27,11 +27,11 @@ import type { UiRoute } from './ui-root';
 export type ShellScreen = 'play' | 'menu';
 
 /** 菜单侧覆盖层（与 `MetaOverlay` 的呈现侧取值一一对应）。 */
-export type MenuOverlay = 'levels' | 'signin' | 'settings' | 'skins' | 'profile';
+export type MenuOverlay = 'levels' | 'signin' | 'settings' | 'skins' | 'profile' | 'level-detail';
 
 /** `[WXG-T-470/471/472]` 批 1：菜单侧覆盖层合法路由名（含 levels 页 + 弹窗；`[WXG-T-501]` 图鉴 / 本地榜下线）。 */
 const MENU_OVERLAY_NAMES: ReadonlySet<MetaOverlay> = new Set<MetaOverlay>([
-    'none', 'levels', 'signin', 'settings', 'skins', 'profile',
+    'none', 'levels', 'signin', 'settings', 'skins', 'profile', 'level-detail',
 ]);
 
 /**
@@ -117,6 +117,8 @@ export class PhaseRouteBinder {
             skins: { name: 'skins', kind: 'modal', draw: (b) => drawers.modal(b, 'skins') },
             // `[WXG-T-472]` 批 1：名片弹窗（`[WXG-T-501]` 图鉴 / 本地榜下线）。
             profile: { name: 'profile', kind: 'modal', draw: (b) => drawers.modal(b, 'profile') },
+            // `[WXG-T-601]` 关卡详情弹窗（选关卡卡 → 详情 → 开始；叠 levels 之上）。
+            'level-detail': { name: 'level-detail', kind: 'modal', draw: (b) => drawers.modal(b, 'level-detail') },
         };
         // `[WXG-T-440]` 相位面板路由（构造期一次建表；`draw` 与 `presenter` 同源，⛔ 两处真源）。
         const phaseRoute = (name: PhaseModal): UiRoute => ({

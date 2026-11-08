@@ -101,6 +101,15 @@ const PANEL_PHASE: Readonly<Record<PlayPanelName, BeadsPhase>> = {
     finish: 'finish',
 };
 
+/**
+ * `[WXG-T-601]` 关卡详情道具行角标的 8 档预分配常量表（索引 = 已用位图
+ * `window*4 + random*2 + tray`，0 = 三枚全可用 1）。角标档位 = 0/1 两态 ⇒
+ * 表覆盖全域、帧内零分配（L5：UI 不逐帧建集合）。
+ */
+const POWERUP_STOCKS_TABLES: readonly (readonly number[])[] = [
+    [1, 1, 1], [1, 1, 0], [1, 0, 1], [1, 0, 0], [0, 1, 1], [0, 1, 0], [0, 0, 1], [0, 0, 0],
+];
+
 /** UI-42：屏幕相位 / 覆盖层改由 {@link PhaseRouteBinder} 的 Navigator 栈投影（本文件不持标志位）。 */
 export type { ShellScreen };
 
@@ -266,6 +275,13 @@ export class BeadsShell implements Game {
         pressed: null as MetaButton | null,
         /** `[WXG-T-432]` 好友榜面板视图（每帧由 `_metaViewData` 覆盖；关档 = undefined）。 */
         rank: undefined as RankPanelView | undefined,
+        // `[WXG-T-601]` 关卡详情弹窗（选关卡卡 → 详情 → 开始）：详情目标关（-1 = 未开，
+        // `pick-level` 置位 / `back`·`start-detail` 清零；level 引用每次置位时从
+        // `_wallBaseLevels` 解析 —— 视图 ⛔ 自查关表）。
+        detailLevelIndex: -1,
+        detailLevel: undefined as BeadsLevelRaw | undefined,
+        /** 三道具可用数（熨/筛/扫；shell 从免费额度三布尔派生，预分配 8 档常量表）。 */
+        powerupStocks: POWERUP_STOCKS_TABLES[0] as readonly number[],
     };
     /** UI-40：走马灯页位 / 位移 / 吸附 / 玻璃手势全在 Presenter（本壳零走马灯字段）。 */
     private readonly _menu = new MainMenuPresenter();
@@ -360,6 +376,8 @@ export class BeadsShell implements Game {
             menu: (b) => buildMetaView(b, this._metaViewData(), this.play.palette),
             play: (b) => renderPlayPage(this.play, b),
             // `[UI-60 P1 / ADR-0033 DEC-1]` 弹窗自持绘制（容器边界由 `UiRoot.draw` 包）。
+            // `[WXG-T-601]` 弹窗可叠（`levels → level-detail`），`UiRoot.draw` 只调**栈顶**一张 ⇒ 这里读
+            // 当前 overlay（= 栈顶）恒正确，⛔ 不会把同一张面板画两遍。
             modal: (b) => buildMetaModal(b, this._metaViewData(), this.play.palette),
             // `[WXG-T-440 / ADR-0033 边界②]` 相位面板自持绘制 + 同源自持命中（动作仍在 game）。
             panel: (b, name) => renderPlayPanel(this.play, b, name),
@@ -644,16 +662,38 @@ export class BeadsShell implements Game {
                 // 陈列序 = 配置文件顺序（恒等，槽位 = 关索引）；映射仍经 `_wallSlotsFor()`（保留 slot 间接层，视图契约不变）。
                 const levelIdx = slot === undefined ? undefined : this._wallSlotsFor()[slot];
                 if (levelIdx === undefined) return false;
-                // `[WXG-T-345]` S-4：章内线性（§3.7 v1.78「过一开一」）**⛔ 变** —— 线性已开 ⇒
-                // 直接放行，**不再复核门票**。棘轮的全部凭据 = 既有推进位已越过该关（I7），
-                // ⛔ 新增「已进入」布尔；门票也只在章界那一刻参与（`_persistProgress` 的钳制腿）。
+                // `[WXG-T-601]` 选关卡卡 → **关卡详情弹窗**（2026-11-08 用户令）：
+                // 闸门判据与原直进路径逐字不变（线性已开 / 章首门票两道），只是放行产物
+                // 从 `_startLevel` 换成「置详情态 + 开 `level-detail` 弹窗」；
+                // 真正进关挪到详情的 `start-detail`（闸门在此复核 ⇒ 取消/返回零副作用）。
+                if (levelIdx + 1 > this.play.maxUnlockedLevel) {
+                    // 线性未开 = 只可能是**本章首格 + 章界未过**（解锁位被 `_persistProgress` 钳在章末）。
+                    // 门票是唯一额外放行依据：章未开 ⇒ 零事件 / 零扣心 / 不消费；章首之外 ⛔ 用门票越权。
+                    if (slot !== 0 || !this._arcTicketSatisfied(this._phase.levelsArc).satisfied) return false;
+                }
+                // `[WXG-T-601]` 体力闸前移：0 心时点格**先**给加心位（EP13-S3 R7 原判据不变），
+                // 不放详情 —— 否则玩家要点「开始」才被告知没心，多一步且破 R7 口径。
+                // 返回值沿用旧口径「tap 被消费但不导航」= true。
+                if (this.meta && this.meta.stamina < STAMINA_START_COST) {
+                    this._requestStaminaRefill();
+                    return true;
+                }
+                this._viewData.detailLevelIndex = levelIdx;
+                this._viewData.detailLevel = this._wallBaseLevels[levelIdx];
+                this._phase.openModal('level-detail');
+                this._emitOverlay(true);
+                return true;
+            }
+            // `[WXG-T-601]` 关卡详情「开始」CTA：复核两道闸门（与 `pick-level` 同判据 ⇒ 详情停留
+            // 期间进度推进不会越权开锁），然后走原直进腿（章首门票 = 第二参 `true`）。
+            case 'start-detail': {
+                const levelIdx = this._viewData.detailLevelIndex;
+                if (levelIdx < 0) return false;
+                this._clearDetailLevel();
                 if (levelIdx + 1 <= this.play.maxUnlockedLevel) {
                     this._startLevel(levelIdx);
                     return true;
                 }
-                // 线性未开 = 只可能是**本章首格 + 章界未过**（解锁位被 `_persistProgress` 钳在章末）。
-                // 门票是唯一额外放行依据：章未开 ⇒ 零事件 / 零扣心 / 不消费；章首之外 ⛔ 用门票越权。
-                if (slot !== 0 || !this._arcTicketSatisfied(this._phase.levelsArc).satisfied) return false;
                 this._startLevel(levelIdx, true);
                 return true;
             }
@@ -702,6 +742,8 @@ export class BeadsShell implements Game {
                 if (this._phase.overlay === 'levels') {
                     this._beginPageFx(-1);
                 } else {
+                    // `[WXG-T-601]` 关卡详情返回 ⇒ 清详情态（防「重开弹窗闪旧关」）。
+                    this._clearDetailLevel();
                     this._phase.close();
                     this._emitOverlay(false);
                 }
@@ -716,6 +758,12 @@ export class BeadsShell implements Game {
                 this.play.applySettingsAction(action as PausePanelAction);
                 return true;
         }
+    }
+
+    /** `[WXG-T-601]` 清关卡详情态（back / start-detail 后调用；`-1` = 未开）。 */
+    private _clearDetailLevel(): void {
+        this._viewData.detailLevelIndex = -1;
+        this._viewData.detailLevel = undefined;
     }
 
     /**
@@ -1235,6 +1283,12 @@ export class BeadsShell implements Game {
         }
         v.totalStars = ts;
         v.clearedCount = cc;
+        // `[WXG-T-601]` 关卡详情道具行角标：免费额度三布尔（已用位图）→ 8 档预分配表，零分配。
+        // ⚠ 语义 = 「账号级免费每型 1 次」：可用 1 / 已用 0（无库存数量系统，勿在此造数量腿）。
+        const used = m?.powerupFreeUsed;
+        v.powerupStocks = POWERUP_STOCKS_TABLES[
+            (used?.window ? 1 : 0) * 4 + (used?.random ? 1 : 0) * 2 + (used?.tray ? 1 : 0)
+        ];
         return v;
     }
 

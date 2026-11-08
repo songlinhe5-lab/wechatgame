@@ -353,7 +353,10 @@ describe('EP12-S6 Deliverable 2 · 陈列序 = 配置文件恒等序（#2 反转
         const r = rig({ maxUnlocked: LEVELS.length });
         openLevels(r.shell); // 墙下移 `levels` overlay ⇒ 先在选关页点格
         const c = centerOf(wallCells()[1]!.box);
-        expect(r.shell.tapMeta(c.x, c.y)).toBe(true);
+        // `[WXG-T-601]` 二段式：点格 → 关卡详情 → 「开始」才进关。
+        expect(r.shell.tapMeta(c.x, c.y), '点格 → 开详情').toBe(true);
+        const start = centerOf(metaLayout('level-detail').buttons.find((b) => b.id === 'start-detail')!.box);
+        expect(r.shell.tapMeta(start.x, start.y), '详情「开始」→ 进关').toBe(true);
         expect(r.shell.screen).toBe('play');
         expect(r.shell.play.levelIndex, '槽 1 = 关索引 1（L2）').toBe(1);
         expect(r.shell.play.levelIndex + 1).toBe(WALL_ORDER_IDS[1]);
@@ -393,7 +396,11 @@ describe('EP12-S6 Deliverable 3 · 三条硬口径（§5.4）+ 未解锁零热�
         const r = rig({ maxUnlocked: LEVELS.length });
         openLevels(r.shell); // 墙下移 `levels` overlay ⇒ 格在选关页可点
         const cell = wallCells()[2]!; // 槽 2 = L3 = 索引 2（恒等配置序）
+        // `[WXG-T-601]` 二段式：点格 → 详情 → 「开始」。
         r.shell.tapMeta(...centerTuple(cell.box));
+        r.shell.tapMeta(...centerTuple(
+            metaLayout('level-detail').buttons.find((b) => b.id === 'start-detail')!.box,
+        ));
         expect(r.shell.play.levelIndex).toBe(2);
         r.shell.showMenu();
         const start = anchoredLayout(r.shell).buttons.find((b) => b.id === 'start')!;
@@ -403,12 +410,17 @@ describe('EP12-S6 Deliverable 3 · 三条硬口径（§5.4）+ 未解锁零热�
         expect(r.shell.play.levelIndex, '主钮开的是**当前关**（2），不是槽位号、也不是首关').toBe(2);
     });
 
-    it('口径②：墙格 = **指定关**（点槽 8 直达 L9）', () => {
+    it('口径②：墙格 = **指定关**（点槽 8 → 详情 → 开始 = L9）', () => {
         const r = rig({ maxUnlocked: LEVELS.length });
         openLevels(r.shell); // 墙住 `levels` overlay
         const cell = wallCells()[8]!;
         const c = centerOf(cell.box);
-        expect(r.shell.tapMeta(c.x, c.y)).toBe(true);
+        // `[WXG-T-601]` 二段式：点格只开详情，详情「开始」才进指定关。
+        expect(r.shell.tapMeta(c.x, c.y), '点格 → 开详情').toBe(true);
+        const start = centerOf(
+            metaLayout('level-detail').buttons.find((b) => b.id === 'start-detail')!.box,
+        );
+        expect(r.shell.tapMeta(start.x, start.y), '详情「开始」→ 进关').toBe(true);
         expect(r.shell.play.levelIndex).toBe(WALL_ORDER_IDS[8]! - 1);
     });
 

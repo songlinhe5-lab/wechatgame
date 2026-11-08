@@ -25,7 +25,7 @@ export function setMenuBitmapResolver(fn?: (textureId: string) => boolean): void
 // ── 走马灯小卡（menu-architecture §1.3 第五轮终裁：主菜单主区 = 单卡进度展示，卡 = 唯一选关入口）。
 //    几何由 {@link anchoredGeo} 逐机算定（`bossBox` 图位 ⇒ `[WXG-T-281]` 旧白卡退场）⇒ 静态档 `CAROUSEL_BOX` 已随锚定档退场。
 /** 星级_label 查表（取代旧每帧 `'★'.repeat(n)+'☆'.repeat(3-n)` ⇒ 逐字同串、每帧零字符串分配）。 */
-const STAR_LABELS: readonly string[] = ['☆☆☆', '★☆☆', '★★☆', '★★★'];
+export const STAR_LABELS: readonly string[] = ['☆☆☆', '★☆☆', '★★☆', '★★★'];
 /** 顶栏三颗全部实装（`[WXG-T-365]`：中档由公告预留位升格为装扮馆入口 ⇒ 预留数组与禁用态退场）。 */
 
 export function label(id: MetaAction, data: MetaViewData): string {
@@ -49,6 +49,10 @@ export function label(id: MetaAction, data: MetaViewData): string {
             return data.canClaim ? '领取' : '已领取';
         case 'back':
             return '返回';
+        // `[WXG-T-601]` 关卡详情「开始」CTA（文案与主菜单 `btn_start_label` 同令牌族；「关卡详情」弹窗
+        // 语义 = 确认进入该关 ⇒ 复用同一文案真源，⛔ 不新造「进入本关」第二套）。
+        case 'start-detail':
+            return COPY_TOKENS.btn_start_label;
         // `[WXG-T-472]` 名片入口钮（[WXG-T-501] 图鉴 / 本地榜两入口下线）。
         case 'open-profile':
             return COPY_TOKENS.btn_profile_label;
@@ -229,7 +233,8 @@ export function drawWallCell(
  * 抽出自 `buildMetaView` 旧循环体（WXG-T-314）；表达式逐字搬运 ⇒ 静息帧零漂移。
  */
 export function drawMetaButton(builder: RenderModelBuilder, palette: BeadsPalette, data: MetaViewData, b: MetaButton): void {
-    const primary = b.id === 'claim';
+    // `[WXG-T-601]` `start-detail`（关卡详情 CTA）与 `claim` 同列主行动档。
+    const primary = b.id === 'claim' || b.id === 'start-detail';
     const disabled = b.id === 'claim' && !data.canClaim;
     // EP11-S5 行4：选择器钮带现档名（如「珠子风格  经典四棱」）⇒ 30px 字模宽于 colW 248，
     // 沿用暂停面板同族做法：小字档（不动已冻结的 plate 几何）。

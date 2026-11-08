@@ -147,6 +147,13 @@ function clickCell(r: Rig, slot: number): boolean {
     return r.shell.tapMeta(c.x, c.y);
 }
 
+/** `[WXG-T-601]` 二段式第二段：关卡详情弹窗「开始」（点格只开详情，不直接进关）。 */
+function confirmDetailStart(r: Rig): boolean {
+    const btn = metaLayout('level-detail').buttons.find((b) => b.id === 'start-detail')!;
+    const c = centerOf(btn.box);
+    return r.shell.tapMeta(c.x, c.y);
+}
+
 function savedDoc(r: Rig): Record<string, unknown> {
     return JSON.parse(String(r.storage.get(PLAY_KEY))) as Record<string, unknown>;
 }
@@ -206,7 +213,8 @@ describe('S-4 闸门：门票达成 ⇒ 章首授权', () => {
         expect(data.arcStarNeed).toBeUndefined();
 
         const staminaBefore = r.shell.meta!.stamina;
-        expect(clickCell(r, 0), '章首格放行').toBe(true);
+        expect(clickCell(r, 0), '章首格放行 → 开详情').toBe(true);
+        expect(confirmDetailStart(r), '详情「开始」→ 进关').toBe(true);
         expect(r.shell.screen).toBe('play');
         expect(r.shell.play.levelIndex).toBe(CH2_FIRST);
         expect(r.shell.play.maxUnlockedLevel, '解锁位推进到章首').toBe(CH2_FIRST + 1);
@@ -240,7 +248,8 @@ describe('M-15 棘轮（I7 / §8-20）', () => {
         openLevels(r.shell, r);
         expect(viewData(r.shell).arcTicketOpen, '显示层：入口已得 ⇒ 章开（由既有推进位判定）').toBe(true);
         const before = r.shell.meta!.stamina;
-        expect(clickCell(r, 0), '已得入口不回收').toBe(true);
+        expect(clickCell(r, 0), '已得入口不回收 → 开详情').toBe(true);
+        expect(confirmDetailStart(r), '详情「开始」→ 进关').toBe(true);
         expect(r.shell.screen).toBe('play');
         expect(r.shell.play.levelIndex).toBe(CH2_FIRST);
         expect(r.shell.meta!.stamina).toBe(before - 1);
@@ -253,14 +262,16 @@ describe('M-12 章内线性解锁不变', () => {
     it('pointer=3 ⇒ 章 1 第 2/3 关可进、第 4 关仍拦（门票⛔ 混进章内判定）', () => {
         const r1 = rig({ pointer: 3, stars: [] });
         openLevels(r1.shell, r1);
-        expect(clickCell(r1, 1), '第 2 关（0-based 1）线性已开 ⇒ 可进').toBe(true);
+        expect(clickCell(r1, 1), '第 2 关（0-based 1）线性已开 ⇒ 开详情').toBe(true);
+        expect(confirmDetailStart(r1), '详情「开始」→ 进关').toBe(true);
         expect(r1.shell.screen).toBe('play');
         expect(r1.shell.play.levelIndex).toBe(1);
 
         const r2 = rig({ pointer: 3, stars: [] });
         openLevels(r2.shell, r2);
         const stamina = r2.shell.meta!.stamina;
-        expect(clickCell(r2, 2), '第 3 关线性已开 ⇒ 可进').toBe(true);
+        expect(clickCell(r2, 2), '第 3 关线性已开 ⇒ 开详情').toBe(true);
+        expect(confirmDetailStart(r2), '详情「开始」→ 进关').toBe(true);
         expect(r2.shell.play.levelIndex).toBe(2);
 
         const r3 = rig({ pointer: 3, stars: [] });

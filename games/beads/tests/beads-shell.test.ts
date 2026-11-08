@@ -325,7 +325,12 @@ describe('BeadsShell — 走马灯卡入口 + levels overlay 选关（menu-archi
         expect(r.shell.overlay).toBe('levels');
         // 陈列序 = 配置文件恒等序（#2 反转）；maxUnlocked=1 ⇒ 唯一已解锁 = L1（id 1）= 槽 0。
         const c = centerOf('levels', 'pick-level', 0);
+        // `[WXG-T-601]` 二段式：点格只开关卡详情（不扣心），详情「开始」才进关。
         expect(r.shell.tapMeta(c.x, c.y)).toBe(true);
+        expect(r.shell.overlay).toBe('level-detail');
+        expect(r.shell.meta!.stamina, '开详情不扣心').toBe(before);
+        const start = centerOf('level-detail', 'start-detail');
+        expect(r.shell.tapMeta(start.x, start.y)).toBe(true);
         expect(r.shell.screen).toBe('play');
         expect(r.shell.play.levelIndex).toBe(0);
         expect(r.shell.meta!.stamina).toBe(before - STAMINA_START_COST);

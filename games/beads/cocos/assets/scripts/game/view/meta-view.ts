@@ -54,6 +54,8 @@ import {
 import { drawMetaButton } from './meta-widgets';
 import { drawMenuAnchored, drawMenuBackdrop } from './meta-menu';
 import { drawLevelsContent } from './meta-levels-page';
+// `[WXG-T-601]` 关卡详情弹窗内容带（Figma「关卡详情弹窗 v25b」程序化还原）。
+import { drawLevelDetailContent } from './meta-level-detail-page';
 // `[WXG-T-432]` 好友榜面板占位视图（叠在菜单页之上；见下方 `buildMetaView` 末段）。
 import { drawRankPanel } from './rank-view';
 import { rankPanelLayout } from '../systems/rank-panel';
@@ -176,6 +178,9 @@ const META_PAGES: Record<MetaOverlay, PageDraw> = {
     // `[WXG-T-472]` 名片页（批 1）；`[WXG-T-501]` 图鉴 / 本地榜两页下线，只剩名片。
     // 标题读 `meta-pages-content` 单源常量（真源 = `tokens.md §7`）。
     profile: panelPage(PROFILE_TITLE, UI_SCRIM.alpha, drawProfileContent),
+    // `[WXG-T-601]` 关卡详情弹窗（选关卡卡 → 详情 → 开始）；标题「关卡详情」与 `tokens.md §7`
+    // 无对应键 ⇒ 与签到/装扮馆同判例（字面单源于此，⛔ 不新造令牌）。
+    'level-detail': panelPage('关卡详情', UI_SCRIM.alpha, drawLevelDetailContent),
 };
 
 /**
@@ -191,6 +196,8 @@ const BASE_PAGE: Record<MetaOverlay, MetaOverlay | null> = {
     skins: null,
     // `[WXG-T-470/471/472]` 批 1：名片页弹窗态叠主菜单（`[WXG-T-501]` 图鉴 / 本地榜下线）。
     profile: null,
+    // `[WXG-T-601]` 关卡详情弹窗叠选关页之上（弹窗态 ⇒ 底页主菜单）。
+    'level-detail': null,
 };
 
 /**
@@ -268,6 +275,8 @@ export function buildMetaModal(
     palette: BeadsPalette,
     variant?: MetaViewVariant,
 ): void {
+    // `[WXG-T-601]` 弹窗可叠（`levels → level-detail`）：`UiRoot.draw` 只画栈顶一张 ⇒
+    // 此处读 `data.overlay`（= 栈顶）恒等于「正在画的那张」，⛔ 不会重复画。
     if (BASE_PAGE[data.overlay] !== null) return;
     const rows = variant?.wallRows ?? WALL_ROWS;
     const thumbN = variant?.thumbN ?? THUMB_MATRIX_N;

@@ -124,6 +124,16 @@ function wallCells() {
     return metaLayout('levels', WALL_ROWS).buttons.filter((b) => b.id === 'pick-level');
 }
 
+/**
+ * `[WXG-T-601]` 二段式进口：点格 = **开关卡详情弹窗**（2026-11-08 用户令），
+ * 点详情里的「开始」才真正进关。本 helper 覆盖第二段（旧「一次 tap 即进」已作废）。
+ */
+function confirmDetailStart(shell: BeadsShell): boolean {
+    const btn = metaLayout('level-detail').buttons.find((b) => b.id === 'start-detail')!;
+    const c = centerOf(btn.box);
+    return shell.tapMeta(c.x, c.y);
+}
+
 function frameOf(shell: BeadsShell): readonly DrawCommand[] {
     const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
     builder.begin();
@@ -195,7 +205,8 @@ describe('EP13-S2 · 集合源 = 本大关清单（C-2 ②）', () => {
         expect(r.overlayEvents.length).toBe(eventsBefore);
         // 清单内最后一格（槽 8 = 关 9）仍可进 ⇒ 前一例不是「全墙瘫痪」的假绿。
         const last = centerOf(cells[8]!.box);
-        expect(r.shell.tapMeta(last.x, last.y)).toBe(true);
+        expect(r.shell.tapMeta(last.x, last.y), '点格 → 开关卡详情').toBe(true);
+        expect(confirmDetailStart(r.shell), '详情「开始」→ 进关').toBe(true);
         expect(r.shell.play.levelIndex).toBe(8);
     });
 });
@@ -206,7 +217,10 @@ describe('EP13-S2 · 闸门与进关语义（R1–R5，注 A 逐字）', () => {
         openLevels(r.shell);
         const before = r.shell.meta!.stamina;
         const c = centerOf(wallCells()[2]!.box); // 槽 2 = 关 3（索引 2）
-        expect(r.shell.tapMeta(c.x, c.y)).toBe(true);
+        expect(r.shell.tapMeta(c.x, c.y), '点格 → 开关卡详情').toBe(true);
+        expect(r.shell.overlay, '详情弹窗叠在选关页上').toBe('level-detail');
+        expect(r.shell.meta!.stamina, '开关卡不出详情不上账 ⇒ 点格不扣心').toBe(before);
+        expect(confirmDetailStart(r.shell), '详情「开始」→ 进关').toBe(true);
         expect(r.shell.screen).toBe('play');
         expect(r.shell.play.levelIndex).toBe(2);
         expect(r.shell.meta!.stamina, '一格 = 一次新局 ⇒ 恰扣 1 心').toBe(before - 1);
@@ -222,13 +236,17 @@ describe('EP13-S2 · 闸门与进关语义（R1–R5，注 A 逐字）', () => {
         const before = r.shell.meta!.stamina;
         const eventsBefore = r.overlayEvents.length;
         const c = centerOf(wallCells()[0]!.box); // 已通关格（L1，同时是当前关 ⇒ R5 叠加态）
-        expect(r.shell.tapMeta(c.x, c.y), '一次 tap 即进（⛔ 无确认弹窗）').toBe(true);
+        expect(r.shell.tapMeta(c.x, c.y), '点格 → 开关卡详情（2026-11-08 用户令：二段式）').toBe(true);
+        expect(confirmDetailStart(r.shell), '详情「开始」→ 同一入口直接开新局').toBe(true);
         expect(r.shell.screen).toBe('play');
         expect(r.shell.play.levelIndex).toBe(0);
         expect(r.shell.meta!.stamina).toBe(before - 1);
         expect(r.shell.play.starsByLevelRaw[0], '历史最高星不被清零').toBe(3);
-        expect(r.overlayEvents.length, '只发一条关闭事件（无中间确认态）').toBe(eventsBefore + 1);
-        expect(r.overlayEvents.at(-1)).toEqual({ open: false, name: 'none' });
+        // 二段式 ⇒ 两条叠加事件：开详情 → 关到 none（旧「一条关闭事件」口径随二段式作废）。
+        expect(r.overlayEvents.slice(eventsBefore)).toEqual([
+            { open: true, name: 'level-detail' },
+            { open: false, name: 'none' },
+        ]);
     });
 
     // EP13-FU-1 换形（旧尾句 = 「空槽虚线在场」）：Q15 合形 ⇒ 未解锁与越界同走锁格（闸门判据一字不动）。
@@ -267,7 +285,8 @@ describe('EP13-S2 · 本页边界（R8–R11）', () => {
         expect(r.overlayEvents.at(-1)).toEqual({ open: false, name: 'none' });
         openLevels(r.shell);
         const cell = centerOf(wallCells()[3]!.box);
-        expect(r.shell.tapMeta(cell.x, cell.y)).toBe(true);
+        expect(r.shell.tapMeta(cell.x, cell.y), '点格 → 开关卡详情').toBe(true);
+        expect(confirmDetailStart(r.shell), '详情「开始」→ 进关').toBe(true);
         expect(r.shell.play.levelIndex).toBe(3);
     });
 

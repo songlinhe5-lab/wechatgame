@@ -99,6 +99,13 @@ function tapCell(r: Rig, slot: number): boolean {
     return r.shell.tapMeta(c.x, c.y);
 }
 
+/** `[WXG-T-601]` 二段式第二段：关卡详情弹窗「开始」（点格只开详情，不直接进关）。 */
+function confirmDetailStart(r: Rig): boolean {
+    const btn = metaLayout('level-detail').buttons.find((b) => b.id === 'start-detail')!;
+    const c = centerOf(btn.box);
+    return r.shell.tapMeta(c.x, c.y);
+}
+
 describe('EP13-S3 · R7 主臂（0 心点可进格）', () => {
     it('不进关、不扣心、拉起既有加心位；发奖 +=HEART_AD_GAIN 后留本页，再点即进', () => {
         const r = rig({ stamina: 0, maxUnlocked: 9 });
@@ -119,7 +126,9 @@ describe('EP13-S3 · R7 主臂（0 心点可进格）', () => {
         expect(r.shell.screen, '发奖不得自动进关（再点才进）').toBe('menu');
         expect(r.shell.overlay).toBe('levels');
 
-        expect(tapCell(r, 2), '加心后再点成功').toBe(true);
+        expect(tapCell(r, 2), '加心后再点成功（开详情）').toBe(true);
+        expect(r.shell.overlay).toBe('level-detail');
+        expect(confirmDetailStart(r), '详情「开始」→ 进关').toBe(true);
         expect(r.shell.screen).toBe('play');
         expect(r.shell.play.phase).toBe('playing');
         expect(r.shell.play.levelIndex, '落到所点之关').toBe(2);
@@ -196,8 +205,9 @@ describe('EP13-S3 · 串道反例（DoD 硬项）', () => {
         expect(r.shell.overlay).toBe('levels');
         expect(r.shell.meta!.stamina, '菜单侧加心照常到账').toBe(HEART_AD_GAIN);
 
-        // 再点 ⇒ 全新开该关（弃局标随装配清除）。
-        expect(tapCell(r, 0)).toBe(true);
+        // 再点 ⇒ 开详情；详情「开始」⇒ 全新开该关（弃局标随装配清除）。
+        expect(tapCell(r, 0), '有心上 ⇒ 开详情').toBe(true);
+        expect(confirmDetailStart(r), '详情「开始」→ 进关').toBe(true);
         expect(r.shell.screen).toBe('play');
         expect(r.shell.play.phase).toBe('playing');
         expect(r.shell.play.remaining).toBeGreaterThan(remainingBefore);

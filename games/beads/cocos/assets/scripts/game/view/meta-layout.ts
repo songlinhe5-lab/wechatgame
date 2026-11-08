@@ -216,6 +216,30 @@ function skinsLayout(): MetaLayout {
 }
 
 /**
+ * `[WXG-T-601]` 关卡详情弹窗钮行：**板底一行两枚** —— 返回（左，200）+ 开始 CTA（右，300），
+ * 与 settings / skins 的返回同档（`plate.y + 50`、`TOUCH_MIN`）。整行 520 居中 ⇒ 左右各留 40。
+ *
+ * ⚠ 之所以**不**把返回放板顶：`panelPage` 的板标题住在 `plate.y + plate.h − 50`（中线），
+ * 顶部 88 高的钮带必与其上下叠压；底部行同时满足「不压标题」与「与其余弹窗返回同位置」。
+ * 内容带（副标题 / 缩略 / 星级 / 道具行）的纵向几何单源在 `view/meta-level-detail-page.ts`，
+ * 其地板 = 本行上缘（50 + `TOUCH_MIN`）再留 20。
+ */
+function levelDetailLayout(): MetaLayout {
+    const plate = overlayPlate();
+    const backW = 200;
+    const ctaW = 300;
+    const gap = 20;
+    const left = plate.x + (plate.w - (backW + gap + ctaW)) / 2;
+    return {
+        buttons: [
+            { id: 'back', box: box(left, plate.y + 50, backW, TOUCH_MIN) },
+            { id: 'start-detail', box: box(left + backW + gap, plate.y + 50, ctaW, TOUCH_MIN) },
+        ],
+        signinCells: [],
+    };
+}
+
+/**
  * `[WXG-T-478]` **纯展示弹窗版面**（图鉴 / 本地榜 / 名片）：只有底部「返回」钮。
  * 原三页复用 {@link skinsLayout} ⇒ 多出两张 `skin-tap` 卡热区，且 `panelPage` 对 `skin-tap`
  * 一律调 `drawSkinCard` ⇒ 皮肤卡盖住内容块（2026-10-28 真帧出图暴露）。返回钮几何与
@@ -245,6 +269,8 @@ const LAYOUT_BUILDERS: Record<MetaOverlay, (rows: number, a: MenuAnchors) => Met
     skins: () => skinsLayout(),
     // `[WXG-T-470/471/472]` 批 1 三弹窗 → `[WXG-T-501]` 图鉴 / 本地榜下线，只剩名片。
     profile: () => infoPageLayout(),
+    // `[WXG-T-601]` 关卡详情弹窗（选关卡卡 → 详情 → 开始）。
+    'level-detail': () => levelDetailLayout(),
 };
 
 // ───────────────────────────────────────────────── [WXG-T-280] anchored menu

@@ -15,7 +15,7 @@ import type { RankPanelView } from '../systems/rank-panel.js';
  * {@link overlayPlate} 容器）；入口 = 顶栏中档 `open-skins`（ux-spec §3.8 · 提案 P4-甲，
  * 由 **WXG-T-365** 自设置弹窗行5 左格上提）。
  */
-export type MetaOverlay = 'none' | 'signin' | 'settings' | 'levels' | 'skins' | 'profile';
+export type MetaOverlay = 'none' | 'signin' | 'settings' | 'levels' | 'skins' | 'profile' | 'level-detail';
 
 /** Everything the meta screens draw, assembled read-only by the shell. */
 export interface MetaViewData {
@@ -208,6 +208,17 @@ export interface MetaViewData {
      */
     readonly totalStars?: number;
     readonly clearedCount?: number;
+    /**
+     * `[WXG-T-601]` 关卡详情弹窗（选关卡卡 → 详情 → 开始）：
+     * `detailLevelIndex` = 展示中的关（0-based，缺省/`-1` = 未开）；`detailLevel` = 该关引用
+     * （shell 在 `pick-level` 时从 `_wallBaseLevels` 解析，视图 ⛔ 自查关表，同 {@link wallLevels} 约束）。
+     * `powerupStocks` = 三道具可用数（熨斗/筛子/扫帚各 0..1，账号级免费每型 1 次 ⇒ 未用=1），
+     * shell 从 `meta.powerupFreeUsed` 三布尔派生（预分配常量表，零逐帧分配）。
+     * 三字段均可选（缺省 = 未开详情 ⇒ 视图零命令），单测 mock 免补。
+     */
+    readonly detailLevelIndex?: number;
+    readonly detailLevel?: BeadsLevelRaw;
+    readonly powerupStocks?: readonly number[];
 }
 
 /**
@@ -274,7 +285,9 @@ export type MetaAction =
      */
     | 'skin-tap'
     /** `[WXG-T-472]` 名片入口（批1）。 */
-    | 'open-profile';
+    | 'open-profile'
+    /** `[WXG-T-601]` 关卡详情弹窗「开始」CTA → 进 `detailLevelIndex` 指向的关。 */
+    | 'start-detail';
 
 export interface Box {
     readonly x: number;

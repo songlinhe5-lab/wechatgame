@@ -67,8 +67,18 @@ export class UiRoot {
     /** 自下而上画可见路由，最后画调试层（盖住所有路由）。 */
     draw(builder: RenderModelBuilder, palette: BeadsPalette): void {
         const routes = this.nav.visibleRoutes(this._visible) as UiRoute[];
+        // `[WXG-T-601]` 弹窗可叠（`levels → level-detail` / `settings → skins`）；弹窗 = 整屏遮罩 + 居中纸面板
+        // ⇒ 底下那张被**完全覆盖**，多画只会多压一层遮罩（画面偏黑）。只画栈顶一张（⛔ 不再逐张调 `modal`）。
+        let topModal = -1;
+        for (let i = routes.length - 1; i >= 0; i -= 1) {
+            if (routes[i]!.kind === 'modal') {
+                topModal = i;
+                break;
+            }
+        }
         for (let i = 0; i < routes.length; i++) {
             const route = routes[i]!;
+            if (route.kind === 'modal' && i !== topModal) continue;
             // `[UI-60 P1 / ADR-0033 DEC-1]` **弹窗 = 独立渲染容器**：容器自带 Graphics /
             // BlitLayerUI / Labels 三条通道，整棵排在页面命令之上 ⇒ 遮罩（Graphics）连同面板
             // 文字、位图腿一起压住底页（WXG-T-325 真机「设置页不在最上面」的修法）。
