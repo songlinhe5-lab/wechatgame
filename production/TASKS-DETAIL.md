@@ -9157,3 +9157,20 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **待定**：数量标记的最终数字由背包系统决定（用户裁定：背包只记录物品与数量，三件道具、豆数、星星数都存入其中，先不设槽位）。背包的数据模型与读写规则尚未单开任务。
 - **遗留**：星星图层当前图片由用户替换（1024×1024，star-2 / star-3 共用同一图）——用户裁定保留，不回滚。
 - **追加（2026-11-08 · 用户令「给每个道具再加个框，框外与星星一样有个阴影，整体协调感」）**：图标外加深木色圆角框（60×60，奶油色内底），框外阴影与星星烘焙阴影同色同向（(55,28,8)，下偏移，模糊）；用户确认「通过」后上传。Figma 图标节点改为 84×84（x 266/333/400，y 912），框图 `final/assets/powerup/tiles/`，渲染脚本 `ai-workflows/powerup-tile-frame-render.py`，生成记录见 proposals §六。
+
+## WXG-T-604
+
+**UI·关卡详情弹窗按 Figma 92:36 重排 + 单源规格** · 负责：主理人(Trae)·beads UI轨 · 状态：✅ 完成（2026-11-08）
+
+- **上位**：用户 2026-11-08 令「从 figma 读取关卡详情页 Page 的所有数据，重新整理关卡详情页 UI 设计」；AskUserQuestion 两项拍板 —— ① 交付形态 = **规格文档 + 代码对齐**；② 面板口径 = **以 Figma 木牌为准**（木牌 + 玻璃橱窗 + 木「开始」钮，补切图并接运行时）。
+- **设计真源**：Figma 文件 `PBIK3RbfGlfzFsAnd97ZsP` · 页 `84:36 关卡详情弹窗 v25b` · 帧 `92:36 抠图层`（750×1334，帧原点 −63/+22 已扣除）。2026-11-08 用 `my-skills/wxgame-figma/scripts/figma.mjs node` 重取一遍做漂移复核：几何零变化。
+- **稿面全量读数**：木牌 `95:116` 581×1044 @(89,166)；板标题 `95:59` 中心 (380,278)；副标题 `95:104` 中心 (383,367)；玻璃橱窗 `123:3` 295×285 @(245,520)；星级组 `147:36` 3×58×60 @x279 净距 9；时限 `145:36` 80×17 @(482,880)；道具组 `148:36` 3×84 @x240 净距 9；角标 `137:37/40/43` 24×24 r8 贴图标右上；开始 `119:36` 326×154 @(212,1027)。字体/色：标题 Chiron GoRound TC ExtraBold 64 `#F9D8A7`、副标题 Inter Bold 28 `#1A1D3F`、时限 Noto Sans SC Bold 14 `#3A1C07`、角标 Inter Bold 14 白压 `#2A2E43`。
+- **旧版 → 稿面**：纸面板 600×720 → 木牌 581×1044；道具净距 36 → 9、角标由右下圆点改右上贴边；文字星 `★★☆` → 位图星；双钮并排 → 单「开始」+ 产品补「返回」Ø80（同中线 y_up 230）。
+- **落码**：新增 `src/config/tuning/level-detail.ts`（`LEVEL_DETAIL_GEO` + `LEVEL_DETAIL_TEXTURES`，y 下锚点，绘制与热区共读）；`meta-level-detail-page.ts` 改为自持版式（退 `panelPage`）；`meta-layout.ts` 增 `levelDetailPlate()` 并重写钮位；`meta-view.ts` 换绘制入口；`meta-types.ts` + `beads-shell.ts` 投影 `detailChapterTitle`；`ui-theme.ts` 增 `detailTitle` / `badge` 字型。
+- **资产**：Figma @2x 切图四件入 `final/assets/detail/`（木牌 1162×2088 · 911 KB / 开始 652×308 · 284 KB / 实心星 116×120 · 9 KB / 空心星 116×120 · 9 KB）；Cocos 投放件按在册脚本量化到 256 色（147 KB 合计，主包 3.0 MB / 红线 4 MB）。harness 白名单新增 `/detail-assets/`；`BITMAP_ASSETS` 增四条 `detail/*`。provenance 见 `production/qa/asset-provenance.md §0.1`。
+- **核对揪出**：按稿 14px 落 22 档可读字后，**居中锚会压住第三枚星** ⇒ 改稿面左缘锚 x=482；视觉复核（headless Chrome 真页面）确认星行与时限净距恢复。
+- **判据**：`tests/meta-level-detail.test.ts` 5 例 —— 流程（开详情不扣心 / 开始扣 1 心 / 返回回选关）+ Figma 几何不变式（木牌 / 开始 / 返回同中线 / 牌内）+ 回退腿（文字 / 圆徽章）+ 位图腿（木牌 / 开始 / 三星 / 返回木圆）。规格正本 `design/ux/level-detail-spec.md`。
+- **验证**：`npx tsc --noEmit` 0 错；单测 5/5；`pnpm run verify` **PASS 23 / FAIL 0 / SKIP 0**；`check:links` OK；headless Chrome 截图 `temp/detail-shot/detail-live.png` 目视通过（非真机证据）。
+- **有意偏差**：①「返回」为产品补钮（稿面无出口）；② 橱窗不吃稿内占位猫图，运行时按关卡 pattern 画缩略；③ 标题系统字替代 Chiron，时限 14→22；④ 第三枚角标稿中高 2px，实现统一贴边。
+- **遗留**：Cocos 编辑器导入 `cocos/assets/textures/detail/` 四枚 PNG 生成 `.meta` 并挂 `textures` Bundle（无编辑器不可伪造）；木牌背板若再换纹理需重导。
+- **号位说明**：本线程（关卡详情弹窗）历史注释沿用了 T-601 / T-602 两个**已占号**（上一轮领号误标）；本批按台账正式领 **T-604**，新建文件与规格用 T-604，历史注释不回改以免无意义 churn。

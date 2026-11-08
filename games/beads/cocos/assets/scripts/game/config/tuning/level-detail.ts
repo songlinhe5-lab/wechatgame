@@ -1,5 +1,5 @@
 /**
- * `[WXG-T-602]` 关卡详情弹窗（Figma「关卡详情弹窗 v25b」· 文件 `PBIK3RbfGlfzFsAnd97ZsP` ·
+ * `[WXG-T-604]` 关卡详情弹窗（Figma「关卡详情弹窗 v25b」· 文件 `PBIK3RbfGlfzFsAnd97ZsP` ·
  * 节点 `92:36`）的**几何与位图单源**。规格正本 = `design/ux/level-detail-spec.md`。
  *
  * 坐标口径：设计帧 750×1334，本表用 Figma 原生 **y 向下**锚点；视图侧统一换算
