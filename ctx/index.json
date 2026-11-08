@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3980,
       "lines": 134,
-      "sha256": "44904b5ec1b8945a97abc9385151825cd523a0d86d893709c36674a0e4837dc2",
+      "sha256": "3e3f49193f5dd25ddf68d98557810f263f837b4c4e5b9864232f4e3fc29daf12",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 252590 9159 normal",
+          "summary": "1 production/TASKS-DETAIL.md 252746 9159 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5273,
       "lines": 165,
-      "sha256": "ff27114fff2fbf77f9710aa43b848d5f38d62e25a99b535e259cd2a90992d69c",
+      "sha256": "4e9a8dd756953b7686ff4a270c9529149d557c58463e83763dea9bddcaf61932",
       "tier": "normal",
       "sections": [
         {
@@ -1016,7 +1016,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 9159 行 / 252590 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 9159 行 / 252746 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
@@ -89153,9 +89153,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 252590,
+      "tokens": 252746,
       "lines": 9159,
-      "sha256": "46e29721de48f3732f61dba94c7756f611e123f55402cff3822b795d84624bbd",
+      "sha256": "783a4ecd272b1e9694a2e698900ee2c31f9d0478ba18995d77e54554ea1ba107",
       "tier": "normal",
       "sections": [
         {
@@ -89163,7 +89163,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 9160,
-          "tokens": 252573,
+          "tokens": 252729,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -103337,7 +103337,7 @@
           "level": 2,
           "startLine": 9147,
           "endLine": 9160,
-          "tokens": 777,
+          "tokens": 933,
           "summary": "UI·关卡详情道具图标（熨贴片 / 抖豆筛 / 扫豆刷）+ 数量标记 · 负责：主理人(Cursor)·beads 美术",
           "keywords": [
             "WXG",
