@@ -1,16 +1,18 @@
 /**
- * `[WXG-T-601]` 关卡详情弹窗（选关墙格 → 详情 → 开始）—— **判据只钉工程可证面**：
+ * `[WXG-T-601 / T-602]` 关卡详情弹窗（选关墙格 → 详情 → 开始）—— **判据只钉工程可证面**：
  *  ① 流程：点已解锁格开详情（不扣心）→ 「开始」进关（扣 1 心）；「返回」回选关页。
- *  ② 版面不变式：内容带不压板标题、不压底钮行；两钮不互叠且都在纸面板内。
- *  ③ 绘制面：详情页帧里有「第 N 关」副标题与 3 枚道具徽章（测试无位图宿主 ⇒ 程序化回退腿）。
+ *  ② 版面不变式：几何 = Figma `92:36` 原值（木牌 581×1044 @89 / 开始 326×154 @212 / 返回 È Ð80 同中线）；
+ *     内容带不压板标题、不压开始钮。
+ *  ③ 绘制面：无位图宿主 ⇒ 程序化回退腿（副标题 / 时限 / 文字星 / 三枚 r=42 徽章 / 返回圆）；
+ *     注入位图宿主 ⇒ 木牌 / 开始 / 三枚星 / 返回木圆全部走 blit。
  *
- * 设计真源：Figma 关卡详情弹窗（file `PBIK3RbfGlfzFsAnd97ZsP` / node `92-36`）；
- * 几何单源：`view/meta-layout.ts::levelDetailLayout` + `view/meta-level-detail-page.ts` 常量。
+ * 设计真源：Figma 关卡详情弹窗（file `PBIK3RbfGlfzFsAnd97ZsP` / node `92:36`）；
+ * 几何单源：`config/tuning/level-detail.ts`（绘制与热区共读）。
  * 语义判据（闸门/体力/事件）仍住 `arc-level-select.test.ts` / `arc-stamina-refill.test.ts`，
  * ⛔ 本文件不重复造判据，只补「详情弹窗自身」的形状门。
  */
 
-import { describe, it, expect } from 'vitest';
+import { afterEach, describe, it, expect } from 'vitest';
 import {
     AudioScheduler,
     EventBus,
@@ -27,13 +29,13 @@ import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import { createBeadsShell, type BeadsShell } from '../src/game/beads-shell.js';
 import { defaultBeadsMeta } from '../src/game/meta-save-schema.js';
 import { defaultBeadsSave } from '../src/game/save-schema.js';
-import { metaLayout } from '../src/view/meta-view.js';
-import { overlayPlate } from '../src/view/meta-layout.js';
+import { metaLayout, setMenuBitmapResolver } from '../src/view/meta-view.js';
+import { levelDetailPlate } from '../src/view/meta-layout.js';
 import { COPY_TOKENS } from '../src/config/copy-tokens.js';
-import { DESIGN_H, DESIGN_W, STAMINA_START_COST, WALL_ROWS } from '../src/config/tuning.js';
+import { DESIGN_H, DESIGN_W, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TEXTURES, MENU_TEXTURES, STAMINA_START_COST, WALL_ROWS } from '../src/config/tuning.js';
 
-const META_KEY = 'test.t601.meta';
-const PLAY_KEY = 'test.t601.play';
+const META_KEY = 'test.t602.meta';
+const PLAY_KEY = 'test.t602.play';
 
 interface Rig {
     readonly shell: BeadsShell;
@@ -52,7 +54,7 @@ function rig(): Rig {
         input: new InputManager(),
         audio: new AudioScheduler(new NullAudioBackend()),
         storage,
-        rng: createRng('t601-seed'),
+        rng: createRng('t602-seed'),
         viewport: new Viewport(DESIGN_W, DESIGN_H),
         assets: new NullAssetProvider(),
         platform: platform.info,
@@ -91,8 +93,17 @@ function frame(shell: BeadsShell) {
     const b = new RenderModelBuilder(DESIGN_W, DESIGN_H);
     b.begin();
     shell.buildRenderModel(b);
-    return b.end().commands;
+    return b.end().commands as unknown as {
+        kind: string;
+        text?: string;
+        r?: number;
+        x?: number;
+        y?: number;
+        textureId?: string;
+    }[];
 }
+
+afterEach(() => setMenuBitmapResolver());
 
 describe('[WXG-T-601] 关卡详情弹窗 — 流程', () => {
     it('点已解锁格开详情：不扣心、发出 open 事件；「开始」才进关并扣 1 心', () => {
@@ -125,55 +136,95 @@ describe('[WXG-T-601] 关卡详情弹窗 — 流程', () => {
         // 详情态已清：再开一次仍是新会话（不是上一次的残留关）。
         openDetail(r.shell, 3);
         const b = btn('level-detail', 'start-detail');
-        expect(b.box.w).toBe(300);
+        expect(b.box.w, '开始钮宽 = Figma 326').toBe(326);
     });
 });
 
-describe('[WXG-T-601] 关卡详情弹窗 — 版面不变式', () => {
-    it('内容带不压板标题、不压底钮行；两钮同排不叠且都在纸面板内', () => {
-        const plate = overlayPlate();
-        const back = btn('level-detail', 'back').box;
+describe('[WXG-T-602] 关卡详情弹窗 — 版面不变式（Figma 92:36 原值）', () => {
+    it('木牌 / 开始 / 返回的绝对几何与稿面一致，且内容带不压钮、不出牌', () => {
+        const plate = levelDetailPlate();
+        expect(plate, '木牌 581×1044 @ x89 / y_up 124').toEqual({ x: 89, y: 124, w: 581, h: 1044 });
+
         const cta = btn('level-detail', 'start-detail').box;
+        expect(cta, '开始 326×154 @ x212 / y_up 153').toEqual({ x: 212, y: 153, w: 326, h: 154 });
 
-        // 板标题基线（`panelPage`：`plate.y + plate.h − 50`，字面 40 ⇒ 下缘 ≈ −20）。
-        const titleBottom = plate.y + plate.h - 50 - 20;
-        expect(cta.y + cta.h, '开始钮顶 < 板标题下缘').toBeLessThan(titleBottom);
-        expect(back.y + back.h, '返回钮顶 < 板标题下缘').toBeLessThan(titleBottom);
+        const back = btn('level-detail', 'back').box;
+        expect(back.w, '返回热区 = max(Ø80, TOUCH_MIN 88)').toBe(88);
+        expect(back.y + back.h / 2, '返回与开始同中线').toBe(cta.y + cta.h / 2);
+        expect(back.x + back.w, '返回不压开始钮').toBeLessThan(cta.x);
 
-        // 内容带地板（`meta-level-detail-page` 常量：道具行下缘 158）> 钮行上缘。
-        expect(back.y + back.h, '内容带不与钮行抢位').toBeLessThan(plate.y + 158);
+        // 两个钮都在牌内（含底缘留白 29）。
+        for (const b of [cta, back]) {
+            expect(b.x).toBeGreaterThanOrEqual(plate.x);
+            expect(b.x + b.w).toBeLessThanOrEqual(plate.x + plate.w);
+            expect(b.y).toBeGreaterThanOrEqual(plate.y);
+        }
 
-        // 同排、不互叠：返回在左、开始在右，净距 20。
-        expect(back.y, '两钮同排').toBe(cta.y);
-        expect(back.x + back.w + 20, '两钮净距 20').toBe(cta.x);
-        expect(back.x, '左留白 40').toBe(plate.x + 40);
-        expect(plate.x + plate.w - (cta.x + cta.w), '右留白 40').toBe(40);
+        // 内容带：道具行下缘（牌内 214）高于开始钮顶；标题中线（牌内 932）低于牌顶。
+        expect(plate.y + 214, '道具行与开始钮不抢位').toBeGreaterThan(cta.y + cta.h);
+        expect(plate.y + 932, '板标题在牌内').toBeLessThan(plate.y + plate.h);
+
+        // 稿面几何表自证：星行 / 道具行尺寸与净距（改稿只改 tuning 一处）。
+        expect(LEVEL_DETAIL_GEO.stars.size).toBe(58);
+        expect(LEVEL_DETAIL_GEO.stars.gap).toBe(9);
+        expect(LEVEL_DETAIL_GEO.items.size).toBe(84);
+        expect(LEVEL_DETAIL_GEO.items.gap).toBe(9);
     });
 });
 
-describe('[WXG-T-601] 关卡详情弹窗 — 绘制面', () => {
-    it('帧内有「第 N 关」副标题 + 3 枚道具徽章（无位图宿主 ⇒ 程序化回退腿）', () => {
+describe('[WXG-T-602] 关卡详情弹窗 — 绘制面', () => {
+    it('回退腿：大关名·第 N 关 / 时限 / 文字星 / 三枚 r=42 道具 / 返回圆', () => {
         const r = rig();
         openLevels(r.shell);
         openDetail(r.shell, 8);
         for (let i = 0; i < 40; i += 1) r.shell.update(1 / 60); // 等淡入到 1（否则整层 alpha=0）
 
-        const cmds = frame(r.shell) as unknown as {
-            kind: string;
-            text?: string;
-            r?: number;
-            x?: number;
-            y?: number;
-        }[];
-        const texts = cmds.filter((c) => c.kind === 'text').map((c) => c.text);
-        expect(texts, '副标题 = 第 9 关（slot 8 ⇒ 1-based 9）').toContain('第 9 关');
+        const cmds = frame(r.shell);
+        const texts = cmds.filter((c) => c.kind === 'text').map((c) => c.text ?? '');
+        expect(texts, '副标题 = 大关名 + 关序').toContain('曼陀罗·第 9 关');
         expect(texts, '板标题').toContain('关卡详情');
         expect(texts, 'CTA 文案复用主菜单令牌').toContain(COPY_TOKENS.btn_start_label);
+        expect(texts, '返回钮文案').toContain('返回');
+        expect(texts.some((t) => t.startsWith('时限：')), '时限行').toBe(true);
+        expect(texts, '无星 ⇒ 空心文字档').toContain('☆☆☆');
 
-        const plate = overlayPlate();
+        const plate = levelDetailPlate();
         const badges = cmds.filter(
             (c) => c.kind === 'circle' && c.r === 42 && c.y !== undefined && c.y > plate.y && c.y < plate.y + plate.h,
         );
-        expect(badges.length, '三枚道具徽章').toBe(3);
+        expect(badges.length, '三枚道具徽章（r = 84/2）').toBe(3);
+        // 返回圆：只认牌内左下角「与开始同中线」那一枚（顶栏另有 4 枚 Ø80 圆钮，不属本弹窗）。
+        const backCx = LEVEL_DETAIL_GEO.back.x + LEVEL_DETAIL_GEO.back.d / 2;
+        const backCy = LEVEL_DETAIL_GEO.back.yDown + LEVEL_DETAIL_GEO.back.d / 2; // 稿面 y 下口径
+        const backDots = cmds.filter(
+            (c) =>
+                c.kind === 'circle' &&
+                c.r === 40 &&
+                c.x !== undefined &&
+                c.y !== undefined &&
+                Math.abs(c.x - backCx) < 1 &&
+                Math.abs(c.y - (DESIGN_H - backCy)) < 1,
+        );
+        expect(backDots.length, '返回圆 Ø80').toBe(1);
+        expect(cmds.some((c) => c.kind === 'blit' && c.textureId === LEVEL_DETAIL_TEXTURES.plaque), '无位图 ⇒ 木牌不 blit').toBe(false);
+    });
+
+    it('位图腿：木牌 / 开始 / 三枚空心星 / 返回木圆全部走 blit', () => {
+        setMenuBitmapResolver((id) => id.startsWith('bitmap__detail_') || id === MENU_TEXTURES.btnCircle);
+        const r = rig();
+        openLevels(r.shell);
+        openDetail(r.shell, 3);
+        for (let i = 0; i < 40; i += 1) r.shell.update(1 / 60);
+
+        const cmds = frame(r.shell);
+        const ids = cmds.filter((c) => c.kind === 'blit').map((c) => c.textureId);
+        expect(ids, '木牌').toContain(LEVEL_DETAIL_TEXTURES.plaque);
+        expect(ids, '开始钮').toContain(LEVEL_DETAIL_TEXTURES.start);
+        expect(ids, '返回木圆').toContain(MENU_TEXTURES.btnCircle);
+        expect(
+            ids.filter((id) => id === LEVEL_DETAIL_TEXTURES.starEmpty).length,
+            '零得星 ⇒ 三枚空心',
+        ).toBe(3);
+        expect(ids.includes(LEVEL_DETAIL_TEXTURES.starFilled), '零得星 ⇒ 无实心').toBe(false);
     });
 });

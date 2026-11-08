@@ -1,123 +1,205 @@
 /**
- * `[WXG-T-601]` 关卡详情弹窗内容带（Figma「关卡详情弹窗 v25b」程序化还原）：
- * 副标题「第 N 关」+ 大号缩略图（复用 `drawLevelThumb`，与选关格墙同源）+
- * 判星标准（与结算面板共读 `starCriteriaText`，⛔ 第二套判星式）+
- * 历史星（`STAR_LABELS`，与选关格同语言）+ 道具行（三枚圆徽章 + 可用数角标）。
+ * `[WXG-T-602]` 关卡详情弹窗（Figma「关卡详情弹窗 v25b」· 文件 `PBIK3RbfGlfzFsAnd97ZsP` · 节点 `92:36`）：
+ * 木牌容器 + 板标题 + 副标题（大关名·第 N 关）+ 橱窗缩略 + 星级行 + 时限 + 道具行 + 开始 / 返回。
  *
- * 容器（遮罩 / 纸面板 / 板标题）与通用钮（返回 / 开始）由 `meta-view.ts::panelPage` 负责；
- * 钮几何单源在 `meta-layout.ts::levelDetailLayout`（画与撞同一份）。
- * 数据腿：`MetaViewData.detailLevelIndex` / `detailLevel` / `powerupStocks`（shell 投影，L5）。
+ * 几何单源 = `config/tuning/level-detail.ts`（与 `meta-layout.ts::levelDetailLayout` 共读）。
+ * 位图缺省腿：木牌 → 纸面板、开始 → 通用主钮、星 → `STAR_LABELS` 文字 —— **同几何换皮**，⛔ 不做第二套版式。
+ * 数据腿：`MetaViewData.detailLevelIndex` / `detailLevel` / `detailChapterTitle` / `powerupStocks` / `starsByLevel`（L5）。
  *
- * ⚠ 坐标口径：设计空间 **y 向上**、`box.y` = 下缘。下方常量一律**相对 plate 左下角**，
- * 绘制时再加 `plate.x` / `plate.y` ⇒ 逐机位移（`dialogShiftY`）与板高变更都不会撕裂内容带。
+ * ⚠ 坐标口径：设计空间 y 向上、`box.y` = 下缘。下列纵向偏移一律**相对木牌下缘**，
+ * 绘制时加 `plate.y` ⇒ 逐机位移（`dialogShiftY`）不会撕裂内容带。
  */
 
-import { DESIGN_W, POWERUP_TILE_TEXTURES, POWERUP_TYPES } from '../config/tuning.js';
+import { DESIGN_H, DESIGN_W, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TEXTURES, MENU_TEXTURES, POWERUP_TILE_TEXTURES, POWERUP_TYPES, THUMB_TOP_INSET, UI_CONTAINER } from '../config/tuning.js';
 import { type RenderModelBuilder } from '@wxgame/framework';
 import { POWERUP_LABELS } from '../systems/powerups.js';
 import { type BeadsPalette } from './palette.js';
-import { UI_FONT, bodyFont, starCriteriaText } from './ui-theme.js';
+import { UI_FONT, UI_SCRIM, formatTime, scrimFill } from './ui-theme.js';
 import { drawLevelThumb } from './menu-signage.js';
-import { STAR_LABELS, menuBitmapReady } from './meta-widgets.js';
-import { overlayPlate } from './meta-layout.js';
-import type { MetaLayout, MetaViewData } from './meta-types.js';
+import { STAR_LABELS, label, menuBitmapReady } from './meta-widgets.js';
+import { drawButton } from './ui-widgets.js';
+import { levelDetailPlate } from './meta-layout.js';
+import type { MetaViewData } from './meta-types.js';
+
+const GEO = LEVEL_DETAIL_GEO;
+/** 木牌下缘在设计空间里的 y（= 124；稿面 y下 166 + 高 1044）。 */
+const PLATE_Y = DESIGN_H - GEO.plate.yDown - GEO.plate.h;
+/** 稿面 `yDown` 的**下缘** → 相对木牌下缘的偏移。 */
+const dyBottom = (yDown: number, h: number): number => DESIGN_H - yDown - h - PLATE_Y;
+/** 稿面 `cyDown`（中线）→ 相对木牌下缘的偏移。 */
+const dyCenter = (cyDown: number): number => DESIGN_H - cyDown - PLATE_Y;
+
+const TITLE_DY = dyCenter(GEO.title.cyDown); // 932
+const SUB_DY = dyCenter(GEO.subtitle.cyDown); // 843
+const THUMB_DY = dyBottom(GEO.thumb.yDown, GEO.thumb.h); // 405
+const STARS_DY = dyBottom(GEO.stars.yDown, GEO.stars.h); // 292
+const TIME_DY = dyCenter(GEO.time.cyDown); // 300
+const ITEMS_DY = dyBottom(GEO.items.yDown, GEO.items.size); // 214
+const START_DY = dyBottom(GEO.start.yDown, GEO.start.h); // 29
+const BACK_DY = dyBottom(GEO.back.yDown, GEO.back.d); // 66（+ 圆直径 80 ⇒ 中线 230 = 开始钮中线）
+/** 星级行合宽（3 枚 + 两缝）与中轴；文字回退档据此居中。 */
+const STARS_W = GEO.stars.count * GEO.stars.size + (GEO.stars.count - 1) * GEO.stars.gap;
+/** 道具行合宽。 */
+const ITEMS_W = POWERUP_TYPES.length * GEO.items.size + (POWERUP_TYPES.length - 1) * GEO.items.gap;
 
 /**
- * 内容带纵向几何（单源；单位 = 设计 px，**相对 plate 左下角**、y 向上）。
- *
- * 600×720 纸面板实算：
- *  - 底部钮行 `[50, 138]`（`TOUCH_MIN = 88`，与 settings/skins 的返回同档）⇒ 内容地板 158；
- *  - 板标题基线 = `plate.y + 720 − 50`，字面 40（`UI_FONT.overlayTitle`）⇒ 下缘 ≈ 650，
- *    内容天花取 **628**（净空 22）⇒ 副标题 600 不与板标题重叠。
- */
-const SUB_Y = 600; // 副标题「第 N 关」中线
-const CRITERIA_Y = 556; // 判星标准中线
-const THUMB_SIZE = 240; // 缩略图边长（正方形；Figma 295×285 按弹窗内可容宽收敛）
-const THUMB_Y = 288; // 缩略图**下缘**
-const STARS_Y = 262; // 历史星中线
-const ITEM_CY = 200; // 道具行圆心中线（r = 42 ⇒ 占 [158, 242]）
-const ITEM_R = 42; // 徽章半径（84 直径，同 Figma ≥ 触控下限的半高）
-const ITEM_GAP = 36; // 徽章间净距
-
-/**
- * 道具徽章单字（原型档；切图入 assets 后整行换 blit）。
- * 由 `POWERUP_LABELS` **一次派生** ⇒ 顺序 / 首字与道具系统同源（⛔ 不在此另立第二套名单）；
- * 模块级只算一次 ⇒ 帧内零分配。
+ * 道具徽章单字（**仅**位图缺省腿用；切图在册时整行 blit）。
+ * 由 `POWERUP_LABELS` 一次派生 ⇒ 顺序 / 首字与道具系统同源，模块级只算一次（帧内零分配）。
  */
 const ITEM_GLYPHS: readonly string[] = POWERUP_TYPES.map((t) => POWERUP_LABELS[t].slice(0, 1));
 /** `powerupStocks` 缺省档（单测 mock / 未投影 ⇒ 三枚全可用）。 */
 const POWERUP_STOCKS_DEFAULT: readonly number[] = POWERUP_TYPES.map(() => 1);
 
-export function drawLevelDetailContent(
+export function drawLevelDetailPage(
     builder: RenderModelBuilder,
     data: MetaViewData,
     palette: BeadsPalette,
-    _layout: MetaLayout,
     thumbN: number,
+    screenH: number,
 ): void {
     const level = data.detailLevel;
     const levelIdx = data.detailLevelIndex ?? -1;
     if (level === undefined || levelIdx < 0) return; // ⛔ 占位
-    const plate = overlayPlate();
-    const cx = DESIGN_W / 2;
-    // 副标题：第 N 关（1-based 展示）
-    builder.text(cx, plate.y + SUB_Y, `第 ${levelIdx + 1} 关`, {
+    const plate = levelDetailPlate();
+
+    // 遮罩：稿面背景是整屏场景图，无独立遮罩层；沿用弹窗通用档浓度。
+    builder.rect(0, 0, DESIGN_W, screenH, { fill: scrimFill(UI_SCRIM.overlay, UI_SCRIM.alpha) });
+
+    // 容器：木牌烘图（含框 / 铆钉 / 空橱窗 / 底座）/ 纸面板回退（同几何）。
+    if (menuBitmapReady(LEVEL_DETAIL_TEXTURES.plaque)) {
+        builder.blit(LEVEL_DETAIL_TEXTURES.plaque, plate.x, plate.y, plate.w, plate.h);
+    } else {
+        builder.rect(plate.x, plate.y, plate.w, plate.h, { fill: palette.panel, radius: UI_CONTAINER.radiusPanel });
+    }
+
+    // 板标题：稿 64px ExtraBold 暖金；canvas 无 Chiron 字族 ⇒ bold 64 系统字。
+    builder.text(plate.x + (GEO.title.cx - GEO.plate.x), plate.y + TITLE_DY, '关卡详情', {
+        fill: palette.plateSubInk,
+        font: UI_FONT.detailTitle,
+        align: 'center',
+        baseline: 'middle',
+    });
+
+    // 副标题：大关名·第 N 关（稿 28 Bold 深藏青；大关名缺省 ⇒ 只显关序）。
+    const chapter = data.detailChapterTitle;
+    const subtitle = chapter ? `${chapter}·第 ${levelIdx + 1} 关` : `第 ${levelIdx + 1} 关`;
+    builder.text(plate.x + (GEO.subtitle.cx - GEO.plate.x), plate.y + SUB_DY, subtitle, {
         fill: palette.text,
-        font: bodyFont(data.largeText, 'sub'),
+        font: data.largeText ? UI_FONT.bodyLarge : UI_FONT.labelBold,
         align: 'center',
         baseline: 'middle',
     });
-    // 判星标准：与选关页 / 结算面板同源一行。
-    builder.text(cx, plate.y + CRITERIA_Y, starCriteriaText(level.time, level.starTierK), {
-        fill: palette.textDim,
-        font: bodyFont(data.largeText, 'sub'),
-        align: 'center',
-        baseline: 'middle',
-    });
-    // 大号缩略图：与选关格同一绘制腿（数据同源 ⇒ 图恒一致；area 加大 = 更细的聚合阵）。
-    drawLevelThumb(builder, level, cx - THUMB_SIZE / 2, plate.y + THUMB_Y, THUMB_SIZE, THUMB_SIZE, thumbN, THUMB_SIZE);
-    // 历史星（本关已得星，与选关格 STAR_LABELS 同语言）。
+
+    // 橱窗内容：关卡缩略（与选关格同一绘制腿）；垂直居中于玻璃窗 ⇒ 下缘先抬 (h − area)/2。
+    const thumb = GEO.thumb;
+    drawLevelThumb(
+        builder,
+        level,
+        plate.x + (thumb.x - GEO.plate.x),
+        plate.y + THUMB_DY + (thumb.h - thumb.area) / 2,
+        thumb.w,
+        thumb.area + THUMB_TOP_INSET,
+        thumbN,
+        thumb.area,
+    );
+
+    // 星级行：得星 = 实心金，未得 = 空心描边（稿 58×60，净距 9）；缺图 ⇒ 文字档同位居中。
     const stars = data.starsByLevel[levelIdx] ?? 0;
-    builder.text(cx, plate.y + STARS_Y, STAR_LABELS[stars] ?? STAR_LABELS[0]!, {
-        fill: stars > 0 ? palette.text : palette.textDim,
+    const s = GEO.stars;
+    if (menuBitmapReady(LEVEL_DETAIL_TEXTURES.starFilled) && menuBitmapReady(LEVEL_DETAIL_TEXTURES.starEmpty)) {
+        const sx = plate.x + (s.x - GEO.plate.x);
+        for (let i = 0; i < s.count; i++) {
+            builder.blit(
+                i < stars ? LEVEL_DETAIL_TEXTURES.starFilled : LEVEL_DETAIL_TEXTURES.starEmpty,
+                sx + i * (s.size + s.gap),
+                plate.y + STARS_DY,
+                s.size,
+                s.h,
+            );
+        }
+    } else {
+        builder.text(plate.x + (s.x - GEO.plate.x) + STARS_W / 2, plate.y + STARS_DY + s.h / 2, STAR_LABELS[stars] ?? STAR_LABELS[0]!, {
+            fill: stars > 0 ? palette.plateTitleInk : palette.textDim,
+            font: UI_FONT.cell,
+            align: 'center',
+            baseline: 'middle',
+        });
+    }
+
+    // 时限：稿 14px（低于可读地板）⇒ 取 22 档；按稿左缘锚（x=482），⛔ 居中会压第三枚星。
+    builder.text(plate.x + (GEO.time.x - GEO.plate.x), plate.y + TIME_DY, `时限：${formatTime(level.time)}`, {
+        fill: palette.plateTitleInk,
         font: UI_FONT.cell,
-        align: 'center',
+        align: 'left',
         baseline: 'middle',
     });
-    // 道具行：三枚圆徽章 + 右下角可用数（账号级免费每型 1 次 ⇒ 0 = 已用）。
-    const rowW = ITEM_GLYPHS.length * ITEM_R * 2 + (ITEM_GLYPHS.length - 1) * ITEM_GAP;
+
+    // 道具行：三枚 84×84（框图含木框 + 米底 + 本体）；可用数角标贴右上角、24×24 r8。
     const stocks = data.powerupStocks ?? POWERUP_STOCKS_DEFAULT;
-    let x = cx - rowW / 2 + ITEM_R;
-    for (let i = 0; i < ITEM_GLYPHS.length; i++) {
-        const cy = plate.y + ITEM_CY;
-        // 位图腿：框图（含木框 + 米底 + 道具本体）按 84×84 blit；宿主未导入 ⇒ 程序化单字徽章回退。
+    const it = GEO.items;
+    const rowLeft = plate.x + (it.cx - GEO.plate.x) - ITEMS_W / 2;
+    const itemY = plate.y + ITEMS_DY;
+    for (let i = 0; i < POWERUP_TYPES.length; i++) {
+        const x = rowLeft + i * (it.size + it.gap);
         const texId = POWERUP_TILE_TEXTURES[POWERUP_TYPES[i]!];
         if (menuBitmapReady(texId)) {
-            builder.blit(texId, x - ITEM_R, cy - ITEM_R, ITEM_R * 2, ITEM_R * 2);
+            builder.blit(texId, x, itemY, it.size, it.size);
         } else {
-            builder.circle(x, cy, ITEM_R, {
-                fill: palette.slot,
-                stroke: palette.slotBorder,
-                lineWidth: 2,
-            });
-            builder.text(x, cy, ITEM_GLYPHS[i]!, {
+            const cx = x + it.size / 2;
+            const cy = itemY + it.size / 2;
+            builder.circle(cx, cy, it.size / 2, { fill: palette.slot, stroke: palette.slotBorder, lineWidth: 2 });
+            builder.text(cx, cy, ITEM_GLYPHS[i]!, {
                 fill: palette.text,
                 font: UI_FONT.cell,
                 align: 'center',
                 baseline: 'middle',
             });
         }
-        // 角标：可用数（小圆点 + 数字；0 档转灰 = 「已用」，且灰底亮字保证可读）。
+        // 角标：可用数（0 档转灰 = 「已用」，灰底亮字保证可读）。
         const n = stocks[i] ?? 0;
-        const bx = x + ITEM_R * 0.72;
-        const by = cy + ITEM_R * 0.72;
-        builder.circle(bx, by, 13, { fill: n > 0 ? palette.accentPrimary : palette.textDim });
-        builder.text(bx, by, `${n}`, {
-            fill: palette.panel,
-            font: UI_FONT.cell,
+        const bd = GEO.badge.size;
+        const bx = x + it.size - bd;
+        const by = itemY + it.size - bd;
+        builder.rect(bx, by, bd, bd, { fill: n > 0 ? palette.text : palette.textDim, radius: GEO.badge.radius });
+        builder.text(bx + bd / 2, by + bd / 2, `${n}`, {
+            fill: palette.woodText,
+            font: UI_FONT.badge,
             align: 'center',
             baseline: 'middle',
         });
-        x += ITEM_R * 2 + ITEM_GAP;
     }
+
+    // 「开始」：稿 326×154 整枚烘字；缺图 ⇒ 通用主钮同几何（文案走 `label()` 令牌表）。
+    const st = GEO.start;
+    const startX = plate.x + (st.x - GEO.plate.x);
+    const startY = plate.y + START_DY;
+    const startPressed = data.pressed?.id === 'start-detail';
+    if (menuBitmapReady(LEVEL_DETAIL_TEXTURES.start)) {
+        builder.blit(LEVEL_DETAIL_TEXTURES.start, startX, startY, st.w, st.h);
+    } else {
+        drawButton(builder, palette, startX, startY, st.w, st.h, 'accent', 14, label('start-detail', data), UI_FONT.button, startPressed, false);
+    }
+
+    // 「返回」（产品补钮，稿上无）：牌内左下 Ø80 木圆，与开始钮同中线。
+    const bk = GEO.back;
+    const backX = plate.x + (bk.x - GEO.plate.x);
+    const backY = plate.y + BACK_DY;
+    const backPressed = data.pressed?.id === 'back';
+    const circleTex = backPressed ? MENU_TEXTURES.btnCirclePressed : MENU_TEXTURES.btnCircle;
+    const circleReady = menuBitmapReady(circleTex);
+    if (circleReady) {
+        builder.blit(circleTex, backX, backY, bk.d, bk.d);
+    } else {
+        builder.circle(backX + bk.d / 2, backY + bk.d / 2, bk.d / 2, {
+            fill: palette.slot,
+            stroke: palette.slotBorder,
+            lineWidth: 2,
+        });
+    }
+    builder.text(backX + bk.d / 2, backY + bk.d / 2, label('back', data), {
+        fill: circleReady ? palette.woodText : palette.text,
+        font: UI_FONT.cell,
+        align: 'center',
+        baseline: 'middle',
+    });
 }

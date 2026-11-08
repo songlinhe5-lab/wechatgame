@@ -16,6 +16,19 @@
 | 3 | **一次性生成脚本必须提副本进 `games/beads/design/ai-workflows/`**（⛔ 只留 `temp/`） | `temp/` 被 gitignore、无版本兜底；本仓已因此丢过整个对比图目录（`wxgame-image-gen §6.2`）。入库副本**原样搬运**，只在 docstring 里把用法路径改指新位置，⛔ 不改算法 |
 | 4 | **原图必须指到一张仓内图**；指不到就写「⚠ 原图不可得」+ 复现配方 | 判据复算与二次改件都吃原图。入库件多为 256/32 色量化 PNG，⛔ 不能拿来当母版 |
 
+## 0.1 补充批次：关卡详情弹窗（2026-11-08 · WXG-T-602）逐件来源账
+
+> 本批件**不是生图**，而是 **Figma 稿面切件**（设计与版式正本 = `games/beads/design/ux/level-detail-spec.md`）。设计源稿的上游生成史见 `design/art/proposals/level-detail-dialog-20261107/`（对话框壳）与 `design/art/proposals/plaque-texture-20261108/`（木牌背板纹理）。导出工具 = 仓内在册 `my-skills/wxgame-figma/scripts/figma.mjs img … --scale 2`（⛔ 无一次性脚本）。
+
+| 件（实测规格） | 生成方式 | 生成脚本（入库路径） | 原图（入库路径 / 状态） | 批次出处 |
+|---|---|---|---|---|
+| `final/assets/detail/ui_detail_plaque@2x.png` 1162×2088 · 911 KB | **零生图**：Figma REST 节点 `95:116` @2x 导出；上游木牌纹理 = AI 高频木纹重铺（`plaque-texture-20261108` S3 定稿） | `my-skills/wxgame-figma/scripts/figma.mjs img` | ✅ 设计正本在册：`proposals/plaque-texture-20261108/source/dialog-v25b-750x1334-rgb.png` + 定稿 `out/ai-grain-plate4.png`；Figma 文件 `PBIK3RbfGlfzFsAnd97ZsP` 帧 `92:36` 为长期可重导源 | WXG-T-602 |
+| `final/assets/detail/ui_detail_start@2x.png` 652×308 · 284 KB | 同上：节点 `119:36` @2x 导出（木钮含烘字「开始」） | 同上 | ✅ 稿面截图 `proposals/level-detail-dialog-20261107/dialog-v25b-detail-s42.png`（seed 42 定稿对照）+ Figma 帧 `92:36` | WXG-T-602 |
+| `final/assets/detail/ui_detail_star_filled@2x.png` 116×120 · 9 KB<br>`ui_detail_star_empty@2x.png` 116×120 · 9 KB | 同上：节点 `133:37` / `134:409` @2x 导出 | 同上 | ✅ 同上（Figma 帧 `92:36`） | WXG-T-602 |
+
+- **Cocos 投放件**：`games/beads/cocos/assets/textures/detail/` 四枚**同名无 `@2x`** PNG，按在册脚本 `ai-workflows/quantize-cocos-textures.py` 做 256 色 OCTREE + Floyd 抖动（911+284+9+9 KB → 108+35+2+2 KB = 147 KB，主包红线 4 MB 内）。`.meta` 由 Cocos 编辑器导入生成，⛔ 手写。
+- **harness 不走投放件**：`dev/harness` 直读 `final/assets/detail/` 的 `@2x` 原件（`/detail-assets/` 白名单）。
+
 ## 1. 本批（2026-10-30 → 11-01）逐件来源账
 
 范围 = `final/assets/menu/` 中 `mtime ≥ 2026-10-30` 的 12 件（其余件来源见 `final/README.md` 台账与 `shots/` 证据流）。**在册 11 件**，第 12 件 `ui_menu_env` 已于 2026-11-01 裁定移出（本表保留该行作为出处账，⛔ 不当在册件用）。

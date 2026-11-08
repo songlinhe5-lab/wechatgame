@@ -216,6 +216,11 @@ export interface MetaViewData {
      * shell 从 `meta.powerupFreeUsed` 三布尔派生（预分配常量表，零逐帧分配）。
      * 三字段均可选（缺省 = 未开详情 ⇒ 视图零命令），单测 mock 免补。
      */
+    /**
+     * `[WXG-T-602]` 详情副标题用**大关名**（`ARCS[levelsArc].title`，如「曼陀罗」）；
+     * 缺省 ⇒ 视图只显「第 N 关」。shell 打开详情时投影，视图 ⛔ 自查关表（L5）。
+     */
+    readonly detailChapterTitle?: string;
     readonly detailLevelIndex?: number;
     readonly detailLevel?: BeadsLevelRaw;
     readonly powerupStocks?: readonly number[];

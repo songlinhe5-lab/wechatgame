@@ -29,6 +29,17 @@ import type { BeadsPalette } from './palette.js';
 export const UI_FONT = {
     /** 主菜单招牌 / 大标题 64。 */
     title: '64px sans-serif',
+    /**
+     * `[WXG-T-602]` 木牌标题 64 粗体（Figma「关卡详情」Chiron GoRound TC ExtraBold 64）。
+     * canvas 无该字族 ⇒ 取系统 bold 700；⛔ 不复用 `title`（非粗，笔画明显细一档）。
+     */
+    detailTitle: 'bold 64px sans-serif',
+    /**
+     * `[WXG-T-602]` 计数角标 14 粗体（Figma 道具可用数 24×24 chip 内 14 Inter Bold）。
+     * 属**数字徽章**而非正文：高对比（深底亮字）下 14 可读；⛔ 不当正文档外溢。
+     */
+    badge: 'bold 14px sans-serif',
+
     /** 横幅 62 粗体。 */
     banner: 'bold 62px sans-serif',
     /** HUD 计时器 44 粗体。 */

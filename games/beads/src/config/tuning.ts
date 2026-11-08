@@ -21,3 +21,4 @@ export * from './tuning/motion.js';
 export * from './tuning/bead-style.js';
 export * from './tuning/audio.js';
 export * from './tuning/powerup-layout.js';
+export * from './tuning/level-detail.js';

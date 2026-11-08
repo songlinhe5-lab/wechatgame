@@ -280,6 +280,8 @@ export class BeadsShell implements Game {
         // `_wallBaseLevels` 解析 —— 视图 ⛔ 自查关表）。
         detailLevelIndex: -1,
         detailLevel: undefined as BeadsLevelRaw | undefined,
+        /** `[WXG-T-602]` 详情副标题用大关名（`pick-level` 时按 `ARCS[levelsArc].title` 投影）。 */
+        detailChapterTitle: undefined as string | undefined,
         /** 三道具可用数（熨/筛/扫；shell 从免费额度三布尔派生，预分配 8 档常量表）。 */
         powerupStocks: POWERUP_STOCKS_TABLES[0] as readonly number[],
     };
@@ -680,6 +682,8 @@ export class BeadsShell implements Game {
                 }
                 this._viewData.detailLevelIndex = levelIdx;
                 this._viewData.detailLevel = this._wallBaseLevels[levelIdx];
+                // `[WXG-T-602]` 副标题「大关名·第 N 关」：页内大关固定 ⇒ 直接投影 `ARCS[levelsArc].title`。
+                this._viewData.detailChapterTitle = ARCS[this._phase.levelsArc]?.title;
                 this._phase.openModal('level-detail');
                 this._emitOverlay(true);
                 return true;
@@ -764,6 +768,7 @@ export class BeadsShell implements Game {
     private _clearDetailLevel(): void {
         this._viewData.detailLevelIndex = -1;
         this._viewData.detailLevel = undefined;
+        this._viewData.detailChapterTitle = undefined;
     }
 
     /**

@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3980,
       "lines": 134,
-      "sha256": "3e3f49193f5dd25ddf68d98557810f263f837b4c4e5b9864232f4e3fc29daf12",
+      "sha256": "5d95131ec7a82c8d71e42f336110bd85f2f68b840d008167a4f294d05f9d00a2",
       "tier": "normal",
       "sections": [
         {
@@ -377,7 +377,7 @@
           "startLine": 1,
           "endLine": 135,
           "tokens": 3967,
-          "summary": "生成：2026-11-08 · 由 tools/scripts/build-context-index.mjs 自动生成",
+          "summary": "生成：2026-11-09 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
             "BUDGET",
@@ -46006,6 +46006,171 @@
             "版本与改动史",
             "叙事",
             "正本"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "games/beads/design/ux/level-detail-spec.md",
+      "tokens": 2703,
+      "lines": 116,
+      "sha256": "ff6a1d14d3acd42b16f31fa78eb0aa0755861d030311e3d17be3d8127ba5f253",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§UX 规格 · 关卡详情弹窗（Level Detail Dialog）· beads",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 117,
+          "tokens": 2683,
+          "summary": "项目：games/beads · 版本 v1.0（2026-11-08 · WXG-T-602）：首版。Figma 单源",
+          "keywords": [
+            "Level",
+            "Detail",
+            "Dialog",
+            "beads",
+            "games",
+            "WXG"
+          ]
+        },
+        {
+          "anchor": "§1 设计原则",
+          "level": 2,
+          "startLine": 11,
+          "endLine": 16,
+          "tokens": 155,
+          "summary": "1. 一屏一决定：弹窗只承担「看清这一关 + 决定开不开」，不放置选关、商店、设置等第二任务。",
+          "keywords": [
+            "设计原则"
+          ]
+        },
+        {
+          "anchor": "§2 界面流",
+          "level": 2,
+          "startLine": 17,
+          "endLine": 30,
+          "tokens": 164,
+          "summary": "",
+          "keywords": [
+            "界面流"
+          ]
+        },
+        {
+          "anchor": "§3 稿面版式（帧内坐标 · y 向下）",
+          "level": 2,
+          "startLine": 31,
+          "endLine": 48,
+          "tokens": 401,
+          "summary": "木牌面板 95:116 89 166 581 1044 整张烘图（木框 + 四角铆钉 + 空橱窗 + 底座）",
+          "keywords": [
+            "稿面版式",
+            "帧内坐标",
+            "向下"
+          ]
+        },
+        {
+          "anchor": "§4 字体与颜色（稿面 → 运行时）",
+          "level": 2,
+          "startLine": 49,
+          "endLine": 60,
+          "tokens": 296,
+          "summary": "板标题 Chiron GoRound TC ExtraBold 64 / #F9D8A7 UI_FONT.detailT",
+          "keywords": [
+            "Chiron",
+            "GoRound",
+            "ExtraBold",
+            "F9D8A7",
+            "UI_FONT",
+            "detailT"
+          ]
+        },
+        {
+          "anchor": "§5 资产台账",
+          "level": 2,
+          "startLine": 61,
+          "endLine": 72,
+          "tokens": 261,
+          "summary": "ui_detail_plaque@2x.png 1162×2088 · 911 KB Figma 95:116 导出（@",
+          "keywords": [
+            "ui_detail_plaque",
+            "png",
+            "Figma",
+            "资产台账"
+          ]
+        },
+        {
+          "anchor": "§6 数据映射（shell → `MetaViewData` → 绘制）",
+          "level": 2,
+          "startLine": 73,
+          "endLine": 83,
+          "tokens": 150,
+          "summary": "副标题 detailChapterTitle + detailLevelIndex 章名缺 ⇒ 只显「第 N 关」；无 ",
+          "keywords": [
+            "MetaViewData",
+            "shell",
+            "detailChapterTitle",
+            "detailLevelIndex",
+            "数据映射",
+            "绘制"
+          ]
+        },
+        {
+          "anchor": "§7 交互与热区",
+          "level": 2,
+          "startLine": 84,
+          "endLine": 93,
+          "tokens": 163,
+          "summary": "start-detail {x:212, y_up:153, w:326, h:154}（= 稿面钮） 抬起且同钮（in",
+          "keywords": [
+            "start",
+            "detail",
+            "y_up",
+            "交互与热区"
+          ]
+        },
+        {
+          "anchor": "§8 缺图回退（元素级换皮）",
+          "level": 2,
+          "startLine": 94,
+          "endLine": 103,
+          "tokens": 133,
+          "summary": "面板 blit(plaque) rect(panel, r=UI_CONTAINER.radiusPanel 24)",
+          "keywords": [
+            "blit",
+            "plaque",
+            "rect",
+            "panel",
+            "UI_CONTAINER",
+            "radiusPanel"
+          ]
+        },
+        {
+          "anchor": "§9 偏差登记（有意为之，非缺陷）",
+          "level": 2,
+          "startLine": 104,
+          "endLine": 111,
+          "tokens": 234,
+          "summary": "1. 「返回」为产品补钮：稿面无出口。取牌内左下 Ø80 木圆，与开始同中线；不动稿面其它件。",
+          "keywords": [
+            "偏差登记",
+            "有意为之",
+            "非缺陷"
+          ]
+        },
+        {
+          "anchor": "§10 开放项",
+          "level": 2,
+          "startLine": 112,
+          "endLine": 117,
+          "tokens": 118,
+          "summary": "[ ] Cocos 编辑器导入 cocos/assets/textures/detail/ 四枚 PNG（生成 .met",
+          "keywords": [
+            "Cocos",
+            "cocos",
+            "assets",
+            "textures",
+            "detail",
+            "PNG"
           ]
         }
       ]
@@ -107130,17 +107295,17 @@
     },
     {
       "path": "production/qa/asset-provenance.md",
-      "tokens": 9470,
-      "lines": 212,
-      "sha256": "6d78af2f44567861d6f590420d9905c51b181f0eb32a2dda01f4e1ab42def01a",
+      "tokens": 10067,
+      "lines": 225,
+      "sha256": "f32f7b76554dc9d1af03a5b13f16e72f2736b2b1b4383e81d0ef5e34db9c77cf",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§归档资源生成史（Asset Provenance）",
           "level": 1,
           "startLine": 1,
-          "endLine": 213,
-          "tokens": 9456,
+          "endLine": 226,
+          "tokens": 10053,
           "summary": "本件是「每张进 final/ 的图从哪来」的唯一正本。 建件 = 用户 2026-11-01 令「统一使用图片生成文档，",
           "keywords": [
             "Asset",
@@ -107166,10 +107331,26 @@
           ]
         },
         {
-          "anchor": "§1 本批（2026-10-30 → 11-01）逐件来源账",
+          "anchor": "§0.1 补充批次：关卡详情弹窗（2026-11-08 · WXG-T-602）逐件来源账",
           "level": 2,
           "startLine": 19,
-          "endLine": 44,
+          "endLine": 31,
+          "tokens": 571,
+          "summary": "本批件不是生图，而是 Figma 稿面切件（设计与版式正本 = games/beads/design/ux/level-",
+          "keywords": [
+            "WXG",
+            "Figma",
+            "games",
+            "beads",
+            "design",
+            "level"
+          ]
+        },
+        {
+          "anchor": "§1 本批（2026-10-30 → 11-01）逐件来源账",
+          "level": 2,
+          "startLine": 32,
+          "endLine": 57,
           "tokens": 2792,
           "summary": "范围 = final/assets/menu/ 中 mtime ≥ 2026-10-30 的 12 件（其余件来源见 f",
           "keywords": [
@@ -107184,8 +107365,8 @@
         {
           "anchor": "§累计状态",
           "level": 3,
-          "startLine": 37,
-          "endLine": 44,
+          "startLine": 50,
+          "endLine": 57,
           "tokens": 341,
           "summary": "12 件按件数分档：三项齐备（生成方式 + 脚本 + 原图都在册）= 5 件（9-slice 族）；原图已失 = 5 件",
           "keywords": [
@@ -107196,8 +107377,8 @@
         {
           "anchor": "§2 本批归档动作清单（可核对）",
           "level": 2,
-          "startLine": 45,
-          "endLine": 61,
+          "startLine": 58,
+          "endLine": 74,
           "tokens": 556,
           "summary": "ai-workflows/gen-settle-9slice.py temp/gen-settle-9slice.py",
           "keywords": [
@@ -107212,8 +107393,8 @@
         {
           "anchor": "§3 原图缺口的复现配方（重跑时照此，⛔ 凭记忆）",
           "level": 2,
-          "startLine": 62,
-          "endLine": 72,
+          "startLine": 75,
+          "endLine": 85,
           "tokens": 404,
           "summary": "① ui_menu_{beam,pot} 的底图 lock-s88.png（WXG-T-516）",
           "keywords": [
@@ -107228,8 +107409,8 @@
         {
           "anchor": "§4 缺口与纪律（本档欠的账）",
           "level": 2,
-          "startLine": 73,
-          "endLine": 80,
+          "startLine": 86,
+          "endLine": 93,
           "tokens": 292,
           "summary": "1. ~~ui_menu_env 待裁~~ 已闭（2026-11-01 用户令：移出 final/），隔离于 temp/",
           "keywords": [
@@ -107243,8 +107424,8 @@
         {
           "anchor": "§5 2026-11-04 批（WXG-T-574 · 原型 v3 三态 + Figma 坐标图）",
           "level": 2,
-          "startLine": 81,
-          "endLine": 99,
+          "startLine": 94,
+          "endLine": 112,
           "tokens": 941,
           "summary": "final/prototypes/menu-design-figma-v2-20261104.png Figma RES",
           "keywords": [
@@ -107259,8 +107440,8 @@
         {
           "anchor": "§6 2026-11-04 批（WXG-T-575 · Figma v2 菜单切图 16 件）",
           "level": 2,
-          "startLine": 100,
-          "endLine": 128,
+          "startLine": 113,
+          "endLine": 141,
           "tokens": 827,
           "summary": "final/assets/menu/ui_menu_backdrop_figma.png Figma REST img ",
           "keywords": [
@@ -107275,8 +107456,8 @@
         {
           "anchor": "§7 2026-11-04 二次令（WXG-T-575 · 分层底托 + 真矢量图标）",
           "level": 2,
-          "startLine": 129,
-          "endLine": 147,
+          "startLine": 142,
+          "endLine": 160,
           "tokens": 530,
           "summary": "用户令「重新拉一套背景/高亮图替代圆牌两态，按钮图中 icon 做为矢量图」；四组选项拍板 = 追踪转真 SVG / 设",
           "keywords": [
@@ -107291,8 +107472,8 @@
         {
           "anchor": "§8 2026-11-04 批（WXG-T-576 · 2x 重组）",
           "level": 2,
-          "startLine": 148,
-          "endLine": 162,
+          "startLine": 161,
+          "endLine": 175,
           "tokens": 479,
           "summary": "assets/menu/{background,buttons,icons,badges}/*@2x.png 共 15 ",
           "keywords": [
@@ -107307,8 +107488,8 @@
         {
           "anchor": "§9 2026-11-04 批（WXG-T-577 · badges 三件套替换）",
           "level": 2,
-          "startLine": 163,
-          "endLine": 177,
+          "startLine": 176,
+          "endLine": 190,
           "tokens": 506,
           "summary": "badges/ui_menu_lock@2x.png 192×260 Figma @scale 2 切图 + 右补 1p",
           "keywords": [
@@ -107323,8 +107504,8 @@
         {
           "anchor": "§10 2026-11-05 批（WXG-T-584 ③a · 顶板 logo 改名重出）",
           "level": 2,
-          "startLine": 178,
-          "endLine": 203,
+          "startLine": 191,
+          "endLine": 216,
           "tokens": 828,
           "summary": "final/v1/assets/menu/ui_menu_logo.png 960×772 RGBA Token Pla",
           "keywords": [
@@ -107339,8 +107520,8 @@
         {
           "anchor": "§分享卡配图（WXG-T-590 · 2026-11-07）",
           "level": 3,
-          "startLine": 191,
-          "endLine": 203,
+          "startLine": 204,
+          "endLine": 216,
           "tokens": 381,
           "summary": "design/art/proposals/share-card-20261107/s74.png 1280×1024 R",
           "keywords": [
@@ -107355,8 +107536,8 @@
         {
           "anchor": "§11 2026-11-08 批（道具图标 · 熨贴片 / 抖豆筛 / 扫豆刷）",
           "level": 2,
-          "startLine": 204,
-          "endLine": 213,
+          "startLine": 217,
+          "endLine": 226,
           "tokens": 509,
           "summary": "final/assets/powerup/powerup_window_restore.png 512×512 RGBA",
           "keywords": [

@@ -55,7 +55,7 @@ import { drawMetaButton } from './meta-widgets.js';
 import { drawMenuAnchored, drawMenuBackdrop } from './meta-menu.js';
 import { drawLevelsContent } from './meta-levels-page.js';
 // `[WXG-T-601]` 关卡详情弹窗内容带（Figma「关卡详情弹窗 v25b」程序化还原）。
-import { drawLevelDetailContent } from './meta-level-detail-page.js';
+import { drawLevelDetailPage } from './meta-level-detail-page.js';
 // `[WXG-T-432]` 好友榜面板占位视图（叠在菜单页之上；见下方 `buildMetaView` 末段）。
 import { drawRankPanel } from './rank-view.js';
 import { rankPanelLayout } from '../systems/rank-panel.js';
@@ -178,9 +178,11 @@ const META_PAGES: Record<MetaOverlay, PageDraw> = {
     // `[WXG-T-472]` 名片页（批 1）；`[WXG-T-501]` 图鉴 / 本地榜两页下线，只剩名片。
     // 标题读 `meta-pages-content` 单源常量（真源 = `tokens.md §7`）。
     profile: panelPage(PROFILE_TITLE, UI_SCRIM.alpha, drawProfileContent),
-    // `[WXG-T-601]` 关卡详情弹窗（选关卡卡 → 详情 → 开始）；标题「关卡详情」与 `tokens.md §7`
-    // 无对应键 ⇒ 与签到/装扮馆同判例（字面单源于此，⛔ 不新造令牌）。
-    'level-detail': panelPage('关卡详情', UI_SCRIM.alpha, drawLevelDetailContent),
+    // `[WXG-T-602]` 关卡详情：木牌容器自持版式（非 `panelPage`）—— 木牌 / 橱窗 / 星 / 开始钮均为位图腿，
+    // 稿面几何单源在 `config/tuning/level-detail.ts`；缺图逐元素回退到同几何程序化档。
+    'level-detail': (builder, data, palette, _layout, a, _withSignage, thumbN) => {
+        drawLevelDetailPage(builder, data, palette, thumbN, a.H);
+    },
 };
 
 /**

@@ -24,7 +24,7 @@ import {
   maskTileInnerPx,
   tintFx,
 } from '@wxgame/framework';
-import { BEAD_PITCH, MENU_TEXTURES, POWERUP_TILE_TEXTURES, TILE_BLEED } from '../../games/beads/src/config/tuning.js';
+import { BEAD_PITCH, LEVEL_DETAIL_TEXTURES, MENU_TEXTURES, POWERUP_TILE_TEXTURES, TILE_BLEED } from '../../games/beads/src/config/tuning.js';
 import { setDevSafeInsets, setShowSafeGuides } from '../../games/beads/src/config/tuning/layout.js';
 import { OPEN_ARCS } from '../../games/beads/src/config/arcs.js';
 import { setMenuBitmapResolver } from '../../games/beads/src/view/meta-view.js';
@@ -225,6 +225,12 @@ const MENU_FILE: Readonly<Record<string, string>> = {
   [POWERUP_TILE_TEXTURES.windowRestore]: '/powerup-assets/tiles/powerup_window_restore_tile.png',
   [POWERUP_TILE_TEXTURES.randomRestore]: '/powerup-assets/tiles/powerup_random_restore_tile.png',
   [POWERUP_TILE_TEXTURES.trayRestore]: '/powerup-assets/tiles/powerup_tray_restore_tile.png',
+  // `[WXG-T-602]` 关卡详情四件（正本 `design/art/final/assets/detail/`，均 @2x）：木牌 1162×2088 /
+  // 开始钮 652×308 / 实心星·空心星 116×120。缺任一件 ⇒ 该元素走同几何程序化回退。
+  [LEVEL_DETAIL_TEXTURES.plaque]: '/detail-assets/ui_detail_plaque@2x.png',
+  [LEVEL_DETAIL_TEXTURES.start]: '/detail-assets/ui_detail_start@2x.png',
+  [LEVEL_DETAIL_TEXTURES.starFilled]: '/detail-assets/ui_detail_star_filled@2x.png',
+  [LEVEL_DETAIL_TEXTURES.starEmpty]: '/detail-assets/ui_detail_star_empty@2x.png',
 };
 const tintCache = new TintSpriteCache(
   // 离屏 canvas 工厂（结构化注入 ⇒ framework/core 层 ⛔ 不碰 DOM，L2 合规）

@@ -32,7 +32,7 @@ import {
 } from '../framework/adapters/canvas2d/tint-sprite-cache';
 import { MASK_CANONICAL_SIZE } from '../framework/core/bake/mask-spec';
 import { maskTileInnerPx } from '../framework/core/bake/mask-tile';
-import { BEAD_PITCH, BOSS_THUMB_TEXTURES, MENU_TEXTURES, POWERUP_TILE_TEXTURES, TILE_BLEED } from '../game/config/tuning';
+import { BEAD_PITCH, BOSS_THUMB_TEXTURES, LEVEL_DETAIL_TEXTURES, MENU_TEXTURES, POWERUP_TILE_TEXTURES, TILE_BLEED } from '../game/config/tuning';
 import { OPEN_ARCS } from '../game/config/arcs';
 import { tintFxBase } from '../framework/core/bake/tint-composite';
 import { frostGrayCombined, frostPixels, frostRead, grayFxRead, grayWipeRead } from '../framework/core/bake/gray-fx';
@@ -162,6 +162,13 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
     [POWERUP_TILE_TEXTURES.windowRestore]: { path: 'powerup_window_restore_tile' },
     [POWERUP_TILE_TEXTURES.randomRestore]: { path: 'powerup_random_restore_tile' },
     [POWERUP_TILE_TEXTURES.trayRestore]: { path: 'powerup_tray_restore_tile' },
+
+    // `[WXG-T-602]` 关卡详情四件（投放件均 @2x：木牌 1162×2088 / 开始钮 652×308 / 星 116×120）。
+    // 未导入 `textures` Bundle ⇒ 不登记 ⇒ 详情页逐元素回退（纸面板 / 通用主钮 / 文字星），零回归。
+    [LEVEL_DETAIL_TEXTURES.plaque]: { path: 'detail/ui_detail_plaque' },
+    [LEVEL_DETAIL_TEXTURES.start]: { path: 'detail/ui_detail_start' },
+    [LEVEL_DETAIL_TEXTURES.starFilled]: { path: 'detail/ui_detail_star_filled' },
+    [LEVEL_DETAIL_TEXTURES.starEmpty]: { path: 'detail/ui_detail_star_empty' },
 
     // `[WXG-T-515]` 结算 9-slice 四件（源图与设计 px 1:1，端帽见 `CLEAR_*_SLICE`）。
     [MENU_TEXTURES.panelFrame]: { path: 'ui_panel_frame_9s' },

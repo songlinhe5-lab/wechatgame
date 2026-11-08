@@ -6,7 +6,7 @@
  * 缓存分两档：默认行数 = 按 anchors 引用（WeakMap，逐机主菜单）；变参行数只服务 K-6 同帧差分腿。
  */
 
-import { DESIGN_H, DESIGN_W, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_X, MENU_V2, TOUCH_MIN, WALL_CELL, WALL_COLS, WALL_GAP, WALL_ROWS, dialogShiftY, menuAnchors, menuBackdropTopPad, menuPlacementFromAnchors, type MenuAnchors } from '../config/tuning.js';
+import { DESIGN_H, DESIGN_W, LEVEL_DETAIL_GEO, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_X, MENU_V2, TOUCH_MIN, WALL_CELL, WALL_COLS, WALL_GAP, WALL_ROWS, dialogShiftY, menuAnchors, menuBackdropTopPad, menuPlacementFromAnchors, type MenuAnchors } from '../config/tuning.js';
 import { settingsContentButtons } from './settings-content.js';
 import { signinCellLayout } from './signin-content.js';
 import { skinCardBoxes } from './skins-content.js';
@@ -63,6 +63,18 @@ export function overlayPlate(): Box {
         );
     }
     return _overlayPlate;
+}
+/**
+ * `[WXG-T-602]` 关卡详情**木牌**（Figma 581×1044 @ y下 166）——不复用 {@link overlayPlate}：
+ * 木牌比通用纸面板高 324，且底缘按稿距屏底 124（非居中）。逐机只叠 `dialogShiftY()`。
+ */
+let _levelDetailPlate: Box | null = null;
+export function levelDetailPlate(): Box {
+    if (_levelDetailPlate === null) {
+        const p = LEVEL_DETAIL_GEO.plate;
+        _levelDetailPlate = box(p.x, DESIGN_H - p.yDown - p.h + dialogShiftY(), p.w, p.h);
+    }
+    return _levelDetailPlate;
 }
 /**
  * 生成 `WALL_COLS × rows` 个作品格热区（选关**弹窗**，格 = `WALL_CELL` / 间距 = `WALL_GAP`，与作品墙同一套）。
@@ -216,24 +228,29 @@ function skinsLayout(): MetaLayout {
 }
 
 /**
- * `[WXG-T-601]` 关卡详情弹窗钮行：**板底一行两枚** —— 返回（左，200）+ 开始 CTA（右，300），
- * 与 settings / skins 的返回同档（`plate.y + 50`、`TOUCH_MIN`）。整行 520 居中 ⇒ 左右各留 40。
- *
- * ⚠ 之所以**不**把返回放板顶：`panelPage` 的板标题住在 `plate.y + plate.h − 50`（中线），
- * 顶部 88 高的钮带必与其上下叠压；底部行同时满足「不压标题」与「与其余弹窗返回同位置」。
- * 内容带（副标题 / 缩略 / 星级 / 道具行）的纵向几何单源在 `view/meta-level-detail-page.ts`，
- * 其地板 = 本行上缘（50 + `TOUCH_MIN`）再留 20。
+ * `[WXG-T-602]` 关卡详情钮位：按 Figma `92:36` 原值 —— 「开始」326×154 @ x212 / y下1027；
+ * 「返回」是产品补钮（稿上无出口），落牌内左下 Ø80 木圆、与开始钮同中线。
+ * 热区一律 `max(视觉, TOUCH_MIN)` 同心包裹（与菜单视零件同判例）。
+ * 内容带几何单源 = `config/tuning/level-detail.ts`，⛔ 本文件不另写数字。
  */
 function levelDetailLayout(): MetaLayout {
-    const plate = overlayPlate();
-    const backW = 200;
-    const ctaW = 300;
-    const gap = 20;
-    const left = plate.x + (plate.w - (backW + gap + ctaW)) / 2;
+    const start = LEVEL_DETAIL_GEO.start;
+    const back = LEVEL_DETAIL_GEO.back;
+    const startY = DESIGN_H - start.yDown - start.h + dialogShiftY();
+    const backY = DESIGN_H - back.yDown - back.d + dialogShiftY();
+    const hit = (d: number): number => Math.max(d, TOUCH_MIN);
+    const backHit = hit(back.d);
+    const startHitH = hit(start.h);
     return {
         buttons: [
-            { id: 'back', box: box(left, plate.y + 50, backW, TOUCH_MIN) },
-            { id: 'start-detail', box: box(left + backW + gap, plate.y + 50, ctaW, TOUCH_MIN) },
+            {
+                id: 'start-detail',
+                box: box(start.x, startY - (startHitH - start.h) / 2, start.w, startHitH),
+            },
+            {
+                id: 'back',
+                box: box(back.x - (backHit - back.d) / 2, backY - (backHit - back.d) / 2, backHit, backHit),
+            },
         ],
         signinCells: [],
     };
