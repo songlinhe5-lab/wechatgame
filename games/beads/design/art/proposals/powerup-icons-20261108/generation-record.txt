@@ -1,0 +1,58 @@
+道具图标生成史（powerup-icons-20261108）· 2026-11-08
+=====================================================
+
+目标：关卡详情弹窗（抠图层 92:36）面板下方三个道具格替换为道具图标，
+      图标位于三颗星星正下方，右上角加数量标记（数字 1，占位）。
+命名：按 systems-index.md §3.6 v1.95 —— windowRestore=熨贴片 / randomRestore=抖豆筛 / trayRestore=扫豆刷。
+
+一、图标生成（Token Plan 通道）
+--------------------------------
+通道：Token Plan（--profile token-plan），模型 qwen-image-3.0-pro，档位 1024×1024（--size '1024*1024'），seed 42 unless noted。
+脚本：games/beads/design/ai-workflows/dashscope-generate.py（t2i，无 --ref）。
+提示词正本：prompts.txt（同目录）。
+
+| 道具 | 产出 | 调用 | 判定 |
+|---|---|---|---|
+| 扫豆刷 trayRestore | raw/tray_restore-qwen3pro-s42.png（原名 item_tray_clear-qwen3pro-s42.png，扫帚） | 1 | ✅ 通过（用户确认） |
+| 熨贴片 windowRestore | raw/window_restore-qwen3pro-s42.png（熨斗） | 1 | ✅ 通过（用户确认） |
+| 抖豆筛 randomRestore | raw/random_restore-qwen3pro-s42.png（筛子+彩珠） | 1 | ✅ 通过（用户确认） |
+
+弃件（不入库，仅记录）：
+- 规格 §1.4 程序化三件（魔法棒 / 扫帚 / 磁铁，PIL 绘制，未走云端）：用户判不通过 → 改 qwen 生成。
+- 魔法棒 qwen s42 版：用户判不通过 → 重生 seed 7（temp/fullstar-gacha/powerup/item_area_clear-qwen3pro-s7.png），
+  之后因命名改为 GDD v1.95（熨贴片=熨斗）魔法棒不再使用。
+- 磁铁 qwen s42 版：命名改为 GDD v1.95 后磁铁不再使用（抖豆筛改为筛子）。
+
+调用合计（本批）：魔法棒 2 + 扫豆刷 1 + 磁铁 1 + 熨斗 1 + 筛子 1 = 6 次调用 / 6 张出图 / 0 浪费（其中 3 张弃用，3 张入库）。
+⚠ 台账行见 production/qa/token-plan-usage-ledger.md（2026-11-08 三条）。
+
+二、抠图（白底 → 透明）
+--------------------------------
+脚本：games/beads/design/ai-workflows/powerup-icon-key-rgba.py
+方法：从画布四边的近白像素出发，只向相连的近白像素扩展（numpy 迭代膨胀）→ 得到与画布相连的背景；
+      内部的浅色区域（熨斗机身、筛网孔）保持不透明。alpha 高斯 σ=0.8 柔化边缘。
+      裁切到 alpha 外接框 → 正方形画布（留 6% 边距）→ LANCZOS 缩放到 512×512 RGBA。
+产出：final/assets/powerup/powerup_{window_restore,random_restore,tray_restore}.png（512×512 RGBA）。
+
+三、面板擦除（三个道具格）
+--------------------------------
+底图：面板 95:116 的 RGB 版（sha1 f7de5c7f…，temp/fullstar-gacha/rgb/panel-rgb-erased-v4.png，星星已擦）。
+脚本：games/beads/design/ai-workflows/powerup-panel-tile-erase.py（⚠ 脚本内输入路径为 temp 绝对路径，
+      v4 底图未入库，复现需先按 §星星擦除 生成 v4；v5 产出已入库本目录）。
+擦除框：x 155–405、y 744–828（面板坐标）。方法同星星擦除：多尺度归一化卷积取底色（采样 y 690–740，框外木纹），
+        纹理 = 右侧干净木纹带（x 420–500）高通 ×0.9，平铺；框边 3 px 羽化。
+产出：panel-rgb-erased-v5-tiles-removed.png（581×1044 RGB，sha1 5000f915…，已上 Figma 95:116）。
+
+四、Figma 落位（文件 PBIK3RbfGlfzFsAnd97ZsP，页 关卡详情弹窗 v25b）
+--------------------------------
+- 95:116 面板图 → v5（tiles removed）。
+- 137:36 / 137:39 / 137:42：prop-icon/window_restore、random_restore、tray_restore，64×64，FIT，
+  位置 (276,924)、(343,924)、(410,924)（抠图层坐标），分别位于 star-1(133:37)、star-2(133:36)、star-3(134:409) 正下方居中。
+- 137:37 / 137:40 / 137:43：prop-badge/*，24×24，圆角 8，填 #2A2E43，白色 Inter Bold 14「1」，位于图标右上角（x+44，y 918）。
+- 数量「1」为占位：系统中的道具数量由背包系统记录（待背包设计），不是此处的最终数值。
+
+五、未决 / 注意
+--------------------------------
+- 三颗星星的图层图片已在 Figma 中被替换（hash 0836…/669350…，尺寸 1024×1024），与本地 star_1/2/3.png
+  （sha1 6ecad… / 392dd9… / f5ef15…，58×60）不一致；star-2 与 star-3 当前共用 0836… 同一张图。未改动，需确认。
+- 图标白底抠图的边缘有轻微白边风险（边缘像素未做去白边处理），1x 下不明显，放大看需复核。

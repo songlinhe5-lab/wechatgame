@@ -9143,3 +9143,17 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **金样本**：**零漂移**——动画只改交互中的 `carouselDx`，十一态静态帧 `dx = t = 0` ⇒ sha / `total` / `kinds` 逐字未变，⛔ 无需重抓（全量单测已证）。
 - **门禁读数**：全量单测 **1428 passed / 2 skipped（121 文件全绿）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；`typecheck` 0 错。
 - **设计取舍**：⛔ 未引入弹簧/惯性物理引擎（用户要「调整动画」不是重写手势）；`easeInOutCubic` 起步导数为 0，与手指速度仍非严格连续，但比「起步 7.5 px/ms 猛窜」显著平顺，且翻页是离散动作而非惯性跟随。若真机仍觉起步「发黏」，下一步可调 `snapMs` 或改 `easeOutSine`（按 K-053 另裁）。
+
+## WXG-T-603
+
+**UI·关卡详情道具图标（熨贴片 / 抖豆筛 / 扫豆刷）+ 数量标记** · 负责：主理人(Cursor)·beads 美术/UI轨 · 状态：✅ 完成（2026-11-08）
+
+- **上位**：用户 2026-11-08 令「设计系统中三个道具的icon放到三个星星下面替代图片上的三个道具，并且在每个道具元素右上角增加数量标记。道具图标设计好后留存系统使用。可以使用 qwen 3.0 pro（token plan），经过我确认后添加，如果确认不行再生成图标，三个图标要分开来确认」。
+- **命名口径**：按 `games/beads/design/gdd/systems-index.md §3.6`（v1.95）—— `windowRestore`=熨贴片（熨斗）/ `randomRestore`=抖豆筛（筛子）/ `trayRestore`=扫豆刷（扫帚）。规格 `assets-spec §1.4` 的旧三件（魔法棒 / 磁铁）按用户裁定（命名按 GDD）退出使用。
+- **图标生成**：Token Plan `qwen-image-3.0-pro`，t2i，1024×1024，seed 42；提示词正本见 `proposals/powerup-icons-20261108/prompts.txt`。程序化图标（§1.4 规格）与魔法棒 seed 42 / seed 7 两版被用户判不通过或命名退役，弃件不入库。调用与留档台账见 `production/qa/token-plan-usage-ledger.md`（2026-11-08 三行）。
+- **抠图**：白底边缘连通抠图（`games/beads/design/ai-workflows/powerup-icon-key-rgba.py`），内部浅色区域（熨斗机身 / 筛网孔）保持不透明。
+- **交付**：`games/beads/design/art/final/assets/powerup/powerup_{window_restore,random_restore,tray_restore}.png`（512×512 RGBA）；生成史 `proposals/powerup-icons-20261108/generation-record.txt`；provenance 登记 `production/qa/asset-provenance.md §11`。
+- **Figma（`PBIK3RbfGlfzFsAnd97ZsP`，页 关卡详情弹窗 v25b，抠图层 `92:36`）**：面板 `95:116` 换为擦除三个旧道具格的版本（v5，sha1 `5000f915…`，擦除脚本 `games/beads/design/ai-workflows/powerup-panel-tile-erase.py`）；新增 `137:36 / 137:39 / 137:42` 三枚 64×64 图标（位于星星正下方，x 276/343/410、y 924）与 `137:37 / 137:40 / 137:43` 三枚 24×24 数量标记（圆角 8、`#2A2E43`、白字 Inter Bold 14，位于图标右上角，数字 **1 占位**）。
+- **待定**：数量标记的最终数字由背包系统决定（用户裁定：背包只记录物品与数量，三件道具、豆数、星星数都存入其中，先不设槽位）。背包的数据模型与读写规则尚未单开任务。
+- **遗留**：星星图层当前图片由用户替换（1024×1024，star-2 / star-3 共用同一图）——用户裁定保留，不回滚。
+

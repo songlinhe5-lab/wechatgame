@@ -200,3 +200,12 @@ python3 games/beads/design/ai-workflows/trace-figma-icons.py
 
 **读数**：装配后主包 2638.4 → **2686.7 KB**（137 文件，距 4096 红线余量 **1409.3 KB**）；
 版本 v1.0.41 → **v1.0.42**；产物体积 **49365 字节**，与仓内正本逐字节一致。
+
+## 11. 2026-11-08 批（道具图标 · 熨贴片 / 抖豆筛 / 扫豆刷）
+
+| 件（实测规格） | 生成方式 | 生成脚本（入库路径） | 原图（入库路径 / 状态） | 批次出处 |
+|---|---|---|---|---|
+| `final/assets/powerup/powerup_window_restore.png` 512×512 RGBA | Token Plan `qwen-image-3.0-pro` t2i（1024×1024，seed 42）→ 白底边缘连通抠图 | `games/beads/design/ai-workflows/powerup-icon-key-rgba.py` | ✅ `proposals/powerup-icons-20261108/raw/window_restore-qwen3pro-s42.png` | `proposals/powerup-icons-20261108/generation-record.txt` |
+| `final/assets/powerup/powerup_random_restore.png` 512×512 RGBA | 同上 | 同上 | ✅ `raw/random_restore-qwen3pro-s42.png` | 同上 |
+| `final/assets/powerup/powerup_tray_restore.png` 512×512 RGBA | 同上 | 同上 | ✅ `raw/tray_restore-qwen3pro-s42.png` | 同上 |
+| `proposals/powerup-icons-20261108/panel-rgb-erased-v5-tiles-removed.png` 581×1044 RGB | 面板 v4 底图上擦除三个道具格（多尺度底色 + 木纹高通补回） | `games/beads/design/ai-workflows/powerup-panel-tile-erase.py`（⚠ 输入为 temp 底图 v4，未入库） | ✅ 即本件（已上 Figma `95:116`） | 同上 |

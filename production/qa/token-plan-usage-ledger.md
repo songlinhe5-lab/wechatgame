@@ -37,6 +37,10 @@
 | 2026-11-08 | 木牌背板纹理 · wan2.7 bbox 两 seed（plaque-src-v3 参考） | `wan2.7-image` | 1K | 2 | 2 | **2** | `--bbox 198,226,576,330`。框外漂移 maxΔ≈196 ⇒ 必须 paste-back；seed 7 经 tone 修正为采用版（`out/comp-tone06-s7.png`），seed 42 留样未采用。零浪费。留档 → `plaque-texture-20261108/raw/` |
 | 2026-11-08 | 木牌背板纹理 · wan2.7 原图直擦（测试） | `wan2.7-image` | 1K | 1 | 1 | **1** | 带字原图 + `--bbox`：字影残留成幽灵凸起、整体偏暗需 −8 色调 ⇒ **判负弃件**（非调用失败，不计浪费）。留档 → `raw/wan-orig-s7.png` |
 | 2026-11-08 | 木牌背板纹理 · qwen-3.0-pro 去字（1536×456 crop，i2i） | `qwen-image-3.0-pro` | 1K | 2 | 2 | **2** | 去字 ✅；qwen 无 mask、bbox 不生效（`bbox_guard` 拦截）；输出上移 ≈4 px 需 DY 对齐。seed 7 为 AI 高频来源（定稿 `out/ai-grain-plate4.png`，已上 Figma `92:37`/`97:36`），seed 42 留样。零浪费。留档 → `raw/q3pro-s7.png` · `raw/q3pro-s42.png` |
+| 2026-11-08 | 开始按钮去除 · wan2.7 bbox 擦除（seed 7） | `wan2.7-image` | 1K | 1 | 1 | **1** | `--bbox 208,1022,544,1184`。按钮外形残留为幽灵凸起（wan 对原形有锚定）⇒ **判负弃件**，改走确定性去除。留档 → `btn/`（temp，待入库） |
+| 2026-11-08 | 开始按钮去除 · qwen-3.0-pro 去按钮（1536×816 crop，seed 7） | `qwen-image-3.0-pro` | 1K | 1 | 1 | **1** | 只去了文字，**保留了按钮外形**（参考图里有按钮 ⇒ 模型照着画回）⇒ **判负弃件**。改用平底参考（见下一行）。 |
+| 2026-11-08 | 开始按钮去除 · qwen-3.0-pro 补木纹（平底参考，seed 7） | `qwen-image-3.0-pro` | 1K | 1 | 1 | **1** | 参考图改为已去按钮的平底板（无可锚定的形状）⇒ 整块补出自然厚木纹、无按钮。HF 叠到确定性平底上（K=1.3，粗纹 σ 4/12，渐隐 10 px）。**采用** → 背景 `bg-no-button.png` 已替换 Figma `92:37`/`97:36` |
+| 2026-11-08 | 开始按钮样式 · qwen-3.0-pro 左右双按钮（1536×512，seed 7） | `qwen-image-3.0-pro` | 1K | 1 | 1 | **1** | i2i 以原按钮裁图为风格参考，要求两个空白同风格按钮、纯绿底（#00FF00）、无文字。**采用**：绿度键出 RGBA（左 705×320 / 右 700×319），已上 Figma `117:36`/`117:37`。文字之后用文字图层叠加 |
 | 2026-10-31 | 接入探针（`backend-token-plan.md` 建件，未单领号） | `qwen-image-3.0-pro` | 1K | 2 | 2 | **0** | t2i 512²（23.9s）+ 编辑腿 752×1344（10.8s），只为验端点，产物未留样 |
 | 2026-11-01 | WXG-T-527 局部修改 + 抠图 | `qwen-image-3.0-pro` | 1K | 4 | 4 | **3** | 第 4 次是 `mask_image_url` 参数探针（验「吃不吃 mask」），回图未作样本留档；留存 A1/A2/B1 |
 | 2026-11-01 | WXG-T-528 ① 原型 / ② 固定风格对照 | `qwen-image-3.0-pro` | 1K | 5 | 5 | **4** | ⚠ **1 次浪费**：输出 slug 猜错（实为 `qwen_image_30_pro.png`）致 s42 被 s7 覆盖后重跑 |
@@ -45,6 +49,9 @@
 | 2026-11-01 | WXG-T-532 透明通道终判 | `wan2.7-image-pro` | 1K | 2 | 2 | **2** | seed 7 / 42 各一发，判据 = alpha 分布；**判负**（`alpha=0` 占 0.00%），原图只在 `temp/pro-wan27-alpha/` |
 | 2026-11-01 | WXG-T-532 `color_palette` 风格锁定 | `wan2.7-image` | 1K | 7 | 6 | **6** | 两 seed × 三条件（无 palette / 中位切分棕板 / `palette.ts` token 板）。⚠ **1 次浪费**：`--palette` 参数形状猜错 → 400（服务端要 `{"hex":…,"ratio":"20.00%"}`）。读数 → `wan27-token-plan-20261101.md` §9 |
 | 2026-11-01 | WXG-T-532 6 色板批次稿 | `wan2.7-image` | 1K | 4 | 4 | **4** | 主菜单 + 设置页 × 两 seed，零浪费；跨页面 ΔE ≤ 3.5 → 同文件 §10 |
+| 2026-11-08 | 道具图标 · 三件 qwen 重生（设计系统 §1.4 程序化图标被否决后）· 魔法棒 / 扫帚 / 磁铁各 1 次，seed 42 | `qwen-image-3.0-pro` | 1K（1024×1024） | 3 | 3 | **3** | 零浪费。三张均白底 3D 拟物（留档 `temp/fullstar-gacha/powerup/item_*-qwen3pro-s42.png`，未入库，待用户逐件确认后再入 `design/art/proposals/` 并补 `generation-record.txt`）。提示词正本 `temp/fullstar-gacha/powerup/prompts.txt`。量 0.18×3=0.54 元量级 |
+| 2026-11-08 | 道具图标 · 魔法棒二次重生（seed 7，提示词不变） | `qwen-image-3.0-pro` | 1K（1024×1024） | 1 | 1 | **1** | 零浪费。留档 `temp/fullstar-gacha/powerup/item_area_clear-qwen3pro-s7.png`，未入库；用户对 s42 版判不通过。量 0.18 元量级 |
+| 2026-11-08 | 道具图标 · 按 GDD v1.95 命名补画两件（熨贴片=熨斗 / 抖豆筛=筛子），seed 42 | `qwen-image-3.0-pro` | 1K（1024×1024） | 2 | 2 | **2** | 零浪费。留档 `temp/fullstar-gacha/powerup/item_window_restore-qwen3pro-s42.png` · `item_random_restore-qwen3pro-s42.png`，未入库。量 0.18×2=0.36 元量级 |
 | — | 在册未跑 | `wan2.7-image-pro` | — | **0** | 0 | 0 | 剩余未取证：4K / 组图 / `thinking_mode`（`color_palette` 已在 `-image` 上取证） |
 
 ### 累计（截至 2026-11-01）

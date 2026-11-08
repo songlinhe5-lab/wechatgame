@@ -1,0 +1,11 @@
+[shared style suffix]
+Single game UI icon, 3D skeuomorphic cartoon style, soft highlight along the top edge, subtle darker shading along the bottom, warm saturated colors, clean rounded forms, no text, no letters, no numbers, no frame, no card, no ground shadow, isolated object centered on a pure white background, object occupies about 70 percent of the square canvas.
+
+[item_area_clear / magic wand]
+A magic wand placed diagonally from lower-left to upper-right: a slim purple (#8E6FD9) rod with a golden yellow (#FFD23F) five-pointed star at the upper-right tip.
+
+[item_tray_clear / broom]
+A small cleaning broom placed diagonally from upper-right to lower-left: a brown wooden handle (#A5652C) and a golden yellow (#FFD23F) fan-shaped bristle head at the lower-left, with three thin darker dividing lines in the bristles.
+
+[item_random_clear / horseshoe magnet]
+An upright red (#E84C3D) horseshoe-shaped U magnet, open at the bottom, with two light lavender-grey (#D8D5E6) metal caps at the two ends of the U.
