@@ -278,7 +278,7 @@ function beadsInCell(cmds: readonly DrawCommand[], cell: { box: { x: number; y: 
     return beadSignatureIn(cmds, cell.box).split('\n').filter((s) => s.length > 0).length;
 }
 
-/** 格内星带文本数（★/☆ 串）——「锁格⛔ 无星」的机械证据（EP13-FU-1 · tls §4 Q15 合形）。 */
+/** 格内星带文本数（★/☆ 串）——四通道之一；锁格也显示 ☆☆☆（WXG-T-606 用户令）。 */
 function starTextIn(cmds: readonly DrawCommand[], cell: { box: { x: number; y: number; w: number; h: number } }): number {
     const b = cell.box;
     return cmds.filter(
@@ -446,7 +446,7 @@ describe('EP12-S6 Deliverable 3 · 三条硬口径（§5.4）+ 未解锁零热�
     });
 
     // EP13-FU-1 换形（旧口径 = 「未解锁格 = 虚线空槽」，~~无🔒字样~~ ⇒ Q15 2026-10-17 改裁**合形**）：
-    it('未解锁格 = 锁格合形（灰阵 + 锁 + 无星 + 无虚线）+ 零热区零事件（墙住 `levels` overlay）', () => {
+    it('未解锁格 = 锁格合形（灰阵 + 锁 + ☆☆☆ 灰星 + 无虚线）+ 零热区零事件（墙住 `levels` overlay）', () => {
         const r = rig(); // maxUnlocked = 1 ⇒ 仅 L1 所在墙槽（恒等序 = 槽 0）已解锁，其余锁
         const before = r.staminaOf();
         const cmds = levelsFrame(r.shell); // 先点卡进选关页 ⇒ 墙格内容可观测
@@ -461,7 +461,7 @@ describe('EP12-S6 Deliverable 3 · 三条硬口径（§5.4）+ 未解锁零热�
             expect(r.shell.tapMeta(c.x, c.y), `槽 ${locked.slot} 未解锁 ⇒ 不被消费`).toBe(false);
             expect(beadsInCell(cmds, locked), '未解锁格 = 灰色珠阵（Q15 合形，⛔ 不再是空槽）').toBeGreaterThan(0);
             expect(dashedSegmentsIn(cmds, locked), '虚线空槽在墙格路径退场').toBe(0);
-            expect(starTextIn(cmds, locked), '锁格⛔ 无星带').toBe(0);
+            expect(starTextIn(cmds, locked), '锁格星带 = ☆☆☆（0 星可见）').toBe(1);
         }
         expect(r.shell.screen).toBe('menu');
         expect(r.shell.overlay, '点未解锁格不换页').toBe('levels');

@@ -3,7 +3,7 @@
  * ─────────────────────────────────────────────────────────────────────────────
  * 判据真源（⛔ 本文件零新判据）：
  *  - `games/beads/design/ux/arc-level-select-spec.md` **§4**「未解锁格」「越界空槽」两行
- *    （Q15 = 2026-10-17 改裁**合形**：灰色珠阵图 + 小锁 + 无星；零热区不变）；
+ *    （Q15 = 2026-10-17 改裁**合形**：灰色珠阵图 + 小锁 + 零热区；星带按 WXG-T-606 用户令改为**逐格显示 ☆☆☆**）；
  *  - 同文 **§3** 线框 v1.3（3×3 = 9 格）与 **§9 分片 §11 v1.3 行**（列数 4→3、容量 12→9、网格宽 546→404）；
  *  - 同文 **§7** 非色相通道：未解锁 = **锁形**通道（⛔ 不得只靠灰度表达状态）；
  *  - `production/epics/epics-beads-ep13-fu-wallcell.md` **§3 A1/A2/A3/A4**。
@@ -110,7 +110,7 @@ describe('EP13-FU-1 墙几何 3×3（A1；`[WXG-T-605]` 起 = 详情木牌版式
 });
 
 describe('EP13-FU-1 锁格合形（A2 / §7 锁形通道）', () => {
-    it('未解锁格 = 灰阵 + 小锁 + 无星 + 无虚线（`slotDashed` 图元退场）', () => {
+    it('未解锁格 = 灰阵 + 小锁 + ☆☆☆ 灰星 + 无虚线（`slotDashed` 图元退场）', () => {
         setMenuBitmapResolver(() => true);
         const cs = cells();
         const locked = cs[4]!; // maxUnlocked = 1 ⇒ 第 5 格未解锁
@@ -125,11 +125,11 @@ describe('EP13-FU-1 锁格合形（A2 / §7 锁形通道）', () => {
         const blocks = cmds.filter((c) => inThumbRect(c, thumbBox(locked)));
         expect(blocks.length).toBeGreaterThan(0);
         expect(blocks.every((c) => isGrayHex('fill' in c ? c.fill : undefined))).toBe(true);
-        // ④ 无星：格内不写 ★/☆。
-        expect(cmds.some((c) => c.kind === 'text' && inCell(c, locked) && /[★☆]/.test(String(c.text ?? '')))).toBe(false);
+        // ④ 星级通道：锁格也显示 ☆☆☆（灰）——四通道逐格齐全（WXG-T-606 用户令）。
+        expect(cmds.some((c) => c.kind === 'text' && inCell(c, locked) && c.text === '☆☆☆')).toBe(true);
     });
 
-    it('越界空槽（清单短于槽）与未解锁格同判据：无虚线 + 有锁 + 无星', () => {
+    it('越界空槽（清单短于槽）与未解锁格同判据：无虚线 + 有锁 + ☆☆☆ 灰星', () => {
         setMenuBitmapResolver(() => true);
         const cs = cells();
         const overflow = cs[7]!;
@@ -138,7 +138,7 @@ describe('EP13-FU-1 锁格合形（A2 / §7 锁形通道）', () => {
         const dashed = cmds.filter((c) => dashedInCell(c, overflow));
         expect(dashed).toHaveLength(0);
         expect(cmds.some((c) => c.kind === 'blit' && c.textureId === MENU_TEXTURES.lock && inCell(c, overflow))).toBe(true);
-        expect(cmds.some((c) => c.kind === 'text' && inCell(c, overflow) && /[★☆]/.test(String(c.text ?? '')))).toBe(false);
+        expect(cmds.some((c) => c.kind === 'text' && inCell(c, overflow) && c.text === '☆☆☆')).toBe(true);
     });
 
     it('已解锁格不回退：彩色珠阵 + 星带仍在（A3）', () => {
@@ -194,8 +194,8 @@ describe('K-6 台账重采（capturedFrom = 本文件现算）', () => {
             `[K-6 重采] 回退序 1（wallRows = 2）= ${tally(twoRows)}\n` +
             `[K-6 重采] 全回落地板（序 1+2+5）= ${tally(floor)}`,
         );
-        // Q15 合形的**实测代价**：锁格也画灰阵 ⇒ 首日档与满载同价（旧「1 实格 + 11 虚线槽 = 696」作废）。
-        expect(first.length, '首日不省图元（锁格 = 灰阵）').toBe(full.length);
+        // Q15 合形的**实测代价**：锁格也画灰阵 + ☆☆☆ + 锁章 ⇒ 首日档 = 满载 + 8 枚锁章（每锁格 1 条 blit）。
+        expect(first.length, '首日 = 满载 + 8 锁章（不再省图元）').toBe(full.length + 8);
         expect(twoRows.length, '回退序 1（少画一行）必须真省命令，否则台账杠杆是纸面备选').toBeLessThan(full.length);
         expect(floor.length, '地板必须低于满载（回退序真有牙）').toBeLessThan(twoRows.length);
     });

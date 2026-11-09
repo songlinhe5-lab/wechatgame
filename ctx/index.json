@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3980,
       "lines": 134,
-      "sha256": "7ee20fdf0dde3a38eeffb8ee3230a314eb5c3faae838f07de80c57db64f1ebd2",
+      "sha256": "83e3b3be7b1439b3a4d1352459b5d468c5114741b18c1363ec658406f1c6a29c",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 256404 9220 normal",
+          "summary": "1 production/TASKS-DETAIL.md 256580 9222 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5273,
       "lines": 165,
-      "sha256": "fb216434944eff7d9f9e1a67321d1e445494c89c462c5be5c5f1a8cd9e7ecf57",
+      "sha256": "2ea04c87008dbfa832996b383ea9ec48e0b374146ca05118cf150b2ec389cda2",
       "tier": "normal",
       "sections": [
         {
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 9220 行 / 256404 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 9222 行 / 256580 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+9221 · §WXG-T-595=8743+58 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+9223 · §WXG-T-595=8743+58 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -14128,9 +14128,9 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 27070,
+      "tokens": 27158,
       "lines": 276,
-      "sha256": "f396ca17a47de879845bd6fd5561a0387671feba97aecb110c36654fbfb4b956",
+      "sha256": "5e9dc974c11d8cf36dee43809e992f8a4f9e0f31929440eaf67839e7fee64c0b",
       "tier": "normal",
       "sections": [
         {
@@ -14138,7 +14138,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 277,
-          "tokens": 27051,
+          "tokens": 27139,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -14309,7 +14309,7 @@
           "level": 2,
           "startLine": 138,
           "endLine": 273,
-          "tokens": 21998,
+          "tokens": 22086,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -46206,9 +46206,9 @@
     },
     {
       "path": "games/beads/design/ux/level-select-page-layout.md",
-      "tokens": 5551,
+      "tokens": 5634,
       "lines": 138,
-      "sha256": "e667ad6f722b810f037784089aa89f5336ce3b932c60ab6466f73a5591bd9c80",
+      "sha256": "9c81a0d7a98d5ecf62e0f261cb9f568eeadc1e13c1221a22a71547264f9f4b83",
       "tier": "normal",
       "sections": [
         {
@@ -46216,8 +46216,8 @@
           "level": 1,
           "startLine": 1,
           "endLine": 139,
-          "tokens": 5532,
-          "summary": "项目：games/beads · 版本 v0.10 · 日期 2026-11-09 · 状态：沿用关卡详情木牌 + 九宫",
+          "tokens": 5615,
+          "summary": "项目：games/beads · 版本 v0.11 · 日期 2026-11-09 · 状态：沿用关卡详情木牌 + 九宫",
           "keywords": [
             "beads",
             "games",
@@ -46244,7 +46244,7 @@
           "level": 2,
           "startLine": 20,
           "endLine": 95,
-          "tokens": 2677,
+          "tokens": 2702,
           "summary": "板 = 关卡详情同款木牌 levelDetailPlate() 581×1044 @(89,124)（LEVEL_DET",
           "keywords": [
             "levelDetailPlate",
@@ -89349,17 +89349,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 256404,
-      "lines": 9220,
-      "sha256": "15285fc6b91e97910b930a7f5b3a8d507440a5b79d8bb1b0a18280f5ec3e51a5",
+      "tokens": 256580,
+      "lines": 9222,
+      "sha256": "0c6d4a8a3bb8ed0764309ffd1423786274ad2896bc64666466e7c2e471b35e5e",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 9221,
-          "tokens": 256387,
+          "endLine": 9223,
+          "tokens": 256563,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -103573,8 +103573,8 @@
           "anchor": "§WXG-T-606",
           "level": 2,
           "startLine": 9194,
-          "endLine": 9221,
-          "tokens": 948,
+          "endLine": 9223,
+          "tokens": 1124,
           "summary": "选关页沿用关卡详情木牌 + 九宫格木托盘（2026-11-09 · 用户两条口述：「沿用关卡详情的面板，只是中间区域改成",
           "keywords": [
             "WXG"
@@ -103613,8 +103613,8 @@
           "anchor": "§3 文档 / 取证",
           "level": 3,
           "startLine": 9212,
-          "endLine": 9221,
-          "tokens": 372,
+          "endLine": 9223,
+          "tokens": 549,
           "summary": "UX 规格 level-select-page-layout.md v0.9（§2A 增设格样式 / 星带 / 当前关 ",
           "keywords": [
             "§2A",
@@ -118665,17 +118665,17 @@
     },
     {
       "path": "production/qa/token-plan-usage-ledger.md",
-      "tokens": 7153,
-      "lines": 121,
-      "sha256": "b6fca6cd679e0e4e5474b304da12dcd3fb710380ea3323de090d1901d8eb224f",
+      "tokens": 7314,
+      "lines": 122,
+      "sha256": "739f142ce2b929f71182b807b65639a77c6107f0a60636c00a60cc84113a71d7",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Token Plan 生图用量台账（建账 2026-11-01）",
           "level": 1,
           "startLine": 1,
-          "endLine": 122,
-          "tokens": 7137,
+          "endLine": 123,
+          "tokens": 7298,
           "summary": "本件只管「花了多少次、出了几张图、留在哪」，是追加型台账（按时间序加行，⛔ 不回改历史行）。",
           "keywords": [
             "Token",
@@ -118703,8 +118703,8 @@
           "anchor": "§2 账目",
           "level": 2,
           "startLine": 20,
-          "endLine": 70,
-          "tokens": 4258,
+          "endLine": 71,
+          "tokens": 4418,
           "summary": "2026-11-07 关卡详情弹窗 V1 暖纸平台（风格作废） qwen-image-3.0-pro 1K 2 2 2 ",
           "keywords": [
             "qwen",
@@ -118716,8 +118716,8 @@
         {
           "anchor": "§累计（截至 2026-11-01）",
           "level": 3,
-          "startLine": 59,
-          "endLine": 70,
+          "startLine": 60,
+          "endLine": 71,
           "tokens": 218,
           "summary": "qwen-image-3.0-pro 11 11 7 11 × 0.25 = ≈2.75 元量级（1K 档价；2K 档另",
           "keywords": [
@@ -118731,8 +118731,8 @@
         {
           "anchor": "§3 一处更正（建账时确诊，此前口径有误）",
           "level": 2,
-          "startLine": 71,
-          "endLine": 76,
+          "startLine": 72,
+          "endLine": 77,
           "tokens": 116,
           "summary": "qwen-image-3.0-pro 的按量对照价应为 0.25 元/张（1K 档），此前口头报数时误取了 wan2.7",
           "keywords": [
@@ -118747,8 +118747,8 @@
         {
           "anchor": "§4 追加规则（谁跑谁记，一轮一行）",
           "level": 2,
-          "startLine": 77,
-          "endLine": 85,
+          "startLine": 78,
+          "endLine": 86,
           "tokens": 223,
           "summary": "1. 每批云图跑完，在本表追加一行（同批次多模型则多行），字段照表头，⛔ 不合并不同模型的行。",
           "keywords": [
@@ -118760,8 +118760,8 @@
         {
           "anchor": "§5 复算方法（想自己核一遍时）",
           "level": 2,
-          "startLine": 86,
-          "endLine": 95,
+          "startLine": 87,
+          "endLine": 96,
           "tokens": 135,
           "summary": "",
           "keywords": [
@@ -118772,8 +118772,8 @@
         {
           "anchor": "§6 temp 生图存量（2026-11-01 清理一次，用户令「把 temp 里的生图都清理掉」）",
           "level": 2,
-          "startLine": 96,
-          "endLine": 122,
+          "startLine": 97,
+          "endLine": 123,
           "tokens": 1892,
           "summary": "清理前 3642 张 / temp 共 2.3 GB",
           "keywords": [

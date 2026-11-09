@@ -271,6 +271,13 @@ export function drawWoodWallCell(
     builder.line(x + 8, y + h - st.frame - 1, x + w - 8, y + h - st.frame - 1, withAlpha(palette.woodSheen, 0.6), 1);
 
     if (levelIdx === undefined) {
+        // 越界空槽也保留星级通道（☆☆☆ 灰）——四通道逐格齐全。
+        builder.text(x + w / 2, y + h - 14, STAR_LABELS[0]!, {
+            fill: palette.textDim,
+            font: UI_FONT.cell,
+            align: 'center',
+            baseline: 'middle',
+        });
         drawWallLockBadge(builder, palette, b.box);
         return;
     }
@@ -280,6 +287,13 @@ export function drawWoodWallCell(
             // 顶部让出 24px 星带（`h − 24`）：缩略区仍 84 ⇒ 珠块尺寸与主菜单墙一致。
             drawLevelThumb(builder, level, x, y, w, h - 24, thumbN, THUMB_AREA, beadFadedInksFor(level));
         }
+        // 锁格也显示星级通道（`☆☆☆` 灰）——四通道逐格齐全（用户 2026-11-09 令）。
+        builder.text(x + w / 2, y + h - 14, STAR_LABELS[0]!, {
+            fill: palette.textDim,
+            font: UI_FONT.cell,
+            align: 'center',
+            baseline: 'middle',
+        });
         drawWallLockBadge(builder, palette, b.box);
         return;
     }
@@ -298,8 +312,13 @@ export function drawWoodWallCell(
         });
     }
 
-    // 当前关：黄铜描边（`plateSubInk`，与标题同色族；零新 hex）。
+    // 当前关：黄铜描边 + 轻外发光（`plateSubInk`，零新 hex）。
     if (levelIdx === data.currentLevelIndex) {
+        builder.rect(x - 4, y - 4, w + 8, h + 8, {
+            stroke: withAlpha(palette.plateSubInk, 0.28),
+            lineWidth: 6,
+            radius: st.radius + 4,
+        });
         builder.rect(x - 2, y - 2, w + 4, h + 4, {
             stroke: palette.plateSubInk,
             lineWidth: 3,

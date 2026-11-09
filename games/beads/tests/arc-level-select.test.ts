@@ -155,7 +155,7 @@ function beadsIn(cmds: readonly DrawCommand[], cell: { box: { x: number; y: numb
     ).length;
 }
 
-/** 格内星带文本数（★/☆）——「锁格⛔ 无星」的机械证据（EP13-FU-1 · Q15 合形）。 */
+/** 格内星带文本数（★/☆）——四通道之一；锁格也显示 ☆☆☆（WXG-T-606 用户令）。 */
 function starIn(cmds: readonly DrawCommand[], cell: { box: { x: number; y: number; w: number; h: number } }): number {
     const b = cell.box;
     return cmds.filter(
@@ -263,7 +263,7 @@ describe('EP13-S2 · 闸门与进关语义（R1–R5，注 A 逐字）', () => {
             expect(r.shell.tapMeta(c.x, c.y), `槽 ${cell.slot} 未解锁/越界 ⇒ 不消费`).toBe(false);
             expect(beadsIn(cmds, cell), `槽 ${cell.slot} 锁格 = 灰色珠阵`).toBeGreaterThan(0);
             expect(dashedIn(cmds, cell), `槽 ${cell.slot} 虚线退场`).toBe(0);
-            expect(starIn(cmds, cell), `槽 ${cell.slot} 锁格⛔ 无星`).toBe(0);
+            expect(starIn(cmds, cell), `槽 ${cell.slot} 锁格仍显示 ☆☆☆`).toBe(1);
         }
         expect(r.shell.screen).toBe('menu');
         expect(r.shell.overlay).toBe('levels');

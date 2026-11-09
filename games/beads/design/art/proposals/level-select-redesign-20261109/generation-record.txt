@@ -30,3 +30,9 @@
 产出：grid-qwen-s42.png（九格，木托盘凹槽 + 当前关黄铜描边）/ grid-qwen-s7.png（材质同，但误出 4×3=12 格）
 判定：样式两 seed 一致 ⇒ 采用「一体式木托盘凹槽」；格数漂移属模型问题，落码按 3×3 几何。
 落码：meta-widgets.ts::drawWoodWallCell + meta-levels-page 托盘底板（WXG-T-606）。
+
+追加批次（2026-11-09 · WXG-T-606 · 九宫格四通道重生成）
+参考：preview-grid-implemented.png（落码帧）
+配方：qwen-image-3.0-pro · i2i · 752*1344 · seed 42 / 7 · prompt=prompt-grid-states.txt
+产出：states-qwen-s42.png / states-qwen-s7.png
+判定：两 seed 一致 ⇒ 每格四通道（彩色/灰豆面、金/灰星、锁章、当前关黄铜描边+光晕）；落码采纳「锁格补 ☆☆☆、当前关加轻外发光」。
