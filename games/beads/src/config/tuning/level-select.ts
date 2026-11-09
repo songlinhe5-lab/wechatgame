@@ -22,6 +22,4 @@ export const LEVEL_SELECT_GEO = {
      * 托盘底板把九格收成一体。frame = 木框宽、groove = 框内深槽线、trayPad = 托盘外扩。
      */
     gridStyle: { radius: 12, frame: 4, groove: 2, trayPad: 10, trayRadius: 18 },
-    /** 判星对照行：橱窗下带居中（中心 380,904）。 */
-    criteria: { cx: 380, cyDown: 904 },
 } as const;

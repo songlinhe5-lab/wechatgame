@@ -9216,3 +9216,5 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - 测试：版面几何（`arc-level-select-page`）、格状态（`arc-wall-locked`）、按下态（`arc-cell-pressed`）、token 门（`ui-warm-paper-tokens`）、缩略陈列 oracle（`meta-menu-wall`）同步到新口径。
 - 用量台账：Token Plan 两批共 **6 次调用 / 6 张 / 0 浪费**（前批 4 张选关页稿 + 本批 2 张九宫格稿）。
 - ⚠ **号段订正**：本单早前三笔提交（`c21e6c6e` / `aab9d05c` / `d556a808`）误署 WXG-T-605（与并发 MiniMax-H3 单撞号），现统一归 **606**。
+
+**补（2026-11-09 · 同单）**：用户令「中间面板框不需要展示星级等级用时信息」⇒ 中带**判星/用时对照行退场**（`starCriteriaText` 不再本页出现、`LEVEL_SELECT_GEO.criteria` 删除、`meta-levels-page` 少一段绘制）；答卷判星口径仍由结算面板承担，本页不重复。UX 规格升 **v0.10**；金样本两态再重抓。

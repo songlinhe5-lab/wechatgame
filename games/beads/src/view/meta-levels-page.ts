@@ -13,7 +13,7 @@ import { DESIGN_H, DESIGN_W, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TEXTURES, LEVEL_DETA
 import { COPY_TOKENS } from '../config/copy-tokens.js';
 import { type RenderModelBuilder } from '@wxgame/framework';
 import { type BeadsPalette, withAlpha } from './palette.js';
-import { UI_FONT, UI_SCRIM, bodyFont, scrimFill, starCriteriaText } from './ui-theme.js';
+import { UI_FONT, UI_SCRIM, bodyFont, scrimFill } from './ui-theme.js';
 import { drawCloseInset, drawWoodWallCell, isPressed, menuBitmapReady } from './meta-widgets.js';
 import { levelDetailPlate } from './meta-layout.js';
 import type { MetaButton, MetaViewData } from './meta-types.js';
@@ -75,19 +75,6 @@ export function drawLevelsPage(
             fill: palette.plateTitleInk,
             font: bodyFont(data.largeText, 'sub'),
             align: 'right',
-            baseline: 'middle',
-        });
-    }
-
-    // 判星对照行：与结算面板共读 `starCriteriaText`；取不到当前关 ⇒ 整行不画（⛔ 占位）。
-    const curSlot = data.wallSlots.indexOf(data.currentLevelIndex);
-    const curLevel = curSlot < 0 ? undefined : data.wallLevels[curSlot];
-    if (curLevel !== undefined) {
-        const k = LEVEL_SELECT_GEO.criteria;
-        builder.text(plate.x + (k.cx - GEO.plate.x), plate.y + dyCenter(k.cyDown), starCriteriaText(curLevel.time, curLevel.starTierK), {
-            fill: palette.plateTitleInk,
-            font: bodyFont(data.largeText, 'sub'),
-            align: 'center',
             baseline: 'middle',
         });
     }

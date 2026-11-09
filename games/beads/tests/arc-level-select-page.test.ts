@@ -14,7 +14,7 @@ import { buildMetaModal, buildMetaView, hitTestMeta, metaLayout, type MetaViewDa
 import { levelDetailPlate } from '../src/view/meta-layout.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import { COPY_TOKENS } from '../src/config/copy-tokens.js';
-import { scrimFill, UI_FONT, UI_SCRIM, starCriteriaText } from '../src/view/ui-theme.js';
+import { scrimFill, UI_FONT, UI_SCRIM } from '../src/view/ui-theme.js';
 import { LEVELS } from '../src/config/levels.js';
 import {
     BEAD_GAP,
@@ -148,21 +148,15 @@ describe('WXG-T-605 · 信息两行（章名+星进度同行 / 判星对照行�
         expect(bar.font).toBe(UI_FONT.sub);
     });
 
-    it('判星对照行 430；取不到当前关 ⇒ 不建节点', () => {
-        const CRITERIA = starCriteriaText(LEVELS[0]!.time);
-        const on = textsOf({});
-        const row = on.find((c) => c.text === CRITERIA)!;
-        expect(row.y).toBe(DESIGN_H - 904);
-        expect(row.font).toBe(UI_FONT.sub);
-        expect(row.fill).toBe(DEFAULT_PALETTE.plateTitleInk);
-        const off = textsOf({ currentLevelIndex: 999 });
-        expect(off.some((c) => c.text === CRITERIA), '越界关索引 ⇒ 整行不画').toBe(false);
+    it('中带不展示判星/用时信息（用户 2026-11-09 令）', () => {
+        const ts = textsOf({});
+        expect(ts.some((c) => c.text.startsWith('3★ 用时')), '判星对照行退场').toBe(false);
+        expect(ts.some((c) => c.text.includes('用时')), '中带零用时文案').toBe(false);
     });
 
-    it('E2 大字号：两行随放大到 35（29 档 → bodyLarge）', () => {
+    it('E2 大字号：星进度随放大到 35（29 档 → bodyLarge）', () => {
         const ts = textsOf({ largeText: true, arcStarGot: 1, arcStarNeed: 9 });
         expect(ts.find((c) => c.text === '★ 1/9')!.font).toBe(UI_FONT.bodyLarge);
-        expect(ts.find((c) => c.text.startsWith('3★ 用时'))!.font).toBe(UI_FONT.bodyLarge);
     });
 });
 
