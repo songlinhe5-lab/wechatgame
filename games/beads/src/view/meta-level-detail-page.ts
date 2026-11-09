@@ -194,36 +194,48 @@ export function drawLevelDetailPage(
         drawButton(builder, palette, startX, startY, st.w, st.h, 'accent', 14, label('start-detail', data), UI_FONT.button, startPressed, false);
     }
 
-    // 「关闭」：木牌右上角**刻入木板的浅槽 ✕**（无底板 / 无边框 / 零位图）——
-    // 深槽 3px 走 woodEdge，上缘 1px 受光走 woodSheen；按下只压深、不位移（刻入件不跟手）。
+    // 「关闭」：木牌右上框带内嵌 56² 凹槽——外框 2px + 深木底 + 米白 ✕，读作嵌进木板里的凹钮。
     const cl = GEO.close;
-    drawCloseGroove(
+    drawCloseInset(
         builder,
         palette,
         plate.x + (cl.cx - GEO.plate.x),
         plate.y + CLOSE_DY,
+        cl.w,
+        cl.h,
         cl.arm,
         isPressed(data, 'close-detail'),
     );
 }
 
 /**
- * `[WXG-T-604]` 关闭刻槽：只画 ✕ 本身，⛔ 不铺底板（避免变成第二个按钮）。
- * 层序 = 深槽 3px → 上缘受光 1px（偏移 +2，露在槽上沿）；按下压深且隐去受光线。
+ * `[WXG-T-604]` 关闭凹槽：**框槽 + 底 + 嵌线 ✕**，⛔ 不做凸起底板、⛔ 不铺实色深底。
+ * 层序 = 半透明压暗底（保留木纹）→ 2px 框槽线 → 上内壁阴影 / 下内壁受光 → ✕（深色垫底 5px + 米白 3px）。
+ * 光向：凹槽上沿背光、下沿受光（与凸起件相反），才读作「嵌进木板」。
  */
-function drawCloseGroove(
+function drawCloseInset(
     builder: RenderModelBuilder,
     palette: BeadsPalette,
     cx: number,
     cy: number,
+    w: number,
+    h: number,
     arm: number,
     pressed: boolean,
 ): void {
-    const ink = pressed ? palette.shadowInk : palette.woodEdge;
-    builder.line(cx - arm, cy - arm, cx + arm, cy + arm, ink, 3);
-    builder.line(cx - arm, cy + arm, cx + arm, cy - arm, ink, 3);
-    if (!pressed) {
-        builder.line(cx - arm, cy - arm + 2, cx + arm, cy + arm + 2, palette.woodSheen, 1);
-        builder.line(cx - arm, cy + arm + 2, cx + arm, cy - arm + 2, palette.woodSheen, 1);
-    }
+    const x = cx - w / 2;
+    const y = cy - h / 2;
+    const radius = 12;
+    // 1) 半透明压暗底：木纹仍透出来（实色底会读成贴片）
+    builder.rect(x, y, w, h, { fill: withAlpha(palette.shadowInk, pressed ? 0.32 : 0.22), radius });
+    // 2) 框槽线：2px 切进木面的凹缝
+    builder.rect(x, y, w, h, { stroke: palette.woodEdge, lineWidth: 2, radius });
+    // 3) 上内壁阴影（3px 背光）/ 下内壁受光（1px）
+    builder.rect(x + 4, y + h - 7, w - 8, 3, { fill: withAlpha(palette.shadowInk, 0.28) });
+    builder.line(x + 7, y + 2.5, x + w - 7, y + 2.5, withAlpha(palette.woodSheen, 0.8), 1);
+    // 4) ✕ 嵌线：深色 5px 垫底（下移 1px）+ 米白 3px 面线 ⇒ 嵌进木板
+    builder.line(cx - arm, cy - arm - 1, cx + arm, cy + arm - 1, palette.woodEdge, 5);
+    builder.line(cx - arm, cy + arm - 1, cx + arm, cy - arm - 1, palette.woodEdge, 5);
+    builder.line(cx - arm, cy - arm, cx + arm, cy + arm, palette.woodText, 3);
+    builder.line(cx - arm, cy + arm, cx + arm, cy - arm, palette.woodText, 3);
 }
