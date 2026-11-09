@@ -30,6 +30,8 @@
     "framework:sync": "node tools/scripts/sync-framework-to-cocos.mjs",
     "framework:sync:check": "node tools/scripts/sync-framework-to-cocos.mjs --check",
     "cocos:check": "node tools/scripts/check-cocos-scripts.mjs",
+    "cocos:import-metas": "node tools/scripts/import-cocos-metas.mjs",
+    "cocos:import-metas:check": "node tools/scripts/import-cocos-metas.mjs --check",
     "build:cocos": "pnpm -r run build:cocos",
     "build:cocos:web": "pnpm -r run build:cocos:web",
     "check:size": "node tools/scripts/check-bundle-size.mjs",
