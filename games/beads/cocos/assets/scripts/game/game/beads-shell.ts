@@ -740,6 +740,9 @@ export class BeadsShell implements Game {
                 this.play.wearSkin(skin.id);
                 return true;
             }
+            // `[WXG-T-604]` 关卡详情关闭：右上 ✕ / 点木牌外空白 ⇒ 与「返回」同语义（回选关页、清详情态）。
+            case 'close-detail':
+            case 'dismiss-detail':
             case 'back':
                 // UI-42 前置（WXG-T-314）：**仅选关页**走淡出 150ms（弹窗仍即时关，口径不变）。
                 // 淡出期间 overlay 仍归页（命中路径不变）⇒ 终点才置 `none` 并发关闭事件。

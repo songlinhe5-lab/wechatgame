@@ -292,7 +292,10 @@ export type MetaAction =
     /** `[WXG-T-472]` 名片入口（批1）。 */
     | 'open-profile'
     /** `[WXG-T-601]` 关卡详情弹窗「开始」CTA → 进 `detailLevelIndex` 指向的关。 */
-    | 'start-detail';
+    | 'start-detail'
+    /** `[WXG-T-604]` 关卡详情关闭：右上角 ✕ 角钮 / 点木牌外空白（遮罩带）⇒ 同「返回选关页」。 */
+    | 'close-detail'
+    | 'dismiss-detail';
 
 export interface Box {
     readonly x: number;

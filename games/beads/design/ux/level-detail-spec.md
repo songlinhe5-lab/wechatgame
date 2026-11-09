@@ -4,7 +4,7 @@
 - **设计真源**：Figma 文件 `PBIK3RbfGlfzFsAnd97ZsP` · 页 `84:36 关卡详情弹窗 v25b` · 帧 `92:36 抠图层`（750×1334）。稿面导出于 2026-11-08 复验（`node 92:36` 重取一遍，几何零漂移）。
 - **坐标口径**：帧原点在画布 `(−63,+22)` ⇒ 下文所有坐标已扣除该偏移，口径 = **帧内 750×1334、y 向下**。代码口径 = y 向上、`box.y` = 下缘，换算 `yUpBottom = 1334 − yDown − h`；逐机位移只加在木牌下缘（`dialogShiftY()`），内容偏移一律相对牌下缘。
 - **本文射程**：选关页点格 → 关卡详情弹窗（`level-detail` overlay）的版面、文案、资产、数据与热区。**不射程**：选关页本体（`arc-level-select-spec.md`）、玩法开局扣心语义（`systems-index §3.14`）、菜单弹窗通用壳（`gdd/meta-ui.md`）。
-- **上位正本**：交互流程 = `arc-level-select-spec.md §2`（点格开详情 → 开始 / 返回）；体力扣减 = `systems-index §3.14`（开详情不扣、开始扣 `STAMINA_START_COST`）；美术容器语言 = `design/art/proposals/level-detail-dialog-20261107/`（对话框壳提案）与 `…/powerup-icons-20261108/`（道具框图）。判据钉在 `tests/meta-level-detail.test.ts`（流程 / 几何不变式 / 双绘制腿）。
+- **上位正本**：交互流程 = `arc-level-select-spec.md §2`（点格开详情 → 开始 / 关闭）；体力扣减 = `systems-index §3.14`（开详情不扣、开始扣 `STAMINA_START_COST`）；美术容器语言 = `design/art/proposals/level-detail-dialog-20261107/`（对话框壳提案）与 `…/powerup-icons-20261108/`（道具框图）。判据钉在 `tests/meta-level-detail.test.ts`（流程 / 几何不变式 / 双绘制腿）。
 
 ---
 
@@ -22,11 +22,11 @@
    ▼
 关卡详情（level-detail overlay，叠在选关页上）
    ├ 「开始」 start-detail → 玩法（扣 1 心，收弹窗）
-   └ 「返回」 back         → 选关页（不扣心，清详情态）
+   └ 右上 ✕ close-detail / 点木牌外空白 dismiss-detail → 选关页（不扣心，清详情态）
 ```
 
 - 弹窗必须由「已解锁格」进入；未解锁格零事件（`arc-level-select-spec §4-注 A`）。
-- 「返回」是本仓产品补钮：稿面只有「开始」，但弹窗不能无出口（裁定见 §7）。
+- 「关闭」是本仓产品补钮：稿面只有「开始」，但弹窗不能无出口（裁定见 §7）。
 
 ## 3. 稿面版式（帧内坐标 · y 向下）
 
@@ -41,7 +41,7 @@
 | 道具组 | `148:36` | 240 | 912 | 270 | 84 | 3 × 84×84，净距 9（中轴 375） |
 | 可用数角标 | `137:37/40/43` | tile.x+60 | tile.y | 24 | 24 | 贴每枚道具**右上角**，r8，⛔ 不留内缩 |
 | 「开始」钮 | `119:36` | 212 | 1027 | 326 | 154 | 整枚烘字（含木纹 / 高光 / 四角铆钉） |
-| 「返回」钮 | —（产品补） | 104 | 1064 | 80 | 80 | 复用菜单木圆 `MENU_TEXTURES.btnCircle` |
+| 关闭 ✕ | —（产品补） | 606 | 134 | 80 | 80 | 木牌右上角，半压牌缘（中心 646,174）；复用菜单木圆 + `✕` |
 
 - 木牌**不是**垂直居中：底缘距屏底 124（居中应为 145），按稿保留 21px 上偏。
 - 内容净距（牌内 y 向下）：标题 64 → 副标题 121 → 橱窗 354 → 星 692 → 道具 746 → 开始 861；道具下缘与开始顶缘净距 29。
@@ -56,7 +56,7 @@
 | 角标数字 | Inter Bold 14 / 白 | `UI_FONT.badge`（14）/ `palette.woodText` | 底 = `palette.text`（`#2A2E43`，稿面同值）；0 档转 `palette.textDim` |
 | 星 | 58×60 位图 | `LEVEL_DETAIL_TEXTURES.starFilled/starEmpty` | 缺图回退 `STAR_LABELS` 文字档 |
 | 开始钮 | 326×154 整枚烘字 | `LEVEL_DETAIL_TEXTURES.start` | 缺图回退 `drawButton('accent', label('start-detail'))` |
-| 返回钮 | — | `MENU_TEXTURES.btnCircle` / `_pressed` + `label('back')` | 木圆 Ø80，按下换纹 |
+| 关闭钮 | — | `MENU_TEXTURES.btnCircle` / `_pressed` + `✕` | 木圆 Ø80，按下换纹 |
 
 ### 4.1 板标题文字效果（Figma `95:59.effects`，2026-11-09 回读）
 
@@ -93,16 +93,17 @@
 | 星级 | `starsByLevel[detailLevelIndex]` | 0 ⇒ 三枚空心 |
 | 时限 | `detailLevel.time` | — |
 | 道具角标 | `powerupStocks`（顺序 = `POWERUP_TYPES`） | 缺省三枚全 1 |
-| 开始 / 返回文案 | `label('start-detail')` / `label('back')` | 走 `COPY_TOKENS` |
+| 开始文案 | `label('start-detail')` | 走 `COPY_TOKENS` |
 
 ## 7. 交互与热区
 
 | 钮 | 热区（设计坐标） | 提交 | 结果 |
 |---|---|---|---|
 | `start-detail` | `{x:212, y_up:153, w:326, h:154}`（= 稿面钮） | 抬起且同钮（`input-control.md`） | 扣 `STAMINA_START_COST` 心 → 玩法·该关 |
-| `back` | Ø80 圆心 = (144, y_up 230)，热区取 `max(80, TOUCH_MIN 88)` | 同上 | 回选关页，详情态清零 |
+| `close-detail` | ✕ Ø80 圆心 = (646, y_up 1160)，热区取 `max(80, TOUCH_MIN 88)` | 同上 | 回选关页，详情态清零 |
+| `dismiss-detail` | 木牌外四条贴边带（上 / 下 / 左 / 右，⛔ 不含牌内） | 同上 | 同 `close-detail` |
 
-- 「返回」与「开始」**同中线**（y_up 230），位于牌内左下；与开始钮左缘净距 21。
+- ✕ 在木牌**右上角**、半压牌缘（牌顶 1168，圆心 1160）；点牌内空白**不关**，点牌外空白才关。
 - 开详情本身不扣心、不写存档；扣心只发生在「开始」。
 
 ## 8. 缺图回退（元素级换皮）
@@ -113,11 +114,11 @@
 | 星 | 3 次 `blit`（实心 / 空心按得星） | `STAR_LABELS` 文字（`★★☆` / `☆☆☆`，居中于星行） |
 | 道具 | `blit(POWERUP_TILE_TEXTURES[t])` | `circle(r=42)` + 单字（`POWERUP_LABELS` 首字） |
 | 开始 | `blit(start)` | `drawButton('accent', 文案)` |
-| 返回 | `blit(btnCircle)` | `circle(Ø80)` + 文字 |
+| 关闭 | `blit(btnCircle)` | `circle(Ø80)` + `✕` |
 
 ## 9. 偏差登记（有意为之，非缺陷）
 
-1. **「返回」为产品补钮**：稿面无出口。取牌内左下 Ø80 木圆，与开始同中线；不动稿面其它件。
+1. **「关闭」为产品补钮**：稿面无出口。取木牌右上角 Ø80 木圆 + `✕`（半压牌缘），并支持点木牌外空白关闭；不动稿面其它件。
 2. **橱窗不吃稿内猫图**：`123:3` 是设计稿占位素材，运行时按关卡 pattern 画缩略（数据驱动 + 省 190 KB）。
 3. **标题字族 / 时限字号**：系统字替代 Chiron；时限 14 → 22（可读地板）。22 档字宽超过稿面 80 槽，**取左缘锚 x=482**（不再居中），否则会压到第三枚星。
 4. **角标贴边统一**：稿中第三枚角标比另两枚高 2px（`137:43` y=910），实现统一贴 tile 顶缘（`y=912`）。

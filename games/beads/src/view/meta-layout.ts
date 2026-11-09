@@ -228,18 +228,19 @@ function skinsLayout(): MetaLayout {
 }
 
 /**
- * `[WXG-T-602]` 关卡详情钮位：按 Figma `92:36` 原值 —— 「开始」326×154 @ x212 / y下1027；
- * 「返回」是产品补钮（稿上无出口），落牌内左下 Ø80 木圆、与开始钮同中线。
+ * `[WXG-T-602 / T-604]` 关卡详情钮位：按 Figma `92:36` 原值 —— 「开始」326×154 @ x212 / y下1027；
+ * 「关闭」是产品补钮（稿上无出口），落木牌右上角 Ø80（半压牌缘）；另加「点牌外空白 = 关闭」四条遮罩带。
  * 热区一律 `max(视觉, TOUCH_MIN)` 同心包裹（与菜单视零件同判例）。
  * 内容带几何单源 = `config/tuning/level-detail.ts`，⛔ 本文件不另写数字。
  */
 function levelDetailLayout(): MetaLayout {
     const start = LEVEL_DETAIL_GEO.start;
-    const back = LEVEL_DETAIL_GEO.back;
+    const close = LEVEL_DETAIL_GEO.close;
+    const plate = levelDetailPlate();
     const startY = DESIGN_H - start.yDown - start.h + dialogShiftY();
-    const backY = DESIGN_H - back.yDown - back.d + dialogShiftY();
+    const closeY = DESIGN_H - close.yDown - close.d + dialogShiftY();
     const hit = (d: number): number => Math.max(d, TOUCH_MIN);
-    const backHit = hit(back.d);
+    const closeHit = hit(close.d);
     const startHitH = hit(start.h);
     return {
         buttons: [
@@ -248,8 +249,16 @@ function levelDetailLayout(): MetaLayout {
                 box: box(start.x, startY - (startHitH - start.h) / 2, start.w, startHitH),
             },
             {
-                id: 'back',
-                box: box(back.x - (backHit - back.d) / 2, backY - (backHit - back.d) / 2, backHit, backHit),
+                id: 'close-detail',
+                box: box(close.x - (closeHit - close.d) / 2, closeY - (closeHit - close.d) / 2, closeHit, closeHit),
+            },
+            // 点木牌外空白 = 关闭：四条贴边带（⛔ 不做全屏钮 —— 会把牌内空白点击也吞掉）。
+            { id: 'dismiss-detail', box: box(0, plate.y + plate.h, DESIGN_W, DESIGN_H - plate.y - plate.h) },
+            { id: 'dismiss-detail', box: box(0, 0, DESIGN_W, plate.y) },
+            { id: 'dismiss-detail', box: box(0, plate.y, plate.x, plate.h) },
+            {
+                id: 'dismiss-detail',
+                box: box(plate.x + plate.w, plate.y, DESIGN_W - plate.x - plate.w, plate.h),
             },
         ],
         signinCells: [],

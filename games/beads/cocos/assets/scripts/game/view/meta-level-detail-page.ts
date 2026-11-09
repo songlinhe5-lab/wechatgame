@@ -36,7 +36,7 @@ const STARS_DY = dyBottom(GEO.stars.yDown, GEO.stars.h); // 292
 const TIME_DY = dyCenter(GEO.time.cyDown); // 300
 const ITEMS_DY = dyBottom(GEO.items.yDown, GEO.items.size); // 214
 const START_DY = dyBottom(GEO.start.yDown, GEO.start.h); // 29
-const BACK_DY = dyBottom(GEO.back.yDown, GEO.back.d); // 66（+ 圆直径 80 ⇒ 中线 230 = 开始钮中线）
+const CLOSE_DY = dyBottom(GEO.close.yDown, GEO.close.d); // 996（牌顶外侧，牌内 y下 134 起）
 /** 标题投影偏移（稿面 y 向下 ⇒ 视图 y 向上取负）；blur 不落（文字管线单色填充，硬边近似）。 */
 const TITLE_SHADOW_DX = LEVEL_DETAIL_TITLE_SHADOW.dx;
 const TITLE_SHADOW_DY = -LEVEL_DETAIL_TITLE_SHADOW.dyDown;
@@ -194,25 +194,25 @@ export function drawLevelDetailPage(
         drawButton(builder, palette, startX, startY, st.w, st.h, 'accent', 14, label('start-detail', data), UI_FONT.button, startPressed, false);
     }
 
-    // 「返回」（产品补钮，稿上无）：牌内左下 Ø80 木圆，与开始钮同中线。
-    const bk = GEO.back;
-    const backX = plate.x + (bk.x - GEO.plate.x);
-    const backY = plate.y + BACK_DY;
-    const backPressed = data.pressed?.id === 'back';
-    const circleTex = backPressed ? MENU_TEXTURES.btnCirclePressed : MENU_TEXTURES.btnCircle;
+    // 「关闭」（产品补钮，稿上无出口）：木牌右上角 Ø80 木圆 + ✕，半压牌缘；点牌外空白同效。
+    const cl = GEO.close;
+    const closeX = plate.x + (cl.x - GEO.plate.x);
+    const closeY = plate.y + CLOSE_DY;
+    const closePressed = data.pressed?.id === 'close-detail';
+    const circleTex = closePressed ? MENU_TEXTURES.btnCirclePressed : MENU_TEXTURES.btnCircle;
     const circleReady = menuBitmapReady(circleTex);
     if (circleReady) {
-        builder.blit(circleTex, backX, backY, bk.d, bk.d);
+        builder.blit(circleTex, closeX, closeY, cl.d, cl.d);
     } else {
-        builder.circle(backX + bk.d / 2, backY + bk.d / 2, bk.d / 2, {
+        builder.circle(closeX + cl.d / 2, closeY + cl.d / 2, cl.d / 2, {
             fill: palette.slot,
             stroke: palette.slotBorder,
             lineWidth: 2,
         });
     }
-    builder.text(backX + bk.d / 2, backY + bk.d / 2, label('back', data), {
+    builder.text(closeX + cl.d / 2, closeY + cl.d / 2, '✕', {
         fill: circleReady ? palette.woodText : palette.text,
-        font: UI_FONT.cell,
+        font: UI_FONT.button,
         align: 'center',
         baseline: 'middle',
     });
