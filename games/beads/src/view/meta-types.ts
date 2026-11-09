@@ -295,7 +295,13 @@ export type MetaAction =
     | 'start-detail'
     /** `[WXG-T-604]` 关卡详情关闭：右上角 ✕ 角钮 / 点木牌外空白（遮罩带）⇒ 同「返回选关页」。 */
     | 'close-detail'
-    | 'dismiss-detail';
+    | 'dismiss-detail'
+    /**
+     * `[WXG-T-605]` 选关弹窗关闭：沿用详情木牌 ⇒ 右上角 ✕ / 点木牌外空白同效，语义 = 回主菜单。
+     * ⛔ 复用 `close-detail` 会让 shell 误清详情态；本页用独立动作名。
+     */
+    | 'close-levels'
+    | 'dismiss-levels';
 
 export interface Box {
     readonly x: number;

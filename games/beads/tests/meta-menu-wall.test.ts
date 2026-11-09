@@ -72,6 +72,7 @@ import {
     WALL_COLS,
     WALL_GAP,
     WALL_ROWS,
+    LEVEL_SELECT_GEO,
 } from '../src/config/tuning.js';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
@@ -584,15 +585,16 @@ describe('EP12-S6 Deliverable 1 + Q5① · 墙单源在选关弹窗 / 主菜单�
     it('墙 = 3×3 共 9 格（只住选关弹窗）；主菜单 ⛔ 无墙格 ⇒ 几何单份、永不各排一份', () => {
         const overlay = metaLayout('levels').buttons.filter((b) => b.id === 'pick-level');
         expect(overlay.length).toBe(WALL_CAPACITY);
-        for (const cell of overlay) {
-            expect(cell.box.w, '格宽 = 与作品墙同一套').toBe(WALL_CELL);
-            expect(cell.box.h).toBe(WALL_CELL);
+        const cell = LEVEL_SELECT_GEO.grid.cell;
+        for (const c of overlay) {
+            expect(c.box.w, '格宽 = 选关页专用档（128）').toBe(cell);
+            expect(c.box.h).toBe(cell);
         }
         // 列/行步进同源自洽（同一 `levelsLayout` 一次算定）。
         const step = (list: typeof overlay, i: number) => list[i + 1]!.box.x - list[i]!.box.x;
         expect(step(overlay, 1), '列步进一致').toBe(step(overlay, 0));
         const rowStep = overlay[0]!.box.y - overlay[WALL_COLS]!.box.y;
-        expect(rowStep, '行步进 = 格宽 + 缝').toBe(WALL_CELL + WALL_GAP);
+        expect(rowStep, '行步进 = 格宽 + 缝').toBe(cell + LEVEL_SELECT_GEO.grid.gap);
         // 主菜单版面⛔ 无墙格（走马灯卡取代主区）⇒ 选关入口 = `open-levels`。
         expect(metaLayout('none').buttons.filter((b) => b.id === 'pick-level').length).toBe(0);
         expect(metaLayout('none').buttons.some((b) => b.id === 'open-levels')).toBe(true);
@@ -634,8 +636,8 @@ describe('EP12-S6 Deliverable 1 + Q5① · 墙单源在选关弹窗 / 主菜单�
         const cmds = builder.end().commands;
         const title = cmds.find((k) => k.kind === 'text' && (k as { text?: string }).text === COPY_TOKENS.btn_levels_label);
         expect(title, 'overlay 标题仍读表').toBeDefined();
-        const back = metaLayout('levels').buttons.find((b) => b.id === 'back')!;
-        expect(hitTestMeta('levels', ...centerTuple(back.box))?.id).toBe('back');
+        const close = metaLayout('levels').buttons.find((b) => b.id === 'close-levels')!;
+        expect(hitTestMeta('levels', ...centerTuple(close.box))?.id).toBe('close-levels');
         // overlay 的格也走**同一 renderer** ⇒ 陈列序一致、缩略与主菜单同源（同一 oracle 通道）。
         const seq = metaLayout('levels')
             .buttons.filter((b) => b.id === 'pick-level')

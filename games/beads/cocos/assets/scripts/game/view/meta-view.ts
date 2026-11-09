@@ -53,7 +53,7 @@ import {
 } from './meta-layout';
 import { drawMetaButton } from './meta-widgets';
 import { drawMenuAnchored, drawMenuBackdrop } from './meta-menu';
-import { drawLevelsContent } from './meta-levels-page';
+import { drawLevelsPage } from './meta-levels-page';
 // `[WXG-T-601]` 关卡详情弹窗内容带（Figma「关卡详情弹窗 v25b」程序化还原）。
 import { drawLevelDetailPage } from './meta-level-detail-page';
 // `[WXG-T-432]` 好友榜面板占位视图（叠在菜单页之上；见下方 `buildMetaView` 末段）。
@@ -147,12 +147,10 @@ const MENU_PAGE: PageDraw = (builder, data, palette, _layout, a, withSignage) =>
     if (SHOW_SAFE_GUIDES) drawSafeAreas(builder, a);
 };
 
-/** 选关**弹窗**（`[WXG-T-503]` 改判回弹窗）：与设置/签到同走 `panelPage`（遮罩 + 纸面板 + 标题 + 通用钮）。 */
-const LEVELS_PAGE: PageDraw = panelPage(
-    COPY_TOKENS.btn_levels_label,
-    UI_SCRIM.alpha,
-    (builder, data, palette, layout, thumbN) => drawLevelsContent(builder, data, palette, layout.buttons, thumbN),
-);
+/** 选关**弹窗**（`[WXG-T-605]`）：沿用关卡详情木牌 + 中间 3×3 格墙，关闭走右上凹槽 ✕ / 点牌外。 */
+const LEVELS_PAGE: PageDraw = (builder, data, palette, layout, a, _withSignage, thumbN) => {
+    drawLevelsPage(builder, data, palette, layout.buttons, thumbN, a.H);
+};
 
 /**
  * `overlay → 页面` 表（行序 = 屏序，取代原 `buildMetaView` 的四段 `overlay ===` 串判）。

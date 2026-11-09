@@ -19,7 +19,7 @@ import { buildMetaModal, metaLayout, setMenuBitmapResolver, type MetaButton, typ
 import { LEVELS } from '../src/config/levels.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import {
-    DESIGN_H, DESIGN_W, MENU_TEXTURES, THUMB_AREA, THUMB_TOP_INSET, WALL_CELL, WALL_COLS, WALL_CAPACITY, WALL_GAP, WALL_ROWS,
+    DESIGN_H, DESIGN_W, MENU_TEXTURES, THUMB_AREA, THUMB_TOP_INSET, WALL_COLS, WALL_CAPACITY, WALL_ROWS,
 } from '../src/config/tuning.js';
 
 /** 单点图元是否落在该格框内（框含 1px 容差，锁章与珠阵均按格心布点）。 */
@@ -91,17 +91,21 @@ const isGrayHex = (fill: unknown): boolean => {
 
 afterEach(() => setMenuBitmapResolver());
 
-describe('EP13-FU-1 墙几何 3×3（A1；`[WXG-T-503]` 起 = 弹窗版式）', () => {
-    it('列数 3 ⇒ 容量 9、热区 9 格、网格 404×404（格 120 / 间距 22）', () => {
+describe('EP13-FU-1 墙几何 3×3（A1；`[WXG-T-605]` 起 = 详情木牌版式）', () => {
+    it('列数 3 ⇒ 容量 9、热区 9 格、网格 416×416（格 128 / 间距 16）', () => {
         expect(WALL_COLS).toBe(3);
         expect(WALL_CAPACITY).toBe(9);
         const cs = cells();
         expect(cs).toHaveLength(WALL_COLS * WALL_ROWS);
         const left = cs[0]!.box.x;
-        const right = cs[cs.length - 1]!.box.x + WALL_CELL;
-        expect(right - left).toBe(WALL_COLS * WALL_CELL + (WALL_COLS - 1) * WALL_GAP);
+        const cell = cs[0]!.box.w;
+        const gap = cs[1]!.box.x - (cs[0]!.box.x + cell);
+        expect(cs[cs.length - 1]!.box.x + cell - left).toBe(WALL_COLS * cell + (WALL_COLS - 1) * gap);
+        expect(cell).toBe(128);
+        expect(gap).toBe(16);
+        expect(WALL_COLS * cell + (WALL_COLS - 1) * gap).toBe(416);
         // 行序与竖向几何不变（逐行下推一格 + 一缝）。
-        expect(cs[3]!.box.y).toBe(cs[0]!.box.y - (WALL_CELL + WALL_GAP));
+        expect(cs[3]!.box.y).toBe(cs[0]!.box.y - (cell + gap));
     });
 });
 

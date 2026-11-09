@@ -272,12 +272,17 @@ describe('EP13-S2 · 闸门与进关语义（R1–R5，注 A 逐字）', () => {
     });
 });
 
+/** `[WXG-T-605]` 关闭件：木牌右上凹槽 ✕（取代旧底部返回钮）。 */
+function closeCenter() {
+    const close = metaLayout('levels', WALL_ROWS).buttons.find((b) => b.id === 'close-levels')!;
+    return centerOf(close.box);
+}
+
 describe('EP13-S2 · 本页边界（R8–R11）', () => {
-    it('R8 back → 主菜单；大关页仍停 T（重开即同一墙、可直取同关）', () => {
+    it('R8 ✕ → 主菜单；大关页仍停 T（重开即同一墙、可直取同关）', () => {
         const r = rig({ maxUnlocked: 9 });
         openLevels(r.shell);
-        const back = metaLayout('levels', WALL_ROWS).buttons.find((b) => b.id === 'back')!;
-        const c = centerOf(back.box);
+        const c = closeCenter();
         expect(r.shell.tapMeta(c.x, c.y)).toBe(true);
         settleFx(r.shell);
         expect(r.shell.overlay).toBe('none');
@@ -290,14 +295,21 @@ describe('EP13-S2 · 本页边界（R8–R11）', () => {
         expect(r.shell.play.levelIndex).toBe(3);
     });
 
-    it('R9 面板外零响应（不关页、零事件）', () => {
+    it('R9 点木牌外 = 关闭；牌内空白 = 零响应', () => {
         const r = rig({ maxUnlocked: 9 });
         openLevels(r.shell);
         const eventsBefore = r.overlayEvents.length;
-        expect(r.shell.tapMeta(10, 10), '遮罩区 = 零响应').toBe(false);
-        expect(r.shell.overlay).toBe('levels');
+        expect(r.shell.tapMeta(10, 10), '牌外遮罩带 = 关闭').toBe(true);
+        settleFx(r.shell);
+        expect(r.shell.overlay).toBe('none');
         expect(r.shell.screen).toBe('menu');
-        expect(r.overlayEvents.length).toBe(eventsBefore);
+        expect(r.overlayEvents.length).toBe(eventsBefore + 1);
+
+        openLevels(r.shell);
+        const eventsNow = r.overlayEvents.length;
+        expect(r.shell.tapMeta(120, 950), '牌内空白 = 零命中').toBe(false);
+        expect(r.shell.overlay).toBe('levels');
+        expect(r.overlayEvents.length).toBe(eventsNow);
     });
 
     it('R11 本页无翻页输入（换大关必 back）', () => {
@@ -366,8 +378,7 @@ describe('[WXG-T-314] 选关页转场（入 200 / 出 150）', () => {
         const rest = frameOf(r.shell);
         expect(rest, '整页已到').not.toEqual(menu);
         // 重新进页（不 settle）：中点仍在转场（既非纯菜单、亦非静息整页）。
-        const back = metaLayout('levels', WALL_ROWS).buttons.find((b) => b.id === 'back')!;
-        const bc = centerOf(back.box);
+        const bc = closeCenter();
         expect(r.shell.tapMeta(bc.x, bc.y)).toBe(true);
         settleFx(r.shell);
         expect(frameOf(r.shell)).toEqual(menu);
@@ -385,8 +396,7 @@ describe('[WXG-T-314] 选关页转场（入 200 / 出 150）', () => {
         const r = rig({ maxUnlocked: 9 });
         openLevels(r.shell);
         const before = r.overlayEvents.length;
-        const back = metaLayout('levels', WALL_ROWS).buttons.find((b) => b.id === 'back')!;
-        const bc = centerOf(back.box);
+        const bc = closeCenter();
         expect(r.shell.tapMeta(bc.x, bc.y)).toBe(true);
         for (let i = 0; i < 6; i += 1) r.shell.update(1 / 60); // ≈100ms < 150ms
         expect(r.shell.overlay, '淡出中：命中仍归页').toBe('levels');
@@ -407,8 +417,7 @@ describe('[WXG-T-314] 选关页转场（入 200 / 出 150）', () => {
         expect(rest, '整页已到').not.toEqual(menu);
         for (let i = 0; i < 30; i += 1) r.shell.update(1 / 60);
         expect(frameOf(r.shell), '无在途淡入：帧逐字不变').toEqual(rest);
-        const back = metaLayout('levels', WALL_ROWS).buttons.find((b) => b.id === 'back')!;
-        const bc = centerOf(back.box);
+        const bc = closeCenter();
         expect(r.shell.tapMeta(bc.x, bc.y)).toBe(true);
         expect(r.shell.overlay, '同帧离页').toBe('none');
         expect(r.overlayEvents.at(-1)).toEqual({ open: false, name: 'none' });

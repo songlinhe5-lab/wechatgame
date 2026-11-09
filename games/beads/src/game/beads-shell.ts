@@ -741,8 +741,11 @@ export class BeadsShell implements Game {
                 return true;
             }
             // `[WXG-T-604]` 关卡详情关闭：右上 ✕ / 点木牌外空白 ⇒ 与「返回」同语义（回选关页、清详情态）。
+            // `[WXG-T-605]` 选关弹窗同款凹槽 ✕ / 牌外点击 ⇒ 同「返回」（回主菜单，详情态本就为空）。
             case 'close-detail':
             case 'dismiss-detail':
+            case 'close-levels':
+            case 'dismiss-levels':
             case 'back':
                 // UI-42 前置（WXG-T-314）：**仅选关页**走淡出 150ms（弹窗仍即时关，口径不变）。
                 // 淡出期间 overlay 仍归页（命中路径不变）⇒ 终点才置 `none` 并发关闭事件。

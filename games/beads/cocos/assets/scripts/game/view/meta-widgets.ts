@@ -6,7 +6,7 @@
 import { MENU_BADGE, MENU_LOCKED_ICON, MENU_SEAL, MENU_TEXTURES, THUMB_AREA, THUMB_STAR_BAND, UI_CONTAINER } from '../config/tuning';
 import { COPY_TOKENS } from '../config/copy-tokens';
 import { type RenderModelBuilder } from '../../framework/index';
-import { beadFadedInksFor, type BeadsPalette } from './palette';
+import { beadFadedInksFor, withAlpha, type BeadsPalette } from './palette';
 import { drawLevelThumb, resetSignageWarnings } from './menu-signage';
 import { type BeadsLevelRaw } from '../config/levels-data';
 import { UI_FONT, pressOffset } from './ui-theme';
@@ -260,4 +260,35 @@ export function drawMetaButton(builder: RenderModelBuilder, palette: BeadsPalett
 /** 位图可用性查询（读取走本函数 ⇒ 注入点与消费点分居各文件时仍同源）。 */
 export function menuBitmapReady(textureId: string): boolean {
     return _menuBitmapReady(textureId);
+}
+
+/**
+ * `[WXG-T-604 / T-605]` 木牌右上角**深实底凹槽 ✕**（关卡详情与选关页共用同一件）。
+ * 层序 = 深实底 → 3px 框槽线 → 下内壁 1px 受光 → ✕（深色垫底 5px + 米白 3px）。
+ * ⛔ 不做上内壁阴影（用户令「去掉框内阴影」）；光向只留底缘受光，读作浅凹槽。
+ */
+export function drawCloseInset(
+    builder: RenderModelBuilder,
+    palette: BeadsPalette,
+    cx: number,
+    cy: number,
+    w: number,
+    h: number,
+    arm: number,
+    pressed: boolean,
+): void {
+    const x = cx - w / 2;
+    const y = cy - h / 2;
+    const radius = 10;
+    // 1) 深实底（按下再压深）
+    builder.rect(x, y, w, h, { fill: pressed ? palette.shadowInk : palette.woodEdge, radius });
+    // 2) 框槽线：3px 切进木面的凹缝
+    builder.rect(x, y, w, h, { stroke: palette.shadowInk, lineWidth: 3, radius });
+    // 3) 只留下内壁 1px 受光
+    builder.line(x + 4, y + 2, x + w - 4, y + 2, withAlpha(palette.woodSheen, 0.7), 1);
+    // 4) ✕ 嵌线：深色 5px 垫底（下移 1px）+ 米白 3px 面线 ⇒ 嵌进深底
+    builder.line(cx - arm, cy - arm - 1, cx + arm, cy + arm - 1, palette.shadowInk, 5);
+    builder.line(cx - arm, cy + arm - 1, cx + arm, cy - arm - 1, palette.shadowInk, 5);
+    builder.line(cx - arm, cy - arm, cx + arm, cy + arm, palette.woodText, 3);
+    builder.line(cx - arm, cy + arm, cx + arm, cy - arm, palette.woodText, 3);
 }

@@ -1,9 +1,9 @@
 /**
- * 选关**弹窗**版面（`[WXG-T-503]` 改判；用户 2026-10-29 选「甲·回弹窗」）。
+ * 选关**弹窗**版面（`[WXG-T-605]`：用户 2026-11-09 令「沿用关卡详情的面板，只是中间区域改成选关页面」）。
  *
- * 验收真源 = `design/ux/level-select-page-layout.md` v0.7 §2：
- * 600×720 纸面板内 3×3 格（120 / 22）、返回 240×88 @ 板底 +50、
- * 章名与星进度**同行**、判星对照行在网格上方。
+ * 验收真源 = `design/ux/level-select-page-layout.md` v0.8 §2：
+ * 关卡详情同款木牌 581×1044 @(89,124)、标题「选关」同槽同投影、右上 38² 凹槽 ✕、
+ * 中间橱窗内 3×3 格墙（128 / 16）、橱窗下带放判星对照行；**无底部返回钮**。
  *
  * 本文件只钉**弹窗版面**；格状态与点击语义归 `arc-level-select` / `arc-wall-locked`。
  */
@@ -11,7 +11,7 @@
 import { describe, it, expect } from 'vitest';
 import { RenderModelBuilder, type DrawCommand } from '@wxgame/framework';
 import { buildMetaModal, buildMetaView, hitTestMeta, metaLayout, type MetaViewData } from '../src/view/meta-view.js';
-import { levelsPanelMetrics } from '../src/view/meta-layout.js';
+import { levelDetailPlate } from '../src/view/meta-layout.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import { COPY_TOKENS } from '../src/config/copy-tokens.js';
 import { scrimFill, UI_FONT, UI_SCRIM, starCriteriaText } from '../src/view/ui-theme.js';
@@ -20,20 +20,16 @@ import {
     BEAD_GAP,
     DESIGN_H,
     DESIGN_W,
+    LEVEL_DETAIL_GEO,
+    LEVEL_SELECT_GEO,
     THUMB_AREA,
     THUMB_MATRIX_N,
     THUMB_STAR_BAND,
     THUMB_TOP_INSET,
     TOUCH_MIN,
     WALL_CAPACITY,
-    WALL_CELL,
-    WALL_COLS,
-    WALL_GAP,
     WALL_ROWS,
 } from '../src/config/tuning.js';
-
-/** 3 × 120 + 2 × 22 = 404（常量表达式，避免测试里写第二份 404）。 */
-const GRID_W_EXPECT = WALL_COLS * WALL_CELL + (WALL_COLS - 1) * WALL_GAP;
 
 const dataFor = (extra: Partial<MetaViewData> = {}): MetaViewData => {
     const slots: number[] = [];
@@ -73,84 +69,92 @@ const pageFrame = (data: MetaViewData): readonly DrawCommand[] => {
 
 const cells = () => metaLayout('levels', WALL_ROWS).buttons.filter((b) => b.id === 'pick-level');
 
-describe('WXG-T-503 · 弹窗版面单源（`levelsPanelMetrics`）', () => {
-    it('板 600×720 @(75,307)；网格 3×3 格 120 / 间距 22；返回 240×88 @ 板底 +50', () => {
-        const m = levelsPanelMetrics(WALL_ROWS);
-        expect(m.plate).toEqual({ x: 75, y: 307, w: 600, h: 720 });
-        expect(WALL_CELL).toBe(120);
-        expect(WALL_GAP).toBe(22);
-        expect(m.gridW).toBe(GRID_W_EXPECT);
-        expect(m.gridLeft).toBe(173);
-        expect(m.gridTop).toBe(861);
-        expect(m.backY).toBe(357);
-        expect(m.backW).toBe(240);
-        expect(m.backH).toBe(TOUCH_MIN);
+describe('WXG-T-605 · 木牌版面单源（`LEVEL_SELECT_GEO`）', () => {
+    it('木牌沿用详情 581×1044 @(89,124)；格 128 / 16；无返回钮、关闭热区 88 落在 (622,1121)', () => {
+        const plate = levelDetailPlate();
+        expect(plate).toEqual({ x: 89, y: 124, w: 581, h: 1044 });
+        expect(LEVEL_DETAIL_GEO.plate).toEqual({ x: 89, yDown: 166, w: 581, h: 1044 });
+        expect(LEVEL_SELECT_GEO.grid.cell).toBe(128);
+        expect(LEVEL_SELECT_GEO.grid.gap).toBe(16);
+
+        const btns = metaLayout('levels', WALL_ROWS).buttons;
+        expect(btns.some((b) => b.id === 'back'), '底部返回钮退场').toBe(false);
+        const close = btns.find((b) => b.id === 'close-levels')!;
+        expect(close.box).toEqual({
+            x: 622 - TOUCH_MIN / 2,
+            y: DESIGN_H - LEVEL_DETAIL_GEO.close.cyDown - TOUCH_MIN / 2,
+            w: TOUCH_MIN,
+            h: TOUCH_MIN,
+        });
     });
 
-    it('热区：九格列左缘 173/315/457、行下缘 741/599/457；返回居中', () => {
+    it('热区：九格列左缘 171.5/315.5/459.5、行下缘 794/650/506；✕ 可命中；牌外 = 关闭带', () => {
         const cs = cells();
         expect(cs).toHaveLength(WALL_CAPACITY);
-        expect(cs[0]!.box).toEqual({ x: 173, y: 741, w: WALL_CELL, h: WALL_CELL });
-        expect(cs.map((c) => c.box.x)).toEqual([173, 315, 457, 173, 315, 457, 173, 315, 457]);
-        expect([cs[0]!.box.y, cs[3]!.box.y, cs[6]!.box.y]).toEqual([741, 599, 457]);
-        const back = metaLayout('levels', WALL_ROWS).buttons.find((b) => b.id === 'back')!;
-        expect(back.box).toEqual({ x: 255, y: 357, w: 240, h: 88 });
-        expect(hitTestMeta('levels', 375, 401)?.id, '返回可命中').toBe('back');
-        expect(hitTestMeta('levels', 10, 10), '板外 = 零热区').toBeNull();
+        const L = LEVEL_SELECT_GEO.grid.left;
+        const pitch = LEVEL_SELECT_GEO.grid.cell + LEVEL_SELECT_GEO.grid.gap;
+        expect(cs[0]!.box).toEqual({ x: L, y: LEVEL_SELECT_GEO.grid.topUp - 128, w: 128, h: 128 });
+        expect(cs.map((c) => c.box.x)).toEqual([L, L + pitch, L + 2 * pitch, L, L + pitch, L + 2 * pitch, L, L + pitch, L + 2 * pitch]);
+        expect([cs[0]!.box.y, cs[3]!.box.y, cs[6]!.box.y]).toEqual([794, 650, 506]);
+        expect(hitTestMeta('levels', 622, DESIGN_H - 213)?.id, '✕ 可命中').toBe('close-levels');
+        expect(hitTestMeta('levels', 10, 10)?.id, '牌外 = 关闭带').toBe('dismiss-levels');
+        expect(hitTestMeta('levels', 375, 401), '牌内空白 = 零命中').toBeNull();
     });
 
-    it('缩略 84 = 120 − 8 − 28（与作品墙同一套）', () => {
+    it('缩略 84 不随格放大（与作品墙同一套）', () => {
         expect(THUMB_AREA).toBe(84);
-        expect(THUMB_AREA).toBe(WALL_CELL - THUMB_TOP_INSET - THUMB_STAR_BAND);
+        expect(THUMB_AREA).toBe(120 - THUMB_TOP_INSET - THUMB_STAR_BAND);
     });
 });
 
-describe('WXG-T-503 · 弹窗性质（遮罩 + 纸面板 + 标题）', () => {
-    it('弹窗帧含半透明遮罩与 600×720 纸面板；底页帧无两者', () => {
+describe('WXG-T-605 · 弹窗性质（遮罩 + 木牌 + 同款标题）', () => {
+    it('弹窗帧含半透明遮罩与 581×1044 木牌；底页帧无两者', () => {
         const modal = modalFrame(dataFor());
         const scrim = scrimFill(UI_SCRIM.overlay, UI_SCRIM.alpha);
         expect(modal.some((c) => c.kind === 'rect' && c.fill === scrim), '遮罩').toBe(true);
-        expect(modal.some((c) => c.kind === 'rect' && c.w === 600 && c.h === 720), '纸面板').toBe(true);
+        expect(modal.some((c) => c.kind === 'rect' && c.w === 581 && c.h === 1044), '木牌回退腿').toBe(true);
 
         const page = pageFrame(dataFor());
         expect(page.some((c) => c.kind === 'rect' && c.fill === scrim), '底页不画遮罩').toBe(false);
-        expect(page.some((c) => c.kind === 'rect' && c.w === 600 && c.h === 720), '底页不画面板').toBe(false);
+        expect(page.some((c) => c.kind === 'rect' && c.w === 581 && c.h === 1044), '底页不画木牌').toBe(false);
     });
 
-    it('标题 = 文案表「选关」，居中于板顶下 50（y=977）', () => {
+    it('标题 = 文案表「选关」，与详情同槽（380,1056）且带投影', () => {
         const title = modalFrame(dataFor()).find(
             (c) => c.kind === 'text' && (c as { text?: string }).text === COPY_TOKENS.btn_levels_label,
-        ) as { x: number; y: number } | undefined;
+        ) as { x: number; y: number; font?: string; shadow?: unknown } | undefined;
         expect(title).toBeDefined();
-        expect(title!.x).toBe(DESIGN_W / 2);
-        expect(title!.y).toBe(977);
+        expect(title!.x).toBe(380);
+        expect(title!.y).toBe(DESIGN_H - 278);
+        expect(title!.font).toBe(UI_FONT.detailTitle);
+        expect(title!.shadow, '标题投影').toBeDefined();
     });
 });
 
-describe('WXG-T-503 · 信息两行（章名+星进度同行 / 判星对照行）', () => {
+describe('WXG-T-605 · 信息两行（章名+星进度同行 / 判星对照行）', () => {
     const textsOf = (extra: Partial<MetaViewData>) =>
         modalFrame(dataFor(extra)).filter((c) => c.kind === 'text') as unknown as
         { text: string; x: number; y: number; font?: string; fill?: string; align?: string }[];
 
-    it('章名 925（居中）/ 星进度 925（右侧 · 右对齐）', () => {
+    it('章名 967（居中）/ 星进度 967（右对齐 x=630）', () => {
         const ts = textsOf({ chapterTitle: '曼陀罗', arcStarGot: 18, arcStarNeed: 21 });
         const chapter = ts.find((c) => c.text === '曼陀罗')!;
         const bar = ts.find((c) => c.text === '★ 18/21')!;
-        expect(chapter.y).toBe(925);
+        expect(chapter.y).toBe(DESIGN_H - 367);
         expect(chapter.font).toBe(UI_FONT.button);
-        expect(bar.y).toBe(925);
-        expect(bar.x).toBe(635);
+        expect(bar.y).toBe(DESIGN_H - 367);
+        expect(bar.x).toBe(630);
         expect(bar.align).toBe('right');
         expect(bar.font).toBe(UI_FONT.sub);
     });
 
-    it('判星对照行 885；取不到当前关 ⇒ 不建节点', () => {
+    it('判星对照行 430；取不到当前关 ⇒ 不建节点', () => {
         const CRITERIA = starCriteriaText(LEVELS[0]!.time);
         const on = textsOf({});
         const row = on.find((c) => c.text === CRITERIA)!;
-        expect(row.y).toBe(885);
+        expect(row.y).toBe(DESIGN_H - 904);
         expect(row.font).toBe(UI_FONT.sub);
-        expect(row.fill).toBe(DEFAULT_PALETTE.textDim);
+        expect(row.fill).toBe(DEFAULT_PALETTE.plateTitleInk);
         const off = textsOf({ currentLevelIndex: 999 });
         expect(off.some((c) => c.text === CRITERIA), '越界关索引 ⇒ 整行不画').toBe(false);
     });
@@ -162,11 +166,11 @@ describe('WXG-T-503 · 信息两行（章名+星进度同行 / 判星对照行�
     });
 });
 
-describe('WXG-T-503 · 格内与转场', () => {
+describe('WXG-T-605 · 格内与转场', () => {
     it('格内图元不越格；缩略块落在 84 区内', () => {
         const cmds = modalFrame(dataFor({ maxUnlockedLevel: 1 }));
         const first = cells()[0]!.box;
-        const bandTop = first.y + WALL_CELL - THUMB_TOP_INSET;
+        const bandTop = first.y + first.h - THUMB_TOP_INSET;
         const blocks = cmds.filter(
             (c) => c.kind === 'rect' && 'x' in c &&
                 c.x > first.x + 1 && c.x + c.w < first.x + first.w - 1 &&
@@ -178,12 +182,12 @@ describe('WXG-T-503 · 格内与转场', () => {
         }
     });
 
-    it('pageFade 转场：面板命令乘 0.75；静息帧无 alpha 字段', () => {
+    it('pageFade 转场：木牌命令乘 0.75；静息帧无 alpha 字段', () => {
         const faded = modalFrame(dataFor({ pageFade: 0.75 }));
-        const plate = faded.find((c) => c.kind === 'rect' && c.w === 600 && c.h === 720) as { alpha?: number };
+        const plate = faded.find((c) => c.kind === 'rect' && c.w === 581 && c.h === 1044) as { alpha?: number };
         expect(plate.alpha).toBeCloseTo(0.75, 5);
         const rest = modalFrame(dataFor());
-        const plate2 = rest.find((c) => c.kind === 'rect' && c.w === 600 && c.h === 720) as { alpha?: number };
+        const plate2 = rest.find((c) => c.kind === 'rect' && c.w === 581 && c.h === 1044) as { alpha?: number };
         expect(plate2.alpha).toBeUndefined();
     });
 });
