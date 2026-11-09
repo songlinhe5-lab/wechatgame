@@ -10,10 +10,10 @@
  * 绘制时加 `plate.y` ⇒ 逐机位移（`dialogShiftY`）不会撕裂内容带。
  */
 
-import { DESIGN_H, DESIGN_W, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TEXTURES, MENU_TEXTURES, POWERUP_TILE_TEXTURES, POWERUP_TYPES, THUMB_TOP_INSET, UI_CONTAINER } from '../config/tuning';
+import { DESIGN_H, DESIGN_W, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TEXTURES, LEVEL_DETAIL_TITLE_SHADOW, MENU_TEXTURES, POWERUP_TILE_TEXTURES, POWERUP_TYPES, THUMB_TOP_INSET, UI_CONTAINER } from '../config/tuning';
 import { type RenderModelBuilder } from '../../framework/index';
 import { POWERUP_LABELS } from '../systems/powerups';
-import { type BeadsPalette } from './palette';
+import { type BeadsPalette, withAlpha } from './palette';
 import { UI_FONT, UI_SCRIM, formatTime, scrimFill } from './ui-theme';
 import { drawLevelThumb } from './menu-signage';
 import { STAR_LABELS, label, menuBitmapReady } from './meta-widgets';
@@ -37,6 +37,9 @@ const TIME_DY = dyCenter(GEO.time.cyDown); // 300
 const ITEMS_DY = dyBottom(GEO.items.yDown, GEO.items.size); // 214
 const START_DY = dyBottom(GEO.start.yDown, GEO.start.h); // 29
 const BACK_DY = dyBottom(GEO.back.yDown, GEO.back.d); // 66（+ 圆直径 80 ⇒ 中线 230 = 开始钮中线）
+/** 标题投影偏移（稿面 y 向下 ⇒ 视图 y 向上取负）；blur 不落（文字管线单色填充，硬边近似）。 */
+const TITLE_SHADOW_DX = LEVEL_DETAIL_TITLE_SHADOW.dx;
+const TITLE_SHADOW_DY = -LEVEL_DETAIL_TITLE_SHADOW.dyDown;
 /** 星级行合宽（3 枚 + 两缝）与中轴；文字回退档据此居中。 */
 const STARS_W = GEO.stars.count * GEO.stars.size + (GEO.stars.count - 1) * GEO.stars.gap;
 /** 道具行合宽。 */
@@ -73,7 +76,17 @@ export function drawLevelDetailPage(
     }
 
     // 板标题：稿 64px ExtraBold 暖金；canvas 无 Chiron 字族 ⇒ bold 64 系统字。
-    builder.text(plate.x + (GEO.title.cx - GEO.plate.x), plate.y + TITLE_DY, '关卡详情', {
+    // 投影（Figma 95:59 DROP_SHADOW #5A2F0D α0.80 +9,+7 blur3）以同字偏移副本落硬边：
+    // 文字命令只有单色填充，blur 与两枚 INNER_SHADOW 不实现（规格 §4 / §9-6）。
+    const titleX = plate.x + (GEO.title.cx - GEO.plate.x);
+    const titleY = plate.y + TITLE_DY;
+    builder.text(titleX + TITLE_SHADOW_DX, titleY + TITLE_SHADOW_DY, '关卡详情', {
+        fill: withAlpha(palette.plateTitleInk, LEVEL_DETAIL_TITLE_SHADOW.alpha),
+        font: UI_FONT.detailTitle,
+        align: 'center',
+        baseline: 'middle',
+    });
+    builder.text(titleX, titleY, '关卡详情', {
         fill: palette.plateSubInk,
         font: UI_FONT.detailTitle,
         align: 'center',

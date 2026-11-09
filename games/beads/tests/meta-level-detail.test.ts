@@ -32,7 +32,7 @@ import { defaultBeadsSave } from '../src/game/save-schema.js';
 import { metaLayout, setMenuBitmapResolver } from '../src/view/meta-view.js';
 import { levelDetailPlate } from '../src/view/meta-layout.js';
 import { COPY_TOKENS } from '../src/config/copy-tokens.js';
-import { DESIGN_H, DESIGN_W, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TEXTURES, MENU_TEXTURES, STAMINA_START_COST, WALL_ROWS } from '../src/config/tuning.js';
+import { DESIGN_H, DESIGN_W, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TEXTURES, LEVEL_DETAIL_TITLE_SHADOW, MENU_TEXTURES, STAMINA_START_COST, WALL_ROWS } from '../src/config/tuning.js';
 
 const META_KEY = 'test.t602.meta';
 const PLAY_KEY = 'test.t602.play';
@@ -187,6 +187,14 @@ describe('[WXG-T-602] 关卡详情弹窗 — 绘制面', () => {
         expect(texts, '返回钮文案').toContain('返回');
         expect(texts.some((t) => t.startsWith('时限：')), '时限行').toBe(true);
         expect(texts, '无星 ⇒ 空心文字档').toContain('☆☆☆');
+
+        // 板标题投影（Figma 95:59 DROP_SHADOW +9,+7）：同字偏移副本，落在主字左上方（y-up）。
+        const titles = cmds.filter((c) => c.kind === 'text' && c.text === '关卡详情');
+        expect(titles.length, '标题 = 投影副本 + 主字').toBe(2);
+        const shadow = titles.reduce((a, b) => ((a.x ?? 0) > (b.x ?? 0) ? a : b));
+        const main = titles.find((c) => c !== shadow)!;
+        expect(shadow.x! - main.x!, '投影 x 偏移 = 稿面 +9').toBe(LEVEL_DETAIL_TITLE_SHADOW.dx);
+        expect(main.y! - shadow.y!, '投影 y 偏移 = 稿面 +7（y-up 取负）').toBe(LEVEL_DETAIL_TITLE_SHADOW.dyDown);
 
         const plate = levelDetailPlate();
         const badges = cmds.filter(

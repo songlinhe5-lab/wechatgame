@@ -79,6 +79,8 @@ function slim(n) {
     paddingTop: n.paddingTop,
     characters: n.characters,
     style: n.style,
+    // 2026-11-09 补：文字投影 / 内阴影 / 发光等效果都在 `effects`（此前漏留 ⇒ 阴影参数读不出）。
+    effects: n.effects,
   };
   const out = {};
   for (const [k, v] of Object.entries(keep)) if (v !== undefined) out[k] = v;
