@@ -173,7 +173,7 @@ describe('[WXG-T-602] 关卡详情弹窗 — 版面不变式（Figma 92:36 原�
 
         const close = btn('level-detail', 'close-detail').box;
         expect(close.w, '刻槽热区 = TOUCH_MIN 88').toBe(88);
-        expect(close.x + close.w / 2, '✕ 在牌右上（中心 590）').toBe(590);
+        expect(close.x + close.w / 2, '✕ 在牌右上（中心 632）').toBe(632);
         expect(close.y + close.h / 2, '✕ 中心 y_up = 1132').toBe(1132);
         expect(close.y, '✕ 不压开始钮').toBeGreaterThan(cta.y + cta.h);
 
@@ -229,12 +229,12 @@ describe('[WXG-T-602] 关卡详情弹窗 — 绘制面', () => {
             (c) => c.kind === 'circle' && c.r === 42 && c.y !== undefined && c.y > plate.y && c.y < plate.y + plate.h,
         );
         expect(badges.length, '三枚道具徽章（r = 84/2）').toBe(3);
-        // 关闭件：右上框带内嵌 52² 凹槽（框 + 底 + 米白 ✕ 嵌线），不是凸起底板。
-        const inset = cmds.find((c) => c.kind === 'rect' && c.x === 564 && c.y === 1106 && c.w === 52 && c.h === 52);
-        expect(inset, '52² 凹槽外框').toBeDefined();
-        const inlay = cmds.filter((c) => c.kind === 'line' && c.lineWidth === 3 && c.x1 === 578 && c.x2 === 602);
+        // 关闭件：右上框带内嵌 56² 凹槽（框 + 底 + 米白 ✕ 嵌线），不是凸起底板。
+        const inset = cmds.find((c) => c.kind === 'rect' && c.x === 604 && c.y === 1104 && c.w === 56 && c.h === 56);
+        expect(inset, '56² 凹槽外框').toBeDefined();
+        const inlay = cmds.filter((c) => c.kind === 'line' && c.lineWidth === 3 && c.x1 === 620 && c.x2 === 644);
         expect(inlay.length, '米白 ✕ 两笔').toBe(2);
-        const under = cmds.filter((c) => c.kind === 'line' && c.lineWidth === 5 && c.x1 === 578 && c.x2 === 602);
+        const under = cmds.filter((c) => c.kind === 'line' && c.lineWidth === 5 && c.x1 === 620 && c.x2 === 644);
         expect(under.length, '✕ 深色垫底两笔').toBe(2);
         expect(texts.includes('✕'), '✕ 走嵌线，不再是文字').toBe(false);
         expect(cmds.some((c) => c.kind === 'blit' && c.textureId === LEVEL_DETAIL_TEXTURES.plaque), '无位图 ⇒ 木牌不 blit').toBe(false);

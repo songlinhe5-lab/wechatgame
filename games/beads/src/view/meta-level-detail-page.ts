@@ -209,8 +209,8 @@ export function drawLevelDetailPage(
 }
 
 /**
- * `[WXG-T-604]` 关闭凹槽：**框槽 + 底 + 嵌线 ✕**，⛔ 不做凸起底板、⛔ 不铺实色深底。
- * 层序 = 半透明压暗底（保留木纹）→ 2px 框槽线 → 上内壁阴影 / 下内壁受光 → ✕（深色垫底 5px + 米白 3px）。
+ * `[WXG-T-604]` 关闭凹槽：**实底 + 3px 框槽 + 嵌线 ✕**，压在木牌右上角框内（盖住角铆钉）。
+ * 层序 = 实木底 → 3px 框槽线 → 上内壁 4px 阴影 / 下内壁 1px 受光 → ✕（深色垫底 5px + 米白 3px）。
  * 光向：凹槽上沿背光、下沿受光（与凸起件相反），才读作「嵌进木板」。
  */
 function drawCloseInset(
@@ -226,12 +226,12 @@ function drawCloseInset(
     const x = cx - w / 2;
     const y = cy - h / 2;
     const radius = 12;
-    // 1) 半透明压暗底：木纹仍透出来（实色底会读成贴片）
-    builder.rect(x, y, w, h, { fill: withAlpha(palette.shadowInk, pressed ? 0.32 : 0.22), radius });
-    // 2) 框槽线：2px 切进木面的凹缝
-    builder.rect(x, y, w, h, { stroke: palette.woodEdge, lineWidth: 2, radius });
-    // 3) 上内壁阴影（3px 背光）/ 下内壁受光（1px）
-    builder.rect(x + 4, y + h - 7, w - 8, 3, { fill: withAlpha(palette.shadowInk, 0.28) });
+    // 1) 实底：深一档木面（按下压到 woodEdge）
+    builder.rect(x, y, w, h, { fill: pressed ? palette.woodEdge : palette.woodFacePressed, radius });
+    // 2) 框槽线：3px 切进木面的凹缝
+    builder.rect(x, y, w, h, { stroke: palette.woodEdge, lineWidth: 3, radius });
+    // 3) 上内壁 4px 背光 / 下内壁 1px 受光
+    builder.rect(x + 5, y + h - 9, w - 10, 4, { fill: withAlpha(palette.shadowInk, 0.35) });
     builder.line(x + 7, y + 2.5, x + w - 7, y + 2.5, withAlpha(palette.woodSheen, 0.8), 1);
     // 4) ✕ 嵌线：深色 5px 垫底（下移 1px）+ 米白 3px 面线 ⇒ 嵌进木板
     builder.line(cx - arm, cy - arm - 1, cx + arm, cy + arm - 1, palette.woodEdge, 5);
