@@ -1,0 +1,24 @@
+# close-engraved-20261109 · 关闭件「刻入木板」效果对照（WXG-T-604）
+
+- 日期：2026-11-09
+- 通道：maas（按量）· 模型：qwen-image-3.0
+- 模式：i2i（--ref），size 1024*1024，seed 42 / 7（两 seed 对照）
+- 成本：2 次调用 / 2 张出图 ≈ 0.36 元（0.18 元/张）
+- 底图：close-ref.png（从 harness 真页面截图的木牌右上区域裁 640²，含当时的木雕角贴）
+
+## 提示词（两 seed 同文）
+把画面右上角的方形木按钮去掉，改成直接在木板表面浅刻的一个小号 × 形凹槽：刻线细而浅、边缘只有极轻的受光，木纹与周围光照保持不变；不要凸起按钮、不要边框、不要金属、不要贴纸、不要文字标签；其余画面完全不变，整体低调，不抢视觉。
+
+## 结果与裁定
+- s42：× 过细，读作划痕，关闭语义不足 ⇒ 弃。
+- s7：× 有浅槽 + 上缘受光，读作刻入木板的凹槽，且不抢视觉 ⇒ **选中方向**。
+- 落地方式：**不直接使用 AI 位图**（整图重绘、木纹与文字已变，且贴章会留接缝）；按 s7 的观感改为**程序化刻槽**：
+  两条 3px 深槽（woodEdge）+ 两条 1px 上缘受光（woodSheen，偏移 +2y），无底板 / 无边框 / 零位图。
+  参数单源 = `games/beads/src/config/tuning/level-detail.ts` 的 `LEVEL_DETAIL_GEO.close`；
+  画法 = `games/beads/src/view/meta-level-detail-page.ts::drawCloseGroove`；
+  规格 = `games/beads/design/ux/level-detail-spec.md §4.2`。
+
+## 文件
+- close-ref.png：输入底图（640²）
+- qwen-close-s42.png / qwen-close-s7.png：两 seed 原始出图（1024²）
+- close-compare.png：当前木雕角贴 / s42 / s7 三联对照

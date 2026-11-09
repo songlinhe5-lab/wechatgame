@@ -101,6 +101,11 @@ function frame(shell: BeadsShell) {
         y?: number;
         w?: number;
         h?: number;
+        x1?: number;
+        y1?: number;
+        x2?: number;
+        y2?: number;
+        lineWidth?: number;
         textureId?: string;
         shadow?: { offsetX: number; offsetY: number; blur?: number };
     }[];
@@ -167,12 +172,12 @@ describe('[WXG-T-602] 关卡详情弹窗 — 版面不变式（Figma 92:36 原�
         expect(cta, '开始 326×154 @ x212 / y_up 153').toEqual({ x: 212, y: 153, w: 326, h: 154 });
 
         const close = btn('level-detail', 'close-detail').box;
-        expect(close.w, '✕ 热区 = max(Ø80, TOUCH_MIN 88)').toBe(88);
-        expect(close.x + close.w / 2, '✕ 在牌右上（稿外补钮：中心 646）').toBe(646);
-        expect(close.y + close.h / 2, '✕ 中心 y_up = 1160（半压牌顶 1168）').toBe(1160);
+        expect(close.w, '刻槽热区 = TOUCH_MIN 88').toBe(88);
+        expect(close.x + close.w / 2, '✕ 在牌右上（中心 600）').toBe(600);
+        expect(close.y + close.h / 2, '✕ 中心 y_up = 1136').toBe(1136);
         expect(close.y, '✕ 不压开始钮').toBeGreaterThan(cta.y + cta.h);
 
-        // 开始钮在牌内（含底缘留白 29）；✕ 允许半压牌缘。
+        // 开始钮在牌内（含底缘留白 29）；✕ 刻槽同样落在牌面右上。
         expect(cta.x).toBeGreaterThanOrEqual(plate.x);
         expect(cta.x + cta.w).toBeLessThanOrEqual(plate.x + plate.w);
         expect(cta.y).toBeGreaterThanOrEqual(plate.y);
@@ -224,18 +229,16 @@ describe('[WXG-T-602] 关卡详情弹窗 — 绘制面', () => {
             (c) => c.kind === 'circle' && c.r === 42 && c.y !== undefined && c.y > plate.y && c.y < plate.y + plate.h,
         );
         expect(badges.length, '三枚道具徽章（r = 84/2）').toBe(3);
-        // 关闭角贴：程序化 64² 木片（不画圆、不画文字）。
-        const closeX = LEVEL_DETAIL_GEO.close.x;
-        const closeYUp = DESIGN_H - LEVEL_DETAIL_GEO.close.yDown - LEVEL_DETAIL_GEO.close.d;
-        expect(
-            cmds.some((c) => c.kind === 'rect' && c.x === closeX && c.y === closeYUp && c.w === 64 && c.h === 64),
-            '木雕角贴 64² @ 右上',
-        ).toBe(true);
-        expect(texts.includes('✕'), '✕ 走线稿，不再是文字').toBe(false);
+        // 关闭件：刻入木板的 ✕ 浅槽（两条 3px 深槽 + 两条 1px 上缘受光），无底板、无文字。
+        const groove = cmds.filter((c) => c.kind === 'line' && c.lineWidth === 3 && c.x1 === 588 && c.x2 === 612);
+        expect(groove.length, '✕ 两条深槽').toBe(2);
+        const bevel = cmds.filter((c) => c.kind === 'line' && c.lineWidth === 1 && c.x1 === 588 && c.x2 === 612);
+        expect(bevel.length, '✕ 两条上缘受光').toBe(2);
+        expect(texts.includes('✕'), '✕ 走刻线，不再是文字').toBe(false);
         expect(cmds.some((c) => c.kind === 'blit' && c.textureId === LEVEL_DETAIL_TEXTURES.plaque), '无位图 ⇒ 木牌不 blit').toBe(false);
     });
 
-    it('位图腿：木牌 / 开始 / 三枚空心星全部走 blit（关闭件为程序化角贴）', () => {
+    it('位图腿：木牌 / 开始 / 三枚空心星全部走 blit（关闭件为程序化刻槽）', () => {
         setMenuBitmapResolver((id) => id.startsWith('bitmap__detail_') || id === MENU_TEXTURES.btnCircle);
         const r = rig();
         openLevels(r.shell);

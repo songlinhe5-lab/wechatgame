@@ -16,7 +16,7 @@ import { POWERUP_LABELS } from '../systems/powerups';
 import { type BeadsPalette, withAlpha } from './palette';
 import { UI_FONT, UI_SCRIM, formatTime, scrimFill } from './ui-theme';
 import { drawLevelThumb } from './menu-signage';
-import { STAR_LABELS, isPressed, label, menuBitmapReady, pressDy } from './meta-widgets';
+import { STAR_LABELS, isPressed, label, menuBitmapReady } from './meta-widgets';
 import { drawButton } from './ui-widgets';
 import { levelDetailPlate } from './meta-layout';
 import type { MetaViewData } from './meta-types';
@@ -36,7 +36,7 @@ const STARS_DY = dyBottom(GEO.stars.yDown, GEO.stars.h); // 292
 const TIME_DY = dyCenter(GEO.time.cyDown); // 300
 const ITEMS_DY = dyBottom(GEO.items.yDown, GEO.items.size); // 214
 const START_DY = dyBottom(GEO.start.yDown, GEO.start.h); // 29
-const CLOSE_DY = dyBottom(GEO.close.yDown, GEO.close.d); // 996（牌顶外侧，牌内 y下 134 起）
+const CLOSE_DY = dyCenter(GEO.close.cyDown); // 1006（y_up 中心 1130）
 /** 标题投影偏移（稿面 y 向下 ⇒ 视图 y 向上取负）；blur 不落（文字管线单色填充，硬边近似）。 */
 const TITLE_SHADOW_DX = LEVEL_DETAIL_TITLE_SHADOW.dx;
 const TITLE_SHADOW_DY = -LEVEL_DETAIL_TITLE_SHADOW.dyDown;
@@ -194,57 +194,36 @@ export function drawLevelDetailPage(
         drawButton(builder, palette, startX, startY, st.w, st.h, 'accent', 14, label('start-detail', data), UI_FONT.button, startPressed, false);
     }
 
-    // 「关闭」：木牌右上角「木雕角贴」64²（半压牌缘）——木面 + 上亮/下暗 + 内凹槽 + 米白 ✕；
-    // 按下整体下沉（`pressDy`，减弱动效档归零）。程序化零资产，⛔ 不再借用菜单圆钮位图。
+    // 「关闭」：木牌右上角**刻入木板的浅槽 ✕**（无底板 / 无边框 / 零位图）——
+    // 深槽 3px 走 woodEdge，上缘 1px 受光走 woodSheen；按下只压深、不位移（刻入件不跟手）。
     const cl = GEO.close;
-    const closePressed = isPressed(data, 'close-detail');
-    drawCloseChip(
+    drawCloseGroove(
         builder,
         palette,
-        plate.x + (cl.x - GEO.plate.x) + cl.d / 2,
-        plate.y + CLOSE_DY + cl.d / 2 + pressDy(data, closePressed),
-        cl.d,
-        closePressed,
+        plate.x + (cl.cx - GEO.plate.x),
+        plate.y + CLOSE_DY,
+        cl.arm,
+        isPressed(data, 'close-detail'),
     );
 }
 
 /**
- * `[WXG-T-604]` 关闭角贴程序化画法（层序 = 接触影 → 木面 → 底缘 2px / 顶亮 1px →
- * 内凹槽 → 深色垫底 ✕ 4px → 米白 ✕ 2px）。令牌全取 `wood_*`（⛔ 零新增 hex）。
+ * `[WXG-T-604]` 关闭刻槽：只画 ✕ 本身，⛔ 不铺底板（避免变成第二个按钮）。
+ * 层序 = 深槽 3px → 上缘受光 1px（偏移 +2，露在槽上沿）；按下压深且隐去受光线。
  */
-function drawCloseChip(
+function drawCloseGroove(
     builder: RenderModelBuilder,
     palette: BeadsPalette,
     cx: number,
     cy: number,
-    d: number,
+    arm: number,
     pressed: boolean,
 ): void {
-    const x = cx - d / 2;
-    const y = cy - d / 2;
-    const radius = d * 0.25; // 16
-    // 1) 接触影（右下，光向与木牌一致）
-    builder.rect(x + 1, y - 2, d, d, { fill: withAlpha(palette.shadowInk, 0.28), radius });
-    // 2) 木面（按下换深一档）+ 1.5px 木边，保证压在同色木牌上仍有轮廓
-    builder.rect(x, y, d, d, {
-        fill: pressed ? palette.woodFacePressed : palette.woodFace,
-        stroke: palette.woodEdge,
-        lineWidth: 1.5,
-        radius,
-    });
-    // 3) 木作两条缘线：底缘 2px 暗 / 顶缘 1px 亮（art-bible §3.1.1 同语言）
-    builder.line(x + d * 0.22, y + 3.5, x + d * 0.78, y + 3.5, palette.woodEdge, 2);
-    builder.line(x + d * 0.22, y + d - 2, x + d * 0.78, y + d - 2, palette.woodSheen, 1);
-    // 4) 内凹浅槽（用中性暗墨压深，木牌同色上也能读出凹面；按下更深）
-    const inset = d * 0.125; // 8
-    builder.rect(x + inset, y + inset, d - inset * 2, d - inset * 2, {
-        fill: withAlpha(palette.shadowInk, pressed ? 0.42 : 0.32),
-        radius: d * 0.156, // 10
-    });
-    // 5) ✕：深色 4px 垫底（下移 1px）+ 米白 2px 面线 ⇒ 刻入感
-    const arm = d * 0.156; // 10
-    builder.line(cx - arm, cy - arm - 1, cx + arm, cy + arm - 1, palette.woodEdge, 4);
-    builder.line(cx - arm, cy + arm - 1, cx + arm, cy - arm - 1, palette.woodEdge, 4);
-    builder.line(cx - arm, cy - arm, cx + arm, cy + arm, palette.woodText, 2);
-    builder.line(cx - arm, cy + arm, cx + arm, cy - arm, palette.woodText, 2);
+    const ink = pressed ? palette.shadowInk : palette.woodEdge;
+    builder.line(cx - arm, cy - arm, cx + arm, cy + arm, ink, 3);
+    builder.line(cx - arm, cy + arm, cx + arm, cy - arm, ink, 3);
+    if (!pressed) {
+        builder.line(cx - arm, cy - arm + 2, cx + arm, cy + arm + 2, palette.woodSheen, 1);
+        builder.line(cx - arm, cy + arm + 2, cx + arm, cy - arm + 2, palette.woodSheen, 1);
+    }
 }
