@@ -17,6 +17,11 @@ export const LEVEL_SELECT_GEO = {
     progress: { x: 630, cyDown: 367 },
     /** 3×3 格墙：格 128 / 净距 16（合宽 416²）；左缘 171.5、上沿 y_up 922。 */
     grid: { left: 171.5, topUp: 922, cell: 128, gap: 16 },
+    /**
+     * `[WXG-T-606]` 九宫格木托盘（Token Plan 两 seed 定稿）：格 = 木框凹槽 + 米白内窗，
+     * 托盘底板把九格收成一体。frame = 木框宽、groove = 框内深槽线、trayPad = 托盘外扩。
+     */
+    gridStyle: { radius: 12, frame: 4, groove: 2, trayPad: 10, trayRadius: 18 },
     /** 判星对照行：橱窗下带居中（中心 380,904）。 */
     criteria: { cx: 380, cyDown: 904 },
 } as const;

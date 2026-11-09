@@ -14,7 +14,7 @@ import { COPY_TOKENS } from '../config/copy-tokens';
 import { type RenderModelBuilder } from '../../framework/index';
 import { type BeadsPalette, withAlpha } from './palette';
 import { UI_FONT, UI_SCRIM, bodyFont, scrimFill, starCriteriaText } from './ui-theme';
-import { drawCloseInset, drawWallCell, isPressed, menuBitmapReady } from './meta-widgets';
+import { drawCloseInset, drawWoodWallCell, isPressed, menuBitmapReady } from './meta-widgets';
 import { levelDetailPlate } from './meta-layout';
 import type { MetaButton, MetaViewData } from './meta-types';
 
@@ -92,9 +92,21 @@ export function drawLevelsPage(
         });
     }
 
+    // 九宫格木托盘（`[WXG-T-606]`）：先铺托盘底板，再逐格画凹槽 ⇒ 九格读成一体。
+    const g = LEVEL_SELECT_GEO.grid;
+    const st = LEVEL_SELECT_GEO.gridStyle;
+    const gridW = 3 * g.cell + 2 * g.gap;
+    const gridTop = plate.y + (g.topUp - BASE_PLATE_Y);
+    builder.rect(g.left - st.trayPad, gridTop - gridW - st.trayPad, gridW + st.trayPad * 2, gridW + st.trayPad * 2, {
+        fill: withAlpha(palette.woodSheen, 0.3),
+        stroke: withAlpha(palette.shadowInk, 0.35),
+        lineWidth: 1,
+        radius: st.trayRadius,
+    });
+
     // 3×3 格墙：几何走 `levelsLayout` 的钮表（绘制与命中同源，⛔ 本块不重建 layout）。
     for (const b of buttons) {
-        if (b.id === 'pick-level') drawWallCell(builder, b, data, palette, thumbN);
+        if (b.id === 'pick-level') drawWoodWallCell(builder, b, data, palette, thumbN);
     }
 
     // 右上凹槽 ✕：与详情同一件（视觉 38² / 热区另表）。

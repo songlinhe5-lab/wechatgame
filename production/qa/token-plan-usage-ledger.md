@@ -53,6 +53,7 @@
 | 2026-11-08 | 道具图标 · 魔法棒二次重生（seed 7，提示词不变） | `qwen-image-3.0-pro` | 1K（1024×1024） | 1 | 1 | **1** | 零浪费。留档 `temp/fullstar-gacha/powerup/item_area_clear-qwen3pro-s7.png`，未入库；用户对 s42 版判不通过。量 0.18 元量级 |
 | 2026-11-08 | 道具图标 · 按 GDD v1.95 命名补画两件（熨贴片=熨斗 / 抖豆筛=筛子），seed 42 | `qwen-image-3.0-pro` | 1K（1024×1024） | 2 | 2 | **2** | 零浪费。留档 `temp/fullstar-gacha/powerup/item_window_restore-qwen3pro-s42.png` · `item_random_restore-qwen3pro-s42.png`，未入库。量 0.18×2=0.36 元量级 |
 | 2026-11-09 | 选关页面设计稿（木牌版）· wan 两 seed + qwen i2i 两 seed | `wan2.7-image` / `qwen-image-3.0-pro` | 1K（752×1344） | 4 | 4 | **4** | 零浪费。wan s7（纯 t2i）构图不合格（顶栏 + 下方留白）；wan s42（补硬约束）构图修复但 ✕ 浮于牌外、九卡三态不分；qwen s42/s7 以 `compare-A.png` 草图 i2i，**版面还原两 seed 一致**（全要素对位），遗留三态未分 / s7 出现重复 ✕。留档与配方 → `games/beads/design/art/proposals/level-select-redesign-20261109/`（`generation-record.txt` + `prompt-A.txt` / `prompt-A2.txt`）。量 0.18×4=0.72 元量级 |
+| 2026-11-09 | 选关九宫格样式重生成（局部编辑）· qwen i2i 两 seed | `qwen-image-3.0-pro` | 1K（752×1344） | 2 | 2 | **2** | 零浪费。以落码帧 `preview-implemented.png` 为 `--ref`，指令只改九宫格区（木托盘凹槽 / 星带 / 锁 / 当前关黄铜描边），其余不动；两 seed 样式一致（s42 九格、s7 误出 12 格但材质同）。落码采用「木托盘凹槽」层序。留档 → `level-select-redesign-20261109/grid-qwen-s42.png` · `grid-qwen-s7.png`（`prompt-grid.txt`）。量 0.18×2=0.36 元量级 |
 | — | 在册未跑 | `wan2.7-image-pro` | — | **0** | 0 | 0 | 剩余未取证：4K / 组图 / `thinking_mode`（`color_palette` 已在 `-image` 上取证） |
 
 ### 累计（截至 2026-11-01）

@@ -9190,3 +9190,29 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **诊断**：坏的是采样隐变量（视频黑 + 音频 NaN 同源），已排除 VAE、文本编码器、注意力后端、步数、分辨率、提示词。剩余两个嫌疑：① 第三方 Q3_K_M GGUF 转换损坏；② 2080 Ti（Turing，无原生 bf16）与 H3 的 fp16 数值不匹配。
 - **阻塞与解除条件**：需用户在 Windows 侧把 Comfy-Org 官方 `minimax_h3_fl2va_pruned_int8_convrot.safetensors`（~19.5GB）放到 `ComfyUI/models/diffusion_models/`，然后跑 `python3 tools/scripts/minimax-h3-t2v.py --loader safetensors --width 864 --height 480 --seconds 5 --audio-mode separate`。若官方模型仍黑 ⇒ 换 Ampere/Ada 显卡或走官方云 API（768P ¥0.50/秒）。
 - **依据**：官方 API/参数 `platform.minimax.cn/docs/api-reference/video-generation-v2-create`；ComfyUI 模板 `video_minimax_h3_t2v.json`（服务端 `/templates/`）；节点定义 `/object_info` 实测。
+
+## WXG-T-606
+
+**选关页沿用关卡详情木牌 + 九宫格木托盘**（2026-11-09 · 用户两条口述：「沿用关卡详情的面板，只是中间区域改成选关页面」「将选关九宫格面板重新生成适合的九宫格样式」）
+
+### 1. 容器木牌化
+
+- 选关弹窗改用详情同款 581×1044 木牌（`levelDetailPlate()`），标题「选关」同槽（380,y_down 278）+ 64px 暖金 + `LEVEL_DETAIL_TITLE_SHADOW` 投影；右上 38² 凹槽 ✕ 与详情共用 `drawCloseInset`。
+- 中间橱窗换 3×3 格墙：格 **128 / 16**（416²，按烘焙木牌橱窗内沿实测 x∈[70,510] / y∈[240,668] 留边）；缩略区仍 84。
+- 信息：章名/星进度 y_up 967（木面深墨 `plateTitleInk`）、判星行 y_up 430。
+- 关闭：**底部返回钮退场**，新增 `close-levels` / `dismiss-levels`（✕ 或点牌外四条贴边带；牌内空白零命中）；shell 与 `back` 同语义。
+- 几何单源 = `games/beads/src/config/tuning/level-select.ts`；绘制 = `view/meta-levels-page.ts::drawLevelsPage`。
+
+### 2. 九宫格木托盘（Token Plan 局部编辑定稿）
+
+- 以落码帧 `preview-implemented.png` 为 `--ref`，`qwen-image-3.0-pro` 两 seed（42/7）只改九宫格区；样式两 seed 一致（s7 误出 12 格，材质同）⇒ 采用「一体式木托盘凹槽」。
+- 落码 `meta-widgets.ts::drawWoodWallCell`：托盘底板 `woodSheen` α0.30 + 1px 深边（外扩 10 / r18）；每格 = `woodSheen` 木框 4px（r12）→ `shadowInk` 2px 深槽线 → 米白内窗（r8）→ 顶缘 1px 受光；星带移内窗顶部（y+h−14，得星 `plateSubInk`）；缩略盒高 −24（区仍 84，珠块尺寸与主菜单墙一致）；当前关黄铜 3px `plateSubInk` 外描边；按下换面 `slot → cardPressed`。
+- 配方/两 seed 原图/预览 → `games/beads/design/art/proposals/level-select-redesign-20261109/`（`prompt-grid.txt` + `generation-record.txt`）。
+
+### 3. 文档 / 取证
+
+- UX 规格 `level-select-page-layout.md` **v0.9**（§2A 增设格样式 / 星带 / 当前关 / 缩略四行）；`ui-architecture-beads §12` 两条视觉登记（T-605 容器、T-606 九宫格）。
+- 金样本 `level-select` / `level-select-mid` 重抓（1848 → 1853 → 本批再重抓；其余九态逐字未变）。
+- 测试：版面几何（`arc-level-select-page`）、格状态（`arc-wall-locked`）、按下态（`arc-cell-pressed`）、token 门（`ui-warm-paper-tokens`）、缩略陈列 oracle（`meta-menu-wall`）同步到新口径。
+- 用量台账：Token Plan 两批共 **6 次调用 / 6 张 / 0 浪费**（前批 4 张选关页稿 + 本批 2 张九宫格稿）。
+- ⚠ **号段订正**：本单早前三笔提交（`c21e6c6e` / `aab9d05c` / `d556a808`）误署 WXG-T-605（与并发 MiniMax-H3 单撞号），现统一归 **606**。

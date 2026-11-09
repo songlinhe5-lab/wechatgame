@@ -304,25 +304,24 @@ describe('[§1.3 第五轮] 走马灯小卡 + `levels` 墙 消费既有 token（
         expect(DEFAULT_PALETTE.slotDashed, 'slot_dashed 定稿值未漂（§1 扩展行虚线）').toBe('#C9C5DA');
     });
 
-    it('`levels` 墙格 = slot/slot_border 纸格，当前关描边 = accent_primary(4px)；锁格只读既有 token（零新 hex）', () => {
-        // 非当前关（current=4）：槽 0 纸格走 slot_border。
+    it('`levels` 墙格 = 木托盘凹槽（wood_sheen 框 + slot 内窗），当前关描边 = plate_sub_ink(3px)；锁格只读既有 token（零新 hex）', () => {
+        // 非当前关（current=4）：槽 0 = 木框 + 米白内窗（`[WXG-T-606]`）。
         const idle = metaFrameCmds({ overlay: 'levels', currentLevelIndex: 4, carouselLevel: undefined });
         const w0 = wallBoxes()[0]!;
-        const plain = idle.find(
-            (c) =>
-                c.kind === 'rect' &&
-                c.fill === DEFAULT_PALETTE.slot &&
-                c.stroke === DEFAULT_PALETTE.slotBorder &&
-                c.w === w0.w,
+        const frame = idle.find(
+            (c) => c.kind === 'rect' && c.fill === DEFAULT_PALETTE.woodSheen && c.w === w0.w,
         );
-        expect(plain, '已解锁非当前格 = slot 面 + slot_border 描边').toBeDefined();
-        // 当前关（current=0）：同格改读 accent_primary（= wood_face 同值不同名判例）。
+        expect(frame, '格 = 木框（wood_sheen）').toBeDefined();
+        const face = idle.find(
+            (c) => c.kind === 'rect' && c.fill === DEFAULT_PALETTE.slot && c.w === w0.w - 8,
+        );
+        expect(face, '内窗 = slot 面').toBeDefined();
+        // 当前关（current=0）：黄铜描边（plate_sub_ink 3px，零新 hex）。
         const cur = metaFrameCmds({ overlay: 'levels', currentLevelIndex: 0, carouselLevel: undefined });
         const hi = cur.find(
-            (c) => c.kind === 'rect' && c.stroke === DEFAULT_PALETTE.accentPrimary && c.w === w0.w,
+            (c) => c.kind === 'rect' && c.stroke === DEFAULT_PALETTE.plateSubInk && c.lineWidth === 3,
         );
-        expect(hi, '当前关高亮描边 = accent_primary').toBeDefined();
-        expect((hi as { lineWidth: number }).lineWidth).toBe(4);
+        expect(hi, '当前关高亮描边 = plate_sub_ink').toBeDefined();
         // EP13-FU-1 换形（旧 = 「未解锁/越界格 = `slot_dashed` 虚线空槽」）：Q15 合形 ⇒ 墙格路径零虚线，
         // 锁格仅复用既有 token（`slot` / `slot_border` / `text_dim` + 未开启灰墨），⛔ 不新造灰。
         const dashed = idle.filter((c) => c.kind === 'line' && c.stroke === DEFAULT_PALETTE.slotDashed);

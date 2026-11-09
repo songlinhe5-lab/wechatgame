@@ -256,7 +256,8 @@ function beadSignatureIn(
 function thumbOracle(level: (typeof LEVELS)[number], box: { x: number; y: number; w: number; h: number }): string {
     const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
     builder.begin();
-    drawLevelThumb(builder, level, box.x, box.y, box.w, box.h, THUMB_MATRIX_N, THUMB_AREA);
+    // `[WXG-T-606]` 选关格是木托盘凹槽：顶部让出 24px 星带 ⇒ 缩略盒高 = 格高 − 24。
+    drawLevelThumb(builder, level, box.x, box.y, box.w, box.h - 24, THUMB_MATRIX_N, THUMB_AREA);
     return beadSignatureIn(builder.end().commands, box);
 }
 

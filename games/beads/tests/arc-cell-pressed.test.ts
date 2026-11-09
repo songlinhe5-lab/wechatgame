@@ -66,6 +66,11 @@ const rectAt = (cmds: readonly DrawCommand[], x: number, y: number): DrawCommand
 const cellRect = (cmds: readonly DrawCommand[], b: MetaButton, dy: number): DrawCommand | undefined =>
     rectAt(cmds, b.box.x, b.box.y + dy);
 
+/** `[WXG-T-606]` 凹槽内窗（米白面）：外框内缩 4px。 */
+const FACE_INSET = 4;
+const faceRect = (cmds: readonly DrawCommand[], b: MetaButton, dy: number): DrawCommand | undefined =>
+    rectAt(cmds, b.box.x + FACE_INSET, b.box.y + dy + FACE_INSET);
+
 describe('选关格按下态（§4-R6 / §5 / §7 非色相通道）', () => {
     it('按住一格：整格下沉 UI_PRESS_SINK，对象身份比对 ⇒ 仅该格位移', () => {
         const cs = cells();
@@ -85,14 +90,15 @@ describe('选关格按下态（§4-R6 / §5 / §7 非色相通道）', () => {
         expect(shifted[0]).toBe(target);
     });
 
-    it('按下换面：常态 slot、按下 cardPressed（既有按压面色，零新色）', () => {
+    it('按下换面：凹槽内窗常态 slot、按下 cardPressed（既有按压面色，零新色）', () => {
         const cs = cells();
         const target = cs[2]!;
         const rest = frame(dataFor());
         const pressed = frame(dataFor({ pressed: target }));
 
-        expect((cellRect(rest, target, 0) as { fill?: string }).fill).toBe(DEFAULT_PALETTE.slot);
-        expect((cellRect(pressed, target, -UI_PRESS_SINK) as { fill?: string }).fill).toBe(DEFAULT_PALETTE.cardPressed);
+        expect((cellRect(rest, target, 0) as { fill?: string }).fill, '外框 = 木色').toBe(DEFAULT_PALETTE.woodSheen);
+        expect((faceRect(rest, target, 0) as { fill?: string }).fill).toBe(DEFAULT_PALETTE.slot);
+        expect((faceRect(pressed, target, -UI_PRESS_SINK) as { fill?: string }).fill).toBe(DEFAULT_PALETTE.cardPressed);
     });
 
     it('reduceMotion：位移归零，但换面仍在（弱动效不丢按下反馈）', () => {
@@ -101,14 +107,14 @@ describe('选关格按下态（§4-R6 / §5 / §7 非色相通道）', () => {
         const cmds = frame(dataFor({ pressed: target, reduceMotion: true }));
 
         for (const b of cs) expect(cellRect(cmds, b, -UI_PRESS_SINK)).toBeFalsy();
-        const inPlace = cellRect(cmds, target, 0) as { fill?: string };
+        const inPlace = faceRect(cmds, target, 0) as { fill?: string };
         expect(inPlace).toBeTruthy();
         expect(inPlace.fill).toBe(DEFAULT_PALETTE.cardPressed);
     });
 
-    it('按住其他钮（back）不波及任何格', () => {
-        const back = metaLayout('levels', WALL_ROWS).buttons.find((b) => b.id === 'back')!;
-        const cmds = frame(dataFor({ pressed: back }));
+    it('按住其他钮（close-levels）不波及任何格', () => {
+        const close = metaLayout('levels', WALL_ROWS).buttons.find((b) => b.id === 'close-levels')!;
+        const cmds = frame(dataFor({ pressed: close }));
         for (const b of cells()) {
             expect(cellRect(cmds, b, 0)).toBeTruthy();
             expect(cellRect(cmds, b, -UI_PRESS_SINK)).toBeFalsy();
@@ -126,13 +132,13 @@ describe('选关格按下态（§4-R6 / §5 / §7 非色相通道）', () => {
                 (c) =>
                     c.kind === 'text' &&
                     near(c.x, b.box.x + b.box.w / 2) &&
-                    // 星带中心（`THUMB_STAR_BAND / 2` = 14，现码已在）
-                    near(c.y, b.box.y + 14),
+                    // `[WXG-T-606]` 星带移到凹槽内窗顶部（y + h − 14）。
+                    near(c.y, b.box.y + b.box.h - 14),
             );
         const clearedText = textAt(cleared) as { text?: string; fill?: string };
         const pushingText = textAt(pushing) as { text?: string; fill?: string };
         expect(clearedText?.text).toBe('★★★');
-        expect(clearedText?.fill).toBe(DEFAULT_PALETTE.text);
+        expect(clearedText?.fill).toBe(DEFAULT_PALETTE.plateSubInk);
         expect(pushingText?.text).toBe('☆☆☆');
         expect(pushingText?.fill).toBe(DEFAULT_PALETTE.textDim);
 

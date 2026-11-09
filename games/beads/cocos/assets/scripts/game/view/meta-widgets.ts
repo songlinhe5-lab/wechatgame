@@ -3,7 +3,7 @@
  * 位图可用性注入（`setMenuBitmapResolver`）。主菜单与选关页共用 ⇒ 位于二者之下、⛔ 不反依赖页面。
  */
 
-import { MENU_BADGE, MENU_LOCKED_ICON, MENU_SEAL, MENU_TEXTURES, THUMB_AREA, THUMB_STAR_BAND, UI_CONTAINER } from '../config/tuning';
+import { LEVEL_SELECT_GEO, MENU_BADGE, MENU_LOCKED_ICON, MENU_SEAL, MENU_TEXTURES, THUMB_AREA, THUMB_STAR_BAND, UI_CONTAINER } from '../config/tuning';
 import { COPY_TOKENS } from '../config/copy-tokens';
 import { type RenderModelBuilder } from '../../framework/index';
 import { beadFadedInksFor, withAlpha, type BeadsPalette } from './palette';
@@ -139,6 +139,25 @@ export function resetMetaViewWarnings(): void {
  * 越界槽拿不到关卡引用 ⇒ 画不出珠阵（数据驱动，⛔ 不拿别关的图凑），只留格底 + 锁。
  * 锁尺与回落口径逐字复用走马灯徽标（`MENU_BADGE.d` / 位图未就维 = 圆章 +「锁」字），零新数值零新色。
  */
+/**
+ * 锁角章（未解锁格共用；`[WXG-T-606]` 从 `drawLockedWallCell` 抽出）：位图腿优先，
+ * 缺图 = 圆章 +「锁」字（零新数值零新色）。`cell` 传**未位移**框 ⇒ 按下位移不撕角章。
+ */
+function drawWallLockBadge(builder: RenderModelBuilder, palette: BeadsPalette, cell: Box): void {
+    const d = MENU_BADGE.d;
+    const inset = MENU_SEAL.inset;
+    const cx = cell.x + cell.w - d / 2 - inset;
+    const cy = cell.y + cell.h - d / 2 - inset;
+    if (menuBitmapReady(MENU_TEXTURES.lock)) {
+        // `[WXG-T-578]` 锁形按纹理宽高比出高（Figma v2 竖长件），底边维持原内缩 ⇒ 只向上长。
+        const h = d / MENU_LOCKED_ICON.aspect;
+        builder.blit(MENU_TEXTURES.lock, cx - d / 2, cell.y + cell.h - inset - h, d, h);
+        return;
+    }
+    builder.circle(cx, cy, d / 2, { fill: palette.slot, stroke: palette.slotBorder, lineWidth: 2 });
+    builder.text(cx, cy, '锁', { fill: palette.textDim, font: UI_FONT.cell, align: 'center', baseline: 'middle' });
+}
+
 function drawLockedWallCell(
     builder: RenderModelBuilder,
     cell: Box,
@@ -155,18 +174,7 @@ function drawLockedWallCell(
     if (level !== undefined) {
         drawLevelThumb(builder, level, cell.x, cell.y, cell.w, cell.h, thumbN, THUMB_AREA, beadFadedInksFor(level));
     }
-    const d = MENU_BADGE.d;
-    const inset = MENU_SEAL.inset;
-    const cx = cell.x + cell.w - d / 2 - inset;
-    const cy = cell.y + cell.h - d / 2 - inset;
-    if (menuBitmapReady(MENU_TEXTURES.lock)) {
-        // `[WXG-T-578]` 锁形按纹理宽高比出高（Figma v2 竖长件），底边维持原内缩 ⇒ 只向上长。
-        const h = d / MENU_LOCKED_ICON.aspect;
-        builder.blit(MENU_TEXTURES.lock, cx - d / 2, cell.y + cell.h - inset - h, d, h);
-        return;
-    }
-    builder.circle(cx, cy, d / 2, { fill: palette.slot, stroke: palette.slotBorder, lineWidth: 2 });
-    builder.text(cx, cy, '锁', { fill: palette.textDim, font: UI_FONT.cell, align: 'center', baseline: 'middle' });
+    drawWallLockBadge(builder, palette, cell);
 }
 
 export function drawWallCell(
@@ -226,6 +234,78 @@ export function drawWallCell(
         return;
     }
     drawLevelThumb(builder, level, b.box.x, y, b.box.w, b.box.h, thumbN, THUMB_AREA);
+}
+
+/**
+ * `[WXG-T-606]` **木托盘凹槽格**（选关页专用；Token Plan 两 seed 定稿）：
+ * 木框 → 2px 深槽线 → 米白内窗 → 内窗顶缘受光；星带在窗内顶部，缩略仍走 `THUMB_AREA`。
+ * 未解锁沿用「灰珠阵 + 角锁 + 无星」合形（⛔ 不退化成纯灰块）；当前关加黄铜描边。
+ */
+export function drawWoodWallCell(
+    builder: RenderModelBuilder,
+    b: MetaButton,
+    data: MetaViewData,
+    palette: BeadsPalette,
+    thumbN: number,
+): void {
+    const st = LEVEL_SELECT_GEO.gridStyle;
+    const slot = b.slot;
+    const levelIdx: number | undefined = slot === undefined ? undefined : data.wallSlots[slot];
+    const gateOpensFirst = slot === 0 && data.arcTicketOpen === true;
+    const locked = levelIdx === undefined || (levelIdx + 1 > data.maxUnlockedLevel && !gateOpensFirst);
+    const pressed = data.pressed === b;
+    const y = b.box.y + pressDy(data, pressed);
+    const { x, w, h } = b.box;
+
+    // 凹槽层序：木框 → 深槽线 → 米白内窗 → 顶缘 1px 受光。
+    builder.rect(x, y, w, h, { fill: palette.woodSheen, radius: st.radius });
+    builder.rect(x + st.frame / 2, y + st.frame / 2, w - st.frame, h - st.frame, {
+        stroke: palette.shadowInk,
+        lineWidth: st.groove,
+        radius: st.radius - 2,
+    });
+    builder.rect(x + st.frame, y + st.frame, w - st.frame * 2, h - st.frame * 2, {
+        fill: pressed ? palette.cardPressed : palette.slot,
+        radius: st.radius - 4,
+    });
+    builder.line(x + 8, y + h - st.frame - 1, x + w - 8, y + h - st.frame - 1, withAlpha(palette.woodSheen, 0.6), 1);
+
+    if (levelIdx === undefined) {
+        drawWallLockBadge(builder, palette, b.box);
+        return;
+    }
+    if (locked) {
+        const level = data.wallLevels[slot!];
+        if (level !== undefined) {
+            // 顶部让出 24px 星带（`h − 24`）：缩略区仍 84 ⇒ 珠块尺寸与主菜单墙一致。
+            drawLevelThumb(builder, level, x, y, w, h - 24, thumbN, THUMB_AREA, beadFadedInksFor(level));
+        }
+        drawWallLockBadge(builder, palette, b.box);
+        return;
+    }
+
+    const stars = data.starsByLevel[levelIdx] ?? 0;
+    const level = data.wallLevels[slot!];
+    if (level !== undefined) {
+        // 顶部让出 24px 星带：`h − 24` 把缩略下移，珠块尺寸不变。
+        drawLevelThumb(builder, level, x, y, w, h - 24, thumbN, THUMB_AREA);
+        // 星带最后画 ⇒ 不被缩略盖住。
+        builder.text(x + w / 2, y + h - 14, STAR_LABELS[stars] ?? STAR_LABELS[0]!, {
+            fill: stars > 0 ? palette.plateSubInk : palette.textDim,
+            font: UI_FONT.cell,
+            align: 'center',
+            baseline: 'middle',
+        });
+    }
+
+    // 当前关：黄铜描边（`plateSubInk`，与标题同色族；零新 hex）。
+    if (levelIdx === data.currentLevelIndex) {
+        builder.rect(x - 2, y - 2, w + 4, h + 4, {
+            stroke: palette.plateSubInk,
+            lineWidth: 3,
+            radius: st.radius + 2,
+        });
+    }
 }
 
 /**
