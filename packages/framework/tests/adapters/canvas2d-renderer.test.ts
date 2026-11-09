@@ -6,6 +6,14 @@ import { RenderModelBuilder } from '../../src/core/render/render-model.js';
 /** Records every call made against the context, in order. */
 function mockCtx() {
   const calls: string[] = [];
+  /** `[WXG-T-604]` fillText 时刻的投影状态快照（投影只在该调用期间生效）。 */
+  const texts: {
+    text: string;
+    shadowColor?: string;
+    shadowBlur?: number;
+    shadowOffsetX?: number;
+    shadowOffsetY?: number;
+  }[] = [];
   const record = (name: string) => (...args: unknown[]) => {
     calls.push(`${name}(${args.join(',')})`);
   };
@@ -25,7 +33,16 @@ function mockCtx() {
     scale: record('scale'),
     fill: record('fill'),
     stroke: record('stroke'),
-    fillText: record('fillText'),
+    fillText: (text: string, x: number, y: number) => {
+      texts.push({
+        text,
+        shadowColor: ctx.shadowColor,
+        shadowBlur: ctx.shadowBlur,
+        shadowOffsetX: ctx.shadowOffsetX,
+        shadowOffsetY: ctx.shadowOffsetY,
+      });
+      calls.push(`fillText(${text},${x},${y})`);
+    },
     fillStyle: '',
     strokeStyle: '',
     lineWidth: 0,
@@ -33,16 +50,20 @@ function mockCtx() {
     font: '',
     textAlign: '',
     textBaseline: '',
+    shadowColor: 'transparent',
+    shadowBlur: 0,
+    shadowOffsetX: 0,
+    shadowOffsetY: 0,
   };
-  return { ctx, calls };
+  return { ctx, calls, texts };
 }
 
 function makeRenderer() {
-  const { ctx, calls } = mockCtx();
+  const { ctx, calls, texts } = mockCtx();
   const viewport = new Viewport(100, 100);
   viewport.resize(100, 100); // scale 1
   const renderer = new Canvas2DRenderer(ctx, viewport);
-  return { ctx, calls, renderer, viewport };
+  return { ctx, calls, texts, renderer, viewport };
 }
 
 describe('Canvas2DRenderer', () => {
@@ -178,6 +199,41 @@ describe('Canvas2DRenderer', () => {
     b.text(10, 20, 'OK', { baseline: 'middle' });
     renderer.draw(b.end());
     expect(ctx.textBaseline).toBe('middle');
+  });
+
+  it('[WXG-T-604] 文字投影：fillText 期间生效、y 翻到设备方向、用后清零', () => {
+    const { ctx, renderer, texts } = makeRenderer();
+    const b = new RenderModelBuilder(100, 100);
+    b.begin();
+    b.text(10, 20, '标题', {
+      shadow: { color: 'rgba(90,47,13,0.8)', offsetX: 9, offsetY: -7, blur: 3 },
+    });
+    renderer.draw(b.end());
+    expect(texts).toHaveLength(1);
+    expect(texts[0]).toMatchObject({
+      text: '标题',
+      shadowColor: 'rgba(90,47,13,0.8)',
+      shadowBlur: 3,
+      shadowOffsetX: 9,
+      shadowOffsetY: 7,
+    });
+    // 阴影是 ctx 状态：必须在文本后清掉，否则后续 rect / blit 会一起带影。
+    expect(ctx.shadowColor).toBe('transparent');
+    expect(ctx.shadowBlur).toBe(0);
+    expect(ctx.shadowOffsetX).toBe(0);
+    expect(ctx.shadowOffsetY).toBe(0);
+  });
+
+  it('[WXG-T-604] 文字投影：偏移与模糊按设备比例换算（dpr=2 ⇒ ×2）', () => {
+    const { ctx, texts } = mockCtx();
+    const viewport = new Viewport(100, 100);
+    viewport.resize(100, 100); // fit.scale = 1
+    const renderer = new Canvas2DRenderer(ctx, viewport, { pixelRatio: 2 });
+    const b = new RenderModelBuilder(100, 100);
+    b.begin();
+    b.text(10, 20, 'T', { shadow: { color: '#000', offsetX: 9, offsetY: -7, blur: 3 } });
+    renderer.draw(b.end());
+    expect(texts[0]).toMatchObject({ shadowBlur: 6, shadowOffsetX: 18, shadowOffsetY: 14 });
   });
 
   it('can skip the viewport transform when the host already applied one', () => {

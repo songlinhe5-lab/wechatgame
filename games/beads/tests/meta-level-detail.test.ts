@@ -100,6 +100,7 @@ function frame(shell: BeadsShell) {
         x?: number;
         y?: number;
         textureId?: string;
+        shadow?: { offsetX: number; offsetY: number; blur?: number };
     }[];
 }
 
@@ -188,13 +189,14 @@ describe('[WXG-T-602] 关卡详情弹窗 — 绘制面', () => {
         expect(texts.some((t) => t.startsWith('时限：')), '时限行').toBe(true);
         expect(texts, '无星 ⇒ 空心文字档').toContain('☆☆☆');
 
-        // 板标题投影（Figma 95:59 DROP_SHADOW +9,+7）：同字偏移副本，落在主字左上方（y-up）。
+        // 板标题投影（Figma 95:59 DROP_SHADOW +9,+7 blur3）：单条文字命令携带 shadow。
         const titles = cmds.filter((c) => c.kind === 'text' && c.text === '关卡详情');
-        expect(titles.length, '标题 = 投影副本 + 主字').toBe(2);
-        const shadow = titles.reduce((a, b) => ((a.x ?? 0) > (b.x ?? 0) ? a : b));
-        const main = titles.find((c) => c !== shadow)!;
-        expect(shadow.x! - main.x!, '投影 x 偏移 = 稿面 +9').toBe(LEVEL_DETAIL_TITLE_SHADOW.dx);
-        expect(main.y! - shadow.y!, '投影 y 偏移 = 稿面 +7（y-up 取负）').toBe(LEVEL_DETAIL_TITLE_SHADOW.dyDown);
+        expect(titles.length, '标题 = 单条带 shadow 的命令').toBe(1);
+        const titleShadow = titles[0]!.shadow;
+        expect(titleShadow, '标题必须带投影').toBeDefined();
+        expect(titleShadow!.offsetX, '投影 x 偏移 = 稿面 +9').toBe(LEVEL_DETAIL_TITLE_SHADOW.dx);
+        expect(titleShadow!.offsetY, '投影 y 偏移 = 稿面 +7（y-up 取负）').toBe(-LEVEL_DETAIL_TITLE_SHADOW.dyDown);
+        expect(titleShadow!.blur, '投影 blur = 稿面 3').toBe(LEVEL_DETAIL_TITLE_SHADOW.blur);
 
         const plate = levelDetailPlate();
         const badges = cmds.filter(

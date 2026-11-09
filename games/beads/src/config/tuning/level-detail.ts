@@ -38,9 +38,10 @@ export const LEVEL_DETAIL_GEO = {
 /**
  * 板标题「关卡详情」的文字投影（Figma `95:59.effects` 的 `DROP_SHADOW`，2026-11-09 回读）：
  * `#5A2F0D` α0.80 · offset(+9,+7) · blur 3 · y 向下（与 {@link LEVEL_DETAIL_GEO} 同口径）。
- * ⚠ 同节点另有两枚 `INNER_SHADOW`（高光 `#FFF4D6` α0.90 offset(0,+3) blur2 / 暗边 `#8A4B1A`
- * α0.70 offset(0,−2) blur2）；当前文字管线只有单色填充 ⇒ **不实现内阴影**，只落本投影，
- * 且以硬边近似（无 blur）。完整效果表见 `design/ux/level-detail-spec.md §4.1`。
+ * 落地 = `TextCommand.shadow` 最小契约（Canvas 原生阴影含 blur / Cocos 双 Label（blur 忽略）/
+ * SVG 双 text）。⚠ 同节点另有两枚 `INNER_SHADOW`（高光 `#FFF4D6` α0.90 offset(0,+3) blur2 /
+ * 暗边 `#8A4B1A` α0.70 offset(0,−2) blur2）仍未实现（文字命令只有单色填充）。
+ * 完整效果表见 `design/ux/level-detail-spec.md §4.1`。
  */
 export const LEVEL_DETAIL_TITLE_SHADOW = { dx: 9, dyDown: 7, blur: 3, alpha: 0.8 } as const;
 

@@ -55,6 +55,11 @@ export interface Canvas2DLike {
   font: string;
   textAlign: string;
   textBaseline: string;
+  /** `[WXG-T-604]` 文字投影。可选：测试假上下文可不实现（真 canvas 一定有）。 */
+  shadowColor?: string;
+  shadowBlur?: number;
+  shadowOffsetX?: number;
+  shadowOffsetY?: number;
 }
 
 /**
@@ -222,6 +227,17 @@ export class Canvas2DRenderer {
         ctx.font = cmd.font ?? '24px sans-serif';
         ctx.textAlign = cmd.align ?? 'left';
         let baseline = cmd.baseline ?? 'middle';
+        // `[WXG-T-604]` 文字投影：Canvas 的 shadowOffset / shadowBlur 按设备像素
+        // 生效、不受 CTM 缩放（实测 Chrome），故乘有效设备比例；y 取负把设计空间
+        // y-up 换成设备 y-down。
+        const shadow = cmd.shadow;
+        const shadowScale = this._applyTransform ? this._viewport.fit.scale * this._dpr : 1;
+        if (shadow) {
+          ctx.shadowColor = shadow.color;
+          ctx.shadowBlur = (shadow.blur ?? 0) * shadowScale;
+          ctx.shadowOffsetX = shadow.offsetX * shadowScale;
+          ctx.shadowOffsetY = -shadow.offsetY * shadowScale;
+        }
         if (this._applyTransform) {
           // The design transform flips Y (y-up). Left as-is that mirrors every
           // glyph vertically (GAP-08). Undo the flip *locally* around the
@@ -239,6 +255,13 @@ export class Canvas2DRenderer {
         } else {
           ctx.textBaseline = baseline;
           ctx.fillText(cmd.text, cmd.x, cmd.y);
+        }
+        if (shadow) {
+          // 阴影是 ctx 状态，必须就地清掉，否则后续 rect / blit 会一起带影。
+          ctx.shadowColor = 'transparent';
+          ctx.shadowBlur = 0;
+          ctx.shadowOffsetX = 0;
+          ctx.shadowOffsetY = 0;
         }
         break;
       }

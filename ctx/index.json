@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3980,
       "lines": 134,
-      "sha256": "4f0c0c9bc9681fb641b22cb9a4050e212449f30b38838d6d3968fa98e5182bae",
+      "sha256": "9a6b609aab11a07ff298a04dcbdcc98b525bc682b55f9ef8b956d3d1fae00db3",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 254104 9177 normal",
+          "summary": "1 production/TASKS-DETAIL.md 254223 9177 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5273,
       "lines": 165,
-      "sha256": "105160b04c5ba09a23e3108c2463198894883af4cf2050108f2885e10f926444",
+      "sha256": "2f4ed381a95e154c300f8840ad42ab70eb205c9b08f7ba634309a4a0c0c9799e",
       "tier": "normal",
       "sections": [
         {
@@ -745,7 +745,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 211 行 / 56432 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 211 行 / 56451 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
@@ -1016,7 +1016,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 9177 行 / 254104 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 9177 行 / 254223 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
@@ -46012,9 +46012,9 @@
     },
     {
       "path": "games/beads/design/ux/level-detail-spec.md",
-      "tokens": 3084,
+      "tokens": 3127,
       "lines": 131,
-      "sha256": "f35af79ee615dd25d97fea6b4cc950a6003fcc724514a40b71e9faf87e7ea166",
+      "sha256": "5e86a5c2609d48e23082eb1fd965b35a70b28789aa872602e56bdab74d15f958",
       "tier": "normal",
       "sections": [
         {
@@ -46022,7 +46022,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 132,
-          "tokens": 3065,
+          "tokens": 3107,
           "summary": "项目：games/beads · 版本 v1.0（2026-11-08 · WXG-T-604）：首版。Figma 单源",
           "keywords": [
             "Level",
@@ -46073,7 +46073,7 @@
           "level": 2,
           "startLine": 49,
           "endLine": 74,
-          "tokens": 610,
+          "tokens": 637,
           "summary": "板标题 Chiron GoRound TC ExtraBold 64 / #F9D8A7 UI_FONT.detailT",
           "keywords": [
             "Chiron",
@@ -46089,7 +46089,7 @@
           "level": 3,
           "startLine": 61,
           "endLine": 74,
-          "tokens": 292,
+          "tokens": 319,
           "summary": "这是本页唯一带 effects 的节点；其余文字（副标题 / 时限 / 角标）无效果。",
           "keywords": [
             "95:59.effects",
@@ -46164,7 +46164,7 @@
           "level": 2,
           "startLine": 118,
           "endLine": 126,
-          "tokens": 302,
+          "tokens": 317,
           "summary": "1. 「返回」为产品补钮：稿面无出口。取牌内左下 Ø80 木圆，与开始同中线；不动稿面其它件。",
           "keywords": [
             "偏差登记",
@@ -89334,9 +89334,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 254104,
+      "tokens": 254223,
       "lines": 9177,
-      "sha256": "017fd9e6c956ee115045c57a68673cc6d27282ed478533984fff797b18986b9b",
+      "sha256": "0d1036923be4f1bb76646ad0eda93da29121245109a7b089434d2b5628efcb6d",
       "tier": "normal",
       "sections": [
         {
@@ -89344,7 +89344,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 9178,
-          "tokens": 254087,
+          "tokens": 254206,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -103531,7 +103531,7 @@
           "level": 2,
           "startLine": 9161,
           "endLine": 9178,
-          "tokens": 1355,
+          "tokens": 1474,
           "summary": "UI·关卡详情弹窗按 Figma 92:36 重排 + 单源规格 · 负责：主理人(Trae)·beads UI轨 · ",
           "keywords": [
             "WXG",
@@ -103544,9 +103544,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 56432,
+      "tokens": 56451,
       "lines": 211,
-      "sha256": "c09e0692f41b80de879a1b5f78eebe06a22b85234ead3c0baefea8e4b397be7b",
+      "sha256": "489fb2479121560026265ea62c0fa1cb03b12ab5b3b70f49299cc0db564f7e04",
       "tier": "hot",
       "sections": [
         {
@@ -103554,7 +103554,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 212,
-          "tokens": 56423,
+          "tokens": 56442,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",

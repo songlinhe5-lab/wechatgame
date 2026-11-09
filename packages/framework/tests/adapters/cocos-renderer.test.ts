@@ -289,6 +289,24 @@ describe('CocosRenderModelRenderer', () => {
     expect(renderer.lastLabelCount).toBe(1);
   });
 
+  it('[WXG-T-604] 文字投影：多借一枚标签画偏移副本（影子先创建 = 先绘制）', () => {
+    const { renderer, created } = makeSetup();
+    const b = new RenderModelBuilder(200, 400);
+    b.begin();
+    b.text(20, 30, 'S', {
+      fill: '#ffffff',
+      font: '20px sans',
+      align: 'center',
+      shadow: { color: '#000000', offsetX: 9, offsetY: -7 },
+    });
+    renderer.draw(b.end());
+    expect(renderer.lastLabelCount).toBe(2);
+    // 中心原点换算 ox/oy = (-100,-200)：影子 (29,23)、主字 (20,30)。
+    expect(created[0]).toMatchObject({ text: 'S', x: -71, y: -177, visible: true });
+    expect(created[1]).toMatchObject({ text: 'S', x: -80, y: -170, visible: true });
+    expect(created[0]!.color).not.toEqual(created[1]!.color);
+  });
+
   it('reuses pooled labels across frames (no unbounded growth)', () => {
     const { renderer, created } = makeSetup();
     for (let frame = 0; frame < 5; frame++) {

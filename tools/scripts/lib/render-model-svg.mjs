@@ -106,13 +106,27 @@ export function modelToSvg(model) {
       }
       case 'text': {
         const font = parseFont(cmd.font);
+        const anchor = ANCHOR[cmd.align ?? 'left'] ?? 'start';
+        const baseline = BASELINE[cmd.baseline ?? 'middle'] ?? 'central';
+        // `[WXG-T-604]` 文字投影：先铺一层同字偏移副本（blur 不在 SVG 侧模拟）。
+        if (cmd.shadow) {
+          const sh = cmd.shadow;
+          parts.push(
+            `<g transform="translate(${num(cmd.x + sh.offsetX)} ${num(cmd.y + sh.offsetY)}) scale(1 -1)">` +
+            `<text x="0" y="0" fill="${esc(sh.color)}" font-size="${num(font.size)}" ` +
+            (font.weight ? `font-weight="${esc(font.weight)}" ` : '') +
+            `font-family="${esc(font.family)}" text-anchor="${anchor}" ` +
+            `dominant-baseline="${baseline}"${opacity}>` +
+            `${esc(cmd.text)}</text></g>`,
+          );
+        }
         parts.push(
           // Counter-flip so glyphs read the right way up inside the y-flipped group.
           `<g transform="translate(${num(cmd.x)} ${num(cmd.y)}) scale(1 -1)">` +
           `<text x="0" y="0" fill="${esc(cmd.fill ?? '#ffffff')}" font-size="${num(font.size)}" ` +
           (font.weight ? `font-weight="${esc(font.weight)}" ` : '') +
-          `font-family="${esc(font.family)}" text-anchor="${ANCHOR[cmd.align ?? 'left'] ?? 'start'}" ` +
-          `dominant-baseline="${BASELINE[cmd.baseline ?? 'middle'] ?? 'central'}"${opacity}>` +
+          `font-family="${esc(font.family)}" text-anchor="${anchor}" ` +
+          `dominant-baseline="${baseline}"${opacity}>` +
           `${esc(cmd.text)}</text></g>`,
         );
         break;

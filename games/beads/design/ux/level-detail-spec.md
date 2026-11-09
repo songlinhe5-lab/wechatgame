@@ -66,10 +66,10 @@
 |---|---|---|---|---|---|
 | ① | INNER_SHADOW | `#FFF4D6` α0.90 | (0, +3) | 2 | ⛔ 未实现（文字管线单色填充，无内阴影） |
 | ② | INNER_SHADOW | `#8A4B1A` α0.70 | (0, −2) | 2 | ⛔ 未实现（同上） |
-| ③ | DROP_SHADOW | `#5A2F0D` α0.80 | (+9, +7) | 3 | ✅ 已落：同字偏移副本（y-up 取 −7），色取 `withAlpha(palette.plateTitleInk, 0.80)`；**blur 不落 ⇒ 硬边** |
+| ③ | DROP_SHADOW | `#5A2F0D` α0.80 | (+9, +7) | 3 | ✅ 已落：`TextCommand.shadow`（Canvas 原生阴影含 blur / Cocos 双 `Label`（blur 忽略）/ SVG 双 `text`），色取 `withAlpha(palette.plateTitleInk, 0.80)` |
 
-- 参数单源：`LEVEL_DETAIL_TITLE_SHADOW`（`config/tuning/level-detail.ts`）。
-- 为什么只落投影：Canvas `fillText` 只有单色填充，内阴影需要字形裁剪 + 反向偏移，超出当前 `TextCommand` 契约；投影是本页最显眼的立体感来源，先落它。
+- 参数单源：`LEVEL_DETAIL_TITLE_SHADOW`（`config/tuning/level-detail.ts`）；契约：`TextShadow`（`packages/framework/src/core/render/render-model.ts`）。
+- 为什么内阴影仍不落：Canvas `fillText` 只有单色填充，内阴影需要字形裁剪 + 反向偏移，超出最小契约；投影已是本页最显眼的立体感来源。
 - 令牌色差：稿 `#5A2F0D` ↔ `plateTitleInk #563113`，RGB 最大差 6/255（肉眼不可辨），不新增令牌。
 
 ## 5. 资产台账
@@ -122,7 +122,7 @@
 3. **标题字族 / 时限字号**：系统字替代 Chiron；时限 14 → 22（可读地板）。22 档字宽超过稿面 80 槽，**取左缘锚 x=482**（不再居中），否则会压到第三枚星。
 4. **角标贴边统一**：稿中第三枚角标比另两枚高 2px（`137:43` y=910），实现统一贴 tile 顶缘（`y=912`）。
 5. **弹窗无独立遮罩层**：稿面背景是整屏场景图；运行时沿用弹窗通用遮罩浓度（`UI_SCRIM`）。
-6. **标题效果只落投影**：稿面两枚 `INNER_SHADOW`（内高光 / 内暗边）与投影 blur 3 未实现 —— 文字命令只有单色填充；投影以同字偏移副本落**硬边**，参数见 §4.1。
+6. **标题内阴影未落、投影 blur 分端**：稿面两枚 `INNER_SHADOW`（内高光 / 内暗边）不实现；`DROP_SHADOW` 走 `TextCommand.shadow` —— Canvas 含 blur 3，Cocos `Label` 无阴影 API 只落偏移副本，SVG 双 text 不含 blur（参数见 §4.1）。
 
 ## 10. 开放项
 

@@ -462,13 +462,29 @@ export class CocosRenderModelRenderer {
     oy: number,
     labels: CocosLabelSource,
   ): void {
+    const fontSize = parseFontSize(cmd.font);
+    // `[WXG-T-604]` 文字投影：`cc.Label` 没有阴影 API ⇒ 用第二枚标签画偏移副本。
+    // 先借影子标签（sibling 序更小 = 先绘制 = 在底层）；`blur` 在 Cocos 端忽略。
+    const shadow = cmd.shadow;
+    if (shadow) {
+      const sh = labels.acquire();
+      this._labelsUsed++;
+      if (sh.setSiblingIndex) sh.setSiblingIndex(this._labelSeq);
+      this._labelSeq += 1;
+      sh.setFontSize(fontSize);
+      sh.setText(cmd.text);
+      const p = this._anchorForText(cmd, sh);
+      sh.setPosition(p.x + ox + shadow.offsetX, p.y + oy + shadow.offsetY);
+      sh.setColor(this._colors.fromHex(shadow.color, cmd.alpha ?? 1));
+      sh.setAlign(cmd.align ?? 'left');
+      sh.setVisible(true);
+    }
     const label = labels.acquire();
     this._labelsUsed++;
     // `[UI-60 P0 / ADR-0033 DEC-5]` 同作用域内的 sibling 序由帧内计数定，⛔ 不得依赖
     // 池节点创建史（旧行为下同层文字叠序随上帧借用多少 Label 而变）。
     if (label.setSiblingIndex) label.setSiblingIndex(this._labelSeq);
     this._labelSeq += 1;
-    const fontSize = parseFontSize(cmd.font);
     label.setFontSize(fontSize);
     label.setText(cmd.text);
     const { x, y } = this._anchorForText(cmd, label);

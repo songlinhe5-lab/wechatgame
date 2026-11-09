@@ -76,21 +76,22 @@ export function drawLevelDetailPage(
     }
 
     // 板标题：稿 64px ExtraBold 暖金；canvas 无 Chiron 字族 ⇒ bold 64 系统字。
-    // 投影（Figma 95:59 DROP_SHADOW #5A2F0D α0.80 +9,+7 blur3）以同字偏移副本落硬边：
-    // 文字命令只有单色填充，blur 与两枚 INNER_SHADOW 不实现（规格 §4 / §9-6）。
+    // 投影（Figma 95:59 DROP_SHADOW #5A2F0D α0.80 +9,+7 blur3）走 `TextCommand.shadow`
+    // 最小契约：Canvas 原生阴影（含 blur）/ Cocos 双 Label / SVG 双 text。
+    // 两枚 INNER_SHADOW 仍不实现（文字命令只有单色填充，规格 §4.1 / §9-6）。
     const titleX = plate.x + (GEO.title.cx - GEO.plate.x);
     const titleY = plate.y + TITLE_DY;
-    builder.text(titleX + TITLE_SHADOW_DX, titleY + TITLE_SHADOW_DY, '关卡详情', {
-        fill: withAlpha(palette.plateTitleInk, LEVEL_DETAIL_TITLE_SHADOW.alpha),
-        font: UI_FONT.detailTitle,
-        align: 'center',
-        baseline: 'middle',
-    });
     builder.text(titleX, titleY, '关卡详情', {
         fill: palette.plateSubInk,
         font: UI_FONT.detailTitle,
         align: 'center',
         baseline: 'middle',
+        shadow: {
+            color: withAlpha(palette.plateTitleInk, LEVEL_DETAIL_TITLE_SHADOW.alpha),
+            offsetX: TITLE_SHADOW_DX,
+            offsetY: TITLE_SHADOW_DY,
+            blur: LEVEL_DETAIL_TITLE_SHADOW.blur,
+        },
     });
 
     // 副标题：大关名·第 N 关（稿 28 Bold 深藏青；大关名缺省 ⇒ 只显关序）。

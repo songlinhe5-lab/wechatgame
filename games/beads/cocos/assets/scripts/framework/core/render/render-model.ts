@@ -67,6 +67,18 @@ export interface LineCommand {
 export type TextAlign = 'left' | 'center' | 'right';
 export type TextBaseline = 'top' | 'middle' | 'bottom';
 
+/**
+ * `[WXG-T-604]` 文字投影（最小契约）。偏移 / 模糊均为**设计空间**单位
+ * （`offsetY` 与命令 `y` 同系 = y 向上），渲染器自行换算到设备坐标。
+ * `blur` 属于尽力而为：Canvas 原生支持；Cocos `Label` 无阴影 API ⇒ 只落偏移副本。
+ */
+export interface TextShadow {
+  readonly color: string;
+  readonly offsetX: number;
+  readonly offsetY: number;
+  readonly blur?: number;
+}
+
 export interface TextCommand {
   readonly kind: 'text';
   readonly x: number;
@@ -77,6 +89,7 @@ export interface TextCommand {
   readonly align?: TextAlign;
   readonly baseline?: TextBaseline;
   readonly alpha?: number;
+  readonly shadow?: TextShadow;
 }
 
 /**
