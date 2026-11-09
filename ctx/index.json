@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3980,
       "lines": 134,
-      "sha256": "7a0e7d35d51523afc257b2469d889e1106ba2fb68d9830e67c23e989fe9de6f4",
+      "sha256": "d6e5561c74c3cc58ef11414b53ce69498b12b99d300ad29aa0131ced921ad9cf",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 254423 9178 normal",
+          "summary": "1 production/TASKS-DETAIL.md 254560 9179 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5273,
       "lines": 165,
-      "sha256": "55abd92d3c243830f1297958fa031fc264cc1599c8bba844995f14a140acc2bb",
+      "sha256": "cff906c0a2e513129a0a40e1df73ae5f66a9f12e380315aebc74fd3e3fc0b66f",
       "tier": "normal",
       "sections": [
         {
@@ -745,7 +745,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 211 行 / 56513 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 211 行 / 56528 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 9178 行 / 254423 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 9179 行 / 254560 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+9179 · §WXG-T-593=8660+37 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+9180 · §WXG-T-593=8660+37 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -46012,17 +46012,17 @@
     },
     {
       "path": "games/beads/design/ux/level-detail-spec.md",
-      "tokens": 3193,
-      "lines": 132,
-      "sha256": "de02f1705b322735a1ec1563a7ed05a2e3ab561d98eb5fe91f6c2b899f2ddf6f",
+      "tokens": 3559,
+      "lines": 148,
+      "sha256": "2a87e6ba2e2b1fe3d01c209a2bbc59ae04195c5d4f95527302458f62086251b9",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§UX 规格 · 关卡详情弹窗（Level Detail Dialog）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 133,
-          "tokens": 3174,
+          "endLine": 149,
+          "tokens": 3540,
           "summary": "项目：games/beads · 版本 v1.0（2026-11-08 · WXG-T-604）：首版。Figma 单源",
           "keywords": [
             "Level",
@@ -46060,7 +46060,7 @@
           "level": 2,
           "startLine": 31,
           "endLine": 48,
-          "tokens": 411,
+          "tokens": 418,
           "summary": "木牌面板 95:116 89 166 581 1044 整张烘图（木框 + 四角铆钉 + 空橱窗 + 底座）",
           "keywords": [
             "稿面版式",
@@ -46072,8 +46072,8 @@
           "anchor": "§4 字体与颜色（稿面 → 运行时）",
           "level": 2,
           "startLine": 49,
-          "endLine": 74,
-          "tokens": 634,
+          "endLine": 90,
+          "tokens": 980,
           "summary": "板标题 Chiron GoRound TC ExtraBold 64 / #F9D8A7 UI_FONT.detailT",
           "keywords": [
             "Chiron",
@@ -46100,10 +46100,24 @@
           ]
         },
         {
+          "anchor": "§4.2 关闭角贴（程序化 · 零资产）",
+          "level": 3,
+          "startLine": 75,
+          "endLine": 90,
+          "tokens": 323,
+          "summary": "设计口径：关闭是低权重出口，不做成第二个主钮；用木牌上的「角贴件」语言，尺寸压到 64²，热区仍取 TOUCH_MIN ",
+          "keywords": [
+            "TOUCH_MIN",
+            "关闭角贴",
+            "程序化",
+            "零资产"
+          ]
+        },
+        {
           "anchor": "§5 资产台账",
           "level": 2,
-          "startLine": 75,
-          "endLine": 86,
+          "startLine": 91,
+          "endLine": 102,
           "tokens": 261,
           "summary": "ui_detail_plaque@2x.png 1162×2088 · 911 KB Figma 95:116 导出（@",
           "keywords": [
@@ -46116,8 +46130,8 @@
         {
           "anchor": "§6 数据映射（shell → `MetaViewData` → 绘制）",
           "level": 2,
-          "startLine": 87,
-          "endLine": 97,
+          "startLine": 103,
+          "endLine": 113,
           "tokens": 143,
           "summary": "副标题 detailChapterTitle + detailLevelIndex 章名缺 ⇒ 只显「第 N 关」；无 ",
           "keywords": [
@@ -46132,9 +46146,9 @@
         {
           "anchor": "§7 交互与热区",
           "level": 2,
-          "startLine": 98,
-          "endLine": 108,
-          "tokens": 208,
+          "startLine": 114,
+          "endLine": 124,
+          "tokens": 211,
           "summary": "start-detail {x:212, y_up:153, w:326, h:154}（= 稿面钮） 抬起且同钮（in",
           "keywords": [
             "start",
@@ -46146,9 +46160,9 @@
         {
           "anchor": "§8 缺图回退（元素级换皮）",
           "level": 2,
-          "startLine": 109,
-          "endLine": 118,
-          "tokens": 132,
+          "startLine": 125,
+          "endLine": 134,
+          "tokens": 137,
           "summary": "面板 blit(plaque) rect(panel, r=UI_CONTAINER.radiusPanel 24)",
           "keywords": [
             "blit",
@@ -46162,11 +46176,12 @@
         {
           "anchor": "§9 偏差登记（有意为之，非缺陷）",
           "level": 2,
-          "startLine": 119,
-          "endLine": 127,
-          "tokens": 331,
-          "summary": "1. 「关闭」为产品补钮：稿面无出口。取木牌右上角 Ø80 木圆 + ✕（半压牌缘），并支持点木牌外空白关闭；不动稿面其",
+          "startLine": 135,
+          "endLine": 143,
+          "tokens": 335,
+          "summary": "1. 「关闭」为产品补钮：稿面无出口。取木牌右上角 64²「木雕角贴」（§4.2，半压牌缘），并支持点木牌外空白关闭；不",
           "keywords": [
+            "§4.2",
             "偏差登记",
             "有意为之",
             "非缺陷"
@@ -46175,8 +46190,8 @@
         {
           "anchor": "§10 开放项",
           "level": 2,
-          "startLine": 128,
-          "endLine": 133,
+          "startLine": 144,
+          "endLine": 149,
           "tokens": 118,
           "summary": "[ ] Cocos 编辑器导入 cocos/assets/textures/detail/ 四枚 PNG（生成 .met",
           "keywords": [
@@ -89334,17 +89349,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 254423,
-      "lines": 9178,
-      "sha256": "453e9378cc53b5ca39476dc9b639ec3a8ddd60423973c07caa86ba133534d757",
+      "tokens": 254560,
+      "lines": 9179,
+      "sha256": "50e590c5ffe50e57748ad1f1f07522671506f5ae500e69afe1ffd764bc435ad9",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 9179,
-          "tokens": 254407,
+          "endLine": 9180,
+          "tokens": 254543,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -103530,8 +103545,8 @@
           "anchor": "§WXG-T-604",
           "level": 2,
           "startLine": 9161,
-          "endLine": 9179,
-          "tokens": 1674,
+          "endLine": 9180,
+          "tokens": 1811,
           "summary": "UI·关卡详情弹窗按 Figma 92:36 重排 + 单源规格 · 负责：主理人(Trae)·beads UI轨 · ",
           "keywords": [
             "WXG",
@@ -103544,9 +103559,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 56513,
+      "tokens": 56528,
       "lines": 211,
-      "sha256": "6bc5aa13c56da9535de2645e947675d4d854471b72a53d614642696db4f0be27",
+      "sha256": "433a144152ac01f09d70dd4c32c207ee3376bd9f68db759721c8cc6345a45963",
       "tier": "hot",
       "sections": [
         {
@@ -103554,7 +103569,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 212,
-          "tokens": 56504,
+          "tokens": 56520,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",

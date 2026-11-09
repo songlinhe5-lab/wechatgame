@@ -99,6 +99,8 @@ function frame(shell: BeadsShell) {
         r?: number;
         x?: number;
         y?: number;
+        w?: number;
+        h?: number;
         textureId?: string;
         shadow?: { offsetX: number; offsetY: number; blur?: number };
     }[];
@@ -205,7 +207,6 @@ describe('[WXG-T-602] 关卡详情弹窗 — 绘制面', () => {
         expect(texts, '副标题 = 大关名 + 关序').toContain('曼陀罗·第 9 关');
         expect(texts, '板标题').toContain('关卡详情');
         expect(texts, 'CTA 文案复用主菜单令牌').toContain(COPY_TOKENS.btn_start_label);
-        expect(texts, '关闭钮 ✕').toContain('✕');
         expect(texts.some((t) => t.startsWith('时限：')), '时限行').toBe(true);
         expect(texts, '无星 ⇒ 空心文字档').toContain('☆☆☆');
 
@@ -223,23 +224,18 @@ describe('[WXG-T-602] 关卡详情弹窗 — 绘制面', () => {
             (c) => c.kind === 'circle' && c.r === 42 && c.y !== undefined && c.y > plate.y && c.y < plate.y + plate.h,
         );
         expect(badges.length, '三枚道具徽章（r = 84/2）').toBe(3);
-        // ✕ 圆：只认牌右上角那一枚（顶栏另有 4 枚 Ø80 圆钮，不属本弹窗）。
-        const closeCx = LEVEL_DETAIL_GEO.close.x + LEVEL_DETAIL_GEO.close.d / 2;
-        const closeCy = LEVEL_DETAIL_GEO.close.yDown + LEVEL_DETAIL_GEO.close.d / 2; // 稿面 y 下口径
-        const closeDots = cmds.filter(
-            (c) =>
-                c.kind === 'circle' &&
-                c.r === 40 &&
-                c.x !== undefined &&
-                c.y !== undefined &&
-                Math.abs(c.x - closeCx) < 1 &&
-                Math.abs(c.y - (DESIGN_H - closeCy)) < 1,
-        );
-        expect(closeDots.length, '关闭圆 Ø80').toBe(1);
+        // 关闭角贴：程序化 64² 木片（不画圆、不画文字）。
+        const closeX = LEVEL_DETAIL_GEO.close.x;
+        const closeYUp = DESIGN_H - LEVEL_DETAIL_GEO.close.yDown - LEVEL_DETAIL_GEO.close.d;
+        expect(
+            cmds.some((c) => c.kind === 'rect' && c.x === closeX && c.y === closeYUp && c.w === 64 && c.h === 64),
+            '木雕角贴 64² @ 右上',
+        ).toBe(true);
+        expect(texts.includes('✕'), '✕ 走线稿，不再是文字').toBe(false);
         expect(cmds.some((c) => c.kind === 'blit' && c.textureId === LEVEL_DETAIL_TEXTURES.plaque), '无位图 ⇒ 木牌不 blit').toBe(false);
     });
 
-    it('位图腿：木牌 / 开始 / 三枚空心星 / 右上 ✕ 木圆全部走 blit', () => {
+    it('位图腿：木牌 / 开始 / 三枚空心星全部走 blit（关闭件为程序化角贴）', () => {
         setMenuBitmapResolver((id) => id.startsWith('bitmap__detail_') || id === MENU_TEXTURES.btnCircle);
         const r = rig();
         openLevels(r.shell);
@@ -250,7 +246,6 @@ describe('[WXG-T-602] 关卡详情弹窗 — 绘制面', () => {
         const ids = cmds.filter((c) => c.kind === 'blit').map((c) => c.textureId);
         expect(ids, '木牌').toContain(LEVEL_DETAIL_TEXTURES.plaque);
         expect(ids, '开始钮').toContain(LEVEL_DETAIL_TEXTURES.start);
-        expect(ids, '关闭木圆').toContain(MENU_TEXTURES.btnCircle);
         expect(
             ids.filter((id) => id === LEVEL_DETAIL_TEXTURES.starEmpty).length,
             '零得星 ⇒ 三枚空心',

@@ -10,13 +10,13 @@
  * 绘制时加 `plate.y` ⇒ 逐机位移（`dialogShiftY`）不会撕裂内容带。
  */
 
-import { DESIGN_H, DESIGN_W, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TEXTURES, LEVEL_DETAIL_TITLE_SHADOW, MENU_TEXTURES, POWERUP_TILE_TEXTURES, POWERUP_TYPES, THUMB_TOP_INSET, UI_CONTAINER } from '../config/tuning';
+import { DESIGN_H, DESIGN_W, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TEXTURES, LEVEL_DETAIL_TITLE_SHADOW, POWERUP_TILE_TEXTURES, POWERUP_TYPES, THUMB_TOP_INSET, UI_CONTAINER } from '../config/tuning';
 import { type RenderModelBuilder } from '../../framework/index';
 import { POWERUP_LABELS } from '../systems/powerups';
 import { type BeadsPalette, withAlpha } from './palette';
 import { UI_FONT, UI_SCRIM, formatTime, scrimFill } from './ui-theme';
 import { drawLevelThumb } from './menu-signage';
-import { STAR_LABELS, label, menuBitmapReady } from './meta-widgets';
+import { STAR_LABELS, isPressed, label, menuBitmapReady, pressDy } from './meta-widgets';
 import { drawButton } from './ui-widgets';
 import { levelDetailPlate } from './meta-layout';
 import type { MetaViewData } from './meta-types';
@@ -194,26 +194,57 @@ export function drawLevelDetailPage(
         drawButton(builder, palette, startX, startY, st.w, st.h, 'accent', 14, label('start-detail', data), UI_FONT.button, startPressed, false);
     }
 
-    // 「关闭」（产品补钮，稿上无出口）：木牌右上角 Ø80 木圆 + ✕，半压牌缘；点牌外空白同效。
+    // 「关闭」：木牌右上角「木雕角贴」64²（半压牌缘）——木面 + 上亮/下暗 + 内凹槽 + 米白 ✕；
+    // 按下整体下沉（`pressDy`，减弱动效档归零）。程序化零资产，⛔ 不再借用菜单圆钮位图。
     const cl = GEO.close;
-    const closeX = plate.x + (cl.x - GEO.plate.x);
-    const closeY = plate.y + CLOSE_DY;
-    const closePressed = data.pressed?.id === 'close-detail';
-    const circleTex = closePressed ? MENU_TEXTURES.btnCirclePressed : MENU_TEXTURES.btnCircle;
-    const circleReady = menuBitmapReady(circleTex);
-    if (circleReady) {
-        builder.blit(circleTex, closeX, closeY, cl.d, cl.d);
-    } else {
-        builder.circle(closeX + cl.d / 2, closeY + cl.d / 2, cl.d / 2, {
-            fill: palette.slot,
-            stroke: palette.slotBorder,
-            lineWidth: 2,
-        });
-    }
-    builder.text(closeX + cl.d / 2, closeY + cl.d / 2, '✕', {
-        fill: circleReady ? palette.woodText : palette.text,
-        font: UI_FONT.button,
-        align: 'center',
-        baseline: 'middle',
+    const closePressed = isPressed(data, 'close-detail');
+    drawCloseChip(
+        builder,
+        palette,
+        plate.x + (cl.x - GEO.plate.x) + cl.d / 2,
+        plate.y + CLOSE_DY + cl.d / 2 + pressDy(data, closePressed),
+        cl.d,
+        closePressed,
+    );
+}
+
+/**
+ * `[WXG-T-604]` 关闭角贴程序化画法（层序 = 接触影 → 木面 → 底缘 2px / 顶亮 1px →
+ * 内凹槽 → 深色垫底 ✕ 4px → 米白 ✕ 2px）。令牌全取 `wood_*`（⛔ 零新增 hex）。
+ */
+function drawCloseChip(
+    builder: RenderModelBuilder,
+    palette: BeadsPalette,
+    cx: number,
+    cy: number,
+    d: number,
+    pressed: boolean,
+): void {
+    const x = cx - d / 2;
+    const y = cy - d / 2;
+    const radius = d * 0.25; // 16
+    // 1) 接触影（右下，光向与木牌一致）
+    builder.rect(x + 1, y - 2, d, d, { fill: withAlpha(palette.shadowInk, 0.28), radius });
+    // 2) 木面（按下换深一档）+ 1.5px 木边，保证压在同色木牌上仍有轮廓
+    builder.rect(x, y, d, d, {
+        fill: pressed ? palette.woodFacePressed : palette.woodFace,
+        stroke: palette.woodEdge,
+        lineWidth: 1.5,
+        radius,
     });
+    // 3) 木作两条缘线：底缘 2px 暗 / 顶缘 1px 亮（art-bible §3.1.1 同语言）
+    builder.line(x + d * 0.22, y + 3.5, x + d * 0.78, y + 3.5, palette.woodEdge, 2);
+    builder.line(x + d * 0.22, y + d - 2, x + d * 0.78, y + d - 2, palette.woodSheen, 1);
+    // 4) 内凹浅槽（用中性暗墨压深，木牌同色上也能读出凹面；按下更深）
+    const inset = d * 0.125; // 8
+    builder.rect(x + inset, y + inset, d - inset * 2, d - inset * 2, {
+        fill: withAlpha(palette.shadowInk, pressed ? 0.42 : 0.32),
+        radius: d * 0.156, // 10
+    });
+    // 5) ✕：深色 4px 垫底（下移 1px）+ 米白 2px 面线 ⇒ 刻入感
+    const arm = d * 0.156; // 10
+    builder.line(cx - arm, cy - arm - 1, cx + arm, cy + arm - 1, palette.woodEdge, 4);
+    builder.line(cx - arm, cy + arm - 1, cx + arm, cy - arm - 1, palette.woodEdge, 4);
+    builder.line(cx - arm, cy - arm, cx + arm, cy + arm, palette.woodText, 2);
+    builder.line(cx - arm, cy + arm, cx + arm, cy - arm, palette.woodText, 2);
 }
