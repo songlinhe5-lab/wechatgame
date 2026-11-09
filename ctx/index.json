@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 3980,
       "lines": 134,
-      "sha256": "e426eeb7833194f89c8e51d54c5fc729446e1276c8a49f76e0a6eab0485507d0",
+      "sha256": "4c24b0e3c3acab276ce51dcd9261f7bb0102f2c422ed8b175ae4e56a11eca75e",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 404,
-          "summary": "1 production/TASKS-DETAIL.md 254626 9179 normal",
+          "summary": "1 production/TASKS-DETAIL.md 255453 9192 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -661,7 +661,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5273,
       "lines": 165,
-      "sha256": "94d8fc1713d2201c519b4b6a6bf0cf6dca5d937cb9442a7bccb5ecfc275ebae3",
+      "sha256": "ef77b1b94d6f7a532f4dd23822c170ccf1b6ca5aa91fa5050866418036d38e5d",
       "tier": "normal",
       "sections": [
         {
@@ -745,12 +745,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 211 行 / 56546 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 212 行 / 56885 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+212 · §待排（backlog，无号，立项时领取…=184+29",
+          "summary": "§WXG 任务台账（SSOT）=1+213 · §待排（backlog，无号，立项时领取…=185+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1016,12 +1016,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 9179 行 / 254626 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 9192 行 / 255453 tok",
           "level": 2,
           "startLine": 106,
           "endLine": 110,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+9180 · §WXG-T-593=8660+37 · §WXG-T-5",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+9193 · §WXG-T-594=8697+46 · §WXG-T-5",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -89348,17 +89348,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 254626,
-      "lines": 9179,
-      "sha256": "ba1d620b92c229f4a9aacaaea6c052245962ffc6c29f44725cb9b4a7f78a8b31",
+      "tokens": 255453,
+      "lines": 9192,
+      "sha256": "be9cdc75c350cb473d8466217c77a1e772dd9d394e0c23bb3991d1724107102b",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 9180,
-          "tokens": 254610,
+          "endLine": 9193,
+          "tokens": 255436,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -103545,7 +103545,7 @@
           "level": 2,
           "startLine": 9161,
           "endLine": 9180,
-          "tokens": 1877,
+          "tokens": 1878,
           "summary": "UI·关卡详情弹窗按 Figma 92:36 重排 + 单源规格 · 负责：主理人(Trae)·beads UI轨 · ",
           "keywords": [
             "WXG",
@@ -103553,22 +103553,36 @@
             "Trae",
             "beads"
           ]
+        },
+        {
+          "anchor": "§WXG-T-605",
+          "level": 2,
+          "startLine": 9181,
+          "endLine": 9193,
+          "tokens": 823,
+          "summary": "工具链·MiniMax-H3 文生视频工作流（内网 ComfyUI） · 负责：主理人(Qoder)·工具链 · 状态：",
+          "keywords": [
+            "WXG",
+            "MiniMax",
+            "ComfyUI",
+            "Qoder"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 56546,
-      "lines": 211,
-      "sha256": "de0398866b9022775595a0750fc438d70e2cb056b554277658c8f05ffe4405c1",
+      "tokens": 56885,
+      "lines": 212,
+      "sha256": "d708c8c143ba9946b389521c5f1ddd4dd80b41c728beb9e2cc0c921593680358",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 212,
-          "tokens": 56538,
+          "endLine": 213,
+          "tokens": 56876,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -103581,8 +103595,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 184,
-          "endLine": 212,
+          "startLine": 185,
+          "endLine": 213,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -120600,6 +120614,108 @@
           "summary": "v1.0 2026-09-11 初稿：主体/类目/材料/驳回/包体/灰度 + 诚实标注 路远行",
           "keywords": [
             "变更记录"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tools/scripts/README-minimax-h3.md",
+      "tokens": 1780,
+      "lines": 131,
+      "sha256": "b7e34735eca67c3e5c31f20ee4344b1e3eb2916ffc32bc9d172adee3a5204d62",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§MiniMax-H3 文生视频工作流（内网 ComfyUI）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 132,
+          "tokens": 1764,
+          "summary": "脚本：tools/scripts/minimax-h3-t2v.py（仅标准库）",
+          "keywords": [
+            "MiniMax",
+            "ComfyUI",
+            "tools",
+            "scripts",
+            "minimax",
+            "t2v"
+          ]
+        },
+        {
+          "anchor": "§1 结论先说",
+          "level": 2,
+          "startLine": 7,
+          "endLine": 18,
+          "tokens": 207,
+          "summary": "链路已打通，模型未通过。 提交、排队、采样、VAE 解码、下载、本地合轨全部跑通；",
+          "keywords": [
+            "VAE",
+            "结论先说"
+          ]
+        },
+        {
+          "anchor": "§2 工作流（API 图）",
+          "level": 2,
+          "startLine": 19,
+          "endLine": 56,
+          "tokens": 440,
+          "summary": "",
+          "keywords": [
+            "API",
+            "工作流"
+          ]
+        },
+        {
+          "anchor": "§3 用法",
+          "level": 2,
+          "startLine": 57,
+          "endLine": 92,
+          "tokens": 405,
+          "summary": "",
+          "keywords": [
+            "用法"
+          ]
+        },
+        {
+          "anchor": "§4 验证记录（2026-11-09）",
+          "level": 2,
+          "startLine": 93,
+          "endLine": 112,
+          "tokens": 279,
+          "summary": "1 512×288 / 124f / turbo 6 116s 纯黑 饱和 FAIL",
+          "keywords": [
+            "turbo",
+            "FAIL",
+            "验证记录"
+          ]
+        },
+        {
+          "anchor": "§5 下一步（按优先级）",
+          "level": 2,
+          "startLine": 113,
+          "endLine": 123,
+          "tokens": 188,
+          "summary": "1. 换官方 int8 模型（最可能一次解决）",
+          "keywords": [
+            "int8",
+            "下一步",
+            "按优先级"
+          ]
+        },
+        {
+          "anchor": "§6 已知坑",
+          "level": 2,
+          "startLine": 124,
+          "endLine": 132,
+          "tokens": 152,
+          "summary": "AAC + NaN：SaveVideo 直封音频报 avcodec_send_frame() returned 22；",
+          "keywords": [
+            "AAC",
+            "NaN",
+            "SaveVideo",
+            "avcodec_send_frame",
+            "returned",
+            "已知坑"
           ]
         }
       ]

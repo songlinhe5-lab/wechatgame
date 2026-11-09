@@ -9176,4 +9176,17 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：`npx tsc --noEmit` 0 错；单测 6/6；`pnpm run verify` **PASS 23 / FAIL 0 / SKIP 0**；`check:links` OK；headless Chrome 截图 `temp/detail-shot/detail-live.png` 目视通过（非真机证据）。
 - **有意偏差**：①「关闭」为产品补钮（稿面无出口，右上角 ✕ + 点牌外空白）；② 橱窗不吃稿内占位猫图，运行时按关卡 pattern 画缩略；③ 标题系统字替代 Chiron，时限 14→22；④ 第三枚角标稿中高 2px，实现统一贴边。
 - **遗留**：Cocos 编辑器导入 `cocos/assets/textures/detail/` 四枚 PNG 生成 `.meta` 并挂 `textures` Bundle（无编辑器不可伪造）；木牌背板若再换纹理需重导。
-- **号位说明**：本线程（关卡详情弹窗）历史注释沿用了 T-601 / T-602 两个**已占号**（上一轮领号误标）；本批按台账正式领 **T-604**，新建文件与规格用 T-604，历史注释不回改以免无意义 churn。
+- **号位说明**：本线程（关卡详情弹窗）历史注释沿用了 T-601 / T-602 两个**已占号**（上一轮领号误标）；本批按台账正式领 **T-604**，新建文件与规格用 T-604，历史注 释不回改以免无意义 churn。
+
+## WXG-T-605
+
+**工具链·MiniMax-H3 文生视频工作流（内网 ComfyUI）** · 负责：主理人(Qoder)·工具链 · 状态：✅ 完成（2026-11-09）
+
+- **上位**：用户 2026-11-09 令「本地配置 minimax h3 的大模型服务，请给我制定文生视频的工作流，并验证」。拍板：内网 Windows + 2080 Ti + ComfyUI（不走云 API）；脚本放 `tools/scripts/`；最小档位验证。
+- **环境实测**：`http://192.168.1.16:8188`（win32 / ComfyUI 0.40.0 / RTX 2080 Ti 11GB / 34GB RAM）。已有 `MiniMax-H3-FL2VA-Pruned-Q3_K_M.gguf`、`qwen3vl_32b_minimax_h3_nvfp4_awq`、`minimax_h3_video_vae_int8_convrot`、`minimax_h3_audio_vae_fp32`、`minimax_h3_fl2v_turbo_8step_v1.0_comfyui_bf16`；H3 原生节点齐备。
+- **交付**：`tools/scripts/minimax-h3-t2v.py` + `tools/scripts/README-minimax-h3.md`。脚本仅标准库；`--probe` 探活/列权重，`--dry-run` 出 API 图，`--audio-mode separate|mux|silent`，`--loader gguf|safetensors`，`--clip-device cpu`，`--attention`，`--gguf-dtype`；产物 + 同名 JSON（完整参数与图）落 `temp/minimax-h3-out/`。
+- **工作流**：UnetLoaderGGUF/UNETLoader →（turbo LoRA）→ BasicScheduler + BasicGuider → SamplerCustomAdvanced(res_multistep, simple) ← MiniMaxH3ImageToVideo(clip, video VAE, prompt, 32 倍数宽高, 17k+5 帧长) → VAEDecode + VAEDecodeAudio → CreateVideo(24fps) → SaveVideo；音频 NaN 时走 `separate`：静音 MP4 + FLAC + 本地 ffmpeg `aformat=s16` 合轨。
+- **验证（7 轮）**：链路提交/排队/采样/解码/下载/合轨全通（116–498s/轮）；但 512×288、608×352、864×480，turbo 6/8 步与 20 步无 LoRA，模板原提示词，clip CPU，pytorch attention，全部输出**纯黑画面 + 饱和音频**。VAE 单独 `VAEEncode→VAEDecode` 往返正常（256²、7485 色、std 73.07）；`VAEDecodeAudioTiled` 当前版本有张量维度 bug；`--gguf-dtype bfloat16` 在 Turing 上 19min 未完成（已中断）。
+- **诊断**：坏的是采样隐变量（视频黑 + 音频 NaN 同源），已排除 VAE、文本编码器、注意力后端、步数、分辨率、提示词。剩余两个嫌疑：① 第三方 Q3_K_M GGUF 转换损坏；② 2080 Ti（Turing，无原生 bf16）与 H3 的 fp16 数值不匹配。
+- **阻塞与解除条件**：需用户在 Windows 侧把 Comfy-Org 官方 `minimax_h3_fl2va_pruned_int8_convrot.safetensors`（~19.5GB）放到 `ComfyUI/models/diffusion_models/`，然后跑 `python3 tools/scripts/minimax-h3-t2v.py --loader safetensors --width 864 --height 480 --seconds 5 --audio-mode separate`。若官方模型仍黑 ⇒ 换 Ampere/Ada 显卡或走官方云 API（768P ¥0.50/秒）。
+- **依据**：官方 API/参数 `platform.minimax.cn/docs/api-reference/video-generation-v2-create`；ComfyUI 模板 `video_minimax_h3_t2v.json`（服务端 `/templates/`）；节点定义 `/object_info` 实测。
