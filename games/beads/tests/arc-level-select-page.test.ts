@@ -145,17 +145,17 @@ describe('WXG-T-605 · 信息两行（章名+星进度同行 / 判星对照行�
         modalFrame(dataFor(extra)).filter((c) => c.kind === 'text') as unknown as
         { text: string; x: number; y: number; font?: string; fill?: string; align?: string }[];
 
-    it('关卡名字控件按稿 (278,364) 深蓝 / 星进度 967（右对齐 x=630）', () => {
+    it('关卡名字控件：木牌中轴居中 / 深蓝（`T-611` 用户令）；星进度 967（右对齐 x=630）', () => {
         const ts = textsOf({ chapterTitle: '曼陀罗', arcStarGot: 18, arcStarNeed: 21 });
         const chapter = ts.find((c) => c.text === '曼陀罗')!;
         const bar = ts.find((c) => c.text === '★ 18/21')!;
-        // `[WXG-T-610]` 稿 `159:10`：84×34 @278,364、SOLID #1A1D3F、左对齐；
-        // 旧居中 (383,367) / UI_FONT.button / plateTitleInk 留档（K-053）。
+        // `[WXG-T-611]` 用户令「居中显示」⇒ 木牌中轴（title.cx=380，同标题）；
+        // 稿 `159:10` 84 宽槽 @278 左锚退场（K-053）；y/h/ink 仍按稿。
         const n = LEVEL_SELECT_GEO.name;
-        expect(chapter.x).toBe(levelDetailPlate().x + (n.x - LEVEL_DETAIL_GEO.plate.x));
+        expect(chapter.x).toBe(levelDetailPlate().x + (LEVEL_SELECT_GEO.title.cx - LEVEL_DETAIL_GEO.plate.x));
         expect(chapter.y).toBe(DESIGN_H - (n.yDown + n.h / 2));
         expect(chapter.fill).toBe(n.ink);
-        expect(chapter.align).toBe('left');
+        expect(chapter.align).toBe('center');
         expect(chapter.font).toBe(UI_FONT.sub);
         expect(bar.y).toBe(DESIGN_H - 367);
         expect(bar.x).toBe(630);

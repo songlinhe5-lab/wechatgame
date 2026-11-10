@@ -65,7 +65,6 @@ import {
     BEAD_GAP,
     MENU_V2,
     PANEL_IN_MS,
-    THUMB_AREA,
     THUMB_MATRIX_N,
     WALL_CAPACITY,
     WALL_CELL,
@@ -223,8 +222,9 @@ function centerTuple(box: { x: number; y: number; w: number; h: number }): [numb
     return [c.x, c.y];
 }
 
-/** 选关弹窗缩略块边长（与 `drawLevelThumb` 同式）：用于把底页菜单的回退缩略排除在签名外。 */
-const THUMB_BLOCK = THUMB_AREA / THUMB_MATRIX_N - BEAD_GAP;
+/** 选关弹窗缩略块边长（与 `drawLevelThumb` 同式）：用于把底页菜单的回退缩略排除在签名外。
+ *  `[WXG-T-611]` 缩略落稿面图案槽（`176:21 grid-image`，69 宽）⇒ 块边长按槽位重算。 */
+const THUMB_BLOCK = LEVEL_SELECT_GEO.cellArt.imageW / THUMB_MATRIX_N - BEAD_GAP;
 
 /**
  * 盘面色块的**空间签名**（`[WXG-T-502]`：缩略只画盘面 ⇒ 一格一块 `rect`）。
@@ -250,15 +250,14 @@ function beadSignatureIn(
 
 /**
  * 把**期望关**的缩略单独画进干净 builder ⇒ 与该格实测序列逐条对撞（⛔ 不读屏上文字反推关号）。
- * ⚠ UI-34 起选关 = 整页版式 P：缩略边长走页专用 `LEVELS_THUMB_AREA`（134）
- * ⇒ oracle 必须**同参复算**，否则默认档 84 与生产签名恒失配（假红）。
+ * `[WXG-T-611]` 缩略落稿面图案槽（`176:21 grid-image` 69×76 @格内 (44, 距顶 49)）
+ * ⇒ oracle 与 `drawLevelSelectCell` **同参复算**（旧 `THUMB_AREA` 全窗口径退场，K-053 留档）。
  */
 function thumbOracle(level: (typeof LEVELS)[number], box: { x: number; y: number; w: number; h: number }): string {
     const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
     builder.begin();
-    // `[WXG-T-606]` 选关格是木托盘凹槽：顶部让出 24px 星带 ⇒ 缩略盒高 = 格高 − 24。
-    // `[WXG-T-607]` 缩略框按稿下移（旧 `h − 24` 已退场，K-053 留档）。
-    drawLevelThumb(builder, level, box.x, box.y, box.w, box.h - LEVEL_SELECT_GEO.cellArt.thumbFrameDrop, THUMB_MATRIX_N, THUMB_AREA);
+    const a = LEVEL_SELECT_GEO.cellArt;
+    drawLevelThumb(builder, level, box.x + a.imageLeft, box.y + (box.h - a.imageTopDown - a.imageH), a.imageW, a.imageH, THUMB_MATRIX_N, a.imageW);
     return beadSignatureIn(builder.end().commands, box);
 }
 
@@ -447,7 +446,7 @@ describe('EP12-S6 Deliverable 3 · 三条硬口径（§5.4）+ 未解锁零热�
     });
 
     // EP13-FU-1 换形（旧口径 = 「未解锁格 = 虚线空槽」，~~无🔒字样~~ ⇒ Q15 2026-10-17 改裁**合形**）：
-    it('未解锁格 = 锁格合形（灰阵 + 锁 + ☆☆☆ 灰星 + 无虚线）+ 零热区零事件（墙住 `levels` overlay）', () => {
+    it('未解锁格 = 锁格合形（灰阵落图案槽 + 星带隐藏 + 无虚线）+ 零热区零事件（墙住 `levels` overlay；`T-611` 星带隐藏）', () => {
         const r = rig(); // maxUnlocked = 1 ⇒ 仅 L1 所在墙槽（恒等序 = 槽 0）已解锁，其余锁
         const before = r.staminaOf();
         const cmds = levelsFrame(r.shell); // 先点卡进选关页 ⇒ 墙格内容可观测
@@ -460,9 +459,9 @@ describe('EP12-S6 Deliverable 3 · 三条硬口径（§5.4）+ 未解锁零热�
         for (const locked of cells.slice(0, LEVELS.length).filter((c) => c.slot !== L1_SLOT)) {
             const c = centerOf(locked.box);
             expect(r.shell.tapMeta(c.x, c.y), `槽 ${locked.slot} 未解锁 ⇒ 不被消费`).toBe(false);
-            expect(beadsInCell(cmds, locked), '未解锁格 = 灰色珠阵（Q15 合形，⛔ 不再是空槽）').toBeGreaterThan(0);
+            expect(beadsInCell(cmds, locked), '未解锁格 = 灰色珠阵落图案槽（Q15 合形 + `T-611` 槽位化，⛔ 不再是空槽）').toBeGreaterThan(0);
             expect(dashedSegmentsIn(cmds, locked), '虚线空槽在墙格路径退场').toBe(0);
-            expect(starTextIn(cmds, locked), '锁格星带 = ☆☆☆（0 星可见）').toBe(1);
+            expect(starTextIn(cmds, locked), '锁格星带隐藏（`T-611` 用户令，K-053 旧 ☆☆☆ 留档）').toBe(0);
         }
         expect(r.shell.screen).toBe('menu');
         expect(r.shell.overlay, '点未解锁格不换页').toBe('levels');

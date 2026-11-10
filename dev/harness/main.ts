@@ -243,6 +243,9 @@ const MENU_FILE: Readonly<Record<string, string>> = {
   [LEVEL_SELECT_TEXTURES.starFilled]: '/detail-assets/ui_level_select_star_filled@2x.png',
   [LEVEL_SELECT_TEXTURES.starEmpty]: '/detail-assets/ui_level_select_star_empty@2x.png',
   [LEVEL_SELECT_TEXTURES.closeBtn]: '/detail-assets/ui_level_select_close@2x.png',
+  // `[WXG-T-611]` 编号牌背景（176:22）+ 锁定格图案（176:21 grid-image）。
+  [LEVEL_SELECT_TEXTURES.brand]: '/detail-assets/ui_level_select_brand@2x.png',
+  [LEVEL_SELECT_TEXTURES.lockImage]: '/detail-assets/ui_level_select_lock@2x.png',
 };
 const tintCache = new TintSpriteCache(
   // 离屏 canvas 工厂（结构化注入 ⇒ framework/core 层 ⛔ 不碰 DOM，L2 合规）

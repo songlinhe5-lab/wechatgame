@@ -74,23 +74,29 @@ describe('WXG-T-607 选关弹窗 View/ViewModel', () => {
     const countBlit = (cmds: readonly DrawCommand[], id: string): number =>
         cmds.filter((c) => c.kind === 'blit' && (c as { textureId?: string }).textureId === id).length;
 
-    it('`[WXG-T-610]` 位图腿：背板 / 三态格底 / 双星 / 底部关闭按钮全部就位', () => {
+    it('`[WXG-T-610/611]` 位图腿：背板 / 三态格底 / 编号牌背景 ×9 / 双星 / 底部关闭按钮全部就位', () => {
         const cmds = frame(() => true);
         expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.tray), '九宫格背板').toBe(1);
         expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.closeBtn), '底部关闭按钮').toBe(1);
         expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cell), '旧通用模板退场').toBe(0);
         expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellCurrent), '当前关亮金').toBe(1);
         expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellNormal), '普通橙').toBe(8);
+        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.brand), '编号牌背景 ×9（`T-611` 稿 `176:22`）').toBe(9);
         expect(
             countBlit(cmds, LEVEL_SELECT_TEXTURES.starFilled) + countBlit(cmds, LEVEL_SELECT_TEXTURES.starEmpty),
             '9 格 × 3 枚星',
         ).toBe(27);
     });
 
-    it('`[WXG-T-610]` 锁定态走灰色格底（8 锁 + 1 当前）', () => {
+    it('`[WXG-T-610/611]` 锁定态：灰格底 ×8 + 图案槽锁图 ×8 + 星带只剩当前格', () => {
         const cmds = frame(() => true, { maxUnlockedLevel: 1 });
         expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellLocked), '未解锁灰').toBe(8);
         expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellCurrent), '当前关亮金').toBe(1);
         expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellNormal)).toBe(0);
+        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.lockImage), '锁格图案槽（`T-611` 稿 `176:21`）').toBe(8);
+        expect(
+            countBlit(cmds, LEVEL_SELECT_TEXTURES.starFilled) + countBlit(cmds, LEVEL_SELECT_TEXTURES.starEmpty),
+            '锁格隐藏三星 ⇒ 只剩当前格 3 枚',
+        ).toBe(3);
     });
 });

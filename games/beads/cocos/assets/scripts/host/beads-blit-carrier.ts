@@ -184,6 +184,8 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
     [LEVEL_SELECT_TEXTURES.starFilled]: { path: 'detail/ui_level_select_star_filled' },
     [LEVEL_SELECT_TEXTURES.starEmpty]: { path: 'detail/ui_level_select_star_empty' },
     [LEVEL_SELECT_TEXTURES.closeBtn]: { path: 'detail/ui_level_select_close' },
+    [LEVEL_SELECT_TEXTURES.brand]: { path: 'detail/ui_level_select_brand' },
+    [LEVEL_SELECT_TEXTURES.lockImage]: { path: 'detail/ui_level_select_lock' },
 
     // `[WXG-T-515]` 结算 9-slice 四件（源图与设计 px 1:1，端帽见 `CLEAR_*_SLICE`）。
     [MENU_TEXTURES.panelFrame]: { path: 'ui_panel_frame_9s' },

@@ -304,7 +304,7 @@ describe('[§1.3 第五轮] 走马灯小卡 + `levels` 墙 消费既有 token（
         expect(DEFAULT_PALETTE.slotDashed, 'slot_dashed 定稿值未漂（§1 扩展行虚线）').toBe('#C9C5DA');
     });
 
-    it('`levels` 墙格 = 木托盘凹槽（wood_sheen 框 + slot 内窗），当前关描边 = plate_sub_ink(3px)；锁格只读既有 token（零新 hex）', () => {
+    it('`levels` 墙格 = 木托盘凹槽（wood_sheen 框 + slot 内窗），当前关高亮 = plate_sub_ink 内窗（`T-611` 去描边）；锁格只读既有 token（零新 hex）', () => {
         // 非当前关（current=4）：槽 0 = 木框 + 米白内窗（`[WXG-T-606]`）。
         const idle = metaFrameCmds({ overlay: 'levels', currentLevelIndex: 4, carouselLevel: undefined });
         const w0 = wallBoxes()[0]!;
@@ -316,16 +316,21 @@ describe('[§1.3 第五轮] 走马灯小卡 + `levels` 墙 消费既有 token（
             (c) => c.kind === 'rect' && c.fill === DEFAULT_PALETTE.slot && c.w === w0.w - 8,
         );
         expect(face, '内窗 = slot 面').toBeDefined();
-        // 当前关（current=0）：黄铜描边（plate_sub_ink 3px，零新 hex）。
+        // 当前关（current=0）：亮金内窗（plate_sub_ink 地色；`[WXG-T-611]` 用户令「高亮态就是
+        // 高亮图，不需要加框」⇒ 降级腿旧黄铜描边退场，K-053）。
         const cur = metaFrameCmds({ overlay: 'levels', currentLevelIndex: 0, carouselLevel: undefined });
         const hi = cur.find(
-            (c) => c.kind === 'rect' && c.stroke === DEFAULT_PALETTE.plateSubInk && c.lineWidth === 3,
+            (c) => c.kind === 'rect' && 'fill' in c && c.fill === DEFAULT_PALETTE.plateSubInk,
         );
-        expect(hi, '当前关高亮描边 = plate_sub_ink').toBeDefined();
-        // EP13-FU-1 换形（旧 = 「未解锁/越界格 = `slot_dashed` 虚线空槽」）：Q15 合形 ⇒ 墙格路径零虚线，
-        // 锁格仅复用既有 token（`slot` / `slot_border` / `text_dim` + 未开启灰墨），⛔ 不新造灰。
+        expect(hi, '当前关高亮内窗 = plate_sub_ink（描边退场）').toBeDefined();
+        expect(
+            cur.some((c) => c.kind === 'rect' && 'stroke' in c && c.stroke === DEFAULT_PALETTE.plateSubInk),
+            '旧黄铜描边退场（K-053）',
+        ).toBe(false);
+        // EP13-FU-1 换形（旧 = 「未解锁/越界格 = `slot_dashed` 虚线空槽」）：Q15 合形 ⇒ 墙格路径零虚线；
+        // `[WXG-T-611]` 越界空槽走图案槽腿（缺图 ⇒ 灰格底 + 编号牌，无星无章）⇒ 「锁」字圆章退场。
         const dashed = idle.filter((c) => c.kind === 'line' && c.stroke === DEFAULT_PALETTE.slotDashed);
         expect(dashed.length, '墙格路径虚线退场（空卡腿另用 `slot_dashed`，不属本臂）').toBe(0);
-        expect(idle.some((c) => c.kind === 'text' && c.text === '锁'), '锁形通道在位（位图未就绪的圆章回落臂）').toBe(true);
+        expect(idle.some((c) => c.kind === 'text' && c.text === '锁'), '旧锁角章退场（`T-611` 用户令，K-053）').toBe(false);
     });
 });

@@ -250,7 +250,7 @@ describe('EP13-S2 · 闸门与进关语义（R1–R5，注 A 逐字）', () => {
     });
 
     // EP13-FU-1 换形（旧尾句 = 「空槽虚线在场」）：Q15 合形 ⇒ 未解锁与越界同走锁格（闸门判据一字不动）。
-    it('R1/R2 未解锁与越界格：同一闸门臂 ⇒ 零事件、零扣心、不消费；锁格合形（灰阵 + 锁 + 无虚线）', () => {
+    it('R1/R2 未解锁与越界格：同一闸门臂 ⇒ 零事件、零扣心、不消费；锁格合形（灰阵落图案槽 + 星带隐藏 + 无虚线；T-611）', () => {
         const r = rig({ maxUnlocked: 1 });
         openLevels(r.shell);
         const cmds = frameOf(r.shell);
@@ -261,9 +261,9 @@ describe('EP13-S2 · 闸门与进关语义（R1–R5，注 A 逐字）', () => {
         for (const cell of cells.slice(1)) {
             const c = centerOf(cell.box);
             expect(r.shell.tapMeta(c.x, c.y), `槽 ${cell.slot} 未解锁/越界 ⇒ 不消费`).toBe(false);
-            expect(beadsIn(cmds, cell), `槽 ${cell.slot} 锁格 = 灰色珠阵`).toBeGreaterThan(0);
+            expect(beadsIn(cmds, cell), `槽 ${cell.slot} 锁格 = 灰色珠阵落图案槽`).toBeGreaterThan(0);
             expect(dashedIn(cmds, cell), `槽 ${cell.slot} 虚线退场`).toBe(0);
-            expect(starIn(cmds, cell), `槽 ${cell.slot} 锁格仍显示 ☆☆☆`).toBe(1);
+            expect(starIn(cmds, cell), `槽 ${cell.slot} 锁格星带隐藏（T-611 用户令，K-053 留档）`).toBe(0);
         }
         expect(r.shell.screen).toBe('menu');
         expect(r.shell.overlay).toBe('levels');

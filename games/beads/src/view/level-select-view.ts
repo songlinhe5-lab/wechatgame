@@ -63,12 +63,13 @@ export function drawLevelsView(
         },
     });
 
-    // `[WXG-T-610]` 关卡名字控件（稿 `159:10`，84×34 @278,364，深蓝 SOLID）。
-    // 文字由 VM 给（大关名逐页变）⇒ ⛔ 不吃稿里写死的「曼陀罗」字样位图。
+    // `[WXG-T-610]` 关卡名字控件（稿 `159:10`，34 高、深蓝 SOLID）。
+    // `[WXG-T-611]` 用户令「居中显示」⇒ 木牌中轴（title.cx=380，同标题）；稿面 84 宽槽
+    // @278 左锚退场（K-053 留档）。文字由 VM 给（大关名逐页变）⇒ ⛔ 不吃稿里写死的字样位图。
     if (vm.chapter) {
         const n = LEVEL_SELECT_GEO.name;
-        builder.text(plate.x + (n.x - GEO.plate.x), plate.y + dyCenter(n.yDown + n.h / 2), vm.chapter, {
-            fill: n.ink, font: bodyFont(vm.largeText, 'sub'), align: 'left', baseline: 'middle',
+        builder.text(plate.x + (LEVEL_SELECT_GEO.title.cx - GEO.plate.x), plate.y + dyCenter(n.yDown + n.h / 2), vm.chapter, {
+            fill: n.ink, font: bodyFont(vm.largeText, 'sub'), align: 'center', baseline: 'middle',
         });
     }
     if (vm.starProgress) {

@@ -9299,3 +9299,20 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：全量单测 **1439 passed / 2 skipped（124 文件）**；`typecheck` 0 错；`pnpm run verify` **PASS 23 / FAIL 0**；金样本 `level-select` / `level-select-mid` 两态 sha 变（`total`/`kinds` 亦变：+1 背板 +1 关闭 +27 星 blit、文字星与凹槽退场），`ui-golden-capture.ts` 干净锚重抓，其余九态逐字未动。
 - **视觉复核**：harness `?hud=off` 截图 `temp/ui-shot/level-select-610.png` —— 深棕金边背板、三态格底、格底三星、深蓝「曼陀罗」、底部木质「关闭」全部就位（⛔ 非真机证据）。
 - **⚠ 遗留**：本机无 Cocos 编辑器 ⇒ 7 枚新投放件 `.meta` 未签发（L1 禁伪造），真机 `textures` Bundle 暂不含 ⇒ 逐元素走程序化降级腿（格 / 文字星 / 木钮），零功能回归。解除条件 = 编辑器 reimport `cocos/assets/textures/detail/` 后重导。
+
+## WXG-T-611
+
+**UI·选关页六项修正（名字居中 / 高亮无框 / grid-brand 资源 / 锁格 grid-image / 解锁程序化图案 / 去锁徽章）** · 负责：主理人(CodeBuddy)·beads 美术/工程轨 · 状态：✅ 完成（2026-11-11）
+
+- **上位**（用户六项令，原话）：①「关卡名字需要居中显示」②「格子高亮态就是高亮图，不需要加个框」③「关数面板需要读资源 grid-brand 里面的文字和背景」④「锁关时候，展示 grid-image 里的图案，同时隐藏 3 个星星」⑤「如果开启了某关，grid-image 展示此程序化图案」⑥「单独展示的锁图案去掉」。
+- **稿面定位**（`temp/figma/level-select-page-v2.json` 实读）：`182:75 grid-brand` = `176:22 background` RECTANGLE 65×35 @画布(121,436) ⇒ 帧内 (184,414) **贴格视觉顶**（yDown 与格同 414）+ `176:67 index` TEXT 14×34 SOLID `#E4CDB8` Inter-Bold 28 **烘死「1」**；`176:21 grid-image` RECTANGLE 69×76 @画布(119,485) ⇒ 帧内 (182,463)，**格内 x=44（水平居中 44.5）、距视觉顶 49**（y-up 槽底距格底 56）= 数据驱动**图案槽**：稿面锁态即此锁图案位图，解锁态由程序化珠拼填充。
+- **资源（2 枚）**：`img --ids 176:22,176:21 --scale 2` ⇒ brand 130×70（2.8 KiB 投放件）/ lock 138×152（21.4 KiB）；正本 `design/art/final/assets/detail/ui_level_select_brand@2x.png` / `ui_level_select_lock@2x.png`，Cocos 投放件按在册 `ship()`（RGB FASTOCTREE 256 + 原 alpha 贴回，RGBA，alpha 逐像素同稿面）。
+- **③ 关数面板拆解**：背景读稿面资源（blit `brand` 65×35），**数字仍由 VM 程序化**——稿 `176:67` 烘死「1」，九格复用一份资源会写死编号（同 `T-607` 对 `182:75` 的裁定，⛔ 不切字）；数字色 `plateSubInk #E8D098`（稿 `#E4CDB8` 同族暖金），缺图回程序化木牌 rect。
+- **④⑥ 锁定格**：`drawLevelSelectCell` 锁定分支（`locked || levelIdx === undefined` 合并）= 位图腿 blit `lockImage` 69×76 于图案槽位；缺图降级 = 灰珠阵（`beadFadedInksFor`）落同槽位；**两腿都隐藏三星**（`drawCellStars` 不再被锁格调用，其 `n` 判据简化为恒 `stars`）+ **`drawWallLockBadge` 选关页两处调用删除**（走马灯 / 旧墙腿 `drawLockedWallCell` 保留不动）。
+- **⑤ 解锁格**：`drawLevelThumb` 落图案槽位 `(x+44, y+56, 69, 76)`，`area = imageW = 69`（pitch 13.8，5×5 珠拼居中；程序化块区 y-up [55,124] vs 稿槽 [56,125]，差 1px）。旧 `thumbFrameDrop` 全窗口径退场（K-053）。
+- **①② 名字与高亮**：`LEVEL_SELECT_GEO.name` 改 `{ yDown, h, ink }` + 木牌中轴 `title.cx = 380`（`align:'center'`；稿面 84 宽槽 @278 左锚退场 K-053）；降级腿当前关内窗 fill 改亮金 `plateSubInk`（用户令「高亮态就是高亮图」⇒ 旧黄铜描边整体退场，位图腿 `cellCurrent` 本就无框）。
+- **tuning 单源**：`cellArt` 增 `brandW/brandH`(65×35) 与 `imageW/imageH/imageLeft/imageTopDown`(69×76/44/49)；`LEVEL_SELECT_TEXTURES` 增 `brand` / `lockImage` 两 id。
+- **判据迁移（K-053）**：`arc-level-select-page`（名字 center+380）；`arc-wall-locked`（锁格臂改 `lockImage` 槽位精确落位断言 + 星带/锁章退场断言；越界槽同判据；降级腿灰阵落槽；解锁格珠拼落槽；`thumbBox` 改槽位口径；K-6 计数断言反转「首日 < 满载」）；`level-select-view-model`（brand ×9 / lockImage ×8 / 星带只剩当前格 3 枚）；`meta-menu-wall`（`THUMB_BLOCK` 与 `thumbOracle` 改槽位同参复算，锁格星带 = 0）；`arc-level-select`（锁格星带 = 0）；`ui-warm-paper-tokens`（当前关亮金内窗 + 描边退场 + 「锁」字圆章退场）。
+- **验证**：全量单测 **1440 passed / 2 skipped（124 文件）**；`typecheck` 0 错；`pnpm run verify` PASS 23 / FAIL 0；金样本 `level-select` / `level-select-mid` 两态 sha 变、`ui-golden-capture.ts` 干净锚重抓，其余九态逐字未动。
+- **视觉复核**：`render-ui-shots.mjs` 降级腿 SVG——名字居中于木牌、当前关无描边、缩略落格中槽位、星带在格底（`temp/ui-shot/level-select.svg.png`；位图腿由 `level-select-view-model.test.ts` 位图臂断言承担，⛔ 非真机证据）。
+- **⚠ 遗留**：2 枚新投放件 `.meta` 待 Cocos 编辑器签发（L1 禁伪造），真机暂走降级腿（位图腿 harness 已注册）。

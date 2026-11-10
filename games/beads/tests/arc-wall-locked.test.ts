@@ -19,7 +19,7 @@ import { buildMetaModal, metaLayout, setMenuBitmapResolver, type MetaButton, typ
 import { LEVELS } from '../src/config/levels.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import {
-    DESIGN_H, DESIGN_W, LEVEL_SELECT_GEO, MENU_TEXTURES, THUMB_AREA, THUMB_TOP_INSET, WALL_COLS, WALL_CAPACITY, WALL_ROWS,
+    DESIGN_H, DESIGN_W, LEVEL_SELECT_GEO, LEVEL_SELECT_TEXTURES, THUMB_TOP_INSET, WALL_COLS, WALL_CAPACITY, WALL_ROWS,
 } from '../src/config/tuning.js';
 
 /** 单点图元是否落在该格框内（框含 1px 容差，锁章与珠阵均按格心布点）。 */
@@ -38,13 +38,19 @@ const dashedInCell = (c: DrawCommand, b: MetaButton): boolean => {
     return inside(c.x1, c.y1) || inside(c.x2, c.y2);
 };
 
-/** 缩略区框（与 `drawLevelThumb` 同取顶口径）⇒ 只统计盘面色块，不把格底/星带算进来。 */
-const thumbBox = (b: MetaButton): { x: number; y: number; w: number; h: number } => ({
-    x: b.box.x + (b.box.w - THUMB_AREA) / 2,
-    y: b.box.y + b.box.h - THUMB_TOP_INSET - THUMB_AREA,
-    w: THUMB_AREA,
-    h: THUMB_AREA,
-});
+/**
+ * 图案槽框（稿 `176:21 grid-image`，`[WXG-T-611]`）：`drawLevelThumb` area=imageW、
+ * 顶内缩 `THUMB_TOP_INSET` ⇒ 程序化珠块区 y-up = [槽底 + imageH − inset − imageW, 槽底 + imageH − inset]。
+ */
+const thumbBox = (b: MetaButton): { x: number; y: number; w: number; h: number } => {
+    const a = LEVEL_SELECT_GEO.cellArt;
+    return {
+        x: b.box.x + a.imageLeft,
+        y: b.box.y + b.box.h - a.imageTopDown - THUMB_TOP_INSET - a.imageW,
+        w: a.imageW,
+        h: a.imageW,
+    };
+};
 
 /**
  * `[WXG-T-502]` 缩略图只画盘面 ⇒ 色块是 `rect`（非 polygon/circle）。
@@ -116,10 +122,10 @@ describe('EP13-FU-1 墙几何 3×3（A1；`[WXG-T-605]` 起 = 详情木牌版式
     });
 });
 
-describe('EP13-FU-1 锁格合形（A2 / §7 锁形通道）', () => {
-    it('未解锁格 = 灰阵 + 小锁 + ☆☆☆ 灰星 + 无虚线（`slotDashed` 图元退场）', () => {
-        // `[WXG-T-610]` 本臂测**缺图降级腿**（文字星档 / 程序化格）；位图三态格 + 双星由 level-select-view-model.test.ts 承担。
-        setMenuBitmapResolver((id) => id === MENU_TEXTURES.lock);
+describe('EP13-FU-1 锁格合形（A2 / §7 锁形通道；`[WXG-T-611]` 图案槽稿面化）', () => {
+    it('未解锁格 = 图案槽贴稿面锁图（69×76 槽位）+ 星带隐藏 + 无虚线（`slotDashed` 图元退场）', () => {
+        // `[WXG-T-611]` 位图臂：resolver 开 lockImage ⇒ 锁格图案槽 blit 稿 `176:21`，无星无旧锁角章。
+        setMenuBitmapResolver((id) => id === LEVEL_SELECT_TEXTURES.lockImage);
         const cs = cells();
         const locked = cs[4]!; // maxUnlocked = 1 ⇒ 第 5 格未解锁
         const cmds = frame(dataFor({ maxUnlockedLevel: 1 }));
@@ -127,38 +133,58 @@ describe('EP13-FU-1 锁格合形（A2 / §7 锁形通道）', () => {
         // ① 虚线退场：该格框内不存在 `slotDashed` 描边的线段。
         const dashed = cmds.filter((c) => dashedInCell(c, locked));
         expect(dashed).toHaveLength(0);
-        // ② 锁形通道在位（非色相通道，§7）。
-        expect(cmds.some((c) => c.kind === 'blit' && c.textureId === MENU_TEXTURES.lock && inCell(c, locked))).toBe(true);
-        // ③ 盘面零饱和（灰度值本身未裁 ⇒ 只断言非彩色，跟进单 §4 兜底）。
+        // ② 锁形通道：图案槽位精确落位（格内 x=44、距视觉顶 49、69×76）。
+        const a = LEVEL_SELECT_GEO.cellArt;
+        const lockBlits = cmds.filter(
+            (c) => c.kind === 'blit' && (c as { textureId: string }).textureId === LEVEL_SELECT_TEXTURES.lockImage && inCell(c, locked),
+        ) as { x: number; y: number; w: number; h: number }[];
+        expect(lockBlits, '每锁格恰 1 枚锁图案').toHaveLength(1);
+        expect(lockBlits[0]).toMatchObject({
+            x: locked.box.x + a.imageLeft,
+            y: locked.box.y + (locked.box.h - a.imageTopDown - a.imageH),
+            w: a.imageW,
+            h: a.imageH,
+        });
+        // ③ 星带隐藏（`T-611` 用户令「锁关…同时隐藏 3 个星星」）。
+        expect(cmds.some((c) => c.kind === 'text' && inCell(c, locked) && c.text === '☆☆☆')).toBe(false);
+        // ④ 旧锁角章退场（`T-611` 用户令「单独展示的锁图案去掉」，K-053）。
+        expect(cmds.some((c) => c.kind === 'text' && inCell(c, locked) && c.text === '锁')).toBe(false);
+    });
+
+    it('缺图降级腿：锁格灰珠阵落图案槽位（零饱和）+ 星带隐藏', () => {
+        setMenuBitmapResolver(() => false);
+        const cs = cells();
+        const locked = cs[4]!;
+        const cmds = frame(dataFor({ maxUnlockedLevel: 1 }));
+
         const blocks = cmds.filter((c) => inThumbRect(c, thumbBox(locked)));
         expect(blocks.length).toBeGreaterThan(0);
         expect(blocks.every((c) => isGrayHex('fill' in c ? c.fill : undefined))).toBe(true);
-        // ④ 星级通道：锁格也显示 ☆☆☆（灰）——四通道逐格齐全（WXG-T-606 用户令）。
-        expect(cmds.some((c) => c.kind === 'text' && inCell(c, locked) && c.text === '☆☆☆')).toBe(true);
+        expect(cmds.some((c) => c.kind === 'text' && inCell(c, locked) && c.text === '☆☆☆')).toBe(false);
     });
 
-    it('越界空槽（清单短于槽）与未解锁格同判据：无虚线 + 有锁 + ☆☆☆ 灰星', () => {
-        // `[WXG-T-610]` 本臂测**缺图降级腿**（文字星档 / 程序化格）；位图三态格 + 双星由 level-select-view-model.test.ts 承担。
-        setMenuBitmapResolver((id) => id === MENU_TEXTURES.lock);
+    it('越界空槽（清单短于槽）与未解锁格同判据：图案槽锁图 + 星带隐藏', () => {
+        setMenuBitmapResolver((id) => id === LEVEL_SELECT_TEXTURES.lockImage);
         const cs = cells();
         const overflow = cs[7]!;
         const cmds = frame(dataFor({ wallSlots: [0, 1], wallLevels: [LEVELS[0]!, LEVELS[1]!] }));
 
         const dashed = cmds.filter((c) => dashedInCell(c, overflow));
         expect(dashed).toHaveLength(0);
-        expect(cmds.some((c) => c.kind === 'blit' && c.textureId === MENU_TEXTURES.lock && inCell(c, overflow))).toBe(true);
-        expect(cmds.some((c) => c.kind === 'text' && inCell(c, overflow) && c.text === '☆☆☆')).toBe(true);
+        expect(cmds.some((c) => c.kind === 'blit' && (c as { textureId: string }).textureId === LEVEL_SELECT_TEXTURES.lockImage && inCell(c, overflow))).toBe(true);
+        expect(cmds.some((c) => c.kind === 'text' && inCell(c, overflow) && c.text === '☆☆☆')).toBe(false);
     });
 
-    it('已解锁格不回退：彩色珠阵 + 星带仍在（A3）', () => {
-        // `[WXG-T-610]` 本臂测**缺图降级腿**（文字星档 / 程序化格）；位图三态格 + 双星由 level-select-view-model.test.ts 承担。
-        setMenuBitmapResolver((id) => id === MENU_TEXTURES.lock);
+    it('已解锁格不回退：彩色珠阵（图案槽位）+ 星带仍在（A3）', () => {
+        // `[WXG-T-611]` 本臂测**缺图降级腿**（文字星档 / 程序化珠拼）；位图腿由 level-select-view-model.test.ts 承担。
+        setMenuBitmapResolver(() => false);
         const cs = cells();
         const open = cs[0]!;
         const cmds = frame(dataFor({ starsByLevel: [2] }));
 
         expect(cmds.some((c) => c.kind === 'text' && inCell(c, open) && c.text === '★★☆')).toBe(true);
         const blocks = cmds.filter((c) => inThumbRect(c, thumbBox(open)));
+        expect(blocks.length).toBeGreaterThan(0);
         expect(blocks.some((c) => !isGrayHex('fill' in c ? c.fill : undefined))).toBe(true);
     });
 
@@ -204,8 +230,9 @@ describe('K-6 台账重采（capturedFrom = 本文件现算）', () => {
             `[K-6 重采] 回退序 1（wallRows = 2）= ${tally(twoRows)}\n` +
             `[K-6 重采] 全回落地板（序 1+2+5）= ${tally(floor)}`,
         );
-        // Q15 合形的**实测代价**：锁格也画灰阵 + ☆☆☆ + 锁章 ⇒ 首日档 = 满载 + 8 枚锁章（每锁格 1 条 blit）。
-        expect(first.length, '首日 = 满载 + 8 锁章（不再省图元）').toBe(full.length + 8);
+        // `[WXG-T-611]` 锁格 = 图案槽单 blit、无星带无章 ⇒ 每锁格反而比解锁格便宜
+        //（Q15 时代「首日 = 满载 + 8 锁章」口径反转，K-053 留档）。
+        expect(first.length, '锁格更便宜：首日 < 满载').toBeLessThan(full.length);
         expect(twoRows.length, '回退序 1（少画一行）必须真省命令，否则台账杠杆是纸面备选').toBeLessThan(full.length);
         expect(floor.length, '地板必须低于满载（回退序真有牙）').toBeLessThan(twoRows.length);
     });
