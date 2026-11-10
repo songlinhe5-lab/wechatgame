@@ -25,10 +25,10 @@ const data = (): MetaViewData => Object.freeze({
 }) as unknown as MetaViewData;
 
 const buttons = metaLayout('levels', WALL_ROWS).buttons;
-const frame = (ready: (id: string) => boolean): readonly DrawCommand[] => {
+const frame = (ready: (id: string) => boolean, override: Partial<MetaViewData> = {}): readonly DrawCommand[] => {
     setMenuBitmapResolver(ready);
     const vm = createLevelSelectViewModel();
-    updateLevelSelectViewModel(vm, data(), buttons, DESIGN_H, 5);
+    updateLevelSelectViewModel(vm, { ...data(), ...override } as MetaViewData, buttons, DESIGN_H, 5);
     const b = new RenderModelBuilder(DESIGN_W, DESIGN_H);
     b.begin();
     drawLevelsView(b, vm, DEFAULT_PALETTE);
@@ -69,5 +69,28 @@ describe('WXG-T-607 选关弹窗 View/ViewModel', () => {
 
     it('纹理未注册 ⇒ 程序化木托盘降级腿（零 cell blit）', () => {
         expect(cellBlits(frame(() => false))).toHaveLength(0);
+    });
+
+    const countBlit = (cmds: readonly DrawCommand[], id: string): number =>
+        cmds.filter((c) => c.kind === 'blit' && (c as { textureId?: string }).textureId === id).length;
+
+    it('`[WXG-T-610]` 位图腿：背板 / 三态格底 / 双星 / 底部关闭按钮全部就位', () => {
+        const cmds = frame(() => true);
+        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.tray), '九宫格背板').toBe(1);
+        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.closeBtn), '底部关闭按钮').toBe(1);
+        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cell), '旧通用模板退场').toBe(0);
+        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellCurrent), '当前关亮金').toBe(1);
+        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellNormal), '普通橙').toBe(8);
+        expect(
+            countBlit(cmds, LEVEL_SELECT_TEXTURES.starFilled) + countBlit(cmds, LEVEL_SELECT_TEXTURES.starEmpty),
+            '9 格 × 3 枚星',
+        ).toBe(27);
+    });
+
+    it('`[WXG-T-610]` 锁定态走灰色格底（8 锁 + 1 当前）', () => {
+        const cmds = frame(() => true, { maxUnlockedLevel: 1 });
+        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellLocked), '未解锁灰').toBe(8);
+        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellCurrent), '当前关亮金').toBe(1);
+        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellNormal)).toBe(0);
     });
 });

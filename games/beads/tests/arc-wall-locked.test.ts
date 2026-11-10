@@ -118,7 +118,8 @@ describe('EP13-FU-1 墙几何 3×3（A1；`[WXG-T-605]` 起 = 详情木牌版式
 
 describe('EP13-FU-1 锁格合形（A2 / §7 锁形通道）', () => {
     it('未解锁格 = 灰阵 + 小锁 + ☆☆☆ 灰星 + 无虚线（`slotDashed` 图元退场）', () => {
-        setMenuBitmapResolver(() => true);
+        // `[WXG-T-610]` 本臂测**缺图降级腿**（文字星档 / 程序化格）；位图三态格 + 双星由 level-select-view-model.test.ts 承担。
+        setMenuBitmapResolver((id) => id === MENU_TEXTURES.lock);
         const cs = cells();
         const locked = cs[4]!; // maxUnlocked = 1 ⇒ 第 5 格未解锁
         const cmds = frame(dataFor({ maxUnlockedLevel: 1 }));
@@ -137,7 +138,8 @@ describe('EP13-FU-1 锁格合形（A2 / §7 锁形通道）', () => {
     });
 
     it('越界空槽（清单短于槽）与未解锁格同判据：无虚线 + 有锁 + ☆☆☆ 灰星', () => {
-        setMenuBitmapResolver(() => true);
+        // `[WXG-T-610]` 本臂测**缺图降级腿**（文字星档 / 程序化格）；位图三态格 + 双星由 level-select-view-model.test.ts 承担。
+        setMenuBitmapResolver((id) => id === MENU_TEXTURES.lock);
         const cs = cells();
         const overflow = cs[7]!;
         const cmds = frame(dataFor({ wallSlots: [0, 1], wallLevels: [LEVELS[0]!, LEVELS[1]!] }));
@@ -149,7 +151,8 @@ describe('EP13-FU-1 锁格合形（A2 / §7 锁形通道）', () => {
     });
 
     it('已解锁格不回退：彩色珠阵 + 星带仍在（A3）', () => {
-        setMenuBitmapResolver(() => true);
+        // `[WXG-T-610]` 本臂测**缺图降级腿**（文字星档 / 程序化格）；位图三态格 + 双星由 level-select-view-model.test.ts 承担。
+        setMenuBitmapResolver((id) => id === MENU_TEXTURES.lock);
         const cs = cells();
         const open = cs[0]!;
         const cmds = frame(dataFor({ starsByLevel: [2] }));

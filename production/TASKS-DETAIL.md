@@ -9280,3 +9280,22 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：全量单测 **1439 passed / 2 skipped（124 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；金样本 11 态 sha / total / kinds 逐字未变（`level-detail` 不在金样本覆盖态，新增 blit 不进十一帧）。
 - **视觉复核**：harness `?hud=off` 截图 `temp/ui-shot/level-detail-showcase-v1.png` —— 玻璃橱窗 + 射灯 + 圆台补齐，缩略在窗内、星级 / 道具 / 开始钮在窗下，层序正常（⛔ 非真机证据）。
 - **⚠ 遗留**：本机无 Cocos 编辑器 ⇒ 新投放件 `.meta` 未签发（L1 禁伪造），真机 `textures` Bundle 暂不含此件 ⇒ 详情页不叠面板（降级为纯木纹牌，零功能回归）。解除条件 = 编辑器 reimport `cocos/assets/textures/detail/` 后重导。
+
+## WXG-T-610
+
+**UI·选关弹窗三件稿面补件（九宫格样式 / 关闭按钮 / 关卡名字控件）** · 负责：主理人(CodeBuddy)·beads 美术/工程轨 · 状态：✅ 完成（2026-11-10）
+
+- **上位**：用户指出「figma 里面，选关弹窗 page 中九宫格样式没有实现，关闭按钮没有实现，关卡名字控件没有实现」。
+- **稿面全量回读**（`wxgame-figma` REST，`159:3` 重取 142,254 B）：`159:5 抠图层` 直接子节点 = `159:6 Background` / `159:7 对话框背景` / `159:10 关卡名字` / `159:11 选关` / **`160:48 关闭按钮`** / **`164:64 九宫格`**。`164:64` 内 = `164:63 九宫格背板` 506×597 @画布(59,423) + grid-1..9。画布外备料 = `183:38/41/44 grid-background`（三态格底，158×177）、`187:39/41 star`（32×30 双星）。
+- **三处缺口归因**：① `T-607` 只导 `185:36` 单一木纹底作九格模板，未导背板 / 三态格底 / 星位图 ⇒ 样式与稿不符；② 旧实现用 `drawCloseInset` 右上 38² 凹槽 ✕，稿面是底部 301×105 木质「关闭」大钮；③ 旧章名居中 (383,367) 深墨系统字，稿面是 (278,364) 左对齐深蓝 `#1A1D3F`。
+- **资源（7 枚）**：`img --ids 164:63,160:48,183:38,183:41,183:44,187:39,187:41 --scale 2` ⇒ 背板 1012×1194 / 三态格底 316×354 ×3 / 双星 64×60 ×2 / 关闭钮 602×210；正本 `design/art/final/assets/detail/ui_level_select_*.png`，Cocos 投放件按 `ship()` RGB FASTOCTREE 256 + 原 alpha 贴回（保留圆角与半透明），合计约 358 KB。`159:10` 为 TEXT ⇒ **不导位图**，文字由 VM 给（大关名逐页变，L5）。
+- **落码**：
+  - `config/tuning/level-select.ts`：`LEVEL_SELECT_GEO` 增 `tray`(122,401,506,597) / `closeBtn`(225,1028,301,105) / `name`(278,364,84,34,ink) / `cellArt.starW/H/Gap`；`starBandY` 14 → **28**（稿 `star-1/2/3` @相对格 y_down 138 ⇒ y_up 中心 28，K-053 旧值留档）；`LEVEL_SELECT_TEXTURES` 增 7 个 id（旧 `cell` 保留为次级降级腿）。
+  - `view/meta-widgets.ts::drawLevelSelectCell`：按 VM `locked / current / 普通` 选三态格底；`drawCellStars` 三枚位图星（缺图 ⇒ 文字 `STAR_LABELS`）；编号牌统一画；当前关黄铜描边**移入缺图降级腿**（位图腿由亮金格底表达，避免双层高亮）。
+  - `view/level-select-view.ts`：木牌后叠九宫格背板、按稿画关卡名字（左对齐 / 深蓝 / `UI_FONT.sub`）、底部木质关闭按钮（缺图程序化木钮）；右上凹槽 ✕ 退场。
+  - `view/meta-layout.ts::levelsLayout`：`close-levels` 热区由右上 88² @(622,1121) 迁到稿面按钮框 301×105 @(225,201 y_up)，绘制与命中同源；四条 `dismiss-levels` 带保留。
+  - `dev/harness/main.ts` / `beads-blit-carrier.ts::BITMAP_ASSETS` 注册 7 枚。
+- **判据迁移（K-053）**：`arc-level-select-page.test.ts` 三处（close 热区推导 / 命中点 (375,253) / 名字 x·y·ink·align·font）；`arc-wall-locked.test.ts` 三臂显式只让 `MENU_TEXTURES.lock` 就绪 ⇒ 专测缺图降级腿；`level-select-view-model.test.ts` 新增位图腿两例（背板 1 / 关闭钮 1 / 旧模板 0 / 当前金 1 / 普通橙 8 / 双星 27；`maxUnlockedLevel=1` ⇒ 灰 8 + 金 1）。`ui-warm-paper-tokens` 当前关描边判据因降级腿保留而续绿。
+- **验证**：全量单测 **1439 passed / 2 skipped（124 文件）**；`typecheck` 0 错；`pnpm run verify` **PASS 23 / FAIL 0**；金样本 `level-select` / `level-select-mid` 两态 sha 变（`total`/`kinds` 亦变：+1 背板 +1 关闭 +27 星 blit、文字星与凹槽退场），`ui-golden-capture.ts` 干净锚重抓，其余九态逐字未动。
+- **视觉复核**：harness `?hud=off` 截图 `temp/ui-shot/level-select-610.png` —— 深棕金边背板、三态格底、格底三星、深蓝「曼陀罗」、底部木质「关闭」全部就位（⛔ 非真机证据）。
+- **⚠ 遗留**：本机无 Cocos 编辑器 ⇒ 7 枚新投放件 `.meta` 未签发（L1 禁伪造），真机 `textures` Bundle 暂不含 ⇒ 逐元素走程序化降级腿（格 / 文字星 / 木钮），零功能回归。解除条件 = 编辑器 reimport `cocos/assets/textures/detail/` 后重导。

@@ -1,19 +1,19 @@
 /**
- * `[WXG-T-607]` 选关弹窗 **View**（`ui-architecture-beads §5`）。
+ * `[WXG-T-607]` 选关弹窗 **View**（`ui-architecture-beads §5`）；`[WXG-T-610]` 按 Figma `159:3`
+ * 补齐九宫格背板 / 底部关闭按钮 / 关卡名字控件。
  *
  * 纯函数 `(builder, viewModel, palette)`：⛔ 不 import `MetaViewData` / shell / 游戏对象，
  * ⛔ 不出现 `overlay ===` / `phase ===` 导航判断，⛔ 不持有状态。所有展示数据来自
  * {@link LevelSelectViewModel}（只读）；布局 / 命中同源的格框由 VM 透传 `levelsLayout`。
  *
- * 容器 = 关卡详情同款木牌位图（用户令「复用关卡详情页的对话框背景图」）；
- * 九宫格 = Figma `159:3` page 的 `176:19 grid-1` 模板层（`185:36` 木纹底）九格复用，
- * 编号 / 缩略 / 星级 / 锁 / 当前关全部数据驱动；纹理未注册 ⇒ 程序化木托盘降级腿。
+ * 稿层序（`159:5 抠图层`）：对话框背景 → 九宫格背板 → 九格 → 关闭按钮 → 文字。
+ * 位图未注册 ⇒ 逐元素同几何程序化回退（⛔ 不做第二套版式）。
  */
 import { DESIGN_H, DESIGN_W, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TEXTURES, LEVEL_DETAIL_TITLE_SHADOW, LEVEL_SELECT_GEO, LEVEL_SELECT_TEXTURES, UI_CONTAINER } from '../config/tuning';
 import { type RenderModelBuilder } from '../../framework/index';
 import { type BeadsPalette, withAlpha } from './palette';
 import { UI_FONT, UI_SCRIM, bodyFont, scrimFill } from './ui-theme';
-import { drawCloseInset, drawLevelSelectCell, menuBitmapReady } from './meta-widgets';
+import { drawLevelSelectCell, menuBitmapReady } from './meta-widgets';
 import type { LevelSelectViewModel } from './level-select-view-model';
 
 const GEO = LEVEL_DETAIL_GEO;
@@ -21,6 +21,8 @@ const GEO = LEVEL_DETAIL_GEO;
 const BASE_PLATE_Y = DESIGN_H - GEO.plate.yDown - GEO.plate.h;
 /** 稿面 `cyDown`（中线）→ 相对木牌下缘的偏移（逐机位移不撕裂内容带）。 */
 const dyCenter = (cyDown: number): number => DESIGN_H - cyDown - BASE_PLATE_Y;
+/** 稿面「下缘」→ 相对木牌下缘的偏移（`box.y` 口径）。 */
+const dyBottom = (yDown: number, h: number): number => DESIGN_H - yDown - h - BASE_PLATE_Y;
 
 export function drawLevelsView(
     builder: RenderModelBuilder,
@@ -39,6 +41,13 @@ export function drawLevelsView(
         builder.rect(plate.x, plate.y, plate.w, plate.h, { fill: palette.panel, radius: UI_CONTAINER.radiusPanel });
     }
 
+    // `[WXG-T-610]` 九宫格背板（稿 `164:63`，506×597）：在九格之前叠，缺图不画。
+    const tr = LEVEL_SELECT_GEO.tray;
+    if (menuBitmapReady(LEVEL_SELECT_TEXTURES.tray)) {
+        builder.blit(LEVEL_SELECT_TEXTURES.tray,
+            plate.x + (tr.x - GEO.plate.x), plate.y + dyBottom(tr.yDown, tr.h), tr.w, tr.h);
+    }
+
     // 板标题「选关」：同槽同投影（暖金 + 深棕 DROP_SHADOW）。
     const t = LEVEL_SELECT_GEO.title;
     builder.text(plate.x + (t.cx - GEO.plate.x), plate.y + dyCenter(t.cyDown), vm.title, {
@@ -54,11 +63,12 @@ export function drawLevelsView(
         },
     });
 
-    // 章名 + 星进度（同行）：木面上用深墨保证对比。
-    const c = LEVEL_SELECT_GEO.chapter;
+    // `[WXG-T-610]` 关卡名字控件（稿 `159:10`，84×34 @278,364，深蓝 SOLID）。
+    // 文字由 VM 给（大关名逐页变）⇒ ⛔ 不吃稿里写死的「曼陀罗」字样位图。
     if (vm.chapter) {
-        builder.text(plate.x + (c.cx - GEO.plate.x), plate.y + dyCenter(c.cyDown), vm.chapter, {
-            fill: palette.plateTitleInk, font: UI_FONT.button, align: 'center', baseline: 'middle',
+        const n = LEVEL_SELECT_GEO.name;
+        builder.text(plate.x + (n.x - GEO.plate.x), plate.y + dyCenter(n.yDown + n.h / 2), vm.chapter, {
+            fill: n.ink, font: bodyFont(vm.largeText, 'sub'), align: 'left', baseline: 'middle',
         });
     }
     if (vm.starProgress) {
@@ -68,17 +78,23 @@ export function drawLevelsView(
         });
     }
 
-    // 3×3 格墙：`grid-1` 模板九格复用（位图就绪）；缺图 ⇒ 程序化木托盘降级腿。
+    // 3×3 格墙：`grid-1` 三态模板九格复用（位图就绪）；缺图 ⇒ 程序化木托盘降级腿。
     // 格框与命中同源（VM 透传 `levelsLayout` 的 `MetaButton.box`）⇒ 不重建布局。
     for (let i = 0; i < vm.cellCount; i += 1) {
         drawLevelSelectCell(builder, vm.cells[i]!, vm, palette, LEVEL_SELECT_TEXTURES.cell);
     }
 
-    // 右上凹槽 ✕：与详情同一件（视觉 38² / 热区另表）。
-    const cl = GEO.close;
-    drawCloseInset(
-        builder, palette,
-        plate.x + (cl.cx - GEO.plate.x), plate.y + dyCenter(cl.cyDown),
-        cl.w, cl.h, cl.arm, vm.closePressed,
-    );
+    // `[WXG-T-610]` 底部关闭按钮（稿 `160:48`，301×105 @225,1028，整枚烘字）。
+    // 旧右上 38² 凹槽 ✕ 随稿退场（K-053 留档）。缺图 ⇒ 同几何程序化木钮。
+    const cb = LEVEL_SELECT_GEO.closeBtn;
+    const bx = plate.x + (cb.x - GEO.plate.x);
+    const by = plate.y + dyBottom(cb.yDown, cb.h);
+    if (menuBitmapReady(LEVEL_SELECT_TEXTURES.closeBtn)) {
+        builder.blit(LEVEL_SELECT_TEXTURES.closeBtn, bx, by, cb.w, cb.h);
+    } else {
+        builder.rect(bx, by, cb.w, cb.h, { fill: palette.woodSheen, radius: 16 });
+        builder.text(bx + cb.w / 2, by + cb.h / 2, '关闭', {
+            fill: palette.plateSubInk, font: UI_FONT.button, align: 'center', baseline: 'middle',
+        });
+    }
 }

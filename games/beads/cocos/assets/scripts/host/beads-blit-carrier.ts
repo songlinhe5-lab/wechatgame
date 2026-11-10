@@ -175,6 +175,15 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
     // `[WXG-T-609]` 关卡详情橱窗面板（玻璃半透明 ⇒ 保留完整 alpha）。
     // ⚠ 同上：`.meta` 待编辑器签发；未签发 ⇒ 详情页不叠此面板（纯木纹牌仍可读）。
     [LEVEL_DETAIL_TEXTURES.showcase]: { path: 'detail/ui_detail_showcase' },
+    // `[WXG-T-610]` 选关弹窗稿面补件（Figma `159:3`）。⚠ `.meta` 待编辑器签发（L1）；
+    // 未签发 ⇒ 逐元素走程序化降级腿（格 / 星文字档 / 木钮），零功能回归。
+    [LEVEL_SELECT_TEXTURES.tray]: { path: 'detail/ui_level_select_tray' },
+    [LEVEL_SELECT_TEXTURES.cellNormal]: { path: 'detail/ui_level_select_cell_normal' },
+    [LEVEL_SELECT_TEXTURES.cellCurrent]: { path: 'detail/ui_level_select_cell_current' },
+    [LEVEL_SELECT_TEXTURES.cellLocked]: { path: 'detail/ui_level_select_cell_locked' },
+    [LEVEL_SELECT_TEXTURES.starFilled]: { path: 'detail/ui_level_select_star_filled' },
+    [LEVEL_SELECT_TEXTURES.starEmpty]: { path: 'detail/ui_level_select_star_empty' },
+    [LEVEL_SELECT_TEXTURES.closeBtn]: { path: 'detail/ui_level_select_close' },
 
     // `[WXG-T-515]` 结算 9-slice 四件（源图与设计 px 1:1，端帽见 `CLEAR_*_SLICE`）。
     [MENU_TEXTURES.panelFrame]: { path: 'ui_panel_frame_9s' },

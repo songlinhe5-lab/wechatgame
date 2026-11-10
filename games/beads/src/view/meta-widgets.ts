@@ -3,7 +3,7 @@
  * 位图可用性注入（`setMenuBitmapResolver`）。主菜单与选关页共用 ⇒ 位于二者之下、⛔ 不反依赖页面。
  */
 
-import { LEVEL_SELECT_GEO, MENU_BADGE, MENU_LOCKED_ICON, MENU_SEAL, MENU_TEXTURES, THUMB_AREA, THUMB_STAR_BAND, UI_CONTAINER } from '../config/tuning.js';
+import { LEVEL_SELECT_GEO, LEVEL_SELECT_TEXTURES, MENU_BADGE, MENU_LOCKED_ICON, MENU_SEAL, MENU_TEXTURES, THUMB_AREA, THUMB_STAR_BAND, UI_CONTAINER } from '../config/tuning.js';
 import { COPY_TOKENS } from '../config/copy-tokens.js';
 import { type RenderModelBuilder } from '@wxgame/framework';
 import { beadFadedInksFor, withAlpha, type BeadsPalette } from './palette.js';
@@ -242,6 +242,39 @@ export function drawWallCell(
  * 木框 → 2px 深槽线 → 米白内窗 → 内窗顶缘受光；星带在窗内顶部，缩略仍走 `THUMB_AREA`。
  * 未解锁沿用「灰珠阵 + 角锁 + 无星」合形（⛔ 不退化成纯灰块）；当前关加黄铜描边。
  */
+/** `[WXG-T-610]` 三态格底（稿 `183:38/41/44`：橙 = 普通 / 亮金 = 当前 / 灰 = 锁定）。 */
+function cellTexture(cell: LevelSelectCellViewModel): string {
+    if (cell.locked || cell.levelIdx === undefined) return LEVEL_SELECT_TEXTURES.cellLocked;
+    if (cell.current) return LEVEL_SELECT_TEXTURES.cellCurrent;
+    return LEVEL_SELECT_TEXTURES.cellNormal;
+}
+
+/** `[WXG-T-610]` 三星位图（32×30 / 净距 9）贴格底；缺图 ⇒ 旧文字档。 */
+function drawCellStars(
+    builder: RenderModelBuilder,
+    cell: LevelSelectCellViewModel,
+    palette: BeadsPalette,
+): void {
+    const { x, w } = cell.box;
+    const y = cell.box.y + cell.pressDy;
+    const a = LEVEL_SELECT_GEO.cellArt;
+    const n = cell.locked || cell.levelIdx === undefined ? 0 : cell.stars;
+    if (menuBitmapReady(LEVEL_SELECT_TEXTURES.starFilled) && menuBitmapReady(LEVEL_SELECT_TEXTURES.starEmpty)) {
+        const total = 3 * a.starW + 2 * a.starGap;
+        const left = x + (w - total) / 2;
+        const sy = y + a.starBandY - a.starH / 2;
+        for (let i = 0; i < 3; i += 1) {
+            builder.blit(i < n ? LEVEL_SELECT_TEXTURES.starFilled : LEVEL_SELECT_TEXTURES.starEmpty,
+                left + i * (a.starW + a.starGap), sy, a.starW, a.starH);
+        }
+    } else {
+        builder.text(x + w / 2, y + a.starBandY, STAR_LABELS[n] ?? STAR_LABELS[0]!, {
+            fill: n > 0 ? palette.plateSubInk : palette.textDim,
+            font: UI_FONT.cell, align: 'center', baseline: 'middle',
+        });
+    }
+}
+
 export function drawLevelSelectCell(
     builder: RenderModelBuilder,
     cell: LevelSelectCellViewModel,
@@ -253,41 +286,45 @@ export function drawLevelSelectCell(
     const { x, w, h } = cell.box;
     const y = cell.box.y + cell.pressDy;
 
-    if (menuBitmapReady(cellTextureId)) {
-        // `[WXG-T-607]` 稿 `185:36 grid-background` 木纹底 158×177：底对齐格框
-        // （格高 181，顶部 4px 是编号牌溢出部分）。九格共用这一枚模板纹理。
+    const tex = cellTexture(cell);
+    if (menuBitmapReady(tex)) {
+        // `[WXG-T-610]` 三态稿面格底 158×177：底对齐格框（格高 181，顶部 4px 让编号牌溢出）。
+        builder.blit(tex, x, y, w, LEVEL_SELECT_GEO.cellArt.h);
+    } else if (menuBitmapReady(cellTextureId)) {
+        // 次级降级：`T-607` 通用木纹模板（K-053 留档）。
         builder.blit(cellTextureId, x, y, w, LEVEL_SELECT_GEO.cellArt.h);
-        // 编号牌（稿 `182:75`，65×35 居中贴格顶）：数字由 VM 给，⛔ 不吃稿里的固定「1」。
-        const bw = 65, bh = 35;
-        builder.rect(x + (w - bw) / 2, y + h - bh, bw, bh, { fill: palette.woodEdge, radius: 8 });
-        builder.text(x + w / 2, y + h - bh / 2, `${cell.slot + 1}`, {
-            fill: palette.plateSubInk,
-            font: UI_FONT.button,
-            align: 'center',
-            baseline: 'middle',
-        });
     } else {
-        // 缺图降级腿（`[WXG-T-606]` 程序化木托盘，逐字保留）：木框 → 深槽线 → 米白内窗 → 顶缘受光。
+        // 缺图降级腿（`[WXG-T-606]` 程序化木托盘）：木框 → 深槽线 → 米白内窗 → 顶缘受光。
         builder.rect(x, y, w, h, { fill: palette.woodSheen, radius: st.radius });
         builder.rect(x + st.frame / 2, y + st.frame / 2, w - st.frame, h - st.frame, {
-            stroke: palette.shadowInk,
-            lineWidth: st.groove,
-            radius: st.radius - 2,
+            stroke: palette.shadowInk, lineWidth: st.groove, radius: st.radius - 2,
         });
         builder.rect(x + st.frame, y + st.frame, w - st.frame * 2, h - st.frame * 2, {
-            fill: cell.pressed ? palette.cardPressed : palette.slot,
-            radius: st.radius - 4,
+            fill: cell.pressed ? palette.cardPressed : palette.slot, radius: st.radius - 4,
         });
         builder.line(x + 8, y + h - st.frame - 1, x + w - 8, y + h - st.frame - 1, withAlpha(palette.woodSheen, 0.6), 1);
+        // `[WXG-T-610]` 位图腿由亮金格底表达当前关；缺图降级腿仍需黄铜描边（⛔ 不能没有高亮）。
+        if (cell.current) {
+            builder.rect(x - 4, y - 4, w + 8, h + 8, {
+                stroke: withAlpha(palette.plateSubInk, 0.28), lineWidth: 6, radius: st.radius + 4,
+            });
+            builder.rect(x - 2, y - 2, w + 4, h + 4, {
+                stroke: palette.plateSubInk, lineWidth: 3, radius: st.radius + 2,
+            });
+        }
     }
 
+    // 编号牌（稿 `182:75 grid-brand`，65×35 居中贴格顶）：数字由 VM 给，⛔ 不吃稿里的固定「1」。
+    const bw = 65, bh = 35;
+    builder.rect(x + (w - bw) / 2, y + h - bh, bw, bh, { fill: palette.woodEdge, radius: 8 });
+    builder.text(x + w / 2, y + h - bh / 2, `${cell.slot + 1}`, {
+        fill: palette.plateSubInk, font: UI_FONT.button, align: 'center', baseline: 'middle',
+    });
+
     // 内容层：全部由 ViewModel 驱动（⛔ 不读 MetaViewData）。
-    // `[WXG-T-607]` 三带按稿分离：编号牌在格顶、缩略 + 锁在格中、星带在格底
-    // （⛔ 沿用旧 `y+h-14` 的格顶星带会与编号牌叠字，见 harness 截图复核）。
+    // `[WXG-T-607]` 三带按稿分离：编号牌在格顶、缩略 + 锁在格中、星带在格底。
     if (cell.levelIdx === undefined) {
-        builder.text(x + w / 2, y + LEVEL_SELECT_GEO.cellArt.starBandY, STAR_LABELS[0]!, {
-            fill: palette.textDim, font: UI_FONT.cell, align: 'center', baseline: 'middle',
-        });
+        drawCellStars(builder, cell, palette);
         drawWallLockBadge(builder, palette, cell.box);
         return;
     }
@@ -295,29 +332,15 @@ export function drawLevelSelectCell(
         if (cell.level !== undefined) {
             drawLevelThumb(builder, cell.level, x, y, w, h - LEVEL_SELECT_GEO.cellArt.thumbFrameDrop, vm.thumbN, THUMB_AREA, beadFadedInksFor(cell.level));
         }
-        builder.text(x + w / 2, y + LEVEL_SELECT_GEO.cellArt.starBandY, STAR_LABELS[0]!, {
-            fill: palette.textDim, font: UI_FONT.cell, align: 'center', baseline: 'middle',
-        });
+        drawCellStars(builder, cell, palette);
         drawWallLockBadge(builder, palette, cell.box);
         return;
     }
     if (cell.level !== undefined) {
         drawLevelThumb(builder, cell.level, x, y, w, h - LEVEL_SELECT_GEO.cellArt.thumbFrameDrop, vm.thumbN, THUMB_AREA);
-        builder.text(x + w / 2, y + LEVEL_SELECT_GEO.cellArt.starBandY, STAR_LABELS[cell.stars] ?? STAR_LABELS[0]!, {
-            fill: cell.stars > 0 ? palette.plateSubInk : palette.textDim,
-            font: UI_FONT.cell, align: 'center', baseline: 'middle',
-        });
+        drawCellStars(builder, cell, palette);
     }
-
-    // 当前关：黄铜描边 + 轻外发光（`plateSubInk`，零新 hex）。
-    if (cell.current) {
-        builder.rect(x - 4, y - 4, w + 8, h + 8, {
-            stroke: withAlpha(palette.plateSubInk, 0.28), lineWidth: 6, radius: st.radius + 4,
-        });
-        builder.rect(x - 2, y - 2, w + 4, h + 4, {
-            stroke: palette.plateSubInk, lineWidth: 3, radius: st.radius + 2,
-        });
-    }
+    // `[WXG-T-610]` 当前关改由亮金格底表达 ⇒ 旧黄铜描边退场（避免双层高亮，K-053 留档）。
 }
 
 /**

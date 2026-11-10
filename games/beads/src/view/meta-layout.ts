@@ -84,10 +84,8 @@ export function levelDetailPlate(): Box {
  */
 function levelsLayout(rows: number): MetaLayout {
     const g = LEVEL_SELECT_GEO.grid;
-    const close = LEVEL_DETAIL_GEO.close;
+    const cb = LEVEL_SELECT_GEO.closeBtn;
     const plate = levelDetailPlate();
-    const closeCy = DESIGN_H - close.cyDown + dialogShiftY();
-    const closeHit = TOUCH_MIN; // 刻槽无底板 ⇒ 热区恒取最小触控档
     const capacity = WALL_COLS * Math.min(rows, 3);
     const gridShift = dialogShiftY();
     const buttons: MetaButton[] = [];
@@ -106,9 +104,17 @@ function levelsLayout(rows: number): MetaLayout {
             ),
         });
     }
+    // `[WXG-T-610]` 关闭 = 稿面底部木质按钮（301×105 @225,1028），
+    // 与 `drawLevelsView` 的 blit 同源（旧右上 38² 凹槽 ✕ 退场，K-053 留档）。
+    const plateY = DESIGN_H - LEVEL_DETAIL_GEO.plate.yDown - LEVEL_DETAIL_GEO.plate.h;
     buttons.push({
         id: 'close-levels',
-        box: box(close.cx - closeHit / 2, closeCy - closeHit / 2, closeHit, closeHit),
+        box: box(
+            plate.x + (cb.x - LEVEL_DETAIL_GEO.plate.x),
+            plate.y + (DESIGN_H - cb.yDown - cb.h - plateY),
+            cb.w,
+            cb.h,
+        ),
     });
     // 点木牌外空白 = 关闭：四条贴边带（⛔ 全屏钮会吞掉牌内空白点击）。
     buttons.push(

@@ -235,6 +235,14 @@ const MENU_FILE: Readonly<Record<string, string>> = {
   [LEVEL_SELECT_TEXTURES.cell]: '/detail-assets/ui_level_select_cell@2x.png',
   // `[WXG-T-609]` 关卡详情橱窗面板（Figma `192:42`，玻璃 + 射灯 + 圆台，@2x 938×1276）。
   [LEVEL_DETAIL_TEXTURES.showcase]: '/detail-assets/ui_detail_showcase@2x.png',
+  // `[WXG-T-610]` 选关弹窗稿面补件（Figma `159:3`）：九宫格背板 / 三态格底 / 双星 / 关闭按钮。
+  [LEVEL_SELECT_TEXTURES.tray]: '/detail-assets/ui_level_select_tray@2x.png',
+  [LEVEL_SELECT_TEXTURES.cellNormal]: '/detail-assets/ui_level_select_cell_normal@2x.png',
+  [LEVEL_SELECT_TEXTURES.cellCurrent]: '/detail-assets/ui_level_select_cell_current@2x.png',
+  [LEVEL_SELECT_TEXTURES.cellLocked]: '/detail-assets/ui_level_select_cell_locked@2x.png',
+  [LEVEL_SELECT_TEXTURES.starFilled]: '/detail-assets/ui_level_select_star_filled@2x.png',
+  [LEVEL_SELECT_TEXTURES.starEmpty]: '/detail-assets/ui_level_select_star_empty@2x.png',
+  [LEVEL_SELECT_TEXTURES.closeBtn]: '/detail-assets/ui_level_select_close@2x.png',
 };
 const tintCache = new TintSpriteCache(
   // 离屏 canvas 工厂（结构化注入 ⇒ framework/core 层 ⛔ 不碰 DOM，L2 合规）
