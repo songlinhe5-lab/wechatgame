@@ -9242,3 +9242,17 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **⚠ 遗留（环境阻塞）**：本机无 Cocos 编辑器（`COCOS_CREATOR` 未设 / `/Applications` 无 Creator）⇒ 新投放件 `.meta` 未签发（L1 禁手工伪造），`textures` Bundle 暂不含该件 ⇒ **真机自动走程序化木托盘降级腿**，harness / 金样本为位图腿。解除条件 = 编辑器 reimport `cocos/assets/textures/detail/`（`node tools/scripts/import-cocos-metas.mjs`）并重跑 `pnpm run verify`。
 
 **补（同单 · harness 截图复核）**：首版沿用 `T-606` 的格顶星带（`y + h − 14`）与格顶编号牌叠字，缩略亦偏上。按稿改为**三带分离**：编号牌格顶、缩略 + 锁格中（框高 `h − 37`）、星带格底（`y + 14`）；两偏移收进 `LEVEL_SELECT_GEO.cellArt.thumbFrameDrop / starBandY`，实现与 `arc-cell-pressed` / `meta-menu-wall` 判据共读（旧 `h − 24` / `y+h−14` 按 K-053 划线留档）。复核截图 `temp/ui-shot/level-select-607-final.png`（harness 位图腿，⛔ 非真机）：九格木纹模板一致、编号 1–9 清晰、`☆☆☆` 落格底。
+
+## WXG-T-608
+
+**资产·关卡详情对话框背景重新下载并导入（稿面零漂移复核）** · 负责：主理人(CodeBuddy)·beads 美术/资产轨 · 状态：✅ 完成（2026-11-10）
+
+- **上位**：用户 2026-11-10 令「关卡详情弹窗 page 里的对话框背景需要重新下载并导入」。
+- **节点定位**（`wxgame-figma` REST + PAT，凭证 `me` 200）：文件 `PBIK3RbfGlfzFsAnd97ZsP`，pages = `0:1 Page 1` / **`84:36 关卡详情弹窗 v25b`** / `159:3 选关弹窗`。`84:36` → `92:36` 抠图层 → `92:37 Background` → **`95:116 对话框背景`** RECTANGLE 581×1044 @画布 (26,188)（帧原点 −63,+22 扣除后 = 帧内 (89,166)，与 `LEVEL_DETAIL_GEO.plate` 一致）。
+- **重新下载**：`node my-skills/wxgame-figma/scripts/figma.mjs img "…?node-id=84-36" --out temp/figma/detail-reimport --ids 95:116 --scale 2` ⇒ `95-116.png` **1162×2088 RGBA / 932,812 B**（@2x）。首轮命令被切后台导致目录为空，单独重跑后成功。
+- **核对结论（核心）**：新导出与在库 `games/beads/design/art/final/assets/detail/ui_detail_plaque@2x.png` **sha256 同为 `707ded7f774fd92e3672e78704f877ef9f3bf6a29b7ab556bd182698fac05bfa`**、尺寸同、像素差 **max 0 / mean 0 / changed px 0** ⇒ Figma 稿面自 `WXG-T-604` 导入后**未变更**，在库资产已是该节点的最新版（含 v5 擦除三个旧道具格的版本）。
+- **导入动作**：幂等覆盖写设计源（内容相同 ⇒ git 零 diff），保留 `cocos/assets/textures/detail/ui_detail_plaque.png.meta`（`.meta` 由编辑器签发，L1 禁手工改；覆盖 PNG 不换 uuid）。
+- **Cocos 投放件决策（未改）**：现有件 P 模式 1162×2088 / **110,657 B**；按在册 `quantize-cocos-textures.py::ship()`（RGB FASTOCTREE 256 + 原 alpha 贴回）从新导出重出，相对稿面 RGB mean **2.644 / max 15**（优于现有件 **3.542 / max 28**），但文件涨到 **317,359 B（+207 KB）** 且会引入轻微色变。按包体纪律与「无用户裁定不劣化」⇒ **保持现有投放件不动**，登记为可选优化而非缺陷。
+- **影响面**：`LEVEL_DETAIL_TEXTURES.plaque` 一条 blit 指令不变（金样本记录指令流、不含纹素）⇒ **11 态 sha / total / kinds 逐字未变，⛔ 无需重抓**；harness `/detail-assets/` 映射与 `beads-blit-carrier.ts` 注册零改动；主包 3.0 MB / 红线 4 MB 不变。
+- **门禁**：`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；`check:size` / `check:cocos-mask` 全绿。
+- **⚠ 待用户裁定（若「导入」另有所指）**：① 强制按在册配方重出 Cocos 投放件（+207 KB，需重跑包体门）；② 目标其实是别的节点（如选关 page 的 `159:7` 对话框背景）；③ 需要 Cocos 编辑器 reimport（本机无编辑器，`COCOS_CREATOR` 未设 ⇒ 环境阻塞）；④ Figma 稿在本次下载后又更新（请给新链接 / node-id，可重取对比）。

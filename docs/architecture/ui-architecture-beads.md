@@ -271,6 +271,8 @@ games/beads/src/ui/
 
 > **补（同单 · harness 截图复核后的内容带修正）**：首版把 `T-606` 的格顶星带（`y + h − 14`）与格顶编号牌叠在一起，九格数字被 `☆☆☆` 压字；缩略亦偏上（框高 `h − 24`）。按稿（`182:75` 编号牌贴格顶、`176:21 grid-image` 落格中、`star-1/2/3` 贴格底）改为**三带分离**：编号牌 `y + h − 35`、缩略框 `h − 37`、星带 `y + 14`；两个偏移收进 `LEVEL_SELECT_GEO.cellArt`（`thumbFrameDrop` / `starBandY`），实现与 `arc-cell-pressed` / `meta-menu-wall` 判据共读（K-053 旧坐标留档，防二次漂移）。复核截图 = `temp/ui-shot/level-select-607-final.png`（harness 位图腿，⛔ 非真机证据）。
 
+**资产复核登记（2026-11-10 · WXG-T-608 · 关卡详情对话框背景重新下载）**：用户令「关卡详情弹窗 page 里的对话框背景需要重新下载并导入」。重取 Figma `84:36 / 92:36 / 95:116` @2x（1162×2088 / 932,812 B），与在库 `final/assets/detail/ui_detail_plaque@2x.png` **sha256 同 `707ded7f…`、像素差 0** ⇒ 稿面自 `T-604` 后未变，容器木牌资产已是最新版。幂等覆盖写设计源（git 零 diff）；`cocos/assets/textures/detail/ui_detail_plaque.png`（P / 110 KB）与 `.meta` 不动——在册 `ship()` 配方重出虽更贴稿面（RGB mean 2.64 vs 3.54）但涨到 317 KB 且引入色变，按包体纪律不劣化（详见 `TASKS-DETAIL.md ## WXG-T-608`）。**零视觉漂移**：`LEVEL_DETAIL_TEXTURES.plaque` 一条 blit 指令不变 ⇒ 11 态金样本 sha / total / kinds 逐字未变，⛔ 无需重抓；证书 = 实现自证（金样本不含纹素），⛔ 非真机证据。
+
 **关键路径**：UI-00 → UI-01 → UI-10…14 → UI-20 → UI-22 / UI-25 → UI-30 → UI-31 → UI-41 → UI-42 → UI-50 → UI-53。UI-02（金样本）与 P1 可并行，但必须在 UI-30 前完成。
 
 > **[WXG-T-473] 金样本复评登记（2026-10-28）**：`copy-tokens.ts::version_label` 发布文案变更（`v1.x · 演示版` → `v1.0.0 · 演示版`，T-469 USER 版本号裁定「首发 1.0.x、x = build 号」）⇒ Meta 四屏（main-menu / level-select-mid / settings / signin）底部版本行文本变 ⇒ 整帧 sha 漂移（total / 种类数零变，纯文本内容）。复取器两遍确定性自证 PASS，夹具 `capturedFrom` = `2fbe8e4d`；对拍 **13/13 绿**。复取说明：工作树 src 面与 HEAD 零差异（dirty 仅 docs 台账两件），主树复取等价干净检出（K-167 精神，注记披露）。
