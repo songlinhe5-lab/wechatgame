@@ -9256,3 +9256,13 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **影响面**：`LEVEL_DETAIL_TEXTURES.plaque` 一条 blit 指令不变（金样本记录指令流、不含纹素）⇒ **11 态 sha / total / kinds 逐字未变，⛔ 无需重抓**；harness `/detail-assets/` 映射与 `beads-blit-carrier.ts` 注册零改动；主包 3.0 MB / 红线 4 MB 不变。
 - **门禁**：`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；`check:size` / `check:cocos-mask` 全绿。
 - **⚠ 待用户裁定（若「导入」另有所指）**：① 强制按在册配方重出 Cocos 投放件（+207 KB，需重跑包体门）；② 目标其实是别的节点（如选关 page 的 `159:7` 对话框背景）；③ 需要 Cocos 编辑器 reimport（本机无编辑器，`COCOS_CREATOR` 未设 ⇒ 环境阻塞）；④ Figma 稿在本次下载后又更新（请给新链接 / node-id，可重取对比）。
+
+**补（2026-11-10 · 同单 · 用户令「对话框背景资源更新了，重新下载」）**：前次「稿面未变」结论**因用户随后更新 Figma 资源而作废**（K-053 留档不删，作为「重取前逐字节一致」的史证）。
+
+- **原始节点接口证据**（绕过瘦身树）：`GET /v1/files/PBIK3RbfGlfzFsAnd97ZsP/nodes?ids=95%3A116` → HTTP 200，`lastModified = 2026-11-10T13:34:19Z`、`version = 2420222447057842146`；`95:116 对话框背景` 581×1044 @(26,188) 带**两枚 IMAGE fill** —— 旧 `13f9490e…` 已 `visible:false`、新 `8161ce80…` 可见。这正是「资源更新」的落点（替换 imageRef）。
+- **重新下载**：`figma.mjs img --ids 95:116 --scale 2` ⇒ `temp/figma/detail-redownload/95-116.png` **825.0 KiB / 844,830 B / 1162×2088 RGBA**，sha256 **`ebb9e473…`**（前次 `707ded7f…`）。像素差 max 255 / mean 8.364 / changed px 2,399,900（≈99%）⇒ 确为改版稿。首轮内联 REST 渲染请求 25s 超时（Figma 服务端处理新填充较慢），改用项目脚本单独重跑成功。
+- **新稿内容**：纯木纹牌 + 顶部标题槽 + 四角铆钉；旧版烘在中间的「空橱窗 + 底座 + 道具格」**移除**。几何仍 581×1044 ⇒ `LEVEL_DETAIL_GEO.plate` 与热区零改动，仅 `level-detail.ts` 资产描述注释按 K-053 更新。
+- **真正导入**：① 覆盖 `design/art/final/assets/detail/ui_detail_plaque@2x.png`；② 按在册 `quantize-cocos-textures.py::ship()`（RGB FASTOCTREE 256 + 原 alpha 贴回）重出 Cocos 投放件，并沿用现役 **P 模式 + 透明索引**口径压回 **125,537 B**（直存 RGBA 为 287,644 B）。P 件与 `ship()` RGBA 件在**双方均可见区域逐像素一致（RGB mean 0 / max 0 / changed 0 / 2,409,792）**，仅把 `alpha<128` 的 35,660 个半透明边缘二值化（与旧 P 件同口径）；③ `.meta` 保持不动（L1，覆盖 PNG 不换 uuid）。
+- **改判说明**：前次「按包体纪律不重出投放件」的决策**因源件变更失效**，正确性优先 ⇒ 必须重出；体积 110,657 → 125,537 B（**+14.9 KB**，非前次估算的 +207 KB，因沿用 P 口径），主包 3.0 MB / 红线 4 MB 不变。
+- **验证**：`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（含 `check:size` / `check:cocos-mask`）；金样本 11 态 sha / total / kinds 逐字未变（blit 指令不含纹素）⇒ ⛔ 无需重抓。
+- **视觉复核**（harness `?hud=off`，位图腿，⛔ 非真机）：`temp/ui-shot/level-select-plaque-v2.png`（九格模板贴合新木纹）、`temp/ui-shot/level-detail-plaque-v2.png`（缩略 / 星级 / 道具 / 开始钮直接落木纹面，无旧空橱窗凹槽，版面正常）。

@@ -273,6 +273,8 @@ games/beads/src/ui/
 
 **资产复核登记（2026-11-10 · WXG-T-608 · 关卡详情对话框背景重新下载）**：用户令「关卡详情弹窗 page 里的对话框背景需要重新下载并导入」。重取 Figma `84:36 / 92:36 / 95:116` @2x（1162×2088 / 932,812 B），与在库 `final/assets/detail/ui_detail_plaque@2x.png` **sha256 同 `707ded7f…`、像素差 0** ⇒ 稿面自 `T-604` 后未变，容器木牌资产已是最新版。幂等覆盖写设计源（git 零 diff）；`cocos/assets/textures/detail/ui_detail_plaque.png`（P / 110 KB）与 `.meta` 不动——在册 `ship()` 配方重出虽更贴稿面（RGB mean 2.64 vs 3.54）但涨到 317 KB 且引入色变，按包体纪律不劣化（详见 `TASKS-DETAIL.md ## WXG-T-608`）。**零视觉漂移**：`LEVEL_DETAIL_TEXTURES.plaque` 一条 blit 指令不变 ⇒ 11 态金样本 sha / total / kinds 逐字未变，⛔ 无需重抓；证书 = 实现自证（金样本不含纹素），⛔ 非真机证据。
 
+> **补（2026-11-10 · WXG-T-608 续 · 对话框背景真正改版导入）**：上一条「稿面未变 / 零漂移」的复核结论**因用户随后在 Figma 更新资源而作废**（K-053 留档不删）。原始 `nodes` 接口实到 `lastModified 2026-11-10T13:34:19Z` / `version 2420222447057842146`，`95:116` 两枚 IMAGE fill（旧 `13f9490e…` 转 invisible、新 `8161ce80…` 可见）⇒ 重导出 sha `ebb9e473…`（旧 `707ded7f…`），99% 像素变化。**视觉改版**：新稿 = 纯木纹牌 + 顶部标题槽 + 四角铆钉，**移除旧版烘在牌内的「空橱窗 + 底座 + 道具格」**；几何 581×1044 零改动 ⇒ 详情 / 选关两页的缩略、星级、道具行、九宫格直接画在木纹面上（harness 两屏复核正常，**非真机证据**）。**导入**：覆盖设计源 + 按在册 `ship()` 配方重出 Cocos 投放件（沿用现役 P 模式 + 透明索引，125,537 B，共同可见区与 RGBA 件逐像素一致），`.meta` 不动；`level-detail.ts` 资产描述注释同步更新。金样本 11 态未变（blit 指令不含纹素）；`verify` PASS 23 / FAIL 0。
+
 **关键路径**：UI-00 → UI-01 → UI-10…14 → UI-20 → UI-22 / UI-25 → UI-30 → UI-31 → UI-41 → UI-42 → UI-50 → UI-53。UI-02（金样本）与 P1 可并行，但必须在 UI-30 前完成。
 
 > **[WXG-T-473] 金样本复评登记（2026-10-28）**：`copy-tokens.ts::version_label` 发布文案变更（`v1.x · 演示版` → `v1.0.0 · 演示版`，T-469 USER 版本号裁定「首发 1.0.x、x = build 号」）⇒ Meta 四屏（main-menu / level-select-mid / settings / signin）底部版本行文本变 ⇒ 整帧 sha 漂移（total / 种类数零变，纯文本内容）。复取器两遍确定性自证 PASS，夹具 `capturedFrom` = `2fbe8e4d`；对拍 **13/13 绿**。复取说明：工作树 src 面与 HEAD 零差异（dirty 仅 docs 台账两件），主树复取等价干净检出（K-167 精神，注记披露）。
