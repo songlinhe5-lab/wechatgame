@@ -19,7 +19,7 @@ import { buildMetaModal, metaLayout, setMenuBitmapResolver, type MetaButton, typ
 import { LEVELS } from '../src/config/levels.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import {
-    DESIGN_H, DESIGN_W, MENU_TEXTURES, THUMB_AREA, THUMB_TOP_INSET, WALL_COLS, WALL_CAPACITY, WALL_ROWS,
+    DESIGN_H, DESIGN_W, LEVEL_SELECT_GEO, MENU_TEXTURES, THUMB_AREA, THUMB_TOP_INSET, WALL_COLS, WALL_CAPACITY, WALL_ROWS,
 } from '../src/config/tuning.js';
 
 /** 单点图元是否落在该格框内（框含 1px 容差，锁章与珠阵均按格心布点）。 */
@@ -46,9 +46,14 @@ const thumbBox = (b: MetaButton): { x: number; y: number; w: number; h: number }
     h: THUMB_AREA,
 });
 
-/** `[WXG-T-502]` 缩略图只画盘面 ⇒ 色块是 `rect`（非 polygon/circle）。 */
+/**
+ * `[WXG-T-502]` 缩略图只画盘面 ⇒ 色块是 `rect`（非 polygon/circle）。
+ * `[WXG-T-607]` 位图模板腿新增 65×35 编号牌 rect，会落进缩略框 ⇒ 按盘面块尺寸
+ * （`pitch − BEAD_GAP` ≤ 20）过滤，⛔ 不把 UI 装饰误判成盘面色块（K-053 判据迁移）。
+ */
 const inThumbRect = (c: DrawCommand, box: { x: number; y: number; w: number; h: number }): boolean =>
-    c.kind === 'rect' && c.x >= box.x - 1 && c.x <= box.x + box.w + 1 &&
+    c.kind === 'rect' && 'w' in c && c.w <= 20 && 'h' in c && c.h <= 20 &&
+    c.x >= box.x - 1 && c.x <= box.x + box.w + 1 &&
     c.y >= box.y - 1 && c.y <= box.y + box.h + 1;
 
 const dataFor = (extra: Partial<MetaViewData> = {}): MetaViewData => {
@@ -92,7 +97,7 @@ const isGrayHex = (fill: unknown): boolean => {
 afterEach(() => setMenuBitmapResolver());
 
 describe('EP13-FU-1 墙几何 3×3（A1；`[WXG-T-605]` 起 = 详情木牌版式）', () => {
-    it('列数 3 ⇒ 容量 9、热区 9 格、网格 416×416（格 128 / 间距 16）', () => {
+    it('列数 3 ⇒ 容量 9、热区 9 格、格墙 474 宽（格 158×181 / 列无缝 / 行 pitch 194）', () => {
         expect(WALL_COLS).toBe(3);
         expect(WALL_CAPACITY).toBe(9);
         const cs = cells();
@@ -101,11 +106,13 @@ describe('EP13-FU-1 墙几何 3×3（A1；`[WXG-T-605]` 起 = 详情木牌版式
         const cell = cs[0]!.box.w;
         const gap = cs[1]!.box.x - (cs[0]!.box.x + cell);
         expect(cs[cs.length - 1]!.box.x + cell - left).toBe(WALL_COLS * cell + (WALL_COLS - 1) * gap);
-        expect(cell).toBe(128);
-        expect(gap).toBe(16);
-        expect(WALL_COLS * cell + (WALL_COLS - 1) * gap).toBe(416);
-        // 行序与竖向几何不变（逐行下推一格 + 一缝）。
-        expect(cs[3]!.box.y).toBe(cs[0]!.box.y - (cell + gap));
+        // `[WXG-T-607]` 旧 128 / 16 / 416 方形格随 Figma `159:3` 稿退场（K-053 划线留档）。
+        expect(cell).toBe(158);
+        expect(cs[0]!.box.h).toBe(181);
+        expect(gap).toBe(0);
+        expect(WALL_COLS * cell + (WALL_COLS - 1) * gap).toBe(474);
+        // 行序按稿面 pitchY（≠ 格宽，非正方形格）。
+        expect(cs[3]!.box.y).toBe(cs[0]!.box.y - LEVEL_SELECT_GEO.grid.pitchY);
     });
 });
 

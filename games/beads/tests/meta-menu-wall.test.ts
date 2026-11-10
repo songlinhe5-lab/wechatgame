@@ -586,16 +586,17 @@ describe('EP12-S6 Deliverable 1 + Q5① · 墙单源在选关弹窗 / 主菜单�
     it('墙 = 3×3 共 9 格（只住选关弹窗）；主菜单 ⛔ 无墙格 ⇒ 几何单份、永不各排一份', () => {
         const overlay = metaLayout('levels').buttons.filter((b) => b.id === 'pick-level');
         expect(overlay.length).toBe(WALL_CAPACITY);
-        const cell = LEVEL_SELECT_GEO.grid.cell;
+        // `[WXG-T-607]` 稿面非正方形格 158×181（旧方形档 128 已退场，K-053）。
+        const g = LEVEL_SELECT_GEO.grid;
         for (const c of overlay) {
-            expect(c.box.w, '格宽 = 选关页专用档（128）').toBe(cell);
-            expect(c.box.h).toBe(cell);
+            expect(c.box.w, '格宽 = 选关页专用档（158）').toBe(g.cellW);
+            expect(c.box.h, '格高 = 选关页专用档（181）').toBe(g.cellH);
         }
         // 列/行步进同源自洽（同一 `levelsLayout` 一次算定）。
         const step = (list: typeof overlay, i: number) => list[i + 1]!.box.x - list[i]!.box.x;
         expect(step(overlay, 1), '列步进一致').toBe(step(overlay, 0));
         const rowStep = overlay[0]!.box.y - overlay[WALL_COLS]!.box.y;
-        expect(rowStep, '行步进 = 格宽 + 缝').toBe(cell + LEVEL_SELECT_GEO.grid.gap);
+        expect(rowStep, '行步进 = 稿面 pitchY').toBe(g.pitchY);
         // 主菜单版面⛔ 无墙格（走马灯卡取代主区）⇒ 选关入口 = `open-levels`。
         expect(metaLayout('none').buttons.filter((b) => b.id === 'pick-level').length).toBe(0);
         expect(metaLayout('none').buttons.some((b) => b.id === 'open-levels')).toBe(true);

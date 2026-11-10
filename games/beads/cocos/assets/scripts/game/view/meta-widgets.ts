@@ -13,6 +13,7 @@ import { UI_FONT, pressOffset } from './ui-theme';
 import { drawButton } from './ui-widgets';
 import { settingsContentLabel } from './settings-content';
 import type { Box, MetaAction, MetaButton, MetaViewData } from './meta-types';
+import type { LevelSelectCellViewModel, LevelSelectViewModel } from './level-select-view-model';
 /**
  * 菜单位图可用性查询（宿主注入：harness 纹注册表 / Cocos carrier）。
  * 缺省全 `false` ⇒ 菜单全部腿走程序化占位 ⇒ 帧内容与位图化之前一致（旧测试套件钉住该等价）。
@@ -241,88 +242,78 @@ export function drawWallCell(
  * 木框 → 2px 深槽线 → 米白内窗 → 内窗顶缘受光；星带在窗内顶部，缩略仍走 `THUMB_AREA`。
  * 未解锁沿用「灰珠阵 + 角锁 + 无星」合形（⛔ 不退化成纯灰块）；当前关加黄铜描边。
  */
-export function drawWoodWallCell(
+export function drawLevelSelectCell(
     builder: RenderModelBuilder,
-    b: MetaButton,
-    data: MetaViewData,
+    cell: LevelSelectCellViewModel,
+    vm: LevelSelectViewModel,
     palette: BeadsPalette,
-    thumbN: number,
+    cellTextureId: string,
 ): void {
     const st = LEVEL_SELECT_GEO.gridStyle;
-    const slot = b.slot;
-    const levelIdx: number | undefined = slot === undefined ? undefined : data.wallSlots[slot];
-    const gateOpensFirst = slot === 0 && data.arcTicketOpen === true;
-    const locked = levelIdx === undefined || (levelIdx + 1 > data.maxUnlockedLevel && !gateOpensFirst);
-    const pressed = data.pressed === b;
-    const y = b.box.y + pressDy(data, pressed);
-    const { x, w, h } = b.box;
+    const { x, w, h } = cell.box;
+    const y = cell.box.y + cell.pressDy;
 
-    // 凹槽层序：木框 → 深槽线 → 米白内窗 → 顶缘 1px 受光。
-    builder.rect(x, y, w, h, { fill: palette.woodSheen, radius: st.radius });
-    builder.rect(x + st.frame / 2, y + st.frame / 2, w - st.frame, h - st.frame, {
-        stroke: palette.shadowInk,
-        lineWidth: st.groove,
-        radius: st.radius - 2,
-    });
-    builder.rect(x + st.frame, y + st.frame, w - st.frame * 2, h - st.frame * 2, {
-        fill: pressed ? palette.cardPressed : palette.slot,
-        radius: st.radius - 4,
-    });
-    builder.line(x + 8, y + h - st.frame - 1, x + w - 8, y + h - st.frame - 1, withAlpha(palette.woodSheen, 0.6), 1);
-
-    if (levelIdx === undefined) {
-        // 越界空槽也保留星级通道（☆☆☆ 灰）——四通道逐格齐全。
-        builder.text(x + w / 2, y + h - 14, STAR_LABELS[0]!, {
-            fill: palette.textDim,
-            font: UI_FONT.cell,
+    if (menuBitmapReady(cellTextureId)) {
+        // `[WXG-T-607]` 稿 `185:36 grid-background` 木纹底 158×177：底对齐格框
+        // （格高 181，顶部 4px 是编号牌溢出部分）。九格共用这一枚模板纹理。
+        builder.blit(cellTextureId, x, y, w, LEVEL_SELECT_GEO.cellArt.h);
+        // 编号牌（稿 `182:75`，65×35 居中贴格顶）：数字由 VM 给，⛔ 不吃稿里的固定「1」。
+        const bw = 65, bh = 35;
+        builder.rect(x + (w - bw) / 2, y + h - bh, bw, bh, { fill: palette.woodEdge, radius: 8 });
+        builder.text(x + w / 2, y + h - bh / 2, `${cell.slot + 1}`, {
+            fill: palette.plateSubInk,
+            font: UI_FONT.button,
             align: 'center',
             baseline: 'middle',
         });
-        drawWallLockBadge(builder, palette, b.box);
+    } else {
+        // 缺图降级腿（`[WXG-T-606]` 程序化木托盘，逐字保留）：木框 → 深槽线 → 米白内窗 → 顶缘受光。
+        builder.rect(x, y, w, h, { fill: palette.woodSheen, radius: st.radius });
+        builder.rect(x + st.frame / 2, y + st.frame / 2, w - st.frame, h - st.frame, {
+            stroke: palette.shadowInk,
+            lineWidth: st.groove,
+            radius: st.radius - 2,
+        });
+        builder.rect(x + st.frame, y + st.frame, w - st.frame * 2, h - st.frame * 2, {
+            fill: cell.pressed ? palette.cardPressed : palette.slot,
+            radius: st.radius - 4,
+        });
+        builder.line(x + 8, y + h - st.frame - 1, x + w - 8, y + h - st.frame - 1, withAlpha(palette.woodSheen, 0.6), 1);
+    }
+
+    // 内容层：全部由 ViewModel 驱动（⛔ 不读 MetaViewData）。
+    if (cell.levelIdx === undefined) {
+        builder.text(x + w / 2, y + h - 14, STAR_LABELS[0]!, {
+            fill: palette.textDim, font: UI_FONT.cell, align: 'center', baseline: 'middle',
+        });
+        drawWallLockBadge(builder, palette, cell.box);
         return;
     }
-    if (locked) {
-        const level = data.wallLevels[slot!];
-        if (level !== undefined) {
-            // 顶部让出 24px 星带（`h − 24`）：缩略区仍 84 ⇒ 珠块尺寸与主菜单墙一致。
-            drawLevelThumb(builder, level, x, y, w, h - 24, thumbN, THUMB_AREA, beadFadedInksFor(level));
+    if (cell.locked) {
+        if (cell.level !== undefined) {
+            drawLevelThumb(builder, cell.level, x, y, w, h - 24, vm.thumbN, THUMB_AREA, beadFadedInksFor(cell.level));
         }
-        // 锁格也显示星级通道（`☆☆☆` 灰）——四通道逐格齐全（用户 2026-11-09 令）。
         builder.text(x + w / 2, y + h - 14, STAR_LABELS[0]!, {
-            fill: palette.textDim,
-            font: UI_FONT.cell,
-            align: 'center',
-            baseline: 'middle',
+            fill: palette.textDim, font: UI_FONT.cell, align: 'center', baseline: 'middle',
         });
-        drawWallLockBadge(builder, palette, b.box);
+        drawWallLockBadge(builder, palette, cell.box);
         return;
     }
-
-    const stars = data.starsByLevel[levelIdx] ?? 0;
-    const level = data.wallLevels[slot!];
-    if (level !== undefined) {
-        // 顶部让出 24px 星带：`h − 24` 把缩略下移，珠块尺寸不变。
-        drawLevelThumb(builder, level, x, y, w, h - 24, thumbN, THUMB_AREA);
-        // 星带最后画 ⇒ 不被缩略盖住。
-        builder.text(x + w / 2, y + h - 14, STAR_LABELS[stars] ?? STAR_LABELS[0]!, {
-            fill: stars > 0 ? palette.plateSubInk : palette.textDim,
-            font: UI_FONT.cell,
-            align: 'center',
-            baseline: 'middle',
+    if (cell.level !== undefined) {
+        drawLevelThumb(builder, cell.level, x, y, w, h - 24, vm.thumbN, THUMB_AREA);
+        builder.text(x + w / 2, y + h - 14, STAR_LABELS[cell.stars] ?? STAR_LABELS[0]!, {
+            fill: cell.stars > 0 ? palette.plateSubInk : palette.textDim,
+            font: UI_FONT.cell, align: 'center', baseline: 'middle',
         });
     }
 
     // 当前关：黄铜描边 + 轻外发光（`plateSubInk`，零新 hex）。
-    if (levelIdx === data.currentLevelIndex) {
+    if (cell.current) {
         builder.rect(x - 4, y - 4, w + 8, h + 8, {
-            stroke: withAlpha(palette.plateSubInk, 0.28),
-            lineWidth: 6,
-            radius: st.radius + 4,
+            stroke: withAlpha(palette.plateSubInk, 0.28), lineWidth: 6, radius: st.radius + 4,
         });
         builder.rect(x - 2, y - 2, w + 4, h + 4, {
-            stroke: palette.plateSubInk,
-            lineWidth: 3,
-            radius: st.radius + 2,
+            stroke: palette.plateSubInk, lineWidth: 3, radius: st.radius + 2,
         });
     }
 }

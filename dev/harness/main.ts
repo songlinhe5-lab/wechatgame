@@ -24,7 +24,7 @@ import {
   maskTileInnerPx,
   tintFx,
 } from '@wxgame/framework';
-import { BEAD_PITCH, LEVEL_DETAIL_TEXTURES, MENU_TEXTURES, POWERUP_TILE_TEXTURES, TILE_BLEED } from '../../games/beads/src/config/tuning.js';
+import { BEAD_PITCH, LEVEL_DETAIL_TEXTURES, LEVEL_SELECT_TEXTURES, MENU_TEXTURES, POWERUP_TILE_TEXTURES, TILE_BLEED } from '../../games/beads/src/config/tuning.js';
 import { setDevSafeInsets, setShowSafeGuides } from '../../games/beads/src/config/tuning/layout.js';
 import { OPEN_ARCS } from '../../games/beads/src/config/arcs.js';
 import { setMenuBitmapResolver } from '../../games/beads/src/view/meta-view.js';
@@ -231,6 +231,8 @@ const MENU_FILE: Readonly<Record<string, string>> = {
   [LEVEL_DETAIL_TEXTURES.start]: '/detail-assets/ui_detail_start@2x.png',
   [LEVEL_DETAIL_TEXTURES.starFilled]: '/detail-assets/ui_detail_star_filled@2x.png',
   [LEVEL_DETAIL_TEXTURES.starEmpty]: '/detail-assets/ui_detail_star_empty@2x.png',
+  // `[WXG-T-607]` 选关九宫格单格模板（Figma `176:19 grid-1` → `185:36` 木纹底，@2x 316×354）。
+  [LEVEL_SELECT_TEXTURES.cell]: '/detail-assets/ui_level_select_cell@2x.png',
 };
 const tintCache = new TintSpriteCache(
   // 离屏 canvas 工厂（结构化注入 ⇒ framework/core 层 ⛔ 不碰 DOM，L2 合规）

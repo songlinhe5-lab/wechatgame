@@ -97,11 +97,12 @@ function levelsLayout(rows: number): MetaLayout {
         buttons.push({
             id: 'pick-level',
             slot,
+            // `[WXG-T-607]` 稿面 158×181 / 列 pitch 158 / 行 pitch 194（非正方形格）。
             box: box(
-                g.left + col * (g.cell + g.gap),
-                g.topUp - g.cell - row * (g.cell + g.gap) + gridShift,
-                g.cell,
-                g.cell,
+                g.left + col * g.pitchX,
+                g.topUp - g.cellH - row * g.pitchY + gridShift,
+                g.cellW,
+                g.cellH,
             ),
         });
     }

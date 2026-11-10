@@ -32,7 +32,7 @@ import {
 } from '../framework/adapters/canvas2d/tint-sprite-cache';
 import { MASK_CANONICAL_SIZE } from '../framework/core/bake/mask-spec';
 import { maskTileInnerPx } from '../framework/core/bake/mask-tile';
-import { BEAD_PITCH, BOSS_THUMB_TEXTURES, LEVEL_DETAIL_TEXTURES, MENU_TEXTURES, POWERUP_TILE_TEXTURES, TILE_BLEED } from '../game/config/tuning';
+import { BEAD_PITCH, BOSS_THUMB_TEXTURES, LEVEL_DETAIL_TEXTURES, LEVEL_SELECT_TEXTURES, MENU_TEXTURES, POWERUP_TILE_TEXTURES, TILE_BLEED } from '../game/config/tuning';
 import { OPEN_ARCS } from '../game/config/arcs';
 import { tintFxBase } from '../framework/core/bake/tint-composite';
 import { frostGrayCombined, frostPixels, frostRead, grayFxRead, grayWipeRead } from '../framework/core/bake/gray-fx';
@@ -169,6 +169,9 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
     [LEVEL_DETAIL_TEXTURES.start]: { path: 'detail/ui_detail_start' },
     [LEVEL_DETAIL_TEXTURES.starFilled]: { path: 'detail/ui_detail_star_filled' },
     [LEVEL_DETAIL_TEXTURES.starEmpty]: { path: 'detail/ui_detail_star_empty' },
+    // `[WXG-T-607]` 选关九宫格单格模板。⚠ `.meta` 须由 Cocos 编辑器 reimport 签发（L1）；
+    // 未签发 ⇒ `textures` Bundle 不含此件 ⇒ `_bitmaps` 未命中 ⇒ 自动走程序化木托盘降级腿。
+    [LEVEL_SELECT_TEXTURES.cell]: { path: 'detail/ui_level_select_cell' },
 
     // `[WXG-T-515]` 结算 9-slice 四件（源图与设计 px 1:1，端帽见 `CLEAR_*_SLICE`）。
     [MENU_TEXTURES.panelFrame]: { path: 'ui_panel_frame_9s' },

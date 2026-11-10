@@ -9220,3 +9220,23 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 **补（2026-11-09 · 同单）**：用户令「中间面板框不需要展示星级等级用时信息」⇒ 中带**判星/用时对照行退场**（`starCriteriaText` 不再本页出现、`LEVEL_SELECT_GEO.criteria` 删除、`meta-levels-page` 少一段绘制）；答卷判星口径仍由结算面板承担，本页不重复。UX 规格升 **v0.10**；金样本两态再重抓。
 
 **再补（2026-11-09 · 同单）**：用户令「中间区域底托加九宫格需要重新生成，每个格子有豆面图案，当前星级，开启状态，当前推关状态」⇒ Token Plan `qwen-image-3.0-pro` 以落码帧 `--ref` 两 seed（42/7）重生成九宫格；两 seed 一致确认「锁格也显示 ☆☆☆、当前关黄铜描边 + 轻光晕」⇒ 落码：锁格/越界槽补 `☆☆☆` 灰星（Q15「锁格无星」作废）、当前关加 6px α0.28 外发光。规格 **v0.11**；单测 K-6 行数杠杆改「首日 = 满载 + 8 锁章」。
+
+## WXG-T-607
+
+**UI·选关对话框按 Figma `159:3` 稿重排 + View/ViewModel 落码** · 负责：主理人(CodeBuddy)·beads 工程 · 状态：✅ 完成（2026-11-10）
+
+- **上位**：用户 2026-11-10 令「开始实现选关对话框，figma 已经有选关弹窗 page，请复用关卡详情页的对话框背景图，其他资源从 page 内部元素生成，里面抠图层→九宫格→grid-1 作为模版生成 cell 的 view，填满其他 grid-2～grid-9 的位置。要求按照 view-viewmodel 模式实现代码」。用户两项裁定：**现行切片 + 显式 VM**（不建 `§7` 目标目录）、**只导 grid-1 + 按稿重排**（程序化木托盘退役为缺图降级腿）。
+- **稿面全量回读**（`wxgame-figma` REST + PAT，凭证 `me` 200）：文件 `PBIK3RbfGlfzFsAnd97ZsP`，pages = `0:1 Page 1` / `84:36 关卡详情弹窗 v25b` / **`159:3 选关弹窗`**。`159:4` → `159:5 抠图层` → `159:6 Background`（`159:7 对话框背景` 581×1044 @画布 22,167，按用户令**不导**，复用详情木牌）、`159:10 曼陀罗` / `159:11 选关`、`160:48 关闭按钮`、`164:64 九宫格`（`164:63 九宫格背板` 506×597 @59,423）。
+- **九格实读**（画布绝对坐标；帧原点 `(-63,+22)` 扣除后 = 帧内）：`176:19 grid-1` 158×181 @(138,414)、`188:40 grid-2` @(296,414)、`188:53 grid-3` @(456,414)、`188:66 grid-4` @(138,608)、`188:79 grid-5` @(297,609)、`188:92 grid-6` @(456,608)、`188:105 grid-7` @(139,799)、`188:118 grid-8` @(296,799)、`188:131 grid-9` @(454,799) ⇒ **列 pitch 158（无缝）/ 行 pitch 194**。
+- **模板层判定**：`176:19` 整组 = 木纹底 + `182:75 grid-brand`（深棕牌 + 固定数字「1」）+ `176:21 grid-image` + 三枚 `star-*`（一黄二灰）。整组九格复用会让每格都显示「1」且星/锁写死 ⇒ 与 ViewModel 数据驱动冲突。故只取 **`185:36 grid-background`**（158×177 木纹圆角底，无数据内容）作 cell 模板；编号牌由 View 按 VM 画（数字 1..9），三星 / 锁 / 缩略 / 当前关沿用数据腿。
+- **交付**：
+  - `src/config/tuning/level-select.ts`：`LEVEL_SELECT_GEO.grid` 改 `{left:138, topUp:920, cellW:158, cellH:181, pitchX:158, pitchY:194}` + `cellArt.h=177`；新增 `LEVEL_SELECT_TEXTURES.cell`（只存 id）。旧 128 / 16 / 416² 划线留档（K-053）。
+  - `src/view/level-select-view-model.ts`（新）：`LevelSelectCellViewModel` / `LevelSelectViewModel` 全 `readonly`；`createLevelSelectViewModel()` 预分配 9 格对象；`updateLevelSelectViewModel()` 逐帧把 `MetaViewData` 收窄投影进**同一对象**（`cellCount` 随行数档，⛔ 不画陈旧格）。按下位移用 `ui-theme::pressOffset` 纯函数，避免与 `meta-widgets` 循环依赖。
+  - `src/view/level-select-view.ts`（新）：纯函数 `drawLevelsView(builder, vm, palette)`，⛔ 不 import `MetaViewData` / shell / 导航判断；遮罩 / 详情木牌位图 / 标题 / 章名 / 星进度 / 九格 / 凹槽 ✕ 全吃 VM。
+  - `src/view/meta-widgets.ts`：`drawWoodWallCell` → **`drawLevelSelectCell`**（唯一消费者已改），签名吃 VM；位图就绪 ⇒ blit 模板 + VM 编号牌，未就绪 ⇒ 逐字保留 T-606 程序化木托盘；内容层（缩略 / 星带 / 锁 / 当前关）全部 VM 驱动。
+  - `src/view/meta-levels-page.ts`：缩成装配门面（投影 VM → 调纯 View），对外 `drawLevelsPage` 签名逐字不变 ⇒ `meta-view.ts::LEVELS_PAGE` 零改动。
+  - `src/view/meta-layout.ts::levelsLayout`：按新几何出 `pick-level` 框（绘制与命中共读）。
+  - 资产：正本 `design/art/final/assets/detail/ui_level_select_cell@2x.png`（Figma `img --ids 185:36 --scale 2`，316×354 RGBA / 113 KB）；Cocos 投放件 `cocos/assets/textures/detail/ui_level_select_cell.png`（RGB FASTOCTREE 256 + alpha 贴回 / 48 KB）；harness `/detail-assets/` 映射 + `dev/harness/main.ts` 注册；`beads-blit-carrier.ts::BITMAP_ASSETS` 登记 path。
+- **判据**：新增 `tests/level-select-view-model.test.ts` 3 例（VM 逐帧复用同一对象 / 九格同模板 blit 158×177 且与命中框同源 / 缺图零 blit）；`arc-level-select-page` / `arc-wall-locked` / `meta-menu-wall` 几何判据按 K-053 迁移（旧空白点 (375,401) 已落进放大后的第 9 格 ⇒ 改 (375,200)；缩略色块按尺寸 ≤20 排除新编号牌 rect）。K-6 图元台账单调关系经 `cellCount` 修复后恢复（回退序 1 = 169 命令）。
+- **金样本**：`level-select` / `level-select-mid` 两态 sha 变，`ui-golden-capture.ts` 干净锚重抓；其余九态逐字未动。
+- **⚠ 遗留（环境阻塞）**：本机无 Cocos 编辑器（`COCOS_CREATOR` 未设 / `/Applications` 无 Creator）⇒ 新投放件 `.meta` 未签发（L1 禁手工伪造），`textures` Bundle 暂不含该件 ⇒ **真机自动走程序化木托盘降级腿**，harness / 金样本为位图腿。解除条件 = 编辑器 reimport `cocos/assets/textures/detail/`（`node tools/scripts/import-cocos-metas.mjs`）并重跑 `pnpm run verify`。

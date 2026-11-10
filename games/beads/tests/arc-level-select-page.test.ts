@@ -70,12 +70,15 @@ const pageFrame = (data: MetaViewData): readonly DrawCommand[] => {
 const cells = () => metaLayout('levels', WALL_ROWS).buttons.filter((b) => b.id === 'pick-level');
 
 describe('WXG-T-605 · 木牌版面单源（`LEVEL_SELECT_GEO`）', () => {
-    it('木牌沿用详情 581×1044 @(89,124)；格 128 / 16；无返回钮、关闭热区 88 落在 (622,1121)', () => {
+    it('木牌沿用详情 581×1044 @(89,124)；格 158×181 / 列 158 / 行 194；无返回钮、关闭热区 88 落在 (622,1121)', () => {
         const plate = levelDetailPlate();
         expect(plate).toEqual({ x: 89, y: 124, w: 581, h: 1044 });
         expect(LEVEL_DETAIL_GEO.plate).toEqual({ x: 89, yDown: 166, w: 581, h: 1044 });
-        expect(LEVEL_SELECT_GEO.grid.cell).toBe(128);
-        expect(LEVEL_SELECT_GEO.grid.gap).toBe(16);
+        // `[WXG-T-607]` 旧 128 / 16 方形格随 Figma `159:3` 稿退场（K-053 划线留档）。
+        expect(LEVEL_SELECT_GEO.grid.cellW).toBe(158);
+        expect(LEVEL_SELECT_GEO.grid.cellH).toBe(181);
+        expect(LEVEL_SELECT_GEO.grid.pitchX).toBe(158);
+        expect(LEVEL_SELECT_GEO.grid.pitchY).toBe(194);
 
         const btns = metaLayout('levels', WALL_ROWS).buttons;
         expect(btns.some((b) => b.id === 'back'), '底部返回钮退场').toBe(false);
@@ -88,17 +91,20 @@ describe('WXG-T-605 · 木牌版面单源（`LEVEL_SELECT_GEO`）', () => {
         });
     });
 
-    it('热区：九格列左缘 171.5/315.5/459.5、行下缘 794/650/506；✕ 可命中；牌外 = 关闭带', () => {
+    it('热区：九格列左缘 138/296/454、行下缘 739/545/351；✕ 可命中；牌外 = 关闭带', () => {
         const cs = cells();
         expect(cs).toHaveLength(WALL_CAPACITY);
         const L = LEVEL_SELECT_GEO.grid.left;
-        const pitch = LEVEL_SELECT_GEO.grid.cell + LEVEL_SELECT_GEO.grid.gap;
-        expect(cs[0]!.box).toEqual({ x: L, y: LEVEL_SELECT_GEO.grid.topUp - 128, w: 128, h: 128 });
+        const pitch = LEVEL_SELECT_GEO.grid.pitchX;
+        const g = LEVEL_SELECT_GEO.grid;
+        expect(cs[0]!.box).toEqual({ x: L, y: g.topUp - g.cellH, w: g.cellW, h: g.cellH });
         expect(cs.map((c) => c.box.x)).toEqual([L, L + pitch, L + 2 * pitch, L, L + pitch, L + 2 * pitch, L, L + pitch, L + 2 * pitch]);
-        expect([cs[0]!.box.y, cs[3]!.box.y, cs[6]!.box.y]).toEqual([794, 650, 506]);
+        expect([cs[0]!.box.y, cs[3]!.box.y, cs[6]!.box.y]).toEqual([739, 545, 351]);
         expect(hitTestMeta('levels', 622, DESIGN_H - 213)?.id, '✕ 可命中').toBe('close-levels');
         expect(hitTestMeta('levels', 10, 10)?.id, '牌外 = 关闭带').toBe('dismiss-levels');
-        expect(hitTestMeta('levels', 375, 401), '牌内空白 = 零命中').toBeNull();
+        // `[WXG-T-607]` 格墙按稿放大到 y351..920 ⇒ 旧空白点 (375,401) 已落进第 9 格；
+        // 改取格墙下方、木牌内的真空白 (375,200)（K-053 旧坐标留档）。
+        expect(hitTestMeta('levels', 375, 200), '牌内空白 = 零命中').toBeNull();
     });
 
     it('缩略 84 不随格放大（与作品墙同一套）', () => {
