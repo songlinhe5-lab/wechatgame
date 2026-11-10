@@ -29,7 +29,13 @@ export const LEVEL_SELECT_GEO = {
      * `[WXG-T-607]` 单格切图层：`185:36 grid-background` 木纹底 158×177（比格高 181 少 4，
      * 差值是顶部编号牌溢出格框的部分）。blit 按**底对齐**贴，⛔ 不拉伸到 181。
      */
-    cellArt: { h: 177 },
+    cellArt: {
+        h: 177,
+        /** 缩略框高 = `cellH − thumbFrameDrop`（稿 `grid-image` 落格中，⛔ 不与顶部编号牌叠）。 */
+        thumbFrameDrop: 37,
+        /** 星带中线距格底（y-up）；稿 `star-1/2/3` 在格底 ⇒ 与格顶编号牌分带。 */
+        starBandY: 14,
+    },
     /**
      * `[WXG-T-606]` 程序化托盘（**缺图降级腿**）：格 = 木框凹槽 + 米白内窗，
      * 托盘底板把九格收成一体。位图就绪时这些层不再画（避免双层木框）。

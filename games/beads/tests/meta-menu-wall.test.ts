@@ -257,7 +257,8 @@ function thumbOracle(level: (typeof LEVELS)[number], box: { x: number; y: number
     const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
     builder.begin();
     // `[WXG-T-606]` 选关格是木托盘凹槽：顶部让出 24px 星带 ⇒ 缩略盒高 = 格高 − 24。
-    drawLevelThumb(builder, level, box.x, box.y, box.w, box.h - 24, THUMB_MATRIX_N, THUMB_AREA);
+    // `[WXG-T-607]` 缩略框按稿下移（旧 `h − 24` 已退场，K-053 留档）。
+    drawLevelThumb(builder, level, box.x, box.y, box.w, box.h - LEVEL_SELECT_GEO.cellArt.thumbFrameDrop, THUMB_MATRIX_N, THUMB_AREA);
     return beadSignatureIn(builder.end().commands, box);
 }
 

@@ -282,8 +282,10 @@ export function drawLevelSelectCell(
     }
 
     // 内容层：全部由 ViewModel 驱动（⛔ 不读 MetaViewData）。
+    // `[WXG-T-607]` 三带按稿分离：编号牌在格顶、缩略 + 锁在格中、星带在格底
+    // （⛔ 沿用旧 `y+h-14` 的格顶星带会与编号牌叠字，见 harness 截图复核）。
     if (cell.levelIdx === undefined) {
-        builder.text(x + w / 2, y + h - 14, STAR_LABELS[0]!, {
+        builder.text(x + w / 2, y + LEVEL_SELECT_GEO.cellArt.starBandY, STAR_LABELS[0]!, {
             fill: palette.textDim, font: UI_FONT.cell, align: 'center', baseline: 'middle',
         });
         drawWallLockBadge(builder, palette, cell.box);
@@ -291,17 +293,17 @@ export function drawLevelSelectCell(
     }
     if (cell.locked) {
         if (cell.level !== undefined) {
-            drawLevelThumb(builder, cell.level, x, y, w, h - 24, vm.thumbN, THUMB_AREA, beadFadedInksFor(cell.level));
+            drawLevelThumb(builder, cell.level, x, y, w, h - LEVEL_SELECT_GEO.cellArt.thumbFrameDrop, vm.thumbN, THUMB_AREA, beadFadedInksFor(cell.level));
         }
-        builder.text(x + w / 2, y + h - 14, STAR_LABELS[0]!, {
+        builder.text(x + w / 2, y + LEVEL_SELECT_GEO.cellArt.starBandY, STAR_LABELS[0]!, {
             fill: palette.textDim, font: UI_FONT.cell, align: 'center', baseline: 'middle',
         });
         drawWallLockBadge(builder, palette, cell.box);
         return;
     }
     if (cell.level !== undefined) {
-        drawLevelThumb(builder, cell.level, x, y, w, h - 24, vm.thumbN, THUMB_AREA);
-        builder.text(x + w / 2, y + h - 14, STAR_LABELS[cell.stars] ?? STAR_LABELS[0]!, {
+        drawLevelThumb(builder, cell.level, x, y, w, h - LEVEL_SELECT_GEO.cellArt.thumbFrameDrop, vm.thumbN, THUMB_AREA);
+        builder.text(x + w / 2, y + LEVEL_SELECT_GEO.cellArt.starBandY, STAR_LABELS[cell.stars] ?? STAR_LABELS[0]!, {
             fill: cell.stars > 0 ? palette.plateSubInk : palette.textDim,
             font: UI_FONT.cell, align: 'center', baseline: 'middle',
         });

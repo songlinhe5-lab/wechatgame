@@ -9240,3 +9240,5 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **判据**：新增 `tests/level-select-view-model.test.ts` 3 例（VM 逐帧复用同一对象 / 九格同模板 blit 158×177 且与命中框同源 / 缺图零 blit）；`arc-level-select-page` / `arc-wall-locked` / `meta-menu-wall` 几何判据按 K-053 迁移（旧空白点 (375,401) 已落进放大后的第 9 格 ⇒ 改 (375,200)；缩略色块按尺寸 ≤20 排除新编号牌 rect）。K-6 图元台账单调关系经 `cellCount` 修复后恢复（回退序 1 = 169 命令）。
 - **金样本**：`level-select` / `level-select-mid` 两态 sha 变，`ui-golden-capture.ts` 干净锚重抓；其余九态逐字未动。
 - **⚠ 遗留（环境阻塞）**：本机无 Cocos 编辑器（`COCOS_CREATOR` 未设 / `/Applications` 无 Creator）⇒ 新投放件 `.meta` 未签发（L1 禁手工伪造），`textures` Bundle 暂不含该件 ⇒ **真机自动走程序化木托盘降级腿**，harness / 金样本为位图腿。解除条件 = 编辑器 reimport `cocos/assets/textures/detail/`（`node tools/scripts/import-cocos-metas.mjs`）并重跑 `pnpm run verify`。
+
+**补（同单 · harness 截图复核）**：首版沿用 `T-606` 的格顶星带（`y + h − 14`）与格顶编号牌叠字，缩略亦偏上。按稿改为**三带分离**：编号牌格顶、缩略 + 锁格中（框高 `h − 37`）、星带格底（`y + 14`）；两偏移收进 `LEVEL_SELECT_GEO.cellArt.thumbFrameDrop / starBandY`，实现与 `arc-cell-pressed` / `meta-menu-wall` 判据共读（旧 `h − 24` / `y+h−14` 按 K-053 划线留档）。复核截图 `temp/ui-shot/level-select-607-final.png`（harness 位图腿，⛔ 非真机）：九格木纹模板一致、编号 1–9 清晰、`☆☆☆` 落格底。

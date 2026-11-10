@@ -166,3 +166,5 @@ y=  68 ├───────────────────────�
 **降级腿**：`LEVEL_SELECT_TEXTURES.cell` 未注册（含 Cocos 真机 `.meta` 未签发）⇒ 逐格回落 v0.11 程序化木托盘（同几何、四通道齐全），零功能回归。真机启用条件 = Cocos 编辑器 reimport `cocos/assets/textures/detail/` 后签发 `.meta`。
 
 **容器沿用**：`LEVEL_DETAIL_TEXTURES.plaque`（581×1044）、标题 / 章名 / 星进度同槽、右上 38² 凹槽 ✕ 同件 ⇒ 本批**零新容器资产**。
+
+> **补（v0.12 · 截图复核）**：格内三带按稿分离 —— 编号牌贴格顶（65×35）、缩略 + 锁落格中（缩略框高 `cellH − cellArt.thumbFrameDrop`）、星带贴格底（`cellArt.starBandY`）。⛔ 首版沿用 v0.11 的格顶星带会与编号牌叠字，已修；两个偏移进 `LEVEL_SELECT_GEO.cellArt` 单源，实现与判据共读。

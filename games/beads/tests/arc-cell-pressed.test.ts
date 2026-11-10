@@ -19,7 +19,7 @@ import { RenderModelBuilder, type DrawCommand } from '@wxgame/framework';
 import { buildMetaModal, metaLayout, type MetaButton, type MetaViewData } from '../src/view/meta-view.js';
 import { LEVELS } from '../src/config/levels.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
-import { DESIGN_H, DESIGN_W, UI_PRESS_SINK, WALL_ROWS } from '../src/config/tuning.js';
+import { DESIGN_H, DESIGN_W, LEVEL_SELECT_GEO, UI_PRESS_SINK, WALL_ROWS } from '../src/config/tuning.js';
 
 const NEAR = 0.01;
 const near = (a: number, b: number): boolean => Math.abs(a - b) < NEAR;
@@ -132,8 +132,8 @@ describe('选关格按下态（§4-R6 / §5 / §7 非色相通道）', () => {
                 (c) =>
                     c.kind === 'text' &&
                     near(c.x, b.box.x + b.box.w / 2) &&
-                    // `[WXG-T-606]` 星带移到凹槽内窗顶部（y + h − 14）。
-                    near(c.y, b.box.y + b.box.h - 14),
+                    // `[WXG-T-607]` 星带按稿移格底（旧 T-606 在格顶 y + h − 14，K-053 留档）。
+                    near(c.y, b.box.y + LEVEL_SELECT_GEO.cellArt.starBandY),
             );
         const clearedText = textAt(cleared) as { text?: string; fill?: string };
         const pushingText = textAt(pushing) as { text?: string; fill?: string };
