@@ -22,6 +22,12 @@ export const LEVEL_DETAIL_GEO = {
   title: { cx: 380, cyDown: 278 },
   /** 副标题「大关名·第 N 关」（`95:104`，167×34 @300,350 ⇒ 中心）。 */
   subtitle: { cx: 383, cyDown: 367 },
+  /**
+   * `[WXG-T-609]` 橱窗面板（Figma `192:42`）：玻璃展示柜 + 射灯 + 圆台，469×638 @(143,376)。
+   * 新版 `95:116` 木牌已把它**拆成独立节点**（旧版烘在牌内）⇒ 必须单独导出并叠在木牌之上。
+   * ⚠ 画布读数 (80,398) 扣帧原点 (−63,+22) = 帧内 (143,376)；扣减口径同本表其余条目。
+   */
+  showcase: { x: 143, yDown: 376, w: 469, h: 638 },
   /** 橱窗内容框（`123:3`，295×285 @245,520）；运行时画关卡缩略，⛔ 不吃稿里的占位猫图。 */
   thumb: { x: 245, yDown: 520, w: 295, h: 285, area: 240 },
   /** 星级行（`147:36`，3×58×60 @279,858，净距 9）。 */
@@ -59,6 +65,8 @@ export const LEVEL_DETAIL_TITLE_SHADOW = { dx: 9, dyDown: 7, blur: 3, alpha: 0.8
  */
 export const LEVEL_DETAIL_TEXTURES = {
   plaque: 'bitmap__detail_plaque',
+  /** `[WXG-T-609]` Figma `192:42` 橱窗面板（玻璃 + 射灯 + 圆台，@2x 938×1276）。 */
+  showcase: 'bitmap__detail_showcase',
   start: 'bitmap__detail_start',
   starFilled: 'bitmap__detail_star_filled',
   starEmpty: 'bitmap__detail_star_empty',

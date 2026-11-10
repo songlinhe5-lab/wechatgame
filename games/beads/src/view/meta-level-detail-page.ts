@@ -31,6 +31,8 @@ const dyCenter = (cyDown: number): number => DESIGN_H - cyDown - PLATE_Y;
 
 const TITLE_DY = dyCenter(GEO.title.cyDown); // 932
 const SUB_DY = dyCenter(GEO.subtitle.cyDown); // 843
+/** `[WXG-T-609]` 橱窗面板下缘（稿 376+638=1014 ⇒ 相对木牌 196）。 */
+const SHOWCASE_DY = dyBottom(GEO.showcase.yDown, GEO.showcase.h);
 const THUMB_DY = dyBottom(GEO.thumb.yDown, GEO.thumb.h); // 405
 const STARS_DY = dyBottom(GEO.stars.yDown, GEO.stars.h); // 292
 const TIME_DY = dyCenter(GEO.time.cyDown); // 300
@@ -68,11 +70,20 @@ export function drawLevelDetailPage(
     // 遮罩：稿面背景是整屏场景图，无独立遮罩层；沿用弹窗通用档浓度。
     builder.rect(0, 0, DESIGN_W, screenH, { fill: scrimFill(UI_SCRIM.overlay, UI_SCRIM.alpha) });
 
-    // 容器：木牌烘图（含框 / 铆钉 / 空橱窗 / 底座）/ 纸面板回退（同几何）。
+    // 容器：新版木牌烘图（纯木纹 + 标题槽 + 铆钉，⛔ 旧版牌内烘入的空橱窗已拆出）。
     if (menuBitmapReady(LEVEL_DETAIL_TEXTURES.plaque)) {
         builder.blit(LEVEL_DETAIL_TEXTURES.plaque, plate.x, plate.y, plate.w, plate.h);
     } else {
         builder.rect(plate.x, plate.y, plate.w, plate.h, { fill: palette.panel, radius: UI_CONTAINER.radiusPanel });
+    }
+
+    // `[WXG-T-609]` 橱窗面板（Figma 192:42）：稿层序在木牌之后、缩略 / 星级 / 道具之前。
+    // 缺图 ⇒ 不画（纯木纹牌仍可读，⛔ 不叠程序化第二套玻璃框）。
+    if (menuBitmapReady(LEVEL_DETAIL_TEXTURES.showcase)) {
+        builder.blit(LEVEL_DETAIL_TEXTURES.showcase,
+            plate.x + (GEO.showcase.x - GEO.plate.x),
+            plate.y + SHOWCASE_DY,
+            GEO.showcase.w, GEO.showcase.h);
     }
 
     // 板标题：稿 64px ExtraBold 暖金；canvas 无 Chiron 字族 ⇒ bold 64 系统字。

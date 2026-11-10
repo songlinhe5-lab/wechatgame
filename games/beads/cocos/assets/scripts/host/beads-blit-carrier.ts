@@ -172,6 +172,9 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
     // `[WXG-T-607]` 选关九宫格单格模板。⚠ `.meta` 须由 Cocos 编辑器 reimport 签发（L1）；
     // 未签发 ⇒ `textures` Bundle 不含此件 ⇒ `_bitmaps` 未命中 ⇒ 自动走程序化木托盘降级腿。
     [LEVEL_SELECT_TEXTURES.cell]: { path: 'detail/ui_level_select_cell' },
+    // `[WXG-T-609]` 关卡详情橱窗面板（玻璃半透明 ⇒ 保留完整 alpha）。
+    // ⚠ 同上：`.meta` 待编辑器签发；未签发 ⇒ 详情页不叠此面板（纯木纹牌仍可读）。
+    [LEVEL_DETAIL_TEXTURES.showcase]: { path: 'detail/ui_detail_showcase' },
 
     // `[WXG-T-515]` 结算 9-slice 四件（源图与设计 px 1:1，端帽见 `CLEAR_*_SLICE`）。
     [MENU_TEXTURES.panelFrame]: { path: 'ui_panel_frame_9s' },

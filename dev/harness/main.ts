@@ -233,6 +233,8 @@ const MENU_FILE: Readonly<Record<string, string>> = {
   [LEVEL_DETAIL_TEXTURES.starEmpty]: '/detail-assets/ui_detail_star_empty@2x.png',
   // `[WXG-T-607]` 选关九宫格单格模板（Figma `176:19 grid-1` → `185:36` 木纹底，@2x 316×354）。
   [LEVEL_SELECT_TEXTURES.cell]: '/detail-assets/ui_level_select_cell@2x.png',
+  // `[WXG-T-609]` 关卡详情橱窗面板（Figma `192:42`，玻璃 + 射灯 + 圆台，@2x 938×1276）。
+  [LEVEL_DETAIL_TEXTURES.showcase]: '/detail-assets/ui_detail_showcase@2x.png',
 };
 const tintCache = new TintSpriteCache(
   // 离屏 canvas 工厂（结构化注入 ⇒ framework/core 层 ⛔ 不碰 DOM，L2 合规）

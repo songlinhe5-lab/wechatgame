@@ -146,3 +146,15 @@
 - [ ] Cocos 编辑器导入 `cocos/assets/textures/detail/` 四枚 PNG（生成 `.meta` 并挂 `textures` Bundle）；harness 已可用。
 - [ ] 木牌背板若再换纹理（`proposals/plaque-texture-20261108/`），需重导 `ui_detail_plaque@2x.png` 并同步投放件。
 - [ ] 大字号 / 减弱动效档的弹窗字号与进场（现仅副标题读 `largeText`）——归后续无障碍批。
+
+---
+
+## 11. 橱窗面板独立资源（WXG-T-609 · 2026-11-10 补）
+
+`WXG-T-608` 把 `95:116 对话框背景` 换成新版纯木纹牌后，旧版烘在牌内的「空橱窗 + 底座」消失，详情页中部缺件。稿面 `92:36 抠图层` 里另有独立节点 **`192:42 橱窗面板`**（RECTANGLE 469×638 @画布 80,398 ⇒ 帧内 **143,376**），自 `T-604` 起一直未导出（`T-604` 只入木牌 / 开始 / 双星四件）。
+
+- **资源**：Figma @2x 导出 `938×1276 RGBA`（玻璃展示柜 + 顶部射灯 + 底部圆台 + 木板底座），正本 `design/art/final/assets/detail/ui_detail_showcase@2x.png`；Cocos 投放件 `ui_detail_showcase.png`。
+- **层序**（与稿面 `92:36` 子节点顺序一致）：对话框背景 → **橱窗面板** → 关卡图案（`123:3` / `LEVEL_DETAIL_GEO.thumb`）→ 开始按钮 → 标题 / 副标题 / 星级 / 道具文字。面板下缘帧内 y=1014，开始按钮 y=1027 ⇒ 不重叠；星级（858）/ 道具（912）落在面板范围内但绘制在其上。
+- **几何单源**：`LEVEL_DETAIL_GEO.showcase = { x:143, yDown:376, w:469, h:638 }`（⛔ 本文不另抄数字）；视图 `SHOWCASE_DY = dyBottom(376,638) = 196`，`x = plate.x + (143 − 89)`。
+- **缺图降级**：不叠面板（纯木纹牌仍可读），⛔ 不叠程序化第二套玻璃框。本机无 Cocos 编辑器 ⇒ 新件 `.meta` 待签发，真机暂走此腿。
+- **判据**：`tests/level-detail-showcase.test.ts`（几何同源 / 缺图零 blit）。金样本 11 态零影响（`level-detail` 不在 UI-02 覆盖态内）。

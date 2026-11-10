@@ -9266,3 +9266,17 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **改判说明**：前次「按包体纪律不重出投放件」的决策**因源件变更失效**，正确性优先 ⇒ 必须重出；体积 110,657 → 125,537 B（**+14.9 KB**，非前次估算的 +207 KB，因沿用 P 口径），主包 3.0 MB / 红线 4 MB 不变。
 - **验证**：`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（含 `check:size` / `check:cocos-mask`）；金样本 11 态 sha / total / kinds 逐字未变（blit 指令不含纹素）⇒ ⛔ 无需重抓。
 - **视觉复核**（harness `?hud=off`，位图腿，⛔ 非真机）：`temp/ui-shot/level-select-plaque-v2.png`（九格模板贴合新木纹）、`temp/ui-shot/level-detail-plaque-v2.png`（缩略 / 星级 / 道具 / 开始钮直接落木纹面，无旧空橱窗凹槽，版面正常）。
+
+## WXG-T-609
+
+**资产·关卡详情橱窗面板从 Figma `192:42` 获取并接入** · 负责：主理人(CodeBuddy)·beads 美术/工程轨 · 状态：✅ 完成（2026-11-10）
+
+- **上位**：用户令「关卡详情页缺少橱窗面板资源，请从 figma 上获取添加」。承接 `WXG-T-608`：新版 `95:116` 对话框背景改为纯木纹牌后，旧版烘在牌内的「空橱窗 + 底座」不再存在，详情页中部视觉缺件。
+- **节点定位**（重取 `84:36` / `92:36` 抠图层直接子表）：`92:37 Background`、`95:116 对话框背景`、**`192:42 橱窗面板` RECTANGLE 469×638 @画布(80,398)**、`123:3 关卡图案` 295×285 @(182,542)、`119:36 开始按钮`、`95:104` 副标题、`95:59` 标题、`147:36 星级信息`、`148:36 道具`。稿面层序 = 背景 → **橱窗面板** → 关卡图案 → 开始 → 文字。`192:42` 扣帧原点 (−63,+22) ⇒ 帧内 **(143,376) 469×638**。该节点在 `T-604` 时即存在，但当时只导出木牌 / 开始 / 双星四件 ⇒ 从未入库。
+- **获取**：`node my-skills/wxgame-figma/scripts/figma.mjs img "…?node-id=84-36" --out temp/figma/showcase-panel --ids 192:42 --scale 2` ⇒ `192-42.png` **938×1276 RGBA / 503,150 B（491.4 KiB）**，内容 = 玻璃展示柜 + 顶部射灯 + 底部圆台 + 木板底座。首轮复合命令被切后台目录为空，单独重跑成功。
+- **资产入库**：设计源 `design/art/final/assets/detail/ui_detail_showcase@2x.png`；Cocos 投放件 `cocos/assets/textures/detail/ui_detail_showcase.png` **RGBA / 208,201 B**。⚠ 该图 **半透明像素 819,068（68%）** 是玻璃主体 ⇒ 按在册 `ship()` 保留完整 alpha（RGB FASTOCTREE 256 + 原 alpha 贴回），alpha 与稿面**逐像素完全相同**、RGB mean 2.547；⛔ 不用 `T-608` 的 P 单透明索引口径（二值化会丢玻璃，实测共同可见区 mean 4.815 / max 255）。
+- **落码**：`config/tuning/level-detail.ts` 增 `LEVEL_DETAIL_GEO.showcase = {x:143, yDown:376, w:469, h:638}` 与 `LEVEL_DETAIL_TEXTURES.showcase = 'bitmap__detail_showcase'`；`view/meta-level-detail-page.ts` 在木牌 blit 之后插入 `SHOWCASE_DY = dyBottom(376,638) = 196` 的一条 blit（x = plate.x + 54、y = plate.y + 196），层序与稿面一致；缺图 ⇒ **不画**（纯木纹牌仍可读，⛔ 不叠程序化第二套玻璃框）。`dev/harness/main.ts` 与 `beads-blit-carrier.ts::BITMAP_ASSETS` 注册新 id。
+- **判据**：新增 `tests/level-detail-showcase.test.ts` 2 例（位图就绪恰一条 blit、几何与 `LEVEL_DETAIL_GEO.showcase` + `levelDetailPlate()` 同源；缺图零 blit）。
+- **验证**：全量单测 **1439 passed / 2 skipped（124 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；金样本 11 态 sha / total / kinds 逐字未变（`level-detail` 不在金样本覆盖态，新增 blit 不进十一帧）。
+- **视觉复核**：harness `?hud=off` 截图 `temp/ui-shot/level-detail-showcase-v1.png` —— 玻璃橱窗 + 射灯 + 圆台补齐，缩略在窗内、星级 / 道具 / 开始钮在窗下，层序正常（⛔ 非真机证据）。
+- **⚠ 遗留**：本机无 Cocos 编辑器 ⇒ 新投放件 `.meta` 未签发（L1 禁伪造），真机 `textures` Bundle 暂不含此件 ⇒ 详情页不叠面板（降级为纯木纹牌，零功能回归）。解除条件 = 编辑器 reimport `cocos/assets/textures/detail/` 后重导。
