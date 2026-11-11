@@ -193,7 +193,7 @@ y=  68 ├───────────────────────�
 
 | 项 | 稿面 | 落码 |
 |---|---|---|
-| ① 名字居中 | `159:10` 槽 @278 偏左 | **木牌中轴 380 居中**（`align:'center'`，同标题轴；稿面左锚退场 K-053） |
+| ① 名字居中 | `159:10` 槽 @278 偏左 | **木牌中轴 380 居中**（同标题轴；左锚退场 K-053） |
 | ② 高亮无框 | 位图 `cellCurrent` 本就无框 | 降级腿黄铜描边**退场**，当前关改**亮金内窗** `plateSubInk` |
 | ③ 关数面板 | `176:22 background` 65×35 贴格顶 | blit `brand` 背景；**数字仍 VM 程序化**（稿 `176:67` 烘死「1」，⛔ 不切字） |
 | ④ 锁定格 | `176:21 grid-image` 69×76 @格内 (44, 距顶 49) | blit `lockImage` 于槽 + **三星隐藏**；缺图降级灰珠阵落槽 |
@@ -218,4 +218,4 @@ y=  68 ├───────────────────────�
 
 ### 二轮：稿面大更新对齐（v0.15 追记 · WXG-T-612 · 2026-11-11）
 
-稿面 `02:21Z` 更新（用户令查 `grid-button`/`grid-star`）：三态格底素材**整体换新**——浅原木纹、无框、圆角 14、Highlight 描边/内阴影已删 ⇒ 三态重导**直用**（一轮裁框退场，K-053）；星换 `214:98` 新组件集（64×60）+ **gap 3**（pitch 35）。三态参数（⇒ `tuning` 头注）：Normal 无滤镜 / Highlight `exposure+0.15, contrast+0.03, saturation+0.15, highlights+0.10` / Disabled `exposure−0.10, contrast−0.015, saturation−1`。几何未变：grid-image (44,49) 69×76、brand 65×35、星带 bandY 28；当前关映射不变（稿 grid-4=Highlight）。
+稿面 `02:21Z` 更新（用户令查 `grid-button`/`grid-star`）：三态格底素材**整体换新**（浅原木纹无框圆角 14，Highlight 描边/内阴影已删）⇒ 重导直用（裁框退场 K-053）；星换 `214:98` 新组件集（64×60）+ **gap 3**（pitch 35）。三态参数（⇒ `tuning` 头注）：Normal 无滤镜 / Highlight `exposure+0.15, contrast+0.03, saturation+0.15, highlights+0.10` / Disabled `exposure−0.10, contrast−0.015, saturation−1`。几何未变：grid-image (44,49) 69×76、brand 65×35、星带 bandY 28；当前关映射不变（稿 grid-4=Highlight）。**三轮**：高亮环 = 实例 override `highlight-ring`（`#FFF0B0` 4px+金内发光）⇒ 位图腿按 `cellArt.ring` 绘制（烘不进导出图）。

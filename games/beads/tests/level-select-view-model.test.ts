@@ -86,6 +86,16 @@ describe('WXG-T-607 选关弹窗 View/ViewModel', () => {
             countBlit(cmds, LEVEL_SELECT_TEXTURES.starFilled) + countBlit(cmds, LEVEL_SELECT_TEXTURES.starEmpty),
             '9 格 × 3 枚星',
         ).toBe(27);
+        // `[WXG-T-612·三轮]` 高亮环（稿 grid-4 实例 override `highlight-ring`）：#FFF0B0 内描边 4px
+        // + 金色柔光宽 stroke，仅当前关 1 组（组件本体渲染不带 ⇒ ⛔ 烘不进导出图，数据驱动）。
+        const rings = cmds.filter(
+            (c) => c.kind === 'rect' && 'stroke' in c && c.stroke === '#FFF0B0' && c.lineWidth === 4,
+        );
+        expect(rings, '高亮环主描边 ×1（当前关）').toHaveLength(1);
+        expect(
+            cmds.some((c) => c.kind === 'rect' && 'stroke' in c && typeof c.stroke === 'string' && c.stroke.startsWith('rgba(255,224,138')),
+            '金色柔光层在环之下',
+        ).toBe(true);
     });
 
     it('`[WXG-T-610/611]` 锁定态：灰格底 ×8 + 图案槽锁图 ×8 + 星带只剩当前格', () => {
@@ -98,5 +108,9 @@ describe('WXG-T-607 选关弹窗 View/ViewModel', () => {
             countBlit(cmds, LEVEL_SELECT_TEXTURES.starFilled) + countBlit(cmds, LEVEL_SELECT_TEXTURES.starEmpty),
             '锁格隐藏三星 ⇒ 只剩当前格 3 枚',
         ).toBe(3);
+        expect(
+            cmds.filter((c) => c.kind === 'rect' && 'stroke' in c && c.stroke === '#FFF0B0' && c.lineWidth === 4),
+            '高亮环仍只随当前关（`T-612·三轮`）',
+        ).toHaveLength(1);
     });
 });

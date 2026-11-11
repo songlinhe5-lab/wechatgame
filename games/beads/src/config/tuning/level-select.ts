@@ -85,6 +85,14 @@ export const LEVEL_SELECT_GEO = {
          * ⚠ y-up 口径与三带分离一致：牌顶 / 图案槽中 / 星带底（锁定时星带隐藏）。
          */
         imageW: 69, imageH: 76, imageLeft: 44, imageTopDown: 49,
+        /**
+         * `[WXG-T-612·三轮]` 高亮环（稿 grid-4 实例 override `I188:67;218:69 highlight-ring`，
+         * ⛔ 组件本体 `183:41` 渲染不带 ⇒ 烘不进导出图，只能数据驱动绘制）：
+         * `#FFF0B0` 内描边 4px + 金色内发光（稿 INNER_SHADOW rgba(255,224,138) α0.70 r6，
+         * 代码近似为宽半透明 stroke）。环框 = 格内对称缩 148×168、radius 13
+         * （稿面手摆 y 偏 2.5 已取整对称，K-053）；仅位图腿当前关绘制、叠在缩略/星之下（稿层序）。
+         */
+        ring: { insetX: 5, insetY: 6.5, stroke: '#FFF0B0', strokeW: 4, glow: '#FFE08A', glowAlpha: 0.35, glowW: 10, radius: 13 },
     },
     /**
      * `[WXG-T-606]` 程序化托盘（**缺图降级腿**）：格 = 木框凹槽 + 米白内窗，

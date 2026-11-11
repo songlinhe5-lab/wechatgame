@@ -9345,3 +9345,10 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
   - brand（md5 SAME）/ lockImage / grid-image 不动。
 - **判据**：星几何断言无 gap 硬编码（仅 `starBandY`）⇒ 测试零改动；全量 **1442 passed / 2 skipped**；金样本 `level-select` 两态重抓（星位漂移）；`verify` PASS 23 / FAIL 0。
 - **视觉复核**：`temp/figma/t611/reexport/183-41.png` 等（新素材稿面直出图）。
+
+### 三轮（2026-11-11 · 用户令「高亮状态，一圈高亮线条没有读出来」）
+
+- **归因**：二轮判读「Highlight 描边已被设计者删除」**错误**——描边被设计者**搬到独立环层**：v3 子树实读 grid-4（Highlight 实例 `188:67`）内部有 **`I188:67;218:69 highlight-ring` [RECTANGLE]**：`strokes = SOLID #FFF0B0`、`strokeWeight 4`、`strokeAlign INSIDE`、`effects = INNER_SHADOW rgba(255,224,138) α0.702 offset(0,0) radius 6`、框 148×168 @格内 (5,9)、`cornerRadius 13`。对照格 grid-6（Disabled）/ grid-1（Normal）实例内部**无环** ⇒ 环仅 Highlight 态。
+- **为何二轮漏读**：环不在组件本体（`183:41` strokes 空、组件渲染导出图亦无环——⚠ 烘不进导出图），只在**九宫格实例的 override 层**；二轮用单节点 API 拉 `183:41` 看不到实例层 ⇒ 误判删除。教训：**组件集参数 ≠ 实例呈现，实例 override 必须整页子树实读**。
+- **落码**：`cellArt.ring = { insetX:5, insetY:6.5, stroke:'#FFF0B0', strokeW:4, glow:'#FFE08A', glowAlpha:0.35, glowW:10, radius:13 }`（148×168 = 格内对称缩，稿面手摆 y 偏 2.5 取整对称 K-053）；`drawLevelSelectCell` 位图腿 `cell.current` 分支绘制两笔（柔光宽 stroke → 主描边），**先环后内容**（稿层序：环在缩略/星之下）；仅位图腿（降级腿不变）。
+- **判据**：`level-select-view-model` 两帧加环断言（主描边 `#FFF0B0` 4px ×1 + 柔光层存在）；金样本**零影响**（环在位图腿分支，金样本走降级腿）；全量 **1442 passed / 2 skipped**；typecheck 0 错。

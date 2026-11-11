@@ -292,6 +292,15 @@ export function drawLevelSelectCell(
     if (menuBitmapReady(tex)) {
         // `[WXG-T-610]` 三态稿面格底 158×177：底对齐格框（格高 181，顶部 4px 让编号牌溢出）。
         builder.blit(tex, x, y, w, LEVEL_SELECT_GEO.cellArt.h);
+        // `[WXG-T-612·三轮]` 高亮环（稿 grid-4 实例 override `highlight-ring`，用户令「一圈高亮
+        // 线条」）：组件本体渲染不带 ⇒ 烘不进导出图，数据驱动绘制；先环后内容（稿层序，环在
+        // 缩略/星之下）。内发光以宽半透明 stroke 近似 INNER_SHADOW(r6)。
+        if (cell.current) {
+            const r = LEVEL_SELECT_GEO.cellArt.ring;
+            const rx = x + r.insetX, ry = y + r.insetY, rw = w - r.insetX * 2, rh = h - r.insetY * 2;
+            builder.rect(rx, ry, rw, rh, { stroke: withAlpha(r.glow, r.glowAlpha), lineWidth: r.glowW, radius: r.radius });
+            builder.rect(rx, ry, rw, rh, { stroke: r.stroke, lineWidth: r.strokeW, radius: r.radius });
+        }
     } else if (menuBitmapReady(cellTextureId)) {
         // 次级降级：`T-607` 通用木纹模板（K-053 留档）。
         builder.blit(cellTextureId, x, y, w, LEVEL_SELECT_GEO.cellArt.h);
