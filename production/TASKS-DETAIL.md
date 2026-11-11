@@ -9352,3 +9352,19 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **为何二轮漏读**：环不在组件本体（`183:41` strokes 空、组件渲染导出图亦无环——⚠ 烘不进导出图），只在**九宫格实例的 override 层**；二轮用单节点 API 拉 `183:41` 看不到实例层 ⇒ 误判删除。教训：**组件集参数 ≠ 实例呈现，实例 override 必须整页子树实读**。
 - **落码**：`cellArt.ring = { insetX:5, insetY:6.5, stroke:'#FFF0B0', strokeW:4, glow:'#FFE08A', glowAlpha:0.35, glowW:10, radius:13 }`（148×168 = 格内对称缩，稿面手摆 y 偏 2.5 取整对称 K-053）；`drawLevelSelectCell` 位图腿 `cell.current` 分支绘制两笔（柔光宽 stroke → 主描边），**先环后内容**（稿层序：环在缩略/星之下）；仅位图腿（降级腿不变）。
 - **判据**：`level-select-view-model` 两帧加环断言（主描边 `#FFF0B0` 4px ×1 + 柔光层存在）；金样本**零影响**（环在位图腿分支，金样本走降级腿）；全量 **1442 passed / 2 skipped**；typecheck 0 错。
+## WXG-T-613
+
+**UI·选关页缩略新增完整豆面档（旧固定珠数聚合档保留）** · 负责：主理人(CodeBuddy)·beads 工程轨 · 状态：✅ 完成（2026-11-11）
+
+- **上位**（用户令，原话）：「九宫格里的网格缩略图能否完整按照盘面来实现，之前按照固定宽高珠数出图，保留这个方案，新增一种完整豆面的缩略展示」——双档并存：旧聚合档（固定 5×5 聚合）保留给走马灯 / 详情页 / 死链，选关页九宫格切**完整豆面**（盘面真实 rows×cols 逐珠等比）。
+- **新增**（`menu-signage.ts`）：
+  - `levelThumbFullCells(level)`：逐珠 `[r,c,colorIdx]` 三元组（'.'/'x' 无墨跳过），`Object.freeze` + WeakMap（`_fullCache`，与聚合档缓存分池）⇒ 每帧零重算零分配。
+  - `drawLevelThumbFull(builder, level, x, yBottom, w, h, inkOverride?, alpha?)`：pitch = min(w/cols, h/rows)（方形珠、保持盘面宽高比、双向居中）；**块边 = pitch − 缝**，缝恒 `BEAD_GAP`，唯**超大盘**（pitch < BEAD_GAP×2，如 30×30 → pitch 2.3）缝随 pitch 压缩至 40% 占比——否则缝吃掉 87% 格距、珠块 <0.5px 视觉消失；常规关（pitch ≥ 4.92）恒走 BEAD_GAP 支路 ⇒ 块边不漂移。墨源与 `drawLevelThumb` 同口径（C3 单源）。
+  - **⛔ 不接位图臂**：预烘缩略图是聚合档内容，blit 会冒充完整豆面（`_thumbBitmap` 本就全仓无注入点）。
+- **接线**（`meta-widgets.ts::drawLevelSelectCell`）：选关页两腿切 full——锁定降级腿 = `drawLevelThumbFull(..., beadFadedInksFor(level))` 灰墨完整豆面（槽位不变）；解锁格 = 彩墨 full；`vm.thumbN`（聚合档参数）不再进本函数（签名保留 VM 位，调用方 `drawLevelsView` 不动）。
+- **测试迁移**（K-053 口径刷新，`meta-menu-wall.test.ts`）：
+  - `thumbOracle` 切 `drawLevelThumbFull` 同参复算；**旧 `THUMB_BLOCK` 单一块宽口径退场**（full 档块边依关而变 0.3–4.27）。
+  - 排障实录：初迁用「方形小块 0.5<w<40」宽口径 ⇒ 4 例红（反读全 0 / `[1,0,3,0…]`）。**根因**（rig 帧取证）：levels 弹窗背景透出的**走马灯 Boss 珠拼**（L9 30×30 盘、块边 10.47）横跨墙区，slot1/3 图案槽矩形内各混入 12/22 个背景珠 ⇒ 签名必失配；且 L9 缩略块边 0.3 被下限滤掉。**修法**：`beadSignatureIn` 改**双口径**（图案槽矩形内 + 期望块边 `blockEdgeOf(level)` 同式复算）⇒ 32/32 全绿。教训：**弹窗帧背景非空白，宽口径反读必混入背景元素；反读过滤必须钉到「期望关的几何指纹」**。
+  - `menu-thumb-primitives.test.ts` 增 `[T-613]` describe 7 例：fullCells 块数=盘面非空珠数（九关逐关）/ WeakMap 缓存同引用且与聚合档分池 / rect 数=块数 + 参照流逐字节对撞（L3）/ 非方形槽（69×76）宽高比保持 + 双向居中余量对称 / inkOverride 灰墨腿（fill ∉ 彩墨集）/ 超大盘缝压缩（30×30 → block 1.38px）+ 常规关不漂移 / alpha≤0 早退 + 半透明腿。
+- **验证**：typecheck 0 错；全量 **1442 passed / 2 skipped（124 文件）**；金样本 `level-select` 两态重抓（九格缩略内容换 full 档 ⇒ 命令流大改，预期对拍后重抓）。
+- **视觉复核**：harness `dist` 重建后目视（dist 陈旧教训沿用 T-612 三轮：改视图代码必 `harness:build`）。

@@ -7,7 +7,7 @@ import { DESIGN_W, LEVEL_DETAIL_TEXTURES, LEVEL_SELECT_GEO, LEVEL_SELECT_TEXTURE
 import { COPY_TOKENS } from '../config/copy-tokens';
 import { type RenderModelBuilder } from '../../framework/index';
 import { beadFadedInksFor, withAlpha, type BeadsPalette } from './palette';
-import { drawLevelThumb, resetSignageWarnings } from './menu-signage';
+import { drawLevelThumb, drawLevelThumbFull, resetSignageWarnings } from './menu-signage';
 import { type BeadsLevelRaw } from '../config/levels-data';
 import { scrimFill, UI_FONT, UI_SCRIM, pressOffset } from './ui-theme';
 import { drawButton } from './ui-widgets';
@@ -280,7 +280,9 @@ function drawCellStars(
 export function drawLevelSelectCell(
     builder: RenderModelBuilder,
     cell: LevelSelectCellViewModel,
-    vm: LevelSelectViewModel,
+    // `[WXG-T-613]` 缩略切完整豆面档（盘面真实行列）⇒ `vm.thumbN`（聚合档参数）不再进本函数；
+    // 签名保留 VM 位（调用方 `drawLevelsView` 不动），将来切回聚合档时复用。
+    _vm: LevelSelectViewModel,
     palette: BeadsPalette,
     cellTextureId: string,
 ): void {
@@ -342,12 +344,13 @@ export function drawLevelSelectCell(
         if (menuBitmapReady(LEVEL_SELECT_TEXTURES.lockImage)) {
             builder.blit(LEVEL_SELECT_TEXTURES.lockImage, ix, iy, a.imageW, a.imageH);
         } else if (cell.level !== undefined) {
-            drawLevelThumb(builder, cell.level, ix, iy, a.imageW, a.imageH, vm.thumbN, a.imageW, beadFadedInksFor(cell.level));
+            // `[WXG-T-613]` 锁定降级腿 = 灰墨**完整豆面**（槽位不变；旧聚合档保留给走马灯/详情页）。
+            drawLevelThumbFull(builder, cell.level, ix, iy, a.imageW, a.imageH, beadFadedInksFor(cell.level));
         }
         return;
     }
     if (cell.level !== undefined) {
-        drawLevelThumb(builder, cell.level, ix, iy, a.imageW, a.imageH, vm.thumbN, a.imageW);
+        drawLevelThumbFull(builder, cell.level, ix, iy, a.imageW, a.imageH);
         drawCellStars(builder, cell, palette);
     }
     // `[WXG-T-610]` 当前关由亮金格底表达；旧黄铜描边随 T-611 降级腿一并退场（K-053 留档）。

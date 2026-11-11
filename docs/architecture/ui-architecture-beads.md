@@ -287,6 +287,8 @@ games/beads/src/ui/
 
 **视觉变更登记（2026-11-11 · WXG-T-612 三轮 · 高亮环补读）**：用户令「高亮一圈高亮线条没有读出来」。归因：环在稿面 **grid-4 实例 override** `I188:67;218:69 highlight-ring`（`#FFF0B0` 内描边 4px INSIDE + 金色内发光 α0.70 r6，148×168 radius13 格内居中）——组件本体渲染不带 ⇒ 烘不进导出图，二轮单节点拉取漏读（判「描边已删」错误，K-053）。落码：`cellArt.ring` 参数 + 位图腿当前关两笔绘制（柔光宽 stroke → 主描边，先环后内容稿层序）；仅位图腿，降级腿不变；金样本零影响；判据 = 位图腿两帧环断言；全量 **1442 passed**。教训入档：组件集参数 ≠ 实例呈现，override 必须整页子树实读。
 
+**视觉变更登记（2026-11-11 · WXG-T-613 · 选关页缩略新增完整豆面档）**：用户令「九宫格里的网格缩略图能否完整按照盘面来实现，之前按照固定宽高珠数出图，保留这个方案，新增一种完整豆面的缩略展示」。**双档并存**：`menu-signage.ts` 新增 `levelThumbFullCells`（逐珠 `[r,c,colorIdx]`，WeakMap 分池缓存）+ `drawLevelThumbFull`（pitch = min(槽宽/cols, 槽高/rows)，块边 = pitch − 缝；缝恒 `BEAD_GAP`，唯超大盘 pitch<`BEAD_GAP`×2 缝压缩 0.4pitch——30×30 盘旧口径珠块 0.3px 消失，压缩后 1.38px）；**旧 `drawLevelThumb` 聚合档保留**（走马灯 / 详情页 / 死链）。**接线**：`drawLevelSelectCell` 选关页两腿切 full（锁格灰墨 / 解锁格彩墨）；`vm.thumbN` 退场（签名保留 VM 位）；**位图臂不接**（预烘图是聚合档内容会冒充完整豆面）。**测试口径刷新**（K-053）：`meta-menu-wall` oracle 切 full 同参复算，反读过滤改**双口径**（图案槽矩形 + 期望块边 `blockEdgeOf`）——宽口径被 levels 帧背景透出的走马灯 Boss 30×30 珠拼（块边 10.47）混签 ⇒ 4 例红，教训：**弹窗帧背景非空白，反读必须钉期望关的几何指纹**；`menu-thumb-primitives` 增 7 例。全量 **1442 passed / 2 skipped**；金样本 `level-select` 两态重抓。
+
 **关键路径**：UI-00 → UI-01 → UI-10…14 → UI-20 → UI-22 / UI-25 → UI-30 → UI-31 → UI-41 → UI-42 → UI-50 → UI-53。UI-02（金样本）与 P1 可并行，但必须在 UI-30 前完成。
 
 > **[WXG-T-473] 金样本复评登记（2026-10-28）**：`copy-tokens.ts::version_label` 发布文案变更（`v1.x · 演示版` → `v1.0.0 · 演示版`，T-469 USER 版本号裁定「首发 1.0.x、x = build 号」）⇒ Meta 四屏（main-menu / level-select-mid / settings / signin）底部版本行文本变 ⇒ 整帧 sha 漂移（total / 种类数零变，纯文本内容）。复取器两遍确定性自证 PASS，夹具 `capturedFrom` = `2fbe8e4d`；对拍 **13/13 绿**。复取说明：工作树 src 面与 HEAD 零差异（dirty 仅 docs 台账两件），主树复取等价干净检出（K-167 精神，注记披露）。

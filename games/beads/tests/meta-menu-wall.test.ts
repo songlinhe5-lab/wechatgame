@@ -56,13 +56,13 @@ import { COPY_TOKENS } from '../src/config/copy-tokens.js';
 import { buildMetaModal, buildMetaView, hitTestMeta, metaLayout, type MetaViewData } from '../src/view/meta-view.js';
 import { label } from '../src/view/meta-widgets.js';
 import { rankPanelLayout } from '../src/systems/rank-panel.js';
-import { drawLevelThumb, levelThumbCells, SIGN_INK_COLOR_IDX } from '../src/view/menu-signage.js';
+import { drawLevelThumbFull, levelThumbCells, SIGN_INK_COLOR_IDX } from '../src/view/menu-signage.js';
 import { drawFilledBead, type FilledBeadOptions } from '../src/view/bead-render.js';
 import { DEBUG_OUTLINE_TILE_HEX, DEFAULT_PALETTE, DEMO_BEAD_INKS, beadFadedInksFor, beadGrayInksFor, beadInksFor } from '../src/view/palette.js';
 import {
+    BEAD_GAP,
     DESIGN_H,
     DESIGN_W,
-    BEAD_GAP,
     MENU_V2,
     PANEL_IN_MS,
     THUMB_MATRIX_N,
@@ -222,24 +222,39 @@ function centerTuple(box: { x: number; y: number; w: number; h: number }): [numb
     return [c.x, c.y];
 }
 
-/** 选关弹窗缩略块边长（与 `drawLevelThumb` 同式）：用于把底页菜单的回退缩略排除在签名外。
- *  `[WXG-T-611]` 缩略落稿面图案槽（`176:21 grid-image`，69 宽）⇒ 块边长按槽位重算。 */
-const THUMB_BLOCK = LEVEL_SELECT_GEO.cellArt.imageW / THUMB_MATRIX_N - BEAD_GAP;
+
+/**
+ * full 档珠块边 = min(槽宽/cols, 槽高/rows) − 缝（`drawLevelThumbFull` 同式复算，含缝压缩
+ * 分支）。`[WXG-T-613]` full 档块边**依关而变** ⇒ 反读无法按单一块宽过滤（旧 `THUMB_BLOCK`
+ * 常量口径退场）；且 levels 帧背景透出的走马灯 Boss 珠拼（30×30 盘，块边 10.47）横跨墙区，
+ * 会落进部分格的图案槽矩形 ⇒ 须按**期望块边**机械排除。
+ */
+function blockEdgeOf(level: (typeof LEVELS)[number]): number {
+    const a = LEVEL_SELECT_GEO.cellArt;
+    const pitch = Math.min(a.imageW / level.cols, a.imageH / level.pattern.length);
+    const gap = pitch < BEAD_GAP * 2 ? pitch * 0.4 : BEAD_GAP;
+    return pitch - gap;
+}
 
 /**
  * 盘面色块的**空间签名**（`[WXG-T-502]`：缩略只画盘面 ⇒ 一格一块 `rect`）。
- * 只收**选关弹窗自己的**缩略块：范围内 + 边长 = 5×5 档块（底页菜单的回退缩略尺寸不同 ⇒ 排除）。
+ * `[WXG-T-613]` 双口径过滤：**图案槽矩形内**（缩略珠恒落 `cellArt` 图案槽，格框外
+ * 的走马灯珠拼不捞）+ **块边 = 期望关块边**（槽内误入的背景珠块边不同 ⇒ 排除）。
  */
 function beadSignatureIn(
     cmds: readonly DrawCommand[],
     box: { x: number; y: number; w: number; h: number },
+    edge: number,
 ): string {
+    const a = LEVEL_SELECT_GEO.cellArt;
+    const ix0 = box.x + a.imageLeft;
+    const iy0 = box.y + (box.h - a.imageTopDown - a.imageH);
     return cmds
         .filter((k) => {
             if (k.kind !== 'rect') return false;
-            const c = k as { x: number; y: number; w: number };
-            return c.x > box.x + 1 && c.x < box.x + box.w - 1 && c.y > box.y + 1 && c.y < box.y + box.h - 1 &&
-                Math.abs(c.w - THUMB_BLOCK) < 0.01;
+            const c = k as { x: number; y: number; w: number; h: number };
+            return c.x >= ix0 && c.x + c.w <= ix0 + a.imageW && c.y >= iy0 && c.y + c.h <= iy0 + a.imageH &&
+                Math.abs(c.w - edge) < 0.02 && Math.abs(c.w - c.h) < 0.02;
         })
         .map((k) => {
             const c = k as { x: number; y: number; w: number; h: number; fill?: string };
@@ -250,32 +265,35 @@ function beadSignatureIn(
 
 /**
  * 把**期望关**的缩略单独画进干净 builder ⇒ 与该格实测序列逐条对撞（⛔ 不读屏上文字反推关号）。
- * `[WXG-T-611]` 缩略落稿面图案槽（`176:21 grid-image` 69×76 @格内 (44, 距顶 49)）
- * ⇒ oracle 与 `drawLevelSelectCell` **同参复算**（旧 `THUMB_AREA` 全窗口径退场，K-053 留档）。
+ * `[WXG-T-613]` 缩略切**完整豆面**档（盘面真实 rows×cols 逐珠）⇒ oracle 与
+ * `drawLevelSelectCell` 同参复算 `drawLevelThumbFull`（旧 `THUMB_MATRIX_N` 聚合档口径退场，K-053）。
  */
 function thumbOracle(level: (typeof LEVELS)[number], box: { x: number; y: number; w: number; h: number }): string {
     const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
     builder.begin();
     const a = LEVEL_SELECT_GEO.cellArt;
-    drawLevelThumb(builder, level, box.x + a.imageLeft, box.y + (box.h - a.imageTopDown - a.imageH), a.imageW, a.imageH, THUMB_MATRIX_N, a.imageW);
-    return beadSignatureIn(builder.end().commands, box);
+    drawLevelThumbFull(builder, level, box.x + a.imageLeft, box.y + (box.h - a.imageTopDown - a.imageH), a.imageW, a.imageH);
+    return beadSignatureIn(builder.end().commands, box, blockEdgeOf(level));
 }
 
 /**
  * 按实测缩略反读每格是哪一关（oracle 命中关号；无命中 ⇒ 0，断言会指名哪格失配）。
- * 本池九关的 5×5 缩略签名两两不同（由下节「阳性对照」例钉死 ⇒ 本反读无歧义）。
+ * 实读过滤边随候选关走（full 档块边依关而变 ⇒ 每关各按其块边滤一遍）。
+ * 本池九关的缩略签名两两不同（由下节「阳性对照」例钉死 ⇒ 本反读无歧义）。
  */
 function levelIdByThumb(cmds: readonly DrawCommand[], cell: { box: { x: number; y: number; w: number; h: number } }): number {
-    const sig = beadSignatureIn(cmds, cell.box);
     for (let i = 0; i < LEVELS.length; i++) {
+        const sig = beadSignatureIn(cmds, cell.box, blockEdgeOf(LEVELS[i]!));
         if (sig !== '' && sig === thumbOracle(LEVELS[i]!, cell.box)) return i + 1;
     }
     return 0;
 }
 
-/** 格内盘面色块数（= 缩略实际画出的块；未解锁 / 越界槽必为 0）。 */
-function beadsInCell(cmds: readonly DrawCommand[], cell: { box: { x: number; y: number; w: number; h: number } }): number {
-    return beadSignatureIn(cmds, cell.box).split('\n').filter((s) => s.length > 0).length;
+/** 格内盘面色块数（= 缩略实际画出的块；未解锁 / 越界槽必为 0）。恒等序：槽 i = 关索引 i。 */
+function beadsInCell(cmds: readonly DrawCommand[], cell: { box: { x: number; y: number; w: number; h: number }; slot?: number }): number {
+    const lv = cell.slot === undefined ? undefined : LEVELS[cell.slot];
+    if (lv === undefined) return 0;
+    return beadSignatureIn(cmds, cell.box, blockEdgeOf(lv)).split('\n').filter((s) => s.length > 0).length;
 }
 
 /** 格内星带文本数（★/☆ 串）——四通道之一；锁格也显示 ☆☆☆（WXG-T-606 用户令）。 */

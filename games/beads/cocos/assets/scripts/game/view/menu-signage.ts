@@ -356,6 +356,78 @@ export function thumbFaceB(n: number = THUMB_MATRIX_N): number {
     return signFaceB(thumbPitchFor(n));
 }
 
+/** `[WXG-T-613]` 完整豆面缓存（逐珠 [r,c,colorIdx]；'.'/'x' 无墨跳过；WeakMap ⇒ 每帧零分配）。 */
+const _fullCache = new WeakMap<BeadsLevelRaw, readonly number[]>();
+
+/**
+ * `[WXG-T-613]` **完整豆面表**：盘面真实 rows×cols 逐珠色号（非聚合）。
+ * 与 {@link levelThumbCells}（固定 n 聚合档）并存的另一档；缓存同 WeakMap 结构。
+ */
+export function levelThumbFullCells(level: BeadsLevelRaw): readonly number[] {
+    const hit = _fullCache.get(level);
+    if (hit !== undefined) return hit;
+    const pattern = level.pattern;
+    const out: number[] = [];
+    for (let r = 0; r < pattern.length; r++) {
+        const row = pattern[r]!;
+        for (let c = 0; c < row.length; c++) {
+            const idx = colorIndexOfChar(row[c]!);
+            if (typeof idx !== 'number') continue; // '.' / 'x' ⇒ 无墨
+            out.push(r, c, idx);
+        }
+    }
+    const cells = Object.freeze(out);
+    _fullCache.set(level, cells);
+    return cells;
+}
+
+/**
+ * `[WXG-T-613]` **完整豆面**缩略（用户令「九宫格缩略完整按照盘面来实现」）：盘面真实
+ * rows×cols 逐珠等比缩放——块边 = min(w/cols, h/rows) − 缝（方形珠、保持盘面宽高比、
+ * 双向居中）。缝恒 `BEAD_GAP`，唯 **超大盘**（pitch < `BEAD_GAP`×2，如 30×30 → pitch 2.3）
+ * 缝随 pitch 压缩至 40% 占比——否则缝吃掉 87% 格距，珠块 <0.5px 视觉消失；
+ * 常规关（pitch ≥ 4.92）恒走 `BEAD_GAP` 支路 ⇒ 块边不漂移。墨源与 {@link drawLevelThumb}
+ * 同口径（C3 单源）。⛔ **不接位图臂**：
+ * 预烘缩略图是聚合档内容，blit 会冒充完整豆面。旧聚合档保留（主菜单走马灯 / 详情页 / 死链仍走）。
+ *
+ * @param x       槽**左缘**；@param yBottom 槽**下缘**（y-up）；@param w/@param h 槽宽高
+ * @param inkOverride 墨集覆盖（未通关置灰，同 `drawLevelThumb`）；@param alpha 整体透明
+ */
+export function drawLevelThumbFull(
+    builder: RenderModelBuilder,
+    level: BeadsLevelRaw,
+    x: number,
+    yBottom: number,
+    w: number,
+    h: number,
+    inkOverride?: BeadInks,
+    alpha?: number,
+): void {
+    if (alpha !== undefined && alpha <= 0) return;
+    const cells = levelThumbFullCells(level);
+    if (cells.length === 0) return;
+    const rows = level.pattern.length;
+    const cols = level.cols;
+    const pitch = Math.min(w / cols, h / rows);
+    const left = x + (w - cols * pitch) / 2;
+    const top = yBottom + (h + rows * pitch) / 2;
+    const inks = inkOverride ?? beadInksFor(level);
+    const gap = pitch < BEAD_GAP * 2 ? pitch * 0.4 : BEAD_GAP;
+    const block = pitch - gap;
+    const fillAlpha = alpha !== undefined && alpha < 1 ? { alpha } : undefined;
+    for (let i = 0; i < cells.length; i += 3) {
+        const r = cells[i]!;
+        const c = cells[i + 1]!;
+        const idx = cells[i + 2]!;
+        const cx = left + (c + 0.5) * pitch;
+        const cy = top - (r + 0.5) * pitch;
+        builder.rect(cx - block / 2, cy - block / 2, block, block, {
+            fill: beadColorOf(inks, idx),
+            ...(fillAlpha ?? {}),
+        });
+    }
+}
+
 /** 招牌档自审（位表边长与 `n` 相符 **且** 面过地板）⇒ 档位被改而位表未跟上时先红在这里。 */
 export function signTierReady(n: number = SIGN_MATRIX_N, d: number = SIGN_BEAD_PITCH): boolean {
     return signFaceB(d) >= SIGN_FACE_FLOOR && signGlyphOf(0x62fc) !== undefined && signGlyphOf(0x62fc)!.n === n;

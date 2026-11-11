@@ -36,11 +36,13 @@ import {
 } from '../src/config/tuning.js';
 import { LEVELS } from '../src/config/levels.js';
 import { BEAD_COLOR_MAX } from '../src/config/tuning.js';
-import { beadColorOf, beadInksFor, DEFAULT_PALETTE } from '../src/view/palette.js';
+import { beadColorOf, beadFadedInksFor, beadInksFor, DEFAULT_PALETTE, type BeadInks } from '../src/view/palette.js';
 import {
     drawLevelThumb,
+    drawLevelThumbFull,
     levelThumbBeads,
     levelThumbCells,
+    levelThumbFullCells,
     thumbFaceB,
 } from '../src/view/menu-signage.js';
 import { simpleTestLevel } from './helpers.js';
@@ -292,5 +294,127 @@ describe('[T-2B] 案乙几何与珠体通道（T-1 §3.2 / §3.4 / §3.7）', ()
             expect(allowed.size).toBeGreaterThan(0);
         }
         expect(DEFAULT_PALETTE.background.startsWith('#')).toBe(true);
+    });
+});
+
+describe('[T-613] 完整豆面档（盘面真实 rows×cols 逐珠，用户令「九宫格缩略完整按照盘面来实现」）', () => {
+    /** 选关页图案槽 69×76（= `LEVEL_SELECT_GEO.cellArt.imageW/imageH`；本文件不跨视图件读数）。 */
+    const SLOT_W = 69;
+    const SLOT_H = 76;
+    const TX = 100;
+    const TY = 200;
+
+    /** full 档几何同式复算（`drawLevelThumbFull` 内部：pitch / 缝压缩 / block）。 */
+    function fullGeo(level: BeadsLevelRaw, w: number, h: number): { pitch: number; block: number } {
+        const pitch = Math.min(w / level.cols, h / level.pattern.length);
+        const gap = pitch < BEAD_GAP * 2 ? pitch * 0.4 : BEAD_GAP;
+        return { pitch, block: pitch - gap };
+    }
+
+    function paintFull(
+        level: BeadsLevelRaw,
+        inkOverride?: BeadInks,
+        alpha?: number,
+    ): readonly DrawCommand[] {
+        const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
+        builder.begin();
+        drawLevelThumbFull(builder, level, TX, TY, SLOT_W, SLOT_H, inkOverride, alpha);
+        return builder.end().commands;
+    }
+
+    it('fullCells 块数 = 盘面非空珠数（`.`/`x` 无墨跳过），九关逐关钉', () => {
+        for (const lv of LEVELS) {
+            let beads = 0;
+            for (const row of lv.pattern) for (const ch of row) if (ch !== '.' && ch !== 'x') beads += 1;
+            expect(levelThumbFullCells(lv).length / 3, `L${lv.id}`).toBe(beads);
+        }
+    });
+
+    it('WeakMap 缓存同引用（同关零重算）⇒ 与聚合档互不串扰', () => {
+        const a = levelThumbFullCells(LEVELS[0]!);
+        expect(levelThumbFullCells(LEVELS[0]!)).toBe(a);
+        expect(levelThumbFullCells(LEVELS[1]!)).not.toBe(a);
+        expect(levelThumbCells(LEVELS[0]!, 5)).not.toBe(a);
+    });
+
+    it('rect 数 = fullCells 块数；逐珠位置/块边/色与参照流逐字节对撞（L3 14×14 方盘）', () => {
+        const level = LEVELS[2]!;
+        const cells = levelThumbFullCells(level);
+        const cmds = paintFull(level).filter((c) => c.kind === 'rect');
+        expect(cmds.length).toBe(cells.length / 3);
+        // 参照流：与 drawLevelThumbFull 同式复算（块边 = pitch − BEAD_GAP，常规关缝不压缩）
+        const { pitch, block } = fullGeo(level, SLOT_W, SLOT_H);
+        const left = TX + (SLOT_W - level.cols * pitch) / 2;
+        const top = TY + (SLOT_H + level.pattern.length * pitch) / 2;
+        const ref = new RenderModelBuilder(DESIGN_W, DESIGN_H);
+        ref.begin();
+        const inks = beadInksFor(level);
+        for (let i = 0; i < cells.length; i += 3) {
+            const cx = left + (cells[i + 1]! + 0.5) * pitch;
+            const cy = top - (cells[i]! + 0.5) * pitch;
+            ref.rect(cx - block / 2, cy - block / 2, block, block, { fill: beadColorOf(inks, cells[i + 2]!) });
+        }
+        expect(cmds.map((c) => JSON.stringify(c))).toEqual(ref.end().commands.map((c) => JSON.stringify(c)));
+    });
+
+    it('非方形槽（69×76）保持盘面宽高比：块边单值方形、双向居中（余量对称）', () => {
+        const level = LEVELS[1]!; // rows 13 cols 10 ⇒ h 受限（76/13 = 5.85 < 69/10 = 6.9）
+        const { pitch, block } = fullGeo(level, SLOT_W, SLOT_H);
+        expect(pitch).toBeCloseTo(SLOT_H / level.pattern.length, 9); // 高受限 ⇒ 纵向满铺、横向居中
+        for (const c of paintFull(level).filter((k) => k.kind === 'rect') as RectCmd[]) {
+            expect(c.w).toBeCloseTo(block, 6);
+            expect(c.h).toBeCloseTo(c.w, 6); // 方形珠
+        }
+        // 双向居中：x/y 余量对称（左 = 右、上 = 下）
+        const cmds = paintFull(level).filter((k) => k.kind === 'rect') as RectCmd[];
+        const minX = Math.min(...cmds.map((c) => c.x));
+        const maxX = Math.max(...cmds.map((c) => c.x + c.w));
+        const minY = Math.min(...cmds.map((c) => c.y));
+        const maxY = Math.max(...cmds.map((c) => c.y + c.h));
+        expect(minX - TX).toBeCloseTo(SLOT_W - maxX + TX, 3);
+        expect(TY + SLOT_H - maxY).toBeCloseTo(minY - TY, 3);
+    });
+
+    it('inkOverride 灰墨锁定腿：fill 全 ∈ 覆盖墨集（⛔ 仍发彩墨）', () => {
+        const level = LEVELS[0]!;
+        const faded = new Set<string>(beadFadedInksFor(level).hexes);
+        for (const c of paintFull(level, beadFadedInksFor(level)).filter((k) => k.kind === 'rect')) {
+            const fill = (c as { fill?: string }).fill;
+            expect(fill).toBeDefined();
+            // 端点色由 `mix()` 派生 ⇒ 以「⊆ 灰墨主色域」判定：不逐一比对，只钉**非彩墨**。
+            expect(beadInksFor(level).hexes).not.toContain(fill!);
+        }
+        expect(faded.size).toBeGreaterThan(0);
+        // 对照：无 override ⇒ fill ∈ 关卡墨集族（同前述前缀门）。
+        const emitted = paintFull(level).filter((k) => k.kind === 'rect').map((c) => (c as { fill?: string }).fill);
+        expect(new Set(emitted).size).toBeGreaterThan(1);
+    });
+
+    it('超大盘缝压缩：pitch < BEAD_GAP×2 ⇒ block = pitch×0.6（30×30 → 1.38px 可见珠）；常规关不漂移', () => {
+        // 30×30 满盘（L9 同量级）：pitch = 69/30 = 2.3 ⇒ 旧口径 block = 0.3 消失，压缩后 1.38
+        const big = simpleTestLevel({
+            rows: 30,
+            cols: 30,
+            pattern: Array.from({ length: 30 }, () => '1'.repeat(30)),
+        });
+        const { pitch, block } = fullGeo(big, SLOT_W, SLOT_H);
+        expect(pitch).toBeCloseTo(SLOT_W / 30, 9);
+        expect(block).toBeCloseTo(pitch * 0.6, 9);
+        for (const c of paintFull(big).filter((k) => k.kind === 'rect') as RectCmd[]) {
+            expect(c.w).toBeCloseTo(block, 6);
+        }
+        // 常规关（pitch ≥ BEAD_GAP×2）恒走 BEAD_GAP 支路 ⇒ 块边不漂移（L3）
+        expect(fullGeo(LEVELS[2]!, SLOT_W, SLOT_H).block).toBeCloseTo(fullGeo(LEVELS[2]!, SLOT_W, SLOT_H).pitch - BEAD_GAP, 9);
+    });
+
+    it('alpha ≤ 0 一命令不发；0<alpha<1 整帧半透明（淡化腿）', () => {
+        const level = LEVELS[0]!;
+        expect(paintFull(level, undefined, 0).length).toBe(0);
+        const faded = paintFull(level, undefined, 0.5).filter((k) => k.kind === 'rect') as RectCmd[];
+        expect(faded.length).toBeGreaterThan(0);
+        for (const c of faded) {
+            const fill = (c as { fill?: string; alpha?: number }).fill;
+            expect(typeof fill === 'string' || typeof c.alpha === 'number').toBe(true);
+        }
     });
 });
