@@ -104,8 +104,7 @@ function levelsLayout(rows: number): MetaLayout {
             ),
         });
     }
-    // `[WXG-T-610]` 关闭 = 稿面底部木质按钮（301×105 @225,1028），
-    // 与 `drawLevelsView` 的 blit 同源（旧右上 38² 凹槽 ✕ 退场，K-053 留档）。
+    // `[WXG-T-610]` 关闭 = 稿面底部木质按钮（301×105 @225,1028），与 `drawLevelsView` 的 blit 同源。
     const plateY = DESIGN_H - LEVEL_DETAIL_GEO.plate.yDown - LEVEL_DETAIL_GEO.plate.h;
     buttons.push({
         id: 'close-levels',
@@ -115,6 +114,16 @@ function levelsLayout(rows: number): MetaLayout {
             cb.w,
             cb.h,
         ),
+    });
+    // `[WXG-T-612]` 右上 ✕ 恢复（用户令「叉按钮需要加上」）：与详情页同槽同热区口径
+    // （`LEVEL_DETAIL_GEO.close` + `dialogShiftY`，88² 最小触控档，同 `levelDetailLayout` 的
+    // `close-detail`）；底部木质钮保留 ⇒ 同 id 两处出口。格墙右缘 612 < ✕ 左缘 578+34 但
+    // 行带 y 920..953 不相交（✕ 中心 y_up 1121±44）⇒ 零热区重叠。
+    const cl = LEVEL_DETAIL_GEO.close;
+    const xHit = TOUCH_MIN;
+    buttons.push({
+        id: 'close-levels',
+        box: box(cl.cx - xHit / 2, DESIGN_H - cl.cyDown + gridShift - xHit / 2, xHit, xHit),
     });
     // 点木牌外空白 = 关闭：四条贴边带（⛔ 全屏钮会吞掉牌内空白点击）。
     buttons.push(

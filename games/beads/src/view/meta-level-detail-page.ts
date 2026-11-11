@@ -10,13 +10,13 @@
  * 绘制时加 `plate.y` ⇒ 逐机位移（`dialogShiftY`）不会撕裂内容带。
  */
 
-import { DESIGN_H, DESIGN_W, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TEXTURES, LEVEL_DETAIL_TITLE_SHADOW, POWERUP_TILE_TEXTURES, POWERUP_TYPES, THUMB_TOP_INSET, UI_CONTAINER } from '../config/tuning.js';
+import { DESIGN_H, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TEXTURES, LEVEL_DETAIL_TITLE_SHADOW, POWERUP_TILE_TEXTURES, POWERUP_TYPES, THUMB_TOP_INSET } from '../config/tuning.js';
 import { type RenderModelBuilder } from '@wxgame/framework';
 import { POWERUP_LABELS } from '../systems/powerups.js';
 import { type BeadsPalette, withAlpha } from './palette.js';
-import { UI_FONT, UI_SCRIM, formatTime, scrimFill } from './ui-theme.js';
+import { UI_FONT, formatTime } from './ui-theme.js';
 import { drawLevelThumb } from './menu-signage.js';
-import { STAR_LABELS, drawCloseInset, isPressed, label, menuBitmapReady } from './meta-widgets.js';
+import { STAR_LABELS, drawCloseInset, drawModalPlate, isPressed, label, menuBitmapReady } from './meta-widgets.js';
 import { drawButton } from './ui-widgets.js';
 import { levelDetailPlate } from './meta-layout.js';
 import type { MetaViewData } from './meta-types.js';
@@ -67,15 +67,9 @@ export function drawLevelDetailPage(
     if (level === undefined || levelIdx < 0) return; // ⛔ 占位
     const plate = levelDetailPlate();
 
-    // 遮罩：稿面背景是整屏场景图，无独立遮罩层；沿用弹窗通用档浓度。
-    builder.rect(0, 0, DESIGN_W, screenH, { fill: scrimFill(UI_SCRIM.overlay, UI_SCRIM.alpha) });
-
-    // 容器：新版木牌烘图（纯木纹 + 标题槽 + 铆钉，⛔ 旧版牌内烘入的空橱窗已拆出）。
-    if (menuBitmapReady(LEVEL_DETAIL_TEXTURES.plaque)) {
-        builder.blit(LEVEL_DETAIL_TEXTURES.plaque, plate.x, plate.y, plate.w, plate.h);
-    } else {
-        builder.rect(plate.x, plate.y, plate.w, plate.h, { fill: palette.panel, radius: UI_CONTAINER.radiusPanel });
-    }
+    // 遮罩 + 容器（新版木牌烘图：纯木纹 + 标题槽 + 铆钉，⛔ 旧版牌内烘入的空橱窗已拆出）：
+    // 与选关页共用 `drawModalPlate`（`[WXG-T-612]` 用户令「背景框绘制共用逻辑」）。
+    drawModalPlate(builder, palette, plate, screenH);
 
     // `[WXG-T-609]` 橱窗面板（Figma 192:42）：稿层序在木牌之后、缩略 / 星级 / 道具之前。
     // 缺图 ⇒ 不画（纯木纹牌仍可读，⛔ 不叠程序化第二套玻璃框）。

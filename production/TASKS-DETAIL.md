@@ -9316,3 +9316,17 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：全量单测 **1440 passed / 2 skipped（124 文件）**；`typecheck` 0 错；`pnpm run verify` PASS 23 / FAIL 0；金样本 `level-select` / `level-select-mid` 两态 sha 变、`ui-golden-capture.ts` 干净锚重抓，其余九态逐字未动。
 - **视觉复核**：`render-ui-shots.mjs` 降级腿 SVG——名字居中于木牌、当前关无描边、缩略落格中槽位、星带在格底（`temp/ui-shot/level-select.svg.png`；位图腿由 `level-select-view-model.test.ts` 位图臂断言承担，⛔ 非真机证据）。
 - **⚠ 遗留**：2 枚新投放件 `.meta` 待 Cocos 编辑器签发（L1 禁伪造），真机暂走降级腿（位图腿 harness 已注册）。
+
+## WXG-T-612
+
+**UI·三态格底裁框 + 右上 ✕ 回归 + 两弹框背景/✕ 绘制共用** · 负责：主理人(CodeBuddy)·beads 美术/工程轨 · 状态：✅ 完成（2026-11-11）
+
+- **上位**（用户三令，原话）：①「背景板有三态展示，normal highlight disabled，已经不需要那个矩形边框，应该删除」（追问处理方法后裁定删除方向）②「选关面板右上角有个叉按钮需要加上」③「选关和关卡详情弹框关于背景框绘制和右上角叉按钮绘制需要共用逻辑」。
+- **外框归因**（非坐标猜测，稿面 + 像素实测）：`183:38/41/44` 三态格底在 Figma 里是**同一张 IMAGE fill**（imageRef `60229b73…`，158×177），三态差异只是**滤镜**（高亮态 `183:41` = `exposure +0.15 / contrast 0.03 / saturation +0.15`）⇒ 矩形边框**烘在图里**且高亮滤镜把框同步提亮（普通格框近黑、高亮格框金棕）——这就是用户看到的「高亮时的外框」。像素扫描：直边框带 0..11px @2x（暗框 + 受光过渡），左上角另有**独立不透明亮角残片** (0,0)-(2,2)（弧带外残迹），圆角弧带宽达 ~18px。
+- **① 裁框（图像处理，方法已向用户列选项后裁定）**：`figma.mjs img --ids 183:38,183:41,183:44 --scale 2` 重导干净原图（⚠ 过程纠偏：首跑 N=10 内缩后又叠跑 N=12 造成 22px 过度内缩 ⇒ 立即重导重跑单次处理）→ **alpha 通道 `MinFilter(21)` 形态学腐蚀内缩 10px**（直边框带 / 圆角弧带亮边 / 角残片统一清除，圆角半径自然内缩）+ 2px 直边线性羽化 → 正本覆盖 + 在册 `ship()` 配方重出投放件（normal 42.4→29.6K / current 38.8→25.1K / locked 22.7→13.1K，**体积反降**——边缘复杂像素被清除）。**blit 命令流不变 ⇒ 金样本零影响**；视觉复核 = `temp/figma/t611/cell_{current,locked,normal}_on_tray.png`（深棕底合成，无边框无残迹）。
+- **② 右上 ✕ 回归**：`meta-layout.ts::levelsLayout` 在底部木质钮之后**追加第二个 `close-levels` 热区**（`LEVEL_DETAIL_GEO.close` = cx 622 / cyDown 213 / 38² + `dialogShiftY`，热区 88² = `TOUCH_MIN`，与 `levelDetailLayout` 的 `close-detail` 同口径）；`drawLevelsView` 关闭钮段后调**共用** `drawCloseInset`（按下态走既有 `vm.closePressed`，零 VM 改动）。底部木质关闭钮（稿 `160:48`）保留 ⇒ 同 id 两处出口；✕ 带区 y_up 953..1041 与首行格带（下缘 920）不相交 ⇒ 零热区重叠。
+- **③ 共用逻辑**：`meta-widgets.ts` 新增 **`drawModalPlate(builder, palette, plate, screenH)`**（遮罩 `scrimFill(UI_SCRIM.overlay, α)` → 木牌位图 blit → 缺图纸面板回退，同几何）——选关 `drawLevelsView` 与详情 `drawLevelDetailPage` 各一行替换（两页原 9 行同构代码收口单源；命令流逐字不变）；✕ 画法本就单源（`drawCloseInset`，`T-604/605` 注释「关卡详情与选关页共用」）⇒ 本单恢复选关侧调用即成对。
+- **判据**：`arc-level-select-page.test.ts` 增 ✕ 断言（旧命中点 (622,1121) 回归 = `close-levels`；`close-levels` 双出口 `toHaveLength(2)`；九格热区不受影响）。裁框不动命令流 ⇒ 降级腿测试 / 金样本其余九态零漂移。
+- **验证**：全量单测 **1440 passed / 2 skipped（124 文件）**；`typecheck` 0 错；`pnpm run verify` PASS 23 / FAIL 0；金样本 `level-select` / `level-select-mid` 两态重抓（`total` 1892→1899：+1 rect 深底 +1 rect 槽线 +1 line 受光 +4 line ✕ 嵌线 = `drawCloseInset` 七命令），其余九态逐字未动。
+- **视觉复核**：`temp/figma/t611/cell_*_on_tray.png` 三张合成图（⛔ 实现自证，非真机证据）。
+- **⚠ 遗留**：3 枚重出投放件尺寸不变 ⇒ `.meta` 沿用在册无需重签；**裁框后格子面尺寸 148×167 @2x（设计 74×83.5）**，若用户嫌格子偏小可在稿面放大（本单不擅自改稿）。

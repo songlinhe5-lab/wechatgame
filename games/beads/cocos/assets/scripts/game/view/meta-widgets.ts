@@ -3,13 +3,13 @@
  * 位图可用性注入（`setMenuBitmapResolver`）。主菜单与选关页共用 ⇒ 位于二者之下、⛔ 不反依赖页面。
  */
 
-import { LEVEL_SELECT_GEO, LEVEL_SELECT_TEXTURES, MENU_BADGE, MENU_LOCKED_ICON, MENU_SEAL, MENU_TEXTURES, THUMB_AREA, THUMB_STAR_BAND, UI_CONTAINER } from '../config/tuning';
+import { DESIGN_W, LEVEL_DETAIL_TEXTURES, LEVEL_SELECT_GEO, LEVEL_SELECT_TEXTURES, MENU_BADGE, MENU_LOCKED_ICON, MENU_SEAL, MENU_TEXTURES, THUMB_AREA, THUMB_STAR_BAND, UI_CONTAINER } from '../config/tuning';
 import { COPY_TOKENS } from '../config/copy-tokens';
 import { type RenderModelBuilder } from '../../framework/index';
 import { beadFadedInksFor, withAlpha, type BeadsPalette } from './palette';
 import { drawLevelThumb, resetSignageWarnings } from './menu-signage';
 import { type BeadsLevelRaw } from '../config/levels-data';
-import { UI_FONT, pressOffset } from './ui-theme';
+import { scrimFill, UI_FONT, UI_SCRIM, pressOffset } from './ui-theme';
 import { drawButton } from './ui-widgets';
 import { settingsContentLabel } from './settings-content';
 import type { Box, MetaAction, MetaButton, MetaViewData } from './meta-types';
@@ -376,6 +376,25 @@ export function drawMetaButton(builder: RenderModelBuilder, palette: BeadsPalett
 /** 位图可用性查询（读取走本函数 ⇒ 注入点与消费点分居各文件时仍同源）。 */
 export function menuBitmapReady(textureId: string): boolean {
     return _menuBitmapReady(textureId);
+}
+
+/**
+ * `[WXG-T-612]` 选关 / 详情两弹框**背景框共用绘制**（用户令「背景框绘制…需要共用逻辑」）：
+ * 遮罩 → 木牌位图 blit（`LEVEL_DETAIL_TEXTURES.plaque`，缺图 ⇒ 纸面板同几何回退）。
+ * 两页层序与浓度单源 ⇒ 改一处两页生效；`plate` 传宿主位移后的实际框（两页容器同件 581×1044）。
+ */
+export function drawModalPlate(
+    builder: RenderModelBuilder,
+    palette: BeadsPalette,
+    plate: Box,
+    screenH: number,
+): void {
+    builder.rect(0, 0, DESIGN_W, screenH, { fill: scrimFill(UI_SCRIM.overlay, UI_SCRIM.alpha) });
+    if (menuBitmapReady(LEVEL_DETAIL_TEXTURES.plaque)) {
+        builder.blit(LEVEL_DETAIL_TEXTURES.plaque, plate.x, plate.y, plate.w, plate.h);
+    } else {
+        builder.rect(plate.x, plate.y, plate.w, plate.h, { fill: palette.panel, radius: UI_CONTAINER.radiusPanel });
+    }
 }
 
 /**

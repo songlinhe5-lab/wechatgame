@@ -108,6 +108,12 @@ describe('WXG-T-605 · 木牌版面单源（`LEVEL_SELECT_GEO`）', () => {
         expect(hitTestMeta('levels', 10, 10)?.id, '牌外 = 关闭带').toBe('dismiss-levels');
         // 旧空白点 (375,401) 已落进第 9 格；(375,200) 又贴关闭钮下沿 ⇒ 取 (375,170)。
         expect(hitTestMeta('levels', 375, 170), '牌内空白 = 零命中').toBeNull();
+        // `[WXG-T-612]` 右上 ✕ 恢复（用户令）：与详情页同槽（`LEVEL_DETAIL_GEO.close`，
+        // 中心 y_up 1121）⇒ 旧命中点回归；`close-levels` = 底部木质钮 + 右上 ✕ 两处出口。
+        expect(hitTestMeta('levels', 622, 1121)?.id, '右上 ✕ 可命中').toBe('close-levels');
+        expect(cells().filter((b) => b.id === 'pick-level').length, '九格热区不受影响').toBe(WALL_CAPACITY);
+        const closeExits = metaLayout('levels', WALL_ROWS).buttons.filter((b) => b.id === 'close-levels');
+        expect(closeExits, '底部木质钮 + 右上 ✕ 两处出口').toHaveLength(2);
     });
 
     it('缩略 84 不随格放大（与作品墙同一套）', () => {

@@ -9,11 +9,11 @@
  * 稿层序（`159:5 抠图层`）：对话框背景 → 九宫格背板 → 九格 → 关闭按钮 → 文字。
  * 位图未注册 ⇒ 逐元素同几何程序化回退（⛔ 不做第二套版式）。
  */
-import { DESIGN_H, DESIGN_W, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TEXTURES, LEVEL_DETAIL_TITLE_SHADOW, LEVEL_SELECT_GEO, LEVEL_SELECT_TEXTURES, UI_CONTAINER } from '../config/tuning.js';
+import { DESIGN_H, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TITLE_SHADOW, LEVEL_SELECT_GEO, LEVEL_SELECT_TEXTURES } from '../config/tuning.js';
 import { type RenderModelBuilder } from '@wxgame/framework';
 import { type BeadsPalette, withAlpha } from './palette.js';
-import { UI_FONT, UI_SCRIM, bodyFont, scrimFill } from './ui-theme.js';
-import { drawLevelSelectCell, menuBitmapReady } from './meta-widgets.js';
+import { UI_FONT, bodyFont } from './ui-theme.js';
+import { drawCloseInset, drawLevelSelectCell, drawModalPlate, menuBitmapReady } from './meta-widgets.js';
 import type { LevelSelectViewModel } from './level-select-view-model.js';
 
 const GEO = LEVEL_DETAIL_GEO;
@@ -31,15 +31,8 @@ export function drawLevelsView(
 ): void {
     const plate = vm.plate;
 
-    // 遮罩：与详情同档（叠在主菜单底页上）。
-    builder.rect(0, 0, DESIGN_W, vm.screenH, { fill: scrimFill(UI_SCRIM.overlay, UI_SCRIM.alpha) });
-
-    // 容器：复用关卡详情对话框背景图 / 纸面板回退（同几何）。
-    if (menuBitmapReady(LEVEL_DETAIL_TEXTURES.plaque)) {
-        builder.blit(LEVEL_DETAIL_TEXTURES.plaque, plate.x, plate.y, plate.w, plate.h);
-    } else {
-        builder.rect(plate.x, plate.y, plate.w, plate.h, { fill: palette.panel, radius: UI_CONTAINER.radiusPanel });
-    }
+    // 遮罩 + 容器：与详情页共用 `drawModalPlate`（`[WXG-T-612]` 用户令「背景框绘制共用逻辑」）。
+    drawModalPlate(builder, palette, plate, vm.screenH);
 
     // `[WXG-T-610]` 九宫格背板（稿 `164:63`，506×597）：在九格之前叠，缺图不画。
     const tr = LEVEL_SELECT_GEO.tray;
@@ -98,4 +91,18 @@ export function drawLevelsView(
             fill: palette.plateSubInk, font: UI_FONT.button, align: 'center', baseline: 'middle',
         });
     }
+
+    // `[WXG-T-612]` 右上 ✕（用户令「叉按钮需要加上」）：与详情页共用 `LEVEL_DETAIL_GEO.close`
+    // 槽位与 `drawCloseInset` 画法（「右上角叉按钮绘制共用逻辑」）；底部木质关闭钮保留（稿 160:48）。
+    const cl = LEVEL_DETAIL_GEO.close;
+    drawCloseInset(
+        builder,
+        palette,
+        plate.x + (cl.cx - GEO.plate.x),
+        plate.y + dyCenter(cl.cyDown),
+        cl.w,
+        cl.h,
+        cl.arm,
+        vm.closePressed,
+    );
 }
