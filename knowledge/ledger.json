@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 213,
+  "nextId": 216,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -3563,6 +3563,57 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-213",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain-image.md",
+      "category": "工具链图像",
+      "title": "量化脚本 docstring 里的「⛔ 不再作为产出」有批次射程：跨批沿用前先查它防的是什么",
+      "contentHash": "28cbf384579c5d4af56a091e7a97b93f16c5f4a32cf9b2bef315612dbc698d9f",
+      "sourceTask": "WXG-T-614",
+      "addedDate": "2026-11-11",
+      "lastAccess": "2026-11-11",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-214",
+      "state": "active",
+      "file": "knowledge/lessons/criteria-measure-evidence.md",
+      "category": "判据实测取证",
+      "title": "位图上量文字对比度必须按「字形矩形」取样：整条横带会混入容器高光与铆钉，min 被单个亮像素拉到近 1",
+      "contentHash": "36601fbae16038cedbdc400c5ce792ab4bd1afc3e98f6c2d7734d7f90ab17bfb",
+      "sourceTask": "WXG-T-614",
+      "addedDate": "2026-11-11",
+      "lastAccess": "2026-11-11",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-215",
+      "state": "active",
+      "file": "knowledge/lessons/environment.md",
+      "category": "环境",
+      "title": "IDE 内置浏览器视图处于 hidden 时，位图腿永远加载不完、截图接口直接报无可用视口 ⇒ 先判环境阻塞，别去修不存在的渲染 bug",
+      "contentHash": "e656a5a2dbd117eb2da3bb123966b8cd50b99b853990792e22c1c3810dc1be02",
+      "sourceTask": "WXG-T-614",
+      "addedDate": "2026-11-11",
+      "lastAccess": "2026-11-11",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -5741,6 +5792,26 @@
         "K-210",
         "K-211",
         "K-212"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-11-11",
+      "taskId": "WXG-T-614",
+      "kind": "added",
+      "ids": [
+        "K-213",
+        "K-214",
+        "K-215"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-11-11",
+      "taskId": "WXG-T-614",
+      "kind": "updated",
+      "ids": [
+        "K-214"
       ],
       "note": null
     }

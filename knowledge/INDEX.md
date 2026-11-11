@@ -319,4 +319,7 @@
 | K-210 | 接入 | onboarding | 装外来 skill 前先读完 SKILL.md 正文：只写「Call the Skill tool for X,Y」的是薄壳，能力全在依赖件里 | WXG-T-569 | 2026-11-03 | 0 | active |
 | K-211 | 接入 | onboarding | 外来 skill 先过「配置面 / SSOT 面 / 门禁面」三问，再谈装不装 | WXG-T-569 | 2026-11-03 | 0 | active |
 | K-212 | 接入 | onboarding | 「一键装整套 skill」类安装器一律不进本仓：它写宿主目录，绕过四 IDE 链接与 `check:links` | WXG-T-569 | 2026-11-03 | 0 | active |
+| K-213 | 工具链图像 | toolchain-image | 量化脚本 docstring 里的「⛔ 不再作为产出」有批次射程：跨批沿用前先查它防的是什么 | WXG-T-614 | 2026-11-11 | 0 | active |
+| K-214 | 判据实测取证 | criteria-measure-evidence | 位图上量文字对比度必须按「字形矩形」取样：整条横带会混入容器高光与铆钉，min 被单个亮像素拉到近 1 | WXG-T-614 | 2026-11-11 | 0 | active |
+| K-215 | 环境 | environment | IDE 内置浏览器视图处于 hidden 时，位图腿永远加载不完、截图接口直接报无可用视口 ⇒ 先判环境阻塞，别去修不存在的渲染 bug | WXG-T-614 | 2026-11-11 | 0 | active |
 <!-- kb:active:end -->
