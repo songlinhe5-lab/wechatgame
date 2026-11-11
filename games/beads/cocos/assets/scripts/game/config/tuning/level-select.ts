@@ -20,6 +20,15 @@
  * 稿 `176:67 TEXT` 烘死「1」，九格复用会写死，⛔ 不切字）；`176:21 grid-image` 69×76
  * （格内图案槽：锁定 = 稿面锁图案位图，解锁 = 程序化珠拼，三星隐藏）；
  * 关卡名字按用户令改木牌中轴居中（稿面 278 左锚 K-053 留档）。
+ *
+ * `[WXG-T-612·二轮]` 稿面 2026-11-11T02:21Z 大更新（用户令「查找 grid-button/grid-star，
+ * 看是否要重新导出资源，读取三态实现参数」）：`grid-button` 组件集三态 fill 素材**整体换新**
+ * ——浅原木纹、无矩形边框、cornerRadius 14，Highlight 的描边与内阴影已被设计者删除
+ * ⇒ 三态 = 同 imageRef `60229b73` + 纯滤镜差：Normal 无滤镜 / Highlight
+ * `exposure+0.15, contrast+0.03, saturation+0.15, highlights+0.10` / Disabled
+ * `exposure−0.10, contrast−0.015, saturation−1`。三态位图重导**直用**（⛔ 不再裁框，T-612 一轮
+ * 的腐蚀裁框随旧素材一并退场，K-053）；星换 `214:98 grid-star` 新组件集（素材重导 64×60）+
+ * gap 3；brand / lockImage / grid-image 几何逐字未变（imageLeft 44 / imageTopDown 49 / 65×35）。
  */
 export const LEVEL_SELECT_GEO = {
     /** 板标题「选关」：与详情标题同槽（中心 380,278）。 */
@@ -57,8 +66,13 @@ export const LEVEL_SELECT_GEO = {
          * ⇒ y_up 13..43、中心 **28**（`T-607` 文字档 14 偏下，K-053 旧值留档）。
          */
         starBandY: 28,
-        /** `[WXG-T-610]` 三枚星位图 32×30，净距 9，居中贴格底。 */
-        starW: 32, starH: 30, starGap: 9,
+        /**
+         * `[WXG-T-610]` 三枚星位图 32×30，居中贴格底。
+         * `[WXG-T-612·二轮]` 稿面 `214:98 grid-star` 新组件集（旧 `187:37` 已删）+ 九宫格重排
+         * `188:*`：星实例交叉实测（grid-1 / grid-9）**pitch 35 ⇒ gap 3**（旧 9 为换稿前口径，K-053）；
+         * 实例 32×30 口径不变（素材导出 64×60 @2x），bandY 28 不变。
+         */
+        starW: 32, starH: 30, starGap: 3,
         /**
          * `[WXG-T-611]` 编号牌背景（稿 `182:75 grid-brand` → `176:22`）：65×35 贴格**视觉顶**
          * （稿面 yDown 与格同 414 ⇒ 顶对齐）。数字仍 VM 程序化（稿 `176:67` 烘死「1」）。

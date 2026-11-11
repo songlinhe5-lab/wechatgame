@@ -9330,3 +9330,18 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：全量单测 **1440 passed / 2 skipped（124 文件）**；`typecheck` 0 错；`pnpm run verify` PASS 23 / FAIL 0；金样本 `level-select` / `level-select-mid` 两态重抓（`total` 1892→1899：+1 rect 深底 +1 rect 槽线 +1 line 受光 +4 line ✕ 嵌线 = `drawCloseInset` 七命令），其余九态逐字未动。
 - **视觉复核**：`temp/figma/t611/cell_*_on_tray.png` 三张合成图（⛔ 实现自证，非真机证据）。
 - **⚠ 遗留**：3 枚重出投放件尺寸不变 ⇒ `.meta` 沿用在册无需重签；**裁框后格子面尺寸 148×167 @2x（设计 74×83.5）**，若用户嫌格子偏小可在稿面放大（本单不擅自改稿）。
+
+### 二轮（2026-11-11 · 用户判「grid 背景板还是不对」）
+
+- **用户令（原话）**：「现在选关页面的 grid 背景板还是不对，查找 figma 上的 grid-button，grid-star 资源，看是否要重新导出资源，和读取三态的实现参数」。
+- **稿面版本**：`lastModified 2026-11-11T02:21:48Z`（version 2420417666193727745）——**T-610 拉取后的又一次大更新**，此前所有稿面读数基于旧版。
+- **整页子树重拉**（`temp/figma/level-select-page-v3.json`）+ 原始 nodes API 单节点比对，结论：
+  1. **`grid-button`（`183:36` COMPONENT_SET）三态 fill 素材整体换新**：浅原木纹圆角面、**无矩形边框**（旧素材 `60229b73` 的深棕框不复存在——新版导出图边缘即圆角面本体）、`cornerRadius 14`；**Highlight 的 `#FFF0B0` 描边与金色内阴影已被设计者删除**（T-610 旧缓存 JSON 里有、现 API `strokes:[]/effects:[]`，仅残留 `strokeWeight:2`）⇒ 三态 = 同 imageRef + **纯滤镜差**：Normal 无滤镜 / Highlight `exposure+0.15, contrast+0.03, saturation+0.15, highlights+0.10` / Disabled `exposure−0.10, contrast−0.015, saturation−1`。
+  2. **`grid-star` 组件集搬家**：`187:37` 已删（nodes API null、渲染导出「未返回图片」），新 `214:98`（State=Normal `214:99` / Disabled `214:101`）⇒ 星素材重导 **64×60 @2x**（= 32×30 实例口径不变）。
+  3. **九宫格重排 `188:*` 四件套**（grid-background INSTANCE + grid-image + grid-brand + grid-star ×3）：几何逐字核对——background 底对齐 158×177 ✓、grid-image @格内 (44,49) 69×76 ✓、brand @格顶 65×35（居中 46.5 vs 稿 46，半像素差保持居中落法）✓、星带 y_down 138（bandY 28）✓；**星 pitch 35（gap=3）**——grid-1（星 @相对 x 28/63/98）与 grid-9（第三颗 @98）交叉实测一致，旧 gap 9 为换稿前口径（K-053）；**当前关语义映射不变**（稿面 grid-4 = Highlight、grid-5..9 = Disabled、grid-1..3 = Normal ⇒ 实现 current/locked/else 映射照旧）。
+- **裁定与落码**：
+  - **三态格底 + 双星重导替换**（`figma.mjs img --ids 183:38,183:41,183:44,214:99,214:101 --scale 2`）→ 正本覆盖 + 在册 `ship()` 投放件重出（cell 47.2K / 49.1K / 29.0K、star 4.8K / 3.6K）；**⛔ 一轮的腐蚀裁框随旧素材一并退场**（新素材本身无框，导出图边缘 = 标准圆角抗锯齿 alpha (0,8,40,103)，93.5% 不透明）。
+  - `tuning`：`starGap 9→3` + 头注二轮参数表（滤镜表 / cornerRadius 14 / 素材换新）；**代码其余零改动**（drawLevelSelectCell / drawCellStars 全走 GEO 动态，高亮腿无描边无阴影 = 最新稿）。
+  - brand（md5 SAME）/ lockImage / grid-image 不动。
+- **判据**：星几何断言无 gap 硬编码（仅 `starBandY`）⇒ 测试零改动；全量 **1442 passed / 2 skipped**；金样本 `level-select` 两态重抓（星位漂移）；`verify` PASS 23 / FAIL 0。
+- **视觉复核**：`temp/figma/t611/reexport/183-41.png` 等（新素材稿面直出图）。
