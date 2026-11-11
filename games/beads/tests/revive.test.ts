@@ -15,14 +15,14 @@ import {
   CAPSULE_AVOID,
   DESIGN_H,
   DESIGN_W,
-  FAIL_BUTTON_H,
-  FAIL_PRIMARY_W,
   REVIVE_BONUS_SEC,
   REVIVE_MAX_PER_LEVEL,
+  TIMEOUT_GEO,
   TOUCH_MIN,
   computeClearStars,
 } from '../src/config/tuning.js';
 import {
+  failPanelHint,
   failPanelLabel,
   failPanelLayout,
   hitFailPanel,
@@ -94,14 +94,16 @@ function render(harness: Harness): readonly DrawCommand[] {
 }
 
 describe('fail-panel layout (ux-spec §3.5)', () => {
-  it('keeps 480×88 buttons inside the plate and clear of the capsule', () => {
+  it('keeps 稿面双钮（续时 426×154 / 重试 417×137）inside the plate and clear of the capsule', () => {
     for (const available of [true, false]) {
       const layout = failPanelLayout(available);
       expect(rectsOverlap(layout.panel, CAPSULE_AVOID)).toBe(false);
       expect(layout.buttons.some((b) => b.id === 'revive')).toBe(available);
       for (const button of layout.buttons) {
-        expect(button.rect.xMax - button.rect.xMin).toBe(FAIL_PRIMARY_W);
-        expect(button.rect.yMax - button.rect.yMin).toBe(FAIL_BUTTON_H);
+        // 尺寸真源 = `TIMEOUT_GEO`（Figma `231:281` 抠图），⛔ 不再两钮同宽高。
+        const geo = button.id === 'revive' ? TIMEOUT_GEO.continueBtn : TIMEOUT_GEO.retryBtn;
+        expect(button.rect.xMax - button.rect.xMin).toBe(geo.w);
+        expect(button.rect.yMax - button.rect.yMin).toBe(geo.h);
         expect(button.rect.yMax - button.rect.yMin).toBeGreaterThanOrEqual(TOUCH_MIN);
         expect(button.rect.xMin).toBeGreaterThanOrEqual(layout.panel.xMin);
         expect(button.rect.xMax).toBeLessThanOrEqual(layout.panel.xMax);
@@ -110,8 +112,10 @@ describe('fail-panel layout (ux-spec §3.5)', () => {
         expect(rectsOverlap(button.rect, CAPSULE_AVOID)).toBe(false);
       }
     }
-    expect(failPanelLabel('revive')).toContain(String(REVIVE_BONUS_SEC));
-    expect(failPanelLabel('revive')).not.toMatch(/看视频/);
+    // 秒数真源在**副行**（稿 `233:40`），主行只「继续本关」；文案禁「看视频」（X-07）。
+    expect(failPanelLabel('revive')).toBe('继续本关');
+    expect(failPanelHint()).toContain(String(REVIVE_BONUS_SEC));
+    expect(failPanelHint()).not.toMatch(/看视频/);
     expect(REVIVE_MAX_PER_LEVEL).toBe(1);
   });
 });
@@ -307,7 +311,8 @@ describe('ordinary fail-page revive', () => {
       .filter((cmd): cmd is Extract<DrawCommand, { kind: 'text' }> => cmd.kind === 'text')
       .map((cmd) => cmd.text);
     expect(texts).toContain('时间到');
-    expect(texts.some((t) => t.includes(`+${REVIVE_BONUS_SEC}秒`))).toBe(true);
+    expect(texts).toContain('继续本关');
+    expect(texts.some((t) => t.includes(`${REVIVE_BONUS_SEC}秒`))).toBe(true);
     expect(texts).toContain('重试本关');
   });
 });

@@ -24,7 +24,7 @@ import {
   maskTileInnerPx,
   tintFx,
 } from '@wxgame/framework';
-import { BEAD_PITCH, LEVEL_DETAIL_TEXTURES, LEVEL_SELECT_TEXTURES, MENU_TEXTURES, POWERUP_TILE_TEXTURES, TILE_BLEED } from '../../games/beads/src/config/tuning.js';
+import { BEAD_PITCH, LEVEL_DETAIL_TEXTURES, LEVEL_SELECT_TEXTURES, MENU_TEXTURES, POWERUP_TILE_TEXTURES, TILE_BLEED, TIMEOUT_TEXTURES } from '../../games/beads/src/config/tuning.js';
 import { setDevSafeInsets, setShowSafeGuides } from '../../games/beads/src/config/tuning/layout.js';
 import { OPEN_ARCS } from '../../games/beads/src/config/arcs.js';
 import { setMenuBitmapResolver } from '../../games/beads/src/view/meta-view.js';
@@ -246,6 +246,11 @@ const MENU_FILE: Readonly<Record<string, string>> = {
   // `[WXG-T-611]` 编号牌背景（176:22）+ 锁定格图案（176:21 grid-image）。
   [LEVEL_SELECT_TEXTURES.brand]: '/detail-assets/ui_level_select_brand@2x.png',
   [LEVEL_SELECT_TEXTURES.lockImage]: '/detail-assets/ui_level_select_lock@2x.png',
+  // `[WXG-T-614]` 倒计时结束弹窗三件（Figma `231:281` 抠图，@2x：木牌 1098×1172 /
+  // 续时钮 852×308 / 重试钮 834×274）。缺任一件 ⇒ 该元素走同几何程序化回退。
+  [TIMEOUT_TEXTURES.plaque]: '/detail-assets/ui_timeout_plaque@2x.png',
+  [TIMEOUT_TEXTURES.continueBtn]: '/detail-assets/ui_timeout_continue@2x.png',
+  [TIMEOUT_TEXTURES.retryBtn]: '/detail-assets/ui_timeout_retry@2x.png',
 };
 const tintCache = new TintSpriteCache(
   // 离屏 canvas 工厂（结构化注入 ⇒ framework/core 层 ⛔ 不碰 DOM，L2 合规）

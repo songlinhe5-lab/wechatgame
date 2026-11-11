@@ -32,7 +32,7 @@ import {
 } from '../framework/adapters/canvas2d/tint-sprite-cache';
 import { MASK_CANONICAL_SIZE } from '../framework/core/bake/mask-spec';
 import { maskTileInnerPx } from '../framework/core/bake/mask-tile';
-import { BEAD_PITCH, BOSS_THUMB_TEXTURES, LEVEL_DETAIL_TEXTURES, LEVEL_SELECT_TEXTURES, MENU_TEXTURES, POWERUP_TILE_TEXTURES, TILE_BLEED } from '../game/config/tuning';
+import { BEAD_PITCH, BOSS_THUMB_TEXTURES, LEVEL_DETAIL_TEXTURES, LEVEL_SELECT_TEXTURES, MENU_TEXTURES, POWERUP_TILE_TEXTURES, TILE_BLEED, TIMEOUT_TEXTURES } from '../game/config/tuning';
 import { OPEN_ARCS } from '../game/config/arcs';
 import { tintFxBase } from '../framework/core/bake/tint-composite';
 import { frostGrayCombined, frostPixels, frostRead, grayFxRead, grayWipeRead } from '../framework/core/bake/gray-fx';
@@ -186,6 +186,11 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
     [LEVEL_SELECT_TEXTURES.closeBtn]: { path: 'detail/ui_level_select_close' },
     [LEVEL_SELECT_TEXTURES.brand]: { path: 'detail/ui_level_select_brand' },
     [LEVEL_SELECT_TEXTURES.lockImage]: { path: 'detail/ui_level_select_lock' },
+    // `[WXG-T-614]` 倒计时结束弹窗三件（木牌九宫格 capX120/capY300 源纹 px，走引擎 SLICED）。
+    // ⚠ `.meta` 待编辑器签发（L1）；未签发 ⇒ 木牌回纸面板、钮回纯色圆角面，零功能回归。
+    [TIMEOUT_TEXTURES.plaque]: { path: 'detail/ui_timeout_plaque' },
+    [TIMEOUT_TEXTURES.continueBtn]: { path: 'detail/ui_timeout_continue' },
+    [TIMEOUT_TEXTURES.retryBtn]: { path: 'detail/ui_timeout_retry' },
 
     // `[WXG-T-515]` 结算 9-slice 四件（源图与设计 px 1:1，端帽见 `CLEAR_*_SLICE`）。
     [MENU_TEXTURES.panelFrame]: { path: 'ui_panel_frame_9s' },

@@ -56,6 +56,15 @@ export const UI_FONT = {
     stat: 'bold 34px sans-serif',
     /** 面板按钮 30 粗体。 */
     panelButton: 'bold 30px sans-serif',
+    /**
+     * `[WXG-T-614]` 倒计时弹窗**续时主钮主行** 44 粗体（稿 `233:39` Bold 44）。
+     * ⛔ 不复用 `timer`（同值但语义 = HUD 计时器）：两族调档要能各改各的。
+     * 副行（「看广告能增加180秒时间」）走 `plateSub` 22：稿 20 低于本仓可读档，
+     * 且 22 粗体压深绿底实测 4.80:1 ✓（≥4.5）；⛔ 不随 `largeText` 放大（属按钮族，F7⑤）。
+     */
+    timeoutAction: 'bold 44px sans-serif',
+    /** `[WXG-T-614]` 倒计时弹窗**重试次钮主行** 42 粗体（稿 `233:49` Bold 42，单行）。 */
+    timeoutRetry: 'bold 42px sans-serif',
     /** 正文 28。 */
     body: '28px sans-serif',
     /** 副标题 28（页面说明类；与 body 同档）。 */

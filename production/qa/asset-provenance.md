@@ -223,3 +223,20 @@ python3 games/beads/design/ai-workflows/trace-figma-icons.py
 | `final/assets/powerup/powerup_tray_restore.png` 512×512 RGBA | 同上 | 同上 | ✅ `raw/tray_restore-qwen3pro-s42.png` | 同上 |
 | `proposals/powerup-icons-20261108/panel-rgb-erased-v5-tiles-removed.png` 581×1044 RGB | 面板 v4 底图上擦除三个道具格（多尺度底色 + 木纹高通补回） | `games/beads/design/ai-workflows/powerup-panel-tile-erase.py`（⚠ 输入为 temp 底图 v4，未入库） | ✅ 即本件（已上 Figma `95:116`） | 同上 |
 | `final/assets/powerup/tiles/powerup_{window,random,tray}_restore_tile.png` 各 336² RGBA（设计尺度 84×84，`[WXG-T-601]` 关卡详情道具行消费） | **零模型**，PIL 程序化合成：木棕圆角框（84² 画布内 (12,12)-(72,72)、r14、3px 内缘）+ 米底 (245,230,200) + 图标 44² LANCZOS 居中；外投影 (55,28,8) y+4 / blur 3 / α0.45（与星级同参），4× 超采样后缩到 336² | `games/beads/design/ai-workflows/powerup-tile-frame-render.py` | ✅ 输入图标三件即上一行 512² keyed 件；矩阵正本 = Figma 节点 `92-36`（file `PBIK3RbfGlfzFsAnd97ZsP`） | 同批（生成史 `proposals/powerup-icons-20261108/generation-record.txt`）；运行时接线 = WXG-T-601 |
+
+## 12. 2026-11-11 批（WXG-T-614 · 倒计时结束弹窗三件）
+
+| 件（实测规格） | 生成方式 | 产出脚本 | 原图 | 批次出处 |
+|---|---|---|---|---|
+| `final/assets/detail/ui_timeout_plaque@2x.png` **1098×1172** RGBA / 904,481 B | Figma REST `img` `--scale 2`（节点 `231:283`，导出 1162×2088）→ **alpha bbox 裁切**（设计 px (16,211)–(565,797) ⇒ 源纹 (32,422)–(1130,1594)），**零模型零重绘零重采样** | `my-skills/wxgame-figma/scripts/figma.mjs` + PIL `crop`（一次性 inline，本批未固化脚本） | ⚠ **原图不在仓内**：Figma 云端 `PBIK3RbfGlfzFsAnd97ZsP` 节点 `231:283`（页 `225:126` / 帧 `231:281`）；中间导出件留 `temp/figma/timeout/231-283.png`（`temp/` 不入库） | 规格正本 `games/beads/design/ux/timeout-panel-spec.md` §6；登记 `docs/architecture/ui-architecture-beads.md §12` |
+| `final/assets/detail/ui_timeout_continue@2x.png` **852×308** RGBA / 269,668 B | 同上（节点 `233:54`，**无裁切**）；图内**只含左侧 ▶ 图标不含文字**（文字运行时画） | 同上 | ⚠ 同上 · `233:54`；`temp/figma/timeout/233-38.png` | 同上 |
+| `final/assets/detail/ui_timeout_retry@2x.png` **834×274** RGBA / 242,523 B | 同上（节点 `233:58`，**无裁切**）；只含左侧循环箭头 | 同上 | ⚠ 同上 · `233:58`；`temp/figma/timeout/233-48.png` | 同上 |
+| `cocos/assets/textures/detail/ui_timeout_{plaque,continue,retry}.png` 各 **@2x 同尺寸** P256 / **76,493 / 23,566 / 27,872 B** | `ship_rgba_octree()` = PIL **RGBA** `FASTOCTREE(256)`（尺寸不变 ⇒ 九宫格 cap 按源纹 px 口径）；写盘后回读逐位一致已断言 | `games/beads/design/ai-workflows/quantize-cocos-textures.py::ship_rgba_octree`（按 `menu-v2-ship.py` 的 exec 去尾行 `main()` 术式 inline 调用） | ✅ 即上三行正本 | 同上 |
+
+**配方选型与披露（⚠ 与脚本 docstring 口径不一致，此处显式对齐）**：`quantize-cocos-textures.py` 把 `ship_rgba_octree` 注为「只用于对照/自测，⛔ 不再作为产出」—— 那是 **BD-61 菜单按钮批**的口径（病灶 = 同族两态的按下暗边被并色）。本批三件**均单态无同族兄弟**，按 **T-584 §10 / T-585** 已入库先例（无同族态 ⇒ octree；有两态 ⇒ `ship()`）取 octree。实测对照 `ship()` = **246.6 / 127.6 / 111.6 KiB（3.6×）**且本批不存在它要防的同族抹平 ⇒ 取 octree。
+
+**质量读数（可复算，2026-11-11 实测）**：共同可见区（双方 α>0）RGB mean/max = **2.932/51**（牌）、**3.090/39**（续时）、**3.276/44**（重试）；alpha mean/max 差 = **1.03/39**、**1.28/38**、**1.18/45**，α 误差 >8 的像素只占 **0.356% / 1.001% / 1.012%**、>32 只占 **≤0.0114%**（均落在边缘抗锯齿带）。源图 α 主峰：牌 **255**（96.5%，partial 2.52%）、两钮 **252–255**（近不透明；technical partial 占 64.88% / 71.63% 但均在 252–254）⇒ octree 对 alpha 的扰动不影响边缘观感。
+
+**包体**：`cocos/assets/textures/` 1900 → **2028 KiB（+125 KiB）**。
+
+**⚠ `.meta` 未签发**（L1 ⛔ 不伪造）：本机无 Cocos 编辑器 ⇒ 三件暂不进 `textures` Bundle，真机自动走规格 §9 的**元素级回退腿**（同几何、零功能回归）；解除条件 = 编辑器 reimport `cocos/assets/textures/detail/`。

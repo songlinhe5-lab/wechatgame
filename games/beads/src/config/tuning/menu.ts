@@ -905,10 +905,9 @@ export const UI_CONTAINER = Object.freeze({
   lvChipRightInset: 22,
 } as const);
 
-/** Fail-panel primary/retry width (ux-spec §3.5: 480×88). */
-export const FAIL_PRIMARY_W = 480;
-export const FAIL_BUTTON_H = TOUCH_MIN;
-export const FAIL_BUTTON_GAP = 24;
+// ───── [WXG-T-614] 失败弹窗几何整组退役（原 `FAIL_PRIMARY_W` 480 / `FAIL_BUTTON_H` 88 / `FAIL_BUTTON_GAP` 24）─────
+// 版式换 Figma「倒计时结束弹窗」木牌稿 ⇒ 两钮各自尺寸（426×154 / 417×137）与牌内相对锚
+// 一律住 `tuning/timeout-panel.ts::TIMEOUT_GEO`（绘制与命中同源），本处不再留第二套数字。
 
 // ───── [WXG-T-256 · 用户 2026-10-05 拍板] §1.7 容器板 / §1.8 背景层常量整组退役 ─────
 //

@@ -1178,25 +1178,32 @@ describe('设置态遮罩 α 分列 · ux §3.3「遮罩」条 + 工作项④：
         expect(SETTINGS_SCRIM_ALPHA).toBeLessThan(PANEL_SCRIM_ALPHA);
     });
 
-    it('静态门：`ui-theme` + `modal-frame` 收拢后 scrim 消费点穷尽 = 4 处纸面板框 + 2 处纯遮罩 + 1 处 DEBUG 覆层', () => {
+    it('静态门：`ui-theme` + `modal-frame` 收拢后 scrim 消费点穷尽 = 3 处纸面板框 + 3 处纯遮罩 + 1 处 DEBUG 覆层', () => {
         const vm = SRC('view/view-model.ts');
+        // `[WXG-T-614]` 失败面板改稿面木牌（View/VM 下沉）⇒ 它的遮罩消费点搬到 timeout-view，
+        // 本门跟着穷尽到新文件（⛔ 不只调低计数把消费点漏掉）。
+        const to = SRC('view/timeout-view.ts');
         const frameSites = vm.match(/drawModalFrame\(builder, \{/g) ?? [];
         const scrimSites = vm.match(/drawModalScrim\(builder, UI_SCRIM\.canvas, UI_SCRIM\.alpha\)/g) ?? [];
+        const timeoutScrimSites = to.match(/drawModalScrim\(builder, UI_SCRIM\.canvas, UI_SCRIM\.alpha\)/g) ?? [];
         const settingsSites = vm.match(/scrimAlpha: UI_SCRIM\.settingsAlpha \* t/g) ?? [];
         const panelAlphaSites = vm.match(/scrimAlpha: UI_SCRIM\.alpha/g) ?? [];
         const debugOverlay = SRC('view/debug-layer.ts').match(/scrimFill\(UI_SCRIM\.canvas, 0\.7\)/g) ?? [];
         // 收拢后对局面板侧⛔ 不得再出现硬拼 rgba（RGB 单源 = ui-theme::UI_SCRIM.canvas）。
         expect(vm).not.toMatch(/rgba\(\$\{PANEL_SCRIM_RGB/);
+        expect(to).not.toMatch(/rgba\(/);
 
-        // 暂停（动画）/ 过关 / 失败 / **购买确认（静态，WXG-T-351）** = 纸面板四件
-        expect(frameSites.length).toBe(4);
+        // 暂停（动画）/ 过关 / **购买确认（静态，WXG-T-351）** = 纸面板三件（失败已改木牌位图腿）
+        expect(frameSites.length).toBe(3);
         expect(scrimSites.length).toBe(2); // 冲刺结算 / 全通关 = 纯遮罩（底板构成不同，不并入纸面板）
+        expect(timeoutScrimSites.length).toBe(1); // 倒计时结束弹窗 = 木牌位图（或纸面板回退）+ 同档遮罩
         expect(settingsSites.length).toBe(1); // 唯一设置态消费点 = drawPausePanel
-        expect(panelAlphaSites.length).toBe(3); // 过关 / 失败静止态 + 购买确认（静态常 α）
+        expect(panelAlphaSites.length).toBe(2); // 过关静止态 + 购买确认（静态常 α）
         expect(debugOverlay.length).toBe(1); // DEBUG 覆层已搬入 debug-layer（UI-24）
         // 穷尽：view-model 内不得再有裸 `scrimFill`（全部走 ModalFrame；覆层已上楼）。
         const allScrimFill = vm.match(/scrimFill\(UI_SCRIM\.canvas/g) ?? [];
         expect(allScrimFill.length).toBe(0);
+        expect(to.match(/scrimFill\(/g) ?? []).toHaveLength(0);
 
         // modal-frame 自身也不得硬拼 rgba：遮罩字符串格式唯一真源 = ui-theme::scrimFill。
         const mf = SRC('view/modal-frame.ts');

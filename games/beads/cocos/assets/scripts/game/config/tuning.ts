@@ -23,3 +23,4 @@ export * from './tuning/audio';
 export * from './tuning/powerup-layout';
 export * from './tuning/level-detail';
 export * from './tuning/level-select';
+export * from './tuning/timeout-panel';

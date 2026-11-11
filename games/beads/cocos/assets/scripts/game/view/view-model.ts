@@ -42,7 +42,6 @@ import {
 import { pausePanelLayout, type PanelButton } from '../systems/pause-panel';
 import { buyConfirmLayout } from '../systems/buy-confirm-panel';
 import { COPY_TOKENS } from '../config/copy-tokens';
-import { failPanelLabel, failPanelLayout } from '../systems/fail-panel';
 import { CONFETTI_COLORS, STAR_GOLD, withAlpha, type BeadInks, type BeadsPalette } from './palette';
 import {
   CLEAR_PANEL_TITLE,
@@ -76,6 +75,8 @@ import { UI_FONT, UI_SCRIM, bodyFont, drawPaperPanel, formatDurationCn, pressOff
 import { drawPlayPage } from './play-page';
 import { drawRankPanel } from './rank-view';
 import { starPoints } from './shape-utils';
+import { createTimeoutViewModel, updateTimeoutViewModel } from './timeout-view-model';
+import { drawTimeoutView } from './timeout-view';
 
 /** 按下态绘制 y 偏移（算法在 `ui-theme::pressOffset`，本包装只取快照字段）。 */
 function pressDy(snap: BeadsSnapshot, id: string): number {
@@ -443,81 +444,24 @@ function drawSprintSettle(
   }
 }
 
-// ───────────────────────────────────────────────── fail overlay (ux-spec §3.5)
+// ─────────────────────────────── fail overlay（倒计时结束弹窗，ux-spec §3.5 / timeout-panel-spec）
 
+/** 持续型 VM：模块级一张，逐帧覆写（⛔ 每帧不得新建，`ui-architecture-beads §5`）。 */
+const TIMEOUT_VM = createTimeoutViewModel();
+
+/**
+ * 装配门面：相位判定留在本文件（Presenter 侧），展示数据投影与绘制分别下沉到
+ * `timeout-view-model.ts` / `timeout-view.ts`。几何与文案真源仍是 `systems/fail-panel.ts`
+ * ⇒ **绘制与命中同源**；本函数不自持任何布局数字。
+ */
 function drawFailPanel(
   builder: RenderModelBuilder,
   snap: BeadsSnapshot,
   palette: BeadsPalette,
 ): void {
   if (!usesFailOverlay(snap)) return;
-  const layout = failPanelLayout(snap.reviveAvailable);
-
-  const plate = layout.panel;
-  const cx = (plate.xMin + plate.xMax) / 2;
-  // UI-22：遮罩 + 纸面板（静止态，progress = 1）。
-  drawModalFrame(builder, {
-    panel: plate,
-    progress: 1,
-    scrimRgb: UI_SCRIM.canvas,
-    scrimAlpha: UI_SCRIM.alpha,
-    palette,
-    radius: UI_CONTAINER.radiusPanel,
-    shadowAlpha: UI_CONTAINER.shadowAlphaPanel,
-  });
-
-  builder.text(cx, layout.titleY, '时间到', {
-    fill: palette.text,
-    font: UI_FONT.panelTitle,
-    align: 'center',
-    baseline: 'middle',
-  });
-  if (layout.subtitle) {
-    builder.text(cx, layout.subtitleY, layout.subtitle, {
-      fill: palette.textDim,
-      font: bodyFont(snap.largeText, 'hudSmall'),
-      align: 'center',
-      baseline: 'middle',
-    });
-  }
-
-  for (const button of layout.buttons) {
-    const bw = button.rect.xMax - button.rect.xMin;
-    const bh = button.rect.yMax - button.rect.yMin;
-    const primary = button.id === 'revive';
-    const label = failPanelLabel(button.id);
-    if (primary && snap.watchingAd) {
-      // EP12-S4：主钮禁用态（screens.md §4 矩阵 T3「禁用」列 = 可点性消失双通道）——
-      //   面 `woodFaceDisabled`、字 `woodText`@60%、无受光/承重线、投影 0（替旧 α0.35 蒙版 hack）。
-      builder.rect(button.rect.xMin, button.rect.yMin, bw, bh, {
-        fill: palette.woodFaceDisabled,
-        radius: UI_CONTAINER.radiusWood,
-      });
-      builder.text(button.rect.xMin + bw / 2, button.rect.yMin + bh / 2, label, {
-        fill: withAlpha(palette.woodText, 0.6),
-        font: UI_FONT.panelButton,
-        align: 'center',
-        baseline: 'middle',
-      });
-    } else if (primary) {
-      // T3 木主钮（续时）。
-      const by = button.rect.yMin + pressDy(snap, button.id);
-      drawButton(builder, palette, button.rect.xMin, by, bw, bh, 'wood', UI_CONTAINER.radiusWood, label, UI_FONT.panelButton, snap.pressedButton === button.id);
-    } else {
-      // T1 纸次钮（描边，重试）。
-      const by = button.rect.yMin + pressDy(snap, button.id);
-      drawButton(builder, palette, button.rect.xMin, by, bw, bh, 'paper', UI_CONTAINER.radiusCard, label, UI_FONT.panelButton, snap.pressedButton === button.id);
-    }
-  }
-
-  if (snap.failHint) {
-    builder.text(cx, plate.yMin + 16, snap.failHint, {
-      fill: palette.textDim,
-      font: bodyFont(snap.largeText, 'hudSmall'),
-      align: 'center',
-      baseline: 'middle',
-    });
-  }
+  updateTimeoutViewModel(TIMEOUT_VM, snap);
+  drawTimeoutView(builder, TIMEOUT_VM, palette);
 }
 
 // ─────────────────────────────────── S7 结算·过关面板（ux-spec §3.4）
