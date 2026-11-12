@@ -355,14 +355,20 @@ describe('BeadsShell — 走马灯卡入口 + levels overlay 选关（menu-archi
     });
 });
 
-describe('BeadsShell — 选关高亮（WXG-T-912：当前关 = 首个 0 星关）', () => {
-    /** 跑一帧绘制并取 shell 投影（`currentLevelIndex` 由 `_metaViewData` 每帧覆写）。 */
-    const viewOf = (shell: BeadsShell): { currentLevelIndex: number } => {
+describe('BeadsShell — 选关高亮 / 走马灯陈列关（WXG-T-912/913：首个 0 星关口径）', () => {
+    /** 跑一帧绘制并取 shell 投影（`currentLevelIndex` 等字段由 `_metaViewData` 每帧覆写）。 */
+    const viewOf = (shell: BeadsShell) => {
         const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
         builder.begin();
         shell.buildRenderModel(builder);
         builder.end();
-        return (shell as unknown as { _viewData: { currentLevelIndex: number } })._viewData;
+        return (shell as unknown as {
+            _viewData: {
+                currentLevelIndex: number;
+                carouselLevel?: { id: number };
+                carouselTitle?: string;
+            };
+        })._viewData;
     };
 
     it('前两关已有星、第三关未打 ⇒ 高亮第三关；⛔ 不跟 play.levelIndex', () => {
@@ -385,6 +391,17 @@ describe('BeadsShell — 选关高亮（WXG-T-912：当前关 = 首个 0 星关�
         stars[0] = 3;
         stars[1] = 1;
         expect(viewOf(r.shell).currentLevelIndex, '全有星 ⇒ 回落前沿 = 第 2 关（0-based 1）').toBe(1);
+    });
+
+    it('`[WXG-T-913]` 主界面走马灯陈列关同口径：展示推到的 0 星关（L3），木牌关名仍取大关名', () => {
+        const r = rig({ initialScreen: 'menu' });
+        r.shell.play.unlockAcrossArc(2);
+        const stars = r.shell.play.starsByLevelRaw as number[];
+        stars[0] = 3;
+        stars[1] = 2;
+        const v = viewOf(r.shell);
+        expect(v.carouselLevel?.id, '陈列关 = 曼陀罗第 3 关').toBe(3);
+        expect(v.carouselTitle, '木牌关名 = 大关名').toBe('曼陀罗');
     });
 });
 

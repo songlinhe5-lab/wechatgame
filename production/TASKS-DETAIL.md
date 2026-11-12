@@ -9545,3 +9545,16 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：beads 单测 **1463 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；金样本 `level-select` / `level-select-mid` 重抓后 **total 9437 / 逐 kind 计数不变**，sha 回到高亮槽 0 口径（合成夹具全 0 星 ⇒ 首个 0 星 = L1）；十一帧两遍确定性自证 PASS，干净锚 `4a016e73`。实帧证据 `temp/thumb-shot-912/levels-frontier.png`（L1 三星 / L2 两星 / L3 无星 ⇒ 仅第三格高亮）。
 - **提交**：`4a016e73` fix（口径 + 判据 + 文档 + Cocos 镜像 + 台账）＋ 本笔 test（金样本 + 台账回填）。
 - **知识沉淀（kb:sync --task=WXG-T-912）**：新增 0 / 修改 0 / 激活 0 / 归档 0（同一机制二次改口径，无新判例；口径已写入 `beads-shell.ts` 行内注与 §2I）。
+
+## WXG-T-913
+
+**UI·主界面走马灯陈列关 = 推到的 0 星关（章名不丢）** · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成（2026-11-12 · 用户令）
+
+- **上位（用户原话）**：「选关中是曼陀罗第三关 0 星，但是主界面展示的应该是曼陀罗第三关，也就是推到的 0 星关」——主界面木牌仍印「曼陀罗 / 第 9 关」（boss），与选关高亮（T-912）不同步。
+- **根因**：`carouselLevel` = `_arcBossLevel(页)`（大关收尾关），木牌行 2 关序 = `lv.id` ⇒ 恒显 boss 关号；选关高亮改口径后两处各说各话。
+- **变更**：① 新增 `_arcShowcaseLevel(arcIdx)`：该大关 `levelRefs` 内**解锁范围内第一个 0 星关**（单趟整数、零分配）；全通 / 未解锁 ⇒ 回落 `_arcBossLevel`；`carouselLevel` 与 `carouselPeer` 同步换源。② 新增 `MetaViewData.carouselTitle` / `carouselPeerTitle`：陈列**中途小关**时由 shell 供**大关名**（`ARCS[页].title`，小关无展示名），陈列 boss 时 `undefined` ⇒ 视图回落 `lv.title`（旧行为逐字不变）；`drawPlateTitle` 增可选 `titleOverride`。③ 橱窗图仍按 `ARCS[页].textureId`（章作品不变）、三态 / 揭彩 / N/M 口径一字不动。
+- **效果**：截图态（L1 三星 / L2 两星 / L3 无星）⇒ 主菜单木牌「曼陀罗 / 第 3 关」；全通章 / 未解锁章仍展示 boss 与旧牌面。
+- **判据**：`beads-shell.test.ts` 新增「陈列关 = 曼陀罗第 3 关且 `carouselTitle = 曼陀罗`」。
+- **文档**：`menu-plate-text-control-spec §10` / `menu-layout-implementation-spec §8` / `ui-architecture-beads §12` / `meta-types` 字段注释。
+- **验证**：待填。
+- **提交**：待填。

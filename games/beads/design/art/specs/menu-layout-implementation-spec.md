@@ -130,6 +130,8 @@ bt     = cap + 4                    # 顶栏钮顶（对齐胶囊底，不占布
 
 **架构约束**：滑动偏移是 shell / VM 的状态，view 只读（L5）；热路径不新建集合（拖动中每帧只改一个数值）。
 
+**`[WXG-T-913]` 陈列关口径**（用户 2026-11-12 令「主界面展示的应该是曼陀罗第三关，也就是推到的 0 星关」）：滑动层的「Boss 豆画」改按**该大关解锁范围内第一个 0 星关**绘制（全通 / 未解锁回落 boss）；有章图（`ARCS[页].textureId`）时章图不变、只有木牌行 2 关序前进（行 1 关名取大关名，见 `menu-plate-text-control-spec §10`）；无章图的程序化腿按陈列关绘制。三态盖章 / 揭彩 / N/M 口径一字不动。
+
 ## 9. 施工状态（v3.8 走马灯 · 2026-10-16）
 
 1. **素材**：三件 WebP q90 在 `final/assets/menu/`，harness `MENU_FILE` 与 Cocos `BITMAP_ASSETS` 已登记。Cocos `.meta` 已由编辑器刷新 `db://assets/textures` 生成（L1，不手写）。旧 `ui_menu_badge_pushing` / `ui_menu_badge_done` 已删（用户 2026-10-16：播放钮与完成章不再用；进行中 = 沙漏，通关 = 飘带）。

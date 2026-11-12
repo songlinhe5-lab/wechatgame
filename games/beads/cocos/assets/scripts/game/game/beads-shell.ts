@@ -246,8 +246,10 @@ export class BeadsShell implements Game {
         // C 拍定「不创建」= `undefined`（⛔ 存 0/0）：门槛有值才表示该页有进度件。
         arcStarGot: undefined as number | undefined,
         arcStarNeed: undefined as number | undefined,
-        // 走马灯 = 大关页（EP13-S4）：代表关 = 该大关收尾关（boss），图 = `ARCS[页].textureId`。
+        // 走马灯 = 大关页（EP13-S4）：代表关 = 该大关解锁内第一个 0 星关（`[WXG-T-913]`，全通回落 boss），
+        // 图 = `ARCS[页].textureId`；木牌关名 = 大关名（`carouselTitle`）。
         carouselLevel: undefined as BeadsLevelRaw | undefined,
+        carouselTitle: undefined as string | undefined,
         carouselState: undefined as MetaBossState | undefined,
         // `[WXG-T-566]` 当前大关「已完成小关 / 总小关」（每帧由 `_metaViewData` 覆写；空页 = undefined）。
         carouselArcDone: undefined as number | undefined,
@@ -257,6 +259,7 @@ export class BeadsShell implements Game {
         carouselDx: 0,
         carouselT: 0,
         carouselPeer: undefined as BeadsLevelRaw | undefined,
+        carouselPeerTitle: undefined as string | undefined,
         carouselPeerState: undefined as MetaBossState | undefined,
         // `[WXG-T-566]` 对页完成度（滑动中两页各自的揭彩比例，⛔ 不借用主车进度）。
         carouselPeerArcDone: undefined as number | undefined,
@@ -1019,6 +1022,27 @@ export class BeadsShell implements Game {
     }
 
     /**
+     * `[WXG-T-913]` 走马灯陈列关 = **该大关解锁范围内第一个 0 星关**（与选关高亮 T-912 同口径：
+     * 推到哪一关就展示哪一关，用户 2026-11-12 令「主界面展示的应该是曼陀罗第三关」）。
+     * 本大关全通 / 尚未解锁 ⇒ 回落大关收尾关（boss，保底展示该章作品）。
+     * 只读星账原始引用 + 解锁位，单趟整数、零分配（每帧两页 × ≤9 关）。
+     */
+    private _arcShowcaseLevel(arcIdx: number): BeadsLevelRaw | undefined {
+        const refs = ARCS[arcIdx]?.levelRefs;
+        if (!refs) return undefined;
+        const stars = this.play.starsByLevelRaw;
+        const maxUnlocked = this.play.maxUnlockedLevel;
+        const n = this.play.levelCount;
+        for (let r = 0; r < refs.length; r++) {
+            const range = refs[r]!;
+            for (let lv = range[0]; lv <= range[1] && lv <= n && lv <= maxUnlocked; lv++) {
+                if ((stars[lv - 1] ?? 0) === 0) return this._wallBaseLevels[lv - 1];
+            }
+        }
+        return this._arcBossLevel(arcIdx);
+    }
+
+    /**
      * `[WXG-T-566]` 大关小关完成度：`_arcDone` / `_arcTotal` = 该页已通关（≥1★）小关数 / 清单总关数。
      * 与 {@link _arcState} 同源（同一 `levelRefs` 展开 + 同一 `starsByLevelRaw`），单趟整数循环、零分配。
      * ⛔ 不供三态判档（判档仍走 `_arcState`：首关已解锁未通关 = 推关中，此时 done 可为 0）。
@@ -1259,7 +1283,15 @@ export class BeadsShell implements Game {
         // 每次两 int 比较（零分配）；关号直读 `currentLevel.id`（装配下标 + 1，与关序显示同轴）。
         v.carouselOnStartPage = off === this._startArcPage();
         v.startLevelSeq = this.play.currentLevel.id;
-        v.carouselLevel = soon ? undefined : this._arcBossLevel(off);
+        // `[WXG-T-913]` 陈列关 = 本大关解锁内第一个 0 星关（推关态展示「正在推的那一关」）；
+        // 大关全通 / 未解锁 ⇒ 回落 boss。橱窗图仍按 `ARCS[页].textureId`（章作品不变），
+        // 木牌关名在「陈列中途小关」时改由大关名供给（小关无展示名 ⇒ 章名不丢）；
+        // 陈列 boss 时 `undefined` ⇒ 视图回落 `lv.title`（旧行为逐字不变）。
+        const showcase = soon ? undefined : this._arcShowcaseLevel(off);
+        v.carouselLevel = showcase;
+        v.carouselTitle = showcase !== undefined && showcase !== this._arcBossLevel(off)
+            ? ARCS[off]?.title
+            : undefined;
         v.carouselState = soon ? undefined : this._arcState(off);
         // `[WXG-T-566]` 木牌 `N/M` 数据（与 `_arcState` 同一 `levelRefs` 遍历口径，单趟整数、零分配）。
         if (soon) {
@@ -1281,12 +1313,17 @@ export class BeadsShell implements Game {
         v.carouselPeerSign = sign === 0 ? undefined : sign;
         if (peerPage < 0) {
             v.carouselPeer = undefined;
+            v.carouselPeerTitle = undefined;
             v.carouselPeerState = undefined;
             v.carouselPeerTextureId = undefined;
             v.carouselPeerArcDone = undefined;
             v.carouselPeerArcTotal = undefined;
         } else {
-            v.carouselPeer = this._arcBossLevel(peerPage);
+            const peerShowcase = this._arcShowcaseLevel(peerPage);
+            v.carouselPeer = peerShowcase;
+            v.carouselPeerTitle = peerShowcase !== undefined && peerShowcase !== this._arcBossLevel(peerPage)
+                ? ARCS[peerPage]?.title
+                : undefined;
             v.carouselPeerState = this._arcState(peerPage);
             v.carouselPeerTextureId = ARCS[peerPage]?.textureId;
             // `[WXG-T-566]` 对页揭彩比例：与主车同源同口径（主车值已拷进 v，重算不会覆盖它）。

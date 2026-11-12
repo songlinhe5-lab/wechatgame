@@ -121,11 +121,18 @@ export interface MetaViewData {
     readonly arcStarGot?: number;
     readonly arcStarNeed?: number;
     /**
-     * **走马灯 Boss 图**（`[WXG-T-281]` 用户裁定：走马灯中间只展示 Boss 图、未通关置灰、点图进选关）：
-     * `carouselLevel` = 当前陈列关（shell 取进度最远那关，余下已通集反序 ⇒ **每帧零 `difficultyOf`**）；
+     * **走马灯作品图位**（`[WXG-T-281]` 用户裁定：走马灯中间只展示作品图、未通关置灰、点图进选关）：
+     * `carouselLevel` = 当前陈列关 —— `[WXG-T-913]` 起 = **本大关解锁范围内第一个 0 星关**（与
+     * `currentLevelIndex` 同口径；全通 / 未解锁 ⇒ 回落大关收尾关 boss），用户 2026-11-12 令
+     * 「主界面展示的应该是曼陀罗第三关，也就是推到的 0 星关」；**每帧零 `difficultyOf`**。
      * 无可陈列 ⇒ `undefined` ⇒ 虚线空槽。与 {@link wallLevels} 同理 ⇒ 视图 ⛔ 不 `import { LEVELS }`。
      */
     readonly carouselLevel: BeadsLevelRaw | undefined;
+    /**
+     * `[WXG-T-913]` 木牌关名 = **大关名**（`ARCS[页].title`，如「曼陀罗」）。陈列关变成中途小关后，
+     * 小关自身没有展示名 ⇒ 关名由大关供给；缺省 ⇒ 视图回落 `carouselLevel.title`（旧合成数据兼容）。
+     */
+    readonly carouselTitle?: string;
     /**
      * `[WXG-T-280]` 逐机落位锚（菜单链，落地单 §2）。shell 在 init/resize 时经
      * `menuAnchors()` 算定一次并恒存 ⇒ 每帧只读引用（⛔ 不得逐帧新建，L5/零分配）。
@@ -162,8 +169,10 @@ export interface MetaViewData {
     readonly carouselDx?: number;
     /** 0..1，朝相邻项走了多少。木牌文字按它做两段淡变。缺省 0。 */
     readonly carouselT?: number;
-    /** 正在露出的相邻项。没有则不画。 */
+    /** 正在露出的相邻项。没有则不画。`[WXG-T-913]` 陈列关 = 该页解锁内第一个 0 星关（全通回落 boss）。 */
     readonly carouselPeer?: BeadsLevelRaw;
+    /** `[WXG-T-913]` 相邻大关页木牌关名（大关名；缺省 ⇒ 回落 `carouselPeer.title`）。 */
+    readonly carouselPeerTitle?: string;
     readonly carouselPeerState?: MetaBossState;
     /**
      * `[WXG-T-566]` 相邻大关页的完成度（与 {@link carouselArcDone} 同源、同口径）。

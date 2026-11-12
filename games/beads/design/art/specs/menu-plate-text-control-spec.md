@@ -212,3 +212,9 @@ python3 $W temp/menu-v2-edit/plate-step1.png \
 
 - **SVG 实到值**（`tools/scripts/render-ui-shots.mjs`，与金样本同源同种子）：关名 `font-size="34" font-weight="bold"`；次行 `font-size="22" font-weight="bold"`；胶囊 `rect x=310 width=130 height=27 rx=13.5 fill="#795127"`。
 - **守卫**：`tests/menu-plate-title.test.ts` 现守「次行 = `plateSub`（22 粗）/ 胶囊 h=27 / 关名 = `plateTitle`（34 粗）」；`§10` 时代那句「⛔ 回退 22 档」**本轮作废**（正是要走的档），替换为「⛔ 退回 `labelBold` 28（会把木牌又撑大）」。
+
+## 10. `[WXG-T-913]` 2026-11-12 用户令「主界面展示的应该是曼陀罗第三关，也就是推到的 0 星关」
+
+- **陈列关换了谁**：走马灯陈列关由「大关收尾关（boss）」改为「**本大关解锁范围内第一个 0 星关**」（与选关高亮同口径；大关全通 / 未解锁 ⇒ 回落 boss）。橱窗图仍按 `ARCS[页].textureId`（章作品不变）。
+- **木牌两行口径**：行 1 关名 —— 陈列中途小关时由 shell 供**大关名**（`carouselTitle = ARCS[页].title`，如「曼陀罗」；小关自身无展示名）；陈列 boss 时仍回落 `lv.title`（旧行为逐字不变）。行 2 关序 —— 恒为 `第 {陈列关.id} 关`，故推关态 = 「曼陀罗 / 第 3 关」。
+- **判据**：`tests/beads-shell.test.ts`「陈列关 = 曼陀罗第 3 关且 `carouselTitle = 曼陀罗`」；金样本 `main-menu / settings / signin / level-select / level-select-mid` 重抓（无位图腿的程序化陈列图随陈列关变小 ⇒ total **1623→1117 / 9437→8931** 等，逐帧 sha 变）。

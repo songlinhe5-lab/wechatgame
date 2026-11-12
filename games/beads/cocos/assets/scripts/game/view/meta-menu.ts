@@ -474,12 +474,15 @@ function drawPlateTitle(
     g: AnchoredMenuGeo,
     palette: BeadsPalette,
     alpha: number,
+    /** `[WXG-T-913]` 关名覆盖（大关名）：陈列关改为中途小关后由 shell 供大关名；缺省 ⇒ `lv.title`。 */
+    titleOverride?: string,
 ): void {
     if (alpha <= 0) return;
     const seq = `第 ${lv.id} 关`;
     const a = alpha < 1 ? alpha : undefined;
-    if (lv.title) {
-        builder.text(g.plateCx, g.plateLine1Cy, lv.title, {
+    const title = titleOverride ?? lv.title;
+    if (title) {
+        builder.text(g.plateCx, g.plateLine1Cy, title, {
             fill: palette.plateTitleInk, font: PLATE_TITLE_FONT, align: 'center', baseline: 'middle',
             ...(a === undefined ? {} : { alpha: a }),
         });
@@ -633,9 +636,13 @@ export function drawMenuAnchored(
         if (data.carouselComingSoon === true) drawComingSoonPlate(builder, g, palette, fade[0]);
         // `[WXG-T-598]` 木牌只吃关名 + 关序；门票 ★ / 大关 N/M 两组读数自木牌退场（选关页仍有），
         // 故不再往下传进度实参。
-        else if (data.carouselLevel !== undefined) drawPlateTitle(builder, data.carouselLevel, g, palette, fade[0]);
+        else if (data.carouselLevel !== undefined) {
+            drawPlateTitle(builder, data.carouselLevel, g, palette, fade[0], data.carouselTitle);
+        }
         if (data.carouselPeerComingSoon === true) drawComingSoonPlate(builder, g, palette, fade[1]);
-        else if (data.carouselPeer !== undefined) drawPlateTitle(builder, data.carouselPeer, g, palette, fade[1]);
+        else if (data.carouselPeer !== undefined) {
+            drawPlateTitle(builder, data.carouselPeer, g, palette, fade[1], data.carouselPeerTitle);
+        }
     }
     // ◀▶ 翻页（热区 = `carousel-prev/next`；无热区语义 ⇒ 壳侧处理）。
     drawArrow(builder, data, g.arrowL, 'left');
