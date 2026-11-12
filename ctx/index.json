@@ -119195,17 +119195,17 @@
     },
     {
       "path": "production/qa/token-plan-usage-ledger.md",
-      "tokens": 7536,
-      "lines": 124,
-      "sha256": "32eef988c49312102b416a691122ceed03bcad0e7a9c87617dc01e0ca78721ee",
+      "tokens": 7639,
+      "lines": 127,
+      "sha256": "9bce2f7f73614328f25af92933ea1232ccf2a8f7d33a2281e29670365d5517c3",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Token Plan 生图用量台账（建账 2026-11-01）",
           "level": 1,
           "startLine": 1,
-          "endLine": 125,
-          "tokens": 7520,
+          "endLine": 128,
+          "tokens": 7623,
           "summary": "本件只管「花了多少次、出了几张图、留在哪」，是追加型台账（按时间序加行，⛔ 不回改历史行）。",
           "keywords": [
             "Token",
@@ -119278,8 +119278,8 @@
           "anchor": "§4 追加规则（谁跑谁记，一轮一行）",
           "level": 2,
           "startLine": 78,
-          "endLine": 86,
-          "tokens": 223,
+          "endLine": 89,
+          "tokens": 327,
           "summary": "1. 每批云图跑完，在本表追加一行（同批次多模型则多行），字段照表头，⛔ 不合并不同模型的行。",
           "keywords": [
             "追加规则",
@@ -119290,8 +119290,8 @@
         {
           "anchor": "§5 复算方法（想自己核一遍时）",
           "level": 2,
-          "startLine": 87,
-          "endLine": 96,
+          "startLine": 90,
+          "endLine": 99,
           "tokens": 135,
           "summary": "",
           "keywords": [
@@ -119302,8 +119302,8 @@
         {
           "anchor": "§6 temp 生图存量（2026-11-01 清理一次，用户令「把 temp 里的生图都清理掉」）",
           "level": 2,
-          "startLine": 97,
-          "endLine": 125,
+          "startLine": 100,
+          "endLine": 128,
           "tokens": 2115,
           "summary": "清理前 3642 张 / temp 共 2.3 GB",
           "keywords": [
