@@ -118298,6 +118298,203 @@
       ]
     },
     {
+      "path": "production/qa/session-summary-2026-11-12.md",
+      "tokens": 2727,
+      "lines": 113,
+      "sha256": "f2ce8250499dc4935418f338eb99293228cae7df3022abe1b89d8eec6fd1bf91",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§会话总结报告 · 2026-11-12",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 114,
+          "tokens": 2716,
+          "summary": "范围：把浏览器验证侧（harness）的最新改动同步到 Cocos 工程并完成构建验证；随后核实领域决策模型是否真正被使",
+          "keywords": [
+            "harness",
+            "Cocos",
+            "会话总结报告"
+          ]
+        },
+        {
+          "anchor": "§1 结论摘要",
+          "level": 2,
+          "startLine": 6,
+          "endLine": 12,
+          "tokens": 262,
+          "summary": "1. 源码到 Cocos 镜像已一致：同步脚本写入 0 个文件（说明此前已同步到位），两只游戏的框架与玩法拷贝件逐字节一",
+          "keywords": [
+            "Cocos",
+            "结论摘要"
+          ]
+        },
+        {
+          "anchor": "§2 同步与构建（harness → Cocos）",
+          "level": 2,
+          "startLine": 13,
+          "endLine": 41,
+          "tokens": 503,
+          "summary": "",
+          "keywords": [
+            "harness",
+            "Cocos",
+            "同步与构建"
+          ]
+        },
+        {
+          "anchor": "§2.1 镜像同步",
+          "level": 3,
+          "startLine": 15,
+          "endLine": 25,
+          "tokens": 164,
+          "summary": "同步命令 pnpm run framework:sync（默认剥除 .js 后缀）",
+          "keywords": [
+            "pnpm",
+            "run",
+            "framework",
+            "sync",
+            "镜像同步"
+          ]
+        },
+        {
+          "anchor": "§2.2 位图 `.meta` 补齐",
+          "level": 3,
+          "startLine": 26,
+          "endLine": 31,
+          "tokens": 152,
+          "summary": "检查发现 games/beads/cocos/assets/textures/detail/ 下 18 件资产只有 4 ",
+          "keywords": [
+            ".meta",
+            "meta",
+            "games",
+            "beads",
+            "cocos",
+            "assets"
+          ]
+        },
+        {
+          "anchor": "§2.3 发布档构建与包体",
+          "level": 3,
+          "startLine": 32,
+          "endLine": 41,
+          "tokens": 163,
+          "summary": "构建命令 pnpm run build:cocos（微信小游戏 / release 基线档，含引擎分离）",
+          "keywords": [
+            "pnpm",
+            "run",
+            "build",
+            "cocos",
+            "release",
+            "发布档构建与"
+          ]
+        },
+        {
+          "anchor": "§3 领域决策模型核实与实测",
+          "level": 2,
+          "startLine": 42,
+          "endLine": 66,
+          "tokens": 541,
+          "summary": "",
+          "keywords": [
+            "领域决策模型",
+            "核实与实测"
+          ]
+        },
+        {
+          "anchor": "§3.1 核实结论",
+          "level": 3,
+          "startLine": 44,
+          "endLine": 54,
+          "tokens": 305,
+          "summary": "是否真的调用过接口 是，仅 2026-10-31 标定轮 [标定报告](file:///Users/stephenhe/",
+          "keywords": [
+            "file",
+            "Users",
+            "stephenhe",
+            "核实结论"
+          ]
+        },
+        {
+          "anchor": "§3.2 实测复跑（2026-11-12）",
+          "level": 3,
+          "startLine": 55,
+          "endLine": 66,
+          "tokens": 220,
+          "summary": "命令与标定报告 C 版一致：用同一份 18 条真实缺陷样本、同一张问题表，一次跑完。",
+          "keywords": [
+            "实测复跑"
+          ]
+        },
+        {
+          "anchor": "§4 本会话落盘与提交",
+          "level": 2,
+          "startLine": 67,
+          "endLine": 84,
+          "tokens": 410,
+          "summary": "标定报告新增 §8 记录本次复跑的目的、命令、调用读数与三问题对照 [decision-model-calibratio",
+          "keywords": [
+            "§8",
+            "decision",
+            "model",
+            "calibratio",
+            "本会话落盘与",
+            "提交"
+          ]
+        },
+        {
+          "anchor": "§5 环境限制与处置",
+          "level": 2,
+          "startLine": 85,
+          "endLine": 90,
+          "tokens": 177,
+          "summary": "本机工具沙箱会导致 Cocos 编辑器命令行启动失败（报配置文件无权限与浏览器初始化异常），且同工程已打开时命令行实例会",
+          "keywords": [
+            "Cocos",
+            "环境限制与处"
+          ]
+        },
+        {
+          "anchor": "§6 决策模型调用统计（本规则首次执行）",
+          "level": 2,
+          "startLine": 91,
+          "endLine": 101,
+          "tokens": 113,
+          "summary": "API 调用次数 18 次，全部成功",
+          "keywords": [
+            "API",
+            "决策模型调用",
+            "统计",
+            "本规则首次执"
+          ]
+        },
+        {
+          "anchor": "§7 遗留与风险",
+          "level": 2,
+          "startLine": 102,
+          "endLine": 108,
+          "tokens": 283,
+          "summary": "1. 工作区仍有 37 项未提交改动：倒计时结束弹窗的源码、测试、设计件与新位图（代码内注记为 WXG-T-614，任务",
+          "keywords": [
+            "WXG",
+            "遗留与风险"
+          ]
+        },
+        {
+          "anchor": "§8 下一步可选任务",
+          "level": 2,
+          "startLine": 109,
+          "endLine": 114,
+          "tokens": 239,
+          "summary": "1. 把倒计时结束弹窗这批改动连同 14 个 .meta 一起提交并推送：先在任务台账登记批次号，再按「源码 + 测试 ",
+          "keywords": [
+            "meta",
+            "下一步可选任"
+          ]
+        }
+      ]
+    },
+    {
       "path": "production/qa/smoke-tests.md",
       "tokens": 2583,
       "lines": 123,
