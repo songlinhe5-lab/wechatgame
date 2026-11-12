@@ -98,6 +98,7 @@ import {
     type FilledBeadOptions,
     type TargetTileOptions,
 } from './bead-render.js';
+import { drawBoardOutline } from './bead-outline.js';
 import {
     BEAD_HIGHLIGHT_HEX,
     EXPAND_BTN_TEXT,
@@ -496,6 +497,9 @@ function drawGrid(
     const liftScale = selectLiftScale(snap);
     // 组内错峰的名序基准（`boardGroupRows` 已是 game 侧消费序，锚在序首）；颗数 ≤ 1 ⇒ 0 = 无错峰。
     const groupLastRank = snap.boardGroupCount - 1;
+    // `[WXG-T-927]` 珠面描边（用户令「游戏中也需要这个描边」）：与详情 / 选关缩略同一套剪影形状，
+    // 先轮廓、后底块 / 珠体 ⇒ 只露格面外一圈；占位取快照 `void`、锁定格贴珠体。
+    drawBoardOutline(builder, snap, palette.shadowInk);
     for (let i = 0; i < snap.gridRows; i++) {
         for (let j = 0; j < snap.gridCols; j++) {
             const cell = snap.cells[i * snap.gridCols + j]!;

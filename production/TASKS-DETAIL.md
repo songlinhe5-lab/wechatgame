@@ -9749,3 +9749,21 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：`thumb-outline` 6 例 + `level-detail-showcase` 4 例全绿；`menu-thumb-primitives` 4 例在 `paint` 内剥轮廓命令（本套只量珠体图元）；金样本 `level-select` / `level-select-mid` 因选关缩略新增描边 **按流程重抓**（`ui-golden-capture.ts` 干净锚）；`pnpm run verify` 复跑见提交。
 - **提交**：`a57420c0`（代码 + Cocos 镜像 + 文档 + 台账）；选关金样本两态（`level-select` / `level-select-mid`，total 8931 → 9298）在干净锚 `a57420c0` 重抓，与台账回填同批提交。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**（描边口径由 spec + 判据承载，无新增 K 候选）。
+
+## WXG-T-927
+
+**UX·珠面描边收窄 + 圆角放大 + 对局盘面启用** · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成（2026-11-12 · 用户令「珠面的描边窄一点，圆角半径再大一点；游戏中也需要这个描边」）
+
+- **用户原话**：「珠面的描边窄一点，圆角半径再大一点；游戏中也需要这个描边」。
+- **变更**：
+  - `view/bead-outline.ts`：线宽 `W = clamp(round(pitch×0.18),2,6)` → **`clamp(round(pitch×0.10),1,4)`**（收窄）；折角 `R = clamp(round(pitch×0.22),2,6)` → **`clamp(round(pitch×0.30),2,9)`**（放大）；形状构建抽 `buildShapes`，占用 / 锁定判定参数化（缩略走 `pattern`，盘面走快照）。
+  - 新增 `drawBoardOutline(builder, snap, color)`：对局盘面与缩略 / 详情共用同一套剪影形状；占位 = `!cell.void`、锁定格 = `cell.state === 'locked'`；几何由 `gridLeft/gridTop/gridCell/gridPitch` 派生；缓存键（cells 引用 / levelId / levelIndex / stageIndex / 尺寸 / 几何）逐项**数值比较**（⛔ 不拼字符串）⇒ 热路径零分配。
+  - `view/play-page.ts::drawGrid`：格循环**之前**调用（先轮廓、后底块 / 珠体 ⇒ 只露格面外一圈）。
+- **判据**：`tests/thumb-outline.test.ts` 公式改判（28.33 → W3/R8、11.33 → W1/R3、100 → W4/R9）+ 新增盘面一例（2×2 L 形 = 3 枚 polygon、首命令 `shadowInk`）；共 **7 例全绿**。
+- **实帧**：对局盘面 13×12 轮廓 = 46 枚 polygon（= 边界格数），色 `shadowInk`；详情 / 选关随之变细变圆。
+- **封箱复评**：第廿二次复评（`K.5.1-补14`）——盘面轮廓属整帧非珠体族**插入型**改动 ⇒ frame0 / frame78 各 **+46 polygon**（13×12 满盘边界格数），珠体族 `legacyFlow` 96/96 与 facet 45+45 逐字节零差；官方复取器在可复现锚重抓。
+- **金样本**：`play` / `pause` / `clear` / `fail` / `sprint-settle` 五态（含盘面）sha 与 total 变，其余六态逐字未变；`ui-golden-capture.ts` 干净锚重抓。
+- **文档**：`level-detail-spec §12` 轮廓条改判（W/R 与盘面范围）；`ui-architecture-beads §12` 登记。
+- **验证**：`pnpm run verify` 复跑见提交。
+- **提交**：见本批 commit（代码 + Cocos 镜像 + 文档 + 台账）。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**（轮廓公式与缓存口径由本单规格 / 判据承载，无新增 K 候选）。
