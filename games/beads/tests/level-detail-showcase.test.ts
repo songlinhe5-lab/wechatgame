@@ -56,14 +56,16 @@ describe('WXG-T-609 关卡详情橱窗面板', () => {
     it('`[WXG-T-619/T-620]` 橱窗珠面 = 共享 `drawBeadFace` 同腿（与选关格同一珠体通道）', () => {
         const cmds = frame(() => false);
         const thumb = LEVEL_DETAIL_GEO.thumb;
+        const fit = LEVEL_DETAIL_GEO.thumbFit;
         const plate = levelDetailPlate();
         const plateY = DESIGN_H - LEVEL_DETAIL_GEO.plate.yDown - LEVEL_DETAIL_GEO.plate.h;
-        // `[WXG-T-918]` 槽几何新口径：中心 = 橱窗面板轴、下缘 = 内容框底（托盘面）。
+        // `[WXG-T-918]` 槽几何新口径：中心 = 橱窗面板轴、下缘 = 内容框底（托盘面）；
+        // `[WXG-T-924]` 展示框改取 `thumbFit`（底锚仍由 `thumb` 框下缘推出）。
         const slot = {
-            x: plate.x + (LEVEL_DETAIL_GEO.showcase.x + LEVEL_DETAIL_GEO.showcase.w / 2 - thumb.w / 2 - LEVEL_DETAIL_GEO.plate.x),
+            x: plate.x + (LEVEL_DETAIL_GEO.showcase.x + LEVEL_DETAIL_GEO.showcase.w / 2 - fit.w / 2 - LEVEL_DETAIL_GEO.plate.x),
             y: plate.y + (DESIGN_H - thumb.yDown - thumb.h - plateY),
-            w: thumb.w,
-            h: thumb.area,
+            w: fit.w,
+            h: fit.h,
         };
         const ref = new RenderModelBuilder(DESIGN_W, DESIGN_H);
         ref.begin();
@@ -82,7 +84,7 @@ describe('WXG-T-609 关卡详情橱窗面板', () => {
     });
 
     // `[WXG-T-918]` 用户令「图案需要落在托盘上，而且图案要居中显示」：宽盘（第 7 关 14×8）
-    // 是最能区分的样本 —— 若仍走槽内垂直居中，底缘会离托盘面 35.7（= (240−8·21.07)/2）。
+    // 是最能区分的样本 —— 若仍走槽内垂直居中，底缘会离托盘面（旧 240 槽为 35.7）。
     it('`[WXG-T-918]` 图案落托盘 + 居中：宽盘底缘贴托盘面、水平轴 = 橱窗轴', () => {
         const idx = 6;
         const lv = LEVELS[idx]!;
@@ -90,19 +92,20 @@ describe('WXG-T-609 关卡详情橱窗面板', () => {
         const plate = levelDetailPlate();
         const plateY = DESIGN_H - LEVEL_DETAIL_GEO.plate.yDown - LEVEL_DETAIL_GEO.plate.h;
         const thumb = LEVEL_DETAIL_GEO.thumb;
+        const fit = LEVEL_DETAIL_GEO.thumbFit;
         const trayY = plate.y + (DESIGN_H - thumb.yDown - thumb.h - plateY);
-        const slotX = plate.x + (LEVEL_DETAIL_GEO.showcase.x + LEVEL_DETAIL_GEO.showcase.w / 2 - thumb.w / 2 - LEVEL_DETAIL_GEO.plate.x);
+        const slotX = plate.x + (LEVEL_DETAIL_GEO.showcase.x + LEVEL_DETAIL_GEO.showcase.w / 2 - fit.w / 2 - LEVEL_DETAIL_GEO.plate.x);
         const ref = new RenderModelBuilder(DESIGN_W, DESIGN_H);
         ref.begin();
-        drawBeadFace(ref, lv, slotX, trayY, thumb.w, thumb.area, DEFAULT_PALETTE, undefined, HANDDRAWN_STYLE_ID, undefined, 'bottom');
+        drawBeadFace(ref, lv, slotX, trayY, fit.w, fit.h, DEFAULT_PALETTE, undefined, HANDDRAWN_STYLE_ID, undefined, 'bottom');
         const refCmds = ref.end().commands;
         const sig = (c: DrawCommand) => JSON.stringify(c);
         const at = cmds.map(sig).indexOf(sig(refCmds[0]!));
         expect(at, '页面帧必须含「底对齐」珠流（旧居中腿对宽盘会整体上浮）').toBeGreaterThanOrEqual(0);
         expect(cmds.map(sig).slice(at, at + refCmds.length)).toEqual(refCmds.map(sig));
         // 水平：珠面栅格中心 = 橱窗轴（377.5）；旧稿面内容框中心 392.5 偏轴 15。
-        const pitch = Math.min(thumb.w / lv.cols, thumb.area / lv.rows);
-        const gridCx = slotX + (thumb.w - lv.cols * pitch) / 2 + (lv.cols * pitch) / 2;
+        const pitch = Math.min(fit.w / lv.cols, fit.h / lv.rows);
+        const gridCx = slotX + (fit.w - lv.cols * pitch) / 2 + (lv.cols * pitch) / 2;
         const showcaseCx = plate.x + (LEVEL_DETAIL_GEO.showcase.x + LEVEL_DETAIL_GEO.showcase.w / 2 - LEVEL_DETAIL_GEO.plate.x);
         expect(gridCx).toBeCloseTo(showcaseCx, 6);
     });

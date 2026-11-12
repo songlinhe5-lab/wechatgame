@@ -9708,3 +9708,15 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（首轮 FAIL 2 → 修：`check:arch §20-4` 要求 `hitFinishPanel` 复用 `finishPanelLayout()` ⇒ 命中改取**当前缓存布局的 `buttons`**（冷启按单行建一份；按钮几何与关数无关，缓存不被来回顶）；`typecheck` 8 处测试残留三参 ⇒ `finish-panel.test.ts` 去第三参）。beads 单测 **1472 passed / 2 skipped**；`check:links` OK。
 - **提交**：`f9b07fa0`（代码 + Cocos 镜像 + `ux-spec §3.6` / `ui-architecture-beads §12` + 台账）。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**（本批判据已在 §20-4 与既有 K 条目覆盖下，无新沉淀候选）。
+
+## WXG-T-924
+
+**UX·详情橱窗珠面占比放大** · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成（2026-11-12 · 用户令「图案占橱窗比例太小，按照视觉合适比例调整」附实帧截图）
+
+- **诊断**：详情橱窗珠面仍吃稿面占位猫图框 `123:3`（295×285，绘制 `area` 240）⇒ 12×12 盘实际只占玻璃内腔（≈422 宽）的 57%，四周空玻璃过多，读作「小样摆件」。
+- **变更**：`LEVEL_DETAIL_GEO` 新增 `thumbFit: { w: 360, h: 340 }`（稿面 `thumb` 框只留档、底锚仍取其上缘推出）；`meta-level-detail-page.ts` 绘制改读 `thumbFit`，底缘仍 = 台面 805（`THUMB_DY` 不变）、水平仍 = 橱窗轴 377.5。依据资源实测：玻璃内腔 ≈422 宽、穹顶→台面净空 ≈401 ⇒ 左右各 ≈31、射灯下 ≈61 呼吸位；圆台面 ≈289 宽 ⇒ 大图案可略悬出（展示柜常见）。
+- **文档**：`level-detail-spec §11/§12` 回写（比例条 + 层序引用换 `thumbFit`）；`ui-architecture-beads §12` 登记。
+- **判据**：`level-detail-showcase` 两例改取 `thumbFit`（与绘制同源，几何断言全绿）；实帧三档 `temp/detail-shot-924`：L4 12×12（340²，占内腔 81%）、L7 14×8 宽盘（360×206，底缘贴台面）、L9 30×30 boss（340²，珠面仍走珠体腿）。temp 不入库。
+- **验证**：`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；`level-detail-showcase` 4 例全绿；`harness:build` ✅（Cocos 镜像同批）。
+- **提交**：见本批 commit（代码 + Cocos 镜像 + `level-detail-spec §11/§12` / `ui-architecture-beads §12` + 台账）。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**（「占位框换展示口径」已有 K 条目覆盖，无新增候选）。

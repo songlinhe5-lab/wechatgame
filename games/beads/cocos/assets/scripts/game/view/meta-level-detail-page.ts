@@ -116,15 +116,17 @@ export function drawLevelDetailPage(
     //    @245 的中心 392.5 偏轴 15 ⇒ 绘制时按面板重摆，⛔ 不篡改 Figma 几何表。
     // `[WXG-T-621]` 用户令「用当前应用的珠面效果绘制缩略图」⇒ 透传 `data.beadStyle`（与盘面同肤）。
     // `[WXG-T-910]` 豆径档同透（与盘面同参 ⇒ 小豆档缩略亦无孔）。
-    const thumb = GEO.thumb;
-    const thumbX = GEO.showcase.x + GEO.showcase.w / 2 - thumb.w / 2;
+    // `[WXG-T-924]` 用户令「图案占橱窗比例太小，按视觉合适比例调整」：占位改取
+    // `thumbFit`（360×340，底缘仍 = 台面 805、水平仍 = 橱窗轴）；稿面 295×285 框只留档。
+    const fit = GEO.thumbFit;
+    const thumbX = GEO.showcase.x + GEO.showcase.w / 2 - fit.w / 2;
     drawBeadFace(
         builder,
         level,
         plate.x + (thumbX - GEO.plate.x),
         plate.y + THUMB_DY,
-        thumb.w,
-        thumb.area,
+        fit.w,
+        fit.h,
         palette,
         undefined,
         data.beadStyle,
