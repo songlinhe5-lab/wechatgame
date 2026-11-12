@@ -84,7 +84,7 @@
 | 越界空槽（清单长度 < 槽位，`levelIdx === undefined`） | tap | 同上，**逐字同判据**（同一闸门臂） | 本页（不变） |
 | 已解锁未通关格（推关中，`starsByLevel[idx] == 0`） | tap | **扣 1 心**（`STAMINA_START_COST`，§3.14）→ 切屏 + `goToLevel(idx)`（`_startLevel:359`） | 玩法·该关 |
 | **已通关格（`starsByLevel[idx] > 0`）——重玩**（裁定③） | tap | **直接开新局**：与上行**同一入口、同一扣心**（Q7「一格 = 一次新局 ⇒ 必扣且仅扣 1 心」）；⛔ **无二次确认弹窗**、⛔ **无长按**、⛔ **无新热区**；写入仍走 `stars[idx] = max(旧, 新)`（历史最高星**不被低星覆盖**，`save-progress.md:28` / `beads-game.ts:2012`）⇒ 重玩零风险 | 玩法·该关（全新一轮棋盘） |
-| 当前关格（`idx === currentLevelIndex`） | tap | 同上（该格既是「当前」也可重玩 ⇒ 两态**可叠加**，非互斥） | 玩法·该关 |
+| 当前关格（`idx === currentLevelIndex`；`[WXG-T-911]` **当前关 = 进度前沿**：最高解锁关 `maxUnlockedLevel − 1`，⛔ 不跟最后载入关） | tap | 同上（该格既是「当前」也可重玩 ⇒ 两态**可叠加**，非互斥） | 玩法·该关 |
 | **任意格 · 按下态** | 按住（未抬起） | 沿用既有 `pressedButton` 机制：`data.pressed`（**对象身份比对**，`buildMetaView`）+ `pressDy` = **−`UI_PRESS_SINK`（2px）**；`reduceMotion` 开 ⇒ 位移归零、只换面。**已落码（EP13-S5）**：`drawWallCell:1198`（消费处 `:1214`）格底/星带/缩略同沉，换面取既有 `cardPressed` ⇒ 与 `back`/CTA 一致 | 本页（视觉态） |
 | **0 心 · 任意可进格** | tap | **Q13 已裁 = 乙**（用户 2026-10-16 续批）⇒ 规格 = **不进关、不扣心**，拉起**既有**广告加心激励位（`ux-spec §3.11` 第二 live 位组件，与 GAME_OVER 0 心重试同入口；激励位内容**不改**、零新数值），玩家**留本页**。**已落码（EP13-S3）**：`_startLevel:359` 缺心腿走 `_requestStaminaRefill:376`（拉既有广告加心激励位），零新数值。~~甲 维持静默 / 丙 一次性轻提示（走 `ux-spec §5`「无效落点轻提示」≤400ms）~~ ⇒ 两候选**未被采纳**，留档防重答 | 本页（激励位覆盖） |
 | 本页（有心） | tap `back` | `_overlay = 'none'` + `meta:overlay {open:false}`（既有事件，**不新造**）→ 回主菜单，大关页仍停 T | 主菜单 |

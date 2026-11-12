@@ -69,7 +69,10 @@ export interface MetaViewData {
     readonly skinId: string;
     // levels overlay + 主菜单作品墙（选关，#1 · WXG-T-180；EP12-S6 上提进主菜单）——均每帧只读引用，不分配。
     readonly levelCount: number;
-    /** 当前关（0-based，play.levelIndex）。 */
+    /**
+     * 当前关（0-based）= **进度前沿**（最高解锁关，`maxUnlockedLevel − 1`）。
+     * `[WXG-T-911]` 用户令：高亮跟「该打哪一关」走，⛔ 不跟最后载入关（回放旧关后不漂回旧关）。
+     */
     readonly currentLevelIndex: number;
     /** 最高解锁关（1-based）。索引 < maxUnlockedLevel 的关可点。 */
     readonly maxUnlockedLevel: number;

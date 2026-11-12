@@ -1224,7 +1224,11 @@ export class BeadsShell implements Game {
         v.skinId = this.play.skinId;
         // 选关屏数据（均只读引用，零分配）。
         v.levelCount = this.play.levelCount;
-        v.currentLevelIndex = this.play.levelIndex;
+        // `[WXG-T-911]` 选关高亮 = **进度前沿**（最高解锁关），⛔ 不是最后载入关（`play.levelIndex`）。
+        // 判例（用户 2026-11-12）：「L1/L2 已得星、L3 未打 ⇒ 应高亮第三关」——玩家在选关页回放旧关后
+        // 回菜单时，`levelIndex` 会停在旧关；高亮若跟它走就会指回已通关，与「该打哪一关」错位。
+        // 前沿只有一个真源 = 解锁位（`maxUnlockedLevel` 1-based，只增不减）⇒ 转 0-based 并夹到关表末位。
+        v.currentLevelIndex = Math.min(this.play.maxUnlockedLevel - 1, this.play.levelCount - 1);
         v.maxUnlockedLevel = this.play.maxUnlockedLevel;
         v.starsByLevel = this.play.starsByLevelRaw;
         // 陈列序映射：只读引用缓存表（每帧零分配）。

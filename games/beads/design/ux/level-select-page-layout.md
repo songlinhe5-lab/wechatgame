@@ -273,6 +273,15 @@ y=  68 ├───────────────────────�
 
 执行序 = **全部底块 → 锁格 → 全部珠/块**（两趟），禁止逐格「底→珠」交错：珠体 1.10 > pitch，后一格底块外扩 0.5 会啃前一格珠体右/下沿。底块直接调 `drawTargetTile`（与盘面同一把尺，含 `TILE_BLEED`），锁格调 `drawLockedBead`（新增可选 `lineWidth`，默认 2 ⇒ 盘面命令流零漂移）。`drawBeadFace` 新增 `palette` 形参（锁定格唯一色源，⛔ 不自拟 hex）。判据迁移 `menu-thumb-primitives`；金样本 `level-select` 两态 8011 → 9437。
 
+## 2I. 当前关高亮 = 进度前沿（v0.19 · WXG-T-911 · 2026-11-12）
+
+用户截图裁定（原话）：「这个状态下应该高亮第三关，逻辑问题」——截图态 = L1 三星 / L2 两星 / L3 未打且已解锁，但高亮停在第 1 格。
+
+- **根因**：`currentLevelIndex` 取自 `play.levelIndex`（**最后载入关**）。玩家在选关页回放旧关后回菜单，载入关停在旧关 ⇒ 高亮漂回已通关，与「该打哪一关」错位。
+- **新口径**：`currentLevelIndex = min(maxUnlockedLevel − 1, levelCount − 1)`（0-based 进度前沿 = 最高解锁关；解锁位只增不减）。上例 = 3 − 1 = 2 ⇒ 高亮第三关。
+- **不变**：高亮只影响格底三态 `cellCurrent` + 高亮环；⛔ 不改点格行为（当前关格仍可重玩、两态可叠加）、⛔ 不改 `maxUnlockedLevel` 锁判据、⛔ 不新增存档字段。
+- **判据**：`beads-shell.test.ts`「回放旧关后回菜单高亮仍指前沿」；金样本 `level-select` 两态重抓（合成夹具 `unlocked: 9` ⇒ 高亮 L9）。
+
 **八轮（同日 · T-620 · 用户令「直接接入游戏中的珠面纹理吧」）**：自绘糖珠（剪影 / 暗面弧 / 柔光面 / 高光点 / 自算孔）整组退役 ⇒ 珠面腿改调 **`drawFilledBead`**（与盘面 / 托盘 / 招牌**同一通道**，facet-4 层集 = 底 `rect` + 四刻面 `polygon` + 孔环/孔底两 `circle`，**7 命令/珠**）；珠面 recipe 唯一真源回 `bead-styles/facet-4.ts`。`THUMB_BEAD_SHAPE` 收敛为 `minBlock` + `diameterRatio`（1.10 保持「互相交错」，块边 <5 的超大盘仍回退方块）。**不传 `targetColorIdx`**：该闸触发 `BEAD_DRAW_INSET` 等比内缩（面 = 珠体 ×26/30），缩略槽无 B0 底图可露、且交叠时暗底环会多啃邻珠 ≈18% 面 ⇒ 珠体边长即面径。两页仍共用 `drawBeadFace` ⇒ 同步生效；金样本 `level-select` 两态 total 6022 → **6601**。
 
 **九轮（同日 · T-621 · 用户令「应该用当前应用的珠面效果绘制缩略图，现在看是用固定的一种珠面，不符合要求」）**：珠面腿补上**风格透传**——`drawBeadFace` 新增第 8 参 `styleId`（缺省 = `DEFAULT_BEAD_STYLE_ID`）；选关 VM `beadStyle` 每帧由 `MetaViewData.beadStyle`（玩家设置档）投影，九格解锁/锁定灰珠两腿与详情橱窗都透传 ⇒ **换肤即换缩略珠面**，不再固定 facet-4。金样本零漂移（测试数据默认档与缺省同臂）。

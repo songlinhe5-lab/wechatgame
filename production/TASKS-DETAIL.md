@@ -9518,3 +9518,16 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：beads 单测 **1461 passed / 2 skipped（125 文件）**；`framework:sync` 镜像 4 件同步；harness 实帧四帧（tint 开/关 × 选关/盘面）目视同构。
 - **文档**：`ui-architecture-beads §12` 登记一条；`menu-wall-signage-spec` 新增 §3.8.2；台账主表 + 领号锚（K-046 认工作树全局最大号 909 ⇒ 910）。
 - **知识沉淀（kb:sync --task=WXG-T-910）**：新增 **0** / 修改 0 / 激活 0 / 归档 0。沉淀候选 1 条（未入册，待裁）：「矢量 recipe 含绝对 dp 描边/整数取整时，小尺度复用必失真；多尺度一致须走同一等比缩放位图臂（maskGauge 透传），而非共用矢量函数」。
+
+## WXG-T-911
+
+**UI·选关高亮改指进度前沿（当前关 = 最高解锁关）** · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成（2026-11-12 · 用户截图裁定）
+
+- **上位（用户原话）**：「这个状态下应该高亮第三关，逻辑问题」——截图态 = L1 三星 / L2 两星 / L3 未打且已解锁，但高亮环停在**第 1 格**。
+- **根因**：`MetaViewData.currentLevelIndex` 取 `play.levelIndex`（**最后载入关**）。玩家在选关页回放旧关后回菜单时，载入关停在旧关 ⇒ 高亮漂回已通关，与「该打哪一关」错位。星账正确、解锁位正确，单错在高亮数据源。
+- **变更**：`beads-shell.ts::_metaViewData` 一行改源 —— `currentLevelIndex = min(maxUnlockedLevel − 1, levelCount − 1)`（0-based 进度前沿；解锁位只增不减，单真源）。视图消费面（`level-select-view-model.ts` / `meta-widgets.ts` 的 `c.current`）零改动；点格行为（当前关可重玩、两态可叠加）与锁判据不变；⛔ 无新存档字段、⛔ 不碰 `startLevelSeq`（CTA 已不消费）。
+- **效果**：上例 maxUnlocked=3 ⇒ 高亮索引 2 = 第三关；之后回放任意旧关，高亮仍停前沿；全解锁合成夹具（金样本 `unlocked: 9`）⇒ 高亮末格。
+- **判据**：`beads-shell.test.ts` 新增「回放旧关后回菜单：高亮跟最高解锁关，不跟 play.levelIndex」（`unlockAcrossArc(2)` + `goToLevel(0)` ⇒ 断言 `currentLevelIndex === 2`）。
+- **文档**：`arc-level-select-spec §3` 当前关格行 / `level-select-page-layout §2I` / `ui-architecture-beads §12` / `meta-types` 字段注释同步新口径。
+- **验证**：待填（金样本重抓 + 全量 verify 后回填）。
+- **提交**：待填。

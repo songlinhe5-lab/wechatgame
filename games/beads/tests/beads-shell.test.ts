@@ -29,6 +29,8 @@ import { metaLayout, type MetaAction, type MetaOverlay } from '../src/view/meta-
 import { anchoredGeo } from '../src/view/meta-layout.js';
 import { DEFAULT_SKIN_ID, registeredSkins } from '../src/config/skins/registry.js';
 import {
+    DESIGN_H,
+    DESIGN_W,
     SKINS_CARD_H,
     SKIN_PRICES_COINS,
     STAMINA_MAX,
@@ -350,6 +352,24 @@ describe('BeadsShell — 走马灯卡入口 + levels overlay 选关（menu-archi
         expect(r.shell.meta!.stamina).toBe(before);
         expect(r.shell.play.levelIndex).toBe(0); // 未跳转
         expect(r.overlayEvents.length, '零事件：未解锁格不再发 `meta:*`').toBe(eventsAfterOpen);
+    });
+});
+
+describe('BeadsShell — 选关高亮（WXG-T-911：当前关 = 进度前沿）', () => {
+    it('回放旧关后回菜单：高亮跟最高解锁关，⛔ 不跟 play.levelIndex', () => {
+        const r = rig({ initialScreen: 'menu' });
+        // 状态复刻（用户截图）：L1/L2 已通关、L3 未打 ⇒ 解锁前沿 = 3；最后载入关 = 回放 L1。
+        r.shell.play.unlockAcrossArc(2);
+        r.shell.play.goToLevel(0);
+        expect(r.shell.play.maxUnlockedLevel).toBe(3);
+        expect(r.shell.play.levelIndex).toBe(0);
+        // 跑一帧：`currentLevelIndex` 由 `_metaViewData` 每帧覆写。
+        const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
+        builder.begin();
+        r.shell.buildRenderModel(builder);
+        builder.end();
+        const v = (r.shell as unknown as { _viewData: { currentLevelIndex: number } })._viewData;
+        expect(v.currentLevelIndex, '应高亮第三关（0-based 2）').toBe(2);
     });
 });
 
