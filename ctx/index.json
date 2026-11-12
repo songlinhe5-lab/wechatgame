@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4105,
       "lines": 137,
-      "sha256": "b25a26a524ea51c0d66055917a9cc8c53d31e593df957fa2c853b4cffbe88b8e",
+      "sha256": "ab616c0387f6799915027ac3fc451ed2397c6ef9c3bb7d23c0b19805308326cd",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 294187 9816 normal",
+          "summary": "1 production/TASKS-DETAIL.md 294242 9816 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5291,
       "lines": 164,
-      "sha256": "8e093afaba8f842a877d63028762c0f25d2319ab9039447c83e69f6b83d6fea9",
+      "sha256": "deefd6f2f85e28ec83e6ef362545e2307bbbd0847312ec4f48b29120b854bbb1",
       "tier": "normal",
       "sections": [
         {
@@ -1080,7 +1080,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 9816 行 / 294187 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 9816 行 / 294242 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
@@ -89930,9 +89930,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 294187,
+      "tokens": 294242,
       "lines": 9816,
-      "sha256": "ad4865b4e5de46fc87fdc2e077501f7fe6040ac37ed31969dfc247548029c654",
+      "sha256": "43842935200eaa7d14a5d3c52eae1e20dfd0c8be2eb7892f0fd3eb7dbf0c3657",
       "tier": "normal",
       "sections": [
         {
@@ -89940,7 +89940,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 9817,
-          "tokens": 294170,
+          "tokens": 294225,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -104736,7 +104736,7 @@
           "level": 2,
           "startLine": 9803,
           "endLine": 9817,
-          "tokens": 562,
+          "tokens": 617,
           "summary": "UX·珠面描边改纯比例缩放（1:1 锚定） · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成（",
           "keywords": [
             "WXG",
@@ -115324,9 +115324,9 @@
     },
     {
       "path": "production/qa/beads/test-cases-k-ledger-2.md",
-      "tokens": 16589,
-      "lines": 191,
-      "sha256": "f0faea91821f25ca162483b3a6e4773758d48e58cba6100af78bb1abea308beb",
+      "tokens": 16912,
+      "lines": 198,
+      "sha256": "e03b3db0b98549b46985a4f9b142c690c3425a93cbe46297c09eea75e66eb91e",
       "tier": "normal",
       "sections": [
         {
@@ -115554,10 +115554,26 @@
           ]
         },
         {
-          "anchor": "§K.6 `06` 珐琅 —— **只登记出池门引用，本批不造判据**（Q1 = 甲）",
+          "anchor": "§K.5.1-补17 整帧基线第二十五次复评修订（2026-11-12 · WXG-T-930 珠面描边改 1:1 锚定等比 · 正本 = provenance `s3_frame_recheck_25`）",
           "level": 3,
           "startLine": 179,
-          "endLine": 187,
+          "endLine": 185,
+          "tokens": 275,
+          "summary": "通道声明：属纯几何比例改动（用户令「描边要跟着珠面等比例缩放，1:1 时描边有一定宽度、圆角有一定半径」⇒ 去钳位去取整",
+          "keywords": [
+            "s3_frame_recheck_25",
+            "WXG",
+            "provenance",
+            "整帧基线第二",
+            "十五次复评修",
+            "珠面描边改"
+          ]
+        },
+        {
+          "anchor": "§K.6 `06` 珐琅 —— **只登记出池门引用，本批不造判据**（Q1 = 甲）",
+          "level": 3,
+          "startLine": 186,
+          "endLine": 194,
           "tokens": 357,
           "summary": "引用项 内容 出处 QA 处置",
           "keywords": [
@@ -115571,8 +115587,8 @@
         {
           "anchor": "§K.7 本节残留与回改触发器（诚实登记，不得被\"已建例\"掩盖）",
           "level": 3,
-          "startLine": 188,
-          "endLine": 192,
+          "startLine": 195,
+          "endLine": 199,
           "tokens": 288,
           "summary": "① assets-spec 7.13 判据 ③ 的「C12 强读法」引用行需 art 订正（K.6）；② C12 弱读的",
           "keywords": [

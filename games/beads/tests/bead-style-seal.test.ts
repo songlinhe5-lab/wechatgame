@@ -615,6 +615,12 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         expect(SEAL.provenance.s3_frame_recheck_24).toContain('净 +8');
         expect(SEAL.provenance.s3_frame_recheck_24).toContain('96/96');
         expect(SEAL.provenance.s3_frame_recheck_24).toContain('未解释 0 条');
+        // [WXG-T-930 · 第二十五次复评] 描边改 1:1 等比：条数零变、仅坐标变、珠体零差。
+        expect(SEAL.provenance.s3_frame_recheck_25, '第二十五次复评无归因登记').toContain('第二十五次复评');
+        expect(SEAL.provenance.s3_frame_recheck_25).toContain('等比');
+        expect(SEAL.provenance.s3_frame_recheck_25).toContain('坐标');
+        expect(SEAL.provenance.s3_frame_recheck_25).toContain('96/96');
+        expect(SEAL.provenance.s3_frame_recheck_25).toContain('未解释 0 条');
         expect(SEAL.provenance.s3_frame_recheck_21).toContain('未解释 0 条');
         // **back 键计数腿**：[EP12-S3] 托盘投影 rect 也打 back ⇒ 登记 4→5（面板底 + 投影 + 三段内阴影）。
         const backEmpty = emptyFlow.filter((l) => l.includes(',"back":true'));
@@ -873,6 +879,8 @@ describe('WXG-T-230-B · 整帧漂移复评登记哨兵（未走复评通道的�
         expect(byId.get('recheck-23-outline-on-top')!.frame78).toBe(0);
         expect(byId.get('recheck-24-outline-band')!.frame0).toBe(T929_BAND_SHAPE);
         expect(byId.get('recheck-24-outline-band')!.frame78).toBe(T929_BAND_SHAPE);
+        expect(byId.get('recheck-25-outline-scale')!.frame0).toBe(0);
+        expect(byId.get('recheck-25-outline-scale')!.frame78).toBe(0);
         // 差分自洽腿的珠体族项（每颗填格 78×(−5)）必须同源入账（少一笔 = Σ 对不上帧差）。
         expect(byId.get('s3-formalization-bead-family')!.frame78).toBe(78 * -5);
     });

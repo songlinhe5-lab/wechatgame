@@ -1612,7 +1612,7 @@
       "ci3-t4-l6-s1.06-lod7-z22": "896750a510ccef1d28f649ef0ad0bf33d7a0facaa033825e4a1d5a8071734826",
       "ci3-t4-l6-s1.06-lod7-z44": "003475995228c166a98f68ab6d169b8163b54debf1edab632331e9f3d44a6ad2"
     },
-    "capturedFrom": "19fb24ad21c51d5376b10646c9721996027f7e39 · T-929 工作树（骑线带轮廓）"
+    "capturedFrom": "1b58d72ac8f394687f791a4761928796635b4c3e · T-930 工作树（1:1 等比描边）"
   },
   "s3_pre_back_channel": {
     "_readme": "第十四次复评（WXG-T-256 S5′-4 底图通道）的**前态史证**：本批唯一修订面 = 托盘面板底 1 rect + 白瓷内阴影 3 line 各多一个 \"back\":true 键；判据腿 4a 据此做闭合自证（把键从两帧流里剥掉 ⇒ sha 必须逐字节回到本键）。计数与 `s3.*` 全等 ⇒ 零新增零删除。",
@@ -1764,7 +1764,8 @@
     "s3_frame_recheck_21": "第二十一次复评（WXG-T-462 · 用户 2026-10-27 裁定「缩放控件条这块面板隐藏不展示」· 复取锚 = 提交 bd701d62）：变更源 = tuning 新增工程参 ZOOM_CONTROLS_VISIBLE = false，drawZoomControls 与 BoardCameraController.zoomHit 同源早退 ⇒ recheck-1 登记的控件插入段（rect 4 / circle 1 / text 3 = 8 条）整段退役，两帧各 −8；缩放能力保留 = 盘面双指捏合（链路不动），恢复展示 = 翻 true（几何常量零改动）。流级差分归因 = 未解释 0 条（两帧同一组纯删除 8 行，恰为 recheck-1 段逐条反向）；kind 计数 = rect 936 / circle 159 / line 353 / text 10 / polygon 322。判据面 = T462_ZOOM_CTRL_HIDE 登记常数 + 腿 4a 两式与前态史证三键等式入账 + 差分自洽 ctrl 项退役 + 腿 4b 控件段前提作废（K-053 划线口径，反演目标段已不在现役流）+ 台账一一对应。",
     "s3_frame_recheck_22": "第二十二次复评（WXG-T-927 · 用户 2026-11-12 令「珠面的描边窄一点，圆角半径再大一点；游戏中也需要这个描边」· 复取锚 = 提交 e141f17d）：变更源 = view/bead-outline.ts 新增 drawBoardOutline，drawGrid 在格循环前插入整幅图案边界珠的「珠面外扩 W」圆角方块轮廓（palette.shadowInk、同色并集、W/R 公式同批收窄放大）。流级差分：两帧各**插入 46 条 polygon**（13×12 满盘边界格 = 2×12 + 2×(13−2) = 46），零删除零改写；kinds 只 polygon 322→368，rect 936 / circle 159 / line 353 / text 10 四键零变。最强反证 = 珠体族零变更：legacyFlow 96/96 与 facetNonHole/facetHole 45+45 在两锚间逐字节全等。前态锚 = 第二十一次产物（frame0 1234 / frame78 1780）。未解释 0 条。",
     "s3_frame_recheck_23": "第二十三次复评（WXG-T-928 · 用户 2026-11-12 令「珠面描边要盖在珠面上面」· 复取锚 = 提交 461749cb）：变更源 = 纯**帖序重排**（view/menu-signage.ts drawBeadFace 的 drawThumbOutline 由首笔移到 pass 2 之后；view/play-page.ts drawGrid 的 drawBoardOutline 由格循环前移到循环后），形状生成零改动。流级差分：两帧 total / kinds 零变（polygon 仍 368），仅 sha 变（第二十二次产物 1280/1826 → 本锚 1280/1826，同数不同序）；零插入、零删除、零改写。最强反证 = 珠体族 legacyFlow 96/96 与 facetNonHole/facetHole 45+45 在两锚间逐字节全等（描边仅换位、不改珠体）。未解释 0 条。",
-    "s3_frame_recheck_24": "第二十四次复评（WXG-T-929 · 用户 2026-11-12 反馈「我只是让珠面描边，怎么把珠面一圈的珠子给描黑了」· 复取锚 = 提交 19fb24ad）：变更源 = view/bead-outline.ts buildShapes 由「整颗边界珠外扩 W 的实心圆角方块并集」改为**骑在剪影边线上的带**（半宽 W/2 内外各半）：逐边界珠只画露空边（4 点带）+ 凸角 1/4 环带（10 点），凹角由邻格带在 TILE_BLEED 缝上相接 ⇒ 珠面零覆盖、带仍连续。流级差分：13×12 满盘由 46 枚实心方块改为 50 条边带 + 4 枚角带 = **54 枚 polygon**（相对 HEAD 净 +8，相对第二十二次产物 +8）；两帧 total 1280→1288 / 1826→1834，kinds 只 polygon 368→376，rect 936 / circle 159 / line 353 / text 10 四键零变；零删除、零改写（旧 46 枚整段被 54 枚替代，属替换型）。最强反证 = 珠体族零变更：legacyFlow 96/96 与 facetNonHole/facetHole 45+45 逐字节全等。未解释 0 条。"
+    "s3_frame_recheck_24": "第二十四次复评（WXG-T-929 · 用户 2026-11-12 反馈「我只是让珠面描边，怎么把珠面一圈的珠子给描黑了」· 复取锚 = 提交 19fb24ad）：变更源 = view/bead-outline.ts buildShapes 由「整颗边界珠外扩 W 的实心圆角方块并集」改为**骑在剪影边线上的带**（半宽 W/2 内外各半）：逐边界珠只画露空边（4 点带）+ 凸角 1/4 环带（10 点），凹角由邻格带在 TILE_BLEED 缝上相接 ⇒ 珠面零覆盖、带仍连续。流级差分：13×12 满盘由 46 枚实心方块改为 50 条边带 + 4 枚角带 = **54 枚 polygon**（相对 HEAD 净 +8，相对第二十二次产物 +8）；两帧 total 1280→1288 / 1826→1834，kinds 只 polygon 368→376，rect 936 / circle 159 / line 353 / text 10 四键零变；零删除、零改写（旧 46 枚整段被 54 枚替代，属替换型）。最强反证 = 珠体族零变更：legacyFlow 96/96 与 facetNonHole/facetHole 45+45 逐字节全等。未解释 0 条。",
+    "s3_frame_recheck_25": "第二十五次复评（WXG-T-930 · 用户 2026-11-12 令「这个描边要跟着珠面等比例缩放，按照1:1比例缩放时候，描边有一定宽度，圆角有一定半径」· 复取锚 = 提交 1b58d72a）：变更源 = view/bead-outline.ts 去掉线宽 / 圆角钳位与取整，改 **1:1 锚定线性等比**（BEAD_PITCH=32 时 W=3、R=9，其余 pitch = 基准 × pitch/32）。流级差分：形状条数完全不变（满盘仍 54 枚），两帧 total 仍 1288 / 1834（0/0），仅每个带 / 角带多边形的**坐标**随比例变 ⇒ sha 变；零插入、零删除、零改写。最强反证 = 珠体族 legacyFlow 96/96 与 facetNonHole/facetHole 45+45 逐字节全等（描边只改自身坐标）。未解释 0 条。"
   },
   "s3_pre_tray_261": {
     "_readme": "第十五次复评（WXG-T-261 托盘放大批）的**前态史证** = 本批复取前的现役 s3 两键（托盘 pitch 32 / 槽底 #F7F6FB 态）。本批修订面为**几何+墨值改写**（非纯插键）⇒ 腿 4a 的 strip-back 闭合等式不再可能回到本键；等效证明 = provenance.s3_frame_recheck_15 的前/现态锚 + 流级差分 172/172。计数全等由本键 total ≡ s3.*.total 钉住。⛔ 只读史证，不随后续复评漂移。",
@@ -1906,6 +1907,15 @@
         "frame0": 8,
         "frame78": 8,
         "note": "WXG-T-929 描边由实心方块改骑线带：满盘 46→54 枚（净 +8），珠面零覆盖；旧段属替换非并存"
+      },
+      {
+        "id": "recheck-25-outline-scale",
+        "key": "s3_frame_recheck_25",
+        "witness": "第二十五次复评",
+        "qaAnchor": "K.5.1-补17",
+        "frame0": 0,
+        "frame78": 0,
+        "note": "WXG-T-930 描边改 1:1 锚定等比：条数零变（54），仅坐标随 pitch/32 缩放，两帧 sha 变"
       }
     ]
   }
