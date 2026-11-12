@@ -9529,5 +9529,6 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **效果**：上例 maxUnlocked=3 ⇒ 高亮索引 2 = 第三关；之后回放任意旧关，高亮仍停前沿；全解锁合成夹具（金样本 `unlocked: 9`）⇒ 高亮末格。
 - **判据**：`beads-shell.test.ts` 新增「回放旧关后回菜单：高亮跟最高解锁关，不跟 play.levelIndex」（`unlockAcrossArc(2)` + `goToLevel(0)` ⇒ 断言 `currentLevelIndex === 2`）。
 - **文档**：`arc-level-select-spec §3` 当前关格行 / `level-select-page-layout §2I` / `ui-architecture-beads §12` / `meta-types` 字段注释同步新口径。
-- **验证**：待填（金样本重抓 + 全量 verify 后回填）。
-- **提交**：待填。
+- **验证**：beads 单测 **1462 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；金样本 `level-select` / `level-select-mid` 两态 total **9437 不变**、逐 kind 计数不变、**sha 变**（仅高亮格从槽 0 移到槽 8）；十一帧两遍确定性自证 PASS，干净锚 `e6a60beb` 重抓。
+- **提交**：`e6a60beb` fix（数据源 + 判据 + 三份设计/架构文档 + Cocos 镜像 + 台账）＋ 本笔 test（金样本 + 台账回填）。
+- **知识沉淀（kb:sync --task=WXG-T-911）**：新增 0 / 修改 0 / 激活 0 / 归档 0（单行数据源修正，无新判例；口径已写进 `beads-shell.ts` 行内注与 §2I）。
