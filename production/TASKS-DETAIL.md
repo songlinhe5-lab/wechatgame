@@ -9507,3 +9507,14 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：beads 单测 **1461 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（含 framework:sync:check、cocos:check、check:frozen-values）；金样本 `level-select` 两态 total **8011 → 9437**（`rect` 2226→3652 = 逐有墨格 +1 底块；`circle/polygon` 与其余九帧逐类不变；干净锚 `1b43379c` 重抓，十一帧两遍确定性自证 PASS）。
 - **提交**：`1b43379c` feat（代码 + Cocos 镜像 + 判据 + 设计文档 + 台账）＋ 本笔 test（金样本 + 台账回填）。
 - **知识沉淀（kb:sync --task=WXG-T-623）**：新增 **0** / 修改 0 / 激活 0 / 归档 0（本次为缩略构图对齐，无新判例；两趟绘制顺序的坑已写入 `menu-signage.ts` 函数头注）。
+
+## WXG-T-910
+
+- **裁定**：用户报「缩略图的珠面和游戏珠面不一致」（2026-11-12）⇒ 完整豆面腿 `drawBeadFace` 与盘面**同臂同参**，更替 T-620「不传 `maskGauge` ⇒ 恒矢量臂」旧接线。
+- **根因（实帧取证）**：真实运行时（harness 默认 tint on / Cocos 载体）盘面珠走 **tint mask sprite**（128 规范图等比缩放）；缩略因不传 `maskGauge` 恒落矢量臂，facet-4 的 1dp 绝对孔环/内缩/缝描边与整数孔径（`round(size×0.44/2)`）在缩略 ~7px 珠边被比例放大（孔+环占珠边 ≈86%）⇒ 珠面读作「小环」≠ 盘面圆角刻面珠。证据：`temp/ui-shot/levels-tint-on.png` vs `play-tint-on.png`（修复前）+ 裁切放大 `crop-thumb.png` / `crop-board.png`（修复后同构）。
+- **接线**：① `menu-signage::drawBeadFace` 新增第 10 参 `beadSize`；`faceOpts.maskGauge` / `hideHole` 与 `play-page::sizeSmall` 同式（小豆 ⇒ `holeless` + 无孔），无条件写槽 ⇒ pass 1 与 pass 2 同档；② pass 1 `drawTargetTile` 同传模块级复用槽 `faceTileOpts`（`maskGauge` + `styleId`，与盘面 `tileOpts` 同参，零分配）；③ `LevelSelectViewModel.beadSize` 每帧由 `MetaViewData.beadSize` 投影（初值 `BEAD_SIZE_DEFAULT`），九格解锁/灰珠两腿 + 详情橱窗同传。
+- **不变项**：矢量回退臂（tint 未注入）命令流逐字节不变（`maskGauge` 不进风格输入、默认档 `hideHole=false`）⇒ 金样本十一态零漂移、无需重抓；珠径 1.10 交叠、不传 `targetColorIdx`、`minBeadEdge` 回退判据、两趟绘制序均沿旧裁定。
+- **判据**：`menu-thumb-primitives` 旧「不传 maskGauge ⇒ tint 臂不命中」例改写为「tint 注入后同臂：珠体 1 blit/珠 + 底块 1 blit/格、maskGauge 随豆径档（holed/holeless）」；`paint` helper 增第 4 参 `beadSize`。
+- **验证**：beads 单测 **1461 passed / 2 skipped（125 文件）**；`framework:sync` 镜像 4 件同步；harness 实帧四帧（tint 开/关 × 选关/盘面）目视同构。
+- **文档**：`ui-architecture-beads §12` 登记一条；`menu-wall-signage-spec` 新增 §3.8.2；台账主表 + 领号锚（K-046 认工作树全局最大号 909 ⇒ 910）。
+- **知识沉淀（kb:sync --task=WXG-T-910）**：新增 **0** / 修改 0 / 激活 0 / 归档 0。沉淀候选 1 条（未入册，待裁）：「矢量 recipe 含绝对 dp 描边/整数取整时，小尺度复用必失真；多尺度一致须走同一等比缩放位图臂（maskGauge 透传），而非共用矢量函数」。

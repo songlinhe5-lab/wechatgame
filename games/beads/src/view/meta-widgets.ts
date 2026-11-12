@@ -347,12 +347,12 @@ export function drawLevelSelectCell(
             builder.blit(LEVEL_SELECT_TEXTURES.lockImage, ix + (a.imageW - lockW) / 2, iy, lockW, a.imageH);
         } else if (cell.level !== undefined) {
             // `[WXG-T-613]` 锁定降级腿 = 灰墨**完整豆面**（槽位不变；旧聚合档保留给走马灯/详情页）。
-            drawBeadFace(builder, cell.level, ix, iy, a.imageW, a.imageH, palette, beadFadedInksFor(cell.level), vm.beadStyle);
+            drawBeadFace(builder, cell.level, ix, iy, a.imageW, a.imageH, palette, beadFadedInksFor(cell.level), vm.beadStyle, vm.beadSize);
         }
         return;
     }
     if (cell.level !== undefined) {
-        drawBeadFace(builder, cell.level, ix, iy, a.imageW, a.imageH, palette, undefined, vm.beadStyle);
+        drawBeadFace(builder, cell.level, ix, iy, a.imageW, a.imageH, palette, undefined, vm.beadStyle, vm.beadSize);
         drawCellStars(builder, cell, palette);
     }
     // `[WXG-T-610]` 当前关由亮金格底表达；旧黄铜描边随 T-611 降级腿一并退场（K-053 留档）。

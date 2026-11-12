@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4065,
       "lines": 136,
-      "sha256": "eb8947418c531bd8f67c392e7f40e82ce633c29cf54ab0680355328068e9b7cb",
+      "sha256": "5726b11b860be56ce47dd9b6d13d640e83bb9b731499ee6c40c8b613bb274174",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 279197 9509 normal",
+          "summary": "1 production/TASKS-DETAIL.md 279964 9520 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5290,
       "lines": 164,
-      "sha256": "f2aaa3480e4a8ef0e8fe450f9f887815ce6def554d72ccd30968c678a0cfff37",
+      "sha256": "62502cd032f558229889eb6156918e5e5d8cc7b546173a44d270e57d3bb2d2cf",
       "tier": "normal",
       "sections": [
         {
@@ -761,12 +761,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 230 行 / 65595 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 231 行 / 65921 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+231 · §待排（backlog，无号，立项时领取…=203+29",
+          "summary": "§WXG 任务台账（SSOT）=1+232 · §待排（backlog，无号，立项时领取…=204+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1080,12 +1080,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 9509 行 / 279197 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 9520 行 / 279964 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+9510 · §WXG-T-612=9320+35 · §WXG-T-6",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+9521 · §WXG-T-613=9355+16 · §WXG-T-6",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -14144,17 +14144,17 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 35254,
-      "lines": 314,
-      "sha256": "21ca83d422945565b2c2b927d8fd49283ac68a3bf9d829edbf27f6f99f6f1401",
+      "tokens": 35635,
+      "lines": 315,
+      "sha256": "0b7c4de091ec3fa4f86b30ebcaf6695713247b35561dfc96a8236e75a82e6bc9",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads UI 架构（View / ViewModel / Presenter + 公共基础）",
           "level": 1,
           "startLine": 1,
-          "endLine": 315,
-          "tokens": 35235,
+          "endLine": 316,
+          "tokens": 35616,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -14324,8 +14324,8 @@
           "anchor": "§12 TODO 拆分",
           "level": 2,
           "startLine": 138,
-          "endLine": 311,
-          "tokens": 30182,
+          "endLine": 312,
+          "tokens": 30563,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -14336,8 +14336,8 @@
         {
           "anchor": "§13 待你拍板",
           "level": 2,
-          "startLine": 312,
-          "endLine": 315,
+          "startLine": 313,
+          "endLine": 316,
           "tokens": 323,
           "summary": "D1–D5 均已裁定（见 [ADR-0032 §5](adr/ADR-0032-beads-ui-architectur",
           "keywords": [
@@ -29651,17 +29651,17 @@
     },
     {
       "path": "games/beads/design/art/specs/menu-wall-signage-spec.md",
-      "tokens": 16428,
-      "lines": 567,
-      "sha256": "139cc945f7263a0e7d7416ad0ce9678a233e6499a30af3d9b229e3355111f413",
+      "tokens": 16783,
+      "lines": 577,
+      "sha256": "6f90d671106cb714b3bed58fbe3d2250219b7144f61cca8b188b57d73d46a7a4",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§主菜单「拼豆小铺」招牌字形 / 木框橱窗 / 作品格珠拼缩略 —— 绘制规格卡",
           "level": 1,
           "startLine": 1,
-          "endLine": 568,
-          "tokens": 16396,
+          "endLine": 578,
+          "tokens": 16750,
           "summary": "WXG-T-269-S6 · 子单 T-1 ｜ 作者：林绘澄（美术指导）｜ 日期：2026-10-07",
           "keywords": [
             "WXG",
@@ -30022,8 +30022,8 @@
           "anchor": "§3 卡 C · 作品格珠拼缩略（120×120 格内）",
           "level": 2,
           "startLine": 321,
-          "endLine": 456,
-          "tokens": 4214,
+          "endLine": 466,
+          "tokens": 4569,
           "summary": "",
           "keywords": [
             "作品格珠拼缩",
@@ -30167,10 +30167,24 @@
           ]
         },
         {
-          "anchor": "§3.9 选关整页（版式 P）· 页专用版面与三项核对（WXG-T-310 · 2026-10-20）",
+          "anchor": "§3.8.2 珠面腿同臂同参（用户裁定 · WXG-T-910 · 2026-11-12）",
           "level": 3,
           "startLine": 428,
-          "endLine": 456,
+          "endLine": 437,
+          "tokens": 332,
+          "summary": "裁定：用户报「缩略图的珠面和游戏珠面不一致」⇒ 完整豆面腿 drawBeadFace 与盘面同臂同参（更替 T-620「",
+          "keywords": [
+            "WXG",
+            "drawBeadFace",
+            "珠面腿同臂同",
+            "用户裁定"
+          ]
+        },
+        {
+          "anchor": "§3.9 选关整页（版式 P）· 页专用版面与三项核对（WXG-T-310 · 2026-10-20）",
+          "level": 3,
+          "startLine": 438,
+          "endLine": 466,
           "tokens": 1023,
           "summary": "裁定来源 = [ADR-0032](../../../../docs/architecture/adr/ADR-0032",
           "keywords": [
@@ -30185,8 +30199,8 @@
         {
           "anchor": "§4 整帧合成与 K-6 输入（实测口径，⛔ 非「已达标」）",
           "level": 2,
-          "startLine": 457,
-          "endLine": 481,
+          "startLine": 467,
+          "endLine": 491,
           "tokens": 811,
           "summary": "⚠ 走马灯改造（menu-architecture §1.3 第五轮）后口径：主菜单主区由整墙→单张走马灯小卡、作品墙整",
           "keywords": [
@@ -30201,8 +30215,8 @@
         {
           "anchor": "§5 包体与可访问性承诺",
           "level": 2,
-          "startLine": 482,
-          "endLine": 495,
+          "startLine": 492,
+          "endLine": 505,
           "tokens": 347,
           "summary": "位图/美术文件 +0（S0 ②）：位表 = 布尔数据（40 行字符串 ≈ 0.4 KB 源内；按位打包 ≈ 50 B），",
           "keywords": [
@@ -30213,8 +30227,8 @@
         {
           "anchor": "§6 回写清单（⛔ 本单不代改正本，交主理人中转）",
           "level": 2,
-          "startLine": 496,
-          "endLine": 531,
+          "startLine": 506,
+          "endLine": 541,
           "tokens": 1130,
           "summary": "",
           "keywords": [
@@ -30226,8 +30240,8 @@
         {
           "anchor": "§6.1 → `games/beads/design/art/specs/assets-spec.md`",
           "level": 3,
-          "startLine": 498,
-          "endLine": 506,
+          "startLine": 508,
+          "endLine": 516,
           "tokens": 327,
           "summary": "§1 新增节（建议 §1.11） 「菜单屏图元参数卡（beadText 招牌 / 木框橱窗 / 作品格缩略）」整卡：本文",
           "keywords": [
@@ -30242,8 +30256,8 @@
         {
           "anchor": "§6.2 → `games/beads/design/art/specs/art-bible.md`",
           "level": 3,
-          "startLine": 507,
-          "endLine": 515,
+          "startLine": 517,
+          "endLine": 525,
           "tokens": 349,
           "summary": "§5 形状语言 · 描边规范 虚线槽线宽口径：正本现写「虚线槽 2px」，现装与 UI_CONTAINER.stroke",
           "keywords": [
@@ -30258,8 +30272,8 @@
         {
           "anchor": "§6.3 → `games/beads/design/art/proposals/ui-style-redesign/risks.md`",
           "level": 3,
-          "startLine": 516,
-          "endLine": 522,
+          "startLine": 526,
+          "endLine": 532,
           "tokens": 140,
           "summary": "K-6 回退杠杆表更正：删除/改述「标题改单色珠拼」（省 0 命令，§1.9），加「陈列格 3→2 / 缩略 5→4→3",
           "keywords": [
@@ -30274,8 +30288,8 @@
         {
           "anchor": "§6.4 → `games/beads/design/art/proposals/ui-style-redesign/menu-architecture.md`",
           "level": 3,
-          "startLine": 523,
-          "endLine": 531,
+          "startLine": 533,
+          "endLine": 541,
           "tokens": 247,
           "summary": "§5.3 ① 档公式由 44d 泛化为 5.5·n·d（n=8 退化等价），并登记不变式 n·d = 120 ⇒ 总宽恒",
           "keywords": [
@@ -30290,8 +30304,8 @@
         {
           "anchor": "§7 未决问题 / 漂移登记 / 待实测清单",
           "level": 2,
-          "startLine": 532,
-          "endLine": 562,
+          "startLine": 542,
+          "endLine": 572,
           "tokens": 1030,
           "summary": "",
           "keywords": [
@@ -30303,8 +30317,8 @@
         {
           "anchor": "§7.1 需主理人裁定（我不自决）",
           "level": 3,
-          "startLine": 534,
-          "endLine": 542,
+          "startLine": 544,
+          "endLine": 552,
           "tokens": 255,
           "summary": "U-1 珠面地板口径 A vs B（§0.4）——决定 12×12 生死与「小档 d=11」合规性 设计按 B、对照列 ",
           "keywords": [
@@ -30316,8 +30330,8 @@
         {
           "anchor": "§7.2 现装漂移登记（我⛔ 不改码，交主理人中转工程单）",
           "level": 3,
-          "startLine": 543,
-          "endLine": 554,
+          "startLine": 553,
+          "endLine": 564,
           "tokens": 351,
           "summary": "D-1 MENU_TITLE_Y = 1040 按 baseline 语义时，beadText（120 高）顶 ≈ 11",
           "keywords": [
@@ -30332,8 +30346,8 @@
         {
           "anchor": "§7.3 `[待实测]` / `[待真机]` 全清单",
           "level": 3,
-          "startLine": 555,
-          "endLine": 562,
+          "startLine": 565,
+          "endLine": 572,
           "tokens": 371,
           "summary": "[待实测]：菜单整帧总数（须含 N₀）· 招牌/缩略各档落码后 K-051 差分与封箱复评 · 六裁后玩法帧推算 119",
           "keywords": [
@@ -30347,8 +30361,8 @@
         {
           "anchor": "§8 证据与复现",
           "level": 2,
-          "startLine": 563,
-          "endLine": 568,
+          "startLine": 573,
+          "endLine": 578,
           "tokens": 304,
           "summary": "实测探针（唯一证据源，只读取证、gitignored temp/）：temp/wxg-t-269-s6-t1-probe",
           "keywords": [
@@ -89855,17 +89869,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 279197,
-      "lines": 9509,
-      "sha256": "cbd096e8d43b9e2d90ba004bee4b31b06b7acf06b6bc6302cf8e134a07cb3c75",
+      "tokens": 279964,
+      "lines": 9520,
+      "sha256": "1858a9e012e8aa04785b606c2c232644e57c6786316f99640c044f6cffa9f144",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 9510,
-          "tokens": 279180,
+          "endLine": 9521,
+          "tokens": 279947,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -104393,22 +104407,34 @@
             "Trae",
             "beads"
           ]
+        },
+        {
+          "anchor": "§WXG-T-910",
+          "level": 2,
+          "startLine": 9511,
+          "endLine": 9521,
+          "tokens": 764,
+          "summary": "裁定：用户报「缩略图的珠面和游戏珠面不一致」（2026-11-12）⇒ 完整豆面腿 drawBeadFace 与盘面同臂",
+          "keywords": [
+            "WXG",
+            "drawBeadFace"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 65595,
-      "lines": 230,
-      "sha256": "e5ddd3f9842e0bd7a6f065fd774a46842540f26136d6bdf5fcdb0ec8ec11ae6c",
+      "tokens": 65921,
+      "lines": 231,
+      "sha256": "0ec479c27c6989eda20ebe18ff226819a1b6f23ff03f31eb6ba72bc8331e165d",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 231,
-          "tokens": 65586,
+          "endLine": 232,
+          "tokens": 65913,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -104421,8 +104447,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 203,
-          "endLine": 231,
+          "startLine": 204,
+          "endLine": 232,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

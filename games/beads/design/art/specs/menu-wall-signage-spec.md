@@ -425,6 +425,16 @@ for c in 0..n-1:  colRange = 同理
 
 **不变项**：聚合规则（§3.1 众数/平票最小色号/空位不画）、缩略区几何（§3.2）、墨源（`beadInksFor` / 置灰集）、色域门（零新 hex）。
 
+### 3.8.2 珠面腿同臂同参（用户裁定 · WXG-T-910 · 2026-11-12）
+
+**裁定**：用户报「缩略图的珠面和游戏珠面不一致」⇒ 完整豆面腿 `drawBeadFace` 与盘面**同臂同参**（更替 T-620「不传 maskGauge ⇒ 恒矢量臂」的旧接线）。
+
+**根因**：真实运行时（harness 默认 / Cocos 载体）盘面珠走 **tint mask sprite**（128 规范图等比缩放）；缩略因不传 `maskGauge` 恒落矢量臂，而 facet-4 的 1dp 绝对孔环/内缩/缝描边与整数孔径在缩略小尺度被比例放大 ⇒ 珠面读作「小环」，与盘面圆角刻面珠两回事。
+
+**接线**：`maskGauge` / `hideHole` 随豆径档（与 `play-page::sizeSmall` 同式：小豆 ⇒ `holeless` + 无孔）；pass 1 底块 `drawTargetTile` 同传 `{maskGauge, styleId}`（与盘面 `tileOpts` 同参）；豆径档经 `LevelSelectViewModel.beadSize` / `MetaViewData.beadSize` 透传（九格两腿 + 详情橱窗）。
+
+**不变项**：矢量回退臂（tint 未注入）命令流逐字节不变 ⇒ 金样本零漂移；珠径 1.10 交叠、不传 `targetColorIdx`、`minBeadEdge` 回退判据、两趟绘制序均沿旧裁定。
+
 ### 3.9 选关整页（版式 P）· 页专用版面与三项核对（WXG-T-310 · 2026-10-20）
 
 > 裁定来源 = [ADR-0032](../../../../docs/architecture/adr/ADR-0032-beads-ui-architecture.md) D5「选关改整页」+ [版式确认单](../../ux/level-select-page-layout.md) §2（用户 2026-10-20 裁 **版式 P**）。本节是**页专用**版面：⛔ **不改** `WALL_CELL / WALL_GAP / WALL_ROWS / WALL_COLS`（`THUMB_AREA` 与 `drawLevelThumb` 缺省值由它们派生，直改会连带影响其它调用）；工程新增页专用常量，落码 = **UI-34**。

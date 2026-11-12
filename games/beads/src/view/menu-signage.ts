@@ -41,6 +41,7 @@ import type { RenderModelBuilder } from '@wxgame/framework';
 import {
     BEAD_COLOR_MAX,
     BEAD_GAP,
+    BEAD_SIZE_SMALL,
     DESIGN_W,
     SIGN_BEAD_PITCH,
     SIGN_FACE_FLOOR,
@@ -53,6 +54,7 @@ import {
     THUMB_TOP_INSET,
     signFaceB,
     thumbPitchFor,
+    type BeadSizeKind,
 } from '../config/tuning.js';
 import { signGlyphOf } from '../config/sign-glyphs.js';
 import { DEFAULT_BEAD_STYLE_ID } from '../config/bead-styles/registry.js';
@@ -71,6 +73,7 @@ import {
     drawLockedBead,
     drawTargetTile,
     type FilledBeadOptions,
+    type TargetTileOptions,
 } from './bead-render.js';
 
 /**
@@ -82,11 +85,14 @@ import {
 type WritableBeadOptions = { -readonly [K in keyof FilledBeadOptions]: FilledBeadOptions[K] };
 const beadOpts: WritableBeadOptions = {};
 /**
- * `[WXG-T-620]` 珠面腿复用槽（`drawBeadFace` 逐珠复用；只写 `size` / `inks` ⇒ 其余字段恒
- * `undefined` = 默认臂 ⇒ 不传 `maskGauge` ⇒ tint 臂永不命中、恒走矢量臂）。与招牌槽分离是
+ * `[WXG-T-620]` 珠面腿复用槽（`drawBeadFace` 逐珠复用）。与招牌槽分离是
  * 为避免「招牌写 `targetColorIdx`、珠面不写」的跨腿串味（两腿省一行清字段，不共用实例）。
+ * `[WXG-T-910]` 起加写 `maskGauge` / `hideHole`（随豆径档，与盘面同参）⇒ tint 臂与盘面
+ * 同命中；旧 T-620「不传 maskGauge ⇒ 恒矢量臂」裁定被用户「缩略与盘面珠面一致」令更替。
  */
 const faceOpts: WritableBeadOptions = {};
+/** `[WXG-T-910]` 底块腿复用槽（pass 1 `drawTargetTile` 与盘面 `tileOpts` 同参；零分配）。 */
+const faceTileOpts: { -readonly [K in keyof TargetTileOptions]: TargetTileOptions[K] } = {};
 
 /** 位表「有珠」格字符码点（`'#'`，与 `config/sign-glyphs.ts` 同口径）。 */
 const HASH_CODE = 0x23;
@@ -438,6 +444,11 @@ export function levelThumbLockedCells(level: BeadsLevelRaw): readonly number[] {
  * （与盘面 / 托盘 / 招牌**同一通道**，facet-4 层集 = 1 rect + 4 polygon + 2 circle：
  * 暗底环 / 四向刻面 / 孔环 / 孔底），自绘糖珠（剪影 + 暗面弧 + 柔光 + 高光点）整组退役——
  * 菜单不再有第二套珠面 recipe（K-042 同族：recipe 唯一真源 = `bead-styles/facet-4.ts`）。
+ * `[WXG-T-910]` 用户报「缩略图的珠面和游戏珠面不一致」⇒ **同臂同参**：`maskGauge` / `hideHole`
+ * 随豆径档透传（与 `play-page` 同式）、pass 1 底块同传 tile opts ⇒ tint 注入时缩略与盘面
+ * 同走 mask sprite（等比缩放）。根因 = 旧 T-620 不传 `maskGauge` ⇒ 缩略恒矢量臂，而矢量臂的
+ * 1dp 绝对描边 / 整数孔径在缩略小尺度被比例放大 ⇒ 珠面读作「小环」≠ 盘面圆角刻面珠。
+ * 矢量回退臂（tint 未注入）命令流不变：`maskGauge` 不进风格输入、默认档 `hideHole=false`。
  * ⚠ **不传 `targetColorIdx`**：那道闸会触发 `BEAD_DRAW_INSET` 等比内缩（面 = 珠体 ×26/30），
  * 缩略槽里没有 B0 底图可露、且交叠 1.10 时暗底环会多啃邻珠 ≈18% 面 ⇒ 珠体边长即面径。
  * 珠体边长 < `minBeadEdge` 的超大盘回退方块（1px 级孔环糊成噪点）。
@@ -457,6 +468,7 @@ export function levelThumbLockedCells(level: BeadsLevelRaw): readonly number[] {
  *   `[WXG-T-621]` 用户令「应该用当前应用的珠面效果绘制缩略图」⇒ 宿主把
  *   `MetaViewData.beadStyle` 透传到这里，再写进 `faceOpts.styleId` ⇒ 换肤即换缩略图珠面。
  * @param palette 界面色板（`[WXG-T-623]` 锁定格 `locked` / 叉线 `background` 的唯一色源，⛔ 不自拟 hex）。
+ * @param beadSize 豆径档（`[WXG-T-910]` 与盘面同参：小豆档 ⇒ `hideHole` + `holeless`；缺省 = 满豆）。
  */
 export function drawBeadFace(
     builder: RenderModelBuilder,
@@ -468,6 +480,7 @@ export function drawBeadFace(
     palette: BeadsPalette,
     inkOverride?: BeadInks,
     styleId?: string,
+    beadSize?: BeadSizeKind,
 ): void {
     const cells = levelThumbFullCells(level);
     const locked = levelThumbLockedCells(level);
@@ -478,6 +491,13 @@ export function drawBeadFace(
     const left = x + (w - cols * pitch) / 2;
     const top = yBottom + (h + rows * pitch) / 2;
     const inks = inkOverride ?? beadInksFor(level);
+    // `[WXG-T-910]` 与盘面同参（`play-page::sizeSmall` 同式）：无条件写槽 ⇒ pass 1 底块与
+    // pass 2 珠体同档；回退方块腿不读珠槽 ⇒ 无串味。
+    const sizeSmall = beadSize === BEAD_SIZE_SMALL;
+    faceOpts.maskGauge = sizeSmall ? 'holeless' : 'holed';
+    faceOpts.hideHole = sizeSmall;
+    faceTileOpts.maskGauge = faceOpts.maskGauge;
+    faceTileOpts.styleId = styleId ?? DEFAULT_BEAD_STYLE_ID;
     const gap = pitch < BEAD_GAP * 2 ? pitch * 0.4 : BEAD_GAP;
     const block = pitch - gap;
     // `[WXG-T-622]` 回退判据量**实际画出的珠体**（不是方块腿的 block）⇒ 选关格 / 详情橱窗
@@ -489,11 +509,11 @@ export function drawBeadFace(
         faceOpts.inks = inks;
         faceOpts.styleId = styleId ?? DEFAULT_BEAD_STYLE_ID;
     }
-    // pass 1：目标色底块（盘面 B0 同图元；`. / x` 无目标色 ⇒ 天然跳过）。
+    // pass 1：目标色底块（盘面 B0 同图元同臂；`. / x` 无目标色 ⇒ 天然跳过）。
     for (let i = 0; i < cells.length; i += 3) {
         const cx = left + (cells[i + 1]! + 0.5) * pitch;
         const cy = top - (cells[i]! + 0.5) * pitch;
-        drawTargetTile(builder, cx, cy, cells[i + 2]!, inks, pitch);
+        drawTargetTile(builder, cx, cy, cells[i + 2]!, inks, pitch, faceTileOpts);
     }
     // pass 1b：`x` 锁定格（盘面口径 = 灰紫平珠 + 45° 叉；叉线宽随缩略尺度收到 1）。
     for (let i = 0; i < locked.length; i += 2) {

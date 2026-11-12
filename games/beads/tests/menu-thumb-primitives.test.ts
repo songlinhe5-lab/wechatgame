@@ -38,6 +38,7 @@ import {
 import { LEVELS } from '../src/config/levels.js';
 import { BEAD_COLOR_MAX, HANDDRAWN_STYLE_ID } from '../src/config/tuning.js';
 import { FACET4_PLATE_MIX } from '../src/config/tuning.js';
+import type { BeadSizeKind } from '../src/config/tuning.js';
 import { beadColorOf, beadFadedInksFor, beadInksFor, endpointOf, mix, DEFAULT_PALETTE, type BeadInks } from '../src/view/palette.js';
 import { drawTargetTile, setBeadTintRuntime } from '../src/view/bead-render.js';
 import {
@@ -452,10 +453,10 @@ describe('[T-616/T-620] 选关缩略珠形档（接入盘面珠体腿）', () =>
         return { pitch, block: pitch - gap };
     }
 
-    function paint(level: BeadsLevelRaw, inkOverride?: BeadInks, styleId?: string): readonly DrawCommand[] {
+    function paint(level: BeadsLevelRaw, inkOverride?: BeadInks, styleId?: string, beadSize?: BeadSizeKind): readonly DrawCommand[] {
         const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
         builder.begin();
-        drawBeadFace(builder, level, TX, TY, SLOT_W, SLOT_H, DEFAULT_PALETTE, inkOverride, styleId);
+        drawBeadFace(builder, level, TX, TY, SLOT_W, SLOT_H, DEFAULT_PALETTE, inkOverride, styleId, beadSize);
         return builder.end().commands;
     }
 
@@ -516,14 +517,25 @@ describe('[T-616/T-620] 选关缩略珠形档（接入盘面珠体腿）', () =>
         }
     });
 
-    it('不传 `maskGauge` ⇒ tint 臂不命中（注入白名单 runtime 后命令流逐字节不变、零 blit）', () => {
+    it('[WXG-T-910] tint 注入后缩略与盘面同臂：珠体 1 blit/珠 + 底块 1 blit/格，maskGauge 随豆径档', () => {
         const level = LEVELS[0]!;
-        const base = paint(level).map((c) => JSON.stringify(c));
-        setBeadTintRuntime({ getMaskId: () => 'mask:bead:facet-4:holed' });
+        const beads = levelThumbFullCells(level).length / 3;
+        const seen: string[] = [];
+        setBeadTintRuntime({
+            getMaskId: (kind, gauge) => { seen.push(`${kind}:${gauge}`); return `mask:${kind}:${gauge}`; },
+            getTileMaskId: (gauge) => { seen.push(`tile:${gauge}`); return `mask:tile:${gauge}`; },
+        });
         try {
-            const withTint = paint(level).map((c) => JSON.stringify(c));
-            expect(withTint).toEqual(base);
-            expect(paint(level).some((c) => c.kind === 'blit')).toBe(false);
+            const cmds = paint(level);
+            // 珠体 + 底块各 1 blit（与盘面同臂）；旧 T-620「恒矢量臂」裁定已被用户一致令更替。
+            expect(cmds.filter((c) => c.kind === 'blit')).toHaveLength(beads * 2);
+            expect(seen).toHaveLength(beads * 2);
+            expect(seen.every((s) => s.endsWith(':holed'))).toBe(true);
+            // 小豆档 ⇒ holeless（与 play-page::sizeSmall 同式）。
+            seen.length = 0;
+            paint(level, undefined, undefined, 'small');
+            expect(seen.length).toBe(beads * 2);
+            expect(seen.every((s) => s.endsWith(':holeless'))).toBe(true);
         } finally {
             setBeadTintRuntime(undefined);
         }

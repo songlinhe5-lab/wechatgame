@@ -111,6 +111,7 @@ export function drawLevelDetailPage(
     // 橱窗内容：关卡珠面（`[WXG-T-616]` 与选关格**同一绘制腿** `drawBeadFace`，用户令「两边一致」）；
     // 垂直居中于玻璃窗 ⇒ 下缘先抬 (h − area)/2。
     // `[WXG-T-621]` 用户令「用当前应用的珠面效果绘制缩略图」⇒ 透传 `data.beadStyle`（与盘面同肤）。
+    // `[WXG-T-910]` 豆径档同透（与盘面同参 ⇒ 小豆档缩略亦无孔）。
     const thumb = GEO.thumb;
     drawBeadFace(
         builder,
@@ -122,6 +123,7 @@ export function drawLevelDetailPage(
         palette,
         undefined,
         data.beadStyle,
+        data.beadSize,
     );
 
     // 星级行：得星 = 实心金，未得 = 空心描边（稿 58×60，净距 9）；缺图 ⇒ 文字档同位居中。

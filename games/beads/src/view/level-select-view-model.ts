@@ -11,6 +11,7 @@
 import type { BeadsLevelRaw } from '../config/levels-data.js';
 import { COPY_TOKENS } from '../config/copy-tokens.js';
 import { DEFAULT_BEAD_STYLE_ID } from '../config/bead-styles/registry.js';
+import { BEAD_SIZE_DEFAULT, type BeadSizeKind } from '../config/tuning.js';
 import type { Box, MetaButton, MetaViewData } from './meta-types.js';
 import { levelDetailPlate } from './meta-layout.js';
 import { pressOffset } from './ui-theme.js';
@@ -49,6 +50,8 @@ export interface LevelSelectViewModel {
      * 由 `updateLevelSelectViewModel` 从 `MetaViewData.beadStyle` 投影（每帧只读引用）。
      */
     readonly beadStyle: string;
+    /** `[WXG-T-910]` 豆径档同投影（缩略珠面与盘面同参：小豆档无孔）。 */
+    readonly beadSize: BeadSizeKind;
 }
 
 type Mutable<T> = { -readonly [K in keyof T]: T[K] };
@@ -66,6 +69,7 @@ export function createLevelSelectViewModel(): Mutable<LevelSelectViewModel> {
         plate: { x: 0, y: 0, w: 0, h: 0 }, title: '', chapter: '', starProgress: '',
         cellCount: 0, cells, closePressed: false, screenH: 0, largeText: false, thumbN: 0,
         beadStyle: DEFAULT_BEAD_STYLE_ID,
+        beadSize: BEAD_SIZE_DEFAULT,
     };
 }
 
@@ -90,6 +94,7 @@ export function updateLevelSelectViewModel(
     vm.largeText = data.largeText;
     vm.thumbN = thumbN;
     vm.beadStyle = data.beadStyle;
+    vm.beadSize = data.beadSize;
 
     let i = 0;
     for (const b of buttons) {
