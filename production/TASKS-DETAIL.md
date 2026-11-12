@@ -9633,3 +9633,18 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：beads 单测 **1471 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；金样本十一帧零漂移（`level-detail` 不在覆盖态内）。
 - **提交**：`6e9e1b19` feat（`anchor` 参数 + 详情页槽位/轴 + 判据 + 规格 §12 + Cocos 镜像 + 台账）＋ 本笔 docs（台账回填）。
 - **知识沉淀（kb:sync --task=WXG-T-918）**：新增 0 / 修改 0 / 激活 0 / 归档 0（几何口径已写入 `drawBeadFace` 的 `anchor` 参数注与 `level-detail-spec §12`；「底锚取最后内容行、void 行不占位」无既有判例冲突）。
+
+## WXG-T-919
+
+**UI·首页锁态章不可点进选关页（入口闸门）** · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成（2026-11-12 · 用户令）
+
+- **上位（用户令）**：「首页锁状态是不能点击进入选关页面的。」
+- **现状（改前）**：`open-levels` 只挡 `offset >= ARC_OPEN_MAX`（EP13-S4 R13 空页）；锁态章（门票 N/M 未达）点卡仍进选关页 —— R14 v1.10/v1.11 旧裁「浏览合法」。
+- **变更**：提取 `_openLevelsFromMenu()` 作**唯一入口闸门**（`_applyMetaAction` 的 `open-levels` 与 `_releaseGlass` 玻璃手势两入口共用）：R13 之外调 `_refreshArcGate(offset)`，`arcTicketOpen === false` ⇒ 返回 false（不切 overlay、不发事件、零扣心、不推进指针）。⛔ 每帧不算，只在点卡时算。
+- **保留**：页内 R15 格级闸门（`pick-level` 的 `arcTicketOpen` 复查）= **第二层防御**（页内进度可能推进，入口只挡「此刻」）。
+- **文档**：`arc-level-select-spec §4` R14 改判（旧口径划线留档 K-053）+ §4.1-（2）三条理由 1/2 作废、3 保留 + v1.14 补注（页内呈现行保留为防御口径）；`ui-architecture-beads §12` 登记。
+- **判据**：`arc-ticket-gate.test.ts` —— 改 1 例（锁态点卡零事件：overlay 仍 none / 零扣心 / 零事件 / 指针不动）；另 2 例（两层不混用 / 行为随臂）不再经选关页读闸门值（页位落定腿已算好）。
+- **实帧日志**：`temp/lock-entry-919`（CDP）：锁态章 `_openLevelsFromMenu() → false, overlay none, chip 20/24`；补满 24★ 后 `→ true, overlay levels`。temp 不入库。
+- **验证**：beads 单测 **1471 passed / 2 skipped（125 文件，本任务未增用例数：改 1 例 + 2 例改读值腿）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；金样本十一帧零漂移（golden 场景均首章 / 门票达成）。
+- **提交**：待填。
+- **知识沉淀（kb:sync --task=WXG-T-919）**：新增 0 / 修改 0 / 激活 0 / 归档 0（改判依据已写入 `arc-level-select-spec §4` R14 与 §4.1-（2）；「用户裁量优先于旧 UX 理由」属既有 K-053 划档口径，无新判例）。

@@ -112,10 +112,16 @@ function cardBox(shell: BeadsShell) {
     return metaLayout('none', WALL_ROWS, shell.menuAnchors).buttons.find((b) => b.id === 'open-levels')!;
 }
 
+/** 菜单 ► 点走马灯卡（返回是否被消费）。 */
+function tapCard(shell: BeadsShell): boolean {
+    const c = centerOf(cardBox(shell).box);
+    return shell.tapMeta(c.x, c.y);
+}
+
 /** 菜单 ► 卡片 → 打开当前走马灯页的选关页，并推进到转场静息（断言读终态）。 */
 function openLevels(shell: BeadsShell, rigRef: Rig): void {
-    const c = centerOf(cardBox(shell).box);
-    expect(shell.tapMeta(c.x, c.y), 'R14：点橱窗图仍能进该章列表（⛔ 新增拦截）').toBe(true);
+    // `[WXG-T-919]` R14 改判：门票未达的章不可进入 ⇒ 本腿只用于首章 / 门票已达成的章。
+    expect(tapCard(shell), '门票已达成 ⇒ 点橱窗图进该章列表').toBe(true);
     expect(shell.overlay).toBe('levels');
     const steps = Math.ceil(PANEL_IN_MS / 1000 / (1 / 60)) + 1;
     for (let i = 0; i < steps; i += 1) shell.update(1 / 60);
@@ -161,20 +167,18 @@ function savedDoc(r: Rig): Record<string, unknown> {
 /* ═════════════ ① 门票未达：章 2 页只读件 + 零事件/零扣心/不消费 ═════════════ */
 
 describe('S-4 闸门：门票未达', () => {
-    it('章 2 页：arcTicketOpen=false、累计星 = 上一章 20/24；点章首格零事件 / 零扣心 / 不消费', () => {
+    it('`[WXG-T-919]` 章 2 页（门票未达）：点橱窗图零事件、不进选关页；arcTicketOpen=false、累计星 20/24', () => {
         // 前 9 关全通关但只得 20★（门槛 24★）⇒ 门票不成立。
         const r = rig({ pointer: 9, stars: [3, 3, 2, 2, 2, 2, 2, 2, 2, 0] });
         goPage(r, 1);
-        openLevels(r.shell, r);
         const data = viewData(r.shell);
-        expect(data.chapterTitle, '确在章 2 页').toBe(ARCS[1]!.title);
         expect(data.arcTicketOpen, '门票归约为假 ⇒ 章锁').toBe(false);
         expect([data.arcStarGot, data.arcStarNeed], 'C 拍定：已得/门槛取阻断该页入口的上一章').toEqual([20, 24]);
 
         const before = { stamina: r.shell.meta!.stamina, idx: r.shell.play.levelIndex, events: r.overlayEvents.length };
-        expect(clickCell(r, 0), '章未开 ⇒ 不消费（零热区零事件的机械面）').toBe(false);
+        expect(tapCard(r.shell), '锁态章 ⇒ 卡零事件（用户 2026-11-12 令「不能点进选关页面」）').toBe(false);
         expect(r.shell.screen).toBe('menu');
-        expect(r.shell.overlay).toBe('levels');
+        expect(r.shell.overlay, '不切 levels overlay').toBe('none');
         expect(r.shell.meta!.stamina, '零扣心').toBe(before.stamina);
         expect(r.shell.play.levelIndex, '不推进关指针').toBe(before.idx);
         expect(r.overlayEvents.length, '零事件').toBe(before.events);
@@ -292,8 +296,8 @@ describe('两层不混用：显示层三态 ≠ 推进层门票', () => {
         draw(r.shell);
         expect(viewData(r.shell).carouselState, '≥1★ 三态口径一字不动').toBe('cleared');
         // 同一份星账的推进层面：票不开、累计星 = 20/24（两层各算各的，⛔ 互相改造）。
+        // `[WXG-T-919]` 票不开 ⇒ 不进选关页（R14 改判）；页位落定腿已在 `update` 里算好只读件。
         goPage(r, 1);
-        openLevels(r.shell, r);
         expect(viewData(r.shell).arcTicketOpen, '同源门票归约为假').toBe(false);
         expect([viewData(r.shell).arcStarGot, viewData(r.shell).arcStarNeed]).toEqual([20, 24]);
     });
@@ -316,10 +320,9 @@ describe('M-16 静态臂：门票归约输入里没有章 id', () => {
     });
 
     it('行为随臂：只改章 id（levelRefs / 存档不动）⇒ 门票与累计星进度不变', () => {
-        // 前 9 关全通关但只得 20★ ⇒ 门票未达，进度件有值可观测。
+        // 前 9 关全通关但只得 20★ ⇒ 门票未达，进度件有值可观测（票不开 ⇒ 不进入选关页，R14 改判）。
         const r = rig({ pointer: 9, stars: [3, 3, 2, 2, 2, 2, 2, 2, 2, 0] });
         goPage(r, 1);
-        openLevels(r.shell, r);
         const before = viewData(r.shell);
         const baseline: readonly unknown[] = [before.arcTicketOpen, before.arcStarGot, before.arcStarNeed];
         expect(baseline, '夹具基线：章 2 门票假 + 上一章 20/24').toEqual([false, 20, 24]);
@@ -328,8 +331,8 @@ describe('M-16 静态臂：门票归约输入里没有章 id', () => {
         const originalId = entry.id;
         try {
             entry.id = 'renamed-by-m16';
-            const gate = r.shell as unknown as { _phase: { levelsArc: number }; _refreshArcGate(arc: number): void };
-            gate._refreshArcGate(gate._phase.levelsArc);
+            const gate = r.shell as unknown as { _refreshArcGate(arc: number): void };
+            gate._refreshArcGate(1);
             const after = viewData(r.shell);
             expect(
                 [after.arcTicketOpen, after.arcStarGot, after.arcStarNeed],

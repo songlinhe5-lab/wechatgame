@@ -649,15 +649,8 @@ export class BeadsShell implements Game {
                 return true;
             case 'open-levels':
                 // menu-architecture §1.3 第五轮：主菜单走马灯卡 = 菜单唯一选关入口（点卡 → 开 `levels` overlay）。
-                // ⇒ 本分支从「代码保留腿」（Q5①）转正为**实际入口**；墙下移到该 overlay（选关能力不丢）。
-                // EP13-S4 · R13：末页空橱窗无大关实体 ⇒ 零事件（不切 overlay、不发事件）。
-                if (this._menu.offset >= ARC_OPEN_MAX) return false;
-                // EP13-S2：记下当前大关页 ⇒ 选关页只列本大关清单（tls §4 注 A：闸门本身不动）。
-                this._phase.openLevels(this._menu.offset);
-                this._refreshArcGate(this._phase.levelsArc); // S-4：门票 / n/N 只在此刻算（⛔ 每帧）
-                this._emitOverlay(true);
-                this._beginPageFx(1);
-                return true;
+                // EP13-S4 · R13：末页空橱窗无大关实体 ⇒ 零事件；`[WXG-T-919]` 锁态章 ⇒ 零事件（见 `_openLevelsFromMenu`）。
+                return this._openLevelsFromMenu();
             // `[WXG-T-280]` 橱窗 ◀▶：只在锚定档热区表里存在 ⇒ 静态档零影响；语义 = 已通序翻页（集合归本 shell）。
             case 'carousel-prev':
                 this._menu.nudge(-1, this._clock());
@@ -951,10 +944,28 @@ export class BeadsShell implements Game {
     /** 松手：点按 ⇒ 进选关；拖动 ⇒ 翻页 / 回弹已在 Presenter 内启动。 */
     private _releaseGlass(): void {
         if (this._menu.release(this._clock()) !== 'open') return;
-        this._phase.openLevels(this._menu.offset); // EP13-S2：同 `open-levels`（两入口同上下文）
-        this._refreshArcGate(this._phase.levelsArc); // S-4：同 `open-levels`（两入口同口径）
+        this._openLevelsFromMenu(); // EP13-S2：与 `open-levels` 两入口同源同闸
+    }
+
+    /**
+     * `[WXG-T-919]` 菜单 → 选关页的**唯一闸门**（钮提交门 / 玻璃手势两入口共用）。
+     * 用户 2026-11-12 令「首页锁状态是不能点击进入选关页面的」⇒ 在 R13（空橱窗零事件）之外，
+     * 再挡**章门票未达成**（`arcTicketOpen === false`，即木牌仍挂 N/M 只读件的那一态）：
+     * 锁态已由锁图占位 + 木牌「未开启」+ 常驻进度件完整告知，⛔ 为「浏览」开放一个什么都做不了的页
+     * （改判 R14；旧口径「浏览合法」划线留档于 `arc-level-select-spec §4`）。
+     * ⚠ 选关页内格级闸门（R15 / `pick-level`）保留 = **第二层防御**（页内进度可能随时推进）。
+     * @returns false = 零事件（不切 overlay、不发事件、零扣心、不翻页）。
+     */
+    private _openLevelsFromMenu(): boolean {
+        // EP13-S4 · R13：末页空橱窗无大关实体 ⇒ 零事件。
+        if (this._menu.offset >= ARC_OPEN_MAX) return false;
+        // S-4：入口闸门 = 门票成立 ∨ 推进位已越过章首（首章恒真）；⛔ 每帧算，只在此刻算。
+        this._refreshArcGate(this._menu.offset);
+        if (!this._viewData.arcTicketOpen) return false;
+        this._phase.openLevels(this._menu.offset);
         this._emitOverlay(true);
         this._beginPageFx(1);
+        return true;
     }
 
     /**
