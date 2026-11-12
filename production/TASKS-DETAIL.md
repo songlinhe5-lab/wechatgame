@@ -9767,3 +9767,19 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（含封箱 12 例、金样本 13 例、轮廓 7 例、Cocos 镜像同步校验）。
 - **提交**：`e141f17d`（代码 + Cocos 镜像 + 文档 + 台账）；金样本 / 封箱重抓与台账回填同批。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**（轮廓公式与缓存口径由本单规格 / 判据承载，无新增 K 候选）。
+
+## WXG-T-928
+
+**UX·珠面描边改盖在珠面之上（末笔覆层）** · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成（2026-11-12 · 用户令「珠面描边要盖在珠面上面」）
+
+- **用户原话**：「珠面描边要盖在珠面上面」。
+- **变更**（只改帖序，形状 / 条数零变）：
+  - `view/menu-signage.ts::drawBeadFace`：`drawThumbOutline` 由首笔移到 pass 2（珠体 / 方块）之后 ⇒ 详情 / 选关缩略的线条压住边界珠外缘 W。
+  - `view/play-page.ts::drawGrid`：`drawBoardOutline` 由格循环**前**移到循环**后**（DEBUG 轮廓之前）⇒ 盘面同上。
+- **判据**：`tests/thumb-outline.test.ts` 帖序断言由「首条命令」改「末条命令」为 `shadowInk` polygon；7 例全绿。
+- **封箱复评**：第二十三次复评（`K.5.1-补15`）——纯**帖序重排**，两帧 total / kinds 零变、仅 sha 变（0/0 重取），珠体族 `legacyFlow` 96/96 与 facet 45+45 零差；锚 = 本批代码 commit。
+- **金样本**：十一态全部仅 sha 变（条数零变），`ui-golden-capture.ts` 干净锚重抓。
+- **文档**：`level-detail-spec §12` 改「画在珠面之上」；`ui-architecture-beads §12` 登记。
+- **验证**：`pnpm run verify` 复跑见提交。
+- **提交**：见本批 commit（代码 + Cocos 镜像 + 文档 + 台账）；复评与金样本重抓同批回填。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。

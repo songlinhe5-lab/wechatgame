@@ -77,13 +77,14 @@ describe('WXG-T-925/926 珠面贴纸轮廓', () => {
         }
     });
 
-    it('各种珠面展示统一启用：drawBeadFace 首条命令即轮廓（先轮廓、后珠面）', () => {
+    it('各种珠面展示统一启用：drawBeadFace 末条命令即轮廓（T-928 盖在珠面上面）', () => {
         const b = new RenderModelBuilder(750, 1334);
         b.begin();
         drawBeadFace(b, LEVELS[0]!, 200, 400, 360, 340, DEFAULT_PALETTE, undefined, undefined, undefined, 'bottom');
         const cmds = b.end().commands as readonly { kind: string; fill?: string }[];
-        expect(cmds[0]!.kind).toBe('polygon');
-        expect(cmds[0]!.fill).toBe(DEFAULT_PALETTE.shadowInk);
+        const last = cmds[cmds.length - 1]!;
+        expect(last.kind).toBe('polygon');
+        expect(last.fill).toBe(DEFAULT_PALETTE.shadowInk);
         expect(cmds.some((c) => c.kind === 'polygon' && c.fill === DEFAULT_PALETTE.shadowInk)).toBe(true);
     });
 

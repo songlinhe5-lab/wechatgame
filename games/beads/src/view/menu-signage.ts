@@ -509,9 +509,9 @@ export function drawBeadFace(
     // 共用同一条换算，缝占比高的小盘不再被误判成方块。
     const beadEdge = pitch * THUMB_BEAD_SHAPE.diameterRatio;
     const shaped = beadEdge >= THUMB_BEAD_SHAPE.minBeadEdge;
-    // `[WXG-T-926]` 珠面描边：art 二裁暖可可黑、单层实线、随 pitch 等比；
-    // 各种珠面展示统一启用（先轮廓、后底块 / 珠体 ⇒ 只露珠面外一圈）。
-    drawThumbOutline(builder, level, left, top, pitch, shaped ? beadEdge : block, palette.shadowInk);
+    // `[WXG-T-926 / T-928]` 珠面描边：art 二裁暖可可黑、单层实线、随 pitch 等比；
+    // 各种珠面展示统一启用（**先底块 / 珠体、后轮廓** ⇒ 线条压在珠面上缘，用户令「盖在珠面上面」）。
+    // 帖序放在函数末尾（pass 2 之后）。
     if (shaped) {
         faceOpts.size = beadEdge;
         faceOpts.inks = inks;
@@ -544,6 +544,8 @@ export function drawBeadFace(
             });
         }
     }
+    // `[WXG-T-928]` 轮廓压在珠面**之上**（末笔）：边界珠外缘 W 宽的黑线直接盖住珠面边沿。
+    drawThumbOutline(builder, level, left, top, pitch, shaped ? beadEdge : block, palette.shadowInk);
 }
 
 /** 招牌档自审（位表边长与 `n` 相符 **且** 面过地板）⇒ 档位被改而位表未跟上时先红在这里。 */
