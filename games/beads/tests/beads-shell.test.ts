@@ -355,21 +355,36 @@ describe('BeadsShell — 走马灯卡入口 + levels overlay 选关（menu-archi
     });
 });
 
-describe('BeadsShell — 选关高亮（WXG-T-911：当前关 = 进度前沿）', () => {
-    it('回放旧关后回菜单：高亮跟最高解锁关，⛔ 不跟 play.levelIndex', () => {
+describe('BeadsShell — 选关高亮（WXG-T-912：当前关 = 首个 0 星关）', () => {
+    /** 跑一帧绘制并取 shell 投影（`currentLevelIndex` 由 `_metaViewData` 每帧覆写）。 */
+    const viewOf = (shell: BeadsShell): { currentLevelIndex: number } => {
+        const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
+        builder.begin();
+        shell.buildRenderModel(builder);
+        builder.end();
+        return (shell as unknown as { _viewData: { currentLevelIndex: number } })._viewData;
+    };
+
+    it('前两关已有星、第三关未打 ⇒ 高亮第三关；⛔ 不跟 play.levelIndex', () => {
         const r = rig({ initialScreen: 'menu' });
-        // 状态复刻（用户截图）：L1/L2 已通关、L3 未打 ⇒ 解锁前沿 = 3；最后载入关 = 回放 L1。
+        // 状态复刻（用户截图）：L1/L2 已通关（3 星 / 2 星）、L3 未打；最后载入关 = 回放 L1。
         r.shell.play.unlockAcrossArc(2);
+        const stars = r.shell.play.starsByLevelRaw as number[];
+        stars[0] = 3;
+        stars[1] = 2;
         r.shell.play.goToLevel(0);
         expect(r.shell.play.maxUnlockedLevel).toBe(3);
         expect(r.shell.play.levelIndex).toBe(0);
-        // 跑一帧：`currentLevelIndex` 由 `_metaViewData` 每帧覆写。
-        const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
-        builder.begin();
-        r.shell.buildRenderModel(builder);
-        builder.end();
-        const v = (r.shell as unknown as { _viewData: { currentLevelIndex: number } })._viewData;
-        expect(v.currentLevelIndex, '应高亮第三关（0-based 2）').toBe(2);
+        expect(viewOf(r.shell).currentLevelIndex, '应高亮第三关（0-based 2）').toBe(2);
+    });
+
+    it('解锁范围内全有星 ⇒ 回落最高解锁关（全通态不灭高亮）', () => {
+        const r = rig({ initialScreen: 'menu' });
+        r.shell.play.unlockAcrossArc(1); // 解锁 2 关
+        const stars = r.shell.play.starsByLevelRaw as number[];
+        stars[0] = 3;
+        stars[1] = 1;
+        expect(viewOf(r.shell).currentLevelIndex, '全有星 ⇒ 回落前沿 = 第 2 关（0-based 1）').toBe(1);
     });
 });
 

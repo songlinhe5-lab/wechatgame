@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4065,
       "lines": 136,
-      "sha256": "a5b94b20b79eba579f71b8db21c34b1e277661e80a8815c23f8be662bd5f1ab8",
+      "sha256": "0eb8b6790ed338a88a09c0a583ad8eb9ee2dc642f45c057536a7f553f6a31878",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 280676 9534 normal",
+          "summary": "1 production/TASKS-DETAIL.md 281080 9546 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5290,
       "lines": 164,
-      "sha256": "98581bab1a74c5c02b7d29b7202df913a14220966becefb2ed75eb919628ab45",
+      "sha256": "022b22839d3e54df29c803a1ce86893ff6c0dcf27573337e5161483a3eee41f3",
       "tier": "normal",
       "sections": [
         {
@@ -761,12 +761,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 232 行 / 66120 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 233 行 / 66310 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+233 · §待排（backlog，无号，立项时领取…=205+29",
+          "summary": "§WXG 任务台账（SSOT）=1+234 · §待排（backlog，无号，立项时领取…=206+29",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1080,12 +1080,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 9534 行 / 280676 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 9546 行 / 281080 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+9535 · §WXG-T-614=9371+26 · §WXG-T-6",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+9547 · §WXG-T-615=9397+12 · §WXG-T-6",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -14144,9 +14144,9 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 35857,
+      "tokens": 35945,
       "lines": 316,
-      "sha256": "f2d5d38d4553532f2e45a706657fa76f699d86bd621cdc9c9ba41aca13ef1f00",
+      "sha256": "1274ae042b90c0b05c2c9266f78b399126959506fcb2e093116bc2855738be16",
       "tier": "normal",
       "sections": [
         {
@@ -14154,7 +14154,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 317,
-          "tokens": 35838,
+          "tokens": 35927,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -14325,7 +14325,7 @@
           "level": 2,
           "startLine": 138,
           "endLine": 313,
-          "tokens": 30785,
+          "tokens": 30873,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -45713,9 +45713,9 @@
     },
     {
       "path": "games/beads/design/ux/arc-level-select-spec.md",
-      "tokens": 18558,
+      "tokens": 18562,
       "lines": 269,
-      "sha256": "3564bbaba42c5fda1bdccc4b404f663067bfb2de0d1d9c15bb826e48f253593b",
+      "sha256": "0bc7e8dc3d8f37544646cbfdd1f44f503a9dc54c1c2447473ed11f759b28f171",
       "tier": "normal",
       "sections": [
         {
@@ -45723,7 +45723,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 270,
-          "tokens": 18516,
+          "tokens": 18521,
           "summary": "项目：games/beads · 版本 v1.13（2026-10-22 · WXG-T-346 art 批）：§8.2",
           "keywords": [
             "theme-level-select-spec.md",
@@ -45784,7 +45784,7 @@
           "level": 2,
           "startLine": 69,
           "endLine": 180,
-          "tokens": 7297,
+          "tokens": 7302,
           "summary": "注 A（闸门不变，本批不改造）：_applyMetaAction('pick-level') 现码 = levelIdx",
           "keywords": [
             "applyMetaAction",
@@ -46304,9 +46304,9 @@
     },
     {
       "path": "games/beads/design/ux/level-select-page-layout.md",
-      "tokens": 11165,
+      "tokens": 11252,
       "lines": 289,
-      "sha256": "3d16650a1d19c2fab5022d82e9ce030472cd32240b0694be2132fe5ce42470cf",
+      "sha256": "983969f699765271cd1f994a3ba28d1efd1a7672d51b87a83521d8760feb6f4e",
       "tier": "normal",
       "sections": [
         {
@@ -46314,7 +46314,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 290,
-          "tokens": 11146,
+          "tokens": 11233,
           "summary": "项目：games/beads · 版本 v0.16 · 日期 2026-11-11 · 状态：沿用关卡详情木牌 + Fi",
           "keywords": [
             "beads",
@@ -46528,16 +46528,18 @@
           ]
         },
         {
-          "anchor": "§2I. 当前关高亮 = 进度前沿（v0.19 · WXG-T-911 · 2026-11-12）",
+          "anchor": "§2I. 当前关高亮 = 解锁范围内第一个 0 星关（v0.20 · WXG-T-912 · 2026-11-12）",
           "level": 2,
           "startLine": 276,
           "endLine": 290,
-          "tokens": 907,
+          "tokens": 988,
           "summary": "用户截图裁定（原话）：「这个状态下应该高亮第三关，逻辑问题」——截图态 = L1 三星 / L2 两星 / L3 未打且",
           "keywords": [
             "WXG",
             "当前关高亮",
-            "进度前沿"
+            "解锁范围内第",
+            "一个",
+            "星关"
           ]
         }
       ]
@@ -89882,17 +89884,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 280676,
-      "lines": 9534,
-      "sha256": "1f7802d54ee01443c8d78c76b02385f4425ef149c2ee78cfaf77fe5ec44abed6",
+      "tokens": 281080,
+      "lines": 9546,
+      "sha256": "a7df39713fc88b694088588dc1e181d1c7688a5c1a7c83393cfa44117c99f7d0",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 9535,
-          "tokens": 280660,
+          "endLine": 9547,
+          "tokens": 281063,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -104445,22 +104447,35 @@
             "Trae",
             "beads"
           ]
+        },
+        {
+          "anchor": "§WXG-T-912",
+          "level": 2,
+          "startLine": 9536,
+          "endLine": 9547,
+          "tokens": 400,
+          "summary": "UI·选关高亮改口径：解锁范围内第一个 0 星关（全通回落前沿） · 负责：主理人(Trae CN)·beads 工程轨",
+          "keywords": [
+            "WXG",
+            "Trae",
+            "beads"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 66120,
-      "lines": 232,
-      "sha256": "2a282ed3315dbae67467d9d093a2d861e269562784299f312c9efad646d55287",
+      "tokens": 66310,
+      "lines": 233,
+      "sha256": "f501d135762caf1a3be5c26c55dfee93964b858bd5f29af1c8eeb6143f55e6a3",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 233,
-          "tokens": 66111,
+          "endLine": 234,
+          "tokens": 66301,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -104473,8 +104488,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 205,
-          "endLine": 233,
+          "startLine": 206,
+          "endLine": 234,
           "tokens": 1387,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

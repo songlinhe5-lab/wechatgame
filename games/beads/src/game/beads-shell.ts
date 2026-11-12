@@ -1224,13 +1224,23 @@ export class BeadsShell implements Game {
         v.skinId = this.play.skinId;
         // 选关屏数据（均只读引用，零分配）。
         v.levelCount = this.play.levelCount;
-        // `[WXG-T-911]` 选关高亮 = **进度前沿**（最高解锁关），⛔ 不是最后载入关（`play.levelIndex`）。
-        // 判例（用户 2026-11-12）：「L1/L2 已得星、L3 未打 ⇒ 应高亮第三关」——玩家在选关页回放旧关后
-        // 回菜单时，`levelIndex` 会停在旧关；高亮若跟它走就会指回已通关，与「该打哪一关」错位。
-        // 前沿只有一个真源 = 解锁位（`maxUnlockedLevel` 1-based，只增不减）⇒ 转 0-based 并夹到关表末位。
-        v.currentLevelIndex = Math.min(this.play.maxUnlockedLevel - 1, this.play.levelCount - 1);
+        // `[WXG-T-912]` 选关高亮 = **解锁范围内第一个 0 星关**（用户令，2026-11-12 由 T-911「最高解锁关」改口径）。
+        // 判例（用户截图）：「L1/L2 已得星、L3 未打 ⇒ 应高亮第三关」；⛔ 不跟最后载入关（`play.levelIndex`）
+        // ——玩家回放旧关后回菜单时载入关会停在旧关，高亮若跟它走就漂回已通关。
+        // 全通（解锁范围内均 ≥1 星）⇒ 回落最高解锁关（进度前沿），保证全通态仍有高亮。
+        // 只读星账原始引用 + 解锁位，≤关卡数整数比较、零分配（热路径）。
+        const stars = this.play.starsByLevelRaw;
+        const unlocked = Math.max(0, Math.min(this.play.maxUnlockedLevel, this.play.levelCount));
+        let current = unlocked > 0 ? unlocked - 1 : 0;
+        for (let i = 0; i < unlocked; i += 1) {
+            if ((stars[i] ?? 0) === 0) {
+                current = i;
+                break;
+            }
+        }
+        v.currentLevelIndex = current;
         v.maxUnlockedLevel = this.play.maxUnlockedLevel;
-        v.starsByLevel = this.play.starsByLevelRaw;
+        v.starsByLevel = stars;
         // 陈列序映射：只读引用缓存表（每帧零分配）。
         v.wallSlots = this._wallSlotsFor();
         // 槽位 → 关卡引用（同一缓存批，T-2B 缩略聚合的只读入口）。

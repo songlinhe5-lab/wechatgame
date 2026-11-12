@@ -9532,3 +9532,15 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：beads 单测 **1462 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；金样本 `level-select` / `level-select-mid` 两态 total **9437 不变**、逐 kind 计数不变、**sha 变**（仅高亮格从槽 0 移到槽 8）；十一帧两遍确定性自证 PASS，干净锚 `e6a60beb` 重抓。
 - **提交**：`e6a60beb` fix（数据源 + 判据 + 三份设计/架构文档 + Cocos 镜像 + 台账）＋ 本笔 test（金样本 + 台账回填）。
 - **知识沉淀（kb:sync --task=WXG-T-911）**：新增 0 / 修改 0 / 激活 0 / 归档 0（单行数据源修正，无新判例；口径已写进 `beads-shell.ts` 行内注与 §2I）。
+
+## WXG-T-912
+
+**UI·选关高亮改口径：解锁范围内第一个 0 星关（全通回落前沿）** · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成（2026-11-12 · 用户令）
+
+- **上位（用户原话）**：「帮我改成『第一个 0 星关』的口径」——更替同日 T-911「最高解锁关」口径。
+- **变更**：`beads-shell.ts::_metaViewData` 高亮源改为「解锁范围内（`idx < maxUnlockedLevel`）**第一个 `starsByLevel[i] ?? 0 === 0` 的关**」；全通（解锁内均 ≥1 星）⇒ 回落 `maxUnlockedLevel − 1`（进度前沿，保底不灭高亮）。≤ 关卡数次整数比较 + 只读原始星账引用 ⇒ 每帧零分配。⛔ 不跟 `play.levelIndex`；视图消费面（`c.current`）、点格行为、锁判据、存档字段全部不动。
+- **效果**：截图态（L1 三星 / L2 两星 / L3 无星）⇒ 高亮第三关；之后回放任意旧关不漂移；全通态高亮最后一关。
+- **判据**：`beads-shell.test.ts` 两例——「前两关有星 ⇒ 高亮第三关（`play.levelIndex` 仍为 0）」+「解锁内全有星 ⇒ 回落前沿」。
+- **文档**：`arc-level-select-spec §3` / `level-select-page-layout §2I`（v0.20）/ `ui-architecture-beads §12` / `meta-types` 字段注释同步。
+- **验证**：待填。
+- **提交**：待填。
