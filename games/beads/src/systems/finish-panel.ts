@@ -86,6 +86,11 @@ export interface FinishPanelLayout {
 
 /** 庆祝标题（`ux-spec §3.6` 全屏庆祝；文案为派生项）。 */
 export const FINISH_PANEL_TITLE = '🎊 全部通关';
+/**
+ * `[WXG-T-923]` 章末（非全部内容）标题（用户 2026-11-12 裁「按范围分档」）：
+ * 章 1 boss ⇒「本章通关」+ 本章行；章 2 boss（末关）⇒ {@link FINISH_PANEL_TITLE} + 全部行。
+ */
+export const FINISH_PANEL_TITLE_CHAPTER = '🎊 本章通关';
 /** 每关满星数 —— 与存档 `stars` 的钳制上界同一常量（`tuning.ts §3.7` 的 `STAR_MAX`）。 */
 export const FINISH_MAX_STARS_PER_LEVEL = STAR_MAX;
 
@@ -93,16 +98,34 @@ function rect(x: number, y: number, w: number, h: number): PanelRect {
   return { xMin: x, yMin: y, xMax: x + w, yMax: y + h };
 }
 
-let _cache: { levelCount: number; layout: FinishPanelLayout } | null = null;
+/**
+ * `[WXG-T-923]` 三钮固定几何（与关数 / 首行无关）⇒ 命中测试**不依赖布局缓存**
+ * （避免「画用首行 10、点用首行 1」把缓存来回顶掉）。
+ */
+const FINISH_BUTTONS: readonly FinishButton[] = (() => {
+  const startX = (DESIGN_W - CLEAR_BUTTON_W) / 2;
+  const buttonY = 120;
+  const cellW = (CLEAR_BUTTON_W - 2 * CLEAR_BUTTON_GAP) / 3;
+  return [
+    { id: 'replay', rect: rect(startX, buttonY, cellW, PANEL_BUTTON_H) },
+    { id: 'share', rect: rect(startX + cellW + CLEAR_BUTTON_GAP, buttonY, cellW, PANEL_BUTTON_H) },
+    { id: 'menu', rect: rect(startX + 2 * (cellW + CLEAR_BUTTON_GAP), buttonY, cellW, PANEL_BUTTON_H) },
+  ] as const;
+})();
 
-/** 静态几何，按关卡数缓存一份（布局运行时不变 ⇒ 不逐帧分配）。 */
-export function finishPanelLayout(levelCount: number): FinishPanelLayout {
-  if (_cache && _cache.levelCount === levelCount) return _cache.layout;
-  _cache = { levelCount, layout: build(levelCount) };
+let _cache: { levelCount: number; firstLevel: number; layout: FinishPanelLayout } | null = null;
+
+/**
+ * 静态几何，按（关数, 首行关号）缓存一份（布局运行时不变 ⇒ 不逐帧分配）。
+ * `[WXG-T-923]` `firstLevel` = 总览首行**关号**（章末 = 本章首关；全部通关 = 1）。
+ */
+export function finishPanelLayout(levelCount: number, firstLevel = 1): FinishPanelLayout {
+  if (_cache && _cache.levelCount === levelCount && _cache.firstLevel === firstLevel) return _cache.layout;
+  _cache = { levelCount, firstLevel, layout: build(levelCount, firstLevel) };
   return _cache.layout;
 }
 
-function build(levelCount: number): FinishPanelLayout {
+function build(levelCount: number, firstLevel: number): FinishPanelLayout {
   const titleY = DESIGN_H - 180;
   const totalY = titleY - 90;
   const rowTop = totalY - 80;
@@ -114,7 +137,7 @@ function build(levelCount: number): FinishPanelLayout {
   const rows: FinishRow[] = [];
   for (let i = 0; i < levelCount; i++) {
     rows.push({
-      level: i + 1,
+      level: firstLevel + i,
       y: rowTop - i * (FINISH_ROW_H + FINISH_ROW_GAP) - FINISH_ROW_H / 2,
       labelX: left + 140,
       starX: [0, 1, 2].map((k) => firstStar + k * (FINISH_STAR_SIZE + FINISH_STAR_GAP)),
@@ -130,16 +153,8 @@ function build(levelCount: number): FinishPanelLayout {
   //
   // WXG-T-405：补「分享」位（结算面板炫耀 = 框架层 Platform.share）。三按钮横排
   // replay(主) / share(次) / menu(副)，cellW 三等分。
-  const startX = (DESIGN_W - CLEAR_BUTTON_W) / 2;
-  const buttonY = 120;
-  const cellW = (CLEAR_BUTTON_W - 2 * CLEAR_BUTTON_GAP) / 3;
-  const buttons: FinishButton[] = [
-    { id: 'replay', rect: rect(startX, buttonY, cellW, PANEL_BUTTON_H) },
-    { id: 'share', rect: rect(startX + cellW + CLEAR_BUTTON_GAP, buttonY, cellW, PANEL_BUTTON_H) },
-    { id: 'menu', rect: rect(startX + 2 * (cellW + CLEAR_BUTTON_GAP), buttonY, cellW, PANEL_BUTTON_H) },
-  ];
-
-  return { titleY, totalY, rows, buttons, shelf: buildShelf(levelCount, rows, buttonY + PANEL_BUTTON_H) };
+  const buttons = FINISH_BUTTONS;
+  return { titleY, totalY, rows, buttons, shelf: buildShelf(levelCount, rows, buttons[0]!.rect.yMin + PANEL_BUTTON_H) };
 }
 
 /**
@@ -182,8 +197,11 @@ export function finishPanelLabel(id: FinishPanelAction): string {
 }
 
 /** 命中测试（按钮外的任何点击 → null ⇒ 调用方零响应，`input-control §2.3`）。 */
-export function hitFinishPanel(x: number, y: number, levelCount: number): FinishPanelAction | null {
-  for (const button of finishPanelLayout(levelCount).buttons) {
+export function hitFinishPanel(x: number, y: number): FinishPanelAction | null {
+  // §20-4：命中与绘制同布局 —— 优先复用画笔刚建的缓存实例（按钮几何与关数 / 首行无关，
+  // 见 `FINISH_BUTTONS`）；冷启无缓存时按单行建一份，不让缓存来回顶。
+  const buttons = _cache ? _cache.layout.buttons : finishPanelLayout(1).buttons;
+  for (const button of buttons) {
     if (rectContains(button.rect, x, y)) return button.id;
   }
   return null;
@@ -230,8 +248,8 @@ export class FinishPanel {
     return this._clock.popScale(index, FINISH_LEVEL_STEP_MS);
   }
 
-  hitTest(x: number, y: number, levelCount: number): FinishPanelAction | null {
+  hitTest(x: number, y: number): FinishPanelAction | null {
     if (!this.interactive) return null;
-    return hitFinishPanel(x, y, levelCount);
+    return hitFinishPanel(x, y);
   }
 }

@@ -130,6 +130,10 @@ export interface SnapshotSource {
     readonly onboardingEnabled: boolean;
     /** P0-1：FINISH 总览关数（本章结算 = 本章长度；否则全表长度；`core-loop §8-8`）。 */
     readonly finishLevelCount: number;
+    /** `[WXG-T-923]` 总览首行关号（1-based）：章末 = 本章首关；全部通关 = 1。 */
+    readonly finishFirstLevel: number;
+    /** `[WXG-T-923]` 本次 FINISH 是否 = 全部开放内容通关（标题分档）。 */
+    readonly finishAllClear: boolean;
     /** P0-1：当前是否**本章末关**（真源 = `arcs.ts` ⇒ `isBossLevelId`）。 */
     readonly isArcFinalLevel: boolean;
     /** `[WXG-T-432]` 好友榜面板占位状态机（投影只读 `view()`）。 */
@@ -346,14 +350,18 @@ function projectPanelShard(s: SnapshotPanel, src: SnapshotSource): void {
     s.finishPanelVisible = src.finishPanel.visible;
     s.finishPanelProgress = src.finishPanel.progress;
     s.finishPanelInteractive = src.finishPanel.interactive;
-    // P0-1：总览 = **本章**而非全表（夹到关表长度，防明细异常导致越界）。
+    // P0-1：总览 = **本章**而非全表（夹到关表长度，防明细异常导致越界）；
+    // `[WXG-T-923]` 全部通关时 shell/game 已把范围改成全表（首行 1），此处只做切片。
     const finishLevelCount = Math.max(1, Math.min(src.finishLevelCount, src.levels.length));
+    const finishFirstLevel = Math.max(1, Math.min(src.finishFirstLevel, src.levels.length));
     if (s.finishStars.length !== finishLevelCount) {
         s.finishStars = new Array<number>(finishLevelCount).fill(0);
     }
     for (let i = 0; i < finishLevelCount; i++) {
-        s.finishStars[i] = src.starsByLevel[i] ?? 0;
+        s.finishStars[i] = src.starsByLevel[finishFirstLevel - 1 + i] ?? 0;
     }
+    s.finishFirstLevel = finishFirstLevel;
+    s.finishAllClear = src.finishAllClear;
     const finishRows = src.finishPanel.rowsShown(finishLevelCount);
     s.finishRowsShown = finishRows;
     s.finishRowPopScale = finishRows > 0 ? src.finishPanel.rowPopScale(finishRows - 1) : 1;

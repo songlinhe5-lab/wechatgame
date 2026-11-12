@@ -49,8 +49,6 @@ export interface ControlMapHost {
    * ⇒ `isBossLevelId`；章末 ⇒ 结算主钮为「查看结果」且 FINISH 走本章结算。
    */
   readonly isArcFinalLevel: boolean;
-  /** 通关画面展示的关数（本章结算 = 本章长度；否则全表长度）。 */
-  readonly finishLevelCount: number;
   readonly panel: PausePanel;
   readonly clearPanel: ClearPanel;
   readonly finishPanel: FinishPanel;
@@ -89,7 +87,7 @@ export class ControlMap {
     }
     if (phase === 'paused') return this._host.panel.hitTest(x, y, this._host.mode) ?? '';
     if (phase === 'level-clear') return this._host.clearPanel.hitTest(x, y, this.clearPanelOptions()) ?? '';
-    if (phase === 'finish') return this._host.finishPanel.hitTest(x, y, this._host.finishLevelCount) ?? '';
+    if (phase === 'finish') return this._host.finishPanel.hitTest(x, y) ?? '';
     if (phase === 'game-over') {
       if (this._host.mode === 'sprint') return this._host.sprintSettle.hitTest(x, y) ?? '';
       return hitFailPanel(x, y, this._host.reviveAvailable) ?? '';
@@ -116,7 +114,7 @@ export class ControlMap {
     services.viewport.screenToDesign(this._pressPoint, snap.x, snap.y);
     const x = this._pressPoint.x;
     const y = this._pressPoint.y;
-    if (this._host.finishPanel.visible) return hitFinishPanel(x, y, this._host.levelCount);
+    if (this._host.finishPanel.visible) return hitFinishPanel(x, y);
     if (this._host.clearPanel.visible) return hitClearPanel(x, y, this.clearPanelOptions());
     if (this._host.sprintSettle.visible) return hitSprintSettle(x, y);
     if (this._host.panel.visible) {

@@ -85,6 +85,7 @@ import {
   nextBeadLod,
   type BeadSizeKind,
   isBossLevelId,
+  arcRangeOfLevel,
   stageParamsFor,
   validatedSprintTime,
   type BeadsTuning,
@@ -345,6 +346,10 @@ export class BeadsGame {
    * ⇒ 退回全表长度（旧口径）。章界真源 = `arcs.ts::ARCS[].levelRefs` ⇒ `isBossLevelId`。
    */
   private _finishEndIndex = -1;
+  /** `[WXG-T-923]` 通关画面总览首行下标（0-based）；`-1` = 未进章末结算（退回全表口径）。 */
+  private _finishStartIndex = -1;
+  /** `[WXG-T-923]` 本次 FINISH 是否 = 全部开放内容通关（标题分档：全部通关 / 本章通关）。 */
+  private _finishAllClear = false;
   /**
    * S7 冲刺结算面板（`ux-spec §3.5` **左列**，WXG-T-067）：冲刺归零时复用 `GAME_OVER`
    * 相位展示「单局 / 最高梯位 / 最高连击」+ 双钮（再来一局 / 返回关卡），且**不出现**
@@ -654,6 +659,9 @@ export class BeadsGame {
       get trayFullRejected() { return self._trayFullRejected; },
       get onboardingEnabled() { return BeadsGame.ONBOARDING_ENABLED; },
       get finishLevelCount() { return self._finishRowCount(); },
+      // `[WXG-T-923]` 通关画面范围分档：首行关号 + 是否全部通关（标题/总览口径同源）。
+      get finishFirstLevel() { return self._finishFirstLevel(); },
+      get finishAllClear() { return self._finishAllClear; },
       get isArcFinalLevel() { return self._isArcFinalIndex(self._levelIndex); },
       // `[WXG-T-432]` 好友榜面板只读视图（投影入口落 `snapshot-projection`）。
       get rankPanel() { return self._rankPanel; },
@@ -716,7 +724,7 @@ export class BeadsGame {
       get levelCount() { return self._levels.length; },
       get isLastLevel() { return self._levelIndex >= self._levels.length - 1; },
       get isArcFinalLevel() { return self._isArcFinalIndex(self._levelIndex); },
-      get finishLevelCount() { return self._finishRowCount(); },
+      // `[WXG-T-923]` 命中已不依赖布局（按钮固定几何）⇒ 本层不再需要 finish 范围字段。
       get panel() { return self._panel; },
       get clearPanel() { return self._clearPanel; },
       get finishPanel() { return self._finishPanel; },
@@ -727,7 +735,7 @@ export class BeadsGame {
       get mode() { return self._mode; },
       get reviveAvailable() { return self._reviveAvailable(); },
       get levelCount() { return self._levels.length; },
-      get finishLevelCount() { return self._finishRowCount(); },
+      // `[WXG-T-923]` 命中已不依赖布局（按钮固定几何）⇒ 本层不再需要 finish 范围字段。
       get panel() { return self._panel; },
       get clearPanel() { return self._clearPanel; },
       get finishPanel() { return self._finishPanel; },
@@ -2616,7 +2624,12 @@ export class BeadsGame {
 
   /** FINISH 总览关数：本章结算用本章长度；`-1`（未进本章结算）退回全表长度。 */
   private _finishRowCount(): number {
-    return this._finishEndIndex >= 0 ? this._finishEndIndex + 1 : this._levels.length;
+    return this._finishEndIndex >= 0 ? this._finishEndIndex - this._finishStartIndex + 1 : this._levels.length;
+  }
+
+  /** `[WXG-T-923]` 总览首行关号（1-based）：章末 = 本章首关；全部通关/未结算 = 1。 */
+  private _finishFirstLevel(): number {
+    return this._finishStartIndex >= 0 ? this._finishStartIndex + 1 : 1;
   }
 
   /**
@@ -2629,7 +2642,15 @@ export class BeadsGame {
   private _advanceAfterClear(): void {
     if (this._machine.current !== 'level-clear') return;
     if (this._levelIndex >= this._levels.length - 1 || this._isArcFinalIndex(this._levelIndex)) {
-      this._finishEndIndex = this._levelIndex;
+      // `[WXG-T-923]` 通关画面**范围分档**（用户 2026-11-12 裁「按范围分档」）：
+      // - 全部开放内容通关（= 关表末关）⇒ 标题「全部通关」，总览 = 全部关（首行 1）；
+      // - 其余章末 ⇒ 标题「本章通关」，总览 = 本章区间（章界真源 = `ARCS.levelRefs`）。
+      // 例：L9 ⇒ 9 行「本章通关」；L10 ⇒ 10 行「全部通关」。
+      const allClear = this._levelIndex >= this._levels.length - 1;
+      const range = allClear ? undefined : arcRangeOfLevel(this._levelIndex + 1);
+      this._finishStartIndex = allClear || range === undefined ? 0 : range[0] - 1;
+      this._finishEndIndex = allClear ? this._levels.length - 1 : this._levelIndex;
+      this._finishAllClear = allClear;
       // 交接给通关画面：结算面板必须退场，否则它 150ms 的淡出会从通关画面后面透出来
       // （两个面板都画全屏遮罩，叠着会看到两层）。
       this._clearPanel.close();

@@ -9690,3 +9690,21 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：CDP 脚本 14/14 PASS；`pnpm run verify` 未重跑（零代码改动；上一任务 PASS 23 仍成立）。
 - **提交**：`8355c715` docs（台账行 + 详情：14 断言清单与实帧证据路径；零代码）。
 - **知识沉淀**：无（验证任务，不产判例）。
+
+## WXG-T-923
+
+**UX·通关画面范围分档（本章 / 全部通关）** · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成（2026-11-12 · 用户裁「按范围分档」）
+
+- **上位（用户裁）**：章 2 通关收尾设计，问题①「章节 boss 清完的通关画面（FINISH）用哪种口径」⇒ **按范围分档**（选项 A）；问题②主页标识 ⇒ 加「全通关」徽章但**待 art**（已记 backlog，本批不改代码）。
+- **诊断**：旧实现 `_finishEndIndex = 关指针`、行数 = 指针 + 1 ⇒ 章 1 清完 9 行、章 2 清完 10 行，但标题**恒**「🎊 全部通关」⇒ 章 1 清完措辞错误；行标签恒从 1 起算 ⇒ 章内口径将无法表达全局关号。
+- **变更**：
+  - `beads-game.ts`：`_advanceAfterClear` 判 `allClear = 关表末关`；`_finishStartIndex` + `arcRangeOfLevel`（`tuning/menu.ts` 新增，`ARCS.levelRefs` 派生）取本章区间；快照新增 `finishFirstLevel` / `finishAllClear`；`_finishRowCount` = 区间长。
+  - `finish-panel.ts`：新增 `FINISH_PANEL_TITLE_CHAPTER = '🎊 本章通关'`；`finishPanelLayout(count, firstLevel)` 行标签 = 全局关号；三钮抽 `FINISH_BUTTONS` 固定几何 ⇒ `hitFinishPanel/hitTest` 不再吃布局缓存（删 ControlMap / PanelRouter 两个已无用的 `finishLevelCount` 宿主字段）。
+  - `view-model.ts`：标题按 `snap.finishAllClear` 分档；布局传 `finishFirstLevel`。
+  - `state.ts` / `snapshot-shards.ts`：两字段登记进 `panel` 片。
+- **文档**：`ux-spec §3.6` 改写（章末 / 全部通关 + 命中 + 主页收尾口径）；`ui-architecture-beads §12` 登记。
+- **判据**：`arc-chapter-finish` 新增 L10 例（10 行 / `finishAllClear=true` / 末行标签 10）+ L9 例补两断言；beads **1472 passed / 2 skipped**；`pnpm run harness:build` ✅。
+- **实帧**：`temp/finish-shot-923/1-finish-chapter.png`（「🎊 本章通关」9 行 27/27★）、`2-finish-all.png`（「🎊 全部通关」10 行 30/30★，逐关入场动画中）。temp 不入库。
+- **验证**：`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（首轮 FAIL 2 → 修：`check:arch §20-4` 要求 `hitFinishPanel` 复用 `finishPanelLayout()` ⇒ 命中改取**当前缓存布局的 `buttons`**（冷启按单行建一份；按钮几何与关数无关，缓存不被来回顶）；`typecheck` 8 处测试残留三参 ⇒ `finish-panel.test.ts` 去第三参）。beads 单测 **1472 passed / 2 skipped**；`check:links` OK。
+- **提交**：见本批 commit（代码 + Cocos 镜像 + `ux-spec §3.6` / `ui-architecture-beads §12` + 台账）。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**（本批判据已在 §20-4 与既有 K 条目覆盖下，无新沉淀候选）。

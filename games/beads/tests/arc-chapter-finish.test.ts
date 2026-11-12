@@ -57,6 +57,31 @@ describe('P0-1 第一章收尾（core-loop §8-8）', () => {
     expect(h.game.phase).toBe('finish');
     expect(h.game.levelIndex).toBe(8); // ⛔ 不得推进到 L10（index 9）
     expect(h.game.snapshot.finishStars.length).toBe(9); // 总览 = 本章，不含第二章
+    // `[WXG-T-923]` 范围分档：非末关 ⇒ 本章口径（首行 1 / 标题「本章通关」）。
+    expect(h.game.snapshot.finishFirstLevel).toBe(1);
+    expect(h.game.snapshot.finishAllClear).toBe(false);
+  });
+
+  it('`[WXG-T-923]` L10（末关）⇒ 全部通关口径：10 行 + finishAllClear', () => {
+    const h = createBeadsHarness({
+      noAssemble: true,
+      levels: CHAPTER_LEVELS,
+      saveKey: 'wxgame.beads.test.arc-finish-l10',
+    });
+
+    h.game.goToLevel(9); // L10
+    clearCurrentLevel(h.game);
+    advancePastClearWave(h);
+    const next = centre(clearPanelLayout({ lastLevel: true }).buttons.find((b) => b.id === 'next')!.rect);
+    h.game.tapDesign(next.x, next.y);
+    h.advance(1 / 60);
+
+    expect(h.game.phase).toBe('finish');
+    expect(h.game.snapshot.finishStars.length).toBe(10); // 全部开放内容
+    expect(h.game.snapshot.finishFirstLevel).toBe(1);
+    expect(h.game.snapshot.finishAllClear).toBe(true);
+    // 行标签用**全局关号**：第 10 行 = 第 10 关（不是章内 1）。
+    expect(finishPanelLayout(10, 1).rows[9]!.level).toBe(10);
   });
 
   it('本章 FINISH 的「重玩」⇒ 回到 L1 继续普通模式', () => {

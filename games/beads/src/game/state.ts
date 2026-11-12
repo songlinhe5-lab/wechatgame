@@ -299,6 +299,10 @@ export interface BeadsSnapshot {
   finishStars: number[];
   /** 已入场的总览**关数**（`0..finishStars.length`，逐关 150ms）。 */
   finishRowsShown: number;
+  /** `[WXG-T-923]` 总览首行关号（1-based）：章末 = 本章首关；全部通关 = 1。 */
+  finishFirstLevel: number;
+  /** `[WXG-T-923]` 本次 FINISH 是否 = 全部开放内容通关（标题「全部通关 / 本章通关」分档）。 */
+  finishAllClear: boolean;
   /** 最新入场那一行的弹跳缩放（0→1.2→1；稳定 = 1）。 */
   finishRowPopScale: number;
   /**
@@ -573,6 +577,8 @@ function createPanelShard(): SnapshotPanel {
     finishPanelInteractive: false,
     finishStars: [],
     finishRowsShown: 0,
+    finishFirstLevel: 1,
+    finishAllClear: false,
     finishRowPopScale: 1,
     finishLevels: [],
     pressedButton: null,

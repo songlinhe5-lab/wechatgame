@@ -168,7 +168,7 @@ describe('P3 · S7 作品陈列条（EP12-S7）', () => {
       expect(c.xMax - c.xMin).toBe(c.yMax - c.yMin);
       if (i > 0) expect(c.xMin).toBeGreaterThanOrEqual(cells[i - 1]!.xMax);
       // 零热区：格心不命中任何钮。
-      expect(hitFinishPanel((c.xMin + c.xMax) / 2, (c.yMin + c.yMax) / 2, n)).toBeNull();
+      expect(hitFinishPanel((c.xMin + c.xMax) / 2, (c.yMin + c.yMax) / 2)).toBeNull();
     }
   });
 

@@ -51,6 +51,7 @@ import {
 import {
   FINISH_MAX_STARS_PER_LEVEL,
   FINISH_PANEL_TITLE,
+  FINISH_PANEL_TITLE_CHAPTER,
   finishPanelLabel,
   finishPanelLayout,
 } from '../systems/finish-panel.js';
@@ -713,7 +714,7 @@ function drawFinishPanel(
   if (!snap.finishPanelVisible) return;
   const levelCount = snap.finishStars.length;
   if (levelCount === 0) return;
-  const layout = finishPanelLayout(levelCount);
+  const layout = finishPanelLayout(levelCount, snap.finishFirstLevel);
 
   // 全屏遮罩（量值同 ux-spec §3.3，与两个面板一致）+ 顶部三条庆祝色带
   // （程序化，零外部资产；呼应 §3.6「全屏庆祝」）。
@@ -723,8 +724,8 @@ function drawFinishPanel(
     builder.rect((i * DESIGN_W) / 3, builder.height - 14, DESIGN_W / 3, 14, { fill: bands[i]! });
   }
 
-  // 标题 + 总星数（「共 N / M ★」）。
-  builder.text(DESIGN_W / 2, layout.titleY, FINISH_PANEL_TITLE, {
+  // 标题按范围分档（`[WXG-T-923]`）：全部开放内容通关 =「全部通关」；其余章末 =「本章通关」。
+  builder.text(DESIGN_W / 2, layout.titleY, snap.finishAllClear ? FINISH_PANEL_TITLE : FINISH_PANEL_TITLE_CHAPTER, {
     fill: palette.text,
     font: UI_FONT.panelTitle,
     align: 'center',

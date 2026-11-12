@@ -856,6 +856,22 @@ export function isBossLevelId(levelId: number): boolean {
   return Object.prototype.hasOwnProperty.call(BOSS_THUMB_TEXTURES, levelId);
 }
 
+/**
+ * `[WXG-T-923]` 关号 → 所属大关区间 `[from, to]`（1-based，含两端）；未命中 ⇒ `undefined`。
+ * 与 {@link isBossLevelId} 同源（`ARCS.levelRefs`），供通关画面「本章总览」取行范围；
+ * ⛔ 不写死关号、⛔ 不在生成物 `arcs.ts` 里加手写函数（会被 `levels:sync` 覆盖）。
+ */
+export function arcRangeOfLevel(levelId: number): readonly [number, number] | undefined {
+  for (const arc of ARCS) {
+    const first = arc.levelRefs[0]?.[0];
+    const last = arc.levelRefs[arc.levelRefs.length - 1]?.[1];
+    if (first !== undefined && last !== undefined && levelId >= first && levelId <= last) {
+      return [first, last];
+    }
+  }
+  return undefined;
+}
+
 /** 回退档序（§3.8 序 2/3 预置杠杆，逐级触发、不并行）。 */
 export const THUMB_TIERS: readonly number[] = Object.freeze([5, 4, 3]);
 /** 虚线空槽档回退（§3.8 序 4：空格改 48 档格径 ⇒ 48 条 line/格 降为 20 条）。 */

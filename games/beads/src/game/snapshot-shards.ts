@@ -53,7 +53,7 @@ export const PANEL_SHARD_FIELDS = [
     'clearRemaining', 'clearPowerupsUsed', 'clearActions', 'clearTaps',
     'clearCoins', 'clearCoinReason', 'clearCoinsCapped', 'clearLastLevel',
     'finishPanelVisible', 'finishPanelProgress', 'finishPanelInteractive',
-    'finishStars', 'finishRowsShown', 'finishRowPopScale', 'finishLevels',
+    'finishStars', 'finishRowsShown', 'finishFirstLevel', 'finishAllClear', 'finishRowPopScale', 'finishLevels',
     'pressedButton',
     'sprintSettleVisible', 'sprintSettleProgress', 'sprintSettleInteractive',
     'sprintRunBestStage', 'sprintRunBestStreak',

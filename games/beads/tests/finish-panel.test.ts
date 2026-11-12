@@ -128,20 +128,20 @@ describe('S7 通关画面（ux-spec §3.6 / core-loop §8-8）', () => {
     const centre = (r: { xMin: number; xMax: number; yMin: number; yMax: number }) =>
       [(r.xMin + r.xMax) / 2, (r.yMin + r.yMax) / 2] as const;
 
-    expect(hitFinishPanel(...centre(primary), EIGHT.length)).toBe('replay');
-    expect(hitFinishPanel(...centre(shareBtn), EIGHT.length)).toBe('share');
-    expect(hitFinishPanel(...centre(secondary), EIGHT.length)).toBe('menu');
+    expect(hitFinishPanel(...centre(primary))).toBe('replay');
+    expect(hitFinishPanel(...centre(shareBtn))).toBe('share');
+    expect(hitFinishPanel(...centre(secondary))).toBe('menu');
     // 三钮间缝隙 + 总览行 + 屏幕死角：全部零命中（§2.3 面板外零响应）。
-    expect(hitFinishPanel(primary.xMax + 5, primary.yMin + 5, EIGHT.length)).toBeNull();
-    expect(hitFinishPanel(DESIGN_W / 2, layout.rows[0]!.y, EIGHT.length)).toBeNull();
-    expect(hitFinishPanel(0, 0, EIGHT.length)).toBeNull();
+    expect(hitFinishPanel(primary.xMax + 5, primary.yMin + 5)).toBeNull();
+    expect(hitFinishPanel(DESIGN_W / 2, layout.rows[0]!.y)).toBeNull();
+    expect(hitFinishPanel(0, 0)).toBeNull();
   });
 
   it('ramps progress 0→1 on open, 1→0 on close, and ignores taps while fading out', () => {
     const panel = new FinishPanel();
     expect(panel.visible).toBe(false);
     expect(panel.progress).toBe(0);
-    expect(panel.hitTest(DESIGN_W / 2, 0, EIGHT.length)).toBeNull();
+    expect(panel.hitTest(DESIGN_W / 2, 0)).toBeNull();
 
     panel.open();
     expect(panel.visible).toBe(true);
@@ -156,7 +156,7 @@ describe('S7 通关画面（ux-spec §3.6 / core-loop §8-8）', () => {
     expect(panel.interactive).toBe(false); // 淡出期不接受点击
     const rect = finishPanelLayout(EIGHT.length).buttons[0]!.rect;
     expect(
-      panel.hitTest((rect.xMin + rect.xMax) / 2, (rect.yMin + rect.yMax) / 2, EIGHT.length),
+      panel.hitTest((rect.xMin + rect.xMax) / 2, (rect.yMin + rect.yMax) / 2),
     ).toBeNull();
     panel.update(150);
     expect(panel.visible).toBe(false);
