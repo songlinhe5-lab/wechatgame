@@ -253,7 +253,8 @@ function beadSignatureIn(
 ): string {
     const a = LEVEL_SELECT_GEO.cellArt;
     const { pitch, block } = thumbMetrics(level);
-    const shaped = block >= THUMB_BEAD_SHAPE.minBlock;
+    // `[WXG-T-622]` 回退判据 = 珠体边长（与 `drawBeadFace` 同一条换算，⛔ 不再用块边）。
+    const shaped = pitch * THUMB_BEAD_SHAPE.diameterRatio >= THUMB_BEAD_SHAPE.minBeadEdge;
     const edge = shaped ? pitch * THUMB_BEAD_SHAPE.diameterRatio : block;
     const overhang = Math.max(0, (edge - pitch) / 2);
     const ix0 = box.x + a.imageLeft;

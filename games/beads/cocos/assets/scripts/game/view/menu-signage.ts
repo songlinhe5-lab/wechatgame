@@ -406,7 +406,10 @@ export function levelThumbFullCells(level: BeadsLevelRaw): readonly number[] {
  * 菜单不再有第二套珠面 recipe（K-042 同族：recipe 唯一真源 = `bead-styles/facet-4.ts`）。
  * ⚠ **不传 `targetColorIdx`**：那道闸会触发 `BEAD_DRAW_INSET` 等比内缩（面 = 珠体 ×26/30），
  * 缩略槽里没有 B0 底图可露、且交叠 1.10 时暗底环会多啃邻珠 ≈18% 面 ⇒ 珠体边长即面径。
- * 块边 < `minBlock` 的超大盘回退方块（1px 级孔环糊成噪点）。
+ * 珠体边长 < `minBeadEdge` 的超大盘回退方块（1px 级孔环糊成噪点）。
+ * `[WXG-T-622]` 回退判据 = **珠体边长**（`pitch × diameterRatio`），选关格与详情橱窗同一条换算
+ * ⇒ 同一关只要珠体够大就两边都画珠（14×14 从选关格「方块」修正为珠面）；30×30 这类选关槽
+ * 物理上画不清的盘仍回退，详情页槽大 4 倍照画——差异来自各自 pitch，不是两套规则。
  *
  * @param x       槽**左缘**；@param yBottom 槽**下缘**（y-up）；@param w/@param h 槽宽高
  * @param inkOverride 墨集覆盖（未通关置灰，同 `drawLevelThumb`）
@@ -434,9 +437,12 @@ export function drawBeadFace(
     const inks = inkOverride ?? beadInksFor(level);
     const gap = pitch < BEAD_GAP * 2 ? pitch * 0.4 : BEAD_GAP;
     const block = pitch - gap;
-    const shaped = block >= THUMB_BEAD_SHAPE.minBlock;
+    // `[WXG-T-622]` 回退判据量**实际画出的珠体**（不是方块腿的 block）⇒ 选关格 / 详情橱窗
+    // 共用同一条换算，缝占比高的小盘不再被误判成方块。
+    const beadEdge = pitch * THUMB_BEAD_SHAPE.diameterRatio;
+    const shaped = beadEdge >= THUMB_BEAD_SHAPE.minBeadEdge;
     if (shaped) {
-        faceOpts.size = pitch * THUMB_BEAD_SHAPE.diameterRatio;
+        faceOpts.size = beadEdge;
         faceOpts.inks = inks;
         faceOpts.styleId = styleId ?? DEFAULT_BEAD_STYLE_ID;
     }

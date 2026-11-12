@@ -366,7 +366,13 @@ describe('[T-613] 完整豆面档（盘面真实 rows×cols 逐珠，用户令�
     });
 
     it('非方形槽（69×76）保持盘面宽高比：块边单值方形、双向居中（余量对称）', () => {
-        const level = LEVELS[1]!; // rows 13 cols 10 ⇒ h 受限（76/13 = 5.85 < 69/10 = 6.9）
+        // `[WXG-T-622]` 回退判据改量珠体边长后，取 16×10 合成盘保证仍落方块腿：
+        // pitch = 76/16 = 4.75（高受限）、珠体 5.23 < 6 ⇒ 回退。
+        const level = simpleTestLevel({
+            rows: 16,
+            cols: 10,
+            pattern: Array.from({ length: 16 }, () => '1'.repeat(10)),
+        });
         const { pitch, block } = fullGeo(level, SLOT_W, SLOT_H);
         expect(pitch).toBeCloseTo(SLOT_H / level.pattern.length, 9); // 高受限 ⇒ 纵向满铺、横向居中
         for (const c of paintFull(level).filter((k) => k.kind === 'rect') as RectCmd[]) {
@@ -454,16 +460,16 @@ describe('[T-616/T-620] 选关缩略珠形档（接入盘面珠体腿）', () =>
         expect(paint(level, beadFadedInksFor(level), HANDDRAWN_STYLE_ID).length).toBe(drawn.length);
     });
 
-    it('块边 ≥ minBlock ⇒ 逐珠走 `drawFilledBead`（facet-4 = 1 rect + 4 polygon + 2 circle），珠体边长 = pitch × diameterRatio', () => {
+    it('珠体边长 ≥ minBeadEdge ⇒ 逐珠走 `drawFilledBead`（facet-4 = 1 rect + 4 polygon + 2 circle），珠体边长 = pitch × diameterRatio', () => {
         const level = LEVELS[0]!;
-        const { pitch, block } = fullGeo(level, SLOT_W, SLOT_H);
-        expect(block).toBeGreaterThanOrEqual(THUMB_BEAD_SHAPE.minBlock);
+        const { pitch } = fullGeo(level, SLOT_W, SLOT_H);
+        const size = pitch * THUMB_BEAD_SHAPE.diameterRatio;
+        expect(size).toBeGreaterThanOrEqual(THUMB_BEAD_SHAPE.minBeadEdge);
         const cmds = paint(level);
         const cells = levelThumbFullCells(level);
         const beads = cells.length / 3;
         // `[WXG-T-620]` 用户令「直接接入游戏中的珠面纹理」⇒ 珠面腿 = 盘面同款 facet-4 层集。
         expect(cmds.length).toBe(beads * 7);
-        const size = pitch * THUMB_BEAD_SHAPE.diameterRatio;
         expect(size).toBeGreaterThan(pitch); // 用户令「互相交错」保持：珠体 > 格距
         const inks = beadInksFor(level);
         const left = TX + (SLOT_W - level.cols * pitch) / 2;
@@ -503,17 +509,35 @@ describe('[T-616/T-620] 选关缩略珠形档（接入盘面珠体腿）', () =>
         }
     });
 
-    it('超大盘块边 < minBlock ⇒ 回退方块（零珠体腿命令，珠块不消失）', () => {
+    it('珠体边长 < minBeadEdge ⇒ 回退方块（零珠体腿命令，珠块不消失）', () => {
         const big = simpleTestLevel({
             rows: 30,
             cols: 30,
             pattern: Array.from({ length: 30 }, () => '1'.repeat(30)),
         });
-        const { block } = fullGeo(big, SLOT_W, SLOT_H);
-        expect(block).toBeLessThan(THUMB_BEAD_SHAPE.minBlock);
+        const { pitch } = fullGeo(big, SLOT_W, SLOT_H);
+        expect(pitch * THUMB_BEAD_SHAPE.diameterRatio).toBeLessThan(THUMB_BEAD_SHAPE.minBeadEdge);
         const cmds = paint(big);
         expect(cmds.filter((k) => k.kind === 'circle')).toHaveLength(0);
         expect(cmds.filter((k) => k.kind === 'polygon')).toHaveLength(0);
         expect(cmds.filter((k) => k.kind === 'rect')).toHaveLength(900);
+    });
+
+    /**
+     * `[WXG-T-622]` 选关格与详情橱窗共用「珠体边长」这一条回退换算：14×14 在 126×94 槽里
+     * 块边只有 4.71（旧口径误退方块），但真珠体 7.38 已可读 ⇒ 必须画珠。
+     */
+    it('14×14 在选关槽（旧块边 <5）仍逐珠走珠面腿：判据量珠体边长、⛔ 不量块边', () => {
+        const level = simpleTestLevel({
+            rows: 14,
+            cols: 14,
+            pattern: Array.from({ length: 14 }, () => '1'.repeat(14)),
+        });
+        const { pitch, block } = fullGeo(level, SLOT_W, SLOT_H);
+        expect(block).toBeLessThan(5); // 旧口径会在这里退方块
+        expect(pitch * THUMB_BEAD_SHAPE.diameterRatio).toBeGreaterThanOrEqual(THUMB_BEAD_SHAPE.minBeadEdge);
+        const cmds = paint(level);
+        expect(cmds.filter((k) => k.kind === 'polygon')).toHaveLength(14 * 14 * 4);
+        expect(cmds.filter((k) => k.kind === 'circle')).toHaveLength(14 * 14 * 2);
     });
 });

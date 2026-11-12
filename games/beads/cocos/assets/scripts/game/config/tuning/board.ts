@@ -57,14 +57,19 @@ export const BEAD_PITCH = 32;
 export const BEAD_GAP = 2;
 /**
  * `[WXG-T-616]` 选关九宫格缩略的**珠形档**：
- * 块边 ≥ `minBlock` 时逐珠走**盘面同款珠体腿** `drawFilledBead`（facet-4 层集，7 命令/珠），
- * 否则退化为方块（≤5px 时孔/描边只有 1px 级，反而是噪点）。
+ * 珠体边长 ≥ `minBeadEdge` 时逐珠走**盘面同款珠体腿** `drawFilledBead`（facet-4 层集，7 命令/珠），
+ * 否则退化为方块（珠体更小时孔/孔环/刻面内缩只剩 1px 级，反而是噪点）。
  * `[WXG-T-620]` 用户令「直接接入游戏中的珠面纹理」⇒ 自绘糖珠（剪影/暗面弧/柔光/高光点）
  * 整组退役，只留 `drawFilledBead` 的 `size` 与回退阈值；珠面 recipe 唯一真源回到
  * `view/bead-styles/facet-4.ts`（菜单不再有第二套珠体画法）。
+ *
+ * `[WXG-T-622]` **回退阈值改量「珠体边长」**（旧名 `minBlock` 量的是方块腿的 `pitch − 缝`）：
+ * 选关格与详情橱窗共用同一条换算，量的是**实际画出来的那一层**。旧口径在缝占比高的小盘上
+ * 过保守（14×14 的块边 4.71 < 5 被误退方块，而真珠体 7.38 已可读）⇒ 同一关两处缩略一珠一方块。
+ * 取 6 = 孔环 1px + 刻面内缩 1px 各占 ≤1/6 边长的可读下限；再小即糊成噪点。
  */
 export const THUMB_BEAD_SHAPE = {
-    minBlock: 5,
+    minBeadEdge: 6,
     /** 珠体**边长 / pitch**（= `drawFilledBead` 的 `size` 口径；>1 ⇒ 相邻珠交叠，用户令「互相交错」）。 */
     diameterRatio: 1.10,
 } as const;
