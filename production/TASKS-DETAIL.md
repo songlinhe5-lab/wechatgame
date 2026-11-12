@@ -9777,9 +9777,10 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
   - `view/menu-signage.ts::drawBeadFace`：`drawThumbOutline` 由首笔移到 pass 2（珠体 / 方块）之后 ⇒ 详情 / 选关缩略的线条压住边界珠外缘 W。
   - `view/play-page.ts::drawGrid`：`drawBoardOutline` 由格循环**前**移到循环**后**（DEBUG 轮廓之前）⇒ 盘面同上。
 - **判据**：`tests/thumb-outline.test.ts` 帖序断言由「首条命令」改「末条命令」为 `shadowInk` polygon；7 例全绿。
-- **封箱复评**：第二十三次复评（`K.5.1-补15`）——纯**帖序重排**，两帧 total / kinds 零变、仅 sha 变（0/0 重取），珠体族 `legacyFlow` 96/96 与 facet 45+45 零差；锚 = 本批代码 commit。
-- **金样本**：十一态全部仅 sha 变（条数零变），`ui-golden-capture.ts` 干净锚重抓。
-- **文档**：`level-detail-spec §12` 改「画在珠面之上」；`ui-architecture-beads §12` 登记。
-- **验证**：`pnpm run verify` 复跑见提交。
-- **提交**：见本批 commit（代码 + Cocos 镜像 + 文档 + 台账）；复评与金样本重抓同批回填。
+- **封箱复评**：第二十三次复评（`K.5.1-补15`）——纯**帖序重排**，两帧 total `1280` / `1826` 与 kinds 零变、仅 sha 变（0/0 重取），珠体族 `legacyFlow` 96/96 与 facet 45+45 零差；锚 = `461749cb`。
+- **金样本**：十一态全部仅 sha 变（条数零变），`ui-golden-capture.ts` 干净锚 `461749cb` 重抓（两遍确定性 PASS）。
+- **文档**：`level-detail-spec §12` 改「画在珠面之上」；`ui-architecture-beads §12` 登记；`test-cases-k-ledger-2 §K.5.1-补15` 复评文号入册。
+- **验证**：`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（含封箱 12 例、金样本 13 例、轮廓 7 例）。
+- **提交**：`461749cb`（代码 + Cocos 镜像 + 文档 + 台账）；复评与金样本重抓同批回填。
+- **台账预算**：`test-cases-k-ledger-2.md` 追加后 16203 tok 越 ledger 16000 门 ⇒ 按既有机制在 `ctx/budget-exempt.json` 登记（`WXG-T-928`，债务 = 下次触动前把 `补1–补9` 外移为 `test-cases-k-ledger-1b.md`）。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。

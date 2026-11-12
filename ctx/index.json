@@ -366,17 +366,17 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 4065,
-      "lines": 136,
-      "sha256": "5ea8598d76faad2a1abab11a871251fc07374654bafcd86a2fd2b681790d1fd5",
+      "tokens": 4105,
+      "lines": 137,
+      "sha256": "b6cdf3e0245325963eeb801b8b497e8a90f325ab57b2316c8d06a5c15c515996",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文预算报表（ctx/BUDGET.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 137,
-          "tokens": 4052,
+          "endLine": 138,
+          "tokens": 4092,
           "summary": "生成：2026-11-12 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 292787 9785 normal",
+          "summary": "1 production/TASKS-DETAIL.md 292906 9786 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -420,8 +420,8 @@
           "anchor": "§3 超限清单（超过所属类别上限）",
           "level": 2,
           "startLine": 46,
-          "endLine": 111,
-          "tokens": 2556,
+          "endLine": 112,
+          "tokens": 2596,
           "summary": "上限按文档类别分档（WXG-T-377）：spec 8000（判据/规格/提案/ADR/GDD/UX/skill，未放松",
           "keywords": [
             "WXG",
@@ -435,8 +435,8 @@
         {
           "anchor": "§4 真实最常用章节与分布加权节省率（估算）",
           "level": 2,
-          "startLine": 112,
-          "endLine": 137,
+          "startLine": 113,
+          "endLine": 138,
           "tokens": 612,
           "summary": "数据源：ctx/usage-distribution.json（真实读事件账本），样本 457 次读取 / 20 会话；",
           "keywords": [
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5291,
       "lines": 164,
-      "sha256": "9164838b422bc34a3d91d57b18680f59e2b86b141c83ab79be891ad3e8965b4f",
+      "sha256": "0627db087db6a4d8d26d189889ca28328904d925d94e3f484847e3b0c6ed80ec",
       "tier": "normal",
       "sections": [
         {
@@ -1080,12 +1080,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 9785 行 / 292787 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 9786 行 / 292906 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+9786 · §WXG-T-917=9605+17 · §WXG-T-9",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+9787 · §WXG-T-917=9605+17 · §WXG-T-9",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -89930,17 +89930,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 292787,
-      "lines": 9785,
-      "sha256": "cf3b81fcc29f665b179e60b5312d24534fecdac199478558e1f65da873989e90",
+      "tokens": 292906,
+      "lines": 9786,
+      "sha256": "f30f9e64811ecf9be306b7370a12fc46128dd2b97be721415b6a8eace5f4c7ba",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 9786,
-          "tokens": 292770,
+          "endLine": 9787,
+          "tokens": 292890,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -104709,8 +104709,8 @@
           "anchor": "§WXG-T-928",
           "level": 2,
           "startLine": 9771,
-          "endLine": 9786,
-          "tokens": 447,
+          "endLine": 9787,
+          "tokens": 566,
           "summary": "UX·珠面描边改盖在珠面之上（末笔覆层） · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成（2",
           "keywords": [
             "WXG",
@@ -115298,9 +115298,9 @@
     },
     {
       "path": "production/qa/beads/test-cases-k-ledger-2.md",
-      "tokens": 15918,
-      "lines": 177,
-      "sha256": "1f06b6f87523a39385109583560bdb2337fc687658af3a2752c18bc5d8647c7e",
+      "tokens": 16203,
+      "lines": 184,
+      "sha256": "71c6525f1c54ccb6b56f9b042b77f43c5c2d43e0351a38f22b5e847c9b44cbab",
       "tier": "normal",
       "sections": [
         {
@@ -115496,10 +115496,26 @@
           ]
         },
         {
-          "anchor": "§K.6 `06` 珐琅 —— **只登记出池门引用，本批不造判据**（Q1 = 甲）",
+          "anchor": "§K.5.1-补15 整帧基线第二十三次复评修订（2026-11-12 · WXG-T-928 珠面描边改盖在珠面之上 · 正本 = provenance `s3_frame_recheck_23`）",
           "level": 3,
           "startLine": 165,
-          "endLine": 173,
+          "endLine": 171,
+          "tokens": 237,
+          "summary": "通道声明：属纯帖序重排（用户令「珠面描边要盖在珠面上面」⇒ drawBeadFace 轮廓移 pass 2 之后、dra",
+          "keywords": [
+            "s3_frame_recheck_23",
+            "WXG",
+            "provenance",
+            "drawBeadFace",
+            "pass",
+            "dra"
+          ]
+        },
+        {
+          "anchor": "§K.6 `06` 珐琅 —— **只登记出池门引用，本批不造判据**（Q1 = 甲）",
+          "level": 3,
+          "startLine": 172,
+          "endLine": 180,
           "tokens": 357,
           "summary": "引用项 内容 出处 QA 处置",
           "keywords": [
@@ -115513,8 +115529,8 @@
         {
           "anchor": "§K.7 本节残留与回改触发器（诚实登记，不得被\"已建例\"掩盖）",
           "level": 3,
-          "startLine": 174,
-          "endLine": 178,
+          "startLine": 181,
+          "endLine": 185,
           "tokens": 288,
           "summary": "① assets-spec 7.13 判据 ③ 的「C12 强读法」引用行需 art 订正（K.6）；② C12 弱读的",
           "keywords": [
