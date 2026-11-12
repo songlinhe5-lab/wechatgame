@@ -9677,3 +9677,16 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：beads 单测 **1471 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；金样本十一帧零漂移（锁判据等价变换：shell 投影后视图判定逐字不变）。
 - **提交**：`2ce6a6ba` refactor（两处豁免腿退役 + 注释/规格补注 + Cocos 镜像 + 台账）＋ 本笔 docs（台账回填）。
 - **知识沉淀（kb:sync --task=WXG-T-921）**：新增 0 / 修改 0 / 激活 0 / 归档 0（「判据旁路清零」写在 `meta-widgets` / `level-select-view-model` 行内注与 `arc-level-select-spec §4.1` v1.15 补注）。
+
+## WXG-T-922
+
+**QA·门票→章 2 开打通路串联验收（实帧）** · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成（2026-11-12 · 用户令「执行串联验收」）
+
+- **范围**：T-918（详情图案落托盘）/ T-919（锁态不可进）/ T-920（解锁前沿）/ T-921（锁判据单源）四条收口后的整链实证：门票达成 → 首页章 2 → 点卡 → 选关页 → 点格 → 详情 → 开始 → 进关。
+- **方法**：CDP 真鼠标事件（`Input.dispatchMouseEvent`，设计坐标 → CSS 换算），⛔ 不经 shell 私有方法；夹具 = 前章 9 关全通 27★（`_maxUnlockedIndex=8`）。
+- **断言（14/14 PASS）**：① 首页三态 `pushing`；② 陈列关 = 第 10 关；③ 木牌第二行回落「第 N 关」（非状态词）；④ 推进位仍 9（展示腿不落档）；⑤ 点卡进 `levels`；⑥ 章首格高亮 `currentLevelIndex=9`；⑦ 选关页解锁前沿 10；⑧ 点格进 `level-detail`；⑨ 详情关 = 10；⑩ 点「开始」进 play；⑪ 相位 playing；⑫ 关指针 = 9（第 10 关）；⑬ 推进位棘轮 10（`unlockAcrossArc`）；⑭ 扣 1 心（7→6）。
+- **实帧**：`temp/e2e-ticket-922/1-menu-ch2.png`（boss 树 + 「照片冒烟 32 / 第 10 关」）、`2-levels-ch2.png`（章首格解锁高亮 + 8 锁格）、`3-detail-10.png`（图案落托盘居中、副标题「照片冒烟 32·第 10 关」）、`4-play-10.png`。temp 不入库。
+- **代码改动**：无（纯验收）。
+- **验证**：CDP 脚本 14/14 PASS；`pnpm run verify` 未重跑（零代码改动；上一任务 PASS 23 仍成立）。
+- **提交**：待填。
+- **知识沉淀**：无（验证任务，不产判例）。
