@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4065,
       "lines": 136,
-      "sha256": "a4c7b0f932391b83464aaf1cac5af437c6c98ce0a9123b2ef0c1689f0de4dd78",
+      "sha256": "d4dc056edde6dad1c7979d6b432d3fdcd4b4d7e370d9b1495016dc85d0955755",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 287313 9665 normal",
+          "summary": "1 production/TASKS-DETAIL.md 287358 9665 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5290,
       "lines": 164,
-      "sha256": "0dc6a22852c8fae24fb9c7e134fb33f1b768bccf1fc5c8e353fe4e853f5ca477",
+      "sha256": "42d6bf3ed5c2abd803621eeac283decff0c1e6b2ccce469079a3460bbff08360",
       "tier": "normal",
       "sections": [
         {
@@ -1080,7 +1080,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 9665 行 / 287313 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 9665 行 / 287358 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
@@ -89929,9 +89929,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 287313,
+      "tokens": 287358,
       "lines": 9665,
-      "sha256": "9548fe68659a1d9eac983e97b6deb7870c5f12c232ea9397ccb5304b03f4ead9",
+      "sha256": "82a2b05014b2b5c6403ce2a7aef1dd5714665d564f48d329da223e68d67ec0a9",
       "tier": "normal",
       "sections": [
         {
@@ -89939,7 +89939,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 9666,
-          "tokens": 287296,
+          "tokens": 287341,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -104602,7 +104602,7 @@
           "level": 2,
           "startLine": 9652,
           "endLine": 9666,
-          "tokens": 751,
+          "tokens": 796,
           "summary": "架构·「解锁」判据收拢 _unlockedFrontier · 负责：主理人(Trae CN)·beads 工程轨 · ",
           "keywords": [
             "WXG",

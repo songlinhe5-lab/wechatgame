@@ -9661,5 +9661,5 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **判据**：`arc-ticket-gate.test.ts` 新增 4 断言——门票达成 ⇒ 三态 `pushing`、`carouselSeqLabel` 回落「第 N 关」、推进位仍 9、选关页 `currentLevelIndex = 9`；门票未达 ⇒ 仍 `locked` + 「未开启」。
 - **实帧日志**：`temp/gate-open-diag`（CDP）：24★ ⇒ `carouselState: pushing / gateOpen: true / chip: null`；开选关页 ⇒ `currentLevelIndex: 9 / viewMaxUnlocked: 10`。temp 不入库。
 - **验证**：beads 单测 **1471 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；金样本十一帧零漂移（golden 场景均首章 / 门票未变）。实帧：`carouselState: pushing / currentLevelIndex: 9 / viewMaxUnlocked: 10`。
-- **提交**：待填。
+- **提交**：`e2929857` refactor（判据收拢 + 闸门/三态/高亮同源 + 判据 4 断言 + 规格 v1.15 + Cocos 镜像 + 台账）＋ 本笔 docs（台账回填）。
 - **知识沉淀（kb:sync --task=WXG-T-920）**：新增 0 / 修改 0 / 激活 0 / 归档 0（判据收拢写在 `_unlockedFrontier` 注释与 `arc-level-select-spec §4.1` v1.15；「门票 ⇒ 章首必解锁」由用户判据直接给定，无新判例）。
