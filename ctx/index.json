@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4065,
       "lines": 136,
-      "sha256": "e06e134cebea8b62ec4ce20766a8498cb537ea66483a06b63e9aaea762faa004",
+      "sha256": "26687950a083eba493a4af200a7e7542ed34aff85eda22b3c7fe0edb341dfbaf",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 287943 9679 normal",
+          "summary": "1 production/TASKS-DETAIL.md 287980 9679 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5290,
       "lines": 164,
-      "sha256": "150b81445d07019b0af36a9962859e491663bcfae462b169ad787b6332980627",
+      "sha256": "e98984f1b245e3b2a332a9580c1d1ff423a0cf6afc53cc9ceb2e6816c0dbee07",
       "tier": "normal",
       "sections": [
         {
@@ -1080,7 +1080,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 9679 行 / 287943 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 9679 行 / 287980 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
@@ -89929,9 +89929,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 287943,
+      "tokens": 287980,
       "lines": 9679,
-      "sha256": "f89529f77b3072e9cf878ab55afb951930fcc48adf907b5063a04efc679d6919",
+      "sha256": "150a8812a4766c5c23461ae49e9c33c79855c1e06a226d649735d38ef6247468",
       "tier": "normal",
       "sections": [
         {
@@ -89939,7 +89939,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 9680,
-          "tokens": 287927,
+          "tokens": 287963,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -104616,7 +104616,7 @@
           "level": 2,
           "startLine": 9667,
           "endLine": 9680,
-          "tokens": 582,
+          "tokens": 619,
           "summary": "架构·视图删章首门票豁免腿（锁判据单源） · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成（2",
           "keywords": [
             "WXG",

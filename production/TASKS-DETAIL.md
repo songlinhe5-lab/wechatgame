@@ -9675,5 +9675,5 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **判据**：既有 1471 例全绿（视图测试无 `gateOpensFirst` 依赖，无需改例）；`pnpm run verify` PASS 23；金样本零漂移。
 - **实帧**：`temp/levels-shot-921/levels-ch2-open.png`——章 2 页唯一格（第 10 关）= 作品缩略 + 三空星 + 金星框高亮；其余 8 格锁图占位（编号牌留白）。`currentLevelIndex: 9 / maxUnlockedLevel: 10`。temp 不入库。
 - **验证**：beads 单测 **1471 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；金样本十一帧零漂移（锁判据等价变换：shell 投影后视图判定逐字不变）。
-- **提交**：待填。
+- **提交**：`2ce6a6ba` refactor（两处豁免腿退役 + 注释/规格补注 + Cocos 镜像 + 台账）＋ 本笔 docs（台账回填）。
 - **知识沉淀（kb:sync --task=WXG-T-921）**：新增 0 / 修改 0 / 激活 0 / 归档 0（「判据旁路清零」写在 `meta-widgets` / `level-select-view-model` 行内注与 `arc-level-select-spec §4.1` v1.15 补注）。
