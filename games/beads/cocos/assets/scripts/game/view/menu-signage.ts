@@ -60,6 +60,7 @@ import { signGlyphOf } from '../config/sign-glyphs';
 import { DEFAULT_BEAD_STYLE_ID } from '../config/bead-styles/registry';
 import { colorIndexOfChar } from '../config/bead-charset';
 import type { BeadsLevelRaw } from '../config/levels-data';
+import { drawThumbOutline } from './bead-outline';
 import {
     DEMO_BEAD_INKS,
     beadColorOf,
@@ -471,6 +472,8 @@ export function levelThumbLockedCells(level: BeadsLevelRaw): readonly number[] {
  * @param beadSize 豆径档（`[WXG-T-910]` 与盘面同参：小豆档 ⇒ `hideHole` + `holeless`；缺省 = 满豆）。
  * @param anchor   `[WXG-T-918]` 盘的竖向锚：`'center'`（缺省，槽内垂直居中）｜`'bottom'`
  *   （图案**实际底缘**贴 `yBottom`，高盘宽盘同口径 —— 详情页「图案落在托盘上」用）。
+ * @param outline  `[WXG-T-925]` 是否画「贴纸裁切」外轮廓（`bead-outline.ts`，art 裁定；
+ *   仅详情橱窗启用，缺省不画 ⇒ 选关格 / 作品墙零变化）。
  */
 export function drawBeadFace(
     builder: RenderModelBuilder,
@@ -484,6 +487,7 @@ export function drawBeadFace(
     styleId?: string,
     beadSize?: BeadSizeKind,
     anchor: 'center' | 'bottom' = 'center',
+    outline = false,
 ): void {
     const cells = levelThumbFullCells(level);
     const locked = levelThumbLockedCells(level);
@@ -494,6 +498,8 @@ export function drawBeadFace(
     const left = x + (w - cols * pitch) / 2;
     // `'bottom'`：宽盘（rows·pitch < h）也把**实际底缘**贴到 yBottom；`'center'` = 槽内居中。
     const top = anchor === 'bottom' ? yBottom + rows * pitch : yBottom + (h + rows * pitch) / 2;
+    // `[WXG-T-925]` 贴纸外轮廓：先画轮廓、后画珠面（只露剪影外侧一圈），仅详情橱窗启用。
+    if (outline) drawThumbOutline(builder, level, left, top, pitch, palette.panel);
     const inks = inkOverride ?? beadInksFor(level);
     // `[WXG-T-910]` 与盘面同参（`play-page::sizeSmall` 同式）：无条件写槽 ⇒ pass 1 底块与
     // pass 2 珠体同档；回退方块腿不读珠槽 ⇒ 无串味。

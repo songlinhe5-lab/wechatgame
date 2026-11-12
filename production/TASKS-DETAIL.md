@@ -9720,3 +9720,17 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；`level-detail-showcase` 4 例全绿；`harness:build` ✅（Cocos 镜像同批）。
 - **提交**：`ec3b0127`（代码 + Cocos 镜像 + `level-detail-spec §11/§12` / `ui-architecture-beads §12` + 台账）。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**（「占位框换展示口径」已有 K 条目覆盖，无新增候选）。
+
+## WXG-T-925
+
+**UX·详情橱窗珠面贴纸轮廓（art 裁定颜色与效果）** · 负责：主理人(Trae CN)·beads 工程轨 + art（林绘澄）· 状态：✅ 完成（2026-11-12）
+
+- **用户原话**：「珠面需要增加一圈轮廓，轮廓折叠处需要有圆角，轮廓的颜色和效果请art帮我裁定」。
+- **art 裁定（林绘澄）**：① 颜色 = `palette.panel`（暖纸白 `#FFFCF6`），不新增色值；② 单层实线，无双层 / 投影 / 发光 / 渐变；③ 线宽 `W = clamp(round(pitch×0.18), 2, 6)`，沿剪影外缘向外扩、不侵占珠面；④ 折叠处折角 `R = clamp(round(pitch×0.22), 2, 6)`；⑤ 仅详情橱窗（选关格 / 作品墙已有木框包边）；⑥ 不做荧光 / 逐颗描边 / 状态换色。
+- **变更**：新增 `src/view/bead-outline.ts`——按 `pattern`（非 `.` 格，含 `x` 锁定格）提边界环（全 90°），凸角画半径 W 的四分之一圆盘（只落外侧象限）、凹角折叠画圆环（内 R+W / 外 R ⇒ 可见折角 = R、带宽恒 W）、直边画矩形条；形状按（left, top, pitch）WeakMap 缓存。`drawBeadFace` 尾参新增 `outline`（缺省 false）；详情页传 true。轮廓在珠面之前绘制 ⇒ 只露外圈。
+- **判据**：新增 `tests/thumb-outline.test.ts` 5 例（W/R 公式钳制、单格 4 圆盘+4 条、L 形 5 凸+1 凹角环（14 点）、外缘包络不越界、仅 outline=true 时出现且首命令为 panel 色）；`level-detail-showcase` 参照腿同步带轮廓（同参切片）。
+- **实帧**：`temp/detail-shot-924` 三档重拍——L4 12×12（折角明显圆滑、带宽 5）、L7 14×8 宽盘（拱形折叠圆角）、L9 30×30（W=2 细边，无噪点）。temp 不入库。
+- **文档**：`level-detail-spec §12` 增贴纸外轮廓条（art 裁定六项）；`ui-architecture-beads §12` 登记。
+- **验证**：`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；`thumb-outline` 5 例 + `level-detail-showcase` 4 例全绿；`harness:build` ✅（Cocos 镜像同批）。
+- **提交**：见本批 commit（代码 + Cocos 镜像 + `level-detail-spec §12` / `ui-architecture-beads §12` + 台账）。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**（轮廓几何口径已由本单规格与新判据承载，无新增 K 候选）。
