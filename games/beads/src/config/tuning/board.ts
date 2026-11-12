@@ -62,6 +62,8 @@ export const BEAD_GAP = 2;
  */
 export const THUMB_BEAD_SHAPE = {
     minBlock: 5,
+    /** `[WXG-T-616·二轮]` 珠体**直径 / pitch**（>1 ⇒ 相邻珠交叠、连成一片，用户令「互相交错」）。 */
+    diameterRatio: 1.18,
     /** 孔半径 / 珠体半径（同 `BEAD_CARD.holeRatio` 量级，缩略更收一点防糊）。 */
     holeRatio: 0.30,
     /** 高光半径 / 珠体半径。 */

@@ -61,6 +61,7 @@ import { drawFilledBead, type FilledBeadOptions } from '../src/view/bead-render.
 import { DEBUG_OUTLINE_TILE_HEX, DEFAULT_PALETTE, DEMO_BEAD_INKS, beadFadedInksFor, beadGrayInksFor, beadInksFor } from '../src/view/palette.js';
 import {
     BEAD_GAP,
+    THUMB_BEAD_SHAPE,
     DESIGN_H,
     DESIGN_W,
     MENU_V2,
@@ -229,26 +230,29 @@ function centerTuple(box: { x: number; y: number; w: number; h: number }): [numb
  * 常量口径退场）；且 levels 帧背景透出的走马灯 Boss 珠拼（30×30 盘，块边 10.47）横跨墙区，
  * 会落进部分格的图案槽矩形 ⇒ 须按**期望块边**机械排除。
  */
-function blockEdgeOf(level: (typeof LEVELS)[number]): number {
+function thumbMetrics(level: (typeof LEVELS)[number]): { pitch: number; block: number } {
     const a = LEVEL_SELECT_GEO.cellArt;
     const pitch = Math.min(a.imageW / level.cols, a.imageH / level.pattern.length);
     const gap = pitch < BEAD_GAP * 2 ? pitch * 0.4 : BEAD_GAP;
-    return pitch - gap;
+    return { pitch, block: pitch - gap };
 }
 
 /**
  * 盘面色块的**空间签名**（`[WXG-T-502]`：缩略只画盘面 ⇒ 一格一块；`[WXG-T-616]` 块够大时
  * 一格 = 珠体圆，超大盘回退方块）。
  * `[WXG-T-613]` 双口径过滤：**图案槽矩形内**（缩略珠恒落 `cellArt` 图案槽，格框外
- * 的走马灯珠拼不捞）+ **块边 = 期望关块边**（槽内误入的背景珠块边不同 ⇒ 排除）。
- * `[WXG-T-616]` 珠形档只认**珠体**（圆半径 = 块边/2）；孔/高光小圆半径不符 ⇒ 自动排除。
+ * 的走马灯珠拼不捞）+ **期望珠径/块边**（槽内误入的背景珠尺寸不同 ⇒ 排除）。
+ * `[WXG-T-616]` 珠形档只认**珠体**（圆直径 = pitch × `diameterRatio`，相邻交叠）；孔/高光小圆不符 ⇒ 排除。
  */
 function beadSignatureIn(
     cmds: readonly DrawCommand[],
     box: { x: number; y: number; w: number; h: number },
-    edge: number,
+    level: (typeof LEVELS)[number],
 ): string {
     const a = LEVEL_SELECT_GEO.cellArt;
+    const { pitch, block } = thumbMetrics(level);
+    const shaped = block >= THUMB_BEAD_SHAPE.minBlock;
+    const edge = shaped ? pitch * THUMB_BEAD_SHAPE.diameterRatio : block;
     const ix0 = box.x + a.imageLeft;
     const iy0 = box.y + (box.h - a.imageTopDown - a.imageH);
     return cmds
@@ -285,7 +289,7 @@ function thumbOracle(level: (typeof LEVELS)[number], box: { x: number; y: number
     builder.begin();
     const a = LEVEL_SELECT_GEO.cellArt;
     drawLevelThumbFull(builder, level, box.x + a.imageLeft, box.y + (box.h - a.imageTopDown - a.imageH), a.imageW, a.imageH);
-    return beadSignatureIn(builder.end().commands, box, blockEdgeOf(level));
+    return beadSignatureIn(builder.end().commands, box, level);
 }
 
 /**
@@ -295,7 +299,7 @@ function thumbOracle(level: (typeof LEVELS)[number], box: { x: number; y: number
  */
 function levelIdByThumb(cmds: readonly DrawCommand[], cell: { box: { x: number; y: number; w: number; h: number } }): number {
     for (let i = 0; i < LEVELS.length; i++) {
-        const sig = beadSignatureIn(cmds, cell.box, blockEdgeOf(LEVELS[i]!));
+        const sig = beadSignatureIn(cmds, cell.box, LEVELS[i]!);
         if (sig !== '' && sig === thumbOracle(LEVELS[i]!, cell.box)) return i + 1;
     }
     return 0;
@@ -305,7 +309,7 @@ function levelIdByThumb(cmds: readonly DrawCommand[], cell: { box: { x: number; 
 function beadsInCell(cmds: readonly DrawCommand[], cell: { box: { x: number; y: number; w: number; h: number }; slot?: number }): number {
     const lv = cell.slot === undefined ? undefined : LEVELS[cell.slot];
     if (lv === undefined) return 0;
-    return beadSignatureIn(cmds, cell.box, blockEdgeOf(lv)).split('\n').filter((s) => s.length > 0).length;
+    return beadSignatureIn(cmds, cell.box, lv).split('\n').filter((s) => s.length > 0).length;
 }
 
 /** 格内星带文本数（★/☆ 串）——四通道之一；锁格也显示 ☆☆☆（WXG-T-606 用户令）。 */

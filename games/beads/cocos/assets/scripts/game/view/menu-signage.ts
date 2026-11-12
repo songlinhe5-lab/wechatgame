@@ -420,9 +420,11 @@ export function drawLevelThumbFull(
      * `[WXG-T-616]` 用户令「用有造型的珠子做效果拼接」：块够大时逐珠改画
      * **珠体圆 + 孔 + 左上高光**（三圆，色全取预烘端点表 ⇒ 热路径只查表）；
      * 块边 < `minBlock` 的超大盘回退方块，避免 1px 级孔/高光糊成噪点。
+     * `[WXG-T-616·二轮]` 用户令「珠子直径大一些、互相交错」⇒ 珠径按 **pitch × diameterRatio**
+     * （>1 相邻交叠 ≈18%），孔/高光仍按珠体半径归一。
      */
     const shaped = block >= THUMB_BEAD_SHAPE.minBlock;
-    const bodyR = block / 2;
+    const bodyR = (pitch * THUMB_BEAD_SHAPE.diameterRatio) / 2;
     const holeR = bodyR * THUMB_BEAD_SHAPE.holeRatio;
     const glintR = bodyR * THUMB_BEAD_SHAPE.glintRatio;
     const glintDx = bodyR * THUMB_BEAD_SHAPE.glintDx;

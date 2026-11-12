@@ -448,13 +448,15 @@ describe('[T-616] 选关缩略珠形档（有造型的珠子）', () => {
 
     it('块边 ≥ minBlock ⇒ 逐珠 3 圆（珠体 / 孔 / 左上高光），珠体色 ∈ 关卡墨集', () => {
         const level = LEVELS[0]!;
-        const { block } = fullGeo(level, SLOT_W, SLOT_H);
+        const { pitch, block } = fullGeo(level, SLOT_W, SLOT_H);
         expect(block).toBeGreaterThanOrEqual(THUMB_BEAD_SHAPE.minBlock);
         const circles = paint(level).filter((k): k is CircleCmd => k.kind === 'circle');
         const beads = levelThumbFullCells(level).length / 3;
         expect(circles.length).toBe(beads * 3);
         const inks = beadInksFor(level);
-        const bodyR = block / 2;
+        // `[WXG-T-616·二轮]` 珠径 = pitch × diameterRatio（>1 ⇒ 相邻珠交叠，用户令「互相交错」）。
+        const bodyR = (pitch * THUMB_BEAD_SHAPE.diameterRatio) / 2;
+        expect(bodyR * 2).toBeGreaterThan(pitch);
         for (let i = 0; i < beads; i += 1) {
             const body = circles[i * 3]!;
             const hole = circles[i * 3 + 1]!;
