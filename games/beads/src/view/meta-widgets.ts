@@ -341,8 +341,7 @@ export function drawLevelSelectCell(
     // `[WXG-T-616]` 用户令「图案尺寸太小」⇒ 槽放大到 126×94 @(16, 距顶 39)；锁图仍按原生比例居中。
     const ix = x + a.imageLeft;
     const iy = y + (h - a.imageTopDown - a.imageH);
-    if (cell.locked || cell.levelIdx === undefined) {
-        if (menuBitmapReady(LEVEL_SELECT_TEXTURES.lockImage)) {
+    if (cell.locked || cell.levelIdx === undefined) {        if (menuBitmapReady(LEVEL_SELECT_TEXTURES.lockImage)) {
             const lockW = a.imageH * (a.lockW / a.lockH);
             builder.blit(LEVEL_SELECT_TEXTURES.lockImage, ix + (a.imageW - lockW) / 2, iy, lockW, a.imageH);
         } else if (cell.level !== undefined) {
@@ -352,6 +351,8 @@ export function drawLevelSelectCell(
         return;
     }
     if (cell.level !== undefined) {
+        // `[WXG-T-616·三轮]` 实心背板（参考图：珠面坐在暖纸白底板上，衬托珠色与整体轮廓）。
+        builder.rect(ix, iy, a.imageW, a.imageH, { fill: palette.panel, radius: 8 });
         drawLevelThumbFull(builder, cell.level, ix, iy, a.imageW, a.imageH);
         drawCellStars(builder, cell, palette);
     }

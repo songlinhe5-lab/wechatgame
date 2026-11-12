@@ -187,14 +187,16 @@ describe('WXG-T-605 · 格内与转场', () => {
         const first = cells()[0]!.box;
         const bandTop = first.y + first.h - THUMB_TOP_INSET;
         // `[WXG-T-616]` 珠形档 = 三圆/珠（珠体/孔/高光），旧聚合档与超大盘回退仍是方块 ⇒ 两形态都收。
+        // `[WXG-T-616]` 珠形档 = 剪影层 + 三圆/珠；剪影层直径超块边 ⇒ 只收**珠体**（有描边）。
         const blocks = cmds.filter(
             (c): c is Extract<DrawCommand, { kind: 'rect' }> | Extract<DrawCommand, { kind: 'circle' }> => {
                 if (c.kind === 'circle') {
+                    if (c.stroke === undefined) return false;
                     return c.x - c.r > first.x + 1 && c.x + c.r < first.x + first.w - 1 &&
                         c.y - c.r > first.y + 1 && c.y + c.r <= bandTop + 1;
                 }
                 if (c.kind !== 'rect') return false;
-                return c.x > first.x + 1 && c.x + c.w < first.x + first.w - 1 &&
+                return c.w <= 20 && c.h <= 20 && c.x > first.x + 1 && c.x + c.w < first.x + first.w - 1 &&
                     c.y > first.y + 1 && c.y + c.h <= bandTop + 1;
             },
         );

@@ -422,13 +422,29 @@ export function drawLevelThumbFull(
      * 块边 < `minBlock` 的超大盘回退方块，避免 1px 级孔/高光糊成噪点。
      * `[WXG-T-616·二轮]` 用户令「珠子直径大一些、互相交错」⇒ 珠径按 **pitch × diameterRatio**
      * （>1 相邻交叠 ≈18%），孔/高光仍按珠体半径归一。
+     * `[WXG-T-616·三轮]` 用户令「立体优化、整体加个轮廓」⇒ ①先全盘铺一遍**剪影圆**
+     * （`shadeOuter`，并集成整体轮廓，珠体盖住内部只留边缘）；②珠体加 `edge` 暗缘描边；
+     * ③孔色由 pit 提到更深的 hole。命令数 +1/珠（轮廓层）。
      */
     const shaped = block >= THUMB_BEAD_SHAPE.minBlock;
     const bodyR = (pitch * THUMB_BEAD_SHAPE.diameterRatio) / 2;
+    const outlineR = bodyR * (1 + THUMB_BEAD_SHAPE.outlineRatio);
+    const rimW = bodyR * THUMB_BEAD_SHAPE.rimRatio;
     const holeR = bodyR * THUMB_BEAD_SHAPE.holeRatio;
     const glintR = bodyR * THUMB_BEAD_SHAPE.glintRatio;
     const glintDx = bodyR * THUMB_BEAD_SHAPE.glintDx;
     const glintDy = bodyR * THUMB_BEAD_SHAPE.glintDy;
+    if (shaped) {
+        // 剪影层：所有珠先铺暗圆 ⇒ 相邻并集，内部被下一轮珠体盖住，只在整体边缘露出轮廓。
+        for (let i = 0; i < cells.length; i += 3) {
+            const r = cells[i]!;
+            const c = cells[i + 1]!;
+            const idx = cells[i + 2]!;
+            const cx = left + (c + 0.5) * pitch;
+            const cy = top - (r + 0.5) * pitch;
+            builder.circle(cx, cy, outlineR, { fill: endpointOf(inks, idx).shadeOuter, ...(fillAlpha ?? {}) });
+        }
+    }
     for (let i = 0; i < cells.length; i += 3) {
         const r = cells[i]!;
         const c = cells[i + 1]!;
@@ -437,8 +453,8 @@ export function drawLevelThumbFull(
         const cy = top - (r + 0.5) * pitch;
         if (shaped) {
             const ep = endpointOf(inks, idx);
-            builder.circle(cx, cy, bodyR, { fill: ep.base, ...(fillAlpha ?? {}) });
-            builder.circle(cx, cy, holeR, { fill: ep.pit, ...(fillAlpha ?? {}) });
+            builder.circle(cx, cy, bodyR, { fill: ep.base, stroke: ep.edge, lineWidth: rimW, ...(fillAlpha ?? {}) });
+            builder.circle(cx, cy, holeR, { fill: ep.hole, ...(fillAlpha ?? {}) });
             builder.circle(cx - glintDx, cy + glintDy, glintR, { fill: ep.lit, ...(fillAlpha ?? {}) });
         } else {
             builder.rect(cx - block / 2, cy - block / 2, block, block, {

@@ -446,23 +446,29 @@ describe('[T-616] 选关缩略珠形档（有造型的珠子）', () => {
         return builder.end().commands;
     }
 
-    it('块边 ≥ minBlock ⇒ 逐珠 3 圆（珠体 / 孔 / 左上高光），珠体色 ∈ 关卡墨集', () => {
+    it('块边 ≥ minBlock ⇒ 剪影层 + 逐珠 3 圆（珠体 / 孔 / 左上高光），珠体色 ∈ 关卡墨集', () => {
         const level = LEVELS[0]!;
         const { pitch, block } = fullGeo(level, SLOT_W, SLOT_H);
         expect(block).toBeGreaterThanOrEqual(THUMB_BEAD_SHAPE.minBlock);
         const circles = paint(level).filter((k): k is CircleCmd => k.kind === 'circle');
         const beads = levelThumbFullCells(level).length / 3;
-        expect(circles.length).toBe(beads * 3);
+        // `[WXG-T-616·三轮]` 剪影层（整盘先铺一遍暗圆并集）+ 每珠 body/hole/glint。
+        expect(circles.length).toBe(beads * 4);
         const inks = beadInksFor(level);
         // `[WXG-T-616·二轮]` 珠径 = pitch × diameterRatio（>1 ⇒ 相邻珠交叠，用户令「互相交错」）。
         const bodyR = (pitch * THUMB_BEAD_SHAPE.diameterRatio) / 2;
         expect(bodyR * 2).toBeGreaterThan(pitch);
         for (let i = 0; i < beads; i += 1) {
-            const body = circles[i * 3]!;
-            const hole = circles[i * 3 + 1]!;
-            const glint = circles[i * 3 + 2]!;
+            const outline = circles[i]!;
+            expect(outline.r).toBeCloseTo(bodyR * (1 + THUMB_BEAD_SHAPE.outlineRatio), 6);
+            const body = circles[beads + i * 3]!;
+            const hole = circles[beads + i * 3 + 1]!;
+            const glint = circles[beads + i * 3 + 2]!;
             expect(body.r).toBeCloseTo(bodyR, 6);
             expect(inks.hexes).toContain(body.fill!);
+            // `[WXG-T-616·三轮]` 逐珠立体暗缘 = edge 描边。
+            expect(body.stroke).toBeDefined();
+            expect(body.lineWidth).toBeCloseTo(bodyR * THUMB_BEAD_SHAPE.rimRatio, 6);
             expect(hole.x).toBeCloseTo(body.x, 6);
             expect(hole.y).toBeCloseTo(body.y, 6);
             expect(hole.r).toBeCloseTo(bodyR * THUMB_BEAD_SHAPE.holeRatio, 6);
