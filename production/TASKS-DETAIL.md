@@ -9504,4 +9504,6 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **变更**：① 新增 `levelThumbLockedCells`（`x` 格 `[r,c]` WeakMap 缓存，与 `levelThumbFullCells` 同型、每帧零分配）；② `drawBeadFace` 第 7 参 `palette`（锁定格 `locked` / 叉线 `background` 的唯一色源，⛔ 不自拟 hex）；③ 执行序 = **全部底块（`drawTargetTile`，与盘面同一把尺）→ 锁格 → 全部珠/块**（两趟；珠体 1.10 > pitch，逐格交错会让后格底块 0.5 外扩啃前珠右/下沿）；④ `drawLockedBead` 增可选 `lineWidth`（默认 2 ⇒ 盘面命令流零漂移；缩略传 1，7~9px 珠体上 2px 叉会糊死）；⑤ `THUMB_BEAD_SHAPE` 不变（1.10 交叠为用户既有令，不回退）。
 - **效果（harness 实帧）**：选关九宫格与详情橱窗的缩略图由「散珠 + 纸底」变为「连续目标色马赛克 + 珠面」，与盘面同读法；30×30 选关格仍按 T-622 回退方块（底块同时补齐，读作密集像素图）。截图证据 `temp/thumb-shot-623/`（levels-full / cell-L1 / cell-L3-14x14 / cell-L9-30x30 / detail-14x14-zoom / detail-30x30-zoom）。
 - **判据**：`menu-thumb-primitives` 计数/参照流/层序按「+1 底块/有墨格」迁移（facet-4 7 → 8 命令/珠、handdrawn 4 → 5、30×30 回退 rect 900 → 1800、参照流改两趟且直接复用 `drawTargetTile`）；`meta-menu-wall` / `arc-level-select-page` / `level-detail-showcase` 签名与全 kind 切片不受影响（底块边长 = pitch+1，与珠体边长过滤指纹差 >0.02）。
-- **验证**：待填（全量 verify + 金样本重抓后回填）。
+- **验证**：beads 单测 **1461 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（含 framework:sync:check、cocos:check、check:frozen-values）；金样本 `level-select` 两态 total **8011 → 9437**（`rect` 2226→3652 = 逐有墨格 +1 底块；`circle/polygon` 与其余九帧逐类不变；干净锚 `1b43379c` 重抓，十一帧两遍确定性自证 PASS）。
+- **提交**：`1b43379c` feat（代码 + Cocos 镜像 + 判据 + 设计文档 + 台账）＋ 本笔 test（金样本 + 台账回填）。
+- **知识沉淀（kb:sync --task=WXG-T-623）**：新增 **0** / 修改 0 / 激活 0 / 归档 0（本次为缩略构图对齐，无新判例；两趟绘制顺序的坑已写入 `menu-signage.ts` 函数头注）。
