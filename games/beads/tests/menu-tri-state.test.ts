@@ -1,12 +1,12 @@
 /**
- * `[WXG-T-566]` 主菜单走马灯三态：同一张大关 PNG 的灰度 / 模糊差异 + 柜灯强度
+ * `[WXG-T-566]` 主菜单走马灯三态：大关图的灰度 / 模糊差异 + 柜灯强度
  * （木牌侧的 `N/M` 已由 `[WXG-T-598]` 摘下，见文件末节）。
  *
  * 用户 2026-11-02 裁决：
- *  - 未开启 = **磨砂玻璃**（`frost`：1/4 下采样模糊 + 全灰；用户 2026-11-03 裁）；
  *  - 推关 = **竖向揭彩**（`grayWipe`，彩色自下而上，比例 = 已完成小关 / 总小关）；
  *  - 通关 = 全彩（不传 fx）；
  *  - 状态标记全部退场（右上角徽标 / 通关飘带 / 居中沙漏）。
+ * `[WXG-T-916]` 用户 2026-11-12 改裁：**未开启 = 锁图占位**（不画大关图、磨砂/灰度腿退场）。
  *
  * 判档口径 = `_arcState`（首关已解锁未通关仍属推关，此时 done 可为 0）⇒ 进度数字与灰度档
  * 互不推导，本文件分别断言。
@@ -18,7 +18,7 @@ import { buildMetaView, setMenuBitmapResolver, type MetaViewData } from '../src/
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import { LEVELS } from '../src/config/levels.js';
 import { ARCS } from '../src/config/arcs.js';
-import { DESIGN_H, DESIGN_W, MENU_FROST, MENU_GRAY_WIPE, MENU_LOCKED_ICON, MENU_TEXTURES } from '../src/config/tuning.js';
+import { DESIGN_H, DESIGN_W, MENU_GRAY_WIPE, MENU_LOCKED_ICON, MENU_TEXTURES } from '../src/config/tuning.js';
 
 const data = (extra: Partial<MetaViewData> = {}): MetaViewData => ({
     stamina: 5, staminaMax: 5, coins: 0, overlay: 'none', signinDay: 0, canClaim: false,
@@ -51,7 +51,6 @@ afterEach(() => setMenuBitmapResolver());
 
 describe('`[WXG-T-566]` 三态效果', () => {
     const states = [
-        ['locked', { frost: MENU_FROST.radius, gray: MENU_FROST.gray }],
         ['pushing', { grayWipe: [0, MENU_GRAY_WIPE.soft] }],
         ['cleared', undefined],
         // `[WXG-T-579]` 满星 = 全彩（差别只在珠圈框，不在灰度）。
@@ -70,6 +69,17 @@ describe('`[WXG-T-566]` 三态效果', () => {
         for (const [state, fx] of states) {
             expect(artOf(frame(data({ carouselState: state })))?.fx, `${state} 效果档`).toEqual(fx);
         }
+    });
+
+    // `[WXG-T-916]` 未开启 = 锁图占位（用户 2026-11-12 裁，参考选关锁格）：
+    // 大关图不画（无 fx 可断言），锁形成为橱窗唯一主体；旧「磨砂 + 半透明灰」腿退场。
+    it('`[WXG-T-916]` 未开启：不画大关图（无磨砂/灰度），橱窗只留锁形', () => {
+        setMenuBitmapResolver(() => true);
+        const cmds = frame(data({ carouselState: 'locked' }));
+        expect(artOf(cmds), '未开启不画大关图').toBeUndefined();
+        const locks = cmds.filter((c) => c.kind === 'blit' && c.textureId === MENU_TEXTURES.lock);
+        expect(locks, '锁图 = 橱窗唯一主体').toHaveLength(1);
+        expect((locks[0] as { fx?: unknown }).fx, '锁图不做磨砂/灰度').toBeUndefined();
     });
 
     it('推关揭彩比例 = 已完成小关 / 总小关（自下而上）', () => {
@@ -92,26 +102,26 @@ describe('`[WXG-T-566]` 三态效果', () => {
         expect(fx).toEqual({ grayWipe: [0.25, MENU_GRAY_WIPE.soft] });
     });
 
-    it('状态标记：locked 画锁形；满星画珠圈框；两件互斥且其余档都不画', () => {
+    it('状态标记：满星画珠圈框；未开启 = 锁图占位（锁形唯一）；其余档两件都不画', () => {
         setMenuBitmapResolver(() => true);
-        // WXG-T-567 新增：locked 态画锁形独立 Sprite（与 frost+gray 合成纹理解耦）。
         // `[WXG-T-578]` 飘带/沙漏两件已出包，其负断言随键退场。
-        // `[WXG-T-579]` 新增 fullstar ⇒ 珠圈框（与锁形互斥，其余档两件都不画）。
+        // `[WXG-T-579]` fullstar ⇒ 珠圈框；`[WXG-T-916]` locked ⇒ 锁形占位（两者互斥）。
         for (const [state] of states) {
             const ids = frame(data({ carouselState: state }))
                 .filter((c) => c.kind === 'blit')
                 .map((c) => (c as { textureId: string }).textureId);
-            if (state === 'locked') {
-                expect(ids, 'locked 画独立锁形 Sprite').toContain(MENU_LOCKED_ICON.textureId);
-            } else {
-                expect(ids, `${state} 不画锁形`).not.toContain(MENU_LOCKED_ICON.textureId);
-            }
+            expect(ids, `${state} 不画锁形`).not.toContain(MENU_LOCKED_ICON.textureId);
             if (state === 'fullstar') {
                 expect(ids, 'fullstar 画珠圈框').toContain(MENU_TEXTURES.arcRing);
             } else {
                 expect(ids, `${state} 不画珠圈框`).not.toContain(MENU_TEXTURES.arcRing);
             }
         }
+        const lockedIds = frame(data({ carouselState: 'locked' }))
+            .filter((c) => c.kind === 'blit')
+            .map((c) => (c as { textureId: string }).textureId);
+        expect(lockedIds, '未开启画锁形（占位主体）').toContain(MENU_LOCKED_ICON.textureId);
+        expect(lockedIds, '未开启不画珠圈框').not.toContain(MENU_TEXTURES.arcRing);
     });
 
     // `[WXG-T-585]` 2026-11-07 切生产：v2 背板已烘「射灯 + 玻璃」，程序化光锥整批退场

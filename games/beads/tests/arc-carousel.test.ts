@@ -155,8 +155,11 @@ describe('EP13-S4 走马灯 = 大关集合（页数与代表图）', () => {
             const f = frameOf(r.shell);
             if (i < ARC_OPEN_MAX) {
                 expect(textsOf(f), `第 ${i + 1} 页 = 实体大关页（非空橱窗）`).not.toContain(ARC_COMING_SOON);
-                expect(blitIdsOf(f), '代表图按章取').toContain(ARCS[i].textureId);
-                expect(textsOf(f), '木牌 = 该章 title').toContain(ARCS[i].title);
+                // `[WXG-T-916]` 未开放大关 = 锁图占位：不画章代表图、橱窗只留锁形
+                // （本 rig 只解锁第 1 关 ⇒ 第 2..N 页均未开放；木牌仍印该章 title / 关名）。
+                expect(blitIdsOf(f), '未开放 = 锁图占位（不画代表图）').not.toContain(ARCS[i]!.textureId);
+                expect(blitIdsOf(f), '锁形占位').toContain(MENU_TEXTURES.lock);
+                expect(textsOf(f), '木牌 = 该章 title').toContain(ARCS[i]!.title);
             } else {
                 expect(textsOf(f), `末页（第 ${ARC_OPEN_MAX + 1} 页）= 空橱窗，全章 open 也仍在`).toContain(ARC_COMING_SOON);
             }
@@ -171,7 +174,8 @@ describe('EP13-S4 走马灯 = 大关集合（页数与代表图）', () => {
         r.advance(500);
         const back = frameOf(r.shell);
         expect(textsOf(back), '空页可翻回实体页').not.toContain(ARC_COMING_SOON);
-        expect(blitIdsOf(back), '回到的实体页 = 最后一章').toContain(ARCS[ARC_OPEN_MAX - 1].textureId);
+        // `[WXG-T-916]` 末章未开放 ⇒ 翻回的是实体页、橱窗 = 锁图占位（不再是代表图）。
+        expect(blitIdsOf(back), '回到的实体页 = 最后一章（未开放 ⇒ 锁图）').toContain(MENU_TEXTURES.lock);
     });
 
     it('视图按传入的大关图渲染（非表外硬取首行）', () => {

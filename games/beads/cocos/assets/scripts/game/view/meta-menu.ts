@@ -3,13 +3,13 @@
  * 几何一律取自 `meta-layout.ts` 的锚定档，控件画法取自 `meta-widgets.ts` ⇒ 页面只编排、不另算。
  */
 
-import { DESIGN_H, DESIGN_W, type MenuAnchors, MENU_ARC_ART_CONTENT, MENU_ARC_ART_SRC, MENU_BAR_BAKED_LABEL_INSET, MENU_FROST, MENU_FULLSTAR_FRAME, MENU_GRAY_WIPE, MENU_LOCKED_ICON, MENU_PLACEMENT, MENU_PLATE_PILL, MENU_SIGNIN_DOT_R, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, MENU_V2_BG_EXPAND, MENU_V2_BG_H, MENU_V2_DESK_FILL,
+import { DESIGN_H, DESIGN_W, type MenuAnchors, MENU_ARC_ART_CONTENT, MENU_ARC_ART_SRC, MENU_BAR_BAKED_LABEL_INSET, MENU_FULLSTAR_FRAME, MENU_GRAY_WIPE, MENU_LOCKED_ICON, MENU_PLACEMENT, MENU_PLATE_PILL, MENU_SIGNIN_DOT_R, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, MENU_V2_BG_EXPAND, MENU_V2_BG_H, MENU_V2_DESK_FILL,
     SIGN_BEAD_PITCH, menuBackdropTopPad, SIGN_MATRIX_N, THUMB_TOP_INSET, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning';
 import { COPY_TOKENS } from '../config/copy-tokens';
 import { ARC_COMING_SOON } from '../config/arcs';
 import { plateFade } from '../config/menu-carousel';
-import { frostGrayFx, grayWipeFx, type BlitFx, type RenderModelBuilder } from '../../framework/index';
-import { beadFadedInksFor, type BeadsPalette } from './palette';
+import { grayWipeFx, type BlitFx, type RenderModelBuilder } from '../../framework/index';
+import { type BeadsPalette } from './palette';
 import { drawBeadText, drawLevelThumb } from './menu-signage';
 import { drawGear } from './play-page';
 import { type BeadsLevelRaw } from '../config/levels-data';
@@ -21,12 +21,12 @@ import { heartBarLabel, isPressed, label, menuBitmapReady, pressDy } from './met
 
 /**
  * `[WXG-T-566 / WXG-T-567]` 三态 fx（模块级常量 / 缓存 ⇒ 键序固定、同进度每帧零分配）。
- * - 未开启 = **磨砂玻璃 + 半透明灰**（叠加管线 `frost(radius=8) + gray(0.3)`：frost 先做 1/4 下采样
- *   模糊，再在 blur 产物上叠 gray 0.3 保留 30% 原色；独立锁形 Sprite 由 `drawLockedBadge` 单独画）；
+ * - 未开启 = **锁图占位**（`[WXG-T-916]` 用户 2026-11-12 裁：不画 boss 图、只画锁形 ⇒ 本函数
+ *   不再有 locked 分支；旧的 `frost(radius=8) + gray(0.3)` 叠加管线退场，K-053 留档于
+ *   `tuning/menu.ts::MENU_FROST`）；
  * - 推关 = **竖向揭彩**（`grayWipe`，彩色比例 = 已完成小关 / 总小关；用户 2026-11-02 裁）；
  * - 已通关 = 不传 fx（全彩）；⛔ 不传 `gray: 0`（多一个键 = 多一次 sha 漂移，且无效果）。
  */
-const MENU_FROST_FX_LOCKED = frostGrayFx(MENU_FROST.radius, MENU_FROST.gray);
 
 /**
  * 揭彩 fx 缓存：键 = 进度千分位。生产侧进度 = `done/total`（离散，章内 ≤ 10 档）
@@ -47,7 +47,6 @@ function wipeFx(done: number | undefined, total: number | undefined): BlitFx {
 
 /** `cleared` 与 `fullstar` 都是全彩（不传 fx）—— 满星的差别只在珠圈框，不在灰度。 */
 function triStateFx(state: MetaBossState, done?: number, total?: number): BlitFx | undefined {
-    if (state === 'locked') return MENU_FROST_FX_LOCKED;
     if (state === 'pushing') return wipeFx(done, total);
     return undefined;
 }
@@ -275,24 +274,31 @@ function drawFullStarRing(
 }
 
 /**
- * 锁定态锁形独立 Sprite：画在 frost+gray 合成作品之上，位置居中、宽度 = 作品宽度 × 比例，
- * 高度按纹理宽高比（`MENU_LOCKED_ICON.aspect`）求 —— `[WXG-T-578]` Figma v2 拼豆锁是 192×260
- * 的竖长件，⛔ 不再按方形拉（旧 128² 白盘锁才配方形槽）。
- * ⛔ 不合成进 frost 纹理 —— 锁形是静态图、可独立调尺寸/alpha/动画。
+ * `[WXG-T-916]` 未开放大关的**锁图占位主体**：`locked` 态不画大关图，只画这枚锁形（锁 = 展品）。
+ * 位置居中、宽度 = 作品框宽 × 比例，高度按纹理宽高比（`MENU_LOCKED_ICON.aspect`）求 ——
+ * `[WXG-T-578]` Figma v2 拼豆锁是 192×260 的竖长件，⛔ 不再按方形拉（旧 128² 白盘锁才配方形槽）。
+ * 缺图回落 = 圆章 +「锁」字（同 `drawWallLockBadge` 口径，零新数值零新色）。
  */
 function drawLockedBadge(
     builder: RenderModelBuilder,
+    palette: BeadsPalette,
     bx: number,
     by: number,
     bw: number,
     ink: number | undefined,
 ): void {
-    if (!menuBitmapReady(MENU_LOCKED_ICON.textureId)) return;
     const w = bw * MENU_LOCKED_ICON.scale;
     const h = w / MENU_LOCKED_ICON.aspect;
     const cx = bx + bw / 2;
     const cy = by + bw / 2;
     const opts = ink === undefined ? undefined : { alpha: ink };
+    if (!menuBitmapReady(MENU_LOCKED_ICON.textureId)) {
+        builder.circle(cx, cy, w / 2, { fill: palette.slot, stroke: palette.slotBorder, lineWidth: 2, ...opts });
+        builder.text(cx, cy, '锁', {
+            fill: palette.textDim, font: UI_FONT.button, align: 'center', baseline: 'middle', ...opts,
+        });
+        return;
+    }
     builder.blit(
         MENU_LOCKED_ICON.textureId,
         cx - w / 2,
@@ -304,9 +310,9 @@ function drawLockedBadge(
 
 /**
  * `[WXG-T-522]` 单一作品腿（内景背板位图命中时）：每页只画一件大关图。
- * `[WXG-T-566]` 三态 = **同一张图的灰度差异**（锁定全灰 / 推关竖向揭彩 / 通关全彩），
- * 状态标记（通关飘带 / 锁定小锁 / 中央沙漏）**全部退场**（用户 2026-11-02 裁）；
- * 其余状态靠柜灯强度与（`[WXG-T-598]` 起唯一的）竖向揭彩比例表达 —— 木牌不再印 `N/M`。
+ * `[WXG-T-566]` 三态 = **同一张图的灰度差异**（推关竖向揭彩 / 通关全彩），状态标记全部退场
+ * （用户 2026-11-02 裁）；`[WXG-T-916]` **未开启例外 = 锁图占位**（用户 2026-11-12 裁：不画
+ * boss 图，橱窗只留锁形 + 木牌行 2「未开启」，参考选关锁格）。
  * `arcDone` / `arcTotal` = 该页大关完成度（揭彩比例唯一定义处见 `wipeFx`）。
  */
 function drawShowcaseArt(
@@ -332,6 +338,12 @@ function drawShowcaseArt(
         drawComingSoonMark(builder, palette, b.x + b.w / 2 + dx, b.y + b.h / 2, ink);
         return;
     }
+    // `[WXG-T-916]` 未开放大关 = 锁图占位（用户 2026-11-12 裁「参考关卡详情页做未开放标识」）：
+    // ⛔ 不再画 boss 图 / 磨砂 / 灰度（三条腿退场，K-053 留档），橱窗只留锁形。
+    if (state === 'locked') {
+        drawLockedBadge(builder, palette, x, b.y, b.w, ink);
+        return;
+    }
     if (level !== undefined && textureId !== undefined && menuBitmapReady(textureId)) {
         const fx = triStateFx(state, arcDone, arcTotal);
         const opts = fx === undefined
@@ -349,14 +361,12 @@ function drawShowcaseArt(
         drawLevelThumb(
             builder, level, x, b.y, b.w, avail + THUMB_TOP_INSET,
             Math.max(level.rows, level.cols), avail,
-            state === 'locked' ? beadFadedInksFor(level) : undefined,
+            undefined,
             ink,
         );
     } else {
         drawDashedSocket(builder, { x, y: b.y, w: b.w, h: b.h }, palette.slotDashed);
     }
-    // `[WXG-T-567]` 锁定态锁形独立 Sprite（同 drawShowcaseItem 口径，用 showcaseArtBox 尺寸）。
-    if (state === 'locked') drawLockedBadge(builder, x, b.y, b.w, ink);
     // `[WXG-T-579]` 满星态珠圈框（同口径，边长随作品框宽缩放 ⇒ 两条腿不各钉一个像素）。
     if (state === 'fullstar') drawFullStarRing(builder, x + b.w / 2, b.y + b.h / 2, b.w, ink);
 }

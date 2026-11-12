@@ -17,7 +17,6 @@ import {
     DESIGN_W,
     MENU_ARC_ART_CONTENT,
     MENU_ARC_ART_SRC,
-    MENU_FROST,
     MENU_LOCKED_ICON,
     MENU_TEXTURES,
     MENU_V2,
@@ -118,17 +117,16 @@ describe('WXG-T-522 橱窗单一作品', () => {
         expect(blitsOf(cmds, MENU_TEXTURES.lock).length, '右上小锁退场').toBe(0);
     });
 
-    it('`[WXG-T-566 / WXG-T-567]` 锁定态：磨砂玻璃+半透明灰叠加管线（fx={frost,gray}），锁形独立 Sprite', () => {
+    it('`[WXG-T-916]` 未开启态：锁图占位——不画大关图（磨砂/灰度腿退场），橱窗只留锁形', () => {
         hostWith(MENU_TEXTURES.backdrop, BOSS_ART, MENU_TEXTURES.lock);
         const cmds = frame(data({ carouselState: 'locked' as const }));
-        const art = blitsOf(cmds, BOSS_ART)[0] as { fx?: Record<string, number> };
-        expect(art.fx, '锁定 = 磨砂玻璃 + 半透明灰叠加管线').toEqual({ frost: MENU_FROST.radius, gray: MENU_FROST.gray });
-        // WXG-T-567 新增：locked 态画独立锁形 Sprite（与 frost+gray 合成纹理解耦）
+        expect(blitsOf(cmds, BOSS_ART).length, '未开启不画大关图').toBe(0);
         // `[WXG-T-578]` 锁形改按纹理宽高比出高（192×260 竖长件）⇒ 断言高 = 宽 / aspect。
         const lockBlits = blitsOf(cmds, MENU_TEXTURES.lock);
-        expect(lockBlits.length, '独立锁形 Sprite').toBe(1);
-        const lb = lockBlits[0] as { w: number; h: number };
+        expect(lockBlits.length, '锁图 = 橱窗唯一主体').toBe(1);
+        const lb = lockBlits[0] as { w: number; h: number; fx?: unknown };
         expect(lb.h).toBeCloseTo(lb.w / MENU_LOCKED_ICON.aspect, 6);
+        expect(lb.fx, '锁图不做磨砂/灰度').toBeUndefined();
     });
 
     // `[WXG-T-587]` v1 的圆底 `btnArrow` / 矢量向标 `iconArrow*` 已**删键出包** ⇒ 本判据只剩正向部分：

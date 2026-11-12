@@ -9587,3 +9587,17 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：beads 单测 **1468 passed / 2 skipped（125 文件，排除 `.worktrees` 副本）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；金样本 `level-select` 两态**零漂移**（第一章 id = 格位，命令流逐字不变）。实帧 `temp/levels-shot-915/levels-arc2.png`（boss 格「10」、8 个空槽牌面留白）与 `levels-arc1.png`（1..9 不变）。
 - **提交**：`4731b9f6` feat（编号牌改全局关号 + 判据两例 + layout §2J + ui-architecture §12 + Cocos 镜像 + 台账）＋ 本笔 docs（台账回填）。
 - **知识沉淀（kb:sync --task=WXG-T-915）**：新增 0 / 修改 0 / 激活 0 / 归档 0（纯数据源口径修正，无新判例；口径已写入 `drawLevelSelectCell` 行内注与 layout §2J）。
+
+## WXG-T-916
+
+**UI·未开放大关橱窗 = 锁图占位** · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成（2026-11-12 · 用户裁）
+
+- **上位（用户问）**：「未开放大关是否参考关卡详情页，做未开放标识？现在是 boss 关图案加模糊」⇒ 选项拍板「**锁图占位（推荐）**」。
+- **现状（改前）**：`locked` 页 = 大关图 + `frost(8)` + `gray(0.3)` 叠加管线 + 锁形 Sprite 叠在模糊作品上 + 木牌「未开启」（T-914）。选关锁格反之：不画关卡图、锁图直接占图案槽。
+- **变更**：`meta-menu.ts::drawShowcaseArt` 增加 `locked` 早退腿——**不画大关图**（`frost`/`gray`、程序化 faded-thumb 回退两条腿一并退役），只画 `MENU_LOCKED_ICON` 锁形（尺寸/位置沿用原徽标口径）；`drawLockedBadge` 增 `palette` 参 + 缺图回落（圆章 +「锁」字，同 `drawWallLockBadge` 口径，零新数值零新色）；`triStateFx` 删 locked 分支；`MENU_FROST` 标退役留档（K-053，framework `frostFx` 能力不动）。
+- **效果**：未开放大关橱窗 = 空玻璃 + 拼豆锁居中，木牌「照片冒烟 32 / 未开启」；已开放章零变化（推关揭彩 / 通关全彩 / 满星珠圈框不动）。
+- **判据（改三处）**：`menu-tri-state.test.ts`（locked 无大关图 blit、无 fx、锁形唯一且无 fx）；`showcase-single.test.ts`（同前 + 锁形宽高比 = `MENU_LOCKED_ICON.aspect`）；`arc-carousel.test.ts`（未开放页不画章代表图、`MENU_TEXTURES.lock` 存在；末页翻回同样判锁）。
+- **文档**：`ui-architecture-beads §12` 登记；`tokens.md §7` / `menu-architecture.md §6` 的 `plate_arc_locked_label` 注改为锁图占位。
+- **验证**：beads 单测 **1469 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（typecheck 修复一轮：`menu-tri-state` 的 `states` 收窄后残留 locked 比较 TS2367）；金样本十一帧**零漂移**（无金样本帧处于 locked 页）。实帧 `temp/plate-shot-914/plate-locked.png`：空玻璃 + 拼豆锁居中 + 木牌「照片冒烟 32 / 未开启」。
+- **提交**：待填。
+- **知识沉淀（kb:sync --task=WXG-T-916）**：新增 0 / 修改 0 / 激活 0 / 归档 0（视觉口径改裁，已写入 `drawShowcaseArt` / `drawLockedBadge` 行内注、`tuning/menu.ts::MENU_FROST` 退役留档与 §12 登记）。

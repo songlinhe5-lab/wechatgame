@@ -8,7 +8,7 @@ import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import { LEVELS } from '../src/config/levels.js';
 import { carouselDamp, carouselPage, plateFade } from '../src/config/menu-carousel.js';
 import { ARC_COMING_SOON, ARCS } from '../src/config/arcs.js';
-import { DESIGN_H, DESIGN_W, MENU_FROST, MENU_GRAY_WIPE, MENU_TEXTURES, MENU_V2 } from '../src/config/tuning.js';
+import { DESIGN_H, DESIGN_W, MENU_GRAY_WIPE, MENU_TEXTURES, MENU_V2 } from '../src/config/tuning.js';
 import { createBeadsShell } from '../src/game/beads-shell.js';
 import { buildMetaView, setMenuBitmapResolver, type MetaViewData } from '../src/view/meta-view.js';
 import { anchoredGeo } from '../src/view/meta-layout.js';
@@ -67,7 +67,7 @@ describe('翻页状态机', () => {
 describe('橱窗绘制', () => {
     const lv = LEVELS[0]!;
 
-    it('`[WXG-T-566 / WXG-T-567]` 三态 = 同一张大关图的灰度差异 + 叠加管线；旧状态标记全退场，locked 画独立锁形', () => {
+    it('`[WXG-T-566 / WXG-T-916]` 三态 = 推关揭彩 / 通关全彩；未开启 = 锁图占位（不画大关图）', () => {
         setMenuBitmapResolver(() => true);
         const artOf = (d: MetaViewData) => frame(d).find(
             (c) => c.kind === 'blit' && (c as { textureId: string }).textureId === ARCS[0].textureId,
@@ -76,9 +76,15 @@ describe('橱窗绘制', () => {
         expect(artOf(dataFor(lv, { carouselState: 'cleared' }))?.fx, '通关 = 全彩（不传 fx）').toBeUndefined();
         expect(artOf(dataFor(lv, { carouselState: 'pushing' }))?.fx, '推关 = 竖向揭彩（此处进度 0）')
             .toEqual({ grayWipe: [0, MENU_GRAY_WIPE.soft] });
-        expect(artOf(dataFor(lv, { carouselState: 'locked' }))?.fx, '未开启 = 磨砂玻璃+半透明灰叠加管线')
-            .toEqual({ frost: MENU_FROST.radius, gray: MENU_FROST.gray });
-        // cleared 态不画任何状态标记（含独立锁形——锁形只在 locked 态）。
+        // `[WXG-T-916]` 用户 2026-11-12 改裁：未开启 = 锁图占位（参考选关锁格）⇒ 大关图**不画**、
+        // 磨砂/灰度腿退场、锁形成为橱窗唯一主体（木牌行 2 仍「未开启」，T-914）。
+        const locked = frame(dataFor(lv, { carouselState: 'locked' }));
+        expect(artOf(dataFor(lv, { carouselState: 'locked' })), '未开启不画大关图').toBeUndefined();
+        expect(
+            locked.filter((c) => c.kind === 'blit' && c.textureId === MENU_TEXTURES.lock),
+            '锁图占位 = 徽标层唯一主体',
+        ).toHaveLength(1);
+        // cleared 态不画任何状态标记（含锁形——锁形只在 locked 态）。
         // `[WXG-T-578]` 旧 `frame`/`seal` 两键已删，负断言随靶子退场。
         expect(cleared.some((c) => c.kind === 'blit' && c.textureId === MENU_TEXTURES.lock)).toBe(false);
     });
