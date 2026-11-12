@@ -9761,9 +9761,9 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
   - `view/play-page.ts::drawGrid`：格循环**之前**调用（先轮廓、后底块 / 珠体 ⇒ 只露格面外一圈）。
 - **判据**：`tests/thumb-outline.test.ts` 公式改判（28.33 → W3/R8、11.33 → W1/R3、100 → W4/R9）+ 新增盘面一例（2×2 L 形 = 3 枚 polygon、首命令 `shadowInk`）；共 **7 例全绿**。
 - **实帧**：对局盘面 13×12 轮廓 = 46 枚 polygon（= 边界格数），色 `shadowInk`；详情 / 选关随之变细变圆。
-- **封箱复评**：第廿二次复评（`K.5.1-补14`）——盘面轮廓属整帧非珠体族**插入型**改动 ⇒ frame0 / frame78 各 **+46 polygon**（13×12 满盘边界格数），珠体族 `legacyFlow` 96/96 与 facet 45+45 逐字节零差；官方复取器在可复现锚重抓。
-- **金样本**：`play` / `pause` / `clear` / `fail` / `sprint-settle` 五态（含盘面）sha 与 total 变，其余六态逐字未变；`ui-golden-capture.ts` 干净锚重抓。
-- **文档**：`level-detail-spec §12` 轮廓条改判（W/R 与盘面范围）；`ui-architecture-beads §12` 登记。
-- **验证**：`pnpm run verify` 复跑见提交。
-- **提交**：见本批 commit（代码 + Cocos 镜像 + 文档 + 台账）。
+- **封箱复评**：第廿二次复评（`K.5.1-补14`）——盘面轮廓属整帧非珠体族**插入型**改动 ⇒ frame0 `1234→1280` / frame78 `1780→1826`，各 **+46 polygon**（13×12 满盘边界格数 `2×12 + 2×(13−2)`）；rect 936 / circle 159 / line 353 / text 10 四键零变；珠体族 `legacyFlow` 96/96 与 facet 45+45 逐字节零差；官方复取器在锚 `e141f17d` 重抓（`temp/wxg-t-211-s3/s3-seal.json` 晋升）。
+- **金样本**：`play` 580（+18 polygon）/ `pause` 614（+18）/ `clear` 655（+18）/ `fail` 603（+18）/ `sprint-settle` 900（+30）；选关两态条数不变、仅坐标随 W/R 改判变 sha；其余六态逐字节未变；`ui-golden-capture.ts` 干净锚 `e141f17d` 重抓（两遍确定性 PASS）。
+- **文档**：`level-detail-spec §12` 轮廓条改判（W/R 与盘面范围）；`ui-architecture-beads §12` 登记；`test-cases-k-ledger-2 §K.5.1-补14` 复评文号入册。
+- **验证**：`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（含封箱 12 例、金样本 13 例、轮廓 7 例、Cocos 镜像同步校验）。
+- **提交**：`e141f17d`（代码 + Cocos 镜像 + 文档 + 台账）；金样本 / 封箱重抓与台账回填同批。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**（轮廓公式与缓存口径由本单规格 / 判据承载，无新增 K 候选）。

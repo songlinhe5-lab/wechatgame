@@ -1505,14 +1505,14 @@
         "circle": 159,
         "line": 353,
         "text": 10,
-        "polygon": 322
+        "polygon": 368
       },
-      "sha": "28887edd2f50ff31c60b8afdf8591b7f561f1ca858f7702bfcf4de4c4d9779cb",
-      "total": 1780
+      "sha": "2685b2d747066333632a4ac61b40200d4d0d0c7071a76e3d6ad1d7dbcd53b7dd",
+      "total": 1826
     },
     "frame0": {
-      "sha": "8bd726bbbe45a11983c6d6d14e5b0fca5b5fc7a9b3da21400ec37cc31e3ed49d",
-      "total": 1234
+      "sha": "807b44140077dc0c84520866f7451f9a337a40486ba43e4b3f6b2411af624f6f",
+      "total": 1280
     },
     "legacyFlow": {
       "ci1-tnone-l0-s1-lodfull-z22": "51e055a2c89dafbb5782ab2a212c437f4f5b40f38143aeb096b2d484bfd64b2c",
@@ -1612,7 +1612,7 @@
       "ci3-t4-l6-s1.06-lod7-z22": "896750a510ccef1d28f649ef0ad0bf33d7a0facaa033825e4a1d5a8071734826",
       "ci3-t4-l6-s1.06-lod7-z44": "003475995228c166a98f68ab6d169b8163b54debf1edab632331e9f3d44a6ad2"
     },
-    "capturedFrom": "5928c75e984edf92fbb2e1ed7543a0b690baf9e5 · T-462 缩放控件条隐藏复取"
+    "capturedFrom": "e141f17d040658f042d801a0a4e7d02e549700b9 · T-927 工作树（盘面轮廓）"
   },
   "s3_pre_back_channel": {
     "_readme": "第十四次复评（WXG-T-256 S5′-4 底图通道）的**前态史证**：本批唯一修订面 = 托盘面板底 1 rect + 白瓷内阴影 3 line 各多一个 \"back\":true 键；判据腿 4a 据此做闭合自证（把键从两帧流里剥掉 ⇒ sha 必须逐字节回到本键）。计数与 `s3.*` 全等 ⇒ 零新增零删除。",
@@ -1761,7 +1761,8 @@
     "s3_frame_recheck_18": "2026-10-07 第十八次复评（EP12-S2 控件语言 + EP12-S3 playing 页换肤收口批 · WXG-T-268 续批 · 用户 2026-10-07 裁 **P-3=24** · 官方复取器重抓 ⇒ 可再生）。**编号口径** = 键 18（键 17 = 暖纸换值批）。**前态锚** = HEAD `3e3005f` 隔离副本复取 ≡ 现役登记逐字节 MATCH（frame0 1322/1e5a240a0f59… · frame78 1868/05d358879b61… · legacyFlow 96 例 + facet 45+45 例零差 ⇒ 基准可复现）；**现态锚** = 改码后工作树（frame0 1325/3269d92b5730… · frame78 1871/749b3ada8368…）。**本批修订面（四处）** = ① S2 palette 入 11 枚新 token（`shadowInk #3D2E1E` + wood 族六枚 + card 族三枚 + `textDisabled`，真源 tokens.md §1「新」行）⇒ 色表锁 35 条/`612ced0aa888` → **46 条/`68a4b509bb65`**；② **P-3 裁定 = 24**：托盘面板圆角 18→24（assets-spec §1.3 口径收敛，v1.5-r3 自查(3) 漂移登记正式消除）；③ S3 playing 换肤：计时胶囊投影墨暖化（几何/DY/α 不动）+ **LV 纸 chip 96×48**（新增图元）+ 托盘 T1 纸化（投影 rect + 1px panelBorder 描边 + 三段内阴影换墨，`back` 桌面通道随批）+ btn_expand 木化 T4（fill `#2A2E43→#8A5B34`、radius 24→16、新增底缘 2px `#5E3B1E`、▶/字 `#FFFFFF→#FFF6E8`）+ 道具三卡 T2 纸化（投影 `rgba(30,32,51,0.1)→rgba(61,46,30,0.08)`、描边 `#D8D5E6→#E6DAC3`）；④ `cool-violet` 肤补 11 枚**临时别名** token（史证/既有冷值，零新色相；冷调设计裁定待 S8 收编）。**流级差分（两帧同一组 18 条：插入 3 + 改写 15 · 未解释 0 条）** = 插入：① 托盘投影 rect（`back:true` ⇒ **back 键行数 4→5**）② LV 纸 chip rect ③ expand 底缘 line；改写：胶囊投影墨 ×1 · 托盘内阴影墨 ×3 · 托盘面描边新增+圆角 18→24 ×1 · expand 面 fill+radius ×1 · expand ▶ polygon/text 墨 ×2 · 道具卡投影墨+α ×3 · 道具卡描边 ×3 · LV 标签锚/align ×1。逐 kind：rect `998→1000`（+2）· line `376→377`（+1）· circle 160 / text 12 / polygon 322 零变动 ⇒ 珠体族最强反证 = `legacyFlow` 96 例 + facet 层 45+45 例逐字节零变更（未追改）；frame78 与 frame0 差集**同为这 18 行**（78 颗填格命令零差异）。证据 `temp/wxg-t-211-s3/pre268b-frame{0,78}-flow.json` ↔ `s3-frame{0,78}-flow.json` ↔ `ep12-diff-frame{0,78}.txt`。**零追改声明** = `head.*`、`head_liftShadowFade_r5`、`s3AtFormalization`、`fixture.*`、`s3_pre_back_channel`、`s3_pre_tray_261`/`261b`、`s3_pre_ui_268`、`s3.legacyFlow`、facet 两族全部不动；本批只追改 `s3.frame0/frame78`（total+sha+kinds）+ 本归因键 + 台账入账 `recheck-18-ep12-s2s3`（+3/+3）。**⚠ 未决（如实）** = ① 复取锚含未提交工作树（与 handdrawn v2.3 批同树叠加）⇒ 提交后须复跑复取器自证等值（承补7 ①）；② cool-violet 新 11 token 为临时别名，冷调口径待 S8 裁定；③ pressed/disabled 态 token（woodFacePressed/cardPressed 等）本批**零帧内消费**，归 S4。QA 文号 = `K.5.1-补10`。",
     "s3_frame_recheck_19": "2026-10-17 第十九次复评（EP14-S2 主界面总星数 HUD 最小臂 · 沿 WXG-T-288 · 官方复取器重抓 ⇒ 可再生）。**前态** = 现役登记 frame0 1325/3269d92b5730… · frame78 1871/749b3ada8368…（即第十八次复评产物）；**现态锚** = commit `dd57c91`（EP14-S2 落码）复取 = frame0 1326/88103412ec6d… · frame78 1872/246ef8194961…。**流级差分归因（未解释 0 条）** = 唯一变化 = 顶栏 HUD 新增 `★n` 一条 `text` 命令 ⇒ 两帧各 +1；`legacyFlow` 96 例与 `facetNonHoleLayers`/`facetHoleLayer` 45+45 例**逐字节零差**（珠体族未触碰，复取产出与现役 JSON 全等实测）。**登记常数** = `EP14_S2_STAR_HUD = 1`（测试算式两帧各自引用，⛔ 不并入既有黑箱常数）。分母形态（`★n/27` 类）仍 `[待 UX 批]` = EP14-S4 / `star-collect-rule §6-T1`，本批只上最小臂。复取命令 = `WXG211_CAPTURE=s3 WXG211_SOURCE_REV=$(git rev-parse HEAD) node --experimental-transform-types --import=./tools/scripts/lib/ts-js-resolve.mjs games/beads/tests/bead-style-seal-recapture.ts`（工作树描述串 = EP14-S2 HUD 总星数位）。QA 文号 = `K.5.1-补11`。",
     "s3_frame_recheck_20": "2026-10-25 第二十次复评（WXG-T-394 托盘容量**三档 12/24/48**，用户 2026-10-25 拍板 · 官方复取器重抓 ⇒ 可再生）。**编号口径** = 键 20（键 19 = EP14-S2 总星数 HUD）；QA 文号 = `K.5.1-补12`。**前态** = 现役登记（第十九次产物）frame0 `1326/88103412ec6d…` · frame78 `1872/246ef8194961…`，已用 `7dabc2e^`（`49853b118406…`）**git archive 隔离副本 + 同一官方复取器逐字节复现（MATCH：total 与 sha 全等、legacyFlow 96 例与 facet 45+45 例零差）** ⇒ 差分基线可复现、探针忠实；**现态锚** = commit `7dabc2e`（T-394 落码）复取 = frame0 `1242/93a02bc96be5…` · frame78 `1788/15380e453cf6…`。**变更源（唯一）** = `tuning.TRAY_TIER_SLOTS = [12,24,48]`：`TRAY_BASE_SLOTS` 由 24（2 行）改 12（1 行）⇒ 托盘少画一行 12 个空槽。**流级差分归因（未解释 0 条）** = 两帧**同一组纯删除 84 行** = **12 空槽 × 7**（每槽 5 rect〔槽面 #4A5060 + 内阴影阶梯 #0f1013/#181a1f/#1f2228/#292d36〕+ 2 line〔#1f2228/#8f939c〕），被删行 y ∈ [336, 375.664]、槽面 x 值恰 12 枚（54…648）；**零插入、零改写** ⇒ 据此 rect −60 / line −24 / circle·text·polygon 零差，两帧 total 各 −84（1872→1788、1326→1242）。**最强反证（珠体族未触碰）** = `legacyFlow` 96 例 + `facetNonHoleLayers` / `facetHoleLayer` 45+45 例在两锚间**逐字节全等**（两锚复取产物深比较实测）；盘面带（y>500）受影响行数 = **0**；托盘面板 chrome（126 面板 + `back` 键 5 行 + 三段内阴影）零改动。**⚠ 口径更正（如实）** = 任务背景所述「panelH 126→72」是**布局真源** `trayLayout(1).panelH = 72`；帧内面板走 `drawTray` 的 `rows = 已解锁行 + 预览行` = 2（1 行基础态仍留一行虚线预览高度）⇒ 命令流上面板仍 126、不随本批变化，归因一律以实测命令流为准。**登记常数** = `T394_TRAY_TIER_FRAME_DRIFT = 84` / `T394_TRAY_TIER_RECT = 60` / `T394_TRAY_TIER_LINE = 24`（判据算式逐段引用，⛔ 不并入既有黑箱常数；`SOCKET_INNER_SHADE_*` 内「24 托盘槽」为 731100c 当时史证值，本批不回改，差额归本键）。**复取命令** = `WXG211_CAPTURE=s3 WXG211_SOURCE_REV=$(git rev-parse HEAD) WXG211_SOURCE_DESC='T-394 托盘三档工作树' node --experimental-transform-types --import=./tools/scripts/lib/ts-js-resolve.mjs games/beads/tests/bead-style-seal-recapture.ts`（工作树描述串 = `T-394 托盘三档工作树`；另以 HEAD 复抓互验，frame0/frame78/legacyFlow/facetLayers/fixture 五键逐字节 MATCH）。**零追改声明** = `head.*`、`head_liftShadowFade_r5`、`s3AtFormalization`、`fixture.*` 参数矩阵、`s3.legacyFlow`、facet 两族、三条前态史证键（`s3_pre_tray_261` / `261b` / `s3_pre_ui_268`）**全部不动**；本批只追改 `s3.frame0` / `s3.frame78` 两键（total+kinds+sha）+ 本归因键 + 台账入账 `recheck-20-t394-tray-tier`（frame0 −84 / frame78 −84）+ `fixture.frame.traySlots` 读数 24→12（复取器读数随档位，非判据字段）。**⚠ 并发事实** = 本批复取期间仓 HEAD 由 `7dabc2e` 前进至 `0478253`（WXG-T-393 knowledge 批，`git diff --name-only` 实测**未触** `games/beads` 与 `packages`）⇒ 两锚读数不受影响。",
-    "s3_frame_recheck_21": "第二十一次复评（WXG-T-462 · 用户 2026-10-27 裁定「缩放控件条这块面板隐藏不展示」· 复取锚 = 提交 bd701d62）：变更源 = tuning 新增工程参 ZOOM_CONTROLS_VISIBLE = false，drawZoomControls 与 BoardCameraController.zoomHit 同源早退 ⇒ recheck-1 登记的控件插入段（rect 4 / circle 1 / text 3 = 8 条）整段退役，两帧各 −8；缩放能力保留 = 盘面双指捏合（链路不动），恢复展示 = 翻 true（几何常量零改动）。流级差分归因 = 未解释 0 条（两帧同一组纯删除 8 行，恰为 recheck-1 段逐条反向）；kind 计数 = rect 936 / circle 159 / line 353 / text 10 / polygon 322。判据面 = T462_ZOOM_CTRL_HIDE 登记常数 + 腿 4a 两式与前态史证三键等式入账 + 差分自洽 ctrl 项退役 + 腿 4b 控件段前提作废（K-053 划线口径，反演目标段已不在现役流）+ 台账一一对应。"
+    "s3_frame_recheck_21": "第二十一次复评（WXG-T-462 · 用户 2026-10-27 裁定「缩放控件条这块面板隐藏不展示」· 复取锚 = 提交 bd701d62）：变更源 = tuning 新增工程参 ZOOM_CONTROLS_VISIBLE = false，drawZoomControls 与 BoardCameraController.zoomHit 同源早退 ⇒ recheck-1 登记的控件插入段（rect 4 / circle 1 / text 3 = 8 条）整段退役，两帧各 −8；缩放能力保留 = 盘面双指捏合（链路不动），恢复展示 = 翻 true（几何常量零改动）。流级差分归因 = 未解释 0 条（两帧同一组纯删除 8 行，恰为 recheck-1 段逐条反向）；kind 计数 = rect 936 / circle 159 / line 353 / text 10 / polygon 322。判据面 = T462_ZOOM_CTRL_HIDE 登记常数 + 腿 4a 两式与前态史证三键等式入账 + 差分自洽 ctrl 项退役 + 腿 4b 控件段前提作废（K-053 划线口径，反演目标段已不在现役流）+ 台账一一对应。",
+    "s3_frame_recheck_22": "第二十二次复评（WXG-T-927 · 用户 2026-11-12 令「珠面的描边窄一点，圆角半径再大一点；游戏中也需要这个描边」· 复取锚 = 提交 e141f17d）：变更源 = view/bead-outline.ts 新增 drawBoardOutline，drawGrid 在格循环前插入整幅图案边界珠的「珠面外扩 W」圆角方块轮廓（palette.shadowInk、同色并集、W/R 公式同批收窄放大）。流级差分：两帧各**插入 46 条 polygon**（13×12 满盘边界格 = 2×12 + 2×(13−2) = 46），零删除零改写；kinds 只 polygon 322→368，rect 936 / circle 159 / line 353 / text 10 四键零变。最强反证 = 珠体族零变更：legacyFlow 96/96 与 facetNonHole/facetHole 45+45 在两锚间逐字节全等。前态锚 = 第二十一次产物（frame0 1234 / frame78 1780）。未解释 0 条。"
   },
   "s3_pre_tray_261": {
     "_readme": "第十五次复评（WXG-T-261 托盘放大批）的**前态史证** = 本批复取前的现役 s3 两键（托盘 pitch 32 / 槽底 #F7F6FB 态）。本批修订面为**几何+墨值改写**（非纯插键）⇒ 腿 4a 的 strip-back 闭合等式不再可能回到本键；等效证明 = provenance.s3_frame_recheck_15 的前/现态锚 + 流级差分 172/172。计数全等由本键 total ≡ s3.*.total 钉住。⛔ 只读史证，不随后续复评漂移。",
@@ -1876,6 +1877,15 @@
         "frame0": -8,
         "frame78": -8,
         "note": "缩放控件条整条隐藏（WXG-T-462 用户裁定「这块面板隐藏不展示」；recheck-1 登记的 8 条控件段 rect4/circle1/text3 整体退役；缩放能力保留 = 盘面双指捏合，恢复 = ZOOM_CONTROLS_VISIBLE 翻 true）"
+      },
+      {
+        "id": "recheck-22-board-outline",
+        "key": "s3_frame_recheck_22",
+        "witness": "第二十二次复评",
+        "qaAnchor": "K.5.1-补14",
+        "frame0": 46,
+        "frame78": 46,
+        "note": "WXG-T-927 对局盘面珠面描边（drawBoardOutline）：13×12 满盘边界格 46 枚 polygon/帧（同色并集）；珠体族 96/96 + 45+45 零差；登记常数 T927_BOARD_OUTLINE"
       }
     ]
   }

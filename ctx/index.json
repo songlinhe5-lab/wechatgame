@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4065,
       "lines": 136,
-      "sha256": "8d6297bca794535ac2f890be53dfa12f84a60edbfabf3256bd18719fb872520a",
+      "sha256": "d9f59004e7062582cf0ea8d790c320cc55820dc3dbeeff3fd35b820d246229ee",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 292197 9769 normal",
+          "summary": "1 production/TASKS-DETAIL.md 292337 9769 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5291,
       "lines": 164,
-      "sha256": "c9e332a19be6202dd620841bd2cd6be1ceade5690c528d577b612fd57114213d",
+      "sha256": "c1064e1f1fe868d9014f70aeea8aa145acb59845de3abb8a468c6d5b6f968d68",
       "tier": "normal",
       "sections": [
         {
@@ -1080,7 +1080,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 9769 行 / 292197 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 9769 行 / 292337 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
@@ -89930,9 +89930,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 292197,
+      "tokens": 292337,
       "lines": 9769,
-      "sha256": "47bac702873933b664d9debcc5e59f65ac817b35b19fe4296450361e797ffa51",
+      "sha256": "0b23f2721def654483232ba5fac1fca3fb9842c50bf62258895db9e5cb1d9033",
       "tier": "normal",
       "sections": [
         {
@@ -89940,7 +89940,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 9770,
-          "tokens": 292180,
+          "tokens": 292321,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -104697,7 +104697,7 @@
           "level": 2,
           "startLine": 9753,
           "endLine": 9770,
-          "tokens": 740,
+          "tokens": 881,
           "summary": "UX·珠面描边收窄 + 圆角放大 + 对局盘面启用 · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅",
           "keywords": [
             "WXG",
@@ -115285,9 +115285,9 @@
     },
     {
       "path": "production/qa/beads/test-cases-k-ledger-2.md",
-      "tokens": 15366,
-      "lines": 166,
-      "sha256": "6c504f67287db930a91930274bdbaeace9ec30417709ecb26cc2b2e711602eba",
+      "tokens": 15918,
+      "lines": 177,
+      "sha256": "1f06b6f87523a39385109583560bdb2337fc687658af3a2752c18bc5d8647c7e",
       "tier": "normal",
       "sections": [
         {
@@ -115467,10 +115467,26 @@
           ]
         },
         {
-          "anchor": "§K.6 `06` 珐琅 —— **只登记出池门引用，本批不造判据**（Q1 = 甲）",
+          "anchor": "§K.5.1-补14 整帧基线第二十二次复评修订（2026-11-12 · WXG-T-927 对局盘面珠面描边 · 正本 = provenance `s3_frame_recheck_22`）",
           "level": 3,
           "startLine": 154,
-          "endLine": 162,
+          "endLine": 164,
+          "tokens": 507,
+          "summary": "通道声明：属整帧非珠体族插入型改动（用户 2026-11-12 令「游戏中也需要这个描边」⇒ view/bead-out",
+          "keywords": [
+            "s3_frame_recheck_22",
+            "WXG",
+            "provenance",
+            "view",
+            "bead",
+            "out"
+          ]
+        },
+        {
+          "anchor": "§K.6 `06` 珐琅 —— **只登记出池门引用，本批不造判据**（Q1 = 甲）",
+          "level": 3,
+          "startLine": 165,
+          "endLine": 173,
           "tokens": 357,
           "summary": "引用项 内容 出处 QA 处置",
           "keywords": [
@@ -115484,8 +115500,8 @@
         {
           "anchor": "§K.7 本节残留与回改触发器（诚实登记，不得被\"已建例\"掩盖）",
           "level": 3,
-          "startLine": 163,
-          "endLine": 167,
+          "startLine": 174,
+          "endLine": 178,
           "tokens": 288,
           "summary": "① assets-spec 7.13 判据 ③ 的「C12 强读法」引用行需 art 订正（K.6）；② C12 弱读的",
           "keywords": [

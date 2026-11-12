@@ -4,7 +4,7 @@
   "unit": "UI-02",
   "spec": "docs/architecture/ui-architecture-beads.md §5 / §9.4 / §12",
   "codeBaseline": "bd964a0",
-  "capturedFrom": "a57420c0 · 工作树（WXG-T-298）",
+  "capturedFrom": "e141f17d · 工作树（WXG-T-298）",
   "fixture": {
     "viewport": {
       "width": 750,
@@ -68,7 +68,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "e1a21bcb21da4d392367d28fd1c92e6968798a40033af409912a39bbc9e76097",
+      "sha": "63729e7aa0b68513e21ecf717a9b716ce60d1e2be8ba2ebc70e11a49f7890a20",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -94,7 +94,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "429e404508d4d49d25bd438e0eeaa29700a950e626a0e9ee6d982eb5328c4b3c",
+      "sha": "228a54298fd85f1834fd2a4f444c8cc6f7e627ae55b7ee639271c733692f2647",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -159,15 +159,15 @@
         "overlay": "none",
         "phase": "playing"
       },
-      "total": 562,
+      "total": 580,
       "kinds": {
         "rect": 258,
         "circle": 63,
         "line": 101,
         "text": 10,
-        "polygon": 130
+        "polygon": 148
       },
-      "sha": "a6d1b4960ce3ae1ce5b4014975d0e93638c29299c989ad8bed1d39f169d08c85",
+      "sha": "e00db78b0cf4439303904905ce1698b8c332286be5b3e43e81056a32d6be8d16",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -180,17 +180,17 @@
         "overlay": "none",
         "phase": "paused"
       },
-      "total": 596,
+      "total": 614,
       "kinds": {
         "rect": 274,
         "circle": 63,
         "line": 103,
         "text": 24,
-        "polygon": 130,
+        "polygon": 148,
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "c439c2c4c1f8278bbbfa4e75593d4e1251716e065bc7193efbb6317c72a4d628",
+      "sha": "658ae304a12451f16a9f4e4929f19fcd01d825deeea2dd79a8a23ed25e921b32",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -203,18 +203,18 @@
         "overlay": "none",
         "phase": "level-clear"
       },
-      "total": 637,
+      "total": 655,
       "kinds": {
         "rect": 266,
         "circle": 63,
         "line": 103,
         "text": 15,
-        "polygon": 185,
+        "polygon": 203,
         "container": 1,
         "blit": 3,
         "containerEnd": 1
       },
-      "sha": "444c1499023b4c8742ad8183987ac01d6ef0bcde41803bc34f11a10a2d7cc7c1",
+      "sha": "dc886fd107f02d77ab7ef9d058e640d5c026a84b7a7b12e7e094ad44940474be",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -227,17 +227,17 @@
         "overlay": "none",
         "phase": "game-over"
       },
-      "total": 585,
+      "total": 603,
       "kinds": {
         "rect": 263,
         "circle": 63,
         "line": 101,
         "text": 26,
-        "polygon": 130,
+        "polygon": 148,
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "97e3265119813cacb572db45a7cb832c71a7d9a30640e6030db1576b4bcde653",
+      "sha": "62a5e20c47cdeea69de9a08bf95ee46ce5d2ec2dea15625c4013cdeda17d4679",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -250,17 +250,17 @@
         "overlay": "none",
         "phase": "game-over"
       },
-      "total": 870,
+      "total": 900,
       "kinds": {
         "rect": 591,
         "circle": 3,
         "line": 245,
         "text": 19,
-        "polygon": 10,
+        "polygon": 40,
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "24db76d38613fcb4113a85115e3bfb32c0b29b642dcbcbc0aa3275f517f8a76f",
+      "sha": "419acb39233304858318ea6046702726fb1341f060f8ac3ebc562d7786b05d22",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -273,17 +273,17 @@
         "overlay": "none",
         "phase": "finish"
       },
-      "total": 608,
+      "total": 626,
       "kinds": {
         "rect": 293,
         "circle": 63,
         "line": 101,
         "text": 16,
-        "polygon": 133,
+        "polygon": 151,
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "ce3bd17aae87e26a95ff426367879bd74725695394f58dd75a8561097ec2c5a4",
+      "sha": "96af3880119ef962237bdd24ca19c913756ade46b31c8f99ea05fbb555623892",
       "background": "#F1E8D8",
       "transform": null
     }
