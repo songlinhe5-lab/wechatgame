@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4064,
       "lines": 136,
-      "sha256": "6c24abec736ea73e40c9edf66f5c63f231335578502fd1c8688ad9424fd480e9",
+      "sha256": "6edb88b9f0483a903b67cf6010245083bb9ebea8495854304fb0d6cceae6266e",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 272913 9422 normal",
+          "summary": "1 production/TASKS-DETAIL.md 272903 9422 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5290,
       "lines": 164,
-      "sha256": "618cfe4313110e99fb8bbe90d977553bbb92221b68023dbc0b11d75f7cb12d66",
+      "sha256": "1b91b38a41e5ceaebd68016c2a749224c4cba4d8ee9f27c917a212d9c150dcaf",
       "tier": "normal",
       "sections": [
         {
@@ -761,7 +761,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 223 行 / 63281 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 223 行 / 63309 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
@@ -1080,7 +1080,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 9422 行 / 272913 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 9422 行 / 272903 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
@@ -89815,9 +89815,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 272913,
+      "tokens": 272903,
       "lines": 9422,
-      "sha256": "7e6a13f50a0a8f3fd7b0f8da93c60a7cfed35cfd1acbbc5cc74ebb181cabd377",
+      "sha256": "41731d10782bab18bbbc9afba82abfa2785ef296feb2de5719435d4cd5475b6b",
       "tier": "normal",
       "sections": [
         {
@@ -89825,7 +89825,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 9423,
-          "tokens": 272896,
+          "tokens": 272886,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -104253,7 +104253,7 @@
           "level": 2,
           "startLine": 9409,
           "endLine": 9423,
-          "tokens": 905,
+          "tokens": 895,
           "summary": "UI·选关九宫格图案槽放大（69×76→126×94） · 负责：主理人(Trae CN)·beads 工程轨 · 状态",
           "keywords": [
             "WXG",
@@ -104265,9 +104265,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 63281,
+      "tokens": 63309,
       "lines": 223,
-      "sha256": "8cfbe32dea1d01b4623d3f760c96115ec0a84e4e554536b0d7120c6ca2fa7e88",
+      "sha256": "f09a9176df82db9792746f377ff03e0206c0b07749c19e3e47ad611bc9660dd6",
       "tier": "hot",
       "sections": [
         {
@@ -104275,7 +104275,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 224,
-          "tokens": 63272,
+          "tokens": 63300,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
