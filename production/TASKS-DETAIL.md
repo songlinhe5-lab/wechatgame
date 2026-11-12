@@ -9408,7 +9408,7 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 
 ## WXG-T-616
 
-**UI·选关九宫格图案槽放大（69×76→126×94）** · 负责：主理人(Trae CN)·beads 工程轨 · 状态：🔄 进行中（2026-11-12）
+**UI·选关九宫格图案槽放大（69×76→126×94）** · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成（2026-11-12；用户令见下）
 
 - **上位**（用户原话）：「选关页面的grid里图案尺寸太小，尽量占合理空间的尺寸」。
 - **几何单源**（`config/tuning/level-select.ts::LEVEL_SELECT_GEO.cellArt`）：图案槽 69×76 @(44, 距视觉顶 49) → **126×94 @(16, 距视觉顶 39)**。取值为格内三带净空的最大合理档：距编号牌（底缘）4px、距星带（顶缘）5px，横向左右各 16px 贴三态格底圆角边；`imageLeft/imageTopDown` 同步回写，绘制与 `drawLevelThumbFull` 同一槽位。
@@ -9416,3 +9416,5 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **效果**：8×8 盘珠拼由 69 见方增至 **94 见方**（受槽高限制），宽盘（cols>rows）可用满 126 宽；三星 / 编号牌 / 高亮环几何不动。
 - **文档**：`design/ux/level-select-page-layout.md` 增 §2G（含新旧对照表，前节 69×76 退为历史 K-053）；`ui-architecture-beads §12` 追加视觉变更登记。
 - **待办**：金样本 `level-select` 两态在干净锚重抓；全量 `verify` 后回填本行读数。
+- **验证**：`arc-wall-locked` 锁图位断言迁「等比居中框」；金样本在干净锚 **`1021e4a3`** 重抓（两遍确定性自证 PASS），仅 `level-select` / `level-select-mid` 两态 **sha 变**——`total` 与种类数逐字未变（槽位只改坐标/尺寸）；beads 单测 **1454 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（含 framework:sync:check、cocos:check）。
+- **工作树遗留件（⛔ 不代提）**：preview SVG、`games/beads/package.json` 版本号、`tools/scripts/{harness-bitmap-shot.mjs,minimax-h3-t2v.py}` 等非本单改动未入本笔。
