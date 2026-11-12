@@ -17,7 +17,6 @@ import { COPY_TOKENS } from '../src/config/copy-tokens.js';
 import { scrimFill, UI_FONT, UI_SCRIM } from '../src/view/ui-theme.js';
 import { LEVELS } from '../src/config/levels.js';
 import {
-    BEAD_GAP,
     DESIGN_H,
     DESIGN_W,
     LEVEL_DETAIL_GEO,
@@ -187,11 +186,12 @@ describe('WXG-T-605 · 格内与转场', () => {
         const first = cells()[0]!.box;
         const bandTop = first.y + first.h - THUMB_TOP_INSET;
         // `[WXG-T-616]` 珠形档 = 三圆/珠（珠体/孔/高光），旧聚合档与超大盘回退仍是方块 ⇒ 两形态都收。
-        // `[WXG-T-616]` 珠形档 = 剪影层 + 三圆/珠；剪影层直径超块边 ⇒ 只收**珠体**（有描边）。
+        // `[WXG-T-619·六轮]` 珠形档 = 剪影 + 珠体（均无 alpha）+ 暗面/柔光（带 alpha）+ 孔；
+        // 只收剪影/珠体两块，上限放到一格 pitch（剪影比旧块边大）。
         const blocks = cmds.filter(
             (c): c is Extract<DrawCommand, { kind: 'rect' }> | Extract<DrawCommand, { kind: 'circle' }> => {
                 if (c.kind === 'circle') {
-                    if (c.stroke === undefined) return false;
+                    if (c.alpha !== undefined) return false;
                     return c.x - c.r > first.x + 1 && c.x + c.r < first.x + first.w - 1 &&
                         c.y - c.r > first.y + 1 && c.y + c.r <= bandTop + 1;
                 }
@@ -203,7 +203,7 @@ describe('WXG-T-605 · 格内与转场', () => {
         expect(blocks.length).toBeGreaterThan(0);
         for (const b of blocks) {
             const w = b.kind === 'circle' ? b.r * 2 : b.w;
-            expect(w).toBeLessThanOrEqual(THUMB_AREA / THUMB_MATRIX_N - BEAD_GAP + 0.01);
+            expect(w).toBeLessThanOrEqual(THUMB_AREA / THUMB_MATRIX_N + 0.01);
         }
     });
 

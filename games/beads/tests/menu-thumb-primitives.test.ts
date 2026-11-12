@@ -452,8 +452,8 @@ describe('[T-616] 选关缩略珠形档（有造型的珠子）', () => {
         expect(block).toBeGreaterThanOrEqual(THUMB_BEAD_SHAPE.minBlock);
         const circles = paint(level).filter((k): k is CircleCmd => k.kind === 'circle');
         const beads = levelThumbFullCells(level).length / 3;
-        // `[WXG-T-616·五轮]` 剪影层（轻轮廓暗圆并集）+ 每珠 body/hole/glint（无投影，光影从轻）。
-        expect(circles.length).toBe(beads * 4);
+        // `[WXG-T-619·六轮]` 剪影层 + 每珠 body/暗面弧/柔光/孔（无硬描边 ⇒ 糖珠质感）。
+        expect(circles.length).toBe(beads * 5);
         const inks = beadInksFor(level);
         // `[WXG-T-616·二轮]` 珠径 = pitch × diameterRatio（>1 ⇒ 相邻珠交叠，用户令「互相交错」）。
         const bodyR = (pitch * THUMB_BEAD_SHAPE.diameterRatio) / 2;
@@ -461,21 +461,25 @@ describe('[T-616] 选关缩略珠形档（有造型的珠子）', () => {
         for (let i = 0; i < beads; i += 1) {
             const outline = circles[i]!;
             expect(outline.r).toBeCloseTo(bodyR * (1 + THUMB_BEAD_SHAPE.outlineRatio), 6);
-            const body = circles[beads + i * 3]!;
-            const hole = circles[beads + i * 3 + 1]!;
-            const glint = circles[beads + i * 3 + 2]!;
+            const body = circles[beads + i * 4]!;
+            const shade = circles[beads + i * 4 + 1]!;
+            const gloss = circles[beads + i * 4 + 2]!;
+            const hole = circles[beads + i * 4 + 3]!;
             expect(body.r).toBeCloseTo(bodyR, 6);
             expect(inks.hexes).toContain(body.fill!);
-            // `[WXG-T-616·五轮]` 细暗缘（`pit` 描边，宽 0.12R）。
-            expect(body.stroke).toBeDefined();
-            expect(body.lineWidth).toBeCloseTo(bodyR * THUMB_BEAD_SHAPE.rimRatio, 6);
+            // `[WXG-T-619·六轮]` 无逐珠描边；右下暗面弧（半透明 pit）、左上柔光（半透明 lit）。
+            expect(body.stroke).toBeUndefined();
+            expect(shade.r).toBeCloseTo(bodyR * THUMB_BEAD_SHAPE.shadeRatio, 6);
+            expect(shade.x).toBeGreaterThan(body.x);
+            expect(shade.y).toBeLessThan(body.y);
+            expect(shade.alpha).toBeCloseTo(THUMB_BEAD_SHAPE.shadeAlpha, 6);
+            expect(gloss.r).toBeCloseTo(bodyR * THUMB_BEAD_SHAPE.glossRatio, 6);
+            expect(gloss.x).toBeLessThan(body.x);
+            expect(gloss.y).toBeGreaterThan(body.y);
+            expect(gloss.alpha).toBeCloseTo(THUMB_BEAD_SHAPE.glossAlpha, 6);
             expect(hole.x).toBeCloseTo(body.x, 6);
             expect(hole.y).toBeCloseTo(body.y, 6);
             expect(hole.r).toBeCloseTo(bodyR * THUMB_BEAD_SHAPE.holeRatio, 6);
-            expect(glint.r).toBeCloseTo(bodyR * THUMB_BEAD_SHAPE.glintRatio, 6);
-            // 高光偏左上（y-up）⇒ 形成受光面。
-            expect(glint.x).toBeLessThan(body.x);
-            expect(glint.y).toBeGreaterThan(body.y);
         }
     });
 

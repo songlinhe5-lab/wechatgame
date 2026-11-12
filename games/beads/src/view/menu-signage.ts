@@ -432,15 +432,20 @@ export function drawBeadFace(
      * ③新增逐珠**投影圆**（`shadeMid` 0.68、0.62R、右下偏 0.20R）⇒ 左上亮 / 右下暗。
      * `[WXG-T-616·五轮]` 用户令「光影感不要太强，如截图」⇒ 撤回逐珠投影圆（四轮 ③），
      * 剪影回到 **1.20R**、暗缘收窄到 0.12R，孔/高光同步收敛 ⇒ 平光细缘、只留轻立体。
+     * `[WXG-T-619·六轮]` 用户令「希望设计一下效果，现在效果不理想」⇒ 弃**逐珠硬描边**
+     * （截图里是"靶心环"观感）：珠体无 stroke；改 **暗面弧（`pit` α0.25 右下）+
+     * 柔光面（`lit` α0.55 左上）+ 小孔**，只在整体剪影留细轮廓 ⇒ 糖珠质感。
      */
     const shaped = block >= THUMB_BEAD_SHAPE.minBlock;
     const bodyR = (pitch * THUMB_BEAD_SHAPE.diameterRatio) / 2;
     const outlineR = bodyR * (1 + THUMB_BEAD_SHAPE.outlineRatio);
-    const rimW = bodyR * THUMB_BEAD_SHAPE.rimRatio;
+    const shadeR = bodyR * THUMB_BEAD_SHAPE.shadeRatio;
+    const shadeDx = bodyR * THUMB_BEAD_SHAPE.shadeDx;
+    const shadeDy = bodyR * THUMB_BEAD_SHAPE.shadeDy;
+    const glossR = bodyR * THUMB_BEAD_SHAPE.glossRatio;
+    const glossDx = bodyR * THUMB_BEAD_SHAPE.glossDx;
+    const glossDy = bodyR * THUMB_BEAD_SHAPE.glossDy;
     const holeR = bodyR * THUMB_BEAD_SHAPE.holeRatio;
-    const glintR = bodyR * THUMB_BEAD_SHAPE.glintRatio;
-    const glintDx = bodyR * THUMB_BEAD_SHAPE.glintDx;
-    const glintDy = bodyR * THUMB_BEAD_SHAPE.glintDy;
     if (shaped) {
         // 剪影层：所有珠先铺暗圆 ⇒ 相邻并集，内部被下一轮珠体盖住，只在整体边缘露出轮廓。
         for (let i = 0; i < cells.length; i += 3) {
@@ -460,9 +465,10 @@ export function drawBeadFace(
         const cy = top - (r + 0.5) * pitch;
         if (shaped) {
             const ep = endpointOf(inks, idx);
-            builder.circle(cx, cy, bodyR, { fill: ep.base, stroke: ep.pit, lineWidth: rimW, ...(fillAlpha ?? {}) });
+            builder.circle(cx, cy, bodyR, { fill: ep.base, ...(fillAlpha ?? {}) });
+            builder.circle(cx + shadeDx, cy - shadeDy, shadeR, { fill: ep.pit, alpha: THUMB_BEAD_SHAPE.shadeAlpha, ...(fillAlpha ?? {}) });
+            builder.circle(cx - glossDx, cy + glossDy, glossR, { fill: ep.lit, alpha: THUMB_BEAD_SHAPE.glossAlpha, ...(fillAlpha ?? {}) });
             builder.circle(cx, cy, holeR, { fill: ep.hole, ...(fillAlpha ?? {}) });
-            builder.circle(cx - glintDx, cy + glintDy, glintR, { fill: ep.lit, ...(fillAlpha ?? {}) });
         } else {
             builder.rect(cx - block / 2, cy - block / 2, block, block, {
                 fill: beadColorOf(inks, idx),
