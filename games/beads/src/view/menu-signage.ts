@@ -430,14 +430,13 @@ export function drawBeadFace(
      * `[WXG-T-616·四轮]` 用户令「不要实心背景，逐珠加光影、整体轮廓加更强阴影」⇒
      * ①剪影加粗到 **1.42R**、统一 `shadeOuter`（0.80 暗）；②珠体暗缘加深到 `pit`；
      * ③新增逐珠**投影圆**（`shadeMid` 0.68、0.62R、右下偏 0.20R）⇒ 左上亮 / 右下暗。
+     * `[WXG-T-616·五轮]` 用户令「光影感不要太强，如截图」⇒ 撤回逐珠投影圆（四轮 ③），
+     * 剪影回到 **1.20R**、暗缘收窄到 0.12R，孔/高光同步收敛 ⇒ 平光细缘、只留轻立体。
      */
     const shaped = block >= THUMB_BEAD_SHAPE.minBlock;
     const bodyR = (pitch * THUMB_BEAD_SHAPE.diameterRatio) / 2;
     const outlineR = bodyR * (1 + THUMB_BEAD_SHAPE.outlineRatio);
     const rimW = bodyR * THUMB_BEAD_SHAPE.rimRatio;
-    const shadowR = bodyR * THUMB_BEAD_SHAPE.shadowRatio;
-    const shadowDx = bodyR * THUMB_BEAD_SHAPE.shadowDx;
-    const shadowDy = bodyR * THUMB_BEAD_SHAPE.shadowDy;
     const holeR = bodyR * THUMB_BEAD_SHAPE.holeRatio;
     const glintR = bodyR * THUMB_BEAD_SHAPE.glintRatio;
     const glintDx = bodyR * THUMB_BEAD_SHAPE.glintDx;
@@ -462,7 +461,6 @@ export function drawBeadFace(
         if (shaped) {
             const ep = endpointOf(inks, idx);
             builder.circle(cx, cy, bodyR, { fill: ep.base, stroke: ep.pit, lineWidth: rimW, ...(fillAlpha ?? {}) });
-            builder.circle(cx + shadowDx, cy - shadowDy, shadowR, { fill: ep.shadeMid, ...(fillAlpha ?? {}) });
             builder.circle(cx, cy, holeR, { fill: ep.hole, ...(fillAlpha ?? {}) });
             builder.circle(cx - glintDx, cy + glintDy, glintR, { fill: ep.lit, ...(fillAlpha ?? {}) });
         } else {

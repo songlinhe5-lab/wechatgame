@@ -64,21 +64,17 @@ export const THUMB_BEAD_SHAPE = {
     minBlock: 5,
     /** `[WXG-T-616·二轮]` 珠体**直径 / pitch**（>1 ⇒ 相邻珠交叠、连成一片，用户令「互相交错」）。 */
     diameterRatio: 1.18,
-    /** `[WXG-T-616·四轮]` 整体轮廓：剪影描边圆半径 = 珠体半径 ×(1+outlineRatio)（先画一遍做并集，珠体盖住内部）。 */
-    outlineRatio: 0.42,
-    /** `[WXG-T-616·四轮]` 逐珠投影：半径 / 珠体半径，中心右偏 dx、下移 dy（y-up ⇒ y 减）。 */
-    shadowRatio: 0.62,
-    shadowDx: 0.20,
-    shadowDy: 0.20,
-    /** `[WXG-T-616·三轮]` 珠体暗缘描边宽 / 珠体半径（参考图逐珠立体缘）。 */
-    rimRatio: 0.22,
+    /** `[WXG-T-616·五轮]` 整体轮廓：剪影描边圆半径 = 珠体半径 ×(1+outlineRatio)（先画一遍做并集，珠体盖住内部）。 */
+    outlineRatio: 0.20,
+    /** `[WXG-T-616·五轮]` 珠体暗缘描边宽 / 珠体半径（参考图逐珠细缘，光影从轻）。 */
+    rimRatio: 0.12,
     /** 孔半径 / 珠体半径（同 `BEAD_CARD.holeRatio` 量级，缩略更收一点防糊）。 */
-    holeRatio: 0.30,
+    holeRatio: 0.26,
     /** 高光半径 / 珠体半径。 */
-    glintRatio: 0.24,
+    glintRatio: 0.18,
     /** 高光中心偏移（y-up：左上）。 */
-    glintDx: 0.32,
-    glintDy: 0.32,
+    glintDx: 0.30,
+    glintDy: 0.30,
 } as const;
 /**
  * `[WXG-T-235 / 2026-10-03 用户裁定「甲」]` **B0 底图接缝外扩量**（单位：设计px，每边）。
