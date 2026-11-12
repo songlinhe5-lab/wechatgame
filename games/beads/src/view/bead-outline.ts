@@ -11,8 +11,9 @@
  *    art-bible §3.5/§4.3「金色仅结算用」，且 `STAR_GOLD` 与珠色 2 柠黄同值 ⇒ 不可用）；
  *  - 线宽 `W = clamp(round(pitch×0.10), 1, 4)`（T-926 的 0.18/2–6 过粗，用户令收窄）；
  *  - 折角圆角 `R = clamp(round(pitch×0.30), 2, 9)`（T-926 的 0.22/2–6 再放大）；
- *  - 贴边口径：轮廓为**每颗边界珠**的「珠面外扩 W」圆角方块，内缘与底块（tile）
- *    外缘重合（tile 含 `TILE_BLEED` 外扩）⇒ 无缝、连续，⛔ 不再按格边留缝；
+ *  - 贴边口径（T-929 修正）：轮廓是**骑在剪影边线上的一条带**（宽 W：内 `W/2`、外 `W/2`），
+ *    逐边界珠只画露空的边 + 凸角 1/4 环带 ⇒ 连续闭环、随珠面等比；
+ *    ⛔ 不再用「整颗边界珠外扩 W 的实心圆角方块」——填色盖在珠面上会把一圈珠子涂黑；
  *  - 同色一次性并集填充（不透明重叠，不叠 α）；
  *  - 适用范围：详情橱窗 / 选关缩略 / **对局盘面**（T-927 新增；盘面与缩略同一套形状，
  *    只把占用判定从 `pattern` 换成快照格 `void`）；首页走马灯例外（烘焙作品图，待 art 重出）；
@@ -133,6 +134,11 @@ function thumbLocked(level: BeadsLevelRaw): Occupancy {
     return (r, c) => r >= 0 && r < level.pattern.length && c >= 0 && c < level.cols && level.pattern[r]![c] === 'x';
 }
 
+/**
+ * `[WXG-T-929]` 轮廓 = **骑在剪影边线上的一条带**（半宽 `W/2` 内、外各半），
+ * 逐边界格只画**露空的那几条边** + 凸角四分之一环带 ⇒ 连续闭环，⛔ 不再填满整个边界珠
+ * （T-928 实测：整体填色盖到珠面上会把一圈珠子涂黑）。
+ */
 function buildShapes(
     rows: number,
     cols: number,
@@ -143,42 +149,76 @@ function buildShapes(
     pitch: number,
     lockedFace: number,
 ): OutlineShape[] {
-    const W = thumbOutlineWidth(pitch);
-    const R = thumbOutlineRadius(pitch);
+    const bw = thumbOutlineWidth(pitch) / 2;
     const tileFace = pitch + TILE_BLEED * 2;
     const shapes: OutlineShape[] = [];
     for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
             if (!occ(r, c)) continue;
-            // 只画边界珠（四邻有空格 / 越界）：内部珠的外扩会被邻格底块盖住，画了也看不见。
-            if (occ(r - 1, c) && occ(r, c + 1) && occ(r + 1, c) && occ(r, c - 1)) continue;
+            const expN = !occ(r - 1, c);
+            const expE = !occ(r, c + 1);
+            const expS = !occ(r + 1, c);
+            const expW = !occ(r, c - 1);
+            if (!expN && !expE && !expS && !expW) continue; // 内部珠：无露边
             const face = locked(r, c) ? lockedFace : tileFace;
-            const half = face / 2 + W;
+            const f2 = face / 2;
+            const R = Math.min(thumbOutlineRadius(pitch), f2 - 0.01);
+            if (R <= 0) continue;
             const cx = left + (c + 0.5) * pitch;
             const cy = top - (r + 0.5) * pitch;
-            shapes.push({ pts: roundedSquare(cx, cy, half, Math.min(R, half - 0.01)) });
+            // 凸角 = 两相邻边都露空 **且** 斜对角也空（凹角不圆，交给邻格带在缝上自然相接）。
+            const cvNE = expN && expE && !occ(r - 1, c + 1);
+            const cvSE = expE && expS && !occ(r + 1, c + 1);
+            const cvSW = expS && expW && !occ(r + 1, c - 1);
+            const cvNW = expW && expN && !occ(r - 1, c - 1);
+            // 带端收口：露空边收 R（凸角交给环带）；紧邻占用格则收到邻格面缘（重叠 1 = TILE_BLEED）。
+            const end = (expSide: boolean, convex: boolean): number => (expSide ? (convex ? f2 - R : f2) : pitch - f2);
+            if (expN) {
+                const x0 = cx - end(expW, cvNW);
+                const x1 = cx + end(expE, cvNE);
+                shapes.push({ pts: [x0, cy + f2 - bw, x1, cy + f2 - bw, x1, cy + f2 + bw, x0, cy + f2 + bw] });
+            }
+            if (expS) {
+                const x0 = cx - end(expW, cvSW);
+                const x1 = cx + end(expE, cvSE);
+                shapes.push({ pts: [x0, cy - f2 - bw, x1, cy - f2 - bw, x1, cy - f2 + bw, x0, cy - f2 + bw] });
+            }
+            if (expW) {
+                const y0 = cy - end(expS, cvSW);
+                const y1 = cy + end(expN, cvNW);
+                shapes.push({ pts: [cx - f2 - bw, y0, cx - f2 + bw, y0, cx - f2 + bw, y1, cx - f2 - bw, y1] });
+            }
+            if (expE) {
+                const y0 = cy - end(expS, cvSE);
+                const y1 = cy + end(expN, cvNE);
+                shapes.push({ pts: [cx + f2 - bw, y0, cx + f2 + bw, y0, cx + f2 + bw, y1, cx + f2 - bw, y1] });
+            }
+            if (cvNE) shapes.push({ pts: cornerBand(cx + f2 - R, cy + f2 - R, 0, R, bw) });
+            if (cvNW) shapes.push({ pts: cornerBand(cx - f2 + R, cy + f2 - R, Math.PI / 2, R, bw) });
+            if (cvSW) shapes.push({ pts: cornerBand(cx - f2 + R, cy - f2 + R, Math.PI, R, bw) });
+            if (cvSE) shapes.push({ pts: cornerBand(cx + f2 - R, cy - f2 + R, Math.PI * 1.5, R, bw) });
         }
     }
     return shapes;
 }
 
-/** 圆角方块多边形（设计空间 y 向上，每角 5 点）。 */
-function roundedSquare(cx: number, cy: number, half: number, r: number): number[] {
+/** 凸角 1/4 环带（外弧 → 内弧反向，设计空间 y 向上）。 */
+function cornerBand(cx: number, cy: number, a0: number, r: number, bw: number): number[] {
     const pts: number[] = [];
     const steps = 4;
-    const corners: readonly (readonly [number, number, number])[] = [
-        [1, 1, 0],
-        [-1, 1, Math.PI / 2],
-        [-1, -1, Math.PI],
-        [1, -1, Math.PI * 1.5],
-    ];
-    for (const [sx, sy, a0] of corners) {
-        const ax = cx + sx * (half - r);
-        const ay = cy + sy * (half - r);
-        for (let i = 0; i <= steps; i++) {
+    const ro = r + bw;
+    const ri = r - bw;
+    for (let i = 0; i <= steps; i++) {
+        const a = a0 + (Math.PI / 2) * (i / steps);
+        pts.push(cx + Math.cos(a) * ro, cy + Math.sin(a) * ro);
+    }
+    if (ri > 0.01) {
+        for (let i = steps; i >= 0; i--) {
             const a = a0 + (Math.PI / 2) * (i / steps);
-            pts.push(ax + Math.cos(a) * r, ay + Math.sin(a) * r);
+            pts.push(cx + Math.cos(a) * ri, cy + Math.sin(a) * ri);
         }
+    } else {
+        pts.push(cx, cy);
     }
     return pts;
 }

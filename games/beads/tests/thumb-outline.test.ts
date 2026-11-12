@@ -1,10 +1,11 @@
 /**
- * `[WXG-T-925 / T-926 / T-927]` 珠面「贴纸裁切」外轮廓（art 二裁：`palette.shadowInk` 暖可可黑、
- * 单层实线；T-927 用户三调后 `W=clamp(round(pitch×0.10),1,4)`、折角 `R=clamp(round(pitch×0.30),2,9)`）。
+ * `[WXG-T-925 / T-926 / T-927 / T-929]` 珠面「贴纸裁切」外轮廓（art 二裁：`palette.shadowInk` 暖可可黑、
+ * 单层实线；T-927 `W=clamp(round(pitch×0.10),1,4)`、折角 `R=clamp(round(pitch×0.30),2,9)`）。
  *
  * 口径（用户 2026-11-12）：「线条需要连续、紧贴珠面边缘；各种珠面展示都需要加，
- * 跟珠面等比例缩放」⇒ 轮廓 = **每颗边界珠**的「珠面外扩 W」圆角方块（同色并集），
- * 内缘贴底块 / 锁定珠外缘，⛔ 不再按格边留缝；T-927 起对局盘面同用（占位取快照 `void`）。
+ * 跟珠面等比例缩放」⇒ 轮廓 = **骑在剪影边线上的一条带**（半宽 `W/2` 内外各半），
+ * 逐边界珠只画露空边 + 凸角 1/4 环带，⛔ 不再填满整颗边界珠（T-929 用户反馈：
+ * 填色盖到珠面上会把一圈珠子涂黑）；T-927 起对局盘面同用（占位取快照 `void`）。
  */
 import { describe, expect, it } from 'vitest';
 import { RenderModelBuilder } from '@wxgame/framework';
@@ -37,23 +38,24 @@ describe('WXG-T-925/926 珠面贴纸轮廓', () => {
         expect(thumbOutlineRadius(100)).toBe(9);
     });
 
-    it('单格剪影：1 颗边界珠 = 1 枚圆角方块（20 点），颜色 = shadowInk', () => {
+    it('单格剪影：4 条露空边带（4 点）+ 4 枚凸角环带（10 点），颜色 = shadowInk', () => {
         const cmds = outline(stub(['X'], 1));
-        expect(cmds).toHaveLength(1);
+        expect(cmds).toHaveLength(8);
         expect(cmds[0]!.kind).toBe('polygon');
-        expect(cmds[0]!.count).toBe(20);
+        expect(cmds[0]!.count).toBe(4);
+        expect(cmds[4]!.count).toBe(10);
         expect(cmds[0]!.fill).toBe(DEFAULT_PALETTE.shadowInk);
     });
 
-    it('整块 2×2：四颗都是边界珠 ⇒ 4 枚同色轮廓（并集无叠 α）', () => {
+    it('整块 2×2：外圈 8 条边带 + 4 凸角环带（内部无露边）', () => {
         const cmds = outline(stub(['XX', 'XX'], 2));
-        expect(cmds).toHaveLength(4);
+        expect(cmds).toHaveLength(12);
         expect(cmds.every((c) => c.fill === DEFAULT_PALETTE.shadowInk)).toBe(true);
     });
 
-    it('L 形：3 颗边界珠各出一枚（折叠由圆角自然过渡）', () => {
+    it('L 形：8 条露空边带 + 5 枚凸角环带（凹角不圆）', () => {
         const cmds = outline(stub(['XX', 'X.'], 2));
-        expect(cmds).toHaveLength(3);
+        expect(cmds).toHaveLength(13);
     });
 
     it('贴边不越界：轮廓只落在「剪影 ± 线宽」包络内（不脱离珠面）', () => {
@@ -88,7 +90,7 @@ describe('WXG-T-925/926 珠面贴纸轮廓', () => {
         expect(cmds.some((c) => c.kind === 'polygon' && c.fill === DEFAULT_PALETTE.shadowInk)).toBe(true);
     });
 
-    it('对局盘面（T-927）：快照 `void` 作占位，仅边界格出形状', () => {
+    it('对局盘面（T-927 / T-929）：快照 `void` 作占位，只出露空边 + 凸角环带', () => {
         const snap = {
             cells: [
                 { state: 'filled', colorIdx: 1, beadColorIdx: 1, void: false },
@@ -110,8 +112,10 @@ describe('WXG-T-925/926 珠面贴纸轮廓', () => {
         b.begin();
         drawBoardOutline(b, snap, DEFAULT_PALETTE.shadowInk);
         const cmds = b.end().commands as readonly { kind: string; fill?: string; count?: number }[];
-        expect(cmds).toHaveLength(3);
+        // L 形 3 格：露空边 8 条（带 = 4 点四边形）+ 凸角 5 枚（L 形外轮廓 5 凸 1 凹；1/4 环带 = 10 点）。
+        expect(cmds).toHaveLength(13);
         expect(cmds.every((c) => c.kind === 'polygon' && c.fill === DEFAULT_PALETTE.shadowInk)).toBe(true);
-        expect(cmds[0]!.count).toBe(20);
+        expect(cmds[0]!.count).toBe(4);
+        expect(cmds[2]!.count).toBe(10);
     });
 });
