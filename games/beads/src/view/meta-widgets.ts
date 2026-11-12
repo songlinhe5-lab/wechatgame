@@ -351,8 +351,6 @@ export function drawLevelSelectCell(
         return;
     }
     if (cell.level !== undefined) {
-        // `[WXG-T-616·三轮]` 实心背板（参考图：珠面坐在暖纸白底板上，衬托珠色与整体轮廓）。
-        builder.rect(ix, iy, a.imageW, a.imageH, { fill: palette.panel, radius: 8 });
         drawLevelThumbFull(builder, cell.level, ix, iy, a.imageW, a.imageH);
         drawCellStars(builder, cell, palette);
     }

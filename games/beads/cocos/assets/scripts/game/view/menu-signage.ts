@@ -423,13 +423,19 @@ export function drawLevelThumbFull(
      * `[WXG-T-616·二轮]` 用户令「珠子直径大一些、互相交错」⇒ 珠径按 **pitch × diameterRatio**
      * （>1 相邻交叠 ≈18%），孔/高光仍按珠体半径归一。
      * `[WXG-T-616·三轮]` 用户令「立体优化、整体加个轮廓」⇒ ①先全盘铺一遍**剪影圆**
-     * （`shadeOuter`，并集成整体轮廓，珠体盖住内部只留边缘）；②珠体加 `edge` 暗缘描边；
+     * （`shadeOuter`，并集成整体轮廓，珠体盖住内部只留边缘）；②珠体加暗缘描边；
      * ③孔色由 pit 提到更深的 hole。命令数 +1/珠（轮廓层）。
+     * `[WXG-T-616·四轮]` 用户令「不要实心背景，逐珠加光影、整体轮廓加更强阴影」⇒
+     * ①剪影加粗到 **1.42R**、统一 `shadeOuter`（0.80 暗）；②珠体暗缘加深到 `pit`；
+     * ③新增逐珠**投影圆**（`shadeMid` 0.68、0.62R、右下偏 0.20R）⇒ 左上亮 / 右下暗。
      */
     const shaped = block >= THUMB_BEAD_SHAPE.minBlock;
     const bodyR = (pitch * THUMB_BEAD_SHAPE.diameterRatio) / 2;
     const outlineR = bodyR * (1 + THUMB_BEAD_SHAPE.outlineRatio);
     const rimW = bodyR * THUMB_BEAD_SHAPE.rimRatio;
+    const shadowR = bodyR * THUMB_BEAD_SHAPE.shadowRatio;
+    const shadowDx = bodyR * THUMB_BEAD_SHAPE.shadowDx;
+    const shadowDy = bodyR * THUMB_BEAD_SHAPE.shadowDy;
     const holeR = bodyR * THUMB_BEAD_SHAPE.holeRatio;
     const glintR = bodyR * THUMB_BEAD_SHAPE.glintRatio;
     const glintDx = bodyR * THUMB_BEAD_SHAPE.glintDx;
@@ -453,7 +459,8 @@ export function drawLevelThumbFull(
         const cy = top - (r + 0.5) * pitch;
         if (shaped) {
             const ep = endpointOf(inks, idx);
-            builder.circle(cx, cy, bodyR, { fill: ep.base, stroke: ep.edge, lineWidth: rimW, ...(fillAlpha ?? {}) });
+            builder.circle(cx, cy, bodyR, { fill: ep.base, stroke: ep.pit, lineWidth: rimW, ...(fillAlpha ?? {}) });
+            builder.circle(cx + shadowDx, cy - shadowDy, shadowR, { fill: ep.shadeMid, ...(fillAlpha ?? {}) });
             builder.circle(cx, cy, holeR, { fill: ep.hole, ...(fillAlpha ?? {}) });
             builder.circle(cx - glintDx, cy + glintDy, glintR, { fill: ep.lit, ...(fillAlpha ?? {}) });
         } else {

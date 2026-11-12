@@ -452,8 +452,8 @@ describe('[T-616] 选关缩略珠形档（有造型的珠子）', () => {
         expect(block).toBeGreaterThanOrEqual(THUMB_BEAD_SHAPE.minBlock);
         const circles = paint(level).filter((k): k is CircleCmd => k.kind === 'circle');
         const beads = levelThumbFullCells(level).length / 3;
-        // `[WXG-T-616·三轮]` 剪影层（整盘先铺一遍暗圆并集）+ 每珠 body/hole/glint。
-        expect(circles.length).toBe(beads * 4);
+        // `[WXG-T-616·四轮]` 剪影层（1.42R 暗圆并集）+ 每珠 body/shadow/hole/glint。
+        expect(circles.length).toBe(beads * 5);
         const inks = beadInksFor(level);
         // `[WXG-T-616·二轮]` 珠径 = pitch × diameterRatio（>1 ⇒ 相邻珠交叠，用户令「互相交错」）。
         const bodyR = (pitch * THUMB_BEAD_SHAPE.diameterRatio) / 2;
@@ -461,14 +461,19 @@ describe('[T-616] 选关缩略珠形档（有造型的珠子）', () => {
         for (let i = 0; i < beads; i += 1) {
             const outline = circles[i]!;
             expect(outline.r).toBeCloseTo(bodyR * (1 + THUMB_BEAD_SHAPE.outlineRatio), 6);
-            const body = circles[beads + i * 3]!;
-            const hole = circles[beads + i * 3 + 1]!;
-            const glint = circles[beads + i * 3 + 2]!;
+            const body = circles[beads + i * 4]!;
+            const shadow = circles[beads + i * 4 + 1]!;
+            const hole = circles[beads + i * 4 + 2]!;
+            const glint = circles[beads + i * 4 + 3]!;
             expect(body.r).toBeCloseTo(bodyR, 6);
             expect(inks.hexes).toContain(body.fill!);
-            // `[WXG-T-616·三轮]` 逐珠立体暗缘 = edge 描边。
+            // `[WXG-T-616·三轮]` 逐珠立体暗缘（`pit` 描边）。
             expect(body.stroke).toBeDefined();
             expect(body.lineWidth).toBeCloseTo(bodyR * THUMB_BEAD_SHAPE.rimRatio, 6);
+            // `[WXG-T-616·四轮]` 逐珠投影偏右下（y-up ⇒ y 减），与左上高光形成光影。
+            expect(shadow.r).toBeCloseTo(bodyR * THUMB_BEAD_SHAPE.shadowRatio, 6);
+            expect(shadow.x).toBeGreaterThan(body.x);
+            expect(shadow.y).toBeLessThan(body.y);
             expect(hole.x).toBeCloseTo(body.x, 6);
             expect(hole.y).toBeCloseTo(body.y, 6);
             expect(hole.r).toBeCloseTo(bodyR * THUMB_BEAD_SHAPE.holeRatio, 6);

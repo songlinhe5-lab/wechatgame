@@ -64,8 +64,12 @@ export const THUMB_BEAD_SHAPE = {
     minBlock: 5,
     /** `[WXG-T-616·二轮]` 珠体**直径 / pitch**（>1 ⇒ 相邻珠交叠、连成一片，用户令「互相交错」）。 */
     diameterRatio: 1.18,
-    /** `[WXG-T-616·三轮]` 整体轮廓：剪影描边圆半径 = 珠体半径 ×(1+outlineRatio)（先画一遍做并集，珠体盖住内部）。 */
-    outlineRatio: 0.28,
+    /** `[WXG-T-616·四轮]` 整体轮廓：剪影描边圆半径 = 珠体半径 ×(1+outlineRatio)（先画一遍做并集，珠体盖住内部）。 */
+    outlineRatio: 0.42,
+    /** `[WXG-T-616·四轮]` 逐珠投影：半径 / 珠体半径，中心右偏 dx、下移 dy（y-up ⇒ y 减）。 */
+    shadowRatio: 0.62,
+    shadowDx: 0.20,
+    shadowDy: 0.20,
     /** `[WXG-T-616·三轮]` 珠体暗缘描边宽 / 珠体半径（参考图逐珠立体缘）。 */
     rimRatio: 0.22,
     /** 孔半径 / 珠体半径（同 `BEAD_CARD.holeRatio` 量级，缩略更收一点防糊）。 */
