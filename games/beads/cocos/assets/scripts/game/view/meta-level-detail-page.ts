@@ -132,7 +132,6 @@ export function drawLevelDetailPage(
         data.beadStyle,
         data.beadSize,
         'bottom',
-        true,
     );
 
     // 星级行：得星 = 实心金，未得 = 空心描边（稿 58×60，净距 9）；缺图 ⇒ 文字档同位居中。

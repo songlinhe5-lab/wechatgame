@@ -457,7 +457,10 @@ describe('[T-616/T-620] 选关缩略珠形档（接入盘面珠体腿）', () =>
         const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
         builder.begin();
         drawBeadFace(builder, level, TX, TY, SLOT_W, SLOT_H, DEFAULT_PALETTE, inkOverride, styleId, beadSize);
-        return builder.end().commands;
+        // `[WXG-T-926]` 珠面描边（`shadowInk` 圆角方块）由 `thumb-outline` 专测；本套只量珠体图元。
+        return builder.end().commands.filter(
+            (c) => !(c.kind === 'polygon' && (c as { fill?: string }).fill === DEFAULT_PALETTE.shadowInk),
+        );
     }
 
     /**

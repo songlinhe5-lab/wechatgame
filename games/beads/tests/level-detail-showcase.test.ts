@@ -69,8 +69,8 @@ describe('WXG-T-609 关卡详情橱窗面板', () => {
         };
         const ref = new RenderModelBuilder(DESIGN_W, DESIGN_H);
         ref.begin();
-        // `[WXG-T-925]` 页面腿已带贴纸轮廓 ⇒ 参照腿同参（含轮廓），按住「同一条共享腿」判据。
-        drawBeadFace(ref, LEVELS[0]!, slot.x, slot.y, slot.w, slot.h, DEFAULT_PALETTE, undefined, HANDDRAWN_STYLE_ID, undefined, 'bottom', true);
+        // `[WXG-T-925/926]` 页面腿带珠面描边（drawBeadFace 内建）⇒ 参照腿同一条共享腿即可。
+        drawBeadFace(ref, LEVELS[0]!, slot.x, slot.y, slot.w, slot.h, DEFAULT_PALETTE, undefined, HANDDRAWN_STYLE_ID, undefined, 'bottom');
         const refCmds = ref.end().commands;
         expect(refCmds.length).toBeGreaterThan(0);
         // 详情帧内**连续命令切片**（全 kind，不止 circle）与共享腿逐条一致 ⇒ 两页绘制方式同源；
@@ -98,7 +98,7 @@ describe('WXG-T-609 关卡详情橱窗面板', () => {
         const slotX = plate.x + (LEVEL_DETAIL_GEO.showcase.x + LEVEL_DETAIL_GEO.showcase.w / 2 - fit.w / 2 - LEVEL_DETAIL_GEO.plate.x);
         const ref = new RenderModelBuilder(DESIGN_W, DESIGN_H);
         ref.begin();
-        drawBeadFace(ref, lv, slotX, trayY, fit.w, fit.h, DEFAULT_PALETTE, undefined, HANDDRAWN_STYLE_ID, undefined, 'bottom', true);
+        drawBeadFace(ref, lv, slotX, trayY, fit.w, fit.h, DEFAULT_PALETTE, undefined, HANDDRAWN_STYLE_ID, undefined, 'bottom');
         const refCmds = ref.end().commands;
         const sig = (c: DrawCommand) => JSON.stringify(c);
         const at = cmds.map(sig).indexOf(sig(refCmds[0]!));

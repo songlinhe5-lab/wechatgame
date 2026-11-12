@@ -9734,3 +9734,18 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；`thumb-outline` 5 例 + `level-detail-showcase` 4 例全绿；`harness:build` ✅（Cocos 镜像同批）。
 - **提交**：`8de1f3c7`（代码 + Cocos 镜像 + `level-detail-spec §12` / `ui-architecture-beads §12` + 台账）。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**（轮廓几何口径已由本单规格与新判据承载，无新增 K 候选）。
+
+## WXG-T-926
+
+**UX·珠面描边改判（黑贴边 · 全展示 · 等比）** · 负责：主理人(Trae CN)·beads 工程轨 + art（林绘澄）· 状态：✅ 完成（2026-11-12）
+
+- **用户反馈（原话）**：「我想的是边缘颜色适合凸显珠面，可以是黑色或者金色，白色看起来不协调；线条需要连续，而且线条需要紧贴珠面边缘；各种珠面展示时候都需要加这个线条，跟珠面等比例缩放」。
+- **art 二裁**：① 黑色单层，复用 `palette.shadowInk`（`#3D2E1E`）；**不选金色**——金色靠近珠面违反 art-bible §3.5/§4.3，且 `STAR_GOLD` 与珠色 2 柠黄同值（ΔL=0）；② 对比按 art-bible §3.1 / assets-spec §1.8 的 ΔL>4% 口径（暖木底、奶白、柠黄、玫红全过阈）；③ 线宽维持 `W=clamp(round(pitch×0.18),2,6)`；④ 逐珠外扩必须取**并集**（同色一次填充、不叠 α）。
+- **实现（替换 T-925 的格边环腿）**：`bead-outline.ts` 改为**每颗边界珠**画「珠面外扩 W」圆角方块多边形（底块 = `pitch + 2×TILE_BLEED`；`x` 锁定格贴其珠体边长），同色并集 ⇒ 内缘与珠面重合、连续无缝；`drawBeadFace` **内建描边**（去掉 T-925 的 `outline` 开关）⇒ 详情橱窗 + 选关九宫格同时生效；形状按（left, top, pitch, lockedFace）缓存。
+- **例外（已登记待 art）**：首页走马灯用烘焙作品图 `ui_arc_*`（`drawShowcaseArt` 位图腿），程序化无法沿 alpha 描边 ⇒ 线条需 art 重新出图；程序化兜底腿已带描边。
+- **判据**：`thumb-outline` 重写 6 例（W/R 公式、单格 1 枚 20 点、2×2 四枚、L 形 3 枚、外缘包络、`drawBeadFace` 首命令即 shadowInk 轮廓）；`level-detail-showcase` 参照腿回默认（内建描边）；全绿。
+- **实帧**：`temp/e2e-detail-925/`（真实点击链 首页→选关→详情→开始 全通）：详情 L4 黑线贴边连续；选关 1–4 格缩略同款（pitch≈6 时 W=2）；走马灯为位图腿未带线（已登记）。temp 不入库。
+- **文档**：`level-detail-spec §12` 轮廓条改写为二裁口径；`ui-architecture-beads §12` 登记。
+- **验证**：`thumb-outline` 6 例 + `level-detail-showcase` 4 例全绿；`menu-thumb-primitives` 4 例在 `paint` 内剥轮廓命令（本套只量珠体图元）；金样本 `level-select` / `level-select-mid` 因选关缩略新增描边 **按流程重抓**（`ui-golden-capture.ts` 干净锚）；`pnpm run verify` 复跑见提交。
+- **提交**：见本批 commit（代码 + Cocos 镜像 + 金样本 + 文档 + 台账）。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**（描边口径由 spec + 判据承载，无新增 K 候选）。

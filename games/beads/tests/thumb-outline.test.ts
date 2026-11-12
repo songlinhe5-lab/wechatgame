@@ -1,9 +1,10 @@
 /**
- * `[WXG-T-925]` 珠面「贴纸裁切」外轮廓（art 裁定：`palette.panel` 单层实线、
- * `W=clamp(round(pitch×0.18),2,6)`、凹角折角 `R=clamp(round(pitch×0.22),2,6)`）。
+ * `[WXG-T-925 / T-926]` 珠面「贴纸裁切」外轮廓（art 二裁：`palette.shadowInk` 暖可可黑、
+ * 单层实线、`W=clamp(round(pitch×0.18),2,6)`、折角 `R=clamp(round(pitch×0.22),2,6)`）。
  *
- * 判据只钉子工程可证面：形状数量 / 颜色同源 / 只落剪影外侧（不越界）/
- * 详情页腿带轮廓、其余缩略腿零变化。
+ * 二裁口径（用户 2026-11-12）：「线条需要连续、紧贴珠面边缘；各种珠面展示都需要加，
+ * 跟珠面等比例缩放」⇒ 轮廓 = **每颗边界珠**的「珠面外扩 W」圆角方块（同色并集），
+ * 内缘贴底块 / 锁定珠外缘，⛔ 不再按格边留缝。
  */
 import { describe, expect, it } from 'vitest';
 import { RenderModelBuilder } from '@wxgame/framework';
@@ -19,13 +20,13 @@ const stub = (pattern: readonly string[], cols: number): BeadsLevelRaw =>
 const outline = (level: BeadsLevelRaw, left = 100, top = 500, pitch = 20) => {
     const b = new RenderModelBuilder(750, 1334);
     b.begin();
-    drawThumbOutline(b, level, left, top, pitch, DEFAULT_PALETTE.panel);
+    drawThumbOutline(b, level, left, top, pitch, 16, DEFAULT_PALETTE.shadowInk);
     return b.end().commands as readonly {
-        kind: string; fill?: string; x?: number; y?: number; w?: number; h?: number;
+        kind: string; fill?: string; offset?: number; count?: number;
     }[];
 };
 
-describe('WXG-T-925 珠面贴纸轮廓', () => {
+describe('WXG-T-925/926 珠面贴纸轮廓', () => {
     it('公式：线宽 / 折角圆角按 art 裁定取值并钳在 2–6', () => {
         expect(thumbOutlineWidth(28.33)).toBe(5);
         expect(thumbOutlineWidth(11.33)).toBe(2);
@@ -35,54 +36,53 @@ describe('WXG-T-925 珠面贴纸轮廓', () => {
         expect(thumbOutlineRadius(100)).toBe(6);
     });
 
-    it('单格剪影：4 个凸角圆盘 + 4 条直边，无凹角环', () => {
+    it('单格剪影：1 颗边界珠 = 1 枚圆角方块（20 点），颜色 = shadowInk', () => {
         const cmds = outline(stub(['X'], 1));
-        const polys = cmds.filter((c) => c.kind === 'polygon');
-        const rects = cmds.filter((c) => c.kind === 'rect');
-        expect(polys).toHaveLength(4);
-        expect(rects).toHaveLength(4);
-        expect(cmds.every((c) => c.fill === DEFAULT_PALETTE.panel)).toBe(true);
+        expect(cmds).toHaveLength(1);
+        expect(cmds[0]!.kind).toBe('polygon');
+        expect(cmds[0]!.count).toBe(20);
+        expect(cmds[0]!.fill).toBe(DEFAULT_PALETTE.shadowInk);
     });
 
-    it('L 形剪影：凹角折叠出一段圆环多边形（折角可见圆角 > 0），直边让出折角段', () => {
-        const pitch = 20;
-        const cmds = outline(stub(['XX', 'X.'], 2), 100, 500, pitch);
-        const polys = cmds.filter((c) => c.kind === 'polygon');
-        // 5 凸角 + 1 凹角
-        expect(polys).toHaveLength(6);
-        // 凹角环 = 内弧 7 点 + 外弧 7 点 = 14 点（凸角扇形 = 1 圆心 + 7 弧点 = 8 点）
-        const pts = polys.map((p) => (p as unknown as { count: number }).count);
-        expect(pts.filter((n) => n === 14)).toHaveLength(1);
-        expect(pts.filter((n) => n === 8)).toHaveLength(5);
+    it('整块 2×2：四颗都是边界珠 ⇒ 4 枚同色轮廓（并集无叠 α）', () => {
+        const cmds = outline(stub(['XX', 'XX'], 2));
+        expect(cmds).toHaveLength(4);
+        expect(cmds.every((c) => c.fill === DEFAULT_PALETTE.shadowInk)).toBe(true);
     });
 
-    it('只落剪影外侧：所有形状不越过「剪影 ± 线宽」的包络（不侵入珠面）', () => {
+    it('L 形：3 颗边界珠各出一枚（折叠由圆角自然过渡）', () => {
+        const cmds = outline(stub(['XX', 'X.'], 2));
+        expect(cmds).toHaveLength(3);
+    });
+
+    it('贴边不越界：轮廓只落在「剪影 ± 线宽」包络内（不脱离珠面）', () => {
         const pitch = 20;
         const W = thumbOutlineWidth(pitch);
         const left = 100;
         const top = 500;
-        const cmds = outline(stub(['XX', 'X.'], 2), left, top, pitch);
-        for (const c of cmds) {
-            if (c.kind === 'rect') {
-                expect(c.x!).toBeGreaterThanOrEqual(left - W - 0.01);
-                expect(c.x! + c.w!).toBeLessThanOrEqual(left + 2 * pitch + W + 0.01);
-                expect(c.y!).toBeGreaterThanOrEqual(top - 2 * pitch - W - 0.01);
-                expect(c.y! + c.h!).toBeLessThanOrEqual(top + W + 0.01);
+        const b = new RenderModelBuilder(750, 1334);
+        b.begin();
+        drawThumbOutline(b, stub(['XX', 'X.'], 2), left, top, pitch, 16, DEFAULT_PALETTE.shadowInk);
+        const model = b.end();
+        for (const c of model.commands) {
+            if (c.kind !== 'polygon') continue;
+            const pts = model.vertices.subarray(c.offset, c.offset + c.count * 2);
+            for (let i = 0; i < pts.length; i += 2) {
+                expect(pts[i]!).toBeGreaterThanOrEqual(left - W - 1);
+                expect(pts[i]!).toBeLessThanOrEqual(left + 2 * pitch + W + 1);
+                expect(pts[i + 1]!).toBeGreaterThanOrEqual(top - 2 * pitch - W - 1);
+                expect(pts[i + 1]!).toBeLessThanOrEqual(top + W + 1);
             }
         }
     });
 
-    it('详情页腿启用、其余缩略腿零变化：轮廓命令只在 outline=true 时出现且画在珠面之前', () => {
-        const build = (withOutline: boolean) => {
-            const b = new RenderModelBuilder(750, 1334);
-            b.begin();
-            drawBeadFace(b, LEVELS[0]!, 200, 400, 360, 340, DEFAULT_PALETTE, undefined, undefined, undefined, 'bottom', withOutline);
-            return b.end().commands as readonly { fill?: string }[];
-        };
-        const plain = build(false);
-        const withOutline = build(true);
-        expect(withOutline.length).toBeGreaterThan(plain.length);
-        expect(plain[0]!.fill).not.toBe(DEFAULT_PALETTE.panel);
-        expect(withOutline[0]!.fill).toBe(DEFAULT_PALETTE.panel);
+    it('各种珠面展示统一启用：drawBeadFace 首条命令即轮廓（先轮廓、后珠面）', () => {
+        const b = new RenderModelBuilder(750, 1334);
+        b.begin();
+        drawBeadFace(b, LEVELS[0]!, 200, 400, 360, 340, DEFAULT_PALETTE, undefined, undefined, undefined, 'bottom');
+        const cmds = b.end().commands as readonly { kind: string; fill?: string }[];
+        expect(cmds[0]!.kind).toBe('polygon');
+        expect(cmds[0]!.fill).toBe(DEFAULT_PALETTE.shadowInk);
+        expect(cmds.some((c) => c.kind === 'polygon' && c.fill === DEFAULT_PALETTE.shadowInk)).toBe(true);
     });
 });
