@@ -22,7 +22,7 @@ import {
     LEVEL_DETAIL_GEO,
     LEVEL_SELECT_GEO,
     THUMB_AREA,
-    THUMB_MATRIX_N,
+    THUMB_BEAD_SHAPE,
     THUMB_STAR_BAND,
     THUMB_TOP_INSET,
     WALL_CAPACITY,
@@ -181,13 +181,18 @@ describe('WXG-T-605 · 信息两行（章名+星进度同行 / 判星对照行�
 });
 
 describe('WXG-T-605 · 格内与转场', () => {
-    it('格内图元不越格；缩略珠块落在图案槽带内', () => {
+    it('格内图元不越格；缩略珠落在图案槽带内', () => {
         const cmds = modalFrame(dataFor({ maxUnlockedLevel: 1 }));
         const first = cells()[0]!.box;
         const bandTop = first.y + first.h - THUMB_TOP_INSET;
-        // `[WXG-T-616]` 珠形档 = 三圆/珠（珠体/孔/高光），旧聚合档与超大盘回退仍是方块 ⇒ 两形态都收。
-        // `[WXG-T-619·六轮]` 珠形档 = 剪影 + 珠体（均无 alpha）+ 暗面/柔光（带 alpha）+ 孔；
-        // 只收剪影/珠体两块，上限放到一格 pitch（剪影比旧块边大）。
+        // `[WXG-T-620]` 解锁格珠面 = 盘面同款 `drawFilledBead`（facet-4）：底 rect 边长 =
+        // pitch × `diameterRatio`（>1 ⇒ 交叠，边缘珠越出槽框 `(edge − pitch)/2`）；
+        // 孔环/孔为两道小圆。旧「三圆/珠 + 剪影」档随本单退役（K-053）。
+        const lv = LEVELS[0]!;
+        const a = LEVEL_SELECT_GEO.cellArt;
+        const pitch = Math.min(a.imageW / lv.cols, a.imageH / lv.pattern.length);
+        const edge = pitch * THUMB_BEAD_SHAPE.diameterRatio;
+        const overhang = (edge - pitch) / 2;
         const blocks = cmds.filter(
             (c): c is Extract<DrawCommand, { kind: 'rect' }> | Extract<DrawCommand, { kind: 'circle' }> => {
                 if (c.kind === 'circle') {
@@ -196,14 +201,15 @@ describe('WXG-T-605 · 格内与转场', () => {
                         c.y - c.r > first.y + 1 && c.y + c.r <= bandTop + 1;
                 }
                 if (c.kind !== 'rect') return false;
-                return c.w <= 20 && c.h <= 20 && c.x > first.x + 1 && c.x + c.w < first.x + first.w - 1 &&
-                    c.y > first.y + 1 && c.y + c.h <= bandTop + 1;
+                return c.w <= edge + 0.01 && c.h <= edge + 0.01 &&
+                    c.x > first.x + 1 && c.x + c.w < first.x + first.w - 1 &&
+                    c.y > first.y + 1 && c.y + c.h <= bandTop + overhang + 1;
             },
         );
         expect(blocks.length).toBeGreaterThan(0);
         for (const b of blocks) {
             const w = b.kind === 'circle' ? b.r * 2 : b.w;
-            expect(w).toBeLessThanOrEqual(THUMB_AREA / THUMB_MATRIX_N + 0.01);
+            expect(w).toBeLessThanOrEqual(edge + 0.01);
         }
     });
 

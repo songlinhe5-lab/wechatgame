@@ -19,7 +19,7 @@ import { buildMetaModal, metaLayout, setMenuBitmapResolver, type MetaButton, typ
 import { LEVELS } from '../src/config/levels.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import {
-    DESIGN_H, DESIGN_W, LEVEL_SELECT_GEO, LEVEL_SELECT_TEXTURES, THUMB_TOP_INSET, WALL_COLS, WALL_CAPACITY, WALL_ROWS,
+    DESIGN_H, DESIGN_W, LEVEL_SELECT_GEO, LEVEL_SELECT_TEXTURES, WALL_COLS, WALL_CAPACITY, WALL_ROWS,
 } from '../src/config/tuning.js';
 
 /** 单点图元是否落在该格框内（框含 1px 容差，锁章与珠阵均按格心布点）。 */
@@ -39,24 +39,25 @@ const dashedInCell = (c: DrawCommand, b: MetaButton): boolean => {
 };
 
 /**
- * 图案槽框（稿 `176:21 grid-image`，`[WXG-T-611]`）：`drawLevelThumb` area=imageW、
- * 顶内缩 `THUMB_TOP_INSET` ⇒ 程序化珠块区 y-up = [槽底 + imageH − inset − imageW, 槽底 + imageH − inset]。
+ * 图案槽框（稿 `176:21 grid-image`，`[WXG-T-616]` 放大为 126×94，`[WXG-T-620]` 判据同步）：
+ * `drawBeadFace` 以槽宽高为界等比铺珠 ⇒ 槽 = `cellArt.imageW × imageH`。
  */
 const thumbBox = (b: MetaButton): { x: number; y: number; w: number; h: number } => {
     const a = LEVEL_SELECT_GEO.cellArt;
     return {
         x: b.box.x + a.imageLeft,
-        y: b.box.y + b.box.h - a.imageTopDown - THUMB_TOP_INSET - a.imageW,
+        y: b.box.y + b.box.h - a.imageTopDown - a.imageH,
         w: a.imageW,
-        h: a.imageW,
+        h: a.imageH,
     };
 };
 
 /**
- * `[WXG-T-502]` 缩略图只画盘面 ⇒ 色块是 `rect`（非 polygon/circle）。
- * `[WXG-T-607]` 位图模板腿新增 65×35 编号牌 rect，会落进缩略框 ⇒ 按盘面块尺寸
- * （`pitch − BEAD_GAP` ≤ 20）过滤，⛔ 不把 UI 装饰误判成盘面色块（K-053 判据迁移）。
- * `[WXG-T-616]` 珠形档 = 三圆/珠（珠体/孔/高光），与超大盘方块回退并存 ⇒ 两形态都收。
+ * `[WXG-T-620]` 缩略珠面 = 盘面同款 `drawFilledBead`（facet-4：rect 底 + 四 polygon + 两 circle）⇒
+ * 本判据只收 **rect 底 / 孔圆** 两形（顶点住 `RenderModel.vertices`，不在命令对象上；
+ * 两者的色都出自同一墨集 ⇒ 灰/彩判定不失真）。
+ * `[WXG-T-607]` 位图模板腿的 65×35 编号牌 rect 会落进缩略框 ⇒ 按珠体尺寸（≤20）过滤，
+ * ⛔ 不把 UI 装饰误判成盘面珠（K-053 判据迁移）。
  */
 const inThumbRect = (c: DrawCommand, box: { x: number; y: number; w: number; h: number }): boolean => {
     if (c.kind !== 'rect' && c.kind !== 'circle') return false;

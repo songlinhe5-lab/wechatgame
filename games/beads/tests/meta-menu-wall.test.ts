@@ -238,11 +238,13 @@ function thumbMetrics(level: (typeof LEVELS)[number]): { pitch: number; block: n
 }
 
 /**
- * 盘面色块的**空间签名**（`[WXG-T-502]`：缩略只画盘面 ⇒ 一格一块；`[WXG-T-616]` 块够大时
- * 一格 = 珠体圆，超大盘回退方块）。
+ * 盘面珠/色块的**空间签名**（`[WXG-T-502]`：缩略只画盘面 ⇒ 一格一颗；`[WXG-T-620]` 块够大时
+ * 一格 = `drawFilledBead` 的**底 rect**（facet-4 首层，边长 = pitch × `diameterRatio`），
+ * 超大盘回退方块）。
  * `[WXG-T-613]` 双口径过滤：**图案槽矩形内**（缩略珠恒落 `cellArt` 图案槽，格框外
  * 的走马灯珠拼不捞）+ **期望珠径/块边**（槽内误入的背景珠尺寸不同 ⇒ 排除）。
- * `[WXG-T-616]` 珠形档只认**珠体**（圆直径 = pitch × `diameterRatio`，相邻交叠）；孔/高光小圆不符 ⇒ 排除。
+ * `[WXG-T-620]` 珠体边长 > 格距（交叠）⇒ 盘面边缘一排的底 rect 会越出槽框 `(edge−pitch)/2`，
+ * 过滤边界同步外扩该悬挑量，否则整排边缘珠被漏掉（oracle 与实测同滤 ⇒ 会双盲失配）。
  */
 function beadSignatureIn(
     cmds: readonly DrawCommand[],
@@ -253,6 +255,7 @@ function beadSignatureIn(
     const { pitch, block } = thumbMetrics(level);
     const shaped = block >= THUMB_BEAD_SHAPE.minBlock;
     const edge = shaped ? pitch * THUMB_BEAD_SHAPE.diameterRatio : block;
+    const overhang = Math.max(0, (edge - pitch) / 2);
     const ix0 = box.x + a.imageLeft;
     const iy0 = box.y + (box.h - a.imageTopDown - a.imageH);
     return cmds
@@ -265,7 +268,8 @@ function beadSignatureIn(
             }
             if (k.kind !== 'rect') return false;
             const c = k as { x: number; y: number; w: number; h: number };
-            return c.x >= ix0 && c.x + c.w <= ix0 + a.imageW && c.y >= iy0 && c.y + c.h <= iy0 + a.imageH &&
+            return c.x >= ix0 - overhang && c.x + c.w <= ix0 + a.imageW + overhang &&
+                c.y >= iy0 - overhang && c.y + c.h <= iy0 + a.imageH + overhang &&
                 Math.abs(c.w - edge) < 0.02 && Math.abs(c.w - c.h) < 0.02;
         })
         .map((k) => {

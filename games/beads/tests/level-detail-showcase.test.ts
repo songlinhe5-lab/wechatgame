@@ -51,7 +51,7 @@ describe('WXG-T-609 关卡详情橱窗面板', () => {
         expect(panels(frame(() => false))).toHaveLength(0);
     });
 
-    it('`[WXG-T-619]` 橱窗珠面 = 共享 `drawBeadFace` 同腿（与选关格 5 圆/珠一致）', () => {
+    it('`[WXG-T-619/T-620]` 橱窗珠面 = 共享 `drawBeadFace` 同腿（与选关格同一珠体通道）', () => {
         const cmds = frame(() => false);
         const thumb = LEVEL_DETAIL_GEO.thumb;
         const plate = levelDetailPlate();
@@ -65,15 +65,14 @@ describe('WXG-T-609 关卡详情橱窗面板', () => {
         const ref = new RenderModelBuilder(DESIGN_W, DESIGN_H);
         ref.begin();
         drawBeadFace(ref, LEVELS[0]!, slot.x, slot.y, slot.w, slot.h);
-        const refCircles = ref.end().commands.filter((k) => k.kind === 'circle');
-        expect(refCircles.length).toBeGreaterThan(0);
-        // 详情帧内**连续圆流**与共享腿逐条一致（含剪影/珠体/投影/孔/高光）⇒ 两页绘制方式同源；
-        // 帧内另有少量非珠圆（道具图标）允许在珠流前后存在 ⇒ 用连续切片比对。
-        const sig = (c: Extract<DrawCommand, { kind: 'circle' }>) => JSON.stringify(c);
-        const frameSigs = cmds
-            .filter((k): k is Extract<DrawCommand, { kind: 'circle' }> => k.kind === 'circle')
-            .map(sig);
-        const refSigs = refCircles.map(sig);
+        const refCmds = ref.end().commands;
+        expect(refCmds.length).toBeGreaterThan(0);
+        // 详情帧内**连续命令切片**（全 kind，不止 circle）与共享腿逐条一致 ⇒ 两页绘制方式同源；
+        // 帧内另有少量非珠命令（道具图标等）允许在珠流前后存在 ⇒ 用连续切片比对。
+        // `[WXG-T-620]` 珠体腿 = facet-4（rect/polygon/circle 混排）⇒ 旧「只比圆流」口径退役。
+        const sig = (c: DrawCommand) => JSON.stringify(c);
+        const frameSigs = cmds.map(sig);
+        const refSigs = refCmds.map(sig);
         const at = frameSigs.indexOf(refSigs[0]!);
         expect(at).toBeGreaterThanOrEqual(0);
         expect(frameSigs.slice(at, at + refSigs.length)).toEqual(refSigs);

@@ -56,33 +56,17 @@ export const BEAD_PITCH = 32;
  *  `inset` 的裁定）。 */
 export const BEAD_GAP = 2;
 /**
- * `[WXG-T-616]` 选关九宫格缩略的**珠形档**（用户令「用有造型的珠子做效果拼接」）：
- * 块边 ≥ `minBlock` 时逐珠画「珠体圆 + 孔 + 左上高光」（三圆），否则退化为方块
- * （≤5px 时孔/高光只有 1px 级，反而是噪点）。比例全部按**珠体半径**归一。
+ * `[WXG-T-616]` 选关九宫格缩略的**珠形档**：
+ * 块边 ≥ `minBlock` 时逐珠走**盘面同款珠体腿** `drawFilledBead`（facet-4 层集，7 命令/珠），
+ * 否则退化为方块（≤5px 时孔/描边只有 1px 级，反而是噪点）。
+ * `[WXG-T-620]` 用户令「直接接入游戏中的珠面纹理」⇒ 自绘糖珠（剪影/暗面弧/柔光/高光点）
+ * 整组退役，只留 `drawFilledBead` 的 `size` 与回退阈值；珠面 recipe 唯一真源回到
+ * `view/bead-styles/facet-4.ts`（菜单不再有第二套珠体画法）。
  */
 export const THUMB_BEAD_SHAPE = {
     minBlock: 5,
-    /** `[WXG-T-619·六轮]` 珠体**直径 / pitch**（>1 ⇒ 相邻珠交叠、连成一片，用户令「互相交错」）。 */
+    /** 珠体**边长 / pitch**（= `drawFilledBead` 的 `size` 口径；>1 ⇒ 相邻珠交叠，用户令「互相交错」）。 */
     diameterRatio: 1.10,
-    /** 整体轮廓：剪影描边圆半径 = 珠体半径 ×(1+outlineRatio)（先画一遍做并集，珠体盖住内部）。 */
-    outlineRatio: 0.16,
-    /** 珠体右下**暗面弧**：`pit` 半透明大圆压在珠体上，只露右下 ⇒ 柔和体积感，无硬描边。 */
-    shadeRatio: 0.90,
-    shadeDx: 0.08,
-    shadeDy: 0.08,
-    shadeAlpha: 0.25,
-    /** 左上**柔光**：`lit` 半透明圆（比高光点大），读作糖珠受光面。 */
-    glossRatio: 0.40,
-    glossDx: 0.16,
-    glossDy: 0.16,
-    glossAlpha: 0.55,
-    /** `[WXG-T-619·七轮]` 柔光面内再叠**高光点**（更小更亮）⇒ 玻璃珠反光。 */
-    specRatio: 0.13,
-    specDx: 0.30,
-    specDy: 0.30,
-    specAlpha: 0.85,
-    /** 孔半径 / 珠体半径（同 `BEAD_CARD.holeRatio` 量级，缩略更收一点防糊）。 */
-    holeRatio: 0.20,
 } as const;
 /**
  * `[WXG-T-235 / 2026-10-03 用户裁定「甲」]` **B0 底图接缝外扩量**（单位：设计px，每边）。

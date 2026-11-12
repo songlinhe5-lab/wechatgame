@@ -37,7 +37,9 @@ import {
 } from '../src/config/tuning.js';
 import { LEVELS } from '../src/config/levels.js';
 import { BEAD_COLOR_MAX } from '../src/config/tuning.js';
-import { beadColorOf, beadFadedInksFor, beadInksFor, DEFAULT_PALETTE, type BeadInks } from '../src/view/palette.js';
+import { FACET4_PLATE_MIX } from '../src/config/tuning.js';
+import { beadColorOf, beadFadedInksFor, beadInksFor, endpointOf, mix, DEFAULT_PALETTE, type BeadInks } from '../src/view/palette.js';
+import { setBeadTintRuntime } from '../src/view/bead-render.js';
 import {
     drawLevelThumb,
     drawBeadFace,
@@ -321,11 +323,10 @@ describe('[T-613] 完整豆面档（盘面真实 rows×cols 逐珠，用户令�
     function paintFull(
         level: BeadsLevelRaw,
         inkOverride?: BeadInks,
-        alpha?: number,
     ): readonly DrawCommand[] {
         const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
         builder.begin();
-        drawBeadFace(builder, level, TX, TY, SLOT_W, SLOT_H, inkOverride, alpha);
+        drawBeadFace(builder, level, TX, TY, SLOT_W, SLOT_H, inkOverride);
         return builder.end().commands;
     }
 
@@ -413,20 +414,9 @@ describe('[T-613] 完整豆面档（盘面真实 rows×cols 逐珠，用户令�
         // 常规关（pitch ≥ BEAD_GAP×2）恒走 BEAD_GAP 支路 ⇒ 块边不漂移（L3）
         expect(fullGeo(LEVELS[2]!, SLOT_W, SLOT_H).block).toBeCloseTo(fullGeo(LEVELS[2]!, SLOT_W, SLOT_H).pitch - BEAD_GAP, 9);
     });
-
-    it('alpha ≤ 0 一命令不发；0<alpha<1 整帧半透明（淡化腿）', () => {
-        const level = LEVELS[0]!;
-        expect(paintFull(level, undefined, 0).length).toBe(0);
-        const faded = beadPrimitives(paintFull(level, undefined, 0.5));
-        expect(faded.length).toBeGreaterThan(0);
-        for (const c of faded) {
-            const fill = (c as { fill?: string; alpha?: number }).fill;
-            expect(typeof fill === 'string' || typeof c.alpha === 'number').toBe(true);
-        }
-    });
 });
 
-describe('[T-616] 选关缩略珠形档（有造型的珠子）', () => {
+describe('[T-616/T-620] 选关缩略珠形档（接入盘面珠体腿）', () => {
     const SLOT_W = 126;
     const SLOT_H = 94;
     const TX = 100;
@@ -446,50 +436,56 @@ describe('[T-616] 选关缩略珠形档（有造型的珠子）', () => {
         return builder.end().commands;
     }
 
-    it('块边 ≥ minBlock ⇒ 剪影层 + 逐珠 3 圆（珠体 / 孔 / 左上高光），珠体色 ∈ 关卡墨集', () => {
+    it('块边 ≥ minBlock ⇒ 逐珠走 `drawFilledBead`（facet-4 = 1 rect + 4 polygon + 2 circle），珠体边长 = pitch × diameterRatio', () => {
         const level = LEVELS[0]!;
         const { pitch, block } = fullGeo(level, SLOT_W, SLOT_H);
         expect(block).toBeGreaterThanOrEqual(THUMB_BEAD_SHAPE.minBlock);
-        const circles = paint(level).filter((k): k is CircleCmd => k.kind === 'circle');
-        const beads = levelThumbFullCells(level).length / 3;
-        // `[WXG-T-619·七轮]` 剪影层 + 每珠 body/暗面弧/柔光/高光点/孔（无硬描边 ⇒ 玻璃糖珠）。
-        expect(circles.length).toBe(beads * 6);
+        const cmds = paint(level);
+        const cells = levelThumbFullCells(level);
+        const beads = cells.length / 3;
+        // `[WXG-T-620]` 用户令「直接接入游戏中的珠面纹理」⇒ 珠面腿 = 盘面同款 facet-4 层集。
+        expect(cmds.length).toBe(beads * 7);
+        const size = pitch * THUMB_BEAD_SHAPE.diameterRatio;
+        expect(size).toBeGreaterThan(pitch); // 用户令「互相交错」保持：珠体 > 格距
         const inks = beadInksFor(level);
-        // `[WXG-T-616·二轮]` 珠径 = pitch × diameterRatio（>1 ⇒ 相邻珠交叠，用户令「互相交错」）。
-        const bodyR = (pitch * THUMB_BEAD_SHAPE.diameterRatio) / 2;
-        expect(bodyR * 2).toBeGreaterThan(pitch);
-        for (let i = 0; i < beads; i += 1) {
-            const outline = circles[i]!;
-            expect(outline.r).toBeCloseTo(bodyR * (1 + THUMB_BEAD_SHAPE.outlineRatio), 6);
-            const body = circles[beads + i * 5]!;
-            const shade = circles[beads + i * 5 + 1]!;
-            const gloss = circles[beads + i * 5 + 2]!;
-            const spec = circles[beads + i * 5 + 3]!;
-            const hole = circles[beads + i * 5 + 4]!;
-            expect(body.r).toBeCloseTo(bodyR, 6);
-            expect(inks.hexes).toContain(body.fill!);
-            // `[WXG-T-619·六轮]` 无逐珠描边；右下暗面弧（半透明 pit）、左上柔光（半透明 lit）。
-            expect(body.stroke).toBeUndefined();
-            expect(shade.r).toBeCloseTo(bodyR * THUMB_BEAD_SHAPE.shadeRatio, 6);
-            expect(shade.x).toBeGreaterThan(body.x);
-            expect(shade.y).toBeLessThan(body.y);
-            expect(shade.alpha).toBeCloseTo(THUMB_BEAD_SHAPE.shadeAlpha, 6);
-            expect(gloss.r).toBeCloseTo(bodyR * THUMB_BEAD_SHAPE.glossRatio, 6);
-            expect(gloss.x).toBeLessThan(body.x);
-            expect(gloss.y).toBeGreaterThan(body.y);
-            expect(gloss.alpha).toBeCloseTo(THUMB_BEAD_SHAPE.glossAlpha, 6);
-            // `[WXG-T-619·七轮]` 柔光面内的高光点：更小、更亮、更靠左上。
-            expect(spec.r).toBeCloseTo(bodyR * THUMB_BEAD_SHAPE.specRatio, 6);
-            expect(spec.x).toBeLessThan(gloss.x);
-            expect(spec.y).toBeGreaterThan(gloss.y);
-            expect(spec.alpha).toBeCloseTo(THUMB_BEAD_SHAPE.specAlpha, 6);
-            expect(hole.x).toBeCloseTo(body.x, 6);
-            expect(hole.y).toBeCloseTo(body.y, 6);
-            expect(hole.r).toBeCloseTo(bodyR * THUMB_BEAD_SHAPE.holeRatio, 6);
+        const left = TX + (SLOT_W - level.cols * pitch) / 2;
+        const top = TY + (SLOT_H + level.pattern.length * pitch) / 2;
+        let k = 0;
+        for (let i = 0; i < cells.length; i += 3) {
+            const idx = cells[i + 2]!;
+            const cx = left + (cells[i + 1]! + 0.5) * pitch;
+            const cy = top - (cells[i]! + 0.5) * pitch;
+            const group = cmds.slice(k, k + 7);
+            k += 7;
+            // 层序 = facet-4 的 LAYERS（底 rect → 四刻面 → 孔环 → 孔底）。
+            expect(group.map((g) => g.kind)).toEqual(['rect', 'polygon', 'polygon', 'polygon', 'polygon', 'circle', 'circle']);
+            const plate = group[0] as RectCmd;
+            expect(plate.x).toBeCloseTo(cx - size / 2, 6);
+            expect(plate.y).toBeCloseTo(cy - size / 2, 6);
+            expect(plate.w).toBeCloseTo(size, 6);
+            expect(plate.h).toBeCloseTo(size, 6);
+            // 色 = facet-4 端点族（C3 单源；⛔ 无菜单自拟色）。
+            const ep = endpointOf(inks, idx);
+            expect(plate.fill).toBe(mix(ep.base, FACET4_PLATE_MIX));
+            expect((group[1] as { fill?: string }).fill).toBe(ep.lit);
+            expect((group[6] as CircleCmd).fill).toBe(ep.pit);
         }
     });
 
-    it('超大盘块边 < minBlock ⇒ 回退方块（零圆，珠块不消失）', () => {
+    it('不传 `maskGauge` ⇒ tint 臂不命中（注入白名单 runtime 后命令流逐字节不变、零 blit）', () => {
+        const level = LEVELS[0]!;
+        const base = paint(level).map((c) => JSON.stringify(c));
+        setBeadTintRuntime({ getMaskId: () => 'mask:bead:facet-4:holed' });
+        try {
+            const withTint = paint(level).map((c) => JSON.stringify(c));
+            expect(withTint).toEqual(base);
+            expect(paint(level).some((c) => c.kind === 'blit')).toBe(false);
+        } finally {
+            setBeadTintRuntime(undefined);
+        }
+    });
+
+    it('超大盘块边 < minBlock ⇒ 回退方块（零珠体腿命令，珠块不消失）', () => {
         const big = simpleTestLevel({
             rows: 30,
             cols: 30,
@@ -499,6 +495,7 @@ describe('[T-616] 选关缩略珠形档（有造型的珠子）', () => {
         expect(block).toBeLessThan(THUMB_BEAD_SHAPE.minBlock);
         const cmds = paint(big);
         expect(cmds.filter((k) => k.kind === 'circle')).toHaveLength(0);
+        expect(cmds.filter((k) => k.kind === 'polygon')).toHaveLength(0);
         expect(cmds.filter((k) => k.kind === 'rect')).toHaveLength(900);
     });
 });

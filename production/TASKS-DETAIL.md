@@ -9459,3 +9459,12 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **纪律沉淀**：K-137 追记「用户批准清账批例外通道三前置」（process-ledger-sync 片，7142 tok 余量内）。
 - **验证**：`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；py_compile 两脚本 OK；重生成 10/10 逐字节一致。kb:sync --task=WXG-T-618：新增 0 / **修改 1**（K-137 追记）/ 激活 0 / 归档 0；kb:audit 相似命中 0；ctx:build 已跑。
 - **清账后工作树**：预期 clean（temp/ 与构建产物均 gitignore）；若 Trae 后续再产新 dirty 属新批，⛔ 不追提。
+
+## WXG-T-620
+
+**UI·珠面接入盘面同款珠体（`drawFilledBead`）** · 负责：主理人(Trae CN)·beads 工程轨 · 状态：🔄 进行中（2026-11-12）
+
+- **上位**（用户原话）：「直接接入游戏中的珠面纹理吧」——承 T-619 七轮自绘糖珠之后，用户裁定不再自绘，直接把**盘面同款珠体**接进选关九宫格与关卡详情橱窗。
+- **变更**：①`drawBeadFace` shaped 支路改调 **`drawFilledBead`**（与盘面/托盘/招牌同一通道；facet-4 = 1 rect + 4 polygon + 2 circle = **7 命令/珠**），模块级复用槽 `faceOpts`（只写 `size`/`inks`，零分配）；②`THUMB_BEAD_SHAPE` 收为 `minBlock` + `diameterRatio`——剪影/暗面弧/柔光/高光点/孔比整组退役，珠面 recipe 唯一真源回 `bead-styles/facet-4.ts`（K-042 同族）；③`drawBeadFace` 第 8 参 `alpha` 退役（生产零调用方）；④**不传 `targetColorIdx`**：避开 `BEAD_DRAW_INSET` 等比内缩（缩略槽无 B0 底图可露；交叠 1.10 时暗底环会啃邻珠 ≈18% 面）⇒ 珠体边长即面径。
+- **判据迁移**：`menu-thumb-primitives` 改「7 命令/珠 + 层序 rect→4 polygon→2 circle + 端点族色（底=base×PLATE_MIX / 上刻面=lit / 孔底=pit）」+ 新增「注入 tint runtime 后命令流逐字节不变、零 blit」；`meta-menu-wall` 签名边界外扩珠体悬挑 `(edge−pitch)/2`；`arc-level-select-page` 尺寸上限改按 `pitch × diameterRatio`；`arc-wall-locked` 图案槽框同步 126×94（旧框沿 84 期 `THUMB_TOP_INSET`）；`level-detail-showcase [T-619]` 由「圆流连续切片」升为「**全 kind** 连续命令切片」。
+- **验证**：金样本 `level-select` 两态 total 6022 → **6601**（干净锚重抓）；beads 单测与 `pnpm run verify` 读数见收尾回填。

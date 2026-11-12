@@ -14,19 +14,20 @@
  *   T-1 §0.3）；层集 / 系数 / 倒角 / 风格池零涉入，蜡笔不入。
  *   **缩略腿（作品格 / Boss 图位回退 / 通关书架）自 WXG-T-502 起改为「只画盘面」**：保留 5×5 聚合表，
  *   每块 = **1 条纯色 `rect`**（不画珠子描边/体积）⇒ 缩略图不随珠子样式变化，指令数从 7/颗降到 1/块（用户 2026-10-29 裁）。
- *   ⚠ **不传 `maskGauge` ⇒ tint 臂与烘焙臂都不命中 ⇒ 恒走矢量臂**（`bead-render.ts` 分流注「不传（默认）
- *   ⇒ tint 臂永不命中 ⇒ 矢量臂逐字节 = 今日」）⇒ 菜单帧图元数**确定可复算**（K-6 的前提）。
+ *   ⚠ **不传 `maskGauge` ⇒ tint 臂不命中**（`bead-render.ts` 分流注「不传（默认）⇒ tint 臂永不命中
+ *   ⇒ 矢量臂逐字节 = 今日」）；烘焙运行时在本仓从未注入（T-221 八裁归档）⇒ 恒走矢量臂
+ *   ⇒ 菜单帧图元数**确定可复算**（K-6 的前提）。`[WXG-T-620]` 缩略珠面同走该通道。
  * ② 新增只有布尔位表 ⇒ 位图 +0 KB：字模住 `config/sign-glyphs.ts`，本文件零资产引用、零字体。
  * ③ 只取既有 `palette` 珠色：招牌走 `DEMO_BEAD_INKS`、缩略走 `beadInksFor(level)`，都经 `endpointOf`
- *   ⇒ **零新 hex**（色表锁 46 条 / `68a4b509bb65` 不触动）；⛔ 不取 UI token（`text`/`accent_*`），
- *   那会把 UI 墨混进珠色族、破坏 C3 色源唯一（T-1 §1.7）。
- * ④ 封箱：本文件不碰 `drawFilledBead` 及其下游 ⇒ 珠面 seal 不触发；菜单帧的实测口径由
- *   `tests/menu-primitives-capture.ts`（K-6 装置）出数，⛔ 不引纸面值（K-051）。
+ *   （缩略在 `drawFilledBead` 内部）⇒ **零新 hex**（色表锁 46 条 / `68a4b509bb65` 不触动）；
+ *   ⛔ 不取 UI token（`text`/`accent_*`），那会把 UI 墨混进珠色族、破坏 C3 色源唯一（T-1 §1.7）。
+ * ④ 封箱：本文件只**调用** `drawFilledBead`（招牌 + 缩略珠面），不改其层集/下游 ⇒ 珠面 seal 不触发；
+ *   菜单帧的实测口径由 `tests/menu-primitives-capture.ts`（K-6 装置）出数，⛔ 不引纸面值（K-051）。
  * ⑤ **⛔ 不进玩法 `buildRenderModel` 的盘面/托盘命令流**：本模块**只被 `view/meta-view.ts` 引用**，
  *   由 import 图 + 「playing 帧四键 = 封箱基准」双向钉住（`tests/menu-primitives-k6.test.ts`）。
  *
  * ## 热路径纪律（`control-manifest §2` / L4）
- * - **位表渲染零分配**：逐格 `charCodeAt` 比较；入参选项住**模块级复用槽** `beadOpts`
+ * - **位表渲染零分配**：逐格 `charCodeAt` 比较；入参选项住**模块级复用槽** `beadOpts` / `faceOpts`
  *   （判例 = `bead-render.ts` 的 `styleInput` / `polyWorld` / `tintBlitOpts`；C2 机械锚见测试）。
  * - **缩略聚合一次性缓存**：`WeakMap<关卡, Map<n, 表>>`（判例 = `palette.ts::inksCache`），每帧只 `get`；
  *   表本体 = `number[]` 扁平三元组 `(r, c, colorIdx)` ⇒ 绘制侧零属性解构、零分配。
@@ -56,7 +57,7 @@ import {
 import { signGlyphOf } from '../config/sign-glyphs';
 import { colorIndexOfChar } from '../config/bead-charset';
 import type { BeadsLevelRaw } from '../config/levels-data';
-import { DEMO_BEAD_INKS, beadColorOf, beadInksFor, endpointOf, relativeLuminance, type BeadInks } from './palette';
+import { DEMO_BEAD_INKS, beadColorOf, beadInksFor, relativeLuminance, type BeadInks } from './palette';
 import { drawFilledBead, type FilledBeadOptions } from './bead-render';
 
 /**
@@ -67,6 +68,12 @@ import { drawFilledBead, type FilledBeadOptions } from './bead-render';
  */
 type WritableBeadOptions = { -readonly [K in keyof FilledBeadOptions]: FilledBeadOptions[K] };
 const beadOpts: WritableBeadOptions = {};
+/**
+ * `[WXG-T-620]` 珠面腿复用槽（`drawBeadFace` 逐珠复用；只写 `size` / `inks` ⇒ 其余字段恒
+ * `undefined` = 默认臂 ⇒ 不传 `maskGauge` ⇒ tint 臂永不命中、恒走矢量臂）。与招牌槽分离是
+ * 为避免「招牌写 `targetColorIdx`、珠面不写」的跨腿串味（两腿省一行清字段，不共用实例）。
+ */
+const faceOpts: WritableBeadOptions = {};
 
 /** 位表「有珠」格字符码点（`'#'`，与 `config/sign-glyphs.ts` 同口径）。 */
 const HASH_CODE = 0x23;
@@ -391,10 +398,17 @@ export function levelThumbFullCells(level: BeadsLevelRaw): readonly number[] {
  * 同口径（C3 单源）。⛔ **不接位图臂**：
  * 预烘缩略图是聚合档内容，blit 会冒充完整豆面。旧聚合档保留（主菜单走马灯 / 死链仍走）。
  * `[WXG-T-616]` **唯一珠面绘制腿**：选关九宫格与**关卡详情橱窗**共用（用户令「两边绘制方式
- * 保持一致，抽象出独立方法」）——立体珠参数全在本函数内，后期优化只改这一处。
+ * 保持一致，抽象出独立方法」）——珠体参数只在本函数一处，后期优化只改这里。
+ * `[WXG-T-620]` 用户令「直接接入游戏中的珠面纹理」⇒ 珠体腿改调 `drawFilledBead`
+ * （与盘面 / 托盘 / 招牌**同一通道**，facet-4 层集 = 1 rect + 4 polygon + 2 circle：
+ * 暗底环 / 四向刻面 / 孔环 / 孔底），自绘糖珠（剪影 + 暗面弧 + 柔光 + 高光点）整组退役——
+ * 菜单不再有第二套珠面 recipe（K-042 同族：recipe 唯一真源 = `bead-styles/facet-4.ts`）。
+ * ⚠ **不传 `targetColorIdx`**：那道闸会触发 `BEAD_DRAW_INSET` 等比内缩（面 = 珠体 ×26/30），
+ * 缩略槽里没有 B0 底图可露、且交叠 1.10 时暗底环会多啃邻珠 ≈18% 面 ⇒ 珠体边长即面径。
+ * 块边 < `minBlock` 的超大盘回退方块（1px 级孔环糊成噪点）。
  *
  * @param x       槽**左缘**；@param yBottom 槽**下缘**（y-up）；@param w/@param h 槽宽高
- * @param inkOverride 墨集覆盖（未通关置灰，同 `drawLevelThumb`）；@param alpha 整体透明
+ * @param inkOverride 墨集覆盖（未通关置灰，同 `drawLevelThumb`）
  */
 export function drawBeadFace(
     builder: RenderModelBuilder,
@@ -404,9 +418,7 @@ export function drawBeadFace(
     w: number,
     h: number,
     inkOverride?: BeadInks,
-    alpha?: number,
 ): void {
-    if (alpha !== undefined && alpha <= 0) return;
     const cells = levelThumbFullCells(level);
     if (cells.length === 0) return;
     const rows = level.pattern.length;
@@ -417,50 +429,10 @@ export function drawBeadFace(
     const inks = inkOverride ?? beadInksFor(level);
     const gap = pitch < BEAD_GAP * 2 ? pitch * 0.4 : BEAD_GAP;
     const block = pitch - gap;
-    const fillAlpha = alpha !== undefined && alpha < 1 ? { alpha } : undefined;
-    /**
-     * `[WXG-T-616]` 用户令「用有造型的珠子做效果拼接」：块够大时逐珠改画
-     * **珠体圆 + 孔 + 左上高光**（三圆，色全取预烘端点表 ⇒ 热路径只查表）；
-     * 块边 < `minBlock` 的超大盘回退方块，避免 1px 级孔/高光糊成噪点。
-     * `[WXG-T-616·二轮]` 用户令「珠子直径大一些、互相交错」⇒ 珠径按 **pitch × diameterRatio**
-     * （>1 相邻交叠 ≈18%），孔/高光仍按珠体半径归一。
-     * `[WXG-T-616·三轮]` 用户令「立体优化、整体加个轮廓」⇒ ①先全盘铺一遍**剪影圆**
-     * （`shadeOuter`，并集成整体轮廓，珠体盖住内部只留边缘）；②珠体加暗缘描边；
-     * ③孔色由 pit 提到更深的 hole。命令数 +1/珠（轮廓层）。
-     * `[WXG-T-616·四轮]` 用户令「不要实心背景，逐珠加光影、整体轮廓加更强阴影」⇒
-     * ①剪影加粗到 **1.42R**、统一 `shadeOuter`（0.80 暗）；②珠体暗缘加深到 `pit`；
-     * ③新增逐珠**投影圆**（`shadeMid` 0.68、0.62R、右下偏 0.20R）⇒ 左上亮 / 右下暗。
-     * `[WXG-T-616·五轮]` 用户令「光影感不要太强，如截图」⇒ 撤回逐珠投影圆（四轮 ③），
-     * 剪影回到 **1.20R**、暗缘收窄到 0.12R，孔/高光同步收敛 ⇒ 平光细缘、只留轻立体。
-     * `[WXG-T-619·六轮]` 用户令「希望设计一下效果，现在效果不理想」⇒ 弃**逐珠硬描边**
-     * （截图里是"靶心环"观感）：珠体无 stroke；改 **暗面弧（`pit` α0.25 右下）+
-     * 柔光面（`lit` α0.55 左上）+ 小孔**，只在整体剪影留细轮廓 ⇒ 糖珠质感。
-     * `[WXG-T-619·七轮]` 用户选「柔光面再叠一层更小的 α」⇒ 柔光面内加**高光点**
-     * （`lit` α0.85、0.13R、左上 0.30R）⇒ 玻璃珠反光，仍无描边。
-     */
     const shaped = block >= THUMB_BEAD_SHAPE.minBlock;
-    const bodyR = (pitch * THUMB_BEAD_SHAPE.diameterRatio) / 2;
-    const outlineR = bodyR * (1 + THUMB_BEAD_SHAPE.outlineRatio);
-    const shadeR = bodyR * THUMB_BEAD_SHAPE.shadeRatio;
-    const shadeDx = bodyR * THUMB_BEAD_SHAPE.shadeDx;
-    const shadeDy = bodyR * THUMB_BEAD_SHAPE.shadeDy;
-    const glossR = bodyR * THUMB_BEAD_SHAPE.glossRatio;
-    const glossDx = bodyR * THUMB_BEAD_SHAPE.glossDx;
-    const glossDy = bodyR * THUMB_BEAD_SHAPE.glossDy;
-    const specR = bodyR * THUMB_BEAD_SHAPE.specRatio;
-    const specDx = bodyR * THUMB_BEAD_SHAPE.specDx;
-    const specDy = bodyR * THUMB_BEAD_SHAPE.specDy;
-    const holeR = bodyR * THUMB_BEAD_SHAPE.holeRatio;
     if (shaped) {
-        // 剪影层：所有珠先铺暗圆 ⇒ 相邻并集，内部被下一轮珠体盖住，只在整体边缘露出轮廓。
-        for (let i = 0; i < cells.length; i += 3) {
-            const r = cells[i]!;
-            const c = cells[i + 1]!;
-            const idx = cells[i + 2]!;
-            const cx = left + (c + 0.5) * pitch;
-            const cy = top - (r + 0.5) * pitch;
-            builder.circle(cx, cy, outlineR, { fill: endpointOf(inks, idx).shadeOuter, ...(fillAlpha ?? {}) });
-        }
+        faceOpts.size = pitch * THUMB_BEAD_SHAPE.diameterRatio;
+        faceOpts.inks = inks;
     }
     for (let i = 0; i < cells.length; i += 3) {
         const r = cells[i]!;
@@ -469,16 +441,10 @@ export function drawBeadFace(
         const cx = left + (c + 0.5) * pitch;
         const cy = top - (r + 0.5) * pitch;
         if (shaped) {
-            const ep = endpointOf(inks, idx);
-            builder.circle(cx, cy, bodyR, { fill: ep.base, ...(fillAlpha ?? {}) });
-            builder.circle(cx + shadeDx, cy - shadeDy, shadeR, { fill: ep.pit, alpha: THUMB_BEAD_SHAPE.shadeAlpha, ...(fillAlpha ?? {}) });
-            builder.circle(cx - glossDx, cy + glossDy, glossR, { fill: ep.lit, alpha: THUMB_BEAD_SHAPE.glossAlpha, ...(fillAlpha ?? {}) });
-            builder.circle(cx - specDx, cy + specDy, specR, { fill: ep.lit, alpha: THUMB_BEAD_SHAPE.specAlpha, ...(fillAlpha ?? {}) });
-            builder.circle(cx, cy, holeR, { fill: ep.hole, ...(fillAlpha ?? {}) });
+            drawFilledBead(builder, cx, cy, idx, faceOpts);
         } else {
             builder.rect(cx - block / 2, cy - block / 2, block, block, {
                 fill: beadColorOf(inks, idx),
-                ...(fillAlpha ?? {}),
             });
         }
     }
