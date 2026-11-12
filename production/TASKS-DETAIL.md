@@ -9419,7 +9419,7 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **二轮（同日 · 用户令「珠子直径可以大一些，互相交错排列，整体造型感更强」）**：珠径由块边改 **pitch × 1.18**（`THUMB_BEAD_SHAPE.diameterRatio`）⇒ 相邻珠交叠 ≈18%（8×8 盘 13.9px / 11.75px 间距），孔/高光按珠体半径归一；交叠深 2.1px < 孔外缘距 4.8px（孔不被吃）；命令数不变。
 - **三轮（同日 · 用户令「参考图，珠子造型立体优化，实心背景，可以整体加个轮廓」）**：①`drawLevelSelectCell` 在图案槽铺 `palette.panel`（暖纸白 #FFFCF6）圆角背板（r8，锁定格不铺）；②珠体 `edge` 暗缘描边 0.22R、孔色 `pit`→`hole`；③`drawLevelThumbFull` 前置**剪影层**：全盘铺 `shadeOuter` 圆（1.28R）并集，珠体盖内部 ⇒ 整体轮廓。命令数 +1/珠；判据：`menu-thumb-primitives` 改 4 圆/珠（剪影+body+hole+glint，body 断言 stroke/lineWidth）。
 - **待办**：金样本 `level-select` 两态在干净锚重抓；全量 `verify` 后回填本行读数。
-- **验证**：`meta-menu-wall` 盘面签名迁「圆/方块双形态」（圆径 = pitch×`diameterRatio`，孔/高光不符自动排除）；`arc-wall-locked` / `arc-level-select-page` 判据同步双形态；金样本在干净锚 **`da24d4aa`** 重抓（两遍确定性自证 PASS；二轮仅坐标/半径变、total 4285 不变），其余十帧逐字未变；beads 单测 **1456 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（含 framework:sync:check、cocos:check）。
+- **验证**：`meta-menu-wall` 盘面签名迁「圆/方块双形态」（圆径 = pitch×`diameterRatio`，剪影/孔/高光不符自动排除）；`arc-wall-locked` / `arc-level-select-page` 判据同步双形态；`menu-thumb-primitives` 改 4 圆/珠（剪影+body+hole+glint，body 断言 stroke/lineWidth）；金样本在干净锚 **`458947fa`** 重抓（两遍确定性自证 PASS），两态 **total 4285 → 4873**（+588：576 剪影圆 + 12 背板 rect），其余十帧逐字未变；beads 单测 **1456 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（含 framework:sync:check、cocos:check）。
 - **工作树遗留件（⛔ 不代提）**：preview SVG、`games/beads/package.json` 版本号、`tools/scripts/{harness-bitmap-shot.mjs,minimax-h3-t2v.py}` 等非本单改动未入本笔。
 
 ## WXG-T-617
