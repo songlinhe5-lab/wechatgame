@@ -9469,3 +9469,4 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **判据迁移**：`menu-thumb-primitives` 改「7 命令/珠 + 层序 rect→4 polygon→2 circle + 端点族色（底=base×PLATE_MIX / 上刻面=lit / 孔底=pit）」+ 新增「注入 tint runtime 后命令流逐字节不变、零 blit」；`meta-menu-wall` 签名边界外扩珠体悬挑 `(edge−pitch)/2`；`arc-level-select-page` 尺寸上限改按 `pitch × diameterRatio`；`arc-wall-locked` 图案槽框同步 126×94（旧框沿 84 期 `THUMB_TOP_INSET`）；`level-detail-showcase [T-619]` 由「圆流连续切片」升为「**全 kind** 连续命令切片」。
 - **验证**：金样本 `level-select` 两态 total 6022 → **6601**（干净锚 `f1c94f14` 重抓，十一帧两遍确定性自证 PASS；其余九帧逐字节不变）；beads 单测 **1458 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（含 framework:sync:check、cocos:check、check:frozen-values）。
 - **提交**：`f1c94f14` feat（代码 + Cocos 镜像 + 设计文档 + 台账）＋ 本笔 test（金样本 + 台账回填）。
+- **知识沉淀（kb:sync --task=WXG-T-620）**：新增 **0** / 修改 0 / 激活 0 / 归档 0（本轮为既定 recipe 的接入与判据迁移，无新判例）；kb:audit 相似命中 0；ctx:build 由提交钩子刷新（BUDGET/hot-files/index 随本笔入库）。
