@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4065,
       "lines": 136,
-      "sha256": "0b59a3578fb19b4ef7fd41f6acf25190b98e0033ff2b91d75d4ed0e5163261df",
+      "sha256": "2b10d373c10c53dd05e65836fa33cc7f8fd38d795b40107db4305c275c389dc1",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 285821 9635 normal",
+          "summary": "1 production/TASKS-DETAIL.md 285861 9635 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5290,
       "lines": 164,
-      "sha256": "b4bdc912303cc145d8288cb43b11932c9c857885a6ad9bdc7435681cceab751d",
+      "sha256": "5b4f20e62065bf35c3f911872410612d89baef9d4fb6db1d324921022225d9c7",
       "tier": "normal",
       "sections": [
         {
@@ -1080,7 +1080,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 9635 行 / 285821 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 9635 行 / 285861 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
@@ -89929,9 +89929,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 285821,
+      "tokens": 285861,
       "lines": 9635,
-      "sha256": "449a62922aba79f8a0c14d939701d59622139fa7c4cc3afe583d6de34cfc56aa",
+      "sha256": "717bfab40d0706379915842ce38abea6418d6dd45527b73aeffed48bc10abdf4",
       "tier": "normal",
       "sections": [
         {
@@ -89939,7 +89939,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 9636,
-          "tokens": 285805,
+          "tokens": 285844,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -104576,7 +104576,7 @@
           "level": 2,
           "startLine": 9622,
           "endLine": 9636,
-          "tokens": 687,
+          "tokens": 726,
           "summary": "UI·关卡详情图案落托盘 + 居中 · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成（2026",
           "keywords": [
             "WXG",

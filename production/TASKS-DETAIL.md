@@ -9631,5 +9631,5 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **实帧**：`temp/detail-shot-918/detail-wide.png`（第 7 关 14×8 底缘坐圆台、左右对称）/ `detail-tall.png`（第 2 关 10×13 同口径）。temp 不入库。
 - **文档**：`level-detail-spec.md` 新增 §12；`ui-architecture-beads §12` 登记。
 - **验证**：beads 单测 **1471 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；金样本十一帧零漂移（`level-detail` 不在覆盖态内）。
-- **提交**：待填。
+- **提交**：`6e9e1b19` feat（`anchor` 参数 + 详情页槽位/轴 + 判据 + 规格 §12 + Cocos 镜像 + 台账）＋ 本笔 docs（台账回填）。
 - **知识沉淀（kb:sync --task=WXG-T-918）**：新增 0 / 修改 0 / 激活 0 / 归档 0（几何口径已写入 `drawBeadFace` 的 `anchor` 参数注与 `level-detail-spec §12`；「底锚取最后内容行、void 行不占位」无既有判例冲突）。
