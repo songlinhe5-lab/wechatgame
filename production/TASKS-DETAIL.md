@@ -9542,5 +9542,6 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **效果**：截图态（L1 三星 / L2 两星 / L3 无星）⇒ 高亮第三关；之后回放任意旧关不漂移；全通态高亮最后一关。
 - **判据**：`beads-shell.test.ts` 两例——「前两关有星 ⇒ 高亮第三关（`play.levelIndex` 仍为 0）」+「解锁内全有星 ⇒ 回落前沿」。
 - **文档**：`arc-level-select-spec §3` / `level-select-page-layout §2I`（v0.20）/ `ui-architecture-beads §12` / `meta-types` 字段注释同步。
-- **验证**：待填。
-- **提交**：待填。
+- **验证**：beads 单测 **1463 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；金样本 `level-select` / `level-select-mid` 重抓后 **total 9437 / 逐 kind 计数不变**，sha 回到高亮槽 0 口径（合成夹具全 0 星 ⇒ 首个 0 星 = L1）；十一帧两遍确定性自证 PASS，干净锚 `4a016e73`。实帧证据 `temp/thumb-shot-912/levels-frontier.png`（L1 三星 / L2 两星 / L3 无星 ⇒ 仅第三格高亮）。
+- **提交**：`4a016e73` fix（口径 + 判据 + 文档 + Cocos 镜像 + 台账）＋ 本笔 test（金样本 + 台账回填）。
+- **知识沉淀（kb:sync --task=WXG-T-912）**：新增 0 / 修改 0 / 激活 0 / 归档 0（同一机制二次改口径，无新判例；口径已写入 `beads-shell.ts` 行内注与 §2I）。
