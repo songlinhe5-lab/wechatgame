@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4065,
       "lines": 136,
-      "sha256": "aef89dbf82b8266e08cb09bc2290fba6c058d0c5102206da36d6789addcf79c4",
+      "sha256": "22b5a95316acf460a5f3aa7ec3d0deb1e94c26c0bebbd905fdb6c2fdadf04baf",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 286524 9650 normal",
+          "summary": "1 production/TASKS-DETAIL.md 286559 9650 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5290,
       "lines": 164,
-      "sha256": "21012fbbe535698559cdf9606188123e56e44599a5805bc98f336046c3dbd8ad",
+      "sha256": "8674a9c5afd9291267aa74d4816ba546546bf96f739835edc8a1b6485bcb5139",
       "tier": "normal",
       "sections": [
         {
@@ -1080,7 +1080,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 9650 行 / 286524 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 9650 行 / 286559 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
@@ -89929,9 +89929,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 286524,
+      "tokens": 286559,
       "lines": 9650,
-      "sha256": "c8ff8e2f2a15c890f75e277925a0aeffd0399254b30e263e35019577d29aef9b",
+      "sha256": "3a5679e995614b76db726b18d8ec5f205f15d90b26f4b8c4da30a6f3419175b3",
       "tier": "normal",
       "sections": [
         {
@@ -89939,7 +89939,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 9651,
-          "tokens": 286508,
+          "tokens": 286542,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -104589,7 +104589,7 @@
           "level": 2,
           "startLine": 9637,
           "endLine": 9651,
-          "tokens": 661,
+          "tokens": 695,
           "summary": "UI·首页锁态章不可点进选关页（入口闸门） · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成（",
           "keywords": [
             "WXG",

@@ -9646,5 +9646,5 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **判据**：`arc-ticket-gate.test.ts` —— 改 1 例（锁态点卡零事件：overlay 仍 none / 零扣心 / 零事件 / 指针不动）；另 2 例（两层不混用 / 行为随臂）不再经选关页读闸门值（页位落定腿已算好）。
 - **实帧日志**：`temp/lock-entry-919`（CDP）：锁态章 `_openLevelsFromMenu() → false, overlay none, chip 20/24`；补满 24★ 后 `→ true, overlay levels`。temp 不入库。
 - **验证**：beads 单测 **1471 passed / 2 skipped（125 文件，本任务未增用例数：改 1 例 + 2 例改读值腿）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；金样本十一帧零漂移（golden 场景均首章 / 门票达成）。
-- **提交**：待填。
+- **提交**：`2a73109e` feat（入口闸门 + R14 改判 + 判据 + 文档 + Cocos 镜像 + 台账）＋ 本笔 docs（台账回填）。
 - **知识沉淀（kb:sync --task=WXG-T-919）**：新增 0 / 修改 0 / 激活 0 / 归档 0（改判依据已写入 `arc-level-select-spec §4` R14 与 §4.1-（2）；「用户裁量优先于旧 UX 理由」属既有 K-053 划档口径，无新判例）。
