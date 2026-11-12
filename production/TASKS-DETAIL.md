@@ -9430,7 +9430,7 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **变更**：①`drawLevelThumbFull` 更名 **`drawBeadFace`**（menu-signage，唯一珠面绘制腿；立体珠/轮廓/投影参数全在其中）；②`meta-level-detail-page.ts` 弃聚合档 `drawLevelThumb`，改调 `drawBeadFace`（槽 `thumb.w`×`thumb.area` = 295×240，橱窗内垂直居中）；③`drawLevelDetailPage` 删 `thumbN` 形参，`meta-view` 覆写表与测试同步。
 - **判据**：新增 `level-detail-showcase` `[T-617]`——详情帧圆流中定位共享腿首圆，连续切片与 `drawBeadFace` 直绘逐条相等（JSON 逐字段）；金样本 11 帧不含详情 overlay ⇒ 零变化。
 - **二轮（同日 · 用户令「缩略图珠面的珠子参考，光影感不要太强，最好如截图效果」）**：撤回逐珠投影圆；剪影 1.42R → **1.20R**、暗缘 0.22R → **0.12R**、孔 0.30R → 0.26R、高光 0.24R → 0.18R ⇒ 平光细缘（截图 = 贴纸风拼豆猫：细暗缘 + 小孔 + 点状高光 + 适中轮廓）。两页共用 `drawBeadFace` ⇒ 同步生效。
-- **验证**：`level-detail-showcase` 新增 `[T-619]`——详情帧圆流定位共享腿首圆后连续切片逐条相等（JSON 逐字段，含剪影/珠体/孔/高光）；`menu-thumb-primitives` 回到 **4 圆/珠**（剪影+body+hole+glint）并改断言 0.12R 细缘；金样本在干净锚重抓（level-select 两态，total 5443 → 5059）；beads 单测 **1458 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（含 framework:sync:check、cocos:check）。
+- **验证**：`level-detail-showcase` 新增 `[T-619]`——详情帧圆流定位共享腿首圆后连续切片逐条相等（JSON 逐字段，含剪影/珠体/孔/高光）；`menu-thumb-primitives` 回到 **4 圆/珠**（剪影+body+hole+glint）并改断言 0.12R 细缘；金样本在干净锚重抓（level-select 两态，total 5443 → 4864）；beads 单测 **1458 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（含 framework:sync:check、cocos:check）。
 - **工作树遗留件（⛔ 不代提）**：preview SVG、`games/beads/package.json` 版本号、`tools/scripts/{harness-bitmap-shot.mjs,minimax-h3-t2v.py}` 等非本单改动未入本笔。
 
 ## WXG-T-617
