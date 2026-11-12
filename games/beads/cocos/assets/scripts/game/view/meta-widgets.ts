@@ -187,11 +187,9 @@ export function drawWallCell(
 ): void {
     const slot = b.slot;
     const levelIdx: number | undefined = slot === undefined ? undefined : data.wallSlots[slot];
-    // `[WXG-T-345]` S-4：章首格在「门票已达成、但推进位尚未越过章界」时也是可进格（shell 的
-    // `pick-level` 会在点击那一刻推既有两根指针）⇒ 锁判据追加章首豁免。
-    // ⚠ 只认 `=== true`：旧调用方 / 合成数据不传该字段 ⇒ 锁判据逐字不变（零漂移）。
-    const gateOpensFirst = slot === 0 && data.arcTicketOpen === true;
-    if (levelIdx === undefined || (levelIdx + 1 > data.maxUnlockedLevel && !gateOpensFirst)) {
+    // `[WXG-T-921]` 锁判据 = 单一 `maxUnlockedLevel`：shell 已把门票腿并进解锁前沿
+    // （`_unlockedFrontier`，T-920）⇒ 视图不再为章首格单开「门票豁免」腿（旧 `gateOpensFirst` 退役）。
+    if (levelIdx === undefined || levelIdx + 1 > data.maxUnlockedLevel) {
         // EP13-FU-1 · Q15 合形：未解锁与越界空槽同走锁格（虚线空槽在墙格路径退场；零热区不变）。
         drawLockedWallCell(builder, b.box, palette, slot === undefined ? undefined : data.wallLevels[slot], thumbN);
         return;

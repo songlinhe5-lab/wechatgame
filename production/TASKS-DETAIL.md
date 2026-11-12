@@ -9663,3 +9663,17 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：beads 单测 **1471 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；金样本十一帧零漂移（golden 场景均首章 / 门票未变）。实帧：`carouselState: pushing / currentLevelIndex: 9 / viewMaxUnlocked: 10`。
 - **提交**：`e2929857` refactor（判据收拢 + 闸门/三态/高亮同源 + 判据 4 断言 + 规格 v1.15 + Cocos 镜像 + 台账）＋ 本笔 docs（台账回填）。
 - **知识沉淀（kb:sync --task=WXG-T-920）**：新增 0 / 修改 0 / 激活 0 / 归档 0（判据收拢写在 `_unlockedFrontier` 注释与 `arc-level-select-spec §4.1` v1.15；「门票 ⇒ 章首必解锁」由用户判据直接给定，无新判例）。
+
+## WXG-T-921
+
+**架构·视图删章首门票豁免腿（锁判据单源）** · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成（2026-11-12 · 用户令「先按方案②优化章首格样式」）
+
+- **上位（用户令）**：T-920 收口后选项②——把选关格「门票豁免」收编为直接读 `maxUnlockedLevel`，删掉视图侧旁路判据。
+- **变更**：① `meta-widgets.ts::drawWallCell` 删 `const gateOpensFirst = slot === 0 && data.arcTicketOpen === true`，锁判据 → `levelIdx + 1 > data.maxUnlockedLevel`；② `level-select-view-model.ts::updateLevelSelectRows` 同删，`c.locked` 同式；③ `meta-types.ts` 的 `arcTicketOpen` 注释改为「视图不再消费，保留为 shell 入口闸门 / 测试观测信号」。
+- **为什么安全**：shell 已把门票腿并进 `v.maxUnlockedLevel = _unlockedFrontier(levelsArc)`（T-920）⇒ 章 2 页拿到 10，章首格自然过锁判据；门票未达的章入口已被 T-919 拦，页面不可达。
+- **文档**：`arc-level-select-spec §4.1` v1.15 补注；`ui-architecture-beads §12` 登记。
+- **判据**：既有 1471 例全绿（视图测试无 `gateOpensFirst` 依赖，无需改例）；`pnpm run verify` PASS 23；金样本零漂移。
+- **实帧**：`temp/levels-shot-921/levels-ch2-open.png`——章 2 页唯一格（第 10 关）= 作品缩略 + 三空星 + 金星框高亮；其余 8 格锁图占位（编号牌留白）。`currentLevelIndex: 9 / maxUnlockedLevel: 10`。temp 不入库。
+- **验证**：beads 单测 **1471 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；金样本十一帧零漂移（锁判据等价变换：shell 投影后视图判定逐字不变）。
+- **提交**：待填。
+- **知识沉淀（kb:sync --task=WXG-T-921）**：新增 0 / 修改 0 / 激活 0 / 归档 0（「判据旁路清零」写在 `meta-widgets` / `level-select-view-model` 行内注与 `arc-level-select-spec §4.1` v1.15 补注）。

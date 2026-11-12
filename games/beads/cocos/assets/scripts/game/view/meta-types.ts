@@ -99,10 +99,11 @@ export interface MetaViewData {
      * `[WXG-T-345]` **章入口闸门**只读布尔（S-4；`ux v1.10 §4.1（3-补）` 的「章锁态」）。
      * = 该章页门票成立 ∨ 既有推进位已越过章首（棘轮 I7）；首章无前置 ⇒ `true`。
      *
-     * ⚠ **推进层 ≠ 显示层**（主理人 D 拍定）：本字段是门票/闸门的判定，⛔ 复用橱窗三态
-     * {@link MetaBossState}（`locked`/`pushing`/`cleared` 是按 ≥1★ 计算的显示口径，一字不动）。
+     * `[WXG-T-921]` 视图侧**不再消费**本字段：门票腿已并入 shell 的解锁前沿
+     * （`_unlockedFrontier`，T-920）⇒ 选关格锁判据只剩 `maxUnlockedLevel` 一套。
+     * 本字段保留为 shell 入口闸门 / 测试观测信号（`_openLevelsFromMenu` 读它）。
      * ⚠ 视觉呈现（是否画锁、画在哪）归美术批；本字段只给判断，⛔ 新热区、⛔ 弹窗。
-     * 缺省（旧调用方 / 合成数据）⇒ `undefined` ⇒ 视图按「无门票信息」处理（锁判据逐字不变）。
+     * 缺省（旧调用方 / 合成数据）⇒ `undefined`。
      */
     readonly arcTicketOpen?: boolean;
     /**

@@ -102,13 +102,12 @@ export function updateLevelSelectViewModel(
         const c = vm.cells[i]! as Mutable<LevelSelectCellViewModel>;
         const slot = b.slot ?? i;
         const levelIdx: number | undefined = data.wallSlots[slot];
-        const gateOpensFirst = slot === 0 && data.arcTicketOpen === true;
         c.slot = slot;
         c.box = b.box;
         c.levelIdx = levelIdx;
         c.level = levelIdx === undefined ? undefined : data.wallLevels[slot];
-        c.locked = levelIdx === undefined
-            || (levelIdx + 1 > data.maxUnlockedLevel && !gateOpensFirst);
+        // `[WXG-T-921]` 单一锁判据（门票腿已并入 shell 的 `_unlockedFrontier` ⇒ 无章首豁免）。
+        c.locked = levelIdx === undefined || levelIdx + 1 > data.maxUnlockedLevel;
         c.stars = levelIdx === undefined ? 0 : (data.starsByLevel[levelIdx] ?? 0);
         c.current = levelIdx !== undefined && levelIdx === data.currentLevelIndex;
         c.pressed = data.pressed === b;
