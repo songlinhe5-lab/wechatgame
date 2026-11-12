@@ -123,7 +123,7 @@ describe('EP13-FU-1 墙几何 3×3（A1；`[WXG-T-605]` 起 = 详情木牌版式
 });
 
 describe('EP13-FU-1 锁格合形（A2 / §7 锁形通道；`[WXG-T-611]` 图案槽稿面化）', () => {
-    it('未解锁格 = 图案槽贴稿面锁图（69×76 槽位）+ 星带隐藏 + 无虚线（`slotDashed` 图元退场）', () => {
+    it('未解锁格 = 图案槽贴稿面锁图（等比居中于放大槽）+ 星带隐藏 + 无虚线（`slotDashed` 图元退场）', () => {
         // `[WXG-T-611]` 位图臂：resolver 开 lockImage ⇒ 锁格图案槽 blit 稿 `176:21`，无星无旧锁角章。
         setMenuBitmapResolver((id) => id === LEVEL_SELECT_TEXTURES.lockImage);
         const cs = cells();
@@ -133,16 +133,17 @@ describe('EP13-FU-1 锁格合形（A2 / §7 锁形通道；`[WXG-T-611]` 图案�
         // ① 虚线退场：该格框内不存在 `slotDashed` 描边的线段。
         const dashed = cmds.filter((c) => dashedInCell(c, locked));
         expect(dashed).toHaveLength(0);
-        // ② 锁形通道：图案槽位精确落位（格内 x=44、距视觉顶 49、69×76）。
+        // ② 锁形通道：`[WXG-T-616]` 放大槽内按原生 69×76 **等比**居中（⛔ 不拉伸铺槽）。
         const a = LEVEL_SELECT_GEO.cellArt;
         const lockBlits = cmds.filter(
             (c) => c.kind === 'blit' && (c as { textureId: string }).textureId === LEVEL_SELECT_TEXTURES.lockImage && inCell(c, locked),
         ) as { x: number; y: number; w: number; h: number }[];
         expect(lockBlits, '每锁格恰 1 枚锁图案').toHaveLength(1);
+        const lockW = a.imageH * (a.lockW / a.lockH);
         expect(lockBlits[0]).toMatchObject({
-            x: locked.box.x + a.imageLeft,
+            x: locked.box.x + a.imageLeft + (a.imageW - lockW) / 2,
             y: locked.box.y + (locked.box.h - a.imageTopDown - a.imageH),
-            w: a.imageW,
+            w: lockW,
             h: a.imageH,
         });
         // ③ 星带隐藏（`T-611` 用户令「锁关…同时隐藏 3 个星星」）。

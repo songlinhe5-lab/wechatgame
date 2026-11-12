@@ -338,11 +338,13 @@ export function drawLevelSelectCell(
     // `[WXG-T-607]` 三带按稿分离：编号牌在格顶、图案槽在格中、星带在格底。
     // `[WXG-T-611]` 图案槽 = 稿 `176:21 grid-image` 69×76 @格内 (44, 距视觉顶 49)：锁定 = 稿面锁
     // 图案位图（缺图 ⇒ 灰珠阵降级），解锁 = 程序化珠拼；两态都**隐藏三星** + 旧锁角章退场（K-053）。
+    // `[WXG-T-616]` 用户令「图案尺寸太小」⇒ 槽放大到 126×94 @(16, 距顶 39)；锁图仍按原生比例居中。
     const ix = x + a.imageLeft;
     const iy = y + (h - a.imageTopDown - a.imageH);
     if (cell.locked || cell.levelIdx === undefined) {
         if (menuBitmapReady(LEVEL_SELECT_TEXTURES.lockImage)) {
-            builder.blit(LEVEL_SELECT_TEXTURES.lockImage, ix, iy, a.imageW, a.imageH);
+            const lockW = a.imageH * (a.lockW / a.lockH);
+            builder.blit(LEVEL_SELECT_TEXTURES.lockImage, ix + (a.imageW - lockW) / 2, iy, lockW, a.imageH);
         } else if (cell.level !== undefined) {
             // `[WXG-T-613]` 锁定降级腿 = 灰墨**完整豆面**（槽位不变；旧聚合档保留给走马灯/详情页）。
             drawLevelThumbFull(builder, cell.level, ix, iy, a.imageW, a.imageH, beadFadedInksFor(cell.level));

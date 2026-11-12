@@ -29,6 +29,11 @@
  * `exposure−0.10, contrast−0.015, saturation−1`。三态位图重导**直用**（⛔ 不再裁框，T-612 一轮
  * 的腐蚀裁框随旧素材一并退场，K-053）；星换 `214:98 grid-star` 新组件集（素材重导 64×60）+
  * gap 3；brand / lockImage / grid-image 几何逐字未变（imageLeft 44 / imageTopDown 49 / 65×35）。
+ *
+ * `[WXG-T-616]` 用户令「选关页 grid 里图案尺寸太小，尽量占合理空间的尺寸」⇒ 图案槽由稿面
+ * 69×76 @(44, 距顶 49) 放大到 **126×94 @(16, 距顶 39)**（三带净距：距编号牌 4、距星带 5；
+ * 横向左右各留 16 贴三态格底圆角边）；锁定图（原生 69×76）按高**等比**居中，⛔ 不横向拉伸。
+ * 稿面 69×76 退为历史值（K-053 留档）。
  */
 export const LEVEL_SELECT_GEO = {
     /** 板标题「选关」：与详情标题同槽（中心 380,278）。 */
@@ -79,12 +84,15 @@ export const LEVEL_SELECT_GEO = {
          */
         brandW: 65, brandH: 35,
         /**
-         * `[WXG-T-611]` 格内图案槽（稿 `176:21 grid-image`）：69×76，格内 x=44、
-         * 距**视觉顶** 49（y-up 槽底距格底 = cellH − 49 − 76 = 56）。
-         * 锁定格 = 稿面锁图案位图；解锁格 = 程序化珠拼（`drawLevelThumb`，area=imageW）。
+         * `[WXG-T-616]` 格内图案槽（稿 `176:21 grid-image` 69×76 的放大版，用户令「图案尺寸太小」）：
+         * **126×94**，格内 x=16、距**视觉顶** 39（y-up 槽底距格底 = cellH − 39 − 94 = 48）。
+         * 锁定格 = 稿面锁图案位图（原生 69×76，按高等比居中，⛔ 不拉伸）；解锁格 = 程序化珠拼
+         * （`drawLevelThumbFull`，pitch = min(槽宽/cols, 槽高/rows)）。
          * ⚠ y-up 口径与三带分离一致：牌顶 / 图案槽中 / 星带底（锁定时星带隐藏）。
          */
-        imageW: 69, imageH: 76, imageLeft: 44, imageTopDown: 49,
+        imageW: 126, imageH: 94, imageLeft: 16, imageTopDown: 39,
+        /** `[WXG-T-616]` 锁定图原生尺寸（稿 `176:21`，69×76）——只用于等比换算，⛔ 不直接铺槽。 */
+        lockW: 69, lockH: 76,
         /**
          * `[WXG-T-612·三轮]` 高亮环（稿 grid-4 实例 override `I188:67;218:69 highlight-ring`，
          * ⛔ 组件本体 `183:41` 渲染不带 ⇒ 烘不进导出图，只能数据驱动绘制）：
