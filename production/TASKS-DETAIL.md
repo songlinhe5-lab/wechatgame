@@ -9616,5 +9616,5 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **backlog**：原「未开放大关锁形占位：尺寸/动效待 art 定版」行按 WXG-T-076 纪律**结项即移除**。
 - **文档**：`ui-architecture-beads §12` 追加 T-917 段。
 - **验证**：beads 单测 **1470 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；金样本十一帧零漂移（无金样本帧处于 locked 页）。实帧 `temp/plate-shot-914/plate-locked.png`：锁 146×198、上下留白 ≈88，木牌「照片冒烟 32 / 未开启」。
-- **提交**：待填。
+- **提交**：`6cc18c27` feat（scale 0.45 + 锚点 + 判据 + 文档 + Cocos 镜像 + 台账）＋ 本笔 docs（台账回填）。
 - **知识沉淀（kb:sync --task=WXG-T-917）**：新增 0 / 修改 0 / 激活 0 / 归档 0（art 定版数值已写入 `MENU_LOCKED_ICON` 注释与 §12；「无受力源/非 CTA 不做循环动效」引用 art-bible §7.2 既有判据，无新判例）。

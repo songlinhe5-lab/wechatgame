@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4065,
       "lines": 136,
-      "sha256": "6eefb14c6195b26ac4e77b4ac2ecbfa1b8dfa07c80220f3940545e7f2693874f",
+      "sha256": "817258ca8dd44f8e6d7c3a5c176cac759390358aa236fc171d0c59961635e78b",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 285100 9620 normal",
+          "summary": "1 production/TASKS-DETAIL.md 285132 9620 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5290,
       "lines": 164,
-      "sha256": "b20beb16525924d5a6d63aec29b6b4403c9ff9ede75256e27981f102d24ace75",
+      "sha256": "b239a1003178895bb0ce3f30345fa6afa93ec9190ba907d4ba3e456da8335953",
       "tier": "normal",
       "sections": [
         {
@@ -1080,7 +1080,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 9620 行 / 285100 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 9620 行 / 285132 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
@@ -89915,9 +89915,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 285100,
+      "tokens": 285132,
       "lines": 9620,
-      "sha256": "35882f7944d3e22292d4d3d55c7dda137842b397fd39669af45db7af55821e3a",
+      "sha256": "61fc76457c42e0b57eae13ad0ebf24c48da7b99ed48cd932da49e5c655021793",
       "tier": "normal",
       "sections": [
         {
@@ -89925,7 +89925,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 9621,
-          "tokens": 285083,
+          "tokens": 285115,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -104549,7 +104549,7 @@
           "level": 2,
           "startLine": 9605,
           "endLine": 9621,
-          "tokens": 711,
+          "tokens": 743,
           "summary": "UI·未开放大关锁形占位尺寸/锚点 art 定版 · 负责：主理人(Trae CN) × art（林绘澄）· 状态：✅ ",
           "keywords": [
             "WXG",
