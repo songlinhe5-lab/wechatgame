@@ -9648,3 +9648,18 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：beads 单测 **1471 passed / 2 skipped（125 文件，本任务未增用例数：改 1 例 + 2 例改读值腿）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；金样本十一帧零漂移（golden 场景均首章 / 门票达成）。
 - **提交**：`2a73109e` feat（入口闸门 + R14 改判 + 判据 + 文档 + Cocos 镜像 + 台账）＋ 本笔 docs（台账回填）。
 - **知识沉淀（kb:sync --task=WXG-T-919）**：新增 0 / 修改 0 / 激活 0 / 归档 0（改判依据已写入 `arc-level-select-spec §4` R14 与 §4.1-（2）；「用户裁量优先于旧 UX 理由」属既有 K-053 划档口径，无新判例）。
+
+## WXG-T-920
+
+**架构·「解锁」判据收拢 `_unlockedFrontier`** · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成（2026-11-12 · 用户判据）
+
+- **上位（用户判据）**：「门票成立 那么章首关解锁一定成立；open 条件是不是不对」。
+- **诊断**：旧实现把「门票」只当入口闸（`open = ticket || 推进位 ≥ 章首`），解锁位另算 `maxUnlockedLevel` ⇒ 三态（`_arcState`）、陈列、高亮各自漏掉门票腿：门票达成后入口可进，但橱窗仍 `locked`（锁图 +「未开启」）、选关页无高亮。open 条件真值本身没问题（等价于「章首已解锁」），错在**判据分散**。
+- **变更**：新增 `_unlockedFrontier(arc) = max(maxUnlockedLevel, 门票成立 ? 章首关 : 0)` 作**唯一解锁判据**，六处同源：① `_refreshArcGate` 的 open（展开式）；② `pick-level` 闸门（删旧「线性 + slot===0 门票」双腿）；③ `start-detail` 复核（`acrossArc` 棘轮仍只看存档推进位）；④ `_arcState` 三态；⑤ `_arcShowcaseLevel` 陈列扫描；⑥ `currentLevelIndex` 高亮 + `v.maxUnlockedLevel`。
+- **边界**：⛔ 不回写存档 / `play.maxUnlockedLevel` / 门票不落档（I5）；门票未达成 ⇒ 一切逐字不变（锁图 +「未开启」+ N/M）；星腿（≥1★ cleared / 全 3★ fullstar）不变。
+- **文档**：`arc-level-select-spec §4.1` v1.15 改判注（旧「解锁腿只看推进位」划线留档 K-053）；`ui-architecture-beads §12` 登记。
+- **判据**：`arc-ticket-gate.test.ts` 新增 4 断言——门票达成 ⇒ 三态 `pushing`、`carouselSeqLabel` 回落「第 N 关」、推进位仍 9、选关页 `currentLevelIndex = 9`；门票未达 ⇒ 仍 `locked` + 「未开启」。
+- **实帧日志**：`temp/gate-open-diag`（CDP）：24★ ⇒ `carouselState: pushing / gateOpen: true / chip: null`；开选关页 ⇒ `currentLevelIndex: 9 / viewMaxUnlocked: 10`。temp 不入库。
+- **验证**：beads 单测 **1471 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；金样本十一帧零漂移（golden 场景均首章 / 门票未变）。实帧：`carouselState: pushing / currentLevelIndex: 9 / viewMaxUnlocked: 10`。
+- **提交**：待填。
+- **知识沉淀（kb:sync --task=WXG-T-920）**：新增 0 / 修改 0 / 激活 0 / 归档 0（判据收拢写在 `_unlockedFrontier` 注释与 `arc-level-select-spec §4.1` v1.15；「门票 ⇒ 章首必解锁」由用户判据直接给定，无新判例）。

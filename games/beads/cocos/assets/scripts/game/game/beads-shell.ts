@@ -184,7 +184,9 @@ export class BeadsShell implements Game {
     private _wallSlotsForArc = -1;
     /**
      * `[WXG-T-345]` S-4 门票闸门的复用出参 + 「上一章清单」缓存（0-based 关下标）。
-     * 计算点只有：墙表重建 / 开选关页 / 章首格点击 / 过关时的跨章回调 —— **⛔ 每帧**。
+     * 计算点：墙表重建 / 开选关页 / 章首格点击 / 过关时的跨章回调；
+     * `[WXG-T-920]` 另加**解锁前沿**消费（`_unlockedFrontier`：门票成立 ⇒ 章首必已解锁，单一判据），
+     * 该腿只在「章首 > 推进位」时触发（已开章零开销），故主菜单每帧至多两页 × O(上一章槽数)。
      */
     private readonly _arcTicket: ArcTicketResult = emptyArcTicketResult();
     private readonly _arcPrevSlots: number[] = [];
@@ -664,14 +666,11 @@ export class BeadsShell implements Game {
                 const levelIdx = slot === undefined ? undefined : this._wallSlotsFor()[slot];
                 if (levelIdx === undefined) return false;
                 // `[WXG-T-601]` 选关卡卡 → **关卡详情弹窗**（2026-11-08 用户令）：
-                // 闸门判据与原直进路径逐字不变（线性已开 / 章首门票两道），只是放行产物
-                // 从 `_startLevel` 换成「置详情态 + 开 `level-detail` 弹窗」；
-                // 真正进关挪到详情的 `start-detail`（闸门在此复核 ⇒ 取消/返回零副作用）。
-                if (levelIdx + 1 > this.play.maxUnlockedLevel) {
-                    // 线性未开 = 只可能是**本章首格 + 章界未过**（解锁位被 `_persistProgress` 钳在章末）。
-                    // 门票是唯一额外放行依据：章未开 ⇒ 零事件 / 零扣心 / 不消费；章首之外 ⛔ 用门票越权。
-                    if (slot !== 0 || !this._arcTicketSatisfied(this._phase.levelsArc).satisfied) return false;
-                }
+                // 闸门判据与原直进路径同源，只是放行产物从 `_startLevel` 换成「置详情态 + 开
+                // `level-detail` 弹窗」；真正进关挪到详情的 `start-detail`（取消/返回零副作用）。
+                // `[WXG-T-920]` 解锁 = `_unlockedFrontier`（**唯一判据**）：门票成立 ⇒ 章首关必已解锁，
+                // 旧「线性 + slot===0 门票」两腿合并到本函数；章首之外仍越不过。
+                if (levelIdx + 1 > this._unlockedFrontier(this._phase.levelsArc)) return false;
                 // `[WXG-T-601]` 体力闸前移：0 心时点格**先**给加心位（EP13-S3 R7 原判据不变），
                 // 不放详情 —— 否则玩家要点「开始」才被告知没心，多一步且破 R7 口径。
                 // 返回值沿用旧口径「tap 被消费但不导航」= true。
@@ -687,11 +686,14 @@ export class BeadsShell implements Game {
                 this._emitOverlay(true);
                 return true;
             }
-            // `[WXG-T-601]` 关卡详情「开始」CTA：复核两道闸门（与 `pick-level` 同判据 ⇒ 详情停留
-            // 期间进度推进不会越权开锁），然后走原直进腿（章首门票 = 第二参 `true`）。
+            // `[WXG-T-601]` 关卡详情「开始」CTA：复核闸门（与 `pick-level` 同一 `_unlockedFrontier` 判据
+            // ⇒ 详情停留期间进度推进不会越权开锁），然后走原直进腿。
+            // 第二参只看**存档推进位**（不是解锁前沿）：门票放行的章首关仍需 `unlockAcrossArc`
+            // 把推进位棘轮到章首（`[WXG-T-920]` 判据收拢后这条分工不变）。
             case 'start-detail': {
                 const levelIdx = this._viewData.detailLevelIndex;
                 if (levelIdx < 0) return false;
+                if (levelIdx + 1 > this._unlockedFrontier(this._phase.levelsArc)) return false;
                 this._clearDetailLevel();
                 if (levelIdx + 1 <= this.play.maxUnlockedLevel) {
                     this._startLevel(levelIdx);
@@ -1059,7 +1061,8 @@ export class BeadsShell implements Game {
         const refs = ARCS[arcIdx]?.levelRefs;
         if (!refs) return undefined;
         const stars = this.play.starsByLevelRaw;
-        const maxUnlocked = this.play.maxUnlockedLevel;
+        // `[WXG-T-920]` 解锁 = `_unlockedFrontier`（门票成立 ⇒ 章首必已解锁）。
+        const maxUnlocked = this._unlockedFrontier(arcIdx);
         const n = this.play.levelCount;
         for (let r = 0; r < refs.length; r++) {
             const range = refs[r]!;
@@ -1110,7 +1113,8 @@ export class BeadsShell implements Game {
         const refs = ARCS[arcIdx]?.levelRefs;
         if (!refs) return undefined;
         const stars = this.play.starsByLevelRaw;
-        const maxUnlocked = this.play.maxUnlockedLevel;
+        // `[WXG-T-920]` 解锁 = `_unlockedFrontier`（门票成立 ⇒ 章首必已解锁，单一判据）。
+        const maxUnlocked = this._unlockedFrontier(arcIdx);
         const n = this.play.levelCount;
         let anyLevel = false;
         let anyUnlocked = false;
@@ -1133,6 +1137,21 @@ export class BeadsShell implements Game {
     }
 
     /**
+     * `[WXG-T-920]` **有效解锁前沿 = 「解锁」的唯一判据**（用户 2026-11-12 令：
+     * 「门票成立 ⇒ 章首关解锁一定成立」）。判据收拢在此一处，⛔ 各消费腿不再各写一套：
+     * - 入口闸 / 三态 / 陈列扫描 / 高亮 / 选关格闸门全部读本函数；
+     * - `max = maxUnlockedLevel` 为存档推进位；门票成立且章首未推进 ⇒ 视同解锁到章首关；
+     * - ⛔ 不回写存档 / `play.maxUnlockedLevel`；真进关时的 `unlockAcrossArc` 棘轮语义不变。
+     * 未跨章界 ⇒ 零额外开销（不调门票归约）；跨章界 ⇒ 复用缓存出参（O(上一章槽数)、零分配）。
+     */
+    private _unlockedFrontier(arc: number): number {
+        const max = this.play.maxUnlockedLevel;
+        const first = ARCS[arc]?.levelRefs[0]?.[0];
+        if (first === undefined || first <= max) return max;
+        return this._arcTicketSatisfied(arc).satisfied ? Math.min(first, this.play.levelCount) : max;
+    }
+
+    /**
      * `[WXG-T-345]` S-4 **章门票闸门 + 只读告知件的唯一计算点**（ADR-0034 §6 S-4 行；
      * `meta-ui §2.7` 两层分家；`ux v1.10 §4.1（3-补）`）。
      *
@@ -1149,7 +1168,8 @@ export class BeadsShell implements Game {
      */
     private _refreshArcGate(arc: number): void {
         const ticket = this._arcTicketSatisfied(arc);
-        // 棘轮：推进位已越过该章首关 ⇒ 入口是**已得**的（内容再变也不回收，I7 / §8-20）。
+        // 入口开 = **章首关已解锁**（`_unlockedFrontier` 同一判据的展开式：门票成立 ⇒ 章首必已解锁；
+        // 棘轮：推进位已越过章首 ⇒ 入口已得、内容再变也不回收，I7 / §8-20）。
         // 空橱窗页（无 ARCS 行）⇒ `?? 1` ⇒ 不锁（该页无实体，R13 零事件）。
         const firstLevel = ARCS[arc]?.levelRefs[0]?.[0] ?? 1;
         const open = ticket.satisfied || this.play.maxUnlockedLevel >= firstLevel;
@@ -1282,7 +1302,8 @@ export class BeadsShell implements Game {
         // 全通（解锁范围内均 ≥1 星）⇒ 回落最高解锁关（进度前沿），保证全通态仍有高亮。
         // 只读星账原始引用 + 解锁位，≤关卡数整数比较、零分配（热路径）。
         const stars = this.play.starsByLevelRaw;
-        const unlocked = Math.max(0, Math.min(this.play.maxUnlockedLevel, this.play.levelCount));
+        // `[WXG-T-920]` 解锁 = `_unlockedFrontier`（门票成立 ⇒ 章首必已解锁）：高亮/墙格同源。
+        const unlocked = Math.max(0, Math.min(this._unlockedFrontier(this._phase.levelsArc), this.play.levelCount));
         let current = unlocked > 0 ? unlocked - 1 : 0;
         for (let i = 0; i < unlocked; i += 1) {
             if ((stars[i] ?? 0) === 0) {
@@ -1291,7 +1312,7 @@ export class BeadsShell implements Game {
             }
         }
         v.currentLevelIndex = current;
-        v.maxUnlockedLevel = this.play.maxUnlockedLevel;
+        v.maxUnlockedLevel = this._unlockedFrontier(this._phase.levelsArc);
         v.starsByLevel = stars;
         // 陈列序映射：只读引用缓存表（每帧零分配）。
         v.wallSlots = this._wallSlotsFor();

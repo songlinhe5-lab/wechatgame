@@ -174,6 +174,9 @@ describe('S-4 闸门：门票未达', () => {
         const data = viewData(r.shell);
         expect(data.arcTicketOpen, '门票归约为假 ⇒ 章锁').toBe(false);
         expect([data.arcStarGot, data.arcStarNeed], 'C 拍定：已得/门槛取阻断该页入口的上一章').toEqual([20, 24]);
+        // `[WXG-T-920]` 展示投影只在门票达成时开门：未达成 ⇒ 三态仍锁、木牌仍是「未开启」。
+        expect(data.carouselState, '门票未达 ⇒ 保持锁态（三态旧口径逐字不变）').toBe('locked');
+        expect(data.carouselSeqLabel).toBe('未开启');
 
         const before = { stamina: r.shell.meta!.stamina, idx: r.shell.play.levelIndex, events: r.overlayEvents.length };
         expect(tapCard(r.shell), '锁态章 ⇒ 卡零事件（用户 2026-11-12 令「不能点进选关页面」）').toBe(false);
@@ -210,11 +213,18 @@ describe('S-4 闸门：门票达成 ⇒ 章首授权', () => {
     it('点章首格 ⇒ 进关 + 推既有两根指针（maxUnlockedKey / lastPlayedKey），不新增布尔', () => {
         const r = rig({ pointer: 9, stars: [3, 3, 3, 3, 3, 3, 3, 3, 3, 0] });
         goPage(r, 1);
+        // `[WXG-T-920]` 门票达成 ⇒ 展示层视同已开启：三态 pushing（boss 图 + 第 10 关），
+        // 不再挂锁图/「未开启」；推进位（存档）仍停在 9，真实推进发生在下面的章首格点击。
+        const menu = viewData(r.shell);
+        expect(menu.carouselState, '门票达成 ⇒ 大关按推关中呈现').toBe('pushing');
+        expect(menu.carouselSeqLabel, '木牌回落到「第 N 关」').toBeUndefined();
+        expect(menu.maxUnlockedLevel, '⛔ 展示投影不动推进位').toBe(9);
         openLevels(r.shell, r);
         const data = viewData(r.shell);
         expect(data.arcTicketOpen, '门票达成 ⇒ 章开').toBe(true);
         expect(data.arcStarGot, '已达成 ⇒ 不创建进度件（⛔ 0/0）').toBeUndefined();
         expect(data.arcStarNeed).toBeUndefined();
+        expect(data.currentLevelIndex, '章首格高亮（T-912 口径 + 门票展示投影）').toBe(CH2_FIRST);
 
         const staminaBefore = r.shell.meta!.stamina;
         expect(clickCell(r, 0), '章首格放行 → 开详情').toBe(true);
