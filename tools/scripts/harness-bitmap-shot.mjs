@@ -19,10 +19,10 @@
  * 退出码：0 成功；2 参数/产物错；3 Chrome/CDP/页面错。
  */
 
-import { spawn } from 'node:child_process';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { sleep, waitFor, launchChrome } from './lib/cdp-client.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const argv = process.argv.slice(2);
@@ -48,107 +48,11 @@ if (!existsSync(CHROME)) {
 }
 mkdirSync(OUT_DIR, { recursive: true });
 
-// ── CDP 最小客户端（原生 WebSocket，请求/响应按 id 配对）─────────────────────
-class Cdp {
-  constructor(ws) {
-    this.ws = ws;
-    this.seq = 0;
-    this.pending = new Map();
-    ws.addEventListener('message', (ev) => {
-      const msg = JSON.parse(ev.data);
-      if (msg.id !== undefined && this.pending.has(msg.id)) {
-        const { resolve: ok, reject: bad } = this.pending.get(msg.id);
-        this.pending.delete(msg.id);
-        if (msg.error) bad(new Error(JSON.stringify(msg.error)));
-        else ok(msg.result);
-      }
-    });
-  }
-  send(method, params = {}) {
-    const id = ++this.seq;
-    return new Promise((ok, bad) => {
-      this.pending.set(id, { resolve: ok, reject: bad });
-      this.ws.send(JSON.stringify({ id, method, params }));
-      setTimeout(() => {
-        if (this.pending.has(id)) {
-          this.pending.delete(id);
-          bad(new Error(`CDP 超时：${method}`));
-        }
-      }, 30000);
-    });
-  }
-  async eval(expression) {
-    // 安全归因：本文件所有 expression 均为**硬编码字面量**（无外部输入插值）；
-    // 这里是 CDP Runtime.evaluate 协议调用（浏览器内执行），非 Node eval。
-    const r = await this.send('Runtime.evaluate', {
-      expression,
-      returnByValue: true,
-      awaitPromise: true,
-    });
-    if (r.exceptionDetails) throw new Error(`页面异常：${JSON.stringify(r.exceptionDetails)}`);
-    return r.result.value;
-  }
-}
-
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-
-async function waitFor(cdp, expression, timeoutMs, label) {
-  const t0 = Date.now();
-  for (;;) {
-    const v = await cdp.eval(expression);
-    if (v) return v;
-    if (Date.now() - t0 > timeoutMs) throw new Error(`等待超时：${label}`);
-    await sleep(300);
-  }
-}
-
-// ── 启动 headless Chrome（独立 user-data-dir，⛔ 不碰用户主 profile）─────────
+// ── 启动 headless Chrome（共享 lib/cdp-client.mjs；独立 user-data-dir，⛔ 不碰用户主 profile）──
 const profileDir = join(OUT_DIR, '.chrome-profile');
-const chrome = spawn(
-  CHROME,
-  [
-    '--headless=new',
-    `--remote-debugging-port=${PORT}`,
-    `--user-data-dir=${profileDir}`,
-    '--no-first-run',
-    '--no-default-browser-check',
-    '--hide-scrollbars',
-    '--force-device-scale-factor=1',
-    '--window-size=750,1334',
-    'about:blank',
-  ],
-  { stdio: 'ignore' },
-);
-
-let cdp;
+let cdp, chrome, ws;
 try {
-  // 等 DevTools 端点起来，取 page target 的 ws 地址
-  let wsUrl = null;
-  for (let i = 0; i < 40 && !wsUrl; i++) {
-    await sleep(300);
-    try {
-      const targets = await (await fetch(`http://127.0.0.1:${PORT}/json`)).json();
-      const page = targets.find((t) => t.type === 'page');
-      if (page) wsUrl = page.webSocketDebuggerUrl;
-    } catch {
-      /* 尚未就绪 */
-    }
-  }
-  if (!wsUrl) throw new Error('Chrome DevTools 端点未就绪');
-  const ws = new WebSocket(wsUrl);
-  await new Promise((ok, bad) => {
-    ws.addEventListener('open', ok, { once: true });
-    ws.addEventListener('error', () => bad(new Error('WS 连接失败')), { once: true });
-  });
-  cdp = new Cdp(ws);
-  await cdp.send('Page.enable');
-  await cdp.send('Runtime.enable');
-  await cdp.send('Emulation.setDeviceMetricsOverride', {
-    width: 750,
-    height: 1334,
-    deviceScaleFactor: 1,
-    mobile: false,
-  });
+  ({ cdp, chrome, ws } = await launchChrome({ chromePath: CHROME, port: PORT, profileDir }));
   await cdp.send('Page.navigate', { url: URL_TARGET });
 
   // ① 就绪 + 位图腿自证：三枚 timeout 图 complete 且 naturalWidth>0

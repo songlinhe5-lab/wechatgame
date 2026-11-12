@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 216,
+  "nextId": 218,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -3614,6 +3614,40 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-216",
+      "state": "active",
+      "file": "knowledge/lessons/testing-guard.md",
+      "category": "测试守卫",
+      "title": "宿主腿静默回退回归只能靠宿主腿控制台守卫抓：harness 腿自预烘对引擎腿死分支结构性盲",
+      "contentHash": "044c13aa689a6e2852e1f7e57d578ed093827ce81784b246beaa4aa7b1cd53d0",
+      "sourceTask": "WXG-T-617",
+      "addedDate": "2026-11-12",
+      "lastAccess": "2026-11-12",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-217",
+      "state": "active",
+      "file": "knowledge/lessons/environment.md",
+      "category": "环境",
+      "title": "Chrome 启发式缓存会跨跑供旧 bundle：静态取证服务只发 Last-Modified、profile 复用 ⇒ 「修了复拍仍不画」；每跑独立 profile",
+      "contentHash": "c79bfc9441489a652b9efc1c1d2a117121ae8adb0dac273d6df6d9c0da88fccd",
+      "sourceTask": "WXG-T-617",
+      "addedDate": "2026-11-12",
+      "lastAccess": "2026-11-12",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -5821,6 +5855,16 @@
       "kind": "updated",
       "ids": [
         "K-215"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-11-12",
+      "taskId": "WXG-T-617",
+      "kind": "added",
+      "ids": [
+        "K-216",
+        "K-217"
       ],
       "note": null
     }

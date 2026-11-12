@@ -135,4 +135,23 @@ describe('WXG-T-614 倒计时结束弹窗 View/ViewModel', () => {
         // 中心不变式（WXG-T-323）：两档牌中心 = 设计帧中心 + 逐机位移。
         expect(plaque.y + plaque.h / 2).toBe(DESIGN_H / 2);
     });
+
+    it('F7⑤ 钮族固定档：largeText 只动说明行，⛔ 不动钮内主行/副行（WXG-T-617 无障碍批裁定守卫）', () => {
+        const faceFont = (cmds: readonly DrawCommand[], label: string) =>
+            texts(cmds).find((t) => t.text === label && t.shadow !== undefined)!.font;
+        const hintFont = (cmds: readonly DrawCommand[]) =>
+            texts(cmds).find((t) => t.text.startsWith('看广告能增加'))!.font;
+        const normal = frame(() => true, snap());
+        const large = frame(() => true, snap({ largeText: true }));
+        for (const label of ['继续本关', '重试本关']) {
+            expect(faceFont(large, label), label).toBe(faceFont(normal, label));
+        }
+        expect(hintFont(large)).toBe(hintFont(normal));
+        // 说明行属说明类 ⇒ 随 largeText（仅重试档才有）：28 → 35 两档必须不同。
+        const subFont = (cmds: readonly DrawCommand[]) =>
+            texts(cmds).find((t) => t.text === '本关已续时')!.font;
+        const subN = frame(() => true, snap({ reviveAvailable: false }));
+        const subL = frame(() => true, snap({ reviveAvailable: false, largeText: true }));
+        expect(subFont(subL)).not.toBe(subFont(subN));
+    });
 });

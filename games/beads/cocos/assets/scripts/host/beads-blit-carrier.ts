@@ -407,7 +407,10 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
         // 其余效果腿（tint / nineSlice / gray 单独 / grayWipe / frost 单独）保持互斥。
         let frame: SpriteFrame | undefined;
         if (tint !== undefined) frame = this._cell(cmd.textureId, tint);
-        else if (ns !== undefined) frame = undefined; // nineSlice 走 bakeNineSlice（无 fx.base）
+        else if (ns !== undefined) frame = this._bitmaps.get(cmd.textureId); // nineSlice = 静态位图 + 引擎 SLICED（border 由 _ensureSliceBorder 首见写入）
+        // `[WXG-T-617]` 回归修复：T-567 效果管线重构误把本支写成 frame=undefined，
+        // 随即被下方空帧守卫 _bail ⇒ 所有九宫格位图（木牌/托盘）在 Cocos 腿静默回退。
+        // 判据 = cocos-fail-shot.mjs 控制台「丢弃 blit」零告警 + 实帧目视。
         else if (wipe !== undefined) frame = this._wipeFrame(cmd.textureId, wipe[0]!, wipe[1]!);
         else if (combined !== undefined) frame = this._frostFrame(cmd.textureId, combined.frost, combined.gray);
         else if (frost !== undefined) frame = this._frostFrame(cmd.textureId, frost, 1);

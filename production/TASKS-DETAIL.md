@@ -9420,3 +9420,17 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **待办**：金样本 `level-select` 两态在干净锚重抓；全量 `verify` 后回填本行读数。
 - **验证**：`meta-menu-wall` 盘面签名迁「圆/方块双形态」（圆径 = pitch×`diameterRatio`，孔/高光不符自动排除）；`arc-wall-locked` / `arc-level-select-page` 判据同步双形态；金样本在干净锚 **`da24d4aa`** 重抓（两遍确定性自证 PASS；二轮仅坐标/半径变、total 4285 不变），其余十帧逐字未变；beads 单测 **1456 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（含 framework:sync:check、cocos:check）。
 - **工作树遗留件（⛔ 不代提）**：preview SVG、`games/beads/package.json` 版本号、`tools/scripts/{harness-bitmap-shot.mjs,minimax-h3-t2v.py}` 等非本单改动未入本笔。
+
+## WXG-T-617
+
+**UI·T-614 追闭二轮：Cocos 腿死分支修复 + 实帧 + 回稿单 + F7⑤ 裁定** · 负责：主理人(Qoder)·beads 工程轨 · 状态：✅ 完成（2026-11-12；用户在上轮收尾三选项中选「1/2/3」全做：① 开发者工具预览走查 ② Figma 回稿跟进 ③ 无障碍批）
+
+- **① Cocos 腿实帧（选项 1）**：DevTools 已装但微信**浏览器预览**通道（MCP `run_game`）加载不了微信 Cocos 插件（引擎由微信插件侧供、模拟器未登录）⇒ 改仓内既有 **web-mobile 构建**（引擎内置）+ 静态服务 + headless Chrome CDP；新 `tools/scripts/cocos-fail-shot.mjs`（与 harness-bitmap-shot 共享抽出的 `lib/cdp-client.mjs`），`--tap` 合成点击 CTA(375,1140) + `--wait 135000` 等首关 120s 时限归零。
+- **陷阱一（真回归）**：首拍发现木牌不画（标题浮在盘面）⇒ 确诊 **T-567 效果管线重构把 carrier 九宫格支写成 `frame=undefined`** 随即被空帧守卫 `_bail` ⇒ Cocos 腿**所有**九宫格位图静默回退（选关木托盘同受影响）；harness 腿 canvas2d 自预烘 ⇒ 单测/金样本全绿抓不到。修复 = 一行复原 `this._bitmaps.get()`；守卫 = 脚本收控制台「丢弃 blit」⇒ exit 4（豁免 boot 瞬态「载体未就绪」：菜单先画一帧、warmup 异步后自愈，菜单帧该钮在，书面归因）。
+- **陷阱二（取证环境）**：修后复拍**仍不画**，探针自相矛盾（MAPSET 在 / MAPGET 零 / bail 在）⇒ 拿 **bail 栈行号（index.js:5130）对磁盘 bundle 行数（<5119）** 确诊 **Chrome 启发式缓存跨跑供旧 bundle**（python http.server 只发 Last-Modified 无 Cache-Control + profile 复用）⇒ 每跑独立 profile 后复拍：木牌九宫格标题带/铆钉/双钮让位/180 秒金墨/遮罩浓度全对，亲读通过（`temp/ui-shot/cocos-617-fail-final.png`）；守卫菜单帧 exit 0。404 档 Cocos 腿未拍（续时耗尽需真广告奖励），fit 缩放与 586 档同路径（vs<1），harness 腿 404 已拍（T-615）⇒ 规格 §11 如实登记。
+- **② 回稿单（选项 2）**：Figma REST 重取组件集实例 `I233:54;233:40` 现字符仍「看广告能增加60秒时间」⇒ 回稿单入 `timeout-panel-spec.md §11`（组件集 `233:36`、60→180、复核日期与取证件路径），§5 漂移登记维持；运行时文案从 `REVIVE_BONUS_SEC` 派生不受影响。
+- **③ F7⑤ 裁定（选项 3）**：钮内主行/副行**不随** `largeText`（按钮族固定档，`ui-theme.ts` F7⑤ 与 `bodyFont` 注同口径）；说明行/一次性提示随（说明类）。守卫 = `tests/timeout-view.test.ts` 新增「F7⑤ 钮族固定档」例（两档主行/副行字体逐字同、说明行 28→35 必不同）⇒ 该文件 6/6；规格 §11 开放项闭。
+- **微信包**：`pnpm run build:cocos`（release 基线，K-111）重建，wechatgame bundle ns 支已含修复（`bitmaps.get` 实证）；三枚切图 paths 仍在（T-615 已核）。
+- **验证**：`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；beads 单测 **1457 passed / 2 skipped（125 文件）**（Trae 616 后 1456 + 本批 1）。
+- **工作树遗留件（⛔ 不代提）**：`games/beads/package.json` 版本号（Trae）、preview SVG、`minimax-h3-t2v.py`、并发 `.meta`/`.cursor/settings.json`/`.trae/mcp.json` 等；根目录 `200`/`300` 为本会话早先坏循环的 curl cookie 垃圾，已删。
+- **知识沉淀（kb:sync --task=WXG-T-617）**：新增 **2** / 修改 0 / 激活 0 / 归档 0 —— K-216（测试守卫：宿主腿静默回退靠宿主腿控制台守卫抓，harness 腿自预烘结构性盲）、K-217（环境：Chrome 启发式缓存跨跑供旧 bundle ⇒ 每跑独立 profile；栈行号 vs 磁盘行数确诊法）。三步已跑：kb:sync（活跃 212 → **214**，nextId 218）、kb:audit（相似命中 0）、ctx:build；check:links OK。

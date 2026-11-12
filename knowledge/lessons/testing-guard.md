@@ -96,3 +96,9 @@
   根因：设计如此（WXG-T-416 补的第三类线索）——前两类只认 package.json 入口名与 `*-selftest.sh` 文件名，看不见裸 `--selftest` ⇒ 自测可以数年零执行而无人知；本条是那条防线的**正向咬合**，不是新 bug。
   规避/做法：① 新增带 `--selftest` 的守卫脚本，同批做齐三件：脚本本体 + package.json `<名>:selftest` 入口 + `TIERS` 入档（合成语料为主、只读不写的进 `fast`，起子进程/写临时件的进 `heavy`）；② 拿到 `selftest:fast` FAIL 而子项全 PASS 时先读「完整性守卫」那几行——它给的是**缺登记项**而非失败断言，改登记而不是改被测脚本；③ ⛔ 用 `AWAITING` 规避：那是「被测件尚未入库」的历史通道，本仓先例（WXG-T-160）说明它会在件入库后失效成隐性豁免；④ 入档后 `selftest:fast` 与 `pnpm run verify` 两条都复跑——前者守登记、后者守执行，只跑一条会漏。
   判例引用：`tools/scripts/selftests.mjs::TIERS.fast` 末项与 `guardCoverage()` 三类线索；同族 K-181（守卫自己的自测没挂档）、K-089（守卫必须能红）。
+
+- **[测试守卫][K-216] 宿主腿静默回退回归只能靠宿主腿控制台守卫抓：harness 腿自预烘对引擎腿死分支结构性盲**（来源 WXG-T-617，2026-11-12）
+  现象：T-567 重构把 carrier 九宫格支写成 `frame=undefined` 随即被空帧守卫接住 ⇒ 所有九宫格位图在 Cocos 腿静默回退；harness 腿 canvas2d 自预烘九宫格 ⇒ 命令流/单测/金样本全绿，直到 Cocos 实帧目视才暴露。
+  根因：两腿实现同构不共享（canvas2d 预烘 vs 引擎 SLICED），宿主专属分支无跨腿判据；`_bail` warn-once 按**原因**而非按 id，首犯 id 会被同因后续 miss 掩盖，⛔ 拿告警条数反推「缺哪件」。
+  做法：① 宿主腿取证脚本加**控制台守卫**（收 `丢弃 blit` ⇒ 非零退出，K-089 守卫要能红），已知 boot 瞬态竞态（载体未就绪、下帧自愈）书面归因后豁免；② 死分支修复后判据 = 守卫零 + 实帧目视，⛔ 拿单测绿顶替；③ 查「修了仍不画」先排缓存/旧代码（环境片缓存条），再谈分支逻辑。
+  判例引用：`games/beads/cocos/assets/scripts/host/beads-blit-carrier.ts` 九宫格支 + `tools/scripts/cocos-fail-shot.mjs` 守卫；同族 K-089（守卫必须能红）、K-108（静默回退必须嚷）。

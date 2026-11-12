@@ -322,4 +322,6 @@
 | K-213 | 工具链图像 | toolchain-image | 量化脚本 docstring 里的「⛔ 不再作为产出」有批次射程：跨批沿用前先查它防的是什么 | WXG-T-614 | 2026-11-11 | 0 | active |
 | K-214 | 判据实测取证 | criteria-measure-evidence | 位图上量文字对比度必须按「字形矩形」取样：整条横带会混入容器高光与铆钉，min 被单个亮像素拉到近 1 | WXG-T-614 | 2026-11-11 | 0 | active |
 | K-215 | 环境 | environment | IDE 内置浏览器视图处于 hidden 时，位图腿永远加载不完、截图接口直接报无可用视口 ⇒ 先判环境阻塞，别去修不存在的渲染 bug | WXG-T-614 | 2026-11-11 | 0 | active |
+| K-216 | 测试守卫 | testing-guard | 宿主腿静默回退回归只能靠宿主腿控制台守卫抓：harness 腿自预烘对引擎腿死分支结构性盲 | WXG-T-617 | 2026-11-12 | 0 | active |
+| K-217 | 环境 | environment | Chrome 启发式缓存会跨跑供旧 bundle：静态取证服务只发 Last-Modified、profile 复用 ⇒ 「修了复拍仍不画」；每跑独立 profile | WXG-T-617 | 2026-11-12 | 0 | active |
 <!-- kb:active:end -->

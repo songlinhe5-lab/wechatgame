@@ -64,3 +64,9 @@
   规避/做法：① 取像素证据前**先探 `visibilityState` + rAF 计数**，hidden 就直接判「环境阻塞」，⛔ 不要改代码去修一个不存在的渲染缺陷；② 阻塞期改用**不依赖解码的判据**（命令流单测 + SVG 光栅化目视），并在规格开放项里写明**解除条件**（用户打开/聚焦视图或连外部 Chromium 后补拍）；③ ⛔ 不把「命令流绿」写成「像素已验证」，也不把回退腿目视当位图腿证据。
   证据锚：`games/beads/design/ux/timeout-panel-spec.md` §11 开放项；同族 K-193（截图回显≠我读过它）、K-198（浏览器全干净≠真机干净）、K-098（headless 取真 GPU 读数的坑）。
   追记（2026-11-12 · WXG-T-615 · **解法已实证**）：hidden 只卡 IDE 内置视图，**不卡 headless 通道**——系统 Chrome `--headless=new` + CDP 直驱（Node ≥22 原生 WebSocket，零 npm 依赖，`tools/scripts/harness-bitmap-shot.mjs`）页面 visible / 解码 / rAF 全正常，双档实帧一次取齐并亲读通过。故本条规避②升级：**优先 headless CDP 取证**，IDE 视图聚焦只作备选；探针三件（visibilityState / rAF 计数 / 位图 complete）仍先跑，⛔ 不拿 hidden 页的读数当证据。
+
+- **[环境][K-217] Chrome 启发式缓存会跨跑供旧 bundle：静态取证服务只发 Last-Modified、profile 复用 ⇒ 「修了复拍仍不画」；每跑独立 profile**（来源 WXG-T-617，2026-11-12）
+  现象：宿主代码修复 + 重建后 headless Chrome 复拍仍旧行为；控制台探针与磁盘 bundle 互相矛盾（注册在、miss 探针零、bail 却在）。
+  根因：`python3 -m http.server` 只发 `Last-Modified`、无 `Cache-Control` ⇒ Chrome 按**启发式新鲜期**缓存、跨跑不再验证；取证脚本复用同一 user-data-dir ⇒ 页面跑的一直是首跑旧 bundle。
+  确诊/做法：① 拿 **bail 栈行号**对**磁盘 bundle 行数**——对不上即运行代码≠磁盘代码，先疑缓存再疑逻辑；② 取证脚本**每跑独立 profile**（或强制 no-cache）；③ 探针自相矛盾时先验「探针挂在哪个代码上」，⛔ 不要在旧代码上继续加逻辑假设。
+  证据锚：`tools/scripts/cocos-fail-shot.mjs` profileDir 注；同族 K-215（hidden 视图）、K-193（截图回显≠我读过它）。
