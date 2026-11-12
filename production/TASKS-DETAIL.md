@@ -9599,5 +9599,5 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **判据（改三处）**：`menu-tri-state.test.ts`（locked 无大关图 blit、无 fx、锁形唯一且无 fx）；`showcase-single.test.ts`（同前 + 锁形宽高比 = `MENU_LOCKED_ICON.aspect`）；`arc-carousel.test.ts`（未开放页不画章代表图、`MENU_TEXTURES.lock` 存在；末页翻回同样判锁）。
 - **文档**：`ui-architecture-beads §12` 登记；`tokens.md §7` / `menu-architecture.md §6` 的 `plate_arc_locked_label` 注改为锁图占位。
 - **验证**：beads 单测 **1469 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（typecheck 修复一轮：`menu-tri-state` 的 `states` 收窄后残留 locked 比较 TS2367）；金样本十一帧**零漂移**（无金样本帧处于 locked 页）。实帧 `temp/plate-shot-914/plate-locked.png`：空玻璃 + 拼豆锁居中 + 木牌「照片冒烟 32 / 未开启」。
-- **提交**：待填。
+- **提交**：`4e8c58ec` feat（锁图占位 + 退役腿 + 判据三处 + 文档 + Cocos 镜像 + 台账）＋ 本笔 docs（台账回填）。
 - **知识沉淀（kb:sync --task=WXG-T-916）**：新增 0 / 修改 0 / 激活 0 / 归档 0（视觉口径改裁，已写入 `drawShowcaseArt` / `drawLockedBadge` 行内注、`tuning/menu.ts::MENU_FROST` 退役留档与 §12 登记）。
