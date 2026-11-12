@@ -56,11 +56,16 @@ const thumbBox = (b: MetaButton): { x: number; y: number; w: number; h: number }
  * `[WXG-T-502]` 缩略图只画盘面 ⇒ 色块是 `rect`（非 polygon/circle）。
  * `[WXG-T-607]` 位图模板腿新增 65×35 编号牌 rect，会落进缩略框 ⇒ 按盘面块尺寸
  * （`pitch − BEAD_GAP` ≤ 20）过滤，⛔ 不把 UI 装饰误判成盘面色块（K-053 判据迁移）。
+ * `[WXG-T-616]` 珠形档 = 三圆/珠（珠体/孔/高光），与超大盘方块回退并存 ⇒ 两形态都收。
  */
-const inThumbRect = (c: DrawCommand, box: { x: number; y: number; w: number; h: number }): boolean =>
-    c.kind === 'rect' && 'w' in c && c.w <= 20 && 'h' in c && c.h <= 20 &&
-    c.x >= box.x - 1 && c.x <= box.x + box.w + 1 &&
-    c.y >= box.y - 1 && c.y <= box.y + box.h + 1;
+const inThumbRect = (c: DrawCommand, box: { x: number; y: number; w: number; h: number }): boolean => {
+    if (c.kind !== 'rect' && c.kind !== 'circle') return false;
+    const d = c.kind === 'circle' ? c.r * 2 : c.w;
+    if (d > 20) return false;
+    const x = c.kind === 'circle' ? c.x - c.r : c.x;
+    const y = c.kind === 'circle' ? c.y - c.r : c.y;
+    return x >= box.x - 1 && x <= box.x + box.w + 1 && y >= box.y - 1 && y <= box.y + box.h + 1;
+};
 
 const dataFor = (extra: Partial<MetaViewData> = {}): MetaViewData => {
     const slots: number[] = [];

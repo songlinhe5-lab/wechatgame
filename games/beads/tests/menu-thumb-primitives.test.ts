@@ -27,6 +27,7 @@ import {
     SIGN_FACE_FLOOR,
     THUMB_AREA,
     THUMB_BEADS_MAX,
+    THUMB_BEAD_SHAPE,
     THUMB_MATRIX_N,
     THUMB_STAR_BAND,
     THUMB_TIERS,
@@ -49,6 +50,12 @@ import { simpleTestLevel } from './helpers.js';
 import type { BeadsLevelRaw } from '../src/config/levels-data.js';
 
 type RectCmd = Extract<DrawCommand, { kind: 'rect' }>;
+type CircleCmd = Extract<DrawCommand, { kind: 'circle' }>;
+
+/** 珠图元（`[WXG-T-616]`：块够大是圆、超大盘回退方块）——两档同一判定面。 */
+function beadPrimitives(cmds: readonly DrawCommand[]): (RectCmd | CircleCmd)[] {
+    return cmds.filter((k): k is RectCmd | CircleCmd => k.kind === 'rect' || k.kind === 'circle');
+}
 
 /** 表 → `(r,c)` 键集，用于「唯一性 / 覆盖性」断言。 */
 function cellKeys(cells: readonly number[]): string[] {
@@ -378,7 +385,7 @@ describe('[T-613] 完整豆面档（盘面真实 rows×cols 逐珠，用户令�
     it('inkOverride 灰墨锁定腿：fill 全 ∈ 覆盖墨集（⛔ 仍发彩墨）', () => {
         const level = LEVELS[0]!;
         const faded = new Set<string>(beadFadedInksFor(level).hexes);
-        for (const c of paintFull(level, beadFadedInksFor(level)).filter((k) => k.kind === 'rect')) {
+        for (const c of beadPrimitives(paintFull(level, beadFadedInksFor(level)))) {
             const fill = (c as { fill?: string }).fill;
             expect(fill).toBeDefined();
             // 端点色由 `mix()` 派生 ⇒ 以「⊆ 灰墨主色域」判定：不逐一比对，只钉**非彩墨**。
@@ -386,7 +393,7 @@ describe('[T-613] 完整豆面档（盘面真实 rows×cols 逐珠，用户令�
         }
         expect(faded.size).toBeGreaterThan(0);
         // 对照：无 override ⇒ fill ∈ 关卡墨集族（同前述前缀门）。
-        const emitted = paintFull(level).filter((k) => k.kind === 'rect').map((c) => (c as { fill?: string }).fill);
+        const emitted = beadPrimitives(paintFull(level)).map((c) => (c as { fill?: string }).fill);
         expect(new Set(emitted).size).toBeGreaterThan(1);
     });
 
@@ -410,11 +417,70 @@ describe('[T-613] 完整豆面档（盘面真实 rows×cols 逐珠，用户令�
     it('alpha ≤ 0 一命令不发；0<alpha<1 整帧半透明（淡化腿）', () => {
         const level = LEVELS[0]!;
         expect(paintFull(level, undefined, 0).length).toBe(0);
-        const faded = paintFull(level, undefined, 0.5).filter((k) => k.kind === 'rect') as RectCmd[];
+        const faded = beadPrimitives(paintFull(level, undefined, 0.5));
         expect(faded.length).toBeGreaterThan(0);
         for (const c of faded) {
             const fill = (c as { fill?: string; alpha?: number }).fill;
             expect(typeof fill === 'string' || typeof c.alpha === 'number').toBe(true);
         }
+    });
+});
+
+describe('[T-616] 选关缩略珠形档（有造型的珠子）', () => {
+    const SLOT_W = 126;
+    const SLOT_H = 94;
+    const TX = 100;
+    const TY = 200;
+
+    /** 同 `drawLevelThumbFull` 内式复算（pitch / 缝压缩 / block）。 */
+    function fullGeo(level: BeadsLevelRaw, w: number, h: number): { pitch: number; block: number } {
+        const pitch = Math.min(w / level.cols, h / level.pattern.length);
+        const gap = pitch < BEAD_GAP * 2 ? pitch * 0.4 : BEAD_GAP;
+        return { pitch, block: pitch - gap };
+    }
+
+    function paint(level: BeadsLevelRaw): readonly DrawCommand[] {
+        const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
+        builder.begin();
+        drawLevelThumbFull(builder, level, TX, TY, SLOT_W, SLOT_H);
+        return builder.end().commands;
+    }
+
+    it('块边 ≥ minBlock ⇒ 逐珠 3 圆（珠体 / 孔 / 左上高光），珠体色 ∈ 关卡墨集', () => {
+        const level = LEVELS[0]!;
+        const { block } = fullGeo(level, SLOT_W, SLOT_H);
+        expect(block).toBeGreaterThanOrEqual(THUMB_BEAD_SHAPE.minBlock);
+        const circles = paint(level).filter((k): k is CircleCmd => k.kind === 'circle');
+        const beads = levelThumbFullCells(level).length / 3;
+        expect(circles.length).toBe(beads * 3);
+        const inks = beadInksFor(level);
+        const bodyR = block / 2;
+        for (let i = 0; i < beads; i += 1) {
+            const body = circles[i * 3]!;
+            const hole = circles[i * 3 + 1]!;
+            const glint = circles[i * 3 + 2]!;
+            expect(body.r).toBeCloseTo(bodyR, 6);
+            expect(inks.hexes).toContain(body.fill!);
+            expect(hole.x).toBeCloseTo(body.x, 6);
+            expect(hole.y).toBeCloseTo(body.y, 6);
+            expect(hole.r).toBeCloseTo(bodyR * THUMB_BEAD_SHAPE.holeRatio, 6);
+            expect(glint.r).toBeCloseTo(bodyR * THUMB_BEAD_SHAPE.glintRatio, 6);
+            // 高光偏左上（y-up）⇒ 形成受光面。
+            expect(glint.x).toBeLessThan(body.x);
+            expect(glint.y).toBeGreaterThan(body.y);
+        }
+    });
+
+    it('超大盘块边 < minBlock ⇒ 回退方块（零圆，珠块不消失）', () => {
+        const big = simpleTestLevel({
+            rows: 30,
+            cols: 30,
+            pattern: Array.from({ length: 30 }, () => '1'.repeat(30)),
+        });
+        const { block } = fullGeo(big, SLOT_W, SLOT_H);
+        expect(block).toBeLessThan(THUMB_BEAD_SHAPE.minBlock);
+        const cmds = paint(big);
+        expect(cmds.filter((k) => k.kind === 'circle')).toHaveLength(0);
+        expect(cmds.filter((k) => k.kind === 'rect')).toHaveLength(900);
     });
 });

@@ -56,6 +56,21 @@ export const BEAD_PITCH = 32;
  *  `inset` 的裁定）。 */
 export const BEAD_GAP = 2;
 /**
+ * `[WXG-T-616]` 选关九宫格缩略的**珠形档**（用户令「用有造型的珠子做效果拼接」）：
+ * 块边 ≥ `minBlock` 时逐珠画「珠体圆 + 孔 + 左上高光」（三圆），否则退化为方块
+ * （≤5px 时孔/高光只有 1px 级，反而是噪点）。比例全部按**珠体半径**归一。
+ */
+export const THUMB_BEAD_SHAPE = {
+    minBlock: 5,
+    /** 孔半径 / 珠体半径（同 `BEAD_CARD.holeRatio` 量级，缩略更收一点防糊）。 */
+    holeRatio: 0.30,
+    /** 高光半径 / 珠体半径。 */
+    glintRatio: 0.24,
+    /** 高光中心偏移（y-up：左上）。 */
+    glintDx: 0.32,
+    glintDy: 0.32,
+} as const;
+/**
  * `[WXG-T-235 / 2026-10-03 用户裁定「甲」]` **B0 底图接缝外扩量**（单位：设计px，每边）。
  *
  * ## 要解决的实测现象（不是推测）

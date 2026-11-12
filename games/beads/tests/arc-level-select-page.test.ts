@@ -182,18 +182,26 @@ describe('WXG-T-605 · 信息两行（章名+星进度同行 / 判星对照行�
 });
 
 describe('WXG-T-605 · 格内与转场', () => {
-    it('格内图元不越格；缩略块落在 84 区内', () => {
+    it('格内图元不越格；缩略珠块落在图案槽带内', () => {
         const cmds = modalFrame(dataFor({ maxUnlockedLevel: 1 }));
         const first = cells()[0]!.box;
         const bandTop = first.y + first.h - THUMB_TOP_INSET;
+        // `[WXG-T-616]` 珠形档 = 三圆/珠（珠体/孔/高光），旧聚合档与超大盘回退仍是方块 ⇒ 两形态都收。
         const blocks = cmds.filter(
-            (c) => c.kind === 'rect' && 'x' in c &&
-                c.x > first.x + 1 && c.x + c.w < first.x + first.w - 1 &&
-                c.y > first.y + 1 && c.y + c.h <= bandTop + 1,
-        ) as { w: number; h: number }[];
+            (c): c is Extract<DrawCommand, { kind: 'rect' }> | Extract<DrawCommand, { kind: 'circle' }> => {
+                if (c.kind === 'circle') {
+                    return c.x - c.r > first.x + 1 && c.x + c.r < first.x + first.w - 1 &&
+                        c.y - c.r > first.y + 1 && c.y + c.r <= bandTop + 1;
+                }
+                if (c.kind !== 'rect') return false;
+                return c.x > first.x + 1 && c.x + c.w < first.x + first.w - 1 &&
+                    c.y > first.y + 1 && c.y + c.h <= bandTop + 1;
+            },
+        );
         expect(blocks.length).toBeGreaterThan(0);
         for (const b of blocks) {
-            expect(b.w).toBeLessThanOrEqual(THUMB_AREA / THUMB_MATRIX_N - BEAD_GAP + 0.01);
+            const w = b.kind === 'circle' ? b.r * 2 : b.w;
+            expect(w).toBeLessThanOrEqual(THUMB_AREA / THUMB_MATRIX_N - BEAD_GAP + 0.01);
         }
     });
 

@@ -47,6 +47,7 @@ import {
     SIGN_INK_IDX,
     SIGN_MATRIX_N,
     THUMB_AREA,
+    THUMB_BEAD_SHAPE,
     THUMB_MATRIX_N,
     THUMB_TOP_INSET,
     signFaceB,
@@ -55,7 +56,7 @@ import {
 import { signGlyphOf } from '../config/sign-glyphs';
 import { colorIndexOfChar } from '../config/bead-charset';
 import type { BeadsLevelRaw } from '../config/levels-data';
-import { DEMO_BEAD_INKS, beadColorOf, beadInksFor, relativeLuminance, type BeadInks } from './palette';
+import { DEMO_BEAD_INKS, beadColorOf, beadInksFor, endpointOf, relativeLuminance, type BeadInks } from './palette';
 import { drawFilledBead, type FilledBeadOptions } from './bead-render';
 
 /**
@@ -415,16 +416,34 @@ export function drawLevelThumbFull(
     const gap = pitch < BEAD_GAP * 2 ? pitch * 0.4 : BEAD_GAP;
     const block = pitch - gap;
     const fillAlpha = alpha !== undefined && alpha < 1 ? { alpha } : undefined;
+    /**
+     * `[WXG-T-616]` 用户令「用有造型的珠子做效果拼接」：块够大时逐珠改画
+     * **珠体圆 + 孔 + 左上高光**（三圆，色全取预烘端点表 ⇒ 热路径只查表）；
+     * 块边 < `minBlock` 的超大盘回退方块，避免 1px 级孔/高光糊成噪点。
+     */
+    const shaped = block >= THUMB_BEAD_SHAPE.minBlock;
+    const bodyR = block / 2;
+    const holeR = bodyR * THUMB_BEAD_SHAPE.holeRatio;
+    const glintR = bodyR * THUMB_BEAD_SHAPE.glintRatio;
+    const glintDx = bodyR * THUMB_BEAD_SHAPE.glintDx;
+    const glintDy = bodyR * THUMB_BEAD_SHAPE.glintDy;
     for (let i = 0; i < cells.length; i += 3) {
         const r = cells[i]!;
         const c = cells[i + 1]!;
         const idx = cells[i + 2]!;
         const cx = left + (c + 0.5) * pitch;
         const cy = top - (r + 0.5) * pitch;
-        builder.rect(cx - block / 2, cy - block / 2, block, block, {
-            fill: beadColorOf(inks, idx),
-            ...(fillAlpha ?? {}),
-        });
+        if (shaped) {
+            const ep = endpointOf(inks, idx);
+            builder.circle(cx, cy, bodyR, { fill: ep.base, ...(fillAlpha ?? {}) });
+            builder.circle(cx, cy, holeR, { fill: ep.pit, ...(fillAlpha ?? {}) });
+            builder.circle(cx - glintDx, cy + glintDy, glintR, { fill: ep.lit, ...(fillAlpha ?? {}) });
+        } else {
+            builder.rect(cx - block / 2, cy - block / 2, block, block, {
+                fill: beadColorOf(inks, idx),
+                ...(fillAlpha ?? {}),
+            });
+        }
     }
 }
 

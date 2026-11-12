@@ -9415,6 +9415,7 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **锁定图**：稿面锁图原生 69×76 ⇒ 按槽高 94 等比放大为 **≈85.3×94** 并水平居中（新增 `cellArt.lockW/lockH` 只作比例换算，⛔ 不横向拉伸铺满槽）。
 - **效果**：8×8 盘珠拼由 69 见方增至 **94 见方**（受槽高限制），宽盘（cols>rows）可用满 126 宽；三星 / 编号牌 / 高亮环几何不动。
 - **文档**：`design/ux/level-select-page-layout.md` 增 §2G（含新旧对照表，前节 69×76 退为历史 K-053）；`ui-architecture-beads §12` 追加视觉变更登记。
+- **追加（同日 · 用户令「用有造型的珠子做效果拼接」）**：放大后珠块达 9.75px ⇒ 缩略改**珠形档**——逐珠 `circle(珠体 ep.base) + circle(孔 ep.pit · 0.30R) + circle(左上高光 ep.lit · 0.24R @0.32R)`，色全取 `endpointOf()` 预烘端点表（热路径零派生）；块边 <5px 的超大盘回退方块（`THUMB_BEAD_SHAPE.minBlock`，tuning/board.ts）。锁定灰格同形；缺图降级仍灰方块阵。命令数 level-select 帧规 **3127 → 4285**（+37%），与盘面珠渲染同量级。
 - **待办**：金样本 `level-select` 两态在干净锚重抓；全量 `verify` 后回填本行读数。
 - **验证**：`arc-wall-locked` 锁图位断言迁「等比居中框」；金样本在干净锚 **`1021e4a3`** 重抓（两遍确定性自证 PASS），仅 `level-select` / `level-select-mid` 两态 **sha 变**——`total` 与种类数逐字未变（槽位只改坐标/尺寸）；beads 单测 **1454 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（含 framework:sync:check、cocos:check）。
 - **工作树遗留件（⛔ 不代提）**：preview SVG、`games/beads/package.json` 版本号、`tools/scripts/{harness-bitmap-shot.mjs,minimax-h3-t2v.py}` 等非本单改动未入本笔。

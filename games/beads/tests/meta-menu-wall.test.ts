@@ -237,9 +237,11 @@ function blockEdgeOf(level: (typeof LEVELS)[number]): number {
 }
 
 /**
- * 盘面色块的**空间签名**（`[WXG-T-502]`：缩略只画盘面 ⇒ 一格一块 `rect`）。
+ * 盘面色块的**空间签名**（`[WXG-T-502]`：缩略只画盘面 ⇒ 一格一块；`[WXG-T-616]` 块够大时
+ * 一格 = 珠体圆，超大盘回退方块）。
  * `[WXG-T-613]` 双口径过滤：**图案槽矩形内**（缩略珠恒落 `cellArt` 图案槽，格框外
  * 的走马灯珠拼不捞）+ **块边 = 期望关块边**（槽内误入的背景珠块边不同 ⇒ 排除）。
+ * `[WXG-T-616]` 珠形档只认**珠体**（圆半径 = 块边/2）；孔/高光小圆半径不符 ⇒ 自动排除。
  */
 function beadSignatureIn(
     cmds: readonly DrawCommand[],
@@ -251,12 +253,22 @@ function beadSignatureIn(
     const iy0 = box.y + (box.h - a.imageTopDown - a.imageH);
     return cmds
         .filter((k) => {
+            if (k.kind === 'circle') {
+                const c = k as { x: number; y: number; r: number };
+                return c.x - c.r >= ix0 && c.x + c.r <= ix0 + a.imageW &&
+                    c.y - c.r >= iy0 && c.y + c.r <= iy0 + a.imageH &&
+                    Math.abs(c.r * 2 - edge) < 0.02;
+            }
             if (k.kind !== 'rect') return false;
             const c = k as { x: number; y: number; w: number; h: number };
             return c.x >= ix0 && c.x + c.w <= ix0 + a.imageW && c.y >= iy0 && c.y + c.h <= iy0 + a.imageH &&
                 Math.abs(c.w - edge) < 0.02 && Math.abs(c.w - c.h) < 0.02;
         })
         .map((k) => {
+            if (k.kind === 'circle') {
+                const c = k as { x: number; y: number; r: number; fill?: string };
+                return `${c.x}|${c.y}|${c.r}|${c.fill ?? ''}`;
+            }
             const c = k as { x: number; y: number; w: number; h: number; fill?: string };
             return `${c.x}|${c.y}|${c.w}|${c.h}|${c.fill ?? ''}`;
         })
