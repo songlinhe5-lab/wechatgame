@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4065,
       "lines": 136,
-      "sha256": "5e87840e40409413de307882de09b4b9d9dc9e116d2f1cac4249e4605fde12a5",
+      "sha256": "ac3f7d532529f110334e8f9bd51a5cca230b323018be6b41aabc8a15abe25176",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 282882 9575 normal",
+          "summary": "1 production/TASKS-DETAIL.md 282920 9575 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5290,
       "lines": 164,
-      "sha256": "1d95ed52b7730981646b1028ecce4760846d4965fb680ad4cb632079fb5f899e",
+      "sha256": "00a61da53d4e5c000de290abec7412688545dd521f4d287c0fcde8c4e9bf4f9c",
       "tier": "normal",
       "sections": [
         {
@@ -1080,7 +1080,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 9575 行 / 282882 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 9575 行 / 282920 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
@@ -89900,9 +89900,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 282882,
+      "tokens": 282920,
       "lines": 9575,
-      "sha256": "c08e3d156179d9695c371b19019e0f522381aa5a8f4864ca66cc5b0071eaf965",
+      "sha256": "05b4976d5ef100515b337d39d9c02f72aaf0141d863b2dcb52e760bc42a7fee1",
       "tier": "normal",
       "sections": [
         {
@@ -89910,7 +89910,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 9576,
-          "tokens": 282865,
+          "tokens": 282903,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -104495,7 +104495,7 @@
           "level": 2,
           "startLine": 9563,
           "endLine": 9576,
-          "tokens": 781,
+          "tokens": 819,
           "summary": "UI·木牌第二行状态词：已通关 / 未开启（无在推的关时） · 负责：主理人(Trae CN)·beads 工程轨 · ",
           "keywords": [
             "WXG",

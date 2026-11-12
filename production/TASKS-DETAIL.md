@@ -9571,5 +9571,5 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **判据**：`beads-shell.test.ts` 两例——「本章全通 ⇒ 陈列回落 boss 且标签 = 已通关」「未解锁章页 ⇒ 未开启」；推关态断言 `carouselSeqLabel` 为 `undefined`（不出现状态词）。
 - **文档**：`menu-plate-text-control-spec §10` / `tokens.md §7` / `menu-architecture §6` / `ui-architecture-beads §12` / `meta-types` 字段注释。
 - **验证**：beads 单测 **1466 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；`selftest:fast` **PASS 15/15**；金样本十一帧**不变**（纯 `seqLabelOverride` 分流，无位图/命令数变化）。实帧证据 `temp/plate-shot-914/plate-cleared.png`（「曼陀罗 / 已通关」）与 `plate-locked.png`（「照片冒烟 32 / 未开启」）；harness 探针 `cleared = { id: 9, seq: '已通关' }` / `locked = { id: 10, seq: '未开启' }` / 推关态 `seq` 仍为「第 1 关」。
-- **提交**：待填。
+- **提交**：`f19fc555` feat（`_arcSeqLabel` + 两令牌 + 判据三例 + 四份文档 + Cocos 镜像 + 台账）＋ 本笔 docs（台账回填）。
 - **知识沉淀（kb:sync --task=WXG-T-914）**：新增 0 / 修改 0 / 激活 0 / 归档 0（沿 T-913 数据源扩展收口，无新判例；「无在推的关 ⇒ 行 2 换状态词」已写入 `_arcSeqLabel` 行内注与 plate spec §10）。
