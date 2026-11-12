@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4065,
       "lines": 136,
-      "sha256": "9210a5c6010c1a425aae82cbba526f442bb6e8790b987b49efc6568355e87153",
+      "sha256": "7ce8eafb3c45c77c0d06afcf5ede9a9a0a3e161d698be88b38b9e4dd6a9d34bf",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 290577 9736 normal",
+          "summary": "1 production/TASKS-DETAIL.md 290575 9736 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5291,
       "lines": 164,
-      "sha256": "f4529195847a9bf2c0731534706d7c0096586482924ac47b116a234c034cdafa",
+      "sha256": "257a9b8453d36cee23e4badafa83ad8838d99d630653d12b544475dfd1083505",
       "tier": "normal",
       "sections": [
         {
@@ -1080,7 +1080,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 9736 行 / 290577 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 9736 行 / 290575 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
@@ -89930,9 +89930,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 290577,
+      "tokens": 290575,
       "lines": 9736,
-      "sha256": "07a4d97509119ba95bd9ab50cdf667a03f4c2cd006d511514d21ee271610cd30",
+      "sha256": "a17aa9e06e222c7601a481629e6e9d989d1291374f1ce4465495a6533cc29eac",
       "tier": "normal",
       "sections": [
         {
@@ -89940,7 +89940,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 9737,
-          "tokens": 290560,
+          "tokens": 290558,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -104669,7 +104669,7 @@
           "level": 2,
           "startLine": 9724,
           "endLine": 9737,
-          "tokens": 702,
+          "tokens": 699,
           "summary": "UX·详情橱窗珠面贴纸轮廓（art 裁定颜色与效果） · 负责：主理人(Trae CN)·beads 工程轨 + art",
           "keywords": [
             "WXG",

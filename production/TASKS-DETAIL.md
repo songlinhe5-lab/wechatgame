@@ -9732,5 +9732,5 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **实帧**：`temp/detail-shot-924` 三档重拍——L4 12×12（折角明显圆滑、带宽 5）、L7 14×8 宽盘（拱形折叠圆角）、L9 30×30（W=2 细边，无噪点）。temp 不入库。
 - **文档**：`level-detail-spec §12` 增贴纸外轮廓条（art 裁定六项）；`ui-architecture-beads §12` 登记。
 - **验证**：`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；`thumb-outline` 5 例 + `level-detail-showcase` 4 例全绿；`harness:build` ✅（Cocos 镜像同批）。
-- **提交**：见本批 commit（代码 + Cocos 镜像 + `level-detail-spec §12` / `ui-architecture-beads §12` + 台账）。
+- **提交**：`8de1f3c7`（代码 + Cocos 镜像 + `level-detail-spec §12` / `ui-architecture-beads §12` + 台账）。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**（轮廓几何口径已由本单规格与新判据承载，无新增 K 候选）。
