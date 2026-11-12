@@ -12,6 +12,7 @@ import { describe, it, expect } from 'vitest';
 import { RenderModelBuilder, type DrawCommand } from '@wxgame/framework';
 import { buildMetaModal, buildMetaView, hitTestMeta, metaLayout, type MetaViewData } from '../src/view/meta-view.js';
 import { levelDetailPlate } from '../src/view/meta-layout.js';
+import { drawBeadFace } from '../src/view/menu-signage.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import { COPY_TOKENS } from '../src/config/copy-tokens.js';
 import { scrimFill, UI_FONT, UI_SCRIM } from '../src/view/ui-theme.js';
@@ -19,6 +20,7 @@ import { LEVELS } from '../src/config/levels.js';
 import {
     DESIGN_H,
     DESIGN_W,
+    HANDDRAWN_STYLE_ID,
     LEVEL_DETAIL_GEO,
     LEVEL_SELECT_GEO,
     THUMB_AREA,
@@ -211,6 +213,30 @@ describe('WXG-T-605 · 格内与转场', () => {
             const w = b.kind === 'circle' ? b.r * 2 : b.w;
             expect(w).toBeLessThanOrEqual(edge + 0.01);
         }
+    });
+
+    it('`[T-621]` 缩略珠面跟随当前应用风格：`MetaViewData.beadStyle` 一路透传到盘面珠体腿', () => {
+        const hand = modalFrame(dataFor({ beadStyle: HANDDRAWN_STYLE_ID }));
+        const first = cells()[0]!.box;
+        const a = LEVEL_SELECT_GEO.cellArt;
+        const ref = new RenderModelBuilder(DESIGN_W, DESIGN_H);
+        ref.begin();
+        drawBeadFace(
+            ref, LEVELS[0]!,
+            first.x + a.imageLeft,
+            first.y + (first.h - a.imageTopDown - a.imageH),
+            a.imageW, a.imageH,
+            undefined,
+            HANDDRAWN_STYLE_ID,
+        );
+        const refSigs = ref.end().commands.map((c) => JSON.stringify(c));
+        const frameSigs = hand.map((c) => JSON.stringify(c));
+        const at = frameSigs.indexOf(refSigs[0]!);
+        expect(at).toBeGreaterThanOrEqual(0);
+        expect(frameSigs.slice(at, at + refSigs.length)).toEqual(refSigs);
+        // 反向：默认档（facet-4）帧的 polygon 数 ≠ handdrawn 帧（4/珠 ↔ 2/珠）⇒ 风格确实生效。
+        const polys = (cs: readonly DrawCommand[]) => cs.filter((c) => c.kind === 'polygon').length;
+        expect(polys(modalFrame(dataFor()))).not.toBe(polys(hand));
     });
 
     it('pageFade 转场：木牌命令乘 0.75；静息帧无 alpha 字段', () => {

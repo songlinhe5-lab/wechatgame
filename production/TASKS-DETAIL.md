@@ -9477,6 +9477,7 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 
 - **根因**：T-620 把珠面腿接到了盘面同款 `drawFilledBead`，但调用方没传 `styleId` ⇒ `drawFilledBead` 按缺省取 `DEFAULT_BEAD_STYLE_ID`（facet-4）⇒ 玩家在设置里换珠体风格后，缩略图仍是固定 facet-4。
 - **接线（单源，不新建第二通道）**：①`drawBeadFace` 新增第 8 参 `styleId?: string`（缺省 = 默认档），shaped 分支写 `faceOpts.styleId`（模块级复用槽，零分配）；②`LevelSelectViewModel` 新增 `beadStyle`，`updateLevelSelectViewModel` 每帧从 `MetaViewData.beadStyle`（shell 已按 `play.beadStyle` 投影）只读抄入；③`drawLevelSelectCell` 解锁格与锁定灰珠降级腿都透传 `vm.beadStyle`；④详情橱窗 `drawLevelDetailPage` 透传 `data.beadStyle`。
-- **判据**：`menu-thumb-primitives` 新增「`styleId` 透传」＝ facet-4 **7 命令/珠** ↔ handdrawn **4 命令/珠**、首命令形态 rect ↔ polygon，灰墨腿同口径；`level-detail-showcase` 测试数据改 `handdrawn` ⇒ 详情帧全 kind 连续切片仍与共享腿逐条相等（证明详情页也跟随）。金样本零漂移（测试数据 `beadStyle: 'facet-4'` 与缺省同臂 ⇒ 逐字节不变，不用重抓）。
-- **验证**：beads 单测 **1459 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（含 framework:sync:check、cocos:check、check:frozen-values）；金样本 `level-select` 两态 total 保持 **6601**（零漂移，未重抓）。
+- **判据**：`menu-thumb-primitives` 新增「`styleId` 透传」＝ facet-4 **7 命令/珠** ↔ handdrawn **4 命令/珠**、首命令形态 rect ↔ polygon，灰墨腿同口径；`arc-level-select-page` 新增**整帧判据**——弹窗帧（`buildMetaModal`）内定位 handdrawn 共享腿连续切片并逐条相等，且 polygon 数与默认档不同 ⇒ 证明「`MetaViewData.beadStyle` → 选关 VM → 珠面腿」全链无断点；`level-detail-showcase` 测试数据改 `handdrawn` ⇒ 详情帧全 kind 连续切片仍与共享腿逐条相等（证明详情页也跟随）。金样本零漂移（测试数据 `beadStyle: 'facet-4'` 与缺省同臂 ⇒ 逐字节不变，不用重抓）。
+- **非珠面缩略（如实登记）**：主菜单作品墙 / 走马灯 / 通关书架 / Boss 图位回退走 `drawLevelThumb`（5×5 聚合**纯色块**，`[WXG-T-502]` 用户 2026-10-29 裁：缩略图不随珠体样式变化，1 命令/块）；这些不是珠面，故无 `beadStyle` 可跟随——若要求也画珠面需另立单（7 命令/珠 × 最多 1024 格，性能另议）。
+- **验证**：beads 单测 **1460 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（含 framework:sync:check、cocos:check、check:frozen-values）；金样本 `level-select` 两态 total 保持 **6601**（零漂移，未重抓）。
 - **知识沉淀（kb:sync --task=WXG-T-621）**：新增 **0** / 修改 0 / 激活 0 / 归档 0；kb:audit 相似命中 0。
