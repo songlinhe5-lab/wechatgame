@@ -129,6 +129,21 @@ describe('WXG-T-522 橱窗单一作品', () => {
         expect(lb.fx, '锁图不做磨砂/灰度').toBeUndefined();
     });
 
+    it('`[WXG-T-917]` 锁图占位 art 定版：宽 = 作品框宽 × 0.45，锚点 = 玻璃可视区中心', () => {
+        hostWith(MENU_TEXTURES.backdrop, BOSS_ART, MENU_TEXTURES.lock);
+        const lock = blitsOf(frame(data({ carouselState: 'locked' as const })), MENU_TEXTURES.lock)[0] as
+            { x: number; y: number; w: number; h: number };
+        const w = MENU_V2.art.w * MENU_LOCKED_ICON.scale;
+        expect(lock.w).toBeCloseTo(w, 6);
+        expect(lock.h).toBeCloseTo(w / MENU_LOCKED_ICON.aspect, 6);
+        // 锚点 = `clip` 顶 ↔ 台面 的中点（⛔ 不坐台面；与 `drawShowcaseArt` 的 `avail` 同式）。
+        // 坐标换算：`MENU_V2` 是 top-based，渲染模型 y-up ⇒ 框底 = `DESIGN_H - (art.y + art.h)`。
+        const shelfY = MENU_V2.art.y + MENU_V2.art.h;
+        const avail = shelfY - MENU_V2.clip.y;
+        expect(lock.x + lock.w / 2).toBeCloseTo(MENU_V2.art.x + MENU_V2.art.w / 2, 6);
+        expect(lock.y + lock.h / 2).toBeCloseTo(DESIGN_H - shelfY + avail / 2, 6);
+    });
+
     // `[WXG-T-587]` v1 的圆底 `btnArrow` / 矢量向标 `iconArrow*` 已**删键出包** ⇒ 本判据只剩正向部分：
     // 有整枚件就画整枚件，且落位 = `MENU_V2.prev/next` 读数。
     it('翻页钮 = 整枚位图（`prevBtn`/`nextBtn`），落位按 `MENU_V2.prev/next`', () => {

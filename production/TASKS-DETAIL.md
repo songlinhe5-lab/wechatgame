@@ -9601,3 +9601,20 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：beads 单测 **1469 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（typecheck 修复一轮：`menu-tri-state` 的 `states` 收窄后残留 locked 比较 TS2367）；金样本十一帧**零漂移**（无金样本帧处于 locked 页）。实帧 `temp/plate-shot-914/plate-locked.png`：空玻璃 + 拼豆锁居中 + 木牌「照片冒烟 32 / 未开启」。
 - **提交**：`4e8c58ec` feat（锁图占位 + 退役腿 + 判据三处 + 文档 + Cocos 镜像 + 台账）＋ 本笔 docs（台账回填）。
 - **知识沉淀（kb:sync --task=WXG-T-916）**：新增 0 / 修改 0 / 激活 0 / 归档 0（视觉口径改裁，已写入 `drawShowcaseArt` / `drawLockedBadge` 行内注、`tuning/menu.ts::MENU_FROST` 退役留档与 §12 登记）。
+
+## WXG-T-917
+
+**UI·未开放大关锁形占位尺寸/锚点 art 定版** · 负责：主理人(Trae CN) × art（林绘澄）· 状态：✅ 完成（2026-11-12）
+
+- **上位（用户令）**：「锁形占位尺寸和动效需要 art 定版，先记入 backlog」→ 用户选「1」= 等 art 给值后立项领号落地。
+- **art 定版（林绘澄，2026-11-12）**：
+  1. **尺寸**：`MENU_LOCKED_ICON.scale` 0.30 → **0.45**（锁 146×198 @325 框宽；占玻璃可视高 374 的 53%，四周留白 88–90）。旧 0.30 是叠在模糊作品上的徽标比例，锁图占位后嫌小。
+  2. **锚点**：由「框内偏上」（`b.y + b.w/2`）改**玻璃可视区中心**（`b.y + avail/2`，`avail` = `clip` 顶 ↔ 台面）；⛔ 不坐台面——锁是符号不是实物，落台需接触阴影 = 新增渲染层。
+  3. **动效 = 静止**：art-bible §7.2「新增动画须命中四要素之一」——锁无受力源；未开放页非 CTA，循环动效读作「假可点」。备选呼吸档（±1.5% / 2400ms / sin，reduceMotion 取 t=0）需新增菜单时钟通道，未采纳。
+- **变更**：`tuning/menu.ts::MENU_LOCKED_ICON.scale` 0.45（注释回填定版依据）；`meta-menu.ts::drawLockedBadge` 签名改 `(cx, cy, bw)`（锚点由调用方按 `avail` 给出），`drawShowcaseArt` 传 `b.y + avail/2`；零新常量、零新增位图/色值、零 `MetaViewData` 字段。
+- **判据**：`showcase-single.test.ts` 新增一例——锁宽 = `MENU_V2.art.w × 0.45`、高 = 宽 / aspect、中心 = (`art.x + art.w/2`, `DESIGN_H − (art.y + art.h) + avail/2`)。
+- **backlog**：原「未开放大关锁形占位：尺寸/动效待 art 定版」行按 WXG-T-076 纪律**结项即移除**。
+- **文档**：`ui-architecture-beads §12` 追加 T-917 段。
+- **验证**：beads 单测 **1470 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；金样本十一帧零漂移（无金样本帧处于 locked 页）。实帧 `temp/plate-shot-914/plate-locked.png`：锁 146×198、上下留白 ≈88，木牌「照片冒烟 32 / 未开启」。
+- **提交**：待填。
+- **知识沉淀（kb:sync --task=WXG-T-917）**：新增 0 / 修改 0 / 激活 0 / 归档 0（art 定版数值已写入 `MENU_LOCKED_ICON` 注释与 §12；「无受力源/非 CTA 不做循环动效」引用 art-bible §7.2 既有判据，无新判例）。

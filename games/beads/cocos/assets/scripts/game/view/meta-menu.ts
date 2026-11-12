@@ -275,22 +275,22 @@ function drawFullStarRing(
 
 /**
  * `[WXG-T-916]` 未开放大关的**锁图占位主体**：`locked` 态不画大关图，只画这枚锁形（锁 = 展品）。
- * 位置居中、宽度 = 作品框宽 × 比例，高度按纹理宽高比（`MENU_LOCKED_ICON.aspect`）求 ——
- * `[WXG-T-578]` Figma v2 拼豆锁是 192×260 的竖长件，⛔ 不再按方形拉（旧 128² 白盘锁才配方形槽）。
- * 缺图回落 = 圆章 +「锁」字（同 `drawWallLockBadge` 口径，零新数值零新色）。
+ * `[WXG-T-917]` art 定版：宽 = 作品框宽 × `MENU_LOCKED_ICON.scale`（0.45 ⇒ 146×198），
+ * 锚点 = **玻璃可视区中心**（`clip` 顶 ↔ 台面 的中点；⛔ 不坐台面——锁是符号不是实物，
+ * 落台需接触阴影 = 新增渲染层）；高度按纹理宽高比求（`[WXG-T-578]` 192×260 竖长件，⛔ 不拉方）。
+ * **动效 = 静止**（art-bible §7.2：无受力源 + 未开放页非 CTA，循环动效读作「假可点」；
+ * 用户 2026-11-12 交 art 定版）。缺图回落 = 圆章 +「锁」字（同 `drawWallLockBadge` 口径，零新数值零新色）。
  */
 function drawLockedBadge(
     builder: RenderModelBuilder,
     palette: BeadsPalette,
-    bx: number,
-    by: number,
+    cx: number,
+    cy: number,
     bw: number,
     ink: number | undefined,
 ): void {
     const w = bw * MENU_LOCKED_ICON.scale;
     const h = w / MENU_LOCKED_ICON.aspect;
-    const cx = bx + bw / 2;
-    const cy = by + bw / 2;
     const opts = ink === undefined ? undefined : { alpha: ink };
     if (!menuBitmapReady(MENU_LOCKED_ICON.textureId)) {
         builder.circle(cx, cy, w / 2, { fill: palette.slot, stroke: palette.slotBorder, lineWidth: 2, ...opts });
@@ -340,8 +340,9 @@ function drawShowcaseArt(
     }
     // `[WXG-T-916]` 未开放大关 = 锁图占位（用户 2026-11-12 裁「参考关卡详情页做未开放标识」）：
     // ⛔ 不再画 boss 图 / 磨砂 / 灰度（三条腿退场，K-053 留档），橱窗只留锁形。
+    // `[WXG-T-917]` 锚点 = 玻璃可视区中心（`b.y + avail/2`，⛔ 不坐台面，口径见 `drawLockedBadge`）。
     if (state === 'locked') {
-        drawLockedBadge(builder, palette, x, b.y, b.w, ink);
+        drawLockedBadge(builder, palette, x + b.w / 2, b.y + avail / 2, b.w, ink);
         return;
     }
     if (level !== undefined && textureId !== undefined && menuBitmapReady(textureId)) {
