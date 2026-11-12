@@ -54,6 +54,7 @@ import {
     type PowerupType,
 } from '../config/tuning';
 import { ARC_OPEN_MAX, ARCS } from '../config/arcs';
+import { COPY_TOKENS } from '../config/copy-tokens';
 import { arcEntryTicket, emptyArcTicketResult, type ArcTicketResult } from '../systems/arc-ticket';
 import { BeadsGame, type BeadsGameOptions } from './beads-game';
 import { LEVELS } from '../config/levels';
@@ -250,6 +251,7 @@ export class BeadsShell implements Game {
         // 图 = `ARCS[页].textureId`；木牌关名 = 大关名（`carouselTitle`）。
         carouselLevel: undefined as BeadsLevelRaw | undefined,
         carouselTitle: undefined as string | undefined,
+        carouselSeqLabel: undefined as string | undefined,
         carouselState: undefined as MetaBossState | undefined,
         // `[WXG-T-566]` 当前大关「已完成小关 / 总小关」（每帧由 `_metaViewData` 覆写；空页 = undefined）。
         carouselArcDone: undefined as number | undefined,
@@ -260,6 +262,7 @@ export class BeadsShell implements Game {
         carouselT: 0,
         carouselPeer: undefined as BeadsLevelRaw | undefined,
         carouselPeerTitle: undefined as string | undefined,
+        carouselPeerSeqLabel: undefined as string | undefined,
         carouselPeerState: undefined as MetaBossState | undefined,
         // `[WXG-T-566]` 对页完成度（滑动中两页各自的揭彩比例，⛔ 不借用主车进度）。
         carouselPeerArcDone: undefined as number | undefined,
@@ -1022,6 +1025,20 @@ export class BeadsShell implements Game {
     }
 
     /**
+     * `[WXG-T-914]` 木牌第二行状态词：仅在「陈列关回落 boss」（本大关无在推的关）且大关状态为
+     * `cleared` / `locked` 时返回「已通关」/「未开启」（`COPY_TOKENS`，用户 2026-11-12 裁）；
+     * 其余（有在推的关 / pushing 兜底未收敛）⇒ `undefined` ⇒ 视图照旧画 `第 N 关`。零分配。
+     */
+    private _arcSeqLabel(arcIdx: number, showcase: BeadsLevelRaw | undefined): string | undefined {
+        if (showcase === undefined || showcase !== this._arcBossLevel(arcIdx)) return undefined;
+        const state = this._arcState(arcIdx);
+        // `fullstar`（全关三星）与 `cleared` 同属「没有在推的关」⇒ 同词「已通关」。
+        if (state === 'cleared' || state === 'fullstar') return COPY_TOKENS.plate_arc_cleared_label;
+        if (state === 'locked') return COPY_TOKENS.plate_arc_locked_label;
+        return undefined;
+    }
+
+    /**
      * `[WXG-T-913]` 走马灯陈列关 = **该大关解锁范围内第一个 0 星关**（与选关高亮 T-912 同口径：
      * 推到哪一关就展示哪一关，用户 2026-11-12 令「主界面展示的应该是曼陀罗第三关」）。
      * 本大关全通 / 尚未解锁 ⇒ 回落大关收尾关（boss，保底展示该章作品）。
@@ -1292,6 +1309,8 @@ export class BeadsShell implements Game {
         v.carouselTitle = showcase !== undefined && showcase !== this._arcBossLevel(off)
             ? ARCS[off]?.title
             : undefined;
+        // `[WXG-T-914]` 没有在推的关（陈列回落 boss）⇒ 第二行改状态词（已通关 / 未开启）。
+        v.carouselSeqLabel = soon ? undefined : this._arcSeqLabel(off, showcase);
         v.carouselState = soon ? undefined : this._arcState(off);
         // `[WXG-T-566]` 木牌 `N/M` 数据（与 `_arcState` 同一 `levelRefs` 遍历口径，单趟整数、零分配）。
         if (soon) {
@@ -1314,6 +1333,7 @@ export class BeadsShell implements Game {
         if (peerPage < 0) {
             v.carouselPeer = undefined;
             v.carouselPeerTitle = undefined;
+            v.carouselPeerSeqLabel = undefined;
             v.carouselPeerState = undefined;
             v.carouselPeerTextureId = undefined;
             v.carouselPeerArcDone = undefined;
@@ -1324,6 +1344,7 @@ export class BeadsShell implements Game {
             v.carouselPeerTitle = peerShowcase !== undefined && peerShowcase !== this._arcBossLevel(peerPage)
                 ? ARCS[peerPage]?.title
                 : undefined;
+            v.carouselPeerSeqLabel = this._arcSeqLabel(peerPage, peerShowcase);
             v.carouselPeerState = this._arcState(peerPage);
             v.carouselPeerTextureId = ARCS[peerPage]?.textureId;
             // `[WXG-T-566]` 对页揭彩比例：与主车同源同口径（主车值已拷进 v，重算不会覆盖它）。

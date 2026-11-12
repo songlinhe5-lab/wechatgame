@@ -217,4 +217,5 @@ python3 $W temp/menu-v2-edit/plate-step1.png \
 
 - **陈列关换了谁**：走马灯陈列关由「大关收尾关（boss）」改为「**本大关解锁范围内第一个 0 星关**」（与选关高亮同口径；大关全通 / 未解锁 ⇒ 回落 boss）。橱窗图仍按 `ARCS[页].textureId`（章作品不变）。
 - **木牌两行口径**：行 1 关名 —— 陈列中途小关时由 shell 供**大关名**（`carouselTitle = ARCS[页].title`，如「曼陀罗」；小关自身无展示名）；陈列 boss 时仍回落 `lv.title`（旧行为逐字不变）。行 2 关序 —— 恒为 `第 {陈列关.id} 关`，故推关态 = 「曼陀罗 / 第 3 关」。
+- **`[WXG-T-914]` 没有在推的关时行 2 = 状态词**（用户 2026-11-12 裁）：陈列关回落 boss（本大关无 0 星、未解锁）时，行 2 不再印 boss 关号，改读 `COPY_TOKENS`——本章全通（`cleared` / `fullstar`）⇒「已通关」；整章未解锁（`locked`）⇒「未开启」。有在推的关时**不出现**状态词（行 2 恒关序）；两行/单行版式与字号不动（有章名 ⇒ 两行、行 2 走 `plateSub`；无章名 ⇒ 单行）。
 - **判据**：`tests/beads-shell.test.ts`「陈列关 = 曼陀罗第 3 关且 `carouselTitle = 曼陀罗`」；金样本 `main-menu / settings / signin / level-select / level-select-mid` 重抓（无位图腿的程序化陈列图随陈列关变小 ⇒ total **1623→1117 / 9437→8931** 等，逐帧 sha 变）。

@@ -476,9 +476,11 @@ function drawPlateTitle(
     alpha: number,
     /** `[WXG-T-913]` 关名覆盖（大关名）：陈列关改为中途小关后由 shell 供大关名；缺省 ⇒ `lv.title`。 */
     titleOverride?: string,
+    /** `[WXG-T-914]` 第二行覆盖（状态词）：无在推的关时 shell 供「已通关 / 未开启」；缺省 ⇒ `第 N 关`。 */
+    seqLabelOverride?: string,
 ): void {
     if (alpha <= 0) return;
-    const seq = `第 ${lv.id} 关`;
+    const seq = seqLabelOverride ?? `第 ${lv.id} 关`;
     const a = alpha < 1 ? alpha : undefined;
     const title = titleOverride ?? lv.title;
     if (title) {
@@ -637,11 +639,11 @@ export function drawMenuAnchored(
         // `[WXG-T-598]` 木牌只吃关名 + 关序；门票 ★ / 大关 N/M 两组读数自木牌退场（选关页仍有），
         // 故不再往下传进度实参。
         else if (data.carouselLevel !== undefined) {
-            drawPlateTitle(builder, data.carouselLevel, g, palette, fade[0], data.carouselTitle);
+            drawPlateTitle(builder, data.carouselLevel, g, palette, fade[0], data.carouselTitle, data.carouselSeqLabel);
         }
         if (data.carouselPeerComingSoon === true) drawComingSoonPlate(builder, g, palette, fade[1]);
         else if (data.carouselPeer !== undefined) {
-            drawPlateTitle(builder, data.carouselPeer, g, palette, fade[1], data.carouselPeerTitle);
+            drawPlateTitle(builder, data.carouselPeer, g, palette, fade[1], data.carouselPeerTitle, data.carouselPeerSeqLabel);
         }
     }
     // ◀▶ 翻页（热区 = `carousel-prev/next`；无热区语义 ⇒ 壳侧处理）。

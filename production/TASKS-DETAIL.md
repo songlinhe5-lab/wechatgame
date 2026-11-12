@@ -9559,3 +9559,17 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：beads 单测 **1464 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；金样本五帧重抓——`main-menu` 1623→1117、`settings` 1651→1145、`signin` 1655→1149、`level-select` 两态 9437→8931（无位图腿的程序化陈列图由 boss 30×30 换为推关 13×12，逐帧 sha 变；其余六帧不变），十一帧两遍确定性自证 PASS，干净锚 `0e253949`。实帧证据 `temp/menu-shot-913/main-menu.png`（木牌「曼陀罗 / 第 3 关」，橱窗作品图仍为曼陀罗）。
 - **提交**：`0e253949` feat（陈列关换源 + 木牌关名供给 + 判据 + 三份文档 + Cocos 镜像 + 台账）＋ 本笔 test（金样本 + 台账回填）。
 - **知识沉淀（kb:sync --task=WXG-T-913）**：新增 0 / 修改 0 / 激活 0 / 归档 0（与 T-912 同口径的一次数据源扩展，无新判例；口径已写入 `_arcShowcaseLevel` 行内注与 §10）。
+
+## WXG-T-914
+
+**UI·木牌第二行状态词：已通关 / 未开启（无在推的关时）** · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成（2026-11-12 · 用户裁）
+
+- **上位（用户问 + 裁）**：「如果当前大关没有正在推的关，名牌第二行应该显示什么？」⇒ 用户选「状态词：已通关 / 未开启（推荐）」。
+- **根因**：T-913 后陈列关 = 推关；无在推的关时陈列回落 boss，行 2 仍印 boss 关号（全通章 =「第 9 关」、未解锁章 =「第 10 关」）⇒ 读作「当前在打第 9/10 关」，没有真值。
+- **变更**：① `beads-shell.ts` 新增 `_arcSeqLabel(arcIdx, showcase)`：仅当 `showcase === _arcBossLevel(arcIdx)`（= 无在推的关）时按 `_arcState` 供给 `COPY_TOKENS.plate_arc_cleared_label`（`cleared` / `fullstar` ⇒「已通关」）或 `plate_arc_locked_label`（`locked` ⇒「未开启」）；其余 ⇒ `undefined`。② `MetaViewData.carouselSeqLabel` / `carouselPeerSeqLabel` 两字段。③ `drawPlateTitle` 增可选 `seqLabelOverride`（缺省仍 `第 N 关`），两行/单行版式与字号零改动。④ 文案令牌按 K-053 落 `copy-tokens.ts` + `tokens.md §7` + `menu-architecture §6`（`[待 art 确认]`，工程侧草案；用户已裁词）。
+- **效果**：全通章 =「曼陀罗 / 已通关」；未解锁章 =「未开启」（单行）；推关态不加词、仍「曼陀罗 / 第 3 关」。
+- **判据**：`beads-shell.test.ts` 两例——「本章全通 ⇒ 陈列回落 boss 且标签 = 已通关」「未解锁章页 ⇒ 未开启」；推关态断言 `carouselSeqLabel` 为 `undefined`（不出现状态词）。
+- **文档**：`menu-plate-text-control-spec §10` / `tokens.md §7` / `menu-architecture §6` / `ui-architecture-beads §12` / `meta-types` 字段注释。
+- **验证**：beads 单测 **1466 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；`selftest:fast` **PASS 15/15**；金样本十一帧**不变**（纯 `seqLabelOverride` 分流，无位图/命令数变化）。实帧证据 `temp/plate-shot-914/plate-cleared.png`（「曼陀罗 / 已通关」）与 `plate-locked.png`（「照片冒烟 32 / 未开启」）；harness 探针 `cleared = { id: 9, seq: '已通关' }` / `locked = { id: 10, seq: '未开启' }` / 推关态 `seq` 仍为「第 1 关」。
+- **提交**：待填。
+- **知识沉淀（kb:sync --task=WXG-T-914）**：新增 0 / 修改 0 / 激活 0 / 归档 0（沿 T-913 数据源扩展收口，无新判例；「无在推的关 ⇒ 行 2 换状态词」已写入 `_arcSeqLabel` 行内注与 plate spec §10）。

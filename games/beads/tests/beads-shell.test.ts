@@ -367,6 +367,9 @@ describe('BeadsShell — 选关高亮 / 走马灯陈列关（WXG-T-912/913：首
                 currentLevelIndex: number;
                 carouselLevel?: { id: number };
                 carouselTitle?: string;
+                carouselSeqLabel?: string;
+                carouselPeer?: { id: number };
+                carouselPeerSeqLabel?: string;
             };
         })._viewData;
     };
@@ -402,6 +405,25 @@ describe('BeadsShell — 选关高亮 / 走马灯陈列关（WXG-T-912/913：首
         const v = viewOf(r.shell);
         expect(v.carouselLevel?.id, '陈列关 = 曼陀罗第 3 关').toBe(3);
         expect(v.carouselTitle, '木牌关名 = 大关名').toBe('曼陀罗');
+        expect(v.carouselSeqLabel, '有在推的关 ⇒ 第二行仍走关序').toBeUndefined();
+    });
+
+    it('`[WXG-T-914]` 本章全通（无在推的关）⇒ 木牌第二行「已通关」', () => {
+        const r = rig({ initialScreen: 'menu' });
+        r.shell.play.unlockAcrossArc(8); // 解锁 9 关
+        const stars = r.shell.play.starsByLevelRaw as number[];
+        for (let i = 0; i < 9; i += 1) stars[i] = 1;
+        const v = viewOf(r.shell);
+        expect(v.carouselLevel?.id, '陈列回落 boss').toBe(9);
+        expect(v.carouselSeqLabel, '全通 ⇒ 状态词' ).toBe('已通关');
+    });
+
+    it('`[WXG-T-914]` 未解锁章（走马灯停在该页）⇒ 木牌第二行「未开启」', () => {
+        const r = rig({ initialScreen: 'menu' });
+        // 停到未解锁的第 2 章页（peer 只在拖动中出现，故直接 seek 主车）。
+        (r.shell as unknown as { _menu: { seek(n: number): void } })._menu.seek(1);
+        const v = viewOf(r.shell);
+        expect(v.carouselSeqLabel, '未解锁章 ⇒ 状态词').toBe('未开启');
     });
 });
 

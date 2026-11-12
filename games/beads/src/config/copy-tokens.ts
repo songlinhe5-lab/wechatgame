@@ -64,6 +64,15 @@ export const COPY_TOKENS = Object.freeze({
     /** `tokens.md §7` **新增·[待 art 确认]**（同上）：确认类弹窗次钮（点板外同义）。 */
     btn_cancel_label: '取消',
     /**
+     * `tokens.md §7` / `menu-architecture §6` **新增·[待 art 确认]**（2026-11-12 · WXG-T-914，
+     * 用户裁「当前大关没有正在推的关 ⇒ 第二行显示状态词：已通关 / 未开启」）：
+     * 木牌第二行的**状态词腿**——大关全通（`_arcState = cleared`）时替代 `第 N 关`。
+     * ⚠ 只在「陈列关回落 boss」（本大关无在推的关）时消费；有在推的关 ⇒ 恒显示该关关序。
+     */
+    plate_arc_cleared_label: '已通关',
+    /** 同上（大关未解锁 `_arcState = locked`）：未解锁章的木牌第二行「未开启」。 */
+    plate_arc_locked_label: '未开启',
+    /**
      * `tokens.md §7` **新增·[待发布侧确认]**（2026-11-07 · WXG-T-589）：
      * 结算面板分享卡片标题（`effects-dispatch.ts::fireShare` → `services.share({ title })`）。
      * 约束：平台限 **30 字**（`ShareOptions.title` 注释，超长微信自行截断）；⛔ 不含旧名

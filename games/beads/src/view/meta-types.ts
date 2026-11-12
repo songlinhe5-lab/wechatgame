@@ -134,6 +134,12 @@ export interface MetaViewData {
      */
     readonly carouselTitle?: string;
     /**
+     * `[WXG-T-914]` 木牌**第二行状态词**（缺省 ⇒ 视图照旧画 `第 {陈列关} 关`）：
+     * 本章全通 ⇒「已通关」、整章未解锁 ⇒「未开启」；只在「陈列关回落 boss」时供给
+     * （有在推的关 ⇒ 恒关序）。值来自 `COPY_TOKENS.plate_arc_*_label`。
+     */
+    readonly carouselSeqLabel?: string;
+    /**
      * `[WXG-T-280]` 逐机落位锚（菜单链，落地单 §2）。shell 在 init/resize 时经
      * `menuAnchors()` 算定一次并恒存 ⇒ 每帧只读引用（⛔ 不得逐帧新建，L5/零分配）。
      * 不传（旧调用方/单测）⇒ 走模块级 {@link DEFAULT_MENU_ANCHORS}（SAFE 常量兑底的锚定档；
@@ -173,6 +179,8 @@ export interface MetaViewData {
     readonly carouselPeer?: BeadsLevelRaw;
     /** `[WXG-T-913]` 相邻大关页木牌关名（大关名；缺省 ⇒ 回落 `carouselPeer.title`）。 */
     readonly carouselPeerTitle?: string;
+    /** `[WXG-T-914]` 相邻大关页木牌第二行状态词（同主车口径；缺省 ⇒ `第 N 关`）。 */
+    readonly carouselPeerSeqLabel?: string;
     readonly carouselPeerState?: MetaBossState;
     /**
      * `[WXG-T-566]` 相邻大关页的完成度（与 {@link carouselArcDone} 同源、同口径）。
