@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4065,
       "lines": 136,
-      "sha256": "24ade3b146bc1690b2bf099ee73d3289b17cc4ebffd64e91305b5c9f99c3a652",
+      "sha256": "0790c73841fdfbd80e9b3b7b5d7f10b9f38a28a9517b9fe7f8a5381bd86dcef5",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 288491 9692 normal",
+          "summary": "1 production/TASKS-DETAIL.md 288517 9692 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5290,
       "lines": 164,
-      "sha256": "4c379dd07a48eea293617e7769b1a254b1aa5ccd6652b695b5f314dc8e90303b",
+      "sha256": "d779a59fea6f53e4ac8f066b62e272f876b529e389b9dc058430483fad307a1d",
       "tier": "normal",
       "sections": [
         {
@@ -1080,7 +1080,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 9692 行 / 288491 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 9692 行 / 288517 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
@@ -89929,9 +89929,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 288491,
+      "tokens": 288517,
       "lines": 9692,
-      "sha256": "675255983c47bc61a2affed037dda7b583b548e9eb382735d73e4216dea74276",
+      "sha256": "d036dee4be9232b35c33aa08c8cd53ef3de66469a26cefeb392445c7d9c1ffd6",
       "tier": "normal",
       "sections": [
         {
@@ -89939,7 +89939,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 9693,
-          "tokens": 288474,
+          "tokens": 288500,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -104629,7 +104629,7 @@
           "level": 2,
           "startLine": 9681,
           "endLine": 9693,
-          "tokens": 508,
+          "tokens": 534,
           "summary": "QA·门票→章 2 开打通路串联验收（实帧） · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成",
           "keywords": [
             "WXG",
