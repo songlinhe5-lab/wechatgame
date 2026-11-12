@@ -9718,5 +9718,5 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **文档**：`level-detail-spec §11/§12` 回写（比例条 + 层序引用换 `thumbFit`）；`ui-architecture-beads §12` 登记。
 - **判据**：`level-detail-showcase` 两例改取 `thumbFit`（与绘制同源，几何断言全绿）；实帧三档 `temp/detail-shot-924`：L4 12×12（340²，占内腔 81%）、L7 14×8 宽盘（360×206，底缘贴台面）、L9 30×30 boss（340²，珠面仍走珠体腿）。temp 不入库。
 - **验证**：`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；`level-detail-showcase` 4 例全绿；`harness:build` ✅（Cocos 镜像同批）。
-- **提交**：见本批 commit（代码 + Cocos 镜像 + `level-detail-spec §11/§12` / `ui-architecture-beads §12` + 台账）。
+- **提交**：`ec3b0127`（代码 + Cocos 镜像 + `level-detail-spec §11/§12` / `ui-architecture-beads §12` + 台账）。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**（「占位框换展示口径」已有 K 条目覆盖，无新增候选）。

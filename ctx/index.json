@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4065,
       "lines": 136,
-      "sha256": "7f53eb41d97e0f5127aacdfbb35030c10ee9fff9fe3aad9e4649e8dea3de69ca",
+      "sha256": "097ff5012705231711901e5051fbbd7c219ce9635fbef1920bdde204427fd947",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 289875 9722 normal",
+          "summary": "1 production/TASKS-DETAIL.md 289872 9722 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5291,
       "lines": 164,
-      "sha256": "bb5e9e870c79841794fdfcb1d70751d750dccb4dfaacf188a4a0120c0b66af5a",
+      "sha256": "fecc6e636bf29f58b40c10cc715d08d66bae2ec685d817b128eb5637acf753c3",
       "tier": "normal",
       "sections": [
         {
@@ -1080,7 +1080,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 9722 行 / 289875 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 9722 行 / 289872 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
@@ -89930,9 +89930,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 289875,
+      "tokens": 289872,
       "lines": 9722,
-      "sha256": "7415e0336f0822b94b7c02a0a0692304506e5f6827154407fc4832e214989985",
+      "sha256": "788f65100fbeca53788a3beae546895d514387f3d1ad1cfe7556fe333892652b",
       "tier": "normal",
       "sections": [
         {
@@ -89940,7 +89940,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 9723,
-          "tokens": 289858,
+          "tokens": 289856,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -104656,7 +104656,7 @@
           "level": 2,
           "startLine": 9712,
           "endLine": 9723,
-          "tokens": 538,
+          "tokens": 536,
           "summary": "UX·详情橱窗珠面占比放大 · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成（2026-11-",
           "keywords": [
             "WXG",
