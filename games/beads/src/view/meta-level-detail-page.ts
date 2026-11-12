@@ -109,21 +109,27 @@ export function drawLevelDetailPage(
     });
 
     // 橱窗内容：关卡珠面（`[WXG-T-616]` 与选关格**同一绘制腿** `drawBeadFace`，用户令「两边一致」）；
-    // 垂直居中于玻璃窗 ⇒ 下缘先抬 (h − area)/2。
+    // `[WXG-T-918]` 用户 2026-11-12 令「图案需要落在托盘上，而且图案要居中显示」：
+    // ① 垂直：内容框（`123:3`）下缘 805 = 橱窗圆台顶面 ⇒ 图案**底对齐** `THUMB_DY`
+    //    （旧腿在 285 框内垂直居中 ⇒ 下缘悬空 22.5，看起来浮在半空）；`area` 仍是最大图案高。
+    // ② 水平：中心 = 橱窗面板轴（`143 + 469/2 = 377.5`，与圆台中轴重合）；稿面内容框
+    //    @245 的中心 392.5 偏轴 15 ⇒ 绘制时按面板重摆，⛔ 不篡改 Figma 几何表。
     // `[WXG-T-621]` 用户令「用当前应用的珠面效果绘制缩略图」⇒ 透传 `data.beadStyle`（与盘面同肤）。
     // `[WXG-T-910]` 豆径档同透（与盘面同参 ⇒ 小豆档缩略亦无孔）。
     const thumb = GEO.thumb;
+    const thumbX = GEO.showcase.x + GEO.showcase.w / 2 - thumb.w / 2;
     drawBeadFace(
         builder,
         level,
-        plate.x + (thumb.x - GEO.plate.x),
-        plate.y + THUMB_DY + (thumb.h - thumb.area) / 2,
+        plate.x + (thumbX - GEO.plate.x),
+        plate.y + THUMB_DY,
         thumb.w,
         thumb.area,
         palette,
         undefined,
         data.beadStyle,
         data.beadSize,
+        'bottom',
     );
 
     // 星级行：得星 = 实心金，未得 = 空心描边（稿 58×60，净距 9）；缺图 ⇒ 文字档同位居中。

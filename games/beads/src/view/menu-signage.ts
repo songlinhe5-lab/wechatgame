@@ -469,6 +469,8 @@ export function levelThumbLockedCells(level: BeadsLevelRaw): readonly number[] {
  *   `MetaViewData.beadStyle` 透传到这里，再写进 `faceOpts.styleId` ⇒ 换肤即换缩略图珠面。
  * @param palette 界面色板（`[WXG-T-623]` 锁定格 `locked` / 叉线 `background` 的唯一色源，⛔ 不自拟 hex）。
  * @param beadSize 豆径档（`[WXG-T-910]` 与盘面同参：小豆档 ⇒ `hideHole` + `holeless`；缺省 = 满豆）。
+ * @param anchor   `[WXG-T-918]` 盘的竖向锚：`'center'`（缺省，槽内垂直居中）｜`'bottom'`
+ *   （图案**实际底缘**贴 `yBottom`，高盘宽盘同口径 —— 详情页「图案落在托盘上」用）。
  */
 export function drawBeadFace(
     builder: RenderModelBuilder,
@@ -481,6 +483,7 @@ export function drawBeadFace(
     inkOverride?: BeadInks,
     styleId?: string,
     beadSize?: BeadSizeKind,
+    anchor: 'center' | 'bottom' = 'center',
 ): void {
     const cells = levelThumbFullCells(level);
     const locked = levelThumbLockedCells(level);
@@ -489,7 +492,8 @@ export function drawBeadFace(
     const cols = level.cols;
     const pitch = Math.min(w / cols, h / rows);
     const left = x + (w - cols * pitch) / 2;
-    const top = yBottom + (h + rows * pitch) / 2;
+    // `'bottom'`：宽盘（rows·pitch < h）也把**实际底缘**贴到 yBottom；`'center'` = 槽内居中。
+    const top = anchor === 'bottom' ? yBottom + rows * pitch : yBottom + (h + rows * pitch) / 2;
     const inks = inkOverride ?? beadInksFor(level);
     // `[WXG-T-910]` 与盘面同参（`play-page::sizeSmall` 同式）：无条件写槽 ⇒ pass 1 底块与
     // pass 2 珠体同档；回退方块腿不读珠槽 ⇒ 无串味。

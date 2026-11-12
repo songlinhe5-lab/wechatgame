@@ -9618,3 +9618,18 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：beads 单测 **1470 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；金样本十一帧零漂移（无金样本帧处于 locked 页）。实帧 `temp/plate-shot-914/plate-locked.png`：锁 146×198、上下留白 ≈88，木牌「照片冒烟 32 / 未开启」。
 - **提交**：`6cc18c27` feat（scale 0.45 + 锚点 + 判据 + 文档 + Cocos 镜像 + 台账）＋ 本笔 docs（台账回填）。
 - **知识沉淀（kb:sync --task=WXG-T-917）**：新增 0 / 修改 0 / 激活 0 / 归档 0（art 定版数值已写入 `MENU_LOCKED_ICON` 注释与 §12；「无受力源/非 CTA 不做循环动效」引用 art-bible §7.2 既有判据，无新判例）。
+
+## WXG-T-918
+
+**UI·关卡详情图案落托盘 + 居中** · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成（2026-11-12 · 用户令）
+
+- **上位（用户令）**：「关卡详情页面，图案需要落在托盘上，而且图案要居中显示。」
+- **现状（改前）**：`meta-level-detail-page.ts` 把 `drawBeadFace` 放在稿面内容框 `123:3`（295×285）内**垂直居中** ⇒ 宽盘/高盘底缘悬空 22.5；水平中心 = 内容框轴 392.5（稿面框本身偏轴 15 ⇒ 图案整体偏右）。
+- **变更**：① `menu-signage.ts::drawBeadFace` 新增可选 `anchor: 'center' | 'bottom'`（缺省 center，现有三处调用零漂移）；`'bottom'` = 图案**实际底缘**（最后一行有内容的格；`.` void 不画也不占位）贴 `yBottom` —— 只换锚点，`pitch` / 珠径 / 构图规则（T-623/T-622）零变化。② 详情页调用改：`yBottom = plate.y + THUMB_DY`（内容框下缘 805）、`anchor='bottom'`；水平 x 按**橱窗面板轴**重摆（`377.5 − 295/2 = 230`），⛔ 不改 `LEVEL_DETAIL_GEO.thumb` 稿面值。
+- **依据**：内容框下缘 805 = 圆台顶面椭圆中心（资源实测：顶面椭圆 asset y≈827..895 ⇒ 帧内 789.5..823.5，中心 806.5）；橱窗轴 377.5 与圆台中轴重合（资源图目测 375–377）。
+- **判据**：`level-detail-showcase.test.ts` 改 1 例（共享腿切片按新槽位 + `'bottom'`）+ 新增 1 例（宽盘第 7 关 14×8：底缘贴托盘面 + 栅格中心 = 橱窗轴；旧居中腿对宽盘会上浮 35.7）。
+- **实帧**：`temp/detail-shot-918/detail-wide.png`（第 7 关 14×8 底缘坐圆台、左右对称）/ `detail-tall.png`（第 2 关 10×13 同口径）。temp 不入库。
+- **文档**：`level-detail-spec.md` 新增 §12；`ui-architecture-beads §12` 登记。
+- **验证**：beads 单测 **1471 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；金样本十一帧零漂移（`level-detail` 不在覆盖态内）。
+- **提交**：待填。
+- **知识沉淀（kb:sync --task=WXG-T-918）**：新增 0 / 修改 0 / 激活 0 / 归档 0（几何口径已写入 `drawBeadFace` 的 `anchor` 参数注与 `level-detail-spec §12`；「底锚取最后内容行、void 行不占位」无既有判例冲突）。
