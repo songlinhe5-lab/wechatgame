@@ -6,7 +6,7 @@
  */
 import { afterEach, describe, expect, it } from 'vitest';
 import { RenderModelBuilder, type DrawCommand } from '@wxgame/framework';
-import { DESIGN_H, DESIGN_W, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TEXTURES } from '../src/config/tuning.js';
+import { DESIGN_H, DESIGN_W, HANDDRAWN_STYLE_ID, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TEXTURES } from '../src/config/tuning.js';
 import { LEVELS } from '../src/config/levels.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import { levelDetailPlate } from '../src/view/meta-layout.js';
@@ -17,6 +17,8 @@ import type { MetaViewData } from '../src/view/meta-types.js';
 
 const data = (): MetaViewData => Object.freeze({
     overlay: 'level-detail', detailLevelIndex: 0, detailLevel: LEVELS[0],
+    // `[WXG-T-621]` 珠面跟随当前应用风格：详情帧也用非默认档 ⇒ 切片断言同时钉住 `styleId` 透传。
+    beadStyle: HANDDRAWN_STYLE_ID,
     starsByLevel: [], wallSlots: [], wallLevels: [],
     reduceMotion: false, largeText: false,
 }) as unknown as MetaViewData;
@@ -64,7 +66,7 @@ describe('WXG-T-609 关卡详情橱窗面板', () => {
         };
         const ref = new RenderModelBuilder(DESIGN_W, DESIGN_H);
         ref.begin();
-        drawBeadFace(ref, LEVELS[0]!, slot.x, slot.y, slot.w, slot.h);
+        drawBeadFace(ref, LEVELS[0]!, slot.x, slot.y, slot.w, slot.h, undefined, HANDDRAWN_STYLE_ID);
         const refCmds = ref.end().commands;
         expect(refCmds.length).toBeGreaterThan(0);
         // 详情帧内**连续命令切片**（全 kind，不止 circle）与共享腿逐条一致 ⇒ 两页绘制方式同源；

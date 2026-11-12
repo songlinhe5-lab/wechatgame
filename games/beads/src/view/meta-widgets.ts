@@ -281,8 +281,9 @@ export function drawLevelSelectCell(
     builder: RenderModelBuilder,
     cell: LevelSelectCellViewModel,
     // `[WXG-T-613]` 缩略切完整豆面档（盘面真实行列）⇒ `vm.thumbN`（聚合档参数）不再进本函数；
-    // 签名保留 VM 位（调用方 `drawLevelsView` 不动），将来切回聚合档时复用。
-    _vm: LevelSelectViewModel,
+    // `[WXG-T-621]` 用户令「用当前应用的珠面效果绘制缩略图」⇒ 从 VM 取 `beadStyle`
+    // （宿主每帧由 `MetaViewData.beadStyle` 投影）透传给珠面腿与盘面同肤。
+    vm: LevelSelectViewModel,
     palette: BeadsPalette,
     cellTextureId: string,
 ): void {
@@ -346,12 +347,12 @@ export function drawLevelSelectCell(
             builder.blit(LEVEL_SELECT_TEXTURES.lockImage, ix + (a.imageW - lockW) / 2, iy, lockW, a.imageH);
         } else if (cell.level !== undefined) {
             // `[WXG-T-613]` 锁定降级腿 = 灰墨**完整豆面**（槽位不变；旧聚合档保留给走马灯/详情页）。
-            drawBeadFace(builder, cell.level, ix, iy, a.imageW, a.imageH, beadFadedInksFor(cell.level));
+            drawBeadFace(builder, cell.level, ix, iy, a.imageW, a.imageH, beadFadedInksFor(cell.level), vm.beadStyle);
         }
         return;
     }
     if (cell.level !== undefined) {
-        drawBeadFace(builder, cell.level, ix, iy, a.imageW, a.imageH);
+        drawBeadFace(builder, cell.level, ix, iy, a.imageW, a.imageH, undefined, vm.beadStyle);
         drawCellStars(builder, cell, palette);
     }
     // `[WXG-T-610]` 当前关由亮金格底表达；旧黄铜描边随 T-611 降级腿一并退场（K-053 留档）。

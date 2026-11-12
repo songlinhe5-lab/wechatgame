@@ -36,7 +36,7 @@ import {
     thumbPitchFor,
 } from '../src/config/tuning.js';
 import { LEVELS } from '../src/config/levels.js';
-import { BEAD_COLOR_MAX } from '../src/config/tuning.js';
+import { BEAD_COLOR_MAX, HANDDRAWN_STYLE_ID } from '../src/config/tuning.js';
 import { FACET4_PLATE_MIX } from '../src/config/tuning.js';
 import { beadColorOf, beadFadedInksFor, beadInksFor, endpointOf, mix, DEFAULT_PALETTE, type BeadInks } from '../src/view/palette.js';
 import { setBeadTintRuntime } from '../src/view/bead-render.js';
@@ -429,12 +429,30 @@ describe('[T-616/T-620] 选关缩略珠形档（接入盘面珠体腿）', () =>
         return { pitch, block: pitch - gap };
     }
 
-    function paint(level: BeadsLevelRaw): readonly DrawCommand[] {
+    function paint(level: BeadsLevelRaw, inkOverride?: BeadInks, styleId?: string): readonly DrawCommand[] {
         const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
         builder.begin();
-        drawBeadFace(builder, level, TX, TY, SLOT_W, SLOT_H);
+        drawBeadFace(builder, level, TX, TY, SLOT_W, SLOT_H, inkOverride, styleId);
         return builder.end().commands;
     }
+
+    /**
+     * `[WXG-T-621]` 用户令「应该用当前应用的珠面效果绘制缩略图」：`styleId` 必须透传到
+     * `drawFilledBead` ⇒ 换肤即换缩略珠面（不再固定 facet-4）。
+     * 判据取**命令数差异**（facet-4 = 7 命令/珠，handdrawn = 4 命令/珠）+ 首命令形态。
+     */
+    it('珠面跟随当前应用风格：`styleId` 透传（facet-4 7 命令/珠 ↔ handdrawn 4 命令/珠）', () => {
+        const level = LEVELS[0]!;
+        const beads = levelThumbFullCells(level).length / 3;
+        const facet = paint(level);
+        const drawn = paint(level, undefined, HANDDRAWN_STYLE_ID);
+        expect(facet.length).toBe(beads * 7);
+        expect(drawn.length).toBe(beads * 4);
+        expect(drawn[0]!.kind).toBe('polygon'); // 手绘豆体（facet-4 首命令是 rect 底）
+        expect(facet[0]!.kind).toBe('rect');
+        // 灰墨降级腿（锁定格）也随风格 ⇒ 同一珠面通道、零第二条腿。
+        expect(paint(level, beadFadedInksFor(level), HANDDRAWN_STYLE_ID).length).toBe(drawn.length);
+    });
 
     it('块边 ≥ minBlock ⇒ 逐珠走 `drawFilledBead`（facet-4 = 1 rect + 4 polygon + 2 circle），珠体边长 = pitch × diameterRatio', () => {
         const level = LEVELS[0]!;

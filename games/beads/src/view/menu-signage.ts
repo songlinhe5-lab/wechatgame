@@ -55,6 +55,7 @@ import {
     thumbPitchFor,
 } from '../config/tuning.js';
 import { signGlyphOf } from '../config/sign-glyphs.js';
+import { DEFAULT_BEAD_STYLE_ID } from '../config/bead-styles/registry.js';
 import { colorIndexOfChar } from '../config/bead-charset.js';
 import type { BeadsLevelRaw } from '../config/levels-data.js';
 import { DEMO_BEAD_INKS, beadColorOf, beadInksFor, relativeLuminance, type BeadInks } from './palette.js';
@@ -409,6 +410,9 @@ export function levelThumbFullCells(level: BeadsLevelRaw): readonly number[] {
  *
  * @param x       槽**左缘**；@param yBottom 槽**下缘**（y-up）；@param w/@param h 槽宽高
  * @param inkOverride 墨集覆盖（未通关置灰，同 `drawLevelThumb`）
+ * @param styleId 当前应用的珠体风格（玩家设置档；缺省 ⇒ `DEFAULT_BEAD_STYLE_ID`）。
+ *   `[WXG-T-621]` 用户令「应该用当前应用的珠面效果绘制缩略图」⇒ 宿主把
+ *   `MetaViewData.beadStyle` 透传到这里，再写进 `faceOpts.styleId` ⇒ 换肤即换缩略图珠面。
  */
 export function drawBeadFace(
     builder: RenderModelBuilder,
@@ -418,6 +422,7 @@ export function drawBeadFace(
     w: number,
     h: number,
     inkOverride?: BeadInks,
+    styleId?: string,
 ): void {
     const cells = levelThumbFullCells(level);
     if (cells.length === 0) return;
@@ -433,6 +438,7 @@ export function drawBeadFace(
     if (shaped) {
         faceOpts.size = pitch * THUMB_BEAD_SHAPE.diameterRatio;
         faceOpts.inks = inks;
+        faceOpts.styleId = styleId ?? DEFAULT_BEAD_STYLE_ID;
     }
     for (let i = 0; i < cells.length; i += 3) {
         const r = cells[i]!;

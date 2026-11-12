@@ -10,6 +10,7 @@
  */
 import type { BeadsLevelRaw } from '../config/levels-data.js';
 import { COPY_TOKENS } from '../config/copy-tokens.js';
+import { DEFAULT_BEAD_STYLE_ID } from '../config/bead-styles/registry.js';
 import type { Box, MetaButton, MetaViewData } from './meta-types.js';
 import { levelDetailPlate } from './meta-layout.js';
 import { pressOffset } from './ui-theme.js';
@@ -43,6 +44,11 @@ export interface LevelSelectViewModel {
     readonly screenH: number;
     readonly largeText: boolean;
     readonly thumbN: number;
+    /**
+     * `[WXG-T-621]` 当前应用的珠体风格（玩家设置档）⇒ 缩略珠面与盘面同肤。
+     * 由 `updateLevelSelectViewModel` 从 `MetaViewData.beadStyle` 投影（每帧只读引用）。
+     */
+    readonly beadStyle: string;
 }
 
 type Mutable<T> = { -readonly [K in keyof T]: T[K] };
@@ -59,6 +65,7 @@ export function createLevelSelectViewModel(): Mutable<LevelSelectViewModel> {
     return {
         plate: { x: 0, y: 0, w: 0, h: 0 }, title: '', chapter: '', starProgress: '',
         cellCount: 0, cells, closePressed: false, screenH: 0, largeText: false, thumbN: 0,
+        beadStyle: DEFAULT_BEAD_STYLE_ID,
     };
 }
 
@@ -82,6 +89,7 @@ export function updateLevelSelectViewModel(
     vm.screenH = screenH;
     vm.largeText = data.largeText;
     vm.thumbN = thumbN;
+    vm.beadStyle = data.beadStyle;
 
     let i = 0;
     for (const b of buttons) {

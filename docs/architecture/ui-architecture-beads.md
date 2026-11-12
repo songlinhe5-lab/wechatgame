@@ -301,6 +301,7 @@ games/beads/src/ui/
 **六轮（同日 · WXG-T-619 · 用户令「设计一下效果，现在不理想」）**：弃逐珠硬描边（靶心感）；改**暗面弧（`pit` α0.25 右下）+ 柔光面（`lit` α0.55 左上）+ 小孔**，珠径 1.18 → 1.10、剪影 1.20R → 1.16R ⇒ 糖珠质感。
 **七轮（同日 · WXG-T-619 · 用户选「柔光面再叠一层更小的 α」）**：柔光面内加**高光点**（`lit` α0.85、0.13R、左上 0.30R）⇒ 玻璃珠反光。
 **接入盘面珠体（同日 · WXG-T-620 · 用户令「直接接入游戏中的珠面纹理吧」）**：`drawBeadFace` 的 shaped 支路改调 **`drawFilledBead`**（盘面 / 托盘 / 招牌同通道，facet-4 = 1 rect + 4 polygon + 2 circle，7 命令/珠）；自绘糖珠（剪影 / 暗面弧 / 柔光 / 高光点 / 孔比）整组退役 ⇒ `THUMB_BEAD_SHAPE` 只留 `minBlock` / `diameterRatio`，珠面 recipe 唯一真源 = `bead-styles/facet-4.ts`（K-042 同族）。**不传 `targetColorIdx`**：避开 `BEAD_DRAW_INSET` 内缩（缩略槽无 B0 底图可露；交叠 1.10 时暗底环会啃邻珠 ≈18% 面）。`drawBeadFace` 第 8 参 `alpha` 退役（生产零调用方）。金样本 `level-select` 两态 total 6022 → **6601**（干净锚重抓）。
+**跟随当前珠体风格（同日 · WXG-T-621 · 用户令「应该用当前应用的珠面效果绘制缩略图」）**：`drawBeadFace` 新增 `styleId` 形参（缺省 = `DEFAULT_BEAD_STYLE_ID`）⇒ `faceOpts.styleId` 透传 `drawFilledBead`；`LevelSelectViewModel.beadStyle` 每帧由 `MetaViewData.beadStyle` 投影（shell `play.beadStyle`，零分配），九格两腿 + 详情橱窗同传 ⇒ 换肤即换缩略珠面（facet-4 7 命令/珠 ↔ handdrawn 4 命令/珠）。金样本零漂移（默认档同臂）。
 
 **关键路径**：UI-00 → UI-01 → UI-10…14 → UI-20 → UI-22 / UI-25 → UI-30 → UI-31 → UI-41 → UI-42 → UI-50 → UI-53。UI-02（金样本）与 P1 可并行，但必须在 UI-30 前完成。
 

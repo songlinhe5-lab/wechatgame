@@ -9470,3 +9470,13 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：金样本 `level-select` 两态 total 6022 → **6601**（干净锚 `f1c94f14` 重抓，十一帧两遍确定性自证 PASS；其余九帧逐字节不变）；beads 单测 **1458 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（含 framework:sync:check、cocos:check、check:frozen-values）。
 - **提交**：`f1c94f14` feat（代码 + Cocos 镜像 + 设计文档 + 台账）＋ 本笔 test（金样本 + 台账回填）。
 - **知识沉淀（kb:sync --task=WXG-T-620）**：新增 **0** / 修改 0 / 激活 0 / 归档 0（本轮为既定 recipe 的接入与判据迁移，无新判例）；kb:audit 相似命中 0；ctx:build 由提交钩子刷新（BUDGET/hot-files/index 随本笔入库）。
+
+## WXG-T-621
+
+**UI·缩略珠面跟随当前应用珠体风格（`beadStyle`）** · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成（2026-11-12 · 用户令「应该用当前应用的珠面效果绘制缩略图，现在看是用固定的一种珠面，不符合要求」）
+
+- **根因**：T-620 把珠面腿接到了盘面同款 `drawFilledBead`，但调用方没传 `styleId` ⇒ `drawFilledBead` 按缺省取 `DEFAULT_BEAD_STYLE_ID`（facet-4）⇒ 玩家在设置里换珠体风格后，缩略图仍是固定 facet-4。
+- **接线（单源，不新建第二通道）**：①`drawBeadFace` 新增第 8 参 `styleId?: string`（缺省 = 默认档），shaped 分支写 `faceOpts.styleId`（模块级复用槽，零分配）；②`LevelSelectViewModel` 新增 `beadStyle`，`updateLevelSelectViewModel` 每帧从 `MetaViewData.beadStyle`（shell 已按 `play.beadStyle` 投影）只读抄入；③`drawLevelSelectCell` 解锁格与锁定灰珠降级腿都透传 `vm.beadStyle`；④详情橱窗 `drawLevelDetailPage` 透传 `data.beadStyle`。
+- **判据**：`menu-thumb-primitives` 新增「`styleId` 透传」＝ facet-4 **7 命令/珠** ↔ handdrawn **4 命令/珠**、首命令形态 rect ↔ polygon，灰墨腿同口径；`level-detail-showcase` 测试数据改 `handdrawn` ⇒ 详情帧全 kind 连续切片仍与共享腿逐条相等（证明详情页也跟随）。金样本零漂移（测试数据 `beadStyle: 'facet-4'` 与缺省同臂 ⇒ 逐字节不变，不用重抓）。
+- **验证**：beads 单测 **1459 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（含 framework:sync:check、cocos:check、check:frozen-values）；金样本 `level-select` 两态 total 保持 **6601**（零漂移，未重抓）。
+- **知识沉淀（kb:sync --task=WXG-T-621）**：新增 **0** / 修改 0 / 激活 0 / 归档 0；kb:audit 相似命中 0。
