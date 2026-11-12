@@ -1,6 +1,6 @@
 /**
- * `[WXG-T-925 / T-926 / T-927 / T-929]` 珠面「贴纸裁切」外轮廓（art 二裁：`palette.shadowInk` 暖可可黑、
- * 单层实线；T-927 `W=clamp(round(pitch×0.10),1,4)`、折角 `R=clamp(round(pitch×0.30),2,9)`）。
+ * `[WXG-T-925 / T-926 / T-927 / T-929 / T-930]` 珠面「贴纸裁切」外轮廓（art 二裁：`palette.shadowInk` 暖可可黑、
+ * 单层实线；T-930 起 **1:1（`BEAD_PITCH=32`）锚定 `W=3`、`R=9`，其余尺寸严格 × `pitch/32` 等比、不钳位**）。
  *
  * 口径（用户 2026-11-12）：「线条需要连续、紧贴珠面边缘；各种珠面展示都需要加，
  * 跟珠面等比例缩放」⇒ 轮廓 = **骑在剪影边线上的一条带**（半宽 `W/2` 内外各半），
@@ -29,13 +29,15 @@ const outline = (level: BeadsLevelRaw, left = 100, top = 500, pitch = 20) => {
 };
 
 describe('WXG-T-925/926 珠面贴纸轮廓', () => {
-    it('公式：线宽收窄到 1–4、折角圆角放大到 2–9（T-927 用户三调）', () => {
-        expect(thumbOutlineWidth(28.33)).toBe(3);
-        expect(thumbOutlineWidth(11.33)).toBe(1);
-        expect(thumbOutlineWidth(100)).toBe(4);
-        expect(thumbOutlineRadius(28.33)).toBe(8);
-        expect(thumbOutlineRadius(11.33)).toBe(3);
-        expect(thumbOutlineRadius(100)).toBe(9);
+    it('公式：1:1（pitch = BEAD_PITCH 32）W=3 / R=9，其余尺寸严格线性等比、不钳位（T-930）', () => {
+        expect(thumbOutlineWidth(32)).toBeCloseTo(3, 6);
+        expect(thumbOutlineRadius(32)).toBeCloseTo(9, 6);
+        expect(thumbOutlineWidth(64)).toBeCloseTo(6, 6); // 2× 缩放 ⇒ 线宽同步 2×
+        expect(thumbOutlineWidth(16)).toBeCloseTo(1.5, 6); // 0.5× 缩放 ⇒ 线宽同步 0.5×
+        expect(thumbOutlineRadius(64)).toBeCloseTo(18, 6);
+        expect(thumbOutlineRadius(16)).toBeCloseTo(4.5, 6);
+        expect(thumbOutlineWidth(28.33)).toBeCloseTo((3 * 28.33) / 32, 6);
+        expect(thumbOutlineRadius(28.33)).toBeCloseTo((9 * 28.33) / 32, 6);
     });
 
     it('单格剪影：4 条露空边带（4 点）+ 4 枚凸角环带（10 点），颜色 = shadowInk', () => {

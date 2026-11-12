@@ -1,5 +1,5 @@
 /**
- * `[WXG-T-925 / T-926 / T-927 / T-928]` 珠面剪影轮廓（「贴纸裁切」外圈）：沿整幅图案剪影画一圈连续描边，
+ * `[WXG-T-925 / T-926 / T-927 / T-928 / T-929 / T-930]` 珠面剪影轮廓（「贴纸裁切」外圈）：沿整幅图案剪影画一圈连续描边，
  * 折叠处随每颗边界珠的圆角自然过渡。绘制在珠面**之上**（T-928 用户令「珠面描边要盖在珠面上面」）⇒
  * 线条压住边界珠外缘 W 宽。
  *
@@ -9,8 +9,9 @@
  * T-928 用户四调「珠面描边要盖在珠面上面」）：
  *  - 颜色 = `palette.shadowInk`（暖可可 `#3D2E1E` 黑，单层实线；金色靠近珠面违反
  *    art-bible §3.5/§4.3「金色仅结算用」，且 `STAR_GOLD` 与珠色 2 柠黄同值 ⇒ 不可用）；
- *  - 线宽 `W = clamp(round(pitch×0.10), 1, 4)`（T-926 的 0.18/2–6 过粗，用户令收窄）；
- *  - 折角圆角 `R = clamp(round(pitch×0.30), 2, 9)`（T-926 的 0.22/2–6 再放大）；
+ *  - 线宽 / 圆角（T-930）：**1:1 基准 = 珠距 `BEAD_PITCH` 时 `W=3`、`R=9`**，
+ *    其余尺寸一律 `× pitch / BEAD_PITCH` **线性等比**（缩放盘面同步放大缩小，⛔ 不再钳位）；
+ *    （历史：T-926 `0.18 / 2–6` 过粗 → T-927 `0.10 / 1–4`、`0.30 / 2–9` → T-930 去钳位改纯比例）；
  *  - 贴边口径（T-929 修正）：轮廓是**骑在剪影边线上的一条带**（宽 W：内 `W/2`、外 `W/2`），
  *    逐边界珠只画露空的边 + 凸角 1/4 环带 ⇒ 连续闭环、随珠面等比；
  *    ⛔ 不再用「整颗边界珠外扩 W 的实心圆角方块」——填色盖在珠面上会把一圈珠子涂黑；
@@ -21,21 +22,29 @@
  */
 
 import type { RenderModelBuilder } from '@wxgame/framework';
-import { TILE_BLEED } from '../config/tuning/board.js';
+import { BEAD_PITCH, TILE_BLEED } from '../config/tuning/board.js';
 import type { BeadsLevelRaw } from '../config/levels-data.js';
 import type { BeadsSnapshot } from '../game/state.js';
 
 type OutlineShape = { readonly pts: number[] };
 type Occupancy = (r: number, c: number) => boolean;
 
-/** 轮廓可见宽度（设计 px）：`clamp(round(pitch×0.10), 1, 4)`。 */
+/**
+ * `[WXG-T-930]` **1:1 基准**：盘面珠距 `BEAD_PITCH`（32）时描边宽 3、圆角半径 9。
+ * 其余任何 pitch（缩放 / 缩略 / 详情）一律按 `pitch / BEAD_PITCH` **线性等比**，
+ * ⛔ 不再上下钳位（旧 1–4 / 2–9 会让缩放后比例失真，用户令「跟着珠面等比例缩放」）。
+ */
+const OUTLINE_BASE_WIDTH = 3;
+const OUTLINE_BASE_RADIUS = 9;
+
+/** 轮廓可见宽度（设计 px）：1:1 基准 × `pitch / BEAD_PITCH`。 */
 export function thumbOutlineWidth(pitch: number): number {
-    return Math.min(4, Math.max(1, Math.round(pitch * 0.1)));
+    return OUTLINE_BASE_WIDTH * (pitch / BEAD_PITCH);
 }
 
-/** 折角圆角半径（设计 px）：`clamp(round(pitch×0.30), 2, 9)`。 */
+/** 折角圆角半径（设计 px）：1:1 基准 × `pitch / BEAD_PITCH`。 */
 export function thumbOutlineRadius(pitch: number): number {
-    return Math.min(9, Math.max(2, Math.round(pitch * 0.3)));
+    return OUTLINE_BASE_RADIUS * (pitch / BEAD_PITCH);
 }
 
 let _cache = new WeakMap<BeadsLevelRaw, { key: string; shapes: readonly OutlineShape[] }>();
