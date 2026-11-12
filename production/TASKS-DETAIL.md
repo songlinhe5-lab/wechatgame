@@ -9556,5 +9556,6 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **效果**：截图态（L1 三星 / L2 两星 / L3 无星）⇒ 主菜单木牌「曼陀罗 / 第 3 关」；全通章 / 未解锁章仍展示 boss 与旧牌面。
 - **判据**：`beads-shell.test.ts` 新增「陈列关 = 曼陀罗第 3 关且 `carouselTitle = 曼陀罗`」。
 - **文档**：`menu-plate-text-control-spec §10` / `menu-layout-implementation-spec §8` / `ui-architecture-beads §12` / `meta-types` 字段注释。
-- **验证**：待填。
-- **提交**：待填。
+- **验证**：beads 单测 **1464 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；金样本五帧重抓——`main-menu` 1623→1117、`settings` 1651→1145、`signin` 1655→1149、`level-select` 两态 9437→8931（无位图腿的程序化陈列图由 boss 30×30 换为推关 13×12，逐帧 sha 变；其余六帧不变），十一帧两遍确定性自证 PASS，干净锚 `0e253949`。实帧证据 `temp/menu-shot-913/main-menu.png`（木牌「曼陀罗 / 第 3 关」，橱窗作品图仍为曼陀罗）。
+- **提交**：`0e253949` feat（陈列关换源 + 木牌关名供给 + 判据 + 三份文档 + Cocos 镜像 + 台账）＋ 本笔 test（金样本 + 台账回填）。
+- **知识沉淀（kb:sync --task=WXG-T-913）**：新增 0 / 修改 0 / 激活 0 / 归档 0（与 T-912 同口径的一次数据源扩展，无新判例；口径已写入 `_arcShowcaseLevel` 行内注与 §10）。
