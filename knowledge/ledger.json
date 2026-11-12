@@ -2278,7 +2278,7 @@
       "file": "knowledge/lessons/process-ledger-sync.md",
       "category": "流程台账协作",
       "title": "拆分件写好的「待主理人批准后粘贴」不会自动落地：五批代码已入库，主表与 Epic 宿主表仍搜不到该号",
-      "contentHash": "675262ec2161d82d69f228c4d688c715690e1b2246f67e59f18ed2464023d08b",
+      "contentHash": "7dd0cd29b8a7edbe2d21dac22387f6f8a702731887d173c4478351bf742bb447",
       "sourceTask": "WXG-T-284",
       "addedDate": "2026-10-17",
       "lastAccess": "2026-10-17",
@@ -5865,6 +5865,15 @@
       "ids": [
         "K-216",
         "K-217"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-11-12",
+      "taskId": "WXG-T-618",
+      "kind": "updated",
+      "ids": [
+        "K-137"
       ],
       "note": null
     }

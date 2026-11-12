@@ -1,0 +1,796 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>时间到弹窗 · Figma 抽卡工作台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,900&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --walnut:#241a13; --rail:#33241a; --rail2:#3f2d20; --paper:#fbf6ec; --paper2:#f1e7d6;
+  --ink:#2a2e43; --wood:#8a5b34; --gold:#e8d098; --sheen:#b98a5c; --edge:#5e3b1e;
+  --pill:#795127; --pass:#6f9a58; --warn:#c9922f; --fail:#b04a3c; --mute:#a08b74;
+  --disp:'Fraunces','Songti SC','Noto Serif SC',Georgia,serif;
+  --body:'Noto Sans SC','PingFang SC','Hiragino Sans GB',system-ui,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  font-family:var(--body); color:var(--paper); background:var(--walnut);
+  background-image:
+    repeating-linear-gradient(92deg,rgba(255,255,255,.022) 0 2px,transparent 2px 7px),
+    repeating-linear-gradient(88deg,rgba(0,0,0,.16) 0 1px,transparent 1px 11px),
+    radial-gradient(circle at 1px 1px,rgba(232,208,152,.075) 1px,transparent 1.6px);
+  background-size:auto,auto,18px 18px;
+  min-height:100vh;
+}
+body::after{
+  content:''; position:fixed; inset:-30% -10%; pointer-events:none; z-index:0;
+  background:linear-gradient(104deg,transparent 38%,rgba(255,244,214,.055) 47%,transparent 56%);
+  animation:sheen 17s linear infinite;
+}
+@keyframes sheen{0%{transform:translateX(-22%)}100%{transform:translateX(22%)}}
+.rail{
+  position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:18px;
+  padding:14px 22px; background:linear-gradient(180deg,var(--rail2),var(--rail));
+  border-bottom:3px solid var(--edge); box-shadow:0 6px 22px rgba(0,0,0,.45);
+}
+.rail h1{
+  font-family:var(--disp); font-weight:900; font-size:23px; margin:0; letter-spacing:.4px;
+  color:var(--gold); text-shadow:0 2px 0 rgba(90,47,13,.75);
+}
+.rail h1 small{display:block;font-family:var(--body);font-weight:500;font-size:11.5px;letter-spacing:2.6px;color:var(--sheen);text-shadow:none;margin-top:2px}
+.rail .sp{flex:1}
+.chip{
+  font-size:11.5px; padding:5px 11px; border-radius:999px; border:1px solid rgba(232,208,152,.3);
+  color:var(--gold); background:rgba(0,0,0,.22); white-space:nowrap;
+}
+.chip b{font-family:var(--mono);color:var(--paper)}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--warn);margin-right:6px;vertical-align:1px}
+.dot.ok{background:var(--pass);box-shadow:0 0 0 3px rgba(111,154,88,.2)}
+main{position:relative;z-index:1;display:grid;grid-template-columns:340px minmax(360px,1fr) 430px;gap:16px;padding:16px 22px 40px;align-items:start}
+@media(max-width:1280px){main{grid-template-columns:1fr 1fr}.col-stage{order:-1;grid-column:1/-1}}
+@media(max-width:860px){main{grid-template-columns:1fr}}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.card{
+  background:linear-gradient(180deg,rgba(251,246,236,.97),rgba(241,231,214,.97));
+  color:var(--ink); border-radius:14px; border:1px solid rgba(94,59,30,.35);
+  box-shadow:0 10px 26px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.7);
+  overflow:hidden; opacity:0; transform:translateY(14px); transition:opacity .5s ease,transform .5s cubic-bezier(.2,.7,.3,1);
+}
+.card.in{opacity:1;transform:none}
+.card>h2{
+  margin:0; padding:11px 15px; font-family:var(--disp); font-size:15.5px; font-weight:900;
+  color:var(--paper); background:linear-gradient(180deg,var(--wood),#7a4f2c);
+  border-bottom:2px solid var(--edge); display:flex; align-items:center; gap:9px;
+}
+.card>h2 i{font-style:normal;font-family:var(--mono);font-size:11px;opacity:.72;font-weight:400}
+.card>h2 .sp{flex:1}
+.bd{padding:14px 15px}
+.bd p{margin:0 0 9px;font-size:12.8px;line-height:1.72;color:#4a4436}
+.bd p:last-child{margin-bottom:0}
+.bd b{color:var(--edge)}
+.bd code{font-family:var(--mono);font-size:11.6px;background:rgba(138,91,52,.13);padding:1px 5px;border-radius:4px;color:#6b4526}
+ol.steps{margin:0;padding-left:19px;font-size:12.8px;line-height:1.85;color:#4a4436}
+ol.steps li{margin-bottom:5px}
+ol.steps b{color:var(--edge)}
+pre.tree{
+  margin:0; padding:12px 13px; background:#2b2018; color:#e6d7bd; border-radius:9px;
+  font-family:var(--mono); font-size:11.4px; line-height:1.62; overflow-x:auto; white-space:pre;
+  border:1px solid rgba(0,0,0,.4);
+}
+pre.tree .k{color:var(--gold)} pre.tree .c{color:#8d7a63} pre.tree .n{color:#9fc48a}
+.btn{
+  font-family:var(--body); font-size:12.4px; font-weight:700; cursor:pointer;
+  padding:8px 13px; border-radius:9px; border:1px solid var(--edge);
+  background:linear-gradient(180deg,#a06c3f,var(--wood)); color:#fff6e8;
+  box-shadow:0 2px 0 var(--edge),inset 0 1px 0 rgba(255,255,255,.28);
+  transition:transform .12s ease,box-shadow .12s ease,filter .12s ease;
+}
+.btn:hover{filter:brightness(1.09);transform:translateY(-1px);box-shadow:0 3px 0 var(--edge),inset 0 1px 0 rgba(255,255,255,.3)}
+.btn:active{transform:translateY(2px);box-shadow:0 0 0 var(--edge)}
+.btn.ghost{background:linear-gradient(180deg,#fffdf8,#efe4d1);color:var(--edge);box-shadow:0 2px 0 rgba(94,59,30,.4)}
+.btn.sm{padding:5px 9px;font-size:11.4px}
+.btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.stage{background:linear-gradient(180deg,#1d150f,#2a1e15);border:1px solid rgba(0,0,0,.5);border-radius:14px;padding:14px;box-shadow:inset 0 2px 14px rgba(0,0,0,.6)}
+.stage .frame{position:relative;margin:0 auto;width:min(100%,352px);border-radius:10px;overflow:hidden;box-shadow:0 14px 34px rgba(0,0,0,.55)}
+canvas{display:block;width:100%;height:auto;transition:filter .3s ease}
+.stage .cap{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10.8px;color:var(--mute);margin-top:9px;letter-spacing:.4px}
+.ctl{display:grid;grid-template-columns:88px 1fr;gap:8px 10px;align-items:center;font-size:12.2px}
+.ctl label{color:#5b5140;font-weight:500}
+.ctl output{font-family:var(--mono);font-size:11px;color:var(--wood);justify-self:end}
+select,input[type=text],input[type=number]{
+  font-family:var(--body);font-size:12.2px;padding:6px 8px;border-radius:7px;
+  border:1px solid rgba(94,59,30,.4);background:#fffdf8;color:var(--ink);width:100%;
+}
+input[type=range]{width:100%;accent-color:var(--wood)}
+.seg{display:flex;border:1px solid var(--edge);border-radius:9px;overflow:hidden}
+.seg button{
+  flex:1;font-family:var(--body);font-size:11.8px;font-weight:700;padding:8px 4px;cursor:pointer;
+  border:0;background:#fffdf8;color:#6b5a44;transition:background .18s,color .18s;
+}
+.seg button+button{border-left:1px solid rgba(94,59,30,.3)}
+.seg button[aria-pressed=true]{background:linear-gradient(180deg,#a06c3f,var(--wood));color:#fff6e8}
+.seg button:hover:not([aria-pressed=true]){background:var(--paper2)}
+.tog{display:flex;align-items:center;gap:7px;font-size:12.2px;color:#5b5140;cursor:pointer}
+.tog input{accent-color:var(--wood);width:15px;height:15px}
+.tabs{display:flex;gap:5px;padding:10px 12px 0;flex-wrap:wrap}
+.tabs button{
+  font-family:var(--mono);font-size:11.2px;padding:6px 10px;border-radius:8px 8px 0 0;cursor:pointer;
+  border:1px solid rgba(94,59,30,.35);border-bottom:0;background:rgba(138,91,52,.1);color:#6b4526;
+}
+.tabs button[aria-selected=true]{background:#2b2018;color:var(--gold);border-color:#2b2018}
+pre.prompt{
+  margin:0;padding:13px;background:#2b2018;color:#e9dcc4;border-radius:0 0 10px 10px;
+  font-family:var(--mono);font-size:11.3px;line-height:1.7;white-space:pre-wrap;word-break:break-word;
+  max-height:340px;overflow:auto;border:1px solid #2b2018;
+}
+pre.prompt .h{color:var(--gold);font-weight:700}
+.note{font-size:11.8px;line-height:1.7;color:#5b5140;background:rgba(138,91,52,.09);border-left:3px solid var(--sheen);padding:8px 10px;border-radius:0 7px 7px 0;margin-top:10px}
+table{width:100%;border-collapse:collapse;font-size:11.6px}
+th,td{padding:5px 6px;border-bottom:1px solid rgba(94,59,30,.18);text-align:left;vertical-align:middle}
+th{font-size:10.8px;letter-spacing:.6px;color:#7a6a52;text-transform:uppercase;font-weight:700}
+td input,td select{padding:4px 6px;font-size:11.4px}
+td.v select{font-weight:700}
+.v-PASS{color:var(--pass)} .v-CONCERNS{color:var(--warn)} .v-FAIL{color:var(--fail)}
+ol.crit{margin:0;padding-left:18px;font-size:12.2px;line-height:1.78;color:#4a4436}
+ol.crit li{margin-bottom:4px}
+ol.crit b{color:var(--edge);font-family:var(--mono);font-size:11.4px}
+.src{font-size:11.2px;line-height:1.8;color:var(--mute);padding:0 22px 30px;position:relative;z-index:1}
+.src a{color:var(--sheen)}
+.toast{
+  position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);z-index:60;
+  background:#2b2018;color:var(--gold);border:1px solid var(--sheen);border-radius:10px;
+  padding:10px 18px;font-size:12.6px;font-weight:700;opacity:0;pointer-events:none;
+  transition:opacity .22s,transform .22s;box-shadow:0 10px 28px rgba(0,0,0,.5);
+}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.hint{font-family:var(--mono);font-size:10.6px;color:#8a7659;margin-top:6px}
+@media(prefers-reduced-motion:reduce){
+  *,*::after,*::before{animation:none!important;transition:none!important}
+  .card{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<header class="rail">
+  <h1>时间到弹窗 · 抽卡工作台<small>FIGMA × NANOBANANA2 / LITE · BEADS</small></h1>
+  <span class="sp"></span>
+  <span class="chip"><span class="dot" id="assetDot"></span><span id="assetTxt">参考件加载中</span></span>
+  <span class="chip">画布 <b>750×1334</b></span>
+  <span class="chip">容器 <b id="chipMode">短木牌 581×620</b></span>
+</header>
+
+<main>
+  <!-- ─────────── 左：建页 / 图层树 / 挂法 ─────────── -->
+  <div class="col">
+    <section class="card">
+      <h2>① 新建 Page <i>Figma REST 只读 ⇒ 手动建</i></h2>
+      <div class="bd">
+        <p><b>先说清边界</b>：本仓 <code>wxgame-figma</code> 走 REST + PAT，<b>只能读不能写</b>画布（SKILL §5）。所以「新建 page / 图层」这一步<b>必须你在 Figma 里手点</b>，脚本只负责 afterwards 取数与导出。</p>
+        <ol class="steps">
+          <li>左侧 <b>Pages</b> 面板点 <b>+</b> → 命名 <code>弹窗抽卡 · 时间到 v1</code>（与 <code>159:3 选关弹窗</code> 同级，⛔ 不要塞进选关页里污染定稿）。</li>
+          <li>按 <b>F</b> 建 4 个顶层帧：<code>REF · 参考</code> / <code>GEN · 候选</code> / <code>FINAL · 定稿</code> / <code>SPEC · 标注</code>，横向排开。</li>
+          <li><code>REF</code> 帧内摆 5 张参考图（见 ②），全选 → <b>右键 Lock</b>。锁定后插件不会误改参考。</li>
+          <li><code>GEN</code> 帧设 <b>Auto layout 横向 · gap 24 · padding 24</b>，候选张直接往里丢，自动排队便于并排比。</li>
+          <li>每张候选单独一个子帧，命名 <code>gen/nb2-lite/s&lt;seed&gt;/&lt;序号&gt;</code>，尺寸 = 目标件 @2x。</li>
+          <li>选中的那张拖进 <code>FINAL</code>，改名 <code>final/&lt;件名&gt;@2x</code>；<code>GEN</code> 里的落选张<b>留着不删</b>（判据要 ≥4 颗粒子才算通过率）。</li>
+        </ol>
+        <div class="row" style="margin-top:11px">
+          <button class="btn sm" id="copyTree">复制图层树</button>
+          <button class="btn sm ghost" id="copyCmd">复制导出命令</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>② 图层树 <i>可直接照抄</i></h2>
+      <div class="bd" style="padding:12px">
+<pre class="tree" id="tree"></pre>
+        <div class="note"><b>参考图从哪来</b>：风格件用本仓已入库的 @2x 真件（<code>design/art/final/assets/detail/</code>），几何件用右侧工作台导出。⛔ 不要拿手机截图当风格参考——会把状态栏与实物背景一起画进来。</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>③ 参考图挂法 <i>两条路，按插件能力选</i></h2>
+      <div class="bd">
+        <p><b>A · 插件内上传（多数 nanobanana 插件走这条）</b><br>把 PNG 拖进插件的 reference / image 槽。<b>顺序有讲究</b>：① 风格参考（选关木牌）② 几何参考（工作台导出的无字基准）。插件只吃 1 张时，用右侧 <b>「导出双参考拼图」</b>——左风格右几何、带标注，一张顶两张。</p>
+        <p><b>B · Figma 节点引用（插件支持 "use selection" 时）</b><br>在 <code>REF</code> 帧里选中那张参考图 → 插件勾 <i>Use selected frame as reference</i> → 再选 <code>GEN</code> 里的空帧作为输出目标。好处是参考与候选同页可追溯。</p>
+        <p><b>模型档位</b>：<code>nanobanana2</code> 出定稿张、<code>lite</code> 出探索张。本仓矩阵里<b>没有它的实测记录</b>（全仓 grep <code>banana</code> 零命中）⇒ 这轮按<b>探索性抽卡</b>记账，产物落 <code>proposals/</code>，⛔ 不直接当定稿真源；要进 <code>model-matrix.md</code> 得同判据 <b>≥2 个 seed</b> 复测一致。</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>④ 验收判据 <i>先数结构，再评风格</i></h2>
+      <div class="bd">
+        <ol class="crit" id="crit"></ol>
+        <div class="row" style="margin-top:10px"><button class="btn sm ghost" id="copyCrit">复制判据清单</button></div>
+        <div class="note">纪律出处：<code>model-matrix.md §4</code>（种子噪声类判据已作废）+ <code>knowledge/lessons/toolchain-image.md</code>（第一轮只查 6 条视觉规则、漏了「必须 9 格」，整轮打分作废重做）。<b>≥4 颗粒子</b>才敢写通过率，2 颗只能出方向。</div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ─────────── 中：预览舞台 ─────────── -->
+  <div class="col col-stage">
+    <section class="card in">
+      <h2>⑤ 几何基准舞台 <i>所见即所喂</i><span class="sp"></span><span class="chip" style="border-color:rgba(255,255,255,.35)">y 向下 · 帧内坐标</span></h2>
+      <div class="bd">
+        <div class="stage">
+          <div class="frame"><canvas id="cv" width="1500" height="2668"></canvas></div>
+          <div class="cap"><span id="capL">750×1334 · @2x</span><span id="capR">wood mix 1.00</span></div>
+        </div>
+        <div class="hint" id="stageHint">提示：把左侧图层树的行 hover 一下，舞台上会框出对应件。</div>
+      </div>
+      <div class="bd" style="padding-top:0">
+        <div class="seg" role="group" aria-label="容器档">
+          <button data-mode="wire" aria-pressed="false">纸面板 · 现状</button>
+          <button data-mode="tall" aria-pressed="false">木牌 · 整张 1044</button>
+          <button data-mode="short" aria-pressed="true">木牌 · 短版 620</button>
+        </div>
+        <div class="ctl" style="margin-top:12px">
+          <label for="cTitle">标题</label><input type="text" id="cTitle" value="时间到">
+          <label for="cSub">副标题</label><input type="text" id="cSub" value="">
+          <label for="cPrimary">主钮文案</label><input type="text" id="cPrimary" value="▶ +180秒 继续本关">
+          <label for="cSecondary">次钮文案</label><input type="text" id="cSecondary" value="重试本关">
+          <label for="cRadius">外框圆角</label><input type="range" id="cRadius" min="8" max="48" value="28"><output id="oRadius">28</output>
+          <label for="cScrim">遮罩浓度</label><input type="range" id="cScrim" min="0" max="90" value="55"><output id="oScrim">0.55</output>
+          <label for="cBase">底座高</label><input type="range" id="cBase" min="0" max="160" value="76"><output id="oBase">76</output>
+        </div>
+        <div class="row" style="margin-top:12px">
+          <label class="tog"><input type="checkbox" id="cNoText">无字基准（喂模型用）</label>
+          <label class="tog"><input type="checkbox" id="cDims">尺寸标注</label>
+          <label class="tog"><input type="checkbox" id="cReal" checked>用真件位图</label>
+        </div>
+        <div class="row" style="margin-top:12px">
+          <button class="btn" id="expBase">导出基准 PNG</button>
+          <button class="btn ghost" id="expWire">导出线框 PNG</button>
+          <button class="btn ghost" id="expPair">导出双参考拼图</button>
+          <button class="btn ghost" id="expGeo">导出坐标 JSON</button>
+        </div>
+        <div class="row" style="margin-top:9px">
+          <label class="btn sm ghost" style="cursor:pointer">载入风格参考图<input type="file" id="fileRef" accept="image/*" hidden></label>
+          <span class="hint" id="refName">未载入 → 拼图导出会提示</span>
+        </div>
+        <div class="note" id="modeNote"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ─────────── 右：提示词 + 台账 ─────────── -->
+  <div class="col">
+    <section class="card">
+      <h2>⑥ 提示词模板 <i>随控件实时插值</i></h2>
+      <div class="tabs" id="tabs" role="tablist"></div>
+      <div class="bd" style="padding:0 12px 12px">
+        <pre class="prompt" id="prompt"></pre>
+        <div class="row" style="margin-top:10px">
+          <button class="btn sm" id="copyPrompt">复制本条</button>
+          <button class="btn sm ghost" id="copyAll">复制全部五条</button>
+          <span class="hint" id="pMeta"></span>
+        </div>
+        <div class="note" id="pNote"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>⑦ 抽卡台账 <i>本地留存 · 可导出</i><span class="sp"></span><button class="btn sm ghost" id="addRow">+ 记一张</button></h2>
+      <div class="bd" style="padding:10px 12px">
+        <table>
+          <thead><tr><th style="width:74px">模型</th><th style="width:56px">seed</th><th style="width:70px">件</th><th style="width:88px">判定</th><th>备注 / 失分点</th><th style="width:26px"></th></tr></thead>
+          <tbody id="ledger"></tbody>
+        </table>
+        <div class="row" style="margin-top:10px">
+          <button class="btn sm ghost" id="expLedger">导出 JSON</button>
+          <button class="btn sm ghost" id="expLedgerMd">导出 Markdown</button>
+          <span class="hint" id="ledgerStat"></span>
+        </div>
+        <div class="note">⛔ 别把「看起来不错」当判定。判定只填 <b>PASS / CONCERNS / FAIL</b>，失分点写<b>可数的那一条</b>（例：铆钉 3 枚 / 内部出现伪汉字 / 外框漂移 +37px）。同 seed 重跑只测流水线确定性，<b>换 seed 才是抽卡</b>。</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>⑧ 落位与纪律 <i>抽完之后</i></h2>
+      <div class="bd">
+        <p><b>产物落位</b>：探索张 → <code>games/beads/design/art/proposals/timeout-dialog-&lt;日期&gt;/</code>；定稿件 → <code>final/assets/</code> 对应子目录 + <code>asset-map.json</code> 登记；对照图 / 中间件 → <code>temp/figma/</code>（不入库）。⛔ 判据证据不得只存 <code>temp/</code>（矩阵 §6 有过整目录丢失的先例）。</p>
+        <p><b>文案一律运行时绘制</b>：整屏多标签在实测里 4/4 全乱（2.1 系伪汉字 / 3.0 拉丁字母 / wan 系留空）。所以提示词<b>禁字</b>，「时间到 / +180秒 继续本关 / 重试本关」由 <code>fail-panel.ts</code> 与视图层出，改文案不用重出图。</p>
+        <p><b>几何走程序化</b>：圆角、描边、铆钉位置、alpha 四角由 SDF 补齐；模型只负责<b>材质</b>。整图重生成必带漂移 ⇒ 回贴前过<b>锚点位移门</b>（&gt;10px 先仿射回正，&gt;30px 判弃用）。</p>
+        <p><b>容器可能根本不用抽卡</b>：现有 <code>ui_detail_plaque@2x.png</code> 九宫格拉伸就能出短版（舞台「短版 620」档即此腿）。先跑这条零成本腿，抽卡预算优先给<b>按钮材质</b>与<b>整屏概念</b>。</p>
+      </div>
+    </section>
+  </div>
+</main>
+
+<p class="src">
+  出处：<code>games/beads/design/ux/level-select-page-layout.md §2B–2F</code>（选关稿面真源 Figma <code>PBIK3RbfGlfzFsAnd97ZsP</code> / page <code>159:3</code> / 抠图层 <code>159:5</code>）·
+  <code>level-detail-spec.md §3–4</code>（木牌 581×1044、标题效果、关闭凹槽）·
+  <code>games/beads/src/systems/fail-panel.ts</code>（线框几何 560×360 / 480×88 / gap 24）·
+  <code>games/beads/src/view/palette.ts</code>（色令牌）·
+  <code>games/beads/design/ai-workflows/model-matrix.md §1/§4/§5.x</code>（选型与判据纪律）·
+  <code>my-skills/wxgame-figma/SKILL.md §5</code>（REST 只读边界）。
+  本页为设计辅助工具，⛔ 不进游戏运行时、不参与构建。
+</p>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+// ── 真源常量（抄自代码侧，⛔ 不在此发明新数值）─────────────────────────────
+const W = 750, H = 1334;
+const PAL = {
+  panel:'#FFFCF6', panelBorder:'#E4D9C4', text:'#2A2E43', textDim:'#6E7288',
+  woodFace:'#8A5B34', woodEdge:'#5E3B1E', woodSheen:'#B98A5C', woodText:'#FFF6E8',
+  plateTitleInk:'#563113', plateSubInk:'#E8D098', platePill:'#795127',
+  lightWood:'#D8B78A', scrim:'#2A2E43',
+};
+const BTN_W = 480, BTN_H = 88, BTN_GAP = 24, PAD = 40;   // fail-panel.ts
+const MODES = {
+  wire : {x:95, y:487, w:560, h:360,  r:24, wood:0, base:0,   label:'纸面板 560×360（现状）'},
+  tall : {x:89, y:166, w:581, h:1044, r:28, wood:1, base:120, label:'木牌整张 581×1044（零新资产）'},
+  short: {x:89, y:357, w:581, h:620,  r:28, wood:1, base:76,  label:'短木牌 581×620（抽卡目标）'},
+};
+const ASSETS = {
+  plaque:'../art/final/assets/detail/ui_detail_plaque@2x.png',
+  start :'../art/final/assets/detail/ui_detail_start@2x.png',
+  close :'../art/final/assets/detail/ui_level_select_close@2x.png',
+};
+const $ = s => document.querySelector(s);
+const cv = $('#cv'), ctx = cv.getContext('2d');
+const S = 2;                                  // 预览恒 @2x，导出同档
+let mode = 'short', cur = {...MODES.short}, tween = null, hover = null;
+const imgs = {}; let refImg = null, refName = '';
+
+// ── 工具 ────────────────────────────────────────────────────────────────
+const lerp = (a,b,t) => a + (b-a)*t;
+function hex(h){return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
+function mix(a,b,t){const A=hex(a),B=hex(b);return `rgb(${A.map((v,i)=>Math.round(lerp(v,B[i],t))).join(',')})`;}
+function rng(seed){let s=seed>>>0||1;return()=>((s=(s*1664525+1013904223)>>>0)/4294967296);}
+function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),1900);}
+function dl(name,url){const a=document.createElement('a');a.href=url;a.download=name;a.click();}
+async function copy(txt,msg){try{await navigator.clipboard.writeText(txt);toast(msg||'已复制');}catch{toast('复制失败：请手动选中');}}
+
+// ── 参考件载入（ served 时自动；file:// 失败则回落程序化 + 手动载入）──────
+async function loadAssets(){
+  let ok = 0;
+  for(const [k,url] of Object.entries(ASSETS)){
+    try{
+      const r = await fetch(url); if(!r.ok) throw 0;
+      const b = await r.blob();
+      imgs[k] = await createImageBitmap(b); ok++;
+    }catch{ imgs[k] = null; }
+  }
+  const dot=$('#assetDot'), txt=$('#assetTxt');
+  if(ok===3){dot.classList.add('ok');txt.textContent='真件已载入 3/3';}
+  else{txt.textContent=`真件 ${ok}/3 · 程序化回落`; }
+  $('#cReal').disabled = ok===0;
+  draw();
+}
+$('#fileRef').addEventListener('change', async e=>{
+  const f=e.target.files[0]; if(!f) return;
+  refImg = await createImageBitmap(f); refName = f.name;
+  $('#refName').textContent = '已载入：'+f.name;
+  if(!imgs.plaque) imgs.plaque = refImg;
+  toast('风格参考已载入'); draw();
+});
+
+// ── 舞台绘制 ────────────────────────────────────────────────────────────
+function backdrop(){
+  ctx.fillStyle='#6f6a63'; ctx.fillRect(0,0,W,H);
+  const r=rng(20261111);
+  // 顶部珠阵（线框图里那一片）
+  for(let row=0;row<4;row++)for(let c=0;c<12;c++){
+    const x=8+c*62, y=6+row*54, v=r();
+    ctx.fillStyle = v>.5?'#6d3a44':'#5c3038'; rr(x,y,52,46,10); ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,.07)'; rr(x+5,y+4,42,13,7); ctx.fill();
+    ctx.fillStyle='#3a2028'; ctx.beginPath(); ctx.arc(x+26,y+25,11,0,7); ctx.fill();
+  }
+  // 底部托盘
+  ctx.fillStyle='#8d8781'; rr(0,H-96,W,96,18); ctx.fill();
+  for(let c=0;c<9;c++){ctx.fillStyle='#3b3f52'; rr(16+c*82,H-72,60,58,12); ctx.fill();}
+}
+function woodGrain(x,y,w,h,seed){
+  const r=rng(seed); ctx.save(); rr(x,y,w,h,10); ctx.clip();
+  for(let i=0;i<26;i++){
+    const gy=y+r()*h; ctx.strokeStyle=`rgba(122,79,44,${.05+r()*.09})`;
+    ctx.lineWidth=.8+r()*1.8; ctx.beginPath(); ctx.moveTo(x,gy);
+    ctx.bezierCurveTo(x+w*.3,gy+(r()-.5)*9,x+w*.7,gy+(r()-.5)*9,x+w,gy); ctx.stroke();
+  }
+  ctx.restore();
+}
+function rivet(cx,cy){
+  ctx.fillStyle=PAL.woodEdge; ctx.beginPath(); ctx.arc(cx,cy,14,0,7); ctx.fill();
+  ctx.fillStyle=PAL.woodSheen; ctx.beginPath(); ctx.arc(cx,cy,10.5,0,7); ctx.fill();
+  ctx.fillStyle='rgba(255,246,232,.5)'; ctx.beginPath(); ctx.arc(cx-3,cy-3,3.4,0,7); ctx.fill();
+}
+function plaque(p){
+  const useReal = $('#cReal').checked && imgs.plaque;
+  if(useReal){
+    // 九宫格：顶 200 / 底 204 不动，只缩中段 ⇒ 短版不拉伸木框与铆钉
+    const im=imgs.plaque, sw=im.width, sh=im.height, k=sw/581;
+    const top=200*k, bot=204*k, mid=sh-top-bot;
+    const dTop=p.h*(200/1044), dBot=p.h*(204/1044), dMid=p.h-dTop-dBot;
+    ctx.drawImage(im,0,0,sw,top,      p.x,p.y,      p.w,dTop);
+    ctx.drawImage(im,0,top,sw,mid,    p.x,p.y+dTop, p.w,dMid);
+    ctx.drawImage(im,0,sh-bot,sw,bot, p.x,p.y+p.h-dBot,p.w,dBot);
+    return;
+  }
+  ctx.fillStyle=PAL.woodEdge; rr(p.x,p.y,p.w,p.h,p.r); ctx.fill();
+  ctx.fillStyle=PAL.lightWood; rr(p.x+13,p.y+13,p.w-26,p.h-26,Math.max(4,p.r-10)); ctx.fill();
+  woodGrain(p.x+13,p.y+13,p.w-26,p.h-26,7);
+  ctx.fillStyle=PAL.woodFace; rr(p.x+13,p.y+p.h-p.base-13,p.w-26,p.base,10); ctx.fill();
+  ctx.fillStyle='rgba(185,138,92,.75)'; ctx.fillRect(p.x+16,p.y+p.h-p.base-13,p.w-32,2);
+  const m=p.x+30, my=p.y+30;
+  rivet(m,my); rivet(p.x+p.w-30,my); rivet(m,p.y+p.h-30); rivet(p.x+p.w-30,p.y+p.h-30);
+}
+function paperPanel(p){
+  ctx.save(); ctx.shadowColor='rgba(30,32,51,.4)'; ctx.shadowBlur=26; ctx.shadowOffsetY=10;
+  ctx.fillStyle=PAL.panel; rr(p.x,p.y,p.w,p.h,p.r); ctx.fill(); ctx.restore();
+  ctx.strokeStyle=PAL.panelBorder; ctx.lineWidth=1.5; rr(p.x,p.y,p.w,p.h,p.r); ctx.stroke();
+}
+function button(b,kind,label,wood){
+  const useReal = $('#cReal').checked;
+  if(wood>.5 && useReal && kind==='wood' && imgs.start){
+    ctx.drawImage(imgs.start,b.x,b.y,b.w,b.h);
+  } else if(wood>.5 && useReal && kind==='paper' && imgs.close){
+    ctx.drawImage(imgs.close,b.x,b.y,b.w,b.h);
+  } else if(kind==='wood'){
+    ctx.fillStyle=mix(PAL.woodFace,PAL.woodFace,wood); rr(b.x,b.y,b.w,b.h,20); ctx.fill();
+    ctx.fillStyle=PAL.woodSheen; ctx.fillRect(b.x+8,b.y+1.5,b.w-16,1.6);
+    ctx.fillStyle=PAL.woodEdge; ctx.fillRect(b.x+8,b.y+b.h-3,b.w-16,2.4);
+  } else {
+    ctx.fillStyle=PAL.panel; rr(b.x,b.y,b.w,b.h,20); ctx.fill();
+    ctx.strokeStyle=mix(PAL.panelBorder,PAL.woodSheen,wood); ctx.lineWidth=2; rr(b.x,b.y,b.w,b.h,20); ctx.stroke();
+  }
+  if(!$('#cNoText').checked && label){
+    ctx.fillStyle = kind==='wood' ? PAL.woodText : PAL.text;
+    ctx.font='700 34px "Noto Sans SC","PingFang SC",sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(label,b.x+b.w/2,b.y+b.h/2+2);
+  }
+}
+function geo(p){
+  const bw=Math.min(BTN_W,p.w-2*PAD);
+  const bx=p.x+(p.w-bw)/2;
+  const retryY=p.y+p.h-p.base-PAD-BTN_H;
+  const reviveY=retryY-BTN_H-BTN_GAP;
+  const titleCy=p.y+(p.wood>.5?40+48:56);
+  return {bx,bw,retryY,reviveY,titleCy,subCy:titleCy+(p.wood>.5?88:44),
+          band:{x:p.x+34,y:p.y+34,w:p.w-68,h:96},
+          close:{x:p.x+p.w-70,y:p.y+28,w:38,h:38}};
+}
+function draw(){
+  const p=cur, g=geo(p), wood=p.wood;
+  ctx.setTransform(S,0,0,S,0,0); ctx.clearRect(0,0,W,H);
+  backdrop();
+  ctx.fillStyle=`rgba(42,46,67,${+$('#cScrim').value/100})`; ctx.fillRect(0,0,W,H);
+  if(wood>.02){ ctx.save(); ctx.globalAlpha=wood; plaque(p); ctx.restore(); }
+  if(wood<.98){ ctx.save(); ctx.globalAlpha=1-wood; paperPanel(p); ctx.restore(); }
+  // 标题带（木牌档）
+  if(wood>.5){
+    ctx.save(); ctx.globalAlpha=wood;
+    ctx.fillStyle=PAL.platePill; rr(g.band.x,g.band.y,g.band.w,g.band.h,18); ctx.fill();
+    ctx.restore();
+  }
+  if(!$('#cNoText').checked){
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.save();
+    if(wood>.5){ ctx.shadowColor='rgba(86,49,19,.8)'; ctx.shadowBlur=3; ctx.shadowOffsetX=9*wood; ctx.shadowOffsetY=7*wood; }
+    ctx.fillStyle=mix(PAL.text,PAL.plateSubInk,wood);
+    ctx.font='900 62px "Noto Sans SC","PingFang SC",sans-serif';
+    ctx.fillText($('#cTitle').value,p.x+p.w/2,g.titleCy);
+    ctx.restore();
+    const sub=$('#cSub').value;
+    if(sub){ ctx.fillStyle=mix(PAL.textDim,PAL.plateTitleInk,wood); ctx.font='700 28px "Noto Sans SC",sans-serif'; ctx.fillText(sub,p.x+p.w/2,g.subCy); }
+  }
+  button({x:g.bx,y:g.reviveY,w:g.bw,h:BTN_H},'wood',$('#cPrimary').value,wood);
+  button({x:g.bx,y:g.retryY,w:g.bw,h:BTN_H},'paper',$('#cSecondary').value,wood);
+  // 关闭凹槽（木牌档，详情页同款 38²）
+  if(wood>.5){
+    const c=g.close; ctx.save(); ctx.globalAlpha=wood;
+    ctx.fillStyle=PAL.woodEdge; rr(c.x,c.y,c.w,c.h,10); ctx.fill();
+    ctx.strokeStyle='#3D2E1E'; ctx.lineWidth=3; rr(c.x,c.y,c.w,c.h,10); ctx.stroke();
+    if(!$('#cNoText').checked){
+      ctx.strokeStyle=PAL.woodText; ctx.lineWidth=3; ctx.beginPath();
+      ctx.moveTo(c.x+11,c.y+11); ctx.lineTo(c.x+27,c.y+27);
+      ctx.moveTo(c.x+27,c.y+11); ctx.lineTo(c.x+11,c.y+27); ctx.stroke();
+    }
+    ctx.restore();
+  }
+  if($('#cDims').checked) dims(p,g);
+  if(hover) highlight(hover,p,g);
+  $('#capR').textContent='wood mix '+wood.toFixed(2);
+  $('#chipMode').textContent=MODES[mode].label;
+}
+function dims(p,g){
+  ctx.save(); ctx.strokeStyle='#E8D098'; ctx.fillStyle='#E8D098'; ctx.lineWidth=1.4;
+  ctx.font='700 19px ui-monospace,Menlo,monospace'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+  const line=(x1,y1,x2,y2,t,tx,ty)=>{ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.fillText(t,tx,ty);};
+  line(p.x,p.y-16,p.x+p.w,p.y-16,`${Math.round(p.w)}`,p.x+p.w/2-22,p.y-24);
+  line(p.x-16,p.y,p.x-16,p.y+p.h,`${Math.round(p.h)}`,p.x-72,p.y+p.h/2);
+  line(g.bx,g.reviveY-10,g.bx+g.bw,g.reviveY-10,`${g.bw}×${BTN_H}`,g.bx+g.bw/2-42,g.reviveY-18);
+  ctx.fillText(`(${Math.round(p.x)},${Math.round(p.y)}) r${Math.round(p.r)}`,p.x+6,p.y+p.h+30);
+  ctx.restore();
+}
+const REGIONS={
+  'ref/style-plaque':(p)=>[p.x,p.y,p.w,p.h],
+  'ref/style-btn-wood':(p,g)=>[g.bx,g.reviveY,g.bw,BTN_H],
+  'ref/style-btn-close':(p,g)=>[g.close.x,g.close.y,g.close.w,g.close.h],
+  'final/plate-short':(p)=>[p.x,p.y,p.w,p.h],
+  'final/btn-revive':(p,g)=>[g.bx,g.reviveY,g.bw,BTN_H],
+  'final/btn-retry':(p,g)=>[g.bx,g.retryY,g.bw,BTN_H],
+  'spec/geometry':(p)=>[p.x,p.y,p.w,p.h],
+};
+function highlight(key,p,g){
+  const f=REGIONS[key]; if(!f) return; const [x,y,w,h]=f(p,g);
+  ctx.save(); ctx.strokeStyle='#FFF0B0'; ctx.lineWidth=4; ctx.setLineDash([12,8]);
+  ctx.strokeRect(x-6,y-6,w+12,h+12); ctx.restore();
+}
+// ── 换皮 morph ──────────────────────────────────────────────────────────
+function setMode(m){
+  mode=m; const to=MODES[m];
+  document.querySelectorAll('.seg button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===m)));
+  $('#cRadius').value=to.r; $('#oRadius').textContent=to.r;
+  $('#cBase').value=to.base; $('#oBase').textContent=to.base;
+  const from={...cur}, t0=performance.now(), D=420;
+  const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  cancelAnimationFrame(tween);
+  const step=now=>{
+    const t=reduce?1:Math.min(1,(now-t0)/D), e=1-Math.pow(1-t,3);
+    cur={x:lerp(from.x,to.x,e),y:lerp(from.y,to.y,e),w:lerp(from.w,to.w,e),h:lerp(from.h,to.h,e),
+         r:+$('#cRadius').value,wood:lerp(from.wood,to.wood,e),base:+$('#cBase').value};
+    draw(); if(t<1) tween=requestAnimationFrame(step); else {cur={...to,r:+$('#cRadius').value,base:+$('#cBase').value};draw();}
+  };
+  tween=requestAnimationFrame(step);
+  $('#modeNote').innerHTML = m==='wire'
+    ? '<b>现状档</b>：<code>fail-panel.ts</code> 的纸面板 560×360、主钮 480×88、gap 24、内缩 40。这是<b>几何真源</b>，抽卡只换皮不换版面。'
+    : m==='tall'
+    ? '<b>零新资产档</b>：直接沿用 <code>LEVEL_DETAIL_TEXTURES.plaque</code>（581×1044）。代价 = 两钮弹窗留一大片空橱窗，视觉偏空；好处 = 不用抽卡、包体零增量。'
+    : '<b>抽卡目标档</b>：同木作语言的<b>短版容器</b> 581×620。舞台用九宫格拉伸现有木牌演示可行性 ⇒ <b>先试这条零成本腿</b>；材质不满意再抽 P1。';
+  renderPrompt();
+}
+document.querySelectorAll('.seg button').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
+['cTitle','cSub','cPrimary','cSecondary'].forEach(id=>$('#'+id).addEventListener('input',()=>{draw();renderPrompt();}));
+['cRadius','cScrim','cBase'].forEach(id=>$('#'+id).addEventListener('input',e=>{
+  const v=+e.target.value;
+  if(id==='cRadius'){cur.r=v;$('#oRadius').textContent=v;}
+  if(id==='cBase'){cur.base=v;$('#oBase').textContent=v;}
+  if(id==='cScrim')$('#oScrim').textContent=(v/100).toFixed(2);
+  draw(); renderPrompt();
+}));
+['cNoText','cDims','cReal'].forEach(id=>$('#'+id).addEventListener('change',()=>{draw();renderPrompt();}));
+
+// ── 导出 ────────────────────────────────────────────────────────────────
+function snapshot(mut){
+  const keep={mode,cur:{...cur},no:$('#cNoText').checked,dim:$('#cDims').checked};
+  mut&&mut(); draw();
+  const url=cv.toDataURL('image/png');
+  mode=keep.mode; cur=keep.cur; $('#cNoText').checked=keep.no; $('#cDims').checked=keep.dim; draw();
+  return url;
+}
+$('#expBase').addEventListener('click',()=>{
+  dl(`timeout-${mode}-base@2x.png`,snapshot(()=>{$('#cNoText').checked=true;$('#cDims').checked=false;}));
+  toast('已导出无字基准 @2x');
+});
+$('#expWire').addEventListener('click',()=>{
+  dl('timeout-wire@2x.png',snapshot(()=>{mode='wire';cur={...MODES.wire};$('#cNoText').checked=false;$('#cDims').checked=true;}));
+  toast('已导出线框参考 @2x');
+});
+$('#expGeo').addEventListener('click',()=>{
+  const p=cur,g=geo(p);
+  const j={canvas:[W,H],yAxis:'down',mode,plate:{x:Math.round(p.x),y:Math.round(p.y),w:Math.round(p.w),h:Math.round(p.h),radius:Math.round(p.r)},
+    title:{cx:Math.round(p.x+p.w/2),cy:Math.round(g.titleCy)},subtitle:{cx:Math.round(p.x+p.w/2),cy:Math.round(g.subCy)},
+    revive:{x:Math.round(g.bx),y:Math.round(g.reviveY),w:g.bw,h:BTN_H},retry:{x:Math.round(g.bx),y:Math.round(g.retryY),w:g.bw,h:BTN_H},
+    closeInset:g.close,baseHeight:Math.round(p.base),source:'fail-panel.ts + level-detail-spec.md §3'};
+  dl('timeout-geometry.json','data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(j,null,2)));
+  toast('坐标 JSON 已导出');
+});
+$('#expPair').addEventListener('click',()=>{
+  const style=refImg||imgs.plaque;
+  if(!style){toast('先载入风格参考图（或用 served 模式自动载入）');return;}
+  const base=new Image();
+  base.onload=()=>{
+    const pad=40,lab=54,h=1334,w=pad*3+750+750;
+    const c=document.createElement('canvas');c.width=w*2;c.height=(h+lab+pad)*2;
+    const x=c.getContext('2d');x.scale(2,2);
+    x.fillStyle='#2b2018';x.fillRect(0,0,w,h+lab+pad);
+    x.fillStyle='#E8D098';x.font='700 30px "Noto Sans SC",sans-serif';x.textAlign='center';
+    x.fillText('① 风格参考 · 选关/详情木牌',pad+375,40);
+    x.fillText('② 几何参考 · 时间到弹窗（无字）',pad*2+750+375,40);
+    const sh=Math.min(h,style.height),sw=style.width*(sh/style.height);
+    x.drawImage(style,pad+(750-sw)/2,lab+(h-sh)/2,sw,sh);
+    x.drawImage(base,pad*2+750,lab,750,h);
+    x.strokeStyle='#B98A5C';x.lineWidth=2;x.strokeRect(pad,lab,750,h);x.strokeRect(pad*2+750,lab,750,h);
+    dl('timeout-ref-pair@2x.png',c.toDataURL('image/png'));toast('双参考拼图已导出');
+  };
+  base.src=snapshot(()=>{$('#cNoText').checked=true;$('#cDims').checked=false;});
+});
+
+// ── 图层树 / 判据 ───────────────────────────────────────────────────────
+const TREE=[
+ ['弹窗抽卡 · 时间到 v1','PAGE',''],
+ ['├─ REF · 参考','FRAME 1660×1400 · 锁定',''],
+ ['│  ├─ ref/style-plaque','IMAGE','← ui_detail_plaque@2x.png（Figma 95:116 / 选关 159:5）'],
+ ['│  ├─ ref/style-btn-wood','IMAGE','← ui_detail_start@2x.png（119:36）'],
+ ['│  ├─ ref/style-btn-close','IMAGE','← ui_level_select_close@2x.png（160:48）'],
+ ['│  ├─ ref/wire-timeout','IMAGE','← 工作台「导出线框 PNG」'],
+ ['│  └─ ref/geo-baseline','IMAGE','← 工作台「导出基准 PNG」（无字）'],
+ ['├─ GEN · 候选','FRAME · auto-layout 横 gap24',''],
+ ['│  ├─ gen/nb2-lite/s07/01','FRAME 1162×1240','容器短版候选'],
+ ['│  ├─ gen/nb2-lite/s07/02','FRAME',''],
+ ['│  ├─ gen/nb2-lite/s07/03','FRAME',''],
+ ['│  ├─ gen/nb2-lite/s07/04','FRAME',''],
+ ['│  └─ gen/nb2/s23/01…04','FRAME','定稿档换模型复测'],
+ ['├─ FINAL · 定稿','FRAME',''],
+ ['│  ├─ final/plate-short@2x','IMAGE 1162×1240',''],
+ ['│  ├─ final/btn-revive@2x','IMAGE 960×176',''],
+ ['│  ├─ final/btn-retry@2x','IMAGE 960×176',''],
+ ['│  └─ final/preview-750x1334','FRAME','合成校验帧'],
+ ['└─ SPEC · 标注','FRAME',''],
+ ['   ├─ spec/geometry','IMAGE','← 工作台「导出坐标 JSON」配图'],
+ ['   └─ spec/verdict','TEXT','← 台账导出 Markdown'],
+];
+$('#tree').innerHTML=TREE.map(([n,t,c])=>{
+  const key=n.replace(/^[│├└─\s]+/,'');
+  return `<span class="k" data-region="${key}">${n}</span>  <span class="c">${t}</span>${c?`  <span class="n">${c}</span>`:''}`;
+}).join('\n');
+$('#tree').addEventListener('mouseover',e=>{const k=e.target.dataset?.region;if(k&&REGIONS[k]){hover=k;draw();}});
+$('#tree').addEventListener('mouseleave',()=>{hover=null;draw();});
+const treeText=TREE.map(([n,t,c])=>`${n}  ${t}${c?'  '+c:''}`).join('\n');
+$('#copyTree').addEventListener('click',()=>copy(treeText,'图层树已复制'));
+$('#copyCmd').addEventListener('click',()=>copy(
+`# 取选关弹窗稿面（定位 node-id）
+node my-skills/wxgame-figma/scripts/figma.mjs tree "https://www.figma.com/design/PBIK3RbfGlfzFsAnd97ZsP?node-id=159-3" --depth 3
+# 导出风格参考件 @2x
+node my-skills/wxgame-figma/scripts/figma.mjs img "https://www.figma.com/design/PBIK3RbfGlfzFsAnd97ZsP?node-id=159-5" --out temp/figma --format png --scale 2
+# 单件导出（木牌 / 开始钮 / 关闭钮）
+node my-skills/wxgame-figma/scripts/figma.mjs img "https://www.figma.com/design/PBIK3RbfGlfzFsAnd97ZsP" --out temp/figma --ids 95:116,119:36,160:48 --scale 2`,'导出命令已复制'));
+const CRIT=[
+ ['外框 bbox','与基准差 ≤2px（回正后）；>10px 先仿射回正，>30px 判弃用'],
+ ['四角 alpha','alpha==0 占比 ≈25%（r28 圆角）；⛔ 只查 Image.mode 会漏假透明'],
+ ['铆钉','4 枚、上下左右对称、Ø28（@1x），位置与参考图一致'],
+ ['木框线宽','3px（@1x）恒定，四边四角共用一条剖面，接缝连续'],
+ ['内部净空','无文字 / 无字母 / 无数字 / 无水印 / 无橱窗 / 无实物道具'],
+ ['固有色','大面积色对参考图 ΔE ≤3.5；只允许明暗渐变，色相不变'],
+ ['单元素纪律','无手机壳、无全屏外背景、无多余描边白边；背景环 std ≤3'],
+];
+$('#crit').innerHTML=CRIT.map(([a,b],i)=>`<li><b>C${i+1} ${a}</b> — ${b}</li>`).join('');
+$('#copyCrit').addEventListener('click',()=>copy(CRIT.map(([a,b],i)=>`C${i+1} ${a}：${b}`).join('\n')+'\n\n纪律：≥4 颗粒子才写通过率；换 seed 才是抽卡。','判据已复制'));
+
+// ── 提示词 ──────────────────────────────────────────────────────────────
+function hard(o){
+  return `【硬约束 · 逐条遵守】
+1. 白名单：画面里独立物体的数量与参考图完全一致；唯一允许的差异 = ${o.delta}。
+2. 禁字：不出现任何文字、字母、数字、标点、水印、logo、签名。文案由运行时程序化绘制。
+3. 几何锁：外框位置 / 线宽 / 圆角半径 / 裁切边界与几何参考图完全一致；圆角 r=${o.r}（@1x）。
+4. 色彩：固有色与风格参考图完全一致；只允许明暗渐变，色相保持不变。
+5. 材质：${o.mat}
+6. 背景：${o.bg}
+7. 输出：单张 ${o.size}，正面平视、无透视、无投影到背景、无手机壳、无实物道具。`;
+}
+function prompts(){
+  const p=cur,g=geo(p),r=Math.round(p.r),no=$('#cNoText').checked;
+  const size=`${Math.round(p.w*2)}×${Math.round(p.h*2)}`;
+  const bg='纯洋红幕 #FF00FF 满幅铺底（便于程序化切 alpha；⛔ 不要画透明棋盘格）';
+  const wood='浅原木纹牌面 + 深木外框 + 四角黄铜铆钉 + 底部木底座；平涂插画质感，笔触干净，无照片纹理';
+  return [
+  {id:'P1',tab:'P1 容器背板',title:'短版木牌容器（抽卡主目标）',
+   note:'参考图挂法：① 风格 = 选关/详情木牌（<code>95:116</code> 或 <code>159:5</code>）② 几何 = 工作台「导出基准 PNG」（无字）。只吃 1 张时用「双参考拼图」。',
+   text:`【任务】把参考图里的木牌容器改成短版弹窗背板，用于「时间到」倒计时弹窗。
+【目标尺寸】${Math.round(p.w)}×${Math.round(p.h)}（@1x），导出 ${size}。
+【结构白名单】只保留四件：深木外框、四角铆钉、顶部标题横带、底部木底座。
+【唯一允许的差异】高度由 1044 缩到 ${Math.round(p.h)}；去掉玻璃橱窗、射灯、圆台与一切陈列物，内部留空。
+【材质】${wood}。
+【标题带】深木色 #795127 圆角横带，位于牌内 y=34、高 96、左右内缩 34；带内留空，⛔ 不写字。
+【内容区】奶油纸白 #FFFCF6 的平整空面，供运行时叠文字与按钮。
+${hard({delta:'高度缩短 + 去掉橱窗与陈列物',r,mat:wood,bg,size})}
+【negative 写法】⛔ 不要堆「不要植物 / 不要实物」这类否定词——实测否定词反被当内容强化。只写上面的白名单。`},
+  {id:'P2',tab:'P2 木主钮',title:'续时主钮（▶ +180秒 继续本关）',
+   note:'参考件 = <code>ui_detail_start@2x.png</code>（Figma <code>119:36</code>，326×154）。目标比例不同 ⇒ 提示词里显式写「按目标宽高比重排木纹走向」，否则模型会把铆钉拉扁。',
+   text:`【任务】按参考图的木质按钮语言，出一枚更宽更扁的主钮背板。
+【目标尺寸】${g.bw}×${BTN_H}（@1x），导出 ${g.bw*2}×${BTN_H*2}。
+【结构白名单】木纹面 + 顶缘 1px 受光线 + 底缘 2px 暗边 + 四角铆钉（若参考图有）。
+【唯一允许的差异】宽高比由 326:154 改为 ${g.bw}:${BTN_H}；铆钉保持正圆，⛔ 不许随比例拉扁。
+【色彩】面 #8A5B34、受光 #B98A5C、暗边 #5E3B1E；固有色与参考图完全一致。
+【文案】⛔ 不写任何字。「${$('#cPrimary').value}」由运行时绘制。
+${hard({delta:'宽高比改变，铆钉保持正圆',r:20,mat:'木纹面 + 顶高光 + 底暗边，平涂插画',bg,size:`${g.bw*2}×${BTN_H*2}`})}`},
+  {id:'P3',tab:'P3 次钮',title:'重试次钮（低权重出口）',
+   note:'参考件 = <code>ui_level_select_close@2x.png</code>（Figma <code>160:48</code>，301×105）。次钮权重必须低于主钮 ⇒ 提示词写「浅木 / 纸面描边档」，⛔ 不要让它和主钮一样深。',
+   text:`【任务】按参考图的木质关闭钮语言，出一枚低权重的次级钮背板。
+【目标尺寸】${g.bw}×${BTN_H}（@1x），导出 ${g.bw*2}×${BTN_H*2}。
+【层级】视觉权重明显低于主钮：浅木面或奶油纸面 + 细描边，⛔ 不要深木实底、不要强高光。
+【结构白名单】面 + 2px 描边 + 圆角 r=20；无铆钉、无底座、无投影。
+【色彩】面 #FFFCF6、描边 #B98A5C；与主钮 #8A5B34 形成明确深浅差。
+【文案】⛔ 不写字。「${$('#cSecondary').value}」由运行时绘制。
+${hard({delta:'权重降低：浅面 + 细描边，去铆钉',r:20,mat:'浅木 / 奶油纸面，细描边，平涂',bg,size:`${g.bw*2}×${BTN_H*2}`})}`},
+  {id:'P0',tab:'P0 整屏概念',title:'整屏概念稿（探索版式用）',
+   note:'⚠ 整屏多标签文案实测 4/4 全乱 ⇒ 本条<b>只取版式与材质</b>，所有文字后期程序化叠。参考图顺序：① 选关弹窗整帧 ② 工作台线框 PNG。',
+   text:`【任务】把线框参考图的「时间到」弹窗，重绘成与风格参考图同一套木作语言的整屏游戏界面。
+【画布】${W}×${H} 竖屏全屏 UI，导出 ${W*2}×${H*2}。
+【版式锁】弹窗外框 (${Math.round(p.x)},${Math.round(p.y)}) ${Math.round(p.w)}×${Math.round(p.h)}、圆角 r=${r}；
+主钮 (${g.bx},${Math.round(g.reviveY)}) ${g.bw}×${BTN_H}；次钮 (${g.bx},${Math.round(g.retryY)}) ${g.bw}×${BTN_H}；两钮净距 ${BTN_GAP}。
+【结构白名单】遮罩 + 木牌容器 + 标题横带 + 两枚按钮 + 右上 38² 关闭凹槽。背景 = 拼豆盘面与底部托盘的虚化暗示。
+【唯一允许的差异】纸面板换成木牌容器；其余版式与线框参考图逐件对齐。
+【文案】⛔ 全屏不出现任何文字（含标题、按钮、背景招牌）。所有文案运行时绘制。
+${hard({delta:'容器材质由纸换木，版式不变',r,mat:wood,bg:'满幅游戏背景（⛔ 不留洋红幕，本条是整屏稿）',size:`${W*2}×${H*2}`})}`},
+  {id:'P4',tab:'P4 局部微调',title:'定稿上擦 / 换（mask 内重设计）',
+   note:'走 <code>wxgame-image-gen</code> 的 ④/⑤ 腿。⚠ <code>bbox_list</code> 是<b>指引不是像素锁</b>；qwen 线静默忽略 mask ⇒ 出货必走贴回三步，区外 maxdiff 必须 = 0。',
+   text:`【任务】只在遮罩区域内重绘，遮罩外逐像素保持原样。
+【遮罩区域】${Math.round(p.x+34)},${Math.round(p.y+34)} 起 ${Math.round(p.w-68)}×96 的标题横带。
+【区域内指令】把横带材质换成与木框同族的深木 #795127，保留圆角与左右内缩；⛔ 不加字、不加图标。
+【区域外】逐像素不变（maxdiff 必须 = 0）。
+【几何】圆角 r=${r}、线宽 3px、铆钉位置全部不变。
+${hard({delta:'仅遮罩内材质替换',r,mat:'深木横带，与外框同族',bg:'保持原图背景，⛔ 不换底',size})}
+【出货纪律】α = blur(M)×M 只向内羽化 → 合成 → C[~M] = A[~M] 硬拷回；回贴 maxdiff=0 是必要非充分，仍须目测 + 内容尺寸复核。`},
+  ];
+}
+let tab=0;
+function renderTabs(){
+  $('#tabs').innerHTML=prompts().map((p,i)=>`<button role="tab" aria-selected="${i===tab}" data-i="${i}">${p.tab}</button>`).join('');
+  $('#tabs').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{tab=+b.dataset.i;renderTabs();renderPrompt();}));
+}
+function renderPrompt(){
+  const list=prompts(),p=list[tab];
+  $('#prompt').textContent=p.text;
+  $('#pNote').innerHTML=p.note;
+  $('#pMeta').textContent=`${p.id} · ${p.text.length} 字 · 容器 ${Math.round(cur.w)}×${Math.round(cur.h)}`;
+}
+$('#copyPrompt').addEventListener('click',()=>copy(prompts()[tab].text,'提示词已复制'));
+$('#copyAll').addEventListener('click',()=>copy(prompts().map(p=>`===== ${p.id} ${p.title} =====\n${p.text}`).join('\n\n'),'五条已复制'));
+
+// ── 台账 ────────────────────────────────────────────────────────────────
+const KEY='beads-timeout-gacha-v1';
+let rows=[];
+try{rows=JSON.parse(localStorage.getItem(KEY)||'[]');}catch{rows=[];}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(rows));}catch{} stat();}
+function stat(){
+  const n=rows.length,p=rows.filter(r=>r.verdict==='PASS').length;
+  $('#ledgerStat').textContent=n?`${n} 张 · PASS ${p} · 可用率 ${n?Math.round(p/n*100):0}%${n<4?'（<4 颗，只出方向）':''}`:'空台账';
+}
+function renderLedger(){
+  $('#ledger').innerHTML=rows.map((r,i)=>`<tr>
+    <td><select data-i="${i}" data-k="model"><option${r.model==='nb2-lite'?' selected':''}>nb2-lite</option><option${r.model==='nb2'?' selected':''}>nb2</option></select></td>
+    <td><input type="number" data-i="${i}" data-k="seed" value="${r.seed}" style="width:52px"></td>
+    <td><select data-i="${i}" data-k="part"><option${r.part==='plate'?' selected':''}>plate</option><option${r.part==='btn-wood'?' selected':''}>btn-wood</option><option${r.part==='btn-paper'?' selected':''}>btn-paper</option><option${r.part==='screen'?' selected':''}>screen</option></select></td>
+    <td class="v"><select data-i="${i}" data-k="verdict" class="v-${r.verdict}"><option${r.verdict==='PASS'?' selected':''}>PASS</option><option${r.verdict==='CONCERNS'?' selected':''}>CONCERNS</option><option${r.verdict==='FAIL'?' selected':''}>FAIL</option></select></td>
+    <td><input type="text" data-i="${i}" data-k="note" value="${(r.note||'').replace(/"/g,'&quot;')}" placeholder="可数失分点"></td>
+    <td><button class="btn sm ghost" data-del="${i}" style="padding:3px 6px">×</button></td></tr>`).join('');
+  $('#ledger').querySelectorAll('[data-k]').forEach(el=>el.addEventListener('change',e=>{
+    const i=+e.target.dataset.i,k=e.target.dataset.k;
+    rows[i][k]=k==='seed'?+e.target.value:e.target.value; save(); renderLedger();
+  }));
+  $('#ledger').querySelectorAll('[data-del]').forEach(el=>el.addEventListener('click',e=>{
+    rows.splice(+e.target.dataset.del,1); save(); renderLedger();
+  }));
+  stat();
+}
+$('#addRow').addEventListener('click',()=>{
+  const a=new Uint32Array(1); crypto.getRandomValues(a);
+  rows.push({model:'nb2-lite',seed:a[0]%9000+1000,part:'plate',verdict:'CONCERNS',note:''});
+  save(); renderLedger(); toast('已记一张 · 记得填判定');
+});
+$('#expLedger').addEventListener('click',()=>{
+  dl('timeout-gacha-ledger.json','data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify({task:'时间到弹窗抽卡',model:'nanobanana2/lite',canvas:[W,H],criteria:CRIT.map(([a,b],i)=>`C${i+1} ${a}：${b}`),rows},null,2)));
+  toast('台账 JSON 已导出');
+});
+$('#expLedgerMd').addEventListener('click',()=>{
+  const md=`# 时间到弹窗 · 抽卡台账\n\n模型：nanobanana2 / lite ｜ 画布 ${W}×${H} ｜ 张数 ${rows.length}\n\n| 模型 | seed | 件 | 判定 | 失分点 |\n|---|---|---|---|---|\n`+
+    rows.map(r=>`| ${r.model} | ${r.seed} | ${r.part} | ${r.verdict} | ${r.note||'—'} |`).join('\n')+
+    `\n\n## 判据\n`+CRIT.map(([a,b],i)=>`- **C${i+1} ${a}**：${b}`).join('\n')+
+    `\n\n> ≥4 颗粒子才写通过率；换 seed 才是抽卡。出处 model-matrix.md §4。\n`;
+  dl('timeout-gacha-ledger.md','data:text/markdown;charset=utf-8,'+encodeURIComponent(md));
+  toast('台账 Markdown 已导出');
+});
+
+// ── 滚动显现 ────────────────────────────────────────────────────────────
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.08});
+document.querySelectorAll('.card').forEach(c=>io.observe(c));
+
+// ── 启动 ────────────────────────────────────────────────────────────────
+renderTabs(); renderPrompt(); renderLedger(); setMode('short'); loadAssets();
+</script>
+</body>
+</html>

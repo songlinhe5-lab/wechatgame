@@ -227,17 +227,26 @@ def main(argv):
 
     deadline = t0 + a.timeout
     entry = None
+    # 大模型换页时 ComfyUI 的事件循环可能短暂无响应；轮询超时只告警、不退出。
+    poll_errors = 0
     while time.time() < deadline:
         time.sleep(a.poll)
-        hist = api(a.host, f"/history/{pid}", timeout=60)
-        if pid in hist:
-            entry = hist[pid]
-            break
-        q = api(a.host, "/queue", timeout=30)
-        running = [x for x in q.get("queue_running", []) if x[1] == pid]
-        pending = [x for x in q.get("queue_pending", []) if x[1] == pid]
-        state = "running" if running else ("queued" if pending else "unknown")
-        print(f"[h3] {time.time()-t0:6.0f}s {state}")
+        try:
+            hist = api(a.host, f"/history/{pid}", timeout=90)
+            if pid in hist:
+                entry = hist[pid]
+                break
+            q = api(a.host, "/queue", timeout=60)
+            running = [x for x in q.get("queue_running", []) if x[1] == pid]
+            pending = [x for x in q.get("queue_pending", []) if x[1] == pid]
+            state = "running" if running else ("queued" if pending else "unknown")
+            print(f"[h3] {time.time()-t0:6.0f}s {state}")
+            poll_errors = 0
+        except (TimeoutError, urllib.error.URLError, ConnectionError) as e:
+            poll_errors += 1
+            print(f"[h3] {time.time()-t0:6.0f}s poll timeout/error ({poll_errors}): {e}")
+            if poll_errors >= 12:
+                raise SystemExit(f"连续 {poll_errors} 次轮询失败，服务可能已卡死：prompt_id={pid}")
     if entry is None:
         raise SystemExit(f"超时 {a.timeout}s，任务仍在排队/运行：prompt_id={pid}")
 

@@ -9436,3 +9436,14 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；beads 单测 **1457 passed / 2 skipped（125 文件）**（Trae 616 后 1456 + 本批 1）。
 - **工作树遗留件（⛔ 不代提）**：`games/beads/package.json` 版本号（Trae）、preview SVG、`minimax-h3-t2v.py`、并发 `.meta`/`.cursor/settings.json`/`.trae/mcp.json` 等；根目录 `200`/`300` 为本会话早先坏循环的 curl cookie 垃圾，已删。
 - **知识沉淀（kb:sync --task=WXG-T-617）**：新增 **2** / 修改 0 / 激活 0 / 归档 0 —— K-216（测试守卫：宿主腿静默回退靠宿主腿控制台守卫抓，harness 腿自预烘结构性盲）、K-217（环境：Chrome 启发式缓存跨跑供旧 bundle ⇒ 每跑独立 profile；栈行号 vs 磁盘行数确诊法）。三步已跑：kb:sync（活跃 212 → **214**，nextId 218）、kb:audit（相似命中 0）、ctx:build；check:links OK。
+
+## WXG-T-618
+
+**流程·并发遗留清账批（17 件·用户批准代提·逐件归属披露）** · 负责：主理人(Qoder)·流程轨 · 状态：✅ 完成（2026-11-12；用户选上轮收尾选项 2「并发遗留清账批」）
+
+- **上位**（用户令）：收尾三选项选 2 ⇒ 批准清账；按 K-137 追记例外通道三前置执行（归属实证 / 完整性核验 / 逐件披露）。
+- **盘点**：开工时 HEAD 已被并发 Trae CN 推至 `34488fa0`（616 追补四笔）；dirty 17 件；`.meta` 19 件已由 Trae `e269513e` 自登 ⇒ **自然闭，不入本批**。
+- **逐件归属与核验**：① `dev/harness/preview/level-1…9.svg`（M，±6 万行）+ `level-10.svg`（新）：mtime 11-11 00:21 来源会话不明；用 `render-harness-frame.mjs --game=beads` 对当前 HEAD 源重生成 ⇒ **10/10 逐字节一致** ⇒ 内容验真非陈旧，代提；② `games/beads/package.json` 1.0.42→1.0.44：mtime 11-12 11:21，Trae 四笔提交（11:34–13:37）均未含 ⇒ 其待提版本号，代提披露；③ `tools/scripts/minimax-h3-t2v.py`（+18−9）：mtime 11-09 20:38 = T-605 当日，内容 = 轮询吞超时 + 总上限（与 ComfyUI 假死轮询教训同口径）⇒ 本会话链追补；④ `make-grid-backplate.py`：mtime 11-10 09:29，被**已入库** `production/qa/token-plan-usage-ledger.md` 11-10 追加段引用 ⇒ 本会话链背板批缺 companion；⑤ `figma-gacha-timeout.html`（53,194 B）：本会话链 Figma 抽卡工作台产物（提示词模板，未验证状态如实披露）；⑥ `.cursor/settings.json`（figma 插件开关）/ `.trae/mcp.json`（figma-remote **https**，无密钥无回环）⇒ 四 IDE 配置对齐。③④ py_compile OK。
+- **纪律沉淀**：K-137 追记「用户批准清账批例外通道三前置」（process-ledger-sync 片，7142 tok 余量内）。
+- **验证**：`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；py_compile 两脚本 OK；重生成 10/10 逐字节一致。kb:sync --task=WXG-T-618：新增 0 / **修改 1**（K-137 追记）/ 激活 0 / 归档 0；kb:audit 相似命中 0；ctx:build 已跑。
+- **清账后工作树**：预期 clean（temp/ 与构建产物均 gitignore）；若 Trae 后续再产新 dirty 属新批，⛔ 不追提。
