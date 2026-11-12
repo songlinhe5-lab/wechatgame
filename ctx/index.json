@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4105,
       "lines": 137,
-      "sha256": "882dc168570dac4abe41e16f3b24551c614936b83c95a7290116fba0c4217928",
+      "sha256": "8bce6bbde556f339a2a13c09291087b99fb26a872713b4d295da23668461be7b",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 293549 9801 normal",
+          "summary": "1 production/TASKS-DETAIL.md 293622 9801 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5291,
       "lines": 164,
-      "sha256": "bf1da641f96e2b30ba5614b7699cb6a8b4ecb3418a9717a35ff1b53da2e618e2",
+      "sha256": "b0406fdb1bf02223dd40079bc7e7837702dde0e724f6bba7ec0b2afa1cc3aed4",
       "tier": "normal",
       "sections": [
         {
@@ -1080,7 +1080,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 9801 行 / 293549 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 9801 行 / 293622 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
@@ -89930,9 +89930,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 293549,
+      "tokens": 293622,
       "lines": 9801,
-      "sha256": "93da613d99ff15a3c2db3902dea40794f50a49c4266467b47797955ddd225357",
+      "sha256": "ad5542fd4ff37f30307995598ec3da61262d5a7e65f30a7f7af9ea318368bf65",
       "tier": "normal",
       "sections": [
         {
@@ -89940,7 +89940,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 9802,
-          "tokens": 293532,
+          "tokens": 293605,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -104723,7 +104723,7 @@
           "level": 2,
           "startLine": 9788,
           "endLine": 9802,
-          "tokens": 639,
+          "tokens": 712,
           "summary": "UX·珠面描边改「骑线带」形状（修 T-928 把一圈边界珠涂黑） · 负责：主理人(Trae CN)·beads 工程",
           "keywords": [
             "WXG",
@@ -115311,9 +115311,9 @@
     },
     {
       "path": "production/qa/beads/test-cases-k-ledger-2.md",
-      "tokens": 16203,
-      "lines": 184,
-      "sha256": "71c6525f1c54ccb6b56f9b042b77f43c5c2d43e0351a38f22b5e847c9b44cbab",
+      "tokens": 16589,
+      "lines": 191,
+      "sha256": "f0faea91821f25ca162483b3a6e4773758d48e58cba6100af78bb1abea308beb",
       "tier": "normal",
       "sections": [
         {
@@ -115525,10 +115525,26 @@
           ]
         },
         {
-          "anchor": "§K.6 `06` 珐琅 —— **只登记出池门引用，本批不造判据**（Q1 = 甲）",
+          "anchor": "§K.5.1-补16 整帧基线第二十四次复评修订（2026-11-12 · WXG-T-929 珠面描边由实心并集改骑线带 · 正本 = provenance `s3_frame_recheck_24`）",
           "level": 3,
           "startLine": 172,
-          "endLine": 180,
+          "endLine": 178,
+          "tokens": 336,
+          "summary": "通道声明：属整帧非珠体族替换型改动（用户反馈「我只是让珠面描边，怎么把珠面一圈的珠子给描黑了」⇒ buildShapes",
+          "keywords": [
+            "s3_frame_recheck_24",
+            "WXG",
+            "provenance",
+            "buildShapes",
+            "整帧基线第二",
+            "十四次复评修"
+          ]
+        },
+        {
+          "anchor": "§K.6 `06` 珐琅 —— **只登记出池门引用，本批不造判据**（Q1 = 甲）",
+          "level": 3,
+          "startLine": 179,
+          "endLine": 187,
           "tokens": 357,
           "summary": "引用项 内容 出处 QA 处置",
           "keywords": [
@@ -115542,8 +115558,8 @@
         {
           "anchor": "§K.7 本节残留与回改触发器（诚实登记，不得被\"已建例\"掩盖）",
           "level": 3,
-          "startLine": 181,
-          "endLine": 185,
+          "startLine": 188,
+          "endLine": 192,
           "tokens": 288,
           "summary": "① assets-spec 7.13 判据 ③ 的「C12 强读法」引用行需 art 订正（K.6）；② C12 弱读的",
           "keywords": [
