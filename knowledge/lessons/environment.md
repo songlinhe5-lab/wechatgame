@@ -63,3 +63,4 @@
   根因：视图未打开 / 未聚焦时浏览器按**后台页**处理，图片解码与 rAF 被挂起；这不是资产路径、白名单或渲染代码坏了。
   规避/做法：① 取像素证据前**先探 `visibilityState` + rAF 计数**，hidden 就直接判「环境阻塞」，⛔ 不要改代码去修一个不存在的渲染缺陷；② 阻塞期改用**不依赖解码的判据**（命令流单测 + SVG 光栅化目视），并在规格开放项里写明**解除条件**（用户打开/聚焦视图或连外部 Chromium 后补拍）；③ ⛔ 不把「命令流绿」写成「像素已验证」，也不把回退腿目视当位图腿证据。
   证据锚：`games/beads/design/ux/timeout-panel-spec.md` §11 开放项；同族 K-193（截图回显≠我读过它）、K-198（浏览器全干净≠真机干净）、K-098（headless 取真 GPU 读数的坑）。
+  追记（2026-11-12 · WXG-T-615 · **解法已实证**）：hidden 只卡 IDE 内置视图，**不卡 headless 通道**——系统 Chrome `--headless=new` + CDP 直驱（Node ≥22 原生 WebSocket，零 npm 依赖，`tools/scripts/harness-bitmap-shot.mjs`）页面 visible / 解码 / rAF 全正常，双档实帧一次取齐并亲读通过。故本条规避②升级：**优先 headless CDP 取证**，IDE 视图聚焦只作备选；探针三件（visibilityState / rAF 计数 / 位图 complete）仍先跑，⛔ 不拿 hidden 页的读数当证据。

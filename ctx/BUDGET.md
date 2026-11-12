@@ -11,37 +11,37 @@
 | `AGENTS.md` | 1849 | 107 | 2000 | ✅ |
 | `my-rules/INDEX.md` | 254 | 20 | 500 | ✅ |
 | `my-rules/agents-md.md` | 487 | 27 | 500 | ✅ |
-| `ctx/hot-files.md` | 5273 | 165 | 5600 | ✅ |
-| `ctx/ROUTES.md` | 5179 | 177 | 7500 | ✅ |
+| `ctx/hot-files.md` | 5290 | 164 | 5600 | ✅ |
+| `ctx/ROUTES.md` | 5429 | 186 | 7500 | ✅ |
 
 > AGENTS.md 常驻阈值 **2000**（CJK 口径校准，WXG-T-024）：原 3000 疑似 bytes/4 口径，与本表 token 估算公式（CJK≈1/字、ASCII≈1/4 字符）不一致；3200 在现状之上留 ≈7% 余量。
 > `ctx/ROUTES.md` 常驻阈值 **7500**（WXG-T-039 R5）：现值 6235 之上留 ≈20% 余量，且低于 B 项默认单文件上限 8000（spec 档）——ROUTES 是手维护路由表（非生成物、无生成器控量），本门与门禁 A 项是其唯一硬护栏。
-> **常驻总量**（AGENTS.md + my-rules/* + ctx/hot-files.md + ctx/ROUTES.md，每次会话固定开销）= **13042** 估算 tokens（观察哨软阈值 ≤ 13500）：单文件上限各自为政时总量仍可漂移，本行仅观察提示、不阻断；硬阻断只挂各单文件门。
+> **常驻总量**（AGENTS.md + my-rules/* + ctx/hot-files.md + ctx/ROUTES.md，每次会话固定开销）= **13309** 估算 tokens（观察哨软阈值 ≤ 13500）：单文件上限各自为政时总量仍可漂移，本行仅观察提示、不阻断；硬阻断只挂各单文件门。
 
 ## 2. Top 20 大文件（估算 tokens）
 
 | # | 文件 | tokens | 行数 | tier |
 |---:|---|---:|---:|:--:|
-| 1 | `production/TASKS-DETAIL.md` | 270659 | 9394 | normal |
+| 1 | `production/TASKS-DETAIL.md` | 271856 | 9407 | normal |
 | 2 | `games/beads/design/gdd/powerups-v2.md` | 154839 | 2359 | normal |
 | 3 | `games/beads/design/art/specs/assets-spec.md` | 121820 | 2109 | normal |
 | 4 | `production/qa/beads/g4-regression-report.md` | 86807 | 2201 | normal |
-| 5 | `games/beads/design/ux/ux-spec.md` | 63692 | 594 | normal |
-| 6 | `production/TASKS.md` | 62502 | 221 | hot |
-| 7 | `games/beads/design/gdd/systems-index-changelog.md` | 53260 | 109 | normal |
-| 8 | `docs/architecture/adr/ADR-0030-beads-cocos-production-blit-carrier.md` | 45150 | 1307 | normal |
-| 9 | `games/beads/design/proposals/bead-visual-style-spec.md` | 43650 | 1206 | normal |
-| 10 | `games/beads/design/gdd/systems-index.md` | 42824 | 323 | hot |
-| 11 | `docs/architecture/adr/ADR-0034-beads-save-uid-index-flatten.md` | 41181 | 502 | normal |
-| 12 | `games/beads/design/levels/levels-spec.md` | 39938 | 914 | normal |
-| 13 | `games/beads/design/art/proposals/ui-style-redesign/menu-architecture.md` | 38455 | 996 | normal |
-| 14 | `games/beads/design/art/specs/art-bible.md` | 38368 | 530 | normal |
-| 15 | `games/beads/design/art/specs/accessibility.md` | 37140 | 201 | normal |
+| 5 | `production/TASKS.md` | 62912 | 222 | hot |
+| 6 | `games/beads/design/gdd/systems-index-changelog.md` | 53260 | 109 | normal |
+| 7 | `docs/architecture/adr/ADR-0030-beads-cocos-production-blit-carrier.md` | 45150 | 1307 | normal |
+| 8 | `games/beads/design/proposals/bead-visual-style-spec.md` | 43650 | 1206 | normal |
+| 9 | `games/beads/design/gdd/systems-index.md` | 42824 | 323 | hot |
+| 10 | `docs/architecture/adr/ADR-0034-beads-save-uid-index-flatten.md` | 41181 | 502 | normal |
+| 11 | `games/beads/design/levels/levels-spec.md` | 39938 | 914 | normal |
+| 12 | `games/beads/design/art/proposals/ui-style-redesign/menu-architecture.md` | 38455 | 996 | normal |
+| 13 | `games/beads/design/art/specs/art-bible.md` | 38368 | 530 | normal |
+| 14 | `games/beads/design/art/specs/accessibility.md` | 37140 | 201 | normal |
+| 15 | `games/beads/design/ux/ux-spec.md` | 35855 | 512 | normal |
 | 16 | `docs/architecture/ui-architecture-beads.md` | 33246 | 300 | normal |
 | 17 | `memory/2026-10-04.md` | 28255 | 930 | normal |
-| 18 | `games/beads/design/gdd/save-progress.md` | 26135 | 305 | normal |
-| 19 | `games/beads/design/proposals/star-economy-and-retention.md` | 22195 | 763 | normal |
-| 20 | `knowledge/CHANGELOG.md` | 20157 | 637 | normal |
+| 18 | `games/beads/design/ux/CHANGELOG-ux-spec.md` | 28210 | 95 | normal |
+| 19 | `games/beads/design/gdd/save-progress.md` | 26135 | 305 | normal |
+| 20 | `games/beads/design/proposals/star-economy-and-retention.md` | 22195 | 763 | normal |
 
 ## 3. 超限清单（超过所属类别上限）
 
@@ -49,11 +49,10 @@
 
 | 文件 | tokens | 类别 · 上限 | 处置 |
 |---|---:|---:|:--:|
-| `production/TASKS-DETAIL.md` | 270659 | tasksDetail · 205000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `production/TASKS-DETAIL.md` | 271856 | tasksDetail · 205000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/gdd/powerups-v2.md` | 154839 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/art/specs/assets-spec.md` | 121820 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `production/qa/beads/g4-regression-report.md` | 86807 | ledger · 16000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
-| `games/beads/design/ux/ux-spec.md` | 63692 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/gdd/systems-index-changelog.md` | 53260 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `docs/architecture/adr/ADR-0030-beads-cocos-production-blit-carrier.md` | 45150 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/proposals/bead-visual-style-spec.md` | 43650 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
@@ -63,8 +62,10 @@
 | `games/beads/design/art/proposals/ui-style-redesign/menu-architecture.md` | 38455 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/art/specs/art-bible.md` | 38368 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/art/specs/accessibility.md` | 37140 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/beads/design/ux/ux-spec.md` | 35855 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `docs/architecture/ui-architecture-beads.md` | 33246 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `memory/2026-10-04.md` | 28255 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
+| `games/beads/design/ux/CHANGELOG-ux-spec.md` | 28210 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/gdd/save-progress.md` | 26135 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/proposals/star-economy-and-retention.md` | 22195 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |
 | `games/beads/design/gdd/input-control.md` | 19665 | spec · 8000 | 见 `ctx/budget-exempt.json`（无豁免则 ❌ 需报告主理人） |

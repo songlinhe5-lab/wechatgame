@@ -137,7 +137,7 @@
 - **质量读数（可复算）**：共同可见区（双方 α>0）RGB mean/max 差 = **2.932/51**（牌）、**3.090/39**（续时）、**3.276/44**（重试）；alpha mean/max 差 = **1.03/39**、**1.28/38**、**1.18/45**，α 误差 >8 只占 **0.356% / 1.001% / 1.012%**、>32 占 **≤0.0114%**（均在边缘抗锯齿带）；牌 96.5% 像素 α255、partial 2.52%，两钮 α 主峰 **252–255**（近不透明）⇒ octree 对 alpha 的扰动不影响边缘观感。写盘后**回读逐位一致**已断言。
 - **包体**：`textures/` 目录 1900 → **2028 KiB（+125 KiB）**。
 - **九宫格**：`nineSliceFx(capX 120, capY 300)`（**源纹 @2x px** 口径）⇒ capY 300 = 150 设计 px，上端帽盖住整条标题横带（牌内 44..140）、下端帽盖住底角铆钉；capX 120 = 60 设计 px 盖住左右角铆钉；中段纯木纹 ⇒ 404 档纵向压缩不撕裂任何结构件。原高档（586）两轴均为**恒等拉伸**（1172 − 600 = 572 = 586×2 − 300×2）。canvas2d 预烘、Cocos 走 `Sprite.Type.SLICED`（carrier 已通用支持，**零新宿主代码**）。
-- **`.meta` 待编辑器签发**（L1 ⛔ 不伪造）：本机无 Cocos 编辑器 ⇒ 真机 `textures` Bundle 暂不含三件 ⇒ 自动走 §9 回退腿，**零功能回归**。解除条件 = 编辑器 reimport `cocos/assets/textures/detail/`（`import-cocos-metas.mjs`）。
+- **`.meta` 已签发且进包核验（WXG-T-615 追闭 · 2026-11-12）**：并发 Trae CN 会话的 Cocos 编辑器已为三枚 PNG 签真 `.meta`（`importer:image` ver 1.0.27）；今晨 09:26 `build:cocos` 产物 `assets/textures/config.json` 三枚 **9 条 paths 全在**（image/texture/spriteFrame），native/import 实体齐备，uuid 压缩形对撞命中（`bd9662bc…`→`bdlmK8Vwp…`），carrier 注册路径与 paths 逐字一致；微信包总 **3700 KiB < 4MB** 红线（无分包）。`.meta` 仍属并发产物，本批⛔ 不代提（K-045 / K-137），待其会话自登。
 - 来源与量化口径另记 `production/qa/asset-provenance.md **§12**`（含复现命令、云端原图节点与 α 误差分布）。
 
 ## 7. View / ViewModel / Presenter 落点（§5 三契约）
@@ -203,8 +203,8 @@
 
 ## 11. 开放项
 
-- [ ] Cocos 编辑器导入三枚投放件（生成 `.meta` 并挂 `textures` Bundle）；harness 已可用。
+- [x] Cocos 编辑器导入三枚投放件（生成 `.meta` 并挂 `textures` Bundle）——**WXG-T-615 追闭**：并发会话编辑器已签发 + 今晨构建进包核验通过（§6）；harness 已可用。
 - [ ] 设计侧回稿：副行「60秒」改「180秒」（或把 `REVIVE_BONUS_SEC` 变更同步到 Figma 组件集 `233:36`）。
-- [ ] **位图腿像素证据环境阻塞**：本机 IDE Browser 视图 `visibilityState=hidden` ⇒ `img.decode()` 永久挂起、rAF 计数 0、截图报 `NATIVE_BROWSER_VIEWPORT_UNAVAILABLE`（bsk 亦 0 connected）⇒ 本轮位图腿只有**命令流判据**（`timeout-view.test.ts`）+ **回退腿实帧目视**（`temp/ui-shot/fail-614-panel.png` / `fail-614-title-zoom.png`，SVG 光栅化）。解除条件 = 用户打开 / 聚焦 IDE Browser 视图或连 bsk Chromium 后补拍。
+- [x] **位图腿像素证据（WXG-T-615 追闭 · 2026-11-12）**：IDE 内置视图仍 hidden（K-215），改走**系统 Chrome headless + CDP 直驱**（`tools/scripts/harness-bitmap-shot.mjs`，零依赖）：探针 `visibilityState=visible` / rAF 31×500ms / 三枚位图 complete（852/834/1098px）⇒ 双钮档与仅重试档实帧截图并**亲读目视通过**（`temp/ui-shot/fail-615-bitmap-two-button.png` / `fail-615-bitmap-retry-only.png`）：九宫格 404 档标题带/铆钉不撕裂、文字让位烘入图标、副行 180 秒金墨、说明行落位均与稿一致。道次 = **harness Canvas2D 位图腿**，⛔ 仍非真机。
 - [ ] 真机目视（含 404 档九宫格压缩后的铆钉 / 标题带完整性）`[待真机]`。
 - [ ] 大字号档钮内字是否随 `largeText`（现固定 44 / 42 / 22，属按钮族）—— 归后续无障碍批。

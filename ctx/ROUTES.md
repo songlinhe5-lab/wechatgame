@@ -167,6 +167,15 @@
 | 本地 ComfyUI 能力边界 | games/beads/design/ai-workflows/model-matrix.md#§5 本地 ComfyUI 能力边界（2026-10-12 权重清单实证） | 1640 | 节点存在 ≠ 权重存在；分割/抠图三路不合用；现有底座 RGBA 但 alpha 无语义 |
 | 要下哪些权重（待授权清单） | games/beads/design/ai-workflows/model-matrix.md#§6 未决与下一步 | 1985 | §6.1：只建议 SAM3.1 fp16 <2GB（`CheckpointLoaderSimple` 驱动）；GD/ControlNet/Layered/超分 均不下；显存顶 11.8GB |
 
+### 1.9 UX 规格正本与历史留档（beads · WXG-T-615 外移后）
+
+| 意图 / 需要什么 | 精确锚点（文件#章节） | 估算 token | 备注 |
+|---|---|---:|---|
+| 失败弹窗现行口径 | games/beads/design/ux/ux-spec.md#§3.5 结算·冲刺与失败 | 900 | 木牌稿 + 三契约指针；历史裁定走 CHANGELOG |
+| 倒计时弹窗版面正本 | games/beads/design/ux/timeout-panel-spec.md#§3 稿面版式（帧内坐标 · y 向下） | 700 | 几何/字体/对比度/偏差全表 |
+| ux-spec 历史裁定追溯 | games/beads/design/ux/CHANGELOG-ux-spec.md#§变更记录（文末外移 · 逐字） | 26000 | ⛔ 只按单条 v1.NN 局部读，不整节读 |
+| ux-spec 版本链追溯 | games/beads/design/ux/CHANGELOG-ux-spec.md#§版本链（头注外移 · 逐字） | 9000 | 同上；现行版以 ux-spec 头注为准 |
+
 ## 2. 维护
 
 - 本表锚点须与 `ctx/index.json` 的 `anchor` 一致；改任一被索引 `.md` 的标题后，重跑 `pnpm run ctx:build`

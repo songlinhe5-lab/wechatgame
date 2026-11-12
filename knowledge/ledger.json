@@ -3604,7 +3604,7 @@
       "file": "knowledge/lessons/environment.md",
       "category": "环境",
       "title": "IDE 内置浏览器视图处于 hidden 时，位图腿永远加载不完、截图接口直接报无可用视口 ⇒ 先判环境阻塞，别去修不存在的渲染 bug",
-      "contentHash": "e656a5a2dbd117eb2da3bb123966b8cd50b99b853990792e22c1c3810dc1be02",
+      "contentHash": "5379f0e45d8873917e0c441ce8b1ec75a0fdd33436711730fe10e790cbca83ef",
       "sourceTask": "WXG-T-614",
       "addedDate": "2026-11-11",
       "lastAccess": "2026-11-11",
@@ -5812,6 +5812,15 @@
       "kind": "updated",
       "ids": [
         "K-214"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-11-12",
+      "taskId": "WXG-T-615",
+      "kind": "updated",
+      "ids": [
+        "K-215"
       ],
       "note": null
     }
