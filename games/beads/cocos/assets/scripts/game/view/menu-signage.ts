@@ -383,18 +383,20 @@ export function levelThumbFullCells(level: BeadsLevelRaw): readonly number[] {
 }
 
 /**
- * `[WXG-T-613]` **完整豆面**缩略（用户令「九宫格缩略完整按照盘面来实现」）：盘面真实
- * rows×cols 逐珠等比缩放——块边 = min(w/cols, h/rows) − 缝（方形珠、保持盘面宽高比、
+ * `[WXG-T-613]` **完整豆面**（用户令「九宫格缩略完整按照盘面来实现」）：盘面真实
+ * rows×cols 逐珠等比缩放——珠距 = min(w/cols, h/rows)（方形珠、保持盘面宽高比、
  * 双向居中）。缝恒 `BEAD_GAP`，唯 **超大盘**（pitch < `BEAD_GAP`×2，如 30×30 → pitch 2.3）
  * 缝随 pitch 压缩至 40% 占比——否则缝吃掉 87% 格距，珠块 <0.5px 视觉消失；
  * 常规关（pitch ≥ 4.92）恒走 `BEAD_GAP` 支路 ⇒ 块边不漂移。墨源与 {@link drawLevelThumb}
  * 同口径（C3 单源）。⛔ **不接位图臂**：
- * 预烘缩略图是聚合档内容，blit 会冒充完整豆面。旧聚合档保留（主菜单走马灯 / 详情页 / 死链仍走）。
+ * 预烘缩略图是聚合档内容，blit 会冒充完整豆面。旧聚合档保留（主菜单走马灯 / 死链仍走）。
+ * `[WXG-T-616]` **唯一珠面绘制腿**：选关九宫格与**关卡详情橱窗**共用（用户令「两边绘制方式
+ * 保持一致，抽象出独立方法」）——立体珠参数全在本函数内，后期优化只改这一处。
  *
  * @param x       槽**左缘**；@param yBottom 槽**下缘**（y-up）；@param w/@param h 槽宽高
  * @param inkOverride 墨集覆盖（未通关置灰，同 `drawLevelThumb`）；@param alpha 整体透明
  */
-export function drawLevelThumbFull(
+export function drawBeadFace(
     builder: RenderModelBuilder,
     level: BeadsLevelRaw,
     x: number,

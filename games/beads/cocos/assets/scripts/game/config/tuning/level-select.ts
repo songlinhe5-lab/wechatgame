@@ -87,7 +87,7 @@ export const LEVEL_SELECT_GEO = {
          * `[WXG-T-616]` 格内图案槽（稿 `176:21 grid-image` 69×76 的放大版，用户令「图案尺寸太小」）：
          * **126×94**，格内 x=16、距**视觉顶** 39（y-up 槽底距格底 = cellH − 39 − 94 = 48）。
          * 锁定格 = 稿面锁图案位图（原生 69×76，按高等比居中，⛔ 不拉伸）；解锁格 = 程序化珠拼
-         * （`drawLevelThumbFull`，pitch = min(槽宽/cols, 槽高/rows)）。
+         * （`drawBeadFace`，pitch = min(槽宽/cols, 槽高/rows)）。
          * ⚠ y-up 口径与三带分离一致：牌顶 / 图案槽中 / 星带底（锁定时星带隐藏）。
          */
         imageW: 126, imageH: 94, imageLeft: 16, imageTopDown: 39,

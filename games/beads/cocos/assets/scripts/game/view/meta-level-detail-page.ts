@@ -10,12 +10,12 @@
  * 绘制时加 `plate.y` ⇒ 逐机位移（`dialogShiftY`）不会撕裂内容带。
  */
 
-import { DESIGN_H, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TEXTURES, LEVEL_DETAIL_TITLE_SHADOW, POWERUP_TILE_TEXTURES, POWERUP_TYPES, THUMB_TOP_INSET } from '../config/tuning';
+import { DESIGN_H, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TEXTURES, LEVEL_DETAIL_TITLE_SHADOW, POWERUP_TILE_TEXTURES, POWERUP_TYPES } from '../config/tuning';
 import { type RenderModelBuilder } from '../../framework/index';
 import { POWERUP_LABELS } from '../systems/powerups';
 import { type BeadsPalette, withAlpha } from './palette';
 import { UI_FONT, formatTime } from './ui-theme';
-import { drawLevelThumb } from './menu-signage';
+import { drawBeadFace } from './menu-signage';
 import { STAR_LABELS, drawCloseInset, drawModalPlate, isPressed, label, menuBitmapReady } from './meta-widgets';
 import { drawButton } from './ui-widgets';
 import { levelDetailPlate } from './meta-layout';
@@ -59,7 +59,6 @@ export function drawLevelDetailPage(
     builder: RenderModelBuilder,
     data: MetaViewData,
     palette: BeadsPalette,
-    thumbN: number,
     screenH: number,
 ): void {
     const level = data.detailLevel;
@@ -109,16 +108,15 @@ export function drawLevelDetailPage(
         baseline: 'middle',
     });
 
-    // 橱窗内容：关卡缩略（与选关格同一绘制腿）；垂直居中于玻璃窗 ⇒ 下缘先抬 (h − area)/2。
+    // 橱窗内容：关卡珠面（`[WXG-T-616]` 与选关格**同一绘制腿** `drawBeadFace`，用户令「两边一致」）；
+    // 垂直居中于玻璃窗 ⇒ 下缘先抬 (h − area)/2。
     const thumb = GEO.thumb;
-    drawLevelThumb(
+    drawBeadFace(
         builder,
         level,
         plate.x + (thumb.x - GEO.plate.x),
         plate.y + THUMB_DY + (thumb.h - thumb.area) / 2,
         thumb.w,
-        thumb.area + THUMB_TOP_INSET,
-        thumbN,
         thumb.area,
     );
 

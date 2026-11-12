@@ -7,7 +7,7 @@ import { DESIGN_W, LEVEL_DETAIL_TEXTURES, LEVEL_SELECT_GEO, LEVEL_SELECT_TEXTURE
 import { COPY_TOKENS } from '../config/copy-tokens.js';
 import { type RenderModelBuilder } from '@wxgame/framework';
 import { beadFadedInksFor, withAlpha, type BeadsPalette } from './palette.js';
-import { drawLevelThumb, drawLevelThumbFull, resetSignageWarnings } from './menu-signage.js';
+import { drawBeadFace, drawLevelThumb, resetSignageWarnings } from './menu-signage.js';
 import { type BeadsLevelRaw } from '../config/levels-data.js';
 import { scrimFill, UI_FONT, UI_SCRIM, pressOffset } from './ui-theme.js';
 import { drawButton } from './ui-widgets.js';
@@ -346,12 +346,12 @@ export function drawLevelSelectCell(
             builder.blit(LEVEL_SELECT_TEXTURES.lockImage, ix + (a.imageW - lockW) / 2, iy, lockW, a.imageH);
         } else if (cell.level !== undefined) {
             // `[WXG-T-613]` 锁定降级腿 = 灰墨**完整豆面**（槽位不变；旧聚合档保留给走马灯/详情页）。
-            drawLevelThumbFull(builder, cell.level, ix, iy, a.imageW, a.imageH, beadFadedInksFor(cell.level));
+            drawBeadFace(builder, cell.level, ix, iy, a.imageW, a.imageH, beadFadedInksFor(cell.level));
         }
         return;
     }
     if (cell.level !== undefined) {
-        drawLevelThumbFull(builder, cell.level, ix, iy, a.imageW, a.imageH);
+        drawBeadFace(builder, cell.level, ix, iy, a.imageW, a.imageH);
         drawCellStars(builder, cell, palette);
     }
     // `[WXG-T-610]` 当前关由亮金格底表达；旧黄铜描边随 T-611 降级腿一并退场（K-053 留档）。

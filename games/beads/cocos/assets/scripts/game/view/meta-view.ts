@@ -178,8 +178,8 @@ const META_PAGES: Record<MetaOverlay, PageDraw> = {
     profile: panelPage(PROFILE_TITLE, UI_SCRIM.alpha, drawProfileContent),
     // `[WXG-T-602]` 关卡详情：木牌容器自持版式（非 `panelPage`）—— 木牌 / 橱窗 / 星 / 开始钮均为位图腿，
     // 稿面几何单源在 `config/tuning/level-detail.ts`；缺图逐元素回退到同几何程序化档。
-    'level-detail': (builder, data, palette, _layout, a, _withSignage, thumbN) => {
-        drawLevelDetailPage(builder, data, palette, thumbN, a.H);
+    'level-detail': (builder, data, palette, _layout, a, _withSignage, _thumbN) => {
+        drawLevelDetailPage(builder, data, palette, a.H);
     },
 };
 

@@ -9421,6 +9421,15 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **四轮（同日 · 用户令「实心背景不需要，只要把逐珠增加光影，整体轮廓增加更强的阴影即可」）**：撤掉 `palette.panel` 背板（三轮 ①作废 K-053）；剪影 1.28R → **1.42R**；珠体暗缘 `edge` → **`pit`**；新增逐珠**投影圆**（`shadeMid` 0.68、0.62R、右下 0.20R）。判据：`menu-thumb-primitives` 改 5 圆/珠（剪影+body+shadow+hole+glint，断言投影右下偏移）。
 - **待办**：金样本 `level-select` 两态在干净锚重抓；全量 `verify` 后回填本行读数。
 - **验证**：`meta-menu-wall` 盘面签名迁「圆/方块双形态」（圆径 = pitch×`diameterRatio`，剪影/孔/高光不符自动排除）；`arc-wall-locked` / `arc-level-select-page` 判据同步双形态；`menu-thumb-primitives` 改 5 圆/珠（剪影+body+shadow+hole+glint，断言投影右下偏移）；金样本在干净锚 **`fc96d666`** 重抓（两遍确定性自证 PASS），两态 **total 4873 → 5443**（+570：+576 投影圆 / −9 撤背板 rect 净额），其余十帧逐字未变；beads 单测 **1456 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（含 framework:sync:check、cocos:check）。
+
+## WXG-T-619
+
+**UI·关卡详情珠面切共享腿（`drawBeadFace`）** · 负责：主理人(Trae CN)·beads 工程轨 · 状态：🔄 进行中（2026-11-12）
+
+- **上位**（用户原话）：「将这个图案绘制方式，应用到关卡详情页中的关卡图案中，两边绘制方式保持一致，抽象出独立方法，后期优化逻辑可以同步更新」。
+- **变更**：①`drawLevelThumbFull` 更名 **`drawBeadFace`**（menu-signage，唯一珠面绘制腿；立体珠/轮廓/投影参数全在其中）；②`meta-level-detail-page.ts` 弃聚合档 `drawLevelThumb`，改调 `drawBeadFace`（槽 `thumb.w`×`thumb.area` = 295×240，橱窗内垂直居中）；③`drawLevelDetailPage` 删 `thumbN` 形参，`meta-view` 覆写表与测试同步。
+- **判据**：新增 `level-detail-showcase` `[T-617]`——详情帧圆流中定位共享腿首圆，连续切片与 `drawBeadFace` 直绘逐条相等（JSON 逐字段）；金样本 11 帧不含详情 overlay ⇒ 零变化。
+- **验证**：`level-detail-showcase` 新增 `[T-619]`——详情帧圆流定位共享腿首圆后连续切片逐条相等（JSON 逐字段，含剪影/珠体/投影/孔/高光）；金样本 11 帧不含详情 overlay ⇒ **零 sha 变化**；beads 单测 **1458 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（含 framework:sync:check、cocos:check）。
 - **工作树遗留件（⛔ 不代提）**：preview SVG、`games/beads/package.json` 版本号、`tools/scripts/{harness-bitmap-shot.mjs,minimax-h3-t2v.py}` 等非本单改动未入本笔。
 
 ## WXG-T-617

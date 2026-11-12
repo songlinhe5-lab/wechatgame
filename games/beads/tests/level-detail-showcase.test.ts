@@ -11,6 +11,7 @@ import { LEVELS } from '../src/config/levels.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import { levelDetailPlate } from '../src/view/meta-layout.js';
 import { setMenuBitmapResolver } from '../src/view/meta-widgets.js';
+import { drawBeadFace } from '../src/view/menu-signage.js';
 import { drawLevelDetailPage } from '../src/view/meta-level-detail-page.js';
 import type { MetaViewData } from '../src/view/meta-types.js';
 
@@ -24,7 +25,7 @@ const frame = (ready: (id: string) => boolean): readonly DrawCommand[] => {
     setMenuBitmapResolver(ready);
     const b = new RenderModelBuilder(DESIGN_W, DESIGN_H);
     b.begin();
-    drawLevelDetailPage(b, data(), DEFAULT_PALETTE, 5, DESIGN_H);
+    drawLevelDetailPage(b, data(), DEFAULT_PALETTE, DESIGN_H);
     return b.end().commands;
 };
 const panels = (cmds: readonly DrawCommand[]) => cmds.filter(
@@ -48,5 +49,33 @@ describe('WXG-T-609 关卡详情橱窗面板', () => {
 
     it('缺图 ⇒ 不叠面板（纯木纹牌仍可读），零 showcase blit', () => {
         expect(panels(frame(() => false))).toHaveLength(0);
+    });
+
+    it('`[WXG-T-619]` 橱窗珠面 = 共享 `drawBeadFace` 同腿（与选关格 5 圆/珠一致）', () => {
+        const cmds = frame(() => false);
+        const thumb = LEVEL_DETAIL_GEO.thumb;
+        const plate = levelDetailPlate();
+        const plateY = DESIGN_H - LEVEL_DETAIL_GEO.plate.yDown - LEVEL_DETAIL_GEO.plate.h;
+        const slot = {
+            x: plate.x + (thumb.x - LEVEL_DETAIL_GEO.plate.x),
+            y: plate.y + (DESIGN_H - thumb.yDown - thumb.h - plateY) + (thumb.h - thumb.area) / 2,
+            w: thumb.w,
+            h: thumb.area,
+        };
+        const ref = new RenderModelBuilder(DESIGN_W, DESIGN_H);
+        ref.begin();
+        drawBeadFace(ref, LEVELS[0]!, slot.x, slot.y, slot.w, slot.h);
+        const refCircles = ref.end().commands.filter((k) => k.kind === 'circle');
+        expect(refCircles.length).toBeGreaterThan(0);
+        // 详情帧内**连续圆流**与共享腿逐条一致（含剪影/珠体/投影/孔/高光）⇒ 两页绘制方式同源；
+        // 帧内另有少量非珠圆（道具图标）允许在珠流前后存在 ⇒ 用连续切片比对。
+        const sig = (c: Extract<DrawCommand, { kind: 'circle' }>) => JSON.stringify(c);
+        const frameSigs = cmds
+            .filter((k): k is Extract<DrawCommand, { kind: 'circle' }> => k.kind === 'circle')
+            .map(sig);
+        const refSigs = refCircles.map(sig);
+        const at = frameSigs.indexOf(refSigs[0]!);
+        expect(at).toBeGreaterThanOrEqual(0);
+        expect(frameSigs.slice(at, at + refSigs.length)).toEqual(refSigs);
     });
 });

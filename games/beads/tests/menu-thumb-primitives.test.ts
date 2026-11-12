@@ -40,7 +40,7 @@ import { BEAD_COLOR_MAX } from '../src/config/tuning.js';
 import { beadColorOf, beadFadedInksFor, beadInksFor, DEFAULT_PALETTE, type BeadInks } from '../src/view/palette.js';
 import {
     drawLevelThumb,
-    drawLevelThumbFull,
+    drawBeadFace,
     levelThumbBeads,
     levelThumbCells,
     levelThumbFullCells,
@@ -311,7 +311,7 @@ describe('[T-613] 完整豆面档（盘面真实 rows×cols 逐珠，用户令�
     const TX = 100;
     const TY = 200;
 
-    /** full 档几何同式复算（`drawLevelThumbFull` 内部：pitch / 缝压缩 / block）。 */
+    /** full 档几何同式复算（`drawBeadFace` 内部：pitch / 缝压缩 / block）。 */
     function fullGeo(level: BeadsLevelRaw, w: number, h: number): { pitch: number; block: number } {
         const pitch = Math.min(w / level.cols, h / level.pattern.length);
         const gap = pitch < BEAD_GAP * 2 ? pitch * 0.4 : BEAD_GAP;
@@ -325,7 +325,7 @@ describe('[T-613] 完整豆面档（盘面真实 rows×cols 逐珠，用户令�
     ): readonly DrawCommand[] {
         const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
         builder.begin();
-        drawLevelThumbFull(builder, level, TX, TY, SLOT_W, SLOT_H, inkOverride, alpha);
+        drawBeadFace(builder, level, TX, TY, SLOT_W, SLOT_H, inkOverride, alpha);
         return builder.end().commands;
     }
 
@@ -349,7 +349,7 @@ describe('[T-613] 完整豆面档（盘面真实 rows×cols 逐珠，用户令�
         const cells = levelThumbFullCells(level);
         const cmds = paintFull(level).filter((c) => c.kind === 'rect');
         expect(cmds.length).toBe(cells.length / 3);
-        // 参照流：与 drawLevelThumbFull 同式复算（块边 = pitch − BEAD_GAP，常规关缝不压缩）
+        // 参照流：与 drawBeadFace 同式复算（块边 = pitch − BEAD_GAP，常规关缝不压缩）
         const { pitch, block } = fullGeo(level, SLOT_W, SLOT_H);
         const left = TX + (SLOT_W - level.cols * pitch) / 2;
         const top = TY + (SLOT_H + level.pattern.length * pitch) / 2;
@@ -432,7 +432,7 @@ describe('[T-616] 选关缩略珠形档（有造型的珠子）', () => {
     const TX = 100;
     const TY = 200;
 
-    /** 同 `drawLevelThumbFull` 内式复算（pitch / 缝压缩 / block）。 */
+    /** 同 `drawBeadFace` 内式复算（pitch / 缝压缩 / block）。 */
     function fullGeo(level: BeadsLevelRaw, w: number, h: number): { pitch: number; block: number } {
         const pitch = Math.min(w / level.cols, h / level.pattern.length);
         const gap = pitch < BEAD_GAP * 2 ? pitch * 0.4 : BEAD_GAP;
@@ -442,7 +442,7 @@ describe('[T-616] 选关缩略珠形档（有造型的珠子）', () => {
     function paint(level: BeadsLevelRaw): readonly DrawCommand[] {
         const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
         builder.begin();
-        drawLevelThumbFull(builder, level, TX, TY, SLOT_W, SLOT_H);
+        drawBeadFace(builder, level, TX, TY, SLOT_W, SLOT_H);
         return builder.end().commands;
     }
 

@@ -56,7 +56,7 @@ import { COPY_TOKENS } from '../src/config/copy-tokens.js';
 import { buildMetaModal, buildMetaView, hitTestMeta, metaLayout, type MetaViewData } from '../src/view/meta-view.js';
 import { label } from '../src/view/meta-widgets.js';
 import { rankPanelLayout } from '../src/systems/rank-panel.js';
-import { drawLevelThumbFull, levelThumbCells, SIGN_INK_COLOR_IDX } from '../src/view/menu-signage.js';
+import { drawBeadFace, levelThumbCells, SIGN_INK_COLOR_IDX } from '../src/view/menu-signage.js';
 import { drawFilledBead, type FilledBeadOptions } from '../src/view/bead-render.js';
 import { DEBUG_OUTLINE_TILE_HEX, DEFAULT_PALETTE, DEMO_BEAD_INKS, beadFadedInksFor, beadGrayInksFor, beadInksFor } from '../src/view/palette.js';
 import {
@@ -225,7 +225,7 @@ function centerTuple(box: { x: number; y: number; w: number; h: number }): [numb
 
 
 /**
- * full 档珠块边 = min(槽宽/cols, 槽高/rows) − 缝（`drawLevelThumbFull` 同式复算，含缝压缩
+ * full 档珠块边 = min(槽宽/cols, 槽高/rows) − 缝（`drawBeadFace` 同式复算，含缝压缩
  * 分支）。`[WXG-T-613]` full 档块边**依关而变** ⇒ 反读无法按单一块宽过滤（旧 `THUMB_BLOCK`
  * 常量口径退场）；且 levels 帧背景透出的走马灯 Boss 珠拼（30×30 盘，块边 10.47）横跨墙区，
  * 会落进部分格的图案槽矩形 ⇒ 须按**期望块边**机械排除。
@@ -282,13 +282,13 @@ function beadSignatureIn(
 /**
  * 把**期望关**的缩略单独画进干净 builder ⇒ 与该格实测序列逐条对撞（⛔ 不读屏上文字反推关号）。
  * `[WXG-T-613]` 缩略切**完整豆面**档（盘面真实 rows×cols 逐珠）⇒ oracle 与
- * `drawLevelSelectCell` 同参复算 `drawLevelThumbFull`（旧 `THUMB_MATRIX_N` 聚合档口径退场，K-053）。
+ * `drawLevelSelectCell` 同参复算 `drawBeadFace`（旧 `THUMB_MATRIX_N` 聚合档口径退场，K-053）。
  */
 function thumbOracle(level: (typeof LEVELS)[number], box: { x: number; y: number; w: number; h: number }): string {
     const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
     builder.begin();
     const a = LEVEL_SELECT_GEO.cellArt;
-    drawLevelThumbFull(builder, level, box.x + a.imageLeft, box.y + (box.h - a.imageTopDown - a.imageH), a.imageW, a.imageH);
+    drawBeadFace(builder, level, box.x + a.imageLeft, box.y + (box.h - a.imageTopDown - a.imageH), a.imageW, a.imageH);
     return beadSignatureIn(builder.end().commands, box, level);
 }
 

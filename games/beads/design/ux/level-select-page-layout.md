@@ -226,7 +226,7 @@ y=  68 ├───────────────────────�
 
 | 档 | 函数 | 内容 | 仍用场景 |
 |---|---|---|---|
-| **完整豆面**（新） | `drawLevelThumbFull` | 盘面真实 rows×cols 逐珠等比（pitch = min(槽宽/cols, 槽高/rows)，方形珠保持盘面宽高比、双向居中） | 选关页九宫格（解锁格彩墨 / 锁格灰墨 `beadFadedInksFor`） |
+| **完整豆面**（新） | `drawBeadFace` | 盘面真实 rows×cols 逐珠等比（pitch = min(槽宽/cols, 槽高/rows)，方形珠保持盘面宽高比、双向居中） | 选关页九宫格（解锁格彩墨 / 锁格灰墨 `beadFadedInksFor`） |
 | 固定珠数聚合（旧） | `drawLevelThumb` | 固定 5×5 聚合档 | 走马灯 / 详情页 / 死链回退 |
 
 **超大盘缝压缩**：缝恒 `BEAD_GAP`，唯 pitch < `BEAD_GAP`×2（30×30 → pitch 2.3）缝随 pitch 压缩至 40% 占比——否则珠块 <0.5px 视觉消失；常规关（pitch ≥ 4.92）恒走 `BEAD_GAP` 支路。**位图臂不接**（预烘缩略是聚合档内容，blit 会冒充完整豆面）。测试口径：oracle 反读改「图案槽矩形 + 期望块边」双口径（弹窗帧背景透出的走马灯 Boss 珠拼会混入宽口径，详见 TASKS-DETAIL 排障实录）。
@@ -241,7 +241,7 @@ y=  68 ├───────────────────────�
 | 横向余量 | 左 44 / 右 45 | 左右各 **16**（贴三态格底圆角边） |
 | 纵向净距 | 距编号牌 14 / 距星带 13 | 距编号牌 **4** / 距星带 **5** |
 | 锁定图 | 直接铺 69×76 槽 | 原生 69×76 **按高等比**居中（⛔ 不横向拉伸） |
-| 解锁珠拼 | `drawLevelThumbFull`，槽高受限 | 同函数，pitch = min(126/cols, 94/rows) —— 8×8 盘由 69 见方增至 **94 见方** |
+| 解锁珠拼 | `drawBeadFace`，槽高受限 | 同函数，pitch = min(126/cols, 94/rows) —— 8×8 盘由 69 见方增至 **94 见方** |
 | 珠体形态 | 纯平方块（flat） | **立体珠**：剪影暗圆并集（1.42R 强阴影轮廓）+ 珠体圆（pitch×**1.18** 交叠，`pit` 暗缘）+ 逐珠投影（`shadeMid` 右下）+ 孔（`hole`）+ 左上高光（`lit`）；无实心底板；块边 < 5px 超大盘回退方块 |
 
 单源：`LEVEL_SELECT_GEO.cellArt.imageW/imageH/imageLeft/imageTopDown` + 新增 `lockW/lockH`（原生比例）；珠形档 `THUMB_BEAD_SHAPE`（tuning/board.ts）。
