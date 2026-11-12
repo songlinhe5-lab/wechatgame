@@ -76,3 +76,13 @@ B＝state 只留 `现象` 字段（删 `后果`）。改过 `pick/advice/report`
 在册 21 个模型（`GET {BASE}/models`）。**与按量付费通路的 key / base_url 完全隔离，
 混用会 401 或走错计费通道。** 图／音的实测细节见
 `games/beads/design/ai-workflows/backend-token-plan.md`；视频与 ASR **未实跑**。
+
+## 8. 复核记录（2026-11-12 · 实测复跑）
+
+- 目的：确认接入 12 天后链路仍可用、C 版读数可复现（用户令「执行实测验证」）。
+- 命令：与 §6 C 版一致（`--cases production/qa/decision-model-cases.jsonl --questions production/qa/decision-model-questions.json`）。
+- 调用读数：**18/18 成功**；墙钟 112–205 ms，服务端 46.8–56.2 ms，`input_tokens` 263–294，
+  零输出 token；Token Plan 限时免费档，零按量费用。
+- 结果对照（本轮 ↔ §2 C 版）：`owner` **17/18、阈值 0.51 可分**（一致）；`severity` **11/18、MAE 1.00 档**（一致）；
+  `blocks_release` **15/18、不可分**（错样最高 0.89 ≥ 对样最低 0.54，一致）。
+- 判定：**§4 接线裁定不变**；性质仍为「接入 + 标定完成，未投产」——截至本日无任何生产 QA 流程消费其输出。
