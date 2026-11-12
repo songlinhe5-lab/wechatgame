@@ -8,6 +8,7 @@ import { RenderModelBuilder, type DrawCommand } from '@wxgame/framework';
 import { DESIGN_H, DESIGN_W, LEVEL_DETAIL_TEXTURES, LEVEL_SELECT_GEO, LEVEL_SELECT_TEXTURES, WALL_ROWS } from '../src/config/tuning.js';
 import { LEVELS } from '../src/config/levels.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
+import { UI_FONT } from '../src/view/ui-theme.js';
 import { metaLayout } from '../src/view/meta-view.js';
 import { setMenuBitmapResolver } from '../src/view/meta-widgets.js';
 import { createLevelSelectViewModel, updateLevelSelectViewModel } from '../src/view/level-select-view-model.js';
@@ -112,5 +113,39 @@ describe('WXG-T-607 选关弹窗 View/ViewModel', () => {
             cmds.filter((c) => c.kind === 'rect' && 'stroke' in c && c.stroke === '#FFF0B0' && c.lineWidth === 4),
             '高亮环仍只随当前关（`T-612·三轮`）',
         ).toHaveLength(1);
+    });
+});
+
+/**
+ * `[WXG-T-915]` 编号牌口径 = **全局关号**（`level.id`，用户 2026-11-12 裁）。
+ * 判据取绘制形态：编号牌文字 = 页内唯一 `UI_FONT.button` 文字腿（关闭钮位图就位时不落文字）
+ * ⇒ 按「文字内容 + 牌心坐标」对撞；⛔ 不按格位推号。
+ */
+describe('WXG-T-915 选关页编号牌 = 全局关号', () => {
+    const brandTexts = (cmds: readonly DrawCommand[]) => cmds.filter(
+        (c) => c.kind === 'text' && (c as { font?: string }).font === UI_FONT.button,
+    ) as readonly { x: number; y: number; text: string }[];
+    const pickBoxes = () => buttons.filter((b) => b.id === 'pick-level');
+
+    it('第一章（九关全是真实关）⇒ 牌面仍 1..9（视觉零变化），锁格也印真实关号', () => {
+        expect(brandTexts(frame(() => true)).map((t) => t.text)).toEqual(
+            ['1', '2', '3', '4', '5', '6', '7', '8', '9'],
+        );
+        expect(brandTexts(frame(() => true, { maxUnlockedLevel: 1 })).map((t) => t.text), '锁格不改口径').toEqual(
+            ['1', '2', '3', '4', '5', '6', '7', '8', '9'],
+        );
+    });
+
+    it('第二章（清单 1 关，boss 全局关号 10）⇒ 牌面「10」，越界空槽不印数字', () => {
+        const texts = brandTexts(frame(() => true, {
+            wallSlots: [9],
+            wallLevels: [LEVELS[9]!],
+            chapterTitle: '照片冒烟 32',
+        }));
+        expect(texts.map((t) => t.text), '唯一编号 = 全局关号，⛔ 不是格位「1」').toEqual(['10']);
+        const a = LEVEL_SELECT_GEO.cellArt;
+        const box = pickBoxes()[0]!.box;
+        expect(texts[0]!.x, '牌心 x').toBe(box.x + box.w / 2);
+        expect(texts[0]!.y, '牌心 y').toBe(box.y + box.h - a.brandH / 2);
     });
 });

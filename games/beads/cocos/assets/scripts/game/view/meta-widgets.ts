@@ -331,9 +331,14 @@ export function drawLevelSelectCell(
     } else {
         builder.rect(bx, by, a.brandW, a.brandH, { fill: palette.woodEdge, radius: 8 });
     }
-    builder.text(x + w / 2, by + a.brandH / 2, `${cell.slot + 1}`, {
-        fill: palette.plateSubInk, font: UI_FONT.button, align: 'center', baseline: 'middle',
-    });
+    // `[WXG-T-915]` 编号牌口径 = **全局关号**（`level.id`，用户 2026-11-12 裁）：与详情副标题 /
+    // HUD `LV n/N` / 大关木牌关序同轴。此前印**章内格位** `slot + 1` ⇒ 第二章 boss（id 10）读成
+    // 「1」，同一关两个号。越界空槽无关卡引用 ⇒ 只留牌底、不印数字（⛔ 不拿格位冒充关号）。
+    if (cell.level !== undefined) {
+        builder.text(x + w / 2, by + a.brandH / 2, `${cell.level.id}`, {
+            fill: palette.plateSubInk, font: UI_FONT.button, align: 'center', baseline: 'middle',
+        });
+    }
 
     // 内容层：全部由 ViewModel 驱动（⛔ 不读 MetaViewData）。
     // `[WXG-T-607]` 三带按稿分离：编号牌在格顶、图案槽在格中、星带在格底。

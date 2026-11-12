@@ -9573,3 +9573,17 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：beads 单测 **1466 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；`selftest:fast` **PASS 15/15**；金样本十一帧**不变**（纯 `seqLabelOverride` 分流，无位图/命令数变化）。实帧证据 `temp/plate-shot-914/plate-cleared.png`（「曼陀罗 / 已通关」）与 `plate-locked.png`（「照片冒烟 32 / 未开启」）；harness 探针 `cleared = { id: 9, seq: '已通关' }` / `locked = { id: 10, seq: '未开启' }` / 推关态 `seq` 仍为「第 1 关」。
 - **提交**：`f19fc555` feat（`_arcSeqLabel` + 两令牌 + 判据三例 + 四份文档 + Cocos 镜像 + 台账）＋ 本笔 docs（台账回填）。
 - **知识沉淀（kb:sync --task=WXG-T-914）**：新增 0 / 修改 0 / 激活 0 / 归档 0（沿 T-913 数据源扩展收口，无新判例；「无在推的关 ⇒ 行 2 换状态词」已写入 `_arcSeqLabel` 行内注与 plate spec §10）。
+
+## WXG-T-915
+
+**UI·选关页编号牌口径 = 全局关号** · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成（2026-11-12 · 用户裁）
+
+- **上位（用户令）**：「先解决选关页 boss 格木牌的口径问题」⇒ 选项拍板「**全局关号（推荐）**」。
+- **根因（实帧 `temp/levels-shot-915/levels-arc2.png`）**：选关格编号牌印**章内格位** `slot + 1`，而详情页副标题（「照片冒烟 32·第 10 关」）、HUD（`LV n/N`）、大关木牌关序都用**全局关号** ⇒ 第二章唯一真实关（boss，id 10）的牌面读作「1」，同一关两个号；第一章 id=1..9 与格位重合 ⇒ 问题不可见。
+- **变更**：`meta-widgets.ts::drawLevelSelectCell` 编号牌文字 `${cell.slot + 1}` → `${cell.level.id}`；`cell.level === undefined`（清单短于 9 槽的越界空槽）只留牌底、不印数字（⛔ 不拿格位冒充关号）。锁格（有真实关引用）仍印真实关号；字体 / 牌底 / 位置零改动。
+- **效果**：第二章 boss 格「1」→「10」；第一章 1..9 逐字不变（金样本 `level-select` 两态零漂移）；空槽牌面留白。
+- **判据**：`level-select-view-model.test.ts` 新增两例——① 第一章 1..9（含 `maxUnlockedLevel: 1` 锁格档，锁格不改口径）；② 第二章 `wallSlots:[9]` ⇒ 唯一品牌文字「10」且坐标 = 牌心（`x + w/2` / `y + h − brandH/2`）。
+- **文档**：`level-select-page-layout.md` §2B 编号牌行改口径 + 新增 §2J；`ui-architecture-beads §12` 视觉变更登记。
+- **验证**：beads 单测 **1468 passed / 2 skipped（125 文件，排除 `.worktrees` 副本）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；金样本 `level-select` 两态**零漂移**（第一章 id = 格位，命令流逐字不变）。实帧 `temp/levels-shot-915/levels-arc2.png`（boss 格「10」、8 个空槽牌面留白）与 `levels-arc1.png`（1..9 不变）。
+- **提交**：待填。
+- **知识沉淀（kb:sync --task=WXG-T-915）**：新增 0 / 修改 0 / 激活 0 / 归档 0（纯数据源口径修正，无新判例；口径已写入 `drawLevelSelectCell` 行内注与 layout §2J）。
