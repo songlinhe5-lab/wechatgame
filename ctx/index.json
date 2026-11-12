@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4065,
       "lines": 136,
-      "sha256": "e5acd5ba5f6c8d69ce800a1578297ee8f9a8ffd1b1f5d8b32b0f84872a22a37f",
+      "sha256": "db2e4e2c84bc3fe759034793b0741a5aaff3d88d82b698908d964509161e1f12",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 289336 9710 normal",
+          "summary": "1 production/TASKS-DETAIL.md 289334 9710 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5291,
       "lines": 164,
-      "sha256": "7f1fe8e6ad87d76e88dc47dfc168c5963d932c08d97e500e9584cf1848b45379",
+      "sha256": "98b9c0d81b2ceea90404f542cf53a5d8c6cd5ec2f82dcd170e78c2b0c2beee46",
       "tier": "normal",
       "sections": [
         {
@@ -1080,7 +1080,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 9710 行 / 289336 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 9710 行 / 289334 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
@@ -89930,9 +89930,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 289336,
+      "tokens": 289334,
       "lines": 9710,
-      "sha256": "450213bdd71081606c6e1f7df0d395dc7be92e9a8af8ebacc3205cde51d2b3e6",
+      "sha256": "ae8948347a691d607c4af04111e04edd8475d14cf13a101d7a64fa8fba692b85",
       "tier": "normal",
       "sections": [
         {
@@ -89940,7 +89940,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 9711,
-          "tokens": 289319,
+          "tokens": 289317,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -104643,7 +104643,7 @@
           "level": 2,
           "startLine": 9694,
           "endLine": 9711,
-          "tokens": 816,
+          "tokens": 813,
           "summary": "UX·通关画面范围分档（本章 / 全部通关） · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成",
           "keywords": [
             "WXG",

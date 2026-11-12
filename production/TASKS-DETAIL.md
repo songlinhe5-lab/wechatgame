@@ -9706,5 +9706,5 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **判据**：`arc-chapter-finish` 新增 L10 例（10 行 / `finishAllClear=true` / 末行标签 10）+ L9 例补两断言；beads **1472 passed / 2 skipped**；`pnpm run harness:build` ✅。
 - **实帧**：`temp/finish-shot-923/1-finish-chapter.png`（「🎊 本章通关」9 行 27/27★）、`2-finish-all.png`（「🎊 全部通关」10 行 30/30★，逐关入场动画中）。temp 不入库。
 - **验证**：`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（首轮 FAIL 2 → 修：`check:arch §20-4` 要求 `hitFinishPanel` 复用 `finishPanelLayout()` ⇒ 命中改取**当前缓存布局的 `buttons`**（冷启按单行建一份；按钮几何与关数无关，缓存不被来回顶）；`typecheck` 8 处测试残留三参 ⇒ `finish-panel.test.ts` 去第三参）。beads 单测 **1472 passed / 2 skipped**；`check:links` OK。
-- **提交**：见本批 commit（代码 + Cocos 镜像 + `ux-spec §3.6` / `ui-architecture-beads §12` + 台账）。
+- **提交**：`f9b07fa0`（代码 + Cocos 镜像 + `ux-spec §3.6` / `ui-architecture-beads §12` + 台账）。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**（本批判据已在 §20-4 与既有 K 条目覆盖下，无新沉淀候选）。
