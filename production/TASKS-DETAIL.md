@@ -9585,5 +9585,5 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **判据**：`level-select-view-model.test.ts` 新增两例——① 第一章 1..9（含 `maxUnlockedLevel: 1` 锁格档，锁格不改口径）；② 第二章 `wallSlots:[9]` ⇒ 唯一品牌文字「10」且坐标 = 牌心（`x + w/2` / `y + h − brandH/2`）。
 - **文档**：`level-select-page-layout.md` §2B 编号牌行改口径 + 新增 §2J；`ui-architecture-beads §12` 视觉变更登记。
 - **验证**：beads 单测 **1468 passed / 2 skipped（125 文件，排除 `.worktrees` 副本）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；金样本 `level-select` 两态**零漂移**（第一章 id = 格位，命令流逐字不变）。实帧 `temp/levels-shot-915/levels-arc2.png`（boss 格「10」、8 个空槽牌面留白）与 `levels-arc1.png`（1..9 不变）。
-- **提交**：待填。
+- **提交**：`4731b9f6` feat（编号牌改全局关号 + 判据两例 + layout §2J + ui-architecture §12 + Cocos 镜像 + 台账）＋ 本笔 docs（台账回填）。
 - **知识沉淀（kb:sync --task=WXG-T-915）**：新增 0 / 修改 0 / 激活 0 / 归档 0（纯数据源口径修正，无新判例；口径已写入 `drawLevelSelectCell` 行内注与 layout §2J）。
