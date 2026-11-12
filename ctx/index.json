@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4065,
       "lines": 136,
-      "sha256": "5237415b7202dde0429129305b298df83036eb72820de9e4c3c0a6e63176ae0c",
+      "sha256": "4e76728965c852b5c14cec1148c1c43abc56f2a609c215fa465d90778a0f7597",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 291416 9751 normal",
+          "summary": "1 production/TASKS-DETAIL.md 291454 9751 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5291,
       "lines": 164,
-      "sha256": "daac0e47a80ebb595b62be9ca7eb82dbbcb522146dc07790e00d1f20a4074fc6",
+      "sha256": "9ded7c3b6a55886736399c08c2791244165a61df38c3a521615a8b4dbfe2fa75",
       "tier": "normal",
       "sections": [
         {
@@ -1080,7 +1080,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 9751 行 / 291416 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 9751 行 / 291454 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
@@ -89930,9 +89930,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 291416,
+      "tokens": 291454,
       "lines": 9751,
-      "sha256": "dc9316f61f2ee47cc02a10aea188378324ea83530c0e1ceec08a34f993f59222",
+      "sha256": "e7baa07625a2da2a5caeb0550832e43acd062d9225a314fc3be61eb1bd58d08e",
       "tier": "normal",
       "sections": [
         {
@@ -89940,7 +89940,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 9752,
-          "tokens": 291400,
+          "tokens": 291437,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -104683,7 +104683,7 @@
           "level": 2,
           "startLine": 9738,
           "endLine": 9752,
-          "tokens": 838,
+          "tokens": 876,
           "summary": "UX·珠面描边改判（黑贴边 · 全展示 · 等比） · 负责：主理人(Trae CN)·beads 工程轨 + art（",
           "keywords": [
             "WXG",

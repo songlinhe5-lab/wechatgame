@@ -9747,5 +9747,5 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **实帧**：`temp/e2e-detail-925/`（真实点击链 首页→选关→详情→开始 全通）：详情 L4 黑线贴边连续；选关 1–4 格缩略同款（pitch≈6 时 W=2）；走马灯为位图腿未带线（已登记）。temp 不入库。
 - **文档**：`level-detail-spec §12` 轮廓条改写为二裁口径；`ui-architecture-beads §12` 登记。
 - **验证**：`thumb-outline` 6 例 + `level-detail-showcase` 4 例全绿；`menu-thumb-primitives` 4 例在 `paint` 内剥轮廓命令（本套只量珠体图元）；金样本 `level-select` / `level-select-mid` 因选关缩略新增描边 **按流程重抓**（`ui-golden-capture.ts` 干净锚）；`pnpm run verify` 复跑见提交。
-- **提交**：见本批 commit（代码 + Cocos 镜像 + 金样本 + 文档 + 台账）。
+- **提交**：`a57420c0`（代码 + Cocos 镜像 + 文档 + 台账）；选关金样本两态（`level-select` / `level-select-mid`，total 8931 → 9298）在干净锚 `a57420c0` 重抓，与台账回填同批提交。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**（描边口径由 spec + 判据承载，无新增 K 候选）。
