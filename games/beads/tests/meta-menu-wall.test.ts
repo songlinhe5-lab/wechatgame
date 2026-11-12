@@ -293,7 +293,7 @@ function thumbOracle(level: (typeof LEVELS)[number], box: { x: number; y: number
     const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
     builder.begin();
     const a = LEVEL_SELECT_GEO.cellArt;
-    drawBeadFace(builder, level, box.x + a.imageLeft, box.y + (box.h - a.imageTopDown - a.imageH), a.imageW, a.imageH);
+    drawBeadFace(builder, level, box.x + a.imageLeft, box.y + (box.h - a.imageTopDown - a.imageH), a.imageW, a.imageH, DEFAULT_PALETTE);
     return beadSignatureIn(builder.end().commands, box, level);
 }
 

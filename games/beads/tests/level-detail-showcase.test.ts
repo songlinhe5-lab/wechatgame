@@ -66,7 +66,7 @@ describe('WXG-T-609 关卡详情橱窗面板', () => {
         };
         const ref = new RenderModelBuilder(DESIGN_W, DESIGN_H);
         ref.begin();
-        drawBeadFace(ref, LEVELS[0]!, slot.x, slot.y, slot.w, slot.h, undefined, HANDDRAWN_STYLE_ID);
+        drawBeadFace(ref, LEVELS[0]!, slot.x, slot.y, slot.w, slot.h, DEFAULT_PALETTE, undefined, HANDDRAWN_STYLE_ID);
         const refCmds = ref.end().commands;
         expect(refCmds.length).toBeGreaterThan(0);
         // 详情帧内**连续命令切片**（全 kind，不止 circle）与共享腿逐条一致 ⇒ 两页绘制方式同源；

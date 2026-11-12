@@ -58,8 +58,20 @@ import { signGlyphOf } from '../config/sign-glyphs.js';
 import { DEFAULT_BEAD_STYLE_ID } from '../config/bead-styles/registry.js';
 import { colorIndexOfChar } from '../config/bead-charset.js';
 import type { BeadsLevelRaw } from '../config/levels-data.js';
-import { DEMO_BEAD_INKS, beadColorOf, beadInksFor, relativeLuminance, type BeadInks } from './palette.js';
-import { drawFilledBead, type FilledBeadOptions } from './bead-render.js';
+import {
+    DEMO_BEAD_INKS,
+    beadColorOf,
+    beadInksFor,
+    relativeLuminance,
+    type BeadInks,
+    type BeadsPalette,
+} from './palette.js';
+import {
+    drawFilledBead,
+    drawLockedBead,
+    drawTargetTile,
+    type FilledBeadOptions,
+} from './bead-render.js';
 
 /**
  * 可变选项槽（同 `bead-styles/contract.ts::WritableBeadStyleInput` 的写法）：逐珠**复用同一对象**写三个字段
@@ -78,6 +90,8 @@ const faceOpts: WritableBeadOptions = {};
 
 /** 位表「有珠」格字符码点（`'#'`，与 `config/sign-glyphs.ts` 同口径）。 */
 const HASH_CODE = 0x23;
+/** `[WXG-T-623]` 关卡 `pattern` 的锁定格字符码点（`'x'`，与 `entities/grid.ts` 同口径）。 */
+const LOCK_CODE = 0x78;
 
 /**
  * `[WXG-T-271 / ADR-0031 DEC=C′]` 宿主注入的**位图缩略可用性**查询（与 tint 运行时同型的注入式）。
@@ -390,6 +404,26 @@ export function levelThumbFullCells(level: BeadsLevelRaw): readonly number[] {
     return cells;
 }
 
+/** `[WXG-T-623]` 锁定格（`x`）扁平二元组 `[r, c, ...]` 缓存（WeakMap ⇒ 每帧零分配）。 */
+const _lockedCache = new WeakMap<BeadsLevelRaw, readonly number[]>();
+
+/** `[WXG-T-623]` 关卡 `pattern` 的 `x` 锁定格表；`entity/grid.ts` 把 `x` 判 `locked`（`.` 是 void）⇒ 只收 `x`。 */
+export function levelThumbLockedCells(level: BeadsLevelRaw): readonly number[] {
+    const hit = _lockedCache.get(level);
+    if (hit !== undefined) return hit;
+    const pattern = level.pattern;
+    const out: number[] = [];
+    for (let r = 0; r < pattern.length; r++) {
+        const row = pattern[r]!;
+        for (let c = 0; c < row.length; c++) {
+            if (row.charCodeAt(c) === LOCK_CODE) out.push(r, c);
+        }
+    }
+    const cells = Object.freeze(out);
+    _lockedCache.set(level, cells);
+    return cells;
+}
+
 /**
  * `[WXG-T-613]` **完整豆面**（用户令「九宫格缩略完整按照盘面来实现」）：盘面真实
  * rows×cols 逐珠等比缩放——珠距 = min(w/cols, h/rows)（方形珠、保持盘面宽高比、
@@ -410,12 +444,19 @@ export function levelThumbFullCells(level: BeadsLevelRaw): readonly number[] {
  * `[WXG-T-622]` 回退判据 = **珠体边长**（`pitch × diameterRatio`），选关格与详情橱窗同一条换算
  * ⇒ 同一关只要珠体够大就两边都画珠（14×14 从选关格「方块」修正为珠面）；30×30 这类选关槽
  * 物理上画不清的盘仍回退，详情页槽大 4 倍照画——差异来自各自 pitch，不是两套规则。
+ * `[WXG-T-623]` **构图补齐**（用户令「缩略图按盘面缩小版」）：① 有目标色的格先铺一盘面同款
+ * `drawTargetTile`（B0 目标色底块，`edge` 档；珠体 1.10 交叠只露四格交角的小菱形 ⇒ 缩略读作
+ * 连续马赛克而非「纸底上的散珠」）；② `x` 锁定格按盘面口径 `drawLockedBead`（灰紫平珠 + 45° 叉，
+ * 叉线宽按缩略尺度取 1，盘面 30 边长时仍是 2）；③ `.` void 格不铺底、不画珠（保留纸底，与盘面
+ * 「露背景」同义）。⚠ 底块**必须先整批铺完再画珠**：珠体 1.10 > pitch，若逐格「底→珠」交错，
+ * 后一格的底块外扩 0.5 会啃掉前一格珠体的右/下沿。
  *
  * @param x       槽**左缘**；@param yBottom 槽**下缘**（y-up）；@param w/@param h 槽宽高
  * @param inkOverride 墨集覆盖（未通关置灰，同 `drawLevelThumb`）
  * @param styleId 当前应用的珠体风格（玩家设置档；缺省 ⇒ `DEFAULT_BEAD_STYLE_ID`）。
  *   `[WXG-T-621]` 用户令「应该用当前应用的珠面效果绘制缩略图」⇒ 宿主把
  *   `MetaViewData.beadStyle` 透传到这里，再写进 `faceOpts.styleId` ⇒ 换肤即换缩略图珠面。
+ * @param palette 界面色板（`[WXG-T-623]` 锁定格 `locked` / 叉线 `background` 的唯一色源，⛔ 不自拟 hex）。
  */
 export function drawBeadFace(
     builder: RenderModelBuilder,
@@ -424,11 +465,13 @@ export function drawBeadFace(
     yBottom: number,
     w: number,
     h: number,
+    palette: BeadsPalette,
     inkOverride?: BeadInks,
     styleId?: string,
 ): void {
     const cells = levelThumbFullCells(level);
-    if (cells.length === 0) return;
+    const locked = levelThumbLockedCells(level);
+    if (cells.length === 0 && locked.length === 0) return;
     const rows = level.pattern.length;
     const cols = level.cols;
     const pitch = Math.min(w / cols, h / rows);
@@ -446,6 +489,19 @@ export function drawBeadFace(
         faceOpts.inks = inks;
         faceOpts.styleId = styleId ?? DEFAULT_BEAD_STYLE_ID;
     }
+    // pass 1：目标色底块（盘面 B0 同图元；`. / x` 无目标色 ⇒ 天然跳过）。
+    for (let i = 0; i < cells.length; i += 3) {
+        const cx = left + (cells[i + 1]! + 0.5) * pitch;
+        const cy = top - (cells[i]! + 0.5) * pitch;
+        drawTargetTile(builder, cx, cy, cells[i + 2]!, inks, pitch);
+    }
+    // pass 1b：`x` 锁定格（盘面口径 = 灰紫平珠 + 45° 叉；叉线宽随缩略尺度收到 1）。
+    for (let i = 0; i < locked.length; i += 2) {
+        const cx = left + (locked[i + 1]! + 0.5) * pitch;
+        const cy = top - (locked[i]! + 0.5) * pitch;
+        drawLockedBead(builder, cx, cy, palette, shaped ? beadEdge : block, 1);
+    }
+    // pass 2：珠体 / 方块（必须晚于全部底块，见函数头注）。
     for (let i = 0; i < cells.length; i += 3) {
         const r = cells[i]!;
         const c = cells[i + 1]!;

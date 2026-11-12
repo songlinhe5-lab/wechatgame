@@ -119,6 +119,7 @@ export function drawLevelDetailPage(
         plate.y + THUMB_DY + (thumb.h - thumb.area) / 2,
         thumb.w,
         thumb.area,
+        palette,
         undefined,
         data.beadStyle,
     );

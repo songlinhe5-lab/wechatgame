@@ -226,6 +226,7 @@ describe('WXG-T-605 · 格内与转场', () => {
             first.x + a.imageLeft,
             first.y + (first.h - a.imageTopDown - a.imageH),
             a.imageW, a.imageH,
+            DEFAULT_PALETTE,
             undefined,
             HANDDRAWN_STYLE_ID,
         );

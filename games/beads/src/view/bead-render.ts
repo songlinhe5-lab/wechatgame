@@ -1257,6 +1257,8 @@ export function drawLockedBead(
   cy: number,
   palette: BeadsPalette,
   size: number = BEAD_CELL,
+  /** 叉线宽（盘面恒 2；`[WXG-T-623]` 缩略图按小尺度传 1，⛔ 不改盘面默认值）。 */
+  lineWidth: number = 2,
 ): void {
   const left = cx - size / 2;
   const bottom = cy - size / 2;
@@ -1266,8 +1268,8 @@ export function drawLockedBead(
     radius: Math.round(size * BEAD_CARD.radius),
   });
   const hatch = withAlpha(palette.background, 0.9);
-  builder.line(left + inset, bottom + inset, left + size - inset, bottom + size - inset, hatch, 2);
-  builder.line(left + size - inset, bottom + inset, left + inset, bottom + size - inset, hatch, 2);
+  builder.line(left + inset, bottom + inset, left + size - inset, bottom + size - inset, hatch, lineWidth);
+  builder.line(left + size - inset, bottom + inset, left + inset, bottom + size - inset, hatch, lineWidth);
 }
 
 /** L0 shadow opacity for a selected bead (§1.2 selected row). */
