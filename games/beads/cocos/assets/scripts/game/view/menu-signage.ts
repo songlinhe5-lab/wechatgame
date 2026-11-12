@@ -435,6 +435,8 @@ export function drawBeadFace(
      * `[WXG-T-619·六轮]` 用户令「希望设计一下效果，现在效果不理想」⇒ 弃**逐珠硬描边**
      * （截图里是"靶心环"观感）：珠体无 stroke；改 **暗面弧（`pit` α0.25 右下）+
      * 柔光面（`lit` α0.55 左上）+ 小孔**，只在整体剪影留细轮廓 ⇒ 糖珠质感。
+     * `[WXG-T-619·七轮]` 用户选「柔光面再叠一层更小的 α」⇒ 柔光面内加**高光点**
+     * （`lit` α0.85、0.13R、左上 0.30R）⇒ 玻璃珠反光，仍无描边。
      */
     const shaped = block >= THUMB_BEAD_SHAPE.minBlock;
     const bodyR = (pitch * THUMB_BEAD_SHAPE.diameterRatio) / 2;
@@ -445,6 +447,9 @@ export function drawBeadFace(
     const glossR = bodyR * THUMB_BEAD_SHAPE.glossRatio;
     const glossDx = bodyR * THUMB_BEAD_SHAPE.glossDx;
     const glossDy = bodyR * THUMB_BEAD_SHAPE.glossDy;
+    const specR = bodyR * THUMB_BEAD_SHAPE.specRatio;
+    const specDx = bodyR * THUMB_BEAD_SHAPE.specDx;
+    const specDy = bodyR * THUMB_BEAD_SHAPE.specDy;
     const holeR = bodyR * THUMB_BEAD_SHAPE.holeRatio;
     if (shaped) {
         // 剪影层：所有珠先铺暗圆 ⇒ 相邻并集，内部被下一轮珠体盖住，只在整体边缘露出轮廓。
@@ -468,6 +473,7 @@ export function drawBeadFace(
             builder.circle(cx, cy, bodyR, { fill: ep.base, ...(fillAlpha ?? {}) });
             builder.circle(cx + shadeDx, cy - shadeDy, shadeR, { fill: ep.pit, alpha: THUMB_BEAD_SHAPE.shadeAlpha, ...(fillAlpha ?? {}) });
             builder.circle(cx - glossDx, cy + glossDy, glossR, { fill: ep.lit, alpha: THUMB_BEAD_SHAPE.glossAlpha, ...(fillAlpha ?? {}) });
+            builder.circle(cx - specDx, cy + specDy, specR, { fill: ep.lit, alpha: THUMB_BEAD_SHAPE.specAlpha, ...(fillAlpha ?? {}) });
             builder.circle(cx, cy, holeR, { fill: ep.hole, ...(fillAlpha ?? {}) });
         } else {
             builder.rect(cx - block / 2, cy - block / 2, block, block, {

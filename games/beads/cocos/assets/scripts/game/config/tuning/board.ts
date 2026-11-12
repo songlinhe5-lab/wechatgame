@@ -76,6 +76,11 @@ export const THUMB_BEAD_SHAPE = {
     glossDx: 0.16,
     glossDy: 0.16,
     glossAlpha: 0.55,
+    /** `[WXG-T-619·七轮]` 柔光面内再叠**高光点**（更小更亮）⇒ 玻璃珠反光。 */
+    specRatio: 0.13,
+    specDx: 0.30,
+    specDy: 0.30,
+    specAlpha: 0.85,
     /** 孔半径 / 珠体半径（同 `BEAD_CARD.holeRatio` 量级，缩略更收一点防糊）。 */
     holeRatio: 0.20,
 } as const;
