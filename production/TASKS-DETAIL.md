@@ -9432,7 +9432,7 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **二轮（同日 · 用户令「缩略图珠面的珠子参考，光影感不要太强，最好如截图效果」）**：撤回逐珠投影圆；剪影 1.42R → **1.20R**、暗缘 0.22R → **0.12R**、孔 0.30R → 0.26R、高光 0.24R → 0.18R ⇒ 平光细缘（截图 = 贴纸风拼豆猫：细暗缘 + 小孔 + 点状高光 + 适中轮廓）。两页共用 `drawBeadFace` ⇒ 同步生效。
 - **三轮（同日 · 用户令「这个虽然是程序化的珠面，但是希望能设计一下效果，然后实现，现在的效果不是很理想」）**：实拍现网图呈"每珠一圈深环"靶心感 ⇒ 弃逐珠硬描边（无 stroke）；每珠改 **暗面弧**（`pit` α0.25、0.90R、右下偏 0.08R）+ **柔光面**（`lit` α0.55、0.40R、左上偏 0.16R）+ **小孔**（0.20R）；珠径 1.18 → **1.10**（交叠减轻）、剪影 1.20R → **1.16R** ⇒ 糖珠质感、轮廓只留整体剪影。
 - **四轮（同日 · 用户选「柔光面再加一层更小的 α 叠加（更像玻璃珠）」）**：柔光面内叠**高光点**（`lit` α0.85、0.13R、左上偏 0.30R）⇒ 玻璃珠反光；无描边不变，命令数 +1/珠。
-- **验证**：`level-detail-showcase` 新增 `[T-619]`——详情帧圆流定位共享腿首圆后连续切片逐条相等（JSON 逐字段，含剪影/珠体/暗面/柔光/高光点/孔）；`menu-thumb-primitives` 改 **6 圆/珠**并断言无描边、暗面右下 / 柔光与高光点左上及 α 值；金样本在干净锚重抓（level-select 两态）；beads 单测 **1458 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（含 framework:sync:check、cocos:check）。
+- **验证**：`level-detail-showcase` 新增 `[T-619]`——详情帧圆流定位共享腿首圆后连续切片逐条相等（JSON 逐字段，含剪影/珠体/暗面/柔光/高光点/孔）；`menu-thumb-primitives` 改 **6 圆/珠**并断言无描边、暗面右下 / 柔光与高光点左上及 α 值；金样本在干净锚重抓（level-select 两态，total 5443 → 6022）；beads 单测 **1458 passed / 2 skipped（125 文件）**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（含 framework:sync:check、cocos:check）。
 - **工作树遗留件（⛔ 不代提）**：preview SVG、`games/beads/package.json` 版本号、`tools/scripts/{harness-bitmap-shot.mjs,minimax-h3-t2v.py}` 等非本单改动未入本笔。
 
 ## WXG-T-617
