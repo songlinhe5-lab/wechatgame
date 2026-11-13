@@ -7,7 +7,7 @@
  */
 
 import { DESIGN_H, DESIGN_W, LEVEL_DETAIL_GEO, LEVEL_SELECT_GEO, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_X, MENU_V2, TOUCH_MIN, WALL_COLS, WALL_ROWS, dialogShiftY, menuAnchors, menuBackdropTopPad, menuPlacementFromAnchors, type MenuAnchors } from '../config/tuning';
-import { settingsContentButtons, settingsContentViewport, isSettingsAction } from './settings-content';
+import { settingsContentButtons, settingsContentHeight, settingsContentViewport, isSettingsAction } from './settings-content';
 import { signinCellLayout } from './signin-content';
 import { skinCardBoxes } from './skins-content';
 import type { Box, MetaButton, MetaLayout, MetaOverlay } from './meta-types';
@@ -77,6 +77,22 @@ export function levelDetailPlate(): Box {
         _levelDetailPlate = box(p.x, DESIGN_H - p.yDown - p.h + dialogShiftY(), p.w, p.h);
     }
     return _levelDetailPlate;
+}
+
+/** `[WXG-T-935]` 设置可视窗（缓存）—— 绘制 / 命中 / 拖拽同读一个 Box 身份，热路径零分配。 */
+let _settingsViewportBox: Box | null = null;
+export function settingsViewport(): Box {
+    if (_settingsViewportBox === null) _settingsViewportBox = settingsContentViewport(levelDetailPlate());
+    return _settingsViewportBox;
+}
+
+/** `[WXG-T-935]` 设置最大滚动量（缓存；内容不超窗 ⇒ 0）。 */
+let _settingsScrollLimit = -1;
+export function settingsScrollLimit(): number {
+    if (_settingsScrollLimit < 0) {
+        _settingsScrollLimit = Math.max(0, settingsContentHeight() - settingsViewport().h);
+    }
+    return _settingsScrollLimit;
 }
 
 /**
@@ -485,6 +501,14 @@ export function metaLayout(
  * 否则菜单钮逐机错位；两者均缺省时同落 {@link DEFAULT_MENU_ANCHORS} ⇒ 仍同源。
  * `[WXG-T-935]` `settingsScroll` = 设置可视窗的已滚量（缺省 0 ⇒ 旧调用方逐字不变）。
  */
+/**
+ * `[WXG-T-935]` `overlay → 内容可视窗` 表（⛔ `overlay ===` 串判；control-manifest §20-3）。
+ * 只有 `settings` 有可滚内容窗，其余 overlay 查不到 ⇒ `null`。
+ */
+const CONTENT_VIEWPORT: Partial<Record<MetaOverlay, () => Box>> = {
+    settings: settingsViewport,
+};
+
 export function hitTestMeta(
     overlay: MetaOverlay,
     x: number,
@@ -495,7 +519,8 @@ export function hitTestMeta(
     const buttons = metaLayout(overlay, WALL_ROWS, anchors).buttons;
     // `[WXG-T-935]` 设置内容 = 中间可视窗内的滚动列表：命中点先换算回内容坐标（+scroll），
     // 且必须落在窗内；返回 / 在线导入固定不滚（窗外的点照旧按原位判）。
-    const viewport = overlay === 'settings' ? settingsContentViewport(levelDetailPlate()) : null;
+    const viewportOf = CONTENT_VIEWPORT[overlay];
+    const viewport = viewportOf ? viewportOf() : null;
     const inViewport = viewport !== null && y >= viewport.y && y <= viewport.y + viewport.h;
     for (const b of buttons) {
         if (viewport !== null && isSettingsAction(b.id)) {

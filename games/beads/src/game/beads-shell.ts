@@ -67,6 +67,8 @@ import {
     buildMetaView,
     hitTestMeta,
     inBox,
+    settingsScrollLimit,
+    settingsViewport,
     type MetaAction,
     type MetaBossState,
     type MetaButton,
@@ -74,8 +76,6 @@ import {
     type MetaViewData,
 } from '../view/meta-view.js';
 import type { RankPanelAction, RankPanelView } from '../systems/rank-panel.js';
-import { levelDetailPlate } from '../view/meta-layout.js';
-import { settingsContentViewport, settingsScrollMax } from '../view/settings-content.js';
 import { DEFAULT_SKIN_ID, registeredSkins } from '../config/skins/registry.js';
 // `[WXG-T-363]` 装扮馆：拥有态注入腿（视图标签）+ 卡区画法单源同文件，判例 = `setMenuBitmapResolver`。
 import { setSkinOwnedResolver } from '../view/skins-content.js';
@@ -912,7 +912,7 @@ export class BeadsShell implements Game {
         // （→ 取消按钮提交门）；松手结束手势、不派发按钮。
         if (this._phase.overlay === 'settings') {
             if (snap.justDown) {
-                const vp = settingsContentViewport(levelDetailPlate());
+                const vp = settingsViewport();
                 this._settingsPressInView = inBox(vp, this._pointer.x, this._pointer.y);
                 this._settingsDragStartY = this._pointer.y;
                 this._settingsDragStartScroll = this._settingsScroll;
@@ -927,7 +927,7 @@ export class BeadsShell implements Game {
                     this._viewData.pressed = null;
                 }
                 if (this._settingsDragging) {
-                    const max = settingsScrollMax(levelDetailPlate());
+                    const max = settingsScrollLimit();
                     const next = this._settingsDragStartScroll + dy;
                     this._settingsScroll = next < 0 ? 0 : next > max ? max : next;
                 }

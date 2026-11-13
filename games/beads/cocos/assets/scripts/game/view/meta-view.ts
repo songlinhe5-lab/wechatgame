@@ -61,7 +61,7 @@ import { rankPanelLayout } from '../systems/rank-panel';
 import type { Box, MetaLayout, MetaOverlay, MetaViewData, MetaViewVariant } from './meta-types';
 
 export type { MetaAction, MetaBossState, MetaButton, MetaLayout, MetaOverlay, MetaViewData, MetaViewVariant } from './meta-types';
-export { hitTestMeta, inBox, metaLayout } from './meta-layout';
+export { hitTestMeta, inBox, levelDetailPlate, metaLayout, settingsScrollLimit, settingsViewport } from './meta-layout';
 export { heartBarLabel, resetMetaViewWarnings, setMenuBitmapResolver } from './meta-widgets';
 
 /**

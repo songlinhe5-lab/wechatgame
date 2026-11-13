@@ -16,13 +16,12 @@ import { type RenderModelBuilder } from '../../framework/index';
 import { withAlpha, type BeadsPalette } from './palette';
 import { UI_FONT, UI_SCRIM } from './ui-theme';
 import { drawMetaButton, drawModalPlate } from './meta-widgets';
-import { levelDetailPlate } from './meta-layout';
+import { levelDetailPlate, settingsViewport } from './meta-layout';
 import {
     drawSettingsAbout,
     drawSettingsContent,
     drawSettingsScrollbar,
     isSettingsAction,
-    settingsContentViewport,
 } from './settings-content';
 import { COPY_TOKENS } from '../config/copy-tokens';
 import type { MetaLayout, MetaViewData } from './meta-types';
@@ -61,7 +60,7 @@ export function drawSettingsPage(
 
     // 中间可视窗：内容块（滚动 + 手工裁剪）→ 滚动条（内容超窗才画）。
     const scroll = data.settingsScroll ?? 0;
-    const viewport = settingsContentViewport(plate);
+    const viewport = settingsViewport();
     drawSettingsContent(builder, data, palette, layout.buttons, scroll, viewport);
     drawSettingsScrollbar(builder, palette, viewport, scroll);
 
