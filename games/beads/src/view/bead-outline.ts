@@ -30,17 +30,25 @@ type OutlineShape = { readonly pts: number[] };
 type Occupancy = (r: number, c: number) => boolean;
 
 /**
- * `[WXG-T-930]` **1:1 基准**：盘面珠距 `BEAD_PITCH`（32）时描边宽 3、圆角半径 9。
+ * `[WXG-T-930 / WXG-T-932 / T-933]` **1:1 基准**：盘面珠距 `BEAD_PITCH`（32）时描边宽 4、圆角半径 4。
  * 其余任何 pitch（缩放 / 缩略 / 详情）一律按 `pitch / BEAD_PITCH` **线性等比**，
  * ⛔ 不再上下钳位（旧 1–4 / 2–9 会让缩放后比例失真，用户令「跟着珠面等比例缩放」）。
+ * T-932：W 3→4「不要把珠子边角漏出来」；T-933：R 固定 `= W`（用户令「半径和边缘宽度一样，
+ * 保证圆角不会漏出来拐角」）⇒ 改 W 时 R 自动跟随，⛔ 不再单独调 R。
  */
-const OUTLINE_BASE_WIDTH = 3;
-const OUTLINE_BASE_RADIUS = 9;
+const OUTLINE_BASE_WIDTH = 4;
+const OUTLINE_BASE_RADIUS = OUTLINE_BASE_WIDTH;
 
 /** 轮廓可见宽度（设计 px）：1:1 基准 × `pitch / BEAD_PITCH`。 */
 export function thumbOutlineWidth(pitch: number): number {
     return OUTLINE_BASE_WIDTH * (pitch / BEAD_PITCH);
 }
+
+/**
+ * 盘面轮廓宽度：与缩略同一条纯等比通道（⛔ 不再做 `Math.max` 下限钳位，
+ * [用户 2026-11-12 令]「描边应该和珠面一起绘制后等比例缩放」）。
+ */
+export const boardOutlineWidth = thumbOutlineWidth;
 
 /** 折角圆角半径（设计 px）：1:1 基准 × `pitch / BEAD_PITCH`。 */
 export function thumbOutlineRadius(pitch: number): number {
@@ -80,7 +88,7 @@ export function drawThumbOutline(
     const key = `${left}|${top}|${pitch}|${lockedFace}`;
     let hit = _cache.get(level);
     if (!hit || hit.key !== key) {
-        hit = { key, shapes: buildShapes(level.pattern.length, level.cols, thumbOcc(level), thumbLocked(level), left, top, pitch, lockedFace) };
+        hit = { key, shapes: buildShapes(level.pattern.length, level.cols, thumbOcc(level), thumbLocked(level), left, top, pitch, lockedFace, thumbOutlineWidth(pitch)) };
         _cache.set(level, hit);
     }
     for (const s of hit.shapes) builder.polygon(s.pts, { fill: color });
@@ -128,7 +136,7 @@ export function drawBoardOutline(
             top,
             pitch: snap.gridPitch,
             lockedFace: snap.gridCell,
-            shapes: buildShapes(snap.gridRows, cols, occ, locked, left, top, snap.gridPitch, snap.gridCell),
+            shapes: buildShapes(snap.gridRows, cols, occ, locked, left, top, snap.gridPitch, snap.gridCell, boardOutlineWidth(snap.gridPitch)),
         };
         _boardCache = hit;
     }
@@ -157,8 +165,9 @@ function buildShapes(
     top: number,
     pitch: number,
     lockedFace: number,
+    width: number,
 ): OutlineShape[] {
-    const bw = thumbOutlineWidth(pitch) / 2;
+    const bw = width / 2;
     const tileFace = pitch + TILE_BLEED * 2;
     const shapes: OutlineShape[] = [];
     for (let r = 0; r < rows; r++) {
@@ -180,8 +189,10 @@ function buildShapes(
             const cvSE = expE && expS && !occ(r + 1, c + 1);
             const cvSW = expS && expW && !occ(r + 1, c - 1);
             const cvNW = expW && expN && !occ(r - 1, c - 1);
-            // 带端收口：露空边收 R（凸角交给环带）；紧邻占用格则收到邻格面缘（重叠 1 = TILE_BLEED）。
-            const end = (expSide: boolean, convex: boolean): number => (expSide ? (convex ? f2 - R : f2) : pitch - f2);
+            // 带端收口（[WXG-T-931] 修断线）：露空边收 R（凸角交给环带）；紧邻占用格则**延伸到本格面缘**
+            // `f2` —— 相邻两格底块本身重叠 `2×TILE_BLEED = 1`，两端各到 `f2` 才接得上；
+            // ⛔ 旧口径收到 `pitch − f2`（= f2 − 1）会让每段直边缩 1px，形成断线。
+            const end = (expSide: boolean, convex: boolean): number => (expSide ? (convex ? f2 - R : f2) : f2);
             if (expN) {
                 const x0 = cx - end(expW, cvNW);
                 const x1 = cx + end(expE, cvNE);

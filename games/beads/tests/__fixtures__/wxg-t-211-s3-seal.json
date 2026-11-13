@@ -1500,6 +1500,7 @@
       "ci5-t5-s44": "c45a00fb5d66442314a191b99b8f2ac23c54266b3c51ecc1f1f195cd3351fd6e"
     },
     "frame78": {
+      "total": 1834,
       "kinds": {
         "rect": 936,
         "circle": 159,
@@ -1507,12 +1508,11 @@
         "text": 10,
         "polygon": 376
       },
-      "sha": "bc32362ac1fb15f701a16ef39c9d4b2825be091b67c2fc1d4ce8b4ab3f3b8549",
-      "total": 1834
+      "sha": "97155152fc9b992ea7bb14a49a4934138c3fac1c0b1cce9046075b1c328b08df"
     },
     "frame0": {
-      "sha": "6a9063a68814a52c08e88f796c2542647eada63d4e96b6a3dd1b553ce8b23191",
-      "total": 1288
+      "total": 1288,
+      "sha": "129f15e61bea05db5a13fc832184d7823758c5dfc62b75459ecf90675ff1fc39"
     },
     "legacyFlow": {
       "ci1-tnone-l0-s1-lodfull-z22": "51e055a2c89dafbb5782ab2a212c437f4f5b40f38143aeb096b2d484bfd64b2c",
@@ -1612,7 +1612,7 @@
       "ci3-t4-l6-s1.06-lod7-z22": "896750a510ccef1d28f649ef0ad0bf33d7a0facaa033825e4a1d5a8071734826",
       "ci3-t4-l6-s1.06-lod7-z44": "003475995228c166a98f68ab6d169b8163b54debf1edab632331e9f3d44a6ad2"
     },
-    "capturedFrom": "1b58d72ac8f394687f791a4761928796635b4c3e · T-930 工作树（1:1 等比描边）"
+    "capturedFrom": "03326bb64fe4a5949f5c7524d100ac27688ddd41 · R=W"
   },
   "s3_pre_back_channel": {
     "_readme": "第十四次复评（WXG-T-256 S5′-4 底图通道）的**前态史证**：本批唯一修订面 = 托盘面板底 1 rect + 白瓷内阴影 3 line 各多一个 \"back\":true 键；判据腿 4a 据此做闭合自证（把键从两帧流里剥掉 ⇒ sha 必须逐字节回到本键）。计数与 `s3.*` 全等 ⇒ 零新增零删除。",

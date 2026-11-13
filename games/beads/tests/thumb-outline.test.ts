@@ -14,7 +14,7 @@ import type { BeadsSnapshot } from '../src/game/state.js';
 import { LEVELS } from '../src/config/levels.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import { drawBeadFace } from '../src/view/menu-signage.js';
-import { drawBoardOutline, drawThumbOutline, thumbOutlineRadius, thumbOutlineWidth } from '../src/view/bead-outline.js';
+import { boardOutlineWidth, drawBoardOutline, drawThumbOutline, thumbOutlineRadius, thumbOutlineWidth } from '../src/view/bead-outline.js';
 
 const stub = (pattern: readonly string[], cols: number): BeadsLevelRaw =>
     ({ pattern, cols } as unknown as BeadsLevelRaw);
@@ -29,15 +29,67 @@ const outline = (level: BeadsLevelRaw, left = 100, top = 500, pitch = 20) => {
 };
 
 describe('WXG-T-925/926 珠面贴纸轮廓', () => {
-    it('公式：1:1（pitch = BEAD_PITCH 32）W=3 / R=9，其余尺寸严格线性等比、不钳位（T-930）', () => {
-        expect(thumbOutlineWidth(32)).toBeCloseTo(3, 6);
-        expect(thumbOutlineRadius(32)).toBeCloseTo(9, 6);
-        expect(thumbOutlineWidth(64)).toBeCloseTo(6, 6); // 2× 缩放 ⇒ 线宽同步 2×
-        expect(thumbOutlineWidth(16)).toBeCloseTo(1.5, 6); // 0.5× 缩放 ⇒ 线宽同步 0.5×
-        expect(thumbOutlineRadius(64)).toBeCloseTo(18, 6);
-        expect(thumbOutlineRadius(16)).toBeCloseTo(4.5, 6);
-        expect(thumbOutlineWidth(28.33)).toBeCloseTo((3 * 28.33) / 32, 6);
-        expect(thumbOutlineRadius(28.33)).toBeCloseTo((9 * 28.33) / 32, 6);
+    it('公式：1:1（pitch = BEAD_PITCH 32）W=4 / R=W=4，其余尺寸严格线性等比、不钳位（T-930 / T-933）', () => {
+        expect(thumbOutlineWidth(32)).toBeCloseTo(4, 6);
+        expect(thumbOutlineRadius(32)).toBeCloseTo(4, 6); // T-933: R ≡ W
+        expect(thumbOutlineWidth(64)).toBeCloseTo(8, 6); // 2× 缩放 ⇒ 线宽同步 2×
+        expect(thumbOutlineWidth(16)).toBeCloseTo(2, 6); // 0.5× 缩放 ⇒ 线宽同步 0.5×
+        expect(thumbOutlineRadius(64)).toBeCloseTo(8, 6);
+        expect(thumbOutlineRadius(16)).toBeCloseTo(2, 6);
+        expect(thumbOutlineWidth(28.33)).toBeCloseTo((4 * 28.33) / 32, 6);
+        expect(thumbOutlineRadius(28.33)).toBeCloseTo((4 * 28.33) / 32, 6); // R 恒等于 W
+    });
+
+    it('盘面与缩略共享同一条纯等比通道（[用户 2026-11-12] 令「描边跟珠面一起等比例缩放」；T-932 基准 4）', () => {
+        // ⛔ 不再做 Math.max 下限钳位（T-931 下限破坏了等比，2026-11-12 用户推翻）
+        expect(boardOutlineWidth(32)).toBeCloseTo(4, 6);   // 1:1 基准（T-932 3→4）
+        expect(boardOutlineWidth(16)).toBeCloseTo(2, 6);   // 0.5× 同步缩
+        expect(boardOutlineWidth(64)).toBeCloseTo(8, 6);   // 2× 同步放大
+        expect(thumbOutlineWidth(16)).toBeCloseTo(2, 6);
+        expect(boardOutlineWidth(16)).toBeCloseTo(thumbOutlineWidth(16), 6); // 两函数恒等
+    });
+
+    it('直边相接：相邻占用格的上边带接缝无缝（end 函数让各段延伸到本格面缘 f2）', () => {
+        // 用 3 个 adjacent filled 格，取**中间格**（两侧都被占用）的上边带：
+        // 左右格占用 ⇒ expW=false, expE=false ⇒ end(false,false) = f2
+        // 总宽 = f2 + f2 = tileFace = pitch + 2×TILE_BLEED = 33
+        const b = new RenderModelBuilder(750, 1334);
+        b.begin();
+        drawBoardOutline(
+            b,
+            {
+                cells: [
+                    { state: 'filled', colorIdx: 1, beadColorIdx: 1, void: false },
+                    { state: 'filled', colorIdx: 1, beadColorIdx: 1, void: false },
+                    { state: 'filled', colorIdx: 1, beadColorIdx: 1, void: false },
+                ],
+                gridRows: 1,
+                gridCols: 3,
+                gridLeft: 100,
+                gridTop: 500,
+                gridCell: 30,
+                gridPitch: 32,
+                levelId: 'seam',
+                levelIndex: 0,
+                stageIndex: 0,
+            } as unknown as BeadsSnapshot,
+            DEFAULT_PALETTE.shadowInk,
+        );
+        const model = b.end();
+        // 命令序：每格先上带下带再侧带再凸角环带（逐格扫描 row0 col0→col1→col2）
+        // 中间格(0,1)两侧被占用 ⇒ 只有上下两条带（无侧带、无凸角）
+        // 前格(0,0)占 [0]上, [1]下, [2]左带, [3]cvNW环, [4]cvSW环
+        // 中间格(0,1)占 [5]上, [6]下
+        // 所以中间格上边带 = commands[5]
+        const cMid = model.commands[5] as unknown as { offset: number; count: number };
+        let minX = Infinity;
+        let maxX = -Infinity;
+        for (let i = 0; i < cMid.count; i++) {
+            const x = model.vertices[cMid.offset + i * 2]!;
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+        }
+        expect(maxX - minX).toBeCloseTo(33, 6); // face = pitch + 2×TILE_BLEED
     });
 
     it('单格剪影：4 条露空边带（4 点）+ 4 枚凸角环带（10 点），颜色 = shadowInk', () => {

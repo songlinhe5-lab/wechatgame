@@ -4,7 +4,7 @@
   "unit": "UI-02",
   "spec": "docs/architecture/ui-architecture-beads.md §5 / §9.4 / §12",
   "codeBaseline": "bd964a0",
-  "capturedFrom": "1b58d72a · 工作树（WXG-T-298）",
+  "capturedFrom": "03326bb6 · 工作树（WXG-T-298）",
   "fixture": {
     "viewport": {
       "width": 750,
@@ -68,7 +68,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "dbfebb40dd6e633ca454959462ea517817f02735e5378f1760a8e86b9464c640",
+      "sha": "bb53d526c5883e44364f273ff4f9056abc12881ae83fa436761d0f061cbb5daa",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -94,7 +94,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "022019d9c8720206d90afb40928929d9edd7ee1a641da98995f3157f26b23156",
+      "sha": "fc4b9ed3e430d7f65e9edf3efc5506cbea30c610fcbe300abdfdbb7f8076cb10",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -167,7 +167,7 @@
         "text": 10,
         "polygon": 156
       },
-      "sha": "4c44753f82a44c379bc31eae0d94e5751160fcf91186d8f5e94fd1277a48d683",
+      "sha": "5792b2fadf35c0c6289b6c21a126bbb7f0411f562f760d87be389ea299a23d75",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -190,7 +190,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "5723432adc5d75d7263cec050b2bb278cf7ae6836bf055676567b58117f1fb13",
+      "sha": "1508f85ffa3d97444e1c20a7dafeeb9a76b7bedf8e9682b8f3d061a042a6b811",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -214,7 +214,7 @@
         "blit": 3,
         "containerEnd": 1
       },
-      "sha": "75e115e4ae5e3509bfc689b0aeeb54ab2012a3a41013789b82bfa72b4b97d6e2",
+      "sha": "8fdce4848396c0479cd147452609799d61fc0298085b92927880d5e6906334ed",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -237,7 +237,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "a93db5e3355a6766c3530500ebfccf89459de7fc18f413dd559a1a46c4e10734",
+      "sha": "7e55d40f9751053e4e7167b7b1bc6f1c3207a1f364d31ddd041f5a7b46c4710c",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -260,7 +260,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "b7227cb54b8c0609e02197307538afe5f86483865f3cf3a48db738a8c26e5c46",
+      "sha": "0de66a7a27cb6551ed16e0c87475672282cb934abfadfb77f63f8b09528313d0",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -283,7 +283,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "7dd3e3115fb3b0fdf78d29ed19d98552760522f412bbf171aed70800a8f0daf3",
+      "sha": "880a0579ecbb375e265a2dc24a9f5fdf51f547b1080ab84a02e24a60773fd3a6",
       "background": "#F1E8D8",
       "transform": null
     }
