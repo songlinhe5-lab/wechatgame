@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4105,
       "lines": 137,
-      "sha256": "23200bf978b0563cf0bd08c25fcdc592335f442821c2b16d2a68fb7e14bfd4a9",
+      "sha256": "b9efbac416c3e0e21f4f15a1463ae1d692438b102b199bfea1662b87791dc098",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 297806 9888 normal",
+          "summary": "1 production/TASKS-DETAIL.md 297822 9888 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5196,
       "lines": 164,
-      "sha256": "8bb4f819524f4a2a16b4e9f5ba0152e63e98217802445ad71b70aa84a31ac9fa",
+      "sha256": "e25955d5762eb549548aae50ffd8f055934ed2a9ac1188352ac68a43dc9ffea2",
       "tier": "normal",
       "sections": [
         {
@@ -1080,7 +1080,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 9888 行 / 297806 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 9888 行 / 297822 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
@@ -14144,9 +14144,9 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 41557,
+      "tokens": 41579,
       "lines": 342,
-      "sha256": "1076e455fae4d664fe74b09eceecfaf1acbed1edb248563f4f5f8f2891a5228d",
+      "sha256": "0af46c46c062f9c1967b66ae46d3d34af93bd1ff7476883c1242d6f05a4710f0",
       "tier": "normal",
       "sections": [
         {
@@ -14154,7 +14154,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 343,
-          "tokens": 41538,
+          "tokens": 41560,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -14325,7 +14325,7 @@
           "level": 2,
           "startLine": 138,
           "endLine": 339,
-          "tokens": 36485,
+          "tokens": 36507,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -89931,9 +89931,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 297806,
+      "tokens": 297822,
       "lines": 9888,
-      "sha256": "5897024c00ad7971ec183c2a1743ab7f7b3b90da147c19a8d14fecfa7fff5eb3",
+      "sha256": "a941a1d3fe9175bd52cc590cae899974a135da596794c553f6a266b93d00dbb7",
       "tier": "normal",
       "sections": [
         {
@@ -89941,7 +89941,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 9889,
-          "tokens": 297789,
+          "tokens": 297805,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -104737,7 +104737,7 @@
           "level": 2,
           "startLine": 9803,
           "endLine": 9814,
-          "tokens": 710,
+          "tokens": 726,
           "summary": "UX·设置弹窗木钮 normal 态 + 右上 ✕ + 牌外关闭 · 负责：主理人(Trae CN)·beads UX/",
           "keywords": [
             "WXG",

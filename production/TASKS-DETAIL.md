@@ -9808,7 +9808,7 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **裁定**：① 设置弹窗全部按钮（11 内容钮 + 固定返回 / 在线导入）normal 态 = 选关页底部「关闭」钮同款**木钮**；② 木牌右上角新增 ✕（与 `levels` / `level-detail` 同槽同画法）；③ 点木牌外四条贴边带 = 关闭；牌内空白零命中（⛔ 全屏钮）。
 - **代码落码**：`view/settings-content.ts::drawSettingsContent` 内容钮 `drawButton('ghost', 14)` → **`drawButton('wood', 16)`**（`woodFace` 面 / 顶缘 `woodSheen` / 底缘 `woodEdge` / `woodText` 字；按下换 `woodFacePressed` 且隐受光线），窗缘部分露出钮的填充矩形同步改木色。`view/meta-settings-page.ts`：固定「返回 / 在线导入」同改木钮；新增 `drawCloseInset` 右上 ✕（`LEVEL_DETAIL_GEO.close` 槽位、38² 视觉、按下态读 `data.pressed?.id === 'close-settings'`）。`view/meta-types.ts` 新增 `close-settings` / `dismiss-settings`（⛔ 复用 `back` ⇒ 右上 ✕ 与底部返回无法分画按下态）。`view/meta-layout.ts::settingsLayout` 新增 ✕ 热区（88² @ 中心 622 / 距屏底 213）+ 四条 `dismiss-settings` 贴边带。`game/beads-shell.ts` 关闭分支收两动作 ⇒ 同「返回」关设置（不触发选关淡出腿）。
 - **测试**：`settings-content.test.ts` 新增 ✕ / 四带几何与命中例（牌外命中、牌内空白 `(650,700)` 零命中）、木钮 normal / 按下 fills 判据；`bead-style-settings.test.ts` 11 钮栅格过滤固定 chrome 与关闭带，新增 shell 三腿关闭例（牌下 / 牌左 / ✕）。
-- **金样本**：`settings` 帧 **1147 → 1178**（每枚木钮 +2 线 × 13、✕ +7 条；关闭带零绘制），由 `tests/ui-golden-capture.ts` 在可复现锚重抓（两遍确定性 PASS），其余十态逐字未变。
+- **金样本**：`settings` 帧 **1147 → 1178**（rect 267→269 / line 9→38：12 枚木钮各 +2 条木面线，✕ 为 2 枚矩形 + 5 条线；关闭带零绘制），由 `tests/ui-golden-capture.ts` 在锚 `e891c964` 重抓（两遍确定性 PASS），其余十态逐字未变。
 - **验证**：`pnpm --filter @wxgame/beads run typecheck` 0 错；`pnpm run check:arch` OK；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；`pnpm run check:links`、`check:tasks` OK。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
 
