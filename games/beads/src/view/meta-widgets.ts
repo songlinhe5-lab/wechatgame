@@ -15,13 +15,12 @@ import { settingsContentLabel } from './settings-content.js';
 import type { Box, MetaAction, MetaButton, MetaViewData } from './meta-types.js';
 import type { LevelSelectCellViewModel, LevelSelectViewModel } from './level-select-view-model.js';
 /**
- * 菜单位图可用性查询（宿主注入：harness 纹注册表 / Cocos carrier）。
- * 缺省全 `false` ⇒ 菜单全部腿走程序化占位 ⇒ 帧内容与位图化之前一致（旧测试套件钉住该等价）。
+ * `[WXG-T-937]` 位图可用性注入点已下沉 `view/bitmap-ready.ts`（避免与 `settings-content`
+ * 互相引用成环）；本件仅 re-export，宿主注入点与查询口径不变。
  */
-let _menuBitmapReady: (textureId: string) => boolean = () => false;
-export function setMenuBitmapResolver(fn?: (textureId: string) => boolean): void {
-    _menuBitmapReady = fn ?? (() => false);
-}
+export { menuBitmapReady, setMenuBitmapResolver } from './bitmap-ready.js';
+import { menuBitmapReady } from './bitmap-ready.js';
+
 
 // ── 走马灯小卡（menu-architecture §1.3 第五轮终裁：主菜单主区 = 单卡进度展示，卡 = 唯一选关入口）。
 //    几何由 {@link anchoredGeo} 逐机算定（`bossBox` 图位 ⇒ `[WXG-T-281]` 旧白卡退场）⇒ 静态档 `CAROUSEL_BOX` 已随锚定档退场。
@@ -389,11 +388,6 @@ export function drawMetaButton(builder: RenderModelBuilder, palette: BeadsPalett
     );
 }
 
-
-/** 位图可用性查询（读取走本函数 ⇒ 注入点与消费点分居各文件时仍同源）。 */
-export function menuBitmapReady(textureId: string): boolean {
-    return _menuBitmapReady(textureId);
-}
 
 /**
  * `[WXG-T-612]` 选关 / 详情两弹框**背景框共用绘制**（用户令「背景框绘制…需要共用逻辑」）：

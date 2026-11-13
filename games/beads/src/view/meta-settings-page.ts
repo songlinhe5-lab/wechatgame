@@ -16,12 +16,12 @@ import { type RenderModelBuilder } from '@wxgame/framework';
 import { withAlpha, type BeadsPalette } from './palette.js';
 import { UI_FONT, UI_SCRIM, pressOffset } from './ui-theme.js';
 import { drawCloseInset, drawModalPlate, label } from './meta-widgets.js';
-import { drawButton } from './ui-widgets.js';
 import { levelDetailPlate, settingsViewport } from './meta-layout.js';
 import {
     drawSettingsAbout,
     drawSettingsContent,
     drawSettingsScrollbar,
+    drawSettingsWoodButton,
     isSettingsAction,
 } from './settings-content.js';
 import { COPY_TOKENS } from '../config/copy-tokens.js';
@@ -67,25 +67,23 @@ export function drawSettingsPage(
     drawSettingsContent(builder, data, palette, layout.buttons, scroll, viewport);
     drawSettingsScrollbar(builder, palette, viewport, scroll);
 
-    // 固定 chrome：返回 / 在线导入（不随内容滚动）；`[WXG-T-936]` 统一走「关闭」钮的木钮 normal 态。
+    // 固定 chrome：返回 / 在线导入（不随内容滚动）；`[WXG-T-937]` 与内容钮同走
+    // 「选关页关闭钮」木纹 9-slice（`drawSettingsWoodButton`）。
     for (const b of layout.buttons) {
         if (isSettingsAction(b.id)) continue;
         if (b.id === 'close-settings' || b.id === 'dismiss-settings') continue;
         if (b.id === 'studio-import' && !data.studioEnabled) continue;
         const pressed = data.pressed === b;
-        drawButton(
+        drawSettingsWoodButton(
             builder,
             palette,
             b.box.x,
             b.box.y + pressOffset(pressed, data.reduceMotion),
             b.box.w,
             b.box.h,
-            'wood',
-            16,
             label(b.id, data),
             UI_FONT.button,
             pressed,
-            false,
         );
     }
 

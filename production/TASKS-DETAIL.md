@@ -9800,6 +9800,19 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **提交**：`19fb24ad`（代码 + Cocos 镜像 + 文档 + 台账）；复评与金样本重抓同批回填。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
 
+## WXG-T-937
+
+**UX·设置弹窗按钮改选关「关闭」同族木纹 9-slice** · 负责：主理人(Trae CN)·beads UX/工程轨 · 状态：✅ 完成（2026-11-13 · 用户反馈「设置页面的按钮不对，不是关卡页面的关闭按钮」）
+
+- **用户原话**：「设置页面的按钮不对，不是关卡页面的关闭按钮」。
+- **根因**：T-936 落的 `drawButton('wood', 16)` 只是「同色平涂矩形 + 顶受光线 + 底承重线」，而选关页底部「关闭」钮（`ui_level_select_close.png`）是**厚木边 + 木纹 + 米白立体字**的烘图 ⇒ 观感不是一路。
+- **裁定**：设置弹窗全部按钮的 normal 态改读**同族木纹 9-slice**；文字仍程序化（选关钮的字烘死在图里，11 个档位文案无法复用）。
+- **代码**：① `settings-content.ts` 新增 `drawSettingsWoodButton` —— 位图腿 `builder.blit(MENU_TEXTURES.btnWood)` + `nineSliceFx(CLEAR_BTN_SLICE.capX=76)`（端帽只横切；钮高 88 < 源高 92，⛔ 不传 capY 免中段源高吃成 0 ⇒ 留空，纵向整体等比），按下换 `btnWoodPressed`，文字 `woodText` + `shadowInk` 55% / offsetY −2 / blur 2 投影；缺图腿回退 `drawButton('wood', 16)`，几何 / 字位 / 按下位移逐字不变；② 内容 11 钮与固定「返回 / 在线导入」统一走该函数；③ 位图可用性注入点自 `meta-widgets.ts` 下沉 **`view/bitmap-ready.ts`**（`menuBitmapReady` / `setMenuBitmapResolver` 原样 re-export）—— 否则 `settings-content → meta-widgets → settings-content` 成运行时环（`check:arch` L6）；④ Cocos 镜像随 `framework:sync` 同批更新。
+- **测试**：`settings-content.test.ts` 新增 `[WXG-T-937]` 例 —— 位图腿 11 blit 均 `btnWood` + fx 端帽 `capX 76`、按下首钮换 `btnWoodPressed`、缺图腿 0 blit / 11 字回退；原有 10 例全绿。
+- **金样本**：捕获腿未注入位图注册表 ⇒ 仍走程序化回退，`settings` 帧**逐字未变**（无需重抓，⛔ 不手改夹具）；位图腿由新增测试锁。
+- **验证**：`pnpm --filter @wxgame/beads run typecheck` 0 错；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
 ## WXG-T-936
 
 **UX·设置弹窗木钮 normal 态 + 右上 ✕ + 牌外关闭** · 负责：主理人(Trae CN)·beads UX/工程轨 · 状态：✅ 完成（2026-11-13）

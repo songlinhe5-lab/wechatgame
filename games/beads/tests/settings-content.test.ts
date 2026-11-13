@@ -6,13 +6,15 @@
  *  - 本文件钉住：11 钮 6×2 几何、**每个按钮中心都能命中自己**、档位文案、
  *    按下位移，以及「设置文案单源 = 菜单 settings overlay」（静态门）。
  */
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterEach } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { RenderModelBuilder } from '@wxgame/framework';
 import { hitTestMeta, metaLayout } from '../src/view/meta-view.js';
 import { levelDetailPlate } from '../src/view/meta-layout.js';
+import { setMenuBitmapResolver } from '../src/view/meta-widgets.js';
+import { MENU_TEXTURES } from '../src/config/tuning.js';
 import {
     drawSettingsContent,
     isSettingsAction,
@@ -57,6 +59,8 @@ function callsOf(fn: (b: RenderModelBuilder) => void): { kind: string; args: num
 }
 
 describe('UI-30 · SettingsContent', () => {
+    afterEach(() => setMenuBitmapResolver(undefined));
+
     it('菜单版式：11 钮 = 6 行 × 2 列（末行 Debug 单钮左对齐）', () => {
         const buttons = settingsContentButtons(levelDetailPlate());
         expect(buttons).toHaveLength(11);
@@ -199,6 +203,45 @@ describe('UI-30 · SettingsContent', () => {
         } as unknown as RenderModelBuilder;
         drawSettingsContent(bp, { ...DATA, pressed: { id: 'toggle-bgm' } }, WOOD, settingsContentButtons(levelDetailPlate()));
         expect(pressedFills[0]).toBe('WOOD_PRESSED');
+    });
+
+    it('[WXG-T-937] 位图腿 = 选关「关闭」钮同族木纹 9-slice；缺图回退程序化木钮', () => {
+        setMenuBitmapResolver((id) => id === MENU_TEXTURES.btnWood || id === MENU_TEXTURES.btnWoodPressed);
+        const PAL = { woodText: '#FFF6E8', shadowInk: '#3D2E1E' } as unknown as BeadsPalette;
+        const draw = (pressedId?: string) => {
+            const blits: { tex: string; opts?: unknown }[] = [];
+            const texts: unknown[] = [];
+            const b = {
+                rect: () => undefined,
+                text: (...args: unknown[]) => texts.push(args),
+                line: () => undefined,
+                setBackground: () => undefined,
+                blit: (tex: string, _x: number, _y: number, _w: number, _h: number, opts?: unknown) =>
+                    blits.push({ tex, opts }),
+            } as unknown as RenderModelBuilder;
+            drawSettingsContent(
+                b,
+                pressedId === undefined ? DATA : { ...DATA, pressed: { id: pressedId } },
+                PAL,
+                settingsContentButtons(levelDetailPlate()),
+            );
+            return { blits, texts };
+        };
+        const idle = draw();
+        expect(idle.blits).toHaveLength(11);
+        expect(idle.texts).toHaveLength(11);
+        for (const blit of idle.blits) {
+            expect(blit.tex).toBe(MENU_TEXTURES.btnWood);
+            // 只横切端帽（capX 76）；⛔ 不传 capY：钮高 88 < 源高 92，带 capY 会把中段源高吃成 0。
+            expect(blit.opts).toEqual({ fx: { nineSliceCapX: 76 } });
+        }
+        // 按下换按下态纹理（同几何，不换形）。
+        expect(draw('toggle-bgm').blits[0]!.tex).toBe(MENU_TEXTURES.btnWoodPressed);
+        // 缺图腿（默认 resolver 全 false）⇒ 仍是 11 枚程序化木钮（rect + 字）。
+        setMenuBitmapResolver(undefined);
+        const fallback = draw();
+        expect(fallback.blits).toHaveLength(0);
+        expect(fallback.texts).toHaveLength(11);
     });
 
     it('文案单源：暂停面板已去设置化，view-model 不再引用 settingsContentLabel', () => {

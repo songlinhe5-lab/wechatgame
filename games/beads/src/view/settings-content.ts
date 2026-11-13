@@ -8,9 +8,11 @@
  *
  * ⛔ 不持有任何状态：数据由宿主每帧投影（L5）；布局由调用方传入的 plate 派生。
  */
-import type { RenderModelBuilder } from '@wxgame/framework';
+import { nineSliceFx, type RenderModelBuilder } from '@wxgame/framework';
 import {
     BEAD_SIZE_LABELS,
+    CLEAR_BTN_SLICE,
+    MENU_TEXTURES,
     TOUCH_MIN,
     beadStyleLabel,
     type BeadSizeKind,
@@ -19,6 +21,7 @@ import { skinLabel } from '../config/skins/registry.js';
 import { COPY_TOKENS } from '../config/copy-tokens.js';
 import { withAlpha, type BeadsPalette } from './palette.js';
 import { UI_FONT, pressOffset } from './ui-theme.js';
+import { menuBitmapReady } from './bitmap-ready.js';
 import { drawButton } from './ui-widgets.js';
 
 /**
@@ -209,6 +212,53 @@ export function settingsContentLabel(id: SettingsAction, data: SettingsContentDa
 }
 
 /**
+ * `[WXG-T-937]` 设置钮 normal 态 = **选关页底部「关闭」钮同款木钮**（用户反馈：
+ * 「设置页面的按钮不对，不是关卡页面的关闭按钮」⇒ 平涂 `drawButton('wood')` 只是同色矩形，
+ * 与稿面木钮的厚边 / 木纹 / 立体字不是一路观感）。
+ *
+ * 位图腿：直接 9-slice blit 同族木纹 `MENU_TEXTURES.btnWood`（源 300×92，端帽只取横向
+ * `CLEAR_BTN_SLICE.capX` 76；⛔ 不传 capY：设置钮高 88 < 源高 92，上下端帽各 46 会把中段
+ * 源高吃成 0 ⇒ 中间留空；纵向整体 92→88 等比，肉眼不可辨），与结算主钮同源；
+ * 按下换 `btnWoodPressed`。文字仍程序化（选关「关闭」钮的字是
+ * 烘死的，⛔ 不能给 11 个档位文案复用）⇒ 字压一层深棕投影复刻烘字的浮雕感。
+ * 缺图腿（无宿主注册表 / 单测 / 干净检出）：回退原程序化木钮，几何与字位逐字不变。
+ */
+export function drawSettingsWoodButton(
+    builder: RenderModelBuilder,
+    palette: BeadsPalette,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    text: string,
+    font: string,
+    pressed = false,
+): void {
+    if (menuBitmapReady(MENU_TEXTURES.btnWood)) {
+        const tex = pressed && menuBitmapReady(MENU_TEXTURES.btnWoodPressed)
+            ? MENU_TEXTURES.btnWoodPressed
+            : MENU_TEXTURES.btnWood;
+        builder.blit(tex, x, y, w, h, {
+            fx: nineSliceFx(CLEAR_BTN_SLICE.capX),
+        });
+        builder.text(x + w / 2, y + h / 2, text, {
+            fill: palette.woodText,
+            font,
+            align: 'center',
+            baseline: 'middle',
+            shadow: {
+                color: withAlpha(palette.shadowInk, 0.55),
+                offsetX: 0,
+                offsetY: -2,
+                blur: 2,
+            },
+        });
+        return;
+    }
+    drawButton(builder, palette, x, y, w, h, 'wood', 16, text, font, pressed, false);
+}
+
+/**
  * 画内容块；非设置动作（返回 / 在线导入）由调用方自己画。
  *
  * `[WXG-T-935]` `scroll` = 已上滚的设计 px（内容整体上移）；传 `viewport` 时逐钮做**手工裁剪**
@@ -245,20 +295,16 @@ export function drawSettingsContent(
                 continue;
             }
         }
-        drawButton(
+        drawSettingsWoodButton(
             builder,
             palette,
             b.box.x,
             y,
             b.box.w,
             b.box.h,
-            // `[WXG-T-936]` 用户令：选关页「关闭」钮的 normal 态 = 设置页所有钮的 normal 态。
-            'wood',
-            16,
             settingsContentLabel(b.id, data),
             wide ? UI_FONT.cell : UI_FONT.button,
             pressed,
-            false,
         );
     }
 }
