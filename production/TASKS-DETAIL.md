@@ -9800,6 +9800,22 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **提交**：`19fb24ad`（代码 + Cocos 镜像 + 文档 + 台账）；复评与金样本重抓同批回填。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
 
+## WXG-T-938
+
+**UX·设置弹窗按钮改选关「关闭」派生无字厚木 9-slice** · 负责：主理人(Trae CN)·beads UX/工程轨 · 状态：✅ 完成（2026-11-13 · 用户令「设置页面的按钮不是选关页面的按钮设计」）
+
+- **用户原话**：「设置页面的按钮不是选关页面的按钮设计」（前一轮同义反馈「设置页面的按钮不是关卡详情页的按钮」→ 当轮纠正为选关页）。
+- **根因**：① T-937 用的 `MENU_TEXTURES.btnWood` 是结算面板的**哑光**木纹 9-slice（源 300×92），与选关页底部「关闭」钮（`ui_level_select_close@2x` 301×105，厚木边 / 高光 / 米白立体字）不是同一套材质；② harness `/menu-assets/` 映射根 = `design/art/final/assets/menu/`，而该 9-slice 实际在 `final/v1/assets/menu/` ⇒ 预览腿 404、实际走平涂回退，观感差距被放大。
+- **裁定**：派生一张与关闭钮**同源**的无字 9-slice（⛔ 不重绘 / 不 AI 生成），设置弹窗全部按钮统一；文字仍程序化（烘字无法复用于 11 个档位文案）。
+- **派生**：脚本 `games/beads/design/ai-workflows/derive-settings-btn-9slice.py` —— 左端帽取源 x[0,70)、右端帽取 x[532,602)、中段取两条无字木面 x80–175 / x415–510 **横向线性交叉淡化**（源面有轻微左右明暗差，单带直拼会在右端帽接缝出竖向亮线，预览实测）；输出 `ui_btn_settings_9s@2x` **235×210**，capX **70**。
+- **代码**：① `config/tuning/menu.ts` 新增 `SETTINGS_BTN_SLICE = { capX: 70 }` 与 `MENU_TEXTURES.btnSettings`；② `settings-content.ts::drawSettingsWoodButton` 改 `builder.blit(MENU_TEXTURES.btnSettings)` + `nineSliceFx(70)`（只横切；钮高 88 < 源 210，纵向整体等比，⛔ 不传 capY），按下同几何 + `withAlpha(shadowInk, 0.18)` 圆角压暗（源图无按下态），文字 `woodText` + `shadowInk` 55% / offsetY −2 / blur 2；缺图链 = `btnSettings` → `btnWood`（过渡，Cocos 未导入新图时）→ `drawButton('wood', 16)`；③ harness `MENU_FILE` 注册 `buttons/ui_btn_settings_9s@2x.png`（落在映射根内，捕获腿可加载）；④ Cocos 投放件 `textures/ui_btn_settings_9s.png` 已备，但 `beads-blit-carrier.ts` **暂不注册**（注册即触发 `check:cocos-mask` 红灯）；⑤ Cocos 镜像随 `framework:sync` 同批更新。
+- **测试**：`tests/settings-content.test.ts` T-937 例改写为 T-938 —— 11 blit 均 `btnSettings` + `fx` 端帽 `capX 70`、按下叠 `rgba(61,46,30,0.18)`、`btnWood` 过渡腿 11 blit（capX 76 / 按下换 `btnWoodPressed`）、缺图腿 0 blit / 11 字回退；beads 全量 **1484 passed / 2 skipped**。
+- **金样本**：捕获腿未注入位图注册表 ⇒ 仍走程序化回退，`settings` 帧**逐字未变**（无需重抓，⛔ 不手改夹具）；位图腿由新增测试锁。
+- **文档**：`ux-spec` v1.50 §2（设置弹窗行）、`docs/architecture/ui-architecture-beads.md §12` 视觉变更登记。
+- **阻塞**：Cocos `.meta` 未签发 —— 本机 CLI 启动报 `TypeError: (0, browser_1.init) is not a function`（既有环境问题，见 `production/qa/menu-tri-state-gray-20261102.md`）；解除条件 = 用 CocosCreator GUI 打开 `games/beads/cocos` 触发资产导入并重新构建，随后在 `beads-blit-carrier.ts` 补 `[MENU_TEXTURES.btnSettings]: { path: 'ui_btn_settings_9s' }`。当前 Cocos 腿走 `btnWood` 过渡，harness 腿直接读新设计源。
+- **验证**：`pnpm --filter @wxgame/beads run typecheck` 0 错；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；harness 4176 实帧截图确认设置弹窗 11 钮为厚木高光钮（浏览器取证，截图 `settings_modal_final.jpg`）。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
 ## WXG-T-937
 
 **UX·设置弹窗按钮改选关「关闭」同族木纹 9-slice** · 负责：主理人(Trae CN)·beads UX/工程轨 · 状态：✅ 完成（2026-11-13 · 用户反馈「设置页面的按钮不对，不是关卡页面的关闭按钮」）

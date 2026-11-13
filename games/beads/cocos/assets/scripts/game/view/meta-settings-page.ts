@@ -67,8 +67,8 @@ export function drawSettingsPage(
     drawSettingsContent(builder, data, palette, layout.buttons, scroll, viewport);
     drawSettingsScrollbar(builder, palette, viewport, scroll);
 
-    // 固定 chrome：返回 / 在线导入（不随内容滚动）；`[WXG-T-937]` 与内容钮同走
-    // 「选关页关闭钮」木纹 9-slice（`drawSettingsWoodButton`）。
+    // 固定 chrome：返回 / 在线导入（不随内容滚动）；`[WXG-T-938]` 与内容钮同走
+    // 选关「关闭」烘图派生的无字厚木 9-slice（`drawSettingsWoodButton`）。
     for (const b of layout.buttons) {
         if (isSettingsAction(b.id)) continue;
         if (b.id === 'close-settings' || b.id === 'dismiss-settings') continue;

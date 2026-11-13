@@ -4,15 +4,15 @@
  * 菜单设置弹窗的**按钮集 / 档位文案 / 按钮绘制 / 可视窗与滚动几何**单源
  * （v1.9 起复用关卡详情木牌 581×1044；11 钮 = 6 行 × 2 列）。
  * 几何仍住 `view/meta-layout.ts`（`levelDetailPlate` + `settingsContentButtons`），
- * 本件只负责菜单档的 ghost 纸钮语言与文案。
+ * 本件只负责菜单档的厚木钮语言（`[WXG-T-938]`）与文案。
  *
  * ⛔ 不持有任何状态：数据由宿主每帧投影（L5）；布局由调用方传入的 plate 派生。
  */
 import { nineSliceFx, type RenderModelBuilder } from '../../framework/index';
 import {
     BEAD_SIZE_LABELS,
-    CLEAR_BTN_SLICE,
     MENU_TEXTURES,
+    SETTINGS_BTN_SLICE,
     TOUCH_MIN,
     beadStyleLabel,
     type BeadSizeKind,
@@ -212,16 +212,15 @@ export function settingsContentLabel(id: SettingsAction, data: SettingsContentDa
 }
 
 /**
- * `[WXG-T-937]` 设置钮 normal 态 = **选关页底部「关闭」钮同款木钮**（用户反馈：
- * 「设置页面的按钮不对，不是关卡页面的关闭按钮」⇒ 平涂 `drawButton('wood')` 只是同色矩形，
- * 与稿面木钮的厚边 / 木纹 / 立体字不是一路观感）。
+ * `[WXG-T-938]` 设置钮 normal 态 = **选关页底部「关闭」钮同款厚木高光底板**。
  *
- * 位图腿：直接 9-slice blit 同族木纹 `MENU_TEXTURES.btnWood`（源 300×92，端帽只取横向
- * `CLEAR_BTN_SLICE.capX` 76；⛔ 不传 capY：设置钮高 88 < 源高 92，上下端帽各 46 会把中段
- * 源高吃成 0 ⇒ 中间留空；纵向整体 92→88 等比，肉眼不可辨），与结算主钮同源；
- * 按下换 `btnWoodPressed`。文字仍程序化（选关「关闭」钮的字是
- * 烘死的，⛔ 不能给 11 个档位文案复用）⇒ 字压一层深棕投影复刻烘字的浮雕感。
- * 缺图腿（无宿主注册表 / 单测 / 干净检出）：回退原程序化木钮，几何与字位逐字不变。
+ * 底板 `MENU_TEXTURES.btnSettings` = 从 `ui_level_select_close@2x` 派生的**无字** 9-slice
+ * （235×210、capX 70；中段取无字木面横向交叉淡化，脚本
+ * `design/ai-workflows/derive-settings-btn-9slice.py`）⇒ 厚边 / 木纹 / 高光与选关关闭钮同源。
+ * 文字仍程序化（关闭钮的字烘死在图里，11 个档位文案无法复用）⇒ 米白字压深棕投影。
+ * 按下：同几何 + `pressOffset` 位移，再叠一层深棕半透明压暗（源图无按下态）。
+ * 缺图腿：① 新底板未就绪 ⇒ 退回已进包的 `MENU_TEXTURES.btnWood` 9-slice（过渡，Cocos 端
+ * 在 `.meta`/构建补齐前走这条）；② 连 `btnWood` 也无（无宿主注册表 / 单测）⇒ 程序化木钮。
  */
 export function drawSettingsWoodButton(
     builder: RenderModelBuilder,
@@ -234,13 +233,34 @@ export function drawSettingsWoodButton(
     font: string,
     pressed = false,
 ): void {
+    if (menuBitmapReady(MENU_TEXTURES.btnSettings)) {
+        builder.blit(MENU_TEXTURES.btnSettings, x, y, w, h, {
+            fx: nineSliceFx(SETTINGS_BTN_SLICE.capX),
+        });
+        if (pressed) {
+            builder.rect(x, y, w, h, { fill: withAlpha(palette.shadowInk, 0.18), radius: 18 });
+        }
+        builder.text(x + w / 2, y + h / 2, text, {
+            fill: palette.woodText,
+            font,
+            align: 'center',
+            baseline: 'middle',
+            shadow: {
+                color: withAlpha(palette.shadowInk, 0.55),
+                offsetX: 0,
+                offsetY: -2,
+                blur: 2,
+            },
+        });
+        return;
+    }
+    // 过渡腿：Cocos 端新图未导入 / 未构建时仍用已进包的 `btnWood`（WXG-T-937 同款），
+    // 视觉不低于现状；新图导入并注册后可删本段。
     if (menuBitmapReady(MENU_TEXTURES.btnWood)) {
         const tex = pressed && menuBitmapReady(MENU_TEXTURES.btnWoodPressed)
             ? MENU_TEXTURES.btnWoodPressed
             : MENU_TEXTURES.btnWood;
-        builder.blit(tex, x, y, w, h, {
-            fx: nineSliceFx(CLEAR_BTN_SLICE.capX),
-        });
+        builder.blit(tex, x, y, w, h, { fx: nineSliceFx(76) });
         builder.text(x + w / 2, y + h / 2, text, {
             fill: palette.woodText,
             font,

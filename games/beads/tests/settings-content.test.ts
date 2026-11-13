@@ -205,14 +205,15 @@ describe('UI-30 · SettingsContent', () => {
         expect(pressedFills[0]).toBe('WOOD_PRESSED');
     });
 
-    it('[WXG-T-937] 位图腿 = 选关「关闭」钮同族木纹 9-slice；缺图回退程序化木钮', () => {
-        setMenuBitmapResolver((id) => id === MENU_TEXTURES.btnWood || id === MENU_TEXTURES.btnWoodPressed);
+    it('[WXG-T-938] 位图腿 = 选关「关闭」派生无字厚木 9-slice；缺图回退程序化木钮', () => {
+        setMenuBitmapResolver((id) => id === MENU_TEXTURES.btnSettings);
         const PAL = { woodText: '#FFF6E8', shadowInk: '#3D2E1E' } as unknown as BeadsPalette;
         const draw = (pressedId?: string) => {
             const blits: { tex: string; opts?: unknown }[] = [];
             const texts: unknown[] = [];
+            const fills: unknown[] = [];
             const b = {
-                rect: () => undefined,
+                rect: (...args: unknown[]) => fills.push((args[4] as { fill?: unknown } | undefined)?.fill),
                 text: (...args: unknown[]) => texts.push(args),
                 line: () => undefined,
                 setBackground: () => undefined,
@@ -225,17 +226,28 @@ describe('UI-30 · SettingsContent', () => {
                 PAL,
                 settingsContentButtons(levelDetailPlate()),
             );
-            return { blits, texts };
+            return { blits, texts, fills };
         };
         const idle = draw();
         expect(idle.blits).toHaveLength(11);
         expect(idle.texts).toHaveLength(11);
         for (const blit of idle.blits) {
+            expect(blit.tex).toBe(MENU_TEXTURES.btnSettings);
+            // 只横切端帽（capX 70）；⛔ 不传 capY：钮高 88 < 源 210，纵向走整体等比。
+            expect(blit.opts).toEqual({ fx: { nineSliceCapX: 70 } });
+        }
+        // 按下：同几何 + 一层深棕压暗（源图无按下态纹理）。
+        const pressed = draw('toggle-bgm');
+        expect(pressed.blits[0]!.tex).toBe(MENU_TEXTURES.btnSettings);
+        expect(pressed.fills).toContain('rgba(61,46,30,0.18)');
+        // 过渡腿（Cocos 新图未导入时）：退回已进包的 btnWood 9-slice（WXG-T-937 同款）。
+        setMenuBitmapResolver((id) => id === MENU_TEXTURES.btnWood || id === MENU_TEXTURES.btnWoodPressed);
+        const wood = draw();
+        expect(wood.blits).toHaveLength(11);
+        for (const blit of wood.blits) {
             expect(blit.tex).toBe(MENU_TEXTURES.btnWood);
-            // 只横切端帽（capX 76）；⛔ 不传 capY：钮高 88 < 源高 92，带 capY 会把中段源高吃成 0。
             expect(blit.opts).toEqual({ fx: { nineSliceCapX: 76 } });
         }
-        // 按下换按下态纹理（同几何，不换形）。
         expect(draw('toggle-bgm').blits[0]!.tex).toBe(MENU_TEXTURES.btnWoodPressed);
         // 缺图腿（默认 resolver 全 false）⇒ 仍是 11 枚程序化木钮（rect + 字）。
         setMenuBitmapResolver(undefined);

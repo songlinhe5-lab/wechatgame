@@ -198,6 +198,9 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
     [MENU_TEXTURES.btnWood]: { path: 'ui_btn_wood_9s' },
     [MENU_TEXTURES.btnWoodPressed]: { path: 'ui_btn_wood_9s_pressed' },
     [MENU_TEXTURES.btnPaper]: { path: 'ui_btn_paper_9s' },
+    // `[WXG-T-938]` `ui_btn_settings_9s` 暂不注册：本机 Cocos CLI 无法导入 `.meta` / 重构建
+    // （`browser_1.init` 环境阻塞）⇒ 注册会让 `check:cocos-mask` 红灯；设置腿先走 `btnWood`
+    // 过渡（`settings-content.ts::drawSettingsWoodButton`），GUI 导入并构建后再补本条。
 };
 
 /**

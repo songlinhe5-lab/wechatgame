@@ -25,9 +25,9 @@
 
 §wechatgame 项目长期笔记=1+83 · §日志蒸馏规程（R2 · WXG-T-0…=7+6 · §项目约定=13+22 · §常用脚本=35+11 · §SubAgent=46+4 · §Rules=50+3 · §Hooks=53+7 · §Headless / CI=60+8 · §已知限制=68+16
 
-## `production/TASKS.md` — 260 行 / 72312 tok / 实测读 4 次
+## `production/TASKS.md` — 261 行 / 72852 tok / 实测读 4 次
 
-§WXG 任务台账（SSOT）=1+261 · §待排（backlog，无号，立项时领取…=231+31
+§WXG 任务台账（SSOT）=1+262 · §待排（backlog，无号，立项时领取…=232+31
 
 ## `production/qa/beads/test-cases.md` — 67 行 / 3997 tok / 实测读 15 次
 
@@ -52,7 +52,7 @@
 
 §my-agents — 工作室 Sub…=1+48 · §现役成员（6）+ 编排（1）=6+12 · §四 IDE 链接=18+10 · §与编排的关系=28+8 · §Frontmatter 约定（共享正本…=36+8 · §符号链接=44+5
 
-## `games/beads/design/ux/ux-spec.md` — 510 行 / 35898 tok / 实测读 10 次
+## `games/beads/design/ux/ux-spec.md` — 510 行 / 36191 tok / 实测读 10 次
 
 §UX 规格（UX Spec）· bea…=1+511 · §1 设计原则（沿用 skill 四条）=10+11 · §2 界面流程（Screen Flow）=21+43 · §3 关键界面线框（750×1334，坐…=64+207 · §3.5 结算·冲刺与失败=189+25 · §4 状态流转 × 输入响应矩阵（QA …=271+75 · §5 交互反馈与动效时长表（权威毫秒值，…=346+53 · §6 首屏留存策略（微信前 10 秒）·…=399+48 · §7 可访问性（对齐 `art/acce…=447+14 · §8 决策记录与裁决项=461+51
 > 本表只列 10 / 20 节：其余 10 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
@@ -117,10 +117,10 @@
 
 §UX 规格变更记录与版本链（CHANG…=1+96 · §版本链（头注外移 · 逐字）=7+4 · §变更记录（文末外移 · 逐字）=11+86
 
-## `production/TASKS-DETAIL.md` — 9901 行 / 298492 tok
+## `production/TASKS-DETAIL.md` — 9917 行 / 299610 tok
 
-§WXG 任务台账 · 详情（标题制正文…=1+9902 · §WXG-T-926=9738+15 · §WXG-T-927=9753+18 · §WXG-T-928=9771+17 · §WXG-T-929=9788+15 · §WXG-T-937=9803+13 · §WXG-T-936=9816+12 · §WXG-T-935=9828+13 · §WXG-T-934=9841+13 · §WXG-T-933=9854+11 · §WXG-T-932=9865+11 · §WXG-T-931=9876+12 · §WXG-T-930=9888+15
-> 本表只列 13 / 1075 节：其余 1062 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
+§WXG 任务台账 · 详情（标题制正文…=1+9918 · §WXG-T-927=9753+18 · §WXG-T-928=9771+17 · §WXG-T-929=9788+15 · §WXG-T-938=9803+16 · §WXG-T-937=9819+13 · §WXG-T-936=9832+12 · §WXG-T-935=9844+13 · §WXG-T-934=9857+13 · §WXG-T-933=9870+11 · §WXG-T-932=9881+11 · §WXG-T-931=9892+12 · §WXG-T-930=9904+15
+> 本表只列 13 / 1076 节：其余 1063 节 → ctx/index.json（按 path 取 `sections[].anchor` / `startLine`，勿整读）。
 
 ## `games/breakout/design/concept.md` — 143 行 / 3113 tok / 实测读 217 次
 

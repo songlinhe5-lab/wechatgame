@@ -29,6 +29,17 @@
 - **Cocos 投放件**：`games/beads/cocos/assets/textures/detail/` 四枚**同名无 `@2x`** PNG，按在册脚本 `ai-workflows/quantize-cocos-textures.py` 做 256 色 OCTREE + Floyd 抖动（911+284+9+9 KB → 108+35+2+2 KB = 147 KB，主包红线 4 MB 内）。`.meta` 由 Cocos 编辑器导入生成，⛔ 手写。
 - **harness 不走投放件**：`dev/harness` 直读 `final/assets/detail/` 的 `@2x` 原件（`/detail-assets/` 白名单）。
 
+## 0.2 派生批次：设置弹窗按钮（2026-11-13 · WXG-T-938）
+
+> 本批**不是生图**，是既有定稿件的**无字派生**（用户令「设置页面的按钮不是选关页面的按钮设计」；UX 正本 = `ux-spec` v1.50 §2）。
+
+| 件（实测规格） | 生成方式 | 生成脚本（入库路径） | 原图（入库路径 / 状态） | 批次出处 |
+|---|---|---|---|---|
+| `final/assets/menu/buttons/ui_btn_settings_9s@2x.png` 235×210 RGBA<br>`cocos/assets/textures/ui_btn_settings_9s.png` 同名同尺寸投放件 | **零模型 / 零重绘**：取选关「关闭」烘图的左右端帽（各 70px）+ 两条无字木面（x80–175 / x415–510）横向线性交叉淡化作中段；9-slice capX 70，⛔ 不传 capY | `ai-workflows/derive-settings-btn-9slice.py`（本批新入库） | ✅ `final/assets/detail/ui_level_select_close@2x.png` 602×210（Figma `160:48` @2x，来源见 §0.1 同族切件口径） | WXG-T-938 |
+
+- **Cocos 投放件**：由派生脚本同时输出 `games/beads/cocos/assets/textures/ui_btn_settings_9s.png`；本批**暂不入库**（`.meta` 与重构建受本机 CLI `browser_1.init` 阻塞，同 `production/qa/menu-tri-state-gray-20261102.md`）⇒ 当前设置腿走已进包的 `btnWood` 过渡，待 GUI 导入后补 `.meta` + 注册，⛔ 不手写 `.meta`。
+- **harness**：`dev/harness` 直读 `final/assets/menu/buttons/` 的 `@2x` 原件（`/menu-assets/` 白名单），无需投放件。
+
 ## 1. 本批（2026-10-30 → 11-01）逐件来源账
 
 范围 = `final/assets/menu/` 中 `mtime ≥ 2026-10-30` 的 12 件（其余件来源见 `final/README.md` 台账与 `shots/` 证据流）。**在册 11 件**，第 12 件 `ui_menu_env` 已于 2026-11-01 裁定移出（本表保留该行作为出处账，⛔ 不当在册件用）。

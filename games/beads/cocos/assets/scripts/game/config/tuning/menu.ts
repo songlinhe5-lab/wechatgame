@@ -104,6 +104,12 @@ export const CLEAR_FRAME_SLICE = { capX: 60, capY: 60 } as const;
 export const CLEAR_FACE_SLICE = { capX: 36, capY: 36 } as const;
 export const CLEAR_BTN_SLICE = { capX: 76, capY: 46 } as const;
 export const CLEAR_PAPER_BTN_SLICE = { capX: 52, capY: 44 } as const;
+/**
+ * `[WXG-T-938]` 设置弹窗按钮 9-slice 端帽（源纹 px）：`ui_btn_settings_9s@2x` = 235×210，
+ * 左右端帽各 70（圆角约 45 + 25 净空），中段 95 为**无字木面**（派生自选关「关闭」烘图）。
+ * 只横切（⛔ 不传 capY）：设置钮 88 高 < 源 210，纵向走整体等比，端帽同比缩到 ≈29。
+ */
+export const SETTINGS_BTN_SLICE = { capX: 70 } as const;
 /** 框厚（设计 px）：内底贴在框内壁，距面板外缘此值。 */
 export const CLEAR_FRAME_INSET = 18;
 /** `[WXG-T-510]` A2 标题木挂牌：200×64，骑在面板上沿。 */
@@ -590,6 +596,11 @@ export const MENU_TEXTURES = {
   btnWood: 'bitmap__ui_btn_wood_9s',
   btnWoodPressed: 'bitmap__ui_btn_wood_9s_pressed',
   btnPaper: 'bitmap__ui_btn_paper_9s',
+  /**
+   * `[WXG-T-938]` 设置弹窗按钮底板：自选关页「关闭」烘图（`ui_level_select_close@2x`）派生的
+   * **无字**厚木 9-slice（235×210，capX 70）。用户令「设置页面的按钮不是选关页面的按钮设计」。
+   */
+  btnSettings: 'bitmap__ui_btn_settings_9s',
 } as const;
 
 /**
