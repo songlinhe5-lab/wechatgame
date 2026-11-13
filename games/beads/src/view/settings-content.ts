@@ -97,10 +97,11 @@ export const SETTINGS_GRID = Object.freeze({
     viewTopInset: 220,
     viewBottomInset: 162,
     /**
-     * `[WXG-T-497]` 页脚「关于」中线距 plate 底缘。返回钮下缘 = 50（`meta-layout::settingsLayout`）、
-     * 页脚 28px 字面上下缘 = 30±14 ⇒ 与返回钮净空 6px、距板底 16px（⛔ 不注册热区）。
+     * `[WXG-T-940]` 页脚版本行中线距 plate 底缘（用户令「调整字号位置字色」）。
+     * 返回钮下缘 = 50（`meta-layout::settingsLayout`）、22px 字面上下缘 = 34±11
+     * ⇒ 与返回钮净空 5px、距板底 23px（避开木牌底缘厚边；⛔ 不注册热区）。
      */
-    footerFromBottom: 30,
+    footerFromBottom: 34,
 });
 
 /**
@@ -383,14 +384,19 @@ export function drawSettingsScrollbar(
 }
 
 /**
- * `[WXG-T-497]` 设置页脚「关于」= 版本号唯一落点（用户 2026-10-29：「版本信息放到设置里 / 关于信息」）。
+ * `[WXG-T-497]` 设置页脚 = 版本号唯一落点（用户 2026-10-29：「版本信息放到设置里 / 关于信息」）。
  * 主菜单屏底那份已随本批删除 ⇒ 全局不再有第二处版本号。
  * 只读信息行：**不注册热区**，也不参与任何开关/循环。
+ *
+ * `[WXG-T-940]` 用户令「调整字号位置字色，提示内容符合标准版本信息格式」⇒
+ * 文案 `版本 vX.Y.Z · 演示版`（`version_label` 原样，发布腿仍会剥后缀）；字号 22（`UI_FONT.cell`，
+ * 版本行属元数据、不占正文 E1 档）；字色 `woodText` 90%（`textDim` 在木面仅 ≈1.8:1，实测不可读）；
+ * 中线上移到 `footerFromBottom 34` 避开木牌底缘厚边。
  */
 export function drawSettingsAbout(builder: RenderModelBuilder, palette: BeadsPalette, plate: SettingsBox): void {
-    builder.text(plate.x + plate.w / 2, plate.y + SETTINGS_GRID.footerFromBottom, `关于 · ${COPY_TOKENS.version_label}`, {
-        fill: palette.textDim,
-        font: UI_FONT.label,
+    builder.text(plate.x + plate.w / 2, plate.y + SETTINGS_GRID.footerFromBottom, `版本 ${COPY_TOKENS.version_label}`, {
+        fill: withAlpha(palette.woodText, 0.9),
+        font: UI_FONT.cell,
         align: 'center',
         baseline: 'middle',
     });

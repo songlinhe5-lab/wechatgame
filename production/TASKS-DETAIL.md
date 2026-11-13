@@ -9800,6 +9800,19 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **提交**：`19fb24ad`（代码 + Cocos 镜像 + 文档 + 台账）；复评与金样本重抓同批回填。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
 
+## WXG-T-940
+
+**UX·设置底部版本信息调字号位置字色 + 标准格式** · 负责：主理人(Trae CN)·beads UX/工程轨 · 状态：✅ 完成（2026-11-13 · 用户令「设置页面底部的版本信息需要调整字号位置字色，提示内容符合标准版本信息格式」）
+
+- **用户原话**：「设置页面底部的版本信息需要调整字号位置字色，提示内容符合标准版本信息格式」。
+- **根因**：① 文案 `关于 · {version_label}` 不是标准版本信息格式；② `palette.textDim`（`#6E7288`）压木牌 `wood_face` 仅 ≈1.8:1，harness 实帧几乎不可读；③ 28px 字面中心距板底 30 ⇒ 下缘 16，压住木牌底缘厚边，观感像被裁切。
+- **裁定**：文案改 `版本 {version_label}`（发布腿仍由 `lib/version-label.mjs` 剥「· 演示版」）；版本行按**元数据**处理，字号 22（`UI_FONT.cell`，⛔ 不占正文 E1 28 档）；字色 `withAlpha(woodText, 0.9)`；中线 30 → 34。
+- **代码**：`view/settings-content.ts` —— `SETTINGS_GRID.footerFromBottom` 30 → **34**；`drawSettingsAbout` 文案 / 字号 / 字色 / 位置四项改；Cocos 镜像随 `framework:sync` 同批更新（写入 1 件）。
+- **测试 / 金样本**：`settings` 帧命令数 total / kinds 不变，text 命令的字串 / font / fill / y 变 ⇒ **sha 变**；由 `tests/ui-golden-capture.ts` 在提交锚 `（见提交记录）` 重抓，⛔ 不手改夹具。
+- **文档**：`ux-spec` v1.52 §2（设置弹窗行）、`docs/architecture/ui-architecture-beads.md §12` 视觉变更登记。
+- **验证**：`pnpm --filter @wxgame/beads run typecheck` 0 错；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；harness 4176 实帧截图确认浅色小字「版本 v1.0.0 · 演示版」。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
 ## WXG-T-939
 
 **UX·设置底部返回钮改选关「关闭」烘字纹理** · 负责：主理人(Trae CN)·beads UX/工程轨 · 状态：✅ 完成（2026-11-13 · 用户令「设置页面下面的返回按钮，中间文字应该展示，选关页面的关闭纹理」）
