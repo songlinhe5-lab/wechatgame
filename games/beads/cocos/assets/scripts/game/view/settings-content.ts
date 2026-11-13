@@ -11,6 +11,7 @@
 import { nineSliceFx, type RenderModelBuilder } from '../../framework/index';
 import {
     BEAD_SIZE_LABELS,
+    LEVEL_SELECT_TEXTURES,
     MENU_TEXTURES,
     SETTINGS_BTN_SLICE,
     TOUCH_MIN,
@@ -276,6 +277,35 @@ export function drawSettingsWoodButton(
         return;
     }
     drawButton(builder, palette, x, y, w, h, 'wood', 16, text, font, pressed, false);
+}
+
+/**
+ * `[WXG-T-939]` 底部「返回」钮 = **选关页「关闭」整枚烘字钮**（用户令：「设置页面下面的返回按钮，
+ * 中间文字应该展示，选关页面的关闭纹理」）。
+ *
+ * 位图就绪 ⇒ 整枚 blit `LEVEL_SELECT_TEXTURES.closeBtn`（中间文字即烘死的「关闭」，⛔ 不再叠
+ * 程序化「返回」字，避免双层文字）；按下只叠深棕 18% 压暗（源图无按下态）。
+ * 缺图腿 ⇒ 回落 {@link drawSettingsWoodButton} + 传入的程序化文案（「返回」）。
+ */
+export function drawSettingsCloseButton(
+    builder: RenderModelBuilder,
+    palette: BeadsPalette,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    fallbackText: string,
+    font: string,
+    pressed = false,
+): void {
+    if (menuBitmapReady(LEVEL_SELECT_TEXTURES.closeBtn)) {
+        builder.blit(LEVEL_SELECT_TEXTURES.closeBtn, x, y, w, h);
+        if (pressed) {
+            builder.rect(x, y, w, h, { fill: withAlpha(palette.shadowInk, 0.18), radius: 18 });
+        }
+        return;
+    }
+    drawSettingsWoodButton(builder, palette, x, y, w, h, fallbackText, font, pressed);
 }
 
 /**

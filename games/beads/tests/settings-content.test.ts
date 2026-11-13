@@ -14,8 +14,9 @@ import type { RenderModelBuilder } from '@wxgame/framework';
 import { hitTestMeta, metaLayout } from '../src/view/meta-view.js';
 import { levelDetailPlate } from '../src/view/meta-layout.js';
 import { setMenuBitmapResolver } from '../src/view/meta-widgets.js';
-import { MENU_TEXTURES } from '../src/config/tuning.js';
+import { MENU_TEXTURES, LEVEL_SELECT_TEXTURES } from '../src/config/tuning.js';
 import {
+    drawSettingsCloseButton,
     drawSettingsContent,
     isSettingsAction,
     settingsContentButtons,
@@ -254,6 +255,34 @@ describe('UI-30 · SettingsContent', () => {
         const fallback = draw();
         expect(fallback.blits).toHaveLength(0);
         expect(fallback.texts).toHaveLength(11);
+    });
+
+    it('[WXG-T-939] 底部「返回」位图腿 = 选关「关闭」整枚烘字纹理（⛔ 不叠程序化字）；缺图回退厚木钮', () => {
+        setMenuBitmapResolver((id) => id === LEVEL_SELECT_TEXTURES.closeBtn);
+        const PAL = { woodText: '#FFF6E8', shadowInk: '#3D2E1E' } as unknown as BeadsPalette;
+        const draw = () => {
+            const blits: { tex: string; opts?: unknown }[] = [];
+            const texts: unknown[] = [];
+            const fills: unknown[] = [];
+            const b = {
+                rect: (...args: unknown[]) => fills.push((args[4] as { fill?: unknown } | undefined)?.fill),
+                text: (...args: unknown[]) => texts.push(args),
+                line: () => undefined,
+                setBackground: () => undefined,
+                blit: (tex: string, _x: number, _y: number, _w: number, _h: number, opts?: unknown) =>
+                    blits.push({ tex, opts }),
+            } as unknown as RenderModelBuilder;
+            drawSettingsCloseButton(b, PAL, 100, 50, 240, 88, '返回', '30px sans-serif');
+            return { blits, texts, fills };
+        };
+        const ready = draw();
+        expect(ready.blits).toEqual([{ tex: LEVEL_SELECT_TEXTURES.closeBtn, opts: undefined }]);
+        expect(ready.texts).toHaveLength(0); // 烘字已含「关闭」，⛔ 不再叠「返回」
+        // 缺图腿 ⇒ 回落厚木钮 + 程序化「返回」文案。
+        setMenuBitmapResolver(undefined);
+        const fallback = draw();
+        expect(fallback.blits).toHaveLength(0);
+        expect(fallback.texts).toHaveLength(1);
     });
 
     it('文案单源：暂停面板已去设置化，view-model 不再引用 settingsContentLabel', () => {

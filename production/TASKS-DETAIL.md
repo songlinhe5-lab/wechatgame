@@ -9800,6 +9800,19 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **提交**：`19fb24ad`（代码 + Cocos 镜像 + 文档 + 台账）；复评与金样本重抓同批回填。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
 
+## WXG-T-939
+
+**UX·设置底部返回钮改选关「关闭」烘字纹理** · 负责：主理人(Trae CN)·beads UX/工程轨 · 状态：✅ 完成（2026-11-13 · 用户令「设置页面下面的返回按钮，中间文字应该展示，选关页面的关闭纹理」）
+
+- **用户原话**：「设置页面下面的返回按钮，中间文字应该展示，选关页面的关闭纹理」。
+- **裁定**：底部 `back` 钮位图就绪时**整枚 blit** 选关页底部「关闭」烘字钮（`LEVEL_SELECT_TEXTURES.closeBtn`，源 301×105，落到 240×88 仅约 5% 横向压缩），中间文字即烘死的「关闭」；⛔ 不再叠程序化「返回」字（会双层文字）。按钮语义仍是关闭设置弹窗，与右上 ✕ 同义。
+- **代码**：① `settings-content.ts` 新增 `drawSettingsCloseButton` —— `menuBitmapReady(closeBtn)` 为真 ⇒ `builder.blit(closeBtn)`；按下叠 `withAlpha(shadowInk, 0.18)` 圆角压暗（源图无按下态）；缺图 ⇒ 回落 `drawSettingsWoodButton` + 传入文案「返回」；② `meta-settings-page.ts` 固定 chrome 循环里 `back` 分支改走该函数，其余钮不变；③ Cocos 镜像随 `framework:sync` 同批更新（写入 2 件）。
+- **测试**：`tests/settings-content.test.ts` 新增 T-939 例 —— 位图腿 1 blit（`closeBtn`）/ 0 字，缺图腿 0 blit / 1 字（「返回」）；settings-content 共 11 例全绿。
+- **金样本**：捕获腿未注入位图注册表 ⇒ 仍走回退腿，`settings` 帧逐字未变（无需重抓）。
+- **文档**：`ux-spec` v1.51 §2（设置弹窗行）、`docs/architecture/ui-architecture-beads.md §12` 视觉变更登记。
+- **验证**：`pnpm --filter @wxgame/beads run typecheck` 0 错；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；harness 4176 实帧截图确认底部钮显示烘字「关闭」。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
 ## WXG-T-938
 
 **UX·设置弹窗按钮改选关「关闭」派生无字厚木 9-slice** · 负责：主理人(Trae CN)·beads UX/工程轨 · 状态：✅ 完成（2026-11-13 · 用户令「设置页面的按钮不是选关页面的按钮设计」）

@@ -19,6 +19,7 @@ import { drawCloseInset, drawModalPlate, label } from './meta-widgets.js';
 import { levelDetailPlate, settingsViewport } from './meta-layout.js';
 import {
     drawSettingsAbout,
+    drawSettingsCloseButton,
     drawSettingsContent,
     drawSettingsScrollbar,
     drawSettingsWoodButton,
@@ -74,11 +75,27 @@ export function drawSettingsPage(
         if (b.id === 'close-settings' || b.id === 'dismiss-settings') continue;
         if (b.id === 'studio-import' && !data.studioEnabled) continue;
         const pressed = data.pressed === b;
+        const by = b.box.y + pressOffset(pressed, data.reduceMotion);
+        // `[WXG-T-939]` 底部「返回」钮：中间文字直接用选关「关闭」烘字纹理（整枚 blit）。
+        if (b.id === 'back') {
+            drawSettingsCloseButton(
+                builder,
+                palette,
+                b.box.x,
+                by,
+                b.box.w,
+                b.box.h,
+                label(b.id, data),
+                UI_FONT.button,
+                pressed,
+            );
+            continue;
+        }
         drawSettingsWoodButton(
             builder,
             palette,
             b.box.x,
-            b.box.y + pressOffset(pressed, data.reduceMotion),
+            by,
             b.box.w,
             b.box.h,
             label(b.id, data),

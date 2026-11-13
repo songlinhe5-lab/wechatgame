@@ -39,6 +39,7 @@
 
 - **Cocos 投放件**：由派生脚本同时输出 `games/beads/cocos/assets/textures/ui_btn_settings_9s.png`；本批**暂不入库**（`.meta` 与重构建受本机 CLI `browser_1.init` 阻塞，同 `production/qa/menu-tri-state-gray-20261102.md`）⇒ 当前设置腿走已进包的 `btnWood` 过渡，待 GUI 导入后补 `.meta` + 注册，⛔ 不手写 `.meta`。
 - **harness**：`dev/harness` 直读 `final/assets/menu/buttons/` 的 `@2x` 原件（`/menu-assets/` 白名单），无需投放件。
+- **WXG-T-939 复用件**：设置弹窗底部「关闭」钮直接读 `final/assets/detail/ui_level_select_close@2x.png`（来源见 §0.1），**无新增资产**；本批只改绘制接线。
 
 ## 1. 本批（2026-10-30 → 11-01）逐件来源账
 
