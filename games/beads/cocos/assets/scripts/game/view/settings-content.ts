@@ -3,7 +3,7 @@
  *
  * 菜单设置弹窗的**按钮集 / 档位文案 / 按钮绘制 / 可视窗与滚动几何**单源
  * （v1.9 起复用关卡详情木牌 581×1044；11 钮 = 6 行 × 2 列）。
- * 几何仍住 `view/meta-layout.ts`（`settingsPlate` + `settingsContentButtons`），
+ * 几何仍住 `view/meta-layout.ts`（`levelDetailPlate` + `settingsContentButtons`），
  * 本件只负责菜单档的 ghost 纸钮语言与文案。
  *
  * ⛔ 不持有任何状态：数据由宿主每帧投影（L5）；布局由调用方传入的 plate 派生。
