@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4105,
       "lines": 137,
-      "sha256": "7ade6192ac44d9f5c1182ed1c651f351eac09b3a9308eb43da5ea9314a890dac",
+      "sha256": "b714b77d4bd0278defd0517fba44ded85337061dfbb8b4c1001653cfa613e090",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 300753 9943 normal",
+          "summary": "1 production/TASKS-DETAIL.md 300760 9943 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5196,
       "lines": 164,
-      "sha256": "c029168e26562957784e1a958379968e3617efa03be5933f38f9978a5d8823ec",
+      "sha256": "6869fe7aaa02b82e13b1b5372b66432d434f0040479d849316603eb793712235",
       "tier": "normal",
       "sections": [
         {
@@ -1080,7 +1080,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 9943 行 / 300753 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 9943 行 / 300760 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
@@ -89931,9 +89931,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 300753,
+      "tokens": 300760,
       "lines": 9943,
-      "sha256": "2efb9e1d3c519e5a8e8def574e7a76e703bdf9d6598aa84b776662c21228c77e",
+      "sha256": "d031559c9435d047f886fcb6fa06c6a6f74b424e91f2c01da4b3f94885b8532e",
       "tier": "normal",
       "sections": [
         {
@@ -89941,7 +89941,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 9944,
-          "tokens": 300737,
+          "tokens": 300743,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -104737,7 +104737,7 @@
           "level": 2,
           "startLine": 9803,
           "endLine": 9815,
-          "tokens": 557,
+          "tokens": 563,
           "summary": "UX·设置底部版本信息调字号位置字色 + 标准格式 · 负责：主理人(Trae CN)·beads UX/工程轨 · 状",
           "keywords": [
             "WXG",
