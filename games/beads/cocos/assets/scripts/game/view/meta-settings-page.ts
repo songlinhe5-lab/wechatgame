@@ -14,8 +14,9 @@
 import { DESIGN_H, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TITLE_SHADOW } from '../config/tuning';
 import { type RenderModelBuilder } from '../../framework/index';
 import { withAlpha, type BeadsPalette } from './palette';
-import { UI_FONT, UI_SCRIM } from './ui-theme';
-import { drawMetaButton, drawModalPlate } from './meta-widgets';
+import { UI_FONT, UI_SCRIM, pressOffset } from './ui-theme';
+import { drawCloseInset, drawModalPlate, label } from './meta-widgets';
+import { drawButton } from './ui-widgets';
 import { levelDetailPlate, settingsViewport } from './meta-layout';
 import {
     drawSettingsAbout,
@@ -31,6 +32,8 @@ const GEO = LEVEL_DETAIL_GEO;
 const BASE_PLATE_Y = DESIGN_H - GEO.plate.yDown - GEO.plate.h;
 /** 板标题槽中线（稿 `cyDown 278`）相对木牌下缘的偏移。 */
 const TITLE_DY = DESIGN_H - GEO.title.cyDown - BASE_PLATE_Y;
+/** 右上 ✕ 槽中线（稿 `cyDown 213`）相对木牌下缘的偏移。 */
+const CLOSE_DY = DESIGN_H - GEO.close.cyDown - BASE_PLATE_Y;
 
 export function drawSettingsPage(
     builder: RenderModelBuilder,
@@ -64,12 +67,40 @@ export function drawSettingsPage(
     drawSettingsContent(builder, data, palette, layout.buttons, scroll, viewport);
     drawSettingsScrollbar(builder, palette, viewport, scroll);
 
-    // 固定 chrome：返回 / 在线导入（不随内容滚动）。
+    // 固定 chrome：返回 / 在线导入（不随内容滚动）；`[WXG-T-936]` 统一走「关闭」钮的木钮 normal 态。
     for (const b of layout.buttons) {
         if (isSettingsAction(b.id)) continue;
+        if (b.id === 'close-settings' || b.id === 'dismiss-settings') continue;
         if (b.id === 'studio-import' && !data.studioEnabled) continue;
-        drawMetaButton(builder, palette, data, b);
+        const pressed = data.pressed === b;
+        drawButton(
+            builder,
+            palette,
+            b.box.x,
+            b.box.y + pressOffset(pressed, data.reduceMotion),
+            b.box.w,
+            b.box.h,
+            'wood',
+            16,
+            label(b.id, data),
+            UI_FONT.button,
+            pressed,
+            false,
+        );
     }
+
+    // `[WXG-T-936]` 右上 ✕：与关卡详情 / 选关共用 `drawCloseInset` 画法与槽位。
+    const cl = GEO.close;
+    drawCloseInset(
+        builder,
+        palette,
+        plate.x + (cl.cx - GEO.plate.x),
+        plate.y + CLOSE_DY,
+        cl.w,
+        cl.h,
+        cl.arm,
+        data.pressed?.id === 'close-settings',
+    );
 
     // 页脚「关于 · 版本」= 版本号唯一落点（只读、无热区）。
     drawSettingsAbout(builder, palette, plate);

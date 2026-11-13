@@ -240,9 +240,7 @@ export function drawSettingsContent(
                 const iy = Math.max(bottom, vBottom);
                 const iTop = Math.min(top, vTop);
                 builder.rect(b.box.x, iy, b.box.w, iTop - iy, {
-                    fill: pressed ? palette.cardPressed : palette.slot,
-                    stroke: palette.slotBorder,
-                    lineWidth: 2,
+                    fill: pressed ? palette.woodFacePressed : palette.woodFace,
                 });
                 continue;
             }
@@ -254,8 +252,9 @@ export function drawSettingsContent(
             y,
             b.box.w,
             b.box.h,
-            'ghost',
-            14,
+            // `[WXG-T-936]` 用户令：选关页「关闭」钮的 normal 态 = 设置页所有钮的 normal 态。
+            'wood',
+            16,
             settingsContentLabel(b.id, data),
             wide ? UI_FONT.cell : UI_FONT.button,
             pressed,

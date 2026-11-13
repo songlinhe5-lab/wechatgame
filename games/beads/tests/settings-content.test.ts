@@ -157,6 +157,50 @@ describe('UI-30 · SettingsContent', () => {
         expect(isSettingsAction('resume')).toBe(false);
     });
 
+    it('[WXG-T-936] 右上 ✕ 与牌外四条关闭带：同槽 88² 热区；牌内空白不误关', () => {
+        const buttons = metaLayout('settings').buttons;
+        const close = buttons.find((b) => b.id === 'close-settings')!;
+        // 与详情 / 选关同槽（`LEVEL_DETAIL_GEO.close`：中心 622 / 距屏底 213）+ 88² 最小触控档。
+        expect(close.box).toEqual({ x: 622 - 44, y: 1334 - 213 - 44, w: 88, h: 88 });
+        expect(buttons.filter((b) => b.id === 'dismiss-settings')).toHaveLength(4);
+        expect(hitTestMeta('settings', 622, 1121)?.id).toBe('close-settings');
+        expect(hitTestMeta('settings', 375, 1200)?.id).toBe('dismiss-settings'); // 牌下方
+        expect(hitTestMeta('settings', 10, 700)?.id).toBe('dismiss-settings'); // 牌左侧
+        expect(hitTestMeta('settings', 650, 700), '牌内空白（内容窗右侧余量）= 零命中').toBeNull();
+    });
+
+    it('[WXG-T-936] 内容钮 normal 态 = 木钮（用户令：选关「关闭」钮同款）', () => {
+        const WOOD = {
+            woodFace: 'WOOD_FACE',
+            woodFacePressed: 'WOOD_PRESSED',
+            woodSheen: 'SHEEN',
+            woodEdge: 'WOOD_EDGE',
+            woodText: 'WOOD_TEXT',
+        } as unknown as BeadsPalette;
+        const fills: unknown[] = [];
+        const b = {
+            rect: (...args: unknown[]) => fills.push((args[4] as { fill?: unknown } | undefined)?.fill),
+            text: () => undefined,
+            line: () => undefined,
+            setBackground: () => undefined,
+            blit: () => undefined,
+        } as unknown as RenderModelBuilder;
+        drawSettingsContent(b, DATA, WOOD, settingsContentButtons(levelDetailPlate()));
+        expect(fills).toHaveLength(11);
+        for (const fill of fills) expect(fill).toBe('WOOD_FACE');
+        // 按下态换面（woodFacePressed）。
+        const pressedFills: unknown[] = [];
+        const bp = {
+            rect: (...args: unknown[]) => pressedFills.push((args[4] as { fill?: unknown } | undefined)?.fill),
+            text: () => undefined,
+            line: () => undefined,
+            setBackground: () => undefined,
+            blit: () => undefined,
+        } as unknown as RenderModelBuilder;
+        drawSettingsContent(bp, { ...DATA, pressed: { id: 'toggle-bgm' } }, WOOD, settingsContentButtons(levelDetailPlate()));
+        expect(pressedFills[0]).toBe('WOOD_PRESSED');
+    });
+
     it('文案单源：暂停面板已去设置化，view-model 不再引用 settingsContentLabel', () => {
         const vm = readFileSync(resolve(SRC_ROOT, 'src/view/view-model.ts'), 'utf8');
         expect(vm).not.toContain('settingsContentLabel');

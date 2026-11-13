@@ -1319,7 +1319,15 @@ function metaCenter(overlay: Parameters<typeof metaLayout>[0], id: MetaAction): 
 describe('菜单设置 overlay 设置钮族 · S9 §8-14/16/19（内容单源）+ ux §4「设置 overlay」行', () => {
     it('11 钮 = 6 行 × 2 列（末行 Debug 单钮）：三枚选择器钮各恰一次，行距沿用旧等差、列间不重叠', () => {
         const buttons = metaLayout('settings').buttons;
-        const grid = buttons.filter((b) => b.id !== 'back' && b.id !== 'studio-import');
+        // `[WXG-T-936]` 固定 chrome（返回 / 在线导入 / 右上 ✕）+ 牌外四条关闭带不属内容栅格：
+        // `dismiss-settings` 四条同 id ⇒ 必须先剔，否则「每钮唯一」断言被贴边带误伤。
+        const grid = buttons.filter(
+            (b) =>
+                b.id !== 'back' &&
+                b.id !== 'studio-import' &&
+                b.id !== 'close-settings' &&
+                b.id !== 'dismiss-settings',
+        );
         const ids = grid.map((b) => b.id);
         expect(new Set(ids).size).toBe(ids.length); // 每钮唯一
         expect(ids.filter((i) => i === 'cycle-bead-style').length).toBe(1);
@@ -1343,6 +1351,23 @@ describe('菜单设置 overlay 设置钮族 · S9 §8-14/16/19（内容单源）
         // 避让仍成立：底行下缘（360）> 返回钮上缘（174+88 = 262）⇒ 内容不压固定 chrome。
         const back = buttons.find((b) => b.id === 'back')!;
         expect(bottomRowY).toBeGreaterThan(back.box.y + back.box.h);
+    });
+
+    it('[WXG-T-936] 右上 ✕ / 点木牌外空白 ⇒ 关设置；牌内空白不关', () => {
+        const shell = shellRig(newStorage());
+        const open = metaCenter('none', 'open-settings');
+        expect(shell.tapMeta(open.x, open.y)).toBe(true);
+        expect(shell.overlay).toBe('settings');
+        expect(shell.tapMeta(375, 1200), '牌下方').toBe(true);
+        expect(shell.overlay).toBe('none');
+
+        expect(shell.tapMeta(open.x, open.y)).toBe(true);
+        expect(shell.tapMeta(10, 700), '牌左侧').toBe(true);
+        expect(shell.overlay).toBe('none');
+
+        expect(shell.tapMeta(open.x, open.y)).toBe(true);
+        expect(shell.tapMeta(622, 1121), '右上 ✕').toBe(true);
+        expect(shell.overlay).toBe('none');
     });
 
     it('点按走 shell default → applySettingsAction：档位变、每次恰写 play 档 1 次、循环长度 = 运行时注册数', () => {

@@ -327,7 +327,13 @@ export type MetaAction =
      * ⛔ 复用 `close-detail` 会让 shell 误清详情态；本页用独立动作名。
      */
     | 'close-levels'
-    | 'dismiss-levels';
+    | 'dismiss-levels'
+    /**
+     * `[WXG-T-936]` 设置弹窗关闭：右上角 ✕ / 点木牌外空白，语义 = 关设置弹窗。
+     * ⛔ 复用 `back` 会让底部返回与右上 ✕ 无法分画（`drawCloseInset` 的按下态按 id 判）。
+     */
+    | 'close-settings'
+    | 'dismiss-settings';
 
 export interface Box {
     readonly x: number;

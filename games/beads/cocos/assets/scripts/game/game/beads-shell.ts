@@ -762,6 +762,9 @@ export class BeadsShell implements Game {
             case 'dismiss-detail':
             case 'close-levels':
             case 'dismiss-levels':
+            // `[WXG-T-936]` 设置弹窗：右上 ✕ / 点木牌外空白 ⇒ 同「返回」关设置。
+            case 'close-settings':
+            case 'dismiss-settings':
             case 'back':
                 // UI-42 前置（WXG-T-314）：**仅选关页**走淡出 150ms（弹窗仍即时关，口径不变）。
                 // 淡出期间 overlay 仍归页（命中路径不变）⇒ 终点才置 `none` 并发关闭事件。

@@ -193,6 +193,23 @@ function settingsLayout(): MetaLayout {
         id: 'studio-import',
         box: box(plate.x + plate.w - 40 - 130, plate.y + 50, 130, TOUCH_MIN),
     });
+    // `[WXG-T-936]` 右上角 ✕：与关卡详情 / 选关同槽（`LEVEL_DETAIL_GEO.close`、88² 最小触控档），
+    // 绘制走共用的 `drawCloseInset`；底部「返回」保留 ⇒ 同一关闭语义两个出口。
+    const cl = LEVEL_DETAIL_GEO.close;
+    buttons.push({
+        id: 'close-settings',
+        box: box(cl.cx - TOUCH_MIN / 2, DESIGN_H - cl.cyDown + dialogShiftY() - TOUCH_MIN / 2, TOUCH_MIN, TOUCH_MIN),
+    });
+    // 点木牌外空白 = 关闭：四条贴边带（⛔ 不做全屏钮 —— 会把牌内空白点击也吞掉）。
+    buttons.push(
+        { id: 'dismiss-settings', box: box(0, plate.y + plate.h, DESIGN_W, DESIGN_H - plate.y - plate.h) },
+        { id: 'dismiss-settings', box: box(0, 0, DESIGN_W, plate.y) },
+        { id: 'dismiss-settings', box: box(0, plate.y, plate.x, plate.h) },
+        {
+            id: 'dismiss-settings',
+            box: box(plate.x + plate.w, plate.y, DESIGN_W - plate.x - plate.w, plate.h),
+        },
+    );
     return { buttons, signinCells: [] };
 }
 
