@@ -1207,10 +1207,13 @@ describe('设置态遮罩 α 分列 · ux §3.3「遮罩」条 + 工作项④：
         const mv = SRC('view/meta-view.ts');
         expect(mv).toContain('scrimFill(');
         expect(mv).toContain('UI_SCRIM.overlay');
-        // WXG-T-420 T7 起页面选择 = `META_PAGES` 表 ⇒ α 分列改钉「表行参」同形不变：
-        // 唯一设置态消费点 + 其余 overlay 仍旧 0.5（正向腿与计数腿配对，⛔ 只剩负向 = K-144 假绿）。
-        expect(mv.match(/UI_SCRIM\.settingsAlpha/g)?.length).toBe(1);
-        expect(mv).toContain('panelPage(COPY_TOKENS.btn_settings_label, UI_SCRIM.settingsAlpha');
+        // WXG-T-420 T7 起页面选择 = `META_PAGES` 表；`[WXG-T-935]` 设置页自持木牌后
+        // α 消费点随页面迁到 `meta-settings-page.ts`（仍恰 1 处，其余 overlay 仍旧 0.5）。
+        const ms = SRC('view/meta-settings-page.ts');
+        expect(ms.match(/UI_SCRIM\.settingsAlpha/g)?.length).toBe(1);
+        expect(ms).toContain('COPY_TOKENS.btn_settings_label');
+        expect(ms).toContain("from '../config/copy-tokens.js'");
+        expect(mv).not.toContain('UI_SCRIM.settingsAlpha');
         // 默认 α 面板穷尽列举（`[WXG-T-470/471/472]` 批 1；`[WXG-T-501]` 图鉴 / 本地榜下线），
         // 均按 design 取默认 0.5——⛔ 不是放宽：集合式判据约定「只有 settings 下调」不变。
         const defaultAlphaPages = (mv.match(/(\w+): panelPage\([^,]+, UI_SCRIM\.alpha/g) ?? [])
@@ -1327,7 +1330,7 @@ describe('菜单设置 overlay 设置钮族 · S9 §8-14/16/19（内容单源）
         const rows = [...new Set(grid.map((b) => b.box.y))].sort((a, b) => b - a);
         expect(grid.length).toBe(11); // 8 旧钮 + 皮肤循环钮 + Debug + 幽灵符号（两列六行）
         expect(rows.length).toBe(Math.ceil(grid.length / 2)); // 两列 ⇒ 行数 = ⌈钮数 / 2⌉
-        // 末行单枚：Debug 独居第 6 行，plate 高 820 保证避让。
+        // 末行单枚：Debug 独居第 6 行；`[WXG-T-935]` 木牌可视窗高 662 > 6 行实高 588 保证避让。
         const bottomRowY = rows[rows.length - 1]!;
         expect(grid.filter((b) => b.box.y === bottomRowY).length).toBe(1);
         expect(grid.find((b) => b.box.y === bottomRowY)!.id).toBe('toggle-debug-guides');
@@ -1337,9 +1340,9 @@ describe('菜单设置 overlay 设置钮族 · S9 §8-14/16/19（内容单源）
         for (const b of grid) {
             expect(b.box.h).toBeGreaterThanOrEqual(88); // 行高地板 TOUCH_MIN（沿用，⛔ 不为塞行而降）
         }
-        // plate 避让仍成立：底行下缘（box.y = 407）> 返回钮上缘（307+88 = 395）；
-        // WXG-T-934 由 5 行 457 扩到 6 行 407（仍为正；净空 12）。
-        expect(bottomRowY).toBeGreaterThan(395);
+        // 避让仍成立：底行下缘（360）> 返回钮上缘（174+88 = 262）⇒ 内容不压固定 chrome。
+        const back = buttons.find((b) => b.id === 'back')!;
+        expect(bottomRowY).toBeGreaterThan(back.box.y + back.box.h);
     });
 
     it('点按走 shell default → applySettingsAction：档位变、每次恰写 play 档 1 次、循环长度 = 运行时注册数', () => {

@@ -9800,6 +9800,19 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **提交**：`19fb24ad`（代码 + Cocos 镜像 + 文档 + 台账）；复评与金样本重抓同批回填。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
 
+## WXG-T-935
+
+**UX·设置弹窗复用关卡详情木牌 + 两列滚动** · 负责：主理人(Trae CN)·beads UX/工程轨 · 状态：✅ 完成（2026-11-13）
+
+- **用户原话**：「设置对话框底板与关卡详情页和选关页面共用一个对话框底板，里面的按钮按照左右两列陈列，如果超过中间内容高度，则作为滚动控件上下滚动展示」。
+- **裁定**：`settings` 弃用 600×820 纸面板，改复用 `levelDetailPlate()`（581×1044，底缘距屏底 124，逐机只叠 `dialogShiftY`）；11 钮保持 6 行 × 2 列；中间可视窗 y∈[286,948]（窗高 662），内容超窗时拖拽纵向滚动；返回 / 在线导入 / 关于固定不滚。
+- **代码落码**：`view/meta-layout.ts` 删 `settingsPlate()` / `SETTINGS_OVERLAY_H`，`settingsLayout` 改读 `levelDetailPlate()`；`hitTestMeta` 增可选 `settingsScroll`，设置动作命中先换算回内容坐标且必须落在可视窗内，固定 chrome 照旧按原位判。`view/settings-content.ts` 新增 `SETTINGS_GRID.viewTopInset=220 / viewBottomInset=162 / rowGap=12`、`settingsContentViewport / settingsContentHeight / settingsScrollMax`、`drawSettingsScrollbar`；`drawSettingsContent` 增 `scroll / viewport` 两参，窗缘部分露出的钮只画可见矩形、不画字（手工裁剪，⛔ `builder.clip` —— 弹窗在容器内，Cocos 会画出容器）。新增 `view/meta-settings-page.ts` 自持木牌页：`drawModalPlate`（沿用 settings 0.3 遮罩）+ 板标题「设置」+ 可视窗内容 + 固定 chrome + 页脚；`meta-view.ts::META_PAGES.settings` 改走该页，`panelPage` 删 `skipContentAction / plateFn` 两参。`beads-shell.ts` 新增设置拖拽状态（超 tap-slop 接管、清 `_menuPress`、松手不派发），打开设置归零滚动；`MetaViewData.settingsScroll` 每帧投影，绘制与命中同读。
+- **测试**：`settings-content.test.ts` 首钮几何改木牌真值 `{x:129,y:860,w:238.5,h:88}`、末钮 y=360，新增可视窗/滚动量/滚动命中换算腿；`bead-style-settings.test.ts` 底行避让改钉「> 返回钮上缘」；`dialog-center.test.ts` 设置底板改钉 `levelDetailPlate()` 同几何；`beads-shell.test.ts` 皮肤卡宽改按 `SETTINGS_GRID` 公式对 600 宽纸面板；`bead-style-settings` / `meta-menu-wall` 静态门迁到 `meta-settings-page.ts`。
+- **金样本**：`settings` 在提交锚由 `tests/ui-golden-capture.ts` 重抓，两遍确定性 PASS；total **1147 不变**、仅 sha 变（底板、标题位、钮位、钮宽 248→238.5），其余十态逐字未变。
+- **验证**：`pnpm --filter @wxgame/beads run typecheck` 0 错；beads 全量测试见下；`pnpm run verify` 见下；`pnpm run check:links`、`check:tasks` 见下。
+- **提交**：待回填。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
 ## WXG-T-934
 
 **UX·暂停面板收敛为三钮（全局设置归菜单）** · 负责：主理人(Trae CN)·beads UX/工程轨 · 状态：✅ 完成（2026-11-13）

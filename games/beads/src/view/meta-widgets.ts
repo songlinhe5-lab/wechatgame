@@ -399,14 +399,16 @@ export function menuBitmapReady(textureId: string): boolean {
  * `[WXG-T-612]` 选关 / 详情两弹框**背景框共用绘制**（用户令「背景框绘制…需要共用逻辑」）：
  * 遮罩 → 木牌位图 blit（`LEVEL_DETAIL_TEXTURES.plaque`，缺图 ⇒ 纸面板同几何回退）。
  * 两页层序与浓度单源 ⇒ 改一处两页生效；`plate` 传宿主位移后的实际框（两页容器同件 581×1044）。
+ * `[WXG-T-935]` `scrimAlpha` 可选：设置弹窗沿用 `UI_SCRIM.settingsAlpha`（0.3），缺省 = 通用 0.5。
  */
 export function drawModalPlate(
     builder: RenderModelBuilder,
     palette: BeadsPalette,
     plate: Box,
     screenH: number,
+    scrimAlpha: number = UI_SCRIM.alpha,
 ): void {
-    builder.rect(0, 0, DESIGN_W, screenH, { fill: scrimFill(UI_SCRIM.overlay, UI_SCRIM.alpha) });
+    builder.rect(0, 0, DESIGN_W, screenH, { fill: scrimFill(UI_SCRIM.overlay, scrimAlpha) });
     if (menuBitmapReady(LEVEL_DETAIL_TEXTURES.plaque)) {
         builder.blit(LEVEL_DETAIL_TEXTURES.plaque, plate.x, plate.y, plate.w, plate.h);
     } else {

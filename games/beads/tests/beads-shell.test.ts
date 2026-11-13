@@ -26,7 +26,8 @@ import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import { createBeadsShell, type BeadsShell } from '../src/game/beads-shell.js';
 import { defaultBeadsMeta } from '../src/game/meta-save-schema.js';
 import { metaLayout, type MetaAction, type MetaOverlay } from '../src/view/meta-view.js';
-import { anchoredGeo } from '../src/view/meta-layout.js';
+import { anchoredGeo, overlayPlate } from '../src/view/meta-layout.js';
+import { SETTINGS_GRID } from '../src/view/settings-content.js';
 import { DEFAULT_SKIN_ID, registeredSkins } from '../src/config/skins/registry.js';
 import {
     DESIGN_H,
@@ -517,8 +518,13 @@ describe('BeadsShell — 装扮馆 skins 弹窗：入口 · 卡区 · 买断闭�
     it('卡区：槽序 = 注册序 · 列几何共读设置内容块（⛔ 第二套列宽）', () => {
         const cs = cards();
         expect(cs.map((b) => b.slot)).toEqual(registeredSkins().map((_, i) => i));
-        const settingsBtn = metaLayout('settings').buttons.find((b) => b.id === 'toggle-bgm')!;
-        expect(cs[0]!.box.w).toBe(settingsBtn.box.w);
+        // `[WXG-T-935]` 设置已换 581 宽木牌 ⇒ 两页底板宽度不同、列宽按各自 plate 套同一公式；
+        // 本腿钉「共读 `SETTINGS_GRID`」本身（⛔ 第二套 sideInset/colGap）。
+        const expectedColW =
+            (overlayPlate().w - SETTINGS_GRID.sideInset * 2 - SETTINGS_GRID.colGap * (SETTINGS_GRID.cols - 1))
+            / SETTINGS_GRID.cols;
+        expect(cs[0]!.box.w).toBe(expectedColW);
+        expect(overlayPlate().w).toBe(600);
         expect(cs[0]!.box.h).toBe(SKINS_CARD_H);
         // 钉**具体数**（⛔ 只比常量名）：`tuning::SKINS_CARD_H/TOP_INSET` 漏定义时 `undefined === undefined`
         // 会假绿，而 NaN 盒子的唯一症状是「热区永远打不中」（WXG-T-363 实测踩过）。

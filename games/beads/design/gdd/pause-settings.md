@@ -55,7 +55,7 @@
 | 大字号 | `toggle-large-text` | ✅ | 不动 |
 | 震动 | `toggle-vibrate` | ✅ | 不动（仅 `platform.isMiniGame` 显示口径沿用） |
 | 性能信息 | `toggle-debug-info` | ✅ | 不动 |
-| **幽灵符号** | `toggle-ghost-symbol` | ❌ **缺位**（`MENU_ORDER` 现 10 项，含 `toggle-debug-guides`，不含本项） | **必须补入**：菜单设置 10→**11 钮**（6 行 × 2 列，末行单钮左对齐）；`settings` 底板 **600×720 → 600×820**（仅 settings；签到/装扮馆仍 720）；`settings` 金样本同批重抓 |
+| **幽灵符号** | `toggle-ghost-symbol` | ❌ **缺位**（`MENU_ORDER` 现 10 项，含 `toggle-debug-guides`，不含本项） | **必须补入**：菜单设置 10→**11 钮**（6 行 × 2 列，末行单钮左对齐）；~~`settings` 底板 **600×720 → 600×820**（仅 settings；签到/装扮馆仍 720）~~ ⇒ **[v1.47 · WXG-T-935] 再改**：设置底板改复用**关卡详情木牌 581×1044**（与 `levels` / `level-detail` 同 `levelDetailPlate`），11 钮两列；中间可视窗 y∈[286,948]（窗高 662），内容超窗 ⇒ 拖拽纵向滚动（`settingsScroll` 绘制/命中同源），返回 / 在线导入 / 关于固定不滚；`600×820` 转史证；`settings` 金样本同批重抓 |
 | 珠子风格 | `cycle-bead-style` | ✅ | 不动 |
 | 豆子尺寸 | `cycle-bead-size` | ✅ | 不动 |
 | 皮肤 | `cycle-skin` | ✅ | 不动 |

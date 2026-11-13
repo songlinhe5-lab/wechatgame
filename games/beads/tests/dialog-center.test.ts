@@ -49,6 +49,7 @@ import { clearPanelLayout } from '../src/systems/clear-panel.js';
 import { failPanelLayout } from '../src/systems/fail-panel.js';
 import { sprintSettleLayout } from '../src/systems/sprint-settle.js';
 import { metaLayout } from '../src/view/meta-view.js';
+import { levelDetailPlate } from '../src/view/meta-layout.js';
 import { frameFont, frameLen, frameX, frameY } from '../src/view/modal-frame.js';
 import { UI_FONT, UI_SCRIM, scrimFill } from '../src/view/ui-theme.js';
 import type { PanelRect } from '../src/systems/pause-panel.js';
@@ -137,16 +138,19 @@ describe('WXG-T-323 — 对话框中心对齐手机中心（逐机实际设计�
         }
     });
 
-    it('菜单设置弹窗底板（绘制面）中心 = 手机中心', () => {
+    it('菜单设置弹窗底板 = 关卡详情木牌（WXG-T-935 共用底板）', () => {
         const shell = rig();
         openSettings(shell);
-        // 弹层里唯一 `radiusPanel` 的 rect = 纸面板底板（按钮走 radiusWood / radiusBtnSmall）。
+        // 缺位图时 `drawModalPlate` 落同几何纸面板；设置已复用木牌 581×1044（底缘距屏底 124 + 逐机位移）。
         const plate = frameOf(shell).find(
             (cmd: DrawCommand): cmd is RectCommand =>
                 cmd.kind === 'rect' && cmd.radius === UI_CONTAINER.radiusPanel,
         );
         expect(plate, '未找到设置弹窗底板 rect').toBeDefined();
-        expectScreenCenter('设置弹窗（绘制面）', plate!.y + plate!.h / 2);
+        expect(plate!.x).toBe(levelDetailPlate().x);
+        expect(plate!.y).toBe(levelDetailPlate().y);
+        expect(plate!.w).toBe(levelDetailPlate().w);
+        expect(plate!.h).toBe(levelDetailPlate().h);
     });
 });
 

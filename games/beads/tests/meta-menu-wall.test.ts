@@ -595,9 +595,14 @@ describe('EP12-S6 Deliverable 5 · P-7 文案令牌单源（⛔ 屏内字面散�
 
     it('静态门：视图源内标题字面已退场 + 令牌 import 在场', () => {
         const mv = CODE('view/meta-view.ts');
-        expect(mv).toContain("from '../config/copy-tokens.js'");
+        // `[WXG-T-935]` 设置标题随页面迁入 `meta-settings-page.ts`（令牌单源不变）。
+        const ms = CODE('view/meta-settings-page.ts');
+        expect(ms).toContain("from '../config/copy-tokens.js'");
+        expect(ms).toContain('COPY_TOKENS.btn_settings_label');
         expect(mv, "⛔ 代码里不再有 '拼豆' 裸字面（app_name 令牌单源）").not.toContain("'拼豆'");
         expect(mv, "⛔ 也不得出现旧钮字面 '开始拼豆'").not.toContain('开始拼豆');
+        expect(ms, "⛔ 设置页同样不得有裸字面").not.toContain("'拼豆'");
+        expect(ms).not.toContain('开始拼豆');
     });
 
     // `[WXG-T-477]` 补 WXG-T-476 首轮 review 的 F1：批 1 页面标题原为视图内联字面

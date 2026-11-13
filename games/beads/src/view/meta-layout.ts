@@ -7,7 +7,7 @@
  */
 
 import { DESIGN_H, DESIGN_W, LEVEL_DETAIL_GEO, LEVEL_SELECT_GEO, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_X, MENU_V2, TOUCH_MIN, WALL_COLS, WALL_ROWS, dialogShiftY, menuAnchors, menuBackdropTopPad, menuPlacementFromAnchors, type MenuAnchors } from '../config/tuning.js';
-import { settingsContentButtons } from './settings-content.js';
+import { settingsContentButtons, settingsContentViewport, isSettingsAction } from './settings-content.js';
 import { signinCellLayout } from './signin-content.js';
 import { skinCardBoxes } from './skins-content.js';
 import type { Box, MetaButton, MetaLayout, MetaOverlay } from './meta-types.js';
@@ -40,13 +40,11 @@ const _layoutsByAnchors = new WeakMap<MenuAnchors, Map<MetaOverlay, MetaLayout>>
 const _layoutsByRows = new Map<MetaOverlay, Map<number, MetaLayout>>();
 
 /**
- * 弹窗纸面板宽高（`signin` / `skins` / `profile` 共用；**settings 自 v1.8 起单独 820 高**，
- * 见 {@link settingsPlate}；`levels` 自 ADR-0032 D5 起是**整页**，不走纸面板）。
+ * 弹窗纸面板宽高（`signin` / `skins` / `profile` 共用；`settings` 自 v1.9 起改用
+ * {@link levelDetailPlate} 木牌；`levels` 自 ADR-0032 D5 起是**整页**，不走纸面板）。
  */
 const OVERLAY_W = 600;
 const OVERLAY_H = 720;
-/** `[WXG-T-934]` 设置弹窗 11 钮 = 6 行所需高度（600×820；标题/底衬/返回净空实算见 `settingsLayout`）。 */
-const SETTINGS_OVERLAY_H = 820;
 
 /**
  * 弹窗纸面板底板（`signin` / `settings` 同一块）。**首次算定后缓用**：`buildMetaView` 每帧调用
@@ -68,19 +66,6 @@ export function overlayPlate(): Box {
     return _overlayPlate;
 }
 
-let _settingsPlate: Box | null = null;
-/** `[WXG-T-934]` 设置弹窗专用底板：600×820（11 钮 / 6 行）；签到 / 装扮馆 / 名片仍走 720。 */
-export function settingsPlate(): Box {
-    if (_settingsPlate === null) {
-        _settingsPlate = box(
-            (DESIGN_W - OVERLAY_W) / 2,
-            (DESIGN_H - SETTINGS_OVERLAY_H) / 2 + dialogShiftY(),
-            OVERLAY_W,
-            SETTINGS_OVERLAY_H,
-        );
-    }
-    return _settingsPlate;
-}
 /**
  * `[WXG-T-602]` 关卡详情**木牌**（Figma 581×1044 @ y下 166）——不复用 {@link overlayPlate}：
  * 木牌比通用纸面板高 324，且底缘按稿距屏底 124（非居中）。逐机只叠 `dialogShiftY()`。
@@ -172,13 +157,14 @@ function signinLayout(): MetaLayout {
 }
 
 function settingsLayout(): MetaLayout {
-    const plate = settingsPlate();
-    // UI-30 / `[WXG-T-934]`：内容块单源（`view/settings-content.ts`）= 11 钮 = 6 行 × 2 列
+    // `[WXG-T-935]` 设置弹窗复用关卡详情木牌（581×1044）：与详情 / 选关同底板、同位（底缘距屏底 124）。
+    const plate = levelDetailPlate();
+    // UI-30 / `[WXG-T-935]`：内容块单源（`view/settings-content.ts`）= 11 钮 = 6 行 × 2 列
     // （前 5 行 = 10 项玩家设置，末行 = Debug 单钮左对齐）。
-    // 底板 600×**820**（仅 settings）。避让实算：plate y∈[257,1077]；标题基线 1077−50 = 1027
-    // （字面 40 ⇒ 下缘 1007）；topY = 257+820−170 = 907，行底依次 907 / 807 / 707 / 607 / 507 / 407（行距 12）；
-    //   ① 顶行上缘 907+88 = 995 < 1007 ⇒ **净空 12**；
-    //   ② 底行下缘 407 > 返回钮上缘 257+50+88 = 395 ⇒ **净空 12**，不与「返回」/「在线导入」重叠。
+    // 避让实算：plate y∈[124,1168]；可视窗 y∈[286,948]（`SETTINGS_GRID.viewTopInset/viewBottomInset`）；
+    //   ① 首行上缘 948 < 标题字面下缘 ≈1024 ⇒ 净空 76；
+    //   ② 底行下缘 360 > 返回钮上缘 262（plate.y+50+88）⇒ 净空 98，不与「返回」/「在线导入」重叠。
+    // 6 行实高 588 < 窗高 662 ⇒ 当前不触发滚动；滚动腿见 `settingsScrollMax` / `drawSettingsScrollbar`。
     const buttons: MetaButton[] = settingsContentButtons(plate);
     // 返回
     const backW = 240;
@@ -497,14 +483,25 @@ export function metaLayout(
  * 变参行数，必须同批改本函数的 rows 入参口径（否则「画 2 行、按 3 行命中」= 热区漂移）。
  * ⚠ `anchors` 必须与 `buildMetaView` 画的**同一对象**（同读 `MetaViewData.anchors`）⇒
  * 否则菜单钮逐机错位；两者均缺省时同落 {@link DEFAULT_MENU_ANCHORS} ⇒ 仍同源。
+ * `[WXG-T-935]` `settingsScroll` = 设置可视窗的已滚量（缺省 0 ⇒ 旧调用方逐字不变）。
  */
 export function hitTestMeta(
     overlay: MetaOverlay,
     x: number,
     y: number,
     anchors?: MenuAnchors,
+    settingsScroll = 0,
 ): MetaButton | null {
-    for (const b of metaLayout(overlay, WALL_ROWS, anchors).buttons) {
+    const buttons = metaLayout(overlay, WALL_ROWS, anchors).buttons;
+    // `[WXG-T-935]` 设置内容 = 中间可视窗内的滚动列表：命中点先换算回内容坐标（+scroll），
+    // 且必须落在窗内；返回 / 在线导入固定不滚（窗外的点照旧按原位判）。
+    const viewport = overlay === 'settings' ? settingsContentViewport(levelDetailPlate()) : null;
+    const inViewport = viewport !== null && y >= viewport.y && y <= viewport.y + viewport.h;
+    for (const b of buttons) {
+        if (viewport !== null && isSettingsAction(b.id)) {
+            if (inViewport && inBox(b.box, x, y + settingsScroll)) return b;
+            continue;
+        }
         if (inBox(b.box, x, y)) return b;
     }
     return null;

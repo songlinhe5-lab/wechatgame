@@ -34,13 +34,10 @@ import {
     UI_CONTAINER,
     WALL_ROWS,
 } from '../config/tuning';
-// EP12-S6 · P-7：屏内文案一律读表（`tokens.md §7` / `menu-architecture §6`），⛔ 不散落字面。
-import { COPY_TOKENS } from '../config/copy-tokens';
 import { UI_DEBUG_SCOPE_ID, type RenderModelBuilder } from '../../framework/index';
 import { DEBUG_OUTLINE_TILE_HEX, type BeadsPalette } from './palette';
 import { drawHitBox, drawSafeGuideLines, drawTapTrace } from './debug-layer';
 import { UI_FONT, UI_SCRIM, scrimFill } from './ui-theme';
-import { drawSettingsAbout, drawSettingsContent, isSettingsAction } from './settings-content';
 import { SIGNIN_TITLE, drawSigninContent } from './signin-content';
 // WXG-T-363：装扮馆卡面画法单源 `skins-content`（卡热区仍进 `meta-layout` 的 `skinsLayout` ⇒ 画与撞同源）。
 import { SKINS_TITLE, drawSkinCard } from './skins-content';
@@ -50,17 +47,18 @@ import {
     DEFAULT_MENU_ANCHORS,
     metaLayout,
     overlayPlate,
-    settingsPlate,
 } from './meta-layout';
 import { drawMetaButton } from './meta-widgets';
 import { drawMenuAnchored, drawMenuBackdrop } from './meta-menu';
 import { drawLevelsPage } from './meta-levels-page';
 // `[WXG-T-601]` 关卡详情弹窗内容带（Figma「关卡详情弹窗 v25b」程序化还原）。
 import { drawLevelDetailPage } from './meta-level-detail-page';
+// `[WXG-T-935]` 设置弹窗：复用关卡详情木牌 + 两列滚动列表。
+import { drawSettingsPage } from './meta-settings-page';
 // `[WXG-T-432]` 好友榜面板占位视图（叠在菜单页之上；见下方 `buildMetaView` 末段）。
 import { drawRankPanel } from './rank-view';
 import { rankPanelLayout } from '../systems/rank-panel';
-import type { Box, MetaAction, MetaLayout, MetaOverlay, MetaViewData, MetaViewVariant } from './meta-types';
+import type { Box, MetaLayout, MetaOverlay, MetaViewData, MetaViewVariant } from './meta-types';
 
 export type { MetaAction, MetaBossState, MetaButton, MetaLayout, MetaOverlay, MetaViewData, MetaViewVariant } from './meta-types';
 export { hitTestMeta, inBox, metaLayout } from './meta-layout';
@@ -80,7 +78,7 @@ type PageDraw = (
     thumbN: number,
 ) => void;
 
-/** 内容块（弹窗纸面板之上、通用钮之前）：`signin` 七日格 / `settings` 10 钮 / `levels` 格墙。 */
+/** 内容块（弹窗纸面板之上、通用钮之前）：`signin` 七日格 / `levels` 格墙（`settings` 自持木牌页）。 */
 type ContentDraw = (builder: RenderModelBuilder, data: MetaViewData, palette: BeadsPalette, layout: MetaLayout, thumbN: number) => void;
 
 /**
@@ -90,20 +88,17 @@ type ContentDraw = (builder: RenderModelBuilder, data: MetaViewData, palette: Be
  * 遮罩与面板同属一个容器，容器整体排在底页命令之上（真机不再被写死五通道压乱；判例
  * WXG-T-324 → T-325 的「底页补画在真机被反超」由此根治）。
  *
- * 遮罩只压半透、⛔ 不改 RGB 与 α 档（EP11-S5 U14=丙：仅 `settings` 行读下调档，其余仍旧 0.5）；
- * ⚠️ 遮罩盖**整屏** ⇒ 高读锚定档系高 `a.H`（兜底档 = `DESIGN_H`）。标题基线 = 板顶缘下 50
- * （[WXG-T-339] 修「标题压首行钮带」，净空实算见 `meta-layout::settingsLayout` 注）。
+ * 遮罩只压半透、⛔ 不改 RGB 与 α 档；标题基线 = 板顶缘下 50。`settings` 自 `[WXG-T-935]`
+ * 起复用关卡详情木牌，不走本函数（见 `meta-settings-page`）。
  */
 function panelPage(
     title: string,
     scrimAlpha: number,
     content?: ContentDraw,
-    skipContentAction?: (id: MetaAction) => boolean,
-    plateFn: () => { x: number; y: number; w: number; h: number } = overlayPlate,
 ): PageDraw {
     return (builder, data, palette, layout, a, _withSignage, thumbN) => {
         builder.rect(0, 0, DESIGN_W, a.H, { fill: scrimFill(UI_SCRIM.overlay, scrimAlpha) });
-        const plate = plateFn();
+        const plate = overlayPlate();
         builder.rect(plate.x, plate.y, plate.w, plate.h, { fill: palette.panel, radius: UI_CONTAINER.radiusPanel });
         builder.text(plate.x + plate.w / 2, plate.y + plate.h - 50, title, {
         fill: palette.text,
@@ -113,8 +108,7 @@ function panelPage(
         });
         content?.(builder, data, palette, layout, thumbN);
         for (const b of layout.buttons) {
-            // 内容块自己画过的钮（`settings` 十钮）与选关格恒不由本循环铺；未配服务的导入钮不画也不该被点。
-            if (skipContentAction?.(b.id)) continue;
+            // 选关格恒不由本循环铺；未配服务的导入钮不画也不该被点。
             if (b.id === 'pick-level') continue;
             if (b.id === 'studio-import' && !data.studioEnabled) continue;
             // `[WXG-T-363]` 装扮馆卡：卡面 = 皮肤自己的令牌（非通用钮画法），画法单源 `skins-content`。
@@ -154,6 +148,11 @@ const LEVELS_PAGE: PageDraw = (builder, data, palette, layout, a, _withSignage, 
     drawLevelsPage(builder, data, palette, layout.buttons, thumbN, a.H);
 };
 
+/** 设置**弹窗**（`[WXG-T-935]`）：复用关卡详情木牌 + 两列可滚内容；返回 / 关于固定不滚。 */
+const SETTINGS_PAGE: PageDraw = (builder, data, palette, layout, a) => {
+    drawSettingsPage(builder, data, palette, layout, a.H);
+};
+
 /**
  * `overlay → 页面` 表（行序 = 屏序，取代原 `buildMetaView` 的四段 `overlay ===` 串判）。
  * `signin` 的「七日签到」在 `tokens.md §7` **无对应键** ⇒ 维持既有字面，UI-32 起由
@@ -166,14 +165,9 @@ const META_PAGES: Record<MetaOverlay, PageDraw> = {
         // UI-32：签到内容块单源（标题 / 7 格版式 / 格绘制）；chrome 仍走弹窗通用腿。
         drawSigninContent(builder, layout.signinCells, data.signinDay, data.canClaim, palette);
     }),
-    settings: panelPage(COPY_TOKENS.btn_settings_label, UI_SCRIM.settingsAlpha,
-        // UI-30 / v1.8：设置内容块单一实现（11 钮）；返回 / 在线导入仍按弹窗 chrome 单独画。
-        // `[WXG-T-497]` 页脚「关于 · 版本」= 版本号唯一落点（只读、无热区）。
-        (builder, data, palette, layout) => {
-            drawSettingsContent(builder, data, palette, layout.buttons);
-            drawSettingsAbout(builder, palette, settingsPlate());
-        },
-        isSettingsAction, settingsPlate),
+    // `[WXG-T-935]` 设置页自持木牌容器（非 `panelPage`）：标题 / 两列滚动内容 / 返回 / 关于
+    // 单源在 `meta-settings-page.ts` + `settings-content.ts`。
+    settings: SETTINGS_PAGE,
     skins: panelPage(SKINS_TITLE, UI_SCRIM.alpha),
     // `[WXG-T-472]` 名片页（批 1）；`[WXG-T-501]` 图鉴 / 本地榜两页下线，只剩名片。
     // 标题读 `meta-pages-content` 单源常量（真源 = `tokens.md §7`）。

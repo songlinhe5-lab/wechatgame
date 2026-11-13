@@ -12,12 +12,15 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { RenderModelBuilder } from '@wxgame/framework';
 import { hitTestMeta, metaLayout } from '../src/view/meta-view.js';
-import { settingsPlate } from '../src/view/meta-layout.js';
+import { levelDetailPlate } from '../src/view/meta-layout.js';
 import {
     drawSettingsContent,
     isSettingsAction,
     settingsContentButtons,
+    settingsContentHeight,
     settingsContentLabel,
+    settingsContentViewport,
+    settingsScrollMax,
     type SettingsAction,
     type SettingsContentData,
 } from '../src/view/settings-content.js';
@@ -55,7 +58,7 @@ function callsOf(fn: (b: RenderModelBuilder) => void): { kind: string; args: num
 
 describe('UI-30 · SettingsContent', () => {
     it('菜单版式：11 钮 = 6 行 × 2 列（末行 Debug 单钮左对齐）', () => {
-        const buttons = settingsContentButtons(settingsPlate());
+        const buttons = settingsContentButtons(levelDetailPlate());
         expect(buttons).toHaveLength(11);
         expect(buttons.map((b) => b.id)).toEqual([
             'toggle-bgm',
@@ -70,11 +73,27 @@ describe('UI-30 · SettingsContent', () => {
             'cycle-skin',
             'toggle-debug-guides',
         ]);
-        // 首钮：x = 75+40、topY = 257+820−170（v1.8 settingsPlate 600×820）。
-        expect(buttons[0]!.box).toEqual({ x: 115, y: 907, w: 248, h: 88 });
-        expect(buttons[1]!.box.x).toBe(387);
-        // 末钮（Debug）：row 5 ⇒ y = 907 − 5×(88+12) = 407，单钮左对齐。
-        expect(buttons[10]!.box).toEqual({ x: 115, y: 407, w: 248, h: 88 });
+        // `[WXG-T-935]` 木牌 581×1044 @ (89,124)：x = 89+40、首行上缘 = 板顶 −220
+        // ⇒ 首钮 y = 124+1044−220−88 = 860；列宽 = (581−80−24)/2 = 238.5。
+        expect(buttons[0]!.box).toEqual({ x: 129, y: 860, w: 238.5, h: 88 });
+        expect(buttons[1]!.box.x).toBe(391.5);
+        // 末钮（Debug）：row 5 ⇒ y = 860 − 5×(88+12) = 360，单钮左对齐。
+        expect(buttons[10]!.box).toEqual({ x: 129, y: 360, w: 238.5, h: 88 });
+    });
+
+    it('[WXG-T-935] 可视窗 / 滚动量：6 行实高 588 < 窗高 662 ⇒ 当前不滚；命中随滚量换算', () => {
+        const plate = levelDetailPlate();
+        expect(settingsContentViewport(plate)).toEqual({ x: 129, y: 286, w: 501, h: 662 });
+        expect(settingsContentHeight()).toBe(588);
+        expect(settingsScrollMax(plate)).toBe(0);
+
+        // 同一屏幕点：未滚 = 第 3 行（y 660..748，`toggle-vibrate`）；滚 100 后内容上移
+        // ⇒ 该点换算回内容坐标 804 = 第 2 行（y 760..848，`toggle-reduce-motion`）。
+        const x = 129 + 50;
+        expect(hitTestMeta('settings', x, 704)?.id).toBe('toggle-vibrate');
+        expect(hitTestMeta('settings', x, 704, undefined, 100)?.id).toBe('toggle-reduce-motion');
+        // 窗外（可视窗下缘 286 以下）= 不命中内容；返回钮在 x∈[314,554] ⇒ x=179 落空。
+        expect(hitTestMeta('settings', 179, 250)).toBeNull();
     });
 
     it('全部动作可达：每个按钮中心命中自己', () => {
@@ -115,7 +134,7 @@ describe('UI-30 · SettingsContent', () => {
     });
 
     it('绘制只画设置动作；按下态整体下沉', () => {
-        const buttons = settingsContentButtons(settingsPlate());
+        const buttons = settingsContentButtons(levelDetailPlate());
         const chrome = [...buttons, { id: 'back', box: { x: 420, y: 307, w: 240, h: 88 } }];
         const idle = callsOf((b) => drawSettingsContent(b, DATA, PALETTE, chrome));
         const pressed = callsOf((b) =>

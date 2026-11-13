@@ -74,6 +74,8 @@ import {
     type MetaViewData,
 } from '../view/meta-view';
 import type { RankPanelAction, RankPanelView } from '../systems/rank-panel';
+import { levelDetailPlate } from '../view/meta-layout';
+import { settingsContentViewport, settingsScrollMax } from '../view/settings-content';
 import { DEFAULT_SKIN_ID, registeredSkins } from '../config/skins/registry';
 // `[WXG-T-363]` 装扮馆：拥有态注入腿（视图标签）+ 卡区画法单源同文件，判例 = `setMenuBitmapResolver`。
 import { setSkinOwnedResolver } from '../view/skins-content';
@@ -281,6 +283,8 @@ export class BeadsShell implements Game {
         studioEnabled: false,
         /** 按下态：`hitTestMeta` 返回的缓存钮引用（每帧由 `_readMenuInput` 覆盖，零分配）。 */
         pressed: null as MetaButton | null,
+        /** `[WXG-T-935]` 设置可视窗滚动量（每帧由 `_metaViewData` 从同名字段投影）。 */
+        settingsScroll: 0,
         /** `[WXG-T-432]` 好友榜面板视图（每帧由 `_metaViewData` 覆盖；关档 = undefined）。 */
         rank: undefined as RankPanelView | undefined,
         // `[WXG-T-601]` 关卡详情弹窗（选关卡卡 → 详情 → 开始）：详情目标关（-1 = 未开，
@@ -305,6 +309,13 @@ export class BeadsShell implements Game {
      * 玻璃（走马灯卡）不登本门：它自己就是「按下→拖动→抬起」的手势体（`MainMenuPresenter`）。
      */
     private _menuPress: MetaButton | null = null;
+    /** `[WXG-T-935]` 设置弹窗中间可视窗的已滚量（设计 px）；打开设置时归零，关闭后保留但不可见。 */
+    private _settingsScroll = 0;
+    /** 设置内容拖拽起点（按下帧记录；`pressInView` = 起点在可视窗内，否则不接管手势）。 */
+    private _settingsPressInView = false;
+    private _settingsDragging = false;
+    private _settingsDragStartY = 0;
+    private _settingsDragStartScroll = 0;
     /** `[WXG-T-432]` 好友榜面板的按下登记（抬起同点才派发，口径同 `_menuPress`）。 */
     private _rankPress: RankPanelAction | null = null;
     /** 菜单侧广告加心位在途标（EP13-S3）：防连点重复 show；`onClose`/`onError` 清。 */
@@ -637,7 +648,7 @@ export class BeadsShell implements Game {
 
     /** 命中 + 派发的唯一腿（菜单 / overlay 共用）；返回是否被控件消费。 */
     private _dispatchMetaTap(x: number, y: number): boolean {
-        const btn = hitTestMeta(this._phase.overlay, x, y, this._viewData.anchors);
+        const btn = hitTestMeta(this._phase.overlay, x, y, this._viewData.anchors, this._settingsScroll);
         if (!btn) return false;
         return this._applyMetaAction(btn);
     }
@@ -712,6 +723,10 @@ export class BeadsShell implements Game {
                 return true;
             case 'open-settings':
                 this._cancelPageFx();
+                // `[WXG-T-935]` 每次打开回到顶部（重开不闪上次滚位）。
+                this._settingsScroll = 0;
+                this._settingsPressInView = false;
+                this._settingsDragging = false;
                 this._phase.openModal('settings');
                 this._emitOverlay(true);
                 return true;
@@ -893,8 +908,47 @@ export class BeadsShell implements Game {
             return;
         }
         this._rankPress = null;
+        // `[WXG-T-935]` 设置可视窗拖拽滚动：按下只登记起点，纵向位移超 tap-slop 才接管
+        // （→ 取消按钮提交门）；松手结束手势、不派发按钮。
+        if (this._phase.overlay === 'settings') {
+            if (snap.justDown) {
+                const vp = settingsContentViewport(levelDetailPlate());
+                this._settingsPressInView = inBox(vp, this._pointer.x, this._pointer.y);
+                this._settingsDragStartY = this._pointer.y;
+                this._settingsDragStartScroll = this._settingsScroll;
+                this._settingsDragging = false;
+            } else if (this._settingsPressInView && snap.isDown) {
+                const scale = this._services?.viewport.fit.scale ?? 1;
+                const slop = Math.round(TAP_SLOP_CSS / scale);
+                const dy = this._pointer.y - this._settingsDragStartY;
+                if (!this._settingsDragging && Math.abs(dy) > slop) {
+                    this._settingsDragging = true;
+                    this._menuPress = null;
+                    this._viewData.pressed = null;
+                }
+                if (this._settingsDragging) {
+                    const max = settingsScrollMax(levelDetailPlate());
+                    const next = this._settingsDragStartScroll + dy;
+                    this._settingsScroll = next < 0 ? 0 : next > max ? max : next;
+                }
+            }
+            if (!snap.isDown) {
+                this._settingsPressInView = false;
+                if (this._settingsDragging) {
+                    this._settingsDragging = false;
+                    this._menuPress = null;
+                    this._viewData.pressed = null;
+                    return;
+                }
+            }
+        } else {
+            this._settingsPressInView = false;
+            this._settingsDragging = false;
+        }
         if (snap.justDown) {
-            const btn = hitTestMeta(this._phase.overlay, this._pointer.x, this._pointer.y, this._viewData.anchors);
+            const btn = hitTestMeta(
+                this._phase.overlay, this._pointer.x, this._pointer.y, this._viewData.anchors, this._settingsScroll,
+            );
             // `[WXG-T-445]` 记下「判定到的点 + 吃这颗点的钮」，Debug 开时画成十字探针。
             this._tapTrace = { x: this._pointer.x, y: this._pointer.y, label: btn ? btn.id : 'MISS' };
             if (btn?.id === 'open-levels' && this._phase.overlay === 'none') {
@@ -917,7 +971,9 @@ export class BeadsShell implements Game {
         // 拖玻璃时不点亮滑过的别的钮。
         this._viewData.pressed = this._menu.dragging
             ? null
-            : hitTestMeta(this._phase.overlay, this._pointer.x, this._pointer.y, this._viewData.anchors);
+            : hitTestMeta(
+                this._phase.overlay, this._pointer.x, this._pointer.y, this._viewData.anchors, this._settingsScroll,
+            );
     }
 
     /**
@@ -928,7 +984,9 @@ export class BeadsShell implements Game {
         const press = this._menuPress;
         this._menuPress = null;
         if (!press) return;
-        const hit = hitTestMeta(this._phase.overlay, this._pointer.x, this._pointer.y, this._viewData.anchors);
+        const hit = hitTestMeta(
+            this._phase.overlay, this._pointer.x, this._pointer.y, this._viewData.anchors, this._settingsScroll,
+        );
         if (hit && hit.id === press.id && hit.slot === press.slot) {
             this._applyMetaAction(hit);
             return;
@@ -1268,6 +1326,8 @@ export class BeadsShell implements Game {
         v.heartAdsLeft = m ? m.heartAdsLeft : 0;
         v.coins = m ? m.coins : 0;
         v.overlay = this._phase.overlay;
+        // `[WXG-T-935]` 设置可视窗滚动量（绘制与命中同读本字段）。
+        v.settingsScroll = this._settingsScroll;
         // UI-42 前置（WXG-T-314）：选关页不透明度（淡入 ease-out、淡出 ease-in；静息 = undefined）。
         v.pageFade = this._pageFxDir === 0
             ? undefined

@@ -221,6 +221,11 @@ export interface MetaViewData {
      * **同一缓存对象**（视图按引用比对 ⇒ 零分配）；未按 / 未命中 ⇒ `null` / 缺省。
      */
     readonly pressed?: MetaButton | null;
+    /**
+     * `[WXG-T-935]` 设置弹窗中间可视窗的已滚量（设计 px，≥0；缺省 0 = 未滚）。
+     * shell 每帧只读投影；绘制与命中同读本值 ⇒ 滚动后「画 A 位、按 B 位」结构性不可能。
+     */
+    readonly settingsScroll?: number;
     /** `[WXG-T-432]` 好友榜面板只读视图（shell 每帧覆盖；缺省 = 关档 ⇒ 不画）。 */
     readonly rank?: RankPanelView;
     /**

@@ -1,7 +1,8 @@
 /**
  * SettingsContent — 设置内容块（ADR-0032 §4，UI-30）。
  *
- * 菜单设置弹窗的**按钮集 / 档位文案 / 按钮绘制**单源（v1.8 起 11 钮 = 6 行 × 2 列）。
+ * 菜单设置弹窗的**按钮集 / 档位文案 / 按钮绘制 / 可视窗与滚动几何**单源
+ * （v1.9 起复用关卡详情木牌 581×1044；11 钮 = 6 行 × 2 列）。
  * 几何仍住 `view/meta-layout.ts`（`settingsPlate` + `settingsContentButtons`），
  * 本件只负责菜单档的 ghost 纸钮语言与文案。
  *
@@ -16,7 +17,7 @@ import {
 } from '../config/tuning';
 import { skinLabel } from '../config/skins/registry';
 import { COPY_TOKENS } from '../config/copy-tokens';
-import type { BeadsPalette } from './palette';
+import { withAlpha, type BeadsPalette } from './palette';
 import { UI_FONT, pressOffset } from './ui-theme';
 import { drawButton } from './ui-widgets';
 
@@ -71,9 +72,9 @@ export interface SettingsButton {
 }
 
 /**
- * 内容块**列几何单源**（WXG-T-363）：设置弹窗 11 钮与装扮馆卡区共读这一套列宽/列间/内缩，
+ * 内容块**列几何单源**（WXG-T-363）：设置弹窗与装扮馆卡区共读这一套列宽/列间/内缩，
  * ⛔ 第二套列宽（`view/skins-content.ts::skinCardBoxes` 是本件之外唯一的消费者）。
- * 数值 = 工作树实测读数（`metaLayout('settings')` 首行左格 `{x:115,y:857,w:248,h:88}`）的由来，⛔ 顺手改。
+ * 列宽 248 的由来是旧 600×820 纸面板；木牌宽 581 ⇒ 列宽 238.5（⛔ 顺手改 `sideInset` / `colGap`）。
  */
 export const SETTINGS_GRID = Object.freeze({
     /** 行首内缩（左右同值 ⇒ 行宽 = plate.w − 2×本值）。 */
@@ -82,8 +83,15 @@ export const SETTINGS_GRID = Object.freeze({
     colGap: 24,
     /** 列数。 */
     cols: 2,
-    /** 首行钮下缘距 plate 底缘（= `plate.y + plate.h − 170`，避让实算见 `meta-view::settingsLayout` 注）。 */
-    firstRowFromBottom: 170,
+    /** 行距。 */
+    rowGap: 12,
+    /**
+     * `[WXG-T-935]` 中间**可视窗**上缘距木牌顶缘：标题槽（稿 `cyDown 278`、字高 64）下缘
+     * ≈ 板顶 −112−32 = −144 ⇒ 取 220 留 76 净空；下缘距板底 162（返回钮上缘 = 板底 +138，
+     * 净空 24）。窗高 = 1044 − 220 − 162 = 662；11 钮 6 行实高 588 ⇒ 当前不触发滚动。
+     */
+    viewTopInset: 220,
+    viewBottomInset: 162,
     /**
      * `[WXG-T-497]` 页脚「关于」中线距 plate 底缘。返回钮下缘 = 50（`meta-layout::settingsLayout`）、
      * 页脚 28px 字面上下缘 = 30±14 ⇒ 与返回钮净空 6px、距板底 16px（⛔ 不注册热区）。
@@ -121,15 +129,16 @@ export function isSettingsAction(id: string): id is SettingsAction {
 }
 
 /**
- * 菜单版式：plate 内 80 边距、列间 24、行距 12（[WXG-T-339] 由 −150 / +16 收紧，修「标题压首行」；
- * 避让实算与三处净空 12 见 `meta-view::settingsLayout` 注）。
+ * 菜单版式：按钮从**木牌中间可视窗上缘**往下排（两列、行距 12）。
+ * `[WXG-T-935]` 底板换成关卡详情木牌 581×1044 ⇒ 旧 `firstRowFromBottom = 170` 会顶进标题槽，
+ * 改由 {@link SETTINGS_GRID.viewTopInset} 定首行上缘。
  */
 export function settingsContentButtons(plate: SettingsBox): SettingsButton[] {
     const rowW = plate.w - SETTINGS_GRID.sideInset * 2;
     const rowX = plate.x + SETTINGS_GRID.sideInset;
     const colGap = SETTINGS_GRID.colGap;
     const colW = (rowW - colGap * (SETTINGS_GRID.cols - 1)) / SETTINGS_GRID.cols;
-    const topY = plate.y + plate.h - SETTINGS_GRID.firstRowFromBottom;
+    const topY = plate.y + plate.h - SETTINGS_GRID.viewTopInset - TOUCH_MIN;
     const out: SettingsButton[] = [];
     for (let i = 0; i < MENU_ORDER.length; i++) {
         const col = i % 2;
@@ -138,13 +147,34 @@ export function settingsContentButtons(plate: SettingsBox): SettingsButton[] {
             id: MENU_ORDER[i]!,
             box: {
                 x: rowX + col * (colW + colGap),
-                y: topY - row * (TOUCH_MIN + 12),
+                y: topY - row * (TOUCH_MIN + SETTINGS_GRID.rowGap),
                 w: colW,
                 h: TOUCH_MIN,
             },
         });
     }
     return out;
+}
+
+/** `[WXG-T-935]` 中间可视窗（内容裁剪 / 命中 / 滚动条同读这一个框）。 */
+export function settingsContentViewport(plate: SettingsBox): SettingsBox {
+    return {
+        x: plate.x + SETTINGS_GRID.sideInset,
+        y: plate.y + SETTINGS_GRID.viewBottomInset,
+        w: plate.w - SETTINGS_GRID.sideInset * 2,
+        h: plate.h - SETTINGS_GRID.viewTopInset - SETTINGS_GRID.viewBottomInset,
+    };
+}
+
+/** 6 行按钮的纵向总高（行高 + 行距；⛔ 含返回 / 导入）。 */
+export function settingsContentHeight(): number {
+    const rows = Math.ceil(MENU_ORDER.length / SETTINGS_GRID.cols);
+    return rows * TOUCH_MIN + (rows - 1) * SETTINGS_GRID.rowGap;
+}
+
+/** 最大滚动量；内容不超窗 ⇒ 0（此时手势被钳住、滚动条不画）。 */
+export function settingsScrollMax(plate: SettingsBox): number {
+    return Math.max(0, settingsContentHeight() - settingsContentViewport(plate).h);
 }
 
 /**
@@ -178,23 +208,50 @@ export function settingsContentLabel(id: SettingsAction, data: SettingsContentDa
     }
 }
 
-/** 画内容块；非设置动作（返回 / 在线导入）由调用方自己画。 */
+/**
+ * 画内容块；非设置动作（返回 / 在线导入）由调用方自己画。
+ *
+ * `[WXG-T-935]` `scroll` = 已上滚的设计 px（内容整体上移）；传 `viewport` 时逐钮做**手工裁剪**
+ * （裁掉的部分不画、部分露出的钮只画可见矩形且不画字）——⛔ 不用 `builder.clip`：
+ * 弹窗在容器内，Cocos 端会画到容器外（ADR-0033 / `ui-container-order` 硬门）。
+ */
 export function drawSettingsContent(
     builder: RenderModelBuilder,
     data: SettingsContentData,
     palette: BeadsPalette,
     buttons: readonly { readonly id: string; readonly box: SettingsBox }[],
+    scroll = 0,
+    viewport?: SettingsBox,
 ): void {
+    const vBottom = viewport ? viewport.y : 0;
+    const vTop = viewport ? viewport.y + viewport.h : 0;
     for (let i = 0; i < buttons.length; i++) {
         const b = buttons[i]!;
         if (!isSettingsAction(b.id)) continue;
         const pressed = data.pressed?.id === b.id;
         const wide = b.id === 'cycle-bead-style' || b.id === 'cycle-bead-size';
+        const y = b.box.y + pressOffset(pressed, data.reduceMotion) - scroll;
+        if (viewport) {
+            const bottom = y;
+            const top = y + b.box.h;
+            if (bottom >= vTop || top <= vBottom) continue;
+            if (bottom < vBottom || top > vTop) {
+                // 部分露出：只画可见矩形（方角 = 被窗缘截断），字等整枚露出再画。
+                const iy = Math.max(bottom, vBottom);
+                const iTop = Math.min(top, vTop);
+                builder.rect(b.box.x, iy, b.box.w, iTop - iy, {
+                    fill: pressed ? palette.cardPressed : palette.slot,
+                    stroke: palette.slotBorder,
+                    lineWidth: 2,
+                });
+                continue;
+            }
+        }
         drawButton(
             builder,
             palette,
             b.box.x,
-            b.box.y + pressOffset(pressed, data.reduceMotion),
+            y,
             b.box.w,
             b.box.h,
             'ghost',
@@ -205,6 +262,29 @@ export function drawSettingsContent(
             false,
         );
     }
+}
+
+/**
+ * `[WXG-T-935]` 可视窗右缘滚动条（内容超窗才画）。轨道贴内容列外侧、木牌右内缩带内，
+ * 不与任何钮相交；`scroll / max` 直接映射滑块位置（无缓动，滚动量已由 shell 钳制）。
+ */
+export function drawSettingsScrollbar(
+    builder: RenderModelBuilder,
+    palette: BeadsPalette,
+    viewport: SettingsBox,
+    scroll: number,
+): void {
+    const contentH = settingsContentHeight();
+    const max = contentH - viewport.h;
+    if (max <= 0) return;
+    const x = viewport.x + viewport.w + 10;
+    const w = 6;
+    const y = viewport.y + 4;
+    const h = viewport.h - 8;
+    builder.rect(x, y, w, h, { fill: withAlpha(palette.slotBorder, 0.45), radius: 3 });
+    const thumbH = Math.max(48, (h * viewport.h) / contentH);
+    const t = Math.max(0, Math.min(1, scroll / max));
+    builder.rect(x, y + (h - thumbH) * (1 - t), w, thumbH, { fill: palette.textDim, radius: 3 });
 }
 
 /**
