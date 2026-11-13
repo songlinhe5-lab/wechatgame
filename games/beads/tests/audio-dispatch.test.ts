@@ -593,8 +593,7 @@ describe('A05-19/20 · 续时两态', () => {
 describe('A05-23 · 静音双通道', () => {
   it('sfxMuted=true ⇒ 任意玩法事件后 pendingCount 恒 0（门控在 `_sfx`）', () => {
     const h = makeHarness();
-    h.game.onPause();
-    tapPauseButton(h, 'toggle-sfx');
+    h.game.applySettingsAction('toggle-sfx');
     expect(h.game.sfxMuted).toBe(true);
     h.services.audio.flush(FRAME);
     clearPlayed(h);
@@ -608,9 +607,7 @@ describe('A05-23 · 静音双通道', () => {
 
   it('bgmMuted=true 且 sfxMuted=false ⇒ SFX 照常、BGM 静默（双通道独立）', () => {
     const h = makeHarness();
-    h.game.onPause();
-    tapPauseButton(h, 'toggle-bgm');
-    tapPauseButton(h, 'resume');
+    h.game.applySettingsAction('toggle-bgm');
     expect(h.game.bgmMuted).toBe(true);
     expect(h.game.sfxMuted).toBe(false);
     clearPlayed(h);
@@ -622,10 +619,8 @@ describe('A05-23 · 静音双通道', () => {
 
   it('两开关全关仍可正常落座（静音可玩红线；通关全链由 core-loop/revive 套件覆盖）', () => {
     const h = makeHarness();
-    h.game.onPause();
-    tapPauseButton(h, 'toggle-bgm');
-    tapPauseButton(h, 'toggle-sfx');
-    tapPauseButton(h, 'resume');
+    h.game.applySettingsAction('toggle-bgm');
+    h.game.applySettingsAction('toggle-sfx');
     expect(h.game.bgmMuted).toBe(true);
     expect(h.game.sfxMuted).toBe(true);
     const grid = h.game.grid;

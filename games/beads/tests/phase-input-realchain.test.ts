@@ -166,25 +166,9 @@ describe('面板四相位 · 真链输入触达（input-control §2.3 / §8-8|pa
     expect(real.emitted.length).toBeGreaterThan(before);
   });
 
-  // §2.2 面板按钮清单：开关类按钮（不改相位）在真链下同样必须生效并即写档。
-  it('paused：真链点「音乐开关」→ bgmMuted 取反并即写档（与 tapDesign 一致）', () => {
-    const { real, bypass } = mkPair('wxgame.beads.test.rc-paused-bgm', TWO_LEVELS);
-    setupPaused(real);
-    setupPaused(bypass);
-    expect(real.game.bgmMuted).toBe(false);
-
-    const bgm = pauseButton('toggle-bgm');
-    tapInFrame(real, bgm.x, bgm.y);
-    bypass.game.tapDesign(bgm.x, bgm.y);
-
-    expect(real.game.bgmMuted).toBe(true); // 改码前此断言红（仍 false）
-    expect(bypass.game.bgmMuted).toBe(true);
-    expect(real.game.snapshot.bgmMuted).toBe(true);
-    const saved = JSON.parse(real.storage.get('wxgame.beads.test.rc-paused-bgm.real') as string) as {
-      settings: { bgmMuted: boolean };
-    };
-    expect(saved.settings.bgmMuted).toBe(true);
-  });
+  // v1.8（WXG-T-934）：暂停面板已无设置钮（音乐/音效等全部迁菜单 settings overlay），
+  // 原「paused 真链点音乐开关」腿随面板内容一并退场；菜单设置的真链输入由
+  // `beads-shell.test.ts` 的 settings overlay 腿覆盖。
 
   // §2.3「GAME_OVER：仅结算/失败面板按钮」（ux-spec §4：续时 / 重试本关）。
   it('game-over：真链点「重试本关」→ 真回 playing 且本关重开（与同坐标 tapDesign 一致）', () => {

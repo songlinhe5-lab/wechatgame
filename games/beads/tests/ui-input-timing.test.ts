@@ -97,19 +97,43 @@ describe('区外按钮抬起才提交（WXG-T-295）', () => {
   });
 
   it('从 A 钮拖到 B 钮抬起 = A/B 都不生效（不跨钮触发）', () => {
-    const h = pausedHarness('wxgame.beads.test.uit-cross');
-    const a = centre(panelButton('cycle-bead-size'));
-    const b = centre(panelButton('resume'));
-    const size0 = h.game.beadSize;
-    poke(h, a.x, a.y, 'down');
-    poke(h, b.x, b.y, 'move');
-    poke(h, b.x, b.y, 'up');
-    expect(h.game.phase).toBe('paused'); // B（继续）未被触发
-    expect(h.game.beadSize).toBe(size0); // A（循环珠径）未被触发
+    // v1.8（WXG-T-934）：暂停面板只剩三枚会改变相位的钮 ⇒ 改用菜单设置 overlay 的
+    // 「豆子尺寸」（A，改档但不退出）与「返回」（B，只关弹窗）作判据对，语义与原例一致。
+    const h = createBeadsHarness({ noAssemble: true, levels: [simpleTestLevel()], saveKey: 'wxgame.beads.test.uit-cross' });
+    const shell = new BeadsShell({
+      clock: () => 0,
+      metaKey: 'wxgame.beads.test.uit-cross-meta',
+      initialScreen: 'menu',
+      play: { levels: [simpleTestLevel()] },
+    });
+    shell.init(h.services);
+    const press = (phase: 'down' | 'move' | 'up', x: number, y: number): void => {
+      const s = screenOf(h, x, y);
+      h.input.beginFrame();
+      h.input.push({ id: 1, x: s.x, y: s.y, phase, time: 0 });
+      shell.update(STEP);
+      h.input.endFrame(STEP);
+    };
+    const btn = (overlay: 'none' | 'settings', id: string) =>
+      metaLayout(overlay, undefined, overlay === 'none' ? shell.menuAnchors : undefined)
+        .buttons.find((b) => b.id === id)!;
+    const open = btn('none', 'open-settings').box;
+    press('down', open.x + open.w / 2, open.y + open.h / 2);
+    press('up', open.x + open.w / 2, open.y + open.h / 2);
+    expect(shell.overlay).toBe('settings');
+
+    const a = btn('settings', 'cycle-bead-size').box;
+    const b = btn('settings', 'back').box;
+    const size0 = shell.play.beadSize;
+    press('down', a.x + a.w / 2, a.y + a.h / 2);
+    press('move', b.x + b.w / 2, b.y + b.h / 2);
+    press('up', b.x + b.w / 2, b.y + b.h / 2);
+    expect(shell.overlay).toBe('settings'); // B（返回）未被触发
+    expect(shell.play.beadSize).toBe(size0); // A（循环珠径）未被触发
     // 正向对照：原地抬起 = A 生效一档
-    poke(h, a.x, a.y, 'down');
-    poke(h, a.x, a.y, 'up');
-    expect(h.game.beadSize).not.toBe(size0);
+    press('down', a.x + a.w / 2, a.y + a.h / 2);
+    press('up', a.x + a.w / 2, a.y + a.h / 2);
+    expect(shell.play.beadSize).not.toBe(size0);
   });
 
   it('齿轮：抬起才暂停；从 HUD 热区拖进盘面再抬起 = 不暂停', () => {

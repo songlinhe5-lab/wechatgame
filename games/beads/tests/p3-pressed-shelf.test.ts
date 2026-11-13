@@ -75,17 +75,18 @@ const inRect = (c: RenderCommand, r: { xMin: number; yMin: number; xMax: number;
 };
 
 describe('P3 · 面板按下态（snap.pressedButton）', () => {
-  // T1 纸钮（选择器族）：按下即循环一档，不改钮的容器档 ⇒ 适合钉换面。
-  const paper = pausePanelLayout('normal').buttons.find((b) => b.id === 'cycle-bead-size')!;
+  // T1 纸钮：v1.8（WXG-T-934）起暂停面板只剩次级钮 `go-menu`（纸面材质）；
+  // 按下只亮按下态、抬起才提交，且本夹具未挂 menu 回调 ⇒ 适合钉换面而不改相位。
+  const paper = pausePanelLayout('normal').buttons.find((b) => b.id === 'go-menu')!;
   const cx = (paper.rect.xMin + paper.rect.xMax) / 2;
   const cy = (paper.rect.yMin + paper.rect.yMax) / 2;
 
   it('按住 → 命中钮 id 入快照；抬起 → null；面板外按住 → null', () => {
     const h = pausedHarness('wxgame.beads.test.p3-press');
     input(h, 'down', cx, cy);
-    expect(h.game.snapshot.pressedButton).toBe('cycle-bead-size');
+    expect(h.game.snapshot.pressedButton).toBe('go-menu');
     input(h, 'move', cx, cy);
-    expect(h.game.snapshot.pressedButton).toBe('cycle-bead-size');
+    expect(h.game.snapshot.pressedButton).toBe('go-menu');
     input(h, 'up', cx, cy);
     expect(h.game.snapshot.pressedButton).toBeNull();
     input(h, 'down', 5, 5);

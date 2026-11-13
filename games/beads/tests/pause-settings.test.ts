@@ -26,7 +26,6 @@ import {
 } from '../src/systems/pause-panel.js';
 import {
   AUDIO_CLIP_BGM,
-  AUDIO_CLIP_UI_TAP,
   CAPSULE_AVOID,
   GEAR_HIT_SIZE,
   HUD_BAND,
@@ -165,8 +164,8 @@ describe('S9 pause & settings', () => {
     const tray = trayPoint(slotA);
     const card = powerupPoint();
     // A point squarely between two buttons — i.e. the scrim itself.
-    // WXG-T-164 批0：面板长高 600（yMax=967），标题带内非钮点 = yMax-40。
-    const scrimPoint = { x: 375, y: 967 - 40 };
+    // v1.8（WXG-T-934）：面板高 364，标题带内非钮点 = yMax−40。
+    const scrimPoint = { x: 375, y: pausePanelLayout('normal').panel.yMax - 40 };
 
     // The scrim really does cover the board **and** the tray (§2.2).
     const builder = new RenderModelBuilder(750, 1334);
@@ -180,20 +179,20 @@ describe('S9 pause & settings', () => {
       scrim!.y <= yMin && scrim!.y + scrim!.h >= yMax && scrim!.x <= 0 && scrim!.w >= 750;
     expect(coversBand(PUZZLE_BAND.yMin, PUZZLE_BAND.yMax)).toBe(true); // board
     expect(coversBand(TRAY_BAND.yMin, TRAY_BAND.yMax)).toBe(true); // tray
-    // And the dialog itself, with every §2.2 control labelled.
+    // And the dialog itself, with **v1.8 三钮** labelled（设置项已全部迁菜单 settings）。
     const labels = commands
       .filter((c): c is TextCommand => c.kind === 'text')
       .map((t) => t.text);
     expect(labels).toContain('暂停');
     expect(labels).toContain('继续');
     expect(labels).toContain('重玩本关');
-    expect(labels.some((t) => t.startsWith('音乐'))).toBe(true);
-    expect(labels.some((t) => t.startsWith('音效'))).toBe(true);
-    // WXG-T-177（用户 2026-09-19「去冲刺按钮先隐藏，咱不需要这个功能」）：暂停面板
-    // 行 4 不再出现冲刺入口 ⇒ 文案必须消失（旧判据「labels 含去冲刺」已反转）。
+    expect(labels).toContain('回主菜单');
+    // 反向：面板内不得再出现任何全局设置（音乐 / 音效 / 减弱动效 / 大字号 / 震动 /
+    // 性能信息 / 幽灵符号 / 珠子风格 / 豆子尺寸 / 皮肤）。
+    for (const banned of ['音乐', '音效', '减弱动效', '大字号', '震动', '性能信息', '幽灵符号', '珠子风格', '豆子尺寸', '皮肤']) {
+      expect(labels.some((t) => t.includes(banned)), banned).toBe(false);
+    }
     expect(labels.some((t) => t.includes('去冲刺'))).toBe(false);
-    expect(labels.some((t) => t.startsWith('减弱动效'))).toBe(true);
-    expect(labels.some((t) => t.startsWith('大字号'))).toBe(true);
 
     expect(tap(game, cell.x, cell.y)).toBe(false);
     // [WXG-T-237 v4.0] 托盘改 1:1 后槽位**居中且变小**：`slotCenterX(0)` 由 78 → **199**、
@@ -315,49 +314,35 @@ describe('S9 pause & settings', () => {
       };
     };
 
-    tapGear(game);
-    expect(game.phase).toBe('paused');
-
-    // BGМ: OFF → written immediately **and** the looping clip is stopped.
-    const bgm = buttonPoint('toggle-bgm');
+    // v1.8（WXG-T-934）：设置项已迁菜单 settings overlay；本腿验「动作引擎 + 存档」，
+    // 直接走共享动作入口（菜单弹窗与暂停面板曾共用同一实现）。
     const stopSpy = vi.spyOn(harness.services.audio, 'stop');
-    let p = bgm;
-    expect(tap(game, p.x, p.y)).toBe(true);
+    game.applySettingsAction('toggle-bgm');
     expect(game.bgmMuted).toBe(true);
     expect(readSettings().bgmMuted).toBe(true);
     expect(stopSpy).toHaveBeenCalledWith(AUDIO_CLIP_BGM);
 
-    // sfx still reaches the backend while music is muted.
-    harness.services.audio.flush(STEP); // flush the tap's own sfx request
-    expect(harness.audio.played).toContain(AUDIO_CLIP_UI_TAP);
-
     // Second toggle → music back ON.
-    p = bgm;
-    expect(tap(game, p.x, p.y)).toBe(true);
+    game.applySettingsAction('toggle-bgm');
     expect(game.bgmMuted).toBe(false);
     expect(readSettings().bgmMuted).toBe(false);
     stopSpy.mockRestore();
 
     // SFX: OFF → one more toggle → ON; each write lands in the document.
-    const sfx = buttonPoint('toggle-sfx');
-    p = sfx;
-    expect(tap(game, p.x, p.y)).toBe(true);
+    game.applySettingsAction('toggle-sfx');
     expect(game.sfxMuted).toBe(true);
     expect(readSettings().sfxMuted).toBe(true);
-    p = sfx;
-    expect(tap(game, p.x, p.y)).toBe(true);
+    game.applySettingsAction('toggle-sfx');
     expect(game.sfxMuted).toBe(false);
     expect(readSettings().sfxMuted).toBe(false);
 
     // Independence, both directions: a muted sfx channel queues nothing while
     // the bgm channel keeps its own state (and vice versa).
-    p = sfx;
-    expect(tap(game, p.x, p.y)).toBe(true); // sfx OFF (bgm still ON)
+    game.applySettingsAction('toggle-sfx'); // sfx OFF (bgm still ON)
     expect(game.bgmMuted).toBe(false);
     harness.services.audio.flush(STEP);
     expect(harness.services.audio.pendingCount).toBe(0); // nothing new queued
-    p = bgm;
-    expect(tap(game, p.x, p.y)).toBe(true); // now mute bgm too
+    game.applySettingsAction('toggle-bgm'); // now mute bgm too
     expect(game.bgmMuted).toBe(true);
     expect(game.sfxMuted).toBe(true);
     expect(readSettings()).toEqual({
@@ -405,13 +390,12 @@ describe('S9 pause & settings', () => {
       const layout = pausePanelLayout(mode);
       expect(rectsOverlap(layout.panel, CAPSULE_AVOID)).toBe(false);
       expect(layout.panel.xMax - layout.panel.xMin).toBe(560);
-      // WXG-T-164 批0：暂停面板专有高 480 → 600（容纳第 4 行冲刺/回主菜单）。
-      // **EP11-S5（S9 v1.7 五行终态）**：600 → 718 = 标题带 100 + 5×88 + 4×30 = 660
-      //   + 底衬 58（沿用四行时期的 58px 余量，⛔ 不污染共用 `PANEL_SIZE.h` = 480）。
-      //   避让实算：plate yMax = (1334+718)/2 = 1026 < CAPSULE_AVOID.yMin 1214 ✓。
-      expect(layout.panel.yMax - layout.panel.yMin).toBe(718);
-      // S9 §8-5 行重叠复核（EP11-S5 首次成行——五行扩容后「不重叠」才非平凡）：
-      // 任意两钮共享面积 ⇒ 命中测试会因数组序赢者吞掉后者。
+      // v1.8（WXG-T-934）：暂停面板专有高 364 = 标题带 100 + 2×88 + 行距 30 + 底衬 58。
+      // 避让实算：plate yMax = (1334+364)/2 = 849 < CAPSULE_AVOID.yMin 1214 ✓。
+      expect(layout.panel.yMax - layout.panel.yMin).toBe(364);
+      // 三钮、零设置项（v1.8 终态）。
+      expect(layout.buttons.map((b) => b.id)).toEqual(['resume', 'restart', 'go-menu']);
+      // S9 §8-5 行重叠复核：任意两钮共享面积 ⇒ 命中测试会因数组序赢者吞掉后者。
       for (let a = 0; a < layout.buttons.length; a++) {
         for (let b = a + 1; b < layout.buttons.length; b++) {
           expect(rectsOverlap(layout.buttons[a]!.rect, layout.buttons[b]!.rect)).toBe(false);
@@ -428,28 +412,9 @@ describe('S9 pause & settings', () => {
         expect(button.rect.yMax).toBeLessThanOrEqual(layout.panel.yMax);
       }
     }
-    // WXG-T-177：冲刺入口 `start-sprint` **两模式均不再产出**（用户裁定「去冲刺按钮先隐藏」；
-    // 旧口径为「normal 有、sprint 无」）。
+    // WXG-T-177：冲刺入口 `start-sprint` **两模式均不再产出**。
     for (const mode of ['normal', 'sprint'] as const) {
       expect(pausePanelLayout(mode).buttons.some((b) => b.id === 'start-sprint')).toBe(false);
-    }
-    // WXG-T-088：两个可访问性开关行3 常驻（两模式均保留，仅去冲刺位退场）。
-    // WXG-T-164 拍板⑦/§8-11：震动开关行与回主菜单次钮两模式常驻。
-    for (const mode of ['normal', 'sprint'] as const) {
-      const ids = pausePanelLayout(mode).buttons.map((b) => b.id);
-      expect(ids).toContain('toggle-reduce-motion');
-      expect(ids).toContain('toggle-large-text');
-      expect(ids).toContain('toggle-vibrate');
-      expect(ids).toContain('go-menu');
-      // **EP11-S5 / S9 v1.7 §8-14**：行4 两枚选择器钮与行5 两钮**两模式同构常驻**。
-      expect(ids).toContain('cycle-bead-style');
-      expect(ids).toContain('cycle-bead-size');
-      expect(ids).toContain('toggle-debug-info');
-      // 行位序（§2.2 五行终态）：行4 两钮必须在行5（性能信息 / 回主菜单）**之上**。
-      const yOf = (id: string): number =>
-        pausePanelLayout(mode).buttons.find((b) => b.id === id)!.rect.yMin;
-      expect(yOf('cycle-bead-style')).toBeGreaterThan(yOf('toggle-debug-info'));
-      expect(yOf('cycle-bead-size')).toBeGreaterThan(yOf('go-menu'));
     }
   });
 
@@ -695,20 +660,13 @@ describe('S9 pause & settings', () => {
     expect(game.reduceMotion).toBe(false);
     expect(game.largeText).toBe(false);
 
-    tapGear(game);
-    expect(game.phase).toBe('paused');
-
-    // D1 减弱动效：切 ON 即写档、snapshot 同步回显。
-    const rm = buttonPoint('toggle-reduce-motion');
-    expect(tap(game, rm.x, rm.y)).toBe(true);
+    // v1.8：D1/E2 开关已迁菜单 settings overlay；动作引擎与存档口径不变。
+    game.applySettingsAction('toggle-reduce-motion');
     expect(game.reduceMotion).toBe(true);
     expect(game.snapshot.reduceMotion).toBe(true);
-    // 不切相位——面板仍 PAUSED（与音频开关同纪律）。
-    expect(game.phase).toBe('paused');
 
     // E2 大字号：再切一档。
-    const lt = buttonPoint('toggle-large-text');
-    expect(tap(game, lt.x, lt.y)).toBe(true);
+    game.applySettingsAction('toggle-large-text');
     expect(game.largeText).toBe(true);
 
     const raw = harness.storage.get(saveKey);
@@ -815,12 +773,8 @@ describe('S9 pause & settings', () => {
     expect(game.snapshot.debugInfo).toBe(false);
     expect(game.snapshot.perfFrameMs).toBe(0);
 
-    tapGear(game);
-    expect(game.phase).toBe('paused');
-
-    const di = buttonPoint('toggle-debug-info');
-    expect(tap(game, di.x, di.y)).toBe(true);
-    expect(game.phase).toBe('paused'); // 不切相位
+    // v1.8：性能信息开关已迁菜单 settings overlay；动作引擎与存档口径不变。
+    game.applySettingsAction('toggle-debug-info');
     expect(game.snapshot.debugInfo).toBe(true);
     expect(JSON.parse(harness.storage.get(saveKey) as string).settings.debugInfo).toBe(true);
 
@@ -836,7 +790,7 @@ describe('S9 pause & settings', () => {
     expect(game.snapshot.perfFrameMs).toBeLessThanOrEqual(1000 / 60 + 1e-6);
 
     // 再点回 OFF：写档反转，EMA 清零（热路径零开销）。
-    expect(tap(game, di.x, di.y)).toBe(true);
+    game.applySettingsAction('toggle-debug-info');
     expect(game.snapshot.debugInfo).toBe(false);
     harness.advance(1 / 60);
     expect(game.snapshot.perfFrameMs).toBe(0);
@@ -856,7 +810,7 @@ describe('S9 pause & settings', () => {
     renderPlayFrame(game, builder);
     const texts = builder.end().commands.filter((c): c is TextCommand => c.kind === 'text');
 
-    /** 该格应画的词头（pause-settings v1.7 §2.2 五行终态 / `settingsContentLabel` 串首）。 */
+    /** 该格应画的词头（pause-settings v1.8 §2.2 三钮）。 */
     const WORD: Record<PausePanelAction, string> = {
       resume: '继续',
       restart: '重玩',
@@ -876,22 +830,8 @@ describe('S9 pause & settings', () => {
     };
 
     const buttons = pausePanelLayout('normal').buttons;
-    // 覆盖面：新增钮必须同时进本表（⛔ 静默漏测）。
-    expect(buttons.map((b) => b.id)).toEqual([
-      'resume',
-      'restart',
-      'toggle-bgm',
-      'toggle-sfx',
-      'toggle-reduce-motion',
-      'toggle-large-text',
-      'toggle-vibrate',
-      'cycle-bead-style',
-      'cycle-bead-size',
-      'cycle-skin',
-      'toggle-debug-info',
-      'toggle-ghost-symbol',
-      'go-menu',
-    ]);
+    // 覆盖面：v1.8 只此三钮（⛔ 静默漏测）。
+    expect(buttons.map((b) => b.id)).toEqual(['resume', 'restart', 'go-menu']);
 
     for (const button of buttons) {
       // 该格中命中何人的词头 ⇒ 错位 / 对调 / 整行旋转都会在这条上报出格子坐标。

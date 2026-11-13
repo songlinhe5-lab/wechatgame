@@ -307,39 +307,36 @@ describe('TC-STY-11 · 行4 钮先行哨兵（S9 §8-19 + K.1a 阳性对照腿�
     // 步 5 已落码行4 两钮 ⇒ 前提哨兵按 S9 v1.7 §8-19 收口为**反向**：注册数 ≥ 2 ⇒ 钮必 present。
     // 阳性对照腿（K-060）保留且不可删：两枚对照钮（性能信息 / 回主菜单）必须在场，
     // 否则「present」会因面板整体未渲染而假绿（历史同族缺陷）。
-    it('腿 A（步 5 已翻转）：注册 ≥ 2 ⇒ PAUSED 帧两钮 present，且现档名入文案', async () => {
-        const { createBeadsHarness, simpleTestLevel } = await import('./helpers.js');
-        const { RenderModelBuilder } = await import('@wxgame/framework');
-        const { DESIGN_H, DESIGN_W, GEAR_HIT_SIZE, HUD_BAND } = await import('../src/config/tuning.js');
-        const { DEFAULT_PALETTE, DEMO_BEAD_INKS } = await import('../src/view/palette.js');
-        const { buildBeadsFrame } = await import('../src/view/view-model.js');
+    it('腿 A（v1.8 改挂菜单）：注册 ≥ 2 ⇒ settings overlay 两钮 present，且现档名入文案', async () => {
+        const { metaLayout } = await import('../src/view/meta-layout.js');
+        const { settingsContentLabel } = await import('../src/view/settings-content.js');
 
-        const harness = createBeadsHarness({
-            noAssemble: true,
-            levels: [simpleTestLevel()],
-            saveKey: 'wxgame.beads.test.sty11-a',
-        });
-        // 点齿轮进 PAUSED（S9 §8-1 既有绿判据的路径，本例只借用其态）。
-        harness.game.tapDesign(GEAR_HIT_SIZE / 2, (HUD_BAND.yMin + HUD_BAND.yMax) / 2);
-        expect(harness.game.phase).toBe('paused');
+        // 注册表 ≥ 2（默认 + 双色对角）⇒ 菜单设置必须出现两枚选择器钮。
+        const ids = metaLayout('settings').buttons.map((b) => b.id);
+        expect(ids).toContain('cycle-bead-style');
+        expect(ids).toContain('cycle-bead-size');
+        // 阳性对照腿（K-060）：同类对照钮必须在场，防「整体未渲染」假绿。
+        expect(ids).toContain('toggle-debug-info');
+        expect(ids).toContain('toggle-ghost-symbol');
+        expect(ids).toContain('back');
 
-        const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
-        builder.begin();
-        buildBeadsFrame(builder, harness.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS);
-        const texts = builder
-            .end()
-            .commands.filter((c) => c.kind === 'text')
-            .map((c) => String((c as { text?: unknown }).text));
-
-        // 翻转后的主断言：两钮字样必在。
-        expect(texts.some((t) => t.includes('珠子风格'))).toBe(true);
-        expect(texts.some((t) => t.includes('豆子尺寸'))).toBe(true);
         // §8-14「钮文案 = 现档显示」：默认档下必带风格名与豆径名（⛔ 不是只有标题）。
-        expect(texts.some((t) => t === '珠子风格  经典四棱')).toBe(true);
-        expect(texts.some((t) => t === '豆子尺寸  标准')).toBe(true);
-        // 阳性对照腿（旧口径原样保留）：两枚已落码对照钮必须在场。
-        expect(texts.some((t) => t.includes('性能信息'))).toBe(true);
-        expect(texts.some((t) => t === '回主菜单')).toBe(true);
+        const data = {
+            bgmMuted: false,
+            sfxMuted: false,
+            reduceMotion: false,
+            largeText: false,
+            vibrate: true,
+            debugInfo: false,
+            debugGuides: false,
+            ghostSymbol: false,
+            beadStyle: 'facet-4',
+            beadSize: 'full' as const,
+            skinId: 'default',
+            pressed: null,
+        };
+        expect(settingsContentLabel('cycle-bead-style', data)).toContain('经典四棱');
+        expect(settingsContentLabel('cycle-bead-size', data)).toBe('豆子尺寸  标准');
     });
 
     // 腿 B（文案静态门）：面板/overlay/风格模块**与钮文案表**不得命中「共 N 款」写死款数。

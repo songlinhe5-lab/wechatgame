@@ -48,7 +48,6 @@ import {
 import { CONFETTI_COLORS, DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
 import { buildBeadsFrame } from '../src/view/view-model.js';
 import { clearPanelLayout } from '../src/systems/clear-panel.js';
-import { pausePanelLayout } from '../src/systems/pause-panel.js';
 import {
     advancePastClearWave,
     createBeadsHarness,
@@ -332,11 +331,7 @@ describe('G6 彩带 · game 真链（arm = 延迟门开面板同帧 · 零事件
 
     it('D1（reduceMotion）真链：直开面板不臂 ⇒ 全程 confettiProgress = 0（整条关停）', () => {
         const h = mk('wxgame.beads.test.g6-d1');
-        h.game.onPause();
-        const rm = pausePanelLayout('normal').buttons.find((b) => b.id === 'toggle-reduce-motion')!;
-        h.game.tapDesign((rm.rect.xMin + rm.rect.xMax) / 2, (rm.rect.yMin + rm.rect.yMax) / 2);
-        const resume = pausePanelLayout('normal').buttons.find((b) => b.id === 'resume')!;
-        h.game.tapDesign((resume.rect.xMin + resume.rect.xMax) / 2, (resume.rect.yMin + resume.rect.yMax) / 2);
+        h.game.applySettingsAction('toggle-reduce-motion');
         expect(h.game.reduceMotion).toBe(true);
 
         fillBoard(h);

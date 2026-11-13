@@ -48,7 +48,6 @@ import {
 } from '../src/config/tuning.js';
 import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
 import { EXPAND_BTN_INK } from '../src/view/palette.js';
-import { pausePanelLayout } from '../src/systems/pause-panel.js';
 import { buildBeadsFrame } from '../src/view/view-model.js';
 import { createBeadsHarness, placeColor, simpleTestLevel, tapInFrame } from './helpers.js';
 import type { Harness } from './helpers.js';
@@ -769,22 +768,9 @@ describe('T-097 BD-10 满槽告警面板描边', () => {
 
     it('D1 减弱动效：描边保留但 α 恒 1（退静态，不消失）', () => {
         const h = mkFull('wxgame.beads.test.t097-reduce');
-        // 面板驱动一律走 `tapDesign()`（= 真 `_handleTap` 路由）：真指针链在
-        // 非 PLAYING 相位收不到点击（`_readInput()` 唯一调用点在 `_stepPlaying`）
-        // = **BD-34 / WXG-T-100 占位未动码**；本条与 `pause-settings.test.ts`、
-        // 探针 P22 同口径，**不得**据此判面板「真机可点」。
-        h.game.tapDesign(GEAR_HIT_SIZE / 2, (HUD_BAND.yMin + HUD_BAND.yMax) / 2);
-        expect(h.game.phase).toBe('paused');
-        const center = (id: string): [number, number] => {
-            const b = pausePanelLayout('normal').buttons.find((x) => x.id === id)!;
-            return [(b.rect.xMin + b.rect.xMax) / 2, (b.rect.yMin + b.rect.yMax) / 2];
-        };
-
-        expect(h.game.tapDesign(...center('toggle-reduce-motion'))).toBe(true);
+        // v1.8：D1 开关已迁菜单 settings overlay；动作入口与渲染判据不变。
+        h.game.applySettingsAction('toggle-reduce-motion');
         expect(h.game.reduceMotion).toBe(true);
-        expect(h.game.phase).toBe('paused');
-        h.game.tapDesign(...center('resume'));
-        expect(h.game.phase).toBe('playing');
 
         const seq = alphaSeq(h, 40);
         expect(seq.every((a) => !Number.isNaN(a))).toBe(true); // 通道仍在

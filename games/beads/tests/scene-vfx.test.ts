@@ -17,7 +17,6 @@ import {
   BEAD_DRAW_INSET,
   BEAD_PITCH,
   CLEAR_PANEL_DELAY_MS,
-  GEAR_HIT_SIZE,
   HUD_BAND,
   SELECT_LIFT_MS,
   SELECT_LIFT_PX,
@@ -64,7 +63,6 @@ import {
   withAlpha,
 } from '../src/view/palette.js';
 import { buildBeadsFrame } from '../src/view/view-model.js';
-import { pausePanelLayout } from '../src/systems/pause-panel.js';
 import { createBeadsHarness, simpleTestLevel, pinIdentityCamera, type Harness } from './helpers.js';
 import type { BeadsSnapshot, ColorCueMode } from '../src/game/state.js';
 
@@ -402,14 +400,8 @@ describe('G4 过关庆祝 · 裁定 1 的面板延迟门', () => {
 
   it('D1 路径不空等：波浪整条关停 ⇒ 结算面板同帧开', () => {
     const h = createBeadsHarness({ noAssemble: true, levels: [simpleTestLevel()], saveKey: 'wxgame.beads.test.g4-d1' });
-    h.game.tapDesign(GEAR_HIT_SIZE / 2, (HUD_BAND.yMin + HUD_BAND.yMax) / 2); // 齿轮 → PAUSED
-    expect(h.game.phase).toBe('paused');
-    const row = pausePanelLayout('normal').buttons.find((b) => b.id === 'toggle-reduce-motion')!.rect;
-    h.game.tapDesign((row.xMin + row.xMax) / 2, (row.yMin + row.yMax) / 2);
+    h.game.applySettingsAction('toggle-reduce-motion');
     expect(h.game.reduceMotion).toBe(true);
-    const resume = pausePanelLayout('normal').buttons.find((b) => b.id === 'resume')!.rect;
-    h.game.tapDesign((resume.xMin + resume.xMax) / 2, (resume.yMin + resume.yMax) / 2);
-    expect(h.game.phase).toBe('playing');
 
     fillBoard(h);
     expect(h.game.phase).toBe('level-clear');

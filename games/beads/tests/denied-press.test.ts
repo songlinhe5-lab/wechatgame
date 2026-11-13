@@ -30,7 +30,6 @@ import { deniedPressScale } from '../src/view/scene-vfx.js';
 import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
 import { buildBeadsFrame } from '../src/view/view-model.js';
 import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
-import { pausePanelLayout } from '../src/systems/pause-panel.js';
 import type { BeadsSnapshot } from '../src/game/state.js';
 
 const FRAME = 1 / 60;
@@ -289,11 +288,7 @@ describe('G7 触发与红线（真链 5c · TC-GRID-04/TC-INP-05 事件半边）
 
     it('`sfxMuted` ⇒ 音静默但轻压通道照常（A05-23 双通道口径延伸到第 20 剪辑）', () => {
         const h = mk('wxgame.beads.test.g7-mute');
-        h.game.onPause();
-        const b = pausePanelLayout('normal').buttons.find((x) => x.id === 'toggle-sfx')!;
-        h.game.tapDesign((b.rect.xMin + b.rect.xMax) / 2, (b.rect.yMin + b.rect.yMax) / 2);
-        const resume = pausePanelLayout('normal').buttons.find((x) => x.id === 'resume')!;
-        h.game.tapDesign((resume.rect.xMin + resume.rect.xMax) / 2, (resume.rect.yMin + resume.rect.yMax) / 2);
+        h.game.applySettingsAction('toggle-sfx');
         expect(h.game.sfxMuted).toBe(true);
         h.advance(0.2);
         clearPlayed(h);

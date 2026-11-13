@@ -50,6 +50,7 @@ import {
     DEFAULT_MENU_ANCHORS,
     metaLayout,
     overlayPlate,
+    settingsPlate,
 } from './meta-layout';
 import { drawMetaButton } from './meta-widgets';
 import { drawMenuAnchored, drawMenuBackdrop } from './meta-menu';
@@ -98,10 +99,11 @@ function panelPage(
     scrimAlpha: number,
     content?: ContentDraw,
     skipContentAction?: (id: MetaAction) => boolean,
+    plateFn: () => { x: number; y: number; w: number; h: number } = overlayPlate,
 ): PageDraw {
     return (builder, data, palette, layout, a, _withSignage, thumbN) => {
         builder.rect(0, 0, DESIGN_W, a.H, { fill: scrimFill(UI_SCRIM.overlay, scrimAlpha) });
-        const plate = overlayPlate();
+        const plate = plateFn();
         builder.rect(plate.x, plate.y, plate.w, plate.h, { fill: palette.panel, radius: UI_CONTAINER.radiusPanel });
         builder.text(plate.x + plate.w / 2, plate.y + plate.h - 50, title, {
         fill: palette.text,
@@ -165,13 +167,13 @@ const META_PAGES: Record<MetaOverlay, PageDraw> = {
         drawSigninContent(builder, layout.signinCells, data.signinDay, data.canClaim, palette);
     }),
     settings: panelPage(COPY_TOKENS.btn_settings_label, UI_SCRIM.settingsAlpha,
-        // UI-30：设置内容块单一实现（10 钮）；返回 / 在线导入仍按弹窗 chrome 单独画。
+        // UI-30 / v1.8：设置内容块单一实现（11 钮）；返回 / 在线导入仍按弹窗 chrome 单独画。
         // `[WXG-T-497]` 页脚「关于 · 版本」= 版本号唯一落点（只读、无热区）。
         (builder, data, palette, layout) => {
             drawSettingsContent(builder, data, palette, layout.buttons);
-            drawSettingsAbout(builder, palette, overlayPlate());
+            drawSettingsAbout(builder, palette, settingsPlate());
         },
-        isSettingsAction),
+        isSettingsAction, settingsPlate),
     skins: panelPage(SKINS_TITLE, UI_SCRIM.alpha),
     // `[WXG-T-472]` 名片页（批 1）；`[WXG-T-501]` 图鉴 / 本地榜两页下线，只剩名片。
     // 标题读 `meta-pages-content` 单源常量（真源 = `tokens.md §7`）。

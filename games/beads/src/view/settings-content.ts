@@ -1,11 +1,9 @@
 /**
  * SettingsContent — 设置内容块（ADR-0032 §4，UI-30）。
  *
- * 设置弹窗与暂停面板共用的三件：**按钮集 / 档位文案 / 按钮绘制**。
- * 版式按场景出变体：`menu`（5 行 × 2 列，设置弹窗，UI-30）与 `pause`（五行，
- * UI-31）。版式几何仍住 `systems/pause-panel.ts`（§8：布局与命中纯函数就地保留），
- * 本件只负责**同一种钮在两个场景画成各自的语言**：菜单档 = ghost 纸钮，
- * 暂停档 = 开关 chip（选中木底）/ 选择器纸钮。
+ * 菜单设置弹窗的**按钮集 / 档位文案 / 按钮绘制**单源（v1.8 起 11 钮 = 6 行 × 2 列）。
+ * 几何仍住 `view/meta-layout.ts`（`settingsPlate` + `settingsContentButtons`），
+ * 本件只负责菜单档的 ghost 纸钮语言与文案。
  *
  * ⛔ 不持有任何状态：数据由宿主每帧投影（L5）；布局由调用方传入的 plate 派生。
  */
@@ -13,7 +11,6 @@ import type { RenderModelBuilder } from '@wxgame/framework';
 import {
     BEAD_SIZE_LABELS,
     TOUCH_MIN,
-    UI_CONTAINER,
     beadStyleLabel,
     type BeadSizeKind,
 } from '../config/tuning.js';
@@ -24,9 +21,8 @@ import { UI_FONT, pressOffset } from './ui-theme.js';
 import { drawButton } from './ui-widgets.js';
 
 /**
- * 内容块里的设置动作（顺序即绘制 / 命中顺序）。
- * `open-skins`（WXG-T-363）= 装扮馆入口，**已于 WXG-T-365 上提顶栏中档**（提案 P4-甲）
- * ⇒ 不在本排布表里（顶栏 = 无字圆钮，⛔ 文案通道）；行5 左格回到 `cycle-skin`（循环切已买断肤）。
+ * `[WXG-T-434]` E4 幽灵符号开关。v1.8（WXG-T-934）起随暂停面板去设置化迁入菜单设置
+ * ⇒ 与其余 10 个设置动作同住 `MENU_ORDER`（菜单 11 钮 = 6 行 × 2 列，末行 Debug 单钮）。
  */
 export type SettingsAction =
     | 'toggle-bgm'
@@ -39,11 +35,6 @@ export type SettingsAction =
     | 'cycle-bead-size'
     | 'cycle-skin'
     | 'toggle-debug-guides'
-    /**
-     * `[WXG-T-434]` E4 幽灵符号开关。**只住暂停面板行5**（设置弹窗 5 行已满，
-     * 加第 6 行会撞「返回」钮 ⇒ ⛔ 不进 `MENU_ORDER` 排布，但**必须进**本全集
-     * ⇒ 否则 `isSettingsAction` 判假、该钮落回通用主/次钮腿（WXG-T-363 判例）。
-     */
     | 'toggle-ghost-symbol';
 
 /** 宿主投影：设置弹窗与暂停面板的同名字段子集（结构兼容，⛔ 不复制对象）。 */
@@ -80,7 +71,7 @@ export interface SettingsButton {
 }
 
 /**
- * 内容块**列几何单源**（WXG-T-363）：设置弹窗 10 钮与装扮馆卡区共读这一套列宽/列间/内缩，
+ * 内容块**列几何单源**（WXG-T-363）：设置弹窗 11 钮与装扮馆卡区共读这一套列宽/列间/内缩，
  * ⛔ 第二套列宽（`view/skins-content.ts::skinCardBoxes` 是本件之外唯一的消费者）。
  * 数值 = 工作树实测读数（`metaLayout('settings')` 首行左格 `{x:115,y:857,w:248,h:88}`）的由来，⛔ 顺手改。
  */
@@ -101,11 +92,9 @@ export const SETTINGS_GRID = Object.freeze({
 });
 
 /**
- * 菜单变体顺序：**10 钮 = 5 行 × 2 列**（末行 = 皮肤循环钮 + Debug）。
+ * 菜单变体顺序：**11 钮 = 6 行 × 2 列**（前 5 行 = 10 项玩家设置，末行 = Debug 单钮左对齐）。
  * ⚠ 改动顺序会重排设置弹窗的按钮位置与金样本 ⇒ 需同批重抓夹具。
- * 行5 左格曾于 WXG-T-363 临时换为 `open-skins`（当时顶栏入口未落），**WXG-T-365 已回退**：
- * 文案 / 几何 / 字档 / 色逐字回到该批之前，而动作 id 不进 RenderModel 指令流
- * ⇒ `settings` 金样本逐字不变（实测：本批改后对拍仍绿）。
+ * `[WXG-T-934]` v1.8：幽灵符号随暂停面板去设置化迁入本表；末行单钮 = Debug（dev/QA 工具）。
  */
 const MENU_ORDER: readonly SettingsAction[] = [
     'toggle-bgm',
@@ -116,22 +105,16 @@ const MENU_ORDER: readonly SettingsAction[] = [
     'toggle-debug-info',
     'cycle-bead-style',
     'cycle-bead-size',
+    'toggle-ghost-symbol',
     'cycle-skin',
     'toggle-debug-guides',
 ];
 
-// ⚠ `MENU_ORDER` 只管**设置弹窗的排布**；暂停面板行4 的换肤循环钮仍属 SettingsAction（UI-31 由
-// `view-model::isSettingsAction` 逐钮派发到 chip 小字档）⇒ 排布表与全集可以不等。
-// 漏成员的代价实测可见（WXG-T-363）：`isSettingsAction('cycle-skin')` 判假 ⇒ 暂停面板该钮
-// 落回通用主/次钮腿（字档 22px → bold 30px），`pause` 金样本整帧漂。
 /**
- * 设置动作**全集**（排布表 `MENU_ORDER` 只是它的子集）。
- *
- * `[WXG-T-434]` 幽灵符号开关只住**暂停面板行5**（设置弹窗 5 行已满、加第 6 行会撞返回钮
- * ⇒ 不进排布表），但它仍是设置族钮 ⇒ **必须**在本集合里，否则 `isSettingsAction` 判假、
- * 该钮落回通用主/次钮腿（字档 22 → bold 30，WXG-T-363 已实测过同型代价）。
+ * 设置动作**全集**（= 排布表；保留 `isSettingsAction` 作为 type guard，
+ * ⛔ 不得再从暂停面板另开一份排布表）。
  */
-const ACTION_SET: ReadonlySet<string> = new Set<string>([...MENU_ORDER, 'toggle-ghost-symbol']);
+const ACTION_SET: ReadonlySet<string> = new Set<string>(MENU_ORDER);
 
 export function isSettingsAction(id: string): id is SettingsAction {
     return ACTION_SET.has(id);
@@ -165,7 +148,7 @@ export function settingsContentButtons(plate: SettingsBox): SettingsButton[] {
 }
 
 /**
- * 档位文案单源：设置弹窗 `meta-view::label` 与暂停面板 `view-model::panelLabel` 同串。
+ * 档位文案单源（菜单设置弹窗）。
  * 风格 / 尺寸 / 皮肤名走各自注册表（⛔ 不写死款数，U16=甲）。
  */
 export function settingsContentLabel(id: SettingsAction, data: SettingsContentData): string {
@@ -193,88 +176,6 @@ export function settingsContentLabel(id: SettingsAction, data: SettingsContentDa
         case 'toggle-ghost-symbol':
             return `幽灵符号  ${data.ghostSymbol ? '开' : '关'}`;
     }
-}
-
-/** 暂停档的开关族 = chip 钮（选中 = 木底白字）。 */
-const PAUSE_CHIPS: ReadonlySet<string> = new Set<string>([
-    'toggle-bgm',
-    'toggle-sfx',
-    'toggle-reduce-motion',
-    'toggle-large-text',
-    'toggle-vibrate',
-    'toggle-debug-info',
-    'toggle-ghost-symbol',
-]);
-
-/** 暂停档的小字族（长文案：3 格单元放不下标准 30px 字面）。 */
-const PAUSE_SMALL_FONT: ReadonlySet<string> = new Set<string>([
-    'toggle-reduce-motion',
-    'toggle-large-text',
-    'toggle-vibrate',
-    'toggle-debug-info',
-    'toggle-ghost-symbol',
-    'cycle-bead-style',
-    'cycle-bead-size',
-    'cycle-skin',
-]);
-
-function chipOn(id: SettingsAction, data: SettingsContentData): boolean {
-    switch (id) {
-        case 'toggle-bgm':
-            return !data.bgmMuted;
-        case 'toggle-sfx':
-            return !data.sfxMuted;
-        case 'toggle-reduce-motion':
-            return data.reduceMotion;
-        case 'toggle-large-text':
-            return data.largeText;
-        case 'toggle-vibrate':
-            return data.vibrate;
-        case 'toggle-debug-info':
-            return data.debugInfo;
-        case 'toggle-ghost-symbol':
-            return data.ghostSymbol === true;
-        default:
-            return false;
-    }
-}
-
-/**
- * 暂停档：画**一枚**设置钮（几何由 `systems/pause-panel.ts` 传入的静止态盒子 × 缩放后坐标）。
- * 逐钮调用而非整块，是为了让调用方按旧顺序穿插非设置钮（继续 / 重玩 / 回主菜单）——
- * 指令流逐字不变，金样本零差异。
- */
-export function drawPauseSettingButton(
-    builder: RenderModelBuilder,
-    data: SettingsContentData,
-    palette: BeadsPalette,
-    id: SettingsAction,
-    x: number,
-    y: number,
-    w: number,
-    h: number,
-    pressed: boolean,
-): void {
-    const label = settingsContentLabel(id, data);
-    const font = PAUSE_SMALL_FONT.has(id) ? UI_FONT.panelToggle : UI_FONT.panelButton;
-    const by = y + pressOffset(pressed, data.reduceMotion);
-    if (PAUSE_CHIPS.has(id)) {
-        const on = chipOn(id, data);
-        builder.rect(x, by, w, h, {
-            fill: on ? (pressed ? palette.woodFacePressed : palette.woodFace) : pressed ? palette.cardPressed : palette.panel,
-            ...(on ? {} : { stroke: palette.panelBorder, lineWidth: UI_CONTAINER.strokePanel }),
-            radius: UI_CONTAINER.radiusChip,
-        });
-        builder.text(x + w / 2, by + h / 2, label, {
-            fill: on ? palette.woodText : palette.textDim,
-            font,
-            align: 'center',
-            baseline: 'middle',
-        });
-        return;
-    }
-    // 选择器钮：T1 纸钮，值字面即状态（screens.md §143）。
-    drawButton(builder, palette, x, by, w, h, 'paper', UI_CONTAINER.radiusCard, label, font, pressed);
 }
 
 /** 画内容块；非设置动作（返回 / 在线导入）由调用方自己画。 */

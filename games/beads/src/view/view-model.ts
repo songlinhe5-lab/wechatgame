@@ -34,11 +34,6 @@ import {
   dialogShiftY,
 } from '../config/tuning.js';
 import type { BeadsSnapshot } from '../game/state.js';
-import {
-  drawPauseSettingButton,
-  isSettingsAction,
-  settingsContentLabel,
-} from './settings-content.js';
 import { pausePanelLayout, type PanelButton } from '../systems/pause-panel.js';
 import { buyConfirmLayout } from '../systems/buy-confirm-panel.js';
 import { COPY_TOKENS } from '../config/copy-tokens.js';
@@ -84,28 +79,13 @@ function pressDy(snap: BeadsSnapshot, id: string): number {
   return pressOffset(snap.pressedButton === id, snap.reduceMotion);
 }
 
-/** Panel button copy — sprint swaps one label (pause-settings §2.2, P1). */
+/** Panel button copy — v1.8 三钮（设置项已全部迁菜单 `settings` 弹窗）. */
 function panelLabel(button: PanelButton, snap: BeadsSnapshot): string {
   switch (button.id) {
     case 'resume':
       return '继续';
     case 'restart':
       return snap.mode === 'sprint' ? '重新冲刺' : '重玩本关';
-    // UI-30：设置项文案与设置弹窗同源（`settings-content::settingsContentLabel`）——
-    // 两入口档位名从此只改一处。
-    case 'toggle-bgm':
-    case 'toggle-sfx':
-    case 'toggle-reduce-motion':
-    case 'toggle-large-text':
-    case 'toggle-vibrate':
-    case 'toggle-debug-info':
-    case 'toggle-ghost-symbol':
-    case 'cycle-bead-style':
-    case 'cycle-bead-size':
-    case 'cycle-skin':
-      return settingsContentLabel(button.id, snap);
-    case 'start-sprint':
-      return '▶ 去冲刺';
     case 'go-menu':
       return '回主菜单';
     default:
@@ -243,14 +223,14 @@ function drawPausePanel(
 
   // Scrim covers the whole canvas — therefore always the board *and* the tray
   // (pause-settings §2.2：防误触 + 防偷看).
-  // EP11-S5 / ux §3.3 ⑤（U14=丙）：**暂停面板属「设置态」** ⇒ 遮罩 α 分列读
-  // `SETTINGS_SCRIM_ALPHA`（RGB 零改动）；其余面板仍读 `PANEL_SCRIM_ALPHA`。
+  // v1.8 / WXG-T-934：暂停面板已无设置态 ⇒ 恒读 `PANEL_SCRIM_ALPHA`（0.5），
+  // 不再分列 `SETTINGS_SCRIM_ALPHA`（后者只留菜单 settings overlay）。
   // UI-22：遮罩 + 纸面板 + 进出场几何统一由 ModalFrame 出（算式与旧实现逐字同形）。
   const geo = drawModalFrame(builder, {
     panel: layout.panel,
     progress: t,
     scrimRgb: UI_SCRIM.canvas,
-    scrimAlpha: UI_SCRIM.settingsAlpha * t,
+    scrimAlpha: UI_SCRIM.alpha * t,
     palette,
     radius: UI_CONTAINER.radiusPanel,
     shadowAlpha: UI_CONTAINER.shadowAlphaPanel,
@@ -270,14 +250,8 @@ function drawPausePanel(
     const bx = frameX(geo, button.rect.xMin);
     const by = frameY(geo, button.rect.yMin);
     const pressed = snap.pressedButton === button.id;
-    // UI-31：设置项（开关 / 选择器）的暂停档语言收口到 `settings-content`
-    // （chip 木底选中 / 纸钮值字面 / 小字档 / 文案）；非设置项（继续 / 重玩 /
-    // 回主菜单）仍就地画。逐钮派发 ⇒ 指令流顺序与旧实现逐字相同。
-    if (isSettingsAction(button.id)) {
-      drawPauseSettingButton(builder, snap, palette, button.id, bx, by, bw, bh, pressed);
-      continue;
-    }
-    // EP12-S4：主钮 = T3 木；次钮（重玩 / 回主菜单）= T1 纸（screens.md §4 矩阵）。
+    // v1.8：无色设置项分支——暂停面板只有继续 / 重玩本关 / 回主菜单。
+    // EP12-S4：主钮 = T3 木；次钮 = T1 纸（screens.md §4 矩阵）。
     const label = panelLabel(button, snap);
     const dy = by + pressDy(snap, button.id);
     if (button.id === 'resume') {

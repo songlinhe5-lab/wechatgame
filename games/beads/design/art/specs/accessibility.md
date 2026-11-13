@@ -83,8 +83,7 @@
 >
 > **D1/E2 开关落地（2026-09-14，WXG-T-088）—— 第三次假绿根治**。此前 D1 标 ✅ 但**根本没有开关**
 > （settings 无字段、面板无按钮、view 不消费）；E2 标 🔶 同理。现：
-> ① `save-schema` 落 `reduceMotion`/`largeText`（存档 v1→v2，旧档逐字段降级不炸）；② 暂停面板行3
-> 常驻两枚副按钮（`toggle-reduce-motion`/`toggle-large-text`，与去冲刺同排，面板维持 560×480）；
+> ① `save-schema` 落 `reduceMotion`/`largeText`（存档 v1→v2，旧档逐字段降级不炸）；② **菜单设置弹窗**常驻两枚开关（`toggle-reduce-motion`/`toggle-large-text`；**v1.46 起暂停面板不再承载设置**，见 `ux-spec` v1.46 §3.3）；
 > ③ view 经 snapshot 消费——`reduceMotion` 让告急脉冲/hint 呼吸/错误抖动/星弹跳全部退为静态，
 > `largeText` 放大正文/说明类字号。**诚实边界**：D1 清单里的「落座回弹 / 消除溶解缩放」本作并无
 > 对应动画（beads 落子与消除为瞬时态，无回弹/溶解 tween），故无可关项，已在上表标 N/A 而非假称已抑制。

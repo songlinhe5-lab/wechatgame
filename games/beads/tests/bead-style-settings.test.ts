@@ -1,17 +1,18 @@
 /**
- * WXG-T-211-S5 · EP11-S5 判据落地（换肤路径 + 行4 两钮 + 存档两字段 + 设置态遮罩分列）
+ * WXG-T-211-S5 · EP11-S5 判据落地（换肤路径 + 菜单设置钮族 + 存档两字段 + 设置态遮罩分列）
  * ─────────────────────────────────────────────────────────────────────────────
  * 验收真源（断言只准引用下列条目，⛔ 不自造判据）：
- *  - `design/gdd/pause-settings.md` v1.7 §8-**14**（逐档循环 · 恰写档 1 次 · 不切相位 · 不推计时）
+ *  - `design/gdd/pause-settings.md` v1.8 §2.2（暂停面板三钮、设置全部归菜单）+ §8-**14**（逐档循环 · 恰写档 1 次 · 不切相位 · 不推计时）
  *    §8-**15**（连点幂等 · 末值一条 · 无历史栈）、§8-**16**（双轴正交 · 零棋局状态写入）、
  *    §8-**17**（下一帧生效 · 恰一帧 · B0 逐字段不变 · 零新增毫秒值）、§8-**19**（循环长度 = 运行时注册数）
  *  - `design/gdd/save-progress.md` v1.1 §8-**11**（两字段入档 · 即写 · 只存末值 · 不新增事件名）、
  *    §8-**12**（四构造非法值 ⇒ 逐字段降级）、§8-**13**（旧档不丢档 · 运行时腿）
  *  - `production/qa/beads/test-cases.md` §K.1 TC-STY-01~06 / §K.1a 阳性对照 / §K.3 TC-SAVE-11~13
- *  - `ux-spec` §3.3 生效与存档口径、§4「PAUSED·行4」「玩法·普通/冲刺（无面板）」行
+ *  - `ux-spec` §3.3 生效与存档口径、§4「设置 overlay」行
  *
  * 纪律：
- *  - **K-035**：一律驱动真实现物（`tapDesign` 打面板钮 ⇒ `_applyPanelAction`），⛔ 以文档口径写断言。
+ *  - **K-035**：设置动作走唯一受理点 `applySettingsAction`（v1.8 起暂停面板零设置钮；
+ *    菜单 `settings` overlay 的点击腿另见本文件末尾 menu suite）。
  *  - **K-060**：缺位型断言（不响应 / 无写入）同夹具内必配**阳性对照腿**；差值型断言写**不等式与整除性**，
  *    ⛔ 不写存在性糊弄。
  *  - **K-051**：帧差分数字全部**当场实测**，⛔ 不引 §11.2 纸面值。
@@ -163,6 +164,10 @@ function expectFillable(game: BeadsGame): void {
     expect(fillableCells(game)).toBeGreaterThan(0);
 }
 
+/**
+ * 暂停面板钮心坐标。v1.8（WXG-T-934）起面板只剩 `resume` / `restart` / `go-menu`
+ * 三枚；设置动作⛔ 不再经此，统一走 `game.applySettingsAction`（菜单 overlay 同入口）。
+ */
 function buttonPoint(id: PausePanelAction, mode: 'normal' | 'sprint' = 'normal'): { x: number; y: number } {
     const button = pausePanelLayout(mode).buttons.find((b) => b.id === id);
     if (!button) throw new Error(`panel: no button "${id}" in ${mode} layout`);
@@ -258,7 +263,7 @@ function normalizeDoc(
 
 // ───────────────────────────────────────────── TC-STY-01 · S9 §8-14（循环 + 即写 + 不切相位）
 
-describe('TC-STY-01 · §8-14 行4「珠子风格」钮：逐档循环 · 恰写档 · 不切相位 · 不推计时', () => {
+describe('TC-STY-01 · §8-14 设置「珠子风格」钮：逐档循环 · 恰写档 · 不切相位 · 不推计时', () => {
     it('每次点按恰切到注册序下一档（到末档回第一档），循环序 = 运行时注册序', () => {
         const { storage, log } = spyStorage(newStorage());
         const harness = boot(storage);
@@ -268,8 +273,7 @@ describe('TC-STY-01 · §8-14 行4「珠子风格」钮：逐档循环 · 恰写
         // ⛔ 不写死档数：期望序 = 注册序左旋一格，长度取运行时注册数（U16 = 甲）。
         for (let step = 1; step <= IDS.length; step++) {
             const before = log.length;
-            const point = buttonPoint('cycle-bead-style');
-            expect(game.tapDesign(point.x, point.y)).toBe(true);
+            game.applySettingsAction('cycle-bead-style');
 
             expect(game.beadStyle).toBe(IDS[step % IDS.length]);
             // §8-14「恰写 `settings.beadStyle` 1 次」= 一次点按 ⇒ 恰一次落盘（与四开关同判例）。
@@ -290,8 +294,7 @@ describe('TC-STY-01 · §8-14 行4「珠子风格」钮：逐档循环 · 恰写
         const tickBefore = harness.count('timer:tick');
 
         for (let i = 0; i < IDS.length; i++) {
-            const p = buttonPoint('cycle-bead-style');
-            game.tapDesign(p.x, p.y);
+            game.applySettingsAction('cycle-bead-style');
             expect(game.phase).toBe('paused'); // 面板不退出
             expect(game.snapshot.panelVisible).toBe(true);
         }
@@ -308,8 +311,7 @@ describe('TC-STY-01 · §8-14 行4「珠子风格」钮：逐档循环 · 恰写
         const seen = [game.beadSize];
         for (let i = 0; i < 2; i++) {
             const before = log.length;
-            const p = buttonPoint('cycle-bead-size');
-            expect(game.tapDesign(p.x, p.y)).toBe(true);
+            game.applySettingsAction('cycle-bead-size');
             expect(log.length - before).toBe(1);
             seen.push(game.beadSize);
             expect(game.phase).toBe('paused');
@@ -323,7 +325,7 @@ describe('TC-STY-01 · §8-14 行4「珠子风格」钮：逐档循环 · 恰写
 
 // ───────────────────────────────────────────────── TC-STY-02 · S9 §8-15（连点幂等）
 
-describe('TC-STY-02 · §8-15 行4 连点幂等：回起始档 · 观感逐帧一致 · 末值一条无历史栈', () => {
+describe('TC-STY-02 · §8-15 设置连点幂等：回起始档 · 观感逐帧一致 · 末值一条无历史栈', () => {
     it('连点 N 次（N = 当前注册档数）⇒ 回到起始档且整帧逐字节一致', () => {
         const { storage } = spyStorage(newStorage());
         const harness = boot(storage);
@@ -331,8 +333,7 @@ describe('TC-STY-02 · §8-15 行4 连点幂等：回起始档 · 观感逐帧�
         const initial = frame(harness);
 
         for (let i = 0; i < IDS.length; i++) {
-            const p = buttonPoint('cycle-bead-style');
-            game.tapDesign(p.x, p.y);
+            game.applySettingsAction('cycle-bead-style');
         }
         expect(game.beadStyle).toBe(FIRST);
         expect(frame(harness)).toEqual(initial); // 「观感与初始逐帧一致」
@@ -342,10 +343,8 @@ describe('TC-STY-02 · §8-15 行4 连点幂等：回起始档 · 观感逐帧�
         const { storage } = spyStorage(newStorage());
         const harness = boot(storage);
         const game = enterPaused(harness);
-        const stylePoint = buttonPoint('cycle-bead-style');
-        const sizePoint = buttonPoint('cycle-bead-size');
-        for (let i = 0; i < IDS.length + 2; i++) game.tapDesign(stylePoint.x, stylePoint.y);
-        for (let i = 0; i < 5; i++) game.tapDesign(sizePoint.x, sizePoint.y);
+        for (let i = 0; i < IDS.length + 2; i++) game.applySettingsAction('cycle-bead-style');
+        for (let i = 0; i < 5; i++) game.applySettingsAction('cycle-bead-size');
 
         const settings = settingsOf(storage);
         expect(typeof settings['beadStyle']).toBe('string');
@@ -365,9 +364,8 @@ describe('TC-STY-02 · §8-15 行4 连点幂等：回起始档 · 观感逐帧�
         const { storage, log } = spyStorage(newStorage());
         const harness = boot(storage);
         const game = enterPaused(harness);
-        const p = buttonPoint('cycle-bead-style');
         const before = log.length;
-        for (let i = 0; i < IDS.length; i++) game.tapDesign(p.x, p.y);
+        for (let i = 0; i < IDS.length; i++) game.applySettingsAction('cycle-bead-style');
         expect(log.length - before).toBe(IDS.length);
         expect(settingsOf(storage)['beadStyle']).toBe(FIRST);
     });
@@ -380,8 +378,6 @@ describe('TC-STY-03 · §8-16 风格 × 豆径双轴正交：各写各字段 · 
         const { storage, log } = spyStorage(newStorage());
         const harness = boot(storage);
         const game = enterPaused(harness);
-        const stylePoint = buttonPoint('cycle-bead-style');
-        const sizePoint = buttonPoint('cycle-bead-size');
 
         for (let i = 0; i < IDS.length; i++) {
             const sizeBefore = game.beadSize;
@@ -389,7 +385,7 @@ describe('TC-STY-03 · §8-16 风格 × 豆径双轴正交：各写各字段 · 
             expect(log.length).toBeDefined();
 
             const writesBefore = log.length;
-            game.tapDesign(stylePoint.x, stylePoint.y);
+            game.applySettingsAction('cycle-bead-style');
             // 硬断言（QA §K.1 追加条）：写档调用恰 1 次，且不得连带改写另一字段。
             expect(log.length - writesBefore).toBe(1);
             expect(game.beadSize).toBe(sizeBefore);
@@ -399,7 +395,7 @@ describe('TC-STY-03 · §8-16 风格 × 豆径双轴正交：各写各字段 · 
         for (let i = 0; i < 4; i++) {
             const styleBefore = game.beadStyle;
             const writesBefore = log.length;
-            game.tapDesign(sizePoint.x, sizePoint.y);
+            game.applySettingsAction('cycle-bead-size');
             expect(log.length - writesBefore).toBe(1);
             expect(game.beadStyle).toBe(styleBefore);
             expect(settingsOf(storage)['beadStyle']).toBe(styleBefore);
@@ -413,8 +409,6 @@ describe('TC-STY-03 · §8-16 风格 × 豆径双轴正交：各写各字段 · 
         const placed = boardFilled(game);
         expect(placed).toBeGreaterThan(0);
 
-        const stylePoint = buttonPoint('cycle-bead-style');
-        const sizePoint = buttonPoint('cycle-bead-size');
         const fingerprint = (): unknown => ({
             phase: game.phase,
             levelIndex: game.levelIndex,
@@ -426,9 +420,9 @@ describe('TC-STY-03 · §8-16 风格 × 豆径双轴正交：各写各字段 · 
         const baseline = fingerprint();
 
         for (const styleIdx of IDS.keys()) {
-            while (game.beadStyle !== IDS[styleIdx]) game.tapDesign(stylePoint.x, stylePoint.y);
+            while (game.beadStyle !== IDS[styleIdx]) game.applySettingsAction('cycle-bead-style');
             for (let sizeIdx = 0; sizeIdx < 2; sizeIdx++) {
-                game.tapDesign(sizePoint.x, sizePoint.y); // 走真钮（⛔ 不绕开面板直调 setter）
+                game.applySettingsAction('cycle-bead-size'); // 走菜单同款动作入口（⛔ 不绕开受理点直调 setter）
                 const flow = frame(harness);
                 expect(flow.length).toBeGreaterThan(0); // 恒可渲染（不抛、不出空帧）
                 expect(fingerprint()).toEqual(baseline); // L5：呈现层不写游戏状态
@@ -451,8 +445,7 @@ describe('TC-STY-04 · §8-17/C8 三段硬断言：珠体族 Δ ≠ 0 · B0 逐�
             const game = pauseAfterFill(harness, fillCount);
             const n = beadsDrawn(game);
             const before = kindCount(frame(harness));
-            const p = buttonPoint('cycle-bead-style');
-            game.tapDesign(p.x, p.y);
+            game.applySettingsAction('cycle-bead-style');
             const after = kindCount(frame(harness));
             return { d: deltas(before, after), n };
         };
@@ -490,16 +483,14 @@ describe('TC-STY-04 · §8-17/C8 三段硬断言：珠体族 Δ ≠ 0 · B0 逐�
         expect(before.length).toBe(game.grid.rows * game.grid.cols);
         expect(before.length).toBeGreaterThan(0);
 
-        const p = buttonPoint('cycle-bead-style');
-        game.tapDesign(p.x, p.y);
+        game.applySettingsAction('cycle-bead-style');
         expect(game.beadStyle).toBe(SECOND);
         const after = b0Tiles(harness);
         expect(after).toEqual(before); // 逐字段（含 fill / 几何）一字未动
         expect(after.length).toBe(before.length);
 
         // 豆径档也不得扰动 B0（豆径作用域 = 仅网格珠珠体，assets-spec §7.11）。
-        const q = buttonPoint('cycle-bead-size');
-        game.tapDesign(q.x, q.y);
+        game.applySettingsAction('cycle-bead-size');
         expect(b0Tiles(harness)).toEqual(before);
     });
 
@@ -509,8 +500,7 @@ describe('TC-STY-04 · §8-17/C8 三段硬断言：珠体族 Δ ≠ 0 · B0 逐�
         const game = pauseAfterFill(harness, 13);
 
         const f0 = frame(harness);
-        const p = buttonPoint('cycle-bead-style');
-        game.tapDesign(p.x, p.y);
+        game.applySettingsAction('cycle-bead-style');
         const f1 = frame(harness); // 切档后的第一帧（下一帧）
         expect(f1).not.toEqual(f0); // 非零帧同帧变 ⇒ 恰在此帧生效
 
@@ -533,7 +523,7 @@ describe('TC-STY-04 · §8-17/C8 三段硬断言：珠体族 Δ ≠ 0 · B0 逐�
     });
 });
 
-// ─────────────────────────────────── TC-STY-05 · ux §4「PAUSED·行4｜切档后点『继续』」（出栈携新档）
+// ─────────────────────────────────── TC-STY-05 · ux §4「PAUSED｜切档后点『继续』」（出栈携新档）
 
 describe('TC-STY-05 · ux §4：切档后点「继续」⇒ 出栈携新档，不重开 BOOT、已填珠同帧换肤', () => {
     it('出栈 → PLAYING 且新档已在画面；关卡与棋局一字未动', () => {
@@ -545,8 +535,7 @@ describe('TC-STY-05 · ux §4：切档后点「继续」⇒ 出栈携新档，�
         const styleBefore = game.beadStyle;
         const framePausedOld = frame(harness);
 
-        const sPoint = buttonPoint('cycle-bead-style');
-        game.tapDesign(sPoint.x, sPoint.y);
+        game.applySettingsAction('cycle-bead-style');
         expect(game.beadStyle).not.toBe(styleBefore);
         const framePausedNew = frame(harness);
         expect(framePausedNew).not.toEqual(framePausedOld); // 面板内即已换肤
@@ -626,10 +615,11 @@ describe('TC-STY-06 · ux §4：玩法态直改风格/豆径 ⇒ 零响应（无
         expect(game.phase).toBe('paused');
     });
 
-    it('无第三入口（静态门）：改档动作串值只住在两入口 + 受理/呈现/注释侧', () => {
+    it('无第三入口（静态门）：改档动作串值只住在菜单设置单源 + 受理/呈现/注释侧', () => {
         const allow = new Set([
-            'systems/pause-panel.ts', // 入口甲：行4 钮位
-            'view/meta-view.ts', // 入口乙：菜单设置 overlay 同钮
+            'systems/pause-panel.ts', // 联合类型（v1.8 起无钮位；菜单壳复用同一串值）
+            'view/settings-content.ts', // 唯一入口：菜单设置弹窗排布 + 文案单源
+            'view/meta-view.ts', // 菜单设置 overlay 同钮
             'game/beads-game.ts', // 唯一受理点（_applyPanelAction / applySettingsAction）
             'view/view-model.ts', // 钮文案回显
             'game/beads-shell.ts', // overlay 动作转发（唯一 applySettingsAction 调用点）
@@ -637,7 +627,7 @@ describe('TC-STY-06 · ux §4：玩法态直改风格/豆径 ⇒ 零响应（无
         ]);
         const offenders = ALLOWED_SRC_FILES.filter((f) => !allow.has(f) && SRC(f).includes('cycle-bead-style'));
         expect(offenders).toEqual([]);
-        // 受理点唯一：overlay 侧只有 shell 一处转发，面板侧只有 `_applyPanelAction`。
+        // 受理点唯一：overlay 侧只有 shell 一处转发，暂停面板侧只有 `_applyPanelAction`。
         const shell = SRC('game/beads-shell.ts');
         expect((shell.match(/applySettingsAction\(/g) ?? []).length).toBe(1);
     });
@@ -650,21 +640,18 @@ describe('TC-STY-11 翻转腿 · §8-19：注册数 ≥ 2 ⇒ 钮 present 且循
         expect(IDS.length >= 2).toBe(true);
     });
 
-    it('normal / sprint 两模式行4 均 present 两枚选择器钮；循环长度 = 注册数', () => {
-        for (const mode of ['normal', 'sprint'] as const) {
-            const ids = pausePanelLayout(mode).buttons.map((b) => b.id);
-            expect(ids).toContain('cycle-bead-style');
-            expect(ids).toContain('cycle-bead-size');
-            expect(ids.filter((i) => i === 'cycle-bead-style').length).toBe(1); // 不重复渲染
-        }
+    it('菜单设置 overlay 两枚选择器钮各 present 一次；循环长度 = 注册数', () => {
+        const ids = metaLayout('settings').buttons.map((b) => b.id);
+        expect(ids).toContain('cycle-bead-style');
+        expect(ids).toContain('cycle-bead-size');
+        expect(ids.filter((i) => i === 'cycle-bead-style').length).toBe(1); // 不重复渲染
 
         const { storage } = spyStorage(newStorage());
         const harness = boot(storage);
         const game = enterPaused(harness);
-        const p = buttonPoint('cycle-bead-style');
         const cycle: string[] = [];
         for (let i = 0; i < IDS.length; i++) {
-            game.tapDesign(p.x, p.y);
+            game.applySettingsAction('cycle-bead-style');
             cycle.push(game.beadStyle);
         }
         expect(cycle.length).toBe(new Set(cycle).size); // 一圈内无重复 ⇒ 循环长度 = 注册数
@@ -687,10 +674,8 @@ describe('TC-SAVE-11 · S8 §8-11：两字段入档 · 即写 · 只存末值 ·
         const store = newStorage();
         const h1 = boot(store);
         const g1 = enterPaused(h1);
-        const stylePoint = buttonPoint('cycle-bead-style');
-        const sizePoint = buttonPoint('cycle-bead-size');
-        g1.tapDesign(stylePoint.x, stylePoint.y);
-        g1.tapDesign(sizePoint.x, sizePoint.y);
+        g1.applySettingsAction('cycle-bead-style');
+        g1.applySettingsAction('cycle-bead-size');
 
         const settings = settingsOf(store);
         expect(typeof settings['beadStyle']).toBe('string');
@@ -708,11 +693,9 @@ describe('TC-SAVE-11 · S8 §8-11：两字段入档 · 即写 · 只存末值 ·
         const { storage } = spyStorage(newStorage());
         const harness = boot(storage);
         const game = enterPaused(harness);
-        const p = buttonPoint('cycle-bead-style');
-        const q = buttonPoint('cycle-bead-size');
         for (let i = 0; i < 3; i++) {
-            game.tapDesign(p.x, p.y);
-            game.tapDesign(q.x, q.y);
+            game.applySettingsAction('cycle-bead-style');
+            game.applySettingsAction('cycle-bead-size');
         }
         const names = new Set(harness.emitted.map((e) => e.type));
         for (const n of names) expect(n).not.toMatch(/style|skin|bead_style|theme/i);
@@ -1137,18 +1120,20 @@ describe('豆径档作用域 · assets-spec §7.11 + ux §3.3 ④ + S9 §8-16：
         expect(circles(after)).toBeGreaterThan(0);
     });
 
-    it('「豆子尺寸」钮文案 = 现档显示（逐档实测，⛔ 不写死档数与款名）', () => {
-        const harness = boot(newStorage());
-        const game = pauseAfterFill(harness, 4);
-        const start = game.beadSize;
+    it('「豆子尺寸」钮文案 = 现档显示（菜单设置 overlay 逐档实测，⛔ 不写死档数与款名）', () => {
+        const shell = shellRig(newStorage());
+        const open = metaCenter('none', 'open-settings');
+        expect(shell.tapMeta(open.x, open.y)).toBe(true);
+        expect(shell.overlay).toBe('settings');
+        const start = shell.play.beadSize;
 
         const seen: string[] = [];
         // 循环直到回到起始档（终止条件 = 档位本身，⛔ 不预设「共 2 档」）。
+        const point = metaCenter('settings', 'cycle-bead-size');
         for (let step = 0; step < 16; step++) {
-            const point = buttonPoint('cycle-bead-size');
-            expect(game.tapDesign(point.x, point.y)).toBe(true);
-            seen.push(labelTexts(frame(harness), '豆子尺寸')[0] ?? '');
-            if (game.beadSize === start) break;
+            expect(shell.tapMeta(point.x, point.y)).toBe(true);
+            seen.push(labelTexts(metaFrame(shell), '豆子尺寸')[0] ?? '');
+            if (shell.play.beadSize === start) break;
         }
         expect(seen.length).toBeGreaterThan(0);
         expect(seen[seen.length - 1]).toBe(`豆子尺寸  ${BEAD_SIZE_LABELS[start]}`);
@@ -1163,8 +1148,8 @@ describe('豆径档作用域 · assets-spec §7.11 + ux §3.3 ④ + S9 §8-16：
 
 // ══════════════════════ 设置态遮罩 α 分列（ux §3.3 遮罩条 · U14=丙 / Q3=甲）
 
-describe('设置态遮罩 α 分列 · ux §3.3「遮罩」条 + 工作项④：仅设置态下调，其余面板与 overlay 零改动', () => {
-    it('暂停面板 scrim 读 SETTINGS_SCRIM_ALPHA（0 < α < PANEL_SCRIM_ALPHA，⛔ 不钉 [暂定] 字面值）；PLAYING 期无全屏 scrim', () => {
+describe('设置态遮罩 α 分列 · ux §3.3「遮罩」条 + 工作项④：仅菜单设置 overlay 下调，其余面板与 overlay 零改动', () => {
+    it('暂停面板 scrim 恒读 PANEL_SCRIM_ALPHA（v1.8 起面板无设置态）；菜单 settings overlay 读 SETTINGS_SCRIM_ALPHA', () => {
         const harness = boot(newStorage());
         const playing = frame(harness);
         expect(scrimAlphas(playing, `${PANEL_SCRIM_RGB.r},${PANEL_SCRIM_RGB.g},${PANEL_SCRIM_RGB.b}`)).toEqual([]);
@@ -1172,7 +1157,15 @@ describe('设置态遮罩 α 分列 · ux §3.3「遮罩」条 + 工作项④：
         enterPaused(harness); // 静息（t = 1）
         const paused = scrimAlphas(frame(harness), `${PANEL_SCRIM_RGB.r},${PANEL_SCRIM_RGB.g},${PANEL_SCRIM_RGB.b}`);
         expect(paused.length).toBe(1); // 阳性对照：确有且仅有一枚面板 scrim
-        expect(paused[0]).toBeCloseTo(SETTINGS_SCRIM_ALPHA, 10);
+        expect(paused[0]).toBeCloseTo(PANEL_SCRIM_ALPHA, 10); // 面板态恒 0.5，不再随设置态下调
+
+        // 菜单设置 overlay：同一 α 关系（0 < settingsAlpha < PANEL_SCRIM_ALPHA）在真 shell 渲染链上成立。
+        const shell = shellRig(newStorage());
+        const open = metaCenter('none', 'open-settings');
+        expect(shell.tapMeta(open.x, open.y)).toBe(true);
+        const overlay = scrimAlphas(metaFrame(shell), '0,0,0');
+        expect(overlay.length).toBe(1);
+        expect(overlay[0]).toBeCloseTo(SETTINGS_SCRIM_ALPHA, 10);
         // [暂定·待 PT-SKIN-01 真机校准] ⇒ 判据只钉「关系」不钉「字面值」：下调、非 0、非全局。
         expect(SETTINGS_SCRIM_ALPHA).toBeGreaterThan(0);
         expect(SETTINGS_SCRIM_ALPHA).toBeLessThan(PANEL_SCRIM_ALPHA);
@@ -1197,8 +1190,8 @@ describe('设置态遮罩 α 分列 · ux §3.3「遮罩」条 + 工作项④：
         expect(frameSites.length).toBe(3);
         expect(scrimSites.length).toBe(2); // 冲刺结算 / 全通关 = 纯遮罩（底板构成不同，不并入纸面板）
         expect(timeoutScrimSites.length).toBe(1); // 倒计时结束弹窗 = 木牌位图（或纸面板回退）+ 同档遮罩
-        expect(settingsSites.length).toBe(1); // 唯一设置态消费点 = drawPausePanel
-        expect(panelAlphaSites.length).toBe(2); // 过关静止态 + 购买确认（静态常 α）
+        expect(settingsSites.length).toBe(0); // v1.8 起对局面板零设置态；唯一设置态消费点 = 菜单 meta-view
+        expect(panelAlphaSites.length).toBe(3); // 暂停（动画 ×t）+ 过关静止态 + 购买确认（静态常 α）
         expect(debugOverlay.length).toBe(1); // DEBUG 覆层已搬入 debug-layer（UI-24）
         // 穷尽：view-model 内不得再有裸 `scrimFill`（全部走 ModalFrame；覆层已上楼）。
         const allScrimFill = vm.match(/scrimFill\(UI_SCRIM\.canvas/g) ?? [];
@@ -1320,8 +1313,8 @@ function metaCenter(overlay: Parameters<typeof metaLayout>[0], id: MetaAction): 
     return { x: b.box.x + b.box.w / 2, y: b.box.y + b.box.h / 2 };
 }
 
-describe('菜单设置 overlay 行4 选择器钮族 · S9 §8-14/16/19（内容单源）+ ux §4「设置 overlay」行', () => {
-    it('10 钮 = 5 行 × 2 列（末行 Debug 补上空格）：三枚选择器钮各恰一次，行距沿用旧等差、列间不重叠', () => {
+describe('菜单设置 overlay 设置钮族 · S9 §8-14/16/19（内容单源）+ ux §4「设置 overlay」行', () => {
+    it('11 钮 = 6 行 × 2 列（末行 Debug 单钮）：三枚选择器钮各恰一次，行距沿用旧等差、列间不重叠', () => {
         const buttons = metaLayout('settings').buttons;
         const grid = buttons.filter((b) => b.id !== 'back' && b.id !== 'studio-import');
         const ids = grid.map((b) => b.id);
@@ -1329,22 +1322,24 @@ describe('菜单设置 overlay 行4 选择器钮族 · S9 §8-14/16/19（内容�
         expect(ids.filter((i) => i === 'cycle-bead-style').length).toBe(1);
         expect(ids.filter((i) => i === 'cycle-bead-size').length).toBe(1);
         expect(ids.filter((i) => i === 'cycle-skin').length).toBe(1); // EP12-S8 → WXG-T-363 曾改挂装扮馆入口，WXG-T-365 已回退（入口上提顶栏）
+        expect(ids.filter((i) => i === 'toggle-ghost-symbol').length).toBe(1); // WXG-T-934 由暂停面板迁入
 
         const rows = [...new Set(grid.map((b) => b.box.y))].sort((a, b) => b - a);
-        expect(grid.length).toBe(10); // 8 旧钮 + 皮肤循环钮 + Debug（两列五行）
+        expect(grid.length).toBe(11); // 8 旧钮 + 皮肤循环钮 + Debug + 幽灵符号（两列六行）
         expect(rows.length).toBe(Math.ceil(grid.length / 2)); // 两列 ⇒ 行数 = ⌈钮数 / 2⌉
-        // 末行两枚：皮肤 + Debug，plate 高不长。
+        // 末行单枚：Debug 独居第 6 行，plate 高 820 保证避让。
         const bottomRowY = rows[rows.length - 1]!;
-        expect(grid.filter((b) => b.box.y === bottomRowY).length).toBe(2);
+        expect(grid.filter((b) => b.box.y === bottomRowY).length).toBe(1);
+        expect(grid.find((b) => b.box.y === bottomRowY)!.id).toBe('toggle-debug-guides');
         const gaps = rows.slice(1).map((y, i) => rows[i]! - y);
         expect(new Set(gaps).size).toBe(1); // 行距沿用（等差）
         expect(gaps[0]).toBeGreaterThan(0);
         for (const b of grid) {
             expect(b.box.h).toBeGreaterThanOrEqual(88); // 行高地板 TOUCH_MIN（沿用，⛔ 不为塞行而降）
         }
-        // plate 避让仍成立：新底行下缘（box.y）> 返回钮上缘（357+88 = 445）；
-        // EP12-S8 前为 565>445（间隙 120），现 457>445（间隙 12，同为正；WXG-T-339 由 16 收紧换标题净空）。
-        expect(bottomRowY).toBeGreaterThan(445);
+        // plate 避让仍成立：底行下缘（box.y = 407）> 返回钮上缘（307+88 = 395）；
+        // WXG-T-934 由 5 行 457 扩到 6 行 407（仍为正；净空 12）。
+        expect(bottomRowY).toBeGreaterThan(395);
     });
 
     it('点按走 shell default → applySettingsAction：档位变、每次恰写 play 档 1 次、循环长度 = 运行时注册数', () => {
@@ -1382,10 +1377,11 @@ describe('菜单设置 overlay 行4 选择器钮族 · S9 §8-14/16/19（内容�
         expect(settings['beadSize']).toBe('small');
     });
 
-    it('两入口文案单源：同一档序列下「菜单 overlay」与「暂停面板」渲染出的钮文案逐位相等', () => {
-        // 菜单侧序列
+    it('文案单源：菜单设置 overlay 逐档标签由 settingsContentLabel 生成，逐档各异且无款数字样', () => {
+        // v1.8：设置只剩菜单一个入口 ⇒ 原「菜单 vs 暂停面板」双入口对齐腿退化为单源腿。
         const shell = shellRig(newStorage());
-        shell.tapMeta(metaCenter('none', 'open-settings').x, metaCenter('none', 'open-settings').y);
+        const open = metaCenter('none', 'open-settings');
+        shell.tapMeta(open.x, open.y);
         const menuLabels: string[] = [];
         const point = metaCenter('settings', 'cycle-bead-style');
         for (let step = 0; step < IDS.length; step++) {
@@ -1393,20 +1389,10 @@ describe('菜单设置 overlay 行4 选择器钮族 · S9 §8-14/16/19（内容�
             shell.tapMeta(point.x, point.y);
         }
 
-        // 暂停面板侧序列（同一批注册表、同一 getter 单源）
-        const harness = boot(newStorage());
-        const game = pauseAfterFill(harness, 2);
-        const panelLabels: string[] = [];
-        const tap = buttonPoint('cycle-bead-style');
-        for (let step = 0; step < IDS.length; step++) {
-            panelLabels.push(labelTexts(frame(harness), '珠子风格')[0] ?? '');
-            game.tapDesign(tap.x, tap.y);
-        }
-
         expect(menuLabels.length).toBe(IDS.length);
-        expect(panelLabels).toEqual(menuLabels);
         for (const label of menuLabels) expect(label.startsWith('珠子风格  ')).toBe(true);
         expect(new Set(menuLabels).size).toBe(IDS.length); // 逐档各异 ⇒ 未把某档名写死
+        for (const label of menuLabels) expect(label).not.toMatch(/\d+\s*\/\s*\d+|共\s*\d+|\d+\s*款/);
     });
 });
 
@@ -1416,7 +1402,7 @@ describe('菜单设置 overlay 行4 选择器钮族 · S9 §8-14/16/19（内容�
  * 上面那批用例注入的都是 `MemoryStorage`（接口天然合），所以它们**不覆盖**真宿主适配层
  * （判例 K-197：宿主替身全绿 ≠ 真宿主能落盘）。本用例只换**一个变量**：存储换成
  * `WebPlatform` 在假 DOM `localStorage` 上产出的实现，其余驱动链与上面逐字同构
- * （`tapDesign` 挨面板钮 = K-035）。输入路由本身不归本腿管。
+ * （v1.8 起设置走唯一受理点 `applySettingsAction`，与菜单 overlay 点击同链）。输入路由本身不归本腿管。
  */
 describe('F4 · web 宿主形状下设置真落盘，且跨宿主实例可读回（模拟刷新）', () => {
     it('拨「音乐」⇒ 真宿主 set 恰 1 次写进 DOM 存储，新 WebPlatform 实例读回同值', () => {
@@ -1441,9 +1427,8 @@ describe('F4 · web 宿主形状下设置真落盘，且跨宿主实例可读回
             const game = enterPaused(boot(storage));
             expect(settingsOf(storage)['bgmMuted']).toBe(false);
 
-            const point = buttonPoint('toggle-bgm');
             const writesBefore = setCalls.length;
-            expect(game.tapDesign(point.x, point.y)).toBe(true);
+            game.applySettingsAction('toggle-bgm');
 
             // §8-14「恰写档 1 次」在真宿主形状上的同口径：只写本档键一次。
             expect(setCalls.slice(writesBefore)).toEqual([SAVE_KEY]);

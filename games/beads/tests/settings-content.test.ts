@@ -3,8 +3,8 @@
  *
  * 验收原文：「金样本对拍；全部动作可达」。
  *  - 金样本：`ui-golden.test.ts` 设置态逐字对拍（本批重构零差异）；
- *  - 本文件钉住：10 钮 5×2 几何、**每个按钮中心都能命中自己**、档位文案、
- *    按下位移，以及「暂停面板与设置弹窗文案单源」（静态门）。
+ *  - 本文件钉住：11 钮 6×2 几何、**每个按钮中心都能命中自己**、档位文案、
+ *    按下位移，以及「设置文案单源 = 菜单 settings overlay」（静态门）。
  */
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -12,6 +12,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { RenderModelBuilder } from '@wxgame/framework';
 import { hitTestMeta, metaLayout } from '../src/view/meta-view.js';
+import { settingsPlate } from '../src/view/meta-layout.js';
 import {
     drawSettingsContent,
     isSettingsAction,
@@ -53,9 +54,9 @@ function callsOf(fn: (b: RenderModelBuilder) => void): { kind: string; args: num
 }
 
 describe('UI-30 · SettingsContent', () => {
-    it('菜单版式：10 钮 = 5 行 × 2 列，几何沿用旧口径', () => {
-        const buttons = settingsContentButtons({ x: 240, y: 307, w: 600, h: 720 });
-        expect(buttons).toHaveLength(10);
+    it('菜单版式：11 钮 = 6 行 × 2 列（末行 Debug 单钮左对齐）', () => {
+        const buttons = settingsContentButtons(settingsPlate());
+        expect(buttons).toHaveLength(11);
         expect(buttons.map((b) => b.id)).toEqual([
             'toggle-bgm',
             'toggle-sfx',
@@ -65,14 +66,15 @@ describe('UI-30 · SettingsContent', () => {
             'toggle-debug-info',
             'cycle-bead-style',
             'cycle-bead-size',
+            'toggle-ghost-symbol',
             'cycle-skin',
             'toggle-debug-guides',
         ]);
-        // 首钮：x = 240+40、topY = 307+720−170（WXG-T-339）；第二钮右移 colW(248)+gap(24)。
-        expect(buttons[0]!.box).toEqual({ x: 280, y: 857, w: 248, h: 88 });
-        expect(buttons[1]!.box.x).toBe(552);
-        // 末钮：row 4 ⇒ y = 857 − 4×(88+12) = 457。
-        expect(buttons[9]!.box).toEqual({ x: 552, y: 457, w: 248, h: 88 });
+        // 首钮：x = 75+40、topY = 257+820−170（v1.8 settingsPlate 600×820）。
+        expect(buttons[0]!.box).toEqual({ x: 115, y: 907, w: 248, h: 88 });
+        expect(buttons[1]!.box.x).toBe(387);
+        // 末钮（Debug）：row 5 ⇒ y = 907 − 5×(88+12) = 407，单钮左对齐。
+        expect(buttons[10]!.box).toEqual({ x: 115, y: 407, w: 248, h: 88 });
     });
 
     it('全部动作可达：每个按钮中心命中自己', () => {
@@ -81,7 +83,7 @@ describe('UI-30 · SettingsContent', () => {
             const hit = hitTestMeta('settings', b.box.x + b.box.w / 2, b.box.y + b.box.h / 2);
             expect(hit?.id).toBe(b.id);
         }
-        // 设置动作全集都在命中表里（10 钮）。
+        // 设置动作全集都在命中表里（11 钮）。
         const ids = layout.buttons.map((b) => b.id);
         for (const id of [
             'toggle-bgm',
@@ -92,6 +94,7 @@ describe('UI-30 · SettingsContent', () => {
             'toggle-debug-info',
             'cycle-bead-style',
             'cycle-bead-size',
+            'toggle-ghost-symbol',
             'cycle-skin',
             'toggle-debug-guides',
         ] as SettingsAction[]) {
@@ -103,6 +106,8 @@ describe('UI-30 · SettingsContent', () => {
         expect(settingsContentLabel('toggle-bgm', DATA)).toBe('音乐  开');
         expect(settingsContentLabel('toggle-bgm', { ...DATA, bgmMuted: true })).toBe('音乐  关');
         expect(settingsContentLabel('toggle-vibrate', DATA)).toBe('震动  开');
+        expect(settingsContentLabel('toggle-ghost-symbol', DATA)).toBe('幽灵符号  关');
+        expect(settingsContentLabel('toggle-ghost-symbol', { ...DATA, ghostSymbol: true })).toBe('幽灵符号  开');
         expect(settingsContentLabel('cycle-bead-style', DATA)).toContain('珠子风格');
         expect(settingsContentLabel('cycle-bead-size', DATA)).toContain('豆子尺寸');
         expect(settingsContentLabel('cycle-skin', DATA)).toContain('皮肤');
@@ -110,15 +115,15 @@ describe('UI-30 · SettingsContent', () => {
     });
 
     it('绘制只画设置动作；按下态整体下沉', () => {
-        const buttons = settingsContentButtons({ x: 240, y: 307, w: 600, h: 720 });
-        const chrome = [...buttons, { id: 'back', box: { x: 420, y: 357, w: 240, h: 88 } }];
+        const buttons = settingsContentButtons(settingsPlate());
+        const chrome = [...buttons, { id: 'back', box: { x: 420, y: 307, w: 240, h: 88 } }];
         const idle = callsOf((b) => drawSettingsContent(b, DATA, PALETTE, chrome));
         const pressed = callsOf((b) =>
             drawSettingsContent(b, { ...DATA, pressed: { id: 'toggle-bgm' } }, PALETTE, chrome),
         );
-        // 每个内容钮 = 1 rect + 1 text；返回钮不归内容块 ⇒ 共 10 组。
-        expect(idle.filter((c) => c.kind === 'text')).toHaveLength(10);
-        expect(idle.filter((c) => c.kind === 'rect')).toHaveLength(10);
+        // 每个内容钮 = 1 rect + 1 text；返回钮不归内容块 ⇒ 共 11 组。
+        expect(idle.filter((c) => c.kind === 'text')).toHaveLength(11);
+        expect(idle.filter((c) => c.kind === 'rect')).toHaveLength(11);
         // 首钮按下：rect y 变小（y-up 坐标下沉）。
         const idleY = idle.find((c) => c.kind === 'rect')!.args[1]!;
         const pressedY = pressed.find((c) => c.kind === 'rect')!.args[1]!;
@@ -126,20 +131,16 @@ describe('UI-30 · SettingsContent', () => {
     });
 
     it('动作全集 ≡ 弹窗排布（WXG-T-365 回归钉：装扮馆入口已上提顶栏 ⇒ ⛔ 不再是设置动作）', () => {
-        // `view-model` 靠本判定把暂停面板的 setting 钮派到 chip 小字档；漏一个
-        // ⇒ 该钮落回通用主/次钮腿（字档 22px → bold 30px），`pause` 金样本整帧漂。
         expect(isSettingsAction('cycle-skin')).toBe(true);
-        // `open-skins` = 顶栏无字圆钮（MetaAction 而非 SettingsAction）⇒ 不进本集合；
-        // 误把它当设置钮会让 `settingsContentLabel` 收到无定义分支（返回空串）。
+        expect(isSettingsAction('toggle-ghost-symbol')).toBe(true);
+        // `open-skins` = 顶栏无字圆钮（MetaAction 而非 SettingsAction）⇒ 不进本集合。
         expect(isSettingsAction('open-skins')).toBe(false);
         expect(isSettingsAction('resume')).toBe(false);
     });
 
-    it('文案单源：暂停面板改读 settingsContentLabel，不再自带设置项字面', () => {
+    it('文案单源：暂停面板已去设置化，view-model 不再引用 settingsContentLabel', () => {
         const vm = readFileSync(resolve(SRC_ROOT, 'src/view/view-model.ts'), 'utf8');
-        expect(vm).toContain('settingsContentLabel(button.id, snap)');
-        expect(vm).not.toContain('珠子风格  ${');
-        expect(vm).not.toContain('豆子尺寸  ${');
-        expect(vm).not.toContain('皮肤  ${');
+        expect(vm).not.toContain('settingsContentLabel');
+        expect(vm).not.toContain('drawPauseSettingButton');
     });
 });

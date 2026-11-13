@@ -47,7 +47,8 @@ import {
 } from '../src/config/skins/registry.js';
 import { COOL_VIOLET_SKIN } from '../src/config/skins/cool-violet.js';
 import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
-import { pausePanelLayout, type PausePanelAction } from '../src/systems/pause-panel.js';
+import { pausePanelLayout } from '../src/systems/pause-panel.js';
+import { settingsContentLabel } from '../src/view/settings-content.js';
 import { metaLayout } from '../src/view/meta-view.js';
 import { buildBeadsFrame } from '../src/view/view-model.js';
 import {
@@ -129,12 +130,6 @@ function enterPaused(harness: Harness): BeadsGame {
     harness.advance(1);
     expect(game.phase).toBe('paused');
     return game;
-}
-
-function buttonPoint(id: PausePanelAction): { x: number; y: number } {
-    const button = pausePanelLayout('normal').buttons.find((b) => b.id === id);
-    if (!button) throw new Error(`panel: no button "${id}"`);
-    return { x: (button.rect.xMin + button.rect.xMax) / 2, y: (button.rect.yMin + button.rect.yMax) / 2 };
 }
 
 function serialize(model: ReturnType<RenderModelBuilder['end']>): string[] {
@@ -279,19 +274,21 @@ describe('EP12-S8 ② normalizeSettings skinId：缺字段 / 非字符串 / 未�
 // ══════════════════ ③ 运行时设置钮（裁定① · K-035 真实现物）
 
 describe('EP12-S8 ③ cycle-skin 钮族：present · 循环 · 恰写档 1 次 · 不切相位 · 重启回显', () => {
-    it('前提哨兵：注册数 ≥ 2 ⇒ 行4 三枚选择器钮 present（normal + sprint），cycle-skin 恰一次', () => {
+    it('前提哨兵：注册数 ≥ 2 ⇒ 菜单设置 overlay 有 cycle-skin 恰一次；暂停面板三钮零设置项', () => {
         expect(SKIN_IDS.length >= 2).toBe(true); // <2 时本腿须回到「钮不呈现」口径（S9§8-19）
-        for (const mode of ['normal', 'sprint'] as const) {
-            const ids = pausePanelLayout(mode).buttons.map((b) => b.id);
-            expect(ids).toContain('cycle-skin');
-            expect(ids.filter((i) => i === 'cycle-skin').length).toBe(1);
-        }
         // 菜单设置 overlay 同位（内容单源判例）：**WXG-T-365** 装扮馆入口已上提顶栏中档
         // ⇒ 行5 左格回到 `cycle-skin`（设置页重新有循环腿），`open-skins` 只在主菜单热区集里。
         const settingIds = metaLayout('settings').buttons.map((b) => b.id);
         expect(settingIds).toContain('cycle-skin');
+        expect(settingIds.filter((i) => i === 'cycle-skin').length).toBe(1);
         expect(settingIds).not.toContain('open-skins');
         expect(metaLayout('none').buttons.map((b) => b.id)).toContain('open-skins');
+        // v1.8（WXG-T-934）：暂停面板只三钮，⛔ 不再有 cycle-skin（设置全部归菜单）。
+        for (const mode of ['normal', 'sprint'] as const) {
+            const ids = pausePanelLayout(mode).buttons.map((b) => b.id);
+            expect(ids).not.toContain('cycle-skin');
+            expect(ids).toEqual(['resume', 'restart', 'go-menu']);
+        }
     });
 
     it('点按循环 = 注册序回绕 · 每次恰写档 1 次 · PAUSED 保持 · 不推计时', () => {
@@ -306,8 +303,7 @@ describe('EP12-S8 ③ cycle-skin 钮族：present · 循环 · 恰写档 1 次 �
 
         for (let step = 1; step <= SKIN_IDS.length; step++) {
             const before = log.length;
-            const p = buttonPoint('cycle-skin');
-            expect(game.tapDesign(p.x, p.y)).toBe(true);
+            game.applySettingsAction('cycle-skin');
             expect(game.skinId).toBe(SKIN_IDS[step % SKIN_IDS.length]);
             expect(log.length - before).toBe(1); // 恰写档 1 次（S9§8-14 同判）
             expect(settingsOf(storage)['skinId']).toBe(game.skinId);
@@ -320,12 +316,11 @@ describe('EP12-S8 ③ cycle-skin 钮族：present · 循环 · 恰写档 1 次 �
         expect(game.snapshot.phaseElapsed).toBe(phaseElapsed);
     });
 
-    it('杀进程重启：回显与关前一致（S8 §8-11 同形）· 两入口同源（shell 侧 getter）', () => {
+    it('杀进程重启：回显与关前一致（S8 §8-11 同形）· 菜单/对局同源 getter', () => {
         const store = newStorage();
         const h1 = boot(store);
         const g1 = enterPaused(h1);
-        const p = buttonPoint('cycle-skin');
-        g1.tapDesign(p.x, p.y);
+        g1.applySettingsAction('cycle-skin');
         const saved = settingsOf(store)['skinId'] as string;
 
         const h2 = boot(store);
@@ -337,20 +332,24 @@ describe('EP12-S8 ③ cycle-skin 钮族：present · 循环 · 恰写档 1 次 �
     it('文案 = `皮肤  ${skin.label}`（逐档实测，⛔ 不写死款数）+ 零新事件名', () => {
         const harness = boot(newStorage());
         const game = enterPaused(harness);
-        const p = buttonPoint('cycle-skin');
         const seen: string[] = [];
         for (let step = 0; step < SKIN_IDS.length; step++) {
-            game.tapDesign(p.x, p.y);
-            const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
-            builder.begin();
-            buildBeadsFrame(builder, game.snapshot, game.palette, DEMO_BEAD_INKS);
-            const texts = serialize(builder.end())
-                .map((l) => JSON.parse(l) as { kind: string; text?: string })
-                .filter((c) => c.kind === 'text' && typeof c.text === 'string' && c.text.startsWith('皮肤  '))
-                .map((c) => c.text!);
-            expect(texts.length).toBeGreaterThanOrEqual(1);
-            seen.push(texts[0]!);
-            for (const t of texts) expect(t).toBe(`皮肤  ${skinLabel(game.skinId)}`);
+            game.applySettingsAction('cycle-skin');
+            const label = settingsContentLabel('cycle-skin', {
+                bgmMuted: false,
+                sfxMuted: false,
+                reduceMotion: false,
+                largeText: false,
+                vibrate: false,
+                debugInfo: false,
+                debugGuides: false,
+                ghostSymbol: false,
+                beadStyle: game.beadStyle,
+                beadSize: game.beadSize,
+                skinId: game.skinId,
+            });
+            expect(label).toBe(`皮肤  ${skinLabel(game.skinId)}`);
+            seen.push(label);
         }
         expect(new Set(seen).size).toBe(SKIN_IDS.length); // 逐档各异 ⇒ 未把肤名写死
         for (const t of seen) expect(t).not.toMatch(/\d+\s*\/\s*\d+|共\s*\d+|\d+\s*款/);
@@ -360,8 +359,8 @@ describe('EP12-S8 ③ cycle-skin 钮族：present · 循环 · 恰写档 1 次 �
 
     it('静态门：`cycle-skin` 动作串值只住在入口/受理/回显侧（无第四入口，TC-STY-06 同形）', () => {
         const allow = new Set([
-            'systems/pause-panel.ts', // 入口甲：行4 钮位
-            'view/meta-view.ts', // 入口乙：菜单设置 overlay 同钮
+            'systems/pause-panel.ts', // 联合类型（v1.8 起无钮位；菜单壳复用同一串值）
+            'view/meta-view.ts', // 菜单设置 overlay 同钮
             // WXG-T-420 T7 菜单拆片：串值随「动作枚举 / 钮位版式 / 钮文案画法」三件分住，入口数目恒不变（判例 K-183）。
             'view/meta-types.ts',
             'view/meta-layout.ts',
@@ -396,7 +395,7 @@ describe('EP12-S8 ④ 切肤渲染：下一帧生效零过渡 · 结构恒等 + 
         const harness = boot(newStorage());
         const game = enterPaused(harness);
         const f0 = frame(harness);
-        game.tapDesign(buttonPoint('cycle-skin').x, buttonPoint('cycle-skin').y);
+        game.applySettingsAction('cycle-skin');
         const f1 = frame(harness);
         expect(kindCount(f1)).toEqual(kindCount(f0)); // 结构恒等（第十六次复评判例同构）
     });
@@ -406,7 +405,7 @@ describe('EP12-S8 ④ 切肤渲染：下一帧生效零过渡 · 结构恒等 + 
         const game = enterPaused(harness);
         const f0 = frame(harness);
         const sha0 = createHash('sha1').update(f0.join('|')).digest('hex');
-        game.tapDesign(buttonPoint('cycle-skin').x, buttonPoint('cycle-skin').y);
+        game.applySettingsAction('cycle-skin');
         const f1 = frame(harness);
         const sha1 = createHash('sha1').update(f1.join('|')).digest('hex');
         expect(sha1).not.toBe(sha0); // sha ≠（token 值确实进了命令流）
@@ -430,7 +429,7 @@ describe('EP12-S8 ④ 切肤渲染：下一帧生效零过渡 · 结构恒等 + 
             return builder.end().background;
         };
         expect(buildBg()).toBe(warmBg);
-        game.tapDesign(buttonPoint('cycle-skin').x, buttonPoint('cycle-skin').y);
+        game.applySettingsAction('cycle-skin');
         expect(game.palette.background).not.toBe(warmBg);
         expect(buildBg()).toBe(game.palette.background); // 下一帧背景已是新肤
         expect(buildBg()).not.toBe(warmBg);

@@ -267,9 +267,10 @@ describe('BeadsShell — overlay stack + meta:overlay events', () => {
         const open = centerOf('none', 'open-settings');
         r.shell.tapMeta(open.x, open.y);
         const btn = metaLayout('settings').buttons.find((b) => b.id === 'toggle-debug-guides')!;
-        const skin = metaLayout('settings').buttons.find((b) => b.id === 'cycle-skin')!;
-        expect(btn.box.y).toBe(skin.box.y);
-        expect(btn.box.x).toBeGreaterThan(skin.box.x);
+        const ghost = metaLayout('settings').buttons.find((b) => b.id === 'toggle-ghost-symbol')!;
+        // v1.8：11 钮 = 6 行 ⇒ Debug 单钮独占末行（第 6 行）、幽灵符号在上一行左格。
+        expect(btn.box.y).toBeLessThan(ghost.box.y);
+        expect(btn.box.x).toBe(ghost.box.x);
         expect(r.shell.play.debugGuides).toBe(false);
         r.shell.tapMeta(btn.box.x + btn.box.w / 2, btn.box.y + btn.box.h / 2);
         expect(r.shell.play.debugGuides).toBe(true);

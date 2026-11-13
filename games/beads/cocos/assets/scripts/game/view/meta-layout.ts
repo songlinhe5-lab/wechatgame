@@ -40,10 +40,13 @@ const _layoutsByAnchors = new WeakMap<MenuAnchors, Map<MetaOverlay, MetaLayout>>
 const _layoutsByRows = new Map<MetaOverlay, Map<number, MetaLayout>>();
 
 /**
- * 弹窗纸面板宽高（`signin` / `settings` / `skins` 共用；`levels` 自 ADR-0032 D5 起是**整页**，不走纸面板）。
+ * 弹窗纸面板宽高（`signin` / `skins` / `profile` 共用；**settings 自 v1.8 起单独 820 高**，
+ * 见 {@link settingsPlate}；`levels` 自 ADR-0032 D5 起是**整页**，不走纸面板）。
  */
 const OVERLAY_W = 600;
 const OVERLAY_H = 720;
+/** `[WXG-T-934]` 设置弹窗 11 钮 = 6 行所需高度（600×820；标题/底衬/返回净空实算见 `settingsLayout`）。 */
+const SETTINGS_OVERLAY_H = 820;
 
 /**
  * 弹窗纸面板底板（`signin` / `settings` 同一块）。**首次算定后缓用**：`buildMetaView` 每帧调用
@@ -63,6 +66,20 @@ export function overlayPlate(): Box {
         );
     }
     return _overlayPlate;
+}
+
+let _settingsPlate: Box | null = null;
+/** `[WXG-T-934]` 设置弹窗专用底板：600×820（11 钮 / 6 行）；签到 / 装扮馆 / 名片仍走 720。 */
+export function settingsPlate(): Box {
+    if (_settingsPlate === null) {
+        _settingsPlate = box(
+            (DESIGN_W - OVERLAY_W) / 2,
+            (DESIGN_H - SETTINGS_OVERLAY_H) / 2 + dialogShiftY(),
+            OVERLAY_W,
+            SETTINGS_OVERLAY_H,
+        );
+    }
+    return _settingsPlate;
 }
 /**
  * `[WXG-T-602]` 关卡详情**木牌**（Figma 581×1044 @ y下 166）——不复用 {@link overlayPlate}：
@@ -155,15 +172,13 @@ function signinLayout(): MetaLayout {
 }
 
 function settingsLayout(): MetaLayout {
-    const plate = overlayPlate();
-    // UI-30：内容块单源（`view/settings-content.ts`）= 10 钮 = 5 行 × 2 列（末行 = 皮肤 + Debug）。
-    // plate 高 **720 不改**，避让实算（[WXG-T-339] 清零「标题压首行」——修前标题中心 1027−70 = 957
-    //   落进首行钮带 [877,965]，叠 28；用户真机报「设置标题与第一行按钮重叠」）：`OVERLAY_H` 720
-    //   ⇒ plate y∈[307,1027]；标题基线 1027−50 = 977（字面 40 ⇒ 下缘 957）；topY = 307+720−170 =
-    //   857，行底依次 857 / 757 / 657 / 557 / 457（行距 12）；
-    //   ① 顶行上缘 857+88 = 945 < 957 ⇒ **净空 12**（新增行仍在**下方**生长 ⇒ 不新增冲突）；
-    //   ② 底行下缘 457 > 返回钮上缘 307+50+88 = 445 ⇒ **净空 12 ≥ 0**，不与「返回」/「在线导入」
-    //      同行族重叠（EP12-S8 前为 120，仍为正）。
+    const plate = settingsPlate();
+    // UI-30 / `[WXG-T-934]`：内容块单源（`view/settings-content.ts`）= 11 钮 = 6 行 × 2 列
+    // （前 5 行 = 10 项玩家设置，末行 = Debug 单钮左对齐）。
+    // 底板 600×**820**（仅 settings）。避让实算：plate y∈[257,1077]；标题基线 1077−50 = 1027
+    // （字面 40 ⇒ 下缘 1007）；topY = 257+820−170 = 907，行底依次 907 / 807 / 707 / 607 / 507 / 407（行距 12）；
+    //   ① 顶行上缘 907+88 = 995 < 1007 ⇒ **净空 12**；
+    //   ② 底行下缘 407 > 返回钮上缘 257+50+88 = 395 ⇒ **净空 12**，不与「返回」/「在线导入」重叠。
     const buttons: MetaButton[] = settingsContentButtons(plate);
     // 返回
     const backW = 240;

@@ -9800,6 +9800,18 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **提交**：`19fb24ad`（代码 + Cocos 镜像 + 文档 + 台账）；复评与金样本重抓同批回填。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
 
+## WXG-T-934
+
+**UX·暂停面板收敛为三钮（全局设置归菜单）** · 负责：主理人(Trae CN)·beads UX/文档轨 · 状态：📝 文档先行（2026-11-13 · 用户令「游戏中的暂停页面不需要这么多按钮功能，请减轻到最小值，尤其是一些全局性的设置不要放在暂停页面」）
+
+- **用户原话**：「游戏中的暂停页面不需要这么多按钮功能，请减轻到最小值，尤其是一些全局性的设置不要放在暂停页面」。
+- **裁定**：暂停面板只留**继续 / 重玩本关 / 回主菜单**三钮；音乐 / 音效 / 减弱动效 / 大字号 / 震动 / 性能信息 / 幽灵符号 / 珠子风格 / 豆子尺寸 / 皮肤共 10 项全局设置**全部退出暂停面板**，只保留在菜单 `settings` 弹窗（入口 = 主菜单齿轮）。
+- **文档改动**：`ux-spec` **v1.46**（§3.3 三钮线框 / 面板目标高 ≈364 / 遮罩恒 0.5 / 设置项归属；§4 矩阵把 PAUSED·行4 各行迁到「设置 overlay」；§3.8 `cycle-skin` 改挂菜单设置）；`pause-settings` **v1.8**（§2.1 双入口职责分离 / §2.2 三钮 + 「全局设置项」表 / §2.3 遮罩前提恢复 / §3 输入 / §5 呈现层值 / §8-4、12–19 承载屏改写）；`screens.md` S2 线框；`ui-architecture-beads §12` 视觉变更登记；`accessibility.md` D1/E2 开关落点；`input-control.md` §2.3 PAUSED 门禁行。
+- **防漏核对（用户 2026-11-13 追加令「删除的按钮需要整合到主界面的设置按钮里，避免漏了功能」）**：10 项设置逐项对 `settings-content.ts::MENU_ORDER` 核账——**9 项已在菜单**（`toggle-bgm/sfx/reduce-motion/large-text/vibrate/debug-info` + `cycle-bead-style/bead-size/skin`）；**幽灵符号 `toggle-ghost-symbol` 缺位**（菜单 10 项含 `toggle-debug-guides`、不含它）⇒ **落码前置 = 菜单先扩 11 钮**（6 行 × 2 列、末行单钮左对齐；`settings` 底板 600×720→**600×820**，仅 settings），并同批重抓 `settings` 金样本；⛔ 不得先删暂停钮再补。`go-menu` 等属导航，不属设置、不需迁移。
+- **未做（待批落码）**：`src/systems/pause-panel.ts` 删 13 个设置钮、`pausePanelLayout` 收两行、`PAUSE_PANEL_H` 718→≈364；`view/settings-content.ts::MENU_ORDER` 补 `toggle-ghost-symbol`（10→11 钮）并给 settings 单独 820 高底板；`view/settings-content.ts` 的暂停设置绘制腿退场；暂停遮罩回 `PANEL_SCRIM_ALPHA` 0.5；金样本 `pause` / `settings` 两帧由 `tests/ui-golden-capture.ts` 在可复现锚重抓（当前 pause 夹具 627 / 实测 622 已红，本轮不重抓、⛔ 不手改）。
+- **验证**：`pnpm run check:links` OK；`pnpm run check:tasks` 通过（本小节即其前置）；未跑 `verify`（无代码改动）。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
 ## WXG-T-933
 
 **UX·珠面描边圆角半径 ≡ 线宽** · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成（2026-11-13 · 用户令「圆角的半径和边缘宽度要一样，保证圆角不会漏出来拐角」）
