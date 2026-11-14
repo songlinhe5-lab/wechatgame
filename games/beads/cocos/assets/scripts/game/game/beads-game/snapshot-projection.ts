@@ -84,7 +84,6 @@ export interface SnapshotSource {
     readonly levels: readonly BeadsLevelRaw[];
     readonly stageIndex: number;
     readonly starsByLevel: readonly number[];
-    readonly levelKeys: readonly string[];
     readonly timer: GameTimer;
     readonly grid: BeadGrid;
     readonly layout: GridLayout;
@@ -108,12 +107,9 @@ export interface SnapshotSource {
     /** 激励入口可用态（WXG-T-470）：宿主无真广告位 ⇒ false ⇒ 复活钮隐藏。 */
     readonly reviveAdUsable: boolean;
     readonly clearCoins: ClearCoinGrant | null;
+    readonly lastStars: number;
     /** `[WXG-T-945]` 本局实际已用秒数（`level-clear` 当刻冻结；见 `BeadsGame._clearElapsed`）。 */
     readonly clearElapsed: number;
-    readonly lastStars: number;
-    readonly lastSettleScore: number;
-    readonly settleBestByUid: Readonly<Record<string, number>>;
-    readonly actionsPlaying: number;
     readonly pressedButton: string | null;
     readonly sprintBestScore: number;
     readonly isNewBest: boolean;
@@ -323,30 +319,18 @@ function projectPanelShard(s: SnapshotPanel, src: SnapshotSource): void {
     // 购买确认弹窗（ux-spec §3.7）：0 = 关；>0 = 该型单价，视图直接印进标题。
     s.buyConfirmPrice = src.pendingBuy ? powerupBuyPrice(src.pendingBuy) : 0;
 
-    // S7 结算·过关面板（ux-spec §3.4）：数据 + 动画进度一起进快照，视图只读。
+    // S7 结算·过关面板（ux-spec §3.4 v1.41）：数据进快照，视图只读。
+    // `[WXG-T-947]` 面板 = 静态卡 ⇒ 进度 / 可点 / 品质分 / 剩余/道具/动作 / 发豆原因
+    // 六类字段随无消费者退场（品质分仍算、仍进榜；原因句仍由 meta 产出，只是面板不画）。
     s.clearPanelVisible = src.clearPanel.visible;
-    s.clearPanelProgress = src.clearPanel.progress;
-    s.clearPanelInteractive = src.clearPanel.interactive;
     s.clearStars = src.lastStars;
-    // 品质分单榜（ADR-0035 Q1=B）：本局分 + 本关历史最佳（刚在通关帧更新过）。
-    s.clearQualityScore = src.lastSettleScore;
-    s.clearQualityBest =
-        src.settleBestByUid[src.levelKeys[src.levelIndex] ?? ''] ?? src.lastSettleScore;
     s.clearCoins = src.clearCoins?.coins ?? 0;
-    s.clearCoinReason = src.clearCoins?.reason ?? '';
     s.clearCoinsCapped = src.clearCoins?.capped ?? false;
     const shown = src.clearPanel.starsShown(src.lastStars);
     s.clearStarsShown = shown;
     s.clearStarPopScale = shown > 0 ? src.clearPanel.starScale(shown - 1) : 1;
-    // BD-47（WXG-T-127）：结算面板「剩余 mm:ss」不吃浮点尾数 —— 快照层即取整，
-    // 口径与上方 s.remaining 一致（ceil − 1e-9，倒计时显示不提前归零）；
-    // formatTime 的 floor 只是视图兜底，两层都补（T-118 前发现、本单补登）。
-    s.clearRemaining = Math.max(0, Math.ceil(src.timer.remaining - 1e-9));
     // `[WXG-T-945]` 实际用时在 `level-clear` 当刻冻结（本局时钟 + 续时加时 − 剩余）。
     s.clearElapsed = src.clearElapsed;
-    s.clearPowerupsUsed = src.powerups.usedCount;
-    s.clearTaps = src.input.tapsPlaying; // playtest 计量（含误点的输入计数）
-    s.clearActions = src.actionsPlaying; // 定星口径（与 `pricing.actions` 同口径）
     // P0-1（core-loop §8-8）：章末关 ⇒ 结算面板按「本章收尾」呈现（旧全局末关口徑保留为无 boss 关表的回归）。
     s.clearLastLevel = src.isArcFinalLevel || src.levelIndex >= src.levels.length - 1;
 

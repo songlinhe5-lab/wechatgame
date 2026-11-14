@@ -7,21 +7,21 @@
  * 开合时钟与入场公式由四个结算弹窗共享（UI-33 ⇒ `result-panel.ts`）；布局与命中纯函数
  * 按 `ui-architecture-beads §8` 就地保留。
  *
- * 冻结来源
- *  - 布局：`ux/ux-spec.md` §3.4（`panel_dialog` 560×480；主钮「下一关」+ 副钮「▶去冲刺」
- *    并排，两者各 ≥ `TOUCH_MIN`）—— 常量镜像在 `config/tuning.ts`；
- *  - 动画：`ux/ux-spec.md` §5（**星入场逐颗 150ms** ⇒ `CLEAR_STAR_STEP_MS`；面板入 / 出 200 / 150ms）；
- *  - 内容：§3.4 四段——缎带标题 / 星级行 / **判星对照**「3★ 用时 ≤ mm:ss ｜ 2★ 用时 ≤ mm:ss」
- *    / 次要信息「剩余 mm:ss ｜ 道具 n/3」。
+ * 现役版面（`ux-spec §3.4` v1.41 · `[WXG-T-510]`）：
+ *  - 布局：`CLEAR_PANEL_SIZE` 520×470（仅结算用；其他面板仍 `PANEL_SIZE`），200×64 标题木牌
+ *    骑上沿；四类内容 = 星级 / 用时 / `+N 豆` / 未满 3★ 的差距提示；
+ *    主钮 300×92（木）+ 弱化次钮 150×88（纸）。
+ *  - 动画：星入场逐颗 150ms（`CLEAR_STAR_STEP_MS`）；**面板本身是静态卡** ——
+ *    `[WXG-T-509]` A 案「静纸卡」定稿不接 `clearPanelProgress` 补间，
+ *    `ResultPanelClock` 的 200 / 150ms 只作**可见 / 可点门**（入场即可点、退场零响应）。
+ *    `[WXG-T-947]` 快照随之退场 `clearPanelProgress` / `clearPanelInteractive`（无消费者）。
  *
- * 布局与命中共用 `clearPanelLayout()`（按 `lastLevel` 缓存两份），图与热区不可能各说一套。
+ * 布局与命中共用 {@link clearPanelLayout} 的**单份缓存**（布局与 `lastLevel` 无关；
+ * 末关只改主钮文案）⇒ 图与热区不可能各说一套。
  *
  * ⚠️ 与旧实现的差别（WXG-T-063）：`LEVEL_CLEAR` 此前是「1.4s 后自动进下一关」的占位，
  * 而 `ux-spec §4` 的流转表写的是「LEVEL_CLEAR → 下一关 / 去冲刺*(U1) → 玩法·n+1 / 玩法·冲刺」
  * ⇒ **面板必须等按钮**，自动推进已删除（`LEVEL_CLEAR_DELAY_S` 随之退休）。
- *
- * `[WXG-T-509]` 精简为 **A·静纸卡**：面板 520×440、四类内容（星/用时/豆/差距提示）、
- * 单钮 320×92。品质分与「好友这关榜」chip 从面板退场（品质分仍算、仍进榜；好友榜仍在首页）。
  */
 
 import {
@@ -40,8 +40,8 @@ import {
 import { rectContains, type PanelRect } from './pause-panel';
 import { ResultPanelClock } from './result-panel';
 
-/** 面板按钮能请求的三件事（动作由 `BeadsGame` 执行；`sprint` 入口仍隐藏）。 */
-export type ClearPanelAction = 'next' | 'sprint' | 'menu';
+/** 面板按钮能请求的两件事（动作由 `BeadsGame` 执行；冲刺入口已隐藏，不再是可选动作）。 */
+export type ClearPanelAction = 'next' | 'menu';
 
 export interface ClearButton {
   readonly id: ClearPanelAction;
@@ -63,7 +63,7 @@ export interface ClearPanelLayout {
   readonly rewardY: number;
   /** 差距提示行中心 y（仅未满 3★ 时画）。 */
   readonly hintY: number;
-  /** 核心信息区（限定 400×192）：星 / 用时 / 豆 / 提示 必须落在框内。 */
+  /** 核心信息区（400×270）：星 / 用时 / 豆 / 提示 必须落在框内。 */
   readonly content: PanelRect;
   /** 三颗星的中心 x（索引 0 = 最左）。 */
   readonly starX: readonly number[];
@@ -84,20 +84,14 @@ function rect(x: number, y: number, w: number, h: number): PanelRect {
   return { xMin: x, yMin: y, xMax: x + w, yMax: y + h };
 }
 
-let _normal: ClearPanelLayout | null = null;
-let _lastLevel: ClearPanelLayout | null = null;
+let _layout: ClearPanelLayout | null = null;
 
-/** 静态几何，按 `lastLevel` 缓存两份（布局运行时不变 ⇒ 不逐帧分配）。 */
-export function clearPanelLayout(opts: ClearPanelOptions): ClearPanelLayout {
-  if (opts.lastLevel) {
-    _lastLevel ??= build(true);
-    return _lastLevel;
-  }
-  _normal ??= build(false);
-  return _normal;
+/** 静态几何，**单份缓存**（布局与 `lastLevel` 无关；末关只改主钮文案 ⇒ 不逐帧分配）。 */
+export function clearPanelLayout(_opts: ClearPanelOptions): ClearPanelLayout {
+  return (_layout ??= build());
 }
 
-function build(lastLevel: boolean): ClearPanelLayout {
+function build(): ClearPanelLayout {
   const panel = rect(
     (DESIGN_W - CLEAR_PANEL_SIZE.w) / 2,
     // `[WXG-T-323]` 与暂停面板同源位移 ⇒ 中心对齐手机中心。
@@ -130,14 +124,12 @@ function build(lastLevel: boolean): ClearPanelLayout {
   const starsTotal = CLEAR_STAR_SIZE * 3 + CLEAR_STAR_GAP * 2;
   const firstStar = (DESIGN_W - starsTotal) / 2 + CLEAR_STAR_SIZE / 2;
   const starX = [0, 1, 2].map((i) => firstStar + i * (CLEAR_STAR_SIZE + CLEAR_STAR_GAP));
-  void lastLevel;
   return { panel, buttons, titleY, starsY, timeY, rewardY, hintY, content, starX };
 }
 
 /** 按钮文案（`ux-spec §3.4`；末关主钮文案为派生项）。 */
 export function clearPanelLabel(id: ClearPanelAction, lastLevel: boolean): string {
   if (id === 'menu') return '回主界面';
-  if (id === 'sprint') return '▶ 去冲刺';
   return lastLevel ? '查看结果' : '下一关';
 }
 

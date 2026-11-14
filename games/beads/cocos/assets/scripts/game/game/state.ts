@@ -252,45 +252,26 @@ export interface BeadsSnapshot {
    */
   buyConfirmPrice: number;
 
-  /** S7 结算·过关面板（`ux-spec §3.4`）：可见性 + 入/出进度 + 是否接受点击。 */
+  /**
+   * S7 结算·过关面板（`ux-spec §3.4` v1.41）：可见性（面板为**静态卡**，无入/出进度补间；
+   * `[WXG-T-947]` 进度 / 可点两字段已随无消费者退场）。
+   */
   clearPanelVisible: boolean;
-  /** 面板入/出进度，0→1 进入、1→0 退出（与 S9 面板同口径）。 */
-  clearPanelProgress: number;
-  clearPanelInteractive: boolean;
   /** 本关星级 1..3。 */
   clearStars: number;
-  /**
-   * 品质分（C7 结算分，ADR-0035 Q1=B 品质分单榜）：本局得分 + 本关历史最佳。
-   * `> 0` 才画该行；两值相等（首通/刷新纪录前）视图只印本局分。
-   */
-  clearQualityScore: number;
-  clearQualityBest: number;
   /** 已入场的星数（`0..clearStars`）—— 视图据此逐颗显示（ux-spec §5，逐颗 150ms）。 */
   clearStarsShown: number;
   /** 最新入场那颗星的弹跳缩放（0→1.2→1；已稳定 = 1）。 */
   clearStarPopScale: number;
   /**
-   * 次要信息行「剩余 mm:ss ｜ 道具 n/3 ｜ A 动作（N 击）」的原料。
-   * `clearActions` = **有效动作数**（定星口径，与关卡真源 `pricing.actions` 同口径，
-   * 见 `BeadsGame.actionsThisLevel`）；`clearTaps` = 含误点的**输入**计数（playtest 校时用）。
-   */
-  clearRemaining: number;
-  /**
    * `[WXG-T-945]` 本局**实际已用秒数**（= 本局时钟 + 续时加时 − 剩余，`level-clear` 当刻冻结）。
-   * 结算面板的「用时 / 再快N秒」只读它 —— ⛔ 不用 `level.time − clearRemaining`：
+   * 结算面板的「用时 / 再快N秒」只读它 —— ⛔ 不用 `level.time − 剩余`：
    * 2★/3★ 档的本局时钟是 `level.time × 0.85 / 0.70`，旧式会把用时与差距一起算大；
    * 续时局还会漏掉加时。
    */
   clearElapsed: number;
-  clearPowerupsUsed: number;
-  clearActions: number;
-  clearTaps: number;
-  /**
-   * 结算发豆（§3.14 v1.81）：本次到手豆数 / 一句话原因 / 是否被日上限降档。
-   * `clearCoinReason === ''` ⇒ 面板**不画**该行（无 shell 的独立 `BeadsGame` / 未接经济）。
-   */
+  /** 结算发豆（§3.14 v1.81）：本次到手豆数 / 是否被日上限降档（原因句已随 T-509 精简退场）。 */
   clearCoins: number;
-  clearCoinReason: string;
   clearCoinsCapped: boolean;
   /** 末关 ⇒ 主钮文案「查看结果」（点后进 FINISH）。 */
   clearLastLevel: boolean;
@@ -564,20 +545,11 @@ function createPanelShard(): SnapshotPanel {
     panelInteractive: false,
     buyConfirmPrice: 0,
     clearPanelVisible: false,
-    clearPanelProgress: 0,
-    clearPanelInteractive: false,
     clearStars: 0,
     clearStarsShown: 0,
     clearStarPopScale: 1,
-    clearQualityScore: 0,
-    clearQualityBest: 0,
-    clearRemaining: 0,
     clearElapsed: 0,
-    clearPowerupsUsed: 0,
-    clearActions: 0,
-    clearTaps: 0,
     clearCoins: 0,
-    clearCoinReason: '',
     clearCoinsCapped: false,
     clearLastLevel: false,
     finishPanelVisible: false,

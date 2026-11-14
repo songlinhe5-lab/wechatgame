@@ -70,7 +70,7 @@ import { menuBitmapReady } from './meta-widgets';
 import { UI_FONT, UI_SCRIM, bodyFont, drawPaperPanel, formatDurationCn, pressOffset } from './ui-theme';
 import { drawPlayPage } from './play-page';
 import { drawRankPanel } from './rank-view';
-import { starPoints } from './shape-utils';
+import { starPoints, starPointsInto } from './shape-utils';
 import { createTimeoutViewModel, updateTimeoutViewModel } from './timeout-view-model';
 import { drawTimeoutView } from './timeout-view';
 
@@ -442,8 +442,19 @@ function drawFailPanel(
 // ─────────────────────────────────── S7 结算·过关面板（ux-spec §3.4）
 
 /**
- * 结算·过关面板：遮罩 + `panel_dialog` 底板（白底 / 1px 描边 / 圆角 24，assets-spec §1.5）
- * + 金色缎带标题 + **逐颗入场**的星级 + 判星对照行 + 次要信息「剩余 mm:ss ｜ 道具 n/3」+ 主/副双钮。
+ * `[WXG-T-947]` 结算面板星形点列 scratch（5 角 × 2 = 10 点）。
+ * 用 `number[]` 保持 double 精度（`RenderModel.vertices` 是 Float64Array ⇒ 与旧写法逐字节同值）；
+ * `builder.polygon` 建令当刻即拷贝（ADR-0024）⇒ 同一块可连续复用于 4 层 / 3 颗星。
+ */
+const CLEAR_STAR_POINTS: number[] = new Array(20).fill(0);
+/** `[WXG-T-947]` 布局查询的两种选项（模块级常量 ⇒ 热路径不逐帧建对象）。 */
+const CLEAR_OPTS_NORMAL = { lastLevel: false } as const;
+const CLEAR_OPTS_LAST = { lastLevel: true } as const;
+
+/**
+ * 结算·过关面板（`ux-spec §3.4` v1.41）：遮罩 + 520×470 木框/内底 9-slice + 骑上沿的
+ * 「过关」木牌 + **逐颗入场**的星级 + 用时 / `+N 豆` / 未满 3★ 的差距提示 + 主/副双钮。
+ * 面板本身是**静态卡**（不接进度补间，见 `systems/clear-panel.ts` 头注）。
  *
  * 几何/文案/动作全在 `systems/clear-panel.ts`（与命中测试同源）；本函数只画。
  * 星级节奏来自快照（`clearStarsShown` / `clearStarPopScale`）——面板逻辑按
@@ -455,7 +466,7 @@ function drawClearPanel(
   palette: BeadsPalette,
 ): void {
   if (!snap.clearPanelVisible) return;
-  const layout = clearPanelLayout({ lastLevel: snap.clearLastLevel });
+  const layout = clearPanelLayout(snap.clearLastLevel ? CLEAR_OPTS_LAST : CLEAR_OPTS_NORMAL);
   const plate = layout.panel;
 
   // UI-22：遮罩 + 纸面板（静止态，progress = 1）。
@@ -511,23 +522,23 @@ function drawClearPanel(
     const cx = layout.starX[i]!;
     const cy = layout.starsY;
     const r = starR * scale;
-    builder.polygon(starPoints(cx, cy, r + 5, 5, 90), {
+    builder.polygon(starPointsInto(CLEAR_STAR_POINTS, cx, cy, r + 5, 5, 90), {
       fill: withAlpha(STAR_GOLD, 0.16),
     });
-    builder.polygon(starPoints(cx, cy - 3, r, 5, 90), {
+    builder.polygon(starPointsInto(CLEAR_STAR_POINTS, cx, cy - 3, r, 5, 90), {
       fill: withAlpha(palette.shadowInk, 0.28),
     });
-    builder.polygon(starPoints(cx, cy, r, 5, 90), {
+    builder.polygon(starPointsInto(CLEAR_STAR_POINTS, cx, cy, r, 5, 90), {
       fill: STAR_GOLD,
       stroke: withAlpha(palette.shadowInk, 0.55),
       lineWidth: 2,
     });
-    builder.polygon(starPoints(cx, cy + 2, r * 0.55, 5, 90), {
+    builder.polygon(starPointsInto(CLEAR_STAR_POINTS, cx, cy + 2, r * 0.55, 5, 90), {
       fill: withAlpha(palette.panel, 0.55),
     });
   }
 
-  // 用时 / 豆 / 差距提示（`[WXG-T-509]` 四行内容；核心信息区 = 400×192）。
+  // 用时 / 豆 / 差距提示（`[WXG-T-509]` 四类内容；核心信息区 = 400×270）。
   const critLevel = snap.finishLevels[snap.levelIndex];
   if (critLevel) {
     // `[WXG-T-945]` 用时取快照的实际秒数（本局时钟 + 续时加时 − 剩余）；⛔ 不用

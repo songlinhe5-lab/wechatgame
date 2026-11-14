@@ -58,7 +58,7 @@ function fillBoard(harness: Harness): void {
   }
 }
 
-function tapButton(harness: Harness, id: 'next' | 'sprint', lastLevel = false): boolean {
+function tapButton(harness: Harness, id: 'next' | 'menu', lastLevel = false): boolean {
   const rect = clearPanelLayout({ lastLevel }).buttons.find((b) => b.id === id)!.rect;
   return harness.game.tapDesign((rect.xMin + rect.xMax) / 2, (rect.yMin + rect.yMax) / 2);
 }
@@ -111,7 +111,6 @@ describe('S7 结算面板 · 精简几何（ux-spec §3.4 v1.41）', () => {
     expect(clearPanelLabel('next', false)).toBe('下一关');
     expect(clearPanelLabel('next', true)).toBe('查看结果');
     expect(clearPanelLabel('menu', false)).toBe('回主界面');
-    expect(clearPanelLabel('sprint', false)).toBe('▶ 去冲刺');
   });
 
   it('命中两钮；板外 / 原冲刺位零命中', () => {
@@ -190,9 +189,9 @@ describe('S7 结算面板 · 时长文案（[WXG-T-509]）', () => {
     fillBoard(h);
     advancePastClearWave(h);
     // 2★ 档：本局时钟 = level.time × 0.85（300 → 255），剩 30s ⇒ 实际用时 225s。
-    // 旧式 `level.time − clearRemaining` = 270s ⇒ 会错成「4分30秒 / 再快1分」。
+    // 旧式（1★ 时钟 − 剩余）= 270s ⇒ 会错成「4分30秒 / 再快1分」。
     const cmds = render(h, {
-      clearStars: 2, clearStarsShown: 2, clearElapsed: 225, clearRemaining: 30,
+      clearStars: 2, clearStarsShown: 2, clearElapsed: 225,
     });
     const texts = cmds.filter((c) => c.kind === 'text').map((c) => String((c as { text?: string }).text ?? ''));
     expect(texts).toContain('用时3分45秒');
@@ -230,7 +229,7 @@ describe('S7 结算面板 · 内容精简（[WXG-T-509]）', () => {
     });
     fillBoard(h);
     advancePastClearWave(h);
-    const cmds = render(h, { clearCoins: 45, clearQualityScore: 4200, clearQualityBest: 5000 });
+    const cmds = render(h, { clearCoins: 45 });
 
     const texts = cmds.filter((c) => c.kind === 'text').map((c) => String((c as { text?: string }).text ?? ''));
     expect(texts).toContain('过关');

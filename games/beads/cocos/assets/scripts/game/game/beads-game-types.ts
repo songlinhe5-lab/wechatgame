@@ -113,7 +113,7 @@ export interface BeadsGameOptions {
      *
      * - `prevStars` = **写星之前**该关历史最高星（由 `BeadsGame` 在写星的 `Math.max` 之前取）；
      *   语义 = 「首通奖励**每档各发一次**」：`stars > prevStars` ⇒ 补发差额（直接 3★ 首通 = 三档一起发）；
-     * - 返回值直接上结算面板（`clearCoins` / `clearCoinReason`），⛔ 前端不自己算；
+     * - 返回值金额直接上结算面板（`clearCoins`）；`reason` 仍随授权件产出，但面板已于 T-509 精简掉原因句；⛔ 前端不自己算；
      * - 缺省（无 shell 的独立 `BeadsGame`）⇒ 不发豆、面板不显示该行（后向兼容）。
      */
     readonly onClearCoins?: (stars: number, isBoss: boolean, prevStars: number) => ClearCoinGrant | undefined;

@@ -9800,6 +9800,19 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **提交**：`19fb24ad`（代码 + Cocos 镜像 + 文档 + 台账）；复评与金样本重抓同批回填。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
 
+## WXG-T-947
+
+**清理·过关面板静态卡定稿 + 死字段 / 旧注释收口** · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成（2026-11-15 · 用户对评审三项回「1/2/3」）
+
+- **进出场定夺 = 静态卡**：`drawModalFrame` 保持 `progress: 1`（不接 `clearPanelProgress` 补间，沿 T-509 A 案「静纸卡」）；`ResultPanelClock` 的 200 / 150ms 只作**可见 / 可点门**（入场即可点、退场零响应）。口径写入 `clear-panel.ts` 头注与 `ux-spec §3.4` v1.41 块。理由：9-slice 内底 / 外框 / 木牌 / 星 / 文字全部按静态几何绘制，只补 scrim 淡入会得到「遮罩渐入、卡瞬现」的错位观感；要真补间需整卡变换，超出收口范围。
+- **快照退场 9 项**（全仓无消费者）：`clearPanelProgress`、`clearPanelInteractive`、`clearQualityScore`、`clearQualityBest`、`clearRemaining`、`clearPowerupsUsed`、`clearActions`、`clearTaps`、`clearCoinReason`。同步删 `SnapshotSource` 的 `levelKeys` / `lastSettleScore` / `settleBestByUid` / `actionsPlaying` 四个只服务死字段的宿主 getter。品质分仍算、仍进榜（`settleBestByUid` 与 `lastSettleScore` 本体保留）；发豆原因句仍由 `grantClearCoins` 产出，只是面板自 T-509 起不画。
+- **死代码**：① `ClearPanelAction` 删 `'sprint'`，`clearPanelLabel` 与 `PanelRouter` 的 level-clear 分支同步（通关画面的冲刺入口不受影响）；② `clearPanelLayout` 双缓存收单份 —— 布局与 `lastLevel` 无关（末关只改主钮文案），删 `build(lastLevel)` 的 `void lastLevel`；③ 新增 `shape-utils::starPointsInto` + `view-model` 预分配 `CLEAR_STAR_POINTS`（20 个 double），结算面板每帧少 12 个数组分配。⚠ scratch 用 `number[]` 而非 `Float32Array`：`RenderModel.vertices` 是 **Float64Array**，f32 scratch 会先降精度、改金样本 sha。
+- **注释回写**：`clear-panel.ts` 头注（560×480 → 520×470、缎带 / 判星对照 / 剩余道具行 → 现役四类内容、双钮）；`content` 400×192 → **400×270**；`drawClearPanel` 头注同步；`ux-spec` 品质分行标为历史（v1.27–v1.41，已删除留档）。
+- **测试**：`clear-panel.test.ts` 去掉 sprint 文案断言与已删字段注入；全量 beads **126 文件 / 1489 通过 / 2 skipped**；`clear` 金样本**零漂移**（星形 scratch 保持 double 精度）。
+- **实帧复核（headless SVG → PNG）**：`temp/clear-viz/` 三帧 —— 2★ + 大字号：`用时3分45秒` / `再快15秒可得3★`，彩带不盖标题与星；续时：`用时6分20秒`、差距提示整行不画；1★ 对照：`用时4分20秒` / `再快5秒可得2★`。
+- **验证**：`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
 ## WXG-T-946
 
 **修复·结算过关面板彩带禁飞带 + 说明行大字号** · 负责：主理人(Trae CN)·beads 工程/美术轨 · 状态：✅ 完成（2026-11-15 · 用户令「先修复彩带禁飞带和大字号问题」）

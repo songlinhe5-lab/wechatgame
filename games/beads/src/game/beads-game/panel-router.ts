@@ -76,11 +76,11 @@ export class PanelRouter {
       }
       case 'level-clear': {
         // S7 结算面板：只认自己的两个按钮（面板外点击无命中 ⇒ 不推进）。
+        // `[WXG-T-947]` 冲刺入口已从面板退场 ⇒ 不再有 `sprint` 分支（`startSprintRun` 仍归通关画面）。
         const action: ClearPanelAction | null = h.clearPanel.hitTest(x, y, h.clearPanelOptions());
         if (!action) return false;
         h.sfx(AUDIO_CLIP_UI_TAP);
         if (action === 'next') h.advanceAfterClear();
-        else if (action === 'sprint') h.startSprintRun();
         else h.openMenu();
         return true;
       }

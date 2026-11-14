@@ -617,7 +617,6 @@ export class BeadsGame {
       get levels() { return self._levels; },
       get stageIndex() { return self._stageIndex; },
       get starsByLevel() { return self._starsByLevel; },
-      get levelKeys() { return self._levelKeys; },
       get timer() { return self._timer; },
       get grid() { return self._grid; },
       get layout() { return self._layout; },
@@ -639,9 +638,6 @@ export class BeadsGame {
       get clearCoins() { return self._clearCoins; },
       get clearElapsed() { return self._clearElapsed; },
       get lastStars() { return self._lastStars; },
-      get lastSettleScore() { return self._lastSettleScore; },
-      get settleBestByUid() { return self._settleBestByUid; },
-      get actionsPlaying() { return self._actionsPlaying; },
       get pressedButton() { return self._pressedButton; },
       get sprintBestScore() { return self._sprintBestScore; },
       get isNewBest() { return self._isNewBest; },
@@ -1697,7 +1693,7 @@ export class BeadsGame {
    */
   private _beadLod = false;
 
-  /** 本局玩家点击数（含误点；harness/调试用，结算面板走快照字段 `clearTaps`）。 */
+  /** 本局玩家点击数（含误点；harness / 调试 / playtest 校时用；结算面板已不展示）。 */
   get tapsThisLevel(): number {
     return this._input.tapsPlaying;
   }
@@ -1710,7 +1706,7 @@ export class BeadsGame {
    * 计数器逐字同口径**（连「幂等重选同一个锚」也同口径，因为 bot 那边也是按返回 true 计），
    * 所以可直接与关卡真源 `pricing.actions` 对表定星。
    *
-   * ⚠ 不能用 `clearTaps` 定星：触屏上手滑一下就会掉星（含误点）。
+   * ⚠ 不能用 `tapsThisLevel` 定星：触屏上手滑一下就会掉星（含误点）。
    */
   get actionsThisLevel(): number {
     return this._actionsPlaying;
