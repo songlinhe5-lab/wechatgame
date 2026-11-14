@@ -68,6 +68,7 @@ import {
     hitTestMeta,
     inBox,
     settingsScrollLimit,
+    settingsRowPitch,
     settingsViewport,
     type MetaAction,
     type MetaBossState,
@@ -75,7 +76,6 @@ import {
     type MetaOverlay,
     type MetaViewData,
 } from '../view/meta-view';
-import { settingsRowPitch } from '../view/settings-content';
 import type { RankPanelAction, RankPanelView } from '../systems/rank-panel';
 import { DEFAULT_SKIN_ID, registeredSkins } from '../config/skins/registry';
 // `[WXG-T-363]` 装扮馆：拥有态注入腿（视图标签）+ 卡区画法单源同文件，判例 = `setMenuBitmapResolver`。
