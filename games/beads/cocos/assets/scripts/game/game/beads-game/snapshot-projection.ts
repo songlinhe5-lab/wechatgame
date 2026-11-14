@@ -108,6 +108,8 @@ export interface SnapshotSource {
     /** 激励入口可用态（WXG-T-470）：宿主无真广告位 ⇒ false ⇒ 复活钮隐藏。 */
     readonly reviveAdUsable: boolean;
     readonly clearCoins: ClearCoinGrant | null;
+    /** `[WXG-T-945]` 本局实际已用秒数（`level-clear` 当刻冻结；见 `BeadsGame._clearElapsed`）。 */
+    readonly clearElapsed: number;
     readonly lastStars: number;
     readonly lastSettleScore: number;
     readonly settleBestByUid: Readonly<Record<string, number>>;
@@ -340,6 +342,8 @@ function projectPanelShard(s: SnapshotPanel, src: SnapshotSource): void {
     // 口径与上方 s.remaining 一致（ceil − 1e-9，倒计时显示不提前归零）；
     // formatTime 的 floor 只是视图兜底，两层都补（T-118 前发现、本单补登）。
     s.clearRemaining = Math.max(0, Math.ceil(src.timer.remaining - 1e-9));
+    // `[WXG-T-945]` 实际用时在 `level-clear` 当刻冻结（本局时钟 + 续时加时 − 剩余）。
+    s.clearElapsed = src.clearElapsed;
     s.clearPowerupsUsed = src.powerups.usedCount;
     s.clearTaps = src.input.tapsPlaying; // playtest 计量（含误点的输入计数）
     s.clearActions = src.actionsPlaying; // 定星口径（与 `pricing.actions` 同口径）

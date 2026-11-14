@@ -530,7 +530,9 @@ function drawClearPanel(
   // 用时 / 豆 / 差距提示（`[WXG-T-509]` 四行内容；核心信息区 = 400×192）。
   const critLevel = snap.finishLevels[snap.levelIndex];
   if (critLevel) {
-    const elapsedRaw = Math.max(0, critLevel.time - snap.clearRemaining);
+    // `[WXG-T-945]` 用时取快照的实际秒数（本局时钟 + 续时加时 − 剩余）；⛔ 不用
+    // `level.time − clearRemaining`：2★/3★ 档时钟是 0.85T / 0.70T，旧式会把用时和差距一起算大。
+    const elapsedRaw = Math.max(0, snap.clearElapsed);
     const elapsed = Math.floor(elapsedRaw);
     builder.text(DESIGN_W / 2, layout.timeY, `用时${formatDurationCn(elapsed)}`, {
       fill: palette.text,

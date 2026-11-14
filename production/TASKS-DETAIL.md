@@ -9800,6 +9800,20 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **提交**：`19fb24ad`（代码 + Cocos 镜像 + 文档 + 台账）；复评与金样本重抓同批回填。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
 
+## WXG-T-945
+
+**修复·结算·过关面板用时按本局实际时钟计算** · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成（2026-11-14 · 用户令「先修复用时计算错误」）
+
+- **触发**：过关页面代码评审 P1 —— 面板「用时 / 再快N秒」在复玩档与续时局算错。
+- **根因**：`view-model.ts::drawClearPanel` 用 `elapsedRaw = critLevel.time − snap.clearRemaining`。`critLevel.time` 是关卡表 **1★ 时钟**；本局实际倒计时是 `timer.reset(tierSecondsFor(level.time, tier))`（[beads-game.ts](file:///Users/stephenhe/Development/workspace/wechatgame/games/beads/src/game/beads-game.ts#L2230-L2231)），2★ 档 = 0.85T、3★ 档 = 0.70T。判星口径本来就是 `elapsed = total − remaining`（`computeClearStars`）；续时局 `remaining` 还含 +180s 加时。⇒ 用时虚高 `level.time − timer.total`，差距提示同步偏大。
+- **实算例**：T=300、2★ 档 total=255、剩 30s 过关 ⇒ 实际用时 225s（3分45秒），旧式显示 270s（4分30秒）；差距旧式 60s（再快1分）、正确 15s（再快15秒）。
+- **修法**：`BeadsGame` 在 `level-clear` onEnter 冻结 `_clearElapsed = max(0, timer.total + reviveBonusSec − remaining)`；快照新增 `clearElapsed`（`SnapshotSource` getter / `state.ts` 契约 + 默认值 / `PANEL_SHARD_FIELDS` / `projectPanelShard`）；`drawClearPanel` 改读 `snap.clearElapsed`。判星阈值仍走 `tierSecondsFor(level.time, nextTier, starTierK)`。
+- **测试**：`clear-panel.test.ts` 原三处夹具从 `clearRemaining: level.time − x` 改注入 `clearElapsed`；新增 2★ 档回归例「225s ⇒ 用时3分45秒 + 再快15秒可得3★」（旧式会输出 4分30秒 / 再快1分）。全量 beads 126 文件 / 1488 通过 / 2 skipped。
+- **金样本**：`clear` 帧零漂移（首通档 `timer.total === level.time`，显示值逐字不变）。
+- **文档**：本行 + 详情；ux-spec §3.4 的「elapsed = 本关时钟 − 剩余」口径未改（本次是让实现回到该口径）。
+- **验证**：`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
 ## WXG-T-944
 
 **工程·容器内逐容器裁切（设置页半行 cell 可见）** · 负责：主理人(Trae CN)·beads 工程/框架轨 · 状态：✅ 完成（2026-11-14 · 用户令「现在拖动整个 cell 完整显示才能渲染，没有办法做到 clip cell 的部分区域显示」，并在 AskUserQuestion 中选择「做逐容器裁切」）

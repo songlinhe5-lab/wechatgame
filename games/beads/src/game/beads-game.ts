@@ -637,6 +637,7 @@ export class BeadsGame {
       get solverFx() { return self._solverFx; },
       get boardSelected() { return self._boardSelected; },
       get clearCoins() { return self._clearCoins; },
+      get clearElapsed() { return self._clearElapsed; },
       get lastStars() { return self._lastStars; },
       get lastSettleScore() { return self._lastSettleScore; },
       get settleBestByUid() { return self._settleBestByUid; },
@@ -2016,6 +2017,10 @@ export class BeadsGame {
           const level = game._levels[game._levelIndex]!;
           const levelId = levelIdOf(level);
           const remaining = game._timer.remaining;
+          // `[WXG-T-945]` 实际用时 = 本局时钟 + 续时加时 − 剩余（当刻冻结）。
+          // ⛔ 不用 `level.time − remaining`：2★/3★ 档的本局时钟是 `level.time × 0.85 / 0.70`，
+          // 旧式会把面板「用时 / 再快N秒」一起算大（续时局还会漏掉加时）。
+          game._clearElapsed = Math.max(0, game._timer.total + game._reviveBonusSec - remaining);
           const { ratio, stars } = computeClearStars(
             remaining,
             game._timer.total,
@@ -3094,6 +3099,11 @@ export class BeadsGame {
   private _lastStars = 0;
   /** 本局结算发豆结果（§3.14 v1.81）；`null` ⇒ 面板不画该行。每局 `level-clear` 重算。 */
   private _clearCoins: ClearCoinGrant | null = null;
+  /**
+   * `[WXG-T-945]` 本局实际已用秒数（`level-clear` 当刻冻结）。
+   * = 本局时钟（`timer.total`，含 2★/3★ 档缩放）+ 续时加时 − 剩余；结算面板只读它。
+   */
+  private _clearElapsed = 0;
 
   /** Last normal-mode clear's stars (view convenience). */
   get lastStars(): number {

@@ -145,9 +145,8 @@ describe('S7 结算面板 · 时长文案（[WXG-T-509]）', () => {
     });
     fillBoard(h);
     advancePastClearWave(h);
-    const level = h.game.snapshot.finishLevels[0]!;
-    // 注入：本关用时 = 41 秒（剩余 = time − 41）⇒ 不依赖帧数。
-    const cmds = render(h, { clearRemaining: level.time - 41 });
+    // 注入：本关用时 = 41 秒（`[WXG-T-945]` 面板只读快照的实际用时）⇒ 不依赖帧数。
+    const cmds = render(h, { clearElapsed: 41 });
     const time = cmds.find((c) => c.kind === 'text' && c.text.startsWith('用时')) as
       | Extract<DrawCommand, { kind: 'text' }>
       | undefined;
@@ -164,13 +163,12 @@ describe('S7 结算面板 · 时长文案（[WXG-T-509]）', () => {
     });
     fillBoard(h);
     advancePastClearWave(h);
-    const level = h.game.snapshot.finishLevels[0]!;
     // 3★（用时 0）⇒ 提示不出现。
-    const full = render(h, { clearStars: 3, clearStarsShown: 3, clearRemaining: level.time });
+    const full = render(h, { clearStars: 3, clearStarsShown: 3, clearElapsed: 0 });
     expect(full.some((c) => c.kind === 'text' && c.text.startsWith('再快'))).toBe(false);
 
     // 2★：elapsed 220s，3★ 线 210s ⇒ 再快 10 秒。
-    const two = render(h, { clearStars: 2, clearStarsShown: 2, clearRemaining: level.time - 220 });
+    const two = render(h, { clearStars: 2, clearStarsShown: 2, clearElapsed: 220 });
     const hint = two.find((c) => c.kind === 'text' && c.text.startsWith('再快')) as
       | Extract<DrawCommand, { kind: 'text' }>
       | undefined;
@@ -178,9 +176,27 @@ describe('S7 结算面板 · 时长文案（[WXG-T-509]）', () => {
 
     // 续时局：星级与用时无关 ⇒ 整行不画。
     const revived = render(h, {
-      clearStars: 2, clearStarsShown: 2, clearRemaining: level.time - 220, revived: true,
+      clearStars: 2, clearStarsShown: 2, clearElapsed: 220, revived: true,
     });
     expect(revived.some((c) => c.kind === 'text' && c.text.startsWith('再快'))).toBe(false);
+  });
+
+  it('`[WXG-T-945]` 用时取本局实际时钟（2★/3★ 档不再按 1★ 时钟虚高）', () => {
+    const h = createBeadsHarness({
+      noAssemble: true,
+      levels: [simpleTestLevel({ id: 96 })],
+      saveKey: 'wxgame.beads.test.cp-elapsed',
+    });
+    fillBoard(h);
+    advancePastClearWave(h);
+    // 2★ 档：本局时钟 = level.time × 0.85（300 → 255），剩 30s ⇒ 实际用时 225s。
+    // 旧式 `level.time − clearRemaining` = 270s ⇒ 会错成「4分30秒 / 再快1分」。
+    const cmds = render(h, {
+      clearStars: 2, clearStarsShown: 2, clearElapsed: 225, clearRemaining: 30,
+    });
+    const texts = cmds.filter((c) => c.kind === 'text').map((c) => String((c as { text?: string }).text ?? ''));
+    expect(texts).toContain('用时3分45秒');
+    expect(texts).toContain('再快15秒可得3★');
   });
 });
 

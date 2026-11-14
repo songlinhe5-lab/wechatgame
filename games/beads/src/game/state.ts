@@ -275,6 +275,13 @@ export interface BeadsSnapshot {
    * 见 `BeadsGame.actionsThisLevel`）；`clearTaps` = 含误点的**输入**计数（playtest 校时用）。
    */
   clearRemaining: number;
+  /**
+   * `[WXG-T-945]` 本局**实际已用秒数**（= 本局时钟 + 续时加时 − 剩余，`level-clear` 当刻冻结）。
+   * 结算面板的「用时 / 再快N秒」只读它 —— ⛔ 不用 `level.time − clearRemaining`：
+   * 2★/3★ 档的本局时钟是 `level.time × 0.85 / 0.70`，旧式会把用时与差距一起算大；
+   * 续时局还会漏掉加时。
+   */
+  clearElapsed: number;
   clearPowerupsUsed: number;
   clearActions: number;
   clearTaps: number;
@@ -565,6 +572,7 @@ function createPanelShard(): SnapshotPanel {
     clearQualityScore: 0,
     clearQualityBest: 0,
     clearRemaining: 0,
+    clearElapsed: 0,
     clearPowerupsUsed: 0,
     clearActions: 0,
     clearTaps: 0,
