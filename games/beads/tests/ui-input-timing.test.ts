@@ -16,6 +16,8 @@ import { describe, expect, it } from 'vitest';
 import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
 import { BeadsShell } from '../src/game/beads-shell.js';
 import { metaLayout } from '../src/view/meta-view.js';
+import { settingsScrollMax } from '../src/view/settings-content.js';
+import { levelDetailPlate } from '../src/view/meta-layout.js';
 import { pausePanelLayout, type PanelRect } from '../src/systems/pause-panel.js';
 import {
   GEAR_HIT_SIZE,
@@ -122,17 +124,21 @@ describe('区外按钮抬起才提交（WXG-T-295）', () => {
     press('up', open.x + open.w / 2, open.y + open.h / 2);
     expect(shell.overlay).toBe('settings');
 
+    // 单列 cell 列表：循环珠径在第 8 行，需先上滚（绘制 = box + scroll，命中 = 点 − scroll）。
+    const SCROLL = settingsScrollMax(levelDetailPlate());
+    shell.setSettingsScroll(SCROLL);
     const a = btn('settings', 'cycle-bead-size').box;
-    const b = btn('settings', 'back').box;
+    const aPt = { x: a.x + a.w / 2, y: a.y + a.h / 2 + SCROLL };
+    const b = btn('settings', 'close-settings').box;
     const size0 = shell.play.beadSize;
-    press('down', a.x + a.w / 2, a.y + a.h / 2);
+    press('down', aPt.x, aPt.y);
     press('move', b.x + b.w / 2, b.y + b.h / 2);
     press('up', b.x + b.w / 2, b.y + b.h / 2);
-    expect(shell.overlay).toBe('settings'); // B（返回）未被触发
+    expect(shell.overlay).toBe('settings'); // B（✕ 关闭）未被触发
     expect(shell.play.beadSize).toBe(size0); // A（循环珠径）未被触发
     // 正向对照：原地抬起 = A 生效一档
-    press('down', a.x + a.w / 2, a.y + a.h / 2);
-    press('up', a.x + a.w / 2, a.y + a.h / 2);
+    press('down', aPt.x, aPt.y);
+    press('up', aPt.x, aPt.y);
     expect(shell.play.beadSize).not.toBe(size0);
   });
 

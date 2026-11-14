@@ -41,6 +41,17 @@
 - **harness**：`dev/harness` 直读 `final/assets/menu/buttons/` 的 `@2x` 原件（`/menu-assets/` 白名单），无需投放件。
 - **WXG-T-939 复用件**：设置弹窗底部「关闭」钮直接读 `final/assets/detail/ui_level_select_close@2x.png`（来源见 §0.1），**无新增资产**；本批只改绘制接线。
 
+## 0.3 Figma 切件批次：设置项 cell 图标 / 开关（2026-11-14 · WXG-T-941）
+
+> 本批**不是生图**：设置页新版 UI 的 6 枚 Figma 图像填充（`temp/figma/settings/images.json` + `urls.txt` 导出记录，2026-11-14），⛔ 无模型 / 无 prompt。
+
+| 件（实测规格） | 生成方式 | 生成脚本（入库路径） | 原图（入库路径 / 状态） | 批次出处 |
+|---|---|---|---|---|
+| `final/assets/menu/settings/icons/ui_icon_music@2x.png` 97×103<br>`ui_icon_sound_settings@2x.png` 104×93<br>`ui_icon_motion@2x.png` 102×113<br>`ui_icon_vibrate@2x.png` 113×115 | **Figma REST 图像填充原图导出**（`figma.mjs` 图像填充腿；RGBA） | 无一次性脚本（导出记录 = `temp/figma/settings/urls.txt`，temp 不入库） | ✅ Figma 文件 `PBIK3RbfGlfzFsAnd97ZsP` · 「设置页面」抠图层（节点 id 未记录 `[TODO]`；临时导出件 `temp/figma/settings/ui_icon_*.png`） | WXG-T-941 |
+| `final/assets/menu/settings/toggles/ui_toggle_on@2x.png` 168×95<br>`ui_toggle_off@2x.png` 168×95 | 同上 | 同上 | ✅ 同上（`temp/figma/settings/ui_toggle_*.png`） | WXG-T-941 |
+
+- **运行时接线**：`MENU_TEXTURES.settingsIcon* / settingsToggle*`（`config/tuning/menu.ts`）；harness `MENU_FILE` 已注册（`/menu-assets/settings/...`）。Cocos 投放件 / `.meta` / 构建 **待 GUI 导入**（同 §0.2 环境阻塞）⇒ 当前 Cocos 缺图腿 = 不画图标 + 程序化开关。
+
 ## 1. 本批（2026-10-30 → 11-01）逐件来源账
 
 范围 = `final/assets/menu/` 中 `mtime ≥ 2026-10-30` 的 12 件（其余件来源见 `final/README.md` 台账与 `shots/` 证据流）。**在册 11 件**，第 12 件 `ui_menu_env` 已于 2026-11-01 裁定移出（本表保留该行作为出处账，⛔ 不当在册件用）。

@@ -646,6 +646,15 @@ export class BeadsShell implements Game {
         return this._dispatchMetaTap(x, y);
     }
 
+    /**
+     * 测试 / harness：设置可视窗滚动量（钳位 `[0, settingsScrollLimit()]`，与拖拽路径同口径）。
+     * 滚到底部之后的行（第 6 行起）只有滚动后才在窗内，单测靠它点中这些行。
+     */
+    setSettingsScroll(y: number): void {
+        const max = settingsScrollLimit();
+        this._settingsScroll = y < 0 ? 0 : y > max ? max : y;
+    }
+
     /** 命中 + 派发的唯一腿（菜单 / overlay 共用）；返回是否被控件消费。 */
     private _dispatchMetaTap(x: number, y: number): boolean {
         const btn = hitTestMeta(this._phase.overlay, x, y, this._viewData.anchors, this._settingsScroll);

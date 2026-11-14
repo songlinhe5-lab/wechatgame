@@ -231,7 +231,7 @@ describe('WXG-T-324/325 — 菜单弹窗透出底页（ADR-0033 容器层已落�
 /**
  * [WXG-T-339] 设置弹窗「标题压首行」回归守——修前标题中心 957 落进首行钮带 [877,965]（叠 28，
  * 用户真机报「设置标题与第一行按钮重叠」）。本腿读**真实整帧命令流**：标题字面下缘（40px 字 ⇒
- * 中心 −20）对首行（全场最高一排 `h = TOUCH_MIN = 88` 的钮）顶缘，净空 < 10 即红（修前 = −8，现 = 12）。
+ * 中心 −20）对首行（全场最高一排设置项 cell，`h = 138`）顶缘，净空 < 10 即红。
  */
 describe('WXG-T-339 — 设置弹窗标题与首行净空', () => {
     it('标题下缘与首行钮顶净空 ≥ 10', () => {
@@ -243,11 +243,11 @@ describe('WXG-T-339 — 设置弹窗标题与首行净空', () => {
             (cmd: DrawCommand): cmd is TextCommand => cmd.kind === 'text' && cmd.text === '设置',
         );
         expect(title, '未找到「设置」标题 text 命令').toBeDefined();
-        // 全部 h=88 的 rect = 设置 10 钮 + 返回（底板 720 / 遮罩 1625 不在列）；最高一排 = 首行。
+        // 2026-11-14 Figma 同步：设置项 cell 高 138（单列列表，返回钮已删）；最高一排 = 首行 cell 顶缘。
         const bars = cmds.filter(
-            (cmd: DrawCommand): cmd is RectCommand => cmd.kind === 'rect' && cmd.h === 88,
+            (cmd: DrawCommand): cmd is RectCommand => cmd.kind === 'rect' && cmd.h === 138,
         );
-        expect(bars.length, '88 高按钮 rect 在册').toBeGreaterThan(0);
+        expect(bars.length, 'cell 高 138 的 rect 在册').toBeGreaterThan(0);
         const firstRowTop = Math.max(...bars.map((cmd) => cmd.y + cmd.h));
         expect(title!.y - 20 - firstRowTop).toBeGreaterThanOrEqual(10);
     });

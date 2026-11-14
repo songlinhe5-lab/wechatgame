@@ -175,20 +175,15 @@ function signinLayout(): MetaLayout {
 function settingsLayout(): MetaLayout {
     // `[WXG-T-935]` 设置弹窗复用关卡详情木牌（581×1044）：与详情 / 选关同底板、同位（底缘距屏底 124）。
     const plate = levelDetailPlate();
-    // UI-30 / `[WXG-T-935]`：内容块单源（`view/settings-content.ts`）= 11 钮 = 6 行 × 2 列
+    // UI-30 / `[WXG-T-935]`：内容块单源（`view/settings-content.ts`）= 11 钮 = 单列 11 行（2026-11-14 Figma cell 列表）
     // （前 5 行 = 10 项玩家设置，末行 = Debug 单钮左对齐）。
     // 避让实算：plate y∈[124,1168]；可视窗 y∈[286,948]（`SETTINGS_GRID.viewTopInset/viewBottomInset`）；
     //   ① 首行上缘 948 < 标题字面下缘 ≈1024 ⇒ 净空 76；
     //   ② 底行下缘 360 > 返回钮上缘 262（plate.y+50+88）⇒ 净空 98，不与「返回」/「在线导入」重叠。
     // 6 行实高 588 < 窗高 662 ⇒ 当前不触发滚动；滚动腿见 `settingsScrollMax` / `drawSettingsScrollbar`。
     const buttons: MetaButton[] = settingsContentButtons(plate);
-    // 返回
-    const backW = 240;
-    buttons.push({
-        id: 'back',
-        box: box(plate.x + (plate.w - backW) / 2, plate.y + 50, backW, TOUCH_MIN),
-    });
-    // 在线导入（WXG-T-179 调试入口）：与「返回」同行右侧，**仅宿主配了服务地址时绘制**（钮始终可命中，shell 在未启用时空响）。
+    // 底部「返回」已删（Figma 设置页 2026-11-14）；关闭 = 右上 ✕ / 点木牌外。
+    // 在线导入（WXG-T-179 调试入口）：仅宿主配了服务地址时绘制（钮始终可命中，shell 在未启用时空响）。
     buttons.push({
         id: 'studio-import',
         box: box(plate.x + plate.w - 40 - 130, plate.y + 50, 130, TOUCH_MIN),
@@ -534,14 +529,14 @@ export function hitTestMeta(
     settingsScroll = 0,
 ): MetaButton | null {
     const buttons = metaLayout(overlay, WALL_ROWS, anchors).buttons;
-    // `[WXG-T-935]` 设置内容 = 中间可视窗内的滚动列表：命中点先换算回内容坐标（+scroll），
+    // `[WXG-T-935]` 设置内容 = 中间可视窗内的滚动列表：命中点先换算回内容坐标（−scroll，与绘制 +scroll 互逆），
     // 且必须落在窗内；返回 / 在线导入固定不滚（窗外的点照旧按原位判）。
     const viewportOf = CONTENT_VIEWPORT[overlay];
     const viewport = viewportOf ? viewportOf() : null;
     const inViewport = viewport !== null && y >= viewport.y && y <= viewport.y + viewport.h;
     for (const b of buttons) {
         if (viewport !== null && isSettingsAction(b.id)) {
-            if (inViewport && inBox(b.box, x, y + settingsScroll)) return b;
+            if (inViewport && inBox(b.box, x, y - settingsScroll)) return b;
             continue;
         }
         if (inBox(b.box, x, y)) return b;

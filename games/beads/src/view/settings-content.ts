@@ -2,7 +2,7 @@
  * SettingsContent — 设置内容块（ADR-0032 §4，UI-30）。
  *
  * 菜单设置弹窗的**按钮集 / 档位文案 / 按钮绘制 / 可视窗与滚动几何**单源
- * （v1.9 起复用关卡详情木牌 581×1044；11 钮 = 6 行 × 2 列）。
+ * （v1.9 起复用关卡详情木牌 581×1044；11 钮 = 单列 11 行，可滚）。
  * 几何仍住 `view/meta-layout.ts`（`levelDetailPlate` + `settingsContentButtons`），
  * 本件只负责菜单档的厚木钮语言（`[WXG-T-938]`）与文案。
  *
@@ -11,10 +11,8 @@
 import { nineSliceFx, type RenderModelBuilder } from '@wxgame/framework';
 import {
     BEAD_SIZE_LABELS,
-    LEVEL_SELECT_TEXTURES,
     MENU_TEXTURES,
     SETTINGS_BTN_SLICE,
-    TOUCH_MIN,
     beadStyleLabel,
     type BeadSizeKind,
 } from '../config/tuning.js';
@@ -27,7 +25,7 @@ import { drawButton } from './ui-widgets.js';
 
 /**
  * `[WXG-T-434]` E4 幽灵符号开关。v1.8（WXG-T-934）起随暂停面板去设置化迁入菜单设置
- * ⇒ 与其余 10 个设置动作同住 `MENU_ORDER`（菜单 11 钮 = 6 行 × 2 列，末行 Debug 单钮）。
+ * ⇒ 与其余 10 个设置动作同住 `MENU_ORDER`（菜单 11 钮 = 单列 11 行，末行 Debug）。
  */
 export type SettingsAction =
     | 'toggle-bgm'
@@ -81,40 +79,41 @@ export interface SettingsButton {
  * 列宽 248 的由来是旧 600×820 纸面板；木牌宽 581 ⇒ 列宽 238.5（⛔ 顺手改 `sideInset` / `colGap`）。
  */
 export const SETTINGS_GRID = Object.freeze({
-    /** 行首内缩（左右同值 ⇒ 行宽 = plate.w − 2×本值）。 */
-    sideInset: 40,
-    /** 列间距。 */
+    /** 行首内缩（左右同值 ⇒ 行宽 = plate.w − 2×本值）。Figma cell 509 宽 ⇒ (581−509)/2 = 36。 */
+    sideInset: 36,
+    /** 列间距（单列后不参与布局，保留给共读的装扮馆卡区列宽公式）。 */
     colGap: 24,
-    /** 列数。 */
-    cols: 2,
-    /** 行距。 */
+    /** 列数（Figma `设置列表` = 单列 cell）。 */
+    cols: 1,
+    /** 行距（Figma cell pitch 150 − 高 138）。 */
     rowGap: 12,
+    /** 单行 cell 高（Figma `设置项cell` 509×138）。 */
+    rowH: 138,
     /**
-     * `[WXG-T-935]` 中间**可视窗**上缘距木牌顶缘：标题槽（稿 `cyDown 278`、字高 64）下缘
-     * ≈ 板顶 −112−32 = −144 ⇒ 取 220 留 76 净空；下缘距板底 162（返回钮上缘 = 板底 +138，
-     * 净空 24）。窗高 = 1044 − 220 − 162 = 662；11 钮 6 行实高 588 ⇒ 当前不触发滚动。
+     * 中间**可视窗**（Figma `设置列表` y∈[372,1116]，木牌顶 166 / 底 1210）：上缘距木牌顶 206，
+     * 下缘距木牌底 94（版本胶囊上缘 = 底 +100 ⇒ 不压列表）。窗高 = 1044 − 206 − 94 = 744。
      */
-    viewTopInset: 220,
-    viewBottomInset: 162,
+    viewTopInset: 206,
+    viewBottomInset: 94,
     /**
-     * `[WXG-T-940]` 页脚版本行中线距 plate 底缘（用户令「调整字号位置字色」）。
-     * 返回钮下缘 = 50（`meta-layout::settingsLayout`）、22px 字面上下缘 = 34±11
-     * ⇒ 与返回钮净空 5px、距板底 23px（避开木牌底缘厚边；⛔ 不注册热区）。
+     * 版本胶囊中线距木牌底（Figma `版本信息` y 1130..1170 ⇒ 中线 1150，木牌底 1210 ⇒ 60）。
+     * 胶囊 300×40 居中，⛔ 不注册热区。
      */
-    footerFromBottom: 34,
+    footerFromBottom: 60,
 });
 
 /**
- * 菜单变体顺序：**11 钮 = 6 行 × 2 列**（前 5 行 = 10 项玩家设置，末行 = Debug 单钮左对齐）。
+ * 菜单变体顺序：**11 钮 = 单列 11 行**（Figma 设置列表 cell 顺序；Debug 位于末行）。
  * ⚠ 改动顺序会重排设置弹窗的按钮位置与金样本 ⇒ 需同批重抓夹具。
- * `[WXG-T-934]` v1.8：幽灵符号随暂停面板去设置化迁入本表；末行单钮 = Debug（dev/QA 工具）。
+ * `[WXG-T-934]` v1.8：幽灵符号随暂停面板去设置化迁入本表；末行 = Debug（dev/QA 工具）。
+ * 2026-11-14：震动前移到大字号之前（Figma 同步）。
  */
 const MENU_ORDER: readonly SettingsAction[] = [
     'toggle-bgm',
     'toggle-sfx',
     'toggle-reduce-motion',
-    'toggle-large-text',
     'toggle-vibrate',
+    'toggle-large-text',
     'toggle-debug-info',
     'cycle-bead-style',
     'cycle-bead-size',
@@ -134,27 +133,23 @@ export function isSettingsAction(id: string): id is SettingsAction {
 }
 
 /**
- * 菜单版式：按钮从**木牌中间可视窗上缘**往下排（两列、行距 12）。
+ * 菜单版式：按钮从**木牌中间可视窗上缘**往下排（单列、行距 12）。
  * `[WXG-T-935]` 底板换成关卡详情木牌 581×1044 ⇒ 旧 `firstRowFromBottom = 170` 会顶进标题槽，
  * 改由 {@link SETTINGS_GRID.viewTopInset} 定首行上缘。
  */
 export function settingsContentButtons(plate: SettingsBox): SettingsButton[] {
     const rowW = plate.w - SETTINGS_GRID.sideInset * 2;
     const rowX = plate.x + SETTINGS_GRID.sideInset;
-    const colGap = SETTINGS_GRID.colGap;
-    const colW = (rowW - colGap * (SETTINGS_GRID.cols - 1)) / SETTINGS_GRID.cols;
-    const topY = plate.y + plate.h - SETTINGS_GRID.viewTopInset - TOUCH_MIN;
+    const topY = plate.y + plate.h - SETTINGS_GRID.viewTopInset - SETTINGS_GRID.rowH;
     const out: SettingsButton[] = [];
     for (let i = 0; i < MENU_ORDER.length; i++) {
-        const col = i % 2;
-        const row = (i / 2) | 0;
         out.push({
             id: MENU_ORDER[i]!,
             box: {
-                x: rowX + col * (colW + colGap),
-                y: topY - row * (TOUCH_MIN + SETTINGS_GRID.rowGap),
-                w: colW,
-                h: TOUCH_MIN,
+                x: rowX,
+                y: topY - i * (SETTINGS_GRID.rowH + SETTINGS_GRID.rowGap),
+                w: rowW,
+                h: SETTINGS_GRID.rowH,
             },
         });
     }
@@ -171,10 +166,10 @@ export function settingsContentViewport(plate: SettingsBox): SettingsBox {
     };
 }
 
-/** 6 行按钮的纵向总高（行高 + 行距；⛔ 含返回 / 导入）。 */
+/** 11 行 cell 的纵向总高（行高 + 行距）。 */
 export function settingsContentHeight(): number {
     const rows = Math.ceil(MENU_ORDER.length / SETTINGS_GRID.cols);
-    return rows * TOUCH_MIN + (rows - 1) * SETTINGS_GRID.rowGap;
+    return rows * SETTINGS_GRID.rowH + (rows - 1) * SETTINGS_GRID.rowGap;
 }
 
 /** 最大滚动量；内容不超窗 ⇒ 0（此时手势被钳住、滚动条不画）。 */
@@ -242,7 +237,7 @@ export function drawSettingsWoodButton(
         if (pressed) {
             builder.rect(x, y, w, h, { fill: withAlpha(palette.shadowInk, 0.18), radius: 18 });
         }
-        builder.text(x + w / 2, y + h / 2, text, {
+        if (text !== '') builder.text(x + w / 2, y + h / 2, text, {
             fill: palette.woodText,
             font,
             align: 'center',
@@ -263,7 +258,7 @@ export function drawSettingsWoodButton(
             ? MENU_TEXTURES.btnWoodPressed
             : MENU_TEXTURES.btnWood;
         builder.blit(tex, x, y, w, h, { fx: nineSliceFx(76) });
-        builder.text(x + w / 2, y + h / 2, text, {
+        if (text !== '') builder.text(x + w / 2, y + h / 2, text, {
             fill: palette.woodText,
             font,
             align: 'center',
@@ -281,39 +276,136 @@ export function drawSettingsWoodButton(
 }
 
 /**
- * `[WXG-T-939]` 底部「返回」钮 = **选关页「关闭」整枚烘字钮**（用户令：「设置页面下面的返回按钮，
- * 中间文字应该展示，选关页面的关闭纹理」）。
- *
- * 位图就绪 ⇒ 整枚 blit `LEVEL_SELECT_TEXTURES.closeBtn`（中间文字即烘死的「关闭」，⛔ 不再叠
- * 程序化「返回」字，避免双层文字）；按下只叠深棕 18% 压暗（源图无按下态）。
- * 缺图腿 ⇒ 回落 {@link drawSettingsWoodButton} + 传入的程序化文案（「返回」）。
+ * 设置项 cell 的组成（Figma `设置项cell` 语义）：名称 / 提示 / 图标 / 开关。
+ * `toggle` = `null` ⇒ 无开关（珠子风格 / 豆子尺寸 / 皮肤：值写进提示行）。
+ * 提示文案：音乐 / 音效 / 震动沿用稿面文案；其余行 = `当前：…`（稿面占位，待定稿）。
  */
-export function drawSettingsCloseButton(
+export interface SettingsCellParts {
+    readonly name: string;
+    readonly hint: string;
+    readonly toggle: boolean | null;
+    readonly icon: 'settingsIconMusic' | 'settingsIconSound' | 'settingsIconMotion' | 'settingsIconVibrate' | null;
+}
+
+const ON_OFF = (on: boolean): string => (on ? '开' : '关');
+
+export function settingsCellParts(id: SettingsAction, data: SettingsContentData): SettingsCellParts {
+    switch (id) {
+        case 'toggle-bgm':
+            return { name: '音乐', hint: '启用后，播放应用中的背景音乐', toggle: !data.bgmMuted, icon: 'settingsIconMusic' };
+        case 'toggle-sfx':
+            return { name: '音效', hint: '启用后，播放应用中的提示音', toggle: !data.sfxMuted, icon: 'settingsIconSound' };
+        case 'toggle-reduce-motion':
+            return { name: '减弱动效', hint: `当前：${ON_OFF(data.reduceMotion)}`, toggle: data.reduceMotion, icon: 'settingsIconMotion' };
+        case 'toggle-vibrate':
+            return { name: '震动', hint: '启用后，接收提醒时设备会震动', toggle: data.vibrate, icon: 'settingsIconVibrate' };
+        case 'toggle-large-text':
+            return { name: '大字号', hint: `当前：${ON_OFF(data.largeText)}`, toggle: data.largeText, icon: null };
+        case 'toggle-debug-info':
+            return { name: '性能信息', hint: `当前：${ON_OFF(data.debugInfo)}`, toggle: data.debugInfo, icon: null };
+        case 'cycle-bead-style':
+            return { name: '珠子风格', hint: `当前：${beadStyleLabel(data.beadStyle)}`, toggle: null, icon: null };
+        case 'cycle-bead-size':
+            return { name: '豆子尺寸', hint: `当前：${BEAD_SIZE_LABELS[data.beadSize] ?? data.beadSize}`, toggle: null, icon: null };
+        case 'toggle-ghost-symbol':
+            return { name: '幽灵符号', hint: `当前：${ON_OFF(!!data.ghostSymbol)}`, toggle: !!data.ghostSymbol, icon: null };
+        case 'cycle-skin':
+            return { name: '皮肤', hint: `当前：${skinLabel(data.skinId)}`, toggle: null, icon: null };
+        case 'toggle-debug-guides':
+            return { name: 'Debug', hint: `当前：${ON_OFF(data.debugGuides)}`, toggle: data.debugGuides, icon: null };
+    }
+}
+
+/** Figma cell 内部几何（相对 cell 左上，单位设计 px）：图标框 (29,33,67×71)、名称 (124,34)、提示 (124,104)、开关 (371,33,115×65)。 */
+const CELL_ICON = { x: 29, y: 33, w: 67, h: 71 } as const;
+const CELL_NAME_X = 124;
+const CELL_NAME_CY = 60.5; // 名称框 34..87 中线
+const CELL_HINT_CY = 115; // 提示框 104..126 中线
+const CELL_TOGGLE = { x: 371, y: 33, w: 115, h: 65 } as const;
+
+/** 图标按框内等比缩放（Figma FIT）。原图尺寸 = 导出的 @2x PNG 像素。 */
+const ICON_SRC: Readonly<Record<NonNullable<SettingsCellParts['icon']>, { w: number; h: number }>> = {
+    settingsIconMusic: { w: 97, h: 103 },
+    settingsIconSound: { w: 104, h: 93 },
+    settingsIconMotion: { w: 102, h: 113 },
+    settingsIconVibrate: { w: 113, h: 115 },
+};
+
+/**
+ * 画一个设置项 cell（Figma `设置项cell`）：木钮底板 + 图标 + 名称 + 提示 + 开关。
+ * 位图未就绪的部件各自降级（不画图标 / 程序化开关），不影响文字与热区。
+ */
+export function drawSettingsCell(
     builder: RenderModelBuilder,
     palette: BeadsPalette,
+    data: SettingsContentData,
+    id: SettingsAction,
     x: number,
     y: number,
     w: number,
     h: number,
-    fallbackText: string,
-    font: string,
-    pressed = false,
+    pressed: boolean,
 ): void {
-    if (menuBitmapReady(LEVEL_SELECT_TEXTURES.closeBtn)) {
-        builder.blit(LEVEL_SELECT_TEXTURES.closeBtn, x, y, w, h);
-        if (pressed) {
-            builder.rect(x, y, w, h, { fill: withAlpha(palette.shadowInk, 0.18), radius: 18 });
+    const parts = settingsCellParts(id, data);
+    drawSettingsWoodButton(builder, palette, x, y, w, h, '', UI_FONT.button, pressed);
+    if (parts.icon !== null) {
+        const tex = MENU_TEXTURES[parts.icon];
+        if (menuBitmapReady(tex)) {
+            const src = ICON_SRC[parts.icon];
+            const s = Math.min(CELL_ICON.w / src.w, CELL_ICON.h / src.h);
+            const iw = src.w * s;
+            const ih = src.h * s;
+            const ix = x + CELL_ICON.x + (CELL_ICON.w - iw) / 2;
+            const iy = y + h - CELL_ICON.y - CELL_ICON.h + (CELL_ICON.h - ih) / 2;
+            builder.blit(tex, ix, iy, iw, ih);
         }
+    }
+    const shadow = { color: withAlpha(palette.shadowInk, 0.9), offsetX: 2, offsetY: -3, blur: 2 };
+    builder.text(x + CELL_NAME_X, y + h - CELL_NAME_CY, parts.name, {
+        fill: palette.woodText,
+        font: UI_FONT.settingsName,
+        align: 'left',
+        baseline: 'middle',
+        shadow,
+    });
+    builder.text(x + CELL_NAME_X, y + h - CELL_HINT_CY, parts.hint, {
+        fill: withAlpha(palette.woodText, 0.92),
+        font: UI_FONT.settingsHint,
+        align: 'left',
+        baseline: 'middle',
+        shadow: { color: withAlpha(palette.shadowInk, 0.6), offsetX: 1, offsetY: -2, blur: 1 },
+    });
+    if (parts.toggle !== null) drawSettingsToggle(builder, palette, parts.toggle, x, y, h);
+}
+
+/** 开关：位图就绪 ⇒ 开 / 关整图；否则程序化（圆角轨 + 圆钮）。 */
+function drawSettingsToggle(
+    builder: RenderModelBuilder,
+    palette: BeadsPalette,
+    on: boolean,
+    x: number,
+    y: number,
+    h: number,
+): void {
+    const { w, h: th } = CELL_TOGGLE;
+    const tx = x + CELL_TOGGLE.x;
+    const ty = y + h - CELL_TOGGLE.y - th;
+    const tex = on ? MENU_TEXTURES.settingsToggleOn : MENU_TEXTURES.settingsToggleOff;
+    if (menuBitmapReady(tex)) {
+        builder.blit(tex, tx, ty, w, th);
         return;
     }
-    drawSettingsWoodButton(builder, palette, x, y, w, h, fallbackText, font, pressed);
+    builder.rect(tx, ty, w, th, { fill: on ? palette.success : withAlpha(palette.shadowInk, 0.7), radius: th / 2 });
+    const r = th / 2 - 4;
+    const cx = on ? tx + w - th / 2 : tx + th / 2;
+    builder.circle(cx, ty + th / 2, r, { fill: palette.woodText });
 }
 
 /**
- * 画内容块；非设置动作（返回 / 在线导入）由调用方自己画。
+ * 画内容块（设置项 cell 列表）；非设置动作（关闭 / 在线导入）由调用方自己画。
  *
- * `[WXG-T-935]` `scroll` = 已上滚的设计 px（内容整体上移）；传 `viewport` 时逐钮做**手工裁剪**
- * （裁掉的部分不画、部分露出的钮只画可见矩形且不画字）——⛔ 不用 `builder.clip`：
+ * `[WXG-T-935]` `scroll` = 已上滚的设计 px（内容整体上移）；传 `viewport` 时逐行做**手工裁剪**
+ * （裁掉的部分不画、部分露出的行只画可见矩形且不画字）——⛔ 不用 `builder.clip`：
  * 弹窗在容器内，Cocos 端会画到容器外（ADR-0033 / `ui-container-order` 硬门）。
  */
 export function drawSettingsContent(
@@ -330,14 +422,14 @@ export function drawSettingsContent(
         const b = buttons[i]!;
         if (!isSettingsAction(b.id)) continue;
         const pressed = data.pressed?.id === b.id;
-        const wide = b.id === 'cycle-bead-style' || b.id === 'cycle-bead-size';
-        const y = b.box.y + pressOffset(pressed, data.reduceMotion) - scroll;
+        // 滚动量 > 0 ⇒ 内容上移（手指上拖 → 露出下方行）；命中换算见 `hitTestMeta` 的 `y - scroll`。
+        const y = b.box.y + pressOffset(pressed, data.reduceMotion) + scroll;
         if (viewport) {
             const bottom = y;
             const top = y + b.box.h;
             if (bottom >= vTop || top <= vBottom) continue;
             if (bottom < vBottom || top > vTop) {
-                // 部分露出：只画可见矩形（方角 = 被窗缘截断），字等整枚露出再画。
+                // 部分露出：只画可见矩形（方角 = 被窗缘截断），字等整行露出再画。
                 const iy = Math.max(bottom, vBottom);
                 const iTop = Math.min(top, vTop);
                 builder.rect(b.box.x, iy, b.box.w, iTop - iy, {
@@ -346,17 +438,7 @@ export function drawSettingsContent(
                 continue;
             }
         }
-        drawSettingsWoodButton(
-            builder,
-            palette,
-            b.box.x,
-            y,
-            b.box.w,
-            b.box.h,
-            settingsContentLabel(b.id, data),
-            wide ? UI_FONT.cell : UI_FONT.button,
-            pressed,
-        );
+        drawSettingsCell(builder, palette, data, b.id, b.box.x, y, b.box.w, b.box.h, pressed);
     }
 }
 
@@ -394,10 +476,22 @@ export function drawSettingsScrollbar(
  * 中线上移到 `footerFromBottom 34` 避开木牌底缘厚边。
  */
 export function drawSettingsAbout(builder: RenderModelBuilder, palette: BeadsPalette, plate: SettingsBox): void {
-    builder.text(plate.x + plate.w / 2, plate.y + SETTINGS_GRID.footerFromBottom, `版本 ${COPY_TOKENS.version_label}`, {
+    // 胶囊 300×40（Figma `版本信息`）：深木底 85% + 2px 深棕描边 + 米白字（22px）。
+    const pw = 300;
+    const ph = 40;
+    const px = plate.x + (plate.w - pw) / 2;
+    const py = plate.y + SETTINGS_GRID.footerFromBottom - ph / 2;
+    builder.rect(px, py, pw, ph, {
+        fill: withAlpha(palette.woodEdge, 0.85),
+        stroke: palette.shadowInk,
+        lineWidth: 2,
+        radius: ph / 2,
+    });
+    builder.text(px + pw / 2, py + ph / 2, `版本 ${COPY_TOKENS.version_label}`, {
         fill: withAlpha(palette.woodText, 0.9),
         font: UI_FONT.cell,
         align: 'center',
         baseline: 'middle',
+        shadow: { color: withAlpha(palette.shadowInk, 0.85), offsetX: 0, offsetY: -2, blur: 2 },
     });
 }

@@ -108,6 +108,10 @@ export const UI_FONT = {
     panelToggle: '22px sans-serif',
     /** E2 大字号正文 35（28 × 1.25）。 */
     bodyLarge: '35px sans-serif',
+    /** 设置项 cell 名称（Figma 设置项名称 Bold 44）。 */
+    settingsName: 'bold 44px sans-serif',
+    /** 设置项 cell 提示（Figma 设置项提示 Medium 18.7）。 */
+    settingsHint: '500 19px sans-serif',
 } as const;
 
 /**

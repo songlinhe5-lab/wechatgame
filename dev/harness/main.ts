@@ -200,6 +200,13 @@ const MENU_FILE: Readonly<Record<string, string>> = {
   [MENU_TEXTURES.btnPaper]: 'ui_btn_paper_9s.png',
   // `[WXG-T-938]` 设置弹窗按钮：选关「关闭」烘图（`detail/ui_level_select_close@2x`）派生的无字厚木 9-slice。
   [MENU_TEXTURES.btnSettings]: 'buttons/ui_btn_settings_9s@2x.png',
+  // 设置项 cell（2026-11-14 Figma 原图导出；Cocos 未注册 ⇒ 缺图腿）
+  [MENU_TEXTURES.settingsIconMusic]: 'settings/icons/ui_icon_music@2x.png',
+  [MENU_TEXTURES.settingsIconSound]: 'settings/icons/ui_icon_sound_settings@2x.png',
+  [MENU_TEXTURES.settingsIconMotion]: 'settings/icons/ui_icon_motion@2x.png',
+  [MENU_TEXTURES.settingsIconVibrate]: 'settings/icons/ui_icon_vibrate@2x.png',
+  [MENU_TEXTURES.settingsToggleOn]: 'settings/toggles/ui_toggle_on@2x.png',
+  [MENU_TEXTURES.settingsToggleOff]: 'settings/toggles/ui_toggle_off@2x.png',
   [MENU_TEXTURES.iconRank]: 'icons/ui_icon_rank@2x.png',
   [MENU_TEXTURES.iconSkins]: 'icons/ui_icon_skin@2x.png',
   // WXG-T-577：锁（Figma v2 切图，右/下补 1px 透明边到偶数尺寸）。

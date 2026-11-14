@@ -42,6 +42,7 @@ import { WebPlatform } from '../../../packages/framework/src/platform/web.js';
 import { createBeadsShell, type BeadsShell } from '../src/game/beads-shell.js';
 import {
     BEAD_SIZE_LABELS,
+    beadStyleLabel,
     DESIGN_H, DESIGN_W, GEAR_HIT_SIZE, HUD_BAND, POWERUP_BAND, TRAY_BAND, PUZZLE_BAND,
     PANEL_SCRIM_ALPHA, PANEL_SCRIM_RGB, SETTINGS_SCRIM_ALPHA,
     TILE_BLEED,
@@ -55,6 +56,12 @@ import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
 import { buildBeadsFrame } from '../src/view/view-model.js';
 import { registeredStyleIds } from '../src/view/bead-styles/registry.js';
 import { metaLayout, type MetaAction } from '../src/view/meta-view.js';
+import { levelDetailPlate } from '../src/view/meta-layout.js';
+import {
+    settingsContentButtons,
+    settingsContentViewport,
+    settingsScrollMax,
+} from '../src/view/settings-content.js';
 import {
     SAVE_VERSION,
     defaultBeadsSave,
@@ -1129,17 +1136,21 @@ describe('豆径档作用域 · assets-spec §7.11 + ux §3.3 ④ + S9 §8-16：
 
         const seen: string[] = [];
         // 循环直到回到起始档（终止条件 = 档位本身，⛔ 不预设「共 2 档」）。
-        const point = metaCenter('settings', 'cycle-bead-size');
+        const point = settingsRowPoint(shell, 'cycle-bead-size');
+        const sizeHint = (): string =>
+            labelTexts(metaFrame(shell), '当前：').find((t) =>
+                Object.values(BEAD_SIZE_LABELS).some((l) => t === `当前：${l}`),
+            ) ?? '';
         for (let step = 0; step < 16; step++) {
             expect(shell.tapMeta(point.x, point.y)).toBe(true);
-            seen.push(labelTexts(metaFrame(shell), '豆子尺寸')[0] ?? '');
+            seen.push(sizeHint());
             if (shell.play.beadSize === start) break;
         }
         expect(seen.length).toBeGreaterThan(0);
-        expect(seen[seen.length - 1]).toBe(`豆子尺寸  ${BEAD_SIZE_LABELS[start]}`);
+        expect(seen[seen.length - 1]).toBe(`当前：${BEAD_SIZE_LABELS[start]}`);
         // 每个档位的文案都由 `BEAD_SIZE_LABELS` 单源派生（两臂各自核对，非纸面常量）。
-        for (const label of new Set(seen)) {
-            expect(Object.values(BEAD_SIZE_LABELS)).toContain(label.replace('豆子尺寸  ', ''));
+        for (const hint of new Set(seen)) {
+            expect(Object.values(BEAD_SIZE_LABELS)).toContain(hint.replace('当前：', ''));
         }
         // ⛔ 文案里不得出现「1/2」「共 N 档」之类的款数（U16=甲 的渲染侧腿）。
         for (const label of seen) expect(label).not.toMatch(/\d+\s*\/\s*\d+|共\s*\d+|\d+\s*款/);
@@ -1274,7 +1285,8 @@ describe('设置态遮罩 α 分列 · ux §3.3「遮罩」条 + 工作项④：
             const alphas = scrimAlphas(metaFrame(shell), '0,0,0');
             expect(alphas.length, `${action} 应有一枚全屏 scrim`).toBe(1);
             expect(alphas[0]).toBeCloseTo(expectAlpha, 10);
-            const back = metaCenter(shell.overlay, 'back');
+            // 设置页已删「返回」钮（2026-11-14 Figma 同步）：关闭 = 右上 ✕。
+            const back = shell.overlay === 'settings' ? metaCenter('settings', 'close-settings') : metaCenter(shell.overlay, 'back');
             expect(shell.tapMeta(back.x, back.y)).toBe(true);
             expect(shell.overlay).toBe('none');
         }
@@ -1316,17 +1328,27 @@ function metaCenter(overlay: Parameters<typeof metaLayout>[0], id: MetaAction): 
     return { x: b.box.x + b.box.w / 2, y: b.box.y + b.box.h / 2 };
 }
 
+/**
+ * 设置单列 cell：超出可视窗的行（第 6 行起）先上滚（`setSettingsScroll`）再点；返回屏上点。
+ * 绘制 = box + scroll，命中 = 点 − scroll（与 `hitTestMeta` 同口径）。
+ */
+function settingsRowPoint(shell: BeadsShell, id: MetaAction): { x: number; y: number } {
+    const plate = levelDetailPlate();
+    const box = settingsContentButtons(plate).find((b) => b.id === id)!.box;
+    const vp = settingsContentViewport(plate);
+    const cy = box.y + box.h / 2;
+    const scroll = Math.max(0, Math.min(settingsScrollMax(plate), vp.y + vp.h / 2 - cy));
+    shell.setSettingsScroll(scroll);
+    return { x: box.x + box.w / 2, y: cy + scroll };
+}
+
 describe('菜单设置 overlay 设置钮族 · S9 §8-14/16/19（内容单源）+ ux §4「设置 overlay」行', () => {
-    it('11 钮 = 6 行 × 2 列（末行 Debug 单钮）：三枚选择器钮各恰一次，行距沿用旧等差、列间不重叠', () => {
+    it('11 钮 = 单列 11 行：三枚选择器钮各恰一次，行距 150（138 + 12）、同列、不超木牌', () => {
         const buttons = metaLayout('settings').buttons;
-        // `[WXG-T-936]` 固定 chrome（返回 / 在线导入 / 右上 ✕）+ 牌外四条关闭带不属内容栅格：
+        // 固定 chrome（在线导入 / 右上 ✕）+ 牌外四条关闭带不属内容列表：
         // `dismiss-settings` 四条同 id ⇒ 必须先剔，否则「每钮唯一」断言被贴边带误伤。
         const grid = buttons.filter(
-            (b) =>
-                b.id !== 'back' &&
-                b.id !== 'studio-import' &&
-                b.id !== 'close-settings' &&
-                b.id !== 'dismiss-settings',
+            (b) => b.id !== 'studio-import' && b.id !== 'close-settings' && b.id !== 'dismiss-settings',
         );
         const ids = grid.map((b) => b.id);
         expect(new Set(ids).size).toBe(ids.length); // 每钮唯一
@@ -1335,22 +1357,16 @@ describe('菜单设置 overlay 设置钮族 · S9 §8-14/16/19（内容单源）
         expect(ids.filter((i) => i === 'cycle-skin').length).toBe(1); // EP12-S8 → WXG-T-363 曾改挂装扮馆入口，WXG-T-365 已回退（入口上提顶栏）
         expect(ids.filter((i) => i === 'toggle-ghost-symbol').length).toBe(1); // WXG-T-934 由暂停面板迁入
 
-        const rows = [...new Set(grid.map((b) => b.box.y))].sort((a, b) => b - a);
-        expect(grid.length).toBe(11); // 8 旧钮 + 皮肤循环钮 + Debug + 幽灵符号（两列六行）
-        expect(rows.length).toBe(Math.ceil(grid.length / 2)); // 两列 ⇒ 行数 = ⌈钮数 / 2⌉
-        // 末行单枚：Debug 独居第 6 行；`[WXG-T-935]` 木牌可视窗高 662 > 6 行实高 588 保证避让。
-        const bottomRowY = rows[rows.length - 1]!;
-        expect(grid.filter((b) => b.box.y === bottomRowY).length).toBe(1);
-        expect(grid.find((b) => b.box.y === bottomRowY)!.id).toBe('toggle-debug-guides');
+        expect(grid.length).toBe(11); // 8 旧钮 + 皮肤循环钮 + Debug + 幽灵符号（单列 11 行，2026-11-14 Figma cell 列表）
+        const xs = new Set(grid.map((b) => b.box.x));
+        expect(xs.size).toBe(1); // 单列 ⇒ 同一 x
+        const rows = grid.map((b) => b.box.y); // 自上而下（y 递减）
         const gaps = rows.slice(1).map((y, i) => rows[i]! - y);
-        expect(new Set(gaps).size).toBe(1); // 行距沿用（等差）
-        expect(gaps[0]).toBeGreaterThan(0);
-        for (const b of grid) {
-            expect(b.box.h).toBeGreaterThanOrEqual(88); // 行高地板 TOUCH_MIN（沿用，⛔ 不为塞行而降）
-        }
-        // 避让仍成立：底行下缘（360）> 返回钮上缘（174+88 = 262）⇒ 内容不压固定 chrome。
-        const back = buttons.find((b) => b.id === 'back')!;
-        expect(bottomRowY).toBeGreaterThan(back.box.y + back.box.h);
+        expect(new Set(gaps).size).toBe(1); // 行距等差
+        expect(gaps[0]).toBe(150);
+        for (const b of grid) expect(b.box.h).toBe(138); // 行高 = Figma cell 138
+        // Debug 位于末行（第 11 行），可视窗外需先滚；列表总高 1638 > 窗高 744 ⇒ 可滚。
+        expect(grid[grid.length - 1]!.id).toBe('toggle-debug-guides');
     });
 
     it('[WXG-T-936] 右上 ✕ / 点木牌外空白 ⇒ 关设置；牌内空白不关', () => {
@@ -1379,7 +1395,7 @@ describe('菜单设置 overlay 设置钮族 · S9 §8-14/16/19（内容单源）
 
         const before = log.filter((e) => e.key === SAVE_KEY).length;
         const seen: string[] = [shell.play.beadStyle];
-        const point = metaCenter('settings', 'cycle-bead-style');
+        const point = settingsRowPoint(shell, 'cycle-bead-style');
         for (let step = 1; step <= IDS.length; step++) {
             const writes = log.filter((e) => e.key === SAVE_KEY).length;
             expect(shell.tapMeta(point.x, point.y)).toBe(true);
@@ -1392,7 +1408,7 @@ describe('菜单设置 overlay 设置钮族 · S9 §8-14/16/19（内容单源）
 
         // 尺寸钮同通道、各写各字段（§8-16 正交）。
         const sizeBefore = shell.play.beadStyle;
-        const p2 = metaCenter('settings', 'cycle-bead-size');
+        const p2 = settingsRowPoint(shell, 'cycle-bead-size');
         const w2 = log.filter((e) => e.key === SAVE_KEY).length;
         shell.tapMeta(p2.x, p2.y);
         expect(shell.play.beadSize).toBe('small');
@@ -1411,14 +1427,15 @@ describe('菜单设置 overlay 设置钮族 · S9 §8-14/16/19（内容单源）
         const open = metaCenter('none', 'open-settings');
         shell.tapMeta(open.x, open.y);
         const menuLabels: string[] = [];
-        const point = metaCenter('settings', 'cycle-bead-style');
+        const point = settingsRowPoint(shell, 'cycle-bead-style');
+        const styleHints = new Set(registeredStyleIds().map((id) => `当前：${beadStyleLabel(id)}`));
         for (let step = 0; step < IDS.length; step++) {
-            menuLabels.push(labelTexts(metaFrame(shell), '珠子风格')[0] ?? '');
+            menuLabels.push(labelTexts(metaFrame(shell), '当前：').find((t) => styleHints.has(t)) ?? '');
             shell.tapMeta(point.x, point.y);
         }
 
         expect(menuLabels.length).toBe(IDS.length);
-        for (const label of menuLabels) expect(label.startsWith('珠子风格  ')).toBe(true);
+        for (const label of menuLabels) expect(label.startsWith('当前：')).toBe(true);
         expect(new Set(menuLabels).size).toBe(IDS.length); // 逐档各异 ⇒ 未把某档名写死
         for (const label of menuLabels) expect(label).not.toMatch(/\d+\s*\/\s*\d+|共\s*\d+|\d+\s*款/);
     });

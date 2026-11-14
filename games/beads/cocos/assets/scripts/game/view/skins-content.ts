@@ -18,7 +18,7 @@ import type { RenderModelBuilder } from '../../framework/index';
 import { SKINS_CARD_H, SKINS_CARD_TOP_INSET, SKIN_PRICES_COINS, UI_CONTAINER } from '../config/tuning';
 import { registeredSkins } from '../config/skins/registry';
 import type { BeadsPalette } from './palette';
-import { SETTINGS_GRID, type SettingsBox } from './settings-content';
+import type { SettingsBox } from './settings-content';
 import { UI_FONT, pressOffset } from './ui-theme';
 import { drawButton } from './ui-widgets';
 
@@ -40,16 +40,22 @@ export function setSkinOwnedResolver(fn?: (skinId: string) => boolean): void {
 }
 
 /**
- * 卡区版式：**列几何共读 `SETTINGS_GRID`**（⛔ 第二套列宽），卡高 / 卡顶缘住 `tuning.ts`；
+ * 装扮馆卡区列几何（2026-11-14 从 `SETTINGS_GRID` 拆出）：设置页改单列 cell 列表后，
+ * 设置页不再共享列宽；卡区保持原两列数值（行首内缩 40 / 列距 24 / 2 列），⛔ 不改视觉。
+ */
+export const SKIN_CARD_GRID = Object.freeze({ sideInset: 40, colGap: 24, cols: 2 });
+
+/**
+ * 卡区版式：**列几何单源 = `SKIN_CARD_GRID`**，卡高 / 卡顶缘住 `tuning.ts`；，卡高 / 卡顶缘住 `tuning.ts`；
  * 槽序 = `registeredSkins()` **注册序**（⛔ 页面另排序，判例 = S9 §8-15）。
  *
- * ponytail: 当前只容得下**一行**（`cols` 枚）。注册数 > `SETTINGS_GRID.cols` 时第二行会压进
+ * ponytail: 当前只容得下**一行**（`cols` 枚）。注册数 > `SKIN_CARD_GRID.cols` 时第二行会压进
  * 底部「返回」钮带 ⇒ 届时要改卡高或转整页，不在本批射程。
  */
 export function skinCardBoxes(plate: SettingsBox): SettingsBox[] {
-    const cols = SETTINGS_GRID.cols;
-    const rowW = plate.w - SETTINGS_GRID.sideInset * 2;
-    const colW = (rowW - SETTINGS_GRID.colGap * (cols - 1)) / cols;
+    const cols = SKIN_CARD_GRID.cols;
+    const rowW = plate.w - SKIN_CARD_GRID.sideInset * 2;
+    const colW = (rowW - SKIN_CARD_GRID.colGap * (cols - 1)) / cols;
     const top = plate.y + plate.h - SKINS_CARD_TOP_INSET;
     const n = registeredSkins().length;
     const cards: SettingsBox[] = [];
@@ -57,8 +63,8 @@ export function skinCardBoxes(plate: SettingsBox): SettingsBox[] {
         const row = (i / cols) | 0;
         const col = i % cols;
         cards.push({
-            x: plate.x + SETTINGS_GRID.sideInset + col * (colW + SETTINGS_GRID.colGap),
-            y: top - SKINS_CARD_H - row * (SKINS_CARD_H + SETTINGS_GRID.colGap),
+            x: plate.x + SKIN_CARD_GRID.sideInset + col * (colW + SKIN_CARD_GRID.colGap),
+            y: top - SKINS_CARD_H - row * (SKINS_CARD_H + SKIN_CARD_GRID.colGap),
             w: colW,
             h: SKINS_CARD_H,
         });

@@ -318,7 +318,7 @@ describe('TC-STY-11 · 行4 钮先行哨兵（S9 §8-19 + K.1a 阳性对照腿�
         // 阳性对照腿（K-060）：同类对照钮必须在场，防「整体未渲染」假绿。
         expect(ids).toContain('toggle-debug-info');
         expect(ids).toContain('toggle-ghost-symbol');
-        expect(ids).toContain('back');
+        expect(ids).toContain('close-settings'); // 2026-11-14 设置页无「返回」钮，关闭 = 右上 ✕
 
         // §8-14「钮文案 = 现档显示」：默认档下必带风格名与豆径名（⛔ 不是只有标题）。
         const data = {

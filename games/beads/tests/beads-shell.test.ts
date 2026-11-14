@@ -26,8 +26,13 @@ import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import { createBeadsShell, type BeadsShell } from '../src/game/beads-shell.js';
 import { defaultBeadsMeta } from '../src/game/meta-save-schema.js';
 import { metaLayout, type MetaAction, type MetaOverlay } from '../src/view/meta-view.js';
-import { anchoredGeo, overlayPlate } from '../src/view/meta-layout.js';
-import { SETTINGS_GRID } from '../src/view/settings-content.js';
+import { anchoredGeo, levelDetailPlate, overlayPlate } from '../src/view/meta-layout.js';
+import {
+    settingsContentButtons,
+    settingsContentViewport,
+    settingsScrollMax,
+} from '../src/view/settings-content.js';
+import { SKIN_CARD_GRID } from '../src/view/skins-content.js';
 import { DEFAULT_SKIN_ID, registeredSkins } from '../src/config/skins/registry.js';
 import {
     DESIGN_H,
@@ -60,6 +65,19 @@ function centerOf(overlay: MetaOverlay, id: MetaAction, slot?: number): { x: num
         (btn) => btn.id === id && (slot === undefined || btn.slot === slot),
     )!;
     return { x: b.box.x + b.box.w / 2, y: b.box.y + b.box.h / 2 };
+}
+
+/**
+ * 设置列表单列 cell：第 0–4 行滚动量 0 即可见，第 5–10 行需先上滚（`setSettingsScroll`）。
+ * 返回「同一行在屏上的点」与所需滚动量（绘制 = box + scroll，命中 = 点 − scroll）。
+ */
+function settingsRowPoint(id: MetaAction): { x: number; y: number; scroll: number } {
+    const plate = levelDetailPlate();
+    const box = settingsContentButtons(plate).find((b) => b.id === id)!.box;
+    const vp = settingsContentViewport(plate);
+    const cy = box.y + box.h / 2;
+    const scroll = Math.max(0, Math.min(settingsScrollMax(plate), vp.y + vp.h / 2 - cy));
+    return { x: box.x + box.w / 2, y: cy + scroll, scroll };
 }
 
 function rig(opts: { initialScreen?: 'play' | 'menu'; seedMeta?: Partial<ReturnType<typeof defaultBeadsMeta>> } = {}): Rig {
@@ -184,14 +202,15 @@ describe('BeadsShell — overlay stack + meta:overlay events', () => {
         expect(r.overlayEvents.some((e) => e.open && e.name === 'settings')).toBe(true);
     });
 
-    it('closes the overlay on back', () => {
+    it('closes the overlay via ✕ (close-settings)', () => {
         const r = rig({ initialScreen: 'menu' });
         // 2026-10-13 §5.1b 第三批：菜单侧签到入口随底部纸钮退役（信箱实装前不可达）⇒
-        // back 腿改用**设置 overlay** 覆盖（overlay 代码本身按裁定保留不删）。
+        // 关闭腿改用**设置 overlay** 覆盖（overlay 代码本身按裁定保留不删）。
+        // 2026-11-14 同步 Figma：设置页去掉「返回」钮，唯一关闭 = 右上 ✕。
         const open = centerOf('none', 'open-settings');
         r.shell.tapMeta(open.x, open.y);
         expect(r.shell.overlay).toBe('settings');
-        const back = centerOf('settings', 'back');
+        const back = centerOf('settings', 'close-settings');
         r.shell.tapMeta(back.x, back.y);
         expect(r.shell.overlay).toBe('none');
         expect(r.overlayEvents.some((e) => !e.open)).toBe(true);
@@ -202,8 +221,8 @@ describe('BeadsShell — overlay stack + meta:overlay events', () => {
         expect(r.shell.tapMeta(2, 2)).toBe(false);
     });
 
-    it('settings overlay 两列布局：debug-info 钮与震动同排左右，点击经 play 通道切换', () => {
-        // 用户 2026-09-25 直派（ux-spec v1.19）：6 toggle = 3 行 × 2 列；DEBUG 钮
+    it('settings overlay 单列 cell 列表：debug-info 钮在震动正下方，点击经 play 通道切换', () => {
+        // 2026-11-14 同步 Figma 设置 cell 模版：单列 = 11 行（⛔ 不再两列）；DEBUG 钮
         // 与暂停面板同串值（toggle-debug-info），动作走 shell default → applySettingsAction。
         const r = rig({ initialScreen: 'menu' });
         const open = centerOf('none', 'open-settings');
@@ -211,12 +230,14 @@ describe('BeadsShell — overlay stack + meta:overlay events', () => {
         expect(r.shell.overlay).toBe('settings');
         const vib = metaLayout('settings').buttons.find((b) => b.id === 'toggle-vibrate')!;
         const dbg = metaLayout('settings').buttons.find((b) => b.id === 'toggle-debug-info')!;
-        expect(dbg.box.y).toBe(vib.box.y); // 同排
-        expect(dbg.box.x).toBeGreaterThan(vib.box.x + vib.box.w); // 分居左右
+        expect(dbg.box.x).toBe(vib.box.x); // 同列
+        expect(dbg.box.y).toBeLessThan(vib.box.y); // 行序：震动在前、Debug 在后（MENU_ORDER）
         expect(r.shell.play.debugInfo).toBe(false);
-        r.shell.tapMeta(dbg.box.x + dbg.box.w / 2, dbg.box.y + dbg.box.h / 2);
+        const dp = settingsRowPoint('toggle-debug-info');
+        r.shell.setSettingsScroll(dp.scroll);
+        r.shell.tapMeta(dp.x, dp.y);
         expect(r.shell.play.debugInfo).toBe(true); // 持久化面见 pause-settings §8-13
-        r.shell.tapMeta(dbg.box.x + dbg.box.w / 2, dbg.box.y + dbg.box.h / 2);
+        r.shell.tapMeta(dp.x, dp.y);
         expect(r.shell.play.debugInfo).toBe(false);
     });
 
@@ -239,9 +260,10 @@ describe('BeadsShell — overlay stack + meta:overlay events', () => {
         expect(hitBoxes(), 'Debug 关：一条都不发（金样本零漂移的前提）').toHaveLength(0);
 
         r.shell.tapMeta(centerOf('none', 'open-settings').x, centerOf('none', 'open-settings').y);
-        const dbg = metaLayout('settings').buttons.find((b) => b.id === 'toggle-debug-guides')!;
-        r.shell.tapMeta(dbg.box.x + dbg.box.w / 2, dbg.box.y + dbg.box.h / 2);
-        r.shell.tapMeta(centerOf('settings', 'back').x, centerOf('settings', 'back').y);
+        const dbgp = settingsRowPoint('toggle-debug-guides');
+        r.shell.setSettingsScroll(dbgp.scroll);
+        r.shell.tapMeta(dbgp.x, dbgp.y);
+        r.shell.tapMeta(centerOf('settings', 'close-settings').x, centerOf('settings', 'close-settings').y);
         expect(r.shell.overlay).toBe('none');
 
         // ⚠ 口径 = **命中腿自己那套几何**（`hitTestMeta` 传的是逐机 anchors），
@@ -269,11 +291,13 @@ describe('BeadsShell — overlay stack + meta:overlay events', () => {
         r.shell.tapMeta(open.x, open.y);
         const btn = metaLayout('settings').buttons.find((b) => b.id === 'toggle-debug-guides')!;
         const ghost = metaLayout('settings').buttons.find((b) => b.id === 'toggle-ghost-symbol')!;
-        // v1.8：11 钮 = 6 行 ⇒ Debug 单钮独占末行（第 6 行）、幽灵符号在上一行左格。
+        // 单列：Debug 在末行（第 11 行）、幽灵符号在其上一行，同列。
         expect(btn.box.y).toBeLessThan(ghost.box.y);
         expect(btn.box.x).toBe(ghost.box.x);
         expect(r.shell.play.debugGuides).toBe(false);
-        r.shell.tapMeta(btn.box.x + btn.box.w / 2, btn.box.y + btn.box.h / 2);
+        const bp = settingsRowPoint('toggle-debug-guides');
+        r.shell.setSettingsScroll(bp.scroll);
+        r.shell.tapMeta(bp.x, bp.y);
         expect(r.shell.play.debugGuides).toBe(true);
 
         const textsOf = (): string[] => {
@@ -289,7 +313,7 @@ describe('BeadsShell — overlay stack + meta:overlay events', () => {
         expect(openTexts.some((t) => t.startsWith('cap '))).toBe(true);
         expect(openTexts.some((t) => t.startsWith('home '))).toBe(true);
 
-        r.shell.tapMeta(centerOf('settings', 'back').x, centerOf('settings', 'back').y);
+        r.shell.tapMeta(centerOf('settings', 'close-settings').x, centerOf('settings', 'close-settings').y);
         expect(r.shell.overlay).toBe('none');
         const menuTexts = textsOf();
         expect(menuTexts.some((t) => t.startsWith('safe '))).toBe(true);
@@ -515,14 +539,14 @@ describe('BeadsShell — 装扮馆 skins 弹窗：入口 · 卡区 · 买断闭�
         expect(r.shell.overlay).toBe('none'); // 顶栏入口 = 单层 ⇒ 返回直接回主菜单
     });
 
-    it('卡区：槽序 = 注册序 · 列几何共读设置内容块（⛔ 第二套列宽）', () => {
+    it('卡区：槽序 = 注册序 · 列几何走 SKIN_CARD_GRID（⛔ 第二套列宽）', () => {
         const cs = cards();
         expect(cs.map((b) => b.slot)).toEqual(registeredSkins().map((_, i) => i));
         // `[WXG-T-935]` 设置已换 581 宽木牌 ⇒ 两页底板宽度不同、列宽按各自 plate 套同一公式；
-        // 本腿钉「共读 `SETTINGS_GRID`」本身（⛔ 第二套 sideInset/colGap）。
+        // 2026-11-14：卡区列几何改走 `SKIN_CARD_GRID`（设置页已单列，不再共享列宽）。
         const expectedColW =
-            (overlayPlate().w - SETTINGS_GRID.sideInset * 2 - SETTINGS_GRID.colGap * (SETTINGS_GRID.cols - 1))
-            / SETTINGS_GRID.cols;
+            (overlayPlate().w - SKIN_CARD_GRID.sideInset * 2 - SKIN_CARD_GRID.colGap * (SKIN_CARD_GRID.cols - 1))
+            / SKIN_CARD_GRID.cols;
         expect(cs[0]!.box.w).toBe(expectedColW);
         expect(overlayPlate().w).toBe(600);
         expect(cs[0]!.box.h).toBe(SKINS_CARD_H);

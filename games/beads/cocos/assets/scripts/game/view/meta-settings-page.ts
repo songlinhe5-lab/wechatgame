@@ -1,7 +1,7 @@
 /**
  * `[WXG-T-935]` 设置弹窗**装配门面**（`ui-architecture-beads §5` Presenter→View 边界）。
  *
- * 用户令：设置对话框底板与关卡详情页 / 选关页**共用同一块木牌**；内容按钮左右两列，
+ * 用户令：设置对话框底板与关卡详情页 / 选关页**共用同一块木牌**；内容按钮单列 cell 列表，
  * 超过中间可视窗高度 ⇒ 作为滚动控件上下滚动。
  *
  * 几何单源 = `view/settings-content.ts`（`SETTINGS_GRID` / `settingsContentViewport`）；
@@ -19,7 +19,6 @@ import { drawCloseInset, drawModalPlate, label } from './meta-widgets';
 import { levelDetailPlate, settingsViewport } from './meta-layout';
 import {
     drawSettingsAbout,
-    drawSettingsCloseButton,
     drawSettingsContent,
     drawSettingsScrollbar,
     drawSettingsWoodButton,
@@ -68,29 +67,14 @@ export function drawSettingsPage(
     drawSettingsContent(builder, data, palette, layout.buttons, scroll, viewport);
     drawSettingsScrollbar(builder, palette, viewport, scroll);
 
-    // 固定 chrome：返回 / 在线导入（不随内容滚动）；`[WXG-T-938]` 与内容钮同走
-    // 选关「关闭」烘图派生的无字厚木 9-slice（`drawSettingsWoodButton`）。
+    // 固定 chrome：仅在线导入（调试入口，宿主配了服务地址才画；不随内容滚动）。
+    // `[WXG-T-935]` 底部「返回」已删（Figma 设置页 2026-11-14）：关闭 = 右上 ✕ / 点木牌外。
     for (const b of layout.buttons) {
         if (isSettingsAction(b.id)) continue;
         if (b.id === 'close-settings' || b.id === 'dismiss-settings') continue;
         if (b.id === 'studio-import' && !data.studioEnabled) continue;
         const pressed = data.pressed === b;
         const by = b.box.y + pressOffset(pressed, data.reduceMotion);
-        // `[WXG-T-939]` 底部「返回」钮：中间文字直接用选关「关闭」烘字纹理（整枚 blit）。
-        if (b.id === 'back') {
-            drawSettingsCloseButton(
-                builder,
-                palette,
-                b.box.x,
-                by,
-                b.box.w,
-                b.box.h,
-                label(b.id, data),
-                UI_FONT.button,
-                pressed,
-            );
-            continue;
-        }
         drawSettingsWoodButton(
             builder,
             palette,

@@ -601,6 +601,16 @@ export const MENU_TEXTURES = {
    * **无字**厚木 9-slice（235×210，capX 70）。用户令「设置页面的按钮不是选关页面的按钮设计」。
    */
   btnSettings: 'bitmap__ui_btn_settings_9s',
+  /**
+   * 设置项 cell（Figma `设置页面` 抠图层 · 设置项cell，2026-11-14 从 Figma REST 原图导出）：
+   * 图标 ≈ 97×103 ~ 113×115 RGBA，开关 168×95 RGBA。宿主未注册 ⇒ 缺图腿（不画图标 / 程序化开关）。
+   */
+  settingsIconMusic: 'bitmap__settings_icon_music',
+  settingsIconSound: 'bitmap__settings_icon_sound',
+  settingsIconMotion: 'bitmap__settings_icon_motion',
+  settingsIconVibrate: 'bitmap__settings_icon_vibrate',
+  settingsToggleOn: 'bitmap__settings_toggle_on',
+  settingsToggleOff: 'bitmap__settings_toggle_off',
 } as const;
 
 /**

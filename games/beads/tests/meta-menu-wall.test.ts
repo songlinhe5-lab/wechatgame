@@ -55,6 +55,8 @@ import { difficultyOf } from '../src/game/difficulty.js';
 import { COPY_TOKENS } from '../src/config/copy-tokens.js';
 import { buildMetaModal, buildMetaView, hitTestMeta, metaLayout, type MetaViewData } from '../src/view/meta-view.js';
 import { label } from '../src/view/meta-widgets.js';
+import { settingsScrollMax } from '../src/view/settings-content.js';
+import { levelDetailPlate } from '../src/view/meta-layout.js';
 import { rankPanelLayout } from '../src/systems/rank-panel.js';
 import { drawBeadFace, levelThumbCells, SIGN_INK_COLOR_IDX } from '../src/view/menu-signage.js';
 import { drawFilledBead, type FilledBeadOptions } from '../src/view/bead-render.js';
@@ -970,10 +972,13 @@ describe('WXG-T-432 S-3 · 菜单好友榜入口与菜单腿模态门', () => {
         // 设置里翻 Debug
         const open = anchoredLayout(r.shell).buttons.find((b) => b.id === 'open-settings')!.box;
         r.shell.tapMeta(open.x + open.w / 2, open.y + open.h / 2);
+        // 单列 cell 列表：Debug 在末行，需滚到底（钳位到 max）才在可视窗内；绘制 = box + scroll。
+        const SCROLL = settingsScrollMax(levelDetailPlate());
+        r.shell.setSettingsScroll(SCROLL);
         const dbg = metaLayout('settings').buttons.find((b) => b.id === 'toggle-debug-guides')!;
-        r.shell.tapMeta(dbg.box.x + dbg.box.w / 2, dbg.box.y + dbg.box.h / 2);
-        const back = metaLayout('settings').buttons.find((b) => b.id === 'back')!;
-        r.shell.tapMeta(back.box.x + back.box.w / 2, back.box.y + back.box.h / 2);
+        r.shell.tapMeta(dbg.box.x + dbg.box.w / 2, dbg.box.y + dbg.box.h / 2 + SCROLL);
+        const close = metaLayout('settings').buttons.find((b) => b.id === 'close-settings')!;
+        r.shell.tapMeta(close.box.x + close.box.w / 2, close.box.y + close.box.h / 2);
         expect(r.shell.screen).toBe('menu');
         expect(r.shell.play.debugGuides).toBe(true);
 
