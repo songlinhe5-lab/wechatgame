@@ -9808,10 +9808,10 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **背景**：2026-11-14 Figma「设置页面」定稿改为单列 cell 列表；工作树已有一版未提交实现（单列 / 图标 / 开关 / 版本胶囊 / 删返回），本批负责补完接线、文档、金样本与提交。
 - **代码**：① `settings-content.ts` —— `SETTINGS_GRID` 改 `sideInset 36 / cols 1 / rowH 138 / rowGap 12 / viewTopInset 206 / viewBottomInset 94 / footerFromBottom 60`；`MENU_ORDER` 震动前移到大字号之前；新增 `settingsCellParts`（名称 / 提示 / 开关 / 图标）与 `drawSettingsCell`；`drawSettingsContent` 改逐行 cell 绘制（绘制 `+scroll`），`drawSettingsAbout` 改 300×40 木底胶囊；② `meta-layout.ts::settingsLayout` 删 `back`，`hitTestMeta` 命中改 `y − scroll`；③ `meta-settings-page.ts` 固定 chrome 只剩在线导入 + 右上 ✕；④ `beads-shell.ts` 新增 `setSettingsScroll`（测试 / harness 用，钳位同拖拽）；⑤ `skins-content.ts` 列几何拆出 `SKIN_CARD_GRID`（装扮馆视觉不变）；⑥ `ui-theme.ts` 新增 `settingsName 44 bold` / `settingsHint 19`；⑦ `config/tuning/menu.ts` 新增 6 个 `settingsIcon* / settingsToggle*` 纹理 id；harness `MENU_FILE` 注册。
 - **测试**：`settings-content` 单列几何（11×138 / 行距 150 / 总高 1638）、可视窗 744 / 滚动 894、逐行滚动可达、cell 文案、位图 / 程序化降级；`beads-shell` / `bead-style-settings` / `dialog-center` / `meta-menu-wall` / `ui-input-timing` 同步单列口径；beads 全量见 verify。
-- **金样本**：`settings` 帧 total 1178 → **1168**（两列 6 行 → 单列 cell + 胶囊 + 删返回），在提交锚重抓（两遍确定性 PASS），⛔ 不手改夹具。
+- **金样本**：`settings` 帧 total 1178 → **1168**（两列 6 行 → 单列 cell + 胶囊 + 删返回），在提交锚 `2a3dc775` 重抓（两遍确定性 PASS），⛔ 不手改夹具。
 - **文档**：`ux-spec` v1.53 §2、`pause-settings` §2.2、`docs/architecture/ui-architecture-beads.md §12`、`production/qa/asset-provenance.md §0.3`（6 枚 Figma 切件）。
 - **阻塞**：Cocos 6 枚新位图未导入 / 未注册（本机 CLI `browser_1.init` 阻塞）⇒ Cocos 缺图腿 = 不画图标 + 程序化开关；解除条件 = GUI 打开 `games/beads/cocos` 导入并构建后，在 `beads-blit-carrier.ts` 补 6 条注册。
-- **验证**：`pnpm --filter @wxgame/beads run typecheck` 0 错；`pnpm run verify` 待跑（见提交记录）；harness 4176 实帧截图确认单列 cell + 图标 + 开关 + 版本胶囊 + 无底部返回。
+- **验证**：`pnpm --filter @wxgame/beads run typecheck` 0 错；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；harness 4176 实帧截图确认单列 cell + 图标 + 开关 + 版本胶囊 + 无底部返回。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
 
 ## WXG-T-940

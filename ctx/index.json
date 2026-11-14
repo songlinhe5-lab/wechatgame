@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4105,
       "lines": 137,
-      "sha256": "4e5363e5c2cbd36ddc0cc963c1808d6c5d808f785478d1d6346313945a2bdb66",
+      "sha256": "a4f5113c5422512ea626f429f1ffa6253b0464abe7f2160c0b24e108c197ad8d",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 301569 9957 normal",
+          "summary": "1 production/TASKS-DETAIL.md 301572 9957 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5196,
       "lines": 164,
-      "sha256": "3358205fb94edbfb7879c4cb99e315898d9130c68235b66a4afa1af2f2b6c302",
+      "sha256": "6d177539bbb3c9c42b57645138dd021be812393c70e19100b177cf218edf5d0a",
       "tier": "normal",
       "sections": [
         {
@@ -761,7 +761,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 264 行 / 73941 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 264 行 / 73949 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
@@ -1080,7 +1080,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 9957 行 / 301569 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 9957 行 / 301572 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
@@ -89931,9 +89931,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 301569,
+      "tokens": 301572,
       "lines": 9957,
-      "sha256": "31d86cf7eb1461fac9cf8cb65b922991794e1590c8e4c485bb794c3e220195d5",
+      "sha256": "3e3762921d01eabf8e5ecbda981d1ac4a3aaa47bee1e181e02867e5233c19968",
       "tier": "normal",
       "sections": [
         {
@@ -89941,7 +89941,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 9958,
-          "tokens": 301552,
+          "tokens": 301556,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -104737,7 +104737,7 @@
           "level": 2,
           "startLine": 9803,
           "endLine": 9816,
-          "tokens": 806,
+          "tokens": 810,
           "summary": "UX·设置弹窗同步 Figma 新版单列 cell UI · 负责：主理人(Trae CN)·beads UX/工程轨 ",
           "keywords": [
             "WXG",
@@ -104897,9 +104897,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 73941,
+      "tokens": 73949,
       "lines": 264,
-      "sha256": "95c17c89f1ada7cca181dc6408e8730906a91e0bd769766cac40cf83b2f25d12",
+      "sha256": "63e800f4dc71caf564d50c3189895b88dbb46947d9c97abbc38bec326491451f",
       "tier": "hot",
       "sections": [
         {
@@ -104907,7 +104907,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 265,
-          "tokens": 73932,
+          "tokens": 73940,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
