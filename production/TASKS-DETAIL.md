@@ -9806,7 +9806,7 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 
 - **改动**：① `MENU_ORDER` 删 `cycle-skin`（设置页 10 行；`applySettingsAction('cycle-skin')` 受理器与皮肤系统保留，换肤唯一入口 = 顶栏装扮馆）；② `settingsCellParts`：Debug / 幽灵符号 / 性能信息 `hint = ''`；减弱动效改「启用后，减少界面动效」；③ 开关上移 `CELL_TOGGLE.y 33→26`、提示下移 `CELL_HINT_CY 102→108`；④ 名称投影 `3/−4/3`、提示 `2/−3/2`（图标投影已在 T-942 烘入）；⑤ 新增 `isToggleAction` + `settingsToggleHitBox`（视觉 115×65 → 热区 115×88），`meta-layout::hitTestMeta` 对开关行只判开关热区，名称/提示区零响应；⑥ `drawSettingsContent` 对开关行不做按下位移，`drawSettingsCell` 不亮整行，只有开关叠 16% 压暗；循环行（珠子风格 / 豆子尺寸）仍整行可点、整行按下。
 - **测试**：`settings-content.test.ts` 改 10 行 / 1488 / 744 / 17 条文字 / 开关热区命中 / 开关行不亮整行；`beads-shell`、`bead-style-settings`、`skin-system`、`meta-menu-wall`、`ui-input-timing` 同步开关热区与去皮肤行口径；beads 全量除金样本外全绿。
-- **金样本**：`settings` 帧 total/kinds/sha 全变（少一行 + 提示/投影/热区），在提交锚 `（见提交记录）` 重抓。
+- **金样本**：`settings` 帧 total/kinds/sha 全变（少一行 + 提示/投影/热区），在提交锚 `ee30964a` 重抓（两遍确定性 PASS）。
 - **文档**：ux-spec v1.55 §2、pause-settings §2.2、ui-architecture §12。
 - **未含（待裁）**：拖拽中的**半行裁切显示**（用户要求）——现有框架只有全局 clip host，容器内裁切会把 blit 挂到容器外层，Cocos 端层序错乱；真正的逐容器裁切需要框架 + Cocos 宿主改造（ADR-0033 扩展）并需真机验证。当前保持「半露行不画 + 松手吸附整行」的零风险方案。
 - **验证**：类型检查 0 错；`pnpm run verify` 见提交记录；harness 实帧确认去皮肤行、提示位置、投影与开关热区。

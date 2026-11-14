@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4105,
       "lines": 137,
-      "sha256": "291d3a94f24490ca67d187c1225aa16d59cc44f7737987b45860a90288b095f1",
+      "sha256": "123065fdafb3e1212b25f958d886fda004beb32c0a3925f274a66a7f8452b132",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 302902 9982 normal",
+          "summary": "1 production/TASKS-DETAIL.md 302906 9982 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5196,
       "lines": 164,
-      "sha256": "ce5f01649751c1ebbd53ba3ea5788260eec773cc3c52629d66e7bc6044064e77",
+      "sha256": "afc450315e005a2d89931aef4c92b43c5a18158dedc02b23bd798c03c49b153f",
       "tier": "normal",
       "sections": [
         {
@@ -1080,7 +1080,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 9982 行 / 302902 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 9982 行 / 302906 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
@@ -89931,9 +89931,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 302902,
+      "tokens": 302906,
       "lines": 9982,
-      "sha256": "86f00bc5ff5a6041dafaf7b9434f78859e6f039e422a942c7da60b38d85624f0",
+      "sha256": "7c78c3362afa475c31011e52b78ae383e91b32a0d9591d80ea63ae3e34f6a65d",
       "tier": "normal",
       "sections": [
         {
@@ -89941,7 +89941,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 9983,
-          "tokens": 302886,
+          "tokens": 302889,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -104737,7 +104737,7 @@
           "level": 2,
           "startLine": 9803,
           "endLine": 9814,
-          "tokens": 733,
+          "tokens": 736,
           "summary": "UX·设置页去皮肤行 / 提示收敛 / 开关行整行不可点 · 负责：主理人(Trae CN)·beads UX/工程轨 ",
           "keywords": [
             "WXG",
