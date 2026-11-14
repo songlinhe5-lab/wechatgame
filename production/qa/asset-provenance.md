@@ -47,7 +47,7 @@
 
 | 件（实测规格） | 生成方式 | 生成脚本（入库路径） | 原图（入库路径 / 状态） | 批次出处 |
 |---|---|---|---|---|
-| `final/assets/menu/settings/icons/ui_icon_music@2x.png` 97×103<br>`ui_icon_sound_settings@2x.png` 104×93<br>`ui_icon_motion@2x.png` 102×113<br>`ui_icon_vibrate@2x.png` 113×115 | **Figma REST 图像填充原图导出**（`figma.mjs` 图像填充腿；RGBA） | 无一次性脚本（导出记录 = `temp/figma/settings/urls.txt`，temp 不入库） | ✅ Figma 文件 `PBIK3RbfGlfzFsAnd97ZsP` · 「设置页面」抠图层（节点 id 未记录 `[TODO]`；临时导出件 `temp/figma/settings/ui_icon_*.png`） | WXG-T-941 |
+| `final/assets/menu/settings/icons/ui_icon_music@2x.png` 109×115<br>`ui_icon_sound_settings@2x.png` 116×105<br>`ui_icon_motion@2x.png` 114×125<br>`ui_icon_vibrate@2x.png` 125×127 | **Figma REST 图像填充原图导出**（`figma.mjs` 图像填充腿；RGBA）+ **WXG-T-942 补投影烘焙** | 补投影：`ai-workflows/bake-settings-icon-shadow.py`（Figma 导出件为入参，画布 +12、深棕投影） | ✅ Figma 文件 `PBIK3RbfGlfzFsAnd97ZsP` · 「设置页面」抠图层（节点 id 未记录 `[TODO]`；导出原件 `temp/figma/settings/ui_icon_*.png`，临时不入库） | WXG-T-941 / 942 |
 | `final/assets/menu/settings/toggles/ui_toggle_on@2x.png` 168×95<br>`ui_toggle_off@2x.png` 168×95 | 同上 | 同上 | ✅ 同上（`temp/figma/settings/ui_toggle_*.png`） | WXG-T-941 |
 
 - **运行时接线**：`MENU_TEXTURES.settingsIcon* / settingsToggle*`（`config/tuning/menu.ts`）；harness `MENU_FILE` 已注册（`/menu-assets/settings/...`）。Cocos 投放件 / `.meta` / 构建 **待 GUI 导入**（同 §0.2 环境阻塞）⇒ 当前 Cocos 缺图腿 = 不画图标 + 程序化开关。

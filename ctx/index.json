@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4105,
       "lines": 137,
-      "sha256": "a4f5113c5422512ea626f429f1ffa6253b0464abe7f2160c0b24e108c197ad8d",
+      "sha256": "bb30d3a08d38cd97c5c09fcedf3e04d472fb764e924bcf29d798b9a5fc257b72",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 301572 9957 normal",
+          "summary": "1 production/TASKS-DETAIL.md 302172 9970 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5196,
       "lines": 164,
-      "sha256": "6d177539bbb3c9c42b57645138dd021be812393c70e19100b177cf218edf5d0a",
+      "sha256": "a1c510e9264f01bf32bb2aa03313dc627b51163bdc18b1425d937cc12314af3d",
       "tier": "normal",
       "sections": [
         {
@@ -761,12 +761,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 264 行 / 73949 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 265 行 / 74268 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+265 · §待排（backlog，无号，立项时领取…=235+31",
+          "summary": "§WXG 任务台账（SSOT）=1+266 · §待排（backlog，无号，立项时领取…=236+31",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -857,7 +857,7 @@
           ]
         },
         {
-          "anchor": "§`games/beads/design/ux/ux-spec.md` — 510 行 / 37124 tok / 实测读 10 次",
+          "anchor": "§`games/beads/design/ux/ux-spec.md` — 510 行 / 37373 tok / 实测读 10 次",
           "level": 2,
           "startLine": 55,
           "endLine": 59,
@@ -1080,12 +1080,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 9957 行 / 301572 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 9970 行 / 302172 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
           "tokens": 124,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+9958 · §WXG-T-941=9803+14 · §WXG-T-9",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+9971 · §WXG-T-942=9803+13 · §WXG-T-9",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -14144,17 +14144,17 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 43759,
-      "lines": 352,
-      "sha256": "427074f99fb5eed302cbac7a3acbaf06abbd84ffd9aa369c313e9577920bc0f6",
+      "tokens": 44073,
+      "lines": 354,
+      "sha256": "a1c9b79a780c0a542b888ca2642c4cae5b05c2447e4a2dc0d05a72a2bee21530",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads UI 架构（View / ViewModel / Presenter + 公共基础）",
           "level": 1,
           "startLine": 1,
-          "endLine": 353,
-          "tokens": 43740,
+          "endLine": 355,
+          "tokens": 44055,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -14324,8 +14324,8 @@
           "anchor": "§12 TODO 拆分",
           "level": 2,
           "startLine": 138,
-          "endLine": 349,
-          "tokens": 38687,
+          "endLine": 351,
+          "tokens": 39001,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -14336,8 +14336,8 @@
         {
           "anchor": "§13 待你拍板",
           "level": 2,
-          "startLine": 350,
-          "endLine": 353,
+          "startLine": 352,
+          "endLine": 355,
           "tokens": 323,
           "summary": "D1–D5 均已裁定（见 [ADR-0032 §5](adr/ADR-0032-beads-ui-architectur",
           "keywords": [
@@ -46822,9 +46822,9 @@
     },
     {
       "path": "games/beads/design/ux/ux-spec.md",
-      "tokens": 37124,
+      "tokens": 37373,
       "lines": 510,
-      "sha256": "546a935b28d5e9b837aa78d2c00dc1558d34afe9836b9544733f7d234e80cb4f",
+      "sha256": "f423d61b996d35339a2b2093d6e5c7267f3e356b589a24a45251037b4d02bd3d",
       "tier": "normal",
       "sections": [
         {
@@ -46832,8 +46832,8 @@
           "level": 1,
           "startLine": 1,
           "endLine": 511,
-          "tokens": 37115,
-          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.53 · 任务号 WXG-T-941（v1.53 = 设置弹",
+          "tokens": 37363,
+          "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.54 · 任务号 WXG-T-942（v1.54 = 设置页",
           "keywords": [
             "Spec",
             "beads",
@@ -46862,7 +46862,7 @@
           "level": 2,
           "startLine": 21,
           "endLine": 63,
-          "tokens": 2630,
+          "tokens": 2769,
           "summary": "",
           "keywords": [
             "Screen",
@@ -89931,17 +89931,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 301572,
-      "lines": 9957,
-      "sha256": "3e3762921d01eabf8e5ecbda981d1ac4a3aaa47bee1e181e02867e5233c19968",
+      "tokens": 302172,
+      "lines": 9970,
+      "sha256": "17f981a314d57dfceaf10ced050f597899e7f33017d991f887406b5c72f47426",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 9958,
-          "tokens": 301556,
+          "endLine": 9971,
+          "tokens": 302155,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -104733,10 +104733,23 @@
           ]
         },
         {
-          "anchor": "§WXG-T-941",
+          "anchor": "§WXG-T-942",
           "level": 2,
           "startLine": 9803,
-          "endLine": 9816,
+          "endLine": 9815,
+          "tokens": 596,
+          "summary": "UX·设置页滚动空块 / 提示行位置 / 图标投影修复 · 负责：主理人(Trae CN)·beads UX/工程轨 ·",
+          "keywords": [
+            "WXG",
+            "Trae",
+            "beads"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-941",
+          "level": 2,
+          "startLine": 9816,
+          "endLine": 9829,
           "tokens": 810,
           "summary": "UX·设置弹窗同步 Figma 新版单列 cell UI · 负责：主理人(Trae CN)·beads UX/工程轨 ",
           "keywords": [
@@ -104750,8 +104763,8 @@
         {
           "anchor": "§WXG-T-940",
           "level": 2,
-          "startLine": 9817,
-          "endLine": 9829,
+          "startLine": 9830,
+          "endLine": 9842,
           "tokens": 563,
           "summary": "UX·设置底部版本信息调字号位置字色 + 标准格式 · 负责：主理人(Trae CN)·beads UX/工程轨 · 状",
           "keywords": [
@@ -104763,8 +104776,8 @@
         {
           "anchor": "§WXG-T-939",
           "level": 2,
-          "startLine": 9830,
-          "endLine": 9842,
+          "startLine": 9843,
+          "endLine": 9855,
           "tokens": 580,
           "summary": "UX·设置底部返回钮改选关「关闭」烘字纹理 · 负责：主理人(Trae CN)·beads UX/工程轨 · 状态：✅ ",
           "keywords": [
@@ -104776,8 +104789,8 @@
         {
           "anchor": "§WXG-T-938",
           "level": 2,
-          "startLine": 9843,
-          "endLine": 9858,
+          "startLine": 9856,
+          "endLine": 9871,
           "tokens": 1114,
           "summary": "UX·设置弹窗按钮改选关「关闭」派生无字厚木 9-slice · 负责：主理人(Trae CN)·beads UX/工程",
           "keywords": [
@@ -104790,8 +104803,8 @@
         {
           "anchor": "§WXG-T-937",
           "level": 2,
-          "startLine": 9859,
-          "endLine": 9871,
+          "startLine": 9872,
+          "endLine": 9884,
           "tokens": 668,
           "summary": "UX·设置弹窗按钮改选关「关闭」同族木纹 9-slice · 负责：主理人(Trae CN)·beads UX/工程轨 ",
           "keywords": [
@@ -104804,8 +104817,8 @@
         {
           "anchor": "§WXG-T-936",
           "level": 2,
-          "startLine": 9872,
-          "endLine": 9883,
+          "startLine": 9885,
+          "endLine": 9896,
           "tokens": 726,
           "summary": "UX·设置弹窗木钮 normal 态 + 右上 ✕ + 牌外关闭 · 负责：主理人(Trae CN)·beads UX/",
           "keywords": [
@@ -104818,8 +104831,8 @@
         {
           "anchor": "§WXG-T-935",
           "level": 2,
-          "startLine": 9884,
-          "endLine": 9896,
+          "startLine": 9897,
+          "endLine": 9909,
           "tokens": 914,
           "summary": "UX·设置弹窗复用关卡详情木牌 + 两列滚动 · 负责：主理人(Trae CN)·beads UX/工程轨 · 状态：✅",
           "keywords": [
@@ -104831,8 +104844,8 @@
         {
           "anchor": "§WXG-T-934",
           "level": 2,
-          "startLine": 9897,
-          "endLine": 9909,
+          "startLine": 9910,
+          "endLine": 9922,
           "tokens": 901,
           "summary": "UX·暂停面板收敛为三钮（全局设置归菜单） · 负责：主理人(Trae CN)·beads UX/工程轨 · 状态：✅ ",
           "keywords": [
@@ -104844,8 +104857,8 @@
         {
           "anchor": "§WXG-T-933",
           "level": 2,
-          "startLine": 9910,
-          "endLine": 9920,
+          "startLine": 9923,
+          "endLine": 9933,
           "tokens": 363,
           "summary": "UX·珠面描边圆角半径 ≡ 线宽 · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成（2026-",
           "keywords": [
@@ -104857,8 +104870,8 @@
         {
           "anchor": "§WXG-T-932",
           "level": 2,
-          "startLine": 9921,
-          "endLine": 9931,
+          "startLine": 9934,
+          "endLine": 9944,
           "tokens": 258,
           "summary": "UX·珠面描边加粗至 4（防边角漏出） · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成（20",
           "keywords": [
@@ -104870,8 +104883,8 @@
         {
           "anchor": "§WXG-T-931",
           "level": 2,
-          "startLine": 9932,
-          "endLine": 9943,
+          "startLine": 9945,
+          "endLine": 9956,
           "tokens": 399,
           "summary": "UX·珠面盘面线宽去下限钳位（纯等比） · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成（20",
           "keywords": [
@@ -104883,8 +104896,8 @@
         {
           "anchor": "§WXG-T-930",
           "level": 2,
-          "startLine": 9944,
-          "endLine": 9958,
+          "startLine": 9957,
+          "endLine": 9971,
           "tokens": 617,
           "summary": "UX·珠面描边改纯比例缩放（1:1 锚定） · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成（",
           "keywords": [
@@ -104897,17 +104910,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 73949,
-      "lines": 264,
-      "sha256": "63e800f4dc71caf564d50c3189895b88dbb46947d9c97abbc38bec326491451f",
+      "tokens": 74268,
+      "lines": 265,
+      "sha256": "f305fcb72fb85b504ef04352711b731799cd4db4a959c6aff6627e83a6bdd230",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 265,
-          "tokens": 73940,
+          "endLine": 266,
+          "tokens": 74259,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -104920,8 +104933,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 235,
-          "endLine": 265,
+          "startLine": 236,
+          "endLine": 266,
           "tokens": 1571,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -108678,9 +108691,9 @@
     },
     {
       "path": "production/qa/asset-provenance.md",
-      "tokens": 11926,
+      "tokens": 11950,
       "lines": 265,
-      "sha256": "82352157d2dddac14b4c026beb050a810b081cfde1aa43912435f11adbb26fac",
+      "sha256": "7f34e4d47b8302e56654ea8d4dd61e735ae74d0f917bfe2656afaec859bb3ab1",
       "tier": "normal",
       "sections": [
         {
@@ -108688,7 +108701,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 266,
-          "tokens": 11912,
+          "tokens": 11936,
           "summary": "本件是「每张进 final/ 的图从哪来」的唯一正本。 建件 = 用户 2026-11-01 令「统一使用图片生成文档，",
           "keywords": [
             "Asset",
@@ -108748,7 +108761,7 @@
           "level": 2,
           "startLine": 44,
           "endLine": 54,
-          "tokens": 385,
+          "tokens": 408,
           "summary": "本批不是生图：设置页新版 UI 的 6 枚 Figma 图像填充（temp/figma/settings/images.",
           "keywords": [
             "Figma",

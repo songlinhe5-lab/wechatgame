@@ -172,6 +172,11 @@ export function settingsContentHeight(): number {
     return rows * SETTINGS_GRID.rowH + (rows - 1) * SETTINGS_GRID.rowGap;
 }
 
+/** `[WXG-T-942]` 单行 pitch（行高 + 行距）：滚动松手吸附到它的整数倍，避免半行露边。 */
+export function settingsRowPitch(): number {
+    return SETTINGS_GRID.rowH + SETTINGS_GRID.rowGap;
+}
+
 /** 最大滚动量；内容不超窗 ⇒ 0（此时手势被钳住、滚动条不画）。 */
 export function settingsScrollMax(plate: SettingsBox): number {
     return Math.max(0, settingsContentHeight() - settingsContentViewport(plate).h);
@@ -316,19 +321,24 @@ export function settingsCellParts(id: SettingsAction, data: SettingsContentData)
     }
 }
 
-/** Figma cell 内部几何（相对 cell 左上，单位设计 px）：图标框 (29,33,67×71)、名称 (124,34)、提示 (124,104)、开关 (371,33,115×65)。 */
-const CELL_ICON = { x: 29, y: 33, w: 67, h: 71 } as const;
+/**
+ * Figma cell 内部几何（相对 cell 左上，单位设计 px）：图标框 (26,28,74×78)、名称 (124,34)、
+ * 提示 (124,102)、开关 (371,33,115×65)。
+ * `[WXG-T-942]` 图标件补烘 6px 透明边 + 投影（画布 +12）⇒ 图标框同步放大到 74×78 保持图标视觉尺寸；
+ * 提示行由 115 上移到 102（用户反馈「第二行文字位置靠下了」）。
+ */
+const CELL_ICON = { x: 26, y: 28, w: 74, h: 78 } as const;
 const CELL_NAME_X = 124;
 const CELL_NAME_CY = 60.5; // 名称框 34..87 中线
-const CELL_HINT_CY = 115; // 提示框 104..126 中线
+const CELL_HINT_CY = 102; // 提示行中线（原 115 过靠底）
 const CELL_TOGGLE = { x: 371, y: 33, w: 115, h: 65 } as const;
 
-/** 图标按框内等比缩放（Figma FIT）。原图尺寸 = 导出的 @2x PNG 像素。 */
+/** 图标按框内等比缩放（Figma FIT）。原图尺寸 = 补投影后的 @2x PNG 像素（原尺寸 + 12）。 */
 const ICON_SRC: Readonly<Record<NonNullable<SettingsCellParts['icon']>, { w: number; h: number }>> = {
-    settingsIconMusic: { w: 97, h: 103 },
-    settingsIconSound: { w: 104, h: 93 },
-    settingsIconMotion: { w: 102, h: 113 },
-    settingsIconVibrate: { w: 113, h: 115 },
+    settingsIconMusic: { w: 109, h: 115 },
+    settingsIconSound: { w: 116, h: 105 },
+    settingsIconMotion: { w: 114, h: 125 },
+    settingsIconVibrate: { w: 125, h: 127 },
 };
 
 /**
@@ -428,15 +438,9 @@ export function drawSettingsContent(
             const bottom = y;
             const top = y + b.box.h;
             if (bottom >= vTop || top <= vBottom) continue;
-            if (bottom < vBottom || top > vTop) {
-                // 部分露出：只画可见矩形（方角 = 被窗缘截断），字等整行露出再画。
-                const iy = Math.max(bottom, vBottom);
-                const iTop = Math.min(top, vTop);
-                builder.rect(b.box.x, iy, b.box.w, iTop - iy, {
-                    fill: pressed ? palette.woodFacePressed : palette.woodFace,
-                });
-                continue;
-            }
+            // `[WXG-T-942]` 半露行整行不画（木牌底纹透出），松手吸附到整行 pitch ⇒ 不再出现
+            // 一整块平涂木色的「空一块」。⛔ 不用 `builder.clip`（容器内 Cocos 会画出容器外）。
+            if (bottom < vBottom || top > vTop) continue;
         }
         drawSettingsCell(builder, palette, data, b.id, b.box.x, y, b.box.w, b.box.h, pressed);
     }

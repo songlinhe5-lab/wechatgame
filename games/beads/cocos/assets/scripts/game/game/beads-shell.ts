@@ -75,6 +75,7 @@ import {
     type MetaOverlay,
     type MetaViewData,
 } from '../view/meta-view';
+import { settingsRowPitch } from '../view/settings-content';
 import type { RankPanelAction, RankPanelView } from '../systems/rank-panel';
 import { DEFAULT_SKIN_ID, registeredSkins } from '../config/skins/registry';
 // `[WXG-T-363]` 装扮馆：拥有态注入腿（视图标签）+ 卡区画法单源同文件，判例 = `setMenuBitmapResolver`。
@@ -950,6 +951,11 @@ export class BeadsShell implements Game {
                     this._settingsDragging = false;
                     this._menuPress = null;
                     this._viewData.pressed = null;
+                    // `[WXG-T-942]` 松手吸附到整行 pitch：半露行不画，停在整行位置避免「空一块」。
+                    const max = settingsScrollLimit();
+                    const pitch = settingsRowPitch();
+                    const snapped = Math.round(this._settingsScroll / pitch) * pitch;
+                    this._settingsScroll = snapped < 0 ? 0 : snapped > max ? max : snapped;
                     return;
                 }
             }

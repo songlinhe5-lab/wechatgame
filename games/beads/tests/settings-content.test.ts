@@ -26,6 +26,7 @@ import {
     settingsContentLabel,
     settingsContentViewport,
     settingsCellParts,
+    settingsRowPitch,
     settingsScrollMax,
     type SettingsAction,
     type SettingsContentData,
@@ -182,6 +183,19 @@ describe('UI-30 · SettingsContent', () => {
         // 首钮按下：cell 背板 rect 的 y 变小（y-up 坐标下沉）。
         const firstCellRect = (calls: Call[]) => calls.find((c) => c.kind === 'rect' && c.args[2] === 509)!;
         expect(firstCellRect(pressed.calls).args[1] as number).toBeLessThan(firstCellRect(idle.calls).args[1] as number);
+    });
+
+    it('[WXG-T-942] 半露行整行不画：滚动中不出现平涂木色空块；行 pitch = 150', () => {
+        const plate = levelDetailPlate();
+        const buttons = settingsContentButtons(plate);
+        const vp = settingsContentViewport(plate);
+        // scroll=75：首行半露在窗顶、第 6 行半露在窗底 ⇒ 只画中间 4 整行（8 条文字）。
+        const mid = recorder();
+        drawSettingsContent(mid.b, DATA, PALETTE, buttons, 75, vp);
+        expect(textsOf(mid.calls)).toHaveLength(8);
+        expect(textsOf(mid.calls)).not.toContain('音乐');
+        // 松手吸附口径：pitch = 行高 138 + 行距 12。
+        expect(settingsRowPitch()).toBe(150);
     });
 
     it('动作全集 ≡ 弹窗排布（WXG-T-365 回归钉：装扮馆入口已上提顶栏 ⇒ ⛔ 不再是设置动作）', () => {

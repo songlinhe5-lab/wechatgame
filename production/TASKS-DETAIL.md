@@ -9800,6 +9800,19 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **提交**：`19fb24ad`（代码 + Cocos 镜像 + 文档 + 台账）；复评与金样本重抓同批回填。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
 
+## WXG-T-942
+
+**UX·设置页滚动空块 / 提示行位置 / 图标投影修复** · 负责：主理人(Trae CN)·beads UX/工程轨 · 状态：✅ 完成（2026-11-14 · 用户反馈「拖动上去就空一块 / 第二行文字位置靠下了 / 图标的阴影不见了，阴影的效果也被减弱了」）
+
+- **根因**：① 半露行原先只画「可见矩形 + 平涂 `woodFace`」，138 高 cell 下拖动时会露出一整块纯色；② Figma 提示行中线 115 贴近 cell 底缘，观感靠下；③ 图标 Figma 图像填充导出**不含图层效果**，落码后无投影。
+- **修复**：① `settings-content.ts::drawSettingsContent` 半露行直接 `continue`（木牌底纹透出），`beads-shell.ts` 松手吸附 `settingsRowPitch() = 138+12 = 150` 的整数倍；② `CELL_HINT_CY` 115 → **102**；③ 新增 `design/ai-workflows/bake-settings-icon-shadow.py`（以 Figma 导出件为入参，画布四周 +6px、`#3D2E1E` α0.85 / 偏移 (3,4) / 高斯模糊 3，带重复运行守卫），4 枚图标重烘；`CELL_ICON` 67×71 → **74×78**、`ICON_SRC` 同步新画布（109×115 / 116×105 / 114×125 / 125×127），图标视觉尺寸基本不变。
+- **测试**：`settings-content.test.ts` 新增「半露行整行不画（scroll=75 只画 8 条文字）+ pitch=150」判据；shell / 时序列全绿。
+- **金样本**：`settings` 帧 total/kinds 不变、sha 变（提示行 text y），在提交锚 `（见提交记录）` 重抓，⛔ 不手改夹具。
+- **文档**：ux-spec v1.54 §2、ui-architecture §12、资产来源账 §0.3。
+- **验证**：`pnpm --filter @wxgame/beads run typecheck` 0 错；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**；harness 实帧截图确认提示行上移、图标投影、顶部无空块。
+- **Cocos**：4 枚图标内容更新 ⇒ 用户侧需重新导入（同尺寸画布已并入 `ICON_SRC`）；Cocos 注册仍待 GUI 导入。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
 ## WXG-T-941
 
 **UX·设置弹窗同步 Figma 新版单列 cell UI** · 负责：主理人(Trae CN)·beads UX/工程轨 · 状态：✅ 完成（2026-11-14 · 用户令「设置页面最新的 UI 没有同步到代码，请给我完成」）
