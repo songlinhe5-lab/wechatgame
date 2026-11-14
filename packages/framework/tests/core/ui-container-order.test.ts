@@ -10,16 +10,20 @@ import type { DrawCommand } from '../../src/core/render/render-model.js';
 import { checkUiContainerOrder } from '../../src/core/render/ui-container-order.js';
 
 /**
- * 一帧「页面层 clip + 主菜单容器 + 设置弹窗容器（内含 modal 段）」——结构良构，应零违规。
- * ⚠ clip 必须在**容器外**（`[WXG-T-439]`：Cocos 端裁切走全局 clipHost，容器内裁切会画到容器外）。
+ * 一帧「页面层 clip + 主菜单容器 + 设置弹窗容器（内含 modal 段与一次逐容器裁切）」
+ * ——结构良构，应零违规。
+ * `[ADR-0037]` 容器内 clip 已解禁（渲染器建裁切子树）；要求只剩「成对、不叠套」。
  */
 const WELL_FORMED: DrawCommand[] = [
     { kind: 'clip', x: 0, y: 0, w: 750, h: 1334 },
+    { kind: 'unclip' },
     { kind: 'container', id: 'menu' },
     { kind: 'containerEnd' },
     { kind: 'container', id: 'settings' },
     { kind: 'segment', segment: 'modal' },
     { kind: 'segmentEnd' },
+    { kind: 'clip', x: 36, y: 218, w: 509, h: 744 },
+    { kind: 'unclip' },
     { kind: 'containerEnd' },
 ];
 
@@ -80,16 +84,38 @@ describe('WXG-T-329 — checkUiContainerOrder（UI-60 DEC-8① 结构机检）',
         expect(errs.some((e) => e.includes('未闭合时结束'))).toBe(true);
     });
 
-    it('正样本：页面层 clip（容器外）⇒ 零违规', () => {
-        expect(checkUiContainerOrder([{ kind: 'clip', x: 0, y: 0, w: 750, h: 1334 }])).toEqual([]);
+    it('正样本：页面层 clip（容器外）成对 ⇒ 零违规', () => {
+        expect(checkUiContainerOrder([
+            { kind: 'clip', x: 0, y: 0, w: 750, h: 1334 },
+            { kind: 'unclip' },
+        ])).toEqual([]);
     });
 
-    it('反证 7（`WXG-T-439` 显式降级）：容器内 clip ⇒ 判「容器内裁切」', () => {
+    it('正样本：容器内 clip 成对（`[ADR-0037]` 逐容器裁切）⇒ 零违规', () => {
+        expect(checkUiContainerOrder([
+            { kind: 'container', id: 'settings' },
+            { kind: 'clip', x: 36, y: 218, w: 509, h: 744 },
+            { kind: 'unclip' },
+            { kind: 'containerEnd' },
+        ])).toEqual([]);
+    });
+
+    it('反证 7：clip 叠套 ⇒ 判「同一层一帧只许一次裁切」', () => {
         const errs = checkUiContainerOrder([
-            { kind: 'container', id: 'menu' },
+            { kind: 'container', id: 'settings' },
             { kind: 'clip', x: 0, y: 0, w: 750, h: 1334 },
+            { kind: 'clip', x: 0, y: 0, w: 100, h: 100 },
+            { kind: 'unclip' },
+            { kind: 'unclip' },
             { kind: 'containerEnd' },
         ]);
-        expect(errs.some((e) => e.includes('容器 "menu" 内'))).toBe(true);
+        expect(errs.some((e) => e.includes('clip 叠套'))).toBe(true);
+    });
+
+    it('反证 8：unclip 无配对 / clip 到帧尾未闭合 ⇒ 各判一条', () => {
+        const danglingUnclip = checkUiContainerOrder([{ kind: 'unclip' }]);
+        expect(danglingUnclip.some((e) => e.includes('unclip 无配对的 clip'))).toBe(true);
+        const unclosed = checkUiContainerOrder([{ kind: 'clip', x: 0, y: 0, w: 10, h: 10 }]);
+        expect(unclosed.some((e) => e.includes('到帧尾仍未闭合'))).toBe(true);
     });
 });

@@ -68,7 +68,6 @@ import {
     hitTestMeta,
     inBox,
     settingsScrollLimit,
-    settingsRowPitch,
     settingsViewport,
     type MetaAction,
     type MetaBossState,
@@ -951,11 +950,8 @@ export class BeadsShell implements Game {
                     this._settingsDragging = false;
                     this._menuPress = null;
                     this._viewData.pressed = null;
-                    // `[WXG-T-942]` 松手吸附到整行 pitch：半露行不画，停在整行位置避免「空一块」。
-                    const max = settingsScrollLimit();
-                    const pitch = settingsRowPitch();
-                    const snapped = Math.round(this._settingsScroll / pitch) * pitch;
-                    this._settingsScroll = snapped < 0 ? 0 : snapped > max ? max : snapped;
+                    // `[ADR-0037]` 不吸附整行：滚动停在手指停下的位置，半露行由裁切渲染
+                    // （`settings-content` 只跳过完全在窗外的行）。
                     return;
                 }
             }

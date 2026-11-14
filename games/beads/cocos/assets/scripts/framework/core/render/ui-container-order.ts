@@ -14,11 +14,12 @@
  *     ⇒ 每容器 = 一段连续块 ⇒ **「容器 A 全部命令索引 < 容器 B」成立**（DEC-8① 第一句）。
  *  2. `segment` 只出现在容器内，且与 `segmentEnd` 配对、**段不叠套**（DEC-2 段在容器内不叠套）。
  *  3. `endContainer` / `endSegment` 不得悬空（无对应进入）。
- *  4. `clip` **不得出现在容器内**（`[WXG-T-439]` 显式降级）：Cocos 端的裁切走**全局** `clipHost`
- *     （`bindings.ts` 手搭的一套 `Mask` 子树，只在默认层），容器内发 `clip` 会被画到容器**之外**
- *     ⇒ 与容器层语义冲突。当前全仓仅 `view/meta-menu.ts` 的走马灯在**页面层**裁切（1 处），
- *     容器内零使用 ⇒ 这条门把「未来有人在容器内裁切」从静默画错变成当场红，而不是先给每个
- *     作用域投机建一套 Mask（零需求驱动）。真要放开时先做作用域级 clipHost 再拆本门。
+ *  4. `clip` / `unclip` **必须成对且不叠套**：容器内允许（`[ADR-0037]` 逐容器裁切——渲染器在
+ *     容器内建裁切子树，矢量 / 位图 / 文字同罩），但同一层一帧只许一次裁切（内核拒绝嵌套并回落
+ *     全局 clipHost ⇒ 会画到容器外）。容器外仍是菜单走马灯的全局 clipHost 腿，照旧允许。
+ *
+ * `[ADR-0037]` 变更记录：旧版第 4 条是「容器内零 `clip`」（`WXG-T-439` 显式降级，当时没有
+ * 作用域级裁切）；逐容器裁切落地后该禁令解除，改为配对 / 不叠套检查。
  *
  * ⛔ 本函数只判**结构**；「遮罩压住面板与文字」的段间叠序由 `UiScopeTree` 内核 + 真机读数
  * （ADR-0033 P3 / DEC-8②）负责——那条腿的真伪只能由设备证，不在本 Node 门内。
@@ -37,6 +38,8 @@ export function checkUiContainerOrder(commands: readonly DrawCommand[]): string[
   // 当前打开态（容器嵌套被禁止 ⇒ 各用一个标量记录即可，无需栈）
   let openContainer: string | null = null;
   let openSegment: string | null = null;
+  /** `[ADR-0037]` 打开中的 clip 所在索引（不叠套 ⇒ 一个标量即可）。 */
+  let openClip: number | null = null;
 
   for (let i = 0; i < commands.length; i += 1) {
     const cmd = commands[i]!;
@@ -57,6 +60,8 @@ export function checkUiContainerOrder(commands: readonly DrawCommand[]): string[
         } else if (openSegment !== null) {
           errors.push(`容器 "${openContainer}" 在段 "${openSegment}" 未闭合时结束 @${i}`);
           openSegment = null;
+        } else if (openClip !== null) {
+          errors.push(`容器 "${openContainer}" 在 clip(@${openClip}) 未闭合时结束 @${i}`);
         }
         openContainer = null;
         break;
@@ -77,10 +82,20 @@ export function checkUiContainerOrder(commands: readonly DrawCommand[]): string[
         }
         break;
       case 'clip':
-        if (openContainer !== null) {
+        // `[ADR-0037]` 容器内允许（逐容器裁切）；但同层不许叠套——内核会拒绝并回落全局
+        // clipHost，裁切就画到容器外了。
+        if (openClip !== null) {
           errors.push(
-            `clip 出现在容器 "${openContainer}" 内 @${i}（Cocos 端 clip 走全局 clipHost，容器内裁切会画到容器之外 ⇒ 禁；见 ADR-0033 / WXG-T-439）`,
+            `clip 叠套（上一层 clip @${openClip} 未闭合）@${i}（同一层一帧只许一次裁切；ADR-0037）`,
           );
+        }
+        openClip = i;
+        break;
+      case 'unclip':
+        if (openClip === null) {
+          errors.push(`unclip 无配对的 clip @${i}`);
+        } else {
+          openClip = null;
         }
         break;
       default:
@@ -93,6 +108,9 @@ export function checkUiContainerOrder(commands: readonly DrawCommand[]): string[
   }
   if (openSegment !== null) {
     errors.push(`段 "${openSegment}" 到帧尾仍未闭合`);
+  }
+  if (openClip !== null) {
+    errors.push(`clip @${openClip} 到帧尾仍未闭合`);
   }
   return errors;
 }

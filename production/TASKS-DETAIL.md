@@ -9800,6 +9800,19 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **提交**：`19fb24ad`（代码 + Cocos 镜像 + 文档 + 台账）；复评与金样本重抓同批回填。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
 
+## WXG-T-944
+
+**工程·容器内逐容器裁切（设置页半行 cell 可见）** · 负责：主理人(Trae CN)·beads 工程/框架轨 · 状态：✅ 完成（2026-11-14 · 用户令「现在拖动整个 cell 完整显示才能渲染，没有办法做到 clip cell 的部分区域显示」，并在 AskUserQuestion 中选择「做逐容器裁切」）
+
+- **用户原话**：「现在拖动整个 cell 完整显示才能渲染，没有办法做到 clip cell 的部分区域显示。」+ 选项「做逐容器裁切」。
+- **根因**：ADR-0033 / WXG-T-439 定过「容器内零 `clip`」——Cocos 端 `clip` 只走全局 `clipHost`，它把被裁内容挂在容器**外**的固定子树，容器内位图 / 文字仍留在容器通道 ⇒ 层序错乱。视图只能手工裁剪（半露行整行不画 + 松手吸附 150），用户不接受。
+- **修法**：① 框架内核 `UiScopeTree` 新增 `UiClipChannels`（`setRect` / `reset`）+ hooks `createClip` + `enterClip(x,y,w,h)` / `exitClip()`：容器内裁切在容器分组下建 `UI:<容器>·clip` 子树（α0 模板矩形 + 子 `Graphics` / `BlitLayerUI` / `Labels`），`unclip` 切到同组后置层 `UI:<容器>·post`；帧首 `reset()` 清模板，防上一帧模板罩住兄弟层。② `CocosRenderModelRenderer`：`clip` / `unclip` 优先作用域腿，容器外仍回落全局 `clipHost`（菜单走马灯零漂移）。③ `bindings.ts::_createClipScope` cc 薄壳：`stencilStage = ENTER` + α0 矩形（⛔ 不用 `cc.Mask`，同 `beads-blit-carrier` 判例）。④ `meta-settings-page`：列表包 `builder.clip(viewport)` / `unclip()`。⑤ `drawSettingsContent`：只跳过**完全在窗外**的行，半露行照画。⑥ `beads-shell`：删松手吸附（自由滚动）。⑦ `checkUiContainerOrder` 第 4 条改「`clip`/`unclip` 成对且不叠套」。方案正本 = `docs/architecture/adr/ADR-0037-ui-container-scoped-clip.md`。
+- **测试**：`cocos-ui-scope-tree.test.ts` 新增 4 例（裁切子树 + 后置层 / 无容器或宿主未实现回落 / 重复裁切 warn-once / 跨帧复用只 setRect）；`ui-container-order.test.ts` 正样本加容器内 clip，反证改叠套 / 悬空 / 帧尾未闭合；`settings-content.test.ts` 半露行改「照画 11 条文字」；`beads-shell.test.ts` 新增设置帧 `clip`/`unclip` 且 clip 落在 `settings` 容器内。
+- **金样本**：`settings` 帧 **+2 条命令**（`clip` / `unclip`）⇒ total/sha 变，由 `tests/ui-golden-capture.ts` 在提交锚重抓（⛔ 不手改夹具，K-051 / K-053）。
+- **文档**：ADR-0037 新增；ADR-0033 状态行登记「容器内 clip 硬拦已解除」；`ui-architecture-beads §12` 新增 UI-62 + 视觉变更登记；`ux-spec` v1.56 §2。
+- **未含**：真机 stencil 读数（`[R]`，模板腿沿用 `beads-blit-carrier` 已证形态）；Cocos GUI 导入 6 枚切件 + `ui_btn_settings_9s` 仍待用户处理。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
 ## WXG-T-943
 
 **UX·设置页去皮肤行 / 提示收敛 / 开关行整行不可点** · 负责：主理人(Trae CN)·beads UX/工程轨 · 状态：✅ 完成（2026-11-14 · 用户反馈「设置里面皮肤选项不需要；DEBUG / 幽灵符号 / 性能信息第二行不需要；减弱动效第二行应描述开关作用；第二行与开关冲突；文字和 icon 阴影不够立体；有开关的行整行点击无效果」）
@@ -9808,7 +9821,7 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **测试**：`settings-content.test.ts` 改 10 行 / 1488 / 744 / 17 条文字 / 开关热区命中 / 开关行不亮整行；`beads-shell`、`bead-style-settings`、`skin-system`、`meta-menu-wall`、`ui-input-timing` 同步开关热区与去皮肤行口径；beads 全量除金样本外全绿。
 - **金样本**：`settings` 帧 total/kinds/sha 全变（少一行 + 提示/投影/热区），在提交锚 `ee30964a` 重抓（两遍确定性 PASS）。
 - **文档**：ux-spec v1.55 §2、pause-settings §2.2、ui-architecture §12。
-- **未含（待裁）**：拖拽中的**半行裁切显示**（用户要求）——现有框架只有全局 clip host，容器内裁切会把 blit 挂到容器外层，Cocos 端层序错乱；真正的逐容器裁切需要框架 + Cocos 宿主改造（ADR-0033 扩展）并需真机验证。当前保持「半露行不画 + 松手吸附整行」的零风险方案。
+- **未含（~~待裁~~ 已由 WXG-T-944 收口）**：拖拽中的**半行裁切显示**（用户要求）——~~现有框架只有全局 clip host，容器内裁切会把 blit 挂到容器外层，Cocos 端层序错乱；真正的逐容器裁切需要框架 + Cocos 宿主改造（ADR-0033 扩展）并需真机验证。当前保持「半露行不画 + 松手吸附整行」的零风险方案。~~ **追补（2026-11-14 · WXG-T-944）**：逐容器裁切已落地（ADR-0037），半露行照画、松手吸附已删。
 - **验证**：类型检查 0 错；`pnpm run verify` 见提交记录；harness 实帧确认去皮肤行、提示位置、投影与开关热区。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
 

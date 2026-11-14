@@ -118,6 +118,13 @@ export interface CocosUiScopeHostLike {
    * 可选：不提供 ⇒ `blit` 照旧不带作用域信息（宿主沿用自己那层默认位图层）。
    */
   readonly blitParent?: unknown;
+  /**
+   * `[ADR-0037]` **逐容器裁切**：在容器内开一个带模板矩形的子作用域（矢量 / 位图 / 文字都裁）。
+   * 返回 true = 已接管；false / 未实现 ⇒ 渲染器回落全局 `clipHost`（菜单走马灯旧腿）。
+   */
+  enterClip?(x: number, y: number, w: number, h: number): boolean;
+  /** 退出逐容器裁切（与 `enterClip` 成对）。 */
+  exitClip?(): void;
 }
 
 export interface CocosColorFactory {
@@ -254,6 +261,8 @@ export class CocosRenderModelRenderer {
   private readonly _clipHost: CocosClipHostLike | undefined;
   private _labelsUsed = 0;
   private _clipped = false;
+  /** `[ADR-0037]` 本段 clip 是否由逐容器裁切接管（否则走全局 clipHost）。 */
+  private _scopedClip = false;
   // `[UI-60 P0]` 作用域计数与 DEC-5 标签计数（均为复用数组/标量，⛔ 逐帧新建）。
   private readonly _scopeHost: CocosUiScopeHostLike | undefined;
   private readonly _seenScopes: CocosUiScopeLike[] = [];
@@ -317,6 +326,7 @@ export class CocosRenderModelRenderer {
     const carrier = this._blitCarrier;
     if (carrier && carrier.beginFrame) carrier.beginFrame();
     this._clipped = false;
+    this._scopedClip = false;
     if (this._clipHost) this._clipHost.beginFrame();
 
     // Per-frame dispatch, both branches idempotent: a stale scale from the
@@ -367,6 +377,12 @@ export class CocosRenderModelRenderer {
         continue;
       }
       if (cmd.kind === 'clip') {
+        // `[ADR-0037]` 容器内优先走逐容器裁切（矢量 / 位图 / 文字同罩）；容器外或宿主未实现
+        // ⇒ 回落全局 clipHost（菜单走马灯旧腿，行为不变）。
+        if (this._scopeHost?.enterClip?.(cmd.x + ox, cmd.y + oy, cmd.w, cmd.h) === true) {
+          this._scopedClip = true;
+          continue;
+        }
         const host = this._clipHost;
         if (host) {
           host.push(cmd.x + ox, cmd.y + oy, cmd.w, cmd.h);
@@ -376,6 +392,11 @@ export class CocosRenderModelRenderer {
         continue;
       }
       if (cmd.kind === 'unclip') {
+        if (this._scopedClip) {
+          this._scopeHost?.exitClip?.();
+          this._scopedClip = false;
+          continue;
+        }
         if (this._clipHost) this._clipHost.pop();
         if (carrier && carrier.popClip) carrier.popClip();
         this._clipped = false;

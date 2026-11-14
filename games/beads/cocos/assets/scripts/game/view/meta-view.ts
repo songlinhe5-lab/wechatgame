@@ -62,7 +62,6 @@ import type { Box, MetaLayout, MetaOverlay, MetaViewData, MetaViewVariant } from
 
 export type { MetaAction, MetaBossState, MetaButton, MetaLayout, MetaOverlay, MetaViewData, MetaViewVariant } from './meta-types';
 export { hitTestMeta, inBox, levelDetailPlate, metaLayout, settingsScrollLimit, settingsViewport } from './meta-layout';
-export { settingsRowPitch } from './settings-content';
 export { heartBarLabel, resetMetaViewWarnings, setMenuBitmapResolver } from './meta-widgets';
 
 /**

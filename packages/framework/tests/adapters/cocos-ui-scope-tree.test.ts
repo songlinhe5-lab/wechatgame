@@ -13,7 +13,7 @@
  *  ④ 越界与不配对不崩、不误建层（未进容器就开段 ⇒ 忽略；空栈退出 ⇒ no-op）。
  */
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   UI_DEBUG_SCOPE_ID,
   UI_SCOPE_TOP_MOST_SIBLING,
@@ -57,6 +57,7 @@ function makeTree(extra: Partial<UiScopeTreeHooks> = {}) {
       return {
         handle,
         blitParent: handle,
+        group: handle,
         graphics: { clear: () => { rec.clears += 1; } } as unknown as CocosGraphicsLike,
         labels: { acquire: () => { throw new Error('unused'); }, releaseAll: () => { rec.releases += 1; } } as unknown as CocosLabelSource,
       };
@@ -216,5 +217,94 @@ describe('UI-60 P1 — 恒置顶容器（topMost）', () => {
     tree.enterContainer('settings');
     tree.enterContainer(UI_DEBUG_SCOPE_ID);
     expect(raised, '已建层后每次进入都重压').toEqual([UI_DEBUG_SCOPE_ID]);
+  });
+});
+
+/**
+ * `[ADR-0037]` 逐容器裁切子树：容器内 `builder.clip` 不再走全局 clipHost
+ * （那会把位图腿挂到容器外），而是建一棵带模板矩形的子作用域 + 一个「裁切后置层」。
+ */
+describe('[ADR-0037] 逐容器裁切（clip 子树 + 后置层）', () => {
+  /** 裁切子树记账（`parent` 读 group.name，与真实宿主的 Node.name 同形）。 */
+  function clipRig() {
+    const clips: { key: string; parent: string; rect: number[]; sets: number[] }[] = [];
+    const rig = makeTree({
+      createClip: (key, group, x, y, w, h) => {
+        const rec = {
+          key,
+          parent: (group as { name?: string }).name ?? String(group),
+          rect: [x, y, w, h],
+          sets: [] as number[],
+        };
+        clips.push(rec);
+        const handle = { name: key };
+        return {
+          handle,
+          blitParent: handle,
+          group: handle,
+          graphics: { clear: () => undefined } as unknown as CocosGraphicsLike,
+          labels: {
+            acquire: () => { throw new Error('unused'); },
+            releaseAll: () => undefined,
+          } as unknown as CocosLabelSource,
+          setRect: (nx: number, ny: number, nw: number, nh: number) => { rec.sets.push(nx, ny, nw, nh); },
+        };
+      },
+    });
+    return { ...rig, clips };
+  }
+
+  it('容器内 enterClip ⇒ 建 `容器·clip` 子树并切过去；exitClip ⇒ 切到同组的后置层', () => {
+    const { tree, created, clips, defaultScope } = clipRig();
+    tree.beginFrame();
+    tree.enterContainer('settings');
+    expect(tree.enterClip(10, 20, 300, 400), '容器内 = 逐容器裁切接管').toBe(true);
+    expect(clips).toEqual([{ key: 'settings·clip', parent: 'settings', rect: [10, 20, 300, 400], sets: [] }]);
+    const clipScope = tree.current;
+    expect(clipScope).not.toBe(defaultScope);
+    expect(tree.blitParent, '位图腿跟着进裁切子树').toBe((clipScope as { blitParent?: unknown }).blitParent);
+
+    tree.exitClip();
+    const post = tree.current;
+    expect(post, 'unclip 后不再是裁切子树').not.toBe(clipScope);
+    expect(created.some((c) => c.key === 'settings·post' && c.parent === 'settings')).toBe(true);
+  });
+
+  it('未进容器 / 宿主未实现 createClip ⇒ false（渲染器回落全局 clipHost）', () => {
+    const { tree } = clipRig();
+    tree.beginFrame();
+    expect(tree.enterClip(0, 0, 10, 10)).toBe(false);
+
+    const plain = makeTree();
+    plain.tree.beginFrame();
+    plain.tree.enterContainer('settings');
+    expect(plain.tree.enterClip(0, 0, 10, 10)).toBe(false);
+    expect(plain.tree.current, '不支持裁切的宿主行为不变 = 容器默认层').not.toBe(plain.tree.defaultScope);
+  });
+
+  it('同一容器一帧内重复裁切 ⇒ 第二次 false（warn 一次），不误建第二棵子树', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const { tree, clips } = clipRig();
+    tree.beginFrame();
+    tree.enterContainer('settings');
+    expect(tree.enterClip(0, 0, 10, 10)).toBe(true);
+    expect(tree.enterClip(0, 0, 20, 20)).toBe(false);
+    expect(clips).toHaveLength(1);
+    expect(warn).toHaveBeenCalledTimes(1);
+    warn.mockRestore();
+  });
+
+  it('跨帧复用同一棵子树：只 setRect，不重建；后置层也只建一次', () => {
+    const { tree, created, clips } = clipRig();
+    tree.beginFrame();
+    tree.enterContainer('settings');
+    tree.enterClip(0, 0, 10, 10);
+    tree.exitClip();
+    tree.beginFrame();
+    tree.enterContainer('settings');
+    expect(tree.enterClip(5, 6, 70, 80)).toBe(true);
+    expect(clips).toHaveLength(1);
+    expect(clips[0]!.sets).toEqual([5, 6, 70, 80]);
+    expect(created.filter((c) => c.key === 'settings·post')).toHaveLength(1);
   });
 });

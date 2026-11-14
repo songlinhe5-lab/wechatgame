@@ -30,6 +30,22 @@ export interface UiScopeChannels extends CocosUiScopeLike {
   readonly handle: unknown;
   /** 静态位图腿（`BlitLayerUI` 一类）本帧应挂到哪个节点；缺省 ⇒ 宿主沿用默认位图层。 */
   readonly blitParent?: unknown;
+  /**
+   * `[ADR-0037]` 容器分组节点（三通道的父）。裁切子树挂在它下面，与三通道同级；
+   * 缺省 ⇒ 该宿主不支持逐容器裁切。
+   */
+  readonly group?: unknown;
+}
+
+/** `[ADR-0037]` 逐容器裁切子树：一个带模板矩形的子作用域，另可逐帧更新裁切矩形。 */
+export interface UiClipChannels extends UiScopeChannels {
+  setRect(x: number, y: number, w: number, h: number): void;
+  /**
+   * 帧首复位模板（清蒙版图形 + stencil stage 归零）。缺省 ⇒ 不做事。
+   * ⚠ 必须做：本帧未使用裁切时，上一帧留在模板上的 ENTER 级可能罩住后续兄弟层
+   * （同 `beads-blit-carrier` 的 `beginFrame` 复位）。
+   */
+  reset?(): void;
 }
 
 /** 宿主注入的四件事：根节点、旧单层那两个提交体、默认位图父、建层工厂。 */
@@ -46,6 +62,11 @@ export interface UiScopeTreeHooks {
    * clamp 到末位**（`Math.min(v, parent.children.length - 1)`），⛔ 不得把超大数直接交给引擎。
    */
   create(key: string, parent: unknown, siblingIndex: number): UiScopeChannels;
+  /**
+   * `[ADR-0037]` 建裁切子树（模板矩形 + 子 Graphics / Labels / BlitLayerUI），挂在 `group`
+   * 下并追加为末位。缺省 ⇒ 该宿主不支持逐容器裁切，`enterClip` 返回 false（回落全局 clip）。
+   */
+  createClip?(key: string, group: unknown, x: number, y: number, w: number, h: number): UiClipChannels;
   /**
    * `[ADR-0033 §S1]` **恒置顶容器 id**（调试层一类：必须永远在一切容器之上）。省略 ⇒ 纯出现序。
    *
@@ -72,6 +93,12 @@ class ContainerFrame {
   segment: UiSegment | null = null;
   own: UiScopeChannels | null = null;
   readonly segments = new Map<UiSegment, UiScopeChannels>();
+  /** `[ADR-0037]` 裁切子树（跨帧复用）；`clipActive` = 本帧正处于裁切段。 */
+  clip: UiClipChannels | null = null;
+  clipActive = false;
+  /** 裁切结束后的「后置层」（挂在裁切子树之后）⇒ 收尾 chrome 仍压在被裁内容之上。 */
+  post: UiScopeChannels | null = null;
+  postActive = false;
 
   constructor(readonly key: string, readonly sibling: number) {}
 }
@@ -81,6 +108,7 @@ export class UiScopeTree implements CocosUiScopeHostLike {
   private readonly _stack: ContainerFrame[] = [];
   private readonly _all: UiScopeChannels[] = [];
   private _warnedSegmentWithoutContainer = false;
+  private _warnedNestedClip = false;
 
   constructor(private readonly _hooks: UiScopeTreeHooks) {}
 
@@ -97,9 +125,16 @@ export class UiScopeTree implements CocosUiScopeHostLike {
     for (let i = 0; i < scopes.length; i += 1) {
       scopes[i]!.graphics.clear();
       scopes[i]!.labels.releaseAll();
+      // `[ADR-0037]` 裁切子树另清模板（普通作用域没有 reset ⇒ no-op）。
+      (scopes[i] as UiClipChannels).reset?.();
     }
     this._hooks.defaultScope.graphics.clear();
     this._hooks.defaultScope.labels.releaseAll();
+    // `[ADR-0037]` 裁切是段级状态：帧首归零，层本身跨帧复用（内容已清）。
+    for (const frame of this._frames.values()) {
+      frame.clipActive = false;
+      frame.postActive = false;
+    }
   }
 
   enterContainer(id: string): void {
@@ -138,6 +173,48 @@ export class UiScopeTree implements CocosUiScopeHostLike {
     this._stack.pop();
   }
 
+  /**
+   * `[ADR-0037]` 进入**逐容器裁切**：在当前容器分组下建（或复用）裁切子树，返回 true。
+   * 未进容器 / 宿主未实现 `createClip` / 本帧已在裁切后段 ⇒ false（渲染器回落全局 clipHost）。
+   */
+  enterClip(x: number, y: number, w: number, h: number): boolean {
+    const frame = this._stack[this._stack.length - 1];
+    if (!frame) return false;
+    if (frame.clipActive || frame.postActive) {
+      if (!this._warnedNestedClip) {
+        this._warnedNestedClip = true;
+        console.warn('[UiScopeTree] 同一容器一帧内只支持一次裁切（ADR-0037）；后一次已回落全局 clipHost。');
+      }
+      return false;
+    }
+    const own = this._ownScope(frame);
+    const group = own.group;
+    if (group === undefined || !this._hooks.createClip) return false;
+    if (frame.clip === null) {
+      frame.clip = this._hooks.createClip(`${frame.key}·clip`, group, x, y, w, h);
+      this._all.push(frame.clip);
+    } else {
+      frame.clip.setRect(x, y, w, h);
+    }
+    frame.clipActive = true;
+    return true;
+  }
+
+  /** `[ADR-0037]` 退出裁切：切到「裁切后置层」，保证收尾 chrome 仍在被裁内容之上。 */
+  exitClip(): void {
+    const frame = this._stack[this._stack.length - 1];
+    if (!frame || !frame.clipActive) return;
+    frame.clipActive = false;
+    if (frame.post === null) {
+      const own = this._ownScope(frame);
+      if (own.group === undefined) return;
+      // 末位追加：裁切子树之后 ⇒ 后置层压住裁切内容（序由内核给，宿主只 clamp）。
+      frame.post = this._hooks.create(`${frame.key}·post`, own.group, UI_SCOPE_TOP_MOST_SIBLING);
+      this._all.push(frame.post);
+    }
+    frame.postActive = true;
+  }
+
   /** 当前作用域；栈空 = 默认层。**读它即视为「要落笔」⇒ 层在此刻才建**（规则 1）。 */
   get current(): CocosUiScopeLike {
     return this._resolve();
@@ -154,6 +231,9 @@ export class UiScopeTree implements CocosUiScopeHostLike {
   private _resolve(): CocosUiScopeLike {
     const frame = this._stack[this._stack.length - 1];
     if (!frame) return this._hooks.defaultScope;
+    // `[ADR-0037]` 裁切段 / 裁切后置层优先于容器默认段与段层。
+    if (frame.clipActive && frame.clip) return frame.clip;
+    if (frame.postActive && frame.post) return frame.post;
     const own = this._ownScope(frame);
     const segment = frame.segment;
     if (segment === null) return own;

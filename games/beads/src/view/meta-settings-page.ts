@@ -8,8 +8,9 @@
  * 底板 = `meta-layout::levelDetailPlate`（581×1044，底缘距屏底 124，逐机只叠 `dialogShiftY`）；
  * 遮罩 / 木牌位图 = `meta-widgets::drawModalPlate`（与详情 / 选关同一绘制腿）。
  *
- * ⛔ 不使用 `builder.clip`：弹窗在容器内，Cocos 端裁切会画到容器外
- * （ADR-0033 / `ui-container-order`）；滚动由 `drawSettingsContent` 的手工裁剪承担。
+ * `[ADR-0037]` 滚动列表用 `builder.clip` 逐容器裁切（容器内的裁切子树 + 后置层）：
+ * 拖动时半行 cell 照样画、只按窗矩形裁像素 ⇒ 不再需要「整行完整才画」。
+ * ⛔ 容器外仍禁止 `builder.clip`（全局 clipHost 会把位图挂到容器外，ADR-0033）。
  */
 import { DESIGN_H, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TITLE_SHADOW } from '../config/tuning.js';
 import { type RenderModelBuilder } from '@wxgame/framework';
@@ -61,10 +62,12 @@ export function drawSettingsPage(
         },
     });
 
-    // 中间可视窗：内容块（滚动 + 手工裁剪）→ 滚动条（内容超窗才画）。
+    // 中间可视窗：内容块（滚动 + 逐容器裁切）→ 滚动条（内容超窗才画，裁切外）。
     const scroll = data.settingsScroll ?? 0;
     const viewport = settingsViewport();
+    builder.clip(viewport.x, viewport.y, viewport.w, viewport.h);
     drawSettingsContent(builder, data, palette, layout.buttons, scroll, viewport);
+    builder.unclip();
     drawSettingsScrollbar(builder, palette, viewport, scroll);
 
     // 固定 chrome：仅在线导入（调试入口，宿主配了服务地址才画；不随内容滚动）。

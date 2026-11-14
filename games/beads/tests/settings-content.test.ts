@@ -27,7 +27,6 @@ import {
     settingsContentLabel,
     settingsContentViewport,
     settingsCellParts,
-    settingsRowPitch,
     settingsScrollMax,
     settingsToggleHitBox,
     type SettingsAction,
@@ -204,17 +203,17 @@ describe('UI-30 · SettingsContent', () => {
         ).toBe(true);
     });
 
-    it('[WXG-T-942] 半露行整行不画：滚动中不出现平涂木色空块；行 pitch = 150', () => {
+    it('[ADR-0037] 半露行照画：只跳过完全在窗外的行，裁切交给调用方的 clip', () => {
         const plate = levelDetailPlate();
         const buttons = settingsContentButtons(plate);
         const vp = settingsContentViewport(plate);
-        // scroll=75：首行半露在窗顶、第 6 行半露在窗底 ⇒ 只画中间 4 整行（8 条文字）。
+        // scroll=75：首行半露在窗顶、第 6 行半露在窗底 ⇒ 前 6 行都落笔（含半露行），
+        // 文字 = 5×2（带提示）+ 1（性能信息无第二行）= 11；更下面的行完全在窗外 ⇒ 不画。
         const mid = recorder();
         drawSettingsContent(mid.b, DATA, PALETTE, buttons, 75, vp);
-        expect(textsOf(mid.calls)).toHaveLength(8);
-        expect(textsOf(mid.calls)).not.toContain('音乐');
-        // 松手吸附口径：pitch = 行高 138 + 行距 12。
-        expect(settingsRowPitch()).toBe(150);
+        expect(textsOf(mid.calls)).toHaveLength(11);
+        expect(textsOf(mid.calls)).toContain('音乐');
+        expect(textsOf(mid.calls)).not.toContain('珠子风格');
     });
 
     it('动作全集 ≡ 弹窗排布（皮肤行退场；装扮馆入口只住顶栏 ⇒ ⛔ 不再是设置动作）', () => {

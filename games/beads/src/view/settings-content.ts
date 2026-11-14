@@ -172,11 +172,6 @@ export function settingsContentHeight(): number {
     return rows * SETTINGS_GRID.rowH + (rows - 1) * SETTINGS_GRID.rowGap;
 }
 
-/** `[WXG-T-942]` 单行 pitch（行高 + 行距）：滚动松手吸附到它的整数倍，避免半行露边。 */
-export function settingsRowPitch(): number {
-    return SETTINGS_GRID.rowH + SETTINGS_GRID.rowGap;
-}
-
 /** 最大滚动量；内容不超窗 ⇒ 0（此时手势被钳住、滚动条不画）。 */
 export function settingsScrollMax(plate: SettingsBox): number {
     return Math.max(0, settingsContentHeight() - settingsContentViewport(plate).h);
@@ -447,9 +442,8 @@ function drawSettingsToggle(
 /**
  * 画内容块（设置项 cell 列表）；非设置动作（关闭 / 在线导入）由调用方自己画。
  *
- * `[WXG-T-935]` `scroll` = 已上滚的设计 px（内容整体上移）；传 `viewport` 时逐行做**手工裁剪**
- * （裁掉的部分不画、部分露出的行只画可见矩形且不画字）——⛔ 不用 `builder.clip`：
- * 弹窗在容器内，Cocos 端会画到容器外（ADR-0033 / `ui-container-order` 硬门）。
+ * `[WXG-T-935]` `scroll` = 已上滚的设计 px（内容整体上移）；传 `viewport` 时只跳过**完全在窗外**的行
+ * ——半露行照常整行画，裁切由调用方发 `builder.clip(viewport)` 承担（`[ADR-0037]` 逐容器裁切）。
  */
 export function drawSettingsContent(
     builder: RenderModelBuilder,
@@ -469,14 +463,8 @@ export function drawSettingsContent(
         const sink = pressed && !isToggleAction(b.id) ? pressOffset(pressed, data.reduceMotion) : 0;
         // 滚动量 > 0 ⇒ 内容上移（手指上拖 → 露出下方行）；命中换算见 `hitTestMeta` 的 `y - scroll`。
         const y = b.box.y + sink + scroll;
-        if (viewport) {
-            const bottom = y;
-            const top = y + b.box.h;
-            if (bottom >= vTop || top <= vBottom) continue;
-            // `[WXG-T-942]` 半露行整行不画（木牌底纹透出），松手吸附到整行 pitch ⇒ 不再出现
-            // 一整块平涂木色的「空一块」。⛔ 不用 `builder.clip`（容器内 Cocos 会画出容器外）。
-            if (bottom < vBottom || top > vTop) continue;
-        }
+        // 完全在窗外 ⇒ 不落笔（省绘制）；半露行照画，窗外部分由 `clip` 裁掉。
+        if (viewport && (y >= vTop || y + b.box.h <= vBottom)) continue;
         drawSettingsCell(builder, palette, data, b.id, b.box.x, y, b.box.w, b.box.h, pressed);
     }
 }

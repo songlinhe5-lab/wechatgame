@@ -247,6 +247,28 @@ describe('BeadsShell — overlay stack + meta:overlay events', () => {
         expect(r.shell.play.debugInfo).toBe(false);
     });
 
+    it('`[ADR-0037]` 设置列表发 clip/unclip：半行 cell 靠裁像素显示，不再整行跳过', () => {
+        const r = rig({ initialScreen: 'menu' });
+        const open = centerOf('none', 'open-settings');
+        r.shell.tapMeta(open.x, open.y);
+        expect(r.shell.overlay).toBe('settings');
+
+        const b = new RenderModelBuilder(DESIGN_W, DESIGN_H);
+        b.begin();
+        r.shell.buildRenderModel(b);
+        const cmds = b.end().commands;
+        const vp = settingsContentViewport(levelDetailPlate());
+        // 裁切矩形 = 可视窗；必须落在 `settings` 容器内（容器外走全局 clipHost，会画到容器外）。
+        const clipAt = cmds.findIndex(
+            (c) => c.kind === 'clip' && c.x === vp.x && c.y === vp.y && c.w === vp.w && c.h === vp.h,
+        );
+        expect(clipAt).toBeGreaterThan(-1);
+        const containerAt = cmds.findIndex((c) => c.kind === 'container' && (c as { id?: string }).id === 'settings');
+        expect(containerAt).toBeGreaterThan(-1);
+        expect(clipAt).toBeGreaterThan(containerAt);
+        expect(cmds.slice(clipAt + 1).some((c) => c.kind === 'unclip')).toBe(true);
+    });
+
     /**
      * `[WXG-T-444]` 用户令「把按钮的响应区域在 debug 模式下也绘制出来边界」。
      * 判据取**指令形态**（`stroke === DEBUG_OUTLINE_TILE_HEX` 且无 `fill` 的矩形），
