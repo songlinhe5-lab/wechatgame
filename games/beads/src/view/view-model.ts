@@ -549,7 +549,8 @@ function drawClearPanel(
         builder.text(DESIGN_W / 2, layout.hintY, `再快${formatDurationCn(gap)}可得${nextTier}★`, {
           fill: palette.text,
           alpha: 0.9,
-          font: UI_FONT.body,
+          // `[WXG-T-946]` 说明行接 E2 大字号（28 → 35）；数字 / 标题 / 按钮不随开关缩放。
+          font: bodyFont(snap.largeText, 'sub'),
           align: 'center',
           baseline: 'middle',
         });
@@ -645,7 +646,8 @@ const CONFETTI_POINTS = new Float32Array(CONFETTI_COUNT * 8);
 /**
  * G6 `vfx_confetti`：结算面板入场期 44 枚程序化彩带（零 RNG，idx 派生）。
  * 两层 sandwich（层序死规格）：MAIN 在 `drawClearPanel` 前（scrim 压住），FG 在后；
- * FG 枚当 y ∈ [447,787]（按钮行/缎带，`clearPanelLayout` 派生）**跳过绘制** ⇒ 保按钮可辨识；
+ * FG 枚当 y ∈ [447,934]（按钮行下缘 → 标题木牌上缘，`[WXG-T-946]` 按现役 520×470 面板修正），
+ * 入禁飞带**跳过绘制** ⇒ 保按钮 / 星级 / 标题可辨识；
  * `[WXG-T-323]` 结算面板逐机上移后，带缘跟面板同源位移（基准档位移 0 ⇒ 逐字不变）。
  * MAIN 不受限。D1（`reduceMotion`）= **整条关停**（纯装饰、零信息量，§1.6.6）。
  * 点列 = 预分配 `CONFETTI_POINTS` 的固定段（裁定 B，见上）；只在 800ms 窗口内分派。

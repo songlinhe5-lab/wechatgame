@@ -198,6 +198,27 @@ describe('S7 结算面板 · 时长文案（[WXG-T-509]）', () => {
     expect(texts).toContain('用时3分45秒');
     expect(texts).toContain('再快15秒可得3★');
   });
+
+  it('`[WXG-T-946]` 大字号（E2）放大说明行：提示 28→35，数字 / 标题不缩放', () => {
+    const h = createBeadsHarness({
+      noAssemble: true,
+      levels: [simpleTestLevel({ id: 97 })],
+      saveKey: 'wxgame.beads.test.cp-largetext',
+    });
+    fillBoard(h);
+    advancePastClearWave(h);
+    const cmds = render(h, {
+      clearStars: 2, clearStarsShown: 2, clearElapsed: 220, largeText: true,
+    });
+    const hint = cmds.find((c) => c.kind === 'text' && c.text.startsWith('再快')) as
+      | Extract<DrawCommand, { kind: 'text' }>
+      | undefined;
+    expect(hint?.font).toContain('35px');
+    const time = cmds.find((c) => c.kind === 'text' && c.text.startsWith('用时')) as
+      | Extract<DrawCommand, { kind: 'text' }>
+      | undefined;
+    expect(time?.font).not.toContain('35px');
+  });
 });
 
 describe('S7 结算面板 · 内容精简（[WXG-T-509]）', () => {

@@ -31,6 +31,7 @@ import {
     CONFETTI_SWAY_CYCLES,
     CONFETTI_SWAY_PX,
     CONFETTI_W,
+    CLEAR_PLAQUE_H,
     DESIGN_H,
     DESIGN_W,
     PANEL_SCRIM_ALPHA,
@@ -280,12 +281,14 @@ describe('G6 彩带 · 纯函数（assets-spec §1.6.6，零 RNG）', () => {
         expect(edges[3]).toBeCloseTo(CONFETTI_H, 6);
     });
 
-    it('常量对账：总时长 = 800ms（ux-spec §5 复用「过关庆祝」）、44 = 36 + 8、禁飞带几何冻结', () => {
+    it('常量对账：总时长 = 800ms（ux-spec §5 复用「过关庆祝」）、44 = 36 + 8、禁飞带随现役面板派生', () => {
         expect(CONFETTI_MS).toBe(800);
         expect(CONFETTI_MAIN_COUNT + CONFETTI_FG_COUNT).toBe(CONFETTI_COUNT);
         expect(CONFETTI_FALL_FACTOR).toBeCloseTo(1.15, 9);
-        expect(CONFETTI_NOFLY_YMIN).toBe(447);
-        expect(CONFETTI_NOFLY_YMAX).toBe(787);
+        // `[WXG-T-946]` 禁飞带 = 现役 clear 面板几何（520×470）：下沿护按钮、上沿护标题木牌。
+        const l = clearPanelLayout({ lastLevel: false });
+        expect(CONFETTI_NOFLY_YMIN).toBeLessThanOrEqual(l.buttons[0]!.rect.yMin);
+        expect(CONFETTI_NOFLY_YMAX).toBe(l.titleY + CLEAR_PLAQUE_H / 2);
     });
 });
 
@@ -391,7 +394,7 @@ describe('G6 彩带 · 命令层（§1.6.6 sandwich 层序死规格 + 禁飞带 
         expect(idxs.filter((i) => i > scrim)).toHaveLength(CONFETTI_FG_COUNT);
     });
 
-    it('禁飞带（p=0.65）：FG 中心 y ∈ [447,787] 的枚**跳过绘制**（不是淡出）；MAIN 不受限', () => {
+    it('禁飞带（p=0.65）：FG 中心 y ∈ [447,934] 的枚**跳过绘制**（不是淡出）；MAIN 不受限', () => {
         const p = 0.65;
         const st = freshState();
         let expectFg = 0;

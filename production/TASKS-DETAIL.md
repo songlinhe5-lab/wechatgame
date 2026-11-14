@@ -9800,6 +9800,19 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **提交**：`19fb24ad`（代码 + Cocos 镜像 + 文档 + 台账）；复评与金样本重抓同批回填。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
 
+## WXG-T-946
+
+**修复·结算过关面板彩带禁飞带 + 说明行大字号** · 负责：主理人(Trae CN)·beads 工程/美术轨 · 状态：✅ 完成（2026-11-15 · 用户令「先修复彩带禁飞带和大字号问题」）
+
+- **触发**：过关页面代码评审 P2 两项——前景彩带可盖标题/星级；结算面板完全不消费 E2 大字号。
+- **禁飞带根因**：`CONFETTI_NOFLY_YMAX = 787` 是 v1.40「静纸卡 + 缎带」时代的几何；T-510 改 520×470 木挂牌后未同步 ⇒ 标题木牌 870..934、星级 762..843 不在带内，FG 8 枚彩带可盖住。
+- **修法**：`CONFETTI_NOFLY_YMAX` 787 → **934**（= `clearPanelLayout().titleY 902 + CLEAR_PLAQUE_H 64/2`）；下沿 447 不动（仍在按钮行 476 下方，且 `finish-panel` 的货架下限同用此值，避免连带改通关画面）。`motion.ts` / `view-model::drawConfetti` 注释与 `assets-spec §1.6.6` 常量账同步。
+- **大字号修法**：说明行「再快N秒可得M★」的 `font: UI_FONT.body` 改 `bodyFont(snap.largeText, 'sub')`（28 → 35，accessibility E2「正文 / 说明类」）；用时 / 豆 / 标题属数字与标题，按 E2 保持不缩放。
+- **测试**：`confetti.test.ts` 删「447/787 冻结」硬钉，改与 `clearPanelLayout` 联动（下沿 ≤ 按钮行 yMin、上沿 = titleY + plaqueH/2）⇒ 面板几何再变会当场红；禁飞带行为例标题同步 `[447,934]`。`clear-panel.test.ts` 新增 E2 例（说明行 35px、用时行不是 35px）。
+- **金样本**：`clear` / `finish` 均零漂移（该帧 FG 彩带未落入新增区间）。
+- **验证**：beads 全量 126 文件 / **1489 通过 / 2 skipped**；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
 ## WXG-T-945
 
 **修复·结算·过关面板用时按本局实际时钟计算** · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成（2026-11-14 · 用户令「先修复用时计算错误」）

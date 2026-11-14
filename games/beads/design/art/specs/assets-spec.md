@@ -910,8 +910,8 @@ A5 重叠核算（**`[v1.5-r6]` 按 B′ 基准 46 重算；旧「珠 = 50」算
   CONFETTI_SPIN_TURNS    = 1.25   // 旋转圈数 ⇒ **1.25Hz**（D2 核算基准）
   CONFETTI_FADE_START    = 0.7    // 末段淡出起点（p 比）
   CONFETTI_SPAWN_STEP_Y  = 60
-  CONFETTI_NOFLY_YMIN    = 447    // 前景禁飞带下沿（clearPanelLayout 按钮行 yMin）
-  CONFETTI_NOFLY_YMAX    = 787    // 前景禁飞带上沿（titleY 745 + ribbonH 84/2）
+  CONFETTI_NOFLY_YMIN    = 447    // 前景禁飞带下沿（clearPanelLayout 按钮行 yMin 476 下方留 29）
+  CONFETTI_NOFLY_YMAX    = 934    // 前景禁飞带上沿（标题木牌上缘 = titleY 902 + CLEAR_PLAQUE_H 64/2；T-946 修正旧值 787）
   CONFETTI_GOLDEN_RATIO  = 0.618
   CONFETTI_GOLDEN_ANGLE  = 137.5
 
