@@ -21,6 +21,7 @@ import { MENU_TEXTURES } from '../src/config/tuning.js';
 import {
     drawSettingsContent,
     isSettingsAction,
+    isToggleAction,
     settingsContentButtons,
     settingsContentHeight,
     settingsContentLabel,
@@ -28,6 +29,7 @@ import {
     settingsCellParts,
     settingsRowPitch,
     settingsScrollMax,
+    settingsToggleHitBox,
     type SettingsAction,
     type SettingsContentData,
 } from '../src/view/settings-content.js';
@@ -77,24 +79,25 @@ function textsOf(calls: Call[]): string[] {
 
 /**
  * 滚到能看见该行的滚动量，返回「同一行在屏上的点」（绘制 = box + scroll，命中 = 点 − scroll）。
- * 第 0–4 行 scroll = 0 即可见；第 5–10 行需要上滚。
+ * 有开关的行只有开关热区可点（`[WXG-T-943]`），无开关的循环行用整行中心。
  */
 function visiblePoint(id: SettingsAction): { x: number; y: number; scroll: number } {
     const plate = levelDetailPlate();
     const box = settingsContentButtons(plate).find((b) => b.id === id)!.box;
+    const hit = isToggleAction(id) ? settingsToggleHitBox(box) : box;
     const vp = settingsContentViewport(plate);
-    const cy = box.y + box.h / 2;
+    const cy = hit.y + hit.h / 2;
     const want = vp.y + vp.h / 2 - cy;
     const scroll = Math.max(0, Math.min(settingsScrollMax(plate), want));
-    return { x: box.x + box.w / 2, y: cy + scroll, scroll };
+    return { x: hit.x + hit.w / 2, y: cy + scroll, scroll };
 }
 
 describe('UI-30 · SettingsContent', () => {
     afterEach(() => setMenuBitmapResolver(undefined));
 
-    it('单列 cell 版式：11 行 × 509×138，行距 12，首行贴可视窗上缘（Figma 设置列表）', () => {
+    it('单列 cell 版式：10 行 × 509×138，行距 12，首行贴可视窗上缘（皮肤行已退场）', () => {
         const buttons = settingsContentButtons(levelDetailPlate());
-        expect(buttons).toHaveLength(11);
+        expect(buttons).toHaveLength(10);
         expect(buttons.map((b) => b.id)).toEqual([
             'toggle-bgm',
             'toggle-sfx',
@@ -105,36 +108,38 @@ describe('UI-30 · SettingsContent', () => {
             'cycle-bead-style',
             'cycle-bead-size',
             'toggle-ghost-symbol',
-            'cycle-skin',
             'toggle-debug-guides',
         ]);
         // 木牌 581×1044 @ (89,124)：x = 89+36 = 125，w = 581−72 = 509；首行上缘 = 板顶 − 206 = 962。
         expect(buttons[0]!.box).toEqual({ x: 125, y: 824, w: 509, h: 138 });
         // 行距 = 138 + 12 = 150。
         expect(buttons[1]!.box.y).toBe(674);
-        expect(buttons[10]!.box.y).toBe(824 - 10 * 150);
+        expect(buttons[9]!.box.y).toBe(824 - 9 * 150);
         for (const b of buttons) expect(b.box.x).toBe(125);
-        // 总高 = 11×138 + 10×12 = 1638。
-        expect(settingsContentHeight()).toBe(1638);
+        // 总高 = 10×138 + 9×12 = 1488。
+        expect(settingsContentHeight()).toBe(1488);
     });
 
-    it('[WXG-T-935] 可视窗 / 滚动量：内容 1638 > 窗高 744 ⇒ 可滚 894；命中随滚量换算', () => {
+    it('[WXG-T-935] 可视窗 / 滚动量：内容 1488 > 窗高 744 ⇒ 可滚 744；开关行只有开关热区命中', () => {
         const plate = levelDetailPlate();
         expect(settingsContentViewport(plate)).toEqual({ x: 125, y: 218, w: 509, h: 744 });
-        expect(settingsScrollMax(plate)).toBe(894);
+        expect(settingsScrollMax(plate)).toBe(744);
 
-        // 未滚：窗内第 5 行（box y 224..362，`toggle-large-text`）。
-        expect(hitTestMeta('settings', 150, 300)?.id).toBe('toggle-large-text');
-        // 上滚 150 ⇒ 内容整体上移 150：同一屏幕点落到第 6 行（box y 74..212，`toggle-debug-info`）。
-        expect(hitTestMeta('settings', 150, 293, undefined, 150)?.id).toBe('toggle-debug-info');
-        expect(hitTestMeta('settings', 150, 293)?.id).toBe('toggle-large-text');
-        // 窗外（下缘 218 以下）= 不命中内容。
+        // 未滚：窗内第 5 行（大字号）；开关热区中心 x = 125+371+57.5 = 553.5。
+        const p = visiblePoint('toggle-large-text');
+        expect(hitTestMeta('settings', p.x, p.y, undefined, p.scroll)?.id).toBe('toggle-large-text');
+        // 行中心（名称区）不响应：有开关的整行不可点。
+        expect(hitTestMeta('settings', 150, p.y)).toBeNull();
+        // 滚到下一行（Debug 开关）：同一屏幕点落到下一行。
+        const p2 = visiblePoint('toggle-debug-guides');
+        expect(hitTestMeta('settings', p2.x, p2.y, undefined, p2.scroll)?.id).toBe('toggle-debug-guides');
+        // 窗外（下缘 218 以下）= 不命中内容（避开右下「导入」固定钮）。
         expect(hitTestMeta('settings', 150, 200)).toBeNull();
     });
 
-    it('全部动作可达：滚到能看见的位置后，每个按钮中心命中自己', () => {
+    it('全部动作可达：滚到能看见的位置后，每个按钮按自己的热区命中自己', () => {
         const buttons = metaLayout('settings').buttons.filter((b) => isSettingsAction(b.id));
-        expect(buttons).toHaveLength(11);
+        expect(buttons).toHaveLength(10);
         const plate = levelDetailPlate();
         for (const b of buttons) {
             const p = visiblePoint(b.id as SettingsAction);
@@ -166,23 +171,37 @@ describe('UI-30 · SettingsContent', () => {
         expect(settingsCellParts('toggle-bgm', DATA)).toMatchObject({ name: '音乐', toggle: true });
         expect(settingsCellParts('toggle-large-text', DATA)).toMatchObject({ name: '大字号', hint: '当前：关' });
         expect(settingsCellParts('cycle-bead-size', DATA)).toMatchObject({ name: '豆子尺寸', toggle: null });
+        // `[WXG-T-943]` 用户令：Debug / 幽灵符号 / 性能信息无第二行；减弱动效第二行改作用说明。
+        expect(settingsCellParts('toggle-debug-info', DATA).hint).toBe('');
+        expect(settingsCellParts('toggle-ghost-symbol', DATA).hint).toBe('');
+        expect(settingsCellParts('toggle-debug-guides', DATA).hint).toBe('');
+        expect(settingsCellParts('toggle-reduce-motion', DATA).hint).toBe('启用后，减少界面动效');
     });
 
-    it('绘制：11 个 cell 各一个名称 + 一个提示；按下态整体下沉', () => {
+    it('绘制：10 个 cell 各一个名称 + 非空提示；有开关的行按下不亮整行', () => {
         const buttons = settingsContentButtons(levelDetailPlate());
         const idle = recorder();
         drawSettingsContent(idle.b, DATA, PALETTE, buttons);
         const idleTexts = textsOf(idle.calls);
-        for (const name of ['音乐', '音效', '减弱动效', '震动', '大字号', '性能信息', '珠子风格', '豆子尺寸', '幽灵符号', '皮肤', 'Debug']) {
+        for (const name of ['音乐', '音效', '减弱动效', '震动', '大字号', '性能信息', '珠子风格', '豆子尺寸', '幽灵符号', 'Debug']) {
             expect(idleTexts, name).toContain(name);
         }
-        expect(idleTexts).toHaveLength(22);
+        // 10 名称 + 7 非空提示（Debug / 幽灵符号 / 性能信息无第二行）。
+        expect(idleTexts).toHaveLength(17);
+        expect(idleTexts).not.toContain('皮肤');
 
         const pressed = recorder();
         drawSettingsContent(pressed.b, { ...DATA, pressed: { id: 'toggle-bgm' } }, PALETTE, buttons);
-        // 首钮按下：cell 背板 rect 的 y 变小（y-up 坐标下沉）。
-        const firstCellRect = (calls: Call[]) => calls.find((c) => c.kind === 'rect' && c.args[2] === 509)!;
-        expect(firstCellRect(pressed.calls).args[1] as number).toBeLessThan(firstCellRect(idle.calls).args[1] as number);
+        const cellRect = (calls: Call[], x: number) => calls.find((c) => c.kind === 'rect' && c.args[0] === x && c.args[2] === 509)!;
+        // 有开关的行：整行不亮按下态（y 不变），只有开关叠压暗。
+        expect(cellRect(pressed.calls, 125).args[1] as number).toBe(cellRect(idle.calls, 125).args[1] as number);
+        // 无开关的循环行仍整行按下：cycle-bead-style 的背板 y 下沉（pressOffset）。
+        const cyclePressed = recorder();
+        drawSettingsContent(cyclePressed.b, { ...DATA, pressed: { id: 'cycle-bead-style' } }, PALETTE, buttons);
+        const cycleY = buttons.find((b) => b.id === 'cycle-bead-style')!.box.y;
+        expect(
+            cyclePressed.calls.some((c) => c.kind === 'rect' && c.args[0] === 125 && c.args[2] === 509 && (c.args[1] as number) < cycleY),
+        ).toBe(true);
     });
 
     it('[WXG-T-942] 半露行整行不画：滚动中不出现平涂木色空块；行 pitch = 150', () => {
@@ -198,8 +217,9 @@ describe('UI-30 · SettingsContent', () => {
         expect(settingsRowPitch()).toBe(150);
     });
 
-    it('动作全集 ≡ 弹窗排布（WXG-T-365 回归钉：装扮馆入口已上提顶栏 ⇒ ⛔ 不再是设置动作）', () => {
-        expect(isSettingsAction('cycle-skin')).toBe(true);
+    it('动作全集 ≡ 弹窗排布（皮肤行退场；装扮馆入口只住顶栏 ⇒ ⛔ 不再是设置动作）', () => {
+        // `[WXG-T-943]` 用户令「设置里面皮肤选项不需要」⇒ cycle-skin 不再进设置排布（受理器仍保留）。
+        expect(isSettingsAction('cycle-skin')).toBe(false);
         expect(isSettingsAction('toggle-ghost-symbol')).toBe(true);
         // `open-skins` = 顶栏无字圆钮（MetaAction 而非 SettingsAction）⇒ 不进本集合。
         expect(isSettingsAction('open-skins')).toBe(false);
@@ -234,9 +254,11 @@ describe('UI-30 · SettingsContent', () => {
                 .map((c) => (c.args[4] as { fill?: unknown }).fill);
         };
         const idle = cellFills();
-        expect(idle).toHaveLength(11);
+        expect(idle).toHaveLength(10);
         for (const fill of idle) expect(fill).toBe('WOOD_FACE');
-        expect(cellFills('toggle-bgm')[0]).toBe('WOOD_PRESSED');
+        // 有开关的行按下不换整行木面（只有开关压暗）；循环行按下才换面。
+        expect(cellFills('toggle-bgm')[0]).toBe('WOOD_FACE');
+        expect(cellFills('cycle-bead-style')[6]).toBe('WOOD_PRESSED');
     });
 
     it('[WXG-T-938] 位图腿：cell 底板 = 厚木 9-slice；图标 / 开关位图就绪才画；缺图回退程序化', () => {
@@ -252,18 +274,19 @@ describe('UI-30 · SettingsContent', () => {
             return calls;
         };
 
-        // 仅底板就绪：11 枚 cell 底板 blit，图标 / 开关不画（无位图 ⇒ 程序化）。
+        // 仅底板就绪：10 枚 cell 底板 blit，图标 / 开关不画（无位图 ⇒ 程序化）。
         setMenuBitmapResolver((id) => id === MENU_TEXTURES.btnSettings);
         const bgOnly = run();
-        expect(blitTexes(bgOnly)).toEqual(Array(11).fill(MENU_TEXTURES.btnSettings));
+        expect(blitTexes(bgOnly)).toEqual(Array(10).fill(MENU_TEXTURES.btnSettings));
         const bgOpts = bgOnly.find((c) => c.kind === 'blit')!.args[5] as { fx?: unknown };
         expect(bgOpts.fx).toEqual({ nineSliceCapX: 70 });
-        expect(run('toggle-bgm').some((c) => c.kind === 'rect' && (c.args[4] as { fill?: unknown }).fill === 'rgba(61,46,30,0.18)')).toBe(true);
+        // 有开关的行按下只压暗开关本身（0.16），整行木面不变。
+        expect(run('toggle-bgm').some((c) => c.kind === 'rect' && (c.args[4] as { fill?: unknown }).fill === 'rgba(61,46,30,0.16)')).toBe(true);
 
-        // 全部位图就绪：底板 11 + 图标 4（音乐 / 音效 / 动效 / 震动）+ 开关 8（有 toggle 的 8 行）。
+        // 全部位图就绪：底板 10 + 图标 4（音乐 / 音效 / 动效 / 震动）+ 开关 8（有 toggle 的 8 行）。
         setMenuBitmapResolver(() => true);
         const all = blitTexes(run());
-        expect(all.filter((t) => t === MENU_TEXTURES.btnSettings)).toHaveLength(11);
+        expect(all.filter((t) => t === MENU_TEXTURES.btnSettings)).toHaveLength(10);
         expect(all.filter((t) => t === MENU_TEXTURES.settingsIconMusic)).toHaveLength(1);
         expect(all.filter((t) => t === MENU_TEXTURES.settingsIconVibrate)).toHaveLength(1);
         expect(all.filter((t) => t === MENU_TEXTURES.settingsToggleOn || t === MENU_TEXTURES.settingsToggleOff)).toHaveLength(8);
@@ -272,7 +295,7 @@ describe('UI-30 · SettingsContent', () => {
         setMenuBitmapResolver(undefined);
         const fallback = run();
         expect(blitTexes(fallback)).toHaveLength(0);
-        expect(textsOf(fallback)).toHaveLength(22);
+        expect(textsOf(fallback)).toHaveLength(17);
     });
 
     it('文案单源：暂停面板已去设置化，view-model 不再引用 settingsContentLabel', () => {

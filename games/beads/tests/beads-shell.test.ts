@@ -31,6 +31,8 @@ import {
     settingsContentButtons,
     settingsContentViewport,
     settingsScrollMax,
+    isToggleAction,
+    settingsToggleHitBox,
 } from '../src/view/settings-content.js';
 import { SKIN_CARD_GRID } from '../src/view/skins-content.js';
 import { DEFAULT_SKIN_ID, registeredSkins } from '../src/config/skins/registry.js';
@@ -64,16 +66,20 @@ function centerOf(overlay: MetaOverlay, id: MetaAction, slot?: number): { x: num
     const b = metaLayout(overlay).buttons.find(
         (btn) => btn.id === id && (slot === undefined || btn.slot === slot),
     )!;
-    return { x: b.box.x + b.box.w / 2, y: b.box.y + b.box.h / 2 };
+    // `[WXG-T-943]` 设置页有开关的行只有开关热区可点。
+    const box = overlay === 'settings' && isToggleAction(id) ? settingsToggleHitBox(b.box) : b.box;
+    return { x: box.x + box.w / 2, y: box.y + box.h / 2 };
 }
 
 /**
- * 设置列表单列 cell：第 0–4 行滚动量 0 即可见，第 5–10 行需先上滚（`setSettingsScroll`）。
+ * 设置列表单列 cell：第 0–4 行滚动量 0 即可见，第 5–9 行需先上滚（`setSettingsScroll`）。
  * 返回「同一行在屏上的点」与所需滚动量（绘制 = box + scroll，命中 = 点 − scroll）。
+ * 有开关的行用开关热区中心；无开关的循环行用整行中心。
  */
 function settingsRowPoint(id: MetaAction): { x: number; y: number; scroll: number } {
     const plate = levelDetailPlate();
-    const box = settingsContentButtons(plate).find((b) => b.id === id)!.box;
+    const cell = settingsContentButtons(plate).find((b) => b.id === id)!.box;
+    const box = isToggleAction(id) ? settingsToggleHitBox(cell) : cell;
     const vp = settingsContentViewport(plate);
     const cy = box.y + box.h / 2;
     const scroll = Math.max(0, Math.min(settingsScrollMax(plate), vp.y + vp.h / 2 - cy));

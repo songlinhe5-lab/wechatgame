@@ -55,7 +55,7 @@ import { difficultyOf } from '../src/game/difficulty.js';
 import { COPY_TOKENS } from '../src/config/copy-tokens.js';
 import { buildMetaModal, buildMetaView, hitTestMeta, metaLayout, type MetaViewData } from '../src/view/meta-view.js';
 import { label } from '../src/view/meta-widgets.js';
-import { settingsScrollMax } from '../src/view/settings-content.js';
+import { settingsScrollMax, settingsToggleHitBox } from '../src/view/settings-content.js';
 import { levelDetailPlate } from '../src/view/meta-layout.js';
 import { rankPanelLayout } from '../src/systems/rank-panel.js';
 import { drawBeadFace, levelThumbCells, SIGN_INK_COLOR_IDX } from '../src/view/menu-signage.js';
@@ -976,7 +976,9 @@ describe('WXG-T-432 S-3 · 菜单好友榜入口与菜单腿模态门', () => {
         const SCROLL = settingsScrollMax(levelDetailPlate());
         r.shell.setSettingsScroll(SCROLL);
         const dbg = metaLayout('settings').buttons.find((b) => b.id === 'toggle-debug-guides')!;
-        r.shell.tapMeta(dbg.box.x + dbg.box.w / 2, dbg.box.y + dbg.box.h / 2 + SCROLL);
+        // `[WXG-T-943]` 有开关的行只有开关热区可点（整行不响应）。
+        const dbgHit = settingsToggleHitBox(dbg.box);
+        r.shell.tapMeta(dbgHit.x + dbgHit.w / 2, dbgHit.y + dbgHit.h / 2 + SCROLL);
         const close = metaLayout('settings').buttons.find((b) => b.id === 'close-settings')!;
         r.shell.tapMeta(close.box.x + close.box.w / 2, close.box.y + close.box.h / 2);
         expect(r.shell.screen).toBe('menu');

@@ -274,13 +274,11 @@ describe('EP12-S8 ② normalizeSettings skinId：缺字段 / 非字符串 / 未�
 // ══════════════════ ③ 运行时设置钮（裁定① · K-035 真实现物）
 
 describe('EP12-S8 ③ cycle-skin 钮族：present · 循环 · 恰写档 1 次 · 不切相位 · 重启回显', () => {
-    it('前提哨兵：注册数 ≥ 2 ⇒ 菜单设置 overlay 有 cycle-skin 恰一次；暂停面板三钮零设置项', () => {
+    it('前提哨兵：注册数 ≥ 2 ⇒ 设置 overlay 已无 cycle-skin（皮肤行退场）；暂停面板三钮零设置项', () => {
         expect(SKIN_IDS.length >= 2).toBe(true); // <2 时本腿须回到「钮不呈现」口径（S9§8-19）
-        // 菜单设置 overlay 同位（内容单源判例）：**WXG-T-365** 装扮馆入口已上提顶栏中档
-        // ⇒ 行5 左格回到 `cycle-skin`（设置页重新有循环腿），`open-skins` 只在主菜单热区集里。
+        // `[WXG-T-943]` 用户令「设置里面皮肤选项不需要」⇒ 换肤唯一入口 = 顶栏装扮馆；设置页不再有 cycle-skin。
         const settingIds = metaLayout('settings').buttons.map((b) => b.id);
-        expect(settingIds).toContain('cycle-skin');
-        expect(settingIds.filter((i) => i === 'cycle-skin').length).toBe(1);
+        expect(settingIds).not.toContain('cycle-skin');
         expect(settingIds).not.toContain('open-skins');
         expect(metaLayout('none').buttons.map((b) => b.id)).toContain('open-skins');
         // v1.8（WXG-T-934）：暂停面板只三钮，⛔ 不再有 cycle-skin（设置全部归菜单）。

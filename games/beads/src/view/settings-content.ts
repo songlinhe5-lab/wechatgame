@@ -103,10 +103,11 @@ export const SETTINGS_GRID = Object.freeze({
 });
 
 /**
- * 菜单变体顺序：**11 钮 = 单列 11 行**（Figma 设置列表 cell 顺序；Debug 位于末行）。
+ * 菜单变体顺序：**10 钮 = 单列 10 行**（Figma 设置列表 cell 顺序；Debug 位于末行）。
  * ⚠ 改动顺序会重排设置弹窗的按钮位置与金样本 ⇒ 需同批重抓夹具。
  * `[WXG-T-934]` v1.8：幽灵符号随暂停面板去设置化迁入本表；末行 = Debug（dev/QA 工具）。
  * 2026-11-14：震动前移到大字号之前（Figma 同步）。
+ * `[WXG-T-943]` 用户令「设置里面皮肤选项不需要」⇒ `cycle-skin` 行退场（换肤唯一入口 = 顶栏装扮馆）。
  */
 const MENU_ORDER: readonly SettingsAction[] = [
     'toggle-bgm',
@@ -118,7 +119,6 @@ const MENU_ORDER: readonly SettingsAction[] = [
     'cycle-bead-style',
     'cycle-bead-size',
     'toggle-ghost-symbol',
-    'cycle-skin',
     'toggle-debug-guides',
 ];
 
@@ -282,8 +282,8 @@ export function drawSettingsWoodButton(
 
 /**
  * 设置项 cell 的组成（Figma `设置项cell` 语义）：名称 / 提示 / 图标 / 开关。
- * `toggle` = `null` ⇒ 无开关（珠子风格 / 豆子尺寸 / 皮肤：值写进提示行）。
- * 提示文案：音乐 / 音效 / 震动沿用稿面文案；其余行 = `当前：…`（稿面占位，待定稿）。
+ * `toggle` = `null` ⇒ 无开关（珠子风格 / 豆子尺寸：值写进提示行）。
+ * `[WXG-T-943]` 用户令：Debug / 幽灵符号 / 性能信息**不要第二行**；减弱动效第二行改为作用说明。
  */
 export interface SettingsCellParts {
     readonly name: string;
@@ -301,37 +301,63 @@ export function settingsCellParts(id: SettingsAction, data: SettingsContentData)
         case 'toggle-sfx':
             return { name: '音效', hint: '启用后，播放应用中的提示音', toggle: !data.sfxMuted, icon: 'settingsIconSound' };
         case 'toggle-reduce-motion':
-            return { name: '减弱动效', hint: `当前：${ON_OFF(data.reduceMotion)}`, toggle: data.reduceMotion, icon: 'settingsIconMotion' };
+            return { name: '减弱动效', hint: '启用后，减少界面动效', toggle: data.reduceMotion, icon: 'settingsIconMotion' };
         case 'toggle-vibrate':
             return { name: '震动', hint: '启用后，接收提醒时设备会震动', toggle: data.vibrate, icon: 'settingsIconVibrate' };
         case 'toggle-large-text':
             return { name: '大字号', hint: `当前：${ON_OFF(data.largeText)}`, toggle: data.largeText, icon: null };
         case 'toggle-debug-info':
-            return { name: '性能信息', hint: `当前：${ON_OFF(data.debugInfo)}`, toggle: data.debugInfo, icon: null };
+            return { name: '性能信息', hint: '', toggle: data.debugInfo, icon: null };
         case 'cycle-bead-style':
             return { name: '珠子风格', hint: `当前：${beadStyleLabel(data.beadStyle)}`, toggle: null, icon: null };
         case 'cycle-bead-size':
             return { name: '豆子尺寸', hint: `当前：${BEAD_SIZE_LABELS[data.beadSize] ?? data.beadSize}`, toggle: null, icon: null };
         case 'toggle-ghost-symbol':
-            return { name: '幽灵符号', hint: `当前：${ON_OFF(!!data.ghostSymbol)}`, toggle: !!data.ghostSymbol, icon: null };
+            return { name: '幽灵符号', hint: '', toggle: !!data.ghostSymbol, icon: null };
         case 'cycle-skin':
             return { name: '皮肤', hint: `当前：${skinLabel(data.skinId)}`, toggle: null, icon: null };
         case 'toggle-debug-guides':
-            return { name: 'Debug', hint: `当前：${ON_OFF(data.debugGuides)}`, toggle: data.debugGuides, icon: null };
+            return { name: 'Debug', hint: '', toggle: data.debugGuides, icon: null };
     }
+}
+
+/** `[WXG-T-943]` 有右侧开关的动作（整行不可点，只有开关热区生效）。 */
+const TOGGLE_ACTIONS: ReadonlySet<string> = new Set<string>([
+    'toggle-bgm',
+    'toggle-sfx',
+    'toggle-reduce-motion',
+    'toggle-vibrate',
+    'toggle-large-text',
+    'toggle-debug-info',
+    'toggle-ghost-symbol',
+    'toggle-debug-guides',
+]);
+
+export function isToggleAction(id: string): boolean {
+    return TOGGLE_ACTIONS.has(id);
 }
 
 /**
  * Figma cell 内部几何（相对 cell 左上，单位设计 px）：图标框 (26,28,74×78)、名称 (124,34)、
- * 提示 (124,102)、开关 (371,33,115×65)。
- * `[WXG-T-942]` 图标件补烘 6px 透明边 + 投影（画布 +12）⇒ 图标框同步放大到 74×78 保持图标视觉尺寸；
- * 提示行由 115 上移到 102（用户反馈「第二行文字位置靠下了」）。
+ * 提示 (124,108)、开关 (371,26,115×65)。
+ * `[WXG-T-942]` 图标件补烘 6px 透明边 + 投影（画布 +12）⇒ 图标框同步放大到 74×78 保持图标视觉尺寸。
+ * `[WXG-T-943]` 用户令「第二行文字与开关按钮有冲突，开关往上、文字往下」⇒ 开关 33→26、提示 102→108。
  */
 const CELL_ICON = { x: 26, y: 28, w: 74, h: 78 } as const;
 const CELL_NAME_X = 124;
 const CELL_NAME_CY = 60.5; // 名称框 34..87 中线
-const CELL_HINT_CY = 102; // 提示行中线（原 115 过靠底）
-const CELL_TOGGLE = { x: 371, y: 33, w: 115, h: 65 } as const;
+const CELL_HINT_CY = 108; // 提示行中线（与开关上下错开）
+const CELL_TOGGLE = { x: 371, y: 26, w: 115, h: 65 } as const;
+
+/**
+ * `[WXG-T-943]` 开关热区：视觉 115×65 扩到 115×88（TOUCH_MIN 地板），中心与视觉开关一致。
+ * 有开关的 cell 只有这块热区可点，整行不响应、不亮按下态。
+ */
+export function settingsToggleHitBox(cell: SettingsBox): SettingsBox {
+    const cy = cell.y + cell.h - CELL_TOGGLE.y - CELL_TOGGLE.h / 2;
+    const h = Math.max(CELL_TOGGLE.h, 88);
+    return { x: cell.x + CELL_TOGGLE.x, y: cy - h / 2, w: CELL_TOGGLE.w, h };
+}
 
 /** 图标按框内等比缩放（Figma FIT）。原图尺寸 = 补投影后的 @2x PNG 像素（原尺寸 + 12）。 */
 const ICON_SRC: Readonly<Record<NonNullable<SettingsCellParts['icon']>, { w: number; h: number }>> = {
@@ -357,7 +383,9 @@ export function drawSettingsCell(
     pressed: boolean,
 ): void {
     const parts = settingsCellParts(id, data);
-    drawSettingsWoodButton(builder, palette, x, y, w, h, '', UI_FONT.button, pressed);
+    const hasToggle = parts.toggle !== null;
+    // `[WXG-T-943]` 有开关的行整行不亮按下态（只有开关热区可点）；无开关的循环行保持整行按压。
+    drawSettingsWoodButton(builder, palette, x, y, w, h, '', UI_FONT.button, hasToggle ? false : pressed);
     if (parts.icon !== null) {
         const tex = MENU_TEXTURES[parts.icon];
         if (menuBitmapReady(tex)) {
@@ -370,7 +398,8 @@ export function drawSettingsCell(
             builder.blit(tex, ix, iy, iw, ih);
         }
     }
-    const shadow = { color: withAlpha(palette.shadowInk, 0.9), offsetX: 2, offsetY: -3, blur: 2 };
+    // `[WXG-T-943]` 用户令「文字和 icon 的阴影效果不够立体」⇒ 名称投影加深 + 右下偏移更大。
+    const shadow = { color: withAlpha(palette.shadowInk, 0.95), offsetX: 3, offsetY: -4, blur: 3 };
     builder.text(x + CELL_NAME_X, y + h - CELL_NAME_CY, parts.name, {
         fill: palette.woodText,
         font: UI_FONT.settingsName,
@@ -378,17 +407,19 @@ export function drawSettingsCell(
         baseline: 'middle',
         shadow,
     });
-    builder.text(x + CELL_NAME_X, y + h - CELL_HINT_CY, parts.hint, {
-        fill: withAlpha(palette.woodText, 0.92),
-        font: UI_FONT.settingsHint,
-        align: 'left',
-        baseline: 'middle',
-        shadow: { color: withAlpha(palette.shadowInk, 0.6), offsetX: 1, offsetY: -2, blur: 1 },
-    });
-    if (parts.toggle !== null) drawSettingsToggle(builder, palette, parts.toggle, x, y, h);
+    if (parts.hint !== '') {
+        builder.text(x + CELL_NAME_X, y + h - CELL_HINT_CY, parts.hint, {
+            fill: withAlpha(palette.woodText, 0.94),
+            font: UI_FONT.settingsHint,
+            align: 'left',
+            baseline: 'middle',
+            shadow: { color: withAlpha(palette.shadowInk, 0.8), offsetX: 2, offsetY: -3, blur: 2 },
+        });
+    }
+    if (parts.toggle !== null) drawSettingsToggle(builder, palette, parts.toggle, x, y, h, pressed);
 }
 
-/** 开关：位图就绪 ⇒ 开 / 关整图；否则程序化（圆角轨 + 圆钮）。 */
+/** 开关：位图就绪 ⇒ 开 / 关整图；否则程序化（圆角轨 + 圆钮）。按下只压暗开关本身。 */
 function drawSettingsToggle(
     builder: RenderModelBuilder,
     palette: BeadsPalette,
@@ -396,6 +427,7 @@ function drawSettingsToggle(
     x: number,
     y: number,
     h: number,
+    pressed: boolean,
 ): void {
     const { w, h: th } = CELL_TOGGLE;
     const tx = x + CELL_TOGGLE.x;
@@ -403,12 +435,13 @@ function drawSettingsToggle(
     const tex = on ? MENU_TEXTURES.settingsToggleOn : MENU_TEXTURES.settingsToggleOff;
     if (menuBitmapReady(tex)) {
         builder.blit(tex, tx, ty, w, th);
-        return;
+    } else {
+        builder.rect(tx, ty, w, th, { fill: on ? palette.success : withAlpha(palette.shadowInk, 0.7), radius: th / 2 });
+        const r = th / 2 - 4;
+        const cx = on ? tx + w - th / 2 : tx + th / 2;
+        builder.circle(cx, ty + th / 2, r, { fill: palette.woodText });
     }
-    builder.rect(tx, ty, w, th, { fill: on ? palette.success : withAlpha(palette.shadowInk, 0.7), radius: th / 2 });
-    const r = th / 2 - 4;
-    const cx = on ? tx + w - th / 2 : tx + th / 2;
-    builder.circle(cx, ty + th / 2, r, { fill: palette.woodText });
+    if (pressed) builder.rect(tx, ty, w, th, { fill: withAlpha(palette.shadowInk, 0.16), radius: th / 2 });
 }
 
 /**
@@ -432,8 +465,10 @@ export function drawSettingsContent(
         const b = buttons[i]!;
         if (!isSettingsAction(b.id)) continue;
         const pressed = data.pressed?.id === b.id;
+        // `[WXG-T-943]` 有开关的行整行不响应 ⇒ 既不亮按下态，也不做按下位移；只有开关自身压暗。
+        const sink = pressed && !isToggleAction(b.id) ? pressOffset(pressed, data.reduceMotion) : 0;
         // 滚动量 > 0 ⇒ 内容上移（手指上拖 → 露出下方行）；命中换算见 `hitTestMeta` 的 `y - scroll`。
-        const y = b.box.y + pressOffset(pressed, data.reduceMotion) + scroll;
+        const y = b.box.y + sink + scroll;
         if (viewport) {
             const bottom = y;
             const top = y + b.box.h;

@@ -9800,6 +9800,18 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **提交**：`19fb24ad`（代码 + Cocos 镜像 + 文档 + 台账）；复评与金样本重抓同批回填。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
 
+## WXG-T-943
+
+**UX·设置页去皮肤行 / 提示收敛 / 开关行整行不可点** · 负责：主理人(Trae CN)·beads UX/工程轨 · 状态：✅ 完成（2026-11-14 · 用户反馈「设置里面皮肤选项不需要；DEBUG / 幽灵符号 / 性能信息第二行不需要；减弱动效第二行应描述开关作用；第二行与开关冲突；文字和 icon 阴影不够立体；有开关的行整行点击无效果」）
+
+- **改动**：① `MENU_ORDER` 删 `cycle-skin`（设置页 10 行；`applySettingsAction('cycle-skin')` 受理器与皮肤系统保留，换肤唯一入口 = 顶栏装扮馆）；② `settingsCellParts`：Debug / 幽灵符号 / 性能信息 `hint = ''`；减弱动效改「启用后，减少界面动效」；③ 开关上移 `CELL_TOGGLE.y 33→26`、提示下移 `CELL_HINT_CY 102→108`；④ 名称投影 `3/−4/3`、提示 `2/−3/2`（图标投影已在 T-942 烘入）；⑤ 新增 `isToggleAction` + `settingsToggleHitBox`（视觉 115×65 → 热区 115×88），`meta-layout::hitTestMeta` 对开关行只判开关热区，名称/提示区零响应；⑥ `drawSettingsContent` 对开关行不做按下位移，`drawSettingsCell` 不亮整行，只有开关叠 16% 压暗；循环行（珠子风格 / 豆子尺寸）仍整行可点、整行按下。
+- **测试**：`settings-content.test.ts` 改 10 行 / 1488 / 744 / 17 条文字 / 开关热区命中 / 开关行不亮整行；`beads-shell`、`bead-style-settings`、`skin-system`、`meta-menu-wall`、`ui-input-timing` 同步开关热区与去皮肤行口径；beads 全量除金样本外全绿。
+- **金样本**：`settings` 帧 total/kinds/sha 全变（少一行 + 提示/投影/热区），在提交锚 `（见提交记录）` 重抓。
+- **文档**：ux-spec v1.55 §2、pause-settings §2.2、ui-architecture §12。
+- **未含（待裁）**：拖拽中的**半行裁切显示**（用户要求）——现有框架只有全局 clip host，容器内裁切会把 blit 挂到容器外层，Cocos 端层序错乱；真正的逐容器裁切需要框架 + Cocos 宿主改造（ADR-0033 扩展）并需真机验证。当前保持「半露行不画 + 松手吸附整行」的零风险方案。
+- **验证**：类型检查 0 错；`pnpm run verify` 见提交记录；harness 实帧确认去皮肤行、提示位置、投影与开关热区。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
 ## WXG-T-942
 
 **UX·设置页滚动空块 / 提示行位置 / 图标投影修复** · 负责：主理人(Trae CN)·beads UX/工程轨 · 状态：✅ 完成（2026-11-14 · 用户反馈「拖动上去就空一块 / 第二行文字位置靠下了 / 图标的阴影不见了，阴影的效果也被减弱了」）

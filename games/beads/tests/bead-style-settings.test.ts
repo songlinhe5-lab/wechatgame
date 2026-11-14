@@ -1354,10 +1354,11 @@ describe('菜单设置 overlay 设置钮族 · S9 §8-14/16/19（内容单源）
         expect(new Set(ids).size).toBe(ids.length); // 每钮唯一
         expect(ids.filter((i) => i === 'cycle-bead-style').length).toBe(1);
         expect(ids.filter((i) => i === 'cycle-bead-size').length).toBe(1);
-        expect(ids.filter((i) => i === 'cycle-skin').length).toBe(1); // EP12-S8 → WXG-T-363 曾改挂装扮馆入口，WXG-T-365 已回退（入口上提顶栏）
+        // `[WXG-T-943]` 用户令「设置里面皮肤选项不需要」⇒ `cycle-skin` 行退场（换肤唯一入口 = 顶栏装扮馆）。
+        expect(ids.filter((i) => i === 'cycle-skin').length).toBe(0);
         expect(ids.filter((i) => i === 'toggle-ghost-symbol').length).toBe(1); // WXG-T-934 由暂停面板迁入
 
-        expect(grid.length).toBe(11); // 8 旧钮 + 皮肤循环钮 + Debug + 幽灵符号（单列 11 行，2026-11-14 Figma cell 列表）
+        expect(grid.length).toBe(10); // 8 旧钮 + Debug + 幽灵符号（皮肤行退场；单列 10 行）
         const xs = new Set(grid.map((b) => b.box.x));
         expect(xs.size).toBe(1); // 单列 ⇒ 同一 x
         const rows = grid.map((b) => b.box.y); // 自上而下（y 递减）
@@ -1365,7 +1366,7 @@ describe('菜单设置 overlay 设置钮族 · S9 §8-14/16/19（内容单源）
         expect(new Set(gaps).size).toBe(1); // 行距等差
         expect(gaps[0]).toBe(150);
         for (const b of grid) expect(b.box.h).toBe(138); // 行高 = Figma cell 138
-        // Debug 位于末行（第 11 行），可视窗外需先滚；列表总高 1638 > 窗高 744 ⇒ 可滚。
+        // Debug 位于末行（第 10 行），可视窗外需先滚；列表总高 1488 > 窗高 744 ⇒ 可滚。
         expect(grid[grid.length - 1]!.id).toBe('toggle-debug-guides');
     });
 

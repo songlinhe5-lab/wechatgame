@@ -7,7 +7,7 @@
  */
 
 import { DESIGN_H, DESIGN_W, LEVEL_DETAIL_GEO, LEVEL_SELECT_GEO, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_X, MENU_V2, TOUCH_MIN, WALL_COLS, WALL_ROWS, dialogShiftY, menuAnchors, menuBackdropTopPad, menuPlacementFromAnchors, type MenuAnchors } from '../config/tuning';
-import { settingsContentButtons, settingsContentHeight, settingsContentViewport, isSettingsAction } from './settings-content';
+import { settingsContentButtons, settingsContentHeight, settingsContentViewport, isSettingsAction, isToggleAction, settingsToggleHitBox } from './settings-content';
 import { signinCellLayout } from './signin-content';
 import { skinCardBoxes } from './skins-content';
 import type { Box, MetaButton, MetaLayout, MetaOverlay } from './meta-types';
@@ -536,7 +536,13 @@ export function hitTestMeta(
     const inViewport = viewport !== null && y >= viewport.y && y <= viewport.y + viewport.h;
     for (const b of buttons) {
         if (viewport !== null && isSettingsAction(b.id)) {
-            if (inViewport && inBox(b.box, x, y - settingsScroll)) return b;
+            if (!inViewport) continue;
+            // `[WXG-T-943]` 有开关的行整行不可点 ⇒ 只有开关热区命中；循环行仍整行命中。
+            if (isToggleAction(b.id)) {
+                if (inBox(settingsToggleHitBox(b.box), x, y - settingsScroll)) return b;
+                continue;
+            }
+            if (inBox(b.box, x, y - settingsScroll)) return b;
             continue;
         }
         if (inBox(b.box, x, y)) return b;
