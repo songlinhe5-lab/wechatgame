@@ -3,7 +3,7 @@
  * 几何一律取自 `meta-layout.ts` 的锚定档，控件画法取自 `meta-widgets.ts` ⇒ 页面只编排、不另算。
  */
 
-import { DESIGN_H, DESIGN_W, type MenuAnchors, MENU_ARC_ART_CONTENT, MENU_ARC_ART_SRC, MENU_BAR_BAKED_LABEL_INSET, MENU_FULLSTAR_FRAME, MENU_GRAY_WIPE, MENU_LOCKED_ICON, MENU_PLACEMENT, MENU_PLATE_PILL, MENU_SIGNIN_DOT_R, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, MENU_V2_BG_EXPAND, MENU_V2_BG_H, MENU_V2_DESK_FILL,
+import { DESIGN_H, DESIGN_W, type MenuAnchors, MENU_ARC_ART_CONTENT, MENU_ARC_ART_SRC, MENU_BAR_BAKED_LABEL_INSET, MENU_FULLSTAR_FRAME, MENU_GRAY_WIPE, MENU_LOCKED_ICON, MENU_MOUNT, MENU_PLACEMENT, MENU_PLATE_PILL, MENU_SIGNIN_DOT_R, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, MENU_V2_BG_EXPAND, MENU_V2_BG_H, MENU_V2_DESK_FILL,
     SIGN_BEAD_PITCH, menuBackdropTopPad, SIGN_MATRIX_N, THUMB_TOP_INSET, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning';
 import { COPY_TOKENS } from '../config/copy-tokens';
 import { ARC_COMING_SOON } from '../config/arcs';
@@ -368,8 +368,98 @@ function drawShowcaseArt(
     } else {
         drawDashedSocket(builder, { x, y: b.y, w: b.w, h: b.h }, palette.slotDashed);
     }
+    // `[WXG-T-953]` M2 底缘接触影：必须在 clip 内、随 `dx` 平移（影是展品的投影）；
+    // 只服务「实物展品」—— 锁形是符号不是实物（`[WXG-T-917]`）、置灰花 / 空槽没有展品。
+    if (hasShowcaseItem(level, state, comingSoon)) {
+        drawContactShadow(builder, palette, x + b.w / 2, b.y, avail, alpha);
+    }
     // `[WXG-T-579]` 满星态珠圈框（同口径，边长随作品框宽缩放 ⇒ 两条腿不各钉一个像素）。
     if (state === 'fullstar') drawFullStarRing(builder, x + b.w / 2, b.y + b.h / 2, b.w, ink);
+}
+
+/** `[WXG-T-953]` 该页是否有可装裱的「实物展品」（锁 / 置灰 / 空槽 = 无）。 */
+function hasShowcaseItem(level: BeadsLevelRaw | undefined, state: MetaBossState, comingSoon: boolean): boolean {
+    return level !== undefined && !comingSoon && state !== 'locked';
+}
+
+/**
+ * `[WXG-T-953]` M2 底缘接触影（clip 内，随页平移）：三条同顶圆角带近似椭圆软影。
+ * `size` = 实际绘制宽（= `avail`；两条腿差 ≤4px，见 `MENU_MOUNT` 注释）⇒ ⛔ 写死名义框宽。
+ * `alpha` = 页面淡变系数（滑动途中与展品同步淡出）。
+ */
+function drawContactShadow(
+    builder: RenderModelBuilder,
+    palette: BeadsPalette,
+    cx: number,
+    bottom: number,
+    size: number,
+    alpha: number,
+): void {
+    const c = MENU_MOUNT.contact;
+    const w = size * c.widthRatio;
+    const x = cx - w / 2;
+    const top = bottom + c.up;
+    for (let i = 0; i < c.bands.length; i += 1) {
+        const band = c.bands[i]!;
+        builder.rect(x, top - band.h, w, band.h, {
+            fill: palette.shadowInk,
+            alpha: band.alpha * alpha,
+            radius: c.radius,
+        });
+    }
+}
+
+/**
+ * `[WXG-T-953]` 装裱层固定上层（`unclip()` 之后）：M1 暗角 → M3 压边 → M4 上缘受光。
+ * 包围盒 = 玻璃顶 ↔ 台面（`[WXG-T-601]`）、以 art 中心居中的正方形（两腿实际绘制宽 ≈ `avail`）。
+ * M1 只画「有实物展品」的态；M3 / M4 恒画（空槽也保留待陈列槽位边界）。
+ */
+function drawShowcaseMount(
+    builder: RenderModelBuilder,
+    palette: BeadsPalette,
+    g: AnchoredMenuGeo,
+    withArt: boolean,
+): void {
+    const art = g.showcaseArtBox;
+    const clip = g.clipBox;
+    const size = clip.y + clip.h - art.y;
+    const x = art.x + art.w / 2 - size / 2;
+    const top = art.y + size;
+    if (withArt) {
+        const v = MENU_MOUNT.vignette;
+        const outer = v.bands[0]!.w;
+        const sideY = art.y + outer;
+        const sideH = size - outer * 2;
+        for (let i = 0; i < v.bands.length; i += 1) {
+            const band = v.bands[i]!;
+            const opts = { fill: palette.shadowInk, alpha: band.alpha, radius: v.radius };
+            builder.rect(x, top - band.w, size, band.w, opts);
+            builder.rect(x, art.y, size, band.w, opts);
+            builder.rect(x, sideY, band.w, sideH, opts);
+            builder.rect(x + size - band.w, sideY, band.w, sideH, opts);
+        }
+    }
+    const p = MENU_MOUNT.press;
+    const o = p.outset;
+    const fx = x - o;
+    const fy = art.y - o;
+    const fw = size + o * 2;
+    // 上缘夹到玻璃顶：展品顶 = clip 顶（WXG-T-601 放大铺满），外扩 8 会压到烘好的窗框。
+    const fh = Math.min(size + o * 2, top - fy);
+    builder.rect(fx, fy, fw, fh, {
+        stroke: palette.panelBorder,
+        lineWidth: 1,
+        radius: p.outerRadius,
+    });
+    builder.rect(fx + p.innerInset, fy + p.innerInset, fw - p.innerInset * 2, fh - p.innerInset * 2, {
+        stroke: palette.panel,
+        lineWidth: 1,
+        radius: p.innerRadius,
+    });
+    const b = MENU_MOUNT.bevel;
+    builder.rect(fx + p.innerInset, fy + fh - p.innerInset - b.inset, fw - p.innerInset * 2, b.lineWidth, {
+        fill: palette.plaqueBevel,
+    });
 }
 
 /** 空橱窗中央的置灰花。半径写死，热路径不分配。 */
@@ -636,6 +726,12 @@ export function drawMenuAnchored(
         );
     }
     builder.unclip();
+    // `[WXG-T-953]` 装裱层固定上层（M1 → M3 → M4）。M1 只在「窗口里有实物展品」时画；
+    // 滑动途中两页任一有实物即保留，避免从锁页滑向成品页时暗角在末帧才跳出。
+    drawShowcaseMount(builder, palette, g,
+        hasShowcaseItem(data.carouselLevel, state, data.carouselComingSoon === true)
+        || (travel > 0
+            && hasShowcaseItem(data.carouselPeer, data.carouselPeerState ?? 'cleared', data.carouselPeerComingSoon === true)));
     // `[WXG-T-585]` 通关章（玻璃右上 90×89.5）：只在「已通关 / 满星」两态盖，
     // 锁定与推关不盖（进度已达意，⛔ 不等于盖章）。
     if (g.sealBox !== undefined && (state === 'cleared' || state === 'fullstar')

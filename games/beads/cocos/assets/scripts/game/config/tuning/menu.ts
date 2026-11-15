@@ -375,6 +375,50 @@ export const MENU_ARC_ART_CONTENT = { x: 37, y: 31, w: 182, h: 180 } as const;
 export const MENU_ARC_ART_SRC = 256;
 
 /**
+ * `[WXG-T-953]` **橱窗装裱层**（M1 背衬暗角 / M2 底缘接触影 / M3 压边内框 / M4 上缘受光线）。
+ * 正本：`design/art/specs/menu-showcase-mount-spec.md`。
+ * 沿用「展品本体 = 豆面」口径：本组只补「陈列感」，⛔ 不改图案画法、不新增位图。
+ * 全部为**派生版面值**（⛔ 不进 §3 冻结）；真机目检后只回填 α / 圆角，⛔ 动边宽顺序。
+ *
+ * ⚠ 锚点 = **实际绘制包围盒**（玻璃顶 ↔ 台面、以 art 中心居中，两条腿都 ≈ `avail` 见方），
+ * ⛔ 不是名义 `MENU_V2.art` 325×314：位图腿按内容 bbox 182/180 × avail ≈ 378 宽、
+ * 程序化腿 `area = avail` = 374，都会越出名义框 26–60px ⇒ 按名义框画会把暗角/压边
+ * 画进珠面（规格 §1/§3 已按实测改正）。
+ */
+export const MENU_MOUNT = {
+  /**
+   * M1 背衬暗角：四边各三档内缩带（外→内），α 逐档叠加（峰值 12%）；
+   * 左右带上下各让出外带宽 ⇒ 四角不叠 α。边宽上限 10（不得 ≥ 实际珠径 11.7）。
+   */
+  vignette: {
+    bands: [
+      { w: 10, alpha: 0.03 },
+      { w: 6, alpha: 0.04 },
+      { w: 2, alpha: 0.05 },
+    ],
+    radius: 8,
+  },
+  /**
+   * M2 底缘接触影：宽 = 实际绘制宽（= `avail`）× 0.92（⛔ 写死 325 / 450）；
+   * 三档同顶（上压珠面 `up`）叠高，外圈 14 = 上压 2 + 下落 12，贴地峰值 25%。
+   */
+  contact: {
+    widthRatio: 0.92,
+    up: 2,
+    bands: [
+      { h: 6, alpha: 0.14 },
+      { h: 10, alpha: 0.08 },
+      { h: 14, alpha: 0.03 },
+    ],
+    radius: 6,
+  },
+  /** M3 压边内框：展品包围盒外扩 `outset`；外线 1px `panelBorder`、内线 1px `panel`。 */
+  press: { outset: 8, outerRadius: 6, innerInset: 1, innerRadius: 5 },
+  /** M4 上缘受光线：压边内框上缘内 1px（`plaqueBevel`）。 */
+  bevel: { inset: 1, lineWidth: 1 },
+} as const;
+
+/**
  * **橱窗木牌第二行的胶囊底**（设计稿
  * `art/final/prototypes/menu-design-baseline-cat-topbar-final-slotbar-20261102.png`）。
  *
