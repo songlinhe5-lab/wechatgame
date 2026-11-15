@@ -28,6 +28,7 @@ import {
     THUMB_AREA,
     THUMB_BEADS_MAX,
     THUMB_BEAD_SHAPE,
+    THUMB_FLAT_FACE_MIX,
     THUMB_MATRIX_N,
     THUMB_STAR_BAND,
     THUMB_TIERS,
@@ -369,7 +370,10 @@ describe('[T-613] 完整豆面档（盘面真实 rows×cols 逐珠，用户令�
         for (let i = 0; i < cells.length; i += 3) {
             const cx = left + (cells[i + 1]! + 0.5) * pitch;
             const cy = top - (cells[i]! + 0.5) * pitch;
-            ref.rect(cx - block / 2, cy - block / 2, block, block, { fill: beadColorOf(inks, cells[i + 2]!) });
+            // `[WXG-T-950]` 回退方块 = 珠面平均观感色（base/edge 中点）。
+            ref.rect(cx - block / 2, cy - block / 2, block, block, {
+                fill: mix(beadColorOf(inks, cells[i + 2]!), -THUMB_FLAT_FACE_MIX),
+            });
         }
         expect(cmds.map((c) => JSON.stringify(c))).toEqual(ref.end().commands.map((c) => JSON.stringify(c)));
     });
@@ -557,6 +561,16 @@ describe('[T-616/T-620] 选关缩略珠形档（接入盘面珠体腿）', () =>
         expect(cmds.filter((k) => k.kind === 'polygon')).toHaveLength(0);
         // `[WXG-T-623]` 900 条目标色底块 + 900 条回退方块。
         expect(cmds.filter((k) => k.kind === 'rect')).toHaveLength(1800);
+        // `[WXG-T-950]` 回退方块 = 珠面平均观感色（base/edge 中点），⛔ 不再纯基色；
+        // 前 900 条是 B0 底块（edge），后 900 条才是方块。
+        const { block } = fullGeo(big, SLOT_W, SLOT_H);
+        const inks = beadInksFor(big);
+        const expected = mix(inks.hexes[0]!, -THUMB_FLAT_FACE_MIX);
+        const firstBlock = cmds[900] as RectCmd;
+        expect(firstBlock.kind).toBe('rect');
+        expect(firstBlock.w).toBeCloseTo(block, 6);
+        expect(firstBlock.fill).toBe(expected);
+        expect(firstBlock.fill).not.toBe(inks.hexes[0]);
     });
 
     /**

@@ -50,6 +50,7 @@ import {
     SIGN_MATRIX_N,
     THUMB_AREA,
     THUMB_BEAD_SHAPE,
+    THUMB_FLAT_FACE_MIX,
     THUMB_MATRIX_N,
     THUMB_TOP_INSET,
     signFaceB,
@@ -65,6 +66,7 @@ import {
     DEMO_BEAD_INKS,
     beadColorOf,
     beadInksFor,
+    mix,
     relativeLuminance,
     type BeadInks,
     type BeadsPalette,
@@ -432,6 +434,28 @@ export function levelThumbLockedCells(level: BeadsLevelRaw): readonly number[] {
 }
 
 /**
+ * `[WXG-T-950]` 回退平色块的**珠面平均观感色**（按 `BeadInks` 一次性烘焙，逐帧零分配）。
+ *
+ * 只在珠体 < `THUMB_BEAD_SHAPE.minBeadEdge` 的超大盘（30×30 / 32×32）用到：这些关在选关槽
+ * 只能画方块，纯基色会把缩略读成「比详情页更亮更平」⇒ 取 `mix(base, −THUMB_FLAT_FACE_MIX)`
+ * （base 与 B0 `edge` = base−0.30 的中点）与完整珠面的平均观感对齐（用户 2026-11-15 令）。
+ * 判例 = `palette.ts::inksCache` / `_thumbCache`：缓存键就是墨集对象，不新增失效条件。
+ */
+const _flatFaceCache = new WeakMap<BeadInks, readonly string[]>();
+
+function flatFaceHexes(inks: BeadInks): readonly string[] {
+    const hit = _flatFaceCache.get(inks);
+    if (hit !== undefined) return hit;
+    const out: string[] = new Array<string>(inks.hexes.length);
+    for (let i = 0; i < inks.hexes.length; i += 1) {
+        out[i] = mix(inks.hexes[i]!, -THUMB_FLAT_FACE_MIX);
+    }
+    const frozen = Object.freeze(out);
+    _flatFaceCache.set(inks, frozen);
+    return frozen;
+}
+
+/**
  * `[WXG-T-613]` **完整豆面**（用户令「九宫格缩略完整按照盘面来实现」）：盘面真实
  * rows×cols 逐珠等比缩放——珠距 = min(w/cols, h/rows)（方形珠、保持盘面宽高比、
  * 双向居中）。缝恒 `BEAD_GAP`，唯 **超大盘**（pitch < `BEAD_GAP`×2，如 30×30 → pitch 2.3）
@@ -509,6 +533,8 @@ export function drawBeadFace(
     // 共用同一条换算，缝占比高的小盘不再被误判成方块。
     const beadEdge = pitch * THUMB_BEAD_SHAPE.diameterRatio;
     const shaped = beadEdge >= THUMB_BEAD_SHAPE.minBeadEdge;
+    // `[WXG-T-950]` 回退平色块的珠面平均观感色（仅 `!shaped` 时烘焙；`shaped` 档不查表）。
+    const flatFace = shaped ? undefined : flatFaceHexes(inks);
     // `[WXG-T-926 / T-928]` 珠面描边：art 二裁暖可可黑、单层实线、随 pitch 等比；
     // 各种珠面展示统一启用（**先底块 / 珠体、后轮廓** ⇒ 线条压在珠面上缘，用户令「盖在珠面上面」）。
     // 帖序放在函数末尾（pass 2 之后）。
@@ -539,8 +565,9 @@ export function drawBeadFace(
         if (shaped) {
             drawFilledBead(builder, cx, cy, idx, faceOpts);
         } else {
+            // `[WXG-T-950]` 回退档取珠面平均观感色（base/edge 中点），⛔ 不再填纯基色。
             builder.rect(cx - block / 2, cy - block / 2, block, block, {
-                fill: beadColorOf(inks, idx),
+                fill: flatFace?.[idx - 1] ?? beadColorOf(inks, idx),
             });
         }
     }

@@ -9800,6 +9800,16 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **提交**：`19fb24ad`（代码 + Cocos 镜像 + 文档 + 台账）；复评与金样本重抓同批回填。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
 
+## WXG-T-950
+
+**修复·选关缩略超大盘回退方块的珠面颜色与详情页不一致** · 负责：主理人(Trae CN)·beads 视图轨 · 状态：✅ 完成（2026-11-15 · 用户报「选关页面，缩略图的珠面颜色和详情页的颜色不太一样？」并选定方案 1）
+
+- **根因**：`drawBeadFace` 对超大盘（30×30 / 32×32）因 `beadEdge < minBeadEdge(6)` 回退平色方块并填纯基色；详情橱窗同关（360×340）画完整珠面（刻面 + 孔/孔环 + B0 `edge` 暗底）⇒ 两处观感一平一亮。
+- **修复**：新增 `THUMB_FLAT_FACE_MIX = 0.15`（= `base` 与 `edge` 的中点）；`drawBeadFace` 回退臂取 `mix(base, −0.15)`，按 `BeadInks` WeakMap 一次烘焙（逐帧零分配）。回退阈值 / 几何 / 命令数不变，`shaped` 档逐字节不变。
+- **测试**：`menu-thumb-primitives` 钉回退填充色与 L3 14×14 参照流；`level-select` / `level-select-mid` 金样本在提交锚重抓。
+- **文档**：`level-select-page-layout §2G` 追加；`ui-architecture-beads §12` 视觉变更登记。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
 ## WXG-T-949
 
 **设计·过关结算面板按 Figma `过关结算 269:44` 重排** · 负责：主理人(Trae CN)·beads 工程/美术轨 · 状态：✅ 完成（2026-11-15 · 用户令「figma 过关结算面板 UI 调整了，请按照设计进行代码调整」）
