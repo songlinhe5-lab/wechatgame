@@ -9813,6 +9813,7 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **成本**：零新 hex（`shadowInk`/`panelBorder`/`panel`/`plaqueBevel` 四枚在册）、位图 0 KB；菜单帧 **+18 rect（实测）**：`main-menu` 1117→1135、`level-select` / `-mid` 4780→4798、`settings` 1170→1188、`signin` 1149→1167，其余六态零漂移。
 - **取证**：harness 四态 `temp/mount-shots/menu-{locked,pushing,cleared,fullstar}.png`（锁定 = 第二章页）；金样本由 `ui-golden-capture.ts` 在 `2677fcb9` 锚重抓（两遍确定性自证 PASS，K-051 / K-053）。
 - **待真机**：α / r8 目检回填；M5 默认不启用。零 §3 冻结值改动。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**；本轮读用 K-051（图元增量落码后复算）/ K-053（口径反转留档）/ K-167（金样本漂移归因）。
 
 ## WXG-T-952
 
