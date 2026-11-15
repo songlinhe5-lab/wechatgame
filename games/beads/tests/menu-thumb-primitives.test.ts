@@ -544,6 +544,22 @@ describe('[T-616/T-620] 选关缩略珠形档（接入盘面珠体腿）', () =>
         }
     });
 
+    it('[WXG-T-952] 选关缩略纯色腿：flat=true ⇒ 逐格色板基色方块，零珠面命令', () => {
+        const level = LEVELS[0]!;
+        const cells = levelThumbFullCells(level);
+        const beads = cells.length / 3;
+        const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
+        builder.begin();
+        drawBeadFace(builder, level, TX, TY, SLOT_W, SLOT_H, DEFAULT_PALETTE, undefined, undefined, undefined, 'center', true);
+        const cmds = builder.end().commands;
+        // pass 1 目标色底块 + pass 2 纯色方块：各 1/珠，零 circle（无珠体/孔/孔环）。
+        expect(cmds.filter((k) => k.kind === 'rect')).toHaveLength(beads * 2);
+        expect(cmds.filter((k) => k.kind === 'circle')).toHaveLength(0);
+        // 方块 = **色板基础颜色**（用户令：不取 base/edge 派生色）。
+        const inks = beadInksFor(level);
+        expect((cmds[beads] as RectCmd).fill).toBe(inks.hexes[cells[2]! - 1]!);
+    });
+
     it('珠体边长 < minBeadEdge ⇒ 回退方块（零珠体腿命令，珠块不消失）', () => {
         const big = simpleTestLevel({
             rows: 30,

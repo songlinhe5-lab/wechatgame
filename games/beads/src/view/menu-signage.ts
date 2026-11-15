@@ -472,6 +472,9 @@ export function levelThumbLockedCells(level: BeadsLevelRaw): readonly number[] {
  * @param beadSize 豆径档（`[WXG-T-910]` 与盘面同参：小豆档 ⇒ `hideHole` + `holeless`；缺省 = 满豆）。
  * @param anchor   `[WXG-T-918]` 盘的竖向锚：`'center'`（缺省，槽内垂直居中）｜`'bottom'`
  *   （图案**实际底缘**贴 `yBottom`，高盘宽盘同口径 —— 详情页「图案落在托盘上」用）。
+ * @param flat     `[WXG-T-952]` 纯色缩略腿：`true` ⇒ **不画珠面**（不调 `drawFilledBead`），
+ *   逐格铺**色板基础颜色**方块（回退档同款；判例 T-502「缩略只展示盘面」）。选关格用；
+ *   用户令「缩略图的珠面 tint 可以省略，看不清楚」⇒ 保持图案清晰、零珠面纹理。
  */
 export function drawBeadFace(
     builder: RenderModelBuilder,
@@ -485,6 +488,7 @@ export function drawBeadFace(
     styleId?: string,
     beadSize?: BeadSizeKind,
     anchor: 'center' | 'bottom' = 'center',
+    flat = false,
 ): void {
     const cells = levelThumbFullCells(level);
     const locked = levelThumbLockedCells(level);
@@ -507,7 +511,8 @@ export function drawBeadFace(
     // `[WXG-T-622]` 回退判据量**实际画出的珠体**（不是方块腿的 block）⇒ 选关格 / 详情橱窗
     // 共用同一条换算，缝占比高的小盘不再被误判成方块。
     const beadEdge = pitch * THUMB_BEAD_SHAPE.diameterRatio;
-    const shaped = beadEdge >= THUMB_BEAD_SHAPE.minBeadEdge;
+    // `[WXG-T-952]` 纯色缩略腿（选关格）恒走回退方块：珠面 / tint 一律不画，图案才看得清。
+    const shaped = !flat && beadEdge >= THUMB_BEAD_SHAPE.minBeadEdge;
     // `[WXG-T-926 / T-928]` 珠面描边：art 二裁暖可可黑、单层实线、随 pitch 等比；
     // 各种珠面展示统一启用（**先底块 / 珠体、后轮廓** ⇒ 线条压在珠面上缘，用户令「盖在珠面上面」）。
     // 帖序放在函数末尾（pass 2 之后）。

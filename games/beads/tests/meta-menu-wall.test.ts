@@ -63,7 +63,6 @@ import { drawFilledBead, type FilledBeadOptions } from '../src/view/bead-render.
 import { DEBUG_OUTLINE_TILE_HEX, DEFAULT_PALETTE, DEMO_BEAD_INKS, beadFadedInksFor, beadGrayInksFor, beadInksFor } from '../src/view/palette.js';
 import {
     BEAD_GAP,
-    THUMB_BEAD_SHAPE,
     DESIGN_H,
     DESIGN_W,
     MENU_V2,
@@ -254,11 +253,10 @@ function beadSignatureIn(
     level: (typeof LEVELS)[number],
 ): string {
     const a = LEVEL_SELECT_GEO.cellArt;
-    const { pitch, block } = thumbMetrics(level);
-    // `[WXG-T-622]` 回退判据 = 珠体边长（与 `drawBeadFace` 同一条换算，⛔ 不再用块边）。
-    const shaped = pitch * THUMB_BEAD_SHAPE.diameterRatio >= THUMB_BEAD_SHAPE.minBeadEdge;
-    const edge = shaped ? pitch * THUMB_BEAD_SHAPE.diameterRatio : block;
-    const overhang = Math.max(0, (edge - pitch) / 2);
+    const { block } = thumbMetrics(level);
+    // `[WXG-T-952]` 选关格走 flat 纯色腿 ⇒ 恒按**方块边**过滤（不再有珠体/交叠悬挑）。
+    const edge = block;
+    const overhang = 0;
     const ix0 = box.x + a.imageLeft;
     const iy0 = box.y + (box.h - a.imageTopDown - a.imageH);
     return cmds
@@ -288,14 +286,14 @@ function beadSignatureIn(
 
 /**
  * 把**期望关**的缩略单独画进干净 builder ⇒ 与该格实测序列逐条对撞（⛔ 不读屏上文字反推关号）。
- * `[WXG-T-613]` 缩略切**完整豆面**档（盘面真实 rows×cols 逐珠）⇒ oracle 与
- * `drawLevelSelectCell` 同参复算 `drawBeadFace`（旧 `THUMB_MATRIX_N` 聚合档口径退场，K-053）。
+ * `[WXG-T-952]` 选关格 = **flat 纯色腿**（色板基础色方块）⇒ oracle 与 `drawLevelSelectCell`
+ * 同参复算 `drawBeadFace(..., flat=true)`；旧「完整豆面」口径退场（K-053）。
  */
 function thumbOracle(level: (typeof LEVELS)[number], box: { x: number; y: number; w: number; h: number }): string {
     const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
     builder.begin();
     const a = LEVEL_SELECT_GEO.cellArt;
-    drawBeadFace(builder, level, box.x + a.imageLeft, box.y + (box.h - a.imageTopDown - a.imageH), a.imageW, a.imageH, DEFAULT_PALETTE);
+    drawBeadFace(builder, level, box.x + a.imageLeft, box.y + (box.h - a.imageTopDown - a.imageH), a.imageW, a.imageH, DEFAULT_PALETTE, undefined, undefined, undefined, 'center', true);
     return beadSignatureIn(builder.end().commands, box, level);
 }
 

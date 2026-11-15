@@ -9800,9 +9800,20 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **提交**：`19fb24ad`（代码 + Cocos 镜像 + 文档 + 台账）；复评与金样本重抓同批回填。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
 
+## WXG-T-952
+
+**修复·选关缩略改走 flat 纯色腿（彻底去掉豆面 / tint）** · 负责：主理人(Trae CN)·beads 视图轨 · 状态：✅ 完成（2026-11-15 · 用户令「现在缩略图的还是有豆面 tint 效果」）
+
+- **根因**：T-951 只关了 mask tint 臂，选关缩略仍走矢量珠面（刻面 + 孔 + 描边），小尺寸下仍读作「豆面 tint」。
+- **修复**：`drawBeadFace` 新增 `flat` 形参（缺省 `false`）；`flat=true` 时 `shaped` 恒 `false`，逐格只画 B0 目标色底 + **色板基础颜色**方块，不调 `drawFilledBead`。选关格解锁 / 锁定两处调用传 `flat=true`；详情橱窗与走马灯保持珠面。
+- **测试**：新增 T-952 flat 用例（2 rect/珠、零 circle、fill = 基色）；T-621「缩略跟随 beadStyle」改为「缩略与 beadStyle 解耦（两档帧逐字节相同）」；`meta-menu-wall` oracle 改按方块边过滤。
+- **文档**：`level-select-page-layout §2G`、`ui-architecture-beads §12` 更替登记；T-951 / T-950 标注被更替。
+- **金样本**：`level-select` / `level-select-mid` 在提交锚重抓。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
 ## WXG-T-951
 
-**修复·缩略珠面恢复基础色并关闭 tint 叠加** · 负责：主理人(Trae CN)·beads 视图轨 · 状态：✅ 完成（2026-11-15 · 用户令「缩略图的珠面颜色，能否取色板基础颜色即可，不要取 base 与 B0 edge 的中点这种概念。缩略图，珠面图案我觉 tint 可以省略不要叠加，看不清楚」）
+**修复·缩略珠面恢复基础色并关闭 tint 叠加** · 负责：主理人(Trae CN)·beads 视图轨 · 状态：✅ 完成（2026-11-15 · 用户令「缩略图的珠面颜色，能否取色板基础颜色即可，不要取 base 与 B0 edge 的中点这种概念。缩略图，珠面图案我觉 tint 可以省略不要叠加，看不清楚」）· **已被 WXG-T-952 更替**（缩略彻底改 flat 纯色腿，不再画矢量珠面）
 
 - **回退**：删除 `THUMB_FLAT_FACE_MIX` / `flatFaceHexes`；`drawBeadFace` 回退方块恢复 `beadColorOf()` 色板基础颜色（撤销 T-950 的 base/edge 中点派生色）。
 - **tint**：`drawBeadFace` 不再写 `faceOpts.maskGauge` / `faceTileOpts.maskGauge` ⇒ 缩略珠体/底块固定走矢量刻面；宿主注入 tint 运行时也零 blit（图案在小尺寸下可见）。`hideHole` 仍随豆径档；对局盘面 tint 腿不动。

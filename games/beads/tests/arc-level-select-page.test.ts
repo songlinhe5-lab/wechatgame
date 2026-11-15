@@ -215,8 +215,11 @@ describe('WXG-T-605 · 格内与转场', () => {
         }
     });
 
-    it('`[T-621]` 缩略珠面跟随当前应用风格：`MetaViewData.beadStyle` 一路透传到盘面珠体腿', () => {
+    it('`[WXG-T-952]` 选关缩略与珠体风格解耦：flat 纯色腿 ⇒ 两档 beadStyle 帧逐字节相同', () => {
         const hand = modalFrame(dataFor({ beadStyle: HANDDRAWN_STYLE_ID }));
+        const facet = modalFrame(dataFor());
+        // 用户令「缩略图的珠面 tint 可以省略，看不清楚」⇒ 选关格不再画珠面，风格设置不影响缩略。
+        expect(hand.map((c) => JSON.stringify(c))).toEqual(facet.map((c) => JSON.stringify(c)));
         const first = cells()[0]!.box;
         const a = LEVEL_SELECT_GEO.cellArt;
         const ref = new RenderModelBuilder(DESIGN_W, DESIGN_H);
@@ -229,15 +232,15 @@ describe('WXG-T-605 · 格内与转场', () => {
             DEFAULT_PALETTE,
             undefined,
             HANDDRAWN_STYLE_ID,
+            undefined,
+            'center',
+            true,
         );
         const refSigs = ref.end().commands.map((c) => JSON.stringify(c));
         const frameSigs = hand.map((c) => JSON.stringify(c));
         const at = frameSigs.indexOf(refSigs[0]!);
         expect(at).toBeGreaterThanOrEqual(0);
         expect(frameSigs.slice(at, at + refSigs.length)).toEqual(refSigs);
-        // 反向：默认档（facet-4）帧的 polygon 数 ≠ handdrawn 帧（4/珠 ↔ 2/珠）⇒ 风格确实生效。
-        const polys = (cs: readonly DrawCommand[]) => cs.filter((c) => c.kind === 'polygon').length;
-        expect(polys(modalFrame(dataFor()))).not.toBe(polys(hand));
     });
 
     it('pageFade 转场：木牌命令乘 0.75；静息帧无 alpha 字段', () => {
