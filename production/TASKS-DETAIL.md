@@ -9800,6 +9800,18 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **提交**：`19fb24ad`（代码 + Cocos 镜像 + 文档 + 台账）；复评与金样本重抓同批回填。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
 
+## WXG-T-948
+
+**资产·重新下载 Figma 设置面板 cell 背景** · 负责：主理人(Trae CN)·beads 美术/工程轨 · 状态：✅ 完成（2026-11-15 · 用户令「重新下载 figma 里面设置面板里的 cell 背景」）
+
+- **设计真源**：Figma 文件 `PBIK3RbfGlfzFsAnd97ZsP` · page `239:36 设置页面` · component `255:38 设置项cell` · 背景节点 **`256:61 设置项背景`**（509×137，无描边，DROP_SHADOW offset y=4 / radius 5 / 深棕 60%）。
+- **图像填充**：可见层 `f7683c2ff4f080ec975a841c53b71ab4920fe31c`；另一层 `f42e9d49fd6a20045ec06822e6ff68fba0f09fe9` 为 `visible:false` ⇒ ⛔ 不取（同 T-509 的「同节点隐层不取」纪律）。
+- **导出**：`figma.mjs img --node-id=256-61 --format png --scale 2` ⇒ **1038×294 RGBA**（节点 509×137 + 阴影外扩 5px/边）。中间件 `temp/figma/settings-cell-bg/256-61.png`。
+- **入库**：`games/beads/design/art/final/assets/menu/settings/cell/ui_cell_settings_bg@2x.png`（sha256 `e6b6e7072553fc61c0c874841b236ca4eb85ef22b0ffed177918ac9f981f8a03`）；来源账 `production/qa/asset-provenance.md §0.4`。
+- **未接线**：当前 `drawSettingsCell` 仍用 `MENU_TEXTURES.btnSettings`（自选关「关闭」派生的无字 9-slice）。换装需另立单：定 cap（含阴影边）、harness `MENU_FILE` + Cocos 投放件注册、缺图腿与 `ui-golden` 重抓。
+- **验证**：仅资产/文档，`pnpm run verify` 见详情。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
 ## WXG-T-947
 
 **清理·过关面板静态卡定稿 + 死字段 / 旧注释收口** · 负责：主理人(Trae CN)·beads 工程轨 · 状态：✅ 完成（2026-11-15 · 用户对评审三项回「1/2/3」）

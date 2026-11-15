@@ -52,6 +52,17 @@
 
 - **运行时接线**：`MENU_TEXTURES.settingsIcon* / settingsToggle*`（`config/tuning/menu.ts`）；harness `MENU_FILE` 已注册（`/menu-assets/settings/...`）。Cocos 投放件 / `.meta` / 构建 **待 GUI 导入**（同 §0.2 环境阻塞）⇒ 当前 Cocos 缺图腿 = 不画图标 + 程序化开关。
 
+## 0.4 Figma 切件：设置项 cell 背景（2026-11-15 · WXG-T-948）
+
+> 用户令「重新下载 figma 里面设置面板里的 cell 背景」。纯 Figma REST 节点导出，⛔ 无模型 / 无重绘。
+
+| 件（实测规格） | 生成方式 | 原图（Figma 节点 / 状态） | 批次出处 |
+|---|---|---|---|
+| `final/assets/menu/settings/cell/ui_cell_settings_bg@2x.png` **1038×294 RGBA** | Figma REST `img` 节点渲染导出（`--scale 2`；含节点自带 DROP_SHADOW：offset y=4 / radius 5 / 深棕 60%） | ✅ Figma `PBIK3RbfGlfzFsAnd97ZsP` · page `239:36 设置页面` · component `255:38 设置项cell` · 背景节点 **`256:61 设置项背景`**（509×137）；可见 IMAGE 填充 `f7683c2ff4…`，另一枚 `f42e9d49fd…` 为 `visible:false` ⛔ 不取；sha256 `e6b6e707…` | WXG-T-948 |
+
+- **接线状态**：⏳ **未接线**。当前设置 cell 仍用 `MENU_TEXTURES.btnSettings`（自选关「关闭」派生的 9-slice）。若要换成本件：需定 9-slice cap（含 5px 阴影边）、harness/Cocos 注册、缺图腿与金样本重抓。
+- **导出中间件**：`temp/figma/settings-cell-bg/256-61.png`（同 sha）。
+
 ## 1. 本批（2026-10-30 → 11-01）逐件来源账
 
 范围 = `final/assets/menu/` 中 `mtime ≥ 2026-10-30` 的 12 件（其余件来源见 `final/README.md` 台账与 `shots/` 证据流）。**在册 11 件**，第 12 件 `ui_menu_env` 已于 2026-11-01 裁定移出（本表保留该行作为出处账，⛔ 不当在册件用）。
