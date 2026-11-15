@@ -9800,9 +9800,20 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **提交**：`19fb24ad`（代码 + Cocos 镜像 + 文档 + 台账）；复评与金样本重抓同批回填。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
 
+## WXG-T-951
+
+**修复·缩略珠面恢复基础色并关闭 tint 叠加** · 负责：主理人(Trae CN)·beads 视图轨 · 状态：✅ 完成（2026-11-15 · 用户令「缩略图的珠面颜色，能否取色板基础颜色即可，不要取 base 与 B0 edge 的中点这种概念。缩略图，珠面图案我觉 tint 可以省略不要叠加，看不清楚」）
+
+- **回退**：删除 `THUMB_FLAT_FACE_MIX` / `flatFaceHexes`；`drawBeadFace` 回退方块恢复 `beadColorOf()` 色板基础颜色（撤销 T-950 的 base/edge 中点派生色）。
+- **tint**：`drawBeadFace` 不再写 `faceOpts.maskGauge` / `faceTileOpts.maskGauge` ⇒ 缩略珠体/底块固定走矢量刻面；宿主注入 tint 运行时也零 blit（图案在小尺寸下可见）。`hideHole` 仍随豆径档；对局盘面 tint 腿不动。
+- **测试**：`menu-thumb-primitives` 的 T-910 用例改为 T-951「tint 注入后仍零 blit、零槽查询」；回退填充断言改回基色；参照流同步。
+- **文档**：`level-select-page-layout §2G` 更替 T-950 条目；`ui-architecture-beads §12` 视觉变更登记（注明更替 T-950 / T-910 缩略腿）。
+- **金样本**：`level-select` / `level-select-mid` 在提交锚重抓。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
 ## WXG-T-950
 
-**修复·选关缩略超大盘回退方块的珠面颜色与详情页不一致** · 负责：主理人(Trae CN)·beads 视图轨 · 状态：✅ 完成（2026-11-15 · 用户报「选关页面，缩略图的珠面颜色和详情页的颜色不太一样？」并选定方案 1）
+**修复·选关缩略超大盘回退方块的珠面颜色与详情页不一致** · 负责：主理人(Trae CN)·beads 视图轨 · 状态：✅ 完成（2026-11-15 · 用户报「选关页面，缩略图的珠面颜色和详情页的颜色不太一样？」并选定方案 1）· **已被 WXG-T-951 更替**（用户令回退方块取色板基础色、缩略关闭 tint 叠加）
 
 - **根因**：`drawBeadFace` 对超大盘（30×30 / 32×32）因 `beadEdge < minBeadEdge(6)` 回退平色方块并填纯基色；详情橱窗同关（360×340）画完整珠面（刻面 + 孔/孔环 + B0 `edge` 暗底）⇒ 两处观感一平一亮。
 - **修复**：新增 `THUMB_FLAT_FACE_MIX = 0.15`（= `base` 与 `edge` 的中点）；`drawBeadFace` 回退臂取 `mix(base, −0.15)`，按 `BeadInks` WeakMap 一次烘焙（逐帧零分配）。回退阈值 / 几何 / 命令数不变，`shaped` 档逐字节不变。

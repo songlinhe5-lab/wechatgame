@@ -28,7 +28,6 @@ import {
     THUMB_AREA,
     THUMB_BEADS_MAX,
     THUMB_BEAD_SHAPE,
-    THUMB_FLAT_FACE_MIX,
     THUMB_MATRIX_N,
     THUMB_STAR_BAND,
     THUMB_TIERS,
@@ -370,9 +369,9 @@ describe('[T-613] 完整豆面档（盘面真实 rows×cols 逐珠，用户令�
         for (let i = 0; i < cells.length; i += 3) {
             const cx = left + (cells[i + 1]! + 0.5) * pitch;
             const cy = top - (cells[i]! + 0.5) * pitch;
-            // `[WXG-T-950]` 回退方块 = 珠面平均观感色（base/edge 中点）。
+            // `[WXG-T-951]` 回退方块 = **色板基础颜色**（用户令：不取 base/edge 中点这类派生色）。
             ref.rect(cx - block / 2, cy - block / 2, block, block, {
-                fill: mix(beadColorOf(inks, cells[i + 2]!), -THUMB_FLAT_FACE_MIX),
+                fill: beadColorOf(inks, cells[i + 2]!),
             });
         }
         expect(cmds.map((c) => JSON.stringify(c))).toEqual(ref.end().commands.map((c) => JSON.stringify(c)));
@@ -524,7 +523,7 @@ describe('[T-616/T-620] 选关缩略珠形档（接入盘面珠体腿）', () =>
         }
     });
 
-    it('[WXG-T-910] tint 注入后缩略与盘面同臂：珠体 1 blit/珠 + 底块 1 blit/格，maskGauge 随豆径档', () => {
+    it('[WXG-T-951] 缩略固定走矢量臂：tint 注入后仍零 blit（珠面图案要看得清，用户令）', () => {
         const level = LEVELS[0]!;
         const beads = levelThumbFullCells(level).length / 3;
         const seen: string[] = [];
@@ -534,15 +533,12 @@ describe('[T-616/T-620] 选关缩略珠形档（接入盘面珠体腿）', () =>
         });
         try {
             const cmds = paint(level);
-            // 珠体 + 底块各 1 blit（与盘面同臂）；旧 T-620「恒矢量臂」裁定已被用户一致令更替。
-            expect(cmds.filter((c) => c.kind === 'blit')).toHaveLength(beads * 2);
-            expect(seen).toHaveLength(beads * 2);
-            expect(seen.every((s) => s.endsWith(':holed'))).toBe(true);
-            // 小豆档 ⇒ holeless（与 play-page::sizeSmall 同式）。
-            seen.length = 0;
-            paint(level, undefined, undefined, 'small');
-            expect(seen.length).toBe(beads * 2);
-            expect(seen.every((s) => s.endsWith(':holeless'))).toBe(true);
+            // `[WXG-T-951]` 缩略不写 `maskGauge` ⇒ tint 分支不命中：零 blit、零槽查询。
+            expect(cmds.filter((c) => c.kind === 'blit')).toHaveLength(0);
+            expect(seen).toHaveLength(0);
+            // 矢量臂仍在：珠体（circle / polygon）不为零（图案可见）。
+            expect(cmds.filter((c) => c.kind === 'circle').length).toBeGreaterThan(0);
+            expect(beads).toBeGreaterThan(0);
         } finally {
             setBeadTintRuntime(undefined);
         }
@@ -561,16 +557,13 @@ describe('[T-616/T-620] 选关缩略珠形档（接入盘面珠体腿）', () =>
         expect(cmds.filter((k) => k.kind === 'polygon')).toHaveLength(0);
         // `[WXG-T-623]` 900 条目标色底块 + 900 条回退方块。
         expect(cmds.filter((k) => k.kind === 'rect')).toHaveLength(1800);
-        // `[WXG-T-950]` 回退方块 = 珠面平均观感色（base/edge 中点），⛔ 不再纯基色；
-        // 前 900 条是 B0 底块（edge），后 900 条才是方块。
+        // `[WXG-T-951]` 回退方块 = **色板基础颜色**（用户令回退 T-950 的派生中点色）。
         const { block } = fullGeo(big, SLOT_W, SLOT_H);
         const inks = beadInksFor(big);
-        const expected = mix(inks.hexes[0]!, -THUMB_FLAT_FACE_MIX);
         const firstBlock = cmds[900] as RectCmd;
         expect(firstBlock.kind).toBe('rect');
         expect(firstBlock.w).toBeCloseTo(block, 6);
-        expect(firstBlock.fill).toBe(expected);
-        expect(firstBlock.fill).not.toBe(inks.hexes[0]);
+        expect(firstBlock.fill).toBe(inks.hexes[0]!);
     });
 
     /**
