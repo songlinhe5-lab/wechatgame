@@ -4,7 +4,7 @@
   "unit": "UI-02",
   "spec": "docs/architecture/ui-architecture-beads.md §5 / §9.4 / §12",
   "codeBaseline": "bd964a0",
-  "capturedFrom": "ee353c78 · 工作树（WXG-T-298）",
+  "capturedFrom": "1e53e33c · WXG-T-949 · 过关结算面板按 Figma 269:44 重排",
   "fixture": {
     "viewport": {
       "width": 750,
@@ -214,7 +214,7 @@
         "blit": 3,
         "containerEnd": 1
       },
-      "sha": "8fdce4848396c0479cd147452609799d61fc0298085b92927880d5e6906334ed",
+      "sha": "5902138ed4d3bdddaeea448870735cd5b07dfaea1ffeeab75be11d4dfc7a7bb5",
       "background": "#F1E8D8",
       "transform": null
     },
