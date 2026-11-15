@@ -9811,7 +9811,7 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **参数（已实装）**：M1 边宽 10/6/2 · α 3%/4%/5% · r8；M2 宽 `avail × 0.92` · 上压 2 / 下落 12 · 6/10/14 · α 14%/8%/3% · r6；M3 外扩 8 · 1px `panelBorder` r6 + 1px `panel` r5；M4 1px `plaqueBevel`。
 - **层序**：M2 进 clip 内随 `dx` 平移（接触影是展品投影）；M1/M3/M4 在 `unclip()` 后（固定上层，压住滑动内容）。锁 / 置灰 / 空槽只画 M3/M4。
 - **成本**：零新 hex（`shadowInk`/`panelBorder`/`panel`/`plaqueBevel` 四枚在册）、位图 0 KB；菜单帧 **+18 rect（实测）**：`main-menu` 1117→1135、`level-select` / `-mid` 4780→4798、`settings` 1170→1188、`signin` 1149→1167，其余六态零漂移。
-- **取证**：harness 四态 `temp/mount-shots/menu-{locked,pushing,cleared,fullstar}.png`（锁定 = 第二章页）；金样本由 `ui-golden-capture.ts` 在提交锚重抓（K-051 / K-053）。
+- **取证**：harness 四态 `temp/mount-shots/menu-{locked,pushing,cleared,fullstar}.png`（锁定 = 第二章页）；金样本由 `ui-golden-capture.ts` 在 `2677fcb9` 锚重抓（两遍确定性自证 PASS，K-051 / K-053）。
 - **待真机**：α / r8 目检回填；M5 默认不启用。零 §3 冻结值改动。
 
 ## WXG-T-952

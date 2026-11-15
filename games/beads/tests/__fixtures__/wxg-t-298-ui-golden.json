@@ -4,7 +4,7 @@
   "unit": "UI-02",
   "spec": "docs/architecture/ui-architecture-beads.md §5 / §9.4 / §12",
   "codeBaseline": "bd964a0",
-  "capturedFrom": "88662cda · WXG-T-952 · 选关缩略改走 flat 纯色腿",
+  "capturedFrom": "2677fcb9 · WXG-T-953 · 主菜单橱窗装裱层 M1–M4",
   "fixture": {
     "viewport": {
       "width": 750,
@@ -31,9 +31,9 @@
         "overlay": "none",
         "phase": "playing"
       },
-      "total": 1117,
+      "total": 1135,
       "kinds": {
-        "rect": 253,
+        "rect": 271,
         "line": 9,
         "circle": 287,
         "text": 5,
@@ -42,7 +42,7 @@
         "blit": 1,
         "polygon": 560
       },
-      "sha": "c38a14a4880c00471bdf2231bb77a2af3254d698377d26c0be349debfcaf7bd8",
+      "sha": "f01525159ccfcbe9a8df06aaa5186e36c63d4bafc20cf7292fa182f86971826b",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -55,9 +55,9 @@
         "overlay": "levels",
         "phase": "playing"
       },
-      "total": 4780,
+      "total": 4798,
       "kinds": {
-        "rect": 3146,
+        "rect": 3164,
         "line": 23,
         "circle": 287,
         "text": 26,
@@ -68,7 +68,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "87fbd0779dfc30b000e595f55308b368feeba4bd09380ce638cfaac97c91354e",
+      "sha": "c0fb949862ea2860a5c73c4a28bc4a250efc1466a154cbfe0e73bdf44e096014",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -81,9 +81,9 @@
         "overlay": "levels",
         "phase": "playing"
       },
-      "total": 4780,
+      "total": 4798,
       "kinds": {
-        "rect": 3146,
+        "rect": 3164,
         "line": 23,
         "circle": 287,
         "text": 26,
@@ -94,7 +94,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "d8995ccdb2b05fce8a77b6bfdb2fe641d4721d7050dd30a7f5fd3f462c19a10d",
+      "sha": "28dee14519160d40a4705c5cb1d3abcca14c8a7a1d8daf9fc5a1f6c3fabdb6a7",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -107,9 +107,9 @@
         "overlay": "settings",
         "phase": "playing"
       },
-      "total": 1170,
+      "total": 1188,
       "kinds": {
-        "rect": 270,
+        "rect": 288,
         "line": 24,
         "circle": 292,
         "text": 17,
@@ -120,7 +120,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "2455b59fee83caac6ea22959d9ddcc8810d155bebda17906ff114bf040068abe",
+      "sha": "593c88f6b3e4596c1443886e104574fe7fb824c89a7a1bdbbf3a76ff0efd0417",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -133,9 +133,9 @@
         "overlay": "signin",
         "phase": "playing"
       },
-      "total": 1149,
+      "total": 1167,
       "kinds": {
-        "rect": 265,
+        "rect": 283,
         "line": 9,
         "circle": 287,
         "text": 23,
@@ -146,7 +146,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "6cd7d7f250933c951433dad7c0c1f9b56c9b64eae0024baaedde94cfff27e333",
+      "sha": "008bcd790c7994878596dfa39e5f2de1a562cc7a2a9407209d574e5e19080050",
       "background": "#F1E8D8",
       "transform": null
     },
