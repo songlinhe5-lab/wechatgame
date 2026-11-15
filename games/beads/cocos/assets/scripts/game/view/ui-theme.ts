@@ -54,6 +54,11 @@ export const UI_FONT = {
     button: '30px sans-serif',
     /** 结算读数 34 粗体。 */
     stat: 'bold 34px sans-serif',
+    /** `[WXG-T-949]` 结算·过关面板（Figma 过关结算 269:44）：用时 38 / 豆 56 / 主钮 44 / 次钮 34。 */
+    clearTime: 'bold 38px sans-serif',
+    clearReward: 'bold 56px sans-serif',
+    clearNext: 'bold 44px sans-serif',
+    clearMenu: 'bold 34px sans-serif',
     /** 面板按钮 30 粗体。 */
     panelButton: 'bold 30px sans-serif',
     /**

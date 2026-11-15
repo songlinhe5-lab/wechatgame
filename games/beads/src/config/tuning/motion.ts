@@ -525,13 +525,14 @@ export const CONFETTI_FADE_START = 0.7;
 /** 五档错高（idx mod 5），避免齐平下落。 */
 export const CONFETTI_SPAWN_STEP_Y = 60;
 /**
- * 前景禁飞带（clearPanelLayout 派生）：下沿 = 按钮行 yMin 476 下方留 29；上沿 = 标题木牌上缘
- * （titleY 902 + `CLEAR_PLAQUE_H` 64/2）。FG 枚入带**跳过绘制**；MAIN 不受限。
+ * 前景禁飞带（clearPanelLayout 派生）：下沿 = 主钮行 yMin 477 下方留 30（= 447，与
+ * finish 货架共用同一下沿）；上沿 = **新版木牌顶**（`panel.yMax`，基准档 978）。
+ * FG 枚入带**跳过绘制**；MAIN 不受限。
  * `[WXG-T-946]` 旧上沿 787 是 v1.40 缎带几何（ribbonH 84）；T-510 改木牌后未同步，
- * 导致 FG 彩带可盖住「过关」木牌与星级行 ⇒ 按现役 520×470 版面修正。
+ * 导致 FG 彩带可盖住「过关」木牌与星级行 ⇒ `[WXG-T-949]` 按 Figma 545×585 木牌重推。
  */
 export const CONFETTI_NOFLY_YMIN = 447;
-export const CONFETTI_NOFLY_YMAX = 934;
+export const CONFETTI_NOFLY_YMAX = 978;
 /** 零 RNG 分布参数（承 `comboParticleOffsets` 判例）：x = 750 × frac(idx × 0.618)；phase = idx × 137.5°。 */
 export const CONFETTI_GOLDEN_RATIO = 0.618;
 export const CONFETTI_GOLDEN_ANGLE = 137.5;

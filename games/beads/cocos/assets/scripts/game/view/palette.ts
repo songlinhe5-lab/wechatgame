@@ -325,6 +325,11 @@ export interface BeadsPalette {
    * 它是次行墨的**唯一合法地色**（见 {@link plateSubInk}）；旧法用 `wood_face #8A5B34` 偏亮偏灰。
    */
   readonly platePill: string;
+  /** `[WXG-T-949]` 结算·过关面板（Figma 过关结算 269:44）四档墨色。 */
+  readonly clearTitleInk: string;
+  readonly clearTextInk: string;
+  readonly clearRewardInk: string;
+  readonly clearMenuInk: string;
   /** 纸钮/纸卡按下态面（tokens.md `card_pressed`）。 */
   readonly cardPressed: string;
   /** 纸钮禁用态面（tokens.md `card_disabled`）。 */
@@ -390,6 +395,10 @@ export const DEFAULT_PALETTE: BeadsPalette = {
   plateTitleInk: '#563113', // plate_title_ink 木牌关名墨（WXG-T-597 稿实测；对牌面 5.38:1 ✓）
   plateSubInk: '#E8D098', // plate_sub_ink 木牌次行墨（稿 #E6CC90 提亮 9/255 换 4.61:1 ✓；配 plate_pill）
   platePill: '#795127', // plate_pill 木牌次行胶囊底（WXG-T-597 稿实测；plate_sub_ink 的唯一合法地色）
+  clearTitleInk: '#F9D8A7', // `[WXG-T-949]` 过关结算标题（Figma #F9D8A7）
+  clearTextInk: '#FFF4DC', // `[WXG-T-949]` 用时 / 主钮字（Figma #FFF4DC）
+  clearRewardInk: '#F9D86B', // `[WXG-T-949]` 豆奖励（Figma #F9D86B）
+  clearMenuInk: '#3D2E1E', // `[WXG-T-949]` 次钮字（Figma #3D2E1E）
   cardPressed: '#F4EAD7', // card_pressed
   cardDisabled: '#F7F2E6', // card_disabled
   cardDisabledBorder: '#EAE0CC', // card_disabled_border

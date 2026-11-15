@@ -9800,6 +9800,18 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **提交**：`19fb24ad`（代码 + Cocos 镜像 + 文档 + 台账）；复评与金样本重抓同批回填。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
 
+## WXG-T-949
+
+**设计·过关结算面板按 Figma `过关结算 269:44` 重排** · 负责：主理人(Trae CN)·beads 工程/美术轨 · 状态：✅ 完成（2026-11-15 · 用户令「figma 过关结算面板 UI 调整了，请按照设计进行代码调整」）
+
+- **设计真源**：Figma `PBIK3RbfGlfzFsAnd97ZsP` · page `269:43 过关结算` · frame `269:44`（750×1334）。
+- **几何（Figma down → tuning/y-up）**：木牌可见区 **545×585 @ (103,356)**（节点 `269:45` 源 581×1044 含透明外扩，按可见 bbox 裁切）；标题 64 ExtraBold `#F9D8A7` drop (9,7) r3、距牌顶 92；星 **96×99**，中心 x=255/375/495、距牌顶 193.5；用时 38 Bold `#FFF4DC` 距牌顶 278.5；豆 56 ExtraBold `#F9D86B` 距牌顶 345；主钮 **279×106 @133,751** + 次钮 **192×101 @429,751**（顶对齐、间隔 17）。
+- **落码**：`CLEAR_PANEL_SIZE` / `CLEAR_PANEL_TOP_DOWN` / `CLEAR_*_DY` / `CLEAR_ACTION_*` / `CLEAR_SECONDARY_*` / `CLEAR_PAIR_GAP` / `CLEAR_ROW_*`；`clearPanelLayout` 改牌顶锚 + 双钮顶对齐、`hintY` 放双钮下方（距牌底 52）。`drawClearPanel` 走整张木牌位图 + 金星位图 + 双钮位图；缺图腿保留旧纸面板 / 9-slice / 程序化星与旧钮。
+- **资产**：4 枚入库 `final/assets/menu/clear/`（`ui_clear_panel_board@2x` 1090×1170 / `ui_clear_star@2x` 192×198 / `ui_btn_clear_next@2x` 554×218 / `ui_btn_clear_menu@2x` 384×204），来源账 `asset-provenance §0.5`；harness `MENU_FILE` 已注册；⛔ Cocos 未投放 / 未注册（`.meta` 待 GUI），当前真机走缺图腿。
+- **连带**：彩带前景禁飞带上沿 934 → **978**（= `panel.yMax`）；`dialog-center.test` 结算面板摘出「垂直居中」组、改钉 Figma 定位；色表锁 53 → **57** / `e9fff87929b7`；scrim 静态门 2 → 3 处纯遮罩。
+- **验证**：`pnpm run verify`（见本会话结论）；`clear` 金样本由 `ui-golden-capture.ts` 在提交锚重抓。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
 ## WXG-T-948
 
 **资产·重新下载 Figma 设置面板 cell 背景** · 负责：主理人(Trae CN)·beads 美术/工程轨 · 状态：✅ 完成（2026-11-15 · 用户令「重新下载 figma 里面设置面板里的 cell 背景」）

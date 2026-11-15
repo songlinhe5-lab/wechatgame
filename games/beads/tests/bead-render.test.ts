@@ -1149,11 +1149,15 @@ describe('v1.57 art 硬约束（assets-spec §1.10.9 四条）', () => {
   //    （稿 `#E6CC90` 提亮 9/255 —— 稿值压稿胶囊只有 4.44:1，提亮换 4.61:1 ✓）/
   //    `plate_pill #795127`（稿实测）。三种都是「压在**烘图亮木牌面**上的专用墨/底」，与
   //    `wood_*` 的钮面底不同底 ⇒ 同样是**新底新墨**而非换值 ⇒ 50 → **53** 条 / `…ba31`→`248d326a306c`。
+  //    [WXG-T-949 · 2026-11-15 用户令「figma 过关结算面板 UI 调整了，按设计改代码」] 过关结算
+  //    四枚专用墨入表（Figma 稿实测）：`clear_title_ink #F9D8A7` / `clear_text_ink #FFF4DC` /
+  //    `clear_reward_ink #F9D86B` / `clear_menu_ink #3D2E1E`。全部压在**烘图木牌/双钮**上
+  //    （跨肤同底，判例同 `bar_value` / `plate_*`）⇒ 新底新墨 ⇒ 53 → **57** 条 / `248d…`→`e9fff87929b7`。
   it('④ 色表锁：palette.ts 代码内 hex 条数与指纹不变（§1.9.7①）', () => {
     const src = readFileSync(new URL('../src/view/palette.ts', import.meta.url), 'utf8');
     const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
     const hexes = code.match(/#[0-9A-Fa-f]{6}/g) ?? [];
-    expect(hexes.length).toBe(53);
-    expect(createHash('sha1').update(hexes.join('|')).digest('hex').slice(0, 12)).toBe('248d326a306c');
+    expect(hexes.length).toBe(57);
+    expect(createHash('sha1').update(hexes.join('|')).digest('hex').slice(0, 12)).toBe('e9fff87929b7');
   });
 });

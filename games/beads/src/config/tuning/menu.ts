@@ -86,18 +86,31 @@ export const PANEL_TITLE_BAND_H = 100;
 // 只有星与按钮的排布是本面板专有。
 /** 每颗星入场的间隔（ms）—— ux-spec §5「结算星入场 逐颗 150ms（150×3）」。 */
 export const CLEAR_STAR_STEP_MS = 150;
-/** 单颗星的外接直径：ux-spec §3.4 未定尺寸 ⇒ 本项派生（三颗等距排在面板中部）。 */
-export const CLEAR_STAR_SIZE = 72;
-/** 星与星的水平间隔。 */
-export const CLEAR_STAR_GAP = 32;
+/** 单颗星的外接直径：`[WXG-T-949]` Figma 过关结算星 96×99（旧 72 已随新版退场）。 */
+export const CLEAR_STAR_SIZE = 96;
+/** 星与星的水平间隔：星心距 120 − 96 = 24（Figma 255 / 375 / 495）。 */
+export const CLEAR_STAR_GAP = 24;
 
-/** `[WXG-T-510]` 结算面板专用尺寸（A2 木挂牌；其他三面板仍用共享 `PANEL_SIZE`）。 */
-export const CLEAR_PANEL_SIZE = { w: 520, h: 470 } as const;
-/** `[WXG-T-509/510]` 结算双钮：主 300×92（木）/ 弱化 150×88（纸）。 */
-export const CLEAR_ACTION_W = 300;
-export const CLEAR_ACTION_H = 92;
-export const CLEAR_SECONDARY_W = 150;
-export const CLEAR_SECONDARY_H = 88;
+/** `[WXG-T-949]` 结算面板木牌可见区 545×585（Figma `过关结算 269:44`；含四角铆钉与标题凹槽）。 */
+export const CLEAR_PANEL_SIZE = { w: 545, h: 585 } as const;
+/** 木牌顶边距屏顶的设计 y（Figma 356）⇒ 运行时按 `DESIGN_H − 356 − h` 换算。 */
+export const CLEAR_PANEL_TOP_DOWN = 356;
+/** `[WXG-T-949]` 结算双钮：主 279×106（橙）/ 次 192×101（奶油）；顶对齐，水平间隔 17。 */
+export const CLEAR_ACTION_W = 279;
+export const CLEAR_ACTION_H = 106;
+export const CLEAR_SECONDARY_W = 192;
+export const CLEAR_SECONDARY_H = 101;
+export const CLEAR_PAIR_GAP = 17;
+/** 双钮行左缘 / 底缘（相对木牌左下角，Figma 133 / 84）。 */
+export const CLEAR_ROW_LEFT = 133;
+export const CLEAR_ROW_BOTTOM = 84;
+/** `[WXG-T-949]` 牌内纵向锚（距牌顶）：标题 92 / 星 193.5 / 用时 278.5 / 豆 345。 */
+export const CLEAR_TITLE_DY = 92;
+export const CLEAR_STARS_DY = 193.5;
+export const CLEAR_TIME_DY = 278.5;
+export const CLEAR_REWARD_DY = 345;
+/** 差距提示行距牌底（Figma 未给 <3★ 态；置于双钮下方 52，避免压住设计的三段节奏）。 */
+export const CLEAR_HINT_UP = 52;
 /** `[WXG-T-515]` 结算 9-slice 端帽（源纹 px）：框 60 / 底 36 / 木钮 76·46 / 纸钮 52·44。
  *  ⛔ 端帽必须盖住圆角 + 描边 + 内壁装饰；超出部分的边条只允许线性渐变（可拉伸）。 */
 export const CLEAR_FRAME_SLICE = { capX: 60, capY: 60 } as const;
@@ -112,9 +125,9 @@ export const CLEAR_PAPER_BTN_SLICE = { capX: 52, capY: 44 } as const;
 export const SETTINGS_BTN_SLICE = { capX: 70 } as const;
 /** 框厚（设计 px）：内底贴在框内壁，距面板外缘此值。 */
 export const CLEAR_FRAME_INSET = 18;
-/** `[WXG-T-510]` A2 标题木挂牌：200×64，骑在面板上沿。 */
-export const CLEAR_PLAQUE_W = 200;
-export const CLEAR_PLAQUE_H = 64;
+/** `[WXG-T-949]` 旧 9-slice 降级腿的标题木牌（Figma 新牌标题凹槽约 380×96；仅缺木牌位图时使用）。 */
+export const CLEAR_PLAQUE_W = 380;
+export const CLEAR_PLAQUE_H = 96;
 /** 主/副钮宽度：240 + 30 + 240 = 510 ≤ 560 − 2×20（面板内边距）⇒ 可并排落地（通关/冲刺面板）。 */
 export const CLEAR_BUTTON_W = PANEL_PRIMARY_W;
 export const CLEAR_BUTTON_GAP = 30;
@@ -596,6 +609,15 @@ export const MENU_TEXTURES = {
   btnWood: 'bitmap__ui_btn_wood_9s',
   btnWoodPressed: 'bitmap__ui_btn_wood_9s_pressed',
   btnPaper: 'bitmap__ui_btn_paper_9s',
+  /**
+   * `[WXG-T-949]` 结算·过关面板新版四件（Figma `过关结算 269:44`，2026-11-15）：
+   * 整张木牌 545×585（含四角铆钉 / 标题凹槽 / 自带阴影）、金星 96×99、
+   * 主钮 279×106、次钮 192×101。宿主未注册 ⇒ 缺图腿回退旧 9-slice + 程序化星。
+   */
+  clearPanelBoard: 'bitmap__ui_clear_panel_board',
+  clearStar: 'bitmap__ui_clear_star',
+  clearNextBtn: 'bitmap__ui_btn_clear_next',
+  clearMenuBtn: 'bitmap__ui_btn_clear_menu',
   /**
    * `[WXG-T-938]` 设置弹窗按钮底板：自选关页「关闭」烘图（`ui_level_select_close@2x`）派生的
    * **无字**厚木 9-slice（235×210，capX 70）。用户令「设置页面的按钮不是选关页面的按钮设计」。

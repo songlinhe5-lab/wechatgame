@@ -62,6 +62,12 @@ const COOL_VIOLET_TOKENS: BeadsPalette = Object.freeze({
     plaqueFace: '#2A2E43', // ≡ woodFace（冷面钮墨 ⇒ 深牌面）
     plaqueEdge: '#1E2033', // ≡ shadowInk（深一档描边，同 woodEdge）
     plaqueBevel: '#6E7288', // ≡ textDim（受光缘/铆钉，冷肤弱化，判例同 woodSheen）
+    // [WXG-T-949] 过关结算木牌 / 双钮是 Figma 烘图（跨肤同值，判例同 `barValue` / `plate*`）
+    // ⇒ 牌面恒暖木，字墨必须配同一底色，⛔ 不走冷化。
+    clearTitleInk: '#F9D8A7',
+    clearTextInk: '#FFF4DC',
+    clearRewardInk: '#F9D86B',
+    clearMenuInk: '#3D2E1E',
 });
 
 export const COOL_VIOLET_SKIN: BeadsSkin = Object.freeze({

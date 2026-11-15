@@ -34,6 +34,8 @@ import { createBeadsShell, type BeadsShell } from '../src/game/beads-shell.js';
 import { defaultBeadsMeta } from '../src/game/meta-save-schema.js';
 import { defaultBeadsSave } from '../src/game/save-schema.js';
 import {
+    CLEAR_PANEL_SIZE,
+    CLEAR_PANEL_TOP_DOWN,
     DESIGN_H,
     DESIGN_W,
     PANEL_SCALE_FROM,
@@ -123,19 +125,29 @@ describe('WXG-T-323 — 对话框中心对齐手机中心（逐机实际设计�
         expect(dialogShiftY()).toBe(146);
     });
 
-    it('局内四处对话框（暂停 / 结算 / 失败 / 冲刺结算）中心 = 手机中心', () => {
+    it('局内其余对话框（暂停 / 失败 / 冲刺结算）中心 = 手机中心', () => {
         rig();
         for (const [name, plate] of [
             ['暂停 normal', pausePanelLayout('normal').panel],
             ['暂停 sprint', pausePanelLayout('sprint').panel],
-            ['结算', clearPanelLayout({ lastLevel: false }).panel],
-            ['结算（末关）', clearPanelLayout({ lastLevel: true }).panel],
             ['失败（可复活）', failPanelLayout(true).panel],
             ['失败（仅重试）', failPanelLayout(false).panel],
             ['冲刺结算', sprintSettleLayout().panel],
         ] as const) {
             expectScreenCenter(name, center(plate));
         }
+    });
+
+    it(`[WXG-T-949] 结算木牌按 Figma 定位（非垂直居中）：中心比屏心高 ${DESIGN_H / 2 - (DESIGN_H - CLEAR_PANEL_TOP_DOWN - CLEAR_PANEL_SIZE.h / 2)}`, () => {
+        rig();
+        const plate = clearPanelLayout({ lastLevel: false }).panel;
+        // Figma 过关结算：牌顶距屏顶 356、牌高 585 ⇒ 中心 685.5（基准档），比屏心 667 高 18.5。
+        expect(center(plate) - dialogShiftY()).toBeCloseTo(
+            DESIGN_H - CLEAR_PANEL_TOP_DOWN - CLEAR_PANEL_SIZE.h / 2,
+            6,
+        );
+        // 高屏档随 `dialogShiftY` 位移（整数化余 ≤1）。
+        expect(Math.abs(center(plate) - TALL_H / 2 - 18.5)).toBeLessThanOrEqual(1);
     });
 
     it('菜单设置弹窗底板 = 关卡详情木牌（WXG-T-935 共用底板）', () => {

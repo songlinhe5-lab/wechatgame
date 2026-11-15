@@ -63,6 +63,23 @@
 - **接线状态**：⏳ **未接线**。当前设置 cell 仍用 `MENU_TEXTURES.btnSettings`（自选关「关闭」派生的 9-slice）。若要换成本件：需定 9-slice cap（含 5px 阴影边）、harness/Cocos 注册、缺图腿与金样本重抓。
 - **导出中间件**：`temp/figma/settings-cell-bg/256-61.png`（同 sha）。
 
+## 0.5 Figma 切件：过关结算面板（2026-11-15 · WXG-T-949）
+
+> 用户令「figma 过关结算面板 UI 调整了，请按照设计进行代码调整」。纯 Figma REST 节点导出，⛔ 无模型 / 无重绘；
+> 木牌按节点渲染的**可见 bbox** 裁切（源节点 581×1044 含透明外扩），保留透明角与节点自带阴影。
+
+| 件（实测规格） | 生成方式 | 原图（Figma 节点 / 状态） | 批次出处 |
+|---|---|---|---|
+| `final/assets/menu/clear/ui_clear_panel_board@2x.png` **1090×1170 RGBA**（1.0 MB） | Figma REST `img` 节点渲染导出（`--scale 2`）+ 可见 bbox 裁切 | ✅ Figma `PBIK3RbfGlfzFsAnd97ZsP` · page `269:43 过关结算` · frame `269:44` · 木牌节点 **`269:45`**；IMAGE 填充 `f886360b…`；sha256 `060bb927…` | WXG-T-949 |
+| `final/assets/menu/clear/ui_clear_star@2x.png` **192×198 RGBA**（21 KB） | 同上 | ✅ 同 page/frame · 单星节点（星容器 `270:42`）；IMAGE 填充 `b37b558e…`；sha256 `bbf40545…` | WXG-T-949 |
+| `final/assets/menu/clear/ui_btn_clear_next@2x.png` **554×218 RGBA**（115 KB，白底已泛洪透明） | 同上 + 泛洪去白底 | ✅ 同 page/frame · 主钮实例 **`269:65`**（279×106 @133,751）；IMAGE 填充 `342f95eb…`；sha256 `3d4119ae…` | WXG-T-949 |
+| `final/assets/menu/clear/ui_btn_clear_menu@2x.png` **384×204 RGBA**（98 KB，白底已泛洪透明） | 同上 + 泛洪去白底 | ✅ 同 page/frame · 次钮实例 **`269:67`**（192×101 @429,751）；IMAGE 填充 `cbbf208c…`；sha256 `cb0b39b1…` | WXG-T-949 |
+
+- **接线状态**：harness 已注册（`dev/harness/main.ts::MENU_FILE` 四枚），代码走位图腿；⛔ **Cocos 未注册**
+  （`games/beads/cocos/assets/textures/` 未投放、`.meta` 未签发）⇒ 当前 Cocos 腿走缺图降级（旧纸面板 + 9-slice + 程序化星），
+  待 GUI 导入后补 `.meta` 再注册 `beads-blit-carrier::BITMAP_ASSETS`。
+- **导出中间件**：`temp/figma/clear/`（四件同 sha）。
+
 ## 1. 本批（2026-10-30 → 11-01）逐件来源账
 
 范围 = `final/assets/menu/` 中 `mtime ≥ 2026-10-30` 的 12 件（其余件来源见 `final/README.md` 台账与 `shots/` 证据流）。**在册 11 件**，第 12 件 `ui_menu_env` 已于 2026-11-01 裁定移出（本表保留该行作为出处账，⛔ 不当在册件用）。

@@ -1,10 +1,10 @@
 /**
- * S7 结算·过关面板判据（WXG-T-063；`[WXG-T-509]` 精简重设计）。
+ * S7 结算·过关面板判据（WXG-T-063；`[WXG-T-509]` 精简 / `[WXG-T-949]` 按 Figma 重排）。
  *
- * 冻结来源：`ux/ux-spec.md` §3.4（v1.40：四行内容 + 单钮）、§4（`LEVEL_CLEAR` 等按钮）、
- * §5（星入场逐颗 150ms）。数值与几何镜像在 `config/tuning.ts`。
+ * 冻结来源：`ux/ux-spec.md` §3.4（v1.58：木牌 545×585 + 星 / 用时 / 豆 / 提示 + 双钮）、
+ * §4（`LEVEL_CLEAR` 等按钮）、§5（星入场逐颗 150ms）。数值与几何镜像在 `config/tuning.ts`。
  *
- * 本文件钉三件事：① 新几何（520×440 / 内容区 400×192 / 320×92 单钮）；
+ * 本文件钉三件事：① 新几何（545×585 木牌 / 内容区 545×465 / 279×106 + 192×101 双钮）；
  * ② 内容精简（只留 星 / 用时 / 豆 / 差距提示）；③ 时长文案（<60 秒 → `41秒`，≥60 → `1分05秒`）。
  */
 
@@ -14,10 +14,15 @@ import {
   CLEAR_ACTION_H,
   CLEAR_ACTION_W,
   CLEAR_PANEL_SIZE,
+  CLEAR_PANEL_TOP_DOWN,
   CLEAR_PLAQUE_H,
   CLEAR_PLAQUE_W,
+  CLEAR_REWARD_DY,
   CLEAR_SECONDARY_H,
   CLEAR_SECONDARY_W,
+  CLEAR_STARS_DY,
+  CLEAR_TIME_DY,
+  CLEAR_TITLE_DY,
   DESIGN_H,
   DESIGN_W,
   TOUCH_MIN,
@@ -63,17 +68,22 @@ function tapButton(harness: Harness, id: 'next' | 'menu', lastLevel = false): bo
   return harness.game.tapDesign((rect.xMin + rect.xMax) / 2, (rect.yMin + rect.yMax) / 2);
 }
 
-describe('S7 结算面板 · 精简几何（ux-spec §3.4 v1.41）', () => {
-  it('板 520×470 居中；A2 木牌骑上沿；主钮 300×92 + 弱化 150×88', () => {
+describe('S7 结算面板 · 精简几何（ux-spec §3.4 v1.58）', () => {
+  it('木牌 545×585 距屏顶 356；牌内锚点按 Figma；主钮 279×106 + 次钮 192×101 顶对齐', () => {
     const layout = clearPanelLayout(NORMAL);
     const plate = layout.panel;
     expect(plate.xMax - plate.xMin).toBe(CLEAR_PANEL_SIZE.w);
     expect(plate.yMax - plate.yMin).toBe(CLEAR_PANEL_SIZE.h);
     expect((plate.xMin + plate.xMax) / 2).toBe(DESIGN_W / 2);
-    expect((plate.yMin + plate.yMax) / 2).toBe(DESIGN_H / 2);
-    expect(layout.titleY).toBe(plate.yMax);
-    expect(CLEAR_PLAQUE_W).toBe(200);
-    expect(CLEAR_PLAQUE_H).toBe(64);
+    expect(plate.yMax).toBe(DESIGN_H - CLEAR_PANEL_TOP_DOWN);
+    // 牌内四锚距牌顶（Figma 92 / 193.5 / 278.5 / 345）。
+    expect(layout.titleY).toBe(plate.yMax - CLEAR_TITLE_DY);
+    expect(layout.starsY).toBe(plate.yMax - CLEAR_STARS_DY);
+    expect(layout.timeY).toBe(plate.yMax - CLEAR_TIME_DY);
+    expect(layout.rewardY).toBe(plate.yMax - CLEAR_REWARD_DY);
+    // 仅缺图降级腿使用：程序化标题牌 380×96。
+    expect(CLEAR_PLAQUE_W).toBe(380);
+    expect(CLEAR_PLAQUE_H).toBe(96);
 
     expect(layout.buttons).toHaveLength(2);
     const [next, menu] = layout.buttons;
@@ -84,26 +94,27 @@ describe('S7 结算面板 · 精简几何（ux-spec §3.4 v1.41）', () => {
     expect(menu!.rect.xMax - menu!.rect.xMin).toBe(CLEAR_SECONDARY_W);
     expect(menu!.rect.yMax - menu!.rect.yMin).toBe(CLEAR_SECONDARY_H);
     expect(menu!.rect.yMax - menu!.rect.yMin).toBeGreaterThanOrEqual(TOUCH_MIN);
-    // 同行、主左次右、都在板内。
-    expect((next!.rect.yMin + next!.rect.yMax) / 2).toBe((menu!.rect.yMin + menu!.rect.yMax) / 2);
+    // 同行**顶对齐**（Figma 双钮同 y=751）、主左次右、都在板内。
+    expect(next!.rect.yMax).toBe(menu!.rect.yMax);
     expect(next!.rect.xMax).toBeLessThan(menu!.rect.xMin);
     expect(next!.rect.xMin).toBeGreaterThan(plate.xMin);
     expect(menu!.rect.xMax).toBeLessThan(plate.xMax);
   });
 
-  it('四行自上而下：牌 > 星 > 用时 > 豆 >（提示），且全在 400×270 内容区内', () => {
+  it('四行自上而下：牌 > 星 > 用时 > 豆 > 提示（双钮下方），且全在 545×465 内容区内', () => {
     const l = clearPanelLayout(NORMAL);
     expect(l.titleY).toBeGreaterThan(l.starsY);
     expect(l.starsY).toBeGreaterThan(l.timeY);
     expect(l.timeY).toBeGreaterThan(l.rewardY);
     expect(l.rewardY).toBeGreaterThan(l.hintY);
-    expect(l.hintY).toBeGreaterThan(l.buttons[0]!.rect.yMax);
+    // `[WXG-T-949]` Figma 未给 <3★ 态 ⇒ 提示放双钮下方，不再挤在豆与按钮之间。
+    expect(l.hintY).toBeLessThan(l.buttons[0]!.rect.yMin);
 
     const inside = (y: number): boolean => y > l.content.yMin && y < l.content.yMax;
     for (const y of [l.starsY, l.timeY, l.rewardY, l.hintY]) expect(inside(y), `y=${y}`).toBe(true);
-    expect(l.content.xMax - l.content.xMin).toBe(400);
-    expect(l.content.yMax - l.content.yMin).toBe(270);
-    expect(l.starsY + 36).toBeLessThan(l.content.yMax);
+    expect(l.content.xMax - l.content.xMin).toBe(545);
+    expect(l.content.yMax - l.content.yMin).toBe(465);
+    expect(l.starsY + 99 / 2).toBeLessThan(l.content.yMax);
   });
 
   it('标题 = 「过关」；主钮 / 弱化次钮文案', () => {

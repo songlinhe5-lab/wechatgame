@@ -31,7 +31,6 @@ import {
     CONFETTI_SWAY_CYCLES,
     CONFETTI_SWAY_PX,
     CONFETTI_W,
-    CLEAR_PLAQUE_H,
     DESIGN_H,
     DESIGN_W,
     PANEL_SCRIM_ALPHA,
@@ -285,10 +284,10 @@ describe('G6 彩带 · 纯函数（assets-spec §1.6.6，零 RNG）', () => {
         expect(CONFETTI_MS).toBe(800);
         expect(CONFETTI_MAIN_COUNT + CONFETTI_FG_COUNT).toBe(CONFETTI_COUNT);
         expect(CONFETTI_FALL_FACTOR).toBeCloseTo(1.15, 9);
-        // `[WXG-T-946]` 禁飞带 = 现役 clear 面板几何（520×470）：下沿护按钮、上沿护标题木牌。
+        // `[WXG-T-949]` 禁飞带 = 现役 clear 面板几何（545×585）：下沿护按钮行、上沿护整张木牌顶。
         const l = clearPanelLayout({ lastLevel: false });
         expect(CONFETTI_NOFLY_YMIN).toBeLessThanOrEqual(l.buttons[0]!.rect.yMin);
-        expect(CONFETTI_NOFLY_YMAX).toBe(l.titleY + CLEAR_PLAQUE_H / 2);
+        expect(CONFETTI_NOFLY_YMAX).toBe(l.panel.yMax);
     });
 });
 

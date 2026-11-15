@@ -452,8 +452,9 @@ const CLEAR_OPTS_NORMAL = { lastLevel: false } as const;
 const CLEAR_OPTS_LAST = { lastLevel: true } as const;
 
 /**
- * 结算·过关面板（`ux-spec §3.4` v1.41）：遮罩 + 520×470 木框/内底 9-slice + 骑上沿的
- * 「过关」木牌 + **逐颗入场**的星级 + 用时 / `+N 豆` / 未满 3★ 的差距提示 + 主/副双钮。
+ * 结算·过关面板（`ux-spec §3.4` v1.58 · `[WXG-T-949]`，Figma `过关结算 269:44`）：
+ * 遮罩 + **545×585 整张木牌**（四角铆钉 / 标题凹槽 / 自带阴影）+ 96×99 金星
+ * + 用时 / `+N 豆` / 未满 3★ 的差距提示（双钮下方）+ 主 279×106 / 次 192×101 双钮。
  * 面板本身是**静态卡**（不接进度补间，见 `systems/clear-panel.ts` 头注）。
  *
  * 几何/文案/动作全在 `systems/clear-panel.ts`（与命中测试同源）；本函数只画。
@@ -468,52 +469,62 @@ function drawClearPanel(
   if (!snap.clearPanelVisible) return;
   const layout = clearPanelLayout(snap.clearLastLevel ? CLEAR_OPTS_LAST : CLEAR_OPTS_NORMAL);
   const plate = layout.panel;
-
-  // UI-22：遮罩 + 纸面板（静止态，progress = 1）。
-  drawModalFrame(builder, {
-    panel: plate,
-    progress: 1,
-    scrimRgb: UI_SCRIM.canvas,
-    scrimAlpha: UI_SCRIM.alpha,
-    palette,
-    radius: UI_CONTAINER.radiusPanel,
-    shadowAlpha: UI_CONTAINER.shadowAlphaPanel,
-  });
-  // `[WXG-T-515]` 结算面板 = 9-slice 双层：内底（纸面内凹）+ 外框（木框中空）。
-  // `drawModalFrame` 的纸面板仍先画 —— 它提供遮罩 / 投影兜底；内底与外框下辖覆盖中心与四边。
-  // ⛔ 两层都走 fx 九宫格：端帽固定、边条与中心只拉线性渐变，面板可纵横缩放而不变形。
   const pw = plate.xMax - plate.xMin;
   const ph = plate.yMax - plate.yMin;
-  builder.blit(MENU_TEXTURES.panelFace, plate.xMin + CLEAR_FRAME_INSET, plate.yMin + CLEAR_FRAME_INSET,
-    pw - CLEAR_FRAME_INSET * 2, ph - CLEAR_FRAME_INSET * 2, {
-    fx: nineSliceFx(CLEAR_FACE_SLICE.capX, CLEAR_FACE_SLICE.capY),
-  });
-  builder.blit(MENU_TEXTURES.panelFrame, plate.xMin, plate.yMin, pw, ph, {
-    fx: nineSliceFx(CLEAR_FRAME_SLICE.capX, CLEAR_FRAME_SLICE.capY),
-  });
+  const hasBoard = menuBitmapReady(MENU_TEXTURES.clearPanelBoard);
 
-  // `[WXG-T-510]` A2：标题木牌骑在面板上沿（木底 + 木边 + 深字）。
-  const plaqueW = CLEAR_PLAQUE_W;
-  const plaqueH = CLEAR_PLAQUE_H;
-  builder.rect(DESIGN_W / 2 - plaqueW / 2, layout.titleY - plaqueH / 2, plaqueW, plaqueH, {
-    fill: palette.woodFace,
-    radius: 16,
-  });
-  // `[WXG-T-512]` 木纹贴图（拉伸 + 圆角 alpha）→ 再压描边与奶白字。
-  builder.blit(MENU_TEXTURES.woodGrain, DESIGN_W / 2 - plaqueW / 2, layout.titleY - plaqueH / 2, plaqueW, plaqueH);
-  builder.rect(DESIGN_W / 2 - plaqueW / 2, layout.titleY - plaqueH / 2, plaqueW, plaqueH, {
-    stroke: palette.woodEdge,
-    lineWidth: 3,
-    radius: 16,
-  });
+  if (hasBoard) {
+    // 新版木牌是整张位图（含铆钉 / 标题凹槽 / 自带阴影）⇒ 只画遮罩，不再叠纸面板。
+    drawModalScrim(builder, UI_SCRIM.canvas, UI_SCRIM.alpha);
+    builder.blit(MENU_TEXTURES.clearPanelBoard, plate.xMin, plate.yMin, pw, ph);
+  } else {
+    // 缺图腿（Cocos 未导入 .meta）：旧纸面板 + 9-slice 木框 + 程序化标题牌，零功能回归。
+    drawModalFrame(builder, {
+      panel: plate,
+      progress: 1,
+      scrimRgb: UI_SCRIM.canvas,
+      scrimAlpha: UI_SCRIM.alpha,
+      palette,
+      radius: UI_CONTAINER.radiusPanel,
+      shadowAlpha: UI_CONTAINER.shadowAlphaPanel,
+    });
+    builder.blit(MENU_TEXTURES.panelFace, plate.xMin + CLEAR_FRAME_INSET, plate.yMin + CLEAR_FRAME_INSET,
+      pw - CLEAR_FRAME_INSET * 2, ph - CLEAR_FRAME_INSET * 2, {
+      fx: nineSliceFx(CLEAR_FACE_SLICE.capX, CLEAR_FACE_SLICE.capY),
+    });
+    builder.blit(MENU_TEXTURES.panelFrame, plate.xMin, plate.yMin, pw, ph, {
+      fx: nineSliceFx(CLEAR_FRAME_SLICE.capX, CLEAR_FRAME_SLICE.capY),
+    });
+    const plaqueW = CLEAR_PLAQUE_W;
+    const plaqueH = CLEAR_PLAQUE_H;
+    builder.rect(DESIGN_W / 2 - plaqueW / 2, layout.titleY - plaqueH / 2, plaqueW, plaqueH, {
+      fill: palette.woodFace,
+      radius: 16,
+    });
+    builder.blit(MENU_TEXTURES.woodGrain, DESIGN_W / 2 - plaqueW / 2, layout.titleY - plaqueH / 2, plaqueW, plaqueH);
+    builder.rect(DESIGN_W / 2 - plaqueW / 2, layout.titleY - plaqueH / 2, plaqueW, plaqueH, {
+      stroke: palette.woodEdge,
+      lineWidth: 3,
+      radius: 16,
+    });
+  }
+
+  // 标题：新版木牌已带凹槽；64 粗体 + 深棕投影（Figma drop 9/7 blur 3；内阴影不另绘）。
   builder.text(DESIGN_W / 2, layout.titleY, CLEAR_PANEL_TITLE, {
-    fill: palette.woodText,
-    font: UI_FONT.panelTitle,
+    fill: palette.clearTitleInk,
+    font: UI_FONT.detailTitle,
     align: 'center',
     baseline: 'middle',
+    shadow: {
+      color: withAlpha(palette.shadowInk, 0.75),
+      offsetX: 9,
+      offsetY: -7,
+      blur: 3,
+    },
   });
 
-  // 星级（`[WXG-T-511]`）：投影 + 金面 + 深边 + 内高光，三层替代单层平涂。
+  // 星级：新版金星位图 96×99（逐颗入场 + 弹跳缩放）；缺图 ⇒ 程序化五角星（旧腿）。
+  const hasStar = menuBitmapReady(MENU_TEXTURES.clearStar);
   const starR = (CLEAR_STAR_SIZE / 2) * 0.92;
   for (let i = 0; i < snap.clearStarsShown; i++) {
     const scale =
@@ -521,6 +532,12 @@ function drawClearPanel(
     if (scale <= 0) continue;
     const cx = layout.starX[i]!;
     const cy = layout.starsY;
+    if (hasStar) {
+      const w = CLEAR_STAR_SIZE * scale;
+      const h = w * (99 / 96);
+      builder.blit(MENU_TEXTURES.clearStar, cx - w / 2, cy - h / 2, w, h);
+      continue;
+    }
     const r = starR * scale;
     builder.polygon(starPointsInto(CLEAR_STAR_POINTS, cx, cy, r + 5, 5, 90), {
       fill: withAlpha(STAR_GOLD, 0.16),
@@ -538,18 +555,18 @@ function drawClearPanel(
     });
   }
 
-  // 用时 / 豆 / 差距提示（`[WXG-T-509]` 四类内容；核心信息区 = 400×270）。
+  // 用时 / 豆 / 差距提示（`[WXG-T-949]`：Figma 38 / 56 字号；提示放双钮下方）。
   const critLevel = snap.finishLevels[snap.levelIndex];
   if (critLevel) {
-    // `[WXG-T-945]` 用时取快照的实际秒数（本局时钟 + 续时加时 − 剩余）；⛔ 不用
-    // `level.time − clearRemaining`：2★/3★ 档时钟是 0.85T / 0.70T，旧式会把用时和差距一起算大。
+    // `[WXG-T-945]` 用时只读 `clearElapsed`（本局时钟 + 续时加时 − 剩余）；⛔ 不用 1★ 时钟减剩余。
     const elapsedRaw = Math.max(0, snap.clearElapsed);
     const elapsed = Math.floor(elapsedRaw);
     builder.text(DESIGN_W / 2, layout.timeY, `用时${formatDurationCn(elapsed)}`, {
-      fill: palette.text,
-      font: UI_FONT.hud,
+      fill: palette.clearTextInk,
+      font: UI_FONT.clearTime,
       align: 'center',
       baseline: 'middle',
+      shadow: { color: withAlpha(palette.shadowInk, 0.85), offsetX: 2, offsetY: -3, blur: 2 },
     });
     // 只在「未满 3★」时提示差距；续时局不印（星级与用时无关）。
     if (!snap.revived && snap.clearStars < 3) {
@@ -558,28 +575,30 @@ function drawClearPanel(
       const gap = Math.max(0, Math.ceil(elapsedRaw - need));
       if (gap > 0) {
         builder.text(DESIGN_W / 2, layout.hintY, `再快${formatDurationCn(gap)}可得${nextTier}★`, {
-          fill: palette.text,
+          fill: palette.clearTextInk,
           alpha: 0.9,
           // `[WXG-T-946]` 说明行接 E2 大字号（28 → 35）；数字 / 标题 / 按钮不随开关缩放。
           font: bodyFont(snap.largeText, 'sub'),
           align: 'center',
           baseline: 'middle',
+          shadow: { color: withAlpha(palette.shadowInk, 0.55), offsetX: 1, offsetY: -2, blur: 1 },
         });
       }
     }
   }
 
-  // 发豆（原因句不再占版面；封顶/未接经济层时只降色或不画）。
+  // 发豆（原因句不再占版面；封顶时降到用时同色，仍可读）。
   if (snap.clearCoins > 0) {
     builder.text(DESIGN_W / 2, layout.rewardY, `+${snap.clearCoins} 豆`, {
-      fill: snap.clearCoinsCapped ? palette.text : STAR_GOLD,
-      font: UI_FONT.stat,
+      fill: snap.clearCoinsCapped ? palette.clearTextInk : palette.clearRewardInk,
+      font: UI_FONT.clearReward,
       align: 'center',
       baseline: 'middle',
+      shadow: { color: withAlpha(palette.shadowInk, 0.9), offsetX: 2, offsetY: -3, blur: 3 },
     });
   }
 
-  // 双钮：主钮木面（30 粗）/ 次钮纸面（28，弱化）。
+  // 双钮：新版整枚位图（主橙 / 次奶油）；缺图 ⇒ 旧 9-slice / 纯色降级腿。
   for (const button of layout.buttons) {
     const bw = button.rect.xMax - button.rect.xMin;
     const bh = button.rect.yMax - button.rect.yMin;
@@ -587,22 +606,50 @@ function drawClearPanel(
     const pressed = snap.pressedButton === button.id;
     const by = button.rect.yMin + pressDy(snap, button.id);
     if (button.id === 'next') {
-      // `[WXG-T-515]` 木主钮 = 垂直光照 9-slice（源 300×92，横向端帽 76）；按下降压不换形。
-      const btnTex = pressed && menuBitmapReady(MENU_TEXTURES.btnWoodPressed)
-        ? MENU_TEXTURES.btnWoodPressed
-        : MENU_TEXTURES.btnWood;
-      if (menuBitmapReady(MENU_TEXTURES.btnWood)) {
-        builder.blit(btnTex, button.rect.xMin, by, bw, bh, {
-          fx: nineSliceFx(CLEAR_BTN_SLICE.capX, CLEAR_BTN_SLICE.capY),
-        });
+      if (menuBitmapReady(MENU_TEXTURES.clearNextBtn)) {
+        builder.blit(MENU_TEXTURES.clearNextBtn, button.rect.xMin, by, bw, bh);
+        if (pressed) {
+          builder.rect(button.rect.xMin, by, bw, bh, {
+            fill: withAlpha(palette.shadowInk, 0.12), radius: 24,
+          });
+        }
         builder.text(button.rect.xMin + bw / 2, by + bh / 2, label, {
-          fill: palette.woodText, font: UI_FONT.panelButton, align: 'center', baseline: 'middle',
+          fill: palette.clearTextInk,
+          font: UI_FONT.clearNext,
+          align: 'center',
+          baseline: 'middle',
+          shadow: { color: withAlpha(palette.shadowInk, 0.9), offsetX: 2, offsetY: -3, blur: 2 },
         });
       } else {
-        drawButton(builder, palette, button.rect.xMin, by, bw, bh, 'wood', UI_CONTAINER.radiusWood, label, UI_FONT.panelButton, pressed);
+        // 旧木主钮 9-slice（源 300×92，端帽 76）；按下降压不换形。
+        const btnTex = pressed && menuBitmapReady(MENU_TEXTURES.btnWoodPressed)
+          ? MENU_TEXTURES.btnWoodPressed
+          : MENU_TEXTURES.btnWood;
+        if (menuBitmapReady(MENU_TEXTURES.btnWood)) {
+          builder.blit(btnTex, button.rect.xMin, by, bw, bh, {
+            fx: nineSliceFx(CLEAR_BTN_SLICE.capX, CLEAR_BTN_SLICE.capY),
+          });
+          builder.text(button.rect.xMin + bw / 2, by + bh / 2, label, {
+            fill: palette.woodText, font: UI_FONT.clearNext, align: 'center', baseline: 'middle',
+          });
+        } else {
+          drawButton(builder, palette, button.rect.xMin, by, bw, bh, 'wood', UI_CONTAINER.radiusWood, label, UI_FONT.clearNext, pressed);
+        }
       }
+    } else if (menuBitmapReady(MENU_TEXTURES.clearMenuBtn)) {
+      builder.blit(MENU_TEXTURES.clearMenuBtn, button.rect.xMin, by, bw, bh);
+      if (pressed) {
+        builder.rect(button.rect.xMin, by, bw, bh, {
+          fill: withAlpha(palette.shadowInk, 0.08), radius: 24,
+        });
+      }
+      builder.text(button.rect.xMin + bw / 2, by + bh / 2, label, {
+        fill: palette.clearMenuInk,
+        font: UI_FONT.clearMenu,
+        align: 'center',
+        baseline: 'middle',
+      });
     } else if (menuBitmapReady(MENU_TEXTURES.btnPaper)) {
-      // `[WXG-T-515]` 纸次钮 = 横向可拉伸 9-slice（源 150×88，端帽 52）。
       builder.blit(MENU_TEXTURES.btnPaper, button.rect.xMin, by, bw, bh, {
         fx: nineSliceFx(CLEAR_PAPER_BTN_SLICE.capX, CLEAR_PAPER_BTN_SLICE.capY),
       });
@@ -613,12 +660,11 @@ function drawClearPanel(
       }
       builder.text(button.rect.xMin + bw / 2, by + bh / 2, label, {
         fill: palette.text,
-        font: UI_FONT.button,
+        font: UI_FONT.clearMenu,
         align: 'center',
         baseline: 'middle',
       });
     } else {
-      // `[WXG-T-511]` 真机反馈「按钮太弱」：2px 木边 + 深字 30，保留纸面弱于木主钮。
       builder.rect(button.rect.xMin, by, bw, bh, {
         fill: pressed ? palette.cardPressed : palette.panel,
         stroke: palette.woodEdge,
@@ -630,7 +676,7 @@ function drawClearPanel(
       });
       builder.text(button.rect.xMin + bw / 2, by + bh / 2, label, {
         fill: palette.text,
-        font: UI_FONT.button,
+        font: UI_FONT.clearMenu,
         align: 'center',
         baseline: 'middle',
       });
