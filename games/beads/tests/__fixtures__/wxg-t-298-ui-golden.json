@@ -4,7 +4,7 @@
   "unit": "UI-02",
   "spec": "docs/architecture/ui-architecture-beads.md §5 / §9.4 / §12",
   "codeBaseline": "bd964a0",
-  "capturedFrom": "caf39e8d · WXG-T-950 · 选关缩略超大盘回退方块改用珠面平均观感色",
+  "capturedFrom": "29e89f30 · WXG-T-951 · 缩略珠面恢复基础色并关闭 tint 叠加",
   "fixture": {
     "viewport": {
       "width": 750,
@@ -68,7 +68,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "89f14fdb53f6f977c240ab1d02ed0e5d30e50df2d69c6d02da4acd764a9c0fde",
+      "sha": "bb53d526c5883e44364f273ff4f9056abc12881ae83fa436761d0f061cbb5daa",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -94,7 +94,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "3f84d43922a6c4a6f6872ef4f73515e2ba0df099bb36e82e6ead6e6af73fdb7f",
+      "sha": "fc4b9ed3e430d7f65e9edf3efc5506cbea30c610fcbe300abdfdbb7f8076cb10",
       "background": "#F1E8D8",
       "transform": null
     },
