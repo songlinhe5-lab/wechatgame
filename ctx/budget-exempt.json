@@ -280,11 +280,6 @@
       "taskId": "WXG-T-268"
     },
     {
-      "path": "games/beads/design/art/proposals/ui-style-redesign/art-bible-proposal.md",
-      "reason": "现行美术圣经提案正本（v2 改政态）：§0 史证/§0.5 改政总述/色板板条须同页；v1 长表已外移 archive 仍贴 8000 上限，再拆断章节锚点。存量超限非本批新增（2026-10-14 落位迁移时被首次改动才暴露），与同目录已豁免件同族",
-      "taskId": "WXG-T-265"
-    },
-    {
       "path": "games/beads/design/art/specs/menu-showcase-asset-spec.md",
       "reason": "主界面橱窗/招牌资产规格唯一真源（§1.5 挖空 rect、落位坐标、退役判据须同页可查），拆开则坐标账断链；已被 ctx 按章节锚点覆盖。存量超限非本批新增（2026-10-14 引用订正时暴露），与 menu-wall-signage-spec.md（WXG-T-269 已豁免）同族",
       "taskId": "WXG-T-269"

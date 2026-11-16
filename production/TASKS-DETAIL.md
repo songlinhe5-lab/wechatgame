@@ -9834,6 +9834,18 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：`pnpm run verify` 读数见提交总结；`kb:sync` / `kb:audit` / `ctx:build` 全绿。
 - **判例留档**：本次普查特意**不**给全部 `spawnSync` 加缓冲——短输出点加缓冲是无成本但也无收益的「预防性豁免」，按 K-025 口径不铺。
 
+## WXG-T-966
+
+**文档·art-bible 瘦身回 8k 门内** · 负责：主理人(Trae CN)·beads 美术轨 · 状态：✅ 完成（2026-11-16 · 用户令「先给 art-bible 瘦身」）
+
+- **对象**：`design/art/proposals/ui-style-redesign/art-bible-proposal.md`（v2 改政态）。
+- **瘦身动作**：① §0.5 的「三条前置 / 分工 / 下游回写面」压成一段对账结论（前置已随 T-585/T-586 解除，回写已完成或转史证）；② §8 删 v2 早期 WebP / PNG 逐档测算与 2979.0 KB 旧读数，改现役口径（主包 3715.2 KB、余量 380.8 KB、验收 = `menu-showcase-asset-spec §6` + `check:cocos-mask` + `check:size`）；③ 顶部体积处置注改为「T-966 瘦身后撤豁免」。
+- **读数**：**8825 → 7745 tok（−1080，−12.2%）**，低于 spec 8000；`ctx/budget-exempt.json` 删除 `art-bible-proposal.md` 临时豁免（WXG-T-265）。
+- **指针同步**：`menu-visual-discipline-check.md §4` 由「仍走 8k 豁免」改为「T-966 瘦身并撤销豁免」。
+- **不改**：零代码 / 零资产 / 零几何；§9 五条纪律与族口径原文未动。
+- **验证**：`node tools/scripts/check-context-budget.mjs --staged` 通过（art-bible 7745 ≤ 8000，无豁免）；`pnpm run verify`（结果见本会话）。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
 ## WXG-T-965
 
 **文档·视觉纪律回写 art-bible §9** · 负责：主理人(Trae CN)·beads 美术轨 · 状态：✅ 完成（2026-11-16 · 用户选「1」）
