@@ -198,9 +198,10 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
     [MENU_TEXTURES.btnWood]: { path: 'ui_btn_wood_9s' },
     [MENU_TEXTURES.btnWoodPressed]: { path: 'ui_btn_wood_9s_pressed' },
     [MENU_TEXTURES.btnPaper]: { path: 'ui_btn_paper_9s' },
-    // `[WXG-T-938]` `ui_btn_settings_9s` 暂不注册：本机 Cocos CLI 无法导入 `.meta` / 重构建
-    // （`browser_1.init` 环境阻塞）⇒ 注册会让 `check:cocos-mask` 红灯；设置腿先走 `btnWood`
-    // 过渡（`settings-content.ts::drawSettingsWoodButton`），GUI 导入并构建后再补本条。
+    // `[WXG-T-938 / -960]` 设置弹窗按钮底板（无字厚木 9-slice，源 235×210、capX 70）。
+    // `.meta` 已由 Cocos 编辑器签发（uuid `6eb9947a-1b98-45d2-a21d-03e569e7a751`，2026-11-16）
+    // ⇒ 本条已注册，设置腿自 `btnWood` 过渡换正式底板（`settings-content.ts::drawSettingsWoodButton`）。
+    [MENU_TEXTURES.btnSettings]: { path: 'ui_btn_settings_9s' },
 };
 
 /**

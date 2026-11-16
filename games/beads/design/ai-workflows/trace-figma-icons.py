@@ -5,6 +5,7 @@
 
 用法：python3 games/beads/design/ai-workflows/trace-figma-icons.py
 """
+import subprocess
 from pathlib import Path
 
 import numpy as np
@@ -16,11 +17,33 @@ SRC = ROOT / 'temp/figma/layered-20261104'
 DST = ROOT / 'games/beads/design/art/proposals/menu-3d-style-20261030/btn-topbar-figma-20261104'
 ICONS = {'settings': '23-6', 'rank': '23-13', 'calendar': '23-20', 'skin': '23-27'}
 
+# 输入的自愈路径：`temp/` 被清理后从 Figma 重拉（key 见 `figma-gacha-timeout.html` §导出命令）。
+FIGMA_KEY = 'PBIK3RbfGlfzFsAnd97ZsP'
+FIGMA_TOOL = ROOT / 'my-skills/wxgame-figma/scripts/figma.mjs'
+
+
+def ensure_inputs() -> None:
+    """缺哪件拉哪件；只认 `figma.mjs img` 的 `<id>.png` 命名（`23:6` → `23-6.png`）。"""
+    missing = [n for n in ICONS.values() if not (SRC / f'{n}.png').exists()]
+    if not missing:
+        return
+    ids = ','.join(n.replace('-', ':') for n in missing)
+    print(f'输入缺 {len(missing)} 件 ⇒ 从 Figma 重拉：{ids}')
+    subprocess.run(
+        ['node', str(FIGMA_TOOL), 'img', f'https://www.figma.com/design/{FIGMA_KEY}',
+         '--out', str(SRC), '--ids', ids, '--scale', '2'],
+        check=True,
+    )
+    still = [n for n in missing if not (SRC / f'{n}.png').exists()]
+    if still:
+        raise SystemExit(f'Figma 取数后仍缺：{still}（查 FIGMA_API_KEY 与节点是否还在）')
+
 # 只取函数与常量段：原脚本第 286 行起是历史批次主流程，执行它会覆写旧产物。
 head = LIB.read_text().split('base1 = Image.open(')[0]
 ns = {'__name__': '_trace_lib'}
 exec(compile(head, str(LIB), 'exec'), ns)
 
+ensure_inputs()
 DST.mkdir(parents=True, exist_ok=True)
 for name, node in ICONS.items():
     rgba = Image.open(SRC / f'{node}.png').convert('RGBA')

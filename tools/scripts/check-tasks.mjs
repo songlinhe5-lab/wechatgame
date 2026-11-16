@@ -105,6 +105,12 @@ const readIndex = (p) => {
     return execFileSync('git', ['show', `:${path.relative(ROOT, p)}`], {
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'ignore'],
+      // ⚠ 台账详情节已越过 **1 MB**（2026-11-16 实测 `TASKS-DETAIL.md` = 1,053,714 B > `execFileSync`
+      // 默认 `maxBuffer` 1,048,576）⇒ 不加本项会 ENOBUFS 抛错、被下面的 catch 兜成空串，
+      // staged / commit-msg 模式于是误判「主表每一行都缺详情节」，把**每一次提交**都拦住
+      // （判例：WXG-T-960 首两次 commit 被 C 项全量误报，`--staged` 复现 ENOBUFS）。
+      // 只放大读侧缓冲，不改任何判定逻辑。
+      maxBuffer: 64 * 1024 * 1024,
     });
   } catch {
     return '';
