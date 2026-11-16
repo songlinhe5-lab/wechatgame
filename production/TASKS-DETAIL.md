@@ -9813,6 +9813,18 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：`pnpm run check:links` → OK（agents=7 / skills=51）；本次零代码改动，未跑 `pnpm run verify`（无源码面）。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
 
+## WXG-T-958
+
+**文档·作品墙规格按 v2 对账** · 负责：主理人(Trae CN)·beads 美术轨 · 状态：✅ 完成（2026-11-16 · 用户令「对账作品墙规格」；号由并行会话让出）
+
+- **对象**：`games/beads/design/art/specs/menu-wall-signage-spec.md`（v1 招牌 / 木框橱窗 / 缩略规格卡，577 行）。
+- **判据真源**：`menu-layout-implementation-spec.md §12`（v2 烘焙背板档 / §12.5 退役清单）、`tuning/menu.ts::MENU_V2 / MENU_TEXTURES`、`tuning/level-select.ts::LEVEL_SELECT_GEO`（选关弹窗现役版面）、`view/menu-signage.ts::drawLevelThumb`、`view/meta-widgets.ts::drawWallCell`（无生产调用方，仅测试引用）。
+- **逐卡结论**：**卡 A 在役（回落腿）** = 主腿 `ui_menu_signboard` 位图（549×361），缺图走 `drawBeadText`「千面拼豆」（10×10 @ d=12，§1.5-b 仍有效）；**卡 B 退场** = 木框 / 玻璃 / 灯 / 层板 / 圆台已烘进 `ui_menu_backdrop`；**卡 C 缩略算法在役** = `drawLevelThumb` 服务走马灯 / 关卡详情 / 选关弹窗，平涂化 T-502 与同臂 T-910 有效；**§3.9 整页版式 P 退场** = 选关改弹窗（158×181 / 图案槽 126×94）；**§4 作废**、**§5 部分在役**、**§7.1–7.3 收口**（真机仅留「缩略辨识」「选关弹窗格界」两条）、**§8 史证**。
+- **文档改动**：标题加「v1 · 已按 v2 对账」；新增状态注 + §0.0 对账表；§2 / §3.9 / §4 / §7.1 / §7.2 / §7.3 各加退场/收口横幅；`menu-showcase-asset-spec §8.2` 指针同步为「卡 B 与 §3.9 退场、卡 C 缩略仍在役」。
+- **不改**：零代码 / 零资产 / 零几何；`arc-level-select-spec.md` / `level-select-page-layout.md` 的整页版式文档未动（同属旧版式，待另批对账）。
+- **验证**：`pnpm run verify`（结果见本会话）。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
 ## WXG-T-957
 
 **文档·v1 菜单资产台账按 v2 对账** · 负责：主理人(Trae CN)·beads 美术轨 · 状态：✅ 完成（2026-11-16 · 用户令「对账 v1 资产台账」）
