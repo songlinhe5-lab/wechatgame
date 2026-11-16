@@ -10060,6 +10060,16 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 
 ---
 
+## WXG-T-971
+
+**文档·menu-architecture / level-difficulty v1 口径对账** · 负责：主理人(Trae CN)·beads 设计轨 · 状态：✅ 完成（2026-11-16 · 用户令「继续清账，处理 menu-architecture.md 和 level-difficulty.md 的 v1 口径」）
+
+- **menu-architecture.md**（1,026 行，已有 T-962 的 §0.0）：标题改为「千面拼豆（原拼豆小铺）」；§0.0 末补 T-971 勾稽行（正文残留旧名均为史证，现名以 `COPY_TOKENS.app_name` 为准）；新增 4 处横幅——§5.1 版面总览「已移交 `MENU_V2`」、§5.3 logo 尺寸档「v1 `logo` 删键出包，现役 `ui_menu_signboard` 549×361」、§7.2 boot 二合一「已闭，无独立 boot 页」、§10 命名裁定「现名千面拼豆，§10.1–§10.4 史证」。
+- **level-difficulty.md**（382 行）：全文 grep 零命中 v1 件名 / 旧名；加状态注 + §0.0（7 行）。判定：§1–§4 公式与线性律 **在役**（正本 = `difficultyOf()`）、§5 实测表 **快照**（2026-10-24，换盘/换图后重测）、§6/§7 **在役**、§8 部分在役、§9 Q9 **已闭**（Spearman 0.95）、§10 史证。§5.1 加「读数快照」横幅，§9 加「Q9 已闭」横幅。
+- **不改**：零代码 / 零资产 / 零几何；两件均沿用既有豁免，未新增豁免；`systems-index §3` 未动。
+- **验证**：`ctx:check`（两件豁免、TASKS.md 仍 ≤80000）、`check:tasks`、`check:links`、`pnpm run verify`（结果见本会话）。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
 ## WXG-T-970
 
 **文档·risks.md 瘦身回 8k 门内** · 负责：主理人(Trae CN)·beads 文档轨 · 状态：✅ 完成（2026-11-16 · 用户令「先给 risks.md 瘦身」）
