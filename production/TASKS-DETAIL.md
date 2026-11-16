@@ -9813,6 +9813,38 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：`pnpm run check:links` → OK（agents=7 / skills=51）；本次零代码改动，未跑 `pnpm run verify`（无源码面）。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
 
+## WXG-T-964
+
+**普查·子进程读缓冲缺陷 + K-218 沉淀 + 设置钮目检** · 负责：主理人(CodeBuddy)·beads 工程轨 · 状态：✅ 完成（2026-11-16 · 用户令「1/2/3」）
+
+- **① 缓冲缺陷普查（承接 T-960 的 K-218 根因）**：判定口径 = 「该调用是否用 `encoding` 捕获**无界** stdout」。全仓命中 8 处，逐点判定后**补 2 处、不补 6 处**：
+  - **补**：`tools/scripts/archive-tasks.mjs::blameCommitterTimes` 的 `git blame --porcelain -w -- <台账>` ⇒ `maxBuffer: 256 MB`。该处对 1 MB 级 `TASKS-DETAIL.md` 输出可达数十 MB，ENOBUFS 后 `stdout` 变 null ⇒ 函数走「全部行无日期证据」分支，**按天归档静默失效**，且判词只说「blame 不可用」（看不出是缓冲问题）。
+  - **补**：`tools/scripts/check-cocos-scripts.mjs` 的 `tsc -p … --noEmit` ⇒ `maxBuffer: 32 MB`。编译错误批量输出时 `status` 变 null，本门会把它误判成「类型检查失败」并丢掉真正的错误清单。
+  - **不补**：`rev-parse --show-toplevel` ×3、`git check-ignore --stdin`、`git log -n40 --format=%s`、`sync-framework --check`（均已自带缓冲或输出恒短）—— 只加读侧缓冲、⛔ 不做无差别全加（K-025：豁免/预防一旦无差别铺开，真问题会被一起放过）。
+- **② K-218 沉淀入库**：条目正文落 `knowledge/lessons/toolchain-git.md`（标签 `工具链Git`，片内按 ID 升序尾部追加），标题行不带 ID 交由脚本分配；`pnpm run kb:sync --task=WXG-T-964` 分配 **K-218**：
+  - 沉淀统计：**新增 1（K-218）/ 修改 0 / 激活 0 / 归档 0**
+  - `pnpm run kb:audit`：归档候选 0、**相似命中 0**（≥0.34 阈值）⇒ 无需「重新激活并合并」
+  - `pnpm run ctx:build`：已刷新索引面（3 个 dirty 文件按 HEAD 口径索引，pre-commit 会重建重暂存）
+- **③ 设置钮换腿目检（承接 T-960 遗留）**，三项证据：
+  - **材质同源**：`final/assets/menu/buttons/ui_btn_settings_9s@2x.png` 与源件 `final/assets/detail/ui_level_select_close@2x.png` 目视同为厚木边 + 顶部内高光 + 横向木纹 + 同圆角，前者仅无文字——符合 T-938「无字派生」的设计意图。
+  - **9-slice 展开无变形**：按 capX 70 模拟展开到 **509×138**（当前单列 cell）与 **238×88**（旧两列钮）两档，端帽同比缩放、中段横向拉伸，产出 `temp/verify-960/*.png`；目视厚边完整、高光贯穿、木纹连续、无中段留空、无接缝错位。
+  - **位图腿真装载**：headless Chrome + CDP 探针（`temp/verify-960/probe.mjs`，不改任何游戏代码）实测 harness `__beads.menu.registry` 共 44 件，含 `bitmap__ui_btn_settings_9s`，`complete === true`、`naturalWidth/Height = 235×210`，`visibilityState = visible`（非 hidden 态，取证有效）。
+  - ⚠ **未做**：Cocos 编辑器预览 / 真机截图（需 GUI，环境不具备）。Cocos 侧证据仍限于 T-960 的产物级门禁（`check:cocos-mask` 逐件「字节相同」+ `check:size`）。
+- **验证**：`pnpm run verify` 读数见提交总结；`kb:sync` / `kb:audit` / `ctx:build` 全绿。
+- **判例留档**：本次普查特意**不**给全部 `spawnSync` 加缓冲——短输出点加缓冲是无成本但也无收益的「预防性豁免」，按 K-025 口径不铺。
+
+## WXG-T-965
+
+**文档·视觉纪律回写 art-bible §9** · 负责：主理人(Trae CN)·beads 美术轨 · 状态：✅ 完成（2026-11-16 · 用户选「1」）
+
+- **对象**：`design/art/proposals/ui-style-redesign/art-bible-proposal.md`（v2 改政态 · 216 行 → 242 行）。
+- **新增 §9**：9.1 五条纪律（单焦点 / 容器唯一 / 形态承载 / ★ 空间化 / 品牌限量，逐条给 v2 现役证据）；9.2 族口径正式措辞（「一屏只允许一种容器语言：同一材质、同一圆角档、同一描边与受光方向；任何新容器件必须能被读作同一只手做出来的」）；9.3 验收位置（`menu-visual-discipline-check §0.0` / `ui-architecture §12` / `check:cocos-mask` / `ui-golden`）与边界（O-1 作废、O-2 保留、§3 冻结值与珠面体系不动）；命名注（现名千面拼豆，§1.1 只作史证）。
+- **指针同步**：`menu-visual-discipline-check.md` 顶部状态、§0.0 末行、§4、§5 均改为「已回写（T-965）」。
+- **豁免**：`art-bible-proposal.md` 已在 `ctx/budget-exempt.json`（WXG-T-265）常驻豁免；本批未新增/修改豁免。
+- **不改**：零代码 / 零资产 / 零几何；`systems-index §3` 未动。
+- **验证**：`pnpm run verify`（结果见本会话）。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
 ## WXG-T-963
 
 **文档·视觉纪律审计单按 v2 对账** · 负责：主理人(Trae CN)·beads 美术轨 · 状态：✅ 完成（2026-11-16 · 用户令「继续清理视觉纪律审计文档」）
