@@ -13,7 +13,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 SRC = 'games/beads/design/art/shots/menu-showcase-20261010/v1-mainmenu-final.png'
-LOGO = 'games/beads/assets/menu/ui_menu_logo.png'
+LOGO = 'games/beads/design/art/final/v1/assets/menu/ui_menu_logo.png'
 OUT = 'temp/b15-preview.png'
 S = 750 / 1520.0
 K = 1500 / 1520.0

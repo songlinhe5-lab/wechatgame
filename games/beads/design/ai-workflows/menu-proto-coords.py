@@ -17,7 +17,7 @@ OUT = os.environ.get("MENU_OUT", ART)
 A = f"{SRC}/assets/menu"
 # 2026-10-18 webp 退役 ⇒ 输入也走 PNG
 PROTO_V2 = f"{SRC}/prototypes/proto-v2-full-750x1334-at2x.png"
-LOGO = "games/beads/assets/menu/ui_menu_logo.png"
+LOGO = f"{ART}/v1/assets/menu/ui_menu_logo.png"  # v1 招牌归档件（根镜像已于 WXG-T-956 清理）
 F_LIGHT = "/System/Library/Fonts/STHeiti Light.ttc"
 F_BOLD = "/System/Library/Fonts/STHeiti Medium.ttc"
 PLATE_TEXT = ("第 9 关", "曼陀罗")           # 关名为占位：运行时读关卡 `title`（可选），缺省只显关序

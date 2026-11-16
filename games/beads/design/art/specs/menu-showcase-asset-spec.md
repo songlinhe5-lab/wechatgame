@@ -105,7 +105,7 @@
 | F2 | `ui_btn_next` 88×88 | **已被取代** | `MENU_TEXTURES.nextBtn/nextBtnPressed`（`ui_menu_arrow_right[_highlight]`）109×116 @625,605；同上 |
 | G1 | `ui_btn_start` ≈480×120 | **已被取代** | `MENU_TEXTURES.ctaV2/ctaPressedV2`（`ui_menu_cta[_highlight]`）378×179 @186,1051；「开始」已烘、⛔ 九宫拉伸、无 `_disabled` 变体 |
 
-> **盘面残留（不在本单处置，清理另立单）**：`cocos/assets/textures/ui_showcase_bg.png.meta` 无同名 png；`games/beads/assets/menu/ui_menu_logo.png` 与 `design/art/final/v1/assets/menu/` 为 v1 存档件，均不在现役 `cocos/assets/textures` 面。⚠ `ui_btn_settings_9s.png` 是**设置弹窗**按钮 9-slice（`[WXG-T-938]`），与 B1 顶栏设置钮无关。
+> **盘面残留（已于 `WXG-T-956` 清理）**：孤儿 meta `cocos/assets/textures/ui_showcase_bg.png.meta`（无同名 png）与根镜像 `games/beads/assets/menu/ui_menu_logo.png`（与 `final/v1` 同 md5）均已删除；`menu-proto-coords.py` / `b15-preview.py` 的输入改指 `final/v1` 存档件。⚠ `ui_btn_settings_9s.png` 是**设置弹窗**按钮 9-slice（`[WXG-T-938]`），与 B1 顶栏设置钮无关。
 
 ### 3.1 v1 原案（史证，⛔ 不据此出图）
 
