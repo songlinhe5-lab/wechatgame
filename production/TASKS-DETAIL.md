@@ -9800,6 +9800,19 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **提交**：`19fb24ad`（代码 + Cocos 镜像 + 文档 + 台账）；复评与金样本重抓同批回填。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
 
+## WXG-T-955
+
+**文档·旧橱窗资产规格（v1）退场对账** · 负责：主理人(Trae CN)·beads 美术轨 · 状态：✅ 完成（2026-11-16 · 用户令「先处理旧橱窗资产规格退场对账」）
+
+- **对象**：`games/beads/design/art/specs/menu-showcase-asset-spec.md`（v1 提案 / 23 行切图，含 A1–G1）。
+- **判据真源**：`menu-layout-implementation-spec.md §12`（v2 烘焙背板档 / §12.5 退役清单）、`tuning/menu.ts::MENU_V2`（坐标）/ `MENU_TEXTURES`（现存纹理键）、`cocos/assets/textures/` 与 `final/v1/assets/menu/` 盘面。
+- **结论（23 行逐条）**：**在役 4 行** = B8 `iconRank` / B9 `iconSkins` / B10 `iconCalendar` / E2 boss 缩略 2 张（T-954 已补 1px 描边）；**存档 1 行** = B2 `iconSound`（零消费者，公告条目候选）；**退场或已被取代 18 行** = 背板 / 招牌 / 条体两图标 / 窗框 / 射灯 / 圆台 / 名牌 / 绶带 / 金章 / 画框 / 翻页 / CTA / 信封 / 豆子 / 价目牌。
+- **文档改动**：新增 §3.0 退场对账表（# / 原命名 / 判定 / 现役真源）；v1 原表降为 §3.1 史证；顶部状态改「v1 提案 · 已被 v2 生产档取代」；§8 七项未决全部收口（§8.2 墙→橱窗、§8.6 九宫路线对本单失效、§8.7 柜内木牌归选关 / 详情，不并卡）；修正文首 ADR-0031 相对链接层级（`../../../docs` → `../../../../../docs`，原链指向不存在的 `games/beads/docs`）。
+- **不改**：零代码 / 零资产 / 零几何；`menu-layout-implementation-spec` 与 `menu-layout-assets-requirement.md` 正文未动（后者仍是 v1 资产台账，待另批对账）。
+- **盘面残留（已登记，未处置）**：`cocos/assets/textures/ui_showcase_bg.png.meta` 无同名 png；`games/beads/assets/menu/ui_menu_logo.png` 与 `final/v1/` 为存档件，不在现役纹理面。
+- **验证**：`pnpm run check:tasks` / `check:links` / `ctx:build` / `verify`（结果见本会话）。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
 ## WXG-T-954
 
 **美术·走马灯两张 boss 烘焙图补珠面描边** · 负责：主理人(Trae CN)·beads 美术轨 · 状态：✅ 完成（2026-11-16 · 用户选「2 = 给走马灯两张 boss 烘焙图补珠面描边」）

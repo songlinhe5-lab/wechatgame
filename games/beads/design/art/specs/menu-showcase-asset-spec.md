@@ -1,9 +1,9 @@
-# 主菜单「单主题橱窗」切图资产规格（提案 · 待实装）
+# 主菜单「单主题橱窗」切图资产规格（v1 提案 · 已被 v2 生产档取代）
 
-> **状态**：**提案 / 待实装 / 未 commit**。本单只把已定稿的主菜单视觉方案整理成**可切图的美术规格**，供切图设计开工；数值一律 `[待实测]`，不冻结。
+> **状态**：**v1 提案 · 已被 v2 生产档取代（`WXG-T-955` 退场对账 · 2026-11-16）**。⛔ 本文 §3 的尺寸 / 命名 / 状态变体**不得再作为出图依据**；现役真源 = [`menu-layout-implementation-spec.md`](menu-layout-implementation-spec.md) §12 + `tuning/menu.ts::MENU_V2 / MENU_TEXTURES`。本文保留为 v1 设计史证与「为什么退场」的判据（逐条判定见 §3.0）。
 > **从属**：母体 = [`assets-spec.md`](assets-spec.md)（§3 图集策略 / §4 命名规范 / §5 包体预算为正本，冲突以母体为准）。
 > **关联**：
-> - 位图腿 = [`ADR-0031`](../../../docs/architecture/adr/ADR-0031-framework-blit-static-bitmap-leg.md)。菜单 UI 进 `textures`（主包）；Boss 原图 `bitmap__boss_l9` 进 `themes`（`assets/themes`，微信分包）。
+> - 位图腿 = [`ADR-0031`](../../../../../docs/architecture/adr/ADR-0031-framework-blit-static-bitmap-leg.md)。菜单 UI 进 `textures`（主包）；Boss 原图 `bitmap__boss_l9` 进 `themes`（`assets/themes`，微信分包）。
 > - **本方案是对 [`menu-wall-signage-spec.md`](menu-wall-signage-spec.md) 卡 B/卡 C「作品墙 grid」模型的界面重设计**（墙→单主题橱窗 + ◀▶ 切换 + 三态）。招牌字形卡 A 仍有效（见 §8 抉择）。⛔ 本单**不覆写**旧卡既有内容，交主理人对账后再决定合并/取代。
 > - 版面/交互上位 = `design/ux/ux-spec.md` §4（BOOT 主菜单屏）；本文只补**视觉与切图**面。
 > **真源纪律**：色值仍走 `palette.ts`（`view/` 唯一 hex 持有处，L5）；本单**零新增 hex**。
@@ -72,7 +72,42 @@
 
 ---
 
-## 3. 切图资产清单（切图设计主交付）
+## 3. 切图资产清单（v1 原案 · 逐行判定见 §3.0）
+
+### 3.0 退场对账（WXG-T-955 · 2026-11-16）
+
+> **结论**：本单 23 行中 —— **在役 4 行**（B8 / B9 / B10 / E2）、**存档 1 行**（B2，零消费者）、**退场或已被取代 18 行**。
+> 判据真源 = [`menu-layout-implementation-spec.md`](menu-layout-implementation-spec.md) §12（v2 烘焙背板档 / §12.5 退役清单）+ `tuning/menu.ts::MENU_V2`（坐标）/ `MENU_TEXTURES`（现存纹理键）。
+
+| # | v1 原命名 | 判定 | 现役真源 / 说明 |
+|---|---|---|---|
+| A1 | `ui_menu_bg` 750×1334 | **已被取代** | `MENU_TEXTURES.backdrop`（`ui_menu_backdrop.jpg` 750×1334）/ `backdropFull`（`ui_menu_backdrop_expanded.jpg` 750×1750，高屏整图一次 blit，§12.1） |
+| A2 | `ui_menu_logo` ≈480×160 | **已被取代** | `MENU_TEXTURES.signboard`（`ui_menu_signboard.png` @2x = 549×361 设计 px，绳 118 已烘）；v1 `logo` 键 `[WXG-T-587]` 删键出包；缺图回退程序化 beadText（两腿互斥） |
+| B1 | `ui_btn_settings` 88×88 | **已被取代** | 底圆 `btnCircle`（`ui_btn_circle_normal/pressed`，视觉 Ø80）+ 图标 `iconSettings`（`ui_icon_settings` 160² @2x）；`_disabled` 不烘 |
+| B2 | `ui_btn_notice` 88×88 | **存档（零消费者）** | 实际件 = `ui_icon_sound`（`MENU_TEXTURES.iconSound`）在册、无画法引用；公告改信封（消息中心）内条目（`WXG-T-494` / `-497`），⛔ 不占顶栏 |
+| B3 | `ui_btn_mail` 88×88 | **退场** | `iconMail` 键 `[WXG-T-581]` 删键出包（签到改挂 B10 日历）；文件只存 `final/v1` |
+| B4 | `ui_menu_plaque` 450×38 | **退场（已烘）** | 条体 / 上沿受光线 / 两端铆钉 / 两枚图标全部烘进 `ui_menu_backdrop`；`MENU_PLAQUE_*` 已在 `[WXG-T-586]` 退役（§12.5） |
+| B5 | `ui_icon_stamina` 40×40 | **退场（已烘）** | 红心 x219..239 烘进背板；`iconStamina` 键 `[WXG-T-587]` 删键出包 |
+| B6 | `ui_icon_coin` 40×40 | **退场（已烘）** | 拼豆白环 x517..538 烘进背板；`iconCoin` 键同批删键出包 |
+| B7 | `ui_icon_bean` 40×40 | **退场（未实装）** | 豆子位从未出图；现役由烘焙白环 + 数值文本承接，无需独立图标 |
+| B8 | `ui_icon_rank` 160² | **在役** | `MENU_TEXTURES.iconRank`；顶栏左上第二枚，Ø80 绘制 |
+| B9 | `ui_icon_skin` 160² | **在役** | `MENU_TEXTURES.iconSkins`；顶栏右下第二枚 |
+| B10 | `ui_icon_calendar` 160² | **在役** | `MENU_TEXTURES.iconCalendar`；顶栏右上第一枚（签到） |
+| C1 | `ui_showcase_frame` ≈620×760 | **退场（已烘）** | 木框 / 玻璃烘进背板；`MENU_CASE_FRAME` 退役（§12.5）；v1 文件只存 `final/v1` |
+| C2 | `ui_showcase_spot` ≈300×520 | **退场（已烘）** | 射灯 / 光晕烘进背板；`MENU_LIGHT` 退役（§12.5）。⚠ `ui_menu_beam` 是左上斜射光束的另一件（背板缺图降级腿），⛔ 非本行替代 |
+| C3 | `ui_showcase_pedestal` ≈300×120 | **退场（已烘）** | 圆台烘进背板 |
+| D1 | `ui_menu_nameplate` ≈360×120 | **退场（被烘牌体取代）** | 空木牌烘进背板；两行文字 = `MENU_V2.plateTitle` 124×42 / `plateSub` 90×17；`ui_showcase_plate` 只存 `final/v1` |
+| D2 | `ui_menu_ribbon_current` ≈260×72 | **退场（未实装）** | 进行中标识改由走马灯揭彩（`grayWipe`）+ 木牌文字表达；无绶带资产、无纹理键 |
+| D3 | `ui_menu_seal_cleared` ≈130×150 | **已被取代** | `MENU_TEXTURES.seal`（`ui_menu_seal.png`）90×90 @ `MENU_V2.seal` 545,405；只在已通关 / 满星两态盖 |
+| E1 | `ui_menu_boss_frame` ≈420×420 | **退场（已烘）** | 画框 / 玻璃属背板；作品绘制框 = `MENU_V2.art` 325×314 @212,530（实际绘制包围盒见 [`menu-showcase-mount-spec.md`](menu-showcase-mount-spec.md) §1） |
+| E2 | `bitmap__boss_l{N}` 256×256 | **在役（2 张）** | `l9-boss-mandala-256` / `photo32-smoke-boss-256` 在 `themes` 分包；`[WXG-T-954]` 已补 1px `shadowInk` 剪影描边。⛔ 原「9 关 = 9 张」是上限预估，未全量出图 |
+| F1 | `ui_btn_prev` 88×88 | **已被取代** | `MENU_TEXTURES.prevBtn/prevBtnPressed`（`ui_menu_arrow_left[_highlight]`）110×116 @18,605；整枚位图，只有 normal / pressed 两态 |
+| F2 | `ui_btn_next` 88×88 | **已被取代** | `MENU_TEXTURES.nextBtn/nextBtnPressed`（`ui_menu_arrow_right[_highlight]`）109×116 @625,605；同上 |
+| G1 | `ui_btn_start` ≈480×120 | **已被取代** | `MENU_TEXTURES.ctaV2/ctaPressedV2`（`ui_menu_cta[_highlight]`）378×179 @186,1051；「开始」已烘、⛔ 九宫拉伸、无 `_disabled` 变体 |
+
+> **盘面残留（不在本单处置，清理另立单）**：`cocos/assets/textures/ui_showcase_bg.png.meta` 无同名 png；`games/beads/assets/menu/ui_menu_logo.png` 与 `design/art/final/v1/assets/menu/` 为 v1 存档件，均不在现役 `cocos/assets/textures` 面。⚠ `ui_btn_settings_9s.png` 是**设置弹窗**按钮 9-slice（`[WXG-T-938]`），与 B1 顶栏设置钮无关。
+
+### 3.1 v1 原案（史证，⛔ 不据此出图）
 
 命名遵 `assets-spec §4`：全小写下划线、`{域}_{实体}_{变体}_{状态}`、**禁中文/大写/版本号/final/空格**；域取 `ui`（菜单界面）。尺寸 = **设计 px**（`[待实测]`，切图按 2× 出）。`9-slice` = 需九宫拉伸（四角固定、边可拉、中心可拉/平铺）。
 
@@ -102,7 +137,8 @@
 | F2 | 切换钮·下一个 | `ui_btn_next` | 88×88 | 整图 | 同上 | 箭头 | 位图切图（▶）；禁用态=已到尾 | textures |
 | G1 | 主 CTA「开始游戏」 | `ui_btn_start` | ≈ 480×120 | **9-slice** | `_normal` `_pressed` `_disabled`(锁定态灰) | **动态**（文案可换） | 位图切图胶囊底 + 上叠「开始游戏」 | textures |
 
-> **切图数量小结**：固定切图 ≈ 15 组（含状态变体则 ×2~3 帧）；**E2 逐关位图另计**（9 关 = 9 张 256²，走 ADR-0031 已建立的 `bitmap__boss_l*` 通道）。A1/C2 可先程序化占位，非首版必需。
+> **切图数量小结（v1 原估）**：固定切图 ≈ 15 组（含状态变体则 ×2~3 帧）；**E2 逐关位图另计**（上限 9 张 256²，走 ADR-0031 的 `bitmap__boss_l*` 通道）。A1/C2 可先程序化占位，非首版必需。
+> **现役实数（2026-11-16 对账）**：**在役 4 行**（B8 / B9 / B10 / E2）+ **存档 1 行**（B2）；其余 **18 行退场或已被 v2 替代件取代**。v2 新增件（背板 / 招牌 / CTA / 翻页 / 金章 / 圆钮）不占本单编号，真源 `MENU_TEXTURES`。
 
 ---
 
@@ -177,16 +213,19 @@
 
 ---
 
-## 8. 未决 · 交主理人对账 · 待实测
+## 8. 未决项收口（WXG-T-955 · 2026-11-16）
 
-1. **招牌 logo：切图(A2) vs 程序化 beadText(卡 A)** —— 本方案默认**切图**（AI 蝴蝶结吊牌造型程序化难复刻）；若坚持 S0「零位图招牌」则回卡 A 10×10 位表。**二选一，交主理人裁**。
-2. **与 `menu-wall-signage-spec` 卡 B/C 的关系** —— 本"单主题橱窗"取代旧"作品墙 grid"？还是并存（墙=选关页、橱窗=主菜单当前主题）？界面归属需与 `menu-architecture`（悬空引用，待补）对账。
-3. **主题命名与真实 9 关对齐** —— 参考图用了"魔法花园/曼陀罗之花"等占位名；实装主题名 = 爱心/雏菊/星星/笑脸/苹果/蝴蝶/彩虹/房子/**boss 曼陀罗**（`design/levels/`）。切图名牌为动态底板，不受影响。
-4. **`[待实测]` 全清单**：所有设计 px 尺寸、9-slice 九宫锚点、射灯/光晕是否首版做、图集压合时机、主包实测增量（切图入库后跑 `check:size`）。
-   —— **9-slice 九宫锚点已实测一枚**：柜内木牌 border L64/R73/T4/B168（@2x px，落码口径见 §5.1 对应行）；其余元素仍 `[待实测]`。
-5. **本单不代改正本**：`assets-spec` §3/§5、`systems-index §3.8`、`menu-wall-signage-spec` 卡 B/C 的回写，交主理人中转。
-6. **9-slice 消费端路线未二选一**（B25 登记，2026-10-14）：**Cocos `SLICED` + border**（引擎侧重采样，本节主口径）vs **ADR-0031 blit 腿预切三段拼装**（`menu-b19` 的 `blitStaticBitmap` 侧）。两腿产物均已备齐，本轮只**证否**了第三条（整图 `setContentSize`，会把牌体外的影一起摊开）。归属工程侧决定，需 ADR 增补才能落码。
-7. **柜内木牌与 §3 清单的行未对账**：定稿资产实测牌体 **190×80 设计px**，与 §3 现有行（D1 名牌 ≈360×120 / C3 展示座 ≈300×120）尺寸口径都不一致 ⇒ 该资产对应哪一行（或需新立一行）**交主理人对账**，本单不擅自并卡。
+> 原七项**全部结清**；下表为结论与真源。后续新开放项另立新单，⛔ 不回流本文。
+
+| # | 原未决 | 结论 |
+|---|---|---|
+| 1 | 招牌 logo：切图(A2) vs 程序化 beadText(卡 A) | **结清**：v2 走位图 `ui_menu_signboard`（549×361 设计 px，绳 118 已烘）；缺图回退程序化 beadText，两腿互斥。A2 的 v1 件随 `[WXG-T-587]` 删键出包 |
+| 2 | 与 `menu-wall-signage-spec` 卡 B/C 的关系 | **结清（以 v2 为准）**：主菜单 = 单主题橱窗（烘焙背板 + 走马灯），作品墙 grid 模型不用于主菜单；卡 B/C 的框 / 座 / 格条款退场，卡 A 招牌腿由 `signboard` 位图承接。⛔ 不回改旧卡 |
+| 3 | 主题命名与真实 9 关对齐 | **不再阻塞切图**：牌体是烘死空牌，主题名走运行时两行文字（`MENU_V2.plateTitle` 124×42 / `plateSub` 90×17），数据源 = 关卡表 |
+| 4 | `[待实测]` 全清单 | **本文范围结清**：几何改由 `MENU_V2` 实测值 + `menu-layout-implementation-spec §12.2 / §12.6` 给出；本单的 9-slice 元素全部退场 ⇒ 九宫锚点不再是本单未决 |
+| 5 | 本单不代改正本（`assets-spec` / `systems-index` / `menu-wall-signage-spec`） | **按「不代改」执行**：v2 资产真源 = `menu-layout-implementation-spec §12`；本文 §3 尺寸不向正本回流。`menu-layout-assets-requirement.md` 仍是 v1 资产台账（含已退场件），待另批对账 |
+| 6 | 9-slice 消费端路线未二选一 | **对本单失效**：v2 现役件（背板 / 招牌 / CTA / 翻页 / 金章 / 圆钮）全为非九宫整图。柜内木牌 B25 的路线仍挂在 `menu-layout-assets-requirement.md` C5，与本单无关 |
+| 7 | 柜内木牌 190×80 与 §3 行未对账 | **结清**：D1 名牌 / C3 展示座均已退场；柜内木牌是**选关 / 关卡详情**的独立件（`menu-layout-assets-requirement.md` C5），不是主菜单名牌 ⇒ 本文不并卡 |
 
 ---
 
