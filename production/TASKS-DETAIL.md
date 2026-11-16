@@ -10111,6 +10111,24 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **佐证物料**：`temp/verify-960/{cocos-00-menu,cocos-01-settings,cocos-02-settings-logs,cocos-zoom-cells,harness-settings}.png`。
 - **临时探针已完全撤销**：`git checkout -- games/beads/src/view/bitmap-ready.ts` + `sync-framework-to-cocos.mjs` 回同步，复建产物后 `grep bitmap-ready#` = **0**（无残留）。
 
+### 修复批次（用户令「1/2/3」）
+
+- **真根因（比「分层」更靠上游）**：`packages/framework/src/adapters/cocos/ui-scope-tree.ts::enterClip()` 第 190-192 行要求两个条件，**两处原本都缺**：
+  1. `_createScope()` 返回值里没有 `group`（`ui-scope-tree.ts:190` 读 `own.group` ⇒ 恒 `undefined`）；
+  2. `UiScopeTreeHooks.createClip` 只有接口声明、**没有任何宿主实现**（`bindings.ts` 未注册）。
+  ⇒ `enterClip()` **恒返回 false** ⇒ `cocos-renderer.ts:382` 走进回落分支：`clipHost.push()`（菜单走马灯蒙版）+ **`carrier.pushClip()`** ⇒ carrier 的 `_clipOn = true` ⇒ `beads-blit-carrier.ts:449-451` 把**容器内所有静态位图**改挂到**走马灯蒙版子树** `ShowcaseClipBlit` ⇒ 既在错误的坐标区、又被橱窗模板裁掉 ⇒ 屏上零像素。即 ADR-0037 的逐容器裁切在 Cocos 侧**从未落地**，一直靠回落路径跑。
+- **修复（两处，共 60 行）**：
+  - `bindings.ts::_createScope` 返回体补 `group`（容器分组节点）。
+  - `bindings.ts` 新增 `_createClip(key, group, x, y, w, h)`：按 ADR-0037 建 `UI:<key>·clip` 子树 —— `Mask`（stencil ENTER + α=0 矩形，`setRect` 逐帧改框）/ `BlitLayerUI`（容器内位图腿，**既受模板裁切又不被本容器 Graphics 盖**）/ `Graphics` / `Labels` / `Segments`，并实现 `reset()` 帧首把 stencil 归零。
+  - `UiScopeTree` hooks 注册 `createClip`；文件头补 `STENCIL_ENTER` / `setStencil`（同 `beads-blit-carrier` 口径，⛔ 不引 `cc.Mask`）。
+- **三重验证读数**：
+  1. **底板可见**：web-mobile 重建后目检 —— 10 枚厚木 cell 底板（金高光边 + 圆角）、8 枚开关、右上 ✕、版本行胶囊全部显示（`temp/verify-960/cocos-fix-01-settings.png`）。
+  2. **半行 cell 裁切仍生效**：点开设置后向上拖 220px 再截 —— 顶行与底行被模板**裁在窗沿**（半行可见），证明裁切由容器内蒙版接管而非全局走马灯（`cocos-fix-02-scrolled.png`）。
+  3. **门禁**：`check:cocos-mask` OK（`ui_btn_settings_9s（字节相同）`）、`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**。
+- **同批补的门禁（第 2 项）**：`tools/scripts/check-cocos-scripts.mjs` 增 `checkClipHooks()` —— 静态断言三特征（`createClip:` 注册 / `private _createClip(` 实现 / `_createScope` 回传 `group`）任一缺失即 `failed += 1` 并点名 WXG-T-967。理由：该回归在 harness 上**结构性看不见**（Canvas2D 单画布，无容器通道分层与 clipHost 回落），只有真产物才露 ⇒ 用静态判据兜「实现被删/被回退」。实测输出 `✅ Cocos 逐容器裁切宿主实现齐备（createClip / _createClip / group）`。
+- **入库脚本（第 3 项）**：`tools/scripts/cocos-settings-shot.mjs` —— 把本次取证链固化为一条命令（`--url/--out/--tap/--wait/--port` 参数化，零 npm 依赖，复用 `lib/cdp-client.mjs`；头注释写明「Cocos web-mobile 产物像素，⛔ 非真机」与设计坐标口径 `(58,168)`）。
+- **仍未做（转下批）**：`MENU_TEXTURES.settingsIcon*`（音乐 / 音效 / 动效 / 震动）仍未在 `BITMAP_ASSETS` 注册 ⇒ 图标继续走缺图腿（T-941「待 GUI 导入后补注册」那笔债，与本次裁切缺陷无关）。
+
 ---
 
 ## WXG-T-952

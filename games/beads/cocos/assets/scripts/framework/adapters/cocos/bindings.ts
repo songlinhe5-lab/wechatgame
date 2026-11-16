@@ -43,7 +43,7 @@ import type { CocosBlitCarrierLike, CocosClipHostLike } from './cocos-renderer';
 import { CocosInputBridge } from './input-bridge';
 import { CocosLoopBridge } from './loop-bridge';
 import { PooledLabelSource } from './label-pool';
-import { UI_DEBUG_SCOPE_ID, UiScopeTree, type UiScopeChannels } from './ui-scope-tree';
+import { UI_DEBUG_SCOPE_ID, UiScopeTree, type UiClipChannels, type UiScopeChannels } from './ui-scope-tree';
 import type { CocosTouchSpace, CocosTouchSpaceWx } from './touch-normalize';
 import { normalizeCocosTouch, normalizeCocosTouchWx } from './touch-normalize';
 import { detectPlatform } from '../../platform/index';
@@ -53,6 +53,15 @@ const { ccclass, property } = _decorator;
 /** Design resolution — keep in sync with the platform adapter config. */
 const DESIGN_WIDTH = 750;
 const DESIGN_HEIGHT = 1334;
+
+/**
+ * 引擎 `stencil-manager` 的 ENTER_LEVEL（同 `beads-blit-carrier`，ADR-0037 逐容器裁切用）。
+ * ⛔ 不引用 `cc.Mask`：mask 模块关着，`addComponent(Mask)` 会把真机打崩。
+ */
+const STENCIL_ENTER = 2;
+function setStencil(g: Graphics, stage: number): void {
+  (g as unknown as { stencilStage: number }).stencilStage = stage;
+}
 
 @ccclass('Bootstrap')
 export class Bootstrap extends Component {
@@ -321,6 +330,8 @@ export class Bootstrap extends Component {
       defaultScope: { graphics, labels },
       defaultBlitParent: this._blitLayerUI ?? undefined,
       create: (key, parent, siblingIndex) => this._createScope(key, parent as Node, siblingIndex),
+      // `[ADR-0037]` 逐容器裁切（WXG-T-967 补实现；缺它 ⇒ enterClip 恒 false，位图腿被全局蒙版劫持）。
+      createClip: (key, group, x, y, w, h) => this._createClip(key, group as Node, x, y, w, h),
       // `[ADR-0033 §S1]` 调试层恒在最顶：每次进入都压回末位（否则后来新建的容器会顶掉它）。
       topMost: UI_DEBUG_SCOPE_ID,
       raise: (scope) => {
@@ -359,7 +370,64 @@ export class Bootstrap extends Component {
     group.addChild(labelRoot);
     const segments = new Node('Segments');
     group.addChild(segments);
-    return { graphics, labels: this._makeLabels(labelRoot), handle: segments, blitParent: blitNode };
+    return { graphics, labels: this._makeLabels(labelRoot), handle: segments, blitParent: blitNode, group };
+  }
+
+  /**
+   * `[ADR-0037 / WXG-T-967]` 逐容器裁切子树 —— `UiScopeTreeHooks.createClip` 的宿主实现。
+   *
+   * ```
+   * UI:<key>·clip        ← 挂在容器 group 下、末位追加（压住本容器默认段）
+   * ├── Mask（Graphics：stencil ENTER + α0 矩形，每帧由 clip 命令改框）
+   * ├── BlitLayerUI      ← 容器内静态位图腿挂这里 ⇒ 同时受模板裁切、又不被本容器 Graphics 盖
+   * ├── Graphics         ← 容器内矢量（裁切段）
+   * ├── Labels
+   * └── Segments
+   * ```
+   *
+   * ⚠ 在此之前**本宿主既没实现该 hook、`_createScope` 也没回 `group`** ⇒ `enterClip` 恒 false ⇒
+   * 渲染器回落**全局** `clipHost`（菜单走马灯蒙版）并调 `carrier.pushClip()` ⇒ 容器内静态位图腿被
+   * 劫持进走马灯子树，屏上零像素（WXG-T-967 实测：设置弹窗 10 枚 cell 底板 / 图标 / 开关全不可见，
+   * 而绘制侧 `menuBitmapReady` 为 true、载体装载 48/51 正常）。
+   */
+  private _createClip(key: string, group: Node, x: number, y: number, w: number, h: number): UiClipChannels {
+    const node = new Node(`UI:${key}`);
+    group.addChild(node);
+    const maskNode = new Node('Mask');
+    node.addChild(maskNode);
+    const mask = maskNode.addComponent(Graphics);
+    const blitNode = new Node('BlitLayerUI');
+    node.addChild(blitNode);
+    const penNode = new Node('Graphics');
+    node.addChild(penNode);
+    const graphics = penNode.addComponent(Graphics);
+    const labelRoot = new Node('Labels');
+    node.addChild(labelRoot);
+    const segments = new Node('Segments');
+    node.addChild(segments);
+    let rect = { x, y, w, h };
+    const redraw = (): void => {
+      mask.clear();
+      setStencil(mask, STENCIL_ENTER);
+      // α=0：蒙版本身不显色，只提供模板值。
+      mask.fillColor = new Color(255, 255, 255, 0);
+      mask.rect(rect.x, rect.y, rect.w, rect.h);
+      mask.fill();
+    };
+    redraw();
+    return {
+      graphics,
+      labels: this._makeLabels(labelRoot),
+      handle: segments,
+      blitParent: blitNode,
+      group: node,
+      setRect: (nx, ny, nw, nh) => {
+        rect = { x: nx, y: ny, w: nw, h: nh };
+        redraw();
+      },
+      // 帧首复位模板：本帧若没走到裁切，上一帧留的 ENTER 级会罩住后续兄弟层。
+      reset: () => setStencil(mask, 0),
+    };
   }
 
   /** Called by `launch()` after the App (and its viewport) exist. */
