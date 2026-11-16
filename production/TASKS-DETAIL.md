@@ -10060,6 +10060,18 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 
 ---
 
+## WXG-T-970
+
+**文档·risks.md 瘦身回 8k 门内** · 负责：主理人(Trae CN)·beads 文档轨 · 状态：✅ 完成（2026-11-16 · 用户令「先给 risks.md 瘦身」）
+
+- **对象**：`design/art/proposals/ui-style-redesign/risks.md`（164 → 131 行）。
+- **瘦身动作**：① §1b R-11 名称命中点 12 行 → 3 行（现名千面拼豆；旧名命中点已由 T-584/T-968 对账或转史证）；② §4b K-6 实测 Δ 表 54 行 → 4 行指针（保留 fixture `wxg-t-269-s6-k6-ledger.json`、判据套 `menu-primitives-k6.test.ts`、菜单 1145/148 与选关墙 1518/193 关键帧数、四级有效杠杆）；③ K-6 行尾指针改「§4b 指针（fixture 正本）」；④ 顶部状态补 T-970 瘦身说明。
+- **读数**：**9,154 → 6,121 tok（−3,033，−33.1%）**，低于 spec 8000；`ctx/budget-exempt.json` 删除 `risks.md` 临时豁免（WXG-T-269）。
+- **判定不变**：R-6 色表锁仍为在役；R-11/R-12 已闭；§7 环境限制仍适用；§0.0 十二行结论未改。
+- **不改**：零代码 / 零资产 / 零几何；`systems-index §3` 与现役 tuning 未动。
+- **验证**：`node tools/scripts/check-context-budget.mjs --staged` 通过（risks 6121 ≤ 8000，无豁免）；`pnpm run verify`（结果见本会话）。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
 ## WXG-T-969
 
 **维护·台账收敛 + risks.md v1 对账** · 负责：主理人(Trae CN)·beads 文档轨 · 状态：✅ 完成（2026-11-16 · 用户选「1/2/3」）
