@@ -3,12 +3,11 @@
  * 位图可用性注入（`setMenuBitmapResolver`）。主菜单与选关页共用 ⇒ 位于二者之下、⛔ 不反依赖页面。
  */
 
-import { DESIGN_W, LEVEL_DETAIL_TEXTURES, LEVEL_SELECT_GEO, LEVEL_SELECT_TEXTURES, MENU_BADGE, MENU_LOCKED_ICON, MENU_SEAL, MENU_TEXTURES, THUMB_AREA, THUMB_STAR_BAND, UI_CONTAINER } from '../config/tuning.js';
+import { DESIGN_W, LEVEL_DETAIL_TEXTURES, LEVEL_SELECT_GEO, LEVEL_SELECT_TEXTURES, UI_CONTAINER } from '../config/tuning.js';
 import { COPY_TOKENS } from '../config/copy-tokens.js';
 import { type RenderModelBuilder } from '@wxgame/framework';
 import { beadFadedInksFor, withAlpha, type BeadsPalette } from './palette.js';
-import { drawBeadFace, drawLevelThumb, resetSignageWarnings } from './menu-signage.js';
-import { type BeadsLevelRaw } from '../config/levels-data.js';
+import { drawBeadFace, resetSignageWarnings } from './menu-signage.js';
 import { scrimFill, UI_FONT, UI_SCRIM, pressOffset } from './ui-theme.js';
 import { drawButton } from './ui-widgets.js';
 import { settingsContentLabel } from './settings-content.js';
@@ -111,127 +110,9 @@ export function heartBarLabel(stamina: number, max: number): string {
     return `${stamina}/${max}`;
 }
 
-/** 防御臂告警门（一次性；判例 = `palette.ts::resetPaletteFallbackWarnings`）。 */
-let warnedMissingThumbLevel = false;
-
 /** 测试专用：复位本模块的一次性告警门。 */
 export function resetMetaViewWarnings(): void {
-    warnedMissingThumbLevel = false;
     resetSignageWarnings();
-}
-
-/**
- * 作品格（选关**整页**唯一消费；主菜单已改走马灯小卡 ⇒ 不再共享本 renderer）。
- * - **已解锁** = 纸格容器 + **珠拼缩略**（T-1 §3.1 聚合，`view/menu-signage.ts::drawLevelThumb`）+ 星；
- * - **未解锁 / 越界槽** = 锁格合形（灰阵 + 小锁 + 无星；⛔ 不画虚线）。
- *
- * ⚠ **T-2B 换了格内内容：编号文本退场**（`menu-wall-signage-spec §3.4` 案乙：格几何与热区零变动，
- * 只换内容物）。编号是 T-2A 的**占位**（当时无珠可画）；珠拼缩略就位后它与图竞争同一 84×84 区、
- * 且不传达任何关卡差异 ⇒ 删。陈列序的机械证据改由「缩略与 `wallLevels[slot]` 的聚合表逐条对撞」
- * 提供（见 `tests/meta-menu-wall.test.ts`，比读编号**更强**）。
- * 星位：从旧「格中心 +28」改为**底部星带中心** `box.y + THUMB_STAR_BAND/2`（案乙的分区口径）。
- *
- * @param thumbN 缩略字模阵（生产恒 `THUMB_MATRIX_N`；4 / 3 = K-6 差分与回退序 2/3）
- */
-/**
- * 锁格（EP13-FU-1 · tls §4「未解锁格 / 越界空槽」两行，Q15 = 2026-10-17 改裁**合形**）：
- * 灰色珠阵（有关卡引用时，走橱窗未开启同一墨集 `beadFadedInksFor`）+ 小锁 + **无星**；⛔ 不画虚线空槽。
- * 越界槽拿不到关卡引用 ⇒ 画不出珠阵（数据驱动，⛔ 不拿别关的图凑），只留格底 + 锁。
- * 锁尺与回落口径逐字复用走马灯徽标（`MENU_BADGE.d` / 位图未就维 = 圆章 +「锁」字），零新数值零新色。
- */
-/**
- * 锁角章（未解锁格共用；`[WXG-T-606]` 从 `drawLockedWallCell` 抽出）：位图腿优先，
- * 缺图 = 圆章 +「锁」字（零新数值零新色）。`cell` 传**未位移**框 ⇒ 按下位移不撕角章。
- */
-function drawWallLockBadge(builder: RenderModelBuilder, palette: BeadsPalette, cell: Box): void {
-    const d = MENU_BADGE.d;
-    const inset = MENU_SEAL.inset;
-    const cx = cell.x + cell.w - d / 2 - inset;
-    const cy = cell.y + cell.h - d / 2 - inset;
-    if (menuBitmapReady(MENU_TEXTURES.lock)) {
-        // `[WXG-T-578]` 锁形按纹理宽高比出高（Figma v2 竖长件），底边维持原内缩 ⇒ 只向上长。
-        const h = d / MENU_LOCKED_ICON.aspect;
-        builder.blit(MENU_TEXTURES.lock, cx - d / 2, cell.y + cell.h - inset - h, d, h);
-        return;
-    }
-    builder.circle(cx, cy, d / 2, { fill: palette.slot, stroke: palette.slotBorder, lineWidth: 2 });
-    builder.text(cx, cy, '锁', { fill: palette.textDim, font: UI_FONT.cell, align: 'center', baseline: 'middle' });
-}
-
-function drawLockedWallCell(
-    builder: RenderModelBuilder,
-    cell: Box,
-    palette: BeadsPalette,
-    level: BeadsLevelRaw | undefined,
-    thumbN: number,
-): void {
-    builder.rect(cell.x, cell.y, cell.w, cell.h, {
-        fill: palette.slot,
-        stroke: palette.slotBorder,
-        lineWidth: 2,
-        radius: UI_CONTAINER.radiusChip,
-    });
-    if (level !== undefined) {
-        drawLevelThumb(builder, level, cell.x, cell.y, cell.w, cell.h, thumbN, THUMB_AREA, beadFadedInksFor(level));
-    }
-    drawWallLockBadge(builder, palette, cell);
-}
-
-export function drawWallCell(
-    builder: RenderModelBuilder,
-    b: MetaButton,
-    data: MetaViewData,
-    palette: BeadsPalette,
-    thumbN: number,
-): void {
-    const slot = b.slot;
-    const levelIdx: number | undefined = slot === undefined ? undefined : data.wallSlots[slot];
-    // `[WXG-T-921]` 锁判据 = 单一 `maxUnlockedLevel`：shell 已把门票腿并进解锁前沿
-    // （`_unlockedFrontier`，T-920）⇒ 视图不再为章首格单开「门票豁免」腿（旧 `gateOpensFirst` 退役）。
-    if (levelIdx === undefined || levelIdx + 1 > data.maxUnlockedLevel) {
-        // EP13-FU-1 · Q15 合形：未解锁与越界空槽同走锁格（虚线空槽在墙格路径退场；零热区不变）。
-        drawLockedWallCell(builder, b.box, palette, slot === undefined ? undefined : data.wallLevels[slot], thumbN);
-        return;
-    }
-    const isCurrent = levelIdx === data.currentLevelIndex;
-    const stars = data.starsByLevel[levelIdx] ?? 0;
-    // EP13-S5 · tls §4-R6：按住已解锁格 ⇒ 整格下沉（对象身份比对）；reduceMotion ⇒ 位移归零、换面仍在。
-    const pressed = data.pressed === b;
-    const dy = pressDy(data, pressed);
-    const y = b.box.y + dy;
-    builder.rect(b.box.x, y, b.box.w, b.box.h, {
-        fill: pressed ? palette.cardPressed : palette.slot,
-        stroke: isCurrent ? palette.accentPrimary : palette.slotBorder,
-        lineWidth: isCurrent ? 4 : 2,
-        radius: UI_CONTAINER.radiusChip,
-    });
-    const cx = b.box.x + b.box.w / 2;
-    const level = slot === undefined ? undefined : data.wallLevels[slot];
-    builder.text(cx, y + THUMB_STAR_BAND / 2, STAR_LABELS[stars] ?? STAR_LABELS[0]!, {
-        fill: stars > 0 ? palette.text : palette.textDim,
-        font: UI_FONT.cell,
-        align: 'center',
-        baseline: 'middle',
-    });
-    if (level === undefined) {
-        // 防御臂（不应发生）：shell 的 `wallLevels` 与 `wallSlots` 同批重建 ⇒ 已解锁槽必有引用。
-        // 若宿主只下传了关索引表（旧调用方）⇒ 回落**编号占位**（T-2A 语言，格不空画），一次性告警。
-        if (!warnedMissingThumbLevel) {
-            warnedMissingThumbLevel = true;
-            console.warn(
-                '[beads] meta-view: wallSlots 有值但 wallLevels 缺项 ⇒ 该格回落编号占位（珠拼缩略需关卡 pattern 本体，' +
-                '见 beads-shell::_rebuildWallSlots；本条仅告警一次）',
-            );
-        }
-        builder.text(cx, y + b.box.h / 2 - 8, `${levelIdx + 1}`, {
-            fill: palette.text,
-            font: UI_FONT.button,
-            align: 'center',
-            baseline: 'middle',
-        });
-        return;
-    }
-    drawLevelThumb(builder, level, b.box.x, y, b.box.w, b.box.h, thumbN, THUMB_AREA);
 }
 
 /**

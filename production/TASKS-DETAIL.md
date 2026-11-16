@@ -9813,6 +9813,32 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：`pnpm run check:links` → OK（agents=7 / skills=51）；本次零代码改动，未跑 `pnpm run verify`（无源码面）。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
 
+## WXG-T-961
+
+**选关旧规格对账 + 删墙格死代码** · 负责：主理人(Trae CN)·beads UX/工程轨 · 状态：✅ 完成（2026-11-16 · 用户令「1/2/3」）
+
+- **① UX 对账**：`arc-level-select-spec.md` 顶部加 §0.0 对账表 + §2/§3/§4/§4.1/§5/§7/§8.2 分节横幅；`level-select-page-layout.md` 顶部加 §0.0 并改 v0.3 状态行，§1/§3/§4/§5 标史证。判据：现役选关 = **弹窗版式 R**，`tuning/level-select.ts::LEVEL_SELECT_GEO`（木牌 581×1044、格 158×181、图案槽 126×94、3×3）；旧整页 170 / 30 / 134、底部 back、页面底对比度条款全部退场；格层矩阵、弹窗动效、触控与色相通道判据保留。
+- **② 死代码**：`view/meta-widgets.ts` 删除 `drawWallCell` / `drawLockedWallCell` / `drawWallLockBadge` 与 `warnedMissingThumbLevel` 一次性告警门，清 `MENU_BADGE` / `MENU_LOCKED_ICON` / `MENU_SEAL` / `MENU_TEXTURES` / `THUMB_AREA` / `THUMB_STAR_BAND` / `drawLevelThumb` / `BeadsLevelRaw` 失效导入；`drawDashedSocket` **保留**（`meta-menu.ts` 橱窗空槽仍在用）。`framework:sync` 写入镜像 1 件。
+- **③ Cocos 构建**：`pnpm run build:cocos` 已启动（release · 引擎分离）；日志 `games/beads/cocos/temp/logs/cli-build-wechatgame-release.log`。**结果**：构建命令仍在后台执行，结束时本节回填；真机项仍无设备。
+- **真机阻塞**：T-953 装裱层 α/圆角、5×5/4×4 缩略辨识、选关弹窗格界可读性三条均需真机扫码预览；解除条件 = 有真机 + `wxgame-minigame-bridge` 预览。
+- **验证**：`pnpm run typecheck` 3/3 通过；`framework:sync` 通过；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（含 `ui-golden` 23/23、`harness:smoke`）。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
+## WXG-T-960
+
+**接线·设置钮 `.meta` 签发 + Cocos 注册 + Figma 取数自愈** · 负责：主理人(CodeBuddy)·beads 美术/工程轨 · 状态：✅ 完成（2026-11-16 · 用户令「1/2/3」）
+
+- **① `.meta` 签发（L1 合规路径）**：跑 `node tools/scripts/import-cocos-metas.mjs --game=beads --dir=assets/textures`，由编辑器 asset-db 签发，⛔ 全程未手写 `.meta`。编辑器主进程退出码 **36**，按脚本既定判据「以 `.meta` 是否落盘为准」复核为成功。共签发 4 件：
+  - `games/beads/cocos/assets/textures/ui_btn_settings_9s.png.meta`（uuid `6eb9947a-1b98-45d2-a21d-03e569e7a751`，2998 B）
+  - 三件历史欠账脚本 meta：`view/bead-outline.ts.meta` / `view/bitmap-ready.ts.meta` / `view/meta-settings-page.ts.meta`（此前 CLI 阻塞期一直缺，资产库重启后一并补齐）
+- **② Cocos 侧注册**：`games/beads/cocos/assets/scripts/host/beads-blit-carrier.ts` 的 `BITMAP_ASSETS` 增一条 `[MENU_TEXTURES.btnSettings]: { path: 'ui_btn_settings_9s' }`；原注释「`ui_btn_settings_9s` 暂不注册（CLI 无法导入 `.meta`，注册即 `check:cocos-mask` 红灯）」按本轮实测**作废**（补 `.meta` + 重建后门禁绿）。效果 = `settings-content.ts::drawSettingsWoodButton` 的 `menuBitmapReady(MENU_TEXTURES.btnSettings)` 在 Cocos 侧转为真 ⇒ 设置弹窗 10 枚 cell 底板与固定钮自 `btnWood` 过渡腿换正式厚木 9-slice（capX 70）。
+- **③ 门禁读数**：注册后首次 `check:cocos-mask` = **FAIL**（判词「菜单纹理产物 ≠ 源」，属产物陈旧、非缺张）⇒ 跑 `pnpm run build:cocos`（**默认即 release 基线档**）重建 beads + breakout ⇒ 复跑 **OK**（逐件「字节相同」，含 `ui_btn_settings_9s`）。`check:size` = beads 主包 **3715.2 KB** / 194 文件（距 4096 KB 红线余量 **380.8 KB**）、breakout 1928.1 KB，均达标；`cocos:check` 两游戏类型检查通过。
+- **④ 构建副作用（已确认非手改）**：`games/beads/package.json` 1.0.44 → **1.0.45**，来自 `build-cocos.mjs` 的版本腿（递增 build 号 + 给产物 `version_label` 打号），属设计语义，随本笔入库。
+- **⑤ Figma 取数自愈**：`games/beads/design/ai-workflows/trace-figma-icons.py` 新增 `ensure_inputs()`：缺件时 `subprocess` 调 `my-skills/wxgame-figma/scripts/figma.mjs img --ids <节点> --scale 2` 回填 `temp/figma/layered-20261104/`（file key `PBIK3RbfGlfzFsAnd97ZsP`，取自 `figma-gacha-timeout.html` §导出命令）；拉取后仍缺则非零退出并提示查 `FIGMA_API_KEY`。**实测（输入已因 T-959 清 temp 而全缺）**：自动拉回 `23-6/23-13/23-20/23-27` 四件（11.2 / 6.8 / 3.8 / 5.1 KiB）→ 追踪产出 4 个 SVG（settings 4 loops、rank 4、calendar 3、skin 2）；12 件产物与入库版**逐字节一致**（`cmp` 全 `same`），证明设计与 2026-11-04 批次无漂移。
+- **⑥ 并行会话核对（用户第 3 项）**：T-958 已由 Trae CN 会话**自行提交** `98db7b6f docs(beads): 作品墙规格按 v2 对账 (WXG-T-958)`，领号注亦已被其订正为「并行会话让号 + Trae CN 落盘」⇒ 958 非空号，无需代填。
+- **验证**：`check:cocos-mask` OK / `check:size` OK / `cocos:check` OK；全量 `pnpm run verify` 读数见提交总结。
+- **反例留档**：`ensure_inputs()` 首版只定义未调用，复跑仍 `FileNotFoundError` ⇒ 已补调用点并复测通过（脚本级自愈必须实测触发，不能只看代码在）。
+
 ## WXG-T-958
 
 **文档·作品墙规格按 v2 对账** · 负责：主理人(Trae CN)·beads 美术轨 · 状态：✅ 完成（2026-11-16 · 用户令「对账作品墙规格」；号由并行会话让出）
