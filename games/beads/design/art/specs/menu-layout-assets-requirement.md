@@ -1,11 +1,31 @@
-# 主界面布局落地单 · §5 资源文件需求（WXG-T-524 · 2026-10-31 整节逐字节外移）
+# 主界面布局落地单 · §5 资源文件需求（v1 台账 · 已按 v2 生产档对账）
 
+> **状态**：**v1 资产台账 · 已按 v2 生产档对账（`WXG-T-957` · 2026-11-16）**。⛔ §5.1 表里的「✅ 已接」只代表 2026-10-15 的 v1 接线事实，**不代表现役**；现役真源 = [`menu-layout-implementation-spec.md`](menu-layout-implementation-spec.md) §12 + `tuning/menu.ts::MENU_V2 / MENU_TEXTURES` + `cocos/assets/textures/` 盘面。逐行判定见 §5.0，缺口收口见 §5.2。
 > 本件 = `menu-layout-implementation-spec.md` **§5 整节原文**逐字节外移（外移动因 = 该件 B 项豁免条目 `WXG-T-346` 已登记的撤销条件：「下次增补前把 §5 资源文件需求外移为同目录 `menu-layout-assets-requirement.md`、正文只留指针，顶回 ≤8000 即撤销本豁免」）。
 > **在册坐标 / 落位 / 尺寸仍归正本**（正本 §3 / §4 / §8 / §10，另木牌两行文字口径见拆册件 `menu-plate-text-control-spec.md`）；本件只管**资产台账与消费路线**。改资产口径写这里，改几何写正本。
 
-## 5. 资源文件需求（对齐 `final/README.md` assets/menu 台账）
+## 5. 资源文件需求（v1 台账 · 已按 v2 生产档对账）
 
-**已入库可直接用**（`games/beads/cocos/assets/menu/`，台账状态为准）：
+### 5.0 v2 对账（WXG-T-957 · 2026-11-16）
+
+> **结论**：原台账 10 行中 —— **在役 2 行**（顶栏圆钮族里的在役成员 / `ui_menu_badge_locked` 改名 `lock`）、**退场或已被取代 8 行**；缺口 C1–C7 全部收口（§5.2）。v2 新增件（背板 / 招牌 / CTA / 翻页 / 金章 / 锁定）不在 v1 台账编号内，真源 `MENU_TEXTURES`。
+
+| # | v1 台账行 | 判定 | 现役真源 / 说明 |
+|---|---|---|---|
+| 1 | `ui_menu_logo.png` 960×772 | **退场** | v1 `logo` 键 `[WXG-T-587]` 删键出包；现役 `MENU_TEXTURES.signboard`（`ui_menu_signboard.png` 549×361，`MENU_V2.sign` 1:1）；根镜像已于 `[WXG-T-956]` 删除，归档件留 `final/v1` |
+| 2 | `asset-icon-coin.png` / `asset-icon-stamina.png` | **退场（已烘）** | 红心 x219..239 / 拼豆白环 x517..538 烘进 `ui_menu_backdrop`；v1 `iconCoin` / `iconStamina` 键同批删键出包；文件只存 `final/v1` |
+| 3 | `ui_btn_circle_normal/pressed.png` + `ui_icon_settings/rank/mail/skin/calendar.png` | **部分在役** | 底圆两态 + `settings` / `rank` / `skin` / `calendar` 四枚在役（`MENU_TEXTURES.btnCircle*` / `iconSettings` / `iconRank` / `iconSkins` / `iconCalendar`）；`mail` `[WXG-T-581]` 删键出包；`sound` 在册但零消费者（公告条目候选，`[WXG-T-494]` / `-497`） |
+| 4 | `ui_btn_start_9s(_pressed).png` | **退场** | 现役 `MENU_TEXTURES.ctaV2/ctaPressedV2`（`ui_menu_cta.png` / `_highlight.png`）378×179 整枚位图，「开始」已烘、⛔ 非九宫拉伸 |
+| 5 | `ui_showcase_plate.png` 422×172@2x | **退场（已烘）** | 空木牌牌体烘进 `ui_menu_backdrop`；两行文字 = `MENU_V2.plateTitle` 124×42 / `plateSub` 90×17；文件只存 `final/v1` |
+| 6 | `ui_showcase_frame.png` 1188×1892 | **退场（已烘）** | 木框 / 玻璃 / 射灯 / 层板 / 圆台全部烘进背板；`MENU_CASE_FRAME` 等 v1 常量 `[WXG-T-586]` 退役（§12.5） |
+| 7 | `ui_menu_badge_pushing.png` 128² | **已删（v1 内已裁）** | 推关态改「彩色作品 + 竖向揭彩」`grayWipe`（`triStateFx`），无独立推关徽标 |
+| 8 | `ui_menu_badge_locked.png` 128² | **在役（改名）** | `MENU_TEXTURES.lock`；文件已同名覆盖为 **Figma 192×260**（`47:19`），用途 = 选关锁定格 + 橱窗锁定态；旧 128² 描述作废 |
+| 9 | `ui_menu_badge_done.png` 320² | **已删（v1 内已裁）** | 现役 `MENU_TEXTURES.seal`（`ui_menu_seal.png`）90×90 @ `MENU_V2.seal` 545,405；只在已通关 / 满星两态盖 |
+| 10 | `ui_btn_arrow_bg_normal/pressed.png` + `ui_icon_arrow_left/right.png` | **退场** | 现役 `MENU_TEXTURES.prevBtn/prevBtnPressed/nextBtn/nextBtnPressed`（`ui_menu_arrow_left/right(_highlight)`）110×116 / 109×116 整枚位图，左右件像素不同、不能共用一键 |
+
+### 5.1 v1 原台账（史证，⛔ 不据此接线）
+
+**已入库可直接用**（`games/beads/cocos/assets/menu/`，台账状态为准；⚠ 该路径为 v1 写法，现役纹理在 `cocos/assets/textures/`）：
 
 | 文件 | 用途 | 状态 |
 |---|---|---|
@@ -20,6 +40,20 @@
 | `ui_menu_badge_done.png`（320² @2x，Ø160dp） | 三态徽标·完成章 | ❌ **件已删**（2026-10-16 用户裁「改飘带」）；现役 = `ui_menu_seal_cleared.png`（金章飘带）。旧记同样订正于 2026-10-18 |
 | `ui_btn_arrow_bg_normal/pressed.png` + `ui_icon_arrow_left/right.png` | ◀▶ | ✅ 已接（2026-10-15 双端；转正曾标待拍板，接线随 16 件纹理集一次性接入；B21 ① pressed 盘体违规登记不变）。⚠ **2026-10-18 新开 BD-61**：Cocos 投放件 `ui_btn_arrow_bg_pressed.png` **看不出按下态**（同族两态互异保持率仅 0.13，投放件距自己正本 16.39、反而距 normal 正本 3.16）；根因 = **RGBA 八叉树量化把 alpha 算进色距 ⇒ 按下暗边被塌缩**（⛔ 不是文件装错：`octree(正本)` 与在册投放件逐像素相等）。设计正本 PNG 本身正确（≡ shots 1010 逐像素等值），已用 `../../ai-workflows/quantize-cocos-textures.py` 重出两件（保持率 0.98）并经编辑器 CLI **release 档重建** ⇒ **BD-61 已闭（2026-10-18，用户裁维持 P2）**；**harness 腿看不出本缺陷**（同 K-110 型双端不一致）。详见 `production/qa/beads/test-cases-m-gate.md §M.11` |
 
+### 5.2 缺口收口（C1–C7 · 2026-11-16）
+
+| # | 原缺口 | 结论 |
+|---|---|---|
+| C1 | 公告喇叭图标复用还是新切 | **存档**：`ui_icon_sound` 在册、零消费者；公告并入信封（消息中心）内条目，⛔ 不占顶栏（`[WXG-T-494]` / `-497`） |
+| C2 | 橱窗框体位图 vs 程序化、条体归谁 | **结清**：v2 背板已烘框 / 玻璃 / 射灯 / 层板 / 圆台；条体 + 两枚图标也烘进背板 ⇒ 程序化 plaque 整条腿退役（`[WXG-T-585]` / `-586`） |
+| C3 | 蝴蝶结不单独切 | **结清**：v2 `ui_menu_signboard` 为绳 + 结 + 板 + 字整块，无独立蝴蝶结件 |
+| C4 | 带绳招牌整块双轨 | **结清**：C4 的 `ui_menu_signboard` 路线成为 v2 主腿；v1 `ui_menu_logo` 退场（`[WXG-T-587]`） |
+| C5 | 橱窗内木牌 9-slice / blit 路线 | **结清（主菜单）**：牌体已烘进背板，主菜单无独立牌件；B25 路线归属选关 / 关卡详情页，与本台账无关（另见 `menu-showcase-asset-spec.md §8.6 / §8.7`） |
+| C6 | 三态徽标图形 | **结清**：锁 = `lock` 位图；推关 = `grayWipe` 揭彩；通关 = `seal` 位图；旧 `badgePushing` / `badgeDone` 键已删 |
+| C7 | v2 换代木牌 304×83 | **结清（作废）**：v2 牌体随背板烘，⛔ 不需独立件；两行文字走 `MENU_V2.plateTitle` 124×42 / `plateSub` 90×17 |
+
+#### v1 原文（史证）
+
 **缺口（需新产或待裁）**：
 - C1 **公告喇叭图标**：现只有 `ui_icon_sound`，mock 画的是喇叭——转正时确认复用 sound 还是新切。
 - C2 **橱窗框体**（楣+木框 544×871）：用户 2026-10-14 令「去牌然后归到 final」⇒ 位图件 `ui_showcase_frame.png` 已入库转正（去牌版，牌由 `ui_showcase_plate` 运行时叠），**位图路线已有正本**；运行时最终用位图还是维持程序化占位，接线时确认即可（不阻塞其余元素落码）；旧 9-slice 规格（`menu-showcase-asset-spec §5.1`）仅对 @2x 切图版有意义，现件为高清原图需重缩。⚠ **v3.4 条窗一体后**：现件框从 y294 起、**不含棕色条体** ⇒ 接线时条体（程序化 plaque 或另切片）零间隙叠于件顶，或重出含条整件（待接线批拍板）。**✅ 已裁（用户 2026-10-15 P3）：条体 = 程序化 plaque 定稿**（`drawResourceBar`，零间隙坐窗顶），不另切片、不重出含条整件。
@@ -29,5 +63,5 @@
 - C5 **橱窗内木牌消费端路线**（已转正待接线）：件 = `ui_showcase_plate.png`（影层三段式随牌宽，B25 定稿）；二选一待裁 = Cocos `SLICED`（border 64/73/4/168 @2x，⛔ 不走整图 setContentSize）vs ADR-0031 blit 预切三段（`b25-shadow-slice/plate-{left,mid,right}.png`），需 ADR 增补才落码（spec §8.6）；另有 §8.7 牌宽口径对账（实测 190×80 vs D1/C3 行）。
 - **C7（WXG-T-525 新开）v2 换代件·木牌**：用户 2026-10-31 裁 §5-B 甲 ⇒ 新牌位图须**自带深木胶囊**（设计px：牌 304×83、胶囊 130×26 r13 居中偏下；@2x 交付 ≈608×166 + 8% 安全边），且**牌面不得有画死文字**（两行均运行时程序化：行1 关名 30 `woodEdge` / 行2 关序 28 `woodText`，口径见 `menu-plate-text-control-spec.md`）。出图路线 = **`menu-3d-asset-brief.md` §9 已裁**（① 丙混合 ⇒ 木牌走「逐件 2× 独立出」；② 含字仅招牌/CTA 两件 ⇒ 本件仍 ⛔ 无字；③ 背景与橱窗视觉一体、绘制分件）；⛔ 不从整屏基准稿裁（三条硬伤实测 = WXG-T-517 / 519 / 520）；现网 `ui_showcase_plate.png` 标 **待换代**。
 
-**程序化零资源**：背景（墙带 `WALL_*`）、楣窗灯光斑、走马灯内容与豆画、slogan、Home 条避让（锚已含 inset，无需画）。
-> ⚠ **WXG-T-525 已裁（③ 乙）**：用户要「背景图 = 木屋背景 + 橱窗一体件」⇒ 定为 **观感一体、绘制仍分两件**（背景 = 现有全屏背板腿 `MENU_TEXTURES.backdrop` **同名覆盖**位图内容，零代码零新纹理位；橱窗 = `ui_showcase_frame` 单件）。⛔ 不落 C8 新行、⛔ 不重算五档账（硬理由 = 背板腿 blit 到 `DESIGN_W × a.H`、逐机必拉伸 1.22× ⇒ 烘进背板的家具必变型，而「橱窗拉伸」案 v3.3 已被否）。细则 = `menu-3d-asset-brief.md §9-③`。
+**程序化零资源（v1 口径，已作废）**：~~背景（墙带 `WALL_*`）、楣窗灯光斑、走马灯内容与豆画、slogan、Home 条避让~~ —— v2 起背景 / 灯光 / 家具已烘进 `MENU_TEXTURES.backdrop` / `backdropFull`（缺图才回退程序化墙带与桌色）；走马灯作品内容仍程序化 / 主题位图。
+> ⚠ **WXG-T-525 已裁（③ 乙）· v1 口径（已被 v2 背板取代）**：用户要「背景图 = 木屋背景 + 橱窗一体件」⇒ 定为 **观感一体、绘制仍分两件**（背景 = 现有全屏背板腿 `MENU_TEXTURES.backdrop` **同名覆盖**位图内容，零代码零新纹理位；橱窗 = `ui_showcase_frame` 单件）。⛔ 不落 C8 新行、⛔ 不重算五档账（硬理由 = 背板腿 blit 到 `DESIGN_W × a.H`、逐机必拉伸 1.22× ⇒ 烘进背板的家具必变型，而「橱窗拉伸」案 v3.3 已被否）。细则 = `menu-3d-asset-brief.md §9-③`。**v2 现状**：`ui_showcase_frame` 已退场，框 / 玻璃 / 家具全部烘进 `ui_menu_backdrop`（§5.0 第 6 行）。

@@ -78,8 +78,8 @@ bt     = cap + 4                    # 顶栏钮顶（对齐胶囊底，不占布
 
 ## 5. 资源文件需求（已外移）
 
-> **整节原文逐字节外移** → `menu-layout-assets-requirement.md`（WXG-T-524，2026-10-31；外移动因 = 本件 B 项豁免条目 WXG-T-346 登记的撤销条件）。
-> 摘要：**已入库可用件** = logo / 资源条双图标 / 顶栏四钮 / CTA 9-slice / `ui_showcase_plate` / `ui_showcase_frame` / 未开启徽标 / ◀▶（BD-61 已闭）；**退场件** = `ui_menu_badge_pushing`（改沙漏）与 `ui_menu_badge_done`（改飘带）；**待裁缺口** = C1 公告喇叭、C5 木牌消费端路线（SLICED vs blit 预切三段）；**已裁** = C2 条体程序化 plaque、C3 蝴蝶结不切片、C4 运行时走 `ui_menu_logo`、C6 三态徽标走位图。**程序化零资源** = 背景墙带 / 楣窗光斑 / 走马灯内容 / slogan / Home 条避让。
+> **整节原文逐字节外移** → `menu-layout-assets-requirement.md`（WXG-T-524，2026-10-31；外移动因 = 本件 B 项豁免条目 WXG-T-346 登记的撤销条件）。⚠ 该件为 **v1 台账**，已于 `WXG-T-957`（2026-11-16）按 v2 生产档逐行对账（见其 §5.0 / §5.2）。
+> ~~摘要~~（v1 口径，已过时；现役真源见 §12）：**已入库可用件** = logo / 资源条双图标 / 顶栏四钮 / CTA 9-slice / `ui_showcase_plate` / `ui_showcase_frame` / 未开启徽标 / ◀▶（BD-61 已闭）；**退场件** = `ui_menu_badge_pushing`（改沙漏）与 `ui_menu_badge_done`（改飘带）；**待裁缺口** = C1 公告喇叭、C5 木牌消费端路线（SLICED vs blit 预切三段）；**已裁** = C2 条体程序化 plaque、C3 蝴蝶结不切片、C4 运行时走 `ui_menu_logo`、C6 三态徽标走位图。**程序化零资源** = 背景墙带 / 楣窗光斑 / 走马灯内容 / slogan / Home 条避让。
 
 
 ## 6. 落码改动面（开工清单）

@@ -223,7 +223,7 @@
 | 2 | 与 `menu-wall-signage-spec` 卡 B/C 的关系 | **结清（以 v2 为准）**：主菜单 = 单主题橱窗（烘焙背板 + 走马灯），作品墙 grid 模型不用于主菜单；卡 B/C 的框 / 座 / 格条款退场，卡 A 招牌腿由 `signboard` 位图承接。⛔ 不回改旧卡 |
 | 3 | 主题命名与真实 9 关对齐 | **不再阻塞切图**：牌体是烘死空牌，主题名走运行时两行文字（`MENU_V2.plateTitle` 124×42 / `plateSub` 90×17），数据源 = 关卡表 |
 | 4 | `[待实测]` 全清单 | **本文范围结清**：几何改由 `MENU_V2` 实测值 + `menu-layout-implementation-spec §12.2 / §12.6` 给出；本单的 9-slice 元素全部退场 ⇒ 九宫锚点不再是本单未决 |
-| 5 | 本单不代改正本（`assets-spec` / `systems-index` / `menu-wall-signage-spec`） | **按「不代改」执行**：v2 资产真源 = `menu-layout-implementation-spec §12`；本文 §3 尺寸不向正本回流。`menu-layout-assets-requirement.md` 仍是 v1 资产台账（含已退场件），待另批对账 |
+| 5 | 本单不代改正本（`assets-spec` / `systems-index` / `menu-wall-signage-spec`） | **按「不代改」执行**：v2 资产真源 = `menu-layout-implementation-spec §12`；本文 §3 尺寸不向正本回流。`menu-layout-assets-requirement.md` 的 v1 台账已于 `[WXG-T-957]` 对账（逐行判定见其 §5.0） |
 | 6 | 9-slice 消费端路线未二选一 | **对本单失效**：v2 现役件（背板 / 招牌 / CTA / 翻页 / 金章 / 圆钮）全为非九宫整图。柜内木牌 B25 的路线仍挂在 `menu-layout-assets-requirement.md` C5，与本单无关 |
 | 7 | 柜内木牌 190×80 与 §3 行未对账 | **结清**：D1 名牌 / C3 展示座均已退场；柜内木牌是**选关 / 关卡详情**的独立件（`menu-layout-assets-requirement.md` C5），不是主菜单名牌 ⇒ 本文不并卡 |
 

@@ -9800,6 +9800,19 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **提交**：`19fb24ad`（代码 + Cocos 镜像 + 文档 + 台账）；复评与金样本重抓同批回填。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
 
+## WXG-T-957
+
+**文档·v1 菜单资产台账按 v2 对账** · 负责：主理人(Trae CN)·beads 美术轨 · 状态：✅ 完成（2026-11-16 · 用户令「对账 v1 资产台账」）
+
+- **对象**：`games/beads/design/art/specs/menu-layout-assets-requirement.md`（v1 §5 资源文件需求，2026-10-31 外移件）。
+- **判据真源**：`menu-layout-implementation-spec.md §12`（v2 烘焙背板档 / §12.5 退役清单）、`tuning/menu.ts::MENU_V2 / MENU_TEXTURES`、`cocos/assets/textures/` 与 `final/v1/assets/menu/` 盘面。
+- **结论（10 行逐条）**：**在役 2 行** = 顶栏圆钮族在役成员（`btnCircle` 两态 + `iconSettings/iconRank/iconSkins/iconCalendar`）/ `ui_menu_badge_locked`（已改名 `MENU_TEXTURES.lock`，Figma 192×260 同名覆盖，用于选关锁定格 + 橱窗锁定态）；**退场或已被取代 8 行** = `ui_menu_logo` / 资源条双图标 / CTA 九宫 / `ui_showcase_plate` / `ui_showcase_frame` / `badge_pushing` / `badge_done` / 旧翻页圆底 + 向标。
+- **缺口收口（C1–C7）**：C1 公告 = `ui_icon_sound` 存档、进消息中心不占顶栏；C2 框体 / 条体 / 灯 / 座全烘进背板；C3 蝴蝶结随 `ui_menu_signboard` 整块；C4 `signboard` 路线成为 v2 主腿；C5 主菜单无独立木牌（B25 归选关 / 详情）；C6 三态 = `lock` / `grayWipe` / `seal`；C7 独立木牌 304×83 作废。
+- **文档改动**：顶部加「v1 台账 · 已按 v2 对账」状态；新增 §5.0 对账表；原表降 §5.1 史证；新增 §5.2 缺口收口；「程序化零资源」改 v2 口径。同步指针：`menu-showcase-asset-spec §8.5` 改为「已由 T-957 对账」、`menu-layout-implementation-spec §5` 加「v1 台账已对账」注。
+- **不改**：零代码 / 零资产 / 零几何；`final/v1/` 归档保留。
+- **验证**：`pnpm run verify`（结果见本会话）。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
 ## WXG-T-956
 
 **清理·盘面残留：孤儿 meta + v1 招牌根镜像** · 负责：主理人(Trae CN)·beads 美术/工程轨 · 状态：✅ 完成（2026-11-16 · 用户令「先清理盘面残留文件」）
