@@ -10082,6 +10082,22 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：`node tools/scripts/check-context-budget.mjs --staged` 通过（risks 6121 ≤ 8000，无豁免）；`pnpm run verify`（结果见本会话）。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
 
+## WXG-T-972
+
+**接线·设置项图标与开关位图入 Cocos（收 T-941 尾）** · 负责：主理人(CodeBuddy)·beads 美术/工程轨 · 状态：✅ 完成（2026-11-16 · 用户令「1」）
+
+- **背景**：T-967 修好容器裁切后，设置弹窗的 10 枚厚木底板 / 开关 / ✕ 全部上屏，但**四枚图标仍空** —— 因为 `MENU_TEXTURES.settingsIcon*` 自 T-941 起就只在 harness 注册、Cocos 侧 `BITMAP_ASSETS` 从未补（原记「待 GUI 导入后补注册」）。本单把这笔债结清。
+- **① 投放（6 件）**：从正本 `design/art/final/assets/menu/settings/` 拷入 `games/beads/cocos/assets/textures/`，去掉 `@2x` 后缀（遵 `ui_icon_*` 现役命名）：
+  六件尺寸与 `settings-content.ts::ICON_SRC` 逐一对应：music 109×115 / sound 116×105 / motion 114×125 / vibrate 125×127 / toggle 168×95 ×2（全部 ✅ 一致）。
+- **② `.meta` 签发（L1 合规）**：跑 `node tools/scripts/import-cocos-metas.mjs --game=beads --dir=assets/textures` ⇒ 编辑器 asset-db 签发 **6 件 `.meta`**（主进程退出码 36，按既定判据以落盘为准），⛔ 全程未手写 `.meta`。
+- **③ 接线**：`beads-blit-carrier.ts` 的 `BITMAP_ASSETS` 补 6 条（`settingsIconMusic / Sound / Motion / Vibrate` + `settingsToggleOn / Off`）⇒ `settings-content.ts::drawSettingsCell` 的图标腿与开关腿改走位图；缺图腿（不画图标 / 程序化开关）保留。
+- **④ 验证**：web-mobile 真引擎目检 —— 音符 / 喇叭 / 场记板 / 手机震动四枚图标 + 8 枚开关位图 + 10 枚厚木底板 + ✕ + 版本胶囊全可见（`temp/verify-960/icons/01-settings.png`，用 T-967 入库的 `cocos-settings-shot.mjs` 一条命令出图）；`check:cocos-mask` **OK**（9 件逐件「字节相同」，须先重建 wechatgame 产物）；`pnpm run verify` **PASS 23**。
+- **⑤ 包体**：beads 主包 3715.2 → **3846.5 KB**（+131.3，194 → 212 文件），红线余量 380.8 → **249.5 KB**（仍达标但转薄，后续菜单纹理入库先看这个数）。
+- **⑥ 版本腿**：`games/beads/package.json` 1.0.45 → **1.0.47**（T-960 后并行会话也构建过一次 ⇒ 连跳两档，非手改）。
+- **⑦ AppID（用户本条一并给出）**：`wx8cf9f756e5390749` 与仓内 `games/beads/{project.config.json,cocos/project.config.json}` 现值**一致** ⇒ 本单**零写入**。按 `memory/MEMORY.md` 核定为**小游戏测试号**（无「第三方设置 → 插件管理」）⇒ 不能授权引擎插件、不可提审发布；真机预览可用，正式发布需换正式 AppID，⛔ AppSecret 仍严禁入仓。
+- **台账 token 记账**：`TASKS.md` 本轮一度 80396 > tasksIndex 门 80000 ⇒ 表行压到 300 字符级、正文下沉本文件（`ctx:check` 只算主表，压 DETAIL 无效 —— 踩过一次）。
+
+
 ## WXG-T-969
 
 **维护·台账收敛 + risks.md v1 对账** · 负责：主理人(Trae CN)·beads 文档轨 · 状态：✅ 完成（2026-11-16 · 用户选「1/2/3」）

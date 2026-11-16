@@ -202,6 +202,16 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
     // `.meta` 已由 Cocos 编辑器签发（uuid `6eb9947a-1b98-45d2-a21d-03e569e7a751`，2026-11-16）
     // ⇒ 本条已注册，设置腿自 `btnWood` 过渡换正式底板（`settings-content.ts::drawSettingsWoodButton`）。
     [MENU_TEXTURES.btnSettings]: { path: 'ui_btn_settings_9s' },
+    // `[WXG-T-941 收尾]` 设置项 cell 的四枚图标 + 两枚开关（正本 = `final/assets/menu/settings/`，
+    // 投放件去掉 `@2x` 后缀；像素尺寸与 `settings-content.ts::ICON_SRC` 逐一对应：109×115 / 116×105 /
+    // 114×125 / 125×127，开关 168×95）。`.meta` 已由编辑器签发（2026-11-16）
+    // ⇒ 「不画图标 / 程序化开关」的缺图腿不再命中。
+    [MENU_TEXTURES.settingsIconMusic]: { path: 'ui_icon_music' },
+    [MENU_TEXTURES.settingsIconSound]: { path: 'ui_icon_sound_settings' },
+    [MENU_TEXTURES.settingsIconMotion]: { path: 'ui_icon_motion' },
+    [MENU_TEXTURES.settingsIconVibrate]: { path: 'ui_icon_vibrate' },
+    [MENU_TEXTURES.settingsToggleOn]: { path: 'ui_toggle_on' },
+    [MENU_TEXTURES.settingsToggleOff]: { path: 'ui_toggle_off' },
 };
 
 /**
