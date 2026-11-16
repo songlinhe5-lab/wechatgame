@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4184,
       "lines": 139,
-      "sha256": "f5712837954c32bd0adeb4a26bc6285bd7b46592ec61183de99a2e65e018882d",
+      "sha256": "19b7458e170c9262bd1eb1ed2511224a019c4e0bd51d18095a7911718924206e",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 313866 10208 normal",
+          "summary": "1 production/TASKS-DETAIL.md 313902 10208 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5292,
       "lines": 164,
-      "sha256": "5c636b13eb8013fe1f766b37622ce5485203aba337982bbe897f423c82a9230b",
+      "sha256": "d16c05c4e6610336c7a2238358edac8d63f3b793e75962c76c80053f6b8c82f2",
       "tier": "normal",
       "sections": [
         {
@@ -1080,7 +1080,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 10208 行 / 313866 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 10208 行 / 313902 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
@@ -90468,9 +90468,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 313866,
+      "tokens": 313902,
       "lines": 10208,
-      "sha256": "3ff3a8e1062caf34085ca41ebc58f8b1cde1ff0dac8fbbec8f4df6e13320d127",
+      "sha256": "fbd3d8f2f607ce2087f58216bdcb8f6afc17072310f1ce9f1ed3b1de1a8b192d",
       "tier": "normal",
       "sections": [
         {
@@ -90478,7 +90478,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 10209,
-          "tokens": 313849,
+          "tokens": 313886,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -105289,7 +105289,7 @@
           "level": 2,
           "startLine": 9816,
           "endLine": 9826,
-          "tokens": 532,
+          "tokens": 569,
           "summary": "选关旧规格对账 + 删墙格死代码 · 负责：主理人(Trae CN)·beads UX/工程轨 · 状态：✅ 完成（20",
           "keywords": [
             "WXG",

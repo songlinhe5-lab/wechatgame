@@ -9819,7 +9819,7 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 
 - **① UX 对账**：`arc-level-select-spec.md` 顶部加 §0.0 对账表 + §2/§3/§4/§4.1/§5/§7/§8.2 分节横幅；`level-select-page-layout.md` 顶部加 §0.0 并改 v0.3 状态行，§1/§3/§4/§5 标史证。判据：现役选关 = **弹窗版式 R**，`tuning/level-select.ts::LEVEL_SELECT_GEO`（木牌 581×1044、格 158×181、图案槽 126×94、3×3）；旧整页 170 / 30 / 134、底部 back、页面底对比度条款全部退场；格层矩阵、弹窗动效、触控与色相通道判据保留。
 - **② 死代码**：`view/meta-widgets.ts` 删除 `drawWallCell` / `drawLockedWallCell` / `drawWallLockBadge` 与 `warnedMissingThumbLevel` 一次性告警门，清 `MENU_BADGE` / `MENU_LOCKED_ICON` / `MENU_SEAL` / `MENU_TEXTURES` / `THUMB_AREA` / `THUMB_STAR_BAND` / `drawLevelThumb` / `BeadsLevelRaw` 失效导入；`drawDashedSocket` **保留**（`meta-menu.ts` 橱窗空槽仍在用）。`framework:sync` 写入镜像 1 件。
-- **③ Cocos 构建**：`pnpm run build:cocos` 已启动（release · 引擎分离）；日志 `games/beads/cocos/temp/logs/cli-build-wechatgame-release.log`。**结果**：构建命令仍在后台执行，结束时本节回填；真机项仍无设备。
+- **③ Cocos 构建**：本轮复跑与并行会话的 release 构建争用，已停止复跑；以已完成的 release 产物复检 —— `check:cocos-mask` **OK**（28 件菜单纹理源 ↔ 产物逐字节一致，含 `ui_btn_settings_9s`）、`check:size` beads 主包 **3715.2 KB**（红线余量 380.8 KB）。复跑无新增资产，删死代码不影响产物。
 - **真机阻塞**：T-953 装裱层 α/圆角、5×5/4×4 缩略辨识、选关弹窗格界可读性三条均需真机扫码预览；解除条件 = 有真机 + `wxgame-minigame-bridge` 预览。
 - **验证**：`pnpm run typecheck` 3/3 通过；`framework:sync` 通过；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（含 `ui-golden` 23/23、`harness:smoke`）。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
