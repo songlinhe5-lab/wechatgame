@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>暂停面板 · 功能分区样式方案</title>
+<style>
+  * { box-sizing: border-box; }
+  :root {
+    --bg: #F1E8D8;
+    --paper: #FFFCF6;
+    --paper-border: #E6DAC3;
+    --text: #2A2E43;
+    --text-dim: #6E7288;
+    --wood: #8A5B34;
+    --wood-pressed: #7E5230;
+    --wood-edge: #5E3B1E;
+    --wood-sheen: #B98A5C;
+    --wood-text: #FFF6E8;
+    --card-pressed: #F4EAD7;
+    --shadow-ink: #3D2E1E;
+  }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+    line-height: 1.65;
+  }
+  .page { max-width: 1280px; margin: 0 auto; padding: 56px 32px 96px; }
+  .kicker { margin: 0 0 10px; font-size: 14px; letter-spacing: .14em; color: var(--text-dim); }
+  h1 { margin: 0 0 14px; font-size: 38px; line-height: 1.25; letter-spacing: .01em; }
+  .lede { margin: 0; max-width: 900px; font-size: 17px; color: #4A4E63; }
+  .meta { margin-top: 18px; font-size: 14px; color: var(--text-dim); }
+  .meta code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; background: #EADFCC; border-radius: 5px; padding: 1px 6px; }
+
+  h2 { margin: 64px 0 8px; font-size: 26px; }
+  h2 .num { display: inline-block; min-width: 34px; color: var(--wood); }
+  h3 { margin: 28px 0 10px; font-size: 18px; }
+  p.note { margin: 6px 0 18px; color: #555A70; font-size: 15px; max-width: 980px; }
+
+  .compare { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; margin-top: 34px; }
+  figure.stage { margin: 0; width: 590px; }
+  .stage-box {
+    position: relative;
+    padding: 30px 15px;
+    border-radius: 30px;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 4px 4px, rgba(61,46,30,.20) 2.6px, transparent 3px) 0 0 / 30px 30px,
+      linear-gradient(155deg, #E2D3BB, #CBB99D);
+    box-shadow: inset 0 0 0 1px rgba(61,46,30,.18);
+  }
+  .stage-box::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(42, 46, 67, .30);
+  }
+  .caption { margin-top: 14px; font-size: 15px; color: #4A4E63; }
+  .caption b { color: var(--text); }
+
+  /* ── 面板本体（设计空间 560×718，1:1 画） ── */
+  .panel {
+    position: relative;
+    width: 560px;
+    height: 718px;
+    margin: 0 auto;
+    background: var(--paper);
+    border: 1px solid var(--paper-border);
+    border-radius: 24px;
+    box-shadow: 0 8px 0 rgba(61, 46, 30, .10), 0 24px 56px rgba(61, 46, 30, .26);
+  }
+  .panel-title {
+    position: absolute;
+    top: 32px; left: 0; right: 0;
+    text-align: center;
+    font-size: 40px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    color: var(--text);
+    line-height: 56px;
+  }
+  .row { position: absolute; left: 20px; right: 20px; height: 88px; display: flex; gap: 20px; }
+  .cell { width: 160px; height: 88px; }
+
+  .btn { display: flex; align-items: center; justify-content: center; border-radius: 20px; font-size: 30px; font-weight: 700; }
+  .btn.wood {
+    position: absolute;
+    top: 100px; left: 160px;
+    width: 240px; height: 88px;
+    background: var(--wood);
+    color: var(--wood-text);
+  }
+  .btn.wood::before { content: ""; position: absolute; top: 3px; left: 3px; right: 3px; height: 1px; background: var(--wood-sheen); }
+  .btn.wood::after { content: ""; position: absolute; bottom: 0; left: 3px; right: 3px; height: 2px; background: var(--wood-edge); }
+  .btn.wood > span { position: relative; }
+  .btn.paper { background: var(--paper); border: 1px solid var(--paper-border); color: var(--text); }
+  .btn.paper.dim { color: var(--text-dim); font-size: 28px; font-weight: 400; gap: 6px; }
+
+  /* 现状：单一纸钮 / 单行 chip */
+  .chip-old {
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 12px;
+    background: var(--paper);
+    border: 1px solid var(--paper-border);
+    color: var(--text-dim);
+    font-size: 22px;
+    font-weight: 400;
+  }
+  .sel-old { font-size: 21px; font-weight: 400; color: var(--text); white-space: nowrap; }
+
+  /* 改版：分区标题 */
+  .zone {
+    position: absolute; left: 20px; right: 20px; height: 30px;
+    display: flex; align-items: center; gap: 12px;
+    color: var(--text-dim);
+    font-size: 22px;
+    line-height: 30px;
+  }
+  .zone .line { flex: 1; height: 1px; background: var(--paper-border); }
+
+  /* 改版：开关 chip（左标签 + 右状态胶囊） */
+  .chip {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 12px;
+    border-radius: 12px;
+    background: var(--paper);
+    border: 1px solid var(--paper-border);
+    color: var(--text-dim);
+    font-size: 22px;
+    font-weight: 400;
+    white-space: nowrap;
+  }
+  .chip .pill {
+    flex: 0 0 38px;
+    width: 38px; height: 30px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 10px;
+    border: 1px solid var(--paper-border);
+    background: var(--paper);
+    color: var(--text-dim);
+    font-size: 22px;
+    line-height: 30px;
+  }
+  .chip.on { background: var(--wood); border-color: var(--wood); color: var(--wood-text); }
+  .chip.on .pill { background: var(--wood-text); border-color: var(--wood-text); color: var(--wood); font-weight: 700; }
+
+  /* 改版：选择器卡片（标签 + ▸ / 值胶囊） */
+  .sel {
+    display: flex; flex-direction: column; justify-content: space-between;
+    padding: 10px 12px 12px;
+    border-radius: 20px;
+    background: var(--paper);
+    border: 1px solid var(--paper-border);
+  }
+  .sel .top { display: flex; align-items: center; justify-content: space-between; font-size: 22px; line-height: 1; color: var(--text-dim); }
+  .sel .top .arrow { font-size: 18px; }
+  .sel .val {
+    height: 36px;
+    display: flex; align-items: center;
+    padding: 0 10px;
+    border-radius: 10px;
+    background: var(--card-pressed);
+    color: var(--text);
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  /* ── 表格与色板 ── */
+  .table-scroll { overflow-x: auto; border-radius: 14px; margin: 14px 0 8px; }
+  table { width: 100%; border-collapse: collapse; margin: 0; font-size: 15px; background: var(--paper); border-radius: 14px; overflow: hidden; }
+  th, td { text-align: left; padding: 13px 16px; border-bottom: 1px solid #EDE3D2; vertical-align: top; }
+  th { background: #F6EEDF; font-size: 14px; color: #555A70; font-weight: 600; white-space: nowrap; }
+  tr:last-child td { border-bottom: 0; }
+  td code, .num-badge { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
+  .swatch { display: inline-block; width: 14px; height: 14px; border-radius: 4px; vertical-align: -2px; margin-right: 7px; border: 1px solid rgba(61,46,30,.22); }
+
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px; }
+  .card { background: var(--paper); border: 1px solid var(--paper-border); border-radius: 16px; padding: 18px 20px; }
+  .card h4 { margin: 0 0 6px; font-size: 16px; }
+  .card p { margin: 0; font-size: 14px; color: #555A70; }
+
+  .good { color: #2E7D4F; font-weight: 700; }
+  .bad { color: #B23B3B; font-weight: 700; }
+  ul.clean { margin: 8px 0 0; padding-left: 22px; }
+  ul.clean li { margin: 5px 0; color: #4A4E63; }
+  .tag { display: inline-block; font-size: 12px; letter-spacing: .04em; padding: 2px 8px; border-radius: 999px; background: #EADFCC; color: #5C523F; margin-left: 8px; vertical-align: 2px; }
+  .foot { margin-top: 64px; padding-top: 18px; border-top: 1px solid #E2D6C2; font-size: 13px; color: var(--text-dim); }
+
+  @media (max-width: 700px) {
+    .page { padding: 36px 16px 72px; }
+    h1 { font-size: 30px; }
+    .compare { gap: 18px; }
+    figure.stage { width: 100%; }
+    .stage-box { padding: 18px 10px; }
+    .panel { zoom: .78; }
+    .cards { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 560px) {
+    .panel { zoom: .58; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <p class="kicker">BEADS · UI 样式方案 · v0.1 草案</p>
+  <h1>暂停面板：按功能分区重做视觉层级</h1>
+  <p class="lede">
+    同一个面板同时承担「暂停」「设置」「退出」三件事。现在的 12 个次级按钮全部是同一副纸面，
+    玩家只能逐字读文案才能分辨功能。本方案不增加任何功能、不改面板尺寸，只把按钮按职责分成
+    主操作、设置、辅助、外观、本局五个区，并让每类控件拥有各自的形态与状态语言。
+  </p>
+  <div class="meta">
+    依据：<code>ux-spec §3.3</code> 暂停面板 · <code>art-bible</code> T1 纸 / T3 木 / chip 矩阵 ·
+    现有 <code>palette.ts</code> token（零新增色值）。本稿只出方案，不改代码。
+  </div>
+
+  <div class="compare">
+    <figure class="stage">
+      <div class="stage-box">
+        <div class="panel" aria-label="现状暂停面板">
+          <div class="panel-title">暂停</div>
+          <div class="btn wood"><span>继续</span></div>
+
+          <div class="row" style="top:218px">
+            <div class="cell btn paper">重玩本关</div>
+            <div class="cell chip-old">音乐　关</div>
+            <div class="cell chip-old">音效　关</div>
+          </div>
+          <div class="row" style="top:336px">
+            <div class="cell chip-old">减弱动效　关</div>
+            <div class="cell chip-old">大字号　关</div>
+            <div class="cell chip-old">震动　关</div>
+          </div>
+          <div class="row" style="top:454px">
+            <div class="cell btn paper sel-old">珠子风格　经典四棱</div>
+            <div class="cell btn paper sel-old">豆子尺寸　标准</div>
+            <div class="cell btn paper sel-old">皮肤　暖纸拼豆台</div>
+          </div>
+          <div class="row" style="top:572px">
+            <div class="cell chip-old">性能信息　关</div>
+            <div class="cell chip-old">幽灵符号　关</div>
+            <div class="cell btn paper">回主菜单</div>
+          </div>
+        </div>
+      </div>
+      <figcaption class="caption"><b>现状</b>　除「继续」外全部同权重纸钮；开关、选择器、重玩、退出在视觉上不可区分。</figcaption>
+    </figure>
+
+    <figure class="stage">
+      <div class="stage-box">
+        <div class="panel" aria-label="改版暂停面板">
+          <div class="panel-title">暂停</div>
+          <div class="btn wood"><span>继续</span></div>
+
+          <div class="zone" style="top:188px"><span>设置</span><i class="line"></i></div>
+          <div class="row" style="top:218px">
+            <div class="cell chip on"><span>音乐</span><span class="pill">开</span></div>
+            <div class="cell chip"><span>音效</span><span class="pill">关</span></div>
+            <div class="cell chip on"><span>震动</span><span class="pill">开</span></div>
+          </div>
+
+          <div class="zone" style="top:306px"><span>辅助</span><i class="line"></i></div>
+          <div class="row" style="top:336px">
+            <div class="cell chip"><span>减弱动效</span><span class="pill">关</span></div>
+            <div class="cell chip"><span>大字号</span><span class="pill">关</span></div>
+            <div class="cell chip"><span>幽灵符号</span><span class="pill">关</span></div>
+          </div>
+
+          <div class="zone" style="top:424px"><span>外观</span><i class="line"></i></div>
+          <div class="row" style="top:454px">
+            <div class="cell sel">
+              <span class="top"><span>珠子风格</span><span class="arrow">▸</span></span>
+              <span class="val">经典四棱</span>
+            </div>
+            <div class="cell sel">
+              <span class="top"><span>豆子尺寸</span><span class="arrow">▸</span></span>
+              <span class="val">标准</span>
+            </div>
+            <div class="cell sel">
+              <span class="top"><span>皮肤</span><span class="arrow">▸</span></span>
+              <span class="val">暖纸拼豆台</span>
+            </div>
+          </div>
+
+          <div class="zone" style="top:542px"><span>本局</span><i class="line"></i></div>
+          <div class="row" style="top:572px">
+            <div class="cell btn paper">重玩本关</div>
+            <div class="cell chip"><span>性能信息</span><span class="pill">关</span></div>
+            <div class="cell btn paper dim"><span>⌂</span><span>回主菜单</span></div>
+          </div>
+        </div>
+      </div>
+      <figcaption class="caption"><b>改版</b>　五行分区，四类控件四种形态；几何、尺寸、热区与动作语义保持不变。</figcaption>
+    </figure>
+  </div>
+
+  <h2><span class="num">01</span>现状诊断</h2>
+  <p class="note">截图对应当前实现（五行共 12 个按钮 + 木主钮）。问题不在材质，而在「功能」没有进入视觉。</p>
+  <ul class="clean">
+    <li><b>层级缺失。</b>除了「继续」，其余 12 个按钮全部是纸面同一形态，主操作、设置、退出三类职责没有分界。</li>
+    <li><b>状态太弱。</b>开关只靠文案尾缀「开 / 关」表达状态；全关时 7 个开关与选择器、动作按钮几乎同款。</li>
+    <li><b>选择器没有切换暗示。</b>标签与当前值同字号、同颜色、同一行排开，既挤又读不出「点按可循环」。</li>
+    <li><b>高风险动作不设防。</b>「重玩本关」「回主菜单」与音量开关同权重，误触代价完全不对等。</li>
+    <li><b>没有扫读路径。</b>五行三列密铺、无分区标题，视觉上更像调试面板而不是玩家设置页。</li>
+  </ul>
+
+  <h2><span class="num">02</span>功能分区</h2>
+  <p class="note">
+    在不改变面板高度、行高、列宽与热区的前提下，把现有 30px 行间距用作分区标题带（28px 字面 + 1px 细线），
+    按钮位置一格不动。行内容按职责重排如下（动作 id 与语义不变，仅换格位）：
+  </p>
+  <div class="table-scroll">
+  <table>
+    <thead>
+      <tr><th>分区</th><th>按钮（左 → 右）</th><th>控件族</th><th>分区要传达的事</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>主操作</td><td>继续</td><td>T3 木主钮</td><td>唯一的「回到对局」，保持全场最高权重</td></tr>
+      <tr><td>设置</td><td>音乐 · 音效 · 震动</td><td>开关 chip</td><td>声音与触觉反馈，开关状态一眼可读</td></tr>
+      <tr><td>辅助</td><td>减弱动效 · 大字号 · 幽灵符号</td><td>开关 chip</td><td>可访问性与显示辅助，同族同形</td></tr>
+      <tr><td>外观</td><td>珠子风格 · 豆子尺寸 · 皮肤</td><td>选择器卡片</td><td>点按循环切档，值即状态</td></tr>
+      <tr><td>本局</td><td>重玩本关 · 性能信息 · 回主菜单</td><td>纸动作钮 / chip / 弱化退出钮</td><td>会话级动作：重置、调试信息、离开</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="note">
+    说明：「性能信息」本质是调试项，现落脚在「本局」行末段。若后续愿意把它移入菜单设置或仅在调试模式显示，
+    本方案无需改样式；这属于功能口径变更，不在本稿范围。
+  </p>
+
+  <h2><span class="num">03</span>控件样式矩阵</h2>
+  <p class="note">四种形态各自回答一个问题：能不能点、开了没有、现在是什么档、点了会发生什么。</p>
+  <div class="table-scroll">
+  <table>
+    <thead>
+      <tr><th>控件</th><th>形态</th><th>常态</th><th>按下</th><th>开启 / 选中</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>继续</td>
+        <td>T3 木主钮 240×88，圆角 20</td>
+        <td><span class="swatch" style="background:#8A5B34"></span>木面 <code>woodFace</code> + 顶缘 1px 受光 + 底缘 2px 承重线，米白字 30 粗</td>
+        <td>木面换 <code>woodFacePressed</code>，整体下沉 2px</td>
+        <td>—（唯一主钮）</td>
+      </tr>
+      <tr>
+        <td>开关 chip</td>
+        <td>160×88，圆角 12；左标签 22 + 右状态胶囊 38×30</td>
+        <td>纸面 + 1px 暖沙边；标签 <code>textDim</code>；胶囊空心描边「关」</td>
+        <td>面换 <code>cardPressed</code>，文字升为 <code>text</code>（守 4.5:1）</td>
+        <td>整钮木面 + 米白字；胶囊实心米白 + 木色「开」</td>
+      </tr>
+      <tr>
+        <td>选择器卡片</td>
+        <td>160×88，圆角 20；上行标签 22 + ▸，下行为值胶囊 136×36</td>
+        <td>纸面 + 1px 暖沙边；标签 <code>textDim</code>；值胶囊 <code>cardPressed</code> 底 + 深墨 22 粗</td>
+        <td>面换 <code>cardPressed</code>，标签升为 <code>text</code></td>
+        <td>值胶囊即状态；▸ 暗示点按循环，不需要选中态</td>
+      </tr>
+      <tr>
+        <td>重玩本关</td>
+        <td>T1 纸动作钮 160×88，圆角 20</td>
+        <td>纸面 + 1px 暖沙边，深墨 30 粗</td>
+        <td>面换 <code>cardPressed</code>，下沉 2px</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td>回主菜单</td>
+        <td>弱化退出钮 160×88，圆角 20</td>
+        <td>纸面 + 1px 暖沙边，<code>textDim</code> 28 + ⌂；在场但最低权重</td>
+        <td>面换 <code>cardPressed</code>，下沉 2px</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td>分区标题</td>
+        <td>22 字 + 右侧 1px 细线，落在 30px 行间带</td>
+        <td><code>textDim</code> 22；细线 <code>panelBorder</code></td>
+        <td>—（不注册热区）</td>
+        <td>—</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2><span class="num">04</span>关键数值与对比度</h2>
+  <div class="cards">
+    <div class="card">
+      <h4>几何（全部沿用现值）</h4>
+      <p>面板 560×718；内缩 20；列宽 160；列间 20；行高 88；行间 30；主钮 240×88。分区标题占据现有行间，不推按钮。</p>
+    </div>
+    <div class="card">
+      <h4>字档</h4>
+      <p>标题 40 粗；主钮 / 纸动作钮 30 粗；chip 与选择器标签 22；选择器值 22 粗（新增语义键，字面复用现有 22 粗档）；分区标题 22。</p>
+    </div>
+    <div class="card">
+      <h4>状态双通道</h4>
+      <p>开关同时用「底色 + 胶囊文字」两条通道表达开 / 关，不依赖色相；按下保留位移通道，减弱动效时由换面承担反馈。</p>
+    </div>
+  </div>
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>文字 / 底色</th><th>对比度</th><th>用途</th></tr></thead>
+    <tbody>
+      <tr><td><code>woodText</code> / <code>woodFace</code></td><td class="good">5.40 : 1</td><td>木主钮、开态 chip 文字</td></tr>
+      <tr><td><code>text</code> / <code>panel</code></td><td class="good">13.06 : 1</td><td>纸动作钮、选择器值</td></tr>
+      <tr><td><code>textDim</code> / <code>panel</code></td><td class="good">4.63 : 1</td><td>chip 关态标签、分区标题（22px 正文门 4.5）</td></tr>
+      <tr><td><code>text</code> / <code>cardPressed</code></td><td class="good">11.21 : 1</td><td>按下态切换后的文字</td></tr>
+      <tr><td><code>textDim</code> / <code>cardPressed</code></td><td class="bad">3.98 : 1</td><td>不采用：按下时文字必须升为 <code>text</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="note">对比度按 WCAG 相对亮度公式实测；未引入任何新色值，全部读取现有 <code>palette.ts</code> token。</p>
+
+  <h2><span class="num">05</span>落地范围与影响</h2>
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>层面</th><th>会动什么</th><th>不会动什么</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>布局</td>
+        <td>行内容重排：把 12 个动作按分区重新分配到同一批格位（<code>systems/pause-panel.ts</code> 的 id 序列）</td>
+        <td>面板尺寸、行高、列宽、主钮宽、命中矩形、进出场动画、遮罩 α</td>
+      </tr>
+      <tr>
+        <td>绘制</td>
+        <td><code>view/view-model.ts</code> 增加分区标题带；<code>view/settings-content.ts</code> 的暂停档改为「chip 双列布局 / 选择器两行布局 / 弱化退出钮」（仅暂停档，设置弹窗不变）</td>
+        <td>动作 id 与语义、存档字段、开关行为、设置弹窗版式</td>
+      </tr>
+      <tr>
+        <td>文档</td>
+        <td><code>ux-spec §3.3</code> 行序与新增分区标题；<code>gdd/pause-settings.md §2.2</code> 五行终态；<code>art/proposals/ui-style-redesign/screens.md</code> S2 换肤点</td>
+        <td>GDD §3 冻结常量、系统索引数值</td>
+      </tr>
+      <tr>
+        <td>测试</td>
+        <td>暂停 / 设置相关金样本重抓；行序相关视图断言按新格位更新</td>
+        <td>命中测试几何断言（矩形不变）、调试热区框</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="note">
+    主要风险：① 22px 分区标题低于正文 28px 地板，但与面板内现有 22px 控件标签同档，属于控件字数而非正文；
+    ② 四字标签 + 38px 胶囊在 160px 格内只剩约 10px 余量，落码时需按实测字宽验证；
+    ③ 行序变化会改变老玩家的肌肉记忆，这是功能分区必须付的代价，可用分区标题补偿。
+  </p>
+
+  <h2><span class="num">06</span>待拍板</h2>
+  <div class="cards">
+    <div class="card">
+      <h4>1. 行序重排</h4>
+      <p>推荐按本稿重排（设置 / 辅助 / 外观 / 本局）。若想零重排，可保留现顺序，分区标题退化为「设置 / 体验 / 外观 / 系统」，但「本局」行仍会混入调试项。</p>
+    </div>
+    <div class="card">
+      <h4>2. 性能信息归属</h4>
+      <p>本稿保留原位并按 chip 绘制。是否只在调试模式显示、或移入菜单设置，是功能口径问题，需另批决策。</p>
+    </div>
+    <div class="card">
+      <h4>3. 回主菜单确认</h4>
+      <p>退出会丢弃本局。本稿只做视觉弱化；是否加二次确认属于交互功能变更，不在样式方案内。</p>
+    </div>
+  </div>
+
+  <p class="foot">
+    本文件是样式方案草案，位于工作区根目录，未改动仓库内任何源码或设计文档。
+    方案确认后再按「先改文档、后改代码」的顺序回写 ux-spec / pause-settings / art 规格并落码。
+  </p>
+</div>
+</body>
+</html>

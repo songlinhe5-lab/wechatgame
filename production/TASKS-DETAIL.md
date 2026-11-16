@@ -9800,6 +9800,19 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **提交**：`19fb24ad`（代码 + Cocos 镜像 + 文档 + 台账）；复评与金样本重抓同批回填。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
 
+## WXG-T-959
+
+**清理·temp 归零 + 未跟踪产物入库 + gitignore** · 负责：主理人(CodeBuddy)·beads 美术/工程轨 · 状态：✅ 完成（2026-11-16 · 用户令「temp 下的内容清理一下」→ 选「1/2/3」全做）
+
+- **temp 清理**：723 M → 全清（26 个中间产物目录 + 41 个一次性脚本/日志；大头 `ui-shot` 416M / `figma` 91M）。整目录被 `.gitignore` 第 99 行 `temp/` 忽略且 git 跟踪数 = 0 ⇒ **仓库零变更**。
+- **副作用（已在会话内告知）**：`temp/figma/layered-20261104`（`trace-figma-icons.py` 输入）与 `temp/levelselect-9slice/backplate-geo.png`（`make-grid-backplate.py` 输出）一并删除 ⇒ 对应脚本重跑需先从 Figma 取数；其余均为脚本默认输出目录，随时可再生。
+- **保留件归位（原在 temp，删了不可再生）**：`prompt-gptimage.md` / `prompt-tokenplan.txt` → `design/ai-workflows/levelselect-backplate-prompt-gptimage.md` / `…-tokenplan.txt`，与同目录 `make-grid-backplate.py` 配套；md 内输入基准路径由失效的 `temp/…` 改为「由 `make-grid-backplate.py` 从 Figma 节点 `164:63` 生成」。
+- **提案归档**：根目录 `pause-panel-prototype.png`（83,637 B）+ `pause-panel-style-proposal.html`（22,515 B）→ `design/art/proposals/pause-panel-20261113/`（遵 `<主题>-<YYYYMMDD>` 惯例）。
+- **资产入库**：`cocos/assets/textures/ui_btn_settings_9s.png`（53,776 B，235×210）与 `final/assets/menu/buttons/ui_btn_settings_9s@2x.png` **同 md5** `f5f9820a5f99155f1fa6e1e42542ebcb` ⇒ 无新增内容风险。T-938 原裁「暂不入库」已被本批取代，`production/qa/asset-provenance.md §0.2` 同步订正；`.meta` 仍空缺，待 GUI 导入由编辑器生成 + 注册，⛔ 不手写（L1）。
+- **防回潮**：`.gitignore` 增 `.trae-html-share-packages/`（Trae IDE 本地导出包），`git check-ignore` 实测命中第 146 行。
+- **验证**：`pnpm run check:links` → OK（agents=7 / skills=51）；本次零代码改动，未跑 `pnpm run verify`（无源码面）。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
 ## WXG-T-957
 
 **文档·v1 菜单资产台账按 v2 对账** · 负责：主理人(Trae CN)·beads 美术轨 · 状态：✅ 完成（2026-11-16 · 用户令「对账 v1 资产台账」）
