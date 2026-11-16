@@ -9834,6 +9834,33 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：`pnpm run verify` 读数见提交总结；`kb:sync` / `kb:audit` / `ctx:build` 全绿。
 - **判例留档**：本次普查特意**不**给全部 `spawnSync` 加缓冲——短输出点加缓冲是无成本但也无收益的「预防性豁免」，按 K-025 口径不铺。
 
+## WXG-T-967
+
+**缺陷·Cocos 设置弹窗内位图腿全不可见** · 负责：主理人(CodeBuddy)·beads 工程轨 · 状态：🐞 已定位未修（2026-11-16）
+
+- **发现路径（承接 T-964 目检）**：`build:cocos --platform=web-mobile` 重建产物 → `python3 -m http.server 4175` 托管 → headless Chrome + CDP（`temp/verify-960/cocos-settings-shot*.mjs`）→ SHOW_ALL 换算后 `Input.dispatchMouseEvent` 点主菜单顶栏设置钮 (58,168) → **真点开设置弹窗**。这是**真实引擎栅格化**，非 RenderModel 模拟。
+- **现象**：弹窗内可见「设置」标题木牌、5 行名称（音乐 / 音效 / 减弱动效 / 震动 / 大字号）、提示行、版本行；**不可见**：10 枚厚木 cell 底板、4 枚图标、8 枚开关位图。放大 cell 区（`cocos-zoom-cells.png`）确认背景就是木牌本体木纹，无任何底板边线与金高光。
+- **排除链（六条，逐条实测）**：
+  1. 资源未打包 ❌ —— `build/web-mobile/assets/textures/native/6e/6eb9947a-1b98-45d2-a21d-03e569e7a751.png` + `import/6e/….json` 俱在，与 wechatgame 产物同位置。
+  2. `.meta` 缺失 ❌ —— T-960 已由编辑器签发（uuid `6eb9947a-…`）。
+  3. 镜像落后源码 ❌ —— `framework:sync:check` 绿；`btnSettings` 在源码与镜像各 3 处。
+  4. 宿主未注入 resolver ❌ —— `beads-blit-carrier.ts:362` 有 `setMenuBitmapResolver((id) => this._bitmaps.has(id))`。
+  5. **模块实例分裂** ❌ —— 临时探针（`bitmap-ready.ts` 打实例 id）实测：`setResolver` 与所有查询同属 `br:1144.500` **单一实例**；且 `bitmap__ui_btn_settings_9s=**true**`、`bitmap__menu_backdrop_expanded=true`、`bitmap__ui_btn_settings_9s=true`。⇒ **`menuBitmapReady` 返回真，绘制侧确实发出了 blit**。
+  6. 装载失败 ❌ —— carrier 日志 `静态位图 48/51 已装载 ⇒ 落 UI blit 层`；未装载的 3 件全是 `powerup_window/random/tray_*_tile`，与设置无关。
+- **根因范围（收敛到一行分支）**：`games/beads/cocos/assets/scripts/host/beads-blit-carrier.ts:448-451`：
+  ```ts
+  const scoped = blitParent as Node | undefined;
+  const parent = this._clipOn && this._clipLayer
+      ? this._clipLayer                        // ← 容器 clip 生效时，blit 一律挂这里
+      : (below ? this._atlasNode() : (scoped ?? this._uiLayer));
+  ```
+  `_uiLayer` 是「Graphics 之上、Labels 之下」的正层；`_clipLayer` 是 T-944 为逐容器裁切建的 stencil 子树。设置弹窗内容列表被 `enterClip` 包住 ⇒ `_clipOn = true` ⇒ cell 底板的 blit 全部挂进 `_clipLayer`，与弹窗木牌（Graphics）的 z 序关系使其**被整块覆盖**。旁证：主菜单圆钮位图正常显示——它走 `scoped ?? this._uiLayer` 分支。
+- **影响面**：自 T-937（`menuBitmapReady` 注入点拆分）/T-938（btnSettings）/T-941（单列 cell）以来，**所有「先查 `menuBitmapReady` 再发 blit」的设置弹窗腿**在 Cocos 真产物上都不显示；回退腿 `btnWood` 同样不显示（同一分支）。harness 侧看不出（Canvas2D 单画布，无 clip 子树分层）。
+- **未修原因**：修法要动 `_clipOn` 分支的挂载目标（`_clipLayer` → 容器自己的 BlitLayerUI，见该文件 445 行注释的原意），直接关联 T-944 / ADR-0037 的逐容器裁切架构与 `check:cocos-mask` 产物腿；属架构面裁定，不宜在目检批次内顺手改。
+- **复现（三件套）**：① `node tools/scripts/build-cocos.mjs --game=beads --platform=web-mobile`（debug 构建**不**递增版本号）② `cd games/beads/cocos/build/web-mobile && python3 -m http.server 4175` ③ `node temp/verify-960/cocos-settings-shot.mjs`（截图）/ `…shot2.mjs`（抓 console 日志）。探针脚本仍在 `temp/`（gitignore 内），如需长期复用应移到 `tools/scripts/` 并入库。
+- **佐证物料**：`temp/verify-960/{cocos-00-menu,cocos-01-settings,cocos-02-settings-logs,cocos-zoom-cells,harness-settings}.png`。
+- **临时探针已完全撤销**：`git checkout -- games/beads/src/view/bitmap-ready.ts` + `sync-framework-to-cocos.mjs` 回同步，复建产物后 `grep bitmap-ready#` = **0**（无残留）。
+
 ## WXG-T-966
 
 **文档·art-bible 瘦身回 8k 门内** · 负责：主理人(Trae CN)·beads 美术轨 · 状态：✅ 完成（2026-11-16 · 用户令「先给 art-bible 瘦身」）
