@@ -236,6 +236,7 @@ L3 木牌字 / ◀▶ / 顶栏 / CTA
 |---|---|
 | [`menu-layout-implementation-spec.md §12`](menu-layout-implementation-spec.md) | **几何上位真源**（v2 生产档 `MENU_V2`） |
 | [`menu-showcase-asset-spec.md §3`](menu-showcase-asset-spec.md) | 其 **C1 橱窗框 620×760 / C2 射灯 / C3 底座 / E1 boss 画框 420×420** 均为 v1 口径，已被 v2 背板烘焙取代 ⇒ 本规格**不引用**其尺寸；该件的退场对账另立单 |
+| 走马灯 boss 烘焙图 | `l9-boss-mandala-256` / `photo32-smoke-boss-256` 已带 **1px `shadowInk` 剪影描边**（`[WXG-T-954]`，P 模式、alpha 包围盒不变）⇒ 与详情 / 选关的剪影带同口径 |
 | [`menu-wall-signage-spec.md`](menu-wall-signage-spec.md) | 缩略「只画盘面」口径（`[WXG-T-502]`）；本规格不触碰珠面 recipe |
 | `meta-menu.ts::drawShowcaseArt` / `drawContactShadow` | M2 装配点：clip 内、随 `dx`；宽度 = `avail × 0.92`，锁 / 置灰 / 空槽跳过 |
 | `meta-menu.ts::drawShowcaseMount` | M1 → M3 → M4 固定上层（`unclip()` 之后）；包围盒 = 实际绘制区（§1），M3 上缘夹到玻璃顶 |

@@ -9742,7 +9742,7 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **用户反馈（原话）**：「我想的是边缘颜色适合凸显珠面，可以是黑色或者金色，白色看起来不协调；线条需要连续，而且线条需要紧贴珠面边缘；各种珠面展示时候都需要加这个线条，跟珠面等比例缩放」。
 - **art 二裁**：① 黑色单层，复用 `palette.shadowInk`（`#3D2E1E`）；**不选金色**——金色靠近珠面违反 art-bible §3.5/§4.3，且 `STAR_GOLD` 与珠色 2 柠黄同值（ΔL=0）；② 对比按 art-bible §3.1 / assets-spec §1.8 的 ΔL>4% 口径（暖木底、奶白、柠黄、玫红全过阈）；③ 线宽维持 `W=clamp(round(pitch×0.18),2,6)`；④ 逐珠外扩必须取**并集**（同色一次填充、不叠 α）。
 - **实现（替换 T-925 的格边环腿）**：`bead-outline.ts` 改为**每颗边界珠**画「珠面外扩 W」圆角方块多边形（底块 = `pitch + 2×TILE_BLEED`；`x` 锁定格贴其珠体边长），同色并集 ⇒ 内缘与珠面重合、连续无缝；`drawBeadFace` **内建描边**（去掉 T-925 的 `outline` 开关）⇒ 详情橱窗 + 选关九宫格同时生效；形状按（left, top, pitch, lockedFace）缓存。
-- **例外（已登记待 art）**：首页走马灯用烘焙作品图 `ui_arc_*`（`drawShowcaseArt` 位图腿），程序化无法沿 alpha 描边 ⇒ 线条需 art 重新出图；程序化兜底腿已带描边。
+- **例外（已于 2026-11-16 关闭）**：首页走马灯用烘焙作品图 `ui_arc_*`（`drawShowcaseArt` 位图腿），程序化无法沿 alpha 描边 ⇒ 线条需 art 重新出图；**T-954 已给两张烘焙图补 1px `shadowInk` 剪影描边**（P 模式、alpha 包围盒不变）⇒ 走马灯与详情 / 选关口径一致。
 - **判据**：`thumb-outline` 重写 6 例（W/R 公式、单格 1 枚 20 点、2×2 四枚、L 形 3 枚、外缘包络、`drawBeadFace` 首命令即 shadowInk 轮廓）；`level-detail-showcase` 参照腿回默认（内建描边）；全绿。
 - **实帧**：`temp/e2e-detail-925/`（真实点击链 首页→选关→详情→开始 全通）：详情 L4 黑线贴边连续；选关 1–4 格缩略同款（pitch≈6 时 W=2）；走马灯为位图腿未带线（已登记）。temp 不入库。
 - **文档**：`level-detail-spec §12` 轮廓条改写为二裁口径；`ui-architecture-beads §12` 登记。
@@ -9798,6 +9798,19 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **文档**：`level-detail-spec §12` 形态改「骑线带」；`ui-architecture-beads §12` 登记；`test-cases-k-ledger-2 §K.5.1-补16` 复评文号入册。
 - **验证**：`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（含封箱 12 例、金样本 13 例、轮廓 7 例）。
 - **提交**：`19fb24ad`（代码 + Cocos 镜像 + 文档 + 台账）；复评与金样本重抓同批回填。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
+## WXG-T-954
+
+**美术·走马灯两张 boss 烘焙图补珠面描边** · 负责：主理人(Trae CN)·beads 美术轨 · 状态：✅ 完成（2026-11-16 · 用户选「2 = 给走马灯两张 boss 烘焙图补珠面描边」）
+
+- **背景**：T-926 登记「首页走马灯用烘焙作品图，程序化无法沿 alpha 描边 ⇒ 待 art 重出」；T-929/T-930/T-932/T-933 已把详情 / 选关 / 盘面统一为 `shadowInk` 剪影带，走马灯是最后一个例外。
+- **做法**：对 `l9-boss-mandala-256.png` / `photo32-smoke-boss-256.png` 的 `alpha > 0` 剪影取**最外圈 1px**（3×3 腐蚀差集），把该圈像素改为调色板空闲索引 97 = `#3D2E1E`；透明度索引 96 与 alpha 包围盒**逐像素不变**（mandala 37/31..218/210、smoke 41/32..214/209），Cocos `.meta` 的 `trimX/trimY/width/height = 37/31/182/180` 继续有效。
+- **线宽依据**：源图珠距 ≈ 6.0（30×30）/ 5.56（32×32）⇒ 名义 `4 × pitch/32` = 0.75 / 0.70 px；256 栅格最小可渲染取 **1px**（菜单显示 ≈ 2.08px，与程序化缩略 1.56px 同量级）。
+- **产物**：`design/levels/assets/*.png` 与 `cocos/assets/themes/*.png` 两副本同 md5；文件 9,640→9,384 B / 17,335→17,055 B（反降，零包体增量）。
+- **取证**：`temp/boss-outline/*-binary-edge5x.png`（原图 vs 1px 环放大）、`temp/mount-shots/menu-cleared.png` / `menu-smoke-cleared.png`（实际菜单尺度）；alpha bbox / 墨像素数（731 / 838）已核。temp 不入库。
+- **不改**：图案本体、珠面 recipe、`bead-outline.ts` 公式、调色板语义（仅加 1 个空闲槽）；走马灯程序化兜底腿（位图缺失降级路径）仍不画轮廓，非生产态。
+- **金样本**：零重抓 —— Node 金样本不加载位图，走马灯走程序化兜底腿，命令流未变。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
 
 ## WXG-T-953
