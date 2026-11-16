@@ -9813,6 +9813,18 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：`pnpm run check:links` → OK（agents=7 / skills=51）；本次零代码改动，未跑 `pnpm run verify`（无源码面）。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
 
+## WXG-T-963
+
+**文档·视觉纪律审计单按 v2 对账** · 负责：主理人(Trae CN)·beads 美术轨 · 状态：✅ 完成（2026-11-16 · 用户令「继续清理视觉纪律审计文档」）
+
+- **对象**：`design/art/proposals/ui-style-redesign/menu-visual-discipline-check.md`（v1 检查单 · 54 行）。
+- **判据真源**：`menu-layout-implementation-spec §12`、`tuning/menu.ts::MENU_V2 / MENU_TEXTURES`、`view/meta-menu.ts` 现役绘制腿。
+- **结论**：5 条纪律 **5/5 仍满足**，0 个强制改码点 —— ① 单焦点 = `MENU_V2.cta` 378×179 整枚；② 容器唯一 = v2 整屏背板族口径（v1 `caseFrame` / `plate` 独立件退场）；③ 形态承载 = CTA / 翻页 / 圆钮 pressed 位图 + `pressDy`，锁 = `lock`；④ 进度空间化 = ★ 只在 `plateSub` 90×17 与选关弹窗页头；⑤ 品牌限量 = `signboard` 整枚 + `drawBeadText` 回落。
+- **条款处置**：O-1 公告空圆作废（顶栏已四钮，`iconSound` 零消费者）；O-2 总星不进资源条保留；§2 族口径 v2 更成立，但正式措辞仍未回写 `art-bible-proposal.md`。
+- **不改**：零代码 / 零资产 / 零几何。
+- **验证**：`pnpm run verify`（结果见本会话）。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
 ## WXG-T-962
 
 **文档·旧提案清账：3D 资产规格 + 主菜单架构** · 负责：主理人(Trae CN)·beads 美术/设计轨 · 状态：✅ 完成（2026-11-16 · 用户令「继续旧规格清账」）
