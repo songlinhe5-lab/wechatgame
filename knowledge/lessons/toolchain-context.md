@@ -64,3 +64,9 @@
 - **[工具链上下文][K-171] 预算型生成物「恒贴上限」是填充线造成的，不是素材过多：余量小先查填充逻辑，别先砍池**（来源 WXG-T-380 / commit 7c238a6，2026-10-25）
   现象：贴上限屡被读成「素材太满」⇒ 连续抬阈值，腾出的额度又被候选填回（池内尚有 236 件落选）。
   根因：扫描按「能塞多少」⇒ 填充线 ≡ 上限，体积由预算而非池决定。做法：先读填充逻辑；留**预留额度**（填充线 = 上限 − 预留）；自测带「置 0 必回填」反例（K-089）。
+
+- **[工具链上下文][K-218] 门禁脚本用 `execFileSync` / `spawnSync` 捕获 stdout 时必须显式 `maxBuffer`：越过 1 MB 默认上限会 ENOBUFS，而 catch 兜底会把「读失败」伪装成「文件是空的」**（来源 WXG-T-960 / commit 9cbf6bfe，2026-11-16）
+  现象：`production/TASKS-DETAIL.md` 长到 1,053,714 B 后，每一次 `git commit` 都被 `check-tasks` 的 C 项成批拦下（「主表有 WXG-T-5xx，但 TASKS-DETAIL.md 里没有 `## WXG-T-5xx` 小节」）；同一条命令**不带** `--staged` 跑却是 ✅，本地 `pnpm run check:tasks` 也全绿，指向「内容坏了」的错误方向。
+  根因：`check-tasks.mjs::readIndex` 用 `execFileSync('git', ['show', ':…'])` 读**索引面**，Node 默认 `maxBuffer` 恰为 1,048,576 B ⇒ 超限抛 `ENOBUFS`，被函数内 `try/catch` 兜成空串（该 catch 本意是兜「路径不在索引」）⇒ staged / commit-msg 模式读到空文件，判定主表**每一行**都缺详情节。工作树模式走 `readFileSync`（无上限），两套读取路径的差异正是「工作树绿 + staged 红」的成因。
+  规避/做法：① 凡 `execFileSync` / `spawnSync` 且 `encoding` 捕获 stdout、读的是**台账 / 索引 / 编译输出 / git blame** 这类无界内容，一律显式写 `maxBuffer`（本仓范式 64 MB；`git blame --porcelain` 用 256 MB）；② 排障口诀：**staged 专属的全量误报先怀疑缓冲，不要怀疑内容**；③ 同族本轮已补三处：`check-tasks`（`git show`）、`archive-tasks::blameCommitterTimes`（对 1 MB 台账 blame 输出数十 MB，ENOBUFS 后静默降级成「全部行无日期证据」，按天归档即失效）、`check-cocos-scripts`（tsc 批量报错时 `status` 变 null 会被误判成类型检查失败、真错误清单丢失）；④ 加缓冲只放大读侧，⛔ 不改任何判定逻辑。
+  判例引用：K-036（SKIP / 失败姿态不等于测过）、K-030（索引产物口径）、K-045（共享工作树里未提交 ≠ 我的）、K-137（他人半成品只披露不代填）；正本 `production/TASKS-DETAIL.md` `## WXG-T-960`。

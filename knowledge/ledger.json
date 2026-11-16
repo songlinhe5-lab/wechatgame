@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 218,
+  "nextId": 219,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -3648,6 +3648,23 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-218",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain-context.md",
+      "category": "工具链上下文",
+      "title": "门禁脚本用 `execFileSync` / `spawnSync` 捕获 stdout 时必须显式 `maxBuffer`：越过 1 MB 默认上限会 ENOBUFS，而 catch 兜底会把「读失败」伪装成「文件是空的」",
+      "contentHash": "6915050873fa60a0cd0c8e3c871a3757e9a9cc11c440e09ee201203c599f60d1",
+      "sourceTask": "WXG-T-960",
+      "addedDate": "2026-11-16",
+      "lastAccess": "2026-11-16",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -5874,6 +5891,24 @@
       "kind": "updated",
       "ids": [
         "K-137"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-11-16",
+      "taskId": "WXG-T-964",
+      "kind": "added",
+      "ids": [
+        "K-218"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-11-16",
+      "taskId": "WXG-T-964",
+      "kind": "updated",
+      "ids": [
+        "K-218"
       ],
       "note": null
     }

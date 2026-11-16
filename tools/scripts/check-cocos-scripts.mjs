@@ -57,6 +57,9 @@ for (const game of readDirs(gamesDir)) {
   const result = spawnSync(tsc, ['-p', checkConfig, '--noEmit'], {
     cwd: project,
     encoding: 'utf8',
+    // 编译错误批量输出时默认 1 MB 缓冲会 ENOBUFS ⇒ `status` 变 null，本门会把它误判成
+    // 「类型检查失败」并丢掉真正的错误清单（诊断被缓冲问题顶替）。同族 K-183。
+    maxBuffer: 32 * 1024 * 1024,
   });
   checked += 1;
   if (result.status === 0) {

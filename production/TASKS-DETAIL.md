@@ -9821,8 +9821,9 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
   - **补**：`tools/scripts/archive-tasks.mjs::blameCommitterTimes` 的 `git blame --porcelain -w -- <台账>` ⇒ `maxBuffer: 256 MB`。该处对 1 MB 级 `TASKS-DETAIL.md` 输出可达数十 MB，ENOBUFS 后 `stdout` 变 null ⇒ 函数走「全部行无日期证据」分支，**按天归档静默失效**，且判词只说「blame 不可用」（看不出是缓冲问题）。
   - **补**：`tools/scripts/check-cocos-scripts.mjs` 的 `tsc -p … --noEmit` ⇒ `maxBuffer: 32 MB`。编译错误批量输出时 `status` 变 null，本门会把它误判成「类型检查失败」并丢掉真正的错误清单。
   - **不补**：`rev-parse --show-toplevel` ×3、`git check-ignore --stdin`、`git log -n40 --format=%s`、`sync-framework --check`（均已自带缓冲或输出恒短）—— 只加读侧缓冲、⛔ 不做无差别全加（K-025：豁免/预防一旦无差别铺开，真问题会被一起放过）。
-- **② K-218 沉淀入库**：条目正文落 `knowledge/lessons/toolchain-git.md`（标签 `工具链Git`，片内按 ID 升序尾部追加），标题行不带 ID 交由脚本分配；`pnpm run kb:sync --task=WXG-T-964` 分配 **K-218**：
-  - 沉淀统计：**新增 1（K-218）/ 修改 0 / 激活 0 / 归档 0**
+- **② K-218 沉淀入库**：条目正文首落 `knowledge/lessons/toolchain-git.md`（标签 `工具链Git`），标题行不带 ID 交由脚本分配；`pnpm run kb:sync --task=WXG-T-964` 分配 **K-218**：
+  - **迁片（B 门越线后的处置）**：K-218 入册后 `toolchain-git.md` = **8354 tok > 片上限 8000**（`ctx:check` B 项 ❌）⇒ 按 `knowledge/INDEX.md` §4「该标签内部再切 / 换片」取向，把条目整块搬到 `toolchain-context.md`（标签 `工具链上下文` —— 该片登记范围即「上下文预算 / 索引产物 / **门禁装置类**」，与本条同域），⛔ 未走 `budget-exempt.json` 豁免（K-025：豁免一旦存在，真问题会被一起放过）。迁后 git 片回落 **25417 B**、context 片 **14717 B**，两片均在限内。
+  - 沉淀统计（两轮）：**新增 1（首轮 K-218）/ 修改 1（迁片后 contentHash 重算）/ 激活 0 / 归档 0**
   - `pnpm run kb:audit`：归档候选 0、**相似命中 0**（≥0.34 阈值）⇒ 无需「重新激活并合并」
   - `pnpm run ctx:build`：已刷新索引面（3 个 dirty 文件按 HEAD 口径索引，pre-commit 会重建重暂存）
 - **③ 设置钮换腿目检（承接 T-960 遗留）**，三项证据：

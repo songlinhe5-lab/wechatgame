@@ -592,7 +592,14 @@ function eligibleRows() {
  *  组内后续行只以 `\t` 内容行输出——必须按组展开到每一行，否则只有组首行有日期。 */
 function blameCommitterTimes(file, root) {
   const map = new Map();
-  const r = spawnSync('git', ['blame', '--porcelain', '-w', '--', file], { cwd: root, encoding: 'utf8' });
+  const r = spawnSync('git', ['blame', '--porcelain', '-w', '--', file], {
+    cwd: root,
+    encoding: 'utf8',
+    // ⚠ porcelain 逐行输出 + 按提交重复元数据块：对 1 MB 级 `TASKS-DETAIL.md` 实测可到数十 MB
+    // ⇒ 默认 `maxBuffer` 1 MB 必 ENOBUFS，`stdout` 变 null ⇒ 本函数走「全部行无日期证据」分支，
+    // **归档按天切分静默失效**（判词只说「blame 不可用」，看不出是缓冲问题）。同族 K-183。
+    maxBuffer: 256 * 1024 * 1024,
+  });
   if (r.status !== 0 || !r.stdout) {
     console.log('  ⚠️ git blame 不可用（非 git 仓库？）——全部行视为无日期证据，不动（宁漏勿错）');
     return map;

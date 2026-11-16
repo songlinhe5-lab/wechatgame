@@ -6,6 +6,13 @@
 > 数据源 = `knowledge/ledger.json` 的 `events`（**append-only** 追加日志）+ 条目台账（标题取自台账）；
 > 日期倒序，同一日期内按 Task ID 分组。
 
+## 2026-11-16
+
+### WXG-T-964
+
+- **新增**（added）：K-218「门禁脚本用 `execFileSync` / `spawnSync` 捕获 stdout 时必须显式 `maxBuffer`：越过 1 MB 默认上限会 ENOBUFS，而 catch 兜底会把「读失败」伪装成「文件是空的」」
+- **修改**（updated）：K-218「门禁脚本用 `execFileSync` / `spawnSync` 捕获 stdout 时必须显式 `maxBuffer`：越过 1 MB 默认上限会 ENOBUFS，而 catch 兜底会把「读失败」伪装成「文件是空的」」
+
 ## 2026-11-12
 
 ### WXG-T-615
