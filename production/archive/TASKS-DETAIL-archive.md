@@ -10628,3 +10628,227 @@ T-461 收口时的同族发现（K-116 违反实例第二处）：选中珠分�
 **⚠ 并发披露**：`WXG-T-466` 已被并发 CodeBuddy 会话登记为主表占位（Cocos 分层序：选中珠分离影 Graphics 盖珠 blit），本单领 **467** 避让（K-046 四路核：主表 466 已占、详情 466 缺席、git log 466/467 零命中、全仓 grep 467 零命中）。
 
 **门禁读数**（预期）：`check:frozen-values` STATUS OK（SKIP 19+48 不膨胀）；`check:tasks` 配对 **112 行 / 135 节**（比 T-465 时 111/134 各 +1）；`check:links` OK。
+
+---
+
+## WXG-T-959
+
+**清理·temp 归零 + 未跟踪产物入库 + gitignore** · 负责：主理人(CodeBuddy)·beads 美术/工程轨 · 状态：✅ 完成（2026-11-16 · 用户令「temp 下的内容清理一下」→ 选「1/2/3」全做）
+
+- **temp 清理**：723 M → 全清（26 个中间产物目录 + 41 个一次性脚本/日志；大头 `ui-shot` 416M / `figma` 91M）。整目录被 `.gitignore` 第 99 行 `temp/` 忽略且 git 跟踪数 = 0 ⇒ **仓库零变更**。
+- **副作用（已在会话内告知）**：`temp/figma/layered-20261104`（`trace-figma-icons.py` 输入）与 `temp/levelselect-9slice/backplate-geo.png`（`make-grid-backplate.py` 输出）一并删除 ⇒ 对应脚本重跑需先从 Figma 取数；其余均为脚本默认输出目录，随时可再生。
+- **保留件归位（原在 temp，删了不可再生）**：`prompt-gptimage.md` / `prompt-tokenplan.txt` → `design/ai-workflows/levelselect-backplate-prompt-gptimage.md` / `…-tokenplan.txt`，与同目录 `make-grid-backplate.py` 配套；md 内输入基准路径由失效的 `temp/…` 改为「由 `make-grid-backplate.py` 从 Figma 节点 `164:63` 生成」。
+- **提案归档**：根目录 `pause-panel-prototype.png`（83,637 B）+ `pause-panel-style-proposal.html`（22,515 B）→ `design/art/proposals/pause-panel-20261113/`（遵 `<主题>-<YYYYMMDD>` 惯例）。
+- **资产入库**：`cocos/assets/textures/ui_btn_settings_9s.png`（53,776 B，235×210）与 `final/assets/menu/buttons/ui_btn_settings_9s@2x.png` **同 md5** `f5f9820a5f99155f1fa6e1e42542ebcb` ⇒ 无新增内容风险。T-938 原裁「暂不入库」已被本批取代，`production/qa/asset-provenance.md §0.2` 同步订正；`.meta` 仍空缺，待 GUI 导入由编辑器生成 + 注册，⛔ 不手写（L1）。
+- **防回潮**：`.gitignore` 增 `.trae-html-share-packages/`（Trae IDE 本地导出包），`git check-ignore` 实测命中第 146 行。
+- **验证**：`pnpm run check:links` → OK（agents=7 / skills=51）；本次零代码改动，未跑 `pnpm run verify`（无源码面）。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
+---
+
+## WXG-T-964
+
+**普查·子进程读缓冲缺陷 + K-218 沉淀 + 设置钮目检** · 负责：主理人(CodeBuddy)·beads 工程轨 · 状态：✅ 完成（2026-11-16 · 用户令「1/2/3」）
+
+- **① 缓冲缺陷普查（承接 T-960 的 K-218 根因）**：判定口径 = 「该调用是否用 `encoding` 捕获**无界** stdout」。全仓命中 8 处，逐点判定后**补 2 处、不补 6 处**：
+  - **补**：`tools/scripts/archive-tasks.mjs::blameCommitterTimes` 的 `git blame --porcelain -w -- <台账>` ⇒ `maxBuffer: 256 MB`。该处对 1 MB 级 `TASKS-DETAIL.md` 输出可达数十 MB，ENOBUFS 后 `stdout` 变 null ⇒ 函数走「全部行无日期证据」分支，**按天归档静默失效**，且判词只说「blame 不可用」（看不出是缓冲问题）。
+  - **补**：`tools/scripts/check-cocos-scripts.mjs` 的 `tsc -p … --noEmit` ⇒ `maxBuffer: 32 MB`。编译错误批量输出时 `status` 变 null，本门会把它误判成「类型检查失败」并丢掉真正的错误清单。
+  - **不补**：`rev-parse --show-toplevel` ×3、`git check-ignore --stdin`、`git log -n40 --format=%s`、`sync-framework --check`（均已自带缓冲或输出恒短）—— 只加读侧缓冲、⛔ 不做无差别全加（K-025：豁免/预防一旦无差别铺开，真问题会被一起放过）。
+- **② K-218 沉淀入库**：条目正文首落 `knowledge/lessons/toolchain-git.md`（标签 `工具链Git`），标题行不带 ID 交由脚本分配；`pnpm run kb:sync --task=WXG-T-964` 分配 **K-218**：
+  - **迁片（B 门越线后的处置）**：K-218 入册后 `toolchain-git.md` = **8354 tok > 片上限 8000**（`ctx:check` B 项 ❌）⇒ 按 `knowledge/INDEX.md` §4「该标签内部再切 / 换片」取向，把条目整块搬到 `toolchain-context.md`（标签 `工具链上下文` —— 该片登记范围即「上下文预算 / 索引产物 / **门禁装置类**」，与本条同域），⛔ 未走 `budget-exempt.json` 豁免（K-025：豁免一旦存在，真问题会被一起放过）。迁后 git 片回落 **25417 B**、context 片 **14717 B**，两片均在限内。
+  - 沉淀统计（两轮）：**新增 1（首轮 K-218）/ 修改 1（迁片后 contentHash 重算）/ 激活 0 / 归档 0**
+  - `pnpm run kb:audit`：归档候选 0、**相似命中 0**（≥0.34 阈值）⇒ 无需「重新激活并合并」
+  - `pnpm run ctx:build`：已刷新索引面（3 个 dirty 文件按 HEAD 口径索引，pre-commit 会重建重暂存）
+- **③ 设置钮换腿目检（承接 T-960 遗留）**，三项证据：
+  - **材质同源**：`final/assets/menu/buttons/ui_btn_settings_9s@2x.png` 与源件 `final/assets/detail/ui_level_select_close@2x.png` 目视同为厚木边 + 顶部内高光 + 横向木纹 + 同圆角，前者仅无文字——符合 T-938「无字派生」的设计意图。
+  - **9-slice 展开无变形**：按 capX 70 模拟展开到 **509×138**（当前单列 cell）与 **238×88**（旧两列钮）两档，端帽同比缩放、中段横向拉伸，产出 `temp/verify-960/*.png`；目视厚边完整、高光贯穿、木纹连续、无中段留空、无接缝错位。
+  - **位图腿真装载**：headless Chrome + CDP 探针（`temp/verify-960/probe.mjs`，不改任何游戏代码）实测 harness `__beads.menu.registry` 共 44 件，含 `bitmap__ui_btn_settings_9s`，`complete === true`、`naturalWidth/Height = 235×210`，`visibilityState = visible`（非 hidden 态，取证有效）。
+  - ⚠ **未做**：Cocos 编辑器预览 / 真机截图（需 GUI，环境不具备）。Cocos 侧证据仍限于 T-960 的产物级门禁（`check:cocos-mask` 逐件「字节相同」+ `check:size`）。
+- **验证**：`pnpm run verify` 读数见提交总结；`kb:sync` / `kb:audit` / `ctx:build` 全绿。
+- **判例留档**：本次普查特意**不**给全部 `spawnSync` 加缓冲——短输出点加缓冲是无成本但也无收益的「预防性豁免」，按 K-025 口径不铺。
+
+---
+
+## WXG-T-968
+
+**文档·screens / tokens v1 件名对账** · 负责：主理人(Trae CN)·beads 设计轨 · 状态：✅ 完成（2026-11-16 · 用户令「继续清账，处理 screens.md 和 tokens.md 的 v1 件名」）
+
+- **screens.md**（146 行）：加标题后缀 + 状态注 + §0.0（7 行）。判定：S0 boot **退场**（无独立标题页，招牌 `ui_menu_signboard` / CTA `MENU_V2.cta`）；S3 level-clear **被 T-949 取代**（545×585、金星 96×99、双钮 279×106 / 192×101）；S4 game-over **待核**；S1 / S5 **在役（口径）**；S2 与状态矩阵 **部分在役**（三钮 / 364 已落，按钮底走 9-slice）。分节横幅 4 处。
+- **tokens.md**（139 行）：加标题后缀 + 状态注 + §0.0（3 行）。判定：§1–§7 token 值仍为现役真源；v1 件名（`btn_start` / `ui_menu_cta_label` / `btn_expand`）退场。改指：`app_name` 用途 = `ui_menu_signboard` 整枚（`drawBeadText` 仅回落）；`btn_start_label` = `MENU_V2.cta` 378×179 整枚；`btn_start_resume_label` 的 `ui_menu_cta_label` 句改为「无独立 label 件、本键零引用」；`version_label` 标 boot 页退场；`screens.md:22/31/39` 残留指针改「screens.md S0（已退场）」。
+- **不改**：零代码 / 零资产 / 零几何；token 值、`palette.ts`、字号 floor 均未动。
+- **验证**：`pnpm run verify`（结果见本会话）。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
+---
+
+## WXG-T-966
+
+**文档·art-bible 瘦身回 8k 门内** · 负责：主理人(Trae CN)·beads 美术轨 · 状态：✅ 完成（2026-11-16 · 用户令「先给 art-bible 瘦身」）
+
+- **对象**：`design/art/proposals/ui-style-redesign/art-bible-proposal.md`（v2 改政态）。
+- **瘦身动作**：① §0.5 的「三条前置 / 分工 / 下游回写面」压成一段对账结论（前置已随 T-585/T-586 解除，回写已完成或转史证）；② §8 删 v2 早期 WebP / PNG 逐档测算与 2979.0 KB 旧读数，改现役口径（主包 3715.2 KB、余量 380.8 KB、验收 = `menu-showcase-asset-spec §6` + `check:cocos-mask` + `check:size`）；③ 顶部体积处置注改为「T-966 瘦身后撤豁免」。
+- **读数**：**8825 → 7745 tok（−1080，−12.2%）**，低于 spec 8000；`ctx/budget-exempt.json` 删除 `art-bible-proposal.md` 临时豁免（WXG-T-265）。
+- **指针同步**：`menu-visual-discipline-check.md §4` 由「仍走 8k 豁免」改为「T-966 瘦身并撤销豁免」。
+- **不改**：零代码 / 零资产 / 零几何；§9 五条纪律与族口径原文未动。
+- **验证**：`node tools/scripts/check-context-budget.mjs --staged` 通过（art-bible 7745 ≤ 8000，无豁免）；`pnpm run verify`（结果见本会话）。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
+---
+
+## WXG-T-965
+
+**文档·视觉纪律回写 art-bible §9** · 负责：主理人(Trae CN)·beads 美术轨 · 状态：✅ 完成（2026-11-16 · 用户选「1」）
+
+- **对象**：`design/art/proposals/ui-style-redesign/art-bible-proposal.md`（v2 改政态 · 216 行 → 242 行）。
+- **新增 §9**：9.1 五条纪律（单焦点 / 容器唯一 / 形态承载 / ★ 空间化 / 品牌限量，逐条给 v2 现役证据）；9.2 族口径正式措辞（「一屏只允许一种容器语言：同一材质、同一圆角档、同一描边与受光方向；任何新容器件必须能被读作同一只手做出来的」）；9.3 验收位置（`menu-visual-discipline-check §0.0` / `ui-architecture §12` / `check:cocos-mask` / `ui-golden`）与边界（O-1 作废、O-2 保留、§3 冻结值与珠面体系不动）；命名注（现名千面拼豆，§1.1 只作史证）。
+- **指针同步**：`menu-visual-discipline-check.md` 顶部状态、§0.0 末行、§4、§5 均改为「已回写（T-965）」。
+- **豁免**：`art-bible-proposal.md` 已在 `ctx/budget-exempt.json`（WXG-T-265）常驻豁免；本批未新增/修改豁免。
+- **不改**：零代码 / 零资产 / 零几何；`systems-index §3` 未动。
+- **验证**：`pnpm run verify`（结果见本会话）。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
+---
+
+## WXG-T-963
+
+**文档·视觉纪律审计单按 v2 对账** · 负责：主理人(Trae CN)·beads 美术轨 · 状态：✅ 完成（2026-11-16 · 用户令「继续清理视觉纪律审计文档」）
+
+- **对象**：`design/art/proposals/ui-style-redesign/menu-visual-discipline-check.md`（v1 检查单 · 54 行）。
+- **判据真源**：`menu-layout-implementation-spec §12`、`tuning/menu.ts::MENU_V2 / MENU_TEXTURES`、`view/meta-menu.ts` 现役绘制腿。
+- **结论**：5 条纪律 **5/5 仍满足**，0 个强制改码点 —— ① 单焦点 = `MENU_V2.cta` 378×179 整枚；② 容器唯一 = v2 整屏背板族口径（v1 `caseFrame` / `plate` 独立件退场）；③ 形态承载 = CTA / 翻页 / 圆钮 pressed 位图 + `pressDy`，锁 = `lock`；④ 进度空间化 = ★ 只在 `plateSub` 90×17 与选关弹窗页头；⑤ 品牌限量 = `signboard` 整枚 + `drawBeadText` 回落。
+- **条款处置**：O-1 公告空圆作废（顶栏已四钮，`iconSound` 零消费者）；O-2 总星不进资源条保留；§2 族口径 v2 更成立，但正式措辞仍未回写 `art-bible-proposal.md`。
+- **不改**：零代码 / 零资产 / 零几何。
+- **验证**：`pnpm run verify`（结果见本会话）。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
+---
+
+## WXG-T-962
+
+**文档·旧提案清账：3D 资产规格 + 主菜单架构** · 负责：主理人(Trae CN)·beads 美术/设计轨 · 状态：✅ 完成（2026-11-16 · 用户令「继续旧规格清账」）
+
+- **对象 1**：`design/art/specs/menu-3d-asset-brief.md`（v0.2 · 250 行）。新增标题后缀 + 状态注 + §0.0（10 行）；§3 资产清单、§7 包体结论、§9-③ 分件裁定加退场横幅。结论：逐件分层 / 逐件抠图 / 背景与橱窗分件全部退场（v2 整屏烘焙背板）；画风锚、提示词、验收方法保留作后续换皮参考。
+- **对象 2**：`design/art/proposals/ui-style-redesign/menu-architecture.md`（v1 三轮稿 · 998 行）。新增标题后缀 + 状态注 + §0.0（12 行）；§1 单屏墙、§3 规模推演、§4 类别、§5.3 logo、§5.4 开始钮加横幅。结论：单屏 4×3 墙 / 类别层 / v1 logo / 九宫 CTA 退场；走马灯口径与 §6 文案令牌在役；`wall_capacity` 与类别降为设计储备（未启用，不删）。
+- **不改**：零代码 / 零资产 / 零几何；`systems-index §3` 与现役 tuning 未动。
+- **验证**：`pnpm run verify`（结果见本会话）。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
+---
+
+## WXG-T-961
+
+**选关旧规格对账 + 删墙格死代码** · 负责：主理人(Trae CN)·beads UX/工程轨 · 状态：✅ 完成（2026-11-16 · 用户令「1/2/3」）
+
+- **① UX 对账**：`arc-level-select-spec.md` 顶部加 §0.0 对账表 + §2/§3/§4/§4.1/§5/§7/§8.2 分节横幅；`level-select-page-layout.md` 顶部加 §0.0 并改 v0.3 状态行，§1/§3/§4/§5 标史证。判据：现役选关 = **弹窗版式 R**，`tuning/level-select.ts::LEVEL_SELECT_GEO`（木牌 581×1044、格 158×181、图案槽 126×94、3×3）；旧整页 170 / 30 / 134、底部 back、页面底对比度条款全部退场；格层矩阵、弹窗动效、触控与色相通道判据保留。
+- **② 死代码**：`view/meta-widgets.ts` 删除 `drawWallCell` / `drawLockedWallCell` / `drawWallLockBadge` 与 `warnedMissingThumbLevel` 一次性告警门，清 `MENU_BADGE` / `MENU_LOCKED_ICON` / `MENU_SEAL` / `MENU_TEXTURES` / `THUMB_AREA` / `THUMB_STAR_BAND` / `drawLevelThumb` / `BeadsLevelRaw` 失效导入；`drawDashedSocket` **保留**（`meta-menu.ts` 橱窗空槽仍在用）。`framework:sync` 写入镜像 1 件。
+- **③ Cocos 构建**：本轮复跑与并行会话的 release 构建争用，已停止复跑；以已完成的 release 产物复检 —— `check:cocos-mask` **OK**（28 件菜单纹理源 ↔ 产物逐字节一致，含 `ui_btn_settings_9s`）、`check:size` beads 主包 **3715.2 KB**（红线余量 380.8 KB）。复跑无新增资产，删死代码不影响产物。
+- **真机阻塞**：T-953 装裱层 α/圆角、5×5/4×4 缩略辨识、选关弹窗格界可读性三条均需真机扫码预览；解除条件 = 有真机 + `wxgame-minigame-bridge` 预览。
+- **验证**：`pnpm run typecheck` 3/3 通过；`framework:sync` 通过；`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（含 `ui-golden` 23/23、`harness:smoke`）。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
+---
+
+## WXG-T-960
+
+**接线·设置钮 `.meta` 签发 + Cocos 注册 + Figma 取数自愈** · 负责：主理人(CodeBuddy)·beads 美术/工程轨 · 状态：✅ 完成（2026-11-16 · 用户令「1/2/3」）
+
+- **① `.meta` 签发（L1 合规路径）**：跑 `node tools/scripts/import-cocos-metas.mjs --game=beads --dir=assets/textures`，由编辑器 asset-db 签发，⛔ 全程未手写 `.meta`。编辑器主进程退出码 **36**，按脚本既定判据「以 `.meta` 是否落盘为准」复核为成功。共签发 4 件：
+  - `games/beads/cocos/assets/textures/ui_btn_settings_9s.png.meta`（uuid `6eb9947a-1b98-45d2-a21d-03e569e7a751`，2998 B）
+  - 三件历史欠账脚本 meta：`view/bead-outline.ts.meta` / `view/bitmap-ready.ts.meta` / `view/meta-settings-page.ts.meta`（此前 CLI 阻塞期一直缺，资产库重启后一并补齐）
+- **② Cocos 侧注册**：`games/beads/cocos/assets/scripts/host/beads-blit-carrier.ts` 的 `BITMAP_ASSETS` 增一条 `[MENU_TEXTURES.btnSettings]: { path: 'ui_btn_settings_9s' }`；原注释「`ui_btn_settings_9s` 暂不注册（CLI 无法导入 `.meta`，注册即 `check:cocos-mask` 红灯）」按本轮实测**作废**（补 `.meta` + 重建后门禁绿）。效果 = `settings-content.ts::drawSettingsWoodButton` 的 `menuBitmapReady(MENU_TEXTURES.btnSettings)` 在 Cocos 侧转为真 ⇒ 设置弹窗 10 枚 cell 底板与固定钮自 `btnWood` 过渡腿换正式厚木 9-slice（capX 70）。
+- **③ 门禁读数**：注册后首次 `check:cocos-mask` = **FAIL**（判词「菜单纹理产物 ≠ 源」，属产物陈旧、非缺张）⇒ 跑 `pnpm run build:cocos`（**默认即 release 基线档**）重建 beads + breakout ⇒ 复跑 **OK**（逐件「字节相同」，含 `ui_btn_settings_9s`）。`check:size` = beads 主包 **3715.2 KB** / 194 文件（距 4096 KB 红线余量 **380.8 KB**）、breakout 1928.1 KB，均达标；`cocos:check` 两游戏类型检查通过。
+- **④ 构建副作用（已确认非手改）**：`games/beads/package.json` 1.0.44 → **1.0.45**，来自 `build-cocos.mjs` 的版本腿（递增 build 号 + 给产物 `version_label` 打号），属设计语义，随本笔入库。
+- **⑤ Figma 取数自愈**：`games/beads/design/ai-workflows/trace-figma-icons.py` 新增 `ensure_inputs()`：缺件时 `subprocess` 调 `my-skills/wxgame-figma/scripts/figma.mjs img --ids <节点> --scale 2` 回填 `temp/figma/layered-20261104/`（file key `PBIK3RbfGlfzFsAnd97ZsP`，取自 `figma-gacha-timeout.html` §导出命令）；拉取后仍缺则非零退出并提示查 `FIGMA_API_KEY`。**实测（输入已因 T-959 清 temp 而全缺）**：自动拉回 `23-6/23-13/23-20/23-27` 四件（11.2 / 6.8 / 3.8 / 5.1 KiB）→ 追踪产出 4 个 SVG（settings 4 loops、rank 4、calendar 3、skin 2）；12 件产物与入库版**逐字节一致**（`cmp` 全 `same`），证明设计与 2026-11-04 批次无漂移。
+- **⑥ 并行会话核对（用户第 3 项）**：T-958 已由 Trae CN 会话**自行提交** `98db7b6f docs(beads): 作品墙规格按 v2 对账 (WXG-T-958)`，领号注亦已被其订正为「并行会话让号 + Trae CN 落盘」⇒ 958 非空号，无需代填。
+- **验证**：`check:cocos-mask` OK / `check:size` OK / `cocos:check` OK；全量 `pnpm run verify` 读数见提交总结。
+- **反例留档**：`ensure_inputs()` 首版只定义未调用，复跑仍 `FileNotFoundError` ⇒ 已补调用点并复测通过（脚本级自愈必须实测触发，不能只看代码在）。
+
+---
+
+## WXG-T-958
+
+**文档·作品墙规格按 v2 对账** · 负责：主理人(Trae CN)·beads 美术轨 · 状态：✅ 完成（2026-11-16 · 用户令「对账作品墙规格」；号由并行会话让出）
+
+- **对象**：`games/beads/design/art/specs/menu-wall-signage-spec.md`（v1 招牌 / 木框橱窗 / 缩略规格卡，577 行）。
+- **判据真源**：`menu-layout-implementation-spec.md §12`（v2 烘焙背板档 / §12.5 退役清单）、`tuning/menu.ts::MENU_V2 / MENU_TEXTURES`、`tuning/level-select.ts::LEVEL_SELECT_GEO`（选关弹窗现役版面）、`view/menu-signage.ts::drawLevelThumb`、`view/meta-widgets.ts::drawWallCell`（无生产调用方，仅测试引用）。
+- **逐卡结论**：**卡 A 在役（回落腿）** = 主腿 `ui_menu_signboard` 位图（549×361），缺图走 `drawBeadText`「千面拼豆」（10×10 @ d=12，§1.5-b 仍有效）；**卡 B 退场** = 木框 / 玻璃 / 灯 / 层板 / 圆台已烘进 `ui_menu_backdrop`；**卡 C 缩略算法在役** = `drawLevelThumb` 服务走马灯 / 关卡详情 / 选关弹窗，平涂化 T-502 与同臂 T-910 有效；**§3.9 整页版式 P 退场** = 选关改弹窗（158×181 / 图案槽 126×94）；**§4 作废**、**§5 部分在役**、**§7.1–7.3 收口**（真机仅留「缩略辨识」「选关弹窗格界」两条）、**§8 史证**。
+- **文档改动**：标题加「v1 · 已按 v2 对账」；新增状态注 + §0.0 对账表；§2 / §3.9 / §4 / §7.1 / §7.2 / §7.3 各加退场/收口横幅；`menu-showcase-asset-spec §8.2` 指针同步为「卡 B 与 §3.9 退场、卡 C 缩略仍在役」。
+- **不改**：零代码 / 零资产 / 零几何；`arc-level-select-spec.md` / `level-select-page-layout.md` 的整页版式文档未动（同属旧版式，待另批对账）。
+- **验证**：`pnpm run verify`（结果见本会话）。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
+---
+
+## WXG-T-957
+
+**文档·v1 菜单资产台账按 v2 对账** · 负责：主理人(Trae CN)·beads 美术轨 · 状态：✅ 完成（2026-11-16 · 用户令「对账 v1 资产台账」）
+
+- **对象**：`games/beads/design/art/specs/menu-layout-assets-requirement.md`（v1 §5 资源文件需求，2026-10-31 外移件）。
+- **判据真源**：`menu-layout-implementation-spec.md §12`（v2 烘焙背板档 / §12.5 退役清单）、`tuning/menu.ts::MENU_V2 / MENU_TEXTURES`、`cocos/assets/textures/` 与 `final/v1/assets/menu/` 盘面。
+- **结论（10 行逐条）**：**在役 2 行** = 顶栏圆钮族在役成员（`btnCircle` 两态 + `iconSettings/iconRank/iconSkins/iconCalendar`）/ `ui_menu_badge_locked`（已改名 `MENU_TEXTURES.lock`，Figma 192×260 同名覆盖，用于选关锁定格 + 橱窗锁定态）；**退场或已被取代 8 行** = `ui_menu_logo` / 资源条双图标 / CTA 九宫 / `ui_showcase_plate` / `ui_showcase_frame` / `badge_pushing` / `badge_done` / 旧翻页圆底 + 向标。
+- **缺口收口（C1–C7）**：C1 公告 = `ui_icon_sound` 存档、进消息中心不占顶栏；C2 框体 / 条体 / 灯 / 座全烘进背板；C3 蝴蝶结随 `ui_menu_signboard` 整块；C4 `signboard` 路线成为 v2 主腿；C5 主菜单无独立木牌（B25 归选关 / 详情）；C6 三态 = `lock` / `grayWipe` / `seal`；C7 独立木牌 304×83 作废。
+- **文档改动**：顶部加「v1 台账 · 已按 v2 对账」状态；新增 §5.0 对账表；原表降 §5.1 史证；新增 §5.2 缺口收口；「程序化零资源」改 v2 口径。同步指针：`menu-showcase-asset-spec §8.5` 改为「已由 T-957 对账」、`menu-layout-implementation-spec §5` 加「v1 台账已对账」注。
+- **不改**：零代码 / 零资产 / 零几何；`final/v1/` 归档保留。
+- **验证**：`pnpm run verify`（结果见本会话）。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
+---
+
+## WXG-T-956
+
+**清理·盘面残留：孤儿 meta + v1 招牌根镜像** · 负责：主理人(Trae CN)·beads 美术/工程轨 · 状态：✅ 完成（2026-11-16 · 用户令「先清理盘面残留文件」）
+
+- **对象 1**：`games/beads/cocos/assets/textures/ui_showcase_bg.png.meta` —— 无同名 png 的孤儿 meta；uuid `851f07cc-200d-4edb-b0d2-2147eec442f4` 只被自身与 `cocos/library/.assets-data.json`（gitignore 缓存）引用 ⇒ 直接删除；Cocos 下次导入自清 library 项。
+- **对象 2**：`games/beads/assets/menu/ui_menu_logo.png` —— v1 招牌根镜像 618,015 B，与归档件 `design/art/final/v1/assets/menu/ui_menu_logo.png` **同 md5** `086b34f24e1462ac8109531595c7ab5d`；不在现役 `cocos/assets/textures` 面、无运行时消费者 ⇒ 删除，归档件保留（只读）。
+- **读侧适配**：`design/ai-workflows/menu-proto-coords.py` 的 `LOGO` 改 `f"{ART}/v1/assets/menu/ui_menu_logo.png"`；`production/qa/menu-b15/b15-preview.py` 的 `LOGO` 改指同一归档件 ⇒ 两份史证脚本仍可复跑。
+- **防回潮**：`design/ai-workflows/logo-rename-compose.py` 头注加「v1 招牌已退场（T-587 / T-956）⇒ 仅史证，⛔ 勿重跑（会重建已删件）」。
+- **不改**：`final/v1/` 归档、`ui_btn_settings_9s.png`（T-938 新件、待 Cocos 导入，非残留）。
+- **验证**：`pnpm run verify`（结果见本会话）。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
+---
+
+## WXG-T-955
+
+**文档·旧橱窗资产规格（v1）退场对账** · 负责：主理人(Trae CN)·beads 美术轨 · 状态：✅ 完成（2026-11-16 · 用户令「先处理旧橱窗资产规格退场对账」）
+
+- **对象**：`games/beads/design/art/specs/menu-showcase-asset-spec.md`（v1 提案 / 23 行切图，含 A1–G1）。
+- **判据真源**：`menu-layout-implementation-spec.md §12`（v2 烘焙背板档 / §12.5 退役清单）、`tuning/menu.ts::MENU_V2`（坐标）/ `MENU_TEXTURES`（现存纹理键）、`cocos/assets/textures/` 与 `final/v1/assets/menu/` 盘面。
+- **结论（23 行逐条）**：**在役 4 行** = B8 `iconRank` / B9 `iconSkins` / B10 `iconCalendar` / E2 boss 缩略 2 张（T-954 已补 1px 描边）；**存档 1 行** = B2 `iconSound`（零消费者，公告条目候选）；**退场或已被取代 18 行** = 背板 / 招牌 / 条体两图标 / 窗框 / 射灯 / 圆台 / 名牌 / 绶带 / 金章 / 画框 / 翻页 / CTA / 信封 / 豆子 / 价目牌。
+- **文档改动**：新增 §3.0 退场对账表（# / 原命名 / 判定 / 现役真源）；v1 原表降为 §3.1 史证；顶部状态改「v1 提案 · 已被 v2 生产档取代」；§8 七项未决全部收口（§8.2 墙→橱窗、§8.6 九宫路线对本单失效、§8.7 柜内木牌归选关 / 详情，不并卡）；修正文首 ADR-0031 相对链接层级（`../../../docs` → `../../../../../docs`，原链指向不存在的 `games/beads/docs`）。
+- **不改**：零代码 / 零资产 / 零几何；`menu-layout-implementation-spec` 与 `menu-layout-assets-requirement.md` 正文未动（后者仍是 v1 资产台账，待另批对账）。
+- **盘面残留（已登记，2026-11-16 已由 WXG-T-956 清理）**：`cocos/assets/textures/ui_showcase_bg.png.meta` 无同名 png；`games/beads/assets/menu/ui_menu_logo.png` 与 `final/v1/` 为存档件，不在现役纹理面。
+- **验证**：`pnpm run check:tasks` / `check:links` / `ctx:build` / `verify`（结果见本会话）。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
+---
+
+## WXG-T-954
+
+**美术·走马灯两张 boss 烘焙图补珠面描边** · 负责：主理人(Trae CN)·beads 美术轨 · 状态：✅ 完成（2026-11-16 · 用户选「2 = 给走马灯两张 boss 烘焙图补珠面描边」）
+
+- **背景**：T-926 登记「首页走马灯用烘焙作品图，程序化无法沿 alpha 描边 ⇒ 待 art 重出」；T-929/T-930/T-932/T-933 已把详情 / 选关 / 盘面统一为 `shadowInk` 剪影带，走马灯是最后一个例外。
+- **做法**：对 `l9-boss-mandala-256.png` / `photo32-smoke-boss-256.png` 的 `alpha > 0` 剪影取**最外圈 1px**（3×3 腐蚀差集），把该圈像素改为调色板空闲索引 97 = `#3D2E1E`；透明度索引 96 与 alpha 包围盒**逐像素不变**（mandala 37/31..218/210、smoke 41/32..214/209），Cocos `.meta` 的 trim 逐图不变（mandala 37/31/182/180、smoke 41/32/174/178）。
+- **线宽依据**：源图珠距 ≈ 6.0（30×30）/ 5.56（32×32）⇒ 名义 `4 × pitch/32` = 0.75 / 0.70 px；256 栅格最小可渲染取 **1px**（菜单显示 ≈ 2.08px，与程序化缩略 1.56px 同量级）。
+- **产物**：`design/levels/assets/*.png` 与 `cocos/assets/themes/*.png` 两副本同 md5；文件 9,640→9,384 B / 17,335→17,055 B（反降，零包体增量）。
+- **取证**：`temp/boss-outline/*-binary-edge5x.png`（原图 vs 1px 环放大）、`temp/mount-shots/menu-cleared.png` / `menu-smoke-cleared.png`（实际菜单尺度）；alpha bbox / 墨像素数（731 / 838）已核。temp 不入库。
+- **不改**：图案本体、珠面 recipe、`bead-outline.ts` 公式、调色板语义（仅加 1 个空闲槽）；走马灯程序化兜底腿（位图缺失降级路径）仍不画轮廓，非生产态。
+- **金样本**：零重抓 —— Node 金样本不加载位图，走马灯走程序化兜底腿，命令流未变。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
+---
+
+## WXG-T-953
+
+**设计·主菜单橱窗装裱层视觉规格（M1–M4）+ 落码** · 负责：主理人(Trae CN)·beads 美术轨 · 状态：✅ 完成（2026-11-15 · 用户令「按这个方案生成装裱层的视觉规格」并选「1 = 落码」）
+
+- **前提（用户 2026-11-15 同轮裁）**：橱窗展品走**豆面本体**（关卡原生阵珠拼），不另绘完整插画；「boss 感」由陈列装饰承担，不改图案画法。
+- **产物**：`games/beads/design/art/specs/menu-showcase-mount-spec.md`（独立规格卡）+ 实装 `config/tuning/menu.ts::MENU_MOUNT`、`view/meta-menu.ts::drawContactShadow / drawShowcaseMount`。
+- **收敛（关键）**：v2 生产档自 `[WXG-T-585]` 起背板 `ui_menu_backdrop` 已烘「框 / 玻璃 / 射灯 / 层板 / 圆台」⇒ 原「画框 + 卡纸 + 玻璃反光」三件套收敛为 **M1 背衬暗角 / M2 底缘接触影 / M3 压边内框 / M4 上缘受光线**；**M5 玻璃斜光默认关**（双高光读作污渍）。
+- **几何基准（实装订正）**：名义 `MENU_V2.art` 325×314 **不是可见范围** —— 位图腿内容 bbox `182/180 × avail ≈ 378`、程序化腿 `area = avail = 374` ⇒ 实际绘制包围盒 ≈ **`avail` 见方**（x 187.5 / 底 490，y-up），珠径 ≈ 12.5（30×30）⇒ 边宽上限仍 10。M1/M2/M3 按实际包围盒落码；M3 外扩 8 后**上缘夹到玻璃顶**（否则压到烘好的窗框）；金章压住框右上角 24.5px（预期，金章在玻璃前）。
+- **参数（已实装）**：M1 边宽 10/6/2 · α 3%/4%/5% · r8；M2 宽 `avail × 0.92` · 上压 2 / 下落 12 · 6/10/14 · α 14%/8%/3% · r6；M3 外扩 8 · 1px `panelBorder` r6 + 1px `panel` r5；M4 1px `plaqueBevel`。
+- **层序**：M2 进 clip 内随 `dx` 平移（接触影是展品投影）；M1/M3/M4 在 `unclip()` 后（固定上层，压住滑动内容）。锁 / 置灰 / 空槽只画 M3/M4。
+- **成本**：零新 hex（`shadowInk`/`panelBorder`/`panel`/`plaqueBevel` 四枚在册）、位图 0 KB；菜单帧 **+18 rect（实测）**：`main-menu` 1117→1135、`level-select` / `-mid` 4780→4798、`settings` 1170→1188、`signin` 1149→1167，其余六态零漂移。
+- **取证**：harness 四态 `temp/mount-shots/menu-{locked,pushing,cleared,fullstar}.png`（锁定 = 第二章页）；金样本由 `ui-golden-capture.ts` 在 `2677fcb9` 锚重抓（两遍确定性自证 PASS，K-051 / K-053）。
+- **待真机**：α / r8 目检回填；M5 默认不启用。零 §3 冻结值改动。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**；本轮读用 K-051（图元增量落码后复算）/ K-053（口径反转留档）/ K-167（金样本漂移归因）。
