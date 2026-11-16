@@ -9834,6 +9834,16 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：`pnpm run verify` 读数见提交总结；`kb:sync` / `kb:audit` / `ctx:build` 全绿。
 - **判例留档**：本次普查特意**不**给全部 `spawnSync` 加缓冲——短输出点加缓冲是无成本但也无收益的「预防性豁免」，按 K-025 口径不铺。
 
+## WXG-T-968
+
+**文档·screens / tokens v1 件名对账** · 负责：主理人(Trae CN)·beads 设计轨 · 状态：✅ 完成（2026-11-16 · 用户令「继续清账，处理 screens.md 和 tokens.md 的 v1 件名」）
+
+- **screens.md**（146 行）：加标题后缀 + 状态注 + §0.0（7 行）。判定：S0 boot **退场**（无独立标题页，招牌 `ui_menu_signboard` / CTA `MENU_V2.cta`）；S3 level-clear **被 T-949 取代**（545×585、金星 96×99、双钮 279×106 / 192×101）；S4 game-over **待核**；S1 / S5 **在役（口径）**；S2 与状态矩阵 **部分在役**（三钮 / 364 已落，按钮底走 9-slice）。分节横幅 4 处。
+- **tokens.md**（139 行）：加标题后缀 + 状态注 + §0.0（3 行）。判定：§1–§7 token 值仍为现役真源；v1 件名（`btn_start` / `ui_menu_cta_label` / `btn_expand`）退场。改指：`app_name` 用途 = `ui_menu_signboard` 整枚（`drawBeadText` 仅回落）；`btn_start_label` = `MENU_V2.cta` 378×179 整枚；`btn_start_resume_label` 的 `ui_menu_cta_label` 句改为「无独立 label 件、本键零引用」；`version_label` 标 boot 页退场；`screens.md:22/31/39` 残留指针改「screens.md S0（已退场）」。
+- **不改**：零代码 / 零资产 / 零几何；token 值、`palette.ts`、字号 floor 均未动。
+- **验证**：`pnpm run verify`（结果见本会话）。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
 ## WXG-T-967
 
 **缺陷·Cocos 设置弹窗内位图腿全不可见** · 负责：主理人(CodeBuddy)·beads 工程轨 · 状态：🐞 已定位未修（2026-11-16）
