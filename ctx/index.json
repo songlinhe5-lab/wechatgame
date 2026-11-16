@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4149,
       "lines": 138,
-      "sha256": "fffc2911bb943db466d62bfb59ae5d8efccf574943125df62165771270cf40b5",
+      "sha256": "5bce0beb24cce0bd467e5485d17ca7056f47c16b0a385cd85ef2edb7d700471d",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 409,
-          "summary": "1 production/TASKS-DETAIL.md 309485 10119 normal",
+          "summary": "1 production/TASKS-DETAIL.md 309488 10119 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5292,
       "lines": 164,
-      "sha256": "17ba116c25de294e7b20aa2c6268d486b8c36bd13b94a1db7558519b6770f587",
+      "sha256": "e97761e91e7a5e49773159ffb539b9fdef5bdf93a2b1d857a2b39dd52135b0b0",
       "tier": "normal",
       "sections": [
         {
@@ -761,7 +761,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 277 行 / 78003 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 277 行 / 78009 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
@@ -1080,7 +1080,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 10119 行 / 309485 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 10119 行 / 309488 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
@@ -14223,9 +14223,9 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 47394,
+      "tokens": 47399,
       "lines": 371,
-      "sha256": "20805a79474a9261c469913aaf0691311e88c948f5da1f1834764d411e149594",
+      "sha256": "edcec00bc016b6a318fc3f581a8ac8294b967128afb1014b017b7b3e5f8e915f",
       "tier": "normal",
       "sections": [
         {
@@ -14233,7 +14233,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 372,
-          "tokens": 47375,
+          "tokens": 47380,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -14404,7 +14404,7 @@
           "level": 2,
           "startLine": 138,
           "endLine": 368,
-          "tokens": 42322,
+          "tokens": 42327,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -90275,9 +90275,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 309485,
+      "tokens": 309488,
       "lines": 10119,
-      "sha256": "3ef34f89d6af1aa5f58bf409d913a8622f2a5438ed45b2de1ee2a7fe9a004b35",
+      "sha256": "10914d7d4a017e92d42ce30ade76a831043fa7dbdb055c6fb13fb98db8247a8e",
       "tier": "normal",
       "sections": [
         {
@@ -90285,7 +90285,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 10120,
-          "tokens": 309468,
+          "tokens": 309471,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -105081,7 +105081,7 @@
           "level": 2,
           "startLine": 9803,
           "endLine": 9815,
-          "tokens": 568,
+          "tokens": 571,
           "summary": "美术·走马灯两张 boss 烘焙图补珠面描边 · 负责：主理人(Trae CN)·beads 美术轨 · 状态：✅ 完成",
           "keywords": [
             "WXG",
@@ -105418,9 +105418,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 78003,
+      "tokens": 78009,
       "lines": 277,
-      "sha256": "d1d6f00c1d865a266fb89a447347bff9ebb70f272fbc37a1f1a297fcdcc6ddd8",
+      "sha256": "14c2aaae4af29307ea3f111aaaa1b790e758a69f7ceb5ec1e7222fd365d46087",
       "tier": "hot",
       "sections": [
         {
@@ -105428,7 +105428,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 278,
-          "tokens": 77994,
+          "tokens": 78000,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",

@@ -9805,7 +9805,7 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 **美术·走马灯两张 boss 烘焙图补珠面描边** · 负责：主理人(Trae CN)·beads 美术轨 · 状态：✅ 完成（2026-11-16 · 用户选「2 = 给走马灯两张 boss 烘焙图补珠面描边」）
 
 - **背景**：T-926 登记「首页走马灯用烘焙作品图，程序化无法沿 alpha 描边 ⇒ 待 art 重出」；T-929/T-930/T-932/T-933 已把详情 / 选关 / 盘面统一为 `shadowInk` 剪影带，走马灯是最后一个例外。
-- **做法**：对 `l9-boss-mandala-256.png` / `photo32-smoke-boss-256.png` 的 `alpha > 0` 剪影取**最外圈 1px**（3×3 腐蚀差集），把该圈像素改为调色板空闲索引 97 = `#3D2E1E`；透明度索引 96 与 alpha 包围盒**逐像素不变**（mandala 37/31..218/210、smoke 41/32..214/209），Cocos `.meta` 的 `trimX/trimY/width/height = 37/31/182/180` 继续有效。
+- **做法**：对 `l9-boss-mandala-256.png` / `photo32-smoke-boss-256.png` 的 `alpha > 0` 剪影取**最外圈 1px**（3×3 腐蚀差集），把该圈像素改为调色板空闲索引 97 = `#3D2E1E`；透明度索引 96 与 alpha 包围盒**逐像素不变**（mandala 37/31..218/210、smoke 41/32..214/209），Cocos `.meta` 的 trim 逐图不变（mandala 37/31/182/180、smoke 41/32/174/178）。
 - **线宽依据**：源图珠距 ≈ 6.0（30×30）/ 5.56（32×32）⇒ 名义 `4 × pitch/32` = 0.75 / 0.70 px；256 栅格最小可渲染取 **1px**（菜单显示 ≈ 2.08px，与程序化缩略 1.56px 同量级）。
 - **产物**：`design/levels/assets/*.png` 与 `cocos/assets/themes/*.png` 两副本同 md5；文件 9,640→9,384 B / 17,335→17,055 B（反降，零包体增量）。
 - **取证**：`temp/boss-outline/*-binary-edge5x.png`（原图 vs 1px 环放大）、`temp/mount-shots/menu-cleared.png` / `menu-smoke-cleared.png`（实际菜单尺度）；alpha bbox / 墨像素数（731 / 838）已核。temp 不入库。
