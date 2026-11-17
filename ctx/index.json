@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5294,
       "lines": 164,
-      "sha256": "ed3431359114dd7db6cf8c387f293969053571c5e1beff05481d251fec9083ca",
+      "sha256": "e82fa1e81a74466a5545727b00dc67ca4a72b15557d1380076f462263c746db6",
       "tier": "normal",
       "sections": [
         {
@@ -31524,20 +31524,22 @@
     },
     {
       "path": "games/beads/design/art/specs/palette-selection-gates.md",
-      "tokens": 2043,
-      "lines": 120,
-      "sha256": "ca2c13c6655499f57edb86e940fc066040e37d957570d25d5ec5c82e0bb59ed1",
+      "tokens": 3114,
+      "lines": 163,
+      "sha256": "7f7e28949f42a07bcd00058ea47368d90fbb1e605619c39cb885d21fd3a72074",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§拼豆选色三门 · Studio 生成侧规格 v1.0",
           "level": 1,
           "startLine": 1,
-          "endLine": 121,
-          "tokens": 2027,
-          "summary": "状态 = 已确认・待落码（用户 2026-09-27 收口：A 全深宪法 + 近似族双阈值 + 单色下限，图例三张肉眼过",
+          "endLine": 164,
+          "tokens": 3099,
+          "summary": "状态 = τ=10 已定标・待落码（2026-11-17 Spike：band≈10 分不开 band≈15 分得开 →",
           "keywords": [
             "Studio",
+            "Spike",
+            "band",
             "拼豆选色三门",
             "生成侧规格"
           ]
@@ -31557,8 +31559,8 @@
           "anchor": "§1 三道门（正交并列）",
           "level": 2,
           "startLine": 13,
-          "endLine": 72,
-          "tokens": 840,
+          "endLine": 80,
+          "tokens": 1088,
           "summary": "",
           "keywords": [
             "三道门",
@@ -31597,8 +31599,8 @@
           "anchor": "§1.3 门 C · 近似族（相对门，两两，仅同品牌内）",
           "level": 3,
           "startLine": 47,
-          "endLine": 72,
-          "tokens": 384,
+          "endLine": 80,
+          "tokens": 632,
           "summary": "",
           "keywords": [
             "近似族",
@@ -31608,11 +31610,11 @@
           ]
         },
         {
-          "anchor": "§2 定标数据（2026-09-27，全量 15 板）",
+          "anchor": "§2 定标数据（2026-11-17，τ=10 收紧后，全量 15 板）",
           "level": 2,
-          "startLine": 73,
-          "endLine": 80,
-          "tokens": 147,
+          "startLine": 81,
+          "endLine": 88,
+          "tokens": 184,
           "summary": "逐板最近带距分位：密集板（artkal-*/mard/dotz/yant）p50 = 2.4–6.5，稀疏板（hama/",
           "keywords": [
             "artkal",
@@ -31626,25 +31628,25 @@
         {
           "anchor": "§3 常量登记（⚠ 待冻结进 systems-index §3）",
           "level": 2,
-          "startLine": 81,
-          "endLine": 90,
-          "tokens": 76,
-          "summary": "NEARFAM_BAND_MAX 15 C",
+          "startLine": 89,
+          "endLine": 98,
+          "tokens": 128,
+          "summary": "NEARFAM_BAND_MAX 10 C 2026-11-17 Spike（S37/S72 band=10.0 分不开",
           "keywords": [
             "§3",
             "systems",
             "index",
             "NEARFAM_BAND_MAX",
-            "常量登记",
-            "待冻结进"
+            "Spike",
+            "S37"
           ]
         },
         {
           "anchor": "§4 图证（temp 再生，⛔ 不入仓不进包）",
           "level": 2,
-          "startLine": 91,
-          "endLine": 101,
-          "tokens": 200,
+          "startLine": 99,
+          "endLine": 109,
+          "tokens": 216,
           "summary": "脚本住 temp/palette-fit/（palette-fit.mjs 色板体检 / bandfam.mjs 带距定",
           "keywords": [
             "temp",
@@ -31658,9 +31660,9 @@
         {
           "anchor": "§5 Studio 实现方式 **[TODO·未裁]**",
           "level": 2,
-          "startLine": 102,
-          "endLine": 113,
-          "tokens": 239,
+          "startLine": 110,
+          "endLine": 155,
+          "tokens": 857,
           "summary": "门在 studio 生成/选色时执行，烘焙 vs 程序化待用户确认：",
           "keywords": [
             "Studio",
@@ -31671,11 +31673,41 @@
           ]
         },
         {
+          "anchor": "§5.1 分布质量（软约束，2026-11-17 用户提）",
+          "level": 3,
+          "startLine": 122,
+          "endLine": 140,
+          "tokens": 381,
+          "summary": "问题：贪心选色可把 8 颗全选在 bandΔE=10–15 的\"边界附近\"，虽然两两通过门 C，但全色系",
+          "keywords": [
+            "band",
+            "分布质量",
+            "软约束",
+            "用户提"
+          ]
+        },
+        {
+          "anchor": "§5.2 量化管线（照片 → 选色）",
+          "level": 3,
+          "startLine": 141,
+          "endLine": 155,
+          "tokens": 206,
+          "summary": "行业标准（Median Cut + Dominant Color / ArtPatt 口径）：",
+          "keywords": [
+            "Median",
+            "Cut",
+            "Dominant",
+            "Color",
+            "ArtPatt",
+            "量化管线"
+          ]
+        },
+        {
           "anchor": "§6 诚实声明",
           "level": 2,
-          "startLine": 114,
-          "endLine": 121,
-          "tokens": 218,
+          "startLine": 156,
+          "endLine": 164,
+          "tokens": 302,
           "summary": "1. ΔE76 在蓝色区略钝（已知非均匀性）——真机复核若蓝族误放，升级 CIEDE2000 重定标；",
           "keywords": [
             "E76",
