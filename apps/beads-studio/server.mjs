@@ -224,6 +224,9 @@ function listResults() {
                     eval: resultEval(r),
                     // 「只看本关」的判据（生成时打标 / 替换时反向补标）；旧条目为空数组
                     linkedLevels: Array.isArray(r.linkedLevels) ? r.linkedLevels : [],
+                    // 已入章标记（WXG-T-978）：管理页选图器/批量页据此置灰，防重复入章
+                    ingested: !!r.ingested,
+                    ingestedChapter: r.ingested?.chapter ?? null,
                 });
             } catch {
                 /* 跳过损坏条目 */
@@ -256,6 +259,9 @@ function listPreviews() {
                 eval: resultEval(d),
                 draft: true,
                 linkedLevels: Array.isArray(d.linkedLevels) ? d.linkedLevels : [],
+                // 预览也可能已入章（旧流程允许未确认保存直接入章；标记同样落在 draft.json）
+                ingested: !!d.ingested,
+                ingestedChapter: d.ingested?.chapter ?? null,
             });
         } catch {
             /* 跳过损坏 / 非预览目录 */
@@ -554,8 +560,10 @@ function gateNameOf(levelsDir, store, manifest) {
  *   → levels:sync + framework:sync。任一步失败：恢复快照 + 重跑 sync 兑平产物，转达红字。
  * mutate 内拒绝用 `throw new ManageError(...)`（4xx）；其余异常按 500。
  * `reply` 缺省走 JSON；批量导入传自定义回调（NDJSON 流已经写了响应头，不能再 writeHead）。
+ * `onCommitted`（可选）：**真源已落盘且 sync 通过后**才调用（入章回写「已入章」标记用，WXG-T-978）。
+ *   它不回滚真源——标记写失败只告警，响应附 `ingested.marked/missed`，不伪装成功。
  */
-async function applyManage(res, mutate, reply) {
+async function applyManage(res, mutate, reply, onCommitted) {
     const respond = reply || ((code, body) => sendJson(res, code, body));
     if (!existsSync(LEVELS_DIR))
         return respond(501, { error: '大关管理仅在本地仓运行 beads-studio 时可用（容器/VPS 无 games/ 真源）' });
@@ -589,7 +597,17 @@ async function applyManage(res, mutate, reply) {
                 detail: raw,
             });
         }
-        return respond(200, { ok: true, count, log: next.log ?? [], note: 'levels:sync + framework:sync 已跑；git diff 确认后提交' });
+        // 入章回写（WXG-T-978）：只有走到这里才代表真源 + sync 全部成功；标记失败不回滚
+        let ingested;
+        if (onCommitted) {
+            try { ingested = onCommitted(); }
+            catch (e) { console.warn(`[manage] onCommitted 失败（真源已提交，不回滚）：${e.message}`); }
+        }
+        return respond(200, {
+            ok: true, count, log: next.log ?? [],
+            ...(ingested ? { ingested } : {}),
+            note: 'levels:sync + framework:sync 已跑；git diff 确认后提交',
+        });
     } catch (e) {
         rollback();
         return respond(e.code || 500, { error: String(e.message || e) });
@@ -941,7 +959,7 @@ async function ingestLevel(res, id, chapterId) {
     return applyManage(res, (ctx) => {
         const out = commitIngest(ctx, ls, plan, chapterId);
         return { manifest: out.manifest, log: [out.log] };
-    });
+    }, undefined, () => markIngested([id], chapterId));
 }
 
 /** 批量入关（WXG-T-341）：全部预检/实测在事务外，随后同一事务按勾选顺序插 boss 前；
@@ -994,7 +1012,7 @@ async function importResults(res, chapterId, ids, progress, reply) {
             log.push(out.log);
         }
         return { manifest, log };
-    }, reply);
+    }, reply, () => markIngested(ids, chapterId));
 }
 
 /** POST /api/manage/chapter/:id/import { resultIds: [...], stream?: true } —— 批量入关（≤10 条）。
@@ -1255,6 +1273,7 @@ async function handleDraftPublish(req, res, id) {
     );
 
     const png = mode === 'new' || draft.imageDataUrl ? parsePngDataUrl(draft.imageDataUrl) : null;
+    const publishChapterId = mode === 'new' ? id : target;
 
     return applyManage(res, (ctx) => {
         const log = [];
@@ -1301,7 +1320,7 @@ async function handleDraftPublish(req, res, id) {
             manifest = store.setEntryKind(manifest, bossUid, 'boss');
         log.push(`${ids.length} 关按草稿顺序入章；末位 ${bossUid} 设为 boss`);
         return { manifest, log };
-    });
+    }, undefined, () => markIngested(ids, publishChapterId));
 }
 
 /**
@@ -1368,7 +1387,7 @@ async function handleChapterCreate(req, res) {
         let manifest = ls.appendEntry(ctx.manifest, { uid, kind: 'boss', file, pack: 'main' });
         manifest = store.addChapterTo(manifest, { id, open: false });
         return { manifest, log: [`新建大关 ${id}「${title}」：首关 boss ${uid}（${d.cols}×${d.rows}，实测 ${measured.time}s）→ chapters/${id}.json + assets/${art}.png`, `首关 boss 豆面：${leg.note}`] };
-    });
+    }, undefined, () => markIngested([String(body.resultId)], id));
 }
 
 /** POST /api/manage/chapter/:id/(rename|open|move|delete)。 */
@@ -1674,6 +1693,59 @@ function findResultFile(id) {
     return null;
 }
 const findResultById = (id) => findResultFile(id)?.r ?? null;
+
+// ── 「已入章」标记（WXG-T-978）──────────────────────────────────────────────
+// 真源 = 结果/草稿元数据里的 `ingested: { chapter, at }`（result.json 或 data/_draft/<id>/draft.json）。
+// 为什么不只放内存：刷新/重启后仍要认出「这条已入过章」，否则同一结果可被重复入关。
+// 不做缓存：批量轮询只在批次运行中有 id（数秒），每行读一个本地小文件；缓存反而会把外部/手工
+// 写入的标记藏住（2026-11-17 实测：正例写入后仍显示未入章）。
+/** 该 id 的元数据文件：已确认保存在 data/<board>/<id>/result.json，否则预览 _draft/<id>/draft.json。 */
+function ingestedMetaFile(id) {
+    const hit = findResultFile(id);
+    if (hit) return hit.file;
+    const draft = join(DATA, '_draft', id, 'draft.json');
+    return existsSync(draft) ? draft : null;
+}
+
+/** 读「已入章」标记（无标记/文件损坏 ⇒ null）。 */
+function readIngested(id) {
+    try {
+        const f = ingestedMetaFile(id);
+        if (!f) return null;
+        const obj = JSON.parse(readFileSync(f, 'utf8'));
+        return obj?.ingested && typeof obj.ingested.chapter === 'string' ? obj.ingested : null;
+    } catch {
+        return null; // 损坏/半截 ⇒ 按未标记处理
+    }
+}
+
+/** 入章成功后写标记（同批多条）。返回 {marked, missed}；单条失败只告警，不影响已提交的真源。 */
+function markIngested(ids, chapterId) {
+    const at = new Date().toISOString();
+    let marked = 0;
+    let missed = 0;
+    for (const id of ids) {
+        try {
+            const f = ingestedMetaFile(id);
+            if (!f) { missed++; continue; }
+            const obj = JSON.parse(readFileSync(f, 'utf8'));
+            obj.ingested = { chapter: chapterId, at };
+            writeFileSync(f, JSON.stringify(obj, null, 2) + '\n');
+            marked++;
+        } catch (e) {
+            missed++;
+            console.warn(`[ingest] 写「已入章」标记失败 ${id}：${e.message}`);
+        }
+    }
+    return { marked, missed };
+}
+
+/** 行级注入「已入章」（批量页表格直接消费 r.ingested / r.ingestedChapter）。 */
+function withIngested(row) {
+    if (row.ingested || !row.id) return row;
+    const mark = readIngested(row.id);
+    return mark ? { ...row, ingested: true, ingestedChapter: mark.chapter } : row;
+}
 
 function handleBakeManifest(res, url) {
     // 仅本地仓（同 ingest 那条守卫的理由：服务无鉴权，这是不开公网的边界）。容器无 games/ ⇒ 501。
@@ -2145,7 +2217,8 @@ function handleBatchStatus(res, batchId) {
         // B2：完成后按「同图分组」的评分 Top3（未完成/未开启 auto-tune ⇒ null）
         ranking: job.ranking ?? null,
         // 行级明细：name / combo / status / id / error / 轻指标（不含 pattern，避免响应膨胀）
-        rows: job.rows,
+        // ingested = 持久化「已入章」标记（刷新/重启后仍置灰，WXG-T-978）
+        rows: job.rows.map(withIngested),
     });
 }
 

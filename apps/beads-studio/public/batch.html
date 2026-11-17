@@ -116,6 +116,9 @@ let timer = null;
 
 const msg = (t, k = '') => { const el = $('msg'); el.textContent = t; el.className = k; };
 const parseList = (s) => String(s || '').split(/[,，\s]+/).filter(Boolean).map((v) => (/^\d+$/.test(v) ? Number(v) : v));
+/** 刷新恢复（WXG-T-978 ③）：批次进度在服务端内存，本页只记 batchId 就能接回表格；
+ *  「已入章」本身在结果/draft 元数据里（服务端回传 ingested），刷新后仍置灰。 */
+const LAST_BATCH_KEY = 'beads.batch.last';
 
 function toB64(u8) {
     let out = '';
@@ -180,6 +183,7 @@ $('go').onclick = async () => {
         const j = await r.json();
         if (!r.ok) throw new Error(j.error || r.status);
         batchId = j.batchId;
+        localStorage.setItem(LAST_BATCH_KEY, batchId);
         rows = []; $('tbody').innerHTML = ''; $('rankBody').innerHTML = '';
         $('tablePanel').hidden = false; $('rankPanel').hidden = true;
         msg(`批次 ${j.batchId} 已启动：${j.total} 条（${j.combos} 组合）`);
@@ -196,7 +200,7 @@ async function poll() {
     const st = await (await fetch(`/api/batch/${batchId}`)).json();
     // ⚠ st.error 在状态响应里是**失败条数**（配合 st.ok 用），只有 404 才是字符串错误信息；
     //    旧写法 `if (st.error)` 会在第一条失败时误判为整批失败 ⇒ 停轮询、表格永远空白（2026-11-17 实测）
-    if (typeof st.error === 'string') { clearInterval(timer); msg(st.error, 'err'); $('go').disabled = false; return; }
+    if (typeof st.error === 'string') { clearInterval(timer); localStorage.removeItem(LAST_BATCH_KEY); msg(st.error, 'err'); $('go').disabled = false; return; }
     rows = st.rows.map((n, i) => Object.assign(rows[i] || {}, n));
     $('fill').style.width = `${Math.round((st.done / st.total) * 100)}%`;
     $('counter').textContent = `${st.done}/${st.total} 完成 · ${st.ok} 成功 · ${st.error} 失败`;
@@ -349,6 +353,30 @@ function renderRank(ranking) {
         box.appendChild(card);
     }
 }
+
+// ── 刷新恢复上次批次（服务端进度在内存；服务重启 ⇒ 404 自动丢弃）──
+(async () => {
+    const saved = localStorage.getItem(LAST_BATCH_KEY);
+    if (!saved) return;
+    try {
+        const st = await (await fetch(`/api/batch/${saved}`)).json();
+        if (typeof st.error === 'string') { localStorage.removeItem(LAST_BATCH_KEY); return; }
+        batchId = saved;
+        rows = st.rows.map((n, i) => Object.assign(rows[i] || {}, n));
+        $('tablePanel').hidden = false;
+        $('counter').textContent = `${st.done}/${st.total} 完成 · ${st.ok} 成功 · ${st.error} 失败`;
+        $('fill').style.width = `${Math.round((st.done / st.total) * 100)}%`;
+        msg(`已恢复批次 ${saved}（${st.done}/${st.total} 完成）`);
+        if (st.finished) {
+            await loadPatterns();
+            renderRank(st.ranking);
+            renderTable();
+        } else {
+            $('go').disabled = true;
+            timer = setInterval(poll, 600);
+        }
+    } catch { localStorage.removeItem(LAST_BATCH_KEY); }
+})();
 
 // ── 大关列表（入章目标）──
 (async () => {
