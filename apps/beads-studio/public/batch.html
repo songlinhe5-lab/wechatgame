@@ -280,7 +280,9 @@ function renderTable() {
         tr.querySelector('.f-err').textContent = r.metrics?.colorError ?? '—';
         tr.querySelector('.f-adj').textContent = r.metrics?.adjRate ?? '—';
         const imp = tr.querySelector('.f-imp');
-        if (r.status === 'ok') {
+        if (r.status === 'ok' && r.ingested) {
+            imp.innerHTML = `<span class="badge yes" title="已入章：${escAttr(r.ingestedChapter || '')}">已入章</span>`;
+        } else if (r.status === 'ok') {
             const why = (r.blockers || []).map(classifyReason);
             imp.innerHTML = r.importable
                 ? '<span class="badge yes">可入关</span>'
@@ -288,6 +290,9 @@ function renderTable() {
         } else {
             imp.innerHTML = '';
         }
+        const pick = tr.querySelector('.pick');
+        if (r.ingested) pick.checked = false;
+        pick.disabled = !!r.ingested;
         const idc = tr.querySelector('.f-id');
         if (r.status === 'error') idc.innerHTML = `<span class="badge no" title="${escAttr(r.error)}">${classifyReason(r.error)}</span>`;
         else idc.textContent = r.id || '';
@@ -365,7 +370,7 @@ const selected = () => [...document.querySelectorAll('#tbody .pick')].map((cb, i
 
 $('checkAll').onchange = () => {
     const on = $('checkAll').checked;
-    document.querySelectorAll('#tbody .pick').forEach((cb, i) => { cb.checked = on && rows[i].status === 'ok' && rows[i].importable; });
+    document.querySelectorAll('#tbody .pick').forEach((cb, i) => { cb.checked = on && rows[i].status === 'ok' && rows[i].importable && !rows[i].ingested; });
 };
 
 $('commitSel').onclick = async () => {
@@ -431,6 +436,9 @@ $('ingestSel').onclick = async () => {
                 if (o.done) {
                     if (o.code >= 400) return msg('入章失败：\n' + (o.error || o.code), 'err');
                     $('fill').style.width = '100%';
+                    // 回写列表：已入章的行置灰不可再勾，避免重复入章（判据只在本次页面会话内，刷新即失）
+                    for (const r of list) { r.ingested = true; r.ingestedChapter = chapter; }
+                    renderTable();
                     return msg(`已入章 ${list.length} 条 → ${chapter}（levels:sync 已跑，git diff 确认后提交）`, 'ok');
                 }
                 if (o.phase === 'cell') {
