@@ -15,6 +15,21 @@
 
 ---
 
+## WXG-T-975
+
+**工程·珠面难度等级与三星时间门槛评估工具** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-17）
+
+- **用户原话**：「16/32/40 尺寸档并不能表明难度等级，还是真实的步数才和难度等级对应。我倾向用现有逻辑。把『给定珠面 → 输出难度等级 + 三星时间门槛』做成一个可调用的小工具」。
+- **裁定链**：前一问「评估某珠面难度等级 + 1/2/3 星时间门槛」查证结论 = 现有逻辑已闭环（G11 门禁吃实测 `steps`；`time` = 1★ 时钟单一真源；2★/3★ 由 `STAR_TIER_K=[1,0.85,0.70]` + `STAR_TIER_FLOOR=[30,26,22]` 派生）。用户据此否掉"按尺寸档立难度等级"，改用现有 steps 口径 ⇒ 本工具**不新发明任何阈值**。
+- **产物**：`tools/scripts/beads-difficulty.ts`（唯一新增文件，薄壳 CLI）。用法 `node --experimental-transform-types --import=./games/beads/design/forensics/g3/g3-hooks.mjs tools/scripts/beads-difficulty.ts <珠面.json> [--id N] [--self-check]`。
+- **复用的现成真源（零重造）**：`beads-bot.ts::measureBoard/pricingOf`（steps 实测）、`level-import.ts::measuredLevelTime/tierStepBudget`（1★ 时钟 / 档位步数预算）、`tuning/gameplay.ts::tierSecondsFor`（三档秒数）、`difficulty.ts::difficultyOf`（DI 排序参考）、G11 常量 `NORMAL_STEPS_MIN=7 / MAX=37 / BOSS_STEPS_MIN=49`（等级边界）。
+- **输出**：每关 steps / stepsSource / grade（过易·普通·偏难·Boss）/ DI / 1★2★3★ 秒数与步数预算 / 3★ 所需托盘容量 / blockers / warnings；stdout 末行 = JSON，便于管道调用。
+- **3 条输入路径**：① 已入关关卡（读 `pricing.steps` 秒出，不跑 bot）② 无 pricing 的 levels doc（spawn `beads-bot` 实测）③ `pattern.json` 的 `levelDraft` 草案（同上，并把 pattern 带进 `difficultyOf` 以出 DI）。
+- **验证**：`--self-check` 断言三星公式、`starTierK` 单关覆盖、G11 等级边界（用 L00007 落盘真值），通过；现池 10 关全跑通，L00007 `steps=34 ⇒ 166/141/116s / 3★ 需 24 槽` 与落盘一致；L00009 `starTierK=[1,0.85,0.4176] ⇒ 3★ 228s`（非全局 382s）确认单关系数生效；L00010 `steps=378` 落 Boss 档。新文件 zero lint / zero typecheck。
+- **诚实标注**：全仓 `typecheck` 的 3 条报错（`meta-menu.ts` / `meta-widgets.ts`）来自其他会话 in-flight 改动，非本次引入，未修。工具输出的三星秒数是**模型值**（`SEC_PER_STEP=4.14` 未经新 playtest 重标定、steps 为固定 ACB 贪心策略路径长非最优），工具内 `note` 字段明写 `[待真机 playtest 校准]`，不得当人类用时判据。
+- **范围边界**：本笔仅提交工具文件。**色数 4–16、硬顶 64×64 等常量与文档改动（本轮讨论中由成员落盘的 in-flight 改动）未提交、未纳入本笔**，待用户裁定后再决定保留或回退；工具本身不依赖这些改动（不改任何常量）。
+- **知识沉淀**：kb:sync 沉淀统计 新增 0 / 修改 0 / 激活 0 / 归档 0。
+
 ## WXG-T-974
 
 **设计·20 大关 × 9 小关题材甄选清单（草案 · 不入库）** · 负责：美术指导(林绘澄) · 主理人汇编(CodeBuddy) · 状态：✅ 完成（2026-11-17）
