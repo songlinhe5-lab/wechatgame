@@ -176,9 +176,10 @@ describe('beads tuning derivation (systems-index §3 mirrors)', () => {
       // **WXG-T-180（§3.3 v1.33）迁移**：格数饱和上限随 `GRID_MAX` 156 → 841，
       // 原 index=50（30+10×50 = 530）**已不足以触顶** ⇒ 改 100（1030 > 841）仍能饱和。
       // **v1.37 再迁**：`GRID_MAX` 29→50 ⇒ 饱和上限 2500，index 250（2530 > 2500）。
-      // **v1.45 再迁**：`GRID_MAX` 50→32 ⇒ 饱和上限 1024（32×32），index 250 仍远超触顶；
-      //   断言本身引 `GRID_MAX_COLS * GRID_MAX_ROWS`，改值零改测。
-      const deep = stageParamsFor(250);
+      // **v1.45 再迁**：`GRID_MAX` 50→32 ⇒ 饱和上限 1024（32×32）。
+      // **本批**：`GRID_MAX` 32→64 ⇒ 饱和上限 4096（64×64）⇒ index 提到 500（5030 > 4096）才触顶；
+      //   断言本身引 `GRID_MAX_COLS * GRID_MAX_ROWS`，只改触顶 index。
+      const deep = stageParamsFor(500);
       expect(deep.colors).toBe(BEAD_COLOR_MAX);
       expect(deep.cells).toBe(GRID_MAX_COLS * GRID_MAX_ROWS);
       expect(deep.interval).toBe(SPAWN_INTERVAL_MIN);

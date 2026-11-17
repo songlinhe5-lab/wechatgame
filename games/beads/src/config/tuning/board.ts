@@ -8,13 +8,16 @@ import { DESIGN_W, PUZZLE_BAND, TRAY_BAND } from './layout.js';
  *  与唯一解码实现见 `config/bead-charset.ts`（判据 X1）。 */
 export const BEAD_CHARSET = '.x1-9A-Z';
 /** Per-level colour-count ceiling. §3.2 v1.55（提案登记 v1.54；用户 2026-09-24 改判
- *  「放开 10 色上限」⇒ **推翻 v1.36 的 ≤10**）：35 = 当前 rowstring（每格一字符，
- *  ADR-0004）形态的**编码天花板** `1-9`+`A-Z` ⇒ 在本形态下即「不限制」；>35 需换编码
- *  格式 = 另案（正本 §8）。语义收窄为「单关 `pattern` **实际用色数**」，**不约束候选
- *  色板规模**（`PALETTES[slug].codes` 上百条不受本值限制，v1.40 品牌引用制）。
- *  ⚠️ 抬到 35 后本常量不再顺带挡住「索引 >10 却未携 `palette`+`paletteCodes`」⇒ 该
- *  组合会让 `view/palette.ts` 静默兑炭黑，改由 `levels.ts` B1 硬校兜住（正本 §2.6-ⓐ）。 */
-export const BEAD_COLOR_MAX = 35;
+ *  「放开 10 色上限」）→ **本批用户裁定 35→16**：语义收窄为「单关 `pattern` **实际用色数**
+ *  上限」，与用户表述对齐（格言「每关最多 16 色」）。推翻 v1.55 把本值当「编码天花板 = 不限制」
+ *  的口径——`1-9`+`A-Z` 的 35 字符仍是 **rowstring 单字符编码天花板**（ADR-0004），但**设计上限
+ *  现为 16**：`BEAD_COLOR_CHARS = COLOR_ALPHABET.slice(0, 16)`，第 17 色 `H` 起既不能编码也不能解码；
+ *  >16 需改设计上限（正本 §8 / ADR-0004 复评节），非本常量单点可放。
+ *  ⚠️ 本值**不约束候选色板规模**（`PALETTES[slug].codes` 上百条不受本值限制，v1.40 品牌引用制）。
+ *  ⚠️ 撞数警告仍成立且更隐蔽：16 是设计上限、35 是编码天花板、`demo` 回落色板 10 色是第三个
+ *  边界——「索引 > demo 色板却未携 `palette`+`paletteCodes`」会让 `view/palette.ts` 静默兑炭黑，
+ *  改由 `levels.ts` B1 硬校兜住（正本 §2.6-ⓐ）；收紧到 16 **不解除** B1。 */
+export const BEAD_COLOR_MAX = 16;
 /** Per-level decoy-count ceiling. §3.2 v1.17 (U8=D, WXG-T-086): 2→0 — no decoys
  * are supplied; the spawner's A′ invariant (`held ≤ demand`) removes the tail
  * soft-lock at the source, so the decoy subsystem is inert (kept for the schema). */
@@ -46,9 +49,10 @@ export const DECOY_WEIGHT = 1;
  * **117.2mm** ⇒ 屏上一颗 5mm 豆只画成 ≈3mm），取「与源图/做图域同尺」换掉它（用户
  * 2026-09-24 知情裁定；`ADR-0018 §3.4.4` 修订注已登记）。
  *
- * **⚠️ 撞数警告**：本值 32 与下行 `GRID_MAX_COLS` 的 32 **不是同一回事**（前者 = 设计px/渲染域，
+ * **⚠️ 撞数警告**：本值 32 与下行 `GRID_MAX_COLS` 的 64 **不是同一回事**（前者 = 设计px/渲染域，
  * 后者 = 格数/格数域）。旧注释「与每颗像素标准 32px 严丝合缝」在旧 52 基下只是巧合，
- * 本单后才是**结构性同尺**（studio `PER_BEAD_PX = brand.dip` 与本值第一次同源同值）。
+ * v1.57 后才是**结构性同尺**（studio `PER_BEAD_PX = brand.dip` 与本值第一次同源同值）。
+ * 本批把 `GRID_MAX` 抬到 64 后两者不再同数，更须防止把「格数上限 64」误当成「渲染基尺 32」。
  */
 export const BEAD_PITCH = 32;
 /** 格间距。**§3.3 v1.57 不动**：本单唯一不随基尺搬家的渲染域绝对像素量（缝 = 盘面露底色，
@@ -162,25 +166,24 @@ export const TINT_LOD_MAX_UPSCALE: number | null = null;
  */
 export const TINT_MASK_GAUGE_PIN: 'holed' | 'holeless' | null = null;
 /**
- * Max columns per level. **v1.45（WXG-T-203）：50 → 32** —— 用户拍板「单图上限 32 个珠子宽度，
- * 超过就拆组合图」。本值语义由 v1.37 的「导入硬顶」升为**单图/组合图（Plate）分界线 = 切块阈值**：
- * 任一维 > 32 ⇒ beads-studio 一键入关自动走 `sliceBoard` 均分切块（k = ceil(n/32)）。
- * 与每颗像素标准 32px（`levels-spec §3`）现为**结构性同尺**（旧 52 基下只是巧合，
- * v1.57 后 `BEAD_PITCH = 32 = dip(5mm)` 才使两者同源；正本 `levels-spec §3` v1.13 的
- * `dip × dens` 口径优先于旧 v1.8 单值口径）：1024 源图 → 32×32 最大单图；
- * 2048 → 64×64 母版 → 2×2 均分 ⇒ 恰好 4 宫 32×32、**零残余**（旧 50 阀下 40×40 会被当合法单图，
- * 而 ADR-0018 已裁 29×29 触控不可玩）。
- * 历史：13 → 29（v1.34，对齐 5mm Midi 标准方盘）→ 50（v1.37「最大可玩硬顶」）→ 32（v1.45）。
- * ⚠️ 连带（诚实登记）：① 单屏仍放不下 32 列（32×`BEAD_PITCH` = 1024px ≫ 750px 设计宽；旧 52 基
- * 为 1664px，v1.57 后裕度变大但仍需缩放 ⇒ 本条结论不变）⇒ 靠缩放
- * （ADR-0015 丁-3 已落码）；② 32×32 = 1024 格静态图元 ≈ 1.1 万 ⇒ **LOD 仍待立项**，性能未经真机验证；
- * ③ E1 实测：32×32 **全错位** 176–178 taps 结构性超 420s 预算 ⇒ 单图满尺寸档仍须 ≤60% 整区域就位
- * （`levels-spec §3.1①`）；④ 旧 33–50 维度的异形盘（包围盒裁剪后 33×36 类）从「合法单图」
- * 改为「自动切块」，入关不会因此拒收。
+ * Max columns per level. **本批用户裁定 32 → 64**：语义由 v1.45 的「单图/组合图（Plate）切块阈值」
+ * **改写为单图硬顶**——用户明确「玩法无组合图逻辑」，单张设计图到 64 也不切块。随之 studio 侧
+ * `isPlate` / `sliceBoard({gridMax})` 的切块阈值同步 32→64（见 `apps/beads-studio/server.mjs`
+ * 与 `tools/scripts/level-slice.mjs`），即任一维 > 64 才走 `sliceBoard`（k = ceil(n/64)）。
+ * ⚠️ 用户裁定的是**引擎硬顶**：`validateBeadsLevel` 承认到 64 列合法；这不等于 64×64 可玩——
+ * ADR-0018 §2.3 的 29×29 触控不可玩裁定在册，64×64 的可玩性/性能**未经真机验证**，登记为 CONCERNS。
+ * ⚠️ 撞数警告仍成立且换了对象：本值 64（格数域）与 `BEAD_PITCH = 32`（设计px/渲染域）
+ * **不是同一回事**，更不可把「64 = 格数上限」读成「64 = 10mm 品牌 dip」之类的渲染量。
+ * 历史：13 → 29（v1.34，对齐 5mm Midi 标准方盘）→ 50（v1.37「最大可玩硬顶」）→ 32（v1.45
+ * 「单图切块阈值」）→ 64（本批「单图硬顶，玩法无组合图逻辑」）。
+ * ⚠️ 连带（诚实登记）：① 单屏放不下 64 列（64×`BEAD_PITCH` = 2048px ≫ 750px 设计宽）⇒ 靠缩放
+ * （ADR-0015 丁-3 已落码）；② 64×64 = 4096 格静态图元 ≈ 4.5 万 ⇒ **LOD 仍待立项**，性能未经真机
+ * 验证，比旧 32 档更吃紧；③ E1 实测 32×32 全错位已超 420s，64×64 的时间预算风险只高不低；
+ * ④ 32–64 维度旧组合图现按「单图」放行（不再自动切块），入关不会因此拒收。
  */
-export const GRID_MAX_COLS = 32;
-/** Max rows per level（12 → 29（v1.34）→ 50（v1.37）→ **32**（v1.45，同上））。 */
-export const GRID_MAX_ROWS = 32;
+export const GRID_MAX_COLS = 64;
+/** Max rows per level（12 → 29（v1.34）→ 50（v1.37）→ 32（v1.45）→ **64**（本批，同上））。 */
+export const GRID_MAX_ROWS = 64;
 /** Demo minimum columns. */
 export const GRID_MIN_COLS = 6;
 /** Demo minimum rows. */

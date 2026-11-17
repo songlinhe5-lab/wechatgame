@@ -78,24 +78,26 @@ test('sliceBoard 声明尺寸与 pattern 实际不符 → 入口即 throw（防�
   assert.throws(() => sliceBoard({ pattern: ['111'], cols: 2, rows: 1, gridMax: 50 }), /形状/);
 });
 
-// §3.3 v1.45：GRID_MAX 50→32 ⇒ 生产切块阈值 = 32（上方 50 阀用例保留，证明算法与阈值解耦）。
-test('§3.3 v1.45 生产阈值 32：64 零残余、33 均分、≤32 不切、默认参数即 32', () => {
-  assert.deepEqual(splitRuns(64, 32), [32, 32]);     // 2048 母版 → 2×2×32×32 零残余
-  assert.deepEqual(splitRuns(33, 32), [16, 17]);     // 余数加末尾块
-  assert.deepEqual(splitRuns(32, 32), [32]);        // 单图上限本身不切
-  assert.deepEqual(splitRuns(40, 32), [20, 20]);    // 旧 50 阀下会当合法单图投放的盘
-  assert.deepEqual(splitRuns(100, 32), [25, 25, 25, 25]);
-  for (let n = 1; n <= 220; n++) {
-    const runs = splitRuns(n, 32);
+// 本批用户裁定：GRID_MAX 32→64（单图硬顶、玩法无组合图逻辑）⇒ 生产切块阈值 = 64
+//（上方 50 阀用例保留，证明算法与阈值解耦）。⚠ 阈值 64 是 studio 导入超限母版时的兜底切块，
+// 与「玩法无组合图逻辑」不冲突：单图到 64 不切，超过 64 的母版仍由 studio 侧自动均分。
+test('本批生产阈值 64：128 零残余、65 均分、≤64 不切、默认参数即 64', () => {
+  assert.deepEqual(splitRuns(128, 64), [64, 64]);   // 4096 母版 → 2×2×64×64 零残余
+  assert.deepEqual(splitRuns(65, 64), [32, 33]);    // 余数加末尾块
+  assert.deepEqual(splitRuns(64, 64), [64]);        // 单图硬顶本身不切
+  assert.deepEqual(splitRuns(100, 64), [50, 50]);   // 旧 32 阀下会切成 4 宫的盘
+  assert.deepEqual(splitRuns(200, 64), [50, 50, 50, 50]);
+  for (let n = 1; n <= 260; n++) {
+    const runs = splitRuns(n, 64);
     assert.equal(runs.reduce((a, b) => a + b, 0), n, `和≠n @ ${n}`);
-    for (const r of runs) assert.ok(r <= 32, `块 ${r} > 32 @ ${n}`);
+    for (const r of runs) assert.ok(r <= 64, `块 ${r} > 64 @ ${n}`);
   }
   // 不传 gridMax ⇒ 走默认（默认值 = 生产阈值；漂移即此断言变红）
-  const cols = 51;
+  const cols = 101;
   const pattern = Array.from({ length: cols }, () => '1'.repeat(cols));
   const { gridCols, gridRows, cells } = sliceBoard({ pattern, cols, rows: cols });
   assert.equal(gridCols, 2);
   assert.equal(gridRows, 2);
-  assert.deepEqual(cells.map((c) => c.cols), [25, 26, 25, 26]);
-  for (const c of cells) assert.ok(c.cols <= 32 && c.rows <= 32);
+  assert.deepEqual(cells.map((c) => c.cols), [50, 51, 50, 51]);
+  for (const c of cells) assert.ok(c.cols <= 64 && c.rows <= 64);
 });

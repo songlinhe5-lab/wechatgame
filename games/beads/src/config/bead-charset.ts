@@ -1,10 +1,13 @@
 /**
  * BEAD_CHARSET — the **single** decode table for pattern row characters.
  *
- * ⚠️ Why this module exists: `systems-index.md §3.2` **v1.55** widened the
- * charset from `.x1-9A` (10 colours) to `.x1-9A-Z` (35 colours = the encoding
- * ceiling of the one-character-per-cell row string form, ADR-0004). Before that
- * the very same mapping was hand-written **four times** — `config/levels.ts`,
+ * ⚠️ Why this module exists: a historical note — `systems-index.md §3.2` **v1.55**
+ * widened the charset from `.x1-9A` (10 colours) to `.x1-9A-Z`. **35 is the
+ * design-independent ENCODING CEILING of the one-character-per-cell row string
+ * form (ADR-0004), NOT the current design limit**: a later user ruling lowered
+ * the design ceiling (`BEAD_COLOR_MAX`) to **16**, so only `1`…`9` + `A`…`G`
+ * are legal pattern colours today while `H`…`Z` remain encodable in principle.
+ * Before that widening the very same mapping was hand-written **four times** — `config/levels.ts`,
  * `entities/grid.ts`, `game/misplaced-assembler.ts` and
  * `tools/scripts/level-derange.mjs` — and the copies had already diverged
  * (derange carried a 12-character table, i.e. a silent colour drop above 12).
@@ -12,8 +15,10 @@
  * imports here instead of re-deriving character ranges.
  *
  * Case sensitivity is part of the contract (§3.2 v1.55): `x` = locked cell,
- * `X` = colour index 33 (`Y` = 34, `Z` = 35). Any `toUpperCase()` /
- * case-insensitive regex would be a contract break — `String.prototype.indexOf`
+ * `X` = colour index 33 (`Y` = 34, `Z` = 35) **at the encoding ceiling** — those
+ * high indices are now above the design limit 16 and rejected by the validator,
+ * but the decoder stays case-sensitive on the whole alphabet. Any `toUpperCase()`
+ * / case-insensitive regex would be a contract break — `String.prototype.indexOf`
  * is exact-match by construction.
  *
  * Layers: config data table (L2/L3 clean: no `cc`, no DOM, no `wx`, no
@@ -35,14 +40,14 @@ export const LOCKED_CHAR = 'x';
 const COLOR_ALPHABET = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 /**
- * The colour part of the charset, truncated to `BEAD_COLOR_MAX`.
+ * The colour part of the charset, truncated to `BEAD_COLOR_MAX` (design limit 16).
  *
- * This is the only place where a character ↔ index mapping is expressed. When
- * `BEAD_COLOR_MAX` reaches 35 the alphabet is exhausted (`1-9` + `A-Z`), so the
- * "index above the ceiling" branch of the BOOT validator stops being
- * constructible — see `tests/bead-charset.test.ts` for the sentinel that
- * re-arms that judgement if §3.2 ever lowers the ceiling again.
- */
+ * This is the only place where a character ↔ index mapping is expressed. With
+ * `BEAD_COLOR_MAX = 16` this is `1`…`9` + `A`…`G` (so `charOfColor(16) = 'G'` and
+ * index 17 throws); the full `1-9` + `A-Z` alphabet is merely the ENCODING ceiling
+ * (35). Because 16 < 35 the "index above the ceiling" branch of the BOOT validator
+ * is constructible again — `tests/bead-charset.test.ts` locks both the truncation
+ * and the re-armed over-ceiling sentinel. */
 export const BEAD_COLOR_CHARS: string = COLOR_ALPHABET.slice(0, BEAD_COLOR_MAX);
 
 /**

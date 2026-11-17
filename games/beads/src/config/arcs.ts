@@ -67,7 +67,7 @@ export const ARCS: readonly ArcEntry[] = [
     levelRefs: [
       [
         10,
-        10,
+        11,
       ],
     ],
   },

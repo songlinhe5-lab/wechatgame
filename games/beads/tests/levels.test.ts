@@ -20,6 +20,7 @@ import {
   stageParamsFor,
 } from '../src/config/tuning.js';
 import {
+  LEGACY_THREE_COLOR_UIDS,
   LEVELS,
   buildStagePattern,
   charOfColor,
@@ -52,10 +53,11 @@ describe('beads charset mapping', () => {
     expect(colorIndexOfChar('A')).toBe(10);
     // §3.2 v1.55：charset 由 `.x1-9A` 扩到 `.x1-9A-Z` ⇒ `B`…`Z` 不再是「非法」。
     expect(colorIndexOfChar('B')).toBe(11);
-    expect(colorIndexOfChar('Z')).toBe(35);
-    // Anything outside the charset is `undefined` (= invalid), not `null`.
+    expect(colorIndexOfChar('G')).toBe(16); // 设计上限 16（末位合法色）
+    expect(colorIndexOfChar('H')).toBeUndefined(); // 越设计上限（编码天花板仍含 H–Z）
+    // Anything outside the design limit is `undefined` (= invalid), not `null`.
     expect(colorIndexOfChar('0')).toBeUndefined();
-    expect(colorIndexOfChar('a')).toBeUndefined(); // 大小写敏感（`x`=锁定符、`X`=索引 33）
+    expect(colorIndexOfChar('a')).toBeUndefined(); // 大小写敏感（`x`=锁定符、`X` 越上限）
     expect(colorIndexOfChar(' ')).toBeUndefined();
   });
 
@@ -72,16 +74,16 @@ describe('beads charset mapping', () => {
     }
     expect(charOfColor(1)).toBe('1');
     expect(charOfColor(10)).toBe('A'); // 旧上限位仍是合法色
-    expect(charOfColor(BEAD_COLOR_MAX)).toBe('Z');
+    expect(charOfColor(BEAD_COLOR_MAX)).toBe('G'); // 设计上限 16 = 'G'（编码天花板 35 = 'Z'）
     expect(() => charOfColor(0)).toThrow();
-    // ⚠ 本行只在 §3.2 未顶满编码容量时才是「越界可构造」硬判据；现值 35 =
-    // 字符集容量 ⇒ 判据的完整口径见 `bead-charset.test.ts` X4（含自我复位哨兵）。
+    // ⚠ 现值 16 < 编码容量 35 ⇒「>设计上限」越界重新可构造；完整口径见
+    // `bead-charset.test.ts` X4（含自我复位哨兵）。
     expect(() => charOfColor(BEAD_COLOR_MAX + 1)).toThrow();
   });
 
   it('collects distinct pattern colours ascending, ignoring empty/locked cells', () => {
     expect(patternColors(['1.2', 'x31'])).toEqual([1, 2, 3]);
-    expect(levelColors(simpleTestLevel())).toEqual([1, 2, 3]);
+    expect(levelColors(simpleTestLevel())).toEqual([1, 2, 3]); // 夹具默认 3 色（已入关数据兼容旧下限）
     expect(decoyColorIndices(simpleTestLevel({ decoys: ['5', 'x', 'A'] }))).toEqual([5, 10]);
     // §3.2 v1.55：扩展字符同样参与升序汇总（旧表下 `C`=12 根本解不出来）。
     expect(patternColors(['1C2', 'B31'])).toEqual([1, 2, 3, 11, 12]);
@@ -136,21 +138,35 @@ describe('beads BOOT validator (architecture-beads §6)', () => {
     expect(hasError(validateBeadsLevel(locked), 'at least one fillable cell')).toBe(true);
   });
 
-  it('rejects a colour count below 3 and above the ceiling', () => {
-    const two = simpleTestLevel({ pattern: ['121212', '121212', '121212', '121212', '121212'] });
-    expect(hasError(validateBeadsLevel(two), 'colour count 2 < 3')).toBe(true);
+  it('rejects a colour count below 4 (新建草案) and above the ceiling', () => {
+    // 下限 4 只约束无身份的新建草案（uid=''）；已入关数据 uid 非空兼容旧下限 3。
+    const two = simpleTestLevel({ uid: '', pattern: ['121212', '121212', '121212', '121212', '121212'] });
+    expect(hasError(validateBeadsLevel(two), 'colour count 2 < 4')).toBe(true);
+    const three = simpleTestLevel({ uid: '', pattern: ['123123', '123123', '123123', '123123', '123123'] });
+    expect(hasError(validateBeadsLevel(three), 'colour count 3 < 4')).toBe(true);
 
-    // §3.2 v1.36：10 色 = 旧上限，仍合法（且 ≤ demo 色板 ⇒ 不触发 B1）。
+    // 10 色仍合法（≤ 设计上限 16，且 ≤ demo 色板 ⇒ 不触发 B1）。
     const ten = simpleTestLevel({
       pattern: ['12345678', '9A234567', '89123456', '78912345', '67891234'],
       cols: 8,
     });
     expect(validateBeadsLevel(ten)).toEqual([]);
 
-    // §3.2 v1.55：上限 10→35 ⇒ 旧判「>10 拒收」作废；11 色本身合法，
-    // 但越出 demo 色板 ⇒ 必携品牌引用（见下方 B1 组）。
+    // 设计上限 16：11 色本身合法（≤16），但越出 demo 色板 ⇒ 必携品牌引用（见下方 B1 组）。
     const elevenNoRef = simpleTestLevel({ pattern: ELEVEN_COLOUR_PATTERN, cols: 6 });
     expect(hasError(validateBeadsLevel(elevenNoRef), 'BEAD_COLOR_MAX')).toBe(false);
+  });
+
+  it('已入关数据（uid 非空，含现池 4 个 3 色关）兼容旧下限 3；无身份草案收紧到 4', () => {
+    const threeColorPattern = ['123123', '123123', '123123', '123123', '123123'];
+    // 现池 4 个 3 色关（核对锚点）作为已入关数据，3 色照常通过。
+    for (const uid of LEGACY_THREE_COLOR_UIDS) {
+      expect(validateBeadsLevel(simpleTestLevel({ uid, pattern: threeColorPattern })), uid).toEqual([]);
+    }
+    // 其它已装配关（uid 非空，含测试夹具身份）同样兼容 3 色。
+    expect(validateBeadsLevel(simpleTestLevel({ uid: 'L99999', pattern: threeColorPattern }))).toEqual([]);
+    // 唯一收紧锚点：无身份的新建草案 uid='' 走新下限 4。
+    expect(hasError(validateBeadsLevel(simpleTestLevel({ uid: '', pattern: threeColorPattern })), 'colour count 3 < 4')).toBe(true);
   });
 
   // ⛔ 供料残余（E3 移交 / E5 清理）：`spawnInterval` 字段已随供料关停在

@@ -466,14 +466,14 @@ describe('EP12-S8 ④ 切肤渲染：下一帧生效零过渡 · 结构恒等 + 
 
 describe('EP12-S9 ⑤ levelDraft.skin：透传 · 结构校验 · 导入复验回落 · E2E', () => {
     function draftOf(over: Partial<LevelDraft> = {}): LevelDraft {
-        const lv = simpleTestLevel();
         return {
-            cols: lv.cols,
-            rows: lv.rows,
+            cols: 6,
+            rows: 5,
             time: null,
             decoys: [],
             swaps: [[0, 0, 0, 1]],
-            pattern: lv.pattern,
+            // 新建草案 uid='' ⇒ 收紧下限 4；夹具用 4 色盘（本批 3→4）。
+            pattern: ['123412', '123412', '123412', '123412', '123412'],
             ...over,
         };
     }

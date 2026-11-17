@@ -25,14 +25,17 @@ export const EMPTY_CHAR = '.';
 export const LOCKED_CHAR = 'x';
 
 /**
- * 色索引字符表（§3.2 v1.55）：`1-9` = 1–9、`A-Z` = 10–35，**只收大写**。
- * 35 = 单字符 rowstring（每格一字符，ADR-0004）形态的编码天花板。
- * ⚠️ 改这一行必须同步改 `tuning.ts` 的 `BEAD_COLOR_MAX` / `BEAD_CHARSET`，
- * 否则 X1 断言红。
+ * 色索引字符表：`1-9` = 1–9、`A-G` = 10–16，**只收大写**。
+ * ⚠️ 用户裁定把设计上限 `BEAD_COLOR_MAX` 从 35 收到 16 ⇒ 本表按 `slice(0,16)` 截断到
+ * `'123456789ABCDEFG'`（末位 `G`=16，索引 17 起 `charOfColor` 返 undefined）。
+ * 编码天花板仍是 35（`1-9`+`A-Z`，ADR-0004 单字符 rowstring 形态），但那只是**格式容量**，
+ * 不再是设计合法上限；`H`–`Z` 在编码上可表达、在 BOOT 校验里越 `BEAD_COLOR_MAX` 拒收。
+ * ⚠️ 改这一行必须同步游戏侧 `config/bead-charset.ts` 的 `COLOR_ALPHABET.slice(0, BEAD_COLOR_MAX)`，
+ * 否则 X1 断言（两侧逐字符比对）红。
  */
-export const BEAD_COLOR_CHARS = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+export const BEAD_COLOR_CHARS = '123456789ABCDEFG';
 
-/** 本表可表达的最大色索引 = 工具侧天花板（等价 `BEAD_COLOR_MAX`，由 X1 锁死）。 */
+/** 本表可表达的最大色索引 = 工具侧设计上限（= 16，等价 `BEAD_COLOR_MAX`，由 X1 锁死）。 */
 export const BEAD_COLOR_MAX = BEAD_COLOR_CHARS.length;
 
 /**

@@ -35,7 +35,8 @@ function draftOf(over: Partial<LevelDraft> = {}): LevelDraft {
         time: null,
         decoys: [],
         swaps: SWAPS.map((s) => [...s]) as unknown as LevelDraft['swaps'],
-        pattern: lv.pattern,
+        // 新建草案 uid='' ⇒ 收紧下限 4；夹具用 4 色盘（本批 3→4），SWAPS 的 (r,0)↔(r,1) 仍异色。
+        pattern: ['123412', '123412', '123412', '123412', '123412'],
         ...over,
     };
 }
@@ -84,8 +85,8 @@ describe('WXG-T-179 · level-import 转换与定价', () => {
     });
 
     it('草案带 misplaced（全错位初盘）⇒ 原样透传；引擎优先读它，不受 k≤8 约束', () => {
-        const pattern = ['123123', '123123', '123123', '123123', '123123'];
-        const misplaced = ['312312', '312312', '312312', '312312', '312312']; // 逐格错开、每色守恒
+        const pattern = ['123412', '123412', '123412', '123412', '123412'];
+        const misplaced = ['214321', '214321', '214321', '214321', '214321']; // 1↔2、3↔4 逐格错开，每色守恒（4 色）
         const r = draftToLevel(
             { cols: 6, rows: 5, time: null, pattern, swaps: [], misplaced } as unknown as LevelDraft,
             9100, '全错位',
@@ -95,7 +96,7 @@ describe('WXG-T-179 · level-import 转换与定价', () => {
         expect(r.level!.swaps.length).toBe(0);
     });
 
-    it('不合规草案（两色 < 3）⇒ 只回错误、不产关卡（不放宽 BOOT 口径）', () => {
+    it('不合规草案（两色 < 下限 4）⇒ 只回错误、不产关卡（不放宽 BOOT 口径）', () => {
         const bad = draftOf({ pattern: ['121212', '212121', '121212', '212121', '121212'] });
         const r = draftToLevel(bad, 9001, 'bad');
         expect(r.ok).toBe(false);

@@ -89,17 +89,18 @@ export function appendEntry(manifest, entry) {
 /**
  * 插到 `beforeUid` 的 order **之前**（其后全局 order 顺延 1）：
  * 入关插 boss 前时用——否则新 entry 的 order 比 boss 大，章内关号倒挂（boss #6 在后面，新关 #7/#8 在它前面）。
+ * ⚠️ 数组位置必须同步插到 target **之前**（2026-11-17 L00011 实测）：旧实现把新 entry 追加到数组末尾，
+ * 只有 order 对、数组序错 ⇒ `levels-dir-pipeline`「manifest.order 连续 1..N」红（entries[i].order ≠ i+1）。
  */
 export function insertEntryBefore(manifest, entry, beforeUid) {
-  const target = manifest.entries.find((e) => e.uid === beforeUid);
-  if (!target) throw new Error(`insertEntryBefore: ${beforeUid} 不在 manifest`);
+  const idx = manifest.entries.findIndex((e) => e.uid === beforeUid);
+  if (idx < 0) throw new Error(`insertEntryBefore: ${beforeUid} 不在 manifest`);
+  const target = manifest.entries[idx];
+  const shifted = manifest.entries.map((e) => (e.order >= target.order ? { ...e, order: e.order + 1 } : e));
   return {
     ...manifest,
     contentVersion: manifest.contentVersion + 1,
-    entries: [
-      ...manifest.entries.map((e) => (e.order >= target.order ? { ...e, order: e.order + 1 } : e)),
-      { ...entry, order: target.order },
-    ],
+    entries: [...shifted.slice(0, idx), { ...entry, order: target.order }, ...shifted.slice(idx)],
   };
 }
 

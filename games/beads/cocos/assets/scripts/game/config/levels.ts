@@ -39,6 +39,22 @@ import { PALETTES } from './palettes-data';
 
 export type { BeadsLevelRaw };
 
+/**
+ * 现池 3 色关的**文档锚点**（用户裁定「关卡色数下限 3→4」的配套）：这 4 关在抬下限前已入关
+ * 且只用 3 色（`pattern` 仅含 `1`/`2`/`3`），按「不拒收现池已入关数据」保留其 3 色合法性。
+ * 豁免判据采用任务单允许的形态「BOOT 只对新建关收紧」：凡**已带身份 token**（uid 非空 =
+ * 现池 / 已通过 `levels:sync` 入关的数据，含测试夹具）一律按旧下限 3 兼容；仅**无身份的新建
+ * 草案**（uid === ''，来自 `draftToLevel` / `importLevel`）收紧到新下限 4。防线闭合：Studio
+ * 导入通道对新草案自报用色已卡 <4 拒收（`server.mjs::importBlockers`），故不会产生新的 3 色关。
+ * ⚠️ 本常量是**核对锚点，不直接参与判据**（判据看 uid 是否为空）；列此供 QA / 真源核对现池哪
+ * 4 关是 3 色。豁免形态最终以文策渊在 `systems-index §3.2` 的定义为准，对齐后再收口。
+ */
+export const LEGACY_THREE_COLOR_UIDS: ReadonlySet<string> = Object.freeze(
+  new Set(['L00001', 'L00003', 'L00006', 'L00008']),
+);
+/** 关卡 `pattern` 实际用色数下限：新建草案 4；已入关数据（uid 非空）兼容旧下限 3。 */
+export const LEVEL_COLOR_MIN = 4;
+
 // 字符集映射的唯一真源在 `./bead-charset.ts`（§3.2 v1.55 / 判据 X1：全仓一份解码
 // 表，`entities/grid.ts` 与 `game/misplaced-assembler.ts` 同源 import）。
 // 本模块继续 re-export，既有调用方（含 tests）API 不变。
@@ -141,10 +157,12 @@ export function validateBeadsLevel(level: BeadsLevelRaw): string[] {
     errors.push(`${tag}: needs at least one fillable cell`);
   }
 
-  // Colour count ∈ [3, BEAD_COLOR_MAX] (levels-spec §2).
+  // Colour count ∈ [minColors, BEAD_COLOR_MAX]（levels-spec §2 / §3.2 本批裁定下限 3→4）。
+  // 「BOOT 只对新建关收紧」：uid 非空（已入关数据）兼容旧下限 3；uid === '' 的新建草案走 4。
   const colors = patternColors(level.pattern);
-  if (colors.length < 3) {
-    errors.push(`${tag}: pattern colour count ${colors.length} < 3`);
+  const minColors = level.uid ? 3 : LEVEL_COLOR_MIN;
+  if (colors.length < minColors) {
+    errors.push(`${tag}: pattern colour count ${colors.length} < ${minColors}`);
   }
   if (colors.length > BEAD_COLOR_MAX) {
     errors.push(`${tag}: pattern colour count ${colors.length} > BEAD_COLOR_MAX(${BEAD_COLOR_MAX})`);

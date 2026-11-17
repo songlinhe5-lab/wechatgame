@@ -46,11 +46,12 @@ function toolTable(): string {
 const ASCII = Array.from({ length: 128 }, (_, i) => String.fromCharCode(i));
 
 describe('X1 · 解码表单一真源（游戏侧 ↔ 工具侧）', () => {
-    it('§3.2 常量与展开表一致：BEAD_COLOR_MAX = 表长 = 35，charset 记法为 .x1-9A-Z', () => {
-        expect(BEAD_COLOR_MAX).toBe(35);
+    it('§3.2 常量与展开表一致：BEAD_COLOR_MAX = 表长 = 16（设计上限），charset 编码记法仍 .x1-9A-Z', () => {
+        expect(BEAD_COLOR_MAX).toBe(16);
         expect(BEAD_COLOR_CHARS.length).toBe(BEAD_COLOR_MAX);
+        // BEAD_CHARSET 是 regex 区间**编码**记法（编码天花板仍 35），不是设计合法上限。
         expect(BEAD_CHARSET).toBe('.x1-9A-Z');
-        expect(BEAD_COLOR_CHARS).toBe('123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+        expect(BEAD_COLOR_CHARS).toBe('123456789ABCDEFG');
     });
 
     it('游戏侧表与工具侧表逐字符一致（跨语言锁）', () => {
@@ -81,14 +82,17 @@ describe('X1 · 解码表单一真源（游戏侧 ↔ 工具侧）', () => {
 });
 
 describe('X1 · 三态语义与大小写契约（§3.2 v1.55 消歧硬规定）', () => {
-    it('`.`=null、`x`=null（锁定符），大写 `X`=索引 33 —— 解码器大小写敏感', () => {
+    it('`.`=null、`x`=null（锁定符）；大写仅 `A`–`G` 合法、越设计上限的 `H`–`Z` 非法', () => {
         expect(colorIndexOfChar('.')).toBeNull();
         expect(colorIndexOfChar('x')).toBeNull();
-        // 表位序：`1`–`9`=1..9，`A`=10 … `Z`=35 ⇒ `X` 是第 24 个字母 = 33（与 `charCodeAt-55` 同值）。
-        expect(colorIndexOfChar('X')).toBe(33);
+        // 设计上限 16 后表只到 `G`：编码天花板仍含 `A`–`Z`，但 `H`(17) 起越 BEAD_COLOR_MAX ⇒ undefined。
+        expect(colorIndexOfChar('G')).toBe(16);
+        expect(colorIndexOfChar('H')).toBeUndefined();
+        expect(colorIndexOfChar('X')).toBeUndefined();
         expect(charOfColor(10)).toBe('A');
-        expect(charOfColor(35)).toBe('Z');
-        // 小写 a–z 全部非法（`x` 除外，它是锁定符而不是「非法」，但绝不是色索引）
+        expect(charOfColor(16)).toBe('G');
+        expect(() => charOfColor(17)).toThrow();
+        // 大小写敏感：`x` 是锁定符（合法但无色），其余小写 a–z 全非法。
         for (let c = 97; c <= 122; c++) {
             const ch = String.fromCharCode(c);
             if (ch === 'x') {
@@ -120,7 +124,7 @@ describe('X1 · 三态语义与大小写契约（§3.2 v1.55 消歧硬规定）'
 
 describe('X1 · 消费方行为一致（原四份表 → 一份表）', () => {
     it('grid.ts / misplaced-assembler.ts / levels.patternColors 与 colorIndexOfChar 逐字符同值', () => {
-        // 覆盖 1..35 全域 + 锁定/空位，一次跑完三处曾经独立的实现。
+        // 覆盖 1..BEAD_COLOR_MAX(16) 全域 + 锁定/空位，一次跑完三处曾经独立的实现。
         const row = ASCII.filter((ch) => isBeadCharsetChar(ch) && colorIndexOfChar(ch) !== null).join('');
         expect(row.length).toBe(BEAD_COLOR_MAX);
 
@@ -148,38 +152,40 @@ describe('X1 · 消费方行为一致（原四份表 → 一份表）', () => {
     });
 });
 
-describe('X4 · 越界可构造性（诚实记录与提案设想的分歧）', () => {
-    /** rowstring「每格一字符」的编码容量：`1-9` + `A-Z` = 35（ADR-0004）。 */
+describe('X4 · 越界可构造性（设计上限 16 < 编码容量 35）', () => {
+    /** rowstring「每格一字符」的编码容量：`1-9` + `A-Z` = 35（ADR-0004），与设计上限无关。 */
     const ENCODING_CAPACITY = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'.length;
 
-    it('上限已顶到编码容量 ⇒「charset 内索引 > BEAD_COLOR_MAX」不可构造（正本 §5-X4 设想不成立）', () => {
-        expect(BEAD_COLOR_MAX).toBe(ENCODING_CAPACITY);
-        // ① 1..35 全部可编（编码侧无越界）。
+    it('设计上限 16 < 编码容量 35 ⇒ 索引 17–35 可构造但越 BEAD_COLOR_MAX 被拒', () => {
+        expect(BEAD_COLOR_MAX).toBeLessThan(ENCODING_CAPACITY);
+        // ① 1..16 全部可编可解（设计合法域）。
         for (let idx = 1; idx <= BEAD_COLOR_MAX; idx++) {
             expect(() => charOfColor(idx), `idx ${idx}`).not.toThrow();
         }
-        // ② 唯一的「>上限」出口是编码器本身：第 36 色**没有字符可写** ⇒ throw。
+        // ② 设计上限收紧的正面图景：17..35 在**编码字母表**里有字符（`H`..`Z`），
+        //    但解码表已截到 16 ⇒ 既非 isBeadCharsetChar，也解不出色索引；编码器亦 throw。
+        const alphabet = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        for (let idx = BEAD_COLOR_MAX + 1; idx <= ENCODING_CAPACITY; idx++) {
+            const ch = alphabet[idx - 1]!;
+            expect(isBeadCharsetChar(ch), `idx ${idx} ${ch}`).toBe(false);
+            expect(colorIndexOfChar(ch), `idx ${idx} ${ch}`).toBeUndefined();
+        }
+        expect(() => charOfColor(17)).toThrow();
         expect(() => charOfColor(BEAD_COLOR_MAX + 1)).toThrow();
-        // ③ charset 内也不存在「第 36 个字符」：0..127 里能解出**色索引**的恰为 35 枚
-        //（`.`/`x` 解出 null —— 合法但无色，不得计入）。
+        // ③ 0..127 里能解出色索引的恰为 16 枚。
         const decodable = ASCII.filter((ch) => typeof colorIndexOfChar(ch) === 'number');
         expect(decodable.length).toBe(BEAD_COLOR_MAX);
-        // ⇒ 提案 §5-X4 设想的「用 36 色验证 >上限拒收」在本编码形态下不可构造
-        //（与 v1.36 时 `A`=10 恰等上限同构）。真正的越界面移到两处：
-        //   · 非 charset 字符 / 小写 `b`–`z`（上方穷举已钉）；
-        //   · 「色索引 > demo 色板长度却无品牌引用」= B1，见 levels.test.ts。
+        // 越界面共三处：① H–Z 被设计上限拒（本例）；② 非 charset 字符 / 小写（X1 穷举）；
+        // ③ 色索引 > demo 色板却无品牌引用 = B1（levels.test.ts）。
     });
 
-    it('哨兵（自我复位判据）：§3.2 若降回 <35，越上限立刻重新可构造并被拒', () => {
-        if (BEAD_COLOR_MAX >= ENCODING_CAPACITY) {
-            // 顶满态：无可构造的越界样本，本行只钉住「顶满」这一事实本身；
-            // 一旦 §3.2 把上限调回 <35，条件转假 ⇒ 下面的硬断言立即生效。
-            expect(BEAD_COLOR_MAX).toBe(ENCODING_CAPACITY);
+    it('哨兵（自我复位判据）：§3.2 若把上限抬回编码容量，越界不可构造的旧态自动恢复', () => {
+        if (BEAD_COLOR_MAX < ENCODING_CAPACITY) {
+            // 现态（16 < 35）：越界样本可构造且被拒 —— 上面已硬断言，本分支只钉住「非顶满」事实。
+            expect(BEAD_COLOR_MAX).toBeLessThan(ENCODING_CAPACITY);
             return;
         }
-        const beyond = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'[BEAD_COLOR_MAX]!;
-        expect(isBeadCharsetChar(beyond)).toBe(false); // 格式上有字符、解码表拒收
-        expect(colorIndexOfChar(beyond)).toBeUndefined();
-        expect(() => charOfColor(BEAD_COLOR_MAX + 1)).toThrow();
+        // 若上限被抬到 35（顶满）：`charOfColor(36)` 因字母表耗尽而 throw，越界重新不可构造。
+        expect(() => charOfColor(ENCODING_CAPACITY + 1)).toThrow();
     });
 });
