@@ -13,6 +13,11 @@
  *        `notrim=1` = 关掉 beads-gen 的包围盒裁剪（空边保留为 void）⇒ 实际盘面 = 请求 cols×rows。
  *        关卡模式「按该关尺寸生成」用它：否则 13×12 请求会被裁成 11×8，替换回该关就改盘面尺寸。
  *   GET  /api/results         → 结果列表（按盘面分组、时间倒序）
+ *   POST /api/batch/generate  → **批量生成**：body `{ items:[{name?,w,h,data,thumb?}]≤10, params?, grid?, draft?, board? }`
+ *        `grid` = 参数网格 `{colors?:[], smooth?:[], colorsmode?:[], cellmode?:[], swaps?:[], mis?:[], premedian?:[]}`
+ *        （笛卡尔积 ≤6 组合，单批产物 ≤60 条）。默认 draft（进预览区）；202 回 `{batchId,total,combos}`。
+ *   GET  /api/batch/:id       → 批量进度 `{total,done,ok,error,finished,rows:[{name,combo,status,id?,error?}]}`
+ *        ⚠ 进度只在内存（服务重启即丢；产物已逐条落盘，不丢数据）
  *   GET  /api/results/:id     → 单个 result.json（小游戏在线导入用）
  *   GET  /api/previews        → **预览草稿**列表（data/_draft/<id>/draft.json 的轻投影，`draft:true`）
  *   GET  /api/previews/:id    → 单条预览全文（生成页「点行应用为当前」用；未入库故不入 /api/results）
@@ -71,6 +76,13 @@ const REPO = join(ROOT, '../..'); // workspace 根（本地跑）；容器内见
 /** EP12-S9：皮肤 id 白名单（同源 = `games/beads/src/config/skins/registry.ts` 注册表；
  *  首位 = 默认肤）。⛔ 改游戏侧注册表必须同步此行（本服务不编译 TS，见 handleGenerate 注）。 */
 const SKIN_IDS = ['warm-paper', 'cool-violet'];
+/**
+ * 单图硬顶 / Plate 切块阈值（= `games/beads/src/config/tuning/board.ts::GRID_MAX_COLS/ROWS`）。
+ * 本批用户裁定 GRID_MAX 32→64、玩法无组合图逻辑：单图到 64 不切，任一维 >64 才由
+ * `sliceBoard({gridMax: SINGLE_MAX})` 均分切块。⛔ 本服务不编译 TS，故此处镜像该常量；
+ * 改 `GRID_MAX_*` 必须同步此值 + `tools/scripts/level-slice.mjs` 的默认值与单测。
+ */
+const SINGLE_MAX = 64;
 const GEN = existsSync(join(REPO, 'tools/scripts/beads-gen.mjs'))
     ? join(REPO, 'tools/scripts/beads-gen.mjs')
     : join(ROOT, 'vendor/beads-gen.mjs'); // 容器：beads-gen 拷到 vendor/（见 Dockerfile）
@@ -198,8 +210,8 @@ function listResults() {
                 out.push({
                     id: r.id, board: r.board, cols: r.cols, rows: r.rows, shape: r.shape,
                     palette: r.palette, colors: r.colors, swaps: r.swaps, misMode: r.misMode || 'swaps', createdAt: r.createdAt,
-                    // 占槽：与 level-slice 同口径（每方向 ceil(n/32) 段），≤32 为 1
-                    slots: Math.max(1, Math.ceil(r.cols / 32)) * Math.max(1, Math.ceil(r.rows / 32)),
+                    // 占槽：与 level-slice 同口径（每方向 ceil(n/SINGLE_MAX) 段），≤SINGLE_MAX 为 1
+                    slots: Math.max(1, Math.ceil(r.cols / SINGLE_MAX)) * Math.max(1, Math.ceil(r.rows / SINGLE_MAX)),
                     // 判据实时重算（快照会因判据演进失效）；原因只带前 2 条，防列表膨胀
                     importable: blockers.length === 0,
                     blockers: blockers.slice(0, 2), blockerCount: blockers.length,
@@ -233,7 +245,7 @@ function listPreviews() {
                 id: d.id, board: d.board, cols: d.cols, rows: d.rows, shape: d.shape,
                 palette: d.palette, colors: d.colors, swaps: d.swaps, misMode: d.misMode || 'swaps',
                 createdAt: d.createdAt,
-                slots: Math.max(1, Math.ceil(d.cols / 32)) * Math.max(1, Math.ceil(d.rows / 32)),
+                slots: Math.max(1, Math.ceil(d.cols / SINGLE_MAX)) * Math.max(1, Math.ceil(d.rows / SINGLE_MAX)),
                 importable: d.importable !== false ? true : false,
                 hasThumb: !!d.thumb,
                 // 未入库预览也给同一套评估轻投影（生成页列表不展示草稿，但清理/管理接口可复用）
@@ -309,9 +321,10 @@ function misplacedCount(r) {
 
 /**
  * 「能不能入关」单一判据（值域全部来自 `systems-index §3` 冻结常量，不是 Studio 自定）：
- * 盘面 ≥ 6×5（下限来自 `GRID_MIN_*`，§3.3 v1.37）；≤**32** 为单图，任一维 >32 自动走
- * 组合图 Plate（均分切块，§3.3 v1.45 把切块阈值由 50 改为 32，见关卡内容管线 spec §0）。
- * 用色 3–**35**（`BEAD_COLOR_MAX`，§3.2 **v1.55** 由 10 抬到 35 = rowstring 单字符编码天花板）。
+ * 盘面 ≥ 6×5（下限来自 `GRID_MIN_*`，§3.3 v1.37）；≤**64** 为单图，任一维 >64 才走
+ * 组合图 Plate（均分切块 = `SINGLE_MAX`；本批用户裁定 GRID_MAX 32→64、单图硬顶不再切块）。
+ * 用色 **4–16**（新建关下限 3→4 本批收紧；`BEAD_COLOR_MAX` 35→16 = 设计上限，
+ * 35 仍是 rowstring 单字符编码天花板；现池 3 色关仅在游端 uid 白名单豁免，Studio 无豁免）。
  *  · 交换对数 1–8（`MISPLACED_PAIRS_MIN/MAX`）。
  *
  * 色板不限（v1.40 品牌引用制，2026-09-21 用户拍板）：关卡写回 `palette`（slug）+
@@ -337,8 +350,8 @@ function importBlockers(r, { allowOversize = false } = {}) {
             : (Array.isArray(r.levelDraft?.misplaced) ? misplacedCount(r) : null);
         if (M !== null && M < 1) b.push(`最大化错位档 M=${M} < 1 ⇒ 无错豆（游端 BOOT「错位 ≥1」必拒）`);
     }
-    if (r.colors < 3) b.push(`用色 ${r.colors} < 3（BOOT 下限）`);
-    if (r.colors > BEAD_COLOR_MAX) b.push(`用色 ${r.colors} > ${BEAD_COLOR_MAX}（\`BEAD_COLOR_MAX\`，§3.2 v1.55；rowstring 单字符编码天花板）`);
+    if (r.colors < 4) b.push(`用色 ${r.colors} < 4（BOOT 下限，本批 3→4；现池 3 色关不在 Studio 导入通道）`);
+    if (r.colors > BEAD_COLOR_MAX) b.push(`用色 ${r.colors} > ${BEAD_COLOR_MAX}（\`BEAD_COLOR_MAX\`，设计上限 16；35 为 rowstring 单字符编码天花板）`);
     // B1 的入关期镜像（正本 §5-B3）：pattern 最大色索引超 demo 色板 ⇒ 品牌引用从「可选」变「必携」。
     // 不补这一条，这种盘会先落进 design/levels 真源、再在游端 BOOT 被拒 = 内容源被写脏。
     const brandRef = Boolean(r.palette && r.palette !== '10') && Array.isArray(r.levelDraft?.paletteCodes);
@@ -346,12 +359,12 @@ function importBlockers(r, { allowOversize = false } = {}) {
         b.push(`用色 ${r.colors} > demo 色板 ${DEMO_PALETTE_LEN} ⇒ 必带品牌色板（\`palette\` + \`paletteCodes\`），否则游端 BOOT 拒收/越界索引静默兑炭黑`);
     if (r.cols < 6) b.push(`列数 ${r.cols} < 6（\`GRID_MIN_COLS\`）`);
     if (r.rows < 5) b.push(`行数 ${r.rows} < 5（\`GRID_MIN_ROWS\`）`);
-    // >32 不是 blocker：plate 入口本就接受超限母版并自动切块，故**不得**无条件 push（会误杀 ingest）。
-    // >32 仅 ingest 放行（已落码 plate 分支：sliceBoard 均分切块 + 逐格 bot 实测，管线 spec §0.2 v0.5）；
-    // 列表投影 / `/level` / 生成快照默认拦 >32。
-    // 否则小游戏 importLatest 会选中 >32 头 → validateBeadsLevel 失败且不回退下一条合法关（I1 回归）。
-    if (!allowOversize && (r.cols > 32 || r.rows > 32))
-        b.push(`盘 ${r.cols}×${r.rows} 超单图上限 32：此出口只出单图草案，>32 请走「一键入关」（自动切组合图 Plate）`);
+    // >SINGLE_MAX 不是 blocker：plate 入口本就接受超限母版并自动切块，故**不得**无条件 push（会误杀 ingest）。
+    // >SINGLE_MAX 仅 ingest 放行（已落码 plate 分支：sliceBoard 均分切块 + 逐格 bot 实测，管线 spec §0.2 v0.5）；
+    // 列表投影 / `/level` / 生成快照默认拦 >SINGLE_MAX。
+    // 否则小游戏 importLatest 会选中超限头 → validateBeadsLevel 失败且不回退下一条合法关（I1 回归）。
+    if (!allowOversize && (r.cols > SINGLE_MAX || r.rows > SINGLE_MAX))
+        b.push(`盘 ${r.cols}×${r.rows} 超单图上限 ${SINGLE_MAX}：此出口只出单图草案，>${SINGLE_MAX} 请走「一键入关」（自动切组合图 Plate）`);
     return b;
 }
 
@@ -720,13 +733,13 @@ async function planShape(id) {
         throw new ManageError(`${id} 草案缺 paletteCodes（旧记录请重新生成；v1.40 关卡存品牌色号而非 hex）`);
     const nameBase = `studio-${String(r.id).slice(-6)}`;
 
-    if (d.cols > 32 || d.rows > 32) {
+    if (d.cols > SINGLE_MAX || d.rows > SINGLE_MAX) {
         // P2b：切块后逐格重排错豆（spec §0.2）。不传 misplaced。
         const { sliceBoard } = await import('../../tools/scripts/level-slice.mjs');
         const { buildCellInitial } = await import('../../tools/scripts/level-derange.mjs');
 
-        // 1. 切块：只裁 pattern，不传 misplaced
-        const sliced = sliceBoard({ pattern: d.pattern, cols: d.cols, rows: d.rows, gridMax: 32 });
+        // 1. 切块：只裁 pattern，不传 misplaced（gridMax 走 level-slice 默认值 = SINGLE_MAX）
+        const sliced = sliceBoard({ pattern: d.pattern, cols: d.cols, rows: d.rows, gridMax: SINGLE_MAX });
 
         // 2. 逐阶构造初盘（reg ≤60% 优先 → 甲 / 甲max / 乙 / 丙）
         // 组合图每宫按 `levels-spec §3.1①` 的「整区域就位 ≤60%」构造（E1 实测：全错位宫 176–178
@@ -768,7 +781,7 @@ async function measureShape(shape, progress) {
         }
         return { ...shape, measured };
     }
-    // —— 单图关卡（≤32）：整板实测（time 只取真引擎值，§3.5 v1.41；测量在事务外）——
+    // —— 单图关卡（≤SINGLE_MAX）：整板实测（time 只取真引擎值，§3.5 v1.41；测量在事务外）——
     const measured = measureWithBot(shape.resultFile);
     if (!measured) throw new ManageError(`${shape.nameBase} beads-bot 实测失败：入关时长必须来自真引擎实测（公式 v0.2），拒用静态估算兑底`, 500);
     if (measured.blockers.length) throw new ManageError(`${shape.nameBase} 不可入关：${measured.blockers.join('；')}`);
@@ -1213,7 +1226,7 @@ async function handleDraftPublish(req, res, id) {
         );
     const lastPlan = plans[plans.length - 1];
     if (lastPlan.kind === 'plate')
-        throw new ManageError('草稿末位是组图（plate）：boss 须单文件盘 ⇒ 把一张 ≤32 的单图拖到末位');
+        throw new ManageError(`草稿末位是组图（plate）：boss 须单文件盘 ⇒ 把一张 ≤${SINGLE_MAX} 的单图拖到末位`);
     const totalSlots = plans.reduce((n, p) => n + p.slots, 0);
     const wallCap = readWallCapacity(readFileSync(MENU_TUNING_PATH, 'utf8'));
     if (totalSlots > wallCap)
@@ -1291,7 +1304,7 @@ async function handleDraftPublish(req, res, id) {
  * POST /api/manage/chapter —— 新建大关 + 首关 boss（从结果导入），**建章与首关原子同批**。
  * body {id, title, imageDataUrl, resultId}：id = 章 slug（`chapters/<id>.json`）；
  * imageDataUrl = 前端 canvas 缩到 256² 的 PNG（≤512KB，落 `assets/<id>-boss-256.png`）；
- * resultId = 可入关结果（须单图 ≤32 且过 beads-bot 实测，boss 时长口径同普通关）。
+ * resultId = 可入关结果（须单图 ≤SINGLE_MAX 且过 beads-bot 实测，boss 时长口径同普通关）。
  * showcase 固定 `bundle:themes` + `textureId: bitmap__<id>_boss`（未注册纹理时游端程序化回退）。
  */
 async function handleChapterCreate(req, res) {
@@ -1307,8 +1320,8 @@ async function handleChapterCreate(req, res) {
     const found = findResultFile(String(body.resultId ?? ''));
     if (!found) throw new ManageError('首关结果 id 不存在', 404);
     const { r, file: resultFile } = found;
-    if (r.cols > 32 || r.rows > 32)
-        throw new ManageError(`盘 ${r.cols}×${r.rows} 超单图上限 32：boss 须单文件盘（先切到 ≤32 再重生成）`);
+    if (r.cols > SINGLE_MAX || r.rows > SINGLE_MAX)
+        throw new ManageError(`盘 ${r.cols}×${r.rows} 超单图上限 ${SINGLE_MAX}：boss 须单文件盘（先切到 ≤${SINGLE_MAX} 再重生成）`);
     const blockers = importBlockers(r);
     if (blockers.length) throw new ManageError('该结果不可作首关 boss：' + blockers.join('；'));
     const d = r.levelDraft;
@@ -1572,8 +1585,8 @@ async function handleLevelReplace(req, res, uid) {
     const found = findResultFile(String(body.resultId ?? ''));
     if (!found) return sendJson(res, 404, { error: '替换用结果 id 不存在' });
     const { r, file: resultFile } = found;
-    if (r.cols > 32 || r.rows > 32)
-        return sendJson(res, 422, { error: `结果盘 ${r.cols}×${r.rows} 超单图上限 32：超 32 请走大关导入（plate 切片）` });
+    if (r.cols > SINGLE_MAX || r.rows > SINGLE_MAX)
+        return sendJson(res, 422, { error: `结果盘 ${r.cols}×${r.rows} 超单图上限 ${SINGLE_MAX}：超 ${SINGLE_MAX} 请走大关导入（plate 切片）` });
     const blockers = importBlockers(r);
     if (blockers.length) return sendJson(res, 422, { error: '该结果不可替换：' + blockers.join('；') });
     const d = r.levelDraft;
@@ -1835,45 +1848,10 @@ function handleTintVariantsClear(res) {
     return sendJson(res, 200, { removed });
 }
 
-async function handleGenerate(req, res, url) {
-    const q = url.searchParams;
+/** 生成参数解析——`/api/generate` 的 query 与 `/api/batch/generate` 的 params 共用同一口径。 */
+function readGenParams(q) {
     const cols = Math.min(107, Math.max(2, parseInt(q.get('cols') || '14', 10)));
     const rows = Math.min(107, Math.max(2, parseInt(q.get('rows') || '14', 10)));
-    // body = JSON { w, h, data: base64(RGBA), thumb? }（缩略图只存不管生成，供前端三视图回看）
-    let payload;
-    try {
-        payload = JSON.parse((await readBody(req)).toString('utf8'));
-    } catch (e) {
-        return sendJson(res, 400, { error: `body 需为 JSON {w,h,data:base64(RGBA)}：${e.message}` });
-    }
-    const w = Math.max(1, parseInt(payload.w || 0, 10));
-    const h = Math.max(1, parseInt(payload.h || 0, 10));
-    if (!w || !h || w * h > MAX_PIXELS) {
-        return sendJson(res, 400, { error: `w/h 缺失或超限（≤4096×4096）` });
-    }
-    const b64 = typeof payload.data === 'string' ? payload.data : '';
-    const rgba = Buffer.from(b64, 'base64');
-    if (rgba.length < w * h * 4) {
-        return sendJson(res, 400, { error: `data 解码后 ${rgba.length} 字节 < ${w}×${h}×4（需 RGBA base64）` });
-    }
-    const thumb = typeof payload.thumb === 'string' && payload.thumb.startsWith('data:image/') ? payload.thumb : null;
-    if (thumb && thumb.length > 300_000) {
-        return sendJson(res, 400, { error: `thumb 过大（${thumb.length} 字符，上限 300k）` });
-    }
-    const board = q.get('board') || `${cols}x${rows}`;
-    if (!ID_RE.test(board)) return sendJson(res, 400, { error: 'board 仅允许 [a-z0-9-]' });
-    const id = `${board}-${Date.now()}-${randomBytes(2).toString('hex')}`;
-    // draft=1 = 预览：写进 data/_draft/<id>/，不落 result.json ⇒ 既不进「已存结果」，
-    // 也不会出现在管理页「替换图案…」的选图器里；点「确认保存」才由 /api/drafts/commit 转正。
-    // ⚠ 每次预览用**独立目录、绝不删旧草稿**：工作区删除守卫按「本 turn 累计条目数」计数（阈值 500，K-163），
-    //   固定目录 + rmSync 会让常驻服务攒过线后永久报 SAFE_DELETE_BULK_CONFIRM_REQUIRED（2026-10-24 实测 502）。
-    const isDraft = q.get('draft') === '1';
-    const relOut = isDraft ? `_draft/${id}` : `${board}/${id}`;
-    const outDir = join(DATA, relOut);
-    mkdirSync(outDir, { recursive: true });
-    const rawPath = join(outDir, 'raw.json');
-    // 前端已按 cols×K × rows×K 平滑缩放到 w×h ⇒ 直接透传 base64，不再解码重编码
-    writeFileSync(rawPath, JSON.stringify({ w, h, data: b64 }));
     // ⚠ mis 白名单必须与 beads-gen 一致（full/max/swaps/none）——此前只认 swaps|full，
     //    把前端的 none 静默折叠成 full，导致「不错位」永远不生效（2026-09-21 实测）。
     //    §3.2 批2 加 `max`：漏这一条 = 前端选「最大化错位」又被折叠回 full，低色数图照旧拒产。
@@ -1905,6 +1883,19 @@ async function handleGenerate(req, res, url) {
     //    数组而非单值：同一份结果可能被替换进多个关（见 handleLevelReplace 的反向标记）。
     const levelUid = /^[LP]\d{1,9}$/.test(q.get('level') || '') ? q.get('level') : '';
     if (params.mis === 'swaps' && params.swaps < 1) params.swaps = 1; // 交换模式下 k≥1
+    return { cols, rows, params, skin, levelUid };
+}
+
+/** 生成一条结果并落盘——单张 `/api/generate` 与批量 `/api/batch/generate` 的唯一生成入口。
+ *  成功返回 result（草稿另写 draft.json，`draft:true` 标记由调用方加）。
+ *  失败抛错：beads-gen 拒产且已写 pattern.json ⇒ 保留证据目录并把路径写进 message。 */
+async function produceResult({ board, id, isDraft, w, h, b64, thumb, params, levelUid = '', skin = SKIN_IDS[0] }) {
+    const relOut = isDraft ? `_draft/${id}` : `${board}/${id}`;
+    const outDir = join(DATA, relOut);
+    mkdirSync(outDir, { recursive: true });
+    const rawPath = join(outDir, 'raw.json');
+    // 前端已按 cols×K × rows×K 平滑缩放到 w×h ⇒ 直接透传 base64，不再解码重编码
+    writeFileSync(rawPath, JSON.stringify({ w, h, data: b64 }));
     let pattern;
     try {
         pattern = await runGen(rawPath, outDir, params);
@@ -1914,12 +1905,14 @@ async function handleGenerate(req, res, url) {
         // 而 raw.json 是**重生同一盘的唯一输入**（改平滑/减色后拿同图对比）⇒ 一并保留，不省这点空间。
         // `data/` 已 gitignore。ponytail: 无 result.json ⇒ 列表不展示、API 不删，手动 `rm -rf data/<board>/<id>`
         if (existsSync(join(outDir, 'pattern.json'))) {
-            return sendJson(res, 422, { error: `${String(e.message || e)} ｜ 证据：data/${relOut}/（pattern.json + raw.json）` });
+            const err = new Error(`${String(e.message || e)} ｜ 证据：data/${relOut}/（pattern.json + raw.json）`);
+            err.evidence = relOut;
+            throw err;
         }
         // 预览目录每次独立且不删（删除会计入工作区守卫的 turn 累计数，见 handleGenerate 注）——
         // 空残骸最多占几 KB，清理由手动 rm 或后续清理脚本处理。
         if (!isDraft) rmSync(outDir, { recursive: true, force: true });
-        return sendJson(res, 422, { error: String(e.message || e) });
+        throw e;
     }
     // 盘面真实尺寸 = beads-gen 裁空边（trim）后的实际行列，而非请求档位（异形/去背景后更小，
     // 2026-09-21 实测：请求 21×21、trim 后 15×17 ⇒ 头不修正则前端按 21×21 画布画 15×17 直接错乱）。
@@ -1929,8 +1922,8 @@ async function handleGenerate(req, res, url) {
     const result = {
         id,
         board,
-        cols: pat[0]?.length || cols,
-        rows: pat.length || rows,
+        cols: pat[0]?.length || params.cols,
+        rows: pat.length || params.rows,
         shape: params.shape,
         palette: params.palette,
         colors: pattern.report?.colorsUsed ?? params.colors,
@@ -1952,15 +1945,192 @@ async function handleGenerate(req, res, url) {
     result.blockers = importBlockers(result);
     result.importable = result.blockers.length === 0;
     // 预览只写 draft.json（含与正式记录同一份 result 快照）⇒ 确认时原样搬成 result.json，不再重算
-    if (isDraft) {
-        writeFileSync(join(outDir, 'draft.json'), JSON.stringify(result, null, 2));
-        return sendJson(res, 200, { ...result, draft: true });
+    writeFileSync(join(outDir, isDraft ? 'draft.json' : 'result.json'), JSON.stringify(result, null, 2));
+    return result;
+}
+
+// ──────────────────────────────────────────────────────────────
+// 批量生成（B1）：N 张图 × 参数网格，限并发，进度可查。
+// 取舍（ponytail）：进度只放内存——dev 工具，重启即丢；产物本身已逐条落盘，不会丢数据。
+// ──────────────────────────────────────────────────────────────
+const BATCH_MAX_IMAGES = 10;   // 单请求图片数上限（内存里同时持有 base64）
+const BATCH_MAX_COMBOS = 6;    // 参数网格组合数上限
+const BATCH_MAX_TOTAL = 60;    // 单批产物总条数上限
+const BATCH_CONCURRENCY = 2;   // beads-gen 子进程并发（限 CPU 打满）
+const BATCH_GRID_KEYS = ['colors', 'smooth', 'colorsmode', 'cellmode', 'swaps', 'mis', 'premedian'];
+/** 内存中的批次表：batchId → job。 */
+const batches = new Map();
+
+function expandCombos(base, grid) {
+    let out = [base];
+    for (const k of BATCH_GRID_KEYS) {
+        const vals = Array.isArray(grid?.[k]) ? grid[k] : [];
+        if (!vals.length) continue;
+        const next = [];
+        for (const c of out) for (const v of vals) next.push({ ...c, [k]: v });
+        out = next;
     }
-    writeFileSync(join(outDir, 'result.json'), JSON.stringify(result, null, 2));
-    // 诊断期保留 raw（源图像素底稿）：thumb 是缩略图会掩盖压缩伪影，
-    // 需要 raw 才能定位「同图不同结果」类问题（2026-09-21 树冠块状偏色）。
-    // ponytail: 诊断后若嫌体积可改回 rmSync(rawPath, { force: true })
-    sendJson(res, 200, result);
+    return out;
+}
+
+/** 普通对象 → URLSearchParams（布尔转 1/0），让批量参数走与单张完全同源的解析。 */
+function paramsToQuery(src) {
+    const q = new URLSearchParams();
+    for (const [k, v] of Object.entries(src || {})) {
+        if (v === undefined || v === null) continue;
+        q.set(k, typeof v === 'boolean' ? (v ? '1' : '0') : String(v));
+    }
+    return q;
+}
+
+async function runBatch(job, prepared, combos, { isDraft, board }) {
+    let cursor = 0;
+    const worker = async () => {
+        for (;;) {
+            const n = cursor++;
+            if (n >= job.rows.length) return;
+            const row = job.rows[n];
+            const img = prepared[Math.floor(n / combos.length)];
+            const combo = combos[n % combos.length];
+            row.status = 'running';
+            row.startedAt = new Date().toISOString();
+            try {
+                const idBoard = board || `${combo.params.cols}x${combo.params.rows}`;
+                const id = `${idBoard}-${Date.now()}-${randomBytes(3).toString('hex')}`;
+                const result = await produceResult({
+                    board: idBoard, id, isDraft,
+                    w: img.w, h: img.h, b64: img.b64, thumb: img.thumb,
+                    params: combo.params, skin: combo.skin,
+                });
+                row.status = 'ok';
+                row.id = result.id;
+                row.cols = result.cols;
+                row.rows = result.rows;
+                row.colors = result.colors;
+                row.importable = result.importable;
+                row.blockers = result.blockers.slice(0, 2);
+                job.ok++;
+            } catch (e) {
+                row.status = 'error';
+                row.error = String(e.message || e);
+                job.error++;
+            } finally {
+                job.done++;
+            }
+        }
+    };
+    await Promise.all(Array.from({ length: BATCH_CONCURRENCY }, worker));
+    job.finishedAt = new Date().toISOString();
+}
+
+async function handleBatchGenerate(req, res) {
+    let body;
+    try {
+        body = JSON.parse((await readBody(req)).toString('utf8'));
+    } catch (e) {
+        return sendJson(res, 400, { error: `body 需为 JSON { items:[{w,h,data,thumb?}], params?, grid? }：${e.message}` });
+    }
+    const items = Array.isArray(body.items) ? body.items : [];
+    if (!items.length) return sendJson(res, 400, { error: 'items 为空（需 [{name?,w,h,data,thumb?}]）' });
+    if (items.length > BATCH_MAX_IMAGES) return sendJson(res, 400, { error: `items 上限 ${BATCH_MAX_IMAGES}（请拆多批）` });
+    // 逐项先校验：不做「半批已启动才发现坏项」
+    const prepared = [];
+    for (let i = 0; i < items.length; i++) {
+        const it = items[i] || {};
+        const w = Math.max(1, parseInt(it.w || 0, 10));
+        const h = Math.max(1, parseInt(it.h || 0, 10));
+        if (!w || !h || w * h > MAX_PIXELS) return sendJson(res, 400, { error: `items[${i}] w/h 缺失或超限（≤4096×4096）` });
+        const b64 = typeof it.data === 'string' ? it.data : '';
+        if (Buffer.byteLength(b64, 'base64') < w * h * 4) {
+            return sendJson(res, 400, { error: `items[${i}] data 解码后不足 ${w}×${h}×4 字节（需 RGBA base64）` });
+        }
+        const thumb = typeof it.thumb === 'string' && it.thumb.startsWith('data:image/') && it.thumb.length <= 300_000 ? it.thumb : null;
+        prepared.push({ name: String(it.name || `img${i + 1}`).slice(0, 60), w, h, b64, thumb });
+    }
+    const board = body.board ? String(body.board) : '';
+    if (board && !ID_RE.test(board)) return sendJson(res, 400, { error: 'board 仅允许 [a-z0-9-]' });
+    const baseRaw = { ...(body.params || {}) };
+    const combosRaw = expandCombos(baseRaw, body.grid);
+    if (combosRaw.length > BATCH_MAX_COMBOS) {
+        return sendJson(res, 400, { error: `参数网格 ${combosRaw.length} 组合 > 上限 ${BATCH_MAX_COMBOS}` });
+    }
+    const total = prepared.length * combosRaw.length;
+    if (total > BATCH_MAX_TOTAL) return sendJson(res, 400, { error: `本批 ${total} 条 > 上限 ${BATCH_MAX_TOTAL}（请拆批）` });
+    // 参数口径与单张同源：网格项 → URLSearchParams → readGenParams
+    const combos = combosRaw.map((c) => {
+        const { params, skin } = readGenParams(paramsToQuery(c));
+        return { params, skin, label: Object.fromEntries(BATCH_GRID_KEYS.filter((k) => c[k] !== undefined).map((k) => [k, c[k]])) };
+    });
+    const isDraft = body.draft !== false; // 默认进草稿区（与生成页预览同口径）
+    const batchId = `b${Date.now().toString(36)}-${randomBytes(2).toString('hex')}`;
+    const rowsState = [];
+    for (let i = 0; i < prepared.length; i++) {
+        for (let c = 0; c < combos.length; c++) {
+            rowsState.push({ index: rowsState.length, name: prepared[i].name, combo: combos[c].label, status: 'pending' });
+        }
+    }
+    const job = {
+        id: batchId, total, done: 0, ok: 0, error: 0, draft: isDraft,
+        createdAt: new Date().toISOString(), finishedAt: null, rows: rowsState,
+    };
+    batches.set(batchId, job);
+    // 后台跑，立即回 202；前端轮询 GET /api/batch/:id
+    runBatch(job, prepared, combos, { isDraft, board }).catch(() => {});
+    return sendJson(res, 202, { batchId, total, combos: combos.length, draft: isDraft });
+}
+
+function handleBatchStatus(res, batchId) {
+    const job = batches.get(batchId);
+    if (!job) return sendJson(res, 404, { error: 'batch 不存在或服务已重启（进度只在内存，产物已逐条落盘）' });
+    return sendJson(res, 200, {
+        batchId: job.id, total: job.total, done: job.done, ok: job.ok, error: job.error,
+        draft: job.draft, createdAt: job.createdAt, finishedAt: job.finishedAt,
+        finished: !!job.finishedAt,
+        // 行级明细：name / combo / status / id / error / 轻指标（不含 pattern，避免响应膨胀）
+        rows: job.rows,
+    });
+}
+
+async function handleGenerate(req, res, url) {
+    const q = url.searchParams;
+    const { cols, rows, params, skin, levelUid } = readGenParams(q);
+    // body = JSON { w, h, data: base64(RGBA), thumb? }（缩略图只存不管生成，供前端三视图回看）
+    let payload;
+    try {
+        payload = JSON.parse((await readBody(req)).toString('utf8'));
+    } catch (e) {
+        return sendJson(res, 400, { error: `body 需为 JSON {w,h,data:base64(RGBA)}：${e.message}` });
+    }
+    const w = Math.max(1, parseInt(payload.w || 0, 10));
+    const h = Math.max(1, parseInt(payload.h || 0, 10));
+    if (!w || !h || w * h > MAX_PIXELS) {
+        return sendJson(res, 400, { error: `w/h 缺失或超限（≤4096×4096）` });
+    }
+    const b64 = typeof payload.data === 'string' ? payload.data : '';
+    const rgba = Buffer.from(b64, 'base64');
+    if (rgba.length < w * h * 4) {
+        return sendJson(res, 400, { error: `data 解码后 ${rgba.length} 字节 < ${w}×${h}×4（需 RGBA base64）` });
+    }
+    const thumb = typeof payload.thumb === 'string' && payload.thumb.startsWith('data:image/') ? payload.thumb : null;
+    if (thumb && thumb.length > 300_000) {
+        return sendJson(res, 400, { error: `thumb 过大（${thumb.length} 字符，上限 300k）` });
+    }
+    const board = q.get('board') || `${cols}x${rows}`;
+    if (!ID_RE.test(board)) return sendJson(res, 400, { error: 'board 仅允许 [a-z0-9-]' });
+    const id = `${board}-${Date.now()}-${randomBytes(2).toString('hex')}`;
+    // draft=1 = 预览：写进 data/_draft/<id>/，不落 result.json ⇒ 既不进「已存结果」，
+    // 也不会出现在管理页「替换图案…」的选图器里；点「确认保存」才由 /api/drafts/commit 转正。
+    // ⚠ 每次预览用**独立目录、绝不删旧草稿**：工作区删除守卫按「本 turn 累计条目数」计数（阈值 500，K-163），
+    //   固定目录 + rmSync 会让常驻服务攒过线后永久报 SAFE_DELETE_BULK_CONFIRM_REQUIRED（2026-10-24 实测 502）。
+    const isDraft = q.get('draft') === '1';
+    // 生成本体（写 raw → runGen → 落盘）统一走 produceResult；单张/批量同源，避免两套结果装配漂移。
+    try {
+        const result = await produceResult({ board, id, isDraft, w, h, b64, thumb, params, levelUid, skin });
+        // 预览只写 draft.json（含与正式记录同一份 result 快照）⇒ 确认时原样搬成 result.json，不再重算
+        sendJson(res, 200, isDraft ? { ...result, draft: true } : result);
+    } catch (e) {
+        return sendJson(res, 422, { error: String(e.message || e) });
+    }
 }
 
 async function handle(req, res) {
@@ -1969,6 +2139,10 @@ async function handle(req, res) {
     try {
         if (req.method === 'OPTIONS') return send(res, 204, '');
         if (req.method === 'POST' && path === '/api/generate') return await handleGenerate(req, res, url);
+        // 批量生成（B1）：N 张图 × 参数网格；202 立即回 batchId，进度走 GET /api/batch/:id
+        if (req.method === 'POST' && path === '/api/batch/generate') return await handleBatchGenerate(req, res);
+        const mbatch = path.match(/^\/api\/batch\/(b[a-z0-9-]{1,40})$/);
+        if (req.method === 'GET' && mbatch) return handleBatchStatus(res, mbatch[1]);
         // 预览 → 确认入库（生成页「确认保存这条结果」）
         if (req.method === 'POST' && path === '/api/drafts/commit') return await handleDraftCommit(req, res);
         // [WXG-T-221] 当前关预烘导出（仅本地仓，两 handler 内各自守 501）。

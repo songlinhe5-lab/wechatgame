@@ -15,6 +15,21 @@
 
 ---
 
+## WXG-T-976
+
+**工程·Studio 批量生成 API（B1）+ 生成效率盘点规划** · 负责：主理人(Trae CN) · 状态：✅ 完成（2026-11-17）
+
+- **用户原话**：「请优化studio能力，提升生成资源效率，请规划修改方向和任务」→ 选项拍板「B1 批量 API 起步（推荐）」。
+- **实测盘点（先量后改）**：单次生成 **0.10 / 0.11 / 0.13 s**（1024² 原图 → 29×29 盘，`beads-gen --in-raw` 三次实测）⇒ 计算不是瓶颈；`apps/beads-studio/data/16x16/` 已积 **120 条**结果 = 人工逐张试参痕迹；`palette-quantize.mjs`（hue-aware Median Cut + 门 B/C + hue guard）在 `apps/` 下**零引用** ⇒ 选色双实现分叉；无批量 / 无参数搜优；每次生成 spawn 子进程。
+- **规划（用户已阅）**：A 选色真源统一（抽 `lib/palette-rules.mjs`、beads-gen 加 `--quantizer median-hue` 默认不变）→ B1 批量 API → B2 auto-tune（参数网格 Top3 推荐）→ B3 批量汇总页 → C 资产批导 / 参数预设 / 同图对比 → D 进程内化（YAGNI，暂不做）。
+- **本笔交付（B1）**：
+  - `POST /api/batch/generate`：`{items:[{name?,w,h,data,thumb?}] ≤10, params?, grid?, draft?, board?}`；`grid` 覆盖 `colors/smooth/colorsmode/cellmode/swaps/mis/premedian`，笛卡尔积 ≤6 组合、单批 ≤60 条；**202** 立即回 `{batchId,total,combos}`，服务端限并发 2 后台跑。
+  - `GET /api/batch/:id`：`{total,done,ok,error,finished,rows:[{name,combo,status,id?,cols?,rows?,colors?,importable?,blockers?,error?}]}`；进度只在内存（dev 工具，重启即丢；产物已逐条落盘）。
+  - 重构：抽 `readGenParams(q)`（单张 query 与批量 params 同源解析）与 `produceResult(...)`（写 raw → runGen → 结果装配 → 落盘），单张 `/api/generate` 改为薄封装；失败证据目录语义原样保留。
+- **验证**：2 图 × grid{colors:[3,5]} 首轮 4/4 全 err（测试图在 `--notrim` 下整盘单色，beads-gen 自检正确拒产，错误逐条回传）→ 换 4 色象限图 4/4 **ok**、16×16 尺寸保持、`/api/previews/:id` 可读、`importable=false` 附 blocker（用色 3 < BOOT 下限 4）；单张 `/api/generate?draft=1` 回归 200。测试草稿已清理（可从废纸篓恢复）。
+- **已知边界（`ponytail:`）**：批内图片 base64 全量驻内存（≤10 张，受 `MAX_BODY` ≈100MB 兜底）；无取消接口；无批次历史（B3 再做）；`combos` 标签只展示网格键。
+- **知识沉淀**：kb:sync 沉淀统计 新增 0 / 修改 0 / 激活 0 / 归档 0。
+
 ## WXG-T-975
 
 **工程·珠面难度等级与三星时间门槛评估工具** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-17）
