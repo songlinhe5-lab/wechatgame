@@ -40,6 +40,7 @@ const MAX_COLORS = 35;          // 关卡颜色上限
 const QUALITY_HUE_SECTORS = 8;  // 分布质量：色相扇区
 const QUALITY_MIN_SECTOR_COVERAGE = (n) => Math.ceil(n / 2);
 const QUALITY_LUMA_SPAN_MIN = 40;  // 分布质量：明度跨度
+const QUALITY_MIN_BAND = 15;       // 补色硬门槛：新选色与已选集最小 bandΔE ≥ 15（软约束升级为硬门，耗尽降级）
 
 // ──────────────────────────────────────────────────────────────
 // CLI 参数
@@ -486,10 +487,11 @@ async function run(args) {
     if (cRejected.length) console.log(`⛔ 门 C 拦截（近似族互斥）: ${cRejected.map(m => `${m.code} ${m.hex}`).join(', ')}`);
 
     // 8. 补色：如果门 C 过滤后不够，从剩余品牌色板挑分布质量最优的
-    // ponytail: 加 hue guard（输入色相较集中时补色限 ±90°，避免硬拉异色相破坏还原度）
+    // ponytail: 加 hue guard（输入色相较集中时补色限 ±90°）+ minBandΔE ≥ 15 硬门槛
     let selected = passC;
+    let bandHardGate = true;  // minBandΔE ≥ 15 硬门开（耗尽降级）
     if (selected.length < args.colors) {
-        console.log(`\n🔄 门 C 过滤后仅 ${selected.length} 色，补色至 ${Math.min(args.colors, args.maxColors)} 色（分布质量优先${hueGuardActive ? ' + hue guard ±90°' : ''}）`);
+        console.log(`\n🔄 门 C 过滤后仅 ${selected.length} 色，补色至 ${Math.min(args.colors, args.maxColors)} 色（分布质量优先${hueGuardActive ? ' + hue guard ±90°' : ''}${bandHardGate ? ' + minBandΔE ≥ 15' : ''}）`);
         const target = Math.min(args.colors, args.maxColors);
         while (selected.length < target) {
             // 候选 hue guard：集中图时，候选色 hue 与已选集均值 hue 环形差 ≤ 90°
@@ -512,18 +514,23 @@ async function run(args) {
                     const candidateHue = hslOf(h);
                     if (wrapHue(candidateHue, selMeanHue) > 90) continue;
                 }
-                const temp = [...selectedHexes, h];
-                const q = distributionQuality(temp);
+                // minBandΔE 硬门槛（新选色与已选集最小 bandΔE ≥ 15，耗尽降级）
                 let minBandToSel = Infinity;
                 for (const s of selectedHexes) minBandToSel = Math.min(minBandToSel, bandDelta(s, h));
+                if (bandHardGate && minBandToSel < QUALITY_MIN_BAND) continue;
+                const temp = [...selectedHexes, h];
+                const q = distributionQuality(temp);
                 const score = q.score * 100 + minBandToSel;
                 if (score > bestScore) { bestScore = score; best = { hex: h, code: palette.codes?.[i] || '', index: i }; }
             }
             if (!best) {
                 if (hueGuardActive) {
-                    // hue guard 内没候选了 → 降级：尝试无 guard 补色
                     console.log(`   ℹ️ hue guard 内候选耗尽，降级为无 guard 补色`);
                     hueGuardActive = false; continue;
+                }
+                if (bandHardGate) {
+                    console.log(`   ℹ️ minBandΔE ≥ ${QUALITY_MIN_BAND} 硬门槛耗尽，降级为软门槛补色`);
+                    bandHardGate = false; continue;
                 }
                 break;
             }
