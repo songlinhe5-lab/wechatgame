@@ -95,6 +95,8 @@
         .lv:last-child { border-bottom: 0; }
         .lv.boss { background: #fdf6e8; border-radius: 6px; }
         .lv .uid { font-family: ui-monospace, monospace; font-size: 12px; color: #666; }
+        .lv .src { font-size: 11px; color: #b4552d; text-decoration: none; border-bottom: 1px dashed currentColor; white-space: nowrap; }
+        .lv .src:hover { color: #8c3f20; }
         .lv .id { font-weight: 600; min-width: 34px; }
         .lv small { color: #6b6b6b; }
         .lv .ops { margin-left: auto; display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
@@ -505,6 +507,8 @@
                 drafts = dr.drafts || [];
                 render();
                 syncDraftUi();
+                // 关卡行「来源」链接兜底：直接访问 ?result=<id>&view=1 也打开只读卡片
+                if (preselect && new URLSearchParams(location.search).get('view') === '1') showSourceResult(preselect);
             } catch (e) {
                 showErr('加载失败：' + e.message);
             }
@@ -553,7 +557,7 @@
         // ── 选图器：缩略图网格（img 走 loading="lazy"，只有可视区才拉 /api/results/:id/thumb）──
         //    默认单选（替换图案/选 boss）；opts.multiple 时多选，确认返回**勾选顺序**的 id 数组。
         //    opts.slotsLeft（仅多选）：目标章剩余槽数，卡片标占槽数、已选合计超限时禁确认。
-        let pkResolve = null, pkFilter = () => true, pkValue = '', pkMulti = false, pkPicked = [], pkSlotsLeft = Infinity;
+        let pkResolve = null, pkFilter = () => true, pkValue = '', pkMulti = false, pkPicked = [], pkSlotsLeft = Infinity, pkView = false;
 
         function pickResult(title, filter, opts = {}) {
             return new Promise((resolve) => {
@@ -561,6 +565,7 @@
                 pkFilter = filter || (() => true);
                 pkValue = '';
                 pkMulti = !!opts.multiple;
+                pkView = !!opts.view; // 只读查看来源：确认键变「关闭」，不返回任何选择
                 pkPicked = [];
                 pkSlotsLeft = opts.slotsLeft ?? Infinity;
                 $('pk-title').textContent = title;
@@ -570,6 +575,7 @@
                 $('pk-okonly-wrap').hidden = !pkMulti;
                 $('pk-okonly').checked = true;
                 $('pk-ok').disabled = true;
+                $('pk-ok').textContent = pkView ? '关闭' : '确认';
                 $('pk-pick').textContent = '未选择';
                 renderPicker();
                 $('picker').hidden = false;
@@ -577,6 +583,12 @@
                 // 从生成页带来的 ?result= 自动预选（仅当它仍在当前候选里）
                 const hit = preselect && [...$('pk-grid').children].find((c) => c.dataset.id === preselect);
                 if (hit) hit.click();
+                if (pkView) {
+                    // 行内点「来源」时没有 ?result= ⇒ 过滤后只剩一张，自动点亮它
+                    if (!hit && $('pk-grid').children.length === 1) $('pk-grid').children[0].click();
+                    $('pk-ok').disabled = false;
+                    $('pk-pick').textContent = '只读查看来源结果';
+                }
             });
         }
 
@@ -650,12 +662,21 @@
         $('pk-small').onchange = renderPicker;
         $('pk-okonly').onchange = renderPicker;
         $('pk-ok').onclick = () => {
+            if (pkView) { closePicker(null); return; }
             if (pkMulti) { if (pkPicked.length) closePicker([...pkPicked]); }
             else if (pkValue) closePicker(pkValue);
         };
         $('pk-close').onclick = () => closePicker(null);
         $('picker').onclick = (e) => { if (e.target === $('picker')) closePicker(null); };
         addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('picker').hidden) closePicker(null); });
+
+        /** 关卡行「来源」：只读打开来源结果卡片（缩略图/参数/已入章徽章），不提供替换动作。 */
+        function showSourceResult(id) {
+            if (!results.some((r) => r.id === id)) {
+                return showErr(`来源结果 ${id} 不在 data 池（可能已删除；关卡侧 ingested 记录仍在）`);
+            }
+            pickResult(`来源结果 ${id}（只读）`, (r) => r.id === id, { view: true });
+        }
 
         // ── 章内小关：拖拽调序 + 点行去生成页编辑（WXG-T-373）──
         //    拖拽只在本章内改序（跨章走「移章…」下拉，误拖会让关卡跳到别的章）；
@@ -766,6 +787,16 @@
                         `<span>${esc(lv.name || '(未命名)')}</span>` +
                         `<small>${esc(lv.kind)} · ${lv.cols}×${lv.rows}${ev ? ' · ' + esc(ev) : ''} · ${lv.slots} 槽</small>`;
                     if (lv.paint) row.prepend(paintThumb(lv.paint)); // 当前图案缩略图（plate 无 pattern ⇒ 不画）
+                    // 来源结果（ingested.levelUid 反查）：只读打开对应结果卡片，形成关卡 ⇄ 结果双向追溯
+                    if (lv.source) {
+                        const a = document.createElement('a');
+                        a.className = 'src';
+                        a.href = `/?result=${encodeURIComponent(lv.source.id)}&view=1`;
+                        a.textContent = `来源 ${lv.source.id}${lv.source.draft ? '（预览）' : ''}`;
+                        a.title = '打开来源结果（只读；来自 ingested.levelUid 反查）';
+                        a.onclick = (ev) => { ev.preventDefault(); ev.stopPropagation(); showSourceResult(lv.source.id); };
+                        row.appendChild(a);
+                    }
 
                     const ops = document.createElement('div');
                     ops.className = 'ops';

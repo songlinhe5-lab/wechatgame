@@ -642,7 +642,38 @@ function levelEval(obj, kind, levelTimeMax) {
     };
 }
 
-function describeChapters(levelsDir, store, ls, levelTimeMax) {
+/** levelUid → {id, draft}：反查结果/草稿的 `ingested.levelUid`（关卡行「来源」链接用）。
+ *  已保存结果优先于预览草稿；扫描 ~400 个小 JSON，本地状态页可接受。 */
+function levelSourceMap() {
+    const out = new Map();
+    const scan = (file, draft) => {
+        try {
+            const r = JSON.parse(readFileSync(file, 'utf8'));
+            const uid = r.ingested?.levelUid;
+            if (uid && r.id && !out.has(uid)) out.set(uid, { id: r.id, draft });
+        } catch { /* 跳过损坏件 */ }
+    };
+    if (!existsSync(DATA)) return out;
+    for (const board of readdirSync(DATA)) {
+        if (board === '_draft' || board === '_logs') continue;
+        const dir = join(DATA, board);
+        if (!statSync(dir).isDirectory()) continue;
+        for (const id of readdirSync(dir)) {
+            const f = join(dir, id, 'result.json');
+            if (existsSync(f)) scan(f, false);
+        }
+    }
+    const draftDir = join(DATA, '_draft');
+    if (existsSync(draftDir)) {
+        for (const id of readdirSync(draftDir)) {
+            const f = join(draftDir, id, 'draft.json');
+            if (existsSync(f)) scan(f, true);
+        }
+    }
+    return out;
+}
+
+function describeChapters(levelsDir, store, ls, levelTimeMax, sources = new Map()) {
     const manifest = ls.readManifest(levelsDir);
     const chapters = [...(manifest.chapters ?? [])].sort((a, b) => a.order - b.order);
     const docs = store.loadChapterMap(levelsDir, manifest);
@@ -656,7 +687,7 @@ function describeChapters(levelsDir, store, ls, levelTimeMax) {
             const obj = JSON.parse(readFileSync(join(levelsDir, e.file), 'utf8'));
             const ex = expanded.get(uid);
             const evalInfo = levelEval(obj, e.kind, levelTimeMax);
-            const base = { uid, kind: e.kind, file: e.file, slots: ex?.slots ?? 1, name: obj.name ?? '', eval: evalInfo };
+            const base = { uid, kind: e.kind, file: e.file, slots: ex?.slots ?? 1, name: obj.name ?? '', eval: evalInfo, source: sources.get(uid) ?? null };
             if (e.kind === 'plate')
                 return { ...base, id: ex?.ids?.[0], idEnd: ex?.ids?.[(ex?.ids?.length ?? 1) - 1], cols: obj.gridCols, rows: obj.gridRows };
             return { ...base, id: obj.id, cols: obj.cols, rows: obj.rows, time: obj.time, paint: paintOf(obj) };
@@ -691,7 +722,7 @@ async function handleManageState(res) {
         wallCapacity: readWallCapacity(menuTuning),
         chapterBudgets: store.CHAPTER_TIME_BUDGET,
         levelTimeMax,
-        chapters: describeChapters(LEVELS_DIR, store, ls, levelTimeMax),
+        chapters: describeChapters(LEVELS_DIR, store, ls, levelTimeMax, levelSourceMap()),
     });
 }
 
@@ -933,7 +964,7 @@ function commitIngest(ctx, ls, plan, chapterId, { append = false } = {}) {
         }));
         store.writeChapter(levelsDir, ch.file, { ...doc, levels: placeUid(store, doc, plateUid, append) });
         const manifest = placeEntry(ls, ctx.manifest, doc, { uid: plateUid, kind: 'plate', file: plateFile, pack: 'main' }, append);
-        return { manifest, log: `已入关 ${plateUid}（plate ${finalCells.length} 格 → 大关 ${chapterId} boss 前；tier ${JSON.stringify(plan.tierCounts)}）` };
+        return { manifest, log: `已入关 ${plateUid}（plate ${finalCells.length} 格 → 大关 ${chapterId} boss 前；tier ${JSON.stringify(plan.tierCounts)}）`, uid: plateUid };
     }
     const { ch, doc } = chapterForInsert(store, levelsDir, ctx.manifest, chapterId, 1);
     const uid = ls.assignUid('single', ls.existingUids(ctx.manifest));
@@ -953,7 +984,7 @@ function commitIngest(ctx, ls, plan, chapterId, { append = false } = {}) {
     });
     store.writeChapter(levelsDir, ch.file, { ...doc, levels: placeUid(store, doc, uid, append) });
     const manifest = placeEntry(ls, ctx.manifest, doc, { uid, kind: 'single', file, pack: 'main' }, append);
-    return { manifest, log: `已入关 ${uid}（single ${d.cols}×${d.rows}，实测 ${measured.time}s → 大关 ${chapterId} boss 前）｜${leg.note}` };
+    return { manifest, log: `已入关 ${uid}（single ${d.cols}×${d.rows}，实测 ${measured.time}s → 大关 ${chapterId} boss 前）｜${leg.note}`, uid };
 }
 
 /**
@@ -992,10 +1023,12 @@ async function ingestLevel(res, id, chapterId) {
         return sendJson(res, 422, { error: '须指定目标大关：body JSON {chapter:"<章 id>"}（生成页「导入大关」已改走管理页 /manage.html）' });
     const ls = await import('../../tools/scripts/level-store.mjs');
     const plan = await planIngest(id);
+    let ingestUid = null;
     return applyManage(res, (ctx) => {
         const out = commitIngest(ctx, ls, plan, chapterId);
+        ingestUid = out.uid;
         return { manifest: out.manifest, log: [out.log] };
-    }, undefined, () => markIngested([id], chapterId));
+    }, undefined, () => markIngested([id], chapterId, [ingestUid]));
 }
 
 /** 批量入关（WXG-T-341）：全部预检/实测在事务外，随后同一事务按勾选顺序插 boss 前；
@@ -1039,6 +1072,7 @@ async function importResults(res, chapterId, ids, progress, reply) {
     }
     // 写盘前最后一个断点：此前的取消不碰真源，之后的取消让事务跑完（中途停会留半截）
     await progress?.({ phase: 'commit', i: ids.length, n: ids.length });
+    const uids = []; // 与 ids 对齐（commitIngest 返回），入章后写进 ingested.levelUid 供来源反查
     return applyManage(res, (ctx) => {
         let manifest = ctx.manifest;
         const log = [];
@@ -1046,9 +1080,10 @@ async function importResults(res, chapterId, ids, progress, reply) {
             const out = commitIngest({ ...ctx, manifest }, ls, plan, chapterId);
             manifest = out.manifest;
             log.push(out.log);
+            uids.push(out.uid);
         }
         return { manifest, log };
-    }, reply, () => markIngested(ids, chapterId));
+    }, reply, () => markIngested(ids, chapterId, uids));
 }
 
 /** POST /api/manage/chapter/:id/import { resultIds: [...], stream?: true } —— 批量入关（≤10 条）。
@@ -1310,6 +1345,7 @@ async function handleDraftPublish(req, res, id) {
 
     const png = mode === 'new' || draft.imageDataUrl ? parsePngDataUrl(draft.imageDataUrl) : null;
     const publishChapterId = mode === 'new' ? id : target;
+    const uids = []; // 与 ids 对齐，供 ingested.levelUid 来源反查
 
     return applyManage(res, (ctx) => {
         const log = [];
@@ -1348,6 +1384,7 @@ async function handleDraftPublish(req, res, id) {
             const out = commitIngest({ ...ctx, manifest }, ls, plan, chapterId, { append: true });
             manifest = out.manifest;
             log.push(out.log);
+            uids.push(out.uid);
         }
         // 章内现有关卡已清空 ⇒ levels 顺序 = 草稿顺序；末位升 boss（组图已在上面拦掉）
         const doc2 = store.readChapter(ctx.levelsDir, (manifest.chapters.find((c) => c.id === chapterId)).file);
@@ -1356,7 +1393,7 @@ async function handleDraftPublish(req, res, id) {
             manifest = store.setEntryKind(manifest, bossUid, 'boss');
         log.push(`${ids.length} 关按草稿顺序入章；末位 ${bossUid} 设为 boss`);
         return { manifest, log };
-    }, undefined, () => markIngested(ids, publishChapterId));
+    }, undefined, () => markIngested(ids, publishChapterId, uids));
 }
 
 /**
@@ -1394,6 +1431,7 @@ async function handleChapterCreate(req, res) {
 
     const art = `${id}-boss-256`;
     const textureId = `bitmap__${id}_boss`;
+    let bossUid = null; // 供 ingested.levelUid 来源反查
     return applyManage(res, (ctx) => {
         const { store, levelsDir, ls } = ctx;
         if ((ctx.manifest.chapters ?? []).some((c) => c.id === id)) throw new ManageError(`大关 ${id} 已存在`);
@@ -1404,6 +1442,7 @@ async function handleChapterCreate(req, res) {
         mkdirSync(join(levelsDir, 'assets'), { recursive: true });
         writeFileSync(join(levelsDir, 'assets', `${art}.png`), imgBuf);
         const uid = ls.assignUid('boss', ls.existingUids(ctx.manifest));
+        bossUid = uid;
         const file = `singles/${uid}.json`;
         const leg = legibilityFix(d); // 生成后二次优化修复（WXG-T-357，守恒配套）
         d.pattern = leg.pattern;
@@ -1423,7 +1462,7 @@ async function handleChapterCreate(req, res) {
         let manifest = ls.appendEntry(ctx.manifest, { uid, kind: 'boss', file, pack: 'main' });
         manifest = store.addChapterTo(manifest, { id, open: false });
         return { manifest, log: [`新建大关 ${id}「${title}」：首关 boss ${uid}（${d.cols}×${d.rows}，实测 ${measured.time}s）→ chapters/${id}.json + assets/${art}.png`, `首关 boss 豆面：${leg.note}`] };
-    }, undefined, () => markIngested([String(body.resultId)], id));
+    }, undefined, () => markIngested([String(body.resultId)], id, [bossUid]));
 }
 
 /** POST /api/manage/chapter/:id/(rename|open|move|delete)。 */
@@ -1755,17 +1794,18 @@ function readIngested(id) {
     }
 }
 
-/** 入章成功后写标记（同批多条）。返回 {marked, missed}；单条失败只告警，不影响已提交的真源。 */
-function markIngested(ids, chapterId) {
+/** 入章成功后写标记（同批多条）。`uids` 与 ids 对齐（来自 commitIngest 的 uid），用于来源反查。
+ *  返回 {marked, missed}；单条失败只告警，不影响已提交的真源。 */
+function markIngested(ids, chapterId, uids = []) {
     const at = new Date().toISOString();
     let marked = 0;
     let missed = 0;
-    for (const id of ids) {
+    for (const [i, id] of ids.entries()) {
         try {
             const f = ingestedMetaFile(id);
             if (!f) { missed++; continue; }
             const obj = JSON.parse(readFileSync(f, 'utf8'));
-            obj.ingested = { chapter: chapterId, at };
+            obj.ingested = { chapter: chapterId, at, ...(uids[i] ? { levelUid: uids[i] } : {}) };
             writeFileSync(f, JSON.stringify(obj, null, 2) + '\n');
             marked++;
         } catch (e) {
