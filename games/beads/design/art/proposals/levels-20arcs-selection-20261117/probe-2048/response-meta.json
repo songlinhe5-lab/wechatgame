@@ -1,0 +1,18 @@
+{
+  "elapsed_s": 16.0,
+  "usage": {
+    "output_height": 2048,
+    "output_width": 2048,
+    "input_image_count": 0,
+    "input_image_type": "qima_input_2k",
+    "output_image_count": 1,
+    "output_image_type": "qima_output_2k"
+  },
+  "request_id": "329f05bb-022f-4dea-8044-d34babc14d9d",
+  "params": {
+    "prompt_extend": false,
+    "seed": 42,
+    "size": "2048*2048"
+  },
+  "prompt": "A flat 2D vector graphic, single centered geometric badge. One rounded-square tile with solid cream (#FDF6E9) fill, a large solid coral (#E84C3D) circle at its center, a thick solid yellow (#FFD23F) horizontal band across the upper part of the tile, and a thick solid lake-blue (#3D7BF5) horizontal band across the lower part. All shapes overlap and form ONE connected silhouette; all edges sharp and clean. No outlines, no gradients, no shading, no highlights, no shadows, no texture, no noise, no 3D, no realistic material, no feathered edges. The tile occupies about 72% of the square canvas with generous empty margin on all four sides and does not touch any edge. Background is completely uniform pure black #000000 from corner to corner: no gradient, no vignette, no glow, no checkerboard, no pattern, no frame, no ground, no reflection. No text, no letters, no numbers, no watermark, no second object. No black or near-black color anywhere inside the subject."
+}

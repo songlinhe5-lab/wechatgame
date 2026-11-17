@@ -1,0 +1,134 @@
+生成史 · 第 0 张探路（不占 180 张名额）
+任务谱系：WXG-T-974（20 大关题材甄选）/ 生图阶段 S0
+日期：2026-11-17
+性质：Token Plan 通道能力验证，非 180 张图案之一，不入关、不入库 final。
+判据正本：../series-spec.md §0.1 / §3 / §8；模型选型正本：design/ai-workflows/model-matrix.md。
+
+【基准 / 输入】
+无底图（纯 t2i）。提示词全文见 response-meta.json 的 prompt 字段，
+与会话内公示稿逐字一致；主体是中性几何测试体（圆角方块 + 四条厚色带 + 中心圆），
+刻意不取用 candidates.json 里任何题材，避免提前消耗或冒充 A01/P1。
+
+【通道 / 模型 / 参数】
+profile        = token-plan（Credits 计量；⛔ 与 maas 按量通道不混 key / base）
+endpoint       = TOKEN_PLAN_BASE_URL 剥 /compatible-mode 尾 + /api/v1/services/aigc/multimodal-generation/generation
+model          = qwen-image-3.0-pro（Token Plan 在册；非 pro 3.0 与 2.1 系不在册）
+size           = '2048*2048'（⛔ 必须加引号，否则 zsh 把 * 当 glob）
+seed           = 42（脚本同时置 prompt_extend=False，关掉云侧提示词改写）
+无 --ref / --bbox / --palette；无 denoise / steps / mask_image_url（云端 t2i 不适用）
+调用腿         = 内联 import 复用 games/beads/design/ai-workflows/dashscope-generate.py 的
+                 load_key / resolve / call / find_image_urls / download，未改动该脚本
+
+【单次调用读数】
+elapsed  = 16.0 s
+usage    = {output_width: 2048, output_height: 2048, output_image_count: 1,
+            input_image_count: 0, input_image_type: qima_input_2k,
+            output_image_type: qima_output_2k}
+⇒ 2K 计费档确实存在（历史实测 1K 档回 qima_output_1k），本批按 2K 记 Credits。
+⇒ 2048² 直出构图目测正常（四色平涂、硬边、单连通、无渐变/暗角/棋盘格）；
+   注意 design/ai-workflows/README.md §94 的「2048 直出作废」铁规适用域是本地 SDXL/Flux，
+   本张不构成对该铁规的推翻，只证明云端 qwen 线可用。
+request_id = 见 response-meta.json
+
+【产物清单】
+probe-s42.png           云端原图，2048² RGB / 1,586,006 B
+probe-s42-rgba.png      抠 alpha 后，2048² RGBA / 交付 studio 的形态
+probe-s42-metrics.json  六道验收读数
+response-meta.json      usage + request_id + seed + size + prompt 全文
+extract-alpha.py        背景剔除脚本（可复现，供 180 张批量复用）
+
+【背景处理 / 合成脚本】
+方法 = 本地确定性 floodfill，PIL，零模型 / 零下载 / 零重绘
+     （用户 2026-11-17 批准；开工前已公示方法，沿用「纯黑 + 程序化抠 alpha」裁定）
+命令 = python3 extract-alpha.py probe-s42.png probe-s42-rgba.png 72
+阈值 = 72（PIL floodfill 的 _color_diff = RGB 三通道绝对差之和；72 = 24×3）
+原因 = 模型把背景画成 0–24 的近黑噪点，不是精确 #000000：
+       实测精确纯黑仅 21.04%，近黑(max<=24) 58.85%。
+       按「精确纯黑」抠会留下 37.8% 的脏边，全部喂进 studio 量化 ⇒ 用近黑阈值。
+主体四色最暗通道远高于 24 ⇒ 阈值不啃主体（实测主体内近黑残留 0 px）。
+四角全部作种子，只有当源图某角 max>24（主体触边）才跳过该角。
+
+【六道验收 · 全部 PASS】
+1 真 alpha            alpha=0 占 58.859%，alpha=255 占 41.141%，二者合计 100%
+                      ⇒ 二值硬边 alpha，无羽化中间值（合 G2）
+2 四角全透明          true
+3 主体内近黑残留      0 px（排除区未侵入主体，合 G8）
+4 主体单连通          true（从中心灌水到达 1,725,577 px = 全部前景，合 G3/T6）
+5 RGB 零重绘          true（回读成品逐像素比对源图 RGB，⛔ 只改 alpha）
+6 主体不触边          bbox = [384,319,1661,1687]，四边留白 15.6%–18.8% ≥8%（合 G7）
+                      bbox 面积占 41.71%；边长占比约 62%×67%，落在 G9 的 70–82% 附近偏低
+
+【已知偏差（诚实登记，不粉饰）】
+- 背景不是精确 #000000，而是 0–24 近黑噪点；四角 min=0/max=3、四边环带 mean≈0.2/p99≤2，
+  无暗角渐变、无棋盘格。⇒ series-spec.md §3.2 A 段「四角取样 #000000」应改判为
+  「四角取样近黑（max≤24）」，否则验收会假 FAIL。
+- 提示词写「occupies about 72% of the canvas」，模型按边长理解（实测 62%×67%），
+  非面积 72%。⇒ 后续 180 条提示词改用明确的边长占比措辞，勿写面积百分比。
+
+【对账】
+Token Plan 1 次调用 / 出图 1 张 / 浪费 0 次；追加行见
+production/qa/token-plan-usage-ledger.md（2026-11-17 第 0 张探路）。
+判据证据全部落在入库的 proposals/ 目录（⛔ 未只存 gitignore 的 temp/）。
+
+------------------------------------------------------------------------
+追加（同日 · studio 侧判据验证，0 次 Token Plan 调用）
+------------------------------------------------------------------------
+目的：核「RGBA 图真的喂进 studio 后，用色数里没有背景贡献的色号」
+     （series-spec.md §9 原先唯一未验的那条）。
+服务：已在运行的 http://localhost:8787（PID 94276），未重启（避免丢 /api/batch 内存进度）。
+请求：POST /api/generate?cols=16&rows=16&board=probe2048&palette=10&colors=4
+      &colorsmode=error&cellmode=mode&smooth=0&swaps=8&noframe=0&notrim=1
+      &mis=none&draft=1
+body：probe-s42-rgba.png 原样 2048×2048 RGBA base64（22,369,658 B），未缩放、未图像处理。
+响应：HTTP 200，id = probe2048-1794923568233-a877，draft=true（只写 data/_draft/）。
+原文：studio-draft-response.json；判据汇总：studio-verify.json。
+
+【判据 A · 背景不参与采样】PASS
+  report.voidCells = 0。该字段是 beads-gen.mjs L1267/L1480 的 bgRemoved，
+  记的是「四边框去背景 flood fill 删掉的格数」⇒ 0 表示那一步完全空转，
+  背景从未成为色号，也没有经历「先量化再删」。
+  pattern 里 136 个 '.' 全部来自 buildGrid「整格透明 ⇒ 空位」直接判定；
+  按 128×128 格化逐格复算 void 也是 136，差 0。
+
+【判据 B · 用色号无背景贡献】PASS
+  paletteHex = [#FDF6E9, #FFD23F, #E84C3D, #3D7BF5]（全是主体色）
+  无 #000000 / #33333D / #1F1F24；colorsUsed=4、chars=['1','2','3','4']；
+  colorLimit.changed=0 ⇒ 限色步零改判，背景根本没进候选色。
+
+【判据 C · 可读性】PASS
+  fillable=120；主体连通块 1 个 / 120 格（无游离岛）；
+  blocks=5、tinyCells=0、adjRate=0.835、smoothChanged=0、
+  balancedChanged=0、mergedCells=0、adjacency.conflicts=0、colorError.final=22.2。
+
+【诚实注记 · 不得误读】
+1) importable=false 是刻意用 mis=none（避开错位构造、只看量化）造成的，
+   blockers = 「无关卡草案（全错位/最大化错位需能产出错位盘；交换模式需 k ≥ 1）」，
+   与图案、与背景排除无关。这不是入关失败。
+2) void 53.12%(136/256) 与源图 alpha=0 58.86% 的差不是误差：
+   源图按像素算透明占比；studio 按 16×16 格算「整格不透明采样点数为 0 才判 void」，
+   边缘格只要含一个不透明采样点就参与投票。逐格复算与 studio 判定一致。
+3) 本次 0 次 Token Plan 调用（纯 studio 本地量化），
+   不追加 token-plan-usage-ledger.md 的调用计数。
+4) 未入关、未入 final/、未执行 git commit。
+
+------------------------------------------------------------------------
+追加（同日 · 第 2 项：mis=full 可入关链路复验，0 次 Token Plan 调用）
+------------------------------------------------------------------------
+请求：同上，仅 mis=none → mis=full；响应 id = probe2048-1794923934242-6809（HTTP 200，draft=1）。
+原文：studio-full-response.json；判据汇总：studio-full-verify.json。
+
+结果：PASS
+  importable = true，blockers = []，misMode = full
+  levelDraft 完整：pattern 16 行 + misplaced 16 行，含 pricing / time / cycleProfile
+  report.derangement = "FULL (0 固定点)"
+  report.voidCells = 0（四边框去背景仍空转，背景未成色号）
+  paletteHex = [#FDF6E9, #FFD23F, #E84C3D, #3D7BF5]（无黑/近黑）
+  真引擎读数：steps=30 / taps=60 / timeEst=148s / secPerStep=4.14 / cleared=true
+  pricing：stepsLB=8、baseCap=12、stepsByCap {12:30, 24:23, 48:16}、tierK=0.85
+
+诚实注记：
+1) colors=4 且 importable=true ⇒ 当前实例里 LEVEL_COLOR_MIN=4（本批 in-flight 收紧）
+   已生效。若用户裁定回退到 3 色下限，本结论不受影响（4≥3）。
+2) 这是中性测试体的「可入关链路」复验，不代表 180 张题材图的质量，
+   也不代表 64×64 大盘可玩性（ADR-0018 裁定不变）。
+3) draft=1 只写 data/_draft/；0 次 Token Plan 调用；未入关、未提交 git。

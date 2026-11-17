@@ -1,0 +1,92 @@
+{
+  "purpose": "第 2 项：复用探路 RGBA + 同参数跑 mis=full，验可入关链路（含错位盘）",
+  "date": "2026-11-17",
+  "studio": "http://localhost:8787 (PID 94276)",
+  "http": 200,
+  "verdict": "PASS",
+  "response_id": "probe2048-1794923934242-6809",
+  "request": "同 studio-verify.json，仅 mis=none → mis=full",
+  "evidence": {
+    "importable": true,
+    "blockers": [],
+    "misMode": "full",
+    "derangement": "FULL (0 固定点)",
+    "pattern_rows": 16,
+    "misplaced_rows": 16,
+    "levelDraft_keys": [
+      "cols",
+      "cycleProfile",
+      "decoys",
+      "misplaced",
+      "paletteHex",
+      "pattern",
+      "pricing",
+      "rows",
+      "skin",
+      "swaps",
+      "time"
+    ],
+    "voidCells": 0,
+    "paletteHex": [
+      "#FDF6E9",
+      "#FFD23F",
+      "#E84C3D",
+      "#3D7BF5"
+    ],
+    "char_hist": {
+      ".": 136,
+      "1": 26,
+      "2": 28,
+      "3": 36,
+      "4": 30
+    },
+    "colorsUsed": 4,
+    "difficulty": {
+      "score": 6,
+      "timeEst": 148,
+      "misplaced": 0,
+      "taps": 60,
+      "bMed": 0,
+      "split": {
+        "moves": 30,
+        "places": 9,
+        "directFills": 18,
+        "retrieves": 3
+      },
+      "steps": 30,
+      "cleared": true,
+      "secPerStep": 4.14,
+      "blockers": [],
+      "formula": "v0.4（真引擎实测 BAC 批量动作数 × SEC_PER_STEP）"
+    },
+    "pricing": {
+      "source": "bot",
+      "steps": 30,
+      "stepsLB": 8,
+      "baseCap": 12,
+      "stepsByCap": {
+        "12": 30,
+        "24": 23,
+        "48": 16
+      },
+      "taps": 60,
+      "actionsSplit": {
+        "moves": 30,
+        "places": 9,
+        "directFills": 18,
+        "retrieves": 3
+      },
+      "secPerStep": 4.14,
+      "tierK": 0.85,
+      "clamped": false,
+      "cleared": true
+    },
+    "time": 148
+  },
+  "notes": [
+    "colors=4 且 importable=true ⇒ 当前实例里 LEVEL_COLOR_MIN=4（本批 in-flight 收紧）已生效；若回退到 3 色下限，本结论不受影响（4≥3）。",
+    "mis=full 的错位盘由真引擎 misplaced 初盘构造，report.derangement='FULL (0 固定点)'。",
+    "draft=1 只写 data/_draft/；0 次 Token Plan 调用；未入关、未提交 git。",
+    "这是中性测试体的可入关链路复验，不代表 180 张题材图的质量，也不代表 64×64 大盘可玩性。"
+  ]
+}

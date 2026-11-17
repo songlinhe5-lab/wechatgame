@@ -1,0 +1,64 @@
+{
+  "purpose": "核「studio 用色数里没有背景贡献的色号」——series-spec.md §9 最后一条未验判据",
+  "date": "2026-11-17",
+  "studio": "http://localhost:8787 (PID 94276, 已运行实例)",
+  "request": "POST /api/generate?cols=16&rows=16&board=probe2048&palette=10&colors=4&colorsmode=error&cellmode=mode&smooth=0&swaps=8&noframe=0&notrim=1&mis=none&draft=1",
+  "input": "probe-s42-rgba.png 原样 2048x2048 RGBA base64，未缩放、未图像处理",
+  "response_id": "probe2048-1794923568233-a877",
+  "http": 200,
+  "draft": true,
+  "verdict": "PASS",
+  "evidence": {
+    "A_background_not_sampled": {
+      "report.voidCells": 0,
+      "meaning": "voidCells 记的是四边框去背景 flood fill 删掉的格数（beads-gen.mjs L1267/L1480）；返回 0 = 去背景那步完全空转，背景从未成为色号、也没有经历『先量化再删』",
+      "pattern_void_cells": 136,
+      "grid_recompute_void": 136,
+      "difference": 0,
+      "note": "136 个 '.' 全部来自 buildGrid 阶段『整格透明 ⇒ 空位』直接判定，逐格复算与 studio 一致"
+    },
+    "B_no_background_color": {
+      "paletteHex": [
+        "#FDF6E9",
+        "#FFD23F",
+        "#E84C3D",
+        "#3D7BF5"
+      ],
+      "colorsUsed": 4,
+      "chars_present": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "black_or_nearblack_hex": [],
+      "colorLimit_changed": 0,
+      "colorLimit_kept": [
+        1,
+        2,
+        5,
+        7
+      ],
+      "note": "四个色号全是主体色，无 #000000 / #33333D / #1F1F24；限色步 0 改判，说明背景根本没进候选色"
+    },
+    "C_legibility": {
+      "fillable": 120,
+      "subject_connected_components": 1,
+      "subject_cells": 120,
+      "clusteringBefore_blocks": 5,
+      "tinyCells": 0,
+      "adjRate": 0.835,
+      "smoothChanged": 0,
+      "balancedChanged": 0,
+      "mergedCells": 0,
+      "adjacency_conflicts": 0,
+      "colorError_final": 22.2
+    }
+  },
+  "honest_notes": [
+    "importable=false：因刻意用 mis=none（避开错位构造干扰，只看量化），blockers 为『无关卡草案（全错位/最大化错位需能产出错位盘；交换模式需 k ≥ 1）』，与图案/背景无关。不把这条误报成入关失败。",
+    "void 53.12%(136/256) 与源图 alpha=0 58.86% 的差不是误差：源图按像素算透明占比，studio 按 16×16 格算『整格不透明采样点数为 0 才判 void』，边缘格含一个不透明采样点即参与投票。逐格复算 136 = studio 判定 136。",
+    "draft=1 只写 data/_draft/ 预览草稿，不污染已存结果列表；未入关、未入库 final/、未提交 git。",
+    "本次 0 次 Token Plan 调用（studio 本地量化），不追加用量台账的调用计数。"
+  ]
+}
