@@ -154,6 +154,7 @@
         .pk-item.off { opacity: .45; cursor: not-allowed; }
         .pk-item.off:hover { border-color: transparent; }
         .pk-item .why { font-size: 10.5px; color: var(--danger); line-height: 1.35; margin-top: 2px; }
+        .pk-item .ing { display: inline-block; margin-top: 3px; padding: 0 5px; border-radius: 8px; font-size: 10.5px; color: #2f6b32; background: #f0f7ef; border: 1px solid #a9c9a9; }
         .pk-item img { width: 100%; height: 88px; object-fit: cover; border-radius: 5px; background: #f3efe6; display: block; }
         .pk-art { height: 88px; display: flex; align-items: center; justify-content: center; border-radius: 5px; background: #f3efe6; overflow: hidden; }
         .pk-art canvas { max-width: 100%; max-height: 88px; image-rendering: pixelated; }
@@ -582,6 +583,7 @@
                 const info = document.createElement('div');
                 info.innerHTML = `<div class="id">${esc(r.id)}</div><div class="meta">${r.cols}×${r.rows} · ${r.colors} 色` +
                     `${r.slots > 1 ? ` · 占 ${r.slots} 槽` : ''}</div>` +
+                    (r.ingested ? `<div class="ing" title="该结果已入过章；再入一次会新增一关">已入章${r.ingestedChapter ? '：' + esc(r.ingestedChapter) : ''}</div>` : '') +
                     (bad ? `<div class="why">不可入关：${esc(r.blockers?.[0] || '判据未通过')}${r.blockerCount > 1 ? `（共 ${r.blockerCount} 条）` : ''}</div>` : '');
                 b.appendChild(info);
                 b.onclick = () => {
