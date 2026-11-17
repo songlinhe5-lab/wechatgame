@@ -28,6 +28,9 @@
 - **验证**：`--self-check` 断言三星公式、`starTierK` 单关覆盖、G11 等级边界（用 L00007 落盘真值），通过；现池 10 关全跑通，L00007 `steps=34 ⇒ 166/141/116s / 3★ 需 24 槽` 与落盘一致；L00009 `starTierK=[1,0.85,0.4176] ⇒ 3★ 228s`（非全局 382s）确认单关系数生效；L00010 `steps=378` 落 Boss 档。新文件 zero lint / zero typecheck。
 - **诚实标注**：全仓 `typecheck` 的 3 条报错（`meta-menu.ts` / `meta-widgets.ts`）来自其他会话 in-flight 改动，非本次引入，未修。工具输出的三星秒数是**模型值**（`SEC_PER_STEP=4.14` 未经新 playtest 重标定、steps 为固定 ACB 贪心策略路径长非最优），工具内 `note` 字段明写 `[待真机 playtest 校准]`，不得当人类用时判据。
 - **范围边界**：本笔仅提交工具文件。**色数 4–16、硬顶 64×64 等常量与文档改动（本轮讨论中由成员落盘的 in-flight 改动）未提交、未纳入本笔**，待用户裁定后再决定保留或回退；工具本身不依赖这些改动（不改任何常量）。
+- **追补（同日，用户令「1/2/3」第 2 项）**：新增可选 `--solve`，接 `tools/scripts/beads-solve.ts` 束搜索，输出 `solve.{solvedSteps,lowerBound,gap,ratio,elapsedMs}`，量化「bot 上界偏离近优多少」；解不出时全部给 `null`，不伪造不外推。现池 10 关实测：8 个普通关 gap 2–17 步、上界/近优比 **1.12×–2.00×**；L00007 最差（34 vs 17 = 2×）；两关 boss 盘（30×30 / 32×32）束搜索解不出、仍给 `lowerBound` 21/53。`--self-check` 补 solve gap 与解不出兜底断言。修一处真缺陷：solver stdout 是 pretty-print 多行 JSON，初版按 `beads-bot` 单行契约取末行导致恒「解不出」，已改为整段 parse。
+- **`ponytail:` 已知天花板**：`--solve` 全池 10 关实测耗时 2:24（两个大盘各约 1 分钟且解不出）；升级路径 = 给 solver 加超时/节点上限并由 CLI 传入，单关评估不受影响故本版不建。
+- **第 3 项（真机 `t_act` 校准链）= 阻塞未执行**：本仓无真机、无 AppID（`AGENTS.md §1`），逐关记 `t_act` ⇒ 取 `median(t_act ÷ ACB步数)` ⇒ 同批更新 `SEC_PER_STEP` + §3.5 公式的前提不成立。解除条件 = 真机 + 可构建产物 + 大盘压力 fixture 入包。工具 `note` 字段已登记 `[待真机 playtest 校准]`。
 - **知识沉淀**：kb:sync 沉淀统计 新增 0 / 修改 0 / 激活 0 / 归档 0。
 
 ## WXG-T-974
