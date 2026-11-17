@@ -88,6 +88,7 @@ if (existsSync(draftDir)) {
 // ── 逐关挑唯一来源；有歧义就跳过 ────────────────────────────────────────────
 const hitLevels = new Set();
 const ambiguous = [];
+const ambiguousDetails = []; // 管理页「歧义清单」展开视图用（含候选 id/类型/时间）
 const items = []; // 机器可读（--json 末行）：{id, levelUid, chapter}
 let matched = 0, already = 0, written = 0;
 const take = (lv, rec) => {
@@ -118,6 +119,18 @@ for (const lv of levels) {
 
     hitLevels.add(lv.uid);
     ambiguous.push(`${lv.uid}（${saved.length} 结果 / ${drafts.length} 草稿）`);
+    ambiguousDetails.push({
+        uid: lv.uid,
+        chapter: lv.chapter,
+        name: lv.name,
+        saved: saved.length,
+        drafts: drafts.length,
+        candidates: pool.map((c) => ({
+            id: c.obj.id ?? '(无 id)',
+            kind: saved.includes(c) ? 'result' : 'draft',
+            createdAt: c.obj.createdAt ?? null,
+        })),
+    });
 }
 
 const unmatched = levels.filter((lv) => !hitLevels.has(lv.uid)).map((lv) => lv.uid);
@@ -130,5 +143,5 @@ if (unmatched.length) console.log(`未匹配关卡 ${unmatched.length} 个：${u
 
 // 机器可读末行（管理页「回填已入章」按钮消费；人类日志保持上面原样）
 if (JSON_OUT) {
-    console.log(JSON.stringify({ write: WRITE, scanned, noPattern, matched, already, written, items, ambiguous, unmatched }));
+    console.log(JSON.stringify({ write: WRITE, scanned, noPattern, matched, already, written, items, ambiguous, ambiguousDetails, unmatched }));
 }

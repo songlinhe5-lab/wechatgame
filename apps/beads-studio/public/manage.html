@@ -134,6 +134,16 @@
         }
         #log:empty { display: none; }
 
+        /* 回填歧义清单（同 pattern 多候选）：折叠面板，展开看候选 id / 类型 / 生成时间。 */
+        #bf-amb { margin-bottom: 10px; }
+        #bf-amb[hidden] { display: none; }
+        #bf-amb details { background: #fffdf9; border: 1px solid #e5ded2; border-radius: 8px; padding: 8px 10px; font-size: 12px; }
+        #bf-amb summary { cursor: pointer; color: #6b5b4a; }
+        .bf-amb-lv { margin-top: 8px; padding-top: 6px; border-top: 1px dashed #eee3d3; }
+        .bf-amb-cand { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px 12px; }
+        .bf-amb-cand code { font-size: 11px; background: #f5f1e8; padding: 1px 4px; border-radius: 3px; word-break: break-all; }
+        .bf-amb-cand .k { color: #8a7f73; font-size: 11px; margin-left: 3px; }
+
         /* 行内图案缩略图：canvas 像素尺寸 = 格数，CSS 限幅保持比例（不拉伸）。 */
         .lv canvas { max-width: 36px; max-height: 36px; flex: none; border-radius: 4px; background: #faf7f0; image-rendering: pixelated; }
 
@@ -222,6 +232,7 @@
     <div id="pg-notice">
         <div id="err"></div>
         <div id="log"></div>
+        <div id="bf-amb" hidden></div>
     </div>
 
     <!-- 一级页面：关卡列表 -->
@@ -357,6 +368,26 @@
         function showLog(lines) {
             $('err').style.display = 'none';
             $('log').textContent = Array.isArray(lines) ? lines.join('；') : String(lines || 'ok');
+        }
+
+        /** 回填歧义清单：折叠面板列出每关的全部候选（id / 已保存或草稿 / 生成时间），供人工定源。 */
+        function renderAmbiguous(list) {
+            const box = $('bf-amb');
+            if (!Array.isArray(list) || !list.length) {
+                box.hidden = true;
+                box.innerHTML = '';
+                return;
+            }
+            box.innerHTML = `<details><summary>歧义 ${list.length} 关（同 pattern 多候选，未自动标记）— 展开查看候选</summary>` +
+                list.map((a) => `<div class="bf-amb-lv"><b>${esc(a.uid)}</b> · ${esc(a.chapter)}` +
+                    (a.name ? ` · ${esc(a.name)}` : '') +
+                    `（${a.saved} 结果 / ${a.drafts} 草稿）` +
+                    `<div class="bf-amb-cand">${(a.candidates || []).map((c) =>
+                        `<span><code>${esc(c.id)}</code><span class="k">` +
+                        `${c.kind === 'result' ? '已保存' : '预览草稿'}` +
+                        `${c.createdAt ? ' · ' + esc(String(c.createdAt).slice(0, 16).replace('T', ' ')) : ''}</span></span>`).join('')}</div></div>`).join('') +
+                `</details>`;
+            box.hidden = false;
         }
 
         function btn(label, disabled, onClick, cls) {
@@ -1195,16 +1226,20 @@
             };
             try {
                 $('backfill').disabled = true;
+                renderAmbiguous([]);
                 const pv = await post(false);
+                renderAmbiguous(pv.ambiguousDetails);
                 const lines = [...(pv.log || [])];
-                if (pv.ambiguous?.length) lines.push(`歧义跳过：${pv.ambiguous.join('、')}`);
+                if (pv.ambiguous?.length) lines.push(`歧义 ${pv.ambiguous.length} 关（见下方清单）`);
                 if (!pv.written) { showLog([...lines, '没有需要回填的条目。']); return; }
                 showLog([...lines, `待写入 ${pv.written} 条`]);
                 if (!confirm(`回填 ${pv.written} 条「已入章」标记？\n（只写 apps/beads-studio/data 下的结果/草稿元数据，不动关卡真源）`)) return;
                 const done = await post(true);
+                renderAmbiguous(done.ambiguousDetails ?? pv.ambiguousDetails);
                 showLog([...(done.log || []).filter((l) => l.startsWith('已标记')), `回填完成：写入 ${done.written} 条`]);
                 await reload();
             } catch (e) {
+                renderAmbiguous([]);
                 showErr(e.message);
             } finally {
                 $('backfill').disabled = false;
