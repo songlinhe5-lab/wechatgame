@@ -201,11 +201,41 @@ async function poll() {
     if (st.finished) {
         clearInterval(timer);
         $('go').disabled = false;
-        msg(`完成：${st.ok} 成功 / ${st.error} 失败`, st.error ? 'err' : 'ok');
+        const kinds = errorTally(rows);
+        msg(`完成：${st.ok} 成功 / ${st.error} 失败`
+            + (kinds.length ? `（${kinds.map(([k, n]) => `${k}×${n}`).join('，')}）` : ''), st.error ? 'err' : 'ok');
         await loadPatterns();
         renderRank(st.ranking);
         renderTable();
     }
+}
+
+/** 失败原因归类：beads-gen 的 stderr 是多行原始日志，结果表只挂短标签（全文进 title）。
+ *  顺序敏感：整盘单色也带「错位打乱未成功」尾巴，必须排在泛化的「自检失败」之前。 */
+const ERROR_KINDS = [
+    [/整盘单色|m=N=/, '整盘单色'],
+    [/主导色 \d+ > N\/2|无法全错位/, '主导色过半'],
+    [/可填格 < 2/, '可填格不足'],
+    [/拒产：/, '难度门禁'],
+    [/自检失败：max 档|无任何错位/, '无错位'],
+    [/自检失败/, '自检失败'],
+    [/数据不足|解码后不足|需 RGBA/, '图像数据不足'],
+    [/超 4096|上限|超限/, '尺寸超限'],
+    [/色板|palette/, '色板不可用'],
+    [/chromium|playwright/i, '渲染依赖缺失'],
+    [/pattern\.json/, '产物缺失'],
+];
+const classifyError = (s) => (ERROR_KINDS.find(([re]) => re.test(String(s || ''))) || [null, '生成失败'])[1];
+const escAttr = (s) => String(s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+/** 失败原因汇总（按条数降序），用于完成提示。 */
+function errorTally(list) {
+    const m = new Map();
+    for (const r of list) if (r.status === 'error') {
+        const k = classifyError(r.error);
+        m.set(k, (m.get(k) || 0) + 1);
+    }
+    return [...m.entries()].sort((a, b) => b[1] - a[1]);
 }
 
 function renderTable() {
@@ -244,7 +274,8 @@ function renderTable() {
             ? `<span class="badge ${r.importable ? 'yes' : 'no'}">${r.importable ? '可入关' : '不可'}</span>`
             : '';
         const idc = tr.querySelector('.f-id');
-        idc.textContent = r.id || (r.error ? r.error.slice(0, 90) : '');
+        if (r.status === 'error') idc.innerHTML = `<span class="badge no" title="${escAttr(r.error)}">${classifyError(r.error)}</span>`;
+        else idc.textContent = r.id || '';
         idc.title = r.error || r.id || '';
         if (r.pattern) drawThumb(tr.querySelector('.thumb'), r);
     }
