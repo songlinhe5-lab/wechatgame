@@ -26,6 +26,7 @@
  *   node tools/scripts/beads-gen.mjs                       # 无 --in ⇒ 合成 demo 图跑通全管线
  *   node tools/scripts/beads-gen.mjs --in-raw raw.json --no-png --out out  # 免浏览器路径（WXG-T-179 Web 服务）：
  *          raw.json = { w, h, data: base64(RGBA) }（前端解像后的源图像素）；--no-png 跳过 PNG 导出
+ *   node tools/scripts/beads-gen.mjs --in pic.jpg --quantizer median-hue   # A 档选色：hue-aware Median Cut（默认 kmeans 不变）
  *   node tools/scripts/beads-gen.mjs --help                # 全部参数
  *
  * 入关前置（两条硬约束，都须先解）：
@@ -65,6 +66,7 @@ import { homedir } from 'node:os';
 import { dirname as dirOf } from 'node:path';
 import { fileURLToPath as urlToPath } from 'node:url';
 import { BEAD_COLOR_CHARS, BEAD_COLOR_MAX } from './lib/bead-charset.mjs';
+import { hexToRgb, medianCut, dominantColor } from './lib/palette-rules.mjs';
 // 本脚本所在目录（tools/scripts/）—— 色板等数据资产按脚本位置解析，不依赖 cwd
 const SCRIPT_DIR = dirOf(urlToPath(import.meta.url));
 
@@ -264,6 +266,12 @@ const colorsMax = Math.max(0, parseInt(arg('colors', '0'), 10)); // 用色数上
 const paletteArg = arg('palette', 'artkal-s'); // 品牌色板 slug（games/beads/design/art/specs/<slug>.json：artkal-s/c/a/m/r、hama-*、perler*、nabbi、yant、mard、diamond-dotz）| 数字（程序化色域；'10' 游戏真源已从 UI 下架，仅 API 兼容）
 const colorsMode = arg('colorsmode', 'error'); // freq（频次优先）| error（ 误差最小优先；默认；仅 keptPx 为空时生效）
 const cellmode = arg('cellmode', 'mode'); // 格级映射风格：mode=主导色（卡通干净）| avg=平均色（照片纹理）
+// 选色量化器：kmeans（默认，行为与历史一致）| median-hue（hue-aware Median Cut，规则口径同 palette-quantize）
+const quantizer = arg('quantizer', 'kmeans');
+if (!['kmeans', 'median-hue'].includes(quantizer)) {
+  console.error('⚠️ --quantizer 只支持 kmeans / median-hue');
+  process.exit(3);
+}
 const premedian = Math.max(0, parseInt(arg('premedian', '0'), 10)); // 源像素中值滤波核大小（0=关；3或5）；在 buildGrid 量化前执行，消 JPEG 块状伪影
 if (!['mode', 'avg'].includes(cellmode)) {
   console.error('⚠️ --cellmode 只支持 mode / avg');
@@ -1160,7 +1168,28 @@ function kmeansLab(pts, k) {
 // 都在**像素级**限色：小特征此时还是几千像素的大簇，稳占一席；然后再逐格映射。
 //   · 簇心吸附到最近品牌真值色（保证可采购；kept 去重后可能 < k）。
 //   · cellmode：mode=格内主导色（卡通干净，对标 makebead）| avg=格均色就近（照片纹理，对标豆豆龙）。
-function buildGrid(px, n, cellmode) {
+/**
+ * hue-aware Median Cut 簇心（--quantizer median-hue）：采样前景像素 → Median Cut →
+ * 每簇取众数色 → 转 Lab 作为簇心，后续噪声过滤/品牌映射与 k-means 路径完全一致。
+ * ponytail: 采样上限 2 万点；Median Cut 递归排序在 4M 像素上不可接受的性能折中。
+ */
+function hueMedianCenters(px, n) {
+  const { W, H, R, G, B, A } = px;
+  const total = W * H;
+  const stride = Math.max(1, Math.floor(total / 20000));
+  const rgb = [];
+  for (let i = 0; i < total; i += stride) {
+    if (A && !A[i]) continue;
+    rgb.push([R[i], G[i], B[i]]);
+  }
+  if (!rgb.length) return [];
+  return medianCut(rgb, 0, n).map((cluster) => {
+    const [r, g, b] = hexToRgb(dominantColor(cluster));
+    return rgb2lab(r, g, b);
+  });
+}
+
+function buildGrid(px, n, cellmode, quantizer) {
   const { W, H, R, G, B, A } = px;
   const LAB = new Float64Array(W * H * 3); // 每像素 Lab（k-means 与格级映射共用）
   const pts = [];
@@ -1179,7 +1208,9 @@ function buildGrid(px, n, cellmode) {
     //   就保持不同色。旧的 mergeCloseCentroids(ΔE12) 会在映射前按源色 ΔE 误并真实两色
     //   （house 屋顶 terracotta/salmon 源距 ΔE11.3 却分属 S66/SP2 两颗珠），故弃用。
     const MIN_CLUSTER_PCT = 0.01; // 簇像素占比低于 1% 视为边界噪声（去 speck，非去颜色）
-    const rawCenters = kmeansLab(pts, Math.min(n, pts.length));
+    const rawCenters = quantizer === 'median-hue'
+      ? hueMedianCenters(px, n)
+      : kmeansLab(pts, Math.min(n, pts.length));
     // 计算每簇像素数并过滤噪声簇
     const sizes = new Array(rawCenters.length).fill(0);
     for (const q of pts) sizes[nearestLabIdx(q, rawCenters)]++;
@@ -1246,7 +1277,7 @@ const _rawPx = inRawPath
   ? readPixelsRaw(JSON.parse(readFileSync(inRawPath, 'utf8')))
   : await readGrid();
 const px = premedian >= 3 ? medianFilterPx(_rawPx, premedian) : _rawPx;
-const { grid, avg: avg0, kept: keptPx } = buildGrid(px, colorsMax, cellmode);
+const { grid, avg: avg0, kept: keptPx } = buildGrid(px, colorsMax, cellmode, quantizer);
 let avg = avg0; // let：异形盘包围盒裁剪（下方 trim 块）会重赋为裁后 avg
 
 // 去背景：取四边框里最常见的一色当背景 → void（0）。--noframe 则整盘可填。
@@ -1352,7 +1383,7 @@ if (!noFrame && shape === 'square') {
 // 避免对已限色网格重复选色）；keptPx 为空（不限制）时走原格级逻辑兑底。
 const errPreLimit = meanColorErr(solved, avg); // keptPx 非空时 solved 已限色，此值≈限色后
 const limit = keptPx.length
-  ? { changed: 0, kept: keptPx, mode: `pixel-kmeans/${cellmode}` }
+  ? { changed: 0, kept: keptPx, mode: `pixel-${quantizer}/${cellmode}` }
   : limitColors(solved, colorsMax, colorsMode, avg);
 
 // 聚集度处理（力度递增；三步与「配色平衡」「错位打乱」互不冲突，可自由组合）：

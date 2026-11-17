@@ -150,6 +150,8 @@ function runGen(rawPath, outDir, params) {
             '--mis', params.mis,
         ];
         if (params.premedian > 0) args.push('--premedian', String(params.premedian));
+        // A 档选色真源：hue-aware Median Cut（默认 k-means 不变，仅显式传参才切）
+        if (params.quantizer === 'median-hue') args.push('--quantizer', 'median-hue');
         if (params.shape && params.shape !== 'square') args.push('--shape', params.shape);
         if (params.colors > 0) args.push('--colors', String(params.colors));
         if (params.noframe) args.push('--noframe');
@@ -1869,6 +1871,8 @@ function readGenParams(q) {
         swaps: Math.max(0, parseInt(q.get('swaps') || '8', 10)),
         smooth: Math.max(0, parseInt(q.get('smooth') || '1', 10)),
         premedian: Math.max(0, parseInt(q.get('premedian') || '0', 10)),
+        // 选色量化器：仅显式 median-hue 才切，缺省 k-means（历史行为不变）
+        quantizer: q.get('quantizer') === 'median-hue' ? 'median-hue' : 'kmeans',
         noframe: q.get('noframe') === '1',
         // 关包围盒裁剪（关卡模式「按该关尺寸生成」）：见 runGen / 文件头 API 注。
         notrim: q.get('notrim') === '1',

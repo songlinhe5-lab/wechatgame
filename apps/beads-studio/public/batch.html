@@ -69,6 +69,7 @@
         <label>色板 <input type="text" id="palette" value="10" style="width:56px"></label>
         <label>颜色网格 <input type="text" id="gridColors" value="4,6,8" title="逗号分隔；空 = 不扫该维"></label>
         <label>平滑网格 <input type="text" id="gridSmooth" value="0,1"></label>
+        <label title="hue-aware Median Cut 选色（A 档实验；默认 k-means）"><input type="checkbox" id="quantMedian"> median-hue 选色</label>
         <label><input type="checkbox" id="notrim" checked> notrim（保盘面尺寸）</label>
         <label><input type="checkbox" id="autotune" checked> auto-tune（回 Top3）</label>
     </div>
@@ -169,6 +170,7 @@ $('go').onclick = async () => {
             palette: $('palette').value, notrim: $('notrim').checked,
             colors: colors[0] ?? 6, smooth: smooth[0] ?? 1,
             colorsmode: 'error', cellmode: 'mode', swaps: 0, premedian: 0, mis: 'full',
+            quantizer: $('quantMedian').checked ? 'median-hue' : 'kmeans',
         },
         grid, draft: true, autotune: $('autotune').checked,
     };
