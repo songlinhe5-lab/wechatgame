@@ -26,7 +26,7 @@ node apps/beads-studio/server.mjs          # → http://localhost:8787
 | `GET /api/results/:id` | 单个 result.json |
 | `GET /api/results/:id/level` | 直接回 levelDraft（小游戏字段最少化）；**不可入关的产物返回 422 + 原因清单** |
 | `DELETE /api/results/:id` | 删除该条结果（整目录；同路径也删**预览草稿** `data/_draft/<id>`）。**不可逆**（磁盘上只有一份），id 走 `[a-z0-9-]` 白名单；生成页列表每条带 ✕ 且**二次确认**——这是唯一的删除入口，点行只「应用为当前」 |
-| `GET /` | 静态页 |
+| `GET /` | 静态页（大关/小关管理页 `public/manage.html`）；批量生成汇总页 = **`/batch.html`**（B3：多图 + 参数网格 + Top3 推荐 + 确认保存/入章） |
 
 存储：`apps/beads-studio/data/<board>/<id>/result.json`（运行时数据，已 gitignore）。一条结果 = 一个目录；面板上可直接删（✕ + 二次确认），
 或手动：本地 `rm -rf apps/beads-studio/data/<board>/<id>`；VPS 上在卷 `beads-studio_beads-studio-data` 内同路径。

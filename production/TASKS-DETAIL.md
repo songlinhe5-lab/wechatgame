@@ -15,6 +15,23 @@
 
 ---
 
+## WXG-T-978
+
+**工程·Studio 批量汇总页 `/batch.html`（B3）** · 负责：主理人(Trae CN) · 状态：✅ 完成（2026-11-17）
+
+- **用户原话**：「B3 批量汇总页」。
+- **交付**：`apps/beads-studio/public/batch.html`（单文件、零新依赖、不改 generate/manage 页）。
+  - 多选图片本地解像：`createImageBitmap` + `OffscreenCanvas`，与生成页同口径（>4096 拒收、256px JPEG 0.72 缩略图）。
+  - 参数区：盘面 cols×rows、色板、颜色网格（如 `4,6,8`）、平滑网格、`notrim`、`auto-tune`；组合数自算提示。
+  - 生成：`POST /api/batch/generate`（`draft:true` 默认）→ 600ms 轮询 `GET /api/batch/:id`，进度条 + 表格实时刷新（分数 / 色数 / 色差 / 相邻率 / 可入关 / id 或错误原文）。
+  - 预览：批次完成后逐条取 `/api/previews/:id`，用 `/board-render.js` 的 `drawBoard` 画 88px 拼豆缩略图（零渲染重实现）。
+  - 推荐：Top3 卡片按图分组，「选中」把手动勾选定位到对应表格行。
+  - 入章：大关下拉取 `/api/manage/state`；「✓ 确认保存所选」逐条 `/api/drafts/commit`；「→ 入章所选」`POST /api/manage/chapter/:id/import`（≤10 条护栏）。
+- **浏览器实测（PASS）**：标题 `批量生成 / auto-tune` 渲染；三按钮齐全；大关下拉填充 `曼陀罗（mandala · 9 关）` / `照片冒烟 32（photo32-smoke · 1 关）`；控制台零错误。
+- **范围边界（K-045）**：`public/generate.html`、`public/manage.html` 工作树里有其他会话未提交改动 ⇒ **未加导航入口**，本页以 URL `/batch.html` 直达；要挂入口须等那两件落定后单笔加。
+- **已知边界**：批次进度/评分只在内存，刷新即丢（产物已落盘）；文件解析全在前端内存（≤10 张 × ≤4096²）；预览缩略图依赖 `/api/previews/:id` 逐条拉取（60 条 ≈ 60 请求，本地工具可接受）。
+- **知识沉淀**：kb:sync 沉淀统计 新增 0 / 修改 0 / 激活 0 / 归档 0。
+
 ## WXG-T-977
 
 **工程·Studio 批量 auto-tune 评分 Top3（B2）** · 负责：主理人(Trae CN) · 状态：✅ 完成（2026-11-17）

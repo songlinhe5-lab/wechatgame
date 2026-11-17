@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>批量生成 / auto-tune · beads-studio</title>
+<style>
+    :root { --ink:#2b2622; --sub:#7a6f66; --line:#d8cfc4; --bg:#f6f1e9; --card:#fffdf9; --accent:#b4552d; }
+    * { box-sizing:border-box; }
+    body { margin:0; padding:18px 22px 60px; background:var(--bg); color:var(--ink);
+           font:14px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; }
+    h1 { font-size:19px; margin:0 0 4px; }
+    h2 { font-size:15px; margin:0 0 10px; }
+    a { color:var(--accent); text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    .top { display:flex; align-items:baseline; gap:16px; margin-bottom:14px; flex-wrap:wrap; }
+    .top .links { color:var(--sub); font-size:13px; }
+    .panel { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin-bottom:14px; }
+    .row { display:flex; gap:16px; flex-wrap:wrap; align-items:center; }
+    label { color:var(--sub); font-size:13px; display:inline-flex; align-items:center; gap:6px; }
+    input[type=number] { width:64px; }
+    input[type=text] { width:120px; }
+    input,select,button { font:inherit; padding:4px 7px; border:1px solid var(--line); border-radius:6px; background:#fff; color:var(--ink); }
+    button { cursor:pointer; background:#fff; }
+    button.primary { background:var(--accent); border-color:var(--accent); color:#fff; }
+    button:disabled { opacity:.45; cursor:not-allowed; }
+    .hint { color:var(--sub); font-size:12px; margin-top:8px; }
+    #msg { margin-top:8px; font-size:13px; min-height:20px; }
+    #msg.err { color:#b3261e; }
+    #msg.ok { color:#2f6b32; }
+    .bar { height:6px; background:#e9e0d4; border-radius:3px; overflow:hidden; margin-top:10px; }
+    .bar > i { display:block; height:100%; width:0; background:var(--accent); transition:width .25s; }
+    table { border-collapse:collapse; width:100%; font-size:13px; }
+    th,td { border-bottom:1px solid var(--line); padding:6px 8px; text-align:left; vertical-align:middle; }
+    th { color:var(--sub); font-weight:500; font-size:12px; white-space:nowrap; }
+    td.num { text-align:right; font-variant-numeric:tabular-nums; }
+    .st-ok { color:#2f6b32; } .st-error { color:#b3261e; } .st-running { color:var(--accent); }
+    .badge { display:inline-block; padding:1px 6px; border-radius:10px; font-size:11px; border:1px solid var(--line); }
+    .badge.yes { color:#2f6b32; border-color:#a9c9a9; background:#f0f7ef; }
+    .badge.no { color:#b3261e; border-color:#e0b4b0; background:#fdf1f0; }
+    canvas.thumb { width:88px; height:88px; border-radius:6px; background:#fff; border:1px solid var(--line); }
+    .rank { display:flex; gap:14px; flex-wrap:wrap; }
+    .rank .card { border:1px solid var(--line); border-radius:8px; padding:10px; min-width:210px; background:#fff; }
+    .rank .card h3 { margin:0 0 6px; font-size:13px; }
+    .rank .pick { display:flex; gap:10px; align-items:center; margin:6px 0; font-size:12px; }
+    .rank .pick canvas { width:56px; height:56px; border:1px solid var(--line); border-radius:4px; }
+    .rank .pick .meta { color:var(--sub); }
+    .rank .pick button { padding:2px 8px; font-size:12px; }
+    .score { font-variant-numeric:tabular-nums; }
+</style>
+</head>
+<body>
+<div class="top">
+    <h1>批量生成 / auto-tune</h1>
+    <span class="links"><a href="/generate.html">← 单张生成页</a> · <a href="/">← 大关管理</a></span>
+</div>
+
+<section class="panel">
+    <h2>1 · 选图与参数</h2>
+    <div class="row">
+        <label>图片（多选，≤10 张）
+            <input type="file" id="files" accept="image/*" multiple>
+        </label>
+    </div>
+    <div id="fileList" class="hint">未选图。</div>
+    <div class="row" style="margin-top:12px">
+        <label>盘面 <input type="number" id="cols" value="16" min="2" max="107"> × <input type="number" id="rows" value="16" min="2" max="107"></label>
+        <label>色板 <input type="text" id="palette" value="10" style="width:56px"></label>
+        <label>颜色网格 <input type="text" id="gridColors" value="4,6,8" title="逗号分隔；空 = 不扫该维"></label>
+        <label>平滑网格 <input type="text" id="gridSmooth" value="0,1"></label>
+        <label><input type="checkbox" id="notrim" checked> notrim（保盘面尺寸）</label>
+        <label><input type="checkbox" id="autotune" checked> auto-tune（回 Top3）</label>
+    </div>
+    <div class="row" style="margin-top:12px">
+        <button class="primary" id="go">开始批量生成</button>
+        <span class="hint" style="margin:0">组合数 = 颜色网格 × 平滑网格；单批 ≤10 图 × ≤6 组合、总 ≤60 条</span>
+    </div>
+    <div id="msg"></div>
+    <div class="bar"><i id="fill"></i></div>
+</section>
+
+<section class="panel" id="rankPanel" hidden>
+    <h2>2 · 推荐 Top3（每张图各自排序）</h2>
+    <div class="rank" id="rankBody"></div>
+</section>
+
+<section class="panel" id="tablePanel" hidden>
+    <h2>3 · 结果 <span class="hint" id="counter" style="margin:0"></span></h2>
+    <div class="row" style="margin-bottom:10px">
+        <label>目标大关 <select id="chapter"><option value="">（读取中…）</option></select></label>
+        <button id="commitSel">✓ 确认保存所选</button>
+        <button id="ingestSel">→ 入章所选</button>
+        <label class="hint" style="margin:0">入章需先确认保存；单次 ≤10 条</label>
+    </div>
+    <table>
+        <thead><tr>
+            <th><input type="checkbox" id="checkAll" title="全选可入关"></th>
+            <th>预览</th><th>图</th><th>参数</th><th>状态</th>
+            <th class="num">分数</th><th class="num">色数</th><th class="num">色差</th><th class="num">相邻率</th>
+            <th>可入关</th><th>id / 错误</th>
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+    </table>
+</section>
+
+<script src="/board-render.js"></script>
+<script type="module">
+const $ = (id) => document.getElementById(id);
+const MAX_FILES = 10;
+let picked = [];        // { name, w, h, data, thumb }
+let batchId = null;
+let rows = [];          // 服务端行快照（含本地补充：pattern / committed）
+let timer = null;
+
+const msg = (t, k = '') => { const el = $('msg'); el.textContent = t; el.className = k; };
+const parseList = (s) => String(s || '').split(/[,，\s]+/).filter(Boolean).map((v) => (/^\d+$/.test(v) ? Number(v) : v));
+
+function toB64(u8) {
+    let out = '';
+    const CH = 0x8000;
+    for (let i = 0; i < u8.length; i += CH) out += String.fromCharCode.apply(null, u8.subarray(i, i + CH));
+    return btoa(out);
+}
+
+async function decodeFile(file) {
+    const img = await createImageBitmap(file);
+    if (Math.max(img.width, img.height) > 4096) throw new Error(`${file.name} 超 4096 解像上限`);
+    const w = img.width, h = img.height;
+    const cv = new OffscreenCanvas(w, h);
+    const g = cv.getContext('2d', { willReadFrequently: true });
+    g.drawImage(img, 0, 0, w, h);
+    const data = toB64(g.getImageData(0, 0, w, h).data);
+    // 缩略图（随结果存盘；与生成页同口径 256px / JPEG 0.72）
+    const k = Math.min(1, 256 / Math.max(w, h));
+    const tw = Math.max(1, Math.round(w * k)), th = Math.max(1, Math.round(h * k));
+    const tc = new OffscreenCanvas(tw, th);
+    tc.getContext('2d').drawImage(img, 0, 0, tw, th);
+    const blob = await tc.convertToBlob({ type: 'image/jpeg', quality: 0.72 });
+    const thumb = await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(blob); });
+    return { name: file.name.replace(/\.[^.]+$/, '').slice(0, 40), w, h, data, thumb };
+}
+
+$('files').onchange = async () => {
+    const fs = [...$('files').files];
+    if (fs.length > MAX_FILES) { msg(`最多 ${MAX_FILES} 张（当前 ${fs.length}），只取前 ${MAX_FILES} 张`, 'err'); }
+    picked = [];
+    $('fileList').textContent = '解像中…';
+    try {
+        for (const f of fs.slice(0, MAX_FILES)) picked.push(await decodeFile(f));
+        $('fileList').textContent = picked.map((p) => `${p.name}（${p.w}×${p.h}）`).join(' ｜ ');
+        msg(`已选 ${picked.length} 张`);
+    } catch (e) {
+        picked = []; $('fileList').textContent = '无'; msg('解像失败：' + e.message, 'err');
+    }
+};
+
+$('go').onclick = async () => {
+    if (!picked.length) return msg('先选图', 'err');
+    const grid = {};
+    const colors = parseList($('gridColors').value);
+    const smooth = parseList($('gridSmooth').value);
+    if (colors.length) grid.colors = colors;
+    if (smooth.length) grid.smooth = smooth;
+    const body = {
+        items: picked,
+        params: {
+            cols: Number($('cols').value), rows: Number($('rows').value),
+            palette: $('palette').value, notrim: $('notrim').checked,
+            colors: colors[0] ?? 6, smooth: smooth[0] ?? 1,
+            colorsmode: 'error', cellmode: 'mode', swaps: 0, premedian: 0, mis: 'full',
+        },
+        grid, draft: true, autotune: $('autotune').checked,
+    };
+    $('go').disabled = true; msg('提交中…');
+    try {
+        const r = await fetch('/api/batch/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        const j = await r.json();
+        if (!r.ok) throw new Error(j.error || r.status);
+        batchId = j.batchId;
+        rows = []; $('tbody').innerHTML = ''; $('rankBody').innerHTML = '';
+        $('tablePanel').hidden = false; $('rankPanel').hidden = true;
+        msg(`批次 ${j.batchId} 已启动：${j.total} 条（${j.combos} 组合）`);
+        $('fill').style.width = '0%';
+        clearInterval(timer);
+        timer = setInterval(poll, 600);
+    } catch (e) {
+        msg('提交失败：' + e.message, 'err');
+        $('go').disabled = false;
+    }
+};
+
+async function poll() {
+    const st = await (await fetch(`/api/batch/${batchId}`)).json();
+    if (st.error) { clearInterval(timer); msg(st.error, 'err'); $('go').disabled = false; return; }
+    rows = st.rows.map((n, i) => Object.assign(rows[i] || {}, n));
+    $('fill').style.width = `${Math.round((st.done / st.total) * 100)}%`;
+    $('counter').textContent = `${st.done}/${st.total} 完成 · ${st.ok} 成功 · ${st.error} 失败`;
+    renderTable();
+    if (st.finished) {
+        clearInterval(timer);
+        $('go').disabled = false;
+        msg(`完成：${st.ok} 成功 / ${st.error} 失败`, st.error ? 'err' : 'ok');
+        await loadPatterns();
+        renderRank(st.ranking);
+        renderTable();
+    }
+}
+
+function renderTable() {
+    const tb = $('tbody');
+    for (let i = 0; i < rows.length; i++) {
+        const r = rows[i];
+        let tr = tb.querySelector(`tr[data-i="${i}"]`);
+        if (!tr) {
+            tr = document.createElement('tr');
+            tr.dataset.i = i;
+            tr.innerHTML = `
+                <td><input type="checkbox" class="pick"></td>
+                <td><canvas class="thumb" width="88" height="88"></canvas></td>
+                <td class="f-name"></td>
+                <td class="f-combo hint"></td>
+                <td class="f-status"></td>
+                <td class="num f-score score"></td>
+                <td class="num f-colors"></td>
+                <td class="num f-err"></td>
+                <td class="num f-adj"></td>
+                <td class="f-imp"></td>
+                <td class="f-id hint"></td>`;
+            tb.appendChild(tr);
+        }
+        tr.querySelector('.f-name').textContent = r.name;
+        tr.querySelector('.f-combo').textContent = Object.entries(r.combo || {}).map(([k, v]) => `${k}=${v}`).join(' ');
+        const stc = tr.querySelector('.f-status');
+        stc.textContent = { ok: '成功', error: '失败', running: '生成中', pending: '排队' }[r.status] || r.status;
+        stc.className = `f-status st-${r.status}`;
+        tr.querySelector('.f-score').textContent = r.score ?? '—';
+        tr.querySelector('.f-colors').textContent = r.colors ?? '—';
+        tr.querySelector('.f-err').textContent = r.metrics?.colorError ?? '—';
+        tr.querySelector('.f-adj').textContent = r.metrics?.adjRate ?? '—';
+        const imp = tr.querySelector('.f-imp');
+        imp.innerHTML = r.status === 'ok'
+            ? `<span class="badge ${r.importable ? 'yes' : 'no'}">${r.importable ? '可入关' : '不可'}</span>`
+            : '';
+        const idc = tr.querySelector('.f-id');
+        idc.textContent = r.id || (r.error ? r.error.slice(0, 90) : '');
+        idc.title = r.error || r.id || '';
+        if (r.pattern) drawThumb(tr.querySelector('.thumb'), r);
+    }
+}
+
+function drawThumb(cv, r) {
+    if (!window.BeadsBoardRender || !r.pattern) return;
+    const g = cv.getContext('2d');
+    window.BeadsBoardRender.drawBoard(g, cv.width, cv.height, r.pattern, {
+        cols: r.cols, rows: r.rows, pattern: r.pattern, hexes: r.paletteHex || null,
+    });
+}
+
+async function loadPatterns() {
+    await Promise.all(rows.filter((r) => r.status === 'ok').map(async (r) => {
+        try {
+            const j = await (await fetch(`/api/previews/${r.id}`)).json();
+            r.pattern = j.pattern; r.paletteHex = j.paletteHex;
+        } catch { /* 预览读取失败只影响缩略图 */ }
+    }));
+}
+
+function renderRank(ranking) {
+    if (!ranking || !ranking.length) return;
+    $('rankPanel').hidden = false;
+    const box = $('rankBody');
+    box.innerHTML = '';
+    for (const g of ranking) {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `<h3>${g.name}</h3>`;
+        g.top.forEach((t, k) => {
+            const line = document.createElement('div');
+            line.className = 'pick';
+            line.innerHTML = `<b>#${k + 1}</b><canvas width="56" height="56"></canvas>
+                <span class="meta">${t.score} 分 · ${t.colors} 色 · 色差 ${t.colorError ?? '—'} · 相邻 ${t.adjRate ?? '—'}
+                ${t.importable ? '' : '<br>⚠ ' + (t.blockers?.[0] || '不可入关')}</span>
+                <button data-id="${t.id}">选中</button>`;
+            // 用主表已加载的 pattern 画
+            const r = rows.find((x) => x.id === t.id);
+            if (r?.pattern) setTimeout(() => drawThumb(line.querySelector('canvas'), r), 0);
+            line.querySelector('button').onclick = () => {
+                document.querySelectorAll('#tbody .pick').forEach((cb) => { cb.checked = false; });
+                const tr = document.querySelector(`#tbody tr[data-i="${rows.findIndex((x) => x.id === t.id)}"]`);
+                if (tr) { tr.querySelector('.pick').checked = true; tr.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+            };
+            card.appendChild(line);
+        });
+        box.appendChild(card);
+    }
+}
+
+// ── 大关列表（入章目标）──
+(async () => {
+    try {
+        const j = await (await fetch('/api/manage/state')).json();
+        const sel = $('chapter');
+        sel.innerHTML = '';
+        if (!j.chapters?.length) { sel.innerHTML = '<option value="">（无大关）</option>'; return; }
+        for (const c of j.chapters) {
+            const o = document.createElement('option');
+            o.value = c.id;
+            o.textContent = `${c.title || c.id}（${c.id} · ${c.levels?.length ?? 0} 关）`;
+            sel.appendChild(o);
+        }
+    } catch (e) {
+        $('chapter').innerHTML = '<option value="">（大关列表读取失败）</option>';
+    }
+})();
+
+const selected = () => [...document.querySelectorAll('#tbody .pick')].map((cb, i) => (cb.checked ? rows[i] : null)).filter(Boolean);
+
+$('checkAll').onchange = () => {
+    const on = $('checkAll').checked;
+    document.querySelectorAll('#tbody .pick').forEach((cb, i) => { cb.checked = on && rows[i].status === 'ok' && rows[i].importable; });
+};
+
+$('commitSel').onclick = async () => {
+    const list = selected();
+    if (!list.length) return msg('先勾选结果', 'err');
+    let ok = 0;
+    for (const r of list) {
+        if (r.committed) { ok++; continue; }
+        const res = await fetch('/api/drafts/commit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: r.id }) });
+        const j = await res.json();
+        if (res.ok) { r.committed = true; ok++; } else msg(`确认 ${r.id} 失败：${j.error}`, 'err');
+    }
+    msg(`已确认保存 ${ok}/${list.length} 条（id 不变，可继续入章）`, ok === list.length ? 'ok' : 'err');
+};
+
+$('ingestSel').onclick = async () => {
+    const chapter = $('chapter').value;
+    if (!chapter) return msg('先选目标大关', 'err');
+    const list = selected().filter((r) => r.committed);
+    if (!list.length) return msg('所选里没有已确认保存的结果（先点「✓ 确认保存所选」）', 'err');
+    if (list.length > 10) return msg(`单次入章 ≤10 条（当前 ${list.length}）`, 'err');
+    const res = await fetch(`/api/manage/chapter/${chapter}/import`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ resultIds: list.map((r) => r.id) }),
+    });
+    const j = await res.json();
+    if (!res.ok) return msg('入章失败：' + (j.error || res.status), 'err');
+    msg(`已入章 ${list.length} 条 → ${chapter}`, 'ok');
+};
+</script>
+</body>
+</html>
