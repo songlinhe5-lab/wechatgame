@@ -122,6 +122,10 @@ const deltaE76 = (A, B) => {
     const [L1, a1, b1] = labOf(A), [L2, a2, b2] = labOf(B);
     return Math.sqrt((L1 - L2) ** 2 + (a1 - a2) ** 2 + (b1 - b2) ** 2);
 };
+// ponytail: ADR-0028-explainer 真义：amount ∈ [-1, +1]
+//   负向（amount<0）→ target=0, c×(1+amount)
+//   正向（amount>0）→ target=255, c+(255-c)×amount
+// 修正：原正向乘了 0.5（19% 白）→ 直接用 factor（38% 白）
 const mixHex = (hex, factor) => {
     const [r, g, b] = hexToRgb(hex);
     let nr, ng, nb;
@@ -129,7 +133,7 @@ const mixHex = (hex, factor) => {
         const k = 1 + factor;
         nr = r * k; ng = g * k; nb = b * k;
     } else {
-        const k = factor * 0.5;
+        const k = factor;  // ← 修正：去掉 ×0.5
         nr = r + (255 - r) * k;
         ng = g + (255 - g) * k;
         nb = b + (255 - b) * k;
@@ -167,7 +171,9 @@ const hslOf = (hex) => {
 // 门 B/C：单色下限 + 近似族互斥
 // ──────────────────────────────────────────────────────────────
 const BLACK = '#000000';
-const GATE_B_FAIL = (hex) => deltaE76(hex, BLACK) < PIT_VISIBLE_MIN;
+// ponytail: 修正门 B — 文档声明 ΔE(c, mix(c, −0.44)) < 8（pit 派生色）
+// 错误近似：原实现用 ΔE(c, BLACK) → diamond-dotz 8001 #1F1F24 被错放（ΔE_black=12.5，ΔE_pit=7.0）
+const GATE_B_FAIL = (hex) => deltaE76(hex, mixHex(hex, -0.44)) < PIT_VISIBLE_MIN;
 const CONFUSABLE = (A, B) => bandDelta(A, B) < NEARFAM_BAND_MAX && deltaE76(A, B) < NEARFAM_BASE_MAX;
 
 // ──────────────────────────────────────────────────────────────
@@ -569,10 +575,11 @@ async function run(args) {
 // ──────────────────────────────────────────────────────────────
 function renderPreview(selected, q, palette) {
     const BEAD_R = 32, GAP = 14, STEP = BEAD_R * 2 + GAP;
+    // 与上方 mixHex 同步 ADR-0028 语义（正向直接 factor，不再 ×0.5）
     const mix = (hex, f) => {
         const [r, g, b] = hexToRgb(hex); let nr, ng, nb;
         if (f < 0) { const k = 1 + f; nr = r * k; ng = g * k; nb = b * k; }
-        else { const k = f * 0.5; nr = r + (255 - r) * k; ng = g + (255 - g) * k; nb = b + (255 - b) * k; }
+        else { const k = f; nr = r + (255 - r) * k; ng = g + (255 - g) * k; nb = b + (255 - b) * k; }
         return rgbToHex(nr, ng, nb);
     };
     const svgBead = (hex, cx, cy, code) => {
