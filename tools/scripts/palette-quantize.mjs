@@ -29,19 +29,19 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { hexToRgb, rgbToHex, rgbToHueDeg, hueRingRange, medianCut, dominantColor } from './lib/palette-rules.mjs';
+import {
+    hexToRgb, rgbToHex, rgbToHueDeg, hueRingRange, medianCut, dominantColor,
+    deltaE76, mixHex, bandDelta, lumaOf, hslOf,
+    NEARFAM_BAND_MAX, NEARFAM_BASE_MAX, PIT_VISIBLE_MIN,
+    QUALITY_HUE_SECTORS, QUALITY_MIN_SECTOR_COVERAGE, QUALITY_LUMA_SPAN_MIN, QUALITY_MIN_BAND,
+    GATE_B_FAIL, CONFUSABLE, distributionQuality,
+} from './lib/palette-rules.mjs';
 
 // ──────────────────────────────────────────────────────────────
 // 常量（= palette-selection-gates.md τ 值，2026-11-17 Spike 定标）
+// 门 B/C / 分布质量阈值已上移 lib/palette-rules.mjs（beads-gen 选色共用一套）
 // ──────────────────────────────────────────────────────────────
-const NEARFAM_BAND_MAX = 10;   // 门 C：bandΔE < 10 → 近似族互斥
-const NEARFAM_BASE_MAX = 22;   // 门 C：baseΔE < 22 → 近似族互斥（合取）
-const PIT_VISIBLE_MIN = 8;      // 门 B：单色 baseΔE ≥ 8（防深珠不可见）
 const MAX_COLORS = 35;          // 关卡颜色上限
-const QUALITY_HUE_SECTORS = 8;  // 分布质量：色相扇区
-const QUALITY_MIN_SECTOR_COVERAGE = (n) => Math.ceil(n / 2);
-const QUALITY_LUMA_SPAN_MIN = 40;  // 分布质量：明度跨度
-const QUALITY_MIN_BAND = 15;       // 补色硬门槛：新选色与已选集最小 bandΔE ≥ 15（软约束升级为硬门，耗尽降级）
 
 // ──────────────────────────────────────────────────────────────
 // CLI 参数
@@ -89,125 +89,11 @@ function loadPalette(slug) {
 }
 
 // ──────────────────────────────────────────────────────────────
-// 颜色空间工具（RGB↔Lab / ΔE76 / 三点派生带 / mix）
-// RGB↔Hex 与 Median Cut 见 lib/palette-rules.mjs（与 beads-gen 共用真源）
+// 颜色空间 / 门 B·C / 分布质量：见 lib/palette-rules.mjs（单一真源）
+// RGB↔Lab、ΔE76、三点派生带、mix、门 B/C、分布质量评分均已上移，
+// beads-gen 选色与 palette-quantize 共用同一套阈值与实现。
 // ──────────────────────────────────────────────────────────────
-
-const rgbToLinear = (v) => {
-    const c = v / 255;
-    return c > 0.04045 ? ((c + 0.055) / 1.055) ** 2.4 : c / 12.92;
-};
-const Xn = 0.95047, Yn = 1.00000, Zn = 1.08883;
-
-const rgbToLab = (rgb) => {
-    const [r, g, b] = rgb;
-    const rl = rgbToLinear(r), gl = rgbToLinear(g), bl = rgbToLinear(b);
-    const X = rl * 0.4124 + gl * 0.3576 + bl * 0.1805;
-    const Y = rl * 0.2126 + gl * 0.7152 + bl * 0.0722;
-    const Z = rl * 0.0193 + gl * 0.1192 + bl * 0.9505;
-    const f = (t) => t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116;
-    const fx = f(X / Xn), fy = f(Y / Yn), fz = f(Z / Zn);
-    return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)];
-};
-
-const labsCache = new Map();
-const labOf = (hex) => {
-    let c = labsCache.get(hex);
-    if (!c) { c = rgbToLab(hexToRgb(hex)); labsCache.set(hex, c); }
-    return c;
-};
-const deltaE76 = (A, B) => {
-    const [L1, a1, b1] = labOf(A), [L2, a2, b2] = labOf(B);
-    return Math.sqrt((L1 - L2) ** 2 + (a1 - a2) ** 2 + (b1 - b2) ** 2);
-};
-// ponytail: ADR-0028-explainer 真义：amount ∈ [-1, +1]
-//   负向（amount<0）→ target=0, c×(1+amount)
-//   正向（amount>0）→ target=255, c+(255-c)×amount
-// 修正：原正向乘了 0.5（19% 白）→ 直接用 factor（38% 白）
-const mixHex = (hex, factor) => {
-    const [r, g, b] = hexToRgb(hex);
-    let nr, ng, nb;
-    if (factor < 0) {
-        const k = 1 + factor;
-        nr = r * k; ng = g * k; nb = b * k;
-    } else {
-        const k = factor;  // ← 修正：去掉 ×0.5
-        nr = r + (255 - r) * k;
-        ng = g + (255 - g) * k;
-        nb = b + (255 - b) * k;
-    }
-    return rgbToHex(nr, ng, nb);
-};
-const bandDelta = (A, B) => {
-    const edgeA = mixHex(A, -0.30), litA = mixHex(A, +0.38);
-    const edgeB = mixHex(B, -0.30), litB = mixHex(B, +0.38);
-    return Math.min(deltaE76(A, B), deltaE76(edgeA, edgeB), deltaE76(litA, litB));
-};
-
-// Lab→Luma（感知明度，0-100）
-const lumaOf = (hex) => {
-    const [L] = labOf(hex);
-    return Math.max(0, Math.min(100, L));
-};
-
-// RGB→HSL（色相 0-360°，简化版用于扇区覆盖）
-const hslOf = (hex) => {
-    const [r, g, b] = hexToRgb(hex).map(v => v / 255);
-    const max = Math.max(r, g, b), min = Math.min(r, g, b);
-    const d = max - min;
-    let h = 0;
-    if (d !== 0) {
-        if (max === r) h = ((g - b) / d + (g < b ? 6 : 0));
-        else if (max === g) h = ((b - r) / d + 2);
-        else h = ((r - g) / d + 4);
-        h *= 60;
-    }
-    return h;
-};
-
-// ──────────────────────────────────────────────────────────────
-// 门 B/C：单色下限 + 近似族互斥
-// ──────────────────────────────────────────────────────────────
-const BLACK = '#000000';
-// ponytail: 修正门 B — 文档声明 ΔE(c, mix(c, −0.44)) < 8（pit 派生色）
-// 错误近似：原实现用 ΔE(c, BLACK) → diamond-dotz 8001 #1F1F24 被错放（ΔE_black=12.5，ΔE_pit=7.0）
-const GATE_B_FAIL = (hex) => deltaE76(hex, mixHex(hex, -0.44)) < PIT_VISIBLE_MIN;
-const CONFUSABLE = (A, B) => bandDelta(A, B) < NEARFAM_BAND_MAX && deltaE76(A, B) < NEARFAM_BASE_MAX;
-
-// ──────────────────────────────────────────────────────────────
-// 分布质量评分
-// ──────────────────────────────────────────────────────────────
-function distributionQuality(hexes) {
-    const n = hexes.length;
-    if (n < 2) return { hueSectors: 0, lumaSpan: 0, minBandDelta: 0, score: 0 };
-
-    // 色相扇区覆盖
-    const sectorSize = 360 / QUALITY_HUE_SECTORS;
-    const sectors = new Set();
-    for (const h of hexes) sectors.add(Math.floor(hslOf(h) / sectorSize));
-    const hueOk = sectors.size >= QUALITY_MIN_SECTOR_COVERAGE(n);
-
-    // 明度跨度
-    const lumas = hexes.map(lumaOf);
-    const lumaSpan = Math.max(...lumas) - Math.min(...lumas);
-    const lumaOk = lumaSpan >= QUALITY_LUMA_SPAN_MIN;
-
-    // 两两最小 bandΔE
-    let minBand = Infinity;
-    for (let i = 0; i < n; i++)
-        for (let j = i + 1; j < n; j++)
-            minBand = Math.min(minBand, bandDelta(hexes[i], hexes[j]));
-
-    const score = (hueOk ? 2 : 0) + (lumaOk ? 1 : 0) + (minBand >= 15 ? 1 : 0);
-    return {
-        hueSectors: sectors.size,
-        hueOk,
-        lumaSpan: Math.round(lumaSpan),
-        lumaOk,
-        minBandDelta: Math.round(minBand * 10) / 10,
-        score, // 0-4
-    };
-}
+const BLACK = '#000000'; // 仅用于报告打印对照（门 B 用 pit 派生色，见 lib）
 
 // ──────────────────────────────────────────────────────────────
 // Hue 辅助（RGB→HSL hue + 环形距离 + 色相集中度）

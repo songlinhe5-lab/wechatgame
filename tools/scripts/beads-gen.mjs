@@ -66,7 +66,7 @@ import { homedir } from 'node:os';
 import { dirname as dirOf } from 'node:path';
 import { fileURLToPath as urlToPath } from 'node:url';
 import { BEAD_COLOR_CHARS, BEAD_COLOR_MAX } from './lib/bead-charset.mjs';
-import { hexToRgb, medianCut, dominantColor } from './lib/palette-rules.mjs';
+import { hexToRgb, medianCut, dominantColor, GATE_B_FAIL, CONFUSABLE } from './lib/palette-rules.mjs';
 // 本脚本所在目录（tools/scripts/）—— 色板等数据资产按脚本位置解析，不依赖 cwd
 const SCRIPT_DIR = dirOf(urlToPath(import.meta.url));
 
@@ -1170,8 +1170,13 @@ function kmeansLab(pts, k) {
 //   · cellmode：mode=格内主导色（卡通干净，对标 makebead）| avg=格均色就近（照片纹理，对标豆豆龙）。
 /**
  * hue-aware Median Cut 簇心（--quantizer median-hue）：采样前景像素 → Median Cut →
- * 每簇取众数色 → 转 Lab 作为簇心，后续噪声过滤/品牌映射与 k-means 路径完全一致。
+ * 每簇取众数色 → 吸附品牌珠 → 按**像素权重 + 门 B/C** 贪心选 n 色。
  * ponytail: 采样上限 2 万点；Median Cut 递归排序在 4M 像素上不可接受的性能折中。
+ * 2026-11-17 调优（WXG-T-976 追补）：
+ *   ① 超分裂 2n 再选——旧实现只切 n 簇，大背景常吃掉多个簇，used 只剩 2–4；
+ *   ② 同品牌珠的簇权重合并（像素投票），避免「一个珠多个簇」白占坑；
+ *   ③ 门 B（深珠对 pit 不可见）与门 C（近似族互斥）用 lib/palette-rules 同一套阈值，
+ *      第一轮严格过门，候选耗尽后按权重降级补位（不走回头路，仍保持品牌去重）。
  */
 function hueMedianCenters(px, n) {
   const { W, H, R, G, B, A } = px;
@@ -1183,10 +1188,31 @@ function hueMedianCenters(px, n) {
     rgb.push([R[i], G[i], B[i]]);
   }
   if (!rgb.length) return [];
-  return medianCut(rgb, 0, n).map((cluster) => {
+  const cand = [];
+  for (const cluster of medianCut(rgb, 0, Math.max(2, n * 2))) {
+    if (!cluster.length) continue;
     const [r, g, b] = hexToRgb(dominantColor(cluster));
-    return rgb2lab(r, g, b);
-  });
+    const idx = nearestPal(r, g, b) - 1; // 0-based 品牌色号
+    const cur = cand.find((c) => c.idx === idx);
+    if (cur) cur.weight += cluster.length; // 同珠多簇：像素权重累加
+    else cand.push({ idx, weight: cluster.length });
+  }
+  cand.sort((a, b) => b.weight - a.weight);
+  const picked = [];
+  const chosen = new Set();
+  for (const c of cand) { // ① 严格过门 B + 门 C
+    if (picked.length >= n) break;
+    if (chosen.has(c.idx)) continue;
+    if (GATE_B_FAIL(palHex[c.idx])) continue;
+    if (picked.some((i) => CONFUSABLE(palHex[i], palHex[c.idx]))) continue;
+    picked.push(c.idx); chosen.add(c.idx);
+  }
+  for (const c of cand) { // ② 不够 n：按权重放宽门（品牌去重仍保留）
+    if (picked.length >= n) break;
+    if (chosen.has(c.idx)) continue;
+    picked.push(c.idx); chosen.add(c.idx);
+  }
+  return picked.map((i) => PAL_LAB[i]);
 }
 
 function buildGrid(px, n, cellmode, quantizer) {
