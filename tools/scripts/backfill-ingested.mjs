@@ -15,6 +15,7 @@
  *   node tools/scripts/backfill-ingested.mjs                  # 只读预览（默认）
  *   node tools/scripts/backfill-ingested.mjs --write          # 落盘
  *   node tools/scripts/backfill-ingested.mjs --write --force  # 覆盖已有标记（默认跳过）
+ *   node tools/scripts/backfill-ingested.mjs --json           # 末行追加机器可读 JSON（管理页按钮用）
  *
  * 写入面只有 apps/beads-studio/data 下的 result.json / draft.json（gitignore 的开发数据），不碰关卡真源。
  */
@@ -27,6 +28,7 @@ const LEVELS = join(REPO, 'games/beads/design/levels');
 const DATA = join(REPO, 'apps/beads-studio/data');
 const WRITE = process.argv.includes('--write');
 const FORCE = process.argv.includes('--force');
+const JSON_OUT = process.argv.includes('--json');
 const at = new Date().toISOString();
 
 const sig = (cols, rows, pattern) => `${cols}x${rows}|${pattern.join('\n')}`;
@@ -86,6 +88,7 @@ if (existsSync(draftDir)) {
 // ── 逐关挑唯一来源；有歧义就跳过 ────────────────────────────────────────────
 const hitLevels = new Set();
 const ambiguous = [];
+const items = []; // 机器可读（--json 末行）：{id, levelUid, chapter}
 let matched = 0, already = 0, written = 0;
 const take = (lv, rec) => {
     hitLevels.add(lv.uid);
@@ -95,6 +98,7 @@ const take = (lv, rec) => {
     obj.ingested = { chapter: lv.chapter, at, levelUid: lv.uid, backfilled: true };
     if (WRITE) writeFileSync(file, JSON.stringify(obj, null, 2) + '\n');
     written++;
+    items.push({ id: obj.id ?? file, levelUid: lv.uid, chapter: lv.chapter });
     console.log(`${WRITE ? '已标记' : '将标记'} ${obj.id ?? file} → ${lv.chapter}/${lv.uid}`);
 };
 
@@ -123,3 +127,8 @@ console.log(
 );
 if (ambiguous.length) console.log(`⚠ 同 pattern 多候选、无法唯一定源，已跳过 ${ambiguous.length} 关：${ambiguous.join('、')}`);
 if (unmatched.length) console.log(`未匹配关卡 ${unmatched.length} 个：${unmatched.join('、')}（来源结果可能已删除，或关卡图入章后被手改）`);
+
+// 机器可读末行（管理页「回填已入章」按钮消费；人类日志保持上面原样）
+if (JSON_OUT) {
+    console.log(JSON.stringify({ write: WRITE, scanned, noPattern, matched, already, written, items, ambiguous, unmatched }));
+}

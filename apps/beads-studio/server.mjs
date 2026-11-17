@@ -41,6 +41,7 @@
  *        末位设 boss；replace 保留 title/章序/showcase 并把旧关文件整批归档 `design/levels/archive/<章id>-<时间戳>/`
  *   GET  /api/manage/state                     → 大关/小关列表（管理页数据源）
  *   POST /api/manage/verify                    → 复跑生成链（「校验 / 导入大关」按钮，幂等）
+ *   POST /api/manage/backfill-ingested         → 存量「已入章」回填（body {write?}；跑 backfill-ingested.mjs）
  *   POST /api/manage/chapter                   → 新建大关（含首关 boss，从结果导入；body {id,title,imageDataUrl,resultId}）
  *   POST /api/manage/chapter/:id/(rename|open|move|delete)
  *        → 改名 {title} / 开放开关 {open} / 上下降序 {dir} / 删章 {action:'move'|'delete', moveTo}
@@ -701,6 +702,34 @@ async function handleManageVerify(res) {
     if (sync.status !== 0)
         return sendJson(res, 500, { error: '校验未通过：\n' + String(sync.stderr || sync.stdout || '').slice(-1200) });
     return sendJson(res, 200, { ok: true, note: 'levels:sync + framework:sync 全绿：真源与产物一致，生成期断言全集通过' });
+}
+
+/** 存量「已入章」回填（WXG-T-978）：spawn tools/scripts/backfill-ingested.mjs。
+ *  body `{write?:boolean}`（缺省 = 预览）；回 {items,written,already,ambiguous,unmatched,log}。
+ *  只写 apps/beads-studio/data 下的结果/草稿元数据，不碰关卡真源，故不进 applyManage 事务。 */
+async function handleBackfillIngested(req, res) {
+    if (!existsSync(LEVELS_DIR))
+        return sendJson(res, 501, { error: '大关管理仅在本地仓运行 beads-studio 时可用' });
+    const script = join(REPO, 'tools/scripts/backfill-ingested.mjs');
+    if (!existsSync(script))
+        return sendJson(res, 501, { error: '回填脚本不存在（容器内无关卡真源）' });
+    let body = {};
+    try { body = await readJsonBody(req); } catch (e) { return sendJson(res, 400, { error: e.message }); }
+    const write = body.write === true;
+    const r = spawnSync(process.execPath, [script, '--json', ...(write ? ['--write'] : [])], {
+        cwd: REPO, encoding: 'utf8', timeout: 120_000,
+    });
+    const lines = String(r.stdout || '').trim().split('\n').filter(Boolean);
+    let data = null;
+    const last = lines[lines.length - 1] || '';
+    if (last.startsWith('{')) { try { data = JSON.parse(last); } catch { /* 末行坏了就只回日志 */ } }
+    if (r.status !== 0) {
+        return sendJson(res, 500, {
+            error: `回填脚本退出 ${r.status}`,
+            detail: String(r.stderr || r.stdout || '').slice(-800),
+        });
+    }
+    return sendJson(res, 200, { ok: true, write, ...(data || {}), log: lines.filter((l) => !l.startsWith('{')) });
 }
 
 /** body 解析小工具（管理端点共用；空体 ⇒ {}）。 */
@@ -2391,6 +2420,7 @@ async function handle(req, res) {
         // [WXG-T-341] 大关管理（全部仅本地仓；handler 内守 501）：状态/校验/建章/章操作/关操作。
         if (req.method === 'GET' && path === '/api/manage/state') return handleManageState(res);
         if (req.method === 'POST' && path === '/api/manage/verify') return handleManageVerify(res);
+        if (req.method === 'POST' && path === '/api/manage/backfill-ingested') return await handleBackfillIngested(req, res);
         if (req.method === 'POST' && path === '/api/manage/chapter') return await handleChapterCreate(req, res);
         const mimp = path.match(/^\/api\/manage\/chapter\/([a-z0-9][a-z0-9-]{0,31})\/import$/);
         if (req.method === 'POST' && mimp) return await handleChapterImport(req, res, mimp[1]);

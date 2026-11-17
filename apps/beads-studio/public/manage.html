@@ -216,6 +216,7 @@
         <span id="meta" style="color:#6b6b6b;font-size:12px"></span>
         <span style="margin-left:auto"></span>
         <button class="ghost" id="verify" title="跑 levels:sync + framework:sync（幂等，只校验不改内容）">校验并同步</button>
+        <button class="ghost" id="backfill" title="按关卡 pattern 反查存量结果，补「已入章」标记（先预览，确认后写入）">回填已入章</button>
     </header>
     <!-- 错误/日志放在 main 之外：跳生成页前后的提示都看得见 -->
     <div id="pg-notice">
@@ -1178,6 +1179,35 @@
                 await reload();
             } catch (e) {
                 showErr(e.message);
+            }
+        };
+
+        // 存量「已入章」回填：先预览（不写盘）→ 确认 → 写入 → 刷新结果列表（选图器徽章即时生效）
+        $('backfill').onclick = async () => {
+            const post = async (write) => {
+                const res = await fetch('/api/manage/backfill-ingested', {
+                    method: 'POST', headers: { 'content-type': 'application/json' },
+                    body: JSON.stringify({ write }),
+                });
+                const j = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(httpErr(j, 'HTTP ' + res.status));
+                return j;
+            };
+            try {
+                $('backfill').disabled = true;
+                const pv = await post(false);
+                const lines = [...(pv.log || [])];
+                if (pv.ambiguous?.length) lines.push(`歧义跳过：${pv.ambiguous.join('、')}`);
+                if (!pv.written) { showLog([...lines, '没有需要回填的条目。']); return; }
+                showLog([...lines, `待写入 ${pv.written} 条`]);
+                if (!confirm(`回填 ${pv.written} 条「已入章」标记？\n（只写 apps/beads-studio/data 下的结果/草稿元数据，不动关卡真源）`)) return;
+                const done = await post(true);
+                showLog([...(done.log || []).filter((l) => l.startsWith('已标记')), `回填完成：写入 ${done.written} 条`]);
+                await reload();
+            } catch (e) {
+                showErr(e.message);
+            } finally {
+                $('backfill').disabled = false;
             }
         };
 
