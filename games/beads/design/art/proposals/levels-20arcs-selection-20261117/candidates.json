@@ -1,0 +1,368 @@
+{
+  "taskId": "WXG-T-974",
+  "status": "草案 · 不入库 · 不入关",
+  "note": "美术指导纯甄选产出：20 个大关 × 9 个子图案（P9 为 boss）的题材候选，仅用于用户评审题材是否合适。图案全部原创剪影，不引用任何第三方 IP。suggestedColors 为建议主色数（3–8），legibility 为按 pattern-legibility T1–T7 直觉的自评（非精确指标、非门禁）。",
+  "paletteRef": "games/beads/design/art/specs/art-bible.md §3.2（10 色珠板 HEX；预览图取色于此）",
+  "arcs": [
+    {
+      "arcId": "A01",
+      "title": "花间集",
+      "domain": "花卉植物",
+      "overview": "雏菊·向日葵·郁金香·玫瑰·三叶草·荷花·仙人掌·蒲公英·花之王",
+      "rationale": "花卉是最经典的拼豆母题，圆瓣+花心天然形成高对比色块，低色数即可辨认，适合作为内容扩池的开篇章。",
+      "patterns": [
+        {"id":"P1","name":"雏菊","desc":"一圈白色长花瓣围着黄色圆花心","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P2","name":"向日葵","desc":"大圆盘花心配放射花瓣，下有挺立茎与两片叶","suggestedColors":4,"legibility":"好拼","isBoss":false},
+        {"id":"P3","name":"郁金香","desc":"杯状花冠收于长茎，两侧各挑一片叶","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P4","name":"玫瑰","desc":"层叠花瓣向心卷曲的花头，带短茎","suggestedColors":4,"legibility":"偏难","isBoss":false},
+        {"id":"P5","name":"三叶草","desc":"三颗圆润心形叶聚于短茎顶端","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P6","name":"荷花","desc":"左右舒展的宽瓣托着黄色莲蓬，下有水波","suggestedColors":4,"legibility":"中等","isBoss":false},
+        {"id":"P7","name":"仙人掌","desc":"带侧臂的柱状掌身，顶开一朵小红花","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P8","name":"蒲公英","desc":"放射绒球连细长直茎","suggestedColors":3,"legibility":"中等","isBoss":false},
+        {"id":"P9","name":"花之王","desc":"层叠大花朵戴五角王冠，花心以深色点睛","suggestedColors":6,"legibility":"中等","isBoss":true}
+      ]
+    },
+    {
+      "arcId": "A02",
+      "title": "林中友",
+      "domain": "森林走兽",
+      "overview": "小狐狸·棕熊·小鹿·兔子·松鼠·刺猬·浣熊·小狼·鹿王",
+      "rationale": "拟人化森林兽类轮廓圆润、特征（耳/尾/角）夸张，剪影辨识度高且亲和力强，覆盖低龄玩家。",
+      "patterns": [
+        {"id":"P1","name":"小狐狸","desc":"尖耳三角脸配蓬松大尾","suggestedColors":4,"legibility":"好拼","isBoss":false},
+        {"id":"P2","name":"棕熊","desc":"圆头圆耳、胖圆身躯","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P3","name":"小鹿","desc":"长脖昂首、分叉鹿角、身点白斑","suggestedColors":4,"legibility":"中等","isBoss":false},
+        {"id":"P4","name":"兔子","desc":"两只长耳竖起、圆身短尾","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P5","name":"松鼠","desc":"卷起蓬松大尾、前爪抱着松果","suggestedColors":4,"legibility":"中等","isBoss":false},
+        {"id":"P6","name":"刺猬","desc":"半圆弧刺背配尖鼻小脸","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P7","name":"浣熊","desc":"黑眼罩脸配环纹粗尾","suggestedColors":4,"legibility":"中等","isBoss":false},
+        {"id":"P8","name":"小狼","desc":"尖耳长吻、竖起的蓬松尾","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P9","name":"鹿王","desc":"巨角雄鹿昂首而立，鹿角如枝、身披鞍纹","suggestedColors":6,"legibility":"中等","isBoss":true}
+      ]
+    },
+    {
+      "arcId": "A03",
+      "title": "深海湾",
+      "domain": "海洋生物",
+      "overview": "小鱼·鲸鱼·海豚·章鱼·水母·海龟·螃蟹·贝壳·鲸之王",
+      "rationale": "海洋生物形态跨度大（流线/放射/圆壳），蓝紫冷色为主、以暖色点睛，天然贴合'冷底暖珠'视觉身份。",
+      "patterns": [
+        {"id":"P1","name":"小鱼","desc":"椭圆身子摆着三角尾鳍","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P2","name":"鲸鱼","desc":"庞大椭圆身躯，头顶喷起水柱","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P3","name":"海豚","desc":"流线身跃起、背鳍高挑","suggestedColors":3,"legibility":"中等","isBoss":false},
+        {"id":"P4","name":"章鱼","desc":"圆脑袋下垂八条卷腕","suggestedColors":4,"legibility":"中等","isBoss":false},
+        {"id":"P5","name":"水母","desc":"半圆伞盖拖着飘带触手","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P6","name":"海龟","desc":"龟壳分格纹、四鳍展开、小头前探","suggestedColors":5,"legibility":"中等","isBoss":false},
+        {"id":"P7","name":"螃蟹","desc":"圆壳横宽、两只大钳高举","suggestedColors":4,"legibility":"中等","isBoss":false},
+        {"id":"P8","name":"贝壳","desc":"扇形条纹壳心含一颗圆珍珠","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P9","name":"鲸之王","desc":"巨型座头鲸破浪而出，浪花与喷柱环绕","suggestedColors":6,"legibility":"中等","isBoss":true}
+      ]
+    },
+    {
+      "arcId": "A04",
+      "title": "飞羽集",
+      "domain": "鸟类",
+      "overview": "燕子·天鹅·老鹰·孔雀·鹦鹉·企鹅·猫头鹰·火烈鸟·凤凰",
+      "rationale": "鸟类的翼、尾、颈提供清晰的剪影语言；孔雀开屏与原创不死鸟可作章节视觉高潮。",
+      "patterns": [
+        {"id":"P1","name":"燕子","desc":"剪刀尾配展开的双翼","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P2","name":"天鹅","desc":"弯成 S 的长颈浮于白身之上","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P3","name":"老鹰","desc":"双翼平展、钩喙前探","suggestedColors":4,"legibility":"中等","isBoss":false},
+        {"id":"P4","name":"孔雀","desc":"扇形开屏上布满圆眼斑","suggestedColors":5,"legibility":"中等","isBoss":false},
+        {"id":"P5","name":"鹦鹉","desc":"钩喙攀枝、尾羽长垂","suggestedColors":4,"legibility":"中等","isBoss":false},
+        {"id":"P6","name":"企鹅","desc":"黑白立身、短翅侧贴、橙喙橙足","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P7","name":"猫头鹰","desc":"大眼圆脸、双耳羽竖立","suggestedColors":4,"legibility":"好拼","isBoss":false},
+        {"id":"P8","name":"火烈鸟","desc":"细长腿单立、弯脖粉身","suggestedColors":3,"legibility":"中等","isBoss":false},
+        {"id":"P9","name":"凤凰","desc":"原创不死鸟展翼、长尾羽如焰、头顶华冠","suggestedColors":6,"legibility":"中等","isBoss":true}
+      ]
+    },
+    {
+      "arcId": "A05",
+      "title": "虫虫园",
+      "domain": "昆虫",
+      "overview": "蝴蝶·蜜蜂·瓢虫·蜻蜓·蚂蚁·蜗牛·萤火虫·甲虫·蝶之后",
+      "rationale": "小型生物对称性强、色块分明，蝴蝶与瓢虫是拼豆玩家熟悉的高辨识母题。",
+      "patterns": [
+        {"id":"P1","name":"蝴蝶","desc":"对称的大翅配一对弯触角","suggestedColors":4,"legibility":"好拼","isBoss":false},
+        {"id":"P2","name":"蜜蜂","desc":"黄黑条纹身、双翅轻扬","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P3","name":"瓢虫","desc":"圆壳对称黑点、六足外张","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P4","name":"蜻蜓","desc":"细长身子配四片平展薄翅","suggestedColors":3,"legibility":"中等","isBoss":false},
+        {"id":"P5","name":"蚂蚁","desc":"头胸腹三节分明、六足侧伸","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P6","name":"蜗牛","desc":"背负螺旋壳、软身探出双触角","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P7","name":"萤火虫","desc":"小虫振翅、尾端亮起一盏光","suggestedColors":3,"legibility":"中等","isBoss":false},
+        {"id":"P8","name":"甲虫","desc":"硬壳中分、头顶一支独角","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P9","name":"蝶之后","desc":"巨型蝴蝶双翅缀对称眼斑、展翅如冠","suggestedColors":6,"legibility":"中等","isBoss":true}
+      ]
+    },
+    {
+      "arcId": "A06",
+      "title": "甜品屋",
+      "domain": "甜点美食",
+      "overview": "纸杯蛋糕·甜甜圈·冰淇淋·蛋糕切块·棒棒糖·马卡龙·布丁·曲奇·生日蛋糕",
+      "rationale": "甜点的圆形、层叠与糖霜结构颜色分区明确，与美术锚点'糖果质感'直接呼应。",
+      "patterns": [
+        {"id":"P1","name":"纸杯蛋糕","desc":"杯托上旋着奶油、顶一颗樱桃","suggestedColors":4,"legibility":"好拼","isBoss":false},
+        {"id":"P2","name":"甜甜圈","desc":"圆环淋糖霜、撒彩色糖屑","suggestedColors":4,"legibility":"好拼","isBoss":false},
+        {"id":"P3","name":"冰淇淋","desc":"蛋筒上叠三颗圆球","suggestedColors":4,"legibility":"好拼","isBoss":false},
+        {"id":"P4","name":"蛋糕切块","desc":"三角切块露出分层奶油夹心","suggestedColors":4,"legibility":"中等","isBoss":false},
+        {"id":"P5","name":"棒棒糖","desc":"螺旋圆糖插一根小棒","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P6","name":"马卡龙","desc":"两片圆饼夹一层馅","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P7","name":"布丁","desc":"梯形布丁盖焦糖顶、点一颗樱桃","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P8","name":"曲奇饼干","desc":"圆饼上嵌几粒巧克力豆","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P9","name":"生日蛋糕","desc":"三层奶油蛋糕插一排蜡烛、顶缀水果","suggestedColors":6,"legibility":"中等","isBoss":true}
+      ]
+    },
+    {
+      "arcId": "A07",
+      "title": "果篮子",
+      "domain": "鲜果",
+      "overview": "苹果·香蕉·西瓜·草莓·葡萄·橘子·梨·樱桃·果篮",
+      "rationale": "水果轮廓极简、色数低，是练手与色感培养的理想题材；收尾果篮做多色综合。",
+      "patterns": [
+        {"id":"P1","name":"苹果","desc":"圆果顶一片叶、凹处伸出果梗","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P2","name":"香蕉","desc":"几根弯月形香蕉成串","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P3","name":"西瓜","desc":"圆瓜带深绿条纹、旁切一角红瓤","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P4","name":"草莓","desc":"心形红果布满籽点、顶戴绿蒂","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P5","name":"葡萄","desc":"一串圆珠汇成倒三角、顶上一片叶","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P6","name":"橘子","desc":"圆果带瓣纹与叶蒂","suggestedColors":3,"legibility":"中等","isBoss":false},
+        {"id":"P7","name":"梨","desc":"上窄下宽葫芦形、顶一叶一梗","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P8","name":"樱桃","desc":"两颗圆果由双梗并蒂相连","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P9","name":"果篮","desc":"编织篮中满溢各色鲜果","suggestedColors":6,"legibility":"中等","isBoss":true}
+      ]
+    },
+    {
+      "arcId": "A08",
+      "title": "书桌角",
+      "domain": "文具器物",
+      "overview": "铅笔·橡皮·书本·直尺·书包·台灯·剪刀·地球仪·笔筒",
+      "rationale": "文具多为直边几何形，训练直线与转角填充，与曲线生物章形成节奏对比。",
+      "patterns": [
+        {"id":"P1","name":"铅笔","desc":"长条笔杆削出尖头、尾端一块橡皮","suggestedColors":4,"legibility":"好拼","isBoss":false},
+        {"id":"P2","name":"橡皮","desc":"圆角方块，中间一圈小标签","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P3","name":"书本","desc":"翻开的双页、书脊居中","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P4","name":"直尺","desc":"细长条身上一排刻度","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P5","name":"书包","desc":"梯形包身、背带与方正前袋","suggestedColors":4,"legibility":"中等","isBoss":false},
+        {"id":"P6","name":"台灯","desc":"梯形灯罩斜挂在弯杆与圆底座上","suggestedColors":3,"legibility":"中等","isBoss":false},
+        {"id":"P7","name":"剪刀","desc":"双环柄交叉出两片刀刃","suggestedColors":3,"legibility":"中等","isBoss":false},
+        {"id":"P8","name":"地球仪","desc":"圆球上几块大陆、下承弧形支架","suggestedColors":4,"legibility":"中等","isBoss":false},
+        {"id":"P9","name":"笔筒","desc":"筒身插满铅笔、画笔与卷尺","suggestedColors":6,"legibility":"中等","isBoss":true}
+      ]
+    },
+    {
+      "arcId": "A09",
+      "title": "小小城",
+      "domain": "建筑",
+      "overview": "小屋·城堡·灯塔·风车·教堂·蒙古包·拱桥·钟楼·城堡主楼",
+      "rationale": "建筑的对称与几何秩序贴合拼豆网格，塔、桥、风车提供由简到繁的进阶梯度。",
+      "patterns": [
+        {"id":"P1","name":"小屋","desc":"三角屋顶盖着方墙、中央门窗","suggestedColors":4,"legibility":"好拼","isBoss":false},
+        {"id":"P2","name":"城堡","desc":"一排城垛配两侧尖塔、顶插小旗","suggestedColors":4,"legibility":"中等","isBoss":false},
+        {"id":"P3","name":"灯塔","desc":"高塔红白斜纹、顶端灯室放光","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P4","name":"风车","desc":"锥形塔身顶着四片风叶","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P5","name":"教堂","desc":"尖顶钟塔配拱窗、顶端十字","suggestedColors":4,"legibility":"中等","isBoss":false},
+        {"id":"P6","name":"蒙古包","desc":"圆顶穹庐、正面一道小门","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P7","name":"拱桥","desc":"半圆拱洞架在桥墩上、上有栏杆","suggestedColors":3,"legibility":"中等","isBoss":false},
+        {"id":"P8","name":"钟楼","desc":"方形塔身嵌一面圆钟","suggestedColors":4,"legibility":"中等","isBoss":false},
+        {"id":"P9","name":"城堡主楼","desc":"多座塔楼与吊桥相连、旗帜招展","suggestedColors":6,"legibility":"中等","isBoss":true}
+      ]
+    },
+    {
+      "arcId": "A10",
+      "title": "节庆宴",
+      "domain": "节庆符号",
+      "overview": "灯笼·圣诞树·红包·烟花·月饼·彩蛋·礼物盒·蜡烛·节庆树",
+      "rationale": "节庆符号色彩喜庆、语义普适（不绑定单一宗教或现实节日 IP），星、环、放射形丰富表现力。",
+      "patterns": [
+        {"id":"P1","name":"灯笼","desc":"椭圆红灯笼上下收口、底垂流苏","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P2","name":"圣诞树","desc":"三角树身挂彩球、顶一颗星","suggestedColors":4,"legibility":"好拼","isBoss":false},
+        {"id":"P3","name":"红包","desc":"竖长方封套、中央一枚圆贴","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P4","name":"烟花","desc":"中心向外迸射的放射火星","suggestedColors":4,"legibility":"好拼","isBoss":false},
+        {"id":"P5","name":"月饼","desc":"圆饼压出花纹、中心一枚字印","suggestedColors":3,"legibility":"偏难","isBoss":false},
+        {"id":"P6","name":"彩蛋","desc":"椭圆蛋身绘彩色条纹与波点","suggestedColors":4,"legibility":"好拼","isBoss":false},
+        {"id":"P7","name":"礼物盒","desc":"方盒系十字缎带、顶扎蝴蝶结","suggestedColors":4,"legibility":"好拼","isBoss":false},
+        {"id":"P8","name":"蜡烛","desc":"细立柱顶一簇暖色火苗","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P9","name":"节庆树","desc":"大树挂满彩灯与礼物、顶星闪耀","suggestedColors":6,"legibility":"中等","isBoss":true}
+      ]
+    },
+    {
+      "arcId": "A11",
+      "title": "乐之声",
+      "domain": "乐器",
+      "overview": "吉他·钢琴·小提琴·鼓·小号·竖琴·笛子·风铃·留声机",
+      "rationale": "乐器形态差异大（弦/管/键盘），训练多样剪影；留声机作复古收尾有记忆点。",
+      "patterns": [
+        {"id":"P1","name":"吉他","desc":"葫芦琴身接长琴颈、几点品丝","suggestedColors":4,"legibility":"中等","isBoss":false},
+        {"id":"P2","name":"钢琴","desc":"黑白键排列、掀起一角琴盖","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P3","name":"小提琴","desc":"葫芦身配琴颈、横搭一把琴弓","suggestedColors":4,"legibility":"中等","isBoss":false},
+        {"id":"P4","name":"鼓","desc":"圆鼓面配筒身、两支鼓槌交叉","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P5","name":"小号","desc":"长管弯回、前端喇叭口张开","suggestedColors":3,"legibility":"中等","isBoss":false},
+        {"id":"P6","name":"竖琴","desc":"三角框内一排竖弦","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P7","name":"笛子","desc":"细长管身一排指孔","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P8","name":"风铃","desc":"顶盘下垂几根长短不一的铃管","suggestedColors":3,"legibility":"中等","isBoss":false},
+        {"id":"P9","name":"留声机","desc":"木箱上支起大喇叭、旁置唱盘","suggestedColors":5,"legibility":"中等","isBoss":true}
+      ]
+    },
+    {
+      "arcId": "A12",
+      "title": "出行记",
+      "domain": "交通载具",
+      "overview": "小汽车·自行车·火车·飞机·帆船·热气球·公交车·摩托车·大游轮",
+      "rationale": "载具是儿童高熟悉度题材，圆轮+方身组合易拼易认；横向延展的船与火车适合做大幅。",
+      "patterns": [
+        {"id":"P1","name":"小汽车","desc":"圆润车身下两只车轮、上部车窗","suggestedColors":4,"legibility":"好拼","isBoss":false},
+        {"id":"P2","name":"自行车","desc":"双轮之间三角形车架、上有车把座垫","suggestedColors":3,"legibility":"中等","isBoss":false},
+        {"id":"P3","name":"火车","desc":"冒烟车头拖着一节车厢","suggestedColors":4,"legibility":"好拼","isBoss":false},
+        {"id":"P4","name":"飞机","desc":"细长机身展开机翼、尾部竖起","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P5","name":"帆船","desc":"船身上扬起两片三角帆","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P6","name":"热气球","desc":"彩色圆球下吊一只小篮","suggestedColors":4,"legibility":"好拼","isBoss":false},
+        {"id":"P7","name":"公交车","desc":"长方车身一排车窗、下有两轮","suggestedColors":4,"legibility":"好拼","isBoss":false},
+        {"id":"P8","name":"摩托车","desc":"双轮夹着车身、车把前倾","suggestedColors":3,"legibility":"中等","isBoss":false},
+        {"id":"P9","name":"大游轮","desc":"多层船身立着烟囱、破浪前行","suggestedColors":5,"legibility":"中等","isBoss":true}
+      ]
+    },
+    {
+      "arcId": "A13",
+      "title": "星河间",
+      "domain": "宇宙星空",
+      "overview": "月亮·星星·太阳·行星·彗星·宇航员·飞碟·星座·空间站",
+      "rationale": "宇宙题材色块干净、留白多，以冷色为底、暖色星日点睛，直接呼应冷暖色温对撞锚点。",
+      "patterns": [
+        {"id":"P1","name":"月亮","desc":"弯弯月牙旁缀两颗小星","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P2","name":"星星","desc":"一颗大五角星、周围缀着小光点","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P3","name":"太阳","desc":"圆日向外放射长短芒","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P4","name":"行星","desc":"圆球斜套一圈光环","suggestedColors":4,"legibility":"好拼","isBoss":false},
+        {"id":"P5","name":"彗星","desc":"亮圆头拖一条渐细长尾","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P6","name":"宇航员","desc":"圆头盔加鼓鼓的太空服","suggestedColors":4,"legibility":"中等","isBoss":false},
+        {"id":"P7","name":"飞碟","desc":"碟形身躯、圆舱罩下投一道光束","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P8","name":"星座","desc":"几点亮星由细线连成图形","suggestedColors":3,"legibility":"偏难","isBoss":false},
+        {"id":"P9","name":"空间站","desc":"中央舱体两翼展开太阳能板","suggestedColors":5,"legibility":"中等","isBoss":true}
+      ]
+    },
+    {
+      "arcId": "A14",
+      "title": "远古纪",
+      "domain": "史前恐龙",
+      "overview": "霸王龙·长颈龙·三角龙·剑龙·翼龙·恐龙蛋·蕨类·迅猛龙·暴龙王",
+      "rationale": "恐龙剪影特征（头盾、背板、长颈）夸张好认，补足男孩向与史前题材的受众覆盖。",
+      "patterns": [
+        {"id":"P1","name":"霸王龙","desc":"大脑袋、小前肢、粗尾支撑的站立龙","suggestedColors":3,"legibility":"中等","isBoss":false},
+        {"id":"P2","name":"长颈龙","desc":"长脖昂起、庞大身躯拖长尾","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P3","name":"三角龙","desc":"颈盾宽大、顶着三只角","suggestedColors":4,"legibility":"中等","isBoss":false},
+        {"id":"P4","name":"剑龙","desc":"背上两排骨板、尾端带刺","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P5","name":"翼龙","desc":"展开双翼、头顶后掠长冠","suggestedColors":3,"legibility":"中等","isBoss":false},
+        {"id":"P6","name":"恐龙蛋","desc":"椭圆蛋壳裂出几道缝","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P7","name":"蕨类","desc":"一根主茎两侧排满羽状小叶","suggestedColors":3,"legibility":"中等","isBoss":false},
+        {"id":"P8","name":"迅猛龙","desc":"身形细长、后足扬起镰刀爪","suggestedColors":3,"legibility":"中等","isBoss":false},
+        {"id":"P9","name":"暴龙王","desc":"巨龙昂首、头冠与背棘并立、威压全场","suggestedColors":6,"legibility":"中等","isBoss":true}
+      ]
+    },
+    {
+      "arcId": "A15",
+      "title": "幻兽国",
+      "domain": "幻想生物",
+      "overview": "小龙·独角兽·美人鱼·精灵·飞马·魔法杖·石巨人·蘑菇屋·巨龙",
+      "rationale": "全部原创幻想生物（不引用任何现成 IP 形象），满足想象力题材同时守住原创红线。",
+      "patterns": [
+        {"id":"P1","name":"小龙","desc":"圆胖身子展开小翅、口吐火苗","suggestedColors":4,"legibility":"中等","isBoss":false},
+        {"id":"P2","name":"独角兽","desc":"白马额前一支螺旋角、鬃尾飘逸","suggestedColors":4,"legibility":"中等","isBoss":false},
+        {"id":"P3","name":"美人鱼","desc":"鱼尾弯起、长发披肩","suggestedColors":4,"legibility":"中等","isBoss":false},
+        {"id":"P4","name":"精灵","desc":"尖耳朵、背后一对薄翅的小人","suggestedColors":4,"legibility":"好拼","isBoss":false},
+        {"id":"P5","name":"飞马","desc":"骏马背上生出双翼","suggestedColors":4,"legibility":"中等","isBoss":false},
+        {"id":"P6","name":"魔法杖","desc":"长杖顶端镶一颗星","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P7","name":"石巨人","desc":"方块巨石拼成的魁梧身躯","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P8","name":"蘑菇屋","desc":"大伞盖下藏着门窗的小屋","suggestedColors":4,"legibility":"好拼","isBoss":false},
+        {"id":"P9","name":"巨龙","desc":"原创巨龙展翼、长尾盘绕、双角峥嵘","suggestedColors":6,"legibility":"中等","isBoss":true}
+      ]
+    },
+    {
+      "arcId": "A16",
+      "title": "天象记",
+      "domain": "天气气象",
+      "overview": "云朵·雨滴·雪花·彩虹·闪电·风·冰晶·晨雾·天象之眼",
+      "rationale": "气象是抽象度最高的一章，训练色带与对称（彩虹、雪花）；作为辨识度挑战章有意为之。",
+      "patterns": [
+        {"id":"P1","name":"云朵","desc":"几团圆弧叠成蓬松云","suggestedColors":2,"legibility":"好拼","isBoss":false},
+        {"id":"P2","name":"雨滴","desc":"一颗大水滴拖着两滴小的","suggestedColors":2,"legibility":"好拼","isBoss":false},
+        {"id":"P3","name":"雪花","desc":"六角对称、每角分出小枝","suggestedColors":3,"legibility":"中等","isBoss":false},
+        {"id":"P4","name":"彩虹","desc":"层层同心圆弧彩带","suggestedColors":5,"legibility":"好拼","isBoss":false},
+        {"id":"P5","name":"闪电","desc":"折线电光劈开暗云","suggestedColors":2,"legibility":"好拼","isBoss":false},
+        {"id":"P6","name":"风","desc":"几道卷曲流线表示吹拂","suggestedColors":2,"legibility":"中等","isBoss":false},
+        {"id":"P7","name":"冰晶","desc":"菱形结晶体中心透亮","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P8","name":"晨雾","desc":"山间层叠的朦胧雾带","suggestedColors":3,"legibility":"偏难","isBoss":false},
+        {"id":"P9","name":"天象之眼","desc":"风云雷电环绕中央一枚圆眼","suggestedColors":6,"legibility":"中等","isBoss":true}
+      ]
+    },
+    {
+      "arcId": "A17",
+      "title": "游乐场",
+      "domain": "运动玩具",
+      "overview": "皮球·风筝·陀螺·积木·跷跷板·秋千·滑梯·跳绳·摩天轮",
+      "rationale": "游乐器材与孩童日常强关联，结构多为圆、杆、面组合；摩天轮放射对称适合作 boss。",
+      "patterns": [
+        {"id":"P1","name":"皮球","desc":"圆球上几道弧形条纹","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P2","name":"风筝","desc":"菱形风筝拖一条蝴蝶结长尾","suggestedColors":4,"legibility":"好拼","isBoss":false},
+        {"id":"P3","name":"陀螺","desc":"上圆下尖、身缠一圈彩纹","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P4","name":"积木","desc":"各色方块错落堆成小塔","suggestedColors":4,"legibility":"好拼","isBoss":false},
+        {"id":"P5","name":"跷跷板","desc":"横板架在三角支点上、两端各坐一人","suggestedColors":3,"legibility":"中等","isBoss":false},
+        {"id":"P6","name":"秋千","desc":"两根吊绳挂着一块座板","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P7","name":"滑梯","desc":"一侧阶梯、一侧斜坡滑道","suggestedColors":3,"legibility":"中等","isBoss":false},
+        {"id":"P8","name":"跳绳","desc":"一道弧绳绕过跳跃的小人","suggestedColors":3,"legibility":"中等","isBoss":false},
+        {"id":"P9","name":"摩天轮","desc":"巨大圆轮挂一圈吊舱、下有支架","suggestedColors":5,"legibility":"中等","isBoss":true}
+      ]
+    },
+    {
+      "arcId": "A18",
+      "title": "温馨家",
+      "domain": "家居生活",
+      "overview": "茶杯·沙发·床·时钟·钥匙·雨伞·花瓶·镜子·壁炉",
+      "rationale": "家居小物温暖亲切，补足生活化题材；圆形（钟、杯）与方形（沙发、床）交替维持视觉节奏。",
+      "patterns": [
+        {"id":"P1","name":"茶杯","desc":"带把手的杯身、杯口冒热气","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P2","name":"沙发","desc":"高靠背配双扶手、两块坐垫","suggestedColors":4,"legibility":"好拼","isBoss":false},
+        {"id":"P3","name":"床","desc":"床头立起、枕与被分层铺开","suggestedColors":4,"legibility":"好拼","isBoss":false},
+        {"id":"P4","name":"时钟","desc":"圆表盘上两根指针","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P5","name":"钥匙","desc":"圆环钥匙头接带齿的长杆","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P6","name":"雨伞","desc":"弧形伞面下弯钩伞柄","suggestedColors":4,"legibility":"好拼","isBoss":false},
+        {"id":"P7","name":"花瓶","desc":"收腰瓶身插几朵小花","suggestedColors":4,"legibility":"中等","isBoss":false},
+        {"id":"P8","name":"镜子","desc":"圆镜框中一道斜向反光","suggestedColors":3,"legibility":"中等","isBoss":false},
+        {"id":"P9","name":"壁炉","desc":"炉台内火焰跳动、上方烟囱","suggestedColors":5,"legibility":"中等","isBoss":true}
+      ]
+    },
+    {
+      "arcId": "A19",
+      "title": "山水间",
+      "domain": "山水风景",
+      "overview": "山峰·日出·云海·湖·瀑布·松树·小舟·亭子·山巅",
+      "rationale": "东方山水意境，层叠三角与圆弧营造远近；收尾群山日出自带史诗感。",
+      "patterns": [
+        {"id":"P1","name":"山峰","desc":"三角尖山覆一顶白雪","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P2","name":"日出","desc":"半轮红日从云海中升起","suggestedColors":4,"legibility":"好拼","isBoss":false},
+        {"id":"P3","name":"湖","desc":"圆湖映出山与云的倒影","suggestedColors":3,"legibility":"偏难","isBoss":false},
+        {"id":"P4","name":"瀑布","desc":"悬崖间垂下一匹白练","suggestedColors":3,"legibility":"中等","isBoss":false},
+        {"id":"P5","name":"松树","desc":"层叠三角松冠立于曲干上","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P6","name":"云海","desc":"层叠云浪间露出远山尖","suggestedColors":4,"legibility":"中等","isBoss":false},
+        {"id":"P7","name":"小舟","desc":"一叶扁舟浮在波纹上","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P8","name":"亭子","desc":"六角飞檐顶下几根立柱","suggestedColors":3,"legibility":"中等","isBoss":false},
+        {"id":"P9","name":"山巅","desc":"群山环抱一轮红日、云海与小亭点缀","suggestedColors":6,"legibility":"中等","isBoss":true}
+      ]
+    },
+    {
+      "arcId": "A20",
+      "title": "晶石集",
+      "domain": "宝石矿物",
+      "overview": "水晶·钻石·琥珀·玛瑙·珍珠·原矿·宝石·金块·水晶王",
+      "rationale": "矿物晶体的棱面、同心纹与通透感是拼豆少见的题材，作为终章拓展色阶与质感表现。",
+      "patterns": [
+        {"id":"P1","name":"水晶","desc":"几根六棱晶柱簇生、尖端透亮","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P2","name":"钻石","desc":"倒三角刻面闪出高光","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P3","name":"琥珀","desc":"椭圆树脂内封一只小虫","suggestedColors":3,"legibility":"中等","isBoss":false},
+        {"id":"P4","name":"玛瑙","desc":"同心环带层层套色","suggestedColors":4,"legibility":"偏难","isBoss":false},
+        {"id":"P5","name":"珍珠","desc":"贝壳托着一颗圆润珍珠","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P6","name":"原矿","desc":"岩石上长出参差晶簇","suggestedColors":4,"legibility":"中等","isBoss":false},
+        {"id":"P7","name":"宝石","desc":"八边形切割面中央高光","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P8","name":"金块","desc":"不规则黄金矿块、棱面闪光","suggestedColors":3,"legibility":"好拼","isBoss":false},
+        {"id":"P9","name":"水晶王","desc":"巨大晶簇拔地而起、主晶高耸通透","suggestedColors":6,"legibility":"中等","isBoss":true}
+      ]
+    }
+  ]
+}
