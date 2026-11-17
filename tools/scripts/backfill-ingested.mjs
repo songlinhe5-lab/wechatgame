@@ -10,16 +10,20 @@
  * result.json；仍多于 1 条就用关卡名的 4 位短后缀（studio-1-f57f）对结果 id 后缀，
  * 只有**恰好 1 条**才落标记，否则整组跳过并打印，交人工核。
  * 草稿（_draft）只在「没有任何已保存结果命中、且草稿恰好 1 条」时才标记（旧流程允许预览直接入章）。
+ * 人工定源：`--pick <uid>=<id>` 显式指定某关的来源结果/草稿（优先于自动反查，也可用于
+ * pattern 已被手改、自动反查失效的老关）。被 --pick 选中的条目会覆盖旧标记（不需要 --force）。
  *
  * 用法：
  *   node tools/scripts/backfill-ingested.mjs                  # 只读预览（默认）
  *   node tools/scripts/backfill-ingested.mjs --write          # 落盘
  *   node tools/scripts/backfill-ingested.mjs --write --force  # 覆盖已有标记（默认跳过）
+ *   node tools/scripts/backfill-ingested.mjs --write --pick L00002=16x16-1792...-abcd
  *   node tools/scripts/backfill-ingested.mjs --json           # 末行追加机器可读 JSON（管理页按钮用）
  *
  * 写入面只有 apps/beads-studio/data 下的 result.json / draft.json（gitignore 的开发数据），不碰关卡真源。
+ * `--write` 每次追加一行审计到 apps/beads-studio/data/_backfill-log.jsonl（时间/写入/歧义/人工定源）。
  */
-import { readFileSync, writeFileSync, readdirSync, existsSync, statSync } from 'node:fs';
+import { readFileSync, writeFileSync, appendFileSync, mkdirSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -30,6 +34,14 @@ const WRITE = process.argv.includes('--write');
 const FORCE = process.argv.includes('--force');
 const JSON_OUT = process.argv.includes('--json');
 const at = new Date().toISOString();
+
+// 人工定源：--pick uid=resultId（可多次）
+const picks = new Map();
+for (let i = 0; i < process.argv.length; i++) {
+    if (process.argv[i] !== '--pick') continue;
+    const [uid, id] = String(process.argv[i + 1] || '').split('=');
+    if (uid && id) picks.set(uid, id);
+}
 
 const sig = (cols, rows, pattern) => `${cols}x${rows}|${pattern.join('\n')}`;
 const suffixOf = (s) => (String(s).match(/-([0-9a-f]{4,})$/i) || [])[1]?.toLowerCase() ?? '';
@@ -54,12 +66,16 @@ for (const e of manifest.entries) {
 
 // ── 结果 / 预览草稿聚合（data/<board>/<id>/result.json 与 data/_draft/<id>/draft.json）──
 const groups = new Map(); // sig → { result: [], draft: [] }
+const byId = new Map();   // obj.id → { file, obj, kind }（--pick 全局按 id 找；已保存优先于草稿）
 const add = (kind, file, obj) => {
+    const id = obj.id ?? '';
+    const rec = { file, obj, kind };
+    if (id && (kind === 'result' || !byId.has(id))) byId.set(id, rec);
     const pattern = obj.pattern ?? obj.levelDraft?.pattern;
     if (!Array.isArray(pattern)) return false;
     const key = sig(obj.cols ?? obj.levelDraft?.cols, obj.rows ?? obj.levelDraft?.rows, pattern);
     const g = groups.get(key) ?? { result: [], draft: [] };
-    g[kind].push({ file, obj });
+    g[kind].push(rec);
     groups.set(key, g);
     return true;
 };
@@ -85,25 +101,41 @@ if (existsSync(draftDir)) {
     }
 }
 
-// ── 逐关挑唯一来源；有歧义就跳过 ────────────────────────────────────────────
+// ── 逐关定源：--pick 优先，其次唯一匹配；有歧义就跳过 ───────────────────────
 const hitLevels = new Set();
+const pickedUids = new Set();
 const ambiguous = [];
 const ambiguousDetails = []; // 管理页「歧义清单」展开视图用（含候选 id/类型/时间）
 const items = []; // 机器可读（--json 末行）：{id, levelUid, chapter}
+const pickNotes = [];
 let matched = 0, already = 0, written = 0;
-const take = (lv, rec) => {
+
+const take = (lv, rec, explicit = false) => {
     hitLevels.add(lv.uid);
     matched++;
     const { file, obj } = rec;
-    if (obj.ingested && !FORCE) { already++; return; }
+    const same = obj.ingested?.levelUid === lv.uid;
+    if (obj.ingested && !FORCE && (!explicit || same)) { already++; return; }
     obj.ingested = { chapter: lv.chapter, at, levelUid: lv.uid, backfilled: true };
     if (WRITE) writeFileSync(file, JSON.stringify(obj, null, 2) + '\n');
     written++;
     items.push({ id: obj.id ?? file, levelUid: lv.uid, chapter: lv.chapter });
-    console.log(`${WRITE ? '已标记' : '将标记'} ${obj.id ?? file} → ${lv.chapter}/${lv.uid}`);
+    console.log(`${WRITE ? '已标记' : '将标记'} ${obj.id ?? file} → ${lv.chapter}/${lv.uid}${explicit ? '（人工定源）' : ''}`);
 };
 
+// ① 人工定源（可跨 pattern 失效；写错 id 只告警不中断）
+for (const [uid, id] of picks) {
+    const lv = levels.find((l) => l.uid === uid);
+    if (!lv) { pickNotes.push(`${uid}=${id} 跳过（无此关卡）`); continue; }
+    const rec = byId.get(id);
+    if (!rec) { pickNotes.push(`${uid}=${id} 跳过（data 里无此结果/草稿）`); continue; }
+    take(lv, rec, true);
+    pickedUids.add(uid);
+}
+
+// ② 自动反查
 for (const lv of levels) {
+    if (pickedUids.has(lv.uid)) continue;
     const g = groups.get(lv.sig);
     if (!g) continue;
     const saved = g.result;
@@ -117,6 +149,13 @@ for (const lv of levels) {
     const tied = suffix ? pool.filter((c) => suffixOf(c.obj.id ?? '') === suffix) : [];
     if (tied.length === 1) { take(lv, tied[0]); continue; }
 
+    // 已有人工定源标记（levelUid 对得上）⇒ 视为已解决，不再报歧义
+    if ([...saved, ...drafts].some((c) => c.obj.ingested?.levelUid === lv.uid)) {
+        hitLevels.add(lv.uid);
+        already++;
+        continue;
+    }
+
     hitLevels.add(lv.uid);
     ambiguous.push(`${lv.uid}（${saved.length} 结果 / ${drafts.length} 草稿）`);
     ambiguousDetails.push({
@@ -125,9 +164,10 @@ for (const lv of levels) {
         name: lv.name,
         saved: saved.length,
         drafts: drafts.length,
-        candidates: pool.map((c) => ({
+        // 全量候选（含草稿）：人工定源可直接选草稿；列表与「N 结果 / N 草稿」计数一致
+        candidates: [...saved, ...drafts].map((c) => ({
             id: c.obj.id ?? '(无 id)',
-            kind: saved.includes(c) ? 'result' : 'draft',
+            kind: c.kind,
             createdAt: c.obj.createdAt ?? null,
         })),
     });
@@ -138,10 +178,31 @@ console.log(
     `\n${WRITE ? '回填完成' : '预览（加 --write 落盘）'}：扫描 ${scanned} 个结果/草稿` +
     `（无 pattern ${noPattern}）｜命中关卡 ${hitLevels.size}｜已标记跳过 ${already}｜写入 ${written}`,
 );
+if (pickNotes.length) console.log(`⚠ 人工定源未生效：${pickNotes.join('；')}`);
 if (ambiguous.length) console.log(`⚠ 同 pattern 多候选、无法唯一定源，已跳过 ${ambiguous.length} 关：${ambiguous.join('、')}`);
 if (unmatched.length) console.log(`未匹配关卡 ${unmatched.length} 个：${unmatched.join('、')}（来源结果可能已删除，或关卡图入章后被手改）`);
 
+// 审计日志：只有真正写盘（--write）才记，预览不产生噪声。
+// ⚠️ 放 data/_logs/ 子目录而非 data 根：服务端把 data/* 当盘面目录扫，根下散文件会 ENOTDIR。
+if (WRITE) {
+    try {
+        const logDir = join(DATA, '_logs');
+        mkdirSync(logDir, { recursive: true });
+        appendFileSync(join(logDir, 'backfill-ingested.jsonl'), JSON.stringify({
+            at, scanned, noPattern, matched, already, written,
+            picks: [...picks].map(([u, id]) => `${u}=${id}`),
+            items, ambiguous, unmatched,
+        }) + '\n');
+    } catch (e) {
+        console.warn(`⚠ 回填审计日志写入失败：${e.message}`);
+    }
+}
+
 // 机器可读末行（管理页「回填已入章」按钮消费；人类日志保持上面原样）
 if (JSON_OUT) {
-    console.log(JSON.stringify({ write: WRITE, scanned, noPattern, matched, already, written, items, ambiguous, ambiguousDetails, unmatched }));
+    console.log(JSON.stringify({
+        write: WRITE, scanned, noPattern, matched, already, written,
+        items, ambiguous, ambiguousDetails, unmatched,
+        picks: [...picks].map(([u, id]) => `${u}=${id}`), pickNotes,
+    }));
 }

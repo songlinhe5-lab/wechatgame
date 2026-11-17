@@ -66,7 +66,7 @@
  */
 import { createServer } from 'node:http';
 import { spawn, spawnSync } from 'node:child_process';
-import { mkdirSync, writeFileSync, readFileSync, readdirSync, rmSync, renameSync, existsSync } from 'node:fs';
+import { mkdirSync, writeFileSync, readFileSync, readdirSync, rmSync, renameSync, existsSync, statSync } from 'node:fs';
 import { join, dirname, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomBytes, createHash } from 'node:crypto';
@@ -208,6 +208,7 @@ function listResults() {
     const out = [];
     for (const board of readdirSync(DATA)) {
         const dir = join(DATA, board);
+        if (!statSync(dir).isDirectory()) continue; // data 根下的散文件（日志等）不是盘面
         for (const id of readdirSync(dir)) {
             try {
                 const r = JSON.parse(readFileSync(join(dir, id, 'result.json'), 'utf8'));
@@ -705,7 +706,8 @@ async function handleManageVerify(res) {
 }
 
 /** 存量「已入章」回填（WXG-T-978）：spawn tools/scripts/backfill-ingested.mjs。
- *  body `{write?:boolean}`（缺省 = 预览）；回 {items,written,already,ambiguous,unmatched,log}。
+ *  body `{write?:boolean, picks?:{uid:id}}`（write 缺省 = 预览；picks = 人工定源）。
+ *  回 {items,written,already,ambiguous,ambiguousDetails,unmatched,log}。
  *  只写 apps/beads-studio/data 下的结果/草稿元数据，不碰关卡真源，故不进 applyManage 事务。 */
 async function handleBackfillIngested(req, res) {
     if (!existsSync(LEVELS_DIR))
@@ -716,7 +718,12 @@ async function handleBackfillIngested(req, res) {
     let body = {};
     try { body = await readJsonBody(req); } catch (e) { return sendJson(res, 400, { error: e.message }); }
     const write = body.write === true;
-    const r = spawnSync(process.execPath, [script, '--json', ...(write ? ['--write'] : [])], {
+    const pickArgs = [];
+    for (const [uid, id] of Object.entries(body.picks ?? {})) {
+        if (!/^[A-Z]\d{1,9}$/.test(uid) || !/^[a-z0-9][a-z0-9-]{0,63}$/.test(String(id))) continue;
+        pickArgs.push('--pick', `${uid}=${id}`);
+    }
+    const r = spawnSync(process.execPath, [script, '--json', ...(write ? ['--write'] : []), ...pickArgs], {
         cwd: REPO, encoding: 'utf8', timeout: 120_000,
     });
     const lines = String(r.stdout || '').trim().split('\n').filter(Boolean);
@@ -2482,7 +2489,10 @@ async function handle(req, res) {
         res.setHeader('Cache-Control', 'no-cache');
         return send(res, 200, readFileSync(file), MIME[file.slice(file.lastIndexOf('.'))] || 'application/octet-stream');
     } catch (e) {
-        return sendJson(res, e.code || 500, { error: String(e.message || e) }); // ManageError.code 透传 4xx（body 坏 = 400 等）
+        // ManageError.code 是数字 4xx；fs 的 errno（ENOTDIR/ENOENT…）不是合法 HTTP 状态，
+        // 直接透传会让 writeHead 抛 RangeError 把整个服务打挂（2026-11-17 实测）
+        const status = Number.isInteger(e?.code) ? e.code : 500;
+        return sendJson(res, status, { error: String(e.message || e) });
     }
 }
 

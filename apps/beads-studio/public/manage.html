@@ -143,6 +143,9 @@
         .bf-amb-cand { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px 12px; }
         .bf-amb-cand code { font-size: 11px; background: #f5f1e8; padding: 1px 4px; border-radius: 3px; word-break: break-all; }
         .bf-amb-cand .k { color: #8a7f73; font-size: 11px; margin-left: 3px; }
+        .bf-cand { display: inline-flex; align-items: center; gap: 5px; }
+        .bf-pick { font-size: 11px; padding: 1px 6px; border: 1px solid #d8cfc4; background: #fff; border-radius: 5px; cursor: pointer; color: #6b5b4a; }
+        .bf-pick:hover { border-color: #b4552d; color: #b4552d; }
 
         /* 行内图案缩略图：canvas 像素尺寸 = 格数，CSS 限幅保持比例（不拉伸）。 */
         .lv canvas { max-width: 36px; max-height: 36px; flex: none; border-radius: 4px; background: #faf7f0; image-rendering: pixelated; }
@@ -383,9 +386,10 @@
                     (a.name ? ` · ${esc(a.name)}` : '') +
                     `（${a.saved} 结果 / ${a.drafts} 草稿）` +
                     `<div class="bf-amb-cand">${(a.candidates || []).map((c) =>
-                        `<span><code>${esc(c.id)}</code><span class="k">` +
+                        `<span class="bf-cand"><code>${esc(c.id)}</code><span class="k">` +
                         `${c.kind === 'result' ? '已保存' : '预览草稿'}` +
-                        `${c.createdAt ? ' · ' + esc(String(c.createdAt).slice(0, 16).replace('T', ' ')) : ''}</span></span>`).join('')}</div></div>`).join('') +
+                        `${c.createdAt ? ' · ' + esc(String(c.createdAt).slice(0, 16).replace('T', ' ')) : ''}</span>` +
+                        `<button class="bf-pick" data-uid="${esc(a.uid)}" data-id="${esc(c.id)}" title="写入 ingested（levelUid=${esc(a.uid)}）">标记为此关来源</button></span>`).join('')}</div></div>`).join('') +
                 `</details>`;
             box.hidden = false;
         }
@@ -1213,28 +1217,53 @@
             }
         };
 
+        // 回填端点统一调用（write=false 预览；picks 人工定源 {uid:id}）
+        async function backfillPost(write, picks) {
+            const res = await fetch('/api/manage/backfill-ingested', {
+                method: 'POST', headers: { 'content-type': 'application/json' },
+                body: JSON.stringify({ write, ...(picks ? { picks } : {}) }),
+            });
+            const j = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(httpErr(j, 'HTTP ' + res.status));
+            return j;
+        }
+
+        // 歧义清单里的人工定源：点候选旁的「标记为此关来源」（写入后该关不再报歧义）
+        $('bf-amb').addEventListener('click', async (ev) => {
+            const btn = ev.target.closest('.bf-pick');
+            if (!btn) return;
+            const { uid, id } = btn.dataset;
+            if (!confirm(`把 ${uid} 的来源标记为 ${id}？\n（写入该结果/草稿的 ingested 字段）`)) return;
+            try {
+                btn.disabled = true;
+                const done = await backfillPost(true, { [uid]: id });
+                showLog([
+                    `${uid} → ${id}（人工定源）`,
+                    ...(done.log || []).filter((l) => l.startsWith('已标记')),
+                    ...(done.pickNotes || []),
+                ]);
+                renderAmbiguous(done.ambiguousDetails);
+                await reload();
+            } catch (e) {
+                showErr(e.message);
+            } finally {
+                btn.disabled = false;
+            }
+        });
+
         // 存量「已入章」回填：先预览（不写盘）→ 确认 → 写入 → 刷新结果列表（选图器徽章即时生效）
         $('backfill').onclick = async () => {
-            const post = async (write) => {
-                const res = await fetch('/api/manage/backfill-ingested', {
-                    method: 'POST', headers: { 'content-type': 'application/json' },
-                    body: JSON.stringify({ write }),
-                });
-                const j = await res.json().catch(() => ({}));
-                if (!res.ok) throw new Error(httpErr(j, 'HTTP ' + res.status));
-                return j;
-            };
             try {
                 $('backfill').disabled = true;
                 renderAmbiguous([]);
-                const pv = await post(false);
+                const pv = await backfillPost(false);
                 renderAmbiguous(pv.ambiguousDetails);
                 const lines = [...(pv.log || [])];
                 if (pv.ambiguous?.length) lines.push(`歧义 ${pv.ambiguous.length} 关（见下方清单）`);
                 if (!pv.written) { showLog([...lines, '没有需要回填的条目。']); return; }
                 showLog([...lines, `待写入 ${pv.written} 条`]);
                 if (!confirm(`回填 ${pv.written} 条「已入章」标记？\n（只写 apps/beads-studio/data 下的结果/草稿元数据，不动关卡真源）`)) return;
-                const done = await post(true);
+                const done = await backfillPost(true);
                 renderAmbiguous(done.ambiguousDetails ?? pv.ambiguousDetails);
                 showLog([...(done.log || []).filter((l) => l.startsWith('已标记')), `回填完成：写入 ${done.written} 条`]);
                 await reload();
