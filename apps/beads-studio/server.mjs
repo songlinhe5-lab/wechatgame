@@ -1769,6 +1769,15 @@ function findResultFile(id) {
 }
 const findResultById = (id) => findResultFile(id)?.r ?? null;
 
+/** 结果或预览草稿（来源卡片「打开原图 / 查看图案」共用；草稿在 data/_draft/<id>/draft.json）。 */
+function findAnyResult(id) {
+    const hit = findResultFile(id);
+    if (hit) return { ...hit, draft: false };
+    const f = join(DATA, '_draft', id, 'draft.json');
+    if (existsSync(f)) return { r: JSON.parse(readFileSync(f, 'utf8')), file: f, draft: true };
+    return null;
+}
+
 // ── 「已入章」标记（WXG-T-978）──────────────────────────────────────────────
 // 真源 = 结果/草稿元数据里的 `ingested: { chapter, at }`（result.json 或 data/_draft/<id>/draft.json）。
 // 为什么不只放内存：刷新/重启后仍要认出「这条已入过章」，否则同一结果可被重复入关。
@@ -2430,30 +2439,23 @@ async function handle(req, res) {
         // 原图缩略图二进制（管理页选图器逐个懒加载；dataURL 解码后直接回图片，省前端一次 base64 转换）
         const mt = path.match(/^\/api\/results\/([a-z0-9][a-z0-9-]{0,63})\/thumb$/);
         if (req.method === 'GET' && mt) {
-            for (const board of existsSync(DATA) ? readdirSync(DATA) : []) {
-                const f = join(DATA, board, mt[1], 'result.json');
-                if (!existsSync(f)) continue;
-                const r = JSON.parse(readFileSync(f, 'utf8'));
-                const dm = typeof r.thumb === 'string' && r.thumb.match(/^data:(image\/[a-z0-9.+-]+);base64,([\s\S]+)$/i);
-                if (!dm) return sendJson(res, 404, { error: '该结果无缩略图' });
-                res.setHeader('Cache-Control', 'public, max-age=86400'); // 结果存盘后不再变，选图器反复开关不重拉
-                return send(res, 200, Buffer.from(dm[2], 'base64'), dm[1]);
-            }
-            return sendJson(res, 404, { error: 'not found' });
+            const found = findAnyResult(mt[1]);
+            if (!found) return sendJson(res, 404, { error: 'not found' });
+            const dm = typeof found.r.thumb === 'string' && found.r.thumb.match(/^data:(image\/[a-z0-9.+-]+);base64,([\s\S]+)$/i);
+            if (!dm) return sendJson(res, 404, { error: '该结果无缩略图' });
+            res.setHeader('Cache-Control', 'public, max-age=86400'); // 结果存盘后不再变，选图器反复开关不重拉
+            return send(res, 200, Buffer.from(dm[2], 'base64'), dm[1]);
         }
         // 拼豆图案投影（旧条目没有原图 thumb，选图器用 pattern+paletteHex 自己画缩略图）
         const mp = path.match(/^\/api\/results\/([a-z0-9][a-z0-9-]{0,63})\/paint$/);
         if (req.method === 'GET' && mp) {
-            for (const board of existsSync(DATA) ? readdirSync(DATA) : []) {
-                const f = join(DATA, board, mp[1], 'result.json');
-                if (!existsSync(f)) continue;
-                const r = JSON.parse(readFileSync(f, 'utf8'));
-                if (!Array.isArray(r.pattern) || !Array.isArray(r.paletteHex))
-                    return sendJson(res, 404, { error: '该结果无图案数据' });
-                res.setHeader('Cache-Control', 'public, max-age=86400');
-                return sendJson(res, 200, { pattern: r.pattern, colors: r.paletteHex });
-            }
-            return sendJson(res, 404, { error: 'not found' });
+            const found = findAnyResult(mp[1]);
+            if (!found) return sendJson(res, 404, { error: 'not found' });
+            const r = found.r;
+            if (!Array.isArray(r.pattern) || !Array.isArray(r.paletteHex))
+                return sendJson(res, 404, { error: '该结果无图案数据' });
+            res.setHeader('Cache-Control', 'public, max-age=86400');
+            return sendJson(res, 200, { pattern: r.pattern, colors: r.paletteHex });
         }
         // [WXG-T-364] 大关草稿：以大关为编辑单元攒一批小关 → 一次性发布（新增 / 整章替换 + 旧关归档）。
         // 草稿本身只碰 data/drafts（不需要 501 守卫）；publish 才是写真源，其内单守 501。

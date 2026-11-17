@@ -177,6 +177,9 @@
         .pk-item .meta { font-size: 11px; color: #6b6b6b; }
         .pk-foot { display: flex; gap: 10px; align-items: center; padding: 10px 14px; border-top: 1px solid var(--bd); }
         .pk-foot .grow { flex: 1; font-size: 12px; color: #6b6b6b; }
+        #pk-src { display: inline-flex; gap: 10px; font-size: 12px; }
+        #pk-src[hidden] { display: none; }
+        #pk-src a { color: #b4552d; text-decoration: none; border-bottom: 1px dashed currentColor; }
 
         /* 大关草稿（WXG-T-364）：拖拽排序行 + 键盘兜底 */
         .dr-row {
@@ -315,7 +318,7 @@
                 <span id="pk-count" style="font-size:12px;color:#6b6b6b"></span>
             </div>
             <div class="pk-grid" id="pk-grid"></div>
-            <div class="pk-foot"><span class="grow" id="pk-pick">未选择</span><button id="pk-ok" disabled>确认</button></div>
+            <div class="pk-foot"><span class="grow" id="pk-pick">未选择</span><span id="pk-src" hidden></span><button id="pk-ok" disabled>确认</button></div>
         </div>
     </div>
 
@@ -557,7 +560,7 @@
         // ── 选图器：缩略图网格（img 走 loading="lazy"，只有可视区才拉 /api/results/:id/thumb）──
         //    默认单选（替换图案/选 boss）；opts.multiple 时多选，确认返回**勾选顺序**的 id 数组。
         //    opts.slotsLeft（仅多选）：目标章剩余槽数，卡片标占槽数、已选合计超限时禁确认。
-        let pkResolve = null, pkFilter = () => true, pkValue = '', pkMulti = false, pkPicked = [], pkSlotsLeft = Infinity, pkView = false;
+        let pkResolve = null, pkFilter = () => true, pkValue = '', pkMulti = false, pkPicked = [], pkSlotsLeft = Infinity, pkView = false, pkPaint = false, pkViewId = '';
 
         function pickResult(title, filter, opts = {}) {
             return new Promise((resolve) => {
@@ -566,6 +569,8 @@
                 pkValue = '';
                 pkMulti = !!opts.multiple;
                 pkView = !!opts.view; // 只读查看来源：确认键变「关闭」，不返回任何选择
+                pkPaint = false;
+                pkViewId = opts.viewId || preselect || '';
                 pkPicked = [];
                 pkSlotsLeft = opts.slotsLeft ?? Infinity;
                 $('pk-title').textContent = title;
@@ -588,6 +593,15 @@
                     if (!hit && $('pk-grid').children.length === 1) $('pk-grid').children[0].click();
                     $('pk-ok').disabled = false;
                     $('pk-pick').textContent = '只读查看来源结果';
+                    $('pk-src').hidden = !pkViewId;
+                    if (pkViewId) {
+                        $('pk-src').innerHTML =
+                            `<a href="/api/results/${encodeURIComponent(pkViewId)}/thumb" target="_blank" rel="noopener">打开原图</a>` +
+                            `<a href="#" id="pk-paint-toggle">查看拼豆图案</a>`;
+                    }
+                } else {
+                    $('pk-src').hidden = true;
+                    $('pk-src').innerHTML = '';
                 }
             });
         }
@@ -618,7 +632,14 @@
                 b.dataset.id = r.id;
                 b.disabled = bad;
                 if (pkPicked.includes(r.id)) b.classList.add('on'); // 多选：搜索/筛选重绘后保留已勾选态
-                if (r.hasThumb) {
+                if (pkView && pkPaint) {
+                    // 只读来源：切到拼豆图案（端点已回退 _draft，草稿也能画）
+                    const art = document.createElement('div');
+                    art.className = 'pk-art';
+                    b.appendChild(art);
+                    fetch(`/api/results/${encodeURIComponent(r.id)}/paint`).then((x) => (x.ok ? x.json() : null))
+                        .then((p) => { if (p && art.isConnected) art.appendChild(paintThumb(p)); }).catch(() => {});
+                } else if (r.hasThumb) {
                     b.innerHTML = `<img loading="lazy" src="/api/results/${encodeURIComponent(r.id)}/thumb" alt="">`;
                 } else {
                     // 旧条目没存原图缩略图：拉拼豆图案自己画（只拉缺图的那 88 条）
@@ -651,7 +672,7 @@
                     pkValue = r.id;
                     for (const el of grid.children) el.classList.toggle('on', el.dataset.id === r.id);
                     $('pk-ok').disabled = false;
-                    $('pk-pick').textContent = `已选 ${r.id}（${r.cols}×${r.rows} · ${r.colors} 色）`;
+                    if (!pkView) $('pk-pick').textContent = `已选 ${r.id}（${r.cols}×${r.rows} · ${r.colors} 色）`;
                 };
                 b.ondblclick = () => { if (!pkMulti) { pkValue = r.id; closePicker(r.id); } }; // 双击直达（仅单选）
                 grid.appendChild(b);
@@ -667,6 +688,18 @@
             else if (pkValue) closePicker(pkValue);
         };
         $('pk-close').onclick = () => closePicker(null);
+
+        // 来源卡片：原图 ⇄ 拼豆图案切换（只读，不改变选择）
+        $('pk-src').addEventListener('click', (ev) => {
+            const t = ev.target.closest('#pk-paint-toggle');
+            if (!t) return;
+            ev.preventDefault();
+            pkPaint = !pkPaint;
+            t.textContent = pkPaint ? '查看原图' : '查看拼豆图案';
+            renderPicker();
+            const only = [...$('pk-grid').children].find((c) => c.dataset.id === pkViewId);
+            if (only && !only.disabled) only.click();
+        });
         $('picker').onclick = (e) => { if (e.target === $('picker')) closePicker(null); };
         addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('picker').hidden) closePicker(null); });
 
@@ -675,7 +708,7 @@
             if (!results.some((r) => r.id === id)) {
                 return showErr(`来源结果 ${id} 不在 data 池（可能已删除；关卡侧 ingested 记录仍在）`);
             }
-            pickResult(`来源结果 ${id}（只读）`, (r) => r.id === id, { view: true });
+            pickResult(`来源结果 ${id}（只读）`, (r) => r.id === id, { view: true, viewId: id });
         }
 
         // ── 章内小关：拖拽调序 + 点行去生成页编辑（WXG-T-373）──
