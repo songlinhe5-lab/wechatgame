@@ -1,0 +1,57 @@
+生成史 · 第 1 张正式母版 A01-P01「雏菊」（占 180 张名额 1/180）
+任务谱系：WXG-T-974（20 大关题材甄选）→ WXG-T-979（风格宪法 + 第 0 张探路）／生图阶段 S1
+日期：2026-11-17
+性质：逐张确认流程（series-spec.md §5）第 1 张；**效果确认未完成，不入关、不入库 final/**。
+判据正本：../series-spec.md §2 G1–G10 / §3 / §5 / §9；../series-spec-catalog.md §A01 与 §7 检查单。
+
+【基准 / 输入】
+题材单一真源：candidates.json A01 / P1 /「雏菊」，desc = 「一圈白色长花瓣围着黄色圆花心」（逐字沿用，未扩写）；
+suggestedColors=3 ⇒ 按 A01 色数目标「P1–P8 4–5 色」与 G5 下限 4 补为 4 色。
+A01 配色宪法 HEX：奶白 #FDF6E9 · 柠黄 #FFD23F · 草绿 #3FBF6B · 深棕 #6B3E1E（花心恒柠黄、茎叶草绿、深色点睛深棕）。
+形态语法：圆形花心 + 放射圆瓣 + 挺立单茎，所有部件相接；九关差异轴本张取起点「单圈长圆瓣」。
+提示词全文见 response-meta.json 的 prompt 字段（与会话内公示稿逐字一致）。
+
+【通道 / 模型 / 参数】
+profile = token-plan（Credits 计量；与 maas 按量通道不混 key / base）
+model   = qwen-image-3.0-pro（Token Plan 在册）
+params  = prompt_extend=False / seed=42 / size='2048*2048'（与第 0 张探路逐字一致）
+调用腿  = importlib 复用 design/ai-workflows/dashscope-generate.py 的 load_key / resolve / call /
+          find_image_urls / download，未改动该脚本
+elapsed = 16.4 s ｜ request_id = 79d28da1-f5df-4f9c-b3b5-b8df46225d2d
+usage   = {"output_height": 2048, "output_width": 2048, "input_image_count": 0, "input_image_type": "qima_input_2k", "output_image_count": 1, "output_image_type": "qima_output_2k"}
+        ⇒ output_image_type=qima_output_2k / input_image_type=qima_input_2k，2K 计费档。
+产出    = a01p01-s42.png（1581866 B，2048×2048 RGB）
+
+【本地零模型后处理 · 抠 alpha】
+脚本 = ../probe-2048/extract-alpha.py（PIL floodfill，thresh=72 = 24×3，四角播种，只改 alpha 不改 RGB）
+产出 = a01p01-s42-rgba.png（2048² RGBA）+ a01p01-s42-rgba-metrics.json
+六道验收：size=[2048, 2048]｜四角全透明=True｜alpha0=73.093%｜
+      主体内近黑残留=4 px｜单连通严格判=False｜
+      RGB 逐像素未变=True｜bbox=[427, 122, 1614, 1921]（面积 50.98%）
+补充实测：连通分量 3 个 = 主体 1,128,562 px + 两个 1×1 孤立像素 ⇒ 严格判 false **仅因 2 px 噪点**，
+      非结构断裂；studio 16×16 区域平均缩放下这 2 px 不参与采样。
+⚠ 主体边长占比：宽 58.0% / 高 87.9%，**超 G9「70–82%」上限**（上下边距仅 122/126 px）；
+      ⚠ 近黑残留 4 px 在主体内（非背景）。两项如实登记，未为过门放宽判据、未零模型抹除。
+
+【studio 量化 · mis=full 可入关链路（0 次 Token Plan 调用，draft=1）】
+请求 = http://127.0.0.1:8787/api/generate?cols=16&rows=16&board=a01p01&palette=10&colors=4&colorsmode=error&cellmode=mode&smooth=0&swaps=8&noframe=0&notrim=1&mis=full&draft=1
+body  = 2048² RGBA 原样 base64（w/h/data），noframe=0 / notrim=1 / palette=10 / colors=4
+原文 = studio-full-response.json；判据汇总 = studio-full-verify.json
+判据 A · 背景不参与采样：report.voidCells=0（四边框去背景空转）；
+      16×16 逐格复算 void=154，pattern 里 '.'=154，**差 0** ⇒ 空位全由 buildGrid 整格透明直接判定。
+判据 B · 用色号无背景贡献：paletteHex=["#FDF6E9", "#FFD23F", "#3FBF6B", "#6B3E1E"]（恰为 A01 宪法四色，无黑/近黑）；
+      colorsUsed=4、colorLimit.changed=0、fillable=102。
+判据 C · 可入关：importable=True、blockers=[]、misMode=full、
+      derangement=FULL (0 固定点)、pattern=16 行、levelDraft 键 11 个。
+真引擎读数：steps=17 / taps=34 / timeEst=84s / score=3 / cleared=True；
+      pricing.stepsLB=4、stepsByCap={"12": 17, "24": 13, "48": 10}；
+      adjacency.conflicts=0、colorError.final=59.8。
+verdict = PASS（链路层；**不等于效果验收通过**）
+
+【诚实注记 · 不得误读】
+1) 本张链路 PASS 只证明「2048 平涂母版 → floodfill alpha → studio mis=full」跑得通，
+   不代表 G9 构图占比合格：高 87.9% 超 82% 上限、宽 58% 低于 70%，深棕块仅占 4 格。
+2) colorError.final=59.8（探路中性测试体为 22.2）偏高，与题材四色和窄高构图有关，未做任何调色。
+3) 按 §5 第四步「用户确认效果」尚未完成 ⇒ **未入关（draft=1 只写 data/_draft/）、未进 final/**；
+   若用户裁定重生，本次 1 次调用转为 1 次浪费，须在用量台账追加订正。
+4) 0 次调用清单：抠 alpha、六道验收、studio 量化均本地确定性脚本，不追加用量台账调用计数。

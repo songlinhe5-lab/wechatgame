@@ -1,0 +1,18 @@
+{
+  "elapsed_s": 16.4,
+  "usage": {
+    "output_height": 2048,
+    "output_width": 2048,
+    "input_image_count": 0,
+    "input_image_type": "qima_input_2k",
+    "output_image_count": 1,
+    "output_image_type": "qima_output_2k"
+  },
+  "request_id": "79d28da1-f5df-4f9c-b3b5-b8df46225d2d",
+  "params": {
+    "prompt_extend": false,
+    "seed": 42,
+    "size": "2048*2048"
+  },
+  "prompt": "A flat 2D vector graphic, single centered daisy flower head. One solid lemon-yellow (#FFD23F) circular flower center, surrounded by one ring of long solid cream-white (#FDF6E9) rounded petals, each petal touching the center disc and forming ONE connected silhouette. A short thick solid grass-green (#3FBF6B) stem rises from directly beneath the flower head and touches it, with two broad solid grass-green leaves attached to the stem; one small solid dark-brown (#6B3E1E) block at the stem base. All parts overlap and connect; no detached or floating pieces. All color areas are solid single colors. All edges sharp and clean. No outlines, no gradients, no shading, no highlights, no shadows, no texture, no noise, no 3D, no realistic material, no feathered edges, no thin lines, no scattered dots, no falling petals. The subject occupies about 78% of the canvas width and about 78% of the canvas height, with generous empty margin on all four sides and does not touch any edge. Background is completely uniform pure black #000000 from corner to corner: no gradient, no vignette, no glow, no checkerboard, no pattern, no frame, no ground, no reflection. No text, no letters, no numbers, no watermark, no second object. No black or near-black color anywhere inside the subject."
+}

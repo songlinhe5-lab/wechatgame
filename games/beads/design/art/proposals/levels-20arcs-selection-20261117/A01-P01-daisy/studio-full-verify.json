@@ -1,0 +1,137 @@
+{
+  "purpose": "A01-P01 第 1 张正式母版：RGBA 喂 studio 的 mis=full 可入关链路 + 背景不参与采样复验",
+  "date": "2026-11-17",
+  "studio": "http://127.0.0.1:8787",
+  "http": 200,
+  "response_id": "a01p01-1794928612357-3a58",
+  "request": "http://127.0.0.1:8787/api/generate?cols=16&rows=16&board=a01p01&palette=10&colors=4&colorsmode=error&cellmode=mode&smooth=0&swaps=8&noframe=0&notrim=1&mis=full&draft=1",
+  "source": "a01p01-s42-rgba.png（2048² RGBA，floodfill 抠 alpha）",
+  "verdict": "PASS",
+  "evidence": {
+    "importable": true,
+    "blockers": [],
+    "misMode": "full",
+    "derangement": "FULL (0 固定点)",
+    "voidCells": 0,
+    "paletteHex": [
+      "#FDF6E9",
+      "#FFD23F",
+      "#3FBF6B",
+      "#6B3E1E"
+    ],
+    "colorsUsed": 4,
+    "colorLimit_changed": 0,
+    "fillable": 102,
+    "char_hist": {
+      ".": 154,
+      "1": 51,
+      "2": 12,
+      "3": 35,
+      "4": 4
+    },
+    "pattern_rows": 16,
+    "levelDraft_keys": [
+      "cols",
+      "cycleProfile",
+      "decoys",
+      "misplaced",
+      "paletteHex",
+      "pattern",
+      "pricing",
+      "rows",
+      "skin",
+      "swaps",
+      "time"
+    ],
+    "difficulty": {
+      "score": 3,
+      "timeEst": 84,
+      "misplaced": 0,
+      "taps": 34,
+      "bMed": 0,
+      "split": {
+        "moves": 17,
+        "places": 6,
+        "directFills": 6,
+        "retrieves": 5
+      },
+      "steps": 17,
+      "cleared": true,
+      "secPerStep": 4.14,
+      "blockers": [],
+      "formula": "v0.4（真引擎实测 BAC 批量动作数 × SEC_PER_STEP）"
+    },
+    "pricing": {
+      "source": "bot",
+      "steps": 17,
+      "stepsLB": 4,
+      "baseCap": 12,
+      "stepsByCap": {
+        "12": 17,
+        "24": 13,
+        "48": 10
+      },
+      "taps": 34,
+      "actionsSplit": {
+        "moves": 17,
+        "places": 6,
+        "directFills": 6,
+        "retrieves": 5
+      },
+      "secPerStep": 4.14,
+      "tierK": 0.85,
+      "clamped": false,
+      "cleared": true
+    },
+    "adjacency": {
+      "minDE": 20,
+      "maxDriftDE": 12,
+      "changed": 0,
+      "conflicts": 0
+    },
+    "colorError": {
+      "beforeColorLimit": 26.9,
+      "final": 59.8
+    },
+    "tinyCells": null,
+    "blocks": null
+  },
+  "alpha_metrics": {
+    "size": [
+      2048,
+      2048
+    ],
+    "seeded_corners": [
+      [
+        0,
+        0
+      ],
+      [
+        2047,
+        0
+      ],
+      [
+        0,
+        2047
+      ],
+      [
+        2047,
+        2047
+      ]
+    ],
+    "alpha0_pct": 73.093,
+    "alpha255_pct": 26.907,
+    "four_corners_transparent": true,
+    "nearblack_left_in_subject_px": 4,
+    "subject_single_connected": false,
+    "subject_reached_px": 1128562,
+    "subject_bbox": [
+      427,
+      122,
+      1614,
+      1921
+    ],
+    "subject_bbox_pct": 50.98,
+    "rgb_unchanged": true
+  }
+}
