@@ -10060,6 +10060,17 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 
 ---
 
+## WXG-T-973
+
+**接线·新增方案D对角四棱风格** · 负责：主理人(CodeBuddy)·beads 视图轨 · 状态：✅ 完成（2026-11-17 · 用户定稿「方案 D」）
+
+- **诉求**：用户展示豆面「经典四棱」与「双色对角」两张效果图，指出双色对角（直角三角硬边）效果不好，要求「用经典四棱的绘制方式实现双色对角的效果（实际是两个面的高亮差异）」。先做 `games/beads/temp/`（gitignore）对比预览页给 A/B/C/D 四方案，用户定稿 **D**。
+- **落地**：新增 `diagonal-facet` 风格——复用 `facet-4.ts` 的 `writeFan` 圆角扇几何 + 同色自描边封缝 + 外轮廓环 + 孔环孔底全套工艺，明暗从四档塌成对角两档（TOP/LEFT 扇 = `lit` +0.38 / RIGHT/BOTTOM 扇 = `pit` −0.44 ⇒ 左上亮右下暗）。层集 7 命令 / 0 真 α（与 facet-4 同构）。`writeFan` 从 facet-4 导出为唯一几何真源，新模块零几何字面量（守 C4 零裸系数、C2 零分配）。
+- **注册**：`DIAGONAL_FACET_STYLE_ID` 追加到 config 注册序末位（不扰默认档与既有循环前四档），玩家可在设置里与旧 `dual-tone-13` 来回切换对比；玩家侧标签「对角四棱」；src + cocos 镜像同步。
+- **门禁重封**：`check-bead-style-pool` 登记表补 `diagonal-facet: 119facet重叠px`（复用 facet-4 writeFan/insets ⇒ 重叠同源同值 119px，非调阈值）；`bead-style-pool.test.ts` 注册序断言 + C12 重叠钉值断言更新；`bead-size-tier.test.ts` 孔图元判定补 `diagonal-facet` = 2 枚（六裁环+底）。
+- **验证**：风格池门禁 22/22 绿、豆径档 / 设置 / 封箱 / 账本 / 渲染测试全绿；`pnpm run verify` 23 项中 `test` + `check:bead-style-pool` 绿，`framework:sync:check` 单跑绿（全量并发偶发）；`ctx:check` / `selftest:fast` 为基线固有 FAIL（stash 掉本笔改动后仍在，工作区有大量先前未提交改动索引不同源）。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
 ## WXG-T-971
 
 **文档·menu-architecture / level-difficulty v1 口径对账** · 负责：主理人(Trae CN)·beads 设计轨 · 状态：✅ 完成（2026-11-16 · 用户令「继续清账，处理 menu-architecture.md 和 level-difficulty.md 的 v1 口径」）

@@ -32,6 +32,7 @@
  */
 import { registeredStyleIds } from '../../config/bead-styles/registry.js';
 export { DEFAULT_BEAD_STYLE_ID, registeredStyleIds } from '../../config/bead-styles/registry.js';
+import { DIAGONAL_FACET } from './diagonal-facet.js';
 import { DUAL_TONE_13 } from './dual-tone-13.js';
 import { FACET4 } from './facet-4.js';
 import { HANDDRAWN } from './handdrawn.js';
@@ -62,9 +63,16 @@ const DUAL13_STYLE: BeadStyle = DUAL_TONE_13;
  */
 const HANDDRAWN_STYLE: BeadStyle = HANDDRAWN;
 
+/**
+ * **`diagonal-facet` 对角四棱（方案 D，2026-11-17 用户定稿）**：
+ * 四棱圆角扇工艺 + 对角两档（左上 lit / 右下 pit），实测 **7 命令 / 0 真 α**
+ * （与 facet-4 同构，命令上限压线）。注册序 append 末位 ⇒ 不扰默认档与既有循环前两档。
+ */
+const DIAGONAL_FACET_STYLE: BeadStyle = DIAGONAL_FACET;
+
 /** 按 config 的 id 注册序装配绘制器；缺绘制器在模块装载时直接报错，不静默换档。 */
 const STYLE_BY_ID: ReadonlyMap<string, BeadStyle> = new Map(
-    [FACET4_STYLE, LINEART18_STYLE, DUAL13_STYLE, HANDDRAWN_STYLE].map((s) => [s.id, s]),
+    [FACET4_STYLE, LINEART18_STYLE, DUAL13_STYLE, HANDDRAWN_STYLE, DIAGONAL_FACET_STYLE].map((s) => [s.id, s]),
 );
 const REGISTRY: readonly BeadStyle[] = Object.freeze(registeredStyleIds().map((id) => {
     const style = STYLE_BY_ID.get(id);

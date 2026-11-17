@@ -88,8 +88,9 @@ describe('豆径档 × 风格 矩阵（§12 C5 孔存在性按档 + C8 判据按
   for (const s of styles) {
     describe(`风格 ${s.id}`, () => {
       // **六裁（WXG-T-221）**：facet-4 的孔拆为同心两枚 circle（pit 底 + stroke-only 环）⇒ 满豆档孔图元 2 枚；
+      // `diagonal-facet`（2026-11-17 方案 D）复用 facet-4 完整层集骨架（含孔环+孔底）⇒ 同 2 枚；
       // 其余风格孔 = 同路径单命令 ⇒ 1 枚。hideHole 跳 `role==='hole'` 全部层。
-      const HOLE_CIRCLES = s.id === 'facet-4' ? 2 : 1;
+      const HOLE_CIRCLES = s.id === 'facet-4' || s.id === 'diagonal-facet' ? 2 : 1;
       // **handdrawn（MVP 原型批）**：第二枚 circle = 手绘内环（`plate` 职能，stroke-only），
       // ⛔ 不是孔 ⇒ circle 总数 ≠ 孔数的风格用本表补非孔枚数（代理诚实化，不改跳层语义）。
       const PLATE_CIRCLES = s.id === 'handdrawn' ? 1 : 0;

@@ -292,6 +292,12 @@ export const FACET4_SEAM_STROKE_PX = 0.75;
 
 /** `13` 双色对角的 styleId（= `registry` 池项与 `settings.beadStyle` 的合法值；步 5 才开始被玩家切）。 */
 export const DUAL13_STYLE_ID = 'dual-tone-13';
+/**
+ * `diagonal-facet` 对角四棱的 styleId（2026-11-17 用户定稿方案 D）。
+ * 四棱圆角扇工艺 + 对角两档高亮（左上 lit / 右下 pit）⇒ 替换「直角三角」硬纸片感的双色对角。
+ * 注册序 append 末位 ⇒ 不扰默认档与既有循环前两档。
+ */
+export const DIAGONAL_FACET_STYLE_ID = 'diagonal-facet';
 /** `18` 线稿描边的 styleId（同上）。 */
 export const LINEART18_STYLE_ID = 'lineart-18';
 /**
@@ -379,6 +385,7 @@ export const BEAD_STYLE_LABELS: Readonly<Record<string, string>> = Object.freeze
   [FACET4_STYLE_ID]: '经典四棱',
   [DUAL13_STYLE_ID]: '双色对角',
   [LINEART18_STYLE_ID]: '线稿描边',
+  [DIAGONAL_FACET_STYLE_ID]: '对角四棱',
 });
 
 /**

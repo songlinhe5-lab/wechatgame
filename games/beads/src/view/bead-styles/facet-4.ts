@@ -107,7 +107,7 @@ const LAYERS: readonly BeadStyleLayer[] = Object.freeze([
  * 角向约定（y-up，θ 自 +x 轴逆时针）：TOP `135°→45°`、RIGHT `45°→−45°`、
  * BOTTOM `−45°→−135°`、LEFT `−135°→−225°`，四向共用「递减 `ARC_STEP`」一条游标。
  */
-function writeFan(
+export function writeFan(
   pts: number[],
   c1x: number,
   c1y: number,

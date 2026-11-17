@@ -3,6 +3,7 @@
  * 注册序 = 设置循环序；绘制器仍住 view，存档与设置只依赖本文件辨认合法 id。
  */
 import {
+  DIAGONAL_FACET_STYLE_ID,
   DUAL13_STYLE_ID,
   FACET4_STYLE_ID,
   HANDDRAWN_STYLE_ID,
@@ -14,6 +15,7 @@ const STYLE_IDS: readonly string[] = Object.freeze([
   LINEART18_STYLE_ID,
   DUAL13_STYLE_ID,
   HANDDRAWN_STYLE_ID,
+  DIAGONAL_FACET_STYLE_ID,
 ]);
 const BY_ID: ReadonlySet<string> = new Set(STYLE_IDS);
 

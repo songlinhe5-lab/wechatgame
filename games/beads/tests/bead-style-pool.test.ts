@@ -277,6 +277,8 @@ describe('C12 重叠哨兵改写 · 逐风格钉值 + 死层硬门（§12.2 C12 
         //   T-221 让像素前的 2301/2274/2314/2318（当时缩的是测量假象，见 TC-STY-09 注）。
         expect(ok.out).toMatch(/\[facet-4\][^\n]*facet重叠px=119 facet顶面px=#2:2301 #3:2274 #4:2314 #5:2318/);
         expect(ok.out).toMatch(/\[dual-tone-13\][^\n]*facet重叠px=0 facet顶面px=#2:3676/);
+        // [2026-11-17 方案 D] diagonal-facet 复用 facet-4 writeFan/insets ⇒ 重叠与四枚顶面逐值同源同构。
+        expect(ok.out).toMatch(/\[diagonal-facet\][^\n]*facet重叠px=119 facet顶面px=#2:2301 #3:2274 #4:2314 #5:2318/);
         expect(ok.out).not.toContain('C12 死层');
         expect(ok.out).not.toContain('C12 重叠登记缺失');
         expect(ok.out).not.toContain('C12 重叠钉值漂移');
@@ -374,9 +376,10 @@ describe('TC-STY-11 · 行4 钮先行哨兵（S9 §8-19 + K.1a 阳性对照腿�
         const ids = registry.registeredStyleIds();
         expect(ids.length).toBeGreaterThanOrEqual(2);
         // 序真源 = `bead-visual-style-spec §12.6` 入选池表行序（16/19 已移出）：四棱 → 18 → 13；
-        // 末位 `handdrawn` = MVP 原型档（2026-10-07 树形参考图批，⛔ 未过 §12.6 入池评审，
-        // 转正/退出登记见 registry.ts 项注）。
-        expect(ids).toEqual(['facet-4', 'lineart-18', 'dual-tone-13', 'handdrawn']);
+        // 末二位 `handdrawn` = MVP 原型档（2026-10-07 树形参考图批，⛔ 未过 §12.6 入池评审，
+        // 转正/退出登记见 registry.ts 项注）；`diagonal-facet` = 2026-11-17 用户定稿方案 D
+        //（四棱圆角扇工艺 + 对角两档 lit/pit，替换直角三角硬纸片感），append 末位不扰前四档。
+        expect(ids).toEqual(['facet-4', 'lineart-18', 'dual-tone-13', 'handdrawn', 'diagonal-facet']);
         // 默认档不得随入池飘移（直引 facet-4 ⇒ 盘面与 seal 基准不受本批影响）。
         expect(registry.DEFAULT_BEAD_STYLE_ID).toBe('facet-4');
     });

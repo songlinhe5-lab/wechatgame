@@ -176,6 +176,7 @@ const FACET_OVERLAP_REGISTER = {
     'dual-tone-13': 0, // 单枚 facet ⇒ 无重叠对象（结构性事实，不是“调低了阈值”）
     'lineart-18': 3453, // 叠压式层集（主体 rect 上两条带）⇒ 旧 10% 泛阈值在此必误伤的正因
     'handdrawn': 0, // MVP 原型 v2（2026-10-07）：单枚 facet（圆角方豆体）⇒ 无重叠对象；轮廓线/内环 stroke-only 属 plate 不入统计域
+    'diagonal-facet': 119, // 2026-11-17 方案 D：复用 facet-4 的 writeFan/insets ⇒ 几何逐 texel 同构，重叠同源同值（共边同色自描边带 119px），非调阈值
 };
 
 /* ────────────────────────── C12 主体色认定 ────────────────────────── */
