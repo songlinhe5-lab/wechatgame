@@ -277,7 +277,7 @@
             <div class="row3">
                 <div><label>章 id（小写字母/数字/连字符）</label><input id="new-id" placeholder="neon"></div>
                 <div><label>标题（橱窗/木牌展示名）</label><input id="new-title" placeholder="霓虹"></div>
-                <div><label>首关 boss（≤32 的可入关结果）</label>
+                <div><label>首关 boss（≤64 的可入关结果）</label>
                     <button class="ghost" id="new-pick" style="width:100%">选首关 boss…</button></div>
             </div>
             <label>展示图（浏览器内自动缩到 256×256 PNG）</label>
@@ -291,7 +291,7 @@
             <div class="pk-head"><b id="pk-title">选择结果</b><span class="grow"></span><button class="ghost" id="pk-close">关闭</button></div>
             <div class="pk-tools">
                 <input type="search" id="pk-q" placeholder="搜索 id / 盘面档位…">
-                <label><input type="checkbox" id="pk-small"> 只看单盘 ≤32</label>
+                <label><input type="checkbox" id="pk-small"> 只看单盘 ≤64</label>
                 <label id="pk-okonly-wrap" hidden><input type="checkbox" id="pk-okonly" checked> 只看可入关</label>
                 <span id="pk-count" style="font-size:12px;color:#6b6b6b"></span>
             </div>
@@ -553,7 +553,7 @@
             const q = $('pk-q').value.trim().toLowerCase();
             const onlySmall = $('pk-small').checked;
             const onlyOk = $('pk-okonly-wrap').hidden ? false : $('pk-okonly').checked;
-            const match = (r) => pkFilter(r) && (!onlySmall || (r.cols <= 32 && r.rows <= 32)) &&
+            const match = (r) => pkFilter(r) && (!onlySmall || (r.cols <= 64 && r.rows <= 64)) &&
                 (!q || r.id.toLowerCase().includes(q) || String(r.board || '').toLowerCase().includes(q));
             const list = results.filter((r) => match(r) && (!onlyOk || r.importable !== false));
             // 默认只看可入关：计数里告知隐藏了多少条，需要时取消勾选即可查看原因

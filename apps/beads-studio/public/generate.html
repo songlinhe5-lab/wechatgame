@@ -297,7 +297,7 @@
                         <!-- 选项由 /brands.json 生成（品牌↔mm↔dip 单一真源，ADR-0021）；本文件不再手写品牌与 mm -->
                     </select></div>
                 <div><label>实际用几种颜色<span id="colorsHint">（参考图，不可入关）</span></label><input type="number" id="colors"
-                        value="8" min="3" max="35"></div>
+                        value="8" min="4" max="16"></div>
             </div>
             <div class="row2">
                 <div><label>错位密度</label><select id="misKind">
@@ -431,10 +431,10 @@
             $('freeShapeBox').style.display = $('shapeKind').value === 'free' ? 'block' : 'none';
         };
 
-        /** 用色域联动（v1.40 品牌引用制）：全部为品牌色板，3–35 参考图；入关不限色板
+        /** 用色域联动（v1.40 品牌引用制）：全部为品牌色板，4–16 参考图（设计上限 16）；入关不限色板
          *  —— 关卡写回 slug+色号，游戏侧从品牌注册表查 hex 渲染。 */
         function syncColorsDomain() {
-            $('colors').min = 3; $('colors').max = 35;
+            $('colors').min = 4; $('colors').max = 16;
             $('colorsHint').textContent = '（参考图，可入关：写回品牌色号）';
         }
         $('palette').onchange = () => { syncColorsDomain(); refreshInfer(); };
@@ -487,7 +487,7 @@
          *   2. 珠距检测可信（gx≥15）→ 实拍物理盘照片
          *   3. dip 推断在合法范围内 → 兜底
          * 推断上限取「解像上限 ÷ 每颗像素」而非单图上限：>SINGLE_MAX 不是非法盘面，而是走**组合图 Plate**
-         *（`server.mjs ingestLevel` 自动均分切块）。`SINGLE_MAX` = §3.3 `GRID_MAX`（**v1.45：50→32**）。
+         *（`server.mjs ingestLevel` 自动均分切块）。`SINGLE_MAX` = §3.3 `GRID_MAX`（**本批：32→64**）。
          * 返回要拼在「源图已解像」后的注记串（可能为空）；副作用 = 回填 #board/#cols/#rows。
          */
         async function inferBoard(w, h) {
@@ -497,7 +497,7 @@
             const mm = brand.mm;                        // 品牌物理珠径（成品尺寸用）
             const PER_BEAD_PX = brand.dip;              // 每颗标准 px（旧 DIP_BY_MM 硬表已删）
             const MAX_INFER = Math.floor(4096 / PER_BEAD_PX);        // 可推断范围（非单图上限）
-            const SINGLE_MAX = 32;                                   // 单图宽高上限；任一维超过即拆组合图
+            const SINGLE_MAX = 64;                                   // 单图宽高上限；任一维超过才拆组合图（本批 32→64）
             const sug = detectBeadGrid(srcPixels);
             const cPx = Math.round(w / PER_BEAD_PX), rPx = Math.round(h / PER_BEAD_PX);
             const isStdSquare = w === h
