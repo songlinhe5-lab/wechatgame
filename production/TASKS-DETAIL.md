@@ -15,6 +15,22 @@
 
 ---
 
+## WXG-T-977
+
+**工程·Studio 批量 auto-tune 评分 Top3（B2）** · 负责：主理人(Trae CN) · 状态：✅ 完成（2026-11-17）
+
+- **用户原话**：「B2」（承接 T-976 已确认的优先级：B2 auto-tune 先行）。
+- **交付（在 B1 批量 API 上增量，零新端点）**：
+  - `POST /api/batch/generate` 增 `autotune:true`（需 `grid ≥2` 组合，否则 400）。
+  - 批次完成后 `rankBatch(job)` 生成 `ranking`：按 `name`（图片）分组、组内 Top3。
+  - 评分 = `importable ? 1000 : 0` + `adjRate × 300` + `(1 − 组内归一 colorError) × 200`。
+  - 色差取 `report.colorError.final`（beads-gen 现成真值，零新计算）；归一用组内 min/max（色差绝对尺度随图变化，跨图不可比）。
+  - 行级新增 `metrics:{colorError, adjRate, blocks, colorsUsed}` 与 `score`。
+- **实测（1 图 24×24 四色 × grid{colors:[4,6] × smooth:[0,1]} = 4 组合）**：`colors=6` 两组合 → 4 色、`colorError=40.7`、`adjRate=0.947`、可入关 ⇒ **1484.1 分**；`colors=4` 两组合 → 3 色、`colorError=59.1`、`adjRate=0.964`、不可入关（BOOT 下限 4）⇒ **289.2 分**。硬门槛与指标方向均正确；ranking 顶部 = 可入关且色差最小者。测试草稿已清理。
+- **刻意不做**：不自动定稿（只回 Top3，人工拍板）；不做跨图排名（不同图色差不可比）；不引入 CIEDE2000 等新色差公式（B2 复用现成 `colorError.final`）。
+- **已知边界**：`adjRate` 对「优」的假设是块越整越易读，与大色块风格冲突时需人工复核；`ranking` 与批次进度同寿命（只在内存）。
+- **知识沉淀**：kb:sync 沉淀统计 新增 0 / 修改 0 / 激活 0 / 归档 0。
+
 ## WXG-T-976
 
 **工程·Studio 批量生成 API（B1）+ 生成效率盘点规划** · 负责：主理人(Trae CN) · 状态：✅ 完成（2026-11-17）

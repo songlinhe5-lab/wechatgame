@@ -17,8 +17,8 @@ node apps/beads-studio/server.mjs          # → http://localhost:8787
 | 方法/路径 | 说明 |
 |---|---|
 | `POST /api/generate?cols=&rows=&board=&shape=&palette=&colors=&colorsmode=&swaps=&smooth=&noframe=&notrim=` | body = JSON `{w, h, data: base64(RGBA), thumb?: dataURL}`（≤2048²，图片由前端本地解像，**不上传原文件**；`thumb` 随结果存盘供「原图」视图回看）；返回 result.json。`notrim=1` = 关包围盒裁剪（空边留 void）⇒ 实际盘面 = 请求 `cols×rows`，供关卡模式「按该关尺寸生成」用 |
-| `POST /api/batch/generate` | **批量生成**（B1）：body `{ items:[{name?,w,h,data,thumb?}] (≤10 张), params?, grid?, draft?, board? }`；`grid` = 参数网格 `{colors?,smooth?,colorsmode?,cellmode?,swaps?,mis?,premedian?}`（笛卡尔积 ≤6 组合，单批产物 ≤60 条）；默认 `draft`（进预览区）。**202** 回 `{batchId,total,combos}`，服务端限并发 2 后台跑 |
-| `GET /api/batch/:id` | 批量进度 `{total,done,ok,error,finished,rows:[{name,combo,status,id?,importable?,blockers?,error?}]}`。⚠ 进度只在内存（服务重启即丢；产物已逐条落盘不丢数据） |
+| `POST /api/batch/generate` | **批量生成**（B1）：body `{ items:[{name?,w,h,data,thumb?}] (≤10 张), params?, grid?, draft?, board?, autotune? }`；`grid` = 参数网格 `{colors?,smooth?,colorsmode?,cellmode?,swaps?,mis?,premedian?}`（笛卡尔积 ≤6 组合，单批产物 ≤60 条）；默认 `draft`（进预览区）。**202** 回 `{batchId,total,combos}`，服务端限并发 2 后台跑。`autotune:true` = B2 搜优（需 grid ≥2 组合） |
+| `GET /api/batch/:id` | 批量进度 `{total,done,ok,error,finished,autotune,ranking,rows:[{name,combo,status,id?,metrics?,score?}]}`；`ranking` = 同图分组 Top3（评分 = `importable` 硬门槛 1000 + `adjRate×300` + `(1−组内归一色差)×200`，色差用 `colorError.final`）。⚠ 进度只在内存（重启即丢；产物已逐条落盘不丢数据） |
 | `GET /api/results` | 结果列表（按盘面分组、时间倒序）——**小游戏在线导入同源**；只回**轻投影**（元数据 + `hasThumb`，不含 pattern/缩略图，避免随条数膨胀），点条目时再取单条全量 |
 | `GET /api/previews` | **预览草稿**列表（`data/_draft/<id>/draft.json` 的轻投影，带 `draft:true`）。刻意不进 `/api/results`（预览未搬盘，小游戏导入/选图器按 id 找 `result.json` 会 404） |
 | `GET /api/previews/:id` | 单条预览全文（生成页「点行应用为当前」用） |

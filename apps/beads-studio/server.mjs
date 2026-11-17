@@ -13,10 +13,12 @@
  *        `notrim=1` = 关掉 beads-gen 的包围盒裁剪（空边保留为 void）⇒ 实际盘面 = 请求 cols×rows。
  *        关卡模式「按该关尺寸生成」用它：否则 13×12 请求会被裁成 11×8，替换回该关就改盘面尺寸。
  *   GET  /api/results         → 结果列表（按盘面分组、时间倒序）
- *   POST /api/batch/generate  → **批量生成**：body `{ items:[{name?,w,h,data,thumb?}]≤10, params?, grid?, draft?, board? }`
+ *   POST /api/batch/generate  → **批量生成**：body `{ items:[{name?,w,h,data,thumb?}]≤10, params?, grid?, draft?, board?, autotune? }`
  *        `grid` = 参数网格 `{colors?:[], smooth?:[], colorsmode?:[], cellmode?:[], swaps?:[], mis?:[], premedian?:[]}`
  *        （笛卡尔积 ≤6 组合，单批产物 ≤60 条）。默认 draft（进预览区）；202 回 `{batchId,total,combos}`。
- *   GET  /api/batch/:id       → 批量进度 `{total,done,ok,error,finished,rows:[{name,combo,status,id?,error?}]}`
+ *        `autotune:true` ⇒ 批次完成后按**同图分组**评分回 Top3（需 grid ≥2 组合）。
+ *   GET  /api/batch/:id       → 批量进度 `{total,done,ok,error,finished,autotune,ranking,rows:[{name,combo,status,id?,metrics?,score?}]}`
+ *        ranking = `[{name, top:[{id,combo,score,importable,colors,colorError,adjRate,blockers}]}]`
  *        ⚠ 进度只在内存（服务重启即丢；产物已逐条落盘，不丢数据）
  *   GET  /api/results/:id     → 单个 result.json（小游戏在线导入用）
  *   GET  /api/previews        → **预览草稿**列表（data/_draft/<id>/draft.json 的轻投影，`draft:true`）
@@ -2009,6 +2011,14 @@ async function runBatch(job, prepared, combos, { isDraft, board }) {
                 row.colors = result.colors;
                 row.importable = result.importable;
                 row.blockers = result.blockers.slice(0, 2);
+                // B2 评分指标（beads-gen report 的现成真值，零新计算）
+                const rep = result.report || {};
+                row.metrics = {
+                    colorError: rep.colorError?.final ?? null,   // 色差（越小越忠实）
+                    adjRate: rep.clusteringAfter?.adjRate ?? null, // 同色相邻率（越大块越整）
+                    blocks: rep.clusteringAfter?.blocks ?? null,
+                    colorsUsed: rep.colorsUsed ?? row.colors,
+                };
                 job.ok++;
             } catch (e) {
                 row.status = 'error';
@@ -2020,7 +2030,43 @@ async function runBatch(job, prepared, combos, { isDraft, board }) {
         }
     };
     await Promise.all(Array.from({ length: BATCH_CONCURRENCY }, worker));
+    if (job.autotune) rankBatch(job);
     job.finishedAt = new Date().toISOString();
+}
+
+/** B2 auto-tune 排名：**同图内**比较（跨图色差不可比），每组按
+ *  `importable(硬门槛 1000) + adjRate×300 + (1−归一色差)×200` 打分，回 Top3。
+ *  色差用组内 min/max 归一（绝对尺度随图变化，组内相对才可比）。 */
+function rankBatch(job) {
+    const byName = new Map();
+    for (const row of job.rows) {
+        if (row.status !== 'ok') continue;
+        if (!byName.has(row.name)) byName.set(row.name, []);
+        byName.get(row.name).push(row);
+    }
+    const ranking = [];
+    for (const [name, rows] of byName) {
+        const errs = rows.map((r) => r.metrics?.colorError).filter((v) => Number.isFinite(v));
+        const minErr = errs.length ? Math.min(...errs) : 0;
+        const maxErr = errs.length ? Math.max(...errs) : 0;
+        const span = maxErr - minErr;
+        for (const r of rows) {
+            const e = r.metrics?.colorError;
+            const errNorm = Number.isFinite(e) && span > 0 ? (e - minErr) / span : 0;
+            const adj = r.metrics?.adjRate ?? 0;
+            r.score = Math.round(((r.importable ? 1000 : 0) + adj * 300 + (1 - errNorm) * 200) * 10) / 10;
+        }
+        rows.sort((a, b) => b.score - a.score);
+        ranking.push({
+            name,
+            top: rows.slice(0, 3).map((r) => ({
+                id: r.id, combo: r.combo, score: r.score, importable: r.importable,
+                colors: r.colors, colorError: r.metrics?.colorError ?? null,
+                adjRate: r.metrics?.adjRate ?? null, blockers: r.blockers,
+            })),
+        });
+    }
+    job.ranking = ranking;
 }
 
 async function handleBatchGenerate(req, res) {
@@ -2062,6 +2108,11 @@ async function handleBatchGenerate(req, res) {
         return { params, skin, label: Object.fromEntries(BATCH_GRID_KEYS.filter((k) => c[k] !== undefined).map((k) => [k, c[k]])) };
     });
     const isDraft = body.draft !== false; // 默认进草稿区（与生成页预览同口径）
+    // B2 auto-tune：开评分开关（需多组合才有意义）；评分在批次完成后由 rankBatch 计算
+    const autotune = body.autotune === true;
+    if (autotune && combosRaw.length < 2) {
+        return sendJson(res, 400, { error: 'autotune=true 需要 grid 至少 2 个组合（单组合无需搜优）' });
+    }
     const batchId = `b${Date.now().toString(36)}-${randomBytes(2).toString('hex')}`;
     const rowsState = [];
     for (let i = 0; i < prepared.length; i++) {
@@ -2070,13 +2121,13 @@ async function handleBatchGenerate(req, res) {
         }
     }
     const job = {
-        id: batchId, total, done: 0, ok: 0, error: 0, draft: isDraft,
+        id: batchId, total, done: 0, ok: 0, error: 0, draft: isDraft, autotune, ranking: null,
         createdAt: new Date().toISOString(), finishedAt: null, rows: rowsState,
     };
     batches.set(batchId, job);
     // 后台跑，立即回 202；前端轮询 GET /api/batch/:id
     runBatch(job, prepared, combos, { isDraft, board }).catch(() => {});
-    return sendJson(res, 202, { batchId, total, combos: combos.length, draft: isDraft });
+    return sendJson(res, 202, { batchId, total, combos: combos.length, draft: isDraft, autotune });
 }
 
 function handleBatchStatus(res, batchId) {
@@ -2086,6 +2137,9 @@ function handleBatchStatus(res, batchId) {
         batchId: job.id, total: job.total, done: job.done, ok: job.ok, error: job.error,
         draft: job.draft, createdAt: job.createdAt, finishedAt: job.finishedAt,
         finished: !!job.finishedAt,
+        autotune: !!job.autotune,
+        // B2：完成后按「同图分组」的评分 Top3（未完成/未开启 auto-tune ⇒ null）
+        ranking: job.ranking ?? null,
         // 行级明细：name / combo / status / id / error / 轻指标（不含 pattern，避免响应膨胀）
         rows: job.rows,
     });
