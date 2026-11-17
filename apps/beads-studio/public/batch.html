@@ -401,13 +401,56 @@ $('ingestSel').onclick = async () => {
         }
         return;
     }
-    const res = await fetch(`/api/manage/chapter/${chapter}/import`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ resultIds: list.map((r) => r.id) }),
-    });
-    const j = await res.json();
-    if (!res.ok) return msg('入章失败：\n' + (j.error || res.status), 'err');
-    msg(`已入章 ${list.length} 条 → ${chapter}`, 'ok');
+    const btn = $('ingestSel');
+    btn.disabled = true;
+    $('fill').style.width = '0%';
+    msg(`入章开始：0/${list.length} 条…`);
+    try {
+        // stream=true ⇒ NDJSON：服务端先写 200 头，逐条回 measure/measured/cell 进度，
+        // 收尾 done 帧带最终 code（失败原因走 done.error，不再是一整块 JSON）
+        const res = await fetch(`/api/manage/chapter/${chapter}/import`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ resultIds: list.map((r) => r.id), stream: true }),
+        });
+        if (!res.ok) {
+            const j = await res.json().catch(() => ({}));
+            return msg('入章失败：\n' + (j.error || res.status), 'err');
+        }
+        const reader = res.body.getReader();
+        const dec = new TextDecoder();
+        let buf = '';
+        for (;;) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            buf += dec.decode(value, { stream: true });
+            const lines = buf.split('\n');
+            buf = lines.pop();
+            for (const line of lines) {
+                if (!line.trim()) continue;
+                let o; try { o = JSON.parse(line); } catch { continue; }
+                if (o.done) {
+                    if (o.code >= 400) return msg('入章失败：\n' + (o.error || o.code), 'err');
+                    $('fill').style.width = '100%';
+                    return msg(`已入章 ${list.length} 条 → ${chapter}（levels:sync 已跑，git diff 确认后提交）`, 'ok');
+                }
+                if (o.phase === 'cell') {
+                    msg(`入章进度 ${o.i}/${o.n} · 实测第 ${o.k}/${o.m} 格（${o.id}）`);
+                    $('fill').style.width = `${Math.round(((o.i - 1 + o.k / Math.max(1, o.m)) / o.n) * 100)}%`;
+                } else if (o.phase === 'measure' || o.phase === 'measured') {
+                    msg(`入章进度 ${o.i}/${o.n} · ${o.phase === 'measure' ? '测量中' : '已测量'}（${o.id}）`);
+                    $('fill').style.width = `${Math.round((o.i / o.n) * 100)}%`;
+                } else if (o.phase === 'commit') {
+                    msg(`入章进度 ${o.n}/${o.n} · 写盘中…`);
+                }
+            }
+        }
+        // 没收到 done 帧就断流：服务端按取消处理，真源未改动（见 handleChapterImport 断线感知）
+        msg('入章中断：连接提前结束（服务端按取消处理，真源未改动）', 'err');
+    } catch (e) {
+        msg('入章失败：' + e.message, 'err');
+    } finally {
+        btn.disabled = false;
+    }
 };
 </script>
 </body>
