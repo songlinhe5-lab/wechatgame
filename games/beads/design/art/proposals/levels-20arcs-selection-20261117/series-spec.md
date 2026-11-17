@@ -1,6 +1,6 @@
 # 20 大关生图系列规范 · 风格宪法与逐关模板
 
-> **本件性质**：生图阶段的风格规格草案，沿用 20 大关题材甄选（`WXG-T-974`）谱系，**未单开新号、未改任务台账、未提交**。
+> **本件性质**：生图阶段的风格规格草案，沿用 20 大关题材甄选（`WXG-T-974`）谱系，**已领 `WXG-T-979`、已改任务台账、已于 `00b0cba0` 提交入库**。
 > **日期**：2026-11-17
 > **题材单一真源**：[`candidates.json`](candidates.json)（20 大关 × 9 小关，含 `desc` / `suggestedColors` / `isBoss`）与 [`README.md`](README.md)；逐关明细见 [`arcs-detail-A01-A10.md`](arcs-detail-A01-A10.md) / [`arcs-detail-A11-A20.md`](arcs-detail-A11-A20.md)。本件**不重复**题材立意与 180 个图案描述，只规定「怎么画才符合 studio 量化要求」。
 > **引用路径**：跨目录引用均用相对本文件的 Markdown 链接；行号为该文件当前版本的位置。
@@ -62,7 +62,7 @@
 | **G9** | 构图：单一主体居中、正视图或统一 3/4 侧视，主体占画布 70–82%；无地面、无投影、无边框、无文字、无水印、无 UI、无第二主体、无景深 | 目测 + 包围盒占比 |
 | **G10** | 禁忌总表：写实摄影、3D 渲染、厚涂、重描边卡通、像素图、渐变天空、雾/烟/透明叠加、发光/粒子、小字、多主体、渐变倒影、半透明水波 | 逐张目测 |
 
-> **G5 的一个口径提醒**：studio 的 `colors < 4` 拦截属于本批刚收紧的常量改动（色数 4–16、单图 64），那批改动目前**仍是未提交的 in-flight 状态、待用户拍板是否收口**。本规范按「下限 4」设计以留余量；若该批最终回退到 3 色下限，A16 的 2 色图案仍需补到 3。依据 [`server.mjs`](../../../../../../apps/beads-studio/server.mjs#L322) 的入关判据注释。
+> **G5 的一个口径提醒**：studio 的 `colors < 4` 拦截属于本批刚收紧的常量改动（色数 4–16、单图 64），该批已由用户裁定保留并随 `36c4d492`（WXG-T-975/978）入库，下游文档三方对账由 WXG-T-979 收口。本规范按**现行下限 4** 设计；`suggestedColors` 标 2 或 3 的图案须补足到 4。依据 [`server.mjs`](../../../../../../apps/beads-studio/server.mjs#L322) 的入关判据注释。
 
 ---
 
@@ -94,7 +94,7 @@
 ## 4. 2048 母版 → 量化 → rowstring 的口径
 
 - **2048 是母版像素分辨率，不是珠面格数**。studio 生成时按请求的 `cols×rows` 把 2048 区域平均降采样，每格约 `2048/cols` 像素。按 [`pattern-legibility.md`](../../../levels/pattern-legibility.md#L38) §2 的最小豆面经验线（3–4 色 ≥12×12、5–6 色 ≥15×15、7–8 色 ≥17×17）与用户裁定的选图下限 10×10，入关盘面大概率落在 12×12–17×17，2048 母版每格仍有 120–170px，对平涂大色块是充足冗余。
-- **不必走组合图切块**。[`level-content-pipeline.md`](../../../proposals/level-content-pipeline.md#L63) §0.6 记录 2048@32px/颗 = 64×64 母版、1024@32px = 32×32 单图档；本批用户裁定单图硬顶 32→64，故 2048 母版按 16×16 或 32×32 采样入关均属单图，不触发 Plate 切块。⚠ 该常量改动同样处于未提交 in-flight。
+- **不必走组合图切块**。[`level-content-pipeline.md`](../../../proposals/level-content-pipeline.md#L63) §0.6 记录 2048@32px/颗 = 64×64 母版、1024@32px = 32×32 单图档；本批用户裁定单图硬顶 32→64，故 2048 母版按 16×16 或 32×32 采样入关均属单图，不触发 Plate 切块。该口径已随 `36c4d492` 入库（v2.00 推翻 v1.45 组合图切块语义：任一维 >64 的关卡 JSON 一律 BOOT 拒收、不再自动切块）。
 - **大盘可玩性不在本规范里设闸**。按用户此前裁定，「不可发布」不设在 studio，交由真机运行体验验证；studio 只做导入工具行为。
 - **4096 上限**：`generate.html` 对源图有 4096 解像上限，2048 在范围内。
 
@@ -143,5 +143,5 @@
   - ⚠ `importable=false` 是刻意用 `mis=none` 避开错位构造造成的（blockers「无关卡草案」），与图案/背景无关，**不得误报成入关失败**。
   - 本次 `draft=1` 只写 `data/_draft/` 预览草稿，**0 次 Token Plan 调用**（studio 本地量化），不追加用量台账调用计数。
 - ✅ **已验证「可入关链路」**（2026-11-17，复用同参数仅把 `mis=none` 改 `mis=full`）：`importable=true`、`blockers=[]`、`report.derangement="FULL (0 固定点)"`、`levelDraft` 完整（pattern 16 行 + misplaced 16 行，含 `pricing`/`time`）；真引擎读数 `steps=30 / taps=60 / timeEst=148s / secPerStep=4.14 / cleared=true`，`pricing.stepsLB=8`、`stepsByCap={12:30, 24:23, 48:16}`。证据 [`studio-full-verify.json`](probe-2048/studio-full-verify.json) 与 [`studio-full-response.json`](probe-2048/studio-full-response.json)。
-  - `colors=4` 能过 `importBlockers` ⇒ 当前实例里 `LEVEL_COLOR_MIN=4`（本批 in-flight 收紧）已生效；若用户裁定回退到 3 色下限，本结论不受影响（4≥3）。
+  - `colors=4` 能过 `importBlockers` ⇒ 当前实例里 `LEVEL_COLOR_MIN=4` 已随 `36c4d492` 入库生效，为现行冻结口径（用户裁定保留，不再有「回退到 3」分支）。
   - ⚠ 这是**中性测试体**的链路复验，不代表 180 张题材图质量，也不代表 64×64 大盘可玩性（ADR-0018 裁定不变）。同样 `draft=1`、**0 次 Token Plan 调用**、未入关。
