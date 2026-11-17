@@ -191,7 +191,9 @@ $('go').onclick = async () => {
 
 async function poll() {
     const st = await (await fetch(`/api/batch/${batchId}`)).json();
-    if (st.error) { clearInterval(timer); msg(st.error, 'err'); $('go').disabled = false; return; }
+    // ⚠ st.error 在状态响应里是**失败条数**（配合 st.ok 用），只有 404 才是字符串错误信息；
+    //    旧写法 `if (st.error)` 会在第一条失败时误判为整批失败 ⇒ 停轮询、表格永远空白（2026-11-17 实测）
+    if (typeof st.error === 'string') { clearInterval(timer); msg(st.error, 'err'); $('go').disabled = false; return; }
     rows = st.rows.map((n, i) => Object.assign(rows[i] || {}, n));
     $('fill').style.width = `${Math.round((st.done / st.total) * 100)}%`;
     $('counter').textContent = `${st.done}/${st.total} 完成 · ${st.ok} 成功 · ${st.error} 失败`;
