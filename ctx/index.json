@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4143,
       "lines": 138,
-      "sha256": "8068d46a8a42147b51678714671e8be99a1a1048159610f09aa07634278812e7",
+      "sha256": "7aa13a3e0fc955d8123867113601f8006666d66ec16588c4fa4f6995f31049d0",
       "tier": "normal",
       "sections": [
         {
@@ -377,7 +377,7 @@
           "startLine": 1,
           "endLine": 139,
           "tokens": 4130,
-          "summary": "生成：2026-11-18 · 由 tools/scripts/build-context-index.mjs 自动生成",
+          "summary": "生成：2026-11-19 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
             "BUDGET",
@@ -25585,9 +25585,9 @@
     },
     {
       "path": "games/beads/design/art/proposals/levels-20arcs-selection-20261117/series-spec.md",
-      "tokens": 8071,
+      "tokens": 8129,
       "lines": 150,
-      "sha256": "2e04dc8469469f6108b82b7147ad2ad43ae24ca765249350358d7237ad864a87",
+      "sha256": "be80780495e3ad9b6acde38f839ed562daf5ab405afaaf38680d33c5f2f2c37c",
       "tier": "normal",
       "sections": [
         {
@@ -25595,7 +25595,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 151,
-          "tokens": 8051,
+          "tokens": 8109,
           "summary": "本件性质：生图阶段的风格规格草案，沿用 20 大关题材甄选（WXG-T-974）谱系，已领 WXG-T-979、已改任务",
           "keywords": [
             "WXG",
@@ -25610,7 +25610,7 @@
           "level": 2,
           "startLine": 10,
           "endLine": 30,
-          "tokens": 1302,
+          "tokens": 1303,
           "summary": "1 背景用「纯黑背景 + 程序化抠 alpha」：提示词写纯黑 #000 背景，出图后本地 floodfill 确定性抠",
           "keywords": [
             "alpha",
@@ -25789,15 +25789,15 @@
           "level": 2,
           "startLine": 139,
           "endLine": 151,
-          "tokens": 920,
-          "summary": "已写 2 张的正式提示词（A01-P01 五版 / A01-P02 三版，全文见各批目录 response-meta*.",
+          "tokens": 976,
+          "summary": "已写 2 张的正式提示词（A01-P01 五版 / A01-P02 三版 / A01-P03 一版，全文见各批目录 re",
           "keywords": [
             "mis",
             "full",
             "A01",
             "P01",
             "P02",
-            "response"
+            "P03"
           ]
         }
       ]
@@ -122593,17 +122593,17 @@
     },
     {
       "path": "production/qa/token-plan-usage-ledger.md",
-      "tokens": 11252,
-      "lines": 176,
-      "sha256": "019c180846983b98ecefdbe7872ed924b3c3306780c4482a2654b3975cbd77a8",
+      "tokens": 11539,
+      "lines": 178,
+      "sha256": "be24adf6233295326ddb041ffe7911cd1554a2691351db5ff0b7d1babba3876c",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Token Plan 生图用量台账（建账 2026-11-01）",
           "level": 1,
           "startLine": 1,
-          "endLine": 177,
-          "tokens": 11236,
+          "endLine": 179,
+          "tokens": 11523,
           "summary": "本件只管「花了多少次、出了几张图、留在哪」，是追加型台账（按时间序加行，⛔ 不回改历史行）。",
           "keywords": [
             "Token",
@@ -122701,8 +122701,8 @@
           "anchor": "§6 temp 生图存量（2026-11-01 清理一次，用户令「把 temp 里的生图都清理掉」）",
           "level": 2,
           "startLine": 100,
-          "endLine": 177,
-          "tokens": 5727,
+          "endLine": 179,
+          "tokens": 6014,
           "summary": "清理前 3642 张 / temp 共 2.3 GB",
           "keywords": [
             "temp",

@@ -1,0 +1,18 @@
+{
+  "elapsed_s": 16.4,
+  "usage": {
+    "output_height": 2048,
+    "output_width": 2048,
+    "input_image_count": 0,
+    "input_image_type": "qima_input_2k",
+    "output_image_count": 1,
+    "output_image_type": "qima_output_2k"
+  },
+  "request_id": "23c09070-db43-4c67-9421-27e92abfc387",
+  "params": {
+    "prompt_extend": false,
+    "seed": 42,
+    "size": "2048*2048"
+  },
+  "prompt": "A flat 2D vector graphic, single centered tulip plant, front view, perfectly left-right symmetric, no pot, no ground, no second object. Top: one cup-shaped tulip bloom, cup width about 50% of canvas width and cup height about 34% of canvas height, cup center at about 30% of canvas height; the cup is made of exactly 3 petals: two solid rose-red (#E84C3D) side petals curving inward and one solid cream-white (#FDF6E9) central petal between them about 40% of the cup width wide; the top edge shows 3 rounded lobes with 2 shallow notches between them, each notch at least 6% of canvas height deep; at the very bottom of the cup a short solid deep-brown (#6B3E1E) band about half the cup width wide and about 6% of canvas height tall, joining the cup to the stem. Below: one straight upright grass-green (#3FBF6B) stem as thick as one third of the cup width, from the brown band down to about 86% of canvas height, ending in a flat horizontal cut; two grass-green rounded ellipse leaves, one on each side, each about 32% of canvas width long and 16% wide, attached to the stem at about 62% of canvas height, pointing outward and slightly down, together spanning about 76% of canvas width; stem and leaves touch the cup or each other, ONE connected silhouette. Whole plant bounding box about 72% of canvas width and 80% of canvas height, empty black margin at least 8% on all four sides, touching no edge. All color areas solid single colors; all edges sharp and clean. No outlines, no gradients, no shading, no highlights, no shadows, no texture, no noise, no 3D, no realistic material, no feathered edges, no thin lines, no scattered dots, no falling petals. Background completely uniform pure black #000000 corner to corner: no gradient, no vignette, no glow, no checkerboard, no pattern, no frame, no ground, no reflection. No text, no letters, no numbers, no watermark. No black or near-black color anywhere inside the subject."
+}
