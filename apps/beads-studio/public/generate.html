@@ -988,6 +988,7 @@
         //    关卡真源只读（GET /api/levels/:uid）；写回仍走既有 /api/manage/level/:uid/replace
         //    （门禁⑦/⑧ + bot 实测 + 快照回滚都在里面，本页不碰写盘协议）。
         const levelUid = new URLSearchParams(location.search).get('level') || '';
+        const preselectResultId = new URLSearchParams(location.search).get('result') || '';
         let levelInfo = null;    // { uid, kind, chapter, cells[] }
         let levelCell = 0;       // plate 多格时的当前格
         let gateSteps = null;    // 门禁⑦ 步数区间（/api/gates ← tuning.ts 真源）
@@ -1184,18 +1185,30 @@
         }
 
         (async () => {
-            if (!levelUid) return;
-            try {
-                // 门禁⑦ 阈值（tuning 真源）先取回来，替换按钮才好做"点了会不会被回滚"的预检
-                const g = await fetch('/api/gates').then((x) => x.json()).catch(() => ({}));
-                gateSteps = g?.steps ?? null;
-                await loadLevel(levelUid);
-                msg(`已载入关卡 ${levelUid}：改完生成，再一键替换回该关`, 'ok');
-            } catch (e) {
-                const bar = $('lvbar');
-                bar.hidden = false;
-                bar.style.borderColor = '#f5c6c0';
-                bar.textContent = `载入关卡 ${levelUid} 失败：${e.message}`;
+            if (levelUid) {
+                try {
+                    // 门禁⑦ 阈值（tuning 真源）先取回来，替换按钮才好做"点了会不会被回滚"的预检
+                    const g = await fetch('/api/gates').then((x) => x.json()).catch(() => ({}));
+                    gateSteps = g?.steps ?? null;
+                    await loadLevel(levelUid);
+                    msg(`已载入关卡 ${levelUid}：改完生成，再一键替换回该关`, 'ok');
+                } catch (e) {
+                    const bar = $('lvbar');
+                    bar.hidden = false;
+                    bar.style.borderColor = '#f5c6c0';
+                    bar.textContent = `载入关卡 ${levelUid} 失败：${e.message}`;
+                }
+            } else if (preselectResultId) {
+                try {
+                    const res = await fetch('/api/results/' + encodeURIComponent(preselectResultId));
+                    const j = await res.json().catch(() => ({}));
+                    if (!res.ok || j.error) throw new Error(j.error || res.status);
+                    applyResult(j);
+                    loadResults(j.id);
+                    msg(`已载入来源结果 ${preselectResultId}`, 'ok');
+                } catch (e) {
+                    msg(`载入来源结果 ${preselectResultId} 失败：${e.message}`, 'err');
+                }
             }
         })();
 

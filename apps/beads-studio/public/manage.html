@@ -597,7 +597,8 @@
                     if (pkViewId) {
                         $('pk-src').innerHTML =
                             `<a href="/api/results/${encodeURIComponent(pkViewId)}/thumb" target="_blank" rel="noopener">打开原图</a>` +
-                            `<a href="#" id="pk-paint-toggle">查看拼豆图案</a>`;
+                            `<a href="#" id="pk-paint-toggle">查看拼豆图案</a>` +
+                            `<a href="/generate.html?result=${encodeURIComponent(pkViewId)}" target="_blank" rel="noopener">在生成页查看</a>`;
                     }
                 } else {
                     $('pk-src').hidden = true;
@@ -829,6 +830,25 @@
                         a.title = '打开来源结果（只读；来自 ingested.levelUid 反查）';
                         a.onclick = (ev) => { ev.preventDefault(); ev.stopPropagation(); showSourceResult(lv.source.id); };
                         row.appendChild(a);
+                    } else if (lv.kind !== 'plate') {
+                        const miss = document.createElement('small');
+                        miss.className = 'src';
+                        miss.style.color = '#aaa';
+                        miss.style.cursor = 'default';
+                        miss.textContent = '来源待补 ';
+                        const pickCmd = `node tools/scripts/backfill-ingested.mjs --pick ${lv.uid}=<结果id> --write`;
+                        miss.title = `pick 命令（复制后把 <结果id> 换成实际来源 id）: ${pickCmd}`;
+                        const cp = document.createElement('a');
+                        cp.href = '#';
+                        cp.style.cssText = 'font-size:10.5px;color:#b4552d;border-bottom:1px dashed currentColor;text-decoration:none';
+                        cp.textContent = '[复制 pick]';
+                        cp.title = `复制到剪贴板：${pickCmd}`;
+                        cp.onclick = (ev) => { ev.preventDefault(); ev.stopPropagation();
+                            navigator.clipboard?.writeText(pickCmd).then(() => msg('已复制 pick 命令，把 <结果id> 换成实际来源 id 即可'))
+                                .catch(() => msg('复制失败：浏览器未授权剪贴板', 'err'));
+                        };
+                        miss.appendChild(cp);
+                        row.appendChild(miss);
                     }
 
                     const ops = document.createElement('div');
