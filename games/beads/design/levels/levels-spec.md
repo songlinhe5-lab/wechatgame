@@ -367,8 +367,12 @@ tierStepBudget(T₁, tier) = floor( tierSecondsFor(T₁, tier) ÷ SEC_PER_STEP )
   `report.difficulty` + `levelDraft.time`）；入关期 Studio `ingestLevel` 再测一次并取实测值，
   **不采信草案自报 `time`**（同 `cycleProfile` 纪律）。
   `draftToLevel`（游戏内一键导入，客户端无引擎）走静态兜底 `estimateLevelTime` = `ceil(M/2)` taps。
-- **Studio report 字段**：`difficulty {score, timeEst, misplaced, taps, bMed, split, cleared, secPerTap, blockers, formula}`
-  —— 前四项是前端旧契约（名字不变、值源换成实测），其余为 v0.2 新增取证字段。
+- **Studio report 字段**：`difficulty {score, timeEst, misplaced, taps, bMed, split, steps, cleared, secPerStep, blockers, formula}`
+  —— 前四项是前端旧契约（名字不变、值源换成实测），其余为取证字段（v0.2 起）。
+  ⚠ `secPerTap` 是 v0.2 旧名，v0.4 起写回 **`secPerStep`**（=`SEC_PER_STEP`）；生成页字段清单于
+  2026-11-18 与 `beads-bot.ts` 写回值订正同源，见 `apps/beads-studio/public/generate.html` 的 `show()`。
+  ⚠ `df.score` = `100 × timeEst / LEVEL_TIME_MAX`（1★ 预算占比），**不是难度等级**；
+  门禁⑦ 判的是实测 `steps`，与 `taps`（≈2×steps）不可混用。
 - **压力性质（v1.2 结论沿用）**：倒计时对熟练玩家几乎不构成失败风险，难度主承载是解谜本身；
   但 `time` 同时是**倒计时预算**，高估会白给 3★（`STAR3_RATIO=0.32`）、并让失败页与续时激励位永不开张。
 

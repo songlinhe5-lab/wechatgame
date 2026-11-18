@@ -129,3 +129,12 @@ ls temp/wan27-probe-20261101 temp/wan27-full-20261101 \
 **追加（2026-11-17 · 20 大关生图第 0 张探路）**：Token Plan **1 次调用 / 出图 1 张 / 浪费 0 次**（`qwen-image-3.0-pro` t2i，`--size '2048*2048'`，seed 42、`prompt_extend=False`，单发 16.0 s）。**不占 180 张名额**，中性几何测试体，仅验通道四事。读数：`usage.output_width/height=2048/2048`、`output_image_type=**qima_output_2k**`、`input_image_type=qima_input_2k` ⇒ 2K 档确实存在并已计费（历史 1K 档为 `qima_output_1k`）。**0 次调用**的本地后处理：floodfill 抠 alpha（阈值 72 = 24×3），六道验收全绿（四角全透明 / 主体单连通 / 主体内近黑残留 0 px / RGB 零重绘 / 二值硬边 alpha / 四边留白 15.6–18.8%）。实测发现背景非精确 `#000000`（精确纯黑仅 21.04%，0–24 近黑占 58.85%，四角 max=3、环带 mean≈0.2），故验收判据须按「近黑」而非「精确纯黑」。产物与生成史：`games/beads/design/art/proposals/levels-20arcs-selection-20261117/probe-2048/`（含 `generation-record.txt` / `extract-alpha.py` / `response-meta.json` / 原图 / RGBA 图 / metrics）。⛔ 未入 `final/`、未入库关卡、未提交 git。
 
 **追加（2026-11-17 · 20 大关 A01-P01 雏菊 2048² 正式母版第 1 张）**：Token Plan **1 次调用 / 出图 1 张 / 浪费 0 次**（`qwen-image-3.0-pro` t2i，`--size '2048*2048'`，seed 42、`prompt_extend=False`，单发 16.4 s）。读数：`usage.output_width/height=2048/2048`、`output_image_type=**qima_output_2k**`、`input_image_type=qima_input_2k` ⇒ 2K 档计费。**0 次调用**的本地后处理：`probe-2048/extract-alpha.py` floodfill 抠 alpha（阈值 72）+ 六道验收 + studio `mis=full` 本地量化（`draft=1`，`importable=true`、`voidCells=0`、用色恰为 A01 四色）。产物 `games/beads/design/art/proposals/levels-20arcs-selection-20261117/A01-P01-daisy/`，**不入 `final/`**（§5 效果确认未完成）。⚠️ 效果偏差：主体高 87.9% / 宽 58% 超 G9 的 70–82%；`colorError.final=59.8`；单连通严格判 false 仅因 2 个 1×1 孤立像素。**是否重生待用户裁定**：若重生，本行「浪费 0 次」须追加订正为 1 次。
+
+
+**追加（2026-11-18 · A01-P01 豆面效果 2 张 · 收口补登）**：Token Plan **0 次调用 / 出图 0 张 / 浪费 0 次**。
+`a01p01-beads-studio.png`（68,084 B）与 `a01p01-beads-plain.png`（98,542 B）由
+`apps/beads-studio/public/board-render.js` 的 `drawBoard` 在浏览器 canvas 本地确定性渲染，
+非模型产物、不占 180 张名额、不追加累计调用数。方法与参数见
+`games/beads/design/art/proposals/levels-20arcs-selection-20261117/A01-P01-daisy/generation-record.txt`
+「补收 2026-11-18」段。⚠️ 效果确认未完成（用户令「豆面效果 ok 才算认可」），
+未入关、未进 `final/`；重渲染产物与已存文件逐字节一致，sha256 前缀 `d889e880afc76210` / `d2c88780c2d2a242`。

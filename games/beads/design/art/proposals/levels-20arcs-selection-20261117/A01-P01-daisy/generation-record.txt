@@ -55,3 +55,24 @@ verdict = PASS（链路层；**不等于效果验收通过**）
 3) 按 §5 第四步「用户确认效果」尚未完成 ⇒ **未入关（draft=1 只写 data/_draft/）、未进 final/**；
    若用户裁定重生，本次 1 次调用转为 1 次浪费，须在用量台账追加订正。
 4) 0 次调用清单：抠 alpha、六道验收、studio 量化均本地确定性脚本，不追加用量台账调用计数。
+
+【补收 2026-11-18 · 豆面效果 2 张（方法 1：浏览器实渲染）】
+用户令「先出豆面效果，豆面效果 ok 才算认可」，故本段只补写生成方法/参数/读数，
+**不改变「效果确认未完成」状态**：仍未入关、未进 final/、不得据此判为验收通过。
+渲染正源 = `apps/beads-studio/public/board-render.js` 的 `drawBoard`（头注声明与游戏同一视觉契约）。
+链路 = `agent-browser open http://127.0.0.1:8787/generate.html`
+       → `agent-browser eval` 调 `window.BeadsBoardRender.drawBoard(g, 1024, 1024, p, opts)`
+       → `canvas.toDataURL('image/png')` → Python base64 解码落盘。
+参数 = 画布 1024×1024；`opts.cols=16`、`opts.rows=16`；
+       `p` = `studio-full-response.json` 的 `levelDraft.pattern`（16 行、fillable=102）；
+       `hexes` = A01 宪法四色 `["#FDF6E9","#FFD23F","#3FBF6B","#6B3E1E"]`；
+       `tint` 缺省（未接 `TintBoard`）。临时脚本 `/tmp/beads-studio.js`、`/tmp/beads-plain.js`。
+两版差异 = `a01p01-beads-studio.png` 传 `pattern: p`（仅珠体 + 目标垫，灰槽为未就位提示）；
+           `a01p01-beads-plain.png` 不传 `pattern`（完整 16×16 空槽棋盘 + 珠体，更接近满盘观感）。
+读数 = studio 版 68,084 B / plain 版 98,542 B；均 1024×1024 RGBA，`PIL verify()` 通过。
+目检 = 草绿茎叶与深棕块清楚、花心较薄；plain 版周围灰槽较多（去背景后的空位）。
+已登记漂移 = 渲染器 `RADIUS=0.22` vs 游戏 `BEAD_CARD.radius=0.30`，两侧均不擅改。
+产物新鲜度自证（2026-11-18 重渲染）= 两版 base64 与已存文件**逐字节一致**：
+  studio sha256 前缀 `d889e880afc76210`、plain 前缀 `d2c88780c2d2a242`。
+Token Plan 调用 = **0 次**（本地 canvas 确定性渲染，非模型产物），不追加用量台账调用计数。
+范围注记 = 本目录内 `a01p01-v2-*` / `a01p01-v3-*` 为他轨产物，不在本段收口范围。

@@ -15,6 +15,44 @@
 
 ---
 
+## WXG-T-980
+
+**生成页难度读数订正 + 32×32 心形入关期预检 + A01-P01 豆面证据补收** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-18）
+
+- **用户令**：「1/2/3」（全选上一轮三个选项）+「设置了 32X32，但是因为去掉铺满整盘的勾选，实际达不到，可以考虑按照珠子数量作为难度分界」。
+- **① 难度读数订正**：`apps/beads-studio/public/generate.html` 的 `show()` 原文案写
+  `公式 v0.2 = taps × ${df.secPerTap}s`，而 `beads-bot.ts` 写回的是 `secPerStep` + `formula: v0.4`
+  ⇒ 面板恒显 `undefineds`；且「错位 ${df.misplaced} 颗」在 swaps 装盘下恒 0，与上一行「16 颗（8 对交换）」矛盾。
+  改法：显式列出 `df.steps`（门禁⑦ 的判据量）、「1★ 预算占比」澄清 `df.score` 语义（= 100×timeEst/LEVEL_TIME_MAX，
+  **不是难度等级**）、公式改用 `df.formula` 兜底；`levels-spec.md` 字段清单同步 `secPerTap`→`secPerStep` 并加两条 ⚠。
+  验证：HTML 内嵌 JS `node --check` 通过；服务实时返回含新文案、无 `secPerTap` 残留。
+- **② 入关期预检（不改真源）**：`apps/beads-studio/data/_draft/32x32-1794966746941-794c/raw.json`
+  用 `beads-gen` + `beads-bot --experimental-transform-types` 逐档实测：
+  `noframe=0`（默认，去背景）可填 **797**、void 227；`noframe=1`（铺满整盘）可填 **1024**、void 0
+  ⇒ 用户观察成立：设 32×32 而实际珠数达不到 1024，差的 227 颗就是被扣掉的背景区。
+  同图步数：`k=1→3`、`k=2→5`、`k=4→8`、`k=6→13`、`k=8→16`、`mis=full→415`；
+  16×16 心形 `k=8→14`。落进普通关 7–37 步的组合 = `k=4/6/8`（少量交换）；全错位必被门禁⑦ 打回。
+  ⚠ **反例（与设计建议直接相关）**：珠数 N 与 steps **不单调** —— 现池 `L00001` N=102 ⇒ 12 步、
+  `L00007` N=60 ⇒ 34 步（少 42 颗反而多 22 步）；`L00009` boss N=612 ⇒ 112 步、`L00010` boss N=1024 ⇒ 378 步。
+  同 N=797 的一张图，仅换错位档就从 3 步跨到 415 步。故「按珠子数量分难度」只能作**内容分档**
+  （选图/预期），不能当门禁判据；`level-difficulty.md §2.1` 已明载 `cols×rows` 是约束项而非 DI 自变量、
+  `N` 才是 DI 自变量，`§3.1` 的 7/37/49 是**实测 steps 秒数反解**，两者不可互相替换。**本单不改任何判据**。
+- **③ 豆面证据补收**：两张 `a01p01-beads-{studio,plain}.png` 的生成方法/参数/读数写入
+  `A01-P01-daisy/generation-record.txt`，用量台账按时间序末尾追加 **0 次调用**段（本地 canvas，非模型产物）。
+  产物新鲜度：用 `/tmp/beads-{studio,plain}.js` + `agent-browser eval` 重渲染，与已存文件**逐字节一致**
+  （sha256 前缀 `d889e880afc76210` / `d2c88780c2d2a242`）。⚠ 效果确认仍未完成（用户令「豆面效果 ok 才算认可」），
+  未入关、未进 `final/`。
+- **混单纪律（K-045）**：台账工作树含他轨 11-16 头像批 32 行 WIP，用 `git hash-object -w --stdin` +
+  `git update-index --cacheinfo` 只把本单 9 行写入索引；未暂存 32 行原样保留。`v2/v3` 他轨产物未触碰。
+- **验证**：`pnpm run check:links` OK；`pnpm run verify` **PASS 20 / FAIL 3** ——
+  `typecheck` / `harness:build` 报 `games/beads/src/view/meta-{menu,widgets}.ts` 三处 TS6133 未使用变量
+  （他轨 WIP，本单 staged 无 `.ts`）；`selftest:fast` 唯一 FAIL 是 `ctx:check` 的 HEAD 锚定态
+  （提交时钩子按 `--staged-blobs` 自动重建，结构性、非本单引入）。本单相关的
+  `check:links` / `check:frozen-values` / `levels:check` / `test` / `cocos:check` 全 PASS。
+- **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
+---
+
 ## WXG-T-979
 
 **文档·v2.00 常量收口 + 20 大关生图第 0 张探路证据入库** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-17）

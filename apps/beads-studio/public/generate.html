@@ -756,7 +756,9 @@
                 `色差 ${rp.colorError?.final ?? '?'}｜同色相邻率 ${rp.clusteringMisplaced?.adjRate ?? (df ? df.adjRate : '?')}` +
                 (df ? (df.error
                     ? `\n难度 ——（${df.error}）`
-                    : `\n难度 D${df.score}（真引擎实测 ${df.taps} 次点击｜错位 ${df.misplaced} 颗）｜预估清关 ${df.timeEst}s（公式 v0.2 = taps × ${df.secPerTap}s，§5）` +
+                    // df.score = 100×预估清关时长 / 1★ 预算（measuredLevelTime），不是难度等级；
+                    // 门禁⑦ 判的是 steps，故显式列出实测步数，避免拿「点击数」误判可入关。
+                    : `\n难度 D${df.score}（1★ 预算占比）｜真引擎实测 ${df.steps} 步 / ${df.taps} 次点击｜预估清关 ${df.timeEst}s（${df.formula ?? `公式 v0.4 = steps × ${df.secPerStep ?? '—'}s/步`}）` +
                     (df.blockers?.length ? `\n⛔ 不可入关：${df.blockers.join('；')}` : ''))
                     : '');
             $('dl').disabled = $('cp').disabled = !(r.levelDraft);
