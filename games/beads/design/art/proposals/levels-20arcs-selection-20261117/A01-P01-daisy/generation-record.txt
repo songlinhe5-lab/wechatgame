@@ -76,3 +76,29 @@ verdict = PASS（链路层；**不等于效果验收通过**）
   studio sha256 前缀 `d889e880afc76210`、plain 前缀 `d2c88780c2d2a242`。
 Token Plan 调用 = **0 次**（本地 canvas 确定性渲染，非模型产物），不追加用量台账调用计数。
 范围注记 = 本目录内 `a01p01-v2-*` / `a01p01-v3-*` 为他轨产物，不在本段收口范围。
+
+【v2–v5 重生史与终裁 · 2026-11-18（逐轮用户裁定，§5 四步循环）】
+v2（1 调用 16.7s，seed42 2048²，prompt 见 response-meta-v2.json）：六道全绿但 G9 52.2/88.2 FAIL；
+    珠面花瓣合并＋孤点；studio mis=full balancedChanged=11。用户裁定重生。
+v3（1 调用 16.2s，head-only 径向）：bbox 83.1/86.7；studio colors=3 被拦（棕缩到 1 格）；
+    确诊 cap≈50%×fillable 强制改色（balancedChanged=43，珠面下半变绿）。用户裁定重生。
+v4（1 调用 17.2s，同心四环）：bbox 83.1/86.6；cap 改色 40；实测半径黄 r266/棕外 r434/绿外 r615/瓣尖 r887
+    ⇒ 棕环径向仅 1.3 格被 mode 格投票吞掉（黄心仅 5 格）。用户裁定本地确定性修复。
+v4fix（0 调用，temp/fix-a01p01-v4.py 留反例）：归色门控＋warp×1.5＋统缩×0.94 ⇒ bbox 89.6、
+    单连通 False、cap 改色 17 ⇒ **warp 路线判无效**（warp 半径吞瓣环）。
+v5（1 调用 16.4s，prompt 见 response-meta-v5.json：环带加厚黄 36/棕外 54/绿外 68＋花头 72%＋留白 14%）：
+    六道初测单连通 False＝4 个噪点域共 5px（花瓣间隙模型噪点）；高 85.89% 超 G9。
+    本地修复（0 调用，fix-a01p01-v5.py 副本在本目录）：去 <1 格噪点域＋NEAREST 自适应统缩 ×0.9082
+    ⇒ bbox **73.68/77.98**（G9 首次达标）、四边留白 10.5–13.2%、六道全绿、RGB 逐像素不变。
+studio 双口径（0 调用，draft=1，studio-a01p01-v2.py 副本在本目录，用法 <TAG> [full|max]）：
+    mis=max ⇒ balancedChanged=**0**、色格 奶白64/黄12/绿20/棕20、MAXIMAL M=104/116 F=12、
+              steps45/taps90/cleared=true、colorError.final=31.6；
+    mis=full ⇒ 改色 6（底部两瓣尖改绿）、FULL 0 固定点、steps44/taps88/cleared=true、colorError.final=40.6；
+    两版均 importable=true、blockers=[]、voidCells=0。原件留 a01p01-v5-s42-rgba-orig.png。
+终裁（用户 2026-11-18）：**效果 PASS，本张锁定（名额 1/180 效果确认完成）**；
+    系列量化口径定 **mis=max**（色号零改动、保形优先，接受 F 颗理论下限强制就位）。
+台账订正：v1 行「浪费 0 次」订正为 1 次；v2/v3/v4 各 1 次浪费；本张累计 5 调用/5 出图/4 浪费/1 留档（v5）。
+复现配方：云 = dashscope-generate.py --profile token-plan --model qwen-image-3.0-pro --size '2048*2048'
+    --seed 42 --text <response-meta-v5.json 的 prompt>；抠 alpha = probe-2048/extract-alpha.py；
+    修复 = 本目录 fix-a01p01-v5.py；studio = 本目录 studio-a01p01-v2.py v5 max。
+仍未入关、未进 final/（入关属后续 levels 流程，不在本批范围）。

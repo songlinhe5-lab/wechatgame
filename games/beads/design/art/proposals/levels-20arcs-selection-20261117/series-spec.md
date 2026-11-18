@@ -61,6 +61,7 @@
 | **G8** | **排除区不得侵入主体**：主体禁用 `#000000` 及 `L*<20` 的近黑，最暗只能到炭黑 `#33333D` 或深棕 `#6B3E1E`，与纯黑保持 ΔE ≥25；禁止黑描边、黑色眼珠/轮胎/星空一律用炭黑或深棕代替。理由不是「颜色撞车」，而是近黑主体像素会被 floodfill 判进排除区、连同身体一起抠掉 | 主体无缺失、无针孔（见 §3） |
 | **G9** | 构图：单一主体居中、正视图或统一 3/4 侧视，主体占画布 70–82%；无地面、无投影、无边框、无文字、无水印、无 UI、无第二主体、无景深 | 目测 + 包围盒占比 |
 | **G10** | 禁忌总表：写实摄影、3D 渲染、厚涂、重描边卡通、像素图、渐变天空、雾/烟/透明叠加、发光/粒子、小字、多主体、渐变倒影、半透明水波 | 逐张目测 |
+| **G11** | studio 量化口径 **mis=max**（用户 2026-11-18 裁定）：跳过配色平衡、色号零改动、保形优先，接受 F 颗强制就位；⛔ mis=full 的 cap≈50%×fillable 强制改主导色毁图 | `report.balancedChanged=0` |
 
 > **G5 的一个口径提醒**：studio 的 `colors < 4` 拦截属于本批刚收紧的常量改动（色数 4–16、单图 64），该批已由用户裁定保留并随 `36c4d492`（WXG-T-975/978）入库，下游文档三方对账由 WXG-T-979 收口。本规范按**现行下限 4** 设计；`suggestedColors` 标 2 或 3 的图案须补足到 4。依据 [`server.mjs`](../../../../../../apps/beads-studio/server.mjs#L322) 的入关判据注释。
 
@@ -108,6 +109,8 @@
 2. 每一批 Token Plan 调用追加一行到 [`token-plan-usage-ledger.md`](../../../../../../production/qa/token-plan-usage-ledger.md)，「调用 / 出图 / 留档」三口径分列，与按量付费通道分开记，不混加。
 3. 长期证据落 `production/qa/**`，不只存被 gitignore 的 `temp/`。
 
+**系列执行口径（用户 2026-11-18 裁定）**：mis=max（G11）＋G9 超差自适应 NEAREST 统缩/去噪＋提示词先验补偿；细则与反例见 `A01-P01-daisy/generation-record.txt`「v2–v5 重生史与终裁」段。
+
 **探路张是第 0 张**，不占 180 张名额，专门验证 §0.1 的四项。✅ 已于 2026-11-17 完成一次取证（1 次调用 / 1 张 / 零浪费），读数与产物见 [`generation-record.txt`](probe-2048/generation-record.txt)；下表流程适用于其后逐张确认的正式 180 张。
 
 ---
@@ -136,7 +139,7 @@
 ## 9. 明确未做的事（截至 mis=full 链路复验完成）
 
 - **已写 1 条正式提示词**（A01-P01 雏菊，全文见 `A01-P01-daisy/response-meta.json` 的 `prompt` 字段），其余 179 条留到逐张确认时逐条写；第 0 张探路用的是中性测试体提示词，不占用任何题材，不属于 180 条。
-- **已出 1 张正式图案（占名额 1/180）**：A01-P01 雏菊，链路 PASS 但**效果确认未完成**（高 87.9% 超 G9 的 82% 上限、宽 58%、深棕仅 4 格），未入关、未进 `final/`，是否重生待用户裁定；读数见 `A01-P01-daisy/generation-record.txt`。另 1 张第 0 张通道探路（1 次 Token Plan 调用，不占名额，已追加用量台账、已写 `generation-record.txt`）。
+- **已出 1 张正式图案（占名额 1/180）且效果确认完成**：A01-P01 雏菊 **v5 锁定**（用户 2026-11-18 裁定 PASS；G9 73.68/77.98、mis=max 改色 0）；v1–v4 不采用（台账订正 4 浪费）。未入关、未进 `final/`；重生史见 `A01-P01-daisy/generation-record.txt`。另第 0 张探路 1 调用不占名额（台账/record 已写）。
 - 未改 `candidates.json` / `README.md` / 两册逐关明细 / 任何 `design/levels/**` 真源 / 任何 `src/**` 或 `tests/**`。
 - 未跑 `levels:sync`、未入关、未把探路图或正式第 1 张放进 `final/`（studio `draft=1` 只写 `data/_draft/`）；任务台账登记与 git 提交已于 WXG-T-979 收口批完成（上一轮的「未改台账 / 未执行 commit」为该轮时点读数）。
 - ✅ **已验证**「RGBA 图喂进 studio 后用色数不含背景色号」（2026-11-17）：`POST /api/generate` 上送 `probe-s42-rgba.png` 原样 2048² RGBA，`HTTP 200`。`report.voidCells=0`（四边框去背景那步空转，背景从未成为色号）、`paletteHex` 仅四色主体色、无任何黑/近黑色号、`colorsUsed=4`、`colorLimit.changed=0`；136 个 `.` 与逐格复算差 0；主体单连通 120 格。证据 [`studio-verify.json`](probe-2048/studio-verify.json) 与原始响应 [`studio-draft-response.json`](probe-2048/studio-draft-response.json)。

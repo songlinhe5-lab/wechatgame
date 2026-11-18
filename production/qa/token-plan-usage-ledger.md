@@ -126,6 +126,38 @@ ls temp/wan27-probe-20261101 temp/wan27-full-20261101 \
 
 **追加（2026-11-10 · 选关弹窗「九宫格背板」补上下边框 + 四角圆角）**：Token Plan **2 次调用 / 出图 2 张 / 浪费 0 次**（`qwen-image-3.0-pro` i2i，`--size '1012*1194'`，seed 42 / 7，单发 11.5–11.8 s）。底图**不是模型产物**：Figma 节点 `164:63` 导出件先经零模型脚本 `make-grid-backplate.py` 程序化补齐四边金线与 24dp 圆角（SDF 法，内部区 maxdiff=0），再交模型只做材质统一。判据：四边金线峰值坐标漂移 ≤3px @2x（基准 L11/R1000/T11/B1182）；模型线输出恒为 RGB，四角 alpha 由基准 alpha 回切。留档 `temp/levelselect-9slice/out/tp-qwen3pro-{s42,s7}-rgba.png`；提示词正本 `temp/levelselect-9slice/prompt-tokenplan.txt`。
 
+**追加（2026-11-16 · 小游戏新头像 144²）**：Token Plan **2 次调用 / 出图 2 张 / 浪费 0 次**（`qwen-image-3.0-pro` t2i，`--size '1024*1024'`，seed 42 / 7，单发 8.9–9.0 s）。采用 seed 7（珠面颗粒明确、缩略可读）；seed 42 留样反例（表面过平滑、拼豆辨识弱）。产物 → `design/art/proposals/avatar-20261116/`；最终 → `design/art/final/assets/avatar/beads-avatar-144.png`（144² RGB PNG，23,915 B）。
+
+**追加（2026-11-16 · 换皮肤头像 144²）**：Token Plan **2 次调用 / 出图 2 张 / 浪费 0 次**（`qwen-image-3.0-pro` i2i，`--ref` 原头像 seed 7，`--size '1024*1024'`，seed 42 / 7，单发 10.2–11.1 s）。采用 seed 42（双皮肤分区清晰、换色箭头不抢主体）；seed 7 留样反例（整环箭头 + 纸纹在 144 下过密）。最终 → `design/art/final/assets/avatar/beads-avatar-skin-144.png`（144² RGB PNG，21,716 B）。
+
+**追加（2026-11-16 · 拼豆豆人品牌头像 144²）**：Token Plan **2 次调用 / 出图 2 张 / 浪费 0 次**（`qwen-image-3.0-pro` t2i，`--size '1024*1024'`，seed 42 / 7，单发 8.0–8.4 s）。采用 seed 42（豆形角色 + 拼豆板 + 左暖右冷双皮肤 + 开口细箭头；144 缩略清楚）；seed 7 留样反例（整环三箭头 + 身形偏窄，144 下过密）。最终 → `design/art/final/assets/avatar/beads-avatar-144.png`（144² RGB PNG，27,231 B）。
+
+> **2026-11-16 头像口径修正**：前两批「花」头像已按用户裁定退场（花只是某一关 Boss 图案，不适合品牌头像），文件移入各自 `proposals/<batch>/rejected/`；采用件改为第三批「拼豆豆人」。上文旧路径仅作调用留痕，不再指向现役 final。
+
+**追加（2026-11-16 · 头像三方向探索）**：Token Plan **3 次调用 / 出图 3 张 / 浪费 0 次**（`qwen-image-3.0-pro` t2i，`--size '1024*1024'`，seed 42，单发 8.3–8.9 s）。D1 双豆人并排 / D2 拼豆衣架 / D3 拼豆板半成品；均未替换 final，候选留档 → `design/art/proposals/avatar-directions-20261116/`（raw 1024² + preview 144²）。
+
+**追加（2026-11-16 · 豆面风格头像探索）**：Token Plan **2 次调用 / 出图 2 张 / 浪费 0 次**（`qwen-image-3.0-pro` t2i，`--size '1024*1024'`，seed 42，单发 8.0–9.2 s）。A 2×2 大颗豆面特写 / B 3×3 豆面网格；均未替换 final，候选留档 → `design/art/proposals/avatar-bead-surface-20261116/`（raw 1024² + preview 144²）。A 的哑光 / 亮面 / 金属 / 闪粉四种豆面在 144 下区分清楚，推荐；B 的豆簇外形像花，不建议。
+
+> **2026-11-16 再次修正**：用户要求不要小人物/衣服，豆形角色头像退场（移入 `proposals/avatar-skin-v2-20261116/rejected/`）；采用件改为 A（2×2 豆面特写），final = `design/art/final/assets/avatar/beads-avatar-144.png`（144² RGB PNG，34,314 B）。
+
+**追加（2026-11-16 · 真实豆形头像）**：Token Plan **2 次调用 / 出图 2 张 / 浪费 0 次**（`qwen-image-3.0-pro` t2i，`--size '1024*1024'`，seed 42 / 7，单发 8.7–8.9 s）。真实拼豆短圆柱平顶 + 薄壁中心孔 + 四种豆面（哑光 / 亮面 / 金属 / 闪粉）；采用 seed 42，final 更新为 34,035 B；seed 7 留样备选。上一版圆环/圆润豆形移入 `proposals/avatar-bead-surface-20261116/rejected/`。
+
+**追加（2026-11-16 · 豆面图案背景头像）**：Token Plan **2 次调用 / 出图 2 张 / 浪费 0 次**（`qwen-image-3.0-pro` t2i，`--size '1024*1024'`，seed 42 / 7，单发 8.4–8.5 s）。背景暖白拼豆田 + 珊瑚斜纹；前景四颗平顶短圆柱（哑光青 / 亮面紫 / 金属金 / 透明闪粉）。采用 seed 42，final 更新为 37,924 B；seed 7 留样备选；球体前景版（`avatar-bead-pattern-20261116`）不采用，留作反例。
+
+**追加（2026-11-16 · 5×5 豆面网格背景头像）**：Token Plan **2 次调用 / 出图 2 张 / 浪费 0 次**（`qwen-image-3.0-pro` t2i，`--size '1024*1024'`，seed 42 / 7，单发 8.2–9.6 s）。背景严格 5×5 大豆网格 + 对角珊瑚线，孔位更明显；前景四颗平顶短圆柱。采用 seed 42，final 更新为 36,141 B；seed 7 留样备选；密集豆田背景版移入 rejected。
+
+**追加（2026-11-16 · 心形豆面背景头像）**：Token Plan **2 次调用 / 出图 2 张 / 浪费 0 次**（`qwen-image-3.0-pro` t2i，`--size '1024*1024'`，seed 42 / 7，单发 8.5–8.9 s）。背景小豆网格（提示词 9×9，实际约 10×10）+ 珊瑚心形；前景四颗平顶短圆柱。采用 seed 7，final 更新为 36,352 B；seed 42 留样备选；5×5 大豆网格版移入 rejected。
+
+**追加（2026-11-16 · 黄色五角星背景头像）**：Token Plan **2 次调用 / 出图 2 张 / 浪费 0 次**（`qwen-image-3.0-pro` t2i，`--size '1024*1024'`，seed 42 / 7）。背景小豆网格 + 黄色五角星，前景三颗平顶短圆柱（珊瑚哑光 / 青绿亮面 / 薰衣草珠光闪粉），配色按用户令改为扁平插画、不写实。采用 seed 42，final 更新为 34,767 B（md5 `fc76336962fee4203082d088b36b1dc8`）；seed 7 留样备选（33,583 B）；心形版移入 `proposals/avatar-bead-heart-20261116/rejected/`。**今日累计 23 次调用**（11 批）。
+
+**追加（2026-11-16 · 豆形三色背景头像）**：Token Plan **2 次调用 / 出图 2 张 / 浪费 0 次**（`qwen-image-3.0-pro` t2i，`--size '1024*1024'`，seed 42 / 7，单发 8.6 s ×2）。背景改为豆形（圆豆 + 中心孔）小豆图案，珊瑚粉 / 青绿 / 暖黄三色分区；前景三颗豆改用游戏风格池三套豆面（四棱刻面 / 18 线稿描边 / 13 双色对角，真源 `config/bead-styles/registry.ts`）。采用 seed 7，final 更新为 37,950 B（md5 `6cbb3319a15e20a4b112085c39a8229c`）；seed 42 留样备选（39,695 B）；五角星版移入 `proposals/avatar-bead-star-20261116/rejected/`。**今日累计 25 次调用**（12 批）。
+
+**追加（2026-11-16 · 腰形豆三色背景头像）**：Token Plan **2 次调用 / 出图 2 张 / 浪费 0 次**（`qwen-image-3.0-pro` t2i，`--size '1024*1024'`，seed 42 / 7，单发 8.4–8.5 s）。背景改为**真实腰形豆轮廓（无中心孔）**+ 珊瑚粉 / 青绿 / 暖黄三色；前景三颗按游戏俯视豆片口径（圆角方片 + 四向刻面 + 中心孔 + 深棕细缝，非 3D 圆柱），豆面 = 四棱刻面 / 18 线稿描边 / 13 双色对角。采用 seed 42，final 更新为 35,739 B（md5 `d0fc5791c5070b9f72d863befcabbc33`）；seed 7 留样备选（35,332 B）；带孔圆豆形版移入 `proposals/avatar-bead-bean-20261116/rejected/`。**今日累计 27 次调用**（13 批）。
+
+**口径修正（同日，用户选定）**：用户从两张预览中选定 **seed 7** ⇒ final 改为 35,332 B（md5 `02e01b11f08acf417187a5ea5eea7009`）；seed 42 移入 `proposals/avatar-bead-kidney-20261116/rejected/beads-avatar-144-kidney-s42.png`。调用数不变（仍 2 次 / 2 张 / 零浪费）。
+
+**零模型后处理（同日 · 去外框）**：用户令「把周围边框去掉」⇒ 对 seed 7 母版内裁 (36,36,987,987) → 951² → 144²，**0 次调用**；final 36,518 B（md5 `49e2582b3ffaf4deba8d324cd01b3466`），带框版移入 `rejected/beads-avatar-144-kidney-s7-bordered.png`。今日累计仍 **27 次调用**（13 批）。
+
 **追加（2026-11-17 · 20 大关生图第 0 张探路）**：Token Plan **1 次调用 / 出图 1 张 / 浪费 0 次**（`qwen-image-3.0-pro` t2i，`--size '2048*2048'`，seed 42、`prompt_extend=False`，单发 16.0 s）。**不占 180 张名额**，中性几何测试体，仅验通道四事。读数：`usage.output_width/height=2048/2048`、`output_image_type=**qima_output_2k**`、`input_image_type=qima_input_2k` ⇒ 2K 档确实存在并已计费（历史 1K 档为 `qima_output_1k`）。**0 次调用**的本地后处理：floodfill 抠 alpha（阈值 72 = 24×3），六道验收全绿（四角全透明 / 主体单连通 / 主体内近黑残留 0 px / RGB 零重绘 / 二值硬边 alpha / 四边留白 15.6–18.8%）。实测发现背景非精确 `#000000`（精确纯黑仅 21.04%，0–24 近黑占 58.85%，四角 max=3、环带 mean≈0.2），故验收判据须按「近黑」而非「精确纯黑」。产物与生成史：`games/beads/design/art/proposals/levels-20arcs-selection-20261117/probe-2048/`（含 `generation-record.txt` / `extract-alpha.py` / `response-meta.json` / 原图 / RGBA 图 / metrics）。⛔ 未入 `final/`、未入库关卡、未提交 git。
 
 **追加（2026-11-17 · 20 大关 A01-P01 雏菊 2048² 正式母版第 1 张）**：Token Plan **1 次调用 / 出图 1 张 / 浪费 0 次**（`qwen-image-3.0-pro` t2i，`--size '2048*2048'`，seed 42、`prompt_extend=False`，单发 16.4 s）。读数：`usage.output_width/height=2048/2048`、`output_image_type=**qima_output_2k**`、`input_image_type=qima_input_2k` ⇒ 2K 档计费。**0 次调用**的本地后处理：`probe-2048/extract-alpha.py` floodfill 抠 alpha（阈值 72）+ 六道验收 + studio `mis=full` 本地量化（`draft=1`，`importable=true`、`voidCells=0`、用色恰为 A01 四色）。产物 `games/beads/design/art/proposals/levels-20arcs-selection-20261117/A01-P01-daisy/`，**不入 `final/`**（§5 效果确认未完成）。⚠️ 效果偏差：主体高 87.9% / 宽 58% 超 G9 的 70–82%；`colorError.final=59.8`；单连通严格判 false 仅因 2 个 1×1 孤立像素。**是否重生待用户裁定**：若重生，本行「浪费 0 次」须追加订正为 1 次。
@@ -138,3 +170,5 @@ ls temp/wan27-probe-20261101 temp/wan27-full-20261101 \
 `games/beads/design/art/proposals/levels-20arcs-selection-20261117/A01-P01-daisy/generation-record.txt`
 「补收 2026-11-18」段。⚠️ 效果确认未完成（用户令「豆面效果 ok 才算认可」），
 未入关、未进 `final/`；重渲染产物与已存文件逐字节一致，sha256 前缀 `d889e880afc76210` / `d2c88780c2d2a242`。
+
+**追加（2026-11-18 · A01-P01 雏菊 v2–v5 重生＋锁定）**：Token Plan **4 次调用 / 出图 4 张 / 浪费 3 次**（v2/v3/v4 各 1 次浪费、v5 留档；`qwen-image-3.0-pro` t2i `--size '2048*2048'` seed 42、`prompt_extend=False`，单发 16.2–17.2 s，`qima_output_2k`）。**订正**：上一行（2026-11-17 正式母版第 1 张）「浪费 0 次」订正为 **1 次浪费**（v1 不采用、用户裁定重生）。本张累计 **5 次调用 / 5 张 / 4 浪费 / 1 留档**。v5 效果确认 **PASS**（用户 2026-11-18 裁定锁定，名额 1/180 效果确认完成）；系列量化口径裁定 **mis=max**（色号零改动）。0 次调用本地后处理：去 4 个噪点域（5px）＋NEAREST 统缩 ×0.9082 ⇒ G9 73.68/77.98 首次达标；studio 双口径 draft=1 均 importable=true（max 改色 0 / full 改色 6）。证据：批目录 `A01-P01-daisy/`（generation-record.txt「v2–v5 重生史与终裁」段、`studio-full-response-v5.json` / `-v5-max.json`）。未入关、未进 `final/`。

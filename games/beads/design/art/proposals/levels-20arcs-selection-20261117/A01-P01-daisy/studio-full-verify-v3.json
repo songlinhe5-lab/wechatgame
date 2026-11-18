@@ -1,0 +1,26 @@
+{
+  "importable": false,
+  "blockers": [
+    "用色 3 < 4（BOOT 下限，本批 3→4；现池 3 色关不在 Studio 导入通道）"
+  ],
+  "colorsUsed": null,
+  "paletteHex": [
+    "#FDF6E9",
+    "#FFD23F",
+    "#3FBF6B"
+  ],
+  "voidCells_report": 0,
+  "void_pattern": 107,
+  "per_color_cells": {
+    "#FDF6E9": 74,
+    "#FFD23F": 14,
+    "#3FBF6B": 61
+  },
+  "derangement": "FULL (0 固定点)",
+  "engine": {
+    "steps": null,
+    "taps": null,
+    "timeEst": null,
+    "cleared": null
+  }
+}

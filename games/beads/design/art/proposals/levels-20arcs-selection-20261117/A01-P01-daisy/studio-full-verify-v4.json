@@ -1,0 +1,26 @@
+{
+  "importable": true,
+  "blockers": [],
+  "colorsUsed": null,
+  "paletteHex": [
+    "#FDF6E9",
+    "#FFD23F",
+    "#3FBF6B",
+    "#6B3E1E"
+  ],
+  "voidCells_report": 0,
+  "void_pattern": 107,
+  "per_color_cells": {
+    "#FDF6E9": 74,
+    "#FFD23F": 5,
+    "#3FBF6B": 59,
+    "#6B3E1E": 11
+  },
+  "derangement": "FULL (0 固定点)",
+  "engine": {
+    "steps": null,
+    "taps": null,
+    "timeEst": null,
+    "cleared": null
+  }
+}

@@ -1,0 +1,220 @@
+{
+  "id": "a01p01v4fix-1794969098423-c5fb",
+  "board": "a01p01v4fix",
+  "cols": 16,
+  "rows": 16,
+  "shape": "square",
+  "palette": "10",
+  "colors": 4,
+  "swaps": 0,
+  "misMode": "full",
+  "createdAt": "2026-11-18T02:31:38.850Z",
+  "thumb": null,
+  "levelDraft": {
+    "cols": 16,
+    "rows": 16,
+    "time": 239,
+    "cycleProfile": "long",
+    "decoys": [],
+    "swaps": [],
+    "misplaced": [
+      "......2222......",
+      "....22222222....",
+      "...2333333333...",
+      "..333311113333..",
+      ".33311111111333.",
+      ".33311111111333.",
+      "3331111411111333",
+      "3331111111111333",
+      "3331111111111333",
+      "3331111111111333",
+      ".33311111111333.",
+      ".33331111114444.",
+      "..444411114444..",
+      "..44444411111...",
+      "....11111111....",
+      "......1111......"
+    ],
+    "pattern": [
+      "......1111......",
+      "....11111111....",
+      "...1111111111...",
+      "..111133331111..",
+      ".11133333333111.",
+      ".11133444433111.",
+      "1113344222433111",
+      "1113342222433111",
+      "1113342222433111",
+      "1113344224433111",
+      ".11133444433111.",
+      ".11113333331111.",
+      "..111133331111..",
+      "..11111133333...",
+      "....33333333....",
+      "......3333......"
+    ],
+    "paletteHex": [
+      "#FDF6E9",
+      "#FFD23F",
+      "#3FBF6B",
+      "#6B3E1E"
+    ],
+    "pricing": {
+      "source": "bot",
+      "steps": 49,
+      "stepsLB": 6,
+      "baseCap": 12,
+      "stepsByCap": {
+        "12": 49,
+        "24": 31,
+        "48": 19
+      },
+      "taps": 98,
+      "actionsSplit": {
+        "moves": 49,
+        "places": 20,
+        "directFills": 21,
+        "retrieves": 8
+      },
+      "secPerStep": 4.14,
+      "tierK": 0.85,
+      "clamped": false,
+      "cleared": true
+    },
+    "skin": "warm-paper"
+  },
+  "pattern": [
+    "......1111......",
+    "....11111111....",
+    "...1111111111...",
+    "..111133331111..",
+    ".11133333333111.",
+    ".11133444433111.",
+    "1113344222433111",
+    "1113342222433111",
+    "1113342222433111",
+    "1113344224433111",
+    ".11133444433111.",
+    ".11113333331111.",
+    "..111133331111..",
+    "..11111133333...",
+    "....33333333....",
+    "......3333......"
+  ],
+  "paletteHex": [
+    "#FDF6E9",
+    "#FFD23F",
+    "#3FBF6B",
+    "#6B3E1E"
+  ],
+  "misplaced": [
+    "......2222......",
+    "....22222222....",
+    "...2333333333...",
+    "..333311113333..",
+    ".33311111111333.",
+    ".33311111111333.",
+    "3331111411111333",
+    "3331111111111333",
+    "3331111111111333",
+    "3331111111111333",
+    ".33311111111333.",
+    ".33331111114444.",
+    "..444411114444..",
+    "..44444411111...",
+    "....11111111....",
+    "......1111......"
+  ],
+  "report": {
+    "fillable": 189,
+    "voidCells": 0,
+    "colorsUsed": 4,
+    "cap": 94,
+    "maxFreqBefore": 111,
+    "maxFreqAfter": 94,
+    "balancedChanged": 17,
+    "balanceNote": null,
+    "derangement": "FULL (0 固定点)",
+    "mis": {
+      "mode": "full",
+      "N": 189,
+      "m": 94,
+      "M": 189,
+      "F": 0,
+      "M_max": 189
+    },
+    "clusteringParams": {
+      "sample": 8,
+      "smooth": 0,
+      "minblock": 1,
+      "colors": 4
+    },
+    "colorLimit": {
+      "requested": 4,
+      "palette": 10,
+      "mode": "pixel-kmeans/mode",
+      "used": 4,
+      "changed": 0,
+      "kept": [
+        1,
+        2,
+        4,
+        9
+      ]
+    },
+    "colorError": {
+      "beforeColorLimit": 23.1,
+      "final": 41.8
+    },
+    "clusteringBefore": {
+      "blocks": 4,
+      "largest": 111,
+      "avg": 47.3,
+      "tinyCells": 0,
+      "adjRate": 0.769
+    },
+    "clusteringAfter": {
+      "blocks": 4,
+      "largest": 111,
+      "avg": 47.3,
+      "tinyCells": 0,
+      "adjRate": 0.769
+    },
+    "smoothChanged": 0,
+    "mergedCells": 0,
+    "adjacency": {
+      "minDE": 20,
+      "maxDriftDE": 12,
+      "changed": 0,
+      "conflicts": 0
+    },
+    "clusteringMisplaced": {
+      "blocks": 6,
+      "largest": 94,
+      "avg": 31.5,
+      "tinyCells": 1,
+      "adjRate": 0.809
+    },
+    "difficulty": {
+      "score": 10,
+      "timeEst": 239,
+      "misplaced": 0,
+      "taps": 98,
+      "bMed": 0,
+      "split": {
+        "moves": 49,
+        "places": 20,
+        "directFills": 21,
+        "retrieves": 8
+      },
+      "steps": 49,
+      "cleared": true,
+      "secPerStep": 4.14,
+      "blockers": [],
+      "formula": "v0.4（真引擎实测 BAC 批量动作数 × SEC_PER_STEP）"
+    }
+  },
+  "blockers": [],
+  "importable": true,
+  "draft": true
+}

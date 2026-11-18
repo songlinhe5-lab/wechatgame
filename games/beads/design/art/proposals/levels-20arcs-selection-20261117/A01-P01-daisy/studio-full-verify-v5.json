@@ -1,0 +1,41 @@
+{
+  "importable": true,
+  "blockers": [],
+  "colorsUsed": null,
+  "paletteHex": [
+    "#FDF6E9",
+    "#FFD23F",
+    "#3FBF6B",
+    "#6B3E1E"
+  ],
+  "voidCells_report": 0,
+  "void_pattern": 140,
+  "per_color_cells": {
+    "#FDF6E9": 58,
+    "#FFD23F": 12,
+    "#3FBF6B": 26,
+    "#6B3E1E": 20
+  },
+  "derangement": "FULL (0 固定点)",
+  "engine": {
+    "steps": null,
+    "taps": null,
+    "timeEst": null,
+    "cleared": null
+  },
+  "balance": {
+    "cap": 58,
+    "maxFreqBefore": 64,
+    "maxFreqAfter": 58,
+    "balancedChanged": 6,
+    "balanceNote": null
+  },
+  "mis_report": {
+    "mode": "full",
+    "N": 116,
+    "m": 58,
+    "M": 116,
+    "F": 0,
+    "M_max": 116
+  }
+}

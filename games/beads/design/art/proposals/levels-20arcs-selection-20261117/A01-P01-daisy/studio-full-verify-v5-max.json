@@ -1,0 +1,41 @@
+{
+  "importable": true,
+  "blockers": [],
+  "colorsUsed": null,
+  "paletteHex": [
+    "#FDF6E9",
+    "#FFD23F",
+    "#3FBF6B",
+    "#6B3E1E"
+  ],
+  "voidCells_report": 0,
+  "void_pattern": 140,
+  "per_color_cells": {
+    "#FDF6E9": 64,
+    "#FFD23F": 12,
+    "#3FBF6B": 20,
+    "#6B3E1E": 20
+  },
+  "derangement": "MAXIMAL（M=104/116 错位，固定点 = 理论下限 F=12）",
+  "engine": {
+    "steps": null,
+    "taps": null,
+    "timeEst": null,
+    "cleared": null
+  },
+  "balance": {
+    "cap": 58,
+    "maxFreqBefore": 64,
+    "maxFreqAfter": 64,
+    "balancedChanged": 0,
+    "balanceNote": "mis=max 最大化错位：跳过配色平衡（保形优先；错位取守恒极值 M_max 而非强制 0 固定点）"
+  },
+  "mis_report": {
+    "mode": "max",
+    "N": 116,
+    "m": 64,
+    "M": 104,
+    "F": 12,
+    "M_max": 104
+  }
+}

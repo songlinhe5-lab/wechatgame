@@ -1,0 +1,18 @@
+{
+  "elapsed_s": 16.4,
+  "usage": {
+    "output_height": 2048,
+    "output_width": 2048,
+    "input_image_count": 0,
+    "input_image_type": "qima_input_2k",
+    "output_image_count": 1,
+    "output_image_type": "qima_output_2k"
+  },
+  "request_id": "90fa041e-10f2-4a7b-a598-e3d42b2c8717",
+  "params": {
+    "prompt_extend": false,
+    "seed": 42,
+    "size": "2048*2048"
+  },
+  "prompt": "A flat 2D vector graphic, single centered daisy flower HEAD ONLY, perfectly radial symmetric, no stem, no leaves, no pot, no second object. Concentric center: one solid lemon-yellow (#FFD23F) circular disc, diameter about 36% of canvas width; around it one THICK solid deep-brown (#6B3E1E) ring, outer diameter about 54% of canvas width, the brown band itself clearly thick and continuous; around that one THICK solid grass-green (#3FBF6B) calyx ring, outer diameter about 68% of canvas width, the green band itself clearly thick and continuous; all rings touch each other with hard clean edges, every ring a solid unbroken band, no dots inside any ring. Around the green ring EXACTLY 8 long rounded cream-white (#FDF6E9) petals, each about 12% of canvas width wide, touching the green ring; between every two neighboring petals a wide pure-black gap at least 8% of canvas width, from petal base to petal tip. Whole flower head diameter about 72% of canvas width and 72% of canvas height, perfectly centered, empty black margin at least 14% on all four sides, touching no edge. ONE connected silhouette; no detached or floating pieces. All color areas solid single colors; all edges sharp and clean. No outlines, no gradients, no shading, no highlights, no shadows, no texture, no noise, no 3D, no realistic material, no feathered edges, no thin lines, no scattered dots, no falling petals. Background completely uniform pure black #000000 corner to corner: no gradient, no vignette, no glow, no checkerboard, no pattern, no frame, no ground, no reflection. No text, no letters, no numbers, no watermark. No black or near-black color anywhere inside the subject."
+}

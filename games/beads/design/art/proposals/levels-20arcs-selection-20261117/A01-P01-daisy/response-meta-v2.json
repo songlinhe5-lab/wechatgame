@@ -1,0 +1,18 @@
+{
+  "elapsed_s": 16.7,
+  "usage": {
+    "output_height": 2048,
+    "output_width": 2048,
+    "input_image_count": 0,
+    "input_image_type": "qima_input_2k",
+    "output_image_count": 1,
+    "output_image_type": "qima_output_2k"
+  },
+  "request_id": "4c8353e5-60a5-45af-a4e5-cebfb325d8e6",
+  "params": {
+    "prompt_extend": false,
+    "seed": 42,
+    "size": "2048*2048"
+  },
+  "prompt": "A flat 2D vector graphic, single centered daisy flower with stem, leaves and a small pot. Flower head: one solid lemon-yellow (#FFD23F) circular center disc (diameter about 24% of canvas width), surrounded by EXACTLY 8 long rounded cream-white (#FDF6E9) petals. Each petal about 10% of canvas width wide, touching the center disc; between every two neighboring petals a wide pure-black gap at least 7% of canvas width, so the 8 petals read as separate fingers even when shrunk to a 16x16 grid. Petals never touch each other. Flower head diameter about 60% of canvas width, centered at 50% width and 40% height. Below the head: one short thick solid grass-green (#3FBF6B) stem (about 7% of canvas width) touching the head, and two broad solid grass-green leaves attached to the stem, pointing outward and downward, together spanning about 75% of canvas width, with clear black notches between leaves and stem. At the bottom: one solid dark-brown (#6B3E1E) pot-shaped block at the stem base, about 25% of canvas width and 15% of canvas height, touching the stem. All parts overlap and connect into ONE connected silhouette; no detached or floating pieces. Whole subject bounding box about 75% of canvas width and 80% of canvas height, with at least 10% empty margin on all four sides, touching no edge. All color areas solid single colors; all edges sharp and clean. No outlines, no gradients, no shading, no highlights, no shadows, no texture, no noise, no 3D, no realistic material, no feathered edges, no thin lines, no scattered dots, no falling petals. Background completely uniform pure black #000000 corner to corner: no gradient, no vignette, no glow, no checkerboard, no pattern, no frame, no ground, no reflection. No text, no letters, no numbers, no watermark, no second object. No black or near-black color anywhere inside the subject."
+}

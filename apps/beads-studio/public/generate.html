@@ -740,6 +740,13 @@
             else drawBoard(r.misplaced?.length ? r.misplaced : r.pattern);
             const rp = r.report || {};
             const df = rp.difficulty;
+            // 名义盘面 ≠ 实际珠数：去背景 / 裁边会挖掉大量格子。
+            // 内容分档锚点是「可填珠数 N」（level-difficulty.md §2.1），故三者并列显示。
+            const cells = (Number(r.cols) || 0) * (Number(r.rows) || 0);
+            const fillN = typeof rp.fillable === 'number' ? rp.fillable : null;
+            const voidN = fillN === null ? null : Math.max(0, cells - fillN);
+            const boardText = `${r.cols}×${r.rows}（${cells} 格）｜可填 ${fillN ?? '—'} 珠` +
+                (voidN === null ? '' : `｜空洞 ${voidN} 格`);
             const loadedEval = r.fromLevel && levelInfo?.cells?.[levelCell];
             const loadedEvalText = loadedEval
                 ? [
@@ -750,9 +757,9 @@
                 : '';
             $('stats').textContent = r.fromLevel
                 // 载入的关卡没有生成报告：只报真源里有的字段，别拿 '?' 冒充统计
-                ? `${r.cols}×${r.rows}｜可填 ${rp.fillable ?? '—'}｜用色 ${r.colors}｜错位 ${Array.isArray(r.misplaced) && r.misplaced.length ? '真源已存（切「错位图」看）' : '无'}` +
+                ? `${boardText}｜用色 ${r.colors}｜错位 ${Array.isArray(r.misplaced) && r.misplaced.length ? '真源已存（切「错位图」看）' : '无'}` +
                     (loadedEvalText ? `\n真源评估 ${loadedEvalText}` : '')
-                : `${r.cols}×${r.rows}｜可填 ${rp.fillable ?? '?'}｜用色 ${r.colors}｜错位 ${r.misMode === 'full' ? '全错位（每颗可填珠都不就位）' : r.misMode === 'max' ? `最大化错位（错开 ${rp.mis?.M ?? '?'} 颗、强制就位 ${rp.mis?.F ?? '?'} 颗；N=${rp.mis?.N ?? '?'}/m=${rp.mis?.m ?? '?'}）` : r.misMode === 'none' ? '不错位（实物图纸模式）' : `${r.swaps * 2} 颗（${r.swaps} 对交换）`}\n` +
+                : `${boardText}｜用色 ${r.colors}｜错位 ${r.misMode === 'full' ? '全错位（每颗可填珠都不就位）' : r.misMode === 'max' ? `最大化错位（错开 ${rp.mis?.M ?? '?'} 颗、强制就位 ${rp.mis?.F ?? '?'} 颗；N=${rp.mis?.N ?? '?'}/m=${rp.mis?.m ?? '?'}）` : r.misMode === 'none' ? '不错位（实物图纸模式）' : `${r.swaps * 2} 颗（${r.swaps} 对交换）`}\n` +
                 `色差 ${rp.colorError?.final ?? '?'}｜同色相邻率 ${rp.clusteringMisplaced?.adjRate ?? (df ? df.adjRate : '?')}` +
                 (df ? (df.error
                     ? `\n难度 ——（${df.error}）`
