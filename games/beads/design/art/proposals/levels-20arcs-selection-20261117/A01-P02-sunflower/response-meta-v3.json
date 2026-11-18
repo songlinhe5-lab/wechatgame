@@ -1,0 +1,18 @@
+{
+  "elapsed_s": 17.2,
+  "usage": {
+    "output_height": 2048,
+    "output_width": 2048,
+    "input_image_count": 0,
+    "input_image_type": "qima_input_2k",
+    "output_image_count": 1,
+    "output_image_type": "qima_output_2k"
+  },
+  "request_id": "cab2accb-7972-4759-ba4b-0f8dfe383fbd",
+  "params": {
+    "prompt_extend": false,
+    "seed": 42,
+    "size": "2048*2048"
+  },
+  "prompt": "A flat 2D vector graphic, single centered sunflower plant, front view, perfectly left-right symmetric, no pot, no ground, no second object. Top: one solid deep-brown (#6B3E1E) circular seed disc, diameter about 20% of canvas width; around it one solid cream-white (#FDF6E9) ring, outer diameter about 34% of canvas width, the white band clearly thick and continuous; around that EXACTLY 8 short thick rounded lemon-yellow (#FFD23F) petals, each about 12% of canvas width wide, touching the white ring; between every two neighboring petals a pure-black gap at least 6% of canvas width from base to tip; whole flower head diameter about 60% of canvas width, centered horizontally, head center at about 32% of canvas height. Below: one straight upright grass-green (#3FBF6B) trunk-like stem, its thickness equal to half the brown disc diameter (about 13% of canvas width), from the flower head bottom down to a flat cut end at about 86% of canvas height; two huge grass-green rounded oval leaf pads, no pointed tips, one on each side, each pad about as wide as the flower head (about 44% of canvas width) and 16% of canvas height, attached to the stem at about 70% of canvas height, horizontal, together spanning about 92% of canvas width; stem and leaf pads touch the flower head or each other, ONE connected silhouette. Whole plant bounding box about 92% of canvas width and 80% of canvas height before final framing, empty black margin at least 8% on all four sides after framing, touching no edge, pure black below the stem cut end. All color areas solid single colors; all edges sharp and clean. No outlines, no gradients, no shading, no highlights, no shadows, no texture, no noise, no 3D, no realistic material, no feathered edges, no thin lines, no scattered dots, no falling petals. Background completely uniform pure black #000000 corner to corner: no gradient, no vignette, no glow, no checkerboard, no pattern, no frame, no ground, no reflection. No text, no letters, no numbers, no watermark. No black or near-black color anywhere inside the subject."
+}

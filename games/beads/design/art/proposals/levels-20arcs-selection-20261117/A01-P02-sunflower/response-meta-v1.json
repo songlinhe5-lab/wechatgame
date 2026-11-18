@@ -1,0 +1,18 @@
+{
+  "elapsed_s": 16.5,
+  "usage": {
+    "output_height": 2048,
+    "output_width": 2048,
+    "input_image_count": 0,
+    "input_image_type": "qima_input_2k",
+    "output_image_count": 1,
+    "output_image_type": "qima_output_2k"
+  },
+  "request_id": "e1b04260-22b6-412b-b392-9afec1e87172",
+  "params": {
+    "prompt_extend": false,
+    "seed": 42,
+    "size": "2048*2048"
+  },
+  "prompt": "A flat 2D vector graphic, single centered sunflower plant, front view, perfectly left-right symmetric, no pot, no ground, no second object. Top: one solid deep-brown (#6B3E1E) circular seed disc, diameter about 26% of canvas width; around it one solid cream-white (#FDF6E9) ring, outer diameter about 38% of canvas width, the white band clearly thick and continuous; around that EXACTLY 8 short thick rounded lemon-yellow (#FFD23F) petals, each about 12% of canvas width wide, touching the white ring; between every two neighboring petals a pure-black gap at least 6% of canvas width from base to tip; whole flower head diameter about 48% of canvas width, centered horizontally, head center at about 36% of canvas height. Below: one straight upright grass-green (#3FBF6B) stem about 12% of canvas width thick, from the flower head bottom down to about 88% of canvas height; two grass-green leaves, one on each side, each about 30% of canvas width long and 14% wide, attached to the stem at about 68% of canvas height, pointing outward and slightly down, together spanning about 72% of canvas width; stem and leaves touch the flower head or each other, ONE connected silhouette. Whole plant bounding box about 72% of canvas width and 80% of canvas height, empty black margin at least 8% on all four sides, touching no edge. All color areas solid single colors; all edges sharp and clean. No outlines, no gradients, no shading, no highlights, no shadows, no texture, no noise, no 3D, no realistic material, no feathered edges, no thin lines, no scattered dots, no falling petals. Background completely uniform pure black #000000 corner to corner: no gradient, no vignette, no glow, no checkerboard, no pattern, no frame, no ground, no reflection. No text, no letters, no numbers, no watermark. No black or near-black color anywhere inside the subject."
+}
