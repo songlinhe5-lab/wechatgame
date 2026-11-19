@@ -275,6 +275,36 @@ S9 暂停与设置（控制 S1 状态 + 写 S8）
 | 错位档位（`--mis` / studio `misKind`）· **v1.56 生效**（提案登记 v1.54；语义正本 `levels-spec §2.3` v1.12） | `full` \| `max` \| `swaps` \| `none` | **生效前提 = 代码 `352515f`（`max` 已落码）**；本行仅把已落码的 `max` 档由提案转生效，**§3.13 其它既有值（`MISPLACED_PAIRS_MIN/MAX` 1/8、逐关曲线建议值、规模闸、交换构造法、环长分布等）零改动**。**语义（misplaced 型关卡；`swaps`/`none` 语义不变）**：`full` = 每颗可填珠都错位（固定点 0），可行条件 `m ≤ ⌊N/2⌋`；**不可行 ⇒ 拒产（`full` 的 all-or-nothing 语义保留不动，供作者显式要「必须全错」时不打折）**。`max`（**新增**）= **最大化错位**：在「可填轮廓逐格匹配 + 每色珠数守恒（硬约束不可破）」两条硬约束下把可错位的可填格数推到 `M_max = min(N, 2(N−m))`、强制就位 `F = max(0, 2m−N)`；`m ≤ ⌊N/2⌋` 时**等价于 `full`（不打折）**，否则**尽力而为而非失败**——`full`/`max` 两档并存、由调用方选。`N`/`m` 的求解域 = **该宫**（Plate 切块后逐宫重排 `buildCellInitial` 甲 / 甲max / 乙 / 丙 四阶，P2b，**不得跨宫搬珠**）。**唯一退化情形** `M_max=0 ⇔ N<2 ∨ m=N`，且**合法关面上不可达**（`colors ≥ 3 ⇒ M_max ≥ 4`）⇒ 不存在「合法但不可解」的盘；极值式已由 **X2 穷举实测**复核、退化不可达已由 **X3 穷举**钉死（不再是文档内手算，v1.54 提案注「未经代码实测」随之解除）。**不放宽任何既有闸**：宫错位密度 ≤60%、本节后述规模闸（`steps × SEC_PER_STEP ≤ LEVEL_TIME_MAX` ∧ bot cleared）、BOOT「错位≥1」照旧；与密度档关系 = **取 `min(目标密度, M_max)`**（密度是作者想要的目标、`max` 是够不着 full 时的能力上界，两层）。**守恒是硬约束不可破**：最大化 = 同多重集内部重排，**不得改色**（改判只允许发生在 `pattern` 侧生成期 `balance()`）。**BOOT 校验面 ①–⑤ 一条未改**。默认档维持 `none`（实物图纸）不变。正本 `levels-spec §2.3`（v1.12）；提案 `proposals/sec3-color-max-35-and-mis-max.md` §3/§3.6 |
 | 规模闸（实测硬拦）· **v1.41 新增** | **v1.50：`steps × SEC_PER_STEP ≤ LEVEL_TIME_MAX`** ∧ bot 通关 | 用户 2026-09-21 拍板「生成期拒产 + 入关期拒收」：`beads-gen` 打印完整报告后 `exit 4`；Studio `ingestLevel` 回 422（bot 不可用 ⇒ 500，**不回落静态估算**）。判据只用**真值**（真引擎实测，`tools/scripts/beads-bot.ts`）。**⚠️ §3.5 v1.50 量纲变更**：自变量由 `taps`（成功点击）改为 `steps`（**BAC 尝试序下的批量动作数** = 直填+取回+落子，选锚并入），单价随之由 `SEC_PER_TAP=3.6` 改名为 `SEC_PER_STEP=1.69` —— 同一盘两个数差≈2 倍，不改名会让注释与代码说两套话。**为何不设 M / B_med 静态闸**（曾拟 `M ≤ 280 ∧ B_med ≥ 8`，已入库关卡实测**证伪并删除**）：甜心 B_med=6 而 44 taps 轻松通关、猫咪脸 B_med 同为 6 而 134 taps 超预算 ⇒ 静态量无分辨力，用作闸纯误伤；bot 单盘 0.3s 也不需早期剪枝。正本 `levels-spec §5.0.0`。**v1.47 顶值变更（未变）**：本闸顶值仍 `LEVEL_TIME_MAX = 2500`（开发期验证档）；换算随量纲改：2500 ÷ 1.69 ⇒ **≈1479 个批量动作**。**挂账未还**：难度分 `D = 100 × T / LEVEL_TIME_MAX` 分母随顶值漂移（D 不可跨档比较，且现值下八关 D 全落 2–12 已无分辨力）；`LEVEL_TIME_MAX` 本身在人类标定单价下已**不再被任何盘命中**（clamp 与规模闸两处空转），上线前须与三档时钟一并重裁。 |
 
+### 3.15 机器人玩家与过程回放（Bot & Replay）· v2.01 新增（WXG-T-983）
+
+> **来源文档**：`gdd/bot-replay.md` v1.0（系统契约）、`ux/bot-replay-spec.md` v1.0（UI 几何，**不进本节**）、`design/forensics/g3/g3-lib.ts::runBot`（首版行为金样本）。
+> **新增标记**：本组全部为 **v2.01 新增**；⛔ 不改既有任何 §3 行。未实测项一律 `[TODO]`，不得拍脑袋冻结。
+
+| 常量 | 值 | 说明 |
+|---|---|---|
+| `BOT_POLICY_DEFAULT` | `'greedy-acb'` | 首版策略 ID。行为 = 贪心三段式 **A 托盘归位 → C 盘上直填 → B 整组取回**；固定 `branchOrder='ACB'`、`reuseAnchor=false`、`retrieve='max'`、`allowDirectFill=true`、`usePowerups=false`。⛔ 不得消费 `services.rng` / `Math.random`；平票走行优先 / 槽号升序 / 组大小降序。金样本判据见 `bot-replay §8-1` |
+| `BOT_MAX_MOVES` | **4000** | 单局机器人动作上限。来源 = `g3-lib.ts::runBot` 的 `maxMoves ?? 4000`；触顶按「策略未收敛」处理，⛔ 不死循环 |
+| `BOT_STEP_INTERVAL_MS` | **450** `[待 playtest]` | 演示/托管两次 `BotAction` 之间的间隔（1x）。只影响节奏，不影响动作序与终局；需真机体感定档 |
+| `BOT_STUCK_LIMIT` | **1** | 连续 `decide()==null` 的次数上限。=1 即「首次无合法动作就停」：演示不生成、托管自动暂停；策略无随机，无需重试 |
+| `REPLAY_MAX_EVENTS` | **8192** | 单份录像事件数上限。依据 = `BOT_MAX_MOVES` 4000 的 2 倍余量；超限 ⇒ `truncated=true`、整份作废、入口置灰 |
+| `REPLAY_MAX_BYTES` | **262144**（256 KB）`[TODO]` | 单份录像内存上限。按 8192 事件 × ≈32B 估算；需真机内存实测后冻结 |
+| `REPLAY_SPEEDS` | **[1, 2, 4]** | 回放/演示倍速档（用户拍板）。只改影子时钟推进倍率，命令仍按 `step` 精确注入 |
+| `REPLAY_FIXED_DT_MS` | **1000/60 ≈ 16.6667** | 派生自框架 `GameLoop.fixedDt`（`systems-index §3` 帧定义）；`atMs` 必须量化到该步长，`step` 为权威定位 |
+| `REPLAY_SEEK_MAX_MS` | **2500000** | 派生 = `LEVEL_TIME_MAX`（2500 s）× 1000；seek 目标上钳，不另立新语义 |
+| `REPLAY_KEYFRAME_INTERVAL_MS` | `[TODO]` | v1 **不做**关键帧（seek = 从头重演）；本行仅为后续优化预留，未实测前不得落码 |
+| `REPLAY_RETENTION` | `'memory-only'` | 录像仅本局内存，⛔ 不写存档、不导出文件；应用重启即丢 |
+| `REPLAY_ENTRY` | `'clear-panel-only'` | 玩家上一局回放入口**仅** `LEVEL_CLEAR` 的 ClearPanel；`GAME_OVER` / 冲刺结算 / `FINISH` 不加 |
+| `REPLAY_DEMO_SEED_SALT` | `'beads-demo-v1'` | 演示固定 seed 盐：`seed = hash(levelId + salt)`；保证同一关卡每次演示逐帧一致 |
+| `BOT_DEMO_LEVEL` | `'farthest-unlocked'` | 演示打**当前最远解锁关**（用户 2026-11-19 裁定）；机器人跑不完整局 ⇒ 不生成演示、菜单轻提示，绝不展示半局，不回退第 1 关 |
+| `BOT_DEMO_SCORING` | `'none'` | 演示不计星、不写档、不发豆、不扣心 |
+| `BOT_ASSIST_SCORING` | `'normal'` | 托管正常计星、正常写档、正常发豆；进局扣心沿用 §3.14 |
+| `BOT_DEMO_STAMINA_COST` | **0** | 演示入口不扣体力（与「开始游戏/选关进玩法」的 `STAMINA_START_COST` 分离） |
+| `BOT_DEMO_COIN` | **0** | 演示不发豆 |
+| `REPLAY_COIN` | **0** | 回放不发豆、不写 `settleBestByUid`、不参与 `SETTLE_SCORE` |
+
+> **UI 几何不进本节**：ClearPanel 回放入口钮 / 回放页 / 进度条 / 托管徽标的尺寸与坐标住 `ux/bot-replay-spec.md` 与 `tuning/menu.ts`，沿用「颜色与纯呈现几何不进数值真源」判例。
+> **事件总线零新增**：本系统经 `BeadsSnapshot` / `ReplayViewModel` 只读投影，不新增 §4 公共事件。
+
 ## 4. 事件总线约定（供程序落码参考）
 
 沿用 breakout 的事件命名风格 `<域>:<事件>`，payload 一律带 `levelId`（**v1.28 补注**：**局内**事件一律带；meta 域事件局外发生**不带**，见下表末五行）：

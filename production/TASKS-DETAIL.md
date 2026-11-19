@@ -15,6 +15,36 @@
 
 ---
 
+## WXG-T-983
+
+**机器人玩家 + 过程回放设计文档批（GDD / UX / §3.15）** · 负责：文策渊(design-strategist)·beads 设计轨 · 状态：✅ 完成（2026-11-19）
+
+- **用户需求（原话）**：「游戏里需要有个机器人玩家机制，可以尝试不同策略玩法，比如贪心算法；还需要游戏中的过程可以回放，结算界面，增加一个回放按钮和相关播放能力。」
+- **已拍板**：演示 + 托管都要；策略纯逻辑、无 UI 依赖、可无头运行；首版贪心；回放 = 玩家上一局 + bot 试玩共用；全屏回放页（播放 / 暂停 / 倍速 / 进度条）；仅内存不写档；演示不计星、托管正常计星；回放入口仅过关结算 ClearPanel。
+- **用户追加裁定（2026-11-19）**：① 回放入口「先不要动 UI 设计，简单放一个按钮入口」⇒ v1 = 面板下方 160×96 独立小钮，现有两钮 / 四段零改动，三钮重排留档；② 演示打**当前最远解锁关**（跑不完整局 ⇒ 不生成 + 轻提示，不展示半局）；③ 托管开关 = 暂停面板 + HUD 只显示徽标；④ `BOT_STEP_INTERVAL_MS=450 [待 playtest]`。
+- **交付**：`games/beads/design/gdd/bot-replay.md` v1.0（八节 GDD：状态机接入 `REPLAY`、策略 observe→decide→command 契约、输入级录制 / 影子重演 / seek、计星存档矩阵、§8 十四条硬判据）；`games/beads/design/ux/bot-replay-spec.md` v1.0（入口、回放页、演示 / 托管态、输入矩阵、动效、可访问性、跨文档增补附录）；`systems-index §3.15` 新增 21 条常量 + `systems-index-changelog v2.01`。
+- **硬约束**：抽取内核后 `branchOrder='ACB'` + `reuseAnchor:false` + `retrieve='max'` + `usePowerups=false` 必须逐字复现已入库各关 `pricing.actions`（§8-1）；`bot/**` 不消费 `services.rng`；回放影子实例 `replaySandbox` 关闭存档 / 钱包 / 体力 / 广告副作用。
+- **零落码**：`src/**` / `tests/**` / cocos 未碰；未跑 verify / build（工作树含他轨 WIP）。
+- **门禁**：`check:frozen-values --game=beads` OK（三方零不一致）；`check:links` OK。
+- **待后续**：ADR-0038 + 控制清单 + Epic/Story（WXG-T-984）；`REPLAY_MAX_BYTES` / seek 性能 / 450ms 体感待真机或 playtest。
+
+---
+
+## WXG-T-982
+
+**治碎（两步走方案①·第一步）：studio 透传 minblock + 可读性 sizing 只读提示 + 冲突诚实登记** · 负责：程基岩(CodeBuddy)·beads 工程轨 · 状态：✅ 完成（2026-11-19；提交由主理人执行）
+
+- **用户令**：「两步走方案①」——本单只做第一步「治碎」，第二步「重构 DI 公式」不在本单、⛔ 严禁碰。诊断由主理人完成、按结论实现，不重新论证。
+- **改动 1（`apps/beads-studio/server.mjs`）**：`readGenParams` 增 `minblock`（缺省 1 = 关，沿用 beads-gen `arg('minblock','1')` 默认，⛔ 历史默认行为不变）、`runGen` args 增 `--minblock`、`BATCH_GRID_KEYS` 增 `minblock`（批量网格同源透传）、文件头 grid 白名单注释同步。生成结果 `result` 增**只读**字段 `legibilitySizingHint`：当 `fillable / colorsUsed` 低于 T5 门限（取 `pattern-legibility.mjs` 的 `LIMITS.beadsPerColor`，门限单一真源、⛔ 不新增数值常量）时给出「sizing 类：生成参数修不动，须放大盘/减色/换图」。⛔ 不硬拦、不改 `importable`、不改任何步骤/时长/定价。
+- **改动 2（`apps/beads-studio/public/generate.html`）**：新增 `minblock` 可见 number 控件（默认关 = 1）、query 透传；`show()` 在 WXG-T-981 已加的「盘面格数、可填 N、空洞」统计行附近追加显示上述只读提示。⛔ 不新增逐格画笔 / 手工编辑器。
+- **改动 3（`games/beads/design/levels/pattern-legibility.md`）**：§7 诚实登记 H-5（`N/C < 25` 属 sizing，生成参数含 `minblock` 不可解，须回作图侧）与 H-6（选图下限 N ≥ 60 与 T5 隐含 N ≥ 100 的 [60,100) 空白带，登记为已知冲突；⛔ 不调门限凑绿、不回改 §2.1 史证，K-025 / K-192 史证纪律）。
+- **不变式（正面声明）**：DI 公式 / §3 冻结表 / `difficulty.ts` / `level-import.ts` / `gameplay.ts` DIFFICULTY 组 / `level-difficulty.md §3` 公式与 §5.1 表 / 门禁⑦ / 门禁⑧ 默认 WARN / `sync-levels-data.mjs` / `tools/scripts/beads-gen.mjs` 现有一切 —— **零改**；core 与 `games/*/src` 遵守 L2/L3，无 `Math.random()`（L4）。
+- **K-045 混单纪律**：工作树约 40 件他轨 WIP（Cocos 同步、设置页等）。本单只精确暂存 5 件，`git diff --cached --name-only` 断言恰好 5 件；⛔ 禁 `git add -A` / `git commit -a`。提交由主理人执行，本单不 commit / push。
+- **验证**：`node --check server.mjs`；`pnpm run check:links` / `check:tasks` / `check:frozen-values` 全绿（K-192 落盘前后 SKIP 计数不变）；8787 studio 服务在跑（HTTP 200），但旧进程不自动加载新源码（K-092）⇒ 起临时实例 PORT=8799 用 v5 母版跑 `minblock=1` vs `minblock=4` 对照，回报 `clusteringParams` / 块数 / 碎块格变化；服务/驱动受阻则明写阻塞，⛔ 不伪造实测。
+- **知识沉淀**：候选 0–3 条随回传交主理人汇编（本单不跑 kb:sync、不新增文件）。
+
+---
+
 ## WXG-T-981
 
 **分档锚点改判为可填珠数 N + 生成页读数可见** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-18）
