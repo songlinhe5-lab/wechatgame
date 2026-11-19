@@ -1,0 +1,51 @@
+{
+  "noise_removed": [],
+  "single_connected": true,
+  "head_ratio_pct": 87.39,
+  "leaf_top": 1430,
+  "stem_top": 1758,
+  "leaf_new_px": [
+    1126,
+    72
+  ],
+  "ring_outer_px": 409.0,
+  "pet_px": 381739,
+  "fringe_cream_px": 5718,
+  "petal_bounds": [
+    11,
+    44,
+    74,
+    104,
+    135,
+    168,
+    198,
+    227,
+    255,
+    284,
+    312,
+    341
+  ],
+  "parity": 0,
+  "scale": [
+    1.2443,
+    1.1643
+  ],
+  "bbox_pct": [
+    74.02,
+    78.03
+  ],
+  "margins_pct": [
+    12.99,
+    10.99,
+    12.99,
+    10.99
+  ],
+  "area_share_pct": {
+    "#3FBF6B": 6.79,
+    "#6B3E1E": 21.27,
+    "#F59B23": 19.3,
+    "#FDF6E9": 29.51,
+    "#FFD23F": 23.13
+  },
+  "max_share_pct": 29.51
+}
