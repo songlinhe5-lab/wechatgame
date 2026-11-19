@@ -857,6 +857,10 @@ export class BeadsShell implements Game {
             case 'start':
                 this.startGame();
                 return true;
+            // `[WXG-T-993]` EP15 演示入口：主菜单「看演示」⇒ 回放页（录像 = `buildBotDemo()`）。
+            // 无可用演示 / 非法录像 ⇒ `_enterReplay` 返 false ⇒ **零事件**（留菜单、不发 `meta:*`）。
+            case 'bot-demo':
+                return this._enterReplay('bot-demo');
             case 'open-levels':
                 // menu-architecture §1.3 第五轮：主菜单走马灯卡 = 菜单唯一选关入口（点卡 → 开 `levels` overlay）。
                 // EP13-S4 · R13：末页空橱窗无大关实体 ⇒ 零事件；`[WXG-T-919]` 锁态章 ⇒ 零事件（见 `_openLevelsFromMenu`）。

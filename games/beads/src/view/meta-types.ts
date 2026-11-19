@@ -273,6 +273,11 @@ export interface MetaViewVariant {
 /** A tappable control on a meta screen. */
 export type MetaAction =
     | 'start'
+    /**
+     * `[WXG-T-993]` EP15 机器人演示入口（主菜单 CTA 左侧纸钮）：点 = 走 shell 的
+     * `enterReplay('bot-demo')` 进回放页；无可用演示（`buildBotDemo()` 返 null）⇒ 零事件。
+     */
+    | 'bot-demo'
     | 'open-signin'
     | 'open-settings'
     | 'open-levels'

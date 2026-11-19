@@ -35,6 +35,9 @@ export function label(id: MetaAction, data: MetaViewData): string {
             // 原 `[WXG-T-490]` 浏览态自证（走马灯离开起点页时换文案）随之退场；且 CTA 整枚位图已烘「开始」，
             // 视觉上只剩烙字。`btn_start_resume_label` 令牌保留（K-053 留档）但**当前无引用、不上屏**。
             return COPY_TOKENS.btn_start_label;
+        // `[WXG-T-993]` EP15 机器人演示入口（主菜单 CTA 左侧纸钮）。
+        case 'bot-demo':
+            return COPY_TOKENS.btn_bot_demo_label;
         case 'open-signin':
             return COPY_TOKENS.btn_signin_label;
         case 'open-settings':

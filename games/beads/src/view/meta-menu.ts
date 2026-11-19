@@ -795,6 +795,11 @@ export function drawMenuAnchored(
     } else {
         drawButton(builder, palette, g.ctaBox.x, g.ctaBox.y + pressDy(data, ctaPressed), g.ctaBox.w, g.ctaBox.h, 'accent', 14, label('start', data), UI_FONT.button, ctaPressed);
     }
+    // `[WXG-T-993]` EP15 机器人演示入口：CTA 左侧同底纸钮（文案读令牌表；无可用演示 ⇒ shell 零事件）。
+    const demoPressed = isPressed(data, 'bot-demo');
+    drawButton(builder, palette, g.demoBox.x, g.demoBox.y + pressDy(data, demoPressed),
+        g.demoBox.w, g.demoBox.h, 'paper', UI_CONTAINER.radiusCard,
+        label('bot-demo', data), UI_FONT.label, demoPressed);
     // `[WXG-T-432]` 好友榜入口原为 CTA 左侧纸钮（T1 纸面 + 文字），`WXG-T-487` 上提为顶栏圆钮，
     // 绘制已并入 `drawTopbar`（第四枚），此处不再画左下文字钮。
     // `[WXG-T-497]` 版本号已迁设置页脚（`settings-content::drawSettingsAbout`）⇒ 本页不再画，

@@ -48,6 +48,18 @@
 
 ---
 
+## WXG-T-993
+
+**EP15 尾账：主菜单演示入口 + §8 补测 + 真机 playtest 清单** · 负责：程基岩(engineering-lead)·beads 工程轨 · 状态：✅ 完成（2026-11-19）
+
+- **演示入口**：`MetaAction` 加 `'bot-demo'`；`anchoredGeoV2` 新增 `demoBox/demoHit`（140×88 @x24、与 CTA 同底缘 ⇒ 各档不压钮），`menuLayoutAnchored` 进册；`drawMenuAnchored` 画纸钮（`drawButton 'paper' + UI_FONT.label`）；文案令牌 `COPY_TOKENS.btn_bot_demo_label = '看演示'`（`tokens.md §7` 同步登记 [待 art 确认]）；壳 `_applyMetaAction` → `_enterReplay('bot-demo')`，无可用演示 / 非法录像 ⇒ `false` 零事件、留菜单、不扣心。
+- **补测（`tests/replay-page.test.ts`，+6 例）**：§8-5 演示进入+播完期间真实 meta `addCoins/addStamina/grantClearCoins/spendStamina` 零调用、金币/体力不变、影子 `replaySandboxActive` + 私有 storage + 未注入 `_onClearCoins`；§8-6 ClearPanel 显隐归命中腿、失败/冲刺零 `replay` 钮、FINISH `replay` = 重玩关卡、play 相位点回放坐标 `tapReplay=false` 零动作；§8-7 回放页点棋盘/托盘/HUD/屏底，影子六条公开命令 spy 恒 0；§8-9 菜单「看演示」→ 回放页（`source='bot-demo'`、不占上一局槽、不扣心、零 `meta:overlay`）→ 退出回菜单，`buildBotDemo()=null` ⇒ 零事件。
+- **追溯表**：`production/qa/beads/bot-replay-traceability.md` §8-5/6/7/9 由「部分自动 + DEFERRED」收敛为**自动**；新增「真机 playtest 清单」P1–P8（演示首帧 / seek 停顿 / 倍速暂停 / 结束条 / 结算钮 / 托管接管 / 内存峰值 / 冷启）——状态仍 **DEFERRED**，写明阻塞（无真机 / 无正式 AppID 与上传密钥）与解除条件；⛔ 记 PASS。
+- **金样本**：`ui-golden-capture.ts` 复取（锚 `dc10aac2 · 工作树`）⇒ main-menu / level-select / level-select-mid / settings / signin 五帧各 +2 指令（纸钮 rect + 文案），其余帧零漂移。
+- **验证**：`npx vitest run` 130 文件 1559 例（5 失败仅金样本，复取后绿）+ `tests/replay-page.test.ts` 10/10；beads typecheck 本单零错误（余 3 条属他轨 in-flight）。
+
+---
+
 ## WXG-T-992
 
 **EP15-S5 §8 十四条追溯 + check:arch §21** · 负责：程基岩(engineering-lead)·beads 工程轨 · 状态：✅ 完成（2026-11-19）

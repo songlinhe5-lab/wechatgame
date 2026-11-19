@@ -335,6 +335,12 @@ export interface AnchoredMenuGeo {
     readonly signBox: Box;
     readonly ctaBox: Box;
     readonly ctaHit: Box;
+    /**
+     * `[WXG-T-993]` 主菜单「看演示」纸钮（EP15 机器人演示入口）：与 CTA **同底缘**、左侧留边 24，
+     * 140×88 ≥ `TOUCH_MIN` ⇒ 热区与视觉同框（{@link demoHit} 即本对象）。
+     */
+    readonly demoBox: Box;
+    readonly demoHit: Box;
     /** `[WXG-T-432]` 主菜单「好友榜」纸钮（CTA 左侧；绘制/热区同对象）。 */
     readonly rankBox: Box;
     /** `[WXG-T-432]` 主菜单「好友榜」纸钮（CTA 左侧；绘制/热区同对象，`[WXG-T-453]` 收回 T-448 下探后恢复）。 */
@@ -405,6 +411,8 @@ function anchoredGeoV2(a: MenuAnchors): AnchoredMenuGeo {
     const arrowR = box(V.next.x, up(V.next.y, V.next.h), V.next.w, V.next.h);
     // 热区与视觉同框（v2 三件均 ≥ `TOUCH_MIN`；v3 档 CTA 只挪位、不改尺寸 ⇒ 同一口径）。
     const ctaHit = hitAt(ctaBox);
+    // `[WXG-T-993]` 演示入口：CTA 左侧同底纸钮（140×88 均 ≥ `TOUCH_MIN` ⇒ 热区 = 视觉同对象）。
+    const demoBox = box(24, ctaBox.y, 140, 88);
     const arrowLHit = hitAt(arrowL);
     const arrowRHit = hitAt(arrowR);
     const clipBox = box(V.clip.x, up(V.clip.y, V.clip.h), V.clip.w, V.clip.h);
@@ -433,6 +441,7 @@ function anchoredGeoV2(a: MenuAnchors): AnchoredMenuGeo {
         plateSingleCy: r(a.H - topPad - (V.plateTitle.y + V.plateTitle.h / 2)),
         sealBox,
         signBox, ctaBox, ctaHit,
+        demoBox, demoHit: demoBox,
         rankBox, rankHit: rankBox,
         arrowL, arrowLHit, arrowR, arrowRHit,
         barBox: box(V.bar.x, up(V.bar.y, V.bar.h), V.bar.w, V.bar.h),
@@ -453,6 +462,8 @@ function menuLayoutAnchored(a: MenuAnchors): MetaLayout {
             { id: 'open-levels', box: g.bossBox },
             { id: 'open-rank', box: g.rankHit },
             { id: 'start', box: g.ctaHit },
+            // `[WXG-T-993]` EP15 演示入口（CTA 左侧同底纸钮；无可用演示时点按零事件归 shell）。
+            { id: 'bot-demo', box: g.demoHit },
             { id: 'open-settings', box: g.settingsHit },
             // `[WXG-T-365]` 装扮馆入口上提顶栏中档（提案 P4-甲）；设置弹窗行5 左格同时回到 `cycle-skin`。
             { id: 'open-skins', box: g.skinsHit },

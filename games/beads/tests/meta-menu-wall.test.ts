@@ -472,7 +472,8 @@ describe('EP12-S6 Deliverable 3 · 三条硬口径（§5.4）+ 未解锁零热�
         // §5.1b 第三批：信箱 2026-10-22 实装（`open-signin`）；**公告位 2026-10-24 由预留升格为
         // 装扮馆入口 `open-skins`（WXG-T-365 · 提案 P4-甲）**⇒ 顶栏三颗全部注册；
         // 底部次级行整行退役。[WXG-T-280] 锚定档：橱窗卡两侧 ◀▶ 翻页两颗进热区集（落地单 §3）。
-        expect([...ids].sort()).toEqual(['carousel-next', 'carousel-prev', 'open-levels', 'open-rank', 'open-settings', 'open-signin', 'open-skins', 'start']);
+        // `[WXG-T-993]` EP15 演示入口 `bot-demo` 进册（菜单 ⇒ 回放页的唯一入口；点按归 shell）。
+        expect([...ids].sort()).toEqual(['bot-demo', 'carousel-next', 'carousel-prev', 'open-levels', 'open-rank', 'open-settings', 'open-signin', 'open-skins', 'start']);
         // 扫面（16×16 步长）：菜单全域可命中的动作集恰等于上面七枚 ⇒ 无暗道。
         const scanned = new Set<string>();
         for (let x = 0; x <= DESIGN_W; x += 16) {
@@ -481,7 +482,7 @@ describe('EP12-S6 Deliverable 3 · 三条硬口径（§5.4）+ 未解锁零热�
                 if (b) scanned.add(b.id);
             }
         }
-        expect([...scanned].sort()).toEqual(['carousel-next', 'carousel-prev', 'open-levels', 'open-rank', 'open-settings', 'open-signin', 'open-skins', 'start']);
+        expect([...scanned].sort()).toEqual(['bot-demo', 'carousel-next', 'carousel-prev', 'open-levels', 'open-rank', 'open-settings', 'open-signin', 'open-skins', 'start']);
     });
 
     // EP13-FU-1 换形（旧口径 = 「未解锁格 = 虚线空槽」，~~无🔒字样~~ ⇒ Q15 2026-10-17 改裁**合形**）：

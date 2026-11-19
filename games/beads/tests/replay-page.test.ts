@@ -10,14 +10,20 @@
 
 import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { RenderModelBuilder } from '@wxgame/framework';
 import { createBeadsHarness, simpleTestLevel } from './helpers.js';
 import { BeadsShell } from '../src/game/beads-shell.js';
+import type { BeadsGame } from '../src/game/beads-game.js';
+import type { ReplayPlayer } from '../src/replay/player.js';
 import type { BeadsLevelRaw } from '../src/config/levels.js';
-import { LEVEL_TIME_MAX, DESIGN_W, DESIGN_H, REPLAY_END_PRIMARY, REPLAY_END_SECONDARY, REPLAY_EXIT_RECT, REPLAY_PLAY_RECT, REPLAY_PROGRESS_HIT, REPLAY_SPEED_RECT } from '../src/config/tuning.js';
+import { LEVEL_TIME_MAX, DESIGN_W, DESIGN_H, REPLAY_END_PRIMARY, REPLAY_END_SECONDARY, REPLAY_EXIT_RECT, REPLAY_PLAY_RECT, REPLAY_PROGRESS_HIT, REPLAY_SPEED_RECT, WALL_ROWS } from '../src/config/tuning.js';
 import { clearPanelLayout, hitClearPanel, clearPanelLabel } from '../src/systems/clear-panel.js';
+import { failPanelLayout } from '../src/systems/fail-panel.js';
+import { sprintSettleLayout } from '../src/systems/sprint-settle.js';
+import { finishPanelLayout, finishPanelLabel } from '../src/systems/finish-panel.js';
 import { hitReplayPage } from '../src/systems/replay-transport.js';
+import { metaLayout } from '../src/view/meta-layout.js';
 
 const SINGLES_DIR = fileURLToPath(new URL('../design/levels/singles/', import.meta.url));
 const STEP = 1 / 60;
@@ -137,5 +143,185 @@ describe('EP15-S4 · 无录像不崩（§8-7）', () => {
     expect(shell.enterReplay('own-last')).toBe(false);
     expect(shell.screen).toBe('play');
     expect(shell.tapReplay(375, 100)).toBe(false);
+  });
+});
+
+// ─────────────────────────────────────────── EP15-S4 尾账：§8-5 / §8-6 / §8-7 / §8-9
+
+interface SandboxPeek {
+  readonly game: BeadsGame;
+  readonly services: { readonly storage: unknown };
+}
+
+/** 取当前回放页的影子实例（私有字段只读访问；⛔ 不写回）。 */
+function sandboxOf(shell: BeadsShell): SandboxPeek | null {
+  const player = (shell as unknown as { _replayPlayer: { _sandbox?: SandboxPeek | null } | null })._replayPlayer;
+  return player?._sandbox ?? null;
+}
+
+/** 菜单起步夹具（演示入口腿）。 */
+function menuRig(tag: string): { level: BeadsLevelRaw; h: ReturnType<typeof createBeadsHarness>; shell: BeadsShell } {
+  const level = goldenLevel();
+  const h = createBeadsHarness({ noAssemble: true, levels: [level], saveKey: `wxgame.beads.test.${tag}` });
+  const shell = new BeadsShell({
+    clock: () => 0,
+    metaKey: `wxgame.beads.test.${tag}-meta`,
+    initialScreen: 'menu',
+    play: { levels: [level] },
+  });
+  shell.init(h.services);
+  return { level, h, shell };
+}
+
+function demoButtonOf(shell: BeadsShell): { x: number; y: number } {
+  const btn = metaLayout('none', WALL_ROWS, shell.menuAnchors).buttons.find((b) => b.id === 'bot-demo');
+  if (!btn) throw new Error('主菜单缺 bot-demo 入口');
+  return { x: btn.box.x + btn.box.w / 2, y: btn.box.y + btn.box.h / 2 };
+}
+
+describe('EP15-S4 · 演示/回放零副作用（§8-5 钱包 / 体力 / 发豆 spy）', () => {
+  it('演示进入 + 播完：真实 meta 四腿零调用、金币/体力不变、影子用私有 storage', () => {
+    const { h, shell } = menuRig('replayzero');
+    const meta = shell.meta!;
+    const spies = [
+      vi.spyOn(meta, 'addCoins'),
+      vi.spyOn(meta, 'addStamina'),
+      vi.spyOn(meta, 'grantClearCoins'),
+      vi.spyOn(meta, 'spendStamina'),
+    ];
+    const coins = meta.coins;
+    const stamina = meta.stamina;
+    const btn = demoButtonOf(shell);
+    expect(shell.tapMeta(btn.x, btn.y)).toBe(true);
+    expect(shell.screen).toBe('replay');
+
+    const sandbox = sandboxOf(shell);
+    expect(sandbox, '影子实例缺失').toBeTruthy();
+    expect(sandbox!.game.replaySandboxActive).toBe(true);
+    expect((sandbox!.game as unknown as { _onClearCoins?: unknown })._onClearCoins, '影子不得注入宿主发豆回调').toBeUndefined();
+    expect(sandbox!.services.storage, '影子必须用私有存档，⛔ 触真实 storage').not.toBe(h.services.storage);
+
+    // 播完全程（含终局那一步）。
+    const player = (shell as unknown as { _replayPlayer: ReplayPlayer })._replayPlayer;
+    let guard = 0;
+    while (!player.ended && guard++ < 20000) player.tick(1000);
+    expect(player.ended).toBe(true);
+
+    for (const spy of spies) expect(spy, spy.getMockName()).not.toHaveBeenCalled();
+    expect(meta.coins, '演示不得改真实钱包').toBe(coins);
+    expect(meta.stamina, '演示不得扣/加真实体力').toBe(stamina);
+  });
+});
+
+describe('EP15-S4 · 回放入口唯一性（§8-6 逐相位入口矩阵）', () => {
+  it('视频回放钮只在 ClearPanel；失败 / 冲刺 / 通关面板零视频回放入口', () => {
+    // ClearPanel：回放钮 = 显隐在**命中腿**裁（布局恒留位，`showReplay=false` ⇒ 不可点、不可见）。
+    expect(hitClearPanel(375, 240, { lastLevel: false, showReplay: true })).toBe('replay');
+    expect(hitClearPanel(375, 240, { lastLevel: false, showReplay: false })).toBeNull();
+    expect(failPanelLayout(true).buttons.some((b) => String(b.id) === 'replay')).toBe(false);
+    expect(failPanelLayout(false).buttons.some((b) => String(b.id) === 'replay')).toBe(false);
+    expect(sprintSettleLayout().buttons.some((b) => String(b.id) === 'replay')).toBe(false);
+    // FINISH 的 `replay` = 重玩关卡（重玩 ≠ 视频回放）⇒ 只认文案与 ClearPanel 的「回放」不同源。
+    expect(finishPanelLabel('replay')).toBe('重玩第 1 关');
+    expect(finishPanelLabel('replay')).not.toBe(clearPanelLabel('replay', false));
+    expect(finishPanelLayout(3).buttons.some((b) => b.id === 'replay')).toBe(true);
+  });
+
+  it('play 相位点回放坐标：零动作（tapReplay 恒 false，相位 / 屏幕不变）', () => {
+    const level = goldenLevel();
+    const h = createBeadsHarness({ noAssemble: true, levels: [level], saveKey: 'wxgame.beads.test.replayphase' });
+    const shell = new BeadsShell({
+      clock: () => 0,
+      metaKey: 'wxgame.beads.test.replayphase-meta',
+      initialScreen: 'play',
+      play: { levels: [level] },
+    });
+    shell.init(h.services);
+    expect(shell.screen).toBe('play');
+    const phase = shell.play.phase;
+    const play = centre(REPLAY_PLAY_RECT);
+    expect(shell.tapReplay(play.x, play.y), 'play 相位回放页坐标不接任何动作').toBe(false);
+    expect(shell.screen).toBe('play');
+    expect(shell.play.phase).toBe(phase);
+  });
+});
+
+describe('EP15-S4 · 回放页零玩法输入（§8-7 公开命令 spy）', () => {
+  it('回放页点棋盘 / 托盘 / 道具位：影子公开命令调用数恒 0', () => {
+    const level = goldenLevel();
+    const h = createBeadsHarness({ noAssemble: true, levels: [level], saveKey: 'wxgame.beads.test.replaycmd' });
+    const shell = new BeadsShell({
+      clock: () => 0,
+      metaKey: 'wxgame.beads.test.replaycmd-meta',
+      initialScreen: 'play',
+      play: { levels: [level] },
+    });
+    shell.init(h.services);
+    shell.play.setAssist('bot');
+    let guard = 0;
+    while (shell.play.phase === 'playing' && guard++ < 100000) shell.update(STEP);
+    expect(shell.play.phase).toBe('level-clear');
+    shell.update(STEP);
+    expect(shell.enterReplay('own-last')).toBe(true);
+    const sandbox = sandboxOf(shell);
+    expect(sandbox).toBeTruthy();
+    // 冻结注入后再打 spy（进入回放瞬间的 step=0 注入不计入本次断言）。
+    (shell as unknown as { _replayPlayer: ReplayPlayer })._replayPlayer.pause();
+    const game = sandbox!.game;
+    const commandSpies = [
+      vi.spyOn(game, 'selectBoardBead'),
+      vi.spyOn(game, 'tapGridCell'),
+      vi.spyOn(game, 'selectTraySlot'),
+      vi.spyOn(game, 'retrieveSelectedGroup'),
+      vi.spyOn(game, 'usePowerup'),
+      vi.spyOn(game, 'expandTray'),
+    ];
+    // 棋盘区 / 托盘带 / 顶部 HUD / 屏底 —— 回放页里全是零响应坐标。
+    for (const [x, y] of [[375, 900], [375, 600], [80, 180], [375, 1000], [660, 60]] as const) {
+      shell.tapReplay(x, y);
+      expect(shell.screen, `(${x},${y}) 不得离开回放页`).toBe('replay');
+    }
+    for (const spy of commandSpies) expect(spy, spy.getMockName()).not.toHaveBeenCalled();
+  });
+});
+
+describe('EP15-S4 · 主菜单演示入口（§8-9）', () => {
+  it('「看演示」→ 回放页（bot-demo）→ 退出回菜单；演示不占「上一局」槽、不扣心', () => {
+    const { h, shell } = menuRig('replaydemo');
+    const stamina = shell.meta!.stamina;
+    const overlays = h.count('meta:overlay');
+    // 按钮文案 = 令牌值（渲染指令取证）。
+    const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
+    builder.begin();
+    shell.buildRenderModel(builder);
+    const texts = builder.end().commands.filter((c) => c.kind === 'text').map((c) => String((c as { text?: string }).text ?? ''));
+    expect(texts).toContain('看演示');
+
+    const btn = demoButtonOf(shell);
+    expect(shell.tapMeta(btn.x, btn.y)).toBe(true);
+    expect(shell.screen).toBe('replay');
+    expect(shell.replayViewModel.visible).toBe(true);
+    expect(shell.replayViewModel.source).toBe('bot-demo');
+    expect(shell.replayRecorder.lastRecording, '演示录像不得占用「上一局」槽').toBeNull();
+    expect(shell.meta!.stamina, '演示入口不扣心').toBe(stamina);
+
+    const exit = centre(REPLAY_EXIT_RECT);
+    expect(shell.tapReplay(exit.x, exit.y)).toBe(true);
+    expect(shell.screen).toBe('menu');
+    expect(h.count('meta:overlay'), '演示进出菜单不发 meta:overlay').toBe(overlays);
+  });
+
+  it('无可用演示（buildBotDemo ⇒ null）：零事件、留菜单、不扣心', () => {
+    const { h, shell } = menuRig('replaydemoempty');
+    vi.spyOn(shell, 'buildBotDemo').mockReturnValue(null);
+    const stamina = shell.meta!.stamina;
+    const events = h.emitted.length;
+    const overlays = h.count('meta:overlay');
+    const btn = demoButtonOf(shell);
+    expect(shell.tapMeta(btn.x, btn.y)).toBe(false);
+    expect(shell.screen).toBe('menu');
+    expect(h.emitted.length, '零新事件').toBe(events);
+    expect(h.count('meta:overlay')).toBe(overlays);
+    expect(shell.meta!.stamina).toBe(stamina);
   });
 });
