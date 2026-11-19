@@ -48,6 +48,17 @@
 
 ---
 
+## WXG-T-992
+
+**EP15-S5 §8 十四条追溯 + check:arch §21** · 负责：程基岩(engineering-lead)·beads 工程轨 · 状态：✅ 完成（2026-11-19）
+
+- **追溯表**：`production/qa/beads/bot-replay-traceability.md` —— §8-1…§8-14 每条 → 测试文件/用例 + 级别；真机 / 未建 UI 腿（续时终局、钱包体力 spy、逐相位入口矩阵、命令 spy、菜单演示入口、轻提示、托管失败+续时、冷启残留、playtest 体感）单列 `DEFERRED`，⛔ 记 PASS。
+- **架构门**：`tools/scripts/check-architecture.mjs` 新增 §21-a（`bot/**` 不引 view/ui）、§21-b（`bot/**` 零随机）、§21-c（view/ui 不直连 bot）、§21-d（`replay/**` 不引 view/ui/palette）；负样本 9 条（含放行腿），`--selftest` 31/31。
+- **L6 方向修正**：回放页命中几何下沉 `systems/replay-transport.ts`（壳可直用）；渲染绑定上移 `ui/replay-binding.ts`（壳 → ui → view）。`check:arch` 由 FAIL（新 game→view 边）转 OK。
+- **验证**：`npx vitest run games/beads/tests` 全绿（含金样本 25 例）；`pnpm run check:arch` OK；beads typecheck 本单零错误（余 3 条属他轨 in-flight）。
+
+---
+
 ## WXG-T-991
 
 **EP15-S4 结算回放入口 + 全屏回放页** · 负责：程基岩(engineering-lead)·beads 工程轨 · 状态：✅ 完成（2026-11-19；菜单演示入口遗留）

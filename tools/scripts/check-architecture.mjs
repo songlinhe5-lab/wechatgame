@@ -189,6 +189,28 @@ function lineOf(text, pattern) {
   return m && m.index !== undefined ? text.slice(0, m.index).split('\n').length : 1;
 }
 
+/** §21 机器人 / 回放边界（ADR-0038 DEC-1；EP15-S5）。 */
+const BOT_UI_IMPORT = {
+  id: '§21-a',
+  message: 'bot/** 引用 UI / palette —— 策略必须纯逻辑（ADR-0038 DEC-1）',
+  pattern: /from\s+['"][^'"]*\/(view|ui)\//,
+};
+const BOT_RANDOM = {
+  id: '§21-b',
+  message: 'bot/** 手搓随机 —— 策略必须确定性（禁 Math.random / services.rng / createRng）',
+  pattern: /(Math\.random\s*\()|(\bservices\.rng\b)|(\bcreateRng\s*\()/,
+};
+const UI_BOT_IMPORT = {
+  id: '§21-c',
+  message: 'view / ui 直接 import bot —— UI 只经 replay 视图模型取只读数据（ADR-0038 DEC-1）',
+  pattern: /from\s+['"][^'"]*\/bot\//,
+};
+const REPLAY_UI_IMPORT = {
+  id: '§21-d',
+  message: 'replay/** 依赖 UI / palette —— 回放设施必须无头可跑（ADR-0038 DEC-1）',
+  pattern: /from\s+['"][^'"]*\/(view|ui)\/|from\s+['"][^'"]*palette/,
+};
+
 /** §20 violations for one `games/beads/src` file; pure so the selftest shares it. */
 function beadsUiViolations(rel, source) {
   const out = [];
@@ -236,6 +258,13 @@ function beadsUiViolations(rel, source) {
 
   // §20-5: no navigation flags anywhere in the game; the stack is the state.
   out.push(...scanSource(body, [LEGACY_NAV_FIELD]));
+
+  // §21: bot / replay 分层（EP15-S5）。
+  if (rel.startsWith('bot/')) out.push(...scanSource(body, [BOT_UI_IMPORT, BOT_RANDOM]));
+  if (rel.startsWith('view/') || rel.startsWith('ui/')) {
+    out.push(...scanSource(body, [UI_BOT_IMPORT]));
+  }
+  if (rel.startsWith('replay/')) out.push(...scanSource(body, [REPLAY_UI_IMPORT]));
 
   return out;
 }
@@ -348,6 +377,17 @@ function runSelftest() {
     },
     { name: '§20-5 标志位被拦', file: 'game/beads-shell.ts', src: "this._overlay = 'levels';", want: '§20-5' },
     { name: '§20-5 Navigator 放行', file: 'ui/phase-route-binder.ts', src: 'this._nav.push(route);', want: null },
+    // §21 机器人 / 回放边界（EP15-S5）。
+    { name: '§21-a bot 引 view 被拦', file: 'bot/policy-x.ts', src: "import { x } from '../view/ui-theme.js';", want: '§21-a' },
+    { name: '§21-b bot 手搓随机被拦', file: 'bot/policy-x.ts', src: 'const n = Math.random();', want: '§21-b' },
+    { name: '§21-b bot 走 services.rng 被拦', file: 'bot/policy-x.ts', src: 'const n = game.services.rng.next();', want: '§21-b' },
+    { name: '§21-b bot 纯逻辑放行', file: 'bot/policy-x.ts', src: "import { T } from '../config/tuning.js';", want: null },
+    { name: '§21-c view 直连 bot 被拦', file: 'view/replay-x.ts', src: "import { decide } from '../bot/registry.js';", want: '§21-c' },
+    { name: '§21-c ui 直连 bot 被拦', file: 'ui/play-x.ts', src: "import { decide } from '../bot/registry.js';", want: '§21-c' },
+    { name: '§21-c view 经 replay 视图模型放行', file: 'view/replay-x.ts', src: "import type { ReplayViewModel } from '../replay/view-model.js';", want: null },
+    { name: '§21-d replay 引 view 被拦', file: 'replay/x.ts', src: "import { draw } from '../view/play-page.js';", want: '§21-d' },
+    { name: '§21-d replay 引 palette 被拦', file: 'replay/x.ts', src: "import { p } from '../view/palette.js';", want: '§21-d' },
+    { name: '§21-d replay 纯设施放行', file: 'replay/x.ts', src: "import { createRngFromState } from '@wxgame/framework';", want: null },
   ];
 
   let pass = 0;

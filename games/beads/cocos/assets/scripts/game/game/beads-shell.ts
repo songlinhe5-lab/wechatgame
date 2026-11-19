@@ -99,7 +99,8 @@ import { precomputeBotDemo } from '../replay/demo';
 import { BotDriver } from '../bot/driver';
 import { ReplayPlayer } from '../replay/player';
 import { createReplayViewModel, replayEntryState, writeReplayViewModel, type ReplayViewModel } from '../replay/view-model';
-import { hitReplayPage, renderReplayPage } from '../view/replay-page';
+import { hitReplayPage } from '../systems/replay-transport';
+import { renderReplayBinding } from '../ui/replay-binding';
 
 /**
  * `[WXG-T-440 / ADR-0033 边界②]` 面板路由名 → 相位（`PanelRouter.route` 的入参）。
@@ -703,7 +704,7 @@ export class BeadsShell implements Game {
         }
         writeReplayViewModel(this._replayVm, player);
         const levelIndex = player.recording.context.levelIndex;
-        renderReplayPage(
+        renderReplayBinding(
             {
                 snapshot: player.snapshot,
                 currentLevel: this._wallBaseLevels[levelIndex] ?? this._wallBaseLevels[0]!,

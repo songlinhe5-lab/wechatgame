@@ -8,7 +8,7 @@
  */
 
 import type { RenderModelBuilder } from '@wxgame/framework';
-import { DESIGN_W, REPLAY_COVER_BOTTOM, REPLAY_COVER_TOP, REPLAY_END_PANEL, REPLAY_END_PRIMARY, REPLAY_END_SECONDARY, REPLAY_EXIT_RECT, REPLAY_PLAY_RECT, REPLAY_PROGRESS_HIT, REPLAY_PROGRESS_TRACK, REPLAY_SPEED_RECT } from '../config/tuning.js';
+import { DESIGN_W, REPLAY_COVER_BOTTOM, REPLAY_COVER_TOP, REPLAY_END_PANEL, REPLAY_END_PRIMARY, REPLAY_END_SECONDARY, REPLAY_EXIT_RECT, REPLAY_PLAY_RECT, REPLAY_PROGRESS_TRACK, REPLAY_SPEED_RECT } from '../config/tuning.js';
 import type { BeadsLevelRaw } from '../config/levels.js';
 import type { BeadsSnapshot } from '../game/state.js';
 import type { ReplayViewModel } from '../replay/view-model.js';
@@ -124,22 +124,5 @@ function drawReplayEndBar(
     '退出', UI_FONT.button, false);
 }
 
-/** 命中（设计坐标）：`'exit' | 'toggle' | 'seek' | 'speed' | 'end-primary' | 'end-secondary' | null`。 */
-export type ReplayHit = 'exit' | 'toggle' | 'seek' | 'speed' | 'end-primary' | 'end-secondary' | null;
-
-export function hitReplayPage(x: number, y: number, ended: boolean): ReplayHit {
-  if (ended) {
-    if (inRect(REPLAY_END_PRIMARY, x, y)) return 'end-primary';
-    if (inRect(REPLAY_END_SECONDARY, x, y)) return 'end-secondary';
-    return null; // 结束条期：条外零响应
-  }
-  if (inRect(REPLAY_EXIT_RECT, x, y)) return 'exit';
-  if (inRect(REPLAY_PLAY_RECT, x, y)) return 'toggle';
-  if (inRect(REPLAY_PROGRESS_HIT, x, y)) return 'seek';
-  if (inRect(REPLAY_SPEED_RECT, x, y)) return 'speed';
-  return null;
-}
-
-function inRect(r: { x: number; bottom: number; w: number; h: number }, x: number, y: number): boolean {
-  return x >= r.x && x <= r.x + r.w && y >= r.bottom && y <= r.bottom + r.h;
-}
+/** 命中（设计坐标）类型：口径归 `systems/replay-transport.ts`（壳可直用，⛔ 壳不 import view）。 */
+export type { ReplayHit } from '../systems/replay-transport.js';

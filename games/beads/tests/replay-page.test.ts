@@ -17,7 +17,7 @@ import { BeadsShell } from '../src/game/beads-shell.js';
 import type { BeadsLevelRaw } from '../src/config/levels.js';
 import { LEVEL_TIME_MAX, DESIGN_W, DESIGN_H, REPLAY_END_PRIMARY, REPLAY_END_SECONDARY, REPLAY_EXIT_RECT, REPLAY_PLAY_RECT, REPLAY_PROGRESS_HIT, REPLAY_SPEED_RECT } from '../src/config/tuning.js';
 import { clearPanelLayout, hitClearPanel, clearPanelLabel } from '../src/systems/clear-panel.js';
-import { hitReplayPage } from '../src/view/replay-page.js';
+import { hitReplayPage } from '../src/systems/replay-transport.js';
 
 const SINGLES_DIR = fileURLToPath(new URL('../design/levels/singles/', import.meta.url));
 const STEP = 1 / 60;
