@@ -1,0 +1,38 @@
+{
+  "noise_removed": [],
+  "single_connected": true,
+  "head_ratio_pct": 85.83,
+  "head_top": 226,
+  "head_bot": 1103,
+  "leaf_top_old": 1225,
+  "stem_top_old": 1604,
+  "leaf_new_px": [
+    1126,
+    57
+  ],
+  "leaf_new_top": 1096,
+  "orange_px": 117982,
+  "fringe_cream_px": 1660,
+  "scale": [
+    1.8128,
+    1.5615
+  ],
+  "bbox_pct": [
+    74.02,
+    77.98
+  ],
+  "margins_pct": [
+    12.99,
+    11.04,
+    12.99,
+    10.99
+  ],
+  "area_share_pct": {
+    "#3FBF6B": 10.46,
+    "#6B3E1E": 7.62,
+    "#E84C3D": 23.06,
+    "#F59B23": 23.35,
+    "#FDF6E9": 35.51
+  },
+  "max_share_pct": 35.51
+}
