@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5198,
       "lines": 159,
-      "sha256": "d78c1b7c5b4ffdbd45a926412b1c702b60be4fe1d638ff9b0a8793cbabfc4093",
+      "sha256": "a8554a055a8dfe36e7d221afa6b54eba01009a22c958d804e6a0624bd5e2aace",
       "tier": "normal",
       "sections": [
         {
@@ -42655,6 +42655,150 @@
             "token",
             "首期形态",
             "已独立成文"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "games/beads/design/proposals/difficulty-rewrite-stage0-20261119.md",
+      "tokens": 4475,
+      "lines": 83,
+      "sha256": "e6e24766186a2d8b8c05fed99e8435d96185bae60fc431afde4310adaf633233",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§难度评估体系重构 · 阶段 0 口径提案与落码影响面",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 84,
+          "tokens": 4452,
+          "summary": "任务号 WXG-T-990（用户令「3/ 1」选项 1：另起一单彻底重构难度算法）。派单时曾写作 WXG-T-987，该",
+          "keywords": [
+            "WXG",
+            "难度评估体系",
+            "重构",
+            "阶段",
+            "口径提案与落",
+            "码影响面"
+          ]
+        },
+        {
+          "anchor": "§1 用户口径（逐字，不得曲解）",
+          "level": 2,
+          "startLine": 8,
+          "endLine": 16,
+          "tokens": 243,
+          "summary": "「步数很难算的很准确，你说的几个数据我都不太认可」⇒ 弃用 pricing.steps 作难度体系依据。",
+          "keywords": [
+            "pricing",
+            "steps",
+            "用户口径",
+            "逐字",
+            "不得曲解"
+          ]
+        },
+        {
+          "anchor": "§2 诊断：现行 DI 为何不能沿用",
+          "level": 2,
+          "startLine": 17,
+          "endLine": 27,
+          "tokens": 512,
+          "summary": "现行式（[difficulty.ts](../../src/game/difficulty.ts)，见 level-di",
+          "keywords": [
+            "difficulty",
+            "src",
+            "game",
+            "level",
+            "诊断",
+            "现行"
+          ]
+        },
+        {
+          "anchor": "§3 三个可拍板方案（含推荐）",
+          "level": 2,
+          "startLine": 28,
+          "endLine": 42,
+          "tokens": 943,
+          "summary": "共同数据底盘（真实读数，见 [beads-3tier-16-24-32/README.md](../../../../p",
+          "keywords": [
+            "beads",
+            "tier",
+            "README",
+            "三个可拍板方",
+            "含推荐"
+          ]
+        },
+        {
+          "anchor": "§4 主理人汇编裁决（跨成员一致性检查）",
+          "level": 2,
+          "startLine": 43,
+          "endLine": 51,
+          "tokens": 516,
+          "summary": "D-1 工程侧工作假设为「以 12 槽 pricing.steps 为标定轴」；设计侧明确「弃用 steps 作难度依据",
+          "keywords": [
+            "pricing",
+            "steps",
+            "主理人汇编裁",
+            "跨成员一致性",
+            "检查"
+          ]
+        },
+        {
+          "anchor": "§5 落码影响面（工程侧清单，仅列确定动作）",
+          "level": 2,
+          "startLine": 52,
+          "endLine": 61,
+          "tokens": 626,
+          "summary": "公式单一真源：src/game/difficulty.ts::difficultyOf 必动；DifficultyRes",
+          "keywords": [
+            "src",
+            "game",
+            "difficulty",
+            "difficultyOf",
+            "DifficultyRes",
+            "落码影响面"
+          ]
+        },
+        {
+          "anchor": "§6 待用户拍板（落码前置，未拍板不落码）",
+          "level": 2,
+          "startLine": 62,
+          "endLine": 70,
+          "tokens": 548,
+          "summary": "Q1 口径方案：① A 静态周转量（机理最准、最复杂）· ② B 纯 N×C（最简、相邻/底槽兼顾弱）· ③ C 离散四",
+          "keywords": [
+            "待用户拍板",
+            "落码前置",
+            "未拍板不落码"
+          ]
+        },
+        {
+          "anchor": "§7 不变式与验收判据（不得改门禁阈值凑绿）",
+          "level": 2,
+          "startLine": 71,
+          "endLine": 78,
+          "tokens": 410,
+          "summary": "门禁⑦（7–37 / 49）、门禁⑧ T1–T7、check:frozen-values 三方对账一字不改、仍须全绿；与",
+          "keywords": [
+            "check",
+            "frozen",
+            "values",
+            "不变式与验收",
+            "判据",
+            "不得改门禁阈"
+          ]
+        },
+        {
+          "anchor": "§8 零落码声明与史证纪律",
+          "level": 2,
+          "startLine": 79,
+          "endLine": 84,
+          "tokens": 285,
+          "summary": "本单零 Write 代码 / 测试 / 门禁 / 常量 / 设计正文；只新增本文与证据归档件，并在台账登记两个任务号。",
+          "keywords": [
+            "Write",
+            "零落码声明与",
+            "史证纪律"
           ]
         }
       ]
@@ -113711,6 +113855,246 @@
             "harness",
             "未闭项与解除",
             "条件"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "production/qa/beads/evidence/beads-3tier-16-24-32/README.md",
+      "tokens": 5584,
+      "lines": 177,
+      "sha256": "8182252ef804dd825b2a296996cb83c473eeb8d54072b7e9478c97ebf3b8224b",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§16 / 24 / 32 三档对照证据 · beads-3tier-16-24-32",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 178,
+          "tokens": 5568,
+          "summary": "任务号：WXG-T-989（用户令「3/ 1」选项 3：把 16/24/32 三档对照证据正式落盘）。派单时曾写作 WX",
+          "keywords": [
+            "beads",
+            "tier",
+            "WXG",
+            "三档对照证据"
+          ]
+        },
+        {
+          "anchor": "§0 本轮环境事实（可执行 vs 阻塞）",
+          "level": 2,
+          "startLine": 13,
+          "endLine": 23,
+          "tokens": 222,
+          "summary": "平台 pnpm monorepo / beads 微信小游戏；日常验证靠 Node + 浏览器 harness",
+          "keywords": [
+            "pnpm",
+            "monorepo",
+            "beads",
+            "Node",
+            "harness",
+            "本轮环境事实"
+          ]
+        },
+        {
+          "anchor": "§1 实验目的",
+          "level": 2,
+          "startLine": 24,
+          "endLine": 33,
+          "tokens": 200,
+          "summary": "用同一张 16×16 v5 母版在三种请求档位（16 / 24 / 32）下，量化两张轴的对照：",
+          "keywords": [
+            "实验目的"
+          ]
+        },
+        {
+          "anchor": "§2 参数矩阵",
+          "level": 2,
+          "startLine": 34,
+          "endLine": 48,
+          "tokens": 356,
+          "summary": "请求档位 16 / 24 / 32 三档，request 字段",
+          "keywords": [
+            "request",
+            "参数矩阵"
+          ]
+        },
+        {
+          "anchor": "§3 产物清单与指纹（17 件，原样搬运转存）",
+          "level": 2,
+          "startLine": 49,
+          "endLine": 79,
+          "tokens": 852,
+          "summary": "原样转存、不改字节：从 /tmp/beads-3tier/ 复制到本目录，沿用原名，PNG 不重编码、JSON 不格式化",
+          "keywords": [
+            "tmp",
+            "beads",
+            "tier",
+            "PNG",
+            "JSON",
+            "产物清单与指"
+          ]
+        },
+        {
+          "anchor": "§4 关键量化读数（供 §5 订正引数，均出自 `compare.json` / `compare-mis.json`）",
+          "level": 2,
+          "startLine": 80,
+          "endLine": 92,
+          "tokens": 239,
+          "summary": "16keep 16 1 16×16 256 116 54.7 31.6 29.0 45 90 220 false fal",
+          "keywords": [
+            "compare.json",
+            "compare-mis.json",
+            "§5",
+            "compare",
+            "json",
+            "mis"
+          ]
+        },
+        {
+          "anchor": "§5 ⚠️ 关键口径订正（本件核心，勿略读）",
+          "level": 2,
+          "startLine": 93,
+          "endLine": 115,
+          "tokens": 891,
+          "summary": "(1) compare.json 的 steps（45 / 70 / 114）是「12 槽基础档 + 单一 ACB 策略",
+          "keywords": [
+            "compare",
+            "json",
+            "steps",
+            "ACB",
+            "关键口径订正",
+            "本件核心"
+          ]
+        },
+        {
+          "anchor": "§6 诚实分栏",
+          "level": 2,
+          "startLine": 116,
+          "endLine": 141,
+          "tokens": 830,
+          "summary": "",
+          "keywords": [
+            "诚实分栏"
+          ]
+        },
+        {
+          "anchor": "§6.1 成立（有本目录量化读数支撑）",
+          "level": 3,
+          "startLine": 118,
+          "endLine": 122,
+          "tokens": 147,
+          "summary": "trim 只改盘面尺寸、不改可填珠数 N：三档 keep/trim 的 fillable 逐档相等（116 / 236 ",
+          "keywords": [
+            "trim",
+            "keep",
+            "fillable",
+            "成立",
+            "有本目录量化",
+            "读数支撑"
+          ]
+        },
+        {
+          "anchor": "§6.2 成立（观感层，非量化层，须标注结论层级）",
+          "level": 3,
+          "startLine": 123,
+          "endLine": 126,
+          "tokens": 114,
+          "summary": "24 档可读性最干净：属上一轮浏览器主观走查结论。⚠️ 量化列不构成其独立背书——24 档 colorError_fin",
+          "keywords": [
+            "colorError_fin",
+            "成立",
+            "观感层",
+            "非量化层",
+            "须标注结论层"
+          ]
+        },
+        {
+          "anchor": "§6.3 仍待 playtest（本环境不可执行，登记阻塞 + 解除条件）",
+          "level": 3,
+          "startLine": 127,
+          "endLine": 134,
+          "tokens": 194,
+          "summary": "§2.1 分档边界 200 / 800 是经验值、[待 playtest]、非冻结常量、非门禁阈值；大 N 可完成性与 ",
+          "keywords": [
+            "§2.1",
+            "playtest",
+            "仍待",
+            "本环境不可执",
+            "登记阻塞",
+            "解除条件"
+          ]
+        },
+        {
+          "anchor": "§6.4 已知冲突 / 口径差异，未裁定（诚实登记，不消解）",
+          "level": 3,
+          "startLine": 135,
+          "endLine": 141,
+          "tokens": 287,
+          "summary": "H-6（pattern-legibility.md §7）：§2.1 选图下限 N ≥ 60 与 T5 隐含 N ≥ 1",
+          "keywords": [
+            "§7",
+            "§2.1",
+            "pattern",
+            "legibility",
+            "已知冲突",
+            "口径差异"
+          ]
+        },
+        {
+          "anchor": "§7 主理人汇编裁定（2026-11-19）",
+          "level": 2,
+          "startLine": 142,
+          "endLine": 152,
+          "tokens": 576,
+          "summary": "D-1 派单写「16 个产物」，实测与明细枚举均为 17 派单正文笔误（6 PNG + 6 resp + 3 lv + ",
+          "keywords": [
+            "PNG",
+            "resp",
+            "主理人汇编裁"
+          ]
+        },
+        {
+          "anchor": "§8 史证声明（正面不变式）",
+          "level": 2,
+          "startLine": 153,
+          "endLine": 159,
+          "tokens": 260,
+          "summary": "⛔ 零改已入 HEAD 的任何文档行：TASKS.md / TASKS-DETAIL.md（由主理人汇编登记新增节）、s",
+          "keywords": [
+            "HEAD",
+            "TASKS",
+            "DETAIL",
+            "史证声明",
+            "正面不变式"
+          ]
+        },
+        {
+          "anchor": "§9 复现 / 验证命令（只读）",
+          "level": 2,
+          "startLine": 160,
+          "endLine": 174,
+          "tokens": 265,
+          "summary": "⚠️ 以下命令需先取回 17 件留盘产物（源 /tmp/beads-3tier/，或本地转存目录）；它们按 D-6 不入",
+          "keywords": [
+            "tmp",
+            "beads",
+            "tier",
+            "复现",
+            "验证命令",
+            "只读"
+          ]
+        },
+        {
+          "anchor": "§10 与 G1–G4 的关系（QA 门纪律）",
+          "level": 2,
+          "startLine": 175,
+          "endLine": 178,
+          "tokens": 142,
+          "summary": "本单 = 证据归档，不进阶段裁决：G1 静态 / G2 单测 / G3 冒烟 / G4 硬判据 全部「未执行」，理由＝无",
+          "keywords": [
+            "的关系",
+            "门纪律"
           ]
         }
       ]
