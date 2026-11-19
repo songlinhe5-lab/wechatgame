@@ -10,10 +10,12 @@
 
 import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import { MockRewardedAdProvider } from '@wxgame/framework';
 import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
-import { LEVEL_TIME_MAX } from '../src/config/tuning.js';
+import { ASSIST_STOPPED_HINT, ASSIST_TAKEOVER_HINT, LEVEL_TIME_MAX } from '../src/config/tuning.js';
 import type { BeadsLevelRaw } from '../src/config/levels.js';
+import { BeadsShell } from '../src/game/beads-shell.js';
 import { BotDriver } from '../src/bot/driver.js';
 import type { BotPolicy } from '../src/bot/types.js';
 import { createBotPolicy } from '../src/bot/registry.js';
@@ -135,9 +137,44 @@ describe('EP15-S2 · 停机与接管（§8-10）', () => {
     expect(h.game.tapDesign(x, y)).toBe(true); // 吞掉
     expect(h.game.assist).toBe('off');
     expect(h.game.actionsThisLevel).toBe(before); // 零玩法事件
+    // `[WXG-T-994]` 接管轻提示（ux §3.4「轻提示『已接管』」；同轻提示通道）。
+    expect(h.game.snapshot.powerupHint).toBe(ASSIST_TAKEOVER_HINT);
     h.advance(1 / 60);
     expect(h.game.snapshot.assist).toBe('off');
     expect(h.game.snapshot.boardSelectedRow).toBe(-1); // 未建立选择锚
+    h.advance(0.5); // TTL 400ms 到期 ⇒ 自动清，不常驻
+    expect(h.game.snapshot.powerupHint).toBe('');
+  });
+
+  it('停机 ⇒ 自动暂停 + 轻提示「托管已停止」（2s 后自动清）', () => {
+    const level = goldenLevel();
+    const h = createBeadsHarness({ seed: 'beads-driver', levels: [level] });
+    h.game.goToLevel(0);
+    h.game.setAssist('bot');
+    h.game.pauseForAssistStop();
+    expect(h.game.phase).toBe('paused');
+    expect(h.game.snapshot.powerupHint).toBe(ASSIST_STOPPED_HINT);
+    h.advance(2.2);
+    expect(h.game.snapshot.powerupHint).toBe('');
+  });
+
+  it('壳层：驱动报 stuck ⇒ 托管关、自动暂停、轻提示上屏', () => {
+    const level = goldenLevel();
+    const h = createBeadsHarness({ seed: 'beads-driver', levels: [level], saveKey: 'wxgame.beads.test.assiststop' });
+    const shell = new BeadsShell({
+      clock: () => 0,
+      metaKey: 'wxgame.beads.test.assiststop-meta',
+      initialScreen: 'play',
+      play: { levels: [level] },
+    });
+    shell.init(h.services);
+    shell.play.setAssist('bot');
+    const driver = (shell as unknown as { _driver: BotDriver })._driver;
+    vi.spyOn(driver, 'tick').mockReturnValue('stuck');
+    shell.update(1 / 60);
+    expect(shell.play.assist).toBe('off');
+    expect(shell.play.phase).toBe('paused');
+    expect(shell.play.snapshot.powerupHint).toBe(ASSIST_STOPPED_HINT);
   });
 
   it('关闭托管后驱动不再出手', () => {
@@ -202,5 +239,51 @@ describe('EP15-S2 · 演示预计算（§8-14）', () => {
     const rec = precomputeBotDemo({ levels: [level], levelIndex: 0, starsBefore: 0 })!;
     expect(rec.source).toBe('bot-demo');
     expect(rec.context.starsBefore).toBe(0);
+  });
+});
+
+describe('EP15 · 续时局录像对拍（§8-3 / §8-11）', () => {
+  it('失败 → 广告续时 → 托管过关：录像带 revive 事件，影子重演终局逐字段一致', () => {
+    const level = goldenLevel();
+    const h = createBeadsHarness({ seed: 'beads-driver', levels: [level], saveKey: 'wxgame.beads.test.replayrevive' });
+    const shell = new BeadsShell({
+      clock: () => 0,
+      metaKey: 'wxgame.beads.test.replayrevive-meta',
+      initialScreen: 'play',
+      play: { levels: [level] },
+    });
+    shell.init(h.services);
+
+    // 1. 耗尽时间 ⇒ GAME_OVER（真实失败路径）。
+    let guard = 0;
+    while (shell.play.phase === 'playing' && guard++ < 100000) shell.update(0.5);
+    expect(shell.play.phase).toBe('game-over');
+
+    // 2. 广告续时（真实 fail 面板入口 + Mock 发奖）。
+    expect(shell.play.requestRevive()).toBe(true);
+    (h.services.rewardedAd as MockRewardedAdProvider).settle('complete');
+    expect(shell.play.phase).toBe('playing');
+    expect(shell.play.revived).toBe(true);
+
+    // 3. 托管代打吃完（正常结算路径）。
+    shell.play.setAssist('bot');
+    guard = 0;
+    while (shell.play.phase === 'playing' && guard++ < 200000) shell.update(1 / 60);
+    shell.update(1 / 60);
+    expect(shell.play.phase).toBe('level-clear');
+
+    const rec = shell.replayRecorder.lastRecording;
+    expect(rec, '续时局必须产出录像').toBeTruthy();
+    expect(rec!.context.revived, '上下文须登记已续时').toBe(true);
+    expect(rec!.events.some((e) => e.cmd === 'revive'), '时间线须有 revive 事件').toBe(true);
+
+    // 4. 回放：影子按 revive 事件复位 → 播完终局对拍（remainingMs / actions / 棋盘 / 托盘全字段）。
+    expect(shell.enterReplay('own-last')).toBe(true);
+    const player = (shell as unknown as { _replayPlayer: ReplayPlayer })._replayPlayer;
+    guard = 0;
+    while (!player.ended && guard++ < 100000) player.tick(1000);
+    expect(player.ended).toBe(true);
+    expect(player.finalCheck?.diffs, `diffs=${player.finalCheck?.diffs.join(',')}`).toEqual([]);
+    expect(player.finalCheck?.ok).toBe(true);
   });
 });

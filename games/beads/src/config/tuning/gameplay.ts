@@ -227,6 +227,16 @@ export const POWERUP_BUY_PRICE = 100;
  */
 /** 豆子不足 / 达上限时的轻提示（`powerups §2.6` 占位轻提示同族，非广告文案）。 */
 export const POWERUP_BUY_DENIED_HINT = '豆子不足或已购满';
+/**
+ * `[WXG-T-994]` EP15 §8-10 托管轻提示（`bot-replay-spec §3.4/§5`）——复用同一「轻提示」通道
+ * （`snapshot.powerupHint` ⇒ 道具带下方一行字），⛔ 不新造 toast / 弹窗。
+ * - 接管：托管中玩家点棋盘 / 托盘 / 道具卡 ⇒「已接管」，停留 ≤400ms（ux §5 表）；
+ * - 停机：无合法动作 / 动作触顶 ⇒「托管已停止」+ 自动暂停，文字可读更久。
+ */
+export const ASSIST_TAKEOVER_HINT = '已接管';
+export const ASSIST_TAKEOVER_HINT_MS = 400;
+export const ASSIST_STOPPED_HINT = '托管已停止';
+export const ASSIST_STOPPED_HINT_MS = 2000;
 /** A powerup identity — the frozen tuple's element type. */
 export type PowerupType = (typeof POWERUP_TYPES)[number];
 

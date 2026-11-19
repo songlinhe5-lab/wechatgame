@@ -75,6 +75,10 @@ import {
   tierSecondsFor,
   normalSettleScore,
   POWERUP_BUY_DENIED_HINT,
+  ASSIST_TAKEOVER_HINT,
+  ASSIST_TAKEOVER_HINT_MS,
+  ASSIST_STOPPED_HINT,
+  ASSIST_STOPPED_HINT_MS,
   SOLVER_HINT_MS,
   SOLVER_MAX_CELLS,
   SOLVER_STAGGER_MS,
@@ -286,8 +290,12 @@ export class BeadsGame {
    * 执行（§2.4），网格与时钟零接触（§2.2 明确边界）。
    */
   private readonly _powerups = new PowerupSystem();
-  /** Over-limit card tap hint（§2.6 布局 A 占位轻提示；成功使用 / 换关即清）。 */
+  /**
+   * 轻提示通道（`§2.6` 占位 / EP15 §8-10 托管接管・停机同通道）：成功使用 / 换关即清。
+   * `_hintTtlMs` > 0 = 限时提示（到期自动清），0 = 常驻到下一个清点（旧道具提示口径）。
+   */
   private _powerupHint = '';
+  private _hintTtlMs = 0;
   /**
    * 待确认的豆子购买（`ux-spec §3.7`，§3.6 v1.80 出口）：非 null ⇒ 确认弹窗打开，
    * 期间**全控件不响应**（模态）；确定才扣豆，取消/板外/换关/重试即清。
@@ -1134,6 +1142,11 @@ export class BeadsGame {
     this._sprintSettle.update(dt * 1000); // 冲刺结算面板同理
     this._rankPanel.update(dt * 1000); // 好友榜面板：表现层，不随相位冻结
     this._fx.stepPresentation(dt, this._solverFx !== null); // 连击 / 脉冲 / 抬起 / 反馈计时（表现层，不冻结）
+    // `[WXG-T-994]` 轻提示 TTL（表现层，不冻结；0 = 常驻提示，等待既有清点）。
+    if (this._hintTtlMs > 0) {
+      this._hintTtlMs = Math.max(0, this._hintTtlMs - dt * 1000);
+      if (this._hintTtlMs === 0) this._powerupHint = '';
+    }
   }
 
   /**
@@ -1430,10 +1443,10 @@ export class BeadsGame {
       // 免费次数用尽 ⇒ **豆子购买**（§3.6 v1.80 唯一出口）：先弹确认（`ux-spec §3.7`），
       // 此刻**零扣豆、零事件**；确定才走 {@link confirmPowerupBuy}。
       if (pool.length === 0 || !this._powerups.canPurchase(type)) {
-        this._powerupHint = POWERUP_BUY_DENIED_HINT;
+        this._showHint(POWERUP_BUY_DENIED_HINT);
         return false;
       }
-      this._powerupHint = '';
+      this._clearHint();
       this._pendingBuy = type;
       return false;
     }
@@ -1463,11 +1476,11 @@ export class BeadsGame {
     if (!type || this._machine.current !== 'playing') return false;
     const pool = this._misplacedBeads();
     if (pool.length === 0 || !this._powerups.canPurchase(type)) {
-      this._powerupHint = POWERUP_BUY_DENIED_HINT;
+      this._showHint(POWERUP_BUY_DENIED_HINT);
       return false;
     }
     if (!this._onPowerupPurchase?.(type)) {
-      this._powerupHint = POWERUP_BUY_DENIED_HINT;
+      this._showHint(POWERUP_BUY_DENIED_HINT);
       return false;
     }
     const outcome = this._powerups.purchase(type, pool, this._powerupInputs());
@@ -1495,7 +1508,7 @@ export class BeadsGame {
    * 与 plan 完全一致（零重算、零重消费 Rng）；另两件照旧走 G2′ 队列。
    */
   private _applyPowerupUse(outcome: Extract<PowerupOutcome, { kind: 'used' }>): void {
-    this._powerupHint = '';
+    this._clearHint();
     this._emit('powerup:used', {
       type: outcome.type,
       affectedCells: outcome.affectedCells,
@@ -1790,12 +1803,26 @@ export class BeadsGame {
   takeOverFromBot(): boolean {
     if (this._assist !== 'bot') return false;
     this._assist = 'off';
+    // `[WXG-T-994]` ux §3.4/§5：接管 = 一次性文字轻提示（≤400ms），无音效、无震动。
+    this._showHint(ASSIST_TAKEOVER_HINT, ASSIST_TAKEOVER_HINT_MS);
     return true;
   }
 
   /** EP15-S2：托管停机（卡死 / 触顶）⇒ 自动暂停，与齿轮走同一条暂停路径。 */
   pauseForAssistStop(): void {
+    // `[WXG-T-994]` GDD §2.4：停机必须「有轻提示」（同无效落点通道）。
+    this._showHint(ASSIST_STOPPED_HINT, ASSIST_STOPPED_HINT_MS);
     this._requestPause('system');
+  }
+
+  private _showHint(text: string, ttlMs = 0): void {
+    this._powerupHint = text;
+    this._hintTtlMs = ttlMs;
+  }
+
+  private _clearHint(): void {
+    this._powerupHint = '';
+    this._hintTtlMs = 0;
   }
 
   private _actionsPlaying = 0;
@@ -2318,7 +2345,7 @@ export class BeadsGame {
    */
   private _resetPowerups(): void {
     this._powerups.reset();
-    this._powerupHint = '';
+    this._clearHint();
     this._pendingBuy = null; // 换关 / 重试 / 新局一律关掉购买确认（ux-spec §3.7 闸门）
   }
 

@@ -48,6 +48,18 @@
 
 ---
 
+## WXG-T-994
+
+**EP15 尾账二：托管轻提示（§8-10）+ 续时局回放对拍（§8-3 / §8-11）** · 负责：程基岩(engineering-lead)·beads 工程轨 · 状态：✅ 完成（2026-11-19）
+
+- **轻提示（复用既有通道，零新 UI）**：`tuning/gameplay.ts` 新增 `ASSIST_TAKEOVER_HINT='已接管'`（400ms）/ `ASSIST_STOPPED_HINT='托管已停止'`（2000ms）；`BeadsGame` 增 `_hintTtlMs` + `_showHint(text, ttl)` / `_clearHint()`，`update` 表现层递减（0 = 既有常驻道具提示口径）；`takeOverFromBot()` / `pauseForAssistStop()` 各写一条 ⇒ 视图照旧经 `snapshot.powerupHint` 画在道具带下方（⛔ 无 toast / 弹窗 / 新快照字段）。道具购买拒绝提示改走 `_showHint`（清 TTL），既有行为不变。
+- **补测（`tests/bot-driver.test.ts`，+3 例）**：接管后 `snapshot.powerupHint==='已接管'` 且 500ms 后自动清；`pauseForAssistStop()` ⇒ `paused` + 「托管已停止」+ 2.2s 自动清；壳层驱动报 `stuck` ⇒ `assist='off'` + `paused` + 提示上屏（spy `_driver.tick`）。
+- **续时局对拍（+1 例）**：真实 shell 局耗尽时间 → `requestRevive()` + Mock 广告发奖 → 托管过关；断言 `lastRecording.context.revived` / 时间线含 `revive` 事件 / `ReplayPlayer` 播完 `finalCheck.diffs=[]`。发现并修正了 `_checkFinal` 的严格比较：`remainingMs` 因 step 量化（`round(elapsed/fixedDt)`）允许 ±1 步（≤17ms；HUD 向上取整秒，视觉同），其余字段仍严格。
+- **追溯表**：`production/qa/beads/bot-replay-traceability.md` §8-3 / §8-10 / §8-11 收敛为自动；「真机 / UI 遗留」删去已完成项，轻提示体感并入 playtest P6。
+- **验证**：beads 全量 `npx vitest run` 130 文件 1560 通过 / 2 跳过；typecheck 本单零错误（余 3 条属他轨 in-flight）。
+
+---
+
 ## WXG-T-993
 
 **EP15 尾账：主菜单演示入口 + §8 补测 + 真机 playtest 清单** · 负责：程基岩(engineering-lead)·beads 工程轨 · 状态：✅ 完成（2026-11-19）

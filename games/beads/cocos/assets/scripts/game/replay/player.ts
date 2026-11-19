@@ -217,7 +217,13 @@ export class ReplayPlayer {
     const actual = captureReplayFinal(sandbox.game);
     const diffs: string[] = [];
     if (actual.cleared !== expected.cleared) diffs.push('cleared');
-    if (actual.remainingMs !== expected.remainingMs) diffs.push('remainingMs');
+    // `[WXG-T-994]` 剩余时间允许 **±1 个 fixedDt**（两端各自 round 到 ms ⇒ 再放宽 1ms）：
+    // 录像 step = round(elapsed/fixedDt)，重演按整步消费 ⇒ 续时（`revive`）与终局落在
+    // 半拍边界时会有一步量化偏差（≤17ms）。HUD 按「向上取整秒」显示，视觉恒同；
+    // 权威判据（cleared / actions / misplaced / tray）仍严格。
+    if (Math.abs(actual.remainingMs - expected.remainingMs) > this._fixedDtMs + 1) {
+      diffs.push('remainingMs');
+    }
     if (actual.actions !== expected.actions) diffs.push('actions');
     if (actual.misplacedLeft !== expected.misplacedLeft) diffs.push('misplacedLeft');
     if (actual.trayHolding !== expected.trayHolding) diffs.push('trayHolding');
