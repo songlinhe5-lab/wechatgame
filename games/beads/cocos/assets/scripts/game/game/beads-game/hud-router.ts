@@ -29,6 +29,8 @@ export interface HudRouterHost {
   readonly trayCanExpand: boolean;
   sfx(clipId: string): void;
   pauseManual(): void;
+  /** EP15-S2：玩家点道具卡 / 展开钮时若正在托管 ⇒ 取消托管并吞掉本次点击。 */
+  takeOverFromBot(): boolean;
   usePowerup(type: PowerupType): void;
   /** 展开按钮：本关升一档容量（每次一次激励视频，失败按降级口径照发）。 */
   requestExpand(): void;
@@ -58,9 +60,10 @@ export class HudRouter {
 
     if (!playing) return 'pass';
 
-    // 3. 道具卡。
+    // 3. 道具卡。（托管中 ⇒ 玩家接管：吞点击、不触发道具，bot §8-10）
     const card = hitPowerupCard(x, y);
     if (card) {
+      if (h.takeOverFromBot()) return 'swallowed';
       h.sfx(AUDIO_CLIP_UI_TAP);
       h.usePowerup(card);
       return 'consumed';
@@ -68,6 +71,7 @@ export class HudRouter {
 
     // 4. 展开按钮：命中时必为「还能再升一档」（`hitExpandButton` 顶档直接返回 false）。
     if (hitExpandButton(x, y, h.trayCanExpand)) {
+      if (h.takeOverFromBot()) return 'swallowed';
       h.requestExpand();
       return 'consumed';
     }

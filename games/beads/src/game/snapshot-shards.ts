@@ -29,6 +29,7 @@ import type { BeadsSnapshot } from './state.js';
 // ─────────────────────────────────────────── 片一 · 对局（play-page HUD / 棋盘 / 托盘）
 export const PLAY_SHARD_FIELDS = [
     'phase', 'phaseElapsed', 'mode',
+    'assist',
     'levelIndex', 'levelId', 'levelName', 'levelCount',
     'remaining', 'timeTotal', 'urgent',
     'gridCols', 'gridRows', 'cells',
@@ -57,7 +58,7 @@ export const PANEL_SHARD_FIELDS = [
     'sprintSettleVisible', 'sprintSettleProgress', 'sprintSettleInteractive',
     'sprintRunBestStage', 'sprintRunBestStreak',
     'banner', 'subBanner', 'bootError',
-    'reviveAvailable', 'revived', 'watchingAd', 'failHint',
+    'reviveAvailable', 'revived', 'watchingAd', 'failHint', 'failConfirming',
     // `[WXG-T-432]` S-3 好友榜面板只读视图（真源 = `RankPanel.view()`）⇒ 面板侧。
     'rankPanel',
 ] as const;

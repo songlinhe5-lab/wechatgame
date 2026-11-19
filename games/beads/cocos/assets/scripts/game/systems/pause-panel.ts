@@ -56,6 +56,8 @@ export type PausePanelAction =
   | 'toggle-debug-info'
   | 'toggle-ghost-symbol'
   | 'toggle-debug-guides'
+  /** EP15-S2：托管开关行（几何归 S4 `ux-bot §8.2-4`）。 */
+  | 'toggle-assist'
   | 'cycle-bead-style'
   | 'cycle-bead-size'
   | 'cycle-skin'

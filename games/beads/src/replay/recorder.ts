@@ -95,6 +95,8 @@ interface MutableRecording {
 export interface ReplayRecorderOptions {
   /** 录像种子来源：缺省 `() => 0`（测试显式给 `services.rng.state`）。 */
   readonly seed?: () => number;
+  /** 录像来源（壳层 = `own-last`；演示预计算 = `bot-demo`）。 */
+  readonly source?: ReplaySource;
   readonly fixedDtMs?: number;
   readonly maxEvents?: number;
   readonly maxBytes?: number;
@@ -110,6 +112,7 @@ export type ReplayCommandArgs = Readonly<Record<string, number | string>>;
  */
 export class ReplayRecorder {
   private readonly _seed: () => number;
+  private readonly _source: ReplaySource;
   private readonly _fixedDtMs: number;
   private readonly _maxEvents: number;
   private readonly _maxBytes: number;
@@ -122,6 +125,7 @@ export class ReplayRecorder {
 
   constructor(options: ReplayRecorderOptions = {}) {
     this._seed = options.seed ?? (() => 0);
+    this._source = options.source ?? 'own-last';
     this._fixedDtMs = options.fixedDtMs ?? REPLAY_FIXED_DT_MS;
     this._maxEvents = options.maxEvents ?? REPLAY_MAX_EVENTS;
     this._maxBytes = options.maxBytes ?? REPLAY_MAX_BYTES;
@@ -211,7 +215,7 @@ export class ReplayRecorder {
     this._revivedSec = game.reviveBonusSec;
     this._rec = {
       v: 1,
-      source: 'own-last',
+      source: this._source,
       levelId: levelIdOf(level),
       levelHash: levelHash(level),
       seed: this._seed(),

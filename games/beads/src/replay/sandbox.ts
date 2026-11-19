@@ -62,6 +62,12 @@ export interface ReplaySandboxOptions {
   readonly tuning?: BeadsTuning;
   readonly width?: number;
   readonly height?: number;
+  /** 录制钩子（演示预计算用；重演侧不传）。 */
+  readonly onCommandApplied?: (
+    type: 'selectBoardBead' | 'retrieveSelectedGroup' | 'selectTraySlot' | 'tapGridCell' | 'usePowerup' | 'expandTray',
+    args: Readonly<Record<string, number | string>>,
+    elapsedMs: number,
+  ) => void;
 }
 
 export interface ReplaySandbox {
@@ -97,6 +103,7 @@ export function createReplaySandboxGame(
     levels: options.levels,
     saveKey: 'wxgame.beads.replay.sandbox',
     ...(options.tuning ? { tuning: options.tuning } : {}),
+    ...(options.onCommandApplied ? { onCommandApplied: options.onCommandApplied } : {}),
   });
   game.init(services);
   game.applyReplayContext(rec.context);

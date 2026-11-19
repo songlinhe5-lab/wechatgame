@@ -80,6 +80,8 @@ export interface SnapshotSource {
     // 相位机：泛型持 BeadsGame ⇒ 只结构化投影读的两字段（current/elapsed），不回指主类型。
     readonly machine: { readonly current: BeadsPhase; readonly elapsed: number };
     readonly mode: GameMode;
+    /** EP15-S2：托管标记（快照只读投影）。 */
+    readonly assist: 'off' | 'bot';
     readonly levelIndex: number;
     readonly levels: readonly BeadsLevelRaw[];
     readonly stageIndex: number;
@@ -123,6 +125,7 @@ export interface SnapshotSource {
     readonly reviveCount: number;
     readonly watchingAd: boolean;
     readonly failHint: string;
+    readonly failConfirming: boolean;
     readonly beadLod: boolean;
     readonly onboardDone: boolean;
     readonly onboardingEnabled: boolean;
@@ -181,6 +184,7 @@ function projectPlayShard(s: SnapshotPlay, src: SnapshotSource): void {
     s.phase = src.machine.current;
     s.phaseElapsed = src.machine.elapsed;
     s.mode = src.mode;
+    s.assist = src.assist;
     s.levelIndex = src.levelIndex;
     const currentLevel = src.levels[src.levelIndex];
     s.levelId = src.mode === 'sprint' ? 'sprint' : currentLevel ? levelIdOf(currentLevel) : '';
@@ -379,6 +383,7 @@ function projectPanelShard(s: SnapshotPanel, src: SnapshotSource): void {
     s.revived = src.reviveCount > 0;
     s.watchingAd = src.watchingAd;
     s.failHint = src.failHint;
+    s.failConfirming = src.failConfirming;
 }
 
 /**

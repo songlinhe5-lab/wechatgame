@@ -15,6 +15,21 @@
 
 ---
 
+## WXG-T-988
+
+**EP15-S2 BotDriver：演示预计算 + 托管 450ms** · 负责：程基岩(engineering-lead)·beads 工程轨 · 状态：✅ 完成（2026-11-19）
+
+- **上游**：`ADR-0038` DEC-4/DEC-5；`gdd/bot-replay.md` §2.2.4 / §2.4 / §8-2/5/10/11/14；`epics-beads-ep15.md` S2。
+- **驱动**：`src/bot/driver.ts` —— `tick(dtMs, game)` 仅在 `phase==='playing' && assist==='bot'` 时出手；一条 `BotAction` 的命令按序占连续拍（每拍最多 1 条公开命令）；`BOT_STEP_INTERVAL_MS=450 [待 playtest]`；`decide()==null` 连续 `BOT_STUCK_LIMIT=1` ⇒ `'stuck'`，动作数触顶 `BOT_MAX_MOVES=4000` ⇒ `'exhausted'`；纯逻辑、只 `import type` 游戏。
+- **演示**：`src/replay/demo.ts::precomputeBotDemo` —— 影子沙箱（零存档 / 零钱包 / 零体力）+ `BotDriver` 无头跑完整局产出 `bot-demo` 录像；seed = `hash(levelId + REPLAY_DEMO_SEED_SALT)`；卡死 / 触顶 / 未过关 / `truncated` ⇒ `null`（不展示半局）。
+- **游戏侧**：`assist` 标记 + `setAssist` / `takeOverFromBot`（`_routeTap` 棋盘 / 托盘 + `HudRouter` 道具卡 / 展开钮：取消托管并吞点击，零玩法事件）/ `pauseForAssistStop`；快照片一登记 `assist`（`state.ts` / `snapshot-shards.ts` / `snapshot-projection.ts` 三处同步）；暂停面板动作联合加 `'toggle-assist'`（`applySettingsAction` 消费）。
+- **壳层**：`BotDriver` 由壳持有，`play.update → _replay.tick → _tickBotAssist`；卡死 / 触顶 ⇒ `setAssist('off')` + 自动暂停；`LEVEL_CLEAR/GAME_OVER/FINISH/BOOT` ⇒ 托管归位（不跨局）。`buildBotDemo()` 打**当前最远解锁关**，`starsBefore` 取真实星账。
+- **测试**：`tests/bot-driver.test.ts` 11 例 —— 450ms 节拍 / 非托管不出手；同 seed 两局动作数 + 终局 + 星级一致；`stuck` / `exhausted`；玩家点棋盘接管（`assist` 关、动作数不变、无选择锚）；托管过关正常计星 + 解锁；演示录像 `source='bot-demo'` 可被 `ReplayPlayer` 播完且终局对拍通过；`maxMoves=0` ⇒ `null`。
+- **机械验证**：`npx vitest run games/beads/tests` 241 文件 2890 例绿；beads typecheck 本单零错误（余 3 条属他轨 in-flight）。
+- **边界（S4）**：HUD「托管中」徽标、暂停面板托管开关行几何、主菜单「演示」入口、卡死轻提示文案与回放页整页 UI。
+
+---
+
 ## WXG-T-987
 
 **EP15-S3 回放设施（录制 / 重演 / 沙箱）** · 负责：程基岩(engineering-lead)·beads 工程轨 · 状态：✅ 完成（2026-11-19）

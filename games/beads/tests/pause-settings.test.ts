@@ -822,6 +822,7 @@ describe('S9 pause & settings', () => {
       'toggle-debug-info': '性能信息',
       'toggle-ghost-symbol': '幽灵符号',
       'toggle-debug-guides': 'Debug',
+      'toggle-assist': '托管',
       'cycle-bead-style': '珠子风格',
       'cycle-bead-size': '豆子尺寸',
       'cycle-skin': '皮肤',

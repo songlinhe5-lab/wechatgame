@@ -551,6 +551,8 @@ export class BeadsGame {
   private _playingMs = 0;
   /** 影子上下文：本局是否「已续时」（`applyReplayContext` 注入，`_setupLevel` 消费一次）。 */
   private _replayRevived = false;
+  /** EP15-S2：托管标记（`PLAYING` 内；⛔ 不是状态机相位）。 */
+  private _assist: 'off' | 'bot' = 'off';
   /** 在飞广告种类：区分续时（revive）/ 广告加心（staminaRefill）/ 托盘扩容（trayExpand）的发奖路由。 */
   private _adKind: 'revive' | 'staminaRefill' | 'trayExpand' | null = null;
   /**
@@ -624,6 +626,7 @@ export class BeadsGame {
     this._snapshotSource = {
       get machine() { return self._machine; },
       get mode() { return self._mode; },
+      get assist() { return self._assist; },
       get reviveAdUsable() { return self._reviveAdUsable(); },
       get levelIndex() { return self._levelIndex; },
       get levels() { return self._levels; },
@@ -700,6 +703,7 @@ export class BeadsGame {
       get trayCanExpand() { return self._tray.canExpand; },
       sfx(clipId: string) { self._sfx(clipId); },
       pauseManual() { self._requestPause('manual'); },
+      takeOverFromBot() { return self.takeOverFromBot(); },
       usePowerup(type: PowerupType) { self.usePowerup(type); },
       requestExpand() { self.requestTrayExpand(); },
     });
@@ -1762,6 +1766,31 @@ export class BeadsGame {
     return this._replaySandbox;
   }
 
+  /** EP15-S2：托管标记（`'bot'` = 机器人在本局实时代打）。 */
+  get assist(): 'off' | 'bot' {
+    return this._assist;
+  }
+
+  /** 开关托管（暂停面板 / 壳层驱动）；幂等，⛔ 不发玩法事件。 */
+  setAssist(mode: 'off' | 'bot'): void {
+    this._assist = mode === 'bot' ? 'bot' : 'off';
+  }
+
+  /**
+   * 玩家接管（GDD §2.6 / bot §8-10）：托管中点到棋盘 / 托盘 / 道具卡 ⇒ 关闭托管，
+   * 调用方（点击路由）吞掉该次点击。返回 `true` = 本拍确实发生了接管。
+   */
+  takeOverFromBot(): boolean {
+    if (this._assist !== 'bot') return false;
+    this._assist = 'off';
+    return true;
+  }
+
+  /** EP15-S2：托管停机（卡死 / 触顶）⇒ 自动暂停，与齿轮走同一条暂停路径。 */
+  pauseForAssistStop(): void {
+    this._requestPause('system');
+  }
+
   private _actionsPlaying = 0;
 
   /** 计量包：透传 `ok`，为 true 时计一次有效动作（不改任何判定）。 */
@@ -2043,6 +2072,10 @@ export class BeadsGame {
       case 'toggle-debug-guides':
         this.setDebugGuides(!this._settings.values.debugGuides);
         return;
+      case 'toggle-assist':
+        // EP15-S2：暂停面板托管开关（生效于继续后的 PLAYING）。
+        this.setAssist(this._assist === 'bot' ? 'off' : 'bot');
+        return;
       default:
         this._settings.apply(action);
         return;
@@ -2290,6 +2323,7 @@ export class BeadsGame {
     this._resetPlaceCombo(); // [WXG-T-434] 换关/重试/新局 ⇒ 归位连击清零（不跨局携带）
     this._actionsPlaying = 0;
     this._playingMs = 0; // EP15-S3：录像时间轴随新局归零
+    this._assist = 'off'; // EP15-S2：托管不跨局（通关 / 失败 / 重试都归位）
     this._grid = new BeadGrid(level.pattern);
     // v2.0 BOOT 装配（levels-spec v1.2 §2.1 / v1.3 §2.2，WXG-T-139 装配器）：
     // 初盘真源二选一——`level.misplaced`（全错位初盘，直读）优先，否则 `swaps`
@@ -2506,6 +2540,16 @@ export class BeadsGame {
     }
     switch (this._machine.current) {
       case 'playing': {
+        // EP15-S2 玩家接管（bot §8-10）：托管中点棋盘 / 托盘 ⇒ 取消托管并**吞掉**本次点击
+        // （零玩法事件、零动作计数）。道具卡 / 展开钮的接管在 `HudRouter`（同样吞点击）。
+        if (this._assist === 'bot') {
+          const takeoverSlot = hitTraySlot(x, y, this._tray.capacity, this.tuning.width);
+          if (takeoverSlot >= 0 || this._hitGridCell(x, y)) {
+            this.takeOverFromBot();
+            this._consumedTap = true;
+            return;
+          }
+        }
         // 4. Tray band (`TRAY_HIT_SIZE`² hit area = 60²，§3.8 v1.57 公式化；旧字面 62) — v2.0 内部分支
         //    4a holding / 4b 空槽，见 `_routeTraySlot`（带级次序不变）。
         const slot = hitTraySlot(x, y, this._tray.capacity, this.tuning.width);

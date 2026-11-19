@@ -25,3 +25,15 @@ export const REPLAY_SEEK_MAX_MS = 2500000;
  * 8 个数字字段 × 8B 的保守上界。`REPLAY_MAX_BYTES` 仍标 `[TODO]`。
  */
 export const REPLAY_EVENT_BYTES_ESTIMATE = 64;
+
+/** §3.15 · 单局机器人动作上限（来源 = `g3-lib.ts::runBot` 的 `maxMoves ?? 4000`）。 */
+export const BOT_MAX_MOVES = 4000;
+
+/** §3.15 · 演示/托管两次 `BotAction` 间隔（1x）。`[待 playtest]` 真机体感定档。 */
+export const BOT_STEP_INTERVAL_MS = 450;
+
+/** §3.15 · 连续 `decide()==null` 上限；=1 即首次无合法动作就停。 */
+export const BOT_STUCK_LIMIT = 1;
+
+/** §3.15 · 演示固定 seed 盐：`seed = hash(levelId + salt)`，同关每次演示逐帧一致。 */
+export const REPLAY_DEMO_SEED_SALT = 'beads-demo-v1';

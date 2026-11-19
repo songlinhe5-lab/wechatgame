@@ -92,6 +92,12 @@ export interface BeadsSnapshot {
   phaseElapsed: number;
   mode: GameMode;
 
+  /**
+   * EP15-S2：托管标记（`PLAYING` 内的 `assist='bot'`；非状态机相位）。
+   * HUD 只读徽标；暂停面板开关与玩家接管同写此字段。
+   */
+  assist: 'off' | 'bot';
+
   levelIndex: number;
   levelId: string;
   levelName: string;
@@ -235,6 +241,8 @@ export interface BeadsSnapshot {
   watchingAd: boolean;
   /** One-shot copy under the fail panel (e.g. Noop 「即将开放」). */
   failHint: string;
+  /** True when the fail-panel "dismiss" confirm dialog is showing. */
+  failConfirming: boolean;
 
   /**
    * S6 **剩余免费次数**，每道具一项（`0..POWERUP_FREE_USES`）。视图把 `0` 的卡
@@ -490,6 +498,7 @@ function createPlayShard(tuning: BeadsTuning): SnapshotPlay {
     phase: 'boot',
     phaseElapsed: 0,
     mode: 'normal',
+    assist: 'off',
     levelIndex: 0,
     levelId: '',
     levelName: '',
@@ -574,6 +583,7 @@ function createPanelShard(): SnapshotPanel {
     revived: false,
     watchingAd: false,
     failHint: '',
+    failConfirming: false,
     // `[WXG-T-432]` 好友榜只读视图 = 面板侧数据 ⇒ 关档初值随本片预分配。
     rankPanel: CLOSED_RANK_VIEW,
   };

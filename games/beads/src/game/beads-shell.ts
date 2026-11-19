@@ -92,6 +92,9 @@ import { PhaseRouteBinder, type ShellScreen } from '../ui/phase-route-binder.js'
 import { renderPlayPage, renderPlayPanel } from '../ui/play-binding.js';
 import { getBeadBakeRuntime } from '../view/bead-render.js';
 import { ReplayRecorder } from '../replay/recorder.js';
+import type { ReplayRecording } from '../replay/recorder.js';
+import { precomputeBotDemo } from '../replay/demo.js';
+import { BotDriver } from '../bot/driver.js';
 
 /**
  * `[WXG-T-440 / ADR-0033 边界②]` 面板路由名 → 相位（`PanelRouter.route` 的入参）。
@@ -159,6 +162,8 @@ export class BeadsShell implements Game {
      * `services.rng.state` 快照（DEC-6）。回放入口在 S4 消费 `lastRecording`。
      */
     private readonly _replay = new ReplayRecorder({ seed: () => this._services?.rng.state ?? 0 });
+    /** EP15-S2 托管驱动（仅壳层持有；内核 ⛔ 不依赖 bot）。 */
+    private readonly _driver = new BotDriver();
     private readonly _clock: () => number;
     private readonly _metaKey?: string;
     /**
@@ -547,6 +552,7 @@ export class BeadsShell implements Game {
             this._menuPress = null; // 进玩法后不得残留菜单按压（否则回菜单时会补发一次 phantom tap）
             this.play.update(dt); // 对局腿的采样在 `sampleFrame` 内（game.update 开头）
             this._replay.tick(this.play); // EP15-S3：录制起止 / 续时事件（无在录 = 早退）
+            this._tickBotAssist(dt);
             return;
         }
         // UI-24：菜单腿不跑 play.update ⇒ 采样单独喂（debugInfo 关时内部零开销）。
@@ -588,6 +594,40 @@ export class BeadsShell implements Game {
     /** EP15-S3：录制器只读引用（S4 的「回放」入口读 `lastRecording`）。 */
     get replayRecorder(): ReplayRecorder {
         return this._replay;
+    }
+
+    /**
+     * EP15-S2 托管驱动：`PLAYING` 且 `assist='bot'` 时按 450ms 节拍出手；
+     * 卡死 / 触顶 ⇒ 自动暂停 + 关闭托管（轻提示归 S4 UI）。
+     */
+    private _tickBotAssist(dt: number): void {
+        if (this.play.assist !== 'bot') {
+            this._driver.reset();
+            return;
+        }
+        const phase = this.play.phase;
+        if (phase === 'level-clear' || phase === 'game-over' || phase === 'finish' || phase === 'boot') {
+            this.play.setAssist('off'); // 托管不跨局 / 失败即止（GDD §2.4）
+            this._driver.reset();
+            return;
+        }
+        if (phase !== 'playing') return; // PAUSED：保留开关状态，不计时
+        const event = this._driver.tick(dt * 1000, this.play);
+        if (event === 'stuck' || event === 'exhausted') {
+            this.play.setAssist('off');
+            this.play.pauseForAssistStop();
+            this._driver.reset();
+        }
+    }
+
+    /** EP15-S2 演示：预计算「当前最远解锁关」的 `bot-demo` 录像（跑不完 ⇒ null）。 */
+    buildBotDemo(): ReplayRecording | null {
+        const index = Math.max(0, this.play.maxUnlockedLevel - 1);
+        return precomputeBotDemo({
+            levels: this._wallBaseLevels,
+            levelIndex: index,
+            starsBefore: this.play.starsByLevelRaw[index] ?? 0,
+        });
     }
 
     // ───────────────────────────────────────────────────────────── routing
