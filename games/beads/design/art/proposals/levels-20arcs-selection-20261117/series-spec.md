@@ -120,6 +120,7 @@
 4. **色数 5–6＋色面均衡 G12**：全错豆 F=0 为目标（mis=max 下主导色 ≤50% 即可达，不需 balance）。
 5. **colors 请求 = 目标色数+1 余量**：像素 k-means 会丢小面积簇（P04 黄芯 2.8% 在 k=5 被吸进橙，k=6 解决）；实选色数以 `paletteHex` 为准。
 回溯裁定：P01–P03 按五令逐张重修＋重新效果确认（旧锁定版留档不删）；优先本地确定性重修（0 云调用），形态不足才重生。
+进度：**P01 已完成**（2026-11-18 回溯 v6：同心环心属形态不足⇒云重生 1 调用＋六步确定性修复，用户裁定锁定替换；32×32/5 色/F=0）；P02/P03 待回溯。
 
 **探路张是第 0 张**，不占 180 张名额，专门验证 §0.1 的四项。✅ 已于 2026-11-17 完成一次取证（1 次调用 / 1 张 / 零浪费），读数与产物见 [`generation-record.txt`](probe-2048/generation-record.txt)；下表流程适用于其后逐张确认的正式 180 张。
 
@@ -149,7 +150,7 @@
 ## 9. 明确未做的事（截至 mis=full 链路复验完成）
 
 - **已写 4 张的正式提示词**（A01-P01 五版 / A01-P02 三版 / A01-P03 一版 / A01-P04 两版，全文见各批目录 `response-meta*.json` 的 `prompt` 字段），其余 176 条留到逐张确认时逐条写；第 0 张探路用的是中性测试体提示词，不占用任何题材，不属于 180 条。
-- **已出 4 张正式图案（占名额 4/180）且效果确认完成**：A01-P01 雏菊 **v5 锁定**（用户 2026-11-18 裁定 PASS；G9 73.68/77.98、mis=max 改色 0）；v1–v4 不采用（台账订正 4 浪费）。未入关、未进 `final/`；重生史见 `A01-P01-daisy/generation-record.txt`。A01-P02 向日葵 **v3 分段修复锁定**（同日裁定 PASS；G9 72.71/77.98、mis=max 改色 0；3 调用 2 浪费，史见 `A01-P02-sunflower/generation-record.txt`）。A01-P03 郁金香 **v1 分段仿射修复锁定**（同日裁定 PASS；G9 74.27/77.98、mis=max 改色 0；1 调用 0 浪费，史见 `A01-P03-tulip/generation-record.txt`）。A01-P04 玫瑰 **v2 花瓣语法＋格级化修复＋五色均衡锁定**（同日裁定 PASS；32×32、5 色、**F=0 全错豆**、G9 76.03/77.98、mis=max 改色 0；2 调用 1 浪费，史见 `A01-P04-rose/generation-record.txt`；系列五令试点张）。**P01–P03 待按五令回溯重修**。另第 0 张探路 1 调用不占名额（台账/record 已写）。
+- **已出 4 张正式图案（占名额 4/180）且效果确认完成**：A01-P01 雏菊 **v6 回溯锁定**（用户 2026-11-18 裁定 PASS 替换旧 v5；花瓣语法＋黄白交替瓣＋赭棕基带＋绿萼短桩；G9 74.02/78.03、32×32、5 色、**F=0 全错豆**、mis=max 改色 0；回溯 1 调用 0 浪费，旧 v1–v5 留档）；v1–v4 不采用（台账订正 4 浪费）。未入关、未进 `final/`；重生史见 `A01-P01-daisy/generation-record.txt`。A01-P02 向日葵 **v3 分段修复锁定**（同日裁定 PASS；G9 72.71/77.98、mis=max 改色 0；3 调用 2 浪费，史见 `A01-P02-sunflower/generation-record.txt`）。A01-P03 郁金香 **v1 分段仿射修复锁定**（同日裁定 PASS；G9 74.27/77.98、mis=max 改色 0；1 调用 0 浪费，史见 `A01-P03-tulip/generation-record.txt`）。A01-P04 玫瑰 **v2 花瓣语法＋格级化修复＋五色均衡锁定**（同日裁定 PASS；32×32、5 色、**F=0 全错豆**、G9 76.03/77.98、mis=max 改色 0；2 调用 1 浪费，史见 `A01-P04-rose/generation-record.txt`；系列五令试点张）。**P02–P03 待按五令回溯重修**（P01 已完成）。另第 0 张探路 1 调用不占名额（台账/record 已写）。
 - 未改 `candidates.json` / `README.md` / 两册逐关明细 / 任何 `design/levels/**` 真源 / 任何 `src/**` 或 `tests/**`。
 - 未跑 `levels:sync`、未入关、未把探路图或正式第 1 张放进 `final/`（studio `draft=1` 只写 `data/_draft/`）；任务台账登记与 git 提交已于 WXG-T-979 收口批完成（上一轮的「未改台账 / 未执行 commit」为该轮时点读数）。
 - ✅ **已验证**「RGBA 图喂进 studio 后用色数不含背景色号」（2026-11-17）：`POST /api/generate` 上送 `probe-s42-rgba.png` 原样 2048² RGBA，`HTTP 200`。`report.voidCells=0`（四边框去背景那步空转，背景从未成为色号）、`paletteHex` 仅四色主体色、无任何黑/近黑色号、`colorsUsed=4`、`colorLimit.changed=0`；136 个 `.` 与逐格复算差 0；主体单连通 120 格。证据 [`studio-verify.json`](probe-2048/studio-verify.json) 与原始响应 [`studio-draft-response.json`](probe-2048/studio-draft-response.json)。

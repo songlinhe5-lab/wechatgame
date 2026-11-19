@@ -102,3 +102,27 @@ studio 双口径（0 调用，draft=1，studio-a01p01-v2.py 副本在本目录�
     --seed 42 --text <response-meta-v5.json 的 prompt>；抠 alpha = probe-2048/extract-alpha.py；
     修复 = 本目录 fix-a01p01-v5.py；studio = 本目录 studio-a01p01-v2.py v5 max。
 仍未入关、未进 final/（入关属后续 levels 流程，不在本批范围）。
+
+【回溯 v6 · 2026-11-18（系列五令回溯，用户裁定路线 A＋修复表＋效果确认 PASS 替换旧 v5）】
+回溯诊断（measure-a01p01-backtrack.py，十色板最近邻归组；v5 未硬 snap 精确色 19705）：
+    旧 v5 = 8 圆瓣＋绿/棕/黄同心环心＋无茎；令1 ✗（无桩）令2 ✗（同心环）令4 半✗（16 格奶白 55%、色数 4）；
+    32×32/c6 基线复测 F=0（m=190/402）但形态不足 ⇒ 按回溯裁定「形态不足才重生」云重生。
+v6（1 调用 17.0s，prompt 见 response-meta-v6.json，中文公示稿逐字；seed 42/prompt_extend=False/2048²）：
+    15 细瓣尖 V 缺口＋赭棕基带＋黄盘棕心＋绿萼桩（模型实画 15 瓣非提示词 12，形态合格不纠）。
+    出图读数：bbox 67.75×86.13（G9 ✗）、奶白 74.44%（G12 ✗）、11 噪域、萼桩 96×262px（令1 ✗）。
+修复 = fix-a01p01-v6.py（本目录归档，六步＋两补丁，0 调用）：
+    ① 五色硬 snap ② 萼桩重塑 160×112px 顶嵌 16px ③ 去噪 <1 格 ③.5 盘外深棕描边→奶白
+    ④ 奶白瓣按角剖面 15 扇区交替染柠黄（parity=1）⑤ 各向异性统缩 ×0.9413/×0.9617＋居中 50%。
+    **披露修正两条**：① 首跑萼桩脱连（G3 ✗ 5 域）——旧桩底 1px 描边棕污染 head_bot=1922、cx0 落单像素；
+    改 head 取奶白/柠黄瓣体掩膜＋去噪后置解决；② 首跑珠面右上孤棕格＝瓣尖描边残 ⇒ ③.5 清理（去噪后跑防再污染）。
+    G7 中心 50%（提示词 40% 让位 G7，修复表已登记）。
+终值：单连通 assert ✓、头高占比 94.22%、bbox 74.02×78.03、留白 13.04/11.04/12.94/10.94、
+    5 色面积 40.98/45.12/8.73/3.80/1.38%（主导≤50% ✓）。
+studio 32×32/colors=6/mis=max：importable=true、blockers=[]、voidCells=0、balancedChanged=0、
+    5 色（黄185/奶白182/赭棕34/深棕10/绿9）、**F=0 全错豆 M=420/420**、pricing steps=134/taps=268/cleared=true。
+    证据：studio-full-verify-v6-max-32-c6.json / a01p01-v6-max-32-c6-beads-plain.png；旧 v5 32 基线留档对照。
+终裁：用户 2026-11-18「通过，锁定本张」⇒ 回溯替换旧 v5，名额仍 1/180；旧 v1–v5 全留档不删。
+本回溯批 Token Plan **1 次调用 / 1 张 / 0 浪费**；本张累计 6 调用/6 出图/4 浪费/2 留档（v5 旧锁＋v6 新锁）。
+台账已登 production/qa/token-plan-usage-ledger.md（2026-11-18 P01 回溯行）。
+catalog §A01 登记：赭棕入配色宪法（P01 基带令）、P01 回溯令 bullet；series-spec §5 进度＋§9 计数更新。
+仍未入关、未进 final/。
