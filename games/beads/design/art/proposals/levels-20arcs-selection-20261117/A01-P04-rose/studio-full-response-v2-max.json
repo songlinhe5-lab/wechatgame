@@ -1,0 +1,220 @@
+{
+  "id": "a01p04v2-max-1795092703921-fb9b",
+  "board": "a01p04v2-max",
+  "cols": 16,
+  "rows": 16,
+  "shape": "square",
+  "palette": "10",
+  "colors": 4,
+  "swaps": 0,
+  "misMode": "max",
+  "createdAt": "2026-11-19T12:51:44.379Z",
+  "thumb": null,
+  "levelDraft": {
+    "cols": 16,
+    "rows": 16,
+    "time": 75,
+    "cycleProfile": "long",
+    "decoys": [],
+    "swaps": [],
+    "misplaced": [
+      "................",
+      ".......11.......",
+      ".....111112.....",
+      "...2223333444...",
+      "...4444444444...",
+      "...4444444444...",
+      "..444444444444..",
+      ".44444444444444.",
+      ".44444444444444.",
+      "..444444444444..",
+      "...4444444444...",
+      "...4444444444...",
+      "....44444444....",
+      "....44444444....",
+      ".......44.......",
+      "................"
+    ],
+    "pattern": [
+      "................",
+      ".......44.......",
+      ".....444444.....",
+      "...4444444444...",
+      "...4444441444...",
+      "...4444444144...",
+      "..444441444444..",
+      ".44444122414444.",
+      ".44444422114444.",
+      "..444444444444..",
+      "...4444444444...",
+      "...4444444444...",
+      "....44444444....",
+      "....44433444....",
+      ".......33.......",
+      "................"
+    ],
+    "paletteHex": [
+      "#FDF6E9",
+      "#FFD23F",
+      "#3FBF6B",
+      "#E84C3D"
+    ],
+    "pricing": {
+      "source": "bot",
+      "steps": 15,
+      "stepsLB": 7,
+      "baseCap": 12,
+      "stepsByCap": {
+        "12": 15,
+        "24": 15,
+        "48": 15
+      },
+      "taps": 30,
+      "actionsSplit": {
+        "moves": 15,
+        "places": 6,
+        "directFills": 6,
+        "retrieves": 3
+      },
+      "secPerStep": 4.14,
+      "tierK": 0.85,
+      "clamped": false,
+      "cleared": true
+    },
+    "skin": "warm-paper"
+  },
+  "pattern": [
+    "................",
+    ".......44.......",
+    ".....444444.....",
+    "...4444444444...",
+    "...4444441444...",
+    "...4444444144...",
+    "..444441444444..",
+    ".44444122414444.",
+    ".44444422114444.",
+    "..444444444444..",
+    "...4444444444...",
+    "...4444444444...",
+    "....44444444....",
+    "....44433444....",
+    ".......33.......",
+    "................"
+  ],
+  "paletteHex": [
+    "#FDF6E9",
+    "#FFD23F",
+    "#3FBF6B",
+    "#E84C3D"
+  ],
+  "misplaced": [
+    "................",
+    ".......11.......",
+    ".....111112.....",
+    "...2223333444...",
+    "...4444444444...",
+    "...4444444444...",
+    "..444444444444..",
+    ".44444444444444.",
+    ".44444444444444.",
+    "..444444444444..",
+    "...4444444444...",
+    "...4444444444...",
+    "....44444444....",
+    "....44444444....",
+    ".......44.......",
+    "................"
+  ],
+  "report": {
+    "fillable": 128,
+    "voidCells": 0,
+    "colorsUsed": 4,
+    "cap": 64,
+    "maxFreqBefore": 113,
+    "maxFreqAfter": 113,
+    "balancedChanged": 0,
+    "balanceNote": "mis=max 最大化错位：跳过配色平衡（保形优先；错位取守恒极值 M_max 而非强制 0 固定点）",
+    "derangement": "MAXIMAL（M=30/128 错位，固定点 = 理论下限 F=98）",
+    "mis": {
+      "mode": "max",
+      "N": 128,
+      "m": 113,
+      "M": 30,
+      "F": 98,
+      "M_max": 30
+    },
+    "clusteringParams": {
+      "sample": 8,
+      "smooth": 0,
+      "minblock": 1,
+      "colors": 4
+    },
+    "colorLimit": {
+      "requested": 4,
+      "palette": 10,
+      "mode": "pixel-kmeans/mode",
+      "used": 4,
+      "changed": 0,
+      "kept": [
+        1,
+        2,
+        4,
+        5
+      ]
+    },
+    "colorError": {
+      "beforeColorLimit": 13.4,
+      "final": 13.4
+    },
+    "clusteringBefore": {
+      "blocks": 6,
+      "largest": 113,
+      "avg": 21.3,
+      "tinyCells": 4,
+      "adjRate": 0.855
+    },
+    "clusteringAfter": {
+      "blocks": 6,
+      "largest": 113,
+      "avg": 21.3,
+      "tinyCells": 4,
+      "adjRate": 0.855
+    },
+    "smoothChanged": 0,
+    "mergedCells": 0,
+    "adjacency": {
+      "minDE": 20,
+      "maxDriftDE": 12,
+      "changed": 0,
+      "conflicts": 0
+    },
+    "clusteringMisplaced": {
+      "blocks": 5,
+      "largest": 113,
+      "avg": 25.6,
+      "tinyCells": 1,
+      "adjRate": 0.93
+    },
+    "difficulty": {
+      "score": 3,
+      "timeEst": 75,
+      "misplaced": 0,
+      "taps": 30,
+      "bMed": 0,
+      "split": {
+        "moves": 15,
+        "places": 6,
+        "directFills": 6,
+        "retrieves": 3
+      },
+      "steps": 15,
+      "cleared": true,
+      "secPerStep": 4.14,
+      "blockers": [],
+      "formula": "v0.4（真引擎实测 BAC 批量动作数 × SEC_PER_STEP）"
+    }
+  },
+  "blockers": [],
+  "importable": true,
+  "draft": true
+}

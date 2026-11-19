@@ -1,0 +1,18 @@
+{
+  "elapsed_s": 16.5,
+  "usage": {
+    "output_height": 2048,
+    "output_width": 2048,
+    "input_image_count": 0,
+    "input_image_type": "qima_input_2k",
+    "output_image_count": 1,
+    "output_image_type": "qima_output_2k"
+  },
+  "request_id": "ad122f71-1473-4823-8a10-0c0840768098",
+  "params": {
+    "prompt_extend": false,
+    "seed": 42,
+    "size": "2048*2048"
+  },
+  "prompt": "A flat 2D vector graphic, single centered rose flower, front view, perfectly left-right symmetric outer silhouette, no pot, no ground, no second object. Top: one round rose bloom made of EXACTLY 3 solid color regions: an outer rose-red (#E84C3D) ring whose outer edge shows 6 shallow rounded lobes like overlapping petals; inside it one thick cream-white (#FDF6E9) spiral band curling once around the center with a single opening gap, band thickness about 10% of canvas width everywhere; at the very center one solid lemon-yellow (#FFD23F) round core about 18% of canvas width; no other colors or lines inside the bloom; bloom diameter about 60% of canvas width, centered horizontally, bloom center at about 36% of canvas height. Below: one short straight upright grass-green (#3FBF6B) stem as thick as one fifth of the bloom width, from the bloom bottom down to about 86% of canvas height, ending in a flat horizontal cut; stem touches the bloom, ONE connected silhouette. Whole plant bounding box about 70% of canvas width and 78% of canvas height, empty black margin at least 8% on all four sides, touching no edge. All color areas solid single colors; all edges sharp and clean. No outlines, no gradients, no shading, no highlights, no shadows, no texture, no noise, no 3D, no realistic material, no feathered edges, no thin lines, no scattered dots, no falling petals. Background completely uniform pure black #000000 corner to corner: no gradient, no vignette, no glow, no checkerboard, no pattern, no frame, no ground, no reflection. No text, no letters, no numbers, no watermark. No black or near-black color anywhere inside the subject."
+}

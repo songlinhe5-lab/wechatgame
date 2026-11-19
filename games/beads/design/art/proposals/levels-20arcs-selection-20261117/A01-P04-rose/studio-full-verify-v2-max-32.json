@@ -1,0 +1,63 @@
+{
+  "importable": true,
+  "blockers": [],
+  "colorsUsed": null,
+  "paletteHex": [
+    "#FDF6E9",
+    "#FFD23F",
+    "#3FBF6B",
+    "#E84C3D"
+  ],
+  "voidCells_report": 0,
+  "void_pattern": 586,
+  "per_color_cells": {
+    "#FDF6E9": 29,
+    "#FFD23F": 12,
+    "#3FBF6B": 12,
+    "#E84C3D": 385
+  },
+  "derangement": "MAXIMAL（M=106/438 错位，固定点 = 理论下限 F=332）",
+  "engine": {
+    "steps": null,
+    "taps": null,
+    "timeEst": null,
+    "cleared": null,
+    "pricing": {
+      "source": "bot",
+      "steps": 34,
+      "stepsLB": 9,
+      "baseCap": 12,
+      "stepsByCap": {
+        "12": 34,
+        "24": 22,
+        "48": 20
+      },
+      "taps": 68,
+      "actionsSplit": {
+        "moves": 34,
+        "places": 14,
+        "directFills": 14,
+        "retrieves": 6
+      },
+      "secPerStep": 4.14,
+      "tierK": 0.85,
+      "clamped": false,
+      "cleared": true
+    }
+  },
+  "balance": {
+    "cap": 219,
+    "maxFreqBefore": 385,
+    "maxFreqAfter": 385,
+    "balancedChanged": 0,
+    "balanceNote": "mis=max 最大化错位：跳过配色平衡（保形优先；错位取守恒极值 M_max 而非强制 0 固定点）"
+  },
+  "mis_report": {
+    "mode": "max",
+    "N": 438,
+    "m": 385,
+    "M": 106,
+    "F": 332,
+    "M_max": 106
+  }
+}

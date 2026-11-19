@@ -1,0 +1,34 @@
+{
+  "k": [
+    1.7,
+    0.5,
+    4.5,
+    0.85
+  ],
+  "tail_merged_px": 32974,
+  "noise_components_removed": [
+    1
+  ],
+  "scale": 0.8483,
+  "shift": [
+    0,
+    0
+  ],
+  "bbox_pct": [
+    76.03,
+    77.98
+  ],
+  "margins_pct": [
+    12.01,
+    11.04,
+    11.96,
+    10.99
+  ],
+  "fg_px": 1583693,
+  "colors_kept": [
+    "#3FBF6B",
+    "#E84C3D",
+    "#FDF6E9",
+    "#FFD23F"
+  ]
+}
