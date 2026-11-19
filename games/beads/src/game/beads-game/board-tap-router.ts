@@ -42,6 +42,8 @@ export interface BoardTapRouterHost {
   completeStage(): void;
   requestLevelClear(): void;
   countAction(ok: boolean): boolean;
+  /** 录制上报（EP15-S3）：落子成功（含盘内直填）后上报一次 `tapGridCell`。 */
+  reportCommand(type: 'tapGridCell', args: Readonly<Record<string, number | string>>): void;
   placeSelected(row: number, col: number): boolean;
   selectTraySlot(slot: number): boolean;
   selectBoardBead(row: number, col: number): boolean;
@@ -122,11 +124,20 @@ export class BoardTapRouter {
   routeGridEmpty(row: number, col: number): boolean {
     // 有效动作计量放在汇合处：真链 `_routeTap` 直调本函数（不经 `tapGridCell`），
     // 包在调用方会让**玩家落子不计**；包在本函数出口 ⇒ 真链与四个公开命令同口径。
-    if (this._host.tray.selectedSlot >= 0) return this._host.countAction(this._host.placeSelected(row, col));
+    // EP15-S3：录制上报同驻此汇合点（真链与旁路共用，⛔ 各写一份）。
+    if (this._host.tray.selectedSlot >= 0) {
+      const ok = this._host.countAction(this._host.placeSelected(row, col));
+      if (ok) this._host.reportCommand('tapGridCell', { row, col });
+      return ok;
+    }
     // 【WXG-T-162 用户裁定 · 直填放开任意距离】board 锚：组非空 ⇒ 点「对应颜色的空格」
     // （不限距）直接归位，组保持逐颗续填。未消费（null/false）⇒ 走既有轻提示。
     const direct = this.tryDirectFill(row, col);
-    if (direct !== null) return this._host.countAction(direct);
+    if (direct !== null) {
+      const ok = this._host.countAction(direct);
+      if (ok) this._host.reportCommand('tapGridCell', { row, col });
+      return ok;
+    }
     if (this._host.grid.isFillable(row, col)) {
       // [WXG-T-241 · 2026-10-04 用户报「提示先选一颗，但盘面上已经有选中的珠子了」]
       //

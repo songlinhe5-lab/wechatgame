@@ -323,9 +323,30 @@ export class PowerupSystem {
     return this._usedOutcome(type, selected);
   }
 
+  /**
+   * **已授权通道**（EP15-S3 / ADR-0038 DEC-2-3）：影子重演专用 —— 与 {@link request}
+   * 同一套选择规则，但**跳过**免费额度门槛、**不写** `_freeDepleted`；仍累计本关
+   * 使用数（重演与录制当时内部计数一致）。⛔ 生产玩家路径不得调用。
+   */
+  requestAuthorized(
+    type: unknown,
+    misplaced: readonly MisplacedBead[],
+    extra?: PowerupInputs,
+  ): PowerupOutcome {
+    if (!isPowerupType(type)) {
+      console.warn(`[beads] S6 requestAuthorized 收到非法道具 type：${String(type)}（忽略）`);
+      return { kind: 'invalid' };
+    }
+    const pool = Array.isArray(misplaced) ? misplaced : [];
+    const selected = this._select(type, pool, extra);
+    if (selected === null) return { kind: 'invalid' };
+    if (selected.cells.length === 0) return { kind: 'empty' };
+    this._usedThisLevel[type] += 1;
+    return this._usedOutcome(type, selected);
+  }
+
   /** used 出口统一组装（免费与购买两条腿同构；`trayRestore` 附带动手计划）。 */
-  private _usedOutcome(
-    type: PowerupType,
+  private _usedOutcome(    type: PowerupType,
     selected: { cells: readonly AffectedCell[]; trayPlan?: readonly TrayMove[]; traySlots?: readonly number[] },
   ): PowerupOutcome {
     if (type !== 'trayRestore' || !selected.trayPlan) {

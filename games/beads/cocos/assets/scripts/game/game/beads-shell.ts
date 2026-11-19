@@ -91,6 +91,7 @@ import { PhaseRouteBinder, type ShellScreen } from '../ui/phase-route-binder';
 // WXG-T-420 T9：对局页的视图绑定上移到组装层（Game 只出快照）。
 import { renderPlayPage, renderPlayPanel } from '../ui/play-binding';
 import { getBeadBakeRuntime } from '../view/bead-render';
+import { ReplayRecorder } from '../replay/recorder';
 
 /**
  * `[WXG-T-440 / ADR-0033 边界②]` 面板路由名 → 相位（`PanelRouter.route` 的入参）。
@@ -153,6 +154,11 @@ export class BeadsShell implements Game {
     meta?: MetaState;
 
     private _services?: GameServices;
+    /**
+     * EP15-S3 录制器（ADR-0038 DEC-3）：壳层持有生命周期；种子 = 开局时
+     * `services.rng.state` 快照（DEC-6）。回放入口在 S4 消费 `lastRecording`。
+     */
+    private readonly _replay = new ReplayRecorder({ seed: () => this._services?.rng.state ?? 0 });
     private readonly _clock: () => number;
     private readonly _metaKey?: string;
     /**
@@ -345,6 +351,8 @@ export class BeadsShell implements Game {
             // 与 play 各持一份；收编单源后默认肤 tokens = DEFAULT_PALETTE，缺省行为不变）。
             ...(options.palette !== undefined ? { palette: options.palette } : {}),
             ...(options.play ?? {}),
+            // EP15-S3：公开命令成功后入录（录制器自驱相位起止，见 `_replay.tick`）。
+            onCommandApplied: (type, args, elapsedMs) => this._replay.record(elapsedMs, type, args),
             // 暂停面板「回主菜单」次钮 → 切到菜单（真机反馈裁定：弃本局棋盘——下次「开始游戏」= 全新开当前关）。
             onMenuRequest: () => this.showMenu(),
             // 新局开局体力闸门（§3.14）：retry/restart 前扣 1 心；0 心返回 false（play 转广告加心位）。
@@ -538,6 +546,7 @@ export class BeadsShell implements Game {
         if (this._phase.screen === 'play') {
             this._menuPress = null; // 进玩法后不得残留菜单按压（否则回菜单时会补发一次 phantom tap）
             this.play.update(dt); // 对局腿的采样在 `sampleFrame` 内（game.update 开头）
+            this._replay.tick(this.play); // EP15-S3：录制起止 / 续时事件（无在录 = 早退）
             return;
         }
         // UI-24：菜单腿不跑 play.update ⇒ 采样单独喂（debugInfo 关时内部零开销）。
@@ -571,8 +580,14 @@ export class BeadsShell implements Game {
     dispose(): void {
         for (const off of this._adOffs) off();
         for (const off of this._eventOffs) off();
+        this._replay.discard();
         this.play.dispose();
         this.meta?.dispose();
+    }
+
+    /** EP15-S3：录制器只读引用（S4 的「回放」入口读 `lastRecording`）。 */
+    get replayRecorder(): ReplayRecorder {
+        return this._replay;
     }
 
     // ───────────────────────────────────────────────────────────── routing
@@ -580,6 +595,7 @@ export class BeadsShell implements Game {
     /** 暂停次钮「回主菜单」：切菜单、清 overlay（本局弃置 + 收面板链——`play.exitToMenu()`，`[WXG-T-452]`）。 */
     showMenu(): void {
         this.play.exitToMenu();
+        this._replay.discard(); // EP15-S3：弃局 ⇒ 在录录像作废（已完成的「上一局」保留）
         this._phase.resetTo('menu');
         this._cancelPageFx();
         this._emitOverlay(true);

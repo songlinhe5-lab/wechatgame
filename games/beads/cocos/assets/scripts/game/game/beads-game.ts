@@ -160,7 +160,7 @@ import type { BeadsPalette } from '../view/palette'; // WXG-T-420 T9：只取类
 // **EP12-S8**：整套皮肤的注册真源（注册序即循环序；`DEFAULT_SKIN_ID` = 默认肤，⛔ 不另写字面量）。
 import { DEFAULT_SKIN, DEFAULT_SKIN_ID, skinById } from '../config/skins/registry';
 import type { UiDebugState } from '../ui/ui-host';
-import type { BeadsEvents, BeadsGameOptions } from './beads-game-types';
+import type { BeadsEvents, BeadsGameOptions, ReplayCommandArgs, ReplayCommandType } from './beads-game-types';
 import type { ClearCoinGrant } from './meta-state';
 import { BeadConservation } from './beads-game/bead-conservation';
 import { GameSettings } from './beads-game/game-settings';
@@ -432,6 +432,8 @@ export class BeadsGame {
   private _watchingAd = false;
   /** Fail-panel hint (Noop / rejected show). Cleared on the next overlay action. */
   private _failHint = '';
+  /** Fail-panel "dismiss confirm" dialog showing. Cleared on retry/restore. */
+  private _failConfirming = false;
 
   private _grid: BeadGrid = new BeadGrid(['..11..', '.1111.', '111111', '.1111.', '..11..']);
   /** 棋盘相机 + 手势（协作类；ADR-0015 丁-3 相机真源在其内，本类只读 `camera`）。 */
@@ -541,6 +543,14 @@ export class BeadsGame {
    * 穿/循腿行为逐字回到注入前。受理单点仍在 `GameSettings`（本类只负引用转交）。
    */
   private readonly _ownsSkin?: (skinId: string) => boolean;
+  /** 回放影子沙箱（options.replaySandbox；缺省 false）。见 `beads-game-types.ts`。 */
+  private readonly _replaySandbox: boolean;
+  /** 录制钩子（options.onCommandApplied；无 = 不上报）。 */
+  private readonly _onCommandApplied?: (type: ReplayCommandType, args: ReplayCommandArgs, elapsedMs: number) => void;
+  /** 有效对局毫秒（不含暂停；本轮 = 录像 `step` 的唯一时间轴）。 */
+  private _playingMs = 0;
+  /** 影子上下文：本局是否「已续时」（`applyReplayContext` 注入，`_setupLevel` 消费一次）。 */
+  private _replayRevived = false;
   /** 在飞广告种类：区分续时（revive）/ 广告加心（staminaRefill）/ 托盘扩容（trayExpand）的发奖路由。 */
   private _adKind: 'revive' | 'staminaRefill' | 'trayExpand' | null = null;
   /**
@@ -594,6 +604,8 @@ export class BeadsGame {
     this._onClearCoins = options.onClearCoins;
     this._canAdvanceAcrossArc = options.canAdvanceAcrossArc;
     this._ownsSkin = options.ownsSkin;
+    this._replaySandbox = options.replaySandbox ?? false;
+    this._onCommandApplied = options.onCommandApplied;
 
     this._sprintCap = validatedSprintTime(options.sprintTime);
     if (options.sprintTime !== undefined && this._sprintCap !== options.sprintTime) {
@@ -651,6 +663,7 @@ export class BeadsGame {
       get reviveCount() { return self._reviveCount; },
       get watchingAd() { return self._watchingAd; },
       get failHint() { return self._failHint; },
+      get failConfirming() { return self._failConfirming; },
       get beadLod() { return self._beadLod; },
       get onboardDone() { return self._onboardDone; },
       get trayFullRejected() { return self._trayFullRejected; },
@@ -702,6 +715,7 @@ export class BeadsGame {
       completeStage() { self._completeStage(); },
       requestLevelClear() { self._machine.transition('level-clear'); },
       countAction(ok: boolean) { return self._countAction(ok); },
+      reportCommand(type, args) { self._reportCommand(type, args); },
       placeSelected(row: number, col: number) { return self._placeSelected(row, col); },
       selectTraySlot(slot: number) { return self.selectTraySlot(slot); },
       selectBoardBead(row: number, col: number) { return self.selectBoardBead(row, col); },
@@ -731,6 +745,7 @@ export class BeadsGame {
     this._panelRouter = new PanelRouter({
       get mode() { return self._mode; },
       get reviveAvailable() { return self._reviveAvailable(); },
+      get failConfirming() { return self._failConfirming; },
       get levelCount() { return self._levels.length; },
       // `[WXG-T-923]` 命中已不依赖布局（按钮固定几何）⇒ 本层不再需要 finish 范围字段。
       get panel() { return self._panel; },
@@ -749,6 +764,7 @@ export class BeadsGame {
       applyPanelAction(action: PausePanelAction) { self._applyPanelAction(action); },
       share() { self._share(); },
       openLevelRank() { self.openLevelRank(); },
+      setFailConfirming(yes: boolean) { self._failConfirming = yes; },
     });
     this._input = new InputRouter({
       get phase() { return self._machine.current; },
@@ -1019,6 +1035,8 @@ export class BeadsGame {
     this._rankPanel.attach(services.openData ?? null);
 
     // Preserve an unreadable document before SaveManager discards it — best effort.
+    // 影子沙箱（ADR-0038 DEC-2-1）：拿到的是**影子私有内存 storage**（不传真实键、
+    // 不共享真实 storage）⇒ 读写不出实例；`_persistProgress` 另有短路（DEC-2-2）。
     preserveCorruptBackup(services.storage, this._saveKey);
 
     this._save = new SaveManager<BeadsSave>(services.storage, {
@@ -1036,6 +1054,7 @@ export class BeadsGame {
 
     // D-03：崩溃恢复档是**另键** sidecar（提案 §5 方案 A）——S8 的键 / version /
     // `normalizeBeadsSave` 零改动，`save-schema.ts` 一字未动。
+    // 影子沙箱只拿到内存 storage ⇒ 读写不出实例（DEC-2 零副作用清单）。
     this._crashIO.attach(services.storage);
 
     // BOOT static validation of every level: broken data must fail at boot,
@@ -1179,12 +1198,19 @@ export class BeadsGame {
     if (result === 'invalid') return false;
     // [WXG-T-240] 同色再点 = **幂等保持选中**：零事件、锚不动（「再点击能取消」是错误行为）。
     // 口径与 `selectBoardBead` 的「同一颗幂等（§8-6）」同构。
-    if (result === 'unchanged') return this._countAction(true);
-    if (this._countAction(result === 'deselected')) return true; // 兜底：select 已不再产生该值
+    if (result === 'unchanged') {
+      this._reportCommand('selectTraySlot', { slot });
+      return this._countAction(true);
+    }
+    if (result === 'deselected') {
+      this._reportCommand('selectTraySlot', { slot });
+      return this._countAction(true); // 兜底：select 已不再产生该值
+    }
     this._boardSelected = null; // 互斥换选：tray 锚建立 ⇒ board 锚清除（零事件）
     const color = this._tray.slot(slot)!.colorIdx;
     this._fx.resetLift(); // §5：托盘选中同样走斜坡（与板锚共用一个时钟）
     this._emit('tray:selected', { slot, colorIdx: color, count: this._tray.selectedCount });
+    this._reportCommand('selectTraySlot', { slot });
     return this._countAction(true);
   }
 
@@ -1203,7 +1229,10 @@ export class BeadsGame {
     if (this._machine.current !== 'playing') return false;
     if (!this._grid.isMisplaced(row, col)) return false;
     const prev = this._boardSelected;
-    if (prev && prev.row === row && prev.col === col) return this._countAction(true); // 幂等：不重发
+    if (prev && prev.row === row && prev.col === col) {
+      this._reportCommand('selectBoardBead', { row, col }); // 幂等：不重发
+      return this._countAction(true);
+    }
     // WXG-T-148 ③ → 【WXG-T-157 裁定改写】：组 = 8 向两步（切比雪夫 ≤2）**同色**错位珠
     // （collectMisplacedGroup 内部筛色）；组色 = 锚珠色（规则 2 直填的对应色基准）。
     // 【WXG-T-186】组成员随即转成剥皮消费序（含锚，锚恒在序首）——直填与取回落槽共用。
@@ -1238,6 +1267,7 @@ export class BeadsGame {
       colorIdx: this._grid.cell(row, col)!.beadColorIdx,
       count: cells.length,
     });
+    this._reportCommand('selectBoardBead', { row, col });
     return this._countAction(true);
   }
 
@@ -1333,6 +1363,8 @@ export class BeadsGame {
     const anchor = this._boardSelected;
     if (!anchor) return false;
     if (this._tray.freeCount === 0) return false; // 满槽：无任何空槽
+    // EP15-S3：录像 `slot` = 调用时首个空槽（重演侧 `applyBotCommand` 同口径校验）。
+    const slot = this._tray.firstFree();
     // 消费序已在拾取那一下算好（`anchor.order` 剥皮序，与直填共用）⇒ 逐颗从消费序首部归类收进。
     const ordered = anchor.order;
     const count = Math.min(ordered.length, this._tray.freeCount);
@@ -1356,6 +1388,7 @@ export class BeadsGame {
         order: rest,
       };
     }
+    this._reportCommand('retrieveSelectedGroup', { slot });
     return this._countAction(true);
   }
 
@@ -1377,7 +1410,11 @@ export class BeadsGame {
   usePowerup(type: PowerupType): boolean {
     if (this._machine.current !== 'playing') return false;
     const pool = this._misplacedBeads();
-    const outcome = this._powerups.request(type, pool, this._powerupInputs());
+    // 影子沙箱（ADR-0038 DEC-2-3）：走「已授权」通道——跳过免费额度门槛、不写
+    // `_freeDepleted`、不弹购买确认；仍累计本关使用数（重演内部计数一致）。
+    const outcome = this._replaySandbox
+      ? this._powerups.requestAuthorized(type, pool, this._powerupInputs())
+      : this._powerups.request(type, pool, this._powerupInputs());
     if (outcome.kind === 'exhausted') {
       // 免费次数用尽 ⇒ **豆子购买**（§3.6 v1.80 唯一出口）：先弹确认（`ux-spec §3.7`），
       // 此刻**零扣豆、零事件**；确定才走 {@link confirmPowerupBuy}。
@@ -1391,8 +1428,9 @@ export class BeadsGame {
     }
     if (outcome.kind !== 'used') return false;
     this._applyPowerupUse(outcome);
-    // 免费腿用掉即落档（§3.6 v1.95「必须入档」；购买腿不经过此路径）。
-    this._onPowerupFreeSpent?.(this._powerups.freeDepleted);
+    // 免费腿用掉即落档（§3.6 v1.95「必须入档」；购买腿不经过此路径；影子不落档）。
+    if (!this._replaySandbox) this._onPowerupFreeSpent?.(this._powerups.freeDepleted);
+    this._reportCommand('usePowerup', { powerup: type });
     return true;
   }
 
@@ -1424,6 +1462,7 @@ export class BeadsGame {
     const outcome = this._powerups.purchase(type, pool, this._powerupInputs());
     if (outcome.kind !== 'used') return false;
     this._applyPowerupUse(outcome);
+    this._reportCommand('usePowerup', { powerup: type }); // 录像只认「已生效」意图（购买腿同口径）
     return true;
   }
 
@@ -1649,6 +1688,7 @@ export class BeadsGame {
   expandTray(): boolean {
     if (!this._tray.expand()) return false;
     this._emit('tray:expanded', {});
+    this._reportCommand('expandTray', {});
     return true;
   }
 
@@ -1712,12 +1752,27 @@ export class BeadsGame {
     return this._actionsPlaying;
   }
 
+  /** 有效对局毫秒（EP15-S3）：不含暂停 / 后台；录像 `step = round(本值 / fixedDtMs)`。 */
+  get elapsedPlayingMs(): number {
+    return this._playingMs;
+  }
+
+  /** 当前实例是否为回放影子沙箱（`BeadsGameOptions.replaySandbox`）。 */
+  get replaySandboxActive(): boolean {
+    return this._replaySandbox;
+  }
+
   private _actionsPlaying = 0;
 
   /** 计量包：透传 `ok`，为 true 时计一次有效动作（不改任何判定）。 */
   private _countAction(ok: boolean): boolean {
     if (ok) this._actionsPlaying++;
     return ok;
+  }
+
+  /** 录制上报（EP15-S3）：公开玩法命令**成功后**的单点透传（无钩子 = 零开销）。 */
+  private _reportCommand(type: ReplayCommandType, args: ReplayCommandArgs): void {
+    this._onCommandApplied?.(type, args, this._playingMs);
   }
 
   /**
@@ -1873,6 +1928,40 @@ export class BeadsGame {
     this._crashIO.clear(); // D-03：跳关 ⇒ 旧快照失效
     this._setupLevel(clamped);
     this._machine.reset('playing');
+  }
+
+  /**
+   * **回放影子上下文**（EP15-S3 / ADR-0038 DEC-2-6）：只在 `replaySandbox` 实例上
+   * 生效；在**内存镜像**写入 `starsBefore`（三档时钟）并登记本局「已续时」标。
+   * 必须在目标关 `goToLevel` **之前**调用（`_setupLevel` 按镜像算档位）。
+   * ⛔ 写档、⛔ 影响真实账号星账。
+   */
+  applyReplayContext(ctx: { levelIndex: number; starsBefore: number; revived: boolean }): boolean {
+    if (!this._replaySandbox) return false;
+    const index = Math.max(0, Math.min(Math.floor(ctx.levelIndex), this._levels.length - 1));
+    const stars = Number.isFinite(ctx.starsBefore) ? Math.max(0, Math.floor(ctx.starsBefore)) : 0;
+    while (this._starsByLevel.length < this._levels.length) this._starsByLevel.push(0);
+    this._starsByLevel[index] = stars;
+    this._replayRevived = ctx.revived === true;
+    return true;
+  }
+
+  /**
+   * **影子续时注入**（EP15-S3 / DEC-3 的 `revive` 系统时间线事件）：复刻
+   * `_continueFromReward` 的加时语义，但**不经广告 / 不写任何外部状态**。
+   * 只在 `replaySandbox` 且当前 `game-over` 时生效。
+   */
+  applySandboxRevive(bonusSec: number): boolean {
+    if (!this._replaySandbox) return false;
+    if (this._machine.current !== 'game-over') return false;
+    if (!Number.isFinite(bonusSec) || bonusSec <= 0) return false;
+    const cap = Math.max(this._timer.total, bonusSec);
+    this._timer.addTime(bonusSec, cap);
+    this._reviveBonusSec += bonusSec;
+    this._reviveCount = 1; // `revived` 布尔口径（多本次数只影响广告入口，影子无广告）
+    this._failHint = '';
+    this._machine.transition('playing');
+    return true;
   }
 
   /**
@@ -2200,6 +2289,7 @@ export class BeadsGame {
     this._input.resetTapCount(); // 换关/重试/新局共用复位点（同 F3 甲裁「装配即复位」）
     this._resetPlaceCombo(); // [WXG-T-434] 换关/重试/新局 ⇒ 归位连击清零（不跨局携带）
     this._actionsPlaying = 0;
+    this._playingMs = 0; // EP15-S3：录像时间轴随新局归零
     this._grid = new BeadGrid(level.pattern);
     // v2.0 BOOT 装配（levels-spec v1.2 §2.1 / v1.3 §2.2，WXG-T-139 装配器）：
     // 初盘真源二选一——`level.misplaced`（全错位初盘，直读）优先，否则 `swaps`
@@ -2234,6 +2324,8 @@ export class BeadsGame {
     this._stageIndex = 0;
     this._isNewBest = false;
     this._clearReviveBookkeeping();
+    // EP15-S3 影子上下文（DEC-2-6）：仅内存镜像，⛔ 写档 / ⛔ 影响真实账号星账。
+    if (this._replaySandbox && this._replayRevived) this._reviveCount = 1;
     // [T-244 二十二批] 装配即算守恒基准并体检一次（图案每色目标 vs 初盘每色实数）。
     // `noAssemble` 夹具盘故意不装配（全盘 empty）⇒ 只算基准不体检，避免假红。
     this._conservation.resetBaseline(!this._noBootAssembly);
@@ -2346,6 +2438,10 @@ export class BeadsGame {
     // `machine.update()` 会直接派发新相位的 `onUpdate` ⇒ 本函数根本不会被调用。
     // 保留显式守卫作为该语义的锚点，并防未来新增调用点（如直接从别处驱动）时静默破约。
     if (this._machine.current !== 'playing') return;
+
+    // EP15-S3：有效对局时间轴（不含暂停 / 后台）。录像 `step` 的唯一时基；
+    // 命令在输入段（本函数之前）落 stamp ⇒ 与重演「注事件 → 步进」同序。
+    this._playingMs += Math.max(0, dt) * 1000;
 
     // Combo window (sprint only): placement already reset the window this
     // frame, so a same-frame placement never times out (score-combo §6).
@@ -2935,6 +3031,8 @@ export class BeadsGame {
 
   /** Normal-mode clear → unlock progression (write on key events only). */
   private _persistProgress(): void {
+    // 影子沙箱（ADR-0038 DEC-2-2）：结算链在结构上不写档。
+    if (this._replaySandbox) return;
     const save = this._save;
     if (!save) return;
     const levelCount = this._levels.length;

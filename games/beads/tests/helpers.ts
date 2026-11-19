@@ -75,6 +75,12 @@ export interface HarnessOptions {
   onPowerupPurchase?: (type: PowerupType) => boolean;
   /** 透传 `BeadsGameOptions.canWatchStaminaAd`（§3.14 v1.80 广告加心日限闸门）。 */
   canWatchStaminaAd?: () => boolean;
+  /** 透传 `BeadsGameOptions.onCommandApplied`（EP15-S3 录制钩子）。 */
+  onCommandApplied?: (
+    type: 'selectBoardBead' | 'retrieveSelectedGroup' | 'selectTraySlot' | 'tapGridCell' | 'usePowerup' | 'expandTray',
+    args: Readonly<Record<string, number | string>>,
+    elapsedMs: number,
+  ) => void;
 }
 
 export function createBeadsHarness(options: HarnessOptions = {}): Harness {
@@ -107,6 +113,7 @@ export function createBeadsHarness(options: HarnessOptions = {}): Harness {
     ...(options.onMenuRequest ? { onMenuRequest: options.onMenuRequest } : {}),
     ...(options.onPowerupPurchase ? { onPowerupPurchase: options.onPowerupPurchase } : {}),
     ...(options.canWatchStaminaAd ? { canWatchStaminaAd: options.canWatchStaminaAd } : {}),
+    ...(options.onCommandApplied ? { onCommandApplied: options.onCommandApplied } : {}),
   });
 
   const emitted: { type: string; payload: unknown }[] = [];

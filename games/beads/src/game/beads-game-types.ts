@@ -16,6 +16,21 @@ import type { ClearCoinGrant } from './meta-state.js';
 import type { BeadsPalette } from '../view/palette.js';
 import type { HapticKind } from '@wxgame/framework';
 
+/**
+ * 可录制的公开玩法命令（`bot-replay §2.3.1` 的 `BotCommand['type']`）。
+ * 与 `src/bot/types.ts` 的同名联合**逐字一致**；分开声明是为了让 `BeadsGame`
+ * 不 import `bot/**`（ADR-0038 DEC-1），由 S5 的字面量单测锁死两处同步。
+ */
+export type ReplayCommandType =
+    | 'selectBoardBead'
+    | 'retrieveSelectedGroup'
+    | 'selectTraySlot'
+    | 'tapGridCell'
+    | 'usePowerup'
+    | 'expandTray';
+
+export type ReplayCommandArgs = Readonly<Record<string, number | string>>;
+
 /** Events emitted on the framework bus — systems-index §4 (v1.22 event table). */
 export interface BeadsEvents extends Record<string, unknown> {
     'tray:spawned': { slot: number; colorIdx: number };
@@ -60,6 +75,18 @@ export interface BeadsEvents extends Record<string, unknown> {
 }
 
 export interface BeadsGameOptions {
+    /**
+     * **回放影子沙箱**（EP15-S3 / ADR-0038 DEC-2，缺省 false）：开启后
+     * 存档 / 钱包 / 体力 / 发豆 / 崩溃快照不产生外部副作用，道具走「已授权」通道
+     * （`PowerupSystem.requestAuthorized`），RNG 由调用方注入 `createRngFromState`。
+     */
+    readonly replaySandbox?: boolean;
+    /**
+     * 公开玩法命令**成功后**的录制钩子（EP15-S3 / `bot-replay §2.3.2`）：
+     * 载荷 = 命令类型 + 参数 + 有效对局毫秒（不含暂停）。`BeadsGame` 只上报，
+     * ⛔ 不依赖 `replay/**`；`expandTray` / `usePowerup` 同样上报。
+     */
+    readonly onCommandApplied?: (type: ReplayCommandType, args: ReplayCommandArgs, elapsedMs: number) => void;
     /** Gameplay tuning. Defaults to {@link DEFAULT_TUNING}. */
     readonly tuning?: BeadsTuning;
     /** Colour palette. Defaults to {@link DEFAULT_PALETTE}. */

@@ -24,3 +24,4 @@ export * from './tuning/powerup-layout.js';
 export * from './tuning/level-detail.js';
 export * from './tuning/level-select.js';
 export * from './tuning/timeout-panel.js';
+export * from './tuning/replay.js';

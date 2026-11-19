@@ -15,6 +15,26 @@
 
 ---
 
+## WXG-T-987
+
+**EP15-S3 回放设施（录制 / 重演 / 沙箱）** · 负责：程基岩(engineering-lead)·beads 工程轨 · 状态：✅ 完成（2026-11-19）
+
+- **上游**：`ADR-0038` DEC-2/DEC-3/DEC-6/DEC-8；`gdd/bot-replay.md` §2.3.1–§2.3.4 / §8-3/4/5/8/12/13/14；`epics-beads-ep15.md` S3。
+- **交付**：`games/beads/src/replay/`
+  - `recorder.ts`：`ReplayRecording v1` + `ReplayEvent`（`step` 权威、`atMs = step×fixedDtMs`）+ `ReplayRecorder`（自驱相位：`PLAYING` 起 / `LEVEL_CLEAR` 终 / `GAME_OVER` 挂起，续时按 `reviveBonusSec` 差值入录 `{cmd:'revive',args:{bonusSec}}`；上限降级 `truncated=true` 整份作废）+ `validateRecording`（指纹 / seed / 步序 / 续时参数）；
+  - `level-hash.ts`：`hashSeed`（FNV-1a）固定字段序规范化，复用 `levelIdOf`（`l<id>`，与 `observeGame().levelId` 同口径）；
+  - `sandbox.ts`：影子实例装配 —— `MemoryStorage` / `createRngFromState(seed)` / 私有 `EventBus` / `NullAudioBackend` / `NullAssetProvider` / 无广告，`init → applyReplayContext → goToLevel`；
+  - `player.ts`：`step` 注入粒度恒为 `fixedDtMs`，倍速只缩呈现时钟；seek = 销毁重建从头重演；播完冻结 + `checkFinal` 对拍 `final`；
+  - `view-model.ts`：`replayEntryState`（ClearPanel 入口判定）+ `ReplayViewModel` 预分配原地写（UI 唯一入口）。
+- **框架**：`packages/framework/src/core/math/rng.ts` 新增 `createRngFromState(state)`（复用 mulberry32 工厂、跳过种子 hash；`createRng` 行为不变）。
+- **BeadsGame 增量**：`replaySandbox` / `onCommandApplied(type,args,elapsedMs)` / `elapsedPlayingMs` / `applyReplayContext(ctx)` / `applySandboxRevive(bonusSec)`；`_persistProgress` 沙箱短路；`usePowerup` 走 `requestAuthorized`（不写免费额度、不弹购买）；`_setupLevel` 重置 `_playingMs` 并消费影子 `revived`；落子上报驻 `BoardTapRouter.routeGridEmpty` 汇合点（真链与旁路同口径）。
+- **壳层**：`beads-shell` 持有 `ReplayRecorder`（种子 = `services.rng.state`），`play.update` 后 `tick`，回菜单 / dispose 丢弃。
+- **测试**：`games/beads/tests/replay-facility.test.ts` 22 例 —— §8-3 影子终局 = 录制终局（格色 / 托盘逐项 + `final` 逐字段）；§8-4 `seek(0/1/3)`、暂停、4x 混跑终局不变；§8-5 重演期间真实 storage 零写入；§8-8 `maxEvents=2` ⇒ `truncated` 禁用不崩；§8-12 八类非法数据；§8-13 `replay/**` 无 cc/DOM/wx/view/palette/手搓随机；§8-14 第二局替换 / discard 清空。`packages/framework/tests/core/rng-from-state.test.ts` 3 例。
+- **机械验证**：`npx vitest run games/beads/tests` 240 文件 2879 例绿；`pnpm run check:arch` OK；beads / framework typecheck 本单零错误（余 3 条属他轨 in-flight）。
+- **边界**：演示预计算 / 托管节拍 / 接管（S2）、ClearPanel 回放入口与整页 UI（S4）、§8 十四条追溯与 `check:arch §21`（S5）未做。
+
+---
+
 ## WXG-T-986
 
 **EP15-S1 策略内核抽取 + 金样本回归** · 负责：程基岩(engineering-lead)·beads 工程轨 · 状态：✅ 完成（2026-11-19）

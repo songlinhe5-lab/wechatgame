@@ -52,8 +52,20 @@ export function hashSeed(seed: string | number): number {
  */
 export function createRng(seed: string | number): Rng {
   let s = hashSeed(seed) || 0x9e3779b9;
+  return factory(s);
+}
 
-  const factory = (initial: number): Rng => {
+/**
+ * Rebuild a generator from a **raw mulberry32 state** (an `Rng.state` snapshot),
+ * skipping the seed hash — same algorithm as {@link createRng}. Used by replay:
+ * recordings persist `rng.state` at run start and re-create the exact stream
+ * (ADR-0038 DEC-6). ⛔ Never call this with a seed — use `createRng(seed)`.
+ */
+export function createRngFromState(state: number): Rng {
+  return factory(state >>> 0);
+}
+
+function factory(initial: number): Rng {
     let state = initial >>> 0;
     const rng: Rng = {
       next(): number {
@@ -94,7 +106,4 @@ export function createRng(seed: string | number): Rng {
       },
     };
     return rng;
-  };
-
-  return factory(s);
 }
