@@ -15,6 +15,24 @@
 
 ---
 
+## WXG-T-986
+
+**EP15-S1 策略内核抽取 + 金样本回归** · 负责：程基岩(engineering-lead)·beads 工程轨 · 状态：✅ 完成（2026-11-19）
+
+- **上游**：`production/epics/epics-beads-ep15.md` S1（WXG-T-984）；`ADR-0038` DEC-1/DEC-5；`gdd/bot-replay.md` §2.2.2/§2.2.3（WXG-T-983/985）。
+- **交付**：`games/beads/src/bot/`
+  - `types.ts`：`BotObservation` / `BotCommand` / `BotAction` / `BotPolicy`（与 GDD §2.2.2 逐字对齐；`PowerupType` 取生产类型）；
+  - `observe.ts`：`observeGame(game)` 只读 getter 拍平（cells / tray / selection / powerups；`seed=0` —— 策略不消费，录制层另行取 `services.rng.state`）；
+  - `apply.ts`：`applyBotCommand` 只调公开命令；`retrieveSelectedGroup.slot` 必须等于 `game.tray.firstFree()`（ADR-0038 §4.3 末条）；
+  - `policy-greedy-acb.ts`：A 托盘归位 → C 盘上直填 → B 整组取回；平票行优先 / 槽号升序 / 组大小降序；组定义就地 8 向 flood fill（与 `collectMisplacedGroup` 同规则）；可调项仅服务取证扫描（branchOrder / reuseAnchor / retrieve / maxRetrieve / allowDirectFill）；
+  - `registry.ts`：`BOT_POLICY_DEFAULT='greedy-acb'` + `createBotPolicy(id)` + 取证构造 `createBotPolicyForForensics`。
+- **g3-lib 降薄包装**：`runBot` 改为「`observeGame` → `decide` → `applyBotCommand` → 汇总」，统计口径（moves / places / directFills / retrieves / peakTray / stuck）逐字保留；`usePowerups:true`（G-D 取证腿，需 `h.advance` 看点名生效）仍走旧实现 —— 生产恒 `usePowerups=false`。
+- **测试**：`games/beads/tests/bot-policy.test.ts` 16 例 —— §8-1 全 11 张 single 关 `pricing` 的 `taps`/`steps`/`actionsSplit`/`cleared` 零差异（含 L00008 `taps=51` 的「同色已选跳过 selectTraySlot」分支）；§8-2 同 seed N=3 动作签名 + 终局签名一致、`bot/**` 无 `Math.random`/`services.rng`/`createRng`；§8-13 `bot/**` 无 cc/DOM/wx/window/document/view/ui/palette。
+- **机械验证**：`npx vitest run tests/bot-policy.test.ts` 16/16 绿；`npx tsc --noEmit` 本单新增/改动零错误（余 3 条属他轨 in-flight `meta-menu.ts`/`meta-widgets.ts`）；`tools/scripts/beads-bot.ts` 端到端跑 L00001 = taps 24 / steps 12 / 12-4-4-4，与落盘真值一致。
+- **边界**：托管节拍 / 演示生成 / 录像 / UI 属 EP15-S2/S3/S4 未做；`BOT_MAX_MOVES` 由驱动层负责（策略不持时钟）；Cocos 镜像 `.meta` 待编辑器（L1）。
+
+---
+
 ## WXG-T-985
 
 **GDD/UX 回写 ADR-0038 契约缺口** · 负责：文策渊(design-strategist)·beads 设计轨 · 状态：✅ 完成（2026-11-19）

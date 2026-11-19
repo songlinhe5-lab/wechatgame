@@ -21,6 +21,9 @@ import {
   type BoardCamera,
 } from '../../../src/config/tuning.js';
 import type { BeadsGame } from '../../../src/game/beads-game.js';
+import { applyBotCommand } from '../../../src/bot/apply.js';
+import { observeGame } from '../../../src/bot/observe.js';
+import { createBotPolicyForForensics } from '../../../src/bot/registry.js';
 
 const CHAR = '123456789A';
 
@@ -423,12 +426,69 @@ export interface BotResult {
 }
 
 /**
- * 通用机器人：**每一步都只经真链命令**（`selectTraySlot`/`tapGridCell`/
- * `selectBoardBead`/`retrieveSelectedGroup`/`usePowerup`），不自己判胜负。
+ * 通用机器人（EP15-S1 薄包装）：**决策全在 `src/bot/**` 生产策略里**，本函数只做
+ * 「拍观测 → decide → apply → 汇总统计」。
  * 动作优先级：A 归位 → （C 直填）→ B 取回；A/B/C 皆不可 ⇒ 卡死。
  * 单调性保证可终止：归位/直填使 `misplaced` −1，取回使空槽 −1，两者皆不回退。
+ *
+ * ⚠ `usePowerups: true` 仍走旧实现 {@link runBotWithPowerups}：道具腿要「推进时钟看
+ * 点名是否生效」（`probePowerup` 的 `h.advance`），而策略契约 `decide()` 不读时钟；
+ * 该腿仅取证扫描用（G-D），生产恒 `usePowerups=false`（`bot-replay §2.2.3` 规则 5）。
  */
 export function runBot(h: Harness, opt: BotOptions): BotResult {
+  if (opt.usePowerups) return runBotWithPowerups(h, opt);
+  const game = h.game;
+  const maxMoves = opt.maxMoves ?? 4000;
+  const policy = createBotPolicyForForensics({
+    allowDirectFill: opt.allowDirectFill,
+    retrieve: opt.retrieve,
+    reuseAnchor: opt.reuseAnchor ?? false,
+    branchOrder: opt.branchOrder ?? 'ACB',
+    ...(opt.maxRetrieve !== undefined ? { maxRetrieve: opt.maxRetrieve } : {}),
+  });
+  let peak = 0;
+  let direct = 0;
+  let ret = 0;
+  let place = 0;
+  let moves = 0;
+  let stuck = '';
+  for (; moves < maxMoves; moves++) {
+    peak = Math.max(peak, game.tray.holdingCount);
+    if (game.grid.isComplete()) break;
+    const action = policy.decide(observeGame(game));
+    if (!action) {
+      stuck = `no-move tray=${trayView(game)} holes=${emptyCells(game.grid).length} misplaced=${game.grid.misplacedCount}`;
+      break;
+    }
+    let acted = false;
+    for (const cmd of action.commands) if (applyBotCommand(game, cmd)) acted = true;
+    if (!acted) {
+      // 防御面：策略给出的命令全被拒（观测与状态分叉）⇒ 按卡死停机，⛔ 不死循环。
+      stuck = `apply-rejected ${action.commands.map((c) => c.type).join('+')} tray=${trayView(game)}`;
+      break;
+    }
+    // 统计口径与旧实现逐字一致（分支归类 = 动作形状，见策略注释）。
+    const first = action.commands[0];
+    const second = action.commands[1];
+    if (first && (first.type === 'selectTraySlot' || first.type === 'tapGridCell')) place++;
+    else if (second && second.type === 'retrieveSelectedGroup') ret++;
+    else direct++;
+  }
+  peak = Math.max(peak, game.tray.holdingCount);
+  return {
+    cleared: game.grid.isComplete(),
+    moves,
+    peakTray: peak,
+    stuck,
+    directFills: direct,
+    retrieves: ret,
+    places: place,
+    powerups: 0,
+  };
+}
+
+/** 旧全量实现：**仅** `usePowerups: true` 的取证扫描走这里（含道具腿与时钟推进）。 */
+function runBotWithPowerups(h: Harness, opt: BotOptions): BotResult {
   const game = h.game;
   const maxMoves = opt.maxMoves ?? 4000;
   let peak = 0;
