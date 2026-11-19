@@ -15,6 +15,19 @@
 
 ---
 
+## WXG-T-984
+
+**ADR-0038 机器人/回放架构 + 控制清单 §21 + EP15 五 Story** · 负责：程基岩(engineering-lead)·beads 架构轨 · 状态：✅ 完成（2026-11-19）
+
+- **上游**：`gdd/bot-replay.md` v1.0 / `ux/bot-replay-spec.md` v1.0 / systems-index §3.15（WXG-T-983，`cb721101`）。
+- **关键决定**：① 回放 = **预计算录像 + 共用播放器**（否掉实时影子边算边播、关键帧）；② `REPLAY` 落**壳层** `ShellScreen='replay'` + `ReplaySession`，`BeadsPhase` 不新增——真实实例停源相位，避免 `level-clear` 二次结算；③ `bot/**` 纯逻辑只 `import type`，`replay/**` 才装配影子，UI 只吃 `ReplayViewModel`；④ `replaySandbox` 隔离存档/钱包/体力/广告/开放数据，道具走 `requestAuthorized`、扩容直调 `expandTray()`；⑤ 录制 `step` 权威、`atMs` 仅显示，seek = 从头重演；⑥ 金样本固定 `ACB` / `reuseAnchor=false` / `retrieve=max` / `usePowerups=false`；⑦ `FinishPanelAction 'replay'→'restart'` 消歧。
+- **交付**：`docs/architecture/adr/ADR-0038-beads-bot-replay.md`（五节 + DEC-1…8 + 10 条负面后果）；`control-manifest.md §21` 十条控制项；`production/epics/epics-beads-ep15.md`（S1 策略内核 / S2 BotDriver / S3 回放设施 / S4 UI / S5 QA 追溯）；`epics-beads.md` 索引一行。
+- **契约缺口（待设计轨同步，WXG-T-985）**：REPLAY 承载点（壳层 vs 相位）；`ReplayEvent` 需含 `'revive'` 系统事件；录制需补 `context{levelIndex, starsBefore, revived}`；`seed` = 开局 RNG state 快照；`retrieveSelectedGroup.slot` 适配（固定 `firstFree()`）。
+- **环境事实**：无编辑器 ⇒ 新增 `src/**` 的 `.meta` 待编辑器；无真机；`BOT_STEP_INTERVAL_MS` / `REPLAY_MAX_BYTES` 仍待 playtest/实测。
+- **零落码**：`src/**` / `tests/**` / cocos 未碰；未跑 verify/build（工作树含他轨 WIP）。
+
+---
+
 ## WXG-T-983
 
 **机器人玩家 + 过程回放设计文档批（GDD / UX / §3.15）** · 负责：文策渊(design-strategist)·beads 设计轨 · 状态：✅ 完成（2026-11-19）

@@ -381,3 +381,45 @@ agent（Godot/Unity/Unreal，本仓引擎唯一 = Cocos Creator + 微信小游�
    `view/meta-view.ts` 条目（余 `view/view-model.ts` 一条，待 T9 旧门面收口）。
 4. **绘制与命中共用同一布局函数**：布局是纯函数、按安全区缓存；View 与命中测试读同一份（`pausePanelLayout` 口径升为强制）。
 5. **路由变化只经 `Navigator`**：壳 / Presenter 不持 `_screen` / `_overlay` 标志位；屏幕与覆盖层由栈投影，栈顶独占输入，绘制遍历可见路由集。
+
+---
+
+## 21. 机器人 / 回放（ADR-0038；WXG-T-984）
+
+> 适用面：`games/beads/src/bot/**`、`games/beads/src/replay/**`，以及承载回放入口/回放页/托管开关的 `game/**` / `ui/**` / `view/**` 增量。
+> 契约正本 = `games/beads/design/gdd/bot-replay.md` v1.0；数值真源 = `systems-index §3.15`（⛔ 本清单不复制数值）；
+> 工程决策 = `docs/architecture/adr/ADR-0038-beads-bot-replay.md`。
+
+1. **分层依赖单向**：`bot/**` → `BeadsGame` 公开命令/只读 getter（对游戏类仅 `import type`，不构造实例）；
+   `replay/**` → `bot/**` + `BeadsGame`（影子装配 `createBeadsGame` 只住 `replay/**`）；
+   UI → 只读 `ReplayViewModel` / `RenderModel`。⛔ `bot/**` / `replay/**` 不得 import `cc` / DOM / `wx` / `window` / `document` /
+   `view/**` / `ui/**` / `palette`；⛔ UI 不得 import 策略实现或 `decide()`；⛔ `beads-game.ts` 不得 import `bot/**` / `replay/**`
+   （托管驱动与回放会话归壳层，游戏只暴露中性选项/回调）。机械守 = `check:arch` §21 规则（S5 落码后生效；未落前按人工评审，负样本自测同批交付）。
+2. **确定性**：`bot/**` 禁止 `Math.random()` 与 `services.rng` 消费；平票 tie-break 固定（行优先 / 槽号升序 / 组大小降序）。
+   回放注入只认 `step`（`atMs` 仅显示）；暂停/后台挂起不计入有效时长。任何新增 RNG 消费点，其抽取结果必须作为事件录制
+   （或在 `bot-replay §8-3` 终局校验中显式排除），⛔ 实时重建随机源。
+3. **零副作用沙箱**：影子 `BeadsGame` 必须 `replaySandbox=true` + 隔离 noop 服务（内存 storage、私有事件总线、无广告/开放数据/触觉）。
+   ⛔ 不写存档、不写钱包、不扣/加体力、不拉起激励视频、不写 `settleBestByUid`、不写崩溃快照。
+   道具走 `PowerupSystem.requestAuthorized`（同选择规则、跳过免费额度门槛、不改 `_freeDepleted`）；扩容只调 `expandTray()`，
+   ⛔ 调用 `requestTrayExpand()`。⛔ 用「重置免费额度」冒充授权。
+4. **真实实例不迁相位**：回放期间真实 `BeadsGame` 停在源相位（own-last = `level-clear`，demo = `boot`），
+   ⛔ 迁出再迁回（会重跑 `onEnter('level-clear')` 的结算链）。`REPLAY` 落在壳层路由 `ShellScreen='replay'` + `ReplaySession`，
+   ⛔ 进 `PAUSED`，⛔ tick 真实实例；只 tick 影子实例。托管 = `PLAYING` 的 `assist='off'|'bot'` 标记，不新增相位。
+5. **入口唯一与命名消歧**：玩家回放入口**仅** `ClearPanel`（`REPLAY_ENTRY='clear-panel-only'`）；
+   `GAME_OVER` / 冲刺结算 / `FINISH` ⛔ 新增回放/演示入口。`ClearPanelAction` 新增 `'replay'`；
+   `FinishPanelAction` 的 `'replay'` 改名 **`'restart'`**（语义 = 重玩第 1 关），两处 `'replay'` ⛔ 混用。
+   菜单演示入口动作名 `'bot-demo'`。改名与新增必须同批落码，并用字面量单测锁 id。
+6. **金样本回归**：生产策略 `'greedy-acb'` 固定 `branchOrder='ACB'` / `reuseAnchor=false` / `retrieve='max'` /
+   `allowDirectFill=true` / `usePowerups=false`，对已入库全部关卡 `pricing.actions` 必须与现网金样本逐字一致。
+   `g3-lib.ts::runBot` 只保留薄包装，⛔ 保留第二套独立判定逻辑。
+7. **录制完备性**：`selectTraySlot` / `selectBoardBead` / `tapGridCell` / `retrieveSelectedGroup` / `usePowerup` / `expandTray`
+   成功后均须入录；续时 `revive` 作为系统时间线事件入录（`GAME_OVER` 仅在未续时丢弃）；录像须含
+   `context{levelIndex,starsBefore,revived}`。`levelHash` 不一致、`seed` 缺失、`fixedDtMs<=0`、`step` 非单调 ⇒ 录像判 `invalid`，
+   入口禁用且不崩溃。
+8. **上限与降级**：超 `REPLAY_MAX_EVENTS` 或 `REPLAY_MAX_BYTES` ⇒ `truncated=true`、**整份作废**、入口置灰 + 轻提示；
+   ⛔ 播放半局。录像仅内存（`REPLAY_RETENTION='memory-only'`），⛔ 写存档/导出文件。
+9. **热路径零分配**：`ReplayPlayer.tick()` 与视图模型投影预分配并在原对象写入；⛔ 逐帧遍历事件表；
+   ⛔ 在 `BeadsGame.update` / `buildRenderModel` 内调用 `decide()`。影子重演只产出只读 snapshot / `ReplayViewModel`；
+   `RenderModel` 由 UI 侧从只读 snapshot 构建（⛔ `replay/**` import `view/**`），⛔ 写渲染层。
+10. **构建与镜像**：新增 `src/**` 文件由 `framework:sync` 镜像，`.meta` 只能由编辑器生成（L1）；本环境无编辑器 ⇒ 镜像/真机腿
+    标 `[Blocked: 待编辑器]`，先验 Node/harness。⛔ 手写 `.meta`、⛔ 为让守卫绿而改镜像正本。
