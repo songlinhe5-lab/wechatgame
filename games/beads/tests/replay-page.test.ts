@@ -325,3 +325,48 @@ describe('EP15-S4 · 主菜单演示入口（§8-9）', () => {
     expect(shell.meta!.stamina).toBe(stamina);
   });
 });
+
+describe('EP15 · 冷启无残留（§8-14）', () => {
+  it('会话 1 进回放页 → dispose → 同存档冷启新壳：无录像 / 无回放态 / 可正常开局', () => {
+    const level = goldenLevel();
+    const saveKey = 'wxgame.beads.test.replaycold';
+    const h1 = createBeadsHarness({ noAssemble: true, levels: [level], saveKey });
+    const s1 = new BeadsShell({
+      clock: () => 0,
+      metaKey: `${saveKey}-meta`,
+      initialScreen: 'menu',
+      play: { levels: [level] },
+    });
+    s1.init(h1.services);
+    const btn = demoButtonOf(s1);
+    expect(s1.tapMeta(btn.x, btn.y)).toBe(true);
+    expect(s1.screen).toBe('replay');
+    expect(s1.replayRecorder.lastRecording, '演示不落盘、不占上一局槽').toBeNull();
+    s1.dispose();
+
+    // 冷启 = 新进程 / 新壳，同一份宿主存档（生产首屏直进对局）。
+    const h2 = createBeadsHarness({ noAssemble: true, levels: [level], saveKey });
+    const s2 = new BeadsShell({
+      clock: () => 0,
+      metaKey: `${saveKey}-meta`,
+      initialScreen: 'play',
+      play: { levels: [level] },
+    });
+    s2.init(h2.services);
+    expect(s2.screen).toBe('play');
+    expect(s2.play.phase).toBe('playing');
+    expect(s2.replayViewModel.visible, '冷启不得残留回放页').toBe(false);
+    expect(s2.replayRecorder.lastRecording).toBeNull();
+    expect(s2.replayRecorder.active).toBeNull();
+    // 回放页坐标在冷启对局里零动作 / 不进回放。
+    expect(s2.tapReplay(centre(REPLAY_PLAY_RECT).x, centre(REPLAY_PLAY_RECT).y)).toBe(false);
+    expect(s2.screen).toBe('play');
+    // 菜单仍可正常开局。
+    s2.showMenu();
+    const start = metaLayout('none', WALL_ROWS, s2.menuAnchors).buttons.find((b) => b.id === 'start');
+    expect(start).toBeTruthy();
+    expect(s2.tapMeta(start!.box.x + start!.box.w / 2, start!.box.y + start!.box.h / 2)).toBe(true);
+    expect(s2.screen).toBe('play');
+    expect(s2.play.phase).toBe('playing');
+  });
+});

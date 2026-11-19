@@ -48,6 +48,23 @@
 
 ---
 
+## WXG-T-995
+
+**EP15 尾账三：§8-14 冷启对拍 + 回放页静态文案核对** · 负责：程基岩(engineering-lead)·beads 工程轨 · 状态：✅ 完成（2026-11-19）
+
+- **冷启无残留（Node 侧）**：`tests/replay-page.test.ts` +1 例——会话 1 菜单进 `bot-demo` 回放页 → `dispose` → 同一宿主存档新建壳（生产冷启首屏直进对局）⇒ 无 `lastRecording` / 无 `active` 录像、`replayViewModel.visible=false`、回放页坐标 `tapReplay=false`、`showMenu()` 后主钮可正常开局。结构上回放态仅内存（ADR-0038），本单把「重启无残留」从 DEFERRED 收为自动；真机进程冷启体感并入 playtest P8。
+- **文案核对（纯核查，零视觉改动）**：对照 `ux/bot-replay-spec.md §3.2/§3.3` 与 `view/replay-page.ts` 逐条出表（15 项）：**PASS 9**（标题 / 副标来源 / 三状态词 / 时间标签 / 倍速 / 结束条标题 / 主次钮 / 不显示元素）；**CONCERNS 6**：
+  - C4 退出钮文案「返回」≠ 规格「←退出」（且无图标）；
+  - C5 播放/暂停钮为文本腿（暂停/播放/重播），规格要求图标随状态；
+  - C11 演示结束条缺副文案「机器人完成了第 1 关」；
+  - C12 seek 静态提示「定位中…」未实现（`REPLAY_SEEK_HINT_MS` 仍 `[TODO]`）；
+  - C13 副标 / 时间标签字号 30 ≠ 规格 24（同源 `UI_FONT.hud`）；
+  - C15 页面进入/退出动效（200/150ms）未见实现。
+  - 建议归属：C4/C5/C11/C13 归 art 批一次拍板；C12 待真机定档；C15 归动效批。表落 `production/qa/beads/bot-replay-traceability.md`「回放页静态文案核对（WXG-T-995）」。
+- **验证**：`tests/replay-page.test.ts` 11/11；beads 全量 `npx vitest run` 130 文件 1561 通过 / 2 跳过；零 src 改动 ⇒ 金样本零漂移；typecheck 余 3 条属他轨 in-flight。
+
+---
+
 ## WXG-T-994
 
 **EP15 尾账二：托管轻提示（§8-10）+ 续时局回放对拍（§8-3 / §8-11）** · 负责：程基岩(engineering-lead)·beads 工程轨 · 状态：✅ 完成（2026-11-19）

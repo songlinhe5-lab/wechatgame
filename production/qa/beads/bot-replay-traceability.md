@@ -19,12 +19,35 @@
 | §8-11 | 托管结算同手动 / 失败走正常 GAME_OVER | `tests/bot-driver.test.ts`「托管过关正常计星/解锁」；「失败 → 广告续时 → 托管过关」（真实 GAME_OVER + 广告发奖腿） | 自动 |
 | §8-12 | 数据防呆（指纹/seed/步序/参数） | `tests/replay-facility.test.ts`「数据防呆」8 类非法数据 + 关表缺失 | 自动 |
 | §8-13 | 架构门（`bot/**`、`replay/**` 无 cc/DOM/wx；UI 不 import 策略） | `tests/bot-policy.test.ts` 架构门；`tests/replay-facility.test.ts` 架构门；`check:arch` §21-a…d + `--selftest`（31/31）；L3 扫描 | 自动 |
-| §8-14 | 内存与生命周期（重启无残留 / 下一局替换 / demo 释放） | `tests/replay-facility.test.ts`「第二次过关替换上一局」「discard 清空」；`tests/bot-driver.test.ts` 演示预计算 dispose | 自动（替换/释放）；应用重启 **DEFERRED**（结构上仅内存，需真机冷启验证） |
+| §8-14 | 内存与生命周期（重启无残留 / 下一局替换 / demo 释放） | `tests/replay-facility.test.ts`「第二次过关替换上一局」「discard 清空」；`tests/bot-driver.test.ts` 演示预计算 dispose；`tests/replay-page.test.ts`「会话 1 进回放页 → dispose → 同存档冷启新壳：无录像 / 无回放态 / 可正常开局」 | 自动（替换/释放/Node 冷启）；真机进程冷启体感并入 playtest P8 |
+
+## 回放页静态文案核对（ux §3.2 / §3.3，WXG-T-995）
+
+> 纯核查：逐条比对规格原文与实现（`view/replay-page.ts`），**本单不改视觉**。判定 = PASS（逐字同）/ CONCERNS（有偏差，待 art/UX 拍板）。
+
+| # | 位置 | 规格原文 | 实现 | 判定 |
+|---|---|---|---|---|
+| C1 | 标题 | 「回放 · 第 N 关」，40px ExtraBold | `回放 · 第 ${level.id} 关`；`UI_FONT.panelTitle` = bold 40 | PASS |
+| C2 | 副标来源 | 「我的上一局 / 机器人演示」 | 同串（`source==='bot-demo'` ⇒ 机器人演示） | PASS |
+| C3 | 状态词 | 「▶ 回放中 / ⏸ 已暂停 / 已结束」 | 同串（含 ▶ / ⏸ 前缀；priority = ended > playing > paused） | PASS |
+| C4 | 退出钮 | 「←退出」 | 「返回」（无 ← 图标） | **CONCERNS**：文案不同 + 图标腿未做 |
+| C5 | 播放/暂停钮 | 图标随状态切换（▶ / ⏸；播完 = 重播） | 文本「暂停 / 播放 / 重播」 | **CONCERNS**：无图标（程序化文本腿） |
+| C6 | 时间标签 | `已播 / 总长`（如 `00:12 / 01:45`） | `formatTime(floor(atMs/1000)) / formatTime(floor(durationMs/1000))` | PASS |
+| C7 | 倍速钮 | `1x / 2x / 4x` 循环，文案即状态 | `${speed}x` | PASS |
+| C8 | 结束条标题 | own-last「回放结束」/ bot-demo「演示结束」 | 同串（三元分支） | PASS |
+| C9 | 结束条主钮 | own-last「重播」/ bot-demo「再看一遍」 | 同串 | PASS |
+| C10 | 结束条次钮 | 「退出」 | 同串 | PASS |
+| C11 | 演示结束条副文案 | 「机器人完成了第 1 关」 | **未绘制** | **CONCERNS**：缺（规格 §3.3 明列） |
+| C12 | seek 静态提示 | 「定位中…」（阈值 `REPLAY_SEEK_HINT_MS` 仍 `[TODO]`，不做转圈） | 全仓无该字符串 | **CONCERNS**：未实现（阈值待真机） |
+| C13 | 副标 / 时间标签字号 | 24px | `UI_FONT.hud` = bold 30（两处同源） | **CONCERNS**：30 ≠ 24 |
+| C14 | 不显示元素 | 星级 / 豆 / 心 / 齿轮 / 道具卡 | 上下覆盖带（`REPLAY_COVER_TOP/BOTTOM`） | PASS（机制核对） |
+| C15 | 页面动效 | 进入淡入 + 上移 12px 200ms / 退出淡出 + 下移 150ms | 未见回放页专用动效（`_pageFx` 只服务菜单→选关） | **CONCERNS**（非文案补充项） |
+
+**汇总**：15 项中 PASS 9、CONCERNS 6（C4/C5/C11/C12/C13/C15），无实现与规格语义相反项。建议：C4/C5/C11/C13 归 art 批一次拍板；C12 待 `REPLAY_SEEK_HINT_MS` 真机定档；C15 并入动效批（不影响逻辑验收）。
 
 ## 真机 / UI 遗留（⛔ 记 PASS）
 
 - §8-10 轻提示的**真机体感**（400ms / 2s 停留是否可读）并入下方 playtest P6。
-- §8-14 冷启动无残留。
 - 体感/内存/seek 停顿：需 playtest（`BOT_STEP_INTERVAL_MS=450` 亦在此定档）。
 
 ## 真机 playtest 清单（状态 **DEFERRED**）
