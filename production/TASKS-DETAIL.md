@@ -15,6 +15,54 @@
 
 ---
 
+## WXG-T-990
+
+**难度评估体系重构 · 阶段 0 口径提案与落码影响面** · 负责：主理人(CodeBuddy) 汇编，文策渊(design-strategist) 出设计口径、程基岩(engineering-lead) 出落码影响面 · 状态：✅ 完成（2026-11-19；待用户拍板 Q1–Q4 后才可进入落码单）
+
+- **用户令**：「3/ 1」——先做选项 3（证据落盘，见 WXG-T-989），再做选项 1「另起一单彻底重构难度算法」。上一轮选项 1 已写明「建议先定口径再落码」，故本单为阶段 0，**零落码**。
+- **任务号二次改判**：派单时领 986（证据）/ 987（重构），派单执行期间并发会话（Trae CN）连续领走 986/987（EP15-S1/S3）与 988（EP15-S2）。按台账 SSOT 最终定为 **WXG-T-989**（证据）/ **WXG-T-990**（本单）；不回改已入 HEAD 的 986/987/988 行。
+- **交付件**：`games/beads/design/proposals/difficulty-rewrite-stage0-20261119.md`（唯一新增设计件）。含 §2 现行 DI 六条失配诊断、§3 三案与推荐 C、§4 主理人四项裁决、§5 落码影响面、§6 Q1–Q4 待拍板、§7 三条验收判据、§8 零落码与史证声明。
+- **关键诊断（成员交叉核对，非推测）**：`A` 由 `level-import.ts::boardStats` 算在 `pattern` 答案盘 4 邻域；玩家组选由 `grid.ts::collectMisplacedGroup` 算在 `misplaced` 错位盘 8 邻域；三档响应显示答案盘与错位盘块结构实测不同（16keep 块数 5→8、最大块 38→64；32keep 12→14、87→190）。`retrieveSelectedGroup` 的 `count = min(ordered.length, tray.freeCount)` 使周转量约 `ceil(块大小/T)`，而现行 DI **无 T 变量**；三档 `stepsByCap` 在 12/24/48 槽为 45/29/24、70/47/36、114/77/59。属自变量选错，重标定系数救不了。
+- **三案**：A 静态周转量 `G(T)=Σceil(b_i/T)` + `D(T)=M×f_C×f_G(T)`（机理最准、最复杂）；B 纯 `N×C` 主序 + 一次性粗修正（最简、「兼顾」不足）；**C 离散四档判定表 + `G(12)` 一次性升降档（推荐）**——对外只给四档标签，对内保留 `(档序, N, C)` 确定性主键供门禁⑥/陈列消费。四档边界 150/300/700、`θ`、C 色带全数 `[待 playtest]`、不进 §3。
+- **主序锁 12 槽**：与门禁⑦ 同一档托盘（`TRAY_BASE_SLOTS`），非同一量；24/48 只出参考值、不改四档归属、不重排陈列。弃用 steps **仅指难度体系**；`pricing.steps` 作为定价、门禁⑦、规模闸的真值继续保留、零改。
+- **主理人四项汇编裁决**：D-1 工程侧「以 12 槽 steps 为标定轴」是**工作假设**，与用户逐字口径（不认可 steps 数据）及设计侧「弃用 steps」冲突 ⇒ 作废，落码单须按选定口径重做影响面；D-2 保留三条与口径无关的事实发现（门禁⑥ 经 `stripDevFields` 看不到 `pricing`、现池 12 槽 steps 有并列会撞「严格递增」、`difficulty.test.ts` Spearman **代码现值 0.95** 而非派单括注 0.833 史证）；D-3 任务号二次改判；D-4 设计侧「8 向两步」与 `grid.ts` 真码（8 邻域一步 BFS）不一致，落码前以真码为准。
+- **不变式（正面声明）**：零改 `difficulty.ts` / `level-import.ts` / `gameplay.ts` DIFFICULTY 组与门禁阈值 / `sync-levels-data.mjs` / `difficulty.test.ts` / `level-difficulty.md` 公式与 §5.1 表 / `systems-index.md §3` 冻结表 / `TASKS-DETAIL.md` 982 节；史证只新增「后续改判指针」，不回改不删除。阶段裁决 **CONCERNS**：Q1–Q4 未拍板、无真机/playtest（全部边界 `[待 playtest]`）；缓解 = 落码前先拍板 Q1/Q2，落码批附逐字段对账表（K-155）。
+- **验证**：本单只读诊断，未跑 `verify` 全量（无源码改动，不构成 G1–G3 对象）；`check:frozen-values` / `check:links` / `check:tasks` 三门由主理人在汇编落盘后复跑，读数见提交总结。
+- **知识沉淀**：候选 0–3 条随成员回传交主理人汇编；本单不跑 `kb:sync`。
+
+---
+
+## WXG-T-989
+
+**16/24/32 三档对照证据落盘 + steps 口径订正** · 负责：严守真(quality-lead) readonly 拟稿，主理人汇编落盘 · 状态：✅ 完成（2026-11-19；阶段裁决 CONCERNS 已登记缓解）
+
+- **用户令**：「3/ 1」选项 3。派单号 986 因并发占用改判为 **WXG-T-989**（理由见 WXG-T-990）。
+- **交付**：`production/qa/beads/evidence/beads-3tier-16-24-32/` —— 17 件 / 69325 字节**原样转存、本地留盘**（6 `plain-*.png` + 6 `resp-*.json` + 3 `lv-*.json` + `compare.json` + `compare-mis.json`），沿用 `/tmp/beads-3tier/` 原名、不重编码 PNG、不格式化 JSON；**唯一入库件 `README.md`** 逐件列字节数与 sha256 全文 + 12 次量化矩阵 + 口径订正 + 诚实分栏 + 复现命令。
+- **D-6 入库体例**：`.gitignore §101–105` 明定 QA 取证物 `json/png/jpg`「留盘不入库」；WXG-T-292 续批五（2026-10-18）裁定「52 MB / 39 张不入库，同目录 `README.md` 保留入库，重跑可复现」；本仓 `production/qa/beads/evidence/` 已跟踪 13 件**全是 `.md`**。故 17 件产物不进暂存区；⛔ 不改 `.gitignore`、不用 `git add -f`。换机复核须取回留盘目录或重跑。
+- **D-1 裁定**：派单正文写「16 个产物」，其自身明细枚举与磁盘实测均为 **17**（6+6+3+2）。裁定为派单笔误，**按 17 件落盘，不删件、不凑数、不改字节**。
+- **D-5 指纹订正**：落盘后逐件对拍发现 `plain-32trim.png` 不符，定位为质量成员回传清单**抄写漏 1 位**（63 字符），非产物损坏（`/tmp` 源与落盘件 sha256 逐字相同）。按磁盘实际值订正 README 表格并在 §7 登记，不改任何产物字节；其余 16 件一次通过。
+- **核心口径订正**：`compare.json` 的 45/70/114 是「**12 槽基础档 + 单一 ACB 策略**」的定价读数（`resp` 内 `baseCap=12`、`stepsByCap`、`source="bot"` 为证），不是玩家最省解、更不是「实测步数」。同盘三层读数：45（12 槽定价）／29（24 槽同一策略）／≈20（玩家最省解，与用户估算一致，但**本目录无 20 步独立实测文件**，属上轮实验结论，不重跑不外推）。steps 与 N 不单调，⛔ 不得据该列推导难度或放宽门禁⑦。
+- **结论分层**：成立（trim 只改盘面尺寸不改 N：116/236/402 逐档相等；升采样不等于色差单调变好 31.6→36.3→33.2）；观感层（「24 档最干净」无量化背书，24 档色差反而最高）；待 playtest（分档边界 200/800、手感、64×64 性能、`SEC_PER_STEP` 未重标定）；已知冲突不消解（H-6 `[60,100)` 空白带、门禁⑦ 两套史证带宽、BAC/ACB 命名换代）。
+- **史证纪律**：依 K-025 / K-192 / K-200 **零回改已入 HEAD 任何文档行**，订正只写在新增 README 里；零改门禁 / 冻结常量 / DI 公式 / 代码 / 资产；不跑 `levels:sync`；不重启 8787（K-092）、0 次 Token Plan 调用。G1–G4 标「**未执行**」（本单无源码/用例/关卡改动，不进阶段裁决），不伪造绿。
+- **验证**：17 件逐件指纹对拍、`cat * | wc -c` = 69325 闭合、6 PNG 签名、11 JSON 可 parse；`check:frozen-values STATUS OK`。README 内不声称「SKIP 计数不变」（未记录落盘前基数，无对照即无自证）。
+
+---
+
+## WXG-T-991
+
+**EP15-S4 结算回放入口 + 全屏回放页** · 负责：程基岩(engineering-lead)·beads 工程轨 · 状态：✅ 完成（2026-11-19；菜单演示入口遗留）
+
+- **上游**：`ux/bot-replay-spec.md` §3.1–§3.4；`gdd/bot-replay.md` §8-4/7/9；`epics-beads-ep15.md` S4。
+- **结算入口**：`clear-panel.ts` 动作加 `'replay'`、独立钮 160×96（x 居中、底 192），原 `next/menu` 双钮零改动；`hitClearPanel` 在 `showReplay=false` 时跳过；文案「回放」。显隐/点击走 `BeadsGameOptions.isReplayAvailable / onReplayRequest`（游戏侧零录像真源），`BeadsSnapshot` 新增 `clearReplayAvailable`（片一登记）。
+- **回放页**：`view/replay-page.ts` —— 复用 `buildBeadsView`（影子快照 + 同肤 palette）画棋盘/托盘，再盖掉 HUD 与道具带（`REPLAY_COVER_TOP/BOTTOM`），叠传输带：退出 88×88、标题/副标、播放暂停 96×96、进度条 424×88（点按定位）、倍速 112×88（1/2/4 循环）、时间标签、播完结束条 560×240（重播/退出）。几何常量落 `config/tuning/replay-ui.ts`（呈现几何，⛔ §3）。
+- **壳层**：`ShellScreen` 增 `'replay'`（`PhaseRouteBinder` 增基础页路由，回放期不叠相位面板）；`_enterReplay / _exitReplay / tapReplay / _readReplayInput`；回放期 play 冻结、`onPause` 暂停回放、`dispose` 释放；退出回结算或菜单（按进入前屏幕）。
+- **托管 UI**：暂停面板插「托管：开/关」行（440×88，面板 364→462）；HUD「托管中」徽标 132×56（顶部居中、零热区）。
+- **测试**：`tests/replay-page.test.ts` 4 例 —— 入口 160×96/显隐、回放页命中域、托管过关→回放→暂停/2x/seek/结束条/退出全链（含渲染不崩）、无录像不崩。相关既有用例同步：pause-modal / pause-settings / skin-system 的「三钮」→「三钮 + 托管行」、clear-panel 双钮过滤。
+- **机械验证**：`npx vitest run games/beads/tests --exclude "**/ui-golden.test.ts"` 240 文件 2869 例绿；beads typecheck 本单零错误（余 3 条属他轨 in-flight）。
+- **遗留**：① 主菜单「机器人演示」入口未接（`buildBotDemo()` 已备，S4 尾巴）；② 接管轻提示未做；③ `ui-golden` PauseModal / ClearResultModal 两帧待 `ui-golden-capture.ts` 复取（同 S4 提交后复取）。
+
+---
+
 ## WXG-T-988
 
 **EP15-S2 BotDriver：演示预计算 + 托管 450ms** · 负责：程基岩(engineering-lead)·beads 工程轨 · 状态：✅ 完成（2026-11-19）

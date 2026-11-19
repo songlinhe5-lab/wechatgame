@@ -39,6 +39,9 @@ import {
 } from '../config/tuning.js';
 import type { GameMode } from '../game/state.js';
 
+/** 托管开关行宽（`ux/bot-replay §3.4`：全宽 440）。 */
+const ASSIST_TOGGLE_W = 440;
+
 /** The things a panel button can ask the game to do. */
 export type PausePanelAction =
   | 'resume'
@@ -115,8 +118,8 @@ function panelPlate(): PanelRect {
 }
 
 /**
- * Row 1 primary + row 2 (重玩本关 / 回主菜单). v1.8（WXG-T-934）起暂停面板只此三钮，
- * 全局设置全部迁菜单 `settings` 弹窗。
+ * Row 1 primary + **EP15-S2 托管行（440×88）** + row 3 (重玩本关 / 回主菜单)。
+ * `ux/bot-replay §3.4`：标题 100 + 3×88 + 2×20 + 底衬 58 = **462 ≤ 480**。
  */
 function normalLayout(): PausePanelLayout {
   if (_normal) return _normal;
@@ -131,8 +134,16 @@ function normalLayout(): PausePanelLayout {
     rect: rect((DESIGN_W - PANEL_PRIMARY_W) / 2, primaryBottom, PANEL_PRIMARY_W, PANEL_BUTTON_H),
   });
 
-  // Row 2 — 重玩本关 / 回主菜单：两枚 240×88、间距 20、整行居中（ux §3.3 v1.46）。
-  const row2Top = primaryBottom - PANEL_ROW_GAP;
+  // Row 2 — 托管开关（全宽 440×88，ux/bot-replay §3.4）。
+  const assistTop = primaryBottom - PANEL_ROW_GAP;
+  const assistBottom = assistTop - PANEL_BUTTON_H;
+  buttons.push({
+    id: 'toggle-assist',
+    rect: rect((DESIGN_W - ASSIST_TOGGLE_W) / 2, assistBottom, ASSIST_TOGGLE_W, PANEL_BUTTON_H),
+  });
+
+  // Row 3 — 重玩本关 / 回主菜单：两枚 240×88、间距 20、整行居中（ux §3.3 v1.46）。
+  const row2Top = assistBottom - PANEL_ROW_GAP;
   const row2Bottom = row2Top - PANEL_BUTTON_H;
   const rowGap = 20;
   const rowW = PANEL_PRIMARY_W * 2 + rowGap;

@@ -281,11 +281,11 @@ describe('EP12-S8 ③ cycle-skin 钮族：present · 循环 · 恰写档 1 次 �
         expect(settingIds).not.toContain('cycle-skin');
         expect(settingIds).not.toContain('open-skins');
         expect(metaLayout('none').buttons.map((b) => b.id)).toContain('open-skins');
-        // v1.8（WXG-T-934）：暂停面板只三钮，⛔ 不再有 cycle-skin（设置全部归菜单）。
+        // v1.8（WXG-T-934）：暂停面板三钮 + EP15-S2 托管行，⛔ 不再有 cycle-skin（设置全部归菜单）。
         for (const mode of ['normal', 'sprint'] as const) {
             const ids = pausePanelLayout(mode).buttons.map((b) => b.id);
             expect(ids).not.toContain('cycle-skin');
-            expect(ids).toEqual(['resume', 'restart', 'go-menu']);
+            expect(ids).toEqual(['resume', 'toggle-assist', 'restart', 'go-menu']);
         }
     });
 

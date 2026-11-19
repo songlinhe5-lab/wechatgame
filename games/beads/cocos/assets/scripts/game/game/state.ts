@@ -98,6 +98,8 @@ export interface BeadsSnapshot {
    */
   assist: 'off' | 'bot';
 
+  /** EP15-S4：真有可播「上一局」录像（结算面板回放钮的显隐）。 */
+  clearReplayAvailable: boolean;
   levelIndex: number;
   levelId: string;
   levelName: string;
@@ -499,6 +501,7 @@ function createPlayShard(tuning: BeadsTuning): SnapshotPlay {
     phaseElapsed: 0,
     mode: 'normal',
     assist: 'off',
+    clearReplayAvailable: false,
     levelIndex: 0,
     levelId: '',
     levelName: '',

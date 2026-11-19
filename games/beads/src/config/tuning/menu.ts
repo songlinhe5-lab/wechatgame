@@ -46,7 +46,7 @@ export const PANEL_SIZE = { w: 560, h: 480 } as const;
  * **避让复核**：plate y∈[485,849] ⇒ 不侵入胶囊区（y≥1214）；面板底 485 > `TRAY_BAND.yMax 450`
  * ⇒ 不再压住托盘本体（遮罩仍全屏，防偷看语义不变）。
  */
-export const PAUSE_PANEL_H = 364;
+export const PAUSE_PANEL_H = 462;
 /** Scrim over board+tray: rgba(42,46,67,0.5) (ux-spec §3.3). */
 export const PANEL_SCRIM_RGB = { r: 42, g: 46, b: 67 } as const;
 export const PANEL_SCRIM_ALPHA = 0.5;

@@ -49,8 +49,8 @@ import {
 import { rectContains, type PanelRect } from './pause-panel.js';
 import { ResultPanelClock } from './result-panel.js';
 
-/** 面板按钮能请求的两件事（动作由 `BeadsGame` 执行；冲刺入口已隐藏，不再是可选动作）。 */
-export type ClearPanelAction = 'next' | 'menu';
+/** 面板按钮能请求的三件事（动作由 `BeadsGame` 执行）。 */
+export type ClearPanelAction = 'next' | 'menu' | 'replay';
 
 export interface ClearButton {
   readonly id: ClearPanelAction;
@@ -84,10 +84,17 @@ export interface ClearPanelOptions {
    * 末关无明文 ⇒ 本项为派生文案，登记于台账。
    */
   readonly lastLevel: boolean;
+  /** 有可播的「上一局」录像（`ux/bot-replay §3.1`）；false ⇒ 回放钮不画、不可点。 */
+  readonly showReplay?: boolean;
 }
 
 /** 标题（`[WXG-T-509]` 精简：去 emoji、去缎带）。 */
 export const CLEAR_PANEL_TITLE = '过关';
+
+/** 回放入口小钮（`ux/bot-replay §3.1`：独立 160×96，居中，底距屏底 192）。 */
+const REPLAY_ENTRY_W = 160;
+const REPLAY_ENTRY_H = 96;
+const REPLAY_ENTRY_BOTTOM = 192;
 
 function rect(x: number, y: number, w: number, h: number): PanelRect {
   return { xMin: x, yMin: y, xMax: x + w, yMax: y + h };
@@ -124,10 +131,14 @@ function build(): ClearPanelLayout {
         CLEAR_SECONDARY_H,
       ),
     },
+    // `EP15-S4`：独立回放钮（在双钮下方、面板外；无录像时由调用方过滤掉）。
+    {
+      id: 'replay',
+      rect: rect((DESIGN_W - REPLAY_ENTRY_W) / 2, REPLAY_ENTRY_BOTTOM, REPLAY_ENTRY_W, REPLAY_ENTRY_H),
+    },
   ];
   // `[WXG-T-949]` 牌内三段：标题 / 星 / 用时 / 豆（Figma 距牌顶 92 / 193.5 / 278.5 / 345）。
-  const titleY = panel.yMax - CLEAR_TITLE_DY;
-  const starsY = panel.yMax - CLEAR_STARS_DY;
+  const titleY = panel.yMax - CLEAR_TITLE_DY;  const starsY = panel.yMax - CLEAR_STARS_DY;
   const timeY = panel.yMax - CLEAR_TIME_DY;
   const rewardY = panel.yMax - CLEAR_REWARD_DY;
   // 差距提示是 Figma 未给的 <3★ 态：放双钮下方，⛔ 不改设计稿的三段节奏。
@@ -143,6 +154,7 @@ function build(): ClearPanelLayout {
 /** 按钮文案（`ux-spec §3.4`；末关主钮文案为派生项）。 */
 export function clearPanelLabel(id: ClearPanelAction, lastLevel: boolean): string {
   if (id === 'menu') return '回主界面';
+  if (id === 'replay') return '回放';
   return lastLevel ? '查看结果' : '下一关';
 }
 
@@ -150,6 +162,7 @@ export function clearPanelLabel(id: ClearPanelAction, lastLevel: boolean): strin
 export function hitClearPanel(x: number, y: number, opts: ClearPanelOptions): ClearPanelAction | null {
   const layout = clearPanelLayout(opts);
   for (const button of layout.buttons) {
+    if (button.id === 'replay' && !opts.showReplay) continue;
     if (rectContains(button.rect, x, y)) return button.id;
   }
   return null;

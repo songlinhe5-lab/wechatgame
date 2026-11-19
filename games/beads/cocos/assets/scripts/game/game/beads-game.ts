@@ -547,6 +547,9 @@ export class BeadsGame {
   private readonly _replaySandbox: boolean;
   /** 录制钩子（options.onCommandApplied；无 = 不上报）。 */
   private readonly _onCommandApplied?: (type: ReplayCommandType, args: ReplayCommandArgs, elapsedMs: number) => void;
+  /** EP15-S4：回放入口可用判定 / 点击回调（壳层注入；游戏侧零录像真源）。 */
+  private readonly _isReplayAvailable?: () => boolean;
+  private readonly _onReplayRequest?: () => void;
   /** 有效对局毫秒（不含暂停；本轮 = 录像 `step` 的唯一时间轴）。 */
   private _playingMs = 0;
   /** 影子上下文：本局是否「已续时」（`applyReplayContext` 注入，`_setupLevel` 消费一次）。 */
@@ -608,6 +611,8 @@ export class BeadsGame {
     this._ownsSkin = options.ownsSkin;
     this._replaySandbox = options.replaySandbox ?? false;
     this._onCommandApplied = options.onCommandApplied;
+    this._isReplayAvailable = options.isReplayAvailable;
+    this._onReplayRequest = options.onReplayRequest;
 
     this._sprintCap = validatedSprintTime(options.sprintTime);
     if (options.sprintTime !== undefined && this._sprintCap !== options.sprintTime) {
@@ -627,6 +632,7 @@ export class BeadsGame {
       get machine() { return self._machine; },
       get mode() { return self._mode; },
       get assist() { return self._assist; },
+      get replayAvailable() { return self._isReplayAvailable?.() ?? false; },
       get reviveAdUsable() { return self._reviveAdUsable(); },
       get levelIndex() { return self._levelIndex; },
       get levels() { return self._levels; },
@@ -765,6 +771,7 @@ export class BeadsGame {
       startSprintRun() { self._startSprintRun(); },
       restartRun() { self.restartRun(); },
       openMenu() { self._onMenuRequest?.(); }, // core-loop v2.3：go-menu 同通道（pause-settings §2.2 判例）
+      openReplay() { self._onReplayRequest?.(); }, // EP15-S4：结算「回放」钮 → 壳层回放页
       applyPanelAction(action: PausePanelAction) { self._applyPanelAction(action); },
       share() { self._share(); },
       openLevelRank() { self.openLevelRank(); },

@@ -82,6 +82,8 @@ export interface SnapshotSource {
     readonly mode: GameMode;
     /** EP15-S2：托管标记（快照只读投影）。 */
     readonly assist: 'off' | 'bot';
+    /** EP15-S4：结算面板回放钮显隐（壳层判定，只读）。 */
+    readonly replayAvailable: boolean;
     readonly levelIndex: number;
     readonly levels: readonly BeadsLevelRaw[];
     readonly stageIndex: number;
@@ -185,6 +187,7 @@ function projectPlayShard(s: SnapshotPlay, src: SnapshotSource): void {
     s.phaseElapsed = src.machine.elapsed;
     s.mode = src.mode;
     s.assist = src.assist;
+    s.clearReplayAvailable = src.replayAvailable;
     s.levelIndex = src.levelIndex;
     const currentLevel = src.levels[src.levelIndex];
     s.levelId = src.mode === 'sprint' ? 'sprint' : currentLevel ? levelIdOf(currentLevel) : '';

@@ -47,6 +47,8 @@ import {
     PANEL_IN_MS,
     PANEL_OUT_MS,
     TAP_SLOP_CSS,
+    REPLAY_SPEEDS,
+    REPLAY_PROGRESS_HIT,
     menuAnchors,
     powerupBuyPrice,
     setLiveDesignHeight,
@@ -95,6 +97,9 @@ import { ReplayRecorder } from '../replay/recorder';
 import type { ReplayRecording } from '../replay/recorder';
 import { precomputeBotDemo } from '../replay/demo';
 import { BotDriver } from '../bot/driver';
+import { ReplayPlayer } from '../replay/player';
+import { createReplayViewModel, replayEntryState, writeReplayViewModel, type ReplayViewModel } from '../replay/view-model';
+import { hitReplayPage, renderReplayPage } from '../view/replay-page';
 
 /**
  * `[WXG-T-440 / ADR-0033 边界②]` 面板路由名 → 相位（`PanelRouter.route` 的入参）。
@@ -164,6 +169,10 @@ export class BeadsShell implements Game {
     private readonly _replay = new ReplayRecorder({ seed: () => this._services?.rng.state ?? 0 });
     /** EP15-S2 托管驱动（仅壳层持有；内核 ⛔ 不依赖 bot）。 */
     private readonly _driver = new BotDriver();
+    /** EP15-S4 回放会话（null = 不在回放页）。 */
+    private _replayPlayer: ReplayPlayer | null = null;
+    private _replayReturn: ShellScreen = 'play';
+    private readonly _replayVm: ReplayViewModel = createReplayViewModel();
     private readonly _clock: () => number;
     private readonly _metaKey?: string;
     /**
@@ -358,6 +367,12 @@ export class BeadsShell implements Game {
             ...(options.play ?? {}),
             // EP15-S3：公开命令成功后入录（录制器自驱相位起止，见 `_replay.tick`）。
             onCommandApplied: (type, args, elapsedMs) => this._replay.record(elapsedMs, type, args),
+            // EP15-S4：结算面板「回放」钮 —— 显隐与点击都归壳（游戏侧零录像真源）。
+            isReplayAvailable: () => {
+                const rec = this._replay.lastRecording;
+                return rec !== null && replayEntryState(rec, this._wallBaseLevels).available;
+            },
+            onReplayRequest: () => this._enterReplay('own-last'),
             // 暂停面板「回主菜单」次钮 → 切到菜单（真机反馈裁定：弃本局棋盘——下次「开始游戏」= 全新开当前关）。
             onMenuRequest: () => this.showMenu(),
             // 新局开局体力闸门（§3.14）：retry/restart 前扣 1 心；0 心返回 false（play 转广告加心位）。
@@ -409,6 +424,7 @@ export class BeadsShell implements Game {
         this._phase = new PhaseRouteBinder(this._uiRoot.nav, {
             menu: (b) => buildMetaView(b, this._metaViewData(), this.play.palette),
             play: (b) => renderPlayPage(this.play, b),
+            replay: (b) => this._renderReplay(b),
             // `[UI-60 P1 / ADR-0033 DEC-1]` 弹窗自持绘制（容器边界由 `UiRoot.draw` 包）。
             // `[WXG-T-601]` 弹窗可叠（`levels → level-detail`），`UiRoot.draw` 只调**栈顶**一张 ⇒ 这里读
             // 当前 overlay（= 栈顶）恒正确，⛔ 不会把同一张面板画两遍。
@@ -548,6 +564,12 @@ export class BeadsShell implements Game {
         }
         // UI-50：路由栈是唯一导航真源，每帧推进栈顶。
         this._uiRoot.update(dt);
+        if (this._phase.screen === 'replay') {
+            // EP15-S4：回放腿 —— 只推进影子时钟与传输带输入；play 冻结。
+            this._replayPlayer?.tick(dt * 1000);
+            this._readReplayInput();
+            return;
+        }
         if (this._phase.screen === 'play') {
             this._menuPress = null; // 进玩法后不得残留菜单按压（否则回菜单时会补发一次 phantom tap）
             this.play.update(dt); // 对局腿的采样在 `sampleFrame` 内（game.update 开头）
@@ -571,12 +593,13 @@ export class BeadsShell implements Game {
         // 基础页路由的 `draw` 闭已绑到视图入口（菜单腿 `buildMetaView` / 对局腿
         // `renderPlayPage` ⇒ `buildBeadsView`，WXG-T-420 T9）⇒ 层序与拆分前逐字一致。
         // `[WXG-T-440]` 相位 → 面板路由的幂等对账放在画之前：栈即绘制源，相位是唯一真源。
-        this._phase.syncPhase(this.play.phase, this.play.mode);
+        if (this._phase.screen === 'play') this._phase.syncPhase(this.play.phase, this.play.mode);
         this._uiRoot.draw(builder, this.play.palette);
     }
 
     onPause(): void {
         if (this._phase.screen === 'play') this.play.onPause();
+        if (this._phase.screen === 'replay') this._replayPlayer?.pause(); // 后台暂停回放
     }
 
     onResume(): void {
@@ -587,6 +610,8 @@ export class BeadsShell implements Game {
         for (const off of this._adOffs) off();
         for (const off of this._eventOffs) off();
         this._replay.discard();
+        this._replayPlayer?.dispose();
+        this._replayPlayer = null;
         this.play.dispose();
         this.meta?.dispose();
     }
@@ -628,6 +653,112 @@ export class BeadsShell implements Game {
             levelIndex: index,
             starsBefore: this.play.starsByLevelRaw[index] ?? 0,
         });
+    }
+
+    // ───────────────────────────────────────────────────────────── EP15-S4 回放页
+
+    /** 进入回放页（`source='own-last'` 由结算面板钮触发；`'bot-demo'` 由菜单演示入口触发）。 */
+    enterReplay(source: 'own-last' | 'bot-demo'): boolean {
+        return this._enterReplay(source);
+    }
+
+    /** EP15-S4：回放页只读视图模型（每帧由 `_renderReplay` 原地写；测试/调试同源）。 */
+    get replayViewModel(): Readonly<ReplayViewModel> {
+        return writeReplayViewModel(this._replayVm, this._replayPlayer);
+    }
+
+    private _enterReplay(source: 'own-last' | 'bot-demo'): boolean {
+        if (this._phase.screen === 'replay') return false;
+        const rec = source === 'bot-demo' ? this.buildBotDemo() : this._replay.lastRecording;
+        if (!rec) return false;
+        const player = new ReplayPlayer(rec, {
+            levels: this._wallBaseLevels,
+            tuning: this.play.tuning,
+        });
+        if (!player.valid) {
+            player.dispose();
+            return false; // §8-12：非法数据 ⇒ 入口禁用、不崩溃
+        }
+        this._replayPlayer?.dispose();
+        this._replayPlayer = player;
+        this._replayReturn = this._phase.screen;
+        this._phase.resetTo('replay');
+        this._cancelPageFx();
+        return true;
+    }
+
+    private _exitReplay(): void {
+        const player = this._replayPlayer;
+        this._replayPlayer = null;
+        player?.dispose();
+        this._phase.resetTo(this._replayReturn);
+        if (this._replayReturn === 'play') this._phase.syncPhase(this.play.phase, this.play.mode);
+    }
+
+    private _renderReplay(builder: RenderModelBuilder): void {
+        const player = this._replayPlayer;
+        if (!player) {
+            builder.setBackground(this.play.palette.background);
+            return;
+        }
+        writeReplayViewModel(this._replayVm, player);
+        const levelIndex = player.recording.context.levelIndex;
+        renderReplayPage(
+            {
+                snapshot: player.snapshot,
+                currentLevel: this._wallBaseLevels[levelIndex] ?? this._wallBaseLevels[0]!,
+                model: this._replayVm,
+            },
+            this.play.palette,
+            builder,
+        );
+    }
+
+    private _readReplayInput(): void {
+        const services = this._services;
+        if (!services) return;
+        const snap = services.input.snapshot;
+        services.viewport.screenToDesign(this._pointer, snap.x, snap.y);
+        if (snap.justDown) this.tapReplay(this._pointer.x, this._pointer.y);
+    }
+
+    /** 回放页点击（设计坐标）：传输带 / 结束条；其余位置零响应（结束条期条外全吞）。 */
+    tapReplay(x: number, y: number): boolean {
+        const player = this._replayPlayer;
+        if (!player) return false;
+        const hit = hitReplayPage(x, y, player.ended);
+        switch (hit) {
+            case 'exit':
+                this._exitReplay();
+                return true;
+            case 'end-secondary':
+                this._exitReplay();
+                return true;
+            case 'toggle':
+            case 'end-primary':
+                if (player.ended) {
+                    player.seek(0);
+                    player.play();
+                } else if (player.playing) {
+                    player.pause();
+                } else {
+                    player.play();
+                }
+                return true;
+            case 'speed': {
+                const speeds = REPLAY_SPEEDS;
+                const next = speeds[(speeds.indexOf(player.speed) + 1) % speeds.length]!;
+                player.setSpeed(next);
+                return true;
+            }
+            case 'seek': {
+                const t = (x - REPLAY_PROGRESS_HIT.x) / REPLAY_PROGRESS_HIT.w;
+                player.seek(Math.round(Math.max(0, Math.min(1, t)) * player.durationStep));
+                return true;
+            }
+            default:
+                return false;
+        }
     }
 
     // ───────────────────────────────────────────────────────────── routing

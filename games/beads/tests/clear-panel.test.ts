@@ -85,8 +85,10 @@ describe('S7 结算面板 · 精简几何（ux-spec §3.4 v1.58）', () => {
     expect(CLEAR_PLAQUE_W).toBe(380);
     expect(CLEAR_PLAQUE_H).toBe(96);
 
-    expect(layout.buttons).toHaveLength(2);
-    const [next, menu] = layout.buttons;
+    // EP15-S4：双钮 + 独立回放小钮（160×96，底 192；用户裁定：不动原双钮）。
+    const actionButtons = layout.buttons.filter((b) => b.id === 'next' || b.id === 'menu');
+    expect(actionButtons).toHaveLength(2);
+    const [next, menu] = actionButtons;
     expect(next!.id).toBe('next');
     expect(next!.rect.xMax - next!.rect.xMin).toBe(CLEAR_ACTION_W);
     expect(next!.rect.yMax - next!.rect.yMin).toBe(CLEAR_ACTION_H);

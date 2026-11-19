@@ -9,7 +9,7 @@
  * PAUSED 的面板动作由 `BeadsGame._applyPanelAction` 自行播放（本类不重复播）。
  */
 import { AUDIO_CLIP_UI_TAP } from '../../config/tuning.js';
-import { hitFailPanel } from '../../systems/fail-panel.js';
+import { hitFailConfirm, hitFailPanel } from '../../systems/fail-panel.js';
 import type { ClearPanel, ClearPanelAction, ClearPanelOptions } from '../../systems/clear-panel.js';
 import type { FinishPanel, FinishPanelAction } from '../../systems/finish-panel.js';
 import type { PausePanel, PausePanelAction } from '../../systems/pause-panel.js';
@@ -21,6 +21,8 @@ export interface PanelRouterHost {
   readonly mode: GameMode;
   /** 失败面板是否还有复活次数（`_reviveCount < REVIVE_MAX_PER_LEVEL`）。 */
   readonly reviveAvailable: boolean;
+  /** Fail 弹窗放弃确认态（confirm dialog 叠显）。 */
+  readonly failConfirming: boolean;
   readonly levelCount: number;
   readonly panel: PausePanel;
   readonly clearPanel: ClearPanel;
@@ -35,11 +37,15 @@ export interface PanelRouterHost {
   startSprintRun(): void;
   restartRun(): void;
   openMenu(): void;
+  /** EP15-S4：结算面板「回放」钮（壳层接管：进入回放页 / 无录像时零事件）。 */
+  openReplay(): void;
   applyPanelAction(action: PausePanelAction): void;
   /** 炫耀：调平台层 share（WXG-T-405），宿主无 share 能力时静默 noop。 */
   share(): void;
   /** 结算面板「好友这关榜」上下文入口（`[WXG-T-432]`；ADR-0035 §5.2 S-3）。 */
   openLevelRank(): void;
+  /** Fail 弹窗 dismiss ✕：进入放弃确认态（叠 confirm dialog）。 */
+  setFailConfirming(yes: boolean): void;
 }
 
 export class PanelRouter {
@@ -61,6 +67,22 @@ export class PanelRouter {
           else h.retryLevel();
           return true;
         }
+        // Fail 弹窗放弃确认态（模态：confirm dialog 叠在 Fail 之上，只响应 confirm 按钮）。
+        if (h.failConfirming) {
+          const confirmAct = hitFailConfirm(x, y);
+          if (confirmAct === 'confirm-yes') {
+            h.sfx(AUDIO_CLIP_UI_TAP);
+            h.setFailConfirming(false);
+            h.openMenu();
+            return true;
+          }
+          if (confirmAct === 'confirm-no') {
+            h.sfx(AUDIO_CLIP_UI_TAP);
+            h.setFailConfirming(false);
+            return true;
+          }
+          return false; // confirm 态吞掉板外点击
+        }
         const action = hitFailPanel(x, y, h.reviveAvailable);
         if (action === 'revive') {
           h.sfx(AUDIO_CLIP_UI_TAP);
@@ -72,6 +94,11 @@ export class PanelRouter {
           h.retryLevel();
           return true;
         }
+        if (action === 'dismiss') {
+          h.sfx(AUDIO_CLIP_UI_TAP);
+          h.setFailConfirming(true);
+          return true;
+        }
         return false;
       }
       case 'level-clear': {
@@ -81,6 +108,7 @@ export class PanelRouter {
         if (!action) return false;
         h.sfx(AUDIO_CLIP_UI_TAP);
         if (action === 'next') h.advanceAfterClear();
+        else if (action === 'replay') h.openReplay();
         else h.openMenu();
         return true;
       }

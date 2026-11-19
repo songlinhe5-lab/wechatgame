@@ -15,6 +15,7 @@
 import type { RenderModelBuilder } from '../../framework/index';
 import {
     AD_HINT_TEXT_Y,
+    ASSIST_BADGE,
     BEAD_CELL,
     BEAD_DRAW_INSET,
     BEAD_DRAW_INSET_SMALL,
@@ -404,6 +405,23 @@ function drawHud(
         }
     }
 
+    // EP15-S2：托管徽标（`ux/bot-replay §3.4`：132×56 顶部居中、非按钮、零热区）。
+    if (snap.assist === 'bot') {
+        const badge = ASSIST_BADGE;
+        builder.rect(badge.x, badge.bottom, badge.w, badge.h, {
+            fill: palette.panel,
+            stroke: palette.panelBorder,
+            lineWidth: UI_CONTAINER.strokePanel,
+            radius: badge.h / 2,
+        });
+        builder.text(badge.x + badge.w / 2, badge.bottom + badge.h / 2, '托管中', {
+            fill: palette.text,
+            font: bodyFont(snap.largeText, 'hudSmall'),
+            align: 'center',
+            baseline: 'middle',
+        });
+    }
+
     // `[WXG-T-295 续]` 安全区标定线（设置 Debug 开关）：H = 1334 基准 + 高屏增量 + 胶囊底。
     if (snap.debugGuides) {
         // `snap.capsuleBottom` 存的是**避让量**（胶囊底缘 + `SAFE_EDGE_MARGIN`）⇒ 划线回退边距，
@@ -478,8 +496,8 @@ function drawGrid(
     const solverT = solverN > 0 && snap.solverProgress > 0 ? snap.solverProgress * solverSequenceMs(solverN) : -1;
     const solverHintA = solverT > 0 ? solverHintAlpha(solverT) : 0;
     // EP11-S5 行4 右格：**豆径档只读一次**（循环外派生，⛔ 不进逐珠分支重算）。
-    // 作用域 = 仅网格珠珠体（含已填态）：风格 id 与内缩基准/孔开关均在本函数下发；
-    // 托盘珠另走 `drawTray`（只接风格、不接档 ⇒ 恒满幅、恒有孔，ux §3.3 ④）。
+    // 作用域 = 网格珠珠体（含已填态）+ 托盘珠（2026-11-17 起随档，见 `drawTray`）；
+    // 风格 id 与内缩基准/孔开关均在本函数下发。
     const sizeSmall = snap.beadSize === BEAD_SIZE_SMALL;
     const beadDrawInset = sizeSmall ? BEAD_DRAW_INSET_SMALL : BEAD_DRAW_INSET;
     /**
@@ -974,6 +992,11 @@ function drawTray(
     const rows = unlockedRows + (snap.trayCanExpand && trayPreviewFits(unlockedRows) ? 1 : 0);
     // 几何单一真源（§3.4 v1.20）：与 S2 命中测试共用 `trayLayout()`。
     const lay = trayLayout(rows);
+    // `[2026-11-17 用户报「豆子尺寸小巧时，托盘珠还是中空的」]` 托盘珠**随豆径档**（推翻旧 S5
+    // 「恒满幅、恒有孔」口径）：内缩 / 无孔 / mask 档三参直接复用网格珠同一把尺
+    // （`BEAD_DRAW_INSET_SMALL` + `hideHole` + `holeless`）⇒ 小豆档托盘珠同步缩小且不画孔。
+    const sizeSmall = snap.beadSize === BEAD_SIZE_SMALL;
+    const trayInset = sizeSmall ? BEAD_DRAW_INSET_SMALL : BEAD_DRAW_INSET;
 
     // White rounded panel behind the slots（面板**贴上沿** ⇒ 带下沿让给 `btn_expand`）。
     // [WXG-T-237 v6.0 · 用户 2026-10-04 裁定「托盘还是还原之前颜色」] 面板**回中性** `palette.panel`。
@@ -1010,8 +1033,8 @@ function drawTray(
                 // `trayZone: true` 放宽 tint 门的 `colorIdx` 条件（空槽无目标色 ⇒ `base = palette.slot` 中性）。
                 // ⛔ 不传 `tilePainted`：托盘没有 B0 底图 rect，槽需自带亮底（与盘面相反）。
                 drawEmptySocket(
-                    builder, cx, cy, palette, TRAY_SLOT, undefined, inks, false, BEAD_DRAW_INSET,
-                    { maskGauge: 'holed', styleId: snap.beadStyle, trayZone: true },
+                    builder, cx, cy, palette, TRAY_SLOT, undefined, inks, false, trayInset,
+                    { maskGauge: sizeSmall ? 'holeless' : 'holed', styleId: snap.beadStyle, trayZone: true },
                 );
             }
             continue;
@@ -1067,8 +1090,8 @@ function drawTray(
         //   矢量臂本就不补（风格层集自画实色孔底）⇒ 本二批只动 tint 臂调用参，矢量字节锁零扰动。
         // ⛔ 一张格面 tile 只有**一个**基色 ⇒ 环与孔共用；要两者异色得扩 mask 合成（已登记，未开批）。
         drawEmptySocket(
-            builder, cx, cy, palette, TRAY_SLOT, undefined, inks, false, BEAD_DRAW_INSET,
-            { maskGauge: 'holed', styleId: snap.beadStyle, trayZone: true },
+            builder, cx, cy, palette, TRAY_SLOT, undefined, inks, false, trayInset,
+            { maskGauge: sizeSmall ? 'holeless' : 'holed', styleId: snap.beadStyle, trayZone: true },
         );
         // [WXG-T-242 · 2026-10-04 用户裁「阴影要加深、凸显被选中的效果」] 托盘**补分离影**。
         //
@@ -1117,7 +1140,7 @@ function drawTray(
         // `TRAY_SLOT` 填进 `colorIdx` 槽位 ⇒ 影墨落进 `FALLBACK_ENDPOINTS` 炭黑）。
         // ⚠ 只吃 `lift`（选中抬起），**不吃 `tlDrop`**（进珠下落）—— 与盘面 `glPopP` 同款口径：
         //   下落包络的影仍属未闭项（影顶会跟不上快速下落的珠底）。
-        drawLiftShadowOn(builder, cx, cy, slot.colorIdx, inks, TRAY_SLOT, BEAD_DRAW_INSET, lift);
+        drawLiftShadowOn(builder, cx, cy, slot.colorIdx, inks, TRAY_SLOT, trayInset, lift);
         // [T-244 十三批] 相位未到 ⇒ 整颗珠不画（同盘面 `glHidden`）；槽底已在上方画过 ⇒ 读作「坑先亮、珠后现」。
         if (!tlHidden) drawFilledBead(builder, cx, cy, slot.colorIdx, {
             // [WXG-T-261 · 2026-10-06 用户裁「托盘整体放大」] `outer` = `TRAY_SLOT`（**48**，v4.0 的 1:1 已推翻），
@@ -1127,10 +1150,11 @@ function drawTray(
             // ⇒ 不传则矢量臂按满幅画、tint 臂按内缩画 ⇒ **两臂不同形**（同八轮修过的那类错配）。
             size: TRAY_SLOT,
             targetColorIdx: slot.colorIdx,
-            drawInset: BEAD_DRAW_INSET,
-            // EP11-S5 作用域：托盘珠**随风格**（与盘面珠同一层集）但**不随豆径档**
-            // （恒满幅、恒有孔）⇒ 不传 `hideHole`、不传小豆档 inset（assets-spec §7.11）。
-            maskGauge: 'holed',
+            drawInset: trayInset,
+            // EP11-S5 作用域（2026-11-17 扩到托盘）：托盘珠**随风格 + 随豆径档**；
+            // 小豆档 = 缩小 + 无孔，两参恒同步（同网格珠，⛔ 不得只传其一）。
+            hideHole: sizeSmall,
+            maskGauge: sizeSmall ? 'holeless' : 'holed',
             // [S5′-4 · 2026-10-05] 托盘面板底已改走 `back` 图元（blit 之下）⇒ 托盘珠不再需要排他标，
             // 与盘面同走纹理臂；`trayZone` 只剩「槽放宽 `colorIdx`」一个职责（见 `drawEmptySocket`）。
             // [用户 2026-10-06 二批裁「托盘珠子孔不透明，看不到下面的槽颜色 ⇒ 孔要透明透底」]

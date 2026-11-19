@@ -390,11 +390,11 @@ describe('S9 pause & settings', () => {
       const layout = pausePanelLayout(mode);
       expect(rectsOverlap(layout.panel, CAPSULE_AVOID)).toBe(false);
       expect(layout.panel.xMax - layout.panel.xMin).toBe(560);
-      // v1.8（WXG-T-934）：暂停面板专有高 364 = 标题带 100 + 2×88 + 行距 30 + 底衬 58。
-      // 避让实算：plate yMax = (1334+364)/2 = 849 < CAPSULE_AVOID.yMin 1214 ✓。
-      expect(layout.panel.yMax - layout.panel.yMin).toBe(364);
+      // v1.8（WXG-T-934）：暂停面板专有高 364；EP15-S2 托管行 +108 ⇒ **462**。
+      // 避让实算：plate yMax = (1334+462)/2 = 898 < CAPSULE_AVOID.yMin 1214 ✓。
+      expect(layout.panel.yMax - layout.panel.yMin).toBe(462);
       // 三钮、零设置项（v1.8 终态）。
-      expect(layout.buttons.map((b) => b.id)).toEqual(['resume', 'restart', 'go-menu']);
+      expect(layout.buttons.map((b) => b.id)).toEqual(['resume', 'toggle-assist', 'restart', 'go-menu']);
       // S9 §8-5 行重叠复核：任意两钮共享面积 ⇒ 命中测试会因数组序赢者吞掉后者。
       for (let a = 0; a < layout.buttons.length; a++) {
         for (let b = a + 1; b < layout.buttons.length; b++) {
@@ -831,8 +831,8 @@ describe('S9 pause & settings', () => {
     };
 
     const buttons = pausePanelLayout('normal').buttons;
-    // 覆盖面：v1.8 只此三钮（⛔ 静默漏测）。
-    expect(buttons.map((b) => b.id)).toEqual(['resume', 'restart', 'go-menu']);
+    // 覆盖面：v1.8 三钮 + EP15-S2 托管行（⛔ 静默漏测）。
+    expect(buttons.map((b) => b.id)).toEqual(['resume', 'toggle-assist', 'restart', 'go-menu']);
 
     for (const button of buttons) {
       // 该格中命中何人的词头 ⇒ 错位 / 对调 / 整行旋转都会在这条上报出格子坐标。

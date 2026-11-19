@@ -24,7 +24,8 @@ import type { MetaOverlay } from '../view/meta-view';
 import type { PlayPanelName } from '../view/view-model';
 import type { UiRoute } from './ui-root';
 
-export type ShellScreen = 'play' | 'menu';
+/** 基础页（EP15-S4 增 `replay` 回放页；它不是 `BeadsGame` 相位）。 */
+export type ShellScreen = 'play' | 'menu' | 'replay';
 
 /** 菜单侧覆盖层（与 `MetaOverlay` 的呈现侧取值一一对应）。 */
 export type MenuOverlay = 'levels' | 'signin' | 'settings' | 'skins' | 'profile' | 'level-detail';
@@ -76,6 +77,8 @@ const PHASE_MODAL_NAMES: ReadonlySet<string> = new Set<PhaseModal>([
 export interface PhasePageDrawers {
     menu(builder: RenderModelBuilder): void;
     play(builder: RenderModelBuilder): void;
+    /** EP15-S4：回放页（基础页；回放期不叠加任何 `BeadsGame` 相位面板）。 */
+    replay(builder: RenderModelBuilder): void;
     /** `[UI-60 P1 / ADR-0033 DEC-1]` 弹窗自持绘制（⛔ 不再由页面视图分支代画）。 */
     modal(builder: RenderModelBuilder, name: MenuOverlay): void;
     /** `[WXG-T-440]` 相位面板自持绘制（内容 = 该相位面板 + FG 彩带 + 榜单）。 */
@@ -94,6 +97,7 @@ export class PhaseRouteBinder {
     /** 基础页路由（每个壳一份：`draw` 闭包绑到该壳的视图入口）。 */
     private readonly _menuRoute: UiRoute;
     private readonly _playRoute: UiRoute;
+    private readonly _replayRoute: UiRoute;
     /** 弹窗路由表（`MenuOverlay` 全覆盖 ⇒ `openModal` 无三元链、新增一档只加一行）。 */
     private readonly _modals: Record<MenuOverlay, UiRoute>;
     /** `[WXG-T-440]` 相位面板路由表（`PhaseModal` 全覆盖）。 */
@@ -107,6 +111,7 @@ export class PhaseRouteBinder {
     ) {
         this._menuRoute = { name: 'menu', kind: 'page', draw: (b) => drawers.menu(b) };
         this._playRoute = { name: 'play', kind: 'page', draw: (b) => drawers.play(b) };
+        this._replayRoute = { name: 'replay', kind: 'page', draw: (b) => drawers.replay(b) };
         // `[UI-60 P1 / ADR-0033 DEC-1]` 弹窗自持绘制（构造期一次建表，⛔ 每帧不新建）。
         this._modals = {
             // `[WXG-T-503]` 选关 = 弹窗（格 120；底页菜单照常画 ⇒ 遮罩可透）。
@@ -139,7 +144,10 @@ export class PhaseRouteBinder {
 
     /** 当前屏幕 = 栈底基础页。 */
     get screen(): ShellScreen {
-        return this._nav.routes[0]?.name === 'play' ? 'play' : 'menu';
+        const name = this._nav.routes[0]?.name;
+        if (name === 'play') return 'play';
+        if (name === 'replay') return 'replay';
+        return 'menu';
     }
 
     /** 栈顶覆盖层；基础页在顶（或空栈）⇒ `none`。 */
@@ -155,9 +163,11 @@ export class PhaseRouteBinder {
         return this._levelsArc;
     }
 
-    /** 整栈换成单个基础页（回主菜单 / 进玩法 / 启动兜底都用它）。 */
+    /** 整栈换成单个基础页（回主菜单 / 进玩法 / 回放页 / 启动兜底都用它）。 */
     resetTo(screen: ShellScreen): void {
-        this._nav.reset([screen === 'play' ? this._playRoute : this._menuRoute]);
+        this._nav.reset([
+            screen === 'play' ? this._playRoute : screen === 'replay' ? this._replayRoute : this._menuRoute,
+        ]);
     }
 
     /** 主菜单 → 选关弹窗（modal），同时记下大关上下文。 */

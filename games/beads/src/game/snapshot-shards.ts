@@ -30,6 +30,7 @@ import type { BeadsSnapshot } from './state.js';
 export const PLAY_SHARD_FIELDS = [
     'phase', 'phaseElapsed', 'mode',
     'assist',
+    'clearReplayAvailable',
     'levelIndex', 'levelId', 'levelName', 'levelCount',
     'remaining', 'timeTotal', 'urgent',
     'gridCols', 'gridRows', 'cells',

@@ -44,11 +44,11 @@ describe('UI-31 · PauseModal', () => {
         expect(panel.progress).toBe(0);
     });
 
-    it('v1.8 三钮布局：只有继续 / 重玩本关 / 回主菜单，零设置项', () => {
+    it('v1.8 三钮 + EP15-S2 托管行：继续 / 托管 / 重玩本关 / 回主菜单，零设置项', () => {
         for (const mode of ['normal', 'sprint'] as const) {
             const layout = pausePanelLayout(mode);
             expect(layout.panel.yMax - layout.panel.yMin).toBe(PAUSE_PANEL_H);
-            expect(layout.buttons.map((b) => b.id)).toEqual(['resume', 'restart', 'go-menu']);
+            expect(layout.buttons.map((b) => b.id)).toEqual(['resume', 'toggle-assist', 'restart', 'go-menu']);
         }
     });
 });

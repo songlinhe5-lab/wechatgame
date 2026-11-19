@@ -79,7 +79,7 @@ function pressDy(snap: BeadsSnapshot, id: string): number {
   return pressOffset(snap.pressedButton === id, snap.reduceMotion);
 }
 
-/** Panel button copy — v1.8 三钮（设置项已全部迁菜单 `settings` 弹窗）. */
+/** Panel button copy — v1.8 三钮（设置项已全部迁菜单 `settings` 弹窗） + EP15-S2 托管行. */
 function panelLabel(button: PanelButton, snap: BeadsSnapshot): string {
   switch (button.id) {
     case 'resume':
@@ -88,6 +88,8 @@ function panelLabel(button: PanelButton, snap: BeadsSnapshot): string {
       return snap.mode === 'sprint' ? '重新冲刺' : '重玩本关';
     case 'go-menu':
       return '回主菜单';
+    case 'toggle-assist':
+      return snap.assist === 'bot' ? '托管：开' : '托管：关';
     default:
       return '';
   }
@@ -600,6 +602,8 @@ function drawClearPanel(
 
   // 双钮：新版整枚位图（主橙 / 次奶油）；缺图 ⇒ 旧 9-slice / 纯色降级腿。
   for (const button of layout.buttons) {
+    // EP15-S4：独立回放钮只在「有可播上一局」时出图（无录像 ⇒ 隐藏、零热区）。
+    if (button.id === 'replay' && !snap.clearReplayAvailable) continue;
     const bw = button.rect.xMax - button.rect.xMin;
     const bh = button.rect.yMax - button.rect.yMin;
     const label = clearPanelLabel(button.id, snap.clearLastLevel);

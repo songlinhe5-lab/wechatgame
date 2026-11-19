@@ -94,7 +94,7 @@ describe('EP15-S2 · 停机与接管（§8-10）', () => {
     const h = createBeadsHarness({ seed: 'beads-driver', levels: [level] });
     h.game.goToLevel(0);
     h.game.setAssist('bot');
-    const stuckPolicy: BotPolicy = { id: 'stuck-test', decide: () => null };
+    const stuckPolicy: BotPolicy = { id: 'stuck-test', version: 1, decide: () => null };
     const driver = new BotDriver({ policy: stuckPolicy, stepIntervalMs: 0 });
     expect(driver.tick(0, h.game)).toBe('stuck');
   });
