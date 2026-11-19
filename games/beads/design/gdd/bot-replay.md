@@ -1,6 +1,7 @@
 # GDD · S11 机器人玩家与过程回放（Bot & Replay）· beads
 
-- 项目：`games/beads` · 版本 **v1.0** · 任务号 **WXG-T-983** · 日期 2026-11-19
+- 项目：`games/beads` · 版本 **v1.1**（2026-11-19）· 任务号 **WXG-T-983**（初版）/ **WXG-T-985**（v1.1 契约回写）
+- 对齐注：**与 ADR-0038 对齐（DEC-3 / DEC-4 / DEC-6；壳层承载、录制上下文、系统时间线事件）**。
 - 范围：**仅 beads**；breakout 不做。本文只定义设计与接口契约，不落业务代码。
 - 数值纪律：本文只引用 `gdd/systems-index.md` §3 常量名；本系统新增常量见 **§3.15**。UI 几何常量（面板/按钮/进度条）住 `ux/bot-replay-spec.md` 与 `tuning`，**不进 §3**（沿用「颜色与纯呈现几何不进数值真源」判例）。
 - 术语消歧（硬口径）：
@@ -28,38 +29,44 @@
 
 ## 2. 机制
 
-### 2.1 状态机接入（与 `core-loop §4` 对接）
+### 2.1 状态机接入（与 `core-loop §4` / ADR-0038 DEC-4 对接）
 
-**定论：新增一个状态 `REPLAY`；机器人演示不是独立状态，而是 `REPLAY` 的 `source='bot-demo'` 变体；托管不是状态，而是 `PLAYING` 内的标记 `assist='bot'`。**
+**定论（v1.1 对齐 ADR-0038 DEC-4）：新增一个 `REPLAY` 会话，承载在壳层整页路由 `ShellScreen='replay'` + `ReplaySession`；`BeadsPhase` 不新增 `'replay'`。真实 `BeadsGame` 在回放期间停在源相位（own-last = `level-clear`，bot-demo = `boot`），影子实例固定 `playing`。演示不是独立会话类型，而是 `ReplaySession.source='bot-demo'`；托管不是状态，而是 `PLAYING` 内的 `assist='bot'` 标记。**
 
 理由：
 
-1. 演示与回放的**输入门禁、计时语义、计星/存档口径完全一致**（都只允许传输控件、都不写档），拆成两个状态会产生两套几乎相同的门禁与清理路径。
-2. 演示既然采用「预计算再播放」，它天然就是一份 `bot-demo` 录像；与玩家上一局共用同一个 `ReplaySession` 播放器。
-3. 托管必须正常计星/存档/失败，因此不能离开 `PLAYING`；用标记而非状态，避免复制计时、输入、结算链路。
+1. 真实实例若为回放迁出 `level-clear` 再迁回，会重跑 `onEnter('level-clear')` 的结算链（发豆/写档/品质分）⇒ 二次结算，违反 §8-9。壳层整页路由不碰真实实例相位，从结构上避免。
+2. 输入门禁、计时语义、计星/存档口径与 v1.0 完全一致：只允许传输控件、回放期间不 tick 真实 `BeadsGame`、不写档、不计星。
+3. 演示既然采用「预计算再播放」，它天然就是一份 `bot-demo` 录像；与玩家上一局共用同一个 `ReplaySession` 播放器。
+4. 托管必须正常计星/存档/失败，因此不能离开 `PLAYING`；用标记而非状态，避免复制计时、输入、结算链路。
 
 ```
-BOOT ──► PLAYING(assist='off'|'bot') ⇄ PAUSED
-           │  │
-           │  ├─ 错位珠全部归位 ──► LEVEL_CLEAR ──「回放」──► REPLAY(source='own-last')
-           │  │                                      ▲            │
-           │  │                                      └──「退出」───┘
-           │  └─ 倒计时归零 ──► GAME_OVER（无回放入口）
-           │
-           └─（主菜单「演示」──► REPLAY(source='bot-demo') ──「退出」──► 主菜单）
+真实 BeadsPhase： BOOT ──► PLAYING(assist='off'|'bot') ⇄ PAUSED
+                      │  │
+                      │  ├─ 通关 ──► LEVEL_CLEAR（真实实例停在此相位，不迁出）
+                      │  └─ 归零 ──► GAME_OVER（无回放入口）
+                      │
+壳层 ShellScreen：   'play' ──(ClearPanel「回放」)──► 'replay' + ReplaySession(source='own-last')
+                      │                                      │
+                      ├──(主菜单「演示」)──► 'replay' + ReplaySession(source='bot-demo')
+                      │                                      │
+                      └◄────────────「退出」─────────────────┘
 
-LEVEL_CLEAR ──「下一关 / 查看结果」──► PLAYING / FINISH（既有分支不变）
+影子实例 BeadsPhase：始终 'playing'（到达 level-clear/game-over 只作为「播放到头」信号）
 ```
 
-| 状态 | 职责 | 进入条件 | 退出条件 |
-|---|---|---|---|
-| `REPLAY` | 播放一份内存录像：影子引擎按固定步长重演，只响应传输控件 | `LEVEL_CLEAR` 点「回放」；主菜单点「演示」 | 「退出」→ 回进入源（`LEVEL_CLEAR` / 主菜单）；播放结束停留 |
-| `PLAYING` + `assist='bot'` | 机器人按节奏驱动真实对局；玩家可随时接管 | `PAUSED` 面板打开「托管」开关并继续 | 关闭托管 / 玩家接管 / 通关 / 失败 / 退出 |
+| 承载层 | 名称 | 职责 | 进入条件 | 退出条件 |
+|---|---|---|---|---|
+| 壳层 | `ShellScreen='replay'` + `ReplaySession` | 播放一份内存录像：影子引擎按固定步长重演，只响应传输控件；`source` 区分 own-last / bot-demo | `LEVEL_CLEAR` 点「回放」；主菜单点「演示」 | 「退出」→ 回进入源（`LEVEL_CLEAR` / 主菜单）；播放结束停留 |
+| 真实 `BeadsPhase` | `level-clear`（own-last）/ `boot`（demo） | 停在源相位，不迁出、不迁回；结算链只跑一次 | 进入 `ReplaySession` 时保持原相位 | 退出 `ReplaySession` 后仍在该相位 |
+| 影子 `BeadsPhase` | `playing` | 独立影子实例；终局只作播放到头信号 | 会话创建 / seek 重建 | 会话退出 / seek 销毁 |
+| 标记 | `PLAYING.assist='bot'` | 机器人按节奏驱动真实对局；玩家可随时接管 | `PAUSED` 面板打开「托管」开关并继续 | 关闭托管 / 玩家接管 / 通关 / 失败 / 退出 |
 
-- `REPLAY` **不进入** `PAUSED`：回放的暂停是播放器自身的 `paused` 标记，不是游戏暂停；计时/存档/经济全不参与。
+- `REPLAY` **不进入** `PAUSED`：回放的暂停是 `ReplaySession` 自身的 `paused` 标记，不是游戏暂停；计时/存档/经济全不参与。
 - `REPLAY` 期间**不 tick 真实 `BeadsGame`**；只 tick 影子实例。真实对局的 `LEVEL_CLEAR` 结算数据保持不变（回放不是二次结算）。
-- `REPLAY` 退出到 `LEVEL_CLEAR` 时，`ClearPanel` **立即恢复为可点**，**不重播星级入场、不重新发豆、不重新写档**。
+- 退出 `ReplaySession` 到 `LEVEL_CLEAR` 时，`ClearPanel` **立即恢复为可点**，**不重播星级入场、不重新发豆、不重新写档**。
 - `GAME_OVER` / 冲刺结算 / `FINISH` **不提供**回放或演示入口（用户拍板）。
+- **命名差登记**：本节概念名仍是「REPLAY」，但代码承载点是壳层 `ShellScreen='replay'` + `ReplaySession`，不是 `BeadsPhase`；后续按 `BeadsPhase` 搜索会落空，必须按本表对接。
 
 ### 2.2 机器人策略契约（纯逻辑层）
 
@@ -169,13 +176,14 @@ export function createBotPolicy(id = BOT_POLICY_DEFAULT): BotPolicy;
 | 维度 | 演示（bot demo） | 托管（bot assist） |
 |---|---|---|
 | 驱动方式 | **无头预计算**：影子引擎一次跑完，产出录像；UI 播放录像 | **实时**：每个 `BOT_STEP_INTERVAL_MS` 对真实 `BeadsGame` 施加一条 `BotAction` |
-| 所在状态 | `REPLAY(source='bot-demo')` | `PLAYING(assist='bot')` |
+| 所在承载 | `ReplaySession(source='bot-demo')`（壳层 `ShellScreen='replay'`） | `PLAYING(assist='bot')` |
 | 计星 / 存档 | 不计星、不写档、不发豆、不扣心 | **正常计星、正常写档、正常发豆、正常扣心**（进局时已扣） |
 | 失败处理 | 预计算失败/卡死 ⇒ 不生成演示，菜单轻提示；绝不展示半局 | 无合法动作 ⇒ **自动暂停 + 关闭托管 + 轻提示**；倒计时归零 ⇒ 正常 `GAME_OVER` |
 | 节奏 | 可 1x/2x/4x、可暂停、可拖动 seek | 固定 1x 人类节奏，不可倍速；暂停即冻结 |
 | 回放入口 | 演示结束条可「再看一遍」 | 无（走正常 ClearPanel） |
 
 - 演示关卡 = **当前最远解锁关**（用户 2026-11-19 裁定）；机器人跑不完整局时按上表「失败处理」走：不生成演示、菜单轻提示、绝不展示半局，也不回退到第 1 关。
+- **常量对齐**：`systems-index §3.15` 的 `BOT_DEMO_LEVEL = 'farthest-unlocked'`（v2.01 已更正），与本条 / ADR-0038 / EP15 一致。
 
 托管不改变任何结算语义：机器人只是「替玩家按命令」，`BeadsGame` 仍是唯一状态真源；L5 不被破坏。
 
@@ -188,10 +196,15 @@ export interface ReplayRecording {
   readonly v: 1;
   readonly source: 'own-last' | 'bot-demo';
   readonly levelId: string;
-  readonly levelHash: string;   // 关卡数据指纹；不一致 ⇒ 拒绝回放
-  readonly seed: number;
-  readonly fixedDtMs: number;   // = 框架固定步长，当前 1000/60
+  readonly levelHash: string;   // 关卡数据指纹（FNV-1a 规范化）；不一致 ⇒ 拒绝回放
+  readonly seed: number;        // 开局时 services.rng.state 快照（ADR-0038 DEC-6），不是构造参数种子
+  readonly fixedDtMs: number;   // = REPLAY_FIXED_DT_MS
   readonly durationMs: number;  // 有效对局时长（不含暂停）
+  readonly context: {           // 非命令但影响重演的装配态
+    readonly levelIndex: number;
+    readonly starsBefore: number;
+    readonly revived: boolean;
+  };
   readonly events: readonly ReplayEvent[];
   readonly final: ReplayFinal;
   readonly truncated: boolean;
@@ -201,7 +214,7 @@ export interface ReplayRecording {
 export interface ReplayEvent {
   readonly atMs: number;        // 有效对局时间轴，量化到 fixedDtMs
   readonly step: number;        // 权威定位：round(atMs / fixedDtMs)
-  readonly cmd: BotCommand['type'];
+  readonly cmd: BotCommand['type'] | 'revive'; // 'revive' = 系统时间线事件（续时加时）
   readonly args: Readonly<Record<string, number | string>>;
 }
 
@@ -221,6 +234,9 @@ export interface ReplayFinal {
 - `atMs` 是**有效对局时间**：`PAUSED`、后台挂起、回放自身暂停都不计入；因此暂停不会改变重演结果。
 - `step` 是权威定位；`atMs` 仅供显示与 seek 输入，重演时一律用 `step`，避免浮点漂移。
 - `levelHash` 用于防「关卡数据已更新、旧录像重演到另一张盘」；不一致时回放入口置灰并提示「关卡已更新，无法回放」。
+- `seed` 固定为**开局时 `services.rng.state` 快照**（不是 App 初始 seed / 构造参数种子）；影子实例用 `createRngFromState(seed)`（或等价按状态重建入口）复现随机道具，⛔ 不用 `createRng(seed)` 重新哈希。
+- `context` 是**非命令但影响重演的装配态**：`levelIndex` = 关卡在进度表中的序号；`starsBefore` = 开局前该关星级（决定 `nextTierFor` 三档时钟，影响 `remainingMs`）；`revived` = 本局是否已续时（决定续时保底星，至少影响 `ReplayFinal.stars`）。影子装配按 `context` 在**内存镜像**设置 `_starsByLevel[levelIndex]=starsBefore` 与 `revived`；⛔ 写档、⛔ 影响真实账号星账。
+- `revive` 是**系统时间线事件**（不是玩家/机器人命令）：续时（`GAME_OVER → 续时 → PLAYING`）时以 `{step, cmd:'revive', args:{bonusSec}}` 入录，并在该 `step` 注入影子；`ReplayEvent.cmd` 值域因此 = `BotCommand['type'] | 'revive'`。
 - `expandTray` 必须被录制：扩容改变托盘容量，不录会导致后续取回不可复现。
 - `usePowerup` 必须被录制；影子实例在 `replaySandbox` 下**不检查也不消耗**免费次数/豆子，只执行已授权意图，保证重演与当时一致。
 
@@ -228,23 +244,24 @@ export interface ReplayFinal {
 
 | 时机 | 行为 |
 |---|---|
-| 进入 `PLAYING`（BOOT 装配完成、开局扣心成功后） | 新建录制器；写入 `levelId / levelHash / seed / fixedDtMs`；`step=0` |
+| 进入 `PLAYING`（BOOT 装配完成、开局扣心成功后） | 新建录制器；写入 `levelId / levelHash / seed / fixedDtMs / context`；`step=0` |
 | 玩家/机器人每条公开命令成功 | 追加 `ReplayEvent`；同一 `step` 可有多条（一条 `BotAction` 的两条命令落在连续 step，不合并） |
 | `PAUSED` | 暂停计时累计；**不写事件**；恢复后继续 |
 | `LEVEL_CLEAR` | 停止录制；写入 `final`；标记为「上一局」可回放 |
-| `GAME_OVER` | 停止录制；**丢弃**（失败局不提供回放入口） |
+| `GAME_OVER`（选择不续时 / 最终未过关） | 停止录制；**丢弃**（不提供回放入口；含续时后再次失败且不再续时） |
+| `GAME_OVER → 续时 → PLAYING` | **不丢弃录制**；续时加时以 `{step, cmd:'revive', args:{bonusSec}}` 入录；恢复 `PLAYING` 后继续追加事件，`durationMs` 继续累计 |
 | 重试本关 / 下一关 / 回主菜单 / 重新冲刺 | 清理上一局录制器；新局重新开始 |
-| 进入 `REPLAY` | **只读**当前录像；不新建、不修改 |
-| 退出 `REPLAY` | 保留录像直到下一次 `PLAYING` 开始（允许反复观看） |
+| 进入 `ReplaySession` | **只读**当前录像；不新建、不修改；真实 `BeadsPhase` 保持源相位 |
+| 退出 `ReplaySession` | 保留录像直到下一次 `PLAYING` 开始（允许反复观看）；真实 `BeadsPhase` 仍为源相位 |
 | `bot-demo` | 生成后驻留内存；退出演示页即丢弃（不占「上一局」槽位） |
 | 应用重启 / 小游戏被杀 | 全部丢失（仅内存，符合用户裁定） |
 
 #### 2.3.3 影子引擎重演
 
-- 新建一个 `BeadsGame` 影子实例：同 `levelId`、同 `seed`、`replaySandbox=true`、服务用 noop（存档/钱包/体力/广告/音频可选静音）。
-- 按 `fixedDtMs` 逐步 `step(dt)`；在每个 `step` 开始前注入该 step 的全部事件（按录制顺序）；不读真实输入。
+- 新建一个 `BeadsGame` 影子实例：同 `levelId`、`replaySandbox=true`、服务用 noop（存档/钱包/体力/广告/音频可选静音）；RNG 用 `createRngFromState(rec.seed)` 重建（⛔ 不用 `createRng(seed)` 重新哈希）；按 `rec.context` 在内存镜像注入 `starsBefore / revived`。
+- 按 `fixedDtMs` 逐步 `step(dt)`；在每个 `step` 开始前注入该 step 的全部事件（按录制顺序，含 `cmd:'revive'` 的系统时间线事件）；不读真实输入。
 - 每步只 `buildRenderModel(snapshot)` 供 UI 绘制；**不**调用任何结算写档、发豆、扣心、上报。
-- 终局校验（测试/调试开启，生产可关）：比较 `grid` 每格 `colorIdx`、托盘每槽状态与颜色、`remainingMs` 量化值、`actions`；任何不一致 ⇒ 该录像标记 `invalid`，UI 禁用回放并提示。
+- 终局校验（测试/调试开启，生产可关）：比较 `grid` 每格 `colorIdx`、托盘每槽状态与颜色、`remainingMs` 量化值、`actions` 与 `ReplayFinal`；任何不一致 ⇒ 该录像标记 `invalid`，UI 禁用回放并提示。续时局还必须校验 `context.revived` 与 `revive` 事件注入后的 `remainingMs` / 保底星。
 - 重演必须与录制时**同一份关卡数据与同一套规则常量**；`levelHash` 不一致直接拒绝，不做兼容迁移。
 
 #### 2.3.4 播放、暂停、倍速、seek 语义
@@ -255,7 +272,7 @@ export interface ReplayFinal {
 | 暂停 | 影子时钟停；画面停在当前 step；不写事件、不改终局 |
 | 倍速 `1x/2x/4x` | 只改影子时钟推进倍率；**命令注入仍按 step 精确执行**；对应渲染动画时长按 `1/speed` 缩放（不新增毫秒常量） |
 | 拖动进度条 | 拖动中自动暂停；只更新预览时间标签与滑块；**松手才提交** |
-| seek 提交 | **销毁影子实例 → 从头新建 → 快进到目标 step**；到达后恢复到拖动前的播放/暂停状态 |
+| seek 提交 | **销毁影子实例 → 按 `levelId / seed / context` 从头新建 → 快进到目标 step**；到达后恢复到拖动前的播放/暂停状态 |
 | seek 越界 | 钳到 `[0, durationMs]`；不报错 |
 | 播放到尾 | 停在最终帧；弹「回放结束」条（重播 / 退出）；不自动循环 |
 | 退出 | 停止影子实例；回到进入源（`LEVEL_CLEAR` 或主菜单） |
@@ -275,11 +292,12 @@ export interface ReplayFinal {
 |---|---|---|---|---|---|
 | 正常 `PLAYING` | 正常判星 | 正常写档 | 正常发豆 / 进局扣心 | `ClearPanel`（现有） | 有（本局过关后） |
 | 托管 `PLAYING(assist='bot')` | **正常判星** | **正常写档** | **正常** | `ClearPanel`（现有） | 有（本局过关后） |
-| 演示 `REPLAY(source='bot-demo')` | **不计星** | **不写档** | **不发豆、不扣心** | 独立「演示结束条」 | 结束条内「再看一遍」 |
-| 回放 `REPLAY(source='own-last')` | **不计星** | **不写档** | **不发豆、不扣心** | 退出后回 `ClearPanel`（不二次结算） | 可重复进入 |
+| 演示 `ReplaySession(source='bot-demo')` | **不计星** | **不写档** | **不发豆、不扣心** | 独立「演示结束条」 | 结束条内「再看一遍」 |
+| 回放 `ReplaySession(source='own-last')` | **不计星** | **不写档** | **不发豆、不扣心** | 退出后回 `ClearPanel`（不二次结算） | 可重复进入 |
 
 补充口径：
 
+- 表中 `ReplaySession` 是**壳层会话**（`ShellScreen='replay'`），不是 `BeadsPhase`；真实实例停在源相位（own-last=`level-clear`，demo=`boot`），因此「退出不二次结算」由结构保证。
 - 演示不消耗体力：主菜单「演示」入口不扣心；不改变 `STAMINA_START_COST` 的既有语义（它管「开始游戏/选关进玩法」）。
 - 托管是对**真实对局**的辅助，因此一切经济/进度副作用与手动玩完全一致；这是与演示/回放最关键的边界。
 - 回放不发「品质分/最佳」等结算数据；`ReplayFinal.stars` 只作画面展示，不参与 `SETTLE_SCORE`，不写 `settleBestByUid`。
@@ -290,8 +308,8 @@ export interface ReplayFinal {
 
 | 来源 | 内容 | 去向 |
 |---|---|---|
-| 玩家（`LEVEL_CLEAR`） | 点「回放」 | `ClearPanelAction='replay'` → S1 切 `REPLAY(source='own-last')` |
-| 玩家（主菜单） | 点「演示」 | 菜单动作 → 生成 `bot-demo` 录像 → S1 切 `REPLAY(source='bot-demo')` |
+| 玩家（`LEVEL_CLEAR`） | 点「回放」 | `ClearPanelAction='replay'` → 壳层切 `ShellScreen='replay'` + `ReplaySession(source='own-last')`；真实 `BeadsPhase` 保持 `level-clear` |
+| 玩家（主菜单） | 点「演示」 | 菜单动作 → 生成 `bot-demo` 录像 → 壳层切 `ShellScreen='replay'` + `ReplaySession(source='bot-demo')`；真实 `BeadsPhase` 保持 `boot` |
 | 玩家（`REPLAY`） | 播放/暂停、倍速、拖动/点击进度条、退出、结束条「重播/退出」 | 回放播放器；**不进入玩法输入路由** |
 | 玩家（`PAUSED`） | 打开/关闭「托管」开关 | `assist` 标记切换；继续后生效 |
 | 玩家（`PLAYING` 且 `assist='bot'`） | 点棋盘/托盘/道具卡 | **取消托管并消费该次点击**（不产生玩法指令）；HUD 齿轮仍正常暂停 |
@@ -306,7 +324,7 @@ export interface ReplayFinal {
 ## 4. 输出与反馈
 
 - `LEVEL_CLEAR`：新增回放入口钮（v1 最小入口 = 面板下方独立小钮，**不重排现有两钮与四段内容**；几何见 UX 规格 §3.1）。
-- `REPLAY`：全屏回放页；复用玩法四带（HUD / PUZZLE / TRAY / 底部传输带），底部传输带替换道具带；只读棋盘与托盘。
+- `REPLAY`（壳层整页 `ShellScreen='replay'`）：全屏回放页；复用玩法四带（HUD / PUZZLE / TRAY / 底部传输带），底部传输带替换道具带；只读棋盘与托盘。
 - `PLAYING(assist='bot')`：HUD 显示静态「托管中」徽标（非按钮、无热区、无脉冲）；暂停面板显示「托管」开关行。
 - `bot-demo` 结束：独立「演示结束条」，不是无星版 `ClearPanel`（理由见 UX 规格 §8 D6）。
 - 音频：不新增 clip；回放/演示尊重现有音乐/音效设置；无关键音效时静默，不伪造新音频事件。
@@ -334,6 +352,7 @@ export interface ReplayFinal {
 - `BOT_MAX_MOVES` 触顶：按「策略未收敛」处理，绝不无限循环。
 - 回放时长 0（进关即退出）：不产生可回放录像（`LEVEL_CLEAR` 必然有动作）。
 - 事件数为 0 但 `LEVEL_CLEAR`：理论上仅测试夹具可达；按无效录像处理，禁用回放。
+- 续时局（`GAME_OVER → 续时 → PLAYING`）：录制器**不丢弃**；`revive` 事件必须入录。`GAME_OVER` 在**选择不续时**时丢弃（含续时后再次失败且不再续时）；选择续时则保留并继续录制。
 - 事件/字节超限：整份作废，不部分播放（§2.3.5）。
 
 **并发 / 竞态**
@@ -347,7 +366,8 @@ export interface ReplayFinal {
 
 **非法输入 / 非法数据**
 
-- `levelHash` 不一致、`seed` 缺失、`fixedDtMs` 非正、`events.step` 非单调：录像判 `invalid`，禁用入口并轻提示，不崩溃。
+- `levelHash` 不一致、`seed` 缺失、`fixedDtMs` 非正、`events.step` 非单调、`context.starsBefore` 缺失：录像判 `invalid`，禁用入口并轻提示，不崩溃。
+- `revive` 事件的 `args.bonusSec` 缺失或非正、或 `step` 落在 `[0,duration]` 之外：录像判 `invalid`，不崩溃。
 - `step` 与 `atMs` 不一致：以 `step` 为准；若 `step` 越界，钳到 `[0, duration]` 并记一次调试告警。
 - 回放页拖动进度条到负值/超过总长：钳制，不报错。
 - 托管开关在 `BOOT` / `LEVEL_CLEAR` / `GAME_OVER` / `FINISH` 点击：零响应（只出现在 `PAUSED`）。
@@ -355,7 +375,8 @@ export interface ReplayFinal {
 
 **确定性**
 
-- 同一 `levelId + levelHash + seed + events` 在任何设备、任何倍速、任何 seek 路径下，终局摘要必须一致。
+- 同一 `levelId + levelHash + seed + context + events` 在任何设备、任何倍速、任何 seek 路径下，终局摘要必须一致。
+- 含续时局：`context.revived=true` 与 `revive` 事件必须能重演出同一 `remainingMs`、保底星与终局；漏任一项即视为录制不完整。
 - 机器人不得消费 `services.rng`；若未来策略需要随机，必须把随机结果作为事件录制，禁止实时重建随机源。
 
 ---
@@ -364,8 +385,8 @@ export interface ReplayFinal {
 
 **上游**
 
-- S1 `core-loop`：状态机新增 `REPLAY`；`PLAYING` 增加 `assist` 标记；`LEVEL_CLEAR` 增加回放出口。
-- S2 `input-control`：`REPLAY` 输入门禁、托管取消规则、ClearPanel 回放入口钮路由。
+- S1 `core-loop`：`BeadsPhase` **不新增** `'replay'`；新增壳层 `ShellScreen='replay'` + `ReplaySession`；`PLAYING` 增加 `assist` 标记；`LEVEL_CLEAR` 增加回放出口。
+- S2 `input-control`：`REPLAY`（壳层会话）输入门禁、托管取消规则、ClearPanel 回放入口钮路由。
 - S3 `bead-grid` / S4 `tray-spawner` / S6 `powerups`：提供公开命令与只读观测；回放影子实例复用同一规则。
 - S5 `timer-gameover`：回放/演示不驱动真实计时；托管正常计时与失败。
 - S7 `score-combo` / S8 `save-progress`：托管正常结算/写档；演示/回放零写入。
@@ -380,18 +401,22 @@ export interface ReplayFinal {
 
 **接口清单（工程落码前置）**
 
-1. `BeadsGame` 公开命令：`selectBoardBead` / `retrieveSelectedGroup` / `selectTraySlot` / `tapGridCell` / `usePowerup`（既有）+ `expandTray`（回放/托管需要，需确认可从公开面调用）。
-2. 只读观测：`BeadsSnapshot` 或等价的纯数据视图（格、托盘、选择锚、剩余时间、动作数）。
-3. `BeadsGameOptions.replaySandbox`：影子实例关闭存档/钱包/体力/广告副作用；道具与扩容按「已授权」执行、不扣资源。
-4. 录制钩子：公开命令成功后回调（命令类型 + 参数 + 当前 step）；扩容与道具同样入录。
-5. 影子步进：固定步 `step(dt)` 与 `buildRenderModel` 只读；不得依赖 UI/相机。
-6. 菜单/`ClearPanel` 意图：`ClearPanelAction` 新增 `'replay'`；菜单新增 `'bot-demo'` 动作。
-7. 命名消歧（工程侧）：`FinishPanelAction` 的 `'replay'` 实为 restart，建议改名为 `'restart'`；不得与本系统 `ClearPanelAction='replay'` 共用语义。
+1. `BeadsGame` 公开命令：`selectBoardBead` / `retrieveSelectedGroup` / `selectTraySlot` / `tapGridCell` / `usePowerup` / `expandTray`（均既有）。
+2. 只读观测：`BeadsSnapshot` 或等价纯数据视图（格、托盘、选择锚、剩余时间、动作数、`assist`）。
+3. `BeadsGameOptions.replaySandbox?: boolean`：影子实例关闭存档/钱包/体力/广告/结算上报/崩溃快照副作用；道具与扩容按「已授权」执行、不扣资源。
+4. `BeadsGameOptions.onCommandApplied?: (cmd, args) => void`：公开命令**成功后**回调（命令类型 + 参数 + 当前 step）；`expandTray` / `usePowerup` 同样入录。
+5. RNG：新增 `createRngFromState(state: number): Rng`（或等价按状态重建入口）；影子用 `createRngFromState(rec.seed)`，⛔ 不改 `createRng` 既有行为。
+6. `PowerupSystem.requestAuthorized(type, pool, inputs)`：与 `request()` 同选择规则，但**跳过免费额度门槛**、**不写 `_freeDepleted`**；仍累计本关使用数，保证重演内部计数一致。
+7. 扩容：影子与回放直调 `expandTray()`（纯机制）；⛔ 走广告腿 `requestTrayExpand()`。
+8. `retrieveSelectedGroup` 的 `slot` 适配：`BotCommand.retrieveSelectedGroup.args.slot` **必须等于 `game.tray.firstFree()`**，否则 `applyBotCommand` 返回 `false`；⛔ 不为此新增公开方法。若未来需任意槽取回，先改 GDD 契约。
+9. 播放器时间：需要读取 `elapsedPlayingMs`（有效对局毫秒，不含暂停）用于 `atMs/step/durationMs`；不得用墙钟。
+10. 菜单/`ClearPanel` 意图：`ClearPanelAction` 新增 `'replay'`（壳层启 `ReplaySession`）；菜单新增 `'bot-demo'` 动作。
+11. 命名消歧（工程侧）：`FinishPanelAction` 的 `'replay'` 实为 restart，建议改名为 `'restart'`；不得与本系统 `ClearPanelAction='replay'` 共用语义。
 
 **分层红线**
 
 - `bot/**`、`replay/**` 禁止 `cc` / DOM / `wx` / `window` / `document`（L2/L3 精神，便于 Node 无头运行）。
-- 禁止 `Math.random()`；只用 `createRng(seed)`（L4）。
+- 禁止 `Math.random()`；实时玩法用 `createRng(seed)`，回放影子用 `createRngFromState(state)`（均不得手搓随机，L4）。
 - UI 不持有回放/机器人状态；只读 view model（L5）。
 - 录制器/播放器不得写 `save-manager` / `MetaSave` / 钱包。
 
@@ -400,8 +425,8 @@ export interface ReplayFinal {
 ## 8. 验收标准（可测试硬判据，QA 直接造用例）
 
 1. **金样本逐字一致（抽内核回归）**：从 `g3-lib.ts` 抽出的生产策略，在 `branchOrder='ACB'`、`reuseAnchor=false`、`retrieve='max'`、`allowDirectFill=true`、`usePowerups=false` 下，对已入库全部关卡跑出的 `pricing.actions` 与现网金样本**逐字一致**（零差异；不一致即失败）。
-2. **无头确定性**：同一 `levelId + seed` 连续跑 N=3 次，机器人动作序列、终局格色、托盘、剩余时间、动作数完全一致；全仓扫描 `bot/**` 无 `Math.random`、无 `services.rng` 消费。
-3. **回放终局一致**：对每份有效录像，影子重演的 `grid` 每格 `colorIdx`、托盘每槽状态/颜色、`remainingMs`（量化）、`actions` 与 `ReplayFinal` 完全一致。
+2. **无头确定性**：同一 `levelId + seed（services.rng.state 快照）` 连续跑 N=3 次，机器人动作序列、终局格色、托盘、剩余时间、动作数完全一致；全仓扫描 `bot/**` 无 `Math.random`、无 `services.rng` 消费。
+3. **回放终局一致**：对每份有效录像（含续时局 `revive`），影子重演的 `grid` 每格 `colorIdx`、托盘每槽状态/颜色、`remainingMs`（量化）、`actions` 与 `ReplayFinal` 完全一致。
 4. **seek 一致性**：任取 3 个目标 step，先 seek 再播到结尾，终局与「不 seek 直接播完」逐字段一致；暂停/倍速切换不改变终局。
 5. **计星/存档矩阵**：演示与回放期间，spy 断言 `save-manager` / 钱包 / 体力 / 发豆零调用；托管期间与手动局同调用、同结果。演示不扣心、不发豆。
 6. **入口唯一性**：`ClearPanel` 回放入口钮只在 `LEVEL_CLEAR` 出现；`GAME_OVER` / 冲刺结算 / `FINISH` 无回放/演示入口（逐相位命中测试）。
@@ -410,6 +435,6 @@ export interface ReplayFinal {
 9. **退出回源**：从 `LEVEL_CLEAR` 进入回放，退出后 `ClearPanel` 立即 `interactive=true`，星级/豆数不变、无二次结算；从主菜单进入演示，退出回主菜单。
 10. **托管卡死与接管**：机器人无合法动作时，下一拍自动切 `PAUSED` 且 `assist='off'`，有轻提示；托管中玩家点棋盘/托盘，取消托管且该次点击零玩法事件；HUD 齿轮仍能暂停。
 11. **托管结算**：托管通关后星级、豆、存档与手动通关同口径；托管失败走正常 `GAME_OVER` / 续时，不特殊处理。
-12. **数据防呆**：`levelHash` 不一致、`seed` 缺失、`step` 非单调、`fixedDtMs<=0` 的录像被判 `invalid`，入口禁用且不崩溃。
+12. **数据防呆**：`levelHash` 不一致、`seed` 缺失、`step` 非单调、`fixedDtMs<=0`、`context.starsBefore` 缺失、`revive.args.bonusSec` 非正的录像被判 `invalid`，入口禁用且不崩溃。
 13. **架构门**：`bot/**`、`replay/**` 不含 `cc`/DOM/`wx`/`window`/`document`；UI 不 import 策略实现；`check:arch`、L3 扫描、单测全绿。
 14. **内存与生命周期**：应用重启后无任何回放残留（仅内存）；进入下一局后「上一局」录像被替换；bot-demo 退出即释放。

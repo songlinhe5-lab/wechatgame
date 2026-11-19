@@ -15,6 +15,18 @@
 
 ---
 
+## WXG-T-985
+
+**GDD/UX 回写 ADR-0038 契约缺口** · 负责：文策渊(design-strategist)·beads 设计轨 · 状态：✅ 完成（2026-11-19）
+
+- **上游**：`docs/architecture/adr/ADR-0038-beads-bot-replay.md` DEC-3/4/6（WXG-T-984，`535fcdcf`）。
+- **回写 5 项**：① REPLAY 承载点改为壳层 `ShellScreen='replay'` + `ReplaySession`，`BeadsPhase` 不新增，真实实例停源相位、影子固定 `playing`；② 录制结构补 `fixedDtMs` / `durationMs` / `context{levelIndex, starsBefore, revived}` / `final` / `truncated` / `policyId?`，`seed` = 开局 `services.rng.state` 快照；③ `ReplayEvent.cmd = BotCommand['type'] | 'revive'`，续时以 `{step, cmd:'revive', args:{bonusSec}}` 入录，`GAME_OVER` 仅在未续时丢弃；④ §7 接口清单补 `replaySandbox` / `onCommandApplied` / `createRngFromState` / `requestAuthorized` / `expandTray()` 直调 / `retrieveSelectedGroup.slot === firstFree()`；⑤ 两份文件升 v1.1 并加 ADR-0038 对齐注。
+- **修正**：删除设计回写中误判的 `BOT_DEMO_LEVEL` 漂移注（§3.15 实为 `'farthest-unlocked'`，v2.01 已更正）。
+- **未改**：`systems-index §3` / changelog（无新增冻结常量）；`core-loop` / `input-control` / `ux-spec` / `pause-settings`（跨文档增补仍待合并）。
+- **零落码**：未碰 `src/**` / `tests/**` / cocos；未 commit（提交由主对话执行）。
+
+---
+
 ## WXG-T-984
 
 **ADR-0038 机器人/回放架构 + 控制清单 §21 + EP15 五 Story** · 负责：程基岩(engineering-lead)·beads 架构轨 · 状态：✅ 完成（2026-11-19）
