@@ -14,7 +14,7 @@
  *        关卡模式「按该关尺寸生成」用它：否则 13×12 请求会被裁成 11×8，替换回该关就改盘面尺寸。
  *   GET  /api/results         → 结果列表（按盘面分组、时间倒序）
  *   POST /api/batch/generate  → **批量生成**：body `{ items:[{name?,w,h,data,thumb?}]≤10, params?, grid?, draft?, board?, autotune? }`
- *        `grid` = 参数网格 `{colors?:[], smooth?:[], colorsmode?:[], cellmode?:[], swaps?:[], mis?:[], premedian?:[]}`
+ *        `grid` = 参数网格 `{colors?:[], smooth?:[], colorsmode?:[], cellmode?:[], swaps?:[], mis?:[], premedian?:[], minblock?:[]}`
  *        （笛卡尔积 ≤6 组合，单批产物 ≤60 条）。默认 draft（进预览区）；202 回 `{batchId,total,combos}`。
  *        `autotune:true` ⇒ 批次完成后按**同图分组**评分回 Top3（需 grid ≥2 组合）。
  *   GET  /api/batch/:id       → 批量进度 `{total,done,ok,error,finished,autotune,ranking,rows:[{name,combo,status,id?,metrics?,score?}]}`
@@ -72,7 +72,7 @@ import { fileURLToPath } from 'node:url';
 import { randomBytes, createHash } from 'node:crypto';
 import { BEAD_COLOR_MAX, baseColorOfChar } from '../../tools/scripts/lib/bead-charset.mjs';
 // 豆面可读性（WXG-T-357）：生成后二次优化修复；正本 games/beads/design/levels/pattern-legibility.md
-import { analyze as analyzeLegibility, judge as judgeLegibility, repairLevel as repairLevelLegibility } from '../../tools/scripts/lib/pattern-legibility.mjs';
+import { analyze as analyzeLegibility, judge as judgeLegibility, repairLevel as repairLevelLegibility, LIMITS as legibilityLimits } from '../../tools/scripts/lib/pattern-legibility.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url)); // apps/beads-studio
 const REPO = join(ROOT, '../..'); // workspace 根（本地跑）；容器内见 Dockerfile 布局
@@ -151,6 +151,9 @@ function runGen(rawPath, outDir, params) {
             '--mis', params.mis,
         ];
         if (params.premedian > 0) args.push('--premedian', String(params.premedian));
+        // 治碎（WXG-T-982）：碎块并入。缺省 1 = 关 ⇒ 不传该 flag，让 beads-gen 用自身默认（历史行为不变）；
+        // 仅显式 >1 时透传 --minblock，clusteringParams 已由 beads-gen 上报该值供对照。
+        if (params.minblock > 1) args.push('--minblock', String(params.minblock));
         // A 档选色真源：hue-aware Median Cut（默认 k-means 不变，仅显式传参才切）
         if (params.quantizer === 'median-hue') args.push('--quantizer', 'median-hue');
         if (params.shape && params.shape !== 'square') args.push('--shape', params.shape);
@@ -2028,6 +2031,9 @@ function readGenParams(q) {
         swaps: Math.max(0, parseInt(q.get('swaps') || '8', 10)),
         smooth: Math.max(0, parseInt(q.get('smooth') || '1', 10)),
         premedian: Math.max(0, parseInt(q.get('premedian') || '0', 10)),
+        // 治碎（WXG-T-982）：碎块并入阈值，缺省 1 = 关，与 beads-gen `arg('minblock','1')` 默认同源；
+        // 单张 / 批量共用本口径，⛔ 不改历史默认行为。
+        minblock: Math.max(0, parseInt(q.get('minblock') || '1', 10)),
         // 选色量化器：仅显式 median-hue 才切，缺省 k-means（历史行为不变）
         quantizer: q.get('quantizer') === 'median-hue' ? 'median-hue' : 'kmeans',
         noframe: q.get('noframe') === '1',
@@ -2107,6 +2113,16 @@ async function produceResult({ board, id, isDraft, w, h, b64, thumb, params, lev
     // 可入关判定在写盘时算一次（单一真源），前端与服务端拦截共用同一结果
     result.blockers = importBlockers(result);
     result.importable = result.blockers.length === 0;
+    // 只读可读性提示（WXG-T-982）：N/用色数 < T5 门限 ⇒ sizing 类，生成参数（含 minblock）修不动，
+    // 只回报「须放大盘/减色/换图」。门限取 pattern-legibility.mjs 的 LIMITS.beadsPerColor 单一真源
+    // （⛔ 不新增数值常量，K-012 第二把尺子）。⛔ 纯只读：不改 importable / blockers / 步骤 / 时长 / 定价。
+    const rep = result.report || {};
+    const fillable = typeof rep.fillable === 'number' ? rep.fillable : null;
+    const colorsUsed = typeof rep.colorsUsed === 'number' && rep.colorsUsed > 0 ? rep.colorsUsed : null;
+    result.legibilitySizingHint = (fillable !== null && colorsUsed !== null
+        && fillable / colorsUsed < legibilityLimits.beadsPerColor)
+        ? 'sizing 类：生成参数修不动，须放大盘/减色/换图'
+        : null;
     // 预览只写 draft.json（含与正式记录同一份 result 快照）⇒ 确认时原样搬成 result.json，不再重算
     writeFileSync(join(outDir, isDraft ? 'draft.json' : 'result.json'), JSON.stringify(result, null, 2));
     return result;
@@ -2120,7 +2136,7 @@ const BATCH_MAX_IMAGES = 10;   // 单请求图片数上限（内存里同时持�
 const BATCH_MAX_COMBOS = 6;    // 参数网格组合数上限
 const BATCH_MAX_TOTAL = 60;    // 单批产物总条数上限
 const BATCH_CONCURRENCY = 2;   // beads-gen 子进程并发（限 CPU 打满）
-const BATCH_GRID_KEYS = ['colors', 'smooth', 'colorsmode', 'cellmode', 'swaps', 'mis', 'premedian'];
+const BATCH_GRID_KEYS = ['colors', 'smooth', 'colorsmode', 'cellmode', 'swaps', 'mis', 'premedian', 'minblock']; // +minblock 治碎（WXG-T-982）
 /** 内存中的批次表：batchId → job。 */
 const batches = new Map();
 

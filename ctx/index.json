@@ -39626,17 +39626,17 @@
     },
     {
       "path": "games/beads/design/levels/pattern-legibility.md",
-      "tokens": 2647,
-      "lines": 111,
-      "sha256": "f6c586e7a72dce73493a2c7a0ea873691ea6265686a673882d72a07885018d11",
+      "tokens": 2988,
+      "lines": 120,
+      "sha256": "44098f444ae335bde544a65de2179b0ccc652065c3a2db641f20ec3047744cbd",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§豆面可读性（Pattern Legibility）· WXG-T-357",
           "level": 1,
           "startLine": 1,
-          "endLine": 112,
-          "tokens": 2632,
+          "endLine": 121,
+          "tokens": 2973,
           "summary": "一句话：DI（level-difficulty.md）管「难度排序与工量」，本文管「看不看得清」——",
           "keywords": [
             "Pattern",
@@ -39732,8 +39732,8 @@
           "anchor": "§7 诚实登记（不软化）",
           "level": 2,
           "startLine": 99,
-          "endLine": 105,
-          "tokens": 174,
+          "endLine": 114,
+          "tokens": 515,
           "summary": "H-1：T1 = 9 与 T5 = 25 是像素艺术经验锚，未经 playtest 校准；校准前只当初筛，不当法律。",
           "keywords": [
             "playtest",
@@ -39744,8 +39744,8 @@
         {
           "anchor": "§8 变更记录",
           "level": 2,
-          "startLine": 106,
-          "endLine": 112,
+          "startLine": 115,
+          "endLine": 121,
           "tokens": 150,
           "summary": "v1.1 2026-10-23 守恒配套：新增 repairLevel()（pattern 改色后 misplaced ",
           "keywords": [

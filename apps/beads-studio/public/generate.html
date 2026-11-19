@@ -316,6 +316,8 @@
                         <option value="3">3×3（推荐照片）</option>
                         <option value="5">5×5（低质压缩图）</option>
                     </select></div>
+                <div><label>碎块并入 minblock（1 = 关，保细节；≥2 合并小于该格数的同色碎块）</label><input type="number" id="minblock"
+                        value="1" min="0" max="64"></div>
             </div>
             <div class="row2">
                 <div><label>盘面形状</label><select id="shapeKind">
@@ -651,7 +653,7 @@
                 cols: reqCols, rows: reqRows,
                 palette: $('palette').value, colors: $('colors').value,
                 colorsmode: $('colorsmode').value, cellmode: $('cellmode').value, swaps: $('swaps').value,
-                smooth: $('smooth').value, premedian: $('premedian').value, shape: shapeValue(),
+                smooth: $('smooth').value, premedian: $('premedian').value, minblock: $('minblock').value, shape: shapeValue(),
                 mis: $('misKind').value,
                 noframe: $('noframe').checked ? '1' : '0',
                 skin: $('skin').value,
@@ -768,6 +770,9 @@
                     : `\n难度 D${df.score}（1★ 预算占比）｜真引擎实测 ${df.steps} 步 / ${df.taps} 次点击｜预估清关 ${df.timeEst}s（${df.formula ?? `公式 v0.4 = steps × ${df.secPerStep ?? '—'}s/步`}）` +
                     (df.blockers?.length ? `\n⛔ 不可入关：${df.blockers.join('；')}` : ''))
                     : '');
+            // 只读可读性提示（WXG-T-982）：服务端在 N/用色数 < T5 门限时给出（sizing 类），
+            // 复用现有统计行所在的 stats 区块追加一行；⛔ 纯展示，不改 importable / badge / 任何拦截。
+            if (r.legibilitySizingHint) $('stats').textContent += `\n⚠ ${r.legibilitySizingHint}`;
             $('dl').disabled = $('cp').disabled = !(r.levelDraft);
             // 预览（draft）还没进 data/<board>/<id>/ ⇒ 烘焙按 id 找目录会扑空，先禁用并说明
             // （入关已不在本页：统一走管理页，见下方 [WXG-T-341] 注）
