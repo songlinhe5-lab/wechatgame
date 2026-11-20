@@ -10967,3 +10967,17 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **并发披露（K-188）**：开工期间并发会话跑 tasks:archive 体积驱动档把 WXG-T-1000 成对搬入归档（合法工具行为、非静默回退；1000 为当时主表最老行）——台账四件（TASKS/TASKS-DETAIL/archive 两件）的归档 WIP 属对方批，本批只暂存自己的 1001 登记 hunk（备份→checkout HEAD→写本批→暂存→还原对方 WIP 于工作树），不代提交。（2026-11-20 修正批复核：对方已自行撤销该归档 WIP，1000 行/节仍在主表与详情，archive 两件无改动。）
 - **验证**：typecheck 两游戏全绿（TS6133 清零）；beads 全量 **1569/1570 绿**（余 1 红 = clear 金样 996 欠账，随七态重拍批一并解）；framework:sync:check 一致；check:tasks/check:links/ctx:check 由提交钩子复核。
 - **知识沉淀**：本单不跑 kb:sync，沉淀统计 新增 0 / 修改 0 / 激活 0 / 归档 0；候选 2 条交主理人汇编：① 金样夹具摄于 dirty 工作树而代码未入库 ⇒ HEAD 裸跑多帧红；确诊法 = 临时 checkout 涉改文件回 HEAD 单跑金样对比红帧集合，红帧收敛差即 WIP 视觉贡献；处置 = 代码入库后干净锚重拍，不手改夹具。② 先存跨轨依赖缺陷：已入库代码 import 只存在于他轨未入库 WIP 的导出 ⇒ 干净锚原生 Node ESM 拒跑，而 vitest 经 esbuild 宽松互操作掩盖 ⇒ 全量绿不等于干净锚可跑；确诊法 = 干净 detached worktree 直跑原生复取器；处置 = 披露 + 候依赖轨入库，不代收敛无裁定/无测试改判的他轨 WIP。
+
+---
+
+## WXG-T-1002
+
+**工程·微信端 boss 橱窗揭彩预烘取像修复** · 负责：本会话(Trae CN)·beads UI 轨 · 状态：✅ 完成（2026-11-20 · 用户令「直接用微信小程序模拟器解决资源问题」）
+
+- **背景**：用户先令核对 harness 豆面，确认盘面 / 详情 / 选关 / 菜单常规位图腿均正常；随后令改用微信开发者工具模拟器验资源。debug 包（`build-cocos.mjs --game=beads --debug`）打开后，主菜单其余位图（招牌 / 背板 / 开始钮 / 陶盆 / 豆罐 / 箭头）全部正常，唯 boss 橱窗展示区空白。
+- **确诊（模拟器控制台）**：`[BeadsBlitCarrier] 丢弃 blit \`bitmap__boss_l9\`：揭彩变体烘不出（纹理不可读或离屏不可用）`。链路：`accept()` 对带 `grayWipe` fx 的位图走总责语义（ADR-0029 §8.1，⛔ 不回落矢量）⇒ `_wipeFrame` → `_bakeGrayFrame` 取 `SpriteFrame.texture.image.data` 作像素源；微信端该值为空（离屏 canvas / `drawImage` 本身正常——tint 图集与其余位图可证）⇒ 返回 undefined ⇒ 整条 blit 丢弃 ⇒ 空窗。属 harness（canvas2d 直接按命令绘制 fx）看不见、仅 Cocos / 微信端暴露的宿主差异。
+- **修法（最小）**：`beads-blit-carrier.ts` 新增 `_bitmapImages`；`warmup` 装载静态位图时并行 `loadBitmapImage(path, bundle)`（与既有 `loadImageAsset` 同腿取 `ImageAsset.data`）另存；`_bakeGrayFrame` / `_frostFrame` 像素源改为「`_bitmapImages` 优先，`texture.image.data` 兜底」。只改 Cocos host 一件，不动 fx 管线、不动视图、不改总责语义。
+- **验证**：debug 重建 16.1s → `cli open` 重开模拟器 ⇒ 主菜单橱窗灰图（推关态）恢复；控制台 `静态位图 59/59 已装载 ⇒ 落 UI blit 层`、`masks=4/4 carrier=on`，无 `丢弃 blit` 告警；菜单常规位图腿与豆面均无回退。verify 20/23 PASS：`check:size` + `selftest:fast` 红 = 本轮 debug 产物非基线（`9378.5 KB`、`疑似 debug`，release 重建即恢复）；`test` 红 = clear 金样 996 欠账（1001 在册，候七态重拍批）。typecheck / cocos:check / harness:build / harness:smoke / mask:diff 全绿。
+- **环境记录**：Cocos CLI 构建在沙箱内会踩 `(0, browser_1.init) is not a function`（写 `~/Library/Application Support/CocosCreator` 被拦）⇒ 构建需在沙箱外执行；模拟器验证沿用 `cli open --project games/beads/cocos/build/wechatgame`，AppID 取本地未入库 `project.config.json`。
+- **知识沉淀**：本单不跑 kb:sync，沉淀统计 新增 0 / 修改 0 / 激活 0 / 归档 0；候选 1 条交主理人汇编：Cocos / 微信端 `SpriteFrame.texture.image` 可能拿不到像素，凡「从纹理读像素做预烘」的宿主腿都应在装载期另存 `ImageAsset.data`，否则会表现为带 fx 的位图整块消失且无矢量回落（harness 不可见）。
+

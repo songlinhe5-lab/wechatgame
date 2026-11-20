@@ -270,6 +270,12 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
     /** `[WXG-T-271 / ADR-0031 C′]` `textureId` → 预载全彩位图 `SpriteFrame`（静态位图注册表腿）。 */
     private readonly _bitmaps = new Map<string, SpriteFrame>();
     /**
+     * `textureId` → 可 `drawImage` 的原图（`ImageAsset.data`）。
+     * 真机/模拟器上 `SpriteFrame.texture.image` 可能不可读（bake 取不到像素 ⇒ 揭彩帧烘不出），
+     * 这里与 `loadImageAsset` 同源另存一份，供 gray / wipe / frost 预烘读取。
+     */
+    private readonly _bitmapImages = new Map<string, object>();
+    /**
      * `[WXG-T-566]` `textureId|gray` → 预烘灰化 `SpriteFrame`（菜单三态）。
      *
      * 为什么在 CPU 烘而不是走 `tint-mask.effect`：那张 effect 只采样 `maskTexture`
@@ -358,7 +364,11 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
         await Promise.all(
             Object.entries(BITMAP_ASSETS).map(async ([texId, a]) => {
                 const sf = await loadBitmapSpriteFrame(a.path, a.bundle);
-                if (sf) this._bitmaps.set(texId, sf);
+                if (sf) {
+                    this._bitmaps.set(texId, sf);
+                    const img = await loadBitmapImage(a.path, a.bundle);
+                    if (img) this._bitmapImages.set(texId, img);
+                }
                 else console.warn(`[BeadsBlitCarrier] 静态位图 \`${texId}\`（${a.bundle ?? 'textures'}/${a.path}）未就绪 ⇒ 该元素走程序化回退`);
             }),
         );
@@ -608,7 +618,8 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
         const tex = baseFrame.texture;
         const w = tex.width;
         const h = tex.height;
-        const image = ((tex as unknown as AnyObj).image as AnyObj | null)?.data as object | undefined;
+        const image = this._bitmapImages.get(textureId)
+            ?? (((tex as unknown as AnyObj).image as AnyObj | null)?.data as object | undefined);
         if (!image || w === 0 || h === 0) return undefined;
         const read = createOffscreen(w, h);
         const readCtx = read ? read.getContext('2d') : null;
@@ -650,7 +661,8 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
         const tex = baseFrame.texture;
         const w = tex.width;
         const h = tex.height;
-        const image = ((tex as unknown as AnyObj).image as AnyObj | null)?.data as object | undefined;
+        const image = this._bitmapImages.get(textureId)
+            ?? (((tex as unknown as AnyObj).image as AnyObj | null)?.data as object | undefined);
         if (!image || w === 0 || h === 0) return undefined;
         const canvas = createOffscreen(w, h);
         const ctx = canvas ? canvas.getContext('2d') : null;
@@ -876,6 +888,22 @@ async function loadBitmapSpriteFrame(path: string, bundleName: string = MASK_BUN
     sf.rect = new Rect(0, 0, tex.width, tex.height);
     sf.originalSize = new Size(tex.width, tex.height);
     return sf;
+}
+
+/**
+ * 位图原图 → 可 `drawImage` 的对象（与 `loadImageAsset` 同腿）。
+ * 真机 / 模拟器上 `SpriteFrame.texture.image` 可能拿不到像素（gray / wipe / frost 预烘会失败），
+ * 故装载时另存一份 `ImageAsset.data`。
+ */
+async function loadBitmapImage(path: string, bundleName: string = MASK_BUNDLE): Promise<object | undefined> {
+    const bundle = await ensureNamedBundle(bundleName);
+    if (!bundle) return undefined;
+    const asset = await new Promise<ImageAsset | null>((resolve) =>
+        assetManager.loadAny({ bundle: bundleName, path },
+            (err: Error | null, a: ImageAsset) => resolve(err ? null : a)),
+    );
+    const data = (asset as unknown as AnyObj | null)?.data as object | undefined;
+    return data ?? (asset ?? undefined);
 }
 
 /** 引擎 `stencil-manager` 的 ENTER_LEVEL。不引用 `cc.Mask`：mask 模块关着，`addComponent(Mask)` 会把真机打崩。 */
