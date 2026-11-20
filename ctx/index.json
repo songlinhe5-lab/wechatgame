@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4260,
       "lines": 141,
-      "sha256": "6d450e78727808becab6394e44f314d351642164bf996eb31c116e8bce248067",
+      "sha256": "1efbb913a64b4a2bbad281afcdb741904165b19de2dcf67ce325e3162d80c4f4",
       "tier": "normal",
       "sections": [
         {
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5208,
       "lines": 159,
-      "sha256": "9e564e99eaf68da93da305bd45acc4cb7473ec69c710d8fb1b4314ce1d84d85d",
+      "sha256": "0376b9e9ad79d4d7b5a821c40f3603c56ee04ef612b3baa93ea640838bb7df33",
       "tier": "normal",
       "sections": [
         {
@@ -761,12 +761,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 317 行 / 94139 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 313 行 / 93644 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+318 · §待排（backlog，无号，立项时领取…=288+31",
+          "summary": "§WXG 任务台账（SSOT）=1+314 · §待排（backlog，无号，立项时领取…=284+31",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -93360,17 +93360,17 @@
     },
     {
       "path": "production/BACKLOG.md",
-      "tokens": 11621,
-      "lines": 39,
-      "sha256": "bc8d801b7a5cac488a91e58d43bc9d40c87b84158fe2bb66c596db8254ca0c8e",
+      "tokens": 12092,
+      "lines": 46,
+      "sha256": "b69b9eee6f2c853d02463153d6515d4701cf09a73c903b2d0dcd4cb461376da5",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§未排期提案与留档（BACKLOG）",
           "level": 1,
           "startLine": 1,
-          "endLine": 40,
-          "tokens": 11609,
+          "endLine": 47,
+          "tokens": 12079,
           "summary": "从 production/TASKS.md 拆出（WXG-T-407，2026-10-26 用户裁「拆 BACKLOG ",
           "keywords": [
             "BACKLOG",
@@ -109100,17 +109100,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 94139,
-      "lines": 317,
-      "sha256": "f7ec7b779f5d99a9129c1fafa5ede4ca78be5e06e529fc9a0e6142d0792af8cb",
+      "tokens": 93644,
+      "lines": 313,
+      "sha256": "296577ae26a0072cf116845c1c568d4bee9c1b7d24c1891a6eca78168b62e9d8",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 318,
-          "tokens": 94131,
+          "endLine": 314,
+          "tokens": 93635,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -109123,8 +109123,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 288,
-          "endLine": 318,
+          "startLine": 284,
+          "endLine": 314,
           "tokens": 1571,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

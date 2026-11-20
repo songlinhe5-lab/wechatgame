@@ -422,7 +422,9 @@ console.log(
 const ruleText =
   UNTIL_UNDER !== null
     ? `完成判定：**体积驱动**（--until-under=${UNTIL_UNDER}，**忽略年龄**）`
-    : `完成判定：行内完成日期（取不到回退 git blame committer-time）≤ ${fmt(new Date(cutoff * 1000))}（${DAYS} 天前）`;
+    : DETAIL_UNTIL_UNDER !== null
+      ? `完成判定：**详情体积驱动**（--detail-until-under=${DETAIL_UNTIL_UNDER}，**忽略年龄**）`
+      : `完成判定：行内完成日期（取不到回退 git blame committer-time）≤ ${fmt(new Date(cutoff * 1000))}（${DAYS} 天前）`;
 console.log(
   `  ${ruleText}｜全局最大号（主表∪归档）：WXG-T-${fmtId(globalMax)}` +
   (headerLed ? `（表内最大 T-${fmtId(tableMax)}，**头注领先故沿用头注**）` : ''),
@@ -525,7 +527,8 @@ if (detailExists) {
 // 归档文件：不存在则带头创建；存在则追加批次。
 const batchStamp = new Date(Date.now() + 8 * 3600 * 1000).toISOString().replace('T', ' ').slice(0, 16) + ' +08:00';
 const batchIds = toArchive.map((c) => `WXG-T-${fmtId(c.id)}`).join('、');
-const batchLine = `> 归档批次 ${batchStamp} — ${movedRows.length} 行（${batchIds}）｜判定：行内完成日期（无则回退 blame）≥ ${DAYS} 天` +
+// 批次戳复用同一份判定文案：体积驱动忽略年龄，⛔ 不能再写死「≥ N 天」谎称年龄判定。
+const batchLine = `> 归档批次 ${batchStamp} — ${movedRows.length} 行（${batchIds}）｜${ruleText}` +
   (detailExists ? `｜详情节同批搬入 ${rel(ROOT, DETAIL_ARCHIVE)}` : '｜（无详情文件，只搬行）');
 let archiveOut = archiveText;
 if (!archiveText) {
@@ -564,7 +567,7 @@ console.log('   提醒：tasks:archive 是可选治理，不挂 pre-commit / CI�
 
 /**
  * 「可归档行」的唯一口径：表行 + 状态列以 ✅ 开头 + **有日期证据**（行内完成日期优先，
- * 回退 blame 命中），按文件序。日期判据单源于 `completionTimeOf`，⛔ 在此再内联一份。
+ * 回退 blame 命中），按号序（老→新）。日期判据单源于 `completionTimeOf`，⛔ 在此再内联一份。
  *
  * 为什么抽成一处（WXG-T-073 的初版教训）：三种体积 / 年龄策略各自内联这段筛选时，
  * 我把 `--detail-until-under` 接到了**已被年龄筛过**的 `candidates` 上 ⇒ 默认口径下它是空的，
@@ -583,7 +586,9 @@ function eligibleRows() {
     if (t == null) continue; // 无日期证据 → 不当作候选（宁漏勿错）
     out.push({ idx: i, id: Number(m[1]), line: lines[i], date: new Date(t * 1000) });
   }
-  return out;
+  // 主表按新→旧排列，文件序会让体积驱动优先搬走刚完成的任务，与「老账」语义相反。
+  // 三个体积档位共用本函数，一处按号序排定即可，⛔ 不在各策略里各排一次。
+  return out.sort((a, b) => a.id - b.id);
 }
 
 /** 一次 git blame --porcelain 取全文件行级 committer-time（秒）；无证据行 → null。

@@ -604,7 +604,7 @@ assert_not_contains "$OUT_S2" "WXG-T-2｜" "[15c] 体积档：002 同样被排�
 assert_eq "$( node "$ARCHIVE_CMD" --root="$REPO_S" --skip-ids=abc >/dev/null 2>&1; echo $? )" "1" \
   "[15d] 非法 --skip-ids ⇒ exit 1（fail loud，不静默当空集）"
 
-# ── [16] 编号宽度回归：3 位号与 4 位号共存（WXG-T-1002 修复）────────────────────
+# ── [16] 编号宽度回归：3 位号与 4 位号共存（WXG-T-1003 修复）────────────────────
 # 真实事故：fmtId 按「主表∪归档全局最大位数」零填充，台账进入 1000 后把 999 补成
 # WXG-T-0999 ⇒ 与详情节标题 WXG-T-999 失配 ⇒ 全部行被判「无小节」跳过，归档整体失效。
 echo "—— [16] 3 位号 + 4 位号共存：详情节仍成对搬运（编号固定 3 位口径）"
@@ -643,6 +643,45 @@ assert_contains "$(cat "$REPO_W/production/archive/TASKS-DETAIL-archive.md")" "�
   "[16d] 三位号详情节逐字节入归档"
 assert_contains "$(cat "$REPO_W/production/TASKS-DETAIL.md")" "四位号正文（不得被搬走）" \
   "[16e] 四位在办行详情节保留"
+
+# ── [17] 体积驱动档位语义：主表新→旧排列，仍按号序「老→新」搬，批次戳不谎称年龄 ────
+echo "—— [17] 体积驱动：老账优先 + 批次戳写真实判定"
+REPO_O="$WORK/repo-oldest-first"
+new_repo "$REPO_O"
+cat >"$REPO_O/production/TASKS.md" <<EOS
+# 任务台账（桩 17）
+
+> 当前已分配至 **WXG-T-003**，下一可用号 **WXG-T-004**。
+
+| Task ID | 名称 | 负责 | 状态 | 产出 |
+|---|---|---|---|---|
+| WXG-T-003 | 最新完成行 | 甲 | ✅ **完成（${E_OLD}）** | 见详情 |
+| WXG-T-002 | 中间完成行 | 甲 | ✅ **完成（${E_OLD}）** | 见详情 |
+| WXG-T-001 | 最老完成行 | 甲 | ✅ **完成（${E_OLD}）** | 见详情 |
+EOS
+cat >"$REPO_O/production/TASKS-DETAIL.md" <<EOS
+# 详情台账（桩 17）
+
+## WXG-T-001
+
+- 最老号正文
+
+## WXG-T-002
+
+- 中间号正文
+
+## WXG-T-003
+
+- 最新号正文
+EOS
+stub_commit "$REPO_O" "$D_OLD_ISO"
+OUT_O="$(node "$ARCHIVE_CMD" --root="$REPO_O" --until-under=1 --write 2>&1)"; RC=$?
+assert_eq "$RC" "0" "[17a] --until-under=1 --write 退出码 0"
+BATCH_O="$(grep '^> 归档批次' "$REPO_O/production/archive/TASKS-archive.md")"
+assert_contains "$BATCH_O" "（WXG-T-001、WXG-T-002、WXG-T-003）" "[17b] 批次戳按号序老→新（⛔ 不得倒挂为 003、002、001）"
+assert_contains "$BATCH_O" "体积驱动" "[17c] 批次戳写明体积驱动判定"
+assert_not_contains "$BATCH_O" "≥ 30 天" "[17d] 批次戳不得谎称 ≥30 天年龄判定"
+assert_contains "$(cat "$REPO_O/production/archive/TASKS-DETAIL-archive.md")" "最老号正文" "[17e] 最老号详情节成对搬入归档"
 
 echo "=================================================================="
 echo "结果：PASS=$PASS FAIL=$FAIL"
