@@ -10942,3 +10942,14 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：`difficulty.test.ts` 17 例绿；`framework:sync:check` / `levels:check` / `check:frozen-values STATUS OK` / `check:links` / `check:tasks` 绿；全量 `pnpm run verify` 结论沿用 WXG-T-997 的 PASS 18 / FAIL 5（本轮只做他轨状态复评，⛔ 不伪造绿、不拿局部绿冒充全量绿）。
 - **提交**：本笔（源码 + 2 件镜像 + 3 件文档 + 台账）；推送取证以 `git ls-remote` 为准。
 - **知识沉淀**：本单不跑 kb:sync，沉淀统计 新增 0 / 修改 0 / 激活 0 / 归档 0；候选 2 条（`tier` / `difficulty` 语义名在 studio 已被占用，接界面前须先做命名对账；并发会话活跃期跨轮任务应先做 WIP hunk 归属复核再定是否接线）交主理人汇编。
+
+## WXG-T-1000
+
+**设计·difficulty/tier 命名对账裁定（方案①）** · 负责：主理人(CodeBuddy)草拟·Qoder 补登·beads 设计轨 · 状态：✅ 完成（2026-11-20 · 用户裁定「B 轨 WXG-T-1000 命名候选单：1」）
+
+- **背景**：候选单 `games/beads/design/proposals/studio-difficulty-tier-naming-20261120.md` 由 CodeBuddy 主理人会话承用户令「3」（999 收尾选项③）产出，实测 `difficulty` 五义 / `tier` 六义，给出三方案待裁；产出后未及入库（未跟踪、台账未登记）。本会话（Qoder）先做 WIP 归属只读核对（用户选「先厘清 WIP 归属」），再经用户授权还原 A 轨对 WXG-T-982 的静默回退（`generate.html` / `server.mjs` 两件 `git checkout HEAD --`，9 hunk 逐条验纯 982 回退、无他轨混入；还原后只读门禁 6/6 PASS、`node --check server.mjs` OK），随后用户拍板本单方案①。
+- **裁定内容**：方案① = 新字段带限定名、旧键零改。保留全部现名；接线时新增 `difficultyBand`（含 tier + label）或只加 `bandLabel`（接线单内定）；UI 写「难度档：简单」与「估时占比 D45」并列，⛔ 禁裸写「难度」；四档中文只读 `DIFFICULTY_TIERS.LABELS`。方案②（游戏侧改名）留后续升级候选、方案③（studio 旧名根治）留并发收敛后按 K-084 另立单，均未被本次裁定授权。
+- **改动面**：候选单状态行改「已裁定：方案①」+ §5 建议节加裁定指针（原文保留作史证）+ 新增 §7 裁定登记（用户原话 / 含义 / 边界 / ②③ 去向 / 补登披露）；台账主表行 + 头注（已分配至 1000、下一可用 1001）+ 本详情节。**零落码、零改名、零常量 / 门禁 / 测试 / 关卡数据改动**；§3 冻结表零碰。
+- **接线前置状态更新**：生成页半——`generate.html` / `server.mjs` 已还原至 HEAD（与入库一致），前置部分解除；选关页半——`src/view/**` 他轨 WIP 仍在（含 3 条 TS6133 半成品），仍候对方入库（K-045 / K-188）。接线另立单（下一可用号 1001），不在本单范围。
+- **验证**：`check:tasks` / `check:links` / `ctx:check` 由提交钩子复核；只读门禁子集（check:arch / check:tasks / check:links / levels:check / framework:sync:check / check:frozen-values）6/6 PASS（A 轨还原后实测）。全量 verify 红项（金样本 / typecheck）属他轨收敛中，本单不代修、不拿局部绿冒充全量绿。
+- **知识沉淀**：本单不跑 kb:sync，沉淀统计 新增 0 / 修改 0 / 激活 0 / 归档 0；候选 1 条（并发会话编辑器缓冲早于某任务入库 ⇒ 工作树静默回退已完成任务；处置法 = 逐 hunk 验纯回退后经用户授权定向 checkout 还原，不代提交）交主理人汇编。

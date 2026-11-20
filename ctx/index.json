@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4221,
       "lines": 140,
-      "sha256": "1f45c056b0aecc0355fe56067151b8c4eecfb8297e4369b3577640229d1939d7",
+      "sha256": "4c8a8b6fdf2677def194913805ef38f534583c6d42d92c72f28c4bba55f7d182",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 410,
-          "summary": "1 production/TASKS-DETAIL.md 334882 10944 normal",
+          "summary": "1 production/TASKS-DETAIL.md 335748 10955 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -675,9 +675,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 5199,
+      "tokens": 5200,
       "lines": 159,
-      "sha256": "4f8a90a2290269f22f79fed5e723fd34e6741c4923da44549d32b943c9cf102b",
+      "sha256": "684f02d95579b92f2267a9023777b75ef609e5acafd4bba880fe20ae64da22d3",
       "tier": "normal",
       "sections": [
         {
@@ -685,7 +685,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 160,
-          "tokens": 5171,
+          "tokens": 5172,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -761,12 +761,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 308 行 / 89839 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 309 行 / 90109 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+309 · §待排（backlog，无号，立项时领取…=279+31",
+          "summary": "§WXG 任务台账（SSOT）=1+310 · §待排（backlog，无号，立项时领取…=280+31",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1080,12 +1080,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 10944 行 / 334882 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 10955 行 / 335748 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
-          "tokens": 121,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+10945 · §WXG-T-990=18+17 · §WXG-T-98",
+          "tokens": 122,
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+10956 · §WXG-T-990=18+17 · §WXG-T-98",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -26881,17 +26881,17 @@
     },
     {
       "path": "games/beads/design/art/proposals/ui-style-redesign/level-difficulty.md",
-      "tokens": 17330,
-      "lines": 468,
-      "sha256": "3ef00b8c09b2219ebd1c4b328a48c2a00ba780c716ec5c7212620fee351bbb59",
+      "tokens": 17501,
+      "lines": 469,
+      "sha256": "8f35337a739216a5fce1e5bae6f103956ad983e8c1ebbc1d8d31b704e36b8284",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§关卡难度公式（DI）与图元线性律 · WXG-T-266",
           "level": 1,
           "startLine": 1,
-          "endLine": 469,
-          "tokens": 17312,
+          "endLine": 470,
+          "tokens": 17483,
           "summary": "角色：文策渊（设计策略）· 接 WXG-T-265；配套 menu-architecture.md（陈列序与类别阈值均消",
           "keywords": [
             "WXG",
@@ -27284,8 +27284,8 @@
           "anchor": "§10 本轮改动清单（第三轮 · 2026-10-07；**换盘后刷新见 §10.1**）",
           "level": 2,
           "startLine": 342,
-          "endLine": 469,
-          "tokens": 5399,
+          "endLine": 470,
+          "tokens": 5570,
           "summary": "1 §4.0（新增） Q6 双轨裁定：门禁=契约（只锁单调）· 生成器=默认实现（等差，可配可替换）+ 三条理由 A-1",
           "keywords": [
             "§10.1",
@@ -27379,8 +27379,8 @@
           "anchor": "§10.5.1 追加 · 阈值追认、四档标签真源与 UI 接线状态（2026-11-20 · WXG-T-999）",
           "level": 3,
           "startLine": 463,
-          "endLine": 469,
-          "tokens": 478,
+          "endLine": 470,
+          "tokens": 649,
           "summary": "之 ① 阈值追认：用户令「1/2/3」之 ① 未给新值 ⇒ 按「确认照旧」追认 G 修正两阈值 2 / 1.25。追认的",
           "keywords": [
             "WXG",
@@ -47054,6 +47054,197 @@
           "summary": "1. 本提案整体归档，暂不立项：星级消费场景（含「星级解锁下一关」方向）留档备查；待换肤系统真要做时，再回来评估是否增加",
           "keywords": [
             "裁定记录",
+            "用户拍板"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "games/beads/design/proposals/studio-difficulty-tier-naming-20261120.md",
+      "tokens": 3934,
+      "lines": 115,
+      "sha256": "9463ceeec689c4108ea331be12d729e97b0edfe9766e3a5a50a571c7ed1e69d1",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§studio 侧 `difficulty` / `tier` 命名语义对账裁定候选单",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 116,
+          "tokens": 3914,
+          "summary": "正本 = 本文件（WXG-T-1000，2026-11-20 立）。",
+          "keywords": [
+            "difficulty",
+            "tier",
+            "studio",
+            "WXG",
+            "命名语义对账",
+            "裁定候选单"
+          ]
+        },
+        {
+          "anchor": "§0 一句话现状",
+          "level": 2,
+          "startLine": 21,
+          "endLine": 26,
+          "tokens": 129,
+          "summary": "difficulty 在仓内至少指 5 件不同的东西，tier 至少指 6 件；其中 studio 生成页同一行已有一个",
+          "keywords": [
+            "§0",
+            "difficulty",
+            "tier",
+            "studio",
+            "一句话现状"
+          ]
+        },
+        {
+          "anchor": "§1 实测语义占用基线",
+          "level": 2,
+          "startLine": 27,
+          "endLine": 58,
+          "tokens": 1438,
+          "summary": "",
+          "keywords": [
+            "§1",
+            "实测语义占用",
+            "基线"
+          ]
+        },
+        {
+          "anchor": "§1.1 `difficulty` 的五义",
+          "level": 3,
+          "startLine": 29,
+          "endLine": 38,
+          "tokens": 782,
+          "summary": "D1 难度分 D ＝ 估时占比 0–100 整数，1★ 档时长占满档时长的比例（取整）。levels-spec.md §",
+          "keywords": [
+            "difficulty",
+            "levels",
+            "spec",
+            "的五义"
+          ]
+        },
+        {
+          "anchor": "§1.2 `tier` 的六义",
+          "level": 3,
+          "startLine": 39,
+          "endLine": 51,
+          "tokens": 392,
+          "summary": "T1 切片档（甲乙丙） 中文 '甲' '乙' '丙' server.mjs:807-854（init.tier / ti",
+          "keywords": [
+            "tier",
+            "server",
+            "mjs",
+            "init",
+            "的六义"
+          ]
+        },
+        {
+          "anchor": "§1.3 两个具体冲突场景（不是抽象洁癖）",
+          "level": 3,
+          "startLine": 52,
+          "endLine": 58,
+          "tokens": 230,
+          "summary": "1. 同屏双「难度」：WXG-T-999 的接线方案要在生成页统计行显示四档中文标签；该行现有文案是「难度 D45（1★",
+          "keywords": [
+            "WXG",
+            "D45",
+            "两个具体冲突",
+            "场景",
+            "不是抽象洁癖"
+          ]
+        },
+        {
+          "anchor": "§2 硬约束（任何方案都不得破）",
+          "level": 2,
+          "startLine": 59,
+          "endLine": 68,
+          "tokens": 252,
+          "summary": "⛔ systems-index §3 冻结常量零改；门禁⑥ / ⑦ / ⑧、checkStepsGate、check:f",
+          "keywords": [
+            "§2",
+            "§3",
+            "systems",
+            "index",
+            "checkStepsGate",
+            "check"
+          ]
+        },
+        {
+          "anchor": "§3 接线前置清单（与命名裁定正交，先记住）",
+          "level": 2,
+          "startLine": 69,
+          "endLine": 77,
+          "tokens": 161,
+          "summary": "1. 并发会话把 generate.html / server.mjs / src/view/ 入库，或改用隔离 git",
+          "keywords": [
+            "§3",
+            "generate",
+            "html",
+            "server",
+            "mjs",
+            "src"
+          ]
+        },
+        {
+          "anchor": "§4 三个候选方案（只列事实与代价，⛔ 不代裁）",
+          "level": 2,
+          "startLine": 78,
+          "endLine": 90,
+          "tokens": 535,
+          "summary": "做法 保留全部现名；接线时新增 difficultyBand（含 tier + label）或只加 bandLabel ",
+          "keywords": [
+            "§4",
+            "difficultyBand",
+            "tier",
+            "label",
+            "bandLabel",
+            "三个候选方案"
+          ]
+        },
+        {
+          "anchor": "§5 建议（**不代裁**，仅供拍板）",
+          "level": 2,
+          "startLine": 91,
+          "endLine": 100,
+          "tokens": 161,
+          "summary": "建议 方案 ①：零碰他轨 WIP、零动数据契约、零改史证，且给后续接线一个不含歧义的新键名；方案 ② 可作为「游戏侧单独",
+          "keywords": [
+            "§5",
+            "WIP",
+            "建议",
+            "不代裁",
+            "仅供拍板"
+          ]
+        },
+        {
+          "anchor": "§6 出处与纪律",
+          "level": 2,
+          "startLine": 101,
+          "endLine": 108,
+          "tokens": 325,
+          "summary": "语义实测：[levels-spec.md §5](../../levels/levels-spec.md) · [lev",
+          "keywords": [
+            "§6",
+            "§5",
+            "levels",
+            "spec",
+            "lev",
+            "出处与纪律"
+          ]
+        },
+        {
+          "anchor": "§7 裁定登记（2026-11-20 · 用户拍板）",
+          "level": 2,
+          "startLine": 109,
+          "endLine": 116,
+          "tokens": 376,
+          "summary": "用户原话：「B 轨 WXG-T-1000 命名候选单：1」（Qoder 会话，2026-11-20）⇒ 裁定 = 方案①",
+          "keywords": [
+            "§7",
+            "WXG",
+            "Qoder",
+            "裁定登记",
             "用户拍板"
           ]
         }
@@ -92964,17 +93155,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 334882,
-      "lines": 10944,
-      "sha256": "cc62ba29744ead705ec064d7a7374988197632b059fbd9e30e2208f6e4be87a1",
+      "tokens": 335748,
+      "lines": 10955,
+      "sha256": "1234c36eebcceab9315ad13e69bf6c1406ef76688901a67b797fb3135c774de0",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 10945,
-          "tokens": 334865,
+          "endLine": 10956,
+          "tokens": 335732,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -108549,22 +108740,37 @@
             "CodeBuddy",
             "beads"
           ]
+        },
+        {
+          "anchor": "§WXG-T-1000",
+          "level": 2,
+          "startLine": 10946,
+          "endLine": 10956,
+          "tokens": 863,
+          "summary": "设计·difficulty/tier 命名对账裁定（方案①） · 负责：主理人(CodeBuddy)草拟·Qoder 补",
+          "keywords": [
+            "WXG",
+            "difficulty",
+            "tier",
+            "CodeBuddy",
+            "Qoder"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 89839,
-      "lines": 308,
-      "sha256": "1f3056644be8b40e6a96c720d1f45e1f868105054ea88128fe609b408c731456",
+      "tokens": 90109,
+      "lines": 309,
+      "sha256": "48d379fd27e9e09c82c1b035a956a4083926ed219437db18e503d4c17b782571",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 309,
-          "tokens": 89830,
+          "endLine": 310,
+          "tokens": 90100,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -108577,8 +108783,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 279,
-          "endLine": 309,
+          "startLine": 280,
+          "endLine": 310,
           "tokens": 1571,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
