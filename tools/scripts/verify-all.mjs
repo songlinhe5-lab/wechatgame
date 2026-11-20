@@ -89,6 +89,9 @@ const STEPS = Object.freeze([
   // WXG-T-456 / 判例 K-174：§3 冻结值三方对账（§3 表格 ↔ `src/config/**.ts` ↔ 下游现行文档等式）。
   // 动因：2026-10-27 人工核账实测到多处「下游文档抄旧值」，而 22 项里没有一条守这件事。
   'check:frozen-values',
+  // `[WXG-T-1013]` 入包位图资产门：Bundle 整目录入包 ⇒ 反向差集（孤儿 / 断链 / 死登记）。
+  // 不依赖构建产物 ⇒ 恒跑，补 `check:cocos-mask`（只做正向）与 `check:size`（只卡总量）之间的空档。
+  'check:assets',
 ]);
 
 const STATUS_RE = /^STATUS:\s*(OK|WARN|SKIP|FAIL)\b/m;

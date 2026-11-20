@@ -119,7 +119,9 @@ export const LEVEL_SELECT_TEXTURES = {
     cell: 'bitmap__level_select_cell',
     /** `[WXG-T-610]` 九宫格背板。 */
     tray: 'bitmap__level_select_tray',
-    /** `[WXG-T-610]` 三态格底：橙 = 普通 / 亮金 = 当前推关 / 灰 = 未解锁。 */
+    /** `[WXG-T-610]` 三态格底：橙 = 普通 / 亮金 = 当前推关 / 灰 = 未解锁。
+     * `[WXG-T-1013]` 三件投放位图已出包（blit 腿被 BlitLayerUI 压 Graphics 问题删掉，
+     * 程序化腿接管）；键保留为 `tests/level-select-view-model.test.ts` 的「断言不画」哨兵。 */
     cellNormal: 'bitmap__level_select_cell_normal',
     cellCurrent: 'bitmap__level_select_cell_current',
     cellLocked: 'bitmap__level_select_cell_locked',
@@ -130,6 +132,7 @@ export const LEVEL_SELECT_TEXTURES = {
     closeBtn: 'bitmap__level_select_close',
     /** `[WXG-T-611]` 编号牌背景（稿 `176:22`，65×35）；数字仍程序化，缺图 ⇒ 程序化木牌回退。 */
     brand: 'bitmap__level_select_brand',
-    /** `[WXG-T-611]` 锁定格图案（稿 `176:21 grid-image`，69×76）；缺图 ⇒ 灰珠阵降级腿。 */
+    /** `[WXG-T-611]` 锁定格图案（稿 `176:21 grid-image`，69×76）；缺图 ⇒ 灰珠阵降级腿。
+     * `[WXG-T-1013]` 投放位图已出包，键保留为 `tests/arc-wall-locked.test.ts` 的「断言不画」哨兵。 */
     lockImage: 'bitmap__level_select_lock',
 } as const;

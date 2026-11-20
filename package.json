@@ -35,6 +35,7 @@
     "build:cocos": "pnpm -r run build:cocos",
     "build:cocos:web": "pnpm -r run build:cocos:web",
     "check:size": "node tools/scripts/check-bundle-size.mjs",
+    "check:assets": "node tools/scripts/check-assets.mjs",
     "check:size:selftest": "node tools/scripts/check-bundle-size.mjs --selftest",
     "check:cocos-mask": "node tools/scripts/check-cocos-mask.mjs",
     "check:bead-style-pool": "node --import=./tools/scripts/lib/ts-js-resolve.mjs tools/scripts/check-bead-style-pool.mjs",

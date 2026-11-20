@@ -126,7 +126,8 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
     [MENU_TEXTURES.btnCircle]: { path: 'ui_btn_circle_normal' },
     [MENU_TEXTURES.btnCirclePressed]: { path: 'ui_btn_circle_pressed' },
     [MENU_TEXTURES.iconSettings]: { path: 'ui_icon_settings' },
-    [MENU_TEXTURES.iconSound]: { path: 'ui_icon_sound' },
+    // `[WXG-T-1013]` iconSound 件出包：tuning 键保留为「公告条目图标」候选件 + 旧文案债留档，
+    // 但 WXG-T-493 起零画法消费 ⇒ 不再预装载（原 `ui_icon_sound.png` 2.9 KB 已删）。
     // `[WXG-T-581]` iconMail / woodFrame 两件零消费者已删键出包（日志登记过期，见 tuning 注）。
     [MENU_TEXTURES.iconCalendar]: { path: 'ui_icon_calendar' },
     [MENU_TEXTURES.iconRank]: { path: 'ui_icon_rank' },
@@ -178,14 +179,14 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
     // `[WXG-T-610]` 选关弹窗稿面补件（Figma `159:3`）。⚠ `.meta` 待编辑器签发（L1）；
     // 未签发 ⇒ 逐元素走程序化降级腿（格 / 星文字档 / 木钮），零功能回归。
     [LEVEL_SELECT_TEXTURES.tray]: { path: 'detail/ui_level_select_tray' },
-    [LEVEL_SELECT_TEXTURES.cellNormal]: { path: 'detail/ui_level_select_cell_normal' },
-    [LEVEL_SELECT_TEXTURES.cellCurrent]: { path: 'detail/ui_level_select_cell_current' },
-    [LEVEL_SELECT_TEXTURES.cellLocked]: { path: 'detail/ui_level_select_cell_locked' },
+    // `[WXG-T-1013]` 三态格底 + 锁图共 4 件出包：`meta-widgets.ts` 的 blit 腿因
+    // 「BlitLayerUI 压 Graphics」已删（程序化腿接管），tuning 键留作测试「断言不画」的哨兵，
+    // ⛔ 但不再登记 ⇒ warmup 不再预装载（原 4 件 ≈146.7 KB 已删）。见 `check:assets` 门。
     [LEVEL_SELECT_TEXTURES.starFilled]: { path: 'detail/ui_level_select_star_filled' },
     [LEVEL_SELECT_TEXTURES.starEmpty]: { path: 'detail/ui_level_select_star_empty' },
     [LEVEL_SELECT_TEXTURES.closeBtn]: { path: 'detail/ui_level_select_close' },
     [LEVEL_SELECT_TEXTURES.brand]: { path: 'detail/ui_level_select_brand' },
-    [LEVEL_SELECT_TEXTURES.lockImage]: { path: 'detail/ui_level_select_lock' },
+    // `lockImage` 同批出包（见上方 WXG-T-1013 注）：灰珠阵降级腿已接管。
     // `[WXG-T-614]` 倒计时结束弹窗三件（木牌九宫格 capX120/capY300 源纹 px，走引擎 SLICED）。
     // ⚠ `.meta` 待编辑器签发（L1）；未签发 ⇒ 木牌回纸面板、钮回纯色圆角面，零功能回归。
     [TIMEOUT_TEXTURES.plaque]: { path: 'detail/ui_timeout_plaque' },

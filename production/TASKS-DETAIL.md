@@ -11082,3 +11082,93 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **撞号披露**：原拟 1009，复核发现 CodeBuddy BACKLOG 提案预占 1009–1011（ee8ae4a8 入库、锚推至 1011）⇒ K-046 改判 **1012**。
 - **登记**：provenance 压缩节 + §12 压缩条 + 1007 行/节 BLOCKED 闭账注（「已由 WXG-T-1012 解除」）。
 - **知识沉淀**：本单不跑 kb:sync，沉淀统计 新增 0 / 修改 0 / 激活 0 / 归档 0；候选 1 条交主理人汇编：check:size 瞬态假绿——并发会话重建清目录瞬间 walk 只数到残留文件（本例 16.3 KB/2 文件），红线复核须复跑确认文件数量级（beads 正常 ≈227 文件），⛔ 勿以单次读数为准。
+
+## WXG-T-1013
+
+**工程·入包资产门 + 删五件零消费位图** · 负责：主理人(CodeBuddy)·工程/发布轨 · 状态：✅ 完成（2026-11-20）
+
+用户对「小程序包资源全面 review」的三个候选回「1/2/3」。本批落地 **1 + 2**；第 3 项属图像编辑，
+按用户 2026-11-01 令「开工前必须主动提示用哪种方法处理，有多个可行选择则列出让用户挑」⇒ **先给选项待裁**，
+本批**未动任何图片字节**。
+
+### 1. 前置：领号与知识库
+
+- 领号读 `production/TASKS.md:5`（SSOT）：当时已分配至 **T-1012** ⇒ 本批领 **T-1013**。
+  ⚠ 本会话早前批次停在 T-600，若不重读台账直接续号会撞号（K-046 / 记忆里的撞号史）。
+- 必读判例：`K-051`（包体增量须差分复算）、`K-108`（动态装载资产须产物级门禁）、
+  `K-111`（重建产物 debug≠release；`build-cocos.mjs:78-84` 现已默认 release）、
+  `K-118`（门是什么类型的门）、`K-120`（删资产正本+拷贝件+`.meta` 三处成对）、
+  `K-156`（产物读数须核新鲜度）。
+
+### 2. 删 5 件零消费位图（≈149.6 KB）
+
+判据 = 去注释后全仓扫 `src/**`（排除 tuning）、`cocos/assets/scripts/**`、`tests/**`，`textureId` 零画法消费；
+且 `.scene` / `.mtl` 静态引用扫描未命中任何图片（排除「引擎自己会画」的误判）。
+
+| 件 | KB | 零消费证据 |
+|---|---|---|
+| `textures/ui_icon_sound.png` | 2.9 | `tuning/menu.ts` 自注「WXG-T-493 起零消费者」 |
+| `detail/ui_level_select_cell_normal.png` | 47.2 | `meta-widgets.ts:167` blit 腿因 BlitLayerUI 压 Graphics 已删 |
+| `detail/ui_level_select_cell_current.png` | 49.1 | 同上 |
+| `detail/ui_level_select_cell_locked.png` | 29.0 | 同上 |
+| `detail/ui_level_select_lock.png` | 21.4 | `meta-widgets.ts:222`「ponytail: 删 lockImage blit」 |
+
+- **tuning 5 个键保留**：它们是 `tests/arc-wall-locked.test.ts:135`、`tests/level-select-view-model.test.ts:86-112`
+  的「断言不画」哨兵，删键会丢回归守卫。删的是 **资产 + 登记 + 预装载**。
+- 连带删：10 个文件（5 PNG + 5 `.meta`）、宿主 `BITMAP_ASSETS` 5 条、`dev/harness/main.ts` 5 条平行映射。
+  `framework:sync` 后镜像两份 tuning 注释同步（写入 0 业务代码变化）。
+- 设计正本 `design/art/final/assets/detail/*@2x.png` **保留留库**（T-580 口径：不入包）。
+- 附带发现：`ui_level_select_cell.png` 与 `ui_level_select_cell_normal.png` 字节完全一致 ⇒ 删后者同时消掉
+  47.2 KB 冗余，且前者仍有消费（`LEVEL_SELECT_TEXTURES.cell`）。
+
+### 3. 新增 `check:assets` 机械门（verify 第 24 项）
+
+补的空档：`textures/` 与 `themes/` 都是整目录 Bundle（`textures.meta` / `themes.meta` 的 `isBundle:true`）
+⇒ 文件放进目录就入包；既有 `check:cocos-mask` 只做「登记件 → 产物」正向核查、`check:size` 只卡总量，
+都不回答「该不该在包里」。历史删零消费件靠人工逐键扫描（T-578/581/587）。
+
+三条硬判据（任一命中 ⇒ `STATUS: FAIL`）：
+
+1. **孤儿** = Bundle 内图片集合 − 运行时装载路径集合（宿主 `path:` 字面量 + `arcs.ts` 的 `art`）。
+2. **断链** = 装载路径集合 − Bundle 内图片集合。
+3. **死登记** = `BITMAP_ASSETS` 的 `[XXX.key]` 字面条，其 key 在源码/测试/镜像（去注释）里零消费
+   ⇒ blit 腿已删但登记忘了删，warmup 仍白预装载。
+
+报告项（⛔ 不判 FAIL，K-118：九宫格中空框 / 珠圈 / 招牌底留白都是设计语义）：
+`.meta` trim 元数据件数、透明边占比 TOP5、超大图(>1024)清单、投放件总量。
+
+**装置自证**：脚本内 `selfTest()` 3 组断言（孤儿 / 断链 / 注释剥离）每次运行先跑；
+另用临时孤儿 PNG `__orphan_probe.png` 端到端实测 `STATUS: FAIL` 且退出码 1，随后删除探针。
+挂载 = `package.json` 加 `check:assets`、`verify-all.mjs` STEPS 末尾追加，`--validate` 确认 24 项全在表内。
+
+### 4. 重建产物取证（release 档）
+
+`pnpm run build:cocos` 默认即 release 基线档（K-111 已翻正；日志确认 `beads` 引擎分离生效）。
+产物 `game.json` mtime = **2026-11-20T13:45:37**（K-156 新鲜度核过）。
+
+| 读数 | 前 | 后 |
+|---|---|---|
+| 主包 | 3965.1 KB / 227 文件 | **3810.6 KB / 212 文件**（−154.5 KB） |
+| 距 4096 KB 余量 | 130.9 KB | **285.4 KB** |
+| 产物位图 | 63 件 / 2049.7 KB | **58 件 / 1900.2 KB** |
+| 5 件哈希 | 在产物 | **全部出包** |
+
+`pnpm run verify`：**PASS 24 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0**（含新门）；
+重建后 `check:size` = OK、`check:cocos-mask` = OK。
+
+### 5. 工作树并发提示
+
+本批开工时工作树已有其它会话的未提交改动：`games/beads/package.json`（version）、
+`ctx/BUDGET.md` / `ctx/hot-files.md` / `ctx/index.json`（MM 混合态）、以及一度出现的
+`tests/__fixtures__/wxg-t-298-ui-golden.json`。本批**精确按路径提交，不夹带**；
+构建脚本自动递增的 version 亦留工作树未纳入。
+
+### 6. 遗留（第 3 项，待方法裁定）
+
+`themes/l9-boss-mandala-256.png`（256²，内容 182×180，63% 全透）与
+`photo32-smoke-boss-256.png`（174×178，68% 全透）按整张画布 blit ⇒ 缩略图图案小一圈、
+底缘坐不到台面（即上一轮「橱窗中间图案尺寸不够」的机制）。框架 `BlitCommand` **无 sourceRect/UV 字段**
+（`packages/framework/src/core/render/render-model.ts:133-154`），宿主 `accept()` 只做整帧缩放。
+`tuning/menu.ts` 已有现成真源 `MENU_ARC_ART_CONTENT = {x:37,y:31,w:182,h:180}` / `MENU_ARC_ART_SRC = 256`
+（WXG-T-601 立、2026-11-20 随 `drawShowcaseFace` 退役，当前零生产消费方）。
+修法涉及图像字节或运行时 UV，须用户先裁方法，故本批不动。

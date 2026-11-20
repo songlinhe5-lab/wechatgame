@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4260,
       "lines": 141,
-      "sha256": "44246ce240634b3bcd996d40d46c57b2480ff24b8918f91d9b5b513b8a07e39f",
+      "sha256": "20b28997d77ea288e717fe2251023fd830671b977e645dceb5d492a682a5e873",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 410,
-          "summary": "1 production/TASKS-DETAIL.md 347462 11084 normal",
+          "summary": "1 production/TASKS-DETAIL.md 349201 11174 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5208,
       "lines": 159,
-      "sha256": "f4a02f902a31c06f6ba4383adc72a2c76b67d3b873fc9cb5e16b0206ba551e80",
+      "sha256": "52714a17e250c58ab1ce5b2ba85bd92e0b65e78d374fc6c42c1f5418daf27b02",
       "tier": "normal",
       "sections": [
         {
@@ -761,12 +761,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 314 行 / 94361 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 315 行 / 94770 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+315 · §待排（backlog，无号，立项时领取…=285+31",
+          "summary": "§WXG 任务台账（SSOT）=1+316 · §待排（backlog，无号，立项时领取…=286+31",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1080,12 +1080,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 11084 行 / 347462 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 11174 行 / 349201 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
           "tokens": 130,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+11085 · §WXG-T-998=10919+16 · §WXG-T",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+11175 · §WXG-T-999=10935+13 · §WXG-T",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -93386,17 +93386,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 347462,
-      "lines": 11084,
-      "sha256": "1b3908b736e8380f9ca78ed5fa692ef5e7b030e236f9e0380298d680559d9da6",
+      "tokens": 349201,
+      "lines": 11174,
+      "sha256": "7ee762d1acc20fc1dabb78ffb982f16a8da7187a447ddf72be2379ecb864e084",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 11085,
-          "tokens": 347445,
+          "endLine": 11175,
+          "tokens": 349184,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -109109,22 +109109,129 @@
             "Qoder",
             "beads"
           ]
+        },
+        {
+          "anchor": "§WXG-T-1013",
+          "level": 2,
+          "startLine": 11086,
+          "endLine": 11175,
+          "tokens": 1736,
+          "summary": "工程·入包资产门 + 删五件零消费位图 · 负责：主理人(CodeBuddy)·工程/发布轨 · 状态：✅ 完成（202",
+          "keywords": [
+            "WXG",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§1 前置：领号与知识库",
+          "level": 3,
+          "startLine": 11094,
+          "endLine": 11102,
+          "tokens": 179,
+          "summary": "领号读 production/TASKS.md:5（SSOT）：当时已分配至 T-1012 ⇒ 本批领 T-1013。",
+          "keywords": [
+            "production",
+            "TASKS",
+            "SSOT",
+            "前置",
+            "领号与知识库"
+          ]
+        },
+        {
+          "anchor": "§2 删 5 件零消费位图（≈149.6 KB）",
+          "level": 3,
+          "startLine": 11103,
+          "endLine": 11123,
+          "tokens": 425,
+          "summary": "判据 = 去注释后全仓扫 src/（排除 tuning）、cocos/assets/scripts/、tests/，te",
+          "keywords": [
+            "src",
+            "tuning",
+            "cocos",
+            "assets",
+            "scripts",
+            "tests"
+          ]
+        },
+        {
+          "anchor": "§3 新增 `check:assets` 机械门（verify 第 24 项）",
+          "level": 3,
+          "startLine": 11124,
+          "endLine": 11143,
+          "tokens": 410,
+          "summary": "补的空档：textures/ 与 themes/ 都是整目录 Bundle（textures.meta / themes",
+          "keywords": [
+            "check:assets",
+            "check",
+            "assets",
+            "verify",
+            "textures",
+            "themes"
+          ]
+        },
+        {
+          "anchor": "§4 重建产物取证（release 档）",
+          "level": 3,
+          "startLine": 11144,
+          "endLine": 11158,
+          "tokens": 175,
+          "summary": "pnpm run build:cocos 默认即 release 基线档（K-111 已翻正；日志确认 beads 引擎",
+          "keywords": [
+            "release",
+            "pnpm",
+            "run",
+            "build",
+            "cocos",
+            "beads"
+          ]
+        },
+        {
+          "anchor": "§5 工作树并发提示",
+          "level": 3,
+          "startLine": 11159,
+          "endLine": 11165,
+          "tokens": 109,
+          "summary": "本批开工时工作树已有其它会话的未提交改动：games/beads/package.json（version）、",
+          "keywords": [
+            "games",
+            "beads",
+            "package",
+            "json",
+            "version",
+            "工作树并发提"
+          ]
+        },
+        {
+          "anchor": "§6 遗留（第 3 项，待方法裁定）",
+          "level": 3,
+          "startLine": 11166,
+          "endLine": 11175,
+          "tokens": 212,
+          "summary": "themes/l9-boss-mandala-256.png（256²，内容 182×180，63% 全透）与",
+          "keywords": [
+            "themes",
+            "boss",
+            "mandala",
+            "png",
+            "遗留",
+            "待方法裁定"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 94361,
-      "lines": 314,
-      "sha256": "ccb0b3fda6f1e6479f10069aa99338b0aef32d3f431dbc25e47d0d7d86e1fd02",
+      "tokens": 94770,
+      "lines": 315,
+      "sha256": "eef9722dc3b5f6f3fd947e592c001589f716941aa5bab3c9fa258e1c612bd781",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 315,
-          "tokens": 94353,
+          "endLine": 316,
+          "tokens": 94761,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -109137,8 +109244,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 285,
-          "endLine": 315,
+          "startLine": 286,
+          "endLine": 316,
           "tokens": 1571,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
