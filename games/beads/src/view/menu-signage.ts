@@ -433,6 +433,53 @@ export function levelThumbLockedCells(level: BeadsLevelRaw): readonly number[] {
     return cells;
 }
 
+/** `[2026-11-20 · WXG-T-1006 五改]` 有墨格包围盒（含 `x` 锁定格）；只读、WeakMap 缓存 ⇒ 每帧零分配。 */
+export interface ThumbInkBounds {
+    readonly minR: number;
+    readonly maxR: number;
+    readonly minC: number;
+    readonly maxC: number;
+}
+
+const _boundsCache = new WeakMap<BeadsLevelRaw, ThumbInkBounds>();
+
+/**
+ * `[2026-11-20 · WXG-T-1006 五改]` 关卡图案的**有墨包围盒**（⛔ 不是 rows×cols 名义阵）：
+ * 关卡数据保留 1 行 / 1 列空边（如 L9 曼陀罗占 rows 1..28 / cols 1..28）⇒ 直接按名义阵
+ * 居中的话，视觉图案会在右侧与底侧各缩进一颗珠。主菜单橱窗改为「内容包围盒居中 +
+ * 底边贴台面」，本函数是该判据的唯一来源。
+ */
+function levelThumbInkBounds(level: BeadsLevelRaw): ThumbInkBounds | undefined {
+    const hit = _boundsCache.get(level);
+    if (hit !== undefined) return hit;
+    const full = levelThumbFullCells(level);
+    const locked = levelThumbLockedCells(level);
+    if (full.length === 0 && locked.length === 0) return undefined;
+    let minR = Infinity;
+    let maxR = -1;
+    let minC = Infinity;
+    let maxC = -1;
+    for (let i = 0; i < full.length; i += 3) {
+        const r = full[i]!;
+        const c = full[i + 1]!;
+        if (r < minR) minR = r;
+        if (r > maxR) maxR = r;
+        if (c < minC) minC = c;
+        if (c > maxC) maxC = c;
+    }
+    for (let i = 0; i < locked.length; i += 2) {
+        const r = locked[i]!;
+        const c = locked[i + 1]!;
+        if (r < minR) minR = r;
+        if (r > maxR) maxR = r;
+        if (c < minC) minC = c;
+        if (c > maxC) maxC = c;
+    }
+    const b: ThumbInkBounds = Object.freeze({ minR, maxR, minC, maxC });
+    _boundsCache.set(level, b);
+    return b;
+}
+
 /**
  * `[WXG-T-613]` **完整豆面**（用户令「九宫格缩略完整按照盘面来实现」）：盘面真实
  * rows×cols 逐珠等比缩放——珠距 = min(w/cols, h/rows)（方形珠、保持盘面宽高比、
@@ -563,8 +610,14 @@ export function drawBeadFace(
  * （{@link beadColorOf}，四周留 {@link MENU_SHOWCASE_CELL_SEAM} 轻缝）；`progress`（0..1）以下
  * 自下而上用全彩墨集，其余用 {@link beadDimInksFor} **保留每珠基础色相、向本珠灰档压 62%**
  * ⇒ 未达进度区仍是「每珠各色」而非统一漂白（用户 2026-11-20：「每个珠面都有自己的基础颜色」）。
- * 几何与 `drawBeadFace(anchor='bottom')` 同式（宽盘也底缘贴 `yBottom`）。
- * 消费面仅主菜单走马灯；选关格 / 详情页仍走 `drawBeadFace`（T-952 / T-619 口径不变）。
+ *
+ * `[2026-11-20 · WXG-T-1006 五改]` **落位判据改按有墨包围盒**（用户：「图案要低对齐、完整落在底板上；
+ * 底板还差一个珠子距离，走马灯离右边玻璃边缘还差一个珠距离」）：关卡数据带 1 行 / 1 列空边，
+ * 若按名义 rows×cols 居中，视觉图案会在右侧与底侧各缩进一颗珠 ⇒
+ * ① 水平：有墨包围盒在 `[x, x+w]` 内居中（对称空边时 = 整阵居中）；
+ * ② 垂直：有墨包围盒**底边贴 `yBottom`（台面）**，整阵向下让出底部空行（空行不画珠，不越台面）。
+ * 几何仍保持方形珠距 `pitch = min(w/cols, h/rows)`；消费面仅主菜单走马灯，选关格 / 详情页仍走
+ * `drawBeadFace`（T-952 / T-619 口径不变）。
  */
 export function drawShowcaseFace(
     builder: RenderModelBuilder,
@@ -578,16 +631,20 @@ export function drawShowcaseFace(
 ): void {
     const cells = levelThumbFullCells(level);
     const locked = levelThumbLockedCells(level);
-    if (cells.length === 0 && locked.length === 0) return;
+    const bounds = levelThumbInkBounds(level);
+    if (bounds === undefined) return;
     const rows = level.pattern.length;
     const cols = level.cols;
     const pitch = Math.min(w / cols, h / rows);
-    const left = x + (w - cols * pitch) / 2;
-    const top = yBottom + rows * pitch;
+    // 有墨包围盒水平居中；垂直底边贴台面（底部空行让到台面下方，不画珠）。
+    const contentCols = bounds.maxC - bounds.minC + 1;
+    const left = x + (w - contentCols * pitch) / 2 - bounds.minC * pitch;
+    const bottom = yBottom - (rows - 1 - bounds.maxR) * pitch;
+    const top = bottom + rows * pitch;
     const colorInks = beadInksFor(level);
     const grayInks = beadDimInksFor(level);
     // 彩色区顶（自下而上）：格心 ≤ 本线 ⇒ 全彩，否则置灰。按格判定，⛔ 半格灰。
-    const revealTop = yBottom + rows * pitch * Math.max(0, Math.min(1, progress));
+    const revealTop = bottom + rows * pitch * Math.max(0, Math.min(1, progress));
     const block = Math.max(1, pitch - MENU_SHOWCASE_CELL_SEAM * 2);
     for (let i = 0; i < cells.length; i += 3) {
         const cx = left + (cells[i + 1]! + 0.5) * pitch;

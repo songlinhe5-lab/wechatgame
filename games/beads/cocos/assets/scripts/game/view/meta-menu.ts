@@ -280,8 +280,10 @@ function drawLockedBadge(
  * `[WXG-T-522]` 单一作品腿：每页只画一件展品。
  * `[2026-11-20 · WXG-T-1006]` 展品 = **大关收尾关（boss）的固定样式展示腿**：用户令
  * 「珠面没有用颜色数据 / 珠子形状看不清 ⇒ 用基色填充代替」+「图案按照进度等比例上下设置灰色」。
- * `drawShowcaseFace` 只落色板基色方块（无刻面 / 珠孔 / 描边），底缘坐台面；`progress` 以下
- * 自下而上全彩、其余置灰（通关 / 满星 = 1 ⇒ 全彩）。
+ * `drawShowcaseFace` 只落色板基色方块（无刻面 / 珠孔 / 描边），按 `avail` 见方落位、有墨底边
+ * 贴台面；`progress` 以下自下而上全彩、其余置灰（通关 / 满星 = 1 ⇒ 全彩）。
+ * `[2026-11-20 · WXG-T-1006 五改]` 用户令「图案要低对齐、完整落在底板上 / 两边与玻璃边界对齐」⇒
+ * ⛔ 不再按名义框 `b.w`（325）画（会比玻璃可视区窄 49px，两侧各多缩进约 2 珠）。
  * `[WXG-T-916]` **未开启例外 = 锁图占位**（用户 2026-11-12 裁：橱窗只留锁形 + 木牌行 2
  * 「未开启」，参考选关锁格）。
  */
@@ -317,7 +319,10 @@ function drawShowcaseArt(
         // ⚠ 基色填充 = 多条矢量命令，无单命令 alpha ⇒ `reduceMotion` 交叉淡变按中点硬切
         // （alpha < 0.5 不画），否则两页展品会以全彩叠在同一位置。普通滑动 alpha 恒 1。
         if (alpha < 0.5) return;
-        drawShowcaseFace(builder, level, x, b.y, b.w, avail, progress, palette);
+        // `[WXG-T-1006 五改]` 珠阵按**实际绘制区** `avail` 见方落位（⛔ 名义框 `b.w` 325）：
+        // 名义框比玻璃可视区窄 49px，按它画会让两侧各多缩进约 2 珠（规格 §1 实测包围盒）。
+        const size = avail;
+        drawShowcaseFace(builder, level, b.x + (b.w - size) / 2 + dx, b.y, size, avail, progress, palette);
     } else {
         drawDashedSocket(builder, { x, y: b.y, w: b.w, h: b.h }, palette.slotDashed);
     }

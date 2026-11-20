@@ -14,7 +14,7 @@ import { DEFAULT_PALETTE, beadDimInksFor, beadInksFor } from '../src/view/palett
 import { levelThumbFullCells } from '../src/view/menu-signage.js';
 import { setMenuBitmapResolver } from '../src/view/meta-widgets.js';
 import { LEVELS } from '../src/config/levels.js';
-import { DESIGN_H, DESIGN_W, MENU_LOCKED_ICON, MENU_TEXTURES, MENU_V2 } from '../src/config/tuning.js';
+import { DESIGN_H, DESIGN_W, MENU_LOCKED_ICON, MENU_SHOWCASE_CELL_SEAM, MENU_TEXTURES, MENU_V2 } from '../src/config/tuning.js';
 
 /** Arc 0 的 boss 关 = L9（30×30 曼陀罗）。 */
 const BOSS = LEVELS[8]!;
@@ -28,7 +28,25 @@ const ART = { x: MENU_V2.art.x, y: DESIGN_H - (MENU_V2.art.y + MENU_V2.art.h), w
 /** 玻璃裁切顶（y-up）。 */
 const CLIP_TOP = DESIGN_H - MENU_V2.clip.y;
 const AVAIL = CLIP_TOP - ART.y;
-const PITCH = Math.min(ART.w / BOSS.cols, AVAIL / BOSS.pattern.length);
+/** `[WXG-T-1006 五改]` 展示腿按实际绘制区 `avail` 见方落位（⛔ 名义框 `ART.w`）。 */
+const PITCH = AVAIL / BOSS.cols;
+/** 有墨包围盒（含顶部 / 左右各 1 行空边）：用于底边贴台面与内容居中的判据。 */
+const INK = (() => {
+    const cells = levelThumbFullCells(BOSS);
+    let minR = Infinity, maxR = -1, minC = Infinity, maxC = -1;
+    for (let i = 0; i < cells.length; i += 3) {
+        const r = cells[i]!, c = cells[i + 1]!;
+        if (r < minR) minR = r;
+        if (r > maxR) maxR = r;
+        if (c < minC) minC = c;
+        if (c > maxC) maxC = c;
+    }
+    return { minR, maxR, minC, maxC };
+})();
+const CONTENT_W = (INK.maxC - INK.minC + 1) * PITCH;
+const CONTENT_LEFT = ART.x + (ART.w - CONTENT_W) / 2;
+/** 整阵底 = 台面 − 底部空行（空行不画珠）⇒ 有墨底边恰好贴台面。 */
+const MATRIX_BOTTOM = ART.y - (BOSS.pattern.length - 1 - INK.maxR) * PITCH;
 
 const data = (extra: Partial<MetaViewData> = {}): MetaViewData => Object.freeze({
     stamina: 5, staminaMax: 5, coins: 0,
@@ -79,22 +97,22 @@ const beadRects = (cmds: readonly DrawCommand[]): Rect[] => cmds.filter(
 );
 
 /**
- * `[2026-11-20 · WXG-T-1006]` 固定样式展示腿落位：30×30 宽盘 ⇒ pitch = art.w / cols，
- * 色块水平居中、底缘坐台面；图案包围盒必须落在展品框宽内且不越过玻璃裁切顶。
+ * `[2026-11-20 · WXG-T-1006]` 固定样式展示腿落位：按 `avail` 见方（pitch = avail / cols），
+ * 有墨包围盒水平居中、底边贴台面；图案包围盒必须落在展品实际绘制区内且不越过玻璃裁切顶。
  * 纹理腿的 256² 透明边判据已退场（K-053 划线）。
  */
 const expectBeadOnShelf = (cmds: readonly DrawCommand[]): void => {
     const rects = beadRects(cmds);
     expect(rects.length, '基色格已画').toBeGreaterThan(100);
-    const left = ART.x + (ART.w - BOSS.cols * PITCH) / 2;
     const minX = Math.min(...rects.map((r) => r.x));
     const maxX = Math.max(...rects.map((r) => r.x + r.w));
     const minY = Math.min(...rects.map((r) => r.y));
     const maxY = Math.max(...rects.map((r) => r.y + r.h));
-    expect(minX).toBeGreaterThanOrEqual(left - 1);
-    expect(maxX).toBeLessThanOrEqual(left + BOSS.cols * PITCH + 1);
-    expect(minY).toBeGreaterThanOrEqual(ART.y - 1);
-    expect(maxY).toBeLessThanOrEqual(ART.y + BOSS.pattern.length * PITCH + 1);
+    expect(minX).toBeGreaterThanOrEqual(CONTENT_LEFT - 1);
+    expect(maxX).toBeLessThanOrEqual(CONTENT_LEFT + CONTENT_W + 1);
+    // `[WXG-T-1006 五改]` 有墨底边贴台面：最底行块底 = 台面 + 1px 轻缝（⛔ 不再是空行高一珠）。
+    expect(minY).toBeCloseTo(ART.y + MENU_SHOWCASE_CELL_SEAM, 6);
+    expect(maxY).toBeLessThanOrEqual(MATRIX_BOTTOM + BOSS.pattern.length * PITCH + 1);
     // 水平中心 = 展品框中心（374.5）；纹理腿的 `MENU_ARC_ART_CONTENT` 偏移判据不再适用。
     expect((minX + maxX) / 2).toBeCloseTo(ART.x + ART.w / 2, 0);
 };
@@ -171,8 +189,8 @@ describe('WXG-T-522 橱窗单一作品', () => {
         // 30 行 × 0.5 ⇒ 底部 15 行（r ≥ 15）上色（格心判定）。
         expect(colored, '彩色格数 = 底部 15 行有墨格').toBe(cellsFromRow(15));
         expect(countIn(rects, GRAY_HEXES), '其余有墨格置灰').toBe(total - colored);
-        // 彩色格全部落在下半幅（y ≤ 底缘 + 15 行高）。
-        const revealTop = ART.y + 15 * PITCH;
+        // 彩色格全部落在下半幅（y ≤ 整阵底 + 15 行高）。
+        const revealTop = MATRIX_BOTTOM + 15 * PITCH;
         for (const r of rects.filter((x) => COLOR_HEXES.has(x.fill ?? ''))) {
             expect(r.y + r.h).toBeLessThanOrEqual(revealTop + 0.001);
         }
