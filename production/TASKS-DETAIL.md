@@ -48,6 +48,22 @@
 
 ---
 
+## WXG-T-996
+
+**EP15 尾账四：回放页文案偏差 6 项落码 + 进出转场** · 负责：程基岩(engineering-lead)·beads 工程轨 · 状态：✅ 完成（2026-11-20）
+
+- **C4 退出钮**：文案「返回」→「←退出」（28px 文字腿；独立图标资产未做，箭头随字）。
+- **C5 播放/暂停钮**：去文字腿，改程序化图标——播放中 = 双竖条（⏸，两根 10×34 圆角 rect）；暂停 / 播完 = 三角（▶，`polygon` 右偏 3px 视觉居中），墨色 `palette.woodText`。
+- **C11 演示结束条副文案**：bot-demo 档在标题下 (375,590) 画「机器人完成了第 N 关」（N = 录像关号），回放档保持单行标题。
+- **C13 字号**：副标 / 状态行与时间标签 `UI_FONT.hud`(30) → `UI_FONT.hudSmall`(28)；规格 24 低于 HUD/正文 E1 地板，`ux/bot-replay-spec.md` 升 v1.2 同步 24→28。
+- **C12 seek 提示**：`tuning/replay-ui.ts` 新增 `REPLAY_SEEK_HINT_MS = 250`（原 `[TODO]` 工程保守值）；seek 提交后 250ms 内时间标签位置改画静态「定位中…」，到期回时间标签（同步 seek 无法在阻塞期出帧 ⇒ 定长覆盖，不做转圈）。
+- **C15 转场**：壳层 `_replayFxDir/_replayFxT` + `_beginReplayFx/_stepReplayFx`，复用 `PANEL_IN_MS=200` / `PANEL_OUT_MS=150`；视图收 `fade:{opacity,dy}`，内容层整体 `setAlpha` + 12px 位移（`REPLAY_FX_SHIFT`；底色恒不透明，棋盘为复用整页层不位移）；退出改「淡出后离页」（150ms 内 `tapReplay` 吞输入）；`reduceMotion` 整段关停（无淡无位移、退出同帧离页）。
+- **测试（`tests/replay-page.test.ts` +3 例）**：C4/C5/C11/C13 渲染取证（「←退出」、28px、无文字腿、播放中无 ▶ / 暂停有 ▶、结束条双文案）；C12 提示出现与 250ms 退场 + 时间标签回归；C15 首帧 alpha 0 / y=1272 → 半程 0.5 → 终帧 1284、退出 150ms 才离页、reduceMotion 无动效。既有 2 例退出断言改为「先淡出、`update(0.16)` 后离页」。
+- **规格/追溯**：`bot-replay-spec.md` v1.2（字号 + seek 阈值）；追溯表文案核对 15 项全部 PASS，汇总改为 PASS 15。
+- **验证**：beads 全量 `npx vitest run` 130 文件 1564 通过 / 2 跳过；golden 零漂移（菜单帧未动）；typecheck 余 3 条属他轨 in-flight。
+
+---
+
 ## WXG-T-995
 
 **EP15 尾账三：§8-14 冷启对拍 + 回放页静态文案核对** · 负责：程基岩(engineering-lead)·beads 工程轨 · 状态：✅ 完成（2026-11-19）

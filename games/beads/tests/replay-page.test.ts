@@ -11,13 +11,13 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it, vi } from 'vitest';
-import { RenderModelBuilder } from '@wxgame/framework';
+import { RenderModelBuilder, polygonVertices, type RenderModel } from '@wxgame/framework';
 import { createBeadsHarness, simpleTestLevel } from './helpers.js';
 import { BeadsShell } from '../src/game/beads-shell.js';
 import type { BeadsGame } from '../src/game/beads-game.js';
 import type { ReplayPlayer } from '../src/replay/player.js';
 import type { BeadsLevelRaw } from '../src/config/levels.js';
-import { LEVEL_TIME_MAX, DESIGN_W, DESIGN_H, REPLAY_END_PRIMARY, REPLAY_END_SECONDARY, REPLAY_EXIT_RECT, REPLAY_PLAY_RECT, REPLAY_PROGRESS_HIT, REPLAY_SPEED_RECT, WALL_ROWS } from '../src/config/tuning.js';
+import { LEVEL_TIME_MAX, DESIGN_W, DESIGN_H, REPLAY_END_PRIMARY, REPLAY_END_SECONDARY, REPLAY_EXIT_RECT, REPLAY_PLAY_RECT, REPLAY_PROGRESS_HIT, REPLAY_SPEED_RECT, REPLAY_FX_SHIFT, REPLAY_SEEK_HINT_MS, WALL_ROWS } from '../src/config/tuning.js';
 import { clearPanelLayout, hitClearPanel, clearPanelLabel } from '../src/systems/clear-panel.js';
 import { failPanelLayout } from '../src/systems/fail-panel.js';
 import { sprintSettleLayout } from '../src/systems/sprint-settle.js';
@@ -123,6 +123,9 @@ describe('EP15-S4 · 结算 → 回放 → 退出 全链（壳层）', () => {
     expect(shell.replayViewModel.ended).toBe(true);
     const exit2 = centre(REPLAY_END_SECONDARY);
     expect(shell.tapReplay(exit2.x, exit2.y)).toBe(true);
+    // `[WXG-T-996]` 退出 = 150ms 淡出后才离页（ux §5）。
+    expect(shell.screen).toBe('replay');
+    shell.update(0.16);
     expect(shell.screen).toBe('play');
     expect(shell.play.phase).toBe('level-clear');
     expect(shell.play.snapshot.clearReplayAvailable).toBe(true);
@@ -307,6 +310,8 @@ describe('EP15-S4 · 主菜单演示入口（§8-9）', () => {
 
     const exit = centre(REPLAY_EXIT_RECT);
     expect(shell.tapReplay(exit.x, exit.y)).toBe(true);
+    expect(shell.screen).toBe('replay'); // 淡出中
+    shell.update(0.16); // 150ms 淡出结束
     expect(shell.screen).toBe('menu');
     expect(h.count('meta:overlay'), '演示进出菜单不发 meta:overlay').toBe(overlays);
   });
@@ -323,6 +328,114 @@ describe('EP15-S4 · 主菜单演示入口（§8-9）', () => {
     expect(h.emitted.length, '零新事件').toBe(events);
     expect(h.count('meta:overlay')).toBe(overlays);
     expect(shell.meta!.stamina).toBe(stamina);
+  });
+});
+
+describe('EP15-T996 · 回放页文案 / 图标 / 动效（C4/C5/C11/C12/C13/C15）', () => {
+  const renderTexts = (shell: BeadsShell): Array<{ text: string; y: number; alpha?: number; font?: string }> => {
+    const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
+    builder.begin();
+    shell.buildRenderModel(builder);
+    return builder.end().commands
+      .filter((c) => c.kind === 'text')
+      .map((c) => c as unknown as { text: string; y: number; alpha?: number; font?: string });
+  };
+  const enterDemo = (shell: BeadsShell): void => {
+    const btn = demoButtonOf(shell);
+    expect(shell.tapMeta(btn.x, btn.y)).toBe(true);
+    shell.update(0.25); // 200ms 入场完成
+  };
+
+  const renderModel = (shell: BeadsShell): RenderModel => {
+    const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
+    builder.begin();
+    shell.buildRenderModel(builder);
+    return builder.end();
+  };
+  /** ▶ 图标 = 全部顶点落在播放钮矩形内的 polygon（棋盘自身的多边形状不在此框内）。 */
+  const hasPlayTriangle = (m: RenderModel): boolean => m.commands.some((c) => {
+    if (c.kind !== 'polygon') return false;
+    const v = polygonVertices(m, c);
+    for (let i = 0; i < v.length; i += 2) {
+      const x = v[i]!;
+      const y = v[i + 1]!;
+      if (x < REPLAY_PLAY_RECT.x || x > REPLAY_PLAY_RECT.x + REPLAY_PLAY_RECT.w) return false;
+      if (y < REPLAY_PLAY_RECT.bottom || y > REPLAY_PLAY_RECT.bottom + REPLAY_PLAY_RECT.h) return false;
+    }
+    return true;
+  });
+
+  it('C4/C5/C11/C13：退出「←退出」、播放图标随状态、演示结束副文案、副标/时间 28', () => {
+    const { level, shell } = menuRig('replaycopy');
+    enterDemo(shell);
+    const playing = renderTexts(shell);
+    const exit = playing.find((t) => t.text === '←退出');
+    expect(exit, '退出钮文案 = ←退出').toBeTruthy();
+    expect(exit!.font).toBe('28px sans-serif'); // E1 地板（规格 24 不可达）
+    const sub = playing.find((t) => t.text.includes('机器人演示 · '));
+    expect(sub?.font).toBe('28px sans-serif');
+    expect(playing.some((t) => t.text === '暂停' || t.text === '播放' || t.text === '重播'), 'C5 不得留文字腿').toBe(false);
+
+    // 播放中 = ⏸（无 ▶）；暂停后 = ▶（播放钮框内的三角）。
+    expect(hasPlayTriangle(renderModel(shell)), '播放中不应画 ▶').toBe(false);
+    const play = centre(REPLAY_PLAY_RECT);
+    expect(shell.tapReplay(play.x, play.y)).toBe(true);
+    expect(hasPlayTriangle(renderModel(shell)), '暂停应画 ▶').toBe(true);
+
+    // 播完：演示结束 + 副文案。
+    shell.tapReplay(REPLAY_PROGRESS_HIT.x + REPLAY_PROGRESS_HIT.w, centre(REPLAY_PROGRESS_HIT).y);
+    const ended = renderTexts(shell);
+    expect(ended.some((t) => t.text === '演示结束')).toBe(true);
+    expect(ended.some((t) => t.text === `机器人完成了第 ${level.id} 关`), 'C11 副文案').toBe(true);
+    expect(ended.some((t) => t.text === '再看一遍')).toBe(true);
+  });
+
+  it('C12：seek 提交后 250ms 内画「定位中…」，到期回时间标签', () => {
+    const { shell } = menuRig('replayhint');
+    enterDemo(shell);
+    const play = centre(REPLAY_PLAY_RECT);
+    shell.tapReplay(play.x, play.y); // 暂停，排除时间自走
+    expect(shell.tapReplay(centre(REPLAY_PROGRESS_HIT).x, centre(REPLAY_PROGRESS_HIT).y)).toBe(true);
+    expect(renderTexts(shell).some((t) => t.text === '定位中…')).toBe(true);
+    shell.update(REPLAY_SEEK_HINT_MS / 1000 + 0.02);
+    const after = renderTexts(shell);
+    expect(after.some((t) => t.text === '定位中…'), '阈值到期后提示退场').toBe(false);
+    expect(after.some((t) => /^\d{2}:\d{2} \/ \d{2}:\d{2}$/.test(t.text)), '回时间标签').toBe(true);
+  });
+
+  it('C15：入场淡入 + 12px 上移；退出 150ms 后才离页；reduceMotion 整段关停', () => {
+    const { shell } = menuRig('replayfx');
+    const btn = demoButtonOf(shell);
+    shell.tapMeta(btn.x, btn.y);
+    const t0 = renderTexts(shell).find((t) => t.text.startsWith('回放 · 第'));
+    expect(t0?.alpha).toBe(0);
+    expect(t0?.y).toBe(1284 - REPLAY_FX_SHIFT);
+    shell.update(0.1); // 200ms 的一半
+    const t1 = renderTexts(shell).find((t) => t.text.startsWith('回放 · 第'));
+    expect(t1?.alpha).toBeCloseTo(0.5, 5);
+    shell.update(0.11);
+    const t2 = renderTexts(shell).find((t) => t.text.startsWith('回放 · 第'));
+    expect(t2?.alpha ?? 1).toBe(1);
+    expect(t2?.y).toBe(1284);
+
+    const exit = centre(REPLAY_EXIT_RECT);
+    expect(shell.tapReplay(exit.x, exit.y)).toBe(true);
+    expect(shell.screen).toBe('replay');
+    shell.update(0.075);
+    expect(shell.screen, '150ms 未到不离页').toBe('replay');
+    shell.update(0.08);
+    expect(shell.screen).toBe('menu');
+
+    // reduceMotion：无位移 / 无淡入，退出同帧离页。
+    const rm = menuRig('replayfxrm');
+    rm.shell.play.applySettingsAction('toggle-reduce-motion');
+    expect(rm.shell.play.reduceMotion).toBe(true);
+    enterDemo(rm.shell);
+    const r0 = renderTexts(rm.shell).find((t) => t.text.startsWith('回放 · 第'));
+    expect(r0?.alpha ?? 1).toBe(1);
+    expect(r0?.y).toBe(1284);
+    expect(rm.shell.tapReplay(exit.x, exit.y)).toBe(true);
+    expect(rm.shell.screen).toBe('menu');
   });
 });
 

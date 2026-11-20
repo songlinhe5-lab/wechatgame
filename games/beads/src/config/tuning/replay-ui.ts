@@ -41,3 +41,14 @@ export const REPLAY_COVER_TOP = rect(0, 1100, DESIGN_W, DESIGN_H - 1100);
 
 /** 托管徽标 132×56，x∈[309,441]、y∈[1150,1206]（非按钮、零热区）。 */
 export const ASSIST_BADGE = rect(309, 1150, 132, 56);
+
+/**
+ * `[WXG-T-996]` seek 提交后的静态提示「定位中…」停留时长（`ux §5` 原 `[TODO]`）。
+ * **工程保守值 250ms**：与「反馈 ≤400ms」红线同档；真机实测 seek 耗时后再回填。
+ * ⚠ 本仓 seek 为同步「从头重演到目标 step」，无法在阻塞期间出帧 ⇒ 提示改为**定长可见**
+ * （seek 立即生效，提示覆盖 250ms 窗口；真机若 seek 明显更久，再改分段重演）。
+ */
+export const REPLAY_SEEK_HINT_MS = 250;
+
+/** `[WXG-T-996]` 回放页转场位移（`ux §5`：进入上移 / 退出下移 12px；时长复用 200/150）。 */
+export const REPLAY_FX_SHIFT = 12;

@@ -49,6 +49,8 @@ import {
     TAP_SLOP_CSS,
     REPLAY_SPEEDS,
     REPLAY_PROGRESS_HIT,
+    REPLAY_SEEK_HINT_MS,
+    REPLAY_FX_SHIFT,
     menuAnchors,
     powerupBuyPrice,
     setLiveDesignHeight,
@@ -172,6 +174,12 @@ export class BeadsShell implements Game {
     private readonly _driver = new BotDriver();
     /** EP15-S4 回放会话（null = 不在回放页）。 */
     private _replayPlayer: ReplayPlayer | null = null;
+    /** `[WXG-T-996]` 回放页转场（1 = 淡入 / -1 = 淡出 / 0 = 静息；时长复用 200/150）。 */
+    private _replayFxDir: 1 | -1 | 0 = 0;
+    private _replayFxT = 0;
+    /** `[WXG-T-996]` seek 静态提示（「定位中…」）与剩余可见毫秒。 */
+    private _replayHint = '';
+    private _replayHintMs = 0;
     private _replayReturn: ShellScreen = 'play';
     private readonly _replayVm: ReplayViewModel = createReplayViewModel();
     private readonly _clock: () => number;
@@ -568,6 +576,12 @@ export class BeadsShell implements Game {
         if (this._phase.screen === 'replay') {
             // EP15-S4：回放腿 —— 只推进影子时钟与传输带输入；play 冻结。
             this._replayPlayer?.tick(dt * 1000);
+            this._stepReplayFx(dt);
+            if (this._replayHintMs > 0) {
+                this._replayHintMs = Math.max(0, this._replayHintMs - dt * 1000);
+                if (this._replayHintMs === 0) this._replayHint = '';
+            }
+            if (this._phase.screen !== 'replay') return; // 淡出终点已离页
             this._readReplayInput();
             return;
         }
@@ -685,13 +699,51 @@ export class BeadsShell implements Game {
         this._replayReturn = this._phase.screen;
         this._phase.resetTo('replay');
         this._cancelPageFx();
+        this._replayHint = '';
+        this._replayHintMs = 0;
+        this._beginReplayFx(1);
         return true;
     }
 
-    private _exitReplay(): void {
+    /** `[WXG-T-996]` 回放页进出转场（`ux §5` 200/150；`reduceMotion` = 整段关停，沿用 D1 口径）。 */
+    private _beginReplayFx(dir: 1 | -1): void {
+        if (this.play.reduceMotion) {
+            this._replayFxDir = 0;
+            this._replayFxT = 0;
+            if (dir === -1) this._finishExitReplay();
+            return;
+        }
+        if (dir === -1 && this._replayFxDir === -1) return;
+        this._replayFxDir = dir;
+        this._replayFxT = 0;
+    }
+
+    private _stepReplayFx(dt: number): void {
+        const dir = this._replayFxDir;
+        if (dir === 0) return;
+        const durMs = dir === 1 ? PANEL_IN_MS : PANEL_OUT_MS;
+        this._replayFxT += dt * (1000 / durMs);
+        if (this._replayFxT < 1) return;
+        this._replayFxT = 0;
+        this._replayFxDir = 0;
+        if (dir === -1) this._finishExitReplay();
+    }
+
+    private _requestExitReplay(): void {
+        const player = this._replayPlayer;
+        if (!player) return;
+        player.pause(); // 淡出期冻结末帧
+        this._beginReplayFx(-1);
+    }
+
+    private _finishExitReplay(): void {
         const player = this._replayPlayer;
         this._replayPlayer = null;
         player?.dispose();
+        this._replayFxDir = 0;
+        this._replayFxT = 0;
+        this._replayHint = '';
+        this._replayHintMs = 0;
         this._phase.resetTo(this._replayReturn);
         if (this._replayReturn === 'play') this._phase.syncPhase(this.play.phase, this.play.mode);
     }
@@ -704,11 +756,20 @@ export class BeadsShell implements Game {
         }
         writeReplayViewModel(this._replayVm, player);
         const levelIndex = player.recording.context.levelIndex;
+        // `[WXG-T-996]` 转场投影：淡入 = 从 12px 下方上移；淡出 = 下移；reduceMotion 无位移。
+        const dir = this._replayFxDir;
+        const t = this._replayFxT;
+        const opacity = dir === 1 ? t : dir === -1 ? 1 - t : 1;
+        const dy = this.play.reduceMotion ? 0
+            : dir === 1 ? -REPLAY_FX_SHIFT * (1 - t)
+                : dir === -1 ? -REPLAY_FX_SHIFT * t : 0;
         renderReplayBinding(
             {
                 snapshot: player.snapshot,
                 currentLevel: this._wallBaseLevels[levelIndex] ?? this._wallBaseLevels[0]!,
                 model: this._replayVm,
+                fade: { opacity, dy },
+                hint: this._replayHint,
             },
             this.play.palette,
             builder,
@@ -727,13 +788,15 @@ export class BeadsShell implements Game {
     tapReplay(x: number, y: number): boolean {
         const player = this._replayPlayer;
         if (!player) return false;
+        // `[WXG-T-996]` 淡出中：吞掉所有输入（页已不可交互，等 `_finishExitReplay`）。
+        if (this._replayFxDir === -1) return true;
         const hit = hitReplayPage(x, y, player.ended);
         switch (hit) {
             case 'exit':
-                this._exitReplay();
+                this._requestExitReplay();
                 return true;
             case 'end-secondary':
-                this._exitReplay();
+                this._requestExitReplay();
                 return true;
             case 'toggle':
             case 'end-primary':
@@ -755,6 +818,9 @@ export class BeadsShell implements Game {
             case 'seek': {
                 const t = (x - REPLAY_PROGRESS_HIT.x) / REPLAY_PROGRESS_HIT.w;
                 player.seek(Math.round(Math.max(0, Math.min(1, t)) * player.durationStep));
+                // `[WXG-T-996]` 静态「定位中…」：同步 seek 无法在阻塞期出帧 ⇒ 定长覆盖 250ms 窗口。
+                this._replayHint = '定位中…';
+                this._replayHintMs = REPLAY_SEEK_HINT_MS;
                 return true;
             }
             default:
