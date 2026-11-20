@@ -364,7 +364,7 @@ games/beads/src/ui/
 
 **关键路径**：UI-00 → UI-01 → UI-10…14 → UI-20 → UI-22 / UI-25 → UI-30 → UI-31 → UI-41 → UI-42 → UI-50 → UI-53。UI-02（金样本）与 P1 可并行，但必须在 UI-30 前完成。
 
-**视觉变更登记（2026-11-20 · 结算双钮九宫格 + 回放钮移位 · K-051/K-053/ADR-0032 DEC-6）**：用户 2026-11-20 两令「下一关和主界面两个按钮背景要做 9sprites 资源」「回放暂时先放在主界面按钮下面，不要重叠」。① 主钮 / 次钮底图由整图 blit 改九宫格：`ui_btn_clear_next_9s@2x`（cap 64）/ `ui_btn_clear_menu_9s@2x`（cap 56），几何与文案零改动；② 回放钮 160×96 中心对齐次钮中心 x=525（x∈[445,605]），仍在木牌下方（底 y=192）、与双钮零交集；③ 金样本 `clear` 态指令数 666 不变、回放钮 x 变 ⇒ sha 变，按 `tests/ui-golden-capture.ts` 在可复现锚重抓。规格回写 = `games/beads/design/ux/bot-replay-spec.md §3.1`、资源登记 = `games/beads/design/art/specs/assets-spec.md §4.1`。
+**视觉变更登记（2026-11-20 · 结算双钮九宫格 + 回放钮移位 · K-051/K-053/ADR-0032 DEC-6）**：用户 2026-11-20 两令「下一关和主界面两个按钮背景要做 9sprites 资源」「回放暂时先放在主界面按钮下面，不要重叠」。① 主钮 / 次钮底图由整图 blit 改九宫格：`ui_btn_clear_next_9s@2x`（cap 64）/ `ui_btn_clear_menu_9s@2x`（cap 56），几何与文案零改动；② 回放钮 160×96 为临时功能触发入口，绝对坐标 x=463、底 y-up=853（Figma 312:38 牌坐标 top=385），**暂不考虑与木牌 / 双钮重叠**（用户 2026-11-20 令）；③ 金样本 `clear` 态指令数 666 不变、回放钮 x 变 ⇒ sha 变，按 `tests/ui-golden-capture.ts` 在可复现锚重抓。规格回写 = `games/beads/design/ux/bot-replay-spec.md §3.1`、资源登记 = `games/beads/design/art/specs/assets-spec.md §4.1`。
 
 > **[WXG-T-473] 金样本复评登记（2026-10-28）**：`copy-tokens.ts::version_label` 发布文案变更（`v1.x · 演示版` → `v1.0.0 · 演示版`，T-469 USER 版本号裁定「首发 1.0.x、x = build 号」）⇒ Meta 四屏（main-menu / level-select-mid / settings / signin）底部版本行文本变 ⇒ 整帧 sha 漂移（total / 种类数零变，纯文本内容）。复取器两遍确定性自证 PASS，夹具 `capturedFrom` = `2fbe8e4d`；对拍 **13/13 绿**。复取说明：工作树 src 面与 HEAD 零差异（dirty 仅 docs 台账两件），主树复取等价干净检出（K-167 精神，注记披露）。
 

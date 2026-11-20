@@ -46,11 +46,9 @@ describe('EP15-S4 · 结算面板回放入口（§3.1）', () => {
     expect(replay).toBeTruthy();
     expect(replay.rect.xMax - replay.rect.xMin).toBe(160);
     expect(replay.rect.yMax - replay.rect.yMin).toBe(96);
-    expect(replay.rect.yMin).toBe(192);
-    // 2026-11-20：中心对齐次钮（主界面）中心 x = 525。
-    expect((replay.rect.xMin + replay.rect.xMax) / 2).toBe((menu.rect.xMin + menu.rect.xMax) / 2);
-    // 不重叠：回放钮整体位于面板底（y-up 393）之下，与双钮零交集。
-    expect(replay.rect.yMax).toBeLessThan(layout.panel.yMin);
+    // 临时触发入口：对齐 Figma 312:38（x=463，y-up 底 853）。暂不考虑与木牌 / 双钮重叠。
+    expect(replay.rect.xMin).toBe(463);
+    expect(replay.rect.yMin).toBe(853);
     expect(clearPanelLabel('replay', false)).toBe('回放');
     const hitX = (replay.rect.xMin + replay.rect.xMax) / 2;
     const hitY = (replay.rect.yMin + replay.rect.yMax) / 2;
@@ -226,9 +224,9 @@ describe('EP15-S4 · 演示/回放零副作用（§8-5 钱包 / 体力 / 发豆 
 describe('EP15-S4 · 回放入口唯一性（§8-6 逐相位入口矩阵）', () => {
   it('视频回放钮只在 ClearPanel；失败 / 冲刺 / 通关面板零视频回放入口', () => {
     // ClearPanel：回放钮 = 显隐在**命中腿**裁（布局恒留位，`showReplay=false` ⇒ 不可点、不可见）。
-    // 回放钮中心 = 次钮列中心 x 525、y-up 240（2026-11-20 移至次钮正下方）。
-    expect(hitClearPanel(525, 240, { lastLevel: false, showReplay: true })).toBe('replay');
-    expect(hitClearPanel(525, 240, { lastLevel: false, showReplay: false })).toBeNull();
+    // 回放钮中心 = (543, 901)（x 463 + 80，y-up 853 + 48；临时入口，见 clear-panel.ts）。
+    expect(hitClearPanel(543, 901, { lastLevel: false, showReplay: true })).toBe('replay');
+    expect(hitClearPanel(543, 901, { lastLevel: false, showReplay: false })).toBeNull();
     expect(failPanelLayout(true).buttons.some((b) => String(b.id) === 'replay')).toBe(false);
     expect(failPanelLayout(false).buttons.some((b) => String(b.id) === 'replay')).toBe(false);
     expect(sprintSettleLayout().buttons.some((b) => String(b.id) === 'replay')).toBe(false);

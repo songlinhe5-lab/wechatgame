@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4221,
       "lines": 140,
-      "sha256": "c5a3757a76c84b851004906ca97afe2f13216f2a88e2727ec9d783084544af21",
+      "sha256": "0991103cf343c2d5df2b7b18fd918e036952b9094358644a7945754fde907ff9",
       "tier": "normal",
       "sections": [
         {
@@ -14587,9 +14587,9 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 47646,
+      "tokens": 47665,
       "lines": 373,
-      "sha256": "2306be7dffeda627d3e6cc52d2ce544912664967c4f58c214633cc6abd8f03d4",
+      "sha256": "4c7a89fb600e7eec72e4a51fec2d5a4e6014e541131bb141aebb0b2d7a83da11",
       "tier": "normal",
       "sections": [
         {
@@ -14597,7 +14597,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 374,
-          "tokens": 47627,
+          "tokens": 47646,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -14768,7 +14768,7 @@
           "level": 2,
           "startLine": 138,
           "endLine": 370,
-          "tokens": 42574,
+          "tokens": 42593,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -48741,9 +48741,9 @@
     },
     {
       "path": "games/beads/design/ux/bot-replay-spec.md",
-      "tokens": 7682,
+      "tokens": 7683,
       "lines": 315,
-      "sha256": "75bbc2e637738d14299088f8baffd92cf36b7a1d4c59a4a8fbff6fc60c3a477d",
+      "sha256": "88d970dd64893105044760804fcb709b3323dc2ca3b11f6cc7a861e1de0b9a34",
       "tier": "normal",
       "sections": [
         {
@@ -48751,7 +48751,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 316,
-          "tokens": 7661,
+          "tokens": 7662,
           "summary": "项目：games/beads · 版本 v1.2（2026-11-20）· 任务号 WXG-T-983（初版）/ WXG",
           "keywords": [
             "Bot",
@@ -48795,7 +48795,7 @@
           "level": 2,
           "startLine": 51,
           "endLine": 154,
-          "tokens": 2100,
+          "tokens": 2102,
           "summary": "",
           "keywords": [
             "ASCII",
@@ -48808,7 +48808,7 @@
           "level": 3,
           "startLine": 53,
           "endLine": 82,
-          "tokens": 729,
+          "tokens": 730,
           "summary": "用户 2026-11-19 裁定：先不改 ClearPanel 的既有 UI 设计，只在 LEVEL_CLEAR 放一个",
           "keywords": [
             "ClearPanel",
