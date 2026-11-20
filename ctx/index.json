@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4260,
       "lines": 141,
-      "sha256": "20a4af661f99788081ff44ddd6b08fa21e1e045316e53e1e86842432ec1affe5",
+      "sha256": "09cb34ea443cc2c002d3c3bea65f0d0446c1d99e72ceab683946b5687a372c5f",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 410,
-          "summary": "1 production/TASKS-DETAIL.md 347154 11082 normal",
+          "summary": "1 production/TASKS-DETAIL.md 347335 11083 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5208,
       "lines": 159,
-      "sha256": "c0f68562b0cebeafa2113350e7eb6ad4d7bb2f9b7ede4a9c60776adca22d2f5e",
+      "sha256": "ec86f12f5b7955b03bc348aa7c62c95ec4593624494c714c7678717780ecc115",
       "tier": "normal",
       "sections": [
         {
@@ -761,7 +761,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 314 行 / 94282 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 314 行 / 94321 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
@@ -1080,12 +1080,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 11082 行 / 347154 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 11083 行 / 347335 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
           "tokens": 130,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+11083 · §WXG-T-998=10919+16 · §WXG-T",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+11084 · §WXG-T-998=10919+16 · §WXG-T",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -14587,17 +14587,17 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 50642,
-      "lines": 383,
-      "sha256": "e82ddf027c29c6f1c0a50115ec9e2eefb54426e3926301d30b0dbb8783d3b688",
+      "tokens": 50969,
+      "lines": 385,
+      "sha256": "da94d82ad382bae82f1915036c89f0bab690fb25123416ae410b6342256d0587",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads UI 架构（View / ViewModel / Presenter + 公共基础）",
           "level": 1,
           "startLine": 1,
-          "endLine": 384,
-          "tokens": 50623,
+          "endLine": 386,
+          "tokens": 50951,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -14767,8 +14767,8 @@
           "anchor": "§12 TODO 拆分",
           "level": 2,
           "startLine": 138,
-          "endLine": 380,
-          "tokens": 45570,
+          "endLine": 382,
+          "tokens": 45897,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -14779,8 +14779,8 @@
         {
           "anchor": "§13 待你拍板",
           "level": 2,
-          "startLine": 381,
-          "endLine": 384,
+          "startLine": 383,
+          "endLine": 386,
           "tokens": 323,
           "summary": "D1–D5 均已裁定（见 [ADR-0032 §5](adr/ADR-0032-beads-ui-architectur",
           "keywords": [
@@ -93386,17 +93386,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 347154,
-      "lines": 11082,
-      "sha256": "464835c42be66dc8e490b07ed135d96f46724a5e8a33e206d75cf08ec79060de",
+      "tokens": 347335,
+      "lines": 11083,
+      "sha256": "80dcb3af4ba9fcb9ea41a6b6b6f9760da72e18a17e1fb1b6e4a73e8c46fe1fd1",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 11083,
-          "tokens": 347137,
+          "endLine": 11084,
+          "tokens": 347318,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -109061,8 +109061,8 @@
           "anchor": "§WXG-T-1006",
           "level": 2,
           "startLine": 11032,
-          "endLine": 11044,
-          "tokens": 1839,
+          "endLine": 11045,
+          "tokens": 2020,
           "summary": "工程·主菜单 boss 橱窗改珠面缩略（纹理腿退场） · 负责：本会话（Trae CN）·beads UI 轨 · 状态",
           "keywords": [
             "WXG",
@@ -109074,8 +109074,8 @@
         {
           "anchor": "§WXG-T-1007",
           "level": 2,
-          "startLine": 11045,
-          "endLine": 11057,
+          "startLine": 11046,
+          "endLine": 11058,
           "tokens": 1237,
           "summary": "美术·F/G/H 轨收敛（头像批 + 道具纹理 + .meta + 发布件） · 负责：Qoder 收尾·并发会话原 W",
           "keywords": [
@@ -109087,8 +109087,8 @@
         {
           "anchor": "§WXG-T-1008",
           "level": 2,
-          "startLine": 11058,
-          "endLine": 11068,
+          "startLine": 11059,
+          "endLine": 11069,
           "tokens": 604,
           "summary": "QA·金样十一帧干净锚重拍（996/1001/1004/1006 四批欠账一笔清） · 负责：Qoder·beads Q",
           "keywords": [
@@ -109100,8 +109100,8 @@
         {
           "anchor": "§WXG-T-1012",
           "level": 2,
-          "startLine": 11069,
-          "endLine": 11083,
+          "startLine": 11070,
+          "endLine": 11084,
           "tokens": 850,
           "summary": "美术·包体红线处置 A——五件运行时纹理调色板量化压缩 · 负责：Qoder·beads 美术/发布轨 · 状态：✅ 完",
           "keywords": [
@@ -109114,9 +109114,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 94282,
+      "tokens": 94321,
       "lines": 314,
-      "sha256": "19e4138c2461bf3e329d9c6938311b3e8a23c071151a73f471fd59f60e47979b",
+      "sha256": "dcd60b06237a19bc4b346281f46133c611a822acbc5f4cafaf2d908cd8e2ab39",
       "tier": "hot",
       "sections": [
         {
@@ -109124,7 +109124,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 315,
-          "tokens": 94273,
+          "tokens": 94312,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
