@@ -10981,3 +10981,15 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **环境记录**：Cocos CLI 构建在沙箱内会踩 `(0, browser_1.init) is not a function`（写 `~/Library/Application Support/CocosCreator` 被拦）⇒ 构建需在沙箱外执行；模拟器验证沿用 `cli open --project games/beads/cocos/build/wechatgame`，AppID 取本地未入库 `project.config.json`。
 - **知识沉淀**：本单不跑 kb:sync，沉淀统计 新增 0 / 修改 0 / 激活 0 / 归档 0；候选 1 条交主理人汇编：Cocos / 微信端 `SpriteFrame.texture.image` 可能拿不到像素，凡「从纹理读像素做预烘」的宿主腿都应在装载期另存 `ImageAsset.data`，否则会表现为带 fx 的位图整块消失且无矢量回落（harness 不可见）。
 
+## WXG-T-1004
+
+**工程·C 轨 timeout✕确认退出收敛（三缺陷修+TDD）** · 负责：Qoder 收尾·并发会话原 WIP·beads UI 轨 · 状态：✅ 完成（2026-11-20 · 用户令「C/E/F/G/H 轨」）
+
+- **背景与授权**：C 轨 = 并发会话 2026-11-17 起未入库 WIP（用户令「右上角加叉按钮，点后弹确认退出对话框」，推翻 WXG-T-614 稿面「无关闭出口」裁定）。主体（fail-panel 导出 / timeout-view✕绘制 / 状态机 failConfirming / panel-router 路由）已随 991 等批部分入库，但零测试且带三缺陷；本批承用户点名轨授权收尾（同 D 轨 1001 模式，覆盖旧「候 C 轨入库不代收敛」裁定）。
+- **三缺陷与修法（TDD 先钉后修）**：① `fail-panel.ts::buildLayout` dismissRect y 算式 `plateY + plateH − plateH + topInset` 相消 ⇒ ✕ 实落**右下角**，与 tuning 注释「右上角」及用户令矛盾；改 `plateY + plateH − r*2 − topInset`（右上内缘 12，两档牌高同口径）。② `timeout-view.ts` confirm 标题/说明硬编码 `cp.yMin + ch − 100/−150`，与 `failConfirmLayout().titleY/msgY` 双源漂移；VM 新增 `confirmTitleY/confirmMsgY`（confirming 时取布局单源），视图改读 VM。③ `beads-game.ts` 注释称「Cleared on retry/restore」但 retryLevel 不清 `_failConfirming`；单点修法 = playing onEnter 加 `if (from === 'game-over') game._failConfirming = false`（与 paused/level-clear 同构，盖全部 7 处 transition 入口）。
+- **测试配套**：新增 `tests/fail-confirm.test.ts` 7 例（✕ 两档命中面 yMax≡panel.yMax−topInset / confirm 560×300 布局命中与文字锚 / VM 契约含新字段与预分配复用 / 绘制锚单源 / 真链模态路由与 menuRequests / retry 清态），RED 4/7 → GREEN 7/7；timeout-view / revive 不回归；typecheck 干净。全量 beads **1575/1579**（2 红 = clear 金样 996 欠账 + fail 金样本批 ✕ 位移，均候重拍批；2 skip）；framework 本批零触碰。
+- **镜像同步**：`sync-framework-to-cocos.mjs` 两轮（修后重同步），C 轨 6 件 src ↔ cocos 镜像一致；`view/meta-types.ts` 及其镜像属**他轨新 WIP**（2026-11-20 用户令「boss 关图案改珠面缩略」，仅类型先行）⇒ 不捎带（K-045）。
+- **UX/架构回写**：`timeout-panel-spec.md` **v1.1**（头注 + §2 界面流加 ✕/confirm 分支、「无关闭出口」划线留档 K-053 + §8 三行热区与模态注 + §10 偏差 9）；回写后 8508 tok 越 spec 门 6.4% ⇒ `ctx/budget-exempt.json` 登记豁免（带撤销条件：下次修订前评估 §11 两条已闭像素取证外移，顶回 ≤8000 即撤）；`ux-spec.md` **v1.59**（头注版本链 + §3.5 划线推翻 + 状态转移表两行）；`ui-architecture-beads.md §12` 1004 条视觉变更登记（含 **1001 BLOCKED 前置解除**：hitFailConfirm 导出入库，干净锚原生 Node 复取器可跑；金样七态+fail 候另批重拍，用户 2026-11-20 裁定口径不变）。
+- **撞号与台账分离披露（K-046 / K-045 / K-188）**：本批原拟领 1002，开工期间并发 Trae CN 以 `226e2b84` 占 1002、CodeBuddy 工作树登记占 1003（头注+主表行+详情节+归档器脚本 WIP，其自述「只暂存自己 4 件」尚未提交）⇒ 按工作树全局最大号改判 **1004**。台账两件套先备份 `/tmp/wxg-t1004-sep/` 再还原 HEAD 施加本批登记提交，提交后重放 CodeBuddy 1003 WIP 回工作树（不代提）；故本提交头注枚举跳过 1003 正文（其登记候原作者自提，领号锚已按 1004/1005 校准）。
+- **知识沉淀**：本单不跑 kb:sync，沉淀统计 新增 0 / 修改 0 / 激活 0 / 归档 0；候选 2 条交主理人汇编：① 牌内锚算式里出现「+H−H」相消项是复制粘贴未验算的信号，几何布局必须钉「边缘不变式」断言（如 yMax≡牌顶−inset）而非只钉尺寸；② 视图私抄 tuning 数值（硬编码偏移）与布局函数构成双源，修法 = VM 增锚字段投影布局单源，而非在视图里改对数字。
+

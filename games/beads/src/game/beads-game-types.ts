@@ -87,6 +87,13 @@ export interface BeadsGameOptions {
      * ⛔ 不依赖 `replay/**`；`expandTray` / `usePowerup` 同样上报。
      */
     readonly onCommandApplied?: (type: ReplayCommandType, args: ReplayCommandArgs, elapsedMs: number) => void;
+    /**
+     * EP15-S4：结算面板「回放」钮是否出现 —— 由壳层判定（录像存在且防呆通过）。
+     * 缺省 = 不显示；⛔ `BeadsGame` 不持录像真源。
+     */
+    readonly isReplayAvailable?: () => boolean;
+    /** EP15-S4：结算面板「回放」钮被点击（壳层负责进回放页；缺省 = 零事件）。 */
+    readonly onReplayRequest?: () => void;
     /** Gameplay tuning. Defaults to {@link DEFAULT_TUNING}. */
     readonly tuning?: BeadsTuning;
     /** Colour palette. Defaults to {@link DEFAULT_PALETTE}. */

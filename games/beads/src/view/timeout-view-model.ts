@@ -10,10 +10,16 @@
  */
 import type { BeadsSnapshot } from '../game/state.js';
 import {
+    FAIL_CONFIRM_NO,
+    FAIL_CONFIRM_TITLE,
+    FAIL_CONFIRM_YES,
+    FAIL_CONFIRM_MSG,
     FAIL_PANEL_TITLE,
+    failConfirmLayout,
     failPanelHint,
     failPanelLabel,
     failPanelLayout,
+    type FailConfirmAction,
     type FailPanelAction,
 } from '../systems/fail-panel.js';
 import type { PanelRect } from '../systems/pause-panel.js';
@@ -47,6 +53,22 @@ export interface TimeoutViewModel {
     /** 预分配 2 槽，但只画 `buttonCount` 个（⛔ 不把陈旧槽画出来）。 */
     readonly buttonCount: number;
     readonly buttons: readonly TimeoutButtonViewModel[];
+    /** dismiss ✕ 按钮位置（右上角小圆）。 */
+    readonly dismissRect: PanelRect;
+    /** dismiss ✕ 按下态。 */
+    readonly dismissPressed: boolean;
+    /** 在放弃确认态：Fail 弹窗 + confirm dialog 叠加显示。 */
+    readonly confirming: boolean;
+    readonly confirmPlate: PanelRect;
+    readonly confirmTitle: string;
+    readonly confirmMsg: string;
+    /** 标题/说明文字锚（引用 `failConfirmLayout` 单源，⛔ View 不得私抄 tuning）。 */
+    readonly confirmTitleY: number;
+    readonly confirmMsgY: number;
+    readonly confirmYesLabel: string;
+    readonly confirmNoLabel: string;
+    /** confirm 两按钮：左取消 / 右确定。 */
+    readonly confirmButtons: readonly { id: FailConfirmAction; rect: PanelRect; label: string; }[];
 }
 
 type Mutable<T> = { -readonly [K in keyof T]: T[K] };
@@ -63,6 +85,20 @@ export function createTimeoutViewModel(): Mutable<TimeoutViewModel> {
     return {
         plate: EMPTY_RECT, title: '', subtitle: '', hint: '',
         largeText: false, buttonCount: 0, buttons,
+        dismissRect: EMPTY_RECT,
+        dismissPressed: false,
+        confirming: false,
+        confirmPlate: EMPTY_RECT,
+        confirmTitle: FAIL_CONFIRM_TITLE,
+        confirmMsg: FAIL_CONFIRM_MSG,
+        confirmTitleY: 0,
+        confirmMsgY: 0,
+        confirmYesLabel: FAIL_CONFIRM_YES,
+        confirmNoLabel: FAIL_CONFIRM_NO,
+        confirmButtons: [
+            { id: 'confirm-no', rect: EMPTY_RECT, label: FAIL_CONFIRM_NO },
+            { id: 'confirm-yes', rect: EMPTY_RECT, label: FAIL_CONFIRM_YES },
+        ],
     };
 }
 
@@ -73,6 +109,8 @@ export function createTimeoutViewModel(): Mutable<TimeoutViewModel> {
 export function updateTimeoutViewModel(vm: Mutable<TimeoutViewModel>, snap: BeadsSnapshot): void {
     const layout = failPanelLayout(snap.reviveAvailable);
     vm.plate = layout.panel;
+    vm.dismissRect = layout.dismissRect;
+    vm.dismissPressed = snap.pressedButton === 'dismiss';
     vm.title = FAIL_PANEL_TITLE;
     vm.subtitle = layout.subtitle;
     vm.hint = snap.failHint;
@@ -87,5 +125,17 @@ export function updateTimeoutViewModel(vm: Mutable<TimeoutViewModel>, snap: Bead
         slot.hint = b.id === 'revive' ? failPanelHint() : '';
         slot.disabled = b.id === 'revive' && snap.watchingAd;
         slot.pressDy = pressOffset(snap.pressedButton === b.id, snap.reduceMotion);
+    }
+    // confirm 状态（从快照读 failConfirming）。
+    vm.confirming = snap.failConfirming === true;
+    if (vm.confirming) {
+        const cl = failConfirmLayout();
+        vm.confirmPlate = cl.plate;
+        vm.confirmTitle = FAIL_CONFIRM_TITLE;
+        vm.confirmMsg = FAIL_CONFIRM_MSG;
+        vm.confirmTitleY = cl.titleY;
+        vm.confirmMsgY = cl.msgY;
+        vm.confirmButtons[0]!.rect = cl.buttons[0]!.rect;
+        vm.confirmButtons[1]!.rect = cl.buttons[1]!.rect;
     }
 }

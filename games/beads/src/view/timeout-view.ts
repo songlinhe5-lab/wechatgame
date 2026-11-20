@@ -22,7 +22,7 @@ import {
 import { STAR_GOLD, withAlpha, type BeadsPalette } from './palette.js';
 import { UI_FONT, UI_SCRIM, bodyFont, drawPaperPanel } from './ui-theme.js';
 import { drawModalScrim } from './modal-frame.js';
-import { menuBitmapReady } from './meta-widgets.js';
+import { drawCloseInset, menuBitmapReady } from './meta-widgets.js';
 import type { TimeoutButtonViewModel, TimeoutViewModel } from './timeout-view-model.js';
 
 const GEO = TIMEOUT_GEO;
@@ -175,6 +175,17 @@ export function drawTimeoutView(
         drawTimeoutButton(builder, vm.buttons[i]!, palette);
     }
 
+    // dismiss ✕（右上角 56²，与选关 / 详情 / 设置页共用 `drawCloseInset` 画法）。
+    const dr = vm.dismissRect;
+    drawCloseInset(
+        builder, palette,
+        dr.xMin + (dr.xMax - dr.xMin) / 2,
+        dr.yMin + (dr.yMax - dr.yMin) / 2,
+        dr.xMax - dr.xMin, dr.yMax - dr.yMin,
+        14, // ✕ 叉臂
+        vm.dismissPressed,
+    );
+
     // 一次性提示（如 Noop 广告「即将开放」）：牌底留白带中线，实测奶油墨 min 3.26（22）/ 3.04（28）✓ 大字号档。
     if (vm.hint) {
         builder.text(cx, y + GEO.hintCyFromBottom, vm.hint, {
@@ -183,5 +194,49 @@ export function drawTimeoutView(
             align: 'center',
             baseline: 'middle',
         });
+    }
+
+    // 放弃确认对话框（叠在 Fail 弹窗之上）。
+    if (vm.confirming) {
+        drawModalScrim(builder, UI_SCRIM.canvas, UI_SCRIM.alpha * 0.7); // 更浓的遮罩
+        const cp = vm.confirmPlate;
+        const cw = cp.xMax - cp.xMin;
+        const ch = cp.yMax - cp.yMin;
+        const ccx = cp.xMin + cw / 2;
+        // 纸面板（与弹窗同口径）
+        drawPaperPanel(builder, cp.xMin, cp.yMin, cw, ch, palette, GEO.radius.plate, UI_CONTAINER.shadowAlphaPanel);
+        // 标题「确定放弃本关？」
+        builder.text(ccx, vm.confirmTitleY, vm.confirmTitle, {
+            fill: palette.woodText,
+            font: UI_FONT.detailTitle,
+            align: 'center', baseline: 'middle',
+        });
+        // 说明「本局进度将丢失」
+        builder.text(ccx, vm.confirmMsgY, vm.confirmMsg, {
+            fill: palette.woodText,
+            font: bodyFont(vm.largeText, 'sub'),
+            align: 'center', baseline: 'middle',
+        });
+        // 两按钮：左取消 / 右确定（用 drawTimeoutButton 复用画法，但按钮类型用 revive/retry 不太合适…
+        // 简化：直接画圆角矩形 + 文字）
+        for (let i = 0; i < vm.confirmButtons.length; i += 1) {
+            const cb = vm.confirmButtons[i]!;
+            const r = cb.rect;
+            const bx = r.xMin;
+            const by = r.yMin;
+            const bw = r.xMax - r.xMin;
+            const bh = r.yMax - r.yMin;
+            // 取消 = hintBlue（与 retry 同色系）；确定 = success（与 revive 同色系）
+            const primary = cb.id === 'confirm-yes';
+            builder.rect(bx, by, bw, bh, {
+                fill: primary ? palette.success : palette.hintBlue,
+                radius: GEO.radius.button,
+            });
+            builder.text(bx + bw / 2, by + bh / 2, cb.label, {
+                fill: palette.woodText,
+                font: UI_FONT.timeoutAction,
+                align: 'center', baseline: 'middle',
+            });
+        }
     }
 }

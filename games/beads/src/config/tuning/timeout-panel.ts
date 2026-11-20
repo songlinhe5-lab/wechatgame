@@ -42,6 +42,27 @@ export const TIMEOUT_GEO = {
   /** `failHint`（广告失败等）落位：牌底留白带中线（距牌底 45 ⇒ 586 档 yDown 541）。 */
   hintCyFromBottom: 45,
   /**
+   * ✕ 关闭按钮（**右上角**）：小圆 56×56，距牌内缘 right 12 / top 12。
+   * 与木牌同语言：灰色半透明圆形底 + 白色 ✕ 图标；不抢主按钮注意力。
+   * ⚠ 稿面无此按钮（WXG-T-614 稿面裁定无关闭出口），用户 2026-11-17 新增：
+   * "右上角加叉按钮，点后弹确认退出对话框"。
+   */
+  dismissBtn: { r: 28, rightInset: 12, topInset: 12 },
+  /**
+   * 放弃确认对话框（FAIL → confirm-abandon）：与 buy-confirm-panel 同口径
+   * （560×300 居中板，两钮 240×88），叠加在 Fail 弹窗之上。
+   * 几何 = 屏内绝对锚（非牌内锚，因为叠在 Fail 弹窗之上）。
+   */
+  confirmAbandon: {
+    plate: { w: 560, h: 300 },
+    titleCyDown: 100,
+    msgCyDown: 150,
+    btnW: 240,
+    btnH: 88,
+    btnGap: 24,
+    btnYDown: 66, // 按钮底部距板底
+  },
+  /**
    * 九宫格端帽（**源纹理像素 @2x**，`nineSliceFx` 口径）：
    * capY 300 = 150 设计 px ⇒ 上端帽盖住整条标题横带（牌内 44..140）、下端帽盖住底角铆钉；
    * capX 120 = 60 设计 px ⇒ 盖住左右角铆钉。中段纯木纹，纵向压缩不撕裂任何结构件。

@@ -18,7 +18,8 @@ import {
 } from '../config/tuning';
 import { rectContains, type PanelRect } from './pause-panel';
 
-export type FailPanelAction = 'revive' | 'retry';
+export type FailPanelAction = 'revive' | 'retry' | 'dismiss';
+export type FailConfirmAction = 'confirm-yes' | 'confirm-no';
 
 export interface FailPanelButton {
   readonly id: FailPanelAction;
@@ -26,12 +27,13 @@ export interface FailPanelButton {
 }
 
 /**
- * 布局 = **命中面**（牌框 + 钮框）+ 档位文案。文字锚不在本表：视图侧由
- * `TIMEOUT_GEO` 的牌内锚直接换算（与选关 / 详情页同口径）⇒ 只有一套换算式。
+ * 布局 = **命中面**（牌框 + 钮框 + dismiss ✕）+ 档位文案。
+ * 文字锚不在本表：视图侧由 `TIMEOUT_GEO` 的牌内锚直接换算。
  */
 export interface FailPanelLayout {
   readonly panel: PanelRect;
   readonly buttons: readonly FailPanelButton[];
+  readonly dismissRect: PanelRect;
   readonly subtitle: string;
 }
 
@@ -78,9 +80,18 @@ function buildLayout(withRevive: boolean): FailPanelLayout {
   const retryYDown = withRevive ? g.retryBtn.yDown : g.continueBtn.yDown;
   buttons.push({ id: 'retry', rect: slot(g.retryBtn.w, g.retryBtn.h, retryYDown) });
 
+  // dismiss ✕ 按钮（右上角，相对牌框）：圆形 r=28，距 rightInset/topInset。
+  const dg = g.dismissBtn;
+  const dismissRect = rect(
+    plateX + plateW - dg.r * 2 - dg.rightInset,
+    plateY + plateH - dg.r * 2 - dg.topInset,
+    dg.r * 2, dg.r * 2,
+  );
+
   return {
     panel: plate,
     buttons,
+    dismissRect,
     subtitle: withRevive ? '' : FAIL_PANEL_SUBTITLE,
   };
 }
@@ -90,8 +101,61 @@ export function hitFailPanel(x: number, y: number, reviveAvailable: boolean): Fa
   for (const button of layout.buttons) {
     if (rectContains(button.rect, x, y)) return button.id;
   }
+  if (rectContains(layout.dismissRect, x, y)) return 'dismiss';
   return null;
 }
+
+/**
+ * 放弃确认对话框布局（屏内绝对锚，叠在 Fail 弹窗之上）。
+ * 两钮：左"取消" → 'confirm-no'、右"确定放弃" → 'confirm-yes'。
+ */
+export interface FailConfirmLayout {
+  readonly plate: PanelRect;
+  readonly titleY: number;
+  readonly msgY: number;
+  readonly buttons: readonly { id: FailConfirmAction; rect: PanelRect }[];
+}
+
+let _confirmLayout: FailConfirmLayout | null = null;
+
+export function failConfirmLayout(): FailConfirmLayout {
+  if (_confirmLayout) return _confirmLayout;
+  const g = TIMEOUT_GEO.confirmAbandon;
+  const pw = g.plate.w, ph = g.plate.h;
+  const px = (DESIGN_W - pw) / 2;
+  const py = (DESIGN_H - ph) / 2; // 屏中心
+  const plate = rect(px, py, pw, ph);
+  const btnyDown = ph - g.btnYDown - g.btnH; // 按钮上缘 y 向下
+  const btnYUp = py + ph - btnyDown - g.btnH; // 设计空间 y 向上
+  const totalBtnW = g.btnW * 2 + g.btnGap;
+  const firstX = px + (pw - totalBtnW) / 2;
+  _confirmLayout = {
+    plate,
+    titleY: py + ph - g.titleCyDown,
+    msgY: py + ph - g.msgCyDown,
+    buttons: [
+      { id: 'confirm-no', rect: rect(firstX, btnYUp, g.btnW, g.btnH) },
+      { id: 'confirm-yes', rect: rect(firstX + g.btnW + g.btnGap, btnYUp, g.btnW, g.btnH) },
+    ],
+  };
+  return _confirmLayout;
+}
+
+export function hitFailConfirm(x: number, y: number): FailConfirmAction | null {
+  for (const b of failConfirmLayout().buttons) {
+    if (rectContains(b.rect, x, y)) return b.id;
+  }
+  return null;
+}
+
+/** 放弃确认对话框标题。 */
+export const FAIL_CONFIRM_TITLE = '确定放弃本关？';
+/** 放弃确认对话框说明。 */
+export const FAIL_CONFIRM_MSG = '本局进度将丢失';
+/** 放弃确认对话框主按钮。 */
+export const FAIL_CONFIRM_YES = '确定放弃';
+/** 放弃确认对话框次按钮。 */
+export const FAIL_CONFIRM_NO = '取消';
 
 /** 板标题（稿 `231:284`）。 */
 export const FAIL_PANEL_TITLE = '时间到';

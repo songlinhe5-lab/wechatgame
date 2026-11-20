@@ -2152,6 +2152,9 @@ export class BeadsGame {
             game._fx.cancelWave();
             game._clearPanelPending = false;
           }
+          // `[WXG-T-1004]` 离开 game-over（retry / restore 等全部入口）必清放弃确认态，
+          // 否则确认弹窗残留到下一局（与 paused / level-clear 单点清理同构）。
+          if (from === 'game-over') game._failConfirming = false;
         },
         onUpdate: (game, dt) => {
           game._stepPlaying(dt);
