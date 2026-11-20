@@ -1,0 +1,23 @@
+千面拼豆 · 豆面风格头像探索 · 生成记录
+日期：2026-11-16
+通道：Token Plan（--profile token-plan）
+模型：qwen-image-3.0-pro（t2i，无参考图）
+生成尺寸：1024*1024
+预览尺寸：144*144（PIL LANCZOS）
+种子：两个方向均为 seed 42
+调用 / 出图 / 留档：2 / 2 / 2
+状态：候选，未替换 final
+
+方向 A · 2×2 大颗豆面特写（推荐）
+提示词：
+Square mobile game app icon, 1:1, centered composition. Macro close-up of four oversized fuse beads arranged in a 2x2 grid on a warm wooden pegboard, each bead with a clearly different surface finish: matte clay, glossy enamel, metallic gold, translucent glitter. Visible bead center holes, crisp edges, soft shadows, warm cream paper background, thick dark brown outline around the pegboard, bold simple shapes, high contrast, readable at 144x144, generous safe margin. No character, no face, no person, no clothes, no hanger, no text, no letters, no watermark, no logo, no flag, no political symbol, no religious symbol, no weapon, no blood, no nudity, no sexual content, no clutter.
+产物：raw/surface-2x2.png（1024²）→ preview-144-surface-2x2.png（144²，34,314 B）
+
+方向 B · 3×3 豆面风格网格
+提示词：
+Square mobile game app icon, 1:1, centered composition. A 3x3 grid of large fuse beads on a warm wooden pegboard, each row showing a different bead surface style: top row matte pastel beads, middle row glossy bright beads, bottom row metallic and glitter beads. Visible bead center holes, crisp edges, soft shadows, warm cream paper background, bold simple shapes, high contrast, readable at 144x144, generous safe margin. No character, no face, no person, no clothes, no hanger, no text, no letters, no watermark, no logo, no flag, no political symbol, no religious symbol, no weapon, no blood, no nudity, no sexual content, no clutter.
+产物：raw/surface-3x3.png（1024²）→ preview-144-surface-3x3.png（144²，37,638 B）
+
+目检结论：
+- A（2×2）：四颗豆占满画面，哑光 / 亮面 / 金属 / 闪粉四种豆面在 144 下区分清楚；中心孔与拼豆板孔位直接表达“拼豆”；无角色、无衣服。推荐。
+- B（3×3）：九组豆簇虽然材质丰富，但每组外形像花朵，容易重新引入“花 = Boss 图案”的误读，不建议采用。

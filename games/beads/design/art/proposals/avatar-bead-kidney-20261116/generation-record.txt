@@ -1,0 +1,66 @@
+千面拼豆 · 腰形豆三色背景头像 · 生成记录
+日期：2026-11-16
+通道：Token Plan（--profile token-plan）
+模型：qwen-image-3.0-pro（t2i，无参考图）
+生成尺寸：1024*1024
+预览尺寸：144*144（PIL LANCZOS，optimize=True）
+种子：42 / 7
+调用 / 出图 / 留档：2 / 2 / 2
+采用：seed 7（用户 2026-11-16 亲自选定 s7 预览）
+状态：已替换 final
+
+设计口径（用户 2026-11-16 原话）：
+「我要的是真实豆子的形状，不要圆孔，底下三个豆子需要贴近游戏风格」
+- 背景图案从「带孔圆豆」改为**真实豆子形状**（腰形豆轮廓，无中心孔）；
+- 背景仍为三色；
+- 前景三颗豆改为**贴近游戏内绘制口径**：俯视圆角方片 + 四向圆角刻面 +
+  中心孔 + 深棕细缝 + 平面填充（不用 3/4 立体圆柱）。
+
+游戏侧依据：
+- 豆面三套 = 风格池注册序（`src/config/bead-styles/registry.ts`）：
+  四棱刻面 facet-4 / 18 线稿描边 lineart-18 / 13 双色对角 dual-tone-13；
+- 豆体画法 = `facet-4.ts` 头注：圆角方片（plate）+ 四向圆角扇形刻面（顶/左/右/底
+  不同明度）+ 孔环 + 孔底，`FACET4_EDGE_INSET_PX` 外缘 1dp 描边 ⇒ 俯视平面，无高光渐变。
+
+构图：
+- 背景：小圆拼豆网格铺暖奶油底，中央拼出一枚腰形豆（饱满椭圆 + 一侧内凹），
+  无孔；豆身珊瑚粉 / 青绿 / 暖黄三色分区；其余为奶油豆，孔位可见；
+- 前景：三颗大号豆片横向排开、轻微重叠，统一为俯视圆角方片（提示词要求沿底边，
+  采用版实际落在画面下半中部）；
+  左 = 珊瑚粉四棱刻面；中 = 线稿描边（深棕粗描边 + 奶油底 + 暖黄内环）；
+  右 = 双色对角（青绿 / 薄荷）；三颗均有中心孔与刻面细缝。
+
+提示词（正向）：
+Square mobile game app icon, 1:1, centered composition, flat 2D game-art style. Background: a bead mosaic made of small round fuse beads with visible center holes, arranged in a clean grid on a warm cream pegboard, forming one single large kidney bean silhouette, a real bean shape: plump oval body with one smooth curved indent on its side, no hole, no ring, no donut; the bean shape is filled with three bold color zones: coral pink, teal, and warm mustard yellow; the rest of the grid is cream beads; flat colors, slightly lower contrast, no gradient shading. Foreground: three oversized beads drawn exactly like the game's top-down bead sprites: each one is a flat rounded-square chip seen from directly above, with four rounded facet segments meeting at the center, a clean centered round hole, thin dark seam lines between facets, flat matte colors, one thin lighter bevel line on the top edges, no glossy highlights, no tall side walls, no strong 3D. Three bead-surface variants: first chip coral pink with four-facet cut; second chip in bold line-art style with a thick dark brown outline, flat cream fill and one simple mustard inner ring; third chip split diagonally into teal and mint halves. Crisp flat vector illustration, clean edges, straight top-down view, tiny soft drop shadow only, bold flat color blocks. The big bean silhouette stays simple and readable; the three foreground chips are the focal point. Warm cream border, thick dark brown outline around the icon, bold simple shapes, high contrast, readable at 144x144, generous safe margin. No character, no face, no person, no clothes, no hanger, no text, no letters, no watermark, no logo, no flag, no political symbol, no religious symbol, no weapon, no blood, no nudity, no sexual content, no clutter. No flower, no petals, no plant, no star, no ring shape, no donut, no torus, no wreath, no hole in the background pattern, no spheres, no balls, no tall cylinders, no photorealistic plastic, no glossy specular, no metallic gold.
+
+产物：
+- raw/kidney-s7.png（1024²，采用母版）→ ../final/assets/avatar/beads-avatar-144.png（144² RGB，35,332 B，md5 02e01b11f08acf417187a5ea5eea7009）
+- preview-144-kidney-s7.png（144²，35,332 B，与 final 同 md5）
+- raw/kidney-s42.png（1024²，弃件）→ rejected/beads-avatar-144-kidney-s42.png（144²，35,739 B）
+
+选型：
+- seed 7 采用（用户 2026-11-16 从两张预览中亲自选定）：腰形豆轮廓完整、三色分区过渡自然；
+  三颗豆片居中偏下、留白均衡，整体更像一枚图标。
+- seed 42 弃件：三颗豆片贴底边、体量偏大，腰形豆底部被压住较多；用户未选。
+
+说明：
+- 上一版「带孔圆豆形三色」头像（原 final，37,950 B，md5 6cbb3319a15e20a4b112085c39a8229c）
+  已移入 proposals/avatar-bead-bean-20261116/rejected/beads-avatar-144-bean-roundhole.png。
+- 本批先按 seed 42 落过 final，用户选定后改为 seed 7；s42 移入本批 rejected/。
+- 背景与前景均为纯拼豆题材：无角色、无衣服、无文字。
+
+后处理（2026-11-16 · 去外框，用户令「把周围边框去掉」，零模型）：
+- 输入：raw/kidney-s7.png（1024²）；
+- ① 内裁：box (36,36,987,987) ⇒ 951×951（裁到深棕描边内缘，去掉外圈奶油留白与整圈描边）；
+- ② 填角：外缘 150px 环内与描边色 (58,31,10) 距离 <110 的像素判为残边，
+  膨胀 2px 覆盖抗锯齿边，填奶油 (254,245,219)；前景豆的深棕描边不在环内，未触碰；
+- ③ 缩放：951² → 144²（LANCZOS，optimize=True）⇒ 36,518 B，md5 49e2582b3ffaf4deba8d324cd01b3466；
+- 判据：144² 边缘 6px 带内暗像素 = 0（残留 1303 个暗像素均为前景豆片描边）；
+- 带框版（35,332 B）移入 rejected/beads-avatar-144-kidney-s7-bordered.png；
+- 无框版同批留档 preview-144-kidney-s7-noborder.png（与 final 同 md5）。
+
+验收：
+- PNG / RGB / 144×144；35.7 KB < 2 MB；
+- 目检无文字、水印、旗帜、政治/宗教符号、武器、裸露或性暗示；
+- 144 缩略后：腰形豆（无孔）三色背景、背景孔位、三颗俯视豆片与三套豆面均可读；
+  四边无边框、无深棕描边残留。

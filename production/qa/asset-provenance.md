@@ -291,3 +291,59 @@ python3 games/beads/design/ai-workflows/trace-figma-icons.py
 **包体**：`cocos/assets/textures/` 1900 → **2028 KiB（+125 KiB）**。
 
 **⚠ `.meta` 未签发**（L1 ⛔ 不伪造）：本机无 Cocos 编辑器 ⇒ 三件暂不进 `textures` Bundle，真机自动走规格 §9 的**元素级回退腿**（同几何、零功能回归）；解除条件 = 编辑器 reimport `cocos/assets/textures/detail/`。
+
+## 小游戏头像 144²（2026-11-16）
+
+| 入库件 | 生成方式 | 选型 | 母版 / 留档 | 关联 |
+|---|---|---|---|---|
+| `proposals/avatar-20261116/rejected/beads-avatar-144-flower.png` **144×144** RGB / 23,915 B（**已退场 2026-11-16**：花是某一关 Boss 图案，不作品牌头像） | `qwen-image-3.0-pro` t2i（Token Plan），1024² → 144² LANCZOS，零重绘 | seed 7 采用；seed 42 留样反例 | `proposals/avatar-20261116/raw/avatar-s7.png`；同目录 `generation-record.txt` | Token Plan 台账 2 次调用；本批 2026-11-16 |
+
+## 换皮肤头像 144²（2026-11-16）
+
+| 入库件 | 生成方式 | 选型 | 母版 / 留档 | 关联 |
+|---|---|---|---|---|
+| `proposals/avatar-skin-20261116/rejected/beads-avatar-skin-144-flower.png` **144×144** RGB / 21,716 B（**已退场 2026-11-16**：花是某一关 Boss 图案，不作品牌头像） | `qwen-image-3.0-pro` i2i（Token Plan，`--ref` 原头像 seed 7），1024² → 144² LANCZOS | seed 42 采用；seed 7 留样反例（整环箭头 + 纸纹在 144 下过密） | `proposals/avatar-skin-20261116/raw/skin-s42.png`；同目录 `generation-record.txt` | Token Plan 台账 +2 次调用；本批 2026-11-16 |
+
+## 拼豆豆人品牌头像 144²（2026-11-16 · 已退场）
+
+| 入库件 | 生成方式 | 选型 | 母版 / 留档 | 关联 |
+|---|---|---|---|---|
+| `proposals/avatar-skin-v2-20261116/rejected/beads-avatar-144-bean-mascot.png` **144×144** RGB / 27,231 B（**已退场 2026-11-16**：用户要求不要小人物/衣服） | `qwen-image-3.0-pro` t2i（Token Plan），1024² → 144² LANCZOS，零重绘 | seed 42 采用；seed 7 留样反例（整环三箭头 + 身形偏窄，144 下过密） | `proposals/avatar-skin-v2-20261116/raw/v2-s42.png`；同目录 `generation-record.txt` | Token Plan 台账 +2 次调用；用户 2026-11-16 修正口径（不用花、要拼豆+换肤） |
+
+## 豆面风格头像 144²（2026-11-16 · 已退场）
+
+| 入库件 | 生成方式 | 选型 | 母版 / 留档 | 关联 |
+|---|---|---|---|---|
+| `proposals/avatar-bead-heart-20261116/rejected/beads-avatar-144-heart.png` **144×144** RGB / 36,352 B（**已退场 2026-11-16**：背景图案改黄色五角星） | `qwen-image-3.0-pro` t2i（Token Plan），1024² → 144² LANCZOS，零重绘 | seed 7 采用（背景小豆网格约 10×10，珊瑚心形；孔位可见；前景四颗平顶短圆柱，哑光青 / 亮面紫 / 金属金 / 透明闪粉；144 下心形与豆面均清楚） | `proposals/avatar-bead-heart-20261116/raw/heart-s7.png`；同目录 `generation-record.txt` | Token Plan 台账 +2 次调用；用户 2026-11-16 口径（背景豆更小、形成简单图形） |
+
+> **2026-11-16 背景图形更新**：5×5 大豆网格版（36,141 B）已退场，移入 `proposals/avatar-bead-grid5-20261116/rejected/beads-avatar-144-grid5.png`；现役为小豆心形版（seed 7，36,352 B）。
+
+> **2026-11-16 背景网格更新**：密集豆田版（37,924 B）已退场，移入 `proposals/avatar-bead-pattern-v2-20261116/rejected/beads-avatar-144-dense-bg.png`；现役为 5×5 大豆网格版（seed 42，36,141 B）。
+
+> **2026-11-16 构图更新**：2×2 纯豆面版（34,035 B）已退场，移入 `proposals/avatar-bead-surface-v2-20261116/rejected/beads-avatar-144-real-2x2.png`；现役为「豆面斜纹背景 + 前景四颗平顶短圆柱」版（seed 42，37,924 B）。
+
+> **2026-11-16 豆形细化**：圆环/圆润豆形版（原 final，34,314 B）已退场，移入 `proposals/avatar-bead-surface-20261116/rejected/beads-avatar-144-rounded.png`；现役为真实短圆柱平顶豆形（seed 42）。
+
+## 黄色五角星背景头像 144²（2026-11-16 · 已退场）
+
+| 入库件 | 生成方式 | 选型 | 母版 / 留档 | 关联 |
+|---|---|---|---|---|
+| `proposals/avatar-bead-star-20261116/rejected/beads-avatar-144-star.png` **144×144** RGB / 34,767 B（**已退场 2026-11-16**：背景图案改豆形三色） | `qwen-image-3.0-pro` t2i（Token Plan），1024² → 144² LANCZOS，零重绘 | seed 42 采用（背景约 10×10 小豆网格 + 黄色五角星，孔位可见；前景三颗平顶短圆柱：珊瑚哑光 / 青绿亮面 / 薰衣草珠光闪粉；配色改扁平插画、不写实） | `proposals/avatar-bead-star-20261116/raw/star-s42.png`；同目录 `generation-record.txt`；备选 `raw/star-s7.png`（33,583 B） | Token Plan 台账 +2 次调用；用户 2026-11-16 令「背景做个黄色五角星，下面做三个风格豆子，颜色不要太写实」 |
+
+> **2026-11-16 背景图案更新**：心形版（36,352 B）已退场，移入 `proposals/avatar-bead-heart-20261116/rejected/beads-avatar-144-heart.png`；现役为黄色五角星版（seed 42，34,767 B）。
+
+## 豆形三色背景头像 144²（2026-11-16 · 已退场）
+
+| 入库件 | 生成方式 | 选型 | 母版 / 留档 | 关联 |
+|---|---|---|---|---|
+| `proposals/avatar-bead-bean-20261116/rejected/beads-avatar-144-bean-roundhole.png` **144×144** RGB / 37,950 B（**已退场 2026-11-16**：背景带孔圆豆改为真实腰形豆、前景改为俯视豆片） | `qwen-image-3.0-pro` t2i（Token Plan），1024² → 144² LANCZOS，零重绘 | seed 7 采用（背景小豆图案拼出豆形 + 中心孔，珊瑚粉 / 青绿 / 暖黄三色分区；前景三颗豆 = 游戏风格池三套豆面：四棱刻面 / 18 线稿描边 / 13 双色对角；144 下豆形与三种豆面均清楚） | `proposals/avatar-bead-bean-20261116/raw/bean-s7.png`；同目录 `generation-record.txt`；备选 `raw/bean-s42.png`（39,695 B） | Token Plan 台账 +2 次调用；用户 2026-11-16 令「用我游戏里的三个豆面做底下三个豆子，图案改成豆子形状，有三色」；豆面真源 `src/config/bead-styles/registry.ts` |
+
+> **2026-11-16 图案更新**：五角星版（34,767 B）已退场，移入 `proposals/avatar-bead-star-20261116/rejected/beads-avatar-144-star.png`；现役为「腰形豆三色」版。
+
+## 腰形豆三色背景头像 144²（2026-11-16 · 采用）
+
+| 入库件 | 生成方式 | 选型 | 母版 / 留档 | 关联 |
+|---|---|---|---|---|
+| `final/assets/avatar/beads-avatar-144.png` **144×144** RGB / 36,518 B（md5 `49e2582b3ffaf4deba8d324cd01b3466`） | `qwen-image-3.0-pro` t2i（Token Plan），1024² → **内裁 (36,36,987,987) 去外框** → 951² → 144² LANCZOS；零模型 | 母版 = **seed 7（用户 2026-11-16 从两张预览亲自选定）**；**去外框版**（用户同日令「把周围边框去掉」）：腰形豆轮廓、无中心孔，三色；前景三颗为游戏俯视豆片（四棱刻面 / 18 线稿描边 / 13 双色对角） | `proposals/avatar-bead-kidney-20261116/raw/kidney-s7.png`；同目录 `generation-record.txt` §后处理（裁切/填角参数）；无框留档 `preview-144-kidney-s7-noborder.png`；带框版 `rejected/beads-avatar-144-kidney-s7-bordered.png`（35,332 B）；s42 弃件 `rejected/beads-avatar-144-kidney-s42.png` | Token Plan 台账 +2 次调用（去框为零模型后处理）；用户 2026-11-16 令「我要的是真实豆子的形状，不要圆孔，底下三个豆子需要贴近游戏风格」→ 选定 s7 →「把周围边框去掉」 |
+
+> **2026-11-16 形状与画法更新**：带孔圆豆形版（37,950 B）已退场，移入 `proposals/avatar-bead-bean-20261116/rejected/beads-avatar-144-bean-roundhole.png`；现役为腰形豆三色版（seed 7，35,332 B；s42 已移入同批 rejected/）。

@@ -1,0 +1,27 @@
+千面拼豆 · 小游戏头像 144² · 生成记录
+日期：2026-11-16
+通道：Token Plan（--profile token-plan）
+模型：qwen-image-3.0-pro
+生成尺寸：1024*1024
+最终尺寸：144*144（PIL LANCZOS）
+种子：42 / 7
+调用 / 出图 / 留档：2 / 2 / 2
+采用：seed 7
+
+采用理由：
+- seed 7 的五个花瓣有明确拼豆颗粒纹理，材质语义与「千面拼豆」一致；
+- 主体占画面比例更大，缩到 144 后笑脸与五瓣轮廓仍清晰；
+- seed 42 表面过平滑，更像黏土球，拼豆辨识弱，留作反例。
+
+提示词（正向）：
+Square mobile game app icon, 1:1, centered composition. A cute mascot made of fused colorful beads: a round smiling bead-flower with five petals (coral, mustard, teal, plum, cream), tiny dark brown seed-bead eyes and a small smile, one tiny loose bead beside it. Warm cream paper background, soft contact shadow, subtle paper texture, clean vector-like 3D clay style, thick dark brown outlines, bold simple silhouette, high contrast, readable at 144x144, generous safe margin. No text, no letters, no watermark, no logo, no flag, no political symbol, no religious symbol, no weapon, no blood, no nudity, no sexual content, no real person, no copyrighted character, no clutter, no extra limbs.
+
+产物：
+- raw/avatar-s42.png（1024²，留样反例）
+- raw/avatar-s7.png（1024²，采用母版）
+- ../final/assets/avatar/beads-avatar-144.png（144²，RGB，23,915 B）
+
+验收：
+- 格式 PNG / RGB / 144×144；23.9 KB < 2 MB；
+- 目检无文字、水印、旗帜、政治/宗教符号、武器、裸露或性暗示；
+- 主体居中，缩略后笑脸与五瓣仍可读。

@@ -1,0 +1,27 @@
+千面拼豆 · 换皮肤头像 144² · 生成记录
+日期：2026-11-16
+通道：Token Plan（--profile token-plan）
+模型：qwen-image-3.0-pro（i2i，--ref 原头像 seed 7）
+生成尺寸：1024*1024
+最终尺寸：144*144（PIL LANCZOS）
+种子：42 / 7
+调用 / 出图 / 留档：2 / 2 / 2
+采用：seed 42
+
+采用理由：
+- 双皮肤分区清楚：左半暖色（珊瑚 / 芥末 / 奶油），右半冷色（青绿 / 紫 / 奶油），一眼能读出「两套皮肤」；
+- 底部换色箭头是细线开口环，144 缩略后仍能看见，但不抢主体；
+- seed 7 的整环箭头 + 三个箭头 + 纸纹背景在 144 下过密，留样反例。
+
+提示词（正向）：
+Keep the exact same cute bead-flower mascot, face, thick dark brown outline, warm cream paper background and soft shadow as the reference. Redesign the five petals as two skin variants: left half in warm coral, mustard and cream; right half in teal, plum and cream, split cleanly down the center as if previewing two skins. Add a thin dark brown circular swap arrow around the lower half of the flower with two small arrowheads, suggesting color or skin switching. Keep it simple, bold, centered and readable at 144x144, generous safe margin. No text, no letters, no watermark, no logo, no flag, no political symbol, no religious symbol, no weapon, no blood, no nudity, no sexual content, no real person, no copyrighted character, no clutter, no extra limbs.
+
+产物：
+- raw/skin-s42.png（1024²，采用母版）
+- raw/skin-s7.png（1024²，留样反例）
+- ../final/assets/avatar/beads-avatar-skin-144.png（144²，RGB，21,716 B）
+
+验收：
+- 格式 PNG / RGB / 144×144；21.2 KB < 2 MB；
+- 目检无文字、水印、旗帜、政治/宗教符号、武器、裸露或性暗示；
+- 双皮肤分区与换色箭头在 144 下可读，主体仍居中。

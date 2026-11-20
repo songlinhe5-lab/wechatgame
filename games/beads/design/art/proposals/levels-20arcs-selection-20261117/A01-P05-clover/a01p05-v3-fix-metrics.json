@@ -1,0 +1,56 @@
+{
+  "wedge_transparent_px": 7534,
+  "serr_to_green_px": 61716,
+  "noise_removed": [],
+  "single_connected": true,
+  "head_ratio_pct": 93.9,
+  "head_top": 160,
+  "head_bot": 1621,
+  "stub_cx": 836,
+  "ball": [
+    1500.2,
+    662.2,
+    156.0
+  ],
+  "v_factor": 1.8645,
+  "v_grown": [
+    {
+      "color": "cream",
+      "old_px": 77839,
+      "eaten_px": 191757
+    },
+    {
+      "color": "orange",
+      "old_px": 98271,
+      "eaten_px": 198800
+    },
+    {
+      "color": "cream",
+      "old_px": 96995,
+      "eaten_px": 187783
+    }
+  ],
+  "heart_r_px": 85.8,
+  "scale": [
+    0.9653,
+    1.026
+  ],
+  "bbox_pct": [
+    74.02,
+    77.98
+  ],
+  "margins_pct": [
+    13.04,
+    11.04,
+    12.94,
+    10.99
+  ],
+  "area_share_pct": {
+    "#3FBF6B": 44.05,
+    "#6B3E1E": 1.4,
+    "#F59B23": 16.85,
+    "#FDF6E9": 34.46,
+    "#FFD23F": 3.25
+  },
+  "max_share_pct": 44.05
+}

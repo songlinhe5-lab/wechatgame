@@ -33,9 +33,6 @@ importers:
       '@wxgame/framework':
         specifier: file:../../packages/framework
         version: link:../../packages/framework
-      sharp:
-        specifier: ^0.35.5
-        version: 0.35.5(@types/node@22.20.2)
     devDependencies:
       '@types/node':
         specifier: ^22.10.2

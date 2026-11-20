@@ -11041,3 +11041,16 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **并发披露（K-045 / K-046 / K-188）**：开工时工作树含 E 轨（1005）/ 1003 / D 轨文档等 WIP；开工中 1005（b8774dc3）、1003（60305d8c）先后入库，台账转干净后再领 1006。本批只暂存自己 20 件（4 源码 + 4 Cocos 镜像 + 4 测试 + 6 文档 + 台账 2 件），⛔ 不代提他轨 WIP（framework `bindings` / `weapp`、`tint-mask` / `tray-slot` / `bead-visual-style` 规格、`asset-provenance`、`archive-tasks*` 等均未纳入）；`games/beads/package.json` 版本 bump 按构建轨惯例不随本批提交。
 - **知识沉淀**：本单不跑 kb:sync，沉淀统计 新增 0 / 修改 0 / 激活 0 / 归档 0；候选 2 条交主理人汇编：① 图元从「单张位图」换「多命令矢量组」时，`alpha` 交叉淡变必须显式退化（中点硬切），否则 `reduceMotion` 两页叠画 ⇒ 换绘制腿的隐含契约清单应含「透明度 / 层序 / 每帧分配」三项；② 同一色板多关复用 ⇒ 测试不能以「颜色存在性」判关本体，必须叠加几何 / 计数维度的身份断言（格数 / 首格色），否则换关时假绿。。
 
+
+## WXG-T-1007
+
+**美术·F/G/H 轨收敛（头像批 + 道具纹理 + .meta + 发布件）** · 负责：Qoder 收尾·并发会话原 WIP·美术/发布轨 · 状态：✅ 完成（2026-11-20 · 用户令「C/E/F/G/H 轨」；包体红线尾巴 BLOCKED 另批）
+
+- **背景与授权**：F/G/H = 并发会话 2026-11-16 起未入库美术/发布 WIP。承用户点名轨授权深查 + 收敛（同 1004/1005 模式）。
+- **F 轨（美术批）**：① 品牌头像 144²：`design/art/final/assets/avatar/beads-avatar-144.png` 现役 + 13 个提案目录（avatar-20261116 族，含 raw/rejected/generation-record，退场链完整）；`production/qa/asset-provenance.md` +56 行生成史登记（qwen-image-3.0-pro t2i/i2i、seed 选型、用户 11-16 逐轮口径）。② powerup 复原 tile×3（window/random/tray，11-17 出图、11-18 编辑器签发 meta）：carrier `POWERUP_TILE_TEXTURES` 三条与 harness 资产表三条**接线已先入库**，本批补资产闭环（缺图腿此前走元素级回退）。③ `levels-20arcs-selection-20261117/A01-P05-clover/` v1–v5 选型批（png + rgba + metrics + response-meta）。④ `palette-rules-review-2026-11-17.md`：选色规则全量 review（21945 对扫描），其发现的 3 处历史 bug 修复已随 `afe81f16`/`018ad6bc` 入库，本批入报告本体。
+- **G 轨（.meta 批）**：20 件真编辑器签发 `.meta`（bot×7 / replay×7 / tuning replay×2 / replay-transport / replay-binding / diagonal-facet / replay-page）——EP15 批（986–996）代码已入库而 meta 由编辑器后补签发，本批原样入库（L1：⛔ 手工伪造，全部真编辑器产物）。
+- **H 轨（发布件）**：① `games/beads/package.json` 版本 1.0.47→1.0.64 = 构建脚本自动打号（合法，非手改）；② **beads 层 sharp 依赖净删**（beads 层零消费者；根 package.json 保留 sharp 供 `tools/scripts/palette-quantize.mjs`），`pnpm install --lockfile-only` 同步锁文件；③ `production/release/beads/mini-program-intro.md`：用户 2026-11-16 裁定「后台简介 = §8.1 版本 A（56 字）」在案，原样入库；④ 根 `palette-quantize-result.json` = palette-quantize.mjs 瞬态输出（写 cwd、可再生、零文档引用）⇒ 入 `.gitignore` 不入库。
+- **⛔ 包体红线 BLOCKED（登记 + 归因，候用户裁定）**：`check:size` beads 主包 **4222.4 KB > 4096 红线（−126.4 KB）**。归因实测：本批 powerup tile×3 在构建内 116.5 KB，**剔除后仍 4107.5 KB 超线 11.5** ⇒ 越线主因在**已入库内容**：972（11-16）绿时 3846.5 KB，其后 996 结算双钮九宫格两图（源 98.5+115.2=213.7 KB）为主增量 + EP15 回放代码增量。本批提交**不改变构建**（资产早已在工作树并参与 1006 的 release v1.0.64 重建）；发布阻塞在册。解除选项（§3.8 口径）：A 九宫格/大纹理压缩（pngquant 类，996 双钮为首选靶）；B 关卡美术走分包 levels / 音频走远程包；C 功能裁剪核对；D 组合。**⛔ 不擅自压缩已入库美术**（涉视觉品质，候裁定）。
+- **撞号与并发披露（K-046/K-188）**：原拟领 1006，被 boss 橱窗珠面缩略批（070afbe6）占 ⇒ 改判 **1007**。开工期间 1003（60305d8c）/1006（070afbe6）先后入库；1005 披露订正文本曾被 070afbe6 扫入（已在 1005 节记明）。D 轨 3 件 spec（tint-mask / tray-neutral-slot-mask / bead-visual-style）属 1001 口径补写，**不在本批**（另笔署 1001）。
+- **验证**：check:tasks 绿、sync --check 绿、typecheck 干净；check:size 红 = 上文 BLOCKED 登记（非本批引入）。金样候重拍批（1006 后菜单背屏五帧亦变，与 1001 七态 + fail 同批）。
+- **知识沉淀**：本单不跑 kb:sync，沉淀统计 新增 0 / 修改 0 / 激活 0 / 归档 0；候选 1 条交主理人汇编：包体红线归因须「剔除本批增量后复算」——否则会把历史批的越线账错记到当前批头上（本例剔除后仍超 11.5 KB，主因在 996 已入库九宫格）。

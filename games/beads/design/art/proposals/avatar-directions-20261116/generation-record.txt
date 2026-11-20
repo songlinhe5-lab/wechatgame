@@ -1,0 +1,29 @@
+千面拼豆 · 头像三方向探索 · 生成记录
+日期：2026-11-16
+通道：Token Plan（--profile token-plan）
+模型：qwen-image-3.0-pro（t2i，无参考图）
+生成尺寸：1024*1024
+预览尺寸：144*144（PIL LANCZOS）
+种子：三个方向均为 seed 42
+调用 / 出图 / 留档：3 / 3 / 3
+状态：候选，未替换 final
+
+方向 1 · 双豆人并排（推荐）
+提示词：
+Square mobile game app icon, 1:1, centered composition. Two identical cute bean-shaped mascots made of fused colorful beads, standing side by side, same pose and same smile, clearly the same character in two skins: left one in warm coral, mustard and cream; right one in cool teal, lavender and cream, wearing a tiny knitted scarf. A small dark brown swap arrow between them. A simple wooden pegboard tile behind, a few loose beads at the base. Warm cream paper background, soft contact shadow, thick dark brown outlines, bold simple shapes, high contrast, readable at 144x144, generous safe margin. No text, no letters, no watermark, no logo, no flag, no political symbol, no religious symbol, no weapon, no blood, no nudity, no sexual content, no real person, no copyrighted character, no clutter, no extra limbs.
+产物：raw/d1-two-beans.png（1024²）→ preview-144-d1-two-beans.png（144²，30,158 B）
+
+方向 2 · 拼豆衣架
+提示词：
+Square mobile game app icon, 1:1, centered composition. A tiny T-shirt made of fused colorful beads, hanging on a simple wooden clothes hanger. Behind it, a second T-shirt in a different color palette, slightly offset, clearly showing two selectable skins. A few loose beads at the bottom. Warm cream paper background, soft contact shadow, thick dark brown outlines, bold simple shapes, high contrast, readable at 144x144, generous safe margin. No text, no letters, no watermark, no logo, no flag, no political symbol, no religious symbol, no weapon, no blood, no nudity, no sexual content, no real person, no copyrighted character, no clutter, no extra limbs.
+产物：raw/d2-bead-shirt.png（1024²）→ preview-144-d2-bead-shirt.png（144²，30,859 B）
+
+方向 3 · 拼豆板半成品
+提示词：
+Square mobile game app icon, 1:1, centered composition. A wooden pegboard with a half-finished bead mosaic of a cute bean-shaped character, made of colorful fused beads. A pair of silver tweezers is placing one single bright bead onto the empty peg, completing the pattern. Small sorted piles of loose beads at the bottom. Warm cream paper background, soft contact shadow, thick dark brown outlines, bold simple shapes, high contrast, readable at 144x144, generous safe margin. No text, no letters, no watermark, no logo, no flag, no political symbol, no religious symbol, no weapon, no blood, no nudity, no sexual content, no real person, no copyrighted character, no clutter, no extra limbs.
+产物：raw/d3-pegboard-tweezers.png（1024²）→ preview-144-d3-pegboard-tweezers.png（144²，38,734 B）
+
+目检结论：
+- D1：双角色、双配色、围巾与双箭头在 144 下均可读；最像“同一角色两套皮肤”，推荐。
+- D2：T恤与衣架最直白，但整体像服装/手工店图标，游戏感最弱。
+- D3：拼豆板、镊子、半成品最像“拼豆”，但“换肤”几乎表达不出来。

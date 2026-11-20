@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4260,
       "lines": 141,
-      "sha256": "97f3a8e8403781b2e4acb7ef6c9030fc5fd51d50959ccd55bd704e213a3ecf3f",
+      "sha256": "16dc0364ee6a3ff6ae0d531e28a5ba075ca28b077b7e3e97ff05f131633df051",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 410,
-          "summary": "1 production/TASKS-DETAIL.md 344120 11043 normal",
+          "summary": "1 production/TASKS-DETAIL.md 345330 11056 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -675,9 +675,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 5206,
+      "tokens": 5207,
       "lines": 159,
-      "sha256": "74a70609a1034ece2611c89d35864ad6e3cc47aa08a7f0752939f9ba50972eb7",
+      "sha256": "4ea0dba07d7fe0c90c501b298781f59a9694016d76ebc3df6d709d92149ad94e",
       "tier": "normal",
       "sections": [
         {
@@ -685,7 +685,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 160,
-          "tokens": 5178,
+          "tokens": 5179,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -761,12 +761,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 315 行 / 93057 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 316 行 / 93688 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+316 · §待排（backlog，无号，立项时领取…=286+31",
+          "summary": "§WXG 任务台账（SSOT）=1+317 · §待排（backlog，无号，立项时领取…=287+31",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1080,12 +1080,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 11043 行 / 344120 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 11056 行 / 345330 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
-          "tokens": 128,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+11044 · §WXG-T-996=51+16 · §WXG-T-99",
+          "tokens": 129,
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+11057 · §WXG-T-996=51+16 · §WXG-T-99",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -32462,6 +32462,236 @@
             "wxg",
             "probe",
             "证据与复现"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "games/beads/design/art/specs/palette-rules-review-2026-11-17.md",
+      "tokens": 2628,
+      "lines": 180,
+      "sha256": "4be275e4923a141d9cea40990cea4a7ee7f3481bbaea3886efe45521188bb14b",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§palette-selection-gates 规则 Review 报告",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 181,
+          "tokens": 2615,
+          "summary": "日期：2026-11-17",
+          "keywords": [
+            "palette",
+            "selection",
+            "gates",
+            "Review",
+            "规则",
+            "报告"
+          ]
+        },
+        {
+          "anchor": "§0 本轮修复摘要（先于结论）",
+          "level": 2,
+          "startLine": 10,
+          "endLine": 23,
+          "tokens": 297,
+          "summary": "本 Review 在跑全量数据的过程中发现并修复了 3 处历史 bug——不是本轮引入的，是在 palette-quan",
+          "keywords": [
+            "Review",
+            "bug",
+            "palette",
+            "quan",
+            "本轮修复摘要",
+            "先于结论"
+          ]
+        },
+        {
+          "anchor": "§1 规则体系回顾",
+          "level": 2,
+          "startLine": 24,
+          "endLine": 64,
+          "tokens": 412,
+          "summary": "",
+          "keywords": [
+            "规则体系回顾"
+          ]
+        },
+        {
+          "anchor": "§1.1 三道门（正交并列）",
+          "level": 3,
+          "startLine": 26,
+          "endLine": 41,
+          "tokens": 167,
+          "summary": "",
+          "keywords": [
+            "三道门",
+            "正交并列"
+          ]
+        },
+        {
+          "anchor": "§1.2 Studio 选色管线（palette-quantize.mjs）",
+          "level": 3,
+          "startLine": 42,
+          "endLine": 52,
+          "tokens": 98,
+          "summary": "",
+          "keywords": [
+            "Studio",
+            "palette",
+            "quantize",
+            "mjs",
+            "选色管线"
+          ]
+        },
+        {
+          "anchor": "§1.3 管线常量（代码登记）",
+          "level": 3,
+          "startLine": 53,
+          "endLine": 64,
+          "tokens": 108,
+          "summary": "",
+          "keywords": [
+            "管线常量",
+            "代码登记"
+          ]
+        },
+        {
+          "anchor": "§2 实证数据（Artkal S 210 色，21945 对全量）",
+          "level": 2,
+          "startLine": 65,
+          "endLine": 111,
+          "tokens": 696,
+          "summary": "",
+          "keywords": [
+            "Artkal",
+            "实证数据",
+            "对全量"
+          ]
+        },
+        {
+          "anchor": "§2.1 按 hue 差分三组 bandΔE 分布",
+          "level": 3,
+          "startLine": 67,
+          "endLine": 84,
+          "tokens": 189,
+          "summary": "Δhue 分桶阈值 = 30° / 60°，对应色盘上\"同色系 / 近色系 / 跨色系\"语义分界。",
+          "keywords": [
+            "hue",
+            "band",
+            "差分三组",
+            "分布"
+          ]
+        },
+        {
+          "anchor": "§2.2 目标验证（四个指标）",
+          "level": 3,
+          "startLine": 85,
+          "endLine": 93,
+          "tokens": 171,
+          "summary": "I 同色系内区分度大 同色系 bandΔE p50 21.9 ✅ 远高于 τ=10 锁线，50% 以上同色相近 band",
+          "keywords": [
+            "band",
+            "p50",
+            "目标验证",
+            "四个指标"
+          ]
+        },
+        {
+          "anchor": "§2.3 指标 IV 的真实语义（为何不是 bug）",
+          "level": 3,
+          "startLine": 94,
+          "endLine": 111,
+          "tokens": 294,
+          "summary": "门 C 锁 = band<10 ∧ base<22。在 Artkal S 密集色板上，bandΔE 与 baseΔE 高",
+          "keywords": [
+            "bug",
+            "band",
+            "base",
+            "Artkal",
+            "指标",
+            "的真实语义"
+          ]
+        },
+        {
+          "anchor": "§3 钉点复核（τ=10 定标根基）",
+          "level": 2,
+          "startLine": 112,
+          "endLine": 124,
+          "tokens": 127,
+          "summary": "S37↔S72（用户 Spike 锁） 1.5 2.4 🔒 锁 band≈10 锁 ✓",
+          "keywords": [
+            "S37",
+            "S72",
+            "Spike",
+            "band",
+            "钉点复核",
+            "定标根基"
+          ]
+        },
+        {
+          "anchor": "§4 多层防线汇总",
+          "level": 2,
+          "startLine": 125,
+          "endLine": 146,
+          "tokens": 358,
+          "summary": "门 A 全深宪法 渲染层端点族派生 硬（已冻结） palette.ts / art-bible",
+          "keywords": [
+            "palette",
+            "art",
+            "bible",
+            "多层防线汇总"
+          ]
+        },
+        {
+          "anchor": "§补色耗尽降级链（从严到松）",
+          "level": 3,
+          "startLine": 138,
+          "endLine": 146,
+          "tokens": 64,
+          "summary": "",
+          "keywords": [
+            "补色耗尽降级",
+            "从严到松"
+          ]
+        },
+        {
+          "anchor": "§5 剩余已知限制",
+          "level": 2,
+          "startLine": 147,
+          "endLine": 157,
+          "tokens": 190,
+          "summary": "L-1 ΔE76 在蓝色区略钝 真机蓝族复核若误放 → 升级 CIEDE2000 重定标 低（有已知偏置但钉点对齐）",
+          "keywords": [
+            "E76",
+            "CIEDE2000",
+            "剩余已知限制"
+          ]
+        },
+        {
+          "anchor": "§6 Commit 链（本轮 + 前序）",
+          "level": 2,
+          "startLine": 158,
+          "endLine": 167,
+          "tokens": 83,
+          "summary": "46f79641 feat(tools): hue-aware Median Cut + hue guard（两个补丁）",
+          "keywords": [
+            "Commit",
+            "f79641",
+            "feat",
+            "tools",
+            "hue",
+            "aware"
+          ]
+        },
+        {
+          "anchor": "§7 结论",
+          "level": 2,
+          "startLine": 168,
+          "endLine": 181,
+          "tokens": 276,
+          "summary": "当前规则已实现\"同色系内区分度大、跨色系区分度小\"的设计目标。",
+          "keywords": [
+            "结论"
           ]
         }
       ]
@@ -93155,17 +93385,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 344120,
-      "lines": 11043,
-      "sha256": "5e70fbdd676d73e2632840aef400c19747a46dd604c50ff446f2b088918b0b1a",
+      "tokens": 345330,
+      "lines": 11056,
+      "sha256": "3ce7f729adfd6d938e910c1c96fd491912c15c323ccddcf2069b80dd4b6f219a",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 11044,
-          "tokens": 344103,
+          "endLine": 11057,
+          "tokens": 345313,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -108839,22 +109069,35 @@
             "Trae",
             "beads"
           ]
+        },
+        {
+          "anchor": "§WXG-T-1007",
+          "level": 2,
+          "startLine": 11045,
+          "endLine": 11057,
+          "tokens": 1206,
+          "summary": "美术·F/G/H 轨收敛（头像批 + 道具纹理 + .meta + 发布件） · 负责：Qoder 收尾·并发会话原 W",
+          "keywords": [
+            "WXG",
+            "meta",
+            "Qoder"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 93057,
-      "lines": 315,
-      "sha256": "581b4e449e1957d5b1341b5cf52177ab80fb596da61081f0c11b727aa44decbf",
+      "tokens": 93688,
+      "lines": 316,
+      "sha256": "d933be5ee94bd6b75f176686e85f39b7a876ff67e051a5db9d6fe3a40e928e25",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 316,
-          "tokens": 93048,
+          "endLine": 317,
+          "tokens": 93679,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -108867,8 +109110,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 286,
-          "endLine": 316,
+          "startLine": 287,
+          "endLine": 317,
           "tokens": 1571,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -112830,17 +113073,17 @@
     },
     {
       "path": "production/qa/asset-provenance.md",
-      "tokens": 12890,
-      "lines": 293,
-      "sha256": "55445f3259b79faf7f8915575d392f8b43403bfd2d959b0a235e494d29db9f7d",
+      "tokens": 15044,
+      "lines": 349,
+      "sha256": "3e8a5684a77c437fcaa4cdba8e94133712132ec95ee160ecd48906c23723538c",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§归档资源生成史（Asset Provenance）",
           "level": 1,
           "startLine": 1,
-          "endLine": 294,
-          "tokens": 12876,
+          "endLine": 350,
+          "tokens": 15031,
           "summary": "本件是「每张进 final/ 的图从哪来」的唯一正本。 建件 = 用户 2026-11-01 令「统一使用图片生成文档，",
           "keywords": [
             "Asset",
@@ -113160,6 +113403,118 @@
             "detail",
             "ui_timeout_plaque",
             "png"
+          ]
+        },
+        {
+          "anchor": "§小游戏头像 144²（2026-11-16）",
+          "level": 2,
+          "startLine": 295,
+          "endLine": 300,
+          "tokens": 146,
+          "summary": "proposals/avatar-20261116/rejected/beads-avatar-144-flower.p",
+          "keywords": [
+            "proposals",
+            "avatar",
+            "rejected",
+            "beads",
+            "flower",
+            "小游戏头像"
+          ]
+        },
+        {
+          "anchor": "§换皮肤头像 144²（2026-11-16）",
+          "level": 2,
+          "startLine": 301,
+          "endLine": 306,
+          "tokens": 168,
+          "summary": "proposals/avatar-skin-20261116/rejected/beads-avatar-skin-14",
+          "keywords": [
+            "proposals",
+            "avatar",
+            "skin",
+            "rejected",
+            "beads",
+            "换皮肤头像"
+          ]
+        },
+        {
+          "anchor": "§拼豆豆人品牌头像 144²（2026-11-16 · 已退场）",
+          "level": 2,
+          "startLine": 307,
+          "endLine": 312,
+          "tokens": 179,
+          "summary": "proposals/avatar-skin-v2-20261116/rejected/beads-avatar-144-",
+          "keywords": [
+            "proposals",
+            "avatar",
+            "skin",
+            "rejected",
+            "beads",
+            "拼豆豆人品牌"
+          ]
+        },
+        {
+          "anchor": "§豆面风格头像 144²（2026-11-16 · 已退场）",
+          "level": 2,
+          "startLine": 313,
+          "endLine": 326,
+          "tokens": 486,
+          "summary": "proposals/avatar-bead-heart-20261116/rejected/beads-avatar-1",
+          "keywords": [
+            "proposals",
+            "avatar",
+            "bead",
+            "heart",
+            "rejected",
+            "beads"
+          ]
+        },
+        {
+          "anchor": "§黄色五角星背景头像 144²（2026-11-16 · 已退场）",
+          "level": 2,
+          "startLine": 327,
+          "endLine": 334,
+          "tokens": 302,
+          "summary": "proposals/avatar-bead-star-20261116/rejected/beads-avatar-14",
+          "keywords": [
+            "proposals",
+            "avatar",
+            "bead",
+            "star",
+            "rejected",
+            "beads"
+          ]
+        },
+        {
+          "anchor": "§豆形三色背景头像 144²（2026-11-16 · 已退场）",
+          "level": 2,
+          "startLine": 335,
+          "endLine": 342,
+          "tokens": 341,
+          "summary": "proposals/avatar-bead-bean-20261116/rejected/beads-avatar-14",
+          "keywords": [
+            "proposals",
+            "avatar",
+            "bead",
+            "bean",
+            "rejected",
+            "beads"
+          ]
+        },
+        {
+          "anchor": "§腰形豆三色背景头像 144²（2026-11-16 · 采用）",
+          "level": 2,
+          "startLine": 343,
+          "endLine": 350,
+          "tokens": 416,
+          "summary": "final/assets/avatar/beads-avatar-144.png 144×144 RGB / 36,51",
+          "keywords": [
+            "final",
+            "assets",
+            "avatar",
+            "beads",
+            "png",
+            "RGB"
           ]
         }
       ]
@@ -125351,6 +125706,174 @@
           "keywords": [
             "§1.5",
             "变更记录"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "production/release/beads/mini-program-intro.md",
+      "tokens": 1185,
+      "lines": 74,
+      "sha256": "04ff354025952642262ba434bf2beb873a09145200f09c53b66c5c228385a5e5",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§千面拼豆 · 小程序介绍文案（2026-11-16）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 75,
+          "tokens": 1168,
+          "summary": "用途：微信小游戏后台「简介」与介绍页/素材文案。后台简介按用户 2026-11-16 令限制 60 字（提交页仍以实际字",
+          "keywords": [
+            "千面拼豆",
+            "小程序介绍文"
+          ]
+        },
+        {
+          "anchor": "§1 名称",
+          "level": 2,
+          "startLine": 7,
+          "endLine": 10,
+          "tokens": 5,
+          "summary": "千面拼豆",
+          "keywords": [
+            "名称"
+          ]
+        },
+        {
+          "anchor": "§2 一句话简介（16 字）",
+          "level": 2,
+          "startLine": 11,
+          "endLine": 14,
+          "tokens": 17,
+          "summary": "把散落的拼豆，拼成一张温暖的画。",
+          "keywords": [
+            "一句话简介"
+          ]
+        },
+        {
+          "anchor": "§3 标准简介",
+          "level": 2,
+          "startLine": 15,
+          "endLine": 18,
+          "tokens": 41,
+          "summary": "89 字原版超 60 字上限、未采用 ⇒ 已移出主文档，见文末 §10 补录。后台简介用 §8.1 版本 A。",
+          "keywords": [
+            "§10",
+            "§8.1",
+            "标准简介"
+          ]
+        },
+        {
+          "anchor": "§4 短版（35 字）",
+          "level": 2,
+          "startLine": 19,
+          "endLine": 22,
+          "tokens": 36,
+          "summary": "按颜色拼豆，拼出花朵、动物与对称花纹。轻松闯关，收集装扮，随时开一局。",
+          "keywords": [
+            "短版"
+          ]
+        },
+        {
+          "anchor": "§5 功能要点（介绍页 / 素材可用）",
+          "level": 2,
+          "startLine": 23,
+          "endLine": 30,
+          "tokens": 104,
+          "summary": "拼豆填色：按色号把豆子放进格子，拼出完整图案。",
+          "keywords": [
+            "功能要点",
+            "介绍页",
+            "素材可用"
+          ]
+        },
+        {
+          "anchor": "§6 搜索关键词",
+          "level": 2,
+          "startLine": 31,
+          "endLine": 34,
+          "tokens": 21,
+          "summary": "拼豆、拼图、益智、休闲、手工、像素、单机",
+          "keywords": [
+            "搜索关键词"
+          ]
+        },
+        {
+          "anchor": "§8 备选两版（2026-11-16 · 按后台 60 字上限改）",
+          "level": 2,
+          "startLine": 35,
+          "endLine": 60,
+          "tokens": 395,
+          "summary": "用户 2026-11-16 令「限制 60 个字」⇒ 简介正文按 ≤60 字重写；与 §3 同一口径（只写已实现玩法），",
+          "keywords": [
+            "§3",
+            "备选两版",
+            "按后台",
+            "字上限改"
+          ]
+        },
+        {
+          "anchor": "§8.1 版本 A · 日常轻松（56 字 · **已采用** 2026-11-16）",
+          "level": 3,
+          "startLine": 39,
+          "endLine": 44,
+          "tokens": 92,
+          "summary": "一句话（16 字）：一颗一颗放好，图案就慢慢亮起来。",
+          "keywords": [
+            "版本",
+            "日常轻松",
+            "已采用"
+          ]
+        },
+        {
+          "anchor": "§8.2 版本 B · 手工完成感（55 字）",
+          "level": 3,
+          "startLine": 45,
+          "endLine": 50,
+          "tokens": 91,
+          "summary": "一句话（16 字）：把拼豆手工，装进随开随玩的一局。",
+          "keywords": [
+            "版本",
+            "手工完成感"
+          ]
+        },
+        {
+          "anchor": "§8.3 三版对照",
+          "level": 3,
+          "startLine": 51,
+          "endLine": 60,
+          "tokens": 116,
+          "summary": "§3 完整均衡（原版） 89 ❌ 超限 未采用，仅作长文案留档",
+          "keywords": [
+            "§3",
+            "三版对照"
+          ]
+        },
+        {
+          "anchor": "§9 合规自查",
+          "level": 2,
+          "startLine": 61,
+          "endLine": 69,
+          "tokens": 166,
+          "summary": "不含政治敏感、色情、赌博、暴力、毒品、恐怖、邪教、民族歧视内容。",
+          "keywords": [
+            "合规自查"
+          ]
+        },
+        {
+          "anchor": "§10 补录：89 字长文案（未采用，仅留档）",
+          "level": 2,
+          "startLine": 70,
+          "endLine": 75,
+          "tokens": 144,
+          "summary": "用户 2026-11-16 令「把 89 字版移出主文档」⇒ 从 §3 移到这里。超后台 60 字上限，⛔ 不用于简介；",
+          "keywords": [
+            "§3",
+            "补录",
+            "字长文案",
+            "未采用",
+            "仅留档"
           ]
         }
       ]

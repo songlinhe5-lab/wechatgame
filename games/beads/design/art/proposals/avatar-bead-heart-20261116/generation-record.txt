@@ -1,0 +1,41 @@
+千面拼豆 · 心形豆面背景头像 · 生成记录
+日期：2026-11-16
+通道：Token Plan（--profile token-plan）
+模型：qwen-image-3.0-pro（t2i，无参考图）
+生成尺寸：1024*1024
+预览尺寸：144*144（PIL LANCZOS）
+种子：42 / 7
+调用 / 出图 / 留档：2 / 2 / 2
+采用：seed 7
+状态：已替换 final
+
+设计口径（用户 2026-11-16）：
+- 背景豆子比 5×5 版更小，能拼出一个简单图形；
+- 前景保留四颗不同色彩/纹理的平顶短圆柱做点缀；
+- 不要小人物、不要衣服。
+
+构图：
+- 背景：小豆网格（提示词要求 9×9，模型实际约 10×10），暖白豆田 + 珊瑚色心形；
+- 前景：四颗大豆沿底边排开，轻微重叠，统一为平顶短圆柱；
+- 豆面：哑光青 / 亮面紫 / 金属金 / 透明闪粉；
+- 背景豆明显小于前景豆，孔位仍可见。
+
+提示词（正向）：
+Square mobile game app icon, 1:1, centered composition. Background: a bead mosaic made of small real fuse beads (Perler beads) in a strict 9x9 grid on a warm cream pegboard, forming one simple coral heart shape in the center-upper area; the rest of the grid is warm cream beads; every bead has a visible center hole, beads are smaller than the foreground beads, clean grid, slightly lower contrast. Foreground: four oversized real fuse beads in a row along the bottom edge, slightly overlapping the bottom row, each one a short hollow cylinder with a flat circular top, straight vertical side walls, thin uniform walls and a clean centered round hole; all four have the same cylindrical shape, clearly rigid plastic, not spheres, not balls, not donuts. Surface finishes: matte teal, glossy plum, metallic gold, translucent glitter. Slight three-quarter view so the flat tops and short vertical walls are visible, soft contact shadows, a little height. The foreground beads are the focal point; the coral heart pattern stays simple and readable. Warm cream border, thick dark brown outline around the icon, bold simple shapes, high contrast, readable at 144x144, generous safe margin. No character, no face, no person, no clothes, no hanger, no text, no letters, no watermark, no logo, no flag, no political symbol, no religious symbol, no weapon, no blood, no nudity, no sexual content, no clutter. No flower, no petals, no plant, no spheres, no balls, no round beads, no donut shape, no torus, no rounded pebble, no candy, no cookie, no dense bead field, no tiny seed beads.
+
+产物：
+- raw/heart-s7.png（1024²，采用母版）→ ../final/assets/avatar/beads-avatar-144.png（144² RGB，36,352 B）
+- raw/heart-s42.png（1024²，留样备选）→ preview-144-heart-s42.png（144²，36,147 B）
+
+选型：
+- seed 7 采用：心形更大、在 144 下更清楚；背景孔位可见，前景四颗豆仍有足够体量。
+- seed 42 备选：心形偏小、前景豆过大，144 下背景图形稍弱。
+
+说明：
+- 提示词要求 9×9，模型实际画成约 10×10；心形与孔位均清晰，未再重跑。
+- 上一版 5×5 大豆网格（原 final，36,141 B）已移入 proposals/avatar-bead-grid5-20261116/rejected/beads-avatar-144-grid5.png。
+
+验收：
+- PNG / RGB / 144×144；36.4 KB < 2 MB；
+- 目检无文字、水印、旗帜、政治/宗教符号、武器、裸露或性暗示；
+- 144 缩略后：心形、背景孔位、四颗平顶短圆柱与四种豆面均可读。

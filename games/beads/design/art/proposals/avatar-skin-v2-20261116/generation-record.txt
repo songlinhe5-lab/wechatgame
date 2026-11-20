@@ -1,0 +1,34 @@
+千面拼豆 · 拼豆豆人品牌头像 144² · 生成记录
+日期：2026-11-16
+通道：Token Plan（--profile token-plan）
+模型：qwen-image-3.0-pro（t2i，无参考图）
+生成尺寸：1024*1024
+最终尺寸：144*144（PIL LANCZOS）
+种子：42 / 7
+调用 / 出图 / 留档：2 / 2 / 2
+采用：seed 42
+
+设计口径（用户 2026-11-16 修正）：
+- 花只是某一关的 Boss 图案，不能当作品牌头像；
+- 头像必须同时表达「拼豆」与「换肤」；
+- 改用豆形角色：全身由拼豆颗粒组成 + 背后拼豆板 + 左右两套皮肤分区 + 底部换色箭头。
+
+采用理由：
+- 豆形角色没有关卡指向，可长期作品牌符号；
+- 拼豆板与颗粒纹理直接表达「拼豆」；
+- 左暖右冷的分区 + 底部细线换色箭头表达「两套皮肤可切换」；
+- seed 42 的开口细箭头更克制，144 缩略后主体仍清楚；
+- seed 7 的整环箭头 + 三箭头 + 更窄身形在 144 下偏密，留样反例。
+
+提示词（正向）：
+Square mobile game app icon, 1:1, centered composition. A cute bean-shaped mascot made of fused colorful beads, standing upright, with tiny dark brown bead eyes and a small smile. The body is split into two skin palettes: left half warm coral, mustard and cream; right half cool teal, lavender and cream, showing two selectable skins. Behind the mascot, a simple rounded wooden pegboard tile with a subtle grid of peg holes. A thin dark brown circular swap arrow around the lower half with two small arrowheads, suggesting skin switching. A few loose beads at the base. Warm cream paper background, soft contact shadow, thick dark brown outlines, bold simple silhouette, high contrast, readable at 144x144, generous safe margin. No flower, no petals, no plant, no text, no letters, no watermark, no logo, no flag, no political symbol, no religious symbol, no weapon, no blood, no nudity, no sexual content, no real person, no copyrighted character, no clutter, no extra limbs.
+
+产物：
+- raw/v2-s42.png（1024²，采用母版）
+- raw/v2-s7.png（1024²，留样反例）
+- ../final/assets/avatar/beads-avatar-144.png（144²，RGB，27,231 B）
+
+验收：
+- 格式 PNG / RGB / 144×144；27.2 KB < 2 MB；
+- 目检无文字、水印、旗帜、政治/宗教符号、武器、裸露或性暗示；
+- 144 缩略后：豆形角色、双皮肤分区、拼豆板、换色箭头均可读。

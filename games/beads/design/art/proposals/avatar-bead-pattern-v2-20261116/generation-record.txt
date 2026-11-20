@@ -1,0 +1,42 @@
+千面拼豆 · 豆面图案背景头像 · 生成记录
+日期：2026-11-16
+通道：Token Plan（--profile token-plan）
+模型：qwen-image-3.0-pro（t2i，无参考图）
+生成尺寸：1024*1024
+预览尺寸：144*144（PIL LANCZOS）
+种子：42 / 7
+调用 / 出图 / 留档：2 / 2 / 2
+采用：seed 42
+状态：已替换 final
+
+设计口径（用户 2026-11-16）：
+- 用豆面拼一个简单图案做背景；
+- 前面放几颗不同色彩/纹理的豆子做点缀；
+- 不要小人物、不要衣服；
+- 豆形要像真实拼豆：短圆柱、平顶、薄壁、中心孔。
+
+构图：
+- 背景：暖白拼豆田 + 一条宽珊瑚色斜纹，双色简单图案，占满方形；
+- 前景：四颗大豆沿底边排开，轻微重叠，统一为平顶短圆柱；
+- 豆面：哑光青 / 亮面紫 / 金属金 / 透明闪粉；
+- 轻微三分之四视角，能看见平顶与短侧壁，带接触影。
+
+提示词（正向）：
+Square mobile game app icon, 1:1, centered composition. Background: a flat bead mosaic covering the square, made of small real fuse beads (Perler beads) with visible center holes, a warm cream bead field crossed by one wide diagonal band of soft coral beads, simple two-color pattern, slightly lower contrast. Foreground: four oversized real fuse beads in a row along the bottom edge, slightly overlapping, each one a short hollow cylinder with a flat circular top, straight vertical side walls, thin uniform walls and a clean centered round hole; all four have the same cylindrical shape, clearly rigid plastic, not spheres, not balls, not donuts. Surface finishes: matte teal, glossy plum, metallic gold, translucent glitter. Slight three-quarter view so the flat tops and short vertical walls are visible, soft contact shadows, a little height. The foreground beads are the focal point; the background pattern stays simple and readable. Warm cream border, thick dark brown outline around the icon, bold simple shapes, high contrast, readable at 144x144, generous safe margin. No character, no face, no person, no clothes, no hanger, no text, no letters, no watermark, no logo, no flag, no political symbol, no religious symbol, no weapon, no blood, no nudity, no sexual content, no clutter. No spheres, no balls, no round beads, no donut shape, no torus, no rounded pebble, no candy, no cookie.
+
+产物：
+- raw/pattern-cyl-s42.png（1024²，采用母版）→ ../final/assets/avatar/beads-avatar-144.png（144² RGB，37,924 B）
+- raw/pattern-cyl-s7.png（1024²，留样备选）→ preview-144-pattern-cyl-s7.png（144²，35,632 B）
+
+选型：
+- seed 42 采用：前景四颗豆更大，四种豆面与中心孔在 144 下更清楚；背景斜纹仍可读。
+- seed 7 备选：背景露出更多、整体更轻，但前景豆略小，焦点稍弱。
+
+退场：
+- 球体前景版（avatar-bead-pattern-20261116，seed 42 / 7）不采用，留作反例；
+- 上一版 2×2 纯豆面（原 final，34,035 B）已移入 proposals/avatar-bead-surface-v2-20261116/rejected/beads-avatar-144-real-2x2.png。
+
+验收：
+- PNG / RGB / 144×144；37.9 KB < 2 MB；
+- 目检无文字、水印、旗帜、政治/宗教符号、武器、裸露或性暗示；
+- 144 缩略后：背景斜纹、四颗平顶短圆柱、四种豆面均可读；无角色、无衣服。

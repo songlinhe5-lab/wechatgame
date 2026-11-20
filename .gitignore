@@ -144,3 +144,6 @@ tools/mask-preview/cocos-assets/_variants/
 
 # Trae IDE 的 HTML 分享产物（本地导出包，不入库）
 .trae-html-share-packages/
+
+# palette-quantize.mjs 瞬态输出（写 cwd、可再生、零文档引用；WXG-T-1007）
+palette-quantize-result.json
