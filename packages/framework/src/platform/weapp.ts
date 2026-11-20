@@ -387,8 +387,11 @@ export class WeappPlatform extends BasePlatform {
     this.info = {
       name: 'weapp',
       isMiniGame: true,
-      // WXG-T-470：真广告位配置态——无 adUnitId ⇒ false ⇒ 激励入口 UI 隐藏（X-07 选 B）。
-      rewardedAdConfigured: Boolean(this._adUnitId),
+      // WXG-T-473 X-07 选 B / [2026-11-17 回选 A · WXG-T-1005]：改判据为「平台 API 是否存在」而非「adUnitId 是否已填」。
+      // 真机 Weapp 有 wx.createRewardedVideoAd → true → 激励入口正常显示；adUnitId 未填时 show()
+      // 会经 onError 桥接给宿主（不静默），比 UI 层提前藏掉更合理。无 API 的宿主（老版本/Node 单测）
+      // → undefined → 消费端 ?? true 保旧演示语义。
+      rewardedAdConfigured: Boolean(this._wx?.createRewardedVideoAd),
       safeAreaTop: safe.top,
       safeAreaBottom: safe.bottom,
       capsuleBottomDp: capsule?.bottom ?? null,

@@ -300,6 +300,8 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
     private readonly _pool: Sprite[] = [];
     private _used = 0;
     private _ready = false;
+    /** [WXG-T-1005] Bootstrap launch 拿它 await 再 start loop，避免菜单第一帧闪 v1 矢量腿。 */
+    public warmupPromise: Promise<number> | null = null;
     private _overflowWarned = false;
 
     private _atlasCanvas: TintCanvasLike | null = null;
@@ -959,11 +961,17 @@ export function maybeCreateBeadsBlitCarrier(layer: Node, uiLayer: Node, clipLaye
     if (!carrierSwitchOn()) return null;
     const carrier = new BeadsBlitCarrier(layer, uiLayer, clipLayer ?? null);
     // 预热是异步的；就绪前 tint 运行时不打开 ⇒ 该窗口内游戏仍发矢量命令，载体一条也收不到。
-    carrier
+    // [WXG-T-1005] 把 Promise 暴露给 Bootstrap launch，等它 resolve 再 start loop ——
+    // 菜单第一帧的 setMenuBitmapResolver 已经注入 ⇒ 招牌/CTA/背景直接走位图。
+    carrier.warmupPromise = carrier
         .warmup()
         .then((n) => {
             console.log(`[BeadsBlitCarrier] masks=${n}/${MASK_IDS.length} carrier=${n === MASK_IDS.length ? 'on' : 'off'}`);
+            return n;
         })
-        .catch((e) => console.error('[BeadsBlitCarrier] 预热异常 ⇒ 保持矢量臂', String(e)));
+        .catch((e) => {
+            console.error('[BeadsBlitCarrier] 预热异常 ⇒ 保持矢量臂', String(e));
+            return 0;
+        });
     return carrier;
 }

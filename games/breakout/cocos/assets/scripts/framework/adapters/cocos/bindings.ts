@@ -95,6 +95,8 @@ export class Bootstrap extends Component {
   /** GameRoot 容器（WXG-T-132 全局变换的缩放宿主）；位置恒自 (0,0) 出发。 */
   private _root: Node | null = null;
   private _resizeBound = false;
+  /** [WXG-T-1005] blit carrier warmup Promise；null = 无载体或载体无 warmup。 */
+  protected _warmupPromise: Promise<unknown> | null = null;
 
   /** Bound once in `launch()`; re-fits the viewport when the page resizes. */
   private readonly _onWindowResize = (): void => this._fitToGameCanvas();
@@ -162,7 +164,7 @@ export class Bootstrap extends Component {
     if (this.autoStart) this.launch(this.createGame());
   }
 
-  launch(game: Game): void {
+  async launch(game: Game): Promise<void> {
     const app = new App({
       game,
       platform: detectPlatform(),
@@ -181,6 +183,9 @@ export class Bootstrap extends Component {
     this._root?.getComponent(UITransform)?.setContentSize(app.viewport.designWidth, app.viewport.designHeight);
     this._bindRenderer();
     this._bindInput();
+    // [WXG-T-1005] 等 blit carrier warmup resolve —— 菜单第一帧才能有 menuBitmapResolver，
+    // 招牌/CTA/背景直接走位图（不闪 v1 矢量腿）。无 warmup 时立即通过。
+    await (this._warmupPromise ?? Promise.resolve());
     this._loop = new CocosLoopBridge(app, this);
     this._loop.start();
     // Must run AFTER the loop starts: CocosLoopBridge.start() calls
@@ -377,13 +382,17 @@ export class Bootstrap extends Component {
    * `[ADR-0037 / WXG-T-967]` 逐容器裁切子树 —— `UiScopeTreeHooks.createClip` 的宿主实现。
    *
    * ```
-   * UI:<key>·clip        ← 挂在容器 group 下、末位追加（压住本容器默认段）
-   * ├── Mask（Graphics：stencil ENTER + α0 矩形，每帧由 clip 命令改框）
+   * UI:<key>·clip        ← **模板 Graphics 挂本节点**（stencil ENTER + α0 矩形）
    * ├── BlitLayerUI      ← 容器内静态位图腿挂这里 ⇒ 同时受模板裁切、又不被本容器 Graphics 盖
    * ├── Graphics         ← 容器内矢量（裁切段）
    * ├── Labels
    * └── Segments
    * ```
+   *
+   * ⚠ 模板 Graphics **必须挂裁切根节点自身**，与 `beads-blit-carrier::createShowcaseClip` 同构：
+   * 引擎在本节点子树走完后（`postUpdateAssembler`）才 `exitMask`。若把模板放进独立子节点
+   * `Mask`，它没有子节点 ⇒ 入栈后立刻出栈，后面的兄弟三通道全在模板之外 —— 真机表现就是
+   * 「滚动内容不裁，越出可视窗才消失」（2026-11-17 用户实测）。
    *
    * ⚠ 在此之前**本宿主既没实现该 hook、`_createScope` 也没回 `group`** ⇒ `enterClip` 恒 false ⇒
    * 渲染器回落**全局** `clipHost`（菜单走马灯蒙版）并调 `carrier.pushClip()` ⇒ 容器内静态位图腿被
@@ -393,9 +402,7 @@ export class Bootstrap extends Component {
   private _createClip(key: string, group: Node, x: number, y: number, w: number, h: number): UiClipChannels {
     const node = new Node(`UI:${key}`);
     group.addChild(node);
-    const maskNode = new Node('Mask');
-    node.addChild(maskNode);
-    const mask = maskNode.addComponent(Graphics);
+    const mask = node.addComponent(Graphics);
     const blitNode = new Node('BlitLayerUI');
     node.addChild(blitNode);
     const penNode = new Node('Graphics');
@@ -440,6 +447,11 @@ export class Bootstrap extends Component {
         this._menuClip?.blitLayer,
       )
       : null;
+    // [WXG-T-1005] 拿 warmupPromise 等它 resolve 再 start loop —— 菜单第一帧不闪 v1 矢量腿。
+    if (blitCarrier) {
+      const wp = (blitCarrier as { warmupPromise?: Promise<unknown> }).warmupPromise;
+      if (wp) this._warmupPromise = wp;
+    }
     this._renderer = new CocosRenderModelRenderer(
       this._graphics,
       this._labels,
@@ -717,6 +729,12 @@ function wrapLabel(label: Label) {
     },
     setVisible: (visible: boolean) => {
       label.node.active = visible;
+    },
+    // `[ADR-0033 DEC-5]` 帧内第 n 条 text ⇒ 第 n 个兄弟位：投影副本与其正文的叠序由渲染器
+    // 逐帧给定，⛔ 不再依赖池节点创建史。缺这一行 ⇒ 复用后深棕影子可能压到后面的白字上
+    // （2026-11-17 真机实测「设置页阴影偶尔盖住白字」）。
+    setSiblingIndex: (index: number) => {
+      label.node.setSiblingIndex(index);
     },
     measureWidth: (text: string, fontSize: number) => {
       // [G3 · WXG-T-077 编辑器半落码] 调用序保证 renderer 已先 setFontSize/setText

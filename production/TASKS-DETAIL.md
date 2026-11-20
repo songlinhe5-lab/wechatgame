@@ -3688,6 +3688,8 @@ WXG-T-412 = Qoder 会话隔离工作树配方（已入库）。WXG-T-413 = beads
 
 **待办（本单已无）**：金样本四态复评 ✅ `70f1f33c`（§12 登记）；scrim 静态门 ✅（见上②）；「演示版」字样去留 + 真机走查主会话 + `cli upload` 密钥 —— 三项**不在本单**，随 MVP 收尾推进（产物已就绪：v1.0.3 + 含判据 + 版本号实显）。
 
+**X-07 判据回选 A（2026-11-17 用户裁定 · WXG-T-1005 于 2026-11-20 登记）**：上文五层第 1 层配置级判据 `Boolean(this._adUnitId)` 改为 `Boolean(this._wx?.createRewardedVideoAd)`——判据改「平台 API 是否存在」而非「adUnitId 是否已填」：真机有 API ⇒ 激励入口正常显示，adUnitId 未填时 show() 经 onError 桥接宿主（不静默）；无 API 宿主 ⇒ false，消费端 `?? true` 保旧演示语义不变。修复本体随 1005 入库（weapp.ts + 镜像 ×2）。**错署订正披露**：并发 WIP 注释误署 WXG-T-470（470 = 图鉴立项，非广告判据），本批订正为真主 **473**（同 f7dd6ac2 对表口径）。
+
 ---
 
 ## WXG-T-474
@@ -10981,6 +10983,27 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **环境记录**：Cocos CLI 构建在沙箱内会踩 `(0, browser_1.init) is not a function`（写 `~/Library/Application Support/CocosCreator` 被拦）⇒ 构建需在沙箱外执行；模拟器验证沿用 `cli open --project games/beads/cocos/build/wechatgame`，AppID 取本地未入库 `project.config.json`。
 - **知识沉淀**：本单不跑 kb:sync，沉淀统计 新增 0 / 修改 0 / 激活 0 / 归档 0；候选 1 条交主理人汇编：Cocos / 微信端 `SpriteFrame.texture.image` 可能拿不到像素，凡「从纹理读像素做预烘」的宿主腿都应在装载期另存 `ImageAsset.data`，否则会表现为带 fx 的位图整块消失且无矢量回落（harness 不可见）。
 
+## WXG-T-1003
+
+**工具链·归档器编号宽度缺陷修复 + 台账卫生批** · 负责：主理人(CodeBuddy)·工具链 · 状态：✅ 完成（2026-11-20 · 用户令「1/2/3」三项组合）
+
+- **① 根因与修法**：`tools/scripts/archive-tasks.mjs:198` 的 `idWidth` 取「主表∪归档∪BACKLOG 实际 ID 最大位数」（三处累加：主表行 / 归档文本 / BACKLOG 文本），`fmtId = (n) => String(n).padStart(idWidth, '0')`。台账进入 `WXG-T-1000` 后 `idWidth=4` ⇒ `fmtId(999)` 变 `0999`，拼出 `WXG-T-0999`，而 `production/TASKS-DETAIL.md` 的节标题是 `WXG-T-999`。成对搬运守卫（`:360`、`:512`）据此把每一条 3 位号候选判为「主表有行但无小节 → 跳过」，**归档功能在 1000 号之后整体失效**。修法按 ponytail 根因一处：删 `idWidth` 及三处累加，`fmtId` 固定 `padStart(3, '0')`（与 `tools/scripts/check-tasks.mjs:283` 的 `pad3` 同口径），4 位号不截断（`String(1000).padStart(3,'0') === '1000'`）。零新抽象、零依赖。
+- **① 回归自测**：`tools/scripts/archive-tasks-selftest.sh` 新增 [16] 七条腿（桩 16 = 3 位号 999 老完成行 + 4 位号 1000 在办行共存；断言不误报「无小节」、999 入选、行与节成对搬入归档、4 位在办节保留）。全量 `bash tools/scripts/archive-tasks-selftest.sh` = **PASS 110 / FAIL 0**；`node --check tools/scripts/archive-tasks.mjs` OK。真实仓库 dry-run 复核：`--until-under=79000` 计划 41 行 → 预计 78762 tokens、**无「无小节」告警**；`--days=30` 仍「无满足 30 天条件的 ✅ 完成行」（最老完成日期 2026-10-26 < 阈值 2026-10-21 不成立），说明本次修复只恢复匹配能力、未改变归档判定口径。
+- **① 事故与回退（如实登记）**：本批开工时先跑 `--until-under=79000 --write`，因上述缺陷只搬走 1 行（恰为并发会话刚补登的 `WXG-T-1000`），且 `serializeDetail` 全量重写给 `TASKS-DETAIL.md` 补了 12 处 `---` 分隔线。已 `git checkout HEAD --` 精确回退 4 件（`TASKS.md` / `TASKS-DETAIL.md` / 两件归档），自证：归档批次戳残留 0 处、1000 主表行与详情节各 1 份、`check:tasks` 绿（258 行 / 281 节配对完整）。⛔ 未跑全量 `pnpm run verify`（并发 WIP 活跃期，红项属他轨收敛中，本单不代修、不拿局部绿冒充全量绿）。
+- **② 13 行状态标记对照表（交用户逐条确认，⛔ 本批零落盘）**：按 K-053「语义反转走反转批、不静默改写旧裁定」，且并发会话 11:32/11:57 持续改写 `TASKS.md`（K-045 / K-158 只披露不代填），本批只出对照、不改主表状态列。
+
+  | 现标记 | 行数 | 任务号 | 建议统一为 | 依据 |
+  |---|---|---|---|---|
+  | 🟢 已交付 / 本单收口 | 8 | 473 / 474 / 476 / 477 / 478 / 479 / 480 / 481 | `✅ 完成（2026-10-28）`（保留原正文） | 状态列正文已写「已交付 / 本单收口」，属口径归一非语义反转 |
+  | 🟡 立项 | 3 | 470 / 471 / 472 | `📋 提案未排期`（+ 按 BACKLOG 口径整行搬 BACKLOG） | 三行均「零新存档字段、立项未落码」，实质待办；⛔ 不得改 ✅ |
+  | ◐ 进行中 / 提案 | 2 | 525（进行中）/ 517（提案） | 525 → `🔄 进行中`；517 → `📋 提案未排期` | 现标记非台账标准首标记，两个语义须分开 |
+
+  ⚠ 落盘前须逐条确认，尤其「🟡 三行搬 BACKLOG」会改变行归档与领号面；确认后另立单执行，`check:tasks` 复核配对。
+- **③ 复现命令与影响面**：复现（修复前）= 在含 4 位号的台账上跑 `node tools/scripts/archive-tasks.mjs --until-under=79000`，输出逐行「无小节——跳过」；修复后 = 同上不再误报。影响面 = **1000 号之后所有归档档位**（`--days` / `--until-under` / `--detail-until-under` / `check:tasks --prune` 的成对搬运同源 `fmtId`）此前全部静默失效，且失效表现为「宁漏勿错」跳过而非 fail loud ⇒ 无告警、极难发现。本批不改任何归档判定阈值。
+- **③ 遗留待办（新收集，未落盘）**：① **体积驱动档位语义倒挂** —— 主表按新→旧排列，`eligibleRows()` 按文件序取行，`--until-under` 会优先搬走最上方刚完成的任务（999/997/996…），与「老账」语义相反，批次戳却写死「≥30 天」⇒ 档位口径与文案需一并裁定（`tools/scripts/archive-tasks.mjs:225` / `:529`）；② `serializeDetail` 全量重写会补 `---` 分隔线，dry-run 不落盘但 `--write` 会产生非候选行的大面积 diff，宜评估「只改被搬节」的最小写法；③ 13 行状态标记统一（见 ②）；④ `ctx/BUDGET.md` 超限清单 10 项靠豁免常驻（TASKS.md 91048 / 80000、TASKS-DETAIL.md 338155 / 205000 等），撤销条件各自写明但无一满足；⑤ QA 面 P1–P8 真机验收「未执行」、D-51 `ZOOM_TAP_MIN=0.7` 待真机回填（`production/qa/beads/device-walkthrough.md:120`）。
+- **③ 领号与并发披露（K-046 / K-158）**：本批原拟领 1002，被并发会话 `226e2b84`（11:57:58）抢先入库 ⇒ 让号 1003；本批登记时头注已由并发会话校准为「已分配至 1004 / 下一可用 1005」（K-046：1002 被 Trae CN 占、1004 被 Qoder 占，1003 为本会话让号后自登）。开工期间 HEAD 由 `e0c309a1` 连跳至 `8f0cb04a` / `88b0082c` / `87ebe70b` / `226e2b84`，并发会话持续写 `TASKS.md`；本批只暂存自己 4 件（工具 2 件 + 主表 / 详情各 1 件），不代填、不代改、不代提交他轨 WIP。
+- **知识沉淀**：本单不跑 `kb:sync`，沉淀统计 新增 0 / 修改 0 / 激活 0 / 归档 0；候选 2 条交主理人汇编：① 编号零填充宽度不得随全局最大位数漂移，多位数命名空间上线必须补「3 位 + 4 位共存」桩自测；② 归档器「宁漏勿错」跳过在匹配面整体失效时会伪装成「无可归档」，确诊法 = dry-run 里逐行「无小节」告警 + `check:tasks` 配对数交叉核对。
+
 ## WXG-T-1004
 
 **工程·C 轨 timeout✕确认退出收敛（三缺陷修+TDD）** · 负责：Qoder 收尾·并发会话原 WIP·beads UI 轨 · 状态：✅ 完成（2026-11-20 · 用户令「C/E/F/G/H 轨」）
@@ -10992,4 +11015,17 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **UX/架构回写**：`timeout-panel-spec.md` **v1.1**（头注 + §2 界面流加 ✕/confirm 分支、「无关闭出口」划线留档 K-053 + §8 三行热区与模态注 + §10 偏差 9）；回写后 8508 tok 越 spec 门 6.4% ⇒ `ctx/budget-exempt.json` 登记豁免（带撤销条件：下次修订前评估 §11 两条已闭像素取证外移，顶回 ≤8000 即撤）；`ux-spec.md` **v1.59**（头注版本链 + §3.5 划线推翻 + 状态转移表两行）；`ui-architecture-beads.md §12` 1004 条视觉变更登记（含 **1001 BLOCKED 前置解除**：hitFailConfirm 导出入库，干净锚原生 Node 复取器可跑；金样七态+fail 候另批重拍，用户 2026-11-20 裁定口径不变）。
 - **撞号与台账分离披露（K-046 / K-045 / K-188）**：本批原拟领 1002，开工期间并发 Trae CN 以 `226e2b84` 占 1002、CodeBuddy 工作树登记占 1003（头注+主表行+详情节+归档器脚本 WIP，其自述「只暂存自己 4 件」尚未提交）⇒ 按工作树全局最大号改判 **1004**。台账两件套先备份 `/tmp/wxg-t1004-sep/` 再还原 HEAD 施加本批登记提交，提交后重放 CodeBuddy 1003 WIP 回工作树（不代提）；故本提交头注枚举跳过 1003 正文（其登记候原作者自提，领号锚已按 1004/1005 校准）。
 - **知识沉淀**：本单不跑 kb:sync，沉淀统计 新增 0 / 修改 0 / 激活 0 / 归档 0；候选 2 条交主理人汇编：① 牌内锚算式里出现「+H−H」相消项是复制粘贴未验算的信号，几何布局必须钉「边缘不变式」断言（如 yMax≡牌顶−inset）而非只钉尺寸；② 视图私抄 tuning 数值（硬编码偏移）与布局函数构成双源，修法 = VM 增锚字段投影布局单源，而非在视图里改对数字。
+
+## WXG-T-1005
+
+**工程·E 轨 framework 真机修复批收敛（warmup await + 裁切模板挂根 + 广告判据回选 A）** · 负责：Qoder 收尾·并发会话原 WIP·framework/beads host 轨 · 状态：✅ 完成（2026-11-20 · 用户令「C/E/F/G/H 轨」）
+
+- **背景与授权**：E 轨 = 并发会话 2026-11-16/17 起未入库 WIP（三件真机缺陷修复）。本批承用户点名轨授权深查 + 收敛（同 C 轨 1004 模式）；代码本体已在工作树，本批做注释署号订正 + 镜像同步 + 验证 + 台账登记。
+- **三件修复**：① `bindings.ts::launch` 改 async，`await (this._warmupPromise ?? Promise.resolve())`（_bindInput 后、CocosLoopBridge 前）⇒ 菜单第一帧不闪 v1 矢量腿；`_bindRenderer` 取 `carrier.warmupPromise`。② `_createClip` 模板 Graphics 改挂**裁切根节点自身**（删独立 Mask 子节点——否则 postUpdateAssembler 立即 exitMask，真机「滚动内容不裁」）⇒ **967 行尾登记遗留缺陷的二轮修复闭账**（一轮 2026-11-16 修 createClip 钩子缺失，本轮修模板挂载点；967 主表行已补注）。③ `wrapLabel` 补 `setSiblingIndex`（ADR-0033 DEC-5）⇒ 修「设置页阴影偶尔盖白字」。
+- **广告判据回选 A（X-07 真主 473）**：`weapp.ts` `rewardedAdConfigured` 由 `Boolean(this._adUnitId)` 改 `Boolean(this._wx?.createRewardedVideoAd)`（判据 = 平台 API 存在性；adUnitId 未填时 show() 走 onError 桥接不静默；无 API 宿主 ⇒ false，消费端 `?? true` 保旧语义）。用户 2026-11-17 回选 A；473 详情节已补注（含错署订正披露）。
+- **carrier**：`beads-blit-carrier.ts` 暴露 `public warmupPromise: Promise<number> | null`（then 返回 n、catch 返回 0），供 bindings await。
+- **注释署号订正披露**：WIP 注释误署 `[WXG-T-586]`（586 = v1 版面死码清理，非 warmup）共 5 处（bindings 3 + carrier 2）⇒ 改 `[WXG-T-1005]`；weapp 误署 `WXG-T-470`（470 = 图鉴立项）⇒ 订正真主 **473** + 回选 A 注记。
+- **验证**：framework **593/593** 绿、typecheck exit 0、`check-cocos-scripts` 2 检查绿；镜像 ×4（beads/breakout 的 bindings+weapp）sync 一致。真机复验仍候设备（998 通道 BLOCKED 在册），本批以单测 + 结构门为证。
+- **台账分离披露（K-045/K-046/K-188）**：领号认工作树全局最大号 ⇒ 1005（1004 已入库 7334cdb7）；台账两件套备份 `/tmp/wxg-t1004-sep/*-r2.md` 后还原 HEAD 施加本批登记，提交后重放并发 1003 WIP（boss 橱窗珠面缩略批，含 §12 登记与四件测试改判）回工作树（不代提）。他轨活跃 WIP（menu.ts/beads-shell.ts/meta-menu.ts/meta-types.ts + 镜像、四件测试、archive-tasks 脚本、F/G/H 轨产物）不捎带。
+- **知识沉淀**：本单不跑 kb:sync，沉淀统计 新增 0 / 修改 0 / 激活 0 / 归档 0；候选 1 条交主理人汇编：Graphics stencil 模板必须挂裁切根节点自身——挂独立子节点会被 postUpdateAssembler 立即 exitMask，Node 侧全绿而真机裁切失效（K-030 同族：引擎生命周期与 immediate-mode 假设的差异只能真机暴露）。
 
