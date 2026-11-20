@@ -14,7 +14,7 @@ import { DEFAULT_PALETTE, beadDimInksFor, beadInksFor } from '../src/view/palett
 import { levelThumbFullCells } from '../src/view/menu-signage.js';
 import { setMenuBitmapResolver } from '../src/view/meta-widgets.js';
 import { LEVELS } from '../src/config/levels.js';
-import { DESIGN_H, DESIGN_W, MENU_LOCKED_ICON, MENU_SHOWCASE_CELL_SEAM, MENU_TEXTURES, MENU_V2 } from '../src/config/tuning.js';
+import { DESIGN_H, DESIGN_W, MENU_LOCKED_ICON, MENU_SHOWCASE_CELL_SEAM, MENU_SHOWCASE_X_NUDGE, MENU_TEXTURES, MENU_V2 } from '../src/config/tuning.js';
 
 /** Arc 0 的 boss 关 = L9（30×30 曼陀罗）。 */
 const BOSS = LEVELS[8]!;
@@ -44,7 +44,7 @@ const INK = (() => {
     return { minR, maxR, minC, maxC };
 })();
 const CONTENT_W = (INK.maxC - INK.minC + 1) * PITCH;
-const CONTENT_LEFT = ART.x + (ART.w - CONTENT_W) / 2;
+const CONTENT_LEFT = ART.x + (ART.w - CONTENT_W) / 2 + MENU_SHOWCASE_X_NUDGE;
 /** 整阵底 = 台面 − 底部空行（空行不画珠）⇒ 有墨底边恰好贴台面。 */
 const MATRIX_BOTTOM = ART.y - (BOSS.pattern.length - 1 - INK.maxR) * PITCH;
 
@@ -113,8 +113,8 @@ const expectBeadOnShelf = (cmds: readonly DrawCommand[]): void => {
     // `[WXG-T-1006 五改]` 有墨底边贴台面：最底行块底 = 台面 + 1px 轻缝（⛔ 不再是空行高一珠）。
     expect(minY).toBeCloseTo(ART.y + MENU_SHOWCASE_CELL_SEAM, 6);
     expect(maxY).toBeLessThanOrEqual(MATRIX_BOTTOM + BOSS.pattern.length * PITCH + 1);
-    // 水平中心 = 展品框中心（374.5）；纹理腿的 `MENU_ARC_ART_CONTENT` 偏移判据不再适用。
-    expect((minX + maxX) / 2).toBeCloseTo(ART.x + ART.w / 2, 0);
+    // 水平中心 = 展品框中心 + 半珠右移（背板玻璃视觉中心 ≈380）；纹理腿偏移判据不再适用。
+    expect((minX + maxX) / 2).toBeCloseTo(ART.x + ART.w / 2 + MENU_SHOWCASE_X_NUDGE, 0);
 };
 
 /** 指定行（自顶 0-based）及以下的有墨格数 ⇒ 按进度着色的期望格数。 */

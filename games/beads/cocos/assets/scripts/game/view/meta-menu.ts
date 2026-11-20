@@ -3,7 +3,7 @@
  * 几何一律取自 `meta-layout.ts` 的锚定档，控件画法取自 `meta-widgets.ts` ⇒ 页面只编排、不另算。
  */
 
-import { DESIGN_H, DESIGN_W, type MenuAnchors, MENU_BAR_BAKED_LABEL_INSET, MENU_FULLSTAR_FRAME, MENU_LOCKED_ICON, MENU_MOUNT, MENU_PLACEMENT, MENU_PLATE_PILL, MENU_SIGNIN_DOT_R, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, MENU_V2_BG_EXPAND, MENU_V2_BG_H, MENU_V2_DESK_FILL,
+import { DESIGN_H, DESIGN_W, type MenuAnchors, MENU_BAR_BAKED_LABEL_INSET, MENU_FULLSTAR_FRAME, MENU_LOCKED_ICON, MENU_MOUNT, MENU_PLACEMENT, MENU_PLATE_PILL, MENU_SHOWCASE_X_NUDGE, MENU_SIGNIN_DOT_R, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, MENU_V2_BG_EXPAND, MENU_V2_BG_H, MENU_V2_DESK_FILL,
     SIGN_BEAD_PITCH, menuBackdropTopPad, SIGN_MATRIX_N, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning';
 import { COPY_TOKENS } from '../config/copy-tokens';
 import { ARC_COMING_SOON } from '../config/arcs';
@@ -321,15 +321,27 @@ function drawShowcaseArt(
         if (alpha < 0.5) return;
         // `[WXG-T-1006 五改]` 珠阵按**实际绘制区** `avail` 见方落位（⛔ 名义框 `b.w` 325）：
         // 名义框比玻璃可视区窄 49px，按它画会让两侧各多缩进约 2 珠（规格 §1 实测包围盒）。
+        // `[六改]` 再右移 `MENU_SHOWCASE_X_NUDGE` 半珠：背板玻璃视觉中心 ≈380（见常量注释）。
         const size = avail;
-        drawShowcaseFace(builder, level, b.x + (b.w - size) / 2 + dx, b.y, size, avail, progress, palette);
+        drawShowcaseFace(
+            builder,
+            level,
+            b.x + (b.w - size) / 2 + MENU_SHOWCASE_X_NUDGE + dx,
+            b.y,
+            size,
+            avail,
+            progress,
+            palette,
+        );
     } else {
         drawDashedSocket(builder, { x, y: b.y, w: b.w, h: b.h }, palette.slotDashed);
     }
     // `[WXG-T-1006 四改 · 2026-11-20]` M2 底缘接触影已退场（用户：「滑动时托盘上有个暗色纹理条」）：
     // 原三条半透明暗带随 `dx` 平移，滑动中扫过圆台读作异物 ⇒ 整件删除，橱窗不再画任何落地影。
     // `[WXG-T-579]` 满星态珠圈框（同口径，边长随作品框宽缩放 ⇒ 两条腿不各钉一个像素）。
-    if (state === 'fullstar') drawFullStarRing(builder, x + b.w / 2, b.y + b.h / 2, b.w, ink);
+    if (state === 'fullstar') {
+        drawFullStarRing(builder, x + b.w / 2 + MENU_SHOWCASE_X_NUDGE, b.y + b.h / 2, b.w, ink);
+    }
 }
 
 /** `[WXG-T-953]` 该页是否有可装裱的「实物展品」（锁 / 置灰 / 空槽 = 无）。 */
@@ -351,7 +363,7 @@ function drawShowcaseMount(
     const art = g.showcaseArtBox;
     const clip = g.clipBox;
     const size = clip.y + clip.h - art.y;
-    const x = art.x + art.w / 2 - size / 2;
+    const x = art.x + art.w / 2 - size / 2 + MENU_SHOWCASE_X_NUDGE;
     const top = art.y + size;
     if (withArt) {
         const v = MENU_MOUNT.vignette;
