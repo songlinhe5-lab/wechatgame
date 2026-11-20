@@ -470,29 +470,6 @@ export function drawSettingsContent(
 }
 
 /**
- * `[WXG-T-935]` 可视窗右缘滚动条（内容超窗才画）。轨道贴内容列外侧、木牌右内缩带内，
- * 不与任何钮相交；`scroll / max` 直接映射滑块位置（无缓动，滚动量已由 shell 钳制）。
- */
-export function drawSettingsScrollbar(
-    builder: RenderModelBuilder,
-    palette: BeadsPalette,
-    viewport: SettingsBox,
-    scroll: number,
-): void {
-    const contentH = settingsContentHeight();
-    const max = contentH - viewport.h;
-    if (max <= 0) return;
-    const x = viewport.x + viewport.w + 10;
-    const w = 6;
-    const y = viewport.y + 4;
-    const h = viewport.h - 8;
-    builder.rect(x, y, w, h, { fill: withAlpha(palette.slotBorder, 0.45), radius: 3 });
-    const thumbH = Math.max(48, (h * viewport.h) / contentH);
-    const t = Math.max(0, Math.min(1, scroll / max));
-    builder.rect(x, y + (h - thumbH) * (1 - t), w, thumbH, { fill: palette.textDim, radius: 3 });
-}
-
-/**
  * `[WXG-T-497]` 设置页脚 = 版本号唯一落点（用户 2026-10-29：「版本信息放到设置里 / 关于信息」）。
  * 主菜单屏底那份已随本批删除 ⇒ 全局不再有第二处版本号。
  * 只读信息行：**不注册热区**，也不参与任何开关/循环。

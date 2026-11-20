@@ -147,7 +147,7 @@ function boardFilled(game: BeadsGame): number {
 
 /**
  * 本帧**实际被换肤的珠数** = 盘面已填 + 托盘持珠。
- * ⚠ 托盘珠按 `assets-spec §7.11` 也随风格（不随豆径）⇒ 珠体族 Δ 的乘数是本值而非格数；
+ * ⚠ 托盘珠也随风格、且（2026-11-17 起）随豆径 ⇒ 珠体族 Δ 的乘数是本值而非格数；
  *   拿写死的「已填数」去除会把真判据测成假红。
  */
 function beadsDrawn(game: BeadsGame): number {
@@ -496,7 +496,7 @@ describe('TC-STY-04 · §8-17/C8 三段硬断言：珠体族 Δ ≠ 0 · B0 逐�
         expect(after).toEqual(before); // 逐字段（含 fill / 几何）一字未动
         expect(after.length).toBe(before.length);
 
-        // 豆径档也不得扰动 B0（豆径作用域 = 仅网格珠珠体，assets-spec §7.11）。
+        // 豆径档也不得扰动 B0（豆径作用域 = 网格珠 + 托盘珠，B0 恒不随档）。
         game.applySettingsAction('cycle-bead-size');
         expect(b0Tiles(harness)).toEqual(before);
     });
@@ -951,7 +951,7 @@ function inPuzzle(c: DrawCommand): boolean {
     return y >= PUZZLE_BAND.yMin && y <= PUZZLE_BAND.yMax;
 }
 
-/** 托盘带（与盘面带不相交）——「托盘珠恒满幅、不随豆径档」的观测窗。 */
+/** 托盘带（与盘面带不相交）——观测托盘珠随豆径/风格两轴的窗口。 */
 function inTray(c: DrawCommand): boolean {
     const y = cmdY(c);
     return y >= TRAY_BAND.yMin && y <= TRAY_BAND.yMax;
@@ -992,8 +992,8 @@ function scrimAlphas(flow: readonly string[], rgb: string): number[] {
         .map((f) => Number(f.slice(head.length, -1)));
 }
 
-describe('豆径档作用域 · assets-spec §7.11 + ux §3.3 ④ + S9 §8-16：小豆只改网格珠珠体（含已填态）· 托盘恒满幅 · B0 不随档 · 凹槽随档但恒 ⊂ 珠体', () => {
-    it('满豆 → 小豆：盘面每颗珠恰少一枚 circle（无孔）且珠面收窄不重叠；托盘带与 B0 底图逐命令不变；凹槽随档收窄且恒小于珠体', () => {
+describe('豆径档作用域 · §8-16 + S9 + 2026-11-17 用户裁：网格珠与托盘珠同随档（同缩/同无孔）· B0 不随档 · 凹槽随档但恒 ⊂ 珠体', () => {
+    it('满豆 → 小豆：盘面与托盘各少孔并收窄；B0 底图逐命令不变；凹槽随档收窄且恒小于珠体', () => {
         const harness = boot(newStorage());
         const game = ensurePlaying(harness);
         expect(fillRow(game, 26)).toBe(26);
@@ -1002,7 +1002,7 @@ describe('豆径档作用域 · assets-spec §7.11 + ux §3.3 ④ + S9 §8-16：
         const filled = boardFilled(game);
         const trayBeads = game.snapshot.traySlots.reduce((n, s) => (n + (s.state === 'free' ? 0 : 1)), 0);
         expect(filled).toBeGreaterThan(0); // 阳性对照：盘上有珠
-        expect(trayBeads).toBeGreaterThan(0); // 阳性对照：托盘有珠可测「不随档」
+        expect(trayBeads).toBeGreaterThan(0); // 阳性对照：托盘有珠可测「随档」
 
         const full = frame(harness);
         expect(game.beadSize).toBe('full');
@@ -1026,8 +1026,15 @@ describe('豆径档作用域 · assets-spec §7.11 + ux §3.3 ④ + S9 §8-16：
         expect(2 * maxFull).toBeLessThan(pitch);
         expect(2 * maxSmall).toBeLessThan(pitch);
 
-        // ③ 托盘珠恒满幅、恒有孔 ⇒ 托盘带内命令逐字段不变（含半径与孔层）。
-        expect(cmdList(small).filter(inTray)).toEqual(cmdList(full).filter(inTray));
+        // ③ 托盘珠同随档（2026-11-17 用户裁）：孔层同步消失、珠面同步收窄。
+        const trayCmdsFull = cmdList(full).filter(inTray);
+        const trayCmdsSmall = cmdList(small).filter(inTray);
+        expect(trayCmdsSmall).not.toEqual(trayCmdsFull);
+        const trayCircles = (cs: DrawCommand[]): number => cs.filter((c) => c.kind === 'circle').length;
+        expect(trayCircles(trayCmdsFull) - trayCircles(trayCmdsSmall)).toBe(2 * trayBeads);
+        const maxTrayR = (cs: DrawCommand[]): number =>
+            Math.max(...cs.filter((c) => c.kind === 'circle').map((c) => (c as unknown as { r: number }).r));
+        expect(maxTrayR(trayCmdsSmall)).toBeLessThan(maxTrayR(trayCmdsFull));
 
         // ④ B0 目标色底图（w = 格距）不随档；**随档的只有「珠体 + 凹槽」**，其余带件一律不动。
         //   ⚠ **口径更替（WXG-T-214，用户 2026-09-26 裁定）**：旧口径「凹槽不随档」与
@@ -1101,30 +1108,33 @@ describe('豆径档作用域 · assets-spec §7.11 + ux §3.3 ④ + S9 §8-16：
         expect(b0Full.length).toBe(game.snapshot.gridRows * game.snapshot.gridCols); // 实测口径：B0 满铺整盘
     });
 
-    it('托盘珠作域两腿：不随豆径档（反腿）· 必随风格（正腿），且两档下恒有孔', () => {
+    it('托盘珠作域两腿：随豆径档（正腿①）· 必随风格（正腿②）', () => {
         const harness = boot(newStorage());
         const game = ensurePlaying(harness);
         expect(game.giveTrayBead(1)).toBeGreaterThanOrEqual(0);
         const trayOf = (flow: readonly string[]): DrawCommand[] => cmdList(flow).filter(inTray);
         const circles = (cmds: DrawCommand[]): number => cmds.filter((c) => c.kind === 'circle').length;
+        const maxR = (cmds: DrawCommand[]): number =>
+            Math.max(...cmds.filter((c) => c.kind === 'circle').map((c) => (c as unknown as { r: number }).r));
 
         const base = trayOf(frame(harness));
         expect(base.length).toBeGreaterThan(0); // 阳性对照：托盘带确有可观测命令
-        expect(circles(base)).toBeGreaterThan(0); // 阳性对照：托盘珠恒画孔（故缺位断言不为空）
+        expect(circles(base)).toBeGreaterThan(0); // 阳性对照：满豆档托盘珠画孔
 
-        // 反腿：豆径档不作于托盘 ⇒ 托盘带逐命令不变。
+        // 正腿①：豆径档**作于**托盘 ⇒ 孔层消失 + 珠面收窄。
         game.applySettingsAction('cycle-bead-size');
-        expect(trayOf(frame(harness))).toEqual(base);
+        const smallTray = trayOf(frame(harness));
+        expect(smallTray).not.toEqual(base);
+        expect(circles(smallTray)).toBeLessThan(circles(base));
+        expect(maxR(smallTray)).toBeLessThan(maxR(base));
 
-        // 正腿（K-060）：风格档**作于**托盘 ⇒ 上一条「不变」是作域门禁，不是渲染坏死。
+        // 正腿②（K-060）：风格档**作于**托盘 ⇒ 上一条「变」是豆径通道，不是渲染坏死。
         game.applySettingsAction('cycle-bead-style');
         expect(game.beadStyle).toBe(SECOND);
         const after = trayOf(frame(harness));
-        expect(after).not.toEqual(base);
-        // 但「恒有孔」仍成立：托盘珠仍画孔（circle > 0）。（**六裁登记**：旧「`circle` 枚数不随风格变」的前提
-        //   = 各风格恒 1 枚孔；facet-4 拆环+底后孔域枚数变风格相关（2 vs 1）⇒ 改钉「恒有孔」而非「枚数相等」，
-        //   ⛔ 不是放宽—「恒满幅不随档」已由上方 `trayOf === base` 逐命令不变承担。）
-        expect(circles(after)).toBeGreaterThan(0);
+        expect(after).not.toEqual(smallTray);
+        // 小豆档无孔 ⇒ 孔层不因换风格复活（与网格珠同参）。
+        expect(circles(after)).toBe(0);
     });
 
     it('「豆子尺寸」钮文案 = 现档显示（菜单设置 overlay 逐档实测，⛔ 不写死档数与款名）', () => {

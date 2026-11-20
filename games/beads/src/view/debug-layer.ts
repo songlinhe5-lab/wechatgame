@@ -41,7 +41,9 @@ export function drawPerfOverlay(
     });
     const line = (y: number, text: string): void => {
         builder.text(PERF_PANEL.x + 16, y, text, {
-            fill: palette.text,
+            // 面板底 = 画布遮罩 rgba(42,46,67,0.7)；`palette.text` 同值 ⇒ 深底深字看不见。
+            // 用深底专用米白 `bannerText`（#FDF6E9），与遮罩对比 ≈ 9:1。
+            fill: palette.bannerText,
             font: UI_FONT.panelToggle,
             align: 'left',
             baseline: 'middle',

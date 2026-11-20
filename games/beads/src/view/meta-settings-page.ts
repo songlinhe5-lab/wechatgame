@@ -21,7 +21,6 @@ import { levelDetailPlate, settingsViewport } from './meta-layout.js';
 import {
     drawSettingsAbout,
     drawSettingsContent,
-    drawSettingsScrollbar,
     drawSettingsWoodButton,
     isSettingsAction,
 } from './settings-content.js';
@@ -62,13 +61,12 @@ export function drawSettingsPage(
         },
     });
 
-    // 中间可视窗：内容块（滚动 + 逐容器裁切）→ 滚动条（内容超窗才画，裁切外）。
+    // 中间可视窗：内容块（滚动 + 逐容器裁切）；右侧滚动条已按用户 2026-11-17 指令删除。
     const scroll = data.settingsScroll ?? 0;
     const viewport = settingsViewport();
     builder.clip(viewport.x, viewport.y, viewport.w, viewport.h);
     drawSettingsContent(builder, data, palette, layout.buttons, scroll, viewport);
     builder.unclip();
-    drawSettingsScrollbar(builder, palette, viewport, scroll);
 
     // 固定 chrome：仅在线导入（调试入口，宿主配了服务地址才画；不随内容滚动）。
     // `[WXG-T-935]` 底部「返回」已删（Figma 设置页 2026-11-14）：关闭 = 右上 ✕ / 点木牌外。

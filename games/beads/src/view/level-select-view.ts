@@ -75,7 +75,7 @@ export function drawLevelsView(
     // 3×3 格墙：`grid-1` 三态模板九格复用（位图就绪）；缺图 ⇒ 程序化木托盘降级腿。
     // 格框与命中同源（VM 透传 `levelsLayout` 的 `MetaButton.box`）⇒ 不重建布局。
     for (let i = 0; i < vm.cellCount; i += 1) {
-        drawLevelSelectCell(builder, vm.cells[i]!, vm, palette, LEVEL_SELECT_TEXTURES.cell);
+        drawLevelSelectCell(builder, vm.cells[i]!, vm, palette);
     }
 
     // `[WXG-T-610]` 底部关闭按钮（稿 `160:48`，301×105 @225,1028，整枚烘字）。

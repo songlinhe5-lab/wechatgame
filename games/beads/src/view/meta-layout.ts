@@ -180,7 +180,7 @@ function settingsLayout(): MetaLayout {
     // 避让实算：plate y∈[124,1168]；可视窗 y∈[286,948]（`SETTINGS_GRID.viewTopInset/viewBottomInset`）；
     //   ① 首行上缘 948 < 标题字面下缘 ≈1024 ⇒ 净空 76；
     //   ② 底行下缘 360 > 返回钮上缘 262（plate.y+50+88）⇒ 净空 98，不与「返回」/「在线导入」重叠。
-    // 6 行实高 588 < 窗高 662 ⇒ 当前不触发滚动；滚动腿见 `settingsScrollMax` / `drawSettingsScrollbar`。
+    // 6 行实高 588 < 窗高 662 ⇒ 当前不触发滚动；滚动腿见 `settingsScrollMax`（右侧滚动条已删）。
     const buttons: MetaButton[] = settingsContentButtons(plate);
     // 底部「返回」已删（Figma 设置页 2026-11-14）；关闭 = 右上 ✕ / 点木牌外。
     // 在线导入（WXG-T-179 调试入口）：仅宿主配了服务地址时绘制（钮始终可命中，shell 在未启用时空响）。

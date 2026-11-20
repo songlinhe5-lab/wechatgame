@@ -55,16 +55,17 @@ describe('WXG-T-607 选关弹窗 View/ViewModel', () => {
         expect(vm.cells[0]!.current).toBe(true);
     });
 
-    it('`grid-1` 模板九格复用：9 条 cell blit，尺寸 158×177、底缘与命中框同源', () => {
-        const blits = cellBlits(frame((id) => id === LEVEL_SELECT_TEXTURES.cell || id === LEVEL_DETAIL_TEXTURES.plaque));
-        expect(blits).toHaveLength(9);
-        const g = LEVEL_SELECT_GEO.grid;
+    it('`grid-1` 模板九格复用：9 格程序化底 rect 命中九格位置', () => {
+        // `[FIX: BlitLayerUI 压 Graphics]` cell 位图 blit 已删，统一走程序化腿。
+        // 九格底 rect 以 cell.box 为锚，与命中框同源。
+        const cmds = frame((id) => id === LEVEL_SELECT_TEXTURES.cell || id === LEVEL_DETAIL_TEXTURES.plaque);
         const picks = buttons.filter((b) => b.id === 'pick-level');
         for (let i = 0; i < 9; i += 1) {
-            expect(blits[i]!.w).toBe(g.cellW);
-            expect(blits[i]!.h).toBe(LEVEL_SELECT_GEO.cellArt.h);
-            expect(blits[i]!.x).toBe(picks[i]!.box.x);
-            expect(blits[i]!.y).toBe(picks[i]!.box.y);
+            const box = picks[i]!.box;
+            const hasBottomRect = cmds.some(
+                (c) => c.kind === 'rect' && c.x === box.x && c.y === box.y && c.w === box.w && c.h === box.h,
+            );
+            expect(hasBottomRect, `cell[${i}] 有木框底 rect`).toBe(true);
         }
     });
 
@@ -75,13 +76,15 @@ describe('WXG-T-607 选关弹窗 View/ViewModel', () => {
     const countBlit = (cmds: readonly DrawCommand[], id: string): number =>
         cmds.filter((c) => c.kind === 'blit' && (c as { textureId?: string }).textureId === id).length;
 
-    it('`[WXG-T-610/611]` 位图腿：背板 / 三态格底 / 编号牌背景 ×9 / 双星 / 底部关闭按钮全部就位', () => {
+    it('`[WXG-T-610/611]` 位图腿：背板 / 编号牌背景 ×9 / 双星 / 底部关闭按钮全部就位（三态格底 + 锁图改程序化腿）', () => {
         const cmds = frame(() => true);
         expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.tray), '九宫格背板').toBe(1);
         expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.closeBtn), '底部关闭按钮').toBe(1);
         expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cell), '旧通用模板退场').toBe(0);
-        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellCurrent), '当前关亮金').toBe(1);
-        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellNormal), '普通橙').toBe(8);
+        // `[FIX: BlitLayerUI 压 Graphics]` 三态格底 blit 会盖住 drawBeadFace 的珠面缩略图（rect 走 Graphics
+        // 低层，blit 走 BlitLayerUI 高层），统一改为程序化腿（同 Graphics，顺序正确）。
+        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellCurrent), '当前关改程序化腿').toBe(0);
+        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellNormal), '普通关改程序化腿').toBe(0);
         expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.brand), '编号牌背景 ×9（`T-611` 稿 `176:22`）').toBe(9);
         expect(
             countBlit(cmds, LEVEL_SELECT_TEXTURES.starFilled) + countBlit(cmds, LEVEL_SELECT_TEXTURES.starEmpty),
@@ -99,12 +102,14 @@ describe('WXG-T-607 选关弹窗 View/ViewModel', () => {
         ).toBe(true);
     });
 
-    it('`[WXG-T-610/611]` 锁定态：灰格底 ×8 + 图案槽锁图 ×8 + 星带只剩当前格', () => {
+    it('`[WXG-T-610/611]` 锁定态：锁格改 drawBeadFace 灰色珠面 + 星带只剩当前格', () => {
         const cmds = frame(() => true, { maxUnlockedLevel: 1 });
-        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellLocked), '未解锁灰').toBe(8);
-        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellCurrent), '当前关亮金').toBe(1);
+        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellLocked), '未解锁改程序化腿').toBe(0);
+        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellCurrent), '当前关改程序化腿').toBe(0);
         expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellNormal)).toBe(0);
-        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.lockImage), '锁格图案槽（`T-611` 稿 `176:21`）').toBe(8);
+        // `[FIX: BlitLayerUI 压 Graphics]` lockImage blit 也走高层会盖 drawBeadFace，统一删 blit 走
+        // drawBeadFace(beadFadedInksFor, flat=true) 灰色珠面（同 Graphics 通道，顺序正确）。
+        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.lockImage), '锁图改 drawBeadFace').toBe(0);
         expect(
             countBlit(cmds, LEVEL_SELECT_TEXTURES.starFilled) + countBlit(cmds, LEVEL_SELECT_TEXTURES.starEmpty),
             '锁格隐藏三星 ⇒ 只剩当前格 3 枚',

@@ -10,7 +10,7 @@ import { DEBUG_OUTLINE_TILE_HEX } from '../src/view/palette.js';
 import { UI_DEBUG_HIT_FILL } from '../src/view/ui-theme.js';
 import { drawHitBox, drawPerfOverlay, drawSafeGuideLines, drawTapTrace } from '../src/view/debug-layer.js';
 
-const P = { text: '#text' } as unknown as BeadsPalette;
+const P = { text: '#text', bannerText: '#banner' } as unknown as BeadsPalette;
 
 interface Call {
     readonly kind: 'rect' | 'line' | 'text' | 'circle';
@@ -82,6 +82,9 @@ describe('drawPerfOverlay', () => {
         expect(calls[0].args.slice(0, 4)).toEqual([12, 1334 - 148, 316, 136]);
         const fill = (calls[0].args[4] as { fill: string }).fill;
         expect(fill).toContain('0.7');
+        // 深底必须用深底专用米白：`palette.text` 与遮罩 RGB 同为 (42,46,67) ⇒ 肉眼看零字。
+        const textFills = calls.filter((c) => c.kind === 'text');
+        for (const c of textFills) expect((c.args[3] as { fill: string }).fill).toBe('#banner');
         expect(texts(calls)).toEqual(['fps 60 · 16.7 ms', 'PLAYING · L3', 'pitch 54.0 · LOD 2']);
     });
 

@@ -4,13 +4,14 @@
  */
 
 import { DESIGN_H, DESIGN_W, type MenuAnchors, MENU_ARC_ART_CONTENT, MENU_ARC_ART_SRC, MENU_BAR_BAKED_LABEL_INSET, MENU_FULLSTAR_FRAME, MENU_GRAY_WIPE, MENU_LOCKED_ICON, MENU_MOUNT, MENU_PLACEMENT, MENU_PLATE_PILL, MENU_SIGNIN_DOT_R, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, MENU_V2_BG_EXPAND, MENU_V2_BG_H, MENU_V2_DESK_FILL,
-    SIGN_BEAD_PITCH, menuBackdropTopPad, SIGN_MATRIX_N, THUMB_TOP_INSET, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning';
+    SIGN_BEAD_PITCH, menuBackdropTopPad, SIGN_MATRIX_N, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning';
 import { COPY_TOKENS } from '../config/copy-tokens';
 import { ARC_COMING_SOON } from '../config/arcs';
 import { plateFade } from '../config/menu-carousel';
 import { grayWipeFx, type BlitFx, type RenderModelBuilder } from '../../framework/index';
 import { type BeadsPalette } from './palette';
-import { drawBeadText, drawLevelThumb } from './menu-signage';
+import { beadGrayInksFor } from './palette';
+import { drawBeadFace, drawBeadText } from './menu-signage';
 import { drawGear } from './play-page';
 import { type BeadsLevelRaw } from '../config/levels-data';
 import { UI_FONT } from './ui-theme';
@@ -358,12 +359,15 @@ function drawShowcaseArt(
         const bottomInset = MENU_ARC_ART_SRC - MENU_ARC_ART_CONTENT.y - MENU_ARC_ART_CONTENT.h;
         builder.blit(textureId, x + b.w / 2 - size / 2, b.y - bottomInset * k, size, size, opts);
     } else if (level !== undefined) {
-        // 程序化降级腿同口径：`h = 边长 + 内缩` ⇒ 图案底恰 = yBottom（传框高会沉入台面）。
-        drawLevelThumb(
-            builder, level, x, b.y, b.w, avail + THUMB_TOP_INSET,
-            Math.max(level.rows, level.cols), avail,
-            undefined,
-            ink,
+        // 程序化降级腿：drawBeadFace（完整珠面刻面，与关卡详情橱窗同腿），
+        // anchor='bottom' 底对齐台面、与 bitmap 腿底缘一致。
+        // pushing 状态用 beadGrayInksFor 置灰（简化版，不做渐变揭彩——那是 BlitFx 位图专属）。
+        // ⚠ 不画 alpha 淡变（ink）：drawBeadFace 发多条矢量命令，无单命令 alpha。
+        const grayInk = state === 'pushing' ? beadGrayInksFor(level) : undefined;
+        drawBeadFace(
+            builder, level, x, b.y, b.w, avail,
+            palette, grayInk,
+            undefined, undefined, 'bottom',
         );
     } else {
         drawDashedSocket(builder, { x, y: b.y, w: b.w, h: b.h }, palette.slotDashed);

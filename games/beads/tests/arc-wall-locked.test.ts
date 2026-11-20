@@ -129,9 +129,10 @@ describe('EP13-FU-1 墙几何 3×3（A1；`[WXG-T-605]` 起 = 详情木牌版式
 });
 
 describe('EP13-FU-1 锁格合形（A2 / §7 锁形通道；`[WXG-T-611]` 图案槽稿面化）', () => {
-    it('未解锁格 = 图案槽贴稿面锁图（等比居中于放大槽）+ 星带隐藏 + 无虚线（`slotDashed` 图元退场）', () => {
-        // `[WXG-T-611]` 位图臂：resolver 开 lockImage ⇒ 锁格图案槽 blit 稿 `176:21`，无星无旧锁角章。
-        setMenuBitmapResolver((id) => id === LEVEL_SELECT_TEXTURES.lockImage);
+    it('未解锁格 = drawBeadFace 灰色珠面 + 星带隐藏 + 无虚线（`slotDashed` 退场）', () => {
+        // `[FIX: BlitLayerUI 压 Graphics]` lockImage blit 也走高层会盖 drawBeadFace，
+        // 统一删 blit 走 drawBeadFace(beadFadedInksFor, flat=true) 灰色珠面。
+        setMenuBitmapResolver((id) => id === LEVEL_SELECT_TEXTURES.lockImage); // resolver 开但 blit 已删
         const cs = cells();
         const locked = cs[4]!; // maxUnlocked = 1 ⇒ 第 5 格未解锁
         const cmds = frame(dataFor({ maxUnlockedLevel: 1 }));
@@ -139,23 +140,16 @@ describe('EP13-FU-1 锁格合形（A2 / §7 锁形通道；`[WXG-T-611]` 图案�
         // ① 虚线退场：该格框内不存在 `slotDashed` 描边的线段。
         const dashed = cmds.filter((c) => dashedInCell(c, locked));
         expect(dashed).toHaveLength(0);
-        // ② 锁形通道：`[WXG-T-616]` 放大槽内按原生 69×76 **等比**居中（⛔ 不拉伸铺槽）。
-        const a = LEVEL_SELECT_GEO.cellArt;
-        const lockBlits = cmds.filter(
-            (c) => c.kind === 'blit' && (c as { textureId: string }).textureId === LEVEL_SELECT_TEXTURES.lockImage && inCell(c, locked),
-        ) as { x: number; y: number; w: number; h: number }[];
-        expect(lockBlits, '每锁格恰 1 枚锁图案').toHaveLength(1);
-        const lockW = a.imageH * (a.lockW / a.lockH);
-        expect(lockBlits[0]).toMatchObject({
-            x: locked.box.x + a.imageLeft + (a.imageW - lockW) / 2,
-            y: locked.box.y + (locked.box.h - a.imageTopDown - a.imageH),
-            w: lockW,
-            h: a.imageH,
-        });
+        // ② 锁形通道 ⇒ drawBeadFace 灰色珠面（零饱和）落图案槽位。
+        const blocks = cmds.filter((c) => inThumbRect(c, thumbBox(locked)));
+        expect(blocks.length, '锁格有珠面 rect').toBeGreaterThan(0);
+        expect(blocks.every((c) => isGrayHex('fill' in c ? c.fill : undefined)), '灰色珠面').toBe(true);
         // ③ 星带隐藏（`T-611` 用户令「锁关…同时隐藏 3 个星星」）。
         expect(cmds.some((c) => c.kind === 'text' && inCell(c, locked) && c.text === '☆☆☆')).toBe(false);
         // ④ 旧锁角章退场（`T-611` 用户令「单独展示的锁图案去掉」，K-053）。
         expect(cmds.some((c) => c.kind === 'text' && inCell(c, locked) && c.text === '锁')).toBe(false);
+        // ⑤ lockImage blit 已删（统一走程序化）。
+        expect(cmds.some((c) => c.kind === 'blit' && (c as { textureId: string }).textureId === LEVEL_SELECT_TEXTURES.lockImage)).toBe(false);
     });
 
     it('缺图降级腿：锁格灰珠阵落图案槽位（零饱和）+ 星带隐藏', () => {
@@ -170,15 +164,25 @@ describe('EP13-FU-1 锁格合形（A2 / §7 锁形通道；`[WXG-T-611]` 图案�
         expect(cmds.some((c) => c.kind === 'text' && inCell(c, locked) && c.text === '☆☆☆')).toBe(false);
     });
 
-    it('越界空槽（清单短于槽）与未解锁格同判据：图案槽锁图 + 星带隐藏', () => {
-        setMenuBitmapResolver((id) => id === LEVEL_SELECT_TEXTURES.lockImage);
+    it('越界空槽（清单短于槽）与未解锁格同判据：drawBeadFace 灰色珠面 + 星带隐藏', () => {
+        setMenuBitmapResolver((id) => id === LEVEL_SELECT_TEXTURES.lockImage); // resolver 开但 blit 已删
         const cs = cells();
         const overflow = cs[7]!;
         const cmds = frame(dataFor({ wallSlots: [0, 1], wallLevels: [LEVELS[0]!, LEVELS[1]!] }));
 
         const dashed = cmds.filter((c) => dashedInCell(c, overflow));
         expect(dashed).toHaveLength(0);
-        expect(cmds.some((c) => c.kind === 'blit' && (c as { textureId: string }).textureId === LEVEL_SELECT_TEXTURES.lockImage && inCell(c, overflow))).toBe(true);
+        // 空槽（cell.level === undefined）画 slot 颜色占位 rect（= a.imageW × a.imageH）
+        const a = LEVEL_SELECT_GEO.cellArt;
+        const slotRect = cmds.find(
+            (c) => c.kind === 'rect' && c.x === overflow.box.x + a.imageLeft &&
+                   c.y === overflow.box.y + overflow.box.h - a.imageTopDown - a.imageH &&
+                   c.w === a.imageW && c.h === a.imageH,
+        );
+        expect(slotRect, '空槽占位 rect 存在').toBeTruthy();
+        // 空槽不画 drawBeadFace 珠面（level === undefined）
+        const beadsInSlot = cmds.filter((c) => inThumbRect(c, thumbBox(overflow)));
+        expect(beadsInSlot.length, '空槽无珠面 rect').toBe(0);
         expect(cmds.some((c) => c.kind === 'text' && inCell(c, overflow) && c.text === '☆☆☆')).toBe(false);
     });
 

@@ -10953,3 +10953,17 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **接线前置状态更新**：生成页半——`generate.html` / `server.mjs` 已还原至 HEAD（与入库一致），前置部分解除；选关页半——`src/view/**` 他轨 WIP 仍在（含 3 条 TS6133 半成品），仍候对方入库（K-045 / K-188）。接线另立单（下一可用号 1001），不在本单范围。
 - **验证**：`check:tasks` / `check:links` / `ctx:check` 由提交钩子复核；只读门禁子集（check:arch / check:tasks / check:links / levels:check / framework:sync:check / check:frozen-values）6/6 PASS（A 轨还原后实测）。全量 verify 红项（金样本 / typecheck）属他轨收敛中，本单不代修、不拿局部绿冒充全量绿。
 - **知识沉淀**：本单不跑 kb:sync，沉淀统计 新增 0 / 修改 0 / 激活 0 / 归档 0；候选 1 条（并发会话编辑器缓冲早于某任务入库 ⇒ 工作树静默回退已完成任务；处置法 = 逐 hunk 验纯回退后经用户授权定向 checkout 还原，不代提交）交主理人汇编。
+
+---
+
+## WXG-T-1001
+
+**工程·D 轨 settings/meta UI 收敛（层序修复+滚动条删）** · 负责：Qoder 收尾·并发会话原 WIP·beads UI 轨 · 状态：✅ 完成（2026-11-20 · 用户令「D 轨 settings/meta UI」）
+
+- **背景**：WIP 归属核对（本会话早前批）划出的 D 轨 = 并发会话 2026-11-17 起 settings/meta UI 五子批半成品（11 件 src/test/doc + 镜像），遗留 3 条 TS6133。用户点名本轨 ⇒ 授权收尾。深查确诊：五子批功能完整、4 件配套测试已改判且 60/60 绿，TS6133 纯属删位图分支后的死码残留（非未接完功能）。
+- **五子批内容**：① 设置右缘滚动条删（用户 2026-11-17 指令；`drawSettingsScrollbar` 整函数 + 调用 + import 删，滚动能力保留）；② 选关格 BlitLayerUI 压 Graphics 层序修复（缺陷 967 同族）：三态格底位图 blit 与锁图 lockImage blit 全删，恒走程序化木托盘腿 + drawBeadFace 珠面（同 Graphics 通道叠放正确）；当前关高亮环程序化腿同画；空槽改 slot 色占位 rect；更替 T-610/611/616 位图腿与 T-952 flat 腿的选关格部分（解锁格恢复完整珠面、锁定格仍 flat 灰珠面）；③ 走马灯程序化降级腿 drawLevelThumb→drawBeadFace（anchor='bottom' 底对齐台面、pushing 态 beadGrayInksFor 置灰、不画 alpha 淡变）；④ 托盘珠随豆径档（用户 2026-11-17 报「豆子尺寸小巧时，托盘珠还是中空的」⇒ 推翻旧 S5「托盘恒满幅」；实现已随 WXG-T-991 入库 play-page::drawTray，本批回写 GDD pause-settings / UX ux-spec 口径 + §12 登记补欠）；⑤ debug 性能面板字色 palette.text→bannerText（text 与遮罩 RGB 同为 (42,46,67) 零对比；仅 DEBUG 叠加层）。
+- **本会话收尾改动**：死码 3 处清理（meta-widgets::cellTexture 函数、drawLevelSelectCell 的 cellTextureId 形参 + level-select-view 调用方实参、meta-menu 的 THUMB_TOP_INSET import）+ 过时函数头注订正；`sync-framework-to-cocos.mjs` 写入 3 件镜像（其余 4 件 D 轨镜像并发会话已同步）；§12 视觉变更登记新增 1001 条（六态金样影响 + 测试配套）；台账领号 1001（头注 + 主表行 + 本节）。
+- **金样本**：HEAD 裸跑 6 帧红（main-menu/level-select/level-select-mid/settings/signin = 夹具 dc10aac2 摄于 D 轨 WIP 工作树而代码未入库；clear = WXG-T-996 回放钮移位漏拍，total/kinds 666 逐字不变仅几何 sha 变）。处置 = 本批提交后在干净 detached worktree（K-167）由 ui-golden-capture.ts 重拍六态，其余五态须逐字不变；⛔ 不手改夹具（K-051/K-053）。
+- **并发披露（K-188）**：开工期间并发会话跑 tasks:archive 体积驱动档把 WXG-T-1000 成对搬入归档（合法工具行为、非静默回退；1000 为当时主表最老行）——台账四件（TASKS/TASKS-DETAIL/archive 两件）的归档 WIP 属对方批，本批只暂存自己的 1001 登记 hunk（备份→checkout HEAD→写本批→暂存→还原对方 WIP 于工作树），不代提交。
+- **验证**：typecheck 两游戏全绿（TS6133 清零）；beads 全量 1570 例（重拍前 1569 绿 + 1 金样红 = clear 欠账，重拍后须全绿）；framework:sync:check 一致；check:tasks/check:links/ctx:check 由提交钩子复核。
+- **知识沉淀**：本单不跑 kb:sync，沉淀统计 新增 0 / 修改 0 / 激活 0 / 归档 0；候选 1 条（金样夹具摄于 dirty 工作树而代码未入库 ⇒ HEAD 裸跑多帧红；确诊法 = 临时 checkout 涉改文件回 HEAD 单跑金样对比红帧集合，红帧收敛差即 WIP 视觉贡献；处置 = 代码入库后干净锚重拍，不手改夹具）交主理人汇编。

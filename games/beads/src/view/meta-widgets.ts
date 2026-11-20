@@ -121,16 +121,9 @@ export function resetMetaViewWarnings(): void {
 /**
  * `[WXG-T-606]` **木托盘凹槽格**（选关页专用；Token Plan 两 seed 定稿）：
  * 木框 → 2px 深槽线 → 内窗 → 顶缘受光；三带分离：编号牌顶 / 图案槽中 / 星带底。
- * `[WXG-T-611]` 未解锁 = 图案槽贴稿面锁图（缺图灰珠阵）、无星；当前关 = 亮金格底（位图腿）
- * / 亮金内窗（降级腿）——黄铜描边已随「高亮态就是高亮图」令退场。
+ * `[FIX: BlitLayerUI 压 Graphics]` 三态格底位图腿已删，恒走程序化腿；当前关 = 亮金内窗 + 高亮环。
+ * `[WXG-T-611]` 未解锁 = drawBeadFace 灰色珠面、无星；黄铜描边已随「高亮态就是高亮图」令退场。
  */
-/** `[WXG-T-610]` 三态格底（稿 `183:38/41/44`：橙 = 普通 / 亮金 = 当前 / 灰 = 锁定）。 */
-function cellTexture(cell: LevelSelectCellViewModel): string {
-    if (cell.locked || cell.levelIdx === undefined) return LEVEL_SELECT_TEXTURES.cellLocked;
-    if (cell.current) return LEVEL_SELECT_TEXTURES.cellCurrent;
-    return LEVEL_SELECT_TEXTURES.cellNormal;
-}
-
 /** `[WXG-T-610]` 三星位图（32×30 / 净距 9）贴格底；缺图 ⇒ 旧文字档。 */
 function drawCellStars(
     builder: RenderModelBuilder,
@@ -166,41 +159,36 @@ export function drawLevelSelectCell(
     // （宿主每帧由 `MetaViewData.beadStyle` 投影）透传给珠面腿与盘面同肤。
     vm: LevelSelectViewModel,
     palette: BeadsPalette,
-    cellTextureId: string,
 ): void {
     const st = LEVEL_SELECT_GEO.gridStyle;
     const { x, w, h } = cell.box;
     const y = cell.box.y + cell.pressDy;
 
-    const tex = cellTexture(cell);
-    if (menuBitmapReady(tex)) {
-        // `[WXG-T-610]` 三态稿面格底 158×177：底对齐格框（格高 181，顶部 4px 让编号牌溢出）。
-        builder.blit(tex, x, y, w, LEVEL_SELECT_GEO.cellArt.h);
-        // `[WXG-T-612·三轮]` 高亮环（稿 grid-4 实例 override `highlight-ring`，用户令「一圈高亮
-        // 线条」）：组件本体渲染不带 ⇒ 烘不进导出图，数据驱动绘制；先环后内容（稿层序，环在
-        // 缩略/星之下）。内发光以宽半透明 stroke 近似 INNER_SHADOW(r6)。
+    // `[FIX: BlitLayerUI 压 Graphics]` 卡片底位图（cellCurrent / cellNormal / cellLocked）走
+    // BlitLayerUI 通道，drawBeadFace 的珠面缩略图 rect 走 Graphics 通道——BlitLayerUI 层序更高，
+    // 位图会盖住珠面，导致解锁但非 current 的关卡完全看不到珠面缩略图。
+    // 统一走程序化腿（同 Graphics 通道），drawBeadFace 后画正确叠放。
+    // ponytail: 统一程序腿（diff 最小，消除位图/矢量通道层序冲突）
+    // → 删回位图分支的时机：BlitLayerUI 加 clip 让 image 槽透明、或 drawBeadFace 改位图通道
+    {
+        // `[WXG-T-606]` 程序化木托盘：木框 → 深槽线 → 内窗 → 顶缘受光。
+        builder.rect(x, y, w, h, { fill: palette.woodSheen, radius: st.radius });
+        builder.rect(x + st.frame / 2, y + st.frame / 2, w - st.frame, h - st.frame, {
+            stroke: palette.shadowInk, lineWidth: st.groove, radius: st.radius - 2,
+        });
+        builder.rect(x + st.frame, y + st.frame, w - st.frame * 2, h - st.frame * 2, {
+            // `[WXG-T-611]` 用户令「高亮态就是高亮图，不需要加框」⇒ 当前关以亮金内窗表达。
+            fill: cell.pressed ? palette.cardPressed : (cell.current ? palette.plateSubInk : palette.slot),
+            radius: st.radius - 4,
+        });
+        builder.line(x + 8, y + h - st.frame - 1, x + w - 8, y + h - st.frame - 1, withAlpha(palette.woodSheen, 0.6), 1);
+        // `[WXG-T-612·三轮]` 高亮环（当前关）：程序化腿也画，保持视觉同源。
         if (cell.current) {
             const r = LEVEL_SELECT_GEO.cellArt.ring;
             const rx = x + r.insetX, ry = y + r.insetY, rw = w - r.insetX * 2, rh = h - r.insetY * 2;
             builder.rect(rx, ry, rw, rh, { stroke: withAlpha(r.glow, r.glowAlpha), lineWidth: r.glowW, radius: r.radius });
             builder.rect(rx, ry, rw, rh, { stroke: r.stroke, lineWidth: r.strokeW, radius: r.radius });
         }
-    } else if (menuBitmapReady(cellTextureId)) {
-        // 次级降级：`T-607` 通用木纹模板（K-053 留档）。
-        builder.blit(cellTextureId, x, y, w, LEVEL_SELECT_GEO.cellArt.h);
-    } else {
-        // 缺图降级腿（`[WXG-T-606]` 程序化木托盘）：木框 → 深槽线 → 米白内窗 → 顶缘受光。
-        builder.rect(x, y, w, h, { fill: palette.woodSheen, radius: st.radius });
-        builder.rect(x + st.frame / 2, y + st.frame / 2, w - st.frame, h - st.frame, {
-            stroke: palette.shadowInk, lineWidth: st.groove, radius: st.radius - 2,
-        });
-        builder.rect(x + st.frame, y + st.frame, w - st.frame * 2, h - st.frame * 2, {
-            // `[WXG-T-611]` 用户令「高亮态就是高亮图，不需要加框」⇒ 降级腿旧黄铜描边退场（K-053），
-            // 当前关以亮金内窗（plate_sub_ink，稿面编号数字同族暖金）表达。
-            fill: cell.pressed ? palette.cardPressed : (cell.current ? palette.plateSubInk : palette.slot),
-            radius: st.radius - 4,
-        });
-        builder.line(x + 8, y + h - st.frame - 1, x + w - 8, y + h - st.frame - 1, withAlpha(palette.woodSheen, 0.6), 1);
     }
 
     // 编号牌（稿 `182:75 grid-brand`，65×35 贴格视觉顶）：`[WXG-T-611]` 背景读稿面资源；
@@ -228,12 +216,16 @@ export function drawLevelSelectCell(
     // `[WXG-T-616]` 用户令「图案尺寸太小」⇒ 槽放大到 126×94 @(16, 距顶 39)；锁图仍按原生比例居中。
     const ix = x + a.imageLeft;
     const iy = y + (h - a.imageTopDown - a.imageH);
-    if (cell.locked || cell.levelIdx === undefined) {        if (menuBitmapReady(LEVEL_SELECT_TEXTURES.lockImage)) {
-            const lockW = a.imageH * (a.lockW / a.lockH);
-            builder.blit(LEVEL_SELECT_TEXTURES.lockImage, ix + (a.imageW - lockW) / 2, iy, lockW, a.imageH);
-        } else if (cell.level !== undefined) {
-            // `[WXG-T-613]` 锁定降级腿 = 灰墨**纯色盘面**（槽位不变；T-952 起缩略不再画珠面）。
+    if (cell.locked || cell.levelIdx === undefined) {
+        // `[FIX: BlitLayerUI 压 Graphics]` lockImage blit 也走 BlitLayerUI 高层，会盖住 drawBeadFace
+        // 的灰色珠面。统一走 drawBeadFace（Graphics，与卡片底同层），顺序正确。
+        // ponytail: 删 lockImage blit，只用 drawBeadFace 灰色珠面（diff 最小）
+        if (cell.level !== undefined) {
             drawBeadFace(builder, cell.level, ix, iy, a.imageW, a.imageH, palette, beadFadedInksFor(cell.level), vm.beadStyle, vm.beadSize, 'center', true);
+        } else {
+            // 空槽（levelIdx === undefined，关卡清单短于槽位）：画占位灰色方块。
+            // 原 lockImage blit 已删，用 slot fill 填充 image 槽位占位。
+            builder.rect(ix, iy, a.imageW, a.imageH, { fill: palette.slot, radius: 6 });
         }
         return;
     }
