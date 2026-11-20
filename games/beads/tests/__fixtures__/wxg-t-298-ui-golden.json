@@ -4,7 +4,7 @@
   "unit": "UI-02",
   "spec": "docs/architecture/ui-architecture-beads.md §5 / §9.4 / §12",
   "codeBaseline": "bd964a0",
-  "capturedFrom": "dc10aac2 · 工作树（WXG-T-298）",
+  "capturedFrom": "2655ab8c · 工作树（WXG-T-298）",
   "fixture": {
     "viewport": {
       "width": 750,
@@ -31,18 +31,18 @@
         "overlay": "none",
         "phase": "playing"
       },
-      "total": 1925,
+      "total": 6087,
       "kinds": {
-        "rect": 370,
+        "rect": 1390,
         "line": 9,
-        "circle": 491,
+        "circle": 1511,
         "text": 6,
         "clip": 1,
-        "polygon": 1046,
+        "polygon": 3168,
         "unclip": 1,
         "blit": 1
       },
-      "sha": "e96db66d2c6d339524adb450f14c39806ea8dccc9bda37d0fbdaaf07cc29f83b",
+      "sha": "feba6f9214b38368d8c0d856f7a5b56791b165ace7846d77c571939fc0c95026",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -55,20 +55,20 @@
         "overlay": "levels",
         "phase": "playing"
       },
-      "total": 5590,
+      "total": 9752,
       "kinds": {
-        "rect": 3265,
+        "rect": 4285,
         "line": 23,
-        "circle": 491,
+        "circle": 1511,
         "text": 27,
         "clip": 1,
-        "polygon": 1779,
+        "polygon": 3901,
         "unclip": 1,
         "blit": 1,
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "56ff6bb8549b52d2b234ddb323ad531c6594086fa39d1435d9c51bb2f05c3e8c",
+      "sha": "3ec93e3ce2d026cb71f9b272b268324f2977f5883ad298eeeba7bc317817b2e4",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -81,20 +81,20 @@
         "overlay": "levels",
         "phase": "playing"
       },
-      "total": 5590,
+      "total": 9752,
       "kinds": {
-        "rect": 3265,
+        "rect": 4285,
         "line": 23,
-        "circle": 491,
+        "circle": 1511,
         "text": 27,
         "clip": 1,
-        "polygon": 1779,
+        "polygon": 3901,
         "unclip": 1,
         "blit": 1,
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "774b7dfbe46082f5572bb0e7d0d6c76d970f568966fe35322fed4b7ed3a5c007",
+      "sha": "96ddc65db711647fa384381b2284bd68e7c102b2361d1f8c190ce63c2fa9604a",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -107,20 +107,20 @@
         "overlay": "settings",
         "phase": "playing"
       },
-      "total": 1976,
+      "total": 6138,
       "kinds": {
-        "rect": 385,
+        "rect": 1405,
         "line": 24,
-        "circle": 496,
+        "circle": 1516,
         "text": 18,
         "clip": 2,
-        "polygon": 1046,
+        "polygon": 3168,
         "unclip": 2,
         "blit": 1,
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "d945390982b76c44bafdae959da6cf68e16a0733b4183af2da5f5727bb9a6153",
+      "sha": "df2e4faa441a6b3e06e825da1c796f5db7035d13e6d58a52d0a83c2e118d8693",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -133,20 +133,20 @@
         "overlay": "signin",
         "phase": "playing"
       },
-      "total": 1957,
+      "total": 6119,
       "kinds": {
-        "rect": 382,
+        "rect": 1402,
         "line": 9,
-        "circle": 491,
+        "circle": 1511,
         "text": 24,
         "clip": 1,
-        "polygon": 1046,
+        "polygon": 3168,
         "unclip": 1,
         "blit": 1,
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "98ca896f459bf736b9251cb0f3d5afc9cace2f78189fd0096920757beaac25f7",
+      "sha": "ac62f95fdc21143e5e6e91262911db9c6809231ba6bd8a150c016ce12a976711",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -214,7 +214,7 @@
         "blit": 3,
         "containerEnd": 1
       },
-      "sha": "f9a443ad95cd575b431b4e0367f8f378ba0c520a950c6ee6e375667fd4b71340",
+      "sha": "b742399b87ebc0e245c3f8e41e3877f659db8291eb89548cf772827cd3a68a1f",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -237,7 +237,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "f16e3fa396acedcdac57967ca206ca81c457160803910bdd9f0cf310a8651431",
+      "sha": "afb5c8c0ebc50e33b59ac6c98be68520086f765d95c01eadbbb4b160dc2bab43",
       "background": "#F1E8D8",
       "transform": null
     },

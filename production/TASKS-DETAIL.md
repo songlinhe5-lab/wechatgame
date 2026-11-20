@@ -11054,3 +11054,14 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **撞号与并发披露（K-046/K-188）**：原拟领 1006，被 boss 橱窗珠面缩略批（070afbe6）占 ⇒ 改判 **1007**。开工期间 1003（60305d8c）/1006（070afbe6）先后入库；1005 披露订正文本曾被 070afbe6 扫入（已在 1005 节记明）。D 轨 3 件 spec（tint-mask / tray-neutral-slot-mask / bead-visual-style）属 1001 口径补写，**不在本批**（另笔署 1001）。
 - **验证**：check:tasks 绿、sync --check 绿、typecheck 干净；check:size 红 = 上文 BLOCKED 登记（非本批引入）。金样候重拍批（1006 后菜单背屏五帧亦变，与 1001 七态 + fail 同批）。
 - **知识沉淀**：本单不跑 kb:sync，沉淀统计 新增 0 / 修改 0 / 激活 0 / 归档 0；候选 1 条交主理人汇编：包体红线归因须「剔除本批增量后复算」——否则会把历史批的越线账错记到当前批头上（本例剔除后仍超 11.5 KB，主因在 996 已入库九宫格）。
+
+## WXG-T-1008
+
+**QA·金样十一帧干净锚重拍（996/1001/1004/1006 四批欠账一笔清）** · 负责：Qoder·beads QA 轨 · 状态：✅ 完成（2026-11-20）
+
+- **授权链**：用户 2026-11-20 裁定「候 C 轨入库后另批重拍（推荐）」（87ebe70b 登记）；C 轨 1004 入库（7334cdb7）解除 991 跨轨依赖 BLOCKED（hitFailConfirm 导出），1006 入库后菜单五帧变化面定型 ⇒ 本批执行。
+- **协议（K-167 / WXG-T-375 / K-051 / K-053）**：`git worktree add --detach /tmp/wxg-golden-1008 @ 2655ab8c` 干净检出（node_modules 符号链接复用主树）；`WXG298_SOURCE_REV=2655ab8c node --experimental-transform-types --import=./tools/scripts/lib/ts-js-resolve.mjs games/beads/tests/ui-golden-capture.ts`；脚本内置两遍连跑逐态 sha/record 全等自证 **PASS** 后才写夹具；⛔ 未手改任何 sha/total/种类数。夹具回拷主树提交。
+- **变化面（七帧 sha 变 / 四帧逐字不变）**：main-menu 1925→6087、level-select 与 level-select-mid 5590→9752、settings 1976→6138、signin 1957→6119（1001 ②③ 选关格/走马灯完整珠面 + 1006 橱窗珠面缩略 ⇒ polygon/circle/rect 矢量化增量）；clear total/kinds 666 逐字不变仅几何 sha（996 回放钮移位，与 1001 登记预言逐字吻合）；fail total/kinds 618 逐字不变仅 sha（1004 ✕ 右下→右上）；play/pause/sprint-settle/finish 逐字不变。
+- **验证**：干净锚全量 beads **131 文件 1575 passed / 2 skipped / 0 failed**（vitest 21.4s）——四批金样欠账一笔清。主树另有并发会话新 WIP 五件（menu.ts/beads-shell/menu-signage/meta-menu/meta-types），本批不捎带、不在主树跑对拍（避免并发污染证据）。
+- **登记**：`ui-architecture-beads §12` 重拍条（1001/1006 条内「仍 BLOCKED」字样由本条解除）；夹具 `capturedFrom` = 2655ab8c。
+- **知识沉淀**：本单不跑 kb:sync，沉淀统计 新增 0 / 修改 0 / 激活 0 / 归档 0；候选 0 条（协议已沉淀 K-167/WXG-T-375，本批为照章执行）。
