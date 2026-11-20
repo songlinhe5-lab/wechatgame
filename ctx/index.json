@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4260,
       "lines": 141,
-      "sha256": "61cda54d9736b1702018562a704f6ef9d979534118b20e9ced5d290d4ca0d99d",
+      "sha256": "650d7be9203209711c88a18db224d2a23525f28841424a09811bd337f49cb14c",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 410,
-          "summary": "1 production/TASKS-DETAIL.md 347049 11082 normal",
+          "summary": "1 production/TASKS-DETAIL.md 347154 11082 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5208,
       "lines": 159,
-      "sha256": "09fe1ce02f6085f89e33be781d06a334620d5fbe9b4229f8acc62210ba1c77e1",
+      "sha256": "cf4e2ea8dab1df09a91996bf47ad1f26e9dcef1783f8bb2e4f70f6301f390b38",
       "tier": "normal",
       "sections": [
         {
@@ -761,7 +761,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 314 行 / 94250 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 314 行 / 94268 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
@@ -1080,7 +1080,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 11082 行 / 347049 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 11082 行 / 347154 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
@@ -14587,9 +14587,9 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 50561,
+      "tokens": 50582,
       "lines": 383,
-      "sha256": "a8381edfc461c8e11ec2e2e43228404d7da2ae5398e63fe8d02141868b8ecdf8",
+      "sha256": "8a38101d668c48c0638b417081479ba5e9c2ea5495647de1a78ddc7af5013b7d",
       "tier": "normal",
       "sections": [
         {
@@ -14597,7 +14597,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 384,
-          "tokens": 50542,
+          "tokens": 50563,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -14768,7 +14768,7 @@
           "level": 2,
           "startLine": 138,
           "endLine": 380,
-          "tokens": 45489,
+          "tokens": 45510,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -30869,9 +30869,9 @@
     },
     {
       "path": "games/beads/design/art/specs/menu-plate-text-control-spec.md",
-      "tokens": 6653,
+      "tokens": 6663,
       "lines": 222,
-      "sha256": "272b7e1e9e7abd35587a57cfcb68d2d39c9370a5a96c2de27bd9e8870bdea4ec",
+      "sha256": "3a68bcbf7f07411d73fd521c5b5564ce540bd346ea4dcbd89c50ea3eae463768",
       "tier": "normal",
       "sections": [
         {
@@ -30879,7 +30879,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 223,
-          "tokens": 6624,
+          "tokens": 6634,
           "summary": "本件 = menu-layout-implementation-spec.md §11 拆册（2026-10-31；动因",
           "keywords": [
             "§11",
@@ -31254,7 +31254,7 @@
           "level": 2,
           "startLine": 216,
           "endLine": 223,
-          "tokens": 585,
+          "tokens": 595,
           "summary": "陈列关换了谁：走马灯陈列关由「大关收尾关（boss）」改为「本大关解锁范围内第一个 0 星关」（与选关高亮同口径；大关全",
           "keywords": [
             "[WXG-T-913]",
@@ -31474,9 +31474,9 @@
     },
     {
       "path": "games/beads/design/art/specs/menu-showcase-mount-spec.md",
-      "tokens": 4748,
+      "tokens": 4758,
       "lines": 255,
-      "sha256": "4bf32c14112e20cd130ce6d9a587f87ab8468ba37a6396448b0f92ca1a5b83ce",
+      "sha256": "23837e3ec924bf2c2c6956ea6b70f0066859f9d510f64d785603224fb64b876e",
       "tier": "normal",
       "sections": [
         {
@@ -31484,7 +31484,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 256,
-          "tokens": 4729,
+          "tokens": 4739,
           "summary": "状态：已实装（2026-11-15 · [WXG-T-953]）/ 待真机目检回填 α / 圆角。",
           "keywords": [
             "[WXG-T-953]",
@@ -31541,7 +31541,7 @@
           "level": 2,
           "startLine": 66,
           "endLine": 149,
-          "tokens": 1504,
+          "tokens": 1514,
           "summary": "所有 α / 边宽为提案值，真机目检后回填（§8）。落码坐标以 y-up 换算（DESIGN_H 1334），本表给 y",
           "keywords": [
             "§8",
@@ -31567,7 +31567,7 @@
           "level": 3,
           "startLine": 87,
           "endLine": 111,
-          "tokens": 488,
+          "tokens": 498,
           "summary": "位置 展品底缘（y-down art.y + art.h = 844）；影带向上 +2 压住珠面底行、向下 −12 落台",
           "keywords": [
             "down",
@@ -93385,9 +93385,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 347049,
+      "tokens": 347154,
       "lines": 11082,
-      "sha256": "301f624d1bef0d8e5a2989f4600bda0c83aec9bc7dfe6ca41b1925577828ecfc",
+      "sha256": "3e66bf6a5e45d3d33eabd2eaa4fda90a0109206901e0091b96cac57bb6ba1d48",
       "tier": "normal",
       "sections": [
         {
@@ -93395,7 +93395,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 11083,
-          "tokens": 347032,
+          "tokens": 347137,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -109061,7 +109061,7 @@
           "level": 2,
           "startLine": 11032,
           "endLine": 11044,
-          "tokens": 1733,
+          "tokens": 1839,
           "summary": "工程·主菜单 boss 橱窗改珠面缩略（纹理腿退场） · 负责：本会话（Trae CN）·beads UI 轨 · 状态",
           "keywords": [
             "WXG",
@@ -109113,9 +109113,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 94250,
+      "tokens": 94268,
       "lines": 314,
-      "sha256": "cf3c4823d3ecdcb4f776ccbc0ad05a8930fe321cd104f8e496007a5c49826deb",
+      "sha256": "cc614a43b31f4eb61f5a5797fe079e4636ca6f9012ea14c553ae63a040afac85",
       "tier": "hot",
       "sections": [
         {
@@ -109123,7 +109123,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 315,
-          "tokens": 94241,
+          "tokens": 94259,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",

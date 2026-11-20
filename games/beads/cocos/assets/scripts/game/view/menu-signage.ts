@@ -65,7 +65,7 @@ import { drawThumbOutline } from './bead-outline';
 import {
     DEMO_BEAD_INKS,
     beadColorOf,
-    beadFadedInksFor,
+    beadDimInksFor,
     beadInksFor,
     relativeLuminance,
     type BeadInks,
@@ -561,8 +561,8 @@ export function drawBeadFace(
  *
  * 与 {@link drawBeadFace} 的差别：⛔ 不画刻面 / 珠孔 / 底块 / 描边，只落**色板基色**方块
  * （{@link beadColorOf}，四周留 {@link MENU_SHOWCASE_CELL_SEAM} 轻缝）；`progress`（0..1）以下
- * 自下而上用全彩墨集，其余用 {@link beadFadedInksFor} 置**浅灰** ⇒ 未达进度只灰该灰的部分
- * （浅灰档 156–220，保证整幅图案轮廓仍读得出，⛔ 不用 `beadGrayInksFor` 的深灰档）。
+ * 自下而上用全彩墨集，其余用 {@link beadDimInksFor} **保留每珠基础色相、向本珠灰档压 62%**
+ * ⇒ 未达进度区仍是「每珠各色」而非统一漂白（用户 2026-11-20：「每个珠面都有自己的基础颜色」）。
  * 几何与 `drawBeadFace(anchor='bottom')` 同式（宽盘也底缘贴 `yBottom`）。
  * 消费面仅主菜单走马灯；选关格 / 详情页仍走 `drawBeadFace`（T-952 / T-619 口径不变）。
  */
@@ -585,7 +585,7 @@ export function drawShowcaseFace(
     const left = x + (w - cols * pitch) / 2;
     const top = yBottom + rows * pitch;
     const colorInks = beadInksFor(level);
-    const grayInks = beadFadedInksFor(level);
+    const grayInks = beadDimInksFor(level);
     // 彩色区顶（自下而上）：格心 ≤ 本线 ⇒ 全彩，否则置灰。按格判定，⛔ 半格灰。
     const revealTop = yBottom + rows * pitch * Math.max(0, Math.min(1, progress));
     const block = Math.max(1, pitch - MENU_SHOWCASE_CELL_SEAM * 2);

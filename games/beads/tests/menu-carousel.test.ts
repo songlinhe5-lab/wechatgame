@@ -12,7 +12,7 @@ import { DESIGN_H, DESIGN_W, MENU_TEXTURES, MENU_V2 } from '../src/config/tuning
 import { createBeadsShell } from '../src/game/beads-shell.js';
 import { buildMetaView, setMenuBitmapResolver, type MetaViewData } from '../src/view/meta-view.js';
 import { anchoredGeo } from '../src/view/meta-layout.js';
-import { DEFAULT_PALETTE, beadColorOf, beadFadedInksFor, beadInksFor } from '../src/view/palette.js';
+import { DEFAULT_PALETTE, beadColorOf, beadDimInksFor, beadInksFor } from '../src/view/palette.js';
 import { levelThumbFullCells } from '../src/view/menu-signage.js';
 import { UI_FONT } from '../src/view/ui-theme.js';
 import type { BeadsLevelRaw } from '../src/config/levels-data.js';
@@ -25,7 +25,7 @@ import type { BeadsLevelRaw } from '../src/config/levels-data.js';
 const BOSS = LEVELS[8]!;
 const CELL_IDX = levelThumbFullCells(BOSS)[2]!;
 const COLOR_TILE = beadColorOf(beadInksFor(BOSS), CELL_IDX);
-const GRAY_TILE = beadColorOf(beadFadedInksFor(BOSS), CELL_IDX);
+const GRAY_TILE = beadColorOf(beadDimInksFor(BOSS), CELL_IDX);
 
 const rectFills = (cmds: readonly { kind: string }[]): (string | undefined)[] =>
     cmds.filter((c) => c.kind === 'rect').map((c) => (c as { fill?: string }).fill);

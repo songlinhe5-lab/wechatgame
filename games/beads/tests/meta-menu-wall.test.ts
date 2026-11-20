@@ -60,7 +60,7 @@ import { levelDetailPlate } from '../src/view/meta-layout.js';
 import { rankPanelLayout } from '../src/systems/rank-panel.js';
 import { drawBeadFace, levelThumbCells, SIGN_INK_COLOR_IDX } from '../src/view/menu-signage.js';
 import { drawFilledBead, type FilledBeadOptions } from '../src/view/bead-render.js';
-import { DEBUG_OUTLINE_TILE_HEX, DEFAULT_PALETTE, DEMO_BEAD_INKS, beadFadedInksFor, beadGrayInksFor, beadInksFor } from '../src/view/palette.js';
+import { DEBUG_OUTLINE_TILE_HEX, DEFAULT_PALETTE, DEMO_BEAD_INKS, beadDimInksFor, beadFadedInksFor, beadGrayInksFor, beadInksFor } from '../src/view/palette.js';
 import {
     BEAD_GAP,
     DESIGN_H,
@@ -743,6 +743,8 @@ function beadChannelColors(): Set<string> {
         // `[WXG-T-1006]` 主菜单固定样式展示腿落**基色**（`beadColorOf`）⇒ 灰度基色同属
         // 「珠体通道可发射色」（同源墨集基色，⛔ 不是第二份色源；棱面 mix 仍由下面的 push 覆盖）。
         for (const hex of gray.hexes) set.add(hex);
+        // 未达进度压灰色集（`beadDimInksFor` = 本珠基色 → 本珠灰档 mix）同属派生通道。
+        for (const hex of beadDimInksFor(lv).hexes) set.add(hex);
         for (let i = 1; i <= gray.hexes.length; i++) push(gray, i);
     }
     for (let i = 1; i <= DEMO_BEAD_INKS.hexes.length; i++) push(DEMO_BEAD_INKS, i);

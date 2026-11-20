@@ -10,7 +10,7 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { RenderModelBuilder, type DrawCommand } from '@wxgame/framework';
 import { buildMetaView, type MetaViewData } from '../src/view/meta-view.js';
-import { DEFAULT_PALETTE, beadFadedInksFor, beadInksFor } from '../src/view/palette.js';
+import { DEFAULT_PALETTE, beadDimInksFor, beadInksFor } from '../src/view/palette.js';
 import { levelThumbFullCells } from '../src/view/menu-signage.js';
 import { setMenuBitmapResolver } from '../src/view/meta-widgets.js';
 import { LEVELS } from '../src/config/levels.js';
@@ -20,7 +20,7 @@ import { DESIGN_H, DESIGN_W, MENU_LOCKED_ICON, MENU_TEXTURES, MENU_V2 } from '..
 const BOSS = LEVELS[8]!;
 /** 固定样式展示腿 = 色板**基色**填充（全彩 / 置灰各一枚色集，⛔ 手抄 hex）。 */
 const COLOR_HEXES = new Set(beadInksFor(BOSS).hexes);
-const GRAY_HEXES = new Set(beadFadedInksFor(BOSS).hexes);
+const GRAY_HEXES = new Set(beadDimInksFor(BOSS).hexes);
 const countIn = (rects: readonly Rect[], hexes: ReadonlySet<string>): number =>
     rects.filter((r) => hexes.has(r.fill ?? '')).length;
 /** 展品框（y-up）：`MENU_V2.art` 是 top-based。 */
@@ -139,6 +139,27 @@ describe('WXG-T-522 橱窗单一作品', () => {
         const rects = beadRects(cmds);
         expect(countIn(rects, GRAY_HEXES), '进度 0 = 整幅灰').toBe(levelThumbFullCells(BOSS).length / 3);
         expect(countIn(rects, COLOR_HEXES), '进度 0 不露全彩').toBe(0);
+    });
+
+    // 用户 2026-11-20 二改追问：「每个珠面都有自己的基础颜色」⇒ 未达进度**压灰不漂白**。
+    it('`[WXG-T-1006]` 压灰色集逐珠保留自有色相（⛔ 不统一浅灰）', () => {
+        const base = beadInksFor(BOSS).hexes;
+        const dim = beadDimInksFor(BOSS).hexes;
+        const chroma = (hex: string): number => {
+            const n = parseInt(hex.slice(1), 16);
+            const r = (n >> 16) & 0xff;
+            const g = (n >> 8) & 0xff;
+            const b = n & 0xff;
+            return Math.max(r, g, b) - Math.min(r, g, b);
+        };
+        // 有彩色（基色 chroma > 20）压灰后至少保留 30% 色相（⛔ 漂白成同一近白灰）；
+        // 近中性基色（如炭黑）不参与色相比率断言。
+        for (let i = 0; i < base.length; i += 1) {
+            const c0 = chroma(base[i]!);
+            if (c0 <= 20) continue;
+            expect(chroma(dim[i]!) / c0, `第 ${i + 1} 色压灰后仍须保留自有色相`).toBeGreaterThan(0.3);
+        }
+        expect(new Set(dim).size, '压灰色集不得退化成单色').toBeGreaterThan(1);
     });
 
     it('`[WXG-T-1006]` 进度 0.5：自下而上恰好一半行全彩，其余置灰', () => {

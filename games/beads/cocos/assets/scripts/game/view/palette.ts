@@ -152,6 +152,34 @@ export function beadFadedInksFor(level: BeadsLevelRaw): BeadInks {
   return inks;
 }
 
+/**
+ * `[2026-11-20 · WXG-T-1006]` 主菜单「未达进度」墨集：**保留每颗珠自己的基础色相**，
+ * 向本珠中灰档（{@link toGrayHex} 缺省 64..176）混合 {@link DIM_GRAY_MIX} ⇒ 未点亮区
+ * 仍能读出各珠基色，只是整体压灰；⛔ 不统一漂白（`beadFadedInksFor` 的 156..220 档会把
+ * 粉蜡色板压成同一种近白灰，用户 2026-11-20：「每个珠面都有自己的基础颜色」）。
+ * WeakMap 缓存，热路径零 mix。
+ */
+const dimInksCache = new WeakMap<object, BeadInks>();
+const DIM_GRAY_MIX = 0.62;
+
+export function beadDimInksFor(level: BeadsLevelRaw): BeadInks {
+  const hit = dimInksCache.get(level);
+  if (hit) return hit;
+  const base = beadInksFor(level);
+  const hexes = Object.freeze(base.hexes.map((h) => mixTowardHex(h, toGrayHex(h), DIM_GRAY_MIX)));
+  const inks: BeadInks = { hexes, endpoints: bakeEndpoints(hexes) };
+  dimInksCache.set(level, inks);
+  return inks;
+}
+
+/** 两色线性混合（`t` = 0 → `a`，1 → `b`）；派生墨集专用，热路径不调用。 */
+function mixTowardHex(a: string, b: string, t: number): string {
+  const ca = parseHex(a);
+  const cb = parseHex(b);
+  const blend = (x: number, y: number): number => Math.round(x + (y - x) * t);
+  return toHex(blend(ca.r, cb.r), blend(ca.g, cb.g), blend(ca.b, cb.b));
+}
+
 /** 单色置灰：亮度（0..1）→ 灰带 lo..lo+span（缺省中灰 64..176；⛔ 不直取原亮度：粉蜡色亮度高 ⇒ 灰到不可辨）。 */
 function toGrayHex(hex: string, lo = 64, span = 112): string {
   const l = relativeLuminance(hex);

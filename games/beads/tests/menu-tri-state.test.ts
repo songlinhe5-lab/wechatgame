@@ -13,7 +13,7 @@
 import { describe, expect, it, afterEach } from 'vitest';
 import { RenderModelBuilder, type DrawCommand } from '@wxgame/framework';
 import { buildMetaView, setMenuBitmapResolver, type MetaViewData } from '../src/view/meta-view.js';
-import { DEFAULT_PALETTE, beadFadedInksFor, beadInksFor } from '../src/view/palette.js';
+import { DEFAULT_PALETTE, beadDimInksFor, beadInksFor } from '../src/view/palette.js';
 import { levelThumbFullCells } from '../src/view/menu-signage.js';
 import { LEVELS } from '../src/config/levels.js';
 import { DESIGN_H, DESIGN_W, MENU_TEXTURES } from '../src/config/tuning.js';
@@ -24,7 +24,7 @@ const BOSS_B = LEVELS[10]!;
 
 /** 基色填充判据（全彩 / 置灰各一枚色集，⛔ 手抄 hex；两关色板可能不完全重合 ⇒ 取并集）。 */
 const COLOR_HEXES = new Set([...beadInksFor(BOSS_A).hexes, ...beadInksFor(BOSS_B).hexes]);
-const GRAY_HEXES = new Set([...beadFadedInksFor(BOSS_A).hexes, ...beadFadedInksFor(BOSS_B).hexes]);
+const GRAY_HEXES = new Set([...beadDimInksFor(BOSS_A).hexes, ...beadDimInksFor(BOSS_B).hexes]);
 
 const cellsOf = (lv: typeof BOSS_A): number => levelThumbFullCells(lv).length / 3;
 /** 按进度自下而上的彩色格数（格心 ≤ 底缘 + 总高 × progress）。 */
