@@ -321,11 +321,8 @@ function drawShowcaseArt(
     } else {
         drawDashedSocket(builder, { x, y: b.y, w: b.w, h: b.h }, palette.slotDashed);
     }
-    // `[WXG-T-953]` M2 底缘接触影：必须在 clip 内、随 `dx` 平移（影是展品的投影）；
-    // 只服务「实物展品」—— 锁形是符号不是实物（`[WXG-T-917]`）、置灰花 / 空槽没有展品。
-    if (hasShowcaseItem(level, state, comingSoon)) {
-        drawContactShadow(builder, palette, x + b.w / 2, b.y, avail, alpha);
-    }
+    // `[WXG-T-1006 四改 · 2026-11-20]` M2 底缘接触影已退场（用户：「滑动时托盘上有个暗色纹理条」）：
+    // 原三条半透明暗带随 `dx` 平移，滑动中扫过圆台读作异物 ⇒ 整件删除，橱窗不再画任何落地影。
     // `[WXG-T-579]` 满星态珠圈框（同口径，边长随作品框宽缩放 ⇒ 两条腿不各钉一个像素）。
     if (state === 'fullstar') drawFullStarRing(builder, x + b.w / 2, b.y + b.h / 2, b.w, ink);
 }
@@ -333,33 +330,6 @@ function drawShowcaseArt(
 /** `[WXG-T-953]` 该页是否有可装裱的「实物展品」（锁 / 置灰 / 空槽 = 无）。 */
 function hasShowcaseItem(level: BeadsLevelRaw | undefined, state: MetaBossState, comingSoon: boolean): boolean {
     return level !== undefined && !comingSoon && state !== 'locked';
-}
-
-/**
- * `[WXG-T-953]` M2 底缘接触影（clip 内，随页平移）：三条同顶圆角带近似椭圆软影。
- * `size` = 实际绘制宽（= `avail`；两条腿差 ≤4px，见 `MENU_MOUNT` 注释）⇒ ⛔ 写死名义框宽。
- * `alpha` = 页面淡变系数（滑动途中与展品同步淡出）。
- */
-function drawContactShadow(
-    builder: RenderModelBuilder,
-    palette: BeadsPalette,
-    cx: number,
-    bottom: number,
-    size: number,
-    alpha: number,
-): void {
-    const c = MENU_MOUNT.contact;
-    const w = size * c.widthRatio;
-    const x = cx - w / 2;
-    const top = bottom + c.up;
-    for (let i = 0; i < c.bands.length; i += 1) {
-        const band = c.bands[i]!;
-        builder.rect(x, top - band.h, w, band.h, {
-            fill: palette.shadowInk,
-            alpha: band.alpha * alpha,
-            radius: c.radius,
-        });
-    }
 }
 
 /**

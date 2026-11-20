@@ -396,7 +396,9 @@ export const MENU_ARC_ART_SRC = 256;
 // 大关纹理仍保留给过关结算陈列条等其它消费面）。
 
 /**
- * `[WXG-T-953]` **橱窗装裱层**（M1 背衬暗角 / M2 底缘接触影 / M3 压边内框 / M4 上缘受光线）。
+ * `[WXG-T-953]` **橱窗装裱层**（M1 背衬暗角 / M3 压边内框 / M4 上缘受光线）。
+ * `[WXG-T-1006 四改 · 2026-11-20]` M2 底缘接触影退场（用户：「滑动时托盘上有个暗色纹理条」）：
+ * 三条半透明暗带随页平移会扫过圆台 ⇒ 整件删除，`contact` 常量同步移除（留档值见规格 §3.2）。
  * 正本：`design/art/specs/menu-showcase-mount-spec.md`。
  * 沿用「展品本体 = 豆面」口径：本组只补「陈列感」，⛔ 不改图案画法、不新增位图。
  * 全部为**派生版面值**（⛔ 不进 §3 冻结）；真机目检后只回填 α / 圆角，⛔ 动边宽顺序。
@@ -418,20 +420,6 @@ export const MENU_MOUNT = {
       { w: 2, alpha: 0.05 },
     ],
     radius: 8,
-  },
-  /**
-   * M2 底缘接触影：宽 = 实际绘制宽（= `avail`）× 0.92（⛔ 写死 325 / 450）；
-   * 三档同顶（上压珠面 `up`）叠高，外圈 14 = 上压 2 + 下落 12，贴地峰值 25%。
-   */
-  contact: {
-    widthRatio: 0.92,
-    up: 2,
-    bands: [
-      { h: 6, alpha: 0.14 },
-      { h: 10, alpha: 0.08 },
-      { h: 14, alpha: 0.03 },
-    ],
-    radius: 6,
   },
   /** M3 压边内框：展品包围盒外扩 `outset`；外线 1px `panelBorder`、内线 1px `panel`。 */
   press: { outset: 8, outerRadius: 6, innerInset: 1, innerRadius: 5 },
