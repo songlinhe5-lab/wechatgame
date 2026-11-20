@@ -5,7 +5,7 @@ import { MENU_CAROUSEL, MENU_V2 } from './tuning';
 
 /**
  * `[WXG-T-602]` 槽宽 = **v2 玻璃裁切宽**（视图 `g.clipBox.w` 同源）。⛔ 旧用 v1 白卡
- * `MENU_CLIP.w=361`，与视图相邻页间距 450 差 89px ⇒ 翻页阈值、拖动到头、吸附终点全错。
+ * `MENU_CLIP.w=361`，与视图相邻页间距 465 差 104px ⇒ 翻页阈值、拖动到头、吸附终点全错。
  */
 const SLOT_W = MENU_V2.clip.w;
 
