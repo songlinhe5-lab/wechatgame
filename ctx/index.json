@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4260,
       "lines": 141,
-      "sha256": "650d7be9203209711c88a18db224d2a23525f28841424a09811bd337f49cb14c",
+      "sha256": "20a4af661f99788081ff44ddd6b08fa21e1e045316e53e1e86842432ec1affe5",
       "tier": "normal",
       "sections": [
         {
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5208,
       "lines": 159,
-      "sha256": "cf4e2ea8dab1df09a91996bf47ad1f26e9dcef1783f8bb2e4f70f6301f390b38",
+      "sha256": "c0f68562b0cebeafa2113350e7eb6ad4d7bb2f9b7ede4a9c60776adca22d2f5e",
       "tier": "normal",
       "sections": [
         {
@@ -761,7 +761,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 314 行 / 94268 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 314 行 / 94282 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
@@ -14587,9 +14587,9 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 50582,
+      "tokens": 50642,
       "lines": 383,
-      "sha256": "8a38101d668c48c0638b417081479ba5e9c2ea5495647de1a78ddc7af5013b7d",
+      "sha256": "e82ddf027c29c6f1c0a50115ec9e2eefb54426e3926301d30b0dbb8783d3b688",
       "tier": "normal",
       "sections": [
         {
@@ -14597,7 +14597,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 384,
-          "tokens": 50563,
+          "tokens": 50623,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -14768,7 +14768,7 @@
           "level": 2,
           "startLine": 138,
           "endLine": 380,
-          "tokens": 45510,
+          "tokens": 45570,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -93387,7 +93387,7 @@
       "path": "production/TASKS-DETAIL.md",
       "tokens": 347154,
       "lines": 11082,
-      "sha256": "3e66bf6a5e45d3d33eabd2eaa4fda90a0109206901e0091b96cac57bb6ba1d48",
+      "sha256": "a5cb29ba28414e09ea431dd602210c3745e7c0b110463658701f5a8dda45fc08",
       "tier": "normal",
       "sections": [
         {
@@ -109113,9 +109113,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 94268,
+      "tokens": 94282,
       "lines": 314,
-      "sha256": "cc614a43b31f4eb61f5a5797fe079e4636ca6f9012ea14c553ae63a040afac85",
+      "sha256": "aab2684d9555665676229f6de8dff63b26e3fa95c082f26582366bda76b5e2f7",
       "tier": "hot",
       "sections": [
         {
@@ -109123,7 +109123,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 315,
-          "tokens": 94259,
+          "tokens": 94273,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
