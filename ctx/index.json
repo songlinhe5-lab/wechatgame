@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4221,
       "lines": 140,
-      "sha256": "330126a0c360401ed467372cbd6888a4c54e2579af39236d32872a84f8e0279d",
+      "sha256": "c5a3757a76c84b851004906ca97afe2f13216f2a88e2727ec9d783084544af21",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 410,
-          "summary": "1 production/TASKS-DETAIL.md 333025 10913 normal",
+          "summary": "1 production/TASKS-DETAIL.md 333785 10929 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -675,9 +675,9 @@
     },
     {
       "path": "ctx/hot-files.md",
-      "tokens": 5198,
+      "tokens": 5199,
       "lines": 159,
-      "sha256": "c902b202c2ec1f85aee83ab2330538e9a0c6eb8b425a7557d0068a61c0f02867",
+      "sha256": "74a293cffbe51550cf63d8ec3b751902e53f9d9524cb93fd560e99ce55d9fe74",
       "tier": "normal",
       "sections": [
         {
@@ -685,7 +685,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 160,
-          "tokens": 5170,
+          "tokens": 5171,
           "summary": "协议第二跳：ctx/ROUTES.md 给「意图 → 文件#锚点」，本表把锚点换算成可直接用的 offset / lim",
           "keywords": [
             "pnpm run ctx:build",
@@ -761,12 +761,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 306 行 / 88953 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 307 行 / 89341 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+307 · §待排（backlog，无号，立项时领取…=277+31",
+          "summary": "§WXG 任务台账（SSOT）=1+308 · §待排（backlog，无号，立项时领取…=278+31",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1080,12 +1080,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 10913 行 / 333025 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 10929 行 / 333785 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
-          "tokens": 120,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+10914 · §WXG-T-990=18+17 · §WXG-T-98",
+          "tokens": 121,
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+10930 · §WXG-T-990=18+17 · §WXG-T-98",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -92936,17 +92936,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 333025,
-      "lines": 10913,
-      "sha256": "9c4ecdf1f8f24e72da81ab6b362ae7cdceae4869aaa8576f4bffaaacd42ee66a",
+      "tokens": 333785,
+      "lines": 10929,
+      "sha256": "ad22defd5036536d001c67e43fa21d2c0b552509c673aecf75fc95e5755a7b4a",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 10914,
-          "tokens": 333008,
+          "endLine": 10930,
+          "tokens": 333768,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -108484,12 +108484,28 @@
           "anchor": "§WXG-T-997",
           "level": 2,
           "startLine": 10899,
-          "endLine": 10914,
-          "tokens": 1413,
+          "endLine": 10916,
+          "tokens": 1414,
           "summary": "工程·难度评估体系方案 C 落码与测试重锚 · 负责：主理人(CodeBuddy)·beads 工程轨 · 状态：✅ 完",
           "keywords": [
             "WXG",
             "CodeBuddy",
+            "beads"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-998",
+          "level": 2,
+          "startLine": 10917,
+          "endLine": 10930,
+          "tokens": 756,
+          "summary": "工程·EP15 真机验收通道预演（BLOCKED） · 负责：严守真(quality-lead)·beads 工程轨 ·",
+          "keywords": [
+            "WXG",
+            "EP15",
+            "BLOCKED",
+            "quality",
+            "lead",
             "beads"
           ]
         }
@@ -108497,17 +108513,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 88953,
-      "lines": 306,
-      "sha256": "d2def42ef064895ac7e21613de634b5eb2adae5853c85993a30c24e15800ee0b",
+      "tokens": 89341,
+      "lines": 307,
+      "sha256": "a0e8e02f720a2295ae9bc16927c9ddb6d76443e48461cdcb47a036250d18e2ec",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 307,
-          "tokens": 88944,
+          "endLine": 308,
+          "tokens": 89332,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -108520,8 +108536,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 277,
-          "endLine": 307,
+          "startLine": 278,
+          "endLine": 308,
           "tokens": 1571,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -113021,17 +113037,17 @@
     },
     {
       "path": "production/qa/beads/bot-replay-traceability.md",
-      "tokens": 2885,
-      "lines": 68,
-      "sha256": "2e2b750bb1a82a6733221a608ea10a42536570a0491840cad00a5b568f023a3b",
+      "tokens": 3576,
+      "lines": 100,
+      "sha256": "7cc6910c56d570910422447c829436a3ac9f200e555e7f8b20025061999caf05",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§EP15 · 机器人 / 回放验收追溯（`gdd/bot-replay.md §8-1…§8-14`）",
           "level": 1,
           "startLine": 1,
-          "endLine": 69,
-          "tokens": 2863,
+          "endLine": 101,
+          "tokens": 3554,
           "summary": "判据正文只引用这 14 条（⛔ 新造第 15 条）。级别口径：",
           "keywords": [
             "gdd/bot-replay.md §8-1…§8-14",
@@ -113077,8 +113093,8 @@
           "anchor": "§真机 playtest 清单（状态 **DEFERRED**）",
           "level": 2,
           "startLine": 53,
-          "endLine": 69,
-          "tokens": 653,
+          "endLine": 101,
+          "tokens": 1344,
           "summary": "阻塞：本仓无真机 / 无正式 AppID 与上传密钥 ⇒ 无法在微信开发者工具真机预览或提审包上实测。",
           "keywords": [
             "playtest",
@@ -113087,6 +113103,21 @@
             "真机",
             "清单",
             "状态"
+          ]
+        },
+        {
+          "anchor": "§真机验收记录（WXG-T-998，通道预演：**BLOCKED**）",
+          "level": 3,
+          "startLine": 69,
+          "endLine": 101,
+          "tokens": 671,
+          "summary": "通道尝试：微信开发者工具 测试号开发预览（wx8cf9f756e5390749；测试号仅可预览、不可提审/发布）。",
+          "keywords": [
+            "WXG",
+            "BLOCKED",
+            "wx8cf9f756e5390749",
+            "真机验收记录",
+            "通道预演"
           ]
         }
       ]

@@ -10911,3 +10911,19 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **全量 verify 的 5 项 FAIL 归因（⛔ 不伪造绿、不代他轨修）**：`pnpm run verify` = PASS 18 / WARN 0 / SKIP 0 / FAIL 5。① `typecheck` 与 ④ `harness:build` 同源 —— 3 条 TS6133 全在他轨 WIP 的 `src/view/meta-menu.ts` / `meta-widgets.ts`（T-986 台账已记同族）；② `check:size` 主包 5374.9 KB 超 4096 KB 红线 1278.9 KB，属存量资产与他轨在制资产，本单新增代码约 8 KB 不构成主因；③ `test` 唯一失败 = `ui-golden.test.ts` 的 ClearResultModal，实际流比夹具多 3 行 160×96「回放」按钮（WXG-T-991 EP15-S4 结算回放入口），夹具未重抓，逐行差分中难度相关词 0；⑤ `selftest:fast` 的 `verify:selftest` 内部复跑 `check:size` 而连带红。五项均与本单落码零关系，本会话不代改他轨 WIP、不重抓金样本（K-051 / K-053）。
 - **提交**：本笔（代码 + 两件 Cocos 镜像 + 门禁注释 + 文档 + 台账）；推送取证以 `git ls-remote` 为准。
 - **知识沉淀**：本单不跑 kb:sync，沉淀统计 新增 0 / 修改 0 / 激活 0 / 归档 0；候选 3 条（离散标签撞纯序门、正本 helper 分层误指、跨会话锚推进不写死号）随回传交主理人汇编。
+
+---
+
+## WXG-T-998
+
+**工程·EP15 真机验收通道预演（BLOCKED）** · 负责：严守真(quality-lead)·beads 工程轨 · 状态：⛔ BLOCKED（2026-11-20 · 用户令「1」＝真机验收）
+
+- **目标（用户令「1」原话）**：「回放页动效/文案的真机验收：拿到设备后按 P1–P8 回填 250ms seek 阈值与 200/150ms 转场体感，并核对『定位中…』可见性」。
+- **已完成（通道预演）**：按用户授权退出旧 Cocos Creator 实例（PID 44240/52839）与中断残留实例（86379，`kill -9`）；根目录 `pnpm run framework:sync` 通过；`cd games/beads && pnpm run build:cocos -- --no-separate-engine` 后台构建成功（80.6s，release，v1.0.59，引擎内联）；产物 `project.config.json` appid 置测试号 `wx8cf9f756e5390749`；微信开发者工具 CLI 已登录（`islogin` → `{"login":true}`）。
+- **阻塞 ①（默认 release · 引擎分离）**：`cli preview --project games/beads/cocos/build/wechatgame` ⇒ `get plugin(id: wx0446ba2621dda60a, version: 3.8.8) failed, permission deny`。测试号无插件管理权限，⛔ 无法挂 Cocos 引擎插件。
+- **阻塞 ②（引擎内联包）**：`--no-separate-engine` 预览 ⇒ `源码包超出最大限制,source size 5334KB exceed max limit 4MB`。`pnpm run check:size games/beads/cocos/build/wechatgame` = 主包 **5374.9 KB**（223 文件；gzip 参考 3558.9 KB），超平台红线 4096 KB **+1278.9 KB**，STATUS: FAIL（存量资产 + 他轨在制资产，非本系统新增代码所致）。
+- **结论**：当前环境**无可用真机预览路径**，二维码未产出，P1–P8（首帧 / seek 250ms / 倍速暂停 / 结束条 / 结算钮 / 托管轻提示 / 内存 / 冷启）**未执行**，全部保持「未执行」，⛔ 未记 PASS。
+- **解除条件（三选一）**：① 提供**正式 AppID**（已开通 Cocos 引擎插件）→ 默认 release 重建 + `cli preview` 出二维码；② 先做**分包 / 远程包**把主包压到 4096 KB 以内（工程改造，另立单）；③ 降级 **web-mobile + 浏览器自证**（非真机，体感 / 内存项不可判，⛔ 不记 PASS）。
+- **留痕**：`production/qa/beads/bot-replay-traceability.md` 新增「真机验收记录（WXG-T-998，通道预演：BLOCKED）」含双路径错误原文、构建档、解除条件；真机 playtest 状态恒 **DEFERRED**。
+- **提交**：本笔（追溯表 + 台账）；推送取证以 `git ls-remote` 为准。
+- **知识沉淀**：kb:sync 沉淀统计 新增 0 / 修改 0 / 激活 0 / 归档 0。

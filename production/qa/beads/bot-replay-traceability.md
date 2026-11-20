@@ -66,3 +66,35 @@
 | P7 | 全程监控内存 | 演示预计算峰值、回放页稳态、退出后回落 | 演示峰值 ≤ 平台档预算（见包体内存基线）；退出回放后内存回落到进入前 ±5% 内 |
 | P8 | 冷启动 | 上次回放 / 演示痕迹 | 冷启后无回放页残留、无「上一局」录像、菜单可正常开局 |
 
+### 真机验收记录（WXG-T-998，通道预演：**BLOCKED**）
+
+> 通道尝试：微信开发者工具 **测试号开发预览**（`wx8cf9f756e5390749`；测试号仅可预览、不可提审/发布）。
+> 构建：`pnpm run build:cocos -- --no-separate-engine`（release，`--no-separate-engine` 引擎内联）→ `games/beads/cocos/build/wechatgame` → `cli preview --qr-output`。
+> ⛔ 本表未全部回填前，playtest 状态恒 **DEFERRED**，不得写 PASS。
+
+**通道预演结果（2026-11-20）**：两条路径均被环境阻塞 ⇒ **未产出二维码，P1–P8 未执行**。
+
+| 路径 | 命令 | 结果 |
+|---|---|---|
+| A. 默认 release（引擎分离） | `cli preview --project games/beads/cocos/build/wechatgame` | **FAIL**：`get plugin(id: wx0446ba2621dda60a, version: 3.8.8) failed, permission deny` —— 测试号无 Cocos 引擎插件管理权限 |
+| B. 引擎内联（`--no-separate-engine`） | 同上 | **FAIL**：`源码包超出最大限制,source size 5334KB exceed max limit 4MB` —— `check:size` 主包 **5374.9 KB**（223 文件，gzip 参考 3558.9 KB），超平台红线 4096 KB **+1278.9 KB** |
+
+- 构建档：release `--no-separate-engine`，v1.0.59（80.6s 成功）；devtools CLI 已登录（`islogin` → `{"login":true}`）。
+- 设备 / 系统 / 微信版本：`未执行` · 构建 commit：`构建产物 gitignored，源码基线 = 本表同批提交` · 执行人 / 日期：`未执行 / 2026-11-20`
+- 预览二维码：**未产出**（上表两条阻塞）
+- **解除条件（三选一）**：
+  1. 提供**正式 AppID**（已开通 Cocos 引擎插件）→ 默认 release（引擎分离）重建 + `cli preview`；
+  2. 先做**分包 / 远程包**把主包压到 4096 KB 以内（工程改造，需另立单）；
+  3. 降级为 **web-mobile + 浏览器自证**（⛔ 非真机，P1–P8 中体感 / 内存项不可判，**不得记 PASS**）。
+
+| # | 实测读数（体感 / 毫秒 / 内存） | 判定（PASS / CONCERNS / FAIL / 未执行） | 备注 |
+|---|---|---|---|
+| P1 | | | 首帧时延 / 450ms 节奏 |
+| P2 | | | 50% / 90% / 末端 seek 停顿 |
+| P3 | | | 倍速切换与暂停冻结 |
+| P4 | | | 结束条双钮 |
+| P5 | | | 结算回放钮两态 |
+| P6 | | | 托管徽标 / 接管 / 停机轻提示 |
+| P7 | | | 演示峰值 / 回放稳态 / 退出回落 |
+| P8 | | | 冷启无残留 |
+
