@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4221,
       "lines": 140,
-      "sha256": "0cbbc0891a54b396eeed407011e5d68f9b31116dd5d53ec37bd30b62f6b1f819",
+      "sha256": "bd2d105d047b26a3ae1448bed9aa34eefe7e711380c9d6286fa3342bf577d209",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 410,
-          "summary": "1 production/TASKS-DETAIL.md 337262 10969 normal",
+          "summary": "1 production/TASKS-DETAIL.md 337287 10969 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5201,
       "lines": 159,
-      "sha256": "ca1073d53083ceecc4d37c635295565b60a927fd14dc4fa22a92ef353010d040",
+      "sha256": "21d69d5591b6dba28aaac8dbe87e9de5dba929d415d187d41cea27e8e69c3b0a",
       "tier": "normal",
       "sections": [
         {
@@ -1080,7 +1080,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 10969 行 / 337262 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 10969 行 / 337287 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
@@ -93155,9 +93155,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 337262,
+      "tokens": 337287,
       "lines": 10969,
-      "sha256": "b819ab5148ead7002159837a77771c0b22d500be9ad38cd6772eaf3047bcbe66",
+      "sha256": "e8b5636589855d4b17d2f7dfa9935001d0f7996ab83bb93b8f4b25b47a5b489a",
       "tier": "normal",
       "sections": [
         {
@@ -93165,7 +93165,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 10970,
-          "tokens": 337245,
+          "tokens": 337270,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -108761,7 +108761,7 @@
           "level": 2,
           "startLine": 10959,
           "endLine": 10970,
-          "tokens": 1509,
+          "tokens": 1534,
           "summary": "工程·D 轨 settings/meta UI 收敛（层序修复+滚动条删） · 负责：Qoder 收尾·并发会话原 WI",
           "keywords": [
             "WXG",
