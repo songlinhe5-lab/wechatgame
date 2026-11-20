@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4260,
       "lines": 141,
-      "sha256": "16dc0364ee6a3ff6ae0d531e28a5ba075ca28b077b7e3e97ff05f131633df051",
+      "sha256": "a9b3e37815013501941a6f6d9435e6cbc3e7d4aa7a78a111bee1b1fd1a0d5c28",
       "tier": "normal",
       "sections": [
         {
@@ -32893,9 +32893,9 @@
     },
     {
       "path": "games/beads/design/art/specs/tint-mask-asset-spec.md",
-      "tokens": 10247,
+      "tokens": 10268,
       "lines": 383,
-      "sha256": "04e0c88e0704eeea52ffafd78b7272aa68e7b8346e7169c9a3bf857c02cf2fe4",
+      "sha256": "9d81225b79fb23b2e4b87a9e01e09fc4e4d17e1e6e7e86a70ba3525a7962f46a",
       "tier": "normal",
       "sections": [
         {
@@ -32903,7 +32903,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 384,
-          "tokens": 10228,
+          "tokens": 10249,
           "summary": "任务号：WXG-T-227（P1）· 执笔：林绘澄（art-director）· 日期：2026-09-29",
           "keywords": [
             "assets-spec",
@@ -33141,7 +33141,7 @@
           "level": 2,
           "startLine": 207,
           "endLine": 249,
-          "tokens": 695,
+          "tokens": 717,
           "summary": "",
           "keywords": [
             "双档位与豆径",
@@ -33154,7 +33154,7 @@
           "level": 3,
           "startLine": 209,
           "endLine": 229,
-          "tokens": 354,
+          "tokens": 375,
           "summary": "",
           "keywords": [
             "驱动链",
@@ -33394,9 +33394,9 @@
     },
     {
       "path": "games/beads/design/art/specs/tray-neutral-slot-mask-spec.md",
-      "tokens": 7134,
+      "tokens": 7158,
       "lines": 332,
-      "sha256": "93a362c9901108a93471f4fab0d9e0c1f7fc8f859aee889b14a8403567c26d58",
+      "sha256": "5dd18450b6f8aac06ec8fa632f4aac94d8f5370b362fd92375333a2ca73c20f7",
       "tier": "normal",
       "sections": [
         {
@@ -33404,7 +33404,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 333,
-          "tokens": 7116,
+          "tokens": 7141,
           "summary": "正本 = 本文件（WXG-T-237，v10.0 · 已落码，2026-10-06；§6 = v4.0 1:1 落码，§",
           "keywords": [
             "§6",
@@ -33600,7 +33600,7 @@
           "level": 2,
           "startLine": 143,
           "endLine": 158,
-          "tokens": 355,
+          "tokens": 379,
           "summary": "0. 真源迁移（v3.0 新增）：trayLayout() 的 pitch / 格面改由 BEAD_PITCH / BE",
           "keywords": [
             "§3",
@@ -40826,9 +40826,9 @@
     },
     {
       "path": "games/beads/design/proposals/bead-visual-style-spec.md",
-      "tokens": 43650,
+      "tokens": 43689,
       "lines": 1206,
-      "sha256": "6a1ec4f710c692d6eb55c64bec2638b1585bd548355972efe84bcde60c7061d4",
+      "sha256": "9f590a15b90dfbe1c7617d72328cfac9b077e2aabdf7f0de9eef049cfea39380",
       "tier": "normal",
       "sections": [
         {
@@ -40836,7 +40836,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 1207,
-          "tokens": 43632,
+          "tokens": 43671,
           "summary": "状态 = 已确认・待落码（用户 2026-09-23：Q1–Q7 全按推荐、Q8 = (c)）。决议表见 §9，17 套",
           "keywords": [
             "§9",
@@ -41213,7 +41213,7 @@
           "level": 2,
           "startLine": 584,
           "endLine": 765,
-          "tokens": 10473,
+          "tokens": 10512,
           "summary": "状态 = 已确认・待落码。用户 2026-09-25 在三案（A 全程序化 / B 混合位图 / C 全位图）中拍板 A",
           "keywords": [
             "WXG",
@@ -41226,7 +41226,7 @@
           "level": 3,
           "startLine": 591,
           "endLine": 605,
-          "tokens": 1694,
+          "tokens": 1703,
           "summary": "S1 渲染路线 ✅ 方案 A 全程序化（矢量图元 rect+polygon+circle）。位图皮肤（B/C 案）整体否",
           "keywords": [
             "rect",
@@ -41274,7 +41274,7 @@
           "level": 3,
           "startLine": 632,
           "endLine": 638,
-          "tokens": 164,
+          "tokens": 193,
           "summary": "位图/纹理皮肤、AI 生图资产化（S1 否决，重提须 ADR；⚠ v0.5 §13 口径澄清：否决对象 = 纹理作设计源",
           "keywords": [
             "§13",

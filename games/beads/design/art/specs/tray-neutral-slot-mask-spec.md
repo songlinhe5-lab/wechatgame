@@ -144,8 +144,8 @@
 
 0. **真源迁移（v3.0 新增）**：`trayLayout()` 的 `pitch` / 格面改由 `BEAD_PITCH` / `BEAD_CELL` × `s` 派生；
    `TRAY_SLOT` / `TRAY_BEAD_SIZE` 退居派生量并在 `systems-index §3` 标注（⛔ 工程不代改冻结常量表）。
-1. **托盘两个调用点补参**：槽与珠各补 `{ maskGauge: 'holed', styleId: snap.beadStyle }`
-   （⛔ 托盘**无 gauge 轴**、满幅恒有孔 ⇒ 恒 `'holed'`；`styleId` 让托盘珠随风格，与现状一致）。
+1. **托盘两个调用点补参**：槽与珠各补 `{ maskGauge: snap.beadSize === 'small' ? 'holeless' : 'holed', styleId: snap.beadStyle }`
+   （2026-11-17 用户裁：托盘**随豆径档**——小豆档同缩同无孔，推翻旧「恒 `'holed'`」；`styleId` 让托盘珠随风格，与现状一致）。
 2. **⛔ 唯一的结构性改动：放宽 tint 臂的 `colorIdx !== undefined` 门**
    —— 托盘槽不传 `colorIdx`（无 per-cell 目标色）⇒ 须改成「`colorIdx !== undefined || trayZone`」
    并在托盘调用点显式传 `trayZone: true`。
