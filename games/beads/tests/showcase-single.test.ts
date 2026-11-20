@@ -44,7 +44,9 @@ const INK = (() => {
     return { minR, maxR, minC, maxC };
 })();
 const CONTENT_W = (INK.maxC - INK.minC + 1) * PITCH;
-const CONTENT_LEFT = ART.x + (ART.w - CONTENT_W) / 2;
+/** `[八改]` 水平轴 = 玻璃裁切窗中心（150..607 → 378.5），与名义 art 框中心 374.5 差 4px。 */
+const CLIP_CENTER = MENU_V2.clip.x + MENU_V2.clip.w / 2;
+const CONTENT_LEFT = CLIP_CENTER - CONTENT_W / 2;
 /** 整阵底 = 台面 − 底部空行（空行不画珠）⇒ 有墨底边恰好贴台面。 */
 const MATRIX_BOTTOM = ART.y - (BOSS.pattern.length - 1 - INK.maxR) * PITCH;
 
@@ -113,8 +115,8 @@ const expectBeadOnShelf = (cmds: readonly DrawCommand[]): void => {
     // `[WXG-T-1006 五改]` 有墨底边贴台面：最底行块底 = 台面 + 1px 轻缝（⛔ 不再是空行高一珠）。
     expect(minY).toBeCloseTo(ART.y + MENU_SHOWCASE_CELL_SEAM, 6);
     expect(maxY).toBeLessThanOrEqual(MATRIX_BOTTOM + BOSS.pattern.length * PITCH + 1);
-    // 水平中心 = 裁切窗中心 = 展品框中心（374.5，七改后三者同轴）。
-    expect((minX + maxX) / 2).toBeCloseTo(ART.x + ART.w / 2, 0);
+    // 水平中心 = 裁切窗中心（378.5，八改后珠阵与玻璃内腔同轴）。
+    expect((minX + maxX) / 2).toBeCloseTo(CLIP_CENTER, 0);
 };
 
 /** 指定行（自顶 0-based）及以下的有墨格数 ⇒ 按进度着色的期望格数。 */
@@ -130,10 +132,10 @@ afterEach(() => {
 });
 
 describe('WXG-T-522 橱窗单一作品', () => {
-    it('`[七改]` 走马灯裁切窗对齐玻璃内腔（142..607），与珠阵同轴', () => {
-        expect(MENU_V2.clip.x).toBe(142);
+    it('`[八改]` 走马灯裁切窗对齐玻璃内腔（150..607），珠阵以窗中心为轴', () => {
+        expect(MENU_V2.clip.x).toBe(150);
         expect(MENU_V2.clip.x + MENU_V2.clip.w).toBe(607);
-        expect(MENU_V2.clip.x + MENU_V2.clip.w / 2).toBeCloseTo(ART.x + ART.w / 2, 6);
+        expect(CLIP_CENTER).toBeCloseTo(ART.x + ART.w / 2 + 4, 6);
     });
 
     it('最差宿主（窗框/背板全缺）：boss 珠面缩略仍按 `MENU_V2.art` 落位，底缘坐台面', () => {
@@ -221,8 +223,9 @@ describe('WXG-T-522 橱窗单一作品', () => {
         const w = MENU_V2.art.w * MENU_LOCKED_ICON.scale;
         expect(lock.w).toBeCloseTo(w, 6);
         expect(lock.h).toBeCloseTo(w / MENU_LOCKED_ICON.aspect, 6);
-        // 锚点 = `clip` 顶 ↔ 台面 的中点（⛔ 不坐台面；与 `drawShowcaseArt` 的 `avail` 同式）。
-        expect(lock.x + lock.w / 2).toBeCloseTo(MENU_V2.art.x + MENU_V2.art.w / 2, 6);
+        // 锚点 = `clip` 顶 ↔ 台面 的中点（⛔ 不坐台面；与 `drawShowcaseArt` 的 `avail` 同式）；
+        // `[八改]` x 轴 = 玻璃裁切窗中心（150..607 → 378.5），⛔ 名义 art 框中心。
+        expect(lock.x + lock.w / 2).toBeCloseTo(MENU_V2.clip.x + MENU_V2.clip.w / 2, 6);
         expect(lock.y + lock.h / 2).toBeCloseTo(ART.y + AVAIL / 2, 6);
     });
 

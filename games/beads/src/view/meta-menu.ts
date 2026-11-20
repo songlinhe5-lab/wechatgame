@@ -301,36 +301,37 @@ function drawShowcaseArt(
     if (alpha <= 0) return;
     const ink = alpha < 1 ? alpha : undefined;
     const b = g.showcaseArtBox;
-    const x = b.x + dx;
+    /**
+     * `[八改]` 水平轴 = **玻璃裁切窗中心**（clip 150..607 → 378.5），⛔ 名义 art 框中心 374.5：
+     * 背板玻璃内腔本身不居中于名义框，按框中心画会让右侧少半珠、按 142 起裁又会压左木框倒角。
+     */
+    const cx = g.clipBox.x + g.clipBox.w / 2;
     /** `[WXG-T-601]` 玻璃裁切顶 ↔ 圆台面(框底) 的可用高度（y-up，实测 374 设计 px）。 */
     const avail = g.clipBox.y + g.clipBox.h - b.y;
     if (comingSoon) {
-        drawComingSoonMark(builder, palette, b.x + b.w / 2 + dx, b.y + b.h / 2, ink);
+        drawComingSoonMark(builder, palette, cx + dx, b.y + b.h / 2, ink);
         return;
     }
     // `[WXG-T-916]` 未开放大关 = 锁图占位（用户 2026-11-12 裁「参考关卡详情页做未开放标识」）：
     // ⛔ 不再画展品 / 磨砂 / 灰度（三条腿退场，K-053 留档），橱窗只留锁形。
     // `[WXG-T-917]` 锚点 = 玻璃可视区中心（`b.y + avail/2`，⛔ 不坐台面，口径见 `drawLockedBadge`）。
     if (state === 'locked') {
-        drawLockedBadge(builder, palette, x + b.w / 2, b.y + avail / 2, b.w, ink);
+        drawLockedBadge(builder, palette, cx + dx, b.y + avail / 2, b.w, ink);
         return;
     }
     if (level !== undefined) {
         // ⚠ 基色填充 = 多条矢量命令，无单命令 alpha ⇒ `reduceMotion` 交叉淡变按中点硬切
         // （alpha < 0.5 不画），否则两页展品会以全彩叠在同一位置。普通滑动 alpha 恒 1。
         if (alpha < 0.5) return;
-        // `[WXG-T-1006 五改]` 珠阵按**实际绘制区** `avail` 见方落位（⛔ 名义框 `b.w` 325）：
-        // 名义框比玻璃可视区窄 49px，按它画会让两侧各多缩进约 2 珠（规格 §1 实测包围盒）。
-        // `[七改]` 六改的右移半珠已撤销：裁切窗对齐玻璃内腔后，珠阵回到玻璃中心即可等距。
         const size = avail;
-        drawShowcaseFace(builder, level, b.x + (b.w - size) / 2 + dx, b.y, size, avail, progress, palette);
+        drawShowcaseFace(builder, level, cx - size / 2 + dx, b.y, size, avail, progress, palette);
     } else {
-        drawDashedSocket(builder, { x, y: b.y, w: b.w, h: b.h }, palette.slotDashed);
+        drawDashedSocket(builder, { x: cx - b.w / 2 + dx, y: b.y, w: b.w, h: b.h }, palette.slotDashed);
     }
     // `[WXG-T-1006 四改 · 2026-11-20]` M2 底缘接触影已退场（用户：「滑动时托盘上有个暗色纹理条」）：
     // 原三条半透明暗带随 `dx` 平移，滑动中扫过圆台读作异物 ⇒ 整件删除，橱窗不再画任何落地影。
     // `[WXG-T-579]` 满星态珠圈框（同口径，边长随作品框宽缩放 ⇒ 两条腿不各钉一个像素）。
-    if (state === 'fullstar') drawFullStarRing(builder, x + b.w / 2, b.y + b.h / 2, b.w, ink);
+    if (state === 'fullstar') drawFullStarRing(builder, cx + dx, b.y + b.h / 2, b.w, ink);
 }
 
 /** `[WXG-T-953]` 该页是否有可装裱的「实物展品」（锁 / 置灰 / 空槽 = 无）。 */
@@ -352,7 +353,7 @@ function drawShowcaseMount(
     const art = g.showcaseArtBox;
     const clip = g.clipBox;
     const size = clip.y + clip.h - art.y;
-    const x = art.x + art.w / 2 - size / 2;
+    const x = clip.x + clip.w / 2 - size / 2;
     const top = art.y + size;
     if (withArt) {
         const v = MENU_MOUNT.vignette;
