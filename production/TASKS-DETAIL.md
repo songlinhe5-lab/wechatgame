@@ -11050,7 +11050,7 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **F 轨（美术批）**：① 品牌头像 144²：`design/art/final/assets/avatar/beads-avatar-144.png` 现役 + 13 个提案目录（avatar-20261116 族，含 raw/rejected/generation-record，退场链完整）；`production/qa/asset-provenance.md` +56 行生成史登记（qwen-image-3.0-pro t2i/i2i、seed 选型、用户 11-16 逐轮口径）。② powerup 复原 tile×3（window/random/tray，11-17 出图、11-18 编辑器签发 meta）：carrier `POWERUP_TILE_TEXTURES` 三条与 harness 资产表三条**接线已先入库**，本批补资产闭环（缺图腿此前走元素级回退）。③ `levels-20arcs-selection-20261117/A01-P05-clover/` v1–v5 选型批（png + rgba + metrics + response-meta）。④ `palette-rules-review-2026-11-17.md`：选色规则全量 review（21945 对扫描），其发现的 3 处历史 bug 修复已随 `afe81f16`/`018ad6bc` 入库，本批入报告本体。
 - **G 轨（.meta 批）**：20 件真编辑器签发 `.meta`（bot×7 / replay×7 / tuning replay×2 / replay-transport / replay-binding / diagonal-facet / replay-page）——EP15 批（986–996）代码已入库而 meta 由编辑器后补签发，本批原样入库（L1：⛔ 手工伪造，全部真编辑器产物）。
 - **H 轨（发布件）**：① `games/beads/package.json` 版本 1.0.47→1.0.64 = 构建脚本自动打号（合法，非手改）；② **beads 层 sharp 依赖净删**（beads 层零消费者；根 package.json 保留 sharp 供 `tools/scripts/palette-quantize.mjs`），`pnpm install --lockfile-only` 同步锁文件；③ `production/release/beads/mini-program-intro.md`：用户 2026-11-16 裁定「后台简介 = §8.1 版本 A（56 字）」在案，原样入库；④ 根 `palette-quantize-result.json` = palette-quantize.mjs 瞬态输出（写 cwd、可再生、零文档引用）⇒ 入 `.gitignore` 不入库。
-- **⛔ 包体红线 BLOCKED（登记 + 归因，候用户裁定）**：`check:size` beads 主包 **4222.4 KB > 4096 红线（−126.4 KB）**。归因实测：本批 powerup tile×3 在构建内 116.5 KB，**剔除后仍 4107.5 KB 超线 11.5** ⇒ 越线主因在**已入库内容**：972（11-16）绿时 3846.5 KB，其后 996 结算双钮九宫格两图（源 98.5+115.2=213.7 KB）为主增量 + EP15 回放代码增量。本批提交**不改变构建**（资产早已在工作树并参与 1006 的 release v1.0.64 重建）；发布阻塞在册。解除选项（§3.8 口径）：A 九宫格/大纹理压缩（pngquant 类，996 双钮为首选靶）；B 关卡美术走分包 levels / 音频走远程包；C 功能裁剪核对；D 组合。**⛔ 不擅自压缩已入库美术**（涉视觉品质，候裁定）。
+- **⛔ 包体红线 BLOCKED（登记 + 归因，候用户裁定）**：`check:size` beads 主包 **4222.4 KB > 4096 红线（−126.4 KB）**。归因实测：本批 powerup tile×3 在构建内 116.5 KB，**剔除后仍 4107.5 KB 超线 11.5** ⇒ 越线主因在**已入库内容**：972（11-16）绿时 3846.5 KB，其后 996 结算双钮九宫格两图（源 98.5+115.2=213.7 KB）为主增量 + EP15 回放代码增量。本批提交**不改变构建**（资产早已在工作树并参与 1006 的 release v1.0.64 重建）；发布阻塞在册。解除选项（§3.8 口径）：A 九宫格/大纹理压缩（pngquant 类，996 双钮为首选靶）；B 关卡美术走分包 levels / 音频走远程包；C 功能裁剪核对；D 组合。**⛔ 不擅自压缩已入库美术**（涉视觉品质，候裁定）。（**闭账**：用户裁定 A，WXG-T-1012 压缩批解除——主包 3964.7 KB ≤4096 ✅，2026-11-20）
 - **撞号与并发披露（K-046/K-188）**：原拟领 1006，被 boss 橱窗珠面缩略批（070afbe6）占 ⇒ 改判 **1007**。开工期间 1003（60305d8c）/1006（070afbe6）先后入库；1005 披露订正文本曾被 070afbe6 扫入（已在 1005 节记明）。D 轨 3 件 spec（tint-mask / tray-neutral-slot-mask / bead-visual-style）属 1001 口径补写，**不在本批**（另笔署 1001）。
 - **验证**：check:tasks 绿、sync --check 绿、typecheck 干净；check:size 红 = 上文 BLOCKED 登记（非本批引入）。金样候重拍批（1006 后菜单背屏五帧亦变，与 1001 七态 + fail 同批）。
 - **知识沉淀**：本单不跑 kb:sync，沉淀统计 新增 0 / 修改 0 / 激活 0 / 归档 0；候选 1 条交主理人汇编：包体红线归因须「剔除本批增量后复算」——否则会把历史批的越线账错记到当前批头上（本例剔除后仍超 11.5 KB，主因在 996 已入库九宫格）。
@@ -11065,3 +11065,18 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：干净锚全量 beads **131 文件 1575 passed / 2 skipped / 0 failed**（vitest 21.4s）——四批金样欠账一笔清。主树另有并发会话新 WIP 五件（menu.ts/beads-shell/menu-signage/meta-menu/meta-types），本批不捎带、不在主树跑对拍（避免并发污染证据）。
 - **登记**：`ui-architecture-beads §12` 重拍条（1001/1006 条内「仍 BLOCKED」字样由本条解除）；夹具 `capturedFrom` = 2655ab8c。
 - **知识沉淀**：本单不跑 kb:sync，沉淀统计 新增 0 / 修改 0 / 激活 0 / 归档 0；候选 0 条（协议已沉淀 K-167/WXG-T-375，本批为照章执行）。
+
+## WXG-T-1012
+
+**美术·包体红线处置 A——五件运行时纹理调色板量化压缩** · 负责：Qoder·beads 美术/发布轨 · 状态：✅ 完成（2026-11-20 · 用户裁定「A 纹理压缩优先（推荐）」）
+
+- **授权链**：1007 登记包体红线 BLOCKED（主包 4222.4>4096，归因主因=996 已入库九宫格）⇒ AskUserQuestion 四选项，用户选 **A**（纹理压缩优先，不够再分包）。
+- **方案选型**：pngquant 未装 ⇒ ponytail 第 5 阶用根层已装 sharp（beads 层 sharp 已随 1007 净删，根层保留供 palette-quantize.mjs）。参数 `png({palette:true,quality:80,effort:10,dither:1.0})`。
+- **压缩读数**：menu 96.2→21.8 / next 112.5→16.0 / random 59.8→15.4 / tray 20.9→4.8 / window 35.7→8.3 KB；合 **325.2→66.4（省 258.8）**。像素差 maxΔ179（menu）/113（余四），meanΔ5.27–21.37；尺寸不变。
+- **目检**：五张灰底(128) composite 原/压两侧 + 品红分隔条对比图（`temp/t1009-compress/cmp-*.png`，gitignore 可再生）Read 目检全可接受——木纹/网纹轻微软化、渐变无带状、几何高光同构。
+- **落盘面**：只压运行时副本 `cocos/assets/textures/` ×5；**母版不动**（`final/assets/menu/clear/*@2x.png` + `powerup/tiles/*`）；harness /powerup-assets/ 服务母版（dev-only 不入包）。.meta×2（双钮九宫格）trim 几何重算 = CLI 构建编辑器自动重导入产物（cli-build-wechatgame-release.log 12:49 窗口、uuid diff 0 行，L1 合规）；余三 tile .meta 不动。
+- **包体复核**：check:size 首跑 16.3 KB/2 文件 = 并发会话重建清目录瞬态（披露）；复跑 **beads 主包 3964.7 KB / 227 文件 ✅**（余量 131.3），breakout 1928.1 KB ✅。版本 1.0.66 = 构建打号。
+- **取证**（K-167 干净锚）：① 500fd32c + 压缩件 worktree 全量 **131 文件 1575/1577 绿（2 skip、0 红）**——金样命令流不含像素 ⇒ 夹具不变实证；② 4e2b9251（1006 二改）+ 压缩件 **1572/1579，5 红 = 菜单背屏五帧**（main-menu/level-select/level-select-mid/settings/signin），与二改登记候重拍欠账逐字一致，**零新红**。二改五帧重拍属该批欠账，不在本批。
+- **撞号披露**：原拟 1009，复核发现 CodeBuddy BACKLOG 提案预占 1009–1011（ee8ae4a8 入库、锚推至 1011）⇒ K-046 改判 **1012**。
+- **登记**：provenance 压缩节 + §12 压缩条 + 1007 行/节 BLOCKED 闭账注（「已由 WXG-T-1012 解除」）。
+- **知识沉淀**：本单不跑 kb:sync，沉淀统计 新增 0 / 修改 0 / 激活 0 / 归档 0；候选 1 条交主理人汇编：check:size 瞬态假绿——并发会话重建清目录瞬间 walk 只数到残留文件（本例 16.3 KB/2 文件），红线复核须复跑确认文件数量级（beads 正常 ≈227 文件），⛔ 勿以单次读数为准。

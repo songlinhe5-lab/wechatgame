@@ -347,3 +347,15 @@ python3 games/beads/design/ai-workflows/trace-figma-icons.py
 | `final/assets/avatar/beads-avatar-144.png` **144×144** RGB / 36,518 B（md5 `49e2582b3ffaf4deba8d324cd01b3466`） | `qwen-image-3.0-pro` t2i（Token Plan），1024² → **内裁 (36,36,987,987) 去外框** → 951² → 144² LANCZOS；零模型 | 母版 = **seed 7（用户 2026-11-16 从两张预览亲自选定）**；**去外框版**（用户同日令「把周围边框去掉」）：腰形豆轮廓、无中心孔，三色；前景三颗为游戏俯视豆片（四棱刻面 / 18 线稿描边 / 13 双色对角） | `proposals/avatar-bead-kidney-20261116/raw/kidney-s7.png`；同目录 `generation-record.txt` §后处理（裁切/填角参数）；无框留档 `preview-144-kidney-s7-noborder.png`；带框版 `rejected/beads-avatar-144-kidney-s7-bordered.png`（35,332 B）；s42 弃件 `rejected/beads-avatar-144-kidney-s42.png` | Token Plan 台账 +2 次调用（去框为零模型后处理）；用户 2026-11-16 令「我要的是真实豆子的形状，不要圆孔，底下三个豆子需要贴近游戏风格」→ 选定 s7 →「把周围边框去掉」 |
 
 > **2026-11-16 形状与画法更新**：带孔圆豆形版（37,950 B）已退场，移入 `proposals/avatar-bead-bean-20261116/rejected/beads-avatar-144-bean-roundhole.png`；现役为腰形豆三色版（seed 7，35,332 B；s42 已移入同批 rejected/）。
+
+## 运行时纹理调色板量化压缩批（2026-11-20 · WXG-T-1012 · 采用）
+
+| 压缩件（games/beads/cocos/assets/textures/） | 前→后（KB） | 像素差 maxΔ/meanΔ | 母版（不动） | 关联 |
+|---|---|---|---|---|
+| `ui_btn_clear_menu_9s.png` | 96.2→21.8 | 179 / 5.27 | `design/art/final/assets/menu/clear/ui_btn_clear_menu_9s@2x.png` | 996 |
+| `ui_btn_clear_next_9s.png` | 112.5→16.0 | 113 / 9.64 | `design/art/final/assets/menu/clear/ui_btn_clear_next_9s@2x.png` | 996 |
+| `powerup_random_restore_tile.png` | 59.8→15.4 | 113 / ≈21 | `design/art/final/assets/powerup/tiles/powerup_random_restore_tile.png` | 1007 |
+| `powerup_tray_restore_tile.png` | 20.9→4.8 | 113 / ≈21 | `design/art/final/assets/powerup/tiles/powerup_tray_restore_tile.png` | 1007 |
+| `powerup_window_restore_tile.png` | 35.7→8.3 | 113 / ≈21 | `design/art/final/assets/powerup/tiles/powerup_window_restore_tile.png` | 1007 |
+
+> **方式**：根层 sharp `png({palette:true,quality:80,effort:10,dither:1.0})`（pngquant 未装，用已装依赖）；合 325.2→66.4 KB（省 258.8），beads 主包 4222.4→3964.7 KB 回绿（用户裁定 A，1007 BLOCKED 解除）。尺寸不变、.meta uuid 稳定；双钮 .meta trim 重算为 CLI 编辑器重导入产物。五张灰底(128) 品红分隔对比图 `temp/t1009-compress/cmp-*.png`（gitignore，按上述参数可再生）目检可接受。母版与 harness 服务链不动。
