@@ -39,16 +39,12 @@ const centre = (r: { x: number; bottom: number; w: number; h: number }): { x: nu
 });
 
 describe('EP15-S4 · 结算面板回放入口（§3.1）', () => {
-  it('独立 160×96 小钮：有录像可点、无录像零响应；文案 = 回放；位于次钮列正下方、不与双钮重叠', () => {
+  it('独立 160×96 小钮：有录像可点、无录像零响应；文案 = 回放', () => {
     const layout = clearPanelLayout({ lastLevel: false, showReplay: true });
     const replay = layout.buttons.find((b) => b.id === 'replay')!;
-    const menu = layout.buttons.find((b) => b.id === 'menu')!;
     expect(replay).toBeTruthy();
     expect(replay.rect.xMax - replay.rect.xMin).toBe(160);
     expect(replay.rect.yMax - replay.rect.yMin).toBe(96);
-    // 临时触发入口：对齐 Figma 312:38（x=463，y-up 底 853）。暂不考虑与木牌 / 双钮重叠。
-    expect(replay.rect.xMin).toBe(463);
-    expect(replay.rect.yMin).toBe(853);
     expect(clearPanelLabel('replay', false)).toBe('回放');
     const hitX = (replay.rect.xMin + replay.rect.xMax) / 2;
     const hitY = (replay.rect.yMin + replay.rect.yMax) / 2;
@@ -224,9 +220,12 @@ describe('EP15-S4 · 演示/回放零副作用（§8-5 钱包 / 体力 / 发豆 
 describe('EP15-S4 · 回放入口唯一性（§8-6 逐相位入口矩阵）', () => {
   it('视频回放钮只在 ClearPanel；失败 / 冲刺 / 通关面板零视频回放入口', () => {
     // ClearPanel：回放钮 = 显隐在**命中腿**裁（布局恒留位，`showReplay=false` ⇒ 不可点、不可见）。
-    // 回放钮中心 = (543, 901)（x 463 + 80，y-up 853 + 48；临时入口，见 clear-panel.ts）。
-    expect(hitClearPanel(543, 901, { lastLevel: false, showReplay: true })).toBe('replay');
-    expect(hitClearPanel(543, 901, { lastLevel: false, showReplay: false })).toBeNull();
+    // 回放钮中心取布局实际矩形（不写死坐标：临时入口，位置随时可调）。
+    const rp = clearPanelLayout({ lastLevel: false, showReplay: true }).buttons.find((b) => b.id === 'replay')!.rect;
+    const rx = (rp.xMin + rp.xMax) / 2;
+    const ry = (rp.yMin + rp.yMax) / 2;
+    expect(hitClearPanel(rx, ry, { lastLevel: false, showReplay: true })).toBe('replay');
+    expect(hitClearPanel(rx, ry, { lastLevel: false, showReplay: false })).toBeNull();
     expect(failPanelLayout(true).buttons.some((b) => String(b.id) === 'replay')).toBe(false);
     expect(failPanelLayout(false).buttons.some((b) => String(b.id) === 'replay')).toBe(false);
     expect(sprintSettleLayout().buttons.some((b) => String(b.id) === 'replay')).toBe(false);
