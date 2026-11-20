@@ -10893,3 +10893,21 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **验证**：`pnpm run verify` **PASS 23 / WARN 0 / SKIP 0 / FAIL 0**（含封箱 12 例、金样本 13 例、轮廓 7 例）。
 - **提交**：`1b58d72a`（代码 + Cocos 镜像 + 文档 + 台账）；复评与金样本重抓同批回填。
 - **知识沉淀**：kb:sync 沉淀统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**。
+
+---
+
+## WXG-T-997
+
+**工程·难度评估体系方案 C 落码与测试重锚** · 负责：主理人(CodeBuddy)·beads 工程轨 · 状态：✅ 完成（2026-11-20 · 用户令「1」＝三选项之①「按最简初锚直接落码」）
+
+- **用户原话与口径**：阶段 0（WXG-T-990）四项待拍板由本会话按明示默认口径登记为全取推荐值，正本 `difficulty-rewrite-stage0-20261119.md §6.1`；方案 C 离散四档加 G(12) 修正、8 邻域一步 BFS、边界 150 / 300 / 700、`[60,100)` 空白带不消解、主序锁 12 槽。⛔ 两处 G 修正阈值由本会话代定并标 `[待 playtest]`，待用户追认。
+- **真码核对补漏（阶段 0 正本未给可执行定义）**：① 门禁⑥ `checkDifficultyDegeneracy` 要求同类别内严格递增，只输出 0–3 四档必然并列，故须保留确定性主键；② 阶段 0 §3 设想的三元组主键不够 —— 现池 L00001 与 L00006 的 N/C 完全相同，必须把 G(12) 作为末位消歧量（8 与 11）；③ 旧守卫 G3 / G4 / G5 / G9 绑死 `A/K/fC/fK/M` 与旧乘积式；④ 提案所称 `blobSizes/blobAnchors` 实际住在 `design/forensics/g3/g3-lib.ts`（离线取证层），生产代码不可 import，改用生产 `BeadGrid` 加 `collectMisplacedGroup`。
+- **改法**：新增 `tuning/gameplay.ts::DIFFICULTY_TIERS`（⛔ 不进 §3、全数 `[待 playtest]`）；重写 `src/game/difficulty.ts::difficultyOf`，对外给 `tier` 四档与 `g` 参考值，对内给主键 `di`；旧连续式中间量 `a/k/fC/fK` 保留为史证读数但不参与主序；复用现成 8 邻域 BFS，不造第二套。门禁⑥ 纯序函数骨架零改，只补语义注释。
+- **测试重锚**：`tests/difficulty.test.ts` 九关逐值表换新主键、升序序串改判、G9 换「先验可复算且不等于旧连续式」、旧 Spearman 0.95 拟合断言换结构性脱钩（手改 steps 逐位不变加秩相关不恒为 1，⛔ 未改成让它自动绿的值）；新增方案 C 五例（四档边界 / 颜色升档 / G 修正升降臂 / 容量单调 / 现池消歧）。TDD：先写四档边界单例并 Node 直调取证 RED（`tier` 全 undefined），再落实现取 GREEN；重锚顺序按阶段 0 §5 第 58 行。
+- **生成物**：`levels:sync` 零改动（关卡产物不含 `di`）；`framework:sync` 只写入 Cocos 两件镜像（tuning/gameplay.ts、difficulty.ts，写入 2 / 未变 208 / 删除 0），`framework:sync:check` 绿；⛔ 未触碰工作树其余他轨 WIP，提交按 K-045 单件暂存。
+- **文档**：`level-difficulty.md` 新增 §10.5 快照（史证不回改、逐关读数、初锚偏差登记）；阶段 0 提案 §6.1 记裁定与四项缺口（WXG-T-990 尾账已先提交 `6d51d498`）。
+- **诚实登记**：L00007 的 N 仅 60，颜色轴加碎片比值约 2.2 连升两档落到「难」（档 2），与 N 612 的 boss 同档，观感偏高；⛔ 不调阈值凑绿（K-025），手感标定解除条件 = 真机加 playtest 后另走变更单。门禁⑦ / ⑧、`checkStepsGate`、`check:frozen-values` 三方对账一字未改。
+- **验证（本单自身全绿）**：`difficulty.test.ts` 16 例绿（原 11 加新 5）；全量单测 130 文件中 129 绿，唯一红项与他轨 WIP 有关（见下）；`levels:check`（含门禁⑥ 严格递增）/ `framework:sync:check` / `check:arch` / `check:frozen-values STATUS OK`（SKIP 计数与基线一致）/ `check:links` / `check:tasks` 全绿。
+- **全量 verify 的 5 项 FAIL 归因（⛔ 不伪造绿、不代他轨修）**：`pnpm run verify` = PASS 18 / WARN 0 / SKIP 0 / FAIL 5。① `typecheck` 与 ④ `harness:build` 同源 —— 3 条 TS6133 全在他轨 WIP 的 `src/view/meta-menu.ts` / `meta-widgets.ts`（T-986 台账已记同族）；② `check:size` 主包 5374.9 KB 超 4096 KB 红线 1278.9 KB，属存量资产与他轨在制资产，本单新增代码约 8 KB 不构成主因；③ `test` 唯一失败 = `ui-golden.test.ts` 的 ClearResultModal，实际流比夹具多 3 行 160×96「回放」按钮（WXG-T-991 EP15-S4 结算回放入口），夹具未重抓，逐行差分中难度相关词 0；⑤ `selftest:fast` 的 `verify:selftest` 内部复跑 `check:size` 而连带红。五项均与本单落码零关系，本会话不代改他轨 WIP、不重抓金样本（K-051 / K-053）。
+- **提交**：本笔（代码 + 两件 Cocos 镜像 + 门禁注释 + 文档 + 台账）；推送取证以 `git ls-remote` 为准。
+- **知识沉淀**：本单不跑 kb:sync，沉淀统计 新增 0 / 修改 0 / 激活 0 / 归档 0；候选 3 条（离散标签撞纯序门、正本 helper 分层误指、跨会话锚推进不写死号）随回传交主理人汇编。

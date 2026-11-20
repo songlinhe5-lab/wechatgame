@@ -758,8 +758,11 @@ async function assertDifficultyChain(games) {
 }
 
 /**
- * 纯序校验（与 difficultyOf 解耦 ⇒ 无需 TS loader，可 `node --test`）：同类别内 `DI` 排序后须**严格递增**（
+ * 纯序校验（与 difficultyOf 解耦 ⇒ 无需 TS loader，可 `node --test`）：同类别内 `di` 排序后须**严格递增**（
  * 等价无并列/无退化）。⛔ 不引用任何生成器目标参数（DI 起点/公差）或数值阈值（G10-① / Q7=③）。违规 throw。
+ *
+ * WXG-T-997 起 `di` 是方案 C 的**确定性排序主键**（档序 / N / C / G(12) 编码），不再是旧连续难度分数；
+ * 本函数只看「序」不看「量」，故骨架零改。现池 L00001 与 L00006 的 N/C 相同，靠 G(12) 末位消歧。
  */
 export function checkDifficultyDegeneracy(gameName, rows) {
   const byCat = new Map();

@@ -150,6 +150,35 @@ export const DIFFICULTY = Object.freeze({
   FC_HI: 2.00,
 } as const);
 
+// ─────────────────── WXG-T-997 方案 C 离散四档（阶段 0 裁定 §6.1）
+/**
+ * 四档边界、G(12) 修正与确定性主键位权的**初锚**。
+ *
+ * ⛔ **非 `systems-index §3` 冻结常量**（§5 第 60 行：DI 系数住 tuning 不进 §3，四档边界同理）；
+ * ⛔ **全部 `[待 playtest]`**：无真机 / 无 playtest 读数，这些值是先验可复核的起点，不是标定结果。
+ *    要冻结某一项须另走 §3 变更单，不得因门禁读数不顺而回改本组（K-025 / K-192）。
+ * ⛔ 只用于「序」与「档」，不用于「价」：`pricing.steps` 仍是定价 / 门禁⑦ / 规模闸的唯一真源。
+ */
+export const DIFFICULTY_TIERS = Object.freeze({
+  /** 档₀ 由 N 查表：N < 150 简单 / 150–299 中等 / 300–699 难 / ≥ 700 超难。 */
+  N_SIMPLE: 150,
+  N_HARD: 300,
+  N_EXTREME: 700,
+  /** C ≥ 6 时在 N 档上再升一档（与 G 修正叠加后夹到 0–3）。 */
+  C_PROMOTE: 6,
+  /** 主序锁 12 槽；24 / 48 只出参考 G 值，不回写档。 */
+  T_PRIMARY: 12,
+  T_REFS: [12, 24, 48],
+  /** G(12) ÷ ceil(N/12) 超此值升一档、低于此值降一档；G 修正整体至多 ±1。 */
+  G_PROMOTE_RATIO: 2,
+  G_DEMOTE_RATIO: 1.25,
+  /** 确定性主键位权：`di = tier×1e12 + N×1e8 + C×1e4 + G(12)`，人可按查表复算。 */
+  KEY_TIER: 1e12,
+  KEY_N: 1e8,
+  KEY_C: 1e4,
+  TIER_MAX: 3,
+} as const);
+
 /**
  * 环长分布 `cycleProfile` 的目标环长（v1.23 增补，**levels JSON 建议值、不冻结**）。
  * 环 = 「珠→格→珠」追踪链：`short` 全 2-环（短对换）、`mixed` 长短混合、

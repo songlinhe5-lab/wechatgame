@@ -1,16 +1,19 @@
 /**
- * WXG-T-266 EP12-S5 · 难度分 `DI` 单一真源 + 守卫（正本 = level-difficulty.md §3/§5/§7）。
+ * WXG-T-266 EP12-S5 起 · 难度主序单一真源 + 守卫；WXG-T-997 换方案 C 离散四档后重锚。
  *
- * 覆盖：验收① §5 **第一章** 9 关逐值复现 + Spearman 0.833；验收② §7 守卫 G1–G10（纯 Node）。
+ * 覆盖：验收① 第一章 9 关主序逐值复现 + 结构性脱钩；验收② §7 守卫 G1–G10（纯 Node）。
  * G6 的「可排严格序 + 并列红」判据本体在 `tools/scripts/sync-levels-data.test.mjs`（node --test，
  * 与门禁同侧）；本文件从游戏侧钉住公式真源与其余守卫。
+ *
+ * ⛔ 旧连续式 `round₁₀(M×fC×fK)` 的九关逐值表（28.7 / 41.0 / …）是**史证**，
+ *    留在 `level-difficulty.md §5.1` 不回改；本表是方案 C 的确定性主键，不是难度分数。
  */
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DIFFICULTY } from '../src/config/tuning.js';
+import { DIFFICULTY, DIFFICULTY_TIERS } from '../src/config/tuning.js';
 import { ARCS } from '../src/config/arcs.js';
 import { difficultyOf } from '../src/game/difficulty.js';
 import { measuredLevelTime } from '../src/game/level-import.js';
@@ -18,12 +21,11 @@ import { measuredLevelTime } from '../src/game/level-import.js';
 const at = (rel: string) => fileURLToPath(new URL(rel, import.meta.url));
 const SINGLES = at('../design/levels/singles');
 
-/** §5.1 实测表：DI 逐值 + steps（bot 动作数，dev-only 不进产物，故从真源 JSON 读）。
- *  2026-10-24 WXG-T-374 全池重测：L3 73.7→42.2（换盘后读数）、L4 66.8→59.5（A 案换图）、L9 289.7→426.7（30×30 重建）。
- *  2026-10-24 WXG-T-376 只重出 L1：31.8→28.7（图案 4 行重排 ⇒ M 102→92、steps 10→27）；
- *  连带 DI 升序首关由 L6 变 L1、Spearman 0.867→0.833（Σd² 16→20）。*/
+/** 方案 C 主序主键逐值（WXG-T-997 重锚，由 `difficultyOf` 真源实测）。
+ *  形态 = tier×1e12 + N×1e8 + C×1e4 + G(12)；⛔ 不是旧 DI 分数，不回改 §5.1 史证表。 */
 const EXPECT_DI: Record<number, number> = {
-    1: 28.7, 2: 41.0, 3: 42.2, 4: 59.5, 5: 43.7, 6: 29.9, 7: 76.8, 8: 36.4, 9: 426.7,
+    1: 10200030008, 2: 8100040011, 3: 10800030009, 4: 12200040013, 5: 12700040014,
+    6: 10200030011, 7: 2006000060011, 8: 11200030012, 9: 2061200090059,
 };
 interface PoolLevel {
     id: number;
@@ -33,8 +35,8 @@ interface PoolLevel {
 }
 /**
  * §5.1/§5.2 两张表的射程 = **第一章（曼陀罗）关卡清单**，不是目录全量。
- * WXG-T-341 v1.21 起真源目录多了第二大关（照片验证 boss `L00010`，DI 796.3）⇒ 旧「扫 singles/」写法
- * 会把表外关拉进池 ⇒ 三条断言（逐值 / 九关墙序 / Spearman）同时假红。改由 `ARCS[0].levelRefs` 取数。
+ * WXG-T-341 v1.21 起真源目录多了第二大关（照片验证 boss `L00010`）⇒ 旧「扫 singles/」写法
+ * 会把表外关拉进池 ⇒ 逐值 / 九关墙序断言同时假红。改由 `ARCS[0].levelRefs` 取数。
  */
 const ARC1_IDS = new Set<number>();
 for (const [from, to] of ARCS[0].levelRefs) {
@@ -50,36 +52,36 @@ const pool: PoolLevel[] = readdirSync(SINGLES)
 const is3 = (x: number) => x === Math.round(x * 1000) / 1000;
 const is1 = (x: number) => x === Math.round(x * 10) / 10;
 
-describe('EP12-S5 · 验收① §5 第一章 9 关逐值复现', () => {
-    it('9 关 DI 与 §5.1 表逐值相等（含中间量 A/K/fC/fK）', () => {
+describe('方案 C · 验收① 第一章 9 关主序逐值复现', () => {
+    it('9 关主序与重锚表逐值相等（旧 A/K/fC/fK 仍三位，主键为整数）', () => {
         // 逐值差异先收集再一次性断言：`expect` 首条失败即抛出，会遮蔽其后各关的漂移
         // （WXG-T-370 实测：表只报了 L3，L4/L9 同样不符却看不见）。
         const drift: string[] = [];
         for (const p of pool) {
-            if (p.di !== EXPECT_DI[p.id]) drift.push(`L${p.id} DI=${p.di} ≠ §5.1 表 ${EXPECT_DI[p.id]}`);
-            // 前置取整必要：因子必须三位，DI 一位（否则跨端漂移，§3.2）。
+            if (p.di !== EXPECT_DI[p.id]) drift.push(`L${p.id} di=${p.di} ≠ 重锚表 ${EXPECT_DI[p.id]}`);
             expect(is3(p.res.a)).toBe(true);
             expect(is3(p.res.k)).toBe(true);
             expect(is3(p.res.fC)).toBe(true);
             expect(is3(p.res.fK)).toBe(true);
+            expect(Number.isInteger(p.di)).toBe(true);
             expect(is1(p.di)).toBe(true);
         }
         expect(drift).toEqual([]);
     });
 
-    it('DI 升序序列 = §5.2 表 L1→L6→L8→L2→L3→L5→L4→L7→L9（分析参照，非运行时墙序）', () => {
+    it('主序升序序列 = L2→L1→L6→L3→L8→L4→L5→L7→L9（分析参照，非运行时墙序）', () => {
         const order = [...pool].sort((a, b) => a.di - b.di || a.id - b.id).map((p) => p.id);
-        expect(order).toEqual([1, 6, 8, 2, 3, 5, 4, 7, 9]);
+        expect(order).toEqual([2, 1, 6, 3, 8, 4, 5, 7, 9]);
     });
 
-    it('Spearman(DI 序, steps 序) = 0.95（doc 平局按关号升序破；WXG-T-394 量纲换代后重算）', () => {
-        // steps 秩：升序、平局按关号升序赋不同秩（现池 steps 全互异 ⇒ 平局臂不可达），复刻 §5.2「steps 序」列。
-        //
-        // v1.85（WXG-T-394）：值 0.833 → **0.95**，原因是 `steps` 的**量纲换代**，不是 DI 公式改动：
-        // 定价口径由 `branchOrder='BAC'`（取回优先）改 `'ACB'`（归位→直填→取回）＋ `retrieve:'max'`
-        // 真按组大小降序（此前误为行扫描序），且基准容量取基础档 12 槽。
-        // 方向是**变好**：DI 序与工作量序重新对齐（0.95 ≥ `level-difficulty.md` B-2 自设的 0.90 门槛，
-        // 该文档 Q9「已跌破 0.90」的告警随之失效）。下游 `level-difficulty.md §5.2 / Q9` 两处读数已同批同步。
+    it('主序与 steps 脱钩：手改 steps 逐位不变，秩相关不得退化为同轴（⛔ 不改判据凑绿）', () => {
+        // 旧断言 Spearman = 0.95 是旧连续式对定价 steps 的拟合读数。新主序不含 steps，
+        // 再钉任一数值等于把「拟合优度」伪装成验收判据（§7 判据 3：只验方向与自洽，不验手感）。
+        const lv = JSON.parse(readFileSync(join(SINGLES, 'L00005.json'), 'utf8'));
+        const perturbed = { ...lv, pricing: { ...lv.pricing, steps: lv.pricing.steps + 7 } };
+        expect(difficultyOf(perturbed).di).toBe(difficultyOf(lv).di);
+        expect(difficultyOf(perturbed).tier).toBe(difficultyOf(lv).tier);
+
         const bySteps = [...pool].sort((a, b) => a.steps - b.steps || a.id - b.id);
         const stepRank = new Map<number, number>();
         bySteps.forEach((p, i) => stepRank.set(p.id, i + 1));
@@ -87,7 +89,8 @@ describe('EP12-S5 · 验收① §5 第一章 9 关逐值复现', () => {
         const d2 = byDi.reduce((s, p, i) => s + (i + 1 - stepRank.get(p.id)!) ** 2, 0);
         const n = pool.length;
         const rho = 1 - (6 * d2) / (n * (n * n - 1));
-        expect(Math.round(rho * 1000) / 1000).toBe(0.95);
+        expect(Number.isFinite(rho)).toBe(true);
+        expect(rho).not.toBe(1); // 主序不是 steps 的复制品
     });
 });
 
@@ -166,13 +169,17 @@ describe('EP12-S5 · §7 守卫', () => {
         expect(pool.some((p) => 'time' in p.res)).toBe(false);
     });
 
-    it('G9 反解自洽：由 (fC,fK) 反解 M 回算 DI，误差 ≤ 0.5×ΔDI(默认 45)（非钳位档）', () => {
-        const DI_STEP = 45; // 生成器默认（§4.2，Q6 已裁；仅测试内用，不进门禁）
+    it('G9′ 主序先验可复算：di = tier×1e12 + N×1e8 + C×1e4 + G(12)，且不等于旧连续式', () => {
         for (const p of pool) {
-            const m2 = p.di / (p.res.fC * p.res.fK); // ρ=1 ⇒ N=M
-            expect(Math.abs(m2 - p.res.m)).toBeLessThanOrEqual(0.5 * DI_STEP);
-            // 且正向回算逐位自洽：round₁₀(M×fC×fK) === di
-            expect(Math.round(p.res.m * p.res.fC * p.res.fK * 10) / 10).toBe(p.di);
+            const r = p.res;
+            expect(r.di).toBe(
+                r.tier * DIFFICULTY_TIERS.KEY_TIER
+                + r.n * DIFFICULTY_TIERS.KEY_N
+                + r.c * DIFFICULTY_TIERS.KEY_C
+                + r.g[0],
+            );
+            // 旧式 round₁₀(M×fC×fK) 已退居史证读数，不得再等于主序。
+            expect(r.di).not.toBe(Math.round(r.m * r.fC * r.fK * 10) / 10);
         }
     });
 
@@ -186,5 +193,56 @@ describe('EP12-S5 · §7 守卫', () => {
         // 只解禁 steps 绝对区间，DI 仍只锁序；且区间真源住 tuning.ts，gate 只引用不写死。
         expect(gate).toMatch(/checkStepsGate|assertStepsGate/);
         expect(gate).not.toMatch(/NORMAL_STEPS_MIN\s*=\s*\d/); // gate 内不硬编字面值（读 t.NORMAL_STEPS_MIN）
+    });
+});
+
+// ── 方案 C：离散四档 + G(12) 修正（阶段 0 裁定 §6.1；落码单 WXG-T-997）──────────
+// 史证：原 §5.1 九关 DI 逐值表是旧连续公式的产物，本节只验新体系的结构性质，
+// 不拿新主序去凑旧读数；旧表在 GREEN 后按 §5 重锚顺序重锚。
+describe('方案 C · 离散四档主序', () => {
+    it('N 跨 150/300/700 边界时 tier 依次为 0/1/2/3（无错位初盘 ⇒ G 修正不启用）', () => {
+        const tierOf = (n: number) => difficultyOf({ pattern: ['1'.repeat(n)] }).tier;
+        expect([100, 200, 400, 800].map(tierOf)).toEqual([0, 1, 2, 3]);
+    });
+
+    it('C ≥ 6 在 N 档上再升一档（高色数轴）', () => {
+        const low = difficultyOf({ pattern: ['1'.repeat(100)] });
+        const high = difficultyOf({ pattern: ['123456'.repeat(16) + '1234'] });
+        expect(high.n).toBe(low.n);
+        expect(high.c).toBe(6);
+        expect(high.tier).toBe(low.tier + 1);
+    });
+
+    it('G(12) 修正：碎成单珠块升一档、整两大块降一档（各至多一次）', () => {
+        const plain = difficultyOf({ pattern: ['1'.repeat(100)] });
+        const fragmented = difficultyOf({
+            pattern: ['12'.repeat(50)],
+            misplaced: ['21'.repeat(50)],
+        });
+        expect(fragmented.n).toBe(plain.n);
+        expect(fragmented.tier).toBe(plain.tier + 1);
+
+        const plainMid = difficultyOf({ pattern: ['1'.repeat(200)] });
+        const coarse = difficultyOf({
+            pattern: ['1'.repeat(100) + '2'.repeat(100)],
+            misplaced: ['2'.repeat(100) + '1'.repeat(100)],
+        });
+        expect(coarse.n).toBe(plainMid.n);
+        expect(coarse.tier).toBe(plainMid.tier - 1);
+    });
+
+    it('G(T) 对 12→24→48 槽单调不增（主序锁 12，后两档只作参考）', () => {
+        for (const p of pool) {
+            expect(p.res.g[0]).toBeGreaterThanOrEqual(p.res.g[1]);
+            expect(p.res.g[1]).toBeGreaterThanOrEqual(p.res.g[2]);
+        }
+    });
+
+    it('现池主序无并列：L00001 与 L00006 的 N/C 相同，靠 G(12) 消歧', () => {
+        expect(new Set(pool.map((p) => p.di)).size).toBe(pool.length);
+        const l1 = pool.find((p) => p.id === 1)!;
+        const l6 = pool.find((p) => p.id === 6)!;
+        expect([l1.res.n, l1.res.c]).toEqual([l6.res.n, l6.res.c]);
+        expect(l1.res.g[0]).not.toBe(l6.res.g[0]);
     });
 });
