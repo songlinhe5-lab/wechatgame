@@ -205,6 +205,13 @@ describe('方案 C · 离散四档主序', () => {
         expect([100, 200, 400, 800].map(tierOf)).toEqual([0, 1, 2, 3]);
     });
 
+    it('四档标签对外可读：tier 与中文 label 一一对应', () => {
+        const labels = [100, 200, 400, 800].map(
+            (n) => difficultyOf({ pattern: ['1'.repeat(n)] }).label,
+        );
+        expect(labels).toEqual(['简单', '中等', '难', '超难']);
+    });
+
     it('C ≥ 6 在 N 档上再升一档（高色数轴）', () => {
         const low = difficultyOf({ pattern: ['1'.repeat(100)] });
         const high = difficultyOf({ pattern: ['123456'.repeat(16) + '1234'] });

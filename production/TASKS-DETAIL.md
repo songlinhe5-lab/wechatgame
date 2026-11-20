@@ -10927,3 +10927,18 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **留痕**：`production/qa/beads/bot-replay-traceability.md` 新增「真机验收记录（WXG-T-998，通道预演：BLOCKED）」含双路径错误原文、构建档、解除条件；真机 playtest 状态恒 **DEFERRED**。
 - **提交**：本笔（追溯表 + 台账）；推送取证以 `git ls-remote` 为准。
 - **知识沉淀**：kb:sync 沉淀统计 新增 0 / 修改 0 / 激活 0 / 归档 0。
+
+---
+
+## WXG-T-999
+
+**工程·难度四档阈值追认、标签真源与并发复评** · 负责：主理人(CodeBuddy)·beads 工程轨 · 状态：✅ 完成（2026-11-20 · 用户令「1/2/3」＝三项按序全做，参照 WXG-T-980 同形指令）
+
+- **之 ① 阈值追认**：用户未给新值 ⇒ 按选项 ① 的「确认照旧」追认 G 修正两阈值 2 / 1.25。改动落在 `tuning/gameplay.ts` 注释、`level-difficulty.md §10.5` 表格与阶段 0 提案新增 §6.2 改判指针：关闭「代定待追认」状态，但**追认的是取值口径、不是手感标定** ⇒ `[待 playtest]` 全部保留、`DIFFICULTY_TIERS` 仍不进 §3、L00007 初锚偏差登记不回改（K-025）。史证不回改：§6.1 原文与提案 §1–§8 一律不动，只加 §6.2 指针。
+- **之 ② 四档标签真源**：`DIFFICULTY_TIERS.LABELS` = 简单 / 中等 / 难 / 超难 成为唯一文案真源；`difficultyOf` 结果新增 `label`（由 tier 查表），⛔ UI 侧不得硬编第二份中文。TDD：先写「tier 与中文 label 一一对应」单例并 Node 直调取证 RED（`label` 全空），再落实现取 GREEN。测试 17 例绿（原 16 加新 1）；本单源码零 TS 错误。
+- **之 ② UI 接线阻塞（诚实登记，未落地）**：开工前只读核对发现生成页 `apps/beads-studio/public/generate.html` 有 3 处他轨未提交 hunk（含难度行邻区 `-773,3` 删除）、`server.mjs` 有 6 处（含 `-2116,10` 删除）、`src/view/**` 另有 8 件 WIP；且 studio 里「难度 D…」是 1★ 预算占比、`server.mjs` 的 `tier` 是切片甲乙丙，语义名已被占用。按 K-045（整文件暂存会捎带他人 WIP）与 K-188（跨轮续接先复核世界是否已变），本会话**不代改、不整文件暂存**。收敛条件与确切插入点登记在 `level-difficulty.md §10.5.1`：对方入库后生成页统计行与选关页读 `difficultyOf(...).label` 即可，无需改公式。
+- **之 ③ 五项 verify 红只读复评（不代改）**：并发会话仍在动态改同一批文件 —— HEAD `b42c3f3d` 刚提交回放钮修复（`clear-panel.ts` 等 7 件），但 `temp/ui-golden/clear.jsonl` 夹具仍无「回放」指令；`tsc --noEmit` 由 3 条 TS6133 增至 4 条，新增的一条正是并发会话刚提交的 `tests/replay-page.test.ts(45,11)`。⇒ 红项正在对方轨上收敛，本会话不代修、不重抓金样本（K-051 / K-053）、不动包体分包（属发布决策，WXG-T-998 已把「分包降至 4 MB 内」登记为解除条件之一）。WXG-T-997 详情的逐项归因仍成立。
+- **生成物与门禁**：`framework:sync` 写入 2 件 Cocos 镜像（tuning/gameplay.ts、difficulty.ts；写入 2 / 未变 208 / 删除 0），`framework:sync:check` 绿；`levels:sync` 零改动；门禁⑥ / ⑦ / ⑧、`check:frozen-values` 三方对账一字未改。
+- **验证**：`difficulty.test.ts` 17 例绿；`framework:sync:check` / `levels:check` / `check:frozen-values STATUS OK` / `check:links` / `check:tasks` 绿；全量 `pnpm run verify` 结论沿用 WXG-T-997 的 PASS 18 / FAIL 5（本轮只做他轨状态复评，⛔ 不伪造绿、不拿局部绿冒充全量绿）。
+- **提交**：本笔（源码 + 2 件镜像 + 3 件文档 + 台账）；推送取证以 `git ls-remote` 为准。
+- **知识沉淀**：本单不跑 kb:sync，沉淀统计 新增 0 / 修改 0 / 激活 0 / 归档 0；候选 2 条（`tier` / `difficulty` 语义名在 studio 已被占用，接界面前须先做命名对账；并发会话活跃期跨轮任务应先做 WIP hunk 归属复核再定是否接线）交主理人汇编。

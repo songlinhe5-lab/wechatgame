@@ -37,6 +37,8 @@ export interface DifficultyResult {
     readonly c: number;
     /** 四档标签：0 简单 / 1 中等 / 2 难 / 3 超难。 */
     readonly tier: number;
+    /** 对外可读的中文档名（真源 = `DIFFICULTY_TIERS.LABELS`，UI 不得硬编）。 */
+    readonly label: string;
     /** G(T) 参考值（T = 12/24/48）；主序锁 12，后两档只作参考、不回写档。 */
     readonly g: readonly [number, number, number];
     /** 确定性主键 = tier×1e12 + N×1e8 + C×1e4 + G(12)。⛔ 不是难度分数。 */
@@ -139,5 +141,8 @@ export function difficultyOf(level: DifficultyLevel): DifficultyResult {
         + c * DIFFICULTY_TIERS.KEY_C
         + g[0];
 
-    return { n, c, tier, g, di, a, k, m, rho: n ? m / n : 0, fC, fK };
+    return {
+        n, c, tier, label: DIFFICULTY_TIERS.LABELS[tier], g, di,
+        a, k, m, rho: n ? m / n : 0, fC, fK,
+    };
 }
