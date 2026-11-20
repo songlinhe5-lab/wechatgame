@@ -195,14 +195,12 @@ const cutoff = Date.now() / 1000 - DAYS * 86400;
 const candidates = [];
 let taskRowsBefore = 0;
 const allIds = [];
-let idWidth = 3; // 编号零填充宽度：取主表∪归档中实际 ID 的最大位数（本台账为 3 位），下限 3。
 for (let i = 0; i < lines.length; i += 1) {
   const line = lines[i];
   const m = taskRowRe.exec(line);
   if (!m) continue;
   taskRowsBefore += 1;
   allIds.push(Number(m[1]));
-  idWidth = Math.max(idWidth, m[1].length);
   // 按列切：[空, TaskID, 名称, 负责, 状态, 产出, 空]；裸 `|` 切错列 → 状态非 ✅ → 跳过（宁漏勿错）。
   const cells = line.split('|').map((c) => c.trim());
   const status = cells[4] ?? '';
@@ -264,7 +262,6 @@ let globalMax = 0;
 for (const id of allIds) globalMax = Math.max(globalMax, id);
 for (const m of archiveText.matchAll(/WXG-T-(\d+)/g)) {
   globalMax = Math.max(globalMax, Number(m[1]));
-  idWidth = Math.max(idWidth, m[1].length);
 }
 // BACKLOG（未排期提案表，WXG-T-407）同样占号：提案在 BACKLOG 里领号后若不入全局最大号，
 // 头注校准会把「下一可用号」拉回 ⇒ 与已有提案行重号（K-046 同型）。口径与上面归档文本一致：
@@ -273,9 +270,11 @@ const BACKLOG_PATH = join(ROOT, 'production', 'BACKLOG.md');
 const backlogText = existsSync(BACKLOG_PATH) ? readFileSync(BACKLOG_PATH, 'utf8') : '';
 for (const m of backlogText.matchAll(/WXG-T-(\d+)/g)) {
   globalMax = Math.max(globalMax, Number(m[1]));
-  idWidth = Math.max(idWidth, m[1].length);
 }
-const fmtId = (n) => String(n).padStart(idWidth, '0');
+// 与 check-tasks.mjs 的 pad3 同口径：编号固定 3 位零填充，⛔ 不跟全局最大位数漂移。
+// 否则台账一旦出现 WXG-T-1000，3 位号会被补成 WXG-T-0999，与详情节标题 WXG-T-999 失配
+// ⇒ 成对搬运守卫把全部行判为「无小节」，归档功能整体失效（1000 号之后实测）。
+const fmtId = (n) => String(n).padStart(3, '0');
 
 // ── 同号守卫（WXG-T-078，backlog「归档器缺同号守卫」）───────────────────────────
 // 此前只防「候选已在归档」（跨批次去重），**不防主表内部同号** ⇒ T-032 那种两会话

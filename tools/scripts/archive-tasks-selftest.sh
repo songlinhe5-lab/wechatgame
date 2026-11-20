@@ -604,6 +604,46 @@ assert_not_contains "$OUT_S2" "WXG-T-2｜" "[15c] 体积档：002 同样被排�
 assert_eq "$( node "$ARCHIVE_CMD" --root="$REPO_S" --skip-ids=abc >/dev/null 2>&1; echo $? )" "1" \
   "[15d] 非法 --skip-ids ⇒ exit 1（fail loud，不静默当空集）"
 
+# ── [16] 编号宽度回归：3 位号与 4 位号共存（WXG-T-1002 修复）────────────────────
+# 真实事故：fmtId 按「主表∪归档全局最大位数」零填充，台账进入 1000 后把 999 补成
+# WXG-T-0999 ⇒ 与详情节标题 WXG-T-999 失配 ⇒ 全部行被判「无小节」跳过，归档整体失效。
+echo "—— [16] 3 位号 + 4 位号共存：详情节仍成对搬运（编号固定 3 位口径）"
+REPO_W="$WORK/repo-idwidth"
+new_repo "$REPO_W"
+cat >"$REPO_W/production/TASKS.md" <<EOS
+# 任务台账（桩 16）
+
+> 当前已分配至 **WXG-T-1000**，下一可用号 **WXG-T-1001**。
+
+| Task ID | 名称 | 负责 | 状态 | 产出 |
+|---|---|---|---|---|
+| WXG-T-999 | 三位老完成行 | 甲 | ✅ **完成（${E_OLD}）** | 见详情 |
+| WXG-T-1000 | 四位在办行 | 乙 | 🔄 进行中 | 见详情 |
+EOS
+cat >"$REPO_W/production/TASKS-DETAIL.md" <<EOS
+# 详情台账（桩 16）
+
+## WXG-T-999
+
+- **名称**：三位号正文（必须逐字节随行搬走）
+
+## WXG-T-1000
+
+- **名称**：四位号正文（不得被搬走）
+EOS
+stub_commit "$REPO_W" "$D_OLD_ISO"
+OUT_W="$(node "$ARCHIVE_CMD" --root="$REPO_W" --days=30 2>&1)"
+assert_not_contains "$OUT_W" "无小节" "[16a] 三位号详情节被正确匹配（⛔ 不得误判无小节）"
+assert_contains "$OUT_W" "WXG-T-999｜完成日期" "[16a-2] 三位号入选（4 位号在办行不入选）"
+OUT_W2="$(node "$ARCHIVE_CMD" --root="$REPO_W" --days=30 --write 2>&1)"; RC=$?
+assert_eq "$RC" "0" "[16b] --write 退出码 0"
+assert_contains "$OUT_W2" "详情节成对搬运" "[16b-2] 报告明示成对搬运"
+assert_not_contains "$(cat "$REPO_W/production/TASKS.md")" "| WXG-T-999 |" "[16c] 三位号行已移出主表"
+assert_contains "$(cat "$REPO_W/production/archive/TASKS-DETAIL-archive.md")" "三位号正文（必须逐字节随行搬走）" \
+  "[16d] 三位号详情节逐字节入归档"
+assert_contains "$(cat "$REPO_W/production/TASKS-DETAIL.md")" "四位号正文（不得被搬走）" \
+  "[16e] 四位在办行详情节保留"
+
 echo "=================================================================="
 echo "结果：PASS=$PASS FAIL=$FAIL"
 echo "=================================================================="
