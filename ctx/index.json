@@ -42661,17 +42661,17 @@
     },
     {
       "path": "games/beads/design/proposals/difficulty-rewrite-stage0-20261119.md",
-      "tokens": 4475,
-      "lines": 83,
-      "sha256": "e6e24766186a2d8b8c05fed99e8435d96185bae60fc431afde4310adaf633233",
+      "tokens": 5468,
+      "lines": 105,
+      "sha256": "86f61673b81974ad94ff50838719abbcb7b32ce19f50ce8afb71becbe169cc41",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§难度评估体系重构 · 阶段 0 口径提案与落码影响面",
           "level": 1,
           "startLine": 1,
-          "endLine": 84,
-          "tokens": 4452,
+          "endLine": 106,
+          "tokens": 5446,
           "summary": "任务号 WXG-T-990（用户令「3/ 1」选项 1：另起一单彻底重构难度算法）。派单时曾写作 WXG-T-987，该",
           "keywords": [
             "WXG",
@@ -42763,8 +42763,8 @@
           "anchor": "§6 待用户拍板（落码前置，未拍板不落码）",
           "level": 2,
           "startLine": 62,
-          "endLine": 70,
-          "tokens": 548,
+          "endLine": 92,
+          "tokens": 1542,
           "summary": "Q1 口径方案：① A 静态周转量（机理最准、最复杂）· ② B 纯 N×C（最简、相邻/底槽兼顾弱）· ③ C 离散四",
           "keywords": [
             "待用户拍板",
@@ -42773,10 +42773,23 @@
           ]
         },
         {
+          "anchor": "§6.1 拍板裁定回写（2026-11-20 · CodeBuddy 会话）",
+          "level": 3,
+          "startLine": 71,
+          "endLine": 92,
+          "tokens": 976,
+          "summary": "用户在「① 先逐项拍板再落码 / ② 视为已授权直接落码 / ③ 只做设计口径定稿」三选项中令「1」选 ①。本会话在动工",
+          "keywords": [
+            "CodeBuddy",
+            "拍板裁定回写",
+            "会话"
+          ]
+        },
+        {
           "anchor": "§7 不变式与验收判据（不得改门禁阈值凑绿）",
           "level": 2,
-          "startLine": 71,
-          "endLine": 78,
+          "startLine": 93,
+          "endLine": 100,
           "tokens": 410,
           "summary": "门禁⑦（7–37 / 49）、门禁⑧ T1–T7、check:frozen-values 三方对账一字不改、仍须全绿；与",
           "keywords": [
@@ -42791,8 +42804,8 @@
         {
           "anchor": "§8 零落码声明与史证纪律",
           "level": 2,
-          "startLine": 79,
-          "endLine": 84,
+          "startLine": 101,
+          "endLine": 106,
           "tokens": 285,
           "summary": "本单零 Write 代码 / 测试 / 门禁 / 常量 / 设计正文；只新增本文与证据归档件，并在台账登记两个任务号。",
           "keywords": [
