@@ -43,7 +43,7 @@ import { LEVELS } from '../src/config/levels.js';
 import { starsLedger } from './helpers.js';
 import { DESIGN_H, DESIGN_W, MENU_TEXTURES, STAR_MAX, WALL_ROWS } from '../src/config/tuning.js';
 import { buildMetaView, metaLayout, setMenuBitmapResolver, type MetaViewData } from '../src/view/meta-view.js';
-import { DEFAULT_PALETTE, beadGrayInksFor, beadInksFor, endpointOf } from '../src/view/palette.js';
+import { DEFAULT_PALETTE, beadColorOf, beadFadedInksFor, beadInksFor } from '../src/view/palette.js';
 import { levelThumbFullCells } from '../src/view/menu-signage.js';
 
 const START = 1_700_000_000_000;
@@ -118,10 +118,10 @@ function blitIdsOf(cmds: readonly DrawCommand[]): string[] {
 /** 大关① / ② 的 boss 关（`levelRefs` 末关）= 橱窗珠面缩略素材。 */
 const BOSS_A = LEVELS[8]!;
 const BOSS_B = LEVELS[10]!;
-/** 珠面 B0 底块填色（`drawTargetTile` 矢量臂 = 端点 `edge`）⇒ 全彩 / 置灰判据。 */
+/** 固定样式展示腿 = 色板基色填充 ⇒ 全彩 / 置灰判据。 */
 function tileFill(lv: typeof BOSS_A, gray: boolean): string {
-    const inks = gray ? beadGrayInksFor(lv) : beadInksFor(lv);
-    return endpointOf(inks, levelThumbFullCells(lv)[2]!).edge;
+    const inks = gray ? beadFadedInksFor(lv) : beadInksFor(lv);
+    return beadColorOf(inks, levelThumbFullCells(lv)[2]!);
 }
 const COLOR_A = tileFill(BOSS_A, false);
 const GRAY_A = tileFill(BOSS_A, true);

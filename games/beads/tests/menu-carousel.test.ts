@@ -12,20 +12,20 @@ import { DESIGN_H, DESIGN_W, MENU_TEXTURES, MENU_V2 } from '../src/config/tuning
 import { createBeadsShell } from '../src/game/beads-shell.js';
 import { buildMetaView, setMenuBitmapResolver, type MetaViewData } from '../src/view/meta-view.js';
 import { anchoredGeo } from '../src/view/meta-layout.js';
-import { DEFAULT_PALETTE, beadGrayInksFor, beadInksFor, endpointOf } from '../src/view/palette.js';
+import { DEFAULT_PALETTE, beadColorOf, beadFadedInksFor, beadInksFor } from '../src/view/palette.js';
 import { levelThumbFullCells } from '../src/view/menu-signage.js';
 import { UI_FONT } from '../src/view/ui-theme.js';
 import type { BeadsLevelRaw } from '../src/config/levels-data.js';
 
 /**
- * `[2026-11-20]` 橱窗展品 = 大关① 收尾关（L9）的**珠面缩略**（用户令：主界面 boss 关图案
- * 取消纹理展示，改 boss 关珠面缩略）。全彩 / 置灰判据取 B0 底块填色
- * （`drawTargetTile` 矢量臂 = 端点 `edge`，⛔ 不手抄 hex）。
+ * `[2026-11-20 · WXG-T-1006]` 橱窗展品 = 大关① 收尾关（L9）的**固定样式展示腿**
+ * （用户令：纹理退场 → 珠面看不清 → 基色填充 + 按进度上下置灰）。
+ * 全彩 / 置灰判据取色板基色（⛔ 不手抄 hex）。
  */
 const BOSS = LEVELS[8]!;
 const CELL_IDX = levelThumbFullCells(BOSS)[2]!;
-const COLOR_TILE = endpointOf(beadInksFor(BOSS), CELL_IDX).edge;
-const GRAY_TILE = endpointOf(beadGrayInksFor(BOSS), CELL_IDX).edge;
+const COLOR_TILE = beadColorOf(beadInksFor(BOSS), CELL_IDX);
+const GRAY_TILE = beadColorOf(beadFadedInksFor(BOSS), CELL_IDX);
 
 const rectFills = (cmds: readonly { kind: string }[]): (string | undefined)[] =>
     cmds.filter((c) => c.kind === 'rect').map((c) => (c as { fill?: string }).fill);
@@ -37,7 +37,7 @@ const dataFor = (lv: BeadsLevelRaw, extra: Partial<MetaViewData> = {}): MetaView
     debugInfo: false, debugGuides: false, beadStyle: 'facet-4', beadSize: 'full', skinId: 'tokens',
     levelCount: LEVELS.length, currentLevelIndex: 0, maxUnlockedLevel: 1,
     starsByLevel: [], wallSlots: [], wallLevels: [], carouselLevel: lv, carouselState: 'pushing',
-    carouselArtLevel: BOSS,
+    carouselArtLevel: BOSS, carouselProgress: 0,
     ...extra,
 });
 
@@ -82,19 +82,19 @@ describe('翻页状态机', () => {
 describe('橱窗绘制', () => {
     const lv = LEVELS[0]!;
 
-    it('`[2026-11-20]` 三态 = 推关置灰 / 通关全彩；未开启 = 锁图占位（不画珠面）', () => {
+    it('`[WXG-T-1006]` 进度 0 置灰 / 进度 1 全彩；未开启 = 锁图占位（不画展品）', () => {
         setMenuBitmapResolver(() => true);
-        const cleared = frame(dataFor(lv, { carouselState: 'cleared' }));
-        expect(hasFill(cleared, COLOR_TILE), '通关 = 全彩珠面').toBe(true);
-        expect(hasFill(cleared, GRAY_TILE), '通关不画灰珠').toBe(false);
-        // 推关 = `beadGrayInksFor` 整体置灰（旧「竖向揭彩」随位图腿退场）。
-        const pushing = frame(dataFor(lv, { carouselState: 'pushing' }));
-        expect(hasFill(pushing, GRAY_TILE), '推关 = 置灰珠面').toBe(true);
+        const cleared = frame(dataFor(lv, { carouselState: 'cleared', carouselProgress: 1 }));
+        expect(hasFill(cleared, COLOR_TILE), '通关 = 全彩').toBe(true);
+        expect(hasFill(cleared, GRAY_TILE), '通关不画灰格').toBe(false);
+        // 推关进度 0 = 整幅置灰（未达进度部分）。
+        const pushing = frame(dataFor(lv, { carouselState: 'pushing', carouselProgress: 0 }));
+        expect(hasFill(pushing, GRAY_TILE), '推关进度 0 = 置灰').toBe(true);
         expect(hasFill(pushing, COLOR_TILE), '推关不露全彩').toBe(false);
-        // `[WXG-T-916]` 未开启 = 锁图占位（参考选关锁格）⇒ 珠面**不画**、锁形成为橱窗唯一主体
+        // `[WXG-T-916]` 未开启 = 锁图占位（参考选关锁格）⇒ 展品**不画**、锁形成为橱窗唯一主体
         // （木牌行 2 仍「未开启」，T-914）。
-        const locked = frame(dataFor(lv, { carouselState: 'locked' }));
-        expect(hasFill(locked, COLOR_TILE) || hasFill(locked, GRAY_TILE), '未开启不画珠面').toBe(false);
+        const locked = frame(dataFor(lv, { carouselState: 'locked', carouselProgress: 0 }));
+        expect(hasFill(locked, COLOR_TILE) || hasFill(locked, GRAY_TILE), '未开启不画展品').toBe(false);
         expect(
             locked.filter((c) => c.kind === 'blit' && c.textureId === MENU_TEXTURES.lock),
             '锁图占位 = 徽标层唯一主体',
@@ -134,7 +134,7 @@ describe('橱窗绘制', () => {
         const xOf = (data: MetaViewData) => Math.min(...frame(data)
             .filter((c) => c.kind === 'rect' && (c as { fill?: string }).fill === COLOR_TILE)
             .map((c) => (c as { x: number }).x));
-        const cleared = { carouselState: 'cleared' as const };
+        const cleared = { carouselState: 'cleared' as const, carouselProgress: 1 };
         const rest = xOf(dataFor(lv, cleared));
         expect(xOf(dataFor(lv, { ...cleared, carouselDx: 80, carouselT: 0.2 }))).toBeCloseTo(rest + 80);
         expect(xOf(dataFor(lv, { ...cleared, carouselDx: 80, carouselT: 0.2, reduceMotion: true }))).toBeCloseTo(rest);

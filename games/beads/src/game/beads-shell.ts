@@ -289,6 +289,9 @@ export class BeadsShell implements Game {
         // `[2026-11-20]` 橱窗展品 = 本大关 boss 关珠面缩略（纹理腿退场；空页 = undefined）。
         carouselArtLevel: undefined as BeadsLevelRaw | undefined,
         carouselPeerArtLevel: undefined as BeadsLevelRaw | undefined,
+        // `[WXG-T-1006]` 展品上色进度（0..1，已通关小关 / 总小关；视图自下而上置灰）。
+        carouselProgress: 0,
+        carouselPeerProgress: 0,
         carouselDx: 0,
         carouselT: 0,
         carouselPeer: undefined as BeadsLevelRaw | undefined,
@@ -1432,6 +1435,28 @@ export class BeadsShell implements Game {
     }
 
     /**
+     * `[2026-11-20 · WXG-T-1006]` 大关完成进度（0..1）= **已通关小关 / 总小关**（星账 > 0 即算通关，
+     * 用户令「图案按照进度等比例上下设置灰色」）。视图据此自下而上给橱窗展品上色。
+     * 单趟整数、零分配；空表 ⇒ 0。
+     */
+    private _arcProgress(arcIdx: number): number {
+        const refs = ARCS[arcIdx]?.levelRefs;
+        if (!refs) return 0;
+        const stars = this.play.starsByLevelRaw;
+        const n = this.play.levelCount;
+        let done = 0;
+        let total = 0;
+        for (let r = 0; r < refs.length; r++) {
+            const range = refs[r]!;
+            for (let lv = range[0]; lv <= range[1] && lv <= n; lv++) {
+                total += 1;
+                if ((stars[lv - 1] ?? 0) > 0) done += 1;
+            }
+        }
+        return total === 0 ? 0 : done / total;
+    }
+
+    /**
      * `[WXG-T-920]` **有效解锁前沿 = 「解锁」的唯一判据**（用户 2026-11-12 令：
      * 「门票成立 ⇒ 章首关解锁一定成立」）。判据收拢在此一处，⛔ 各消费腿不再各写一套：
      * - 入口闸 / 三态 / 陈列扫描 / 高亮 / 选关格闸门全部读本函数；
@@ -1642,6 +1667,7 @@ export class BeadsShell implements Game {
         v.carouselSeqLabel = soon ? undefined : this._arcSeqLabel(off, showcase);
         v.carouselState = soon ? undefined : this._arcState(off);
         v.carouselArtLevel = soon ? undefined : this._arcBossLevel(off);
+        v.carouselProgress = soon ? 0 : this._arcProgress(off);
         v.carouselDx = this._menu.dx;
         v.carouselT = this._menu.t;
         const sign = this._menu.peerSign();
@@ -1656,6 +1682,7 @@ export class BeadsShell implements Game {
             v.carouselPeerSeqLabel = undefined;
             v.carouselPeerState = undefined;
             v.carouselPeerArtLevel = undefined;
+            v.carouselPeerProgress = 0;
         } else {
             const peerShowcase = this._arcShowcaseLevel(peerPage);
             v.carouselPeer = peerShowcase;
@@ -1665,6 +1692,7 @@ export class BeadsShell implements Game {
             v.carouselPeerSeqLabel = this._arcSeqLabel(peerPage, peerShowcase);
             v.carouselPeerState = this._arcState(peerPage);
             v.carouselPeerArtLevel = this._arcBossLevel(peerPage);
+            v.carouselPeerProgress = this._arcProgress(peerPage);
         }
         v.studioEnabled = this._studio !== undefined;
         // `[WXG-T-432]` 好友榜面板（复用视图对象，零分配）。

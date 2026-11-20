@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4260,
       "lines": 141,
-      "sha256": "1efbb913a64b4a2bbad281afcdb741904165b19de2dcf67ce325e3162d80c4f4",
+      "sha256": "d1e0543990a7d5fd05795c2efe13f32b58033e287fb145bef7f04ed3e8f90155",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 410,
-          "summary": "1 production/TASKS-DETAIL.md 345937 11067 normal",
+          "summary": "1 production/TASKS-DETAIL.md 346158 11067 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5208,
       "lines": 159,
-      "sha256": "0376b9e9ad79d4d7b5a821c40f3603c56ee04ef612b3baa93ea640838bb7df33",
+      "sha256": "62eab3554ea3218ad83b7535db1526ae041a2aa98c4391916a74d02486a560ba",
       "tier": "normal",
       "sections": [
         {
@@ -761,7 +761,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 313 行 / 93644 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 313 行 / 93616 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
@@ -1080,7 +1080,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 11067 行 / 345937 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 11067 行 / 346158 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
@@ -14587,9 +14587,9 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 50048,
+      "tokens": 50231,
       "lines": 381,
-      "sha256": "4c1d1e09aaf98417dd69502a2cc02626bf1d9e643d391cdcff14cea451860bd4",
+      "sha256": "1c269e1807c4455a7067cae719302184766031d00ed06394671c348c360b06ac",
       "tier": "normal",
       "sections": [
         {
@@ -14597,7 +14597,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 382,
-          "tokens": 50029,
+          "tokens": 50212,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -14768,7 +14768,7 @@
           "level": 2,
           "startLine": 138,
           "endLine": 378,
-          "tokens": 44976,
+          "tokens": 45159,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -30869,9 +30869,9 @@
     },
     {
       "path": "games/beads/design/art/specs/menu-plate-text-control-spec.md",
-      "tokens": 6621,
+      "tokens": 6653,
       "lines": 222,
-      "sha256": "d02d4156442e9b28851468bad90af88c0f611fc60b688f8ad065552cca4e1a63",
+      "sha256": "272b7e1e9e7abd35587a57cfcb68d2d39c9370a5a96c2de27bd9e8870bdea4ec",
       "tier": "normal",
       "sections": [
         {
@@ -30879,7 +30879,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 223,
-          "tokens": 6591,
+          "tokens": 6624,
           "summary": "本件 = menu-layout-implementation-spec.md §11 拆册（2026-10-31；动因",
           "keywords": [
             "§11",
@@ -31254,7 +31254,7 @@
           "level": 2,
           "startLine": 216,
           "endLine": 223,
-          "tokens": 552,
+          "tokens": 585,
           "summary": "陈列关换了谁：走马灯陈列关由「大关收尾关（boss）」改为「本大关解锁范围内第一个 0 星关」（与选关高亮同口径；大关全",
           "keywords": [
             "[WXG-T-913]",
@@ -31269,9 +31269,9 @@
     },
     {
       "path": "games/beads/design/art/specs/menu-showcase-asset-spec.md",
-      "tokens": 12661,
+      "tokens": 12689,
       "lines": 247,
-      "sha256": "55325f6d18998d9559a135ffd983d707c3acc8ff664b832a17d1f33a9ff36c94",
+      "sha256": "286eb463fd32b4f76a6d2aad37274934ea9ddb1c0f1c229d8bfd161913cf25d3",
       "tier": "normal",
       "sections": [
         {
@@ -31279,7 +31279,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 248,
-          "tokens": 12631,
+          "tokens": 12659,
           "summary": "状态：v1 提案 · 已被 v2 生产档取代（WXG-T-955 退场对账 · 2026-11-16）。⛔ 本文 §3 ",
           "keywords": [
             "§3",
@@ -31332,7 +31332,7 @@
           "level": 2,
           "startLine": 75,
           "endLine": 144,
-          "tokens": 5606,
+          "tokens": 5634,
           "summary": "",
           "keywords": [
             "§3.0",
@@ -31346,7 +31346,7 @@
           "level": 3,
           "startLine": 77,
           "endLine": 109,
-          "tokens": 1484,
+          "tokens": 1497,
           "summary": "结论：本单 23 行中 —— 在役 4 行（B8 / B9 / B10 / E2）、存档 1 行（B2，零消费者）、退场",
           "keywords": [
             "WXG",
@@ -31359,7 +31359,7 @@
           "level": 3,
           "startLine": 110,
           "endLine": 144,
-          "tokens": 4092,
+          "tokens": 4107,
           "summary": "命名遵 assets-spec §4：全小写下划线、{域}_{实体}_{变体}_{状态}、禁中文/大写/版本号/fina",
           "keywords": [
             "§4",
@@ -31474,9 +31474,9 @@
     },
     {
       "path": "games/beads/design/art/specs/menu-showcase-mount-spec.md",
-      "tokens": 4730,
+      "tokens": 4748,
       "lines": 255,
-      "sha256": "a1054ab41186cd09f07c4ab6dac95e6cbb7a03762df1cdf7bb8c73db83521b5f",
+      "sha256": "4bf32c14112e20cd130ce6d9a587f87ab8468ba37a6396448b0f92ca1a5b83ce",
       "tier": "normal",
       "sections": [
         {
@@ -31484,7 +31484,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 256,
-          "tokens": 4711,
+          "tokens": 4729,
           "summary": "状态：已实装（2026-11-15 · [WXG-T-953]）/ 待真机目检回填 α / 圆角。",
           "keywords": [
             "[WXG-T-953]",
@@ -31541,7 +31541,7 @@
           "level": 2,
           "startLine": 66,
           "endLine": 149,
-          "tokens": 1486,
+          "tokens": 1504,
           "summary": "所有 α / 边宽为提案值，真机目检后回填（§8）。落码坐标以 y-up 换算（DESIGN_H 1334），本表给 y",
           "keywords": [
             "§8",
@@ -31567,7 +31567,7 @@
           "level": 3,
           "startLine": 87,
           "endLine": 111,
-          "tokens": 469,
+          "tokens": 488,
           "summary": "位置 展品底缘（y-down art.y + art.h = 844）；影带向上 +2 压住珠面底行、向下 −12 落台",
           "keywords": [
             "down",
@@ -93385,9 +93385,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 345937,
+      "tokens": 346158,
       "lines": 11067,
-      "sha256": "7a6db2b8d0e7936a5f06e06b7c1224aca756899219df26679037cebafadf821c",
+      "sha256": "01973770da15f36b57f062d2c665b7b8689f7dbf214409e6f575367216c04c96",
       "tier": "normal",
       "sections": [
         {
@@ -93395,7 +93395,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 11068,
-          "tokens": 345921,
+          "tokens": 346142,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -109061,7 +109061,7 @@
           "level": 2,
           "startLine": 11032,
           "endLine": 11044,
-          "tokens": 1506,
+          "tokens": 1727,
           "summary": "工程·主菜单 boss 橱窗改珠面缩略（纹理腿退场） · 负责：本会话（Trae CN）·beads UI 轨 · 状态",
           "keywords": [
             "WXG",
@@ -109100,9 +109100,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 93644,
+      "tokens": 93616,
       "lines": 313,
-      "sha256": "296577ae26a0072cf116845c1c568d4bee9c1b7d24c1891a6eca78168b62e9d8",
+      "sha256": "28b056780a1bebc92c74248aac520906b4fc1b72270f3d919f2cef5404a3e50a",
       "tier": "hot",
       "sections": [
         {
@@ -109110,7 +109110,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 314,
-          "tokens": 93635,
+          "tokens": 93607,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -110635,17 +110635,17 @@
     },
     {
       "path": "production/epics/epics-beads-status.md",
-      "tokens": 4340,
-      "lines": 119,
-      "sha256": "c38cb5ca6f7d31f87a721d05a61e02145988457dbf9085b6d5e1316f2b8f0d78",
+      "tokens": 4368,
+      "lines": 120,
+      "sha256": "46a7f0d3b87000acff70206c462deb3ce4be23445cce7d7f6f87990fed965211",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads · Epic/Story 状态时效声明（epics-beads 拆分件）",
           "level": 1,
           "startLine": 1,
-          "endLine": 120,
-          "tokens": 4320,
+          "endLine": 121,
+          "tokens": 4349,
           "summary": "正本宿主：production/epics/epics-beads.md（本块原为其顶部「⚠️ 状态时效声明」）",
           "keywords": [
             "beads",

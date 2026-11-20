@@ -3,14 +3,14 @@
  *
  * 判据真源：`games/beads/src/config/tuning/menu.ts` 的 `MENU_V2.art` / `MENU_V2.clip`
  * 与 `drawMenuAnchored` 的注释（v2 背板已烘内景 ⇒ 单一作品腿：无层板/无中央沙漏/无纸卡容器）。
- * `[2026-11-20]` 用户令：主界面 boss 关图案取消纹理展示，改画 **boss 关珠面缩略**
- * （`drawBeadFace`，bottom 锚定台面；纹理腿退场）。
+ * `[2026-11-20 · WXG-T-1006]` 用户令：纹理腿退场后珠面「看不清」，改**固定样式展示腿**
+ * （`drawShowcaseFace`：色板基色填充 + 按进度自下而上置灰）。
  */
 
 import { describe, it, expect, afterEach } from 'vitest';
 import { RenderModelBuilder, type DrawCommand } from '@wxgame/framework';
 import { buildMetaView, type MetaViewData } from '../src/view/meta-view.js';
-import { DEFAULT_PALETTE, beadGrayInksFor, beadInksFor, endpointOf } from '../src/view/palette.js';
+import { DEFAULT_PALETTE, beadFadedInksFor, beadInksFor } from '../src/view/palette.js';
 import { levelThumbFullCells } from '../src/view/menu-signage.js';
 import { setMenuBitmapResolver } from '../src/view/meta-widgets.js';
 import { LEVELS } from '../src/config/levels.js';
@@ -18,11 +18,11 @@ import { DESIGN_H, DESIGN_W, MENU_LOCKED_ICON, MENU_TEXTURES, MENU_V2 } from '..
 
 /** Arc 0 的 boss 关 = L9（30×30 曼陀罗）。 */
 const BOSS = LEVELS[8]!;
-/** 珠面 B0 底块填色 = 端点 `edge`（取盘面第一个有墨格，⛔ 手抄 hex）。 */
-const firstCell = levelThumbFullCells(BOSS);
-const CELL_IDX = firstCell[2]!;
-const CELL_COLOR = endpointOf(beadInksFor(BOSS), CELL_IDX).edge;
-const CELL_GRAY = endpointOf(beadGrayInksFor(BOSS), CELL_IDX).edge;
+/** 固定样式展示腿 = 色板**基色**填充（全彩 / 置灰各一枚色集，⛔ 手抄 hex）。 */
+const COLOR_HEXES = new Set(beadInksFor(BOSS).hexes);
+const GRAY_HEXES = new Set(beadFadedInksFor(BOSS).hexes);
+const countIn = (rects: readonly Rect[], hexes: ReadonlySet<string>): number =>
+    rects.filter((r) => hexes.has(r.fill ?? '')).length;
 /** 展品框（y-up）：`MENU_V2.art` 是 top-based。 */
 const ART = { x: MENU_V2.art.x, y: DESIGN_H - (MENU_V2.art.y + MENU_V2.art.h), w: MENU_V2.art.w };
 /** 玻璃裁切顶（y-up）。 */
@@ -46,6 +46,8 @@ const data = (extra: Partial<MetaViewData> = {}): MetaViewData => Object.freeze(
     carouselLevel: LEVELS[0],
     carouselArtLevel: BOSS,
     carouselState: 'cleared' as const,
+    // 通关 = 全彩（`_arcProgress` = 1）。
+    carouselProgress: 1,
     ...extra,
 }) as MetaViewData;
 
@@ -77,23 +79,32 @@ const beadRects = (cmds: readonly DrawCommand[]): Rect[] => cmds.filter(
 );
 
 /**
- * `[2026-11-20]` 珠面缩略落位：30×30 宽盘 ⇒ pitch = art.w / cols，水平居中、底缘坐台面；
- * 图案包围盒必须落在展品框宽内且不越过玻璃裁切顶。纹理腿的 256² 透明边判据已退场（K-053 划线）。
+ * `[2026-11-20 · WXG-T-1006]` 固定样式展示腿落位：30×30 宽盘 ⇒ pitch = art.w / cols，
+ * 色块水平居中、底缘坐台面；图案包围盒必须落在展品框宽内且不越过玻璃裁切顶。
+ * 纹理腿的 256² 透明边判据已退场（K-053 划线）。
  */
 const expectBeadOnShelf = (cmds: readonly DrawCommand[]): void => {
     const rects = beadRects(cmds);
-    expect(rects.length, '珠面膜 / 底块已画').toBeGreaterThan(100);
+    expect(rects.length, '基色格已画').toBeGreaterThan(100);
     const left = ART.x + (ART.w - BOSS.cols * PITCH) / 2;
     const minX = Math.min(...rects.map((r) => r.x));
     const maxX = Math.max(...rects.map((r) => r.x + r.w));
     const minY = Math.min(...rects.map((r) => r.y));
     const maxY = Math.max(...rects.map((r) => r.y + r.h));
-    expect(minX).toBeGreaterThanOrEqual(left - 0.6);
-    expect(maxX).toBeLessThanOrEqual(left + BOSS.cols * PITCH + 0.6);
-    expect(minY).toBeGreaterThanOrEqual(ART.y - 0.6);
-    expect(maxY).toBeLessThanOrEqual(ART.y + BOSS.pattern.length * PITCH + 0.6);
+    expect(minX).toBeGreaterThanOrEqual(left - 1);
+    expect(maxX).toBeLessThanOrEqual(left + BOSS.cols * PITCH + 1);
+    expect(minY).toBeGreaterThanOrEqual(ART.y - 1);
+    expect(maxY).toBeLessThanOrEqual(ART.y + BOSS.pattern.length * PITCH + 1);
     // 水平中心 = 展品框中心（374.5）；纹理腿的 `MENU_ARC_ART_CONTENT` 偏移判据不再适用。
     expect((minX + maxX) / 2).toBeCloseTo(ART.x + ART.w / 2, 0);
+};
+
+/** 指定行（自顶 0-based）及以下的有墨格数 ⇒ 按进度着色的期望格数。 */
+const cellsFromRow = (row: number): number => {
+    const cells = levelThumbFullCells(BOSS);
+    let n = 0;
+    for (let i = 0; i < cells.length; i += 3) if (cells[i]! >= row) n += 1;
+    return n;
 };
 
 afterEach(() => {
@@ -113,18 +124,37 @@ describe('WXG-T-522 橱窗单一作品', () => {
         expectBeadOnShelf(frame(data()));
     });
 
-    it('`[2026-11-20]` 通关页：boss 珠面全彩，锁形退场', () => {
+    it('`[WXG-T-1006]` 通关页（进度 1）：基色全彩，锁形退场', () => {
         hostWith(MENU_TEXTURES.backdrop, MENU_TEXTURES.lock);
         const cmds = frame(data({ carouselState: 'cleared' as const }));
-        expect(beadRects(cmds).some((r) => r.fill === CELL_COLOR), '通关 = 全彩珠面').toBe(true);
+        const rects = beadRects(cmds);
+        expect(countIn(rects, COLOR_HEXES), '通关 = 全彩').toBe(levelThumbFullCells(BOSS).length / 3);
+        expect(countIn(rects, GRAY_HEXES), '通关不画灰格').toBe(0);
         expect(blitsOf(cmds, MENU_TEXTURES.lock).length, '通关不画锁').toBe(0);
     });
 
-    it('`[2026-11-20]` 推关页：boss 珠面整体置灰（不画渐变揭彩）', () => {
+    it('`[WXG-T-1006]` 进度 0：整幅置灰（未通关部分 = 灰）', () => {
         hostWith(MENU_TEXTURES.backdrop);
-        const cmds = frame(data({ carouselState: 'pushing' as const }));
-        expect(beadRects(cmds).some((r) => r.fill === CELL_GRAY), '推关 = 置灰珠面').toBe(true);
-        expect(beadRects(cmds).some((r) => r.fill === CELL_COLOR), '推关不露全彩').toBe(false);
+        const cmds = frame(data({ carouselState: 'pushing' as const, carouselProgress: 0 }));
+        const rects = beadRects(cmds);
+        expect(countIn(rects, GRAY_HEXES), '进度 0 = 整幅灰').toBe(levelThumbFullCells(BOSS).length / 3);
+        expect(countIn(rects, COLOR_HEXES), '进度 0 不露全彩').toBe(0);
+    });
+
+    it('`[WXG-T-1006]` 进度 0.5：自下而上恰好一半行全彩，其余置灰', () => {
+        hostWith(MENU_TEXTURES.backdrop);
+        const cmds = frame(data({ carouselState: 'pushing' as const, carouselProgress: 0.5 }));
+        const rects = beadRects(cmds);
+        const colored = countIn(rects, COLOR_HEXES);
+        const total = levelThumbFullCells(BOSS).length / 3;
+        // 30 行 × 0.5 ⇒ 底部 15 行（r ≥ 15）上色（格心判定）。
+        expect(colored, '彩色格数 = 底部 15 行有墨格').toBe(cellsFromRow(15));
+        expect(countIn(rects, GRAY_HEXES), '其余有墨格置灰').toBe(total - colored);
+        // 彩色格全部落在下半幅（y ≤ 底缘 + 15 行高）。
+        const revealTop = ART.y + 15 * PITCH;
+        for (const r of rects.filter((x) => COLOR_HEXES.has(x.fill ?? ''))) {
+            expect(r.y + r.h).toBeLessThanOrEqual(revealTop + 0.001);
+        }
     });
 
     it('`[WXG-T-916]` 未开启态：锁图占位——不画珠面展品，橱窗只留锁形', () => {

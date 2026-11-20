@@ -161,6 +161,14 @@ export interface MetaViewData {
     /** 相邻大关页的橱窗展品（同上，按 `ARCS[相邻页]` 的 boss 关取）。 */
     readonly carouselPeerArtLevel?: BeadsLevelRaw;
     /**
+     * `[2026-11-20 · WXG-T-1006]` 当前大关页的完成进度（0..1，已通关小关 / 总小关）。
+     * 视图按此**自下而上**给展品上色（未达部分置灰，用户令「图案按照进度等比例上下设置灰色」）。
+     * 缺省 ⇒ 视图按 `carouselState` 推定（pushing 0，其余 1）。
+     */
+    readonly carouselProgress?: number;
+    /** 相邻大关页的完成进度（同上，⛔ 不借用主车进度）。 */
+    readonly carouselPeerProgress?: number;
+    /**
      * 走马灯视觉偏移（设计 px，正 = 内容右移）。`reduceMotion` 时视图忽略它，改用 {@link carouselT} 淡变。
      * 缺省 0。
      */

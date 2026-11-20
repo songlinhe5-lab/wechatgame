@@ -48,6 +48,7 @@ import {
     SIGN_GLYPH_GAP_RATIO,
     SIGN_INK_IDX,
     SIGN_MATRIX_N,
+    MENU_SHOWCASE_CELL_SEAM,
     THUMB_AREA,
     THUMB_BEAD_SHAPE,
     THUMB_MATRIX_N,
@@ -64,6 +65,7 @@ import { drawThumbOutline } from './bead-outline.js';
 import {
     DEMO_BEAD_INKS,
     beadColorOf,
+    beadFadedInksFor,
     beadInksFor,
     relativeLuminance,
     type BeadInks,
@@ -551,6 +553,56 @@ export function drawBeadFace(
     }
     // `[WXG-T-928]` 轮廓压在珠面**之上**（末笔）：边界珠外缘 W 宽的黑线直接盖住珠面边沿。
     drawThumbOutline(builder, level, left, top, pitch, shaped ? beadEdge : block, palette.shadowInk);
+}
+
+/**
+ * `[2026-11-20 · WXG-T-1006]` 主菜单橱窗**固定样式展示腿**（用户令：「珠子形状看不清楚 ⇒ 用基色填充
+ * 代替」且「图案按进度等比例上下置灰」）。
+ *
+ * 与 {@link drawBeadFace} 的差别：⛔ 不画刻面 / 珠孔 / 底块 / 描边，只落**色板基色**方块
+ * （{@link beadColorOf}，四周留 {@link MENU_SHOWCASE_CELL_SEAM} 轻缝）；`progress`（0..1）以下
+ * 自下而上用全彩墨集，其余用 {@link beadFadedInksFor} 置**浅灰** ⇒ 未达进度只灰该灰的部分
+ * （浅灰档 156–220，保证整幅图案轮廓仍读得出，⛔ 不用 `beadGrayInksFor` 的深灰档）。
+ * 几何与 `drawBeadFace(anchor='bottom')` 同式（宽盘也底缘贴 `yBottom`）。
+ * 消费面仅主菜单走马灯；选关格 / 详情页仍走 `drawBeadFace`（T-952 / T-619 口径不变）。
+ */
+export function drawShowcaseFace(
+    builder: RenderModelBuilder,
+    level: BeadsLevelRaw,
+    x: number,
+    yBottom: number,
+    w: number,
+    h: number,
+    progress: number,
+    palette: BeadsPalette,
+): void {
+    const cells = levelThumbFullCells(level);
+    const locked = levelThumbLockedCells(level);
+    if (cells.length === 0 && locked.length === 0) return;
+    const rows = level.pattern.length;
+    const cols = level.cols;
+    const pitch = Math.min(w / cols, h / rows);
+    const left = x + (w - cols * pitch) / 2;
+    const top = yBottom + rows * pitch;
+    const colorInks = beadInksFor(level);
+    const grayInks = beadFadedInksFor(level);
+    // 彩色区顶（自下而上）：格心 ≤ 本线 ⇒ 全彩，否则置灰。按格判定，⛔ 半格灰。
+    const revealTop = yBottom + rows * pitch * Math.max(0, Math.min(1, progress));
+    const block = Math.max(1, pitch - MENU_SHOWCASE_CELL_SEAM * 2);
+    for (let i = 0; i < cells.length; i += 3) {
+        const cx = left + (cells[i + 1]! + 0.5) * pitch;
+        const cy = top - (cells[i]! + 0.5) * pitch;
+        const inks = cy <= revealTop ? colorInks : grayInks;
+        builder.rect(cx - block / 2, cy - block / 2, block, block, {
+            fill: beadColorOf(inks, cells[i + 2]!),
+        });
+    }
+    // 锁定格（boss 关通常无）：沿用盘面「灰紫平珠 + 45° 叉」，尺寸随格。
+    for (let i = 0; i < locked.length; i += 2) {
+        const cx = left + (locked[i + 1]! + 0.5) * pitch;
+        const cy = top - (locked[i]! + 0.5) * pitch;
+        drawLockedBead(builder, cx, cy, palette, pitch, 1);
+    }
 }
 
 /** 招牌档自审（位表边长与 `n` 相符 **且** 面过地板）⇒ 档位被改而位表未跟上时先红在这里。 */

@@ -740,6 +740,9 @@ function beadChannelColors(): Set<string> {
         for (let i = 1; i <= inks.hexes.length; i++) push(inks, i);
         // `[WXG-T-281]` 在册灰度墨集（`palette.ts::beadGrayInksFor`，单源 = 关卡墨置灰）⇒ 同通道，非第二份色源。
         const gray = beadGrayInksFor(lv);
+        // `[WXG-T-1006]` 主菜单固定样式展示腿落**基色**（`beadColorOf`）⇒ 灰度基色同属
+        // 「珠体通道可发射色」（同源墨集基色，⛔ 不是第二份色源；棱面 mix 仍由下面的 push 覆盖）。
+        for (const hex of gray.hexes) set.add(hex);
         for (let i = 1; i <= gray.hexes.length; i++) push(gray, i);
     }
     for (let i = 1; i <= DEMO_BEAD_INKS.hexes.length; i++) push(DEMO_BEAD_INKS, i);

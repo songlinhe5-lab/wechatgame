@@ -10,8 +10,7 @@ import { ARC_COMING_SOON } from '../config/arcs.js';
 import { plateFade } from '../config/menu-carousel.js';
 import { type RenderModelBuilder } from '@wxgame/framework';
 import { type BeadsPalette } from './palette.js';
-import { beadGrayInksFor } from './palette.js';
-import { drawBeadFace, drawBeadText } from './menu-signage.js';
+import { drawBeadText, drawShowcaseFace } from './menu-signage.js';
 import { drawGear } from './play-page.js';
 import { type BeadsLevelRaw } from '../config/levels-data.js';
 import { UI_FONT } from './ui-theme.js';
@@ -279,9 +278,10 @@ function drawLockedBadge(
 
 /**
  * `[WXG-T-522]` 单一作品腿：每页只画一件展品。
- * `[2026-11-20]` 展品 = **大关收尾关（boss）的珠面缩略**（用户令：「主界面的 boss 关图案
- * 已经取消纹理展示，而是用 boss 关珠面缩略图展示」）：`drawBeadFace` 与关卡详情橱窗同腿，
- * bottom 锚定台面；推关态 `beadGrayInksFor` 整体置灰，通关 / 满星全彩。
+ * `[2026-11-20 · WXG-T-1006]` 展品 = **大关收尾关（boss）的固定样式展示腿**：用户令
+ * 「珠面没有用颜色数据 / 珠子形状看不清 ⇒ 用基色填充代替」+「图案按照进度等比例上下设置灰色」。
+ * `drawShowcaseFace` 只落色板基色方块（无刻面 / 珠孔 / 描边），底缘坐台面；`progress` 以下
+ * 自下而上全彩、其余置灰（通关 / 满星 = 1 ⇒ 全彩）。
  * `[WXG-T-916]` **未开启例外 = 锁图占位**（用户 2026-11-12 裁：橱窗只留锁形 + 木牌行 2
  * 「未开启」，参考选关锁格）。
  */
@@ -291,6 +291,7 @@ function drawShowcaseArt(
     g: AnchoredMenuGeo,
     level: BeadsLevelRaw | undefined,
     state: MetaBossState,
+    progress: number,
     dx: number,
     alpha: number,
     comingSoon: boolean,
@@ -313,16 +314,10 @@ function drawShowcaseArt(
         return;
     }
     if (level !== undefined) {
-        // 推关态整体置灰（不做渐变揭彩——那曾是 BlitFx 位图专属，随纹理腿退场）。
-        // ⚠ 珠面 = 多条矢量命令，无单命令 alpha ⇒ `reduceMotion` 交叉淡变按中点硬切（alpha < 0.5
-        // 不画），否则两页珠面会以全彩叠在同一位置。普通滑动 alpha 恒 1，不命中本支。
+        // ⚠ 基色填充 = 多条矢量命令，无单命令 alpha ⇒ `reduceMotion` 交叉淡变按中点硬切
+        // （alpha < 0.5 不画），否则两页展品会以全彩叠在同一位置。普通滑动 alpha 恒 1。
         if (alpha < 0.5) return;
-        const grayInk = state === 'pushing' ? beadGrayInksFor(level) : undefined;
-        drawBeadFace(
-            builder, level, x, b.y, b.w, avail,
-            palette, grayInk,
-            undefined, undefined, 'bottom',
-        );
+        drawShowcaseFace(builder, level, x, b.y, b.w, avail, progress, palette);
     } else {
         drawDashedSocket(builder, { x, y: b.y, w: b.w, h: b.h }, palette.slotDashed);
     }
@@ -671,13 +666,16 @@ export function drawMenuAnchored(
     const travel = data.carouselT ?? 0;
     builder.clip(g.clipBox.x, g.clipBox.y, g.clipBox.w, g.clipBox.h);
     // 单一作品腿：台面/内景/射灯已烘进背板 ⇒ 只画一件作品（无光晕/徽章/沙漏/层板）。
-    drawShowcaseArt(builder, palette, g, data.carouselArtLevel, state, slide,
+    drawShowcaseArt(builder, palette, g, data.carouselArtLevel, state,
+        data.carouselProgress ?? (state === 'pushing' ? 0 : 1), slide,
         data.reduceMotion ? 1 - travel : 1, data.carouselComingSoon === true);
     if ((data.carouselPeer !== undefined || data.carouselPeerComingSoon === true) && travel > 0) {
         const sign = data.carouselPeerSign ?? (slide < 0 ? 1 : -1);
         const peerDx = data.reduceMotion ? 0 : slide + sign * g.clipBox.w;
+        const peerState: MetaBossState = data.carouselPeerState ?? 'cleared';
         drawShowcaseArt(
-            builder, palette, g, data.carouselPeerArtLevel, data.carouselPeerState ?? 'cleared',
+            builder, palette, g, data.carouselPeerArtLevel, peerState,
+            data.carouselPeerProgress ?? (peerState === 'pushing' ? 0 : 1),
             peerDx, data.reduceMotion ? travel : 1, data.carouselPeerComingSoon === true,
         );
     }
