@@ -286,20 +286,15 @@ export class BeadsShell implements Game {
         carouselTitle: undefined as string | undefined,
         carouselSeqLabel: undefined as string | undefined,
         carouselState: undefined as MetaBossState | undefined,
-        // `[WXG-T-566]` 当前大关「已完成小关 / 总小关」（每帧由 `_metaViewData` 覆写；空页 = undefined）。
-        carouselArcDone: undefined as number | undefined,
-        carouselArcTotal: undefined as number | undefined,
-        carouselTextureId: undefined as string | undefined,
-        carouselPeerTextureId: undefined as string | undefined,
+        // `[2026-11-20]` 橱窗展品 = 本大关 boss 关珠面缩略（纹理腿退场；空页 = undefined）。
+        carouselArtLevel: undefined as BeadsLevelRaw | undefined,
+        carouselPeerArtLevel: undefined as BeadsLevelRaw | undefined,
         carouselDx: 0,
         carouselT: 0,
         carouselPeer: undefined as BeadsLevelRaw | undefined,
         carouselPeerTitle: undefined as string | undefined,
         carouselPeerSeqLabel: undefined as string | undefined,
         carouselPeerState: undefined as MetaBossState | undefined,
-        // `[WXG-T-566]` 对页完成度（滑动中两页各自的揭彩比例，⛔ 不借用主车进度）。
-        carouselPeerArcDone: undefined as number | undefined,
-        carouselPeerArcTotal: undefined as number | undefined,
         carouselPeerSign: undefined as (-1 | 1) | undefined,
         carouselComingSoon: false,
         carouselPeerComingSoon: false,
@@ -1404,36 +1399,6 @@ export class BeadsShell implements Game {
     }
 
     /**
-     * `[WXG-T-566]` 大关小关完成度：`_arcDone` / `_arcTotal` = 该页已通关（≥1★）小关数 / 清单总关数。
-     * 与 {@link _arcState} 同源（同一 `levelRefs` 展开 + 同一 `starsByLevelRaw`），单趟整数循环、零分配。
-     * ⛔ 不供三态判档（判档仍走 `_arcState`：首关已解锁未通关 = 推关中，此时 done 可为 0）。
-     */
-    private _arcProgress(arcIdx: number): void {
-        const refs = ARCS[arcIdx]?.levelRefs;
-        const stars = this.play.starsByLevelRaw;
-        const n = this.play.levelCount;
-        let done = 0;
-        let total = 0;
-        if (refs) {
-            for (let r = 0; r < refs.length; r++) {
-                const range = refs[r]!;
-                for (let lv = range[0]; lv <= range[1] && lv <= n; lv++) {
-                    total++;
-                    if ((stars[lv - 1] ?? 0) > 0) done++;
-                }
-            }
-        }
-        this._arcDone = done;
-        this._arcTotal = total;
-    }
-
-    /**
-     * `_arcProgress` 的伴随计数（仅在该调用后有效；热路径复用，零分配）。
-     */
-    private _arcDone = 0;
-    private _arcTotal = 0;
-
-    /**
      * 大关状态归约（`tls §8.2 TODO-6` 已裁 = 甲，只换数据源）：
      * 任一关可进未通 ⇒ `pushing`；全通关 ⇒ `cleared`；全满星 ⇒ `fullstar`（`[WXG-T-579]`）；
      * 一关未开 ⇒ `locked`；空清单 ⇒ `undefined`（R12）。
@@ -1650,8 +1615,9 @@ export class BeadsShell implements Game {
         v.wallSlots = this._wallSlotsFor();
         // 槽位 → 关卡引用（同一缓存批，T-2B 缩略聚合的只读入口）。
         v.wallLevels = this._wallLevelsFor();
-        // 走马灯 = **大关页**（EP13-S4，C-2 ③⑤；Q16 = 甲）：代表图 = 该大关收尾关（boss）的橱窗图
-        // （`ARCS[页].textureId`），三态 = `ARCS[页].levelRefs` 归约（判据见 {@link _arcState}）。
+        // 走马灯 = **大关页**（EP13-S4，C-2 ③⑤；Q16 = 甲）：展品 = 该大关收尾关（boss）的
+        // **珠面缩略**（`_arcBossLevel`，2026-11-20 用户令取消 boss 纹理展示），
+        // 三态 = `ARCS[页].levelRefs` 归约（判据见 {@link _arcState}）。
         // 末页 `ARC_OPEN_MAX` = 空橱窗（无大关实体 ⇒ 点图零事件，R13）。
         const off = this._menu.offset;
         const soon = off >= ARC_OPEN_MAX;
@@ -1665,9 +1631,8 @@ export class BeadsShell implements Game {
         v.carouselOnStartPage = off === this._startArcPage();
         v.startLevelSeq = this.play.currentLevel.id;
         // `[WXG-T-913]` 陈列关 = 本大关解锁内第一个 0 星关（推关态展示「正在推的那一关」）；
-        // 大关全通 / 未解锁 ⇒ 回落 boss。橱窗图仍按 `ARCS[页].textureId`（章作品不变），
-        // 木牌关名在「陈列中途小关」时改由大关名供给（小关无展示名 ⇒ 章名不丢）；
-        // 陈列 boss 时 `undefined` ⇒ 视图回落 `lv.title`（旧行为逐字不变）。
+        // 大关全通 / 未解锁 ⇒ 回落 boss。橱窗展品 = 本大关 boss 关珠面缩略（`[2026-11-20]`
+        // 用户令：取消 boss 纹理展示），与木牌陈列关解耦；陈列 boss 时木牌回落 `lv.title`。
         const showcase = soon ? undefined : this._arcShowcaseLevel(off);
         v.carouselLevel = showcase;
         v.carouselTitle = showcase !== undefined && showcase !== this._arcBossLevel(off)
@@ -1676,16 +1641,7 @@ export class BeadsShell implements Game {
         // `[WXG-T-914]` 没有在推的关（陈列回落 boss）⇒ 第二行改状态词（已通关 / 未开启）。
         v.carouselSeqLabel = soon ? undefined : this._arcSeqLabel(off, showcase);
         v.carouselState = soon ? undefined : this._arcState(off);
-        // `[WXG-T-566]` 木牌 `N/M` 数据（与 `_arcState` 同一 `levelRefs` 遍历口径，单趟整数、零分配）。
-        if (soon) {
-            v.carouselArcDone = undefined;
-            v.carouselArcTotal = undefined;
-        } else {
-            this._arcProgress(off);
-            v.carouselArcDone = this._arcDone;
-            v.carouselArcTotal = this._arcTotal;
-        }
-        v.carouselTextureId = soon ? undefined : ARCS[off]?.textureId;
+        v.carouselArtLevel = soon ? undefined : this._arcBossLevel(off);
         v.carouselDx = this._menu.dx;
         v.carouselT = this._menu.t;
         const sign = this._menu.peerSign();
@@ -1699,9 +1655,7 @@ export class BeadsShell implements Game {
             v.carouselPeerTitle = undefined;
             v.carouselPeerSeqLabel = undefined;
             v.carouselPeerState = undefined;
-            v.carouselPeerTextureId = undefined;
-            v.carouselPeerArcDone = undefined;
-            v.carouselPeerArcTotal = undefined;
+            v.carouselPeerArtLevel = undefined;
         } else {
             const peerShowcase = this._arcShowcaseLevel(peerPage);
             v.carouselPeer = peerShowcase;
@@ -1710,11 +1664,7 @@ export class BeadsShell implements Game {
                 : undefined;
             v.carouselPeerSeqLabel = this._arcSeqLabel(peerPage, peerShowcase);
             v.carouselPeerState = this._arcState(peerPage);
-            v.carouselPeerTextureId = ARCS[peerPage]?.textureId;
-            // `[WXG-T-566]` 对页揭彩比例：与主车同源同口径（主车值已拷进 v，重算不会覆盖它）。
-            this._arcProgress(peerPage);
-            v.carouselPeerArcDone = this._arcDone;
-            v.carouselPeerArcTotal = this._arcTotal;
+            v.carouselPeerArtLevel = this._arcBossLevel(peerPage);
         }
         v.studioEnabled = this._studio !== undefined;
         // `[WXG-T-432]` 好友榜面板（复用视图对象，零分配）。

@@ -372,14 +372,14 @@ games/beads/design/levels/
 |---|---|---|
 | 走马灯页序 | `chapters[].order` | `ARCS` 数组序；实体页 = `ARC_OPEN_MAX`；其后 1 页空橱窗（不变） |
 | 墙集合 | 章 `levels[]`（uid） | 产物 `levelRefs`（1-based 区间）→ `_rebuildWallSlots` 展开 → 截 `WALL_CAPACITY` |
-| boss 图 | 章 `showcase.textureId` | shell 取 `ARCS[页].textureId` → `carouselTextureId`（**视图不查表**） |
+| boss 图 | 章 `showcase.textureId` | ~~shell 取 `ARCS[页].textureId` → `carouselTextureId`（**视图不查表**）~~ **2026-11-20 改裁**：主菜单展品 = boss 关珠面缩略（shell 取 `ARCS[页].levelRefs` 末关 → `carouselArtLevel`，**视图不查表**）；纹理位图不再进主菜单 |
 | 解锁归约 | 章 `levelRefs` + 存档 `stars/maxUnlocked` | `_arcState` 三态，语义不变 |
 | boss 缩略位图映射 | `ARCS[].levelRefs` 末区间 `to` | `BOSS_THUMB_TEXTURES`（现状派生保留）；宿主 `beads-blit-carrier` 用 `OPEN_ARCS` 建 bitmap 表（`bundle/art` 的唯一消费方） |
 | 页头大关名（UX TODO-1） | 章 `title` | **本批不做**；将来由 shell 塞 ViewModel，⛔ 视图查表 |
 
 **边界三条**：
 
-1. 「视图不查表」的机械口径 = `games/beads/src/view/**` ⛔ `import` `config/arcs`；弧数据一律经 shell → ViewModel 字段（现 `carouselTextureId` / `carouselLevel` / `carouselComingSoon` / `carouselPeer*`）。
+1. 「视图不查表」的机械口径 = `games/beads/src/view/**` ⛔ `import` `config/arcs`；弧数据一律经 shell → ViewModel 字段（现 `carouselArtLevel` / `carouselLevel` / `carouselComingSoon` / `carouselPeer*`）。
 2. 生成物只被 `config/**` 与 `game/**` 读；宿主只读 `textureId` / `bundle` / `art` 建表。
 3. 产物的 `levelRefs` 是**唯一**运行期关号轴；任何新消费点 ⛔ 自己数 uid 或自建第二套索引。
 

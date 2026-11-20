@@ -304,7 +304,8 @@ export const MENU_BADGE = { x: 538, yOff: 142, d: 64 } as const;
  * ⇒ 本档「磨砂玻璃 + 半透明灰」叠加管线**退场、当前无生产消费方**（K-053 留档；力场能力仍在
  * framework `frostFx`，⛔ 勿按本档恢复未开启态）。
  * - 推关 ⇒ **竖向揭彩**（`grayWipe`：彩色自下而上，比例 = `done/total`，柔带见
- *   {@link MENU_GRAY_WIPE}）；
+ *   {@link MENU_GRAY_WIPE}）；⚠ 2026-11-20 起橱窗改 boss 关珠面缩略 ⇒ 揭彩腿**退役**，
+ *   推关 = `beadGrayInksFor` 整体置灰；
  * - 通关 / 满星 ⇒ 不传 fx（全彩）。
  * ⛔ 不得把推关改回固定 0.55 整图灰（用户明确改为「从下到上的彩色 mask」）。
  * 档位口径 = `_arcState`（未开启 = 无小关解锁，
@@ -339,6 +340,8 @@ export const MENU_LOCKED_ICON = {
 /**
  * `[WXG-T-566]` 竖向揭彩交界柔带**总高度占作品高度的比例**（0.08 @ 340px ≈ 27px）。
  * 硬度上限 = 相邻小关进度差（章内 8–10 关 ⇒ 每档 ≈ 10–12%），柔带略窄于档距才能看出台阶。
+ * ⚠ **退役（2026-11-20）**：主菜单橱窗改 boss 关珠面缩略（用户令「取消纹理展示」）⇒
+ * 揭彩腿随位图腿整条退场，本常量**当前无生产消费方**（K-053 留档；framework `grayWipeFx` 能力不动）。
  */
 export const MENU_GRAY_WIPE = { soft: 0.08 } as const;
 export const MENU_V2 = {
@@ -380,6 +383,9 @@ export const MENU_V2 = {
 export const MENU_ARC_ART_CONTENT = { x: 37, y: 31, w: 182, h: 180 } as const;
 /** 橱窗大图源边长（OPEN_ARCS 两枚均 256²）。 */
 export const MENU_ARC_ART_SRC = 256;
+// ⚠ 以上两枚 **退役（2026-11-20）**：主菜单橱窗改 boss 关珠面缩略（`drawBeadFace`，用户令
+// 「取消纹理展示」）⇒ 大关位图腿退场，本组**当前无生产消费方**（K-053 留档；
+// 大关纹理仍保留给过关结算陈列条等其它消费面）。
 
 /**
  * `[WXG-T-953]` **橱窗装裱层**（M1 背衬暗角 / M2 底缘接触影 / M3 压边内框 / M4 上缘受光线）。

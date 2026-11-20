@@ -87,6 +87,8 @@
 > 12. **EP13-S4 走马灯按大关翻页 + 橱窗三态 = done**（提交本批，沿拆分号 WXG-T-284）：
 >     页序按大关（`ARC_OPEN_MAX` 实体页 + 1 空橱窗），代表图 = 该大关收尾关的橱窗图
 >     （`ARCS[页].textureId`，视图新增 `carouselTextureId` 入参）；三态由 `levelRefs` 归约
+>     ⚠ **2026-11-20 改裁（WXG-T-1006）**：展品改为该大关收尾关的**珠面缩略**（`carouselArtLevel`
+>     → `drawBeadFace`），boss 纹理位图不再进主菜单；下列 `carouselTextureId` 为历史口径（K-053 留档）。
 >     （任一关推关中 / 全通关 / 一关未开）。空橱窗页两入口（点图 / 松手）零事件（R13），S2 的
 >     空墙过渡态收口；两处硬取首行（`MENU_TEXTURES.bossArt` / `BOSS_THUMB_TEXTURES`）消除，
 >     后者改按大关表派生。新测试六臂（页数/取图/两态/零事件/可翻回），beads 1019 绿。

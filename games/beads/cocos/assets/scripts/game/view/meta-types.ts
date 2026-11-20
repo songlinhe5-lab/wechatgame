@@ -149,26 +149,17 @@ export interface MetaViewData {
      */
     readonly anchors?: MenuAnchors;
     /**
-     * `[WXG-T-280]` Boss 图位三态（缺省视图按在册数据推定：有卡=cleared，有解锁=pushing，余=locked）。
+     * `[WXG-T-280]` Boss 位三态（缺省视图按在册数据推定：有卡=cleared，有解锁=pushing，余=locked）。
      */
     readonly carouselState?: MetaBossState;
     /**
-     * `[WXG-T-566]` 当前大关页的**已完成小关数 / 总小关数**（用户 2026-11-02 裁：
-     * 「当前完成小关数量 / 总小关数量 = 当前大关的进度」）。原「木牌第二行直拼 `N/M`」已由
-     * `[WXG-T-598]`（2026-11-07 用户令「木牌只留关名 + 关序」）摘下 ⇒ 现**唯一**消费面是橱窗竖向揭彩
-     * 比例（`view/meta-menu.ts::wipeFx`，⛔ 不是死字段）。
-     * shell 与 {@link carouselState} 同源遍历 `levelRefs` 产出；视图只渲染、⛔ 自算（L5）。
-     * 空橱窗页 / 无归属 ⇒ `undefined`（⛔ 造 `0/0`）。
+     * `[2026-11-20]` 当前大关页的橱窗展品 = **大关收尾关（boss）的珠面缩略**。
+     * 用户令：「主界面的 boss 关图案已经取消纹理展示，而是用 boss 关珠面缩略图展示」。
+     * shell 按 `ARCS[页].levelRefs` 末区间取关本体，⛔ 视图不查表；空橱窗页 ⇒ `undefined`。
      */
-    readonly carouselArcDone?: number;
-    readonly carouselArcTotal?: number;
-    /**
-     * 当前大关页的橱窗图（EP13-S4：shell 按 `ARCS[页].textureId` 取图，⛔ 视图不查表）。
-     * 缺省 ⇒ 落程序化缩略（旧调用方/合成数据兼容，不硬绑首个大关图）。
-     */
-    readonly carouselTextureId?: string;
-    /** 相邻大关页的橱窗图（同上，按 `ARCS[相邻页]` 取）。 */
-    readonly carouselPeerTextureId?: string;
+    readonly carouselArtLevel?: BeadsLevelRaw;
+    /** 相邻大关页的橱窗展品（同上，按 `ARCS[相邻页]` 的 boss 关取）。 */
+    readonly carouselPeerArtLevel?: BeadsLevelRaw;
     /**
      * 走马灯视觉偏移（设计 px，正 = 内容右移）。`reduceMotion` 时视图忽略它，改用 {@link carouselT} 淡变。
      * 缺省 0。
@@ -183,12 +174,6 @@ export interface MetaViewData {
     /** `[WXG-T-914]` 相邻大关页木牌第二行状态词（同主车口径；缺省 ⇒ `第 N 关`）。 */
     readonly carouselPeerSeqLabel?: string;
     readonly carouselPeerState?: MetaBossState;
-    /**
-     * `[WXG-T-566]` 相邻大关页的完成度（与 {@link carouselArcDone} 同源、同口径）。
-     * 对页推关态的竖向揭彩按它算 ⇒ 滑动中的两页各自进度，⛔ 不借用主车进度（会跳变）。
-     */
-    readonly carouselPeerArcDone?: number;
-    readonly carouselPeerArcTotal?: number;
     /** 相邻项在哪一侧：+1 在右（下一项），-1 在左。缺省按 `carouselDx` 的符号猜。 */
     readonly carouselPeerSign?: -1 | 1;
     /** 下标 = `ARC_OPEN_MAX` 的空橱窗。中间置灰花，木牌写「敬请期待」。 */

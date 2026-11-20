@@ -12,8 +12,11 @@
  *
  * 反例臂（S4 前先红）：
  *  ① 空橱窗页点图会进 `levels` overlay（S2 的已知过渡态，R13 收口于此）；
- *  ② 走马灯代表图/状态取自「关」陈列序（`_fillCarousel` 语义混装）⇒ 视图自由 `carouselTextureId`
+ *  ② 走马灯代表图/状态取自「关」陈列序（`_fillCarousel` 语义混装）⇒ 视图自由 `carouselArtLevel`
  *     注入时仍画常量图 ⇒ 按大关取图未成立。
+ *
+ * `[2026-11-20]` 用户令改裁：橱窗展品 = **大关收尾关（boss）的珠面缩略**（`drawBeadFace`），
+ * 大关纹理位图腿退场 ⇒ 本文件「代表图」判据改珠面 B0 底块填色（全彩 / 置灰）。
  */
 
 import { describe, it, expect, afterEach } from 'vitest';
@@ -38,9 +41,10 @@ import { ARC_COMING_SOON, ARC_OPEN_MAX, ARCS } from '../src/config/arcs.js';
 import { LEVELS } from '../src/config/levels.js';
 // 星账夹具助手（轴从 `LEVELS` 派生，⛔ 手抄 token；K-152）。
 import { starsLedger } from './helpers.js';
-import { DESIGN_H, DESIGN_W, MENU_GRAY_WIPE, MENU_TEXTURES, STAR_MAX, WALL_ROWS } from '../src/config/tuning.js';
+import { DESIGN_H, DESIGN_W, MENU_TEXTURES, STAR_MAX, WALL_ROWS } from '../src/config/tuning.js';
 import { buildMetaView, metaLayout, setMenuBitmapResolver, type MetaViewData } from '../src/view/meta-view.js';
-import { DEFAULT_PALETTE } from '../src/view/palette.js';
+import { DEFAULT_PALETTE, beadGrayInksFor, beadInksFor, endpointOf } from '../src/view/palette.js';
+import { levelThumbFullCells } from '../src/view/menu-signage.js';
 
 const START = 1_700_000_000_000;
 const META_KEY = 'test.ep13s4.meta';
@@ -111,13 +115,42 @@ function blitIdsOf(cmds: readonly DrawCommand[]): string[] {
     return cmds.filter((c) => c.kind === 'blit').map((c) => (c as { textureId: string }).textureId);
 }
 
+/** 大关① / ② 的 boss 关（`levelRefs` 末关）= 橱窗珠面缩略素材。 */
+const BOSS_A = LEVELS[8]!;
+const BOSS_B = LEVELS[10]!;
+/** 珠面 B0 底块填色（`drawTargetTile` 矢量臂 = 端点 `edge`）⇒ 全彩 / 置灰判据。 */
+function tileFill(lv: typeof BOSS_A, gray: boolean): string {
+    const inks = gray ? beadGrayInksFor(lv) : beadInksFor(lv);
+    return endpointOf(inks, levelThumbFullCells(lv)[2]!).edge;
+}
+const COLOR_A = tileFill(BOSS_A, false);
+const GRAY_A = tileFill(BOSS_A, true);
+const COLOR_B = tileFill(BOSS_B, false);
+const GRAY_B = tileFill(BOSS_B, true);
+
+function hasFill(cmds: readonly DrawCommand[], fill: string): boolean {
+    return cmds.some((c) => c.kind === 'rect' && (c as { fill?: string }).fill === fill);
+}
+
+/** 首格颜色的格数（两关共用同一色板 ⇒ 区分「画的是哪一关」只能按格数：L9 = 53 / L11 = 512）。 */
+function firstColorCount(lv: typeof BOSS_A): number {
+    const cells = levelThumbFullCells(lv);
+    const idx = cells[2]!;
+    let n = 0;
+    for (let i = 2; i < cells.length; i += 3) if (cells[i] === idx) n += 1;
+    return n;
+}
+function tileCount(cmds: readonly DrawCommand[], fill: string): number {
+    return cmds.filter((c) => c.kind === 'rect' && (c as { fill?: string }).fill === fill).length;
+}
+
 /** 主菜单锚定档热区（与绘制同源；⛔ 不手抄坐标）。 */
 function tapButton(shell: BeadsShell, id: string): boolean {
     const btn = metaLayout('none', WALL_ROWS, shell.menuAnchors).buttons.find((b) => b.id === id)!;
     return shell.tapMeta(btn.box.x + btn.box.w / 2, btn.box.y + btn.box.h / 2);
 }
 
-/** 合成视图数据（只测视图对 `carouselTextureId` 的消费，⛔ 不代表生产链路）。 */
+/** 合成视图数据（只测视图对 `carouselArtLevel` 的消费，⛔ 不代表生产链路）。 */
 function synthetic(extra: Partial<MetaViewData> = {}): MetaViewData {
     return {
         stamina: 5, staminaMax: 5, coins: 0, overlay: 'none', signinDay: 0, canClaim: false,
@@ -145,7 +178,9 @@ describe('EP13-S4 走马灯 = 大关集合（页数与代表图）', () => {
         const r = rig();
         const first = frameOf(r.shell);
         expect(textsOf(first), '首帧 = 实体大关页').not.toContain(ARC_COMING_SOON);
-        expect(blitIdsOf(first), '代表图按大关表取').toContain(ARCS[0].textureId);
+        // `[2026-11-20]` 展品 = 该大关 boss 关珠面缩略（本 rig 推关中 ⇒ 置灰档）。
+        expect(hasFill(first, GRAY_A), '展品 = 大关① boss 珠面（推关置灰）').toBe(true);
+        expect(hasFill(first, COLOR_A), '推关不露全彩').toBe(false);
         expect(textsOf(first), '木牌 = 该章 title').toContain(ARCS[0].title);
 
         // 逐页翻到末页：前 ARC_OPEN_MAX 页 = 实体章（代表图 + 章名逐页换），末页 = 唯一空橱窗。
@@ -155,9 +190,9 @@ describe('EP13-S4 走马灯 = 大关集合（页数与代表图）', () => {
             const f = frameOf(r.shell);
             if (i < ARC_OPEN_MAX) {
                 expect(textsOf(f), `第 ${i + 1} 页 = 实体大关页（非空橱窗）`).not.toContain(ARC_COMING_SOON);
-                // `[WXG-T-916]` 未开放大关 = 锁图占位：不画章代表图、橱窗只留锁形
+                // `[WXG-T-916]` 未开放大关 = 锁图占位：不画珠面展品、橱窗只留锁形
                 // （本 rig 只解锁第 1 关 ⇒ 第 2..N 页均未开放；木牌仍印该章 title / 关名）。
-                expect(blitIdsOf(f), '未开放 = 锁图占位（不画代表图）').not.toContain(ARCS[i]!.textureId);
+                expect(hasFill(f, GRAY_B) || hasFill(f, COLOR_B), '未开放 = 锁图占位（不画珠面）').toBe(false);
                 expect(blitIdsOf(f), '锁形占位').toContain(MENU_TEXTURES.lock);
                 expect(textsOf(f), '木牌 = 该章 title').toContain(ARCS[i]!.title);
             } else {
@@ -178,36 +213,35 @@ describe('EP13-S4 走马灯 = 大关集合（页数与代表图）', () => {
         expect(blitIdsOf(back), '回到的实体页 = 最后一章（未开放 ⇒ 锁图）').toContain(MENU_TEXTURES.lock);
     });
 
-    it('视图按传入的大关图渲染（非表外硬取首行）', () => {
+    it('视图按传入的 `carouselArtLevel` 渲染（非表外硬取首行）', () => {
         setMenuBitmapResolver(() => true);
-        const cmds = frameOfData(synthetic({ carouselTextureId: 'bitmap__arc_probe' }));
-        expect(blitIdsOf(cmds), 'carouselTextureId 必须被消费').toContain('bitmap__arc_probe');
+        const probe = frameOfData(synthetic({ carouselArtLevel: BOSS_B }));
+        // 两关共用同一色板 ⇒ 按首格颜色的格数区分（若回落首行只会是 L9 的 53）。
+        expect(tileCount(probe, GRAY_B), 'carouselArtLevel 必须被消费（L11 首色 512 格）')
+            .toBe(firstColorCount(BOSS_B));
+        // 不得靠 `carouselLevel` 冒充展品：给了陈列关、没给 art 字段 ⇒ 只留虚线空槽。
+        const none = frameOfData(synthetic());
+        expect(tileCount(none, GRAY_B), '无 art 字段不画珠面').toBe(0);
     });
 });
 
 describe('EP13-S4 橱窗三态 = 大关集合归约（TODO-6 / Q16 = 甲）', () => {
-    const artFxOf = (ids: readonly DrawCommand[]): Record<string, unknown> | undefined => {
-        const art = ids.find((c) => c.kind === 'blit' && (c as { textureId: string }).textureId === ARCS[0].textureId) as
-            { fx?: Record<string, unknown> } | undefined;
-        return art?.fx;
-    };
-
-    it('任一关可进未通 ⇒ pushing（竖向揭彩，无章）', () => {
+    it('任一关可进未通 ⇒ pushing（boss 珠面整体置灰）', () => {
         setMenuBitmapResolver(() => true);
         const cmds = frameOf(rig({ maxUnlocked: 1 }).shell);
         const ids = blitIdsOf(cmds);
-        // `[WXG-T-566]` 三态只由灰度 + 柜灯表达，状态标记全部退场。
-        // 桁架：maxUnlocked=1 且零星 ⇒ 完成 0/章内总关 ⇒ 揭彩进度 0（底部仅柔带渗透）。
-        expect(artFxOf(cmds)).toEqual({ grayWipe: [0, MENU_GRAY_WIPE.soft] });
-        // `[WXG-T-578]` 旧 `frame`/`seal` 两键已删，负断言随靶子退场。
+        // `[2026-11-20]` 三态只由珠面灰度 + 珠圈框 / 锁形表达，状态标记全部退场。
+        expect(hasFill(cmds, GRAY_A), '推关 = 置灰珠面').toBe(true);
+        expect(hasFill(cmds, COLOR_A), '推关不露全彩').toBe(false);
         expect(ids).not.toContain(MENU_TEXTURES.lock);
     });
 
-    it('全通关但未满星 ⇒ cleared（整图全彩，无珠圈框）', () => {
+    it('全通关但未满星 ⇒ cleared（全彩珠面，无珠圈框）', () => {
         setMenuBitmapResolver(() => true);
         const cmds = frameOf(rig({ maxUnlocked: LEVELS.length, stars: LEVELS.map(() => 1) }).shell);
         const ids = blitIdsOf(cmds);
-        expect(artFxOf(cmds), '全彩 = 不传 fx').toBeUndefined();
+        expect(hasFill(cmds, COLOR_A), '通关 = 全彩珠面').toBe(true);
+        expect(hasFill(cmds, GRAY_A), '通关不画灰珠').toBe(false);
         expect(ids).not.toContain(MENU_TEXTURES.lock);
         expect(ids, '未满星不画珠圈框').not.toContain(MENU_TEXTURES.arcRing);
     });
@@ -217,7 +251,7 @@ describe('EP13-S4 橱窗三态 = 大关集合归约（TODO-6 / Q16 = 甲）', ()
         setMenuBitmapResolver(() => true);
         const cmds = frameOf(rig({ maxUnlocked: LEVELS.length, stars: LEVELS.map(() => STAR_MAX) }).shell);
         const ids = blitIdsOf(cmds);
-        expect(artFxOf(cmds), '满星也是全彩 = 不传 fx').toBeUndefined();
+        expect(hasFill(cmds, COLOR_A), '满星也是全彩').toBe(true);
         expect(ids, '满星画珠圈框').toContain(MENU_TEXTURES.arcRing);
         expect(ids, '满星不画锁形').not.toContain(MENU_TEXTURES.lock);
     });

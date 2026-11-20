@@ -3,12 +3,12 @@
  * 几何一律取自 `meta-layout.ts` 的锚定档，控件画法取自 `meta-widgets.ts` ⇒ 页面只编排、不另算。
  */
 
-import { DESIGN_H, DESIGN_W, type MenuAnchors, MENU_ARC_ART_CONTENT, MENU_ARC_ART_SRC, MENU_BAR_BAKED_LABEL_INSET, MENU_FULLSTAR_FRAME, MENU_GRAY_WIPE, MENU_LOCKED_ICON, MENU_MOUNT, MENU_PLACEMENT, MENU_PLATE_PILL, MENU_SIGNIN_DOT_R, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, MENU_V2_BG_EXPAND, MENU_V2_BG_H, MENU_V2_DESK_FILL,
+import { DESIGN_H, DESIGN_W, type MenuAnchors, MENU_BAR_BAKED_LABEL_INSET, MENU_FULLSTAR_FRAME, MENU_LOCKED_ICON, MENU_MOUNT, MENU_PLACEMENT, MENU_PLATE_PILL, MENU_SIGNIN_DOT_R, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, MENU_V2_BG_EXPAND, MENU_V2_BG_H, MENU_V2_DESK_FILL,
     SIGN_BEAD_PITCH, menuBackdropTopPad, SIGN_MATRIX_N, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning';
 import { COPY_TOKENS } from '../config/copy-tokens';
 import { ARC_COMING_SOON } from '../config/arcs';
 import { plateFade } from '../config/menu-carousel';
-import { grayWipeFx, type BlitFx, type RenderModelBuilder } from '../../framework/index';
+import { type RenderModelBuilder } from '../../framework/index';
 import { type BeadsPalette } from './palette';
 import { beadGrayInksFor } from './palette';
 import { drawBeadFace, drawBeadText } from './menu-signage';
@@ -19,38 +19,6 @@ import { drawButton } from './ui-widgets';
 import type { AnchoredMenuGeo } from './meta-layout';
 import type { Box, MetaBossState, MetaViewData } from './meta-types';
 import { heartBarLabel, isPressed, label, menuBitmapReady, pressDy } from './meta-widgets';
-
-/**
- * `[WXG-T-566 / WXG-T-567]` 三态 fx（模块级常量 / 缓存 ⇒ 键序固定、同进度每帧零分配）。
- * - 未开启 = **锁图占位**（`[WXG-T-916]` 用户 2026-11-12 裁：不画 boss 图、只画锁形 ⇒ 本函数
- *   不再有 locked 分支；旧的 `frost(radius=8) + gray(0.3)` 叠加管线退场，K-053 留档于
- *   `tuning/menu.ts::MENU_FROST`）；
- * - 推关 = **竖向揭彩**（`grayWipe`，彩色比例 = 已完成小关 / 总小关；用户 2026-11-02 裁）；
- * - 已通关 = 不传 fx（全彩）；⛔ 不传 `gray: 0`（多一个键 = 多一次 sha 漂移，且无效果）。
- */
-
-/**
- * 揭彩 fx 缓存：键 = 进度千分位。生产侧进度 = `done/total`（离散，章内 ≤ 10 档）
- * ⇒ 缓存 ≤ 11 项；量化只为防「有人喂连续动画进度」把 Map 撑大（0.001 ≈ 0.34px @340）。
- */
-const WIPE_FX = new Map<number, BlitFx>();
-
-function wipeFx(done: number | undefined, total: number | undefined): BlitFx {
-    const p = done === undefined || total === undefined || total <= 0 ? 0 : done / total;
-    const key = Math.round(p * 1000);
-    let fx = WIPE_FX.get(key);
-    if (fx === undefined) {
-        fx = grayWipeFx(key / 1000, MENU_GRAY_WIPE.soft);
-        WIPE_FX.set(key, fx);
-    }
-    return fx;
-}
-
-/** `cleared` 与 `fullstar` 都是全彩（不传 fx）—— 满星的差别只在珠圈框，不在灰度。 */
-function triStateFx(state: MetaBossState, done?: number, total?: number): BlitFx | undefined {
-    if (state === 'pushing') return wipeFx(done, total);
-    return undefined;
-}
 
 /**
  * 资源条（❤ 8/8 ｜ 0 ⊙）。
@@ -310,11 +278,12 @@ function drawLockedBadge(
 }
 
 /**
- * `[WXG-T-522]` 单一作品腿（内景背板位图命中时）：每页只画一件大关图。
- * `[WXG-T-566]` 三态 = **同一张图的灰度差异**（推关竖向揭彩 / 通关全彩），状态标记全部退场
- * （用户 2026-11-02 裁）；`[WXG-T-916]` **未开启例外 = 锁图占位**（用户 2026-11-12 裁：不画
- * boss 图，橱窗只留锁形 + 木牌行 2「未开启」，参考选关锁格）。
- * `arcDone` / `arcTotal` = 该页大关完成度（揭彩比例唯一定义处见 `wipeFx`）。
+ * `[WXG-T-522]` 单一作品腿：每页只画一件展品。
+ * `[2026-11-20]` 展品 = **大关收尾关（boss）的珠面缩略**（用户令：「主界面的 boss 关图案
+ * 已经取消纹理展示，而是用 boss 关珠面缩略图展示」）：`drawBeadFace` 与关卡详情橱窗同腿，
+ * bottom 锚定台面；推关态 `beadGrayInksFor` 整体置灰，通关 / 满星全彩。
+ * `[WXG-T-916]` **未开启例外 = 锁图占位**（用户 2026-11-12 裁：橱窗只留锁形 + 木牌行 2
+ * 「未开启」，参考选关锁格）。
  */
 function drawShowcaseArt(
     builder: RenderModelBuilder,
@@ -325,9 +294,6 @@ function drawShowcaseArt(
     dx: number,
     alpha: number,
     comingSoon: boolean,
-    textureId?: string,
-    arcDone?: number,
-    arcTotal?: number,
 ): void {
     if (alpha <= 0) return;
     const ink = alpha < 1 ? alpha : undefined;
@@ -340,29 +306,17 @@ function drawShowcaseArt(
         return;
     }
     // `[WXG-T-916]` 未开放大关 = 锁图占位（用户 2026-11-12 裁「参考关卡详情页做未开放标识」）：
-    // ⛔ 不再画 boss 图 / 磨砂 / 灰度（三条腿退场，K-053 留档），橱窗只留锁形。
+    // ⛔ 不再画展品 / 磨砂 / 灰度（三条腿退场，K-053 留档），橱窗只留锁形。
     // `[WXG-T-917]` 锚点 = 玻璃可视区中心（`b.y + avail/2`，⛔ 不坐台面，口径见 `drawLockedBadge`）。
     if (state === 'locked') {
         drawLockedBadge(builder, palette, x + b.w / 2, b.y + avail / 2, b.w, ink);
         return;
     }
-    if (level !== undefined && textureId !== undefined && menuBitmapReady(textureId)) {
-        const fx = triStateFx(state, arcDone, arcTotal);
-        const opts = fx === undefined
-            ? (ink === undefined ? undefined : { alpha: ink })
-            : (ink === undefined ? { fx } : { alpha: ink, fx });
-        // `[WXG-T-601]` 橱窗内居中：可用高度 = `clip` 顶 ↔ 圆台面(框底)，等比放大到内容
-        // 铺满这段 ⇒ 顶 = clip 顶、底 = 台面（底缘仍坐台，中心抬到玻璃内框中心 ±5px）。
-        // ⛔ 直接上移会重新悬空；底缘固定时只有放大能把中心抬上去。
-        const k = avail / MENU_ARC_ART_CONTENT.h;
-        const size = MENU_ARC_ART_SRC * k;
-        const bottomInset = MENU_ARC_ART_SRC - MENU_ARC_ART_CONTENT.y - MENU_ARC_ART_CONTENT.h;
-        builder.blit(textureId, x + b.w / 2 - size / 2, b.y - bottomInset * k, size, size, opts);
-    } else if (level !== undefined) {
-        // 程序化降级腿：drawBeadFace（完整珠面刻面，与关卡详情橱窗同腿），
-        // anchor='bottom' 底对齐台面、与 bitmap 腿底缘一致。
-        // pushing 状态用 beadGrayInksFor 置灰（简化版，不做渐变揭彩——那是 BlitFx 位图专属）。
-        // ⚠ 不画 alpha 淡变（ink）：drawBeadFace 发多条矢量命令，无单命令 alpha。
+    if (level !== undefined) {
+        // 推关态整体置灰（不做渐变揭彩——那曾是 BlitFx 位图专属，随纹理腿退场）。
+        // ⚠ 珠面 = 多条矢量命令，无单命令 alpha ⇒ `reduceMotion` 交叉淡变按中点硬切（alpha < 0.5
+        // 不画），否则两页珠面会以全彩叠在同一位置。普通滑动 alpha 恒 1，不命中本支。
+        if (alpha < 0.5) return;
         const grayInk = state === 'pushing' ? beadGrayInksFor(level) : undefined;
         drawBeadFace(
             builder, level, x, b.y, b.w, avail,
@@ -717,25 +671,23 @@ export function drawMenuAnchored(
     const travel = data.carouselT ?? 0;
     builder.clip(g.clipBox.x, g.clipBox.y, g.clipBox.w, g.clipBox.h);
     // 单一作品腿：台面/内景/射灯已烘进背板 ⇒ 只画一件作品（无光晕/徽章/沙漏/层板）。
-    drawShowcaseArt(builder, palette, g, data.carouselLevel, state, slide,
-        data.reduceMotion ? 1 - travel : 1, data.carouselComingSoon === true, data.carouselTextureId,
-        data.carouselArcDone, data.carouselArcTotal);
+    drawShowcaseArt(builder, palette, g, data.carouselArtLevel, state, slide,
+        data.reduceMotion ? 1 - travel : 1, data.carouselComingSoon === true);
     if ((data.carouselPeer !== undefined || data.carouselPeerComingSoon === true) && travel > 0) {
         const sign = data.carouselPeerSign ?? (slide < 0 ? 1 : -1);
         const peerDx = data.reduceMotion ? 0 : slide + sign * g.clipBox.w;
         drawShowcaseArt(
-            builder, palette, g, data.carouselPeer, data.carouselPeerState ?? 'cleared',
+            builder, palette, g, data.carouselPeerArtLevel, data.carouselPeerState ?? 'cleared',
             peerDx, data.reduceMotion ? travel : 1, data.carouselPeerComingSoon === true,
-            data.carouselPeerTextureId, data.carouselPeerArcDone, data.carouselPeerArcTotal,
         );
     }
     builder.unclip();
     // `[WXG-T-953]` 装裱层固定上层（M1 → M3 → M4）。M1 只在「窗口里有实物展品」时画；
     // 滑动途中两页任一有实物即保留，避免从锁页滑向成品页时暗角在末帧才跳出。
     drawShowcaseMount(builder, palette, g,
-        hasShowcaseItem(data.carouselLevel, state, data.carouselComingSoon === true)
+        hasShowcaseItem(data.carouselArtLevel, state, data.carouselComingSoon === true)
         || (travel > 0
-            && hasShowcaseItem(data.carouselPeer, data.carouselPeerState ?? 'cleared', data.carouselPeerComingSoon === true)));
+            && hasShowcaseItem(data.carouselPeerArtLevel, data.carouselPeerState ?? 'cleared', data.carouselPeerComingSoon === true)));
     // `[WXG-T-585]` 通关章（玻璃右上 90×89.5）：只在「已通关 / 满星」两态盖，
     // 锁定与推关不盖（进度已达意，⛔ 不等于盖章）。
     if (g.sealBox !== undefined && (state === 'cleared' || state === 'fullstar')

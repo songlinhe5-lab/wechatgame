@@ -7,14 +7,29 @@ import { RenderModelBuilder } from '@wxgame/framework';
 import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import { LEVELS } from '../src/config/levels.js';
 import { carouselDamp, carouselPage, plateFade } from '../src/config/menu-carousel.js';
-import { ARC_COMING_SOON, ARCS } from '../src/config/arcs.js';
-import { DESIGN_H, DESIGN_W, MENU_GRAY_WIPE, MENU_TEXTURES, MENU_V2 } from '../src/config/tuning.js';
+import { ARC_COMING_SOON } from '../src/config/arcs.js';
+import { DESIGN_H, DESIGN_W, MENU_TEXTURES, MENU_V2 } from '../src/config/tuning.js';
 import { createBeadsShell } from '../src/game/beads-shell.js';
 import { buildMetaView, setMenuBitmapResolver, type MetaViewData } from '../src/view/meta-view.js';
 import { anchoredGeo } from '../src/view/meta-layout.js';
-import { DEFAULT_PALETTE } from '../src/view/palette.js';
+import { DEFAULT_PALETTE, beadGrayInksFor, beadInksFor, endpointOf } from '../src/view/palette.js';
+import { levelThumbFullCells } from '../src/view/menu-signage.js';
 import { UI_FONT } from '../src/view/ui-theme.js';
 import type { BeadsLevelRaw } from '../src/config/levels-data.js';
+
+/**
+ * `[2026-11-20]` 橱窗展品 = 大关① 收尾关（L9）的**珠面缩略**（用户令：主界面 boss 关图案
+ * 取消纹理展示，改 boss 关珠面缩略）。全彩 / 置灰判据取 B0 底块填色
+ * （`drawTargetTile` 矢量臂 = 端点 `edge`，⛔ 不手抄 hex）。
+ */
+const BOSS = LEVELS[8]!;
+const CELL_IDX = levelThumbFullCells(BOSS)[2]!;
+const COLOR_TILE = endpointOf(beadInksFor(BOSS), CELL_IDX).edge;
+const GRAY_TILE = endpointOf(beadGrayInksFor(BOSS), CELL_IDX).edge;
+
+const rectFills = (cmds: readonly { kind: string }[]): (string | undefined)[] =>
+    cmds.filter((c) => c.kind === 'rect').map((c) => (c as { fill?: string }).fill);
+const hasFill = (cmds: readonly { kind: string }[], fill: string): boolean => rectFills(cmds).includes(fill);
 
 const dataFor = (lv: BeadsLevelRaw, extra: Partial<MetaViewData> = {}): MetaViewData => ({
     stamina: 5, staminaMax: 5, coins: 0, overlay: 'none', signinDay: 0, canClaim: false,
@@ -22,7 +37,7 @@ const dataFor = (lv: BeadsLevelRaw, extra: Partial<MetaViewData> = {}): MetaView
     debugInfo: false, debugGuides: false, beadStyle: 'facet-4', beadSize: 'full', skinId: 'tokens',
     levelCount: LEVELS.length, currentLevelIndex: 0, maxUnlockedLevel: 1,
     starsByLevel: [], wallSlots: [], wallLevels: [], carouselLevel: lv, carouselState: 'pushing',
-    carouselTextureId: ARCS[0].textureId,
+    carouselArtLevel: BOSS,
     ...extra,
 });
 
@@ -67,35 +82,34 @@ describe('翻页状态机', () => {
 describe('橱窗绘制', () => {
     const lv = LEVELS[0]!;
 
-    it('`[WXG-T-566 / WXG-T-916]` 三态 = 推关揭彩 / 通关全彩；未开启 = 锁图占位（不画大关图）', () => {
+    it('`[2026-11-20]` 三态 = 推关置灰 / 通关全彩；未开启 = 锁图占位（不画珠面）', () => {
         setMenuBitmapResolver(() => true);
-        const artOf = (d: MetaViewData) => frame(d).find(
-            (c) => c.kind === 'blit' && (c as { textureId: string }).textureId === ARCS[0].textureId,
-        ) as { fx?: Record<string, unknown> } | undefined;
         const cleared = frame(dataFor(lv, { carouselState: 'cleared' }));
-        expect(artOf(dataFor(lv, { carouselState: 'cleared' }))?.fx, '通关 = 全彩（不传 fx）').toBeUndefined();
-        expect(artOf(dataFor(lv, { carouselState: 'pushing' }))?.fx, '推关 = 竖向揭彩（此处进度 0）')
-            .toEqual({ grayWipe: [0, MENU_GRAY_WIPE.soft] });
-        // `[WXG-T-916]` 用户 2026-11-12 改裁：未开启 = 锁图占位（参考选关锁格）⇒ 大关图**不画**、
-        // 磨砂/灰度腿退场、锁形成为橱窗唯一主体（木牌行 2 仍「未开启」，T-914）。
+        expect(hasFill(cleared, COLOR_TILE), '通关 = 全彩珠面').toBe(true);
+        expect(hasFill(cleared, GRAY_TILE), '通关不画灰珠').toBe(false);
+        // 推关 = `beadGrayInksFor` 整体置灰（旧「竖向揭彩」随位图腿退场）。
+        const pushing = frame(dataFor(lv, { carouselState: 'pushing' }));
+        expect(hasFill(pushing, GRAY_TILE), '推关 = 置灰珠面').toBe(true);
+        expect(hasFill(pushing, COLOR_TILE), '推关不露全彩').toBe(false);
+        // `[WXG-T-916]` 未开启 = 锁图占位（参考选关锁格）⇒ 珠面**不画**、锁形成为橱窗唯一主体
+        // （木牌行 2 仍「未开启」，T-914）。
         const locked = frame(dataFor(lv, { carouselState: 'locked' }));
-        expect(artOf(dataFor(lv, { carouselState: 'locked' })), '未开启不画大关图').toBeUndefined();
+        expect(hasFill(locked, COLOR_TILE) || hasFill(locked, GRAY_TILE), '未开启不画珠面').toBe(false);
         expect(
             locked.filter((c) => c.kind === 'blit' && c.textureId === MENU_TEXTURES.lock),
             '锁图占位 = 徽标层唯一主体',
         ).toHaveLength(1);
-        // cleared 态不画任何状态标记（含锁形——锁形只在 locked 态）。
-        // `[WXG-T-578]` 旧 `frame`/`seal` 两键已删，负断言随靶子退场。
+        // cleared 态不画锁形（锁形只在 locked 态）。
         expect(cleared.some((c) => c.kind === 'blit' && c.textureId === MENU_TEXTURES.lock)).toBe(false);
     });
 
-    it('空橱窗只写敬请期待，不画主题图和章', () => {
+    it('空橱窗只写敬请期待，不画珠面和锁', () => {
         setMenuBitmapResolver(() => true);
-        const cmds = frame(dataFor(lv, { carouselLevel: undefined, carouselComingSoon: true }));
+        const cmds = frame(dataFor(lv, { carouselLevel: undefined, carouselArtLevel: undefined, carouselComingSoon: true }));
         const text = cmds.find((c) => c.kind === 'text' && c.text === ARC_COMING_SOON);
         expect(text).toBeTruthy();
         expect(cmds.filter((c) => c.kind === 'circle').length).toBeGreaterThanOrEqual(7);
-        expect(cmds.some((c) => c.kind === 'blit' && c.textureId === ARCS[0].textureId)).toBe(false);
+        expect(hasFill(cmds, COLOR_TILE) || hasFill(cmds, GRAY_TILE), '空橱窗无珠面').toBe(false);
         expect(cmds.some((c) => c.kind === 'blit' && c.textureId === MENU_TEXTURES.lock)).toBe(false);
     });
 
@@ -114,14 +128,12 @@ describe('橱窗绘制', () => {
         expect(soon?.font, '敬请期待同档（⛔ 退回 button 30）').toBe(seq!.font);
     });
 
-    it('`[WXG-T-566]` 滑动时作品图跟着走；减少动效时不平移', () => {
+    it('`[2026-11-20]` 滑动时珠面缩略跟着走；减少动效时不平移', () => {
         setMenuBitmapResolver(() => true);
-        const xOf = (data: MetaViewData) => {
-            const b = frame(data).find(
-                (c) => c.kind === 'blit' && (c as { textureId: string }).textureId === ARCS[0].textureId,
-            ) as { x: number };
-            return b.x;
-        };
+        // 取全彩底块最左缘作参照（同关同态 ⇒ 同一格，平移量可直比）。
+        const xOf = (data: MetaViewData) => Math.min(...frame(data)
+            .filter((c) => c.kind === 'rect' && (c as { fill?: string }).fill === COLOR_TILE)
+            .map((c) => (c as { x: number }).x));
         const cleared = { carouselState: 'cleared' as const };
         const rest = xOf(dataFor(lv, cleared));
         expect(xOf(dataFor(lv, { ...cleared, carouselDx: 80, carouselT: 0.2 }))).toBeCloseTo(rest + 80);

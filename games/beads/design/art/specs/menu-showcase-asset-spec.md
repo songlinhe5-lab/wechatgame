@@ -100,7 +100,7 @@
 | D2 | `ui_menu_ribbon_current` ≈260×72 | **退场（未实装）** | 进行中标识改由走马灯揭彩（`grayWipe`）+ 木牌文字表达；无绶带资产、无纹理键 |
 | D3 | `ui_menu_seal_cleared` ≈130×150 | **已被取代** | `MENU_TEXTURES.seal`（`ui_menu_seal.png`）90×90 @ `MENU_V2.seal` 545,405；只在已通关 / 满星两态盖 |
 | E1 | `ui_menu_boss_frame` ≈420×420 | **退场（已烘）** | 画框 / 玻璃属背板；作品绘制框 = `MENU_V2.art` 325×314 @212,530（实际绘制包围盒见 [`menu-showcase-mount-spec.md`](menu-showcase-mount-spec.md) §1） |
-| E2 | `bitmap__boss_l{N}` 256×256 | **在役（2 张）** | `l9-boss-mandala-256` / `photo32-smoke-boss-256` 在 `themes` 分包；`[WXG-T-954]` 已补 1px `shadowInk` 剪影描边。⛔ 原「9 关 = 9 张」是上限预估，未全量出图 |
+| E2 | `bitmap__boss_l{N}` 256×256 | **主菜单退场（2026-11-20）· 资源在役** | `l9-boss-mandala-256` / `photo32-smoke-boss-256` 在 `themes` 分包；`[WXG-T-954]` 已补 1px `shadowInk` 剪影描边。⚠ 2026-11-20 用户令「主界面 boss 关图案取消纹理展示，改 boss 关珠面缩略」⇒ 主菜单橱窗不再消费本行（`drawBeadFace` 珠面腿），纹理保留给过关结算陈列条等其它消费面。⛔ 原「9 关 = 9 张」是上限预估，未全量出图 |
 | F1 | `ui_btn_prev` 88×88 | **已被取代** | `MENU_TEXTURES.prevBtn/prevBtnPressed`（`ui_menu_arrow_left[_highlight]`）110×116 @18,605；整枚位图，只有 normal / pressed 两态 |
 | F2 | `ui_btn_next` 88×88 | **已被取代** | `MENU_TEXTURES.nextBtn/nextBtnPressed`（`ui_menu_arrow_right[_highlight]`）109×116 @625,605；同上 |
 | G1 | `ui_btn_start` ≈480×120 | **已被取代** | `MENU_TEXTURES.ctaV2/ctaPressedV2`（`ui_menu_cta[_highlight]`）378×179 @186,1051；「开始」已烘、⛔ 九宫拉伸、无 `_disabled` 变体 |
@@ -132,7 +132,7 @@
 | D2 | 「正在挑战」绶带 | `ui_menu_ribbon_current` | ≈ 260×72 | 整图 | — | **动态或半固定** | 位图切图（绶带底）+ 上叠「正在挑战」 | textures |
 | D3 | 「已通关」金章 | `ui_menu_seal_cleared` | ≈ 130×150 | 整图 | — | **烘焙**（四字固定） | 位图切图 | textures |
 | E1 | boss 成品画框 | `ui_menu_boss_frame` | ≈ 420×420 | 9-slice / 整图 | — | — | 位图切图（框）；**成品图本体见 E2** | textures |
-| E2 | **boss 缩略成品图** | `bitmap__boss_l{N}` | 256×256 | 逐关位图 | 每主题一张 | — | **非固定切图**：由关卡 pattern 生成的 boss 珠拼缩略，走位图腿。`l9-boss-mandala-256.png` 在 `assets/themes`（Bundle `themes`，微信分包） | themes |
+| E2 | **boss 缩略成品图** | `bitmap__boss_l{N}` | 256×256 | 逐关位图 | 每主题一张 | — | **非固定切图**：由关卡 pattern 生成的 boss 珠拼缩略，走位图腿。`l9-boss-mandala-256.png` 在 `assets/themes`（Bundle `themes`，微信分包）。⚠ 2026-11-20 起主菜单橱窗改 `drawBeadFace` 珠面缩略，本行走其它消费面（结算陈列条） | themes |
 | F1 | 切换钮·上一个 | `ui_btn_prev` | 88×88 | 整图 | `_normal` `_pressed` `_disabled` | 箭头 | 位图切图（◀）；禁用态=已到首 | textures |
 | F2 | 切换钮·下一个 | `ui_btn_next` | 88×88 | 整图 | 同上 | 箭头 | 位图切图（▶）；禁用态=已到尾 | textures |
 | G1 | 主 CTA「开始游戏」 | `ui_btn_start` | ≈ 480×120 | **9-slice** | `_normal` `_pressed` `_disabled`(锁定态灰) | **动态**（文案可换） | 位图切图胶囊底 + 上叠「开始游戏」 | textures |
