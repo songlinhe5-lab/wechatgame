@@ -118,6 +118,13 @@ export const CLEAR_FACE_SLICE = { capX: 36, capY: 36 } as const;
 export const CLEAR_BTN_SLICE = { capX: 76, capY: 46 } as const;
 export const CLEAR_PAPER_BTN_SLICE = { capX: 52, capY: 44 } as const;
 /**
+ * 结算双钮 9-slice 端帽（源纹 px，2026-11-20）：`ui_btn_clear_next_9s@2x` 554×218 cap 64（主·橙，圆角约 50）、
+ * `ui_btn_clear_menu_9s@2x` 384×204 cap 56（次·奶油，圆角约 51）。回放钮 160×96 与次钮 192×101 纵横比不同，
+ * 复用次钮底图必须九宫格，否则圆角被压扁。派生脚本 = `design/ai-workflows/derive-clear-btn-9slice.py`。
+ */
+export const CLEAR_NEXT_SLICE = { capX: 64, capY: 64 } as const;
+export const CLEAR_MENU_SLICE = { capX: 56, capY: 56 } as const;
+/**
  * `[WXG-T-938]` 设置弹窗按钮 9-slice 端帽（源纹 px）：`ui_btn_settings_9s@2x` = 235×210，
  * 左右端帽各 70（圆角约 45 + 25 净空），中段 95 为**无字木面**（派生自选关「关闭」烘图）。
  * 只横切（⛔ 不传 capY）：设置钮 88 高 < 源 210，纵向走整体等比，端帽同比缩到 ≈29。

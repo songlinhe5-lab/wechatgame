@@ -96,6 +96,12 @@ const REPLAY_ENTRY_W = 160;
 const REPLAY_ENTRY_H = 96;
 const REPLAY_ENTRY_BOTTOM = 192;
 
+/** 回放钮左缘 x：次钮（主界面）中心 x 减半宽（次钮 x = 行左 + 主钮宽 + 间隔）。 */
+function replayEntryX(): number {
+  const menuLeft = CLEAR_ROW_LEFT + CLEAR_ACTION_W + CLEAR_PAIR_GAP;
+  return menuLeft + CLEAR_SECONDARY_W / 2 - REPLAY_ENTRY_W / 2;
+}
+
 function rect(x: number, y: number, w: number, h: number): PanelRect {
   return { xMin: x, yMin: y, xMax: x + w, yMax: y + h };
 }
@@ -131,10 +137,11 @@ function build(): ClearPanelLayout {
         CLEAR_SECONDARY_H,
       ),
     },
-    // `EP15-S4`：独立回放钮（在双钮下方、面板外；无录像时由调用方过滤掉）。
+    // `EP15-S4`：独立回放钮（在面板外、**次钮「回主界面」列正下方**，中心对齐次钮中心；
+    // 无录像时由调用方过滤掉）。2026-11-20 用户令「回放放在主界面按钮下面，不要重叠」。
     {
       id: 'replay',
-      rect: rect((DESIGN_W - REPLAY_ENTRY_W) / 2, REPLAY_ENTRY_BOTTOM, REPLAY_ENTRY_W, REPLAY_ENTRY_H),
+      rect: rect(replayEntryX(), REPLAY_ENTRY_BOTTOM, REPLAY_ENTRY_W, REPLAY_ENTRY_H),
     },
   ];
   // `[WXG-T-949]` 牌内三段：标题 / 星 / 用时 / 豆（Figma 距牌顶 92 / 193.5 / 278.5 / 345）。

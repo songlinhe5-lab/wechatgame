@@ -202,6 +202,9 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
     // `.meta` 已由 Cocos 编辑器签发（uuid `6eb9947a-1b98-45d2-a21d-03e569e7a751`，2026-11-16）
     // ⇒ 本条已注册，设置腿自 `btnWood` 过渡换正式底板（`settings-content.ts::drawSettingsWoodButton`）。
     [MENU_TEXTURES.btnSettings]: { path: 'ui_btn_settings_9s' },
+    // `[2026-11-20]` 结算双钮九宫格（端帽见 `CLEAR_NEXT_SLICE` / `CLEAR_MENU_SLICE`；.meta 已由编辑器签发）。
+    [MENU_TEXTURES.clearNextBtn]: { path: 'ui_btn_clear_next_9s' },
+    [MENU_TEXTURES.clearMenuBtn]: { path: 'ui_btn_clear_menu_9s' },
     // `[WXG-T-941 收尾]` 设置项 cell 的四枚图标 + 两枚开关（正本 = `final/assets/menu/settings/`，
     // 投放件去掉 `@2x` 后缀；像素尺寸与 `settings-content.ts::ICON_SRC` 逐一对应：109×115 / 116×105 /
     // 114×125 / 125×127，开关 168×95）。`.meta` 已由编辑器签发（2026-11-16）

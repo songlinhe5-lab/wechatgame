@@ -201,8 +201,9 @@ const MENU_FILE: Readonly<Record<string, string>> = {
   // `[WXG-T-949]` 结算面板新版四件（Figma `过关结算 269:44`，2026-11-15）。
   [MENU_TEXTURES.clearPanelBoard]: 'clear/ui_clear_panel_board@2x.png',
   [MENU_TEXTURES.clearStar]: 'clear/ui_clear_star@2x.png',
-  [MENU_TEXTURES.clearNextBtn]: 'clear/ui_btn_clear_next@2x.png',
-  [MENU_TEXTURES.clearMenuBtn]: 'clear/ui_btn_clear_menu@2x.png',
+  // `[2026-11-20]` 双钮背景改九宫格件（端帽见 `CLEAR_NEXT_SLICE` / `CLEAR_MENU_SLICE`；派生 = design/ai-workflows/derive-clear-btn-9slice.py）。
+  [MENU_TEXTURES.clearNextBtn]: 'clear/ui_btn_clear_next_9s@2x.png',
+  [MENU_TEXTURES.clearMenuBtn]: 'clear/ui_btn_clear_menu_9s@2x.png',
   // `[WXG-T-938]` 设置弹窗按钮：选关「关闭」烘图（`detail/ui_level_select_close@2x`）派生的无字厚木 9-slice。
   [MENU_TEXTURES.btnSettings]: 'buttons/ui_btn_settings_9s@2x.png',
   // 设置项 cell（2026-11-14 Figma 原图导出；Cocos 未注册 ⇒ 缺图腿）

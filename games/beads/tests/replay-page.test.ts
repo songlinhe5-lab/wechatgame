@@ -39,16 +39,23 @@ const centre = (r: { x: number; bottom: number; w: number; h: number }): { x: nu
 });
 
 describe('EP15-S4 · 结算面板回放入口（§3.1）', () => {
-  it('独立 160×96 小钮：有录像可点、无录像零响应；文案 = 回放', () => {
+  it('独立 160×96 小钮：有录像可点、无录像零响应；文案 = 回放；位于次钮列正下方、不与双钮重叠', () => {
     const layout = clearPanelLayout({ lastLevel: false, showReplay: true });
     const replay = layout.buttons.find((b) => b.id === 'replay')!;
+    const menu = layout.buttons.find((b) => b.id === 'menu')!;
     expect(replay).toBeTruthy();
     expect(replay.rect.xMax - replay.rect.xMin).toBe(160);
     expect(replay.rect.yMax - replay.rect.yMin).toBe(96);
     expect(replay.rect.yMin).toBe(192);
+    // 2026-11-20：中心对齐次钮（主界面）中心 x = 525。
+    expect((replay.rect.xMin + replay.rect.xMax) / 2).toBe((menu.rect.xMin + menu.rect.xMax) / 2);
+    // 不重叠：回放钮整体位于面板底（y-up 393）之下，与双钮零交集。
+    expect(replay.rect.yMax).toBeLessThan(layout.panel.yMin);
     expect(clearPanelLabel('replay', false)).toBe('回放');
-    expect(hitClearPanel(375, 240, { lastLevel: false, showReplay: true })).toBe('replay');
-    expect(hitClearPanel(375, 240, { lastLevel: false })).toBeNull(); // 无录像 ⇒ 不命中
+    const hitX = (replay.rect.xMin + replay.rect.xMax) / 2;
+    const hitY = (replay.rect.yMin + replay.rect.yMax) / 2;
+    expect(hitClearPanel(hitX, hitY, { lastLevel: false, showReplay: true })).toBe('replay');
+    expect(hitClearPanel(hitX, hitY, { lastLevel: false })).toBeNull(); // 无录像 ⇒ 不命中
   });
 });
 
@@ -219,8 +226,9 @@ describe('EP15-S4 · 演示/回放零副作用（§8-5 钱包 / 体力 / 发豆 
 describe('EP15-S4 · 回放入口唯一性（§8-6 逐相位入口矩阵）', () => {
   it('视频回放钮只在 ClearPanel；失败 / 冲刺 / 通关面板零视频回放入口', () => {
     // ClearPanel：回放钮 = 显隐在**命中腿**裁（布局恒留位，`showReplay=false` ⇒ 不可点、不可见）。
-    expect(hitClearPanel(375, 240, { lastLevel: false, showReplay: true })).toBe('replay');
-    expect(hitClearPanel(375, 240, { lastLevel: false, showReplay: false })).toBeNull();
+    // 回放钮中心 = 次钮列中心 x 525、y-up 240（2026-11-20 移至次钮正下方）。
+    expect(hitClearPanel(525, 240, { lastLevel: false, showReplay: true })).toBe('replay');
+    expect(hitClearPanel(525, 240, { lastLevel: false, showReplay: false })).toBeNull();
     expect(failPanelLayout(true).buttons.some((b) => String(b.id) === 'replay')).toBe(false);
     expect(failPanelLayout(false).buttons.some((b) => String(b.id) === 'replay')).toBe(false);
     expect(sprintSettleLayout().buttons.some((b) => String(b.id) === 'replay')).toBe(false);

@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4221,
       "lines": 140,
-      "sha256": "bbeba5e5e371f79a21ce04aa683824369196d056c58b0ee4b27b5762394c7b25",
+      "sha256": "5ec8b43ef897618240b256826cc4eb5a58bc07139a60b689a28e25ffdb231fc7",
       "tier": "normal",
       "sections": [
         {
@@ -14587,17 +14587,17 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 47399,
-      "lines": 371,
-      "sha256": "edcec00bc016b6a318fc3f581a8ac8294b967128afb1014b017b7b3e5f8e915f",
+      "tokens": 47646,
+      "lines": 373,
+      "sha256": "2306be7dffeda627d3e6cc52d2ce544912664967c4f58c214633cc6abd8f03d4",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads UI 架构（View / ViewModel / Presenter + 公共基础）",
           "level": 1,
           "startLine": 1,
-          "endLine": 372,
-          "tokens": 47380,
+          "endLine": 374,
+          "tokens": 47627,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -14767,8 +14767,8 @@
           "anchor": "§12 TODO 拆分",
           "level": 2,
           "startLine": 138,
-          "endLine": 368,
-          "tokens": 42327,
+          "endLine": 370,
+          "tokens": 42574,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -14779,8 +14779,8 @@
         {
           "anchor": "§13 待你拍板",
           "level": 2,
-          "startLine": 369,
-          "endLine": 372,
+          "startLine": 371,
+          "endLine": 374,
           "tokens": 323,
           "summary": "D1–D5 均已裁定（见 [ADR-0032 §5](adr/ADR-0032-beads-ui-architectur",
           "keywords": [
@@ -28982,17 +28982,17 @@
     },
     {
       "path": "games/beads/design/art/specs/assets-spec.md",
-      "tokens": 122383,
-      "lines": 2122,
-      "sha256": "6764cdb7b7f3199b6292c6f1d2001f0fd8b9f75b5a79a9abbcd6e383c803bd68",
+      "tokens": 122663,
+      "lines": 2126,
+      "sha256": "8977f6139a20efb59ec337430640383eb3e06a737deb849fa3e485544f1d4990",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§《拼豆》资产规格表（Asset Spec）",
           "level": 1,
           "startLine": 1,
-          "endLine": 2123,
-          "tokens": 122369,
+          "endLine": 2127,
+          "tokens": 122648,
           "summary": "项目：微信小游戏矩阵 · 第二款《拼豆填色消除》",
           "keywords": [
             "Asset",
@@ -29224,8 +29224,8 @@
           "anchor": "§4 命名规范",
           "level": 2,
           "startLine": 2044,
-          "endLine": 2065,
-          "tokens": 477,
+          "endLine": 2069,
+          "tokens": 757,
           "summary": "全小写 + 下划线；模式 {域}_{实体}_{变体}_{状态}[@2x].{ext}。倍率后缀 @2x 是唯一允许的非下",
           "keywords": [
             "ext",
@@ -29236,8 +29236,8 @@
           "anchor": "§4.1 过关结算面板位图（`[WXG-T-949]`，Figma `过关结算 269:44`）",
           "level": 3,
           "startLine": 2052,
-          "endLine": 2065,
-          "tokens": 241,
+          "endLine": 2069,
+          "tokens": 521,
           "summary": "ui_clear_panel_board@2x.png 545×585（1090×1170） 整张木牌（含铆钉 / 标题",
           "keywords": [
             "[WXG-T-949]",
@@ -29251,8 +29251,8 @@
         {
           "anchor": "§5 包体预算表（微信红线 vs 内部目标，**分清两条线**）",
           "level": 2,
-          "startLine": 2066,
-          "endLine": 2084,
+          "startLine": 2070,
+          "endLine": 2088,
           "tokens": 560,
           "summary": "微信红线（不可越） 主包 ≤ 4096 KB",
           "keywords": [
@@ -29265,8 +29265,8 @@
         {
           "anchor": "§6 交付与验收",
           "level": 2,
-          "startLine": 2085,
-          "endLine": 2123,
+          "startLine": 2089,
+          "endLine": 2127,
           "tokens": 4116,
           "summary": "[ ] 全部元素程序化绘制，无外部图片引用。",
           "keywords": [
@@ -48725,17 +48725,17 @@
     },
     {
       "path": "games/beads/design/ux/bot-replay-spec.md",
-      "tokens": 7520,
-      "lines": 314,
-      "sha256": "6dadaa335a9ba01aa3b19ee69a93a868838890e235f9d4fb7c4181084f86c5e6",
+      "tokens": 7682,
+      "lines": 315,
+      "sha256": "75bbc2e637738d14299088f8baffd92cf36b7a1d4c59a4a8fbff6fc60c3a477d",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§UX 规格 · 机器人玩家与过程回放（Bot & Replay）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 315,
-          "tokens": 7498,
+          "endLine": 316,
+          "tokens": 7661,
           "summary": "项目：games/beads · 版本 v1.2（2026-11-20）· 任务号 WXG-T-983（初版）/ WXG",
           "keywords": [
             "Bot",
@@ -48778,8 +48778,8 @@
           "anchor": "§3 关键界面线框（ASCII，逐屏）",
           "level": 2,
           "startLine": 51,
-          "endLine": 153,
-          "tokens": 1938,
+          "endLine": 154,
+          "tokens": 2100,
           "summary": "",
           "keywords": [
             "ASCII",
@@ -48791,8 +48791,8 @@
           "anchor": "§3.1 回放入口（v1 最小入口，不动现有 UI）",
           "level": 3,
           "startLine": 53,
-          "endLine": 81,
-          "tokens": 566,
+          "endLine": 82,
+          "tokens": 729,
           "summary": "用户 2026-11-19 裁定：先不改 ClearPanel 的既有 UI 设计，只在 LEVEL_CLEAR 放一个",
           "keywords": [
             "ClearPanel",
@@ -48805,8 +48805,8 @@
         {
           "anchor": "§3.2 全屏回放页（750×1334）",
           "level": 3,
-          "startLine": 82,
-          "endLine": 121,
+          "startLine": 83,
+          "endLine": 122,
           "tokens": 727,
           "summary": "",
           "keywords": [
@@ -48816,8 +48816,8 @@
         {
           "anchor": "§3.3 回放 / 演示结束条",
           "level": 3,
-          "startLine": 122,
-          "endLine": 139,
+          "startLine": 123,
+          "endLine": 140,
           "tokens": 318,
           "summary": "",
           "keywords": [
@@ -48828,8 +48828,8 @@
         {
           "anchor": "§3.4 托管态（PLAYING）",
           "level": 3,
-          "startLine": 140,
-          "endLine": 153,
+          "startLine": 141,
+          "endLine": 154,
           "tokens": 278,
           "summary": "HUD「托管中」徽标 132×56，x∈[309,441]，y∈[1150,1206] 静态胶囊 + 机器人图标 + 文",
           "keywords": [
@@ -48841,8 +48841,8 @@
         {
           "anchor": "§4 状态流转 × 输入响应矩阵",
           "level": 2,
-          "startLine": 154,
-          "endLine": 188,
+          "startLine": 155,
+          "endLine": 189,
           "tokens": 800,
           "summary": "与 input-control §2.3 镜像；本表只列新增/变化行，未列状态沿用既有门禁。",
           "keywords": [
@@ -48856,8 +48856,8 @@
         {
           "anchor": "§5 交互反馈与动效时长表",
           "level": 2,
-          "startLine": 189,
-          "endLine": 211,
+          "startLine": 190,
+          "endLine": 212,
           "tokens": 505,
           "summary": "回放页进入 不透明页淡入 + 内容上移 12px，ease-out 无（不新造 clip） 200",
           "keywords": [
@@ -48871,8 +48871,8 @@
         {
           "anchor": "§6 首屏留存策略（微信前 10 秒）",
           "level": 2,
-          "startLine": 212,
-          "endLine": 229,
+          "startLine": 213,
+          "endLine": 230,
           "tokens": 296,
           "summary": "不变：启动 → 读档 → 直进玩法；演示/回放/托管都不在首 10 秒关键路径，不自动播放、不遮挡首屏。",
           "keywords": [
@@ -48883,8 +48883,8 @@
         {
           "anchor": "§7 可访问性（对齐 `art/accessibility.md` 与 `systems-index §3.8`）",
           "level": 2,
-          "startLine": 230,
-          "endLine": 246,
+          "startLine": 231,
+          "endLine": 247,
           "tokens": 370,
           "summary": "触控热区 回放控件 ≥88×88；进度条热区高 88；回放入口钮 160×96；退出钮 88×88",
           "keywords": [
@@ -48899,8 +48899,8 @@
         {
           "anchor": "§8 决策记录与待确认项",
           "level": 2,
-          "startLine": 247,
-          "endLine": 273,
+          "startLine": 248,
+          "endLine": 274,
           "tokens": 1236,
           "summary": "",
           "keywords": [
@@ -48911,8 +48911,8 @@
         {
           "anchor": "§8.1 已裁定（本单建议，待用户最终确认）",
           "level": 3,
-          "startLine": 249,
-          "endLine": 263,
+          "startLine": 250,
+          "endLine": 264,
           "tokens": 1039,
           "summary": "D1 演示 = 预计算录像，不是实时机器人 备选 A 实时影子播放 / B 预计算再播放。推荐 B：与回放共用同一播放器",
           "keywords": [
@@ -48924,8 +48924,8 @@
         {
           "anchor": "§8.2 待确认项",
           "level": 3,
-          "startLine": 264,
-          "endLine": 273,
+          "startLine": 265,
+          "endLine": 274,
           "tokens": 172,
           "summary": "1. BOT_STEP_INTERVAL_MS 的体感值（当前建议 450ms）需 playtest 定档；[TODO]",
           "keywords": [
@@ -48938,8 +48938,8 @@
         {
           "anchor": "§附录 · 对既有文档的增补点（⚠️ 本单不直接修改这些文件，由主对话合并）",
           "level": 2,
-          "startLine": 274,
-          "endLine": 315,
+          "startLine": 275,
+          "endLine": 316,
           "tokens": 1158,
           "summary": "",
           "keywords": [
@@ -48954,8 +48954,8 @@
         {
           "anchor": "§A. `gdd/core-loop.md`",
           "level": 3,
-          "startLine": 276,
-          "endLine": 282,
+          "startLine": 277,
+          "endLine": 283,
           "tokens": 298,
           "summary": "1. §2.1 状态机图：壳层新增 ShellScreen='replay' + ReplaySession(sourc",
           "keywords": [
@@ -48970,8 +48970,8 @@
         {
           "anchor": "§B. `gdd/input-control.md`",
           "level": 3,
-          "startLine": 283,
-          "endLine": 288,
+          "startLine": 284,
+          "endLine": 289,
           "tokens": 175,
           "summary": "1. §2.3 状态门禁表：新增 REPLAY（壳层 ShellScreen='replay' + ReplaySess",
           "keywords": [
@@ -48986,8 +48986,8 @@
         {
           "anchor": "§C. `ux/ux-spec.md`",
           "level": 3,
-          "startLine": 289,
-          "endLine": 295,
+          "startLine": 290,
+          "endLine": 296,
           "tokens": 246,
           "summary": "1. §3.4 结算·过关：追加「回放入口钮（v1 最小入口）」——面板下方 160×96 独立小钮，现有两钮/四段零改",
           "keywords": [
@@ -48999,8 +48999,8 @@
         {
           "anchor": "§D. `gdd/pause-settings.md`",
           "level": 3,
-          "startLine": 296,
-          "endLine": 300,
+          "startLine": 297,
+          "endLine": 301,
           "tokens": 101,
           "summary": "1. §2.2 暂停面板：在三钮之间新增「托管」开关行（全宽 440×88，行2），并更新面板高度预算 462 ≤ 48",
           "keywords": [
@@ -49014,8 +49014,8 @@
         {
           "anchor": "§E. `gdd/systems-index.md`",
           "level": 3,
-          "startLine": 301,
-          "endLine": 307,
+          "startLine": 302,
+          "endLine": 308,
           "tokens": 140,
           "summary": "1. §1 系统清单：新增 S11 机器人玩家与过程回放（P2，文件 gdd/bot-replay.md，职责：纯逻辑策",
           "keywords": [
@@ -49030,8 +49030,8 @@
         {
           "anchor": "§F. `gdd/save-progress.md`",
           "level": 3,
-          "startLine": 308,
-          "endLine": 311,
+          "startLine": 309,
+          "endLine": 312,
           "tokens": 59,
           "summary": "零改动：演示/回放不写档；托管沿用既有写档路径，不新增字段。若工程实现需要 lastReplay 临时字段，⛔ 不得进存",
           "keywords": [
@@ -49045,8 +49045,8 @@
         {
           "anchor": "§G. `production/qa/beads/`",
           "level": 3,
-          "startLine": 312,
-          "endLine": 315,
+          "startLine": 313,
+          "endLine": 316,
           "tokens": 90,
           "summary": "新增分片或追加用例：金样本 pricing.actions 逐字一致、无头确定性、回放终局一致、seek 一致、计星/存",
           "keywords": [

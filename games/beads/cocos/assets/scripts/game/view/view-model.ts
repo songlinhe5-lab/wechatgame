@@ -15,6 +15,8 @@ import {
   CLEAR_FACE_SLICE,
   CLEAR_FRAME_INSET,
   CLEAR_FRAME_SLICE,
+  CLEAR_MENU_SLICE,
+  CLEAR_NEXT_SLICE,
   CLEAR_PAPER_BTN_SLICE,
   CLEAR_PLAQUE_H,
   CLEAR_PLAQUE_W,
@@ -611,7 +613,10 @@ function drawClearPanel(
     const by = button.rect.yMin + pressDy(snap, button.id);
     if (button.id === 'next') {
       if (menuBitmapReady(MENU_TEXTURES.clearNextBtn)) {
-        builder.blit(MENU_TEXTURES.clearNextBtn, button.rect.xMin, by, bw, bh);
+        // 9-slice（`CLEAR_NEXT_SLICE`）：主钮与回放钮尺寸不同，端帽保圆角。
+        builder.blit(MENU_TEXTURES.clearNextBtn, button.rect.xMin, by, bw, bh, {
+          fx: nineSliceFx(CLEAR_NEXT_SLICE.capX, CLEAR_NEXT_SLICE.capY),
+        });
         if (pressed) {
           builder.rect(button.rect.xMin, by, bw, bh, {
             fill: withAlpha(palette.shadowInk, 0.12), radius: 24,
@@ -641,7 +646,10 @@ function drawClearPanel(
         }
       }
     } else if (menuBitmapReady(MENU_TEXTURES.clearMenuBtn)) {
-      builder.blit(MENU_TEXTURES.clearMenuBtn, button.rect.xMin, by, bw, bh);
+      // 9-slice（`CLEAR_MENU_SLICE`）：次钮 192×101 与回放钮 160×96 共用底图。
+      builder.blit(MENU_TEXTURES.clearMenuBtn, button.rect.xMin, by, bw, bh, {
+        fx: nineSliceFx(CLEAR_MENU_SLICE.capX, CLEAR_MENU_SLICE.capY),
+      });
       if (pressed) {
         builder.rect(button.rect.xMin, by, bw, bh, {
           fill: withAlpha(palette.shadowInk, 0.08), radius: 24,

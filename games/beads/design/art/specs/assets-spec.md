@@ -2057,6 +2057,10 @@ TRAY_PLATE_SHADOW_A_R   = 0.02   // 右缘单段 α（3px；光源左上故弱�
 | `ui_clear_star@2x.png` | 96×99（192×198） | 金星（三颗逐颗入场，按 pop 缩放） | 同上 |
 | `ui_btn_clear_next@2x.png` | 279×106（554×218） | 主钮「下一关 / 查看结果」 | 同上 |
 | `ui_btn_clear_menu@2x.png` | 192×101（384×204） | 次钮「回主界面」 | 同上 |
+| `ui_btn_clear_next_9s@2x.png` | 279×106（554×218 @2x 源，**九宫格 capX=capY=64**） | 主钮「下一关 / 查看结果」底图（9-slice，`CLEAR_NEXT_SLICE`） | `[2026-11-20]` 派生 `design/ai-workflows/derive-clear-btn-9slice.py`，像素与 `ui_btn_clear_next@2x` 一致、仅附切片参数 |
+| `ui_btn_clear_menu_9s@2x.png` | 192×101（384×204 @2x 源，**九宫格 capX=capY=56**） | 次钮「回主界面」与回放钮「回放」（160×96）共用底图（9-slice，`CLEAR_MENU_SLICE`） | 同上；回放钮纵横比 1.67 ≠ 次钮 1.90，九宫格保圆角 |
+
+> `[2026-11-20]` 双钮两件由整图 blit 改九宫格：harness 已注册（`dev/harness/main.ts`）；Cocos 投放件 `cocos/assets/textures/ui_btn_clear_{next,menu}_9s.png` 已复制，**`.meta` 待编辑器签发**（L1，⛔ 不手写）前 `beads-blit-carrier` 未登记 ⇒ 走缺图降级腿（与现状一致：Cocos 原本也未登记 `clear_next` / `clear_menu`）。
 
 - 缺图降级腿（Cocos 未导入 `.meta` 时）：旧纸面板 + 9-slice + 程序化标题牌（380×96）+ 程序化金星 + 旧钮 9-slice，零功能回归。
 - 禁飞带随木牌顶派生：`CONFETTI_NOFLY_YMAX = clearPanelLayout().panel.yMax`（基准档 978）。
