@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4260,
       "lines": 141,
-      "sha256": "731ebb6e2c0bd19a1b6870aa74036bf1d11a872aa7a7dbc35c5b637eacb5bc79",
+      "sha256": "97f3a8e8403781b2e4acb7ef6c9030fc5fd51d50959ccd55bd704e213a3ecf3f",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 410,
-          "summary": "1 production/TASKS-DETAIL.md 344082 11043 normal",
+          "summary": "1 production/TASKS-DETAIL.md 344120 11043 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5206,
       "lines": 159,
-      "sha256": "0ddb746c6728e7367cc078108185c70ea6ac27d094b197879ee084dff58077a4",
+      "sha256": "74a70609a1034ece2611c89d35864ad6e3cc47aa08a7f0752939f9ba50972eb7",
       "tier": "normal",
       "sections": [
         {
@@ -1080,7 +1080,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 11043 行 / 344082 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 11043 行 / 344120 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
@@ -93155,9 +93155,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 344082,
+      "tokens": 344120,
       "lines": 11043,
-      "sha256": "1ff101656a94a8f28e443d23820ea41b0818790a2f5293ab488e94e2740b8cd0",
+      "sha256": "5e70fbdd676d73e2632840aef400c19747a46dd604c50ff446f2b088918b0b1a",
       "tier": "normal",
       "sections": [
         {
@@ -93165,7 +93165,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 11044,
-          "tokens": 344065,
+          "tokens": 344103,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -108817,7 +108817,7 @@
           "level": 2,
           "startLine": 11019,
           "endLine": 11031,
-          "tokens": 1149,
+          "tokens": 1187,
           "summary": "工程·E 轨 framework 真机修复批收敛（warmup await + 裁切模板挂根 + 广告判据回选 A） ·",
           "keywords": [
             "WXG",
