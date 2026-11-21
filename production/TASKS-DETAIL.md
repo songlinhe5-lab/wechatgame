@@ -11320,3 +11320,38 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 - 结算页「背板还是没有」在 web-mobile 产物上无法复现；真机 / 微信运行时未测（AppID + 密钥缺失），解除条件 = 用户侧提供真机截图 + 产物构建时间戳 / 运行时资产清单。若确认真机缺资产，需另开单补「缺图不裸板」的最小降级或产物级门禁（⛔ 不恢复已按裁定清理的 v1 背板）。
 - 金样 rig 位图腿仍全关（`setMenuBitmapResolver` 缺省 `() => false`）：夹具钉住的是缺图臂，位图臂九格同几何由 `level-select-view-model.test.ts` 三条新判据 + Cocos 实帧双证，未并入金样夹具（K-198）。
 - 主包余量 54.9 KB；临时 3847 预览服务收尾时停；`games/beads/package.json` 的构建自动版本 bump 为既有 WIP，未夹带提交。
+
+## WXG-T-1017
+
+**选关空星改由金星灰度派生** · 负责：主理人(CodeBuddy)·美术/工程轨 · 状态：✅ 完成（2026-11-21）
+
+承用户问「`ui_level_select_star_empty.png` 能否用 `ui_level_select_star_filled.png` 置灰」。开工前按用户 2026-11-01 令先做只读核对（未改任何字节），列四方法请用户挑 ⇒ 裁定 **「离线灰度派生」**（对金星做亮度灰度化、替换运行时 empty 副本；母版逐字节不动；`.meta` 走编辑器；金样命令流不变零重抓）。
+
+### 1. 只读核对
+
+- 两星同为 **64×60**（稿面 32×30，`214:98 grid-star` 组件两态），`alpha_bbox` 同为 `(0,0,63,60)` ⇒ 形状同源、仅颜色不同。
+- 金星亮度灰度化（PIL `LA`，ITU-R 601 系数）与在册灰星逐像素对拍 **平均差 7.42/255 ≈ 2.9%**，残差主在描边冷暖。
+- 口径选择：母版金星与在包金星副本 **62% 像素差**（在包件为量化后像素）⇒ 派生输入取**在包金星副本**，保证包内两态绝对同源（同一份量化像素派生），与 WXG-T-1012「母版不动、只动运行时副本」先例一致。
+
+### 2. 落码（纯资产替换，零代码改动）
+
+- `games/beads/cocos/assets/textures/detail/ui_level_select_star_empty.png` 用在包金星 `LA` 灰度化回写（3.7 → 4.7 KB，+1.2 KB）；母版 `design/art/final/assets/detail/ui_level_select_star_{filled,empty}@2x.png` 逐字节未动。
+- 新件 `alpha_bbox` 与原件同框 ⇒ `.meta` 的 trim 元数据无需重算；`cocos:import-metas:check` 42 件 0 缺失（⛔ 未手写 `.meta`，L1 合规）。
+- 目检三联图 `temp/star-gray-compare.png`（旧灰星 / 新灰星 / 金星 4× 放大）：新灰星描边略深、星面更净，视觉同源成立。
+
+### 3. 取证
+
+- **金样本零重抓**：`ui-golden.test.ts` **13/13 绿**——金样只钉命令流（`star_empty` blit 同 id 同几何），像素变更不入命令流（WXG-T-1012 同判例）。
+- **屏幕层实帧**：`temp/ui-shot/cocos-617-levelselect-1017-gray-star.png` 证当前关三颗空星为新灰星上屏，scene 计数 `ui_level_select_star_empty=3`、零「丢弃 blit」；产物 mtime 链 16:00:40（源 PNG）→ 16:01:43（release）→ 16:02:12（web）递增（K-156）。
+- **门禁**：`check:assets` 59 件 / 2131.4 KB（孤儿 0 / 断链 0 / 死登记 0）；release 重建后 `check:size` 主包 **4042.2 KB / 215 文件**（4041.1 → 4042.2，+1.1 KB）、距红线余量 **53.8 KB**；全量 `verify` 读数见收口行。
+
+### 4. 收口（2026-11-21）
+
+- 本笔提交 = 资产 1 件 + §12 登记 + 台账两处；**零代码 / 零判据 / 零金样夹具改动**。
+- `kb:sync --task=WXG-T-1017`：活跃 215 / 归档 0 / 写入无，即 **新增 0 / 修改 0 / 激活 0 / 归档 0**；`kb:check` 十重校验 PASSED。
+- 全量 `pnpm run verify` = **PASS 24 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0**（`temp/verify-1017.log`）。
+
+### 5. 遗留
+
+- 主包余量降至 53.8 KB；同族件 `detail/ui_detail_star_empty.png`（关卡详情页空星，透明边 54%）本批未动，若要同口径派生需另开单。
+- 真机 / 微信运行时未测（AppID + 密钥缺失）；临时 3847 预览服务已停；`games/beads/package.json` 构建自动版本 bump 为既有 WIP，未夹带提交。
