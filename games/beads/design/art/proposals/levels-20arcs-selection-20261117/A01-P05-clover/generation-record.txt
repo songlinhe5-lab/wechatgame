@@ -1,0 +1,45 @@
+生成史 · 第 5 张正式母版 A01-P05「三叶草」v6（占 180 张名额 5/180）
+任务谱系：WXG-T-974（20 大关题材甄选）→ WXG-T-979（风格宪法）／生图阶段 S2
+日期：2026-11-21
+性质：用户 2026-11-21 批准提示词后生成；**效果确认待完成，不入关、不入 final/**。
+判据正本：../series-spec.md §2 G1–G12 / §3 / §5 / §9；../series-spec-catalog.md §A01。
+
+【基准 / 输入】
+题材单一真源：candidates.json A01 / P5 /「三叶草」，desc =「三颗圆润心形叶聚于短茎顶端」（逐字沿用）；
+目标 32×32 / 5 色（G12 均衡令，P1–P8 5–6 色）。
+v5 实测仅 4 色：深棕 #6B3E1E 只做球心小点，32×32 量化被吸收 ⇒ 本版把深棕扩为
+**叶心圆盘（≈株宽 16%）+ 茎基节点（≈株宽 8%×株高 4%）**，其余构图沿用 v4/v5（绿叶 + 奶白 V 纹 +
+橙叶缘 + 柠黄球）。提示词全文见 response-meta-v6.json 的 prompt 字段（与会话公示稿一致，
+仅把深棕点按保色需要放大）。
+
+【通道 / 模型 / 参数】
+profile = token-plan（Credits 计量）
+model   = qwen-image-3.0-pro
+params  = prompt_extend=False / seed=42 / size='2048*2048'
+调用腿  = importlib 复用 design/ai-workflows/dashscope-generate.py（load_key / resolve / call /
+          find_image_urls / download），未改动该脚本
+elapsed = 16.6 s ｜ request_id = c13e0293-ebc8-4bdd-af7d-0f0cbd3184c9
+usage   = {"output_height": 2048, "output_width": 2048, "input_image_count": 0,
+           "input_image_type": "qima_input_2k", "output_image_count": 1,
+           "output_image_type": "qima_output_2k"}
+产出    = a01p05-v6-s42.png（1738805 B，2048×2048 RGB）
+
+【本地零模型后处理 · 抠 alpha】
+脚本 = ../probe-2048/extract-alpha.py（PIL floodfill，thresh=72，四角播种）
+产出 = a01p05-v6-s42-rgba.png（1904941 B，2048² RGBA）+ a01p05-v6-s42-rgba-metrics.json
+六道验收：size=[2048,2048]｜四角全透明=True｜alpha0=70.381%｜
+      主体内近黑残留=0 px｜单连通=True｜RGB 逐像素未变=True；
+      bbox=[293,196,1744,1798] ⇒ 宽 70.9% / 高 78.2%，落在 G9「70–82%」内（面积 55.49%）。
+
+【studio 量化 · 32×32 / 5 色 / mis=max（0 次 Token Plan 调用，draft=1）】
+请求 = POST /api/generate?cols=32&rows=32&board=a01p05v6-max-32-c5&palette=10&colors=5
+       &colorsmode=error&cellmode=mode&smooth=0&swaps=0&noframe=1&notrim=1&mis=max&draft=1
+body  = 2048² RGBA 原样 base64（w/h/data）
+draft = a01p05v6-max-32-c5-1795266792282-7347
+判定 = importable **true** / blockers [] / voidCells 0 / 用色 **5**
+色板 = #FDF6E9 奶白 · #FFD23F 柠黄 · #F59B23 活力橙 · #3FBF6B 草绿 · #6B3E1E 深棕
+32×32 预览 = a01p05-v6-max-32-c5-beads-plain.png（三叶轮廓可辨、五色均在）
+
+【状态 / 下一步】
+待用户确认效果；确认后锁版，与 P01–P04（32×32 / 5 色，均已 importable）合并为
+A01 前 5/9 关；P06 荷花起继续逐张确认。
