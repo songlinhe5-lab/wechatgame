@@ -129,10 +129,10 @@ describe('EP13-FU-1 墙几何 3×3（A1；`[WXG-T-605]` 起 = 详情木牌版式
 });
 
 describe('EP13-FU-1 锁格合形（A2 / §7 锁形通道；`[WXG-T-611]` 图案槽稿面化）', () => {
-    it('未解锁格 = drawBeadFace 灰色珠面 + 星带隐藏 + 无虚线（`slotDashed` 退场）', () => {
-        // `[FIX: BlitLayerUI 压 Graphics]` lockImage blit 也走高层会盖 drawBeadFace，
-        // 统一删 blit 走 drawBeadFace(beadFadedInksFor, flat=true) 灰色珠面。
-        setMenuBitmapResolver((id) => id === LEVEL_SELECT_TEXTURES.lockImage); // resolver 开但 blit 已删
+    it('`[2026-11-20]` 未解锁格 = normal 位图底 + 稿面圆珠锁纹理 + 星带隐藏 + 无虚线', () => {
+        // `[2026-11-20]` 用户令「未解锁格子应该是 normal 背景，直接用锁纹理代替缩略图」⇒
+        // 位图腿恢复；灰珠阵退为**缺图降级腿**（下一用例仍钉住）。缺该图的判据方向翻转（K-115）。
+        setMenuBitmapResolver((id) => id === LEVEL_SELECT_TEXTURES.lockImage || id === LEVEL_SELECT_TEXTURES.cellNormal);
         const cs = cells();
         const locked = cs[4]!; // maxUnlocked = 1 ⇒ 第 5 格未解锁
         const cmds = frame(dataFor({ maxUnlockedLevel: 1 }));
@@ -140,16 +140,19 @@ describe('EP13-FU-1 锁格合形（A2 / §7 锁形通道；`[WXG-T-611]` 图案�
         // ① 虚线退场：该格框内不存在 `slotDashed` 描边的线段。
         const dashed = cmds.filter((c) => dashedInCell(c, locked));
         expect(dashed).toHaveLength(0);
-        // ② 锁形通道 ⇒ drawBeadFace 灰色珠面（零饱和）落图案槽位。
-        const blocks = cmds.filter((c) => inThumbRect(c, thumbBox(locked)));
-        expect(blocks.length, '锁格有珠面 rect').toBeGreaterThan(0);
-        expect(blocks.every((c) => isGrayHex('fill' in c ? c.fill : undefined)), '灰色珠面').toBe(true);
+        // ② normal 位图底 + 圆珠锁 blit 落该格内（不再画灰珠面 rect）。
+        const cellBlits = cmds.filter((c) => c.kind === 'blit' && inCell(c, locked)) as readonly { textureId: string; w: number; h: number; y: number }[];
+        expect(cellBlits.some((c) => c.textureId === LEVEL_SELECT_TEXTURES.cellNormal)).toBe(true);
+        const lock = cellBlits.find((c) => c.textureId === LEVEL_SELECT_TEXTURES.lockImage);
+        expect(lock, '锁纹理落该格').toBeTruthy();
+        const a = LEVEL_SELECT_GEO.cellArt;
+        expect(lock!.w / lock!.h).toBeCloseTo(a.lockW / a.lockH, 5);
+        expect(lock!.y).toBe(locked.box.y + (locked.box.h - a.imageTopDown - a.imageH) - a.lockDrop);
+        expect(cmds.filter((c) => inThumbRect(c, thumbBox(locked))), '位图腿不再画灰珠阵').toHaveLength(0);
         // ③ 星带隐藏（`T-611` 用户令「锁关…同时隐藏 3 个星星」）。
         expect(cmds.some((c) => c.kind === 'text' && inCell(c, locked) && c.text === '☆☆☆')).toBe(false);
         // ④ 旧锁角章退场（`T-611` 用户令「单独展示的锁图案去掉」，K-053）。
         expect(cmds.some((c) => c.kind === 'text' && inCell(c, locked) && c.text === '锁')).toBe(false);
-        // ⑤ lockImage blit 已删（统一走程序化）。
-        expect(cmds.some((c) => c.kind === 'blit' && (c as { textureId: string }).textureId === LEVEL_SELECT_TEXTURES.lockImage)).toBe(false);
     });
 
     it('缺图降级腿：锁格灰珠阵落图案槽位（零饱和）+ 星带隐藏', () => {
@@ -164,23 +167,25 @@ describe('EP13-FU-1 锁格合形（A2 / §7 锁形通道；`[WXG-T-611]` 图案�
         expect(cmds.some((c) => c.kind === 'text' && inCell(c, locked) && c.text === '☆☆☆')).toBe(false);
     });
 
-    it('越界空槽（清单短于槽）与未解锁格同判据：drawBeadFace 灰色珠面 + 星带隐藏', () => {
-        setMenuBitmapResolver((id) => id === LEVEL_SELECT_TEXTURES.lockImage); // resolver 开但 blit 已删
+    it('`[2026-11-20]` 越界空槽与未解锁格合形：normal 位图底 + 圆珠锁纹理 + 星带隐藏', () => {
+        // Q15 合形判据不变（空槽 ≡ 未解锁格）；`[2026-11-20]` 位图腿恢复 ⇒ 占位 rect 退为缺图降级腿。
+        setMenuBitmapResolver((id) => id === LEVEL_SELECT_TEXTURES.lockImage || id === LEVEL_SELECT_TEXTURES.cellNormal);
         const cs = cells();
         const overflow = cs[7]!;
         const cmds = frame(dataFor({ wallSlots: [0, 1], wallLevels: [LEVELS[0]!, LEVELS[1]!] }));
 
         const dashed = cmds.filter((c) => dashedInCell(c, overflow));
         expect(dashed).toHaveLength(0);
-        // 空槽（cell.level === undefined）画 slot 颜色占位 rect（= a.imageW × a.imageH）
+        const cellBlits = cmds.filter((c) => c.kind === 'blit' && inCell(c, overflow)) as readonly { textureId: string }[];
+        expect(cellBlits.some((c) => c.textureId === LEVEL_SELECT_TEXTURES.cellNormal), '空槽也铺 normal 底').toBe(true);
+        expect(cellBlits.some((c) => c.textureId === LEVEL_SELECT_TEXTURES.lockImage), '空槽也画圆珠锁').toBe(true);
+        // 空槽不画 drawBeadFace 珠面，也不再画 slot 占位 rect（level === undefined 且位图就绪）。
         const a = LEVEL_SELECT_GEO.cellArt;
         const slotRect = cmds.find(
-            (c) => c.kind === 'rect' && c.x === overflow.box.x + a.imageLeft &&
-                   c.y === overflow.box.y + overflow.box.h - a.imageTopDown - a.imageH &&
-                   c.w === a.imageW && c.h === a.imageH,
+            (c) => c.kind === 'rect' && c.w === a.imageW && c.h === a.imageH &&
+                   c.x === overflow.box.x + a.imageLeft,
         );
-        expect(slotRect, '空槽占位 rect 存在').toBeTruthy();
-        // 空槽不画 drawBeadFace 珠面（level === undefined）
+        expect(slotRect, '位图腿不画占位 rect').toBeUndefined();
         const beadsInSlot = cmds.filter((c) => inThumbRect(c, thumbBox(overflow)));
         expect(beadsInSlot.length, '空槽无珠面 rect').toBe(0);
         expect(cmds.some((c) => c.kind === 'text' && inCell(c, overflow) && c.text === '☆☆☆')).toBe(false);

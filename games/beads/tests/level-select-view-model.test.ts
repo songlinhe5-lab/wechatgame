@@ -5,7 +5,7 @@
  */
 import { afterEach, describe, expect, it } from 'vitest';
 import { RenderModelBuilder, type DrawCommand } from '@wxgame/framework';
-import { DESIGN_H, DESIGN_W, LEVEL_DETAIL_TEXTURES, LEVEL_SELECT_GEO, LEVEL_SELECT_TEXTURES, WALL_ROWS } from '../src/config/tuning.js';
+import { DESIGN_H, DESIGN_W, BELOW_GRAPHICS_TEXTURE_IDS, LEVEL_DETAIL_TEXTURES, LEVEL_SELECT_GEO, LEVEL_SELECT_TEXTURES, WALL_ROWS } from '../src/config/tuning.js';
 import { LEVELS } from '../src/config/levels.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import { UI_FONT } from '../src/view/ui-theme.js';
@@ -84,7 +84,8 @@ describe('WXG-T-607 选关弹窗 View/ViewModel', () => {
         // `[FIX: BlitLayerUI 压 Graphics]` 三态格底 blit 会盖住 drawBeadFace 的珠面缩略图（rect 走 Graphics
         // 低层，blit 走 BlitLayerUI 高层），统一改为程序化腿（同 Graphics，顺序正确）。
         expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellCurrent), '当前关改程序化腿').toBe(0);
-        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellNormal), '普通关改程序化腿').toBe(0);
+        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellLocked), '未解锁格不再有专属灰底').toBe(0);
+        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellNormal), '全解锁 ⇒ 无锁格 ⇒ 零 normal 底').toBe(0);
         expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.brand), '编号牌背景 ×9（`T-611` 稿 `176:22`）').toBe(9);
         expect(
             countBlit(cmds, LEVEL_SELECT_TEXTURES.starFilled) + countBlit(cmds, LEVEL_SELECT_TEXTURES.starEmpty),
@@ -102,14 +103,24 @@ describe('WXG-T-607 选关弹窗 View/ViewModel', () => {
         ).toBe(true);
     });
 
-    it('`[WXG-T-610/611]` 锁定态：锁格改 drawBeadFace 灰色珠面 + 星带只剩当前格', () => {
+    it('[2026-11-21] 已解锁格九格程序化木框仍在（不透明 normal 底不得盖住珠面）', () => {
+        const cmds = frame(() => true);
+        const picks = buttons.filter((b) => b.id === 'pick-level');
+        for (let i = 0; i < 9; i += 1) {
+            const box = picks[i]!.box;
+            expect(
+                cmds.some((c) => c.kind === 'rect' && c.x === box.x && c.y === box.y && c.w === box.w && c.h === box.h),
+                `cell[${i}] 程序化木框底 rect 仍在`,
+            ).toBe(true);
+        }
+    });
+
+    it('`[2026-11-20]` 锁定态：未解锁格 = normal 位图底 + 锁纹理，星带只剩当前格', () => {
         const cmds = frame(() => true, { maxUnlockedLevel: 1 });
-        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellLocked), '未解锁改程序化腿').toBe(0);
+        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellLocked), '未解锁格不用灰底').toBe(0);
         expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellCurrent), '当前关改程序化腿').toBe(0);
-        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellNormal)).toBe(0);
-        // `[FIX: BlitLayerUI 压 Graphics]` lockImage blit 也走高层会盖 drawBeadFace，统一删 blit 走
-        // drawBeadFace(beadFadedInksFor, flat=true) 灰色珠面（同 Graphics 通道，顺序正确）。
-        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.lockImage), '锁图改 drawBeadFace').toBe(0);
+        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellNormal), '未解锁格用 normal 底').toBe(8);
+        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.lockImage), '锁纹理替代灰珠面').toBe(8);
         expect(
             countBlit(cmds, LEVEL_SELECT_TEXTURES.starFilled) + countBlit(cmds, LEVEL_SELECT_TEXTURES.starEmpty),
             '锁格隐藏三星 ⇒ 只剩当前格 3 枚',
@@ -152,5 +163,50 @@ describe('WXG-T-915 选关页编号牌 = 全局关号', () => {
         const box = pickBoxes()[0]!.box;
         expect(texts[0]!.x, '牌心 x').toBe(box.x + box.w / 2);
         expect(texts[0]!.y, '牌心 y').toBe(box.y + box.h - a.brandH / 2);
+    });
+});
+
+describe('选关页大背景位图层序', () => {
+    it('木牌与九宫格背板压到 Graphics 之下，格内小件仍在 UI 层', () => {
+        expect(BELOW_GRAPHICS_TEXTURE_IDS.has(LEVEL_DETAIL_TEXTURES.plaque), '木牌不得压住九格底图/缩略').toBe(true);
+        expect(BELOW_GRAPHICS_TEXTURE_IDS.has(LEVEL_SELECT_TEXTURES.tray), '九宫格背板不得压住九格底图/缩略').toBe(true);
+        expect(BELOW_GRAPHICS_TEXTURE_IDS.has(LEVEL_SELECT_TEXTURES.cell), '单格模板若复用也应在矢量层之下').toBe(true);
+        expect(BELOW_GRAPHICS_TEXTURE_IDS.has(LEVEL_SELECT_TEXTURES.brand), '编号牌是格内小件，仍应压在矢量层之上').toBe(false);
+    });
+
+    it('[2026-11-21] normal 格底是格内容底，须与锁纹理同在 UI 层（K-115 方向翻转）', () => {
+        // 实帧证据：cellNormal 入白名单压到 BlitAtlas（Graphics 之下）后被整片不透明 tray 盖住，
+        // 9 格可见的只有深棕背板 ⇒ 浅木格底完全不上屏（K-109 层序死结：删冲突对象，不扩层标记）。
+        expect(BELOW_GRAPHICS_TEXTURE_IDS.has(LEVEL_SELECT_TEXTURES.cellNormal), 'normal 底压到 Graphics 之下会被 tray 盖住').toBe(false);
+        expect(BELOW_GRAPHICS_TEXTURE_IDS.has(LEVEL_SELECT_TEXTURES.lockImage), '锁是格内内容件，须在矢量层之上').toBe(false);
+    });
+});
+
+describe('[2026-11-20] 选关格图案放大居中 + 锁纹理下移', () => {
+    const a = LEVEL_SELECT_GEO.cellArt;
+    const grid = LEVEL_SELECT_GEO.grid;
+
+    it('图案槽比 126×94 更大、水平居中、底缘下探进星带（允许星覆盖一点）', () => {
+        expect(a.imageW).toBeGreaterThan(126);
+        expect(a.imageH).toBeGreaterThan(94);
+        expect(a.imageLeft).toBe((grid.cellW - a.imageW) / 2);
+        const slotBottom = grid.cellH - a.imageTopDown - a.imageH;
+        expect(slotBottom).toBeLessThan(a.starBandY + a.starH / 2);
+        expect(slotBottom).toBeGreaterThan(0);
+    });
+
+    it('锁纹理等比不拉伸，且比图案槽靠下（锁格无三星）', () => {
+        expect(a.lockDrop).toBeGreaterThan(0);
+        const cmds = frame(() => true, { maxUnlockedLevel: 1 });
+        const locks = cmds.filter(
+            (c) => c.kind === 'blit' && (c as { textureId: string }).textureId === LEVEL_SELECT_TEXTURES.lockImage,
+        ) as readonly { x: number; y: number; w: number; h: number }[];
+        expect(locks).toHaveLength(8);
+        const cell = buttons.filter((b) => b.id === 'pick-level')[1]!.box;
+        const slotY = cell.y + (cell.h - a.imageTopDown - a.imageH);
+        const lock = locks.find((l) => l.x >= cell.x && l.x < cell.x + cell.w)!;
+        expect(lock).toBeTruthy();
+        expect(lock.w / lock.h).toBeCloseTo(a.lockW / a.lockH, 5);
+        expect(lock.y).toBe(slotY - a.lockDrop);
     });
 });

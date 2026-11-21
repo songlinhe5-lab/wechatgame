@@ -32,7 +32,7 @@ import {
 } from '../framework/adapters/canvas2d/tint-sprite-cache';
 import { MASK_CANONICAL_SIZE } from '../framework/core/bake/mask-spec';
 import { maskTileInnerPx } from '../framework/core/bake/mask-tile';
-import { BEAD_PITCH, BOSS_THUMB_TEXTURES, LEVEL_DETAIL_TEXTURES, LEVEL_SELECT_TEXTURES, MENU_TEXTURES, POWERUP_TILE_TEXTURES, TILE_BLEED, TIMEOUT_TEXTURES } from '../game/config/tuning';
+import { BEAD_PITCH, BELOW_GRAPHICS_TEXTURE_IDS, BOSS_THUMB_TEXTURES, LEVEL_DETAIL_TEXTURES, LEVEL_SELECT_TEXTURES, MENU_TEXTURES, POWERUP_TILE_TEXTURES, TILE_BLEED, TIMEOUT_TEXTURES } from '../game/config/tuning';
 import { OPEN_ARCS } from '../game/config/arcs';
 import { tintFxBase } from '../framework/core/bake/tint-composite';
 import { frostGrayCombined, frostPixels, frostRead, grayFxRead, grayWipeRead } from '../framework/core/bake/gray-fx';
@@ -179,14 +179,17 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
     // `[WXG-T-610]` 选关弹窗稿面补件（Figma `159:3`）。⚠ `.meta` 待编辑器签发（L1）；
     // 未签发 ⇒ 逐元素走程序化降级腿（格 / 星文字档 / 木钮），零功能回归。
     [LEVEL_SELECT_TEXTURES.tray]: { path: 'detail/ui_level_select_tray' },
-    // `[WXG-T-1013]` 三态格底 + 锁图共 4 件出包：`meta-widgets.ts` 的 blit 腿因
-    // 「BlitLayerUI 压 Graphics」已删（程序化腿接管），tuning 键留作测试「断言不画」的哨兵，
-    // ⛔ 但不再登记 ⇒ warmup 不再预装载（原 4 件 ≈146.7 KB 已删）。见 `check:assets` 门。
+    // `[WXG-T-1013]` 三态格底 + 锁图共 4 件出包（程序化腿接管）。`[2026-11-20]` 用户裁定恢复
+    // 其中 2 件：normal 格底给非当前格铺底（整片不透明 ⇒ `BELOW_GRAPHICS_TEXTURE_IDS` 白名单
+    // 压到 Graphics 之下）、稿面圆珠锁替代灰珠阵（`BlitLayerUI` 正常叠）；`cellCurrent` /
+    // `cellLocked` 仍不回归，tuning 键留作「断言不画」哨兵。两件 `.meta` 从 `cf681f0b^`
+    // 取回编辑器签发原件（⛔ 非手造，L1）。
+    [LEVEL_SELECT_TEXTURES.cellNormal]: { path: 'detail/ui_level_select_cell_normal' },
+    [LEVEL_SELECT_TEXTURES.lockImage]: { path: 'detail/ui_level_select_lock' },
     [LEVEL_SELECT_TEXTURES.starFilled]: { path: 'detail/ui_level_select_star_filled' },
     [LEVEL_SELECT_TEXTURES.starEmpty]: { path: 'detail/ui_level_select_star_empty' },
     [LEVEL_SELECT_TEXTURES.closeBtn]: { path: 'detail/ui_level_select_close' },
     [LEVEL_SELECT_TEXTURES.brand]: { path: 'detail/ui_level_select_brand' },
-    // `lockImage` 同批出包（见上方 WXG-T-1013 注）：灰珠阵降级腿已接管。
     // `[WXG-T-614]` 倒计时结束弹窗三件（木牌九宫格 capX120/capY300 源纹 px，走引擎 SLICED）。
     // ⚠ `.meta` 待编辑器签发（L1）；未签发 ⇒ 木牌回纸面板、钮回纯色圆角面，零功能回归。
     [TIMEOUT_TEXTURES.plaque]: { path: 'detail/ui_timeout_plaque' },
@@ -464,9 +467,9 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
         const sp = this._borrow();
         // 两条腿不同层：珠（tint 图集）在 `Graphics` 之下、静态位图在其上。池位是同一条，
         // 只在层真变了时 setParent（选关墙同屏仅此 1 条位图命令，热路径仍零分配）。
-        // `[WXG-T-587]` 原 `BELOW_GRAPHICS`（只为橱窗框这类不透明大件留的「压到 Graphics 下」名单）
-        // 随 `caseFrame` 删键出包 ⇒ 空集删除，判据只剩「珠腿（tint 图集）在 Graphics 之下」。
-        const below = base !== undefined;
+        // `[2026-11-20]` 珠腿（tint 图集）与「承着内容的整片底图」都在 Graphics 之下：
+        // 木牌 / 九宫格背板若留在 BlitLayerUI 会盖住后发的程序化格底与缩略珠面。
+        const below = base !== undefined || BELOW_GRAPHICS_TEXTURE_IDS.has(cmd.textureId);
         // `[UI-60 / ADR-0033 DEC-3]` 静态位图腿（above）跟着**作用域**走：容器内发出的位图
         // 挂到该容器自己的 `BlitLayerUI` 下，才不会被本容器的 `Graphics` 盖住、也不会跨容器
         // 串层。珠腿（below）**恒留全局 BlitLayer**（DEC-7：世界层不容器化）。

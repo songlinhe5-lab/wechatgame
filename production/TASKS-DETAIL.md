@@ -11175,3 +11175,50 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 `tuning/menu.ts` 已有现成真源 `MENU_ARC_ART_CONTENT = {x:37,y:31,w:182,h:180}` / `MENU_ARC_ART_SRC = 256`
 （WXG-T-601 立、2026-11-20 随 `drawShowcaseFace` 退役，当前零生产消费方）。
 修法涉及图像字节或运行时 UV，须用户先裁方法，故本批不动。
+
+## WXG-T-1014
+
+**美术·选关九宫格 normal 底 + 圆珠锁 + 图案放大居中** · 负责：主理人(CodeBuddy)·工程/美术轨 · 状态：🟡 已落码 · 未验收（2026-11-20 落码，2026-11-21 复核）
+
+承用户 2026-11-20 令「未解锁格子应该是 normal 背景，直接用锁纹理代替缩略图，锁的位置靠下一点，因为下面没有三个星星；另外图案尽量格子居中再大一点展示，底部星星覆盖一点也没有问题」。开工前按用户 2026-11-01 令主动提示图像处理方法并给出选项 ⇒ 用户裁定「恢复稿面圆珠锁 + 恢复 cellNormal 位图底」。⛔ 未改任何图片像素。
+
+### 1. 改动面（均已落盘，未提交）
+
+- 恢复 2 件投放位图 + 编辑器签发 `.meta`，从 `cf681f0b^` 取回（L1，⛔ 非手造）：`detail/ui_level_select_lock.png` 21,871 B / `.meta` 2,888 B（uuid `eac10884-07b8-45ac-8fdc-ec17e8fd771e`）、`detail/ui_level_select_cell_normal.png` 48,316 B / `.meta` 2,914 B（uuid `4680f354-0ca7-4eae-8d8b-de9ce1524bc8`）。后者与在包 `ui_level_select_cell.png` md5 相同但 uuid 独立，按裁定恢复不复用。
+- 宿主 `cocos/assets/scripts/host/beads-blit-carrier.ts` 的 `BITMAP_ASSETS` 与 `dev/harness/main.ts` 各补 2 条 path 登记；`cellCurrent` / `cellLocked` 仍出包，tuning 键保留为「断言不画」哨兵。
+- `src/config/tuning/level-select.ts`：图案槽 `126×94 @(16,距顶39)` → `142×118 @(8,距顶30)`（`(158−142)/2=8` 水平居中，槽心 92 ≈ 格心 90.5；槽底 33 低于星带上沿 43 ⇒ 星压图案底缘 10，用户允许）；新增 `lockDrop: 10`；`BELOW_GRAPHICS_TEXTURE_IDS` 增 `cellNormal`（整片不透明大底压到 `Graphics` 之下，`lockImage` 仍留 `BlitLayerUI`）。
+- `src/view/meta-widgets.ts`：非当前格位图就绪 ⇒ 铺 normal 底、不画程序化木框；未解锁 / 越界空槽位图就绪 ⇒ 铺等比圆珠锁并下移 `lockDrop`；灰珠阵 / slot 占位 rect 退为缺图降级腿。
+- `docs/architecture/ui-architecture-beads.md` §12 已登记视觉变更（K-051 / K-053 / K-115 / ADR-0032 DEC-6）。
+
+### 2. 已取得的证据
+
+- `temp/vitest-green2.json`：`level-select-view-model.test.ts` + `arc-wall-locked.test.ts` = **24/24 绿**（TDD RED 为 6/11；第一次 GREEN 22/24 后按 K-115 翻转 `arc-wall-locked.test.ts` 两条老判据）。
+- `pnpm run framework:sync`（写入 2、未变 208、删除 0）、`framework:sync:check`、`cocos:check` 通过。
+- 九宫格「缺底图 / 缩略图」的**前一层根因**已在 WXG-T-617 同型修复中解决：`BlitLayerUI` 压 `Graphics` ⇒ `BELOW_GRAPHICS_TEXTURE_IDS` 白名单（`beads-blit-carrier.ts:472`）；`temp/ui-shot/cocos-617-levelselect-after.png`（11-20 19:26）为零「丢弃 blit」告警的实帧。
+
+### 3. 未闭环（2026-11-21 复核读数，⛔ 不得称完成）
+
+| 项 | 读数 / 状态 |
+|---|---|
+| 全量单测 | `temp/vitest-all.json` = `success:false`，4540 例 / 4533 通过 / **2 失败**，均为 `LevelSelectPage（level-select）` 与 `（level-select-mid）` 金样 sha 漂移 |
+| 金样本 | `temp/vitest-golden.json` = 23/25；`__fixtures__/wxg-t-298-ui-golden.json` 未更新，`temp/ui-golden/*.actual.jsonl`（20:47）仅为 dump ⇒ 待由 `ui-golden-capture.ts` 在干净锚重抓（⛔ 不手改夹具，K-051 / K-053） |
+| 门禁 | 恢复 2 件资产后 `check:assets` / `check:size` / 全量 `verify` **均未跑**；`check:assets` 旧读数 58 件 / 1900.2 KB |
+| 产物新鲜度 | `games/beads/cocos/build/web-mobile/index.html` mtime **19:26** 早于 `src/view/meta-widgets.ts` / `src/config/tuning/level-select.ts` 的 **20:14** ⇒ 现有 `after` 截图是旧产物，不能证明新画法上屏（K-156 / 产物新鲜度判例同型） |
+| 屏幕层实帧 | 本轮无新 `cocos-fail-shot` 截图；金样 rig `menuBitmapReady()` 缺省恒 false，即使重抓夹具锁的也只是缺图降级帧，`cellNormal` 是否重演「整片不透明底盖住内容」须靠 web / 真机实拍 |
+| 提交 | 14 个 `M` + 4 个 `??` 全在工作树；HEAD 与 `origin/develop` 同为 `4ae07b93`，本单无提交、无推送 |
+| 静态服务 | `http://127.0.0.1:3847/` 仍返回 200，未停 |
+
+### 4. 台账订正（本批）
+
+`production/TASKS.md:5` 头注与主表行原写「✅ 完成 / 金样两态按锚重抓 / 全量 `verify` 绿 / `web-mobile` 屏幕层实帧复验」，与 §3 实测不符 ⇒ 本批改为「🟡 已落码 · 未验收」并补齐真实读数；主表行按「标题制 + 详情分片」收短，正文归本节。§12 中「由 `ui-golden-capture.ts` 两遍确定性自证重抓 / 另做屏幕层实帧复验」属**待办口径**，本批未改。
+
+### 5. 收尾待办（本批未做）
+
+1. 干净锚重抓 `level-select` / `level-select-mid` 两态，`ui-golden.test.ts` 回 25/25。
+2. 跑 `check:assets` / `check:size` / 全量 `verify`。
+3. 重建 `web-mobile`，用 `cocos-fail-shot` 出新 `after` 截图核 normal 底 / 圆珠锁 / 图案放大居中 / 星带轻微覆盖四项。
+4. 精确按路径提交 + 推送 + 提交总结，停 3847 静态服务，向用户正式收尾。
+
+### 6. 遗留
+
+主包 +68.6 KB（余量 285.4→216.8 KB）为**估值、未实测**；`cellNormal` 与 `cell` 字节重复 47.2 KB 可后续裁定去重；真机 / 微信运行时未测。

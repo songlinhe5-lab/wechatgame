@@ -252,13 +252,15 @@ const MENU_FILE: Readonly<Record<string, string>> = {
   [LEVEL_DETAIL_TEXTURES.showcase]: '/detail-assets/ui_detail_showcase@2x.png',
   // `[WXG-T-610]` 选关弹窗稿面补件（Figma `159:3`）：九宫格背板 / 三态格底 / 双星 / 关闭按钮。
   [LEVEL_SELECT_TEXTURES.tray]: '/detail-assets/ui_level_select_tray@2x.png',
-  // `[WXG-T-1013]` 三态格底 3 件出包（blit 腿已删，程序化接管）。
+  // `[2026-11-20]` 用户裁定恢复 2 件：normal 格底（非当前格铺底）/ 稿面圆珠锁（替代灰珠阵）。
+  // 与 Cocos 宿主 `beads-blit-carrier.ts` 登记同源；`cellCurrent` / `cellLocked` 仍出包。
+  [LEVEL_SELECT_TEXTURES.cellNormal]: '/detail-assets/ui_level_select_cell_normal@2x.png',
+  [LEVEL_SELECT_TEXTURES.lockImage]: '/detail-assets/ui_level_select_lock@2x.png',
   [LEVEL_SELECT_TEXTURES.starFilled]: '/detail-assets/ui_level_select_star_filled@2x.png',
   [LEVEL_SELECT_TEXTURES.starEmpty]: '/detail-assets/ui_level_select_star_empty@2x.png',
   [LEVEL_SELECT_TEXTURES.closeBtn]: '/detail-assets/ui_level_select_close@2x.png',
   // `[WXG-T-611]` 编号牌背景（176:22）+ 锁定格图案（176:21 grid-image）。
   [LEVEL_SELECT_TEXTURES.brand]: '/detail-assets/ui_level_select_brand@2x.png',
-  // `lockImage` 同批出包（WXG-T-1013）。
   // `[WXG-T-614]` 倒计时结束弹窗三件（Figma `231:281` 抠图，@2x：木牌 1098×1172 /
   // 续时钮 852×308 / 重试钮 834×274）。缺任一件 ⇒ 该元素走同几何程序化回退。
   [TIMEOUT_TEXTURES.plaque]: '/detail-assets/ui_timeout_plaque@2x.png',

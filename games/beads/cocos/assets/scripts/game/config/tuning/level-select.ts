@@ -35,6 +35,8 @@
  * 横向左右各留 16 贴三态格底圆角边）；锁定图（原生 69×76）按高**等比**居中，⛔ 不横向拉伸。
  * 稿面 69×76 退为历史值（K-053 留档）。
  */
+import { LEVEL_DETAIL_TEXTURES } from './level-detail';
+
 export const LEVEL_SELECT_GEO = {
     /** 板标题「选关」：与详情标题同槽（中心 380,278）。 */
     title: { cx: 380, cyDown: 278 },
@@ -84,15 +86,23 @@ export const LEVEL_SELECT_GEO = {
          */
         brandW: 65, brandH: 35,
         /**
-         * `[WXG-T-616]` 格内图案槽（稿 `176:21 grid-image` 69×76 的放大版，用户令「图案尺寸太小」）：
-         * **126×94**，格内 x=16、距**视觉顶** 39（y-up 槽底距格底 = cellH − 39 − 94 = 48）。
-         * 锁定格 = 稿面锁图案位图（原生 69×76，按高等比居中，⛔ 不拉伸）；解锁格 = 程序化珠拼
+         * `[WXG-T-616]` 格内图案槽（稿 `176:21 grid-image` 69×76 的放大版，用户令「图案尺寸太小」）→
+         * 126×94 @(16, 距顶 39)（历史值，K-053 留档）。
+         * `[2026-11-20]` 用户令「图案尽量格子居中再大一点展示，底部星星覆盖一点也没有问题」⇒
+         * **142×118 @(8, 距顶 30)**：水平居中（(158−142)/2 = 8），槽心 = 33+59 = 92 ≈ 格心
+         * 90.5；槽底 = cellH − 30 − 118 = **33**，比星带上沿（starBandY + starH/2 = 43）低 10
+         * ⇒ 星位图（BlitLayerUI）压住图案底缘 10，用户已明确允许。解锁格 = 程序化珠拼
          * （`drawBeadFace`，pitch = min(槽宽/cols, 槽高/rows)）。
-         * ⚠ y-up 口径与三带分离一致：牌顶 / 图案槽中 / 星带底（锁定时星带隐藏）。
          */
-        imageW: 126, imageH: 94, imageLeft: 16, imageTopDown: 39,
+        imageW: 142, imageH: 118, imageLeft: 8, imageTopDown: 30,
         /** `[WXG-T-616]` 锁定图原生尺寸（稿 `176:21`，69×76）——只用于等比换算，⛔ 不直接铺槽。 */
         lockW: 69, lockH: 76,
+        /**
+         * `[2026-11-20]` 用户令「锁的位置靠下一点，因为下面没有三个星星」：锁格隐藏三星 ⇒ 整枚
+         * 锁纹理相对图案槽再下移 `lockDrop`（y-up 减小）。锁按 `lockW/lockH` 等比铺满槽高，
+         * ⛔ 不拉伸到槽宽；水平仍居中。
+         */
+        lockDrop: 10,
         /**
          * `[WXG-T-612·三轮]` 高亮环（稿 grid-4 实例 override `I188:67;218:69 highlight-ring`，
          * ⛔ 组件本体 `183:41` 渲染不带 ⇒ 烘不进导出图，只能数据驱动绘制）：
@@ -136,3 +146,20 @@ export const LEVEL_SELECT_TEXTURES = {
      * `[WXG-T-1013]` 投放位图已出包，键保留为 `tests/arc-wall-locked.test.ts` 的「断言不画」哨兵。 */
     lockImage: 'bitmap__level_select_lock',
 } as const;
+
+/**
+ * `[2026-11-20]` **不透明大背景位图 = 压到 Graphics 之下**白名单。
+ *
+ * Cocos 宿主里静态位图默认挂 `BlitLayerUI`（在 `Graphics` 之后）。木牌、九宫格背板是整片不透
+ * 明大图，若留在高层会盖住后发的程序化格底 rect 与 `drawBeadFace` 缩略图；编号牌 / 星 / 关闭钮
+ * 是格内或前景小件，必须继续留在上层。名单只收「承着内容的整片底图」，⛔ 不泛化成 z-index。
+ */
+export const BELOW_GRAPHICS_TEXTURE_IDS: ReadonlySet<string> = new Set<string>([
+    LEVEL_DETAIL_TEXTURES.plaque,
+    LEVEL_SELECT_TEXTURES.tray,
+    LEVEL_SELECT_TEXTURES.cell,
+    // `[2026-11-21]` normal 格底**不入**本名单（K-115 方向翻转）：实帧证明压到 `BlitAtlas` 后会被
+    // 整片不透明 tray 盖住，浅木格底完全不上屏。它是「格内容底」，须与锁纹理同挂 `BlitLayerUI`，
+    // 由同层命令序保证 normal 先、锁后。⛔ 已解锁格有 `drawBeadFace` 珠面，不铺此不透明底
+    // （见 `meta-widgets.ts` 的 `normalBg`；K-109：删掉引起冲突的对象，不扩层标记）。
+]);

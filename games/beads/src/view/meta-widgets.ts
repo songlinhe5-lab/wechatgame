@@ -164,13 +164,16 @@ export function drawLevelSelectCell(
     const { x, w, h } = cell.box;
     const y = cell.box.y + cell.pressDy;
 
-    // `[FIX: BlitLayerUI 压 Graphics]` 卡片底位图（cellCurrent / cellNormal / cellLocked）走
-    // BlitLayerUI 通道，drawBeadFace 的珠面缩略图 rect 走 Graphics 通道——BlitLayerUI 层序更高，
-    // 位图会盖住珠面，导致解锁但非 current 的关卡完全看不到珠面缩略图。
-    // 统一走程序化腿（同 Graphics 通道），drawBeadFace 后画正确叠放。
-    // ponytail: 统一程序腿（diff 最小，消除位图/矢量通道层序冲突）
-    // → 删回位图分支的时机：BlitLayerUI 加 clip 让 image 槽透明、或 drawBeadFace 改位图通道
-    {
+    // `[2026-11-20]` 用户令「未解锁格子应该是 normal 背景」⇒ 稿面 `183:38 Normal` 位图底恢复入包。
+    // `[2026-11-21]` 实帧修正（K-109 / K-115）：normal 底是**格内容底**，须与锁纹理同挂 `BlitLayerUI`
+    // 才不会被整片不透明 tray 盖住（此前压到 Graphics 之下时 9 格只剩深棕背板，浅木底零上屏）。
+    // 但同层不透明底会盖住已解锁格的 `drawBeadFace` 珠面 ⇒ 只给「无珠面」的锁格 / 越界空槽铺，
+    // 已解锁非当前格继续走下面的程序化木框；当前关仍是亮金内窗 + 高亮环。缺图 ⇒ 同样回退。
+    const normalBg = (cell.locked || cell.levelIdx === undefined)
+        && menuBitmapReady(LEVEL_SELECT_TEXTURES.cellNormal);
+    if (normalBg) {
+        builder.blit(LEVEL_SELECT_TEXTURES.cellNormal, x, y, w, LEVEL_SELECT_GEO.cellArt.h);
+    } else {
         // `[WXG-T-606]` 程序化木托盘：木框 → 深槽线 → 内窗 → 顶缘受光。
         builder.rect(x, y, w, h, { fill: palette.woodSheen, radius: st.radius });
         builder.rect(x + st.frame / 2, y + st.frame / 2, w - st.frame, h - st.frame, {
@@ -211,20 +214,19 @@ export function drawLevelSelectCell(
 
     // 内容层：全部由 ViewModel 驱动（⛔ 不读 MetaViewData）。
     // `[WXG-T-607]` 三带按稿分离：编号牌在格顶、图案槽在格中、星带在格底。
-    // `[WXG-T-611]` 图案槽 = 稿 `176:21 grid-image` 69×76 @格内 (44, 距视觉顶 49)：锁定 = 稿面锁
-    // 图案位图（缺图 ⇒ 灰珠阵降级），解锁 = 程序化珠拼；两态都**隐藏三星** + 旧锁角章退场（K-053）。
-    // `[WXG-T-616]` 用户令「图案尺寸太小」⇒ 槽放大到 126×94 @(16, 距顶 39)；锁图仍按原生比例居中。
+    // `[2026-11-20]` 用户令「直接用锁纹理代替缩略图，锁的位置靠下一点，因为下面没有三个星星」
+    // ⇒ 未解锁/越界空槽格：位图就绪时整枚铺稿面圆珠锁（等比，⛔ 不拉伸），相对图案槽下移
+    // `lockDrop`（锁格隐藏三星，星带空出的高度还给锁）；缺图 ⇒ 灰珠阵 / slot 占位降级腿。
     const ix = x + a.imageLeft;
     const iy = y + (h - a.imageTopDown - a.imageH);
     if (cell.locked || cell.levelIdx === undefined) {
-        // `[FIX: BlitLayerUI 压 Graphics]` lockImage blit 也走 BlitLayerUI 高层，会盖住 drawBeadFace
-        // 的灰色珠面。统一走 drawBeadFace（Graphics，与卡片底同层），顺序正确。
-        // ponytail: 删 lockImage blit，只用 drawBeadFace 灰色珠面（diff 最小）
-        if (cell.level !== undefined) {
+        if (menuBitmapReady(LEVEL_SELECT_TEXTURES.lockImage)) {
+            const lh = a.imageH;
+            const lw = lh * a.lockW / a.lockH;
+            builder.blit(LEVEL_SELECT_TEXTURES.lockImage, x + (w - lw) / 2, iy - a.lockDrop, lw, lh);
+        } else if (cell.level !== undefined) {
             drawBeadFace(builder, cell.level, ix, iy, a.imageW, a.imageH, palette, beadFadedInksFor(cell.level), vm.beadStyle, vm.beadSize, 'center', true);
         } else {
-            // 空槽（levelIdx === undefined，关卡清单短于槽位）：画占位灰色方块。
-            // 原 lockImage blit 已删，用 slot fill 填充 image 槽位占位。
             builder.rect(ix, iy, a.imageW, a.imageH, { fill: palette.slot, radius: 6 });
         }
         return;
