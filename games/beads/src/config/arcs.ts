@@ -25,12 +25,16 @@ export interface ArcEntry {
   readonly id: string;
   /** 橱窗上的大关名（真源 = 章文件 `title`；空值由生成期拒收）。 */
   readonly title: string;
-  /** Cocos Bundle 名。⚠️ 值是资源路径（现有这一张在 `assets/themes`），改名批**不动**。 */
-  readonly bundle: string;
-  /** bundle 内路径，无扩展名。资产正本 = design/levels/assets/<art>.png（生成期断言存在）。 */
-  readonly art: string;
-  /** blit 用的 textureId（全表唯一，生成期断言）。 */
-  readonly textureId: string;
+  /**
+   * Cocos Bundle 名。⚠️ 值是资源路径（现有这一张在 `assets/themes`），改名批**不动**。
+   * `[WXG-T-1023]` **可选**：章文件不带 `showcase` ⇒ 三字段缺省 = 该大关橱窗 / boss 格
+   * 走程序化缩略臂（ADR-0031 绿线锚）；配了则三字段齐备且母版资产存在（生成期断言）。
+   */
+  readonly bundle?: string;
+  /** bundle 内路径，无扩展名。资产正本 = design/levels/assets/<art>.png（配置 showcase 时生成期断言存在）。 */
+  readonly art?: string;
+  /** blit 用的 textureId（配置 showcase 时全表唯一，生成期断言）。 */
+  readonly textureId?: string;
   /**
    * 本大关的关卡清单 = **1-based 连续区间** `[from, to][]`（与 `levels-data.ts` 的
    * `id` 同轴；Q17 = 甲 ⇒ 大关① = 关号 1–9，L9 boss 收尾）。**生成派生**：真源 = 章文件
@@ -48,9 +52,6 @@ export const ARCS: readonly ArcEntry[] = [
   {
     id: "mandala",
     title: "曼陀罗",
-    bundle: "themes",
-    art: "l9-boss-mandala-256",
-    textureId: "bitmap__boss_l9",
     levelRefs: [
       [
         1,
@@ -61,9 +62,6 @@ export const ARCS: readonly ArcEntry[] = [
   {
     id: "photo32-smoke",
     title: "照片冒烟 32",
-    bundle: "themes",
-    art: "photo32-smoke-boss-256",
-    textureId: "bitmap__photo32-smoke_boss",
     levelRefs: [
       [
         10,

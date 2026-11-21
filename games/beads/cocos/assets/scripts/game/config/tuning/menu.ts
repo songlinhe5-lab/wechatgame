@@ -907,24 +907,39 @@ export const THUMB_BEADS_MAX = THUMB_MATRIX_N * THUMB_MATRIX_N;
  * `BeadsLevelRaw` 不带 `kind`（boss 只在生成期排序标）⇒ 映射按显式 `id` 键，新 boss 关追加条目。
  * EP13-S4：键/图**按大关表派生**（每行 `levelRefs` 末区间 `to` = 该大关收尾关，图 = 行内 `textureId`）；
  * 旧码硬取首行 `OPEN_ARCS[0]` ⇒ 多过大关时后几行会错用首关图，已消除。
+ * `[WXG-T-1023]` 两章 `showcase` 已按用户裁定退场（themes 运行时副本删除）⇒ 本表**当前为空**；
+ * 未来配位图展品 = 章文件加回 `showcase` + 重生成 + 投放 themes 副本（机制零改动接回）。
  */
 export const BOSS_THUMB_TEXTURES: Readonly<Record<number, string>> = (() => {
   const map: Record<number, string> = {};
   for (const arc of ARCS) {
     const last = arc.levelRefs[arc.levelRefs.length - 1];
-    if (last !== undefined) map[last[1]] = arc.textureId;
+    if (last !== undefined && arc.textureId !== undefined) map[last[1]] = arc.textureId;
+  }
+  return Object.freeze(map);
+})();
+/**
+ * `[WXG-T-1023]` **boss 关号键集**（各大关收尾关，1-based）——与展品映射**解耦**：
+ * `isBossLevelId` / 结算发豆分档只认章结构（`levelRefs` 末关），不依赖该章是否配位图展品。
+ * 旧实现经 {@link BOSS_THUMB_TEXTURES} 派生，展品退场会把 boss 关判定一并清空（断发豆分档）。
+ */
+export const BOSS_LEVEL_IDS: Readonly<Record<number, true>> = (() => {
+  const map: Record<number, true> = {};
+  for (const arc of ARCS) {
+    const last = arc.levelRefs[arc.levelRefs.length - 1];
+    if (last !== undefined) map[last[1]] = true;
   }
   return Object.freeze(map);
 })();
 /**
  * boss 关判定（`levelId` = **1-based 关号** = 某大关收尾关）。
  *
- * 与 {@link BOSS_THUMB_TEXTURES} **同源派生**（同一份 `ARCS.levelRefs` 末区间）——
+ * 与 {@link BOSS_LEVEL_IDS} **同源派生**（同一份 `ARCS.levelRefs` 末区间）——
  * ⛔ 不新建第二份 boss 真源：`BeadsLevelRaw` 本就不带 `kind`（boss 只在生成期排序标）。
  * 用途 = 结算发豆分档（Boss 关首通 40/60/80、复刷 10/2；普通关 20/30/40、5/1）。
  */
 export function isBossLevelId(levelId: number): boolean {
-  return Object.prototype.hasOwnProperty.call(BOSS_THUMB_TEXTURES, levelId);
+  return Object.prototype.hasOwnProperty.call(BOSS_LEVEL_IDS, levelId);
 }
 
 /**

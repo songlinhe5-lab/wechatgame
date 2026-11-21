@@ -11,10 +11,5 @@
     "L00007",
     "L00008",
     "L00009"
-  ],
-  "showcase": {
-    "bundle": "themes",
-    "art": "l9-boss-mandala-256",
-    "textureId": "bitmap__boss_l9"
-  }
+  ]
 }

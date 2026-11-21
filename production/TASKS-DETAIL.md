@@ -11426,6 +11426,38 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 - tile 拆分后旧母版三件保留在 `final/assets/powerup/tiles/` 作派生源（不入包）；`final/v1/` 归档未动。
 - 真机 / 微信运行时未测（AppID + 密钥缺失）；临时 3847 预览服务已停；`games/beads/package.json` 构建自动版本 bump 为既有 WIP，未夹带提交。
 
+## WXG-T-1023
+
+**boss 展品两件轻量退场（showcase 转可选管线能力）** · 负责：主理人(CodeBuddy)·美术/工程轨 · 状态：✅ 完成（2026-11-21）
+
+承用户指 `[l9-boss-mandala-256.png]` / `[photo32-smoke-boss-256.png]`「这个没用了」。只读盘点**纠正语义**后经三问裁定（退场意图 → 轻量/彻底深度 → 断链后管线侧落地）执行。
+
+### 1. 只读盘点（纠正「没用」的语义）
+
+- 两件是**活跃展品**：`ARCS[0]`（曼陀罗，关 1–9）与 `ARCS[1]`（照片冒烟 32，关 10–11）的 `showcase` 图——主菜单玻璃橱窗 `MENU_BOSS_SLOT` 468×528（1.8× 放大）+ 选关页 boss 格缩略 134px 两条正常路径消费；前一张实帧橱窗中央的曼陀罗即 `l9-boss-mandala-256` 在屏。
+- 位于 **themes Bundle（主包外）**；登记装载 = 宿主 `BITMAP_ASSETS` 从 `OPEN_ARCS` **动态派生**（无逐件条目）；`THUMB_BBOX` 包围盒口径按两件实测；判据 `boss-thumb-bitmap.test.ts`（注入式，不依赖真实资产）。
+- 用户坚持退场 ⇒ 进入深度裁定：盘点发现**程序化臂是在册绿线锚**（`drawLevelThumb` 未命中逐字节程序化，ADR-0031），轻量/彻底两版视觉结果相同 ⇒ 裁定「轻量版」。
+
+### 2. 落地（管线侧最小退场——纯删资产被资产门硬判据拦截后修正）
+
+- 纯删 themes 2 PNG + 2 meta ⇒ `check:assets` **断链 2**：资产门把 `arcs.ts` 的 `art:` 字面量当装载路径（`check-assets.mjs:110-113`）⇒ 纯删资产不过硬门，必须管线侧同步。
+- **管线侧最小退场**：① 生成器 `sync-levels-data.mjs` `showcase` 变可选（无则章行不带三字段；配了仍断言三字段齐备 + 母版资产存在 + textureId 全表唯一）；② `arcs-data.header.txt` 接口模板三字段改 `?:`；③ `chapters/mandala.json` / `photo32-smoke.json` 删 `showcase` 块；④ 重生成 `arcs.ts`（两章行已无三字段）。
+- **`BOSS_LEVEL_IDS` 解耦（关键正确性修复）**：旧 `isBossLevelId` 经 `BOSS_THUMB_TEXTURES` 派生——展品退场会把映射清空、**boss 关判定（结算发豆分档）一并崩**。新键集直接从 `ARCS.levelRefs` 末关派生，`isBossLevelId` 行为逐字节不变；`BOSS_THUMB_TEXTURES` 派生加 `textureId` 过滤（当前为空表，登记裁定与接回口径）。
+- 宿主：`BITMAP_ASSETS` boss 展品派生行退场（注释登记裁定 + 零代码接回口径）；`ARC_TEXTURE_IDS`（NO_TRIM）派生过滤可选 `textureId`。
+- 判据：`arcs.test.ts` 表侧不变式适配可选语义（三字段同进同退）；`boss-thumb-bitmap.test.ts` 注入式**零改动全绿**（机制保留）。
+
+### 3. 取证
+
+- 金样 **13/13**（rig 无 resolver 注入 ⇒ 程序化臂，零重抓）；全量单测 **1590 passed / 2 skipped / 0 FAIL**；`tsc` 绿；`levels:check` 绿；资产门零差集；`framework:sync` 写入 2 件镜像。
+- release 主包 **3597.2 KB / 205 文件**（3625.0 → 3597.2；212 → 205 件，themes 副本随主包合并产物移除）、距红线余量 **498.8 KB**。
+- 实帧 `temp/ui-shot/cocos-617-menu-1023-prog-thumb.png`：橱窗展品已退为**程序化珠画缩略**（蓝绿珠画花形聚合块），「曼陀罗·第 1 关」题牌正常、零「丢弃 blit」；全量 `verify` = **PASS 24 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0**（`temp/verify-1023.log`）。
+
+### 4. 遗留
+
+- 换稿接回口径：章文件加回 `showcase` + 重生成 + 投放 themes 副本 + 恢复宿主派生行 ⇒ 零机制改动。
+- 母版两件保留在 `design/levels/assets/`（管线断言源 + 再投放源）；`THUMB_BBOX` 注释（menu.ts:376-384）按两件实测的口径注留档，资产退场后无消费、未删（再投放时仍适用）。
+- 真机 / 微信运行时未测（AppID + 密钥缺失）；临时 3847 预览服务已停；`games/beads/package.json` 构建自动版本 bump 为既有 WIP，未夹带提交。
+
 ## WXG-T-1022
 
 **左下陶盆连腿清理（用户裁定「没用」）** · 负责：主理人(CodeBuddy)·美术/工程轨 · 状态：✅ 完成（2026-11-21）

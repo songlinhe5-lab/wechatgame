@@ -4,10 +4,5 @@
   "levels": [
     "L00011",
     "L00010"
-  ],
-  "showcase": {
-    "bundle": "themes",
-    "art": "photo32-smoke-boss-256",
-    "textureId": "bitmap__photo32-smoke_boss"
-  }
+  ]
 }

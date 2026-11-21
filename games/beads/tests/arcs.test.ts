@@ -14,15 +14,19 @@ describe('大关表（EP13-S1 · C-1：清单存表 + 术语改名）', () => {
     expect(ARCS.map((a) => a.id).slice(0, 1)).toEqual(['mandala']);
   });
 
-  it('每行都有名字、包和图；id 与 textureId 全表不重复', () => {
+  it('每行都有名字；配 showcase 的行三字段齐备且 textureId 全表不重复（WXG-T-1023 起 showcase 可选）', () => {
     const ids = ARCS.map((a) => a.id);
-    const tex = ARCS.map((a) => a.textureId);
+    const tex = ARCS.filter((a) => a.textureId !== undefined).map((a) => a.textureId);
     expect(new Set(ids).size).toBe(ids.length);
     expect(new Set(tex).size).toBe(tex.length);
     for (const a of ARCS) {
       expect(a.title.length).toBeGreaterThan(0);
-      expect(a.bundle.length).toBeGreaterThan(0);
-      expect(a.art.length).toBeGreaterThan(0);
+      // `[WXG-T-1023]` showcase 三字段同进同退（生成期断言的运行时镜像）：要么全缺省、要么全齐备。
+      if (a.textureId !== undefined || a.art !== undefined || a.bundle !== undefined) {
+        expect(a.textureId?.length, `章 ${a.id} textureId`).toBeGreaterThan(0);
+        expect(a.art?.length, `章 ${a.id} art`).toBeGreaterThan(0);
+        expect(a.bundle?.length, `章 ${a.id} bundle`).toBeGreaterThan(0);
+      }
     }
   });
 

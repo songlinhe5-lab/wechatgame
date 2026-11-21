@@ -674,15 +674,19 @@ export function assembleArcs(game) {
       throw new Error(`${game.name}: 章 ${c.id} boss 恰 1 条（现 ${bossAt.length} 条）`);
     if (bossAt[0] !== ch.levels.length - 1)
       throw new Error(`${game.name}: 章 ${c.id} boss 必须是 levels[] 末项（现第 ${bossAt[0] + 1}/${ch.levels.length} 项）`);
-    const sc = ch.showcase ?? {};
-    for (const k of ['bundle', 'art', 'textureId'])
-      if (typeof sc[k] !== 'string' || sc[k].length === 0)
-        throw new Error(`${game.name}: 章 ${c.id} showcase.${k} 为空`);
-    if (seenTex.has(sc.textureId)) throw new Error(`${game.name}: textureId ${sc.textureId} 全表重复`);
-    seenTex.add(sc.textureId);
-    if (!isFile(join(game.levelsDir, 'assets', `${sc.art}.png`)))
-      throw new Error(`${game.name}: 章 ${c.id} showcase.art=${sc.art} 资产不存在（design/levels/assets/${sc.art}.png）`);
-    arcs.push({ id: c.id, title: ch.title, bundle: sc.bundle, art: sc.art, textureId: sc.textureId, levelRefs: uidSlotsToLevelRefs(ch.levels, uidSpans) });
+    // `[WXG-T-1023]` showcase 改**可选**：章文件不带 ⇒ 该大关不配位图展品（橱窗 / boss 格
+    // 走程序化缩略臂），ArcEntry 三字段缺省；配了则三字段齐备 + 母版资产存在 + textureId 全表唯一。
+    const sc = ch.showcase;
+    if (sc) {
+      for (const k of ['bundle', 'art', 'textureId'])
+        if (typeof sc[k] !== 'string' || sc[k].length === 0)
+          throw new Error(`${game.name}: 章 ${c.id} showcase.${k} 为空`);
+      if (seenTex.has(sc.textureId)) throw new Error(`${game.name}: textureId ${sc.textureId} 全表重复`);
+      seenTex.add(sc.textureId);
+      if (!isFile(join(game.levelsDir, 'assets', `${sc.art}.png`)))
+        throw new Error(`${game.name}: 章 ${c.id} showcase.art=${sc.art} 资产不存在（design/levels/assets/${sc.art}.png）`);
+    }
+    arcs.push({ id: c.id, title: ch.title, ...(sc ? { bundle: sc.bundle, art: sc.art, textureId: sc.textureId } : {}), levelRefs: uidSlotsToLevelRefs(ch.levels, uidSpans) });
     capacity.push({ id: c.id, slots });
   });
   // 未退役 entry 必须被某章覆盖（否则该关在橱窗墙上不可达）；孤儿章文件反向查

@@ -105,7 +105,9 @@ const MASK_IDS: readonly string[] = requiredTintMaskIds();
  * 以 `loadAny({bundle, path})` 按路径取，**不依赖 uuid**。path 无扩展名。
  * 装载失败 / 资产未导 ⇒ 不登记 ⇒ 该元素回退程序化（不 gate `_ready`）。
  */
-const ARC_TEXTURE_IDS: ReadonlySet<string> = new Set(OPEN_ARCS.map((t) => t.textureId));
+const ARC_TEXTURE_IDS: ReadonlySet<string> = new Set(
+    OPEN_ARCS.filter((t) => t.textureId !== undefined).map((t) => t.textureId as string),
+);
 /**
  * `[WXG-T-585]` **必须 `trim = false` 的帧**（四周有透明边，靠原图留白对齐）。
  * 起因：`Sprite.trim = true` 时 Cocos 用导入后的 trimmed rect 当 uv 并**铺满节点 contentSize**
@@ -119,7 +121,12 @@ const NO_TRIM_TEXTURE_IDS: ReadonlySet<string> = new Set<string>([
 ]);
 
 const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>> = {
-    ...Object.fromEntries(OPEN_ARCS.map((t) => [t.textureId, { path: t.art, bundle: t.bundle }])),
+    // `[WXG-T-1023]` boss 展品装载派生行退场（用户裁定「没用」轻量清理：themes 运行时副本
+    // `l9-boss-mandala-256` / `photo32-smoke-boss-256` 已删）——原行
+    // `...Object.fromEntries(OPEN_ARCS.map((t) => [t.textureId, { path: t.art, bundle: t.bundle }]))`
+    // 不再登记 ⇒ `BOSS_THUMB_TEXTURES` 命中但 `_bitmaps` 无键 ⇒ resolver 返 undefined
+    // ⇒ 橱窗 / boss 格走在册程序化缩略臂（ADR-0031 绿线锚）。未来换稿零代码接回：
+    // 恢复本派生行 + 投放 themes 副本（ARCS.showcase 与母版 `design/levels/assets/` 均未动）。
     // `[WXG-T-280]` 主菜单位图 16 件（正本 = `design/art/final/assets/menu/`，拷入现成 `textures` Bundle；
     // ⛔ 不新分包）。全部入库为调色板量化 PNG（微信包内白名单不含 webp，见代码包文档）；
     // 未导入/解不出 ⇒ 不登记 ⇒ 该元素程序化腿（同 boss 缩略语义，不 gate `_ready`）。
