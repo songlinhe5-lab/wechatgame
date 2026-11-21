@@ -11426,6 +11426,35 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 - tile 拆分后旧母版三件保留在 `final/assets/powerup/tiles/` 作派生源（不入包）；`final/v1/` 归档未动。
 - 真机 / 微信运行时未测（AppID + 密钥缺失）；临时 3847 预览服务已停；`games/beads/package.json` 构建自动版本 bump 为既有 WIP，未夹带提交。
 
+## WXG-T-1021
+
+**CTA 主钮两件一次派生（highlight 由 normal 线性映射 + 全量化）** · 负责：主理人(CodeBuddy)·美术/工程轨 · 状态：✅ 完成（2026-11-21）
+
+承用户问「`ui_menu_cta_highlight` 能否提亮 `ui_menu_cta`」。按 2026-11-01 令先只读核对（未改字节），列三方案请挑 ⇒ 裁定 **「派生 + 量化」**（与 T-1019 圆钮 / T-1020 箭头同口径）。
+
+### 1. 只读核对
+
+- 两件 378×179 @2x（显示 189×89.5，「开始」烘字整枚钮，源 756×358），normal 65.6 KB + highlight 61.7 KB = 127.2 KB；消费 = `MENU_TEXTURES.ctaV2 / ctaPressedV2`（宿主已登记），母版 `final/assets/menu/buttons/` 在册。
+- alpha 轮廓：差 3049/67662 像素、平均 0.24、最大 12、**无 >16** ⇒ 实质同框（附图 highlight 边缘的「暗影」是色差而非轮廓差）。
+- 亮度：normal 114.5 → highlight 127.9；`H ≈ 0.8153×N + 34.5`，残差 2.60/255 ≈ 1%（与圆钮 / 箭头同款「抬暗部压对比」映射）。
+- **关键事实**：三通道系数 (0.810, 48.2) / (0.817, 39.3) / (0.813, 17.1) 与箭头四件（0.811/47.7 · 0.820/39.0 · 0.817/17.1）几乎逐位一致 ⇒ 美术导出 highlight 用的是**同一套高亮滤镜**，全仓两态族一条映射即可覆盖。
+
+### 2. 落码（纯资产替换，零代码改动）
+
+- 三通道最小二乘从运行时 normal 派生 highlight（拟合在量化前完成保证精度），两件 FASTOCTREE 64 色量化写回：**127.2 → 25.2 KB（省 ~102 KB）**——两态件族中收益最大的一单；派生 vs 在册 highlight 平均差 3.17/255，木纹与烘字人眼无差（`temp/cta-1021-compare.png`）。
+- 母版逐字节不动；同 id 同几何 ⇒ 视图 / 宿主 / harness / 判据零接线；`.meta` 校验 0 缺失（尺寸与 trim 不变，未手写）。
+
+### 3. 取证
+
+- **金样零重抓**：`ui-golden.test.ts` 13/13 绿（同 id 同几何，像素不入命令流）。
+- **屏幕层实帧**：`temp/ui-shot/cocos-617-menu-1021-cta.png` 证主菜单「开始」钮（量化 normal 件）清晰上屏、零「丢弃 blit」；按下态为瞬时态，以三联目检图 + 残差数据佐证。
+- **门禁**：`check:assets` 零差集；release 主包 **3647.3 KB / 215 文件**（3746.9 → 3647.3，省 99.6 KB 十进制口径）、距红线余量 **448.7 KB**；全量 `verify` = **PASS 24 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0**（`temp/verify-1021.log`）。
+
+### 4. 遗留
+
+- 提交时 git index 内含用户侧暂存的提案目录件（`design/art/proposals/levels-20arcs-selection-20261117/A01-P06-lotus/` 8 件）——为不夹带，先解除暂存（文件保留磁盘），用户之后可自行重新 add。
+- 真机 / 微信运行时未测（AppID + 密钥缺失）；临时 3847 预览服务已停；`games/beads/package.json` 构建自动版本 bump 为既有 WIP，未夹带提交。
+
 ## WXG-T-1020
 
 **翻页箭头四件一次派生（highlight 由 normal 线性映射 + 全量化）** · 负责：主理人(CodeBuddy)·美术/工程轨 · 状态：✅ 完成（2026-11-21）
