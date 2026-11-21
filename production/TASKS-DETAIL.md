@@ -11425,3 +11425,33 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 - 圆钮派生残差 2.63/255 集中在描边高光窄带（与灰星同判例），人眼无差；若美术改 normal 稿，pressed 需重跑派生（离线一次性脚本口径待入册 `design/ai-workflows/`）。
 - tile 拆分后旧母版三件保留在 `final/assets/powerup/tiles/` 作派生源（不入包）；`final/v1/` 归档未动。
 - 真机 / 微信运行时未测（AppID + 密钥缺失）；临时 3847 预览服务已停；`games/beads/package.json` 构建自动版本 bump 为既有 WIP，未夹带提交。
+
+## WXG-T-1020
+
+**翻页箭头四件一次派生（highlight 由 normal 线性映射 + 全量化）** · 负责：主理人(CodeBuddy)·美术/工程轨 · 状态：✅ 完成（2026-11-21）
+
+承用户两问：「`ui_menu_arrow_left_highlight` 能否用 normal 直接提亮」+「`ui_menu_arrow_right_highlight` 能否提亮 normal」。按用户 2026-11-01 令先只读核对（未改任何字节），数据齐后列三方案请挑 ⇒ 裁定 **「两族四件一次派生」**（与 WXG-T-1019 圆钮同口径）。
+
+### 1. 只读核对
+
+- 四件两族：left 110×116（14.1 + 13.0 KB）、right 109×116（13.6 + 12.7 KB），合计 53.7 KB；消费点唯一 = `meta-menu.ts::drawArrow`（按下态选 highlight），宿主登记四件、母版 `final/assets/menu/buttons/ui_btn_{prev,next}_*` 在册（harness 用）。
+- alpha 轮廓：差 825/12760 像素、平均 0.27、最大 12、**无 >16**——仅边缘抗锯齿微差（外环均值 0.33、中央箭头区 0）⇒ 实质同框，派生用 normal 的 alpha 成立。
+- 亮度：normal 107.7 → highlight 127.0（左）/ 105.5 → 125.2（右）；灰度拟合 `H ≈ 0.816×N + 39`，残差 2.76 / 2.68（≈1%）。**注意斜率 <1 ⇒ 不是「乘常数直接提亮」，而是「抬暗部 + 压对比」的线性映射**（暗部 +20、亮部 +2）；单纯 ×1.2 会冲掉亮部木纹。
+- 关键事实：左右两族三通道系数**逐位一致**（R 0.811 / G 0.820 / B 0.817，截距差 <0.1）⇒ 同一稿面组件的两态两方向，一条映射覆盖四件。
+
+### 2. 落码（纯资产替换，零代码改动）
+
+- 三通道最小二乘从运行时 normal 派生 highlight，四件 FASTOCTREE 64 色量化写回：**53.7 → 13.6 KB（省 39.7 KB）**；派生 vs 在册 highlight 圆内平均差 3.02（左）/ 2.91（右）/255，人眼无差。
+- 母版 `ui_btn_{prev,next}_{normal,highlight}@2x.png` 逐字节不动；同 id 同几何 ⇒ 视图 / 宿主 / harness / 判据零接线。
+- `.meta`：尺寸不变；right 两件 trim 高度 116→115（offsetY 0.5）由 `build:cocos` 构建期 asset-db 自动重算——量化微差使最下缘整行 alpha≤1 被 trimThreshold 裁掉，绘制差 <0.5 设计 px 无感，uuid 稳定，`import-metas:check` 0 缺失（⛔ 未手写）。
+- 目检三联图 `temp/arrow-{left,right}-1020-compare.png`（normal | 派生量化 | 在册 highlight）。
+
+### 3. 取证
+
+- **金样零重抓**：`ui-golden.test.ts` 13/13 绿——同 id 同几何，像素与 trim 内部微调不入命令流（WXG-T-1012/1017/1019 同判例）。
+- **屏幕层实帧**：`temp/ui-shot/cocos-617-menu-1020-arrow.png` 证主菜单右翻页钮（量化 normal 件）清晰上屏、零「丢弃 blit」；按下态为瞬时态以三联目检图 + 残差数据佐证。
+- **门禁**：`check:assets` 零差集；release 主包 **3746.9 KB / 215 文件**（3785.6 → 3746.9）、距红线余量 **349.1 KB**；全量 `verify` = **PASS 24 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0**（`temp/verify-1020.log`）。
+
+### 4. 遗留
+
+- 真机 / 微信运行时未测（AppID + 密钥缺失）；临时 3847 预览服务已停；`games/beads/package.json` 构建自动版本 bump 为既有 WIP，未夹带提交。
