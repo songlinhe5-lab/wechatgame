@@ -24,7 +24,7 @@ import {
   maskTileInnerPx,
   tintFx,
 } from '@wxgame/framework';
-import { BEAD_PITCH, LEVEL_DETAIL_TEXTURES, LEVEL_SELECT_TEXTURES, MENU_TEXTURES, POWERUP_TILE_TEXTURES, TILE_BLEED, TIMEOUT_TEXTURES } from '../../games/beads/src/config/tuning.js';
+import { BEAD_PITCH, LEVEL_DETAIL_TEXTURES, LEVEL_SELECT_TEXTURES, MENU_TEXTURES, POWERUP_RESTORE_BASE_TILE, POWERUP_TILE_TEXTURES, TILE_BLEED, TIMEOUT_TEXTURES } from '../../games/beads/src/config/tuning.js';
 import { setDevSafeInsets, setShowSafeGuides } from '../../games/beads/src/config/tuning/layout.js';
 import { OPEN_ARCS } from '../../games/beads/src/config/arcs.js';
 import { setMenuBitmapResolver } from '../../games/beads/src/view/meta-view.js';
@@ -193,9 +193,8 @@ const MENU_FILE: Readonly<Record<string, string>> = {
   // `[WXG-T-1013]` iconSound 零消费件出包 ⇒ harness 也不再登记（tuning 键留作候选件）。
   [MENU_TEXTURES.iconCalendar]: 'icons/ui_icon_calendar@2x.png',
   // `[2026-11-21]` v1 结算背板三件（木纹标题牌 / 9-slice 木框 / 纸面板）已清理；
-  // 下面三枚按钮底图是设置页缺图腿共用件 ⇒ 保留。
+  // 下面两枚按钮底图是设置页缺图腿共用件 ⇒ 保留（`[WXG-T-1019]` 按下态专用纹已退场）。
   [MENU_TEXTURES.btnWood]: 'ui_btn_wood_9s.png',
-  [MENU_TEXTURES.btnWoodPressed]: 'ui_btn_wood_9s_pressed.png',
   [MENU_TEXTURES.btnPaper]: 'ui_btn_paper_9s.png',
   // `[WXG-T-949]` 结算面板新版四件（Figma `过关结算 269:44`，2026-11-15）。
   [MENU_TEXTURES.clearPanelBoard]: 'clear/ui_clear_panel_board@2x.png',
@@ -234,11 +233,13 @@ const MENU_FILE: Readonly<Record<string, string>> = {
   [MENU_TEXTURES.nextBtnPressed]: 'buttons/ui_btn_next_highlight@2x.png',
   // `[WXG-T-585]` v2 通关章 90×89.5。
   [MENU_TEXTURES.seal]: 'badges/ui_menu_seal@2x.png',
-  // `[WXG-T-601]` 关卡详情道具行三枚框图（正本 336² @4x ⇒ 84×84 设计尺度；图内已含框与底）。
+  // `[WXG-T-601]` 关卡详情道具行框图（正本 336² @4x ⇒ 84×84 设计尺度）。`[WXG-T-1019]`
+  // 用户裁定「拆分共背景」：背景件 + 三件道具件两段 blit（环带单源化）。
   // 路径带 `/` 前缀 ⇒ `loadImage` 直取（serve-harness 白名单 `/powerup-assets/`）。
-  [POWERUP_TILE_TEXTURES.windowRestore]: '/powerup-assets/tiles/powerup_window_restore_tile.png',
-  [POWERUP_TILE_TEXTURES.randomRestore]: '/powerup-assets/tiles/powerup_random_restore_tile.png',
-  [POWERUP_TILE_TEXTURES.trayRestore]: '/powerup-assets/tiles/powerup_tray_restore_tile.png',
+  [POWERUP_RESTORE_BASE_TILE]: '/powerup-assets/tiles/powerup_restore_base@4x.png',
+  [POWERUP_TILE_TEXTURES.windowRestore]: '/powerup-assets/tiles/powerup_restore_icon_window@4x.png',
+  [POWERUP_TILE_TEXTURES.randomRestore]: '/powerup-assets/tiles/powerup_restore_icon_random@4x.png',
+  [POWERUP_TILE_TEXTURES.trayRestore]: '/powerup-assets/tiles/powerup_restore_icon_tray@4x.png',
   // `[WXG-T-602]` 关卡详情四件（正本 `design/art/final/assets/detail/`，均 @2x）：木牌 1162×2088 /
   // 开始钮 652×308 / 实心星·空心星 116×120。缺任一件 ⇒ 该元素走同几何程序化回退。
   [LEVEL_DETAIL_TEXTURES.plaque]: '/detail-assets/ui_detail_plaque@2x.png',

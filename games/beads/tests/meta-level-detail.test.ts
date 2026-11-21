@@ -32,7 +32,7 @@ import { defaultBeadsSave } from '../src/game/save-schema.js';
 import { hitTestMeta, metaLayout, setMenuBitmapResolver } from '../src/view/meta-view.js';
 import { levelDetailPlate } from '../src/view/meta-layout.js';
 import { COPY_TOKENS } from '../src/config/copy-tokens.js';
-import { DESIGN_H, DESIGN_W, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TEXTURES, LEVEL_DETAIL_TITLE_SHADOW, MENU_TEXTURES, STAMINA_START_COST, WALL_ROWS } from '../src/config/tuning.js';
+import { DESIGN_H, DESIGN_W, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TEXTURES, LEVEL_DETAIL_TITLE_SHADOW, MENU_TEXTURES, POWERUP_RESTORE_BASE_TILE, POWERUP_TILE_TEXTURES, STAMINA_START_COST, WALL_ROWS } from '../src/config/tuning.js';
 
 const META_KEY = 'test.t602.meta';
 const PLAY_KEY = 'test.t602.play';
@@ -256,5 +256,39 @@ describe('[WXG-T-602] 关卡详情弹窗 — 绘制面', () => {
             '零得星 ⇒ 三枚空心',
         ).toBe(3);
         expect(ids.includes(LEVEL_DETAIL_TEXTURES.starFilled), '零得星 ⇒ 无实心').toBe(false);
+    });
+
+    it('[WXG-T-1019] 道具行拆分共背景：位图臂 = 背景件 ×3 + 道具件 ×3 两段 blit', () => {
+        // 用户裁定「拆分共背景（单源化）」：三件 336² tile 环带逐像素同源 ⇒ 背景件 + 三件
+        // 160² 道具件；旧整图键 `bitmap__powerup_window_tile` 等退场（资产 −3 +4，净 −12.5 KB）。
+        setMenuBitmapResolver((id) => id.startsWith('bitmap__detail_')
+            || id === POWERUP_RESTORE_BASE_TILE
+            || id.startsWith('bitmap__powerup_restore_icon')
+            || id === MENU_TEXTURES.btnCircle);
+        const r = rig();
+        openLevels(r.shell);
+        openDetail(r.shell, 3);
+        for (let i = 0; i < 40; i += 1) r.shell.update(1 / 60);
+
+        const cmds = frame(r.shell);
+        const ids = cmds.filter((c) => c.kind === 'blit').map((c) => c.textureId) as string[];
+        expect(
+            ids.filter((id) => id === POWERUP_RESTORE_BASE_TILE).length,
+            '三枚共用背景件各一条（环带单源化）',
+        ).toBe(3);
+        expect(
+            ids.filter((id) => id.startsWith('bitmap__powerup_restore_icon')).length,
+            '三件道具件各一条',
+        ).toBe(3);
+        expect(
+            ids.some((id) => Object.values(POWERUP_TILE_TEXTURES).includes(id)),
+            '道具件键在场（值已改指拆分件）',
+        ).toBe(true);
+        expect(
+            ids.some((id) => id.startsWith('bitmap__powerup_window_tile')
+                || id.startsWith('bitmap__powerup_random_tile')
+                || id.startsWith('bitmap__powerup_tray_tile')),
+            '⛔ 旧整图 tile 键零消费',
+        ).toBe(false);
     });
 });

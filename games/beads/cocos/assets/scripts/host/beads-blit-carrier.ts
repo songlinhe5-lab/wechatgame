@@ -32,7 +32,7 @@ import {
 } from '../framework/adapters/canvas2d/tint-sprite-cache';
 import { MASK_CANONICAL_SIZE } from '../framework/core/bake/mask-spec';
 import { maskTileInnerPx } from '../framework/core/bake/mask-tile';
-import { BEAD_PITCH, BELOW_GRAPHICS_TEXTURE_IDS, BOSS_THUMB_TEXTURES, LEVEL_DETAIL_TEXTURES, LEVEL_SELECT_TEXTURES, MENU_TEXTURES, POWERUP_TILE_TEXTURES, TILE_BLEED, TIMEOUT_TEXTURES } from '../game/config/tuning';
+import { BEAD_PITCH, BELOW_GRAPHICS_TEXTURE_IDS, BOSS_THUMB_TEXTURES, LEVEL_DETAIL_TEXTURES, LEVEL_SELECT_TEXTURES, MENU_TEXTURES, POWERUP_RESTORE_BASE_TILE, POWERUP_TILE_TEXTURES, TILE_BLEED, TIMEOUT_TEXTURES } from '../game/config/tuning';
 import { OPEN_ARCS } from '../game/config/arcs';
 import { tintFxBase } from '../framework/core/bake/tint-composite';
 import { frostGrayCombined, frostPixels, frostRead, grayFxRead, grayWipeRead } from '../framework/core/bake/gray-fx';
@@ -157,11 +157,13 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
     [MENU_TEXTURES.nextBtnPressed]: { path: 'ui_menu_arrow_right_highlight' },
     [MENU_TEXTURES.seal]: { path: 'ui_menu_seal' },
 
-    // `[WXG-T-601]` 关卡详情道具行三枚框图（336² @4x）。投放件未导入 `textures` Bundle 前
-    // ⇒ `loadBitmapSpriteFrame` 返 null ⇒ 不登记 ⇒ 详情页该枚走程序化单字徽章（零回归）。
-    [POWERUP_TILE_TEXTURES.windowRestore]: { path: 'powerup_window_restore_tile' },
-    [POWERUP_TILE_TEXTURES.randomRestore]: { path: 'powerup_random_restore_tile' },
-    [POWERUP_TILE_TEXTURES.trayRestore]: { path: 'powerup_tray_restore_tile' },
+    // `[WXG-T-601]` 关卡详情道具行框图（336² @4x）。`[WXG-T-1019]` 用户裁定「拆分共背景」：
+    // 三件 tile 环带逐像素同源 ⇒ 背景件 + 三件道具件（两段 blit）。投放件未导入 `textures`
+    // Bundle 前 ⇒ `loadBitmapSpriteFrame` 返 null ⇒ 不登记 ⇒ 详情页走程序化单字徽章（零回归）。
+    [POWERUP_RESTORE_BASE_TILE]: { path: 'powerup_restore_base' },
+    [POWERUP_TILE_TEXTURES.windowRestore]: { path: 'powerup_restore_icon_window' },
+    [POWERUP_TILE_TEXTURES.randomRestore]: { path: 'powerup_restore_icon_random' },
+    [POWERUP_TILE_TEXTURES.trayRestore]: { path: 'powerup_restore_icon_tray' },
 
     // `[WXG-T-602]` 关卡详情四件（投放件均 @2x：木牌 1162×2088 / 开始钮 652×308 / 星 116×120）。
     // 未导入 `textures` Bundle ⇒ 不登记 ⇒ 详情页逐元素回退（纸面板 / 通用主钮 / 文字星），零回归。
@@ -199,9 +201,9 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
     // 配套投放金星：木牌挂容器 `BlitLayerUI`，程序化五角星（`Graphics`）会被整片不透明木牌盖住。
     [MENU_TEXTURES.clearPanelBoard]: { path: 'ui_clear_panel_board' },
     [MENU_TEXTURES.clearStar]: { path: 'ui_clear_star' },
-    // v1 纸面板 / 9-slice 木框已清理；以下三枚按钮底图是设置页缺图腿共用件 ⇒ 保留。
+    // v1 纸面板 / 9-slice 木框已清理；以下两枚按钮底图是设置页缺图腿共用件 ⇒ 保留
+    //（`[WXG-T-1019]` 按下态专用纹 `btnWoodPressed` 已随「连腿清理」裁定退场）。
     [MENU_TEXTURES.btnWood]: { path: 'ui_btn_wood_9s' },
-    [MENU_TEXTURES.btnWoodPressed]: { path: 'ui_btn_wood_9s_pressed' },
     [MENU_TEXTURES.btnPaper]: { path: 'ui_btn_paper_9s' },
     // `[WXG-T-938 / -960]` 设置弹窗按钮底板（无字厚木 9-slice，源 235×210、capX 70）。
     // `.meta` 已由 Cocos 编辑器签发（uuid `6eb9947a-1b98-45d2-a21d-03e569e7a751`，2026-11-16）

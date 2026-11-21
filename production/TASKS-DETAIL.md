@@ -11391,3 +11391,37 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 - 主包余量升至 **212.5 KB**（红线压力解除，后续进资产有空间）；同族大图 `detail/ui_detail_plaque.png`（1162×2088）与 `ui_detail_showcase.png`（938×1276）可用同口径 0.5× 降采样评估，需另开单并各自实帧目检。
 - **dpr>2 设备的描边清晰度未取真机读数**：0.5× 源在 3 倍屏上描边放大 1.5×，750 物理画布（2 倍屏口径）实帧清晰，但鸿蒙 / 小米真机读数按在册测量单另取（K-198）；若真机目检不达标，备选回退 = 从母版重出 0.75× 档（约 5 KB）。
 - 真机 / 微信运行时未测（AppID + 密钥缺失）；临时 3847 预览服务已停；`games/beads/package.json` 构建自动版本 bump 为既有 WIP，未夹带提交。
+
+## WXG-T-1019
+
+**资产处置三联批：木钮按下态清理 / 圆钮亮度派生 / 恢复 tile 拆分** · 负责：主理人(CodeBuddy)·美术/工程轨 · 状态：✅ 完成（2026-11-21）
+
+三项独立资产问答，用户同批裁定（均先只读核对、后列方案请挑）：
+
+### 1. `ui_btn_wood_9s_pressed` 连腿清理（用户问「还有用吗」）
+
+- 只读核查：登记（宿主 / harness / tuning 键）与两个消费点齐备，但**正常运行时零绘制**——消费腿① `view-model.ts` 结算旧木钮仅当 v2 橙钮 `clearNextBtn` 缺失时可达、② `settings-content.ts` 过渡腿仅当新设置钮 `btnSettings` 缺失时可达（注释原文「新图导入并注册后可删本段」）；金样 rig 缺图臂不含该纹 ⇒ 金样零重抓。
+- 落码：删运行时 PNG+`.meta`（20.0 KB，K-120 成对）、tuning 键 `btnWoodPressed`、宿主/harness 登记条目，两处消费分支三元简化为恒 `btnWood`（按下只留 `pressDy` 位移）；`btnWood` / `btnPaper` 按 T-1015「按钮共用件保留」口径留在缺图腿。
+
+### 2. 圆钮 pressed 离线亮度派生（用户问「能否用 normal 直接提亮」）
+
+- 只读核对：两件同为 160×160 @2x、alpha 轮廓逐像素同框（差 bbox=None）；pressed 圆内灰度均值 166.4 vs normal 142.2；灰度线性拟合 `pressed ≈ 1.078×normal + 13.1`，**平均残差 2.61/255 ≈ 1%**（比灰星派生 2.9% 更优）。
+- 落码：三通道最小二乘拟合（R 1.025/16.9 · G 1.111/9.9 · B 1.237/10.5）从 normal 派生 pressed + 两件 FASTOCTREE 64 色量化，**82.1 → 14.5 KB（省 67.6 KB）**；派生件 vs 在册 pressed 圆内平均差 **2.63/255**；母版逐字节不动；同 id 同几何 ⇒ 金样零重抓。目检三联图 `temp/circle-btn-1019-compare.png`（normal | 派生pressed | 原pressed）。
+
+### 3. 恢复 tile 拆分共背景（用户问「能否共用一个背景纹理」）
+
+- 只读核对：三件 336² tile 差异 bbox 全部收敛在中央 (88,88,248,248) 道具区——**外围 88px 环带逐像素完全相同**；唯一视图消费点 = `meta-level-detail-page.ts`（关卡详情页道具条，缺图臂程序化单字徽章）；金样十一帧无 detail 帧 ⇒ **金样零重抓**。收益试验：拆分 ≈15 KB vs 仅量化 21.2 KB vs 现状 30 KB。
+- 落码：派生背景件 `powerup_restore_base`（环带 + 中央道具区填内面色；环带差 bbox 校验完全落在填充区内）+ 三件 160² 道具件，正本（`final/assets/powerup/tiles/`）+ 副本（textures Bundle 根）成对；tuning 三键改指 icon 件 + 新增 `POWERUP_RESTORE_BASE_TILE`；视图改**两段 blit**（背景在场即发，图标缺图仍走原程序化臂）；宿主/harness 登记 −3+4；删旧三件 PNG+`.meta`；`.meta` 新 4 件由编辑器 asset-db 签发（exit 36 落盘成功先例，⛔ 未手写）；新增判据 1 条（`meta-level-detail.test.ts`：位图臂 base×3 + icon×3、旧整图键零消费）。
+- 取证：Cocos 实帧 `temp/ui-shot/cocos-617-leveldetail-1019-split.png`（CDP 注入 `_openLevelsFromMenu` + `tapMeta(217,829.5)` 开详情）——位图池 `powerup_restore_base×3` + 三件 icon 各 ×1、零「丢弃 blit」，道具行视觉与拆分前一致。
+
+### 4. 验证与收口（2026-11-21）
+
+- 全量 beads 单测 **1590 passed / 2 skipped / 0 FAIL**（含金样对拍——零重抓确认）；`tsc --noEmit` 绿；`framework:sync` 写入 5 件镜像；`check:assets` 零差集（trim 33→31 件）；release 主包 **3785.6 KB / 215 文件**（3883.5 → 3785.6，**本批净省 97.9 KB**）、距红线余量 **310.4 KB**；全量 `verify` = **PASS 24 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0**（`temp/verify-1019.log`）。
+- 包体账：圆钮 −67.6 KB + tile −12.5 KB + wood_pressed −20.0 KB ≈ −97.9 KB。
+- `kb:sync --task=WXG-T-1019`：**新增 0 / 修改 0 / 激活 0 / 归档 0**（写入无）；`kb:check` 十重校验 PASSED。
+
+### 5. 遗留
+
+- 圆钮派生残差 2.63/255 集中在描边高光窄带（与灰星同判例），人眼无差；若美术改 normal 稿，pressed 需重跑派生（离线一次性脚本口径待入册 `design/ai-workflows/`）。
+- tile 拆分后旧母版三件保留在 `final/assets/powerup/tiles/` 作派生源（不入包）；`final/v1/` 归档未动。
+- 真机 / 微信运行时未测（AppID + 密钥缺失）；临时 3847 预览服务已停；`games/beads/package.json` 构建自动版本 bump 为既有 WIP，未夹带提交。

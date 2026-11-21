@@ -4,16 +4,23 @@ import { POWERUP_TYPES, type PowerupType } from './gameplay.js';
 
 /**
  * `[WXG-T-601]` 道具**框图** textureId（正本 = `design/art/final/assets/powerup/tiles/`，
- * 336² @4x ⇒ 设计尺度 84×84；图内已含圆角木框 + 米底 + 道具本体 ⇒ 视图只需 blit，⛔ 不再叠圆底）。
+ * 336² @4x ⇒ 设计尺度 84×84）。
+ *
+ * `[WXG-T-1019]` 用户裁定「拆分共背景（单源化）」：三件 336² tile 的外围 88px 环带**逐像素
+ * 完全相同**、差异全部收敛在中央 (88,88,248,248) 道具区 ⇒ 拆为**公共背景件**（圆角木框 + 米底，
+ * 中央道具区已填内面色）+ 三件 160² **道具件**；运行时背景 + 图标两段 blit。背景改稿只动一件。
  *
  * 与 {@link POWERUP_TYPES} 同键 ⇒ 逐型一一对应；宿主未导入/解不出时该 id 查不到
  * （`menuBitmapReady` 返 false）⇒ 视图走程序化单字徽章回退，不留空位。
  */
 export const POWERUP_TILE_TEXTURES: Readonly<Record<PowerupType, string>> = {
-  windowRestore: 'bitmap__powerup_window_tile',
-  randomRestore: 'bitmap__powerup_random_tile',
-  trayRestore: 'bitmap__powerup_tray_tile',
+  windowRestore: 'bitmap__powerup_restore_icon_window',
+  randomRestore: 'bitmap__powerup_restore_icon_random',
+  trayRestore: 'bitmap__powerup_restore_icon_tray',
 };
+
+/** `[WXG-T-1019]` 三件恢复 tile 共用的背景件 id（环带与三件逐像素同源，道具区已填内面色）。 */
+export const POWERUP_RESTORE_BASE_TILE = 'bitmap__powerup_restore_base';
 
 /** One powerup card's rect (`x`/`bottom` = design-space bottom-left corner). */
 export interface PowerupCardRect {

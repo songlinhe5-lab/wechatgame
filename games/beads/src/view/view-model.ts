@@ -593,9 +593,9 @@ function drawClearPanel(
         });
       } else {
         // 旧木主钮 9-slice（源 300×92，端帽 76）；按下降压不换形。
-        const btnTex = pressed && menuBitmapReady(MENU_TEXTURES.btnWoodPressed)
-          ? MENU_TEXTURES.btnWoodPressed
-          : MENU_TEXTURES.btnWood;
+        // `[WXG-T-1019]` 用户裁定「连腿清理」：按下态专用纹退场（v2 双钮就绪后本腿不可达，
+        // 仅缺图异常时兜底）⇒ 按下只保留 pressDy 位移。
+        const btnTex = MENU_TEXTURES.btnWood;
         if (menuBitmapReady(MENU_TEXTURES.btnWood)) {
           builder.blit(btnTex, button.rect.xMin, by, bw, bh, {
             fx: nineSliceFx(CLEAR_BTN_SLICE.capX, CLEAR_BTN_SLICE.capY),

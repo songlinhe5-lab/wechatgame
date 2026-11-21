@@ -253,10 +253,9 @@ export function drawSettingsWoodButton(
     }
     // 过渡腿：Cocos 端新图未导入 / 未构建时仍用已进包的 `btnWood`（WXG-T-937 同款），
     // 视觉不低于现状；新图导入并注册后可删本段。
+    // `[WXG-T-1019]` 用户裁定「连腿清理」：按下态专用纹退场 ⇒ 本腿按下只留 pressDy 位移。
     if (menuBitmapReady(MENU_TEXTURES.btnWood)) {
-        const tex = pressed && menuBitmapReady(MENU_TEXTURES.btnWoodPressed)
-            ? MENU_TEXTURES.btnWoodPressed
-            : MENU_TEXTURES.btnWood;
+        const tex = MENU_TEXTURES.btnWood;
         builder.blit(tex, x, y, w, h, { fx: nineSliceFx(76) });
         if (text !== '') builder.text(x + w / 2, y + h / 2, text, {
             fill: palette.woodText,

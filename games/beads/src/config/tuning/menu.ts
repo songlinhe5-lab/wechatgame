@@ -648,9 +648,10 @@ export const MENU_TEXTURES = {
   beam: 'bitmap__menu_beam',
   // `[2026-11-21]` v1 结算背板三键（木纹标题牌 / 9-slice 木框 / 纸面板）已清理出包；
   // `[WXG-T-581]` 更早的 `woodFrame` 亦已删键出包（历史留痕 K-053）。
-  /** `[WXG-T-515]` 按钮 9-slice 三枚：木主钮 / 按下态 / 纸次钮（设置页缺图腿共用 ⇒ 保留）。 */
+  /** `[WXG-T-515]` 按钮 9-slice：木主钮 / 纸次钮（设置页缺图腿共用 ⇒ 保留）。
+   *  `[WXG-T-1019]` 用户裁定「连腿清理」：按下态专用纹 `btnWoodPressed` / `ui_btn_wood_9s_pressed`
+   *  退场（两个消费腿在 v2 件就绪后本就不可达，仅缺图异常时兜底）⇒ 按下只留 pressDy 位移。 */
   btnWood: 'bitmap__ui_btn_wood_9s',
-  btnWoodPressed: 'bitmap__ui_btn_wood_9s_pressed',
   btnPaper: 'bitmap__ui_btn_paper_9s',
   /**
    * `[WXG-T-949]` 结算·过关面板新版四件（Figma `过关结算 269:44`，2026-11-15）：

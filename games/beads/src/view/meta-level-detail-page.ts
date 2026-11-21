@@ -10,7 +10,7 @@
  * 绘制时加 `plate.y` ⇒ 逐机位移（`dialogShiftY`）不会撕裂内容带。
  */
 
-import { DESIGN_H, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TEXTURES, LEVEL_DETAIL_TITLE_SHADOW, POWERUP_TILE_TEXTURES, POWERUP_TYPES } from '../config/tuning.js';
+import { DESIGN_H, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TEXTURES, LEVEL_DETAIL_TITLE_SHADOW, POWERUP_RESTORE_BASE_TILE, POWERUP_TILE_TEXTURES, POWERUP_TYPES } from '../config/tuning.js';
 import { type RenderModelBuilder } from '@wxgame/framework';
 import { POWERUP_LABELS } from '../systems/powerups.js';
 import { type BeadsPalette, withAlpha } from './palette.js';
@@ -172,9 +172,14 @@ export function drawLevelDetailPage(
     const itemY = plate.y + ITEMS_DY;
     for (let i = 0; i < POWERUP_TYPES.length; i++) {
         const x = rowLeft + i * (it.size + it.gap);
-        const texId = POWERUP_TILE_TEXTURES[POWERUP_TYPES[i]!];
-        if (menuBitmapReady(texId)) {
-            builder.blit(texId, x, itemY, it.size, it.size);
+        const iconId = POWERUP_TILE_TEXTURES[POWERUP_TYPES[i]!];
+        // `[WXG-T-1019]` 拆分共背景：背景件（环带单源）+ 道具件两段 blit；道具缺图 ⇒
+        // 程序化圆底 + 单字徽章（叠在背景米底上，与 `[WXG-T-601]` 缺图臂同视觉）。
+        if (menuBitmapReady(POWERUP_RESTORE_BASE_TILE)) {
+            builder.blit(POWERUP_RESTORE_BASE_TILE, x, itemY, it.size, it.size);
+        }
+        if (menuBitmapReady(iconId)) {
+            builder.blit(iconId, x, itemY, it.size, it.size);
         } else {
             const cx = x + it.size / 2;
             const cy = itemY + it.size / 2;
