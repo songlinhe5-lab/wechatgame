@@ -11426,6 +11426,36 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 - tile 拆分后旧母版三件保留在 `final/assets/powerup/tiles/` 作派生源（不入包）；`final/v1/` 归档未动。
 - 真机 / 微信运行时未测（AppID + 密钥缺失）；临时 3847 预览服务已停；`games/beads/package.json` 构建自动版本 bump 为既有 WIP，未夹带提交。
 
+## WXG-T-1024
+
+**v2 结算木牌 0.5× 显示口径瘦身（主包最大件）** · 负责：主理人(CodeBuddy)·美术/工程轨 · 状态：✅ 完成（2026-11-21）
+
+承用户指 `[ui_clear_panel_board.png]`「尺寸太大了」。按 2026-11-01 令先只读盘点与四档试验（未改字节），目检对比图佐证后请裁 ⇒ 裁定 **「0.5× 显示口径」**（T-1018 tray 同法、同判例）。
+
+### 1. 只读盘点与试验
+
+- 运行时 `cocos/assets/textures/ui_clear_panel_board.png` **1090×1170 @2x、263.5 KB（P 模式带透明）**——**主包最大单件**；显示口径 545×585（`view-model.ts::drawClearPanel` 恒发 blit，`[WXG-T-585]` v2 四件）；母版 `design/art/final/assets/menu/clear/ui_clear_panel_board@2x.png`（1011 KB）逐字节不动。
+- 四档试验（LANCZOS + FASTOCTREE，回放 PSNR 全图对拍）：**0.5× q64 = 28.6 KB（省 89%）** / 0.5× q128 = 29.4 / 0.75× q64 = 59.8（省 77%）/ 1.0× q64 重量化 = 101.2（省 62%，PSNR 38.9）。木纹高频纹理使 PSNR 整体偏低（33–39 dB），按 tray 先例以**目检定夺**。
+- 目检：`temp/board-1024-compare-corner.png`（角部铆钉 4×）与 `board-1024-compare-title.png`（凹槽牌）——0.5× 铆钉立体感略降但完全可辨、木纹无色带；0.75× 更接近原。
+
+### 2. 落地（纯资产替换，零代码改动）
+
+- LANCZOS 0.5× → **545×585（显示口径 1:1）** + FASTOCTREE 64 色写回：**263.5 → 28.6 KB（省 234.9 KB / 89%）**；同 id 同几何 ⇒ 视图 / 宿主 / harness / 判据零接线。
+- 母版逐字节不动（0.75× 真机回退备选的再派生源）；`.meta` 尺寸变更由 `build:cocos` 构建期 asset-db 自动 reimport 重算，uuid 稳定（T-1018 同机制，⛔ 未手写）。
+
+### 3. 取证
+
+- 金样 **13/13**（同 id 同几何，像素不入命令流，零重抓——T-1012/1017/1018/1019/1020/1021 同判例）；资产门零差集。
+- release 主包 **3367.9 KB / 205 文件**（3597.2 → 3367.9，省 229.3 KB 十进制口径）、距红线余量 **728.1 KB**。
+- **clear 态 CDP 实帧**：`temp/ui-shot/cocos-617-clear-1024-half-board.png`（复用 T-1015 取证脚本：tap CTA 进局 + 调试注入 `level-clear` + `panel.open`，⛔ 非真实通关只证渲染层）——木牌上屏，四角铆钉 / 凹槽牌 / 圆角与原版无可见差异。
+- 全量 `verify` = **PASS 24 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0**（`temp/verify-1024.log`）。
+
+### 4. 遗留
+
+- dpr>2 真机描边读数未取（与 tray 同一批挂单；备选回退 = 母版重出 0.75× 档）。
+- 主包剩余大件：`detail/ui_detail_showcase.png`（208.2 KB）与 `ui_detail_plaque.png`——同法 0.5× 评估预计再省 250 KB+（余量 728 KB 下不急）。
+- 真机 / 微信运行时未测（AppID + 密钥缺失）；临时 3847 预览服务已停；`games/beads/package.json` 构建自动版本 bump 为既有 WIP，未夹带提交。
+
 ## WXG-T-1023
 
 **boss 展品两件轻量退场（showcase 转可选管线能力）** · 负责：主理人(CodeBuddy)·美术/工程轨 · 状态：✅ 完成（2026-11-21）
