@@ -11575,3 +11575,30 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 ### 4. 遗留
 
 - 真机 / 微信运行时未测（AppID + 密钥缺失）；临时 3847 预览服务已停；`games/beads/package.json` 构建自动版本 bump 为既有 WIP，未夹带提交。
+
+## WXG-T-1025
+
+### 1. 背景与裁定
+
+- 承用户发图令：`ui_detail_showcase.png`＝「对话框长背景」、`ui_timeout_plaque.png`＝「对话框短背景」，「请修改成通用名字，并在代码合适位置替换」——两件资产语义从专页（关卡详情橱窗面板 / 倒计时弹窗木牌）升为**通用对话框背景**（长 / 短），可跨弹窗复用。
+- 深度裁定（自裁，未另问）：**纯文件级改名**——tuning 键名与 `textureId` 字符串（`bitmap__detail_showcase` / `bitmap__timeout_plaque`）留旧，键级改称登记为欠账、待消费面扩展时一并做 ⇒ `blit` 命令流不变 ⇒ 金样零重抓、判据零改动。
+
+### 2. 落地
+
+- `git mv` 六件：Cocos `textures/detail/ui_detail_showcase.png(+.meta)` → `ui_dialog_bg_tall.png(+.meta)`、`ui_timeout_plaque.png(+.meta)` → `ui_dialog_bg_short.png(+.meta)`（uuid 稳定）；harness 母件 `design/art/final/assets/detail/` 两张 `@2x` 同步改名。
+- 引用替换四行：`beads-blit-carrier.ts` `BITMAP_ASSETS` path ×2（`detail/ui_dialog_bg_tall` / `detail/ui_dialog_bg_short`）、`dev/harness/main.ts` 注册 URL ×2；tuning 两键注释登记改名与键级欠账。
+- 文档同步：`level-detail-spec.md` 资源正本行 + 读数依据行、`timeout-panel-spec.md` 资源表行（括注旧名）；`ui-architecture-beads.md` 1018/1024 历史 §12 登记内旧名**不追改**（K-053）。
+- `framework:sync` 拦截（src tuning 注释改动未同步拷贝件）→ 同步（beads 写入 2）→ 重建通过；`.meta` displayName 由构建期 asset-db 重算（L1 合规）。
+
+### 3. 取证
+
+- 资产门 `check:assets`：56 件装载路径零差集（孤儿 0 / 断链 0 / 死登记 0）——断链判定对改名后 path 的机械校验绿。
+- 产物 uuid 静态核对：`3a8fafcc…`(tray) / `4680f354…`(cellNormal) 字节不变；改名两件 uuid 不变 ⇒ 引用零断裂。
+- 全量 `verify` **PASS 24 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0**（金样零重抓成立）；`check:size` beads 主包 **3367.9 KB / 205 文件**（零字节差，纯改名）。
+- 残留扫描：src / cocos scripts / harness / tools 零旧名残留（历史读数引用已括注新名）。
+
+### 4. 遗留
+
+- **⏸ 并行未结：选关弹窗真机缺陷**「整页背景（弹窗后面那层背景图）没画」（用户 2026-11-21 真机扫码报）。已取证：主菜单正常、弹窗小件（金星/锁/关闭钮）正常 ⇒ textures bundle 装载链在真机通；选关容器背景 = `LEVEL_DETAIL_TEXTURES.plaque`（`bitmap__detail_plaque`，`BELOW_GRAPHICS_TEXTURE_IDS` 白名单压 Graphics 之下）；web 实帧绿但真机不复现 = K-198 同族。已做：automator 模拟器取证通道不通（`cli auto` 自动化端口未起）；下一步 = 真机调试（GUI 工具栏「真机调试」）取 `[BeadsBlitCarrier] 静态位图 N/M` 读数，或按 T-1016 用户原意改走通用对话框背景（见本单改名动机）。
+- 键级通用化欠账：`bitmap__detail_showcase` / `bitmap__timeout_plaque` 待消费面扩展时改称（届时金样重抓 + 判据同步）。
+- `games/beads/package.json` 构建自动版本 bump 为既有 WIP，未夹带提交。

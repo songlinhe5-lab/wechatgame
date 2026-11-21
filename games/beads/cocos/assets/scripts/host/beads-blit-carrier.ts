@@ -179,9 +179,10 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
     // `[WXG-T-607]` 选关九宫格单格模板。⚠ `.meta` 须由 Cocos 编辑器 reimport 签发（L1）；
     // 未签发 ⇒ `textures` Bundle 不含此件 ⇒ `_bitmaps` 未命中 ⇒ 自动走程序化木托盘降级腿。
     [LEVEL_SELECT_TEXTURES.cell]: { path: 'detail/ui_level_select_cell' },
-    // `[WXG-T-609]` 关卡详情橱窗面板（玻璃半透明 ⇒ 保留完整 alpha）。
+    // `[WXG-T-609]` 对话框长背景（原「关卡详情橱窗面板」，2026-11-21 用户令通用化改名
+    // `ui_dialog_bg_tall`；玻璃半透明 ⇒ 保留完整 alpha）。
     // ⚠ 同上：`.meta` 待编辑器签发；未签发 ⇒ 详情页不叠此面板（纯木纹牌仍可读）。
-    [LEVEL_DETAIL_TEXTURES.showcase]: { path: 'detail/ui_detail_showcase' },
+    [LEVEL_DETAIL_TEXTURES.showcase]: { path: 'detail/ui_dialog_bg_tall' },
     // `[WXG-T-610]` 选关弹窗稿面补件（Figma `159:3`）。⚠ `.meta` 待编辑器签发（L1）；
     // 未签发 ⇒ 逐元素走程序化降级腿（格 / 星文字档 / 木钮），零功能回归。
     [LEVEL_SELECT_TEXTURES.tray]: { path: 'detail/ui_level_select_tray' },
@@ -198,7 +199,8 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
     [LEVEL_SELECT_TEXTURES.brand]: { path: 'detail/ui_level_select_brand' },
     // `[WXG-T-614]` 倒计时结束弹窗三件（木牌九宫格 capX120/capY300 源纹 px，走引擎 SLICED）。
     // ⚠ `.meta` 待编辑器签发（L1）；未签发 ⇒ 木牌回纸面板、钮回纯色圆角面，零功能回归。
-    [TIMEOUT_TEXTURES.plaque]: { path: 'detail/ui_timeout_plaque' },
+    // `[2026-11-21]` 用户令通用化改名：plaque 件 → `ui_dialog_bg_short`（对话框短背景）。
+    [TIMEOUT_TEXTURES.plaque]: { path: 'detail/ui_dialog_bg_short' },
     [TIMEOUT_TEXTURES.continueBtn]: { path: 'detail/ui_timeout_continue' },
     [TIMEOUT_TEXTURES.retryBtn]: { path: 'detail/ui_timeout_retry' },
 

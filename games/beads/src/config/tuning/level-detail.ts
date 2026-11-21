@@ -34,7 +34,7 @@ export const LEVEL_DETAIL_GEO = {
    * `[WXG-T-924]` 珠面展示框（用户令「图案占橱窗比例太小，按照视觉合适比例调整」）：
    * 珠面**最大占位** = 360×340，底缘仍取 {@link thumb} 下缘 805（圆台顶面）、水平取橱窗轴。
    * 稿面 `123:3` 295×285 是占位猫图框，只留档、不再当珠面上限。
-   * 依据（资源 `ui_detail_showcase@2x` 实测）：玻璃内腔 ≈422 宽、穹顶→台面净空 ≈401
+   * 依据（资源 `ui_dialog_bg_tall@2x` 实测，原 `ui_detail_showcase@2x`）：玻璃内腔 ≈422 宽、穹顶→台面净空 ≈401
    * ⇒ 左右各留 ≈31、射灯下留 ≈61 呼吸位；圆台面 ≈289 宽 ⇒ 大图案可略悬出（展示柜常见）。
    */
   thumbFit: { w: 360, h: 340 },
@@ -73,7 +73,9 @@ export const LEVEL_DETAIL_TITLE_SHADOW = { dx: 9, dyDown: 7, blur: 3, alpha: 0.8
  */
 export const LEVEL_DETAIL_TEXTURES = {
   plaque: 'bitmap__detail_plaque',
-  /** `[WXG-T-609]` Figma `192:42` 橱窗面板（玻璃 + 射灯 + 圆台，@2x 938×1276）。 */
+  /** `[WXG-T-609]` Figma `192:42` 橱窗面板（玻璃 + 射灯 + 圆台，@2x 938×1276）。
+   *  `[2026-11-21]` 用户令通用化改名：文件 → `ui_dialog_bg_tall`（对话框长背景，可跨弹窗复用）；
+   *  ⛔ 键名与 textureId 留旧（金样零重抓），键级改称待消费面扩展时一并做。 */
   showcase: 'bitmap__detail_showcase',
   start: 'bitmap__detail_start',
   starFilled: 'bitmap__detail_star_filled',

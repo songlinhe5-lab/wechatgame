@@ -79,6 +79,8 @@ export const TIMEOUT_GEO = {
  * 任一枚未注册 ⇒ 该元素走**同几何**程序化回退（木牌 → 纸面板、按钮 → 纯色圆角钮）。
  */
 export const TIMEOUT_TEXTURES = {
+  /** `[2026-11-21]` 用户令通用化改名：文件 → `ui_dialog_bg_short`（对话框短背景，可跨弹窗复用）；
+   *  ⛔ 键名与 textureId 留旧（金样零重抓），键级改称待消费面扩展时一并做。 */
   plaque: 'bitmap__timeout_plaque',
   continueBtn: 'bitmap__timeout_continue',
   retryBtn: 'bitmap__timeout_retry',

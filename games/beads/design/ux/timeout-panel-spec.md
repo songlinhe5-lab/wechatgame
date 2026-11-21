@@ -132,7 +132,7 @@
 
 | 件（`final/assets/detail/`） | 规格 | 来源 | Cocos 投放件（`cocos/assets/textures/detail/`） |
 |---|---|---|---|
-| `ui_timeout_plaque@2x.png` | 1098×1172 · 883.3 KiB | Figma `231:283` @2x 导出 → **alpha bbox 裁切**（零透明边） | `ui_timeout_plaque.png` **74.7 KiB** |
+| `ui_dialog_bg_short@2x.png`（原 `ui_timeout_plaque@2x.png`，2026-11-21 用户令通用化改名「对话框短背景」） | 1098×1172 · 883.3 KiB | Figma `231:283` @2x 导出 → **alpha bbox 裁切**（零透明边） | `ui_dialog_bg_short.png` **74.7 KiB** |
 | `ui_timeout_continue@2x.png` | 852×308 · 263.3 KiB | Figma `233:54` @2x（含 ▶ 图标，**不含文字**） | `ui_timeout_continue.png` **23.0 KiB** |
 | `ui_timeout_retry@2x.png` | 834×274 · 236.8 KiB | Figma `233:58` @2x（含循环箭头，**不含文字**） | `ui_timeout_retry.png` **27.2 KiB** |
 
