@@ -545,12 +545,7 @@ const MENU_WARM = {
     // 图内 alpha 峰值 0.857（241→253 所需）、跳 0–219 共 219 级 ⇒ 无 banding，无需抖动。
     beamW: 400 / 750,
     beamH: 650 / 1334,
-    // 陶盆：左下行环境件。宽度按 DESIGN_W 定、高度按图宽高比推导，
-    // 底边按锚定高度比例落在地面线上（750×1334 实测：底边距屏底 194）。
-    potX: 0.0067,
-    potW: 0.140,
-    potAspect: 415 / 210,
-    potBottom: 0.1454,
+    // `[WXG-T-1022]` 陶盆四参数（potX/potW/potAspect/potBottom）已随陶盆件连腿清理退场。
     // `[WXG-T-586]` 层板 / 台座 / 落地影 / 光锥 的 8 个参数（`shelfInset` / `shelfH` / `shelfLift` /
     // `riserW` / `riserH` / `shadowW` / `shadowH` / `coneAlpha`）已随 v1 绘制腿删除 ——
     // 这些件全部烘进背板，参数无消费者。
@@ -613,13 +608,8 @@ export function drawMenuBackdrop(
         builder.blit(MENU_TEXTURES.beam, 0, a.H * (1 - MENU_WARM.beamH),
             DESIGN_W * MENU_WARM.beamW, a.H * MENU_WARM.beamH);
     }
-    // 左下陶盆（位图腿）。环境装饰 ⇒ 缺图不画、不占位，也不自造矢量替代件。
-    // 背板左下已带陶盆 ⇒ 命中背板时本层不画（否则双花盆压在木箱上）。
-    if (!hasBackdrop && menuBitmapReady(MENU_TEXTURES.pot)) {
-        const pw = DESIGN_W * MENU_WARM.potW;
-        builder.blit(MENU_TEXTURES.pot, DESIGN_W * MENU_WARM.potX,
-            a.H * MENU_WARM.potBottom, pw, pw * MENU_WARM.potAspect);
-    }
+    // `[WXG-T-1022]` 左下陶盆（位图腿）已随用户裁定「没用」连腿清理退场（v2 背板自带同款陈设，
+    // 该件仅背板缺失异常腿可达）。beam（光束）为缺图腿唯一氛围件保留。
 }
 
 export function drawMenuAnchored(

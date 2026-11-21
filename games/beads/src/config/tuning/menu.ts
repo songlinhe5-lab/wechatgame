@@ -573,7 +573,8 @@ export const MENU_TEXTURES = {
    * `cta`+`ctaPressed`(ui_btn_start_9s 九宫件) / `btnArrow`+`btnArrowPressed`(圆底) /
    * `iconArrowLeft`+`iconArrowRight`(矢量向标) / `iconCoin`+`iconStamina`(条体图标) /
    * `ctaLabel`(艺术字) —— 切 v2 后全部零消费者，资产与本表一并下线（≈414.7 KB）。
-   * 现存 `pot` / `beam` 仍是「背板缺失 ⇒ 程序化降级腿」的绘制件，⛔ 不可跟着删。
+   * 现存 `beam` 仍是「背板缺失 ⇒ 程序化降级腿」的绘制件，⛔ 不可跟着删
+   *（`pot` 已随 `[WXG-T-1022]` 用户裁定退场）。
    */
   signboard: 'bitmap__menu_signboard',
   ctaV2: 'bitmap__menu_cta_v2',
@@ -635,15 +636,14 @@ export const MENU_TEXTURES = {
   backdrop: 'bitmap__menu_backdrop',
   /** `[WXG-T-585]` Figma 整张扩图（750×1750 设计 / @2x 1500×3500）；就绪即走一次 blit，缺图自动回退三图。 */
   backdropFull: 'bitmap__menu_backdrop_expanded',
-  /**
-   * `[P0 静态温暖 · 2026-10-30]` 左下角陶盆（qwen-image-3.0 lock seed 88 切图，210×415）。
-   * 环境装饰、不属布局骨架 ⇒ 缺位图**不画**，不占位、不回退程序化（同 boss 缩略口径）。
-   */
-  pot: 'bitmap__menu_pot',
+  // `[2026-11-21]` v1 结算背板三键（木纹标题牌 / 9-slice 木框 / 纸面板）已清理出包；
+  // `[WXG-T-581]` 更早的 `woodFrame` 亦已删键出包（历史留痕 K-053）。
   /**
    * `[P0 静态温暖 · 2026-10-30]` 左上斜射光束（400×650 RGBA 白，alpha 峰值 0.857）。
    * 用 alpha 承载提亮强度而非用低 alpha 叠色 —— bg_base 241 → 253 只有 14 级，
    * alpha 低于 0.1 的白几乎提不动（实测 0.06 只变 0.8/255）。缺 ⇒ 该层缺席。
+   * `[WXG-T-587]` 曾与陶盆同为「背板缺失 ⇒ 程序化降级腿」绘制件（⛔ 不可跟着删）；
+   * `[WXG-T-1022]` 用户裁定陶盆「没用」连腿清理退场，beam 为缺图腿唯一氛围件保留。
    */
   beam: 'bitmap__menu_beam',
   // `[2026-11-21]` v1 结算背板三键（木纹标题牌 / 9-slice 木框 / 纸面板）已清理出包；

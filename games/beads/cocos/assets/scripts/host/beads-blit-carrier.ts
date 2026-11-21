@@ -137,8 +137,6 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
     [MENU_TEXTURES.lock]: { path: 'ui_menu_badge_locked' },
     // `[WXG-T-579]` 满星态珠圈框（正本 854² → 投放 518² pal-256，1x；@2x 需 158 KB 超出主包余量）。
     [MENU_TEXTURES.arcRing]: { path: 'ui_menu_arc_ring' },
-    // `[P0 静态温暖]` 左下陶盆（环境装饰）。未导入 ⇒ 不登记 ⇒ `drawMenuBackdrop` 不画该件。
-    [MENU_TEXTURES.pot]: { path: 'ui_menu_pot' },
     [MENU_TEXTURES.beam]: { path: 'ui_menu_beam' },
     // `[P0 静态温暖 · 2026-10-31]` 整屏木屋背板。未导入 ⇒ 不登记 ⇒ `drawMenuBackdrop` 走程序化底。
     [MENU_TEXTURES.backdrop]: { path: 'ui_menu_backdrop' },

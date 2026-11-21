@@ -217,9 +217,7 @@ const MENU_FILE: Readonly<Record<string, string>> = {
   // WXG-T-578：框 / 通关两键已删（源码零消费者，Cocos 两件一并出包）。
   [MENU_TEXTURES.lock]: 'badges/ui_menu_lock@2x.png',
   [MENU_TEXTURES.arcRing]: 'badges/ui_menu_frame@2x.png',
-  // `[P0 静态温暖]` 左下陶盆（210×415 RGBA，源 = qwen-image-3.0 lock seed 88 切图）。
-  [MENU_TEXTURES.pot]: 'ui_menu_pot.png',
-  // `[P0 静态温暖]` 左上光束（400×650 RGBA 白，alpha 承载提亮强度）。
+  // `[P0 静态温暖]` 左上光束（400×650 RGBA 白，alpha 承载提亮强度）；陶盆已随 WXG-T-1022 退场。
   [MENU_TEXTURES.beam]: 'ui_menu_beam.png',
   // `[WXG-T-585]` v2 整屏烘焙背板（正本 1500×2668 @2x；Cocos 投放件 = 750×1334 JPEG q85，125.4 KB）。
   [MENU_TEXTURES.backdrop]: 'background/ui_menu_backdrop_figma@2x.png',

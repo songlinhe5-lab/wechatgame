@@ -11426,6 +11426,35 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 - tile 拆分后旧母版三件保留在 `final/assets/powerup/tiles/` 作派生源（不入包）；`final/v1/` 归档未动。
 - 真机 / 微信运行时未测（AppID + 密钥缺失）；临时 3847 预览服务已停；`games/beads/package.json` 构建自动版本 bump 为既有 WIP，未夹带提交。
 
+## WXG-T-1022
+
+**左下陶盆连腿清理（用户裁定「没用」）** · 负责：主理人(CodeBuddy)·美术/工程轨 · 状态：✅ 完成（2026-11-21）
+
+承用户指「[ui_menu_pot] 这个没用」。上一轮问答（beam 语义）时在册口径仍是「`pot` / `beam` ⛔ 不可跟着删」（T-587 批防误删连带）；用户明示废止 ⇒ 只读盘点引用面后按「连腿清理」落地（beam 保留）。
+
+### 1. 只读盘点
+
+- 运行时 `cocos/assets/textures/ui_menu_pot.png` **21.8 KB** + `.meta`；母版仅存 `final/v1/assets/menu/` 归档（与运行时件逐字节同 21819 B），无现行 final 正本。
+- 消费链：tuning 键 `pot`（menu.ts）/ 宿主登记 / harness 映射 / `MENU_WARM.potX·potW·potAspect·potBottom` 四参数 / `drawMenuBackdrop` 缺图腿 blit 段；判据 `menu-backdrop.test.ts` 两用例涉及。
+- 可达性：仅 `!hasBackdrop`（v2 背板缺失异常腿）可达，正常运行零绘制——与 T-1019 `wood_9s_pressed` 同性质。
+- 金样 rig 宿主不注册 pot ⇒ 金样零重抓。
+
+### 2. 落码（连腿清理）
+
+- 删运行时 PNG + `.meta`（K-120 成对）；tuning 键删除、v1 删键批注保留口径更新（beam 保留）；宿主 / harness 登记删除；`MENU_WARM` 四参数与 blit 段删除（在册注释同步登记裁定）；判据两用例同步（命中背板 = 光束退场；无背板 = 仅 beam 氛围件）。
+- `framework:sync` 写入 2 件镜像；`tsc --noEmit` 绿。
+
+### 3. 取证
+
+- 判据 `menu-backdrop.test.ts` **4/4 绿**；金样 **13/13**（零重抓，与 1012/1017/1019/1020/1021 同判例）；资产门零差集。
+- release 主包 **3625.0 KB / 212 文件**（3647.3 → 3625.0，省 22.3 KB；215 → 212 件）、距红线余量 **471.0 KB**。
+- 实帧 `temp/ui-shot/cocos-617-menu-1022-nopot.png` 证 v2 背板路径（陶盆本就零绘制）画面无异常、零「丢弃 blit」；全量 `verify` = **PASS 24 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0**（`temp/verify-1022.log`）。
+
+### 4. 遗留
+
+- 缺图腿（K-108 防线）现为：暖带 + 暗角 + beam 光束；beam 仅 3.4 KB，氛围层保留一件。
+- 真机 / 微信运行时未测（AppID + 密钥缺失）；临时 3847 预览服务已停；`games/beads/package.json` 构建自动版本 bump 为既有 WIP，未夹带提交。
+
 ## WXG-T-1021
 
 **CTA 主钮两件一次派生（highlight 由 normal 线性映射 + 全量化）** · 负责：主理人(CodeBuddy)·美术/工程轨 · 状态：✅ 完成（2026-11-21）

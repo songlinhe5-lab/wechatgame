@@ -72,16 +72,16 @@ describe('P0 静态温暖 · 背板两条腿', () => {
         expect(full.y + full.h).toBeGreaterThanOrEqual(ANCHORS.H);
     });
 
-    it('命中背板：光束与陶盆一并退场（背板自带，否则双花盆）', () => {
-        hostWith(MENU_TEXTURES.backdrop, MENU_TEXTURES.beam, MENU_TEXTURES.pot);
+    it('命中背板：光束一并退场（背板自带；陶盆已随 WXG-T-1022 退场）', () => {
+        hostWith(MENU_TEXTURES.backdrop, MENU_TEXTURES.beam);
         const cmds = frame();
         expect(blits(cmds)).toEqual([MENU_TEXTURES.backdrop]);
     });
 
-    it('无背板但有光束/陶盆：两层照旧各画一次（回落腿不吞掉既有装饰）', () => {
-        hostWith(MENU_TEXTURES.beam, MENU_TEXTURES.pot);
+    it('无背板但有光束：照旧画一次（回落腿不吞掉既有装饰；陶盆退场后缺图腿仅剩光束氛围件）', () => {
+        hostWith(MENU_TEXTURES.beam);
         const cmds = frame();
-        expect(blits(cmds)).toEqual([MENU_TEXTURES.beam, MENU_TEXTURES.pot]);
+        expect(blits(cmds)).toEqual([MENU_TEXTURES.beam]);
         expect(count(cmds, 'rect')).toBe(5);
         expect(count(cmds, 'line')).toBe(1);
     });
