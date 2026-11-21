@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4260,
       "lines": 141,
-      "sha256": "64d9d56abff8196b20f7e2b5ef82d8801d64f98e4562610894bf3d0a626297ee",
+      "sha256": "12a62635e25e5fbda9fdaf1708f7a07a060b0089a951fafbac9962210f176130",
       "tier": "normal",
       "sections": [
         {
@@ -25933,9 +25933,9 @@
     },
     {
       "path": "games/beads/design/art/proposals/levels-20arcs-selection-20261117/series-spec.md",
-      "tokens": 9138,
+      "tokens": 9236,
       "lines": 161,
-      "sha256": "ba60eb4d9e3dd022d4004e720e33e56702cc0313998c1831e6be6b3bdf6c9bbf",
+      "sha256": "95a87fda122f44af5b5567479b59e60a3fbcf9763d7bbfdde5329668a24392b3",
       "tier": "normal",
       "sections": [
         {
@@ -25943,7 +25943,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 162,
-          "tokens": 9119,
+          "tokens": 9217,
           "summary": "本件性质：生图阶段的风格规格草案，沿用 20 大关题材甄选（WXG-T-974）谱系，已领 WXG-T-979、已改任务",
           "keywords": [
             "WXG",
@@ -26137,7 +26137,7 @@
           "level": 2,
           "startLine": 150,
           "endLine": 162,
-          "tokens": 1291,
+          "tokens": 1389,
           "summary": "已写 4 张的正式提示词（A01-P01 五版 / A01-P02 三版 / A01-P03 一版 / A01-P04 ",
           "keywords": [
             "mis",
