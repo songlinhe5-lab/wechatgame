@@ -1,45 +1,44 @@
-生成史 · 第 5 张正式母版 A01-P05「三叶草」v6（占 180 张名额 5/180）
+生成史 · 第 5 张正式母版 A01-P05「三叶草」v7（v6 因 G12 退场）
 任务谱系：WXG-T-974（20 大关题材甄选）→ WXG-T-979（风格宪法）／生图阶段 S2
 日期：2026-11-21
-性质：用户 2026-11-21 批准提示词后生成；**效果确认待完成，不入关、不入 final/**。
+性质：用户 2026-11-21 裁定路线 A（三色叶）并批准提示词；**效果待最终确认，未入关、未入 final/**。
 判据正本：../series-spec.md §2 G1–G12 / §3 / §5 / §9；../series-spec-catalog.md §A01。
 
-【基准 / 输入】
-题材单一真源：candidates.json A01 / P5 /「三叶草」，desc =「三颗圆润心形叶聚于短茎顶端」（逐字沿用）；
-目标 32×32 / 5 色（G12 均衡令，P1–P8 5–6 色）。
-v5 实测仅 4 色：深棕 #6B3E1E 只做球心小点，32×32 量化被吸收 ⇒ 本版把深棕扩为
-**叶心圆盘（≈株宽 16%）+ 茎基节点（≈株宽 8%×株高 4%）**，其余构图沿用 v4/v5（绿叶 + 奶白 V 纹 +
-橙叶缘 + 柠黄球）。提示词全文见 response-meta-v6.json 的 prompt 字段（与会话公示稿一致，
-仅把深棕点按保色需要放大）。
+【v6 退场原因（G12 硬门槛）】
+v6 = 绿叶单色主导，32×32 实测绿色 303/373 可填格 = **81.2%** ⇒ mis=max 只能
+F=233 固定点（`derangement: MAXIMAL，F=233`），无法全错豆。用户 2026-11-21：
+「这个花朵颜色太单一，无法凑成全错豆」。
 
-【通道 / 模型 / 参数】
-profile = token-plan（Credits 计量）
-model   = qwen-image-3.0-pro
-params  = prompt_extend=False / seed=42 / size='2048*2048'
-调用腿  = importlib 复用 design/ai-workflows/dashscope-generate.py（load_key / resolve / call /
-          find_image_urls / download），未改动该脚本
-elapsed = 16.6 s ｜ request_id = c13e0293-ebc8-4bdd-af7d-0f0cbd3184c9
-usage   = {"output_height": 2048, "output_width": 2048, "input_image_count": 0,
-           "input_image_type": "qima_input_2k", "output_image_count": 1,
-           "output_image_type": "qima_output_2k"}
-产出    = a01p05-v6-s42.png（1738805 B，2048×2048 RGB）
+【v7 设计（用户路线 A）】
+三片心形叶三色近似等面积：顶叶草绿 #3FBF6B / 左叶活力橙 #F59B23 / 右叶柠黄 #FFD23F；
+顶叶与左叶各一枚奶白 #FDF6E9 宽 V 纹（宽≈叶宽 40%，保证 32×32 不掉白）；
+叶心深棕 #6B3E1E 圆盘 + 草绿短茎 + 深棕茎基节点。提示词全文见 response-meta-v7.json。
 
-【本地零模型后处理 · 抠 alpha】
-脚本 = ../probe-2048/extract-alpha.py（PIL floodfill，thresh=72，四角播种）
-产出 = a01p05-v6-s42-rgba.png（1904941 B，2048² RGBA）+ a01p05-v6-s42-rgba-metrics.json
-六道验收：size=[2048,2048]｜四角全透明=True｜alpha0=70.381%｜
-      主体内近黑残留=0 px｜单连通=True｜RGB 逐像素未变=True；
-      bbox=[293,196,1744,1798] ⇒ 宽 70.9% / 高 78.2%，落在 G9「70–82%」内（面积 55.49%）。
+【通道 / 参数】
+profile = token-plan ｜ model = qwen-image-3.0-pro ｜ prompt_extend=False / seed=42 / 2048²
+elapsed = 16.3 s ｜ request_id = 33209583-118f-4ad7-ad03-226e5ce52d30
+usage = {"output_height":2048,"output_width":2048,"input_image_count":0,
+         "input_image_type":"qima_input_2k","output_image_count":1,
+         "output_image_type":"qima_output_2k"}
+产出 = a01p05-v7-s42.png（2048×2048 RGB）
 
-【studio 量化 · 32×32 / 5 色 / mis=max（0 次 Token Plan 调用，draft=1）】
-请求 = POST /api/generate?cols=32&rows=32&board=a01p05v6-max-32-c5&palette=10&colors=5
+【抠 alpha + G9 归一化】
+extract-alpha.py thresh=72：四角透明、主体单连通、近黑残留 0、RGB 未变；
+原始 bbox 宽 **69.3%**（G9 下限 70 差 0.7pt）⇒ 确定性最近邻放大 1.5% 后中心裁回 2048²
+（`a01p05-v7-s42-rgba-raw.png` 留档原抠图，`a01p05-v7-s42-rgba.png` = 归一化版）：
+复测 bbox **70.46% × 77.83%**（G9 70–82 内），alpha0 71.879%。
+
+【studio 32×32 五色 mis=max（0 次 Token Plan 调用，draft=1）】
+请求 = POST /api/generate?cols=32&rows=32&board=a01p05v7n-max-32-c5&palette=10&colors=5
        &colorsmode=error&cellmode=mode&smooth=0&swaps=0&noframe=1&notrim=1&mis=max&draft=1
-body  = 2048² RGBA 原样 base64（w/h/data）
-draft = a01p05v6-max-32-c5-1795266792282-7347
+draft = a01p05v7n-max-32-c5-1795267152793-77d2
 判定 = importable **true** / blockers [] / voidCells 0 / 用色 **5**
-色板 = #FDF6E9 奶白 · #FFD23F 柠黄 · #F59B23 活力橙 · #3FBF6B 草绿 · #6B3E1E 深棕
-32×32 预览 = a01p05-v6-max-32-c5-beads-plain.png（三叶轮廓可辨、五色均在）
+全错豆 = `mis {N:356, M:356, F:0}` ⇒ **F=0**（全部 356 可填格错位）
+色量 = 123 / 103 / 85 / 31 / 14 ⇒ 最大色面 **34.6%**（G12 ≤40% 内）
+色板 = #FDF6E9 奶白 · #FFD23F 柠黄 · #F59B23 橙 · #3FBF6B 草绿 · #6B3E1E 深棕
+32×32 预览 = a01p05-v7-max-32-c5-beads-plain.png（三色叶可辨、五色齐全、白纹保留）
 
 【状态 / 下一步】
-待用户确认效果；确认后锁版，与 P01–P04（32×32 / 5 色，均已 importable）合并为
-A01 前 5/9 关；P06 荷花起继续逐张确认。
+待用户最终确认效果；确认后锁版，与 P01–P04（均 32×32 / 5 色 / F=0）合并为 A01 前 5/9。
+用户 2026-11-21 追加令：后续提示词**先按色面分区设计**（主导色 ≤40%、≥5 色、F=0），
+生成后先跑 32×32 c5 验 F，再做效果确认。

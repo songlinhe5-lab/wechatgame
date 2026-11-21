@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4260,
       "lines": 141,
-      "sha256": "3eb45ff99c79dec01e386dee6e57e60cdaab31017aa2c30979fe6c31d16b0fd0",
+      "sha256": "9340e1b72b7f468066a84c13cf4767543f8f9de20eb995933cd32e68d66681c7",
       "tier": "normal",
       "sections": [
         {
@@ -25933,9 +25933,9 @@
     },
     {
       "path": "games/beads/design/art/proposals/levels-20arcs-selection-20261117/series-spec.md",
-      "tokens": 8951,
+      "tokens": 9042,
       "lines": 161,
-      "sha256": "2cc3554ec568aaabf8010810c6632d88229597acf5b60491489515ab0636d60a",
+      "sha256": "144f5d6a6ca07505aa7e7f7c03426dd0fb62e4c8f6e90b11f5d8c982e6fed634",
       "tier": "normal",
       "sections": [
         {
@@ -25943,7 +25943,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 162,
-          "tokens": 8932,
+          "tokens": 9023,
           "summary": "本件性质：生图阶段的风格规格草案，沿用 20 大关题材甄选（WXG-T-974）谱系，已领 WXG-T-979、已改任务",
           "keywords": [
             "WXG",
@@ -26017,7 +26017,7 @@
           "level": 2,
           "startLine": 50,
           "endLine": 70,
-          "tokens": 1064,
+          "tokens": 1156,
           "summary": "G1 平涂：每个色区是实心单色，零渐变、零纹理、零光影、零高光条、零环境光遮蔽、零噪点 色区内像素方差近 0",
           "keywords": [
             "通用风格宪法",
