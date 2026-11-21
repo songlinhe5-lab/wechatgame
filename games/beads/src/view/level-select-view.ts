@@ -74,9 +74,14 @@ export function drawLevelsView(
 
     // 3×3 格墙：`grid-1` 三态模板九格复用（位图就绪）；缺图 ⇒ 程序化木托盘降级腿。
     // 格框与命中同源（VM 透传 `levelsLayout` 的 `MetaButton.box`）⇒ 不重建布局。
+    // `[2026-11-21]` 九格改发段层：背板已提到容器 `BlitLayerUI`，若九格仍走容器默认段，
+    // 当前关的亮金内窗 / 红心（`Graphics`）会被背板盖住。段层整棵挂在 `Segments` 下
+    // ⇒ 自带 Graphics / BlitLayerUI 且恒在父容器 `BlitLayerUI` 之上，两侧同时成立。
+    builder.beginSegment('hud');
     for (let i = 0; i < vm.cellCount; i += 1) {
         drawLevelSelectCell(builder, vm.cells[i]!, vm, palette);
     }
+    builder.endSegment();
 
     // `[WXG-T-610]` 底部关闭按钮（稿 `160:48`，301×105 @225,1028，整枚烘字）。
     // 旧右上 38² 凹槽 ✕ 随稿退场（K-053 留档）。缺图 ⇒ 同几何程序化木钮。

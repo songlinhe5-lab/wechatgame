@@ -148,15 +148,21 @@ export const LEVEL_SELECT_TEXTURES = {
 } as const;
 
 /**
- * `[2026-11-20]` **不透明大背景位图 = 压到 Graphics 之下**白名单。
+ * `[2026-11-20]` **不透明大背景位图 = 压到 Graphics 之下**白名单；`[2026-11-21]` 收窄为两件。
  *
- * Cocos 宿主里静态位图默认挂 `BlitLayerUI`（在 `Graphics` 之后）。木牌、九宫格背板是整片不透
- * 明大图，若留在高层会盖住后发的程序化格底 rect 与 `drawBeadFace` 缩略图；编号牌 / 星 / 关闭钮
+ * Cocos 宿主里静态位图默认挂 `BlitLayerUI`（在 `Graphics` 之后）。木牌是整片不透明大图，
+ * 若留在高层会盖住后发的程序化格底 rect 与 `drawBeadFace` 缩略图；编号牌 / 星 / 关闭钮
  * 是格内或前景小件，必须继续留在上层。名单只收「承着内容的整片底图」，⛔ 不泛化成 z-index。
+ *
+ * ⚠ `tray` **不入**本名单（K-115 方向翻转）：压到全局 `BlitAtlas` 时会被底页整屏不透明
+ * `backdropFull`（挂在 `GameRoot/BlitLayerUI`）整片盖住 ⇒ 深棕背板零上屏
+ * （实帧 `temp/ui-shot/cocos-617-levelselect-bgcheck.png`）。提到容器 `UI:levels` 的
+ * `BlitLayerUI` 才可见；由此带来的「盖住当前关程序化红心」由 `level-select-view.ts`
+ * 把九格改发 `beginSegment('hud')` 段层解决（段层整棵挂在 `Segments` 下，恒在父容器
+ * `BlitLayerUI` 之上）。⛔ 不要靠给命令加层标记解决（K-109：删冲突对象，不扩协议）。
  */
 export const BELOW_GRAPHICS_TEXTURE_IDS: ReadonlySet<string> = new Set<string>([
     LEVEL_DETAIL_TEXTURES.plaque,
-    LEVEL_SELECT_TEXTURES.tray,
     LEVEL_SELECT_TEXTURES.cell,
     // `[2026-11-21]` normal 格底**不入**本名单（K-115 方向翻转）：实帧证明压到 `BlitAtlas` 后会被
     // 整片不透明 tray 盖住，浅木格底完全不上屏。它是「格内容底」，须与锁纹理同挂 `BlitLayerUI`，

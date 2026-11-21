@@ -167,11 +167,33 @@ describe('WXG-T-915 选关页编号牌 = 全局关号', () => {
 });
 
 describe('选关页大背景位图层序', () => {
-    it('木牌与九宫格背板压到 Graphics 之下，格内小件仍在 UI 层', () => {
+    it('木牌压在 Graphics 之下；九宫格背板改走容器 UI 层 [2026-11-21 方向翻转，断言数不变 · K-115]', () => {
         expect(BELOW_GRAPHICS_TEXTURE_IDS.has(LEVEL_DETAIL_TEXTURES.plaque), '木牌不得压住九格底图/缩略').toBe(true);
-        expect(BELOW_GRAPHICS_TEXTURE_IDS.has(LEVEL_SELECT_TEXTURES.tray), '九宫格背板不得压住九格底图/缩略').toBe(true);
+        // `[2026-11-21]` 实帧证据：tray 压到**全局** `BlitAtlas` 时，被底页整屏不透明
+        // `backdropFull`（`BlitLayerUI`）整片盖住 ⇒ 深棕背板完全不上屏。提到容器 UI 层才可见。
+        expect(BELOW_GRAPHICS_TEXTURE_IDS.has(LEVEL_SELECT_TEXTURES.tray), '九宫格背板不得再压到全局 BlitAtlas').toBe(false);
         expect(BELOW_GRAPHICS_TEXTURE_IDS.has(LEVEL_SELECT_TEXTURES.cell), '单格模板若复用也应在矢量层之下').toBe(true);
         expect(BELOW_GRAPHICS_TEXTURE_IDS.has(LEVEL_SELECT_TEXTURES.brand), '编号牌是格内小件，仍应压在矢量层之上').toBe(false);
+    });
+
+    it('[2026-11-21] 背板在段前发、九格整体落段层 ⇒ 当前关程序化红心不被背板盖住', () => {
+        // 容器子节点序 = Graphics → BlitLayerUI → Labels → Segments。背板提到 `BlitLayerUI` 后
+        // 会盖住容器默认 Graphics 里的亮金内窗 / 红心；把九格改发到 `Segments` 下的段层，
+        // 段层整棵（含自己的 Graphics）恒在父容器 BlitLayerUI 之上 ⇒ 两侧同时成立。
+        const cmds = frame(() => true);
+        const trayAt = cmds.findIndex((c) => c.kind === 'blit' && (c as { textureId?: string }).textureId === LEVEL_SELECT_TEXTURES.tray);
+        const segAt = cmds.findIndex((c) => c.kind === 'segment');
+        const segEndAt = cmds.findIndex((c) => c.kind === 'segmentEnd');
+        const ringAt = cmds.findIndex((c) => c.kind === 'rect' && 'stroke' in c && c.stroke === '#FFF0B0' && c.lineWidth === 4);
+        const brands = cmds.filter((c, i) => c.kind === 'blit'
+            && (c as { textureId?: string }).textureId === LEVEL_SELECT_TEXTURES.brand
+            && i > segAt && i < segEndAt);
+        expect(trayAt, '背板必须发出').toBeGreaterThanOrEqual(0);
+        expect(segAt, '九格须开段层，且背板在段之前发').toBeGreaterThan(trayAt);
+        expect(segEndAt, '段须闭合').toBeGreaterThan(segAt);
+        expect(ringAt, '当前关高亮环（Graphics）须落在段内').toBeGreaterThan(segAt);
+        expect(ringAt, '当前关高亮环须在段闭合前').toBeLessThan(segEndAt);
+        expect(brands.length, '九格编号牌位图须整体在段层').toBe(9);
     });
 
     it('[2026-11-21] normal 格底是格内容底，须与锁纹理同在 UI 层（K-115 方向翻转）', () => {
