@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4260,
       "lines": 141,
-      "sha256": "fc5072974211e718b09795bc2a30deee1c1b605cf8d1ef4248a43aa9379159cf",
+      "sha256": "5ad45d36c74ca7e6e3fdf7db8e0e514ec0bce2833b3ca84279481c4838a621a6",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 410,
-          "summary": "1 production/TASKS-DETAIL.md 354604 11276 normal",
+          "summary": "1 production/TASKS-DETAIL.md 355112 11284 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5208,
       "lines": 159,
-      "sha256": "3901a09b03bb5a87fc8e7bbb4303cbc653b0b6c9f2a86daa54a3542ca75cdc32",
+      "sha256": "584ab98ccf5fc1f349403c17fe5ce76da32a440e94a0616a102bcbbd362fd1be",
       "tier": "normal",
       "sections": [
         {
@@ -761,7 +761,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 317 行 / 95583 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 317 行 / 95645 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
@@ -1080,12 +1080,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 11276 行 / 354604 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 11284 行 / 355112 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
           "tokens": 130,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+11277 · §WXG-T-1001=10961+14 · §WXG-",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+11285 · §WXG-T-1001=10961+14 · §WXG-",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -93387,17 +93387,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 354604,
-      "lines": 11276,
-      "sha256": "97335c8a77abc54d5e50dd22cbc46c13603cdfb52592001956348b10def7e0c1",
+      "tokens": 355112,
+      "lines": 11284,
+      "sha256": "38ec7d3e163f962bbd3ddb672339d73ab73076902a65f381a434f4e1c92f09bf",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 11277,
-          "tokens": 354587,
+          "endLine": 11285,
+          "tokens": 355095,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -109357,8 +109357,8 @@
           "anchor": "§WXG-T-1015",
           "level": 2,
           "startLine": 11253,
-          "endLine": 11277,
-          "tokens": 1310,
+          "endLine": 11285,
+          "tokens": 1818,
           "summary": "承用户 2026-11-21 令「结算页面的背板是旧资源，需要用v2版本的背板，清理掉v1的背板」。开工前按用户 202",
           "keywords": [
             "WXG"
@@ -109423,14 +109423,30 @@
             "AppID",
             "遗留"
           ]
+        },
+        {
+          "anchor": "§5 收口（2026-11-21 · commit `7f2b0d1f`）",
+          "level": 3,
+          "startLine": 11278,
+          "endLine": 11285,
+          "tokens": 494,
+          "summary": "提交：7f2b0d1f 代码批（22 件：4 件新投放 PNG + .meta、6 件 v1 删除、源码 / 镜像 / ",
+          "keywords": [
+            "7f2b0d1f",
+            "commit",
+            "f2b0d1f",
+            "PNG",
+            "meta",
+            "收口"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 95583,
+      "tokens": 95645,
       "lines": 317,
-      "sha256": "71c4e37f3eb13e537e504e0edf096b67872256df2dab63ce049a7d693817bcd5",
+      "sha256": "e3ea5b76111dc2a7f7dbc4b7fe88fa8992c7772813df29d6806277e2835ad717",
       "tier": "hot",
       "sections": [
         {
@@ -109438,7 +109454,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 318,
-          "tokens": 95574,
+          "tokens": 95636,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",

@@ -11274,3 +11274,11 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 ### 4. 遗留
 
 主包余量降至 54.8 KB（⛔ 后续再进任何位图须先腾地方）；真机 / 微信运行时未测（AppID + 密钥缺失）；金样 rig 位图腿仍全关，位图腿上屏证据仅 Cocos 屏幕层实帧；`assets-spec.md` v1.5-r25 与 `asset-provenance.md §0.5` 的「Cocos 未注册」为历史时点读数，按 K-053 保留原文，本批状态以 §12 登记与本节为准。
+
+### 5. 收口（2026-11-21 · commit `7f2b0d1f`）
+
+- **提交**：`7f2b0d1f` 代码批（22 件：4 件新投放 PNG + `.meta`、6 件 v1 删除、源码 / 镜像 / 宿主 / harness / 两份测试、§12 登记 + 台账），pre-commit 钩子 `check:links` / `check:plugins` / `check:mcp` / sync 镜像核 / commitlint / K 项署号全绿；本笔金样夹具 + 台账收口随后提交并推送。
+- **金样本**：在 `git worktree --detach @ 7f2b0d1f` 干净检出（补根 + `games/beads` 两处 `node_modules` 软链）由 `ui-golden-capture.ts` **两遍确定性自证 PASS**；夹具仅 `capturedFrom` 与 `clear` 帧四项变化（`total 666→660`、`rect 268→264`、`blit 3→1`、`sha`），其余十态逐字不变；`ui-golden.test.ts` **25/25 绿**（主树 13 + 并发 worktree 12），⛔ 未手改 sha / total / 种类数（K-051 / K-053 / K-167）。临时 worktree 已 `git worktree remove --force` 清理。
+- **门禁**：`framework:sync` / `sync:check` / `cocos:check` 绿；`check:assets` 59 件 / 2130.2 KB（孤儿 0 / 断链 0 / 死登记 0）；`pnpm run build:cocos` release 重建后 `check:size` = 主包 **4041.2 KB / 215 文件**、距红线余量 **54.8 KB**；全量 `pnpm run verify` = **PASS 24 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0**（`temp/verify-1015.log`）。
+- **知识库**：本轮沉淀候选 **0 条**（根因、层序与投放方法已逐字登记在 §12 视觉变更登记与本节，不另立跨任务条目）；`kb:sync --task=WXG-T-1015` 统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**（活跃 215、`nextId` 219 未动），`kb:check` 十重校验 PASSED。
+- **遗留**：临时 3847 预览服务已停；`games/beads/package.json` 的构建自动版本 bump 为既有 WIP，未夹带提交。
