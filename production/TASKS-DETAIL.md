@@ -11355,3 +11355,39 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 
 - 主包余量降至 53.8 KB；同族件 `detail/ui_detail_star_empty.png`（关卡详情页空星，透明边 54%）本批未动，若要同口径派生需另开单。
 - 真机 / 微信运行时未测（AppID + 密钥缺失）；临时 3847 预览服务已停；`games/beads/package.json` 构建自动版本 bump 为既有 WIP，未夹带提交。
+
+## WXG-T-1018
+
+**选关九宫格背板降采样瘦身（9-slice 评估后改道）** · 负责：主理人(CodeBuddy)·美术/工程轨 · 状态：✅ 完成（2026-11-21）
+
+承用户问「`ui_level_select_tray.png` 是否可以做 9sprites 图」。开工前按用户 2026-11-01 令只读核对并列方案请用户挑 ⇒ 初裁「9-slice 派生 + 接线」；补充试验后新数据显示更优路径，二次请用户终裁 ⇒ **改道「0.5× 整图降采样 + 量化」**（两问均有明确数据依据，未擅自改道）。
+
+### 1. 只读核对（9-slice 前提，全满足但收益被反超）
+
+- 结构：边框全部结构件在源图边缘 **24px @2x** 内完成（外暗影 → 金描边 → 内暗线 → 深棕面），中央 120×120 采样 R 极差 ±1.5 ⇒ 中段可拉伸；圆角 **y=34 收敛**；左缘直边 y=300/500/700/900 四点剖面**逐字节一致** ⇒ 边条可拉伸（K-121 剖面法）。
+- 管线：命令层 `nineSliceFx` / canvas2d `bakeNineSlice` / Cocos `_ensureSliceBorder` + `SLICED` 全现成（倒计时木牌 capX120/capY300 与结算双钮 cap64/56 为在册先例）。
+- 试验：9-slice 拼合源（cap 64 代理 192×192）量化 ≈ 3.7 KB；**0.5× 整图降采样（506×597）量化仅 2.4 KB**。
+- 关键事实：tray 显示尺寸**恒定** 506×597（设计空间）⇒ 9-slice 的弹性价值为零、纯粹省包体；且 SLICED/`bakeNineSlice` 的端帽在目标大于源时**不随目标缩放** ⇒ 端帽必须按显示口径 1:1 存储，与 0.5× 降采样的清晰度代价（dpr>2 时描边放大略糊）完全相同 ⇒ 9-slice 无任何净优势，工程面却多 7+ 文件与金样重抓。
+
+### 2. 落码（纯资产替换，零代码改动）
+
+- `games/beads/cocos/assets/textures/detail/ui_level_select_tray.png`：PIL **LANCZOS 0.5× → 506×597** + **FASTOCTREE 64 色**量化回写，**165 → 2.4 KB**；同路径同纹理键 ⇒ 视图 / 宿主 / harness / 判据零接线。母版 `design/art/final/assets/detail/ui_level_select_tray@2x.png`（1012×1194，684 KB）逐字节未动，保留为再派生源。
+- 描边区 3× 放大目检 `temp/tray-half-compare.png`（左 = 仅降采样 / 右 = 量化后）：金色渐变与圆角平滑度无可见差异，量化无色带。
+- `.meta`：尺寸变更 ⇒ 由 `build:cocos` 构建期 asset-db 自动 reimport 重算（mtime 16:15:30、2856 → 2860 bytes），**uuid 稳定（3a8fafcc…）**，`cocos:import-metas:check` 0 缺失（⛔ 未手写 `.meta`，L1 合规）。
+
+### 3. 取证
+
+- **金样本零重抓**：`ui-golden.test.ts` **13/13 绿**——同 id 同几何同命令，像素与尺寸变更不入命令流（WXG-T-1012 / 1017 同判例）。
+- **屏幕层实帧**：`temp/ui-shot/cocos-617-levelselect-1018-tray-half.png`（web 产物 mtime 16:16:16，K-156）证深棕背板 + 金描边 + 圆角清晰平滑，scene 计数 `ui_level_select_tray=1`、零「丢弃 blit」；750 物理画布下显示口径 1:1 ⇒ 与原版无可见差异。
+- **门禁**：`check:assets` 59 件 / 1972.6 KB（孤儿 0 / 断链 0 / 死登记 0），**超大图 >1024 从 7 件降至 6 件**；release 重建后 `check:size` 主包 **3883.5 KB / 215 文件**（4042.2 → 3883.5，**省 158.7 KB**）、距红线余量 **212.5 KB**；全量 `verify` = **PASS 24 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0**（`temp/verify-1018.log`）。
+
+### 4. 收口（2026-11-21）
+
+- 本笔提交 = 资产 1 件（2.4 KB）+ `.meta` 重算件 + §12 登记 + 台账两处；**零代码 / 零判据 / 零金样夹具改动**。
+- `kb:sync --task=WXG-T-1018`：活跃 215 / 归档 0 / 写入无，即 **新增 0 / 修改 0 / 激活 0 / 归档 0**；`kb:check` 十重校验 PASSED。
+
+### 5. 遗留
+
+- 主包余量升至 **212.5 KB**（红线压力解除，后续进资产有空间）；同族大图 `detail/ui_detail_plaque.png`（1162×2088）与 `ui_detail_showcase.png`（938×1276）可用同口径 0.5× 降采样评估，需另开单并各自实帧目检。
+- **dpr>2 设备的描边清晰度未取真机读数**：0.5× 源在 3 倍屏上描边放大 1.5×，750 物理画布（2 倍屏口径）实帧清晰，但鸿蒙 / 小米真机读数按在册测量单另取（K-198）；若真机目检不达标，备选回退 = 从母版重出 0.75× 档（约 5 KB）。
+- 真机 / 微信运行时未测（AppID + 密钥缺失）；临时 3847 预览服务已停；`games/beads/package.json` 构建自动版本 bump 为既有 WIP，未夹带提交。
