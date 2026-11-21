@@ -11303,6 +11303,20 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 - 判据：`level-select-view-model.test.ts` 新增 3 条 RED（全格统一几何 / 锁定态同样九格 / 尺寸同步且缺图不裸格），实跑 **3 红 → 3 绿**；按 K-115 同批登记方向翻转 **6 条**既有判据（同文件 3 条、`arc-cell-pressed.test.ts` 2 条、`ui-warm-paper-tokens.test.ts` 1 条），逐处写明翻转原因，⛔ 未靠调低阈值掩盖。
 - 全量 beads 单测 **1587 passed / 2 skipped / 仅 `ui-golden` 选关两态待重拍**；`tsc --noEmit` 绿；`framework:sync` 写入 2 件镜像、`sync:check` / `cocos:check` / `check:links` / `check:arch` / `ctx:check` / `check:assets`（59 件 / 零差集）全绿。
 
-### 3. 待收口
+### 3. 取证
 
-- 金样 `level-select` / `level-select-mid` 两态按干净锚由 `ui-golden-capture.ts` 两遍确定性自证重拍（⛔ 不手改夹具）；结算 clear 帧重拍 Cocos 实帧复核；§12 视觉变更登记；全量 `verify`；包体门；kb 统计；提交推送。
+- **金样本**：在 `git worktree --detach @ 7f16a12e` 干净检出（补根 + `games/beads` 两处 `node_modules` 软链）由 `ui-golden-capture.ts` **两遍确定性自证 PASS**；夹具仅 `capturedFrom` 与 `level-select` / `level-select-mid` 两态四项变化（`total 5307→5280`、`rect 3670→3652`、`line 23→14`、`sha`），其余九态逐字未变；`ui-golden.test.ts` **13/13 绿**（主树），⛔ 未手改 sha / total / 种类数（K-051 / K-053 / K-167）。临时 worktree 已 `git worktree remove --force` 清理。
+- **选关屏幕层实帧**：`temp/ui-shot/cocos-617-levelselect-1016-unified.png`。产物新鲜度按 K-156 三重核过（源码 12:18:34 → 镜像 12:22:47 → 产物 12:25:45 的 mtime 链 + `framework:sync:check` 绿 + CDP 探针 `canvas=750 / visible`）。画面 = 九格统一浅木纹底 + 当前关高亮环 / 红心珠面 / 三星 + 深棕 tray 同帧可见；scene introspect 计数 `ui_level_select_cell_normal=9`、`tray=1`、`brand=9`、`lock=8`、`star_empty=3`，控制台零「丢弃 blit」。相位由一次性 CDP 脚本注入 `shell._openLevelsFromMenu()`（⛔ 非真实点按链路，只证渲染层 / 资产上屏；命中链以单测为准，K-198），脚本在 `/tmp`，不入仓。
+- **结算页 v2 木牌复核（用户裁定①）**：同批重拍 `temp/ui-shot/cocos-617-clear-v2-recheck-1016.png`，v2 整张木牌（铆钉 / 标题凹槽）+ 3 枚位图金星仍上屏；scene `B216=ui_clear_panel_board · on=true / parent=BlitLayerUI`、`B217–219=ui_clear_star`，控制台零「丢弃 blit」；构建 config 中 `ui_clear_panel_board` / `ui_clear_star` 各 3 处登记。⇒ **web-mobile 产物上无法复现「背板还是没有」**，按 K-198 指向用户所看运行时 / 产物新鲜度；另记一处真机风险：上一单 WXG-T-1015 按裁定删掉 v1 降级腿后，`drawClearPanel` 恒发 blit 且无 `menuBitmapReady` 守卫，真机若未装到该资产则整块背板静默消失（K-108）。本批**未改结算页代码**，该风险作为后续任务候选。
+- **门禁**：`framework:sync` 写入 2 件镜像、`sync:check` / `cocos:check` / `check:links` / `check:arch` / `ctx:check` / `check:assets`（59 件 / 2130.2 KB，孤儿 0 / 断链 0 / 死登记 0）全绿；`pnpm run build:cocos` release 重建后 `check:size` = 主包 **4041.1 KB / 215 文件**、距 4096 KB 红线余量 **54.9 KB**（上批 4041.2 → −0.1 KB，零资产增量）；全量 `pnpm run verify` = **PASS 24 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0**（`temp/verify-1016.log`）；`tsc --noEmit` 绿。
+
+### 4. 收口（2026-11-21 · commit `7f16a12e`）
+
+- **提交**：`7f16a12e` 代码批（12 件：2 源码 + 2 镜像 + 3 测试 + 头注领号 + 主表行 + 详情分片），pre-commit 钩子 `ctx:check` / commitlint / `check:tasks` 署号全绿（首笔因只改头注、缺主表行与详情节被 `check:tasks` 拦下，补齐索引面后重提通过，K-045 / K-137 同族）；本笔金样夹具 + §12 登记 + 台账收口随后提交并推送。
+- **知识库**：本轮沉淀候选 **0 条**（根因 / 层序 / 判据翻转口径已逐字登记在 §12 视觉变更登记与本节，不另立跨任务条目）；`kb:sync --task=WXG-T-1016` = 活跃 215 / 归档 0 / `nextId` 219 / **写入无**，即 **新增 0 / 修改 0 / 激活 0 / 归档 0**；`kb:check` 十重校验 PASSED。
+
+### 5. 遗留
+
+- 结算页「背板还是没有」在 web-mobile 产物上无法复现；真机 / 微信运行时未测（AppID + 密钥缺失），解除条件 = 用户侧提供真机截图 + 产物构建时间戳 / 运行时资产清单。若确认真机缺资产，需另开单补「缺图不裸板」的最小降级或产物级门禁（⛔ 不恢复已按裁定清理的 v1 背板）。
+- 金样 rig 位图腿仍全关（`setMenuBitmapResolver` 缺省 `() => false`）：夹具钉住的是缺图臂，位图臂九格同几何由 `level-select-view-model.test.ts` 三条新判据 + Cocos 实帧双证，未并入金样夹具（K-198）。
+- 主包余量 54.9 KB；临时 3847 预览服务收尾时停；`games/beads/package.json` 的构建自动版本 bump 为既有 WIP，未夹带提交。
