@@ -11234,3 +11234,18 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **门禁**：`check:assets` 60 件 / 1968.7 KB（孤儿 0 / 断链 0 / 死登记 0）；`pnpm run build:cocos` release 重建后 `check:size` = 主包 **3881.7 KB / 218 文件**、余量 **214.3 KB**（前值 3810.6 KB / 212 文件、余量 285.4 KB ⇒ 实测 **+71.1 KB**，K-051 差分复算，替代 §6 的 +68.6 KB 估值）；全量 `pnpm run verify` = **PASS 24 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0**（`test` 14.0s 全绿）。
 - **提交**：`8d77bb50` 代码批（pre-commit 钩子自动重建 `ctx/BUDGET.md` / `ctx/hot-files.md` / `ctx/index.json` / `memory/INDEX.md` 四件产物一并入库 ⇒ 共 19 件；`ctx:check OK`、commit-msg K 项「署号在册」通过）；本笔夹具 + 台账收口随后提交并推送。
 - **遗留**：`cellNormal` 与 `cell` 字节重复 47.2 KB 可后续裁定去重；真机 / 微信运行时未测（AppID + 密钥缺失，`web-mobile` 只证渲染）；金样 rig 位图腿仍全关，锁的是缺图降级帧，位图腿上屏证据仅屏幕层实帧。
+
+### 8. 回归二修（2026-11-21 · commit `f000679d`）
+
+承用户 2026-11-21 令「选关页面的背景板消失了」，并经问答确认指代 = 九宫格后深棕大板 `ui_level_select_tray.png`、口径「背板缺失，没有显示出来」。本节按时间序追加，⛔ 不改写 §3 / §7 既有读数（K-053 留痕）。
+
+- **根因（调试 Phase 1）**：scene introspect（`cocos-617-levelselect-bgcheck-scene.json`）+ 实帧双证，控制台 `静态位图 56/56 已装载`、`masks=4/4 carrier=on`、零「丢弃 blit」⇒ 非资产问题。`BELOW_GRAPHICS_TEXTURE_IDS` 把 `plaque` / `tray` 压到**全局** `BlitAtlas`（`GameRoot → BlitLayer`），主菜单底页整屏不透明 `backdropFull`（B0）挂在 `GameRoot/BlitLayerUI`、位于其上 ⇒ 弹窗底图被底页整片盖住。§7 把 8 张 `cellNormal` 提到容器 `UI:levels/BlitLayerUI` 后九宫格铺满浅木格，深棕 tray 一点不露 ⇒ 用户判定「背板消失」。
+- **两次失败候选（均已回退）**：① tray 移出白名单提到 UI 层 ⇒ 背板可见，但当前关亮金内窗 / 红心（`Graphics`）被盖（实帧 `cocos-617-levelselect-tray-fixed.png`）；② 新增 `cellArt.normalInset: 6` 让格底内缩 ⇒ 露出的不是深棕 tray 而是底页蓝紫珠阵（实帧 `cocos-617-levelselect-inset.png`）。按调试纪律停止叠加试错，回退干净态后给用户三案拍板 ⇒ 用户选「游戏层最小修复」。
+- **落码（`f000679d`，不动框架 / 宿主层）**：① `config/tuning/level-select.ts` 白名单移除 `tray`（收窄为 `plaque` + `cell`，K-115 方向翻转与断言数不变同批登记）；② `view/level-select-view.ts` 九格绘制包 `beginSegment('hud')` / `endSegment()` —— 段层整棵挂 `Segments` 下、自带三通道且恒在父容器 `BlitLayerUI` 之上 ⇒ 当前关程序化内容压住背板、8 个锁格位图同层在后亦正常；⛔ 不给命令加层归属标记（K-109）。
+- **判据**：`tests/level-select-view-model.test.ts` TDD **RED 2 红 → GREEN**（白名单方向翻转 + 新增「背板在段前发 / 九格整体落段层」守卫，含当前关高亮环与 9 枚编号牌须在段内）；`level-select-view-model` + `arc-wall-locked` **26/26 绿**，`framework:sync` / `sync:check` / `cocos:check` / `check:assets` 60 件绿。
+- **屏幕层实帧**：`temp/ui-shot/cocos-617-levelselect-tray-seg.png`（产物 mtime 10:57:01、探针 `canvas backing=750`、`framework:sync:check` 绿，三重核过 K-156）显示深棕 tray + 金边框可见、8 格浅木底 + 圆珠锁、当前关亮金窗 + 红心珠面 + 三星**三者同帧**；scene 证实 `B13/tray → UI:levels/BlitLayerUI`、8 张 `cellNormal → UI:levels·hud/BlitLayerUI`；控制台零「丢弃 blit」，`Error 3804` 为既有噪声。
+- **金样本**：`level-select` 两态各 +2 命令（`segment` / `segmentEnd`），`total` 5305→5307、`kinds` 新增两类、两态 sha 变，其余九态逐字不变；在 `git worktree --detach @ f000679d`（补根 + `games/beads` 两处 `node_modules` 软链）由 `ui-golden-capture.ts` **两遍确定性自证 PASS**，`capturedFrom = f000679d`；`ui-golden.test.ts` **38/38 绿**，⛔ 未手改 sha / total / 种类数（K-051 / K-053 / K-167）。临时 worktree 已 `git worktree remove --force` 清理。
+- **门禁**：`check:assets` 60 件 / 1968.7 KB（孤儿 0 / 断链 0 / 死登记 0）；`pnpm run build:cocos` release 重建后 `check:size` = 主包 **3881.7 KB / 218 文件**、余量 **214.3 KB**（与 §7 逐字相同 ⇒ 本批零资产增量）；全量 `pnpm run verify` = **PASS 24 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0**（日志 `temp/verify-1014b.log`）。
+- **提交**：`f000679d` 代码批（5 件，pre-commit 钩子 `check:links` / `check:plugins` / `check:mcp` / sync 镜像核 / commitlint / K 项署号全绿）；本笔夹具 + §12 登记 + 台账收口随后提交并推送。
+- **知识库**：本轮沉淀候选 **0 条**（根因与层序裁量已逐字登记在 §12 视觉变更登记与本节，不另立跨任务条目）；`kb:sync --task=WXG-T-1014` 统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**（活跃 215、`nextId` 219 未动、写入无），`kb:check` 十重校验 PASSED。
+- **遗留**：`plaque` 仍在 `BlitAtlas`（本批未动，用户口径只指九宫格背板；若后续发现弹窗木牌有同类遮挡，按同一「容器段层」思路处理）；真机 / 微信运行时未测；金样 rig 位图腿仍全关，位图腿上屏证据仅屏幕层实帧。
