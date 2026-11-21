@@ -1207,13 +1207,14 @@ describe('设置态遮罩 α 分列 · ux §3.3「遮罩」条 + 工作项④：
         expect(vm).not.toMatch(/rgba\(\$\{PANEL_SCRIM_RGB/);
         expect(to).not.toMatch(/rgba\(/);
 
-        // 暂停（动画）/ 过关缺图腿 / **购买确认（静态，WXG-T-351）** = 纸面板三件（失败已改木牌位图腿）
-        expect(frameSites.length).toBe(3);
+        // 暂停（动画）/ **购买确认（静态，WXG-T-351）** = 纸面板两件；
+        // `[2026-11-21]` 过关 v1 缺图腿随旧背板清理退场（失败已改木牌位图腿）。
+        expect(frameSites.length).toBe(2);
         // 冲刺结算 / 全通关 / **过关木牌位图腿（`[WXG-T-949]`）** = 纯遮罩；底板构成不同，不并入纸面板
         expect(scrimSites.length).toBe(3);
         expect(timeoutScrimSites.length).toBe(1); // 倒计时结束弹窗 = 木牌位图（或纸面板回退）+ 同档遮罩
         expect(settingsSites.length).toBe(0); // v1.8 起对局面板零设置态；唯一设置态消费点 = 菜单 meta-view
-        expect(panelAlphaSites.length).toBe(3); // 暂停（动画 ×t）+ 过关缺图腿 + 购买确认（静态常 α）
+        expect(panelAlphaSites.length).toBe(2); // 暂停（动画 ×t）+ 购买确认（静态常 α）；过关 v1 缺图腿已清理
         expect(debugOverlay.length).toBe(1); // DEBUG 覆层已搬入 debug-layer（UI-24）
         // 穷尽：view-model 内不得再有裸 `scrimFill`（全部走 ModalFrame；覆层已上楼）。
         const allScrimFill = vm.match(/scrimFill\(UI_SCRIM\.canvas/g) ?? [];

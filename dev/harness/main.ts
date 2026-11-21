@@ -192,9 +192,8 @@ const MENU_FILE: Readonly<Record<string, string>> = {
   [MENU_TEXTURES.iconSettings]: 'icons/ui_icon_settings@2x.png',
   // `[WXG-T-1013]` iconSound 零消费件出包 ⇒ harness 也不再登记（tuning 键留作候选件）。
   [MENU_TEXTURES.iconCalendar]: 'icons/ui_icon_calendar@2x.png',
-  [MENU_TEXTURES.woodGrain]: 'ui_wood_grain.png',
-  [MENU_TEXTURES.panelFrame]: 'ui_panel_frame_9s.png',
-  [MENU_TEXTURES.panelFace]: 'ui_panel_face_9s.png',
+  // `[2026-11-21]` v1 结算背板三件（木纹标题牌 / 9-slice 木框 / 纸面板）已清理；
+  // 下面三枚按钮底图是设置页缺图腿共用件 ⇒ 保留。
   [MENU_TEXTURES.btnWood]: 'ui_btn_wood_9s.png',
   [MENU_TEXTURES.btnWoodPressed]: 'ui_btn_wood_9s_pressed.png',
   [MENU_TEXTURES.btnPaper]: 'ui_btn_paper_9s.png',

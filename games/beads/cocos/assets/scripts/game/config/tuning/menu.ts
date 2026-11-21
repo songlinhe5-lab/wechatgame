@@ -111,10 +111,9 @@ export const CLEAR_TIME_DY = 278.5;
 export const CLEAR_REWARD_DY = 345;
 /** 差距提示行距牌底（Figma 未给 <3★ 态；置于双钮下方 52，避免压住设计的三段节奏）。 */
 export const CLEAR_HINT_UP = 52;
-/** `[WXG-T-515]` 结算 9-slice 端帽（源纹 px）：框 60 / 底 36 / 木钮 76·46 / 纸钮 52·44。
+/** `[WXG-T-515]` 结算按钮 9-slice 端帽（源纹 px）：木钮 76·46 / 纸钮 52·44。
+ *  `[2026-11-21]` v1 纸面板 / 木框端帽随旧背板清理退场（K-053 留痕）。
  *  ⛔ 端帽必须盖住圆角 + 描边 + 内壁装饰；超出部分的边条只允许线性渐变（可拉伸）。 */
-export const CLEAR_FRAME_SLICE = { capX: 60, capY: 60 } as const;
-export const CLEAR_FACE_SLICE = { capX: 36, capY: 36 } as const;
 export const CLEAR_BTN_SLICE = { capX: 76, capY: 46 } as const;
 export const CLEAR_PAPER_BTN_SLICE = { capX: 52, capY: 44 } as const;
 /**
@@ -130,11 +129,6 @@ export const CLEAR_MENU_SLICE = { capX: 56, capY: 56 } as const;
  * 只横切（⛔ 不传 capY）：设置钮 88 高 < 源 210，纵向走整体等比，端帽同比缩到 ≈29。
  */
 export const SETTINGS_BTN_SLICE = { capX: 70 } as const;
-/** 框厚（设计 px）：内底贴在框内壁，距面板外缘此值。 */
-export const CLEAR_FRAME_INSET = 18;
-/** `[WXG-T-949]` 旧 9-slice 降级腿的标题木牌（Figma 新牌标题凹槽约 380×96；仅缺木牌位图时使用）。 */
-export const CLEAR_PLAQUE_W = 380;
-export const CLEAR_PLAQUE_H = 96;
 /** 主/副钮宽度：240 + 30 + 240 = 510 ≤ 560 − 2×20（面板内边距）⇒ 可并排落地（通关/冲刺面板）。 */
 export const CLEAR_BUTTON_W = PANEL_PRIMARY_W;
 export const CLEAR_BUTTON_GAP = 30;
@@ -652,22 +646,16 @@ export const MENU_TEXTURES = {
    * alpha 低于 0.1 的白几乎提不动（实测 0.06 只变 0.8/255）。缺 ⇒ 该层缺席。
    */
   beam: 'bitmap__menu_beam',
-  /** `[WXG-T-512]` 卡通木纹条（云 qwen-image-3.0 seed 511 生成，1024×320 圆角）：结算木牌与主钮拉伸使用。 */
-  woodGrain: 'bitmap__ui_wood_grain',
-  // `[WXG-T-581]` 结算外框木纹环 `woodFrame`（780×705，175.6 KB）**已删键出包**：它是
-  // `[WXG-T-514]` 的单件方案，已被 `[WXG-T-515]` 的 9-slice 双层（`panelFace` 内底 +
-  // `panelFrame` 中空外框，见 `view-model.ts:552-563`）取代 ⇒ 零消费者，日志登记却仍写
-  // 「已接结算面板外框」（该行属过期登记，本次一并订正）。
-  /** `[WXG-T-515]` 结算 9-slice 四件：外框（中空）/ 内底（纸面内凹）/ 木主钮 / 纸次钮。 */
-  panelFrame: 'bitmap__ui_panel_frame_9s',
-  panelFace: 'bitmap__ui_panel_face_9s',
+  // `[2026-11-21]` v1 结算背板三键（木纹标题牌 / 9-slice 木框 / 纸面板）已清理出包；
+  // `[WXG-T-581]` 更早的 `woodFrame` 亦已删键出包（历史留痕 K-053）。
+  /** `[WXG-T-515]` 按钮 9-slice 三枚：木主钮 / 按下态 / 纸次钮（设置页缺图腿共用 ⇒ 保留）。 */
   btnWood: 'bitmap__ui_btn_wood_9s',
   btnWoodPressed: 'bitmap__ui_btn_wood_9s_pressed',
   btnPaper: 'bitmap__ui_btn_paper_9s',
   /**
    * `[WXG-T-949]` 结算·过关面板新版四件（Figma `过关结算 269:44`，2026-11-15）：
    * 整张木牌 545×585（含四角铆钉 / 标题凹槽 / 自带阴影）、金星 96×99、
-   * 主钮 279×106、次钮 192×101。宿主未注册 ⇒ 缺图腿回退旧 9-slice + 程序化星。
+   * 主钮 279×106、次钮 192×101。`[2026-11-21]` board / star 已投放并由宿主登记 ⇒ 恒走位图腿。
    */
   clearPanelBoard: 'bitmap__ui_clear_panel_board',
   clearStar: 'bitmap__ui_clear_star',

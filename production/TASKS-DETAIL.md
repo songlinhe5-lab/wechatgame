@@ -11249,3 +11249,28 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 - **提交**：`f000679d` 代码批（5 件，pre-commit 钩子 `check:links` / `check:plugins` / `check:mcp` / sync 镜像核 / commitlint / K 项署号全绿）；本笔夹具 + §12 登记 + 台账收口随后提交并推送。
 - **知识库**：本轮沉淀候选 **0 条**（根因与层序裁量已逐字登记在 §12 视觉变更登记与本节，不另立跨任务条目）；`kb:sync --task=WXG-T-1014` 统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**（活跃 215、`nextId` 219 未动、写入无），`kb:check` 十重校验 PASSED。
 - **遗留**：`plaque` 仍在 `BlitAtlas`（本批未动，用户口径只指九宫格背板；若后续发现弹窗木牌有同类遮挡，按同一「容器段层」思路处理）；真机 / 微信运行时未测；金样 rig 位图腿仍全关，位图腿上屏证据仅屏幕层实帧。
+
+## WXG-T-1015
+
+承用户 2026-11-21 令「结算页面的背板是旧资源，需要用v2版本的背板，清理掉v1的背板」。开工前按用户 2026-11-01 令主动提示图像处理方法，并以三问请用户拍板 ⇒ 三项均选推荐：**① 指代 = 整张结算木牌**；**② 方法 = sharp 调色板量化**；**③ 清理边界 = 只删结算专属 v1**。
+
+### 1. 根因（只读盘点）
+
+WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/assets/menu/clear/`）、harness 注册（`dev/harness/main.ts:202`）、源码位图腿落码（`view-model.ts:478-483`）；但 Cocos 运行时副本 `ui_clear*` **0 件**、`.meta` 未签发、`BITMAP_ASSETS` 未登记 ⇒ 构建 / 真机恒走 v1 缺图降级腿（`view-model.ts:484-513`：旧纸面板 + 9-slice 木框 + 程序化标题牌 + 木纹条）。四处文档一致留账：`assets-spec.md` v1.5-r25、`ui-architecture-beads.md` 2026-11-15 条、`TASKS.md` WXG-T-949、`TASKS-DETAIL.md:10611`。**v1 边界**：结算专属旧件 = `ui_panel_frame_9s`(17.6 KB) / `ui_panel_face_9s`(2.7 KB) / `ui_wood_grain`(83.4 KB)，共 103.7 KB；`ui_btn_wood_9s*` / `ui_btn_paper_9s` 是设置页缺图腿共用按钮底图（`settings-content.ts:256`）⇒ 不算背板、保留；`final/v1/` 是 2026-11-02 只读归档快照，不参与构建 ⇒ 保留。**硬约束**：主包 3881.7 KB / 4096 KB，余量 214.3 KB，v2 母版 1011.4 KB ⇒ 必须压图。
+
+### 2. 落码（待收口）
+
+- **投图**：按 WXG-T-1012 在册参数 sharp `png({palette:true,quality:80,effort:10,dither:1.0})` 只压运行时副本，母版逐字节不动 ⇒ `ui_clear_panel_board.png` 263.5 KB、`ui_clear_star.png` 5.6 KB。
+- **`.meta`**：`node tools/scripts/import-cocos-metas.mjs --game=beads --dir=assets/textures` 由编辑器 asset-db 签发 2 件（L1 合规，⛔ 非手造；编辑器主进程退出码 36 但 asset-db 已落盘）。
+- **接线 / 清理**：`BITMAP_ASSETS` 登记 `clearPanelBoard` / `clearStar`，删 `panelFrame` / `panelFace` / `woodGrain` 三条；`view-model.ts::drawClearPanel` 删 v1 降级腿改恒发 v2 木牌；删 `CLEAR_FRAME_SLICE` / `CLEAR_FACE_SLICE` / `CLEAR_FRAME_INSET` / `CLEAR_PLAQUE_W/H` 五常量、三枚 tuning 键、harness 三条登记；运行时副本 3 PNG + 3 `.meta` 成对删除（K-120）。**配套投放金星**：整张木牌挂容器 `BlitLayerUI`，程序化五角星在 `Graphics` 会被盖住 ⇒ v2 套件欠账同批补齐。
+- **判据**：`clear-panel.test.ts` 新增行为判据「clear 帧恒发 v2 木牌、零 v1 纸面板 / 9-slice / 木纹标题牌」（TDD RED 1 红 → GREEN）；`bead-style-settings.test.ts` 静态门 `frameSites 3→2` / `panelAlphaSites 3→2` 按 K-115 同批登记；两文件 **102/102 绿**。
+
+### 3. 取证
+
+- **屏幕层实帧**：`temp/ui-shot/cocos-617-clear-v2.png`（产物 mtime 11:42:41、探针 `backing=750`、`framework:sync:check` 绿，K-156 三重核过）显示 v2 整张木牌（铆钉 / 标题凹槽 / 自带阴影）+ 3 枚位图金星 + 标题 / 用时 / 发豆 / 双钮文字全部可见且未被盖；scene 证 `B216=ui_clear_panel_board`、`B217–219=ui_clear_star` 均 `on=true`，控制台零「丢弃 blit」。⚠ 相位由一次性 CDP 诊断脚本注入 `_machine.transition('level-clear')` + `ClearPanel.open()` 取得（⛔ 非真实通关，只证渲染层 / 资产上屏；玩法链以单测为准，K-198）。诊断脚本在 `/tmp`，不入仓。
+- **门禁**：`check:assets` 59 件 / 2130.2 KB（孤儿 0 / 断链 0 / 死登记 0）；`framework:sync` / `sync:check` / `cocos:check` 绿；release 重建后 `check:size` 主包 **4041.2 KB / 215 文件**、距 4096 KB 红线余量 **54.8 KB**（3881.7 → 4041.2，净 +159.5 KB；v1 三件 −103.7 KB 抵消后 v2 两件 +263.2 KB 含 `.meta`）。
+- **金样本**：`clear` 帧 `total 666→660`（v1 三条 blit + 一个 380×96 rect 退场、v2 一条 blit 入场），其余十态逐字不变；按 K-051 / K-053 / K-167 在干净锚由 `ui-golden-capture.ts` 两遍确定性自证重抓，⛔ 不手改夹具。
+
+### 4. 遗留
+
+主包余量降至 54.8 KB（⛔ 后续再进任何位图须先腾地方）；真机 / 微信运行时未测（AppID + 密钥缺失）；金样 rig 位图腿仍全关，位图腿上屏证据仅 Cocos 屏幕层实帧；`assets-spec.md` v1.5-r25 与 `asset-provenance.md §0.5` 的「Cocos 未注册」为历史时点读数，按 K-053 保留原文，本批状态以 §12 登记与本节为准。

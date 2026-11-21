@@ -15,8 +15,6 @@ import {
   CLEAR_ACTION_W,
   CLEAR_PANEL_SIZE,
   CLEAR_PANEL_TOP_DOWN,
-  CLEAR_PLAQUE_H,
-  CLEAR_PLAQUE_W,
   CLEAR_REWARD_DY,
   CLEAR_SECONDARY_H,
   CLEAR_SECONDARY_W,
@@ -68,6 +66,31 @@ function tapButton(harness: Harness, id: 'next' | 'menu', lastLevel = false): bo
   return harness.game.tapDesign((rect.xMin + rect.xMax) / 2, (rect.yMin + rect.yMax) / 2);
 }
 
+describe('结算页 v2 背板投放 / v1 背板清理（2026-11-21）', () => {
+  it('clear 帧恒发 v2 整张木牌，零 v1 纸面板 / 9-slice 木框 / 木纹标题牌', () => {
+    const h = createBeadsHarness({
+      noAssemble: true,
+      levels: [simpleTestLevel({ id: 95 })],
+      saveKey: 'wxgame.beads.test.cp-board',
+    });
+    fillBoard(h);
+    advancePastClearWave(h);
+    const cmds = render(h);
+    const blitIds = cmds
+      .filter((c) => c.kind === 'blit')
+      .map((c) => (c as { textureId: string }).textureId);
+    expect(blitIds.filter((id) => id === 'bitmap__ui_clear_panel_board'), 'v2 整张木牌').toHaveLength(1);
+    for (const old of [
+      'bitmap__ui_panel_frame_9s',
+      'bitmap__ui_panel_face_9s',
+      'bitmap__ui_wood_grain',
+    ]) {
+      expect(blitIds, `v1 旧件 ${old} 已清理`).not.toContain(old);
+    }
+    expect(cmds.some((c) => c.kind === 'rect' && c.w === 380 && c.h === 96), 'v1 程序化标题牌退场').toBe(false);
+  });
+});
+
 describe('S7 结算面板 · 精简几何（ux-spec §3.4 v1.58）', () => {
   it('木牌 545×585 距屏顶 356；牌内锚点按 Figma；主钮 279×106 + 次钮 192×101 顶对齐', () => {
     const layout = clearPanelLayout(NORMAL);
@@ -81,9 +104,7 @@ describe('S7 结算面板 · 精简几何（ux-spec §3.4 v1.58）', () => {
     expect(layout.starsY).toBe(plate.yMax - CLEAR_STARS_DY);
     expect(layout.timeY).toBe(plate.yMax - CLEAR_TIME_DY);
     expect(layout.rewardY).toBe(plate.yMax - CLEAR_REWARD_DY);
-    // 仅缺图降级腿使用：程序化标题牌 380×96。
-    expect(CLEAR_PLAQUE_W).toBe(380);
-    expect(CLEAR_PLAQUE_H).toBe(96);
+    // `[2026-11-21]` v1 程序化标题牌（380×96）随旧背板清理退场 ⇒ 判据见下方 v2 背板 describe。
 
     // EP15-S4：双钮 + 独立回放小钮（160×96，底 192；用户裁定：不动原双钮）。
     const actionButtons = layout.buttons.filter((b) => b.id === 'next' || b.id === 'menu');

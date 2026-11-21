@@ -12,14 +12,9 @@
 import { nineSliceFx, type RenderModelBuilder } from '../../framework/index';
 import {
   CLEAR_BTN_SLICE,
-  CLEAR_FACE_SLICE,
-  CLEAR_FRAME_INSET,
-  CLEAR_FRAME_SLICE,
   CLEAR_MENU_SLICE,
   CLEAR_NEXT_SLICE,
   CLEAR_PAPER_BTN_SLICE,
-  CLEAR_PLAQUE_H,
-  CLEAR_PLAQUE_W,
   CLEAR_STAR_SIZE,
   DESIGN_W,
   FINISH_ROW_H,
@@ -475,43 +470,10 @@ function drawClearPanel(
   const plate = layout.panel;
   const pw = plate.xMax - plate.xMin;
   const ph = plate.yMax - plate.yMin;
-  const hasBoard = menuBitmapReady(MENU_TEXTURES.clearPanelBoard);
-
-  if (hasBoard) {
-    // 新版木牌是整张位图（含铆钉 / 标题凹槽 / 自带阴影）⇒ 只画遮罩，不再叠纸面板。
-    drawModalScrim(builder, UI_SCRIM.canvas, UI_SCRIM.alpha);
-    builder.blit(MENU_TEXTURES.clearPanelBoard, plate.xMin, plate.yMin, pw, ph);
-  } else {
-    // 缺图腿（Cocos 未导入 .meta）：旧纸面板 + 9-slice 木框 + 程序化标题牌，零功能回归。
-    drawModalFrame(builder, {
-      panel: plate,
-      progress: 1,
-      scrimRgb: UI_SCRIM.canvas,
-      scrimAlpha: UI_SCRIM.alpha,
-      palette,
-      radius: UI_CONTAINER.radiusPanel,
-      shadowAlpha: UI_CONTAINER.shadowAlphaPanel,
-    });
-    builder.blit(MENU_TEXTURES.panelFace, plate.xMin + CLEAR_FRAME_INSET, plate.yMin + CLEAR_FRAME_INSET,
-      pw - CLEAR_FRAME_INSET * 2, ph - CLEAR_FRAME_INSET * 2, {
-      fx: nineSliceFx(CLEAR_FACE_SLICE.capX, CLEAR_FACE_SLICE.capY),
-    });
-    builder.blit(MENU_TEXTURES.panelFrame, plate.xMin, plate.yMin, pw, ph, {
-      fx: nineSliceFx(CLEAR_FRAME_SLICE.capX, CLEAR_FRAME_SLICE.capY),
-    });
-    const plaqueW = CLEAR_PLAQUE_W;
-    const plaqueH = CLEAR_PLAQUE_H;
-    builder.rect(DESIGN_W / 2 - plaqueW / 2, layout.titleY - plaqueH / 2, plaqueW, plaqueH, {
-      fill: palette.woodFace,
-      radius: 16,
-    });
-    builder.blit(MENU_TEXTURES.woodGrain, DESIGN_W / 2 - plaqueW / 2, layout.titleY - plaqueH / 2, plaqueW, plaqueH);
-    builder.rect(DESIGN_W / 2 - plaqueW / 2, layout.titleY - plaqueH / 2, plaqueW, plaqueH, {
-      stroke: palette.woodEdge,
-      lineWidth: 3,
-      radius: 16,
-    });
-  }
+  // `[2026-11-21]` v2 整张木牌已投放（Cocos 宿主登记 + 编辑器签发 `.meta`）⇒ 恒走位图腿；
+  // v1 旧纸面板 / 9-slice 木框 / 木纹标题牌降级腿已按用户裁定清理（缺图由宿主 `_bail` 嚷，K-108）。
+  drawModalScrim(builder, UI_SCRIM.canvas, UI_SCRIM.alpha);
+  builder.blit(MENU_TEXTURES.clearPanelBoard, plate.xMin, plate.yMin, pw, ph);
 
   // 标题：新版木牌已带凹槽；64 粗体 + 深棕投影（Figma drop 9/7 blur 3；内阴影不另绘）。
   builder.text(DESIGN_W / 2, layout.titleY, CLEAR_PANEL_TITLE, {

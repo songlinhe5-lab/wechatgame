@@ -156,7 +156,6 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
     [MENU_TEXTURES.nextBtn]: { path: 'ui_menu_arrow_right' },
     [MENU_TEXTURES.nextBtnPressed]: { path: 'ui_menu_arrow_right_highlight' },
     [MENU_TEXTURES.seal]: { path: 'ui_menu_seal' },
-    [MENU_TEXTURES.woodGrain]: { path: 'ui_wood_grain' },
 
     // `[WXG-T-601]` 关卡详情道具行三枚框图（336² @4x）。投放件未导入 `textures` Bundle 前
     // ⇒ `loadBitmapSpriteFrame` 返 null ⇒ 不登记 ⇒ 详情页该枚走程序化单字徽章（零回归）。
@@ -196,9 +195,11 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
     [TIMEOUT_TEXTURES.continueBtn]: { path: 'detail/ui_timeout_continue' },
     [TIMEOUT_TEXTURES.retryBtn]: { path: 'detail/ui_timeout_retry' },
 
-    // `[WXG-T-515]` 结算 9-slice 四件（源图与设计 px 1:1，端帽见 `CLEAR_*_SLICE`）。
-    [MENU_TEXTURES.panelFrame]: { path: 'ui_panel_frame_9s' },
-    [MENU_TEXTURES.panelFace]: { path: 'ui_panel_face_9s' },
+    // `[2026-11-21]` v2 结算整张木牌 + 金星入包（sharp 调色板量化，`.meta` 由编辑器 asset-db 签发）。
+    // 配套投放金星：木牌挂容器 `BlitLayerUI`，程序化五角星（`Graphics`）会被整片不透明木牌盖住。
+    [MENU_TEXTURES.clearPanelBoard]: { path: 'ui_clear_panel_board' },
+    [MENU_TEXTURES.clearStar]: { path: 'ui_clear_star' },
+    // v1 纸面板 / 9-slice 木框已清理；以下三枚按钮底图是设置页缺图腿共用件 ⇒ 保留。
     [MENU_TEXTURES.btnWood]: { path: 'ui_btn_wood_9s' },
     [MENU_TEXTURES.btnWoodPressed]: { path: 'ui_btn_wood_9s_pressed' },
     [MENU_TEXTURES.btnPaper]: { path: 'ui_btn_paper_9s' },
