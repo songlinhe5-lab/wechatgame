@@ -41,6 +41,18 @@ export function drawLevelsView(
             plate.x + (tr.x - GEO.plate.x), plate.y + dyBottom(tr.yDown, tr.h), tr.w, tr.h);
     }
 
+    // `[WXG-T-1016]` 九格背板统一：位图就绪时在**段外**容器 `BlitLayerUI` 各发一次，几何逐格
+    // = `cell.box`（158×181，含按下位移）⇒ ⛔ 不按锁定态挑格、⛔ 不再缩到 177。与 tray 同层且
+    // 命令在后 ⇒ 盖过 tray；段层整棵恒在容器 `BlitLayerUI` 之上 ⇒ 珠面 / 星 / 编号牌不被盖。
+    // 缺图时此腿不发：`drawLevelSelectCell` 在段内补同几何程序化底（放段外会被 tray 盖住，K-108）。
+    if (menuBitmapReady(LEVEL_SELECT_TEXTURES.cellNormal)) {
+        for (let i = 0; i < vm.cellCount; i += 1) {
+            const cell = vm.cells[i]!;
+            builder.blit(LEVEL_SELECT_TEXTURES.cellNormal,
+                cell.box.x, cell.box.y + cell.pressDy, cell.box.w, cell.box.h);
+        }
+    }
+
     // 板标题「选关」：同槽同投影（暖金 + 深棕 DROP_SHADOW）。
     const t = LEVEL_SELECT_GEO.title;
     builder.text(plate.x + (t.cx - GEO.plate.x), plate.y + dyCenter(t.cyDown), vm.title, {

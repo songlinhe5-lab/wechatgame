@@ -90,26 +90,41 @@ describe('选关格按下态（§4-R6 / §5 / §7 非色相通道）', () => {
         expect(shifted[0]).toBe(target);
     });
 
-    it('按下换面：凹槽内窗常态 slot、按下 cardPressed（既有按压面色，零新色）', () => {
+    it('[WXG-T-1016 方向翻转] 按下换面：常态木色 / 按下 cardPressed，两态背板几何同为 cell.box', () => {
+        // 旧判据按「内缩 4px 凹槽内窗」找换面；用户令「高亮背板尺寸与 normal 态同步」后，
+        // 换面改由**同几何**整格叠色表达（§4-R6 语义不变，尺寸不再分叉）。
         const cs = cells();
         const target = cs[2]!;
         const rest = frame(dataFor());
         const pressed = frame(dataFor({ pressed: target }));
+        const fillsAt = (cmds: readonly DrawCommand[], dy: number): string[] => cmds
+            .filter((c) => c.kind === 'rect' && near(c.x, target.box.x) && near(c.y, target.box.y + dy))
+            .map((c) => (c as { fill?: string }).fill ?? '');
 
-        expect((cellRect(rest, target, 0) as { fill?: string }).fill, '外框 = 木色').toBe(DEFAULT_PALETTE.woodSheen);
-        expect((faceRect(rest, target, 0) as { fill?: string }).fill).toBe(DEFAULT_PALETTE.slot);
-        expect((faceRect(pressed, target, -UI_PRESS_SINK) as { fill?: string }).fill).toBe(DEFAULT_PALETTE.cardPressed);
+        expect(fillsAt(rest, 0), '常态背板 = 木色').toContain(DEFAULT_PALETTE.woodSheen);
+        expect(fillsAt(pressed, -UI_PRESS_SINK), '按下换面 = cardPressed（既有按压面色，零新色）')
+            .toContain(DEFAULT_PALETTE.cardPressed);
+        expect(faceRect(rest, target, 0), '⛔ 4px 内缩凹槽内窗退场').toBeUndefined();
+        const face = pressed.find((c) => c.kind === 'rect' && near(c.x, target.box.x)
+            && near(c.y, target.box.y - UI_PRESS_SINK)
+            && (c as { fill?: string }).fill === DEFAULT_PALETTE.cardPressed) as { w: number; h: number } | undefined;
+        expect(face, '按下换面在场').toBeDefined();
+        expect(face!.w, '按下背板宽 = cell.box.w').toBe(target.box.w);
+        expect(face!.h, '按下背板高 = cell.box.h').toBe(target.box.h);
     });
 
-    it('reduceMotion：位移归零，但换面仍在（弱动效不丢按下反馈）', () => {
+    it('[WXG-T-1016 方向翻转] reduceMotion：位移归零，但同几何换面仍在（弱动效不丢按下反馈）', () => {
         const cs = cells();
         const target = cs[4]!;
         const cmds = frame(dataFor({ pressed: target, reduceMotion: true }));
 
         for (const b of cs) expect(cellRect(cmds, b, -UI_PRESS_SINK)).toBeFalsy();
-        const inPlace = faceRect(cmds, target, 0) as { fill?: string };
-        expect(inPlace).toBeTruthy();
-        expect(inPlace.fill).toBe(DEFAULT_PALETTE.cardPressed);
+        const inPlace = cmds.find((c) => c.kind === 'rect' && near(c.x, target.box.x)
+            && near(c.y, target.box.y)
+            && (c as { fill?: string }).fill === DEFAULT_PALETTE.cardPressed) as { w: number; h: number } | undefined;
+        expect(inPlace, '原位仍有按下换面').toBeDefined();
+        expect(inPlace!.w, '同几何 = cell.box.w（与 normal 同步）').toBe(target.box.w);
+        expect(inPlace!.h, '同几何 = cell.box.h（与 normal 同步）').toBe(target.box.h);
     });
 
     it('按住其他钮（close-levels）不波及任何格', () => {

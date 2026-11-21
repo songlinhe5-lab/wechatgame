@@ -160,38 +160,27 @@ export function drawLevelSelectCell(
     vm: LevelSelectViewModel,
     palette: BeadsPalette,
 ): void {
-    const st = LEVEL_SELECT_GEO.gridStyle;
     const { x, w, h } = cell.box;
     const y = cell.box.y + cell.pressDy;
 
-    // `[2026-11-20]` 用户令「未解锁格子应该是 normal 背景」⇒ 稿面 `183:38 Normal` 位图底恢复入包。
-    // `[2026-11-21]` 实帧修正（K-109 / K-115）：normal 底是**格内容底**，须与锁纹理同挂 `BlitLayerUI`
-    // 才不会被整片不透明 tray 盖住（此前压到 Graphics 之下时 9 格只剩深棕背板，浅木底零上屏）。
-    // 但同层不透明底会盖住已解锁格的 `drawBeadFace` 珠面 ⇒ 只给「无珠面」的锁格 / 越界空槽铺，
-    // 已解锁非当前格继续走下面的程序化木框；当前关仍是亮金内窗 + 高亮环。缺图 ⇒ 同样回退。
-    const normalBg = (cell.locked || cell.levelIdx === undefined)
-        && menuBitmapReady(LEVEL_SELECT_TEXTURES.cellNormal);
-    if (normalBg) {
-        builder.blit(LEVEL_SELECT_TEXTURES.cellNormal, x, y, w, LEVEL_SELECT_GEO.cellArt.h);
-    } else {
-        // `[WXG-T-606]` 程序化木托盘：木框 → 深槽线 → 内窗 → 顶缘受光。
-        builder.rect(x, y, w, h, { fill: palette.woodSheen, radius: st.radius });
-        builder.rect(x + st.frame / 2, y + st.frame / 2, w - st.frame, h - st.frame, {
-            stroke: palette.shadowInk, lineWidth: st.groove, radius: st.radius - 2,
-        });
-        builder.rect(x + st.frame, y + st.frame, w - st.frame * 2, h - st.frame * 2, {
-            // `[WXG-T-611]` 用户令「高亮态就是高亮图，不需要加框」⇒ 当前关以亮金内窗表达。
-            fill: cell.pressed ? palette.cardPressed : (cell.current ? palette.plateSubInk : palette.slot),
-            radius: st.radius - 4,
-        });
-        builder.line(x + 8, y + h - st.frame - 1, x + w - 8, y + h - st.frame - 1, withAlpha(palette.woodSheen, 0.6), 1);
-        // `[WXG-T-612·三轮]` 高亮环（当前关）：程序化腿也画，保持视觉同源。
-        if (cell.current) {
-            const r = LEVEL_SELECT_GEO.cellArt.ring;
-            const rx = x + r.insetX, ry = y + r.insetY, rw = w - r.insetX * 2, rh = h - r.insetY * 2;
-            builder.rect(rx, ry, rw, rh, { stroke: withAlpha(r.glow, r.glowAlpha), lineWidth: r.glowW, radius: r.radius });
-            builder.rect(rx, ry, rw, rh, { stroke: r.stroke, lineWidth: r.strokeW, radius: r.radius });
-        }
+    // `[WXG-T-1016]` 用户令「格子里的高亮背板尺寸与 normal 态尺寸不一致，要同步」⇒ 九格背板
+    // 统一由 `drawLevelsView` 在段外容器 UI 层各发一次，几何逐格 = `cell.box`（158×181）。
+    // 本函数只留两件：① 缺图臂的同几何程序化底（段内，避免被 tray 盖住；K-108 不裸格）；
+    // ② 当前关高亮环。旧 4/8px 内缩亮金内窗退场 —— 那正是高亮态比 normal 窄 16px / 矮 4px
+    // 的来源；当前关改以高亮环表达，背板尺寸与 normal 态逐字一致。
+    if (!menuBitmapReady(LEVEL_SELECT_TEXTURES.cellNormal)) {
+        builder.rect(x, y, w, h, { fill: palette.woodSheen, radius: LEVEL_SELECT_GEO.gridStyle.radius });
+    }
+    // 按下换面（§4-R6 / reduceMotion「只换面」）保留，改用**同几何**整格叠色：
+    // ⛔ 不再用 8px 内缩内窗，否则按下 / 高亮态背板会比 normal 态小一圈。
+    if (cell.pressed) {
+        builder.rect(x, y, w, h, { fill: palette.cardPressed, radius: LEVEL_SELECT_GEO.gridStyle.radius });
+    }
+    if (cell.current) {
+        const r = LEVEL_SELECT_GEO.cellArt.ring;
+        const rx = x + r.insetX, ry = y + r.insetY, rw = w - r.insetX * 2, rh = h - r.insetY * 2;
+        builder.rect(rx, ry, rw, rh, { stroke: withAlpha(r.glow, r.glowAlpha), lineWidth: r.glowW, radius: r.radius });
+        builder.rect(rx, ry, rw, rh, { stroke: r.stroke, lineWidth: r.strokeW, radius: r.radius });
     }
 
     // 编号牌（稿 `182:75 grid-brand`，65×35 贴格视觉顶）：`[WXG-T-611]` 背景读稿面资源；

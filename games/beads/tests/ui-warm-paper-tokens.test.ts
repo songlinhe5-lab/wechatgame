@@ -304,25 +304,29 @@ describe('[§1.3 第五轮] 走马灯小卡 + `levels` 墙 消费既有 token（
         expect(DEFAULT_PALETTE.slotDashed, 'slot_dashed 定稿值未漂（§1 扩展行虚线）').toBe('#C9C5DA');
     });
 
-    it('`levels` 墙格 = 木托盘凹槽（wood_sheen 框 + slot 内窗），当前关高亮 = plate_sub_ink 内窗（`T-611` 去描边）；锁格只读既有 token（零新 hex）', () => {
-        // 非当前关（current=4）：槽 0 = 木框 + 米白内窗（`[WXG-T-606]`）。
+    it('[WXG-T-1016 方向翻转] `levels` 墙格 = 同几何 wood_sheen 统一背板；当前关只叠高亮环，⛔ 不再有与 normal 不同尺寸的内窗', () => {
+        // 用户令「格子里的高亮背板尺寸与 normal 态尺寸不一致，要同步」⇒ 九格背板统一为
+        // `cell.box`（158×181）；旧 8px 内缩 slot 内窗 / plate_sub_ink 亮金内窗一并退场，
+        // 当前关改以 `#FFF0B0` 高亮环表达（尺寸与 normal 态逐字一致）。
         const idle = metaFrameCmds({ overlay: 'levels', currentLevelIndex: 4, carouselLevel: undefined });
         const w0 = wallBoxes()[0]!;
         const frame = idle.find(
-            (c) => c.kind === 'rect' && c.fill === DEFAULT_PALETTE.woodSheen && c.w === w0.w,
+            (c) => c.kind === 'rect' && c.fill === DEFAULT_PALETTE.woodSheen && c.w === w0.w && c.h === w0.h,
         );
-        expect(frame, '格 = 木框（wood_sheen）').toBeDefined();
-        const face = idle.find(
-            (c) => c.kind === 'rect' && c.fill === DEFAULT_PALETTE.slot && c.w === w0.w - 8,
-        );
-        expect(face, '内窗 = slot 面').toBeDefined();
-        // 当前关（current=0）：亮金内窗（plate_sub_ink 地色；`[WXG-T-611]` 用户令「高亮态就是
-        // 高亮图，不需要加框」⇒ 降级腿旧黄铜描边退场，K-053）。
+        expect(frame, '格 = 同几何木纹背板（wood_sheen）').toBeDefined();
+        expect(
+            idle.some((c) => c.kind === 'rect' && c.w === w0.w - 8),
+            '⛔ 内缩 8px 的 slot 内窗退场（尺寸同步）',
+        ).toBe(false);
         const cur = metaFrameCmds({ overlay: 'levels', currentLevelIndex: 0, carouselLevel: undefined });
-        const hi = cur.find(
-            (c) => c.kind === 'rect' && 'fill' in c && c.fill === DEFAULT_PALETTE.plateSubInk,
-        );
-        expect(hi, '当前关高亮内窗 = plate_sub_ink（描边退场）').toBeDefined();
+        expect(
+            cur.some((c) => c.kind === 'rect' && 'stroke' in c && c.stroke === '#FFF0B0'),
+            '当前关以高亮环表达',
+        ).toBe(true);
+        expect(
+            cur.some((c) => c.kind === 'rect' && 'fill' in c && c.fill === DEFAULT_PALETTE.plateSubInk && c.w === w0.w - 8),
+            '⛔ 缩小亮金内窗退场（背板尺寸与 normal 一致）',
+        ).toBe(false);
         expect(
             cur.some((c) => c.kind === 'rect' && 'stroke' in c && c.stroke === DEFAULT_PALETTE.plateSubInk),
             '旧黄铜描边退场（K-053）',

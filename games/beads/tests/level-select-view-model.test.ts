@@ -85,7 +85,8 @@ describe('WXG-T-607 选关弹窗 View/ViewModel', () => {
         // 低层，blit 走 BlitLayerUI 高层），统一改为程序化腿（同 Graphics，顺序正确）。
         expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellCurrent), '当前关改程序化腿').toBe(0);
         expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellLocked), '未解锁格不再有专属灰底').toBe(0);
-        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellNormal), '全解锁 ⇒ 无锁格 ⇒ 零 normal 底').toBe(0);
+        // `[WXG-T-1016]` 判据方向翻转：全格统一木纹底 ⇒ 不再按锁定态挑格，九格各一条。
+        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellNormal), '全格统一 normal 底 ×9').toBe(9);
         expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.brand), '编号牌背景 ×9（`T-611` 稿 `176:22`）').toBe(9);
         expect(
             countBlit(cmds, LEVEL_SELECT_TEXTURES.starFilled) + countBlit(cmds, LEVEL_SELECT_TEXTURES.starEmpty),
@@ -103,15 +104,20 @@ describe('WXG-T-607 选关弹窗 View/ViewModel', () => {
         ).toBe(true);
     });
 
-    it('[2026-11-21] 已解锁格九格程序化木框仍在（不透明 normal 底不得盖住珠面）', () => {
+    it('[WXG-T-1016 方向翻转] 位图就绪臂：九格背板改由段外容器层统一发，段内不再有同几何程序化底板', () => {
+        // K-115 同批登记判据方向翻转：旧断言「每格段内有同几何 rect」是两条背板腿并存时的口径；
+        // 用户令「全格统一木纹底」后，位图臂的背板提到段外容器 `BlitLayerUI`，段内只留内容件。
         const cmds = frame(() => true);
+        const segAt = cmds.findIndex((c) => c.kind === 'segment');
+        const segEndAt = cmds.findIndex((c) => c.kind === 'segmentEnd');
         const picks = buttons.filter((b) => b.id === 'pick-level');
         for (let i = 0; i < 9; i += 1) {
             const box = picks[i]!.box;
             expect(
-                cmds.some((c) => c.kind === 'rect' && c.x === box.x && c.y === box.y && c.w === box.w && c.h === box.h),
-                `cell[${i}] 程序化木框底 rect 仍在`,
-            ).toBe(true);
+                cmds.some((c, idx) => c.kind === 'rect' && idx > segAt && idx < segEndAt
+                    && c.x === box.x && c.y === box.y && c.w === box.w && c.h === box.h),
+                `cell[${i}] 段内不再重复画同几何底板（珠面不被不透明底盖住）`,
+            ).toBe(false);
         }
     });
 
@@ -119,7 +125,8 @@ describe('WXG-T-607 选关弹窗 View/ViewModel', () => {
         const cmds = frame(() => true, { maxUnlockedLevel: 1 });
         expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellLocked), '未解锁格不用灰底').toBe(0);
         expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellCurrent), '当前关改程序化腿').toBe(0);
-        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellNormal), '未解锁格用 normal 底').toBe(8);
+        // `[WXG-T-1016]` 方向翻转：normal 底不再只给未解锁格 ⇒ 九格统一。
+        expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cellNormal), '九格统一 normal 底').toBe(9);
         expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.lockImage), '锁纹理替代灰珠面').toBe(8);
         expect(
             countBlit(cmds, LEVEL_SELECT_TEXTURES.starFilled) + countBlit(cmds, LEVEL_SELECT_TEXTURES.starEmpty),
@@ -201,6 +208,55 @@ describe('选关页大背景位图层序', () => {
         // 9 格可见的只有深棕背板 ⇒ 浅木格底完全不上屏（K-109 层序死结：删冲突对象，不扩层标记）。
         expect(BELOW_GRAPHICS_TEXTURE_IDS.has(LEVEL_SELECT_TEXTURES.cellNormal), 'normal 底压到 Graphics 之下会被 tray 盖住').toBe(false);
         expect(BELOW_GRAPHICS_TEXTURE_IDS.has(LEVEL_SELECT_TEXTURES.lockImage), '锁是格内内容件，须在矢量层之上').toBe(false);
+    });
+
+    // `[WXG-T-1016]` 用户令「背板还是没有，格子里的高亮背板尺寸与 normal 态尺寸不一致，要同步」。
+    // 裁定 = 全格统一木纹底：九格背板提到段外容器 UI 层各发一次，几何逐格 = cell.box；
+    // 当前关只叠高亮环，⛔ 不再用 4/8px 内缩的亮金内窗表达高亮态（那是尺寸差的来源）。
+    const pickBoxes = () => buttons.filter((b) => b.id === 'pick-level');
+    const normalBacks = (cmds: readonly DrawCommand[]) => cmds.filter(
+        (c) => c.kind === 'blit' && (c as { textureId?: string }).textureId === LEVEL_SELECT_TEXTURES.cellNormal,
+    ) as readonly { x: number; y: number; w: number; h: number }[];
+
+    it('[WXG-T-1016] 位图就绪臂：九格统一木纹底在段前各发一次，几何逐格 = cell.box', () => {
+        const cmds = frame(() => true);
+        const segAt = cmds.findIndex((c) => c.kind === 'segment');
+        const backs = normalBacks(cmds.filter((c) => cmds.indexOf(c) < segAt));
+        expect(backs, '九格背板各一条，⛔ 不按锁定态挑格').toHaveLength(9);
+        for (let i = 0; i < 9; i += 1) {
+            const box = pickBoxes()[i]!.box;
+            expect(backs[i]!.x, `cell[${i}] 背板 x`).toBe(box.x);
+            expect(backs[i]!.y, `cell[${i}] 背板 y（含按下位移）`).toBe(box.y);
+            expect(backs[i]!.w, `cell[${i}] 背板 w`).toBe(box.w);
+            expect(backs[i]!.h, `cell[${i}] 背板 h 与 normal 态同步（⛔ 不再 177）`).toBe(box.h);
+        }
+    });
+
+    it('[WXG-T-1016] 锁定态同样九格：normal 底不再只给锁格 / 越界空槽', () => {
+        expect(normalBacks(frame(() => true, { maxUnlockedLevel: 1 })), '当前关与已解锁格也铺木纹底').toHaveLength(9);
+    });
+
+    it('[WXG-T-1016] 尺寸同步：段内不再画 4/8px 内缩内窗，缺图臂仍各有一条同几何背板', () => {
+        const cmds = frame(() => false);
+        const segAt = cmds.findIndex((c) => c.kind === 'segment');
+        const segEndAt = cmds.findIndex((c) => c.kind === 'segmentEnd');
+        const box = pickBoxes()[0]!.box;
+        expect(
+            cmds.filter((c) => c.kind === 'rect' && (c.w === box.w - 4 || c.w === box.w - 8)),
+            '⛔ 不再内缩 4/8px 造与 normal 态不同尺寸的高亮背板',
+        ).toHaveLength(0);
+        for (let i = 0; i < 9; i += 1) {
+            const b = pickBoxes()[i]!.box;
+            const hit = cmds.findIndex((c) => c.kind === 'rect'
+                && c.x === b.x && c.y === b.y && c.w === b.w && c.h === b.h);
+            expect(hit, `cell[${i}] 缺图仍有同几何程序化背板（K-108 不裸格）`).toBeGreaterThanOrEqual(0);
+            expect(hit, `cell[${i}] 背板须在段内，否则被容器 BlitLayerUI 的 tray 盖住`).toBeGreaterThan(segAt);
+            expect(hit, `cell[${i}] 背板须在段闭合前`).toBeLessThan(segEndAt);
+        }
+        expect(
+            cmds.filter((c) => c.kind === 'rect' && 'stroke' in c && c.stroke === '#FFF0B0' && c.lineWidth === 4),
+            '当前关只叠高亮环',
+        ).toHaveLength(1);
     });
 });
 

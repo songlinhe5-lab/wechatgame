@@ -11282,3 +11282,27 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 - **门禁**：`framework:sync` / `sync:check` / `cocos:check` 绿；`check:assets` 59 件 / 2130.2 KB（孤儿 0 / 断链 0 / 死登记 0）；`pnpm run build:cocos` release 重建后 `check:size` = 主包 **4041.2 KB / 215 文件**、距红线余量 **54.8 KB**；全量 `pnpm run verify` = **PASS 24 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0**（`temp/verify-1015.log`）。
 - **知识库**：本轮沉淀候选 **0 条**（根因、层序与投放方法已逐字登记在 §12 视觉变更登记与本节，不另立跨任务条目）；`kb:sync --task=WXG-T-1015` 统计 **新增 0 / 修改 0 / 激活 0 / 归档 0**（活跃 215、`nextId` 219 未动），`kb:check` 十重校验 PASSED。
 - **遗留**：临时 3847 预览服务已停；`games/beads/package.json` 的构建自动版本 bump 为既有 WIP，未夹带提交。
+
+## WXG-T-1016
+
+**选关九格统一木纹底 + 结算页 v2 木牌实帧复核** · 负责：主理人(CodeBuddy)·工程/美术轨 · 状态：🟡 已落码 · 未验收（2026-11-21）
+
+承用户 2026-11-21 反馈「背板还是没有，格子里的高亮背板尺寸与normal态尺寸不一致，要同步」。开工前按用户 2026-11-01 令声明**本轮只查几何与层序、不改任何图片字节**；以两问答请用户拍板 ⇒ ① 指代 = **结算页 v2 木牌**（回到 clear 帧重拍 Cocos 实帧复核）；② 同步方案 = **全格统一木纹底**（九格背板改在段外容器层各发一次 158×181 木纹 blit，当前关只叠高亮环）。
+
+### 1. 根因（只读定位）
+
+- 附图（580×678）从会话历史找回并实读：九宫格外金色圆角深棕大框**在册可见**，与 `temp/ui-shot/cocos-617-levelselect-tray-seg.png` 一致；`ui_clear_panel_board` 在 web-mobile 的 `assets/textures/config.json` 有 3 处登记，上轮实帧 scene 亦证 `B216 → BlitLayerUI / sf=ui_clear_panel_board`（`on=true`），控制台零「丢弃 blit」。⇒ 用户所指「背板还是没有」需按裁定回到 clear 帧重拍复核产物 / 运行时新鲜度（K-156 / K-198）。
+- 格内确有尺寸分叉：normal 态位图 `cellNormal` 按 `LEVEL_SELECT_GEO.cellArt.h = 177` 贴，其余格（含当前关高亮）按 `cell.box.h = 181` 画程序化外框，再内缩 4/8px 出 `142×173` 内窗，当前关另叠 `148×168` 高亮环 ⇒ normal 短 4px、高亮可视底窄 16px / 矮 4px。
+- 且 `normalBg` 条件只覆盖「锁格 / 越界空槽」⇒ 已解锁格与当前关根本不铺木纹底（附图 1、2 号格为纯白 / 米色平底，3 号格为暗橙平底，4–9 号格才是浅木纹）。
+- 层序约束：不透明木纹底若画在段内 `BlitLayerUI` 会盖住 `drawBeadFace` 的 `Graphics` 珠面（K-109 / K-115）⇒ 背板须提到**段外容器 `BlitLayerUI`**（与 tray 同层、命令在后），九格内容留 `hud` 段（整棵恒在父容器位图层之上）。
+
+### 2. 落码（TDD RED → GREEN）
+
+- `level-select-view.ts`：`beginSegment('hud')` 前新增段外背板 pass，位图就绪时对九格各发一次 `blit(cellNormal, cell.box.x, cell.box.y + pressDy, cell.box.w, cell.box.h)`，⛔ 不按锁定态挑格、⛔ 不再缩到 177；缺图时此腿不发。
+- `meta-widgets.ts::drawLevelSelectCell`：删两条不同几何的背板腿，只留①缺图臂同几何程序化底（段内，避免被 tray 盖住；K-108 不裸格）②按下态**同几何**整格 `cardPressed` 换面（保留 §4-R6「reduceMotion 位移归零、只换面」语义，⛔ 不再用缩小内窗）③当前关 `#FFF0B0` 高亮环。旧 4/8px 内缩亮金内窗退场。
+- 判据：`level-select-view-model.test.ts` 新增 3 条 RED（全格统一几何 / 锁定态同样九格 / 尺寸同步且缺图不裸格），实跑 **3 红 → 3 绿**；按 K-115 同批登记方向翻转 **6 条**既有判据（同文件 3 条、`arc-cell-pressed.test.ts` 2 条、`ui-warm-paper-tokens.test.ts` 1 条），逐处写明翻转原因，⛔ 未靠调低阈值掩盖。
+- 全量 beads 单测 **1587 passed / 2 skipped / 仅 `ui-golden` 选关两态待重拍**；`tsc --noEmit` 绿；`framework:sync` 写入 2 件镜像、`sync:check` / `cocos:check` / `check:links` / `check:arch` / `ctx:check` / `check:assets`（59 件 / 零差集）全绿。
+
+### 3. 待收口
+
+- 金样 `level-select` / `level-select-mid` 两态按干净锚由 `ui-golden-capture.ts` 两遍确定性自证重拍（⛔ 不手改夹具）；结算 clear 帧重拍 Cocos 实帧复核；§12 视觉变更登记；全量 `verify`；包体门；kb 统计；提交推送。
