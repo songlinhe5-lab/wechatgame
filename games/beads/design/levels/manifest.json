@@ -87,7 +87,7 @@
     {
       "id": "mandala",
       "file": "chapters/mandala.json",
-      "order": 1,
+      "order": 0,
       "open": true
     },
     {
