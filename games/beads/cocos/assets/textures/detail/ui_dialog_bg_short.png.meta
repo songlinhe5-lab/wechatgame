@@ -11,7 +11,7 @@
     "6c48a": {
       "importer": "texture",
       "uuid": "bd9662bc-570a-4d26-9cc9-bbbed5099b2d@6c48a",
-      "displayName": "ui_timeout_plaque",
+      "displayName": "ui_dialog_bg_short",
       "id": "6c48a",
       "name": "texture",
       "userData": {
@@ -35,7 +35,7 @@
     "f9941": {
       "importer": "sprite-frame",
       "uuid": "bd9662bc-570a-4d26-9cc9-bbbed5099b2d@f9941",
-      "displayName": "ui_timeout_plaque",
+      "displayName": "ui_dialog_bg_short",
       "id": "f9941",
       "name": "spriteFrame",
       "userData": {
