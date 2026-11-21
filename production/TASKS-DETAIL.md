@@ -11222,3 +11222,15 @@ WXG-T-584 R-3），并由 `menu-layout-v35.test.ts:122` 负断言钉住；② �
 ### 6. 遗留
 
 主包 +68.6 KB（余量 285.4→216.8 KB）为**估值、未实测**；`cellNormal` 与 `cell` 字节重复 47.2 KB 可后续裁定去重；真机 / 微信运行时未测。
+
+### 7. 收口（2026-11-21 · commit `8d77bb50`）
+
+承用户 2026-11-21 令「继续修复显示问题」。§3 未闭环项**逐项关闭**，§5 四条待办全部执行完毕；本节按时间序追加，⛔ 不改写 §3 修复前读数（K-053 留痕）。
+
+- **层序根因**：重建 `web-mobile` 后实帧（`temp/ui-shot/cocos-617-levelselect-1014-after.png`）显示 8 个未解锁格只有深棕 tray，浅木 `183:38 Normal` 零上屏；scene introspect 里 8 个 `cell_normal` 节点 `on=true` ⇒「已挂载」不等于「可见」。根因 = `cellNormal` 入 `BELOW_GRAPHICS_TEXTURE_IDS` 压到 `BlitAtlas`，被整片不透明 `ui_level_select_tray.png` 盖住（K-109：删冲突对象，不扩层标记）。
+- **修复**：`BELOW_GRAPHICS_TEXTURE_IDS` 移除 `cellNormal`（与 `lockImage` 同挂 `BlitLayerUI`，同层命令序 normal 先 / 锁后）；`drawLevelSelectCell()` 的 `normalBg` 由 `!cell.current` 收窄为「锁格 / 越界空槽」——这两类格无 `drawBeadFace` 珠面，已解锁非当前格继续程序化木框 + 珠面。判据按 K-115 方向翻转 2 条（白名单归属 / 全解锁零 normal 底，断言数不变）+ 新增 1 例九格木框回归守卫；TDD RED 3 红 → GREEN 25/25；`framework:sync` / `sync:check` / `cocos:check` 绿。
+- **屏幕层实帧**：`temp/ui-shot/cocos-617-levelselect-1014-fixed.png`（产物 mtime 09:31 > 源码 20:14，K-156 新鲜度核过）显示 8 格浅木 normal 底 + 圆珠锁 + 编号牌、当前关亮金窗 + 红心珠面 + 三星；控制台零「丢弃 blit」，`Error 3804` 为既有噪声（修复前同帧 62 条）。
+- **金样本**：在 `git worktree --detach @ 8d77bb50` 干净检出（补 `node_modules` 软链）由 `ui-golden-capture.ts` 两遍确定性自证重抓十一帧 PASS；`capturedFrom = 8d77bb50`，夹具仅 3 行变化（两态 sha + 锚）；`ui-golden.test.ts` **38/38 绿**，⛔ 未手改 sha / total / 种类数（K-051 / K-053 / K-167）。
+- **门禁**：`check:assets` 60 件 / 1968.7 KB（孤儿 0 / 断链 0 / 死登记 0）；`pnpm run build:cocos` release 重建后 `check:size` = 主包 **3881.7 KB / 218 文件**、余量 **214.3 KB**（前值 3810.6 KB / 212 文件、余量 285.4 KB ⇒ 实测 **+71.1 KB**，K-051 差分复算，替代 §6 的 +68.6 KB 估值）；全量 `pnpm run verify` = **PASS 24 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0**（`test` 14.0s 全绿）。
+- **提交**：`8d77bb50` 代码批（pre-commit 钩子自动重建 `ctx/BUDGET.md` / `ctx/hot-files.md` / `ctx/index.json` / `memory/INDEX.md` 四件产物一并入库 ⇒ 共 19 件；`ctx:check OK`、commit-msg K 项「署号在册」通过）；本笔夹具 + 台账收口随后提交并推送。
+- **遗留**：`cellNormal` 与 `cell` 字节重复 47.2 KB 可后续裁定去重；真机 / 微信运行时未测（AppID + 密钥缺失，`web-mobile` 只证渲染）；金样 rig 位图腿仍全关，锁的是缺图降级帧，位图腿上屏证据仅屏幕层实帧。
