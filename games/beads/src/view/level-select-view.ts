@@ -9,10 +9,10 @@
  * 稿层序（`159:5 抠图层`）：对话框背景 → 九宫格背板 → 九格 → 关闭按钮 → 文字。
  * 位图未注册 ⇒ 逐元素同几何程序化回退（⛔ 不做第二套版式）。
  */
-import { DESIGN_H, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TITLE_SHADOW, LEVEL_SELECT_GEO, LEVEL_SELECT_TEXTURES } from '../config/tuning.js';
+import { DESIGN_H, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TEXTURES, LEVEL_DETAIL_TITLE_SHADOW, LEVEL_SELECT_GEO, LEVEL_SELECT_TEXTURES } from '../config/tuning.js';
 import { type RenderModelBuilder } from '@wxgame/framework';
 import { type BeadsPalette, withAlpha } from './palette.js';
-import { UI_FONT, bodyFont } from './ui-theme.js';
+import { UI_FONT, UI_SCRIM, bodyFont } from './ui-theme.js';
 import { drawCloseInset, drawLevelSelectCell, drawModalPlate, menuBitmapReady } from './meta-widgets.js';
 import type { LevelSelectViewModel } from './level-select-view-model.js';
 
@@ -32,7 +32,10 @@ export function drawLevelsView(
     const plate = vm.plate;
 
     // 遮罩 + 容器：与详情页共用 `drawModalPlate`（`[WXG-T-612]` 用户令「背景框绘制共用逻辑」）。
-    drawModalPlate(builder, palette, plate, vm.screenH);
+    // `[WXG-T-1026]` 容器换通用对话框长背景（用户令「替换成新的背景图，其他不变」）：
+    // 键 = `showcase`（`ui_dialog_bg_tall`）；不在 `BELOW_GRAPHICS` 白名单 ⇒ 走容器 `BlitLayerUI`，
+    // 本函数最先发 ⇒ 在 tray / 九格之下，与旧 plaque 层序读法一致。
+    drawModalPlate(builder, palette, plate, vm.screenH, UI_SCRIM.alpha, LEVEL_DETAIL_TEXTURES.showcase);
 
     // `[WXG-T-610]` 九宫格背板（稿 `164:63`，506×597）：在九格之前叠，缺图不画。
     const tr = LEVEL_SELECT_GEO.tray;

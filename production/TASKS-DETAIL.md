@@ -11602,3 +11602,28 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 - **⏸ 并行未结：选关弹窗真机缺陷**「整页背景（弹窗后面那层背景图）没画」（用户 2026-11-21 真机扫码报）。已取证：主菜单正常、弹窗小件（金星/锁/关闭钮）正常 ⇒ textures bundle 装载链在真机通；选关容器背景 = `LEVEL_DETAIL_TEXTURES.plaque`（`bitmap__detail_plaque`，`BELOW_GRAPHICS_TEXTURE_IDS` 白名单压 Graphics 之下）；web 实帧绿但真机不复现 = K-198 同族。已做：automator 模拟器取证通道不通（`cli auto` 自动化端口未起）；下一步 = 真机调试（GUI 工具栏「真机调试」）取 `[BeadsBlitCarrier] 静态位图 N/M` 读数，或按 T-1016 用户原意改走通用对话框背景（见本单改名动机）。
 - 键级通用化欠账：`bitmap__detail_showcase` / `bitmap__timeout_plaque` 待消费面扩展时改称（届时金样重抓 + 判据同步）。
 - `games/beads/package.json` 构建自动版本 bump 为既有 WIP，未夹带提交。
+
+## WXG-T-1026
+
+### 1. 背景与裁定
+
+- 接 WXG-T-1025 遗留：选关弹窗真机「整页背景没画」。换图方案三选（九宫格拉伸 / 等比重排 / 不换图修根因）⇒ **用户裁定「替换成新的背景图，其他不变」**——容器几何 581×1044 与版式零改动，blit 键直接换 `ui_dialog_bg_tall`，整图 SIMPLE 拉伸由设计侧接受。
+
+### 2. 落地
+
+- `meta-widgets.ts::drawModalPlate` 加第 6 参 `textureId`（默认 `LEVEL_DETAIL_TEXTURES.plaque` ⇒ 详情页 / 设置页调用逐字节不变）；缺图程序化腿同构。
+- `level-select-view.ts` 调用传 `UI_SCRIM.alpha, LEVEL_DETAIL_TEXTURES.showcase`（补 `UI_SCRIM` / `LEVEL_DETAIL_TEXTURES` import）；`level-select.ts` 几何单源注释登记换图。
+- 判据两处增补（`level-select-view-model.test.ts`，K-115 同批登记）：位图腿块 `容器 = showcase ×1` + `旧 plaque 键退场 ×0`；层序块 `showcase 不入 BELOW_GRAPHICS 白名单`（走容器 `BlitLayerUI`，本函数最先发 ⇒ tray/九格之下）。
+
+### 3. 取证
+
+- tsc 绿；目标测试 29/29 绿（含金样 `ui-golden`）——**金样零重抓**：rig 位图全 false ⇒ 选关帧命令流不含 blit ⇒ textureId 换键不入快照（T-1023 同口径）。
+- `framework:sync`（写入 2）→ `build:cocos` + `build:cocos:web` 双平台重建；资产门零差集；主包 **3368.0 KB / 205 文件**（+0.1 KB）。
+- CDP 实帧（web-mobile 产物 + `shell._openLevelsFromMenu()` 调试注入，⛔ 非真实点击只证渲染层）：`temp/ui-shot/cocos-617-levelselect-1026-tall-bg.png`——选关位图池位 `ui_dialog_bg_tall:1` / `tray:1` / `cell_normal:9` / `brand:9` / `lock:8` / `star_empty:3` / `close:1`、丢弃 blit 告警 0；目检：射灯光锥拉宽读作穹顶光、木框圆角无变形、标题/关名/九格/关闭钮层序全部正常。
+- 全量 `verify` **PASS 24 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0**。
+
+### 4. 遗留
+
+- **真机复验待扫码**：原「整页背景没画」是否随换图消解（tall 走 `BlitLayerUI` 避开 below 层 = 顺带绕开 K-198 真机嫌疑路径；若真机仍缺 ⇒ 病灶在装载/共层更深处，走真机调试取证）。
+- 拉伸率登记：tall 源 938×1276 blit 到 581×1044（@2x 1162×2088）＝横向 1.24× / 纵向 1.64×，中央玻璃渐变随之拉伸（设计侧已接受实帧观感）。
+- `games/beads/package.json` 构建自动版本 bump 为既有 WIP，未夹带提交。
