@@ -35,7 +35,10 @@
 
 - 新增 `arc-level-select-page.test.ts` 层序判据：首格珠面块序列（`drawBeadFace` 同参复算）**先于** 'hud' 段；编号牌数字与星带文字在段内。
 - `level-select-view-model.test.ts` 2 例改口径：高亮环 / 缺图背板断言从「须在段内」改为「段外容器 Graphics、先于饰层段、后于 tray」。
-- `tsc --noEmit` 绿（`bot-policy.test.ts` 3 条属并发批遗留，不夹带）；全量 beads 仅 ui-golden `level-select` / `level-select-mid` 两帧漂移（预期，待 worktree 重抓）；镜像 4 件经 `framework:sync` 同步。
+- `tsc --noEmit` 绿（`bot-policy.test.ts` 3 条属并发批遗留，不夹带）；全量 beads 仅 ui-golden `level-select` / `level-select-mid` 两帧漂移（预期）；镜像 4 件经 `framework:sync` 同步。
+- **金样重抓（K-167）**：`git worktree --detach @ 6834905d` 干净检出重抓，两遍确定性自证 PASS ⇒ 夹具拷回，13/13 绿。
+- **CDP 实帧（[Cocos 产物] 腿，web-mobile 23:18 重建 + 静态服 + `comp._app.game` 注入）**：选关页编号牌（1–9）与首格星带完整可见、珠面图案不压盖；产物 `temp/ui-shot/cocos-1029-levelselect-scrim.png`（脚本复用 T-1029 取证器）。
+- ⚠ 提交纪律判例复现（K-045）：首笔提交误将并发会话已暂存的 levels/存档批 20+ 件带入（`git add -A games/beads/src` 扫入 + 索引全集提交），未推送前 `reset --soft` 拆出，重提仅本单 8 件 —— 多件提交前必须逐项核对 `git diff --cached --stat`。
 
 ---
 
