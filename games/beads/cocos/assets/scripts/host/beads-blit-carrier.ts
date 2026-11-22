@@ -172,17 +172,18 @@ const BITMAP_ASSETS: Readonly<Record<string, { path: string; bundle?: string }>>
 
     // `[WXG-T-602]` 关卡详情四件（投放件均 @2x：木牌 1162×2088 / 开始钮 652×308 / 星 116×120）。
     // 未导入 `textures` Bundle ⇒ 不登记 ⇒ 详情页逐元素回退（纸面板 / 通用主钮 / 文字星），零回归。
-    [LEVEL_DETAIL_TEXTURES.plaque]: { path: 'detail/ui_detail_plaque' },
+    [LEVEL_DETAIL_TEXTURES.plaque]: { path: 'detail/ui_dialog_bg_tall' },
+    // `[WXG-T-1027]` 通用长背景 = 木牌图，独立键走容器 UI 层（真机可见），不入 below 白名单。
+    [LEVEL_DETAIL_TEXTURES.dialogBg]: { path: 'detail/ui_dialog_bg_tall' },
     [LEVEL_DETAIL_TEXTURES.start]: { path: 'detail/ui_detail_start' },
     [LEVEL_DETAIL_TEXTURES.starFilled]: { path: 'detail/ui_detail_star_filled' },
     [LEVEL_DETAIL_TEXTURES.starEmpty]: { path: 'detail/ui_detail_star_empty' },
     // `[WXG-T-607]` 选关九宫格单格模板。⚠ `.meta` 须由 Cocos 编辑器 reimport 签发（L1）；
     // 未签发 ⇒ `textures` Bundle 不含此件 ⇒ `_bitmaps` 未命中 ⇒ 自动走程序化木托盘降级腿。
     [LEVEL_SELECT_TEXTURES.cell]: { path: 'detail/ui_level_select_cell' },
-    // `[WXG-T-609]` 对话框长背景（原「关卡详情橱窗面板」，2026-11-21 用户令通用化改名
-    // `ui_dialog_bg_tall`；玻璃半透明 ⇒ 保留完整 alpha）。
-    // ⚠ 同上：`.meta` 待编辑器签发；未签发 ⇒ 详情页不叠此面板（纯木纹牌仍可读）。
-    [LEVEL_DETAIL_TEXTURES.showcase]: { path: 'detail/ui_dialog_bg_tall' },
+    // `[WXG-T-609/1027]` 橱窗面板（玻璃 + 射灯 + 圆台）；T-1025 曾误改名为 `ui_dialog_bg_tall`，
+    // 用户订正后还原 `ui_detail_showcase`（长背景是木牌件）。玻璃半透明 ⇒ 保留完整 alpha。
+    [LEVEL_DETAIL_TEXTURES.showcase]: { path: 'detail/ui_detail_showcase' },
     // `[WXG-T-610]` 选关弹窗稿面补件（Figma `159:3`）。⚠ `.meta` 待编辑器签发（L1）；
     // 未签发 ⇒ 逐元素走程序化降级腿（格 / 星文字档 / 木钮），零功能回归。
     [LEVEL_SELECT_TEXTURES.tray]: { path: 'detail/ui_level_select_tray' },

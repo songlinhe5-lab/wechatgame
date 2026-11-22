@@ -78,10 +78,11 @@ describe('WXG-T-607 选关弹窗 View/ViewModel', () => {
 
     it('`[WXG-T-610/611]` 位图腿：背板 / 编号牌背景 ×9 / 双星 / 底部关闭按钮全部就位（三态格底 + 锁图改程序化腿）', () => {
         const cmds = frame(() => true);
-        // `[WXG-T-1026]` 容器换通用对话框长背景（用户令「替换成新的背景图，其他不变」）：
-        // 键从 `plaque` 换 `showcase`（`ui_dialog_bg_tall`），其余断言零改动。
-        expect(countBlit(cmds, LEVEL_DETAIL_TEXTURES.showcase), '容器 = 通用长背景 ×1').toBe(1);
-        expect(countBlit(cmds, LEVEL_DETAIL_TEXTURES.plaque), '旧木牌键在选关页退场').toBe(0);
+        // `[WXG-T-1026/1027]` 容器 = 通用对话框长背景（木牌图 `ui_dialog_bg_tall`）：
+        // 键 = `dialogBg`（不在白名单，真机可见）；`plaque` 与橱窗键 `showcase` 均不在选关页发。
+        expect(countBlit(cmds, LEVEL_DETAIL_TEXTURES.dialogBg), '容器 = 通用长背景 ×1').toBe(1);
+        expect(countBlit(cmds, LEVEL_DETAIL_TEXTURES.plaque), '白名单木牌键在选关页退场').toBe(0);
+        expect(countBlit(cmds, LEVEL_DETAIL_TEXTURES.showcase), '橱窗面板不在选关页发').toBe(0);
         expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.tray), '九宫格背板').toBe(1);
         expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.closeBtn), '底部关闭按钮').toBe(1);
         expect(countBlit(cmds, LEVEL_SELECT_TEXTURES.cell), '旧通用模板退场').toBe(0);
@@ -185,9 +186,9 @@ describe('选关页大背景位图层序', () => {
         expect(BELOW_GRAPHICS_TEXTURE_IDS.has(LEVEL_SELECT_TEXTURES.tray), '九宫格背板不得再压到全局 BlitAtlas').toBe(false);
         expect(BELOW_GRAPHICS_TEXTURE_IDS.has(LEVEL_SELECT_TEXTURES.cell), '单格模板若复用也应在矢量层之下').toBe(true);
         expect(BELOW_GRAPHICS_TEXTURE_IDS.has(LEVEL_SELECT_TEXTURES.brand), '编号牌是格内小件，仍应压在矢量层之上').toBe(false);
-        // `[WXG-T-1026]` 容器换通用长背景（`showcase` 键）：**不入** below 白名单 ⇒ 走容器
+        // `[WXG-T-1026/1027]` 容器换通用长背景（`dialogBg` 键）：**不入** below 白名单 ⇒ 走容器
         // `BlitLayerUI`（本函数最先发 ⇒ 在 tray/九格之下），避开真机 below 层嫌疑区。
-        expect(BELOW_GRAPHICS_TEXTURE_IDS.has(LEVEL_DETAIL_TEXTURES.showcase), '通用长背景走容器 UI 层，不压 Graphics').toBe(false);
+        expect(BELOW_GRAPHICS_TEXTURE_IDS.has(LEVEL_DETAIL_TEXTURES.dialogBg), '通用长背景走容器 UI 层，不压 Graphics').toBe(false);
     });
 
     it('[2026-11-21] 背板在段前发、九格整体落段层 ⇒ 当前关程序化红心不被背板盖住', () => {

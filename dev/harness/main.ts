@@ -240,14 +240,16 @@ const MENU_FILE: Readonly<Record<string, string>> = {
   [POWERUP_TILE_TEXTURES.trayRestore]: '/powerup-assets/tiles/powerup_restore_icon_tray@4x.png',
   // `[WXG-T-602]` 关卡详情四件（正本 `design/art/final/assets/detail/`，均 @2x）：木牌 1162×2088 /
   // 开始钮 652×308 / 实心星·空心星 116×120。缺任一件 ⇒ 该元素走同几何程序化回退。
-  [LEVEL_DETAIL_TEXTURES.plaque]: '/detail-assets/ui_detail_plaque@2x.png',
+  [LEVEL_DETAIL_TEXTURES.plaque]: '/detail-assets/ui_dialog_bg_tall@2x.png',
   [LEVEL_DETAIL_TEXTURES.start]: '/detail-assets/ui_detail_start@2x.png',
   [LEVEL_DETAIL_TEXTURES.starFilled]: '/detail-assets/ui_detail_star_filled@2x.png',
   [LEVEL_DETAIL_TEXTURES.starEmpty]: '/detail-assets/ui_detail_star_empty@2x.png',
   // `[WXG-T-607]` 选关九宫格单格模板（Figma `176:19 grid-1` → `185:36` 木纹底，@2x 316×354）。
   [LEVEL_SELECT_TEXTURES.cell]: '/detail-assets/ui_level_select_cell@2x.png',
-  // `[WXG-T-609]` 对话框长背景（原 ui_detail_showcase@2x，2026-11-21 通用化改名）。
-  [LEVEL_DETAIL_TEXTURES.showcase]: '/detail-assets/ui_dialog_bg_tall@2x.png',
+  // `[WXG-T-1027]` 通用长背景 = 木牌图（与 plaque 同一件，独立键仅供选关容器走 UI 层）。
+  [LEVEL_DETAIL_TEXTURES.dialogBg]: '/detail-assets/ui_dialog_bg_tall@2x.png',
+  // `[WXG-T-609]` 橱窗面板（玻璃 + 射灯 + 圆台）；T-1025 曾被误改名为 ui_dialog_bg_tall，已还原。
+  [LEVEL_DETAIL_TEXTURES.showcase]: '/detail-assets/ui_detail_showcase@2x.png',
   // `[WXG-T-610]` 选关弹窗稿面补件（Figma `159:3`）：九宫格背板 / 三态格底 / 双星 / 关闭按钮。
   [LEVEL_SELECT_TEXTURES.tray]: '/detail-assets/ui_level_select_tray@2x.png',
   // `[2026-11-20]` 用户裁定恢复 2 件：normal 格底（非当前格铺底）/ 稿面圆珠锁（替代灰珠阵）。

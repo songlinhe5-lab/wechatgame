@@ -32,10 +32,10 @@ export function drawLevelsView(
     const plate = vm.plate;
 
     // 遮罩 + 容器：与详情页共用 `drawModalPlate`（`[WXG-T-612]` 用户令「背景框绘制共用逻辑」）。
-    // `[WXG-T-1026]` 容器换通用对话框长背景（用户令「替换成新的背景图，其他不变」）：
-    // 键 = `showcase`（`ui_dialog_bg_tall`）；不在 `BELOW_GRAPHICS` 白名单 ⇒ 走容器 `BlitLayerUI`，
-    // 本函数最先发 ⇒ 在 tray / 九格之下，与旧 plaque 层序读法一致。
-    drawModalPlate(builder, palette, plate, vm.screenH, UI_SCRIM.alpha, LEVEL_DETAIL_TEXTURES.showcase);
+    // `[WXG-T-1026/1027]` 容器 = 通用对话框长背景（木牌图 `ui_dialog_bg_tall`），几何 / 版式零改动。
+    // 键 = `dialogBg`（不在 `BELOW_GRAPHICS` 白名单 ⇒ 走容器 `BlitLayerUI`，真机可见）；本函数
+    // 最先发 ⇒ 在 tray / 九格之下。⛔ 不复用 `plaque`（白名单那层被底页整屏背景盖住）。
+    drawModalPlate(builder, palette, plate, vm.screenH, UI_SCRIM.alpha, LEVEL_DETAIL_TEXTURES.dialogBg);
 
     // `[WXG-T-610]` 九宫格背板（稿 `164:63`，506×597）：在九格之前叠，缺图不画。
     const tr = LEVEL_SELECT_GEO.tray;

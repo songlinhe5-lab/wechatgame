@@ -15,6 +15,35 @@
 
 ---
 
+## WXG-T-1027
+
+**订正对话框长背景资源（木牌归位，去选关橱窗）** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-22）
+
+### 1. 背景与裁定
+
+- 承 T-1026 真机反馈「长背景有了，但多了个橱窗图案」，用户订正原话：「`ui_detail_plaque` 才是要改名为 `ui_dialog_bg_tall`，资源弄错了」。
+- 根因 = T-1025 把橱窗面板（`ui_detail_showcase`，938×1276）错改名 `ui_dialog_bg_tall`；真正的对话框长背景是木牌（1162×2088），恰好 = 容器 581×1044 的 @2x，无需拉伸。
+
+### 2. 落地
+
+- **文件对调**（`git mv`，uuid 随资源走、displayName 构建期 asset-db 重签，L1）：Cocos 投放件 `ui_dialog_bg_tall` → `ui_detail_showcase`、旧 `ui_detail_plaque` → `ui_dialog_bg_tall`（均含 `.meta`）；harness 母件 `design/art/final/assets/detail/` 两张 `@2x` 同步。
+- **键分层**：`LEVEL_DETAIL_TEXTURES` 新增 `dialogBg: 'bitmap__dialog_bg_tall'`（选关容器专用，**不入** `BELOW_GRAPHICS` 白名单）；`plaque` 留在白名单（详情页木牌压 Graphics 下）；`showcase` 专归详情橱窗、path 还原 `detail/ui_detail_showcase`。两键指同一木牌件仅作层序分流。
+- 注册同步：`beads-blit-carrier.ts` 三条 path、`dev/harness/main.ts` 三条 URL；`framework:sync` 写入 4 件；`level-select-view.ts` 容器传 `dialogBg`。
+- 判据：`level-select-view-model.test.ts` 容器断言改 `dialogBg`、新增「橱窗不在选关页发 ×0」、白名单反向断言随键迁移；断言由 29 → 30。
+- 文档：`level-detail-spec.md` §5 资产表 / §11 橱窗资源 / §12 实测名、`asset-provenance.md` 溯源表同步归位并留订正说明；历史 §12 登记不追改（K-053）。
+
+### 3. 取证
+
+- `pnpm run typecheck` 绿；目标 4 文件 **40/40** 绿（`level-select-view-model` 16 + `level-detail-showcase` 4 + `ui-golden` 13 + `meta-level-detail` 7），金样 **13/13 零重抓**（rig 位图全 false ⇒ 命令流不含 blit）。
+- 双平台重建：`build:cocos:web` / `build:cocos` exit 0；资产门 56 件 / 1460.1 KB，差集孤儿 0 / 断链 0 / 死登记 0；主包 **3368.1 KB / 205 文件**（+0.1 KB）。
+- `pnpm run verify` **PASS 24 ｜ WARN 0 ｜ SKIP 0 ｜ FAIL 0**（日志 `temp/verify-1027.log`）。
+- CDP 实帧（web-mobile + `shell._openLevelsFromMenu()` 注入，⛔ 非真实点击只证渲染层）：`temp/ui-shot/cocos-617-levelselect-1027-wood-bg.png`——池位 `ui_dialog_bg_tall:1` / `tray:1` / `cellNormal:9` / `brand:9` / `star_empty:3` / `lock:8` / `close:1`，`ui_detail_showcase` **0**、丢弃 blit 告警 0；目检 = 整块木纹牌 + 标题槽 + 四角铆钉，无玻璃柜 / 射灯 / 圆台，九格与星级层序正常。
+
+### 4. 遗留
+
+- **真机扫码仍待**：本批改渲染资源与键分层，真机层序同 T-1026 的「非白名单 → 容器 `BlitLayerUI`」路径；用户扫码确认橱窗图案消失、背景木纹正常即闭账。
+- `games/beads/package.json` 构建自动版本 bump 为既有 WIP，未夹带提交。
+
 ## WXG-T-990
 
 **难度评估体系重构 · 阶段 0 口径提案与落码影响面** · 负责：主理人(CodeBuddy) 汇编，文策渊(design-strategist) 出设计口径、程基岩(engineering-lead) 出落码影响面 · 状态：✅ 完成（2026-11-19；待用户拍板 Q1–Q4 后才可进入落码单）

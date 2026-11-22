@@ -34,7 +34,7 @@ export const LEVEL_DETAIL_GEO = {
    * `[WXG-T-924]` 珠面展示框（用户令「图案占橱窗比例太小，按照视觉合适比例调整」）：
    * 珠面**最大占位** = 360×340，底缘仍取 {@link thumb} 下缘 805（圆台顶面）、水平取橱窗轴。
    * 稿面 `123:3` 295×285 是占位猫图框，只留档、不再当珠面上限。
-   * 依据（资源 `ui_dialog_bg_tall@2x` 实测，原 `ui_detail_showcase@2x`）：玻璃内腔 ≈422 宽、穹顶→台面净空 ≈401
+   * 依据（资源 `ui_detail_showcase@2x` 实测）：玻璃内腔 ≈422 宽、穹顶→台面净空 ≈401
    * ⇒ 左右各留 ≈31、射灯下留 ≈61 呼吸位；圆台面 ≈289 宽 ⇒ 大图案可略悬出（展示柜常见）。
    */
   thumbFit: { w: 360, h: 340 },
@@ -72,10 +72,15 @@ export const LEVEL_DETAIL_TITLE_SHADOW = { dx: 9, dyDown: 7, blur: 3, alpha: 0.8
  * 任一枚未注册 ⇒ 该元素走**同几何**的程序化回退（木牌 → 纸面板、开始 → 通用钮、星 → 文字档）。
  */
 export const LEVEL_DETAIL_TEXTURES = {
+  /** 木牌长背景（@2x 1162×2088）→ `ui_dialog_bg_tall`。在 `BELOW_GRAPHICS` 白名单：详情页
+   *  木牌须压在 Graphics 下（缩略 / 星级画其之上）；⛔ 选关容器不要复用此键，见 `dialogBg`。 */
   plaque: 'bitmap__detail_plaque',
-  /** `[WXG-T-609]` Figma `192:42` 橱窗面板（玻璃 + 射灯 + 圆台，@2x 938×1276）。
-   *  `[2026-11-21]` 用户令通用化改名：文件 → `ui_dialog_bg_tall`（对话框长背景，可跨弹窗复用）；
-   *  ⛔ 键名与 textureId 留旧（金样零重抓），键级改称待消费面扩展时一并做。 */
+  /** `[WXG-T-1027]` 通用对话框长背景 = 木牌图（与 `plaque` 同一件），专供选关容器。
+   *  ⛔ 不在 `BELOW_GRAPHICS` 白名单 ⇒ 走容器 `BlitLayerUI`，真机可见（白名单那层会被
+   *  底页整屏不透明 `backdropFull` 盖住，T-1025 遗留缺陷）。textureId 独立仅用于层序分流。 */
+  dialogBg: 'bitmap__dialog_bg_tall',
+  /** `[WXG-T-609]` Figma `192:42` 橱窗面板（玻璃 + 射灯 + 圆台，@2x 938×1276）→ `ui_detail_showcase`。
+   *  `[WXG-T-1027]` 用户订正：T-1025 误把本件改名 `ui_dialog_bg_tall`，已还原；长背景是木牌件。 */
   showcase: 'bitmap__detail_showcase',
   start: 'bitmap__detail_start',
   starFilled: 'bitmap__detail_star_filled',

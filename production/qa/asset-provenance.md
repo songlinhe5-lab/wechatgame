@@ -22,7 +22,7 @@
 
 | 件（实测规格） | 生成方式 | 生成脚本（入库路径） | 原图（入库路径 / 状态） | 批次出处 |
 |---|---|---|---|---|
-| `final/assets/detail/ui_detail_plaque@2x.png` 1162×2088 · 911 KB | **零生图**：Figma REST 节点 `95:116` @2x 导出；上游木牌纹理 = AI 高频木纹重铺（`plaque-texture-20261108` S3 定稿） | `my-skills/wxgame-figma/scripts/figma.mjs img` | ✅ 设计正本在册：`proposals/plaque-texture-20261108/source/dialog-v25b-750x1334-rgb.png` + 定稿 `out/ai-grain-plate4.png`；Figma 文件 `PBIK3RbfGlfzFsAnd97ZsP` 帧 `92:36` 为长期可重导源 | WXG-T-604 |
+| `final/assets/detail/ui_dialog_bg_tall@2x.png`（原 `ui_detail_plaque@2x`，2026-11-22 订正改名）1162×2088 · 911 KB | **零生图**：Figma REST 节点 `95:116` @2x 导出；上游木牌纹理 = AI 高频木纹重铺（`plaque-texture-20261108` S3 定稿） | `my-skills/wxgame-figma/scripts/figma.mjs img` | ✅ 设计正本在册：`proposals/plaque-texture-20261108/source/dialog-v25b-750x1334-rgb.png` + 定稿 `out/ai-grain-plate4.png`；Figma 文件 `PBIK3RbfGlfzFsAnd97ZsP` 帧 `92:36` 为长期可重导源 | WXG-T-604 |
 | `final/assets/detail/ui_detail_start@2x.png` 652×308 · 284 KB | 同上：节点 `119:36` @2x 导出（木钮含烘字「开始」） | 同上 | ✅ 稿面截图 `proposals/level-detail-dialog-20261107/dialog-v25b-detail-s42.png`（seed 42 定稿对照）+ Figma 帧 `92:36` | WXG-T-604 |
 | `final/assets/detail/ui_detail_star_filled@2x.png` 116×120 · 9 KB<br>`ui_detail_star_empty@2x.png` 116×120 · 9 KB | 同上：节点 `133:37` / `134:409` @2x 导出 | 同上 | ✅ 同上（Figma 帧 `92:36`） | WXG-T-604 |
 

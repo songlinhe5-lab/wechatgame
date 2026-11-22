@@ -268,9 +268,9 @@ export function drawModalPlate(
     plate: Box,
     screenH: number,
     scrimAlpha: number = UI_SCRIM.alpha,
-    // `[WXG-T-1026]` 容器位图键参数化：详情/设置页走默认木牌（`plaque`）；选关页换通用
-    // 对话框长背景（`showcase` 键 = `ui_dialog_bg_tall`，用户 2026-11-21/22 令「替换成新的
-    // 背景图，其他不变」——几何/版式零改动，整图 SIMPLE 拉伸由设计侧接受）。缺图腿同构。
+    // `[WXG-T-1026/1027]` 容器位图键参数化：详情/设置页走默认木牌（`plaque`）；选关页换通用
+    // 对话框长背景（`dialogBg` 键 = `ui_dialog_bg_tall` 木牌图，与 `plaque` 同一件、不同层序）。
+    // 几何/版式零改动；缺图腿同构。橱窗图已还原为 `ui_detail_showcase`，不再充当容器。
     textureId: string = LEVEL_DETAIL_TEXTURES.plaque,
 ): void {
     builder.rect(0, 0, DESIGN_W, screenH, { fill: scrimFill(UI_SCRIM.overlay, scrimAlpha) });
