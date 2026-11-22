@@ -92,9 +92,19 @@ export const SEC_PER_STEP = 4.14;
  *
  * 现池校验（2026-10-25 **ACB + 12 槽**重测，steps）：L1 教学豁免｜L2=27 L3=26 L4=28 L5=27
  * L6=19 L7=34 L8=26 ∈ [7,37] ✅（余量最紧 = L7 34/37）｜boss L9=112、L10=378 ≥ 49 ✅。
+ *
+ * ── 2026-11-22 · 20 大关（A01「花间集」）沉盘重定标（WXG-T-982）──
+ * `NORMAL_STEPS_MAX` 37 → **160**：A01 九关是 32×32 单图（用户 2026-11-18 定珠面基准），
+ * 12 槽实测 steps 84–120（time 352–683s）⇒ 旧上沿 37（≈152s 工量）把整个 20 大关挡在关表外
+ * （门禁⑦ 当场红）。新上沿按「32×32 大盘 ≈6–9 min/关」口径取 160（现池最大 120，留 40 步余量）。
+ * ⚠ 语义变化如实登记：① 普通关工量上限由 ≈152s 放宽到 ≈662s；② boss 跳档判据
+ * （`BOSS_STEPS_MIN=49` 不动）在 20 大关下不再「高于全章普通关」——A01-P01=120 > boss P09=109，
+ * boss 身份改由 manifest `kind:"boss"` + 章末位定义，步数阈值仅作下限；③ 旧章 L1–L11 全部
+ * 落 [7,160] 不受影响；④ 本值属**开发期验证档**，上线前须按 `level-difficulty` 与 §5.0.1
+ * 协议重推（正本登记 = `levels-spec.md` §6 公式表 v0.7）。
  */
 export const NORMAL_STEPS_MIN = 7;
-export const NORMAL_STEPS_MAX = 37;
+export const NORMAL_STEPS_MAX = 160;
 export const BOSS_STEPS_MIN = 49;
 
 /**
@@ -388,7 +398,7 @@ export function nextTierFor(starsThisLevel: number): number {
  * ⚠️ **本值设计上「随表走」而关表由 beads-studio 逐张入关重建 ⇒ 9 是中途态、漂移必然复发**
  * ⇒ 已同批在 `tools/scripts/sync-levels-data.mjs` 加门禁断言⑤：声明了 `DEMO_LEVEL_COUNT` 的游戏，
  * 该值必须 == manifest `entries` 数，不等即 `levels:check` 硬红（此前只有事后单测红，无生成期拦截）。 */
-export const DEMO_LEVEL_COUNT = 11;
+export const DEMO_LEVEL_COUNT = 20;
 /**
  * 单关满星数（§3.7 星级 1–3 语义）。`computeClearStars` 的上限、S8 存档
  * `stars` 数组的逐项钳制上界（save-progress §2.2/§6）、通关画面总览的分母共用它。

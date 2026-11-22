@@ -120,11 +120,14 @@ describe('MainMenuPresenter（UI-40 走马灯状态机）', () => {
         p.release(20);
         p.step(20 + SNAP);
         expect(p.offset).toBe(0);
-        // 末页再 nudge 无效。
-        p.nudge(1, 1000);
-        p.step(1000 + SNAP);
-        p.nudge(1, 2000);
-        p.step(2000 + SNAP);
+        // 末页再 nudge 无效（页数 = 派生值，⛔ 不写死 3 —— K-152 版本快照断言）。
+        for (let i = 0; i < p.pages; i++) {
+            p.nudge(1, 1000 + i * 1000);
+            p.step(1000 + i * 1000 + SNAP);
+        }
+        expect(p.offset).toBe(p.pages - 1);
+        p.nudge(1, 20000);
+        p.step(20000 + SNAP);
         expect(p.offset).toBe(p.pages - 1);
     });
 });
