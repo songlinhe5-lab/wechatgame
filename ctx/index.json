@@ -25177,6 +25177,162 @@
       ]
     },
     {
+      "path": "games/beads/design/art/proposals/levels-20arcs-selection-20261117/A01-P08-dandelion/design-plan.md",
+      "tokens": 1601,
+      "lines": 85,
+      "sha256": "90e33bbd9bf51a21f53a79a255b3e619fdd9fcfd871d2ccb6fd957091207f1c9",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§A01-P08 蒲公英 · 色面分区 + 提示词草案（2026-11-22）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 86,
+          "tokens": 1580,
+          "summary": "",
+          "keywords": [
+            "A01",
+            "P08",
+            "蒲公英",
+            "色面分区",
+            "提示词草案"
+          ]
+        },
+        {
+          "anchor": "§任务谱系",
+          "level": 2,
+          "startLine": 3,
+          "endLine": 5,
+          "tokens": 26,
+          "summary": "WXG-T-974 → WXG-T-980 ／生图阶段 S2（母版生成），前 7/9 锁版已齐。",
+          "keywords": [
+            "WXG",
+            "任务谱系"
+          ]
+        },
+        {
+          "anchor": "§判据",
+          "level": 2,
+          "startLine": 6,
+          "endLine": 13,
+          "tokens": 135,
+          "summary": "G9：主体 70–82% × 70–82%（前 7 张中位 74.2% × 78.0%）",
+          "keywords": [
+            "判据"
+          ]
+        },
+        {
+          "anchor": "§candidates.json P08 原始候选",
+          "level": 2,
+          "startLine": 14,
+          "endLine": 17,
+          "tokens": 54,
+          "summary": "\"id\":\"P8\",\"name\":\"蒲公英\",\"desc\":\"放射绒球连细长直茎\",\"suggestedColors\":",
+          "keywords": [
+            "candidates",
+            "json",
+            "P08",
+            "name",
+            "desc",
+            "suggestedColors"
+          ]
+        },
+        {
+          "anchor": "§核心矛盾与解决",
+          "level": 2,
+          "startLine": 18,
+          "endLine": 22,
+          "tokens": 154,
+          "summary": "矛盾：绒球天生单色大圆（若全奶白 ⇒ 白色 40–50%，破 G12 主导上限），suggestedColors=3 也",
+          "keywords": [
+            "G12",
+            "suggestedColors",
+            "核心矛盾与解"
+          ]
+        },
+        {
+          "anchor": "§色面分区（画布 2048×2048，总 76%×78%）",
+          "level": 2,
+          "startLine": 23,
+          "endLine": 37,
+          "tokens": 218,
+          "summary": "绒球奶白射线 #FDF6E9 奶白 21% 28% ~120 格",
+          "keywords": [
+            "FDF6E9",
+            "色面分区",
+            "画布"
+          ]
+        },
+        {
+          "anchor": "§几何参数（相对于画布）",
+          "level": 2,
+          "startLine": 38,
+          "endLine": 48,
+          "tokens": 177,
+          "summary": "绒球（整体） 宽≈画布 62%、高≈画布 62%（上半部分） 略扁圆，上下 ratio ≈ 1:1",
+          "keywords": [
+            "ratio",
+            "几何参数",
+            "相对于画布"
+          ]
+        },
+        {
+          "anchor": "§提示词草案（T-00 · 平涂矢量）",
+          "level": 2,
+          "startLine": 49,
+          "endLine": 65,
+          "tokens": 353,
+          "summary": "",
+          "keywords": [
+            "提示词草案",
+            "平涂矢量"
+          ]
+        },
+        {
+          "anchor": "§风险点与预案",
+          "level": 2,
+          "startLine": 66,
+          "endLine": 74,
+          "tokens": 238,
+          "summary": "模型把射线画成长短不齐、产生缝隙（破单连通） 中 提示词强制「等宽、硬边、无飞絮、连成一体」；修复时行级腐蚀 + 最小凸",
+          "keywords": [
+            "风险点与预案"
+          ]
+        },
+        {
+          "anchor": "§32×32 量化后验收（studio draft=1 / mis=max / colors=6）",
+          "level": 2,
+          "startLine": 75,
+          "endLine": 83,
+          "tokens": 71,
+          "summary": "[ ] importable=true、blockers=[]",
+          "keywords": [
+            "studio",
+            "draft",
+            "mis",
+            "max",
+            "colors",
+            "importable"
+          ]
+        },
+        {
+          "anchor": "§下一步",
+          "level": 2,
+          "startLine": 84,
+          "endLine": 86,
+          "tokens": 56,
+          "summary": "用户确认草案 → 生 v1 → 跑 studio 32×32 c6 mis=max → 过 G9/G3/G12/G8/G",
+          "keywords": [
+            "studio",
+            "mis",
+            "max",
+            "G12",
+            "下一步"
+          ]
+        }
+      ]
+    },
+    {
       "path": "games/beads/design/art/proposals/levels-20arcs-selection-20261117/README.md",
       "tokens": 3619,
       "lines": 105,
