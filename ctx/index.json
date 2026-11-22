@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4260,
       "lines": 141,
-      "sha256": "288bbca6711cddbe6efe1ac791fbbc209db5d5ef843e36df94b0d41de9a9455d",
+      "sha256": "c37efabe3e44a5f7bf16444336955c3fe8761211272d8828903abc95c34768e4",
       "tier": "normal",
       "sections": [
         {
@@ -25333,6 +25333,127 @@
       ]
     },
     {
+      "path": "games/beads/design/art/proposals/levels-20arcs-selection-20261117/A01-P09-flower-king/design-plan.md",
+      "tokens": 1131,
+      "lines": 74,
+      "sha256": "b3a5fe7d6f1e4b3f9777bb752d6e6284e38866bcd2477fa2d68397cca592e4ba",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§A01-P09 花之王 · boss 母版设计稿（v1）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 75,
+          "tokens": 1115,
+          "summary": "任务谱系：WXG-T-981（沿 P08 980 顺延）",
+          "keywords": [
+            "A01",
+            "P09",
+            "boss",
+            "WXG",
+            "P08",
+            "花之王"
+          ]
+        },
+        {
+          "anchor": "§1 构图（2048² 母版，正视图，左右严格轴对称）",
+          "level": 2,
+          "startLine": 7,
+          "endLine": 20,
+          "tokens": 320,
+          "summary": "自顶向下四段，全部相接成单连通：",
+          "keywords": [
+            "构图",
+            "母版",
+            "正视图",
+            "左右严格轴对"
+          ]
+        },
+        {
+          "anchor": "§2 六色面积预算（目标 G12：主导 ≤40%，6 色全存活）",
+          "level": 2,
+          "startLine": 21,
+          "endLine": 35,
+          "tokens": 142,
+          "summary": "按上表几何估算（占主体面积）：",
+          "keywords": [
+            "G12",
+            "六色面积预算",
+            "目标",
+            "主导",
+            "色全存活"
+          ]
+        },
+        {
+          "anchor": "§3 例外登记",
+          "level": 2,
+          "startLine": 36,
+          "endLine": 40,
+          "tokens": 85,
+          "summary": "花心用深棕（catalog §A01 P9 明文），与 P02 向日葵同属「花心恒用柠黄」的 boss 级例外；以 5%",
+          "keywords": [
+            "catalog",
+            "A01",
+            "P02",
+            "boss",
+            "例外登记"
+          ]
+        },
+        {
+          "anchor": "§4 特有禁忌（catalog §A01 + 五令）",
+          "level": 2,
+          "startLine": 41,
+          "endLine": 48,
+          "tokens": 93,
+          "summary": "⛔ 渐变花瓣、花心高光、散落花瓣（破 G3 单连通）",
+          "keywords": [
+            "catalog",
+            "A01",
+            "特有禁忌",
+            "五令"
+          ]
+        },
+        {
+          "anchor": "§5 生图参数",
+          "level": 2,
+          "startLine": 49,
+          "endLine": 55,
+          "tokens": 35,
+          "summary": "",
+          "keywords": [
+            "生图参数"
+          ]
+        },
+        {
+          "anchor": "§6 验收 checklist（生成后）",
+          "level": 2,
+          "startLine": 56,
+          "endLine": 65,
+          "tokens": 115,
+          "summary": "[ ] G3 单连通：extract-alpha subject_single_connected=true",
+          "keywords": [
+            "checklist",
+            "extract",
+            "alpha",
+            "subject_single_connected",
+            "true",
+            "验收"
+          ]
+        },
+        {
+          "anchor": "§7 风险预判",
+          "level": 2,
+          "startLine": 66,
+          "endLine": 75,
+          "tokens": 152,
+          "summary": "模型把王冠画成金色渐变小皇冠 提示词写死柠黄单色 + 禁渐变/高光",
+          "keywords": [
+            "风险预判"
+          ]
+        }
+      ]
+    },
+    {
       "path": "games/beads/design/art/proposals/levels-20arcs-selection-20261117/README.md",
       "tokens": 3619,
       "lines": 105,
@@ -26089,9 +26210,9 @@
     },
     {
       "path": "games/beads/design/art/proposals/levels-20arcs-selection-20261117/series-spec.md",
-      "tokens": 9520,
+      "tokens": 9784,
       "lines": 161,
-      "sha256": "62c508d473d4d414b71477f5e42a023af949ecc8351b17c9e1958c081ade8b77",
+      "sha256": "905832e6b33060e4152c71ec6bd4c19f094dbab660439efdc66196e5dc39aeba",
       "tier": "normal",
       "sections": [
         {
@@ -26099,7 +26220,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 162,
-          "tokens": 9501,
+          "tokens": 9765,
           "summary": "本件性质：生图阶段的风格规格草案，沿用 20 大关题材甄选（WXG-T-974）谱系，已领 WXG-T-979、已改任务",
           "keywords": [
             "WXG",
@@ -26250,7 +26371,7 @@
           "level": 2,
           "startLine": 106,
           "endLine": 128,
-          "tokens": 748,
+          "tokens": 771,
           "summary": "每张图走四步：写提示词 → 用户确认 → 生图 → 用户确认效果；不满意则改提示词重生，循环到通过。每批附带三件事：",
           "keywords": [
             "逐张确认流程",
@@ -26293,14 +26414,14 @@
           "level": 2,
           "startLine": 150,
           "endLine": 162,
-          "tokens": 1685,
-          "summary": "已写 8 张的正式提示词（A01-P01–P08，含各版退场稿，全文见各批目录 response-meta*.json ",
+          "tokens": 1926,
+          "summary": "已写 9 张的正式提示词（A01-P01–P09，含各版退场稿，全文见各批目录 response-meta*.json ",
           "keywords": [
             "mis",
             "full",
             "A01",
             "P01",
-            "P08",
+            "P09",
             "response"
           ]
         }
@@ -126543,17 +126664,17 @@
     },
     {
       "path": "production/qa/token-plan-usage-ledger.md",
-      "tokens": 14582,
-      "lines": 196,
-      "sha256": "6bf3559245b17933e360536613e6c4110daf76843c401f288e1c759151dbe99d",
+      "tokens": 15030,
+      "lines": 198,
+      "sha256": "770b738c99ece0ce5e36646ec52820ce0194706cc31f42c66a185fef414e48e9",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Token Plan 生图用量台账（建账 2026-11-01）",
           "level": 1,
           "startLine": 1,
-          "endLine": 197,
-          "tokens": 14566,
+          "endLine": 199,
+          "tokens": 15014,
           "summary": "本件只管「花了多少次、出了几张图、留在哪」，是追加型台账（按时间序加行，⛔ 不回改历史行）。",
           "keywords": [
             "Token",
@@ -126651,8 +126772,8 @@
           "anchor": "§6 temp 生图存量（2026-11-01 清理一次，用户令「把 temp 里的生图都清理掉」）",
           "level": 2,
           "startLine": 100,
-          "endLine": 197,
-          "tokens": 9057,
+          "endLine": 199,
+          "tokens": 9505,
           "summary": "清理前 3642 张 / temp 共 2.3 GB",
           "keywords": [
             "temp",

@@ -1,0 +1,42 @@
+{
+  "draft": true,
+  "importable": true,
+  "blockers": [],
+  "colorsUsed": null,
+  "paletteHex": [
+    "#FDF6E9",
+    "#FFD23F",
+    "#F59B23",
+    "#3FBF6B",
+    "#E84C3D",
+    "#6B3E1E"
+  ],
+  "voidCells_report": 0,
+  "void_pattern": 614,
+  "per_color_cells": {
+    "#FDF6E9": 137,
+    "#FFD23F": 83,
+    "#F59B23": 51,
+    "#3FBF6B": 10,
+    "#E84C3D": 103,
+    "#6B3E1E": 26
+  },
+  "max_color_face_pct": 33.4,
+  "derangement": "MAXIMAL（M=410/410 错位，固定点 = 理论下限 F=0）",
+  "mis": {
+    "mode": "max",
+    "N": 410,
+    "m": 137,
+    "M": 410,
+    "F": 0,
+    "M_max": 410
+  },
+  "engine": {
+    "steps": 109,
+    "taps": 218,
+    "timeEst": 532,
+    "cleared": true
+  },
+  "fillable": 410,
+  "colorsUsed_report": 6
+}

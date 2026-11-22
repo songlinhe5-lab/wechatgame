@@ -1,0 +1,51 @@
+生成史 · 第 9 张正式母版 A01-P09「花之王」v1（boss；一次成图＋确定性修复）
+任务谱系：WXG-T-981 ／生图阶段 S2
+日期：2026-11-22
+性质：用户 2026-11-22 确认**锁版 v1**；未入关、未进 final/。A01 九关齐。
+判据正本：../series-spec.md §2 G1–G12 / §3 / §5 / §9；../series-spec-catalog.md §A01。
+
+【设计（design-plan.md）】
+四段相接：五角王冠（柠黄 #FFD23F＋深棕底带）＋ 外层 12 瓣（玫红 #E84C3D/奶白 #FDF6E9 交替）
+＋ 内层 8 瓣（柠黄/活力橙 #F59B23 交替，压外层之上）＋ 深棕 #6B3E1E 花心盘（柠黄点睛 5%）
+＋ 草绿 #3FBF6B 萼桩。居中轴对称，整株 74%×78%。
+例外登记：花心用深棕（catalog §A01 P9 明文，同 P02 花心例外）。
+
+【通道 / 参数 / 产出】
+token-plan ｜ qwen-image-3.0-pro ｜ prompt_extend=False / seed=42 / 2048²
+elapsed 16.9 s ｜ request_id 9f9c3d2a-fe01-45d0-8b82-8541c68451a4
+output_image_type qima_output_2k
+原始产出 a01p09-v1-s42.png → 抠图 a01p09-v1-s42-rgba.png
+原始抠图读数：G9 **70.95% × 90.28%**（萼桩垂到 y=1928）｜单连通 **false**（4 px 4-连通孤点）
+｜近黑残留 **1,659 px**（冠带下方一块暗红阴影，max(rgb)≤24）｜alpha0 63.479%。
+
+【确定性修复（零模型调用，fix-a01p09-v1.py）】
+1) 4 连通主分量（与 extract-alpha 的 PIL floodfill 同口径）；
+2) 深色像素（max<60）用最近非深色主体 RGB 就地填补（2,773 px，不删以避免体内空洞）；
+3) 萼桩截到花底 +180 px（flower_bottom=1633，cut y=1813）⇒ H 90.28%→86.2%；
+4) 横纵独立拉伸到 W 72.5% / H 79.5%（k_x=1.022 / k_y=0.940），4× 放大再 LANCZOS；
+5) α≥128 统一 255；halo 再填补（278 px）；
+5b) **边缘抗锯齿压平**（14,721 px，距边界 ≤2.5 px 的暗色环用内部最近色覆盖）
+   —— 花瓣尖暗红抗锯齿会在 32×32 量化为孤立深棕格，压平后深棕珠格 28→26（脏点清零）；
+6) 4 连通主分量复检。
+最终 a01p09-v1-s42-rgba-final.png：
+  G9 **72.51% × 79.49%**（bbox 276,137,1760,1764）｜四边留白 ≥11%｜单连通 **true**
+  ｜四角透明｜近黑残留 **0 px**｜alpha0 65.307%｜主体面积 57.64%。
+
+【studio 32×32 六色 mis=max（0 次 Token Plan 调用，draft=1）】
+请求 = POST /api/generate?cols=32&rows=32&board=a01p09v1-max-32-c6&palette=10&colors=6
+       &colorsmode=error&cellmode=mode&smooth=0&swaps=0&noframe=1&notrim=1&mis=max&draft=1
+draft = a01p09v1-max-32-c6-1795318171855-8b39
+判定 = importable **true** / blockers [] / voidCells 0 / 用色 **6**
+全错豆 = `mis {N:410, M:410, F:0}` ⇒ **F=0**（MAXIMAL derangement）
+色量 = 奶白 137 / 玫红 103 / 柠黄 83 / 活力橙 51 / 深棕 26 / 草绿 10 ⇒ 最大色面 **33.4%**（G12 ≤40 内）
+色板 = #FDF6E9 · #FFD23F · #F59B23 · #3FBF6B · #E84C3D · #6B3E1E
+引擎 = steps 109 / taps 218 / timeEst 532s / cleared true
+⚠️ colors=7 首跑多出 1 格赭棕 #A5652C 杂色（实选 7 色），改 colors=6 后六色干净 ⇒ 本张口径 colors=目标数。
+
+【已知观感取舍（用户 2026-11-22 裁定接受）】
+2048 母版五角王冠五尖清晰；32×32 珠面只有中间尖立起，其余四尖与冠带融为城垛状。
+用户选择「接受当前 v1」，不再程序化重绘、不重生 v2。
+
+【状态 / 下一步】
+**已锁版 v1**。A01 **9/9 全锁**（P01–P09 均 32×32、F=0；P08 为 4 色/46.1% 的已知例外）。
+下一步：9 关一次性建 A01 章（uid 预排 L00012–L00020），P09 为 boss；未入关、未进 final/。
