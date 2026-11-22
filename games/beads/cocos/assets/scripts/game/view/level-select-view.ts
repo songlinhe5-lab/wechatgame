@@ -13,7 +13,7 @@ import { DESIGN_H, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TEXTURES, LEVEL_DETAIL_TITLE_S
 import { type RenderModelBuilder } from '../../framework/index';
 import { type BeadsPalette, withAlpha } from './palette';
 import { UI_FONT, bodyFont } from './ui-theme';
-import { drawCloseInset, drawLevelSelectCell, drawModalPlate, menuBitmapReady } from './meta-widgets';
+import { drawCloseInset, drawLevelSelectCell, drawLevelSelectCellArt, drawModalPlate, menuBitmapReady } from './meta-widgets';
 import type { LevelSelectViewModel } from './level-select-view-model';
 
 const GEO = LEVEL_DETAIL_GEO;
@@ -89,12 +89,16 @@ export function drawLevelsView(
 
     // 3×3 格墙：`grid-1` 三态模板九格复用（位图就绪）；缺图 ⇒ 程序化木托盘降级腿。
     // 格框与命中同源（VM 透传 `levelsLayout` 的 `MetaButton.box`）⇒ 不重建布局。
-    // `[2026-11-21]` 九格改发段层：背板已提到容器 `BlitLayerUI`，若九格仍走容器默认段，
-    // 当前关的亮金内窗 / 红心（`Graphics`）会被背板盖住。段层整棵挂在 `Segments` 下
-    // ⇒ 自带 Graphics / BlitLayerUI 且恒在父容器 `BlitLayerUI` 之上，两侧同时成立。
+    // `[WXG-T-1030]` 用户令「九宫格的关卡图案不要盖住格子里的星星和标题」：T-1028 段内通道序
+    // = blit→graphics ⇒ 同段珠面 Graphics（`drawBeadFace`）盖住星 / 编号牌位图。拆层——
+    // 图案腿直发容器通道（容器序 blit < graphics < labels < segments ⇒ 背板之上、饰层段之下，
+    // 恢复 T-1028 前观感）；饰层（编号牌 + 星带）留 'hud' 段，整棵恒在容器通道之上（T-1016）。
+    for (let i = 0; i < vm.cellCount; i += 1) {
+        drawLevelSelectCellArt(builder, vm.cells[i]!, vm, palette);
+    }
     builder.beginSegment('hud');
     for (let i = 0; i < vm.cellCount; i += 1) {
-        drawLevelSelectCell(builder, vm.cells[i]!, vm, palette);
+        drawLevelSelectCell(builder, vm.cells[i]!, palette);
     }
     builder.endSegment();
 

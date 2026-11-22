@@ -151,41 +151,23 @@ function drawCellStars(
     }
 }
 
+/**
+ * `[WXG-T-1030]` 格内**饰层**（编号牌 + 数字 + 星带）：留在 'hud' 段内 ⇒ blit/labels 恒在
+ * 图案层（`drawLevelSelectCellArt`，容器 Graphics）之上 —— 用户令「九宫格的关卡图案不要盖住
+ * 格子里的星星和标题」：T-1028 段内通道序 = blit→graphics ⇒ 同段珠面 Graphics 盖住星 / 编号牌
+ * 位图；拆层后恢复 T-1028 前观感（星带压图案底缘 10，用户 2026-11-20 已许）。
+ */
 export function drawLevelSelectCell(
     builder: RenderModelBuilder,
     cell: LevelSelectCellViewModel,
-    // `[WXG-T-613]` 缩略切完整豆面档（盘面真实行列）⇒ `vm.thumbN`（聚合档参数）不再进本函数；
-    // `[WXG-T-621]` 用户令「用当前应用的珠面效果绘制缩略图」⇒ 从 VM 取 `beadStyle`
-    // （宿主每帧由 `MetaViewData.beadStyle` 投影）透传给珠面腿与盘面同肤。
-    vm: LevelSelectViewModel,
     palette: BeadsPalette,
 ): void {
     const { x, w, h } = cell.box;
     const y = cell.box.y + cell.pressDy;
-
-    // `[WXG-T-1016]` 用户令「格子里的高亮背板尺寸与 normal 态尺寸不一致，要同步」⇒ 九格背板
-    // 统一由 `drawLevelsView` 在段外容器 UI 层各发一次，几何逐格 = `cell.box`（158×181）。
-    // 本函数只留两件：① 缺图臂的同几何程序化底（段内，避免被 tray 盖住；K-108 不裸格）；
-    // ② 当前关高亮环。旧 4/8px 内缩亮金内窗退场 —— 那正是高亮态比 normal 窄 16px / 矮 4px
-    // 的来源；当前关改以高亮环表达，背板尺寸与 normal 态逐字一致。
-    if (!menuBitmapReady(LEVEL_SELECT_TEXTURES.cellNormal)) {
-        builder.rect(x, y, w, h, { fill: palette.woodSheen, radius: LEVEL_SELECT_GEO.gridStyle.radius });
-    }
-    // 按下换面（§4-R6 / reduceMotion「只换面」）保留，改用**同几何**整格叠色：
-    // ⛔ 不再用 8px 内缩内窗，否则按下 / 高亮态背板会比 normal 态小一圈。
-    if (cell.pressed) {
-        builder.rect(x, y, w, h, { fill: palette.cardPressed, radius: LEVEL_SELECT_GEO.gridStyle.radius });
-    }
-    if (cell.current) {
-        const r = LEVEL_SELECT_GEO.cellArt.ring;
-        const rx = x + r.insetX, ry = y + r.insetY, rw = w - r.insetX * 2, rh = h - r.insetY * 2;
-        builder.rect(rx, ry, rw, rh, { stroke: withAlpha(r.glow, r.glowAlpha), lineWidth: r.glowW, radius: r.radius });
-        builder.rect(rx, ry, rw, rh, { stroke: r.stroke, lineWidth: r.strokeW, radius: r.radius });
-    }
+    const a = LEVEL_SELECT_GEO.cellArt;
 
     // 编号牌（稿 `182:75 grid-brand`，65×35 贴格视觉顶）：`[WXG-T-611]` 背景读稿面资源；
     // 数字仍由 VM 程序化（稿 `176:67` 烘死「1」，九格复用会写死，⛔ 不切字）。缺图 ⇒ 程序化木牌回退。
-    const a = LEVEL_SELECT_GEO.cellArt;
     const bx = x + (w - a.brandW) / 2, by = y + h - a.brandH;
     if (menuBitmapReady(LEVEL_SELECT_TEXTURES.brand)) {
         builder.blit(LEVEL_SELECT_TEXTURES.brand, bx, by, a.brandW, a.brandH);
@@ -201,11 +183,43 @@ export function drawLevelSelectCell(
         });
     }
 
-    // 内容层：全部由 ViewModel 驱动（⛔ 不读 MetaViewData）。
-    // `[WXG-T-607]` 三带按稿分离：编号牌在格顶、图案槽在格中、星带在格底。
-    // `[2026-11-20]` 用户令「直接用锁纹理代替缩略图，锁的位置靠下一点，因为下面没有三个星星」
-    // ⇒ 未解锁/越界空槽格：位图就绪时整枚铺稿面圆珠锁（等比，⛔ 不拉伸），相对图案槽下移
-    // `lockDrop`（锁格隐藏三星，星带空出的高度还给锁）；缺图 ⇒ 灰珠阵 / slot 占位降级腿。
+    if (!cell.locked && cell.levelIdx !== undefined && cell.level !== undefined) {
+        drawCellStars(builder, cell, palette);
+    }
+}
+
+/**
+ * `[WXG-T-1030]` 格内**图案层**（珠面缩略 / 锁 / 占位槽 + 按下换面 + 高亮环）：
+ * 由 `drawLevelsView` 直发容器通道（⛔ 不进段）—— 容器序 blit < graphics < labels < segments
+ * ⇒ 九格背板（容器 blit）之上、饰层段之下；几何 / 分支逐字搬运自原单函数（T-1016 注解随迁）。
+ */
+export function drawLevelSelectCellArt(
+    builder: RenderModelBuilder,
+    cell: LevelSelectCellViewModel,
+    vm: LevelSelectViewModel,
+    palette: BeadsPalette,
+): void {
+    const { x, w, h } = cell.box;
+    const y = cell.box.y + cell.pressDy;
+
+    // `[WXG-T-1016]` 缺图臂同几何程序化底（K-108 不裸格）；T-1028 后容器 Graphics 在 tray 之上。
+    if (!menuBitmapReady(LEVEL_SELECT_TEXTURES.cellNormal)) {
+        builder.rect(x, y, w, h, { fill: palette.woodSheen, radius: LEVEL_SELECT_GEO.gridStyle.radius });
+    }
+    // 按下换面（§4-R6 / reduceMotion「只换面」）：同几何整格叠色。
+    if (cell.pressed) {
+        builder.rect(x, y, w, h, { fill: palette.cardPressed, radius: LEVEL_SELECT_GEO.gridStyle.radius });
+    }
+    if (cell.current) {
+        const r = LEVEL_SELECT_GEO.cellArt.ring;
+        const rx = x + r.insetX, ry = y + r.insetY, rw = w - r.insetX * 2, rh = h - r.insetY * 2;
+        builder.rect(rx, ry, rw, rh, { stroke: withAlpha(r.glow, r.glowAlpha), lineWidth: r.glowW, radius: r.radius });
+        builder.rect(rx, ry, rw, rh, { stroke: r.stroke, lineWidth: r.strokeW, radius: r.radius });
+    }
+
+    // `[2026-11-20]` 用户令「直接用锁纹理代替缩略图，锁的位置靠下一点」⇒ 锁格隐藏三星，
+    // 整枚锁纹理相对图案槽下移 `lockDrop`；缺图 ⇒ 灰珠阵 / slot 占位降级腿。
+    const a = LEVEL_SELECT_GEO.cellArt;
     const ix = x + a.imageLeft;
     const iy = y + (h - a.imageTopDown - a.imageH);
     if (cell.locked || cell.levelIdx === undefined) {
@@ -222,9 +236,7 @@ export function drawLevelSelectCell(
     }
     if (cell.level !== undefined) {
         drawBeadFace(builder, cell.level, ix, iy, a.imageW, a.imageH, palette, undefined, vm.beadStyle, vm.beadSize, 'center', true);
-        drawCellStars(builder, cell, palette);
     }
-    // `[WXG-T-610]` 当前关由亮金格底表达；旧黄铜描边随 T-611 降级腿一并退场（K-053 留档）。
 }
 
 /**

@@ -15,6 +15,30 @@
 
 ---
 
+## WXG-T-1030
+
+**九宫格图案不盖星星与编号牌：格子绘制拆图案 / 饰层两腿** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-22）
+
+### 1. 背景与根因
+
+- 承用户「九宫格的关卡图案不要盖住格子里的星星和标题」。
+- **根因 = T-1028 段内通道序翻转的又一副作用**：`UI_SCOPE_CHANNEL_ORDER = [blit, graphics, labels, segments]` 后，'hud' 段内珠面缩略（`drawBeadFace` 全 `builder.rect` ⇒ Graphics 通道）画在星带 / 编号牌位图（blit 通道，段内先发）**之上** ⇒ 图案盖住星与标题牌。T-1028 前序（Graphics→blit）时星牌在上，用户 2026-11-20「底部星星覆盖一点也没有问题」即基于该观感。
+
+### 2. 落地（`meta-widgets.ts` + `level-select-view.ts`）
+
+- `drawLevelSelectCell` 拆两腿（几何 / 分支逐字搬运，零版式改动）：
+  - **图案腿 `drawLevelSelectCellArt`**（珠面缩略 / 锁 / 占位槽 + 按下换面 + 高亮环 + 缺图程序化底）：由 `drawLevelsView` **移出段、直发容器通道** —— 容器序 blit < graphics < labels < segments ⇒ 九格背板（容器 BlitLayerUI）之上、饰层段之下；K-108「缺图不裸格」改由容器序保证（T-1028 后容器 Graphics 在 tray 之上）。
+  - **饰层 `drawLevelSelectCell`**（编号牌位图 + 全局关号数字 + 星带）：留 'hud' 段，段内 blit/labels 恒在容器 Graphics 之上。
+- ⛔ 不新建段排先后：段序由 `UI_SEGMENT_ORDER = [page, hud, modal, toast]` 枚举固定（`ui-scope-tree.ts` 按 `indexOf` 落 sibling），非创建序。段名 'hud' 保留不动。
+
+### 3. 测试与取证
+
+- 新增 `arc-level-select-page.test.ts` 层序判据：首格珠面块序列（`drawBeadFace` 同参复算）**先于** 'hud' 段；编号牌数字与星带文字在段内。
+- `level-select-view-model.test.ts` 2 例改口径：高亮环 / 缺图背板断言从「须在段内」改为「段外容器 Graphics、先于饰层段、后于 tray」。
+- `tsc --noEmit` 绿（`bot-policy.test.ts` 3 条属并发批遗留，不夹带）；全量 beads 仅 ui-golden `level-select` / `level-select-mid` 两帧漂移（预期，待 worktree 重抓）；镜像 4 件经 `framework:sync` 同步。
+
+---
+
 ## WXG-T-1029
 
 **弹窗蒙版上收 UiRoot 平级前置容器，置背板之下** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-22）

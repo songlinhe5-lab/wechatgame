@@ -253,4 +253,36 @@ describe('WXG-T-605 · 格内与转场', () => {
         const plate2 = rest.find((c) => c.kind === 'rect' && c.w === 581 && c.h === 1044) as { alpha?: number };
         expect(plate2.alpha).toBeUndefined();
     });
+
+    it('`[WXG-T-1030]` 图案腿在 \'hud\' 段外先发 ⇒ 星带 / 编号牌不被珠面图案盖住', () => {
+        const cmds = modalFrame(dataFor());
+        const hudAt = cmds.findIndex(
+            (c) => c.kind === 'segment' && (c as unknown as { segment?: string }).segment === 'hud',
+        );
+        expect(hudAt).toBeGreaterThanOrEqual(0);
+        // 珠面图案（首格 flat 块序列，与 drawBeadFace 同参复算）必须整体先于 'hud' 段：
+        // 容器序 blit < graphics < labels < segments ⇒ 段内星 / 编号牌恒在图案之上。
+        const first = cells()[0]!.box;
+        const a = LEVEL_SELECT_GEO.cellArt;
+        const ref = new RenderModelBuilder(DESIGN_W, DESIGN_H);
+        ref.begin();
+        drawBeadFace(
+            ref, LEVELS[0]!,
+            first.x + a.imageLeft,
+            first.y + (first.h - a.imageTopDown - a.imageH),
+            a.imageW, a.imageH,
+            DEFAULT_PALETTE,
+            undefined, undefined, undefined, 'center', true,
+        );
+        const refSigs = ref.end().commands.map((c) => JSON.stringify(c));
+        const sigs = cmds.map((c) => JSON.stringify(c));
+        const artAt = sigs.indexOf(refSigs[0]!);
+        expect(artAt).toBeGreaterThanOrEqual(0);
+        expect(artAt, '珠面图案先于 hud 段（容器 Graphics）').toBeLessThan(hudAt);
+        // 饰层在 'hud' 段内：编号牌数字（全局关号 1）与首格星带文字都晚于段开始。
+        const numAt = cmds.findIndex((c) => c.kind === 'text' && (c as { text?: string }).text === '1');
+        expect(numAt, '编号牌数字在 hud 段内').toBeGreaterThan(hudAt);
+        const starAt = cmds.findIndex((c) => c.kind === 'text' && (c as { text?: string }).text === '☆☆☆');
+        expect(starAt, '星带文字在 hud 段内').toBeGreaterThan(hudAt);
+    });
 });

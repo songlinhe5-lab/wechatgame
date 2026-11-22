@@ -191,10 +191,10 @@ describe('选关页大背景位图层序', () => {
         expect(BELOW_GRAPHICS_TEXTURE_IDS.has(LEVEL_DETAIL_TEXTURES.dialogBg), '通用长背景走容器 UI 层，不压 Graphics').toBe(false);
     });
 
-    it('[2026-11-21] 背板在段前发、九格整体落段层 ⇒ 当前关程序化红心不被背板盖住', () => {
-        // 容器子节点序 = Graphics → BlitLayerUI → Labels → Segments。背板提到 `BlitLayerUI` 后
-        // 会盖住容器默认 Graphics 里的亮金内窗 / 红心；把九格改发到 `Segments` 下的段层，
-        // 段层整棵（含自己的 Graphics）恒在父容器 BlitLayerUI 之上 ⇒ 两侧同时成立。
+    it('`[WXG-T-1030]` 图案层（含高亮环）落容器 Graphics（段外先发），饰层（编号牌）留段层', () => {
+        // T-1028 后容器序 = blit → Graphics → Labels → Segments。T-1030 用户令「图案不要盖住
+        // 星星和标题」⇒ 珠面图案 / 高亮环从段内移出、直发容器 Graphics：背板（容器 blit）之上、
+        // 饰层段之下；段内 blit→graphics 若与图案同段会盖住星 / 编号牌（正是用户指的缺陷）。
         const cmds = frame(() => true);
         const trayAt = cmds.findIndex((c) => c.kind === 'blit' && (c as { textureId?: string }).textureId === LEVEL_SELECT_TEXTURES.tray);
         const segAt = cmds.findIndex((c) => c.kind === 'segment');
@@ -204,10 +204,10 @@ describe('选关页大背景位图层序', () => {
             && (c as { textureId?: string }).textureId === LEVEL_SELECT_TEXTURES.brand
             && i > segAt && i < segEndAt);
         expect(trayAt, '背板必须发出').toBeGreaterThanOrEqual(0);
-        expect(segAt, '九格须开段层，且背板在段之前发').toBeGreaterThan(trayAt);
+        expect(segAt, '饰层须开段层，且背板在段之前发').toBeGreaterThan(trayAt);
         expect(segEndAt, '段须闭合').toBeGreaterThan(segAt);
-        expect(ringAt, '当前关高亮环（Graphics）须落在段内').toBeGreaterThan(segAt);
-        expect(ringAt, '当前关高亮环须在段闭合前').toBeLessThan(segEndAt);
+        expect(ringAt, '高亮环在段外（容器 Graphics）').toBeLessThan(segAt);
+        expect(ringAt, '高亮环在背板之后（不被 tray 盖住）').toBeGreaterThan(trayAt);
         expect(brands.length, '九格编号牌位图须整体在段层').toBe(9);
     });
 
@@ -258,8 +258,10 @@ describe('选关页大背景位图层序', () => {
             const hit = cmds.findIndex((c) => c.kind === 'rect'
                 && c.x === b.x && c.y === b.y && c.w === b.w && c.h === b.h);
             expect(hit, `cell[${i}] 缺图仍有同几何程序化背板（K-108 不裸格）`).toBeGreaterThanOrEqual(0);
-            expect(hit, `cell[${i}] 背板须在段内，否则被容器 BlitLayerUI 的 tray 盖住`).toBeGreaterThan(segAt);
-            expect(hit, `cell[${i}] 背板须在段闭合前`).toBeLessThan(segEndAt);
+            // `[WXG-T-1030]` 图案层移出段、直发容器 Graphics；T-1028 后容器 Graphics 在 tray
+            // （容器 BlitLayerUI）之上 ⇒ K-108 的「不裸格」约束由容器序保证，不再依赖段层。
+            expect(hit, `cell[${i}] 背板在段外容器 Graphics（先于饰层段）`).toBeLessThan(segAt);
+            expect(hit, `cell[${i}] 背板在 tray 位图之后（不被 tray 盖住）`).toBeGreaterThan(0);
         }
         expect(
             cmds.filter((c) => c.kind === 'rect' && 'stroke' in c && c.stroke === '#FFF0B0' && c.lineWidth === 4),
