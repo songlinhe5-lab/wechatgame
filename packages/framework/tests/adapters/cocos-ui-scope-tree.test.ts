@@ -16,6 +16,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
   UI_DEBUG_SCOPE_ID,
+  UI_SCOPE_CHANNEL_ORDER,
   UI_SCOPE_TOP_MOST_SIBLING,
   UiScopeTree,
   type UiScopeTreeHooks,
@@ -71,6 +72,11 @@ function makeTree(extra: Partial<UiScopeTreeHooks> = {}) {
 }
 
 describe('UI-60 P1 — 层树内核', () => {
+  it('[WXG-T-1028] 容器四通道顺序：位图在矢量之前（否则木牌盖掉程序化关闭叉）', () => {
+    expect(UI_SCOPE_CHANNEL_ORDER).toEqual(['blit', 'graphics', 'labels', 'segments']);
+    expect(UI_SCOPE_CHANNEL_ORDER.indexOf('blit')).toBeLessThan(UI_SCOPE_CHANNEL_ORDER.indexOf('graphics'));
+  });
+
   it('未发层级命令 ⇒ 当前层就是旧那两个提交体，一个节点也不建', () => {
     const { tree, created } = makeTree();
     tree.beginFrame();

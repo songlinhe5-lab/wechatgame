@@ -15,6 +15,35 @@
 
 ---
 
+## WXG-T-1028
+
+**修容器层序：位图腿改排矢量之前，恢复关闭叉 / 缩略图 / 道具框** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-22）
+
+### 1. 背景与排障（systematic-debugging 四阶段）
+
+- 用户真机反馈四项缺失：选关面板右上叉、关卡详情对话框背板、缩略图、三个道具背景框。
+- **Phase 1（根因）**：容器内四通道固定顺序 `Graphics → BlitLayerUI → Labels → Segments`（[bindings.ts](packages/framework/src/adapters/cocos/bindings.ts) `_createScope`）⇒ Cocos UI 子节点序即绘制序，位图层在矢量层**之后** ⇒ 木牌 / 橱窗 / 道具底框位图盖住同容器的程序化叉 / 标题 / 星级框。`_createClip` 早已是正确序（blit 在前），两处真源漂移。
+- **排除项**：运行日志 `静态位图 53/53 已装载`、`masks=4/4`、资产门零断链 ⇒ 不是缺图；改名前后历史帧（T-1018/T-1019/T-1026）同症 ⇒ 不是 T-1027 引入，起于 T-1026 换层。
+- **单变量实验（决定性）**：运行时把木牌节点从 `BlitLayerUI` 移到 `Graphics` 之前，其余不动 ⇒ 右上木框 ✕ 立即完整出现（`temp/ui-shot/layer-proof-1027-plate-below.png`）。
+
+### 2. 落地
+
+- 引擎无关内核 `ui-scope-tree.ts` 导出 `UI_SCOPE_CHANNEL_ORDER = ['blit','graphics','labels','segments']`（真源常量，注释写明「位图做底、矢量做前景」）；`_createScope` 按此序建节点，与 `_createClip` 同序；两处文档注释同步。
+- 静态门 `cocos-scope-channel-order.test.ts`：源码级解析两函数的 `addChild` 顺序并钉死到常量——`bindings.ts` 因 import `cc` 被 Node 测试排除，故用源码断言替代真节点测试（先红：实测 `Graphics,BlitLayerUI,...` 与期望相反；修复后绿）。
+- `framework:sync` 同步三游戏镜像（beads / breakout 写入 3 / 2 件）。
+
+### 3. 取证
+
+- framework 全量 **54 文件 / 597 测试全绿**（含新门 3 项）；`pnpm run typecheck` 绿；`check:arch` OK（1 条既有 L1 警告）。
+- 双平台重建 `build:cocos:web` / `build:cocos` exit 0。
+- 实帧（带缓存绕过 `?t=`）：`temp/ui-shot/verify-1028-levelselect.png` 子节点序实测 `BlitLayerUI,Graphics,Labels,Segments`，右上木框 ✕ 恢复；`verify-1028-detail.png` 红心珠面缩略恢复、三个道具暗色底框恢复。
+- ⛔ 全量 `verify` 本轮 **21 PASS / 3 FAIL**（日志 `temp/verify-1028.log`）：`levels:check`、`test`（tuning.test / level-import 的 `SEC_PER_STEP` 3 vs 期望 4.14）、`check:frozen-values`（time=43 派生不符）——三项均为并发会话 WXG-T-983「A01 入关收节奏」把 4.14→3.0、20 关 JSON 重定标所致，`git diff` 已确认属其改动，本批未触碰 tuning / levels，不代为修复、不夹带。
+
+### 4. 遗留
+
+- 用户所列「关卡详情对话框背板」在实帧里是被橱窗盖住大部分、木牌底纹实际存在（放大图可见），如仍认为缺失需用户指明期望形态。
+- 真机扫码仍待：本批改 Cocos 真节点树层序，浏览器实帧已证渲染层，真机宿主需用户扫码复核。
+
 ## WXG-T-1027
 
 **订正对话框长背景资源（木牌归位，去选关橱窗）** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-22）

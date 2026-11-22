@@ -351,11 +351,13 @@ export class Bootstrap extends Component {
    *
    * ```
    * UI:<key>            ← 分组节点，兄弟位 = 内核给的 siblingIndex
+   * ├── BlitLayerUI     ← 本作用域位图腿（⚠ 在 Graphics 之前：位图做底、矢量做前景）
    * ├── Graphics        ← 本作用域矢量（父节点自身的 Graphics 先于其子节点 ⇒ 恒在段之下）
-   * ├── BlitLayerUI     ← 本作用域位图腿
    * ├── Labels          ← 本作用域标签池（DEC-5：sibling 序按帧内第 n 条 text）
    * └── Segments        ← 段的父（内核把它当不透明 `handle` 再传回来）
    * ```
+   * `[WXG-T-1028]` 上述四通道顺序真源 = `UI_SCOPE_CHANNEL_ORDER`（本函数与 `_createClip`
+   * 同序，静态门 `cocos-scope-channel-order.test.ts` 钉死，⛔ 不得各写一遍）。
    *
    * ⚠ `Segments` 必须是**独立子节点**：段按 `UI_SEGMENT_ORDER` 用 `setSiblingIndex(0..3)` 落位，
    * 若与上面三条通道同父，`setSiblingIndex(0)` 会把段插到自己默认段的通道**之前** ⇒ 段被
@@ -366,11 +368,14 @@ export class Bootstrap extends Component {
     parent.addChild(group);
     // 恒置顶容器给的是 `UI_SCOPE_TOP_MOST_SIBLING`（超大哨兵）⇒ 必须 clamp 到末位。
     group.setSiblingIndex(Math.min(siblingIndex, parent.children.length - 1));
+    // `[WXG-T-1028]` 通道序统一走 `UI_SCOPE_CHANNEL_ORDER`：blit 必须在 Graphics 之前，
+    // 否则容器内静态位图（木牌 / 橱窗 / 道具底框）盖掉同容器程序化矢量（右上关闭叉 / 标题 / 星级框）。
+    // 曾与 `_createClip` 一错一对（T-1026 起四项缺失），现由静态门钉死两处同序。
+    const blitNode = new Node('BlitLayerUI');
+    group.addChild(blitNode);
     const penNode = new Node('Graphics');
     group.addChild(penNode);
     const graphics = penNode.addComponent(Graphics);
-    const blitNode = new Node('BlitLayerUI');
-    group.addChild(blitNode);
     const labelRoot = new Node('Labels');
     group.addChild(labelRoot);
     const segments = new Node('Segments');

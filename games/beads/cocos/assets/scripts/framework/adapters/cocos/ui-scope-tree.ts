@@ -23,6 +23,20 @@ import { UI_SEGMENT_ORDER, type UiSegment } from '../../core/render/render-model
 import type { CocosUiScopeHostLike, CocosUiScopeLike } from './cocos-renderer';
 
 /**
+ * `[WXG-T-1028]` 容器 / 裁切子树里**四通道的固定子节点顺序**（真源，宿主按此建节点）。
+ *
+ * ⚠ 顺序 = Cocos UI 绘制序：先画者被后画者盖。`blit` 必须在 `graphics` **之前**，否则容器内
+ * 的静态位图（木牌 / 橱窗 / 道具底框）会盖住同容器的程序化矢量（右上关闭叉 / 标题 / 星级框）
+ * ⇒ 后者整片消失（T-1026 起真机与实帧同症，2026-11-22 用户实测四项缺失）。`segments` 恒末位
+ * ⇒ 段层整棵在父容器三通道之上（ADR-0033 DEC-4）。
+ *
+ * ⛔ 不要靠各宿主各写一遍 `addChild` 顺序：两处真源必然漂移（`_createScope` 与 `_createClip`
+ * 就曾一错一对）。宿主统一遍历本常量建节点。
+ */
+export const UI_SCOPE_CHANNEL_ORDER = ['blit', 'graphics', 'labels', 'segments'] as const;
+export type UiScopeChannel = (typeof UI_SCOPE_CHANNEL_ORDER)[number];
+
+/**
  * 一个作用域 = 一对全通道提交体（矢量 + 标签）＋ 承载节点 ＋ 可选位图腿父节点。
  * `handle` 由宿主创建（cc 侧 = 那个 `Node`），内核只把它当不透明值转交，⛔ 不解读。
  */
