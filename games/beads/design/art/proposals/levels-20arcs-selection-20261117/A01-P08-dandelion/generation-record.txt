@@ -1,0 +1,55 @@
+生成史 · 第 8 张正式母版 A01-P08「蒲公英」v1（射线绒球方案；一次成图＋确定性修复）
+任务谱系：WXG-T-980 ／生图阶段 S2
+日期：2026-11-22
+性质：用户 2026-11-22 确认**锁版 v1**；未入关、未进 final/。
+判据正本：../series-spec.md §2 G1–G12 / §3 / §5 / §9；../series-spec-catalog.md §A01。
+
+【设计（design-plan.md）】
+5 色分区：奶白 #FDF6E9 21%／柠黄 #FFD23F 21%／草绿 #3FBF6B 11%／深棕 #6B3E1E 9%／
+活力橙 #F59B23 7%（合计 69%，主导 ≤31%，五色最小 ΔE 62.5 出现在黄-橙）。
+禁忌（catalog §A01）：⛔ 飞絮（破单连通）、⛔ 散射线；射线须紧贴花盘、≥3 格宽。
+
+【通道 / 参数 / 产出】
+token-plan ｜ qwen-image-3.0-pro ｜ prompt_extend=False / seed=42 / 2048²
+elapsed 17.6 s ｜ request_id 57731d0f-895b-4bdd-98e4-5a86810e01c2
+output_image_type qima_output_2k
+提示词要点：28 条等宽射线严格白/黄交替（14+14）、球宽高各≈62%、花盘 16%＋橙斑 9%、
+草绿短茎 6%×22%、整株 74%×78%、四边留白 ≥11%、禁飞絮/散落/渐变。
+原始产出 a01p08-v1-s42.png → 抠图 a01p08-v1-s42-rgba.png
+原始抠图读数：G9 **61.72% × 93.36%**（球窄、茎戳到底）｜单连通 **false**（15 颗 1–4 px 孤点）
+｜近黑残留 0 px ｜alpha0 69.41%。
+
+【确定性几何修复（零模型调用，fix-a01p08-v1.py）】
+1) 擦除 <100 px 孤点（7 个分量）⇒ 去除模型飞絮碎点；
+2) 茎底裁到 y=1570（画布 76.6% 处）；
+3) 横纵**独立**拉伸到 G9 目标：content 1264×1434，k_x=1.199（W→74%）、k_y=1.114（H→78%），
+   4× 放大再 LANCZOS 缩回保清晰；
+4) α≥128 统一 255；深色 halo（max<60，1118 px）用**最近非 halo 主体 RGB 就地填补**
+   —— 不置 α=0：置零会在体内造空洞，平铺黑底后成 443 px 近黑孤岛，破 G8；
+5) **4 连通** label（与 extract-alpha 的 PIL floodfill 同口径），只留主分量（≥10000 px）
+   —— 前版用 8 连通，遗留 4 px 对角孤点（431,297 / 1774,749 两簇），extract-alpha 判 conn=false。
+最终 a01p08-v1-s42-rgba-final.png：
+  G9 **73.93% × 77.98%**（bbox 261,35,1774,1631）｜四边留白 ≥11%｜单连通 **true**
+  ｜四角透明｜近黑残留 **0 px**｜alpha0 60.048%｜主体面积 57.65%。
+
+【studio 32×32 五色 mis=max（0 次 Token Plan 调用，draft=1）】
+请求 = POST /api/generate?cols=32&rows=32&board=a01p08v1-max-32-c5&palette=10&colors=5
+       &colorsmode=error&cellmode=mode&smooth=0&swaps=0&noframe=1&notrim=1&mis=max&draft=1
+判定 = importable **true** / blockers [] / voidCells 0 / 用色 **4**
+全错豆 = `mis {N:458, M:458, F:0}` ⇒ **F=0**（MAXIMAL derangement）
+色量 = 奶白 211 / 柠黄 211 / 深棕 20 / 草绿 16 ⇒ 最大色面 **46.1%**
+色板 = #FDF6E9 · #FFD23F · #3FBF6B · #6B3E1E（**无活力橙**）
+32×32 预览 = a01p08-v1-max-32-c5-beads-plain.png
+
+【⚠️ G12 偏差（登记为已知欠账）】
+现象：studio 只聚 4 色、缺活力橙；最大色面 46.1% > G12 的 40%。
+根因：v1 实测 奶白 40.6% + 柠黄 41.4% + 近白 4.6% ≈ 87%（设计合计 42%）；橙斑仅 1.1%
+（设计 7%），黄色射线过密把橙色吸收进黄簇。
+修复尝试（recolor-v1.py，0 调用）：白→棕 306,680 px ＋ 黄→橙 92,783 px；
+结果 studio 只聚 **3 色**且 importable=false（blockers：用色 3 < 4 BOOT 下限），放弃。
+用户裁定：**锁版 v1**；G12 欠账留待 P09 boss 完成后统一评估是否出 v2。
+
+【状态 / 下一步】
+**已锁版 v1**（用户 2026-11-22 裁定）。A01 前 **8/9** 就绪（P01–P08 均 32×32、F=0；
+P08 为唯一 principled 例外：4 色 / 最大色面 46.1%）。
+下一步 P09 花之王 boss；9 关齐后一次性建 A01 章（uid 预排 L00012–L00020）。

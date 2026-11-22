@@ -1,5 +1,5 @@
 {
-  "id": "a01p08v1-max-32-c5-1795316842837-64e9",
+  "id": "a01p08v1-max-32-c5-1795317278429-608a",
   "board": "a01p08v1-max-32-c5",
   "cols": 32,
   "rows": 32,
@@ -8,7 +8,7 @@
   "colors": 4,
   "swaps": 0,
   "misMode": "max",
-  "createdAt": "2026-11-22T03:07:23.607Z",
+  "createdAt": "2026-11-22T03:14:39.187Z",
   "thumb": null,
   "levelDraft": {
     "cols": 32,
@@ -227,8 +227,8 @@
       ]
     },
     "colorError": {
-      "beforeColorLimit": 45.7,
-      "final": 45.7
+      "beforeColorLimit": 45.9,
+      "final": 45.9
     },
     "clusteringBefore": {
       "blocks": 11,
