@@ -3,7 +3,7 @@
   "name": "郁金香",
   "cols": 32,
   "rows": 32,
-  "time": 352,
+  "time": 255,
   "cycleProfile": "long",
   "pricing": {
     "source": "bot",
@@ -22,7 +22,7 @@
       "directFills": 40,
       "retrieves": 12
     },
-    "secPerStep": 4.14,
+    "secPerStep": 3.0,
     "tierK": 0.85,
     "clamped": false,
     "cleared": true

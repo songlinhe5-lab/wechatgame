@@ -3,7 +3,7 @@
   "name": "studio-3-eddc",
   "cols": 10,
   "rows": 13,
-  "time": 132,
+  "time": 96,
   "cycleProfile": "short",
   "pricing": {
     "source": "bot",
@@ -22,7 +22,7 @@
       "directFills": 12,
       "retrieves": 4
     },
-    "secPerStep": 4.14,
+    "secPerStep": 3.0,
     "tierK": 0.85,
     "clamped": false,
     "cleared": true

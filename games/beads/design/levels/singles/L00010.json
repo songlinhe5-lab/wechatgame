@@ -3,7 +3,7 @@
   "name": "photo32-smoke-boss",
   "cols": 32,
   "rows": 32,
-  "time": 1842,
+  "time": 1335,
   "cycleProfile": "short",
   "pricing": {
     "source": "bot",
@@ -22,7 +22,7 @@
       "directFills": 167,
       "retrieves": 44
     },
-    "secPerStep": 4.14,
+    "secPerStep": 3.0,
     "tierK": 0.85,
     "clamped": false,
     "cleared": true

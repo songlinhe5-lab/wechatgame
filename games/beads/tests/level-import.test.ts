@@ -42,19 +42,19 @@ function draftOf(over: Partial<LevelDraft> = {}): LevelDraft {
 }
 
 describe('WXG-T-179 · level-import 转换与定价', () => {
-    it('measuredLevelTime：步数 × SEC_PER_STEP ÷ 2★系数（公式 v0.5，§3.5 v1.85）—— 锚值 / clamp / 非法输入', () => {
-        // 锚：109 个批量动作 × 4.14s ⇒ need = ceil(451.26) = 452s ⇒ ÷0.85 再 ceil = **532s**（1★ 时钟）。
+    it('measuredLevelTime：步数 × SEC_PER_STEP ÷ 2★系数（公式 v0.5，§3.5 v2.02）—— 锚值 / clamp / 非法输入', () => {
+        // 锚：109 个批量动作 × 3.0s ⇒ need = ceil(327) = 327s ⇒ ÷0.85 再 ceil = **385s**（1★ 时钟）。
         // 语义 = 「基础 12 槽的步数刚好塞满 2★ 档」⇒ 2★ 是紧平衡、3★ 要靠扩容省步数。
         // ⚠️ difficulty 的分母 = `LEVEL_TIME_MAX`（开发期 2500）⇒ D 不可跨档比较。
-        expect(measuredLevelTime(109)).toEqual({ time: 532, difficulty: 21, clamped: false });
+        expect(measuredLevelTime(109)).toEqual({ time: 385, difficulty: 15, clamped: false });
         // `ceil` 的保证：2★ 档预算**恒 ≥** 定价步数（改 round 就会把边沿关判成「2★ 拿不到」）。
         expect(tierStepBudget(measuredLevelTime(109).time, 2)).toBeGreaterThanOrEqual(109);
         // 单关系数进 tierStepBudget：L9 的 3★ 预算 = 55 步
         // （48 槽最省可达 50 步 + 5 步余量；24 槽最省 71 步 ⇒ 24 槽必不够 ⇒ 必须开 48）
-        expect(tierStepBudget(546, 3)).toBe(92); // 全局 0.70 ⇒ 382s ⇒ 92 步
-        expect(tierStepBudget(546, 3, [1, 0.85, 0.4176])).toBe(55); // 单关 0.4176 ⇒ 228s ⇒ 55 步
-        expect(measuredLevelTime(5).time).toBe(LEVEL_TIME_MIN); // ceil(20.7)/0.85=25 ⇒ 钳到下限 30
-        expect(measuredLevelTime(1480).time).toBe(LEVEL_TIME_MAX); // ceil(6127)/0.85 ⇒ 钳到上限
+        expect(tierStepBudget(546, 3)).toBe(127); // 全局 0.70 ⇒ 382s ⇒ 127 步
+        expect(tierStepBudget(546, 3, [1, 0.85, 0.4176])).toBe(76); // 单关 0.4176 ⇒ 228s ⇒ 76 步
+        expect(measuredLevelTime(5).time).toBe(LEVEL_TIME_MIN); // ceil(15)/0.85=18 ⇒ 钳到下限 30
+        expect(measuredLevelTime(1480).time).toBe(LEVEL_TIME_MAX); // ceil(4440)/0.85 ⇒ 钳到上限
         // 非法输入 ⇒ 0 步 ⇒ 下限（不产生 NaN 倒计时：NaN 永不到零 = 失败条件永不触发）
         expect(measuredLevelTime(Number.NaN).time).toBe(LEVEL_TIME_MIN);
         expect(measuredLevelTime(-5).time).toBe(LEVEL_TIME_MIN);

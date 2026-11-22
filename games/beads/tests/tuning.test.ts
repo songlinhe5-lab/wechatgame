@@ -259,11 +259,12 @@ describe('beads tuning derivation (systems-index §3 mirrors)', () => {
       expect(computeClearStars(150, 300, 300, 2).ratio).toBe(0.5);
     });
 
-    it('SEC_PER_STEP 量纲 = 每批量动作秒数（旧 SEC_PER_TAP 每点击 3.6s 已重锚）', () => {
-      // v1.85（WXG-T-394）：1.69 → 4.14 = 「等节奏平移」——定价口径由 BAC（取回优先）
-      // 改 ACB（归位→直填→取回）后，Σsteps 从 1686 掉到 689（均 12 槽读数）⇒ 1.69 × 1686/689。
-      // ⚠ 4.14 未经新 `t_act` 重抽中位数（tuning 里已标 `[待 playtest]`）。
-      expect(SEC_PER_STEP).toBe(4.14);
+    it('SEC_PER_STEP 量纲 = 每批量动作秒数（2026-11-22 回调 4.14 → 3.0）', () => {
+      // v1.85（WXG-T-394）：1.69 → 4.14 = 「等节奏平移」（旧池 BAC/ACB 比 1686/689）。
+      // v2.02（WXG-T-984）：4.14 → 3.0 —— 实测 1.69 s/点击 × A01 实测 2.00 点击/步 = 3.38，
+      // 取 3.0 作节奏目标（≈1.5 s/点击），使 A01 3★ 时钟落 30–40 min 章预算。
+      // ⚠ 3.0 仍未重抽 `t_act` 中位数（tuning 里已标 `[待 playtest]`）。
+      expect(SEC_PER_STEP).toBe(3.0);
     });
 
     it('单关三档系数 starTierK 覆盖（§3.7 v1.86/87 · L9 boss 3★ 必须开 48 槽且很赶）', () => {

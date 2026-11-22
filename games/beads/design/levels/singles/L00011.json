@@ -3,7 +3,7 @@
   "name": "studio-24042b",
   "cols": 14,
   "rows": 14,
-  "time": 132,
+  "time": 96,
   "cycleProfile": "short",
   "pricing": {
     "source": "bot",
@@ -22,7 +22,7 @@
       "directFills": 13,
       "retrieves": 4
     },
-    "secPerStep": 4.14,
+    "secPerStep": 3.0,
     "tierK": 0.85,
     "clamped": false,
     "cleared": true

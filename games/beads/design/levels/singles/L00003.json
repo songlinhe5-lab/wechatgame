@@ -3,7 +3,7 @@
   "name": "studio-0-4715",
   "cols": 14,
   "rows": 14,
-  "time": 128,
+  "time": 92,
   "cycleProfile": "short",
   "pricing": {
     "source": "bot",
@@ -22,7 +22,7 @@
       "directFills": 12,
       "retrieves": 4
     },
-    "secPerStep": 4.14,
+    "secPerStep": 3.0,
     "tierK": 0.85,
     "clamped": false,
     "cleared": true

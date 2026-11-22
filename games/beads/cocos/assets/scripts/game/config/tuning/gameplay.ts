@@ -68,9 +68,20 @@ export const LEVEL_TIME_PER_PAIR = 45;
  * 历史上同族先验已三次被同一批数据证伪（`t_act÷bot_taps` 四点崩、`M×1.6` 八点 ρ 仅 0.69、
  * n=4 上选的 `CAB` 到 n=8 最大误差 **162%**）。
  *
+ * ── 2026-11-22 · A01「花间集」入关后收节奏（WXG-T-983，用户裁定）──
+ * `SEC_PER_STEP` 4.14 → **3.0**。依据是**实测点击/步比重算**，不是拍脑袋：
+ * 2026-09-23 八关实测中位 **1.69 s/点击**；A01 九关实测 `taps 1,889 ÷ steps 945 = 2.00 点击/步`
+ * ⇒ 诚实值 = 1.69 × 2.00 = **3.38 s/步**。旧 4.14 = 1.69 × **2.45**（旧池 BAC/ACB 比），
+ * 旧池 ACB 每步裹的点击多，32×32 盘上每步只裹 2 次点击 ⇒ 4.14 对大盘系统性偏长。
+ * 取 **3.0**（≈1.5 s/点击，比实测快 11%）是**节奏目标**而非重标中位数：让 A01 的 3★ 时钟
+ * 落回 30–40 min 章预算（38.9 min），同时教学章仍 18.3 min 不紧。
+ * 连带影响：门禁⑦ `NORMAL_STEPS_MIN` 7→9、`BOSS_STEPS_MIN` 49→68（保持「≈203s 工量」秒量纲：
+ * 202.8÷3.0=67.6⇒68）；`NORMAL_STEPS_MAX` 保持 160（20 大关重定标，见下）。
+ * ⚠ 仍是 `[待 playtest]` 引导值：已试玩关仍按 §5.0.1 用实测 `t_act` 覆盖。
+ *
  * 校准机制不变（§5.0.1）：单关 `|t_act − T|/T > 25%` ⇒ 该关改用实测覆盖；均值超阈 ⇒ 回调本值。
  */
-export const SEC_PER_STEP = 4.14;
+export const SEC_PER_STEP = 3.0;
 
 /**
  * 生成期「工作量」难度门禁（**门禁⑦**，2026-10-10 用户裁定：普通关落区间 / boss 高于阈值）。
@@ -82,12 +93,11 @@ export const SEC_PER_STEP = 4.14;
  *
  * 三档判据（消费方 = `sync-levels-data.mjs` 门禁⑦ + `apps/beads-studio/server.mjs` 入关当场拒）：
  * - **首关 = 教学引导关，全豁免**（沿用既有「首关豁免」先例，`ux-spec §1 原则3`「纯动效引导」）。
- * - `NORMAL_STEPS_MIN = ceil(LEVEL_TIME_MIN × STAR_TIER_K[1] ÷ SEC_PER_STEP) = ceil(30×0.85÷4.14) = 7`
- *   ⇒ **派生自 §3.5**、非新发明（v1.85 随单价 1.69→4.14 重推；旧 16 = 1.69 时的派生值）：
+ * - `NORMAL_STEPS_MIN = ceil(LEVEL_TIME_MIN × STAR_TIER_K[1] ÷ SEC_PER_STEP) = ceil(30×0.85÷3.0) = 9`
+ *   ⇒ **派生自 §3.5**、非新发明（2026-11-22 随单价 4.14→3.0 重推；历次 16 → 7 → 9）：
  *   普通关工作量若低于此值，`time` 会被钳到 `LEVEL_TIME_MIN=30s` 而无差异。
- * - `NORMAL_STEPS_MAX = 37` / `BOSS_STEPS_MIN = 49`：**保持秒量纲不变**换算而来
- *   （旧 90×1.69 = 152.1s ⇒ 152.1÷4.14 = 36.7 ⇒ 37；旧 120×1.69 = 202.8s ⇒ 202.8÷4.14 = 49）。
- *   ⛔ 这不是「放宽」：判据的物理含义（普通关上限 ≈152s 工作量、boss 须跳档）一字未动。
+ * - `NORMAL_STEPS_MAX = 160`（2026-11-22 20 大关重定标，见下）/ `BOSS_STEPS_MIN = 68`
+ *   （保持秒量纲：旧 49×4.14=202.9s ⇒ 202.9÷3.0=67.6 ⇒ 68）。
  * ⚠ 若将来继续重定标，依据是「普通关 vs boss 的相对跳档」而非绝对秒数。
  *
  * 现池校验（2026-10-25 **ACB + 12 槽**重测，steps）：L1 教学豁免｜L2=27 L3=26 L4=28 L5=27
@@ -103,9 +113,9 @@ export const SEC_PER_STEP = 4.14;
  * 落 [7,160] 不受影响；④ 本值属**开发期验证档**，上线前须按 `level-difficulty` 与 §5.0.1
  * 协议重推（正本登记 = `levels-spec.md` §6 公式表 v0.7）。
  */
-export const NORMAL_STEPS_MIN = 7;
+export const NORMAL_STEPS_MIN = 9;
 export const NORMAL_STEPS_MAX = 160;
-export const BOSS_STEPS_MIN = 49;
+export const BOSS_STEPS_MIN = 68;
 
 /**
  * **时间按 k 定价**（§3.5 v1.23）：`clamp(k × LEVEL_TIME_PER_PAIR, MIN, MAX)`。

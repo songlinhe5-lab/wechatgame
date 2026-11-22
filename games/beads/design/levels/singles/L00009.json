@@ -3,7 +3,7 @@
   "name": "studio-3-163c",
   "cols": 30,
   "rows": 30,
-  "time": 546,
+  "time": 396,
   "starTierK": [
     1,
     0.85,
@@ -27,7 +27,7 @@
       "directFills": 70,
       "retrieves": 13
     },
-    "secPerStep": 4.14,
+    "secPerStep": 3.0,
     "tierK": 0.85,
     "clamped": false,
     "cleared": true

@@ -3,7 +3,7 @@
   "name": "荷花",
   "cols": 32,
   "rows": 32,
-  "time": 459,
+  "time": 332,
   "cycleProfile": "long",
   "pricing": {
     "source": "bot",
@@ -22,7 +22,7 @@
       "directFills": 51,
       "retrieves": 14
     },
-    "secPerStep": 4.14,
+    "secPerStep": 3.0,
     "tierK": 0.85,
     "clamped": false,
     "cleared": true

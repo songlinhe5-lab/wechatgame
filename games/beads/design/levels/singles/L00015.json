@@ -3,7 +3,7 @@
   "name": "玫瑰",
   "cols": 32,
   "rows": 32,
-  "time": 571,
+  "time": 413,
   "cycleProfile": "long",
   "pricing": {
     "source": "bot",
@@ -22,7 +22,7 @@
       "directFills": 59,
       "retrieves": 17
     },
-    "secPerStep": 4.14,
+    "secPerStep": 3.0,
     "tierK": 0.85,
     "clamped": false,
     "cleared": true
