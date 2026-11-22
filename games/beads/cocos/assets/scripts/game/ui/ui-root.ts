@@ -10,7 +10,9 @@
  */
 import { Navigator, UI_DEBUG_SCOPE_ID, type Route } from '../../framework/index';
 import type { RenderModelBuilder } from '../../framework/index';
+import { DESIGN_W, liveDesignHeight } from '../config/tuning';
 import { drawPerfOverlay } from '../view/debug-layer';
+import { UI_SCRIM, scrimFill } from '../view/ui-theme';
 import type { BeadsPalette } from '../view/palette';
 import type { UiHost } from './ui-host';
 
@@ -24,6 +26,13 @@ export interface UiRoute extends Route {
     draw(builder: RenderModelBuilder): void;
     /** 命中并派发（`true` = 已消费）。仅 `modal` 路由需要；缺省 = 不参与命中链。 */
     presenter?(x: number, y: number): boolean;
+    /**
+     * `[WXG-T-1029]` 仅 meta 弹窗路由：**显式声明才由 UiRoot 注入蒙版**（平级前置容器
+     * `{name}:scrim`；容器禁止嵌套 DEC-8①；T-1028 通道翻转后蒙版若留在弹窗容器 Graphics
+     * 会抬到背板位图之上罩暗弹窗）。相位面板（pause/clear/fail/…）自带 progress 伸缩蒙版
+     * （`view-model::drawModalScrim`）且无容器内位图腿 ⇒ ⛔ 不声明，保持原样防双份。
+     */
+    scrimAlpha?: number;
 }
 
 export class UiRoot {
@@ -84,9 +93,24 @@ export class UiRoot {
             // 文字、位图腿一起压住底页（WXG-T-325 真机「设置页不在最上面」的修法）。
             // 页面路由仍走默认层：默认五通道恒在容器树之下 ⇒ 等价于 DEC-9② 的「合一个容器」降级杆，
             // 且菜单页的 19 处位图腿归属（`BlitLayerUI`）与裁切蒙版逐字不变。
-            if (route.kind === 'modal') builder.beginContainer(route.name);
-            route.draw(builder);
-            if (route.kind === 'modal') builder.endContainer();
+            if (route.kind === 'modal') {
+                // `[WXG-T-1029]` 蒙版平级前置容器（先出现 ⇒ 内核懒建序 ⇒ 整棵在弹窗容器之下）：
+                // 压得住底页（容器树在全局 UiContainers 末位）、又压不住弹窗位图（T-1028 起
+                // 位图通道在 Graphics 之前）。仅 route 显式声明 scrimAlpha 才发（相位面板自带
+                // 伸缩蒙版，⛔ 防双份）；容器禁止嵌套（DEC-8①）⇒ ⛔ 不得放进弹窗容器内发。
+                if (route.scrimAlpha !== undefined) {
+                    builder.beginContainer(`${route.name}:scrim`);
+                    builder.rect(0, 0, DESIGN_W, liveDesignHeight(), {
+                        fill: scrimFill(UI_SCRIM.overlay, route.scrimAlpha),
+                    });
+                    builder.endContainer();
+                }
+                builder.beginContainer(route.name);
+                route.draw(builder);
+                builder.endContainer();
+            } else {
+                route.draw(builder);
+            }
         }
         const d = this._host.debugState();
         // `[ADR-0033 §S1]` 调试层走**恒置顶容器**（`bindings.ts` 把它登记为 `topMost`）⇒

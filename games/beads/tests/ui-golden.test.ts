@@ -40,10 +40,12 @@ import { DESIGN_H, DESIGN_W } from '../src/config/tuning.js';
 const CONTAINER_EXPECT: Readonly<Record<string, number>> = {
     'main-menu': 0,
     // `[WXG-T-503]` 选关改回弹窗 ⇒ 整页/转场中点都自持一个容器。
-    'level-select': 1,
-    'level-select-mid': 1,
-    settings: 1,
-    signin: 1,
+    // `[WXG-T-1029]` 蒙版上楼独立 `{overlay}:scrim` 容器（T-1028 层序翻转后蒙版须在背板之下）
+    // ⇒ 四个 meta 弹窗态 = 弹窗容器 + scrim 容器。
+    'level-select': 2,
+    'level-select-mid': 2,
+    settings: 2,
+    signin: 2,
     play: 0,
     pause: 1,
     clear: 1,

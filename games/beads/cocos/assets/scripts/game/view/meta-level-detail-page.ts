@@ -59,7 +59,6 @@ export function drawLevelDetailPage(
     builder: RenderModelBuilder,
     data: MetaViewData,
     palette: BeadsPalette,
-    screenH: number,
 ): void {
     const level = data.detailLevel;
     const levelIdx = data.detailLevelIndex ?? -1;
@@ -68,7 +67,7 @@ export function drawLevelDetailPage(
 
     // 遮罩 + 容器（新版木牌烘图：纯木纹 + 标题槽 + 铆钉，⛔ 旧版牌内烘入的空橱窗已拆出）：
     // 与选关页共用 `drawModalPlate`（`[WXG-T-612]` 用户令「背景框绘制共用逻辑」）。
-    drawModalPlate(builder, palette, plate, screenH);
+    drawModalPlate(builder, palette, plate);
 
     // `[WXG-T-609]` 橱窗面板（Figma 192:42）：稿层序在木牌之后、缩略 / 星级 / 道具之前。
     // 缺图 ⇒ 不画（纯木纹牌仍可读，⛔ 不叠程序化第二套玻璃框）。

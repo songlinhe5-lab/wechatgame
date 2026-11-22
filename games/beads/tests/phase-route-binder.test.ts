@@ -120,7 +120,10 @@ describe('UI-42 · PhaseRouteBinder', () => {
         b.openModal('settings');
         root.draw(builder, {} as BeadsPalette);
         // 弹窗自持绘制且自带容器（页面路由不包容器 ⇒ 恒在容器树之下）。
-        expect(calls).toEqual(['menu', 'begin:settings', 'modal:settings', 'end']);
+        // `[WXG-T-1029]` 蒙版平级前置容器 `settings:scrim` 先发（懒建序 ⇒ 节点序在弹窗容器之前）。
+        expect(calls).toEqual([
+            'menu', 'begin:settings:scrim', 'rect', 'end', 'begin:settings', 'modal:settings', 'end',
+        ]);
 
         calls.length = 0;
         b.resetTo('play');

@@ -37,7 +37,7 @@ import {
 import { UI_DEBUG_SCOPE_ID, type RenderModelBuilder } from '../../framework/index';
 import { DEBUG_OUTLINE_TILE_HEX, type BeadsPalette } from './palette';
 import { drawHitBox, drawSafeGuideLines, drawTapTrace } from './debug-layer';
-import { UI_FONT, UI_SCRIM, scrimFill } from './ui-theme';
+import { UI_FONT } from './ui-theme';
 import { SIGNIN_TITLE, drawSigninContent } from './signin-content';
 // WXG-T-363：装扮馆卡面画法单源 `skins-content`（卡热区仍进 `meta-layout` 的 `skinsLayout` ⇒ 画与撞同源）。
 import { SKINS_TITLE, drawSkinCard } from './skins-content';
@@ -93,11 +93,11 @@ type ContentDraw = (builder: RenderModelBuilder, data: MetaViewData, palette: Be
  */
 function panelPage(
     title: string,
-    scrimAlpha: number,
     content?: ContentDraw,
 ): PageDraw {
-    return (builder, data, palette, layout, a, _withSignage, thumbN) => {
-        builder.rect(0, 0, DESIGN_W, a.H, { fill: scrimFill(UI_SCRIM.overlay, scrimAlpha) });
+    return (builder, data, palette, layout, _a, _withSignage, thumbN) => {
+        // `[WXG-T-1029]` 蒙版已上楼到 `buildMetaModal` 的 `{overlay}:scrim` 容器（本页不再自发，
+        // T-1028 层序翻转后自发蒙版会罩住面板位图腿）。
         const plate = overlayPlate();
         builder.rect(plate.x, plate.y, plate.w, plate.h, { fill: palette.panel, radius: UI_CONTAINER.radiusPanel });
         builder.text(plate.x + plate.w / 2, plate.y + plate.h - 50, title, {
@@ -149,8 +149,8 @@ const LEVELS_PAGE: PageDraw = (builder, data, palette, layout, a, _withSignage, 
 };
 
 /** 设置**弹窗**（`[WXG-T-935]`）：复用关卡详情木牌 + 两列可滚内容；返回 / 关于固定不滚。 */
-const SETTINGS_PAGE: PageDraw = (builder, data, palette, layout, a) => {
-    drawSettingsPage(builder, data, palette, layout, a.H);
+const SETTINGS_PAGE: PageDraw = (builder, data, palette, layout) => {
+    drawSettingsPage(builder, data, palette, layout);
 };
 
 /**
@@ -161,21 +161,21 @@ const SETTINGS_PAGE: PageDraw = (builder, data, palette, layout, a) => {
 const META_PAGES: Record<MetaOverlay, PageDraw> = {
     none: MENU_PAGE,
     levels: LEVELS_PAGE,
-    signin: panelPage(SIGNIN_TITLE, UI_SCRIM.alpha, (builder, data, palette, layout) => {
+    signin: panelPage(SIGNIN_TITLE, (builder, data, palette, layout) => {
         // UI-32：签到内容块单源（标题 / 7 格版式 / 格绘制）；chrome 仍走弹窗通用腿。
         drawSigninContent(builder, layout.signinCells, data.signinDay, data.canClaim, palette);
     }),
     // `[WXG-T-935]` 设置页自持木牌容器（非 `panelPage`）：标题 / 两列滚动内容 / 返回 / 关于
     // 单源在 `meta-settings-page.ts` + `settings-content.ts`。
     settings: SETTINGS_PAGE,
-    skins: panelPage(SKINS_TITLE, UI_SCRIM.alpha),
+    skins: panelPage(SKINS_TITLE),
     // `[WXG-T-472]` 名片页（批 1）；`[WXG-T-501]` 图鉴 / 本地榜两页下线，只剩名片。
     // 标题读 `meta-pages-content` 单源常量（真源 = `tokens.md §7`）。
-    profile: panelPage(PROFILE_TITLE, UI_SCRIM.alpha, drawProfileContent),
+    profile: panelPage(PROFILE_TITLE, drawProfileContent),
     // `[WXG-T-602]` 关卡详情：木牌容器自持版式（非 `panelPage`）—— 木牌 / 橱窗 / 星 / 开始钮均为位图腿，
     // 稿面几何单源在 `config/tuning/level-detail.ts`；缺图逐元素回退到同几何程序化档。
-    'level-detail': (builder, data, palette, _layout, a, _withSignage, _thumbN) => {
-        drawLevelDetailPage(builder, data, palette, a.H);
+    'level-detail': (builder, data, palette, _layout, _a, _withSignage, _thumbN) => {
+        drawLevelDetailPage(builder, data, palette);
     },
 };
 
@@ -281,6 +281,9 @@ export function buildMetaModal(
     const layout = metaLayout(data.overlay, rows);
     // `[WXG-T-503]` 选关改回弹窗：保留菜单↔选关的 `pageFade`（100ms/200ms）⇒ 只把不透明度
     // 施加在**弹窗自己的命令**上（底页菜单已由另一条页面路由画完，不跟着淡）。
+    // `[WXG-T-1029]` 蒙版不再由本函数发：容器语法禁止嵌套（checkUiContainerOrder DEC-8①），
+    // 蒙版由 `UiRoot.draw` 以平级前置容器 `{route.name}:scrim` 发（浓度 = `route.scrimAlpha`）；
+    // ⛔ 页面绘制（drawModalPlate / panelPage）也不得再自发蒙版（双份 = 弹窗被罩暗）。
     const fade = data.pageFade;
     if (fade !== undefined && fade < 1) builder.setAlpha(fade);
     META_PAGES[data.overlay](builder, data, palette, layout, A, withSignage, thumbN);

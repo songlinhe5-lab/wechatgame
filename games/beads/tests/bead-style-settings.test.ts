@@ -1227,22 +1227,28 @@ describe('设置态遮罩 α 分列 · ux §3.3「遮罩」条 + 工作项④：
         expect(mf).not.toMatch(/rgba\(/);
 
         // 菜单侧：只换 α、⛔ 不洗 RGB（历史 `0,0,0`，与画布侧 `PANEL_SCRIM_RGB` 不同源）。
+        // `[WXG-T-1029]` 蒙版消费点随蒙版上收迁到 `ui/ui-root.ts`（meta 弹窗平级前置容器注入）。
+        const ur = SRC('ui/ui-root.ts');
+        expect(ur).toContain('scrimFill(');
+        expect(ur).toContain('UI_SCRIM.overlay');
         const mv = SRC('view/meta-view.ts');
-        expect(mv).toContain('scrimFill(');
-        expect(mv).toContain('UI_SCRIM.overlay');
+        expect(mv.match(/scrimFill\(/g) ?? []).toEqual([]);
         // WXG-T-420 T7 起页面选择 = `META_PAGES` 表；`[WXG-T-935]` 设置页自持木牌后
-        // α 消费点随页面迁到 `meta-settings-page.ts`（仍恰 1 处，其余 overlay 仍旧 0.5）。
+        // α 消费点随页面迁走；`[WXG-T-1029]` 再迁 `ui/phase-route-binder.ts`（settings 0.3 声明处）。
+        const binder = SRC('ui/phase-route-binder.ts');
+        expect(binder.match(/UI_SCRIM\.settingsAlpha/g)?.length).toBe(1);
         const ms = SRC('view/meta-settings-page.ts');
-        expect(ms.match(/UI_SCRIM\.settingsAlpha/g)?.length).toBe(1);
         expect(ms).toContain('COPY_TOKENS.btn_settings_label');
         expect(ms).toContain("from '../config/copy-tokens.js'");
         expect(mv).not.toContain('UI_SCRIM.settingsAlpha');
+        expect(ms.match(/UI_SCRIM\.settingsAlpha/g) ?? []).toEqual([]);
         // 默认 α 面板穷尽列举（`[WXG-T-470/471/472]` 批 1；`[WXG-T-501]` 图鉴 / 本地榜下线），
         // 均按 design 取默认 0.5——⛔ 不是放宽：集合式判据约定「只有 settings 下调」不变。
-        const defaultAlphaPages = (mv.match(/(\w+): panelPage\([^,]+, UI_SCRIM\.alpha/g) ?? [])
+        // `[WXG-T-1029]` 蒙版浓度声明随蒙版上收迁到 `ui/phase-route-binder.ts`（`scrimAlpha`）。
+        const defaultAlphaPages = (binder.match(/(\w+): \{ name: '[\w-]+', kind: 'modal', scrimAlpha: UI_SCRIM\.alpha/g) ?? [])
             .map((site) => site.slice(0, site.indexOf(':')))
             .sort();
-        expect(defaultAlphaPages).toEqual(['profile', 'signin', 'skins']);
+        expect(defaultAlphaPages).toEqual(['levels', 'profile', 'signin', 'skins']);
         expect(mv).not.toContain('PANEL_SCRIM_RGB'); // 菜单侧遮罩 RGB 恒历史 `0,0,0`，不与画布侧同源
         const theme = SRC('view/ui-theme.ts');
         expect(theme).toContain('canvas: PANEL_SCRIM_RGB');

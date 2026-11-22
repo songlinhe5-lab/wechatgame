@@ -12,7 +12,7 @@
 import { DESIGN_H, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TEXTURES, LEVEL_DETAIL_TITLE_SHADOW, LEVEL_SELECT_GEO, LEVEL_SELECT_TEXTURES } from '../config/tuning.js';
 import { type RenderModelBuilder } from '@wxgame/framework';
 import { type BeadsPalette, withAlpha } from './palette.js';
-import { UI_FONT, UI_SCRIM, bodyFont } from './ui-theme.js';
+import { UI_FONT, bodyFont } from './ui-theme.js';
 import { drawCloseInset, drawLevelSelectCell, drawModalPlate, menuBitmapReady } from './meta-widgets.js';
 import type { LevelSelectViewModel } from './level-select-view-model.js';
 
@@ -35,7 +35,7 @@ export function drawLevelsView(
     // `[WXG-T-1026/1027]` 容器 = 通用对话框长背景（木牌图 `ui_dialog_bg_tall`），几何 / 版式零改动。
     // 键 = `dialogBg`（不在 `BELOW_GRAPHICS` 白名单 ⇒ 走容器 `BlitLayerUI`，真机可见）；本函数
     // 最先发 ⇒ 在 tray / 九格之下。⛔ 不复用 `plaque`（白名单那层被底页整屏背景盖住）。
-    drawModalPlate(builder, palette, plate, vm.screenH, UI_SCRIM.alpha, LEVEL_DETAIL_TEXTURES.dialogBg);
+    drawModalPlate(builder, palette, plate, LEVEL_DETAIL_TEXTURES.dialogBg);
 
     // `[WXG-T-610]` 九宫格背板（稿 `164:63`，506×597）：在九格之前叠，缺图不画。
     const tr = LEVEL_SELECT_GEO.tray;

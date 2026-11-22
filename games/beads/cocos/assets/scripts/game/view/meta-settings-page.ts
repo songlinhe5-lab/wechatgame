@@ -15,7 +15,7 @@
 import { DESIGN_H, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TITLE_SHADOW } from '../config/tuning';
 import { type RenderModelBuilder } from '../../framework/index';
 import { withAlpha, type BeadsPalette } from './palette';
-import { UI_FONT, UI_SCRIM, pressOffset } from './ui-theme';
+import { UI_FONT, pressOffset } from './ui-theme';
 import { drawCloseInset, drawModalPlate, label } from './meta-widgets';
 import { levelDetailPlate, settingsViewport } from './meta-layout';
 import {
@@ -40,12 +40,11 @@ export function drawSettingsPage(
     data: MetaViewData,
     palette: BeadsPalette,
     layout: MetaLayout,
-    screenH: number,
 ): void {
     const plate = levelDetailPlate();
 
     // 遮罩 + 木牌容器：设置沿用自家 0.3 遮罩（`[WXG-T-935]` 只换底板，不换遮罩档）。
-    drawModalPlate(builder, palette, plate, screenH, UI_SCRIM.settingsAlpha);
+    drawModalPlate(builder, palette, plate);
 
     // 板标题「设置」：与详情 / 选关同槽同投影（暖金 + 深棕 DROP_SHADOW）。
     builder.text(plate.x + (GEO.title.cx - GEO.plate.x), plate.y + TITLE_DY, COPY_TOKENS.btn_settings_label, {

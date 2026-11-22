@@ -22,6 +22,7 @@ import type { RenderModelBuilder } from '../../framework/index';
 import type { BeadsPhase, GameMode } from '../game/state';
 import type { MetaOverlay } from '../view/meta-view';
 import type { PlayPanelName } from '../view/view-model';
+import { UI_SCRIM } from '../view/ui-theme';
 import type { UiRoute } from './ui-root';
 
 /** 基础页（EP15-S4 增 `replay` 回放页；它不是 `BeadsGame` 相位）。 */
@@ -113,17 +114,20 @@ export class PhaseRouteBinder {
         this._playRoute = { name: 'play', kind: 'page', draw: (b) => drawers.play(b) };
         this._replayRoute = { name: 'replay', kind: 'page', draw: (b) => drawers.replay(b) };
         // `[UI-60 P1 / ADR-0033 DEC-1]` 弹窗自持绘制（构造期一次建表，⛔ 每帧不新建）。
+        // `[WXG-T-1029]` meta 弹窗显式声明蒙版浓度 ⇒ UiRoot 以平级前置容器注入（蒙版在弹窗
+        // 位图之下）；相位面板（pause/clear/…）自带伸缩蒙版 ⇒ 不声明、UiRoot 不注入。
         this._modals = {
             // `[WXG-T-503]` 选关 = 弹窗（格 120；底页菜单照常画 ⇒ 遮罩可透）。
-            levels: { name: 'levels', kind: 'modal', draw: (b) => drawers.modal(b, 'levels') },
-            signin: { name: 'signin', kind: 'modal', draw: (b) => drawers.modal(b, 'signin') },
-            settings: { name: 'settings', kind: 'modal', draw: (b) => drawers.modal(b, 'settings') },
+            levels: { name: 'levels', kind: 'modal', scrimAlpha: UI_SCRIM.alpha, draw: (b) => drawers.modal(b, 'levels') },
+            signin: { name: 'signin', kind: 'modal', scrimAlpha: UI_SCRIM.alpha, draw: (b) => drawers.modal(b, 'signin') },
+            // `[WXG-T-935]` 设置页沿用自家 0.3 遮罩档（只换底板，不换遮罩档）。
+            settings: { name: 'settings', kind: 'modal', scrimAlpha: UI_SCRIM.settingsAlpha, draw: (b) => drawers.modal(b, 'settings') },
             /** `[WXG-T-363]` 装扮馆弹窗（入口 = 设置弹窗行5 左格 `open-skins`）。 */
-            skins: { name: 'skins', kind: 'modal', draw: (b) => drawers.modal(b, 'skins') },
+            skins: { name: 'skins', kind: 'modal', scrimAlpha: UI_SCRIM.alpha, draw: (b) => drawers.modal(b, 'skins') },
             // `[WXG-T-472]` 批 1：名片弹窗（`[WXG-T-501]` 图鉴 / 本地榜下线）。
-            profile: { name: 'profile', kind: 'modal', draw: (b) => drawers.modal(b, 'profile') },
+            profile: { name: 'profile', kind: 'modal', scrimAlpha: UI_SCRIM.alpha, draw: (b) => drawers.modal(b, 'profile') },
             // `[WXG-T-601]` 关卡详情弹窗（选关卡卡 → 详情 → 开始；叠 levels 之上）。
-            'level-detail': { name: 'level-detail', kind: 'modal', draw: (b) => drawers.modal(b, 'level-detail') },
+            'level-detail': { name: 'level-detail', kind: 'modal', scrimAlpha: UI_SCRIM.alpha, draw: (b) => drawers.modal(b, 'level-detail') },
         };
         // `[WXG-T-440]` 相位面板路由（构造期一次建表；`draw` 与 `presenter` 同源，⛔ 两处真源）。
         const phaseRoute = (name: PhaseModal): UiRoute => ({

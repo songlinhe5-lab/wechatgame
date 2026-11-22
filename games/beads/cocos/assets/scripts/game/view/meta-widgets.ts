@@ -3,12 +3,12 @@
  * 位图可用性注入（`setMenuBitmapResolver`）。主菜单与选关页共用 ⇒ 位于二者之下、⛔ 不反依赖页面。
  */
 
-import { DESIGN_W, LEVEL_DETAIL_TEXTURES, LEVEL_SELECT_GEO, LEVEL_SELECT_TEXTURES, UI_CONTAINER } from '../config/tuning';
+import { LEVEL_DETAIL_TEXTURES, LEVEL_SELECT_GEO, LEVEL_SELECT_TEXTURES, UI_CONTAINER } from '../config/tuning';
 import { COPY_TOKENS } from '../config/copy-tokens';
 import { type RenderModelBuilder } from '../../framework/index';
 import { beadFadedInksFor, withAlpha, type BeadsPalette } from './palette';
 import { drawBeadFace, resetSignageWarnings } from './menu-signage';
-import { scrimFill, UI_FONT, UI_SCRIM, pressOffset } from './ui-theme';
+import { UI_FONT, pressOffset } from './ui-theme';
 import { drawButton } from './ui-widgets';
 import { settingsContentLabel } from './settings-content';
 import type { Box, MetaAction, MetaButton, MetaViewData } from './meta-types';
@@ -257,23 +257,21 @@ export function drawMetaButton(builder: RenderModelBuilder, palette: BeadsPalett
 
 
 /**
- * `[WXG-T-612]` 选关 / 详情两弹框**背景框共用绘制**（用户令「背景框绘制…需要共用逻辑」）：
- * 遮罩 → 木牌位图 blit（`LEVEL_DETAIL_TEXTURES.plaque`，缺图 ⇒ 纸面板同几何回退）。
+ * `[WXG-T-612]` 选关 / 详情 / 设置三弹框**背景框共用绘制**（用户令「背景框绘制…需要共用逻辑」）：
+ * 木牌位图 blit（`LEVEL_DETAIL_TEXTURES.plaque`，缺图 ⇒ 纸面板同几何回退）。
  * 两页层序与浓度单源 ⇒ 改一处两页生效；`plate` 传宿主位移后的实际框（两页容器同件 581×1044）。
- * `[WXG-T-935]` `scrimAlpha` 可选：设置弹窗沿用 `UI_SCRIM.settingsAlpha`（0.3），缺省 = 通用 0.5。
+ * `[WXG-T-1029]` 蒙版已上楼到 `buildMetaModal` 的 `{overlay}:scrim` 独立容器（T-1028 层序翻转
+ * 后，本函数若自发蒙版会罩住背板位图）；`scrimAlpha` 参数随之退役。
  */
 export function drawModalPlate(
     builder: RenderModelBuilder,
     palette: BeadsPalette,
     plate: Box,
-    screenH: number,
-    scrimAlpha: number = UI_SCRIM.alpha,
     // `[WXG-T-1026/1027]` 容器位图键参数化：详情/设置页走默认木牌（`plaque`）；选关页换通用
     // 对话框长背景（`dialogBg` 键 = `ui_dialog_bg_tall` 木牌图，与 `plaque` 同一件、不同层序）。
     // 几何/版式零改动；缺图腿同构。橱窗图已还原为 `ui_detail_showcase`，不再充当容器。
     textureId: string = LEVEL_DETAIL_TEXTURES.plaque,
 ): void {
-    builder.rect(0, 0, DESIGN_W, screenH, { fill: scrimFill(UI_SCRIM.overlay, scrimAlpha) });
     if (menuBitmapReady(textureId)) {
         builder.blit(textureId, plate.x, plate.y, plate.w, plate.h);
     } else {

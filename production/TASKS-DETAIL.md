@@ -15,6 +15,30 @@
 
 ---
 
+## WXG-T-1029
+
+**弹窗蒙版上收 UiRoot 平级前置容器，置背板之下** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-22）
+
+### 1. 背景与根因
+
+- 承用户真机/预览反馈「对话框蒙版层级有问题，需要放到背板后面」。
+- **根因 = T-1028 层序修复的副作用**：容器通道序改为 `[blit, graphics, labels, segments]` 后，弹窗容器内蒙版 rect（Graphics 通道）被抬到背板位图（`BlitLayerUI`，木牌/橱窗）之上 ⇒ 位图背板被罩暗。
+
+### 2. 落地
+
+- 蒙版从弹窗容器收至 `ui-root.ts`：modal 分支先开 `{route.name}:scrim` 平级前置容器（`builder.rect(0,0,DESIGN_W,liveDesignHeight())`），再开弹窗容器本体——懒建序下先落笔者 sibling 序在前，蒙版必然在弹窗之下；容器禁止嵌套（DEC-8①，`checkUiContainerOrder` 先红后绿验证）。
+- **显式声明制**：`UiRoute.scrimAlpha?: number`，不声明不注入（防相位面板双份蒙版——其 view-model 自带 `drawModalScrim`）。meta 六路由声明：`settings=settingsAlpha`，`levels/profile/signin/skins=alpha`；`phase-route-binder.ts` 加 `UI_SCRIM` 导入。
+- 蒙版绘制职责移除：`meta-widgets.drawModalPlate` 删蒙版 rect 与 `scrimAlpha` 参（保留 textureId），`meta-view`/`level-select-view`/`meta-settings-page`/`meta-level-detail-page` 签名与调用同步清参、清未用导入。
+
+### 3. 测试与取证
+
+- 新增 `tests/modal-scrim-layer.test.ts`：settings/levels 蒙版 `ownerOf={overlay}:scrim`；蒙版 rect 紧邻 scrim 容器开启（`cmds[at-1]` matchObject；懒建语义下「早于弹窗首笔」不成立，1642<1642 教训）；静态门查 meta-widgets/meta-view 无 `scrimFill(overlay)`。
+- 适配 6 件：dialog-center（DEC-8① 断言改 `settings:scrim`）、ui-golden（CONTAINER_EXPECT 四 meta 态 1→2）、bead-style-settings（穷举门改读 ui-root 消费点 + binder 声明计数）、arc-level-select-page（页面不自发蒙版=false 防双份，木牌断言保留）、phase-route-binder（期望序列加 scrim 三条）。
+- 镜像 7 件经 `framework:sync` 同步零差；双平台重建 web/wx=0。
+- 金样 4 帧漂移预期内（容器数变化），待 worktree 干净检出重抓（K-167）；⏸ 真机扫码复核待用户配置凭证。
+
+---
+
 ## WXG-T-1028
 
 **修容器层序：位图腿改排矢量之前，恢复关闭叉 / 缩略图 / 道具框** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-22）

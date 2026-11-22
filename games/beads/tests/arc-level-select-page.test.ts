@@ -127,7 +127,9 @@ describe('WXG-T-605 · 弹窗性质（遮罩 + 木牌 + 同款标题）', () => 
     it('弹窗帧含半透明遮罩与 581×1044 木牌；底页帧无两者', () => {
         const modal = modalFrame(dataFor());
         const scrim = scrimFill(UI_SCRIM.overlay, UI_SCRIM.alpha);
-        expect(modal.some((c) => c.kind === 'rect' && c.fill === scrim), '遮罩').toBe(true);
+        // `[WXG-T-1029]` 蒙版上收 `UiRoot`（`{overlay}:scrim` 平级前置容器）⇒ 页面绘制不得再自发
+        // （双份 = 弹窗被罩暗）；经真 UiRoot 的遮罩在册断言见 `modal-scrim-layer.test.ts`。
+        expect(modal.some((c) => c.kind === 'rect' && c.fill === scrim), '页面不自发蒙版').toBe(false);
         expect(modal.some((c) => c.kind === 'rect' && c.w === 581 && c.h === 1044), '木牌回退腿').toBe(true);
 
         const page = pageFrame(dataFor());

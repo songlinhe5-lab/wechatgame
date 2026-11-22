@@ -230,11 +230,16 @@ describe('WXG-T-324/325 — 菜单弹窗透出底页（ADR-0033 容器层已落�
         const end = cmds.findIndex((cmd, i) => i > begin && cmd.kind === 'containerEnd');
         expect(begin, '弹窗容器在册').toBeGreaterThan(-1);
         expect(end, '容器闭合').toBeGreaterThan(begin);
-        // 遮罩与面板必须落在容器**内**：容器外（页面命令）不得出现设置弹窗的半透遮罩。
+        // 遮罩必须落在容器树**内**：容器外（页面命令）不得出现设置弹窗的半透遮罩。
+        // `[WXG-T-1029]` 遮罩自 `{overlay}:scrim` 平级前置容器发（T-1028 通道翻转后，
+        // 遮罩留在弹窗容器 Graphics 会抬到背板位图之上罩暗弹窗）——仍在容器树内 ⇒ 压得住底页。
+        const scrimBegin = cmds.findIndex((cmd) => cmd.kind === 'container' && cmd.id === 'settings:scrim');
+        const scrimEnd = cmds.findIndex((cmd, i) => i > scrimBegin && cmd.kind === 'containerEnd');
         const scrim = scrimFill(UI_SCRIM.overlay, UI_SCRIM.settingsAlpha);
         const at = cmds.findIndex((cmd) => cmd.kind === 'rect' && cmd.fill === scrim);
-        expect(at).toBeGreaterThan(begin);
-        expect(at).toBeLessThan(end);
+        expect(scrimBegin, '蒙版容器在册（平级前置）').toBeGreaterThan(-1);
+        expect(at).toBeGreaterThan(scrimBegin);
+        expect(at).toBeLessThan(scrimEnd);
         // 结构门（ADR-0033 DEC-8①）：真帧命令流必须良构 —— 容器不重叠/不嵌套、begin/end 配对。
         expect(checkUiContainerOrder(cmds)).toEqual([]);
     });
