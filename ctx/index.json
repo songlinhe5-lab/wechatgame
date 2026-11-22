@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4260,
       "lines": 141,
-      "sha256": "5229926906f749cd7b37852512360e32064894fe6dec61d9f86fdfe28fc86a8e",
+      "sha256": "4855fec370a1c7f7709b058f42b9b5649ddcab06c805285e7f6cbbe1c84491b2",
       "tier": "normal",
       "sections": [
         {
@@ -25933,9 +25933,9 @@
     },
     {
       "path": "games/beads/design/art/proposals/levels-20arcs-selection-20261117/series-spec.md",
-      "tokens": 9236,
+      "tokens": 9348,
       "lines": 161,
-      "sha256": "95a87fda122f44af5b5567479b59e60a3fbcf9763d7bbfdde5329668a24392b3",
+      "sha256": "6c1e513bd12f693778f7ea39ea95e73482836a164c3833eeb400aea0ce8308ac",
       "tier": "normal",
       "sections": [
         {
@@ -25943,7 +25943,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 162,
-          "tokens": 9217,
+          "tokens": 9328,
           "summary": "本件性质：生图阶段的风格规格草案，沿用 20 大关题材甄选（WXG-T-974）谱系，已领 WXG-T-979、已改任务",
           "keywords": [
             "WXG",
@@ -26137,7 +26137,7 @@
           "level": 2,
           "startLine": 150,
           "endLine": 162,
-          "tokens": 1389,
+          "tokens": 1501,
           "summary": "已写 4 张的正式提示词（A01-P01 五版 / A01-P02 三版 / A01-P03 一版 / A01-P04 ",
           "keywords": [
             "mis",
@@ -126319,17 +126319,17 @@
     },
     {
       "path": "production/qa/token-plan-usage-ledger.md",
-      "tokens": 13537,
-      "lines": 188,
-      "sha256": "5352c8391735a372e994044452c4a420ecab893b294de211d40d76c7ad993225",
+      "tokens": 13631,
+      "lines": 190,
+      "sha256": "655a845d5e6a6e50e732ac234e30a195769a1be4912e81299cbae957c0776c10",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Token Plan 生图用量台账（建账 2026-11-01）",
           "level": 1,
           "startLine": 1,
-          "endLine": 189,
-          "tokens": 13521,
+          "endLine": 191,
+          "tokens": 13615,
           "summary": "本件只管「花了多少次、出了几张图、留在哪」，是追加型台账（按时间序加行，⛔ 不回改历史行）。",
           "keywords": [
             "Token",
@@ -126427,8 +126427,8 @@
           "anchor": "§6 temp 生图存量（2026-11-01 清理一次，用户令「把 temp 里的生图都清理掉」）",
           "level": 2,
           "startLine": 100,
-          "endLine": 189,
-          "tokens": 8012,
+          "endLine": 191,
+          "tokens": 8106,
           "summary": "清理前 3642 张 / temp 共 2.3 GB",
           "keywords": [
             "temp",
