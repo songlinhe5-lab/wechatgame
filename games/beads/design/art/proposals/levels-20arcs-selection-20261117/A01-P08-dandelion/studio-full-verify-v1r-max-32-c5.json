@@ -1,0 +1,36 @@
+{
+  "draft": true,
+  "importable": false,
+  "blockers": [
+    "用色 3 < 4（BOOT 下限，本批 3→4；现池 3 色关不在 Studio 导入通道）"
+  ],
+  "colorsUsed": null,
+  "paletteHex": [
+    "#FDF6E9",
+    "#FFD23F",
+    "#3FBF6B"
+  ],
+  "voidCells_report": 0,
+  "void_pattern": 566,
+  "per_color_cells": {
+    "#FDF6E9": 225,
+    "#FFD23F": 214,
+    "#3FBF6B": 19
+  },
+  "max_color_face_pct": 49.1,
+  "derangement": "MAXIMAL（M=458/458 错位，固定点 = 理论下限 F=0）",
+  "mis": {
+    "mode": "max",
+    "N": 458,
+    "m": 225,
+    "M": 458,
+    "F": 0,
+    "M_max": 458
+  },
+  "engine": {
+    "steps": null,
+    "taps": null,
+    "timeEst": null,
+    "cleared": null
+  }
+}
