@@ -280,7 +280,9 @@ describe('beads tuning derivation (systems-index §3 mirrors)', () => {
       // 数据侧：现池只有 L9 带覆盖，且必须是严格递减的三元组
       const withK = LEVELS_DATA.levels.filter((lv) => lv.starTierK);
       expect(withK.map((lv) => lv.id)).toEqual([9]);
-      expect(withK[0]!.starTierK).toEqual([1, 0.85, 0.4176]);
+      // 2026-11-22（WXG-T-985，24 槽/3.0 重定价）：系数按「55 步 × 3.0s ÷ time 311s」重推
+      // = 0.5305（旧 4.14/12 槽口径为 0.4176），语义「L9 3★ 必须开 48 槽且很赶」不变。
+      expect(withK[0]!.starTierK).toEqual([1, 0.85, 0.5305]);
     });
 
     it('逐关三档时钟必须严格单调（§3.7 v1.82 防塌缩 · 取代旧「常量 vs 历史极值」断言）', () => {

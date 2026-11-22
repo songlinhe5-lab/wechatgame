@@ -3,13 +3,13 @@
   "name": "studio-2-23ca",
   "cols": 12,
   "rows": 14,
-  "time": 96,
+  "time": 64,
   "cycleProfile": "short",
   "pricing": {
     "source": "bot",
-    "steps": 27,
+    "steps": 18,
     "stepsLB": 5,
-    "baseCap": 12,
+    "baseCap": 24,
     "stepsByCap": {
       "12": 27,
       "24": 18,

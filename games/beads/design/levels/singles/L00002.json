@@ -3,13 +3,13 @@
   "name": "studio-3-eddc",
   "cols": 10,
   "rows": 13,
-  "time": 96,
+  "time": 89,
   "cycleProfile": "short",
   "pricing": {
     "source": "bot",
-    "steps": 27,
+    "steps": 25,
     "stepsLB": 8,
-    "baseCap": 12,
+    "baseCap": 24,
     "stepsByCap": {
       "12": 27,
       "24": 25,

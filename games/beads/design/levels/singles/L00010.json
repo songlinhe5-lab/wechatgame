@@ -3,13 +3,13 @@
   "name": "photo32-smoke-boss",
   "cols": 32,
   "rows": 32,
-  "time": 1335,
+  "time": 996,
   "cycleProfile": "short",
   "pricing": {
     "source": "bot",
-    "steps": 378,
+    "steps": 282,
     "stepsLB": 20,
-    "baseCap": 12,
+    "baseCap": 24,
     "stepsByCap": {
       "12": 378,
       "24": 282,

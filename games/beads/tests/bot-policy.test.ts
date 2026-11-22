@@ -124,7 +124,11 @@ describe('EP15-S1 · greedy-acb 金样本逐字一致（§8-1）', () => {
       expect(run.rejected, '策略命令被拒 ⇒ 观测与状态分叉').toEqual([]);
       expect(run.cleared).toBe(level.pricing.cleared);
       expect(run.taps).toBe(level.pricing.taps);
-      expect(run.steps).toBe(level.pricing.steps);
+      // `pricing.steps` = **定价档**（24 槽，§3.5 v2.03 用户 2026-11-22 令）读数；
+      // `run.steps` 是 12 槽基础档，口径不同 ⛔ 不可直接相等。
+      expect(level.pricing.baseCap).toBe(24);
+      expect(run.steps).toBe(level.pricing.stepsByCap[12]);
+      expect(level.pricing.steps).toBe(level.pricing.stepsByCap[24]);
       expect(run.split).toEqual(level.pricing.actionsSplit);
     });
   }

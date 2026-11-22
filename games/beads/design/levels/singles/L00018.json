@@ -3,13 +3,13 @@
   "name": "仙人掌",
   "cols": 32,
   "rows": 32,
-  "time": 420,
+  "time": 311,
   "cycleProfile": "long",
   "pricing": {
     "source": "bot",
-    "steps": 119,
+    "steps": 88,
     "stepsLB": 8,
-    "baseCap": 12,
+    "baseCap": 24,
     "stepsByCap": {
       "12": 119,
       "24": 88,

@@ -3,13 +3,13 @@
   "name": "雏菊",
   "cols": 32,
   "rows": 32,
-  "time": 424,
+  "time": 343,
   "cycleProfile": "long",
   "pricing": {
     "source": "bot",
-    "steps": 120,
+    "steps": 97,
     "stepsLB": 17,
-    "baseCap": 12,
+    "baseCap": 24,
     "stepsByCap": {
       "12": 120,
       "24": 97,

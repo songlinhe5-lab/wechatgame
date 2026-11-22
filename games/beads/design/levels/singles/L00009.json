@@ -3,18 +3,18 @@
   "name": "studio-3-163c",
   "cols": 30,
   "rows": 30,
-  "time": 396,
+  "time": 311,
   "starTierK": [
     1,
     0.85,
-    0.4176
+    0.5305
   ],
   "cycleProfile": "short",
   "pricing": {
     "source": "bot",
-    "steps": 112,
+    "steps": 88,
     "stepsLB": 21,
-    "baseCap": 12,
+    "baseCap": 24,
     "stepsByCap": {
       "12": 112,
       "24": 88,

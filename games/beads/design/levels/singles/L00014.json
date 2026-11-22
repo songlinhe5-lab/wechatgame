@@ -3,13 +3,13 @@
   "name": "郁金香",
   "cols": 32,
   "rows": 32,
-  "time": 255,
+  "time": 156,
   "cycleProfile": "long",
   "pricing": {
     "source": "bot",
-    "steps": 72,
+    "steps": 44,
     "stepsLB": 9,
-    "baseCap": 12,
+    "baseCap": 24,
     "stepsByCap": {
       "12": 72,
       "24": 44,

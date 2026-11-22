@@ -3,13 +3,13 @@
   "name": "玫瑰",
   "cols": 32,
   "rows": 32,
-  "time": 413,
+  "time": 304,
   "cycleProfile": "long",
   "pricing": {
     "source": "bot",
-    "steps": 117,
+    "steps": 86,
     "stepsLB": 11,
-    "baseCap": 12,
+    "baseCap": 24,
     "stepsByCap": {
       "12": 117,
       "24": 86,

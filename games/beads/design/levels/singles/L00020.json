@@ -3,13 +3,13 @@
   "name": "花之王",
   "cols": 32,
   "rows": 32,
-  "time": 385,
+  "time": 357,
   "cycleProfile": "long",
   "pricing": {
     "source": "bot",
-    "steps": 109,
+    "steps": 101,
     "stepsLB": 25,
-    "baseCap": 12,
+    "baseCap": 24,
     "stepsByCap": {
       "12": 109,
       "24": 101,

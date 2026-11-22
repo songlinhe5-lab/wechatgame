@@ -3,13 +3,13 @@
   "name": "studio-3-90df",
   "cols": 14,
   "rows": 8,
-  "time": 120,
+  "time": 89,
   "cycleProfile": "short",
   "pricing": {
     "source": "bot",
-    "steps": 34,
+    "steps": 25,
     "stepsLB": 9,
-    "baseCap": 12,
+    "baseCap": 24,
     "stepsByCap": {
       "12": 34,
       "24": 25,

@@ -3,13 +3,13 @@
   "name": "studio-24042b",
   "cols": 14,
   "rows": 14,
-  "time": 96,
+  "time": 75,
   "cycleProfile": "short",
   "pricing": {
     "source": "bot",
-    "steps": 27,
+    "steps": 21,
     "stepsLB": 10,
-    "baseCap": 12,
+    "baseCap": 24,
     "stepsByCap": {
       "12": 27,
       "24": 21,

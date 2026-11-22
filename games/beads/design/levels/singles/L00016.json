@@ -3,13 +3,13 @@
   "name": "三叶草",
   "cols": 32,
   "rows": 32,
-  "time": 286,
+  "time": 202,
   "cycleProfile": "long",
   "pricing": {
     "source": "bot",
-    "steps": 81,
+    "steps": 57,
     "stepsLB": 9,
-    "baseCap": 12,
+    "baseCap": 24,
     "stepsByCap": {
       "12": 81,
       "24": 57,

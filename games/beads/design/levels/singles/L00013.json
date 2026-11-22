@@ -3,13 +3,13 @@
   "name": "向日葵",
   "cols": 32,
   "rows": 32,
-  "time": 329,
+  "time": 244,
   "cycleProfile": "long",
   "pricing": {
     "source": "bot",
-    "steps": 93,
+    "steps": 69,
     "stepsLB": 21,
-    "baseCap": 12,
+    "baseCap": 24,
     "stepsByCap": {
       "12": 93,
       "24": 69,

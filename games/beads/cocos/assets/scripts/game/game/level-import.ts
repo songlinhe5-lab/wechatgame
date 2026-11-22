@@ -135,7 +135,7 @@ export function measuredLevelTime(steps: number): { time: number; difficulty: nu
  * 第 `tier` 档时钟**能容纳多少批量动作**（= `floor(档秒数 ÷ SEC_PER_STEP)`）。
  *
  * 用途 = 关卡设计/入关判据把「这档到底够不够」变成一句可算的话（§5.0 公式 v0.5 的配套）：
- * - `tierStepBudget(T₁, 2) ≥ steps@12` ⇒ 基础档 2★ 可达（紧平衡的定义）；
+ * - `tierStepBudget(T₁, 2) ≥ steps@24` ⇒ 定价档（24 槽，§3.5 v2.03）2★ 可达（紧平衡的定义）；
  * - `tierStepBudget(T₁, 3) ≥ min(steps@24, steps@48)` ⇒ 至少某一扩容档 3★ 可达。
  * 两条都成立才算一关「定价自洽」，消费方 = `beads-bot.ts` 的 blockers（生成期硬拦）。
  */

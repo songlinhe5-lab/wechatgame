@@ -3,13 +3,13 @@
   "name": "蒲公英",
   "cols": 32,
   "rows": 32,
-  "time": 495,
+  "time": 456,
   "cycleProfile": "long",
   "pricing": {
     "source": "bot",
-    "steps": 140,
+    "steps": 129,
     "stepsLB": 13,
-    "baseCap": 12,
+    "baseCap": 24,
     "stepsByCap": {
       "12": 140,
       "24": 129,

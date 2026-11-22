@@ -3,13 +3,13 @@
   "name": "荷花",
   "cols": 32,
   "rows": 32,
-  "time": 332,
+  "time": 248,
   "cycleProfile": "long",
   "pricing": {
     "source": "bot",
-    "steps": 94,
+    "steps": 70,
     "stepsLB": 17,
-    "baseCap": 12,
+    "baseCap": 24,
     "stepsByCap": {
       "12": 94,
       "24": 70,

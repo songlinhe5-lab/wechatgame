@@ -269,12 +269,16 @@ export function measureBoard(raw: BeadsLevelRaw, seed = 'beads-bot'): MeasureRes
  * 的等式不变式跳过本关（钳位上下界住在 `tuning.ts`，本脚本不跨语言再抄一份）。
  */
 export function pricingOf(res: MeasureResult) {
+    // §3.5 v2.03（用户 2026-11-22 令）：定价档 = **24 槽**（TRAY_TIER_SLOTS[1]），
+    // 不再用 12 槽基础档 —— 「按 24 槽计算，保持紧凑」。stepsByCap 仍三档全留作设计依据。
+    const pricingCap = TRAY_TIER_SLOTS[1]!;
+    const steps = res.stepsByCap[pricingCap] ?? res.steps;
     return {
         source: 'bot' as const,
-        steps: res.steps,
+        steps,
         stepsLB: res.actionsLB,
-        /** 步数取自哪一档容量（§3.4 v1.83：基础档 = 12 槽，= 定价档）。 */
-        baseCap: TRAY_BASE_SLOTS,
+        /** 步数取自哪一档容量（§3.5 v2.03：定价档 = 24 槽）。 */
+        baseCap: pricingCap,
         /** 三档容量实测步数（设计依据，⛔ 不参与 `time` 计算）。 */
         stepsByCap: res.stepsByCap,
         taps: res.taps,
@@ -282,7 +286,7 @@ export function pricingOf(res: MeasureResult) {
         secPerStep: SEC_PER_STEP,
         /** 定价基准档系数（§3.5 v1.84：`STAR_TIER_K[1]` = 2★ 档，等式 = `time == ceil(ceil(steps×单价)÷tierK)`）。 */
         tierK: STAR_TIER_K[1]!,
-        clamped: measuredLevelTime(res.steps).clamped,
+        clamped: measuredLevelTime(steps).clamped,
         cleared: res.cleared,
     };
 }
