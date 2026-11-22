@@ -35,7 +35,9 @@
 - 新增 `tests/modal-scrim-layer.test.ts`：settings/levels 蒙版 `ownerOf={overlay}:scrim`；蒙版 rect 紧邻 scrim 容器开启（`cmds[at-1]` matchObject；懒建语义下「早于弹窗首笔」不成立，1642<1642 教训）；静态门查 meta-widgets/meta-view 无 `scrimFill(overlay)`。
 - 适配 6 件：dialog-center（DEC-8① 断言改 `settings:scrim`）、ui-golden（CONTAINER_EXPECT 四 meta 态 1→2）、bead-style-settings（穷举门改读 ui-root 消费点 + binder 声明计数）、arc-level-select-page（页面不自发蒙版=false 防双份，木牌断言保留）、phase-route-binder（期望序列加 scrim 三条）。
 - 镜像 7 件经 `framework:sync` 同步零差；双平台重建 web/wx=0。
-- 金样 4 帧漂移预期内（容器数变化），待 worktree 干净检出重抓（K-167）；⏸ 真机扫码复核待用户配置凭证。
+- **金样重抓（K-167）**：`git worktree --detach @ c7f44bcc` 干净检出 + frozen-lockfile 安装，`ui-golden-capture.ts` 两遍确定性自证 PASS ⇒ 夹具拷回，`ui-golden.test.ts` 13/13 绿；全量 beads 1602/1602（2 skipped 在册）。
+- **CDP 实帧（[Cocos 产物] 腿，web-mobile release 重建 + 静态服 + CDP `comp._app.game` 取 shell 注入，⛔ 非真实点击）**：`levels/settings/level-detail` 三态 `UI:<route>:scrim` 均落在 `UiContainers` **sibling idx=0**、弹窗容器 `UI:<route>` idx=1（蒙版在下 ⇒ 先绘制）；选关 / 设置截帧目检 = 木牌与行钮明亮不被罩暗、四周页面压暗。level-detail 弹窗容器未建属懒建语义（未 pick-level ⇒ 无落笔 ⇒ 无节点），scrim 仍在 idx=0。产物 `temp/ui-shot/cocos-1029-{levelselect,settings,leveldetail}-scrim.png`（temp/ gitignore，取证快照入本节文字）。
+- ⏸ 真机扫码复核待用户配置凭证（重点确认蒙版在木牌/橱窗之下）。
 
 ---
 
