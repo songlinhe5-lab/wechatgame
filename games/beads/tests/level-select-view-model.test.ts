@@ -247,7 +247,6 @@ describe('选关页大背景位图层序', () => {
     it('[WXG-T-1016] 尺寸同步：段内不再画 4/8px 内缩内窗，缺图臂仍各有一条同几何背板', () => {
         const cmds = frame(() => false);
         const segAt = cmds.findIndex((c) => c.kind === 'segment');
-        const segEndAt = cmds.findIndex((c) => c.kind === 'segmentEnd');
         const box = pickBoxes()[0]!.box;
         expect(
             cmds.filter((c) => c.kind === 'rect' && (c.w === box.w - 4 || c.w === box.w - 8)),

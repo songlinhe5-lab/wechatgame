@@ -25,6 +25,9 @@ import type { BotCommand } from '../src/bot/types.js';
 interface GoldenPricing {
   readonly taps: number;
   readonly steps: number;
+  /** §3.5 v2.03：定价档容量（= 24）与三档实测步数。 */
+  readonly baseCap: number;
+  readonly stepsByCap: Readonly<Record<'12' | '24' | '48', number>>;
   readonly actionsSplit: { moves: number; places: number; directFills: number; retrieves: number };
   readonly cleared: boolean;
 }
@@ -127,8 +130,8 @@ describe('EP15-S1 · greedy-acb 金样本逐字一致（§8-1）', () => {
       // `pricing.steps` = **定价档**（24 槽，§3.5 v2.03 用户 2026-11-22 令）读数；
       // `run.steps` 是 12 槽基础档，口径不同 ⛔ 不可直接相等。
       expect(level.pricing.baseCap).toBe(24);
-      expect(run.steps).toBe(level.pricing.stepsByCap[12]);
-      expect(level.pricing.steps).toBe(level.pricing.stepsByCap[24]);
+      expect(run.steps).toBe(level.pricing.stepsByCap['12']);
+      expect(level.pricing.steps).toBe(level.pricing.stepsByCap['24']);
       expect(run.split).toEqual(level.pricing.actionsSplit);
     });
   }
