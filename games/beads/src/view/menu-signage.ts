@@ -618,6 +618,10 @@ export function drawBeadFace(
  * ② 垂直：有墨包围盒**底边贴 `yBottom`（台面）**，整阵向下让出底部空行（空行不画珠，不越台面）。
  * 几何仍保持方形珠距 `pitch = min(w/cols, h/rows)`；消费面仅主菜单走马灯，选关格 / 详情页仍走
  * `drawBeadFace`（T-952 / T-619 口径不变）。
+ *
+ * `[2026-11-22 · WXG-T-1031]` 用户问「图案白色外框是否是图案边界」⇒ **是**：外围底色珠带
+ * （char 1，150 颗）未点亮时置灰成近白 `#c2c3c5`，读作白框。令「边界缩小一圈，外框底部正好
+ * 落在托板上」⇒ 显示侧裁最外一圈（数据不动），锚定公式沿用 ⇒ 新外框底边仍贴台面接触线。
  */
 export function drawShowcaseFace(
     builder: RenderModelBuilder,
@@ -636,10 +640,19 @@ export function drawShowcaseFace(
     const rows = level.pattern.length;
     const cols = level.cols;
     const pitch = Math.min(w / cols, h / rows);
+    // `[WXG-T-1031]` 用户令「白色外框（1 号珠边界带，未点亮置灰成近白）缩小一圈，外框底部
+    // 正好落在托板上」⇒ 显示侧裁掉有墨包围盒**最外一圈**（⛔ 不改关卡数据；选关格 / 详情页
+    // 走 `drawBeadFace` 不受影响）。裁圈后包围盒各向内 1，锚定公式沿用（底边贴台面、水平居中），
+    // pitch 不变 ⇒ 珠距与点阵密度不变、整幅少一圈。墨区不足三圈不裁（退化保护）。
+    const minR = bounds.minR + 1;
+    const maxR = bounds.maxR - 1;
+    const minC = bounds.minC + 1;
+    const maxC = bounds.maxC - 1;
+    if (maxR - minR < 1 || maxC - minC < 1) return;
     // 有墨包围盒水平居中；垂直底边贴台面（底部空行让到台面下方，不画珠）。
-    const contentCols = bounds.maxC - bounds.minC + 1;
-    const left = x + (w - contentCols * pitch) / 2 - bounds.minC * pitch;
-    const bottom = yBottom - (rows - 1 - bounds.maxR) * pitch;
+    const contentCols = maxC - minC + 1;
+    const left = x + (w - contentCols * pitch) / 2 - minC * pitch;
+    const bottom = yBottom - (rows - 1 - maxR) * pitch;
     const top = bottom + rows * pitch;
     const colorInks = beadInksFor(level);
     const grayInks = beadDimInksFor(level);
@@ -647,17 +660,23 @@ export function drawShowcaseFace(
     const revealTop = bottom + rows * pitch * Math.max(0, Math.min(1, progress));
     const block = Math.max(1, pitch - MENU_SHOWCASE_CELL_SEAM * 2);
     for (let i = 0; i < cells.length; i += 3) {
-        const cx = left + (cells[i + 1]! + 0.5) * pitch;
-        const cy = top - (cells[i]! + 0.5) * pitch;
+        const r = cells[i]!;
+        const c = cells[i + 1]!;
+        if (r < minR || r > maxR || c < minC || c > maxC) continue;
+        const cx = left + (c + 0.5) * pitch;
+        const cy = top - (r + 0.5) * pitch;
         const inks = cy <= revealTop ? colorInks : grayInks;
         builder.rect(cx - block / 2, cy - block / 2, block, block, {
             fill: beadColorOf(inks, cells[i + 2]!),
         });
     }
-    // 锁定格（boss 关通常无）：沿用盘面「灰紫平珠 + 45° 叉」，尺寸随格。
+    // 锁定格（boss 关通常无）：沿用盘面「灰紫平珠 + 45° 叉」，尺寸随格；同口径裁最外一圈。
     for (let i = 0; i < locked.length; i += 2) {
-        const cx = left + (locked[i + 1]! + 0.5) * pitch;
-        const cy = top - (locked[i]! + 0.5) * pitch;
+        const r = locked[i]!;
+        const c = locked[i + 1]!;
+        if (r < minR || r > maxR || c < minC || c > maxC) continue;
+        const cx = left + (c + 0.5) * pitch;
+        const cy = top - (r + 0.5) * pitch;
         drawLockedBead(builder, cx, cy, palette, pitch, 1);
     }
 }

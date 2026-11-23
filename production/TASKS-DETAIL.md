@@ -15,6 +15,35 @@
 
 ---
 
+## WXG-T-1031
+
+**橱窗白框裁定 = 图案边界珠带；显示侧缩小一圈，底边贴台面** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-23）
+
+### 1. 问题与取证链（先裁定、后动手）
+
+- 承用户「首页橱窗里图案白色外框是否是图案边界？如果是，请将边界缩小一圈，外框底部正好看起来落在托板上」。
+- 取证链（四步闭环，⛔ 不靠目测猜）：
+  1. CDP 实帧截主菜单橱窗（`temp/shot-1031.mjs`）+ PIL 逐格采样；
+  2. 白色块 `#c2c3c5` 与运行时置灰墨**精确 0 差**（`beadColorOf(dim, 1)`）；
+  3. Node 复现 `drawShowcaseFace` 命令流（`temp/probe-1031.mts`）：`#c2c3c5` × **150** = char 1 格数；
+  4. L9 数据外圈统计：char 2 白珠仅 24 颗（花芯 rows 12-17），外圈实为彩珠角 ⇒ 白框 = **char 1 边界珠带**（作品底色填充带）。
+- **裁定：是** —— 白框是图案自身的边界珠（L9 char 1，150 颗），未点亮进度整带置灰成近白，读作白框；非 UI 画框（装裱层 M1-M4 仅 1px 描边/暗带）。
+
+### 2. 落地（`menu-signage.ts` `drawShowcaseFace`）
+
+- **显示侧裁最外一圈**：有墨包围盒各向内 1（`minR/maxR/minC/maxC ±1`），圈上格（含 locked 圈上格）不落笔；`levelThumbInkBounds` 口径（full+locked）保持一致。
+- ⛔ 关卡数据不动；选关格 / 详情页走 `drawBeadFace` 不受影响；`pitch = min(w/cols, h/rows)` 不变 ⇒ 珠距与密度不变、整幅少一圈。
+- 锚定公式沿用（水平居中 + 底边贴台面）⇒ **新外框底边仍贴台面接触线**（T-601 裁定 844 口径）。
+- 退化保护：墨区不足三圈不裁（`maxR-minR < 1` 直接 return）。
+
+### 3. 测试与取证
+
+- 口径适配 3 件：`showcase-single`（INK 改裁圈盒 + 新增 `SHOWN_CELLS`，进度/全彩/置灰计数改圈内格）、`menu-tri-state`（`shownCells` 裁圈格表，墨界含 locked）、`arc-carousel`（`shownBounds`/`firstShownColorIdx`/`firstColorCount` 重构共享，`tileFill` 首格签名改裁圈后首格 —— 旧首格在圈上不再落盘）。
+- 新判据：外圈珠机械不画（全墨 612 > 圈内格数）+ 底边仍贴台面（`expectBeadOnShelf` 复核）。
+- tsc 绿（bot-policy 3 条并发遗留不夹带）；全量 137 文件绿；金样 menu 态预期漂移待重抓。
+
+---
+
 ## WXG-T-1030
 
 **九宫格图案不盖星星与编号牌：格子绘制拆图案 / 饰层两腿** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-22）

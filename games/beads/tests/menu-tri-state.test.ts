@@ -14,7 +14,7 @@ import { describe, expect, it, afterEach } from 'vitest';
 import { RenderModelBuilder, type DrawCommand } from '@wxgame/framework';
 import { buildMetaView, setMenuBitmapResolver, type MetaViewData } from '../src/view/meta-view.js';
 import { DEFAULT_PALETTE, beadDimInksFor, beadInksFor } from '../src/view/palette.js';
-import { levelThumbFullCells } from '../src/view/menu-signage.js';
+import { levelThumbFullCells, levelThumbLockedCells } from '../src/view/menu-signage.js';
 import { LEVELS } from '../src/config/levels.js';
 import { DESIGN_H, DESIGN_W, MENU_TEXTURES } from '../src/config/tuning.js';
 
@@ -26,10 +26,38 @@ const BOSS_B = LEVELS[10]!;
 const COLOR_HEXES = new Set([...beadInksFor(BOSS_A).hexes, ...beadInksFor(BOSS_B).hexes]);
 const GRAY_HEXES = new Set([...beadDimInksFor(BOSS_A).hexes, ...beadDimInksFor(BOSS_B).hexes]);
 
-const cellsOf = (lv: typeof BOSS_A): number => levelThumbFullCells(lv).length / 3;
+/** `[WXG-T-1031]` 展示侧裁最外一圈（与 `drawShowcaseFace` 同口径）后的格表。 */
+const shownCells = (lv: typeof BOSS_A): number[] => {
+    const cells = levelThumbFullCells(lv);
+    const locked = levelThumbLockedCells(lv);
+    let minR = Infinity, maxR = -1, minC = Infinity, maxC = -1;
+    for (let i = 0; i < cells.length; i += 3) {
+        const r = cells[i]!, c = cells[i + 1]!;
+        if (r < minR) minR = r;
+        if (r > maxR) maxR = r;
+        if (c < minC) minC = c;
+        if (c > maxC) maxC = c;
+    }
+    for (let i = 0; i < locked.length; i += 2) {
+        const r = locked[i]!, c = locked[i + 1]!;
+        if (r < minR) minR = r;
+        if (r > maxR) maxR = r;
+        if (c < minC) minC = c;
+        if (c > maxC) maxC = c;
+    }
+    minR += 1; maxR -= 1; minC += 1; maxC -= 1;
+    const out: number[] = [];
+    for (let i = 0; i < cells.length; i += 3) {
+        const r = cells[i]!, c = cells[i + 1]!;
+        if (r >= minR && r <= maxR && c >= minC && c <= maxC) out.push(r, c, cells[i + 2]!);
+    }
+    return out;
+};
+
+const cellsOf = (lv: typeof BOSS_A): number => shownCells(lv).length / 3;
 /** 按进度自下而上的彩色格数（格心 ≤ 底缘 + 总高 × progress）。 */
 const coloredCellsOf = (lv: typeof BOSS_A, progress: number): number => {
-    const cells = levelThumbFullCells(lv);
+    const cells = shownCells(lv);
     const rows = lv.pattern.length;
     const line = rows - rows * progress - 0.5;
     let n = 0;

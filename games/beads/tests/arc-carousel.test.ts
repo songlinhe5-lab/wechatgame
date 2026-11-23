@@ -44,7 +44,7 @@ import { starsLedger } from './helpers.js';
 import { DESIGN_H, DESIGN_W, MENU_TEXTURES, STAR_MAX, WALL_ROWS } from '../src/config/tuning.js';
 import { buildMetaView, metaLayout, setMenuBitmapResolver, type MetaViewData } from '../src/view/meta-view.js';
 import { DEFAULT_PALETTE, beadColorOf, beadDimInksFor, beadInksFor } from '../src/view/palette.js';
-import { levelThumbFullCells } from '../src/view/menu-signage.js';
+import { levelThumbFullCells, levelThumbLockedCells } from '../src/view/menu-signage.js';
 
 const START = 1_700_000_000_000;
 const META_KEY = 'test.ep13s4.meta';
@@ -118,10 +118,11 @@ function blitIdsOf(cmds: readonly DrawCommand[]): string[] {
 /** 大关① / ② 的 boss 关（`levelRefs` 末关）= 橱窗珠面缩略素材。 */
 const BOSS_A = LEVELS[8]!;
 const BOSS_B = LEVELS[10]!;
-/** 固定样式展示腿 = 色板基色填充 ⇒ 全彩 / 置灰判据。 */
+/** 固定样式展示腿 = 色板基色填充 ⇒ 全彩 / 置灰判据。
+ * `[WXG-T-1031]` 展示侧裁最外一圈 ⇒ 取**裁圈后**首格色（圈上格不再落盘，签名随新口径）。 */
 function tileFill(lv: typeof BOSS_A, gray: boolean): string {
     const inks = gray ? beadDimInksFor(lv) : beadInksFor(lv);
-    return beadColorOf(inks, levelThumbFullCells(lv)[2]!);
+    return beadColorOf(inks, firstShownColorIdx(lv));
 }
 const COLOR_A = tileFill(BOSS_A, false);
 const GRAY_A = tileFill(BOSS_A, true);
@@ -132,12 +133,51 @@ function hasFill(cmds: readonly DrawCommand[], fill: string): boolean {
     return cmds.some((c) => c.kind === 'rect' && (c as { fill?: string }).fill === fill);
 }
 
-/** 首格颜色的格数（两关共用同一色板 ⇒ 区分「画的是哪一关」只能按格数：L9 = 53 / L11 = 512）。 */
+/** `[WXG-T-1031]` 展示侧裁最外一圈后的墨界（含锁定格，与 `levelThumbInkBounds` 同口径）。 */
+function shownBounds(lv: typeof BOSS_A): { minR: number; maxR: number; minC: number; maxC: number } {
+    const cells = levelThumbFullCells(lv);
+    const locked = levelThumbLockedCells(lv);
+    let minR = Infinity, maxR = -1, minC = Infinity, maxC = -1;
+    for (let i = 0; i < cells.length; i += 3) {
+        const r = cells[i]!, c = cells[i + 1]!;
+        if (r < minR) minR = r;
+        if (r > maxR) maxR = r;
+        if (c < minC) minC = c;
+        if (c > maxC) maxC = c;
+    }
+    for (let i = 0; i < locked.length; i += 2) {
+        const r = locked[i]!, c = locked[i + 1]!;
+        if (r < minR) minR = r;
+        if (r > maxR) maxR = r;
+        if (c < minC) minC = c;
+        if (c > maxC) maxC = c;
+    }
+    return { minR: minR + 1, maxR: maxR - 1, minC: minC + 1, maxC: maxC - 1 };
+}
+
+/** 裁圈后首个有墨格的颜色 idx（`tileFill` / 首色计数签名共用）。 */
+function firstShownColorIdx(lv: typeof BOSS_A): number {
+    const cells = levelThumbFullCells(lv);
+    const { minR, maxR, minC, maxC } = shownBounds(lv);
+    for (let i = 0; i < cells.length; i += 3) {
+        const r = cells[i]!, c = cells[i + 1]!;
+        if (r >= minR && r <= maxR && c >= minC && c <= maxC) return cells[i + 2]!;
+    }
+    return -1;
+}
+
+/** 首格颜色的格数（两关共用同一色板 ⇒ 区分「画的是哪一关」只能按格数）。
+ * `[WXG-T-1031]` 展示侧裁最外一圈 ⇒ 按裁圈后的首色格数计数（与 `drawShowcaseFace` 同口径）。 */
 function firstColorCount(lv: typeof BOSS_A): number {
     const cells = levelThumbFullCells(lv);
-    const idx = cells[2]!;
+    const { minR, maxR, minC, maxC } = shownBounds(lv);
+    const idx = firstShownColorIdx(lv);
     let n = 0;
-    for (let i = 2; i < cells.length; i += 3) if (cells[i] === idx) n += 1;
+    for (let i = 0; i < cells.length; i += 3) {
+        const r = cells[i]!, c = cells[i + 1]!;
+        if (r < minR || r > maxR || c < minC || c > maxC) continue;
+        if (cells[i + 2] === idx) n += 1;
+    }
     return n;
 }
 function tileCount(cmds: readonly DrawCommand[], fill: string): number {
@@ -217,7 +257,7 @@ describe('EP13-S4 走马灯 = 大关集合（页数与代表图）', () => {
         setMenuBitmapResolver(() => true);
         const probe = frameOfData(synthetic({ carouselArtLevel: BOSS_B }));
         // 两关共用同一色板 ⇒ 按首格颜色的格数区分（若回落首行只会是 L9 的 53）。
-        expect(tileCount(probe, GRAY_B), 'carouselArtLevel 必须被消费（L11 首色 512 格）')
+        expect(tileCount(probe, GRAY_B), 'carouselArtLevel 必须被消费（按 BOSS_B 裁圈后首色格数）')
             .toBe(firstColorCount(BOSS_B));
         // 不得靠 `carouselLevel` 冒充展品：给了陈列关、没给 art 字段 ⇒ 只留虚线空槽。
         const none = frameOfData(synthetic());

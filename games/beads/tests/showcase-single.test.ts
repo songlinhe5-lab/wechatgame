@@ -30,7 +30,7 @@ const CLIP_TOP = DESIGN_H - MENU_V2.clip.y;
 const AVAIL = CLIP_TOP - ART.y;
 /** `[WXG-T-1006 五改]` 展示腿按实际绘制区 `avail` 见方落位（⛔ 名义框 `ART.w`）。 */
 const PITCH = AVAIL / BOSS.cols;
-/** 有墨包围盒（含顶部 / 左右各 1 行空边）：用于底边贴台面与内容居中的判据。 */
+/** `[WXG-T-1031]` 显示侧裁最外一圈后的有墨包围盒（与 `drawShowcaseFace` 同口径）。 */
 const INK = (() => {
     const cells = levelThumbFullCells(BOSS);
     let minR = Infinity, maxR = -1, minC = Infinity, maxC = -1;
@@ -41,7 +41,17 @@ const INK = (() => {
         if (c < minC) minC = c;
         if (c > maxC) maxC = c;
     }
-    return { minR, maxR, minC, maxC };
+    return { minR: minR + 1, maxR: maxR - 1, minC: minC + 1, maxC: maxC - 1 };
+})();
+/** 裁圈后实际绘制的格表（`drawShowcaseFace` 只画圈内格）。 */
+const SHOWN_CELLS = (() => {
+    const cells = levelThumbFullCells(BOSS);
+    const out: number[] = [];
+    for (let i = 0; i < cells.length; i += 3) {
+        const r = cells[i]!, c = cells[i + 1]!;
+        if (r >= INK.minR && r <= INK.maxR && c >= INK.minC && c <= INK.maxC) out.push(cells[i]!, cells[i + 1]!, cells[i + 2]!);
+    }
+    return out;
 })();
 const CONTENT_W = (INK.maxC - INK.minC + 1) * PITCH;
 /** `[八改]` 水平轴 = 玻璃裁切窗中心（150..607 → 378.5），与名义 art 框中心 374.5 差 4px。 */
@@ -119,11 +129,10 @@ const expectBeadOnShelf = (cmds: readonly DrawCommand[]): void => {
     expect((minX + maxX) / 2).toBeCloseTo(CLIP_CENTER, 0);
 };
 
-/** 指定行（自顶 0-based）及以下的有墨格数 ⇒ 按进度着色的期望格数。 */
+/** 指定行（自顶 0-based）及以下的**圈内**有墨格数 ⇒ 按进度着色的期望格数（T-1031 裁圈口径）。 */
 const cellsFromRow = (row: number): number => {
-    const cells = levelThumbFullCells(BOSS);
     let n = 0;
-    for (let i = 0; i < cells.length; i += 3) if (cells[i]! >= row) n += 1;
+    for (let i = 0; i < SHOWN_CELLS.length; i += 3) if (SHOWN_CELLS[i]! >= row) n += 1;
     return n;
 };
 
@@ -154,7 +163,7 @@ describe('WXG-T-522 橱窗单一作品', () => {
         hostWith(MENU_TEXTURES.backdrop, MENU_TEXTURES.lock);
         const cmds = frame(data({ carouselState: 'cleared' as const }));
         const rects = beadRects(cmds);
-        expect(countIn(rects, COLOR_HEXES), '通关 = 全彩').toBe(levelThumbFullCells(BOSS).length / 3);
+        expect(countIn(rects, COLOR_HEXES), '通关 = 全彩（圈内格）').toBe(SHOWN_CELLS.length / 3);
         expect(countIn(rects, GRAY_HEXES), '通关不画灰格').toBe(0);
         expect(blitsOf(cmds, MENU_TEXTURES.lock).length, '通关不画锁').toBe(0);
     });
@@ -163,7 +172,7 @@ describe('WXG-T-522 橱窗单一作品', () => {
         hostWith(MENU_TEXTURES.backdrop);
         const cmds = frame(data({ carouselState: 'pushing' as const, carouselProgress: 0 }));
         const rects = beadRects(cmds);
-        expect(countIn(rects, GRAY_HEXES), '进度 0 = 整幅灰').toBe(levelThumbFullCells(BOSS).length / 3);
+        expect(countIn(rects, GRAY_HEXES), '进度 0 = 整幅灰（圈内格）').toBe(SHOWN_CELLS.length / 3);
         expect(countIn(rects, COLOR_HEXES), '进度 0 不露全彩').toBe(0);
     });
 
@@ -193,7 +202,7 @@ describe('WXG-T-522 橱窗单一作品', () => {
         const cmds = frame(data({ carouselState: 'pushing' as const, carouselProgress: 0.5 }));
         const rects = beadRects(cmds);
         const colored = countIn(rects, COLOR_HEXES);
-        const total = levelThumbFullCells(BOSS).length / 3;
+        const total = SHOWN_CELLS.length / 3;
         // 30 行 × 0.5 ⇒ 底部 15 行（r ≥ 15）上色（格心判定）。
         expect(colored, '彩色格数 = 底部 15 行有墨格').toBe(cellsFromRow(15));
         expect(countIn(rects, GRAY_HEXES), '其余有墨格置灰').toBe(total - colored);
@@ -240,5 +249,17 @@ describe('WXG-T-522 橱窗单一作品', () => {
         expect(right.length, '右钮 = 整枚位图').toBe(1);
         expect([left[0]!.w, left[0]!.h]).toEqual([MENU_V2.prev.w, MENU_V2.prev.h]);
         expect([right[0]!.w, right[0]!.h]).toEqual([MENU_V2.next.w, MENU_V2.next.h]);
+    });
+
+    // `[WXG-T-1031]` 用户问「白色外框是否是图案边界」⇒ 是（1 号珠边界带，置灰成近白）；
+    // 令「边界缩小一圈，外框底部正好落在托板上」⇒ 展示侧裁最外一圈、锚定沿用。
+    it('`[WXG-T-1031]` 展示侧裁最外一圈：外圈珠不画，底边仍贴台面', () => {
+        hostWith(MENU_TEXTURES.backdrop);
+        const cmds = frame(data());
+        const rects = beadRects(cmds);
+        // L9 全墨 612 格 > 圈内格数 ⇒ 最外圈机械不画；落位判据（含底边贴台面）随裁圈口径复核。
+        expect(levelThumbFullCells(BOSS).length / 3).toBeGreaterThan(SHOWN_CELLS.length / 3);
+        expect(rects.length, '只画圈内格').toBe(SHOWN_CELLS.length / 3);
+        expectBeadOnShelf(cmds);
     });
 });
