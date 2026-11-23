@@ -15,6 +15,30 @@
 
 ---
 
+## WXG-T-1032
+
+**橱窗 debug框底贴台面左右居中；豆面 contain-fit 框内居中** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-23）
+
+### 1. 需求定位
+
+- 承用户「调整橱窗图案的绘制豆面区域的 debug 框：豆面贴着宽或者高对齐、整个图在框中居中展示、debug 框整体落在托盘上左右居中」。
+- **debug 框 = M3 压边外框**（`MENU_MOUNT.press`，1px `panelBorder` + 内 1px `panel` 双描边）—— 视觉读作包围盒，非程序化 debug 开关件（全仓无 debug 框实体）。
+- 旧态三处不满足：①框底 `fy = art.y - outset` 悬出台面 8px；②豆面按全格 30 见方落位（pitch = avail/30）⇒ 裁圈内容（26×26）浮在框内、四边不贴；③只有水平居中。
+
+### 2. 落地（`meta-menu.ts` + `menu-signage.ts`）
+
+- 新增 `showcaseFrameBox(g)` **单源**：`{ x: clip 中心 − size/2 − outset, y: art.y（台面接触线）, w: size + 2·outset, h: min(size + 2·outset, clip 高) }` —— 底贴台面、左右居中、上缘夹玻璃顶。M3 压边绘制（`drawShowcaseMount`）与豆面落位（`drawShowcaseArt`）**同源消费** ⇒ 框与豆面永不漂移。
+- `drawShowcaseFace` 落位语义改 **内容 contain-fit + 框内两轴居中**：`pitch = min(框宽/内容列, 框高/内容行)` ⇒ 豆面贴着宽或高对齐；`contentLeft/contentBottom` 按 (框 − 内容) / 2 居中；reveal 线改内容盒（`contentBottom + contentH × progress`）。⛔ 回退「全格 30 见方 + 底对齐」。
+- 当前两 boss 关高度 binding（L9 方 26×26、L11 竖 24×22）⇒ 底边仍贴台面，T-1006「低对齐立台面」观感不变。
+
+### 3. 测试与取证
+
+- `showcase-single`：常量改框口径（FRAME / OUTSET / PITCH=contain-fit / CONTENT_BOTTOM），`expectBeadOnShelf` 上界改内容盒；新判据 = 框底贴台面、框左右居中、豆面贴宽或高（`flushW || flushH`）、豆面两轴居中于框。
+- `menu-tri-state`：`coloredCellsOf` 阈值改内容盒（`r ≥ maxR + 0.5 − contentRows×progress`）；进度 0 / 0.5 / 1 三档对 L9/L11 判定行号与旧口径一致。
+- tsc 绿（bot-policy 3 条并发遗留不夹带）；金样 5 帧漂移（menu 几何变更）预期内待 worktree 重抓。
+
+---
+
 ## WXG-T-1031
 
 **橱窗白框裁定 = 图案边界珠带；显示侧缩小一圈，底边贴台面** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-23）

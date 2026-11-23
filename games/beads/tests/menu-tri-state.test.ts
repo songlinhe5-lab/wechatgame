@@ -55,11 +55,16 @@ const shownCells = (lv: typeof BOSS_A): number[] => {
 };
 
 const cellsOf = (lv: typeof BOSS_A): number => shownCells(lv).length / 3;
-/** 按进度自下而上的彩色格数（格心 ≤ 底缘 + 总高 × progress）。 */
+/** 按进度自下而上的彩色格数（格心 ≤ 内容底 + 内容高 × progress，`[WXG-T-1032]` 框内居中口径）。 */
 const coloredCellsOf = (lv: typeof BOSS_A, progress: number): number => {
     const cells = shownCells(lv);
-    const rows = lv.pattern.length;
-    const line = rows - rows * progress - 0.5;
+    let minR = Infinity, maxR = -1;
+    for (let i = 0; i < cells.length; i += 3) {
+        if (cells[i]! < minR) minR = cells[i]!;
+        if (cells[i]! > maxR) maxR = cells[i]!;
+    }
+    const contentRows = maxR - minR + 1;
+    const line = maxR + 0.5 - contentRows * progress;
     let n = 0;
     for (let i = 0; i < cells.length; i += 3) if (cells[i]! >= line) n += 1;
     return n;

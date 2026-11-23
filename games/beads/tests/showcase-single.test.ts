@@ -14,7 +14,7 @@ import { DEFAULT_PALETTE, beadDimInksFor, beadInksFor } from '../src/view/palett
 import { levelThumbFullCells } from '../src/view/menu-signage.js';
 import { setMenuBitmapResolver } from '../src/view/meta-widgets.js';
 import { LEVELS } from '../src/config/levels.js';
-import { DESIGN_H, DESIGN_W, MENU_LOCKED_ICON, MENU_SHOWCASE_CELL_SEAM, MENU_TEXTURES, MENU_V2 } from '../src/config/tuning.js';
+import { DESIGN_H, DESIGN_W, MENU_LOCKED_ICON, MENU_MOUNT, MENU_SHOWCASE_CELL_SEAM, MENU_TEXTURES, MENU_V2 } from '../src/config/tuning.js';
 
 /** Arc 0 的 boss 关 = L9（30×30 曼陀罗）。 */
 const BOSS = LEVELS[8]!;
@@ -28,8 +28,16 @@ const ART = { x: MENU_V2.art.x, y: DESIGN_H - (MENU_V2.art.y + MENU_V2.art.h), w
 /** 玻璃裁切顶（y-up）。 */
 const CLIP_TOP = DESIGN_H - MENU_V2.clip.y;
 const AVAIL = CLIP_TOP - ART.y;
-/** `[WXG-T-1006 五改]` 展示腿按实际绘制区 `avail` 见方落位（⛔ 名义框 `ART.w`）。 */
-const PITCH = AVAIL / BOSS.cols;
+/** `[八改]` 水平轴 = 玻璃裁切窗中心（150..607 → 378.5），与名义 art 框中心 374.5 差 4px。 */
+const CLIP_CENTER = MENU_V2.clip.x + MENU_V2.clip.w / 2;
+/** `[WXG-T-1032]` debug框（= `showcaseFrameBox` 同式）：底贴台面、左右居中、上缘夹玻璃顶。 */
+const OUTSET = MENU_MOUNT.press.outset;
+const FRAME = {
+    x: CLIP_CENTER - AVAIL / 2 - OUTSET,
+    y: ART.y,
+    w: AVAIL + OUTSET * 2,
+    h: Math.min(AVAIL + OUTSET * 2, AVAIL),
+};
 /** `[WXG-T-1031]` 显示侧裁最外一圈后的有墨包围盒（与 `drawShowcaseFace` 同口径）。 */
 const INK = (() => {
     const cells = levelThumbFullCells(BOSS);
@@ -53,12 +61,14 @@ const SHOWN_CELLS = (() => {
     }
     return out;
 })();
-const CONTENT_W = (INK.maxC - INK.minC + 1) * PITCH;
-/** `[八改]` 水平轴 = 玻璃裁切窗中心（150..607 → 378.5），与名义 art 框中心 374.5 差 4px。 */
-const CLIP_CENTER = MENU_V2.clip.x + MENU_V2.clip.w / 2;
-const CONTENT_LEFT = CLIP_CENTER - CONTENT_W / 2;
-/** 整阵底 = 台面 − 底部空行（空行不画珠）⇒ 有墨底边恰好贴台面。 */
-const MATRIX_BOTTOM = ART.y - (BOSS.pattern.length - 1 - INK.maxR) * PITCH;
+const CONTENT_COLS = INK.maxC - INK.minC + 1;
+const CONTENT_ROWS = INK.maxR - INK.minR + 1;
+/** `[WXG-T-1032]` 豆面 contain-fit：`pitch = min(框宽/内容列, 框高/内容行)` ⇒ 贴着宽或高对齐。 */
+const PITCH = Math.min(FRAME.w / CONTENT_COLS, FRAME.h / CONTENT_ROWS);
+const CONTENT_W = CONTENT_COLS * PITCH;
+const CONTENT_LEFT = FRAME.x + (FRAME.w - CONTENT_W) / 2;
+/** `[WXG-T-1032]` 内容底 = 框内垂直居中（L9 方形内容 ⇒ = 台面接触线）。 */
+const CONTENT_BOTTOM = FRAME.y + (FRAME.h - CONTENT_ROWS * PITCH) / 2;
 
 const data = (extra: Partial<MetaViewData> = {}): MetaViewData => Object.freeze({
     stamina: 5, staminaMax: 5, coins: 0,
@@ -124,7 +134,7 @@ const expectBeadOnShelf = (cmds: readonly DrawCommand[]): void => {
     expect(maxX).toBeLessThanOrEqual(CONTENT_LEFT + CONTENT_W + 1);
     // `[WXG-T-1006 五改]` 有墨底边贴台面：最底行块底 = 台面 + 1px 轻缝（⛔ 不再是空行高一珠）。
     expect(minY).toBeCloseTo(ART.y + MENU_SHOWCASE_CELL_SEAM, 6);
-    expect(maxY).toBeLessThanOrEqual(MATRIX_BOTTOM + BOSS.pattern.length * PITCH + 1);
+    expect(maxY).toBeLessThanOrEqual(CONTENT_BOTTOM + CONTENT_ROWS * PITCH + 1);
     // 水平中心 = 裁切窗中心（378.5，八改后珠阵与玻璃内腔同轴）。
     expect((minX + maxX) / 2).toBeCloseTo(CLIP_CENTER, 0);
 };
@@ -206,8 +216,8 @@ describe('WXG-T-522 橱窗单一作品', () => {
         // 30 行 × 0.5 ⇒ 底部 15 行（r ≥ 15）上色（格心判定）。
         expect(colored, '彩色格数 = 底部 15 行有墨格').toBe(cellsFromRow(15));
         expect(countIn(rects, GRAY_HEXES), '其余有墨格置灰').toBe(total - colored);
-        // 彩色格全部落在下半幅（y ≤ 整阵底 + 15 行高）。
-        const revealTop = MATRIX_BOTTOM + 15 * PITCH;
+        // 彩色格全部落在下半幅（y ≤ 内容底 + 内容高一半，T-1032 框内居中口径）。
+        const revealTop = CONTENT_BOTTOM + CONTENT_ROWS * PITCH * 0.5;
         for (const r of rects.filter((x) => COLOR_HEXES.has(x.fill ?? ''))) {
             expect(r.y + r.h).toBeLessThanOrEqual(revealTop + 0.001);
         }
@@ -260,6 +270,33 @@ describe('WXG-T-522 橱窗单一作品', () => {
         // L9 全墨 612 格 > 圈内格数 ⇒ 最外圈机械不画；落位判据（含底边贴台面）随裁圈口径复核。
         expect(levelThumbFullCells(BOSS).length / 3).toBeGreaterThan(SHOWN_CELLS.length / 3);
         expect(rects.length, '只画圈内格').toBe(SHOWN_CELLS.length / 3);
+        expectBeadOnShelf(cmds);
+    });
+
+    // `[WXG-T-1032]` 用户令「豆面贴着宽或者高对齐，整个图在框中居中展示；debug框整体落在
+    // 托盘上，左右居中」⇒ debug框 = M3 压边外框（`showcaseFrameBox`），豆面 contain-fit + 居中。
+    it('`[WXG-T-1032]` debug框底贴台面、左右居中；豆面贴宽/高对齐且框内居中', () => {
+        hostWith(MENU_TEXTURES.backdrop);
+        const cmds = frame(data());
+        // 框本体（M3 压边外描边）：w/h = FRAME，底 = 台面接触线，中心 = 玻璃裁切窗中心。
+        const press = cmds.filter(
+            (c): c is Rect => c.kind === 'rect' && (c as { stroke?: string }).stroke === DEFAULT_PALETTE.panelBorder,
+        );
+        const f = press.find((r) => Math.abs(r.w - FRAME.w) < 0.01 && Math.abs(r.h - FRAME.h) < 0.01);
+        expect(f, 'debug框（M3 压边）存在').toBeDefined();
+        expect(f!.y, '框底 = 台面接触线（不再悬出 outset）').toBeCloseTo(ART.y, 6);
+        expect(f!.x + f!.w / 2, '框左右居中于玻璃裁切窗').toBeCloseTo(CLIP_CENTER, 6);
+        // 豆面：至少一维铺满框（贴宽或高对齐），两轴中心 = 框中心。
+        const flushW = Math.abs(CONTENT_W - FRAME.w) < 1e-6;
+        const flushH = Math.abs(CONTENT_ROWS * PITCH - FRAME.h) < 1e-6;
+        expect(flushW || flushH, '豆面贴着框宽或高对齐').toBe(true);
+        const rects = beadRects(cmds);
+        const minX = Math.min(...rects.map((r) => r.x));
+        const maxX = Math.max(...rects.map((r) => r.x + r.w));
+        const minY = Math.min(...rects.map((r) => r.y));
+        const maxY = Math.max(...rects.map((r) => r.y + r.h));
+        expect((minX + maxX) / 2, '豆面水平居中于框').toBeCloseTo(FRAME.x + FRAME.w / 2, 0);
+        expect((minY + maxY) / 2, '豆面垂直居中于框').toBeCloseTo(FRAME.y + FRAME.h / 2, 0);
         expectBeadOnShelf(cmds);
     });
 });

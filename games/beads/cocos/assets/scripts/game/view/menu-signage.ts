@@ -622,6 +622,12 @@ export function drawBeadFace(
  * `[2026-11-22 · WXG-T-1031]` 用户问「图案白色外框是否是图案边界」⇒ **是**：外围底色珠带
  * （char 1，150 颗）未点亮时置灰成近白 `#c2c3c5`，读作白框。令「边界缩小一圈，外框底部正好
  * 落在托板上」⇒ 显示侧裁最外一圈（数据不动），锚定公式沿用 ⇒ 新外框底边仍贴台面接触线。
+ *
+ * `[2026-11-23 · WXG-T-1032]` 用户令「豆面贴着宽或者高对齐，整个图在框中居中展示；debug框
+ * 整体落在托盘上，左右居中」⇒ 入参语义改为 **debug框**（M3 压边外框，`showcaseFrameBox`：
+ * 底 = 台面接触线、左右居中、上缘夹玻璃顶）；豆面 = 裁圈内容 contain-fit（`pitch = min(w/内容列,
+ * h/内容行)` ⇒ 贴着宽或高对齐）+ 框内两轴居中。当前两 boss 关（L9 方形 / L11 竖向）高度 binding
+ * ⇒ 底边仍贴台面（T-1006 低对齐观感不变）；⛔ 应回退到「全格 30 见方 + 底对齐」。
  */
 export function drawShowcaseFace(
     builder: RenderModelBuilder,
@@ -637,34 +643,31 @@ export function drawShowcaseFace(
     const locked = levelThumbLockedCells(level);
     const bounds = levelThumbInkBounds(level);
     if (bounds === undefined) return;
-    const rows = level.pattern.length;
-    const cols = level.cols;
-    const pitch = Math.min(w / cols, h / rows);
-    // `[WXG-T-1031]` 用户令「白色外框（1 号珠边界带，未点亮置灰成近白）缩小一圈，外框底部
-    // 正好落在托板上」⇒ 显示侧裁掉有墨包围盒**最外一圈**（⛔ 不改关卡数据；选关格 / 详情页
-    // 走 `drawBeadFace` 不受影响）。裁圈后包围盒各向内 1，锚定公式沿用（底边贴台面、水平居中），
-    // pitch 不变 ⇒ 珠距与点阵密度不变、整幅少一圈。墨区不足三圈不裁（退化保护）。
     const minR = bounds.minR + 1;
     const maxR = bounds.maxR - 1;
     const minC = bounds.minC + 1;
     const maxC = bounds.maxC - 1;
     if (maxR - minR < 1 || maxC - minC < 1) return;
-    // 有墨包围盒水平居中；垂直底边贴台面（底部空行让到台面下方，不画珠）。
+    // `[WXG-T-1032]` 用户令「豆面贴着宽或者高对齐，整个图在框中居中展示；debug框整体落在
+    // 托盘上，左右居中」⇒ 入参 (x, yBottom, w, h) = debug框（M3 压边外框，底贴台面、左右居中
+    // 由 `showcaseFrameBox` 保证）；豆面 = 裁圈内容 **contain-fit**：`pitch = min(w/内容列数,
+    // h/内容行数)` ⇒ 贴着宽或高对齐，内容两轴居中（⛔ 再按全格 30 见方 + 底对齐落位）。
     const contentCols = maxC - minC + 1;
-    const left = x + (w - contentCols * pitch) / 2 - minC * pitch;
-    const bottom = yBottom - (rows - 1 - maxR) * pitch;
-    const top = bottom + rows * pitch;
+    const contentRows = maxR - minR + 1;
+    const pitch = Math.min(w / contentCols, h / contentRows);
+    const contentLeft = x + (w - contentCols * pitch) / 2;
+    const contentBottom = yBottom + (h - contentRows * pitch) / 2;
     const colorInks = beadInksFor(level);
     const grayInks = beadDimInksFor(level);
     // 彩色区顶（自下而上）：格心 ≤ 本线 ⇒ 全彩，否则置灰。按格判定，⛔ 半格灰。
-    const revealTop = bottom + rows * pitch * Math.max(0, Math.min(1, progress));
+    const revealTop = contentBottom + contentRows * pitch * Math.max(0, Math.min(1, progress));
     const block = Math.max(1, pitch - MENU_SHOWCASE_CELL_SEAM * 2);
     for (let i = 0; i < cells.length; i += 3) {
         const r = cells[i]!;
         const c = cells[i + 1]!;
         if (r < minR || r > maxR || c < minC || c > maxC) continue;
-        const cx = left + (c + 0.5) * pitch;
-        const cy = top - (r + 0.5) * pitch;
+        const cx = contentLeft + (c - minC + 0.5) * pitch;
+        const cy = contentBottom + (maxR - r + 0.5) * pitch;
         const inks = cy <= revealTop ? colorInks : grayInks;
         builder.rect(cx - block / 2, cy - block / 2, block, block, {
             fill: beadColorOf(inks, cells[i + 2]!),
@@ -675,8 +678,8 @@ export function drawShowcaseFace(
         const r = locked[i]!;
         const c = locked[i + 1]!;
         if (r < minR || r > maxR || c < minC || c > maxC) continue;
-        const cx = left + (c + 0.5) * pitch;
-        const cy = top - (r + 0.5) * pitch;
+        const cx = contentLeft + (c - minC + 0.5) * pitch;
+        const cy = contentBottom + (maxR - r + 0.5) * pitch;
         drawLockedBead(builder, cx, cy, palette, pitch, 1);
     }
 }
