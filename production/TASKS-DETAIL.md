@@ -34,7 +34,9 @@
 ### 3. 测试与取证
 
 - `showcase-single` T-1032 判据改：**压边描边退场门**（橱窗区不得再有 panelBorder/panel 尺寸合框的描边矩形）+ 豆面贴宽/高、框内居中、底贴台面判据保留；框几何判据在 `meta-menu-wall` 验收⑥（热区同框）。
-- tsc 绿（bot-policy 3 条并发遗留不夹带）；其余 131 文件绿；金样多帧漂移（menu 系态描边消失）预期内待 worktree 重抓。
+- tsc 绿（bot-policy 3 条并发遗留不夹带）；其余 131 文件绿。
+- **金样重抓（K-167）**：`git worktree --detach @ b71d8028` 干净检出重抓，确定性自证 PASS ⇒ 夹具拷回，13/13 绿。
+- **CDP 复核（web-mobile 重建）**：实帧 `temp/ui-shot/cocos-1034-after.png` —— 白框消失，豆面干净落于圆台；机器门 = 橱窗区最长近白横/竖线段 0（退场前为框 374/390 连续线段）。
 
 ---
 
