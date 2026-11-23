@@ -37,6 +37,8 @@
 
 - `meta-menu-wall` 验收⑥ 改框口径：热区 390×374、中心 = clip 中心、底 = 台面接触线（y-up `b.y = DESIGN_H − 844`）；图位内四角命中 + 图外落空断言随新框自然成立。
 - tsc 绿（bot-policy 3 条并发遗留不夹带）；全量 132 文件绿；**金样不漂移**（热区框仅 `debugGuides` 开时绘制，金样十态全关）。
+- **CDP 复核（harness 腿 `?game=beads`，Debug 开）**：`shell._phase.resetTo('menu')` 直达主菜单（⛔ harness 默认 breakout、启动闸 tap + 加载等待 14s + `__beads.game.setDebugGuides(true)`）⇒ 实帧 `temp/ui-shot/cocos-1033-crop.png`：**品红命中框与豆面框四边重合**、底落托盘、左右居中 —— 与用户报障截图（旧框 325×314@374.5 与豆面错位）对照修复成立。
+- 取证坑两枚：① `debugGuides` 住 **play 存档** `wxgame.beads.save.v1` 的 `settings`（非 meta）；② boot 即写（体力锚点）会覆盖 document-start 种子 ⇒ 须 hook `Storage.prototype.setItem` 强制带值。
 
 ---
 
