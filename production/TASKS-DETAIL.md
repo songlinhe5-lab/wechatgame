@@ -19,7 +19,24 @@
 
 **橱窗豆面 tint/描边样式评估（临时评估口 + 四档对比截图）** · 负责：主理人(CodeBuddy) · 状态：🚧 进行中（2026-11-23 领号占位）
 
-承用户「harness 上白色外框还是存在」（待取证：陈旧 dist 还是真残留）+「评估橱窗豆面加 tint 纹理 / 图案外圈描边是否更好」。临时评估口 = `showcaseFaceEval`（menu-signage）四档 `flat/facet/outline/facet-outline`，harness `?showcaseFace=` 切换；缺省 `flat` ⇒ 金样零漂移。历史：tint/刻面曾两度退场（T-951「tint 可以省略，看不清楚」/ T-1006「珠子形状看不清楚」）。
+承用户「harness 上白色外框还是存在」（待取证：陈旧 dist 还是真残留）+「评估橱窗豆面加 tint 纹理 / 图案外圈描边是否更好」。
+
+### 1. Part A 白框取证（2026-11-23）
+
+- 用户 harness 上仍见白框 = **陈旧 dist**：serve-harness 仅在服务启动时构建（改动后不重启即旧码）。本会话重建 dist 后 CDP 实帧（3950）确认：**橱窗无任何白/近白框**（`temp/ui-shot/crop1035/cocos-1035-flat-native.png`）——T-1034 删除已生效，用户侧刷新即可（dist 已重建，静态服务直读磁盘）。
+
+### 2. Part B 临时评估口（缺省 flat ⇒ 金样零漂移）
+
+- `menu-signage.ts` 导出 `showcaseFaceEval = { mode, progress? }`（**临时口，拍板后删**）：`flat`（生产档）｜`facet`（盘面 `drawFilledBead` 刻面珠体同腿，`diameterRatio 1.10` 交错）｜`outline`（`drawThumbOutline` 裁圈剪影描边，暖可可 `shadowInk`）｜`facet-outline`；`progress` 覆盖点亮进度。harness `?showcaseFace=<mode>&showcaseProgress=<0..1>` 切换。
+- `bead-outline.ts::drawThumbOutline` 加可选 `occOverride/occKey`（占用覆盖，否则描边沿被裁外圈走）。
+- 取证（`temp/ui-shot/crop1035/`，CDP 七帧）：`flat-p75`（现状基线）/ `facet-p75`（刻面立体感强但图案噪声↑）/ `outline-p75`（剪影利落、图案零遮挡）/ `facet-outline-p75` / `facet-p0`·`outline-p0`（全灰态对照；置灰档保留每珠色相故中心仍见淡彩 = T-1006 口径）。
+- 历史约束：tint/刻面曾两度退场（T-951「tint 可以省略，看不清楚」/ T-1006「珠子形状看不清楚」）。
+
+### 3. 验证与状态
+
+- `pnpm run verify` 24/24 绿（缺省 `flat` ⇒ 金样零漂移，未重抓）；tsc 绿；CDP 实帧复核完成。
+- 提交：`ca797ffc`（code + harness + 台账占位）→ develop（远端取证 `git ls-remote` = ca797ffc3c02）。
+- **状态：🚧 待用户拍板定稿**；拍板后按所选档转正（去临时口/预建占用闭包）并删其余档。
 
 ---
 
