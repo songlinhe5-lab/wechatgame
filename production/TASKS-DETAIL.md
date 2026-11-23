@@ -17,9 +17,23 @@
 
 ## WXG-T-1037
 
-**选关格 debug 珠面区域框 + 缩小珠面避开编号牌/星带** · 负责：主理人(CodeBuddy) · 状态：🚧 进行中（2026-11-23 领号占位）
+**选关格 debug 珠面区域框 + 缩小珠面避开编号牌/星带** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-23）
 
-承用户截图「在这里 debug 时候加个珠面绘制区域框，珠面缩小一些，避免被上下遮盖」。现况：选关格珠面槽 `y+33..151`，编号牌 `y+146..181` 压顶 5px、星带 `y+13..43` 压底 10px（2026-11-20 曾放大槽并明确允许重叠，本单按用户新令回退）。Debug 框须画在珠面区域单源上，且只在选关态出现。
+承用户截图「在这里 debug 时候加个珠面绘制区域框，珠面缩小一些，避免被上下遮盖」。原槽 `y+33..151`，编号牌 `y+146..181` 压顶 5px、星带 `y+13..43` 压底 10px（2026-11-20 曾明确允许）⇒ 本单按新令回退。
+
+### 落码与判定
+
+- `config/tuning/level-select.ts::cellArt`：`imageH 118→99`、`imageTopDown 30→37` ⇒ 槽顶 `181−37=144`（牌下沿 146 − 2px）、槽底 `181−37−99=45`（星带上沿 43 + 2px）；`imageW 142 / imageLeft 8` 不变，锁 / 占位 / 珠面 / debug 框同组常量消费。
+- `level-select-view-model.ts`：VM 投影 `debugGuides`（每帧覆盖同一预分配对象，零分配）；`level-select-view.ts` 透传第四参。
+- `meta-widgets.ts::drawLevelSelectCell`：'hud' 段末笔按同组 `cellArt` 现算框调 `drawHitBox` ⇒ 品红框压在编号牌 / 星之上可见（⛔ 不画在容器图案腿内，否则被饰层盖住）；debug 关时零指令。
+- 测试：`level-select-view-model.test.ts` 旧「允许星压 10px」断言改 2px 双向净距；`arc-level-select-page.test.ts` 新增 debug 开/关门（九格每格一框 / 零框 + 首框同几何）。
+
+### 验证与提交
+
+- 定向 123/123 绿；`pnpm run verify` 24/24 绿。
+- 金样：ab4fca05 锚干净 worktree 重抓（确定性自证 PASS），仅 `level-select` / `level-select-mid` 两态 sha 变、command total 5375 不变，其余九态逐字未变。
+- CDP 实帧：`temp/ui-shot/crop1035/cocos-1037-grid.png`（debug 开）九格品红框可见，珠面不压牌/星。
+- 提交：`ab4fca05`（码 + §12 登记 + 台账占位）→ `aab57463`（金样）→ 本笔台账回填；全在 develop。
 
 ---
 
