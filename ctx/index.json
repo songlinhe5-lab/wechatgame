@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4261,
       "lines": 141,
-      "sha256": "696608af795dfc3ed3f2f7e48cf0fd23d3fdd7677611403ba40ddeb23932b06f",
+      "sha256": "194843207417ec43150f2aa8ac07a0dd45931304634110e8d0b511f721eb72bc",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 410,
-          "summary": "1 production/TASKS-DETAIL.md 374698 11874 normal",
+          "summary": "1 production/TASKS-DETAIL.md 374802 11874 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5203,
       "lines": 159,
-      "sha256": "498ede925cee8fe377647c8213f223d699329a5db306113a678fdb99bbd513e6",
+      "sha256": "aef98eb6c66e6f545426e4aea1b24fa7aed82a65b08e6cfff6f06491ed87479b",
       "tier": "normal",
       "sections": [
         {
@@ -761,7 +761,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 337 行 / 104215 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 337 行 / 104490 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
@@ -1080,7 +1080,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 11874 行 / 374698 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 11874 行 / 374802 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
@@ -93662,9 +93662,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 374698,
+      "tokens": 374802,
       "lines": 11874,
-      "sha256": "2c457fbdd3f996d718a15b6c4bf244aa1090be277e680adbb3dd5078037fef0b",
+      "sha256": "482ca4a5ab69c07d7db8c2e5e2bcc21bafcb2ac7436faacf50c4b24af0249392",
       "tier": "normal",
       "sections": [
         {
@@ -93672,7 +93672,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 11875,
-          "tokens": 374681,
+          "tokens": 374785,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -93688,11 +93688,10 @@
           "level": 2,
           "startLine": 18,
           "endLine": 42,
-          "tokens": 668,
-          "summary": "橱窗豆面 tint/描边样式评估（临时评估口 + 四档对比截图） · 负责：主理人(CodeBuddy) · 状态：🚧",
+          "tokens": 773,
+          "summary": "橱窗豆面四档评估 → 只加裁圈剪影描边 · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-23",
           "keywords": [
             "WXG",
-            "tint",
             "CodeBuddy"
           ]
         },
@@ -93712,35 +93711,33 @@
           ]
         },
         {
-          "anchor": "§2 Part B 临时评估口（缺省 flat ⇒ 金样零漂移）",
+          "anchor": "§2 Part B 四档评估 → 定稿 B（只加描边）",
           "level": 3,
           "startLine": 28,
-          "endLine": 34,
-          "tokens": 294,
-          "summary": "menu-signage.ts 导出 showcaseFaceEval = { mode, progress? }（临时",
+          "endLine": 33,
+          "tokens": 312,
+          "summary": "评估期：menu-signage.ts 临时导出 showcaseFaceEval = { mode, progress",
           "keywords": [
             "Part",
-            "flat",
             "menu",
             "signage",
             "showcaseFaceEval",
-            "mode"
+            "mode",
+            "progress"
           ]
         },
         {
           "anchor": "§3 验证与状态",
           "level": 3,
-          "startLine": 35,
+          "startLine": 34,
           "endLine": 42,
-          "tokens": 112,
-          "summary": "pnpm run verify 24/24 绿（缺省 flat ⇒ 金样零漂移，未重抓）；tsc 绿；CDP 实帧复核完",
+          "tokens": 202,
+          "summary": "pnpm run verify 24/24 绿（转正后）；定向 77/77 绿；新增回归门（描边暖可可末笔、顶点不越裁圈",
           "keywords": [
             "pnpm",
             "run",
             "verify",
-            "flat",
-            "tsc",
-            "CDP"
+            "验证与状态"
           ]
         },
         {
@@ -111087,9 +111084,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 104215,
+      "tokens": 104490,
       "lines": 337,
-      "sha256": "b7f66ff8726c97035ebd5e0258e305689d75fe801db13f5b47eb97e9fc7c0fa6",
+      "sha256": "09909d5b836050f4b0a96e9e1465d9e98260c666f3c11f717423052595c37054",
       "tier": "hot",
       "sections": [
         {
@@ -111097,7 +111094,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 338,
-          "tokens": 104206,
+          "tokens": 104481,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",

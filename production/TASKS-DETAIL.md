@@ -17,26 +17,26 @@
 
 ## WXG-T-1035
 
-**橱窗豆面 tint/描边样式评估（临时评估口 + 四档对比截图）** · 负责：主理人(CodeBuddy) · 状态：🚧 进行中（2026-11-23 领号占位）
+**橱窗豆面四档评估 → 只加裁圈剪影描边** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-23）
 
-承用户「harness 上白色外框还是存在」（待取证：陈旧 dist 还是真残留）+「评估橱窗豆面加 tint 纹理 / 图案外圈描边是否更好」。
+承用户「harness 上白色外框还是存在」+「评估橱窗豆面加 tint 纹理 / 图案外圈描边是否更好」；四档实帧对比后用户拍板 **B = 只加描边**（刻面/tint 不复辟）。
 
 ### 1. Part A 白框取证（2026-11-23）
 
 - 用户 harness 上仍见白框 = **陈旧 dist**：serve-harness 仅在服务启动时构建（改动后不重启即旧码）。本会话重建 dist 后 CDP 实帧（3950）确认：**橱窗无任何白/近白框**（`temp/ui-shot/crop1035/cocos-1035-flat-native.png`）——T-1034 删除已生效，用户侧刷新即可（dist 已重建，静态服务直读磁盘）。
 
-### 2. Part B 临时评估口（缺省 flat ⇒ 金样零漂移）
+### 2. Part B 四档评估 → 定稿 B（只加描边）
 
-- `menu-signage.ts` 导出 `showcaseFaceEval = { mode, progress? }`（**临时口，拍板后删**）：`flat`（生产档）｜`facet`（盘面 `drawFilledBead` 刻面珠体同腿，`diameterRatio 1.10` 交错）｜`outline`（`drawThumbOutline` 裁圈剪影描边，暖可可 `shadowInk`）｜`facet-outline`；`progress` 覆盖点亮进度。harness `?showcaseFace=<mode>&showcaseProgress=<0..1>` 切换。
-- `bead-outline.ts::drawThumbOutline` 加可选 `occOverride/occKey`（占用覆盖，否则描边沿被裁外圈走）。
-- 取证（`temp/ui-shot/crop1035/`，CDP 七帧）：`flat-p75`（现状基线）/ `facet-p75`（刻面立体感强但图案噪声↑）/ `outline-p75`（剪影利落、图案零遮挡）/ `facet-outline-p75` / `facet-p0`·`outline-p0`（全灰态对照；置灰档保留每珠色相故中心仍见淡彩 = T-1006 口径）。
-- 历史约束：tint/刻面曾两度退场（T-951「tint 可以省略，看不清楚」/ T-1006「珠子形状看不清楚」）。
+- 评估期：`menu-signage.ts` 临时导出 `showcaseFaceEval = { mode, progress? }`，harness `?showcaseFace=<mode>&showcaseProgress=<0..1>` 切换；`bead-outline.ts::drawThumbOutline` 加可选 `occOverride/occKey`（占用覆盖，否则描边沿被裁外圈走）。取证（`temp/ui-shot/crop1035/`，CDP 七帧）：`flat-p75`（基线）/ `facet-p75`（立体感强但图案噪声↑）/ `outline-p75`（剪影利落、零遮挡）/ `facet-outline-p75` / `facet-p0`·`outline-p0`（全灰态对照，置灰保留每珠色相 = T-1006 口径）。
+- 用户裁定 **B = 只加描边**：`drawShowcaseFace` 恒以 `palette.shadowInk` 在末笔沿**裁圈内容剪影**画连续描边（复用对局/缩略同一条等比描边通道）；`showcaseOcc` 按关卡缓存占用闭包 ⇒ 逐帧零分配；珠面保持 T-1006 纯色方块（tint/刻面曾两度因「看不清」退场，T-951 / T-1006，不复辟）。
+- 临时口全删：`showcaseFaceEval`、`?showcaseFace` / `?showcaseProgress` 退场；UI 架构 §12 视觉变更登记落盘。
 
 ### 3. 验证与状态
 
-- `pnpm run verify` 24/24 绿（缺省 `flat` ⇒ 金样零漂移，未重抓）；tsc 绿；CDP 实帧复核完成。
-- 提交：`ca797ffc`（code + harness + 台账占位）→ develop（远端取证 `git ls-remote` = ca797ffc3c02）。
-- **状态：🚧 待用户拍板定稿**；拍板后按所选档转正（去临时口/预建占用闭包）并删其余档。
+- `pnpm run verify` 24/24 绿（转正后）；定向 77/77 绿；新增回归门（描边暖可可末笔、顶点不越裁圈内容盒一圈）。
+- 金样：按 86a308a9 锚干净 detached worktree 重抓（两次逐态 sha 全等自证 PASS）；`main-menu` / `level-select` / `level-select-mid` / `settings` / `signin` 五态各 **+128 polygon**（total 1605→1733 / 5247→5375×2 / 1658→1786 / 1639→1767），其余六态逐字未变。
+- 提交：`ca797ffc`（临时评估口）→ `86a308a9`（转正 + 回归门 + §12 登记）→ `e506556c`（金样重抓）→ 台账本笔；均在 develop。
+- **状态：✅ 完成**；用户侧 harness 刷新即可见最终态。
 
 ---
 
