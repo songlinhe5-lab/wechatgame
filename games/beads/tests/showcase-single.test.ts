@@ -14,7 +14,7 @@ import { DEFAULT_PALETTE, beadDimInksFor, beadInksFor } from '../src/view/palett
 import { drawShowcaseFace, levelThumbFullCells } from '../src/view/menu-signage.js';
 import { setMenuBitmapResolver } from '../src/view/meta-widgets.js';
 import { LEVELS } from '../src/config/levels.js';
-import { DESIGN_H, DESIGN_W, MENU_LOCKED_ICON, MENU_MOUNT, MENU_SHOWCASE_CELL_SEAM, MENU_TEXTURES, MENU_V2 } from '../src/config/tuning.js';
+import { DESIGN_H, DESIGN_W, MENU_LOCKED_ICON, MENU_MOUNT, MENU_SHOWCASE_BREATH, MENU_SHOWCASE_CELL_SEAM, MENU_TEXTURES, MENU_V2 } from '../src/config/tuning.js';
 
 /** Arc 0 的 boss 关 = L9（30×30 曼陀罗）。 */
 const BOSS = LEVELS[8]!;
@@ -63,8 +63,8 @@ const SHOWN_CELLS = (() => {
 })();
 const CONTENT_COLS = INK.maxC - INK.minC + 1;
 const CONTENT_ROWS = INK.maxR - INK.minR + 1;
-/** `[WXG-T-1032]` 豆面 contain-fit：`pitch = min(框宽/内容列, 框高/内容行)` ⇒ 贴着宽或高对齐。 */
-const PITCH = Math.min(FRAME.w / CONTENT_COLS, FRAME.h / CONTENT_ROWS);
+/** `[WXG-T-1032/1036]` 豆面 contain-fit：有效高度减 `2×MENU_SHOWCASE_BREATH`（上下呼吸位）⇒ 贴着宽或高对齐。 */
+const PITCH = Math.min(FRAME.w / CONTENT_COLS, (FRAME.h - MENU_SHOWCASE_BREATH * 2) / CONTENT_ROWS);
 const CONTENT_W = CONTENT_COLS * PITCH;
 const CONTENT_LEFT = FRAME.x + (FRAME.w - CONTENT_W) / 2;
 /** `[WXG-T-1032]` 内容底 = 框内垂直居中（L9 方形内容 ⇒ = 台面接触线）。 */
@@ -132,8 +132,9 @@ const expectBeadOnShelf = (cmds: readonly DrawCommand[]): void => {
     const maxY = Math.max(...rects.map((r) => r.y + r.h));
     expect(minX).toBeGreaterThanOrEqual(CONTENT_LEFT - 1);
     expect(maxX).toBeLessThanOrEqual(CONTENT_LEFT + CONTENT_W + 1);
-    // `[WXG-T-1006 五改]` 有墨底边贴台面：最底行块底 = 台面 + 1px 轻缝（⛔ 不再是空行高一珠）。
-    expect(minY).toBeCloseTo(ART.y + MENU_SHOWCASE_CELL_SEAM, 6);
+    // `[WXG-T-1006 五改 / T-1036]` 底缘留呼吸位：最底行块底 = 台面 + 呼吸位 + 1px 轻缝
+    // （原贴台面口径因描边外缘压台面亮缘被用户 B 裁改为留白）。
+    expect(minY).toBeCloseTo(ART.y + MENU_SHOWCASE_BREATH + MENU_SHOWCASE_CELL_SEAM, 6);
     expect(maxY).toBeLessThanOrEqual(CONTENT_BOTTOM + CONTENT_ROWS * PITCH + 1);
     // 水平中心 = 裁切窗中心（378.5，八改后珠阵与玻璃内腔同轴）。
     expect((minX + maxX) / 2).toBeCloseTo(CLIP_CENTER, 0);
@@ -289,7 +290,7 @@ describe('WXG-T-522 橱窗单一作品', () => {
         expect(frameStrokes, '压边描边不得再画（豆面框 = 纯几何）').toHaveLength(0);
         // 豆面：至少一维铺满框（贴宽或高对齐），两轴中心 = 框中心。
         const flushW = Math.abs(CONTENT_W - FRAME.w) < 1e-6;
-        const flushH = Math.abs(CONTENT_ROWS * PITCH - FRAME.h) < 1e-6;
+        const flushH = Math.abs(CONTENT_ROWS * PITCH - (FRAME.h - MENU_SHOWCASE_BREATH * 2)) < 1e-6;
         expect(flushW || flushH, '豆面贴着框宽或高对齐').toBe(true);
         const rects = beadRects(cmds);
         const minX = Math.min(...rects.map((r) => r.x));

@@ -346,6 +346,14 @@ export const MENU_GRAY_WIPE = { soft: 0.08 } as const;
  * `0` = 同色连片。派生版面值，⛔ 不进 §3。
  */
 export const MENU_SHOWCASE_CELL_SEAM = 1;
+/**
+ * `[2026-11-23 · WXG-T-1036]` 橱窗豆面**上下呼吸位**（设计 px，每边）：contain-fit 的有效高度
+ * 从 `showcaseFrameBox.h` 减去 `2×本值` ⇒ 整幅缩一圈且仍在框内两轴居中。
+ * 缘由：T-1035 描边骑在剪影边线上、外缘越内容区约 1.4px；内容顶原本贴玻璃裁切顶、底贴台面
+ * 接触线 ⇒ 顶被裁、底压台面亮缘读作悬浮。3px 留出描边外扩 + 1px 余量（用户 B 裁「上下各缩小
+ * 2–3px」）。⛔ 水平不动（两侧离玻璃内腔本就有余量）。派生版面值，不进 §3。
+ */
+export const MENU_SHOWCASE_BREATH = 3;
 export const MENU_V2 = {
   /**
    * 招牌整图 549×**361** @(**101, 0**)：板体 549×243 在图内下方（`y=118..361`），上方 118 是绳，

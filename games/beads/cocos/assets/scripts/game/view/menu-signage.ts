@@ -48,6 +48,7 @@ import {
     SIGN_GLYPH_GAP_RATIO,
     SIGN_INK_IDX,
     SIGN_MATRIX_N,
+    MENU_SHOWCASE_BREATH,
     MENU_SHOWCASE_CELL_SEAM,
     THUMB_AREA,
     THUMB_BEAD_SHAPE,
@@ -661,6 +662,9 @@ function showcaseOcc(level: BeadsLevelRaw, minR: number, maxR: number, minC: num
  * **只加描边**：末笔沿**裁圈内容剪影**画连续描边（复用对局 / 缩略同一条等比描边通道，
  * `palette.shadowInk` 暖可可黑；占用限定裁后内容，⛔ 整幅剪影会沿被裁外圈走）；
  * 珠面仍走 T-1006 纯色方块（tint/刻面两度因「看不清」退场，T-951 / T-1006，本单不复辟）。
+ *
+ * `[2026-11-23 · WXG-T-1036]` 用户实帧裁定 B：有效高度减 `2×MENU_SHOWCASE_BREATH`（上下各 3px）
+ * ⇒ 描边外缘不越玻璃裁切顶、不压台面亮缘；⛔ 原「底边贴台面」观感改为离台面约 3px 呼吸位。
  */
 export function drawShowcaseFace(
     builder: RenderModelBuilder,
@@ -687,7 +691,9 @@ export function drawShowcaseFace(
     // h/内容行数)` ⇒ 贴着宽或高对齐，内容两轴居中（⛔ 再按全格 30 见方 + 底对齐落位）。
     const contentCols = maxC - minC + 1;
     const contentRows = maxR - minR + 1;
-    const pitch = Math.min(w / contentCols, h / contentRows);
+    // `[WXG-T-1036]` 用户实帧裁定 B：上下各留 `MENU_SHOWCASE_BREATH` ⇒ 有效高度减去 2×呼吸位，
+    // ⛔ 不再让描边外缘顶到玻璃裁切顶 / 压到台面亮缘；框内两轴仍居中（contentBottom 公式不变）。
+    const pitch = Math.min(w / contentCols, (h - MENU_SHOWCASE_BREATH * 2) / contentRows);
     const contentLeft = x + (w - contentCols * pitch) / 2;
     const contentBottom = yBottom + (h - contentRows * pitch) / 2;
     const colorInks = beadInksFor(level);
