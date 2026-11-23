@@ -40,7 +40,9 @@
 
 - 口径适配 3 件：`showcase-single`（INK 改裁圈盒 + 新增 `SHOWN_CELLS`，进度/全彩/置灰计数改圈内格）、`menu-tri-state`（`shownCells` 裁圈格表，墨界含 locked）、`arc-carousel`（`shownBounds`/`firstShownColorIdx`/`firstColorCount` 重构共享，`tileFill` 首格签名改裁圈后首格 —— 旧首格在圈上不再落盘）。
 - 新判据：外圈珠机械不画（全墨 612 > 圈内格数）+ 底边仍贴台面（`expectBeadOnShelf` 复核）。
-- tsc 绿（bot-policy 3 条并发遗留不夹带）；全量 137 文件绿；金样 menu 态预期漂移待重抓。
+- tsc 绿（bot-policy 3 条并发遗留不夹带）；全量 137 文件绿。
+- **金样重抓（K-167）**：`git worktree --detach @ c4a0f6f9` 干净检出重抓，确定性自证 PASS ⇒ 夹具拷回，13/13 绿。
+- **CDP 复核（[Cocos 产物] 腿，web-mobile 10:25 重建）**：实帧对照改前 `temp/ui-shot/cocos-1031-menu-showcase.png` —— 图案整体缩一圈（菱形边内收一珠）、底缘 833 / 台面亮缘 836 ⇒ 白框底部正好落在托板上；白框带仍存但薄一圈（用户令「缩小一圈」而非消除，char 1 带 150→~118 颗）。
 
 ---
 
