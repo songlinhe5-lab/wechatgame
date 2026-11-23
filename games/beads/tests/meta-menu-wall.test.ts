@@ -65,6 +65,7 @@ import {
     BEAD_GAP,
     DESIGN_H,
     DESIGN_W,
+    MENU_MOUNT,
     MENU_V2,
     PANEL_IN_MS,
     THUMB_MATRIX_N,
@@ -79,6 +80,8 @@ import {
 const ROOT = dirname(fileURLToPath(import.meta.url));
 /** 网格总高（与视图同源算式，测试内自算 ⇒ ⛔ 不依赖视图私有量；验收⑥ 结构面用）。 */
 const GRID_H = WALL_ROWS * WALL_CELL + (WALL_ROWS - 1) * WALL_GAP;
+/** `[WXG-T-1033]` debug框高 = 玻璃裁切顶 ↔ 台面接触线（y-up；= 豆面可用高 374）。 */
+const AVAIL_TEST = MENU_V2.art.y + MENU_V2.art.h - MENU_V2.clip.y;
 /** 源码级静态门用（判例 = `bead-style-settings.test.ts::SRC`）。 */
 function SRC(rel: string): string {
     return readFileSync(resolve(ROOT, '..', 'src', rel), 'utf8');
@@ -549,8 +552,14 @@ describe('EP12-S6 Deliverable 3 · 三条硬口径（§5.4）+ 未解锁零热�
             expect(btn.box.w >= DESIGN_W * 0.9 && btn.box.h >= GRID_H, '纸底级热区不得存在').toBe(false);
         }
         // `[WXG-T-585]` 2026-11-07 切生产：v2 图位 = 坐标图读数 325×314（v1 的 `MENU_BOSS_SLOT` 468×528 退场）。
-        expect(b.w).toBe(MENU_V2.art.w);
-        expect(b.h).toBe(MENU_V2.art.h);
+        // `[WXG-T-1033]` 热区改 **debug框**（`showcaseFrameBox` = 豆面实际绘制区同源）：
+        // 390×374（名义 art 框 325×314@374.5 与豆面 390×374@378.5 错位 4px ⇒ debug 页框与豆面错位）。
+        const o = MENU_MOUNT.press.outset;
+        expect(b.w).toBe(AVAIL_TEST + o * 2);
+        expect(b.h).toBe(AVAIL_TEST);
+        expect(b.x + b.w / 2).toBe(MENU_V2.clip.x + MENU_V2.clip.w / 2);
+        expect(b.y).toBe(DESIGN_H - (MENU_V2.art.y + MENU_V2.art.h));
+        expect(b.y + b.h).toBe(DESIGN_H - MENU_V2.clip.y);
     });
 });
 

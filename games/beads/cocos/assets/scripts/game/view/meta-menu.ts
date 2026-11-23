@@ -323,9 +323,9 @@ function drawShowcaseArt(
         // ⚠ 基色填充 = 多条矢量命令，无单命令 alpha ⇒ `reduceMotion` 交叉淡变按中点硬切
         // （alpha < 0.5 不画），否则两页展品会以全彩叠在同一位置。普通滑动 alpha 恒 1。
         if (alpha < 0.5) return;
-        // `[WXG-T-1032]` 豆面 contain-fit **debug框**（`showcaseFrameBox`）：贴着宽或高对齐、
+        // `[WXG-T-1032]` 豆面 contain-fit **debug框**（`g.showcaseFrameBox`）：贴着宽或高对齐、
         // 框内两轴居中；框底贴台面、左右居中由框保证（⛔ 再按 `avail` 见方自算落位）。
-        const f = showcaseFrameBox(g);
+        const f = g.showcaseFrameBox;
         drawShowcaseFace(builder, level, f.x + dx, f.y, f.w, f.h, progress, palette);
     } else {
         drawDashedSocket(builder, { x: cx - b.w / 2 + dx, y: b.y, w: b.w, h: b.h }, palette.slotDashed);
@@ -342,29 +342,11 @@ function hasShowcaseItem(level: BeadsLevelRaw | undefined, state: MetaBossState,
 }
 
 /**
- * `[WXG-T-1032]` **debug框**（用户称呼 = M3 压边外框，1px 双描边读作包围盒）：
- * 底边 = 台面接触线（原 `- outset` 悬出台面 8px）、左右居中（玻璃裁切窗中心）、
- * 上缘仍夹到玻璃顶。豆面 contain-fit 的目标框 —— 调用方（`drawShowcaseArt`）与
- * 压边绘制（`drawShowcaseMount`）共用同一函数 ⇒ 框与豆面永不同源漂移。
- */
-function showcaseFrameBox(g: AnchoredMenuGeo): { x: number; y: number; w: number; h: number } {
-    const art = g.showcaseArtBox;
-    const clip = g.clipBox;
-    const size = clip.y + clip.h - art.y;
-    const o = MENU_MOUNT.press.outset;
-    return {
-        x: clip.x + clip.w / 2 - size / 2 - o,
-        y: art.y,
-        w: size + o * 2,
-        h: Math.min(size + o * 2, clip.y + clip.h - art.y),
-    };
-}
-
-/**
  * `[WXG-T-953]` 装裱层固定上层（`unclip()` 之后）：M1 暗角 → M3 压边 → M4 上缘受光。
  * 包围盒 = 玻璃顶 ↔ 台面（`[WXG-T-601]`）、以 art 中心居中的正方形（两腿实际绘制宽 ≈ `avail`）。
  * M1 只画「有实物展品」的态；M3 / M4 恒画（空槽也保留待陈列槽位边界）。
  * `[WXG-T-1032]` M3 压边改落 `showcaseFrameBox`（底贴台面、左右居中；原底边悬出台面 8px）。
+ * `[WXG-T-1033]` debug框上收 `anchoredGeo.showcaseFrameBox` 单源（`open-levels` 热区同框）。
  */
 function drawShowcaseMount(
     builder: RenderModelBuilder,
@@ -392,7 +374,7 @@ function drawShowcaseMount(
         }
     }
     const p = MENU_MOUNT.press;
-    const f = showcaseFrameBox(g);
+    const f = g.showcaseFrameBox;
     builder.rect(f.x, f.y, f.w, f.h, {
         stroke: palette.panelBorder,
         lineWidth: 1,

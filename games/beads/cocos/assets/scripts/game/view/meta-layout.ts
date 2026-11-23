@@ -6,7 +6,7 @@
  * 缓存分两档：默认行数 = 按 anchors 引用（WeakMap，逐机主菜单）；变参行数只服务 K-6 同帧差分腿。
  */
 
-import { DESIGN_H, DESIGN_W, LEVEL_DETAIL_GEO, LEVEL_SELECT_GEO, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_X, MENU_V2, TOUCH_MIN, WALL_COLS, WALL_ROWS, dialogShiftY, menuAnchors, menuBackdropTopPad, menuPlacementFromAnchors, type MenuAnchors } from '../config/tuning';
+import { DESIGN_H, DESIGN_W, LEVEL_DETAIL_GEO, LEVEL_SELECT_GEO, MENU_MOUNT, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_X, MENU_V2, TOUCH_MIN, WALL_COLS, WALL_ROWS, dialogShiftY, menuAnchors, menuBackdropTopPad, menuPlacementFromAnchors, type MenuAnchors } from '../config/tuning';
 import { settingsContentButtons, settingsContentHeight, settingsContentViewport, isSettingsAction, isToggleAction, settingsToggleHitBox } from './settings-content';
 import { signinCellLayout } from './signin-content';
 import { skinCardBoxes } from './skins-content';
@@ -352,6 +352,12 @@ export interface AnchoredMenuGeo {
     readonly barBox: Box;
     /** `[WXG-T-522]` 单一作品框：每页只画一件大关图（以图心定位）。 */
     readonly showcaseArtBox: Box;
+    /**
+     * `[WXG-T-1033]` **debug框**（M3 压边外框 = 豆面 contain-fit 目标框）：底贴台面接触线、
+     * 左右居中于玻璃裁切窗、上缘夹玻璃顶。`open-levels` 热区与豆面绘制（`drawShowcaseMount`
+     * / `drawShowcaseArt`）**同源消费**本框 —— 画、点、判据一张表（⛔ 热区回落名义 `art` 框）。
+     */
+    readonly showcaseFrameBox: Box;
     readonly settingsHit: Box;
     /**
      * `[WXG-T-365]` 装扮馆入口热区（顶栏中档 x=560，提案 P4-甲：原公告预留位升格）。
@@ -440,6 +446,18 @@ function anchoredGeoV2(a: MenuAnchors): AnchoredMenuGeo {
         plateLine2Cy: r(a.H - topPad - (V.plateSub.y + V.plateSub.h / 2)),
         plateSingleCy: r(a.H - topPad - (V.plateTitle.y + V.plateTitle.h / 2)),
         sealBox,
+        // `[WXG-T-1033]` debug框（= `showcaseFrameBox` 同式单源）：底 = 台面接触线（原名义框
+        // 中心 374.5 与豆面/托盘 378.5 差 4px，且 325×314 远小于豆面 390×374 ⇒ 点豆面边缘
+        // 落空、debug 页热区框与豆面 visibly 错位）。
+        showcaseFrameBox: box(
+            clipBox.x + clipBox.w / 2 - (clipBox.y + clipBox.h - showcaseArtBox.y) / 2 - MENU_MOUNT.press.outset,
+            showcaseArtBox.y,
+            clipBox.y + clipBox.h - showcaseArtBox.y + MENU_MOUNT.press.outset * 2,
+            Math.min(
+                clipBox.y + clipBox.h - showcaseArtBox.y + MENU_MOUNT.press.outset * 2,
+                clipBox.y + clipBox.h - showcaseArtBox.y,
+            ),
+        ),
         signBox, ctaBox, ctaHit,
         demoBox, demoHit: demoBox,
         rankBox, rankHit: rankBox,
@@ -459,7 +477,9 @@ function menuLayoutAnchored(a: MenuAnchors): MetaLayout {
     const built: MetaLayout = {
         buttons: [
             // `[WXG-T-281]` 白卡退役：点 Boss 图进选关 ⇒ 图位 = `open-levels` 热区（与绘制同一对象）。
-            { id: 'open-levels', box: g.bossBox },
+            // `[WXG-T-1033]` 热区改 **debug框**（`showcaseFrameBox`）= 豆面实际绘制区同源
+            // （⛔ 名义 `bossBox` 325×314@374.5 —— 与豆面 390×374@378.5 错位 4px、四边不盖）。
+            { id: 'open-levels', box: g.showcaseFrameBox },
             { id: 'open-rank', box: g.rankHit },
             { id: 'start', box: g.ctaHit },
             // `[WXG-T-993]` EP15 演示入口（CTA 左侧同底纸钮；无可用演示时点按零事件归 shell）。

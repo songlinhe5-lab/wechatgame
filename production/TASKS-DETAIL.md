@@ -15,6 +15,31 @@
 
 ---
 
+## WXG-T-1033
+
+**橱窗热区（debug 页品红框）与豆面区域不同框：上收 `showcaseFrameBox` 单源** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-23）
+
+### 1. 问题确认（用户令「先确认问题在哪里再建议怎么改」）
+
+- 用户提供 debug 页截图（`debugGuides` 开 ⇒ 命中区 = `drawHitBox` 品红描边 + 14% 品红填充；「橙色框」即它，非独立橙色件）。
+- **框 = `open-levels` 命中热区**（点橱窗展品进选关的唯一入口），仍钉 v1 名义 `bossBox` = `MENU_V2.art`（325×314，中心 x 374.5）。
+- T-1032 后豆面实际绘制区 = `showcaseFrameBox`（390×374，中心 x 378.5）⇒ **两套口径不同源**：
+  - 中心错位 4px（= 八改记录的「玻璃内腔 150..607 不居中于名义 art 框」差）——用户读作「框中心不在托盘中心」；
+  - 豆面 390×374 溢出 325×314 框四边——用户读作「图案绘制没遵循框的限制」。
+
+### 2. 落地
+
+- `anchoredGeo` 新增 `showcaseFrameBox` 字段（同式单源：底 = 台面接触线、左右居中 clip 中心、上缘夹玻璃顶）；`open-levels` 热区改 `box: g.showcaseFrameBox`。
+- `meta-menu.ts` 本地 `showcaseFrameBox()` 删除，M3 压边（`drawShowcaseMount`）与豆面落位（`drawShowcaseArt`）改读 `g.showcaseFrameBox` —— **热区、压边、豆面三处一张表**（「画 A 位、按 B 位」结构性不可能）。
+- `bossBox` 保留 = v1 遗留消费点名（不再服务热区）。
+
+### 3. 测试与取证
+
+- `meta-menu-wall` 验收⑥ 改框口径：热区 390×374、中心 = clip 中心、底 = 台面接触线（y-up `b.y = DESIGN_H − 844`）；图位内四角命中 + 图外落空断言随新框自然成立。
+- tsc 绿（bot-policy 3 条并发遗留不夹带）；全量 132 文件绿；**金样不漂移**（热区框仅 `debugGuides` 开时绘制，金样十态全关）。
+
+---
+
 ## WXG-T-1032
 
 **橱窗 debug框底贴台面左右居中；豆面 contain-fit 框内居中** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-23）
