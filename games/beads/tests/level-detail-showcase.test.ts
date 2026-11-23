@@ -5,8 +5,8 @@
  * ② 缺图 ⇒ 零 blit（纯木纹牌仍可读，⛔ 不叠程序化第二套玻璃框）。
  */
 import { afterEach, describe, expect, it } from 'vitest';
-import { RenderModelBuilder, type DrawCommand } from '@wxgame/framework';
-import { DESIGN_H, DESIGN_W, HANDDRAWN_STYLE_ID, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TEXTURES } from '../src/config/tuning.js';
+import { RenderModelBuilder, polygonVertices, type DrawCommand, type PolygonCommand } from '@wxgame/framework';
+import { BEAD_GAP, DESIGN_H, DESIGN_W, HANDDRAWN_STYLE_ID, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TEXTURES } from '../src/config/tuning.js';
 import { LEVELS } from '../src/config/levels.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import { levelDetailPlate } from '../src/view/meta-layout.js';
@@ -27,7 +27,7 @@ const frame = (ready: (id: string) => boolean, levelIndex = 0): readonly DrawCom
     setMenuBitmapResolver(ready);
     const b = new RenderModelBuilder(DESIGN_W, DESIGN_H);
     b.begin();
-    drawLevelDetailPage(b, data(levelIndex), DEFAULT_PALETTE, DESIGN_H);
+    drawLevelDetailPage(b, data(levelIndex), DEFAULT_PALETTE);
     return b.end().commands;
 };
 const panels = (cmds: readonly DrawCommand[]) => cmds.filter(
@@ -70,7 +70,7 @@ describe('WXG-T-609 关卡详情橱窗面板', () => {
         const ref = new RenderModelBuilder(DESIGN_W, DESIGN_H);
         ref.begin();
         // `[WXG-T-925/926]` 页面腿带珠面描边（drawBeadFace 内建）⇒ 参照腿同一条共享腿即可。
-        drawBeadFace(ref, LEVELS[0]!, slot.x, slot.y, slot.w, slot.h, DEFAULT_PALETTE, undefined, HANDDRAWN_STYLE_ID, undefined, 'bottom');
+        drawBeadFace(ref, LEVELS[0]!, slot.x, slot.y, slot.w, slot.h, DEFAULT_PALETTE, undefined, HANDDRAWN_STYLE_ID, undefined, 'bottom', false, BEAD_GAP);
         const refCmds = ref.end().commands;
         expect(refCmds.length).toBeGreaterThan(0);
         // 详情帧内**连续命令切片**（全 kind，不止 circle）与共享腿逐条一致 ⇒ 两页绘制方式同源；
@@ -98,7 +98,7 @@ describe('WXG-T-609 关卡详情橱窗面板', () => {
         const slotX = plate.x + (LEVEL_DETAIL_GEO.showcase.x + LEVEL_DETAIL_GEO.showcase.w / 2 - fit.w / 2 - LEVEL_DETAIL_GEO.plate.x);
         const ref = new RenderModelBuilder(DESIGN_W, DESIGN_H);
         ref.begin();
-        drawBeadFace(ref, lv, slotX, trayY, fit.w, fit.h, DEFAULT_PALETTE, undefined, HANDDRAWN_STYLE_ID, undefined, 'bottom');
+        drawBeadFace(ref, lv, slotX, trayY, fit.w, fit.h, DEFAULT_PALETTE, undefined, HANDDRAWN_STYLE_ID, undefined, 'bottom', false, BEAD_GAP);
         const refCmds = ref.end().commands;
         const sig = (c: DrawCommand) => JSON.stringify(c);
         const at = cmds.map(sig).indexOf(sig(refCmds[0]!));
@@ -109,5 +109,28 @@ describe('WXG-T-609 关卡详情橱窗面板', () => {
         const gridCx = slotX + (fit.w - lv.cols * pitch) / 2 + (lv.cols * pitch) / 2;
         const showcaseCx = plate.x + (LEVEL_DETAIL_GEO.showcase.x + LEVEL_DETAIL_GEO.showcase.w / 2 - LEVEL_DETAIL_GEO.plate.x);
         expect(gridCx).toBeCloseTo(showcaseCx, 6);
+    });
+
+    // `[WXG-T-1038]` 用户 A 裁：详情珠面 = 格距 − 缝，描边贴珠面 ⇒ 底排不越台面接触线。
+    it('`[WXG-T-1038]` 详情留缝珠：所有珠面 / 描边顶点不越台面接触线', () => {
+        const lv = LEVELS[0]!;
+        const plate = levelDetailPlate();
+        const plateY = DESIGN_H - LEVEL_DETAIL_GEO.plate.yDown - LEVEL_DETAIL_GEO.plate.h;
+        const thumb = LEVEL_DETAIL_GEO.thumb;
+        const fit = LEVEL_DETAIL_GEO.thumbFit;
+        const trayY = plate.y + (DESIGN_H - thumb.yDown - thumb.h - plateY);
+        const slotX = plate.x + (LEVEL_DETAIL_GEO.showcase.x + LEVEL_DETAIL_GEO.showcase.w / 2 - fit.w / 2 - LEVEL_DETAIL_GEO.plate.x);
+        const b = new RenderModelBuilder(DESIGN_W, DESIGN_H);
+        b.begin();
+        drawBeadFace(b, lv, slotX, trayY, fit.w, fit.h, DEFAULT_PALETTE, undefined, HANDDRAWN_STYLE_ID, undefined, 'bottom', false, BEAD_GAP);
+        const model = b.end();
+        const polys = model.commands.filter((c): c is PolygonCommand => c.kind === 'polygon');
+        expect(polys.length, '刻面珠体腿已画').toBeGreaterThan(0);
+        for (const p of polys) {
+            const v = polygonVertices(model, p);
+            for (let k = 1; k < v.length; k += 2) {
+                expect(v[k]!, '底缘不得压到台面接触线以下').toBeGreaterThanOrEqual(trayY - 1e-6);
+            }
+        }
     });
 });

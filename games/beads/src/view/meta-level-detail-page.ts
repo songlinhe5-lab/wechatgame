@@ -10,7 +10,7 @@
  * 绘制时加 `plate.y` ⇒ 逐机位移（`dialogShiftY`）不会撕裂内容带。
  */
 
-import { DESIGN_H, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TEXTURES, LEVEL_DETAIL_TITLE_SHADOW, POWERUP_RESTORE_BASE_TILE, POWERUP_TILE_TEXTURES, POWERUP_TYPES } from '../config/tuning.js';
+import { BEAD_GAP, DESIGN_H, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TEXTURES, LEVEL_DETAIL_TITLE_SHADOW, POWERUP_RESTORE_BASE_TILE, POWERUP_TILE_TEXTURES, POWERUP_TYPES } from '../config/tuning.js';
 import { type RenderModelBuilder } from '@wxgame/framework';
 import { POWERUP_LABELS } from '../systems/powerups.js';
 import { type BeadsPalette, withAlpha } from './palette.js';
@@ -131,6 +131,10 @@ export function drawLevelDetailPage(
         data.beadStyle,
         data.beadSize,
         'bottom',
+        false,
+        // `[WXG-T-1038]` 用户 A 裁：详情珠面留 `BEAD_GAP` 缝（盘面 B0 同口径），珠间不挤、
+        // 描边贴珠面 ⇒ 底排不越台面；选关格（flat）与盘面不传本参。
+        BEAD_GAP,
     );
 
     // 星级行：得星 = 实心金，未得 = 空心描边（稿 58×60，净距 9）；缺图 ⇒ 文字档同位居中。
