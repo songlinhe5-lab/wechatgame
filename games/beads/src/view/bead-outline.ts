@@ -76,8 +76,8 @@ let _boardCache: {
  * 画珠面轮廓（必须在底块 / 珠体**之后**调用，覆在珠面之上）。
  * @param lockedFace `x` 锁定格的珠面边长（与 `drawLockedBead` 同参）——锁定格无目标色底块，
  *   轮廓贴其珠体；有目标色的格贴底块外缘（`pitch + 2×TILE_BLEED`）。
- * @param occOverride `[WXG-T-1035 · 临时评估口]` 占用覆盖（缺省 = 整幅 `pattern` 墨）——
- *   显示侧裁圈的消费方（如橱窗）传**裁后**占用，否则描边会沿被裁掉的外圈走；
+ * @param occOverride `[WXG-T-1035]` 占用覆盖（缺省 = 整幅 `pattern` 墨）——
+ *   显示侧裁圈的消费方（橱窗）传**裁后**占用（按关卡缓存），否则描边会沿被裁掉的外圈走；
  *   `occKey` 必须随占用语义变化（进缓存键）。
  */
 export function drawThumbOutline(

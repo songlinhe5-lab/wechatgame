@@ -8,10 +8,10 @@
  */
 
 import { describe, it, expect, afterEach } from 'vitest';
-import { RenderModelBuilder, type DrawCommand } from '@wxgame/framework';
+import { RenderModelBuilder, polygonVertices, type DrawCommand, type PolygonCommand } from '@wxgame/framework';
 import { buildMetaView, type MetaViewData } from '../src/view/meta-view.js';
 import { DEFAULT_PALETTE, beadDimInksFor, beadInksFor } from '../src/view/palette.js';
-import { levelThumbFullCells } from '../src/view/menu-signage.js';
+import { drawShowcaseFace, levelThumbFullCells } from '../src/view/menu-signage.js';
 import { setMenuBitmapResolver } from '../src/view/meta-widgets.js';
 import { LEVELS } from '../src/config/levels.js';
 import { DESIGN_H, DESIGN_W, MENU_LOCKED_ICON, MENU_MOUNT, MENU_SHOWCASE_CELL_SEAM, MENU_TEXTURES, MENU_V2 } from '../src/config/tuning.js';
@@ -299,5 +299,27 @@ describe('WXG-T-522 橱窗单一作品', () => {
         expect((minX + maxX) / 2, '豆面水平居中于框').toBeCloseTo(FRAME.x + FRAME.w / 2, 0);
         expect((minY + maxY) / 2, '豆面垂直居中于框').toBeCloseTo(FRAME.y + FRAME.h / 2, 0);
         expectBeadOnShelf(cmds);
+    });
+
+    // `[WXG-T-1035]` 用户四档评估后选「只加描边」：末笔剪影描边沿裁圈内容走（⛔ 整幅剪影
+    // 会沿被裁掉的外圈走），且颜色 = 对局 / 缩略同一条暖可可描边通道。
+    it('`[WXG-T-1035]` 裁圈剪影描边：暖可可末笔、顶点不越内容盒一圈', () => {
+        const b = new RenderModelBuilder(DESIGN_W, DESIGN_H);
+        b.begin();
+        drawShowcaseFace(b, BOSS, FRAME.x, FRAME.y, FRAME.w, FRAME.h, 1, DEFAULT_PALETTE);
+        const model = b.end();
+        const polys = model.commands.filter(
+            (c): c is PolygonCommand => c.kind === 'polygon' && c.fill === DEFAULT_PALETTE.shadowInk,
+        );
+        expect(polys.length, '剪影描边已画（逐边界珠带）').toBeGreaterThan(0);
+        for (const p of polys) {
+            const v = polygonVertices(model, p);
+            for (let k = 0; k < v.length; k += 2) {
+                expect(v[k]!, '描边左缘不越裁圈左界').toBeGreaterThanOrEqual(CONTENT_LEFT - PITCH);
+                expect(v[k]!, '描边右缘不越裁圈右界').toBeLessThanOrEqual(CONTENT_LEFT + CONTENT_W + PITCH);
+                expect(v[k + 1]!, '描边底缘不越裁圈底界').toBeGreaterThanOrEqual(CONTENT_BOTTOM - PITCH);
+                expect(v[k + 1]!, '描边顶缘不越裁圈顶界').toBeLessThanOrEqual(CONTENT_BOTTOM + CONTENT_ROWS * PITCH + PITCH);
+            }
+        }
     });
 });

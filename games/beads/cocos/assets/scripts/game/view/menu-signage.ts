@@ -602,14 +602,33 @@ export function drawBeadFace(
     drawThumbOutline(builder, level, left, top, pitch, shaped ? beadEdge : block, palette.shadowInk);
 }
 
-/**
- * `[WXG-T-1035 · 临时评估口，用户拍板后删]` 橱窗豆面样式覆盖：`flat`（缺省 = 生产档
- * T-1006/T-1031 口径，金样零漂移）｜`facet`（刻面珠体 = 盘面 `drawFilledBead` 同腿）｜
- * `outline`（裁圈剪影描边）｜`facet-outline`（叠加）。harness 用 `?showcaseFace=<mode>` 切换。
- * 历史：tint/刻面曾两度因「看不清」退场（T-951 / T-1006）⇒ 本口仅评估，未拍板不转正。
- */
-export type ShowcaseFaceMode = 'flat' | 'facet' | 'outline' | 'facet-outline';
-export const showcaseFaceEval: { mode: ShowcaseFaceMode; progress?: number } = { mode: 'flat' };
+/** `[WXG-T-1035]` 裁圈剪影描边的占用表按关卡缓存 ⇒ 菜单逐帧零闭包分配。 */
+type ShowcaseOcc = {
+    readonly minR: number;
+    readonly maxR: number;
+    readonly minC: number;
+    readonly maxC: number;
+    readonly occKey: string;
+    readonly occ: (r: number, c: number) => boolean;
+};
+const _showcaseOccCache = new WeakMap<BeadsLevelRaw, ShowcaseOcc>();
+function showcaseOcc(level: BeadsLevelRaw, minR: number, maxR: number, minC: number, maxC: number): ShowcaseOcc {
+    const hit = _showcaseOccCache.get(level);
+    if (hit && hit.minR === minR && hit.maxR === maxR && hit.minC === minC && hit.maxC === maxC) return hit;
+    const next: ShowcaseOcc = {
+        minR,
+        maxR,
+        minC,
+        maxC,
+        occKey: `crop${minR},${maxR},${minC},${maxC}`,
+        occ: (r, c) =>
+            r >= minR && r <= maxR && c >= minC && c <= maxC &&
+            r >= 0 && r < level.pattern.length && c >= 0 && c < level.cols &&
+            level.pattern[r]![c] !== '.',
+    };
+    _showcaseOccCache.set(level, next);
+    return next;
+}
 
 /**
  * `[2026-11-20 · WXG-T-1006]` 主菜单橱窗**固定样式展示腿**（用户令：「珠子形状看不清楚 ⇒ 用基色填充
@@ -637,6 +656,11 @@ export const showcaseFaceEval: { mode: ShowcaseFaceMode; progress?: number } = {
  * 底 = 台面接触线、左右居中、上缘夹玻璃顶）；豆面 = 裁圈内容 contain-fit（`pitch = min(w/内容列,
  * h/内容行)` ⇒ 贴着宽或高对齐）+ 框内两轴居中。当前两 boss 关（L9 方形 / L11 竖向）高度 binding
  * ⇒ 底边仍贴台面（T-1006 低对齐观感不变）；⛔ 应回退到「全格 30 见方 + 底对齐」。
+ *
+ * `[2026-11-23 · WXG-T-1035]` 用户四档评估（纯色 / 刻面 tint / 剪影描边 / 两者叠加）后选
+ * **只加描边**：末笔沿**裁圈内容剪影**画连续描边（复用对局 / 缩略同一条等比描边通道，
+ * `palette.shadowInk` 暖可可黑；占用限定裁后内容，⛔ 整幅剪影会沿被裁外圈走）；
+ * 珠面仍走 T-1006 纯色方块（tint/刻面两度因「看不清」退场，T-951 / T-1006，本单不复辟）。
  */
 export function drawShowcaseFace(
     builder: RenderModelBuilder,
@@ -669,15 +693,7 @@ export function drawShowcaseFace(
     const colorInks = beadInksFor(level);
     const grayInks = beadDimInksFor(level);
     // 彩色区顶（自下而上）：格心 ≤ 本线 ⇒ 全彩，否则置灰。按格判定，⛔ 半格灰。
-    // `[WXG-T-1035 · 临时评估口]` `showcaseFaceEval.progress` 覆盖点亮进度（新档全灰看不出刻面观感）。
-    const revealProgress = showcaseFaceEval.progress ?? progress;
-    const revealTop = contentBottom + contentRows * pitch * Math.max(0, Math.min(1, revealProgress));
-    // `[WXG-T-1035 · 临时评估口]` facet 腿复用盘面刻面珠体（`diameterRatio 1.10` 交错档），
-    // outline 腿沿**裁圈剪影**描边（占用覆盖，⛔ 整幅剪影会沿被裁外圈走）。
-    const mode = showcaseFaceEval.mode;
-    const facet = mode === 'facet' || mode === 'facet-outline';
-    const withOutline = mode === 'outline' || mode === 'facet-outline';
-    const beadEdge = pitch * THUMB_BEAD_SHAPE.diameterRatio;
+    const revealTop = contentBottom + contentRows * pitch * Math.max(0, Math.min(1, progress));
     const block = Math.max(1, pitch - MENU_SHOWCASE_CELL_SEAM * 2);
     for (let i = 0; i < cells.length; i += 3) {
         const r = cells[i]!;
@@ -686,17 +702,9 @@ export function drawShowcaseFace(
         const cx = contentLeft + (c - minC + 0.5) * pitch;
         const cy = contentBottom + (maxR - r + 0.5) * pitch;
         const inks = cy <= revealTop ? colorInks : grayInks;
-        if (facet) {
-            faceOpts.size = beadEdge;
-            faceOpts.inks = inks;
-            faceOpts.styleId = DEFAULT_BEAD_STYLE_ID;
-            faceOpts.hideHole = false;
-            drawFilledBead(builder, cx, cy, cells[i + 2]!, faceOpts);
-        } else {
-            builder.rect(cx - block / 2, cy - block / 2, block, block, {
-                fill: beadColorOf(inks, cells[i + 2]!),
-            });
-        }
+        builder.rect(cx - block / 2, cy - block / 2, block, block, {
+            fill: beadColorOf(inks, cells[i + 2]!),
+        });
     }
     // 锁定格（boss 关通常无）：沿用盘面「灰紫平珠 + 45° 叉」，尺寸随格；同口径裁最外一圈。
     for (let i = 0; i < locked.length; i += 2) {
@@ -707,24 +715,19 @@ export function drawShowcaseFace(
         const cy = contentBottom + (maxR - r + 0.5) * pitch;
         drawLockedBead(builder, cx, cy, palette, pitch, 1);
     }
-    if (withOutline) {
-        // 占用 = 裁圈内容墨（`ponytail:` 每帧一个闭包，评估期可接受；转正需预建）。
-        const occ = (r: number, c: number): boolean =>
-            r >= minR && r <= maxR && c >= minC && c <= maxC &&
-            r >= 0 && r < level.pattern.length && c >= 0 && c < level.cols &&
-            level.pattern[r]![c] !== '.';
-        drawThumbOutline(
-            builder,
-            level,
-            contentLeft - minC * pitch,
-            contentBottom + (maxR + 1) * pitch,
-            pitch,
-            pitch,
-            palette.shadowInk,
-            occ,
-            `crop${minR},${maxR},${minC},${maxC}`,
-        );
-    }
+    // `[WXG-T-1035]` 末笔：裁圈剪影描边（末笔压在珠面上缘，用户裁定「只加描边」）。
+    const outline = showcaseOcc(level, minR, maxR, minC, maxC);
+    drawThumbOutline(
+        builder,
+        level,
+        contentLeft - minC * pitch,
+        contentBottom + (maxR + 1) * pitch,
+        pitch,
+        pitch,
+        palette.shadowInk,
+        outline.occ,
+        outline.occKey,
+    );
 }
 
 /** 招牌档自审（位表边长与 `n` 相符 **且** 面过地板）⇒ 档位被改而位表未跟上时先红在这里。 */
