@@ -98,7 +98,7 @@ export function drawLevelsView(
     }
     builder.beginSegment('hud');
     for (let i = 0; i < vm.cellCount; i += 1) {
-        drawLevelSelectCell(builder, vm.cells[i]!, palette);
+        drawLevelSelectCell(builder, vm.cells[i]!, palette, vm.debugGuides);
     }
     builder.endSegment();
 

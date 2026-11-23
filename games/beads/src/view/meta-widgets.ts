@@ -8,6 +8,7 @@ import { COPY_TOKENS } from '../config/copy-tokens.js';
 import { type RenderModelBuilder } from '@wxgame/framework';
 import { beadFadedInksFor, withAlpha, type BeadsPalette } from './palette.js';
 import { drawBeadFace, resetSignageWarnings } from './menu-signage.js';
+import { drawHitBox } from './debug-layer.js';
 import { UI_FONT, pressOffset } from './ui-theme.js';
 import { drawButton } from './ui-widgets.js';
 import { settingsContentLabel } from './settings-content.js';
@@ -155,12 +156,17 @@ function drawCellStars(
  * `[WXG-T-1030]` 格内**饰层**（编号牌 + 数字 + 星带）：留在 'hud' 段内 ⇒ blit/labels 恒在
  * 图案层（`drawLevelSelectCellArt`，容器 Graphics）之上 —— 用户令「九宫格的关卡图案不要盖住
  * 格子里的星星和标题」：T-1028 段内通道序 = blit→graphics ⇒ 同段珠面 Graphics 盖住星 / 编号牌
- * 位图；拆层后恢复 T-1028 前观感（星带压图案底缘 10，用户 2026-11-20 已许）。
+ * 位图；拆层后恢复 T-1028 前观感（`[WXG-T-1037]` 新口径：珠面槽收窄，与牌 / 星各留 2px）。
+ *
+ * `[WXG-T-1037]` Debug 开时末笔画**珠面绘制区域框**（非命中热区）：与
+ * {@link drawLevelSelectCellArt} 同组 `cellArt` 常量现算，画在 'hud' 段内 ⇒ 框压在牌 / 星之上，
+ * 不被饰层遮住（⛔ 不在容器图案腿内画，否则框在饰层之下看不见）。
  */
 export function drawLevelSelectCell(
     builder: RenderModelBuilder,
     cell: LevelSelectCellViewModel,
     palette: BeadsPalette,
+    debugGuides = false,
 ): void {
     const { x, w, h } = cell.box;
     const y = cell.box.y + cell.pressDy;
@@ -185,6 +191,10 @@ export function drawLevelSelectCell(
 
     if (!cell.locked && cell.levelIdx !== undefined && cell.level !== undefined) {
         drawCellStars(builder, cell, palette);
+    }
+    if (debugGuides) {
+        const a = LEVEL_SELECT_GEO.cellArt;
+        drawHitBox(builder, x + a.imageLeft, y + (h - a.imageTopDown - a.imageH), a.imageW, a.imageH);
     }
 }
 

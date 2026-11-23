@@ -52,6 +52,8 @@ export interface LevelSelectViewModel {
     readonly beadStyle: string;
     /** `[WXG-T-910]` 豆径档同投影（缩略珠面与盘面同参：小豆档无孔）。 */
     readonly beadSize: BeadSizeKind;
+    /** `[WXG-T-1037]` Debug 开 ⇒ 每格画珠面**绘制区域**框（与绘制同源，非命中热区）。 */
+    readonly debugGuides: boolean;
 }
 
 type Mutable<T> = { -readonly [K in keyof T]: T[K] };
@@ -70,6 +72,7 @@ export function createLevelSelectViewModel(): Mutable<LevelSelectViewModel> {
         cellCount: 0, cells, closePressed: false, screenH: 0, largeText: false, thumbN: 0,
         beadStyle: DEFAULT_BEAD_STYLE_ID,
         beadSize: BEAD_SIZE_DEFAULT,
+        debugGuides: false,
     };
 }
 
@@ -95,6 +98,7 @@ export function updateLevelSelectViewModel(
     vm.thumbN = thumbN;
     vm.beadStyle = data.beadStyle;
     vm.beadSize = data.beadSize;
+    vm.debugGuides = data.debugGuides;
 
     let i = 0;
     for (const b of buttons) {

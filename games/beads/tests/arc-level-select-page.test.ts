@@ -13,7 +13,7 @@ import { RenderModelBuilder, type DrawCommand } from '@wxgame/framework';
 import { buildMetaModal, buildMetaView, hitTestMeta, metaLayout, type MetaViewData } from '../src/view/meta-view.js';
 import { levelDetailPlate } from '../src/view/meta-layout.js';
 import { drawBeadFace } from '../src/view/menu-signage.js';
-import { DEFAULT_PALETTE } from '../src/view/palette.js';
+import { DEBUG_OUTLINE_TILE_HEX, DEFAULT_PALETTE } from '../src/view/palette.js';
 import { COPY_TOKENS } from '../src/config/copy-tokens.js';
 import { scrimFill, UI_FONT, UI_SCRIM } from '../src/view/ui-theme.js';
 import { LEVELS } from '../src/config/levels.js';
@@ -284,5 +284,24 @@ describe('WXG-T-605 · 格内与转场', () => {
         expect(numAt, '编号牌数字在 hud 段内').toBeGreaterThan(hudAt);
         const starAt = cmds.findIndex((c) => c.kind === 'text' && (c as { text?: string }).text === '☆☆☆');
         expect(starAt, '星带文字在 hud 段内').toBeGreaterThan(hudAt);
+    });
+
+    it('`[WXG-T-1037]` Debug 开 ⇒ 每格画珠面**绘制区域**框（同源同几何），关 ⇒ 一帧零框', () => {
+        const on = modalFrame(dataFor({ debugGuides: true }));
+        const off = modalFrame(dataFor());
+        const a = LEVEL_SELECT_GEO.cellArt;
+        const hitRects = (cmds: readonly DrawCommand[]): readonly DrawCommand[] => cmds.filter(
+            (c) => c.kind === 'rect' && (c as { stroke?: string }).stroke === DEBUG_OUTLINE_TILE_HEX,
+        );
+        expect(hitRects(on)).toHaveLength(cells().length);
+        expect(hitRects(off), 'debug 关 ⇒ 零框').toHaveLength(0);
+        const first = cells()[0]!.box;
+        const want = {
+            x: first.x + a.imageLeft,
+            y: first.y + (first.h - a.imageTopDown - a.imageH),
+            w: a.imageW,
+            h: a.imageH,
+        };
+        expect(hitRects(on)[0]).toMatchObject(want);
     });
 });

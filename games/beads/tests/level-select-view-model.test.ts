@@ -269,17 +269,17 @@ describe('选关页大背景位图层序', () => {
     });
 });
 
-describe('[2026-11-20] 选关格图案放大居中 + 锁纹理下移', () => {
+describe('[2026-11-20 / T-1037] 选关格图案槽：横向居中、上下不压牌/星', () => {
     const a = LEVEL_SELECT_GEO.cellArt;
     const grid = LEVEL_SELECT_GEO.grid;
 
-    it('图案槽比 126×94 更大、水平居中、底缘下探进星带（允许星覆盖一点）', () => {
+    it('图案槽比 126×94 更大、水平居中，且底缘在星带之上、顶缘在编号牌之下各留 2px', () => {
         expect(a.imageW).toBeGreaterThan(126);
         expect(a.imageH).toBeGreaterThan(94);
         expect(a.imageLeft).toBe((grid.cellW - a.imageW) / 2);
         const slotBottom = grid.cellH - a.imageTopDown - a.imageH;
-        expect(slotBottom).toBeLessThan(a.starBandY + a.starH / 2);
-        expect(slotBottom).toBeGreaterThan(0);
+        expect(slotBottom - (a.starBandY + a.starH / 2)).toBeCloseTo(2, 6);
+        expect(grid.cellH - a.brandH - (grid.cellH - a.imageTopDown)).toBeCloseTo(2, 6);
     });
 
     it('锁纹理等比不拉伸，且比图案槽靠下（锁格无三星）', () => {
