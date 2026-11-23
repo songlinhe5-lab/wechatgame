@@ -35,7 +35,9 @@
 
 - `showcase-single`：常量改框口径（FRAME / OUTSET / PITCH=contain-fit / CONTENT_BOTTOM），`expectBeadOnShelf` 上界改内容盒；新判据 = 框底贴台面、框左右居中、豆面贴宽或高（`flushW || flushH`）、豆面两轴居中于框。
 - `menu-tri-state`：`coloredCellsOf` 阈值改内容盒（`r ≥ maxR + 0.5 − contentRows×progress`）；进度 0 / 0.5 / 1 三档对 L9/L11 判定行号与旧口径一致。
-- tsc 绿（bot-policy 3 条并发遗留不夹带）；金样 5 帧漂移（menu 几何变更）预期内待 worktree 重抓。
+- tsc 绿（bot-policy 3 条并发遗留不夹带）。
+- **金样重抓（K-167）**：`git worktree --detach @ 135717cc` 干净检出重抓，确定性自证 PASS ⇒ 夹具拷回，13/13 绿。
+- **CDP 复核（[Cocos 产物] 腿，web-mobile 10:53 重建）**：实帧对照 `temp/ui-shot/cocos-1032-after.png` —— 豆面贴满 debug框（L9 内容 26×26 方形 ⇒ 宽高两维同时贴）、内容中心 x≈378 ≈ clip 中心 378.5（左右居中 ✓）、底缘 842 / 台面亮缘 844 ⇒ 框与豆面整体落在托盘上 ✓。
 
 ---
 
