@@ -15,6 +15,14 @@
 
 ---
 
+## WXG-T-1035
+
+**橱窗豆面 tint/描边样式评估（临时评估口 + 四档对比截图）** · 负责：主理人(CodeBuddy) · 状态：🚧 进行中（2026-11-23 领号占位）
+
+承用户「harness 上白色外框还是存在」（待取证：陈旧 dist 还是真残留）+「评估橱窗豆面加 tint 纹理 / 图案外圈描边是否更好」。临时评估口 = `showcaseFaceEval`（menu-signage）四档 `flat/facet/outline/facet-outline`，harness `?showcaseFace=` 切换；缺省 `flat` ⇒ 金样零漂移。历史：tint/刻面曾两度退场（T-951「tint 可以省略，看不清楚」/ T-1006「珠子形状看不清楚」）。
+
+---
+
 ## WXG-T-1034
 
 **橱窗白色矩形框（M3 压边 + M4 受光线）整体退场** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-23）

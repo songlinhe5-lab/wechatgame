@@ -28,6 +28,7 @@ import { BEAD_PITCH, LEVEL_DETAIL_TEXTURES, LEVEL_SELECT_TEXTURES, MENU_TEXTURES
 import { setDevSafeInsets, setShowSafeGuides } from '../../games/beads/src/config/tuning/layout.js';
 import { OPEN_ARCS } from '../../games/beads/src/config/arcs.js';
 import { setMenuBitmapResolver } from '../../games/beads/src/view/meta-view.js';
+import { showcaseFaceEval } from '../../games/beads/src/view/menu-signage.js';
 import { requiredTintMaskIds } from '../../games/beads/src/view/bead-tint-mask.js';
 import { setBeadTintRuntime, createWhitelistBeadTintRuntime } from '../../games/beads/src/view/bead-render.js';
 import { createBreakoutGame, type BreakoutGame } from '../../games/breakout/src/index.js';
@@ -55,6 +56,20 @@ const hud = must<HTMLDivElement>('#hud');
 const harnessQuery =
   typeof window.location?.search === 'string' ? window.location.search : '';
 const harnessParams = new URLSearchParams(harnessQuery);
+// `[WXG-T-1035 · 临时评估口，用户拍板后删]` 橱窗豆面样式：?showcaseFace=facet|outline|facet-outline（缺省 flat）；
+// ?showcaseProgress=<0..1> 覆盖点亮进度（新档全灰看不出刻面观感）。
+const showcaseFaceParam = harnessParams.get('showcaseFace');
+if (
+  showcaseFaceParam === 'facet' ||
+  showcaseFaceParam === 'outline' ||
+  showcaseFaceParam === 'facet-outline'
+) {
+  showcaseFaceEval.mode = showcaseFaceParam;
+}
+const showcaseProgressParam = harnessParams.get('showcaseProgress');
+if (showcaseProgressParam !== null && Number.isFinite(Number(showcaseProgressParam))) {
+  showcaseFaceEval.progress = Number(showcaseProgressParam);
+}
 // `[WXG-T-585]` v2 烘焙背板档已于 2026-11-07 **切生产** ⇒ `?v2=1` 测具下线；
 // `[WXG-T-586]` 清理后连「v1/v2 档」开关本身都没了（代码只剩 v2 一条腿）；
 // `[WXG-T-587]` 原 `?v3=1`（招牌贴安全区 / CTA 贴底 / 背景居中）也已**转正为生产档**，
