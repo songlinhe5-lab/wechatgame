@@ -15,6 +15,29 @@
 
 ---
 
+## WXG-T-1034
+
+**橱窗白色矩形框（M3 压边 + M4 受光线）整体退场** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-23）
+
+### 1. 考证（用户问「什么时候加的、为什么加」）
+
+- 白框 = `drawShowcaseMount` 的 **M3 压边内框**（外线 1px `panelBorder` #E6DAC3 暖沙 + 内线 1px `panel` #FFFCF6 近白 ⇒ 玻璃上读作白框）+ **M4 上缘受光线**（1px `plaqueBevel`）。
+- **来历 = T-953（2026-11-15/16）橱窗装裱层**：当时用户裁「橱窗展品走豆面本体，boss 感由陈列装饰承担」⇒ 装裱四件套 M1 暗角 / M2 接触影 / M3 压边 / M4 受光线（M2 已随 T-1006 四改退场）。M3/M4 恒画的第二职责 = 空橱窗「待陈列槽位」边界。
+- 用户裁定（选项 1）= **不需要**，整删。
+
+### 2. 落地
+
+- `meta-menu.ts` `drawShowcaseMount`：删 M3 两道描边 rect + M4 受光 fill（M1 暗角保留 —— 三档 3–5% α 无框感）；空橱窗早退。
+- `tuning/menu.ts` `MENU_MOUNT`：删 `press` 视觉参（outerRadius/innerInset/innerRadius）与 `bevel`；**`press.outset: 8` 保留**为 `showcaseFrameBox` 纯几何参数（豆面 fit 框 + `open-levels` 热区几何不变，只去描边）。
+- 空槽提示职责归 `drawDashedSocket`（虚线空槽，既有件）；注释改「纯几何」口径（meta-layout / meta-menu / menu.ts 三处）。
+
+### 3. 测试与取证
+
+- `showcase-single` T-1032 判据改：**压边描边退场门**（橱窗区不得再有 panelBorder/panel 尺寸合框的描边矩形）+ 豆面贴宽/高、框内居中、底贴台面判据保留；框几何判据在 `meta-menu-wall` 验收⑥（热区同框）。
+- tsc 绿（bot-policy 3 条并发遗留不夹带）；其余 131 文件绿；金样多帧漂移（menu 系态描边消失）预期内待 worktree 重抓。
+
+---
+
 ## WXG-T-1033
 
 **橱窗热区（debug 页品红框）与豆面区域不同框：上收 `showcaseFrameBox` 单源** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-23）

@@ -342,11 +342,13 @@ function hasShowcaseItem(level: BeadsLevelRaw | undefined, state: MetaBossState,
 }
 
 /**
- * `[WXG-T-953]` 装裱层固定上层（`unclip()` 之后）：M1 暗角 → M3 压边 → M4 上缘受光。
+ * `[WXG-T-953]` 装裱层固定上层（`unclip()` 之后）：M1 暗角。
  * 包围盒 = 玻璃顶 ↔ 台面（`[WXG-T-601]`）、以 art 中心居中的正方形（两腿实际绘制宽 ≈ `avail`）。
- * M1 只画「有实物展品」的态；M3 / M4 恒画（空槽也保留待陈列槽位边界）。
- * `[WXG-T-1032]` M3 压边改落 `showcaseFrameBox`（底贴台面、左右居中；原底边悬出台面 8px）。
- * `[WXG-T-1033]` debug框上收 `anchoredGeo.showcaseFrameBox` 单源（`open-levels` 热区同框）。
+ * M1 只画「有实物展品」的态。
+ * `[WXG-T-1032]` M3 压边曾改落 `showcaseFrameBox`（底贴台面、左右居中）。
+ * `[WXG-T-1034]` **M3 压边 + M4 受光线整体退场**（用户：「可能不需要这个框」⇒ 装饰意图由豆面
+ * 本体 + 烘焙背板承担；空槽边界职责归 `drawDashedSocket`）；`showcaseFrameBox` 保留为纯几何
+ * （豆面 contain-fit 目标框 + `open-levels` 热区），⛔ 不再描边。
  */
 function drawShowcaseMount(
     builder: RenderModelBuilder,
@@ -359,36 +361,19 @@ function drawShowcaseMount(
     const size = clip.y + clip.h - art.y;
     const x = clip.x + clip.w / 2 - size / 2;
     const top = art.y + size;
-    if (withArt) {
-        const v = MENU_MOUNT.vignette;
-        const outer = v.bands[0]!.w;
-        const sideY = art.y + outer;
-        const sideH = size - outer * 2;
-        for (let i = 0; i < v.bands.length; i += 1) {
-            const band = v.bands[i]!;
-            const opts = { fill: palette.shadowInk, alpha: band.alpha, radius: v.radius };
-            builder.rect(x, top - band.w, size, band.w, opts);
-            builder.rect(x, art.y, size, band.w, opts);
-            builder.rect(x, sideY, band.w, sideH, opts);
-            builder.rect(x + size - band.w, sideY, band.w, sideH, opts);
-        }
+    if (!withArt) return;
+    const v = MENU_MOUNT.vignette;
+    const outer = v.bands[0]!.w;
+    const sideY = art.y + outer;
+    const sideH = size - outer * 2;
+    for (let i = 0; i < v.bands.length; i += 1) {
+        const band = v.bands[i]!;
+        const opts = { fill: palette.shadowInk, alpha: band.alpha, radius: v.radius };
+        builder.rect(x, top - band.w, size, band.w, opts);
+        builder.rect(x, art.y, size, band.w, opts);
+        builder.rect(x, sideY, band.w, sideH, opts);
+        builder.rect(x + size - band.w, sideY, band.w, sideH, opts);
     }
-    const p = MENU_MOUNT.press;
-    const f = g.showcaseFrameBox;
-    builder.rect(f.x, f.y, f.w, f.h, {
-        stroke: palette.panelBorder,
-        lineWidth: 1,
-        radius: p.outerRadius,
-    });
-    builder.rect(f.x + p.innerInset, f.y + p.innerInset, f.w - p.innerInset * 2, f.h - p.innerInset * 2, {
-        stroke: palette.panel,
-        lineWidth: 1,
-        radius: p.innerRadius,
-    });
-    const b = MENU_MOUNT.bevel;
-    builder.rect(f.x + p.innerInset, f.y + f.h - p.innerInset - b.inset, f.w - p.innerInset * 2, b.lineWidth, {
-        fill: palette.plaqueBevel,
-    });
 }
 
 /** 空橱窗中央的置灰花。半径写死，热路径不分配。 */

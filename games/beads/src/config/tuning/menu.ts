@@ -415,10 +415,12 @@ export const MENU_MOUNT = {
     ],
     radius: 8,
   },
-  /** M3 压边内框：展品包围盒外扩 `outset`；外线 1px `panelBorder`、内线 1px `panel`。 */
-  press: { outset: 8, outerRadius: 6, innerInset: 1, innerRadius: 5 },
-  /** M4 上缘受光线：压边内框上缘内 1px（`plaqueBevel`）。 */
-  bevel: { inset: 1, lineWidth: 1 },
+  /**
+   * `[WXG-T-1034]` M3 压边 / M4 受光线**退场**（用户 2026-11-23：「可能不需要这个框」；
+   * 空槽边界职责归 `drawDashedSocket`）。`outset` 保留为纯几何参数：
+   * `showcaseFrameBox`（豆面 contain-fit 目标框 + `open-levels` 热区）沿用 8px 外扩。
+   */
+  press: { outset: 8 },
 } as const;
 
 /**

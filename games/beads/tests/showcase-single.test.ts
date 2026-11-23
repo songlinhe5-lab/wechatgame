@@ -274,18 +274,19 @@ describe('WXG-T-522 橱窗单一作品', () => {
     });
 
     // `[WXG-T-1032]` 用户令「豆面贴着宽或者高对齐，整个图在框中居中展示；debug框整体落在
-    // 托盘上，左右居中」⇒ debug框 = M3 压边外框（`showcaseFrameBox`），豆面 contain-fit + 居中。
-    it('`[WXG-T-1032]` debug框底贴台面、左右居中；豆面贴宽/高对齐且框内居中', () => {
+    // 托盘上，左右居中」⇒ debug框 = `showcaseFrameBox`（纯几何，`[WXG-T-1034]` 压边描边退场），
+    // 豆面 contain-fit + 居中；框几何判据在 `meta-menu-wall` 验收⑥（热区同框）。
+    it('`[WXG-T-1032]` 豆面贴宽/高对齐且框内居中；压边描边已退场', () => {
         hostWith(MENU_TEXTURES.backdrop);
         const cmds = frame(data());
-        // 框本体（M3 压边外描边）：w/h = FRAME，底 = 台面接触线，中心 = 玻璃裁切窗中心。
-        const press = cmds.filter(
-            (c): c is Rect => c.kind === 'rect' && (c as { stroke?: string }).stroke === DEFAULT_PALETTE.panelBorder,
+        // `[WXG-T-1034]` M3 压边退场：橱窗区不再有 panelBorder/panel 1px 描边矩形。
+        const frameStrokes = cmds.filter(
+            (c): c is Rect => c.kind === 'rect'
+                && typeof c.stroke === 'string'
+                && [DEFAULT_PALETTE.panelBorder, DEFAULT_PALETTE.panel].includes(c.stroke)
+                && Math.abs(c.w - FRAME.w) < 1 && Math.abs(c.h - FRAME.h) < 1,
         );
-        const f = press.find((r) => Math.abs(r.w - FRAME.w) < 0.01 && Math.abs(r.h - FRAME.h) < 0.01);
-        expect(f, 'debug框（M3 压边）存在').toBeDefined();
-        expect(f!.y, '框底 = 台面接触线（不再悬出 outset）').toBeCloseTo(ART.y, 6);
-        expect(f!.x + f!.w / 2, '框左右居中于玻璃裁切窗').toBeCloseTo(CLIP_CENTER, 6);
+        expect(frameStrokes, '压边描边不得再画（豆面框 = 纯几何）').toHaveLength(0);
         // 豆面：至少一维铺满框（贴宽或高对齐），两轴中心 = 框中心。
         const flushW = Math.abs(CONTENT_W - FRAME.w) < 1e-6;
         const flushH = Math.abs(CONTENT_ROWS * PITCH - FRAME.h) < 1e-6;

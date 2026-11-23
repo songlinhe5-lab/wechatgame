@@ -353,9 +353,10 @@ export interface AnchoredMenuGeo {
     /** `[WXG-T-522]` 单一作品框：每页只画一件大关图（以图心定位）。 */
     readonly showcaseArtBox: Box;
     /**
-     * `[WXG-T-1033]` **debug框**（M3 压边外框 = 豆面 contain-fit 目标框）：底贴台面接触线、
-     * 左右居中于玻璃裁切窗、上缘夹玻璃顶。`open-levels` 热区与豆面绘制（`drawShowcaseMount`
-     * / `drawShowcaseArt`）**同源消费**本框 —— 画、点、判据一张表（⛔ 热区回落名义 `art` 框）。
+     * `[WXG-T-1033]` **debug框**（豆面 contain-fit 目标框）：底贴台面接触线、
+     * 左右居中于玻璃裁切窗、上缘夹玻璃顶。`open-levels` 热区与豆面绘制（`drawShowcaseArt`）
+     * **同源消费**本框 —— 画、点、判据一张表（⛔ 热区回落名义 `art` 框）。
+     * `[WXG-T-1034]` M3 压边退场 ⇒ 本框为**纯几何**（不再描边；`outset` 8 沿用为几何外扩）。
      */
     readonly showcaseFrameBox: Box;
     readonly settingsHit: Box;
