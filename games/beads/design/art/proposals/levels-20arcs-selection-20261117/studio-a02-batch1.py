@@ -18,9 +18,7 @@ from PIL import Image, ImageDraw
 
 BATCH = os.path.dirname(os.path.abspath(__file__))
 JOBS = [
-    ("A02-P07-raccoon", "a02p07", "v1fix", "v1fix", 5),
-    ("A02-P08-wolf", "a02p08", "v1fix", "v1fix", 5),
-    ("A02-P09-deerking", "a02p09", "v1fix", "v1fix", 6),
+    ("A02-P01-fox", "a02p01", "v6fix", "v6fixf", 0),
 ]
 CHARS = "123456789ABCDEFGH"
 CELL = 40  # 32×40 = 1280px 预览

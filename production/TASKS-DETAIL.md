@@ -12060,3 +12060,14 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 - TDD：三态三臂先红（旧文案「已通关」/ undefined）后绿；旧断言适配 5 处（`arc-ticket-gate` 2 / `beads-shell` 3）。
 - 星带判据收紧：`arc-level-select.test.ts` 与 `meta-menu-wall.test.ts::starIn` 由「含 ★ 即计」改「纯星串 `^[★☆]+$`」——新文案的 ★ 落在槽 7 区域被误计为锁格星带；干净锚 `f897ff36` 复跑基线 12/12 绿证实为本单回归后修正。
 - 门：typecheck 绿、`check:tasks` 绿（`## WXG-T-1044` 裸标题）、`framework:sync:check` 绿；金样十一帧按 `5e05af73` 干净锚 worktree 重抓、两遍逐态确定性自证 PASS（命令总数不变，仅菜单族五态第二行文本变）；`test` 132 files / **1622 passed / 2 skipped / 0 红**；§12 视觉变更登记已补。`pnpm run verify` 24/24 绿。
+
+## WXG-T-1045
+
+**A02 林中友九关主色均衡回溯重修**（主理人(Trae CN)·美术轨，🚧 进行中 2026-11-24）
+
+- 缘起：A02 首版 9 关（19305564）为「双主色大块 + 小料」型（如 P1 橙45.2/白42.1/深棕7.6/黑5.2），用户裁「4–5 色需基本均匀珠数」⇒ 新 G12 口径：每主色 15–35%、炭黑点睛豁免 2–8%；series-spec G12 与 catalog §A02 登记待随收尾批补。
+- 路径裁定（用户拍板）：重写提示词重生（每批 3 关批前公示）+ 达标后目视复检；g12 强染仅作收口微调。
+- 批1（P1狐/P2熊/P3鹿）✅：提示词 v5/v6（躯干三色分区 + 深棕背脊带；狐尾整段深棕、熊耳整只深棕+后腿坐垫、鹿臀块+白斑加大）；链路 = 抠图 G9 → 点睛 d150 → 近黑杀/毛刺清 → studio（cols=32&rows=32&palette=10&colorsmode=error&cellmode=mode&smooth=0&swaps=0&noframe=1&notrim=1&mis=max&draft=1）→ 占比复算 → G12 染格收口 → 目视复检。
+- 新坑与新解（重要）：① studio k-means 对 d150 点睛小簇会吸并（P1 v6/P2 v5fixb/P3 v6fix 均「用色 3<4」）⇒ **母版 snap 到色板精确四色 + colors=0 全色板投票**（pattern 字符即 demo 色号，build 需按 kept=[] 恒等映射）确定绕开；② `quantizer=median-hue` 会把炭黑并进深棕（P9 橙鞍毯场景专用，勿全局带）；③ /api/generate 同名 board 复现疑缓存，迭代须换名；④ qwen 对「胸口杂斑/耳内羽纹」偶发（P1 v5/v6 两连）⇒ 外科修复（抹斑重画 + 鼻重定位 (352,816) d128 + 眼缩 d128 保黑 ≥2%）。
+- 批1 实测：P1 30.6/34.8/31.9/黑2.6（v6fixf，steps 50）；P2 34.9/33.6/28.8/黑2.7（v5fixd，steps 69）；P3 34.8/32.2/28.8/黑4.3（v6fixd，steps 57）；均 importable、无 blockers。
+- 批1 产物已入库（本单首个提交）；批2（P4兔/P5松鼠/P6刺猬）/批3（P7浣熊/P8狼/P9鹿王BOSS）提示词重生与验收待续，随后 build-a02-chapter.py 换锁定 response 重建（contentVersion 43→44）→ levels:sync → framework:sync → verify → series-spec/catalog 登记。
