@@ -1,0 +1,19 @@
+{
+  "board": "a02p06v3fixa-max-32-c0",
+  "importable": true,
+  "blockers": [],
+  "voidCells": 0,
+  "colorsUsed": null,
+  "paletteHex": [
+    "#FDF6E9",
+    "#3FBF6B",
+    "#A5652C",
+    "#6B3E1E",
+    "#33333D"
+  ],
+  "balancedChanged": null,
+  "mis": {},
+  "pricing": null,
+  "adjacency": null,
+  "colorErrorFinal": null
+}

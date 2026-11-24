@@ -12063,14 +12063,15 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 
 ## WXG-T-1045
 
-**A02 林中友九关主色均衡回溯重修**（主理人(Trae CN)·美术轨，🚧 进行中 2026-11-24）
+**A02 林中友九关主色均衡回溯重修**（主理人(Trae CN)·美术轨，✅ 完成 2026-11-24）
 
-- 缘起：A02 首版 9 关（19305564）为「双主色大块 + 小料」型（如 P1 橙45.2/白42.1/深棕7.6/黑5.2），用户裁「4–5 色需基本均匀珠数」⇒ 新 G12 口径：每主色 15–35%、炭黑点睛豁免 2–8%；series-spec G12 与 catalog §A02 登记待随收尾批补。
+- 缘起：A02 首版 9 关（19305564）为「双主色大块 + 小料」型（如 P1 橙45.2/白42.1/深棕7.6/黑5.2），用户裁「4–5 色需基本均匀珠数」⇒ 新 G12 口径：每主色 15–35%、炭黑点睛豁免 2–8%。
 - 路径裁定（用户拍板）：重写提示词重生（每批 3 关批前公示）+ 达标后目视复检；g12 强染仅作收口微调。
-- 批1（P1狐/P2熊/P3鹿）✅：提示词 v5/v6（躯干三色分区 + 深棕背脊带；狐尾整段深棕、熊耳整只深棕+后腿坐垫、鹿臀块+白斑加大）；链路 = 抠图 G9 → 点睛 d150 → 近黑杀/毛刺清 → studio（cols=32&rows=32&palette=10&colorsmode=error&cellmode=mode&smooth=0&swaps=0&noframe=1&notrim=1&mis=max&draft=1）→ 占比复算 → G12 染格收口 → 目视复检。
-- 新坑与新解（重要）：① studio k-means 对 d150 点睛小簇会吸并（P1 v6/P2 v5fixb/P3 v6fix 均「用色 3<4」）⇒ **母版 snap 到色板精确四色 + colors=0 全色板投票**（pattern 字符即 demo 色号，build 需按 kept=[] 恒等映射）确定绕开；② `quantizer=median-hue` 会把炭黑并进深棕（P9 橙鞍毯场景专用，勿全局带）；③ /api/generate 同名 board 复现疑缓存，迭代须换名；④ qwen 对「胸口杂斑/耳内羽纹」偶发（P1 v5/v6 两连）⇒ 外科修复（抹斑重画 + 鼻重定位 (352,816) d128 + 眼缩 d128 保黑 ≥2%）。
-- 批1 实测：P1 30.6/34.8/31.9/黑2.6（v6fixf，steps 50）；P2 34.9/33.6/28.8/黑2.7（v5fixd，steps 69）；P3 34.8/32.2/28.8/黑4.3（v6fixd，steps 57）；均 importable、无 blockers。
-- 批1 产物已入库（本单首个提交）；批2（P4兔/P5松鼠/P6刺猬）/批3（P7浣熊/P8狼/P9鹿王BOSS）提示词重生与验收待续，随后 build-a02-chapter.py 换锁定 response 重建（contentVersion 43→44）→ levels:sync → framework:sync → verify → series-spec/catalog 登记。
+- 批1（P1狐/P2熊/P3鹿）✅：提示词 v5/v6（躯干三色分区 + 深棕背脊带）；链路 = 抠图 G9 → 点睛 d150 → 近黑杀/毛刺清 → studio（cols=32&rows=32&palette=10&colorsmode=error&cellmode=mode&smooth=0&swaps=0&noframe=1&notrim=1&mis=max&draft=1）→ 占比复算 → G12 染格收口 → 目视复检。
+- 新坑与新解（重要）：① studio k-means 对 d150 点睛小簇会吸并（P1 v6/P2 v5fixb/P3 v6fix 均「用色 3<4」）⇒ **母版 snap 到色板精确四色 + colors=0 全色板投票**确定绕开；② `quantizer=median-hue` 会把炭黑并进深棕（勿全局带）；③ /api/generate 同名 board 疑缓存，迭代须换 suf；④ qwen 对「胸口杂斑/耳内羽纹」偶发 ⇒ 外科修复。
+- 批2（P4兔/P5鼠/P6猬）✅ 用户验收：草绿主色令落地（P4 草绿披带+项圈 21.9%、P6 刺背草绿 17.6%、P5 不加）；主色口径令入宪（总色 n 中 n−2～n 种均布、配色 ≤2 建议 1）。P4 21.1/29.9/21.9/25.6/黑1.6（v4fix2bcd）；P5 24.3/29.7/22.1/22.1/黑1.7（v2fix2a，steps95）；P6 22.9/17.6/25.1/31.8/黑2.6（v3fixbcd）。批 2 黑 1.6/1.7 低于豁免下限 2% ⇒ 用户裁定「验收通过，继续批 3」。
+- 批3（P7浣/P8狼/P9鹿王）✅ 用户验收：**主色范围令**落地（用户 2026-11-24「提示词都有深棕，能否主色不要这么单一；尤其后续大关主题时候，限制主色需要一个范围」）⇒ A02 主色池 = 锚点（橙/赭/白）+ 轮换池（深棕/草绿/丁香紫/湖蓝），相邻关深色件不重复、同章同轮换色 ≤2 次；P7 深棕→丁香紫（眼罩/尾环 34.2%）、P8 深棕→湖蓝（背脊/尾 33.8%）、P9 保留深棕角蹄+草绿项圈垂披（五色 22.6/16.1/16.1/16.1/27.9）。P9 排障：fix-a02-g12.py cands = FROM 格 4 邻必须为 TO 色 ⇒ 深棕不邻绿、棕→绿 cands=0 无效，改赭→绿 3 轮（steps 89→85→83→84 ✓≥68）；白→绿曾致 BOSS steps 暴跌 83→59，8 格反染回退。点睛修正版（鼻=y 最低炭黑斑 + 三通道极差<60 防彩耳误捕 + 杂斑环带中位数抹除）。批 3 黑 1.4/0.8/1.3 低于 2% ⇒ 用户裁定「验收通过，继续 build」。
+- 收尾：两令入宪 series-spec-catalog §A02；G12 通用条款订正 series-spec §2（15–35% 均布 + 黑 <2% 须公示裁决程序）；`generation-record-a02.txt` 九关锁定数据与判例入册；build-a02-chapter.py 九关锁定重建 + 恒等映射修复（统一按 paletteHex→PAL10 序号重映射，colors=0 时 colorLimit.kept=[] 不再崩）+ contentVersion 43→44；`pnpm levels:sync` + `framework:sync` + `pnpm run verify` **24/24 PASS**。
 
 ## WXG-T-1046
 

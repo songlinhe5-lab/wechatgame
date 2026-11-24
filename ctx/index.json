@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4301,
       "lines": 142,
-      "sha256": "99a313ad2980c9c1301d1a79dc830b753bcb9b722bf03b85162ddff590c4db6f",
+      "sha256": "0648bf957ac8b2ba2d77eabab73fe639942348e153c2c0e4b94b28aeaf56d7ab",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 407,
-          "summary": "1 production/TASKS-DETAIL.md 383208 12110 normal",
+          "summary": "1 production/TASKS-DETAIL.md 383530 12111 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -421,7 +421,7 @@
           "level": 2,
           "startLine": 46,
           "endLine": 117,
-          "tokens": 2794,
+          "tokens": 2795,
           "summary": "上限按文档类别分档（WXG-T-377）：spec 8000（判据/规格/提案/ADR/GDD/UX/skill，未放松",
           "keywords": [
             "WXG",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5204,
       "lines": 159,
-      "sha256": "2ca680873b7d229bf3a4f3f4badc3a970d9c582d8885874dcac773def0d64dc4",
+      "sha256": "3220005f70380f0c18d8b1051fee268f2ff0e39787fccb8b715bc50aeb3f8e27",
       "tier": "normal",
       "sections": [
         {
@@ -761,7 +761,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 350 行 / 109260 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 350 行 / 109324 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
@@ -1080,12 +1080,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 12110 行 / 383208 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 12111 行 / 383530 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
           "tokens": 126,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+12111 · §WXG-T-1043=18+22 · §WXG-T-1",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+12112 · §WXG-T-1043=18+22 · §WXG-T-1",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -25896,17 +25896,17 @@
     },
     {
       "path": "games/beads/design/art/proposals/levels-20arcs-selection-20261117/series-spec-catalog.md",
-      "tokens": 7426,
-      "lines": 239,
-      "sha256": "e4155048c8bc95639a92732ef088bdb9eae2a28c1bc6b45e6b8405dceb7e2fcd",
+      "tokens": 7842,
+      "lines": 241,
+      "sha256": "b1a54bd3fba77567500ed2feab54754ef85b3a13f0dd3ef88042cf2d7f45fb8b",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§20 大关生图系列规范 · 明细册（A01–A20 + 逐张模板）",
           "level": 1,
           "startLine": 1,
-          "endLine": 240,
-          "tokens": 7404,
+          "endLine": 242,
+          "tokens": 7820,
           "summary": "配套正本：[series-spec.md](./series-spec.md)（§0–§5 风格宪法与纯黑采样处置、§8",
           "keywords": [
             "§0",
@@ -25921,8 +25921,8 @@
           "anchor": "§6 20 套系列规范",
           "level": 2,
           "startLine": 8,
-          "endLine": 220,
-          "tokens": 6757,
+          "endLine": 222,
+          "tokens": 7172,
           "summary": "每套给出：玩家可见的系列文案、该章共享的形态语法、配色宪法（十色板 HEX 子集）、九关差异轴、特有禁忌、P9 boss",
           "keywords": [
             "HEX",
@@ -25947,8 +25947,8 @@
           "anchor": "§A02 林中友 · 森林走兽",
           "level": 3,
           "startLine": 29,
-          "endLine": 38,
-          "tokens": 274,
+          "endLine": 40,
+          "tokens": 690,
           "summary": "系列文案：「尖耳、蓬尾与分叉的角，九位林中朋友依次登场。」",
           "keywords": [
             "A02",
@@ -25959,8 +25959,8 @@
         {
           "anchor": "§A03 深海湾 · 海洋生物",
           "level": 3,
-          "startLine": 39,
-          "endLine": 48,
+          "startLine": 41,
+          "endLine": 50,
           "tokens": 293,
           "summary": "系列文案：「冷蓝的水里，一尾小鱼最终长成破浪的鲸之王。」",
           "keywords": [
@@ -25972,8 +25972,8 @@
         {
           "anchor": "§A04 飞羽集 · 鸟类",
           "level": 3,
-          "startLine": 49,
-          "endLine": 58,
+          "startLine": 51,
+          "endLine": 60,
           "tokens": 275,
           "summary": "系列文案：「从剪刀尾的燕子，到尾羽如焰的原创不死鸟。」",
           "keywords": [
@@ -25985,8 +25985,8 @@
         {
           "anchor": "§A05 虫虫园 · 昆虫",
           "level": 3,
-          "startLine": 59,
-          "endLine": 68,
+          "startLine": 61,
+          "endLine": 70,
           "tokens": 277,
           "summary": "系列文案：「对称的翅与斑点，是最小也最好认的拼豆题。」",
           "keywords": [
@@ -25998,8 +25998,8 @@
         {
           "anchor": "§A06 甜品屋 · 甜点美食",
           "level": 3,
-          "startLine": 69,
-          "endLine": 78,
+          "startLine": 71,
+          "endLine": 80,
           "tokens": 257,
           "summary": "系列文案：「奶油、糖霜与蜡烛，一层一层叠出庆祝的味道。」",
           "keywords": [
@@ -26011,8 +26011,8 @@
         {
           "anchor": "§A07 果篮子 · 鲜果",
           "level": 3,
-          "startLine": 79,
-          "endLine": 88,
+          "startLine": 81,
+          "endLine": 90,
           "tokens": 251,
           "summary": "系列文案：「一颗苹果开始，收在一只满溢的果篮。」",
           "keywords": [
@@ -26024,8 +26024,8 @@
         {
           "anchor": "§A08 书桌角 · 文具器物",
           "level": 3,
-          "startLine": 89,
-          "endLine": 98,
+          "startLine": 91,
+          "endLine": 100,
           "tokens": 271,
           "summary": "系列文案：「直边与转角，练的是把一条线拼得干干净净。」",
           "keywords": [
@@ -26037,8 +26037,8 @@
         {
           "anchor": "§A09 小小城 · 建筑",
           "level": 3,
-          "startLine": 99,
-          "endLine": 108,
+          "startLine": 101,
+          "endLine": 110,
           "tokens": 263,
           "summary": "系列文案：「三角屋顶、尖塔与拱桥，一座城按秩序长起来。」",
           "keywords": [
@@ -26050,8 +26050,8 @@
         {
           "anchor": "§A10 节庆宴 · 节庆符号",
           "level": 3,
-          "startLine": 109,
-          "endLine": 118,
+          "startLine": 111,
+          "endLine": 120,
           "tokens": 297,
           "summary": "系列文案：「灯笼、烟花与彩蛋，把喜庆收进一枚枚色块。」",
           "keywords": [
@@ -26063,8 +26063,8 @@
         {
           "anchor": "§A11 乐之声 · 乐器",
           "level": 3,
-          "startLine": 119,
-          "endLine": 128,
+          "startLine": 121,
+          "endLine": 130,
           "tokens": 269,
           "summary": "系列文案：「弦、管与键盘，九种形状各响一声。」",
           "keywords": [
@@ -26076,8 +26076,8 @@
         {
           "anchor": "§A12 出行记 · 交通载具",
           "level": 3,
-          "startLine": 129,
-          "endLine": 138,
+          "startLine": 131,
+          "endLine": 140,
           "tokens": 293,
           "summary": "系列文案：「两只圆轮起步，终点是破浪的大游轮。」",
           "keywords": [
@@ -26089,8 +26089,8 @@
         {
           "anchor": "§A13 星河间 · 宇宙星空",
           "level": 3,
-          "startLine": 139,
-          "endLine": 148,
+          "startLine": 141,
+          "endLine": 150,
           "tokens": 333,
           "summary": "系列文案：「冷色的空里，暖色的星与日是最亮的那点。」",
           "keywords": [
@@ -26102,8 +26102,8 @@
         {
           "anchor": "§A14 远古纪 · 史前恐龙",
           "level": 3,
-          "startLine": 149,
-          "endLine": 158,
+          "startLine": 151,
+          "endLine": 160,
           "tokens": 261,
           "summary": "系列文案：「头盾、背板与长颈，九只史前巨影依次站定。」",
           "keywords": [
@@ -26115,8 +26115,8 @@
         {
           "anchor": "§A15 幻兽国 · 幻想生物",
           "level": 3,
-          "startLine": 159,
-          "endLine": 168,
+          "startLine": 161,
+          "endLine": 170,
           "tokens": 296,
           "summary": "系列文案：「全是没见过的生物，全都能一颗一颗拼出来。」",
           "keywords": [
@@ -26128,8 +26128,8 @@
         {
           "anchor": "§A16 天象记 · 天气气象",
           "level": 3,
-          "startLine": 169,
-          "endLine": 178,
+          "startLine": 171,
+          "endLine": 180,
           "tokens": 382,
           "summary": "系列文案：「云、雨、雪、虹、电与风，把看不见的东西拼成看得见的形状。」",
           "keywords": [
@@ -26141,8 +26141,8 @@
         {
           "anchor": "§A17 游乐场 · 运动玩具",
           "level": 3,
-          "startLine": 179,
-          "endLine": 188,
+          "startLine": 181,
+          "endLine": 190,
           "tokens": 287,
           "summary": "系列文案：「皮球、秋千到摩天轮，圆与杆拼出一整个下午。」",
           "keywords": [
@@ -26154,8 +26154,8 @@
         {
           "anchor": "§A18 温馨家 · 家居生活",
           "level": 3,
-          "startLine": 189,
-          "endLine": 198,
+          "startLine": 191,
+          "endLine": 200,
           "tokens": 273,
           "summary": "系列文案：「茶杯、沙发与壁炉，圆一件方一件地摆回家。」",
           "keywords": [
@@ -26167,8 +26167,8 @@
         {
           "anchor": "§A19 山水间 · 山水风景",
           "level": 3,
-          "startLine": 199,
-          "endLine": 208,
+          "startLine": 201,
+          "endLine": 210,
           "tokens": 310,
           "summary": "系列文案：「三角的远山、半轮红日，最后收在一幅群山日出的全景里。」",
           "keywords": [
@@ -26180,8 +26180,8 @@
         {
           "anchor": "§A20 晶石集 · 宝石矿物",
           "level": 3,
-          "startLine": 209,
-          "endLine": 220,
+          "startLine": 211,
+          "endLine": 222,
           "tokens": 320,
           "summary": "系列文案：「从一根六棱晶柱，长到拔地而起的水晶王。」",
           "keywords": [
@@ -26193,8 +26193,8 @@
         {
           "anchor": "§7 提示词模板占位（逐张确认时逐条填，本件不填）",
           "level": 2,
-          "startLine": 221,
-          "endLine": 240,
+          "startLine": 223,
+          "endLine": 242,
           "tokens": 489,
           "summary": "每条提示词 = 固定段（§2 G1–G10 的口语化版本）+ 该套宪法段（§6 对应节）+ 下列占位：",
           "keywords": [
@@ -26210,9 +26210,9 @@
     },
     {
       "path": "games/beads/design/art/proposals/levels-20arcs-selection-20261117/series-spec.md",
-      "tokens": 9815,
+      "tokens": 10032,
       "lines": 161,
-      "sha256": "5e4a58457e95f2358f4fc39a365196fb8649d224beef0cfeead3ddc5bdffddc9",
+      "sha256": "a58ec075ce53613b50a27b9502ca374ba68b742efe6c1c18afbc57448e988ebd",
       "tier": "normal",
       "sections": [
         {
@@ -26220,7 +26220,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 162,
-          "tokens": 9795,
+          "tokens": 10013,
           "summary": "本件性质：生图阶段的风格规格草案，沿用 20 大关题材甄选（WXG-T-974）谱系，已领 WXG-T-979、已改任务",
           "keywords": [
             "WXG",
@@ -26294,7 +26294,7 @@
           "level": 2,
           "startLine": 50,
           "endLine": 70,
-          "tokens": 1156,
+          "tokens": 1373,
           "summary": "G1 平涂：每个色区是实心单色，零渐变、零纹理、零光影、零高光条、零环境光遮蔽、零噪点 色区内像素方差近 0",
           "keywords": [
             "通用风格宪法",
@@ -93914,17 +93914,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 383208,
-      "lines": 12110,
-      "sha256": "bdea2b615e144c5481cacd4dc772caff2fd8bbba7bd919bcea3cb500f68b113e",
+      "tokens": 383530,
+      "lines": 12111,
+      "sha256": "4f1d28c74d2cebe71206dad609c9aa6f31ecb39301ee3396f7e673193123bb20",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 12111,
-          "tokens": 383191,
+          "endLine": 12112,
+          "tokens": 383514,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -111694,9 +111694,9 @@
           "anchor": "§WXG-T-1045",
           "level": 2,
           "startLine": 12064,
-          "endLine": 12074,
-          "tokens": 625,
-          "summary": "A02 林中友九关主色均衡回溯重修（主理人(Trae CN)·美术轨，🚧 进行中 2026-11-24）",
+          "endLine": 12075,
+          "tokens": 948,
+          "summary": "A02 林中友九关主色均衡回溯重修（主理人(Trae CN)·美术轨，✅ 完成 2026-11-24）",
           "keywords": [
             "WXG",
             "A02",
@@ -111706,8 +111706,8 @@
         {
           "anchor": "§WXG-T-1046",
           "level": 2,
-          "startLine": 12075,
-          "endLine": 12086,
+          "startLine": 12076,
+          "endLine": 12087,
           "tokens": 611,
           "summary": "关卡详情背景板真机缺失修复 · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ 完成（2026-11-24，待",
           "keywords": [
@@ -111718,8 +111718,8 @@
         {
           "anchor": "§落码与验证 (3)",
           "level": 3,
-          "startLine": 12081,
-          "endLine": 12086,
+          "startLine": 12082,
+          "endLine": 12087,
           "tokens": 410,
           "summary": "根因（Phase 1 证据链）：BELOW_GRAPHICS_TEXTURE_IDS 含 LEVEL_DETAIL_TE",
           "keywords": [
@@ -111732,8 +111732,8 @@
         {
           "anchor": "§WXG-T-1047",
           "level": 2,
-          "startLine": 12087,
-          "endLine": 12099,
+          "startLine": 12088,
+          "endLine": 12100,
           "tokens": 462,
           "summary": "木牌「下关差★」收窄到本章全通 · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ 完成（2026-11-24",
           "keywords": [
@@ -111744,8 +111744,8 @@
         {
           "anchor": "§落码与验证 (4)",
           "level": 3,
-          "startLine": 12093,
-          "endLine": 12099,
+          "startLine": 12094,
+          "endLine": 12100,
           "tokens": 255,
           "summary": "_arcSeqLabel 遍历 ARCS[arc].levelRefs 时并计 cleared（raw > 0 的关数）",
           "keywords": [
@@ -111760,8 +111760,8 @@
         {
           "anchor": "§WXG-T-1048",
           "level": 2,
-          "startLine": 12100,
-          "endLine": 12111,
+          "startLine": 12101,
+          "endLine": 12112,
           "tokens": 710,
           "summary": "详情返回丢锁图案 + 未通关显第 n 关 · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ 完成（2026-",
           "keywords": [
@@ -111773,9 +111773,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 109260,
+      "tokens": 109324,
       "lines": 350,
-      "sha256": "7029c1d142bf9cdef057e726fb39d6004949852f883d24bcd963ddfc9f934705",
+      "sha256": "b84908ec4685f84bdc6f471fa7744f9637c42b8698fb18313abba3c3060e9cfc",
       "tier": "hot",
       "sections": [
         {
@@ -111783,7 +111783,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 351,
-          "tokens": 109251,
+          "tokens": 109315,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
