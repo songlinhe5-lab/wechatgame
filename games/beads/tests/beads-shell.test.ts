@@ -460,7 +460,7 @@ describe('BeadsShell — 选关高亮 / 走马灯陈列关（WXG-T-912/913：首
         const v = viewOf(r.shell);
         expect(v.carouselLevel?.id, '陈列关 = 曼陀罗第 3 关').toBe(3);
         expect(v.carouselTitle, '木牌关名 = 大关名').toBe('曼陀罗');
-        expect(v.carouselSeqLabel, '[T-1044] 本章 5★ / 门槛 24★ ⇒ 下关差 19★').toBe('下关差 19★');
+        expect(v.carouselSeqLabel, '[T-1047] 本章 5★ / 9 关仅 2 关通 ⇒ 只显满星差 22★').toBe('差 22★满星');
     });
 
     it('`[WXG-T-914 → T-1044]` 本章全通但未满 ⇒ 木牌第二行「下关差 X★」', () => {
@@ -478,7 +478,7 @@ describe('BeadsShell — 选关高亮 / 走马灯陈列关（WXG-T-912/913：首
         // 停到未解锁的第 2 章页（peer 只在拖动中出现，故直接 seek 主车）。
         (r.shell as unknown as { _menu: { seek(n: number): void } })._menu.seek(1);
         const v = viewOf(r.shell);
-        expect(v.carouselSeqLabel, '本章 0★ / 门槛 24★ ⇒ 下关差 24★').toBe('下关差 24★');
+        expect(v.carouselSeqLabel, '本章 0★ / 9 关未通 ⇒ 只显满星差 27★').toBe('差 27★满星');
     });
 });
 

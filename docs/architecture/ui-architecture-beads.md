@@ -432,6 +432,8 @@ games/beads/src/ui/
 
 **视觉变更登记（2026-11-24 · WXG-T-1046 · K-051/K-053/ADR-0033 DEC-1）**：用户报「关卡详情页缺背景板」。根因 = `LEVEL_DETAIL_TEXTURES.plaque` 仍在 `BELOW_GRAPHICS_TEXTURE_IDS`，Cocos 真机挂全局 `BlitAtlas`，被底页不透明 `backdropFull` 盖住（T-1025 选关页同款；harness canvas2d 不模拟白名单分层，既有 CDP 实帧不构成真机证据）。修法 = 从 below 白名单移除 `plaque`，详情 / 设置页默认键与选关页显式 `dialogBg` 同走容器 `BlitLayerUI`（通道序 blit < graphics < labels < segments，缩略 / 星级仍压其上）；`plaque` / `dialogBg` 指向同一张 `ui_dialog_bg_tall.png`，零新增资产、零几何 / 版式变化、零门槛 / 存档 / 数值改动。回归门 `level-select-view-model.test.ts` 断言 `plaque` 不在白名单，定向 35/35、verify 24/24；真机扫码复核待用户回执。
 
+**视觉变更登记（2026-11-24 · WXG-T-1047 · K-051/K-053）**：用户令收窄 T-1044 第二行文案：「下关差 X★」只在**本章全通 ∧ 下一大关未开**时出现；本章尚有 0★ 关 / 下章已开 / 无下章一律只显 `差 X★满星` 或 `全满星`（⛔ 提前承诺「差星开下关」）。壳层 `_arcSeqLabel` 归约时计本章已通关卡数并进缓存签名（数值不变零分配），门槛 / 存档 / 判据零改。回归门钉「本章缺 1 关不发下关差」；菜单族五态文本变 ⇒ 按代码批干净锚重抓（命令总数不变，仅第二行文本）。
+
 ## 13. 待你拍板
 
 D1–D5 均已裁定（见 [ADR-0032 §5](adr/ADR-0032-beads-ui-architecture.md)）：两层 / 分级复用 / 遮罩保留双档名 / 常量第一阶段并存 / 选关整页；选关整页版式已裁为**版式 P**（[确认单](../../games/beads/design/ux/level-select-page-layout.md)）。UI-00 已完成。**UI-34a 六项待核已于 2026-10-20（WXG-T-310）清零**（确认单 v0.2 §4.1）；**UI-34 落码已于 2026-10-20（WXG-T-311）完成**；**UI-42 已于 2026-10-20（WXG-T-316）完成壳标志位退役**（屏幕 / 覆盖层改由 `PhaseRouteBinder` 的 Navigator 栈投影，与 `UiRoot` 共用同一栈）；**UI-50 已于 2026-10-20（WXG-T-317）完成绘制入口收口**（`UiRoot` 唯一入口、并行开关退役）；**UI-51 已于 2026-10-20（WXG-T-318）完成文档回写**（目录 / 路由表 / `control-manifest §20` / ROUTES）；**UI-52 机械守已于 2026-10-20（WXG-T-319）落码**（§20 五条 + 负样本入 `selftest:fast`）；**UI-53 已于 2026-10-20（WXG-T-320）验收闭合**（`verify` PASS 22 + harness 双游 + `[R]` 阻塞已登记）。

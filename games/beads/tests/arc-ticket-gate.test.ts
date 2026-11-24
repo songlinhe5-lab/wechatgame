@@ -176,7 +176,7 @@ describe('S-4 闸门：门票未达', () => {
         expect([data.arcStarGot, data.arcStarNeed], 'C 拍定：已得/门槛取阻断该页入口的上一章').toEqual([20, 24]);
         // `[WXG-T-920 → T-1044]` 展示投影只在门票达成时开门；木牌第二行改星进度三态。
         expect(data.carouselState, '门票未达 ⇒ 保持锁态').toBe('locked');
-        expect(data.carouselSeqLabel, '章 2 本章 0★ ⇒ 下关差 24★').toBe('下关差 24★');
+        expect(data.carouselSeqLabel, '章 2 本章 0★ / 未全通 ⇒ 只显满星差 27★').toBe('差 27★满星');
 
         const before = { stamina: r.shell.meta!.stamina, idx: r.shell.play.levelIndex, events: r.overlayEvents.length };
         expect(tapCard(r.shell), '锁态章 ⇒ 卡零事件（用户 2026-11-12 令「不能点进选关页面」）').toBe(false);
@@ -249,7 +249,7 @@ describe('S-4 闸门：门票达成 ⇒ 章首授权', () => {
         // `[WXG-T-920 → T-1044]` 门票达成 ⇒ 展示层视同已开启（三态 pushing）；推进位仍停在 9。
         const menu = viewData(r.shell);
         expect(menu.carouselState, '门票达成 ⇒ 大关按推关中呈现').toBe('pushing');
-        expect(menu.carouselSeqLabel, '木牌第二行 = 星进度三态').toBe('下关差 24★');
+        expect(menu.carouselSeqLabel, '章 2 本章 0★ / 未全通 ⇒ 只显满星差 27★').toBe('差 27★满星');
         expect(menu.maxUnlockedLevel, '⛔ 展示投影不动推进位').toBe(9);
         openLevels(r.shell, r);
         const data = viewData(r.shell);
@@ -395,8 +395,11 @@ describe('[WXG-T-1044] 木牌第二行星进度三态', () => {
         goPage(r, 0);
         return viewData(r.shell).carouselSeqLabel;
     };
-    it('下一大关门票未达 ⇒ 下关差 X★（X = 门槛 − 本章星）', () => {
+    it('本章全通 + 下一大关未开 ⇒ 下关差 X★（X = 门槛 − 本章星）', () => {
         expect(labelAtArc0([3, 3, 2, 2, 2, 2, 2, 2, 2, 0]), '20/24 ⇒ 差 4★').toBe('下关差 4★');
+    });
+    it('本章未全通（缺 1 关）+ 下一大关未开 ⇒ 不发下关差，只显满星差', () => {
+        expect(labelAtArc0([3, 3, 2, 2, 2, 2, 2, 2, 0, 0]), '18/27，仍有 0★ 关').toBe('差 9★满星');
     });
     it('下一大关已开但本章未满 ⇒ 差 X★满星', () => {
         expect(labelAtArc0([3, 3, 3, 3, 3, 3, 3, 3, 2, 0]), '26/27 ⇒ 差 1★满星').toBe('差 1★满星');

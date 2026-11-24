@@ -12083,3 +12083,15 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 - **根因（Phase 1 证据链）**：`BELOW_GRAPHICS_TEXTURE_IDS` 含 `LEVEL_DETAIL_TEXTURES.plaque`，Cocos 宿主据此把详情木牌 blit 挂到全局 `BlitAtlas`；底页菜单 `backdropFull` 为不透明全屏位图且在容器外 ⇒ 真机盖住木牌（T-1025 同款）；harness canvas2d 不模拟白名单分层，故既有 CDP 实帧「背景在」不构成真机证据。`ui_dialog_bg_tall.png` 自 T-1027 零改、构建产物在位 ⇒ 排除资产缺失。
 - **修法（最小根因）**：`config/tuning/level-select.ts::BELOW_GRAPHICS_TEXTURE_IDS` 移除 `plaque`；两键（`plaque` / `dialogBg`）指向同一张图，详情/设置页默认键与选关页显式键现在同走容器 `BlitLayerUI`（通道序 blit < graphics < labels < segments ⇒ 缩略 / 星级仍压其上）。`drawModalPlate` 默认值未改，调用方零改动。同步 3 处旧注释口径。
 - **TDD**：`level-select-view-model.test.ts` 把「`plaque` 在 below 白名单」断言反转为 `false`，先红后绿；定向 35/35（详情 / 设置 / 选关 VM）。中途 `typecheck` / `harness:build` 因移除引用后 `LEVEL_DETAIL_TEXTURES` 导入未使用而红（exit 2），删导入后复绿；`pnpm run verify` **24/24 全绿**；UI 架构 §12 已登记。真机码重建并给出后待用户扫码回执（⛔ 未真机确认前不宣称真机已修好）。
+
+## WXG-T-1047
+
+**木牌「下关差★」收窄到本章全通** · 负责：主理人(CodeBuddy)·工程轨 · 状态：🚧 进行中（2026-11-24）
+
+用户令：「下关差 n 星，只在当前大关通关后，下一关没有开启时候才显示；如果下一关已经开启的通关，只要显示满星差 n 星或者全满星」。T-1044 现口径在「本章仍有 0★ 关但下章门票未达」时也提前显示「下关差 X★」⇒ 本单收窄：本章全通 ∧ 下章未开才显该文案；其余态（本章未通关 / 下章已开 / 无下章）只显 `差 X★满星` 或 `全满星`。门槛 / 存档 / 判据零改动。
+
+### 待办
+
+- TDD：把「本章 5★ / 2★、下章未开」断言改为满星差，先红后绿。
+- 落码：`_arcSeqLabel` 归约时计本章已通关关数，仅 `全清 ∧ 下章未开` 走 `下关差 X★`。
+- 验证：定向 → verify → 金样按锚重抓（菜单族文本变）→ 收口。

@@ -1370,25 +1370,27 @@ export class BeadsShell implements Game {
     }
 
     /**
-     * `[WXG-T-914 → T-1044]` 木牌第二行 = 星进度三态（2026-11-24 用户令）：
-     * 下一大关门票未达 ⇒ `下关差 X★`（X = 门槛 − 本章星）；已开但本章未满 ⇒ `差 X★满星`；
-     * 本章全满 ⇒ `全满星`。⛔ 不改门槛 / 存档 / 判据；⛔ 视图层自读星账（L5）。
+     * `[WXG-T-914 → T-1044 → T-1047]` 木牌第二行 = 星进度三态（2026-11-24 用户令）：
+     * **本章全通 ∧ 下一大关未开** ⇒ `下关差 X★`（X = 门槛 − 本章星）；其余态（本章尚有 0★ 关 /
+     * 下章已开 / 无下章）⇒ `差 X★满星`，全满 ⇒ `全满星`。⛔ 不改门槛 / 存档 / 判据；⛔ 视图层自读星账。
      * 双槽按数值签名复用字符串 ⇒ 热路径零分配。
      */
     private readonly _arcSeqSlots = [
-        { idx: -1, got: -1, total: -1, gate: -1, open: false, text: undefined as string | undefined },
-        { idx: -1, got: -1, total: -1, gate: -1, open: false, text: undefined as string | undefined },
+        { idx: -1, got: -1, total: -1, cleared: -1, gate: -1, open: false, text: undefined as string | undefined },
+        { idx: -1, got: -1, total: -1, cleared: -1, gate: -1, open: false, text: undefined as string | undefined },
     ];
     private _arcSeqLabel(arcIdx: number, slot: 0 | 1): string | undefined {
         const cache = this._arcSeqSlots[slot]!;
         const arc = ARCS[arcIdx];
         let got = 0;
         let total = 0;
+        let cleared = 0;
         if (arc !== undefined) {
             for (const [start, end] of arc.levelRefs) {
                 for (let n = start; n <= end; n += 1) {
                     total += 1;
                     const raw = this.play.starsByLevelRaw[n - 1] ?? 0;
+                    if (raw > 0) cleared += 1;
                     got += raw > STAR_MAX ? STAR_MAX : raw < 0 ? 0 : raw;
                 }
             }
@@ -1400,9 +1402,9 @@ export class BeadsShell implements Game {
         const gate = ticket === undefined ? 0 : ticket.gate;
         const open = ticket === undefined ? true : this._arcGateOpen(next, ticket);
         if (cache.idx === arcIdx && cache.got === got && cache.total === total
-            && cache.gate === gate && cache.open === open) return cache.text;
+            && cache.cleared === cleared && cache.gate === gate && cache.open === open) return cache.text;
         let text: string;
-        if (hasNext && !open) {
+        if (hasNext && !open && cleared === total) {
             text = `下关差 ${Math.max(0, gate - got)}★`;
         } else {
             const remain = Math.max(0, total * STAR_MAX - got);
@@ -1411,6 +1413,7 @@ export class BeadsShell implements Game {
         cache.idx = arcIdx;
         cache.got = got;
         cache.total = total;
+        cache.cleared = cleared;
         cache.gate = gate;
         cache.open = open;
         cache.text = text;
