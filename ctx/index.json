@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4301,
       "lines": 142,
-      "sha256": "8ecc67d8b5bd2a8e7f11b7b2beb6d23818ee9b942ba161211e5f68d0afb36232",
+      "sha256": "f77fac6d9e034bd9ec339ec9672d3c6620e54c033610403119cc9a0a6ae16627",
       "tier": "normal",
       "sections": [
         {
@@ -26210,17 +26210,17 @@
     },
     {
       "path": "games/beads/design/art/proposals/levels-20arcs-selection-20261117/series-spec.md",
-      "tokens": 10776,
-      "lines": 172,
-      "sha256": "d8dae7c8e0d65d7e0d48a6f3f1efb0b48b4225a714fe5ae39a740fed148bccb6",
+      "tokens": 10912,
+      "lines": 173,
+      "sha256": "0006d16953ab16f638d3eb19eda969b0be8fa024c561456881a9369d44f6d8fa",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§20 大关生图系列规范 · 风格宪法与逐关模板",
           "level": 1,
           "startLine": 1,
-          "endLine": 173,
-          "tokens": 10757,
+          "endLine": 174,
+          "tokens": 10893,
           "summary": "本件性质：生图阶段的风格规格草案，沿用 20 大关题材甄选（WXG-T-974）谱系，已领 WXG-T-979、已改任务",
           "keywords": [
             "WXG",
@@ -26370,8 +26370,8 @@
           "anchor": "§5 逐张确认流程（本轮不执行，仅为后续契约）",
           "level": 2,
           "startLine": 108,
-          "endLine": 139,
-          "tokens": 1265,
+          "endLine": 140,
+          "tokens": 1401,
           "summary": "每张图走四步：写提示词 → 用户确认 → 生图 → 用户确认效果；不满意则改提示词重生，循环到通过。每批附带三件事：",
           "keywords": [
             "逐张确认流程",
@@ -26383,8 +26383,8 @@
           "anchor": "§5.1 A00 引导章（曼陀罗）重生令（用户 2026-11-24 裁定）",
           "level": 3,
           "startLine": 127,
-          "endLine": 139,
-          "tokens": 550,
+          "endLine": 140,
+          "tokens": 686,
           "summary": "范围：A00 = 曼陀罗引导章，manifest.chapters[order:0]，L00001–L00009 共 9",
           "keywords": [
             "A00",
@@ -26398,8 +26398,8 @@
         {
           "anchor": "§6 20 套系列规范（明细已外移）",
           "level": 2,
-          "startLine": 140,
-          "endLine": 144,
+          "startLine": 141,
+          "endLine": 145,
           "tokens": 170,
           "summary": "本件拆分（WXG-T-979，2026-11-17）：为过 ctx:check B 项单文件 8000 tok 上限，原",
           "keywords": [
@@ -26414,8 +26414,8 @@
         {
           "anchor": "§8 已知风险与解除条件",
           "level": 2,
-          "startLine": 145,
-          "endLine": 160,
+          "startLine": 146,
+          "endLine": 161,
           "tokens": 601,
           "summary": "~~Token Plan 通道 2048×2048 未实测~~ ✅ 已解除（2026-11-17 第 0 张探路） 读数",
           "keywords": [
@@ -26428,8 +26428,8 @@
         {
           "anchor": "§9 明确未做的事（截至 mis=full 链路复验完成）",
           "level": 2,
-          "startLine": 161,
-          "endLine": 173,
+          "startLine": 162,
+          "endLine": 174,
           "tokens": 1957,
           "summary": "已写 9 张的正式提示词（A01-P01–P09，含各版退场稿，全文见各批目录 response-meta*.json ",
           "keywords": [
