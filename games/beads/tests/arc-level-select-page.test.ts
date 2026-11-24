@@ -157,7 +157,7 @@ describe('WXG-T-605 · 信息两行（章名+星进度同行 / 判星对照行�
     it('关卡名字控件：木牌中轴居中 / 深蓝（`T-611` 用户令）；星进度 967（右对齐 x=630）', () => {
         const ts = textsOf({ chapterTitle: '曼陀罗', arcStarGot: 18, arcStarNeed: 21 });
         const chapter = ts.find((c) => c.text === '曼陀罗')!;
-        const bar = ts.find((c) => c.text === '★ 18/21')!;
+        const bar = ts.find((c) => c.text === '★ 18/21 差3')!;
         // `[WXG-T-611]` 用户令「居中显示」⇒ 木牌中轴（title.cx=380，同标题）；
         // 稿 `159:10` 84 宽槽 @278 左锚退场（K-053）；y/h/ink 仍按稿。
         const n = LEVEL_SELECT_GEO.name;
@@ -180,7 +180,7 @@ describe('WXG-T-605 · 信息两行（章名+星进度同行 / 判星对照行�
 
     it('E2 大字号：星进度随放大到 35（29 档 → bodyLarge）', () => {
         const ts = textsOf({ largeText: true, arcStarGot: 1, arcStarNeed: 9 });
-        expect(ts.find((c) => c.text === '★ 1/9')!.font).toBe(UI_FONT.bodyLarge);
+        expect(ts.find((c) => c.text === '★ 1/9 差8')!.font).toBe(UI_FONT.bodyLarge);
     });
 });
 

@@ -111,8 +111,9 @@ describe('WXG-T-609 关卡详情橱窗面板', () => {
         expect(gridCx).toBeCloseTo(showcaseCx, 6);
     });
 
-    // `[WXG-T-1038]` 用户 A 裁：详情珠面 = 格距 − 缝，描边贴珠面 ⇒ 底排不越台面接触线。
-    it('`[WXG-T-1038]` 详情留缝珠：所有珠面 / 描边顶点不越台面接触线', () => {
+    // `[WXG-T-1038/1040]` 详情珠面 = 格距 − 缝；描边贴整体轮廓外延并按半带宽抬升 ⇒
+    // 轮廓外缘恰压台面接触线（不越线，也不留可见空隙）。
+    it('`[WXG-T-1038/1040]` 详情留缝珠：轮廓外缘恰压台面接触线、珠面不越线', () => {
         const lv = LEVELS[0]!;
         const plate = levelDetailPlate();
         const plateY = DESIGN_H - LEVEL_DETAIL_GEO.plate.yDown - LEVEL_DETAIL_GEO.plate.h;
@@ -126,11 +127,14 @@ describe('WXG-T-609 关卡详情橱窗面板', () => {
         const model = b.end();
         const polys = model.commands.filter((c): c is PolygonCommand => c.kind === 'polygon');
         expect(polys.length, '刻面珠体腿已画').toBeGreaterThan(0);
+        let minY = Infinity;
         for (const p of polys) {
             const v = polygonVertices(model, p);
             for (let k = 1; k < v.length; k += 2) {
                 expect(v[k]!, '底缘不得压到台面接触线以下').toBeGreaterThanOrEqual(trayY - 1e-6);
+                minY = Math.min(minY, v[k]!);
             }
         }
+        expect(minY, '轮廓外缘应恰压台面接触线（抬升量 = 半带宽 + 半 bleed）').toBeCloseTo(trayY, 6);
     });
 });

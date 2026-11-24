@@ -90,8 +90,10 @@ export function updateLevelSelectViewModel(
     vm.plate = levelDetailPlate();
     vm.title = COPY_TOKENS.btn_levels_label;
     vm.chapter = data.chapterTitle ?? '';
+    // `[WXG-T-1042]` 24 = 上一章累计门槛（非单关，单关上限 STAR_MAX=3）⇒ 补缺口数字，
+    // 免得 `★ n/24` 被读成「一关要 24★」；判据 / 真源零改。
     vm.starProgress = data.arcStarNeed === undefined
-        ? '' : `★ ${data.arcStarGot ?? 0}/${data.arcStarNeed}`;
+        ? '' : `★ ${data.arcStarGot ?? 0}/${data.arcStarNeed} 差${Math.max(0, data.arcStarNeed - (data.arcStarGot ?? 0))}`;
     vm.closePressed = data.pressed?.id === 'close-levels';
     vm.screenH = screenH;
     vm.largeText = data.largeText;
