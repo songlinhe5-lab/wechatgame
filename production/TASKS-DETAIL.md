@@ -936,6 +936,12 @@
 
 ## WXG-T-217
 
+> **收口补记（2026-11-24 · CodeBuddy，接用户「接续 T-217：先核冲突再收口」令）**：本单原先登记的「真源+落码同批未 commit / verify FAIL 2 / 封箱腿 4a-4b 待 QA 重抓」已**不再成立**，属跨会话台账滞后（同 K-087 家族：台账状态 ≠ 当前树/HEAD，接续前必须 `git log --all --grep=<任务号>` + 常量/真源 grep 对账，不得照旧账重做）：
+> - **提交取证**：`927535cb`（在 develop 线、为 HEAD 祖先）已含本批 `board-camera.ts` / `board-camera.test.ts`、`systems-index` v1.59 + changelog、`input-control` v2.11、`ux-spec` U10、`bead-visual-style-spec §13.9` 换源注、新建 `zoom-bake-mip-validation.md`（213 行）；`92d7d04a` 为后续多批收口（同署 T-217）。原 `tuning.ts` 常量后经 `2a47d3c6` 拆域迁至 `config/tuning/board.ts`，现值 `CAMERA_ZOOM_MIN=0.2` / `CAMERA_ZOOM_MAX=2.0` / `ZOOM_TAP_MIN=0.7 [待真机]` / 净空 16 均在 HEAD。
+> - **2 红已消解**：原「整帧封箱基线 4a/4b」在干净 HEAD detached worktree 实跑 `bead-style-seal.test.ts` + `board-camera.test.ts` + `tuning.test.ts` = **64/64 绿**（seal 12/12）；主工作树（含他批未提交关卡数据）`pnpm run verify` = **24/24 绿**。本批未再改一行代码/夹具，未动他批工作树内容。
+> - **状态**：✅ 账已收。原「已知限制」①③（低倍档 `[待真机]`、0.2–0.7 画质/mip 未验）仍是**真机/另案待证项**，不属本单欠账；旧「未 commit / FAIL 2」字样仅作历史留档、不得再当现况引用。
+> - **沉淀候选（未落库，待你决定）**：接续他会话任务前先做「台账状态 ↔ `git log --all --grep` ↔ 现树常量/真源」三面对账；本次若不核就会在已落地的代码上重复施工。
+
 - **名称**：beads·缩放上下限绝对倍率化 + 低倍点击档（`systems-index §3` v1.59 真源回写 + 落码 + 验证方案建档）
 - **负责**：主理人（Qoder）串行落笔（冻结常量流程：用户拍板 → 主理人确认连带 → 回写 §3 + §6）
 - **依据**：用户 2026-09-27 逐项提案（八行参数表 + 连续缩放验证方案原文），本单为其落档与落码批。
