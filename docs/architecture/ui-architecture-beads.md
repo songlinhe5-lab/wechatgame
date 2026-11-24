@@ -428,6 +428,8 @@ games/beads/src/ui/
 
 **视觉变更登记（2026-11-24 · WXG-T-1040 · K-051/K-053/ADR-0032 DEC-6）**：用户关卡详情实帧裁定「描边放到整体轮廓外延、整体抬高给轮廓宽度留距、轮廓线连续」——撤销 T-1038「描边贴珠面（`unlockedFace = beadEdge`）」口径（逐珠缝把相邻边带切断）：`drawThumbOutline` 删 `unlockedFace` 参数（恢复骑整体轮廓隐含底块 `pitch+2×TILE_BLEED`，相邻边带交叠 1px ⇒ 连续闭环）；详情底面按 `W/2 + TILE_BLEED` 抬升，使描边外缘恰压台面接触线、带体完整露出；珠面仍留 `BEAD_GAP` 缝。⛔ 盘面/选关格零变化；金样若含详情态按锚重抓。
 
+**视觉变更登记（2026-11-24 · WXG-T-1044 · K-051/K-053/ADR-0032 DEC-6）**：用户令「橱窗下面板第几关位置显示下关差几星；下关已开显示差几星满星；全满足显示全满星」⇒ 走马灯木牌**第二行**由「第 N 关 / 已通关 / 未开启」改为**星进度三态**：`下关差 X★`（下一大关门票未达，X = 门槛 − 本章星）/ `差 X★满星`（门票已开但本章未满）/ `全满星`（本章满星）。壳层 `_arcSeqLabel` 归约本章星账 + 下一章门票（复用 `arcEntryTicket` / `_arcGateOpen`），双槽按数值签名复用字符串 ⇒ 热路径零分配；⛔ 门槛 / 存档 / 判据零改动。星带判据（`arc-level-select.test.ts` / `meta-menu-wall.test.ts::starIn`）由「含 ★ 即计」收紧为「纯星串 `^[★☆]+$`」——新文案的 ★ 落在槽 7 区域时曾被误计为锁格星带。金样菜单族五态（main-menu / level-select / level-select-mid / settings / signin）文本变 ⇒ 按锚重抓（命令总数不变，仅第二行文本），两遍确定性自证 PASS；⛔ 不手改夹具。
+
 ## 13. 待你拍板
 
 D1–D5 均已裁定（见 [ADR-0032 §5](adr/ADR-0032-beads-ui-architecture.md)）：两层 / 分级复用 / 遮罩保留双档名 / 常量第一阶段并存 / 选关整页；选关整页版式已裁为**版式 P**（[确认单](../../games/beads/design/ux/level-select-page-layout.md)）。UI-00 已完成。**UI-34a 六项待核已于 2026-10-20（WXG-T-310）清零**（确认单 v0.2 §4.1）；**UI-34 落码已于 2026-10-20（WXG-T-311）完成**；**UI-42 已于 2026-10-20（WXG-T-316）完成壳标志位退役**（屏幕 / 覆盖层改由 `PhaseRouteBinder` 的 Navigator 栈投影，与 `UiRoot` 共用同一栈）；**UI-50 已于 2026-10-20（WXG-T-317）完成绘制入口收口**（`UiRoot` 唯一入口、并行开关退役）；**UI-51 已于 2026-10-20（WXG-T-318）完成文档回写**（目录 / 路由表 / `control-manifest §20` / ROUTES）；**UI-52 机械守已于 2026-10-20（WXG-T-319）落码**（§20 五条 + 负样本入 `selftest:fast`）；**UI-53 已于 2026-10-20（WXG-T-320）验收闭合**（`verify` PASS 22 + harness 双游 + `[R]` 阻塞已登记）。

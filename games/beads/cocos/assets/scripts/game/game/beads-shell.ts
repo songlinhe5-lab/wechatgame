@@ -58,7 +58,6 @@ import {
     type PowerupType,
 } from '../config/tuning';
 import { ARC_OPEN_MAX, ARCS } from '../config/arcs';
-import { COPY_TOKENS } from '../config/copy-tokens';
 import { arcEntryTicket, emptyArcTicketResult, type ArcTicketResult } from '../systems/arc-ticket';
 import { BeadsGame, type BeadsGameOptions } from './beads-game';
 import { LEVELS } from '../config/levels';
@@ -1371,17 +1370,51 @@ export class BeadsShell implements Game {
     }
 
     /**
-     * `[WXG-T-914]` 木牌第二行状态词：仅在「陈列关回落 boss」（本大关无在推的关）且大关状态为
-     * `cleared` / `locked` 时返回「已通关」/「未开启」（`COPY_TOKENS`，用户 2026-11-12 裁）；
-     * 其余（有在推的关 / pushing 兜底未收敛）⇒ `undefined` ⇒ 视图照旧画 `第 N 关`。零分配。
+     * `[WXG-T-914 → T-1044]` 木牌第二行 = 星进度三态（2026-11-24 用户令）：
+     * 下一大关门票未达 ⇒ `下关差 X★`（X = 门槛 − 本章星）；已开但本章未满 ⇒ `差 X★满星`；
+     * 本章全满 ⇒ `全满星`。⛔ 不改门槛 / 存档 / 判据；⛔ 视图层自读星账（L5）。
+     * 双槽按数值签名复用字符串 ⇒ 热路径零分配。
      */
-    private _arcSeqLabel(arcIdx: number, showcase: BeadsLevelRaw | undefined): string | undefined {
-        if (showcase === undefined || showcase !== this._arcBossLevel(arcIdx)) return undefined;
-        const state = this._arcState(arcIdx);
-        // `fullstar`（全关三星）与 `cleared` 同属「没有在推的关」⇒ 同词「已通关」。
-        if (state === 'cleared' || state === 'fullstar') return COPY_TOKENS.plate_arc_cleared_label;
-        if (state === 'locked') return COPY_TOKENS.plate_arc_locked_label;
-        return undefined;
+    private readonly _arcSeqSlots = [
+        { idx: -1, got: -1, total: -1, gate: -1, open: false, text: undefined as string | undefined },
+        { idx: -1, got: -1, total: -1, gate: -1, open: false, text: undefined as string | undefined },
+    ];
+    private _arcSeqLabel(arcIdx: number, slot: 0 | 1): string | undefined {
+        const cache = this._arcSeqSlots[slot]!;
+        const arc = ARCS[arcIdx];
+        let got = 0;
+        let total = 0;
+        if (arc !== undefined) {
+            for (const [start, end] of arc.levelRefs) {
+                for (let n = start; n <= end; n += 1) {
+                    total += 1;
+                    const raw = this.play.starsByLevelRaw[n - 1] ?? 0;
+                    got += raw > STAR_MAX ? STAR_MAX : raw < 0 ? 0 : raw;
+                }
+            }
+        }
+        if (total === 0) return undefined; // 空 / 敬请期待页 ⇒ 视图照旧回落关序。
+        const next = arcIdx + 1;
+        const hasNext = next < ARC_OPEN_MAX && ARCS[next] !== undefined;
+        const ticket = hasNext ? this._arcTicketSatisfied(next) : undefined;
+        const gate = ticket === undefined ? 0 : ticket.gate;
+        const open = ticket === undefined ? true : this._arcGateOpen(next, ticket);
+        if (cache.idx === arcIdx && cache.got === got && cache.total === total
+            && cache.gate === gate && cache.open === open) return cache.text;
+        let text: string;
+        if (hasNext && !open) {
+            text = `下关差 ${Math.max(0, gate - got)}★`;
+        } else {
+            const remain = Math.max(0, total * STAR_MAX - got);
+            text = remain === 0 ? '全满星' : `差 ${remain}★满星`;
+        }
+        cache.idx = arcIdx;
+        cache.got = got;
+        cache.total = total;
+        cache.gate = gate;
+        cache.open = open;
+        cache.text = text;
+        return text;
     }
 
     /**
@@ -1700,7 +1733,7 @@ export class BeadsShell implements Game {
             ? ARCS[off]?.title
             : undefined;
         // `[WXG-T-914]` 没有在推的关（陈列回落 boss）⇒ 第二行改状态词（已通关 / 未开启）。
-        v.carouselSeqLabel = soon ? undefined : this._arcSeqLabel(off, showcase);
+        v.carouselSeqLabel = soon ? undefined : this._arcSeqLabel(off, 0);
         v.carouselState = soon ? undefined : this._arcState(off);
         v.carouselArtLevel = soon ? undefined : this._arcBossLevel(off);
         v.carouselProgress = soon ? 0 : this._arcProgress(off);
@@ -1725,7 +1758,7 @@ export class BeadsShell implements Game {
             v.carouselPeerTitle = peerShowcase !== undefined && peerShowcase !== this._arcBossLevel(peerPage)
                 ? ARCS[peerPage]?.title
                 : undefined;
-            v.carouselPeerSeqLabel = this._arcSeqLabel(peerPage, peerShowcase);
+            v.carouselPeerSeqLabel = this._arcSeqLabel(peerPage, 1);
             v.carouselPeerState = this._arcState(peerPage);
             v.carouselPeerArtLevel = this._arcBossLevel(peerPage);
             v.carouselPeerProgress = this._arcProgress(peerPage);

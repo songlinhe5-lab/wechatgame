@@ -174,9 +174,9 @@ describe('S-4 闸门：门票未达', () => {
         const data = viewData(r.shell);
         expect(data.arcTicketOpen, '门票归约为假 ⇒ 章锁').toBe(false);
         expect([data.arcStarGot, data.arcStarNeed], 'C 拍定：已得/门槛取阻断该页入口的上一章').toEqual([20, 24]);
-        // `[WXG-T-920]` 展示投影只在门票达成时开门：未达成 ⇒ 三态仍锁、木牌仍是「未开启」。
-        expect(data.carouselState, '门票未达 ⇒ 保持锁态（三态旧口径逐字不变）').toBe('locked');
-        expect(data.carouselSeqLabel).toBe('未开启');
+        // `[WXG-T-920 → T-1044]` 展示投影只在门票达成时开门；木牌第二行改星进度三态。
+        expect(data.carouselState, '门票未达 ⇒ 保持锁态').toBe('locked');
+        expect(data.carouselSeqLabel, '章 2 本章 0★ ⇒ 下关差 24★').toBe('下关差 24★');
 
         const before = { stamina: r.shell.meta!.stamina, idx: r.shell.play.levelIndex, events: r.overlayEvents.length };
         expect(tapCard(r.shell), '锁态章 ⇒ 卡零事件（用户 2026-11-12 令「不能点进选关页面」）').toBe(false);
@@ -246,11 +246,10 @@ describe('S-4 闸门：门票达成 ⇒ 章首授权', () => {
     it('点章首格 ⇒ 进关 + 推既有两根指针（maxUnlockedKey / lastPlayedKey），不新增布尔', () => {
         const r = rig({ pointer: 9, stars: [3, 3, 3, 3, 3, 3, 3, 3, 3, 0] });
         goPage(r, 1);
-        // `[WXG-T-920]` 门票达成 ⇒ 展示层视同已开启：三态 pushing（boss 图 + 第 10 关），
-        // 不再挂锁图/「未开启」；推进位（存档）仍停在 9，真实推进发生在下面的章首格点击。
+        // `[WXG-T-920 → T-1044]` 门票达成 ⇒ 展示层视同已开启（三态 pushing）；推进位仍停在 9。
         const menu = viewData(r.shell);
         expect(menu.carouselState, '门票达成 ⇒ 大关按推关中呈现').toBe('pushing');
-        expect(menu.carouselSeqLabel, '木牌回落到「第 N 关」').toBeUndefined();
+        expect(menu.carouselSeqLabel, '木牌第二行 = 星进度三态').toBe('下关差 24★');
         expect(menu.maxUnlockedLevel, '⛔ 展示投影不动推进位').toBe(9);
         openLevels(r.shell, r);
         const data = viewData(r.shell);
@@ -386,5 +385,23 @@ describe('M-16 静态臂：门票归约输入里没有章 id', () => {
         } finally {
             entry.id = originalId;
         }
+    });
+});
+
+// ── [WXG-T-1044] 木牌第二行星进度三态（2026-11-24 用户令） ──
+describe('[WXG-T-1044] 木牌第二行星进度三态', () => {
+    const labelAtArc0 = (stars: number[]): string | undefined => {
+        const r = rig({ pointer: 9, stars });
+        goPage(r, 0);
+        return viewData(r.shell).carouselSeqLabel;
+    };
+    it('下一大关门票未达 ⇒ 下关差 X★（X = 门槛 − 本章星）', () => {
+        expect(labelAtArc0([3, 3, 2, 2, 2, 2, 2, 2, 2, 0]), '20/24 ⇒ 差 4★').toBe('下关差 4★');
+    });
+    it('下一大关已开但本章未满 ⇒ 差 X★满星', () => {
+        expect(labelAtArc0([3, 3, 3, 3, 3, 3, 3, 3, 2, 0]), '26/27 ⇒ 差 1★满星').toBe('差 1★满星');
+    });
+    it('本章全满 ⇒ 全满星', () => {
+        expect(labelAtArc0([3, 3, 3, 3, 3, 3, 3, 3, 3, 0]), '27/27').toBe('全满星');
     });
 });

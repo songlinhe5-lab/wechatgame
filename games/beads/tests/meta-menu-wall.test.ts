@@ -326,7 +326,7 @@ function starTextIn(cmds: readonly DrawCommand[], cell: { box: { x: number; y: n
     return cmds.filter(
         (k) =>
             k.kind === 'text' &&
-            /[★☆]/.test(String((k as { text?: string }).text ?? '')) &&
+            /^[★☆]+$/.test(String((k as { text?: string }).text ?? '')) &&
             (k as { x: number }).x >= b.x &&
             (k as { x: number }).x <= b.x + b.w &&
             (k as { y: number }).y >= b.y &&
