@@ -12193,3 +12193,18 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 **修法**：`timeout-view.ts` 把确认对话框抽成 `drawConfirmDialog()`，`drawTimeoutView` 开头**早返回**——确认态只画遮罩（α×0.7）+ 确认面板，⛔ 不再叠画底牌（顺便消除视觉噪声）；字墨按底色选（标题 `plateTitleInk` 8:1+、说明 `textDim` 4.74:1，K-115「按底色选墨不按组件名选墨」）；`TIMEOUT_GEO.confirmAbandon` 文字带改 `titleCyDown 68` / `msgCyDown 124`（标题 36..100、大字号档说明 106.5..141.5、按钮前 ≥4px），并加注「按钮上沿 = 板顶下 146，改 `btnYDown` 须同步复核文字带」。
 
 **验证 / 取证**：TDD 先红后绿——三条断言（字色 `plateTitleInk`/`textDim`；说明字底 > 按钮上沿；确认态零底牌文案），定向 **10/10**；全量 `verify` **24/24 PASS**；金样十一帧不含确认态 ⇒ **零重抓**；真实 Cocos web-mobile 实帧 `temp/ui-shot/1051-{play,timeout,confirm}.png`（修复前正文穿透 + 几乎不可读 → 修复后面板干净、两级墨清晰）。
+
+
+## WXG-T-1052
+
+**详情珠面落底座 + 放大** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ **完成（2026-11-24）**
+
+用户实帧报：关卡详情页（曼陀罗·第 9 关）「图案没有落在底座上，图形大小有点小」。两症状**同源**。
+
+**根因（Phase 1 量化取证）**：关卡数据带 **1 行 / 1 列空边** —— `L00009` pattern 30×30，有墨内容只占 `rows/cols 1..28`（28×28）。而 `drawBeadFace` 详情留缝档按**名义阵**布局：`pitch = min(w/30, h/30) = 11.33`、底缘按 `rows` 摊 ⇒
+- ① **悬空** = 底空 1 行 × pitch = **11.33px**（TDD 红灯实测 `540.33` vs 台面 `529`，差值 11.333 与推算逐位吻合）；
+- ② **偏小**：图案实际 28×11.33 = 317²，展示框是 340²（`thumbFit 360×340`）⇒ 被名义 30 摊薄。
+
+**修法**：详情留缝档（`beadGap !== undefined`）改按**有墨包围盒 contain-fit**，判据源复用 `levelThumbInkBounds`（与主菜单橱窗 `[WXG-T-1006/1032]` 同一条先例，其注释本就点名「如 L9 曼陀罗占 rows 1..28」）：`pitch = min(w/内容列, h/内容行)`、内容水平居中、有墨底缘贴台面（`top = anchorY + (r0 + spanRows) × pitch`）。`bounds` 缺省 ⇒ `c0=r0=0, span=cols/rows`，与旧口径**逐字节等价** ⇒ 选关格 / 盘面 / 其余消费方零变化；T-1040 的描边抬升（`W/2 + TILE_BLEED`）保留 ⇒ 轮廓外缘仍压台面线。
+
+**验证 / 取证**：TDD 先红后绿（新判据「轮廓外缘仍压台面 + 跨度 > 框高−6」），定向 **54/54**（含选关格 / 橱窗回归）；全量 `verify` **24/24 PASS**；金样十一帧不含详情态 ⇒ **零重抓**；harness 实帧 `temp/ui-shot/1052-detail9.png`（修复前悬空偏小 → 修复后撑满橱窗、贴住圆台）。

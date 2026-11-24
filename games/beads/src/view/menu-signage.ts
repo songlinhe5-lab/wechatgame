@@ -550,15 +550,28 @@ export function drawBeadFace(
     if (cells.length === 0 && locked.length === 0) return;
     const rows = level.pattern.length;
     const cols = level.cols;
-    const pitch = Math.min(w / cols, h / rows);
-    const left = x + (w - cols * pitch) / 2;
+    // `[WXG-T-1052]` 详情留缝档按**有墨包围盒** contain-fit（口径 = 主菜单橱窗 `[WXG-T-1006/1032]`，
+    // 判据源同为 `levelThumbInkBounds`）：关卡数据带 1 行 / 1 列空边（如 L9 曼陀罗占 rows/cols
+    // 1..28）⇒ 按名义阵布局会让图案底缩进一颗珠（**悬空 pitch px ≈ 11px**）且被 30 摊薄成 317²
+    // （展示框 340²）。用户 2026-11-24 令「图案没有落在底座上，图形大小有点小」。
+    // ⛔ 选关格 / 盘面仍走名义阵（网格要完整），故只在传了 `beadGap`（详情专用档）时生效。
+    const bounds = beadGap === undefined ? undefined : levelThumbInkBounds(level);
+    const c0 = bounds === undefined ? 0 : bounds.minC;
+    const r0 = bounds === undefined ? 0 : bounds.minR;
+    const spanCols = bounds === undefined ? cols : bounds.maxC - bounds.minC + 1;
+    const spanRows = bounds === undefined ? rows : bounds.maxR - bounds.minR + 1;
+    const pitch = Math.min(w / spanCols, h / spanRows);
+    const left = x + (w - spanCols * pitch) / 2 - c0 * pitch;
     // `[WXG-T-1040]` 详情留缝档把底缘**抬升** `W/2 + TILE_BLEED`：整体轮廓描边骑在隐含底块边线上，
     // 外缘恰落回 yBottom（台面接触线），描边带完整露出且不压台面；其余消费方零变化。
     const anchorY = anchor === 'bottom' && beadGap !== undefined
         ? yBottom + thumbOutlineWidth(pitch) / 2 + TILE_BLEED
         : yBottom;
-    // `'bottom'`：宽盘（rows·pitch < h）也把**实际底缘**贴到 anchorY；`'center'` = 槽内居中。
-    const top = anchor === 'bottom' ? anchorY + rows * pitch : anchorY + (h + rows * pitch) / 2;
+    // `'bottom'`：宽盘也把**有墨底缘**贴到 anchorY（`r0 + spanRows` = 末个有墨行的下一格边线）；
+    // `'center'` = 槽内居中。bounds 缺省时与旧口径逐字节等价。
+    const top = anchor === 'bottom'
+        ? anchorY + (r0 + spanRows) * pitch
+        : anchorY + (h + (r0 + spanRows) * pitch) / 2;
     const inks = inkOverride ?? beadInksFor(level);
     // `[WXG-T-951]` 缩略**不走 tint 臂**（用户 2026-11-15 令「珠面图案 tint 可以省略，看不清楚」）：
     // 不写 `maskGauge` ⇒ `drawFilledBead` 的 tint 分支不命中，珠面/底块一律画矢量刻面，

@@ -137,4 +137,36 @@ describe('WXG-T-609 关卡详情橱窗面板', () => {
         }
         expect(minY, '轮廓外缘应恰压台面接触线（抬升量 = 半带宽 + 半 bleed）').toBeCloseTo(trayY, 6);
     });
+    it('[WXG-T-1052] 留缝档按有墨包围盒 contain-fit：底缘仍压台面 + 图案填满展示框', () => {
+        // 用户 2026-11-24 报「图案没有落在底座上，图形大小有点小」：曼陀罗第 9 关（`L00009`）
+        // 是 30×30 名义阵，但内容只占 rows/cols **1..28**（四周各 1 空行/列）⇒ 旧口径按名义阵布局
+        // ⇒ 底空 1 行 × pitch 11.3 = 悬空 11.3px，且 pitch 被 30 摊薄使图案只有 317²（框 340²）。
+        // 判据 = ①轮廓外沿仍压台面（不悬空）；②垂直跨度 ≈ 展示框高（contain-fit 填满）。
+        const lv = LEVELS[8]!;
+        const plate = levelDetailPlate();
+        const plateY = DESIGN_H - LEVEL_DETAIL_GEO.plate.yDown - LEVEL_DETAIL_GEO.plate.h;
+        const thumb = LEVEL_DETAIL_GEO.thumb;
+        const fit = LEVEL_DETAIL_GEO.thumbFit;
+        const trayY = plate.y + (DESIGN_H - thumb.yDown - thumb.h - plateY);
+        const slotX = plate.x + (LEVEL_DETAIL_GEO.showcase.x + LEVEL_DETAIL_GEO.showcase.w / 2 - fit.w / 2 - LEVEL_DETAIL_GEO.plate.x);
+        const b = new RenderModelBuilder(DESIGN_W, DESIGN_H);
+        b.begin();
+        drawBeadFace(b, lv, slotX, trayY, fit.w, fit.h, DEFAULT_PALETTE, undefined, HANDDRAWN_STYLE_ID, undefined, 'bottom', false, BEAD_GAP);
+        const model = b.end();
+        const polys = model.commands.filter((c): c is PolygonCommand => c.kind === 'polygon');
+        expect(polys.length, '刻面珠体腿已画').toBeGreaterThan(0);
+        let minY = Infinity;
+        let maxY = -Infinity;
+        for (const p of polys) {
+            const v = polygonVertices(model, p);
+            for (let k = 1; k < v.length; k += 2) {
+                expect(v[k]!, '底缘不得压到台面接触线以下').toBeGreaterThanOrEqual(trayY - 1e-6);
+                minY = Math.min(minY, v[k]!);
+                maxY = Math.max(maxY, v[k]!);
+            }
+        }
+        expect(minY, '轮廓外缘仍压台面接触线（⛔ 底空行不得再留 11px 悬空）').toBeCloseTo(trayY, 1);
+        expect(maxY - minY, '图案填满展示框高（contain-fit;名义阵只有 28/30 ⇒ ≈317）')
+            .toBeGreaterThan(fit.h - 6);
+    });
 });
