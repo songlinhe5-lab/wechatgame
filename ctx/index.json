@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4301,
       "lines": 142,
-      "sha256": "928a70db652190f0bc5a2d56e40565de78889f399a0f26c50d679080113e214e",
+      "sha256": "878a48d9242680c38ff9beb268c38b0dab4ad571aca3075488f0f6dd6e61c43d",
       "tier": "normal",
       "sections": [
         {
@@ -14587,17 +14587,17 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 63979,
-      "lines": 447,
-      "sha256": "a86a926e079398cc95e13b9dacca66294e1e966b1ced2aacb0c91fae6953703a",
+      "tokens": 64256,
+      "lines": 449,
+      "sha256": "61dc656c4b664031252b19ef4ca46e066d5904c35f62deee2cba4d0f20578c9b",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads UI 架构（View / ViewModel / Presenter + 公共基础）",
           "level": 1,
           "startLine": 1,
-          "endLine": 448,
-          "tokens": 63961,
+          "endLine": 450,
+          "tokens": 64238,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -14767,8 +14767,8 @@
           "anchor": "§12 TODO 拆分",
           "level": 2,
           "startLine": 138,
-          "endLine": 444,
-          "tokens": 58907,
+          "endLine": 446,
+          "tokens": 59184,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -14779,8 +14779,8 @@
         {
           "anchor": "§13 待你拍板",
           "level": 2,
-          "startLine": 445,
-          "endLine": 448,
+          "startLine": 447,
+          "endLine": 450,
           "tokens": 323,
           "summary": "D1–D5 均已裁定（见 [ADR-0032 §5](adr/ADR-0032-beads-ui-architectur",
           "keywords": [
