@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4301,
       "lines": 142,
-      "sha256": "878a48d9242680c38ff9beb268c38b0dab4ad571aca3075488f0f6dd6e61c43d",
+      "sha256": "cfd55cac921d21d79f5d03a3301bd5e16a827d81bc15afe23a8b62c6b2fc5222",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 407,
-          "summary": "1 production/TASKS-DETAIL.md 386381 12210 normal",
+          "summary": "1 production/TASKS-DETAIL.md 386832 12217 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5206,
       "lines": 159,
-      "sha256": "d03d4d5edf81d54f2a99350e89aab5305bc63afc8fa93ee84c379ef4ba9780e2",
+      "sha256": "9d1b8baf167951a5626766e677d43d469834ed8767cfde30036d9a84ab631683",
       "tier": "normal",
       "sections": [
         {
@@ -761,7 +761,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 354 行 / 110660 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 354 行 / 110686 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
@@ -1080,12 +1080,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 12210 行 / 386381 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 12217 行 / 386832 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
           "tokens": 128,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+12211 · §WXG-T-1043=18+22 · §WXG-T-1",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+12218 · §WXG-T-1043=18+22 · §WXG-T-1",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -93930,17 +93930,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 386381,
-      "lines": 12210,
-      "sha256": "d673d2776424af807436991b8a17a30f7e79a827e952174039ed8b49a4a860e2",
+      "tokens": 386832,
+      "lines": 12217,
+      "sha256": "3ce3a4cc27aa79d2c71e43eb7601e89de4a06679bb7d65ec41c43a77a9a312ec",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 12211,
-          "tokens": 386365,
+          "endLine": 12218,
+          "tokens": 386815,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -111710,9 +111710,9 @@
           "anchor": "§WXG-T-1050",
           "level": 2,
           "startLine": 12064,
-          "endLine": 12118,
-          "tokens": 1024,
-          "summary": "A00 曼陀罗九关 G12 重生 + BOSS 盘面 48 档令（主理人(Trae CN)·美术轨，🚧 进行中 202",
+          "endLine": 12125,
+          "tokens": 1475,
+          "summary": "A00 曼陀罗九关 G12 重生 + BOSS 盘面 48 档令（主理人(Trae CN)·美术轨，✅ 完成 2026-",
           "keywords": [
             "WXG",
             "A00",
@@ -111724,8 +111724,8 @@
         {
           "anchor": "§WXG-T-1045",
           "level": 2,
-          "startLine": 12119,
-          "endLine": 12130,
+          "startLine": 12126,
+          "endLine": 12137,
           "tokens": 948,
           "summary": "A02 林中友九关主色均衡回溯重修（主理人(Trae CN)·美术轨，✅ 完成 2026-11-24）",
           "keywords": [
@@ -111737,8 +111737,8 @@
         {
           "anchor": "§WXG-T-1046",
           "level": 2,
-          "startLine": 12131,
-          "endLine": 12142,
+          "startLine": 12138,
+          "endLine": 12149,
           "tokens": 611,
           "summary": "关卡详情背景板真机缺失修复 · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ 完成（2026-11-24，待",
           "keywords": [
@@ -111749,8 +111749,8 @@
         {
           "anchor": "§落码与验证 (3)",
           "level": 3,
-          "startLine": 12137,
-          "endLine": 12142,
+          "startLine": 12144,
+          "endLine": 12149,
           "tokens": 410,
           "summary": "根因（Phase 1 证据链）：BELOW_GRAPHICS_TEXTURE_IDS 含 LEVEL_DETAIL_TE",
           "keywords": [
@@ -111763,8 +111763,8 @@
         {
           "anchor": "§WXG-T-1047",
           "level": 2,
-          "startLine": 12143,
-          "endLine": 12155,
+          "startLine": 12150,
+          "endLine": 12162,
           "tokens": 462,
           "summary": "木牌「下关差★」收窄到本章全通 · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ 完成（2026-11-24",
           "keywords": [
@@ -111775,8 +111775,8 @@
         {
           "anchor": "§落码与验证 (4)",
           "level": 3,
-          "startLine": 12149,
-          "endLine": 12155,
+          "startLine": 12156,
+          "endLine": 12162,
           "tokens": 255,
           "summary": "_arcSeqLabel 遍历 ARCS[arc].levelRefs 时并计 cleared（raw > 0 的关数）",
           "keywords": [
@@ -111791,8 +111791,8 @@
         {
           "anchor": "§WXG-T-1048",
           "level": 2,
-          "startLine": 12156,
-          "endLine": 12168,
+          "startLine": 12163,
+          "endLine": 12175,
           "tokens": 711,
           "summary": "详情返回丢锁图案 + 未通关显第 n 关 · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ 完成（2026-",
           "keywords": [
@@ -111803,8 +111803,8 @@
         {
           "anchor": "§WXG-T-1049",
           "level": 2,
-          "startLine": 12169,
-          "endLine": 12181,
+          "startLine": 12176,
+          "endLine": 12188,
           "tokens": 571,
           "summary": "关卡详情道具图标缺背景框 · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ 完成（2026-11-24）",
           "keywords": [
@@ -111815,8 +111815,8 @@
         {
           "anchor": "§WXG-T-1051",
           "level": 2,
-          "startLine": 12182,
-          "endLine": 12197,
+          "startLine": 12189,
+          "endLine": 12204,
           "tokens": 706,
           "summary": "放弃确认层文字穿透/不可读 · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ 完成（2026-11-24）",
           "keywords": [
@@ -111827,8 +111827,8 @@
         {
           "anchor": "§WXG-T-1052",
           "level": 2,
-          "startLine": 12198,
-          "endLine": 12211,
+          "startLine": 12205,
+          "endLine": 12218,
           "tokens": 536,
           "summary": "详情珠面落底座 + 放大 · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ 完成（2026-11-24）",
           "keywords": [
@@ -111840,9 +111840,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 110660,
+      "tokens": 110686,
       "lines": 354,
-      "sha256": "ccf3e0918bf536fea13d0f6511323b0928f7d2809dbda34f6c4d680a857cbac4",
+      "sha256": "deba0523d13b9f13cba9d169cf8649abe025ec5fd2dc0ae63011ae6b2c54ae7d",
       "tier": "hot",
       "sections": [
         {
@@ -111850,7 +111850,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 355,
-          "tokens": 110652,
+          "tokens": 110677,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
