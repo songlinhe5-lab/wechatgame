@@ -38,6 +38,7 @@
  */
 
 import type { RenderModelBuilder } from '@wxgame/framework';
+import { TILE_BLEED } from '../config/tuning/board.js';
 import {
     BEAD_COLOR_MAX,
     BEAD_GAP,
@@ -525,9 +526,9 @@ function levelThumbInkBounds(level: BeadsLevelRaw): ThumbInkBounds | undefined {
  * @param flat     `[WXG-T-952]` 纯色缩略腿：`true` ⇒ **不画珠面**（不调 `drawFilledBead`），
  *   逐格铺**色板基础颜色**方块（回退档同款；判例 T-502「缩略只展示盘面」）。选关格用；
  *   用户令「缩略图的珠面 tint 可以省略，看不清楚」⇒ 保持图案清晰、零珠面纹理。
- * @param beadGap `[WXG-T-1038]` 详情专用留缝档：给定后刻面珠面边长 = `pitch − beadGap`
- *   （缺省仍为 `pitch × diameterRatio` 交错档），描边同步贴珠面而非隐含底块 ⇒ 珠间留缝、
- *   底排不越台面；⛔ 选关格 / 盘面不传本参，口径零变化。
+ * @param beadGap `[WXG-T-1038/1040]` 详情专用留缝档：给定后刻面珠面边长 = `pitch − beadGap`
+ *   （缺省仍为 `pitch × diameterRatio` 交错档）；描边仍贴**整体轮廓**（隐含底块 `pitch+2×TILE_BLEED`）
+ *   ⇒ 连续闭环且落在珠面外缘，底面按描边半宽抬升 ⇒ 描边外缘仍压台面接触线。⛔ 选关格 / 盘面不传本参。
  */
 export function drawBeadFace(
     builder: RenderModelBuilder,
@@ -551,8 +552,13 @@ export function drawBeadFace(
     const cols = level.cols;
     const pitch = Math.min(w / cols, h / rows);
     const left = x + (w - cols * pitch) / 2;
-    // `'bottom'`：宽盘（rows·pitch < h）也把**实际底缘**贴到 yBottom；`'center'` = 槽内居中。
-    const top = anchor === 'bottom' ? yBottom + rows * pitch : yBottom + (h + rows * pitch) / 2;
+    // `[WXG-T-1040]` 详情留缝档把底缘**抬升** `W/2 + TILE_BLEED`：整体轮廓描边骑在隐含底块边线上，
+    // 外缘恰落回 yBottom（台面接触线），描边带完整露出且不压台面；其余消费方零变化。
+    const anchorY = anchor === 'bottom' && beadGap !== undefined
+        ? yBottom + thumbOutlineWidth(pitch) / 2 + TILE_BLEED
+        : yBottom;
+    // `'bottom'`：宽盘（rows·pitch < h）也把**实际底缘**贴到 anchorY；`'center'` = 槽内居中。
+    const top = anchor === 'bottom' ? anchorY + rows * pitch : anchorY + (h + rows * pitch) / 2;
     const inks = inkOverride ?? beadInksFor(level);
     // `[WXG-T-951]` 缩略**不走 tint 臂**（用户 2026-11-15 令「珠面图案 tint 可以省略，看不清楚」）：
     // 不写 `maskGauge` ⇒ `drawFilledBead` 的 tint 分支不命中，珠面/底块一律画矢量刻面，
@@ -564,13 +570,11 @@ export function drawBeadFace(
     const block = pitch - gap;
     // `[WXG-T-622]` 回退判据量**实际画出的珠体**（不是方块腿的 block）⇒ 选关格 / 详情橱窗
     // 共用同一条换算，缝占比高的小盘不再被误判成方块。
-    // `[WXG-T-1038]` 详情留缝档：珠面 = 格距 − 缝（盘面 B0 同口径），⛔ 仍零新尺子。
-    // 缝宽下限 = 等比描边带宽 + 0.5 ⇒ 描边骑在珠面边线上仍完整落在缝内，底排不越台面
-    // （大盘 pitch≈28 时 2px 固定缝容不下 W≈3.5 的描边带，会压台面 0.7px）。
-    const detailGap = beadGap === undefined ? 0 : Math.max(beadGap, thumbOutlineWidth(pitch) + 0.5);
+    // `[WXG-T-1038/1040]` 详情留缝档：珠面 = 格距 − 缝（盘面 B0 同口径），⛔ 仍零新尺子。
+    // `[T-1040]` 描边改骑整体轮廓（隐含底块）而非珠面 ⇒ 缝宽固定，不再需要带宽下限。
     const beadEdge = beadGap === undefined
         ? pitch * THUMB_BEAD_SHAPE.diameterRatio
-        : Math.max(1, pitch - detailGap);
+        : Math.max(1, pitch - beadGap);
     // `[WXG-T-952]` 纯色缩略腿（选关格）恒走回退方块：珠面 / tint 一律不画，图案才看得清。
     const shaped = !flat && beadEdge >= THUMB_BEAD_SHAPE.minBeadEdge;
     // `[WXG-T-926 / T-928]` 珠面描边：art 二裁暖可可黑、单层实线、随 pitch 等比；
@@ -610,15 +614,7 @@ export function drawBeadFace(
         }
     }
     // `[WXG-T-928]` 轮廓压在珠面**之上**（末笔）：边界珠外缘 W 宽的黑线直接盖住珠面边沿。
-    drawThumbOutline(
-        builder, level, left, top, pitch,
-        shaped ? beadEdge : block,
-        palette.shadowInk,
-        undefined,
-        undefined,
-        // 留缝档描边贴**珠面**（默认贴隐含底块会外扩越过台面接触线）。
-        beadGap === undefined ? undefined : beadEdge,
-    );
+    drawThumbOutline(builder, level, left, top, pitch, shaped ? beadEdge : block, palette.shadowInk);
 }
 
 /** `[WXG-T-1035]` 裁圈剪影描边的占用表按关卡缓存 ⇒ 菜单逐帧零闭包分配。 */

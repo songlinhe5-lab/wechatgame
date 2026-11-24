@@ -79,8 +79,6 @@ let _boardCache: {
  * @param occOverride `[WXG-T-1035]` 占用覆盖（缺省 = 整幅 `pattern` 墨）——
  *   显示侧裁圈的消费方（橱窗）传**裁后**占用（按关卡缓存），否则描边会沿被裁掉的外圈走；
  *   `occKey` 必须随占用语义变化（进缓存键）。
- * @param unlockedFace `[WXG-T-1038]` 非锁定格的描边贴附面（缺省 = 隐含底块 `pitch + 2×TILE_BLEED`）；
- *   详情留缝档传实际珠面边长 ⇒ 描边贴珠面、不越台面接触线。
  */
 export function drawThumbOutline(
     builder: RenderModelBuilder,
@@ -92,12 +90,11 @@ export function drawThumbOutline(
     color: string,
     occOverride?: Occupancy,
     occKey?: string,
-    unlockedFace?: number,
 ): void {
-    const key = `${occKey ?? ''}|${left}|${top}|${pitch}|${lockedFace}|${unlockedFace ?? ''}`;
+    const key = `${occKey ?? ''}|${left}|${top}|${pitch}|${lockedFace}`;
     let hit = _cache.get(level);
     if (!hit || hit.key !== key) {
-        hit = { key, shapes: buildShapes(level.pattern.length, level.cols, occOverride ?? thumbOcc(level), thumbLocked(level), left, top, pitch, lockedFace, thumbOutlineWidth(pitch), unlockedFace) };
+        hit = { key, shapes: buildShapes(level.pattern.length, level.cols, occOverride ?? thumbOcc(level), thumbLocked(level), left, top, pitch, lockedFace, thumbOutlineWidth(pitch)) };
         _cache.set(level, hit);
     }
     for (const s of hit.shapes) builder.polygon(s.pts, { fill: color });
@@ -175,10 +172,9 @@ function buildShapes(
     pitch: number,
     lockedFace: number,
     width: number,
-    unlockedFace?: number,
 ): OutlineShape[] {
     const bw = width / 2;
-    const tileFace = unlockedFace ?? pitch + TILE_BLEED * 2;
+    const tileFace = pitch + TILE_BLEED * 2;
     const shapes: OutlineShape[] = [];
     for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
