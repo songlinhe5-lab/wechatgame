@@ -12109,3 +12109,16 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 **② 锁图案（详情返回丢锁）**：harness 一次性诊断（`zz-diag-1048.test.ts`，用完即删）证明前后 `lockImage` blit 命令均 6、VM 三字段不变 ⇒ 排除 VM / 命令流丢失；真实 Cocos web-mobile CDP introspect（`temp/probe-1048.mjs` + `1048-{L-before,detail,L-after}*.{json,png}`）抓到根因 = 宿主 `BeadsBlitCarrier` 全局池跨容器重挂：详情帧把 `dialogBg`/`cellNormal` 等池位 `setParent` 到详情容器，返回帧 `setParent` 回选关容器时按借位序追加，兄弟序变「锁(0-6)→close→dialogBg→cellNormal(10-18)→锁(19)」⇒ 不透明格底盖住 4–9 关锁（锁 Sprite `on=true` 但 idx 反转，harness canvas2d 不模拟宿主层故漏检）。修法 = above 池位每帧按命令序（`_used`）钉死 `setSiblingIndex`，below 珠层垫底语义不变。修复后 introspect idx 11-18 → 11-18，截图与 L-before 逐像素一致。
 
 **验证 / 取证**：verify **24/24 PASS**（typecheck / framework:sync:check / check:tasks / 金样等）；金样菜单族五态文本变，按干净 worktree 锚 `7065de29` 用 `ui-golden-capture.ts` 重抓，十一帧两遍确定性自证 PASS（⛔ 未手改夹具）；真机层序取证如上（web-mobile 预览，非微信真机，待扫码回执）。代码提交 `7065de29` 已 push origin/develop。
+
+
+## WXG-T-1049
+
+**关卡详情道具图标缺背景框** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ **完成（2026-11-24）**
+
+用户报：「关卡详情的道具图标缺少背景框」。根因 = `[WXG-T-1019]`「拆分共背景（单源化）」落码时**漏了内缩**：背景件 336²（圆角木框 + 米底，中央 (88,88,248,248) 道具区 = 160²）与道具件 160²（自带宽米色实底、不透明范围铺满 0..152）此前**同尺寸同位**（均 `it.size` = 84）绘制、背景件先发 ⇒ 道具件实底把木框整圈盖掉，屏上只剩图案浮在木牌上。
+
+**取证（Phase 1，不猜）**：真实 Cocos web-mobile + CDP introspect（`temp/probe-1049.mjs` → `1049-{levels,detail}-scene.json` / `.png`）证：3 枚 `powerup_restore_base` 节点 `on=true`、位置与对应 icon 完全相同、siblingIndex 5/7/9 均在 icon 6/8/10 **之下**（层序本就正确），控制台「静态位图 53/53 已装载」无未就绪告警 ⇒ 排除未装载与层序，锁定**同尺寸覆盖**。像素分析：base 336² 木框内沿 60/336、米底区 217/336 = 0.646；icon 不透明 0..152 近铺满。
+
+**修法**：新增 `POWERUP_ICON_SCALE = 160/336`（中央道具区 / 全图，`config/tuning/powerup-layout.ts`，含出处与反例注释）；`meta-level-detail-page.ts` 道具件 `blit` 与程序化缺图徽章**同口径**内缩居中（⛔ 两条腿都不得满格画，否则缺图时同样盖框）；角标仍贴格子右上不动。
+
+**验证 / 取证**：TDD 先红后绿（新增「道具件内缩到中央道具区」一条 + 既有回退腿 r=42 断言改读常量，定向 **8/8**）；全量 `verify` **24/24 PASS**；金样十一帧不含 `level-detail` ⇒ **零重抓**；真实引擎实帧 `temp/ui-shot/1049-detail.png`（修复前无框 → 修复后各带木框 + 米底）。代码提交见本单 commit。

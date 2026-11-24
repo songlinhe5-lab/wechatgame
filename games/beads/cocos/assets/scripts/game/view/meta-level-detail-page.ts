@@ -10,7 +10,7 @@
  * 绘制时加 `plate.y` ⇒ 逐机位移（`dialogShiftY`）不会撕裂内容带。
  */
 
-import { BEAD_GAP, DESIGN_H, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TEXTURES, LEVEL_DETAIL_TITLE_SHADOW, POWERUP_RESTORE_BASE_TILE, POWERUP_TILE_TEXTURES, POWERUP_TYPES } from '../config/tuning';
+import { BEAD_GAP, DESIGN_H, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TEXTURES, LEVEL_DETAIL_TITLE_SHADOW, POWERUP_ICON_SCALE, POWERUP_RESTORE_BASE_TILE, POWERUP_TILE_TEXTURES, POWERUP_TYPES } from '../config/tuning';
 import { type RenderModelBuilder } from '../../framework/index';
 import { POWERUP_LABELS } from '../systems/powerups';
 import { type BeadsPalette, withAlpha } from './palette';
@@ -173,6 +173,11 @@ export function drawLevelDetailPage(
     const it = GEO.items;
     const rowLeft = plate.x + (it.cx - GEO.plate.x) - ITEMS_W / 2;
     const itemY = plate.y + ITEMS_DY;
+    // `[WXG-T-1049]` 道具件/程序化徽章一律内缩到背景件的**中央道具区**（160/336）并居中：
+    // 背景件是「木框 + 米底」的整格大图（336²），道具件自带宽米色实底（铺满 160²）⇒ 同尺寸
+    // 叠加会把木框整圈盖掉（用户报「道具图标缺少背景框」）。⛔ 两条腿同口径，缺图臂不另画满格。
+    const iconSize = it.size * POWERUP_ICON_SCALE;
+    const iconPad = (it.size - iconSize) / 2;
     for (let i = 0; i < POWERUP_TYPES.length; i++) {
         const x = rowLeft + i * (it.size + it.gap);
         const iconId = POWERUP_TILE_TEXTURES[POWERUP_TYPES[i]!];
@@ -182,11 +187,11 @@ export function drawLevelDetailPage(
             builder.blit(POWERUP_RESTORE_BASE_TILE, x, itemY, it.size, it.size);
         }
         if (menuBitmapReady(iconId)) {
-            builder.blit(iconId, x, itemY, it.size, it.size);
+            builder.blit(iconId, x + iconPad, itemY + iconPad, iconSize, iconSize);
         } else {
             const cx = x + it.size / 2;
             const cy = itemY + it.size / 2;
-            builder.circle(cx, cy, it.size / 2, { fill: palette.slot, stroke: palette.slotBorder, lineWidth: 2 });
+            builder.circle(cx, cy, iconSize / 2, { fill: palette.slot, stroke: palette.slotBorder, lineWidth: 2 });
             builder.text(cx, cy, ITEM_GLYPHS[i]!, {
                 fill: palette.text,
                 font: UI_FONT.cell,

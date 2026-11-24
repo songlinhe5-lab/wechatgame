@@ -22,6 +22,15 @@ export const POWERUP_TILE_TEXTURES: Readonly<Record<PowerupType, string>> = {
 /** `[WXG-T-1019]` 三件恢复 tile 共用的背景件 id（环带与三件逐像素同源，道具区已填内面色）。 */
 export const POWERUP_RESTORE_BASE_TILE = 'bitmap__powerup_restore_base';
 
+/**
+ * `[WXG-T-1049]` 道具件相对背景框的绘制比 = 中央道具区 / 全图 = **160/336**。
+ *
+ * 背景件 336² = 木框 + 米底，中央 (88,88,248,248) 道具区已填内面色；道具件 160² 即该区原图
+ * （自带同色米底、不透明范围铺满 0..152）⇒ 必须按本比内缩、居中绘制才能拼回「木框 + 米底 + 图案」。
+ * ⛔ 与背景件同尺寸（= 1.0）会把木框整圈盖掉，屏幕上表现为「道具图标缺少背景框」（用户报障根因）。
+ */
+export const POWERUP_ICON_SCALE = 160 / 336;
+
 /** One powerup card's rect (`x`/`bottom` = design-space bottom-left corner). */
 export interface PowerupCardRect {
   readonly x: number;

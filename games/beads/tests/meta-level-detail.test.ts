@@ -3,7 +3,7 @@
  *  ① 流程：点已解锁格开详情（不扣心）→ 「开始」进关（扣 1 心）；「返回」回选关页。
  *  ② 版面不变式：几何 = Figma `92:36` 原值（木牌 581×1044 @89 / 开始 326×154 @212 / 返回 È Ð80 同中线）；
  *     内容带不压板标题、不压开始钮。
- *  ③ 绘制面：无位图宿主 ⇒ 程序化回退腿（副标题 / 时限 / 文字星 / 三枚 r=42 徽章 / 返回圆）；
+ *  ③ 绘制面：无位图宿主 ⇒ 程序化回退腿（副标题 / 时限 / 文字星 / 三枚内缩徽章 / 返回圆）；
  *     注入位图宿主 ⇒ 木牌 / 开始 / 三枚星 / 返回木圆全部走 blit。
  *
  * 设计真源：Figma 关卡详情弹窗（file `PBIK3RbfGlfzFsAnd97ZsP` / node `92:36`）；
@@ -32,7 +32,7 @@ import { defaultBeadsSave } from '../src/game/save-schema.js';
 import { hitTestMeta, metaLayout, setMenuBitmapResolver } from '../src/view/meta-view.js';
 import { levelDetailPlate } from '../src/view/meta-layout.js';
 import { COPY_TOKENS } from '../src/config/copy-tokens.js';
-import { DESIGN_H, DESIGN_W, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TEXTURES, LEVEL_DETAIL_TITLE_SHADOW, MENU_TEXTURES, POWERUP_RESTORE_BASE_TILE, POWERUP_TILE_TEXTURES, STAMINA_START_COST, WALL_ROWS } from '../src/config/tuning.js';
+import { DESIGN_H, DESIGN_W, LEVEL_DETAIL_GEO, LEVEL_DETAIL_TEXTURES, LEVEL_DETAIL_TITLE_SHADOW, MENU_TEXTURES, POWERUP_ICON_SCALE, POWERUP_RESTORE_BASE_TILE, POWERUP_TILE_TEXTURES, STAMINA_START_COST, WALL_ROWS } from '../src/config/tuning.js';
 
 const META_KEY = 'test.t602.meta';
 const PLAY_KEY = 'test.t602.play';
@@ -225,10 +225,12 @@ describe('[WXG-T-602] 关卡详情弹窗 — 绘制面', () => {
         expect(titleShadow!.blur, '投影 blur = 稿面 3').toBe(LEVEL_DETAIL_TITLE_SHADOW.blur);
 
         const plate = levelDetailPlate();
+        // `[WXG-T-1049]` 缺图臂同口径内缩：r = 84 ×(160/336)/2，⛔ 不再是满格 42（会把背景木框盖掉）。
+        const badgeR = (LEVEL_DETAIL_GEO.items.size * POWERUP_ICON_SCALE) / 2;
         const badges = cmds.filter(
-            (c) => c.kind === 'circle' && c.r === 42 && c.y !== undefined && c.y > plate.y && c.y < plate.y + plate.h,
+            (c) => c.kind === 'circle' && c.r === badgeR && c.y !== undefined && c.y > plate.y && c.y < plate.y + plate.h,
         );
-        expect(badges.length, '三枚道具徽章（r = 84/2）').toBe(3);
+        expect(badges.length, '三枚道具徽章（内缩到背景中央道具区）').toBe(3);
         // 关闭件：右上框带内嵌 38² 凹槽（框 + 底 + 米白 ✕ 嵌线），不是凸起底板。
         const inset = cmds.find((c) => c.kind === 'rect' && c.x === 603 && c.y === 1102 && c.w === 38 && c.h === 38);
         expect(inset, '38² 凹槽外框').toBeDefined();
@@ -290,5 +292,33 @@ describe('[WXG-T-602] 关卡详情弹窗 — 绘制面', () => {
                 || id.startsWith('bitmap__powerup_tray_tile')),
             '⛔ 旧整图 tile 键零消费',
         ).toBe(false);
+    });
+
+    it('[WXG-T-1049] 道具件内缩到背景框米底区内 ⇒ 木框露出（⛔ 与背景件同尺寸被实底完全盖住）', () => {
+        // 用户报「关卡详情的道具图标缺少背景框」：背景件 336²（木框内沿 60/336、米底 217/336=0.646）
+        // 与道具件 160²（自带宽米色实底、不透明范围 0..152 ≈ 铺满）此前**同尺寸同位**绘制 ⇒
+        // 道具件的实底把木框整圈盖掉。判据 = 道具件窄于背景框且居中。
+        setMenuBitmapResolver((id) => id.startsWith('bitmap__detail_')
+            || id === POWERUP_RESTORE_BASE_TILE
+            || id.startsWith('bitmap__powerup_restore_icon')
+            || id === MENU_TEXTURES.btnCircle);
+        const r = rig();
+        openLevels(r.shell);
+        openDetail(r.shell, 3);
+        for (let i = 0; i < 40; i += 1) r.shell.update(1 / 60);
+
+        const blits = frame(r.shell).filter((c) => c.kind === 'blit');
+        const bases = blits.filter((c) => c.textureId === POWERUP_RESTORE_BASE_TILE);
+        const icons = blits.filter((c) => c.textureId?.startsWith('bitmap__powerup_restore_icon'));
+        expect([bases.length, icons.length], '三对件齐发').toEqual([3, 3]);
+        for (let i = 0; i < 3; i += 1) {
+            const b = bases[i]!;
+            const ic = icons[i]!;
+            const ratio = (ic.w ?? 0) / (b.w ?? 1);
+            // 背景件 336² 的中央 (88,88,248,248) 道具区 = 160²，道具件就是该区原图 ⇒ 160/336。
+            expect(ratio, `第 ${i + 1} 件：道具件 = 背景件中央道具区（160/336）`).toBeCloseTo(160 / 336, 2);
+            expect((ic.x ?? 0) - (b.x ?? 0), '水平居中').toBeCloseTo(((b.w ?? 0) - (ic.w ?? 0)) / 2, 1);
+            expect((ic.y ?? 0) - (b.y ?? 0), '垂直居中').toBeCloseTo(((b.h ?? 0) - (ic.h ?? 0)) / 2, 1);
+        }
     });
 });
