@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "contentVersion": 41,
+  "contentVersion": 42,
   "gameId": "beads",
   "description": "关卡内容管线目录化真源（P1/P2）。WXG-T-203 pre-release 重置第二批：原 demo 8 关（L00001–L00008）已按用户裁定移出，关表由 beads-studio 生成的盘逐张入关重建；uid 5 位零填充、order 从 1 只追加。字符集与色板口径见 levels-spec §2 / art-bible §3.2。",
   "paletteFile": "palette.json",
@@ -69,81 +69,67 @@
       "order": 9
     },
     {
-      "uid": "L00011",
-      "kind": "single",
-      "file": "singles/L00011.json",
-      "pack": "main",
-      "order": 10
-    },
-    {
-      "uid": "L00010",
-      "kind": "boss",
-      "file": "singles/L00010.json",
-      "pack": "main",
-      "order": 11
-    },
-    {
       "uid": "L00012",
       "kind": "single",
       "file": "singles/L00012.json",
       "pack": "main",
-      "order": 12
+      "order": 10
     },
     {
       "uid": "L00013",
       "kind": "single",
       "file": "singles/L00013.json",
       "pack": "main",
-      "order": 13
+      "order": 11
     },
     {
       "uid": "L00014",
       "kind": "single",
       "file": "singles/L00014.json",
       "pack": "main",
-      "order": 14
+      "order": 12
     },
     {
       "uid": "L00015",
       "kind": "single",
       "file": "singles/L00015.json",
       "pack": "main",
-      "order": 15
+      "order": 13
     },
     {
       "uid": "L00016",
       "kind": "single",
       "file": "singles/L00016.json",
       "pack": "main",
-      "order": 16
+      "order": 14
     },
     {
       "uid": "L00017",
       "kind": "single",
       "file": "singles/L00017.json",
       "pack": "main",
-      "order": 17
+      "order": 15
     },
     {
       "uid": "L00018",
       "kind": "single",
       "file": "singles/L00018.json",
       "pack": "main",
-      "order": 18
+      "order": 16
     },
     {
       "uid": "L00019",
       "kind": "single",
       "file": "singles/L00019.json",
       "pack": "main",
-      "order": 19
+      "order": 17
     },
     {
       "uid": "L00020",
       "kind": "boss",
       "file": "singles/L00020.json",
       "pack": "main",
-      "order": 20
+      "order": 18
     }
   ],
   "chapters": [
@@ -151,12 +137,6 @@
       "id": "mandala",
       "file": "chapters/mandala.json",
       "order": 0,
-      "open": true
-    },
-    {
-      "id": "photo32-smoke",
-      "file": "chapters/photo32-smoke.json",
-      "order": 2,
       "open": true
     },
     {

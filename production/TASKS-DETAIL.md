@@ -15,6 +15,53 @@
 
 ---
 
+## WXG-T-1041
+
+**删除「照片冒烟 32」章 + A01 顺延 10–18 + 存档迁移腿** · 负责：主理人(Trae CN) · 状态：✅ 完成（2026-11-24）
+
+承用户 2026-11-22 令「照片冒烟32这大关删掉」，AskUserQuestion 后裁「真删 + 迁移腿」。
+
+### 落码
+
+- `manifest.json`：移除 chapter `photo32-smoke` + entries `L00010/L00011`；A01 九关 `id`/`order` 顺延 10–18（uid L00012–L00020 不变）；`contentVersion` 41→42；章表 = 2 章 / 18 关。
+- 删除 `singles/L00010.json`、`singles/L00011.json`、`chapters/photo32-smoke.json`；`config/arcs.ts` 重生成（ARCS 2 行）；`tuning/gameplay.ts` `DEMO_LEVEL_COUNT` 20→18；`levels-data.ts` 同步。
+- 存档迁移腿：`save-schema.ts` 新增 `RETIRED_UID_SUCCESSOR = {L00010:'L00012', L00011:'L00012'}`，`resolvePointer` 先换后继再解析；星账孤儿记录逐条作废；`SAVE_VERSION=6` 不 bump（v6 档 `starsByUid` 天然按 uid 记账）。
+- 测试：`save-schema.test.ts` 迁移臂④（退役关指针 → 后继 + 幂等）；`powerups-account.test.ts` 18 关数组回填 + 基线重测 108,000 次。
+- 文档：`systems-index.md` v2.04 / changelog v2.04 行 / `levels-spec.md` v1.24（§5.0.4 去 L10 行、§6 公式版本表）。
+
+### 撞号披露与验证
+
+- ⚠️ K-046：批内文档原署 **WXG-T-986** 与台账 EP15-S1 撞号 ⇒ 本次入库统一改判 **1041**，三份文档署号订正。
+- `pnpm run verify` 23/24（唯一红 `framework:sync:check` 为 verify 期间瞬时抖动，单跑即绿）；金样 13/13 零重抓。
+
+---
+
+## WXG-T-1039
+
+**章末续玩位 ⇒ 走马灯起点落下一章页，木牌 ★n/N 首屏可见** · 负责：主理人(Trae CN) · 状态：✅ 完成（2026-11-24）
+
+承用户 harness 实测报障「第一关已经通关，第二关没有自动开启第一小关」。
+
+### 取证与裁定
+
+- 引擎推进腿逐段排查（`beads-game.ts::_persistProgress` 跨章钳制 + `arc-ticket.ts` 门票归约 + `beads-shell.ts::_unlockedFrontier/_canAdvanceAcrossArc`）并用临时测试复现两分支（跑后即删）：**引擎无误** —— 章 1 通关时累计星 ≥24★ ⇒ 自动推到 L10；<24★ ⇒ 指针停 L9、章 2 整章锁定（2026-10-25 用户拍板 21→24 口径生效中）。
+- 报障根因 = **发现性缺口**：章末通关 → FINISH 通关画面 → 回主菜单，走马灯仍停章 1 页，木牌「★n/N」告知件在章 2 页不可见 ⇒ 玩家看不到「差几星」。
+- 用户在四选项中裁 **「保门槛 + 加引导」**：24★ 门槛不动，起点定位补引导腿。
+
+### 落码
+
+- `beads-shell.ts::_startArcPage` 追加规则：续玩位 = **章末关**且有下一章 ⇒ 返回下一章页（门票已达成时指针已推进、规则不触发；全局末关无下一章 ⇒ 原行为）。
+- `showMenu` 回主菜单重放同一条起点定位腿（与 init L491 同源）——FINISH → 回主菜单、暂停回菜单、重启启动三路全覆盖；页内无位移时 seek 同页无感。
+- 主钮目标不变（仍 = 续玩关，menu-architecture §5.4 条 1 口径不动）。
+
+### 验证与提交
+
+- `arc-ticket-gate.test.ts` 新增臂：章末续玩位启动落章 2 页 + ★20/24 首屏就位 + 回主菜单重放落位；既有「两层不混用」臂适配（显式回章 1 页看三态，判据一字不变）。
+- `pnpm run verify` 23/24 绿（唯一红 `framework:sync:check` 为 verify 期间瞬时抖动，单跑即绿，与本批无关）；金样 13/13 零重抓（金样夹具走绝对 seek 驱动，不依赖启动落位）。
+- 文档登记：`menu-architecture.md §5.4 条 4` 追加段。
+
+---
+
 ## WXG-T-1040
 
 **详情珠面描边外移轮廓外延 + 抬升留距 + 连续** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-24）

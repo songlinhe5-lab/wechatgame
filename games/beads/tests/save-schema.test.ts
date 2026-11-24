@@ -430,6 +430,27 @@ describe('§8-16 身份化免疫（I2 / I4）：关表三种变更 ⇒ 未变更
     expect(norm(validSave(), WITH_APPEND).save.starsByUid[APPEND_UID]).toBe(0);
   });
 
+  it('④ 删除中段章（2026-11-22 WXG-T-986）⇒ 指针按退役对位落到后继，星账孤儿逐条作废', () => {
+    const RETIRED = 'L00010';
+    const RETIRED2 = 'L00011';
+    const SUCCESSOR = 'L00012';
+    const doc = {
+      ...validSave(),
+      maxUnlockedKey: RETIRED,
+      lastPlayedKey: RETIRED2,
+      starsByUid: { ...starsLedger(STAR_SEQ), [RETIRED]: 3 },
+    };
+    const result = norm(doc);
+    const at = KEYS.indexOf(SUCCESSOR);
+    expect(result.maxUnlockedIndex, '解锁位：退役关 → 后继 A01 首关').toBe(at);
+    expect(result.lastPlayedIndex, '推进位：退役关 → 后继 A01 首关').toBe(at);
+    expect(result.save.maxUnlockedKey).toBe(SUCCESSOR);
+    expect(result.save.lastPlayedKey).toBe(SUCCESSOR);
+    expect(result.save.starsByUid[RETIRED], '退役关星账 = 孤儿 ⇒ 单条作废').toBeUndefined();
+    expect(result.changed, '指针改写 ⇒ 需一次写回').toBe(true);
+    expect(norm(result.save).changed, '写回后二次读幂等').toBe(false);
+  });
+
   it('反例臂（钉住「位置寻址即缺陷」）：同一插关下位置形必读错格（§8-16 反例 / §2.6.5-3 近似迁移）', () => {
     const positional = positionalDoc(STAR_SEQ);
     expect(positional.starsByUid).toBeUndefined(); // 构造自证：这是一份只有位置轴的旧档

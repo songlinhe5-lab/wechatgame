@@ -328,7 +328,9 @@ const POINTER_ABSENT = -2;
  */
 function resolvePointer(rawKey: unknown, levelKeys: readonly string[]): number {
   if (typeof rawKey !== 'string' || rawKey === '') return POINTER_ABSENT;
-  const index = levelKeys.indexOf(rawKey);
+  // 退役关对位（WXG-T-986）：先换后继，再按当前关表解析；⛔ 直接落失配臂。
+  const key = RETIRED_UID_SUCCESSOR[rawKey] ?? rawKey;
+  const index = levelKeys.indexOf(key);
   return index >= 0 ? index : POINTER_MISMATCH;
 }
 
@@ -353,6 +355,17 @@ export interface NormalizeResult {
 
 /** 旧形态键名（只作**输入侧**一次性兼容与写回清除用，⛔ 不再作字段）。 */
 const STALE_STARS_KEY = 'starsByLevel';
+/**
+ * **退役 uid → 后继 uid**（2026-11-22 用户令删除「照片冒烟 32」章，WXG-T-986）：
+ * 章内 L00011/L00010 出表后，旧档指针若指到退役关，按「后继 = A01 首关 L00012」对位，
+ * ⛔ 不走 Q8 丙档失配降级（那会把推进位打回第 1 关）。星账里的退役 uid 仍按孤儿逐条作废
+ * （⛔ 不挪给别的关）；本表只服务两根**指针**。v6 形态不变 ⇒ `SAVE_VERSION` 不 bump。
+ */
+const RETIRED_UID_SUCCESSOR: Readonly<Record<string, string>> = {
+  L00010: 'L00012',
+  L00011: 'L00012',
+};
+
 /**
  * 旧**数值指针**键（v4 及以前）。S-2b 后它们只是 v4 档的一次性入口 ——
  * ⚠ 必须点名清除：框架 `patch` 浅合并**不删键**，不清则旧键永久留在档里
