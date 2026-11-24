@@ -1,0 +1,204 @@
+{
+  "id": "a00p02bb3-1795526403309-f13f",
+  "board": "a00p02bb3",
+  "cols": 10,
+  "rows": 13,
+  "shape": "square",
+  "palette": "10",
+  "colors": 4,
+  "swaps": 0,
+  "misMode": "max",
+  "createdAt": "2026-11-24T13:20:03.938Z",
+  "thumb": null,
+  "levelDraft": {
+    "cols": 10,
+    "rows": 13,
+    "time": 131,
+    "cycleProfile": "long",
+    "decoys": [],
+    "swaps": [],
+    "misplaced": [
+      "....11....",
+      "..111111..",
+      ".11223311.",
+      ".13333331.",
+      ".13333331.",
+      ".13334431.",
+      ".23344332.",
+      ".22333322.",
+      "..222222..",
+      "....44....",
+      ".44444444.",
+      "4444444444",
+      ".444..444."
+    ],
+    "pattern": [
+      "....44....",
+      "..444444..",
+      ".44111144.",
+      ".41222214.",
+      ".41222214.",
+      ".41222214.",
+      ".41122114.",
+      ".44111144.",
+      "..444444..",
+      "....33....",
+      ".33333333.",
+      "3333333333",
+      ".333..333."
+    ],
+    "paletteHex": [
+      "#FDF6E9",
+      "#FFD23F",
+      "#3FBF6B",
+      "#E84C3D"
+    ],
+    "pricing": {
+      "source": "bot",
+      "steps": 24,
+      "stepsLB": 6,
+      "baseCap": 24,
+      "stepsByCap": {
+        "12": 37,
+        "24": 24,
+        "48": 17
+      },
+      "taps": 74,
+      "actionsSplit": {
+        "moves": 37,
+        "places": 11,
+        "directFills": 22,
+        "retrieves": 4
+      },
+      "secPerStep": 3,
+      "tierK": 0.85,
+      "clamped": false,
+      "cleared": true
+    },
+    "skin": "warm-paper"
+  },
+  "pattern": [
+    "....44....",
+    "..444444..",
+    ".44111144.",
+    ".41222214.",
+    ".41222214.",
+    ".41222214.",
+    ".41122114.",
+    ".44111144.",
+    "..444444..",
+    "....33....",
+    ".33333333.",
+    "3333333333",
+    ".333..333."
+  ],
+  "paletteHex": [
+    "#FDF6E9",
+    "#FFD23F",
+    "#3FBF6B",
+    "#E84C3D"
+  ],
+  "misplaced": [
+    "....11....",
+    "..111111..",
+    ".11223311.",
+    ".13333331.",
+    ".13333331.",
+    ".13334431.",
+    ".23344332.",
+    ".22333322.",
+    "..222222..",
+    "....44....",
+    ".44444444.",
+    "4444444444",
+    ".444..444."
+  ],
+  "report": {
+    "fillable": 88,
+    "voidCells": 0,
+    "colorsUsed": 4,
+    "cap": 44,
+    "maxFreqBefore": 30,
+    "maxFreqAfter": 30,
+    "balancedChanged": 0,
+    "balanceNote": "mis=max 最大化错位：跳过配色平衡（保形优先；错位取守恒极值 M_max 而非强制 0 固定点）",
+    "derangement": "MAXIMAL（M=88/88 错位，固定点 = 理论下限 F=0）",
+    "mis": {
+      "mode": "max",
+      "N": 88,
+      "m": 30,
+      "M": 88,
+      "F": 0,
+      "M_max": 88
+    },
+    "clusteringParams": {
+      "sample": 8,
+      "smooth": 0,
+      "minblock": 1,
+      "colors": 0
+    },
+    "colorLimit": {
+      "requested": 0,
+      "palette": 10,
+      "mode": "error",
+      "used": 4,
+      "changed": 0,
+      "kept": []
+    },
+    "colorError": {
+      "beforeColorLimit": 0,
+      "final": 0
+    },
+    "clusteringBefore": {
+      "blocks": 4,
+      "largest": 30,
+      "avg": 22,
+      "tinyCells": 0,
+      "adjRate": 0.712
+    },
+    "clusteringAfter": {
+      "blocks": 4,
+      "largest": 30,
+      "avg": 22,
+      "tinyCells": 0,
+      "adjRate": 0.712
+    },
+    "smoothChanged": 0,
+    "mergedCells": 0,
+    "adjacency": {
+      "minDE": 20,
+      "maxDriftDE": 12,
+      "changed": 0,
+      "conflicts": 0
+    },
+    "clusteringMisplaced": {
+      "blocks": 6,
+      "largest": 26,
+      "avg": 14.7,
+      "tinyCells": 2,
+      "adjRate": 0.719
+    },
+    "difficulty": {
+      "score": 5,
+      "timeEst": 131,
+      "misplaced": 0,
+      "taps": 74,
+      "bMed": 0,
+      "split": {
+        "moves": 37,
+        "places": 11,
+        "directFills": 22,
+        "retrieves": 4
+      },
+      "steps": 37,
+      "cleared": true,
+      "secPerStep": 3,
+      "blockers": [],
+      "formula": "v0.4（真引擎实测 BAC 批量动作数 × SEC_PER_STEP）"
+    }
+  },
+  "blockers": [],
+  "importable": true,
+  "legibilitySizingHint": "sizing 类：生成参数修不动，须放大盘/减色/换图",
+  "draft": true
+}

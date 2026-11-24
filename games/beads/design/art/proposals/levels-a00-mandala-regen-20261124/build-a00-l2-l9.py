@@ -3,7 +3,7 @@
 """A00 重生成收口（用户 2026-11-24 令）：只重生 L00002（第二关）与 L00009（BOSS），
 其余 A00 关保持现值不动。
 
-数据源 = studio draft（mis=max）：L00002 用批 1 的四象限盘（10×13/4 色），
+数据源 = studio draft（mis=max）：L00002 用真花形重做版（10×13/4 色，A00-P02-flower2），
 L00009 用已验收的 P9 曼陀罗样张（30×30/6 色）。字符经 `paletteHex → demo 十色` 重映射，
 palette/paletteCodes 不再携带（新盘直接落 demo 调色板，maxIdx=10 ≤ demo 10 色）。
 time 按门禁⑤ `ceil(ceil(steps×secPerStep)/tierK)` 复算（studio 自带 time 与公式不符时不采用）。
@@ -17,7 +17,7 @@ CH = "123456789ABCDEFGH"
 BASE = "games/beads/design/levels/singles"
 ART = "games/beads/design/art/proposals/levels-a00-mandala-regen-20261124"
 JOBS = [
-    ("L00002", f"{ART}/batch1/A00-P02-wheel/studio-full-response-b1.json"),
+    ("L00002", f"{ART}/A00-P02-flower2/studio-full-response-b3.json"),
     ("L00009", f"{ART}/A00-P09-mandala/studio-full-response-v3-max-30-c0.json"),
 ]
 
