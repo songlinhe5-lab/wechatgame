@@ -146,29 +146,3 @@ describe('未开启态淡灰墨', () => {
         faded.forEach((h, i) => expect(lum(h)).toBeGreaterThan(lum(gray[i]!)));
     });
 });
-
-describe('下一章门槛预告知条（WXG-T-1043）', () => {
-    const gateData = (gateHint?: string, largeText = false): MetaViewData => ({
-        ...dataFor(LEVELS[0]!, 'pushing'), gateHint, largeText,
-    });
-    const gateText = (d: MetaViewData) => allCmds(d)
-        .filter((c) => c.kind === 'text')
-        .map((c) => c as unknown as { text: string; font?: string; fill?: string })
-        .find((c) => c.text === '下一章差 4★');
-
-    it('深棕胶囊 320×46 + 28 粗 plateSubInk 正文，E2 不放大，无内容 ⇒ 零图元', () => {
-        setMenuBitmapResolver(() => true);
-        expect(UI_FONT.gateHint, '语义键 = bold 28（⛔ 不复用 labelBold / plateSub）').toBe('bold 28px sans-serif');
-        const d = gateData('下一章差 4★');
-        const t = gateText(d);
-        expect(t, '正文文本存在').toBeTruthy();
-        expect(t!.font).toBe(UI_FONT.gateHint);
-        expect(t!.fill, 'plate_sub_ink 压胶囊底 4.61:1').toBe(DEFAULT_PALETTE.plateSubInk);
-        expect(gateText(gateData('下一章差 4★', true))!.font, 'E2 不放大').toBe(UI_FONT.gateHint);
-        const pills = allCmds(d).filter((c) => c.kind === 'rect')
-            .map((c) => c as unknown as { w: number; h: number; fill?: string })
-            .filter((c) => c.fill === DEFAULT_PALETTE.platePill && c.w === 320 && c.h === 46);
-        expect(pills.length, '胶囊底 320×46 必须同帧先绘（缺则 1.35:1 不可读）').toBe(1);
-        expect(gateText(gateData(undefined)), '无告知 ⇒ 不创建该文本').toBeUndefined();
-    });
-});

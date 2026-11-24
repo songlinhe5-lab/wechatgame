@@ -280,8 +280,6 @@ export class BeadsShell implements Game {
         // C 拍定「不创建」= `undefined`（⛔ 存 0/0）：门槛有值才表示该页有进度件。
         arcStarGot: undefined as number | undefined,
         arcStarNeed: undefined as number | undefined,
-        // `[WXG-T-1043]` 上一章推关页预告知（由 `_refreshArcGate` 与进度件同源写；缺省 ⇒ 零图元）。
-        gateHint: undefined as string | undefined,
         // 走马灯 = 大关页（EP13-S4）：代表关 = 该大关解锁内第一个 0 星关（`[WXG-T-913]`，全通回落 boss），
         // 图 = `ARCS[页].textureId`；木牌关名 = 大关名（`carouselTitle`）。
         carouselLevel: undefined as BeadsLevelRaw | undefined,
@@ -1371,14 +1369,15 @@ export class BeadsShell implements Game {
     }
 
     /**
-     * `[WXG-T-914 → T-1044 → T-1047]` 木牌第二行按状态优先：
-     * 整章未解锁 ⇒ `未开启`；有在推小关 ⇒ 回落关序；本章全通 ∧ 下一大关未开 ⇒ `下关差 X★`；
+     * `[WXG-T-914 → T-1044 → T-1047 → T-1054]` 木牌第二行按状态优先：
+     * 整章未解锁 ⇒ `未开启`；有在推小关 ⇒ `第 N 关`（**大关内小关序号**，用户 2026-11-24 令
+     * 「花间集当前开启的是第 1 关，关数是大关内小关序号」）；本章全通 ∧ 下一大关未开 ⇒ `下关差 X★`；
      * 其余已开态 ⇒ `差 X★满星`，全满 ⇒ `全满星`。⛔ 不改门槛 / 存档 / 判据；⛔ 视图层自读星账。
      * 双槽按数值签名复用字符串 ⇒ 热路径零分配。
      */
     private readonly _arcSeqSlots = [
-        { idx: -1, got: -1, total: -1, cleared: -1, gate: -1, open: false, unlocked: false, pushing: false, text: undefined as string | undefined },
-        { idx: -1, got: -1, total: -1, cleared: -1, gate: -1, open: false, unlocked: false, pushing: false, text: undefined as string | undefined },
+        { idx: -1, got: -1, total: -1, cleared: -1, gate: -1, open: false, unlocked: false, pushing: false, seq: -1, text: undefined as string | undefined },
+        { idx: -1, got: -1, total: -1, cleared: -1, gate: -1, open: false, unlocked: false, pushing: false, seq: -1, text: undefined as string | undefined },
     ];
     private _arcSeqLabel(arcIdx: number, slot: 0 | 1): string | undefined {
         const cache = this._arcSeqSlots[slot]!;
@@ -1386,10 +1385,11 @@ export class BeadsShell implements Game {
         let got = 0;
         let total = 0;
         let cleared = 0;
-        // `[WXG-T-1048]` 解锁范围内仍有 0★ 关 = 正在推的小关 ⇒ 木牌第二行回落「第 N 关」。
-        // 口径同 `_arcShowcaseLevel`（第一个已解锁 0★ 关）；⛔ 不能用 showcase !== boss 判：
-        // 章末关恰是首个 0★ 关时两者相同，仍是在推态。
+        // `[WXG-T-1048 → T-1054]` 解锁范围内仍有 0★ 关 = 正在推的小关 ⇒ 木牌第二行「第 N 关」，
+        // N = 该关在**大关内**的序号（⛔ 全局关号）。口径同 `_arcShowcaseLevel`（第一个已解锁 0★ 关）；
+        // ⛔ 不能用 showcase !== boss 判：章末关恰是首个 0★ 关时两者相同，仍是在推态。
         let pushing = false;
+        let pushSeq = -1;
         let anyUnlocked = false;
         if (arc !== undefined) {
             const maxUnlocked = this._unlockedFrontier(arcIdx);
@@ -1400,7 +1400,7 @@ export class BeadsShell implements Game {
                     if (n <= levelCount && n <= maxUnlocked) anyUnlocked = true;
                     const raw = this.play.starsByLevelRaw[n - 1] ?? 0;
                     if (raw > 0) cleared += 1;
-                    else if (n <= levelCount && n <= maxUnlocked) pushing = true;
+                    else if (n <= levelCount && n <= maxUnlocked && !pushing) { pushing = true; pushSeq = total; }
                     got += raw > STAR_MAX ? STAR_MAX : raw < 0 ? 0 : raw;
                 }
             }
@@ -1413,12 +1413,12 @@ export class BeadsShell implements Game {
         const open = ticket === undefined ? true : this._arcGateOpen(next, ticket);
         if (cache.idx === arcIdx && cache.got === got && cache.total === total
             && cache.cleared === cleared && cache.gate === gate && cache.open === open
-            && cache.unlocked === anyUnlocked && cache.pushing === pushing) return cache.text;
+            && cache.unlocked === anyUnlocked && cache.pushing === pushing && cache.seq === pushSeq) return cache.text;
         let text: string | undefined;
         if (!anyUnlocked) {
             text = COPY_TOKENS.plate_arc_locked_label;
         } else if (pushing) {
-            text = undefined; // 交视图回落 `第 ${showcase.id} 关`（T-913 原口径）。
+            text = `第 ${pushSeq} 关`; // 大关内序号（T-1054；⛔ 全局 id，那会让花间集首关显「第 10 关」）。
         } else if (hasNext && !open && cleared === total) {
             text = `下关差 ${Math.max(0, gate - got)}★`;
         } else {
@@ -1433,6 +1433,7 @@ export class BeadsShell implements Game {
         cache.open = open;
         cache.unlocked = anyUnlocked;
         cache.pushing = pushing;
+        cache.seq = pushSeq;
         cache.text = text;
         return text;
     }
@@ -1554,18 +1555,8 @@ export class BeadsShell implements Game {
         this._viewData.arcTicketOpen = open;
         this._viewData.arcStarGot = show ? ticket.starSum : undefined;
         this._viewData.arcStarNeed = show ? ticket.gate : undefined;
-        // `[WXG-T-1043]` 主告知 = 本页 T 全通关 ∧ 下一章门票未达（X = 门槛 − n，与 T+1 副读数同源）。
-        // T+1 门票的归约输入**恰是 T 的星账** ⇒ 一份 ticket 同给 P2/P3/P4，⛔ 第二份实现。
-        const next = arc + 1;
-        if (next < ARC_OPEN_MAX && ARCS[next] !== undefined) {
-            const gate = this._arcTicketSatisfied(next);
-            const x = gate.gate - gate.starSum;
-            this._viewData.gateHint = !this._arcGateOpen(next, gate) && x > 0
-                && gate.total > 0 && gate.clearedCount === gate.total
-                ? `下一章差 ${x}★` : undefined;
-        } else {
-            this._viewData.gateHint = undefined;
-        }
+        // `[WXG-T-1043 → T-1054]` 下一章差星预告知退场（用户 2026-11-24 令「去掉」）：
+        // 缺口信息保留在木牌第二行 `下关差 X★`（`_arcSeqLabel`），⛔ 另立胶囊条。
         this._gateArc = arc;
     }
 

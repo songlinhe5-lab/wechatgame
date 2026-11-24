@@ -107,12 +107,6 @@ export const UI_FONT = {
      * 关名侧 34px 仍属 WCAG 大字号（≥24 ⇒ 门 3:1），实得 5.38 ✓。
      */
     plateSub: 'bold 22px sans-serif',
-    /**
-     * `[WXG-T-1043]` 上一章推关页「下一章门槛预告知条」正文（bold 28）。
-     * 字面与 `labelBold` 同值但**语义分列**：资源条数值调权不得连带本条；
-     * ⛔ 不随 E2（美术 `menu-layout-implementation-spec §13.4`）。
-     */
-    gateHint: 'bold 28px sans-serif',
     /** 小字 22。 */
     cell: '22px sans-serif',
     /** 行 3 辅助开关 22（更长文案）。 */

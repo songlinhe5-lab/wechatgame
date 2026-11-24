@@ -3,7 +3,7 @@
  * 几何一律取自 `meta-layout.ts` 的锚定档，控件画法取自 `meta-widgets.ts` ⇒ 页面只编排、不另算。
  */
 
-import { DESIGN_H, DESIGN_W, type MenuAnchors, MENU_BAR_BAKED_LABEL_INSET, MENU_FULLSTAR_FRAME, MENU_GATE_HINT, MENU_LOCKED_ICON, MENU_MOUNT, MENU_PLACEMENT, MENU_PLATE_PILL, MENU_SIGNIN_DOT_R, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, MENU_V2, MENU_V2_BG_EXPAND, MENU_V2_BG_H, MENU_V2_DESK_FILL,
+import { DESIGN_H, DESIGN_W, type MenuAnchors, MENU_BAR_BAKED_LABEL_INSET, MENU_FULLSTAR_FRAME, MENU_LOCKED_ICON, MENU_MOUNT, MENU_PLACEMENT, MENU_PLATE_PILL, MENU_SIGNIN_DOT_R, MENU_TEXTURES, MENU_TOPBAR_ICON_D, MENU_TOPBAR_ROW2_DY, MENU_TOPBAR_VISUAL_D, MENU_TOPBAR_X, MENU_V2_BG_EXPAND, MENU_V2_BG_H, MENU_V2_DESK_FILL,
     SIGN_BEAD_PITCH, menuBackdropTopPad, SIGN_MATRIX_N, TOUCH_MIN, UI_CONTAINER, WALL_SLOT_DASH, WALL_SLOT_DASH_GAP } from '../config/tuning.js';
 import { COPY_TOKENS } from '../config/copy-tokens.js';
 import { ARC_COMING_SOON } from '../config/arcs.js';
@@ -513,45 +513,6 @@ function drawPlateTitle(
 }
 
 /**
- * `[WXG-T-1043]` 上一章推关页「下一章门槛预告知条」（美术 `menu-layout-implementation-spec §13`）。
- * 深棕胶囊 + 程序化锁形 + 28 粗正文：形/文双通道，零新位图、零新 hex、零热区。
- * 整条在玻璃裁切区外（顶 y-down 984 > 904）⇒ 不进滑动层、不随走马灯平移；
- * 与木牌两行同相位淡变（`plateFade`），alpha ≤ 0 或 `gateHint` 缺省 ⇒ 零图元。
- */
-function drawGateHint(
-    builder: RenderModelBuilder,
-    data: MetaViewData,
-    palette: BeadsPalette,
-    g: AnchoredMenuGeo,
-    alpha: number,
-): void {
-    if (data.gateHint === undefined || alpha <= 0) return;
-    const a = alpha < 1 ? alpha : undefined;
-    const h = MENU_GATE_HINT.h;
-    const w = MENU_GATE_HINT.w;
-    const left = g.plateCx - w / 2;
-    const cy = g.plateLine2Cy - MENU_V2.plateSub.h / 2 - MENU_GATE_HINT.belowSubGap - h / 2;
-    builder.rect(left, cy - h / 2, w, h, {
-        fill: palette.platePill, radius: h / 2,
-        ...(a === undefined ? {} : { alpha: a }),
-    });
-    // 锁形 = 描边锁梁 + 实填锁体（同 `plateSubInk`；⛔ 不依赖字体字形、⛔ 不新增位图）。
-    const lockCx = left + MENU_GATE_HINT.padX + MENU_GATE_HINT.lockW / 2;
-    builder.circle(lockCx, cy + 3, MENU_GATE_HINT.lockW / 2 - 3, {
-        stroke: palette.plateSubInk, lineWidth: 3,
-        ...(a === undefined ? {} : { alpha: a }),
-    });
-    builder.rect(left + MENU_GATE_HINT.padX, cy - 7, MENU_GATE_HINT.lockW, 14, {
-        fill: palette.plateSubInk, radius: 3,
-        ...(a === undefined ? {} : { alpha: a }),
-    });
-    builder.text(left + MENU_GATE_HINT.padX + MENU_GATE_HINT.lockW + 10, cy, data.gateHint, {
-        fill: palette.plateSubInk, font: UI_FONT.gateHint, align: 'left', baseline: 'middle',
-        ...(a === undefined ? {} : { alpha: a }),
-    });
-}
-
-/**
  * `[P0 静态温暖 · 2026-10-30 用户令「太空、要暖，但保持静态」]`
  * 背景 / 陈列层参数。全部低对比、零位图、零动画：脏帧门控照常生效（静止帧零重绘）。
  * 本批为验证参数，拍板后按 art 变更单迁入 `tuning/menu.ts`；⛔ 不新增 palette hex。
@@ -697,8 +658,7 @@ export function drawMenuAnchored(
             drawPlateTitle(builder, data.carouselPeer, g, palette, fade[1], data.carouselPeerTitle, data.carouselPeerSeqLabel);
         }
     }
-    // `[WXG-T-1043]` 门槛预告知：固定上层、与木牌同相位淡变，不随走马灯平移。
-    drawGateHint(builder, data, palette, g, fade[0]);
+    // `[WXG-T-1043 → T-1054]` 门槛预告知胶囊条退场（用户 2026-11-24 令「去掉」；缺口保留在木牌第二行）。
     // ◀▶ 翻页（热区 = `carousel-prev/next`；无热区语义 ⇒ 壳侧处理）。
     drawArrow(builder, data, g.arrowL, 'left');
     drawArrow(builder, data, g.arrowR, 'right');

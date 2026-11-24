@@ -196,37 +196,22 @@ describe('S-4 闸门：门票未达', () => {
         expect(viewData(r.shell).arcStarNeed, '首章无阻断 ⇒ 不创建（⛔ 残留上一页数字）').toBeUndefined();
     });
 
-    it('`[WXG-T-1039 → T-1043 甲]` 章末关续玩位：门票未达 ⇒ 起点停上一章 T 页且预告知首屏可见；门票已达 ⇒ 仍落下一章页', () => {
+    it('`[WXG-T-1039 → T-1043 甲]` 章末关续玩位：门票未达 ⇒ 起点停上一章 T 页；门票已达 ⇒ 仍落下一章页', () => {
         const offsetOf = (shell: BeadsShell) => (shell as unknown as { _menu: { offset: number } })._menu.offset;
-        // 未达（20/24）：主告知落在推关页 —— 用户「疑问发生时第一时间看到」。
+        // 未达（20/24）：起点仍落推关页，但不创建下一章差星告知。
         const r = rig({ pointer: 9, stars: [3, 3, 2, 2, 2, 2, 2, 2, 2, 0] });
         expect(offsetOf(r.shell), '门票未达 ⇒ 启动落位上一章 T 页').toBe(0);
         r.now.t += 500;
         r.shell.update(0.016);
         draw(r.shell);
-        expect(viewData(r.shell).gateHint, '首屏预告知 = 下一章差 4★').toBe('下一章差 4★');
+        expect((viewData(r.shell) as unknown as { gateHint?: string }).gateHint, '[WXG-T-1054] 用户令：差星预告知退场 ⇒ 不创建').toBeUndefined();
         // 回主菜单腿（FINISH → 回主菜单）同源落位。
         goPage(r, 1);
         r.shell.showMenu();
         expect(offsetOf(r.shell), '回主菜单重走起点腿仍落 T 页').toBe(0);
-        // 门票已达成（27/24）：按 T-1039 指针推进到下一章，本告知不创建。
+        // 门票已达成（27/24）：按 T-1039 指针推进到下一章。
         const r2 = rig({ pointer: 9, stars: [3, 3, 3, 3, 3, 3, 3, 3, 3, 0] });
         expect(offsetOf(r2.shell), '门票已达 ⇒ 仍落下一章页').toBe(1);
-        r2.now.t += 500;
-        r2.shell.update(0.016);
-        draw(r2.shell);
-        expect(viewData(r2.shell).gateHint, '门票已达成 ⇒ 主告知不创建').toBeUndefined();
-    });
-
-    it('`[WXG-T-1043]` 主告知 P1–P4：同章有关 0★ ⇒ 不创建；翻到 T+1 ⇒ 退出', () => {
-        const incomplete = rig({ pointer: 9, stars: [3, 3, 2, 2, 2, 2, 2, 2, 0, 0] });
-        draw(incomplete.shell);
-        expect(viewData(incomplete.shell).gateHint, 'P4 全通关不成立 ⇒ 不创建（⛔ 假承诺）').toBeUndefined();
-        const r = rig({ pointer: 9, stars: [3, 3, 2, 2, 2, 2, 2, 2, 2, 0] });
-        draw(r.shell);
-        expect(viewData(r.shell).gateHint).toBe('下一章差 4★');
-        goPage(r, 1);
-        expect(viewData(r.shell).gateHint, '落位非 pushing 页 ⇒ 主告知退出').toBeUndefined();
     });
 
     it('首章无阻断：arcTicketOpen=true 且进度件不创建（⛔ 0/0），章内格照旧线性', () => {
@@ -249,7 +234,7 @@ describe('S-4 闸门：门票达成 ⇒ 章首授权', () => {
         // `[WXG-T-920 → T-1044]` 门票达成 ⇒ 展示层视同已开启（三态 pushing）；推进位仍停在 9。
         const menu = viewData(r.shell);
         expect(menu.carouselState, '门票达成 ⇒ 大关按推关中呈现').toBe('pushing');
-        expect(menu.carouselSeqLabel, 'WXG-T-1048：章 2 第 10 关在推 ⇒ 回落「第 10 关」').toBeUndefined();
+        expect(menu.carouselSeqLabel, '章 2 第 1 关在推 ⇒ 木牌显大关内序号').toBe('第 1 关');
         expect(menu.carouselLevel?.id, '回落目标 = 正在推的第 10 关').toBe(10);
         expect(menu.maxUnlockedLevel, '⛔ 展示投影不动推进位').toBe(9);
         openLevels(r.shell, r);
@@ -399,11 +384,11 @@ describe('[WXG-T-1044] 木牌第二行星进度三态', () => {
     it('本章全通 + 下一大关未开 ⇒ 下关差 X★（X = 门槛 − 本章星）', () => {
         expect(labelAtArc0([3, 3, 2, 2, 2, 2, 2, 2, 2, 0]), '20/24 ⇒ 差 4★').toBe('下关差 4★');
     });
-    it('本章仍有在推的小关（第 9 关已解锁未通）⇒ 木牌第二行回落「第 9 关」', () => {
+    it('本章仍有在推的小关（第 9 关已解锁未通）⇒ 木牌第二行「第 9 关」', () => {
         const r = rig({ pointer: 9, stars: [3, 3, 2, 2, 2, 2, 2, 2, 0, 0] });
         goPage(r, 0);
         const v = viewData(r.shell);
-        expect(v.carouselSeqLabel, 'WXG-T-1048：在推关态不覆盖，交视图回落「第 N 关」').toBeUndefined();
+        expect(v.carouselSeqLabel, '在推关态显大关内序号').toBe('第 9 关');
         expect(v.carouselLevel?.id, '回落目标 = 正在推的第 9 关').toBe(9);
     });
     it('下一大关已开但本章未满 ⇒ 差 X★满星', () => {

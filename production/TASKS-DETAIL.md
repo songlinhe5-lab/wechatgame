@@ -12230,3 +12230,15 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 **修法**：在 `_arcSeqLabel()` 的星进度计算前先归约 `anyUnlocked`；整章无解锁关卡时直接复用既有 `COPY_TOKENS.plate_arc_locked_label`，并把该状态并入双槽缓存签名。推关、下关门票缺口、满星缺口与全满星逻辑不变；门槛、存档、解锁判据零改。
 
 **验证 / 取证**：TDD 先红后绿，定向 47/47；beads 全量 1628 passed / 2 skipped；harness 重编译后读取「花间集」页，`carouselState = locked`、`carouselSeqLabel = 未开启`，渲染文本不再出现「差 27★满星」。
+
+## WXG-T-1054
+
+**主菜单差星预告知退场 + 木牌关数改大关内序号** · 负责：主理人(Qoder)·工程轨 · 状态：✅ **完成（2026-11-24）**
+
+承用户实帧（真机截图：花间集第 1 关在推，木牌显「第 10 关」，牌下胶囊「下一章差 4★」）：① 「下一章差 4★」胶囊提示要去掉；② 木牌关数应为**大关内小关序号**（花间集当前开启的是第 1 关，⛔ 全局关号 10）。
+
+**根因**：① gateHint 胶囊 = WXG-T-1043 落码的独立告知条（`_refreshArcGate` 归约 + `drawGateHint` 绘制 + `UI_FONT.gateHint` / `MENU_GATE_HINT` 常量），用户现令退场；缺口信息已由木牌第二行 `下关差 X★`（T-1044/1047）承担，胶囊条属双份告知。② 在推态 `_arcSeqLabel` 返回 `undefined` 交视图回落 `第 ${showcase.id} 关`，`showcase.id` 是全局关号 ⇒ 章 2 首关显「第 10 关」。
+
+**修法**：① 删 gateHint 全链路：shell 字段与 `_refreshArcGate` 归约腿、`drawGateHint` 函数与调用、`MetaViewData.gateHint` 字段、`UI_FONT.gateHint` 字型键、`MENU_GATE_HINT` 几何常量及其测试块；门槛 / 解锁判据 / 木牌三态零改。② `_arcSeqLabel` 在推分支改产 `第 N 关`（N = 第一个已解锁 0★ 关在大关内的序号，循环内 `total` 即局部位，入双槽缓存签名 `seq`），与 `_arcShowcaseLevel` 口径同源；主车与对页两腿共用本函数 ⇒ 同源生效。
+
+**验证 / 取证**：TDD 先红后绿（改前 4 失败钉住新口径），定向 52/52；beads 全量 1628 passed / 2 skipped；typecheck 零错；`pnpm run verify` 24/24 PASS（含金样 11 帧零重抓 ⇒ 常态菜单帧不命中被改态）；harness JS 求值实帧：`_arcSeqLabel(1,0)` 返回「第 1 关」、全部渲染文本无任何「下一章差」字样，三项判据 PASS。
