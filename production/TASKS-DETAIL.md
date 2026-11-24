@@ -12099,14 +12099,12 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 
 ## WXG-T-1048
 
-**详情返回丢锁图案 + 未通关显第 n 关** · 负责：主理人(CodeBuddy)·工程轨 · 状态：🚧 进行中（2026-11-24）
+**详情返回丢锁图案 + 未通关显第 n 关** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ **完成（2026-11-24）**
 
 用户报障：「从选关详情退回选关页面 4～9 关的锁图案消失了；在当前未通关情况下，应该显示当前正在推的小关，第 n 关」。两臂：
-- ① 锁图案：harness 一次性诊断（`zz-diag-1048.test.ts`，用完即删）证明 levels→level-detail→levels 前后 `lockImage` blit 命令均 6、`maxUnlockedLevel/currentLevelIndex/wallSlots` 不变 ⇒ 排除 VM / 命令流丢失；真机症状定位候选 = 宿主容器 blit 池跨容器重挂 / 层序（T-1046 把 `plaque` 移出 below 白名单后详情与选关共用池位）。
-- ② 文案：T-1047 把本章未全通态收为 `差 X★满星`，用户现裁定该态应回退 `第 n 关`（当前正在推的小关，旧 T-913 口径），只在「本章全通 + 下章未开」显 `下关差 X★`，下章已开显 `差 X★满星` / `全满星`。
 
-### 待办
+**① 文案（第 N 关）**：T-1047 把本章未全通态收为 `差 X★满星`，用户裁定该态回退 `第 n 关`（当前正在推的小关，旧 T-913 口径）。`_arcSeqLabel` 扫描时同记 `pushing` = 解锁范围内存在 0★ 关（口径同 `_arcShowcaseLevel` 首个已解锁 0★ 关，⛔ 不用 showcase≠boss——章末关恰是首 0★ 关时相等），进缓存签名；`pushing` ⇒ 返回 `undefined` 交 `drawPlateTitle` 回落 `第 ${lv.id} 关`。「本章全通 + 下章未开」仍显 `下关差 X★`，下章已开显 `差 X★满星` / `全满星`。门槛 / 存档 / 判据零改。TDD 三红转绿（`arc-ticket-gate.test.ts` 两条 + `beads-shell.test.ts` 一条），定向 47/47。
 
-- 用 web-mobile CDP introspect 容器 BlitLayerUI 池位，在真实 Cocos 层序复现①。
-- TDD 红灯写「本章未全通 ⇒ `第 N 关`」判据，再改 `_arcSeqLabel`。
-- 验证 → 金样按锚重抓 → 收口。
+**② 锁图案（详情返回丢锁）**：harness 一次性诊断（`zz-diag-1048.test.ts`，用完即删）证明前后 `lockImage` blit 命令均 6、VM 三字段不变 ⇒ 排除 VM / 命令流丢失；真实 Cocos web-mobile CDP introspect（`temp/probe-1048.mjs` + `1048-{L-before,detail,L-after}*.{json,png}`）抓到根因 = 宿主 `BeadsBlitCarrier` 全局池跨容器重挂：详情帧把 `dialogBg`/`cellNormal` 等池位 `setParent` 到详情容器，返回帧 `setParent` 回选关容器时按借位序追加，兄弟序变「锁(0-6)→close→dialogBg→cellNormal(10-18)→锁(19)」⇒ 不透明格底盖住 4–9 关锁（锁 Sprite `on=true` 但 idx 反转，harness canvas2d 不模拟宿主层故漏检）。修法 = above 池位每帧按命令序（`_used`）钉死 `setSiblingIndex`，below 珠层垫底语义不变。修复后 introspect idx 11-18 → 11-18，截图与 L-before 逐像素一致。
+
+**验证 / 取证**：verify **24/24 PASS**（typecheck / framework:sync:check / check:tasks / 金样等）；金样菜单族五态文本变，按干净 worktree 锚 `7065de29` 用 `ui-golden-capture.ts` 重抓，十一帧两遍确定性自证 PASS（⛔ 未手改夹具）；真机层序取证如上（web-mobile 预览，非微信真机，待扫码回执）。代码提交 `7065de29` 已 push origin/develop。

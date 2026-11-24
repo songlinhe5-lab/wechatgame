@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4301,
       "lines": 142,
-      "sha256": "bd78c923744cb61e999c46ae3f6e66f9f7471b62ec53026f9c5baed2ce692fd9",
+      "sha256": "99a313ad2980c9c1301d1a79dc830b753bcb9b722bf03b85162ddff590c4db6f",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 407,
-          "summary": "1 production/TASKS-DETAIL.md 382874 12112 normal",
+          "summary": "1 production/TASKS-DETAIL.md 383208 12110 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5204,
       "lines": 159,
-      "sha256": "fefbdae82629d7304844143c8601b24fae5794c2e738672b1db67224873f2164",
+      "sha256": "2ca680873b7d229bf3a4f3f4badc3a970d9c582d8885874dcac773def0d64dc4",
       "tier": "normal",
       "sections": [
         {
@@ -761,7 +761,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 350 行 / 109149 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 350 行 / 109260 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
@@ -1080,12 +1080,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 12112 行 / 382874 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 12110 行 / 383208 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
           "tokens": 126,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+12113 · §WXG-T-1043=18+22 · §WXG-T-1",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+12111 · §WXG-T-1043=18+22 · §WXG-T-1",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -93914,17 +93914,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 382874,
-      "lines": 12112,
-      "sha256": "528a35ec1c9b8dbac28498c58988ff1f50bf4a52a3327df55908bcc588068f1a",
+      "tokens": 383208,
+      "lines": 12110,
+      "sha256": "bdea2b615e144c5481cacd4dc772caff2fd8bbba7bd919bcea3cb500f68b113e",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 12113,
-          "tokens": 382857,
+          "endLine": 12111,
+          "tokens": 383191,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -111761,37 +111761,21 @@
           "anchor": "§WXG-T-1048",
           "level": 2,
           "startLine": 12100,
-          "endLine": 12113,
-          "tokens": 376,
-          "summary": "详情返回丢锁图案 + 未通关显第 n 关 · 负责：主理人(CodeBuddy)·工程轨 · 状态：🚧 进行中（202",
+          "endLine": 12111,
+          "tokens": 710,
+          "summary": "详情返回丢锁图案 + 未通关显第 n 关 · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ 完成（2026-",
           "keywords": [
             "WXG",
             "CodeBuddy"
-          ]
-        },
-        {
-          "anchor": "§待办",
-          "level": 3,
-          "startLine": 12108,
-          "endLine": 12113,
-          "tokens": 67,
-          "summary": "用 web-mobile CDP introspect 容器 BlitLayerUI 池位，在真实 Cocos 层序复现",
-          "keywords": [
-            "web",
-            "mobile",
-            "CDP",
-            "introspect",
-            "BlitLayerUI",
-            "Cocos"
           ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 109149,
+      "tokens": 109260,
       "lines": 350,
-      "sha256": "6fde5d513535a7f15dad6dd485dfe4512d96ee0ef6f3c438bd9f3eabf31b7ca3",
+      "sha256": "7029c1d142bf9cdef057e726fb39d6004949852f883d24bcd963ddfc9f934705",
       "tier": "hot",
       "sections": [
         {
@@ -111799,7 +111783,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 351,
-          "tokens": 109140,
+          "tokens": 109251,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
