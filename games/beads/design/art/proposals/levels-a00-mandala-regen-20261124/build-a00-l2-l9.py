@@ -18,7 +18,7 @@ BASE = "games/beads/design/levels/singles"
 ART = "games/beads/design/art/proposals/levels-a00-mandala-regen-20261124"
 JOBS = [
     ("L00002", f"{ART}/A00-P02-flower2/studio-full-response-b3.json"),
-    ("L00009", f"{ART}/A00-P09-mandala/studio-full-response-v3-max-30-c0.json"),
+    ("L00009", f"{ART}/A00-P09-mandala/studio-full-response-v4-max-30-c0.json"),
 ]
 
 

@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5206,
       "lines": 159,
-      "sha256": "a73571c769271b80f931920864d775576cd975d95fd81e97be493ea295d2c550",
+      "sha256": "fd66fe9a106be1b530e16c71185617f7cbaf46256041089a9e00f253ba6fc048",
       "tier": "normal",
       "sections": [
         {
@@ -40432,9 +40432,9 @@
     },
     {
       "path": "games/beads/design/levels/pattern-legibility.md",
-      "tokens": 2988,
+      "tokens": 3006,
       "lines": 120,
-      "sha256": "44098f444ae335bde544a65de2179b0ccc652065c3a2db641f20ec3047744cbd",
+      "sha256": "ed13673ba0bda57f0a9673d1225510f0dfbef5f279a93fd8be01d7c366edafa9",
       "tier": "normal",
       "sections": [
         {
@@ -40442,7 +40442,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 121,
-          "tokens": 2973,
+          "tokens": 2990,
           "summary": "一句话：DI（level-difficulty.md）管「难度排序与工量」，本文管「看不看得清」——",
           "keywords": [
             "Pattern",
@@ -40495,15 +40495,17 @@
           ]
         },
         {
-          "anchor": "§4 现役盘实测（2026-10-23）",
+          "anchor": "§4 现役盘实测（2026-10-23；L00009 行 2026-11-24 换盘后复测）",
           "level": 2,
           "startLine": 54,
           "endLine": 69,
-          "tokens": 266,
+          "tokens": 272,
           "summary": "L00001 13×12 3 34.0 1.0 0% 0 34.0 1 ✅ 基线",
           "keywords": [
+            "L00009",
             "L00001",
-            "现役盘实测"
+            "现役盘实测",
+            "换盘后复测"
           ]
         },
         {
