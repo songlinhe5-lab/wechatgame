@@ -1,0 +1,18 @@
+{
+  "board": "a02p01v3fix-max-32-c4",
+  "importable": true,
+  "blockers": [],
+  "voidCells": 0,
+  "colorsUsed": null,
+  "paletteHex": [
+    "#FDF6E9",
+    "#F59B23",
+    "#A5652C",
+    "#6B3E1E"
+  ],
+  "balancedChanged": null,
+  "mis": {},
+  "pricing": null,
+  "adjacency": null,
+  "colorErrorFinal": null
+}

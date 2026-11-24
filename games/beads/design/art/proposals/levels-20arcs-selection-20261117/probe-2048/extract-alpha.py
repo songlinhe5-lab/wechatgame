@@ -42,16 +42,24 @@ def extract(src, dst, thresh=72):
 
     # ── 验收（六道）──
     fg = alpha == 255
-    # 主体连通分量：二值图上从中心灌一次。⚠ fromarray 是 readonly，必须 .copy()
-    bim = Image.fromarray((fg * 255).astype(np.uint8), "L").copy()
-    seed = (w // 2, h // 2)
-    if bim.getpixel(seed) == 255:
-        ImageDraw.floodfill(bim, seed, 128, thresh=0)
-        reached = int((np.asarray(bim) == 128).sum())
-        connected = reached == int(fg.sum())
-        reached_px = reached
-    else:
-        connected, reached_px = False, 0
+    # 主体连通分量：G3 正解 = 4 连通分量恰为 1，用 ndimage 精确计数。
+    # 旧版「画布中心播种灌一次」是启发式：3/4 侧视等主体不居中构图会误报 False
+    # （A02 狐狸 v3 实踩，scipy 复核 1 分量）。语义对齐 series-spec G3。
+    try:
+        from scipy import ndimage
+        lbl, ncomp = ndimage.label(fg)  # 默认结构 = 4 连通
+        connected = ncomp == 1
+        reached_px = int((lbl > 0).sum()) if connected else 0
+    except ImportError:
+        # scipy 缺席时退回中心播种启发式（旧行为）
+        bim = Image.fromarray((fg * 255).astype(np.uint8), "L").copy()
+        seed = (w // 2, h // 2)
+        if bim.getpixel(seed) == 255:
+            ImageDraw.floodfill(bim, seed, 128, thresh=0)
+            reached_px = int((np.asarray(bim) == 128).sum())
+            connected = reached_px == int(fg.sum())
+        else:
+            connected, reached_px = False, 0
     # 回读成品，实测 RGB 逐像素原值不变（⛔ 只改 alpha，零重绘）
     saved = np.asarray(Image.open(dst).convert("RGBA"))
     rgb_unchanged = bool(np.array_equal(saved[:, :, :3], rgb))

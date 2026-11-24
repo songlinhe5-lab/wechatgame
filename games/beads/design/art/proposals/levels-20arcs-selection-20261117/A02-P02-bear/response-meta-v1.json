@@ -1,0 +1,23 @@
+{
+  "elapsed_s": 17.4,
+  "params": {
+    "prompt_extend": false,
+    "seed": 42,
+    "size": "2048*2048"
+  },
+  "channel": {
+    "profile": "token-plan",
+    "model": "qwen-image-3.0-pro",
+    "note": "调用腿 = design/ai-workflows/dashscope-generate.py --text 直给，未改动该脚本；_summary.json 不回传 request_id/usage，仅记 params/prompt/elapsed"
+  },
+  "output": {
+    "file": "a02p02-v1-s42.png",
+    "bytes": 1563165,
+    "size_px": [
+      2048,
+      2048
+    ],
+    "billing": "qima_output_2k（2K 计费档）"
+  },
+  "prompt_source": "prompt-v1.txt（与会话内公示稿逐字一致）"
+}
