@@ -473,12 +473,12 @@ describe('BeadsShell — 选关高亮 / 走马灯陈列关（WXG-T-912/913：首
         expect(v.carouselSeqLabel, '本章 9★ / 门槛 24★ ⇒ 下关差 15★').toBe('下关差 15★');
     });
 
-    it('`[WXG-T-914 → T-1044]` 未解锁章（走马灯停在该页）⇒ 木牌第二行星进度', () => {
+    it('`[WXG-T-914 → T-1044]` 未解锁章（走马灯停在该页）⇒ 木牌第二行「未开启」', () => {
         const r = rig({ initialScreen: 'menu' });
         // 停到未解锁的第 2 章页（peer 只在拖动中出现，故直接 seek 主车）。
         (r.shell as unknown as { _menu: { seek(n: number): void } })._menu.seek(1);
         const v = viewOf(r.shell);
-        expect(v.carouselSeqLabel, '本章 0★ / 9 关未通 ⇒ 只显满星差 27★').toBe('差 27★满星');
+        expect(v.carouselSeqLabel, '整章未解锁 ⇒ 只显状态词，不显示满星缺口').toBe('未开启');
     });
 });
 

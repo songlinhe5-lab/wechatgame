@@ -174,9 +174,9 @@ describe('S-4 闸门：门票未达', () => {
         const data = viewData(r.shell);
         expect(data.arcTicketOpen, '门票归约为假 ⇒ 章锁').toBe(false);
         expect([data.arcStarGot, data.arcStarNeed], 'C 拍定：已得/门槛取阻断该页入口的上一章').toEqual([20, 24]);
-        // `[WXG-T-920 → T-1044]` 展示投影只在门票达成时开门；木牌第二行改星进度三态。
+        // `[WXG-T-920 → T-1044]` 展示投影只在门票达成时开门；锁态木牌第二行显示「未开启」。
         expect(data.carouselState, '门票未达 ⇒ 保持锁态').toBe('locked');
-        expect(data.carouselSeqLabel, '章 2 本章 0★ / 未全通 ⇒ 只显满星差 27★').toBe('差 27★满星');
+        expect(data.carouselSeqLabel, '章 2 未开启 ⇒ 不显示满星缺口').toBe('未开启');
 
         const before = { stamina: r.shell.meta!.stamina, idx: r.shell.play.levelIndex, events: r.overlayEvents.length };
         expect(tapCard(r.shell), '锁态章 ⇒ 卡零事件（用户 2026-11-12 令「不能点进选关页面」）').toBe(false);

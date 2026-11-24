@@ -58,6 +58,7 @@ import {
     type PowerupType,
 } from '../config/tuning';
 import { ARC_OPEN_MAX, ARCS } from '../config/arcs';
+import { COPY_TOKENS } from '../config/copy-tokens';
 import { arcEntryTicket, emptyArcTicketResult, type ArcTicketResult } from '../systems/arc-ticket';
 import { BeadsGame, type BeadsGameOptions } from './beads-game';
 import { LEVELS } from '../config/levels';
@@ -1370,14 +1371,14 @@ export class BeadsShell implements Game {
     }
 
     /**
-     * `[WXG-T-914 → T-1044 → T-1047]` 木牌第二行 = 星进度三态（2026-11-24 用户令）：
-     * **本章全通 ∧ 下一大关未开** ⇒ `下关差 X★`（X = 门槛 − 本章星）；其余态（本章尚有 0★ 关 /
-     * 下章已开 / 无下章）⇒ `差 X★满星`，全满 ⇒ `全满星`。⛔ 不改门槛 / 存档 / 判据；⛔ 视图层自读星账。
+     * `[WXG-T-914 → T-1044 → T-1047]` 木牌第二行按状态优先：
+     * 整章未解锁 ⇒ `未开启`；有在推小关 ⇒ 回落关序；本章全通 ∧ 下一大关未开 ⇒ `下关差 X★`；
+     * 其余已开态 ⇒ `差 X★满星`，全满 ⇒ `全满星`。⛔ 不改门槛 / 存档 / 判据；⛔ 视图层自读星账。
      * 双槽按数值签名复用字符串 ⇒ 热路径零分配。
      */
     private readonly _arcSeqSlots = [
-        { idx: -1, got: -1, total: -1, cleared: -1, gate: -1, open: false, pushing: false, text: undefined as string | undefined },
-        { idx: -1, got: -1, total: -1, cleared: -1, gate: -1, open: false, pushing: false, text: undefined as string | undefined },
+        { idx: -1, got: -1, total: -1, cleared: -1, gate: -1, open: false, unlocked: false, pushing: false, text: undefined as string | undefined },
+        { idx: -1, got: -1, total: -1, cleared: -1, gate: -1, open: false, unlocked: false, pushing: false, text: undefined as string | undefined },
     ];
     private _arcSeqLabel(arcIdx: number, slot: 0 | 1): string | undefined {
         const cache = this._arcSeqSlots[slot]!;
@@ -1389,12 +1390,14 @@ export class BeadsShell implements Game {
         // 口径同 `_arcShowcaseLevel`（第一个已解锁 0★ 关）；⛔ 不能用 showcase !== boss 判：
         // 章末关恰是首个 0★ 关时两者相同，仍是在推态。
         let pushing = false;
+        let anyUnlocked = false;
         if (arc !== undefined) {
             const maxUnlocked = this._unlockedFrontier(arcIdx);
             const levelCount = this.play.levelCount;
             for (const [start, end] of arc.levelRefs) {
                 for (let n = start; n <= end; n += 1) {
                     total += 1;
+                    if (n <= levelCount && n <= maxUnlocked) anyUnlocked = true;
                     const raw = this.play.starsByLevelRaw[n - 1] ?? 0;
                     if (raw > 0) cleared += 1;
                     else if (n <= levelCount && n <= maxUnlocked) pushing = true;
@@ -1410,9 +1413,11 @@ export class BeadsShell implements Game {
         const open = ticket === undefined ? true : this._arcGateOpen(next, ticket);
         if (cache.idx === arcIdx && cache.got === got && cache.total === total
             && cache.cleared === cleared && cache.gate === gate && cache.open === open
-            && cache.pushing === pushing) return cache.text;
+            && cache.unlocked === anyUnlocked && cache.pushing === pushing) return cache.text;
         let text: string | undefined;
-        if (pushing) {
+        if (!anyUnlocked) {
+            text = COPY_TOKENS.plate_arc_locked_label;
+        } else if (pushing) {
             text = undefined; // 交视图回落 `第 ${showcase.id} 关`（T-913 原口径）。
         } else if (hasNext && !open && cleared === total) {
             text = `下关差 ${Math.max(0, gate - got)}★`;
@@ -1426,6 +1431,7 @@ export class BeadsShell implements Game {
         cache.cleared = cleared;
         cache.gate = gate;
         cache.open = open;
+        cache.unlocked = anyUnlocked;
         cache.pushing = pushing;
         cache.text = text;
         return text;

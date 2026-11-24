@@ -12215,3 +12215,17 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 **修法**：详情留缝档（`beadGap !== undefined`）改按**有墨包围盒 contain-fit**，判据源复用 `levelThumbInkBounds`（与主菜单橱窗 `[WXG-T-1006/1032]` 同一条先例，其注释本就点名「如 L9 曼陀罗占 rows 1..28」）：`pitch = min(w/内容列, h/内容行)`、内容水平居中、有墨底缘贴台面（`top = anchorY + (r0 + spanRows) × pitch`）。`bounds` 缺省 ⇒ `c0=r0=0, span=cols/rows`，与旧口径**逐字节等价** ⇒ 选关格 / 盘面 / 其余消费方零变化；T-1040 的描边抬升（`W/2 + TILE_BLEED`）保留 ⇒ 轮廓外缘仍压台面线。
 
 **验证 / 取证**：TDD 先红后绿（新判据「轮廓外缘仍压台面 + 跨度 > 框高−6」），定向 **54/54**（含选关格 / 橱窗回归）；全量 `verify` **24/24 PASS**；金样十一帧不含详情态 ⇒ **零重抓**；harness 实帧 `temp/ui-shot/1052-detail9.png`（修复前悬空偏小 → 修复后撑满橱窗、贴住圆台）。
+
+---
+
+## WXG-T-1053
+
+**锁定大关木牌显示未开启** · 负责：主理人(Qoder)·工程轨 · 状态：✅ **完成（2026-11-24）**
+
+承用户实帧：主菜单「花间集」已呈锁图占位，但木牌第二行仍显示「差 27★满星」；用户裁定锁定状态应只告知「未开启」。
+
+**根因**：`_arcState()` 已把整章未解锁归约为 `locked`，但 `_arcSeqLabel()` 缺少锁态优先分支，落入满星缺口计算；`COPY_TOKENS.plate_arc_locked_label` 与 `MetaViewData.carouselSeqLabel` 契约本就规定锁态应显示「未开启」。
+
+**修法**：在 `_arcSeqLabel()` 的星进度计算前先归约 `anyUnlocked`；整章无解锁关卡时直接复用既有 `COPY_TOKENS.plate_arc_locked_label`，并把该状态并入双槽缓存签名。推关、下关门票缺口、满星缺口与全满星逻辑不变；门槛、存档、解锁判据零改。
+
+**验证 / 取证**：TDD 先红后绿，定向 47/47；beads 全量 1628 passed / 2 skipped；harness 重编译后读取「花间集」页，`carouselState = locked`、`carouselSeqLabel = 未开启`，渲染文本不再出现「差 27★满星」。
