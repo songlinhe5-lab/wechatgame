@@ -196,6 +196,21 @@ describe('S-4 闸门：门票未达', () => {
         expect(viewData(r.shell).arcStarNeed, '首章无阻断 ⇒ 不创建（⛔ 残留上一页数字）').toBeUndefined();
     });
 
+    it('`[WXG-T-1039]` 章末关续玩位 ⇒ 走马灯起点 = 下一章页，木牌 ★n/N 首屏可见（2026-11-24 用户裁「保门槛 + 加引导」）', () => {
+        const offsetOf = (shell: BeadsShell) => (shell as unknown as { _menu: { offset: number } })._menu.offset;
+        const r = rig({ pointer: 9, stars: [3, 3, 2, 2, 2, 2, 2, 2, 2, 0] });
+        // 启动定位腿：L9 = 章末 ⇒ 落位章 2 页（此前恒停上一章页 ⇒ 告知件不可见 = 报障根因）。
+        expect(offsetOf(r.shell), '启动落位下一章页').toBe(1);
+        r.now.t += 500;
+        r.shell.update(0.016);
+        draw(r.shell);
+        expect([viewData(r.shell).arcStarGot, viewData(r.shell).arcStarNeed], '木牌进度件首屏就位').toEqual([20, 24]);
+        // 回主菜单腿（FINISH → 回主菜单）同源落位。
+        goPage(r, 0);
+        r.shell.showMenu();
+        expect(offsetOf(r.shell), '回主菜单重走起点腿').toBe(1);
+    });
+
     it('首章无阻断：arcTicketOpen=true 且进度件不创建（⛔ 0/0），章内格照旧线性', () => {
         const r = rig({ pointer: 2, stars: [] });
         openLevels(r.shell, r);
@@ -303,6 +318,8 @@ describe('两层不混用：显示层三态 ≠ 推进层门票', () => {
     it('章 1 全通关但累计星不足：carouselState=cleared 而同源门票为假（M-11 的壳层镜像）', () => {
         // 全通关（≥1★）但只得 20★ < 24★ ⇒ 显示层 cleared、推进层票不开。
         const r = rig({ pointer: 9, stars: [3, 3, 2, 2, 2, 2, 2, 2, 2, 0] });
+        // `[WXG-T-1039]` 章末续玩位起点改落章 2 页 ⇒ 显式回章 1 页看三态（判据一字不变）。
+        goPage(r, 0);
         draw(r.shell);
         expect(viewData(r.shell).carouselState, '≥1★ 三态口径一字不动').toBe('cleared');
         // 同一份星账的推进层面：票不开、累计星 = 20/24（两层各算各的，⛔ 互相改造）。

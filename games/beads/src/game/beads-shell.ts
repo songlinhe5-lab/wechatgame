@@ -834,6 +834,9 @@ export class BeadsShell implements Game {
         this._replay.discard(); // EP15-S3：弃局 ⇒ 在录录像作废（已完成的「上一局」保留）
         this._phase.resetTo('menu');
         this._cancelPageFx();
+        // `[WXG-T-1039]` 回主菜单重走起点定位腿（与 init 同源）：FINISH → 回主菜单后
+        // 章末续玩位落位下一章页，木牌告知件可见；页内无位移时 seek 同页 = 无感。
+        this._menu.seek(this._startArcPage());
         this._emitOverlay(true);
     }
 
@@ -1560,10 +1563,18 @@ export class BeadsShell implements Game {
      * `[WXG-T-490]` 起点页 = 续玩关（`play.levelIndex`，即主钮真实目标）所属大关页；
      * 无归属（dev 导入关 = `-1`）⇒ 首页兜底（⛔ 猜页）。与 `_arcIndexOfLevel` 同一条腿 ⇒
      * 启动定位与每帧「在不在起点页」比较恒同源。
+     * `[WXG-T-1039]` 追加（用户 2026-11-24 裁「保门槛 + 加引导」）：续玩位 = **章末关**且有下一章
+     * ⇒ 起点落**下一章页** —— 门票未达时木牌「★n/N」告知件首屏可见（此前停上一章页 ⇒ 玩家
+     * 「通关了却看不到第二关为什么没开」报障）；门票已达成时指针已在下一章，本规则不触发。
      */
     private _startArcPage(): number {
         const arc = this._arcIndexOfLevel(this.play.levelIndex);
-        return arc < 0 ? 0 : arc;
+        if (arc < 0) return 0;
+        const refs = ARCS[arc]?.levelRefs;
+        if (arc + 1 < ARCS.length && refs !== undefined && refs[refs.length - 1]![1] === this.play.levelIndex + 1) {
+            return arc + 1;
+        }
+        return arc;
     }
 
     /**
