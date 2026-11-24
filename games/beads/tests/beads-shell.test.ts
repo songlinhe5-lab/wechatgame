@@ -460,7 +460,7 @@ describe('BeadsShell — 选关高亮 / 走马灯陈列关（WXG-T-912/913：首
         const v = viewOf(r.shell);
         expect(v.carouselLevel?.id, '陈列关 = 曼陀罗第 3 关').toBe(3);
         expect(v.carouselTitle, '木牌关名 = 大关名').toBe('曼陀罗');
-        expect(v.carouselSeqLabel, '[T-1047] 本章 5★ / 9 关仅 2 关通 ⇒ 只显满星差 22★').toBe('差 22★满星');
+        expect(v.carouselSeqLabel, '[WXG-T-1048] 本章仍有在推小关 ⇒ 回落「第 N 关」').toBeUndefined();
     });
 
     it('`[WXG-T-914 → T-1044]` 本章全通但未满 ⇒ 木牌第二行「下关差 X★」', () => {

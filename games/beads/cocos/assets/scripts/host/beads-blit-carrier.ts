@@ -494,6 +494,13 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
             // 框垫底：同层若有珠（同属 BlitAtlas），框必须在它们之下。
             if (base === undefined && below) sp.node.setSiblingIndex(0);
         }
+        // `[WXG-T-1048]` 跨容器池位复用后兄弟序会残留旧容器的追加历史：详情帧借走 dialogBg/
+        // cellNormal 等池位挂到详情容器，返回帧它们 setParent 回选关容器时插到锁之后 ⇒ 不透明
+        // 格底盖住锁。above 池位每帧按命令序（= 借位序）钉死兄弟位，⛔ 不依赖 setParent 追加历史。
+        // below 腿保持原样（珠层垫底语义不变）。
+        if (!below && sp.node.parent === parent) {
+            sp.node.setSiblingIndex(this._used - 1);
+        }
         // border 全 0 的帧 SLICED ≡ SIMPLE ⇒ 恒按命令语义赋值（同帧混发两类也不残留）。
         sp.type = ns !== undefined ? Sprite.Type.SLICED : Sprite.Type.SIMPLE;
         // Boss 原图四周是透明边。默认 trim 会把花拉满内容框；关掉才按原图留白居中。

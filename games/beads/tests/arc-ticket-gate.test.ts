@@ -249,7 +249,8 @@ describe('S-4 闸门：门票达成 ⇒ 章首授权', () => {
         // `[WXG-T-920 → T-1044]` 门票达成 ⇒ 展示层视同已开启（三态 pushing）；推进位仍停在 9。
         const menu = viewData(r.shell);
         expect(menu.carouselState, '门票达成 ⇒ 大关按推关中呈现').toBe('pushing');
-        expect(menu.carouselSeqLabel, '章 2 本章 0★ / 未全通 ⇒ 只显满星差 27★').toBe('差 27★满星');
+        expect(menu.carouselSeqLabel, 'WXG-T-1048：章 2 第 10 关在推 ⇒ 回落「第 10 关」').toBeUndefined();
+        expect(menu.carouselLevel?.id, '回落目标 = 正在推的第 10 关').toBe(10);
         expect(menu.maxUnlockedLevel, '⛔ 展示投影不动推进位').toBe(9);
         openLevels(r.shell, r);
         const data = viewData(r.shell);
@@ -398,8 +399,12 @@ describe('[WXG-T-1044] 木牌第二行星进度三态', () => {
     it('本章全通 + 下一大关未开 ⇒ 下关差 X★（X = 门槛 − 本章星）', () => {
         expect(labelAtArc0([3, 3, 2, 2, 2, 2, 2, 2, 2, 0]), '20/24 ⇒ 差 4★').toBe('下关差 4★');
     });
-    it('本章未全通（缺 1 关）+ 下一大关未开 ⇒ 不发下关差，只显满星差', () => {
-        expect(labelAtArc0([3, 3, 2, 2, 2, 2, 2, 2, 0, 0]), '18/27，仍有 0★ 关').toBe('差 9★满星');
+    it('本章仍有在推的小关（第 9 关已解锁未通）⇒ 木牌第二行回落「第 9 关」', () => {
+        const r = rig({ pointer: 9, stars: [3, 3, 2, 2, 2, 2, 2, 2, 0, 0] });
+        goPage(r, 0);
+        const v = viewData(r.shell);
+        expect(v.carouselSeqLabel, 'WXG-T-1048：在推关态不覆盖，交视图回落「第 N 关」').toBeUndefined();
+        expect(v.carouselLevel?.id, '回落目标 = 正在推的第 9 关').toBe(9);
     });
     it('下一大关已开但本章未满 ⇒ 差 X★满星', () => {
         expect(labelAtArc0([3, 3, 3, 3, 3, 3, 3, 3, 2, 0]), '26/27 ⇒ 差 1★满星').toBe('差 1★满星');

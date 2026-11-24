@@ -12096,3 +12096,17 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 - TDD：5 条红灯（锁章页 2 / 本章 5★ / 缺 1 关 / 走马灯锁章）先红后绿；其中「缺 1 关」臂钉住「不发下关差、只显满星差」（`18/27 ⇒ 差 9★满星`）。定向 47/47 绿。
 - 金样：`main-menu` / `level-select` / `level-select-mid` / `settings` / `signin` 五态文本变 ⇒ 按代码锚 `2f352605` 在干净 worktree 重抓十一帧，两遍逐态确定性自证 PASS，命令总数不变；⛔ 不手改夹具（K-051/K-053）。
 - 门：`pnpm run verify` **24/24**（PASS 24 / FAIL 0）；§12 视觉变更登记已补。
+
+## WXG-T-1048
+
+**详情返回丢锁图案 + 未通关显第 n 关** · 负责：主理人(CodeBuddy)·工程轨 · 状态：🚧 进行中（2026-11-24）
+
+用户报障：「从选关详情退回选关页面 4～9 关的锁图案消失了；在当前未通关情况下，应该显示当前正在推的小关，第 n 关」。两臂：
+- ① 锁图案：harness 一次性诊断（`zz-diag-1048.test.ts`，用完即删）证明 levels→level-detail→levels 前后 `lockImage` blit 命令均 6、`maxUnlockedLevel/currentLevelIndex/wallSlots` 不变 ⇒ 排除 VM / 命令流丢失；真机症状定位候选 = 宿主容器 blit 池跨容器重挂 / 层序（T-1046 把 `plaque` 移出 below 白名单后详情与选关共用池位）。
+- ② 文案：T-1047 把本章未全通态收为 `差 X★满星`，用户现裁定该态应回退 `第 n 关`（当前正在推的小关，旧 T-913 口径），只在「本章全通 + 下章未开」显 `下关差 X★`，下章已开显 `差 X★满星` / `全满星`。
+
+### 待办
+
+- 用 web-mobile CDP introspect 容器 BlitLayerUI 池位，在真实 Cocos 层序复现①。
+- TDD 红灯写「本章未全通 ⇒ `第 N 关`」判据，再改 `_arcSeqLabel`。
+- 验证 → 金样按锚重抓 → 收口。

@@ -1376,8 +1376,8 @@ export class BeadsShell implements Game {
      * 双槽按数值签名复用字符串 ⇒ 热路径零分配。
      */
     private readonly _arcSeqSlots = [
-        { idx: -1, got: -1, total: -1, cleared: -1, gate: -1, open: false, text: undefined as string | undefined },
-        { idx: -1, got: -1, total: -1, cleared: -1, gate: -1, open: false, text: undefined as string | undefined },
+        { idx: -1, got: -1, total: -1, cleared: -1, gate: -1, open: false, pushing: false, text: undefined as string | undefined },
+        { idx: -1, got: -1, total: -1, cleared: -1, gate: -1, open: false, pushing: false, text: undefined as string | undefined },
     ];
     private _arcSeqLabel(arcIdx: number, slot: 0 | 1): string | undefined {
         const cache = this._arcSeqSlots[slot]!;
@@ -1385,12 +1385,19 @@ export class BeadsShell implements Game {
         let got = 0;
         let total = 0;
         let cleared = 0;
+        // `[WXG-T-1048]` 解锁范围内仍有 0★ 关 = 正在推的小关 ⇒ 木牌第二行回落「第 N 关」。
+        // 口径同 `_arcShowcaseLevel`（第一个已解锁 0★ 关）；⛔ 不能用 showcase !== boss 判：
+        // 章末关恰是首个 0★ 关时两者相同，仍是在推态。
+        let pushing = false;
         if (arc !== undefined) {
+            const maxUnlocked = this._unlockedFrontier(arcIdx);
+            const levelCount = this.play.levelCount;
             for (const [start, end] of arc.levelRefs) {
                 for (let n = start; n <= end; n += 1) {
                     total += 1;
                     const raw = this.play.starsByLevelRaw[n - 1] ?? 0;
                     if (raw > 0) cleared += 1;
+                    else if (n <= levelCount && n <= maxUnlocked) pushing = true;
                     got += raw > STAR_MAX ? STAR_MAX : raw < 0 ? 0 : raw;
                 }
             }
@@ -1402,9 +1409,12 @@ export class BeadsShell implements Game {
         const gate = ticket === undefined ? 0 : ticket.gate;
         const open = ticket === undefined ? true : this._arcGateOpen(next, ticket);
         if (cache.idx === arcIdx && cache.got === got && cache.total === total
-            && cache.cleared === cleared && cache.gate === gate && cache.open === open) return cache.text;
-        let text: string;
-        if (hasNext && !open && cleared === total) {
+            && cache.cleared === cleared && cache.gate === gate && cache.open === open
+            && cache.pushing === pushing) return cache.text;
+        let text: string | undefined;
+        if (pushing) {
+            text = undefined; // 交视图回落 `第 ${showcase.id} 关`（T-913 原口径）。
+        } else if (hasNext && !open && cleared === total) {
             text = `下关差 ${Math.max(0, gate - got)}★`;
         } else {
             const remain = Math.max(0, total * STAR_MAX - got);
@@ -1416,6 +1426,7 @@ export class BeadsShell implements Game {
         cache.cleared = cleared;
         cache.gate = gate;
         cache.open = open;
+        cache.pushing = pushing;
         cache.text = text;
         return text;
     }
