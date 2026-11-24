@@ -253,3 +253,33 @@ describe('方案 C · 离散四档主序', () => {
         expect(l1.res.g[0]).not.toBe(l6.res.g[0]);
     });
 });
+
+// ── 章末 BOSS 难度闸（用户 2026-11-24 裁定，WXG-T-1050）──────────────────────
+// 「A00 关 boss 不用太难，从 A01 开始要严格卡难度」⇒ A00（L00009）豁免超难硬闸，
+// A01 起每章末关必须档 3「超难」。这里只做准入守卫，不改任何盘面 / 阈值。
+describe('章末 BOSS 难度闸 · A00 豁免 / A01 起必须超难', () => {
+    const all = new Map<number, ReturnType<typeof difficultyOf>>();
+    for (const f of readdirSync(SINGLES).filter((f) => f.endsWith('.json'))) {
+        const lv = JSON.parse(readFileSync(join(SINGLES, f), 'utf8'));
+        all.set(lv.id, difficultyOf(lv));
+    }
+    const lastIdOf = (arc: (typeof ARCS)[number]) => Math.max(
+        ...arc.levelRefs.flatMap(([from, to]) =>
+            Array.from({ length: to - from + 1 }, (_, i) => from + i)),
+    );
+
+    it('A01 起章末 BOSS 逐章档 3（超难）', () => {
+        const drift: string[] = [];
+        for (const arc of ARCS.slice(1)) {
+            const bossId = lastIdOf(arc);
+            const res = all.get(bossId);
+            if (!res) drift.push(`${arc.id} 章末 L${bossId} 缺失`);
+            else if (res.tier !== 3) drift.push(`${arc.id} 章末 L${bossId} tier=${res.tier}（${res.label}），应超难`);
+        }
+        expect(drift).toEqual([]);
+    });
+
+    it('A00 章末 BOSS 按裁定保持宽松（tier < 3）', () => {
+        expect(all.get(lastIdOf(ARCS[0]!))!.tier).toBeLessThan(3);
+    });
+});

@@ -467,3 +467,10 @@ DI_target(d) = DI_START + (d − 1) × ΔDI          // 类别内第 d 关的目
 - **⛔ 之 ② UI 接线未落地（阻塞登记）**：生成页 `apps/beads-studio/public/generate.html` 的难度行（约 765–768 行）与 `server.mjs` 已有并发会话的未提交 hunk（前者 3 处、后者 6 处，含难度行邻区删除）；选关页 `src/view/**` 另有 8 件他轨 WIP。按 K-045 / K-188 不代改、不整文件暂存。**收敛条件** = 并发会话把上述文件入库后，生成页统计行与选关页读 `difficultyOf(...).label` 显示即可，无需改公式。
 - **之 ③ 五项 verify 红的复评**：并发会话仍在动态改同一批文件 —— HEAD `b42c3f3d` 刚提交回放钮修复，而金样本夹具 `temp/ui-golden/clear.jsonl` 仍无「回放」指令；类型错误由 3 条增至 4 条（新的一条在并发会话刚提交的 `tests/replay-page.test.ts`）。⇒ 这些红项正在对方轨上收敛，本会话不代改、不重抓夹具、不动包体分包。逐项归因见台账 WXG-T-999 详情。
 - **后续指针（2026-11-20 · WXG-T-1000，只加指针不改上文）**：命名对账已裁定**方案①**（新字段带限定名、旧键零改；接线时新增 `difficultyBand`/`bandLabel`，UI 写「难度档：…」与「估时占比 D…」并列）⇒ 正本 `games/beads/design/proposals/studio-difficulty-tier-naming-20261120.md` §7。另：上文所记 `generate.html` / `server.mjs` 未提交 hunk 实为对 WXG-T-982 的静默回退，已经用户授权还原至 HEAD（Qoder 会话，2026-11-20）；`src/view/**` 他轨 WIP 仍在，接线仍另立单。
+
+### 10.5.2 追加 · 章末 BOSS 难度闸口径（2026-11-24 · WXG-T-1050）
+
+- **用户裁定（逐字）**：「A00 关 boss 不用太难，从 A01 开始要严格卡难度」。
+- **口径**：A00（曼陀罗）章末 L00009 豁免「超难」硬闸 —— v4 按提示词字面几何重画后 N=448、G/gMin=1.079，G 修正降一档 ⇒ 档 2「难」，**保留现状、不动阈值**；**A01 起每章末 BOSS 必须档 3「超难」**，由 `difficulty.test.ts` 新增准入闸钉住（A01 L00018、A02 L00027 现均档 3）。
+- **零改项**：`DIFFICULTY_TIERS` 两阈值（2 / 1.25）与 `[待 playtest]` 状态不动；A00 只豁免档位要求，不豁免 G12 / 门禁⑦ / 门禁⑧。
+- **重锚**：第一章 9 关表以 `difficulty.test.ts::EXPECT_DI` 为准（L2 N=88 → `8800040011`；L9 v4 N=448 / C=6 / G=41 → `2044800060041`）；本节 §10.5 旧行作为历史快照不回改。
