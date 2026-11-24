@@ -12049,7 +12049,7 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 
 **木牌第二行改星进度三态**
 
-**状态**：🚧 落码完成、金样待重抓（2026-11-24）
+**状态**：✅ 完成（2026-11-24）
 
 用户令：「在橱窗下面板第几关位置，显示下关差几星；如果下一关已经开启，这里就显示差几星满星；如果都已经满足就显示全满星」。口径（按上下文取最贴近解，⛔ 不改门槛 / 存档 / 判据）：「下一关」= 下一大关（门票 24★），「满星」= 当前大关 9 关 × 3★ = 27★。
 
@@ -12059,4 +12059,4 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 - 零分配：双槽缓存（本页 / 相邻页）按 `(idx, got, total, gate, open)` 数值签名复用字符串，仅数值变化时重拼 ⇒ `_metaViewData` 每帧两调零分配。
 - TDD：三态三臂先红（旧文案「已通关」/ undefined）后绿；旧断言适配 5 处（`arc-ticket-gate` 2 / `beads-shell` 3）。
 - 星带判据收紧：`arc-level-select.test.ts` 与 `meta-menu-wall.test.ts::starIn` 由「含 ★ 即计」改「纯星串 `^[★☆]+$`」——新文案的 ★ 落在槽 7 区域被误计为锁格星带；干净锚 `f897ff36` 复跑基线 12/12 绿证实为本单回归后修正。
-- 门：typecheck 绿、`check:tasks` 绿（`## WXG-T-1044` 裸标题）、`framework:sync:check` 绿；`test` 1617 passed / 2 skipped / **5 金样红**（菜单族五态文本变，待干净锚重抓）；§12 视觉变更登记已补。
+- 门：typecheck 绿、`check:tasks` 绿（`## WXG-T-1044` 裸标题）、`framework:sync:check` 绿；金样十一帧按 `5e05af73` 干净锚 worktree 重抓、两遍逐态确定性自证 PASS（命令总数不变，仅菜单族五态第二行文本变）；`test` 132 files / **1622 passed / 2 skipped / 0 红**；§12 视觉变更登记已补。`pnpm run verify` 24/24 绿。

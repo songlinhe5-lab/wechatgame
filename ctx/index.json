@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4301,
       "lines": 142,
-      "sha256": "b2424e2bc6320b4d9744940596dfaccfb7b297e3707cc6c92bfa2ae78e244ed4",
+      "sha256": "c41584d1a6fcf23bc921a4979fe9c60238d476408bb4ba4a9c72b6e7370e1f59",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 407,
-          "summary": "1 production/TASKS-DETAIL.md 380753 12062 normal",
+          "summary": "1 production/TASKS-DETAIL.md 380787 12062 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5202,
       "lines": 159,
-      "sha256": "c28e4da5619bbcb90726d22959925b774135a6d3c0a29feaa9f3425ccc9d9bba",
+      "sha256": "446d769c61d6f8d02d0bdd5f9131237bd417eb3d2070dbe988a84fcd8cbf282c",
       "tier": "normal",
       "sections": [
         {
@@ -761,7 +761,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 346 行 / 108036 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 346 行 / 108142 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
@@ -1080,7 +1080,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 12062 行 / 380753 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 12062 行 / 380787 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
@@ -93914,9 +93914,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 380753,
+      "tokens": 380787,
       "lines": 12062,
-      "sha256": "359067c194ea49034dc04224b87f2df2482d4bf38b215bcf5234d357e9a7b3e3",
+      "sha256": "4bc3325ad22a5a8848f2d326f2704b3addcce519cb900d9be8745404ca628431",
       "tier": "normal",
       "sections": [
         {
@@ -93924,7 +93924,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 12063,
-          "tokens": 380736,
+          "tokens": 380770,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -111671,7 +111671,7 @@
           "level": 2,
           "startLine": 12048,
           "endLine": 12063,
-          "tokens": 560,
+          "tokens": 594,
           "summary": "木牌第二行改星进度三态",
           "keywords": [
             "WXG"
@@ -111682,7 +111682,7 @@
           "level": 3,
           "startLine": 12056,
           "endLine": 12063,
-          "tokens": 404,
+          "tokens": 446,
           "summary": "_arcSeqLabel 从「回落 boss 才显已通关 / 未开启」改为恒出三态文案：下关差 X★（下一大关门票未达）",
           "keywords": [
             "arcSeqLabel",
@@ -111694,9 +111694,9 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 108036,
+      "tokens": 108142,
       "lines": 346,
-      "sha256": "751b03af8d249bf82cd31eb2f4e818c7cd05f8706ad280c1ea0185917e1ec76e",
+      "sha256": "5a96964f053b3bb01e849a695e6234c79161eabf1a1b84e903c1e8408c3a2d9f",
       "tier": "hot",
       "sections": [
         {
@@ -111704,7 +111704,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 347,
-          "tokens": 108028,
+          "tokens": 108133,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
