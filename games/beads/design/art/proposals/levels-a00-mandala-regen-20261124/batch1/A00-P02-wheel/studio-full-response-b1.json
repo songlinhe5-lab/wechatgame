@@ -1,0 +1,204 @@
+{
+  "id": "a00p02b1-1795524377918-2c49",
+  "board": "a00p02b1",
+  "cols": 10,
+  "rows": 13,
+  "shape": "square",
+  "palette": "10",
+  "colors": 4,
+  "swaps": 0,
+  "misMode": "max",
+  "createdAt": "2026-11-24T12:46:19.338Z",
+  "thumb": null,
+  "levelDraft": {
+    "cols": 10,
+    "rows": 13,
+    "time": 53,
+    "cycleProfile": "long",
+    "decoys": [],
+    "swaps": [],
+    "misplaced": [
+      "..........",
+      "..444222..",
+      "..444222..",
+      ".44442222.",
+      ".44442222.",
+      "4444433333",
+      "4444411111",
+      "3333311111",
+      ".33331111.",
+      ".33331111.",
+      "..333122..",
+      "..333222..",
+      ".........."
+    ],
+    "pattern": [
+      "..........",
+      "..333111..",
+      "..333111..",
+      ".33331111.",
+      ".33331111.",
+      "3333311111",
+      "3333344444",
+      "2222244444",
+      ".22224444.",
+      ".22224444.",
+      "..222444..",
+      "..222444..",
+      ".........."
+    ],
+    "paletteHex": [
+      "#FDF6E9",
+      "#FFD23F",
+      "#3FBF6B",
+      "#E84C3D"
+    ],
+    "pricing": {
+      "source": "bot",
+      "steps": 10,
+      "stepsLB": 6,
+      "baseCap": 24,
+      "stepsByCap": {
+        "12": 15,
+        "24": 10,
+        "48": 10
+      },
+      "taps": 30,
+      "actionsSplit": {
+        "moves": 15,
+        "places": 4,
+        "directFills": 9,
+        "retrieves": 2
+      },
+      "secPerStep": 3,
+      "tierK": 0.85,
+      "clamped": false,
+      "cleared": true
+    },
+    "skin": "warm-paper"
+  },
+  "pattern": [
+    "..........",
+    "..333111..",
+    "..333111..",
+    ".33331111.",
+    ".33331111.",
+    "3333311111",
+    "3333344444",
+    "2222244444",
+    ".22224444.",
+    ".22224444.",
+    "..222444..",
+    "..222444..",
+    ".........."
+  ],
+  "paletteHex": [
+    "#FDF6E9",
+    "#FFD23F",
+    "#3FBF6B",
+    "#E84C3D"
+  ],
+  "misplaced": [
+    "..........",
+    "..444222..",
+    "..444222..",
+    ".44442222.",
+    ".44442222.",
+    "4444433333",
+    "4444411111",
+    "3333311111",
+    ".33331111.",
+    ".33331111.",
+    "..333122..",
+    "..333222..",
+    ".........."
+  ],
+  "report": {
+    "fillable": 86,
+    "voidCells": 0,
+    "colorsUsed": 4,
+    "cap": 43,
+    "maxFreqBefore": 24,
+    "maxFreqAfter": 24,
+    "balancedChanged": 0,
+    "balanceNote": "mis=max 最大化错位：跳过配色平衡（保形优先；错位取守恒极值 M_max 而非强制 0 固定点）",
+    "derangement": "MAXIMAL（M=86/86 错位，固定点 = 理论下限 F=0）",
+    "mis": {
+      "mode": "max",
+      "N": 86,
+      "m": 24,
+      "M": 86,
+      "F": 0,
+      "M_max": 86
+    },
+    "clusteringParams": {
+      "sample": 8,
+      "smooth": 0,
+      "minblock": 1,
+      "colors": 0
+    },
+    "colorLimit": {
+      "requested": 0,
+      "palette": 10,
+      "mode": "error",
+      "used": 4,
+      "changed": 0,
+      "kept": []
+    },
+    "colorError": {
+      "beforeColorLimit": 0,
+      "final": 0
+    },
+    "clusteringBefore": {
+      "blocks": 4,
+      "largest": 24,
+      "avg": 21.5,
+      "tinyCells": 0,
+      "adjRate": 0.861
+    },
+    "clusteringAfter": {
+      "blocks": 4,
+      "largest": 24,
+      "avg": 21.5,
+      "tinyCells": 0,
+      "adjRate": 0.861
+    },
+    "smoothChanged": 0,
+    "mergedCells": 0,
+    "adjacency": {
+      "minDE": 20,
+      "maxDriftDE": 12,
+      "changed": 0,
+      "conflicts": 0
+    },
+    "clusteringMisplaced": {
+      "blocks": 6,
+      "largest": 24,
+      "avg": 14.3,
+      "tinyCells": 0,
+      "adjRate": 0.808
+    },
+    "difficulty": {
+      "score": 2,
+      "timeEst": 53,
+      "misplaced": 0,
+      "taps": 30,
+      "bMed": 0,
+      "split": {
+        "moves": 15,
+        "places": 4,
+        "directFills": 9,
+        "retrieves": 2
+      },
+      "steps": 15,
+      "cleared": true,
+      "secPerStep": 3,
+      "blockers": [],
+      "formula": "v0.4（真引擎实测 BAC 批量动作数 × SEC_PER_STEP）"
+    }
+  },
+  "blockers": [],
+  "importable": true,
+  "legibilitySizingHint": "sizing 类：生成参数修不动，须放大盘/减色/换图",
+  "draft": true
+}

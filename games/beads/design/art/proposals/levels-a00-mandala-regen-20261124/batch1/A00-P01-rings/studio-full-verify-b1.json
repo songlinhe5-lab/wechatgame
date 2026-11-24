@@ -1,0 +1,59 @@
+{
+  "importable": false,
+  "blockers": [
+    "用色 3 < 4（BOOT 下限，本批 3→4；现池 3 色关不在 Studio 导入通道）"
+  ],
+  "colorsUsed": null,
+  "pattern_identical_to_local": false,
+  "voidCells_report": 0,
+  "void_pattern": 56,
+  "per_color_cells": {
+    "#FFD23F": 34,
+    "#F59B23": 34,
+    "#3D7BF5": 32
+  },
+  "derangement": "MAXIMAL（M=100/100 错位，固定点 = 理论下限 F=0）",
+  "engine": {
+    "steps": null,
+    "taps": null,
+    "timeEst": null,
+    "cleared": null,
+    "pricing": {
+      "source": "bot",
+      "steps": 23,
+      "stepsLB": 6,
+      "baseCap": 24,
+      "stepsByCap": {
+        "12": 30,
+        "24": 23,
+        "48": 16
+      },
+      "taps": 60,
+      "actionsSplit": {
+        "moves": 30,
+        "places": 10,
+        "directFills": 17,
+        "retrieves": 3
+      },
+      "secPerStep": 3,
+      "tierK": 0.85,
+      "clamped": false,
+      "cleared": true
+    }
+  },
+  "balance": {
+    "cap": 50,
+    "maxFreqBefore": 34,
+    "maxFreqAfter": 34,
+    "balancedChanged": 0,
+    "balanceNote": "mis=max 最大化错位：跳过配色平衡（保形优先；错位取守恒极值 M_max 而非强制 0 固定点）"
+  },
+  "mis_report": {
+    "mode": "max",
+    "N": 100,
+    "m": 34,
+    "M": 100,
+    "F": 0,
+    "M_max": 100
+  }
+}

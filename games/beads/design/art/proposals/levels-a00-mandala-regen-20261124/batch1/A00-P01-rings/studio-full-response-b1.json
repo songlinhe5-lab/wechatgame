@@ -1,0 +1,200 @@
+{
+  "id": "a00p01b1-1795524376273-7a07",
+  "board": "a00p01b1",
+  "cols": 13,
+  "rows": 12,
+  "shape": "square",
+  "palette": "10",
+  "colors": 3,
+  "swaps": 0,
+  "misMode": "max",
+  "createdAt": "2026-11-24T12:46:17.747Z",
+  "thumb": null,
+  "levelDraft": {
+    "cols": 13,
+    "rows": 12,
+    "time": 106,
+    "cycleProfile": "long",
+    "decoys": [],
+    "swaps": [],
+    "misplaced": [
+      "......1......",
+      "...1111111...",
+      "...3333333...",
+      ".13322222331.",
+      ".13322222331.",
+      "1132222222311",
+      "1132222222311",
+      ".13322222331.",
+      ".13322222331.",
+      "...3333311...",
+      "...1111111...",
+      "......1......"
+    ],
+    "pattern": [
+      "......3......",
+      "...3333333...",
+      "...2222222...",
+      ".32211111223.",
+      ".32211111223.",
+      "3321111111233",
+      "3321111111233",
+      ".32211111223.",
+      ".32211111223.",
+      "...2222222...",
+      "...3333333...",
+      "......3......"
+    ],
+    "paletteHex": [
+      "#FFD23F",
+      "#F59B23",
+      "#3D7BF5"
+    ],
+    "pricing": {
+      "source": "bot",
+      "steps": 23,
+      "stepsLB": 6,
+      "baseCap": 24,
+      "stepsByCap": {
+        "12": 30,
+        "24": 23,
+        "48": 16
+      },
+      "taps": 60,
+      "actionsSplit": {
+        "moves": 30,
+        "places": 10,
+        "directFills": 17,
+        "retrieves": 3
+      },
+      "secPerStep": 3,
+      "tierK": 0.85,
+      "clamped": false,
+      "cleared": true
+    },
+    "skin": "warm-paper"
+  },
+  "pattern": [
+    "......3......",
+    "...3333333...",
+    "...2222222...",
+    ".32211111223.",
+    ".32211111223.",
+    "3321111111233",
+    "3321111111233",
+    ".32211111223.",
+    ".32211111223.",
+    "...2222222...",
+    "...3333333...",
+    "......3......"
+  ],
+  "paletteHex": [
+    "#FFD23F",
+    "#F59B23",
+    "#3D7BF5"
+  ],
+  "misplaced": [
+    "......1......",
+    "...1111111...",
+    "...3333333...",
+    ".13322222331.",
+    ".13322222331.",
+    "1132222222311",
+    "1132222222311",
+    ".13322222331.",
+    ".13322222331.",
+    "...3333311...",
+    "...1111111...",
+    "......1......"
+  ],
+  "report": {
+    "fillable": 100,
+    "voidCells": 0,
+    "colorsUsed": 3,
+    "cap": 50,
+    "maxFreqBefore": 34,
+    "maxFreqAfter": 34,
+    "balancedChanged": 0,
+    "balanceNote": "mis=max 最大化错位：跳过配色平衡（保形优先；错位取守恒极值 M_max 而非强制 0 固定点）",
+    "derangement": "MAXIMAL（M=100/100 错位，固定点 = 理论下限 F=0）",
+    "mis": {
+      "mode": "max",
+      "N": 100,
+      "m": 34,
+      "M": 100,
+      "F": 0,
+      "M_max": 100
+    },
+    "clusteringParams": {
+      "sample": 8,
+      "smooth": 0,
+      "minblock": 1,
+      "colors": 0
+    },
+    "colorLimit": {
+      "requested": 0,
+      "palette": 10,
+      "mode": "error",
+      "used": 3,
+      "changed": 0,
+      "kept": []
+    },
+    "colorError": {
+      "beforeColorLimit": 0,
+      "final": 0
+    },
+    "clusteringBefore": {
+      "blocks": 6,
+      "largest": 34,
+      "avg": 16.7,
+      "tinyCells": 0,
+      "adjRate": 0.703
+    },
+    "clusteringAfter": {
+      "blocks": 6,
+      "largest": 34,
+      "avg": 16.7,
+      "tinyCells": 0,
+      "adjRate": 0.703
+    },
+    "smoothChanged": 0,
+    "mergedCells": 0,
+    "adjacency": {
+      "minDE": 20,
+      "maxDriftDE": 12,
+      "changed": 0,
+      "conflicts": 0
+    },
+    "clusteringMisplaced": {
+      "blocks": 6,
+      "largest": 34,
+      "avg": 16.7,
+      "tinyCells": 0,
+      "adjRate": 0.703
+    },
+    "difficulty": {
+      "score": 4,
+      "timeEst": 106,
+      "misplaced": 0,
+      "taps": 60,
+      "bMed": 0,
+      "split": {
+        "moves": 30,
+        "places": 10,
+        "directFills": 17,
+        "retrieves": 3
+      },
+      "steps": 30,
+      "cleared": true,
+      "secPerStep": 3,
+      "blockers": [],
+      "formula": "v0.4（真引擎实测 BAC 批量动作数 × SEC_PER_STEP）"
+    }
+  },
+  "blockers": [
+    "用色 3 < 4（BOOT 下限，本批 3→4；现池 3 色关不在 Studio 导入通道）"
+  ],
+  "importable": false,
+  "legibilitySizingHint": null,
+  "draft": true
+}
