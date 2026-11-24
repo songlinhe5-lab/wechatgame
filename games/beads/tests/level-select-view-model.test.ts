@@ -180,7 +180,9 @@ describe('WXG-T-915 选关页编号牌 = 全局关号', () => {
 
 describe('选关页大背景位图层序', () => {
     it('木牌压在 Graphics 之下；九宫格背板改走容器 UI 层 [2026-11-21 方向翻转，断言数不变 · K-115]', () => {
-        expect(BELOW_GRAPHICS_TEXTURE_IDS.has(LEVEL_DETAIL_TEXTURES.plaque), '木牌不得压住九格底图/缩略').toBe(true);
+        // `[WXG-T-1046]` 详情 / 设置页容器木牌同样须走容器 UI 层：压到全局 below 会被底页
+        // 不透明 `backdropFull` 盖住（真机「关卡详情页缺背景板」根因，T-1025 同款）。
+        expect(BELOW_GRAPHICS_TEXTURE_IDS.has(LEVEL_DETAIL_TEXTURES.plaque), '木牌不得入 below 白名单').toBe(false);
         // `[2026-11-21]` 实帧证据：tray 压到**全局** `BlitAtlas` 时，被底页整屏不透明
         // `backdropFull`（`BlitLayerUI`）整片盖住 ⇒ 深棕背板完全不上屏。提到容器 UI 层才可见。
         expect(BELOW_GRAPHICS_TEXTURE_IDS.has(LEVEL_SELECT_TEXTURES.tray), '九宫格背板不得再压到全局 BlitAtlas').toBe(false);

@@ -72,8 +72,9 @@ export const LEVEL_DETAIL_TITLE_SHADOW = { dx: 9, dyDown: 7, blur: 3, alpha: 0.8
  * 任一枚未注册 ⇒ 该元素走**同几何**的程序化回退（木牌 → 纸面板、开始 → 通用钮、星 → 文字档）。
  */
 export const LEVEL_DETAIL_TEXTURES = {
-  /** 木牌长背景（@2x 1162×2088）→ `ui_dialog_bg_tall`。在 `BELOW_GRAPHICS` 白名单：详情页
-   *  木牌须压在 Graphics 下（缩略 / 星级画其之上）；⛔ 选关容器不要复用此键，见 `dialogBg`。 */
+  /** 木牌长背景（@2x 1162×2088）→ `ui_dialog_bg_tall`。`[WXG-T-1046]` **已移出**
+   *  `BELOW_GRAPHICS` 白名单：详情 / 设置页容器木牌走容器 `BlitLayerUI`（Graphics 之下、
+   *  `backdropFull` 之上），真机可见；层序通道序仍保缩略 / 星级压其上。 */
   plaque: 'bitmap__detail_plaque',
   /** `[WXG-T-1027]` 通用对话框长背景 = 木牌图（与 `plaque` 同一件），专供选关容器。
    *  ⛔ 不在 `BELOW_GRAPHICS` 白名单 ⇒ 走容器 `BlitLayerUI`，真机可见（白名单那层会被

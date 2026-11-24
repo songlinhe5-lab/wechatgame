@@ -12071,3 +12071,15 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 - 新坑与新解（重要）：① studio k-means 对 d150 点睛小簇会吸并（P1 v6/P2 v5fixb/P3 v6fix 均「用色 3<4」）⇒ **母版 snap 到色板精确四色 + colors=0 全色板投票**（pattern 字符即 demo 色号，build 需按 kept=[] 恒等映射）确定绕开；② `quantizer=median-hue` 会把炭黑并进深棕（P9 橙鞍毯场景专用，勿全局带）；③ /api/generate 同名 board 复现疑缓存，迭代须换名；④ qwen 对「胸口杂斑/耳内羽纹」偶发（P1 v5/v6 两连）⇒ 外科修复（抹斑重画 + 鼻重定位 (352,816) d128 + 眼缩 d128 保黑 ≥2%）。
 - 批1 实测：P1 30.6/34.8/31.9/黑2.6（v6fixf，steps 50）；P2 34.9/33.6/28.8/黑2.7（v5fixd，steps 69）；P3 34.8/32.2/28.8/黑4.3（v6fixd，steps 57）；均 importable、无 blockers。
 - 批1 产物已入库（本单首个提交）；批2（P4兔/P5松鼠/P6刺猬）/批3（P7浣熊/P8狼/P9鹿王BOSS）提示词重生与验收待续，随后 build-a02-chapter.py 换锁定 response 重建（contentVersion 43→44）→ levels:sync → framework:sync → verify → series-spec/catalog 登记。
+
+## WXG-T-1046
+
+**关卡详情背景板真机缺失修复** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ 完成（2026-11-24，待用户真机回执）
+
+用户令：「关卡详情页缺背景板」。取证：详情木牌 `LEVEL_DETAIL_TEXTURES.plaque` 仍在 `BELOW_GRAPHICS_TEXTURE_IDS` 白名单，Cocos 真机挂全局 `BlitAtlas`，被底页不透明 `backdropFull` 盖住（T-1025/T-1027 已为选关页另开 `dialogBg` 容器键绕开，详情页未迁移）；harness canvas2d 不模拟白名单分层，故既有 CDP 实帧「背景在」不能证真机。资产本身未变（`ui_dialog_bg_tall.png` 自 T-1027 后零改）。
+
+### 落码与验证
+
+- **根因（Phase 1 证据链）**：`BELOW_GRAPHICS_TEXTURE_IDS` 含 `LEVEL_DETAIL_TEXTURES.plaque`，Cocos 宿主据此把详情木牌 blit 挂到全局 `BlitAtlas`；底页菜单 `backdropFull` 为不透明全屏位图且在容器外 ⇒ 真机盖住木牌（T-1025 同款）；harness canvas2d 不模拟白名单分层，故既有 CDP 实帧「背景在」不构成真机证据。`ui_dialog_bg_tall.png` 自 T-1027 零改、构建产物在位 ⇒ 排除资产缺失。
+- **修法（最小根因）**：`config/tuning/level-select.ts::BELOW_GRAPHICS_TEXTURE_IDS` 移除 `plaque`；两键（`plaque` / `dialogBg`）指向同一张图，详情/设置页默认键与选关页显式键现在同走容器 `BlitLayerUI`（通道序 blit < graphics < labels < segments ⇒ 缩略 / 星级仍压其上）。`drawModalPlate` 默认值未改，调用方零改动。同步 3 处旧注释口径。
+- **TDD**：`level-select-view-model.test.ts` 把「`plaque` 在 below 白名单」断言反转为 `false`，先红后绿；定向 35/35（详情 / 设置 / 选关 VM）。中途 `typecheck` / `harness:build` 因移除引用后 `LEVEL_DETAIL_TEXTURES` 导入未使用而红（exit 2），删导入后复绿；`pnpm run verify` **24/24 全绿**；UI 架构 §12 已登记。真机码重建并给出后待用户扫码回执（⛔ 未真机确认前不宣称真机已修好）。

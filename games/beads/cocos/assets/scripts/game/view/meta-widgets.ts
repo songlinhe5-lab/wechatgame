@@ -289,9 +289,9 @@ export function drawModalPlate(
     builder: RenderModelBuilder,
     palette: BeadsPalette,
     plate: Box,
-    // `[WXG-T-1026/1027]` 容器位图键参数化：详情/设置页走默认木牌（`plaque`）；选关页换通用
-    // 对话框长背景（`dialogBg` 键 = `ui_dialog_bg_tall` 木牌图，与 `plaque` 同一件、不同层序）。
-    // 几何/版式零改动；缺图腿同构。橱窗图已还原为 `ui_detail_showcase`，不再充当容器。
+    // `[WXG-T-1026/1027 → T-1046]` 容器位图键参数化：详情/设置页走默认木牌（`plaque`）；
+    // 选关页显式传 `dialogBg`（同一件 `ui_dialog_bg_tall`）。`plaque` 已移出 below 白名单 ⇒
+    // 两键同走容器 `BlitLayerUI`，真机不再被底页不透明 `backdropFull` 盖住。几何/版式零改动。
     textureId: string = LEVEL_DETAIL_TEXTURES.plaque,
 ): void {
     if (menuBitmapReady(textureId)) {

@@ -38,8 +38,7 @@
  * 横向左右各留 16 贴三态格底圆角边）；锁定图（原生 69×76）按高**等比**居中，⛔ 不横向拉伸。
  * 稿面 69×76 退为历史值（K-053 留档）。
  */
-import { LEVEL_DETAIL_TEXTURES } from './level-detail';
-
+// `[WXG-T-1046]` `LEVEL_DETAIL_TEXTURES` 导入已退役：容器木牌不再借 below 白名单分流。
 export const LEVEL_SELECT_GEO = {
     /** 板标题「选关」：与详情标题同槽（中心 380,278）。 */
     title: { cx: 380, cyDown: 278 },
@@ -166,7 +165,10 @@ export const LEVEL_SELECT_TEXTURES = {
  * `BlitLayerUI` 之上）。⛔ 不要靠给命令加层标记解决（K-109：删冲突对象，不扩协议）。
  */
 export const BELOW_GRAPHICS_TEXTURE_IDS: ReadonlySet<string> = new Set<string>([
-    LEVEL_DETAIL_TEXTURES.plaque,
+    // `[WXG-T-1046]` `plaque` **不入**本名单：详情 / 设置容器木牌压到全局 `BlitAtlas` 时被
+    // 底页不透明 `backdropFull` 盖住（真机「关卡详情页缺背景板」根因，T-1025 同款）；
+    // 与选关页 `dialogBg` 同走容器 `BlitLayerUI`（容器通道序 blit < graphics < labels < segments，
+    // 缩略 / 星级仍压其上）。⛔ 两键指向同一张 `ui_dialog_bg_tall.png`，零新增资产。
     LEVEL_SELECT_TEXTURES.cell,
     // `[2026-11-21]` normal 格底**不入**本名单（K-115 方向翻转）：实帧证明压到 `BlitAtlas` 后会被
     // 整片不透明 tray 盖住，浅木格底完全不上屏。它是「格内容底」，须与锁纹理同挂 `BlitLayerUI`，
