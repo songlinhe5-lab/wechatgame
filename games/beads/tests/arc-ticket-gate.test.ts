@@ -196,19 +196,37 @@ describe('S-4 闸门：门票未达', () => {
         expect(viewData(r.shell).arcStarNeed, '首章无阻断 ⇒ 不创建（⛔ 残留上一页数字）').toBeUndefined();
     });
 
-    it('`[WXG-T-1039]` 章末关续玩位 ⇒ 走马灯起点 = 下一章页，木牌 ★n/N 首屏可见（2026-11-24 用户裁「保门槛 + 加引导」）', () => {
+    it('`[WXG-T-1039 → T-1043 甲]` 章末关续玩位：门票未达 ⇒ 起点停上一章 T 页且预告知首屏可见；门票已达 ⇒ 仍落下一章页', () => {
         const offsetOf = (shell: BeadsShell) => (shell as unknown as { _menu: { offset: number } })._menu.offset;
+        // 未达（20/24）：主告知落在推关页 —— 用户「疑问发生时第一时间看到」。
         const r = rig({ pointer: 9, stars: [3, 3, 2, 2, 2, 2, 2, 2, 2, 0] });
-        // 启动定位腿：L9 = 章末 ⇒ 落位章 2 页（此前恒停上一章页 ⇒ 告知件不可见 = 报障根因）。
-        expect(offsetOf(r.shell), '启动落位下一章页').toBe(1);
+        expect(offsetOf(r.shell), '门票未达 ⇒ 启动落位上一章 T 页').toBe(0);
         r.now.t += 500;
         r.shell.update(0.016);
         draw(r.shell);
-        expect([viewData(r.shell).arcStarGot, viewData(r.shell).arcStarNeed], '木牌进度件首屏就位').toEqual([20, 24]);
+        expect(viewData(r.shell).gateHint, '首屏预告知 = 下一章差 4★').toBe('下一章差 4★');
         // 回主菜单腿（FINISH → 回主菜单）同源落位。
-        goPage(r, 0);
+        goPage(r, 1);
         r.shell.showMenu();
-        expect(offsetOf(r.shell), '回主菜单重走起点腿').toBe(1);
+        expect(offsetOf(r.shell), '回主菜单重走起点腿仍落 T 页').toBe(0);
+        // 门票已达成（27/24）：按 T-1039 指针推进到下一章，本告知不创建。
+        const r2 = rig({ pointer: 9, stars: [3, 3, 3, 3, 3, 3, 3, 3, 3, 0] });
+        expect(offsetOf(r2.shell), '门票已达 ⇒ 仍落下一章页').toBe(1);
+        r2.now.t += 500;
+        r2.shell.update(0.016);
+        draw(r2.shell);
+        expect(viewData(r2.shell).gateHint, '门票已达成 ⇒ 主告知不创建').toBeUndefined();
+    });
+
+    it('`[WXG-T-1043]` 主告知 P1–P4：同章有关 0★ ⇒ 不创建；翻到 T+1 ⇒ 退出', () => {
+        const incomplete = rig({ pointer: 9, stars: [3, 3, 2, 2, 2, 2, 2, 2, 0, 0] });
+        draw(incomplete.shell);
+        expect(viewData(incomplete.shell).gateHint, 'P4 全通关不成立 ⇒ 不创建（⛔ 假承诺）').toBeUndefined();
+        const r = rig({ pointer: 9, stars: [3, 3, 2, 2, 2, 2, 2, 2, 2, 0] });
+        draw(r.shell);
+        expect(viewData(r.shell).gateHint).toBe('下一章差 4★');
+        goPage(r, 1);
+        expect(viewData(r.shell).gateHint, '落位非 pushing 页 ⇒ 主告知退出').toBeUndefined();
     });
 
     it('首章无阻断：arcTicketOpen=true 且进度件不创建（⛔ 0/0），章内格照旧线性', () => {

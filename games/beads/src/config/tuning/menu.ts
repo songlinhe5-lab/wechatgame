@@ -453,6 +453,12 @@ export const MENU_MOUNT = {
  */
 export const MENU_PLATE_PILL = { w: 130, h: 27 } as const;
 /**
+ * `[WXG-T-1043]` 上一章推关页「下一章门槛预告知条」几何（呈现层，⛔ 不进 `systems-index §3`）。
+ * y 由 `MENU_V2.plateSub.y + h + belowSubGap` 经同一 `up()` 派生（随背板走，⛔ 不独立贴屏顶）；
+ * 条顶 y-down 984 > 玻璃裁切底 904 ⇒ 不进滑动层、不随走马灯平移。
+ */
+export const MENU_GATE_HINT = { w: 320, h: 46, belowSubGap: 17, padX: 16, lockW: 22, dotD: 8 } as const;
+/**
  * `[WXG-T-585]` 高屏档（H > 1334）屏底补带色 = 背板**最底 40 行桌面实测均值** `(194,128,66)`。
  * ⛔ 不进 palette（那是 UI token 表，`ui-warm-paper-tokens` 守「零新 hex」）；本值是背板取色，
  * 与图同源，换背板必须同批重取。

@@ -122,6 +122,12 @@ export interface MetaViewData {
     readonly arcStarGot?: number;
     readonly arcStarNeed?: number;
     /**
+     * `[WXG-T-1043]` 上一章推关页「下一章门槛预告知条」的**成文文案**（含派生缺口 X，
+     * 如 `下一章差 4★`）。shell 归约后塞入（L5：视图只读，⛔ 自读存档/关表算 X）。
+     * 触发 = 当前页 T 全通关 ∧ 下一章门票未达；翻页落定 / 门票达成后 ⇒ `undefined`（零图元）。
+     */
+    readonly gateHint?: string;
+    /**
      * **走马灯作品图位**（`[WXG-T-281]` 用户裁定：走马灯中间只展示作品图、未通关置灰、点图进选关）：
      * `carouselLevel` = 当前陈列关 —— `[WXG-T-913]` 起 = **本大关解锁范围内第一个 0 星关**（与
      * `currentLevelIndex` 同口径；全通 / 未解锁 ⇒ 回落大关收尾关 boss），用户 2026-11-12 令

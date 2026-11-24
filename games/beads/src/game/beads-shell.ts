@@ -280,6 +280,8 @@ export class BeadsShell implements Game {
         // C 拍定「不创建」= `undefined`（⛔ 存 0/0）：门槛有值才表示该页有进度件。
         arcStarGot: undefined as number | undefined,
         arcStarNeed: undefined as number | undefined,
+        // `[WXG-T-1043]` 上一章推关页预告知（由 `_refreshArcGate` 与进度件同源写；缺省 ⇒ 零图元）。
+        gateHint: undefined as string | undefined,
         // 走马灯 = 大关页（EP13-S4）：代表关 = 该大关解锁内第一个 0 星关（`[WXG-T-913]`，全通回落 boss），
         // 图 = `ARCS[页].textureId`；木牌关名 = 大关名（`carouselTitle`）。
         carouselLevel: undefined as BeadsLevelRaw | undefined,
@@ -834,8 +836,8 @@ export class BeadsShell implements Game {
         this._replay.discard(); // EP15-S3：弃局 ⇒ 在录录像作废（已完成的「上一局」保留）
         this._phase.resetTo('menu');
         this._cancelPageFx();
-        // `[WXG-T-1039]` 回主菜单重走起点定位腿（与 init 同源）：FINISH → 回主菜单后
-        // 章末续玩位落位下一章页，木牌告知件可见；页内无位移时 seek 同页 = 无感。
+        // `[WXG-T-1039 → T-1043 甲]` 回主菜单重走起点定位腿（与 init 同源）：
+        // 门票未达 ⇒ 停上一章推关页看预告知；门票已达成 ⇒ 落下一章页；同页 seek = 无感。
         this._menu.seek(this._startArcPage());
         this._emitOverlay(true);
     }
@@ -1494,13 +1496,35 @@ export class BeadsShell implements Game {
         // 入口开 = **章首关已解锁**（`_unlockedFrontier` 同一判据的展开式：门票成立 ⇒ 章首必已解锁；
         // 棘轮：推进位已越过章首 ⇒ 入口已得、内容再变也不回收，I7 / §8-20）。
         // 空橱窗页（无 ARCS 行）⇒ `?? 1` ⇒ 不锁（该页无实体，R13 零事件）。
-        const firstLevel = ARCS[arc]?.levelRefs[0]?.[0] ?? 1;
-        const open = ticket.satisfied || this.play.maxUnlockedLevel >= firstLevel;
+        const open = this._arcGateOpen(arc, ticket);
         const show = !open && ticket.total > 0;
         this._viewData.arcTicketOpen = open;
         this._viewData.arcStarGot = show ? ticket.starSum : undefined;
         this._viewData.arcStarNeed = show ? ticket.gate : undefined;
+        // `[WXG-T-1043]` 主告知 = 本页 T 全通关 ∧ 下一章门票未达（X = 门槛 − n，与 T+1 副读数同源）。
+        // T+1 门票的归约输入**恰是 T 的星账** ⇒ 一份 ticket 同给 P2/P3/P4，⛔ 第二份实现。
+        const next = arc + 1;
+        if (next < ARC_OPEN_MAX && ARCS[next] !== undefined) {
+            const gate = this._arcTicketSatisfied(next);
+            const x = gate.gate - gate.starSum;
+            this._viewData.gateHint = !this._arcGateOpen(next, gate) && x > 0
+                && gate.total > 0 && gate.clearedCount === gate.total
+                ? `下一章差 ${x}★` : undefined;
+        } else {
+            this._viewData.gateHint = undefined;
+        }
         this._gateArc = arc;
+    }
+
+    /**
+     * `[WXG-T-1043]` 章入口是否开 = 门票成立 ∨ 棘轮已越过章首。
+     * 与 `_refreshArcGate` / `_startArcPage` **同一判据**（落点甲靠它判「门票未达」），
+     * ⛔ 两处各写一份 —— 那份漂移会让「落在 T 页却显示已开」或反之。
+     */
+    private _arcGateOpen(arc: number, ticket?: ArcTicketResult): boolean {
+        const t = ticket ?? this._arcTicketSatisfied(arc);
+        const firstLevel = ARCS[arc]?.levelRefs[0]?.[0] ?? 1;
+        return t.satisfied || this.play.maxUnlockedLevel >= firstLevel;
     }
 
     /**
@@ -1563,16 +1587,17 @@ export class BeadsShell implements Game {
      * `[WXG-T-490]` 起点页 = 续玩关（`play.levelIndex`，即主钮真实目标）所属大关页；
      * 无归属（dev 导入关 = `-1`）⇒ 首页兜底（⛔ 猜页）。与 `_arcIndexOfLevel` 同一条腿 ⇒
      * 启动定位与每帧「在不在起点页」比较恒同源。
-     * `[WXG-T-1039]` 追加（用户 2026-11-24 裁「保门槛 + 加引导」）：续玩位 = **章末关**且有下一章
-     * ⇒ 起点落**下一章页** —— 门票未达时木牌「★n/N」告知件首屏可见（此前停上一章页 ⇒ 玩家
-     * 「通关了却看不到第二关为什么没开」报障）；门票已达成时指针已在下一章，本规则不触发。
+     * `[WXG-T-1039 → T-1043 甲]` 续玩位 = **章末关**且有下一章：
+     * 门票**已达成** ⇒ 仍落下一章页（T-1039 原动机不变）；门票**未达** ⇒ **停在上一章 T 页**，
+     * 使门槛预告知条首屏可见（用户 2026-11-24 裁「提示放在上一章正在推关、第一时间看到」）。
      */
     private _startArcPage(): number {
         const arc = this._arcIndexOfLevel(this.play.levelIndex);
         if (arc < 0) return 0;
         const refs = ARCS[arc]?.levelRefs;
-        if (arc + 1 < ARCS.length && refs !== undefined && refs[refs.length - 1]![1] === this.play.levelIndex + 1) {
-            return arc + 1;
+        const next = arc + 1;
+        if (next < ARCS.length && refs !== undefined && refs[refs.length - 1]![1] === this.play.levelIndex + 1) {
+            return this._arcGateOpen(next) ? next : arc;
         }
         return arc;
     }

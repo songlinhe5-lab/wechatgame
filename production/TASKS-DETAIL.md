@@ -15,6 +15,28 @@
 
 ---
 
+## WXG-T-1043
+
+**下一章未开启提示挪到上一章推关页 + 美术化** · 负责：主理人(CodeBuddy) 编排 · 文策渊（UX）/ 林绘澄（美术规格）分域交付 · 状态：✅ **完成（2026-11-24）**
+
+用户令：「提示放在上一关而不是当前锁关，提示效果不强；放在上一关正在推关、当前关还未开启的时候，保证用户有疑问为什么没开启时第一时间能看到；提示效果请美术设计一下」。现况：`arcStarGot/Need` 只在被锁的下一章页创建，选关页显示 `★ n/N 差X`；走马灯 pushing 页无任何告知件（木牌两行 = 章名 + 关序）。规格批已出，落点甲拍板后同会话完成落码。
+
+### 成员回传（2026-11-24）
+
+- **文策渊（UX）**：`design/ux/arc-level-select-spec.md` v1.16 新增 §4.1-（5）推关页预告知（触发 P1–P4、文案「再拿 X 颗星，就能开启下一个大关」仅在全通关时成立、主/副读数同源、状态矩阵 M1–M6、验收 8 条），§8.1 D17 / §8.2 TODO-12；`ux-spec.md` §6.3 加交叉引用。术语裁定：「推关页」= 走马灯落位 T 的实体章页，非 `pushing` 三态枚举（章末全通时三态为 `cleared`），避免触发窗口被误读。
+- **林绘澄（美术）**：`design/art/specs/menu-layout-implementation-spec.md` §13 + `menu-plate-text-control-spec.md` §11：木台深棕胶囊 320×46 @中心 x375 / y-down 984–1030，随背板平移、不进玻璃滑动区；底 `platePill #795127` + 字 `plateSubInk #E8D098`（4.61:1）+ 锁形通道；正文 bold 28（`ui-theme.gateHint` 新语义键）、≤8 全角字单行、不随 E2；alpha 复用 `plateFade`，条件消失零图元。零新增资产、零新 hex、零 §3 冻结常量。
+- **TODO-12 已拍板甲**：门票未达时回菜单落上一章 T 页，主告知首屏可见，推翻 T-1039 的「落下一章页」；门票达成仍按 T-1039 推进 T+1。乙（退案）未采纳。
+
+### 落码与验证（2026-11-24）
+
+- **落点**：`beads-shell.ts::_startArcPage` 章末关 + 门票未达 ⇒ 落 T 页；`showMenu` 同源腿自动覆盖。新抽 `_arcGateOpen(arc, ticket?)` = 门票 ∨ 棘轮，被 `_refreshArcGate` 与 `_startArcPage` 共用（⛔ 两处各写一份判据）。
+- **VM / 呈现**：`MetaViewData.gateHint?: string`（成文文案含派生 X，L5 只读）；`_refreshArcGate` 用下一章那一份 ticket 同给 P2/P3/P4（X = gate − starSum；`clearedCount === total` 即全通关）⇒ 文案「下一章差 X★」，翻页落定 / 达成后 `undefined`。`MENU_GATE_HINT`（320×46 等，呈现层非冻结）+ `UI_FONT.gateHint`（bold 28，E2 不随）；`meta-menu.ts::drawGateHint` 画 rect → 锁形（circle 描边锁梁 + rect 实填锁体）→ text，`plateFade` 提到木牌块外共用（少一次每帧数组分配）；蓝点按 §13.9 收口省略。
+- **文案冲突裁定**：UX v1.16 硬验收长句「再拿 X 颗星，就能开启下一个大关」≈14 全角字，与美术 §11.3「320×46 胶囊单行 ≤8 字」不可同时满足；用户令「提示效果请美术设计」授权美术排版 ⇒ 收短串「下一章差 X★」，UX v1.17 头注 / §4.1-② / 验收 1 / D17 / TODO-12 与美术 §13.9 / §11.6 同步回写，零门槛 / 判据 / 存档变更。
+- **TDD**：先写 `arc-ticket-gate.test.ts` 两臂（落点 offset 1≠0 红、`gateHint` undefined 红）+ `menu-plate-title.test.ts` 渲染守卫红（`UI_FONT.gateHint` undefined 红），再写实现转绿；定向 19/19、typecheck 绿、`pnpm run verify` **24/24**（首跑 `framework:sync:check` 瞬时抖动，单跑即绿，重跑全绿）；金样 `main-menu` 档未命中该态 ⇒ 零重烤。
+- **架构登记**：`menu-architecture.md §5.4` 条 4 追加 T-1043 甲修正段（相对 T-1039）。文档改动后 `check:links` / `ctx:check`（pre-commit 自动重建 ctx 三产物）随提交门复验。
+
+---
+
 ## WXG-T-1042
 
 **选关页 star 提示补「差 N★」澄清门槛口径** · 负责：主理人(CodeBuddy) · 状态：✅ 完成（2026-11-24）
