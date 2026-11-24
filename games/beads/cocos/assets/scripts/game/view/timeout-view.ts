@@ -125,11 +125,70 @@ function drawTimeoutButton(
     }
 }
 
+/**
+ * `[WXG-T-1004 → T-1051]` 放弃确认对话框（独立成层：确认态**只画它 + 遮罩**）。
+ *
+ * ⛔ 不可再叠画「时间到」木牌与按钮：同一容器内通道序恒为 `blit < graphics < labels`
+ * （`UI_SCOPE_CHANNEL_ORDER`）⇒ 文字腿永远压在矩形腿之上，白纸面板（graphics）盖不住下层
+ * 按钮文字（labels），实帧表现为「继续本关 / 看广告能增加180秒时间 / 重试本关」穿透面板。
+ * 确认层本身是完整问答 ⇒ 底牌无需保留（也省掉一层视觉噪声）。
+ *
+ * 底色是暖纸白 `palette.panel` ⇒ 墨必须按底色选：标题 `plateTitleInk`（8:1+）、说明 `textDim`
+ * （4.74:1）；⛔ 不用木牌米白 `woodText`（#FFF6E8 对 #FFFCF6 ≈ 1.03:1，实帧几乎不可见）。
+ */
+function drawConfirmDialog(
+    builder: RenderModelBuilder,
+    vm: TimeoutViewModel,
+    palette: BeadsPalette,
+): void {
+    const cp = vm.confirmPlate;
+    const cw = cp.xMax - cp.xMin;
+    const ch = cp.yMax - cp.yMin;
+    const ccx = cp.xMin + cw / 2;
+    drawPaperPanel(builder, cp.xMin, cp.yMin, cw, ch, palette, GEO.radius.plate, UI_CONTAINER.shadowAlphaPanel);
+    builder.text(ccx, vm.confirmTitleY, vm.confirmTitle, {
+        fill: palette.plateTitleInk,
+        font: UI_FONT.detailTitle,
+        align: 'center', baseline: 'middle',
+    });
+    builder.text(ccx, vm.confirmMsgY, vm.confirmMsg, {
+        fill: palette.textDim,
+        font: bodyFont(vm.largeText, 'sub'),
+        align: 'center', baseline: 'middle',
+    });
+    for (let i = 0; i < vm.confirmButtons.length; i += 1) {
+        const cb = vm.confirmButtons[i]!;
+        const r = cb.rect;
+        const bx = r.xMin;
+        const by = r.yMin;
+        const bw = r.xMax - r.xMin;
+        const bh = r.yMax - r.yMin;
+        // 取消 = hintBlue（与 retry 同色系）；确定 = success（与 revive 同色系）。
+        const primary = cb.id === 'confirm-yes';
+        builder.rect(bx, by, bw, bh, {
+            fill: primary ? palette.success : palette.hintBlue,
+            radius: GEO.radius.button,
+        });
+        builder.text(bx + bw / 2, by + bh / 2, cb.label, {
+            fill: palette.woodText,
+            font: UI_FONT.timeoutAction,
+            align: 'center', baseline: 'middle',
+        });
+    }
+}
+
 export function drawTimeoutView(
     builder: RenderModelBuilder,
     vm: TimeoutViewModel,
     palette: BeadsPalette,
 ): void {
+    // `[WXG-T-1051]` 确认态只画遮罩 + 确认对话框（⛔ 不叠画底牌，理由见 `drawConfirmDialog`）。
+    if (vm.confirming) {
+        drawModalScrim(builder, UI_SCRIM.canvas, UI_SCRIM.alpha * 0.7);
+        drawConfirmDialog(builder, vm, palette);
+        return;
+    }
+
     const p = vm.plate;
     const x = p.xMin;
     const y = p.yMin;
@@ -196,47 +255,4 @@ export function drawTimeoutView(
         });
     }
 
-    // 放弃确认对话框（叠在 Fail 弹窗之上）。
-    if (vm.confirming) {
-        drawModalScrim(builder, UI_SCRIM.canvas, UI_SCRIM.alpha * 0.7); // 更浓的遮罩
-        const cp = vm.confirmPlate;
-        const cw = cp.xMax - cp.xMin;
-        const ch = cp.yMax - cp.yMin;
-        const ccx = cp.xMin + cw / 2;
-        // 纸面板（与弹窗同口径）
-        drawPaperPanel(builder, cp.xMin, cp.yMin, cw, ch, palette, GEO.radius.plate, UI_CONTAINER.shadowAlphaPanel);
-        // 标题「确定放弃本关？」
-        builder.text(ccx, vm.confirmTitleY, vm.confirmTitle, {
-            fill: palette.woodText,
-            font: UI_FONT.detailTitle,
-            align: 'center', baseline: 'middle',
-        });
-        // 说明「本局进度将丢失」
-        builder.text(ccx, vm.confirmMsgY, vm.confirmMsg, {
-            fill: palette.woodText,
-            font: bodyFont(vm.largeText, 'sub'),
-            align: 'center', baseline: 'middle',
-        });
-        // 两按钮：左取消 / 右确定（用 drawTimeoutButton 复用画法，但按钮类型用 revive/retry 不太合适…
-        // 简化：直接画圆角矩形 + 文字）
-        for (let i = 0; i < vm.confirmButtons.length; i += 1) {
-            const cb = vm.confirmButtons[i]!;
-            const r = cb.rect;
-            const bx = r.xMin;
-            const by = r.yMin;
-            const bw = r.xMax - r.xMin;
-            const bh = r.yMax - r.yMin;
-            // 取消 = hintBlue（与 retry 同色系）；确定 = success（与 revive 同色系）
-            const primary = cb.id === 'confirm-yes';
-            builder.rect(bx, by, bw, bh, {
-                fill: primary ? palette.success : palette.hintBlue,
-                radius: GEO.radius.button,
-            });
-            builder.text(bx + bw / 2, by + bh / 2, cb.label, {
-                fill: palette.woodText,
-                font: UI_FONT.timeoutAction,
-                align: 'center', baseline: 'middle',
-            });
-        }
-    }
 }

@@ -14,7 +14,9 @@ import {
     FAIL_CONFIRM_NO,
     FAIL_CONFIRM_TITLE,
     FAIL_CONFIRM_YES,
+    FAIL_PANEL_TITLE,
     failConfirmLayout,
+    failPanelLabel,
     failPanelLayout,
     hitFailConfirm,
     hitFailPanel,
@@ -109,6 +111,34 @@ describe('WXG-T-1004 ViewModel 契约', () => {
         expect(vm.confirmMsgY).toBe(cl.msgY);
         updateTimeoutViewModel(vm, confirming);
         expect(vm.confirmButtons[0]).toBe(slot0);
+    });
+});
+
+describe('[WXG-T-1051] 放弃确认层可读性与排布（用户 2026-11-24 实帧）', () => {
+    it('标题/说明不得用木牌米白字：暖纸白面板上 woodText 对比度 ≈1.03:1（实帧几乎不可读）', () => {
+        const harness = failHarness();
+        const ts = texts(frame({ ...harness.game.snapshot, failConfirming: true }));
+        const title = ts.find((t) => t.text === FAIL_CONFIRM_TITLE)!;
+        const msg = ts.find((t) => t.text === FAIL_CONFIRM_MSG)!;
+        expect(title.fill, '标题须深墨（plateTitleInk，对暖纸白 8:1+）').toBe(DEFAULT_PALETTE.plateTitleInk);
+        expect(msg.fill, '说明须次要墨（textDim，4.74:1 达标）').toBe(DEFAULT_PALETTE.textDim);
+        expect(title.fill, '⛔ 木牌米白字画在白纸面板上').not.toBe(DEFAULT_PALETTE.woodText);
+    });
+
+    it('确认态不叠画底牌：⛔ 零「时间到」标题与主钮文案（labels 恒压 graphics ⇒ 会穿透面板）', () => {
+        const harness = failHarness();
+        const ts = texts(frame({ ...harness.game.snapshot, failConfirming: true }));
+        expect(ts.some((t) => t.text === FAIL_PANEL_TITLE), '底牌「时间到」不画').toBe(false);
+        expect(ts.some((t) => t.text === failPanelLabel('retry')), '底牌主钮文案不画').toBe(false);
+        expect(ts.some((t) => t.text === FAIL_CONFIRM_TITLE), '确认层标题必画').toBe(true);
+    });
+
+    it('说明字框整颗在按钮带之上：`msgCyDown` 落进按钮区 ⇒ 说明压按钮（实帧可见重叠）', () => {
+        const cl = failConfirmLayout();
+        const btnTop = Math.max(...cl.buttons.map((b) => b.rect.yMax));
+        expect(cl.msgY - 28 / 2, '说明字底须高于按钮上沿').toBeGreaterThan(btnTop);
+        // 大字号档说明 35px、标题 64px：两者之间不得叠字。
+        expect(cl.titleY - 64 / 2, '标题字底须高于说明字顶').toBeGreaterThan(cl.msgY + 35 / 2);
     });
 });
 

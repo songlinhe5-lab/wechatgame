@@ -12177,3 +12177,19 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 **修法**：新增 `POWERUP_ICON_SCALE = 160/336`（中央道具区 / 全图，`config/tuning/powerup-layout.ts`，含出处与反例注释）；`meta-level-detail-page.ts` 道具件 `blit` 与程序化缺图徽章**同口径**内缩居中（⛔ 两条腿都不得满格画，否则缺图时同样盖框）；角标仍贴格子右上不动。
 
 **验证 / 取证**：TDD 先红后绿（新增「道具件内缩到中央道具区」一条 + 既有回退腿 r=42 断言改读常量，定向 **8/8**）；全量 `verify` **24/24 PASS**；金样十一帧不含 `level-detail` ⇒ **零重抓**；真实引擎实帧 `temp/ui-shot/1049-detail.png`（修复前无框 → 修复后各带木框 + 米底）。代码提交见本单 commit。
+
+
+## WXG-T-1051
+
+**放弃确认层文字穿透/不可读** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ **完成（2026-11-24）**
+
+用户实帧报：「这是什么状态，请纠正这个UI的错误」——图 = 「时间到」弹窗上叠了一层白色「确定放弃本关？」确认框。**状态说明**：超时弹窗右上 ✕ 的语义是「退出本关」，点它进入**放弃二次确认**态（`snapshot.failConfirming`），不是新界面。
+
+**三处根因（Phase 1 取证，不猜）**：
+1. **文字穿透（最严重）**：确认层与「时间到」木牌画在**同一 UI 容器**，而容器通道序恒为 `blit < graphics < labels`（`UI_SCOPE_CHANNEL_ORDER`，`ui-scope-tree.ts:36`）⇒ 下层按钮文字（labels）**永远**压在白纸面板（graphics rect）之上，与绘制先后无关。实帧可见「继续本关 / 看广告能增加180秒时间 / 重试本关」穿透面板。
+2. **字色不可读**：标题/说明用木牌米白 `palette.woodText`(#FFF6E8)，面板是暖纸白 `palette.panel`(#FFFCF6) ⇒ 对比度 ≈ **1.03:1**（实帧几乎不可见）。
+3. **说明压按钮**：`TIMEOUT_GEO.confirmAbandon.msgCyDown = 150`，而按钮占板顶 146–234（板 300、`btnYDown 66` + `btnH 88`）⇒ 说明字底 136 < 按钮顶 154，压进按钮带。
+
+**修法**：`timeout-view.ts` 把确认对话框抽成 `drawConfirmDialog()`，`drawTimeoutView` 开头**早返回**——确认态只画遮罩（α×0.7）+ 确认面板，⛔ 不再叠画底牌（顺便消除视觉噪声）；字墨按底色选（标题 `plateTitleInk` 8:1+、说明 `textDim` 4.74:1，K-115「按底色选墨不按组件名选墨」）；`TIMEOUT_GEO.confirmAbandon` 文字带改 `titleCyDown 68` / `msgCyDown 124`（标题 36..100、大字号档说明 106.5..141.5、按钮前 ≥4px），并加注「按钮上沿 = 板顶下 146，改 `btnYDown` 须同步复核文字带」。
+
+**验证 / 取证**：TDD 先红后绿——三条断言（字色 `plateTitleInk`/`textDim`；说明字底 > 按钮上沿；确认态零底牌文案），定向 **10/10**；全量 `verify` **24/24 PASS**；金样十一帧不含确认态 ⇒ **零重抓**；真实 Cocos web-mobile 实帧 `temp/ui-shot/1051-{play,timeout,confirm}.png`（修复前正文穿透 + 几乎不可读 → 修复后面板干净、两级墨清晰）。
