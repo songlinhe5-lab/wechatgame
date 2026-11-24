@@ -451,7 +451,7 @@ const _boundsCache = new WeakMap<BeadsLevelRaw, ThumbInkBounds>();
  * 居中的话，视觉图案会在右侧与底侧各缩进一颗珠。主菜单橱窗改为「内容包围盒居中 +
  * 底边贴台面」，本函数是该判据的唯一来源。
  */
-function levelThumbInkBounds(level: BeadsLevelRaw): ThumbInkBounds | undefined {
+export function levelThumbInkBounds(level: BeadsLevelRaw): ThumbInkBounds | undefined {
     const hit = _boundsCache.get(level);
     if (hit !== undefined) return hit;
     const full = levelThumbFullCells(level);
@@ -550,12 +550,12 @@ export function drawBeadFace(
     if (cells.length === 0 && locked.length === 0) return;
     const rows = level.pattern.length;
     const cols = level.cols;
-    // `[WXG-T-1052]` 详情留缝档按**有墨包围盒** contain-fit（口径 = 主菜单橱窗 `[WXG-T-1006/1032]`，
-    // 判据源同为 `levelThumbInkBounds`）：关卡数据带 1 行 / 1 列空边（如 L9 曼陀罗占 rows/cols
-    // 1..28）⇒ 按名义阵布局会让图案底缩进一颗珠（**悬空 pitch px ≈ 11px**）且被 30 摊薄成 317²
-    // （展示框 340²）。用户 2026-11-24 令「图案没有落在底座上，图形大小有点小」。
-    // ⛔ 选关格 / 盘面仍走名义阵（网格要完整），故只在传了 `beadGap`（详情专用档）时生效。
-    const bounds = beadGap === undefined ? undefined : levelThumbInkBounds(level);
+    // `[WXG-T-1052 → T-1055]` **全部缩略消费方按有墨包围盒 contain-fit**（详情留缝档 T-1052、
+    // 选关格 flat 腿 T-1055，口径 = 主菜单橱窗 `[WXG-T-1006/1032]`，判据源同为 `levelThumbInkBounds`）：
+    // 关卡数据带空边（如 L9 曼陀罗名义 30×30、墨 24×24）⇒ 按名义阵布局图案被摊薄
+    // （选关格 pitch 3.3px，用户 2026-11-24 令「第九关缩略图是不是太小了」；详情侧 T-1052 同源）。
+    // 墨界 = 名义阵的关（现 A00 其余八关）换算逐字节不变；无墨 ⇒ 回落名义阵。
+    const bounds = levelThumbInkBounds(level);
     const c0 = bounds === undefined ? 0 : bounds.minC;
     const r0 = bounds === undefined ? 0 : bounds.minR;
     const spanCols = bounds === undefined ? cols : bounds.maxC - bounds.minC + 1;

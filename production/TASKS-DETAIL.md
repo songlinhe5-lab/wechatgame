@@ -12242,3 +12242,15 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 **修法**：① 删 gateHint 全链路：shell 字段与 `_refreshArcGate` 归约腿、`drawGateHint` 函数与调用、`MetaViewData.gateHint` 字段、`UI_FONT.gateHint` 字型键、`MENU_GATE_HINT` 几何常量及其测试块；门槛 / 解锁判据 / 木牌三态零改。② `_arcSeqLabel` 在推分支改产 `第 N 关`（N = 第一个已解锁 0★ 关在大关内的序号，循环内 `total` 即局部位，入双槽缓存签名 `seq`），与 `_arcShowcaseLevel` 口径同源；主车与对页两腿共用本函数 ⇒ 同源生效。
 
 **验证 / 取证**：TDD 先红后绿（改前 4 失败钉住新口径），定向 52/52；beads 全量 1628 passed / 2 skipped；typecheck 零错；`pnpm run verify` 24/24 PASS（含金样 11 帧零重抓 ⇒ 常态菜单帧不命中被改态）；harness JS 求值实帧：`_arcSeqLabel(1,0)` 返回「第 1 关」、全部渲染文本无任何「下一章差」字样，三项判据 PASS。
+
+## WXG-T-1055
+
+**选关格缩略改有墨包围盒 contain-fit** · 负责：主理人(Qoder)·工程轨 · 状态：✅ **完成（2026-11-24）**
+
+承用户实帧问「第九关缩略图是不是太小了」（选关页截图：曼陀罗九宫格中 L9 圆形珠拼明显小于其余八格）。
+
+**根因**（读数实锤）：选关格 flat 缩略仍按**名义阵**布局：L9 曼陀罗名义 30×30、有墨仅 24×24（圆形内切 + 四周各 3 空行/列），固定格槽 142×99 下 pitch = 99/30 = 3.30px（其余八关 7.07–10.14px）⇒ 珠径差 2.5 倍、视觉跨度只占槽高 ≈79/99。详情（T-1052）与橱窗（T-1006/1032）已改墨界 contain-fit，唯独选关格腿留在名义阵。
+
+**修法**：`drawBeadFace` 的 `bounds` 闸从「仅 `beadGap`（详情档）才取墨界」改为**恒取 `levelThumbInkBounds`**（函数改导出），名义阵仅作无墨回落；主车选关格 / 详情留缝档 / 橱窗三处同源。逐关实测：其余八关墨界 = 名义阵 ⇒ 换算逐字节不变，仅 L9 pitch 3.30→4.13（+25%）。测试侧同式复算腿 `meta-menu-wall::thumbMetrics` 同源改墨界跨度；`menu-thumb-primitives` / `arc-level-select-page` 复算腿所用关卡墨界=名义阵 ⇒ 零改。
+
+**验证 / 取证**：TDD 先红后绿（新例 `arc-level-select-page` L9 钉「跨度 > 槽高−6」，改前读数 ≈79 失败）；定向 80/80；beads 全量仅 ui-golden `level-select` / `level-select-mid` 两帧预期漂移 ⇒ 按本单代码锚干净 worktree 重抓（两遍确定性自证）；§12 视觉变更登记；verify 24/24。

@@ -304,4 +304,22 @@ describe('WXG-T-605 · 格内与转场', () => {
         };
         expect(hitRects(on)[0]).toMatchObject(want);
     });
+
+    it('`[WXG-T-1055]` 选关格 flat 缩略按**有墨包围盒** contain-fit：L9 大盘（30×30 名义阵、墨 24×24）填满槽高', () => {
+        // 用户 2026-11-24 令「第九关缩略图是不是太小了」⇒ 选关格腿与详情/橱窗同源改墨界口径；
+        // 其余八关墨界 = 名义阵 ⇒ 零漂移（本例只钉 L9）。
+        const a = LEVEL_SELECT_GEO.cellArt;
+        const b = new RenderModelBuilder(DESIGN_W, DESIGN_H);
+        b.begin();
+        drawBeadFace(b, LEVELS[8]!, 0, 0, a.imageW, a.imageH, DEFAULT_PALETTE, undefined, undefined, undefined, 'center', true);
+        const rects = b.end().commands.filter((c): c is Extract<DrawCommand, { kind: 'rect' }> => c.kind === 'rect');
+        let minY = Infinity;
+        let maxY = -Infinity;
+        for (const r of rects) {
+            if (r.y < minY) minY = r.y;
+            if (r.y + r.h > maxY) maxY = r.y + r.h;
+        }
+        // 墨界 contain-fit ⇒ pitch = 槽高/24 ≈ 4.13，垂直跨度 ≈ 槽高 99；旧名义阵只有 23×3.3 + 块边 ≈ 79。
+        expect(maxY - minY, 'L9 缩略垂直铺满槽高（⛔ 名义阵被 30 摊薄）').toBeGreaterThan(a.imageH - 6);
+    });
 });

@@ -58,7 +58,7 @@ import { label } from '../src/view/meta-widgets.js';
 import { settingsScrollMax, settingsToggleHitBox } from '../src/view/settings-content.js';
 import { levelDetailPlate } from '../src/view/meta-layout.js';
 import { rankPanelLayout } from '../src/systems/rank-panel.js';
-import { drawBeadFace, levelThumbCells, SIGN_INK_COLOR_IDX } from '../src/view/menu-signage.js';
+import { drawBeadFace, levelThumbCells, levelThumbInkBounds, SIGN_INK_COLOR_IDX } from '../src/view/menu-signage.js';
 import { drawFilledBead, type FilledBeadOptions } from '../src/view/bead-render.js';
 import { DEBUG_OUTLINE_TILE_HEX, DEFAULT_PALETTE, DEMO_BEAD_INKS, beadDimInksFor, beadFadedInksFor, beadGrayInksFor, beadInksFor } from '../src/view/palette.js';
 import {
@@ -229,14 +229,18 @@ function centerTuple(box: { x: number; y: number; w: number; h: number }): [numb
 
 
 /**
- * full 档珠块边 = min(槽宽/cols, 槽高/rows) − 缝（`drawBeadFace` 同式复算，含缝压缩
+ * full 档珠块边 = min(槽宽/墨列, 槽高/墨行) − 缝（`drawBeadFace` 同式复算，含缝压缩
  * 分支）。`[WXG-T-613]` full 档块边**依关而变** ⇒ 反读无法按单一块宽过滤（旧 `THUMB_BLOCK`
  * 常量口径退场）；且 levels 帧背景透出的走马灯 Boss 珠拼（30×30 盘，块边 10.47）横跨墙区，
  * 会落进部分格的图案槽矩形 ⇒ 须按**期望块边**机械排除。
+ * `[WXG-T-1055]` 选关格改按**有墨包围盒** contain-fit（L9 pitch 3.3→4.13）⇒ 复算腿同源取墨界跨度。
  */
 function thumbMetrics(level: (typeof LEVELS)[number]): { pitch: number; block: number } {
     const a = LEVEL_SELECT_GEO.cellArt;
-    const pitch = Math.min(a.imageW / level.cols, a.imageH / level.pattern.length);
+    const bounds = levelThumbInkBounds(level);
+    const spanCols = bounds === undefined ? level.cols : bounds.maxC - bounds.minC + 1;
+    const spanRows = bounds === undefined ? level.pattern.length : bounds.maxR - bounds.minR + 1;
+    const pitch = Math.min(a.imageW / spanCols, a.imageH / spanRows);
     const gap = pitch < BEAD_GAP * 2 ? pitch * 0.4 : BEAD_GAP;
     return { pitch, block: pitch - gap };
 }
