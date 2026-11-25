@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 225,
+  "nextId": 226,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -3767,6 +3767,23 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-225",
+      "state": "active",
+      "file": "knowledge/lessons/criteria-measure-evidence.md",
+      "category": "判据实测取证",
+      "title": "性能面板「帧耗时稳定」不能证伪卡顿——耗时量的是每帧成本，卡顿感来自位移在时间轴上的分布",
+      "contentHash": "8f91637ff52210b903f837b0e561d55de7ae4cb204ba02298d92d3b965862488",
+      "sourceTask": "WXG-T-1076",
+      "addedDate": "2026-11-25",
+      "lastAccess": "2026-11-25",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -6058,6 +6075,15 @@
       "kind": "updated",
       "ids": [
         "K-223"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-11-25",
+      "taskId": "WXG-T-1076",
+      "kind": "added",
+      "ids": [
+        "K-225"
       ],
       "note": null
     }

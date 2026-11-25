@@ -331,4 +331,5 @@
 | K-222 | 测试守卫 | testing-guard | 关卡 pattern 与 misplaced 不能各自做镜像收尾：游戏侧「珠色守恒」校验会当场拒装，证明两半是同一个多重集 | WXG-T-1068 | 2026-11-25 | 0 | active |
 | K-223 | 流程门禁 | process-gate | 人工实测时长回流定价要锚 | WXG-T-1069 | 2026-11-25 | 0 | active |
 | K-224 | 流程台账协作 | process-ledger-sync | 共享工作树里对台账文件做整文件 `git add`，会把并发会话刚写好的行与详情节一起替它提交 | WXG-T-1068 | 2026-11-25 | 0 | active |
+| K-225 | 判据实测取证 | criteria-measure-evidence | 性能面板「帧耗时稳定」不能证伪卡顿——耗时量的是每帧成本，卡顿感来自位移在时间轴上的分布 | WXG-T-1076 | 2026-11-25 | 0 | active |
 <!-- kb:active:end -->

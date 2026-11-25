@@ -77,6 +77,19 @@ export class App {
    */
   dirtyGate = true;
 
+  /**
+   * `[WXG-T-1075]` **运动节奏取样钩子**（诊断「帧耗时稳定但拖动一顿一顿」）。
+   *
+   * 每渲染帧回调一次，交出三样东西：帧间隔 `dtMs`、本帧跑掉的固定步数 `steps`
+   * （0 = 仿真没推进）、以及本帧是否真下发了重绘 `drew`（脏帧门会跳过干净帧）。
+   * 语义与判定表在 `core/performance/performance.ts` 的 `MotionRecorder` 那一侧；
+   * 本处只负责**把时间轴交出去**，不在热路径分配任何东西。默认 `null` ⇒ 不接线零成本。
+   */
+  motionProbe: ((dtMs: number, steps: number, drew: boolean) => void) | null = null;
+
+  /** 本 tick 是否真画了一帧（`_render` 里置位，`tick` 读出后交给 `motionProbe`）。 */
+  private _drewThisTick = false;
+
   private readonly _builder: RenderModelBuilder;
   private _frameHandle: { cancel(): void } | null = null;
   private _running = false;
@@ -255,7 +268,10 @@ export class App {
    * @returns number of fixed simulation steps executed.
    */
   tick(frameDtSeconds: number): number {
+    this._drewThisTick = false;
     const steps = this.loop.advance(frameDtSeconds);
+    // 取样钩子在 advance 之后读：`_render` 已由循环调完，`drew` 才是本帧的真值。
+    this.motionProbe?.(frameDtSeconds * 1000, steps, this._drewThisTick);
     this.services.audio.flush(frameDtSeconds);
     // WXG-T-414: push loop counters into platform for perf snapshots.
     (this.platform as { _feedLoopStats?: (t: number, ts: number, c: number) => void })
@@ -325,6 +341,9 @@ export class App {
       // drawn under a different regime.
       this._lastSig = Number.NaN;
     }
-    this.onRender?.(model, alpha);
+    if (this.onRender) {
+      this.onRender(model, alpha);
+      this._drewThisTick = true; // 脏帧门放行且真有宿主 ⇒ 这一帧改变了画面
+    }
   }
 }

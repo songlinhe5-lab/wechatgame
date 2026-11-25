@@ -37,3 +37,4 @@ export * from './bake/mask-tile.js';
 export * from './bake/tint-composite.js';
 export * from './bake/gray-fx.js';
 export * from './bake/nine-slice-fx.js';
+export * from './performance/performance.js'; // [WXG-T-1075] 运动节奏取样（无 cc/DOM/wx，Node 可测）

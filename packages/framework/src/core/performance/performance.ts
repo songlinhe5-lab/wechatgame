@@ -51,3 +51,168 @@ export function computeFps(deltasSeconds: readonly number[]): number {
   if (sum <= 0 || !Number.isFinite(sum)) return 0;
   return deltasSeconds.length / sum;
 }
+
+// ── WXG-T-1075 逐帧运动节奏取样（诊断「帧耗时稳定但视觉卡顿」）────────────────
+//
+// 与上面的 `PerformanceSnapshot` 正交：快照量的是**每帧成本**（fps / heap / 掉帧
+// 钳位），本模块量的是**位移在时间轴上的分布**。二者可以一个正常一个坏 —— 真机
+// 反馈正是「面板帧耗时稳，拖动却一顿一顿」，所以光看 fps 永远查不出来。
+//
+// 采样口径（三列就够分辨工况，⛔ 在这里加耗时计时，那是快照那条腿的事）：
+//   `dtMs`  本渲染帧的墙钟间隔；`steps` 本帧跑掉的固定步数（0 = 仿真没推进）；
+//   `drew`  本帧是否真下发了重绘（脏帧门 `WXG-T-248` 会跳过干净帧）；
+//   `dPos`  被跟踪点（棋盘相机 offsetX）相对上一帧的增量。
+
+/** 一帧的运动节奏样本（`MotionRecorder` 环形槽位，字段可写以便覆写零分配）。 */
+export interface MotionFrame {
+  dtMs: number;
+  steps: number;
+  drew: boolean;
+  dPos: number;
+}
+
+export type MotionVerdict =
+  | 'insufficient'
+  | 'smooth'
+  | 'refresh-halved'
+  | 'accumulator-jitter'
+  | 'stall';
+
+export interface MotionJudder {
+  /** 判定结论（见 `judgeMotionJudder` 的判定表）。 */
+  verdict: MotionVerdict;
+  n: number;
+  dtMedianMs: number;
+  dtMaxMs: number;
+  /** 帧间隔变异系数 std/mean：>0.05 说明宿主根本没锁住 vsync。 */
+  dtCv: number;
+  /** 零步帧占比：高刷屏（帧快于 fixedDt）的直接指纹。 */
+  zeroStepShare: number;
+  /** 一步以上（含补 2 步）的帧数：累加器抖动的指纹。 */
+  multiStepFrames: number;
+  /** 真重绘帧占比：脏帧门跳过了多少帧。 */
+  drewShare: number;
+  /** 相邻两次真重绘之间最大的墙钟间隔（ms）；≈ 2×dtMedian 即「同图连贴两帧」。 */
+  presentGapMaxMs: number;
+  /** 真重绘帧之间位移增量的非零 max/min：>1.5 即眼睛读得到的一顿一顿。 */
+  moveIrregularity: number;
+}
+
+/**
+ * 环形取样器：容量封顶（默认 240 帧 ≈ 高刷屏 2s / 60Hz 4s），热路径**只覆写预分配
+ * 槽位、不新建对象**（工程铁律：热路径零分配）。未 `start` 时宿主不接线 ⇒ 零成本。
+ */
+export class MotionRecorder {
+  readonly cap: number;
+  private readonly _buf: MotionFrame[];
+  private _w = 0;
+  private _n = 0;
+  private _last = 0;
+  private _armed = false;
+
+  constructor(capacity = 240) {
+    this.cap = capacity > 0 ? Math.round(capacity) : 240;
+    this._buf = [];
+    for (let i = 0; i < this.cap; i += 1) {
+      this._buf.push({ dtMs: 0, steps: 0, drew: false, dPos: 0 });
+    }
+  }
+
+  /**
+   * 每渲染帧调一次。`pos` = 被跟踪的屏幕位置（设计 px，如棋盘相机 `offsetX`）；
+   * 首帧只立基线（`dPos = 0`），⛔ 把「开始记录」当成一次跳变。
+   */
+  frame(dtMs: number, steps: number, drew: boolean, pos: number): void {
+    const slot = this._buf[this._w]!;
+    slot.dtMs = dtMs;
+    slot.steps = steps;
+    slot.drew = drew;
+    slot.dPos = this._armed ? pos - this._last : 0;
+    this._armed = true;
+    this._last = pos;
+    this._w = (this._w + 1) % this.cap;
+    if (this._n < this.cap) this._n += 1;
+  }
+
+  /** 按时间正序读出（诊断面专用，允许分配；不在每帧路径调用）。 */
+  frames(): readonly MotionFrame[] {
+    const out: MotionFrame[] = [];
+    const start = (this._w - this._n + this.cap) % this.cap;
+    for (let i = 0; i < this._n; i += 1) {
+      const f = this._buf[(start + i) % this.cap]!;
+      out.push({ dtMs: f.dtMs, steps: f.steps, drew: f.drew, dPos: f.dPos });
+    }
+    return out;
+  }
+
+  reset(): void {
+    this._w = 0;
+    this._n = 0;
+    this._armed = false;
+    this._last = 0;
+  }
+
+  /** 一行可粘贴的读数（贴给主理人/QA 用，⛔ 让人自己算）。 */
+  report(): string {
+    const j = judgeMotionJudder(this.frames());
+    return `verdict=${j.verdict} n=${j.n} dt中位=${j.dtMedianMs.toFixed(2)}ms `
+      + `dt最大=${j.dtMaxMs.toFixed(1)}ms cv=${j.dtCv.toFixed(3)} `
+      + `零步帧=${(j.zeroStepShare * 100).toFixed(1)}% 多步帧=${j.multiStepFrames} `
+      + `重绘帧=${(j.drewShare * 100).toFixed(1)}% 重绘间隔max=${j.presentGapMaxMs.toFixed(1)}ms `
+      + `位移不均度=${j.moveIrregularity.toFixed(2)}`;
+  }
+}
+
+function median(xs: readonly number[]): number {
+  if (xs.length === 0) return 0;
+  const s = [...xs].sort((a, b) => a - b);
+  const m = s.length >> 1;
+  return s.length % 2 ? s[m]! : (s[m - 1]! + s[m]!) / 2;
+}
+
+/**
+ * 判定表（自上而下先命中先出，每条都对应用户能观察到的一种现象）：
+ *   1. `n < 24`              ⇒ `insufficient`（拿十几帧判卡顿是猜）；
+ *   2. 存在 `dtMs > 40`      ⇒ `stall`（真掉帧/GC/后台，走性能快照那条腿查）；
+ *   3. `dt中位 < 12ms` 且零步帧 ≥25% ⇒ `refresh-halved`（屏幕比 1/60 快，同图连贴
+ *      两帧 ⇒ 画面实际只有 dtMedian 倒数的一半在更新；ProMotion/120Hz 屏的指纹）；
+ *   4. 帧间隔 cv > 5% 且出现补步 ⇒ `accumulator-jitter`（vsync 没锁住，累加器被推成
+ *      0/2 步循环 ⇒ 「一帧不动、下一帧走两倍」）；
+ *   5. 其余 ⇒ `smooth`（时间轴均匀 ⇒ 卡顿感得换假因，⛔ 赖在这条管线上）。
+ */
+export function judgeMotionJudder(frames: readonly MotionFrame[]): MotionJudder {
+  const n = frames.length;
+  const dts = frames.map((f) => f.dtMs);
+  const dtMedianMs = median(dts);
+  const dtMaxMs = n > 0 ? Math.max(...dts) : 0;
+  const mean = n > 0 ? dts.reduce((a, b) => a + b, 0) / n : 0;
+  const std = n > 0 ? Math.sqrt(dts.reduce((a, b) => a + (b - mean) ** 2, 0) / n) : 0;
+  const dtCv = mean > 0 ? std / mean : 0;
+  const zeroStepShare = n > 0 ? frames.filter((f) => f.steps === 0).length / n : 0;
+  const multiStepFrames = frames.filter((f) => f.steps >= 2).length;
+  const drewShare = n > 0 ? frames.filter((f) => f.drew).length / n : 0;
+
+  // 相邻两次真重绘之间的墙钟间隔（跳过脏帧门没放行的帧）。
+  let presentGapMaxMs = 0;
+  let lastDrawAt = Number.NaN;
+  let clock = 0;
+  for (const f of frames) {
+    clock += f.dtMs;
+    if (f.drew) {
+      if (Number.isFinite(lastDrawAt)) presentGapMaxMs = Math.max(presentGapMaxMs, clock - lastDrawAt);
+      lastDrawAt = clock;
+    }
+  }
+  // 位移不均度只看真重绘帧（没重绘的帧画面本来就没变，不算"顿"）。
+  const moves = frames.filter((f) => f.drew && f.dPos !== 0).map((f) => Math.abs(f.dPos));
+  const moveIrregularity = moves.length > 1
+    ? Math.max(...moves) / Math.min(...moves)
+    : moves.length === 1 ? 1 : 0;
+
+  const base = { n, dtMedianMs, dtMaxMs, dtCv, zeroStepShare, multiStepFrames, drewShare, presentGapMaxMs, moveIrregularity };
+  if (n < 24) return { verdict: 'insufficient', ...base };
+  if (dtMaxMs > 40) return { verdict: 'stall', ...base };
+  if (dtMedianMs < 12 && zeroStepShare >= 0.25) return { verdict: 'refresh-halved', ...base };
+  if (dtCv > 0.05 && multiStepFrames >= 2) return { verdict: 'accumulator-jitter', ...base };
+  return { verdict: 'smooth', ...base };
+}

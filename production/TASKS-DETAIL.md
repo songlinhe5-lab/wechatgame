@@ -12730,3 +12730,64 @@ P07/P09 首玩即 3★；P08 距 3★ 线仅 3s。P07–P09 越 §5.0.1-2 的 25
 **验证**：`levels:sync` ✅；`pnpm run verify` **22/24** —— ① `framework:sync:check` 单独复检绿（并发写盘竞态，同 T-1072 判例）；② `test` 8 例红全部为 `ui-golden` 六帧 + `bead-style-seal` 腿 4a/4b，均属并发单 **T-1074**（`back:true` 取消）已在其提交说明登记「金样 5 帧 + S3 基准待按锚重抓」，与本单数值改动无关（金样场景用固定 `simpleTestLevel()`，不读 `LEVELS_DATA`）；其余 1,635 例绿。⛔ 未代抓金样（K-051/K-053）。
 
 **遗留**：tier3 仅 P09 单样本，1.12 仍是先验；`[待 playtest]` 未解除。
+
+## WXG-T-1076
+
+**珠面拖动「看起来卡顿、性能面板帧耗时却稳定」——定位 + 装诊断腿（工程轨 Qoder，2026-11-25）**
+
+**① 用户现象与矛盾点**
+现象：拖动珠面时画面一顿一顿；矛盾：性能面板每帧耗时是**稳**的。二者不矛盾——面板量的是**每帧成本**，
+卡顿感来自**位移在时间轴上的分布**。只盯 fps 永远查不出来。
+
+**② 根因链（逐条代码取证，非推演）**
+1. 循环契约本已要求插值：`packages/framework/src/core/loop/game-loop.ts` 头注原话「渲染拿到插值 `alpha`，
+   以便显示率与步进率不同时运动仍平滑」；`fixedDt` 默认 1/60（第 51 行），且**两处 App 构造均未传 `fixedDt`**
+   （`adapters/cocos/bindings.ts` 第 168 行 / `dev/harness/main.ts` 第 105 行）⇒ 仿真恒 60Hz。
+2. `alpha` 被丢弃：`app.onRender = (model) => { this._renderer?.draw(model); }`（bindings 第 177 行）——
+   第二参数不要；全仓 grep 无任何用 alpha 做位移插值之处（命中的全是遮罩不透明度语义）。
+3. 位移入口只在固定步：棋盘平移 `applyPan(snap.dx …)`（`board-camera-controller.ts` 第 205 行）由 update 驱动，
+   而输入快照的 `prev` 推进发生在 `input.endFrame()`，**每固定步一次**（`compose/app.ts` `_fixedUpdate`）。
+4. 排除一条假因：`applyPan`（`systems/board-camera.ts` 第 183–193 行）只累加 + 夹取，**无整格吸附** ⇒ 不是"量化成一格一格"。
+5. 放大器：脏帧门 `dirtyGate` 默认开（`compose/app.ts` 第 78 行，文档写明「干净帧不调用 onRender」）⇒
+   零步帧连绘制都不发生，呈现节奏完全由累加器相位摆布。
+
+**③ 合成取证（真实 `InputManager` + 真实 `FixedStepLoop`，匀速 250px/s）**
+
+| 工况 | 逐渲染帧位移(px) | 每帧固定步数 | 读数 |
+|---|---|---|---|
+| A 恒 16.67ms | 4.17 ×13 | 全 1 | 均匀 ⇒ 管线本身无毛病 |
+| B 60Hz ±2.5ms 抖动 | 4.79 4.01 **0** 8.06 4.67 3.73 **0** 8.48 … | 1 1 1 **0** 2 1 1 **0** 2 … | 非零 max/min=**2.48**，13 帧中 **3 帧零位移** |
+| C 恒 8.33ms（120Hz） | 4.17 **0** 4.17 **0** … | **0** 1 **0** 1 … | **每两帧才动一次**，帧耗时反而更漂亮 |
+
+真机侧佐证：`production/qa/beads/render-perf-device-baseline.md` §2 记「在手两台均 **120Hz 自适应屏**、`refreshHz` 为硬列」，
+同单 G-3 已录「操作 30s 主观手感**明显卡**」而 §10.1 禁止只凭主观定论 ⇒ 缺的正是本节的逐帧节奏读数。
+微信侧 `platform/weapp.ts` 第 405 行 `setPreferredFramesPerSecond(60)` 只是**目标**帧率，不等于在 120Hz 面板上锁相。
+
+**④ 本单落地的取样腿（三件，全可测）**
+- `packages/framework/src/core/performance/performance.ts`：`MotionRecorder`（环形 240/600 帧、槽位预分配、热路径零分配）
+  + `judgeMotionJudder`（判定表：`insufficient` → `stall` → `refresh-halved` → `accumulator-jitter` → `smooth`）
+  + `report()` 一行可粘贴读数；经 `core/index.ts` 露出（`framework:sync` 已同步进 cocos 拷贝件）。
+- `packages/framework/src/compose/app.ts`：`motionProbe` 钩子，每渲染帧交出 `(dtMs, steps, drew)`；默认 `null` ⇒ 零成本。
+- `dev/harness/main.ts`：`__motion.start() / report() / stop()`，位置列直读 `_board.camera.offsetX`
+  （诊断面专用，⛔ 为一个探针往 `BeadsGame` 加公开口）。
+
+**⑤ 测试**
+`packages/framework/tests/core/performance-motion.test.ts`（9 例，先桩后实现：桩态 9 红 → 实现后 9 绿）；
+`packages/framework/tests/compose/app.test.ts` +2 例（钩子三列语义 + 脏帧门跳过必须如实记 `drew=false`）。
+钩子两例做过**变异验证**：把 `motionProbe` 调用摘掉 → 新例当场红；还原 → 24/24 绿。
+`pnpm run verify` **24/24 PASS**。
+
+**⑥ 尚未拿到的一列数（诚实边界）**
+判定 B / C 哪个是用户现场工况，需要一次宿主实测（浏览器 harness 或真机）。本会话 `bsk browsers` = 无已连接浏览器，
+未能自动实采 ⇒ 操作法（harness 已在跑，`http://localhost:4173`）：
+```js
+__motion.start()      // 控制台
+// 在珠面上匀速拖 1~2 秒（别停）
+__motion.report()     // 把这一行贴回来
+```
+`verdict` 出口对应：`refresh-halved` ⇒ 走「渲染消费 alpha 插值」主修；`accumulator-jitter` ⇒ 同修 + 查宿主 vsync；
+`smooth` ⇒ 本假设被否，换假因（LOD 档切换 / 矢量臂逐帧重建），⛔ 继续赖在这条管线上。
+
+**⑦ 真机接线（待用户点头，未落地）**
+`App.motionProbe` 是通用钩子，真机只需在 `adapters/cocos/bindings.ts` 的 `launch()` 里加三行
+（懒构 `MotionRecorder` + 接线 + 把 `report()` 打到 console）。⛔ 未擅自改该件（发布面 adapter，且并发会话在动）。

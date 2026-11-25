@@ -10,7 +10,7 @@
  * Cocos editor and no WeChat developer tools installed. See ./README.md.
  */
 
-import { App, Canvas2DRenderer } from '@wxgame/framework';
+import { App, Canvas2DRenderer, MotionRecorder } from '@wxgame/framework';
 import {
   TintSpriteCache,
   createTintBlitResolver,
@@ -844,6 +844,20 @@ if (GLD) {
 
 requestAnimationFrame(frame);
 
+/* ─────────────── [WXG-T-1075] 运动节奏取样（诊断「帧耗时稳、拖动一顿一顿」）
+ *
+ * 用法（浏览器控制台）：
+ *   __motion.start()   → 在珠面上**匀速**拖一下（1~2s，别停）
+ *   __motion.report()  → 一行读数：verdict = smooth | refresh-halved | accumulator-jitter | stall
+ *   __motion.stop()    → 摘钩（不取样时零成本）
+ * 三列语义：帧间隔 dtMs / 本帧固定步数 steps / 本帧是否真重绘 drew（脏帧门会跳干净帧）。
+ * 位置列直接读 `_board.camera.offsetX`——诊断面专用，⛔ 为取样器往 BeadsGame 上加公开口。 */
+const motionRec = new MotionRecorder(600);
+const boardCamX = (): number => {
+  const b = (beads as unknown as { _board?: { camera?: { offsetX?: number } } })._board;
+  return b?.camera?.offsetX ?? 0;
+};
+
 // Expose for console poking during development.
 Object.assign(window as unknown as Record<string, unknown>, {
   __breakout: { app, game: breakout, fitCanvas },
@@ -854,6 +868,16 @@ Object.assign(window as unknown as Record<string, unknown>, {
     // `[WXG-T-280]` 菜单位图臂自诊断：`__beads.menu.registry`（textureId → img）。
     menu: { registry: menuRegistry, files: MENU_FILE },
   },
+  // [WXG-T-1075] 见上方注释；只挂 beads（棋盘相机在这条路上）。
+  __motion: isBeads ? {
+    start: (): void => {
+      motionRec.reset();
+      app.motionProbe = (dtMs, steps, drew): void => motionRec.frame(dtMs, steps, drew, boardCamX());
+    },
+    stop: (): void => { app.motionProbe = null; },
+    report: (): string => motionRec.report(),
+    frames: (): readonly { dtMs: number; steps: number; drew: boolean; dPos: number }[] => motionRec.frames(),
+  } : null,
 });
 
 // eslint-disable-next-line no-console

@@ -313,4 +313,32 @@ describe('App', () => {
     expect(render).toHaveBeenCalledTimes(4);
     app.stop();
   });
+
+  // [WXG-T-1075] 「帧耗时稳但拖动卡顿」的取样腿：钩子必须交出**时间轴**三列，
+  // 且 `drew` 要如实反映脏帧门——否则读数会把「没重绘」误当成「画得慢」。
+  it('motionProbe 交出 (dtMs, steps, drew)，脏帧门跳过的帧 drew=false 而 steps 照记', () => {
+    const { app, game } = makeApp();
+    const seen: Array<readonly [number, number, boolean]> = [];
+    app.onRender = (): void => {};
+    app.motionProbe = (dtMs, steps, drew): void => { seen.push([dtMs, steps, drew]); };
+
+    app.tick(1 / 60);              // 首帧：内容变了 ⇒ 真画
+    app.tick(1 / 60);              // 同内容 ⇒ 脏帧门跳过（画面没动）
+    game.size = 20;
+    app.tick(1 / 60);              // 内容又变 ⇒ 真画
+    app.tick(1000 / 120 / 1000);   // 高刷屏的短帧：仿真没推进，但仍走了 render 口
+
+    expect(seen.map((f) => f[2])).toEqual([true, false, true, false]);
+    expect(seen[3]![1]).toBe(0);                     // 8.33ms 帧 ⇒ 0 个固定步
+    expect(seen[0]![1]).toBe(1);                     // 16.67ms 帧 ⇒ 1 步
+    expect(seen[0]![0]).toBeCloseTo(1000 / 60, 3);    // dtMs 用毫秒口径
+    expect(seen.length).toBe(4);
+  });
+
+  it('motionProbe 默认 null ⇒ 不接线时热路径不多一次调用', () => {
+    const { app } = makeApp();
+    app.onRender = (): void => {};
+    expect(app.motionProbe).toBeNull();
+    expect(() => app.tick(1 / 60)).not.toThrow();
+  });
 });
