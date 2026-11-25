@@ -94,7 +94,8 @@ export class BoardCameraController {
    * 口径保持原样：**不**清滑杆拖拽态与调试累计；调用方随后自行重算布局（`_layout`）。
    */
   resetForAssembly(): void {
-    fitCamera(this._cam, this._host.grid.cols, this._host.grid.rows);
+    // `[WXG-T-1056]` 初始 fit 按内容列跨度钉托盘（墨界，口径同缩略 T-1055）；无空边盘与旧口径逐位相同。
+    fitCamera(this._cam, this._host.grid.cols, this._host.grid.rows, this._host.grid.contentColSpan());
     resetGesture(this._gesture);
     this._tapActive = false;
     this._tapMoved = false;
@@ -127,7 +128,7 @@ export class BoardCameraController {
       clampCamera(this._cam, this._host.grid.cols, this._host.grid.rows);
       this._changed();
     } else if (hit === 'fit') {
-      fitCamera(this._cam, this._host.grid.cols, this._host.grid.rows);
+      fitCamera(this._cam, this._host.grid.cols, this._host.grid.rows, this._host.grid.contentColSpan());
       this._changed();
     } else {
       this._applySlider(x);

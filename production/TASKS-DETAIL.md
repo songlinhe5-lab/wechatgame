@@ -12254,3 +12254,21 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 **修法**：`drawBeadFace` 的 `bounds` 闸从「仅 `beadGap`（详情档）才取墨界」改为**恒取 `levelThumbInkBounds`**（函数改导出），名义阵仅作无墨回落；主车选关格 / 详情留缝档 / 橱窗三处同源。逐关实测：其余八关墨界 = 名义阵 ⇒ 换算逐字节不变，仅 L9 pitch 3.30→4.13（+25%）。测试侧同式复算腿 `meta-menu-wall::thumbMetrics` 同源改墨界跨度；`menu-thumb-primitives` / `arc-level-select-page` 复算腿所用关卡墨界=名义阵 ⇒ 零改。
 
 **验证 / 取证**：TDD 先红后绿（新例 `arc-level-select-page` L9 钉「跨度 > 槽高−6」，改前读数 ≈79 失败）；定向 80/80；beads 全量仅 ui-golden `level-select` / `level-select-mid` 两帧预期漂移 ⇒ 按本单代码锚干净 worktree 重抓（两遍确定性自证）；§12 视觉变更登记；verify 24/24。
+
+## WXG-T-1056
+
+**名称**：初始盘面 fit 改按内容列跨度（墨界），带空边大盘初屏放大
+
+**触发**：用户 2026-11-25 真机截图（LV9 曼陀罗）裁「这是初始状态，盘面偏小，缩放比例不对」。
+
+**根因**（读数实锤）：`computeFitZoom` 横向目标钉托盘宽但基准是**名义列**：L9 名义 30 列、有墨 24 列（四周各 3 空列）⇒ fit = 666/(30×32−2)≈0.695，圆图案只占托盘宽 80%。与选关格 T-1055 / 详情 T-1052 同族：墨界口径未覆盖到初始相机。
+
+**修法**（口径同源，一处公式 + 一条装配腿）：
+- `board-camera.ts computeFitZoom(cols, rows, contentCols?)`：给定后 `natW = contentCols × BEAD_PITCH − BEAD_GAP`；缺省 / ≤0 / ≥名义列 ⇒ 回落名义阵（逐字节旧口径）；平移夹取 / 命中 / LOD 仍按名义阵（⛔ 玩法域不改）。
+- `grid.ts BeadGrid.contentColSpan()`：构造期一次算好非 void 格（含 `x`）列轴包围盒，热路径零扫描零分配；全 void ⇒ cols。
+- `board-camera-controller.ts`：`resetForAssembly` / `fit` 钮两腿传 `grid.contentColSpan()`。
+- 数值真源先行：GDD §3.3 行注 + 头版本行 **v2.05** + changelog v2.05 行（冻结值零改动）。
+
+**影响面**：L9 fit 0.695→0.869（图案占托盘宽 80%→100%）；无空边盘（现池其余关）逐位零漂移 ⇒ ui-golden 零重抓。
+
+**验证 / 取证**：TDD 先红后绿（`board-camera.test.ts` 公式腿 + 装配腿，改前红）；定向 37/37；typecheck 零错；beads 全量 1631/1633（2 skip）绿、金样零漂移；`pnpm harness:build` 同步 Cocos 镜像；verify 24/24。

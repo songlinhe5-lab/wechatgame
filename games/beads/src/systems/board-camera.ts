@@ -113,10 +113,16 @@ function boardPx(cols: number, rows: number, zoom: number): { w: number; h: numb
  * 上下溢出盘带。[五续裁 v1.67 订正] 溢出行**照画**（带内剔除退役，`view-model` 离屏剔除
  * 兜性能）；拖动可见性见 `clampCamera`；带外屏位仍属 HUD/托盘路由区，手势不可点中盘面。
  * 代价（如实）：顶格档「行数域」消失（fit 不再看 rows），长盘「开局完整可见」不变式退役 `[待真机]`。
+ * **[WXG-T-1056 · 用户 2026-11-25 真机裁「初始盘面偏小，缩放比例不对」]**：可选第三参 `contentCols`
+ * = **内容列跨度**（非空/非 void 格的列轴包围盒，口径同选关格缩略 T-1055 / 详情 T-1052 的墨界）：
+ * 给定后横向目标改钉**墨界宽** ⇒ 带空边大盘（如 L9 曼陀罗名义 30 列、墨 24 列）初始不再被
+ * 名义阵摊薄（fit 666/958≈0.70 → 666/766≈0.87）。缺省 / ≤0 ⇒ 名义列（逐字节旧口径）；
+ * 墨界 = 名义列的盘（现池其余关）换算不变。平移夹取 / 命中仍按名义阵（⛔ 玩法域不改）。
  */
-export function computeFitZoom(cols: number, _rows: number): number {
+export function computeFitZoom(cols: number, _rows: number, contentCols?: number): number {
   // v1.65：行高不再参与 fit（形参保留，调用面不扩）
-  const natW = cols * BEAD_PITCH - BEAD_GAP;
+  const span = contentCols !== undefined && contentCols > 0 && contentCols < cols ? contentCols : cols;
+  const natW = span * BEAD_PITCH - BEAD_GAP;
   return Math.min(CAMERA_ZOOM_MAX, TRAY_PANEL_WIDTH / natW);
 }
 
@@ -127,9 +133,9 @@ export function resetCamera(cam: BoardCamera): void {
   cam.offsetY = IDENTITY_CAMERA.offsetY;
 }
 
-/** Set a camera to the fitting, centred initial view for a board (开局 / 换关 / 重试). */
-export function fitCamera(cam: BoardCamera, cols: number, rows: number): void {
-  cam.zoom = computeFitZoom(cols, rows);
+/** Set a camera to the fitting, centred initial view for a board (开局 / 换关 / 重试 / 冲刺换 stage)。 */
+export function fitCamera(cam: BoardCamera, cols: number, rows: number, contentCols?: number): void {
+  cam.zoom = computeFitZoom(cols, rows, contentCols);
   cam.offsetX = 0;
   cam.offsetY = 0;
 }

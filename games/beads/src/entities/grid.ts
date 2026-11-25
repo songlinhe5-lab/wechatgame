@@ -48,6 +48,9 @@ export class BeadGrid {
   readonly cols: number;
   private readonly _cells: GridCell[];
   private readonly _fillableTotal: number;
+  /** `[WXG-T-1056]` 非 void 格的**列轴跨度**（含 `x` 锁定格，口径同缩略墨界 T-1055）；全 void ⇒ `cols`。
+   * 构造期一次算好 ⇒ 初始 fit 读它零扫描、零分配。 */
+  private readonly _contentCols: number;
   private _filledCount = 0;
   /** Misplaced (`filled` with bead ≠ 底色) counter, maintained incrementally. */
   private _misplacedCount = 0;
@@ -57,10 +60,16 @@ export class BeadGrid {
     this.cols = pattern[0]?.length ?? 0;
     this._cells = [];
     let fillable = 0;
+    let inkMinC = this.cols;
+    let inkMaxC = -1;
     for (let i = 0; i < this.rows; i++) {
       const row = pattern[i]!;
       for (let j = 0; j < this.cols; j++) {
         const ch = row[j]!;
+        if (ch !== '.') {
+          if (j < inkMinC) inkMinC = j;
+          if (j > inkMaxC) inkMaxC = j;
+        }
         if (ch === 'x') {
           // Locked bead: not fillable, not counted (decoration/教学).
           this._cells.push({ state: 'locked', colorIdx: 0, beadColorIdx: 0, void: false });
@@ -83,6 +92,12 @@ export class BeadGrid {
       }
     }
     this._fillableTotal = fillable;
+    this._contentCols = inkMaxC < 0 ? this.cols : inkMaxC - inkMinC + 1;
+  }
+
+  /** 内容列跨度（非 void 格的最小/最大列含端点差 + 1）⇒ 初始 fit 的墨界基准（WXG-T-1056）。 */
+  contentColSpan(): number {
+    return this._contentCols;
   }
 
   cell(row: number, col: number): GridCell | undefined {

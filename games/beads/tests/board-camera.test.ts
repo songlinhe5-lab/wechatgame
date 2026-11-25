@@ -115,6 +115,17 @@ describe('computeFitZoom / fitCamera（issue 3 初始适配）', () => {
     expect(c.offsetX).toBe(0);
     expect(c.offsetY).toBe(0);
   });
+  it('`[WXG-T-1056]` fit 基准 = **内容列跨度**（墨界钉托盘）：30 列盘四周各 3 空列 ⇒ 墨 24 列口径放大', () => {
+    // 用户 2026-11-25 真机裁「初始盘面偏小，缩放比例不对」（L9 曼陀罗名义 30×30、墨 24×24）：
+    // 旧口径按名义列钉托盘 ⇒ 空边进比例，圆图案只占托盘宽 80%。新口径同选关格 T-1055 / 详情 T-1052。
+    const fNom = computeFitZoom(30, 30);
+    const fInk = computeFitZoom(30, 30, 24);
+    expect(fInk).toBeCloseTo(TRAY_PANEL_WIDTH / (24 * BEAD_PITCH - BEAD_GAP), 12);
+    expect(fInk, '墨界 < 名义列 ⇒ 初始放大').toBeGreaterThan(fNom);
+    expect(computeFitZoom(BC, BR, BC), '无空边 ⇒ 与名义口径逐位相同').toBe(computeFitZoom(BC, BR));
+    expect(computeFitZoom(30, 30, 0), '无墨 ⇒ 回落名义阵').toBe(fNom);
+    expect(computeFitZoom(30, 30), '不传第三参 ⇒ 逐字节旧口径').toBe(fNom);
+  });
 
   // 顶格档（fit ≥ 1 的最大盘）随基准动：13×11（52 基）→ 22×18（§3.3 v1.57）→ 22×16（v1.58 让高）
   //→ 20×16（v1.64）→ **列域 20，行数域退役**（§3.3 v1.65 · WXG-T-262 三续裁「宽度对齐托盘整体
@@ -377,6 +388,26 @@ function fillCurrentStage(h: Harness): void {
 }
 
 describe('复位落点 = fit 初始（WXG-T-172 / ADR-0015 §3.4 · TC-CAM-08）', () => {
+  it('`[WXG-T-1056]` 装配腿：带空边大盘（30×30、墨 24×24）进关 ⇒ zoom = 墨界 fit > 名义 fit', () => {
+    const margined = simpleTestLevel({
+      id: 93,
+      cols: 30,
+      rows: 30,
+      time: LEVEL_TIME_MIN,
+      pattern: Array.from({ length: 30 }, (_r, i) =>
+        i < 3 || i > 26 ? '.'.repeat(30) : '...'.repeat(1) + '123'.repeat(8).slice(0, 24) + '...'.repeat(1),
+      ),
+    });
+    const h = createBeadsHarness({ noAssemble: true, levels: [margined], saveKey: 'wxgame.beads.test.cam1056-ink' });
+    dirtyCamera(h.game);
+    h.game.goToLevel(0);
+    expect(h.game.grid.cols).toBe(30);
+    expect(cameraOf(h.game).zoom, '初始 zoom 按内容列跨度（24）钉托盘，⛔ 名义 30 列摊薄').toBe(
+      computeFitZoom(30, 30, 24),
+    );
+    expect(cameraOf(h.game).zoom).toBeGreaterThan(computeFitZoom(30, 30));
+  });
+
   it('换关（_setupLevel）：`BC×BR` 大盘归 fit，且 fit<1 ⇒ 与旧「恒等」档不等价', () => {
     // 受控夹具（先例 = 同文件小盘例喂 smallTestLevel、retry 例喂 bigTestLevel）：
     // 旧版 `goToLevel(7)` + `LEVELS[7 % LEVELS.length]` 是对**出货关表**的巧合耦合 ——
