@@ -919,12 +919,13 @@ function drawTrayPlateShading(
     ink: string,
 ): void {
     // [EP12-S3] 墨改读 `palette.shadowInk`（tokens.md §1 暖化；几何/α = TRAY_PLATE 不动）。
+    // `[WXG-T-1074]` 三条内阴影随面板一起**不沉底**（末参 false）：面板已提到普通 Graphics，若内阴影仍走 `back`，会被面板整片盖住 = 白画；同时它们仍排在槽 / 珠之前 ⇒ 不会画在珠面上（旧注释担心的正是这一点，顺序已保证）。
     // 底缘外段（α 0.03）。
-    builder.line(x, y + h - TRAY_PLATE.width, x + w, y + h - TRAY_PLATE.width, withAlpha(ink, TRAY_PLATE.bottomOuterAlpha), TRAY_PLATE.width, undefined, true);
+    builder.line(x, y + h - TRAY_PLATE.width, x + w, y + h - TRAY_PLATE.width, withAlpha(ink, TRAY_PLATE.bottomOuterAlpha), TRAY_PLATE.width, undefined, false);
     // 底缘内段（α 0.05）。
-    builder.line(x, y + h - TRAY_PLATE.width * 2, x + w, y + h - TRAY_PLATE.width * 2, withAlpha(ink, TRAY_PLATE.bottomInnerAlpha), TRAY_PLATE.width, undefined, true);
+    builder.line(x, y + h - TRAY_PLATE.width * 2, x + w, y + h - TRAY_PLATE.width * 2, withAlpha(ink, TRAY_PLATE.bottomInnerAlpha), TRAY_PLATE.width, undefined, false);
     // 右缘段（α 0.02）。
-    builder.line(x + w - TRAY_PLATE.width, y, x + w - TRAY_PLATE.width, y + h, withAlpha(ink, TRAY_PLATE.rightAlpha), TRAY_PLATE.width, undefined, true);
+    builder.line(x + w - TRAY_PLATE.width, y, x + w - TRAY_PLATE.width, y + h, withAlpha(ink, TRAY_PLATE.rightAlpha), TRAY_PLATE.width, undefined, false);
 }
 /**
  * **抬起等比因子的唯一算式**（盘面 `drawGrid` / 托盘 `drawTray` 共用，T-244 十三批 ③④）。
@@ -1006,8 +1007,12 @@ function drawTray(
     // [EP12-S2/S3 · 2026-10-07 用户裁 P-3=24] 外壳改走 T1 通用绘制面：投影（+3px，shadowInk α0.10）
     //   + 面 + 1px panelBorder 描边 + **圆角 18→24**（assets-spec §1.3 口径收敛，漂移正式消除）；
     //   仍打 `back`（桌面通道，blit 之下，S5′-4 判例不动）；内部三段微拱内阴影随后叠上（ink 暖化）。
+    // `[WXG-T-1074]` 托盘面板**不再沉底**（用户 2026-11-25 选 B：盘面豆子溢出到托盘区时须被面板遮住）。
+    // 旧口径 `back: true` 会把面板与内阴影送到宿主 `backGraphics`（节点树最底层、blit 载体之下）
+    // ⇒ 盘面豆子恒压在托盘之上。play 帧全是矢量图元（同层按绘制序），改为普通 Graphics 后
+    // `drawGrid → drawTray(面板→内阴影→槽→珠)` 的顺序即层序，托盘恒在盘面之前绘制的珠面之上。
     drawPaperPanel(builder, lay.panelX, lay.panelBottom, lay.panelW, lay.panelH,
-        palette, UI_CONTAINER.radiusPanel, UI_CONTAINER.shadowAlphaPanel, true);
+        palette, UI_CONTAINER.radiusPanel, UI_CONTAINER.shadowAlphaPanel, false);
     // 「微拱白瓷」三段内阴影（§1.3 v1.5，WXG-T-131/143）：底缘两段 + 右缘一段 ——
     // 平面板的轻体积感；α 极低（0.03/0.05/0.02），不与满槽告警危险描边竞争。
     drawTrayPlateShading(builder, lay.panelX, lay.panelBottom, lay.panelW, lay.panelH, palette.shadowInk);

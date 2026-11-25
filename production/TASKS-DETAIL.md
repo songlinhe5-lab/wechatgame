@@ -12689,3 +12689,16 @@ P07/P09 首玩即 3★；P08 距 3★ 线仅 3s。P07–P09 越 §5.0.1-2 的 25
 **验证**：TDD 先红后绿（`1 行：expected 378 to be ≤ 284`），定向 4/4；全量 verify 因托盘面板变高 ⇒ 金样 5 帧（play/pause/clear/fail/sprint-settle）+ `WXG-T-211-S3` 封箱基准 sha 漂移，**待按干净锚重抓**。
 
 **② 待澄清**：「底槽底板图」在当前实现里不存在独立位图 —— play 页托盘是纯矢量（`drawPaperPanel` 面板 + `drawEmptySocket` 槽 + `drawBead` 珠），面板刻意走 `back` 通道（graphics 之下）。用户所述「豆面应在底槽下面」若指「珠子被托盘带孔底板遮住（嵌在槽里）」，则需新增带孔底板位图并反转层序，属美术+层序同批改动，待用户确认所指后单独立项。
+
+
+## WXG-T-1074
+
+**托盘面板去 `back` 沉底（用户选 B）** · 负责：主理人(CodeBuddy)·工程轨 · 状态：🚧 **进行中（2026-11-25）**
+
+前单（T-1073）遗留问题②经用户澄清为**方案 B**：盘面豆子溢出到托盘区域时，应当被**托盘面板遮住**（面板须在豆面之上）。
+
+**根因**：`drawPaperPanel` 的末参 `back: true` 会把 rect/line 送到宿主 `backGraphics` —— 该 Graphics 由 `bindings.ts` 挂在**节点树最底层（blit 载体之下）**（`cocos-renderer.ts:171-178 / 421-423`）。托盘面板与三条内阴影（`drawTrayPlateShading`）全部带 `back: true` ⇒ 托盘恒在盘面豆子之下。
+
+**修法（纯层序，零几何改动）**：`play-page.ts` 四处 `back` → `false`（托盘面板 1 处 + 内阴影 3 条 `line`）。play 帧**全是矢量图元**（金样 kinds：`rect/circle/line/text/polygon`，无 blit）⇒ 同层按绘制序决定层序：`drawHud → drawGrid（盘面）→ drawZoomControls → drawTray（面板 → 内阴影 → 槽 → 珠）` ⇒ 托盘恒在盘面豆子之上，且托盘自己的槽/珠仍在其顶部（面板先画）✓。内阴影必须**同批**移出：若留在 `back`，会被已上移的面板整片盖住 = 白画（旧注释担心的「内阴影画在珠面上」由绘制序保证——它们在槽/珠之前）。
+
+**验证**：`play-page.test.ts` 新增层序防回退断言（面板 rect 的 `back` 必须为 false；play 帧内 `back:true` 的 `line` 数必须为 0），定向 4/4；全量 verify 因 `back` 标志属命令流一部分 ⇒ 金样 5 帧（play/pause/clear/fail/sprint-settle）+ `WXG-T-211-S3` 封箱基准 sha 漂移，**待按干净锚重抓**。

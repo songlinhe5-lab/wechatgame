@@ -106,4 +106,25 @@ describe('UI-41 · PlayPage', () => {
         // WXG-T-420 T7：顶栏齿轮画法复用腿随 `drawTopbar` 搬到 `meta-menu.ts`（判例 K-183 ⇒ 守卫跟着迁移）。
         expect(read('src/view/meta-menu.ts')).toContain("import { drawGear } from './play-page.js';");
     });
+    it('[WXG-T-1074] 托盘面板与内阴影不得沉底(back)：否则盘面豆子会浮到托盘之上', () => {
+        // 用户 2026-11-25 选 B：盘面豆子溢出到托盘区域时须被托盘面板遮住。旧口径面板与三条
+        // 内阴影都带 `back: true` ⇒ 宿主把它们送到 `backGraphics`（节点树最底层、blit 载体之下）
+        // ⇒ 盘面豆子恒压在托盘之上。play 帧全是矢量图元（同层按绘制序）⇒ 去掉 `back` 后
+        // `drawGrid → drawTray` 的顺序本身即层序。
+        const h = harness();
+        const cmds = modelOf((b) =>
+            drawPlayPage(b, h.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS, true),
+        ).commands;
+        const rows = Math.ceil(h.game.snapshot.traySlots.length / 12);
+        const lay = trayLayout(rows, DESIGN_W);
+        const panel = cmds.find(
+            (c) => c.kind === 'rect' && c.x === lay.panelX && c.y === lay.panelBottom && c.w === lay.panelW,
+        ) as { back?: boolean } | undefined;
+        expect(panel, '托盘面板 rect 存在').toBeTruthy();
+        expect(panel!.back ?? false, '⛔ 面板沉底 ⇒ 盘面豆子压在托盘之上').toBe(false);
+        expect(
+            cmds.filter((c) => c.kind === 'line' && (c as { back?: boolean }).back === true).length,
+            '⛔ 托盘内阴影不得残留在 back 通道（会被面板整片盖住）',
+        ).toBe(0);
+    });
 });
