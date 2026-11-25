@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 222,
+  "nextId": 223,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -3716,6 +3716,23 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-222",
+      "state": "active",
+      "file": "knowledge/lessons/testing-guard.md",
+      "category": "测试守卫",
+      "title": "关卡 pattern 与 misplaced 不能各自做镜像收尾：游戏侧「珠色守恒」校验会当场拒装，证明两半是同一个多重集",
+      "contentHash": "7e1cd9399ce5d3ccc691e7612aa5e2e7316ee5e2c1270c99e1a83209199c457b",
+      "sourceTask": "WXG-T-1068",
+      "addedDate": "2026-11-25",
+      "lastAccess": "2026-11-25",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -5971,6 +5988,15 @@
         "K-219",
         "K-220",
         "K-221"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-11-25",
+      "taskId": "WXG-T-1068",
+      "kind": "added",
+      "ids": [
+        "K-222"
       ],
       "note": null
     }

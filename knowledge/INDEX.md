@@ -328,4 +328,5 @@
 | K-219 | 工具链图像 | toolchain-image | NEAREST 统缩会悄悄破掉上一步做好的强制镜像；收尾镜次的轴必须取画布中心，⛔ 用 bbox 中心 | WXG-T-1064 | 2026-11-25 | 0 | active |
 | K-220 | 工具链上下文 | toolchain-context | 预算门已顶满的档案里加跨章新令：正解是落「已豁免的同页正本」，⛔ 塞进余量只有几十 token 的分册反复压缩 | WXG-T-1064 | 2026-11-25 | 0 | active |
 | K-221 | 判据实测取证 | criteria-measure-evidence | 图像对称性读数两条必错路：按画布中线比对（图不居中造出假不对称）与拿无 alpha 的渲染件跑 alpha 判据（得恒真值） | WXG-T-1064 | 2026-11-25 | 0 | active |
+| K-222 | 测试守卫 | testing-guard | 关卡 pattern 与 misplaced 不能各自做镜像收尾：游戏侧「珠色守恒」校验会当场拒装，证明两半是同一个多重集 | WXG-T-1068 | 2026-11-25 | 0 | active |
 <!-- kb:active:end -->
