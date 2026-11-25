@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 223,
+  "nextId": 224,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -3733,6 +3733,23 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-223",
+      "state": "active",
+      "file": "knowledge/lessons/process-gate.md",
+      "category": "流程门禁",
+      "title": "人工实测时长回流定价要锚",
+      "contentHash": "4506a31c3e20408d4b20d038914d34d6064ed9773a50361aba3170a71fe5659c",
+      "sourceTask": "WXG-T-1069",
+      "addedDate": "2026-11-25",
+      "lastAccess": "2026-11-25",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -5997,6 +6014,24 @@
       "kind": "added",
       "ids": [
         "K-222"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-11-25",
+      "taskId": "WXG-T-1069",
+      "kind": "added",
+      "ids": [
+        "K-223"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-11-25",
+      "taskId": "WXG-T-1069",
+      "kind": "updated",
+      "ids": [
+        "K-223"
       ],
       "note": null
     }
