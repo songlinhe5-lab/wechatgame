@@ -125,8 +125,7 @@ describe('UI-41 · PlayPage', () => {
             cmds.filter((c) => c.kind === 'line' && (c as { back?: boolean }).back === true).length,
             '托盘三条内阴影须同批沉底（否则浮在槽/珠之上）',
         ).toBe(3);
-        // B 的等效实现：盘面绘制被 clip 限死在盘面带内
-        const clips = cmds.filter((c) => c.kind === 'clip');
-        expect(clips.length, '盘面须有 clip 包夹').toBeGreaterThanOrEqual(1);
+        // 「盘面溢出被遮」由相机平移边界承担（零图元）⇒ play 帧不应出现 clip/unclip
+        expect(cmds.filter((c) => c.kind === 'clip').length, '⛔ 不用渲染裁剪').toBe(0);
     });
 });

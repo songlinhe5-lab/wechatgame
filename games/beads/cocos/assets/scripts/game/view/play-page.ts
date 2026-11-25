@@ -47,7 +47,6 @@ import {
     GROUP_LAND_DROP_PX,
     HINT_PULSE_MS,
     HUD_BAND,
-    PUZZLE_BAND,
     POWERUP_BADGE_GLYPH_EDGE,
     POWERUP_BADGE_INSET,
     POWERUP_BADGE_RADIUS,
@@ -164,12 +163,11 @@ export function drawPlayPage(
     // 第二块 Graphics）。视图层不再画背景层／容器板 ⇒ 「珠下」零图元，层序冲突消解。
     builder.setBackground(palette.background);
     drawHud(builder, snap, palette);
-    // `[WXG-T-1078]` 盘面**裁剪到 `PUZZLE_BAND`**：面板回 `back` 后（层序见 `drawTray`），
-    // 「盘面豆子溢出到托盘区要被面板遮住」不能再靠层序 ⇒ 直接把盘面绘制限死在盘面带内，
-    // 溢出内容根本不上屏（用户 2026-11-25 选 B 的等效实现）。
-    builder.clip(0, PUZZLE_BAND.yMin, DESIGN_W, PUZZLE_BAND.yMax - PUZZLE_BAND.yMin);
+    // `[WXG-T-1078]` ⛔ 这里**不加 `clip`**：裁剪会引入 `clip`/`unclip` 两条图元，触发 S3 封箱基准的
+    // 「Δtotal 全部可归因」登记链（三层校验）与真机 blit→clipLayer 搬迁副作用，收益却只是盖住一个
+    // 极罕见态（相机平移把盘面拖进托盘带）。该诉求由**相机平移边界**兜住（盘面底缘不得下探到
+    // `PUZZLE_BAND.yMin` 之下），零图元、零层序风险。
     drawGrid(builder, snap, palette, inks);
-    builder.unclip();
     drawZoomControls(builder, snap, palette, zoomControlsVisible); // 缩放控件条（盘面下方净空带，不遮珠）
     drawTray(builder, snap, palette, inks);
     drawExpandButton(builder, snap, palette);
@@ -1021,7 +1019,7 @@ function drawTray(
     // `[WXG-T-1078]` 面板**回到 `back`**（撤销 T-1074 的层序改动）：真机 tint 臂下托盘槽底与珠子是
     // **blit**，而 `graphics` 恒在 `blit` 之上 ⇒ 面板一旦提到普通 Graphics 就会盖住槽底（用户报
     // 「底槽里的珠子底色被背景板覆盖」，珠孔透出的正是被盖住的槽底）。「盘面豆子溢出托盘区要被遮」
-    // 改由 `drawGrid` 的**盘面裁剪**承担（见 `drawPlayPage` 里 `PUZZLE_BAND` 那段）。
+    // 改由**相机平移边界**承担（盘面底缘不得下探到托盘带；零图元，见 `drawPlayPage` 那段注）。
     drawPaperPanel(builder, lay.panelX, lay.panelBottom, lay.panelW, lay.panelH,
         palette, UI_CONTAINER.radiusPanel, UI_CONTAINER.shadowAlphaPanel, true);
     // 「微拱白瓷」三段内阴影（§1.3 v1.5，WXG-T-131/143）：底缘两段 + 右缘一段 ——
