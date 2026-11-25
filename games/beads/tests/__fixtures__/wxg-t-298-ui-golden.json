@@ -4,7 +4,7 @@
   "unit": "UI-02",
   "spec": "docs/architecture/ui-architecture-beads.md §5 / §9.4 / §12",
   "codeBaseline": "bd964a0",
-  "capturedFrom": "71368471 · 工作树（WXG-T-298）",
+  "capturedFrom": "57d9423d · 工作树（WXG-T-298）",
   "fixture": {
     "viewport": {
       "width": 750,
@@ -171,7 +171,7 @@
         "text": 10,
         "polygon": 156
       },
-      "sha": "5792b2fadf35c0c6289b6c21a126bbb7f0411f562f760d87be389ea299a23d75",
+      "sha": "89226bc16f3a7bdb58f1aba64df26928dcf8be3ed21df0aadcc03d4c3dce3a88",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -194,7 +194,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "f204d4a56a79adaac289960f7a0b1cb74082b9506dd98c05a800c46dc1e03b66",
+      "sha": "77b2c7f4902f2c27ecd3bed16125d96aabf3a7dd57b2766af82abf52b34ff363",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -218,7 +218,7 @@
         "blit": 1,
         "containerEnd": 1
       },
-      "sha": "f0472dc88c32347c740fc9713172c22e08bb1b970d2b26e7d11b97ebd35b78fe",
+      "sha": "99b4a0214fd24c00ba9499c907a3088f6612d5ba62bee133f6b0b00f3e9ab08b",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -241,7 +241,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "afb5c8c0ebc50e33b59ac6c98be68520086f765d95c01eadbbb4b160dc2bab43",
+      "sha": "8b04c19834cc529523b8d79350a60a1f548e32d13517bf02e84fc57184b958b2",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -264,7 +264,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "0de66a7a27cb6551ed16e0c87475672282cb934abfadfb77f63f8b09528313d0",
+      "sha": "9e2928f12ebe2b75f106e79809512ba1b1203e913cd333f813718d2178a00b7e",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -287,7 +287,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "880a0579ecbb375e265a2dc24a9f5fdf51f547b1080ab84a02e24a60773fd3a6",
+      "sha": "ded92351ea10ae744c12fc32fa452952fe8f27e4cf03e47638f4a514c10dc4c2",
       "background": "#F1E8D8",
       "transform": null
     }
