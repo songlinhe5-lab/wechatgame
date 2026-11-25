@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4341,
       "lines": 143,
-      "sha256": "065f4dd83063a5f15ac7a8e0b78634cff72c8922525bfac51cb876d06c304e16",
+      "sha256": "9ebe286964774d3ebcb718186e4e4e546b58ff95963d6fdf10964f12ad9cccd6",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 407,
-          "summary": "1 production/TASKS-DETAIL.md 400237 12569 normal",
+          "summary": "1 production/TASKS-DETAIL.md 401276 12594 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5209,
       "lines": 159,
-      "sha256": "6a5026cdd8cf9dbc2428f0c1352a3184c74bbe06b85c1820e6f1540417a5a657",
+      "sha256": "a914c58ed644dd8acce22c29d730a74c6d5710b3da775bada809719e5917bc6e",
       "tier": "normal",
       "sections": [
         {
@@ -761,12 +761,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 371 行 / 116501 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 372 行 / 116915 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+372 · §待排（backlog，无号，立项时领取…=342+31",
+          "summary": "§WXG 任务台账（SSOT）=1+373 · §待排（backlog，无号，立项时领取…=343+31",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1080,12 +1080,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 12569 行 / 400237 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 12594 行 / 401276 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
           "tokens": 130,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+12570 · §WXG-T-1059=12301+14 · §WXG-",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+12595 · §WXG-T-1059=12301+14 · §WXG-",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -5670,17 +5670,17 @@
     },
     {
       "path": "docs/architecture/adr/ADR-0015-beads-board-zoom-pan-input.md",
-      "tokens": 12909,
-      "lines": 250,
-      "sha256": "905b2f91ccc46be55279149a66fcbe80b2a8fdaa6590ecde57e4da0d71539b28",
+      "tokens": 13142,
+      "lines": 252,
+      "sha256": "aaeac317fabaae89bbbaa571daa7be0a5cd0f1c8b0a9adf3a4296b33d8e66409",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§ADR-0015 — 棋盘区双指缩放 + 单指平移：多点输入槽进 `core/input`，区域变换走「布局即相机」",
           "level": 1,
           "startLine": 1,
-          "endLine": 251,
-          "tokens": 12870,
+          "endLine": 253,
+          "tokens": 13103,
           "summary": "编号：ADR-0015（0008 跳空合规沿 ADR-0013/0014 注；0009–0014 已用；号只分配不回收）",
           "keywords": [
             "core/input",
@@ -5832,8 +5832,8 @@
           "anchor": "§3 决定（Decision）",
           "level": 2,
           "startLine": 133,
-          "endLine": 204,
-          "tokens": 3751,
+          "endLine": 206,
+          "tokens": 3984,
           "summary": "",
           "keywords": [
             "Decision",
@@ -5874,8 +5874,8 @@
           "anchor": "§3.3 区域变换与 hit-test（丁-3）",
           "level": 3,
           "startLine": 148,
-          "endLine": 157,
-          "tokens": 817,
+          "endLine": 159,
+          "tokens": 1050,
           "summary": "1. 相机状态 BoardCamera = { zoom, offsetX, offsetY }（三个标量），权威存于玩",
           "keywords": [
             "hit",
@@ -5889,8 +5889,8 @@
         {
           "anchor": "§3.4 工程不变式与护栏（数值留空，由设计轨冻结）",
           "level": 3,
-          "startLine": 158,
-          "endLine": 171,
+          "startLine": 160,
+          "endLine": 173,
           "tokens": 953,
           "summary": "相机只在 shell.screen === 'play' 且玩法相位 playing 时生效；PAUSED / LEVE",
           "keywords": [
@@ -5905,8 +5905,8 @@
         {
           "anchor": "§3.5 待主理人 / 用户裁定的开放分叉（本文不锁死）",
           "level": 3,
-          "startLine": 172,
-          "endLine": 179,
+          "startLine": 174,
+          "endLine": 181,
           "tokens": 461,
           "summary": "C-1｜多点通道：甲′（推荐）／乙（适配层，否因 §2.1）／丙（无缩放降级档，否因 §2.1）。否 甲′ ⇒ 缩放与盘",
           "keywords": [
@@ -5920,8 +5920,8 @@
         {
           "anchor": "§3.6 最小验证（本文只列判据，不落码；未做的一律标未执行）",
           "level": 3,
-          "startLine": 180,
-          "endLine": 193,
+          "startLine": 182,
+          "endLine": 195,
           "tokens": 619,
           "summary": "Node 侧可证（施工必做，[N]）",
           "keywords": [
@@ -5936,8 +5936,8 @@
         {
           "anchor": "§3.7 本文**未**改动的文件（回写清单，待主理人串行落笔）",
           "level": 3,
-          "startLine": 194,
-          "endLine": 204,
+          "startLine": 196,
+          "endLine": 206,
           "tokens": 223,
           "summary": "本 ADR 是 Proposed 草稿，未动任何代码、未动其他 ADR/文档。批准后须同批复写（顺序按 §17/K-05",
           "keywords": [
@@ -5952,8 +5952,8 @@
         {
           "anchor": "§4 后果（Consequences）",
           "level": 2,
-          "startLine": 205,
-          "endLine": 240,
+          "startLine": 207,
+          "endLine": 242,
           "tokens": 2107,
           "summary": "",
           "keywords": [
@@ -5964,8 +5964,8 @@
         {
           "anchor": "§4.1 正面",
           "level": 3,
-          "startLine": 207,
-          "endLine": 216,
+          "startLine": 209,
+          "endLine": 218,
           "tokens": 341,
           "summary": "1. 多点能力一次进 core 且向后兼容：槽位 + 扁平字段、旧 8 字段语义不动 ⇒ breakout 与既有路由零",
           "keywords": [
@@ -5977,8 +5977,8 @@
         {
           "anchor": "§4.2 负面（已知成本，白纸黑字，不是风险）",
           "level": 3,
-          "startLine": 217,
-          "endLine": 229,
+          "startLine": 219,
+          "endLine": 231,
           "tokens": 1183,
           "summary": "1. 双指落子歧义（C-3）无论如何都要付费。若最终采 (a)，bead:placed 发射帧后移，牵动 input-c",
           "keywords": [
@@ -5993,8 +5993,8 @@
         {
           "anchor": "§4.3 中性 / 待观察",
           "level": 3,
-          "startLine": 230,
-          "endLine": 240,
+          "startLine": 232,
+          "endLine": 242,
           "tokens": 550,
           "summary": "1. 图鉴若真做成「一屏 9/16 个独立缩放版面」，丁-3 的「一份相机配一张网格」可能不够 ⇒ 丁-2（分组变换通道",
           "keywords": [
@@ -6005,8 +6005,8 @@
         {
           "anchor": "§5 复评触发条件（Review Triggers）",
           "level": 2,
-          "startLine": 241,
-          "endLine": 251,
+          "startLine": 243,
+          "endLine": 253,
           "tokens": 456,
           "summary": "1. C-3 被裁定为 (a) ⇒ input-control / core-loop 时序判据重跑，本文 §3.3-4",
           "keywords": [
@@ -37316,9 +37316,9 @@
     },
     {
       "path": "games/beads/design/gdd/input-control.md",
-      "tokens": 19678,
+      "tokens": 20040,
       "lines": 206,
-      "sha256": "1a47ed1fcf22ebc34729f06675325ed17b1b60dc32d8b9a807b7af5b4eea699f",
+      "sha256": "1470a7ca394bb4b472540e1a2df37036d09811987bedb5207c1f8ce005e9aebb",
       "tier": "normal",
       "sections": [
         {
@@ -37326,7 +37326,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 207,
-          "tokens": 19662,
+          "tokens": 20024,
           "summary": "项目：games/beads · 版本 v2.13 · 任务号 WXG-T-295（v2.13 = 区外「按钮类控件」改",
           "keywords": [
             "GDD",
@@ -37492,7 +37492,7 @@
           "level": 2,
           "startLine": 126,
           "endLine": 183,
-          "tokens": 5864,
+          "tokens": 6226,
           "summary": "v2.5 时基翻转范表（WXG-T-167，ADR-0015 C-3 前置）：被翻 = 判据 2 / 4 / 9 / 1",
           "keywords": [
             "WXG",
@@ -94498,17 +94498,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 400237,
-      "lines": 12569,
-      "sha256": "88c1b79fc72f2ddbbd0782d53bf651d8c31238012befbdfe07fcfebcdc147350",
+      "tokens": 401276,
+      "lines": 12594,
+      "sha256": "590650ba5144bafa9a4c605f986e55d25cfb3e9c68962f9935cc0d5f4ae92d58",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 12570,
-          "tokens": 400220,
+          "endLine": 12595,
+          "tokens": 401259,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -112599,8 +112599,8 @@
           "anchor": "§WXG-T-1068",
           "level": 2,
           "startLine": 12496,
-          "endLine": 12539,
-          "tokens": 1992,
+          "endLine": 12547,
+          "tokens": 2334,
           "summary": "全池重产路拦停确诊（beads-gen 2★ 预算）+ 镜像收尾证伪（工程轨 Qoder，2026-11-25，承用户「",
           "keywords": [
             "WXG",
@@ -112612,8 +112612,8 @@
         {
           "anchor": "§WXG-T-1069",
           "level": 2,
-          "startLine": 12540,
-          "endLine": 12570,
+          "startLine": 12548,
+          "endLine": 12579,
           "tokens": 615,
           "summary": "A01 P01–P03 实测回流：time 改按 playtest 2★ 锚（2026-11-25）",
           "keywords": [
@@ -112624,22 +112624,34 @@
             "time",
             "playtest"
           ]
+        },
+        {
+          "anchor": "§WXG-T-1070",
+          "level": 2,
+          "startLine": 12580,
+          "endLine": 12595,
+          "tokens": 694,
+          "summary": "盘面命中改格子范围判定 · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ 完成（2026-11-25）",
+          "keywords": [
+            "WXG",
+            "CodeBuddy"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 116501,
-      "lines": 371,
-      "sha256": "77fcd95b8fb1fbc8cd058f5b29709220663c6405defdf16b815065633962eac3",
+      "tokens": 116915,
+      "lines": 372,
+      "sha256": "9e94f7ece55186c34de5e3d7eb996344784f0a6df24f19a2e70f60825b655588",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 372,
-          "tokens": 116492,
+          "endLine": 373,
+          "tokens": 116906,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -112652,8 +112664,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 342,
-          "endLine": 372,
+          "startLine": 343,
+          "endLine": 373,
           "tokens": 1571,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

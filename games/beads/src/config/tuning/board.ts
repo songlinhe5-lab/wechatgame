@@ -541,19 +541,21 @@ export function gridLayoutFor(cols: number, rows: number, camera?: BoardCamera):
 }
 
 /**
- * Nearest grid cell within the (camera-scaled) hit area — the single source of
- * the grid hit test, shared by gameplay (`beads-game::_hitGridCell`) and the
- * layout⇄hit regression test so the two can never drift (WXG-T-169 / ADR-0015).
+ * Grid cell hit test — the single source shared by gameplay (`beads-game::_hitGridCell`)
+ * and the layout⇄hit regression test so the two can never drift (WXG-T-169 / ADR-0015).
  *
- * The hit radius **scales with zoom** (`GRID_HIT_SIZE · zoom / 2`). This is not
- * polish: at any zoom the scaled pitch must stay **inside** the scaled hit box, or
- * an unscaled radius would open a no-hit seam between cells and break
- * `input-control §8-2` (nearest-centre wins, no dead zone).
+ * `[WXG-T-1067]` **口径 = 格子范围（无缝网格），不再用「以格心为圆心的圆 + 取最近」**：
+ * 用户 2026-11-25 令「以格子范围为点击判定区域」。旧实现的两个缺陷叠加后把边界条带让给邻格：
+ *  ① 圆心取 `colCenterX/rowCenterY`（= 珠子中心 `cell/2`），比格子几何中心 `pitch/2` **偏半条缝**
+ *     （`BEAD_GAP/2`）；
+ *  ② 半径 `GRID_HIT_SIZE·z/2`（46z/2 = 23z）**远大于格子半宽** `pitch·z/2`（16z）⇒ 相邻热区重叠
+ *     `2×PAD − GAP` = 14z，边界归属完全由「谁更近」决定。
+ * 真机 harness 实测（13×12 格 × 9 采样 = 1404 点）：**51.92% 的格子内采样被判给右/下邻格**
+ * （每格右缘、下缘各约 1.2px 让渡；`miss` 仅 0.07%）⇒ 玩家体感「点这颗消那颗 / 有地方点不到」。
  *
- * ⚠️ **v1.57（WXG-T-207-A）旧注释的 `52z < 66z` / `zoom=1.5 ⇒ pitch 78 > 66` 是 52 基快照**，
- * 随基尺作废。换为与尺子无关的**符号不变式**（§3.8 v1.57，由 `tests/tuning.test.ts` 钉住）：
- * `BEAD_PITCH·z < GRID_HIT_SIZE·z` ⇔ `GAP < 2×BEAD_HIT_PAD` ⇔ `2 < 16` ⇒ **恒真**。
- * Ties → smaller row.
+ * 现在的判据：点落在哪一格的 `pitch×pitch` 网格里就归哪一格 ⇒ 每点归属**唯一**、O(1)（旧为
+ * O(rows×cols) 双重扫描）。盘外 `BEAD_HIT_PAD`（= `(GRID_HIT_SIZE − BEAD_CELL)/2` = 8）内仍归
+ * 最近边缘格，保留「边缘珠也好点」的容错；再往外 `null`（盘外空白点击不消费）。
  */
 export function hitGridCell(
   layout: GridLayout,
@@ -561,23 +563,24 @@ export function hitGridCell(
   x: number,
   y: number,
 ): { row: number; col: number } | null {
-  const half = (GRID_HIT_SIZE * zoom) / 2;
-  let bestRow = -1;
-  let bestCol = -1;
-  let bestD2 = half * half;
-  for (let i = 0; i < layout.rows; i++) {
-    for (let j = 0; j < layout.cols; j++) {
-      const dx = x - layout.colCenterX(j);
-      const dy = y - layout.rowCenterY(i);
-      const d2 = dx * dx + dy * dy;
-      if (d2 < bestD2) {
-        bestD2 = d2;
-        bestRow = i;
-        bestCol = j;
-      }
-    }
+  const pad = BEAD_HIT_PAD * zoom;
+  let col = Math.floor((x - layout.left) / layout.pitch);
+  let row = Math.floor((layout.top - y) / layout.pitch);
+  if (col < 0) {
+    if (x < layout.left - pad) return null;
+    col = 0;
+  } else if (col >= layout.cols) {
+    if (x > layout.left + layout.pitch * layout.cols + pad) return null;
+    col = layout.cols - 1;
   }
-  return bestRow >= 0 ? { row: bestRow, col: bestCol } : null;
+  if (row < 0) {
+    if (y > layout.top + pad) return null;
+    row = 0;
+  } else if (row >= layout.rows) {
+    if (y < layout.top - layout.pitch * layout.rows - pad) return null;
+    row = layout.rows - 1;
+  }
+  return { row, col };
 }
 
 // ───────────────────────────────────────────────────────── §3.4 tray layout

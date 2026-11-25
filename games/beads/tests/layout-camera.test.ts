@@ -125,3 +125,40 @@ describe('反例自检（K-036）— 半径不随缩必红', () => {
         expect(found).toBeNull();
     });
 });
+
+describe('[WXG-T-1067] 格子范围判定（用户令：以格子范围为点击判定区域）', () => {
+    it('格内任意点（四角 / 边中点 / 中心）恒归本格', () => {
+        // 用户 2026-11-25 报「珠面点击不是很好点，感觉有点不到的地方」：旧实现 = 以**珠子中心**
+        // 为圆心、半径 `GRID_HIT_SIZE×zoom/2` 的圆 + 取最近。珠子中心比格子几何中心偏半条缝
+        // （`cell/2` vs `pitch/2`），圆半径又远大于格子半宽 ⇒ 每格右缘/下缘约 1.2px 被判给邻格
+        // （真机 harness 实测 1404 采样 51.92% 错判，miss 仅 0.07%）。判据 = 格子网格归属唯一。
+        const layout = gridLayoutFor(13, 12);
+        const p = layout.pitch;
+        const FRAC: ReadonlyArray<readonly [number, number]> = [
+            [0.02, 0.02], [0.5, 0.02], [0.98, 0.02],
+            [0.02, 0.5], [0.5, 0.5], [0.98, 0.5],
+            [0.02, 0.98], [0.5, 0.98], [0.98, 0.98],
+        ];
+        for (const i of [0, 5, 11]) {
+            for (const j of [0, 6, 12]) {
+                const x0 = layout.left + p * j;
+                const yTop = layout.top - p * i;
+                for (const [fx, fy] of FRAC) {
+                    expect(
+                        hitGridCell(layout, 1, x0 + p * fx, yTop - p * fy),
+                        `格(${i},${j}) 内偏移 (${fx},${fy}) 必须归本格`,
+                    ).toEqual({ row: i, col: j });
+                }
+            }
+        }
+    });
+
+    it('盘外 `BEAD_HIT_PAD` 内仍容错归边缘格，超出则 null（边缘珠好点的手感保留）', () => {
+        const layout = gridLayoutFor(13, 12);
+        const p = layout.pitch;
+        expect(hitGridCell(layout, 1, layout.left - 3, layout.top - p * 0.5), '盘左 3 < pad 8').toEqual({ row: 0, col: 0 });
+        expect(hitGridCell(layout, 1, layout.left - 20, layout.top - p * 0.5), '盘左 20 > pad 8').toBeNull();
+        expect(hitGridCell(layout, 1, layout.left + p * 13 + 3, layout.top - p * 0.5), '盘右 3 < pad 8').toEqual({ row: 0, col: 12 });
+        expect(hitGridCell(layout, 1, layout.left + p * 0.5, layout.top - p * 12 - 3), '盘下 3 < pad 8').toEqual({ row: 11, col: 0 });
+    });
+});
