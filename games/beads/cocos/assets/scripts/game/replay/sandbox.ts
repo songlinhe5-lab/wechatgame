@@ -100,7 +100,7 @@ export function createReplaySandboxGame(
   };
   const game = createBeadsGame({
     replaySandbox: true,
-    // `[WXG-T-1078]` 重演必须**如实按录像时间线推进时钟**：录像是一次真实游玩的完整时间轴，
+    // `[WXG-T-1081]` 重演必须**如实按录像时间线推进时钟**：录像是一次真实游玩的完整时间轴，
     // 回放不依赖「玩家是否已操作」这个闸门（闸门只服务真人首帧体验）。不置开会让首个录制动作
     // 之前的那段时间不消耗 ⇒ `captureReplayFinal` 的 remainingMs 与录制终局不等（EP15-S3 红）。
     armClockOnStart: true,

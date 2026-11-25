@@ -163,7 +163,7 @@ export function drawPlayPage(
     // 第二块 Graphics）。视图层不再画背景层／容器板 ⇒ 「珠下」零图元，层序冲突消解。
     builder.setBackground(palette.background);
     drawHud(builder, snap, palette);
-    // `[WXG-T-1078]` ⛔ 这里**不加 `clip`**：裁剪会引入 `clip`/`unclip` 两条图元，触发 S3 封箱基准的
+    // `[WXG-T-1081]` ⛔ 这里**不加 `clip`**：裁剪会引入 `clip`/`unclip` 两条图元，触发 S3 封箱基准的
     // 「Δtotal 全部可归因」登记链（三层校验）与真机 blit→clipLayer 搬迁副作用，收益却只是盖住一个
     // 极罕见态（相机平移把盘面拖进托盘带）。该诉求由**相机平移边界**兜住（盘面底缘不得下探到
     // `PUZZLE_BAND.yMin` 之下），零图元、零层序风险。
@@ -923,7 +923,7 @@ function drawTrayPlateShading(
     ink: string,
 ): void {
     // [EP12-S3] 墨改读 `palette.shadowInk`（tokens.md §1 暖化；几何/α = TRAY_PLATE 不动）。
-    // `[WXG-T-1078]` 三条内阴影随面板一起**回 `back`**（末参 true）：面板已沉底，内阴影必须同层，
+    // `[WXG-T-1081]` 三条内阴影随面板一起**回 `back`**（末参 true）：面板已沉底，内阴影必须同层，
     // 否则会浮在槽 / 珠之上（旧注释「否则会画在珠面上」正是此意）。
     // 底缘外段（α 0.03）。
     builder.line(x, y + h - TRAY_PLATE.width, x + w, y + h - TRAY_PLATE.width, withAlpha(ink, TRAY_PLATE.bottomOuterAlpha), TRAY_PLATE.width, undefined, true);
@@ -1016,7 +1016,7 @@ function drawTray(
     // 旧口径 `back: true` 会把面板与内阴影送到宿主 `backGraphics`（节点树最底层、blit 载体之下）
     // ⇒ 盘面豆子恒压在托盘之上。play 帧全是矢量图元（同层按绘制序），改为普通 Graphics 后
     // `drawGrid → drawTray(面板→内阴影→槽→珠)` 的顺序即层序，托盘恒在盘面之前绘制的珠面之上。
-    // `[WXG-T-1078]` 面板**回到 `back`**（撤销 T-1074 的层序改动）：真机 tint 臂下托盘槽底与珠子是
+    // `[WXG-T-1081]` 面板**回到 `back`**（撤销 T-1074 的层序改动）：真机 tint 臂下托盘槽底与珠子是
     // **blit**，而 `graphics` 恒在 `blit` 之上 ⇒ 面板一旦提到普通 Graphics 就会盖住槽底（用户报
     // 「底槽里的珠子底色被背景板覆盖」，珠孔透出的正是被盖住的槽底）。「盘面豆子溢出托盘区要被遮」
     // 改由**相机平移边界**承担（盘面底缘不得下探到托盘带；零图元，见 `drawPlayPage` 那段注）。

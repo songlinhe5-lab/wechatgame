@@ -283,7 +283,7 @@ export class BeadsGame {
   private readonly _spawner = new Spawner(4.0);
   private readonly _timer = new GameTimer(300);
   /**
-   * `[WXG-T-1078]` 计时起跑闸：**首次有效选中/放置之前不计时**（用户 2026-11-25 令
+   * `[WXG-T-1081]` 计时起跑闸：**首次有效选中/放置之前不计时**（用户 2026-11-25 令
    * 「游戏未有任何点击变化时候，倒计时不要开始计时」）。
    *
    * 旧口径 = 进关即起跑（`GameTimer.tick` 每帧无条件递减，T-1071 曾据此钉过一条「进关即走」的
@@ -292,7 +292,7 @@ export class BeadsGame {
    * 开局（`startLevel` / `sprint` 重置）回 false。
    */
   private _clockArmed = false;
-  /** `[WXG-T-1078]` 见 {@link BeadsGameOptions.armClockOnStart}（测试专用，生产恒 false）。 */
+  /** `[WXG-T-1081]` 见 {@link BeadsGameOptions.armClockOnStart}（测试专用，生产恒 false）。 */
   private readonly _armClockOnStart: boolean = false;
   private readonly _sprint = new SprintTracker();
   /** S9 pause panel: geometry + hit testing only; never gameplay state. */
@@ -1247,7 +1247,7 @@ export class BeadsGame {
     this._boardSelected = null; // 互斥换选：tray 锚建立 ⇒ board 锚清除（零事件）
     const color = this._tray.slot(slot)!.colorIdx;
     this._fx.resetLift(); // §5：托盘选中同样走斜坡（与板锚共用一个时钟）
-    this._clockArmed = true; // [WXG-T-1078] 首次有效操作 ⇒ 起跑
+    this._clockArmed = true; // [WXG-T-1081] 首次有效操作 ⇒ 起跑
     this._emit('tray:selected', { slot, colorIdx: color, count: this._tray.selectedCount });
     this._reportCommand('selectTraySlot', { slot });
     return this._countAction(true);
@@ -1300,7 +1300,7 @@ export class BeadsGame {
       color: this._grid.cell(row, col)!.beadColorIdx,
       order,
     };
-    this._clockArmed = true; // [WXG-T-1078] 首次有效操作 ⇒ 起跑
+    this._clockArmed = true; // [WXG-T-1081] 首次有效操作 ⇒ 起跑
     this._emit('board:selected', {
       row,
       col,
@@ -2552,7 +2552,7 @@ export class BeadsGame {
     // 供料复活（需走 tray-spawner §6 变更 + 主理人确认）时恢复本段即可。
     // S6 `noteSpawned` 镜像（§2.4）同步失去主循环喂入口，仅为死路径/快照恢复保留。
 
-    // `[WXG-T-1078]` 首次有效操作前**不推进时钟**（用户令）。未起跑时连 `timer:tick` 都不发，
+    // `[WXG-T-1081]` 首次有效操作前**不推进时钟**（用户令）。未起跑时连 `timer:tick` 都不发，
     // 避免 HUD 出现「秒数在跳但没动棋子」的错觉。
     if (this._clockArmed) {
       const tick = this._timer.tick(dt);
@@ -3462,11 +3462,11 @@ export class BeadsGame {
 
   private _syncSnapshot(): void {
     projectSnapshot(this._snapshot, this._snapshotSource);
-    this._applyDragResidual();  // [WXG-T-1080] post-project：只覆写 snapshot 可写字段
+    this._applyDragResidual();  // [WXG-T-1081] post-project：只覆写 snapshot 可写字段
   }
 
   /**
-   * [WXG-T-1080] 拖拽期间零固定步帧的呈现残差。
+   * [WXG-T-1081] 拖拽期间零固定步帧的呈现残差。
    *
    * 固定步率 60 Hz，宿主可达 120 Hz；每两渲染帧之间可能没有固定步（WXG-T-1076
    * 探针已实测出 0 步帧），相机 offsetX/Y 只在 `game.update → applyPan` 里推进，

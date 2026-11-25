@@ -12853,7 +12853,7 @@ __motion.report()     // 把这一行贴回来
 + 已配 AppID 与上传密钥的工具（本仓库缺 AppID/密钥，资质未开通），或 (b) 引擎内置档的 wechatgame 产物（`tools/scripts/build-cocos.mjs` 未见现成开关，待查证）。
 
 
-## WXG-T-1078
+## WXG-T-1081
 
 **计时首操作起跑 + 托盘面板回 `back`** · 负责：主理人(CodeBuddy)·工程轨 · 状态：🚧 **进行中（2026-11-25）**
 

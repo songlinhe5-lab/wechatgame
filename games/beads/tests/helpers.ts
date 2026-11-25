@@ -47,7 +47,7 @@ export interface Harness {
 
 export interface HarnessOptions {
   /**
-   * `[WXG-T-1078]` 是否把**计时起跑闸**预置为开（默认 true）。
+   * `[WXG-T-1081]` 是否把**计时起跑闸**预置为开（默认 true）。
    *
    * 生产默认为关（进关后要等玩家第一次有效选中才起跑）。但绝大多数测试用 `advance()` 推动关卡
    * （等超时 / 等结算），闸门关着会让这些 `while (phase === 'playing')` 循环永不结束 ⇒ 夹具默认开。
@@ -124,7 +124,7 @@ export function createBeadsHarness(options: HarnessOptions = {}): Harness {
     ...(options.onCommandApplied ? { onCommandApplied: options.onCommandApplied } : {}),
     ...(options.armClock !== false ? { armClockOnStart: true } : {}),
   });
-  // `[WXG-T-1078]` 见 `HarnessOptions.armClock`：夹具默认已起跑、生产默认等首次操作。
+  // `[WXG-T-1081]` 见 `HarnessOptions.armClock`：夹具默认已起跑、生产默认等首次操作。
   // ⚠ 置位**不能只在构造后做一次**：`startLevel` / sprint 重置会把闸门关回 false（生产语义），
   // 而多数测试是先建 harness 再让游戏自己开局 ⇒ 改为在每次 `advance` 前保证（见下方 advance）。
 

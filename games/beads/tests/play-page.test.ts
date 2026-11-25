@@ -106,7 +106,7 @@ describe('UI-41 · PlayPage', () => {
         // WXG-T-420 T7：顶栏齿轮画法复用腿随 `drawTopbar` 搬到 `meta-menu.ts`（判例 K-183 ⇒ 守卫跟着迁移）。
         expect(read('src/view/meta-menu.ts')).toContain("import { drawGear } from './play-page.js';");
     });
-    it('[WXG-T-1078] 托盘面板与内阴影**必须**沉底(back)：真机 tint 臂下槽底/珠是 blit', () => {
+    it('[WXG-T-1081] 托盘面板与内阴影**必须**沉底(back)：真机 tint 臂下槽底/珠是 blit', () => {
         // 用户 2026-11-25 报「底槽里的珠子底色被背景板覆盖」：面板一旦走普通 Graphics，就会压在
         // blit 腿的槽底之上（graphics 恒高于 blit），珠孔透出白面板。⇒ 面板与内阴影须回到 `back`
         // （沉到 blit 之下的 `backGraphics`）。「盘面溢出被遮」改由 `drawGrid` 的 PUZZLE_BAND 裁剪承担。

@@ -74,7 +74,7 @@ function rig(
     const shell = createBeadsShell({
         clock: () => now.t,
         metaKey: META_KEY,
-        // `[WXG-T-1078]` 测试夹具默认已起跑（生产 = 等首次操作），否则「跑到超时」永不结束。
+        // `[WXG-T-1081]` 测试夹具默认已起跑（生产 = 等首次操作），否则「跑到超时」永不结束。
         play: { saveKey: PLAY_KEY, armClockOnStart: true, ...(opts.levels ? { levels: opts.levels } : {}) },
         ...(opts.initialScreen ? { initialScreen: opts.initialScreen } : {}),
     });

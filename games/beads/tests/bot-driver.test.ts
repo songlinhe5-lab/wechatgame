@@ -165,7 +165,9 @@ describe('EP15-S2 · 停机与接管（§8-10）', () => {
       clock: () => 0,
       metaKey: 'wxgame.beads.test.assiststop-meta',
       initialScreen: 'play',
-      play: { levels: [level] },
+      // `[WXG-T-1081]` 本套用例靠「耗尽时间」走到 game-over ⇒ 夹具须预置计时闸开
+      // （生产默认 = 等玩家首次操作，闸门关着永远不会超时）。
+      play: { levels: [level], armClockOnStart: true },
     });
     shell.init(h.services);
     shell.play.setAssist('bot');
@@ -250,7 +252,9 @@ describe('EP15 · 续时局录像对拍（§8-3 / §8-11）', () => {
       clock: () => 0,
       metaKey: 'wxgame.beads.test.replayrevive-meta',
       initialScreen: 'play',
-      play: { levels: [level] },
+      // `[WXG-T-1081]` 本套用例靠「耗尽时间」走到 game-over ⇒ 夹具须预置计时闸开
+      // （生产默认 = 等玩家首次操作，闸门关着永远不会超时）。
+      play: { levels: [level], armClockOnStart: true },
     });
     shell.init(h.services);
 

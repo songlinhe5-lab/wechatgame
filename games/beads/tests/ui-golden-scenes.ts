@@ -82,7 +82,7 @@ function rig(opts: RigOptions = {}): BeadsShell {
         metaKey: META_KEY,
         play: {
             saveKey: SAVE_KEY,
-            // `[WXG-T-1078]` 金样装置默认**已起跑**：`fail` 等态靠「跑到超时」构造 game-over，
+            // `[WXG-T-1081]` 金样装置默认**已起跑**：`fail` 等态靠「跑到超时」构造 game-over，
             // 计时闸门关着会停在 playing（生产语义是等玩家首次操作）。
             armClockOnStart: true,
             ...(opts.levels ? { levels: opts.levels } : {}),

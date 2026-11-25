@@ -114,7 +114,7 @@ export interface BeadsGameOptions {
      */
     readonly noBootAssembly?: boolean;
     /**
-     * `[WXG-T-1078]` **测试专用**：把计时起跑闸预置为开（缺省 false = 生产语义）。
+     * `[WXG-T-1081]` **测试专用**：把计时起跑闸预置为开（缺省 false = 生产语义）。
      *
      * 生产口径 = 进关后要等玩家第一次有效选中才开始走秒；但绝大多数测试靠推进帧去等超时 / 等结算，
      * 闸门关着会让 `while (phase === 'playing')` 永不结束。夹具据此默认打开，闸门测试显式关掉。
