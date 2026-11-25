@@ -1046,8 +1046,10 @@ function drawTray(
                 // `beadInset` 与盘面同（`BEAD_DRAW_INSET`）⇒ 坑外沿 ≡ 珠面轮廓（与盘面同一恒等式）；
                 // `trayZone: true` 放宽 tint 门的 `colorIdx` 条件（空槽无目标色 ⇒ `base = palette.slot` 中性）。
                 // ⛔ 不传 `tilePainted`：托盘没有 B0 底图 rect，槽需自带亮底（与盘面相反）。
+                // `[WXG-T-1083]` 空槽与「有珠槽」同尺寸（坑 = 格位 `TRAY_SLOT`，不按珠体内缩）：
+                // 否则珠落进/取出时坑会一大一小跳变，且空槽明显比有珠槽小一圈（实帧可见）。
                 drawEmptySocket(
-                    builder, cx, cy, palette, TRAY_SLOT, undefined, inks, false, trayInset,
+                    builder, cx, cy, palette, TRAY_SLOT, undefined, inks, false, 0,
                     { maskGauge: sizeSmall ? 'holeless' : 'holed', styleId: snap.beadStyle, trayZone: true },
                 );
             }
@@ -1103,8 +1105,12 @@ function drawTray(
         //   `traySlot` 深灰 ⇒ 病灶前提（透出近白）消失 ⇒ **补孔撤除**，真透直接透出槽底本身。
         //   矢量臂本就不补（风格层集自画实色孔底）⇒ 本二批只动 tint 臂调用参，矢量字节锁零扰动。
         // ⛔ 一张格面 tile 只有**一个**基色 ⇒ 环与孔共用；要两者异色得扩 mask 合成（已登记，未开批）。
+        // `[WXG-T-1083 · 用户 2026-11-25 令]`「珠面图层应该在底槽下面」⇒ 有珠的槽**不再按珠体尺寸
+        // 内缩坑底**（`beadInset` 传 0 = 坑外廓回到格位 `TRAY_SLOT`）：坑恒比珠大一圈 ⇒ 珠落槽后四周
+        // 露出坑沿，读作「珠子嵌在底槽里」。此前传 `trayInset` ⇒ 坑与珠同尺寸 ⇒ 珠把坑整块盖住
+        // （实帧确认：托盘里前三颗珠只剩珠面，槽沿完全消失）。⚠ 空槽支不受影响（仍按 `trayInset`）。
         drawEmptySocket(
-            builder, cx, cy, palette, TRAY_SLOT, undefined, inks, false, trayInset,
+            builder, cx, cy, palette, TRAY_SLOT, undefined, inks, false, 0,
             { maskGauge: sizeSmall ? 'holeless' : 'holed', styleId: snap.beadStyle, trayZone: true },
         );
         // [WXG-T-242 · 2026-10-04 用户裁「阴影要加深、凸显被选中的效果」] 托盘**补分离影**。
