@@ -4,7 +4,7 @@
   "unit": "UI-02",
   "spec": "docs/architecture/ui-architecture-beads.md §5 / §9.4 / §12",
   "codeBaseline": "bd964a0",
-  "capturedFrom": "57d9423d · 工作树（WXG-T-298）",
+  "capturedFrom": "2cad40ce · 工作树（WXG-T-298）",
   "fixture": {
     "viewport": {
       "width": 750,
@@ -171,7 +171,7 @@
         "text": 10,
         "polygon": 156
       },
-      "sha": "89226bc16f3a7bdb58f1aba64df26928dcf8be3ed21df0aadcc03d4c3dce3a88",
+      "sha": "697963280db57a6a8a1afcc6d08ad63e6a336a84865953d8f93861fe492030c6",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -194,7 +194,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "77b2c7f4902f2c27ecd3bed16125d96aabf3a7dd57b2766af82abf52b34ff363",
+      "sha": "eeb4ed935aced43c569d34296a3c4f35ba4efecc9524d580b417182e80993d12",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -218,7 +218,7 @@
         "blit": 1,
         "containerEnd": 1
       },
-      "sha": "99b4a0214fd24c00ba9499c907a3088f6612d5ba62bee133f6b0b00f3e9ab08b",
+      "sha": "71b01d126ad2344d8baf445da26e07ee02e6eeb227f8fd206cec8314acf66c69",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -241,7 +241,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "8b04c19834cc529523b8d79350a60a1f548e32d13517bf02e84fc57184b958b2",
+      "sha": "6b8b64f4c5d2c68333aca2aa9349ec7076d03f2bc354955d3756ec7986fb8bfc",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -264,7 +264,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "9e2928f12ebe2b75f106e79809512ba1b1203e913cd333f813718d2178a00b7e",
+      "sha": "aa82d88c6c1b9e99210b2e87fc40db7f323f35b816b178af09058c89fdb060a8",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -287,7 +287,7 @@
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "ded92351ea10ae744c12fc32fa452952fe8f27e4cf03e47638f4a514c10dc4c2",
+      "sha": "1f75c5ad2b2f100e4524b01a7ff6170d97c7ad7c250b0ca53e2f112dcf0a25b4",
       "background": "#F1E8D8",
       "transform": null
     }

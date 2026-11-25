@@ -1508,11 +1508,11 @@
         "text": 10,
         "polygon": 376
       },
-      "sha": "00119bc273b3cc414855392a6dfaae6b550f97338fe2e25449c2fb68dcf7417c"
+      "sha": "d3248efc0fbc63dbd238a8e14c2b3fdc9277c14855645f132ca246b7f0345d4e"
     },
     "frame0": {
       "total": 1288,
-      "sha": "0e0bfbee03090fd9c00dc791a9f3136a699a7d41be0e40bbd6e53d75f983b877"
+      "sha": "8cf606ae6afa8a3d740ad3921dddec5ccd2ee364f7990236b414efdb2e10041f"
     },
     "legacyFlow": {
       "ci1-tnone-l0-s1-lodfull-z22": "51e055a2c89dafbb5782ab2a212c437f4f5b40f38143aeb096b2d484bfd64b2c",
@@ -1766,7 +1766,8 @@
     "s3_frame_recheck_23": "第二十三次复评（WXG-T-928 · 用户 2026-11-12 令「珠面描边要盖在珠面上面」· 复取锚 = 提交 461749cb）：变更源 = 纯**帖序重排**（view/menu-signage.ts drawBeadFace 的 drawThumbOutline 由首笔移到 pass 2 之后；view/play-page.ts drawGrid 的 drawBoardOutline 由格循环前移到循环后），形状生成零改动。流级差分：两帧 total / kinds 零变（polygon 仍 368），仅 sha 变（第二十二次产物 1280/1826 → 本锚 1280/1826，同数不同序）；零插入、零删除、零改写。最强反证 = 珠体族 legacyFlow 96/96 与 facetNonHole/facetHole 45+45 在两锚间逐字节全等（描边仅换位、不改珠体）。未解释 0 条。",
     "s3_frame_recheck_24": "第二十四次复评（WXG-T-929 · 用户 2026-11-12 反馈「我只是让珠面描边，怎么把珠面一圈的珠子给描黑了」· 复取锚 = 提交 19fb24ad）：变更源 = view/bead-outline.ts buildShapes 由「整颗边界珠外扩 W 的实心圆角方块并集」改为**骑在剪影边线上的带**（半宽 W/2 内外各半）：逐边界珠只画露空边（4 点带）+ 凸角 1/4 环带（10 点），凹角由邻格带在 TILE_BLEED 缝上相接 ⇒ 珠面零覆盖、带仍连续。流级差分：13×12 满盘由 46 枚实心方块改为 50 条边带 + 4 枚角带 = **54 枚 polygon**（相对 HEAD 净 +8，相对第二十二次产物 +8）；两帧 total 1280→1288 / 1826→1834，kinds 只 polygon 368→376，rect 936 / circle 159 / line 353 / text 10 四键零变；零删除、零改写（旧 46 枚整段被 54 枚替代，属替换型）。最强反证 = 珠体族零变更：legacyFlow 96/96 与 facetNonHole/facetHole 45+45 逐字节全等。未解释 0 条。",
     "s3_frame_recheck_25": "第二十五次复评（WXG-T-930 · 用户 2026-11-12 令「这个描边要跟着珠面等比例缩放，按照1:1比例缩放时候，描边有一定宽度，圆角有一定半径」· 复取锚 = 提交 1b58d72a）：变更源 = view/bead-outline.ts 去掉线宽 / 圆角钳位与取整，改 **1:1 锚定线性等比**（BEAD_PITCH=32 时 W=3、R=9，其余 pitch = 基准 × pitch/32）。流级差分：形状条数完全不变（满盘仍 54 枚），两帧 total 仍 1288 / 1834（0/0），仅每个带 / 角带多边形的**坐标**随比例变 ⇒ sha 变；零插入、零删除、零改写。最强反证 = 珠体族 legacyFlow 96/96 与 facetNonHole/facetHole 45+45 逐字节全等（描边只改自身坐标）。未解释 0 条。",
-    "s3_frame_recheck_t1073": "2026-11-25 · WXG-T-1073 第十八次复评：变更源 = 托盘面板下沿下延（用户令「扩展按钮应压住一部分底槽」）⇒ `trayLayout` panelH 由自然值改为 `max(自然值, 延伸到按钮顶−12dp)`，只影响 1/2 行档（面板底 378→272、324→272），4 行档自然值 234 更高、零变化。核对：frame78/frame0 的 total 与逐 kind 计数全等（1834/1288），仅矩形高度位移 ⇒ 纯几何改写的 sha 漂移，无图元增删。前态 sha：frame78 97155152fc9b992e… / frame0 129f15e61bea05db…"
+    "s3_frame_recheck_t1073": "2026-11-25 · WXG-T-1073 第十八次复评：变更源 = 托盘面板下沿下延（用户令「扩展按钮应压住一部分底槽」）⇒ `trayLayout` panelH 由自然值改为 `max(自然值, 延伸到按钮顶−12dp)`，只影响 1/2 行档（面板底 378→272、324→272），4 行档自然值 234 更高、零变化。核对：frame78/frame0 的 total 与逐 kind 计数全等（1834/1288），仅矩形高度位移 ⇒ 纯几何改写的 sha 漂移，无图元增删。前态 sha：frame78 97155152fc9b992e… / frame0 129f15e61bea05db…",
+    "s3_frame_recheck_t1074": "2026-11-25 · WXG-T-1074 第十九次复评：变更源 = 托盘面板与三条内阴影去 `back` 沉底（用户选 B：盘面豆子溢出托盘区须被面板遮住）⇒ 命令流仅 `back` 标志翻转（true→false），几何/条数零变更。核对：frame78/frame0 的 total 与逐 kind 计数全等（1834/1288）⇒ 纯层序标志改写的 sha 漂移，无图元增删。前态 sha：frame78 00119bc273b3cc41… / frame0 0e0bfbee03090fd9…"
   },
   "s3_pre_tray_261": {
     "_readme": "第十五次复评（WXG-T-261 托盘放大批）的**前态史证** = 本批复取前的现役 s3 两键（托盘 pitch 32 / 槽底 #F7F6FB 态）。本批修订面为**几何+墨值改写**（非纯插键）⇒ 腿 4a 的 strip-back 闭合等式不再可能回到本键；等效证明 = provenance.s3_frame_recheck_15 的前/现态锚 + 流级差分 172/172。计数全等由本键 total ≡ s3.*.total 钉住。⛔ 只读史证，不随后续复评漂移。",

@@ -156,7 +156,15 @@ const PLATE_BG_RETIRE_FRAME78 = 9;
  * 闭合自证 = 把流里的 `,"back":true` 剥掉 ⇒ sha 逐字节 ≡ 史证键 `s3_pre_back_channel`
  * （⛔ 只贴条数差 / 只贴 sha 不构成证据 = QA §K.5.1 唯一例外通道 b 条）。
  */
-const BACK_KEY_LINES = 5;
+/**
+ * `[WXG-T-1074 · 用户 2026-11-25 选 B]` **登记 5 → 0**：托盘面板底（1 rect）+ 投影 + 三段内阴影
+ * 此前全部打 `back` ⇒ 宿主送到 `backGraphics`（节点树最底层、blit 之下）⇒ 盘面豆子溢出到托盘区时
+ * 恒压在托盘之上。用户裁定「豆面应在底槽下面」⇒ 四处 `back` 全撤，play 帧**零 back 图元**。
+ *
+ * ⚠ `back` 通道机制本身保留（`drawPaperPanel` 的 `back` 参数仍供将来真正的桌面级图元使用），
+ * 但托盘不再消费它。本常量保留断言形态：将来若有人往 play 帧加回 `back`，这条腿会立刻红。
+ */
+const BACK_KEY_LINES = 0;
 /**
  * **[EP12-S2/S3 · 第十八次复评登记（K.5.1-补10）]** 整帧登记漂移 = 两帧各 +3（复取实测）：
  * ① 托盘投影 rect（back:true ⇒ BACK_KEY_LINES 4→5）② LV 纸 chip rect 96×48 ③ expand 底缘 line。
