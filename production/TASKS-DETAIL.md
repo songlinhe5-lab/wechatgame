@@ -12332,7 +12332,7 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 
 **触发**：用户 2026-11-25「好的，执行吧」⇒ 执行 [`A03-P09-whaleking/design-doc.md`](../games/beads/design/art/proposals/levels-20arcs-selection-20261117/A03-P09-whaleking/design-doc.md) §11 落库施工清单。
 
-**范围**：A03-P01–P08 按 `arcs-detail-A01-A10.md` A03 名录与 `series-spec-catalog.md §A03` 宪法产母版（4–5 色、32×32、qwen-image-3.0-pro seed 42），逐批用户验收后锁版；八关齐 + P09 v5 ⇒ 建章（uid L00030–L00038、order 28–36、`kind:"boss"`、`contentVersion 47→48`、`DEMO_LEVEL_COUNT 27→36`）。
+**范围**：A03-P01–P08 按 `arcs-detail-A01-A10.md` A03 名录与 `series-spec-catalog.md §A03` 宪法产母版（4–5 色、32×32、qwen-image-3.0-pro seed 42），逐批用户验收后锁版；八关齐 + P09 v5 ⇒ 建章（uid L00030–L00038、order 28–36、`kind:"boss"`、`contentVersion 48→49（47→48 已被 WXG-T-1063 A01 换盘占用）`、`DEMO_LEVEL_COUNT 27→36`）。
 
 **流程契约**：`series-spec.md §5` —— 每张「写提示词 → 用户确认 → 生图 → 用户确认效果」，不跳步；Token Plan 逐批记账。
 
@@ -12390,4 +12390,6 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 
 **证据**：`games/beads/design/art/proposals/levels-20arcs-selection-20261117/pilot-a01-difficulty-20261125/`（`scan-a01-bases.py` / `scan-extra.py` / `tier-all.ts` / `out/contact-sheet.png` / `out/final-picks.json` / 每候选 `studio-response` 与珠面预览）。
 
-**状态**：九宫格呈样待用户确认；确认后才改 `singles/L00012–L00020.json`（cols/rows/pattern/pricing/misplaced）、contentVersion 与 `levels:sync` + `pnpm run verify`。
+**落库（2026-11-25，用户令「按这个方案修改代码并运行验证」）**：`rebuild-a01-pilot.py` 按锁定响应重写 `singles/L00012–L00020.json`（cols/rows/time/cycleProfile/pricing/decoys/pattern/swaps/misplaced；pattern/misplaced 字符按 paletteHex 映射回十色板色号，沿 build-a02 配方）；`manifest.json` contentVersion **47→48**；`levels:sync` 写出 `src/config/levels-data.ts` + cocos 镜像；`powerups-account` 夹具 DW_12/DM_12/DW_CAP 按 108000 次重跑重填（前 9 关复现，A01 九关新读数见测试注释）；`pnpm run verify` **24/24 PASS**。
+
+**状态**：✅ 完成 2026-11-25；门禁⑧ 豆面可读性对 A01 新盘为 WARN（非硬红），GDD §2.2.6 表 5 读数回填归文策渊。
