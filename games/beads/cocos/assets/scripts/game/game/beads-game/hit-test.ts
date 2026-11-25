@@ -60,11 +60,19 @@ export function hitExpandButton(x: number, y: number, trayCanExpand: boolean): b
  * 托盘槽命中：`TRAY_HIT_SIZE` 半径内、距槽心最近者胜（平手取先到者）；无命中 ⇒ `-1`。
  * 与 `view-model.drawTray` 共用 `trayLayout()`（§3.4 单一真源，WXG-T-062 判例）。
  */
-export function hitTraySlot(x: number, y: number, capacity: number, width: number): number {
+export function hitTraySlot(
+  x: number,
+  y: number,
+  capacity: number,
+  width: number,
+  // `[WXG-T-1082]` **绘制行数**（含「预览虚线行」）：槽位已改为随面板底板排布，行数会改变槽位 ⇒
+  // 命中必须与 `drawTray` 同源，否则会点到空白处。缺省回落到「按 capacity 推导」（老调用方兼容）。
+  drawRows?: number,
+): number {
   const half = TRAY_HIT_SIZE / 2;
   let best = -1;
   let bestD2 = half * half;
-  const rows = Math.ceil(capacity / TRAY_COLS);
+  const rows = drawRows ?? Math.ceil(capacity / TRAY_COLS);
   const lay = trayLayout(rows, width);
   for (let idx = 0; idx < capacity; idx++) {
     const row = Math.floor(idx / TRAY_COLS);

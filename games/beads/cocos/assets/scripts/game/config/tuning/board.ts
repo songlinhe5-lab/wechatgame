@@ -637,7 +637,6 @@ export function trayLayout(rows: number, width: number = DESIGN_W): TrayLayout {
   // 少行档整体下移贴住 `btn_expand`（再往下就是道具区），多行档自然占满整带、依旧贴道具区。
   const btnTop = TRAY_BAND.yMin + (EXPAND_BTN_HIT_H - EXPAND_BTN_H) / 2 + EXPAND_BTN_H;
   const panelBottom = Math.min(TRAY_BAND.yMax - naturalH, btnTop - TRAY_PANEL_BTN_OVERLAP);
-  const panelTop = panelBottom + naturalH;
   return {
     rows,
     pitch,
@@ -648,9 +647,11 @@ export function trayLayout(rows: number, width: number = DESIGN_W): TrayLayout {
     panelW: TRAY_PANEL_WIDTH,
     panelH: naturalH,
     slotCenterX: (col: number) => left + TRAY_SLOT / 2 + pitch * col,
-    // `[WXG-T-1082]` 槽位从**面板顶**起算（跟面板一起下移），⛔ 不再贴带顶 ⇒ 槽与面板底板始终同体。
+    // `[WXG-T-1082]` 槽位从**面板底往上排**（row = rows−1 贴面板下沿）：面板已整体下移贴按钮/道具区，
+    // 槽随之下移同体；锚在**底**而非顶 ⇒ 槽位只依赖 `panelBottom`（1/2 行档同值 276）⇒ 与「是否画
+    // 预览行」解耦，既有测试按 `ceil(capacity/12)` 取的槽心不会错位。
     slotCenterY: (row: number) =>
-      panelTop - TRAY_PANEL_PAD - TRAY_SLOT / 2 - pitch * row,
+      panelBottom + TRAY_PANEL_PAD + TRAY_SLOT / 2 + pitch * (rows - 1 - row),
   };
 }
 

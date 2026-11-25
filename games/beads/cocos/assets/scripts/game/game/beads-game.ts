@@ -54,48 +54,7 @@ import {
   type RankBoard,
 } from '../../framework/index';
 
-import {
-  AUDIO_CLIP_DENIED,
-  AUDIO_CLIP_PANEL_IN,
-  AUDIO_CLIP_PANEL_OUT,
-  AUDIO_CLIP_REJECT,
-  AUDIO_CLIP_REVIVE_OK,
-  AUDIO_CLIP_STAR,
-  AUDIO_CLIP_UI_TAP,
-  DEFAULT_TUNING,
-  DESIGN_H,
-  REVIVE_BONUS_SEC,
-  REVIVE_MAX_PER_LEVEL,
-  COMBO_WINDOW_S,
-  SELECT_LIFT_MS,
-  STAMINA_REFILL_PLACEMENT,
-  STAGE_BONUS_TIME,
-  computeClearStars,
-  nextTierFor,
-  tierSecondsFor,
-  normalSettleScore,
-  POWERUP_BUY_DENIED_HINT,
-  ASSIST_TAKEOVER_HINT,
-  ASSIST_TAKEOVER_HINT_MS,
-  ASSIST_STOPPED_HINT,
-  ASSIST_STOPPED_HINT_MS,
-  SOLVER_HINT_MS,
-  SOLVER_MAX_CELLS,
-  SOLVER_STAGGER_MS,
-  solverSequenceMs,
-  gridLayoutFor,
-  hitGridCell,
-  menuAnchors,
-  nextBeadLod,
-  type BeadSizeKind,
-  isBossLevelId,
-  arcRangeOfLevel,
-  stageParamsFor,
-  validatedSprintTime,
-  type BeadsTuning,
-  type GridLayout,
-  type PowerupType,
-} from '../config/tuning';
+import { ASSIST_STOPPED_HINT, ASSIST_STOPPED_HINT_MS, ASSIST_TAKEOVER_HINT, ASSIST_TAKEOVER_HINT_MS, AUDIO_CLIP_DENIED, AUDIO_CLIP_PANEL_IN, AUDIO_CLIP_PANEL_OUT, AUDIO_CLIP_REJECT, AUDIO_CLIP_REVIVE_OK, AUDIO_CLIP_STAR, AUDIO_CLIP_UI_TAP, COMBO_WINDOW_S, DEFAULT_TUNING, DESIGN_H, POWERUP_BUY_DENIED_HINT, REVIVE_BONUS_SEC, REVIVE_MAX_PER_LEVEL, SELECT_LIFT_MS, SOLVER_HINT_MS, SOLVER_MAX_CELLS, SOLVER_STAGGER_MS, STAGE_BONUS_TIME, STAMINA_REFILL_PLACEMENT, TRAY_COLS, arcRangeOfLevel, computeClearStars, gridLayoutFor, hitGridCell, isBossLevelId, menuAnchors, nextBeadLod, nextTierFor, normalSettleScore, solverSequenceMs, stageParamsFor, tierSecondsFor, trayPreviewFits, type BeadSizeKind, type BeadsTuning, type GridLayout, type PowerupType, validatedSprintTime } from '../config/tuning';
 import { BEADS_AUDIO_VOICES } from '../config/audio-voices';
 import {
   LEVELS,
@@ -2602,7 +2561,7 @@ export class BeadsGame {
         // EP15-S2 玩家接管（bot §8-10）：托管中点棋盘 / 托盘 ⇒ 取消托管并**吞掉**本次点击
         // （零玩法事件、零动作计数）。道具卡 / 展开钮的接管在 `HudRouter`（同样吞点击）。
         if (this._assist === 'bot') {
-          const takeoverSlot = hitTraySlot(x, y, this._tray.capacity, this.tuning.width);
+          const takeoverSlot = hitTraySlot(x, y, this._tray.capacity, this.tuning.width, this._trayDrawRows());
           if (takeoverSlot >= 0 || this._hitGridCell(x, y)) {
             this.takeOverFromBot();
             this._consumedTap = true;
@@ -2611,7 +2570,7 @@ export class BeadsGame {
         }
         // 4. Tray band (`TRAY_HIT_SIZE`² hit area = 60²，§3.8 v1.57 公式化；旧字面 62) — v2.0 内部分支
         //    4a holding / 4b 空槽，见 `_routeTraySlot`（带级次序不变）。
-        const slot = hitTraySlot(x, y, this._tray.capacity, this.tuning.width);
+        const slot = hitTraySlot(x, y, this._tray.capacity, this.tuning.width, this._trayDrawRows());
         if (slot >= 0) {
           this._boardTaps.routeTraySlot(slot);
           return;
@@ -3175,6 +3134,15 @@ export class BeadsGame {
   /** Nearest grid cell within the camera-scaled hit area (ties → smaller row).
    *  Delegates to `tuning::hitGridCell` so gameplay and the layout⇄hit regression
    *  test share one implementation (WXG-T-169 / ADR-0015). */
+  /**
+   * `[WXG-T-1082]` 托盘**绘制行数**（含「预览虚线行」）—— 与 `drawTray` 同一口径。
+   * 槽位随面板底板排布后，行数会位移槽心 ⇒ 命中 / 视图 / 测试必须共用本式，⛔ 不得各自推导。
+   */
+  private _trayDrawRows(): number {
+    const unlocked = Math.ceil(this._tray.capacity / TRAY_COLS);
+    return unlocked + (this._tray.canExpand && trayPreviewFits(unlocked) ? 1 : 0);
+  }
+
   private _hitGridCell(x: number, y: number): { row: number; col: number } | null {
     return hitGridCell(this._layout, this._board.camera.zoom, x, y);
   }

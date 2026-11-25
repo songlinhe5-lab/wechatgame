@@ -18,6 +18,7 @@ import {
   gridLayoutFor,
   powerupCardRects,
   trayLayout,
+  trayPreviewFits,
   TRAY_COLS,
   TRAY_SLOT,
 } from '../src/config/tuning.js';
@@ -82,7 +83,10 @@ function gridPoint(game: BeadsGame, row: number, col: number): { x: number; y: n
 
 /** 托盘槽心（§3.4，`trayLayout` 单一真源）。 */
 function trayPoint(game: BeadsGame, slot: number): { x: number; y: number } {
-  const rows = Math.ceil(game.tray.capacity / TRAY_COLS);
+  // `[WXG-T-1082]` 取样行数须与 `drawTray` **同源**：槽位改为随面板底板排布后，多画的「预览虚线行」
+  // 会改变面板高度 ⇒ 槽位随之位移；此前这里只按 capacity 取行数 = 双源错位（取到空白处）。
+  const unlocked = Math.ceil(game.tray.capacity / TRAY_COLS);
+  const rows = unlocked + (game.snapshot.trayCanExpand && trayPreviewFits(unlocked) ? 1 : 0);
   const lay = trayLayout(rows, game.tuning.width);
   return {
     x: lay.slotCenterX(slot % TRAY_COLS),
@@ -527,7 +531,12 @@ describe('托盘选中态画坑（WXG-T-240）', () => {
   it('有珠的槽在**静息与选中两态**都不得为空白（WXG-T-240 两轮：① 选中空槽 · ② 静息也画）', () => {
     const h = mkHarness('wxgame.beads.test.t240-tray-slot');
     h.game.giveTrayBead(1);
-    const lay = trayLayout(1);
+    // `[WXG-T-1082]` 与 `drawTray` 同源（含预览虚线行），否则槽位错位取到空白。
+    const _unlocked = Math.ceil(h.game.tray.capacity / TRAY_COLS);
+    const lay = trayLayout(
+        _unlocked + (h.game.snapshot.trayCanExpand && trayPreviewFits(_unlocked) ? 1 : 0),
+        h.game.tuning.width,
+    );
     // ① 静息（未选中）：珠面 26 / 格面 30 ⇒ 本该露出 4dp 坑沿
     const before = traySlotArtCount(renderSnap(h.game.snapshot), lay, 0);
     expect(before, '⛔ 静息态槽区不得为空白（否则珠读作浮在面板上）').toBeGreaterThan(0);
@@ -555,7 +564,12 @@ describe('托盘有珠的槽格底 ≡ 中性（与空槽同色，2026-10-05 推
     const slot = snap.traySlots[0]!;
     expect(slot.state, '前置：第 0 槽应有珠').toBe('holding');
 
-    const lay = trayLayout(1);
+    // `[WXG-T-1082]` 与 `drawTray` 同源（含预览虚线行），否则槽位错位取到空白。
+    const _unlocked = Math.ceil(h.game.tray.capacity / TRAY_COLS);
+    const lay = trayLayout(
+        _unlocked + (h.game.snapshot.trayCanExpand && trayPreviewFits(_unlocked) ? 1 : 0),
+        h.game.tuning.width,
+    );
     const cx = lay.slotCenterX(0);
     const cy = lay.slotCenterY(0);
     // socket 自带亮底 = 唯一一枚**槽径 `TRAY_SLOT`**、居槽心的 rect（珠面比槽小、面板 rect 大得多 ⇒ 不撞）
@@ -687,7 +701,12 @@ describe('抬起影墨与进珠「出现」两处同口径（T-244 十二/十三
     expect(base.traySlots[0]!.state, '前置：第 0 槽须为 selected').toBe('selected');
     expect(base.gridCell, '前置：夹具须落恒等档').toBe(BEAD_CELL);
 
-    const lay = trayLayout(Math.ceil(h.game.tray.capacity / TRAY_COLS), h.game.tuning.width);
+    // `[WXG-T-1082]` 行数须含预览行（与 `drawTray` 同源）。
+    const unlockedRows = Math.ceil(h.game.tray.capacity / TRAY_COLS);
+    const lay = trayLayout(
+        unlockedRows + (h.game.snapshot.trayCanExpand && trayPreviewFits(unlockedRows) ? 1 : 0),
+        h.game.tuning.width,
+    );
     /**
      * 托盘面板矩形（`trayLayout` 单一真源）内**全部图元坐标**的逐位指纹。
      *
