@@ -347,6 +347,20 @@ describe('BeadsShell — overlay stack + meta:overlay events', () => {
         expect(menuTexts.some((t) => t.startsWith('safe '))).toBe(true);
         expect(menuTexts.some((t) => t.startsWith('home '))).toBe(true);
     });
+
+    it('[WXG-T-1053] 设置「Debug」开关同时管住盘面珠面虚线（旧口径只能靠 Console / query 关）', () => {
+        // 用户 2026-11-25 令「游戏中的珠面 debug 虚线需要跟 debug 开关可以关闭」：盘面那套
+        // `debugOutlines`（品红 BEAD_PITCH 参照 + 青 socket）此前**只有** `setDebugOutlines` /
+        // harness `?dbg=outline` 能开关，设置面板的「Debug」行（`debugGuides`）管不到 ⇒ 用户
+        // 在界面上关不掉。本单让二者同源：面板开关一动，珠面虚线跟着动。
+        const r = rig({ initialScreen: 'menu' });
+        r.shell.play.setDebugOutlines(true);
+        expect(r.shell.play.snapshot.debugOutlines, '调试口仍可直接开（既有 dev/QA 腿）').toBe(true);
+        r.shell.play.setDebugGuides(false);
+        expect(r.shell.play.snapshot.debugOutlines, '「Debug」关 ⇒ 盘面珠面虚线一并关').toBe(false);
+        r.shell.play.setDebugGuides(true);
+        expect(r.shell.play.snapshot.debugOutlines, '「Debug」开 ⇒ 珠面虚线一并开').toBe(true);
+    });
 });
 
 // menu-architecture §1.3 第五轮：主菜单主区由作品墙 → **走马灯小卡**；墙下移 `levels` overlay。

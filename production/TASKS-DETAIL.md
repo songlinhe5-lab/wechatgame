@@ -12443,3 +12443,20 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 **验证**：`pnpm run verify` **24/24 PASS**（含 `levels:check`、`typecheck`、`test`、`framework:sync:check`、`check:tasks`、`check:links`）。
 
 **状态**：✅ 完成 2026-11-25；四档斜率仍 `[待 playtest]`（P01/P03 新时钟试玩后按实测 `t_act` 覆盖）。
+
+
+## WXG-T-1066
+
+**Debug 开关管住珠面虚线** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ **完成（2026-11-25）**
+
+用户令：「游戏中的珠面 debug 虚线需要跟 debug 开关可以关闭」。
+
+**诊断（现状盘点，两套叠加层）**：
+- `debugGuides` —— 安全区标定线 / 按钮命中框 / 选关格珠面区域框；**有**设置面板「Debug 开/关」行（`toggle-debug-guides`）、经 `settings.debugGuides` **持久化**。
+- `debugOutlines` —— 盘面珠面虚线（`drawDebugCellOutline`：品红 = 固定 `BEAD_PITCH` 诊断参照、青 = 缩放 socket 双层）；**无任何 UI 入口**，只认 `setDebugOutlines` / harness `?dbg=outline`，且 harness 里 `dev/harness/main.ts:727` **默认开**（仅 `?dbg=off` 关）。
+
+⇒ 用户在设置面板点「Debug 关」时，盘面虚线纹丝不动 = 报障根因。
+
+**修法（一个开关管一层，零新 UI）**：`setDebugGuides(on)` 内同步 `this._debugOutlines = on`。⚠ 赋值必须放在 `if (this._settings.values.debugGuides === on) return;` **之前**——harness 缺省态是 `guides:false + outlines:true`，若放 after-return 则「Debug 关」那次点击因 guides 已是 false 被整体跳过，虚线仍亮。调试口 `setDebugOutlines` 保留（dev/QA 仍可单独强制开，不写档）；视图侧零改动（`play-page.ts` 仍读 `snap.debugOutlines`）。
+
+**验证 / 取证**：TDD 先红后绿（`beads-shell.test.ts`：「Debug 关 ⇒ `snapshot.debugOutlines` 一并关」+「开 ⇒ 一并开」），定向 **66/66**（含 pause-settings / settings-content / debug-layer 回归）；全量 `verify` **24/24 PASS**；harness 实帧 `temp/ui-shot/1053-{A-debug-on,B-debug-off}-play.png`：Debug 开 = 每格虚线框 + `home 0` 标定线，Debug 关 = 全部消失只剩珠面。金样零漂移（rig 默认 `debugGuides:false`）。

@@ -3208,8 +3208,16 @@ export class BeadsGame {
     this._settings.setDebugInfo(on);
   }
 
-  /** 菜单安全区标定线。与 `setDebugInfo` 一样即写档，缺字段旧档降级 false。 */
+  /**
+   * 菜单安全区标定线 / 按钮命中框 / 选关格珠面区域框。与 `setDebugInfo` 一样即写档，缺字段旧档降级 false。
+   *
+   * `[WXG-T-1053]` **盘面珠面虚线（`_debugOutlines`）跟随本开关**：用户令「游戏中的珠面 debug
+   * 虚线需要跟 debug 开关可以关闭」——旧口径它只认 `setDebugOutlines` / harness `?dbg=outline`，
+   * 设置面板这行「Debug 开/关」关不掉它。赋值必须放在 early-return **之前**：guides 已是目标值时
+   * 也要把虚线拨到同一档（harness 缺省 = `guides:false + outlines:true`，否则那次点击会被整体跳过）。
+   */
   setDebugGuides(on: boolean): void {
+    this._debugOutlines = on;
     if (this._settings.values.debugGuides === on) return;
     this._settings.setDebugGuides(on);
   }
