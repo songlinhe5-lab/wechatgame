@@ -1,0 +1,104 @@
+{
+  "board": "a03p02-v2-max-32-c0",
+  "importable": true,
+  "blockers": [],
+  "voidCells": 0,
+  "colorsUsed": null,
+  "paletteHex": [
+    "#FDF6E9",
+    "#FFD23F",
+    "#3D7BF5",
+    "#A5652C",
+    "#6B3E1E",
+    "#33333D"
+  ],
+  "balancedChanged": null,
+  "mis": {},
+  "pricing": null,
+  "adjacency": null,
+  "colorErrorFinal": null,
+  "report": {
+    "fillable": 277,
+    "voidCells": 0,
+    "colorsUsed": 6,
+    "cap": 138,
+    "maxFreqBefore": 109,
+    "maxFreqAfter": 109,
+    "balancedChanged": 0,
+    "balanceNote": "mis=max 最大化错位：跳过配色平衡（保形优先；错位取守恒极值 M_max 而非强制 0 固定点）",
+    "derangement": "MAXIMAL（M=277/277 错位，固定点 = 理论下限 F=0）",
+    "mis": {
+      "mode": "max",
+      "N": 277,
+      "m": 109,
+      "M": 277,
+      "F": 0,
+      "M_max": 277
+    },
+    "clusteringParams": {
+      "sample": 8,
+      "smooth": 0,
+      "minblock": 1,
+      "colors": 0
+    },
+    "colorLimit": {
+      "requested": 0,
+      "palette": 10,
+      "mode": "error",
+      "used": 6,
+      "changed": 0,
+      "kept": []
+    },
+    "colorError": {
+      "beforeColorLimit": 23.4,
+      "final": 23.4
+    },
+    "clusteringBefore": {
+      "blocks": 11,
+      "largest": 92,
+      "avg": 25.2,
+      "tinyCells": 6,
+      "adjRate": 0.864
+    },
+    "clusteringAfter": {
+      "blocks": 11,
+      "largest": 92,
+      "avg": 25.2,
+      "tinyCells": 6,
+      "adjRate": 0.864
+    },
+    "smoothChanged": 0,
+    "mergedCells": 0,
+    "adjacency": {
+      "minDE": 20,
+      "maxDriftDE": 12,
+      "changed": 0,
+      "conflicts": 0
+    },
+    "clusteringMisplaced": {
+      "blocks": 15,
+      "largest": 88,
+      "avg": 18.5,
+      "tinyCells": 11,
+      "adjRate": 0.816
+    },
+    "difficulty": {
+      "score": 8,
+      "timeEst": 195,
+      "misplaced": 0,
+      "taps": 110,
+      "bMed": 0,
+      "split": {
+        "moves": 55,
+        "places": 18,
+        "directFills": 24,
+        "retrieves": 13
+      },
+      "steps": 55,
+      "cleared": true,
+      "secPerStep": 3,
+      "blockers": [],
+      "formula": "v0.4（真引擎实测 BAC 批量动作数 × SEC_PER_STEP）"
+    }
+  }
+}
