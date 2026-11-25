@@ -1,0 +1,220 @@
+[
+  {
+    "tag": "P01",
+    "name": "雏菊",
+    "master": "a01p01-v6-s42-rgba.png",
+    "colors": 5,
+    "tier": "简单",
+    "targetN": 120,
+    "base": 16,
+    "N": 124,
+    "stepsByCap": null,
+    "steps24": null,
+    "tries": [
+      [
+        17,
+        140
+      ],
+      [
+        16,
+        124
+      ]
+    ],
+    "blockers": [],
+    "importable": true,
+    "colorsUsed": null,
+    "misF": null
+  },
+  {
+    "tag": "P02",
+    "name": "向日葵",
+    "master": "a01p02-v4-s42-rgba.png",
+    "colors": 5,
+    "tier": "简单",
+    "targetN": 140,
+    "base": 17,
+    "N": 145,
+    "stepsByCap": null,
+    "steps24": null,
+    "tries": [
+      [
+        18,
+        155
+      ],
+      [
+        17,
+        145
+      ]
+    ],
+    "blockers": [],
+    "importable": true,
+    "colorsUsed": null,
+    "misF": null
+  },
+  {
+    "tag": "P03",
+    "name": "郁金香",
+    "master": "a01p03-v2-s42-rgba.png",
+    "colors": 5,
+    "tier": "中等",
+    "targetN": 200,
+    "base": 22,
+    "N": 207,
+    "stepsByCap": null,
+    "steps24": null,
+    "tries": [
+      [
+        22,
+        207
+      ]
+    ],
+    "blockers": [],
+    "importable": true,
+    "colorsUsed": null,
+    "misF": null
+  },
+  {
+    "tag": "P04",
+    "name": "玫瑰",
+    "master": "a01p04-v2-s42-rgba.png",
+    "colors": 5,
+    "tier": "简单",
+    "targetN": 125,
+    "base": 16,
+    "N": 128,
+    "stepsByCap": null,
+    "steps24": null,
+    "tries": [
+      [
+        17,
+        138
+      ],
+      [
+        16,
+        128
+      ]
+    ],
+    "blockers": [],
+    "importable": true,
+    "colorsUsed": null,
+    "misF": null
+  },
+  {
+    "tag": "P05",
+    "name": "三叶草",
+    "master": "a01p05-v7-s42-rgba.png",
+    "colors": 5,
+    "tier": "中等",
+    "targetN": 250,
+    "base": 26,
+    "N": 243,
+    "stepsByCap": null,
+    "steps24": null,
+    "tries": [
+      [
+        25,
+        228
+      ],
+      [
+        26,
+        243
+      ]
+    ],
+    "blockers": [],
+    "importable": true,
+    "colorsUsed": null,
+    "misF": null
+  },
+  {
+    "tag": "P06",
+    "name": "荷花",
+    "master": "a01p06-v2-s42-rgba-final.png",
+    "colors": 5,
+    "tier": "难",
+    "targetN": 360,
+    "base": 30,
+    "N": 375,
+    "stepsByCap": null,
+    "steps24": null,
+    "tries": [
+      [
+        30,
+        375
+      ]
+    ],
+    "blockers": [],
+    "importable": true,
+    "colorsUsed": null,
+    "misF": null
+  },
+  {
+    "tag": "P07",
+    "name": "仙人掌",
+    "master": "a01p07-v4-s42-rgba-final.png",
+    "colors": 5,
+    "tier": "中等",
+    "targetN": 280,
+    "base": 26,
+    "N": 294,
+    "stepsByCap": null,
+    "steps24": null,
+    "tries": [
+      [
+        26,
+        294
+      ]
+    ],
+    "blockers": [],
+    "importable": true,
+    "colorsUsed": null,
+    "misF": null
+  },
+  {
+    "tag": "P08",
+    "name": "蒲公英",
+    "master": "a01p08-v1-s42-rgba-final.png",
+    "colors": 4,
+    "tier": "难",
+    "targetN": 520,
+    "base": 34,
+    "N": 513,
+    "stepsByCap": null,
+    "steps24": null,
+    "tries": [
+      [
+        36,
+        574
+      ],
+      [
+        34,
+        513
+      ]
+    ],
+    "blockers": [],
+    "importable": true,
+    "colorsUsed": null,
+    "misF": null
+  },
+  {
+    "tag": "P09",
+    "name": "花之王",
+    "master": "a01p09-v1-s42-rgba-final.png",
+    "colors": 6,
+    "tier": "超难",
+    "targetN": 720,
+    "base": 42,
+    "N": 696,
+    "stepsByCap": null,
+    "steps24": null,
+    "tries": [
+      [
+        42,
+        696
+      ]
+    ],
+    "blockers": [],
+    "importable": true,
+    "colorsUsed": null,
+    "misF": null
+  }
+]

@@ -1,0 +1,191 @@
+[
+  {
+    "tag": "P01",
+    "name": "雏菊",
+    "master": "p01-b16-c5",
+    "base": 16,
+    "colorsParam": 5,
+    "N": 124,
+    "tier": "简单",
+    "colorsUsed": 4,
+    "voidCells": 0,
+    "derangement": "MAXIMAL（M=124/124 错位，固定点 = 理论下限 F=0）",
+    "stepsByCap": {
+      "12": 54,
+      "24": 40,
+      "48": 40
+    },
+    "steps24": 40,
+    "importable": true,
+    "blockers": [],
+    "tinyCells": 1
+  },
+  {
+    "tag": "P02",
+    "name": "向日葵",
+    "master": "p02-b17-c5",
+    "base": 17,
+    "colorsParam": 5,
+    "N": 145,
+    "tier": "简单",
+    "colorsUsed": 5,
+    "voidCells": 0,
+    "derangement": "MAXIMAL（M=145/145 错位，固定点 = 理论下限 F=0）",
+    "stepsByCap": {
+      "12": 65,
+      "24": 49,
+      "48": 41
+    },
+    "steps24": 49,
+    "importable": true,
+    "blockers": [],
+    "tinyCells": 0
+  },
+  {
+    "tag": "P03",
+    "name": "郁金香",
+    "master": "p03-b27-c5",
+    "base": 27,
+    "colorsParam": 5,
+    "N": 318,
+    "tier": "中等",
+    "colorsUsed": 5,
+    "voidCells": 0,
+    "derangement": "MAXIMAL（M=318/318 错位，固定点 = 理论下限 F=0）",
+    "stepsByCap": {
+      "12": 48,
+      "24": 28,
+      "48": 26
+    },
+    "steps24": 28,
+    "importable": true,
+    "blockers": [],
+    "tinyCells": 0
+  },
+  {
+    "tag": "P04",
+    "name": "玫瑰",
+    "master": "p04-b16-c5",
+    "base": 16,
+    "colorsParam": 5,
+    "N": 128,
+    "tier": "简单",
+    "colorsUsed": 4,
+    "voidCells": 0,
+    "derangement": "MAXIMAL（M=126/128 错位，固定点 = 理论下限 F=2）",
+    "stepsByCap": {
+      "12": 38,
+      "24": 27,
+      "48": 20
+    },
+    "steps24": 27,
+    "importable": true,
+    "blockers": [],
+    "tinyCells": 4
+  },
+  {
+    "tag": "P05",
+    "name": "三叶草",
+    "master": "p05-b32-c5",
+    "base": 32,
+    "colorsParam": 5,
+    "N": 356,
+    "tier": "中等",
+    "colorsUsed": 5,
+    "voidCells": 0,
+    "derangement": "MAXIMAL（M=356/356 错位，固定点 = 理论下限 F=0）",
+    "stepsByCap": {
+      "12": 81,
+      "24": 57,
+      "48": 42
+    },
+    "steps24": 57,
+    "importable": true,
+    "blockers": [],
+    "tinyCells": 2
+  },
+  {
+    "tag": "P06",
+    "name": "荷花",
+    "master": "p06-b32-c5",
+    "base": 32,
+    "colorsParam": 5,
+    "N": 416,
+    "tier": "难",
+    "colorsUsed": 5,
+    "voidCells": 0,
+    "derangement": "MAXIMAL（M=416/416 错位，固定点 = 理论下限 F=0）",
+    "stepsByCap": {
+      "12": 94,
+      "24": 70,
+      "48": 56
+    },
+    "steps24": 70,
+    "importable": true,
+    "blockers": [],
+    "tinyCells": 2
+  },
+  {
+    "tag": "P07",
+    "name": "仙人掌",
+    "master": "p07-b30-c5",
+    "base": 30,
+    "colorsParam": 5,
+    "N": 402,
+    "tier": "中等",
+    "colorsUsed": 5,
+    "voidCells": 0,
+    "derangement": "MAXIMAL（M=402/402 错位，固定点 = 理论下限 F=0）",
+    "stepsByCap": {
+      "12": 112,
+      "24": 64,
+      "48": 51
+    },
+    "steps24": 64,
+    "importable": true,
+    "blockers": [],
+    "tinyCells": 0
+  },
+  {
+    "tag": "P08",
+    "name": "蒲公英",
+    "master": "p08-b35-c4",
+    "base": 35,
+    "colorsParam": 4,
+    "N": 549,
+    "tier": "难",
+    "colorsUsed": 4,
+    "voidCells": 0,
+    "derangement": "MAXIMAL（M=549/549 错位，固定点 = 理论下限 F=0）",
+    "stepsByCap": {
+      "12": 159,
+      "24": 124,
+      "48": 118
+    },
+    "steps24": 124,
+    "importable": true,
+    "blockers": [],
+    "tinyCells": 3
+  },
+  {
+    "tag": "P09",
+    "name": "花之王",
+    "master": "p09-b43-c6",
+    "base": 43,
+    "colorsParam": 6,
+    "N": 731,
+    "tier": "超难",
+    "colorsUsed": 6,
+    "voidCells": 0,
+    "derangement": "MAXIMAL（M=731/731 错位，固定点 = 理论下限 F=0）",
+    "stepsByCap": {
+      "12": 177,
+      "24": 126,
+      "48": 106
+    },
+    "steps24": 126,
+    "importable": true,
+    "blockers": [],
+    "tinyCells": 4
+  }
+]
