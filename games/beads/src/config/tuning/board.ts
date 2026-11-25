@@ -274,10 +274,11 @@ export const TRAY_PANEL_PAD = 12;
  *
  * 用户 2026-11-25 令「扩展按钮应该压住一部分底槽」。面板贴上沿 `TRAY_BAND.yMax`、自然高度只够
  * 槽区 ⇒ 1 行档面板底 378 vs 按钮顶 284 留 **94dp** 空隙、2 行档 40dp ⇒ 按钮读作浮在托盘外。
- * 面板底因此钳到 `按钮顶 − 本值`。⛔ 本值须小于「末行槽底 − 按钮顶」的余量（1 行档 115dp /
- * 2 行档 61dp），否则按钮会压到槽。
+ * 面板底因此取 `按钮顶 − 本值`（少行档）。`[WXG-T-1082]` 由 12 收到 **8**：面板高改回自然高度后，
+ * 1 行档「末行槽底 = 面板底 + PAD(12)」，12 会让槽底正好落在按钮顶（压线）；8 留 4dp 余量 ⇒
+ * 按钮只轻微盖住面板下沿、不碰槽。
  */
-export const TRAY_PANEL_BTN_OVERLAP = 12;
+export const TRAY_PANEL_BTN_OVERLAP = 8;
 /**
  * 托盘**整体宽度**（面板外宽）= `TRAY_ROW_WIDTH + 2×TRAY_PANEL_PAD` = **666**。
  * **[WXG-T-262 三续裁 v1.65]** = fit 档**横向目标宽度**正本：用户裁「（适配）放大效果还是
@@ -629,24 +630,27 @@ export function trayLayout(rows: number, width: number = DESIGN_W): TrayLayout {
   const rowWidth = TRAY_ROW_WIDTH;
   const left = (width - rowWidth) / 2;
   const naturalH = rows * pitch - TRAY_GAP + TRAY_PANEL_PAD * 2;
-  // `[WXG-T-1073]` 面板下沿须被 `btn_expand` 压住 `TRAY_PANEL_BTN_OVERLAP`（用户令）：少行档
-  // 自然高度只够槽区时会与按钮之间留出大片空隙。⇒ 面板向下延伸到 `按钮顶 − overlap`。
-  // 多行档自然高度更高（4 行档 234 占满整带）⇒ `Math.max` 取自然值，本钳制对它们不生效。
+  // `[WXG-T-1082 · 用户 2026-11-25 令]` **面板高度只按槽行数（自然高度），靠整体下移去贴道具区**：
+  // 用户实帧报「默认底槽太高了，只要满足两行的高度即可……整体槽要贴着下面道具区域」。
+  // T-1073 曾把少行档面板**向下延伸**到按钮内（1/2 行 178 vs 自然 72/126）⇒ 面板读作一块高白板。
+  // 现口径：`panelH = 自然高度`；底缘取「贴带顶」与「按钮轻微压住下沿」中**更靠下**的那个 ⇒
+  // 少行档整体下移贴住 `btn_expand`（再往下就是道具区），多行档自然占满整带、依旧贴道具区。
   const btnTop = TRAY_BAND.yMin + (EXPAND_BTN_HIT_H - EXPAND_BTN_H) / 2 + EXPAND_BTN_H;
-  const skirtedH = TRAY_BAND.yMax - (btnTop - TRAY_PANEL_BTN_OVERLAP);
-  const panelH = Math.max(naturalH, skirtedH);
+  const panelBottom = Math.min(TRAY_BAND.yMax - naturalH, btnTop - TRAY_PANEL_BTN_OVERLAP);
+  const panelTop = panelBottom + naturalH;
   return {
     rows,
     pitch,
     rowWidth,
     left,
     panelX: left - TRAY_PANEL_PAD,
-    panelBottom: TRAY_BAND.yMax - panelH,
+    panelBottom,
     panelW: TRAY_PANEL_WIDTH,
-    panelH,
+    panelH: naturalH,
     slotCenterX: (col: number) => left + TRAY_SLOT / 2 + pitch * col,
+    // `[WXG-T-1082]` 槽位从**面板顶**起算（跟面板一起下移），⛔ 不再贴带顶 ⇒ 槽与面板底板始终同体。
     slotCenterY: (row: number) =>
-      TRAY_BAND.yMax - TRAY_PANEL_PAD - TRAY_SLOT / 2 - pitch * row,
+      panelTop - TRAY_PANEL_PAD - TRAY_SLOT / 2 - pitch * row,
   };
 }
 
@@ -662,13 +666,14 @@ export function trayLayout(rows: number, width: number = DESIGN_W): TrayLayout {
  */
 export function trayPreviewFits(unlockedRows: number): boolean {
   const btnTop = TRAY_BAND.yMin + (EXPAND_BTN_HIT_H - EXPAND_BTN_H) / 2 + EXPAND_BTN_H;
-  // `[WXG-T-1073]` 判据由「面板底 ≥ 按钮顶」改挂「**末行槽底** ≥ 按钮顶 + 8」：
-  // 面板下沿已被 `TRAY_PANEL_BTN_OVERLAP` 钳到按钮顶之下（`panelBottom < btnTop` 恒真）⇒
-  // 旧式会恒假、预览行全灭。新式与**原结论逐档一致**（+8 = 原「面板底 ≥ 按钮顶」留出的等效余量）：
-  // 1 行档 345 ≥ 292 ✅ 留 / 2 行档 291 < 292 ⛔ 不留 / 3 行档 237 < 292 ⛔ 不留。
-  const lay = trayLayout(unlockedRows + 1);
-  return lay.slotCenterY(unlockedRows) - TRAY_SLOT / 2 >= btnTop + 8;
+  // `[WXG-T-1082]` 判据 = 「再多画一行后面板底**仍贴着按钮**」：面板高度已改回自然高度、底缘由
+  // `min(贴带顶, 按钮顶 − overlap)` 决定 ⇒ 行数一多面板就会被顶向上方（底缘离开按钮）。
+  // 实测逐档与原设计结论一致：1 行档 `panelBottom(2)=276 ≥ 284−8` ✅ 留 / 2 行档 `270 < 276` ⛔ /
+  // 3 行档 `216` ⛔。⛔ 不要退回「末行槽底 ≥ 按钮顶 + k」：`TRAY_SLOT=48` 时 2 行档的 3 行槽底
+  // (282) 本就低于按钮顶，与 1 行档的真值区间不相交。
+  return trayLayout(unlockedRows + 1).panelBottom >= btnTop - TRAY_PANEL_BTN_OVERLAP;
 }
+
 
 /**
  * `btn_expand` 几何（§3.4 v1.20）：带**下沿**居底，视觉 132×48 居中于 132×88 热区。

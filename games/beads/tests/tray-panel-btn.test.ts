@@ -3,6 +3,8 @@ import {
     EXPAND_BTN_H,
     EXPAND_BTN_HIT_H,
     TRAY_BAND,
+    TRAY_GAP,
+    TRAY_PANEL_PAD,
     TRAY_PANEL_BTN_OVERLAP,
     TRAY_SLOT,
     expandButtonLayout,
@@ -24,6 +26,23 @@ describe('[WXG-T-1073] 托盘面板 ⇄ 扩展按钮邻接', () => {
             expect(btnTop - lay.panelBottom, `${rows} 行：重叠量 = ${TRAY_PANEL_BTN_OVERLAP}dp`)
                 .toBeCloseTo(TRAY_PANEL_BTN_OVERLAP, 1);
         }
+    });
+
+    it('[WXG-T-1082] 面板高度只按槽行数（自然高度），靠整体下移贴道具区（⛔ 不再拉高成白板）', () => {
+        // 用户 2026-11-25 实帧报「默认底槽太高了，只要满足两行的高度即可……整体槽要贴着下面道具区域」。
+        for (const rows of [1, 2, 4]) {
+            const lay = trayLayout(rows);
+            const natural = rows * (TRAY_SLOT + TRAY_GAP) - TRAY_GAP + TRAY_PANEL_PAD * 2;
+            expect(lay.panelH, `${rows} 行：面板高 = 槽行数所需的自然高度`).toBeCloseTo(natural, 1);
+        }
+        // 少行档：底缘被按钮轻微压住 ⇒ 面板+按钮整体贴住道具区
+        for (const rows of [1, 2]) {
+            expect(trayLayout(rows).panelBottom, `${rows} 行：下移贴住按钮`)
+                .toBeCloseTo(btnTop - TRAY_PANEL_BTN_OVERLAP, 1);
+        }
+        // 4 行档：自然高度占满整带 ⇒ 底缘即带底（依旧贴道具区），不再额外下移
+        const four = trayLayout(4);
+        expect(four.panelBottom + four.panelH, '4 行：面板顶贴带顶').toBeCloseTo(TRAY_BAND.yMax, 1);
     });
 
     it('少行档：末行槽底仍在按钮顶之上（按钮只压面板裙边，⛔ 不压槽）', () => {
