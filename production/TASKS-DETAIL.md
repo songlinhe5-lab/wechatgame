@@ -12926,7 +12926,19 @@ __motion.report()     // 把这一行贴回来
 - `games/beads/cocos/assets/scripts/game/game/beads-game.ts`：`framework:sync` 同步拷贝件。
 - `production/TASKS.md`：领号 1078；`production/TASKS-DETAIL.md`：本节。
 
-**⑤ 遗留**
-Cocos 宿主侧 `App._fixedUpdate` 的 `dirtyGate`（WXG-T-248 默认 true）可能在零步帧完全跳过
-`onRender`（签名未变 ⇒ 不重画）。本修法使 `gridLeft` 在零步帧改变，签名跟着变，dirtyGate
-应放行；待真机验证确认无需额外关闭。
+**⑤ dirtyGate 是否吞掉残差帧（静态定论，替掉原「待真机」）**
+两处已证，⛔ 不必等真机：
+1. **残差真的进了渲染输入** —— 盘面珠的坐标取自 snapshot 而非 `_layout`：
+   `play-page.ts:526/858/1304` 与 `bead-outline.ts:113` 均以 `snap.gridLeft/gridTop` 起手算 `cx/cy`；
+   本单改的正是这两个字段 ⇒ 图元坐标随之移动。
+2. **坐标移动必然判脏** —— `RenderModelBuilder.signature()` 逐条混入图元数值字段，
+   且该行为已由 `packages/framework/tests/core/render-model.test.ts:338`（「几何 / 墨 / 背景 /
+   变换任一改变 ⇒ 指纹改变」）钉住；`App._render`（`compose/app.ts:334-338`）签名不同才放行 onRender。
+   ⇒ 零步帧里 `gridLeft` 一变，`App.dirtyGate`（默认 true）不会拦。
+
+⚠ 已知下限（同测试 `:362`）：签名按 **1/64 设计 px** 量化，亚像素位移视为相同。
+本单残差 = 未消费的整段手部位移（实测 30 屏 px 量级），远在阈值之上；
+但若将来把 `fixedDt` 提到极小使每帧残余 < 1/64 px，门会重新吃掉该帧 —— 届时改这里，别改量化。
+
+**真机侧仍待办的是观感，不是机制**：`[MOTION]` 读数（`__motion.report()`）用来确认
+宿主实际落在 refresh-halved 还是 accumulator-jitter 档，与本修法的生效性无关。
