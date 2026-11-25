@@ -47,6 +47,7 @@ import {
     GROUP_LAND_DROP_PX,
     HINT_PULSE_MS,
     HUD_BAND,
+    PUZZLE_BAND,
     POWERUP_BADGE_GLYPH_EDGE,
     POWERUP_BADGE_INSET,
     POWERUP_BADGE_RADIUS,
@@ -163,7 +164,12 @@ export function drawPlayPage(
     // 第二块 Graphics）。视图层不再画背景层／容器板 ⇒ 「珠下」零图元，层序冲突消解。
     builder.setBackground(palette.background);
     drawHud(builder, snap, palette);
+    // `[WXG-T-1078]` 盘面**裁剪到 `PUZZLE_BAND`**：面板回 `back` 后（层序见 `drawTray`），
+    // 「盘面豆子溢出到托盘区要被面板遮住」不能再靠层序 ⇒ 直接把盘面绘制限死在盘面带内，
+    // 溢出内容根本不上屏（用户 2026-11-25 选 B 的等效实现）。
+    builder.clip(0, PUZZLE_BAND.yMin, DESIGN_W, PUZZLE_BAND.yMax - PUZZLE_BAND.yMin);
     drawGrid(builder, snap, palette, inks);
+    builder.unclip();
     drawZoomControls(builder, snap, palette, zoomControlsVisible); // 缩放控件条（盘面下方净空带，不遮珠）
     drawTray(builder, snap, palette, inks);
     drawExpandButton(builder, snap, palette);
@@ -919,13 +925,14 @@ function drawTrayPlateShading(
     ink: string,
 ): void {
     // [EP12-S3] 墨改读 `palette.shadowInk`（tokens.md §1 暖化；几何/α = TRAY_PLATE 不动）。
-    // `[WXG-T-1074]` 三条内阴影随面板一起**不沉底**（末参 false）：面板已提到普通 Graphics，若内阴影仍走 `back`，会被面板整片盖住 = 白画；同时它们仍排在槽 / 珠之前 ⇒ 不会画在珠面上（旧注释担心的正是这一点，顺序已保证）。
+    // `[WXG-T-1078]` 三条内阴影随面板一起**回 `back`**（末参 true）：面板已沉底，内阴影必须同层，
+    // 否则会浮在槽 / 珠之上（旧注释「否则会画在珠面上」正是此意）。
     // 底缘外段（α 0.03）。
-    builder.line(x, y + h - TRAY_PLATE.width, x + w, y + h - TRAY_PLATE.width, withAlpha(ink, TRAY_PLATE.bottomOuterAlpha), TRAY_PLATE.width, undefined, false);
+    builder.line(x, y + h - TRAY_PLATE.width, x + w, y + h - TRAY_PLATE.width, withAlpha(ink, TRAY_PLATE.bottomOuterAlpha), TRAY_PLATE.width, undefined, true);
     // 底缘内段（α 0.05）。
-    builder.line(x, y + h - TRAY_PLATE.width * 2, x + w, y + h - TRAY_PLATE.width * 2, withAlpha(ink, TRAY_PLATE.bottomInnerAlpha), TRAY_PLATE.width, undefined, false);
+    builder.line(x, y + h - TRAY_PLATE.width * 2, x + w, y + h - TRAY_PLATE.width * 2, withAlpha(ink, TRAY_PLATE.bottomInnerAlpha), TRAY_PLATE.width, undefined, true);
     // 右缘段（α 0.02）。
-    builder.line(x + w - TRAY_PLATE.width, y, x + w - TRAY_PLATE.width, y + h, withAlpha(ink, TRAY_PLATE.rightAlpha), TRAY_PLATE.width, undefined, false);
+    builder.line(x + w - TRAY_PLATE.width, y, x + w - TRAY_PLATE.width, y + h, withAlpha(ink, TRAY_PLATE.rightAlpha), TRAY_PLATE.width, undefined, true);
 }
 /**
  * **抬起等比因子的唯一算式**（盘面 `drawGrid` / 托盘 `drawTray` 共用，T-244 十三批 ③④）。
@@ -1011,8 +1018,12 @@ function drawTray(
     // 旧口径 `back: true` 会把面板与内阴影送到宿主 `backGraphics`（节点树最底层、blit 载体之下）
     // ⇒ 盘面豆子恒压在托盘之上。play 帧全是矢量图元（同层按绘制序），改为普通 Graphics 后
     // `drawGrid → drawTray(面板→内阴影→槽→珠)` 的顺序即层序，托盘恒在盘面之前绘制的珠面之上。
+    // `[WXG-T-1078]` 面板**回到 `back`**（撤销 T-1074 的层序改动）：真机 tint 臂下托盘槽底与珠子是
+    // **blit**，而 `graphics` 恒在 `blit` 之上 ⇒ 面板一旦提到普通 Graphics 就会盖住槽底（用户报
+    // 「底槽里的珠子底色被背景板覆盖」，珠孔透出的正是被盖住的槽底）。「盘面豆子溢出托盘区要被遮」
+    // 改由 `drawGrid` 的**盘面裁剪**承担（见 `drawPlayPage` 里 `PUZZLE_BAND` 那段）。
     drawPaperPanel(builder, lay.panelX, lay.panelBottom, lay.panelW, lay.panelH,
-        palette, UI_CONTAINER.radiusPanel, UI_CONTAINER.shadowAlphaPanel, false);
+        palette, UI_CONTAINER.radiusPanel, UI_CONTAINER.shadowAlphaPanel, true);
     // 「微拱白瓷」三段内阴影（§1.3 v1.5，WXG-T-131/143）：底缘两段 + 右缘一段 ——
     // 平面板的轻体积感；α 极低（0.03/0.05/0.02），不与满槽告警危险描边竞争。
     drawTrayPlateShading(builder, lay.panelX, lay.panelBottom, lay.panelW, lay.panelH, palette.shadowInk);

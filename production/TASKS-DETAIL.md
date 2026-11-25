@@ -12851,3 +12851,20 @@ __motion.report()     // 把这一行贴回来
 
 **仍未打通的**：微信真机 / 开发者工具那条需 (a) 公众平台「第三方设置 → 插件管理」添加 Cocos 引擎官方插件（provider `wx0446ba2621dda60a`）
 + 已配 AppID 与上传密钥的工具（本仓库缺 AppID/密钥，资质未开通），或 (b) 引擎内置档的 wechatgame 产物（`tools/scripts/build-cocos.mjs` 未见现成开关，待查证）。
+
+
+## WXG-T-1078
+
+**计时首操作起跑 + 托盘面板回 `back`** · 负责：主理人(CodeBuddy)·工程轨 · 状态：🚧 **进行中（2026-11-25）**
+
+用户两条：①「游戏未有任何点击变化时候，倒计时不要开始计时」；②「底槽里的珠子底色被背景板覆盖」。
+
+**① 计时起跑闸（推翻 T-1071 旧口径）**：旧口径 = 进关即起跑（T-1071 曾实测并钉过回归门）。用户实机后裁定改为**等玩家动第一下**。实现 = `beads-game._clockArmed`：
+- 置位点 = **选中生效处**（`board:selected` / `tray:selected`）——所有清除/放置/交换的共同前置，一处收口覆盖全部操作；
+- `_stepPlaying` 里未起跑时**连 `timer:tick` 都不发**（免得 HUD 秒数在跳但棋子没动）；
+- `startLevel` / sprint 重置回 `BeadsGameOptions.armClockOnStart`（缺省 false = 生产）；
+- **测试/重演侧**：夹具默认 `armClockOnStart: true`（否则所有「advance 到超时」的循环永不结束 —— 本轮确实撞死过一次）；`createReplaySandboxGame` **恒置 true**（录像是一次真实游玩的完整时间轴，回放不该受闸门影响，否则 `remainingMs` 与录制终局不等）。
+
+**② 托盘面板回 `back`（撤销 T-1074 的层序改动）**：T-1074 为让「盘面豆子溢出托盘区被面板遮住」把面板提到普通 Graphics；但**真机 tint 臂下托盘槽底与珠子是 blit**，`graphics` 恒在 `blit` 之上 ⇒ 面板盖住槽底，珠孔（真透）里透出白面板 = 用户报的「珠子底色被背景板覆盖」。修 = 面板 + 三条内阴影回 `back: true`（T-1073 的面板下延钳制保留）；B 的效果改由 **`drawGrid` 前 `builder.clip(0, PUZZLE_BAND.yMin, DESIGN_W, bandH)` / `unclip()`** 承担 —— 盘面绘制限死在盘面带内，溢出内容根本不上屏，等效且不动层序。
+
+**验证**：`core-loop.test.ts` 改写为闸门两端（零输入 2 秒时钟不动 / 闸门开则正常走秒）；`play-page.test.ts` 的 `back` 层序断言同步回「面板须沉底」；定向 replay-facility 22/22、fail-confirm+core-loop 15/15；全量 verify 待金样 5 帧与 S3 按锚重抓。

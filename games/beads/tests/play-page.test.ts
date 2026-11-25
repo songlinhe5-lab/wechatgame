@@ -106,11 +106,10 @@ describe('UI-41 · PlayPage', () => {
         // WXG-T-420 T7：顶栏齿轮画法复用腿随 `drawTopbar` 搬到 `meta-menu.ts`（判例 K-183 ⇒ 守卫跟着迁移）。
         expect(read('src/view/meta-menu.ts')).toContain("import { drawGear } from './play-page.js';");
     });
-    it('[WXG-T-1074] 托盘面板与内阴影不得沉底(back)：否则盘面豆子会浮到托盘之上', () => {
-        // 用户 2026-11-25 选 B：盘面豆子溢出到托盘区域时须被托盘面板遮住。旧口径面板与三条
-        // 内阴影都带 `back: true` ⇒ 宿主把它们送到 `backGraphics`（节点树最底层、blit 载体之下）
-        // ⇒ 盘面豆子恒压在托盘之上。play 帧全是矢量图元（同层按绘制序）⇒ 去掉 `back` 后
-        // `drawGrid → drawTray` 的顺序本身即层序。
+    it('[WXG-T-1078] 托盘面板与内阴影**必须**沉底(back)：真机 tint 臂下槽底/珠是 blit', () => {
+        // 用户 2026-11-25 报「底槽里的珠子底色被背景板覆盖」：面板一旦走普通 Graphics，就会压在
+        // blit 腿的槽底之上（graphics 恒高于 blit），珠孔透出白面板。⇒ 面板与内阴影须回到 `back`
+        // （沉到 blit 之下的 `backGraphics`）。「盘面溢出被遮」改由 `drawGrid` 的 PUZZLE_BAND 裁剪承担。
         const h = harness();
         const cmds = modelOf((b) =>
             drawPlayPage(b, h.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS, true),
@@ -121,10 +120,13 @@ describe('UI-41 · PlayPage', () => {
             (c) => c.kind === 'rect' && c.x === lay.panelX && c.y === lay.panelBottom && c.w === lay.panelW,
         ) as { back?: boolean } | undefined;
         expect(panel, '托盘面板 rect 存在').toBeTruthy();
-        expect(panel!.back ?? false, '⛔ 面板沉底 ⇒ 盘面豆子压在托盘之上').toBe(false);
+        expect(panel!.back, '⛔ 面板不沉底 ⇒ 盖住 tint 臂的槽底').toBe(true);
         expect(
             cmds.filter((c) => c.kind === 'line' && (c as { back?: boolean }).back === true).length,
-            '⛔ 托盘内阴影不得残留在 back 通道（会被面板整片盖住）',
-        ).toBe(0);
+            '托盘三条内阴影须同批沉底（否则浮在槽/珠之上）',
+        ).toBe(3);
+        // B 的等效实现：盘面绘制被 clip 限死在盘面带内
+        const clips = cmds.filter((c) => c.kind === 'clip');
+        expect(clips.length, '盘面须有 clip 包夹').toBeGreaterThanOrEqual(1);
     });
 });

@@ -172,22 +172,25 @@ describe('S1 core-loop', () => {
   });
 });
 
-describe('[WXG-T-1071] 倒计时起跑口径（⛔ 不等首次操作）', () => {
-    it('进关后不做任何输入，时钟也按 dt 推进（用户 2026-11-25 报「点击第一步前不走」）', () => {
-        // 口径真源：`GameTimer.tick(dt)` 无条件递减（`systems/timer.ts`），由
-        // `_stepPlaying` 每帧调用；Cocos 侧 `scheduler.schedule(tick, 0)` 从启动即每帧驱动，
-        // `onResume()` 是 no-op。⇒ 进关即起跑，没有任何「等首次点击」的闸。本用例把这条钉死：
-        // 若未来有人加了「tap 后才 start」的门，这里会立刻红。
+describe('[WXG-T-1078] 倒计时起跑闸（零输入不计时）', () => {
+    it('进关后不做任何点击变化 ⇒ 时钟不走；闸门开后正常推进', () => {
+        // `[WXG-T-1071]` 旧口径 = 进关即起跑（实测确实如此），用户 2026-11-25 实机后**推翻**：
+        // 「游戏未有任何点击变化时候，倒计时不要开始计时」⇒ `_clockArmed` 闸门，置位点 = 选中生效
+        // （`board:selected` / `tray:selected`，所有清除/放置/交换的共同前置）。本用例钉住两端。
         const harness = createBeadsHarness({
             noAssemble: true,
             levels: [simpleTestLevel()],
-            saveKey: 'wxgame.beads.test.timer-autostart',
+            saveKey: 'wxgame.beads.test.clock-gate',
+            armClock: false,
         });
         expect(harness.game.phase).toBe('playing');
-        const before = harness.game.snapshot.remaining;
-        expect(before, '进关即满额').toBeGreaterThan(0);
+        const t0 = harness.game.snapshot.remaining;
+        expect(t0, '进关即满额').toBeGreaterThan(0);
         harness.advance(2);
-        const after = harness.game.snapshot.remaining;
-        expect(before - after, '零输入 2 秒 ⇒ 时钟走掉约 2 秒').toBeGreaterThan(1.5);
+        expect(harness.game.snapshot.remaining, '⛔ 零输入 2 秒 ⇒ 时钟一格都不许走').toBe(t0);
+        // 模拟首次有效选中（置位点本身由选择链路覆盖，这里只验闸门语义）
+        (harness.game as unknown as { _clockArmed: boolean })._clockArmed = true;
+        harness.advance(1);
+        expect(t0 - harness.game.snapshot.remaining, '闸门开 ⇒ 正常走秒').toBeGreaterThan(0.8);
     });
 });

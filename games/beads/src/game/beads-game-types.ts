@@ -114,6 +114,13 @@ export interface BeadsGameOptions {
      */
     readonly noBootAssembly?: boolean;
     /**
+     * `[WXG-T-1078]` **测试专用**：把计时起跑闸预置为开（缺省 false = 生产语义）。
+     *
+     * 生产口径 = 进关后要等玩家第一次有效选中才开始走秒；但绝大多数测试靠推进帧去等超时 / 等结算，
+     * 闸门关着会让 `while (phase === 'playing')` 永不结束。夹具据此默认打开，闸门测试显式关掉。
+     */
+    readonly armClockOnStart?: boolean;
+    /**
      * 暂停面板「回主菜单」次钮回调（WXG-T-164 批0，pause-settings v1.3 §8-11）：
      * 玩法层不知道 shell/菜单存在，只上报意图；缺省（无 shell）时按钮无副作用。
      */
