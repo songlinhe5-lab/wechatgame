@@ -22,10 +22,12 @@
       "directFills": 11,
       "retrieves": 6
     },
-    "secPerStep": 3.0,
+    "secPerStep": 3,
     "tierK": 0.85,
     "clamped": false,
-    "cleared": true
+    "cleared": true,
+    "tier": 0,
+    "secPerTap": 1
   },
   "decoys": [],
   "pattern": [

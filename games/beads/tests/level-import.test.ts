@@ -6,6 +6,7 @@ import {
     fetchResults,
     importLatest,
     measuredLevelTime,
+    measuredLevelTimeByTaps,
     studioUrl,
     tierStepBudget,
     type LevelDraft,
@@ -58,6 +59,18 @@ describe('WXG-T-179 · level-import 转换与定价', () => {
         // 非法输入 ⇒ 0 步 ⇒ 下限（不产生 NaN 倒计时：NaN 永不到零 = 失败条件永不触发）
         expect(measuredLevelTime(Number.NaN).time).toBe(LEVEL_TIME_MIN);
         expect(measuredLevelTime(-5).time).toBe(LEVEL_TIME_MIN);
+    });
+
+    it('measuredLevelTimeByTaps：点击数 × 难度档秒/点击 ÷ 2★系数（公式 v1.0）—— 锚值 / clamp', () => {
+        // 锚：taps=109、中等档 1.13 s/点击 ⇒ need = ceil(123.17) = 124s ⇒ ÷0.85 再 ceil = 146s。
+        expect(measuredLevelTimeByTaps(109, 1)).toEqual({ time: 146, difficulty: 6, clamped: false });
+        // 简单档更紧、超难档更宽（2026-11-25 用户选「标准」斜率）
+        expect(measuredLevelTimeByTaps(109, 0).time).toBe(129); // ceil(109) = 109 ÷0.85 = 128.2
+        expect(measuredLevelTimeByTaps(109, 3).time).toBe(183); // ceil(154.78) = 155 ÷0.85 = 182.4
+        // clamp：非法/极小 ⇒ 下限；超大盘 ⇒ 上限
+        expect(measuredLevelTimeByTaps(5, 1).time).toBe(LEVEL_TIME_MIN);
+        expect(measuredLevelTimeByTaps(Number.NaN, 1).time).toBe(LEVEL_TIME_MIN);
+        expect(measuredLevelTimeByTaps(3000, 3).time).toBe(LEVEL_TIME_MAX);
     });
 
     it('estimateLevelTime（静态兜底）= round(M×0.8) 步，与实测共用 clamp 出口；N/C/A 不再影响时长', () => {

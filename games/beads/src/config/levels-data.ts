@@ -178,7 +178,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "studio-3-eddc",
       cols: 10,
       rows: 13,
-      time: 85,
+      time: 88,
       cycleProfile: "short",
       decoys: [],
       pattern: [
@@ -219,7 +219,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "studio-0-4715",
       cols: 14,
       rows: 14,
-      time: 64,
+      time: 62,
       cycleProfile: "short",
       decoys: [],
       pattern: [
@@ -268,7 +268,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "studio-2-7e27",
       cols: 12,
       rows: 12,
-      time: 75,
+      time: 66,
       cycleProfile: "short",
       decoys: [],
       pattern: [
@@ -364,7 +364,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "studio-5-f0d3",
       cols: 14,
       rows: 11,
-      time: 46,
+      time: 45,
       cycleProfile: "short",
       decoys: [],
       pattern: [
@@ -407,7 +407,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "studio-3-90df",
       cols: 14,
       rows: 8,
-      time: 89,
+      time: 104,
       cycleProfile: "short",
       decoys: [],
       pattern: [
@@ -447,7 +447,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "studio-4-4005",
       cols: 11,
       rows: 12,
-      time: 75,
+      time: 60,
       cycleProfile: "short",
       decoys: [],
       pattern: [
@@ -492,7 +492,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "studio-3-163c",
       cols: 30,
       rows: 30,
-      time: 318,
+      time: 317,
       starTierK: [
         1,
         0.85,
@@ -573,7 +573,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "雏菊",
       cols: 16,
       rows: 16,
-      time: 142,
+      time: 128,
       cycleProfile: "long",
       decoys: [],
       pattern: [
@@ -620,7 +620,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "向日葵",
       cols: 17,
       rows: 17,
-      time: 173,
+      time: 153,
       cycleProfile: "long",
       decoys: [],
       pattern: [
@@ -669,7 +669,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "郁金香",
       cols: 27,
       rows: 27,
-      time: 99,
+      time: 129,
       cycleProfile: "long",
       decoys: [],
       pattern: [
@@ -738,7 +738,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "玫瑰",
       cols: 16,
       rows: 16,
-      time: 96,
+      time: 90,
       cycleProfile: "long",
       decoys: [],
       pattern: [
@@ -785,7 +785,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "三叶草",
       cols: 32,
       rows: 32,
-      time: 202,
+      time: 215,
       cycleProfile: "long",
       decoys: [],
       pattern: [
@@ -864,7 +864,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "荷花",
       cols: 32,
       rows: 32,
-      time: 248,
+      time: 284,
       cycleProfile: "long",
       decoys: [],
       pattern: [
@@ -943,7 +943,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "仙人掌",
       cols: 30,
       rows: 30,
-      time: 226,
+      time: 299,
       cycleProfile: "long",
       decoys: [],
       pattern: [
@@ -1018,7 +1018,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "蒲公英",
       cols: 35,
       rows: 35,
-      time: 438,
+      time: 480,
       cycleProfile: "long",
       decoys: [],
       pattern: [
@@ -1103,7 +1103,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "花之王",
       cols: 43,
       rows: 43,
-      time: 445,
+      time: 592,
       cycleProfile: "long",
       decoys: [],
       pattern: [
@@ -1205,7 +1205,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "狐狸",
       cols: 32,
       rows: 32,
-      time: 177,
+      time: 220,
       cycleProfile: "long",
       decoys: [],
       pattern: [
@@ -1284,7 +1284,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "棕熊",
       cols: 32,
       rows: 32,
-      time: 244,
+      time: 275,
       cycleProfile: "long",
       decoys: [],
       pattern: [
@@ -1442,7 +1442,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "兔子",
       cols: 32,
       rows: 32,
-      time: 195,
+      time: 200,
       cycleProfile: "long",
       decoys: [],
       pattern: [
@@ -1521,7 +1521,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "松鼠",
       cols: 32,
       rows: 32,
-      time: 336,
+      time: 310,
       cycleProfile: "long",
       decoys: [],
       pattern: [
@@ -1600,7 +1600,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "刺猬",
       cols: 32,
       rows: 32,
-      time: 244,
+      time: 238,
       cycleProfile: "long",
       decoys: [],
       pattern: [
@@ -1679,7 +1679,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "浣熊",
       cols: 32,
       rows: 32,
-      time: 255,
+      time: 288,
       cycleProfile: "long",
       decoys: [],
       pattern: [
@@ -1758,7 +1758,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "小狼",
       cols: 32,
       rows: 32,
-      time: 198,
+      time: 190,
       cycleProfile: "long",
       decoys: [],
       pattern: [
@@ -1837,7 +1837,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "鹿王",
       cols: 32,
       rows: 32,
-      time: 297,
+      time: 292,
       cycleProfile: "long",
       decoys: [],
       pattern: [

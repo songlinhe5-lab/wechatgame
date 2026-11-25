@@ -25,7 +25,9 @@
     "secPerStep": 3,
     "tierK": 0.85,
     "clamped": false,
-    "cleared": true
+    "cleared": true,
+    "tier": 1,
+    "secPerTap": 1.13
   },
   "decoys": [],
   "pattern": [

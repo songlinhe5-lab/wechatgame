@@ -20,10 +20,12 @@
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { createBeadsHarness, simpleTestLevel } from '../../games/beads/tests/helpers.js';
-import { measuredLevelTime, tierStepBudget } from '../../games/beads/src/game/level-import.js';
+import { measuredLevelTimeByTaps, tierStepBudget } from '../../games/beads/src/game/level-import.js';
+import { difficultyOf } from '../../games/beads/src/game/difficulty.js';
 import {
     LEVEL_TIME_MAX,
     SEC_PER_STEP,
+    SEC_PER_TAP_BY_TIER,
     STAR_TIER_K,
     TRAY_BASE_SLOTS,
     TRAY_TIER_SLOTS,
@@ -74,6 +76,8 @@ export interface MeasureResult {
      * ⚠ bot 是贪心：**不单调**（实测 L5 48 槽 110 步 > 12 槽 64 步）⇒ 只当同策略相对读数。
      */
     readonly stepsByCap: Readonly<Record<number, number>>;
+    /** 四档难度档（`difficultyOf().tier`，0 简单 / 1 中等 / 2 难 / 3 超难）= 点击单价的选取依据。 */
+    readonly tier: number;
     readonly time: number;
     readonly difficulty: number;
     /** 硬拦判据（非空 ⇒ 不可入关）；阈值全来自 `tuning`（§3.13/§3.5）。 */
@@ -185,8 +189,10 @@ export function measureBoard(raw: BeadsLevelRaw, seed = 'beads-bot'): MeasureRes
     const full = m > 0 && (raw.misplaced?.length ?? 0) > 0;
     const bMed = full ? (base.sizes[Math.floor(base.sizes.length / 2)] ?? 0) : 0;
     const steps = base.steps;
-
-    const { time, difficulty, clamped } = measuredLevelTime(steps);
+    // 定价自变量 = 点击数（公式 v1.0，2026-11-25 用户拍板）；单价按四档难度取斜率。
+    // 旧口径 `steps × SEC_PER_STEP` 的残差来自 `taps ÷ steps` 跨 2.07–4.00，本式直接消除该轴。
+    const tier = difficultyOf(raw).tier;
+    const { time, difficulty, clamped } = measuredLevelTimeByTaps(base.taps, tier);
     const blockers: string[] = [];
     if (!base.cleared) blockers.push(`bot 未通关（${base.stuck.slice(0, 40)}）⇒ 可解性未证实，不可入关`);
     // 规模闸（§3.13）**只用真值**：实测步数 × 每步单价 击空倒计时预算 ⇒ 拒。
@@ -243,6 +249,7 @@ export function measureBoard(raw: BeadsLevelRaw, seed = 'beads-bot'): MeasureRes
         stepsByCap,
         split: base.split,
         cleared: base.cleared,
+        tier,
         time,
         difficulty,
         blockers,
@@ -283,10 +290,14 @@ export function pricingOf(res: MeasureResult) {
         stepsByCap: res.stepsByCap,
         taps: res.taps,
         actionsSplit: res.split,
+        /** 定价自变量 = 点击数；单价按难度档取 `SEC_PER_TAP_BY_TIER[tier]`（公式 v1.0）。 */
+        tier: res.tier,
+        secPerTap: SEC_PER_TAP_BY_TIER[res.tier] ?? SEC_PER_TAP_BY_TIER[1]!,
+        /** 步数单价：自查 v1.0 起只服务规模闸/门禁⑦，⛔ 不再参与 `time` 推导。 */
         secPerStep: SEC_PER_STEP,
-        /** 定价基准档系数（§3.5 v1.84：`STAR_TIER_K[1]` = 2★ 档，等式 = `time == ceil(ceil(steps×单价)÷tierK)`）。 */
+        /** 定价基准档系数（§3.5 v1.84：`STAR_TIER_K[1]` = 2★ 档，等式 = `time == ceil(ceil(taps×单价)÷tierK)`）。 */
         tierK: STAR_TIER_K[1]!,
-        clamped: measuredLevelTime(steps).clamped,
+        clamped: measuredLevelTimeByTaps(res.taps, res.tier).clamped,
         cleared: res.cleared,
     };
 }
@@ -369,9 +380,11 @@ if (Array.isArray(doc.levels)) {
                 split: res.split,
                 steps: res.steps,
                 cleared: res.cleared,
+                tier: res.tier,
+                secPerTap: SEC_PER_TAP_BY_TIER[res.tier] ?? SEC_PER_TAP_BY_TIER[1]!,
                 secPerStep: SEC_PER_STEP,
                 blockers: res.blockers,
-                formula: 'v0.4（真引擎实测 BAC 批量动作数 × SEC_PER_STEP）',
+                formula: 'v1.0（真引擎实测点击数 × 按四档难度的秒/点击）',
             };
         }
         writeFileSync(target, JSON.stringify(doc, null, 2) + '\n');

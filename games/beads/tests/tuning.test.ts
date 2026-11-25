@@ -46,6 +46,7 @@ import {
   LEVEL_TIME_MIN,
   nextTierFor,
   SEC_PER_STEP,
+  SEC_PER_TAP_BY_TIER,
   STAR_TIER_FLOOR,
   STAR_TIER_K,
   STAR_TIER_MIN_GAP,
@@ -265,6 +266,14 @@ describe('beads tuning derivation (systems-index §3 mirrors)', () => {
       // 取 3.0 作节奏目标（≈1.5 s/点击），使 A01 3★ 时钟落 30–40 min 章预算。
       // ⚠ 3.0 仍未重抽 `t_act` 中位数（tuning 里已标 `[待 playtest]`）。
       expect(SEC_PER_STEP).toBe(3.0);
+    });
+
+    it('SEC_PER_TAP_BY_TIER = 四档难度的 2★ 秒/点击（公式 v1.0，2026-11-25 用户选「标准」）', () => {
+      // 锚 = 2026-09-23 八关实测 s/点击中位 1.13；简单收紧 ~10%、难/超难放宽 5–20%。
+      expect([...SEC_PER_TAP_BY_TIER]).toEqual([1.00, 1.13, 1.28, 1.42]);
+      // 单调递增：难度越高，每点击预算越宽
+      for (let i = 1; i < SEC_PER_TAP_BY_TIER.length; i++)
+        expect(SEC_PER_TAP_BY_TIER[i]!).toBeGreaterThan(SEC_PER_TAP_BY_TIER[i - 1]!);
     });
 
     it('单关三档系数 starTierK 覆盖（§3.7 v1.86/87 · L9 boss 3★ 必须开 48 槽且很赶）', () => {

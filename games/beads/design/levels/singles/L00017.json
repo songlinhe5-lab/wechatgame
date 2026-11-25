@@ -3,7 +3,7 @@
   "name": "荷花",
   "cols": 32,
   "rows": 32,
-  "time": 248,
+  "time": 284,
   "cycleProfile": "long",
   "pricing": {
     "source": "bot",
@@ -25,7 +25,9 @@
     "secPerStep": 3,
     "tierK": 0.85,
     "clamped": false,
-    "cleared": true
+    "cleared": true,
+    "tier": 2,
+    "secPerTap": 1.28
   },
   "decoys": [],
   "pattern": [

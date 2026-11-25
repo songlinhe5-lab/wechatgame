@@ -3,7 +3,7 @@
   "name": "studio-3-90df",
   "cols": 14,
   "rows": 8,
-  "time": 89,
+  "time": 104,
   "cycleProfile": "short",
   "pricing": {
     "source": "bot",
@@ -22,10 +22,12 @@
       "directFills": 21,
       "retrieves": 2
     },
-    "secPerStep": 3.0,
+    "secPerStep": 3,
     "tierK": 0.85,
     "clamped": false,
-    "cleared": true
+    "cleared": true,
+    "tier": 2,
+    "secPerTap": 1.28
   },
   "decoys": [],
   "pattern": [

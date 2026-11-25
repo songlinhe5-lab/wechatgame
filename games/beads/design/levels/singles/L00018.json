@@ -3,7 +3,7 @@
   "name": "仙人掌",
   "cols": 30,
   "rows": 30,
-  "time": 226,
+  "time": 299,
   "cycleProfile": "long",
   "pricing": {
     "source": "bot",
@@ -25,7 +25,9 @@
     "secPerStep": 3,
     "tierK": 0.85,
     "clamped": false,
-    "cleared": true
+    "cleared": true,
+    "tier": 1,
+    "secPerTap": 1.13
   },
   "decoys": [],
   "pattern": [

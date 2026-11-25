@@ -3,7 +3,7 @@
   "name": "studio-4-4005",
   "cols": 11,
   "rows": 12,
-  "time": 75,
+  "time": 60,
   "cycleProfile": "short",
   "pricing": {
     "source": "bot",
@@ -22,10 +22,12 @@
       "directFills": 10,
       "retrieves": 5
     },
-    "secPerStep": 3.0,
+    "secPerStep": 3,
     "tierK": 0.85,
     "clamped": false,
-    "cleared": true
+    "cleared": true,
+    "tier": 0,
+    "secPerTap": 1
   },
   "decoys": [],
   "pattern": [

@@ -12332,7 +12332,7 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 
 **触发**：用户 2026-11-25「好的，执行吧」⇒ 执行 [`A03-P09-whaleking/design-doc.md`](../games/beads/design/art/proposals/levels-20arcs-selection-20261117/A03-P09-whaleking/design-doc.md) §11 落库施工清单。
 
-**范围**：A03-P01–P08 按 `arcs-detail-A01-A10.md` A03 名录与 `series-spec-catalog.md §A03` 宪法产母版（4–5 色、32×32、qwen-image-3.0-pro seed 42），逐批用户验收后锁版；八关齐 + P09 v5 ⇒ 建章（uid L00030–L00038、order 28–36、`kind:"boss"`、`contentVersion 48→49（47→48 已被 WXG-T-1063 A01 换盘占用）`、`DEMO_LEVEL_COUNT 27→36`）。
+**范围**：A03-P01–P08 按 `arcs-detail-A01-A10.md` A03 名录与 `series-spec-catalog.md §A03` 宪法产母版（4–5 色、32×32、qwen-image-3.0-pro seed 42），逐批用户验收后锁版；八关齐 + P09 v5 ⇒ 建章（uid L00030–L00038、order 28–36、`kind:"boss"`、`contentVersion 48→49（47→48 已被 WXG-T-1063 A01 换盘占用；WXG-T-1065 改价不占版本号）`、`DEMO_LEVEL_COUNT 27→36`）。
 
 **流程契约**：`series-spec.md §5` —— 每张「写提示词 → 用户确认 → 生图 → 用户确认效果」，不跳步；Token Plan 逐批记账。
 
@@ -12423,3 +12423,23 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 **未做（待裁定）**：⛔ `singles/L00012.json` 未换库。原因 = 并发 WXG-T-1063（Trae CN，已提交 c9971936）刚按「总珠数定档」把 A01 九关重建为 16–43 基数，其证据 `pilot-a01-difficulty-20261125/evidence/final-picks.json` 记 P01 = b16/N=124；v7 同基数 N=128（+4 珠、steps 55）⇒ 换库会使该试点证据对 P01 单关失效，属难度标定口径决策，非工程单自裁。
 
 **状态**：✅ 完成 2026-11-25（口径令 + v7 母版/珠面证据入库）；L00012 换库 ⏳ 待用户拍板。
+
+## WXG-T-1065
+
+**名称**：星级时间改按点击定价（全池 27 关重算）
+
+**触发**：用户 2026-11-25「关卡的1/2/3星的时间评估总是不是很准」；追加口径「简单关偏松，难关偏紧，都是以 24 底槽为准」；拍板三项 = ① 全池换点击口径 ② 难点-手速斜率取「标准」 ③ P01 按已入库版提交（v7 并发 WIP 另存不入库）。
+
+**诊断（真实读数）**：旧 `time = ceil(steps × 3.0 ÷ 0.85)` 以批量动作 `steps` 为自变量，而人类耗时跟的是点击。全池 `taps ÷ steps` 跨 **2.07–4.00** ⇒ 同一星级在不同关的实际节奏差 1.7 倍：旧 3★ 需 **0.71–1.20 s/点击**（中位 0.92），碎盘 P03 0.72 已低于 2026-09-23 八关实测人类最快 0.81 ⇒ 正常手速拿不到；块状大盘 L00029 1.20 反而偏松。与用户体感「简单偏松 / 难偏紧」一致。
+
+**口径（公式 v1.0）**：`need = ceil(taps × SEC_PER_TAP_BY_TIER[tier])`；`T₁ = clamp(ceil(need ÷ STAR_TIER_K[1]), 30, 2500)`；`T₂ = T₁×0.85`、`T₃ = T₁×0.70`；`difficulty = round(100×T₁/2500)`。`SEC_PER_TAP_BY_TIER = [1.00, 1.13, 1.28, 1.42]`（下标 = `difficultyOf` 四档 0–3），锚 = 八关实测 `s/点击` 中位 1.13。`taps` 取 bot 基础档（12 槽）实测成功点击数。⛔ `SEC_PER_STEP`（3.0）降为规模闸专用（`steps×3.0 ≤ 2500`）；门禁⑦ 9/160/68、`STAR_TIER_K`、`LEVEL_TIME_MIN/MAX` 零改动；已试玩关仍走 `pricing.source='playtest'` 实测覆盖。
+
+**落地**：`tuning/gameplay.ts` 新增 `SEC_PER_TAP_BY_TIER`；`game/level-import.ts` 新增 `measuredLevelTimeByTaps(taps, tier)`（旧 `measuredLevelTime` 保留为静态兜底）；`tools/scripts/beads-bot.ts` 定价腿换 `taps × secPerTap` 并输出 `pricing.tier/secPerTap`；`sync-levels-data.mjs` 断言同步（taps 为正整数、secPerTap>0、tier∈0–3、定价等式）；27 份 single 的 `time` 与 `pricing` 全量重算；`levels-spec §5.0/§5.0.1`（v1.0 行）、`systems-index §3.5`（v1.86）、changelog v2.06 同批回写；新增测试两件（`level-import.test.ts` 六臂、`tuning.test.ts` 单调性）。
+
+**影响**：全池 1★ 合计 **5,063 → 5,435s**；A01 九关 **2,069 → 2,370s（39.5 min）**、3★ ≈ 27.7 min。典型：L00012 142→128、L00014 99→129、L00020 445→592、L00029 297→292。`contentVersion` 不 bump（并发会话把 manifest 维持 48；T-1060 建章仍按 48→49）。
+
+**并发处置**：L00012 的 v7 对称化 WIP（N=128、taps=106）与 L00015 DI 完全相等会触门禁⑥，按用户拍板「按已入库 P01 提交」⇒ 恢复 HEAD 版（N=124、taps=108）后重定价；v7 备份留在 `/tmp/wip-L00012-v7.json`，未入工作区。
+
+**验证**：`pnpm run verify` **24/24 PASS**（含 `levels:check`、`typecheck`、`test`、`framework:sync:check`、`check:tasks`、`check:links`）。
+
+**状态**：✅ 完成 2026-11-25；四档斜率仍 `[待 playtest]`（P01/P03 新时钟试玩后按实测 `t_act` 覆盖）。

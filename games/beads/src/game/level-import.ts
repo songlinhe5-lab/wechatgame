@@ -11,7 +11,7 @@
  */
 
 import { validateBeadsLevel } from '../config/levels.js';
-import { LEVEL_TIME_MAX, LEVEL_TIME_MIN, SEC_PER_STEP, STAR_TIER_K, tierSecondsFor } from '../config/tuning.js';
+import { LEVEL_TIME_MAX, LEVEL_TIME_MIN, SEC_PER_STEP, SEC_PER_TAP_BY_TIER, STAR_TIER_K, tierSecondsFor } from '../config/tuning.js';
 import { assembleFromMisplaced, fillableCells } from './misplaced-assembler.js';
 import type { BeadsLevelRaw } from '../config/levels-data.js';
 
@@ -127,6 +127,29 @@ export function measuredLevelTime(steps: number): { time: number; difficulty: nu
         time,
         difficulty: Math.round((100 * time) / LEVEL_TIME_MAX),
         /** 钳位过（上下沿生效）⇒ 档秒数不再与步数成正比，消费方应跳过等式复核。 */
+        clamped: Math.ceil(raw) !== time,
+    };
+}
+
+/**
+ * 「按点击定价」版 `measuredLevelTime`（公式 v1.0，2026-11-25 用户拍板）。
+ *
+ * 与 `measuredLevelTime` 的差别只在自变量与单价：这里是 bot 实测**点击数** × 按难度档的
+ * `SEC_PER_TAP_BY_TIER[tier]`（2★ 档秒/点击），再反解成 1★ 时钟。两级 `ceil` 的理由同旧式
+ * （2★ 秒数必须恒 ≥ 点击数 × 单价，否则四舍五入会把边沿关判成「2★ 拿不到」）。
+ *
+ * ⚠ 只给「新关先验」：已人工试玩过的关一律用实测 `t_act` 定 T₁（`pricing.source='playtest'`）。
+ * `tier` 取 `difficultyOf(level).tier`（0 简单 / 1 中等 / 2 难 / 3 超难）。
+ */
+export function measuredLevelTimeByTaps(taps: number, tier: number): { time: number; difficulty: number; clamped: boolean } {
+    const n = Number.isFinite(taps) && taps > 0 ? Math.round(taps) : 0;
+    const rate = SEC_PER_TAP_BY_TIER[tier] ?? SEC_PER_TAP_BY_TIER[1]!;
+    const need = Math.ceil(n * rate);
+    const raw = need / STAR_TIER_K[1]!;
+    const time = Math.min(LEVEL_TIME_MAX, Math.max(LEVEL_TIME_MIN, Math.ceil(raw)));
+    return {
+        time,
+        difficulty: Math.round((100 * time) / LEVEL_TIME_MAX),
         clamped: Math.ceil(raw) !== time,
     };
 }

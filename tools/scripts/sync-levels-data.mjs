@@ -305,18 +305,23 @@ export function assertPricing(uid, lv) {
     throw new Error(`${uid}: pricing.source=${JSON.stringify(p.source)} 未知（仅 bot/playtest）`);
   if (!(Number.isInteger(p.steps) && p.steps > 0) || !(p.secPerStep > 0))
     throw new Error(`${uid}: pricing.source=bot 但 steps/secPerStep 非法`);
+  // 公式 v1.0（2026-11-25 用户拍板）：定价自变量 = 点击数，单价按四档难度取斜率。
+  if (!(Number.isInteger(p.taps) && p.taps > 0) || !(p.secPerTap > 0))
+    throw new Error(`${uid}: pricing.source=bot 但 taps/secPerTap 非法`);
+  if (!(Number.isInteger(p.tier) && p.tier >= 0 && p.tier <= 3))
+    throw new Error(`${uid}: pricing.tier=${JSON.stringify(p.tier)} 非法（须为 0–3）`);
   // 下界不变式：可达步数不可能少于「错位连通组数」这个可证明下界 ⇒ 破了就是 bot 或度量写错
   if (p.stepsLB > p.steps)
     throw new Error(`${uid}: stepsLB=${p.stepsLB} > steps=${p.steps} ⇒ 错位组数下界被突破，疑回归`);
   if (p.cleared === false)
     throw new Error(`${uid}: pricing.cleared=false ⇒ 可解性未证实，不可入关（§5.0 硬拦闸）`);
   // 定价基准档（§3.5 v1.84）：`tierK` 缺省 = 1（旧 1★ 基准记录，等式不变）；
-  // 现值 0.85 = 2★ 档（基础 12 槽步数装进 2★ 时钟 = 紧平衡）。
+  // 现值 0.85 = 2★ 档（点击数装进 2★ 时钟 = 紧平衡）。
   const tierK = p.tierK ?? 1;
-  const priced = Math.ceil(Math.ceil(p.steps * p.secPerStep) / tierK);
+  const priced = Math.ceil(Math.ceil(p.taps * p.secPerTap) / tierK);
   if (!p.clamped && Math.abs(lv.time - priced) > 1)
     throw new Error(
-      `${uid}: time=${lv.time} 与 ceil(ceil(steps=${p.steps} × secPerStep=${p.secPerStep}) ÷ tierK=${tierK})=${priced} 不符 ⇒ 改了 pattern/time 未重跑 beads-bot --patch`,
+      `${uid}: time=${lv.time} 与 ceil(ceil(taps=${p.taps} × secPerTap=${p.secPerTap}) ÷ tierK=${tierK})=${priced} 不符 ⇒ 改了 pattern/time 未重跑 beads-bot --patch`,
     );
 }
 
