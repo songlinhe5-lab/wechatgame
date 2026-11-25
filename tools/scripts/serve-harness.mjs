@@ -74,7 +74,10 @@ function syncCocosMirror() {
  */
 const ASSET_MAPS = [
   { prefix: '/mask-assets/', dir: join(ROOT, 'tools', 'mask-preview', 'cocos-assets') },
-  { prefix: '/menu-assets/', dir: join(ROOT, 'games', 'beads', 'design', 'art', 'final', 'assets', 'menu') },
+  // `[WXG-T-1061]` v1 存档回退根：裸名缺图腿共用件（ui_btn_wood_9s / ui_btn_paper_9s / ui_menu_beam）
+  // 现役目录已无（仅 final/v1 存档，Cocos 投放件同源），主根未命中时逐回退根再试 ⇒ 消 harness 3 个 404。
+  { prefix: '/menu-assets/', dir: join(ROOT, 'games', 'beads', 'design', 'art', 'final', 'assets', 'menu'),
+    fallbacks: [join(ROOT, 'games', 'beads', 'design', 'art', 'final', 'v1', 'assets', 'menu')] },
   { prefix: '/level-assets/', dir: join(ROOT, 'games', 'beads', 'design', 'levels', 'assets') },
   // `[WXG-T-601]` 关卡详情道具框图（`design/art/final/assets/powerup/tiles/*_tile.png`）。
   { prefix: '/powerup-assets/', dir: join(ROOT, 'games', 'beads', 'design', 'art', 'final', 'assets', 'powerup') },
@@ -163,16 +166,18 @@ const MIME = {
 function resolveTarget(urlPath) {
   const decoded = decodeURIComponent(urlPath.split('?')[0].split('#')[0]);
 
-  // `[WXG-T-226 / WXG-T-280]` 只读映射前缀（白名单表逐条，目录守卫不变）
-  for (const { prefix, dir } of ASSET_MAPS) {
+  // `[WXG-T-226 / WXG-T-280]` 只读映射前缀（白名单表逐条，目录守卫不变；主根未命中逐回退根）
+  for (const { prefix, dir, fallbacks } of ASSET_MAPS) {
     if (decoded.startsWith(prefix)) {
       const rel = normalize(decoded.slice(prefix.length)).replace(/^([/\\])+/, '');
       if (rel === '') return null;
-      const mapped = join(dir, rel);
-      // 目录守卫：解析后必须仍在映射根内
-      if (mapped !== dir && !mapped.startsWith(dir + sep)) return null;
-      if (!existsSync(mapped) || !statSync(mapped).isFile()) return null;
-      return mapped;
+      for (const root of [dir, ...(fallbacks ?? [])]) {
+        const mapped = join(root, rel);
+        // 目录守卫：解析后必须仍在映射根内
+        if (mapped !== root && !mapped.startsWith(root + sep)) continue;
+        if (existsSync(mapped) && statSync(mapped).isFile()) return mapped;
+      }
+      return null;
     }
   }
 

@@ -12339,3 +12339,25 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 **当前进度**：批 1 = P01 小鱼 / P02 鲸鱼 / P03 海豚，写提示词与设计分区中，待用户审提示词后生图。
 
 **边界**：⛔ 不伪造编辑器产物；⛔ 不改已入库 A01/A02；A03 章落库前 contentVersion 不动。
+
+## WXG-T-1061
+
+**名称**：harness 4 个资源 404 排查与修复
+
+**触发**：用户「1/2/3」令候选②；原拟 1059 撞并发 Trae CN 设计文档单 ⇒ K-046 改判 1061。
+
+**根因**（两条，读数实锤）：① `/level-assets/undefined.png`：`dev/harness/main.ts` MENU_FILE 对 `OPEN_ARCS` 全表做 `textureId → /level-assets/${art}.png` 映射，而现三章（mandala/A01/A02）均未配 `art`/`textureId`（橱窗已改珠面腿 T-1006）⇒ 死键 `undefined` 每帧 404；② `ui_btn_wood_9s/ui_btn_paper_9s/ui_menu_beam`：裸名缺图腿共用件源码仍消费（settings-content 过渡腿 / meta-menu beam），Cocos 投放件在 `textures/` 有像素，但 harness 白名单根 `final/assets/menu/` 现役目录已无这三件（仅 `final/v1` 存档）⇒ serve 404。
+
+**修法**（各一处，ponytail 最小）：① harness 映射 `.filter(t => t.textureId !== undefined && t.art !== undefined)`；② serve-harness `ASSET_MAPS` 条目加 `fallbacks` 回退根（`final/v1/assets/menu`），`resolveTarget` 主根未命中逐回退根，目录守卫逐根不变。
+
+**验证**：重启 serve 后实测三件 200、现役子目录件仍 200（零回归）；Browser 子代理 harness 实帧 console 零 error/warn、无 undefined URL；本仓无 harness 单测框架，脚本腿以 curl 实测为凭。
+
+## WXG-T-1062
+
+**名称**：美术规格告知条退场对账（四处在册面加退场注）
+
+**触发**：用户「1/2/3」令候选③（T-1054 纪律欠账）；原拟 1060 撞并发 Trae CN 建章单 ⇒ K-046 改判 1062。
+
+**对账面**（普查 `gateHint|门槛预告知|下一章差|预告知条` 命中 4 件）：① 布局件 `menu-layout-implementation-spec §13` 整节加⛔退场注；② 排版件 `menu-plate-text-control-spec §11` 整节加⛔退场/退键注；③ UX 件 `arc-level-select-spec` 三处：v1.17 收口注追加退场对账段、「主告知·动作句」表行划线、D17 行胶囊条腿划线；④ `menu-architecture §5.4` 条 4 T-1043 落点注：落点腿保留、首屏可见对象改木牌第二行「下关差 X★」。
+
+**口径**：缺口信息单源 = 木牌第二行（`_arcSeqLabel`，T-1054）；选关页 T-1042「差 X」读数不受影响；原文 K-053 划线留档不删；零代码零数值。

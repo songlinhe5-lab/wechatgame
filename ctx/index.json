@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4341,
       "lines": 143,
-      "sha256": "6901f18d6a8bd3ebabb521fca005a8bccd3e93eca0aa850cc5eecac106c915ad",
+      "sha256": "cbc47adfa785dfa8488f420c0c0645e548846cda36b96284515d770e7f39f262",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 407,
-          "summary": "1 production/TASKS-DETAIL.md 390958 12341 normal",
+          "summary": "1 production/TASKS-DETAIL.md 391635 12363 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5209,
       "lines": 159,
-      "sha256": "30ce7aee58f5f2b95d0015320689b200a9fd7a9d416108f286f7ffcbdd9082f1",
+      "sha256": "9a0c03716fa1fdfeec890234455a5fb216e4a50477651b09159b3f3f6fcc3fa9",
       "tier": "normal",
       "sections": [
         {
@@ -761,12 +761,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 362 行 / 112833 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 364 行 / 113361 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+363 · §待排（backlog，无号，立项时领取…=333+31",
+          "summary": "§WXG 任务台账（SSOT）=1+365 · §待排（backlog，无号，立项时领取…=335+31",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1080,12 +1080,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 12341 行 / 390958 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 12363 行 / 391635 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
           "tokens": 130,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+12342 · §WXG-T-1050=12064+63 · §WXG-",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+12364 · §WXG-T-1051=12190+16 · §WXG-",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -28206,9 +28206,9 @@
     },
     {
       "path": "games/beads/design/art/proposals/ui-style-redesign/menu-architecture.md",
-      "tokens": 40071,
+      "tokens": 40112,
       "lines": 1038,
-      "sha256": "77b4b91937d40c6ff4ad1c6588b1f1ca686a32ea97ec145d95c57eeb77fe9fa0",
+      "sha256": "151d94fd87c9846b77619798277b22433a7786570bbaa9c275a7dd537eead975",
       "tier": "normal",
       "sections": [
         {
@@ -28216,7 +28216,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 1039,
-          "tokens": 40032,
+          "tokens": 40073,
           "summary": "角色：文策渊（设计策略）· 接 WXG-T-265（林绘澄「暖纸拼豆台」四件：screens.md / tokens.m",
           "keywords": [
             "WXG",
@@ -28448,7 +28448,7 @@
           "level": 2,
           "startLine": 249,
           "endLine": 798,
-          "tokens": 24533,
+          "tokens": 24573,
           "summary": "",
           "keywords": [
             "logo",
@@ -28534,7 +28534,7 @@
           "level": 3,
           "startLine": 786,
           "endLine": 798,
-          "tokens": 931,
+          "tokens": 972,
           "summary": "⚠ 退场（T-962）：v1 九宫 / 双轨 CTA 已出包；现役 MENU_V2.cta 378×179 整枚位图（含",
           "keywords": [
             "CTA",
@@ -31357,17 +31357,17 @@
     },
     {
       "path": "games/beads/design/art/specs/menu-layout-implementation-spec.md",
-      "tokens": 16782,
-      "lines": 383,
-      "sha256": "df87f8f581d7e7d15a08d1a94da305ed4677a79ac76ad7b655ee91c75d352092",
+      "tokens": 16939,
+      "lines": 385,
+      "sha256": "76bdee3080b56a91b89ce36d1fd4ce7ebfcbb6129efdc91e033881c67ad34a7e",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§主界面布局落地单 · 「拼豆小铺」菜单屏（规范 v3.8 定稿）",
           "level": 1,
           "startLine": 1,
-          "endLine": 384,
-          "tokens": 16755,
+          "endLine": 386,
+          "tokens": 16913,
           "summary": "用途：UI 布局落码的唯一施工依据。规则正本 = 本件；取证图 = ../coordinates/menu-master",
           "keywords": [
             "coordinates",
@@ -31640,9 +31640,9 @@
           "anchor": "§13 下一章门槛预告知件（**v3.17 · WXG-T-1043 · 2026-11-24**）",
           "level": 2,
           "startLine": 291,
-          "endLine": 384,
-          "tokens": 3327,
-          "summary": "裁定链：v3.17（2026-11-24 · WXG-T-1043 美术规格批）新增本节。承用户令「提示放在上一关正在推",
+          "endLine": 386,
+          "tokens": 3484,
+          "summary": "⛔ 本节整节退场（2026-11-25 · WXG-T-1062 对账注，本注为唯一现役入口）：用户真机裁「下一章差4星",
           "keywords": [
             "WXG",
             "下一章门槛预",
@@ -31652,8 +31652,8 @@
         {
           "anchor": "§13.1 锚点与包围盒",
           "level": 3,
-          "startLine": 297,
-          "endLine": 309,
+          "startLine": 299,
+          "endLine": 311,
           "tokens": 398,
           "summary": "中心 x g.plateCx（= MENU_V2.plateTitle.x + w/2） 375 与木牌两行同中轴（§1",
           "keywords": [
@@ -31667,8 +31667,8 @@
         {
           "anchor": "§13.2 底形裁定：**深棕胶囊**（不取横幅 / 不取新位图告示牌）",
           "level": 3,
-          "startLine": 310,
-          "endLine": 320,
+          "startLine": 312,
+          "endLine": 322,
           "tokens": 388,
           "summary": "甲（取） 深棕胶囊，platePill #795127 实底、全圆角 h/2 = 23、无投影、无描边 ✅ 复用木牌次行",
           "keywords": [
@@ -31683,8 +31683,8 @@
         {
           "anchor": "§13.3 色 token（**零新 hex**，46/53 条色表锁不动）",
           "level": 3,
-          "startLine": 321,
-          "endLine": 332,
+          "startLine": 323,
+          "endLine": 334,
           "tokens": 366,
           "summary": "胶囊底 platePill #795127 —（地色） 次行墨的唯一合法地色（palette.ts::plateSubI",
           "keywords": [
@@ -31699,8 +31699,8 @@
         {
           "anchor": "§13.4 字号档与 E2 策略",
           "level": 3,
-          "startLine": 333,
-          "endLine": 341,
+          "startLine": 335,
+          "endLine": 343,
           "tokens": 399,
           "summary": "正文字号 28（新语义键 UI_FONT.gateHint = 'bold 28px sans-serif'，归 ui-",
           "keywords": [
@@ -31715,8 +31715,8 @@
         {
           "anchor": "§13.5 强调元素（**形 + 文 双通道，不靠颜色单独区分**）",
           "level": 3,
-          "startLine": 342,
-          "endLine": 348,
+          "startLine": 344,
+          "endLine": 350,
           "tokens": 274,
           "summary": "形通道 = 程序化小锁形：20×22，plateSubInk 实填充，置于胶囊内左侧（padX 16）。语义 = \"下一",
           "keywords": [
@@ -31731,8 +31731,8 @@
         {
           "anchor": "§13.6 层级与遮挡关系",
           "level": 3,
-          "startLine": 349,
-          "endLine": 355,
+          "startLine": 351,
+          "endLine": 357,
           "tokens": 247,
           "summary": "层 = §8「固定上层」，与木牌文字 / ◀▶ / 顶栏 / CTA 同层；绘制顺序：胶囊底 rect → 锁形 → 正",
           "keywords": [
@@ -31745,8 +31745,8 @@
         {
           "anchor": "§13.7 状态",
           "level": 3,
-          "startLine": 356,
-          "endLine": 364,
+          "startLine": 358,
+          "endLine": 366,
           "tokens": 195,
           "summary": "常态（常驻） 当前页 pushing ∧ 下一章 locked ∧ 缺口 >0 胶囊 alpha=1，无入场动画（\"第一",
           "keywords": [
@@ -31759,8 +31759,8 @@
         {
           "anchor": "§13.8 自检表",
           "level": 3,
-          "startLine": 365,
-          "endLine": 375,
+          "startLine": 367,
+          "endLine": 377,
           "tokens": 194,
           "summary": "文字对比 plateSubInk on platePill = 4.61:1；28px 属大字号门 3:1，按普通文本 ",
           "keywords": [
@@ -31772,8 +31772,8 @@
         {
           "anchor": "§13.9 零新增资产 · 常量登记 · 未决项（待 UX/用户裁定）",
           "level": 3,
-          "startLine": 376,
-          "endLine": 384,
+          "startLine": 378,
+          "endLine": 386,
           "tokens": 357,
           "summary": "资产清单 = 零（零新增资产）：不产位图、不产字体文件、不产音频；四图元全用 RenderModelBuilder 原语",
           "keywords": [
@@ -31829,17 +31829,17 @@
     },
     {
       "path": "games/beads/design/art/specs/menu-plate-text-control-spec.md",
-      "tokens": 8321,
-      "lines": 270,
-      "sha256": "2e2db197a3d950d6615c36794ad018d6667b104c2023075261e695bc14fab4bd",
+      "tokens": 8454,
+      "lines": 272,
+      "sha256": "b5388af7901634869b3782a9ecec8a6d2db528900675fd7649f4a128199811dc",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§木牌程序化文字控件 · 色 / 字号 / 位置（基准稿 v2 无字版 · WXG-T-524）",
           "level": 1,
           "startLine": 1,
-          "endLine": 271,
-          "tokens": 8291,
+          "endLine": 273,
+          "tokens": 8424,
           "summary": "本件 = menu-layout-implementation-spec.md §11 拆册（2026-10-31；动因",
           "keywords": [
             "§11",
@@ -32229,12 +32229,11 @@
           "anchor": "§11 `[WXG-T-1043]` 下一章门槛预告知条 · 文本排版规则（**v1.x · 2026-11-24**）",
           "level": 2,
           "startLine": 226,
-          "endLine": 271,
-          "tokens": 1627,
-          "summary": "射程：本件是布局落地单 §13 那枚木台抽屉告知条的文本排版分册（正本几何 / 底形 / 层级 / 状态 / 自检全在 ",
+          "endLine": 273,
+          "tokens": 1760,
+          "summary": "⛔ 本节整节退场（2026-11-25 · WXG-T-1062 对账注）：告知条随用户真机裁「下一章差4星这个提示需要",
           "keywords": [
             "[WXG-T-1043]",
-            "§13",
             "WXG",
             "下一章门槛预",
             "告知条",
@@ -32244,8 +32243,8 @@
         {
           "anchor": "§11.1 文本身份与在册对账",
           "level": 3,
-          "startLine": 231,
-          "endLine": 240,
+          "startLine": 233,
+          "endLine": 242,
           "tokens": 179,
           "summary": "载体 木台独立胶囊条（§13.1，x∈[215,535] · y-down 984..1030） 木牌牌体烘图内的两行字",
           "keywords": [
@@ -32258,8 +32257,8 @@
         {
           "anchor": "§11.2 字号 / 字重（复用现役字型档，唯一新增为语义键）",
           "level": 3,
-          "startLine": 241,
-          "endLine": 246,
+          "startLine": 243,
+          "endLine": 248,
           "tokens": 224,
           "summary": "正文 = bold 28px：新增语义键 UI_FONT.gateHint = 'bold 28px sans-seri",
           "keywords": [
@@ -32274,8 +32273,8 @@
         {
           "anchor": "§11.3 字数 / 换行（硬约束）",
           "level": 3,
-          "startLine": 247,
-          "endLine": 253,
+          "startLine": 249,
+          "endLine": 255,
           "tokens": 294,
           "summary": "单行不换行：本条高 46、28 号字，只容一行；⛔ 禁止两行排版（会顶破胶囊，重演 §7.3「字顶满胶囊」缺陷）。",
           "keywords": [
@@ -32288,8 +32287,8 @@
         {
           "anchor": "§11.4 墨色（零新 hex）",
           "level": 3,
-          "startLine": 254,
-          "endLine": 259,
+          "startLine": 256,
+          "endLine": 261,
           "tokens": 129,
           "summary": "正文墨 = plateSubInk #E8D098，唯一合法底 = 条底 platePill #795127（4.61:",
           "keywords": [
@@ -32304,8 +32303,8 @@
         {
           "anchor": "§11.5 E2 / 减弱动效 / 淡变",
           "level": 3,
-          "startLine": 260,
-          "endLine": 265,
+          "startLine": 262,
+          "endLine": 267,
           "tokens": 191,
           "summary": "E2 大字号：不随（保持 28 粗），三条理由同正本 §13.4（木台带 67px 逼 CTA / 35 会反超木牌关名",
           "keywords": [
@@ -32318,8 +32317,8 @@
         {
           "anchor": "§11.6 文案 token 与落码面（本批零代码）",
           "level": 3,
-          "startLine": 266,
-          "endLine": 271,
+          "startLine": 268,
+          "endLine": 273,
           "tokens": 300,
           "summary": "文案 = 已落定「下一章差 X★」（UX v1.17 收口，X = 门槛 − n 派生；≤8 全角字单行、含缺口数字）；",
           "keywords": [
@@ -49859,9 +49858,9 @@
     },
     {
       "path": "games/beads/design/ux/arc-level-select-spec.md",
-      "tokens": 24416,
+      "tokens": 24624,
       "lines": 377,
-      "sha256": "e57281c7e1e422ca0a31f2bb0bd09f29063e708fc55c80be5b68314286c92a8b",
+      "sha256": "cf3d47e4cf0e9ca68d83364f0157cb3d975d04831aa28372b1673493fadaee3e",
       "tier": "normal",
       "sections": [
         {
@@ -49869,7 +49868,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 378,
-          "tokens": 24375,
+          "tokens": 24582,
           "summary": "项目：games/beads · 版本 v1.13（2026-10-22 · WXG-T-346 art 批）：§8.2",
           "keywords": [
             "theme-level-select-spec.md",
@@ -49945,7 +49944,7 @@
           "level": 2,
           "startLine": 92,
           "endLine": 278,
-          "tokens": 11266,
+          "tokens": 11299,
           "summary": "⚠ v2 对账（T-960）：格层判据（锁格 / 点格 / 扣心 / 重玩 / 0 心 / 按下态 / 棋盘手势）仍有效",
           "keywords": [
             "状态流转",
@@ -49960,7 +49959,7 @@
           "level": 3,
           "startLine": 136,
           "endLine": 278,
-          "tokens": 8172,
+          "tokens": 8205,
           "summary": "⚠ v2 对账（T-960）：走马灯「累计星进度件」仍有效（T-914 / T-916）；选关弹窗页内不再有该件（页头只",
           "keywords": [
             "star-collect-rule.md §6",
@@ -50020,7 +50019,7 @@
           "level": 2,
           "startLine": 329,
           "endLine": 374,
-          "tokens": 4595,
+          "tokens": 4620,
           "summary": "",
           "keywords": [
             "决策记录与待",
@@ -50032,7 +50031,7 @@
           "level": 3,
           "startLine": 331,
           "endLine": 354,
-          "tokens": 1948,
+          "tokens": 1973,
           "summary": "D1 大关→关卡清单存大关表、追加式、id 稳定；关卡 JSON/manifest 零改动 用户 2026-10-16 ",
           "keywords": [
             "JSON",
@@ -94451,17 +94450,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 390958,
-      "lines": 12341,
-      "sha256": "9dcb3dfc9de5cbc46b57b85a7dd8739f1fb4ace62f50fb5c9ade78451f6fcb15",
+      "tokens": 391635,
+      "lines": 12363,
+      "sha256": "1893ac5b8b24489f19ba17ca7550b9f56c28fa1e245b48c133c5514de9c340a9",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 12342,
-          "tokens": 390941,
+          "endLine": 12364,
+          "tokens": 391618,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -112462,22 +112461,45 @@
             "P01",
             "P08"
           ]
+        },
+        {
+          "anchor": "§WXG-T-1061",
+          "level": 2,
+          "startLine": 12343,
+          "endLine": 12354,
+          "tokens": 384,
+          "summary": "名称：harness 4 个资源 404 排查与修复",
+          "keywords": [
+            "WXG",
+            "harness"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-1062",
+          "level": 2,
+          "startLine": 12355,
+          "endLine": 12364,
+          "tokens": 286,
+          "summary": "名称：美术规格告知条退场对账（四处在册面加退场注）",
+          "keywords": [
+            "WXG"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 112833,
-      "lines": 362,
-      "sha256": "92764e3f76599b0f5308a17ded3499d113b79a81ac7f241ca537b1b0aeb9132d",
+      "tokens": 113361,
+      "lines": 364,
+      "sha256": "f0c5e5ad35a5f782d04d86f83e619b3f918d62d9161801468b8a93a34fec83b6",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 363,
-          "tokens": 112825,
+          "endLine": 365,
+          "tokens": 113352,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -112490,8 +112512,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 333,
-          "endLine": 363,
+          "startLine": 335,
+          "endLine": 365,
           "tokens": 1571,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

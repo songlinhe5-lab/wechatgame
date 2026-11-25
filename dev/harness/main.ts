@@ -180,7 +180,8 @@ const MENU_URL_PREFIX = '/menu-assets/';
  * 2026-10-18 按「Cocos 投放件反推父本」判据改指 PNG（同名 PNG = 现役真源），待裁双版本清单见
  * `production/qa/webp-png-duality-20261018.md`。 */
 const MENU_FILE: Readonly<Record<string, string>> = {
-  ...Object.fromEntries(OPEN_ARCS.map((t) => [t.textureId, `/level-assets/${t.art}.png`])),
+  // `[WXG-T-1061]` 未配 showcase 的大关（无 art/textureId，现三章皆然）跳过：⛔ 旧式产出死键 `undefined` ⇒ 每帧 404。
+  ...Object.fromEntries(OPEN_ARCS.filter((t) => t.textureId !== undefined && t.art !== undefined).map((t) => [t.textureId, `/level-assets/${t.art}.png`])),
   // `[WXG-T-587]` 只剩 v2 件：招牌（板体 549×295 + 绳，正本 1098×722 @2x）/ 开始钮 / 翻页钮 /
   // 通关章。v1 的 logo / cta / plate / caseFrame / btnArrow / iconArrow* / iconCoin|Stamina 已删键出包。
   [MENU_TEXTURES.signboard]: 'background/ui_menu_signboard_figma@2x.png',
