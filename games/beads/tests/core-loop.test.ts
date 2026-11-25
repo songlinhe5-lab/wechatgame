@@ -171,3 +171,23 @@ describe('S1 core-loop', () => {
     expect(ok.game.phase).toBe('playing');
   });
 });
+
+describe('[WXG-T-1071] 倒计时起跑口径（⛔ 不等首次操作）', () => {
+    it('进关后不做任何输入，时钟也按 dt 推进（用户 2026-11-25 报「点击第一步前不走」）', () => {
+        // 口径真源：`GameTimer.tick(dt)` 无条件递减（`systems/timer.ts`），由
+        // `_stepPlaying` 每帧调用；Cocos 侧 `scheduler.schedule(tick, 0)` 从启动即每帧驱动，
+        // `onResume()` 是 no-op。⇒ 进关即起跑，没有任何「等首次点击」的闸。本用例把这条钉死：
+        // 若未来有人加了「tap 后才 start」的门，这里会立刻红。
+        const harness = createBeadsHarness({
+            noAssemble: true,
+            levels: [simpleTestLevel()],
+            saveKey: 'wxgame.beads.test.timer-autostart',
+        });
+        expect(harness.game.phase).toBe('playing');
+        const before = harness.game.snapshot.remaining;
+        expect(before, '进关即满额').toBeGreaterThan(0);
+        harness.advance(2);
+        const after = harness.game.snapshot.remaining;
+        expect(before - after, '零输入 2 秒 ⇒ 时钟走掉约 2 秒').toBeGreaterThan(1.5);
+    });
+});

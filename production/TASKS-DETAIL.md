@@ -12608,3 +12608,26 @@ G13 对称性机械普查腿入库 + 花间集换库拦停取证（工程轨 Qod
 **修法**（按用户方案）：判据改为**无缝 `pitch×pitch` 格子网格唯一归属** —— `col = floor((x − left)/pitch)`、`row = floor((top − y)/pitch)`，O(1)（旧为 `rows×cols` 双重扫描）；盘外 `BEAD_HIT_PAD`（= `(GRID_HIT_SIZE − BEAD_CELL)/2` = 8）内仍归最近边缘格，保留「边缘珠好点」的容错，再往外 `null`（盘外空白不消费）。⛔ `GRID_HIT_SIZE` / `BEAD_CELL` / `BEAD_PITCH` 等 §3 冻结值**零改动**（`check:frozen-values` 绿）。
 
 **验证 / 取证**：TDD 先红后绿（格内 9 采样点恒归本格；旧实现首点即红 `{0,1} ≠ {0,0}`）+ 盘外 pad 容错用例；定向 **51/51**（含 layout-camera 反例自检 / board-camera / core-loop）；全量 `verify` **24/24 PASS**；修复后真机重扫 **miss 0 / wrong 0**、四方向盘外 pad 仍归边缘格。文档：`input-control §8-2` 新增「命中几何 v2.12」、§8-4「最近格心」作废留档、`ADR-0015` 第 4 条改写。
+
+
+## WXG-T-1071
+
+**倒计时起跑口径确认与防回归** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ **完成（2026-11-25，本地未复现）**
+
+用户报：「游戏中，在点击第一步之前倒计时都不会开始走动」。
+
+**Phase 1 取证（两路独立，均不点击棋盘）**：
+1. **harness（逻辑层直读快照）**：进关后 `remaining = 24 → 22 → 21 → 20 → 19`（每 ~0.8s −1，符合墙钟）；
+2. **真实 Cocos web-mobile（`cc` introspect HUD Label）**：`00:29 → 00:28 → 00:27 → 00:26 → 00:25 → 00:24`，全程零点击。
+
+**代码侧核查（不存在「等首次操作」的闸）**：
+- `systems/timer.ts::GameTimer.tick(dt)` **无条件** `_remaining -= dt`，`reset()` 只重置数值；
+- `beads-game::_stepPlaying()` 每帧 `this._timer.tick(dt)`，其前置守卫只判相位（`!== 'playing'` 即返回），不判输入；
+- Cocos 驱动 = `adapters/cocos/loop-bridge.ts` 的 `scheduler.schedule(this._tick, 0)` ⇒ 组件启动即每帧；
+- `onHide → game.onPause()` 会切 PAUSED 并出面板，但 `weapp.ts` 的 `onHide/onShow` 直连 `wx.onHide/onShow`，**不会启动即触发**；`onResume()` 为 no-op（面板按钮是唯一出口）。
+
+⇒ 本地两路都证明「进关即起跑」。**结论：本单不加行为改动**（systematic-debugging：无根因不猜改）。
+
+**落地（防回归）**：`core-loop.test.ts` 新增「进关后零输入 2 秒，时钟须走掉 >1.5 秒」——把口径钉死；若未来有人引入「tap 后才 start」的门会立刻红。全量 `verify` **24/24 PASS**。
+
+**未闭半边（如实登记）**：微信真机运行时未能本地覆盖（web-mobile 无 `wx` 平台层）。若新包仍复现，需回传：① 哪一关 / 是否每关都复现；② 进关后是否切过后台；③ 是否看到暂停面板；④ 手机型号与基础库版本。届时按 `ADR-0007`（S1 相位机是唯一冻结仲裁者）逐环排查 `onPause` 是否被平台误触发。
