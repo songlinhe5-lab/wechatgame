@@ -1,0 +1,38 @@
+{
+  "size": [
+    2048,
+    2048
+  ],
+  "seeded_corners": [
+    [
+      0,
+      0
+    ],
+    [
+      2047,
+      0
+    ],
+    [
+      0,
+      2047
+    ],
+    [
+      2047,
+      2047
+    ]
+  ],
+  "alpha0_pct": 76.189,
+  "alpha255_pct": 23.811,
+  "four_corners_transparent": true,
+  "nearblack_left_in_subject_px": 0,
+  "subject_single_connected": true,
+  "subject_reached_px": 998699,
+  "subject_bbox": [
+    397,
+    123,
+    1643,
+    1918
+  ],
+  "subject_bbox_pct": 53.4,
+  "rgb_unchanged": true
+}

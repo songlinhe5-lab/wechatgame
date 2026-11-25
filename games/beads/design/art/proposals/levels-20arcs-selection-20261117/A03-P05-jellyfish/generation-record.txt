@@ -1,0 +1,33 @@
+A03-P05 水母 · 32×32 · 4 色（湖蓝 #3D7BF5 / 奶白 #FDF6E9 / 草绿 #3FBF6B / 炭黑 #33333D）
+单一主题色调令：湖蓝恒为主色，配角色草绿（批 1 第五关）。
+
+【Token Plan 用量】1 次调用 / 出图 1 张 / 浪费 0 张 / 锁定 1 张
+模型 qwen-image-3.0-pro，t2i，--size '2048*2048'，seed 42，prompt_extend=False。
+v1 母版 a03p05-v1-s42.png（prompt-v1.txt）→ a03p05-v1-s42-rgba.png
+修正件 a03p05-v1fix-s42-rgba.png（fix-a03p05-v1.py，0 调用）
+
+【v1 母版判定：结构对，配色/比例需重排】
+- 抠图：bbox 60.7%×86.3%（高超 G9 82%）、填充 53.4%、四角透明、近黑 0。
+- 目视：半圆伞盖三条横带（蓝/奶白/草绿）+ 4 条飘带（外 2 草绿、内 2 奶白）+ 单眼；
+  但模型草绿偏浅（量化 ΔE 34.9）、触手偏细、伞盖有 6 颗杂黑。
+- 量化初值：奶白 38.9% / 草绿 38.6%（均超 35%）、蓝 19.9%、tiny 5、colorError 34.9。
+
+【v1fix 修正（0 调用）】
+- 伞盖三带重排：蓝 1–8 行 / 奶白 9–10 行 / 草绿 11–12 行（把蓝占比从 19.9% 拉到 32.3%）。
+- 触手截到第 26 行（第 27 行起清 alpha）⇒ 包围盒高 81.3%，满足 G9。
+- 单眼由 2×2 重画 **3×3**（rows 4–6 × cols 14–16）；清掉伞盖 6 颗杂黑（含两处触手间的黑点）。
+- 逐格重涂设计色（草绿 #3FBF6B）⇒ colorError 34.9 → **0**。
+
+【v1fix 终值（锁版）】
+- importable=true、blockers=[]、4 色、F=0（M=325/325）、N=325、steps=61、taps=122、
+  time=129s、tier 1（中等，secPerTap 0.89）、colorError 0、blocks 5、tinyCells 0。
+- 色占比：湖蓝 32.3% / 奶白 32.6% / 草绿 32.3% / 炭黑 2.8%（G12 全达标）。
+
+【状态】✅ **已锁版（用户 2026-11-25 确认 PASS，取 v1fix）**；锁定件 = `a03p05-v1fix-s42-rgba.png`
+（珠面 `a03p05-v1fix-max-32-c0-beads-plain.png`）；未入关、未进 final/；
+A03 章未建 ⇒ 不落库、不改 contentVersion。
+
+【证据清单】
+prompt-v1.txt；a03p05-v1-s42.png / -rgba.png / -rgba-metrics.json；
+a03p05-v1fix-s42-rgba.png / -max-32-c0-beads-plain.png / studio-full-response-v1fix-max-32-c0.json；
+脚本 fix-a03p05-v1.py、../probe-2048/extract-alpha.py、../studio-a03.py。
