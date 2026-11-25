@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4341,
       "lines": 143,
-      "sha256": "6d99ce6480e2114de33d896789e508ab556655510e36361099b9771b88fdb121",
+      "sha256": "b2b0ca84a84469e6c08e727a4643765bf53562e28afd7df2df545ee8cfd4f116",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 407,
-          "summary": "1 production/TASKS-DETAIL.md 390304 12313 normal",
+          "summary": "1 production/TASKS-DETAIL.md 390648 12327 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5209,
       "lines": 159,
-      "sha256": "f690e8243731c7d6e840bdd1706be8affb1ecae4cb5c841006292a0a2a097917",
+      "sha256": "c1400ae8793106ad2ecac5da6b3a3ab205c00ca039bbc69663a98882efda5c2f",
       "tier": "normal",
       "sections": [
         {
@@ -761,12 +761,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 360 行 / 112393 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 361 行 / 112624 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+361 · §待排（backlog，无号，立项时领取…=331+31",
+          "summary": "§WXG 任务台账（SSOT）=1+362 · §待排（backlog，无号，立项时领取…=332+31",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1080,12 +1080,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 12313 行 / 390304 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 12327 行 / 390648 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
           "tokens": 130,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+12314 · §WXG-T-1050=12064+63 · §WXG-",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+12328 · §WXG-T-1050=12064+63 · §WXG-",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -25449,6 +25449,374 @@
           "summary": "模型把王冠画成金色渐变小皇冠 提示词写死柠黄单色 + 禁渐变/高光",
           "keywords": [
             "风险预判"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "games/beads/design/art/proposals/levels-20arcs-selection-20261117/A03-P09-whaleking/design-doc.md",
+      "tokens": 5637,
+      "lines": 290,
+      "sha256": "a9e478f785d8b1d10e2b10f0baef583b0d58173e7923e0bc012532760e219093",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§BOSS 关设计文档 · A01 / A02 / A03 三章对照",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 291,
+          "tokens": 5621,
+          "summary": "文档性质：三章 BOSS 关的完整设计对照稿（批前公示）。A01/A02 已入库（contentVersion 47），",
+          "keywords": [
+            "BOSS",
+            "A01",
+            "A02",
+            "A03",
+            "contentVersion",
+            "关设计文档"
+          ]
+        },
+        {
+          "anchor": "§0 结论摘要",
+          "level": 2,
+          "startLine": 11,
+          "endLine": 19,
+          "tokens": 152,
+          "summary": "三关终档均为 tier 3（超难）；DI = 3041000060045 / 3030500060043 / 30706",
+          "keywords": [
+            "tier",
+            "结论摘要"
+          ]
+        },
+        {
+          "anchor": "§1 三关身份",
+          "level": 2,
+          "startLine": 20,
+          "endLine": 32,
+          "tokens": 220,
+          "summary": "A01 花间集 3 花之王 L00020 18 boss 32×32 ✅ 已入库（A01 章 order 3 / ope",
+          "keywords": [
+            "A01",
+            "L00020",
+            "boss",
+            "order",
+            "ope",
+            "三关身份"
+          ]
+        },
+        {
+          "anchor": "§2 共同设计目标与 BOSS 升级规则",
+          "level": 2,
+          "startLine": 33,
+          "endLine": 61,
+          "tokens": 528,
+          "summary": "共同硬约束（三关同受）：",
+          "keywords": [
+            "BOSS",
+            "共同设计目标",
+            "升级规则"
+          ]
+        },
+        {
+          "anchor": "§3 逐关设计档案",
+          "level": 2,
+          "startLine": 62,
+          "endLine": 87,
+          "tokens": 954,
+          "summary": "",
+          "keywords": [
+            "逐关设计档案"
+          ]
+        },
+        {
+          "anchor": "§3.1 A01-P09 花之王（32×32，已入库）",
+          "level": 3,
+          "startLine": 64,
+          "endLine": 70,
+          "tokens": 269,
+          "summary": "构图：四段相接 —— 五角王冠（柠黄 #FFD23F + 深棕底带）→ 外层 12 瓣（玫红 #E84C3D / 奶白 ",
+          "keywords": [
+            "A01",
+            "P09",
+            "FFD23F",
+            "E84C3D",
+            "花之王",
+            "已入库"
+          ]
+        },
+        {
+          "anchor": "§3.2 A02-P09 鹿王（32×32，已入库）",
+          "level": 3,
+          "startLine": 71,
+          "endLine": 76,
+          "tokens": 167,
+          "summary": "构图：巨角如枝、左右对称、昂首立姿；身披橙色鞍毯，深棕角蹄 + 草绿项圈垂披（主色范围令批 3）；角与头相连，整只单连通",
+          "keywords": [
+            "A02",
+            "P09",
+            "鹿王",
+            "已入库"
+          ]
+        },
+        {
+          "anchor": "§3.3 A03-P09 鲸之王（42×42，母版 v5 已确认，未落库）",
+          "level": 3,
+          "startLine": 77,
+          "endLine": 87,
+          "tokens": 467,
+          "summary": "构图：3/4 侧视，头朝左上、尾鳍右下。躯干湖蓝 #3D7BF5（弧拱，宽 ≈54%）；尾鳍整片深棕 #6B3E1E（宽",
+          "keywords": [
+            "A03",
+            "P09",
+            "D7BF5",
+            "B3E1E",
+            "鲸之王",
+            "母版"
+          ]
+        },
+        {
+          "anchor": "§4 难度与节奏对照",
+          "level": 2,
+          "startLine": 88,
+          "endLine": 113,
+          "tokens": 382,
+          "summary": "分档公式（真源 difficulty.ts）：",
+          "keywords": [
+            "difficulty",
+            "难度与节奏对"
+          ]
+        },
+        {
+          "anchor": "§5 图案几何与可读性对照",
+          "level": 2,
+          "startLine": 114,
+          "endLine": 138,
+          "tokens": 473,
+          "summary": "",
+          "keywords": [
+            "图案几何与可",
+            "读性对照"
+          ]
+        },
+        {
+          "anchor": "§5.1 母版几何（2048² RGBA；G7/G9 口径）",
+          "level": 3,
+          "startLine": 116,
+          "endLine": 125,
+          "tokens": 207,
+          "summary": "A01-P09 276, 137, 1760, 1764 72.51% × 79.49% ✓ 13.48 / 14.01",
+          "keywords": [
+            "RGBA",
+            "A01",
+            "P09",
+            "母版几何",
+            "口径"
+          ]
+        },
+        {
+          "anchor": "§5.2 可读性 T1–T7（现行判据复算）",
+          "level": 3,
+          "startLine": 126,
+          "endLine": 138,
+          "tokens": 236,
+          "summary": "A01-P09 17.1 ✓ 4.00 ✗ 0 ✓ 1 ✓ 68.3 ✓ 1 ✓ 32 ✓ 5.04 ✓ T2 失败",
+          "keywords": [
+            "A01",
+            "P09",
+            "可读性",
+            "现行判据复算"
+          ]
+        },
+        {
+          "anchor": "§6 配色与 G12 对照",
+          "level": 2,
+          "startLine": 139,
+          "endLine": 158,
+          "tokens": 353,
+          "summary": "",
+          "keywords": [
+            "G12",
+            "配色与",
+            "对照"
+          ]
+        },
+        {
+          "anchor": "§6.1 逐色占比（母版量化后，N = 可填格）",
+          "level": 3,
+          "startLine": 141,
+          "endLine": 148,
+          "tokens": 154,
+          "summary": "A01 奶白 137（33.4%） 玫红 103（25.1%） 柠黄 83（20.2%） 活力橙 51（12.4%） 深",
+          "keywords": [
+            "A01",
+            "逐色占比",
+            "母版量化后",
+            "可填格"
+          ]
+        },
+        {
+          "anchor": "§6.2 G12 判定（2026-11-24 均布口径：每主色 15–35%、配色 ≤2 种、炭黑 2–8%、主导 ≤40%）",
+          "level": 3,
+          "startLine": 149,
+          "endLine": 158,
+          "tokens": 146,
+          "summary": "A01 3 个（白/红/黄）；橙 12.4 未达 15 3（橙/棕/绿） 0% ✗ 现行口径；锁定前按旧口径「主导 ≤4",
+          "keywords": [
+            "G12",
+            "A01",
+            "判定",
+            "均布口径",
+            "每主色",
+            "配色"
+          ]
+        },
+        {
+          "anchor": "§7 元游戏与呈现",
+          "level": 2,
+          "startLine": 159,
+          "endLine": 172,
+          "tokens": 207,
+          "summary": "BOSS 身份 manifest kind:\"boss\" + 章末 P09；isBossLevelId 由 ARCS 派",
+          "keywords": [
+            "BOSS",
+            "manifest",
+            "kind",
+            "boss",
+            "P09",
+            "isBossLevelId"
+          ]
+        },
+        {
+          "anchor": "§8 音频与 UX",
+          "level": 2,
+          "startLine": 173,
+          "endLine": 181,
+          "tokens": 173,
+          "summary": "BOSS 无专属音频事件：design/audio/audio-events.md / audio-spec.md 未定",
+          "keywords": [
+            "BOSS",
+            "design",
+            "audio",
+            "events",
+            "spec",
+            "音频与"
+          ]
+        },
+        {
+          "anchor": "§9 QA 合规矩阵",
+          "level": 2,
+          "startLine": 182,
+          "endLine": 220,
+          "tokens": 459,
+          "summary": "",
+          "keywords": [
+            "合规矩阵"
+          ]
+        },
+        {
+          "anchor": "§9.1 宪法 G1–G12",
+          "level": 3,
+          "startLine": 184,
+          "endLine": 202,
+          "tokens": 302,
+          "summary": "G1 平涂零渐变 ✓ ✓ ✓",
+          "keywords": [
+            "G12",
+            "宪法"
+          ]
+        },
+        {
+          "anchor": "§9.2 可读性 T1–T7 + W1",
+          "level": 3,
+          "startLine": 203,
+          "endLine": 206,
+          "tokens": 45,
+          "summary": "见 §5.2。结论：A01/A02 各 1 项失败（T2），A03 全绿；A02 W1 超带、A03 W1 超带（BOS",
+          "keywords": [
+            "§5.2",
+            "A01",
+            "A02",
+            "A03",
+            "BOS",
+            "可读性"
+          ]
+        },
+        {
+          "anchor": "§9.3 入库 / 样张硬门",
+          "level": 3,
+          "startLine": 207,
+          "endLine": 220,
+          "tokens": 88,
+          "summary": "importable true true true",
+          "keywords": [
+            "importable",
+            "true",
+            "入库",
+            "样张硬门"
+          ]
+        },
+        {
+          "anchor": "§10 口径差异与欠账登记（真源复算 vs 历史记录）",
+          "level": 2,
+          "startLine": 221,
+          "endLine": 241,
+          "tokens": 508,
+          "summary": "原则：不改已入库 A01/A02（用户 2026-11-24 裁定「BOSS 不回溯」）；本节只登记，作为后续「BOSS",
+          "keywords": [
+            "A01",
+            "A02",
+            "BOSS",
+            "口径差异与欠",
+            "账登记",
+            "真源复算"
+          ]
+        },
+        {
+          "anchor": "§11 A03 落库施工清单（章未建）",
+          "level": 2,
+          "startLine": 242,
+          "endLine": 265,
+          "tokens": 473,
+          "summary": "前置阻塞：A03 P01–P08 八关尚未产出（当前只有 P09 母版）。章结构为 9 关/章，⛔ 不建议只建 BOSS",
+          "keywords": [
+            "A03",
+            "P01",
+            "P08",
+            "P09",
+            "BOSS",
+            "落库施工清单"
+          ]
+        },
+        {
+          "anchor": "§12 证据索引",
+          "level": 2,
+          "startLine": 266,
+          "endLine": 285,
+          "tokens": 303,
+          "summary": "A01 生成史 [../A01-P09-flower-king/generation-record.txt](../A0",
+          "keywords": [
+            "A01",
+            "P09",
+            "flower",
+            "king",
+            "generation",
+            "record"
+          ]
+        },
+        {
+          "anchor": "§13 变更记录",
+          "level": 2,
+          "startLine": 286,
+          "endLine": 291,
+          "tokens": 61,
+          "summary": "v1.0 2026-11-25 首版：三章 BOSS 对照（A01/A02 已入库 + A03-P09 v5 样张）；含",
+          "keywords": [
+            "BOSS",
+            "A01",
+            "A02",
+            "A03",
+            "P09",
+            "变更记录"
           ]
         }
       ]
@@ -94083,17 +94451,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 390304,
-      "lines": 12313,
-      "sha256": "ecd842320ee10db444dd64cda1d2b3250e12f0f0f675cd0bd671f570d6cda246",
+      "tokens": 390648,
+      "lines": 12327,
+      "sha256": "78505b5f3add8638495df06053a8e2d949c29e92512bc0fb52fac61cca12fadc",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 12314,
-          "tokens": 390287,
+          "endLine": 12328,
+          "tokens": 390632,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -112054,10 +112422,26 @@
           ]
         },
         {
-          "anchor": "§WXG-T-1058",
+          "anchor": "§WXG-T-1059",
           "level": 2,
           "startLine": 12301,
           "endLine": 12314,
+          "tokens": 341,
+          "summary": "名称：BOSS 三关对照设计文档（A01-P09 花之王 / A02-P09 鹿王 / A03-P09 鲸之王）",
+          "keywords": [
+            "WXG",
+            "BOSS",
+            "A01",
+            "P09",
+            "A02",
+            "A03"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-1058",
+          "level": 2,
+          "startLine": 12315,
+          "endLine": 12328,
           "tokens": 459,
           "summary": "名称：选关格缩略垂直居中锚改墨盒（boss 关 L9 不压星带）",
           "keywords": [
@@ -112069,17 +112453,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 112393,
-      "lines": 360,
-      "sha256": "38f737c1513d8fe61dcb9aea16abbc8c9d57e5a364ca3aa4d8dfcd00d5911488",
+      "tokens": 112624,
+      "lines": 361,
+      "sha256": "9dd6ac7bc131dd9687ba750d233c2f9037e7cf85332202a8ca7d10adb20ca84e",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 361,
-          "tokens": 112384,
+          "endLine": 362,
+          "tokens": 112615,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -112092,8 +112476,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 331,
-          "endLine": 361,
+          "startLine": 332,
+          "endLine": 362,
           "tokens": 1571,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

@@ -12298,6 +12298,20 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 
 **证据**：批目录 `games/beads/design/art/proposals/levels-20arcs-selection-20261117/A03-P09-whaleking/`（design-plan.md、generation-record.txt、build-a03p09-42.py、studio-full-response-v2-g42v5-42-c0.json、v5-g42-pattern.txt、a03p09-v2-g42v5-max-42-c0-beads-plain.png）；`series-spec.md` §4 末条 42 档读数；`production/qa/token-plan-usage-ledger.md` 五追裁行。
 
+## WXG-T-1059
+
+**名称**：BOSS 三关对照设计文档（A01-P09 花之王 / A02-P09 鹿王 / A03-P09 鲸之王）
+
+**触发**：用户 2026-11-25 令「请生成 BOSS 关的完整设计文档」；AskUserQuestion 选「三章 BOSS 对照」+「批目录 design-doc.md」。
+
+**产物**：`games/beads/design/art/proposals/levels-20arcs-selection-20261117/A03-P09-whaleking/design-doc.md` v1.0（13 节）——身份 / 共同目标 / 逐关档案 / 难度 / 几何 / 配色 / 元游戏 / 音频 UX / QA 矩阵 / 欠账 / 落库清单 / 证据 / 变更记录。
+
+**关键读数**：三关均 tier 3；DI `3041000060045` / `3030500060043` / `3070600060064`；N 410 / 305 / 706；6 色、F=0；G7/G9/G12/T1–T7 复算矩阵（A03 全绿，A01/A02 欠账集中登记 §10）。
+
+**验证**：`pattern-legibility.mjs` 的 `analyze()`/`judge()` 复算 T1–T7；PIL 复算 bbox/留白/近黑/连通；`difficultyOf()` 真源函数复算 tier/DI；`check:links` OK。
+
+**边界**：只读复算，⛔ 不改已入库 A01/A02（用户 2026-11-24「BOSS 不回溯」裁定）；A03 章未建 ⇒ 不落库、不改 contentVersion；§10 欠账表作为后续重制/统一收紧输入。
+
 ## WXG-T-1058
 
 **名称**：选关格缩略垂直居中锚改墨盒（boss 关 L9 不压星带）
