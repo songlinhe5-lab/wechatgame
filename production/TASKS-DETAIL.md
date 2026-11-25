@@ -12325,3 +12325,17 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 **修法**（一行公式，同水平腿构）：现式 `anchorY + (h − spanRows×pitch)/2 + (r0+spanRows)×pitch` = 槽余量居中分配 + 墨盒落位；⛔ 只动 'center' 档（详情 'bottom' 档 T-1040 抬升腿零扰动）；bounds 缺省逐字节等价。
 
 **验证 / 取证**：TDD 先红后绿（新例钉「底缘不越槽（允许 TILE_BLEED）+ 顶缘对称 + 跨度仍铺满」，改前红读数 −6.6875）；定向 81/81；typecheck 零错；全量仅 ui-golden `level-select` 两帧预期漂移⇒按本单代码锚 worktree 重抓（两遍确定性自证）；§12 视觉变更登记；镜像同步；verify 24/24。
+
+## WXG-T-1060
+
+**名称**：A03 深海湾建章：P01–P08 母版产线 + 章落库
+
+**触发**：用户 2026-11-25「好的，执行吧」⇒ 执行 [`A03-P09-whaleking/design-doc.md`](../games/beads/design/art/proposals/levels-20arcs-selection-20261117/A03-P09-whaleking/design-doc.md) §11 落库施工清单。
+
+**范围**：A03-P01–P08 按 `arcs-detail-A01-A10.md` A03 名录与 `series-spec-catalog.md §A03` 宪法产母版（4–5 色、32×32、qwen-image-3.0-pro seed 42），逐批用户验收后锁版；八关齐 + P09 v5 ⇒ 建章（uid L00030–L00038、order 28–36、`kind:"boss"`、`contentVersion 47→48`、`DEMO_LEVEL_COUNT 27→36`）。
+
+**流程契约**：`series-spec.md §5` —— 每张「写提示词 → 用户确认 → 生图 → 用户确认效果」，不跳步；Token Plan 逐批记账。
+
+**当前进度**：批 1 = P01 小鱼 / P02 鲸鱼 / P03 海豚，写提示词与设计分区中，待用户审提示词后生图。
+
+**边界**：⛔ 不伪造编辑器产物；⛔ 不改已入库 A01/A02；A03 章落库前 contentVersion 不动。
