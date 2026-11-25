@@ -3,7 +3,7 @@
   "name": "studio-3-eddc",
   "cols": 10,
   "rows": 13,
-  "time": 88,
+  "time": 70,
   "cycleProfile": "short",
   "pricing": {
     "source": "bot",
@@ -27,7 +27,7 @@
     "clamped": false,
     "cleared": true,
     "tier": 0,
-    "secPerTap": 1
+    "secPerTap": 0.79
   },
   "decoys": [],
   "pattern": [

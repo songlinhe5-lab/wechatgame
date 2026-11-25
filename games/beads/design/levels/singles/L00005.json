@@ -3,7 +3,7 @@
   "name": "studio-2-23ca",
   "cols": 12,
   "rows": 14,
-  "time": 64,
+  "time": 51,
   "cycleProfile": "short",
   "pricing": {
     "source": "bot",
@@ -27,7 +27,7 @@
     "clamped": false,
     "cleared": true,
     "tier": 0,
-    "secPerTap": 1
+    "secPerTap": 0.79
   },
   "decoys": [],
   "pattern": [

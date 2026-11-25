@@ -3,7 +3,7 @@
   "name": "刺猬",
   "cols": 32,
   "rows": 32,
-  "time": 238,
+  "time": 188,
   "cycleProfile": "long",
   "pricing": {
     "source": "bot",
@@ -27,7 +27,7 @@
     "clamped": false,
     "cleared": true,
     "tier": 1,
-    "secPerTap": 1.13
+    "secPerTap": 0.89
   },
   "decoys": [],
   "pattern": [

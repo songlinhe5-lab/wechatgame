@@ -27,7 +27,7 @@
     "clamped": true,
     "cleared": true,
     "tier": 0,
-    "secPerTap": 1
+    "secPerTap": 0.79
   },
   "decoys": [],
   "pattern": [

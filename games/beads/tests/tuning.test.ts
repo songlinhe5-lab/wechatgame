@@ -268,9 +268,10 @@ describe('beads tuning derivation (systems-index §3 mirrors)', () => {
       expect(SEC_PER_STEP).toBe(3.0);
     });
 
-    it('SEC_PER_TAP_BY_TIER = 四档难度的 2★ 秒/点击（公式 v1.0，2026-11-25 用户选「标准」）', () => {
-      // 锚 = 2026-09-23 八关实测 s/点击中位 1.13；简单收紧 ~10%、难/超难放宽 5–20%。
-      expect([...SEC_PER_TAP_BY_TIER]).toEqual([1.00, 1.13, 1.28, 1.42]);
+    it('SEC_PER_TAP_BY_TIER = 四档难度的 2★ 秒/点击（斜率 v1.1，2026-11-25 A01 九关实测回调）', () => {
+      // v1.0 = [1.00, 1.13, 1.28, 1.42]（八关 s/点击中位 1.13 + 用户选「标准」斜率）。
+      // v1.1 = 九关实测 s/点击均值 0.906 ÷ 现役加权均值 1.152 = 缩放 0.7867 ⇒ 保四档相对形状。
+      expect([...SEC_PER_TAP_BY_TIER]).toEqual([0.79, 0.89, 1.01, 1.12]);
       // 单调递增：难度越高，每点击预算越宽
       for (let i = 1; i < SEC_PER_TAP_BY_TIER.length; i++)
         expect(SEC_PER_TAP_BY_TIER[i]!).toBeGreaterThan(SEC_PER_TAP_BY_TIER[i - 1]!);

@@ -3,7 +3,7 @@
   "name": "鹿王",
   "cols": 32,
   "rows": 32,
-  "time": 292,
+  "time": 230,
   "cycleProfile": "long",
   "pricing": {
     "source": "bot",
@@ -27,7 +27,7 @@
     "clamped": false,
     "cleared": true,
     "tier": 3,
-    "secPerTap": 1.42
+    "secPerTap": 1.12
   },
   "decoys": [],
   "pattern": [

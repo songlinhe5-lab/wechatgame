@@ -61,12 +61,12 @@ describe('WXG-T-179 · level-import 转换与定价', () => {
         expect(measuredLevelTime(-5).time).toBe(LEVEL_TIME_MIN);
     });
 
-    it('measuredLevelTimeByTaps：点击数 × 难度档秒/点击 ÷ 2★系数（公式 v1.0）—— 锚值 / clamp', () => {
-        // 锚：taps=109、中等档 1.13 s/点击 ⇒ need = ceil(123.17) = 124s ⇒ ÷0.85 再 ceil = 146s。
-        expect(measuredLevelTimeByTaps(109, 1)).toEqual({ time: 146, difficulty: 6, clamped: false });
-        // 简单档更紧、超难档更宽（2026-11-25 用户选「标准」斜率）
-        expect(measuredLevelTimeByTaps(109, 0).time).toBe(129); // ceil(109) = 109 ÷0.85 = 128.2
-        expect(measuredLevelTimeByTaps(109, 3).time).toBe(183); // ceil(154.78) = 155 ÷0.85 = 182.4
+    it('measuredLevelTimeByTaps：点击数 × 难度档秒/点击 ÷ 2★系数（公式 v1.0 / 斜率 v1.1）—— 锚值 / clamp', () => {
+        // 锚：taps=109、中等档 0.89 s/点击（v1.1）⇒ need = ceil(97.01) = 98s ⇒ ÷0.85 再 ceil = 116s。
+        expect(measuredLevelTimeByTaps(109, 1)).toEqual({ time: 116, difficulty: 5, clamped: false });
+        // 简单档更紧、超难档更宽（v1.1 斜率，2026-11-25 A01 九关实测回调）
+        expect(measuredLevelTimeByTaps(109, 0).time).toBe(103); // ceil(86.11) = 87 ÷0.85 = 102.4
+        expect(measuredLevelTimeByTaps(109, 3).time).toBe(145); // ceil(122.08) = 123 ÷0.85 = 144.7
         // clamp：非法/极小 ⇒ 下限；超大盘 ⇒ 上限
         expect(measuredLevelTimeByTaps(5, 1).time).toBe(LEVEL_TIME_MIN);
         expect(measuredLevelTimeByTaps(Number.NaN, 1).time).toBe(LEVEL_TIME_MIN);

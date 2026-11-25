@@ -3,7 +3,7 @@
   "name": "studio-5-f0d3",
   "cols": 14,
   "rows": 11,
-  "time": 45,
+  "time": 37,
   "cycleProfile": "short",
   "pricing": {
     "source": "bot",
@@ -27,7 +27,7 @@
     "clamped": false,
     "cleared": true,
     "tier": 0,
-    "secPerTap": 1
+    "secPerTap": 0.79
   },
   "decoys": [],
   "pattern": [

@@ -3,7 +3,7 @@
   "name": "studio-3-163c",
   "cols": 30,
   "rows": 30,
-  "time": 317,
+  "time": 251,
   "starTierK": [
     1,
     0.85,
@@ -32,7 +32,7 @@
     "clamped": false,
     "cleared": true,
     "tier": 2,
-    "secPerTap": 1.28
+    "secPerTap": 1.01
   },
   "decoys": [],
   "pattern": [
