@@ -3440,6 +3440,34 @@ export class BeadsGame {
 
   private _syncSnapshot(): void {
     projectSnapshot(this._snapshot, this._snapshotSource);
+    this._applyDragResidual();  // [WXG-T-1078] post-project：覆写 snapshot 字段
+  }
+
+  /**
+   * [WXG-T-1078] 拖拽期间零固定步帧的呈现残差。
+   *
+   * 固定步率 60 Hz，宿主可达 120 Hz；每两渲染帧之间可能没有固定步（见
+   * `## WXG-T-1076` §③ 探针读数），相机 offsetX/Y 未被 `applyPan` 推进，而
+   * `_layout` 仍停在上一次 `layoutChanged` 的权威值——画面于是「一帧不动、
+   * 下一帧走两倍」。
+   *
+   * 本方法在 `projectSnapshot` 之后，把 `InputManager.snapshot.dx/dy`（已推入
+   * 但尚未被任何固定步消费的屏幕像素差）折算到设计坐标，叠加到 snapshot 的
+   * `gridLeft/gridTop`，使渲染与手指同步。下一次固定步的 `applyPan → _recomputeLayout
+   * → projectSnapshot` 覆写回权威值，残差自然归零。⛔ 不 mutate `_cam`（L5）。
+   *
+   * `GridLayout.left/top` 是 readonly（`gridLayoutFor` 返回的冻结布局），
+   * 残差只能打在 snapshot 的可写字段上——这也是渲染器实际读的字段。
+   */
+  private _applyDragResidual(): void {
+    if (!this._services) return;  // init 前安全
+    if (!this._board.tapActive || !this._board.tapMoved) return;  // 非拖拽 ⇒ snapshot 已是权威值
+    const s = this._services.input.snapshot;
+    if (!s || (s.dx === 0 && s.dy === 0)) return;  // 无残差
+    // screen dx/dy → design: / scale, y 翻向（与 boardHeld applyPan 同口径）
+    const scale = this._services.viewport.fit.scale || 1;
+    this._snapshot.gridLeft += s.dx  / scale;
+    this._snapshot.gridTop  += -s.dy / scale;
   }
 
   /**
