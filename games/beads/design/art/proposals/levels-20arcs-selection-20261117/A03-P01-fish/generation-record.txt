@@ -1,0 +1,37 @@
+A03-P01 小鱼 · 32×32 · 4 色（湖蓝 #3D7BF5 / 奶白 #FDF6E9 / 丁香紫 #8E6FD9 / 炭黑 #33333D）
+单一主题色调令首关：湖蓝恒为主色，配角色丁香紫（批 1）。
+
+【Token Plan 用量】2 次调用 / 出图 2 张 / 浪费 1 张 / 锁定 1 张
+模型 qwen-image-3.0-pro，t2i，--size '2048*2048'，seed 42，prompt_extend=False。
+v1 母版 a03p01-v1-s42.png（prompt-v1.txt）
+v2 母版 a03p01-v2-s42.png（prompt-v2.txt）→ 修复版 a03p01-v2fix-s42-rgba.png
+
+【v1 判定：弃用】
+- 抠图：bbox 82.9%×59.6%，左右留白 8.5%/8.5%（过 8% 硬门但构图过扁）。
+- 目视：躯干被拉成横宽扁椭圆；丁香紫中带被画成细缝（≈1.2 珠格）；眼睛仅约 55px（<1 珠格，量化必消失）。
+- 结论：出 prompt-v2.txt 修正（躯干宽 50%×高 52% 更浑圆、紫带厚度硬性 12%≈4 珠格、眼 9.5%≈195px、整体包围盒 76%×72% 且上下不留大片空白）。
+
+【v2 判定：可量化，走 0 调用修复】
+- 抠图：bbox 81.2%×66.9%（宽高均值 74.1%，G9 均值口径达标；高度单维 66.9% 低于 70 目标，留档偏差）；四边留白 左9.52/上15.43/右9.23/下17.68%（≥8% 硬门过，未达本批 11–12% 目标，留档偏差）；四角透明 true；近黑(max≤24) 0 px；单连通 true；alpha255 27.9%。
+- 首轮量化（32×32 / colors=0 / colorsmode=error / cellmode=mode / mis=max / draft=1）：
+  importable=true，4 色，F=0，但 丁香紫 35.5%（越 35% 上限）、眼睛仅 2×2 珠、4 颗尾巴/带缘杂散炭黑珠（质疑 T1/T3/G4）、块数 9（块/色 2.25）。
+- 修复 fix-a03p01-v2.py（母版整格定向染色，0 次 Token Plan）：
+  ① 眼睛重画 3×3（grid cols 6–8 × rows 11–13，全落湖蓝区、距左轮廓 1 格）；
+  ② 4 颗杂散炭黑珠按 4 邻非黑多数色并回（1 颗并蓝、3 颗并紫）；
+  ③ 紫带顶行 8 格（均匀取样 cols 4/8/11/13/16/18/21/23）改湖蓝，把三主色压回 15–35%。
+
+【v2fix 终值（32×32 定稿口径）】
+- studio：importable=true、blockers=[]、voidCells=0、colorsUsed=4、F=0（M=344/344）、steps=58、time 205、cleared=true、colorError 25.9、adjacency minDE 20 / conflicts 0。
+- 色占比：奶白 34.6 (119) / 丁香紫 34.6 (119) / 湖蓝 28.2 (97) / 炭黑 2.6 (9)。
+- 可读性：blocks 5、largest 119、avg 68.8、tinyCells 0、adjRate 0.878；块/色 1.25（≤2.0）。
+- 难度：N=344 → tier 2（<700）；C=4 不升档；G 比 119/29=4.1 ≥1.25 不降档；DI=2034400040119。
+- 珠阵：bbox cols 3–29 / rows 4–26（27×23 格）；空列 左3/右2、空行 上4/下5。
+
+【证据清单】
+prompt-v1.txt、prompt-v2.txt；a03p01-v1-s42.png / -rgba.png / -rgba-metrics.json；
+a03p01-v2-s42.png / -rgba.png / -rgba-metrics.json；a03p01-v2fix-s42-rgba.png / -rgba-metrics.json；
+studio-full-response-v2-max-32-c0.json、studio-full-response-v2fix-max-32-c0.json、
+studio-full-verify-{v2,v2fix}-max-32-c0.json；a03p01-{v2,v2fix}-max-32-c0-beads-plain.png；
+脚本 ../studio-a03.py、../fix-a03p01-v2.py。
+
+【状态】待用户效果确认；未锁版、未建章、不改 contentVersion。
