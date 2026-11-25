@@ -1,0 +1,36 @@
+{
+  "noise_removed": [
+    1
+  ],
+  "single_connected": true,
+  "ncomp": 1,
+  "petals": 12,
+  "parity": 0,
+  "stub_px": [
+    160,
+    112
+  ],
+  "area_share_pct": {
+    "#3FBF6B": 3.64,
+    "#6B3E1E": 3.96,
+    "#A5652C": 11.43,
+    "#FDF6E9": 39.41,
+    "#FFD23F": 41.55
+  },
+  "max_share_pct": 41.55,
+  "grid_mirror_diff": 0,
+  "bbox_pct": [
+    73.93,
+    77.98
+  ],
+  "margins_pct": [
+    13.04,
+    11.04,
+    13.04,
+    10.99
+  ],
+  "scale": [
+    0.9032,
+    0.9729
+  ]
+}

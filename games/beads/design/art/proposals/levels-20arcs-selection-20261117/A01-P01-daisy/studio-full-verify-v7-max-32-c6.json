@@ -1,0 +1,27 @@
+{
+  "board": "a01p01v7-max-32-c6",
+  "importable": true,
+  "blockers": [],
+  "voidCells": 0,
+  "colorsUsed": null,
+  "paletteHex": [
+    "#FDF6E9",
+    "#FFD23F",
+    "#3FBF6B",
+    "#A5652C"
+  ],
+  "balancedChanged": null,
+  "mis": {},
+  "pricing": null,
+  "adjacency": null,
+  "symmetry": {
+    "grid": [
+      32,
+      32
+    ],
+    "ink_mirror_diff": 0,
+    "color_mirror_diff": 0,
+    "half_cells": 512
+  },
+  "colorErrorFinal": null
+}

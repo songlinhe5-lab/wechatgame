@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4341,
       "lines": 143,
-      "sha256": "041081707dcebe9fb16ef6bdae66da36fa9456bcebc322de63b0526c30b924af",
+      "sha256": "11e6d74862b6e986cc187c6e7214fa8eea394fb0a9c2fb69fd91acdfc033e178",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 407,
-          "summary": "1 production/TASKS-DETAIL.md 392656 12395 normal",
+          "summary": "1 production/TASKS-DETAIL.md 394498 12425 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5209,
       "lines": 159,
-      "sha256": "f079b9dd705b0bee19465792b26a67bc9919ce88e6a680031161f354cbd49b7c",
+      "sha256": "31828e2c75d651cc2c2359422b505900b7a552453173b719ce05cc7ca81047b9",
       "tier": "normal",
       "sections": [
         {
@@ -761,12 +761,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 365 行 / 113738 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 366 行 / 114388 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+366 · §待排（backlog，无号，立项时领取…=336+31",
+          "summary": "§WXG 任务台账（SSOT）=1+367 · §待排（backlog，无号，立项时领取…=337+31",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1080,12 +1080,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 12395 行 / 392656 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 12425 行 / 394498 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
           "tokens": 130,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+12396 · §WXG-T-1052=12206+16 · §WXG-",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+12426 · §WXG-T-1053=12222+12 · §WXG-",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -26399,9 +26399,9 @@
     },
     {
       "path": "games/beads/design/art/proposals/levels-20arcs-selection-20261117/series-spec-catalog.md",
-      "tokens": 7977,
+      "tokens": 7999,
       "lines": 243,
-      "sha256": "67d4a215c41749ffa4d88b12b0dccbd173b4191feff238e6663649245d4ececb",
+      "sha256": "a2270308cdf4622e61c31144d1531bd2dd390b8168e5e802b78fe66baffb184b",
       "tier": "normal",
       "sections": [
         {
@@ -26409,7 +26409,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 244,
-          "tokens": 7955,
+          "tokens": 7977,
           "summary": "配套正本：[series-spec.md](./series-spec.md)（§0–§5 风格宪法与纯黑采样处置、§8",
           "keywords": [
             "§0",
@@ -26425,7 +26425,7 @@
           "level": 2,
           "startLine": 8,
           "endLine": 224,
-          "tokens": 7307,
+          "tokens": 7329,
           "summary": "每套给出：玩家可见的系列文案、该章共享的形态语法、配色宪法（十色板 HEX 子集）、九关差异轴、特有禁忌、P9 boss",
           "keywords": [
             "HEX",
@@ -26438,7 +26438,7 @@
           "level": 3,
           "startLine": 16,
           "endLine": 30,
-          "tokens": 918,
+          "tokens": 940,
           "summary": "系列文案：「从第一朵雏菊到戴冠的花之王，把一整座花园拼进方寸之间。」",
           "keywords": [
             "A01",
@@ -26713,17 +26713,17 @@
     },
     {
       "path": "games/beads/design/art/proposals/levels-20arcs-selection-20261117/series-spec.md",
-      "tokens": 11221,
-      "lines": 174,
-      "sha256": "8661dc39a548993f8bba50e76936ae69d1f4c504f324290fa606a16640bc1749",
+      "tokens": 11659,
+      "lines": 175,
+      "sha256": "1ca9437cdcbfc70b92c2174d7ab90f8fb64ee8cda0d7a034ba657200520ac0ca",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§20 大关生图系列规范 · 风格宪法与逐关模板",
           "level": 1,
           "startLine": 1,
-          "endLine": 175,
-          "tokens": 11201,
+          "endLine": 176,
+          "tokens": 11639,
           "summary": "本件性质：生图阶段的风格规格草案，沿用 20 大关题材甄选（WXG-T-974）谱系，已领 WXG-T-979、已改任务",
           "keywords": [
             "WXG",
@@ -26796,8 +26796,8 @@
           "anchor": "§2 通用风格宪法（20 套共享，写进每条提示词的固定段）",
           "level": 2,
           "startLine": 50,
-          "endLine": 70,
-          "tokens": 1470,
+          "endLine": 71,
+          "tokens": 1908,
           "summary": "G1 平涂：每个色区是实心单色，零渐变、零纹理、零光影、零高光条、零环境光遮蔽、零噪点 色区内像素方差近 0",
           "keywords": [
             "通用风格宪法",
@@ -26809,8 +26809,8 @@
         {
           "anchor": "§3 纯黑 = 采样排除信号：studio 的代码边界与处置",
           "level": 2,
-          "startLine": 71,
-          "endLine": 95,
+          "startLine": 72,
+          "endLine": 96,
           "tokens": 1989,
           "summary": "本节只回答一件事：怎么做到「让 studio 不参与采样」。纯黑不是要被 studio 看到的颜色，而是要在 studi",
           "keywords": [
@@ -26825,8 +26825,8 @@
         {
           "anchor": "§3.1 studio 里「不参与采样」只有一个入口，且是采样**之前**",
           "level": 3,
-          "startLine": 75,
-          "endLine": 83,
+          "startLine": 76,
+          "endLine": 84,
           "tokens": 1288,
           "summary": "1. 唯一入口 = alpha < 128。studio 收的是 RGBA 像素（[generate.html](../",
           "keywords": [
@@ -26841,8 +26841,8 @@
         {
           "anchor": "§3.2 处置（三段式：标记 → 翻译 → 交付）",
           "level": 3,
-          "startLine": 84,
-          "endLine": 95,
+          "startLine": 85,
+          "endLine": 96,
           "tokens": 594,
           "summary": "A 出图：标排除区 提示词写「纯黑 #000000 纯色背景、无渐变、无暗角、无阴影」，用纯黑把不参与采样的区域标出来；",
           "keywords": [
@@ -26856,8 +26856,8 @@
         {
           "anchor": "§4 2048 母版 → 量化 → rowstring 的口径",
           "level": 2,
-          "startLine": 96,
-          "endLine": 108,
+          "startLine": 97,
+          "endLine": 109,
           "tokens": 916,
           "summary": "2048 是母版像素分辨率，不是珠面格数。studio 生成时按请求的 cols×rows 把 2048 区域平均降采样",
           "keywords": [
@@ -26872,8 +26872,8 @@
         {
           "anchor": "§5 逐张确认流程（本轮不执行，仅为后续契约）",
           "level": 2,
-          "startLine": 109,
-          "endLine": 141,
+          "startLine": 110,
+          "endLine": 142,
           "tokens": 1434,
           "summary": "每张图走四步：写提示词 → 用户确认 → 生图 → 用户确认效果；不满意则改提示词重生，循环到通过。每批附带三件事：",
           "keywords": [
@@ -26885,8 +26885,8 @@
         {
           "anchor": "§5.1 A00 引导章（曼陀罗）重生令（用户 2026-11-24 裁定）",
           "level": 3,
-          "startLine": 128,
-          "endLine": 141,
+          "startLine": 129,
+          "endLine": 142,
           "tokens": 701,
           "summary": "范围：A00 = 曼陀罗引导章，manifest.chapters[order:0]，L00001–L00009 共 9",
           "keywords": [
@@ -26901,8 +26901,8 @@
         {
           "anchor": "§6 20 套系列规范（明细已外移）",
           "level": 2,
-          "startLine": 142,
-          "endLine": 146,
+          "startLine": 143,
+          "endLine": 147,
           "tokens": 170,
           "summary": "本件拆分（WXG-T-979，2026-11-17）：为过 ctx:check B 项单文件 8000 tok 上限，原",
           "keywords": [
@@ -26917,8 +26917,8 @@
         {
           "anchor": "§8 已知风险与解除条件",
           "level": 2,
-          "startLine": 147,
-          "endLine": 162,
+          "startLine": 148,
+          "endLine": 163,
           "tokens": 601,
           "summary": "~~Token Plan 通道 2048×2048 未实测~~ ✅ 已解除（2026-11-17 第 0 张探路） 读数",
           "keywords": [
@@ -26931,8 +26931,8 @@
         {
           "anchor": "§9 明确未做的事（截至 mis=full 链路复验完成）",
           "level": 2,
-          "startLine": 163,
-          "endLine": 175,
+          "startLine": 164,
+          "endLine": 176,
           "tokens": 1957,
           "summary": "已写 9 张的正式提示词（A01-P01–P09，含各版退场稿，全文见各批目录 response-meta*.json ",
           "keywords": [
@@ -94450,17 +94450,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 392656,
-      "lines": 12395,
-      "sha256": "d61238a6348f46a83cdea810f6ef2c5d6a7d4d5ebc5d6159fcefa94fd388fa4a",
+      "tokens": 394498,
+      "lines": 12425,
+      "sha256": "3f3a7061ab95019958c5090ef49520c459c9edbc49ce398e43a4b18f1aceb9d3",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 12396,
-          "tokens": 392639,
+          "endLine": 12426,
+          "tokens": 394481,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -112496,22 +112496,35 @@
             "WXG",
             "A01"
           ]
+        },
+        {
+          "anchor": "§WXG-T-1064",
+          "level": 2,
+          "startLine": 12397,
+          "endLine": 12426,
+          "tokens": 1838,
+          "summary": "名称：珠面左右对称性口径定政 + A01-P01 雏菊 v7 对称化重做",
+          "keywords": [
+            "WXG",
+            "A01",
+            "P01"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 113738,
-      "lines": 365,
-      "sha256": "498febfcac0efd99ae12ff41a04c002149cf1e6306095b72dcbf35e7cb3984f7",
+      "tokens": 114388,
+      "lines": 366,
+      "sha256": "8b0e358022b37d7b734ff1de87ae78ae98b930f2946f72a12a58916b724e1761",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 366,
-          "tokens": 113730,
+          "endLine": 367,
+          "tokens": 114380,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -112524,8 +112537,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 336,
-          "endLine": 366,
+          "startLine": 337,
+          "endLine": 367,
           "tokens": 1571,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -128548,17 +128561,17 @@
     },
     {
       "path": "production/qa/token-plan-usage-ledger.md",
-      "tokens": 19953,
-      "lines": 218,
-      "sha256": "97c7a005cc75012bf0f555833ec3ef1246413421efc6a47808c901211f270134",
+      "tokens": 20318,
+      "lines": 220,
+      "sha256": "37f88babf66785fe9d513e7bb405489fcb413f806eea364a1d359b2378b83594",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Token Plan 生图用量台账（建账 2026-11-01）",
           "level": 1,
           "startLine": 1,
-          "endLine": 219,
-          "tokens": 19937,
+          "endLine": 221,
+          "tokens": 20302,
           "summary": "本件只管「花了多少次、出了几张图、留在哪」，是追加型台账（按时间序加行，⛔ 不回改历史行）。",
           "keywords": [
             "Token",
@@ -128656,8 +128669,8 @@
           "anchor": "§6 temp 生图存量（2026-11-01 清理一次，用户令「把 temp 里的生图都清理掉」）",
           "level": 2,
           "startLine": 100,
-          "endLine": 219,
-          "tokens": 14429,
+          "endLine": 221,
+          "tokens": 14794,
           "summary": "清理前 3642 张 / temp 共 2.3 GB",
           "keywords": [
             "temp",
