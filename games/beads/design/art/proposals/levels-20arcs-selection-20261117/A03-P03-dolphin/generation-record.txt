@@ -1,7 +1,7 @@
 A03-P03 海豚 · 32×32 · 4 色（湖蓝 #3D7BF5 / 奶白 #FDF6E9 / 玫红 #E84C3D / 炭黑 #33333D）
 单一主题色调令：湖蓝恒为主色，配角色玫红（批 1 第三关）。
 
-【Token Plan 用量】2 次调用 / 出图 2 张 / 浪费 2 张 / 锁定 0 张（待裁）
+【Token Plan 用量】2 次调用 / 出图 2 张 / 浪费 1 张 / 锁定 1 张
 模型 qwen-image-3.0-pro，t2i，--size '2048*2048'，seed 42，prompt_extend=False。
 v1 母版 a03p03-v1-s42.png（prompt-v1.txt）→ a03p03-v1-s42-rgba.png
 v2 母版 a03p03-v2-s42.png（prompt-v2.txt）→ a03p03-v2-s42-rgba.png（未过门禁，未跑修复脚本）
@@ -27,8 +27,9 @@ v2 母版 a03p03-v2-s42.png（prompt-v2.txt）→ a03p03-v2-s42-rgba.png（未�
   （全池步/预算比恒 ≈1.5）。P01/P02 恰好 steps=taps×0.34 且落难档预算，才贴线通过。
 - 与 G9 的冲突：v2 宽度 88% 已超 G9 上限；靠「缩盘降步数」不可行（T-1068 已证 bbox 71% 仍被拒）。
 
-【状态】⛔ v2 未锁版；待用户裁「2★ 预算口径」后再定路线（重出母版 / 珠格重绘 / 程序化重建）。
-未建章、contentVersion 不动。
+【状态】✅ **已锁版（用户 2026-11-25 确认 PASS，取 v2fix）**；锁定件 = `a03p03-v2fix-s42-rgba.png`
+（珠面 `a03p03-v2fix-max-32-c0-beads-plain.png`，importable=true / 4 色 / F=0 / N=280）；
+未入关、未进 final/；A03 章未建 ⇒ 不落库、不改 contentVersion。
 
 【证据清单】
 prompt-v1.txt、prompt-v2.txt；a03p03-v1-s42.png / -rgba.png / -rgba-metrics.json；

@@ -1,0 +1,37 @@
+A03-P04 章鱼 · 32×32 · 4 色（湖蓝 #3D7BF5 / 奶白 #FDF6E9 / 活力橙 #F59B23 / 炭黑 #33333D）
+单一主题色调令：湖蓝恒为主色，配角色活力橙（批 1 第四关）。
+
+【Token Plan 用量】1 次调用 / 出图 1 张 / 浪费 0 张 / 锁定 1 张
+模型 qwen-image-3.0-pro，t2i，--size '2048*2048'，seed 42，prompt_extend=False。
+v1 母版 a03p04-v1-s42.png（prompt-v1.txt）→ a03p04-v1-s42-rgba.png
+修正件 a03p04-v1fix-s42-rgba.png（fix-a03p04-v1.py，0 调用）
+
+【v1 母版判定：可用（形态对，细节需珠格修）】
+- 抠图：bbox 63.7%×82.4%、填充 52.6%、四角透明 true、近黑 0。
+- 目视：半球蓝顶 + 奶白脸 + 左右橙腕；模型实际抽 10 条细腕（要求 8 条），
+  腕端勾卷在 32×32 下会碎；双 3×3 眼偏大且贴蓝顶。
+- 量化（32×32 / colors=0 / colorsmode=error / cellmode=mode / mis=max / draft=1）：
+  6 色（杂散 #A5652C 1.0% / #6B3E1E 0.5%）、橙 39.2% 超 35%、tiny 15 ⇒ 需修。
+
+【v1fix 修正（用户两轮意见）】
+1. 用户 2026-11-25 首轮：双 3×3 大眼（蓝顶下 1 行、对称）；清掉头顶 5 颗杂黑；
+   并 15 个碎块到 tiny=0；橙 39.2%→32.8%（靠中线橙让给奶白，恢复「中央奶白腕」）。
+2. 用户 2026-11-25 第二轮「腕再细分一点，眼小一点」：
+   - 眼 3×3 → **2×2**（rows 14–15 × cols 12–13 / 18–19，左右对称）；
+   - 腕细分：左右镜像各切 2 道 2 格深槽（(6,18)(7,18)/(25,18)(24,18) 与
+     (8,21)(9,22)/(23,21)(22,22)）；
+   - 缩眼使奶白升 36.1% ⇒ 6 颗奶白沿底缘/腕基让给橙，两主色回到 34.4/34.6。
+
+【v1fix 终值（锁版）】
+- importable=true、blockers=[]、4 色、F=0（M=393/393）、N=393、steps=68、taps=136、
+  time=144s、tier 1（中等，secPerTap 0.89）、colorError 0.7、blocks 6、tinyCells 0。
+- 色占比：湖蓝 29.0% / 奶白 34.4% / 活力橙 34.6% / 炭黑 2.0%（G12 全达标）。
+
+【状态】✅ **已锁版（用户 2026-11-25 确认 PASS，取 v1fix）**；锁定件 = `a03p04-v1fix-s42-rgba.png`
+（珠面 `a03p04-v1fix-max-32-c0-beads-plain.png`）；未入关、未进 final/；
+A03 章未建 ⇒ 不落库、不改 contentVersion。
+
+【证据清单】
+prompt-v1.txt；a03p04-v1-s42.png / -rgba.png / -rgba-metrics.json；
+a03p04-v1fix-s42-rgba.png / -max-32-c0-beads-plain.png / studio-full-response-v1fix-max-32-c0.json；
+脚本 fix-a03p04-v1.py、../probe-2048/extract-alpha.py、../studio-a03.py。
