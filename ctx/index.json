@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4341,
       "lines": 143,
-      "sha256": "126f98f16b43bca9ca0f720150d050db45807ac08aa201b8ebaee82561da977d",
+      "sha256": "6901f18d6a8bd3ebabb521fca005a8bccd3e93eca0aa850cc5eecac106c915ad",
       "tier": "normal",
       "sections": [
         {
@@ -26399,9 +26399,9 @@
     },
     {
       "path": "games/beads/design/art/proposals/levels-20arcs-selection-20261117/series-spec-catalog.md",
-      "tokens": 7954,
+      "tokens": 7977,
       "lines": 243,
-      "sha256": "d47aff5ae8e333faa926bc61dbec2b830a5b3a76c9f313ad02f54c082d966b34",
+      "sha256": "67d4a215c41749ffa4d88b12b0dccbd173b4191feff238e6663649245d4ececb",
       "tier": "normal",
       "sections": [
         {
@@ -26409,7 +26409,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 244,
-          "tokens": 7932,
+          "tokens": 7955,
           "summary": "配套正本：[series-spec.md](./series-spec.md)（§0–§5 风格宪法与纯黑采样处置、§8",
           "keywords": [
             "§0",
@@ -26425,7 +26425,7 @@
           "level": 2,
           "startLine": 8,
           "endLine": 224,
-          "tokens": 7284,
+          "tokens": 7307,
           "summary": "每套给出：玩家可见的系列文案、该章共享的形态语法、配色宪法（十色板 HEX 子集）、九关差异轴、特有禁忌、P9 boss",
           "keywords": [
             "HEX",
@@ -26464,7 +26464,7 @@
           "level": 3,
           "startLine": 43,
           "endLine": 52,
-          "tokens": 293,
+          "tokens": 316,
           "summary": "系列文案：「冷蓝的水里，一尾小鱼最终长成破浪的鲸之王。」",
           "keywords": [
             "A03",
@@ -26713,9 +26713,9 @@
     },
     {
       "path": "games/beads/design/art/proposals/levels-20arcs-selection-20261117/series-spec.md",
-      "tokens": 11123,
+      "tokens": 11221,
       "lines": 174,
-      "sha256": "5af869165a255bf9add8e768b81c9d050231381936797a82eaacd2c412ad6bad",
+      "sha256": "8661dc39a548993f8bba50e76936ae69d1f4c504f324290fa606a16640bc1749",
       "tier": "normal",
       "sections": [
         {
@@ -26723,7 +26723,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 175,
-          "tokens": 11104,
+          "tokens": 11201,
           "summary": "本件性质：生图阶段的风格规格草案，沿用 20 大关题材甄选（WXG-T-974）谱系，已领 WXG-T-979、已改任务",
           "keywords": [
             "WXG",
@@ -26797,7 +26797,7 @@
           "level": 2,
           "startLine": 50,
           "endLine": 70,
-          "tokens": 1373,
+          "tokens": 1470,
           "summary": "G1 平涂：每个色区是实心单色，零渐变、零纹理、零光影、零高光条、零环境光遮蔽、零噪点 色区内像素方差近 0",
           "keywords": [
             "通用风格宪法",
