@@ -1,0 +1,38 @@
+A03-P06 海龟 · 32×32 · 4 色（湖蓝 #3D7BF5 / 奶白 #FDF6E9 / 赭棕 #A5652C / 炭黑 #33333D）
+单一主题色调令：湖蓝恒为主色，配角色赭棕（批 1 第六关）。
+
+【Token Plan 用量】1 次调用 / 出图 1 张 / 浪费 0 张 / 锁定 1 张
+模型 qwen-image-3.0-pro，t2i，--size '2048*2048'，seed 42，prompt_extend=False。
+v1 母版 a03p06-v1-s42.png（prompt-v1.txt）→ a03p06-v1-s42-rgba.png
+修正件 a03p06-v1fix-s42-rgba.png / a03p06-v1fix2-s42-rgba.png（fix-a03p06-v1.py，0 调用）
+
+【v1 母版判定：结构对，方向与配色需修】
+- 抠图：主体面积 42.09%、四角透明、近黑 0。
+- 目视：椭圆壳三段（赭棕/奶白横带/湖蓝）、四鳍、小头两圆眼；模型把头画在**画面下方**（朝下），
+  壳体顶部多一个赭棕小尖（尾）；蓝鳍比设计蓝偏浅、棕比 #A5652C 偏深。
+- 量化初值：**5 色**（多出 #6B3E1E 0.3%）、蓝 37.1% 超 35%、炭黑 1.6% 低于 2% 下限、
+  tiny 6、colorError 32.1。
+
+【v1fix 修正（0 调用）】
+- 清掉 1 颗 #6B3E1E 与 3 颗眼外杂黑；逐格重涂设计色 ⇒ colorError 32.1 → **0**。
+- 头由 4 格加宽到 6 格（新格从邻格拷 alpha），落**双 2×2 眼**（中间留 2 格）⇒ 炭黑回到 2.6%。
+- 蓝 37.1% → 33.8%（最外侧蓝鳍尖让给奶白）。
+- 补：`<4` 格碎块并邻色（本轮实际 0 处，保留作防回归）。
+
+【v1fix2：用户 2026-11-25 令「头朝上，翻转整张盘」】
+- 整幅 RGBA 上下翻转 ⇒ 头朝上、蓝前带贴头、赭棕后带在下、前鳍蓝在上、后鳍赭棕在下。
+- 色占比与珠量不变；`steps` 62 → 54（扫描方向相关，非缺陷）。
+
+【v1fix2 终值（锁版）】
+- importable=true、blockers=[]、4 色、F=0（M=311/311）、N=311、steps=54、taps=108、
+  time=130s、tier 2（难，secPerTap 1.01）、colorError 0、blocks 7、tinyCells 0。
+- 色占比：湖蓝 33.8% / 奶白 30.5% / 赭棕 33.1% / 炭黑 2.6%（G12 全达标）。
+
+【状态】✅ **已锁版（用户 2026-11-25 确认 PASS，取 v1fix2 头朝上）**；锁定件 = `a03p06-v1fix2-s42-rgba.png`
+（珠面 `a03p06-v1fix2-max-32-c0-beads-plain.png`）；未入关、未进 final/；
+A03 章未建 ⇒ 不落库、不改 contentVersion。
+
+【证据清单】
+prompt-v1.txt；a03p06-v1-s42.png / -rgba.png / -rgba-metrics.json；
+a03p06-v1fix-s42-rgba.png、a03p06-v1fix2-s42-rgba.png / -max-32-c0-beads-plain.png /
+studio-full-response-v1fix2-max-32-c0.json；脚本 fix-a03p06-v1.py、../probe-2048/extract-alpha.py、../studio-a03.py。
