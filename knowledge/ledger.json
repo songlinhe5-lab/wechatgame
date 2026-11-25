@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 224,
+  "nextId": 225,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -3750,6 +3750,23 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-224",
+      "state": "active",
+      "file": "knowledge/lessons/process-ledger-sync.md",
+      "category": "流程台账协作",
+      "title": "共享工作树里对台账文件做整文件 `git add`，会把并发会话刚写好的行与详情节一起替它提交",
+      "contentHash": "bce8ca4dad8707dfb3418fb217bf93612af9ceeaf5111efbac30bf7b07917355",
+      "sourceTask": "WXG-T-1068",
+      "addedDate": "2026-11-25",
+      "lastAccess": "2026-11-25",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -6023,6 +6040,15 @@
       "kind": "added",
       "ids": [
         "K-223"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-11-25",
+      "taskId": "WXG-T-1068",
+      "kind": "added",
+      "ids": [
+        "K-224"
       ],
       "note": null
     },

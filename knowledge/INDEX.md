@@ -330,4 +330,5 @@
 | K-221 | 判据实测取证 | criteria-measure-evidence | 图像对称性读数两条必错路：按画布中线比对（图不居中造出假不对称）与拿无 alpha 的渲染件跑 alpha 判据（得恒真值） | WXG-T-1064 | 2026-11-25 | 0 | active |
 | K-222 | 测试守卫 | testing-guard | 关卡 pattern 与 misplaced 不能各自做镜像收尾：游戏侧「珠色守恒」校验会当场拒装，证明两半是同一个多重集 | WXG-T-1068 | 2026-11-25 | 0 | active |
 | K-223 | 流程门禁 | process-gate | 人工实测时长回流定价要锚 | WXG-T-1069 | 2026-11-25 | 0 | active |
+| K-224 | 流程台账协作 | process-ledger-sync | 共享工作树里对台账文件做整文件 `git add`，会把并发会话刚写好的行与详情节一起替它提交 | WXG-T-1068 | 2026-11-25 | 0 | active |
 <!-- kb:active:end -->
