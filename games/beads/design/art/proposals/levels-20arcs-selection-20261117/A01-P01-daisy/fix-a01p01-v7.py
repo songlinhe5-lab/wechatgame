@@ -11,10 +11,12 @@ v7 出图读数：墨形格化镜像差 4/512（v6 = 78）、像素级 2.43 %、
   ⑤ 强制镜像：右半 = 左半按 bbox 中轴镜像（消 3 % 色层抖动 ⇒ 严格镜像）
   ⑥ G12 交替染按 |扇区序号| 奇偶（⛔ 沿圆周序号——那会让左右镜像侧异色）＋统缩居中
 落盘 a01p01-v7-s42-rgba.png，末行打印格化镜像差（必须 = 0）。
-用法：python3 fix-a01p01-v7.py
+用法：python3 fix-a01p01-v7.py [宽缩=0.74] [高缩=0.78]
+     （⑦ 统缩目标可指定：WXG-T-1065 为避开与 L00015 玫瑰 DI 并列（N128/C4/G15）而降到 0.71/0.75）
 """
 import json
 import os
+import sys
 
 import numpy as np
 from PIL import Image
@@ -161,7 +163,8 @@ print(f"   选 parity={best}（主导占比更小者，G12 硬顶 ≤50 %）")
 fg = a[:, :, 3] == 255
 ys3, xs3 = np.where(fg)
 bw0, bh0 = int(xs3.max()) - int(xs3.min()) + 1, int(ys3.max()) - int(ys3.min()) + 1
-sx, sy = 0.74 * w / bw0, 0.78 * h / bh0
+sx, sy = float(sys.argv[1] if len(sys.argv) > 1 else 0.74) * w / bw0, \
+    float(sys.argv[2] if len(sys.argv) > 2 else 0.78) * h / bh0
 im = Image.fromarray(a, "RGBA").resize((int(round(w * sx)), int(round(h * sy))), Image.NEAREST)
 b = np.asarray(im).copy()
 fg2 = b[:, :, 3] == 255

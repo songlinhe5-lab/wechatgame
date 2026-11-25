@@ -70,3 +70,9 @@
   根因：`check-tasks.mjs::readIndex` 用 `execFileSync('git', ['show', ':…'])` 读**索引面**，Node 默认 `maxBuffer` 恰为 1,048,576 B ⇒ 超限抛 `ENOBUFS`，被函数内 `try/catch` 兜成空串（该 catch 本意是兜「路径不在索引」）⇒ staged / commit-msg 模式读到空文件，判定主表**每一行**都缺详情节。工作树模式走 `readFileSync`（无上限），两套读取路径的差异正是「工作树绿 + staged 红」的成因。
   规避/做法：① 凡 `execFileSync` / `spawnSync` 且 `encoding` 捕获 stdout、读的是**台账 / 索引 / 编译输出 / git blame** 这类无界内容，一律显式写 `maxBuffer`（本仓范式 64 MB；`git blame --porcelain` 用 256 MB）；② 排障口诀：**staged 专属的全量误报先怀疑缓冲，不要怀疑内容**；③ 同族本轮已补三处：`check-tasks`（`git show`）、`archive-tasks::blameCommitterTimes`（对 1 MB 台账 blame 输出数十 MB，ENOBUFS 后静默降级成「全部行无日期证据」，按天归档即失效）、`check-cocos-scripts`（tsc 批量报错时 `status` 变 null 会被误判成类型检查失败、真错误清单丢失）；④ 加缓冲只放大读侧，⛔ 不改任何判定逻辑。
   判例引用：K-036（SKIP / 失败姿态不等于测过）、K-030（索引产物口径）、K-045（共享工作树里未提交 ≠ 我的）、K-137（他人半成品只披露不代填）；正本 `production/TASKS-DETAIL.md` `## WXG-T-960`。
+
+- **[工具链上下文][K-220] 预算门已顶满的档案里加跨章新令：正解是落「已豁免的同页正本」，⛔ 塞进余量只有几十 token 的分册反复压缩**（来源 WXG-T-1064 / commit `de6626e3`，2026-11-25）
+  现象：要给 20 章通用的「对称性口径」新令落档。写进分册 `series-spec-catalog.md` 后 `pre-commit` 连红 4 次，报的却是「暂存内容与 ctx/index.json 不一致」；按读数逐轮压缩 8742 → 8419 → 8144 → 8073 → 8008 → 8003，仍差 3 token，前后耗掉整轮施工。
+  根因：① 该分册 HEAD 版已 7977 / 上限 8000，**余量只有 23 token**，任何成句的宪法级新令都必然越 B 门；而 pre-commit 把 B 门超限与索引不一致合并成同一句红，指错了方向。② 同页的宪法表（G1–G12）在正本 `series-spec.md`，那件**已登记 B 项豁免**，分册开头本就写着「所有套同时受 §2 通用宪法约束」⇒ 新令进分册是重复落档。
+  规避/做法：① 落档前先 `node tools/scripts/check-context-budget.mjs --staged` 看**目标件现值与余量**，再决定写哪里；跨章级新令优先落「同页真源 + 已豁免正本」的判据表，分册只留一句就地注；② pre-commit 报「索引不一致」时先跑 `--staged` 预算门定位真因（多为 B 项超限，不是索引没重建）；③ 挤 token 时 ⛔ 改写或删除既有裁定句 —— 本批就因此把「盘面档令（用户 2026-11-24）」整段误替换（K-053 违规），同轮逐字节恢复并在提交说明里公开；压缩对象只能是**本批自己新写的句子**；④ 换位置后 TASKS / TASKS-DETAIL 里的「落档在 X §N」描述必须同批改指，否则下会话按错路找不到条文。
+  证据锚：`production/TASKS-DETAIL.md` `## WXG-T-1064`、`games/beads/design/art/proposals/levels-20arcs-selection-20261117/series-spec.md` §2 G13 行 + `ctx/budget-exempt.json`；关联 K-030（索引产物口径）、K-053 精神（历史裁定只划线不静默删）、K-045（共享工作树未提交 ≠ 我的）。
