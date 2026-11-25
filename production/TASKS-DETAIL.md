@@ -12272,3 +12272,28 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 **影响面**：L9 fit 0.695→0.869（图案占托盘宽 80%→100%）；无空边盘（现池其余关）逐位零漂移 ⇒ ui-golden 零重抓。
 
 **验证 / 取证**：TDD 先红后绿（`board-camera.test.ts` 公式腿 + 装配腿，改前红）；定向 37/37；typecheck 零错；beads 全量 1631/1633（2 skip）绿、金样零漂移；`pnpm harness:build` 同步 Cocos 镜像；verify 24/24。
+
+## WXG-T-1057
+
+**名称**：A03-P09 鲸之王 42×42 BOSS 母版 v5（批前公示样张，A03 章未建不落库）
+
+**触发**：A03 章首个 BOSS 关样张。用户追裁链（2026-11-24 → 11-25）：42×42 定稿 → 去水带（两簇浪花）→ 无中缝 + 底部收窄 → 紫/棕各减 2 行（算术判 N<700 ⇒ tier 掉档，改鲸面加色）→「鲸面增加颜色覆盖，减少底部颜色」→ **「减少海面比例，鲸鱼与海面紧密结合」**（本单 v5）。
+
+**产线**（`build-a03p09-42.py` ⑥，输入同一 v2 母版，0 次 Token Plan 调用）：
+- 全鲸（喷柱到腹底）纵向 ×1.2，鲸底 row26→row32（鲸形不变、面积 +20%）；
+- 胸腹下缘透明楔口 rows24-31 补奶白腹色 ⇒ 鲸腹与浪冠同色相接；
+- 海面 rows31-37 共 7 行：浪冠奶白 2 行三块（row32 补 cols25-28 连块）/ 丁香紫 3 行 / 深棕 2 行；
+- 尾鳍内抗锯齿蓝碎片（尾尖 2×2、col33 rows28-30 细条）并回深棕，压 T2 块/色；
+- 量化 42×42 / `colors=0` / `mis=max`（⛔ colors=6 会把湖蓝并进丁香紫）。
+
+**读数**：`importable=true`、`blockers=[]`、void=0、colorsUsed=6、balancedChanged=0、**N=706**、**F=0（M=706/706）**、steps **132**（BOSS ≥68）、time 466、taps 264、cleared=true；色占比 奶白 29.2 / 湖蓝 23.4 / 深棕 23.1 / 丁香紫 17.8 / 炭黑 3.4 / 柠黄 3.1（%）⇒ G12 全过；G9 80.96%×77.29%、四边留白 9.52/9.52/13.18/9.52（%）⇒ G7 过；近黑 0、单连通。
+
+**难度**：N=706（≥700 ⇒ 档₀=3）+ C=6 升一档；G 比 64/59=1.085 <1.25 降一档 ⇒ **tier 3（超难）**、DI=3070600060064。
+
+**可读性**：T1–T7 全绿（blocks 12、珠/块 58.8、块/色 2.00、specks 0、silks 0、parts 1、珠/色 117.7；W1 psn 7.23 仅 warn，BOSS 结构项登记豁免）。
+
+**效果确认**：用户 2026-11-25 已答「确认 v5」（PASS）。
+
+**边界**：A03 章未建 ⇒ 只出母版/样张与盘面读数，⛔ 不落 singles / levels-data、不改 contentVersion；⛔ 不伪造编辑器产物；v4 中间产物已删，v1/v2 母版、48/40 弃档、v3 与海面版留档。
+
+**证据**：批目录 `games/beads/design/art/proposals/levels-20arcs-selection-20261117/A03-P09-whaleking/`（design-plan.md、generation-record.txt、build-a03p09-42.py、studio-full-response-v2-g42v5-42-c0.json、v5-g42-pattern.txt、a03p09-v2-g42v5-max-42-c0-beads-plain.png）；`series-spec.md` §4 末条 42 档读数；`production/qa/token-plan-usage-ledger.md` 五追裁行。

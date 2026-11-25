@@ -366,17 +366,17 @@
     },
     {
       "path": "ctx/BUDGET.md",
-      "tokens": 4301,
-      "lines": 142,
-      "sha256": "95a641e95fe01d6ab1fb2b3d36c416ebaaf3e3111dfacb6c51b3bf993737e999",
+      "tokens": 4341,
+      "lines": 143,
+      "sha256": "f0545e7b01550d2316513b1a112ba3aa331959d5acf5c1c6d16846bd413a0af2",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§上下文预算报表（ctx/BUDGET.md）",
           "level": 1,
           "startLine": 1,
-          "endLine": 143,
-          "tokens": 4288,
+          "endLine": 144,
+          "tokens": 4328,
           "summary": "生成：2026-11-25 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 407,
-          "summary": "1 production/TASKS-DETAIL.md 389103 12274 normal",
+          "summary": "1 production/TASKS-DETAIL.md 389842 12299 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -420,8 +420,8 @@
           "anchor": "§3 超限清单（超过所属类别上限）",
           "level": 2,
           "startLine": 46,
-          "endLine": 117,
-          "tokens": 2795,
+          "endLine": 118,
+          "tokens": 2834,
           "summary": "上限按文档类别分档（WXG-T-377）：spec 8000（判据/规格/提案/ADR/GDD/UX/skill，未放松",
           "keywords": [
             "WXG",
@@ -435,8 +435,8 @@
         {
           "anchor": "§4 真实最常用章节与分布加权节省率（估算）",
           "level": 2,
-          "startLine": 118,
-          "endLine": 143,
+          "startLine": 119,
+          "endLine": 144,
           "tokens": 612,
           "summary": "数据源：ctx/usage-distribution.json（真实读事件账本），样本 457 次读取 / 20 会话；",
           "keywords": [
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5209,
       "lines": 159,
-      "sha256": "47b83ce76f9362cfb42b6a8a84a9f5e3fe9e1a9c58a6ad1136e32374b970ff75",
+      "sha256": "3e16d04ab350b7be1e399fd3a3f5edef616b978c0ece7bf2de3cf9aca0f951b6",
       "tier": "normal",
       "sections": [
         {
@@ -761,12 +761,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 358 行 / 111780 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 359 行 / 112059 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+359 · §待排（backlog，无号，立项时领取…=329+31",
+          "summary": "§WXG 任务台账（SSOT）=1+360 · §待排（backlog，无号，立项时领取…=330+31",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1080,12 +1080,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 12274 行 / 389103 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 12299 行 / 389842 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
           "tokens": 130,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+12275 · §WXG-T-1050=12064+63 · §WXG-",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+12300 · §WXG-T-1050=12064+63 · §WXG-",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -25454,6 +25454,141 @@
       ]
     },
     {
+      "path": "games/beads/design/art/proposals/levels-20arcs-selection-20261117/A03-P09-whaleking/design-plan.md",
+      "tokens": 2216,
+      "lines": 98,
+      "sha256": "ff4cb10370ef54b4018c597cc63ae6368a6a0302b8f230d7389ef6e3b41acea3",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§A03-P09 鲸之王 · boss 母版设计稿（v1 · 首个 42×42 档）",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 99,
+          "tokens": 2195,
+          "summary": "任务谱系：WXG-T-1050（BOSS 珠面分档首张；48 档政策 2026-11-24 被用户追裁「珠面不用 48×",
+          "keywords": [
+            "A03",
+            "P09",
+            "boss",
+            "WXG",
+            "BOSS",
+            "鲸之王"
+          ]
+        },
+        {
+          "anchor": "§1 构图（2048² 母版；3/4 侧视，头朝左上、尾鳍右下）",
+          "level": 2,
+          "startLine": 8,
+          "endLine": 23,
+          "tokens": 584,
+          "summary": "躯干 弧拱主体，宽 ≈54%、高 ≈28%；头端圆钝（宽 ≈26%、高 ≈22%）；背脊向右下收成尾柄（宽 ≈10%） ",
+          "keywords": [
+            "构图",
+            "母版",
+            "侧视",
+            "头朝左上",
+            "尾鳍右下"
+          ]
+        },
+        {
+          "anchor": "§2 六色面积预算（G12：4 主色 15–35%、2 配色 ≤2、炭黑 2–8%）",
+          "level": 2,
+          "startLine": 24,
+          "endLine": 36,
+          "tokens": 227,
+          "summary": "奶白 #FDF6E9 腹褶 + 胸腹补形 + 海面浪冠 ≈29%（实测 29.2） 主色",
+          "keywords": [
+            "G12",
+            "FDF6E9",
+            "六色面积预算",
+            "主色",
+            "配色",
+            "炭黑"
+          ]
+        },
+        {
+          "anchor": "§3 42 档几何校验（格 = 画布 1/42 ≈ 2.38%；原 48 档表随政策弃用）",
+          "level": 2,
+          "startLine": 37,
+          "endLine": 51,
+          "tokens": 199,
+          "summary": "腹褶宽 7% 2.9 格 ✓（≥3）",
+          "keywords": [
+            "档几何校验",
+            "画布",
+            "档表随政策弃"
+          ]
+        },
+        {
+          "anchor": "§4 特有禁忌（catalog §A03 + G 系）",
+          "level": 2,
+          "startLine": 52,
+          "endLine": 60,
+          "tokens": 188,
+          "summary": "⛔ 水波透明叠加、气泡细点、喷柱雾化渐细（喷柱做连续硬边折线，宽 ≥3 格）",
+          "keywords": [
+            "catalog",
+            "A03",
+            "特有禁忌"
+          ]
+        },
+        {
+          "anchor": "§5 生图参数",
+          "level": 2,
+          "startLine": 61,
+          "endLine": 67,
+          "tokens": 35,
+          "summary": "",
+          "keywords": [
+            "生图参数"
+          ]
+        },
+        {
+          "anchor": "§6 量化与验收（生成后）",
+          "level": 2,
+          "startLine": 68,
+          "endLine": 79,
+          "tokens": 279,
+          "summary": "[x] G3 单连通：T6 parts=1",
+          "keywords": [
+            "parts",
+            "量化与验收",
+            "生成后"
+          ]
+        },
+        {
+          "anchor": "§7 风险与预案",
+          "level": 2,
+          "startLine": 80,
+          "endLine": 91,
+          "tokens": 253,
+          "summary": "喷柱被画成雾状或断点 提示词已写「连续折线 + 硬边梯形缺口」；仍断则本地确定性补接（只改 alpha/RGB 不重生成",
+          "keywords": [
+            "alpha",
+            "RGB",
+            "风险与预案"
+          ]
+        },
+        {
+          "anchor": "§8 产物命名",
+          "level": 2,
+          "startLine": 92,
+          "endLine": 99,
+          "tokens": 142,
+          "summary": "定稿（42 档 v5）：a03p09-v2-g42v5-s42-rgba.png（底图）/ v5-g42-pattern",
+          "keywords": [
+            "a03p09",
+            "g42v5",
+            "s42",
+            "rgba",
+            "png",
+            "g42"
+          ]
+        }
+      ]
+    },
+    {
       "path": "games/beads/design/art/proposals/levels-20arcs-selection-20261117/README.md",
       "tokens": 3619,
       "lines": 105,
@@ -26210,17 +26345,17 @@
     },
     {
       "path": "games/beads/design/art/proposals/levels-20arcs-selection-20261117/series-spec.md",
-      "tokens": 10912,
-      "lines": 173,
-      "sha256": "0006d16953ab16f638d3eb19eda969b0be8fa024c561456881a9369d44f6d8fa",
+      "tokens": 11123,
+      "lines": 174,
+      "sha256": "5af869165a255bf9add8e768b81c9d050231381936797a82eaacd2c412ad6bad",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§20 大关生图系列规范 · 风格宪法与逐关模板",
           "level": 1,
           "startLine": 1,
-          "endLine": 174,
-          "tokens": 10893,
+          "endLine": 175,
+          "tokens": 11104,
           "summary": "本件性质：生图阶段的风格规格草案，沿用 20 大关题材甄选（WXG-T-974）谱系，已领 WXG-T-979、已改任务",
           "keywords": [
             "WXG",
@@ -26354,8 +26489,8 @@
           "anchor": "§4 2048 母版 → 量化 → rowstring 的口径",
           "level": 2,
           "startLine": 96,
-          "endLine": 107,
-          "tokens": 738,
+          "endLine": 108,
+          "tokens": 916,
           "summary": "2048 是母版像素分辨率，不是珠面格数。studio 生成时按请求的 cols×rows 把 2048 区域平均降采样",
           "keywords": [
             "rowstring",
@@ -26369,9 +26504,9 @@
         {
           "anchor": "§5 逐张确认流程（本轮不执行，仅为后续契约）",
           "level": 2,
-          "startLine": 108,
-          "endLine": 140,
-          "tokens": 1401,
+          "startLine": 109,
+          "endLine": 141,
+          "tokens": 1434,
           "summary": "每张图走四步：写提示词 → 用户确认 → 生图 → 用户确认效果；不满意则改提示词重生，循环到通过。每批附带三件事：",
           "keywords": [
             "逐张确认流程",
@@ -26382,9 +26517,9 @@
         {
           "anchor": "§5.1 A00 引导章（曼陀罗）重生令（用户 2026-11-24 裁定）",
           "level": 3,
-          "startLine": 127,
-          "endLine": 140,
-          "tokens": 686,
+          "startLine": 128,
+          "endLine": 141,
+          "tokens": 701,
           "summary": "范围：A00 = 曼陀罗引导章，manifest.chapters[order:0]，L00001–L00009 共 9",
           "keywords": [
             "A00",
@@ -26398,8 +26533,8 @@
         {
           "anchor": "§6 20 套系列规范（明细已外移）",
           "level": 2,
-          "startLine": 141,
-          "endLine": 145,
+          "startLine": 142,
+          "endLine": 146,
           "tokens": 170,
           "summary": "本件拆分（WXG-T-979，2026-11-17）：为过 ctx:check B 项单文件 8000 tok 上限，原",
           "keywords": [
@@ -26414,8 +26549,8 @@
         {
           "anchor": "§8 已知风险与解除条件",
           "level": 2,
-          "startLine": 146,
-          "endLine": 161,
+          "startLine": 147,
+          "endLine": 162,
           "tokens": 601,
           "summary": "~~Token Plan 通道 2048×2048 未实测~~ ✅ 已解除（2026-11-17 第 0 张探路） 读数",
           "keywords": [
@@ -26428,8 +26563,8 @@
         {
           "anchor": "§9 明确未做的事（截至 mis=full 链路复验完成）",
           "level": 2,
-          "startLine": 162,
-          "endLine": 174,
+          "startLine": 163,
+          "endLine": 175,
           "tokens": 1957,
           "summary": "已写 9 张的正式提示词（A01-P01–P09，含各版退场稿，全文见各批目录 response-meta*.json ",
           "keywords": [
@@ -93948,17 +94083,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 389103,
-      "lines": 12274,
-      "sha256": "b201596001edfaa78850a2e0ea84b54de914c1a59403a16e590e48176d9ce332",
+      "tokens": 389842,
+      "lines": 12299,
+      "sha256": "4ece3257987f3cc9da1342162d58522dee2e920ea5c02fb36534de61167d2823",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 12275,
-          "tokens": 389087,
+          "endLine": 12300,
+          "tokens": 389825,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -111903,22 +112038,36 @@
             "WXG",
             "fit"
           ]
+        },
+        {
+          "anchor": "§WXG-T-1057",
+          "level": 2,
+          "startLine": 12276,
+          "endLine": 12300,
+          "tokens": 735,
+          "summary": "名称：A03-P09 鲸之王 42×42 BOSS 母版 v5（批前公示样张，A03 章未建不落库）",
+          "keywords": [
+            "WXG",
+            "A03",
+            "P09",
+            "BOSS"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 111780,
-      "lines": 358,
-      "sha256": "b957835b48e90a99a35578cef221788f31a0deb9a2928596f03065dea18636f4",
+      "tokens": 112059,
+      "lines": 359,
+      "sha256": "be9be47020f3814e7a4b5779c383f444f0e1e4b8fb47c544ca5dd7d2547f4a5f",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 359,
-          "tokens": 111771,
+          "endLine": 360,
+          "tokens": 112050,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -111931,8 +112080,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 329,
-          "endLine": 359,
+          "startLine": 330,
+          "endLine": 360,
           "tokens": 1571,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -127955,17 +128104,17 @@
     },
     {
       "path": "production/qa/token-plan-usage-ledger.md",
-      "tokens": 15730,
-      "lines": 200,
-      "sha256": "4316d3b59b24ceb55f97ed93a38bf847778bfe372914b3a9ff5cafbafd00f3dc",
+      "tokens": 19050,
+      "lines": 214,
+      "sha256": "f9fa6c755c5964f944fa663fc9fcc6d862aa3da09d0b482aa79c8d2b041febf7",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Token Plan 生图用量台账（建账 2026-11-01）",
           "level": 1,
           "startLine": 1,
-          "endLine": 201,
-          "tokens": 15714,
+          "endLine": 215,
+          "tokens": 19033,
           "summary": "本件只管「花了多少次、出了几张图、留在哪」，是追加型台账（按时间序加行，⛔ 不回改历史行）。",
           "keywords": [
             "Token",
@@ -128063,8 +128212,8 @@
           "anchor": "§6 temp 生图存量（2026-11-01 清理一次，用户令「把 temp 里的生图都清理掉」）",
           "level": 2,
           "startLine": 100,
-          "endLine": 201,
-          "tokens": 10206,
+          "endLine": 215,
+          "tokens": 13525,
           "summary": "清理前 3642 张 / temp 共 2.3 GB",
           "keywords": [
             "temp",

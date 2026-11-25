@@ -1,0 +1,122 @@
+A03-P09 鲸之王 · BOSS 母版生成记录
+====================================
+批次：A03-P09-whaleking（A03 章未建，本批只出母版/样张，⛔ 不落 singles / levels-data）
+日期：2026-11-24
+依据：../series-spec-catalog.md §A03（深海湾·海洋生物，P9 鲸之王）
+      ./design-plan.md（构图/六色预算/几何校验）
+      ⚠ 2026-11-24 用户追裁「难度靠增加颜色来处理，珠面可以不用 48×48 那么宽」⇒ 定稿口径 42×42，
+        原 48 档政策被追裁覆盖（48/40 修复链留档对照，见下）
+通道：Token Plan · qwen-image-3.0-pro · t2i · prompt_extend=False · seed 42 · size 2048*2048
+      命令：python3 games/beads/design/ai-workflows/dashscope-generate.py \
+             --profile token-plan --model qwen-image-3.0-pro --size '2048*2048' --seed 42 \
+             --text "$(cat .../prompt-vN.txt)"
+
+版本历程
+--------
+v1（prompt-v1.txt，1 次调用，17.4 s）
+  产物：a03p09-v1-s42.png / -rgba.png / -rgba-metrics.json
+  抠图：extract-alpha.py thresh=72
+  读数：bbox=[0,80,2047,2047]（面积 96.09%）、four_corners_transparent=false、
+        单连通 true、近黑 0 px、alpha0 51.937%
+        湖蓝 30.2 / 丁香紫 15.9 / 奶白 15.2 / 深棕 35.1 / 柠黄 0.8 / 炭黑 0.3 / 杂色 2.6（%）
+  判定：不达标 —— 尾鳍被右缘裁切、海水带/深水槽通栏出血、腹褶 10+ 条细线（违 G4）、
+        喷柱细折线（<3 格）、双眼过小、深棕越 35% 上限、黄/黑远低于目标。
+
+v2（prompt-v2.txt，1 次调用）
+  产物：a03p09-v2-s42.png / -rgba.png / -rgba-metrics.json
+  读数：bbox=[129,114,1919,1907] → W 87.45% / H 87.60%（G9 超 82%）、
+        四角透明 true、单连通 true、近黑 0 px、alpha0 59.678%
+        湖蓝 32.10 / 丁香紫 27.77 / 奶白 14.53 / 深棕 23.42 / 柠黄 1.11 / 炭黑 1.09 / 杂色 1.14（%）
+  目视：尾鳍完整、水带不出血、四角干净；仍存腹褶细线、喷柱细且像闪电、双眼过小。
+  判定：形态可用，走 0 调用确定性修复。
+
+确定性修复链（0 次调用，输入均为 a03p09-v2-s42-rgba.png）
+----------------------------------------------------------
+A. 48 档（已弃档，留档对照）：fix-a03p09-v2.py
+   78% 归一 → 吞 7 孤格 → 喷柱补 3 格 → 双眼 3×3×2 ⇒ a03p09-v2fix4-s42-rgba.png
+   48 量化读数：N=848、6 色、F=0、steps 162、time 572、T1–T7 全绿。
+   弃因：用户 2026-11-24 追裁「珠面不用 48×48 那么宽」。
+
+B. 40 档（已弃档，留档对照）：build-a03p09-40.py
+   40 量化读数：N=617、7 色残留赭棕、g/gmin=63/52=1.212 <1.25 ⇒ G 降档 ⇒ tier 2。
+   弃因：破「A01 起章末 BOSS 必须 tier 3」闸；40 及以下差 N≥700 一口气。
+
+C. 42 定稿口径：build-a03p09-42.py（当前产线）
+   输入 a03p09-v2-g42fix-s42-rgba.png（40fix 78% 底图 + 赭棕孤格修补）
+   → ① 喷柱左缘描边并黄：rows5-7 × cols10-11（母版描边在 42 格量化成赭棕/深棕 2×3 块，
+        提示词要求无描边 ⇒ 并回柠黄；喷柱中段 2→4 格宽，贴设计 11%≈4.6 格）
+   → ② 近眼溢出格并蓝：(row13,col11)（40 格眼位在 42 格上多 1 格，双眼回到 3×3×2）
+   → ③ 水带 → 左右两簇浪花（2026-11-24 二追裁，**已被次日三追裁覆盖，留档**）：
+        清旧水带 rows27-37 全宽（起点 -1px：studio 栅格按 floor 取边界，round(27C) 这行会算进 row27，
+        旧图该行留水带顶边暗抗锯齿，未清时曾在中缝 (27,22) 生出 1 颗黑珠孤点）；
+        左右两簇 cols4-17 / 24-37，中间 cols18-23 留空；奶油 rows27-29 / 紫 30-33 / 棕 34-37；
+        上涌阶梯（左 4-9、右 35-37、鳍下 14-17、腹尾间 25-27），只落鲸格外空格
+   → ④ 连成一片海面 + 底部收窄（2026-11-25 三追裁「不要有中缝，底部高度收窄」）：
+        海面 rows29-37 全宽 cols4-37 连续无中缝（比两簇版矮 2 行，顶缘从 row27 降到 row29）；
+        奶油 rows29-30 / 丁香紫 31-34 / 深棕 35-37；
+        浪冠三块 row28（cols5-13 / 17-24 / 29-36）顶缘起伏；连接柱 row27 鳍下 10-13、尾下 29-33 接鲸身；
+        上涌阶梯保留（鳍侧 + 腹尾间）
+   → ⑤ 鲸面加色 + 底部再收窄（2026-11-25 四追裁「鲸面增加颜色覆盖，减少底部颜色」；
+        前因：紫/棕各减 2 行会令 N≈663<700 ⇒ tier 掉档，故改走鲸面加色）：
+        清旧海带 rows27-41（起点 -1px 防中缝黑珠）；海面改 rows23-34：
+        泡沫奶白贴鲸身下缘上涌 rows23-27（左右两侧 + 腹下/尾下空白格，100 格）+ 浪冠 row28 三块
+        cols5-12 / 17-24 / 29-36；丁香紫 rows29-31、深棕 rows32-33、底缘浪谷 row34 三段
+        cols8-14 / 19-25 / 30-36（出血至 row35，守 G9 下沿 H≥70%）；
+        鲸背鞍斑 rows16-19 cols19-27 改丁香紫（28 格，只改原图鲸格 A0 快照）；
+        尾鳍 rows20-27 cols29-38 整片改深棕（22 格 + 尾尖 col37 rows20-22 收口，x≤1852 防 bbox 外溢）
+   → ⑥ 鲸身放大 + 海面再收窄（2026-11-25 五追裁「减少海面比例，鲸鱼与海面紧密结合」）：
+        全鲸（喷柱到腹底）纵向 ×1.2，鲸底 row26 → row32（鲸形不变、面积 +20%）；
+        胸腹下缘透明楔口 rows24-31 补奶白腹色，鲸腹与浪冠同色相接；
+        海面改 rows31-37：浪冠奶白 2 行三块（row32 补 cols25-28 连块）/ 丁香紫 3 行 / 深棕 2 行；
+        尾鳍内抗锯齿蓝碎片（尾尖 2×2、col33 rows28-30 细条）并回深棕，收 T2 碎块
+   → ⑦ 42×42 量化 + 吞 ≤2 格孤块（4 邻域多数色回填）循环至 specks/silks 全 0
+
+studio 量化（42×42，colors=0）
+  接口：POST http://127.0.0.1:8787/api/generate
+        ?cols=42&rows=42&board=a03p09v2-g42v5-p2&palette=10&colors=0
+        &colorsmode=error&cellmode=mode&smooth=0&swaps=0&noframe=1&notrim=1&mis=max&draft=1
+  ⚠ colors=6 的 k-means 会把湖蓝整簇并进丁香紫（colorLimit.kept 丢 7 号色、colorError 47.5）
+    ⇒ 必须 colors=0 全色板投票。
+  水带版读数（已被 11-24 二追裁覆盖，留档）：N=708、6 色、F=0、steps 144、time 509、
+            tier 3、DI=3070800060067、G9 W 79.49% × H 77.98%、T1–T7 全绿
+  两簇浪花版读数（已被 11-25 三追裁覆盖，留档）：N=760、6 色、F=0、steps 146、time 516、
+            tier 3、DI=3076000060073、G9 W 80.96% × H 79.49%、T1–T7 全绿
+  海面版读数（已被 11-25 四追裁覆盖，留档）：N=803、6 色、F=0、steps 149、time 526、
+            tier 3、DI=3080300060073、G9 W 80.96% × H 79.49%、T1–T7 全绿
+  v3 读数（已被 11-25 五追裁覆盖，留档）：importable=true、blockers=[]、colorsUsed=6、N=706、F=0、
+            steps=138、time=488、taps=274、tier 3、DI=3070600060067、G9 W 80.96% × H 72.36%、T1–T7 全绿
+  v5 定稿读数（鲸身 ×1.2 / 海面 7 行贴腹，用户 2026-11-25 确认）：
+            importable=true、blockers=[]、void=0、colorsUsed=6、balancedChanged=0、N=706、F=0、
+            steps=132（≥68）、time=466、taps=264、cleared=true
+            难度：N=706（≥700 ⇒ 档₀=3）+ C=6 升一档；G 比 64/59=1.085 <1.25 降一档 ⇒ tier 3（超难）、
+            DI=3070600060064
+            色占比 奶白 29.2 / 湖蓝 23.4 / 深棕 23.1 / 丁香紫 17.8 / 炭黑 3.4 / 柠黄 3.1（%）
+            G12：主色 4 种全落 15–35%、炭黑 3.4%（2–8%）、配色 2 种 ≤2、主导 29.2% ≤40 ✓
+            G9：W 80.96% × H 77.29%（70–82%）✓；四边留白 左9.52/右9.52/上13.18/下9.52%（≥8%）✓
+            四角透明 ✓；G8 近黑(max<30) 0 px；G3 单连通 ✓（T6 parts=1）
+            G4：眼 3×3×2、喷柱中段 4×3、腹褶 ≥3 格、浪冠 8 格宽、海面 34 格宽、鞍斑 9×5、尾鳍 7×6
+            T1–T7 全绿（blocks 12、珠/块 58.8、块/色 2.00、specks 0、silks 0、parts 1、
+            珠/色 117.7；W1 psn 7.23 仅 warn，BOSS 结构项登记豁免）
+            构图：鲸身纵向 ×1.2（面积 +20%）、胸腹楔口补形贴住海面；海面 7 行（浪冠 2 + 紫 3 + 棕 2）
+
+产物清单
+--------
+a03p09-v1-s42.png / a03p09-v1-s42-rgba.png / a03p09-v1-s42-rgba-metrics.json
+a03p09-v2-s42.png / a03p09-v2-s42-rgba.png / a03p09-v2-s42-rgba-metrics.json
+a03p09-v2-g42v5-s42-rgba.png                （v5 定稿底图 · 鲸身 ×1.2 / 海面 7 行贴腹）
+a03p09-v2-g42v5-max-42-c0-beads-plain.png   （v5 珠面预览）
+studio-full-response-v2-g42v5-42-c0.json    （v5 量化全响应）
+v5-g42-pattern.txt                          （v5 定稿 rowstring）
+a03p09-v2-g42v3-s42-rgba.png / a03p09-v2-g42v3-max-42-c0-beads-plain.png /
+studio-full-response-v2-g42v3-42-c0.json / v3-g42-pattern.txt
+                                            （v3 留档；读数已被 v5 覆盖）
+a03p09-v2-g42final-s42-rgba.png / a03p09-v2-g42final-max-42-c0-beads-plain.png /
+studio-full-response-v2-g42final-42-c0.json / v2-g42final-pattern.txt
+                                            （海面版留档；读数已被 v5 覆盖）
+build-a03p09-42.py                          （42 定稿产线）
+a03p09-v2fix-s42-rgba.png / a03p09-v2fix4-s42-rgba.png / a03p09-v2fix4-max-48-c0-beads-plain.png /
+studio-full-response-v2fix4-max-48-c0.json / fix-a03p09-v2.py   （48 弃档留档）
+build-a03p09-40.py / a03p09-v2-g40fix-s42-rgba.png / studio-full-response-v2-g40fix-40-c0.json /
+a03p09-v2-g40fix-max-40-c0-beads-plain.png   （40 弃档留档）
+
+状态：v5 母版/样张已获用户确认（2026-11-25）；按批提交后锁版，A03 章未建 ⇒ 不落库、不改 contentVersion。
