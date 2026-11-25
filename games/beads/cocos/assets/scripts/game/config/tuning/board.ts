@@ -268,6 +268,16 @@ export const TRAY_GAP = 6;
 export const TRAY_ROW_WIDTH = TRAY_COLS * (TRAY_SLOT + TRAY_GAP) - TRAY_GAP;
 /** 托盘面板竖向内边距（面板高 = rows×54 − 6 + 2×12）。 */
 export const TRAY_PANEL_PAD = 12;
+
+/**
+ * `[WXG-T-1073]` 托盘面板下沿被 `btn_expand` 压住的重叠量（dp）。
+ *
+ * 用户 2026-11-25 令「扩展按钮应该压住一部分底槽」。面板贴上沿 `TRAY_BAND.yMax`、自然高度只够
+ * 槽区 ⇒ 1 行档面板底 378 vs 按钮顶 284 留 **94dp** 空隙、2 行档 40dp ⇒ 按钮读作浮在托盘外。
+ * 面板底因此钳到 `按钮顶 − 本值`。⛔ 本值须小于「末行槽底 − 按钮顶」的余量（1 行档 115dp /
+ * 2 行档 61dp），否则按钮会压到槽。
+ */
+export const TRAY_PANEL_BTN_OVERLAP = 12;
 /**
  * 托盘**整体宽度**（面板外宽）= `TRAY_ROW_WIDTH + 2×TRAY_PANEL_PAD` = **666**。
  * **[WXG-T-262 三续裁 v1.65]** = fit 档**横向目标宽度**正本：用户裁「（适配）放大效果还是
@@ -618,7 +628,13 @@ export function trayLayout(rows: number, width: number = DESIGN_W): TrayLayout {
   const pitch = TRAY_SLOT + TRAY_GAP;
   const rowWidth = TRAY_ROW_WIDTH;
   const left = (width - rowWidth) / 2;
-  const panelH = rows * pitch - TRAY_GAP + TRAY_PANEL_PAD * 2;
+  const naturalH = rows * pitch - TRAY_GAP + TRAY_PANEL_PAD * 2;
+  // `[WXG-T-1073]` 面板下沿须被 `btn_expand` 压住 `TRAY_PANEL_BTN_OVERLAP`（用户令）：少行档
+  // 自然高度只够槽区时会与按钮之间留出大片空隙。⇒ 面板向下延伸到 `按钮顶 − overlap`。
+  // 多行档自然高度更高（4 行档 234 占满整带）⇒ `Math.max` 取自然值，本钳制对它们不生效。
+  const btnTop = TRAY_BAND.yMin + (EXPAND_BTN_HIT_H - EXPAND_BTN_H) / 2 + EXPAND_BTN_H;
+  const skirtedH = TRAY_BAND.yMax - (btnTop - TRAY_PANEL_BTN_OVERLAP);
+  const panelH = Math.max(naturalH, skirtedH);
   return {
     rows,
     pitch,
@@ -646,7 +662,12 @@ export function trayLayout(rows: number, width: number = DESIGN_W): TrayLayout {
  */
 export function trayPreviewFits(unlockedRows: number): boolean {
   const btnTop = TRAY_BAND.yMin + (EXPAND_BTN_HIT_H - EXPAND_BTN_H) / 2 + EXPAND_BTN_H;
-  return trayLayout(unlockedRows + 1).panelBottom >= btnTop;
+  // `[WXG-T-1073]` 判据由「面板底 ≥ 按钮顶」改挂「**末行槽底** ≥ 按钮顶 + 8」：
+  // 面板下沿已被 `TRAY_PANEL_BTN_OVERLAP` 钳到按钮顶之下（`panelBottom < btnTop` 恒真）⇒
+  // 旧式会恒假、预览行全灭。新式与**原结论逐档一致**（+8 = 原「面板底 ≥ 按钮顶」留出的等效余量）：
+  // 1 行档 345 ≥ 292 ✅ 留 / 2 行档 291 < 292 ⛔ 不留 / 3 行档 237 < 292 ⛔ 不留。
+  const lay = trayLayout(unlockedRows + 1);
+  return lay.slotCenterY(unlockedRows) - TRAY_SLOT / 2 >= btnTop + 8;
 }
 
 /**
