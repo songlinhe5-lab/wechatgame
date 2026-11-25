@@ -12667,7 +12667,7 @@ P07/P09 首玩即 3★；P08 距 3★ 线仅 3s。P07–P09 越 §5.0.1-2 的 25
 
 ## WXG-T-1073
 
-**扩展按钮压住托盘面板** · 负责：主理人(CodeBuddy)·工程轨 · 状态：🚧 **进行中（2026-11-25）**
+**扩展按钮压住托盘面板** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ **完成（2026-11-25）**
 
 用户报两件事：① 「扩展按钮应该压住一部分底槽，当从 1 行解锁到 2 行时候，扩展按钮不会压到第二行」；② 「底槽底板图图层在豆面下面，有问题，豆面应该在底槽下面」（②待用户澄清具体所指，见文末）。
 
@@ -12686,14 +12686,14 @@ P07/P09 首玩即 3★；P08 距 3★ 线仅 3s。P07–P09 越 §5.0.1-2 的 25
 - `trayLayout` 的 `panelH` 由自然值改为 `max(自然值, 延伸到「按钮顶 − overlap」)` ⇒ 只对少行档生效（1/2 行面板向下延伸 106 / 52dp），4 行档自然值更高、不受影响；
 - `trayPreviewFits` 原判据「`trayLayout(rows+1).panelBottom >= btnTop`」在面板下延后**恒假**（会把预览行全灭）⇒ 改挂「末行槽底 ≥ 按钮顶 + 8」，与**原结论逐档一致**（1 行 ✅ 留 / 2 行 ⛔ / 3 行 ⛔）。
 
-**验证**：TDD 先红后绿（`1 行：expected 378 to be ≤ 284`），定向 4/4；全量 verify 因托盘面板变高 ⇒ 金样 5 帧（play/pause/clear/fail/sprint-settle）+ `WXG-T-211-S3` 封箱基准 sha 漂移，**待按干净锚重抓**。
+**验证**：TDD 先红后绿（`1 行：expected 378 to be ≤ 284`），定向 4/4；全量 verify 因托盘面板变高 ⇒ 金样 5 帧（play/pause/clear/fail/sprint-settle）+ `WXG-T-211-S3` 封箱基准 sha 漂移，**已按锚重抓**（`57d9423d`）：金样十一帧两遍自证 PASS；S3 两帧 `total`/逐 kind 全等（1834/1288）⇒ 纯几何位移。全量 `verify` **24/24 PASS**。
 
 **② 待澄清**：「底槽底板图」在当前实现里不存在独立位图 —— play 页托盘是纯矢量（`drawPaperPanel` 面板 + `drawEmptySocket` 槽 + `drawBead` 珠），面板刻意走 `back` 通道（graphics 之下）。用户所述「豆面应在底槽下面」若指「珠子被托盘带孔底板遮住（嵌在槽里）」，则需新增带孔底板位图并反转层序，属美术+层序同批改动，待用户确认所指后单独立项。
 
 
 ## WXG-T-1074
 
-**托盘面板去 `back` 沉底（用户选 B）** · 负责：主理人(CodeBuddy)·工程轨 · 状态：🚧 **进行中（2026-11-25）**
+**托盘面板去 `back` 沉底（用户选 B）** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ **完成（2026-11-25）**
 
 前单（T-1073）遗留问题②经用户澄清为**方案 B**：盘面豆子溢出到托盘区域时，应当被**托盘面板遮住**（面板须在豆面之上）。
 
@@ -12701,4 +12701,32 @@ P07/P09 首玩即 3★；P08 距 3★ 线仅 3s。P07–P09 越 §5.0.1-2 的 25
 
 **修法（纯层序，零几何改动）**：`play-page.ts` 四处 `back` → `false`（托盘面板 1 处 + 内阴影 3 条 `line`）。play 帧**全是矢量图元**（金样 kinds：`rect/circle/line/text/polygon`，无 blit）⇒ 同层按绘制序决定层序：`drawHud → drawGrid（盘面）→ drawZoomControls → drawTray（面板 → 内阴影 → 槽 → 珠）` ⇒ 托盘恒在盘面豆子之上，且托盘自己的槽/珠仍在其顶部（面板先画）✓。内阴影必须**同批**移出：若留在 `back`，会被已上移的面板整片盖住 = 白画（旧注释担心的「内阴影画在珠面上」由绘制序保证——它们在槽/珠之前）。
 
-**验证**：`play-page.test.ts` 新增层序防回退断言（面板 rect 的 `back` 必须为 false；play 帧内 `back:true` 的 `line` 数必须为 0），定向 4/4；全量 verify 因 `back` 标志属命令流一部分 ⇒ 金样 5 帧（play/pause/clear/fail/sprint-settle）+ `WXG-T-211-S3` 封箱基准 sha 漂移，**待按干净锚重抓**。
+**验证**：`play-page.test.ts` 新增层序防回退断言（面板 rect 的 `back` 必须为 false；play 帧内 `back:true` 的 `line` 数必须为 0），定向 4/4；全量 verify 因 `back` 标志属命令流一部分 ⇒ 金样 5 帧（play/pause/clear/fail/sprint-settle）+ `WXG-T-211-S3` 封箱基准 sha 漂移，**已按锚重抓**（`2cad40ce`）：金样十一帧两遍确定性自证 PASS；S3 `frame78`/`frame0` 的 `total` 与逐 kind 计数全等（1834/1288）⇒ **纯层序标志改写**，前态 sha 记 `provenance.s3_frame_recheck_t1074`。
+
+**契约同步**：`bead-style-seal.test.ts` 的 `BACK_KEY_LINES` 由 **5 → 0**（原登记「空盘帧 back 键只准落在面板底 + 投影 + 三段内阴影」= 5，被 B 方案推翻）。`back` 通道机制保留（`drawPaperPanel` 的 `back` 参数仍供将来的桌面级图元使用），断言形态保留 ⇒ 将来有人往 play 帧加回 `back` 会立刻红。
+
+**验证**：全量 `verify` **24/24 PASS**。
+
+## WXG-T-1075
+
+**A01 实测 2★ 回流：全局四档斜率整体回调（公式 v1.1）** · 负责：主理人(Trae CN)·工程轨 · 状态：✅ **完成（2026-11-25）**
+
+**用户令**：「按照 A01 测试的 2 星时间数据，请整体调整斜率参数」—— 即批准执行 T-1072 收尾挂起的「全局斜率回调待拍板」。
+
+**依据（九关实测折回 s/点击）**：A01 P01–P09 首通 82/86/88 + 70/166/226/147/339/334s（同一玩家 harness；T-1069/T-1072 已按「实测 = 2★」逐关落库）。`t_act ÷ bot taps` ⇒ tier0 **0.78**（P01 0.76 / P02 0.66 / P04 0.92，n=3）、tier1 **0.87**（P03 0.92 / P05 1.03 / P07 0.66，n=3）、tier2 **1.13**（P06 1.20 / P08 1.07，n=2）、tier3 **0.94**（P09，n=1）；九关总均值 **0.906**，现役四档在同九关的加权均值 **1.152** ⇒ 统一缩放 **0.7867**。
+
+**取值取舍**：新斜率 **[0.79, 0.89, 1.01, 1.12]**（现役 × 0.7867，严格递增、保四档相对形状）。⛔ 不直取原生分档均值 0.78/0.87/1.13/0.94 —— 非单调（tier2 > tier3）且 tier2/tier3 只有 2/1 个样本，直取会把超难关定得比难关更松。
+
+**改动面**：
+
+1. `games/beads/src/config/tuning/gameplay.ts`：`SEC_PER_TAP_BY_TIER` `[1.00, 1.13, 1.28, 1.42]` → **`[0.79, 0.89, 1.01, 1.12]`**（注释补 v1.1 依据、分档样本量与取舍）。
+2. 18 个 bot 定价关 JSON：`time` 按 `clamp(ceil(ceil(taps×新斜率)÷0.85), 30, 2500)` 重算 + `pricing.secPerTap` 改档值（L00001 仍钳 30）。1★ 合计 **3,051→2,420s（−20.7%）**；全池 18+9 关 4,860→4,229s。仅行级文本替换，pattern 数组零扰动。
+3. `src/config/levels-data.ts` 由 `pnpm run levels:sync` 重生成；`assertPricing` 18 关全过（`ceil(ceil(taps×secPerTap)÷tierK) === time`）。
+4. 测试锚值同步：`tuning.test.ts` 数组断言；`level-import.test.ts` `measuredLevelTimeByTaps` 三档锚（109 击：146→116、129→103、183→145）。
+5. 文档：`levels-spec` §5.0 数组 + §5.0.1 回流记录 + 版本表 v1.1 行；`systems-index` §3.5 行末 v1.87 记录 + 文首版本行补齐 v2.06/v2.07；`systems-index-changelog` **v2.07**。
+
+**不动**：A01 九关（`source='playtest'`，合计 1,809s）；`STAR_TIER_K` / `LEVEL_TIME_MIN/MAX` / `SEC_PER_STEP` / 门禁⑦三值；`contentVersion` 不 bump（沿 T-1065/T-1069 改价先例）。
+
+**验证**：`levels:sync` ✅；`pnpm run verify` **22/24** —— ① `framework:sync:check` 单独复检绿（并发写盘竞态，同 T-1072 判例）；② `test` 8 例红全部为 `ui-golden` 六帧 + `bead-style-seal` 腿 4a/4b，均属并发单 **T-1074**（`back:true` 取消）已在其提交说明登记「金样 5 帧 + S3 基准待按锚重抓」，与本单数值改动无关（金样场景用固定 `simpleTestLevel()`，不读 `LEVELS_DATA`）；其余 1,635 例绿。⛔ 未代抓金样（K-051/K-053）。
+
+**遗留**：tier3 仅 P09 单样本，1.12 仍是先验；`[待 playtest]` 未解除。
