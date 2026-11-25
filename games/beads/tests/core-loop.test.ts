@@ -193,4 +193,22 @@ describe('[WXG-T-1081] 倒计时起跑闸（零输入不计时）', () => {
         harness.advance(1);
         expect(t0 - harness.game.snapshot.remaining, '闸门开 ⇒ 正常走秒').toBeGreaterThan(0.8);
     });
+    it('[WXG-T-1084] 点击珠子抬起（选中）**不算**起跑；真正落下一步才算', () => {
+        // 用户 2026-11-25 细化口径：「倒计时开始是从第一步开始算，点击珠子抬起不算计时」。
+        // ⇒ 闸门置位点由「选中生效」移到「棋盘写入生效」（放置 / 交换 / 取回 tray:stored）。
+        const harness = createBeadsHarness({
+            noAssemble: true,
+            levels: [simpleTestLevel()],
+            saveKey: 'wxgame.beads.test.clock-arm-step',
+            armClock: false,
+        });
+        const slot = harness.game.giveTrayBead(1);
+        expect(slot).toBeGreaterThanOrEqual(0);
+        expect(harness.game.selectTraySlot(slot), '抬起选中成功').toBe(true);
+        const before = harness.game.snapshot.remaining;
+        harness.advance(2);
+        expect(harness.game.snapshot.remaining, '⛔ 抬起 2 秒后时钟不得走动').toBeCloseTo(before, 1);
+        // 「真正落一步后起跑」由 `armClockOnStart` 那条腿覆盖（闸门打开即按 dt 走秒）；
+        // 本条只钉用户口径里新加的那半句：**抬起不算计时**。
+    });
 });

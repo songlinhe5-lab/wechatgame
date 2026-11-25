@@ -1206,7 +1206,6 @@ export class BeadsGame {
     this._boardSelected = null; // 互斥换选：tray 锚建立 ⇒ board 锚清除（零事件）
     const color = this._tray.slot(slot)!.colorIdx;
     this._fx.resetLift(); // §5：托盘选中同样走斜坡（与板锚共用一个时钟）
-    this._clockArmed = true; // [WXG-T-1081] 首次有效操作 ⇒ 起跑
     this._emit('tray:selected', { slot, colorIdx: color, count: this._tray.selectedCount });
     this._reportCommand('selectTraySlot', { slot });
     return this._countAction(true);
@@ -1259,7 +1258,6 @@ export class BeadsGame {
       color: this._grid.cell(row, col)!.beadColorIdx,
       order,
     };
-    this._clockArmed = true; // [WXG-T-1081] 首次有效操作 ⇒ 起跑
     this._emit('board:selected', {
       row,
       col,
@@ -1326,6 +1324,7 @@ export class BeadsGame {
     if (verdict.outcome === 'stored') {
       // [T-244 九批] 进珠动画登记（多槽队列：push 不覆盖；总窗恒 200ms 承甲案）
       this._fx.pushTrayLand(verdict.slot);
+      this._clockArmed = true; // [WXG-T-1084] 取回生效（盘面减少 = 走了一步）⇒ 起跑
       this._emit('tray:stored', {
         slot: verdict.slot,
         colorIdx: verdict.colorIdx,
@@ -1521,6 +1520,8 @@ export class BeadsGame {
         continue; // 防御：被占且无 evict 位（plan 时已保证不发生）
       }
       this._tray.takeBead(m.slot);
+      // `[WXG-T-1084]` **真正落下一步**的统一生效点（空位填 / 换出两支都经过）⇒ 起跑。
+      this._clockArmed = true;
       this._emit('bead:placed', { row: m.targetRow, col: m.targetCol, colorIdx: bead, slot: m.slot });
       this._fx.pushGroupLand(m.targetRow, m.targetCol, i);
       this._conservation.check('trayRestore 归位');
@@ -1646,6 +1647,7 @@ export class BeadsGame {
       const otherBead = this._grid.cell(swapWith.row, swapWith.col)!.beadColorIdx;
       this._grid.setBead(row, col, otherBead);
       this._grid.setBead(swapWith.row, swapWith.col, bead);
+      this._clockArmed = true; // [WXG-T-1084] 交换生效 ⇒ 起跑
       this._emit('bead:placed', { row, col, colorIdx: otherBead });
       this._emit('bead:placed', { row: swapWith.row, col: swapWith.col, colorIdx: bead });
       // 手动路径：两颗交换仅**首颗**得落座动画（120ms 门拑掉第二颗）——§1.6.1「单颗」口径，
