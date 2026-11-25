@@ -12833,3 +12833,21 @@ __motion.report()     // 把这一行贴回来
 - 输入事件在真机的到达率本身可能低于刷新率（触屏采样 / 微信 worker 分发），
   若 report 显示 `refresh-halved` 但零步帧占比明显低于「刷新率比」，则卡顿上限来自**事件率**而非累加器，
   那时候的修法要转向事件合流（coalesced events）而不是插值 ⇒ 同样等读数再定。
+
+**⑥ 更正与追补（同单，用户回报「56352 跑不起来 app」并贴出同一行日志）**
+确诊（用户日志与我拉取的全量预览日志一致）：`loadAndExec END` 之后立刻抛 `Error: plugin:cocos/2d.js (SystemJS https://git.io/JvFET#2)`，
+而产物 `game.json` 声明 `plugins.cocos = { version: 3.8.8, provider: wx0446ba2621dda60a }`
+⇒ **wechatgame 产物走「Cocos 引擎分离插件」，引擎不在包内**；浏览器预览环境没有该插件 ⇒ 引擎模块加载失败 ⇒ Cocos 主循环从未启动
+⇒ 我埋的 `[MOTION]`（按第 420 帧自动上报）永远不会触发。**上一轮把原因归给「内嵌视图 hidden 导致 RAF 节流」是误判**（节流本身成立，但不是本因），正式更正。
+
+**已打通的两条能跑的入口**
+1. **Cocos 真实渲染层（web-mobile 产物）**：`pnpm --filter ./games/beads run build:cocos:web`（75.6s）→ `games/beads/cocos/build/web-mobile`；
+   已核该产物**不含任何 `plugin:cocos` 引用** ⇒ 无插件依赖；`[MOTION]` 确认在 `web-mobile/assets/main/index.js` 内；
+   已用 `python3 -m http.server 4179` 起服务，入口 **http://127.0.0.1:4179/**（Python 3.13 `.wasm → application/wasm` 映射正常，无 MIME 坑）。
+   这条与微信宿主同为 Cocos 层序语义 ⇒ 既能采帧节奏，也可顺带目测 WXG-T-1074「底槽面板盖住槽」回归是否在 Cocos 层显形。
+   ⚠ 构建脚本自己的告警照抄：web 产物**不是微信运行时**（无 `wx.*`），只用于验证渲染 / 手感 / 性能档位，不代表微信兼容性。
+2. **浏览器 harness（Canvas2D）**：`node tools/scripts/serve-harness.mjs --port 4178` 已起，入口 **http://localhost:4178/?game=beads**
+   （⛔ 不带 `?game=beads` 会进 breakout）；这条额外有相机位移列（读 `_board.camera.offsetX`）。
+
+**仍未打通的**：微信真机 / 开发者工具那条需 (a) 公众平台「第三方设置 → 插件管理」添加 Cocos 引擎官方插件（provider `wx0446ba2621dda60a`）
++ 已配 AppID 与上传密钥的工具（本仓库缺 AppID/密钥，资质未开通），或 (b) 引擎内置档的 wechatgame 产物（`tools/scripts/build-cocos.mjs` 未见现成开关，待查证）。
