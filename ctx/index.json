@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4341,
       "lines": 143,
-      "sha256": "bafa8c003ec6ad34d974f5d66156da97efa8fd22c3c84291db8a826cd8b7a1df",
+      "sha256": "8eb2a65ce9c9994257a8f25cb80fef1e8d8f54f1b8c213e000985a83b37a96cf",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 407,
-          "summary": "1 production/TASKS-DETAIL.md 409485 12870 normal",
+          "summary": "1 production/TASKS-DETAIL.md 410245 12896 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5209,
       "lines": 159,
-      "sha256": "ed40c96bc5f48220b50265086df3b521c3516332fc3ae7ea96720efbf42d2f1c",
+      "sha256": "65b06b422df864ec5fcd13b27916bf253093eec21260b9da22bb1631f88c2f87",
       "tier": "normal",
       "sections": [
         {
@@ -761,12 +761,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 380 行 / 120114 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 381 行 / 120427 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+381 · §待排（backlog，无号，立项时领取…=351+31",
+          "summary": "§WXG 任务台账（SSOT）=1+382 · §待排（backlog，无号，立项时领取…=352+31",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1080,12 +1080,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 12870 行 / 409485 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 12896 行 / 410245 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
           "tokens": 130,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+12871 · §WXG-T-1067=12464+32 · §WXG-",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+12897 · §WXG-T-1068=12496+68 · §WXG-",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -40410,17 +40410,17 @@
     },
     {
       "path": "games/beads/design/levels/levels-spec.md",
-      "tokens": 43553,
-      "lines": 953,
-      "sha256": "dc97511e087873e61a9bf7d6efb3536c6ae98a497ddd115feca8719cc5916e26",
+      "tokens": 43675,
+      "lines": 955,
+      "sha256": "8ea313624f6d9734b2f8aeb17bb7281153475d7840572ed181554a3d51d6cf41",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§关卡数据规范（Levels Spec）· beads",
           "level": 1,
           "startLine": 1,
-          "endLine": 954,
-          "tokens": 43539,
+          "endLine": 956,
+          "tokens": 43661,
           "summary": "项目：games/beads（拼豆错位归位）· 版本 v1.24 · 任务号 WXG-T-975（v1.24 = B 全",
           "keywords": [
             "Levels",
@@ -40555,8 +40555,8 @@
           "anchor": "§5 难度与时长预估（**v1.4 实测口径**，2026-09-21；公式 v0.2 = 真引擎实测点击数 × `SEC_PER_TAP`；**v0.3 起 `time` 正源 = 逐关人工实测 `t_act`；v0.4 起自变量 = BAC 批量动作数 × `SEC_PER_STEP`；v0.5 起定价基准档 = 2★；v0.6 起步数量纲换代（`ACB` 序，单价 4.14）；v0.8 单价 3.0；v0.9 起定价步数取 24 槽（§3.5 v2.03）；**v1.0 起自变量 = 实测点击数 × 按四档难度的秒/点击**；**v1.1 起四档斜率按 A01 九关实测整体回调**，本公式仅作新关先验**，见 §5.0 版本表）",
           "level": 2,
           "startLine": 294,
-          "endLine": 638,
-          "tokens": 12757,
+          "endLine": 640,
+          "tokens": 12879,
           "summary": "重推前提（WXG-T-130 案 A）：核心循环 = 「错位归位」，玩家只处理错位珠；定时供料不存在。",
           "keywords": [
             "SEC_PER_TAP",
@@ -40571,8 +40571,8 @@
           "anchor": "§5.0 难度估算公式（正本；实现 = `level-import.ts measuredLevelTimeByTaps`（v1.0；旧 `measuredLevelTime` 仅供静态兜底），**全仓唯一**）",
           "level": 3,
           "startLine": 298,
-          "endLine": 400,
-          "tokens": 2551,
+          "endLine": 402,
+          "tokens": 2673,
           "summary": "",
           "keywords": [
             "measuredLevelTime",
@@ -40586,8 +40586,8 @@
         {
           "anchor": "§5.0.1 校准协议（「不断优化」的机制）",
           "level": 3,
-          "startLine": 401,
-          "endLine": 482,
+          "startLine": 403,
+          "endLine": 484,
           "tokens": 5485,
           "summary": "公式版本化演进，不静默改数：",
           "keywords": [
@@ -40599,8 +40599,8 @@
         {
           "anchor": "§5.0.2 动作数区间与定价溯源（**dev-only**，WXG-T-203 续作 2026-09-23）",
           "level": 3,
-          "startLine": 483,
-          "endLine": 523,
+          "startLine": 485,
+          "endLine": 525,
           "tokens": 839,
           "summary": "为何要落盘：v0.2 把 time = taps × SEC_PER_TAP 算完就扔 taps，导致 time 成为孤",
           "keywords": [
@@ -40615,8 +40615,8 @@
         {
           "anchor": "§5.0.3 关卡数据不做客户端加密（威胁模型登记，WXG-T-203 续作）",
           "level": 3,
-          "startLine": 524,
-          "endLine": 535,
+          "startLine": 526,
+          "endLine": 537,
           "tokens": 331,
           "summary": "结论：客户端加解密不实现，已评估并否推。理由：密钥必须在包内（否则运行期解不开）⇒ unzip 搜密钥",
           "keywords": [
@@ -40631,8 +40631,8 @@
         {
           "anchor": "§5.0.4 星级时间规划表（现池基线 · 体验后迭代）",
           "level": 3,
-          "startLine": 536,
-          "endLine": 612,
+          "startLine": 538,
+          "endLine": 614,
           "tokens": 1932,
           "summary": "定性：本表 = 2026-11-22 24 槽重定价基线（SEC_PER_STEP=3.0 / ACB 序 / 定价档 ",
           "keywords": [
@@ -40646,8 +40646,8 @@
         {
           "anchor": "§5.1 尾盘满槽（GAP-06）交叉校验 —— ⛔ v1.2 整体作废（WXG-T-130 案 A）",
           "level": 3,
-          "startLine": 613,
-          "endLine": 638,
+          "startLine": 615,
+          "endLine": 640,
           "tokens": 1409,
           "summary": "⛔ 作废声明：本节全部前提（定时供料、供料冗余、满槽跳供、死珠棘轮）随供料关停消失——托盘珠唯一来源是玩家取回、必有可周",
           "keywords": [
@@ -40661,8 +40661,8 @@
         {
           "anchor": "§6 布局可视化（图例：`·`=空位　`▓`=锁定 x　`1`–`8`=色板索引对应色；〔**§3.2 v1.55 生效**：图例可扩展到 **`1`–`9`、`A`–`Z` = 索引 1–35**，但 ① 索引 >10 无 demo 色、必须携品牌引用（§1 色板对照注）② **本文历史图例仍只到 8 色，不因本变更追溯重写**〕）",
           "level": 2,
-          "startLine": 639,
-          "endLine": 728,
+          "startLine": 641,
+          "endLine": 730,
           "tokens": 640,
           "summary": "",
           "keywords": [
@@ -40677,8 +40677,8 @@
         {
           "anchor": "§L1 暖心（6×5）",
           "level": 3,
-          "startLine": 641,
-          "endLine": 648,
+          "startLine": 643,
+          "endLine": 650,
           "tokens": 27,
           "summary": "",
           "keywords": [
@@ -40688,8 +40688,8 @@
         {
           "anchor": "§L2 小屋（8×6）",
           "level": 3,
-          "startLine": 649,
-          "endLine": 657,
+          "startLine": 651,
+          "endLine": 659,
           "tokens": 43,
           "summary": "",
           "keywords": [
@@ -40699,8 +40699,8 @@
         {
           "anchor": "§L3 摆尾小鱼（9×6）",
           "level": 3,
-          "startLine": 658,
-          "endLine": 666,
+          "startLine": 660,
+          "endLine": 668,
           "tokens": 41,
           "summary": "",
           "keywords": [
@@ -40710,8 +40710,8 @@
         {
           "anchor": "§L4 结果的树（10×7）",
           "level": 3,
-          "startLine": 667,
-          "endLine": 676,
+          "startLine": 669,
+          "endLine": 678,
           "tokens": 56,
           "summary": "",
           "keywords": [
@@ -40721,8 +40721,8 @@
         {
           "anchor": "§L5 猫脸（11×8）",
           "level": 3,
-          "startLine": 677,
-          "endLine": 687,
+          "startLine": 679,
+          "endLine": 689,
           "tokens": 81,
           "summary": "",
           "keywords": [
@@ -40732,8 +40732,8 @@
         {
           "anchor": "§L6 顺风帆船（12×9）",
           "level": 3,
-          "startLine": 688,
-          "endLine": 699,
+          "startLine": 690,
+          "endLine": 701,
           "tokens": 101,
           "summary": "",
           "keywords": [
@@ -40743,8 +40743,8 @@
         {
           "anchor": "§L7 升空热气球（13×10）",
           "level": 3,
-          "startLine": 700,
-          "endLine": 712,
+          "startLine": 702,
+          "endLine": 714,
           "tokens": 99,
           "summary": "",
           "keywords": [
@@ -40754,8 +40754,8 @@
         {
           "anchor": "§L8 星际火箭（13×12）",
           "level": 3,
-          "startLine": 713,
-          "endLine": 728,
+          "startLine": 715,
+          "endLine": 730,
           "tokens": 124,
           "summary": "",
           "keywords": [
@@ -40765,8 +40765,8 @@
         {
           "anchor": "§7 关卡设计约束（新增关卡必须遵守）",
           "level": 2,
-          "startLine": 729,
-          "endLine": 739,
+          "startLine": 731,
+          "endLine": 741,
           "tokens": 531,
           "summary": "1. 字符集限定 BEAD_CHARSET=\".x1-9A-Z\"（§3.2 v1.55 生效，旧值 .x1-9A），其余",
           "keywords": [
@@ -40780,8 +40780,8 @@
         {
           "anchor": "§8 校验分工",
           "level": 2,
-          "startLine": 740,
-          "endLine": 743,
+          "startLine": 742,
+          "endLine": 745,
           "tokens": 128,
           "summary": "与 breakout 判例一致（breakout levels-spec.md §5.1）：结构校验（字符集/行宽/行数",
           "keywords": [
@@ -40795,8 +40795,8 @@
         {
           "anchor": "§9 冲刺模式（sprint）图案来源",
           "level": 2,
-          "startLine": 744,
-          "endLine": 747,
+          "startLine": 746,
+          "endLine": 749,
           "tokens": 137,
           "summary": "sprint 梯级图案从本文件 8 关图案池循环取用（gdd/score-combo.md §2.3），不另建图案库；梯",
           "keywords": [
@@ -40811,8 +40811,8 @@
         {
           "anchor": "§10 变更记录",
           "level": 2,
-          "startLine": 748,
-          "endLine": 777,
+          "startLine": 750,
+          "endLine": 779,
           "tokens": 9047,
           "summary": "导航注：v1.15 新增的 §11「大关（chapter）配置口径」位于本变更表之后（节号顺接、既有节号不重排）。",
           "keywords": [
@@ -40824,8 +40824,8 @@
         {
           "anchor": "§11 大关（chapter）配置口径（**v1.15 新增** · 任务号 **WXG-T-335-D**）",
           "level": 2,
-          "startLine": 778,
-          "endLine": 954,
+          "startLine": 780,
+          "endLine": 956,
           "tokens": 7034,
           "summary": "裁定记录（2026-10-21，WXG-T-336 落码批）：本节未决 ①②③ 按子单推荐全采纳——① 页头章名落顶部空",
           "keywords": [
@@ -40840,8 +40840,8 @@
         {
           "anchor": "§11.1 玩家可见名的显示矩阵",
           "level": 3,
-          "startLine": 788,
-          "endLine": 807,
+          "startLine": 790,
+          "endLine": 809,
           "tokens": 1055,
           "summary": "名实核对（K-046）：全仓「木牌」只有一处 = 主菜单走马灯橱窗内的名称牌（ui_showcase_plate，绘制 ",
           "keywords": [
@@ -40853,8 +40853,8 @@
         {
           "anchor": "§11.2 chapter 文件里「该进 / 不该进」的策划字段",
           "level": 3,
-          "startLine": 808,
-          "endLine": 850,
+          "startLine": 810,
+          "endLine": 852,
           "tokens": 1741,
           "summary": "唯一判据：一个字段该进 chapter，当且仅当它描述「这组关作为一个内容单位」的语义，且换投放批次 / 换 pack ",
           "keywords": [
@@ -40869,8 +40869,8 @@
         {
           "anchor": "§11.3 空大关「敬请期待」页的语义边界",
           "level": 3,
-          "startLine": 851,
-          "endLine": 875,
+          "startLine": 853,
+          "endLine": 877,
           "tokens": 653,
           "summary": "它是什么：走马灯最后一页，表达「还有大关没投放」。页数恒 = ARC_OPEN_MAX + 1（ui/main-menu",
           "keywords": [
@@ -40885,8 +40885,8 @@
         {
           "anchor": "§11.4 TODO-1 解口径（选关页页头大关名）",
           "level": 3,
-          "startLine": 876,
-          "endLine": 898,
+          "startLine": 878,
+          "endLine": 900,
           "tokens": 941,
           "summary": "结论：显示。数据源 = 当前页大关的 chapter.title（与橱窗木牌同一份内容），由 shell 塞进 View",
           "keywords": [
@@ -40901,8 +40901,8 @@
         {
           "anchor": "§11.5 向后兼容：单关还允许自带展示名吗？",
           "level": 3,
-          "startLine": 899,
-          "endLine": 922,
+          "startLine": 901,
+          "endLine": 924,
           "tokens": 699,
           "summary": "结论：不允许。 玩家可见名的唯一来源 = 所属 chapter 的 title；单关 JSON ⛔ 再写 title（生",
           "keywords": [
@@ -40917,8 +40917,8 @@
         {
           "anchor": "§11.6 验收口径（QA 用 · 6 条，每条可直转用例）",
           "level": 3,
-          "startLine": 923,
-          "endLine": 935,
+          "startLine": 925,
+          "endLine": 937,
           "tokens": 470,
           "summary": "A1 全量扫关卡真源 design/levels/singles/ 与 plates/ 的 \"title\" 0 命中（章",
           "keywords": [
@@ -40933,8 +40933,8 @@
         {
           "anchor": "§11.7 扩池的存档代价：关表变长 = 老档星级全清（v1.21 实测，非推论；**v1.22 起改为前缀搬运，见本节末**）",
           "level": 3,
-          "startLine": 936,
-          "endLine": 954,
+          "startLine": 938,
+          "endLine": 956,
           "tokens": 761,
           "summary": "事实链（本批由单测 R4/R5 意外抓出，非设计意图）：manifest.entries 9 → 10 ⇒ DEMO_L",
           "keywords": [
@@ -94523,17 +94523,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 409485,
-      "lines": 12870,
-      "sha256": "374e765cf12f2ce278abd834a9b88453d327ffedd1d90a933ca4459ad9a6effe",
+      "tokens": 410245,
+      "lines": 12896,
+      "sha256": "7de920d3e8596faa22e98bab94efa107130e7a6605c91fa6b3a00449aca290b0",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 12871,
-          "tokens": 409468,
+          "endLine": 12897,
+          "tokens": 410228,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -112763,22 +112763,36 @@
             "back",
             "CodeBuddy"
           ]
+        },
+        {
+          "anchor": "§WXG-T-1079",
+          "level": 2,
+          "startLine": 12872,
+          "endLine": 12897,
+          "tokens": 756,
+          "summary": "2★ 预算口径放宽（24 槽判据 + 降级告警）· A03-P03 海豚出图（未锁版） · 负责：主理人(Trae CN",
+          "keywords": [
+            "WXG",
+            "A03",
+            "P03",
+            "Trae"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 120114,
-      "lines": 380,
-      "sha256": "c041680a3804fa6123a431dc29e31550deb21af3a669a5c2d540dddb053bebde",
+      "tokens": 120427,
+      "lines": 381,
+      "sha256": "77b5b9da7c4088b6cd09969499d544ed3a394fc09827dbf142221d16da5691c9",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 381,
-          "tokens": 120105,
+          "endLine": 382,
+          "tokens": 120419,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -112791,8 +112805,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 351,
-          "endLine": 381,
+          "startLine": 352,
+          "endLine": 382,
           "tokens": 1571,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [
@@ -128815,17 +128829,17 @@
     },
     {
       "path": "production/qa/token-plan-usage-ledger.md",
-      "tokens": 20318,
-      "lines": 220,
-      "sha256": "37f88babf66785fe9d513e7bb405489fcb413f806eea364a1d359b2378b83594",
+      "tokens": 20526,
+      "lines": 222,
+      "sha256": "e111852ab1ab4c2b44169f30cc39014db315b8c0c6e555b999542fb21eda4bd4",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Token Plan 生图用量台账（建账 2026-11-01）",
           "level": 1,
           "startLine": 1,
-          "endLine": 221,
-          "tokens": 20302,
+          "endLine": 223,
+          "tokens": 20509,
           "summary": "本件只管「花了多少次、出了几张图、留在哪」，是追加型台账（按时间序加行，⛔ 不回改历史行）。",
           "keywords": [
             "Token",
@@ -128923,8 +128937,8 @@
           "anchor": "§6 temp 生图存量（2026-11-01 清理一次，用户令「把 temp 里的生图都清理掉」）",
           "level": 2,
           "startLine": 100,
-          "endLine": 221,
-          "tokens": 14794,
+          "endLine": 223,
+          "tokens": 15001,
           "summary": "清理前 3642 张 / temp 共 2.3 GB",
           "keywords": [
             "temp",

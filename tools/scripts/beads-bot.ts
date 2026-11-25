@@ -178,7 +178,7 @@ function runLeg(
 
 /** 装一盘（生产 BOOT 装配）→ bot 在三档容量上各打到通关 → 实测点击数与时长。 */
 export function measureBoard(raw: BeadsLevelRaw, seed = 'beads-bot'): MeasureResult {
-    // 基础档 = 定价档（§3.5 v1.84：2★ 档要容纳的就是这一档的步数）。
+    // 基础档 = 12 槽读数（定价档是 **24 槽**，§3.5 v2.03；两者都在 stepsByCap 里）。
     const base = runLeg(raw, seed, TRAY_BASE_SLOTS);
     const stepsByCap: Record<number, number> = {};
     for (const cap of TRAY_TIER_SLOTS) {
@@ -201,13 +201,20 @@ export function measureBoard(raw: BeadsLevelRaw, seed = 'beads-bot'): MeasureRes
     // 而 bot 单盘 0.3s，也不需要静态量做早期剪枝。
     if (steps * SEC_PER_STEP > LEVEL_TIME_MAX)
         blockers.push(`实测 ${steps} 个批量动作 × ${SEC_PER_STEP}s = ${Math.round(steps * SEC_PER_STEP)}s > ${LEVEL_TIME_MAX}s（1★ 档内不可能通关）`);
-    // ── 容量-星级自洽判据（§5.0 公式 v0.5 配套，用户 2026-10-25 口径）─────────────
+    // ── 容量-星级自洽判据（§5.0 公式 v1.0 配套，用户 2026-11-25 裁「放宽 2★ 预算口径」）──
     // 钳位关跳过：`tierSecondsFor` 的地板会让档秒数与步数脱钩（同 `assertPricing` 的 clamped 口径）。
     const warnings: string[] = [];
     if (!clamped) {
         const budget2 = tierStepBudget(time, 2);
-        if (steps > budget2)
-            blockers.push(`基础档（${TRAY_BASE_SLOTS} 槽）${steps} 步 > 2★ 档预算 ${budget2} 步 ⇒ 不看广告拿不到 2★（定价应回退到 1★ 基准或减步数）`);
+        // 判据用 **24 槽**（定价档，§3.5 v2.03）：旧实现拿 12 槽 steps 比，与 `level-import.ts`
+        // `tierStepBudget` 头注「steps@24 ⇒ 2★ 可达」相反（T-985 换 24 槽后漏改）。
+        // 放宽（用户 2026-11-25）：2★ 不可达由 blocker 降为 **warning** —— 按点击定价后
+        // 步/预算比 ≈1.5÷斜率，32×32 艺术盘系统性过不去（T-1068）；硬安全由规模闸守着。
+        const steps24 = stepsByCap[24] ?? steps;
+        if (steps24 > budget2)
+            warnings.push(`24 槽最省 ${steps24} 步 > 2★ 档预算 ${budget2} 步 ⇒ 24 槽也拿不到 2★（需 48 槽或回调定价；不拒装）`);
+        else if (steps > budget2)
+            warnings.push(`基础档（${TRAY_BASE_SLOTS} 槽）${steps} 步 > 2★ 档预算 ${budget2} 步；24 槽 ${steps24} 步可达 ⇒ 2★ 需扩槽（不拒装）`);
         const alt = TRAY_TIER_SLOTS.filter((c) => c !== TRAY_BASE_SLOTS);
         const budget3 = tierStepBudget(time, 3, raw.starTierK);
         // `starTierK` = 单关覆盖（§3.7 v1.86）。带了覆盖的关通常把 3★ 压到「容量极限」，
