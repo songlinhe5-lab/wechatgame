@@ -12894,3 +12894,39 @@ __motion.report()     // 把这一行贴回来
 **状态**：P03 v2fix 待用户效果确认（**未锁版**）；A03 章未建、contentVersion 不动。
 
 **遗留**：v2 母版目视仍偏瘦（背鳍块状、眼位偏头顶）；若用户不通过，下一轮优先「程序化重建」而非再抽图（模型两轮均未遵守三条硬约束）。
+
+
+## WXG-T-1080
+**① 背景与根因（承 WXG-T-1076 §③）**
+1076 的取样探针证实：宿主 120 Hz / 帧间隔抖动时，`FixedStepLoop` 出现 0 步子帧；相机 `offsetX/Y`
+只在 `game.update → applyPan` 里推进，所以零步帧里渲染布局不动，而手指已走——「一帧不动、
+下一帧走两倍」。
+
+**② 修法（呈现残余跟随）**
+在 `BeadsGame._syncSnapshot()` 里，`projectSnapshot` 完成后追加 `_applyDragResidual()`：
+- 只在 `tapActive && tapMoved` 时工作；
+- 读 `InputManager.snapshot.dx/dy`（已推入但未被任何固定步消费的屏幕像素差）；
+- 折算到设计坐标（`dx/scale`, `-dy/scale`，同 `boardHeld/applyPan` 口径）；
+- 叠加到 `_snapshot.gridLeft/gridTop`（⛔ 不 mutate `_cam`，满足 L5）；
+- 下一次固定步 `applyPan → _recomputeLayout → projectSnapshot` 覆写回权威值，残差自然归零；
+- 抬手帧 `_applyDragResidual` 早退 ⇒ snapshot 为权威值（不留残影）。
+
+**③ 测试（TDD）**
+新文件 `games/beads/tests/board-drag-follow.test.ts`（3 例）：
+1. **零步帧跟手**：进拖拽后只 push 一条 move、不调 `game.update`，读 `snapshot.gridLeft` ⇒
+   必须比 `before` 小（`before - after > 1`）；
+2. **无新事件无额外位移**：armDrag 后不 push，两次 `drawLeft` 相等；
+3. **抬手归权威**：push move（不消费）→ up frame → 读 `gridLeft` ≈ `gridLayoutFor(cam).left`。
+
+变异验证：摘掉 `_applyDragResidual()` 调用，例 1 当场红。全量 1646 passed，verify 22/22。
+
+**④ 改动面**
+- `games/beads/src/game/beads-game.ts`：`_syncSnapshot` 加 `_applyDragResidual` 调用；新增私有方法（约 +15 行）。
+- `games/beads/tests/board-drag-follow.test.ts`：新文件（91 行）。
+- `games/beads/cocos/assets/scripts/game/game/beads-game.ts`：`framework:sync` 同步拷贝件。
+- `production/TASKS.md`：领号 1078；`production/TASKS-DETAIL.md`：本节。
+
+**⑤ 遗留**
+Cocos 宿主侧 `App._fixedUpdate` 的 `dirtyGate`（WXG-T-248 默认 true）可能在零步帧完全跳过
+`onRender`（签名未变 ⇒ 不重画）。本修法使 `gridLeft` 在零步帧改变，签名跟着变，dirtyGate
+应放行；待真机验证确认无需额外关闭。
