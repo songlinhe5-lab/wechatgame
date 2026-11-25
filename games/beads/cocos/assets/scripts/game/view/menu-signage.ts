@@ -568,10 +568,13 @@ export function drawBeadFace(
         ? yBottom + thumbOutlineWidth(pitch) / 2 + TILE_BLEED
         : yBottom;
     // `'bottom'`：宽盘也把**有墨底缘**贴到 anchorY（`r0 + spanRows` = 末个有墨行的下一格边线）；
-    // `'center'` = 槽内居中。bounds 缺省时与旧口径逐字节等价。
+    // `'center'` = **墨盒**槽内居中 `[WXG-T-1058]`：旧式 `(h + (r0+spanRows)×pitch)/2` 把顶部 `r0` 行
+    // 空边也算进被居中盒 ⇒ 带空边盘（L9 墨 3..26）整盒下移 1 pitch，底缘越槽压星带（用户真机裁
+    // 「boss 关缩略图被下面星星覆盖一点，整体靠下」）；现式 = 槽余量居中分配 + 墨盒落位，与水平腿同构。
+    // bounds 缺省（r0=0、spanRows=rows）时两式逐字节等价 ⇒ 其余八关零漂移。
     const top = anchor === 'bottom'
         ? anchorY + (r0 + spanRows) * pitch
-        : anchorY + (h + (r0 + spanRows) * pitch) / 2;
+        : anchorY + (h - spanRows * pitch) / 2 + (r0 + spanRows) * pitch;
     const inks = inkOverride ?? beadInksFor(level);
     // `[WXG-T-951]` 缩略**不走 tint 臂**（用户 2026-11-15 令「珠面图案 tint 可以省略，看不清楚」）：
     // 不写 `maskGauge` ⇒ `drawFilledBead` 的 tint 分支不命中，珠面/底块一律画矢量刻面，

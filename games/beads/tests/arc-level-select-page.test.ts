@@ -322,4 +322,27 @@ describe('WXG-T-605 · 格内与转场', () => {
         // 墨界 contain-fit ⇒ pitch = 槽高/24 ≈ 4.13，垂直跨度 ≈ 槽高 99；旧名义阵只有 23×3.3 + 块边 ≈ 79。
         expect(maxY - minY, 'L9 缩略垂直铺满槽高（⛔ 名义阵被 30 摊薄）').toBeGreaterThan(a.imageH - 6);
     });
+
+    it('`[WXG-T-1058]` 选关格 flat 缩略垂直居中锚 = **墨盒**（非 0..末行+1 盒）：L9 底缘不越槽、不压星带', () => {
+        // 用户 2026-11-25 真机裁「boss 关缩略图被下面星星覆盖一点，整体靠下」：旧式
+        // `(h + (r0+spanRows)×pitch)/2` 把顶部 3 行空边也算进被居中盒 ⇒ 墨盒整盒下移 1 pitch，
+        // 底行珠心压槽底、底块外延 2.56px 越过 2px 净距盖星带。新式 = 墨盒两轴居中。
+        // ⛔ 只动 'center' 档（详情 'bottom' 档 T-1040 腿零扰动）；墨界=名义阵的八关逐字节不变。
+        const a = LEVEL_SELECT_GEO.cellArt;
+        const b = new RenderModelBuilder(DESIGN_W, DESIGN_H);
+        b.begin();
+        drawBeadFace(b, LEVELS[8]!, 0, 0, a.imageW, a.imageH, DEFAULT_PALETTE, undefined, undefined, undefined, 'center', true);
+        const rects = b.end().commands.filter((c): c is Extract<DrawCommand, { kind: 'rect' }> => c.kind === 'rect');
+        let minY = Infinity;
+        let maxY = -Infinity;
+        for (const r of rects) {
+            if (r.y < minY) minY = r.y;
+            if (r.y + r.h > maxY) maxY = r.y + r.h;
+        }
+        // 星带上沿 = 槽底 − 2（本基准下 y = −2）：底缘最低 = 墨盒底 + 底块 TILE_BLEED 0.5（设计外延，
+        // 恰贴槽底）；旧式下移 1 pitch 时为 −6.6875（越槽 4.7px 盖星带）。
+        expect(minY, 'L9 底缘不越槽（⛔ 墨盒下移 1 pitch 压星带）').toBeGreaterThanOrEqual(-0.5 - 0.001);
+        expect(maxY, 'L9 顶缘与底缘对称（墨盒居中，外延同 = TILE_BLEED）').toBeLessThanOrEqual(a.imageH + 0.5 + 0.001);
+        expect(maxY - minY, '墨界 contain-fit 仍铺满收缩窗（T-1055 放大不回收）').toBeGreaterThan(a.imageH - 6);
+    });
 });

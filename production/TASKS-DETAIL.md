@@ -12297,3 +12297,17 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 **边界**：A03 章未建 ⇒ 只出母版/样张与盘面读数，⛔ 不落 singles / levels-data、不改 contentVersion；⛔ 不伪造编辑器产物；v4 中间产物已删，v1/v2 母版、48/40 弃档、v3 与海面版留档。
 
 **证据**：批目录 `games/beads/design/art/proposals/levels-20arcs-selection-20261117/A03-P09-whaleking/`（design-plan.md、generation-record.txt、build-a03p09-42.py、studio-full-response-v2-g42v5-42-c0.json、v5-g42-pattern.txt、a03p09-v2-g42v5-max-42-c0-beads-plain.png）；`series-spec.md` §4 末条 42 档读数；`production/qa/token-plan-usage-ledger.md` 五追裁行。
+
+## WXG-T-1058
+
+**名称**：选关格缩略垂直居中锚改墨盒（boss 关 L9 不压星带）
+
+**触发**：用户 2026-11-25 真机截图裁「boss关缩略图被下面星星覆盖一点，整体靠下，看看问题在哪里」；选项 1 拍板。
+
+**撞号披露**：原拟 1057 已被并发 Trae CN 会话（A03-P09 鲸之王母版 v5，05f0b4c1 入库）占用 ⇒ K-046 改判 1058。
+
+**根因**（读数实锤）：`drawBeadFace` `'center'` 档垂直居中式 `(h + (r0+spanRows)×pitch)/2` 把顶部 `r0` 行空边也算进被居中盒（水平腿已是墨盒锚，竖腿漏 `−r0×pitch`）⇒ 带空边盘整盒下移 1 pitch：L9 底行珠心压槽底、底缘（含 TILE_BLEED 0.5）越槽 4.7px 盖星带上沿（星上沿 = 槽底 − 2）；探针实读最低图元 y = −6.6875。八关墨界=名义阵（r0=0）两式等价⇒只有 boss 关显眼。
+
+**修法**（一行公式，同水平腿构）：现式 `anchorY + (h − spanRows×pitch)/2 + (r0+spanRows)×pitch` = 槽余量居中分配 + 墨盒落位；⛔ 只动 'center' 档（详情 'bottom' 档 T-1040 抬升腿零扰动）；bounds 缺省逐字节等价。
+
+**验证 / 取证**：TDD 先红后绿（新例钉「底缘不越槽（允许 TILE_BLEED）+ 顶缘对称 + 跨度仍铺满」，改前红读数 −6.6875）；定向 81/81；typecheck 零错；全量仅 ui-golden `level-select` 两帧预期漂移⇒按本单代码锚 worktree 重抓（两遍确定性自证）；§12 视觉变更登记；镜像同步；verify 24/24。
