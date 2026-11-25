@@ -216,3 +216,57 @@ export function judgeMotionJudder(frames: readonly MotionFrame[]): MotionJudder 
   if (dtCv > 0.05 && multiStepFrames >= 2) return { verdict: 'accumulator-jitter', ...base };
   return { verdict: 'smooth', ...base };
 }
+
+// ── [WXG-T-1077] 宿主接线片：把 recorder 挂到 App 的每帧钩子上 ──────────────
+//
+// 放在 core 而不是各 adapter，是为了让 **Cocos 宿主 / 微信真机 / 浏览器 harness**
+// 共用同一条取样口径（同一判据表，⛔ 各写一遍统计）。本文件只依赖结构类型，
+// 不 import `compose/app.js`（方向：compose → core，不许反向）。
+
+/** 接线片所需的最小宿主面（`App` 结构满足；测试可用假对象）。 */
+export interface MotionProbeHost {
+  motionProbe: ((dtMs: number, steps: number, drew: boolean) => void) | null;
+}
+
+export interface MotionProbeOptions {
+  /** 环形容量，默认 600 帧。 */
+  readonly capacity?: number;
+  /** 被跟踪位置（如棋盘相机 offsetX）；不传 ⇒ 位移列恒 0，节奏三列照常判。 */
+  readonly readPos?: () => number;
+  /** 采到该帧数自动打一行读数（真机远程日志可直接 grep），只打一次。 */
+  readonly autoReportFrames?: number;
+  /** 输出道子；不传 ⇒ 即使设了 `autoReportFrames` 也不自动打（core ⛔ 塞 console）。 */
+  readonly log?: (line: string) => void;
+}
+
+export interface MotionProbe {
+  /** 是否已自动打过读数。 */
+  readonly reported: boolean;
+  frames(): readonly MotionFrame[];
+  report(): string;
+  /** 摘钩（此后热路径不再回调）。 */
+  stop(): void;
+}
+
+export function armMotionProbe(host: MotionProbeHost, options: MotionProbeOptions = {}): MotionProbe {
+  const rec = new MotionRecorder(options.capacity ?? 600);
+  const readPos = options.readPos ?? (() => 0);
+  const auto = options.autoReportFrames && options.autoReportFrames > 0 ? options.autoReportFrames : 0;
+  const log = options.log;
+  let seen = 0;
+  let fired = false;
+  host.motionProbe = (dtMs: number, steps: number, drew: boolean): void => {
+    rec.frame(dtMs, steps, drew, readPos());
+    seen += 1;
+    if (auto > 0 && !fired && log && seen >= auto) {
+      fired = true;
+      log(rec.report());
+    }
+  };
+  return {
+    get reported(): boolean { return fired; },
+    frames: (): readonly MotionFrame[] => rec.frames(),
+    report: (): string => rec.report(),
+    stop: (): void => { host.motionProbe = null; },
+  };
+}

@@ -38,6 +38,7 @@ import {
 
 import { App } from '../../compose/app.js';
 import type { Game } from '../../core/game/game.js';
+import { armMotionProbe } from '../../core/performance/performance.js';
 import { CocosRenderModelRenderer, parseColorLiteral } from './cocos-renderer.js';
 import type { CocosBlitCarrierLike, CocosClipHostLike } from './cocos-renderer.js';
 import { CocosInputBridge } from './input-bridge.js';
@@ -176,6 +177,28 @@ export class Bootstrap extends Component {
 
     app.onRender = (model) => {
       this._renderer?.draw(model);
+    };
+
+    // `[WXG-T-1077]` 运动节奏取样（真机 / 开发者工具侧）。⚠ 本层拿不到棋盘相机
+    // （framework 不 import 游戏）⇒ 位移列恒 0，但 dtMs / steps / drew 三列已足以分辨
+    // refresh-halved 与 accumulator-jitter；要位移列就在浏览器 harness 里采（有相机口）。
+    // 用法（真机远程日志 / 工具控制台）：__motion.start() → 匀速拖 1~2s → __motion.report()。
+    const motionProbe = armMotionProbe(app, {
+      capacity: 600,
+      // 自动落一行到日志，省得必须接上调试器才能拿到数（帧数 = 约 3.5s @120Hz / 7s @60Hz）。
+      autoReportFrames: 420,
+      log: (line): void => {
+        // eslint-disable-next-line no-console
+        console.log(`[MOTION] ${line}`);
+      },
+    });
+    // 与浏览器 harness 的 `__motion` 同形（那边要手动 start，这边开机即采 ⇒ start 为空操作），
+    // ⛔ 两处 API 不一样，否则采数的人按同一套动作会拿到「未 start」的空读数。
+    (globalThis as Record<string, unknown>).__motion = {
+      start: (): void => {},
+      stop: (): void => motionProbe.stop(),
+      report: (): string => motionProbe.report(),
+      frames: (): unknown => motionProbe.frames(),
     };
 
     this._app = app;

@@ -332,4 +332,5 @@
 | K-223 | 流程门禁 | process-gate | 人工实测时长回流定价要锚 | WXG-T-1069 | 2026-11-25 | 0 | active |
 | K-224 | 流程台账协作 | process-ledger-sync | 共享工作树里对台账文件做整文件 `git add`，会把并发会话刚写好的行与详情节一起替它提交 | WXG-T-1068 | 2026-11-25 | 0 | active |
 | K-225 | 判据实测取证 | criteria-measure-evidence | 性能面板「帧耗时稳定」不能证伪卡顿——耗时量的是每帧成本，卡顿感来自位移在时间轴上的分布 | WXG-T-1076 | 2026-11-25 | 0 | active |
+| K-226 | 测试守卫 | testing-guard | 在嵌入式/后台浏览器里跑帧节奏类取样，拿不到读数不是「仪表坏了」——hidden 页面的 RAF 被节流到近 0fps | WXG-T-1077 | 2026-11-25 | 0 | active |
 <!-- kb:active:end -->

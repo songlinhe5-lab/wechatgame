@@ -12791,3 +12791,45 @@ __motion.report()     // 把这一行贴回来
 **⑦ 真机接线（待用户点头，未落地）**
 `App.motionProbe` 是通用钩子，真机只需在 `adapters/cocos/bindings.ts` 的 `launch()` 里加三行
 （懒构 `MotionRecorder` + 接线 + 把 `report()` 打到 console）。⛔ 未擅自改该件（发布面 adapter，且并发会话在动）。
+
+## WXG-T-1077
+
+**真机侧运动节奏仪表接线（承 WXG-T-1076 的取样腿；用户拍板「先接真机仪表再定修法」，2026-11-25）**
+
+**① 为什么先接仪表而不是直接改**
+上一轮已把根因定位到「位移只在固定步推进 + 渲染层丢弃插值系数 + 脏帧门跳过干净帧」，但**现场属于哪一种工况**
+（120Hz 屏减半呈现 / 帧间隔抖动 / 真掉帧）没有读数。修法路线随工况不同代价差别很大 ⇒ 用户选「先采数」。
+
+**② 落地的三件**
+- `packages/framework/src/core/performance/performance.ts`：新增宿主接线片 `armMotionProbe(host, opts)`
+  （+ `MotionProbeHost` / `MotionProbeOptions` / `MotionProbe`）。放 core 的理由：
+  **Cocos 宿主、微信真机、浏览器 harness 共用同一条取样与判据口径**，⛔ 各写一遍统计；
+  只依赖结构类型，不 import `compose/app.js`（依赖方向 compose → core 不许反向）。
+  `log` 由调用方给 ⇒ core 里不塞 console。
+- `packages/framework/src/adapters/cocos/bindings.ts`：`launch()` 里挂全局 `__motion`，
+  **开机即采**（环形 600 帧 ⇒ `report()` 永远描述最近这几帧，所以「先拖再 report」天然取到拖动段），
+  并在第 420 帧自动 `console.log('[MOTION] …')` 一行 ⇒ 远程日志可直接 grep，不必接调试器。
+  暴露形状与 harness 对齐（`start/report/frames/stop`，这里 `start()` 是空操作）。
+- `framework:sync` 已把两处拷贝件同步（beads / breakout 两侧）。
+
+**③ 测试与验证**
+- 新增 `packages/framework/tests/core/motion-probe.test.ts` 5 例：每帧被记 / `readPos` 决定位移列（不给则恒 0 仍可判）/
+  到 `autoReportFrames` 只打一行 / `stop()` 后钩子归 null 且不再增长 / 未挂探针时零调用。
+  **变异验证**：把 `host.motionProbe = …` 赋值摘掉 ⇒ 当场 3 红；还原 ⇒ 5 绿。
+- `pnpm run verify` **24/24 PASS**（含类型检查，bindings 这条腿编译通过）。
+
+**④ 采数操作法（等一次可跑的构建）**
+1. 构建 `pnpm run build:cocos`（⚠ 当前 `games/beads/build/wechatgame/` 不存在 ⇒ 本单未能取到现场读数；
+   这是环境阻塞，解除条件 = 构建产物存在）。
+2. 微信开发者工具打开该产物并进对局页（或 `real_device_preview` 扫码上真机）。
+3. 在珠面/盘面上**匀速拖 1~2 秒（中途别停）**，随后在控制台执行 `__motion.report()`；
+   若没接调试器，就等启动后约 3.5~7 秒自动打进日志的那行 `[MOTION] …`（拖动段靠环形缓冲覆盖，拖完立刻 report 更准）。
+4. 把那一行贴回来。判定表（WXG-T-1076 §③）出口：`refresh-halved` / `accumulator-jitter` / `stall` / `smooth`。
+   `smooth` ⇒ 说明本假设被否，需换假因（LOD 档切换、逐帧重建几何、或输入事件本身只按 60Hz 到达）。
+
+**⑤ 已知边界（如实登记）**
+- adapter 层拿不到棋盘相机（framework ⛔ import 游戏）⇒ 真机这条腿的**位移列恒 0**；
+  位移不均度改由浏览器 harness 采（那边读 `_board.camera.offsetX`）。
+- 输入事件在真机的到达率本身可能低于刷新率（触屏采样 / 微信 worker 分发），
+  若 report 显示 `refresh-halved` 但零步帧占比明显低于「刷新率比」，则卡顿上限来自**事件率**而非累加器，
+  那时候的修法要转向事件合流（coalesced events）而不是插值 ⇒ 同样等读数再定。
