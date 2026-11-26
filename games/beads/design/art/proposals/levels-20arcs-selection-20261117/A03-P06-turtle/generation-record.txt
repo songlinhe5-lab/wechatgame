@@ -44,3 +44,15 @@ studio-full-response-v1fix2-max-32-c0.json；脚本 fix-a03p06-v1.py、../probe-
 - 结果：a03p06-v1fix4-s42-rgba.png ⇒ importable=true、4 色、F=0、N=311、steps 68、time 163s、
   tier 2、tiny 0；色占比 奶白 35.0 / 湖蓝 32.2 / 赭棕 30.2 / 炭黑 2.6（G12 达标）。
 - ⚠ 锁定件由 v1fix2 更新为 **v1fix4**（壳面环状），v1fix2 仅留档。
+
+【2026-11-26 · 盘面 32→27×27（章内难度倒挂整改，0 调用）】
+- 动因：P06 tier 2 夹在 P05/P07 tier 1 之间（入关清单核对），需落 tier 1；用户令用
+  「颜色数 + 珠面基数（10–64）」两轴调档，不改章内顺序。
+- 候选链（同母版 a03p06-v1fix4-s42-rgba.png）：30×30 N=328→tier2；29×29 N=300→tier2；
+  28×28 N=270 但 G 比 1.22<1.25 ⇒ 降至 tier0（弃）；**27×27 N=271、G 比 1.35 ⇒ tier 1（锁）**。
+- 终值（27×27）：importable=true、blockers=[]、4 色、F=0（M=271/271）、N=271、steps 52、
+  taps 140、time 148s、tier 1（中等，secPerTap 0.89）、colorError 21.4、tinyCells 0。
+- 色占比：湖蓝 33.2 / 奶白 32.8 / 赭棕 29.5 / 炭黑 4.4（G12 达标）；龟壳同心环保留。
+- 产物：studio-full-response-a03p06-v1fix4-g27-max-27-c0.json、a03p06-v1fix4-g27-max-27-c0-beads-plain.png；
+  候选 g28/g29/g30-* 留档（未锁）。
+- ⚠ 锁定件更新为 **v1fix4 母版 + g27 珠面**；32×32 读数（N=311/steps 68/time 163）退为历史口径。

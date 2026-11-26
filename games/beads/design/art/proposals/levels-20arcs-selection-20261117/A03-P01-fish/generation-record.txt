@@ -34,4 +34,17 @@ studio-full-response-v2-max-32-c0.json、studio-full-response-v2fix-max-32-c0.js
 studio-full-verify-{v2,v2fix}-max-32-c0.json；a03p01-{v2,v2fix}-max-32-c0-beads-plain.png；
 脚本 ../studio-a03.py、../fix-a03p01-v2.py。
 
-【状态】待用户效果确认；未锁版、未建章、不改 contentVersion。
+【2026-11-26 · 盘面 32→28×28（章内难度倒挂整改，0 调用）】
+- 动因：A03 入关清单核对发现章首倒挂（P01 tier 1 压在 P02/P03 tier 0 前）；用户令用
+  「颜色数 + 珠面基数（10–64）」两轴调档，不改章内顺序。
+- 候选链（同母版 a03p01-v2fix-s42-rgba.png 重量化）：24×24 ⇒ tier 0 但尾鳍碎成孤立点（弃）；
+  **28×28 ⇒ tier 0 且尾鳍成片（锁）**。
+- 终值（28×28）：importable=true、blockers=[]、4 色、F=0（M=269/269）、N=269、steps 56、
+  taps 112、time 105s、tier 0（简单，secPerTap 0.79）、colorError 28.1、tinyCells 0。
+- 色占比：奶白 34.6 / 丁香紫 34.2 / 湖蓝 27.5 / 炭黑 3.7（G12 全达标）。
+- 产物：studio-full-response-a03p01-v2fix-g28-max-28-c0.json、a03p01-v2fix-g28-max-28-c0-beads-plain.png；
+  候选 a03p01-v2fix-g24-*（弃，留档）。
+
+【状态】✅ **已锁版（用户 2026-11-26 确认按新尺寸定稿）**；锁定件 = 母版 `a03p01-v2fix-s42-rgba.png`
++ 珠面 `a03p01-v2fix-g28-max-28-c0-beads-plain.png`；32×32 版 v2fix 读数（N=344/steps 58/time 205）
+不再作入关口径、仅留档；未入关、未进 final/，A03 章未建 ⇒ 不落库、不改 contentVersion。
