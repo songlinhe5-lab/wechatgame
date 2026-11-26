@@ -13080,3 +13080,23 @@ const onBoard = playing && y >= PUZZLE_BAND.yMin && y <= PUZZLE_BAND.yMax;
 - ⛔ 仍排除被托盘面板遮住的区域（`_hitGridCell` 内部已按面板矩形返回 null，见 T-1087）。
 
 **验证**：`ui-input-timing` / `tray-hit` / `core-loop` **13/13 通过**；同批修正 `ui-input-timing` 的槽心取样（改为与 `drawTray` 同源含预览行，否则几何错位）。
+
+
+## WXG-T-1090
+
+**相机边界改为「至少 4 格可见」** · 负责：主理人(CodeBuddy)·工程轨 · 状态：🚧 **进行中（2026-11-26）**
+
+用户令：「珠面上下左右拖动时候，边缘限制必须至少展现出 4 格珠子；另外在缩放时候这个限制必须在缩放过程中也要严格限制」，并在被问到与历史裁定冲突时明确选 **A（推翻 v1.66/67/68/69）**。
+
+**旧口径**（v1.66→v1.69 三代）：双条件 AND ——「拖动方向盘缘 ≥ 操作边界」**且**「背向盘缘 ≥ 视口中线」才夹；Y 轴窗口由 `PUZZLE_BAND(560)` 换成「菜单下~托盘上(716)」且上下限不对称（`OP_Y_LO/HI`、`OP_MID_REL`）。
+
+**新口径**：`MIN_VISIBLE_CELLS = 4`，`minVis = 4 × BEAD_PITCH × cam.zoom`；
+- X（全宽对称）：`minOffX = minVis − 750/2 − b.w/2`、`maxOffX = 750/2 − minVis + b.w/2`；
+- Y（可见带 = `PUZZLE_BAND`，以带心为基准）：`minOffY = yMin + minVis − bandMid − b.h/2`、`maxOffY = yMax − minVis − bandMid + b.h/2`；
+- 盘面比「带 + 2×minVis」还窄时两侧条件打架 ⇒ 退化为**居中**（不留可拖余量）。
+
+**缩放过程同样受限**：`applyPan` 与三处缩放路径（`setZoom` / `zoomAtPoint` / `setCameraZoom`）本来都调 `clampCamera` ⇒ 无需新增代码。
+
+**测试口径切换**：删除 5 条被推翻的历史数值断言（v1.66 / v1.68 ×2 / v1.69 / setCameraZoom 重夹），新增一条性质断言 —— 对 `zoom ∈ [MIN, 1, 1.6, MAX]` × 六个拖动方向，断言**可见列数/行数恒 ≥ 4**（容差 1e-6）。
+
+**验证**：相机/布局/循环/命中 **49/49 通过**；`OP_Y_LO/HI`、`OP_MID_REL`、`BAND_MID_Y` 与 `HUD_BAND/TRAY_BAND/BOARD_FIT_MARGIN` 导入随旧窗口一并删除（零死代码）。

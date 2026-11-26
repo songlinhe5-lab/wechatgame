@@ -28,9 +28,6 @@
 import {
   DESIGN_W,
   PUZZLE_BAND,
-  HUD_BAND,
-  TRAY_BAND,
-  BOARD_FIT_MARGIN,
   BEAD_PITCH,
   BEAD_GAP,
   TRAY_PANEL_WIDTH,
@@ -52,10 +49,7 @@ const WINDOW_W = DESIGN_W;
  * 「一点」= 既有留边常量 24，零新冻结。盘仍锚 `PUZZLE_BAND` 心布局（offset=0 不变），
  * 故夹取区间关于新操作中心（832）不对称（带心 840 ≠ 操作心，差 8px 如实入式）。
  */
-const OP_Y_LO = TRAY_BAND.yMax + BOARD_FIT_MARGIN; // 474
-const OP_Y_HI = HUD_BAND.yMin - BOARD_FIT_MARGIN; // 1190
-const BAND_MID_Y = (PUZZLE_BAND.yMin + PUZZLE_BAND.yMax) / 2; // 840 = offset 锚
-const OP_MID_REL = (OP_Y_LO + OP_Y_HI) / 2 - BAND_MID_Y; // −8（操作心相对带心）
+// `[WXG-T-1090]` 旧的「操作心相对带心 −8」随 4 格可见口径作废（v1.66/67/69 窗口已被取代）。
 
 /**
  * The slice of `InputSnapshot` this module reads. Duck-typed so the module does
@@ -204,15 +198,29 @@ export function applyPan(
  * **[七续裁 v1.69]** 纵向窗口换尺：操作边界 = 「菜单下 ~ 托盘上」（`OP_Y_LO/HI`，716 高），
  * 不再用 `PUZZLE_BAND` 的 560；新操作心相对带心偏 −8 ⇒ Y 轴上下限**不对称**（如实）。
  */
+/**
+ * `[WXG-T-1090]` 拖动/缩放边界至少要露出的盘面格数（用户令：上下左右都至少 4 格珠子可见）。
+ */
+export const MIN_VISIBLE_CELLS = 4;
+
 export function clampCamera(cam: BoardCamera, cols: number, rows: number): void {
   cam.zoom = clamp(cam.zoom, CAMERA_ZOOM_MIN, CAMERA_ZOOM_MAX);
   const b = boardPx(cols, rows, cam.zoom);
-  // X 对称窗口不变：双条件 AND ⇒ 取两触发阈值的大者（拖动边触界 / 背向边过中线）
-  const maxOffX = Math.max(b.w, WINDOW_W - b.w) / 2;
-  // Y（v1.69）：+ 方向夹点 = max(拖动边触上界, 背向边过操作心)；− 方向对偶取 min
-  const maxOffY = Math.max(OP_Y_HI - BAND_MID_Y - b.h / 2, OP_MID_REL + b.h / 2);
-  const minOffY = Math.min(OP_Y_LO - BAND_MID_Y + b.h / 2, OP_MID_REL - b.h / 2);
-  cam.offsetX = clamp(cam.offsetX, -maxOffX, maxOffX);
+  // `[WXG-T-1090 · 用户 2026-11-26 令]` **边界 = 盘面任一侧至少保留 `MIN_VISIBLE_CELLS` 格可见**：
+  // 「珠面上下左右拖动时候，边缘限制必须至少展现出 4 格珠子；缩放过程中也要严格限制」。
+  // 推翻 v1.66/67/69 那套「拖动边触操作界 且 背向边过中线」的双条件窗口：口径改为**可见格数**，
+  // 与缩放无关地一致（缩放路径同样走本函数 ⇒ 过程中也严格受限）。
+  const minVis = MIN_VISIBLE_CELLS * BEAD_PITCH * cam.zoom;
+  // X：盘面左/右可见宽度各 ≥ minVis（视口 = 全宽 `WINDOW_W`，对称）。
+  const minOffX = minVis - WINDOW_W / 2 - b.w / 2;
+  const maxOffX = WINDOW_W / 2 - minVis + b.w / 2;
+  // Y：可见带 = `PUZZLE_BAND`（托盘与 HUD 之上），以带中心为基准。
+  const bandMid = (PUZZLE_BAND.yMin + PUZZLE_BAND.yMax) / 2;
+  let minOffY = PUZZLE_BAND.yMin + minVis - bandMid - b.h / 2;
+  let maxOffY = PUZZLE_BAND.yMax - minVis - bandMid + b.h / 2;
+  // 盘面本身比「带 + 2×minVis」还窄时两侧条件会打架 ⇒ 退化为**居中**（不留可拖余量）。
+  if (minOffY > maxOffY) { const mid = (minOffY + maxOffY) / 2; minOffY = mid; maxOffY = mid; }
+  cam.offsetX = clamp(cam.offsetX, minOffX, maxOffX);
   cam.offsetY = clamp(cam.offsetY, minOffY, maxOffY);
 }
 

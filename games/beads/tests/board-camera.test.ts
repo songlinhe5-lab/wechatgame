@@ -206,38 +206,6 @@ describe('applyPinch（issue 2 缩放有界 · §3.3 v1.59 绝对档）', () => 
 });
 
 describe('applyPan + clampCamera（issue 1 能拖 / issue 2 拖不出屏）', () => {
-  it('窄盘（盘 > 视口一半）仍夹在背向盘缘过中线——双条件缺一不夹，拖动边未触界（[v1.68]）', () => {
-    const c = cam();
-    fitCamera(c, SC, SR); // 6×5 → zoom=2.0（宽度钉上钳），盘 380×320
-    applyPan(9999, -9999, c, SC, SR);
-    const bw = (SC * BEAD_PITCH - BEAD_GAP) * c.zoom; // 380 > 750/2 ⇒ 取盘/2分支
-    const bh = (SR * BEAD_PITCH - BEAD_GAP) * c.zoom; // 320 > 560/2 ⇒ 同上
-    expect(c.offsetX).toBeCloseTo(bw / 2, 4);
-    expect(c.offsetY).toBeCloseTo(clampY(bh)[0], 4); // v1.69：下限由新操作窗口定（不对称）
-  });
-  it('窄窄盘（盘 < 视口一半）可拖至拖动方向盘缘顶格操作边界（[v1.68] 旧「盘/2」对窄盘偏严作废）', () => {
-    // 6×5 @0.5 → 95×80：背向边到不了操作心就应先触界 ⇒ 上限 = (窗口−盘)/2 分支
-    const c = cam();
-    c.zoom = 0.5;
-    c.offsetX = 9999;
-    clampCamera(c, SC, SR);
-    expect(c.offsetX).toBeCloseTo((750 - (SC * BEAD_PITCH - BEAD_GAP) * 0.5) / 2, 4); // 327.5
-    c.offsetY = -9999;
-    clampCamera(c, SC, SR);
-    expect(c.offsetY).toBeCloseTo(clampY((SR * BEAD_PITCH - BEAD_GAP) * 0.5)[0], 4); // −326（v1.69 托盘上边界）
-  });
-  it('放大到 board > 视口 → 可平移，上限 = 盘缘至视口中线（[v1.66] 旧「边缘不出视口」作废）', () => {
-    const c = cam();
-    c.zoom = CAMERA_ZOOM_MAX; // 最大放大（绝对档，与盘无关），棋盘远大于视口
-    clampCamera(c, BC, BR);
-    const boardW = (BC * BEAD_PITCH - BEAD_GAP) * c.zoom;
-    const maxOffX = boardW / 2; // v1.66：盘缘至中线 ⇒ 上限 = 半盘宽
-    expect(maxOffX).toBeGreaterThan(0); // 此时确有可平移余量
-    applyPan(999999, 0, c, BC, BR); // 往左猛拖
-    expect(c.offsetX).toBeCloseTo(maxOffX, 4); // 夹在「盘缘 = 中线」，不再多
-    applyPan(-999999, 0, c, BC, BR); // 反向
-    expect(c.offsetX).toBeCloseTo(-maxOffX, 4);
-  });
   it('clampCamera 顺带把越界的 zoom 拉回区间', () => {
     const c: BoardCamera = { zoom: 999, offsetX: 0, offsetY: 0 };
     clampCamera(c, SC, SR);
@@ -286,23 +254,6 @@ describe('zoomAtPoint（低倍点击焦点放大）', () => {
     const after = gridLayoutFor(BIG, BIG, c);
     expect(after.colCenterX(bead.col)).toBeCloseTo(px, 6);
     expect(after.rowCenterY(bead.row)).toBeCloseTo(py, 6);
-  });
-  it('平移上限直检（[v1.69] 新操作窗口）：猛拖 offset 必被夹回不对称区间', () => {
-    // 旧例「焦点补偿越出悬挑区 ⇒ 锁边」的夹具前提随 v1.66 上限放宽而消失
-    // （zoom 0.3→1.0 最大补偿 ≈347，落在新区间内 ⇒ 永不触夹）；
-    // 断言换形为非删（K-036）：改直检上限本身，防「夹取式被改松/改紧」回潮。
-    const c = cam();
-    c.zoom = 1;
-    c.offsetY = 9999;
-    c.offsetX = -9999;
-    clampCamera(c, BIG, BIG);
-    const b = BIG * BEAD_PITCH - BEAD_GAP; // 1022；X > 视口 ⇒ 半盘 511
-    const [yMin, yMax] = clampY(b); // v1.69：+503 / −519（操作心相对带心 −8）
-    expect(c.offsetY).toBeCloseTo(yMax, 4);
-    expect(c.offsetX).toBeCloseTo(-b / 2, 4);
-    c.offsetY = -9999;
-    clampCamera(c, BIG, BIG);
-    expect(c.offsetY).toBeCloseTo(yMin, 4); // 向下拖动边触「托盘上」边界
   });
   it('目标超上限被夹到 CAMERA_ZOOM_MAX', () => {
     const c = cam();
@@ -545,18 +496,30 @@ describe('盘面下方缩放控件：slider ↔ zoom 映射（§3.3 v1.59 绝对
     expect(1).toBeLessThanOrEqual(CAMERA_ZOOM_MAX);
   });
 
-  it('setCameraZoom 走与捏合同一夹取：超上限落回 MAX，并按新尺寸重夹平移', () => {
-    const c = cam();
-    c.offsetX = 2000; // [v1.66] 旧 900 在新上限（半盘 926）内不再触夹 ⇒ 换越界值
-    setCameraZoom(c, 999, COLS, ROWS);
-    expect(c.zoom).toBeCloseTo(CAMERA_ZOOM_MAX, 10);
-    // 夹取上限 = 盘缘至视口中线（[v1.66]）⇒ 与 clampCamera 同口径。
-    // （绝对档 2.0 下 29×29 的 maxOff = 926×2/2 = 926 ⇒ 2000 必被重夹。）
-    clampCamera(c, COLS, ROWS);
-    expect(c.offsetX).toBeLessThan(2000);
-    expect(c.offsetX).toBeCloseTo(
-      (COLS * BEAD_PITCH - BEAD_GAP) * CAMERA_ZOOM_MAX / 2,
-      4,
-    );
+});
+
+describe('[WXG-T-1090] 相机边界 = 至少 4 格可见（拖动与缩放同源）', () => {
+  it('任意方向拖到底 / 任意倍率，盘面在视口与盘面带内的可见格数恒 ≥ 4', () => {
+    // 用户 2026-11-26 令：「珠面上下左右拖动时候，边缘限制必须至少展现出 4 格珠子；
+    // 缩放时候这个限制必须在缩放过程中也要严格限制」。本用例取代 v1.66/67/68/69 的旧窗口断言。
+    const cols = 13, rows = 12;
+    for (const zoom of [CAMERA_ZOOM_MIN, 1, 1.6, CAMERA_ZOOM_MAX]) {
+      for (const [dx, dy] of [[1e4, 0], [-1e4, 0], [0, 1e4], [0, -1e4], [1e4, 1e4], [-1e4, -1e4]]) {
+        const cam = { zoom, offsetX: 0, offsetY: 0 };
+        applyPan(dx, dy, cam, cols, rows);
+        // 盘面尺寸 = 格数 × 格距（与 `boardPx` 同式，避免跨模块依赖）
+        const b = { w: cols * BEAD_PITCH * cam.zoom, h: rows * BEAD_PITCH * cam.zoom };
+        const pitch = BEAD_PITCH * cam.zoom;
+        const left = 750 / 2 + cam.offsetX - b.w / 2; // WINDOW_W = 设计宽 750
+        const right = 750 / 2 + cam.offsetX + b.w / 2;
+        const visW = Math.min(right, 750) - Math.max(left, 0);
+        const bandMid = (PUZZLE_BAND.yMin + PUZZLE_BAND.yMax) / 2;
+        const bottom = bandMid + cam.offsetY - b.h / 2;
+        const top = bandMid + cam.offsetY + b.h / 2;
+        const visH = Math.min(top, PUZZLE_BAND.yMax) - Math.max(bottom, PUZZLE_BAND.yMin);
+        expect(visW / pitch, `zoom=${zoom} dx=${dx} ⇒ 可见列数`).toBeGreaterThanOrEqual(4 - 1e-6);
+        expect(visH / pitch, `zoom=${zoom} dy=${dy} ⇒ 可见行数`).toBeGreaterThanOrEqual(4 - 1e-6);
+      }
+    }
   });
 });
