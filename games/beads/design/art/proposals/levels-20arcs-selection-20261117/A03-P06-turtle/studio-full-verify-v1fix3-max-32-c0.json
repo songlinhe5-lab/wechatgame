@@ -1,0 +1,104 @@
+{
+  "board": "a03p06-v1fix3-max-32-c0",
+  "importable": true,
+  "blockers": [],
+  "voidCells": 0,
+  "colorsUsed": null,
+  "paletteHex": [
+    "#FDF6E9",
+    "#3D7BF5",
+    "#A5652C",
+    "#33333D"
+  ],
+  "balancedChanged": null,
+  "mis": {},
+  "pricing": null,
+  "adjacency": null,
+  "colorErrorFinal": null,
+  "report": {
+    "fillable": 311,
+    "voidCells": 0,
+    "colorsUsed": 4,
+    "cap": 155,
+    "maxFreqBefore": 107,
+    "maxFreqAfter": 107,
+    "balancedChanged": 0,
+    "balanceNote": "mis=max 最大化错位：跳过配色平衡（保形优先；错位取守恒极值 M_max 而非强制 0 固定点）",
+    "derangement": "MAXIMAL（M=311/311 错位，固定点 = 理论下限 F=0）",
+    "mis": {
+      "mode": "max",
+      "N": 311,
+      "m": 107,
+      "M": 311,
+      "F": 0,
+      "M_max": 311
+    },
+    "clusteringParams": {
+      "sample": 8,
+      "smooth": 0,
+      "minblock": 1,
+      "colors": 0
+    },
+    "colorLimit": {
+      "requested": 0,
+      "palette": 10,
+      "mode": "error",
+      "used": 4,
+      "changed": 0,
+      "kept": []
+    },
+    "colorError": {
+      "beforeColorLimit": 0,
+      "final": 0
+    },
+    "clusteringBefore": {
+      "blocks": 13,
+      "largest": 98,
+      "avg": 23.9,
+      "tinyCells": 2,
+      "adjRate": 0.777
+    },
+    "clusteringAfter": {
+      "blocks": 13,
+      "largest": 98,
+      "avg": 23.9,
+      "tinyCells": 2,
+      "adjRate": 0.777
+    },
+    "smoothChanged": 0,
+    "mergedCells": 0,
+    "adjacency": {
+      "minDE": 20,
+      "maxDriftDE": 12,
+      "changed": 0,
+      "conflicts": 0
+    },
+    "clusteringMisplaced": {
+      "blocks": 15,
+      "largest": 93,
+      "avg": 20.7,
+      "tinyCells": 2,
+      "adjRate": 0.767
+    },
+    "difficulty": {
+      "score": 7,
+      "timeEst": 166,
+      "misplaced": 0,
+      "taps": 139,
+      "bMed": 0,
+      "split": {
+        "moves": 70,
+        "places": 25,
+        "directFills": 36,
+        "retrieves": 9
+      },
+      "steps": 70,
+      "cleared": true,
+      "tier": 2,
+      "secPerTap": 1.01,
+      "secPerStep": 3,
+      "blockers": [],
+      "formula": "v1.0（真引擎实测点击数 × 按四档难度的秒/点击）"
+    }
+  }
+}

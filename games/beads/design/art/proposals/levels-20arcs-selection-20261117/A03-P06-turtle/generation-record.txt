@@ -36,3 +36,11 @@ A03 章未建 ⇒ 不落库、不改 contentVersion。
 prompt-v1.txt；a03p06-v1-s42.png / -rgba.png / -rgba-metrics.json；
 a03p06-v1fix-s42-rgba.png、a03p06-v1fix2-s42-rgba.png / -max-32-c0-beads-plain.png /
 studio-full-response-v1fix2-max-32-c0.json；脚本 fix-a03p06-v1.py、../probe-2048/extract-alpha.py、../studio-a03.py。
+
+
+【2026-11-26 · 壳面改环状（用户令「龟壳图案是否可以环状颜色」，0 调用）】
+- 壳内按到壳心 (15.5,16) 的归一化半径上色：r>0.84 湖蓝外圈 / r>0.52 奶白中环 / 内圈赭棕；
+  头部与四鳍保持原色；再并掉 2 处 <3 格碎珠。
+- 结果：a03p06-v1fix4-s42-rgba.png ⇒ importable=true、4 色、F=0、N=311、steps 68、time 163s、
+  tier 2、tiny 0；色占比 奶白 35.0 / 湖蓝 32.2 / 赭棕 30.2 / 炭黑 2.6（G12 达标）。
+- ⚠ 锁定件由 v1fix2 更新为 **v1fix4**（壳面环状），v1fix2 仅留档。

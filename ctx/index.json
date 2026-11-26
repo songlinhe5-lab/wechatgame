@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4341,
       "lines": 143,
-      "sha256": "ac728cc19ad7f296fbb5141649a4a84f85fd61e7071087bfe5f4688f43e80ba2",
+      "sha256": "a751ce063b642a1287e22bd25c86012834dfe926ca45b3629141d3de9c822091",
       "tier": "normal",
       "sections": [
         {
@@ -128889,17 +128889,17 @@
     },
     {
       "path": "production/qa/token-plan-usage-ledger.md",
-      "tokens": 21552,
-      "lines": 232,
-      "sha256": "d820b44adc38fbc61d63e044bf1248a32f0ade842e6114f3eb5865cf27bfd167",
+      "tokens": 21751,
+      "lines": 234,
+      "sha256": "2acea28722dcd8e871b642efd4697bf661d5ad877bc1ead1e023b01da334b4bc",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§Token Plan 生图用量台账（建账 2026-11-01）",
           "level": 1,
           "startLine": 1,
-          "endLine": 233,
-          "tokens": 21536,
+          "endLine": 235,
+          "tokens": 21735,
           "summary": "本件只管「花了多少次、出了几张图、留在哪」，是追加型台账（按时间序加行，⛔ 不回改历史行）。",
           "keywords": [
             "Token",
@@ -128997,8 +128997,8 @@
           "anchor": "§6 temp 生图存量（2026-11-01 清理一次，用户令「把 temp 里的生图都清理掉」）",
           "level": 2,
           "startLine": 100,
-          "endLine": 233,
-          "tokens": 16027,
+          "endLine": 235,
+          "tokens": 16226,
           "summary": "清理前 3642 张 / temp 共 2.3 GB",
           "keywords": [
             "temp",

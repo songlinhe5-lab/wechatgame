@@ -1,0 +1,36 @@
+A03-P02 海马（替换原「鲸鱼」）· 32×32 · 4 色（湖蓝 #3D7BF5 / 奶白 #FDF6E9 / 柠黄 #FFD23F / 炭黑 #33333D）
+单一主题色调令：湖蓝恒为主色，配角色柠黄（批 1 第二关）。
+
+【为何换】用户 2026-11-26：「boss 关已经是鲸鱼了，P02 是否可以换个图案」⇒ 原「鲸鱼」与
+P09 鲸之王主题重复；三选一确认换 **海马**（柠黄配角色不变）。原 P02 鲸鱼产物留档于
+`../A03-P02-whale/`（v2fix4 为旧锁版），不再引用。
+
+【Token Plan 用量】1 次调用 / 出图 1 张 / 浪费 0 张 / 锁定 1 张
+模型 qwen-image-3.0-pro，t2i，--size '2048*2048'，seed 42，prompt_extend=False。
+v1 母版 a03p02s-v1-s42.png（prompt-v1.txt）→ -rgba.png
+修正件 a03p02s-v1fix / v1fix2 / **v1fix3**（同一脚本链，0 调用）
+
+【v1 母版判定：形态好，量化需清杂】
+- 目视：侧视海马、管状长吻、蓝头冠、蓝背脊/背鳍、蓝卷尾；躯干柠黄背带 + 奶白腹带，单眼。
+- 量化初值：**6 色**（多 #A5652C 0.5% / #6B3E1E 0.5%）、炭黑 1.0% 低于 2% 下限、tiny 2。
+
+【v1fix 链（0 调用）】
+- 清两种杂色角点（并邻色）。
+- 眼修正：首版按黑格质心扩 3×3 把腹部放大成黑块（错），v1fix2 改为取 y 最小的一颗黑格
+  （头部）作 2×2，其余黑格并邻色；v1fix3 再扩到 **3×2** 把炭黑拉回 2.9%。
+
+【v1fix3 终值（锁版）】
+- importable=true、blockers=[]、4 色、F=0（M=206/206）、N=206、steps=38、taps=76、
+  time=72s、tier 0（简单，secPerTap 0.79）、colorError 0、tinyCells 0。
+- 色占比：湖蓝 33.0% / 柠黄 32.5% / 奶白 31.6% / 炭黑 2.9%（G12 全达标）。
+- 备注：海马形态偏瘦，N=206 ⇒ time 72s，比 P01（205s）/P03（90s）低，第 2 关为「喘息关」；
+  用户 2026-11-26 已按现方案定稿，未做 ×1.2 放大。
+
+【状态】✅ **已锁版（用户 2026-11-26 确认 PASS，取 v1fix3）**；锁定件 = `a03p02s-v1fix3-s42-rgba.png`
+（珠面 `a03p02s-v1fix3-max-32-c0-beads-plain.png`）；未入关、未进 final/；
+A03 章未建 ⇒ 不落库、不改 contentVersion。
+
+【证据清单】
+prompt-v1.txt；a03p02s-v1-s42.png / -rgba.png / -rgba-metrics.json；
+a03p02s-v1fix{,2,3}-s42-rgba.png 与 -max-32-c0-beads-plain.png；
+studio-full-response-v1{,fix,fix2,fix3}-max-32-c0.json；../probe-2048/extract-alpha.py、../studio-a03.py。
