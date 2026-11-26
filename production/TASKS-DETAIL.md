@@ -13168,3 +13168,15 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 修法：`_syncSnapshot` 在 `projectSnapshot` 之后追加 `_applyDragResidual()` —— 读 `InputManager.snapshot.dx/dy`（已推入未消费的屏幕像素差）折算设计坐标叠加到 `snapshot.gridLeft/gridTop`（渲染器实际读的字段），下一次固定步覆写回权威值。⛔ 不 mutate `_cam`（L5）。
 
 **本条由 WXG-T-1093 收口批次代登**（K-137 例外：原会话未自登且阻塞 `check:tasks` 收口）。
+
+## WXG-T-1094
+
+**收口测试三修（T-097 放宽 + UI-41 序 + §8-1 同源）** · 负责：主理人(CodeBuddy)·工程轨 · 状态：🚧 **进行中（2026-11-26）**
+
+承用户令「我先做一次完整收口（重抓金样 + S3、写归因、铺平 16 笔、推送），再动 ① 的层序改动」。
+
+**① T-097（feedback-vfx）**：原判据「托盘扩展钮与底槽零重叠」在 T-1082（面板改自然高度、槽位随面板排布）后必然失真；按用户裁定放宽为——重叠 ≤ 24dp、且槽体不被按钮视觉框盖住（4dp 容差）。feedback-vfx 25/25。
+
+**② UI-41（play-page）**：drawHud 移到绘制序列末位（T-1085 层序裁定：常驻 UI 恒顶）后，原「HUD 不在末位」断言过时 ⇒ 更新为断言 drawHud 为最后一笔。
+
+**③ §8-1（pause-settings）**：`trayPoint()` 旧版取 `trayLayout(1)` 单行公式；T-1082 后槽位随面板底板排布、且多画的「预览虚线行」改变面板高度 ⇒ 坐标脱靶，真阳性对照 `tray:selected` 计数 0（假红）。修法与 selection-anchor（T-1082 同款）对齐：行数 = 容量行数 +（trayCanExpand 且预览放得下 ? 1 : 0），与 `drawTray` 同源。pause-settings 15/15；ui-input-timing 7/7（T-295 复核绿）。

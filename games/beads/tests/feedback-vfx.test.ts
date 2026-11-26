@@ -35,6 +35,7 @@ import {
     TRAY_BASE_SLOTS,
     TRAY_COLS,
     TRAY_HIT_SIZE,
+  TRAY_SLOT,
     TRAY_TIER_SLOTS,
     TRAY_FULL_PULSE_MS,
     WRONG_SHAKE_PX,
@@ -637,15 +638,18 @@ describe('T-097 BD-15 btn_expand 路由与占位（input-control §2.1/§2.2 · 
         expect(eb.hitBottom + eb.hitH).toBeLessThanOrEqual(TRAY_BAND.yMax);
         // 与 `POWERUP_BAND`（顶 200）不侵。
         expect(eb.hitBottom).toBeGreaterThan(POWERUP_BAND.yMax);
-        // 与托盘槽热区（基线态 / 扩展态）零重叠 ⇒ 不需 §8-2 重叠仲裁。
+        // `[WXG-T-1082 · 用户 2026-11-26 裁定]` **放宽「零重叠」**：用户要求「扩展按钮压住一部分底槽」
+        // ⇒ 按钮热区与槽热区在几何上必然重叠（T-1082 面板整体下移后，2 行档末槽底 282 vs 按钮热区顶 304）。
+        // 新判据：① 热区重叠量 ≤ `EXPAND_BTN_SLOT_HIT_OVERLAP`（24dp，留给 §8-2 仲裁的口径）；
+        // ② **槽体**（`TRAY_SLOT` 方块）不得被按钮**视觉框**压住（容差 4dp，覆盖圆角/描边余量）。
         const half = TRAY_HIT_SIZE / 2;
-        // 基线 2 行（v1.24）：槽热区与按钮热区零重叠。
-        // 扩展 4 行态：按钮**隐藏**（v1.25），槽热区覆盖其热区 = 预期，不再断重叠。
         {
             const lay = trayLayout(Math.ceil(TRAY_BASE_SLOTS / TRAY_COLS));
             for (let row = 0; row < Math.ceil(TRAY_BASE_SLOTS / TRAY_COLS); row++) {
                 const cy = lay.slotCenterY(row);
-                expect(cy - half).toBeGreaterThan(eb.hitBottom + eb.hitH);
+                expect(eb.hitBottom + eb.hitH - (cy - half), `第 ${row} 行热区重叠量`).toBeLessThanOrEqual(24);
+                expect(cy - TRAY_SLOT / 2, `第 ${row} 行槽体不得被按钮视觉框压住`)
+                    .toBeGreaterThan(eb.bottom + eb.h - 4);
             }
         }
         // 提示文字落在按钮下方的空白带隙，不压任何带。

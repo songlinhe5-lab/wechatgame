@@ -83,13 +83,15 @@ describe('UI-41 · PlayPage', () => {
     it('静态门：对局页绘制单源，旧门面不再自带 HUD / 棋盘 / 托盘 / 道具带 / 缩放', () => {
         const play = read('src/view/play-page.ts');
         const vm = read('src/view/view-model.ts');
+        // `[WXG-T-1085 · 用户 2026-11-26 实帧「时间胶囊被珠面压住」]` `drawHud` 移到末尾：
+        // 常驻 UI 恒在最上层，压在盘面珠与特效之上（旧序 HUD 先画 ⇒ 被珠盖）。
         const order = [
-            'drawHud(builder, snap, palette);',
             'drawGrid(builder, snap, palette, inks);',
             'drawZoomControls(builder, snap, palette, zoomControlsVisible);',
             'drawTray(builder, snap, palette, inks);',
             'drawExpandButton(builder, snap, palette);',
             'drawPowerupBand(builder, snap, palette);',
+            'drawHud(builder, snap, palette);',
         ];
         let at = -1;
         for (const call of order) {

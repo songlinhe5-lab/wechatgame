@@ -40,6 +40,7 @@ import {
   TRAY_BASE_SLOTS,
   TRAY_TIER_SLOTS,
   trayLayout,
+  trayPreviewFits,
   gridLayoutFor,
 } from '../src/config/tuning.js';
 
@@ -96,9 +97,13 @@ function gridPoint(game: BeadsGame, row: number, col: number): { x: number; y: n
  * A tray slot centre（§3.4）—— **取单一真源 `trayLayout()`**，不得在此重推公式：
  * 旧版自写 `(TRAY_BAND.yMin + yMax) / 2` 在 v1.20 面板改贴带上沿后整组脱靶，
  * 而本文件所有断言都是「点下去无反应」——脱靶的点击会把它变成**永真断言**（假绿）。
+ * `[WXG-T-1082]` 取样行数须与 `drawTray` **同源**：槽位改为随面板底板排布后，多画的
+ * 「预览虚线行」会改变面板高度 ⇒ 槽位随之位移（与 selection-anchor 同一修法）。
  */
-function trayPoint(slot: number): { x: number; y: number } {
-  const lay = trayLayout(1);
+function trayPoint(game: BeadsGame, slot: number): { x: number; y: number } {
+  const unlocked = Math.ceil(game.tray.capacity / TRAY_COLS);
+  const rows = unlocked + (game.snapshot.trayCanExpand && trayPreviewFits(unlocked) ? 1 : 0);
+  const lay = trayLayout(rows, game.tuning.width);
   return {
     x: lay.slotCenterX(slot % TRAY_COLS),
     y: lay.slotCenterY(Math.floor(slot / TRAY_COLS)),
@@ -143,7 +148,7 @@ describe('S9 pause & settings', () => {
     const slotB = game.giveTrayBead(1);
     expect(slotA).toBeGreaterThanOrEqual(0);
     expect(slotB).toBeGreaterThanOrEqual(0);
-    const pointB = trayPoint(slotB);
+    const pointB = trayPoint(game, slotB);
     // 注：选中不置 `_consumedTap`（该旗只表「吞掉且不落空」的分支），
     // 真阳性以**事件**为准——这也是 §8 判据的口径。
     tap(game, pointB.x, pointB.y);
@@ -161,7 +166,7 @@ describe('S9 pause & settings', () => {
     const cell = gridPoint(game, 0, 0);
     // 一颗**未被选中**的 holding 珠：若路由误穿过遮罩，本标点会产出第 2 次
     // `tray:selected`（真阳性已由上方对照证明）——这才是硬断言。
-    const tray = trayPoint(slotA);
+    const tray = trayPoint(game, slotA);
     const card = powerupPoint();
     // A point squarely between two buttons — i.e. the scrim itself.
     // v1.8（WXG-T-934）：面板高 364，标题带内非钮点 = yMax−40。
