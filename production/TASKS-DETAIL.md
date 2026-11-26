@@ -12348,6 +12348,15 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 - **沉淀统计（kb:sync，WXG-T-1060）**：新增 **3** 条 —— K-227「档位卡边关只准拆色」／ K-228「studio tier/time 是旧判档口径」／ K-229「pattern 上 paint_rect 补格=悬空矩形」；修改 0 ／ 激活 0 ／ 归档 0；`kb:check` 十重校验 PASS，`kb:audit` 无相似命中。
 - **仍待办**：建章（manifest 3 章 + `chapters/a03.json` + `singles/L00030–L00038`、`contentVersion 48→49`、`DEMO_LEVEL_COUNT 27→36`）待用户发令；建章后再跑 `pnpm run levels:sync` 与台账收口。
 
+### 2026-11-26 · 建章落库（用户「好的，执行建章」）
+
+- **真源落盘**：`chapters/A03.json`（`id:"A03"` / `title:"深海湾"` / `levels:L00030–L00038`）+ manifest 追加 9 entries（`order 28–36`，P09 = `L00038` 且 `kind:"boss"`）+ `chapters[]` 追加 `{id:"A03", order:5, open:true}`；`contentVersion 48→49`；`DEMO_LEVEL_COUNT 27→36`。九关 `singles/L00030–L00038.json` 全部由锁定 studio 响应直取（pattern/misplaced 按 `paletteHex → 全局十色板` 重映射；`1→1 2→6 3→7 4→A` 等逐关映射见各响应 `paletteHex`），`pricing` 原样留档、`time` 与 `ceil(ceil(taps×secPerTap)÷0.85)` 九关逐关相等（P04 144s 亦自洽）。
+- **入库读数（uid / id / 盘面 / N / 色 / D / 档 / time / steps）**：`L00030` 28 / 小鱼 / 28×28 / 269 / 4 / 5.076 / 简单 / 105 / 42；`L00031` 29 / 海马 / 32×32 / 206 / 5 / 5.824 / 简单 / 73 / 27；`L00032` 30 / 海豚 / 32×32 / 280 / 6 / 7.120 / 中等 / 137 / 51；`L00033` 31 / 章鱼 / 32×32 / 393 / 4 / 5.572 / 简单 / 144 / 42；`L00034` 32 / 水母 / 32×32 / 325 / 6 / 7.300 / 中等 / 158 / 49；`L00035` 33 / 海龟 / 28×28 / 270 / 8 / 9.080 / 难 / 222 / 80；`L00036` 34 / 螃蟹 / 32×32 / 238 / 7 / 7.952 / 中等 / 199 / 80；`L00037` 35 / 贝壳 / 32×32 / 533 / 7 / 9.132 / 难 / 345 / 99；`L00038` 36 / 鲸之王 / 42×42 / 735 / 10 / 12.940 / 超难 / 535 / 184。
+- **产物**：`levels:sync` 重生成 `src/config/levels-data.ts`（36 关）与 `src/config/arcs.ts`（A03 `levelRefs [[28,36]]`、`ARC_OPEN_MAX 3→4`）；`framework:sync` 同步 Cocos 镜像 3 件（levels-data / arcs / tuning/gameplay）。
+- **门禁**：`levels:check`（含门禁⑤⑥⑦ + 定价断言 + 章断言集）PASS；`framework:sync:check` PASS；`check:frozen-values` PASS；`check:tasks` / `check:links` / `ctx:check` PASS；定向单测 `difficulty / arcs / levels-dir-pipeline / level-import` 45 passed（1 skip）。
+- **全量 verify 现状**：停在 `test` 步骤，8 条红 = `bead-style-seal` 2 帧 + `ui-golden` 6 屏（PlayPage/Pause/Clear/Fail/Sprint/Finish）。已核实为 **HEAD 既有红**：`f9b7e7d2`（T-1093 bead mask）与 `T-1092` 改 `view/bead-render.ts`、`view/play-page.ts` 后未重抓封箱/金样本；这两套测试不引用 `LEVELS_DATA` / `ARCS` / `DEMO_LEVEL_COUNT`（封箱用 13×12 固定夹具），与本章落库无关。⛔ 未代改他人基准。
+- **风险 / 待办**：① 门禁⑧ WARN 新增 6 关（id 28 T2=2.5；29 T3=0.0146/T4=2；33 T2=3/T4=6；34 T2=2.71/T4=5；35 T2=5.14/T3=0.03/T4=4；36 T2=2.6），WARN 模式不拦、与存量 19 关同族；② P04 `time=144s` 仍按用户令待实测后**统一系数**整批调；③ P09 42×42 为首次正式入库盘面（WALL_CAPACITY=9 恰好容纳本章 9 槽）。
+
 ## WXG-T-1061
 
 **名称**：harness 4 个资源 404 排查与修复

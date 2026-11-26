@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "contentVersion": 48,
+  "contentVersion": 49,
   "gameId": "beads",
   "description": "关卡内容管线目录化真源（P1/P2）。WXG-T-203 pre-release 重置第二批：原 demo 8 关（L00001–L00008）已按用户裁定移出，关表由 beads-studio 生成的盘逐张入关重建；uid 5 位零填充、order 从 1 只追加。字符集与色板口径见 levels-spec §2 / art-bible §3.2。",
   "paletteFile": "palette.json",
@@ -193,6 +193,69 @@
       "file": "singles/L00029.json",
       "pack": "main",
       "order": 27
+    },
+    {
+      "uid": "L00030",
+      "kind": "single",
+      "file": "singles/L00030.json",
+      "pack": "main",
+      "order": 28
+    },
+    {
+      "uid": "L00031",
+      "kind": "single",
+      "file": "singles/L00031.json",
+      "pack": "main",
+      "order": 29
+    },
+    {
+      "uid": "L00032",
+      "kind": "single",
+      "file": "singles/L00032.json",
+      "pack": "main",
+      "order": 30
+    },
+    {
+      "uid": "L00033",
+      "kind": "single",
+      "file": "singles/L00033.json",
+      "pack": "main",
+      "order": 31
+    },
+    {
+      "uid": "L00034",
+      "kind": "single",
+      "file": "singles/L00034.json",
+      "pack": "main",
+      "order": 32
+    },
+    {
+      "uid": "L00035",
+      "kind": "single",
+      "file": "singles/L00035.json",
+      "pack": "main",
+      "order": 33
+    },
+    {
+      "uid": "L00036",
+      "kind": "single",
+      "file": "singles/L00036.json",
+      "pack": "main",
+      "order": 34
+    },
+    {
+      "uid": "L00037",
+      "kind": "single",
+      "file": "singles/L00037.json",
+      "pack": "main",
+      "order": 35
+    },
+    {
+      "uid": "L00038",
+      "kind": "boss",
+      "file": "singles/L00038.json",
+      "pack": "main",
+      "order": 36
     }
   ],
   "chapters": [
@@ -212,6 +275,12 @@
       "id": "A02",
       "file": "chapters/A02.json",
       "order": 4,
+      "open": true
+    },
+    {
+      "id": "A03",
+      "file": "chapters/A03.json",
+      "order": 5,
       "open": true
     }
   ]

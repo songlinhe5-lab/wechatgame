@@ -79,10 +79,20 @@ export const ARCS: readonly ArcEntry[] = [
       ],
     ],
   },
+  {
+    id: "A03",
+    title: "深海湾",
+    levelRefs: [
+      [
+        28,
+        36,
+      ],
+    ],
+  },
 ];
 
 /** 本版开放的大关数 = `open:true` 前缀长度（生成派生；真源 = manifest.chapters[].open）。 */
-export const ARC_OPEN_MAX = 3;
+export const ARC_OPEN_MAX = 4;
 
 /** 本版实际投放的大关。长度 = {@link ARC_OPEN_MAX}。 */
 export const OPEN_ARCS: readonly ArcEntry[] = ARCS.slice(0, ARC_OPEN_MAX);
