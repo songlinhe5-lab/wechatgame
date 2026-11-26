@@ -120,3 +120,35 @@ build-a03p09-40.py / a03p09-v2-g40fix-s42-rgba.png / studio-full-response-v2-g40
 a03p09-v2-g40fix-max-40-c0-beads-plain.png   （40 弃档留档）
 
 状态：v5 母版/样张已获用户确认（2026-11-25）；按批提交后锁版，A03 章未建 ⇒ 不落库、不改 contentVersion。
+
+────────────────────────────────────────────────────────
+【2026-11-26 · 十色改档重做（A03 宪法改档 WXG-T-1060，用户令「超难起码 10～12 色」）】
+依据：新四档口径 D = C + N/250（正本 level-difficulty.md §10.6）⇒ 10–12 色起步即超难；
+      本关 6 色 v5 不满足，重做 10 色。
+
+v3 程序化拆色链（0 调用；用户判定生硬，留档对照）
+  a03p09-v3-c10 / -c10b / -c10c：在 v2 母版上按格绘制 草绿海藻 / 玫红珊瑚 / 活力橙腹反光 / 赭棕浪峰。
+  c 版读数：N=768、10 色、steps@24=128、time=459s、tier 3、色占比最低 2.7%。
+  用户判定：程序化贴色生硬（珊瑚悬空、橙带像横杠）⇒ 改走重出图。
+
+v4 生图链（Token Plan 3 次调用 / 出图 3 张 / 浪费 2 张 / 锁定 1 张）
+  - v4（prompt-v3-c10.txt，seed 42）：10 色但尾鳍断 3 块、双眼碎成散点、炭黑 1.2%、柠黄 1.6% ⇒ 作废。
+  - v4b（prompt-v4b-c10.txt，seed 42，强化「尾鳍单块 / 只许两眼 / 每色成片」）：炭黑 0.7%、尾鳍仍断 ⇒ 作废。
+  - v4c（prompt-v4b-c10.txt，seed 43）：形态最好（双眼正确、尾鳍整块、腹褶+橙带、海藻/珊瑚成片），
+    但 bbox 96.55% 触边（G9）⇒ 0 调用内缩到 82%（a03p09-v4c-fix1-s43-rgba.png）。
+    量化后双眼在 42 格尺度被并色（炭黑 0.3%）⇒ fix2/fix3/fix4 程序化重画，fix4 = 双眼 3×3 等大
+    （间距 2 格）+ 两处散落黑点并邻色 + 喷柱加宽 1 格。
+
+【v4c-fix4 终值（锁定）】
+- importable=true、blockers=[]、10 色、F=0（M=735/735）、N=735、steps@24=184、taps=405、
+  time=535s、tier 3（超难，secPerTap 1.12）、colorError 34.4、tinyCells 0。
+- 色占比：湖蓝 24.8 / 丁香紫 23.5 / 深棕 15.6 / 奶白 10.5 / 赭棕 8.8 / 草绿 5.6 /
+  活力橙 3.1 / 玫红 2.9 / 柠黄 2.6 / 炭黑 2.6（G12 十色全达标）。
+- 锁定件：母版 `a03p09-v4c-fix4-s43-rgba.png` + 珠面 `a03p09-v4c-fix4-max-42-c10-beads-plain.png`。
+
+【状态】✅ **已锁版（用户 2026-11-26 确认按 fix4 定稿）**；v2/v3/v4/v4b/v4c 各轮留档对照；
+未入关、未进 final/，A03 章未建 ⇒ 不落库、不改 contentVersion。
+
+【证据清单】prompt-v3-c10.txt、prompt-v4b-c10.txt；a03p09-v{4,4b,4c}-s4{2,3}.png 与 -rgba.png；
+a03p09-v3-c10{,b,c}-*；a03p09-v4c-fix{1,2,3,4}-s43-rgba.png 与 -max-42-c10-beads-plain.png；
+studio-full-response-a03p09-v{4,4b,4c,v4c-fix4}-max-42-c10.json。
