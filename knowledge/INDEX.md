@@ -333,4 +333,7 @@
 | K-224 | 流程台账协作 | process-ledger-sync | 共享工作树里对台账文件做整文件 `git add`，会把并发会话刚写好的行与详情节一起替它提交 | WXG-T-1068 | 2026-11-25 | 0 | active |
 | K-225 | 判据实测取证 | criteria-measure-evidence | 性能面板「帧耗时稳定」不能证伪卡顿——耗时量的是每帧成本，卡顿感来自位移在时间轴上的分布 | WXG-T-1076 | 2026-11-25 | 0 | active |
 | K-226 | 测试守卫 | testing-guard | 在嵌入式/后台浏览器里跑帧节奏类取样，拿不到读数不是「仪表坏了」——hidden 页面的 RAF 被节流到近 0fps | WXG-T-1077 | 2026-11-25 | 0 | active |
+| K-227 | 工具链图像 | toolchain-image | 档位卡边关（D 距档界 < 0.2）只准拆色，靠补珠凑色数必跨档 | WXG-T-1060 | 2026-11-26 | 0 | active |
+| K-228 | 工具链图像 | toolchain-image | studio 量化器的 tier/time 是旧判档口径，⛔ 不能直接当游戏侧档位与定价真源 | WXG-T-1060 | 2026-11-26 | 0 | active |
+| K-229 | 工具链图像 | toolchain-image | 在 pattern 上 `paint_rect` 补格 = 悬空矩形色块；装饰必须先存在于母版 | WXG-T-1060 | 2026-11-26 | 0 | active |
 <!-- kb:active:end -->

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 227,
+  "nextId": 230,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -3801,6 +3801,57 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-227",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain-image.md",
+      "category": "工具链图像",
+      "title": "档位卡边关（D 距档界 < 0.2）只准拆色，靠补珠凑色数必跨档",
+      "contentHash": "cbc6f49a84c77001b0c08ed4355e3729dadf33e48755c6980e77a968008357d3",
+      "sourceTask": "WXG-T-1060",
+      "addedDate": "2026-11-26",
+      "lastAccess": "2026-11-26",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-228",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain-image.md",
+      "category": "工具链图像",
+      "title": "studio 量化器的 tier/time 是旧判档口径，⛔ 不能直接当游戏侧档位与定价真源",
+      "contentHash": "c0f8937cbe57e5c558f2ec52ba91bfede1c9017adc7b5abff8fd58272af54847",
+      "sourceTask": "WXG-T-1060",
+      "addedDate": "2026-11-26",
+      "lastAccess": "2026-11-26",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
+    },
+    {
+      "id": "K-229",
+      "state": "active",
+      "file": "knowledge/lessons/toolchain-image.md",
+      "category": "工具链图像",
+      "title": "在 pattern 上 `paint_rect` 补格 = 悬空矩形色块；装饰必须先存在于母版",
+      "contentHash": "d4a95863af7956333534045342cdd5feb4f28b435921b95019d3a5828ed40708",
+      "sourceTask": "WXG-T-1060",
+      "addedDate": "2026-11-26",
+      "lastAccess": "2026-11-26",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -6110,6 +6161,17 @@
       "kind": "added",
       "ids": [
         "K-226"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-11-26",
+      "taskId": "WXG-T-1060",
+      "kind": "added",
+      "ids": [
+        "K-227",
+        "K-228",
+        "K-229"
       ],
       "note": null
     }
