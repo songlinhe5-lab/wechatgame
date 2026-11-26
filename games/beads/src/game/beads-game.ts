@@ -54,7 +54,7 @@ import {
   type RankBoard,
 } from '@wxgame/framework';
 
-import { ASSIST_STOPPED_HINT, ASSIST_STOPPED_HINT_MS, ASSIST_TAKEOVER_HINT, ASSIST_TAKEOVER_HINT_MS, AUDIO_CLIP_DENIED, AUDIO_CLIP_PANEL_IN, AUDIO_CLIP_PANEL_OUT, AUDIO_CLIP_REJECT, AUDIO_CLIP_REVIVE_OK, AUDIO_CLIP_STAR, AUDIO_CLIP_UI_TAP, COMBO_WINDOW_S, DEFAULT_TUNING, DESIGN_H, POWERUP_BUY_DENIED_HINT, REVIVE_BONUS_SEC, REVIVE_MAX_PER_LEVEL, SELECT_LIFT_MS, SOLVER_HINT_MS, SOLVER_MAX_CELLS, SOLVER_STAGGER_MS, STAGE_BONUS_TIME, STAMINA_REFILL_PLACEMENT, TRAY_COLS, trayLayout, arcRangeOfLevel, computeClearStars, gridLayoutFor, hitGridCell, isBossLevelId, menuAnchors, nextBeadLod, nextTierFor, normalSettleScore, solverSequenceMs, stageParamsFor, tierSecondsFor, trayPreviewFits, type BeadSizeKind, type BeadsTuning, type GridLayout, type PowerupType, validatedSprintTime } from '../config/tuning.js';
+import { ASSIST_STOPPED_HINT, ASSIST_STOPPED_HINT_MS, ASSIST_TAKEOVER_HINT, ASSIST_TAKEOVER_HINT_MS, AUDIO_CLIP_DENIED, AUDIO_CLIP_PANEL_IN, AUDIO_CLIP_PANEL_OUT, AUDIO_CLIP_REJECT, AUDIO_CLIP_REVIVE_OK, AUDIO_CLIP_STAR, AUDIO_CLIP_UI_TAP, COMBO_WINDOW_S, DEFAULT_TUNING, DESIGN_H, PUZZLE_BAND, DESIGN_W, POWERUP_BUY_DENIED_HINT, REVIVE_BONUS_SEC, REVIVE_MAX_PER_LEVEL, SELECT_LIFT_MS, SOLVER_HINT_MS, SOLVER_MAX_CELLS, SOLVER_STAGGER_MS, STAGE_BONUS_TIME, STAMINA_REFILL_PLACEMENT, TRAY_COLS, trayLayout, arcRangeOfLevel, computeClearStars, gridLayoutFor, hitGridCell, isBossLevelId, menuAnchors, nextBeadLod, nextTierFor, normalSettleScore, solverSequenceMs, stageParamsFor, tierSecondsFor, trayPreviewFits, type BeadSizeKind, type BeadsTuning, type GridLayout, type PowerupType, validatedSprintTime } from '../config/tuning.js';
 import { BEADS_AUDIO_VOICES } from '../config/audio-voices.js';
 import {
   LEVELS,
@@ -128,6 +128,7 @@ import type { ClearCoinGrant } from './meta-state.js';
 import { BeadConservation } from './beads-game/bead-conservation.js';
 import { GameSettings } from './beads-game/game-settings.js';
 import { BoardCameraController } from './beads-game/board-camera-controller.js';
+import { MIN_VISIBLE_CELLS } from '../systems/board-camera.js';
 import { FeedbackFx } from './beads-game/feedback-fx.js';
 import { CrashSnapshotIO } from './beads-game/crash-snapshot-io.js';
 import { InputRouter } from './beads-game/input-router.js';
@@ -3478,8 +3479,22 @@ export class BeadsGame {
     if (!s || (s.dx === 0 && s.dy === 0)) return;  // 无残差
     // screen dx/dy → design：/ scale、y 翻向（与 boardHeld 的 applyPan 同口径）
     const scale = this._services.viewport.fit.scale || 1;
-    this._snapshot.gridLeft += s.dx  / scale;
-    this._snapshot.gridTop  += -s.dy / scale;
+    const snap = this._snapshot;
+    snap.gridLeft += s.dx / scale;
+    snap.gridTop += -s.dy / scale;
+    // `[WXG-T-1091 · 用户 2026-11-26]` 残差叠加必须**再夹一次边界**：本方法跑在
+    // `projectSnapshot` 之后、绕过 `clampCamera` ⇒ 拖动跟手的那几帧会把盘面推出「至少 4 格可见」
+    // 的区间（用户实测「左右拖动/缩放时没有保住 4 格」）。这里按同一口径把 `gridLeft/gridTop`
+    // 夹回可见区间：与 `clampCamera` 的 `MIN_VISIBLE_CELLS × pitch` 同源（`gridPitch` 已含 zoom）。
+    const minVis = MIN_VISIBLE_CELLS * snap.gridPitch;
+    const bw = snap.gridCols * snap.gridPitch;
+    const bh = snap.gridRows * snap.gridPitch;
+    const xLo = minVis - bw;
+    const xHi = DESIGN_W - minVis;
+    if (xLo <= xHi) snap.gridLeft = Math.min(xHi, Math.max(xLo, snap.gridLeft));
+    const yLo = PUZZLE_BAND.yMin + minVis;
+    const yHi = PUZZLE_BAND.yMax - minVis + bh;
+    if (yLo <= yHi) snap.gridTop = Math.min(yHi, Math.max(yLo, snap.gridTop));
   }
 
   /**

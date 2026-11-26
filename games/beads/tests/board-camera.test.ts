@@ -17,7 +17,6 @@ import {
   resetCamera,
   fitCamera,
   computeFitZoom,
-  setCameraZoom,
   sliderTFromZoom,
   zoomAtPoint,
   zoomFromSliderT,

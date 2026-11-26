@@ -13100,3 +13100,24 @@ const onBoard = playing && y >= PUZZLE_BAND.yMin && y <= PUZZLE_BAND.yMax;
 **测试口径切换**：删除 5 条被推翻的历史数值断言（v1.66 / v1.68 ×2 / v1.69 / setCameraZoom 重夹），新增一条性质断言 —— 对 `zoom ∈ [MIN, 1, 1.6, MAX]` × 六个拖动方向，断言**可见列数/行数恒 ≥ 4**（容差 1e-6）。
 
 **验证**：相机/布局/循环/命中 **49/49 通过**；`OP_Y_LO/HI`、`OP_MID_REL`、`BAND_MID_Y` 与 `HUD_BAND/TRAY_BAND/BOARD_FIT_MARGIN` 导入随旧窗口一并删除（零死代码）。
+
+
+## WXG-T-1091
+
+**拖动残差也守 4 格边界** · 负责：主理人(CodeBuddy)·工程轨 · 状态：🚧 **进行中（2026-11-26）**
+
+用户实测反馈：「现在没有达到这个效果，左右拖动或者缩放，必须至少保留 4 个珠子的宽度在屏幕内」。
+
+**根因**：T-1081 的跟手残差 `_applyDragResidual()` 跑在 `projectSnapshot` **之后**，把未被固定步消费的拖动像素差直接叠加到 `snap.gridLeft/gridTop`（渲染器实际读的字段）——**完全绕过 `clampCamera`**。⇒ 拖动过程的那几帧盘面会被推出边界，可见格数掉到 4 以下；松开后下一固定步才被夹回，所以「拖的时候」不达标。
+
+**修法**：叠加后**按同一口径再夹一次**（与 `clampCamera` 同源，`gridPitch` 已含 zoom）：
+```ts
+const minVis = MIN_VISIBLE_CELLS * snap.gridPitch;
+const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
+// X：gridLeft ∈ [minVis − bw, DESIGN_W − minVis]
+// Y：gridTop  ∈ [PUZZLE_BAND.yMin + minVis, PUZZLE_BAND.yMax − minVis + bh]
+```
+小盘（区间翻转）退化为不动，保持既有呈现。
+
+**实测验证**（真实引擎 + CDP 真实鼠标拖动，L18 43×43、pitch 20.85）：从盘面中部向右拖 60 步 × 40px，
+`colsVisible = 4.00`、`left = 666.6` —— **恰好停在 4 格**，不再突破。
