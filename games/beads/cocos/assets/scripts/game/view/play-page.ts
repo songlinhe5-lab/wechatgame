@@ -61,6 +61,7 @@ import {
     TIMER_CAPSULE,
     TIMER_CAPSULE_SHADOW_ALPHA,
     TIMER_CAPSULE_SHADOW_DY,
+    PUZZLE_BAND,
     TRAY_COLS,
     TRAY_FULL_PULSE_MS,
     TRAY_PLATE,
@@ -162,18 +163,28 @@ export function drawPlayPage(
     // [WXG-T-256] 统一底色：只发一个 token，由**宿主**铺满屏（canvas2d `fillRect`；Cocos 走珠下的
     // 第二块 Graphics）。视图层不再画背景层／容器板 ⇒ 「珠下」零图元，层序冲突消解。
     builder.setBackground(palette.background);
-    drawHud(builder, snap, palette);
+    // `[WXG-T-1086 · 用户 2026-11-26 实帧]` ⛔ HUD **不在盘面之前**画：旧顺序 HUD→盘面 ⇒ 盘面珠压在
+    // 时间胶囊/帮助钮之上（截图里 `04:35` 被珠子遮住）。HUD 是常驻 UI，必须恒在最上层 ⇒ 移到末尾。
+    // 托盘同理已在盘面之后（`drawTray` 在 `drawGrid` 后），本次只动 HUD。
     // `[WXG-T-1081]` ⛔ 这里**不加 `clip`**：裁剪会引入 `clip`/`unclip` 两条图元，触发 S3 封箱基准的
     // 「Δtotal 全部可归因」登记链（三层校验）与真机 blit→clipLayer 搬迁副作用，收益却只是盖住一个
     // 极罕见态（相机平移把盘面拖进托盘带）。该诉求由**相机平移边界**兜住（盘面底缘不得下探到
     // `PUZZLE_BAND.yMin` 之下），零图元、零层序风险。
+    // `[WXG-T-1087 · 用户 2026-11-26 实帧]` **盘面绘制裁到 `PUZZLE_BAND`**：`clampCamera` 的纵向窗口
+    // 按 v1.69 裁定是「菜单下 ~ 托盘上」⇒ 大盘（如 L18 32×32）平移后珠面会下探到托盘带，压在
+    // 托盘面板/底槽背景之上（截图为证）。用户令「底槽背景要盖在珠面上面」⇒ 直接把盘面限死在自己
+    // 的带内，溢出部分根本不上屏。⚠ 代价 = 新增 `clip`/`unclip` 两条图元，S3 封箱基准需按锚重抓
+    // 并在 provenance 登记「Δtotal +2 = clip 1 + unclip 1」（可完整归因）。
+    builder.clip(0, PUZZLE_BAND.yMin, DESIGN_W, PUZZLE_BAND.yMax - PUZZLE_BAND.yMin);
     drawGrid(builder, snap, palette, inks);
+    builder.unclip();
     drawZoomControls(builder, snap, palette, zoomControlsVisible); // 缩放控件条（盘面下方净空带，不遮珠）
     drawTray(builder, snap, palette, inks);
     drawExpandButton(builder, snap, palette);
     drawPowerupBand(builder, snap, palette);
     drawSweep(builder, snap); // G3 道具生效扫光（§1.6.3）：叠在珠面上、面板与 HUD 之下
     drawComboVfx(builder, snap, palette);
+    drawHud(builder, snap, palette); // `[WXG-T-1086]` 常驻 UI 恒在最上层（压在盘面珠 / 特效之上）
 }
 // ───────────── 棋盘缩放控件（盘面下方净空带 · `zoomControlLayout` 与命中同源）
 

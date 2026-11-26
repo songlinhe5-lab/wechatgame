@@ -12994,3 +12994,20 @@ __motion.report()     // 把这一行贴回来
 **验证**：`core-loop.test.ts` 新增断言「抬起选中后立刻 advance 2 秒，`remaining` 不得变化」（`armClock: false` 夹具），16/16 通过（含 fail-confirm 回归）。「起跑后按 dt 走秒」由既有的 `armClockOnStart` 那条腿覆盖。
 
 **未闭半边**：与 T-1082 / T-1083 一并暂未 push —— 那两笔触发的 3 条既有几何契约（T-097 零重叠 / S9 §8-1 / T-295）待用户裁定后统一收口。
+
+
+## WXG-T-1085
+
+**HUD 置顶 + 盘面裁到盘面带** · 负责：主理人(CodeBuddy)·工程轨 · 状态：🚧 **进行中（2026-11-26）**
+
+用户实帧 + 两条：「上面倒计时面板在珠面描边下面，下面底槽背景在珠面下面，这两个都是错误」。
+
+**根因**：
+1. `drawPlayPage` 旧绘制序 `drawHud → drawGrid → drawTray …` ⇒ 盘面珠画在 HUD **之后**，压住时间胶囊（截图 `04:35` 被绿珠遮住）。
+2. `clampCamera` 纵向可操作窗口按 **v1.69 用户裁定** = 「菜单下 ~ 托盘上」（`OP_Y_LO/HI`）⇒ 大盘（L18 32×32，43×43 布局）平移后珠面下探进托盘带、压在托盘面板与底槽背景之上。
+
+**修法**：
+- `drawHud` 移到 `drawPlayPage` **末尾**（`drawComboVfx` 之后）⇒ 常驻 UI 恒在最上层，压住盘面珠与特效；
+- `drawGrid` 外包 `builder.clip(0, PUZZLE_BAND.yMin, DESIGN_W, bandH)` / `unclip()` ⇒ 盘面绘制限死在自己带内，溢出内容不上屏（等效「底槽背景盖住珠面」，且不动 v1.69 的相机窗口裁定）。
+
+**验证**：harness 实帧 `temp/ui-shot/l18-clip.png`（L18 拖到下界：盘面止于盘面带、托盘面板/12 槽干净、时间胶囊完整）。⚠ 代价 = 新增 `clip`/`unclip` **2 条图元** ⇒ S3 封箱基准 `total +2`（可完整归因），金样 5 帧与 HUD 顺序变化需按锚重抓。
