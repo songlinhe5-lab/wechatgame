@@ -21,6 +21,17 @@ import { measuredLevelTime } from '../src/game/level-import.js';
 const at = (rel: string) => fileURLToPath(new URL(rel, import.meta.url));
 const SINGLES = at('../design/levels/singles');
 
+/**
+ * WXG-T-1060：difficultyOf 双口径按 uid 分流 ⇒ 测试侧须把 manifest 的 uid 拼进关卡。
+ * singles JSON 不带 uid（uid 是 manifest `entries[].uid`），映射键 = entry.order（== 关卡 id，
+ * 例 L00012 order=10 ↔ L00012.json id=10）。
+ */
+const MANIFEST = JSON.parse(readFileSync(at('../design/levels/manifest.json'), 'utf8')) as {
+    entries: { uid: string; order: number }[];
+};
+const UID_BY_ORDER = new Map<number, string>(MANIFEST.entries.map((e) => [e.order, e.uid]));
+const withUid = <T extends { id: number }>(lv: T) => ({ ...lv, uid: UID_BY_ORDER.get(lv.id) });
+
 /** 方案 C 主序主键逐值（WXG-T-997 重锚，由 `difficultyOf` 真源实测）。
  *  形态 = tier×1e12 + N×1e8 + C×1e4 + G(12)；⛔ 不是旧 DI 分数，不回改 §5.1 史证表。 */
 const EXPECT_DI: Record<number, number> = {
@@ -46,7 +57,10 @@ const pool: PoolLevel[] = readdirSync(SINGLES)
     .filter((f) => f.endsWith('.json'))
     .map((f) => JSON.parse(readFileSync(join(SINGLES, f), 'utf8')))
     .filter((lv) => ARC1_IDS.has(lv.id))
-    .map((lv) => ({ id: lv.id, di: difficultyOf(lv).di, steps: lv.pricing.steps as number, res: difficultyOf(lv) }))
+    .map((lv) => {
+        const r = difficultyOf(withUid(lv));
+        return { id: lv.id, di: r.di, steps: lv.pricing.steps as number, res: r };
+    })
     .sort((a, b) => a.id - b.id);
 
 const is3 = (x: number) => x === Math.round(x * 1000) / 1000;
@@ -79,8 +93,8 @@ describe('方案 C · 验收① 第一章 9 关主序逐值复现', () => {
         // 再钉任一数值等于把「拟合优度」伪装成验收判据（§7 判据 3：只验方向与自洽，不验手感）。
         const lv = JSON.parse(readFileSync(join(SINGLES, 'L00005.json'), 'utf8'));
         const perturbed = { ...lv, pricing: { ...lv.pricing, steps: lv.pricing.steps + 7 } };
-        expect(difficultyOf(perturbed).di).toBe(difficultyOf(lv).di);
-        expect(difficultyOf(perturbed).tier).toBe(difficultyOf(lv).tier);
+        expect(difficultyOf(withUid(perturbed)).di).toBe(difficultyOf(withUid(lv)).di);
+        expect(difficultyOf(withUid(perturbed)).tier).toBe(difficultyOf(withUid(lv)).tier);
 
         const bySteps = [...pool].sort((a, b) => a.steps - b.steps || a.id - b.id);
         const stepRank = new Map<number, number>();
@@ -196,46 +210,49 @@ describe('EP12-S5 · §7 守卫', () => {
     });
 });
 
-// ── 方案 C：离散四档 + G(12) 修正（阶段 0 裁定 §6.1；落码单 WXG-T-997）──────────
-// 史证：原 §5.1 九关 DI 逐值表是旧连续公式的产物，本节只验新体系的结构性质，
-// 不拿新主序去凑旧读数；旧表在 GREEN 后按 §5 重锚顺序重锚。
-describe('方案 C · 离散四档主序', () => {
-    it('N 跨 150/300/700 边界时 tier 依次为 0/1/2/3（无错位初盘 ⇒ G 修正不启用）', () => {
+// ── WXG-T-1060 双口径四档（用户 2026-11-26 裁定）────────────────────────────
+// 新口径（A03 起）：D = C + N ÷ 250，档界 [6, 8, 10) ⇒ 0/1/2/3；G 修正不参与。
+// 旧口径（LEGACY_UIDS 存量 27 关冻结）：N 150/300/700 + C≥6 + G(12) ±1。
+describe('双口径四档 · 新口径 D = C + N/250（A03 起）', () => {
+    it('D 跨 6/8/10 边界时 tier 依次为 0/1/2/3（单色合成盘）', () => {
         const tierOf = (n: number) => difficultyOf({ pattern: ['1'.repeat(n)] }).tier;
-        expect([100, 200, 400, 800].map(tierOf)).toEqual([0, 1, 2, 3]);
+        expect([100, 1250, 1750, 2250].map(tierOf)).toEqual([0, 1, 2, 3]);
     });
 
     it('四档标签对外可读：tier 与中文 label 一一对应', () => {
-        const labels = [100, 200, 400, 800].map(
+        const labels = [100, 1250, 1750, 2250].map(
             (n) => difficultyOf({ pattern: ['1'.repeat(n)] }).label,
         );
         expect(labels).toEqual(['简单', '中等', '难', '超难']);
     });
 
-    it('C ≥ 6 在 N 档上再升一档（高色数轴）', () => {
-        const low = difficultyOf({ pattern: ['1'.repeat(100)] });
-        const high = difficultyOf({ pattern: ['123456'.repeat(16) + '1234'] });
-        expect(high.n).toBe(low.n);
-        expect(high.c).toBe(6);
-        expect(high.tier).toBe(low.tier + 1);
+    it('10 色起步即超难（用户 2026-11-26「超难起码 10～12 色」）', () => {
+        const tenColors = difficultyOf({ pattern: ['123456789A' + '1'.repeat(40)] });
+        expect(tenColors.c).toBe(10);
+        expect(tenColors.tier).toBe(3);
     });
 
-    it('G(12) 修正：碎成单珠块升一档、整两大块降一档（各至多一次）', () => {
+    it('珠数补偿色数：同 C=8 下 N 100→600 由「难」升「超难」（每 250 珠≈1 色）', () => {
+        const small = difficultyOf({ pattern: ['12345678' + '1'.repeat(92)] });
+        const big = difficultyOf({ pattern: ['12345678' + '1'.repeat(592)] });
+        expect([small.c, big.c]).toEqual([8, 8]);
+        expect([small.tier, big.tier]).toEqual([2, 3]);
+    });
+
+    it('G(12) 不参与新口径：碎块盘与整块盘同档（±1 修正仅 legacy 保留）', () => {
         const plain = difficultyOf({ pattern: ['1'.repeat(100)] });
         const fragmented = difficultyOf({
             pattern: ['12'.repeat(50)],
             misplaced: ['21'.repeat(50)],
         });
         expect(fragmented.n).toBe(plain.n);
-        expect(fragmented.tier).toBe(plain.tier + 1);
+        expect(fragmented.tier).toBe(plain.tier);
+    });
 
-        const plainMid = difficultyOf({ pattern: ['1'.repeat(200)] });
-        const coarse = difficultyOf({
-            pattern: ['1'.repeat(100) + '2'.repeat(100)],
-            misplaced: ['2'.repeat(100) + '1'.repeat(100)],
-        });
-        expect(coarse.n).toBe(plainMid.n);
-        expect(coarse.tier).toBe(plainMid.tier - 1);
+    it('存量 uid 命中 LEGACY_UIDS ⇒ 沿用旧口径（A01 章末 boss 仍超难；新号不在册）', () => {
+        const boss = JSON.parse(readFileSync(join(SINGLES, 'L00020.json'), 'utf8'));
+        expect(difficultyOf(withUid(boss)).tier).toBe(3);
+        expect(DIFFICULTY_TIERS.LEGACY_UIDS).not.toContain('L00030');
     });
 
     it('G(T) 对 12→24→48 槽单调不增（主序锁 12，后两档只作参考）', () => {
@@ -261,7 +278,7 @@ describe('章末 BOSS 难度闸 · A00 豁免 / A01 起必须超难', () => {
     const all = new Map<number, ReturnType<typeof difficultyOf>>();
     for (const f of readdirSync(SINGLES).filter((f) => f.endsWith('.json'))) {
         const lv = JSON.parse(readFileSync(join(SINGLES, f), 'utf8'));
-        all.set(lv.id, difficultyOf(lv));
+        all.set(lv.id, difficultyOf(withUid(lv)));
     }
     const lastIdOf = (arc: (typeof ARCS)[number]) => Math.max(
         ...arc.levelRefs.flatMap(([from, to]) =>
