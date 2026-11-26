@@ -472,7 +472,9 @@ function drawClearPanel(
   const ph = plate.yMax - plate.yMin;
   // `[2026-11-21]` v2 整张木牌已投放（Cocos 宿主登记 + 编辑器签发 `.meta`）⇒ 恒走位图腿；
   // v1 旧纸面板 / 9-slice 木框 / 木纹标题牌降级腿已按用户裁定清理（缺图由宿主 `_bail` 嚷，K-108）。
-  drawModalScrim(builder, UI_SCRIM.canvas, UI_SCRIM.alpha);
+  // `[WXG-T-1097]` 内联蒙版撤除：结算板是**位图腿**（`clearPanelBoard` blit ⇒ 容器 BlitLayerUI），
+  // 本容器 Graphics 内联蒙版会罩暗位图（用户真机报「蒙版在上层」）⇒ 路由声明 scrimAlpha/scrimRgb，
+  // UiRoot 以平级前置容器 `{clear}:scrim` 注入（先出现 ⇒ 整棵在 {clear} 容器之下）。
   builder.blit(MENU_TEXTURES.clearPanelBoard, plate.xMin, plate.yMin, pw, ph);
 
   // 标题：新版木牌已带凹槽；64 粗体 + 深棕投影（Figma drop 9/7 blur 3；内阴影不另绘）。

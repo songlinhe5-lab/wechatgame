@@ -58,16 +58,25 @@ function frame(s: BeadsSnapshot): readonly DrawCommand[] {
 }
 
 describe('WXG-T-1004 ✕ 命中面（右上角，两档牌高）', () => {
-    it.each([true, false])('reviveAvailable=%s：✕ 贴牌右上内缘 12，56²，中心命中 dismiss', (revive) => {
+    it.each([true, false])('reviveAvailable=%s：✕ 视觉 44² / 热区 56²（T-1097 双框同心），中心命中 dismiss', (revive) => {
         const layout = failPanelLayout(revive);
         const dr = layout.dismissRect;
+        const hr = layout.dismissHitRect;
         const g = TIMEOUT_GEO.dismissBtn;
-        expect(dr.xMax - dr.xMin).toBe(g.r * 2);
-        expect(dr.yMax - dr.yMin).toBe(g.r * 2);
-        expect(dr.xMax).toBe(layout.panel.xMax - g.rightInset);
-        expect(dr.yMax).toBe(layout.panel.yMax - g.topInset);
-        const c = center(dr);
+        // 视觉框 = 44²（visualR），热区框 = 56²（r 不缩水，触控面不缩水）。
+        expect(dr.xMax - dr.xMin).toBe(g.visualR * 2);
+        expect(dr.yMax - dr.yMin).toBe(g.visualR * 2);
+        expect(hr.xMax - hr.xMin).toBe(g.r * 2);
+        expect(hr.yMax - hr.yMin).toBe(g.r * 2);
+        // 双框同心（内缩量 = r − visualR），热区框贴牌右上内缘 12。
+        expect((hr.xMax - dr.xMax)).toBe(g.r - g.visualR);
+        expect((dr.xMin - hr.xMin)).toBe(g.r - g.visualR);
+        expect(hr.xMax).toBe(layout.panel.xMax - g.rightInset);
+        expect(hr.yMax).toBe(layout.panel.yMax - g.topInset);
+        // 命中走热区框（视觉框边缘之外的 6px 环带也应命中）。
+        const c = center(hr);
         expect(hitFailPanel(c.x, c.y, revive)).toBe('dismiss');
+        expect(hitFailPanel(hr.xMin + 1, hr.yMin + 1, revive)).toBe('dismiss');
     });
 });
 

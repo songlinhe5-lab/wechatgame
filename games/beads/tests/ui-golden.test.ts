@@ -50,10 +50,13 @@ const CONTAINER_EXPECT: Readonly<Record<string, number>> = {
     // 对局六态 +1 = `tray` 渲染容器（托盘空槽 mask blit 容器化：同容器通道序 blit < graphics
     // ⇒ 容器 BlitLayerUI 压过默认 Graphics 面板；非 modal 面板容器，层级契约变更已在
     // docs/architecture/ui-architecture-beads.md §12 登记）。
+    // `[WXG-T-1097]` fail/clear 再 +1 = `{name}:scrim` 平级前置蒙版容器（位图木牌/结算板
+    // 在容器 BlitLayerUI，容器 Graphics 内联蒙版会罩暗位图 ⇒ 蒙版上楼，同 T-1029 先例）；
+    // pause/sprint-settle/finish 全矢量面板不声明（防双份）。
     play: 1,
     pause: 2,
-    clear: 2,
-    fail: 2,
+    clear: 3,
+    fail: 3,
     'sprint-settle': 2,
     finish: 2,
 };

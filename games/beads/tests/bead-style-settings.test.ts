@@ -1192,7 +1192,7 @@ describe('设置态遮罩 α 分列 · ux §3.3「遮罩」条 + 工作项④：
         expect(SETTINGS_SCRIM_ALPHA).toBeLessThan(PANEL_SCRIM_ALPHA);
     });
 
-    it('静态门：`ui-theme` + `modal-frame` 收拢后 scrim 消费点穷尽 = 3 处纸面板框 + 4 处纯遮罩 + 1 处 DEBUG 覆层', () => {
+    it('静态门：`ui-theme` + `modal-frame` 收拢后 scrim 消费点穷尽 = 3 处纸面板框 + 2 处纯遮罩 + 1 处 DEBUG 覆层（T-1097 位图腿蒙版上楼）', () => {
         const vm = SRC('view/view-model.ts');
         // `[WXG-T-614]` 失败面板改稿面木牌（View/VM 下沉）⇒ 它的遮罩消费点搬到 timeout-view，
         // 本门跟着穷尽到新文件（⛔ 不只调低计数把消费点漏掉）。
@@ -1211,8 +1211,10 @@ describe('设置态遮罩 α 分列 · ux §3.3「遮罩」条 + 工作项④：
         // `[2026-11-21]` 过关 v1 缺图腿随旧背板清理退场（失败已改木牌位图腿）。
         expect(frameSites.length).toBe(2);
         // 冲刺结算 / 全通关 / **过关木牌位图腿（`[WXG-T-949]`）** = 纯遮罩；底板构成不同，不并入纸面板
-        expect(scrimSites.length).toBe(3);
-        expect(timeoutScrimSites.length).toBe(1); // 倒计时结束弹窗 = 木牌位图（或纸面板回退）+ 同档遮罩
+        // `[WXG-T-1097]` clear 木牌位图腿 ⇒ 内联蒙版上楼路由（`{clear}:scrim` 前置容器）；fail 同批撤净
+        // ⇒ 纯遮罩消费点 3→2（sprint-settle / finish，全矢量面板）、timeout 1→0。
+        expect(scrimSites.length).toBe(2);
+        expect(timeoutScrimSites.length).toBe(0); // 蒙版由路由 scrimAlpha 注入（位图腿不得被容器 Graphics 蒙版罩暗）
         expect(settingsSites.length).toBe(0); // v1.8 起对局面板零设置态；唯一设置态消费点 = 菜单 meta-view
         expect(panelAlphaSites.length).toBe(2); // 暂停（动画 ×t）+ 购买确认（静态常 α）；过关 v1 缺图腿已清理
         expect(debugOverlay.length).toBe(1); // DEBUG 覆层已搬入 debug-layer（UI-24）

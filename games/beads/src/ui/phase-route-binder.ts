@@ -136,10 +136,20 @@ export class PhaseRouteBinder {
             draw: (b) => drawers.panel(b, name),
             presenter: (x, y) => drawers.panelTap(name, x, y),
         });
+        // `[WXG-T-1097]` **有位图腿的相位面板**（fail 木牌九宫格 / clear 结算板）须由 UiRoot
+        // 注入平级前置蒙版容器（`{name}:scrim`）：容器 Graphics 内联蒙版会罩暗容器 BlitLayerUI
+        // 的位图（用户真机报「蒙版在上层」）⇒ 路由声明 scrimAlpha/scrimRgb（rgb 同参 canvas 族，
+        // 视觉零变）+ 视图撤内联蒙版（防双份）。全矢量面板（pause/sprint-settle/finish）
+        // 同通道按绘制序自洽 ⇒ 不声明。
+        const bitmapPhaseRoute = (name: PhaseModal): UiRoute => ({
+            ...phaseRoute(name),
+            scrimAlpha: UI_SCRIM.alpha,
+            scrimRgb: UI_SCRIM.canvas,
+        });
         this._phaseModals = {
             pause: phaseRoute('pause'),
-            clear: phaseRoute('clear'),
-            fail: phaseRoute('fail'),
+            clear: bitmapPhaseRoute('clear'),
+            fail: bitmapPhaseRoute('fail'),
             'sprint-settle': phaseRoute('sprint-settle'),
             finish: phaseRoute('finish'),
         };

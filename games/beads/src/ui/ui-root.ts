@@ -12,7 +12,7 @@ import { Navigator, UI_DEBUG_SCOPE_ID, type Route } from '@wxgame/framework';
 import type { RenderModelBuilder } from '@wxgame/framework';
 import { DESIGN_W, liveDesignHeight } from '../config/tuning.js';
 import { drawPerfOverlay } from '../view/debug-layer.js';
-import { UI_SCRIM, scrimFill } from '../view/ui-theme.js';
+import { UI_SCRIM, scrimFill, type UiScrimRgb } from '../view/ui-theme.js';
 import type { BeadsPalette } from '../view/palette.js';
 import type { UiHost } from './ui-host.js';
 
@@ -27,12 +27,19 @@ export interface UiRoute extends Route {
     /** 命中并派发（`true` = 已消费）。仅 `modal` 路由需要；缺省 = 不参与命中链。 */
     presenter?(x: number, y: number): boolean;
     /**
-     * `[WXG-T-1029]` 仅 meta 弹窗路由：**显式声明才由 UiRoot 注入蒙版**（平级前置容器
-     * `{name}:scrim`；容器禁止嵌套 DEC-8①；T-1028 通道翻转后蒙版若留在弹窗容器 Graphics
-     * 会抬到背板位图之上罩暗弹窗）。相位面板（pause/clear/fail/…）自带 progress 伸缩蒙版
-     * （`view-model::drawModalScrim`）且无容器内位图腿 ⇒ ⛔ 不声明，保持原样防双份。
+     * `[WXG-T-1029]` **显式声明才由 UiRoot 注入蒙版**（平级前置容器 `{name}:scrim`；容器禁止
+     * 嵌套 DEC-8①；T-1028 通道翻转后蒙版若留在弹窗容器 Graphics 会抬到背板位图之上罩暗弹窗）。
+     * `[WXG-T-1097]` 相位面板的「无容器内位图腿」前提已被位图木牌推翻（fail 木牌九宫格 /
+     * clear 结算板皆为 blit ⇒ 容器 Graphics 内联蒙版罩暗位图，用户真机报「蒙版在上层」）⇒
+     * 有位图腿的相位路由（fail/clear）改声明本字段并撤视图内联蒙版；全矢量面板
+     * （pause/sprint-settle/finish）同通道按绘制序自洽，仍不声明防双份。
      */
     scrimAlpha?: number;
+    /**
+     * `[WXG-T-1097]` 蒙版 rgb 族（缺省 = `UI_SCRIM.overlay`，meta 弹窗档）。相位面板历史用
+     * `UI_SCRIM.canvas` ⇒ 声明路由须同参声明本字段，视觉逐字节不变（金样色键可证）。
+     */
+    scrimRgb?: UiScrimRgb;
 }
 
 export class UiRoot {
@@ -101,7 +108,7 @@ export class UiRoot {
                 if (route.scrimAlpha !== undefined) {
                     builder.beginContainer(`${route.name}:scrim`);
                     builder.rect(0, 0, DESIGN_W, liveDesignHeight(), {
-                        fill: scrimFill(UI_SCRIM.overlay, route.scrimAlpha),
+                        fill: scrimFill(route.scrimRgb ?? UI_SCRIM.overlay, route.scrimAlpha),
                     });
                     builder.endContainer();
                 }

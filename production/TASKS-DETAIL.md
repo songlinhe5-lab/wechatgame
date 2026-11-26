@@ -13227,3 +13227,13 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 **④ hitTraySlot 方格唯一归属**：旧圆热区 r=30 < 四槽夹角最近距 √(27²+27²)≈38.2（pitch 54）⇒ 相邻槽夹角死区（点击不中根因）；改 `round` 最近槽心 + 行带界内判定（同盘面 T-1070 口径），槽行带 100% 覆盖。
 
 **测试**：bead-tint-arm 新增 T-1096 三判据（forceVector 消费 / tintBasePainted 跳底 / tintSocketSize）；金样对局六帧与 S3 腿 4a/4b 按 T-1096 锚复取（进行中）。
+
+## WXG-T-1097
+
+**时间到面板蒙版上楼 + ✕ 视觉缩 44²** · 负责：主理人(CodeBuddy)·工程轨 · 状态：🚧 **进行中（2026-11-26）**
+
+承用户真机截图反馈「时间到面板有问题，蒙版在上层，右上叉按钮大小太大」。
+
+**① 蒙版在上层（确诊 + 修法）**：fail 面板木牌自 T-1051 起是**九宫格位图 blit**（容器 BlitLayerUI 通道），而内联蒙版是矢量 rect（容器 Graphics 通道）——同容器通道序 blit < graphics ⇒ 蒙版恒罩暗木牌。矢量回退档（`drawPaperPanel`）与蒙版同通道按绘制序自洽 ⇒ **位图档真机才暴露**（T-1051 后首次真机位图加载命中）。clear 结算板（`clearPanelBoard` blit）同病。修法 = 沿用 T-1029/`{overlay}:scrim` 先例：`UiRoute` 增 `scrimRgb`，fail/clear 路由声明 `scrimAlpha`/`scrimRgb`（rgb 同参 canvas 族视觉零变），UiRoot 以平级前置容器 `{name}:scrim` 注入；视图撤内联蒙版防双份（确认态对话框全矢量同通道自洽，一并撤）。pause/sprint-settle/finish 全矢量面板不声明（防双份）。
+
+**② ✕ 过大**：视觉 56²→**44²**（`visualR` 22，叉臂 14→11），**热区保持 56²**（`r` 不缩水）双框同心；`hitFailPanel` 改走热区框；WXG-T-1004 判据改双框口径（含热区环带命中例）。

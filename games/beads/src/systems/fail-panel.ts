@@ -33,7 +33,10 @@ export interface FailPanelButton {
 export interface FailPanelLayout {
   readonly panel: PanelRect;
   readonly buttons: readonly FailPanelButton[];
+  /** ✕ **视觉**框（`[WXG-T-1097]` 44²，`visualR`）——视图绘制用。 */
   readonly dismissRect: PanelRect;
+  /** ✕ **热区**框（56²，`r` 不缩水）——`hitFailPanel` 用。 */
+  readonly dismissHitRect: PanelRect;
   readonly subtitle: string;
 }
 
@@ -80,18 +83,26 @@ function buildLayout(withRevive: boolean): FailPanelLayout {
   const retryYDown = withRevive ? g.retryBtn.yDown : g.continueBtn.yDown;
   buttons.push({ id: 'retry', rect: slot(g.retryBtn.w, g.retryBtn.h, retryYDown) });
 
-  // dismiss ✕ 按钮（右上角，相对牌框）：圆形 r=28，距 rightInset/topInset。
+  // dismiss ✕ 按钮（右上角，相对牌框）：热区 r=28 / 视觉 visualR=22（T-1097 拆分），距 rightInset/topInset。
+  // 两框**同心**：视觉框内缩量 = (r − visualR)。
   const dg = g.dismissBtn;
-  const dismissRect = rect(
+  const dismissHitRect = rect(
     plateX + plateW - dg.r * 2 - dg.rightInset,
     plateY + plateH - dg.r * 2 - dg.topInset,
     dg.r * 2, dg.r * 2,
+  );
+  const inset = dg.r - dg.visualR;
+  const dismissRect = rect(
+    dismissHitRect.xMin + inset,
+    dismissHitRect.yMin + inset,
+    dg.visualR * 2, dg.visualR * 2,
   );
 
   return {
     panel: plate,
     buttons,
     dismissRect,
+    dismissHitRect,
     subtitle: withRevive ? '' : FAIL_PANEL_SUBTITLE,
   };
 }
@@ -101,7 +112,8 @@ export function hitFailPanel(x: number, y: number, reviveAvailable: boolean): Fa
   for (const button of layout.buttons) {
     if (rectContains(button.rect, x, y)) return button.id;
   }
-  if (rectContains(layout.dismissRect, x, y)) return 'dismiss';
+  // `[WXG-T-1097]` ✕ 命中走**热区框**（56² 不缩水）；视觉框仅供绘制。
+  if (rectContains(layout.dismissHitRect, x, y)) return 'dismiss';
   return null;
 }
 

@@ -20,8 +20,7 @@ import {
     UI_CONTAINER,
 } from '../config/tuning';
 import { STAR_GOLD, withAlpha, type BeadsPalette } from './palette';
-import { UI_FONT, UI_SCRIM, bodyFont, drawPaperPanel } from './ui-theme';
-import { drawModalScrim } from './modal-frame';
+import { UI_FONT, bodyFont, drawPaperPanel } from './ui-theme';
 import { drawCloseInset, menuBitmapReady } from './meta-widgets';
 import type { TimeoutButtonViewModel, TimeoutViewModel } from './timeout-view-model';
 
@@ -183,8 +182,10 @@ export function drawTimeoutView(
     palette: BeadsPalette,
 ): void {
     // `[WXG-T-1051]` 确认态只画遮罩 + 确认对话框（⛔ 不叠画底牌，理由见 `drawConfirmDialog`）。
+    // `[WXG-T-1097]` 内联蒙版撤除：路由已声明 scrimAlpha ⇒ UiRoot 以平级前置容器
+    // `{fail}:scrim` 注入（本容器 Graphics 再画蒙版会罩暗 BlitLayerUI 的木牌位图）；
+    // 确认对话框是全矢量（Graphics 通道）⇒ 天然在蒙版容器之上，无需自带遮罩。
     if (vm.confirming) {
-        drawModalScrim(builder, UI_SCRIM.canvas, UI_SCRIM.alpha * 0.7);
         drawConfirmDialog(builder, vm, palette);
         return;
     }
@@ -197,7 +198,9 @@ export function drawTimeoutView(
     const cx = x + w / 2;
 
     // 遮罩走画布侧族（与暂停 / 结算同档，⛔ 不用菜单 overlay 黑）；容器 = 木牌位图或纸面板回退。
-    drawModalScrim(builder, UI_SCRIM.canvas, UI_SCRIM.alpha);
+    // `[WXG-T-1097]` 内联蒙版撤除：路由已声明 scrimAlpha ⇒ UiRoot 以平级前置容器
+    // `{fail}:scrim` 注入（先出现 ⇒ 整棵在 {fail} 容器之下）——本容器 Graphics 画蒙版会
+    // 罩暗 BlitLayerUI 通道的木牌位图（用户真机报「蒙版在上层」根因）。
     if (menuBitmapReady(TIMEOUT_TEXTURES.plaque)) {
         builder.blit(TIMEOUT_TEXTURES.plaque, x, y, w, h, { fx: PLAQUE_FX });
     } else {
@@ -234,14 +237,16 @@ export function drawTimeoutView(
         drawTimeoutButton(builder, vm.buttons[i]!, palette);
     }
 
-    // dismiss ✕（右上角 56²，与选关 / 详情 / 设置页共用 `drawCloseInset` 画法）。
+    // dismiss ✕（右上角；`[WXG-T-1097]` 用户令「叉按钮太大」⇒ 视觉缩 56²→44²（r 28→22），
+    // 热区仍 56²（`dismissBtn.r` 不动，≥ 旧统一规格）；叉臂 14→11 随盒缩放。
+    // 与选关 / 详情 / 设置页共用 `drawCloseInset` 画法。
     const dr = vm.dismissRect;
     drawCloseInset(
         builder, palette,
         dr.xMin + (dr.xMax - dr.xMin) / 2,
         dr.yMin + (dr.yMax - dr.yMin) / 2,
         dr.xMax - dr.xMin, dr.yMax - dr.yMin,
-        14, // ✕ 叉臂
+        11, // ✕ 叉臂
         vm.dismissPressed,
     );
 

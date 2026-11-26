@@ -42,12 +42,13 @@ export const TIMEOUT_GEO = {
   /** `failHint`（广告失败等）落位：牌底留白带中线（距牌底 45 ⇒ 586 档 yDown 541）。 */
   hintCyFromBottom: 45,
   /**
-   * ✕ 关闭按钮（**右上角**）：小圆 56×56，距牌内缘 right 12 / top 12。
-   * 与木牌同语言：灰色半透明圆形底 + 白色 ✕ 图标；不抢主按钮注意力。
+   * ✕ 关闭按钮（**右上角**）：**视觉 44×44**（`[WXG-T-1097]` 用户 2026-11-26 真机令「叉按钮
+   * 太大」⇒ 视觉从 56² 缩到 44²，`visualR` 22），距牌内缘 right 12 / top 12；**热区保持 56²**
+   *（`r` 28 不动，触控面不缩水）。与木牌同语言：深底圆角方 + 嵌线 ✕（`drawCloseInset`）；
    * ⚠ 稿面无此按钮（WXG-T-614 稿面裁定无关闭出口），用户 2026-11-17 新增：
    * "右上角加叉按钮，点后弹确认退出对话框"。
    */
-  dismissBtn: { r: 28, rightInset: 12, topInset: 12 },
+  dismissBtn: { r: 28, visualR: 22, rightInset: 12, topInset: 12 },
   /**
    * 放弃确认对话框（FAIL → confirm-abandon）：与 buy-confirm-panel 同口径
    * （560×300 居中板，两钮 240×88），叠加在 Fail 弹窗之上。
