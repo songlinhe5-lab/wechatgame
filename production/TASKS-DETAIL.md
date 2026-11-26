@@ -12355,7 +12355,14 @@ WXG-T-949 已把 v2 结算四件母版入册（`games/beads/design/art/final/ass
 - **产物**：`levels:sync` 重生成 `src/config/levels-data.ts`（36 关）与 `src/config/arcs.ts`（A03 `levelRefs [[28,36]]`、`ARC_OPEN_MAX 3→4`）；`framework:sync` 同步 Cocos 镜像 3 件（levels-data / arcs / tuning/gameplay）。
 - **门禁**：`levels:check`（含门禁⑤⑥⑦ + 定价断言 + 章断言集）PASS；`framework:sync:check` PASS；`check:frozen-values` PASS；`check:tasks` / `check:links` / `ctx:check` PASS；定向单测 `difficulty / arcs / levels-dir-pipeline / level-import` 45 passed（1 skip）。
 - **全量 verify 现状**：停在 `test` 步骤，8 条红 = `bead-style-seal` 2 帧 + `ui-golden` 6 屏（PlayPage/Pause/Clear/Fail/Sprint/Finish）。已核实为 **HEAD 既有红**：`f9b7e7d2`（T-1093 bead mask）与 `T-1092` 改 `view/bead-render.ts`、`view/play-page.ts` 后未重抓封箱/金样本；这两套测试不引用 `LEVELS_DATA` / `ARCS` / `DEMO_LEVEL_COUNT`（封箱用 13×12 固定夹具），与本章落库无关。⛔ 未代改他人基准。
-- **风险 / 待办**：① 门禁⑧ WARN 新增 6 关（id 28 T2=2.5；29 T3=0.0146/T4=2；33 T2=3/T4=6；34 T2=2.71/T4=5；35 T2=5.14/T3=0.03/T4=4；36 T2=2.6），WARN 模式不拦、与存量 19 关同族；② P04 `time=144s` 仍按用户令待实测后**统一系数**整批调；③ P09 42×42 为首次正式入库盘面（WALL_CAPACITY=9 恰好容纳本章 9 槽）。
+- **风险 / 待办**：① 门禁⑧ WARN 新增 6 关（id 28 T2=2.5；29 T3=0.0146/T4=2；33 T2=3/T4=6；34 T2=2.71/T4=5；35 T2=5.14/T3=0.03/T4=4；36 T2=2.6），WARN 模式不拦、与存量 19 关同族；② ~~P04 `time=144s` 待统一系数~~ → 已收口（见下节）；③ P09 42×42 为首次正式入库盘面（WALL_CAPACITY=9 恰好容纳本章 9 槽）。
+
+### 2026-11-26 · P04 按 v1.0 公式重锚（用户「按 v1.0 公式重锚」拍板，WXG-T-1060 尾巴）
+
+- **复算**：真源 `SEC_PER_TAP_BY_TIER = [0.79, 0.89, 1.01, 1.12]`（斜率 v1.1）+ 新口径 `D = C + N/250`。九关逐关复算：L00030–L00032 / L00034–L00038 八关 `time` 与公式**逐关相等，零改动**；唯一变动 `L00033 章鱼`——D=5.572 ⇒ tier 0（简单），`time 144→128s`（`ceil(ceil(136×0.79)/0.85)=128`）、`pricing.tier 1→0`、`secPerTap 0.89→0.79`。原「统一系数整批调」挂账提前收口：所谓统一系数即真源四档斜率本身，A03 批其余关早已按公式落库。
+- **产物**：`levels:sync` 重写 `src/config/levels-data.ts`（1 件）+ `framework:sync` 同步 Cocos 镜像（1 件）；`contentVersion` 不动（改价不占版本号，WXG-T-1065 先例）。
+- **门禁**：`levels:check` PASS（门禁⑧ WARN 面 25 关与改前一致，本改动不触珠面）；定向单测 `difficulty / arcs / levels-dir-pipeline / level-import` 45 passed（1 skipped）。
+- **文档**：P04 `generation-record.txt`「时间口径待实测」节改「已重锚」；`series-spec-catalog.md §A03` 实做读数 P4 改 128s 并撤 ⚠。
 
 ## WXG-T-1061
 

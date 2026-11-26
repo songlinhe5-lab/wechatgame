@@ -2146,7 +2146,7 @@ export const LEVELS_DATA: LevelsData = {
       name: "章鱼",
       cols: 32,
       rows: 32,
-      time: 144,
+      time: 128,
       cycleProfile: "long",
       decoys: [],
       pattern: [
