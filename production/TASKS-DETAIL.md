@@ -13136,3 +13136,27 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 **连带修正**：T-1086 加的「槽沿环」原按 `TRAY_SLOT`(48) 画，坑变小后会**大一圈浮在珠外** ⇒ 尺寸改为跟随坑外廓 `TRAY_SLOT − 2×trayInset×TRAY_SLOT/BEAD_CELL`，圆角同步 `rim × 0.30`。「槽沿压住珠外缘」的读感保留。
 
 **验证**：实帧 `temp/ui-shot/tray-revert.png`（空槽与珠同尺寸、珠四周仍有槽沿）；`selection-anchor` / `tray-socket` / `play-page` **29/30 通过**（唯一红为既有命令数基线 `5238 > 5616`，属金样未重抓）。
+
+
+## WXG-T-1093
+
+**槽底可选 bead mask（珠子图案）** · 负责：主理人(CodeBuddy)·工程轨 · 状态：🚧 **进行中（2026-11-26）**
+
+用户令：「槽底走 tint，面板保持压盘面珠」。
+
+**已做**：`SocketOptions` 新增 `maskSpace?: 'cell' | 'bead'`（缺省 `'cell'`，盘面空格零变化）；托盘空槽与有珠槽改传 `'bead'` 并**去掉 `forceVector`**（回到 tint 臂）⇒ 槽底取**珠子刻面 mask**，读作「一颗无色的珠」，与珠面同构。
+
+**未解的层序互斥（关键）**：面板按 T-1088 在 `graphics`（为压住盘面珠），而槽底的 tint 走 `blit`；仓库既有判例（`bead-render.ts:1155` T-461 注释）明确「`Graphics` 层在 `BlitLayer` 之上」⇒ **面板会把槽底整块盖住**。两条诉求在当前载体结构下不可兼得，破法：
+1. 把槽底的 tint 纹理挂到容器 `BlitLayerUI`（graphics 之上，`BELOW_GRAPHICS_TEXTURE_IDS` 反选）——属于 T-1048 的 blit 池层序区，改动面广、风险高；
+2. 面板回 `back`（blit 之下）⇒ 放弃「面板压盘面珠」。
+
+
+## WXG-T-1078
+
+**盘面拖动零固定步帧补呈现残差** · 负责：工程轨(Qoder)·beads · 状态：✅ **完成（2026-11-25）**
+
+固定步率 60 Hz、宿主可达 120 Hz，两渲染帧间可能没有固定步 ⇒ 相机 offset 只在 `applyPan` 推进 ⇒ 画面「一帧不动、下一帧走两倍」，帧耗时稳定但读作卡顿。
+
+修法：`_syncSnapshot` 在 `projectSnapshot` 之后追加 `_applyDragResidual()` —— 读 `InputManager.snapshot.dx/dy`（已推入未消费的屏幕像素差）折算设计坐标叠加到 `snapshot.gridLeft/gridTop`（渲染器实际读的字段），下一次固定步覆写回权威值。⛔ 不 mutate `_cam`（L5）。
+
+**本条由 WXG-T-1093 收口批次代登**（K-137 例外：原会话未自登且阻塞 `check:tasks` 收口）。

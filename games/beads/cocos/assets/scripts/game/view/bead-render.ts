@@ -1016,6 +1016,13 @@ export interface EmptySocketTintOptions {
    */
   readonly trayZone?: boolean;
   /**
+   * `[WXG-T-1093 · 用户 2026-11-26 令「槽底走 tint，面板保持压盘面珠」]` 槽底用哪套 mask：
+   * - `'cell'`（缺省）= 格面纹理 ⇒ 一块圆角方块（盘面空格用这条）；
+   * - `'bead'` = **珠子刻面纹理** ⇒ 空槽读作「一颗无色的珠」，与珠面同构（托盘空槽用这条）。
+   * ⛔ 只影响 tint 臂的 mask 取图；矢量臂不变（无纹理可用）。
+   */
+  readonly maskSpace?: 'cell' | 'bead';
+  /**
    * `[WXG-T-1088 · 用户 2026-11-26 点头]` **强制矢量臂**：跳过 tint/blit，走 `layers` 的
    * rect/circle/polygon 命令。
    *
@@ -1143,7 +1150,7 @@ export function drawEmptySocket(
     (_tintRuntime.allowTint?.() ?? true)
   ) {
     const cellStyleId = options.styleId ?? DEFAULT_BEAD_STYLE_ID;
-    const maskId = _tintRuntime.getMaskId('cell', options.maskGauge, cellStyleId);
+    const maskId = _tintRuntime.getMaskId(options.maskSpace ?? 'cell', options.maskGauge, cellStyleId);
     if (maskId !== undefined) {
       // [WXG-T-261 三批 · 2026-10-06 用户报「槽底没有变化，只有槽边缘的阴影在加深」] 确诊：格 mask 内部
       // `shape`(B 通道)=0 ⇒ tint blit **只着色槽口斜面环**，槽底面全透明。盘面 `tilePainted=true`

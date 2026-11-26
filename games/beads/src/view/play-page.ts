@@ -1060,7 +1060,7 @@ function drawTray(
                 // 否则珠落进/取出时坑会一大一小跳变，且空槽明显比有珠槽小一圈（实帧可见）。
                 drawEmptySocket(
                     builder, cx, cy, palette, TRAY_SLOT, undefined, inks, false, trayInset,
-                    { maskGauge: sizeSmall ? 'holeless' : 'holed', styleId: snap.beadStyle, trayZone: true, forceVector: true },
+                    { maskGauge: sizeSmall ? 'holeless' : 'holed', styleId: snap.beadStyle, trayZone: true, maskSpace: 'bead' },
                 );
             }
             continue;
