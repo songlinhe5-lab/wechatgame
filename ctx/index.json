@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4391,
       "lines": 144,
-      "sha256": "cc9b9fff445f5541b01791ee716d907266012bec23fb65424c6ca116b5a6e453",
+      "sha256": "2e5450e8c50a8e9f889f66dec80878d54304b95651706c07b996828e7273e350",
       "tier": "normal",
       "sections": [
         {
@@ -14587,17 +14587,17 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 65804,
-      "lines": 459,
-      "sha256": "5045b6d037e9018ef40904a69ccd35a470853e8ad002b0d00f202b5ab11e452b",
+      "tokens": 66226,
+      "lines": 461,
+      "sha256": "4d56a32a7a34937a62982f490cfcd93d9d54bccbde766052bb134479619ffee0",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§beads UI 架构（View / ViewModel / Presenter + 公共基础）",
           "level": 1,
           "startLine": 1,
-          "endLine": 460,
-          "tokens": 65786,
+          "endLine": 462,
+          "tokens": 66207,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -14767,8 +14767,8 @@
           "anchor": "§12 TODO 拆分",
           "level": 2,
           "startLine": 138,
-          "endLine": 456,
-          "tokens": 60732,
+          "endLine": 458,
+          "tokens": 61154,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -14779,8 +14779,8 @@
         {
           "anchor": "§13 待你拍板",
           "level": 2,
-          "startLine": 457,
-          "endLine": 460,
+          "startLine": 459,
+          "endLine": 462,
           "tokens": 323,
           "summary": "D1–D5 均已裁定（见 [ADR-0032 §5](adr/ADR-0032-beads-ui-architectur",
           "keywords": [
@@ -124373,9 +124373,9 @@
     },
     {
       "path": "production/qa/beads/test-cases-k-ledger-2.md",
-      "tokens": 16912,
-      "lines": 198,
-      "sha256": "e03b3db0b98549b46985a4f9b142c690c3425a93cbe46297c09eea75e66eb91e",
+      "tokens": 17317,
+      "lines": 205,
+      "sha256": "e93f1d43ea6577c1b4f5b4b65a5650c2b92b5be5818d9c4f7e524c52054a8f74",
       "tier": "normal",
       "sections": [
         {
@@ -124619,10 +124619,26 @@
           ]
         },
         {
-          "anchor": "§K.6 `06` 珐琅 —— **只登记出池门引用，本批不造判据**（Q1 = 甲）",
+          "anchor": "§K.5.1-补18 整帧基线第二十七次复评修订（2026-11-26 · WXG-T-1096 托盘空槽 mask blit 容器化 · 正本 = provenance `s3_frame_recheck_t1096`）",
           "level": 3,
           "startLine": 186,
-          "endLine": 194,
+          "endLine": 192,
+          "tokens": 357,
+          "summary": "通道声明：属插入型改动（用户裁定「槽底走 tint、面板保持压盘面珠」破层序互斥 ⇒ 托盘空槽 mask blit 包进",
+          "keywords": [
+            "s3_frame_recheck_t1096",
+            "WXG",
+            "mask",
+            "blit",
+            "provenance",
+            "tint"
+          ]
+        },
+        {
+          "anchor": "§K.6 `06` 珐琅 —— **只登记出池门引用，本批不造判据**（Q1 = 甲）",
+          "level": 3,
+          "startLine": 193,
+          "endLine": 201,
           "tokens": 357,
           "summary": "引用项 内容 出处 QA 处置",
           "keywords": [
@@ -124636,8 +124652,8 @@
         {
           "anchor": "§K.7 本节残留与回改触发器（诚实登记，不得被\"已建例\"掩盖）",
           "level": 3,
-          "startLine": 195,
-          "endLine": 199,
+          "startLine": 202,
+          "endLine": 206,
           "tokens": 288,
           "summary": "① assets-spec 7.13 判据 ③ 的「C12 强读法」引用行需 art 订正（K.6）；② C12 弱读的",
           "keywords": [

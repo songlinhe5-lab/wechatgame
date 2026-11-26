@@ -183,6 +183,13 @@
 > - **流级差分（未解释 0 条）**：零插入 / 零删除 / 零改写条数，仅带 / 角带多边形坐标随比例变；最强反证 = 珠体族 `legacyFlow` 96/96、facet 45/45 逐字节全等。
 > - **判据同步**：键 25 五条断言 + 台账 `recheck-25-outline-scale`（0/0）+ 公式例改「1:1 = 3/9、2× = 6/18、0.5× = 1.5/4.5」。
 
+### K.5.1-补18 整帧基线第二十七次复评修订（2026-11-26 · WXG-T-1096 托盘空槽 mask blit 容器化 · 正本 = provenance `s3_frame_recheck_t1096`）
+
+> - **通道声明**：属**插入型**改动（用户裁定「槽底走 tint、面板保持压盘面珠」破层序互斥 ⇒ 托盘空槽 mask blit 包进 `tray` 容器，容器子树整棵排在默认五通道之后）；重抓由工程侧跑官方复取器，本文只给文号与索引。
+> - **编号口径**：本段 ↔ **键 26**；两帧各 **+2**（container 1 + containerEnd 1，唯一 Δtotal 源，其余逐 kind 零变）；前态 = 第二十六次复评（T-1095 收口批，t-series 键 `s3_frame_recheck_t1095`）产物 frame0 `1288` / frame78 `1834`，现锚 = `a6c1d8ea`（frame0 `1290` / frame78 `1836`）。
+> - **流级差分（未解释 0 条）**：唯一插入段 = `beginContainer('tray')`/`endContainer` 一对（S3 矢量臂同样容器化，容器命令进流）；空槽 mask 回 cell 与有珠槽 `tintSocketSize` 均为 tint 臂行为，封箱（矢量臂）零扰动；最强反证 = 珠体族 `legacyFlow` 96/96、facet 45/45 逐字节全等。
+> - **判据同步**：新增常数 `T1096_TRAY_CONTAINER = 2` + 键 26 断言 + 台账 `recheck-26-tray-container`（2/2）+ 两式与 `delta.container/containerEnd`、`totalDelta`、`s3.frame78.total` 1836 入账。
+
 ### K.6 `06` 珐琅 —— **只登记出池门引用，本批不造判据**（Q1 = 甲）
 >
 > | 引用项 | 内容 | 出处 | QA 处置 |

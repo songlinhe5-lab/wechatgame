@@ -1500,15 +1500,17 @@
       "ci5-t5-s44": "c45a00fb5d66442314a191b99b8f2ac23c54266b3c51ecc1f1f195cd3351fd6e"
     },
     "frame78": {
-      "total": 1834,
+      "total": 1836,
       "kinds": {
         "rect": 936,
         "line": 353,
         "polygon": 376,
         "circle": 159,
+        "container": 1,
+        "containerEnd": 1,
         "text": 10
       },
-      "sha": "97f7f05af37b33076c83d26bdf11c152411415bda3cf7d2e37ab72119c7f21fc",
+      "sha": "a9872f0b8727b6070e898e33504e148d210c1c170a3f13a4dcf2dee30b4cf48f",
       "filled": 78,
       "fillableTotal": 156,
       "flow": [
@@ -3209,6 +3211,7 @@
         "{\"kind\":\"line\",\"x1\":42,\"y1\":399,\"x2\":708,\"y2\":399,\"stroke\":\"rgba(61,46,30,0.03)\",\"lineWidth\":3,\"back\":false}",
         "{\"kind\":\"line\",\"x1\":42,\"y1\":396,\"x2\":708,\"y2\":396,\"stroke\":\"rgba(61,46,30,0.05)\",\"lineWidth\":3,\"back\":false}",
         "{\"kind\":\"line\",\"x1\":705,\"y1\":276,\"x2\":705,\"y2\":402,\"stroke\":\"rgba(61,46,30,0.02)\",\"lineWidth\":3,\"back\":false}",
+        "{\"kind\":\"container\",\"id\":\"tray\"}",
         "{\"kind\":\"rect\",\"x\":54,\"y\":342,\"w\":48,\"h\":48,\"fill\":\"#4A5060\",\"radius\":14}",
         "{\"kind\":\"rect\",\"x\":57.2,\"y\":345.2,\"w\":41.6,\"h\":41.6,\"fill\":\"#0f1013\",\"radius\":12}",
         "{\"kind\":\"rect\",\"x\":58.2,\"y\":346.2,\"w\":39.6,\"h\":39.6,\"fill\":\"#181a1f\",\"radius\":11}",
@@ -3293,6 +3296,7 @@
         "{\"kind\":\"rect\",\"x\":654.2,\"y\":348.2,\"w\":35.6,\"h\":35.6,\"fill\":\"#292d36\",\"radius\":9}",
         "{\"kind\":\"line\",\"x1\":656.336,\"y1\":381.664,\"x2\":687.6640000000001,\"y2\":381.664,\"stroke\":\"#1f2228\",\"lineWidth\":2}",
         "{\"kind\":\"line\",\"x1\":656.336,\"y1\":350.336,\"x2\":687.6640000000001,\"y2\":350.336,\"stroke\":\"#8f939c\",\"lineWidth\":2}",
+        "{\"kind\":\"containerEnd\"}",
         "{\"kind\":\"rect\",\"x\":309,\"y\":236,\"w\":132,\"h\":48,\"fill\":\"#8A5B34\",\"radius\":16}",
         "{\"kind\":\"line\",\"x1\":312,\"y1\":237,\"x2\":438,\"y2\":237,\"stroke\":\"#5E3B1E\",\"lineWidth\":2}",
         "{\"kind\":\"rect\",\"x\":405,\"y\":248,\"w\":28,\"h\":28,\"fill\":\"#8A5B34\",\"radius\":8}",
@@ -3349,8 +3353,8 @@
       ]
     },
     "frame0": {
-      "total": 1288,
-      "sha": "14e16aa856628037946dc4bca134b38285175c1a0f89a92940000dacecb66902"
+      "total": 1290,
+      "sha": "2519a35e950ab68089880869f35e579a1939fe86278989937f5103ed61d6390f"
     },
     "legacyFlow": {
       "ci1-tnone-l0-s1-lodfull-z22": "51e055a2c89dafbb5782ab2a212c437f4f5b40f38143aeb096b2d484bfd64b2c",
@@ -3609,7 +3613,8 @@
     "s3_frame_recheck_t1078": "2026-11-25 · WXG-T-1078 第二十次复评：变更源 = ① 托盘面板 + 三条内阴影回 `back`（撤销 T-1074 提层；真机 tint 臂下槽底/珠是 blit，graphics 面板会盖住槽底）；② `drawGrid` 外层新增 clip/unclip 以把盘面限死在 `PUZZLE_BAND`（B 的等效实现）。核对：frame78 `1834 → 1836`、frame0 `1288 → 1290`，**增量恰为 clip 1 + unclip 1**，其余逐 kind 计数全等（rect 936 / circle 159 / line 353 / text 10 / polygon 376）⇒ 图元增删可完整归因，无未解释条目。前态：frame78 total 1834 sha d3248efc0fbc63db… / frame0 total 1288 sha 8cf606ae6afa8a3d…",
     "s3_frame_recheck_t1082": "2026-11-25 · WXG-T-1082 第二十一次复评：变更源 = 托盘面板高度改回自然高度 + 整体下移贴道具区（用户令「默认底槽太高，只要两行高度；按钮轻微盖住槽下延；整体贴道具区」）⇒ `panelBottom` 与 `slotCenterY` 全部位移（少行档面板底 272→276、槽随面板顶下移）。核对：frame78/frame0 的 total 与逐 kind 计数全等（1834/1288）⇒ 纯几何位移，零图元增删。",
     "s3_frame_recheck_t1088": "2026-11-26 · WXG-T-1088 第二十三次复评：变更源 = 托盘面板/内阴影提 graphics + 托盘槽/珠新增 `forceVector` 走矢量（用户令「底槽背景压珠面」）。核对：frame78/frame0 的 total 与逐 kind 计数**全等**（1834/1288，rect 936 / circle 159 / line 353 / text 10 / polygon 376）—— 该夹具是**盘面整帧**、不含托盘有珠场景 ⇒ 托盘臂切换对它零扰动，仅因面板 `back` 标志翻转导致 sha 漂移。",
-    "s3_frame_recheck_t1095": "2026-11-26 · WXG-T-1095 第二十四次复评（收口批 · 复取锚 = 提交 b53deda5 干净 detached worktree · 官方复取器重抓 ⇒ 可再生）：变更源 = ① T-1085 drawHud 移绘制序列末位（常驻 UI 恒顶）+ drawGrid 外包 clip/unclip 限死盘面带；② T-1092 托盘槽 beadInset 回退 trayInset + 槽沿环尺寸跟随坑外廓；③ T-1093 槽底 maskSpace=bead（珠子刻面 mask）+ 去 forceVector 回 tint 臂；T-1090/1091/1094 相机与测试口径零渲染影响。核对：frame78/frame0 的 total 与逐 kind 计数全等（1834/1288，rect 936 / line 353 / polygon 376 / circle 159 / text 10）⇒ 纯内容改写（几何/帖序），零增删命令；腿 1 legacyFlow 96 例与腿 2/3 facet 层键 45×2 例逐字节未漂。前态 = 9f544c77/2becc5c7。复取两遍确定性自证 PASS。"
+    "s3_frame_recheck_t1095": "2026-11-26 · WXG-T-1095 第二十六次复评（收口批 · 复取锚 = 提交 b53deda5 干净 detached worktree · 官方复取器重抓 ⇒ 可再生）：变更源 = ① T-1085 drawHud 移绘制序列末位（常驻 UI 恒顶）+ drawGrid 外包 clip/unclip 限死盘面带；② T-1092 托盘槽 beadInset 回退 trayInset + 槽沿环尺寸跟随坑外廓；③ T-1093 槽底 maskSpace=bead（珠子刻面 mask）+ 去 forceVector 回 tint 臂；T-1090/1091/1094 相机与测试口径零渲染影响。核对：frame78/frame0 的 total 与逐 kind 计数全等（1834/1288，rect 936 / line 353 / polygon 376 / circle 159 / text 10）⇒ 纯内容改写（几何/帖序），零增删命令；腿 1 legacyFlow 96 例与腿 2/3 facet 层键 45×2 例逐字节未漂。前态 = 9f544c77/2becc5c7。复取两遍确定性自证 PASS。",
+    "s3_frame_recheck_t1096": "2026-11-26 · WXG-T-1096 第二十七次复评（托盘容器化批 · 复取锚 = 提交 a6c1d8ea 干净 detached worktree · 官方复取器重抓 ⇒ 可再生）：变更源 = 托盘空槽 mask blit 容器化（用户裁定「槽底走 tint、面板保持压盘面珠」破层序互斥）⇒ 帧内新增 beginContainer/tray + endContainer 一对（唯一 Δtotal = +2，其余逐 kind 计数零变：rect 936 / line 353 / polygon 376 / circle 159 / text 10）；空槽 mask 回 cell（豆底图案直显）与有珠槽 tintSocketSize 均为 tint 臂行为，封箱（矢量臂）零扰动；hitTraySlot 命中归属零渲染影响。前态 = 97f7f05a/14e16aa8（T-1095 第二十四次）。复取两遍确定性自证 PASS。"
   },
   "s3_pre_tray_261": {
     "_readme": "第十五次复评（WXG-T-261 托盘放大批）的**前态史证** = 本批复取前的现役 s3 两键（托盘 pitch 32 / 槽底 #F7F6FB 态）。本批修订面为**几何+墨值改写**（非纯插键）⇒ 腿 4a 的 strip-back 闭合等式不再可能回到本键；等效证明 = provenance.s3_frame_recheck_15 的前/现态锚 + 流级差分 172/172。计数全等由本键 total ≡ s3.*.total 钉住。⛔ 只读史证，不随后续复评漂移。",
@@ -3760,6 +3765,15 @@
         "frame0": 0,
         "frame78": 0,
         "note": "WXG-T-930 描边改 1:1 锚定等比：条数零变（54），仅坐标随 pitch/32 缩放，两帧 sha 变"
+      },
+      {
+        "id": "recheck-26-tray-container",
+        "key": "s3_frame_recheck_t1096",
+        "witness": "托盘容器化",
+        "qaAnchor": "K.5.1-补18",
+        "frame0": 2,
+        "frame78": 2,
+        "note": "托盘空槽 mask blit 容器化（用户裁定「槽底走 tint、面板保持压盘面珠」破层序互斥）：帧内 beginContainer(tray)/endContainer 一对，两帧各 +2（T-1096 第二十七次复评）"
       }
     ]
   }

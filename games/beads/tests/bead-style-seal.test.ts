@@ -226,6 +226,16 @@ const T927_BOARD_OUTLINE = 46;
  * 归因正本 = provenance `s3_frame_recheck_24`（K.5.1-补16）。⛔ 与 T927 段独立登记。
  */
 const T929_BAND_SHAPE = 8;
+/**
+ * **[WXG-T-1096 · 第二十七次复评]** 已登记的**托盘容器段**插入差（K.5.1-补18）。
+ *
+ * 用户 2026-11-26 裁定「槽底走 tint、面板保持压盘面珠」破层序互斥 ⇒ 托盘空槽 mask blit
+ * **容器化**（`beginContainer('tray')` + `endContainer` 一对）：同容器通道序 blit < graphics，
+ * 容器子树整棵排在默认五通道之后 ⇒ 容器 BlitLayerUI 的 mask blit 压过默认 Graphics 面板。
+ * 两帧各 **+2**（container 1 + containerEnd 1，唯一 Δtotal 源；其余逐 kind 零变）。
+ * 归因正本 = provenance `s3_frame_recheck_t1096`（K.5.1-补17）。⛔ 与其他段独立登记。
+ */
+const T1096_TRAY_CONTAINER = 2;
 /** 历史档案常量：HEAD 盘带中心 = (480+1120)/2，只作 Δ 基准，非现值。 */
 const HEAD_PUZZLE_BAND_MID_Y = 800;
 /** 盘带族平移矢量：由**现役** `PUZZLE_BAND` 派生（⛔ 非手填）⇒ 同时校带尺与渲染跟随。 */
@@ -531,16 +541,18 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         // 非珠体族现口径：帧长差 = 控件条数 **+ 已登记的空槽内阴影阶梯段 − 已登记的容器板/背景退役段
         // + EP12-S2/S3 登记插入段 3**（第十八次复评，K.5.1-补10）**− T-394 托盘削槽段 84**（第二十次）
         // **− T-462 控件条退役段 8**（第二十一次，K.5.1-补13）**+ T-927 盘面珠面轮廓段 46**（第二十二次，K.5.1-补14）
-        // **+ T-929 骑线带替换净增 8**（第二十四次，K.5.1-补16）。
+        // **+ T-929 骑线带替换净增 8**（第二十四次，K.5.1-补16）**+ T-1096 托盘容器段 2**（第二十七次，K.5.1-补18）。
         //（`731100c` 每空槽 +2 rect；WXG-T-256 两帧 −9 rect；WXG-T-394 少一行 12 空槽 = 12 × 7 条）。
         // 平移 = 条数中不变，不得拿它抵充增减。⛔ 各段的数值各自登记，不得合并成一个黑箱常数。
         expect(emptyFlow.length - SEAL.head.frame0.total).toBe(
             HUD_ZOOM_CTRL_TOTAL + SOCKET_INNER_SHADE_FRAME0 - PLATE_BG_RETIRE_FRAME0 + EP12_S2S3_FRAME_DRIFT + EP14_S2_STAR_HUD
-            - T394_TRAY_TIER_FRAME_DRIFT - T462_ZOOM_CTRL_HIDE + T927_BOARD_OUTLINE + T929_BAND_SHAPE,
+            - T394_TRAY_TIER_FRAME_DRIFT - T462_ZOOM_CTRL_HIDE + T927_BOARD_OUTLINE + T929_BAND_SHAPE
+            + T1096_TRAY_CONTAINER,
         );
         expect(SEAL.s3.frame0.total - SEAL.head.frame0.total).toBe(
             HUD_ZOOM_CTRL_TOTAL + SOCKET_INNER_SHADE_FRAME0 - PLATE_BG_RETIRE_FRAME0 + EP12_S2S3_FRAME_DRIFT + EP14_S2_STAR_HUD
-            - T394_TRAY_TIER_FRAME_DRIFT - T462_ZOOM_CTRL_HIDE + T927_BOARD_OUTLINE + T929_BAND_SHAPE,
+            - T394_TRAY_TIER_FRAME_DRIFT - T462_ZOOM_CTRL_HIDE + T927_BOARD_OUTLINE + T929_BAND_SHAPE
+            + T1096_TRAY_CONTAINER,
         );
         // 归因登记必须在案（⛔ 无登记的基准追改视为红）。
         expect(SEAL.provenance.s3_frame_recheck_6, '第六次复评无归因登记').toContain('第六次复评');
@@ -647,10 +659,10 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         const pre = SEAL.s3_pre_tray_261;
         expect(pre, '第十五次复评前态史证缺失 ⇒ 本批基准追改无锚').toBeDefined();
         expect(pre!.frame0.total, '前态 frame0 计数须 ≡ 现役 − 后续登记插入段（第十八批 +3、第十九批 +1、第廿二批 +46）+ 第二十批削减 84').toBe(
-            SEAL.s3.frame0.total - EP12_S2S3_FRAME_DRIFT - EP14_S2_STAR_HUD + T394_TRAY_TIER_FRAME_DRIFT + T462_ZOOM_CTRL_HIDE - T927_BOARD_OUTLINE - T929_BAND_SHAPE,
+            SEAL.s3.frame0.total - EP12_S2S3_FRAME_DRIFT - EP14_S2_STAR_HUD + T394_TRAY_TIER_FRAME_DRIFT + T462_ZOOM_CTRL_HIDE - T927_BOARD_OUTLINE - T929_BAND_SHAPE - T1096_TRAY_CONTAINER,
         );
         expect(pre!.frame78.total, '前态 frame78 计数须 ≡ 现役 − 登记插入段（含第廿二批 +46）+ 第二十批削减 84').toBe(
-            SEAL.s3.frame78.total - EP12_S2S3_FRAME_DRIFT - EP14_S2_STAR_HUD + T394_TRAY_TIER_FRAME_DRIFT + T462_ZOOM_CTRL_HIDE - T927_BOARD_OUTLINE - T929_BAND_SHAPE,
+            SEAL.s3.frame78.total - EP12_S2S3_FRAME_DRIFT - EP14_S2_STAR_HUD + T394_TRAY_TIER_FRAME_DRIFT + T462_ZOOM_CTRL_HIDE - T927_BOARD_OUTLINE - T929_BAND_SHAPE - T1096_TRAY_CONTAINER,
         );
         expect(pre!.frame0.sha, '前态 sha 不得被刷回现役（改写必须可见）').not.toBe(SEAL.s3.frame0.sha);
         expect(pre!.frame78.sha).not.toBe(SEAL.s3.frame78.sha);
@@ -658,10 +670,10 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         const preB = SEAL.s3_pre_tray_261b;
         expect(preB, '二批前态史证缺失 ⇒ 本批基准追改无锚').toBeDefined();
         expect(preB!.frame0.total, '二批前态 frame0 计数须 ≡ 现役 − 登记插入段（第十八批 +3、第十九批 +1、第廿二批 +46）+ 第二十批削减 84').toBe(
-            SEAL.s3.frame0.total - EP12_S2S3_FRAME_DRIFT - EP14_S2_STAR_HUD + T394_TRAY_TIER_FRAME_DRIFT + T462_ZOOM_CTRL_HIDE - T927_BOARD_OUTLINE - T929_BAND_SHAPE,
+            SEAL.s3.frame0.total - EP12_S2S3_FRAME_DRIFT - EP14_S2_STAR_HUD + T394_TRAY_TIER_FRAME_DRIFT + T462_ZOOM_CTRL_HIDE - T927_BOARD_OUTLINE - T929_BAND_SHAPE - T1096_TRAY_CONTAINER,
         );
         expect(preB!.frame78.total, '二批前态 frame78 计数须 ≡ 现役 − 登记插入段（含第廿二批 +46）+ 第二十批削减 84').toBe(
-            SEAL.s3.frame78.total - EP12_S2S3_FRAME_DRIFT - EP14_S2_STAR_HUD + T394_TRAY_TIER_FRAME_DRIFT + T462_ZOOM_CTRL_HIDE - T927_BOARD_OUTLINE - T929_BAND_SHAPE,
+            SEAL.s3.frame78.total - EP12_S2S3_FRAME_DRIFT - EP14_S2_STAR_HUD + T394_TRAY_TIER_FRAME_DRIFT + T462_ZOOM_CTRL_HIDE - T927_BOARD_OUTLINE - T929_BAND_SHAPE - T1096_TRAY_CONTAINER,
         );
         expect(preB!.frame0.sha, '⛔ 一批收口锁不得被刷回现役（二批墨改写必须可见）').not.toBe(SEAL.s3.frame0.sha);
         expect(preB!.frame78.sha).not.toBe(SEAL.s3.frame78.sha);
@@ -669,10 +681,10 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         const pre268 = SEAL.s3_pre_ui_268;
         expect(pre268, '第十七次复评前态史证缺失 ⇒ 本批基准追改无锚').toBeDefined();
         expect(pre268!.frame0.total, '前态 frame0 计数须 ≡ 现役 − 第十八/十九/廿二批登记漂移（插入型批次）+ 第二十批削减 84').toBe(
-            SEAL.s3.frame0.total - EP12_S2S3_FRAME_DRIFT - EP14_S2_STAR_HUD + T394_TRAY_TIER_FRAME_DRIFT + T462_ZOOM_CTRL_HIDE - T927_BOARD_OUTLINE - T929_BAND_SHAPE,
+            SEAL.s3.frame0.total - EP12_S2S3_FRAME_DRIFT - EP14_S2_STAR_HUD + T394_TRAY_TIER_FRAME_DRIFT + T462_ZOOM_CTRL_HIDE - T927_BOARD_OUTLINE - T929_BAND_SHAPE - T1096_TRAY_CONTAINER,
         );
         expect(pre268!.frame78.total, '前态 frame78 计数须 ≡ 现役 − 登记漂移（含第廿二批 +46）+ 第二十批削减 84').toBe(
-            SEAL.s3.frame78.total - EP12_S2S3_FRAME_DRIFT - EP14_S2_STAR_HUD + T394_TRAY_TIER_FRAME_DRIFT + T462_ZOOM_CTRL_HIDE - T927_BOARD_OUTLINE - T929_BAND_SHAPE,
+            SEAL.s3.frame78.total - EP12_S2S3_FRAME_DRIFT - EP14_S2_STAR_HUD + T394_TRAY_TIER_FRAME_DRIFT + T462_ZOOM_CTRL_HIDE - T927_BOARD_OUTLINE - T929_BAND_SHAPE - T1096_TRAY_CONTAINER,
         );
         expect(pre268!.frame0.sha, '⛔ 换值前收口锁不得被刷回现役（暖纸墨改写必须可见）').not.toBe(SEAL.s3.frame0.sha);
         expect(pre268!.frame78.sha).not.toBe(SEAL.s3.frame78.sha);
@@ -734,12 +746,16 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         expect(delta.circle).toBe(78 * 0); // **孔贡献 = 0**：单孔 → 环+底两枚（六裁，用户拍板）
         expect(delta.polygon).toBe(78 * 4 + T927_BOARD_OUTLINE + T929_BAND_SHAPE); // **刻面 kind 化** + 第廿二批盘面轮廓 46 + 第廿四批骑线带净增 8
         expect(delta.text).toBe(EP14_S2_STAR_HUD); // [EP14-S2 十九批] 顶栏新增 `★n` 一条 text；非珠体族除登记段外零变更
+        // [WXG-T-1096 第二十七次] 托盘容器段：container / containerEnd 各 +1（S3 矢量臂同样容器化）。
+        expect(delta.container).toBe(1);
+        expect(delta.containerEnd).toBe(1);
         const totalDelta = SEAL.s3.frame78.total - SEAL.head.frame78.total;
         expect(Object.values(delta).reduce((a, b) => a + b, 0)).toBe(totalDelta);
         expect(totalDelta).toBe(
             78 * (-4 - 5 - 0 + 4) + HUD_ZOOM_CTRL_TOTAL + SOCKET_INNER_SHADE_FRAME78
             + FILLED_SOCKET_FRAME78 - PLATE_BG_RETIRE_FRAME78 + EP12_S2S3_FRAME_DRIFT + EP14_S2_STAR_HUD
-            - T394_TRAY_TIER_FRAME_DRIFT - T462_ZOOM_CTRL_HIDE + T927_BOARD_OUTLINE + T929_BAND_SHAPE,
+            - T394_TRAY_TIER_FRAME_DRIFT - T462_ZOOM_CTRL_HIDE + T927_BOARD_OUTLINE + T929_BAND_SHAPE
+            + T1096_TRAY_CONTAINER,
         );
         // ⛔ 禁止「纸面推算的新基线整帧数」入册（K-051）：以下均**复评登记实测值**自洽核对。
         // 1877 = 1409（recheck_7 态）+ 468（WXG-T-236 八轮「有珠格补画坑底」，第九次复评登记）；
@@ -748,8 +764,9 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         // 1872 = 1871 + 1（EP14-S2 顶栏总星数位 `★n`，第十九次复评登记，K.5.1-补11）；
         // 1788 = 1872 − 84（WXG-T-394 托盘三档 12/24/48：基础行 2→1，12 空槽 × 7 条，第二十次复评登记，K.5.1-补12）；
         // 1826 = 1780 + 46（WXG-T-927 对局盘面珠面描边：13×12 边界格 46 枚 polygon，第二十二次复评登记，K.5.1-补14）；
-        // 1834 = 1826 + 8（WXG-T-929 实心方块改骑线带：满盘 46→54，净 +8，第二十四次复评，K.5.1-补16）。
-        expect(SEAL.s3.frame78.total).toBe(1834);
+        // 1834 = 1826 + 8（WXG-T-929 实心方块改骑线带：满盘 46→54，净 +8，第二十四次复评，K.5.1-补16）；
+        // 1836 = 1834 + 2（WXG-T-1096 托盘容器化：container/containerEnd 各 +1，第二十七次复评，K.5.1-补18）。
+        expect(SEAL.s3.frame78.total).toBe(1836);
         expect(SEAL.s3.frame78.kinds.circle).toBe(159); // = 82 + 78（每颗填格珠 +1 HOLE_RING）− 1（控件段 circle 退役，T-462）
         expect(SEAL.s3AtFormalization!.frame78.total).toBe(1119); // 转正时刻史证（不随复评漂移）
         expect(SEAL.head.frame78.total).toBe(1587); // 旧值仅作历史档案（§K.5.0 作废登记）
@@ -893,6 +910,9 @@ describe('WXG-T-230-B · 整帧漂移复评登记哨兵（未走复评通道的�
         expect(byId.get('recheck-24-outline-band')!.frame78).toBe(T929_BAND_SHAPE);
         expect(byId.get('recheck-25-outline-scale')!.frame0).toBe(0);
         expect(byId.get('recheck-25-outline-scale')!.frame78).toBe(0);
+        // [WXG-T-1096] 第二十五次复评登记常数 ↔ 台账一一对应（插入型批次，两帧各 +2）。
+        expect(byId.get('recheck-26-tray-container')!.frame0).toBe(T1096_TRAY_CONTAINER);
+        expect(byId.get('recheck-26-tray-container')!.frame78).toBe(T1096_TRAY_CONTAINER);
         // 差分自洽腿的珠体族项（每颗填格 78×(−5)）必须同源入账（少一笔 = Σ 对不上帧差）。
         expect(byId.get('s3-formalization-bead-family')!.frame78).toBe(78 * -5);
     });
@@ -924,7 +944,8 @@ describe('WXG-T-230-B · 整帧漂移复评登记哨兵（未走复评通道的�
         // ① 报警器本体先证真在工作（K-060：⛔ 恒静默的报警器 = 假绿装置）。
         const reg0 = classifyTotalDrift(SEAL.s3.frame0.total + SOCKET_INNER_SHADE_FRAME0, SEAL.s3.frame0.total, 'frame0', es);
         expect(reg0).toMatchObject({ kind: 'REGISTERED', entry: { id: 'recheck-6-socket-shade' } });
-        expect(classifyTotalDrift(SEAL.s3.frame0.total + 2, SEAL.s3.frame0.total, 'frame0', es).kind).toBe('UNREGISTERED');
+        // Δ=2 已随第二十七次复评（T-1096 托盘容器段 recheck-26）在册 ⇒ 未登记臂改用 Δ=5（无此入账）。
+        expect(classifyTotalDrift(SEAL.s3.frame0.total + 5, SEAL.s3.frame0.total, 'frame0', es).kind).toBe('UNREGISTERED');
         const reg78 = classifyTotalDrift(SEAL.s3.frame78.total - PLATE_BG_RETIRE_FRAME78, SEAL.s3.frame78.total, 'frame78', es);
         expect(reg78).toMatchObject({ kind: 'REGISTERED', entry: { id: 'recheck-13-plate-bg-retire' } });
         // ② 报警文案锚：两条路都必须**指路**（WARN ⇒ 官方复取器重封；FAIL ⇒ K.5.1 复评流程 + 禁自改）。
