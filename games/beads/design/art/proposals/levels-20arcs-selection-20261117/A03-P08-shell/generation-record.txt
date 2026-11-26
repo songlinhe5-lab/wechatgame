@@ -1,0 +1,32 @@
+A03-P08 贝壳 · 32×32 · 4 色（湖蓝 #3D7BF5 / 奶白 #FDF6E9 / 玫红 #E84C3D / 炭黑 #33333D）
+单一主题色调令：湖蓝恒为主色，配角色玫红（批 1 第八关）。
+
+【Token Plan 用量】1 次调用 / 出图 1 张 / 浪费 0 张 / 锁定 1 张
+模型 qwen-image-3.0-pro，t2i，--size '2048*2048'，seed 42，prompt_extend=False。
+v1 母版 a03p08-v1-s42.png（prompt-v1.txt）→ a03p08-v1-s42-rgba.png
+修正件 a03p08-v1fix-s42-rgba.png（fix-a03p08-v1.py，0 调用；用户选方案 A）
+
+【v1 判定：形态对、比例不可用】
+- 目视：扇贝壳面 + 4 条蓝放射条纹 + 中央珍珠 + 底部黑铰合块，构图与设计一致。
+- 量化：**5 色**（多 #6B3E1E 0.2%）、玫红 **61.2%**、湖蓝 27.8%、奶白 6.9%、炭黑 3.9%、
+  **F=119**（玫红过半 ⇒ 错位无解）、tiny 1。
+- 根因：提示词自身几何不自洽——扇面占主体 ~70%，珍珠只 26% 直径、条纹 8.5% 宽 ⇒ 玫红必然 >60%。
+
+【v1fix（方案 A，0 调用）】
+- 保留 v1 扇贝轮廓，内部重排：珍珠 r=6.8（直径约 14 珠格）、4 条蓝纹改放射楔形
+  （自扇底中心 ±18°/±48°，半宽 8°）、其余玫红；黑铰合块 6×3。
+- 结果：4 色、玫红 34.3% / 湖蓝 34.5% / 奶白 27.8% / 炭黑 3.4%（G12 全达标）、
+  F=0、N=533、steps 106、taps 212、time 223s、tier 1、tiny 0、colorError 0。
+
+【v1fix 终值（锁版）】
+- importable=true、blockers=[]、4 色、F=0（M=533/533）、N=533、steps=106、taps=212、
+  time=223s、tier 1（中等，secPerTap 0.89）。
+
+【状态】✅ **已锁版（用户 2026-11-26 确认 PASS，取 v1fix）**；锁定件 = `a03p08-v1fix-s42-rgba.png`
+（珠面 `a03p08-v1fix-max-32-c0-beads-plain.png`）；未入关、未进 final/；
+A03 章未建 ⇒ 不落库、不改 contentVersion。
+
+【证据清单】
+prompt-v1.txt；a03p08-v1-s42.png / -rgba.png / -rgba-metrics.json；
+a03p08-v1fix-s42-rgba.png / -max-32-c0-beads-plain.png / studio-full-response-v1fix-max-32-c0.json；
+脚本 fix-a03p08-v1.py、../probe-2048/extract-alpha.py、../studio-a03.py。
