@@ -54,7 +54,7 @@ import {
   type RankBoard,
 } from '../../framework/index';
 
-import { ASSIST_STOPPED_HINT, ASSIST_STOPPED_HINT_MS, ASSIST_TAKEOVER_HINT, ASSIST_TAKEOVER_HINT_MS, AUDIO_CLIP_DENIED, AUDIO_CLIP_PANEL_IN, AUDIO_CLIP_PANEL_OUT, AUDIO_CLIP_REJECT, AUDIO_CLIP_REVIVE_OK, AUDIO_CLIP_STAR, AUDIO_CLIP_UI_TAP, COMBO_WINDOW_S, DEFAULT_TUNING, DESIGN_H, POWERUP_BUY_DENIED_HINT, REVIVE_BONUS_SEC, REVIVE_MAX_PER_LEVEL, SELECT_LIFT_MS, SOLVER_HINT_MS, SOLVER_MAX_CELLS, SOLVER_STAGGER_MS, STAGE_BONUS_TIME, PUZZLE_BAND, STAMINA_REFILL_PLACEMENT, TRAY_COLS, arcRangeOfLevel, computeClearStars, gridLayoutFor, hitGridCell, isBossLevelId, menuAnchors, nextBeadLod, nextTierFor, normalSettleScore, solverSequenceMs, stageParamsFor, tierSecondsFor, trayPreviewFits, type BeadSizeKind, type BeadsTuning, type GridLayout, type PowerupType, validatedSprintTime } from '../config/tuning';
+import { ASSIST_STOPPED_HINT, ASSIST_STOPPED_HINT_MS, ASSIST_TAKEOVER_HINT, ASSIST_TAKEOVER_HINT_MS, AUDIO_CLIP_DENIED, AUDIO_CLIP_PANEL_IN, AUDIO_CLIP_PANEL_OUT, AUDIO_CLIP_REJECT, AUDIO_CLIP_REVIVE_OK, AUDIO_CLIP_STAR, AUDIO_CLIP_UI_TAP, COMBO_WINDOW_S, DEFAULT_TUNING, DESIGN_H, POWERUP_BUY_DENIED_HINT, REVIVE_BONUS_SEC, REVIVE_MAX_PER_LEVEL, SELECT_LIFT_MS, SOLVER_HINT_MS, SOLVER_MAX_CELLS, SOLVER_STAGGER_MS, STAGE_BONUS_TIME, STAMINA_REFILL_PLACEMENT, TRAY_COLS, trayLayout, arcRangeOfLevel, computeClearStars, gridLayoutFor, hitGridCell, isBossLevelId, menuAnchors, nextBeadLod, nextTierFor, normalSettleScore, solverSequenceMs, stageParamsFor, tierSecondsFor, trayPreviewFits, type BeadSizeKind, type BeadsTuning, type GridLayout, type PowerupType, validatedSprintTime } from '../config/tuning';
 import { BEADS_AUDIO_VOICES } from '../config/audio-voices';
 import {
   LEVELS,
@@ -3146,11 +3146,19 @@ export class BeadsGame {
   }
 
   private _hitGridCell(x: number, y: number): { row: number; col: number } | null {
-    // `[WXG-T-1086 · 用户 2026-11-26 实帧「点击底槽背板区域能够点击到珠面」]`
-    // 大盘（L18 等）盘面比屏幕大，珠面会画到托盘带以下 ⇒ 点在托盘面板/道具区时仍会命中盘面格，
-    // 读作「点背板却动了珠子」。盘面的**可见/可点区域止于盘面带下沿**（`PUZZLE_BAND.yMin`），
-    // 其下交给托盘/道具的命中链（`hitTraySlot` 等）。⛔ 只夹下沿：上沿外是 HUD，本就不落格。
-    if (y < PUZZLE_BAND.yMin) return null;
+    // `[WXG-T-1087 · 用户 2026-11-26 令]`「点到**不覆盖在珠面上的**控件区域，事件要透传到珠面」
+    // ⇒ 拦截范围按**控件实际遮挡的矩形**判，⛔ 不是按整条带封死（上版夹 `y < PUZZLE_BAND.yMin`
+    // 把面板**左右两侧**的空白也一起封了，而那里能看见下面的珠面，点上去应当透传）。
+    // 当前只拦「托盘面板矩形」：白瓷面板在视觉上遮住它覆盖的那片盘面 ⇒ 该片不该再被点中；
+    // 面板之外（含左右空白、面板与道具卡之间）一律透传，命中照常落盘面格。
+    // ⚠ 道具卡 / HUD 面板同理，但它们各自已有独立命中链且互不重叠，本单不动。
+    const lay = trayLayout(this._trayDrawRows(), this.tuning.width);
+    if (
+      x >= lay.panelX && x <= lay.panelX + lay.panelW &&
+      y >= lay.panelBottom && y <= lay.panelBottom + lay.panelH
+    ) {
+      return null;
+    }
     return hitGridCell(this._layout, this._board.camera.zoom, x, y);
   }
 
