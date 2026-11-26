@@ -933,11 +933,11 @@ function drawTrayPlateShading(
     // `[WXG-T-1081]` 三条内阴影随面板一起**回 `back`**（末参 true）：面板已沉底，内阴影必须同层，
     // 否则会浮在槽 / 珠之上（旧注释「否则会画在珠面上」正是此意）。
     // 底缘外段（α 0.03）。
-    builder.line(x, y + h - TRAY_PLATE.width, x + w, y + h - TRAY_PLATE.width, withAlpha(ink, TRAY_PLATE.bottomOuterAlpha), TRAY_PLATE.width, undefined, true);
+    builder.line(x, y + h - TRAY_PLATE.width, x + w, y + h - TRAY_PLATE.width, withAlpha(ink, TRAY_PLATE.bottomOuterAlpha), TRAY_PLATE.width, undefined, false);
     // 底缘内段（α 0.05）。
-    builder.line(x, y + h - TRAY_PLATE.width * 2, x + w, y + h - TRAY_PLATE.width * 2, withAlpha(ink, TRAY_PLATE.bottomInnerAlpha), TRAY_PLATE.width, undefined, true);
+    builder.line(x, y + h - TRAY_PLATE.width * 2, x + w, y + h - TRAY_PLATE.width * 2, withAlpha(ink, TRAY_PLATE.bottomInnerAlpha), TRAY_PLATE.width, undefined, false);
     // 右缘段（α 0.02）。
-    builder.line(x + w - TRAY_PLATE.width, y, x + w - TRAY_PLATE.width, y + h, withAlpha(ink, TRAY_PLATE.rightAlpha), TRAY_PLATE.width, undefined, true);
+    builder.line(x + w - TRAY_PLATE.width, y, x + w - TRAY_PLATE.width, y + h, withAlpha(ink, TRAY_PLATE.rightAlpha), TRAY_PLATE.width, undefined, false);
 }
 /**
  * **抬起等比因子的唯一算式**（盘面 `drawGrid` / 托盘 `drawTray` 共用，T-244 十三批 ③④）。
@@ -1028,7 +1028,10 @@ function drawTray(
     // 「底槽里的珠子底色被背景板覆盖」，珠孔透出的正是被盖住的槽底）。「盘面豆子溢出托盘区要被遮」
     // 改由**相机平移边界**承担（盘面底缘不得下探到托盘带；零图元，见 `drawPlayPage` 那段注）。
     drawPaperPanel(builder, lay.panelX, lay.panelBottom, lay.panelW, lay.panelH,
-        palette, UI_CONTAINER.radiusPanel, UI_CONTAINER.shadowAlphaPanel, true);
+        palette, UI_CONTAINER.radiusPanel, UI_CONTAINER.shadowAlphaPanel, false);
+    // `[WXG-T-1088 · 用户 2026-11-26 点头]` 托盘面板 + 内阴影**提到 graphics**（不再 `back` 沉底）：
+    // 用户要求「底槽背景盖在珠面上面」⇒ 面板必须在盘面珠（blit）之上。配套：托盘槽与珠一并
+    // `forceVector`（见下），三者同层后由绘制顺序决定（面板 → 槽 → 珠 → 槽沿）⇒ 压盘面珠、不盖自己的珠。
     // 「微拱白瓷」三段内阴影（§1.3 v1.5，WXG-T-131/143）：底缘两段 + 右缘一段 ——
     // 平面板的轻体积感；α 极低（0.03/0.05/0.02），不与满槽告警危险描边竞争。
     drawTrayPlateShading(builder, lay.panelX, lay.panelBottom, lay.panelW, lay.panelH, palette.shadowInk);
@@ -1057,7 +1060,7 @@ function drawTray(
                 // 否则珠落进/取出时坑会一大一小跳变，且空槽明显比有珠槽小一圈（实帧可见）。
                 drawEmptySocket(
                     builder, cx, cy, palette, TRAY_SLOT, undefined, inks, false, 0,
-                    { maskGauge: sizeSmall ? 'holeless' : 'holed', styleId: snap.beadStyle, trayZone: true },
+                    { maskGauge: sizeSmall ? 'holeless' : 'holed', styleId: snap.beadStyle, trayZone: true, forceVector: true },
                 );
             }
             continue;
@@ -1118,7 +1121,7 @@ function drawTray(
         // （实帧确认：托盘里前三颗珠只剩珠面，槽沿完全消失）。⚠ 空槽支不受影响（仍按 `trayInset`）。
         drawEmptySocket(
             builder, cx, cy, palette, TRAY_SLOT, undefined, inks, false, 0,
-            { maskGauge: sizeSmall ? 'holeless' : 'holed', styleId: snap.beadStyle, trayZone: true },
+            { maskGauge: sizeSmall ? 'holeless' : 'holed', styleId: snap.beadStyle, trayZone: true, forceVector: true },
         );
         // [WXG-T-242 · 2026-10-04 用户裁「阴影要加深、凸显被选中的效果」] 托盘**补分离影**。
         //
@@ -1182,6 +1185,7 @@ function drawTray(
             // 小豆档 = 缩小 + 无孔，两参恒同步（同网格珠，⛔ 不得只传其一）。
             hideHole: sizeSmall,
             maskGauge: sizeSmall ? 'holeless' : 'holed',
+            forceVector: true, // `[WXG-T-1088]` 与面板同层（graphics），层序由绘制顺序决定
             // [S5′-4 · 2026-10-05] 托盘面板底已改走 `back` 图元（blit 之下）⇒ 托盘珠不再需要排他标，
             // 与盘面同走纹理臂；`trayZone` 只剩「槽放宽 `colorIdx`」一个职责（见 `drawEmptySocket`）。
             // [用户 2026-10-06 二批裁「托盘珠子孔不透明，看不到下面的槽颜色 ⇒ 孔要透明透底」]

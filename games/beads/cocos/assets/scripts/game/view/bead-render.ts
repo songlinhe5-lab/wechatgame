@@ -345,6 +345,18 @@ export interface FilledBeadOptions {
    */
   readonly hideHole?: boolean;
   /**
+   * `[WXG-T-1088 · 用户 2026-11-26 点头]` **强制矢量臂**：跳过 tint/blit，走 `layers` 的
+   * rect/circle/polygon 命令。
+   *
+   * 用途 = 托盘整体层序：用户要求「底槽背景盖在珠面上面」⇒ 托盘面板必须提到 `graphics`
+   * （blit 之上）才压得住盘面珠；但 `graphics` 会把**托盘自己的珠**（tint 臂 = blit）一起盖住。
+   * ⇒ 托盘珠与槽一并 `forceVector`，全套落 `graphics`，层序改由**绘制顺序**决定
+   * （面板 → 槽 → 珠 → 槽沿）：既压住盘面珠，又不盖自己的珠。
+   * ⚠ 代价：托盘 48 槽由「每槽 1 条 blit」变成十余条矢量命令 ⇒ S3 封箱条数显著增长（按锚重抓）。
+   */
+  readonly forceVector?: boolean;
+
+  /**
    * `[WXG-T-226 EP12-S2 / ADR-0029 DEC-5]` **mask 档位**（豆径档）。
    *
    * - **不传（默认）⇒ tint 臂永不命中** ⇒ 矢量臂逐字节 = 今日（V-5 绿线锚）。
@@ -851,6 +863,7 @@ export function drawFilledBead(
   const tintHoleOk = !options.hideHole || options.maskGauge === 'holeless';
   if (_tintRuntime !== undefined && !_baking && tintHoleOk
     && options.maskGauge !== undefined
+    && options.forceVector !== true
     && (_tintRuntime.allowTint?.() ?? true)) {
     const maskId = _tintRuntime.getMaskId('bead', options.maskGauge, tintStyleId);
     if (maskId !== undefined) {
@@ -1002,6 +1015,18 @@ export interface EmptySocketTintOptions {
    * 反向守卫见 `bead-tint-arm.test.ts`。
    */
   readonly trayZone?: boolean;
+  /**
+   * `[WXG-T-1088 · 用户 2026-11-26 点头]` **强制矢量臂**：跳过 tint/blit，走 `layers` 的
+   * rect/circle/polygon 命令。
+   *
+   * 用途 = 托盘整体层序：用户要求「底槽背景盖在珠面上面」⇒ 托盘面板必须提到 `graphics`
+   * （blit 之上）才压得住盘面珠；但 `graphics` 会把**托盘自己的珠**（tint 臂 = blit）一起盖住。
+   * ⇒ 托盘珠与槽一并 `forceVector`，全套落 `graphics`，层序改由**绘制顺序**决定
+   * （面板 → 槽 → 珠 → 槽沿）：既压住盘面珠，又不盖自己的珠。
+   * ⚠ 代价：托盘 48 槽由「每槽 1 条 blit」变成十余条矢量命令 ⇒ S3 封箱条数显著增长（按锚重抓）。
+   */
+  readonly forceVector?: boolean;
+
 }
 
 /**

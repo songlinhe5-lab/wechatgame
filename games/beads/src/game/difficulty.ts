@@ -22,6 +22,11 @@ import { BeadGrid, collectMisplacedGroup } from '../entities/grid.js';
 
 /** difficultyOf 的关卡输入（只取难度所需结构字段，与 `BeadsLevelRaw` 兼容的子集）。 */
 export interface DifficultyLevel {
+    /**
+     * 关卡身份（manifest uid）。命中 `DIFFICULTY_TIERS.LEGACY_UIDS` 的存量关沿用旧档口径
+     * （N 150/300/700 + C≥6 + G 修正）；缺省 / 未命中 ⇒ 走新口径 D 公式（WXG-T-1060）。
+     */
+    readonly uid?: string;
     readonly pattern: readonly string[];
     /** 全错位初盘 rowstring（存在则替代 swaps 作初盘真源，M 与此盘连通块由此实算）。 */
     readonly misplaced?: readonly string[];
@@ -91,11 +96,15 @@ const gAt = (sizes: readonly number[], t: number): number =>
     sizes.reduce((sum, b) => sum + Math.ceil(b / t), 0);
 
 /**
- * 方案 C：`档₀ = table(N档, C档)` → `G(12)` 一次性升降档（各至多一次）→ 夹到 0–3。
+ * 双口径四档（WXG-T-1060，用户 2026-11-26 裁定）：
  *
- * 边界与初锚住 `tuning/gameplay.ts::DIFFICULTY_TIERS`（不进 §3、全数 `[待 playtest]`）。
- * `di` 只作确定性排序主键：档序主导、N 次之、C 再次、`G(12)` 末位消歧
- * （现池 L00001 与 L00006 的 N/C 完全相同，不消歧会撞门禁⑥ 的严格递增）。
+ * - **新口径（A03 起）**：`D = C + N ÷ 250` ⇒ 档界 `[6, 8, 10)` = 简单/中等/难/超难。
+ *   语义 = 「难度和颜色数要有对应」——10–12 色起步即超难；珠数可补偿色数（每 250 珠≈1 色）。
+ *   ⛔ 新口径不参与 G 修正（G 只留作主键末位消歧与史证读数）。
+ * - **旧口径（存量冻结）**：仅 `DIFFICULTY_TIERS.LEGACY_UIDS`（2026-11-26 已落库 27 关）命中时生效 =
+ *   N 档 150/300/700 + C≥6 升一档 + G(12) 一次性升降档。A01/A02 已验收档位零扰动。
+ *
+ * 两口径都不读 steps / SEC_PER_STEP / 不跑 bot、不碰 `pricing`（与「价」脱钩铁律不变）。
  */
 export function difficultyOf(level: DifficultyLevel): DifficultyResult {
     const board = level.misplaced
@@ -123,16 +132,27 @@ export function difficultyOf(level: DifficultyLevel): DifficultyResult {
     const t = DIFFICULTY_TIERS.T_REFS;
     const g: [number, number, number] = [gAt(sizes, t[0]), gAt(sizes, t[1]), gAt(sizes, t[2])];
 
-    let tier = n < DIFFICULTY_TIERS.N_SIMPLE ? 0
-        : n < DIFFICULTY_TIERS.N_HARD ? 1
-            : n < DIFFICULTY_TIERS.N_EXTREME ? 2 : 3;
-    if (c >= DIFFICULTY_TIERS.C_PROMOTE) tier += 1;
+    const legacy = level.uid !== undefined && DIFFICULTY_TIERS.LEGACY_UIDS.includes(level.uid);
+    let tier: number;
+    if (legacy) {
+        // ── 旧口径（仅 LEGACY_UIDS 冻结档）：N 档 150/300/700 + C≥6 升档 + G(12) 修正 ──
+        tier = n < DIFFICULTY_TIERS.N_SIMPLE ? 0
+            : n < DIFFICULTY_TIERS.N_HARD ? 1
+                : n < DIFFICULTY_TIERS.N_EXTREME ? 2 : 3;
+        if (c >= DIFFICULTY_TIERS.C_PROMOTE) tier += 1;
 
-    const gMin = Math.ceil(n / DIFFICULTY_TIERS.T_PRIMARY);
-    if (sizes.length > 0 && gMin > 0) {
-        const ratio = g[0] / gMin;
-        if (ratio > DIFFICULTY_TIERS.G_PROMOTE_RATIO) tier += 1;
-        else if (ratio < DIFFICULTY_TIERS.G_DEMOTE_RATIO) tier -= 1;
+        const gMin = Math.ceil(n / DIFFICULTY_TIERS.T_PRIMARY);
+        if (sizes.length > 0 && gMin > 0) {
+            const ratio = g[0] / gMin;
+            if (ratio > DIFFICULTY_TIERS.G_PROMOTE_RATIO) tier += 1;
+            else if (ratio < DIFFICULTY_TIERS.G_DEMOTE_RATIO) tier -= 1;
+        }
+    } else {
+        // ── 新口径（A03 起，WXG-T-1060）：D = C + N ÷ 250 ⇒ 珠数与色数可互相补偿 ──
+        // 用户 2026-11-26：「超难起码也要到 10～12 色……珠数在档位上限可适当降色数」。
+        const d = c + n / DIFFICULTY_TIERS.D_N_PER_COLOR;
+        const [b1, b2, b3] = DIFFICULTY_TIERS.D_TIER_BOUNDS;
+        tier = d < b1 ? 0 : d < b2 ? 1 : d < b3 ? 2 : 3;
     }
     tier = Math.min(DIFFICULTY_TIERS.TIER_MAX, Math.max(0, tier));
 

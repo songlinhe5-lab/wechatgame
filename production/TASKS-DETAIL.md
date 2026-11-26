@@ -13043,3 +13043,20 @@ __motion.report()     // 把这一行贴回来
 **验证**：`tray-hit` / `core-loop` / `layout-camera` / `selection-anchor` / `pause-settings` **63/64 通过**（唯一红 = 既有 `S9 §8-1`，与 T-1082 的面板位移同源，非本单引入）。
 
 **仍待**：① 视觉上面板尚未真正压住珠面（面板仍走 `back`）⇒ 会产生「视觉上能看见珠、但点不到」的割裂，须与「托盘珠改矢量」同批解决；② 道具卡 / HUD 面板的同类透传规则尚未按本口径复核（它们各自命中链互不重叠，暂未见问题）。
+
+
+## WXG-T-1088
+
+**托盘面板压珠面（同层矢量）** · 负责：主理人(CodeBuddy)·工程轨 · 状态：🚧 **进行中（2026-11-26）**
+
+用户 2026-11-26 对「后两条点头」：① 底槽背景要盖在珠面上面；② 槽底与珠面风格一致。
+
+**技术死结与破法**：托盘面板走 `back`（宿主 `backGraphics`，blit 之下），盘面珠是 blit ⇒ 珠恒压面板；把面板提到 `graphics` 能压住盘面珠，但 `graphics` 会**连带盖住托盘自己的珠**（tint 臂 = blit，用户此前报过「珠子底色被背景板覆盖」）。
+⇒ 新增 `BeadFillOptions.forceVector` / `SocketOptions.forceVector`：跳过 tint/blit 分支、走 `layers` 的 rect/circle/polygon。托盘槽与珠一并开启、与面板同落 `graphics` ⇒ 层序由**绘制顺序**决定：
+`面板 → 内阴影 → 槽 → 珠 → 槽沿` —— 面板压盘面珠、自己的珠仍在最上。
+
+**代码**：`bead-render.ts` 新增 `readonly forceVector?: boolean`（两处 options）+ 三处 tint 门加 `options.forceVector !== true`；`play-page.ts` 托盘面板与三条内阴影 `back: false`、`drawEmptySocket`/`drawFilledBead` 传 `forceVector: true`。
+
+**验证**：实帧 `temp/ui-shot/final-layer.png`（L18 43×43）：盘面下缘珠被面板截断、12 个槽中 3 颗珠完好可见、扩展钮压住面板下沿、HUD 在珠面之上。`play-page` 层序断言同步翻转为「面板**不**沉底、in-shadow 零 back、play 帧零 clip」。
+
+**待收口**：托盘由 blit 改矢量 ⇒ S3 封箱条数显著增长 + 金样 11 帧需按锚重抓；另有既有命令数基线断言（`5238 > 5616`）需随重抓更新。
