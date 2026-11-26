@@ -56,3 +56,21 @@ studio-full-response-v1fix2-max-32-c0.json；脚本 fix-a03p06-v1.py、../probe-
 - 产物：studio-full-response-a03p06-v1fix4-g27-max-27-c0.json、a03p06-v1fix4-g27-max-27-c0-beads-plain.png；
   候选 g28/g29/g30-* 留档（未锁）。
 - ⚠ 锁定件更新为 **v1fix4 母版 + g27 珠面**；32×32 读数（N=311/steps 68/time 163）退为历史口径。
+
+────────────────────────────────────────────────────────
+【v3 八色改档 + 放大 28×28（WXG-T-1060 · 2026-11-26 用户令「放大到 28×28 来消除」孤立单格）】
+- 目标：A03 色数 P6 = 8（心流「难」）⇒ D = 8 + 270/250 = 9.08；盘面按用户令取 28×28。
+- 做法：**拆色不增珠**，0 次 Token Plan。母版 = 同一 2048 母版在 28×28 重采样的四色珠面
+  （`studio-full-response-a03p06-v1fix4-g28-max-28-c0.json`，N=270，palette 奶白/湖蓝/赭棕/炭黑）：
+  ① 四鳍（湖蓝 y≤9 或 14≤y≤19，且 x≤9 或 x≥18）+ 肩部 y=10 两对 2 格蓝孤块 → 丁香紫 #8E6FD9；
+  ② 龟壳主体（赭棕 y11–19 最大连通块 = 44 格）按切比雪夫半径同心分环：
+     r>3 保持赭棕 → 2<r≤3 深棕 #6B3E1E → 1<r≤2 活力橙 #F59B23 → r≤1 柠黄 #FFD23F（「龟壳环状颜色」落地）；
+  ③ 壳外赭棕（鳍尖、底块）保持赭棕，不并进深棕。
+  ⚠ 同日早版 `a03p06-v1fix4-g27-c8`（27×27 + paint_rect 补四色矩形条 118 格）与 `a03p06-v2-g27-c8`（27×27 拆色版，
+  答案盘 8 个 tiny 单格）均已作废删除。
+- 终值：importable=true、blockers=[]、8 色、F=0（M=270/270）、N=270、steps 80、taps 186、time=222s、
+  tier 2（难）、colorError 0、blocks 19、**tinyCells 0**（27×27 版为 8 ⇒ 清零）。
+- 色占比：奶白 35.2 / 丁香紫 16.7 / 湖蓝 15.6 / 赭棕 14.8 / 深棕 6.7 / 活力橙 5.2 / 炭黑 3.7 / 柠黄 2.2（G12 全达标）。
+- 锁定件：`a03p06-v3-g28-c8-s42-rgba.png`（珠面 `a03p06-v3-g28-c8-max-28-c8-beads-plain.png`）。
+- 证据：`studio-full-response-a03p06-v3-g28-c8-max-28-c8.json`；重绘 `../fix-a03-five-split-v3.py`；量化 `../studio-a03-resize-quant.py`。
+- 状态：改档版已锁；未入关、未进 final/、未改 contentVersion。

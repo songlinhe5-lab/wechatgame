@@ -30,3 +30,17 @@ A03 章未建 ⇒ 不落库、不改 contentVersion。
 prompt-v1.txt；a03p08-v1-s42.png / -rgba.png / -rgba-metrics.json；
 a03p08-v1fix-s42-rgba.png / -max-32-c0-beads-plain.png / studio-full-response-v1fix-max-32-c0.json；
 脚本 fix-a03p08-v1.py、../probe-2048/extract-alpha.py、../studio-a03.py。
+
+────────────────────────────────────────────────────────
+【v2 七色改档（WXG-T-1060 · 2026-11-26 用户令「按心流甲版推进这六关」）】
+- 目标：A03 色数 P8 = 7（心流「难」）⇒ D = 7 + 533/250 = 9.13。
+- 做法：**拆色不增珠**，0 次 Token Plan。母版 v1fix 珠面 32×32：
+  ① 中央扇骨（玫红 x12–19 且 y≤11）→ 活力橙 #F59B23；② 蓝肋外缘（贴整体轮廓的蓝格）→ 丁香紫 #8E6FD9；
+  ③ 奶白内芯下缘（y≥21）→ 柠黄 #FFD23F；N 保持 533。
+  ⚠ 同日早版 `a03p08-v1fix-c7` 曾用 paint_rect 补草绿/紫/棕矩形条 +105 格 —— 原图无该景物、成悬空矩形色块，已作废删除。
+- 终值：importable=true、blockers=[]、7 色、F=0（M=533/533）、N=533、steps 99、taps 290、time=345s、
+  tier 2（难）、colorError 0、blocks 22、tinyCells 2。
+- 色占比：湖蓝 25.5 / 玫红 21.2 / 奶白 19.1 / 活力橙 13.1 / 丁香紫 9.0 / 柠黄 8.6 / 炭黑 3.4（G12 全达标）。
+- 锁定件：`a03p08-v2-c7-s42-rgba.png`（珠面 `a03p08-v2-c7-max-32-c7-beads-plain.png`）。
+- 证据：`studio-full-response-a03p08-v2-c7-max-32-c7.json`；重绘 `../fix-a03-five-split-v3.py`；量化 `../studio-a03-resize-quant.py`。
+- 状态：改档版已锁；未入关、未进 final/、未改 contentVersion。

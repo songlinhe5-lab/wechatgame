@@ -35,3 +35,11 @@ A03 章未建 ⇒ 不落库、不改 contentVersion。
 prompt-v1.txt；a03p04-v1-s42.png / -rgba.png / -rgba-metrics.json；
 a03p04-v1fix-s42-rgba.png / -max-32-c0-beads-plain.png / studio-full-response-v1fix-max-32-c0.json；
 脚本 fix-a03p04-v1.py、../probe-2048/extract-alpha.py、../studio-a03.py。
+
+────────────────────────────────────────────────────────
+【时间口径待实测（WXG-T-1060 · 2026-11-26 用户裁定）】
+- 现状：工作室判 tier 1（旧口径含 G 修正）⇒ `time=144s`、`taps=136`、`secPerTap=0.89`；色数 4 / N=393 已达标（P4 = 4 色）。
+- 差异：游戏侧按 D 口径 `D = 4 + 393/250 = 5.57` ⇒ **简单**，按 v1.0 公式应 ≈128s。
+- 用户裁定（原话）：「P04 章鱼时间，等我实际反馈玩后时间再调整，需要走统一系数调整」
+  ⇒ **本轮不动 `time`**，入关时按 144s 落库并保留本条；后续按**统一系数**整批调整，⛔ 不做单关手调。
+- 色数/珠面零改动：不改 RGBA、不重量化、不删原证据。

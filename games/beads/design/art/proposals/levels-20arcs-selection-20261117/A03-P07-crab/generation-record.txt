@@ -33,3 +33,17 @@ A03 章未建 ⇒ 不落库、不改 contentVersion。
 prompt-v1.txt、prompt-v2.txt；a03p07-v1/v2-s42.png / -rgba.png；
 a03p07-v2fix/v3/v4-s42-rgba.png 与 -max-32-c0-beads-plain.png；
 studio-full-response-v{1,2,3,4}-max-32-c0.json；脚本 fix-a03p07-v1~v4.py、../probe-2048/extract-alpha.py、../studio-a03.py。
+
+────────────────────────────────────────────────────────
+【v5 七色改档（WXG-T-1060 · 2026-11-26 用户令「按心流甲版推进这六关」）】
+- 目标：A03 色数 P7 = 7（心流「中等」）⇒ D = 7 + N/250 < 8 ⇒ **N 必须 < 250**；现盘 N=238 只剩 11 格余量
+  ⇒ 只能「拆色不增珠」（增装饰会破档）。
+- 做法：0 次 Token Plan。母版 v4 珠面 32×32（palette 奶白/湖蓝/深棕/炭黑，字符 1 起头）：
+  ① 钳部整体（深棕 y≤9，36 格）→ 赭棕 #A5652C；② 蓝体最下 15 格 → 丁香紫 #8E6FD9；
+  ③ 奶白最下 12 格（足尖）→ 柠黄 #FFD23F；N 保持 238。
+- 终值：importable=true、blockers=[]、7 色、F=0（M=238/238）、N=238、steps 80、taps 189、time=199s、
+  tier 1（中等）、colorError 0、blocks 19、答案盘 tinyCells 0（错位盘 6）。
+- 色占比：湖蓝 28.6 / 奶白 25.6 / 深棕 16.0 / 赭棕 15.1 / 丁香紫 6.3 / 柠黄 5.0 / 炭黑 3.4（G12 全达标）。
+- 锁定件：`a03p07-v5-c7-s42-rgba.png`（珠面 `a03p07-v5-c7-max-32-c7-beads-plain.png`）。
+- 证据：`studio-full-response-a03p07-v5-c7-max-32-c7.json`；重绘 `../fix-a03p07-v5-c7.py`；量化 `../studio-a03-resize-quant.py`。
+- 状态：改档版已锁；未入关、未进 final/、未改 contentVersion。

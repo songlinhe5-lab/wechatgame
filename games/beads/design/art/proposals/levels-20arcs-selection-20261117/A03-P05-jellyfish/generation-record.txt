@@ -31,3 +31,16 @@ A03 章未建 ⇒ 不落库、不改 contentVersion。
 prompt-v1.txt；a03p05-v1-s42.png / -rgba.png / -rgba-metrics.json；
 a03p05-v1fix-s42-rgba.png / -max-32-c0-beads-plain.png / studio-full-response-v1fix-max-32-c0.json；
 脚本 fix-a03p05-v1.py、../probe-2048/extract-alpha.py、../studio-a03.py。
+
+────────────────────────────────────────────────────────
+【v3 六色改档（WXG-T-1060 · 2026-11-26 用户令「按心流甲版推进这六关」）】
+- 目标：A03 色数 P5 = 6（心流「中等」）⇒ D = 6 + N/250 = 7.30。
+- 做法：**拆色不增珠**，0 次 Token Plan。母版 v1fix 珠面 32×32；伞顶（湖蓝 y≤4）→ 丁香紫 #8E6FD9；
+  伞缘奶白带（y9–10）→ 柠黄 #FFD23F；N 保持 325。
+  ⚠ 同日早版 `a03p05-v2-c6` 曾用 paint_rect 补「礁石 + 珊瑚」+80 格 —— 原图无该景物、成悬空矩形色块，已作废删除。
+- 终值：importable=true、blockers=[]、6 色、F=0（M=325/325）、N=325、steps 49、taps 150、time=158s、
+  tier 1（中等）、colorError 0、blocks 6、tinyCells 0。
+- 色占比：草绿 32.3 / 湖蓝 20.3 / 奶白 20.3 / 柠黄 12.3 / 丁香紫 12.0 / 炭黑 2.8（G12 全达标）。
+- 锁定件：`a03p05-v3-c6-s42-rgba.png`（珠面 `a03p05-v3-c6-max-32-c6-beads-plain.png`）。
+- 证据：`studio-full-response-a03p05-v3-c6-max-32-c6.json`；重绘 `../fix-a03-five-split-v3.py`；量化 `../studio-a03-resize-quant.py`。
+- 状态：改档版已锁；未入关、未进 final/、未改 contentVersion。

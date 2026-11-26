@@ -34,3 +34,16 @@ v2 母版 a03p03-v2-s42.png（prompt-v2.txt）→ a03p03-v2-s42-rgba.png（未�
 【证据清单】
 prompt-v1.txt、prompt-v2.txt；a03p03-v1-s42.png / -rgba.png / -rgba-metrics.json；
 a03p03-v2-s42.png / -rgba.png / -rgba-metrics.json；脚本 ../probe-2048/extract-alpha.py、../studio-a03.py。
+
+────────────────────────────────────────────────────────
+【v3 六色改档（WXG-T-1060 · 2026-11-26 用户令「按心流甲版推进这六关」）】
+- 目标：A03 色数 P3 = 6（心流「中等」）⇒ D = 6 + N/250 = 7.12。
+- 做法：**拆色不增珠**，0 次 Token Plan。母版 v2fix 珠面 32×32；尾鳍（玫红 y≥19 且 x≤15）→ 活力橙 #F59B23；
+  蓝身下缘（湖蓝 y≥14）→ 丁香紫 #8E6FD9；N 保持 280。
+  ⚠ 同日早版 `a03p03-v2-c6` 曾用 paint_rect 补「海草 + 沙带」+57 格 —— 原图无该景物、成悬空矩形色块，已作废删除。
+- 终值：importable=true、blockers=[]、6 色、F=0（M=280/280）、N=280、steps 51、taps 130、time=137s、
+  tier 1（中等）、colorError 0、blocks 6、tinyCells 0。
+- 色占比：奶白 28.2 / 湖蓝 26.8 / 玫红 20.0 / 活力橙 15.0 / 丁香紫 6.8 / 炭黑 3.2（G12 全达标）。
+- 锁定件：`a03p03-v3-c6-s42-rgba.png`（珠面 `a03p03-v3-c6-max-32-c6-beads-plain.png`）。
+- 证据：`studio-full-response-a03p03-v3-c6-max-32-c6.json`；重绘 `../fix-a03-five-split-v3.py`；量化 `../studio-a03-resize-quant.py`。
+- 状态：改档版已锁；未入关、未进 final/、未改 contentVersion。

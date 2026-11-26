@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4391,
       "lines": 144,
-      "sha256": "7eaf1bf3d7edaf400499bf7b11ea57179ad097919130288c0d79a89c1303e4ab",
+      "sha256": "985fd0180bdb878349f83066549be77d9d3f50b05becefcbbaf84db4a9a5a693",
       "tier": "normal",
       "sections": [
         {
@@ -26399,17 +26399,17 @@
     },
     {
       "path": "games/beads/design/art/proposals/levels-20arcs-selection-20261117/series-spec-catalog.md",
-      "tokens": 8223,
-      "lines": 243,
-      "sha256": "b6acb81c7e51b0b1cbb84755322d70e630fa381f77dbd7ae4cccd40a9d68848a",
+      "tokens": 8412,
+      "lines": 244,
+      "sha256": "596cbf2b2d1934609adf79fcf2ec43d39757a195585816c650aa8a988b4b1bb4",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§20 大关生图系列规范 · 明细册（A01–A20 + 逐张模板）",
           "level": 1,
           "startLine": 1,
-          "endLine": 244,
-          "tokens": 8201,
+          "endLine": 245,
+          "tokens": 8390,
           "summary": "配套正本：[series-spec.md](./series-spec.md)（§0–§5 风格宪法与纯黑采样处置、§8",
           "keywords": [
             "§0",
@@ -26424,8 +26424,8 @@
           "anchor": "§6 20 套系列规范",
           "level": 2,
           "startLine": 8,
-          "endLine": 224,
-          "tokens": 7553,
+          "endLine": 225,
+          "tokens": 7742,
           "summary": "每套给出：玩家可见的系列文案、该章共享的形态语法、配色宪法（十色板 HEX 子集）、九关差异轴、特有禁忌、P9 boss",
           "keywords": [
             "HEX",
@@ -26463,8 +26463,8 @@
           "anchor": "§A03 深海湾 · 海洋生物",
           "level": 3,
           "startLine": 43,
-          "endLine": 52,
-          "tokens": 540,
+          "endLine": 53,
+          "tokens": 729,
           "summary": "系列文案：「冷蓝的水里，一尾小鱼最终长成破浪的鲸之王。」",
           "keywords": [
             "A03",
@@ -26475,8 +26475,8 @@
         {
           "anchor": "§A04 飞羽集 · 鸟类",
           "level": 3,
-          "startLine": 53,
-          "endLine": 62,
+          "startLine": 54,
+          "endLine": 63,
           "tokens": 275,
           "summary": "系列文案：「从剪刀尾的燕子，到尾羽如焰的原创不死鸟。」",
           "keywords": [
@@ -26488,8 +26488,8 @@
         {
           "anchor": "§A05 虫虫园 · 昆虫",
           "level": 3,
-          "startLine": 63,
-          "endLine": 72,
+          "startLine": 64,
+          "endLine": 73,
           "tokens": 277,
           "summary": "系列文案：「对称的翅与斑点，是最小也最好认的拼豆题。」",
           "keywords": [
@@ -26501,8 +26501,8 @@
         {
           "anchor": "§A06 甜品屋 · 甜点美食",
           "level": 3,
-          "startLine": 73,
-          "endLine": 82,
+          "startLine": 74,
+          "endLine": 83,
           "tokens": 257,
           "summary": "系列文案：「奶油、糖霜与蜡烛，一层一层叠出庆祝的味道。」",
           "keywords": [
@@ -26514,8 +26514,8 @@
         {
           "anchor": "§A07 果篮子 · 鲜果",
           "level": 3,
-          "startLine": 83,
-          "endLine": 92,
+          "startLine": 84,
+          "endLine": 93,
           "tokens": 251,
           "summary": "系列文案：「一颗苹果开始，收在一只满溢的果篮。」",
           "keywords": [
@@ -26527,8 +26527,8 @@
         {
           "anchor": "§A08 书桌角 · 文具器物",
           "level": 3,
-          "startLine": 93,
-          "endLine": 102,
+          "startLine": 94,
+          "endLine": 103,
           "tokens": 271,
           "summary": "系列文案：「直边与转角，练的是把一条线拼得干干净净。」",
           "keywords": [
@@ -26540,8 +26540,8 @@
         {
           "anchor": "§A09 小小城 · 建筑",
           "level": 3,
-          "startLine": 103,
-          "endLine": 112,
+          "startLine": 104,
+          "endLine": 113,
           "tokens": 263,
           "summary": "系列文案：「三角屋顶、尖塔与拱桥，一座城按秩序长起来。」",
           "keywords": [
@@ -26553,8 +26553,8 @@
         {
           "anchor": "§A10 节庆宴 · 节庆符号",
           "level": 3,
-          "startLine": 113,
-          "endLine": 122,
+          "startLine": 114,
+          "endLine": 123,
           "tokens": 297,
           "summary": "系列文案：「灯笼、烟花与彩蛋，把喜庆收进一枚枚色块。」",
           "keywords": [
@@ -26566,8 +26566,8 @@
         {
           "anchor": "§A11 乐之声 · 乐器",
           "level": 3,
-          "startLine": 123,
-          "endLine": 132,
+          "startLine": 124,
+          "endLine": 133,
           "tokens": 269,
           "summary": "系列文案：「弦、管与键盘，九种形状各响一声。」",
           "keywords": [
@@ -26579,8 +26579,8 @@
         {
           "anchor": "§A12 出行记 · 交通载具",
           "level": 3,
-          "startLine": 133,
-          "endLine": 142,
+          "startLine": 134,
+          "endLine": 143,
           "tokens": 293,
           "summary": "系列文案：「两只圆轮起步，终点是破浪的大游轮。」",
           "keywords": [
@@ -26592,8 +26592,8 @@
         {
           "anchor": "§A13 星河间 · 宇宙星空",
           "level": 3,
-          "startLine": 143,
-          "endLine": 152,
+          "startLine": 144,
+          "endLine": 153,
           "tokens": 333,
           "summary": "系列文案：「冷色的空里，暖色的星与日是最亮的那点。」",
           "keywords": [
@@ -26605,8 +26605,8 @@
         {
           "anchor": "§A14 远古纪 · 史前恐龙",
           "level": 3,
-          "startLine": 153,
-          "endLine": 162,
+          "startLine": 154,
+          "endLine": 163,
           "tokens": 261,
           "summary": "系列文案：「头盾、背板与长颈，九只史前巨影依次站定。」",
           "keywords": [
@@ -26618,8 +26618,8 @@
         {
           "anchor": "§A15 幻兽国 · 幻想生物",
           "level": 3,
-          "startLine": 163,
-          "endLine": 172,
+          "startLine": 164,
+          "endLine": 173,
           "tokens": 296,
           "summary": "系列文案：「全是没见过的生物，全都能一颗一颗拼出来。」",
           "keywords": [
@@ -26631,8 +26631,8 @@
         {
           "anchor": "§A16 天象记 · 天气气象",
           "level": 3,
-          "startLine": 173,
-          "endLine": 182,
+          "startLine": 174,
+          "endLine": 183,
           "tokens": 382,
           "summary": "系列文案：「云、雨、雪、虹、电与风，把看不见的东西拼成看得见的形状。」",
           "keywords": [
@@ -26644,8 +26644,8 @@
         {
           "anchor": "§A17 游乐场 · 运动玩具",
           "level": 3,
-          "startLine": 183,
-          "endLine": 192,
+          "startLine": 184,
+          "endLine": 193,
           "tokens": 287,
           "summary": "系列文案：「皮球、秋千到摩天轮，圆与杆拼出一整个下午。」",
           "keywords": [
@@ -26657,8 +26657,8 @@
         {
           "anchor": "§A18 温馨家 · 家居生活",
           "level": 3,
-          "startLine": 193,
-          "endLine": 202,
+          "startLine": 194,
+          "endLine": 203,
           "tokens": 273,
           "summary": "系列文案：「茶杯、沙发与壁炉，圆一件方一件地摆回家。」",
           "keywords": [
@@ -26670,8 +26670,8 @@
         {
           "anchor": "§A19 山水间 · 山水风景",
           "level": 3,
-          "startLine": 203,
-          "endLine": 212,
+          "startLine": 204,
+          "endLine": 213,
           "tokens": 310,
           "summary": "系列文案：「三角的远山、半轮红日，最后收在一幅群山日出的全景里。」",
           "keywords": [
@@ -26683,8 +26683,8 @@
         {
           "anchor": "§A20 晶石集 · 宝石矿物",
           "level": 3,
-          "startLine": 213,
-          "endLine": 224,
+          "startLine": 214,
+          "endLine": 225,
           "tokens": 320,
           "summary": "系列文案：「从一根六棱晶柱，长到拔地而起的水晶王。」",
           "keywords": [
@@ -26696,8 +26696,8 @@
         {
           "anchor": "§7 提示词模板占位（逐张确认时逐条填，本件不填）",
           "level": 2,
-          "startLine": 225,
-          "endLine": 244,
+          "startLine": 226,
+          "endLine": 245,
           "tokens": 489,
           "summary": "每条提示词 = 固定段（§2 G1–G10 的口语化版本）+ 该套宪法段（§6 对应节）+ 下列占位：",
           "keywords": [
