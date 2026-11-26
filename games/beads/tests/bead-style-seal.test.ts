@@ -162,8 +162,12 @@ const PLATE_BG_RETIRE_FRAME78 = 9;
  * `[WXG-T-1074]` 曾把五处 `back` 全撤（登记改 0），但真机 tint 臂下托盘槽底与珠子是 **blit**、
  * `graphics` 恒在 `blit` 之上 ⇒ 面板盖住槽底（用户报「底槽里的珠子底色被背景板覆盖」）。
  * `[WXG-T-1081]` 因此**恢复沉底**、登记回 5；「盘面豆子溢出托盘区」改由相机平移边界承担，不再动层序。
+ *
+ * `[WXG-T-1088]`（用户 2026-11-26 裁定「底槽背景压珠面」）：面板 + 投影 + 三段内阴影**再次去 `back`
+ * 提 graphics**（同层矢量按绘制序压住盘面珠）；`[WXG-T-1093]` 槽底改走 tint 臂（`maskSpace:'bead'`）。
+ * 登记改回 **0** —— ⚠ 层序互斥破法（blit 池白名单）仍待裁定（T-1093 §未解项），若回沉底须同步本值。
  */
-const BACK_KEY_LINES = 5;
+const BACK_KEY_LINES = 0;
 /**
  * **[EP12-S2/S3 · 第十八次复评登记（K.5.1-补10）]** 整帧登记漂移 = 两帧各 +3（复取实测）：
  * ① 托盘投影 rect（back:true ⇒ BACK_KEY_LINES 4→5）② LV 纸 chip rect 96×48 ③ expand 底缘 line。
@@ -630,9 +634,10 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         expect(SEAL.provenance.s3_frame_recheck_25).toContain('未解释 0 条');
         expect(SEAL.provenance.s3_frame_recheck_21).toContain('未解释 0 条');
         // **back 键计数腿**：[EP12-S3] 托盘投影 rect 也打 back ⇒ 登记 4→5（面板底 + 投影 + 三段内阴影）。
+        //   [WXG-T-1088] 用户裁定「底槽背景压珠面」⇒ 五处去 back 提 graphics，登记回 **0**（沿革见常量头注）。
         const backEmpty = emptyFlow.filter((l) => l.includes(',"back":true'));
         const backFrame = frameFixture().flow.filter((l) => l.includes(',"back":true'));
-        expect(backEmpty.length, `⛔ 空盘帧的 back 键只准落在面板底 + 投影 + 三段内阴影（登记 = ${BACK_KEY_LINES}）`).toBe(BACK_KEY_LINES);
+        expect(backEmpty.length, `⛔ 空盘帧的 back 键数须 ≡ 登记值（T-1088 裁定后 = ${BACK_KEY_LINES}）`).toBe(BACK_KEY_LINES);
         expect(backFrame.length, '⛔ 78 填帧同上（同一批桌面图元，不随填格数变）').toBe(BACK_KEY_LINES);
         // ⚠ [WXG-T-261 第十五次复评 · K-053 划线作废不净删] 旧闭合自证「剥 back ⇒ ≡ s3_pre_back_channel」
         //   两行等式作废：本批修订面 = 托盘几何/墨值**改写**（非纯插键）⇒ 剥键后在数学上不可能回到

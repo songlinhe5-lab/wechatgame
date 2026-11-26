@@ -13189,3 +13189,18 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 **② UI-41（play-page）**：drawHud 移到绘制序列末位（T-1085 层序裁定：常驻 UI 恒顶）后，原「HUD 不在末位」断言过时 ⇒ 更新为断言 drawHud 为最后一笔。
 
 **③ §8-1（pause-settings）**：`trayPoint()` 旧版取 `trayLayout(1)` 单行公式；T-1082 后槽位随面板底板排布、且多画的「预览虚线行」改变面板高度 ⇒ 坐标脱靶，真阳性对照 `tray:selected` 计数 0（假红）。修法与 selection-anchor（T-1082 同款）对齐：行数 = 容量行数 +（trayCanExpand 且预览放得下 ? 1 : 0），与 `drawTray` 同源。pause-settings 15/15；ui-input-timing 7/7（T-295 复核绿）。
+
+## WXG-T-1095
+
+**金样 + S3 收口复取（锚 b53deda5）** · 负责：主理人(CodeBuddy)·工程轨 · 状态：🚧 **进行中（2026-11-26）**
+
+承用户令「我先做一次完整收口（重抓金样 + S3、写归因、铺平 16 笔、推送）」。
+
+**做法**：主树留并发 T-1060 A03 WIP 不代提（K-045）；在 `git worktree add --detach @ b53deda5` 干净检出（K-167）软链主树 node_modules 后跑官方复取器：
+
+1. **金样（ui-golden-capture.ts）**：十一帧两遍确定性自证 PASS；`play`/`pause`/`clear`/`fail`/`sprint-settle`/`finish` 六态 **sha 变、total 与逐 kind 零变**（纯内容改写：T-1085 drawHud 末位 + clip、T-1092 beadInset 回退 + 槽沿跟随坑外廓、T-1093 maskSpace bead 回 tint 臂）；菜单族六态逐字未变。capturedFrom `c95b02c6→b53deda5`。
+2. **S3（bead-style-seal-recapture.ts）**：腿 4a/4b 重锚 frame78 `9f544c77→97f7f05a`、frame0 `2becc5c7→14e16aa8`（total/kinds 全等 1834/1288）；腿 1 legacyFlow 96 例、腿 2/3 facet 层键 45×2 例**逐字节未漂**。夹具回写 = 脚本读复取产物（⛔ 不手填 sha）+ provenance `s3_frame_recheck_t1095` 第二十四次复评归因。
+3. **back 键契约改判**：腿 4a 内嵌断言 `BACK_KEY_LINES` 5→0（T-1088 用户裁定「底槽背景压珠面」⇒ 面板/投影/三段内阴影去 back 提 graphics；层序互斥破法待裁定，回沉底须同步）。
+4. **并发 WIP 验证**：复取值与主树测试计算值逐字节一致（97f7f05af…）⇒ A03 WIP 不影响该两夹具，登记无污染。
+
+§12 登记：`docs/architecture/ui-architecture-beads.md`（K-051/K-053）。
