@@ -24,6 +24,7 @@ import {
   HUD_BAND,
   TRAY_COLS,
   trayLayout,
+  trayPreviewFits,
   zoomControlLayout,
 } from '../src/config/tuning.js';
 
@@ -174,7 +175,12 @@ describe('区外按钮抬起才提交（WXG-T-295）', () => {
     const h = createBeadsHarness({ noAssemble: true, levels: [simpleTestLevel()], saveKey: 'wxgame.beads.test.uit-tray' });
     const slot = h.game.giveTrayBead(0);
     expect(slot).toBeGreaterThanOrEqual(0);
-    const lay = trayLayout(1);
+    // `[WXG-T-1089]` 行数须与 `drawTray` 同源（含预览虚线行）：槽位随面板底板排布后，
+    // 只按 capacity 取行数会得到偏移的槽心 ⇒ 点到盘面/空白，把本用例读成「没提交」。
+    const _unlocked = Math.ceil(h.game.tray.capacity / TRAY_COLS);
+    const lay = trayLayout(
+      _unlocked + (h.game.snapshot.trayCanExpand && trayPreviewFits(_unlocked) ? 1 : 0),
+    );
     const p = {
       x: lay.slotCenterX(slot % TRAY_COLS),
       y: lay.slotCenterY(Math.floor(slot / TRAY_COLS)),

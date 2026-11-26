@@ -21,6 +21,15 @@ export interface InputRouterHost {
   readonly board: BoardCameraController;
   /** 按下腿 / 抬起腿共用的控件映射；返回控件 id，非按钮 / 无命中 ⇒ `''`。 */
   hitUiControl(x: number, y: number): string;
+  /**
+   * `[WXG-T-1089 · 用户 2026-11-26 实帧]` 该点是否落在**盘面格**上（含盘面带之外的溢出区）。
+   *
+   * 起手域判据由「y 在 `PUZZLE_BAND` 内」扩展为「带内 **或** 命中盘面格」：
+   * 此前带外的珠面点按落到「区外非按钮」腿 = **按下即提交**且不进 `pressBoard`
+   * ⇒ 用户实测「上下区域点住珠面就抬起、且拖不动」；带内则正常（抬起提交 + 可拖）。
+   * ⛔ 仍排除被托盘面板遮住的区域（`_hitGridCell` 内部已按面板矩形返回 null）。
+   */
+  hitBoardCellAt(x: number, y: number): boolean;
   /** 路由分派（`BeadsGame._routeTap`）：计量之后调用，不在本类判定业务。 */
   dispatchTap(x: number, y: number): void;
 }
@@ -83,8 +92,12 @@ export class InputRouter {
         return;
       }
       // 棋盘区起手域 = PUZZLE_BAND 整块（不限「命中某格」）：真机拖拽可从盘面任意处起手。
-      const onBoard =
-        playing && this._pointer.y >= PUZZLE_BAND.yMin && this._pointer.y <= PUZZLE_BAND.yMax;
+      // `[WXG-T-1089]` 起手域 = 盘面带内 **或** 命中盘面格（大盘溢出到带外时仍走棋盘腿：
+      // 抬起提交 + 可拖动）。⛔ 不要退回只判 y：那会让带外珠面按「区外非按钮」按下即提交且拖不动。
+      const onBoard = playing && (
+        (this._pointer.y >= PUZZLE_BAND.yMin && this._pointer.y <= PUZZLE_BAND.yMax) ||
+        this._host.hitBoardCellAt(this._pointer.x, this._pointer.y)
+      );
       if (onBoard) {
         // 棋盘区按下 → 登记，不提交；抬起为 tap，中途越阈值转拖拽、次指落下转捏合。
         // WXG-T-170 / F1：同帧 down+up（即时 tap）在协作类内当场提交。

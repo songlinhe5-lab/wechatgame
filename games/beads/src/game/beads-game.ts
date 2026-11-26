@@ -763,6 +763,8 @@ export class BeadsGame {
       get services() { return self._services; },
       get board() { return self._board; },
       hitUiControl(x: number, y: number) { return self._controls.hitUi(x, y); },
+      // `[WXG-T-1089]` 起手域扩展：带外命中盘面格也算棋盘腿（抬起提交 + 可拖动）。
+      hitBoardCellAt(x: number, y: number) { return self.hitBoardCellAt(x, y); },
       dispatchTap(x: number, y: number) { self._routeTap(x, y); },
     });
     this._conservation = new BeadConservation({
@@ -3143,6 +3145,11 @@ export class BeadsGame {
   private _trayDrawRows(): number {
     const unlocked = Math.ceil(this._tray.capacity / TRAY_COLS);
     return unlocked + (this._tray.canExpand && trayPreviewFits(unlocked) ? 1 : 0);
+  }
+
+  /** `[WXG-T-1089]` 见 {@link InputRouterHost.hitBoardCellAt}：起手域扩展用。 */
+  hitBoardCellAt(x: number, y: number): boolean {
+    return this._hitGridCell(x, y) !== null;
   }
 
   private _hitGridCell(x: number, y: number): { row: number; col: number } | null {

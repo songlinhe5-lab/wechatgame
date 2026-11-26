@@ -13060,3 +13060,23 @@ __motion.report()     // 把这一行贴回来
 **验证**：实帧 `temp/ui-shot/final-layer.png`（L18 43×43）：盘面下缘珠被面板截断、12 个槽中 3 颗珠完好可见、扩展钮压住面板下沿、HUD 在珠面之上。`play-page` 层序断言同步翻转为「面板**不**沉底、in-shadow 零 back、play 帧零 clip」。
 
 **待收口**：托盘由 blit 改矢量 ⇒ S3 封箱条数显著增长 + 金样 11 帧需按锚重抓；另有既有命令数基线断言（`5238 > 5616`）需随重抓更新。
+
+
+## WXG-T-1089
+
+**起手域扩展（带外珠面可拖可点）** · 负责：主理人(CodeBuddy)·工程轨 · 状态：🚧 **进行中（2026-11-26）**
+
+用户实报：「最上面最下面区域，只要点住珠面就会抬起；屏幕中间点击珠面，只有抬起时候才抬起；而且上下区域无法珠面拖动」。
+
+**根因（一处判据同时造成三个症状）**：`input-router.readFrame()` 的起手域判据
+```ts
+const onBoard = playing && y >= PUZZLE_BAND.yMin && y <= PUZZLE_BAND.yMax;
+```
+只按 **y 是否在盘面带内**判定。带外的盘面珠（大盘溢出，`clampCamera` 允许拖到「菜单下~托盘上」）落到 `else` 腿：非按钮 ⇒ `handleTap()` = **按下即提交**，且从不进 `pressBoard()` ⇒ ① 点住就抬起 ② 抬起不再提交（早已提交）③ 完全不能拖动。
+
+**修法**：起手域扩为「**带内 或 命中盘面格**」：
+- `InputRouterHost` 新增 `hitBoardCellAt(x, y): boolean`（`BeadsGame` 实现 = `_hitGridCell(...) !== null`）；
+- `onBoard = playing && (带内 || hitBoardCellAt(...))`；
+- ⛔ 仍排除被托盘面板遮住的区域（`_hitGridCell` 内部已按面板矩形返回 null，见 T-1087）。
+
+**验证**：`ui-input-timing` / `tray-hit` / `core-loop` **13/13 通过**；同批修正 `ui-input-timing` 的槽心取样（改为与 `drawTray` 同源含预览行，否则几何错位）。

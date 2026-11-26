@@ -4,7 +4,7 @@
   "unit": "UI-02",
   "spec": "docs/architecture/ui-architecture-beads.md §5 / §9.4 / §12",
   "codeBaseline": "bd964a0",
-  "capturedFrom": "489250f7 · 工作树（WXG-T-298）",
+  "capturedFrom": "c95b02c6 · 工作树（WXG-T-298）",
   "fixture": {
     "viewport": {
       "width": 750,
@@ -166,12 +166,12 @@
       "total": 588,
       "kinds": {
         "rect": 258,
-        "circle": 63,
         "line": 101,
-        "text": 10,
-        "polygon": 156
+        "polygon": 156,
+        "circle": 63,
+        "text": 10
       },
-      "sha": "56354b8fb257b730d1d670a7697f6af800a189d0697c9e82536d30f3b56eb9ca",
+      "sha": "7260eb8ac55222c25bc62cab4fed5974cae4b73f68a2949c4299f53873a8116c",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -187,14 +187,14 @@
       "total": 604,
       "kinds": {
         "rect": 265,
-        "circle": 63,
         "line": 103,
-        "text": 15,
         "polygon": 156,
+        "circle": 63,
+        "text": 15,
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "e94a168d697b253477cded8912b0d1ef9499680410cfa2aaf9999e3a9522d0ae",
+      "sha": "120f03cd17feff0668b78517a0548f5b84f9c03d8c2a06e5157222824d61ccfc",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -210,15 +210,15 @@
       "total": 660,
       "kinds": {
         "rect": 264,
-        "circle": 63,
         "line": 103,
-        "text": 16,
         "polygon": 211,
+        "circle": 63,
+        "text": 16,
         "container": 1,
         "blit": 1,
         "containerEnd": 1
       },
-      "sha": "5bb3e6c942c737017256cc5a55767941f4e65bd72b673e73bb313f414e7adb27",
+      "sha": "676295c8432b54f05089703bdf037535e61091bf3159c592c07d59036177f58d",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -234,14 +234,14 @@
       "total": 618,
       "kinds": {
         "rect": 265,
-        "circle": 63,
         "line": 106,
-        "text": 26,
         "polygon": 156,
+        "circle": 63,
+        "text": 26,
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "6d075ed2317d692c3c8d7bf7c6c4b15b2e651085a37ab0b634263750193279f8",
+      "sha": "c38ef197556f8152b1c13996168800723d4225dfa4a079064b59bcd72e36890a",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -257,14 +257,14 @@
       "total": 948,
       "kinds": {
         "rect": 591,
-        "circle": 3,
         "line": 245,
-        "text": 19,
         "polygon": 88,
+        "text": 19,
+        "circle": 3,
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "119adea841a0b795dd9b584a02a01667794ab927854130677e4d1d003ceb8e10",
+      "sha": "28d5fd7ba21b51fa9fbaac8e6358836789492495a1253eb89fc10721112277f5",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -280,14 +280,14 @@
       "total": 634,
       "kinds": {
         "rect": 293,
-        "circle": 63,
         "line": 101,
-        "text": 16,
         "polygon": 159,
+        "circle": 63,
+        "text": 16,
         "container": 1,
         "containerEnd": 1
       },
-      "sha": "d40347b88472afc9ed84708d91b146ec53f39343ae133721bcb2acee670d1304",
+      "sha": "f5d5024d8ebb6159c260dd101b444311729de43eb8e03f56e28b7c3f0bfcffd3",
       "background": "#F1E8D8",
       "transform": null
     }
