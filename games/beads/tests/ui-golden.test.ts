@@ -46,12 +46,16 @@ const CONTAINER_EXPECT: Readonly<Record<string, number>> = {
     'level-select-mid': 2,
     settings: 2,
     signin: 2,
-    play: 0,
-    pause: 1,
-    clear: 1,
-    fail: 1,
-    'sprint-settle': 1,
-    finish: 1,
+    // `[WXG-T-1096 · 用户 2026-11-26 令「槽底走 tint，面板保持压盘面珠」破层序互斥]`
+    // 对局六态 +1 = `tray` 渲染容器（托盘空槽 mask blit 容器化：同容器通道序 blit < graphics
+    // ⇒ 容器 BlitLayerUI 压过默认 Graphics 面板；非 modal 面板容器，层级契约变更已在
+    // docs/architecture/ui-architecture-beads.md §12 登记）。
+    play: 1,
+    pause: 2,
+    clear: 2,
+    fail: 2,
+    'sprint-settle': 2,
+    finish: 2,
 };
 
 interface GoldenFixture {

@@ -182,6 +182,55 @@ describe('trayZone 方向守卫（S5′-4：面板底走 back ⇒ 托盘区与�
     });
 });
 
+// ── [WXG-T-1096] 层序互斥破法（槽底走 tint、面板保持压盘面珠）＋ 槽图案口径 ──────────
+// 托盘空槽 tint blit 容器化（容器 BlitLayerUI 压过默认 Graphics 面板）后的配套判据：
+//  ① `forceVector` 必须被 `drawEmptySocket` **消费**（T-1088 起意图如此但一直没读）；
+//  ② `tintBasePainted` ⇒ 槽底 base rect 由调用方在容器外预铺，tint 臂**不得**再发自带
+//     back 底 rect（容器内矢量 rect 会落 Graphics 通道盖住自己的 mask）；
+//  ③ `tintSocketSize` ⇒ mask blit 独立边长（有珠槽传珠面尺寸 ⇒ 豆底图案 ≤ 珠轮廓）。
+describe('T-1096 托盘容器化配套（forceVector 消费 + 跳底 + 坑尺寸覆盖）', () => {
+    it('① forceVector: true ⇒ 不问 mask（矢量臂），矢量内阴影 ramp 回潮', () => {
+        const { runtime, calls } = stubTintRuntime();
+        setBeadTintRuntime(runtime);
+        const cmds = build((b) =>
+            drawEmptySocket(b, 100, 100, palette, TRAY_SLOT, undefined, DEMO_BEAD_INKS, false, BEAD_DRAW_INSET,
+                { maskGauge: 'holed', styleId: TINT_MASK_STYLE_ID, trayZone: true, forceVector: true }),
+        ).commands;
+        expect(calls, '⛔ forceVector 被无视 ⇒ 槽意外走 tint 落 blit 被面板盖住').toEqual([]);
+        expect(cmds.filter((c) => c.kind === 'blit').length, '强制矢量 ⇒ 零 blit').toBe(0);
+        expect(cmds.filter((c) => c.kind === 'rect').length, '矢量臂自画底 rect + 内阴影 ramp').toBeGreaterThan(0);
+    });
+
+    it('② tintBasePainted ⇒ 1 blit + 0 rect（底 rect 已由容器外预铺，缺省 cell = 豆底图案）', () => {
+        const { runtime, calls } = stubTintRuntime();
+        setBeadTintRuntime(runtime);
+        const cmds = build((b) =>
+            drawEmptySocket(b, 100, 100, palette, TRAY_SLOT, undefined, DEMO_BEAD_INKS, false, BEAD_DRAW_INSET,
+                { maskGauge: 'holed', styleId: TINT_MASK_STYLE_ID, trayZone: true, tintBasePainted: true }),
+        ).commands;
+        expect(calls, '空槽 tint 臂须命中 **cell** mask（用户令「直接展示豆底图案」，弃珠面刻面置灰）').toEqual([
+            { kind: 'cell', gauge: 'holed', styleId: TINT_MASK_STYLE_ID },
+        ]);
+        const blits = cmds.filter((c) => c.kind === 'blit');
+        expect(blits.length, '恰好 1 条 mask blit').toBe(1);
+        expect(blits[0]!.w, '缺省 tintSocketSize ⇒ blit = 满槽尺寸').toBe(TRAY_SLOT);
+        expect(cmds.filter((c) => c.kind === 'rect').length, '⛔ 容器内不得再发自带底 rect（会盖住自己的 mask）').toBe(0);
+    });
+
+    it('③ tintSocketSize ⇒ blit 缩到珠面尺寸（有珠槽豆底 ≤ 珠轮廓）', () => {
+        const { runtime } = stubTintRuntime();
+        setBeadTintRuntime(runtime);
+        const face = TRAY_SLOT - (BEAD_DRAW_INSET * TRAY_SLOT) / BEAD_CELL * 2;
+        const blits = build((b) =>
+            drawEmptySocket(b, 100, 100, palette, TRAY_SLOT, undefined, DEMO_BEAD_INKS, false, BEAD_DRAW_INSET,
+                { maskGauge: 'holed', styleId: TINT_MASK_STYLE_ID, trayZone: true, tintSocketSize: face, tintBasePainted: true }),
+        ).commands.filter((c) => c.kind === 'blit');
+        expect(blits.length, '恰好 1 条 mask blit').toBe(1);
+        expect(blits[0]!.w, 'blit 边长 = 珠面（豆底图案不越珠轮廓）').toBe(face);
+        expect(face, '珠面 < 满槽（恒等式自证）').toBeLessThan(TRAY_SLOT);
+    });
+});
+
 // ── [用户 2026-10-05 裁定「格底回中性 ⇒ 珠自补 live 孔」→ **2026-10-06 二批推翻补孔口径**] ──
 //
 // 沿革（留档，别再翻烧饼）：一张格面 tile 只有一个基色 ⇒ 一版合解 = 珠自己补 live 孔

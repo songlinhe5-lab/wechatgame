@@ -1033,7 +1033,51 @@ export interface EmptySocketTintOptions {
    * ⚠ 代价：托盘 48 槽由「每槽 1 条 blit」变成十余条矢量命令 ⇒ S3 封箱条数显著增长（按锚重抓）。
    */
   readonly forceVector?: boolean;
+  /**
+   * `[WXG-T-1096]` 调用方**已在容器外预铺槽底 base rect**（`drawSocketTintBase`）⇒ tint 臂
+   * 跳过自带的 `back` 底 rect（否则那 rect 会落全局 back 通道 = 面板之下，槽底再度被盖）。
+   * 仅托盘空槽用（盘面 `tilePainted=true` 本就不走这条）。
+   */
+  readonly tintBasePainted?: boolean;
+  /**
+   * `[WXG-T-1096 · 用户 2026-11-26 令「有豆子时候，豆底图案不要超过豆子的轮廓」]`
+   * mask blit 的独立边长（缺省 = `size`）。有珠槽传珠面尺寸 ⇒ 坑图案全藏珠下（真透露底）、
+   * 四周不越珠轮廓；仅 tint 臂消费，矢量臂不读（回退腿维持整槽矢量坑）。
+   */
+  readonly tintSocketSize?: number;
 
+}
+
+/**
+ * `[WXG-T-1096]` **托盘空槽 tint 臂的槽底 base rect**（环带中线几何，单源）：
+ * 从 `drawEmptySocket` tint 分支抽出（原先连 `back: true` 一起内联），供 `play-page`
+ * 在**托盘容器外**预铺——层序链 = 面板（默认 Graphics）→ 本 rect（默认 Graphics，后画）
+ * → 容器 BlitLayerUI 的 mask blit。几何必须与 tint 臂消费的同一份常量
+ * （`SOCKET_CARD.tintBaseInset/tintBaseRadius`），⛔ 不得在调用方重推。
+ */
+export function drawSocketTintBase(
+  builder: RenderModelBuilder,
+  cx: number,
+  cy: number,
+  size: number,
+  fill: string,
+): void {
+  const baseInset = size * SOCKET_CARD.tintBaseInset;
+  const baseSize = size - baseInset * 2;
+  builder.rect(cx - baseSize / 2, cy - baseSize / 2, baseSize, baseSize, {
+    fill,
+    radius: size * SOCKET_CARD.tintBaseRadius,
+  });
+}
+
+/**
+ * `[WXG-T-1096]` **托盘空槽 tint 臂当前是否可命中**（供调用方决定要不要预铺槽底 base rect）。
+ * 口径 = `drawEmptySocket` tint 命中条件里**与具体格无关**的几条（运行时注入 / 非烘焙 /
+ * 放大回退阀）；白名单与 `beadInset` 等逐格条件不在内 ⇒ 极少数「本函数 true 但逐格未命中」
+ * 的组合会多画一条被矢量臂整块盖住的底 rect（无害，几何被后者完全覆盖）。
+ */
+export function socketTintArmActive(): boolean {
+  return _tintRuntime !== undefined && !_baking && (_tintRuntime.allowTint?.() ?? true);
 }
 
 /**
@@ -1145,6 +1189,9 @@ export function drawEmptySocket(
     // `Graphics`」把托盘区整个收回矢量；S5′-4 给面板底开了 `back` 通道 ⇒ 那两条门已拆。
     (colorIdx !== undefined || options.trayZone === true) &&
     options.maskGauge !== undefined &&
+    // `[WXG-T-1096]` 补上 `forceVector` 消费（T-1088 起意图如此但本函数一直没读它 ⇒
+    // 有珠槽 socket 意外走 tint 落全局 blit 被面板盖住；现在显式强制即回矢量臂）。
+    options.forceVector !== true &&
     // EP12-B4：与 `drawFilledBead` 同一道放大回退阀（格面 mask 同样是 128px 定档纹理，
     // ⛔ 放大时必须一并回退，否则出现「珠回退了、格没退」的不一致）。
     (_tintRuntime.allowTint?.() ?? true)
@@ -1159,24 +1206,17 @@ export function drawEmptySocket(
       // ⇒ 命中且**无底 tile** 时先铺一条底 rect 再 blit（盘面 tilePainted=true 路径与矢量臂逐字节不变 ⇒ 封箱零扰动）。
       // [WXG-T-261 四批 · 用户裁「托盘槽轮廓外不要有颜色」] 三批补的是**全格径** rect ⇒ 环外沿外露出一圈色带。
       // 底边改走**环带中线**（`SOCKET_CARD.tintBaseInset/tintBaseRadius`，实量值）= 轮廓外零色、环整幅覆盖底边。
-      if (!tilePainted) {
-        const baseInset = size * SOCKET_CARD.tintBaseInset;
-        const baseSize = size - baseInset * 2;
-        builder.rect(cx - baseSize / 2, cy - baseSize / 2, baseSize, baseSize, {
-          fill: base,
-          radius: size * SOCKET_CARD.tintBaseRadius,
-          // [WXG-T-461 真机缺陷] Cocos carrier=on 时本 rect 是矢量命令 → 主 `Graphics`
-          //（层序在 BlitLayer 之上），而珠 blit 落 BlitLayer → **槽底 rect 盖住珠**
-          //（harness canvas2d 按命令序画所以从未复现；浏览器 Cocos 因构建档 mask 不齐
-          // carrier 静默 off，同未暴露——真机 4/4 才走到）。`back` 让它沉到 `backGraphics`
-          //（blit 之下，同托盘面板底通道）；canvas2d 端命令序不变（S5′-4 语义）。
-          // ⛔ 矢量臂底 rect（下方 `!tilePainted` 分支）**不打 back**：off 态两端同层按
-          // 命令序本就正确，且矢量臂在封箱字节锁内（tint 分支封箱不覆盖，零漂移）。
-          back: true,
-        });
+      // `[WXG-T-1096]` 托盘空槽改由调用方在容器外预铺（`tintBasePainted` ⇒ 本分支跳过）：
+      // 容器化后本函数若在容器内画矢量 rect，会落容器 Graphics 通道（blit 之上）盖住自己的 mask。
+      if (!tilePainted && options.tintBasePainted !== true) {
+        drawSocketTintBase(builder, cx, cy, size, base);
       }
       tintBlitOpts.fx = tintFx(base);
-      builder.blit(maskId, cx - size / 2, cy - size / 2, size, size, tintBlitOpts);
+      // `[WXG-T-1096]` `tintSocketSize`：mask blit 的独立边长（缺省 = `size`）。有珠槽传
+      // **珠面尺寸**（豆底图案 ≤ 珠轮廓，用户 2026-11-26 令）——坑（图案）全藏在珠下，
+      // 只从珠孔真透处露出；空槽不传 ⇒ 满槽尺寸直显豆底图案。
+      const blitSize = options.tintSocketSize ?? size;
+      builder.blit(maskId, cx - blitSize / 2, cy - blitSize / 2, blitSize, blitSize, tintBlitOpts);
       return;
     }
   }

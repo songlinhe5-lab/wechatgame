@@ -13211,3 +13211,19 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 4. **并发 WIP 验证**：复取值与主树测试计算值逐字节一致（97f7f05af…）⇒ A03 WIP 不影响该两夹具，登记无污染。
 
 §12 登记：`docs/architecture/ui-architecture-beads.md`（K-051/K-053）。
+
+## WXG-T-1096
+
+**托盘容器化破层序互斥 + 豆底口径 + 点击方格归属** · 负责：主理人(CodeBuddy)·工程轨 · 状态：🚧 **进行中（2026-11-26）**
+
+承用户裁定「槽底走 tint、面板保持压盘面珠」＋三条新口径（「不用豆面置灰，直接展示豆底图案」「有豆子时候豆底图案不要超过豆子轮廓」「点击区域覆盖豆格子，中间不要有点击空隙」）。
+
+**① 层序互斥破法（结构性）**：同容器通道序 blit < graphics ⇒ 面板（默认 Graphics）恒盖 tint blit ⇒ **托盘空槽 mask blit 容器化**（`beginContainer('tray')`，容器子树整棵排在默认五通道之后）；宿主 carrier 配套改判——**容器内 tint blit → 容器 BlitLayerUI**（判别 = blitParent 节点身份 ≠ 自家 `_uiLayer`；未容器化 tint 恒留全局 BlitLayer，DEC-7 不变）。槽底 base rect 上提容器外默认 Graphics（面板后、容器前）；CONTAINER_EXPECT 对局六态 +1（层级契约变更，§12 登记）。
+
+**② 空槽 mask 回 cell**（弃 T-1093 `maskSpace:'bead'` 珠面刻面置灰）：豆底图案 = 格底纹理直显。
+
+**③ 有珠槽 ≤ 珠轮廓**：撤 T-1088 的无效 `forceVector`（`drawEmptySocket` 本就没消费它，槽意外走 tint 被面板盖）；新增 `tintSocketSize` 把 mask blit 缩到珠面尺寸 + 垫底同尺寸；rim ≡ 珠轮廓（算式单源 `socketFace`）。
+
+**④ hitTraySlot 方格唯一归属**：旧圆热区 r=30 < 四槽夹角最近距 √(27²+27²)≈38.2（pitch 54）⇒ 相邻槽夹角死区（点击不中根因）；改 `round` 最近槽心 + 行带界内判定（同盘面 T-1070 口径），槽行带 100% 覆盖。
+
+**测试**：bead-tint-arm 新增 T-1096 三判据（forceVector 消费 / tintBasePainted 跳底 / tintSocketSize）；金样对局六帧与 S3 腿 4a/4b 按 T-1096 锚复取（进行中）。

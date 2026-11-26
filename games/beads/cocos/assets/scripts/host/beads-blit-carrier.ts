@@ -480,12 +480,18 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
         // 只在层真变了时 setParent（选关墙同屏仅此 1 条位图命令，热路径仍零分配）。
         // `[2026-11-20]` 珠腿（tint 图集）与「承着内容的整片底图」都在 Graphics 之下：
         // 木牌 / 九宫格背板若留在 BlitLayerUI 会盖住后发的程序化格底与缩略珠面。
-        const below = base !== undefined || BELOW_GRAPHICS_TEXTURE_IDS.has(cmd.textureId);
         // `[UI-60 / ADR-0033 DEC-3]` 静态位图腿（above）跟着**作用域**走：容器内发出的位图
         // 挂到该容器自己的 `BlitLayerUI` 下，才不会被本容器的 `Graphics` 盖住、也不会跨容器
         // 串层。珠腿（below）**恒留全局 BlitLayer**（DEC-7：世界层不容器化）。
         // 框架未传（旧路径 / 未接作用域宿主）⇒ 沿用本载体自己的默认 `_uiLayer`，逐字节不变。
+        // `[WXG-T-1096]` **容器内 tint blit 改判 above**：同容器通道序 blit < graphics，tint blit
+        // 留全局图集会被容器树下方的默认 `Graphics`（托盘面板）盖住（T-1093 层序互斥根因）。
+        // 判别 = 作用域递来的 blitParent 是否**真容器**（默认作用域递来的就是本载体自己的
+        // `_uiLayer`，以节点身份区分；框架不透传「是否默认」这一信息）。未容器化 tint
+        // （世界珠腿）与 `BELOW_GRAPHICS_TEXTURE_IDS` 白名单腿行为逐字节不变。
         const scoped = blitParent as Node | undefined;
+        const unscooped = scoped === undefined || scoped === this._uiLayer;
+        const below = (base !== undefined && unscooped) || BELOW_GRAPHICS_TEXTURE_IDS.has(cmd.textureId);
         const parent = this._clipOn && this._clipLayer
             ? this._clipLayer
             : (below ? this._atlasNode() : (scoped ?? this._uiLayer));

@@ -92,9 +92,11 @@ import {
     drawGhostSymbol,
     drawLiftBeadShadow,
     drawLockedBead,
+    drawSocketTintBase,
     drawStateRing,
     drawTargetTile,
     fillPopEnvelope,
+    socketTintArmActive,
     type FillPopEnvelope,
     type FilledBeadOptions,
     type TargetTileOptions,
@@ -991,6 +993,9 @@ function drawLiftShadowOn(
     );
 }
 
+/** `[WXG-T-1096]` 托盘空槽容器 id（同 `BUY_SCOPE_ID`/'rank' 先例：序按出现序，id 仅供调试读）。 */
+const TRAY_SCOPE_ID = 'tray';
+
 function drawTray(
     builder: RenderModelBuilder,
     snap: BeadsSnapshot,
@@ -1036,6 +1041,32 @@ function drawTray(
     // 平面板的轻体积感；α 极低（0.03/0.05/0.02），不与满槽告警危险描边竞争。
     drawTrayPlateShading(builder, lay.panelX, lay.panelBottom, lay.panelW, lay.panelH, palette.shadowInk);
 
+    // `[WXG-T-1096 · 用户 2026-11-26 裁「槽底走 tint，面板保持压盘面珠」破层序互斥]`
+    // **空槽 tint blit 容器化**：同容器内通道序 blit < graphics ⇒ 面板（Graphics）恒盖
+    // tint blit（T-1093 遗留互斥）。容器子树整棵排在默认五通道**之后**（ADR-0033 DEC-3）
+    // ⇒ 容器 BlitLayerUI 的 mask blit 压过面板、又压不住容器 Graphics 通道里的矢量
+    // （有珠槽 / 珠 / 槽沿）。宿主 carrier 配套改判：**容器内 tint blit → 容器 BlitLayerUI**
+    //（未容器化 tint 恒留全局 BlitLayer，DEC-7 不变）。
+    // 槽底 base rect（tint mask 槽底全透明，必须有垫底）上提到**容器外**的默认 Graphics
+    //（面板之后、容器之前）——容器内画矢量 rect 会落 Graphics 通道盖住自己的 mask。
+    // 空槽垫底 = 满槽尺寸；有珠槽垫底 = 珠面尺寸（豆底 ≤ 珠轮廓，见下）。
+    // ⛔ 虚线预览行无槽底。
+    const tintArm = socketTintArmActive();
+    // 珠面（= 坑图案上限）尺寸：与 `drawFilledBead` 的 `drawInset` 同一恒等式，
+    // 亦 = 槽沿 rim 的既有算式（rim ≡ 珠轮廓，T-1092 口径）。
+    const socketFace = TRAY_SLOT - (trayInset * TRAY_SLOT) / BEAD_CELL * 2;
+    if (tintArm) {
+        for (let idx = 0; idx < snap.traySlots.length; idx++) {
+            const slot = snap.traySlots[idx]!;
+            if (slot.state === 'free') {
+                if (Math.floor(idx / TRAY_COLS) >= unlockedRows) continue; // 虚线预览行无槽底
+                drawSocketTintBase(builder, lay.slotCenterX(idx % TRAY_COLS), lay.slotCenterY(Math.floor(idx / TRAY_COLS)), TRAY_SLOT, palette.traySlot);
+            } else {
+                drawSocketTintBase(builder, lay.slotCenterX(idx % TRAY_COLS), lay.slotCenterY(Math.floor(idx / TRAY_COLS)), socketFace, palette.traySlot);
+            }
+        }
+    }
+    builder.beginContainer(TRAY_SCOPE_ID);
     for (let idx = 0; idx < snap.traySlots.length; idx++) {
         const slot = snap.traySlots[idx]!;
         const row = Math.floor(idx / TRAY_COLS);
@@ -1058,9 +1089,13 @@ function drawTray(
                 // ⛔ 不传 `tilePainted`：托盘没有 B0 底图 rect，槽需自带亮底（与盘面相反）。
                 // `[WXG-T-1083]` 空槽与「有珠槽」同尺寸（坑 = 格位 `TRAY_SLOT`，不按珠体内缩）：
                 // 否则珠落进/取出时坑会一大一小跳变，且空槽明显比有珠槽小一圈（实帧可见）。
+                // `[WXG-T-1096 · 用户 2026-11-26 令「不用豆面置灰，直接展示豆底图案」]`
+                // mask 回 `cell`（格底图案，弃 T-1093 的珠面刻面置灰）。
                 drawEmptySocket(
                     builder, cx, cy, palette, TRAY_SLOT, undefined, inks, false, trayInset,
-                    { maskGauge: sizeSmall ? 'holeless' : 'holed', styleId: snap.beadStyle, trayZone: true, maskSpace: 'bead' },
+                    // `tintBasePainted`：槽底已由上方（容器外）预铺 ⇒ tint 臂跳过自带的 back 底 rect
+                    //（容器内矢量 rect 会落 Graphics 通道盖住自己的 mask，见容器开 lazy 处注）。
+                    { maskGauge: sizeSmall ? 'holeless' : 'holed', styleId: snap.beadStyle, trayZone: true, tintBasePainted: tintArm },
                 );
             }
             continue;
@@ -1121,7 +1156,12 @@ function drawTray(
         // （实帧确认：托盘里前三颗珠只剩珠面，槽沿完全消失）。⚠ 空槽支不受影响（仍按 `trayInset`）。
         drawEmptySocket(
             builder, cx, cy, palette, TRAY_SLOT, undefined, inks, false, trayInset,
-            { maskGauge: sizeSmall ? 'holeless' : 'holed', styleId: snap.beadStyle, trayZone: true, forceVector: true },
+            // `[WXG-T-1096 · 用户 2026-11-26 令「有豆子时候，豆底图案不要超过豆子的轮廓」]`
+            // 有珠槽回 tint 臂（撤 T-1088 的 `forceVector`——它本就未被本函数消费，槽意外
+            // 走 tint 落全局 blit 被面板盖住），mask blit 用 `tintSocketSize` 缩到**珠面尺寸**
+            // ⇒ 坑图案全藏珠下（真透露底）、四周不越珠轮廓；垫底 base rect 同尺寸（容器外预铺）。
+            // 珠（矢量）与槽沿（rim ≡ 珠轮廓）在容器 Graphics 通道压其上，绘制序不变。
+            { maskGauge: sizeSmall ? 'holeless' : 'holed', styleId: snap.beadStyle, trayZone: true, tintSocketSize: socketFace, tintBasePainted: tintArm },
         );
         // [WXG-T-242 · 2026-10-04 用户裁「阴影要加深、凸显被选中的效果」] 托盘**补分离影**。
         //
@@ -1203,7 +1243,8 @@ function drawTray(
         // 坑是实心块，不能整块后画（会盖死珠子）；只补**一圈描边**（不填充）⇒ 珠面外缘被槽沿压住，
         // 读作「珠子嵌在底槽里」。⛔ 用 `stroke` 无 `fill` ⇒ 不遮珠面任何像素。
         if (!tlHidden) {
-            const rim = TRAY_SLOT - (trayInset * TRAY_SLOT) / BEAD_CELL * 2;
+            // rim ≡ 珠轮廓（算式同上方 `socketFace`，T-1092 口径；T-1096 起共用一个量）。
+            const rim = socketFace;
             builder.rect(cx - rim / 2, cy - rim / 2, rim, rim, {
                 stroke: palette.slotBorder,
                 lineWidth: 2,
@@ -1226,6 +1267,7 @@ function drawTray(
             drawStateRing(builder, cx, cy, TRAY_SLOT, palette.hintBlue, hintAlpha(snap.pulseClock, snap.reduceMotion));
         }
     }
+    builder.endContainer(); // `[WXG-T-1096]` 与上方 beginContainer(TRAY_SCOPE_ID) 成对
 
     // BD-10（WXG-T-097）满槽告警：沿面板边缘 2px `danger` 描边 + 500ms α 呼吸
     // （`ux-spec §5`「满槽告警」行 / `assets-spec §1.5 tray_panel_danger`）。

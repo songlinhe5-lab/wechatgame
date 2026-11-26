@@ -13,7 +13,6 @@ import {
   HUD_BAND,
   POWERUP_TYPES,
   TRAY_COLS,
-  TRAY_HIT_SIZE,
   expandButtonLayout,
   powerupCardRects,
   trayLayout,
@@ -57,8 +56,8 @@ export function hitExpandButton(x: number, y: number, trayCanExpand: boolean): b
 }
 
 /**
- * 托盘槽命中：`TRAY_HIT_SIZE` 半径内、距槽心最近者胜（平手取先到者）；无命中 ⇒ `-1`。
- * 与 `view-model.drawTray` 共用 `trayLayout()`（§3.4 单一真源，WXG-T-062 判例）。
+ * 托盘槽命中：**方格唯一归属**——`|dx| ≤ pitch/2 && |dy| ≤ pitch/2`（最近槽心，round 即最近）；
+ * 无命中 ⇒ `-1`。与 `view-model.drawTray` 共用 `trayLayout()`（§3.4 单一真源，WXG-T-062 判例）。
  */
 export function hitTraySlot(
   x: number,
@@ -69,21 +68,17 @@ export function hitTraySlot(
   // 命中必须与 `drawTray` 同源，否则会点到空白处。缺省回落到「按 capacity 推导」（老调用方兼容）。
   drawRows?: number,
 ): number {
-  const half = TRAY_HIT_SIZE / 2;
-  let best = -1;
-  let bestD2 = half * half;
   const rows = drawRows ?? Math.ceil(capacity / TRAY_COLS);
   const lay = trayLayout(rows, width);
-  for (let idx = 0; idx < capacity; idx++) {
-    const row = Math.floor(idx / TRAY_COLS);
-    const col = idx % TRAY_COLS;
-    const dx = x - lay.slotCenterX(col);
-    const dy = y - lay.slotCenterY(row);
-    const d2 = dx * dx + dy * dy;
-    if (d2 < bestD2) {
-      bestD2 = d2;
-      best = idx;
-    }
-  }
-  return best;
+  // `[WXG-T-1096 · 用户 2026-11-26 令「点击区域要覆盖豆格子，中间不要有点击空隙」]`
+  // 旧圆热区（r = TRAY_HIT_SIZE/2 = 30 < 四槽夹角最近距 √(27²+27²) ≈ 38.2 @ pitch 54）在
+  // 相邻四槽夹角留**死区**（点击不中）。改**方格唯一归属**（与盘面 T-1070 同口径）：
+  // 槽行带内每点按坐标取整归入最近槽 ⇒ 100% 覆盖、无空隙；`round` 即最近槽心，
+  // 距离竞争语义与旧版逐点一致（仅把旧版必失手的夹角点划归最近槽）。
+  const col = Math.round((x - lay.slotCenterX(0)) / lay.pitch);
+  // 行自上而下（row=0 顶行；`slotCenterY` 随 row 递减）⇒ 取 `(cy0 − y)/pitch`。
+  const row = Math.round((lay.slotCenterY(0) - y) / lay.pitch);
+  if (col < 0 || col >= TRAY_COLS || row < 0 || row >= rows) return -1;
+  const idx = row * TRAY_COLS + col;
+  return idx < capacity ? idx : -1;
 }
