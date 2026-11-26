@@ -171,7 +171,7 @@ export function buildPhasePanel(
 const BUY_SCOPE_ID = 'buy';
 
 /** 快照里当前可见的相位面板（多者同时可见属异常，按固定优先级取第一）。 */
-function panelOf(snap: BeadsSnapshot): PlayPanelName | null {
+export function panelOf(snap: BeadsSnapshot): PlayPanelName | null {
   if (snap.clearPanelVisible) return 'clear';
   if (snap.finishPanelVisible) return 'finish';
   if (snap.panelVisible) return 'pause';

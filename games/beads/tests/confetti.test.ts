@@ -46,7 +46,7 @@ import {
     type ConfettiBeadState,
 } from '../src/view/scene-vfx.js';
 import { CONFETTI_COLORS, DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
-import { buildBeadsFrame } from '../src/view/view-model.js';
+import { buildBeadsView, buildPhasePanel, panelOf } from '../src/view/view-model.js';
 import { clearPanelLayout } from '../src/systems/clear-panel.js';
 import {
     advancePastClearWave,
@@ -88,7 +88,19 @@ function fillBoard(h: Harness): void {
 function renderSnap(snap: BeadsSnapshot): RenderModel {
     const builder = new RenderModelBuilder(DESIGN_W, DESIGN_H);
     builder.begin();
-    buildBeadsFrame(builder, snap, DEFAULT_PALETTE, DEMO_BEAD_INKS);
+    // `[WXG-T-1097]` 三明治参照随蒙版上楼容器化：生产序 = play 基础页（MAIN 彩带）→
+    // `{panel}:scrim` 前置容器（全屏 scrim）→ `{panel}` 面板容器（FG 彩带）。本流按
+    // **UiRoot.draw 逐字同序**重构（基础页不包容器；有位图腿的 clear 路由声明 scrim）。
+    buildBeadsView(builder, snap, DEFAULT_PALETTE, DEMO_BEAD_INKS);
+    const panel = panelOf(snap);
+    if (panel) {
+        builder.beginContainer(`${panel}:scrim`);
+        builder.rect(0, 0, DESIGN_W, DESIGN_H, { fill: SCRIM_FILL });
+        builder.endContainer();
+        builder.beginContainer(panel);
+        buildPhasePanel(builder, snap, DEFAULT_PALETTE, panel);
+        builder.endContainer();
+    }
     return builder.end();
 }
 
