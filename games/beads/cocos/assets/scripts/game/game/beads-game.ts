@@ -54,7 +54,7 @@ import {
   type RankBoard,
 } from '../../framework/index';
 
-import { ASSIST_STOPPED_HINT, ASSIST_STOPPED_HINT_MS, ASSIST_TAKEOVER_HINT, ASSIST_TAKEOVER_HINT_MS, AUDIO_CLIP_DENIED, AUDIO_CLIP_PANEL_IN, AUDIO_CLIP_PANEL_OUT, AUDIO_CLIP_REJECT, AUDIO_CLIP_REVIVE_OK, AUDIO_CLIP_STAR, AUDIO_CLIP_UI_TAP, COMBO_WINDOW_S, DEFAULT_TUNING, DESIGN_H, POWERUP_BUY_DENIED_HINT, REVIVE_BONUS_SEC, REVIVE_MAX_PER_LEVEL, SELECT_LIFT_MS, SOLVER_HINT_MS, SOLVER_MAX_CELLS, SOLVER_STAGGER_MS, STAGE_BONUS_TIME, STAMINA_REFILL_PLACEMENT, TRAY_COLS, arcRangeOfLevel, computeClearStars, gridLayoutFor, hitGridCell, isBossLevelId, menuAnchors, nextBeadLod, nextTierFor, normalSettleScore, solverSequenceMs, stageParamsFor, tierSecondsFor, trayPreviewFits, type BeadSizeKind, type BeadsTuning, type GridLayout, type PowerupType, validatedSprintTime } from '../config/tuning';
+import { ASSIST_STOPPED_HINT, ASSIST_STOPPED_HINT_MS, ASSIST_TAKEOVER_HINT, ASSIST_TAKEOVER_HINT_MS, AUDIO_CLIP_DENIED, AUDIO_CLIP_PANEL_IN, AUDIO_CLIP_PANEL_OUT, AUDIO_CLIP_REJECT, AUDIO_CLIP_REVIVE_OK, AUDIO_CLIP_STAR, AUDIO_CLIP_UI_TAP, COMBO_WINDOW_S, DEFAULT_TUNING, DESIGN_H, POWERUP_BUY_DENIED_HINT, REVIVE_BONUS_SEC, REVIVE_MAX_PER_LEVEL, SELECT_LIFT_MS, SOLVER_HINT_MS, SOLVER_MAX_CELLS, SOLVER_STAGGER_MS, STAGE_BONUS_TIME, PUZZLE_BAND, STAMINA_REFILL_PLACEMENT, TRAY_COLS, arcRangeOfLevel, computeClearStars, gridLayoutFor, hitGridCell, isBossLevelId, menuAnchors, nextBeadLod, nextTierFor, normalSettleScore, solverSequenceMs, stageParamsFor, tierSecondsFor, trayPreviewFits, type BeadSizeKind, type BeadsTuning, type GridLayout, type PowerupType, validatedSprintTime } from '../config/tuning';
 import { BEADS_AUDIO_VOICES } from '../config/audio-voices';
 import {
   LEVELS,
@@ -3146,6 +3146,11 @@ export class BeadsGame {
   }
 
   private _hitGridCell(x: number, y: number): { row: number; col: number } | null {
+    // `[WXG-T-1086 · 用户 2026-11-26 实帧「点击底槽背板区域能够点击到珠面」]`
+    // 大盘（L18 等）盘面比屏幕大，珠面会画到托盘带以下 ⇒ 点在托盘面板/道具区时仍会命中盘面格，
+    // 读作「点背板却动了珠子」。盘面的**可见/可点区域止于盘面带下沿**（`PUZZLE_BAND.yMin`），
+    // 其下交给托盘/道具的命中链（`hitTraySlot` 等）。⛔ 只夹下沿：上沿外是 HUD，本就不落格。
+    if (y < PUZZLE_BAND.yMin) return null;
     return hitGridCell(this._layout, this._board.camera.zoom, x, y);
   }
 

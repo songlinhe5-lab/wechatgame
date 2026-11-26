@@ -61,7 +61,6 @@ import {
     TIMER_CAPSULE,
     TIMER_CAPSULE_SHADOW_ALPHA,
     TIMER_CAPSULE_SHADOW_DY,
-    PUZZLE_BAND,
     TRAY_COLS,
     TRAY_FULL_PULSE_MS,
     TRAY_PLATE,
@@ -170,14 +169,11 @@ export function drawPlayPage(
     // 「Δtotal 全部可归因」登记链（三层校验）与真机 blit→clipLayer 搬迁副作用，收益却只是盖住一个
     // 极罕见态（相机平移把盘面拖进托盘带）。该诉求由**相机平移边界**兜住（盘面底缘不得下探到
     // `PUZZLE_BAND.yMin` 之下），零图元、零层序风险。
-    // `[WXG-T-1087 · 用户 2026-11-26 实帧]` **盘面绘制裁到 `PUZZLE_BAND`**：`clampCamera` 的纵向窗口
-    // 按 v1.69 裁定是「菜单下 ~ 托盘上」⇒ 大盘（如 L18 32×32）平移后珠面会下探到托盘带，压在
-    // 托盘面板/底槽背景之上（截图为证）。用户令「底槽背景要盖在珠面上面」⇒ 直接把盘面限死在自己
-    // 的带内，溢出部分根本不上屏。⚠ 代价 = 新增 `clip`/`unclip` 两条图元，S3 封箱基准需按锚重抓
-    // 并在 provenance 登记「Δtotal +2 = clip 1 + unclip 1」（可完整归因）。
-    builder.clip(0, PUZZLE_BAND.yMin, DESIGN_W, PUZZLE_BAND.yMax - PUZZLE_BAND.yMin);
+    // `[WXG-T-1086 · 用户 2026-11-26 实帧「珠面被上下边缘裁剪，要求全屏幕不裁剪」]`
+    // ⛔ **不裁剪盘面**：上一版用 `clip(PUZZLE_BAND)` 把盘面限死在自己带内去实现「底槽压珠」，
+    // 代价是盘面上下被切出一条硬直线（用户实帧一眼看出）。盘面必须完整绘制、可越出屏幕，
+    // 「底槽背景盖在珠面上面」改由**绘制顺序**承担（托盘面板与槽画在盘面之后，见 `drawTray` 段）。
     drawGrid(builder, snap, palette, inks);
-    builder.unclip();
     drawZoomControls(builder, snap, palette, zoomControlsVisible); // 缩放控件条（盘面下方净空带，不遮珠）
     drawTray(builder, snap, palette, inks);
     drawExpandButton(builder, snap, palette);
@@ -1199,6 +1195,16 @@ function drawTray(
             styleId: snap.beadStyle,
             ...(selected ? { shadowAlpha: SELECTED_SHADOW_ALPHA } : {}),
         });
+        // `[WXG-T-1086 · 用户 2026-11-26「底槽背景要盖在珠面上面」]` **坑沿压在珠之上**：
+        // 坑是实心块，不能整块后画（会盖死珠子）；只补**一圈描边**（不填充）⇒ 珠面外缘被槽沿压住，
+        // 读作「珠子嵌在底槽里」。⛔ 用 `stroke` 无 `fill` ⇒ 不遮珠面任何像素。
+        if (!tlHidden) {
+            builder.rect(cx - TRAY_SLOT / 2, cy - TRAY_SLOT / 2, TRAY_SLOT, TRAY_SLOT, {
+                stroke: palette.slotBorder,
+                lineWidth: 2,
+                radius: Math.round(TRAY_SLOT * 0.30), // = BEAD_CARD.radius（§1.1 K1）
+            });
+        }
         // [T-244 十五批 · 用户裁「框与珠子轮廓对不上 ⇒ 删除」] 原「选中态状态环」（`df18e04` 为
         // 「抬起 14dp 仍看不清」加的保底）已删：环钉在**槽径 30** 而珠面 26 ⇒ 一圈永远浮在珠外沿
         // 之外；且盘面早在 WXG-T-165 就裁撤了「错位珠恒亮白环」⇒ 留着 = 托盘独占一种盘面不说的语言。

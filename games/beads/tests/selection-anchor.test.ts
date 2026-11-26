@@ -573,8 +573,10 @@ describe('托盘有珠的槽格底 ≡ 中性（与空槽同色，2026-10-05 推
     const cx = lay.slotCenterX(0);
     const cy = lay.slotCenterY(0);
     // socket 自带亮底 = 唯一一枚**槽径 `TRAY_SLOT`**、居槽心的 rect（珠面比槽小、面板 rect 大得多 ⇒ 不撞）
+    // `[WXG-T-1086]` 槽径 rect 现在有**两枚**：坑底（带 fill）+ 坑沿（只 stroke，压住珠外缘）。
+    // 本断言只关心「槽底还在」⇒ 过滤改为只看带 fill 的那枚。
     const base = (renderSnap(snap) as readonly { kind: string; x?: number; y?: number; w?: number; fill?: string }[]).filter(
-      (k) => k.kind === 'rect' && k.w === TRAY_SLOT
+      (k) => k.kind === 'rect' && k.w === TRAY_SLOT && k.fill !== undefined
         && Math.abs((k.x ?? 0) + TRAY_SLOT / 2 - cx) < 0.01
         && Math.abs((k.y ?? 0) + TRAY_SLOT / 2 - cy) < 0.01,
     );
