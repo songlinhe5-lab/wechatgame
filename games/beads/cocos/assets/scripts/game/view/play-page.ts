@@ -1059,7 +1059,7 @@ function drawTray(
                 // `[WXG-T-1083]` 空槽与「有珠槽」同尺寸（坑 = 格位 `TRAY_SLOT`，不按珠体内缩）：
                 // 否则珠落进/取出时坑会一大一小跳变，且空槽明显比有珠槽小一圈（实帧可见）。
                 drawEmptySocket(
-                    builder, cx, cy, palette, TRAY_SLOT, undefined, inks, false, 0,
+                    builder, cx, cy, palette, TRAY_SLOT, undefined, inks, false, trayInset,
                     { maskGauge: sizeSmall ? 'holeless' : 'holed', styleId: snap.beadStyle, trayZone: true, forceVector: true },
                 );
             }
@@ -1120,7 +1120,7 @@ function drawTray(
         // 露出坑沿，读作「珠子嵌在底槽里」。此前传 `trayInset` ⇒ 坑与珠同尺寸 ⇒ 珠把坑整块盖住
         // （实帧确认：托盘里前三颗珠只剩珠面，槽沿完全消失）。⚠ 空槽支不受影响（仍按 `trayInset`）。
         drawEmptySocket(
-            builder, cx, cy, palette, TRAY_SLOT, undefined, inks, false, 0,
+            builder, cx, cy, palette, TRAY_SLOT, undefined, inks, false, trayInset,
             { maskGauge: sizeSmall ? 'holeless' : 'holed', styleId: snap.beadStyle, trayZone: true, forceVector: true },
         );
         // [WXG-T-242 · 2026-10-04 用户裁「阴影要加深、凸显被选中的效果」] 托盘**补分离影**。
@@ -1203,10 +1203,11 @@ function drawTray(
         // 坑是实心块，不能整块后画（会盖死珠子）；只补**一圈描边**（不填充）⇒ 珠面外缘被槽沿压住，
         // 读作「珠子嵌在底槽里」。⛔ 用 `stroke` 无 `fill` ⇒ 不遮珠面任何像素。
         if (!tlHidden) {
-            builder.rect(cx - TRAY_SLOT / 2, cy - TRAY_SLOT / 2, TRAY_SLOT, TRAY_SLOT, {
+            const rim = TRAY_SLOT - (trayInset * TRAY_SLOT) / BEAD_CELL * 2;
+            builder.rect(cx - rim / 2, cy - rim / 2, rim, rim, {
                 stroke: palette.slotBorder,
                 lineWidth: 2,
-                radius: Math.round(TRAY_SLOT * 0.30), // = BEAD_CARD.radius（§1.1 K1）
+                radius: Math.round(rim * 0.30), // = BEAD_CARD.radius（§1.1 K1）
             });
         }
         // [T-244 十五批 · 用户裁「框与珠子轮廓对不上 ⇒ 删除」] 原「选中态状态环」（`df18e04` 为

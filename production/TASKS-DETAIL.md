@@ -13121,3 +13121,18 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 
 **实测验证**（真实引擎 + CDP 真实鼠标拖动，L18 43×43、pitch 20.85）：从盘面中部向右拖 60 步 × 40px，
 `colsVisible = 4.00`、`left = 666.6` —— **恰好停在 4 格**，不再突破。
+
+
+## WXG-T-1092
+
+**回退槽底尺寸/纹理（恢复按珠内缩）** · 负责：主理人(CodeBuddy)·工程轨 · 状态：🚧 **进行中（2026-11-26）**
+
+用户实帧（L13 / pitch 47.8）：「底槽的格子底尺寸和纹理都不对，需要找一下修改之前的逻辑，应该是改错了这里」。
+
+**被推翻的改动**：T-1083 为满足「珠面在底槽下面」把托盘槽的 `beadInset` 由 `trayInset` 改为 **0**（坑 = 整格位 `TRAY_SLOT`=48），于是空槽变大、纹理变成一整块格面 —— 与「改动之前」的观感不符。
+
+**回退**：两处 `drawEmptySocket(…, false, 0, …)` 改回 `false, trayInset, …`（空槽 + 有珠槽）⇒ 坑外廓回到按珠体内缩（48 − 2×4×48/30 ≈ 41.6），尺寸与纹理都回到 T-1083 之前。
+
+**连带修正**：T-1086 加的「槽沿环」原按 `TRAY_SLOT`(48) 画，坑变小后会**大一圈浮在珠外** ⇒ 尺寸改为跟随坑外廓 `TRAY_SLOT − 2×trayInset×TRAY_SLOT/BEAD_CELL`，圆角同步 `rim × 0.30`。「槽沿压住珠外缘」的读感保留。
+
+**验证**：实帧 `temp/ui-shot/tray-revert.png`（空槽与珠同尺寸、珠四周仍有槽沿）；`selection-anchor` / `tray-socket` / `play-page` **29/30 通过**（唯一红为既有命令数基线 `5238 > 5616`，属金样未重抓）。
