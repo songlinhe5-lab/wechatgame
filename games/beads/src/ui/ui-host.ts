@@ -6,12 +6,19 @@
  * 现在没有执行者，先造动作联合会是空脚手架。
  */
 
-/** 调试层三行数据的宿主投影；字段与 `drawPerfOverlay` 入参一一对应。 */
+/** 调试层四行数据的宿主投影；字段与 `drawPerfOverlay` 入参一一对应。 */
 export interface UiDebugState {
     /** 统一调试开关（`settings.debugInfo`）。 */
     enabled: boolean;
     /** 帧耗时 EMA（ms）。 */
     frameMs: number;
+    /**
+     * `[WXG-T-1110]` 绘制成本 EMA（ms）：`App.onRender` 内的墙钟，即宿主渲染器的
+     * 几何重建 + 提交。`0` = 还没量到（首帧前 / 未接线），覆层不出这一行。
+     */
+    drawMs: number;
+    /** `[WXG-T-1110]` 本帧真下笔次数（fill + stroke，文字与 blit 不计）。 */
+    paintCalls: number;
     /** 相位，菜单腿为 `'menu'`。 */
     phase: string;
     /** 关卡标签，菜单腿为空。 */

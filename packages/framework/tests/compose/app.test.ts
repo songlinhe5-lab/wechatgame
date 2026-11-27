@@ -342,3 +342,96 @@ describe('App', () => {
     expect(() => app.tick(1 / 60)).not.toThrow();
   });
 });
+
+// ── 绘制成本投影（WXG-T-1110）────────────────────────────────────────────────
+// 口径：`drawMs` = `onRender` 内的墙钟 EMA（几何重建在宿主渲染器里跑，游戏侧量不到），
+// `paintCalls` = 本帧真下笔次数（fill + stroke；文字 / 位图 / 容器命令不计）。
+
+/** 只发「一填一描边 + 不该计数的三种命令」，用来钉 paintCalls 的口径。 */
+class PaintGame extends FakeGame {
+  override buildRenderModel(builder: RenderModelBuilder): void {
+    this.renderCount++;
+    builder.setBackground('#000000');
+    builder.rect(0, 0, this.size, this.size, { fill: '#fff', stroke: '#000', lineWidth: 2 });
+    builder.text(0, 0, 'label', { fill: '#fff' });
+    builder.blit('tex', 0, 0, 10, 10);
+    builder.beginContainer('c');
+    builder.endContainer();
+  }
+}
+
+/** 每次读表都往前跳 4 ms ⇒ `onRender` 的墙钟差可预期。 */
+class SteppingPlatform extends NodePlatform {
+  private _t = 0;
+  override now(): number {
+    this._t += 4;
+    return this._t;
+  }
+}
+
+describe('App 绘制成本投影（WXG-T-1110）', () => {
+  it('readDrawCost：首读只开统计（本帧还是 0），次帧起逐帧给出真下笔次数', () => {
+    const app = new App({
+      game: new PaintGame(),
+      platform: new NodePlatform({ width: 750, height: 1334, pixelRatio: 2 }),
+      designWidth: 750,
+      designHeight: 1334,
+      seed: 'test',
+    });
+    app.dirtyGate = false; // 每帧都真画，免得被脏帧门挡住
+    app.onRender = (): void => {};
+    app.start();
+    app.tick(1 / 60);
+
+    const read = app.services.readDrawCost!;
+    // 首读发生在「本帧已画完」之后 ⇒ 本帧没统计过，三项全 0（⛔ 不是「没画面」）。
+    expect(read()).toMatchObject({ drawMs: 0, paintCalls: 0, commands: 0 });
+
+    app.tick(1 / 60);
+    const cost = read();
+    // rect 的 fill + stroke = 2；text / blit / 容器命令一律不计。
+    expect(cost.paintCalls).toBe(2);
+    // commands 含全部命令（rect / text / blit 三条 + 容器起止两条；background 不占命令）。
+    expect(cost.commands).toBe(5);
+    app.stop();
+  });
+
+  it('drawMs 吃 onRender 的墙钟差，脏帧门跳过的帧不混进 EMA', () => {
+    const app = new App({
+      game: new FakeGame(),
+      platform: new SteppingPlatform({ width: 750, height: 1334, pixelRatio: 2 }),
+      designWidth: 750,
+      designHeight: 1334,
+      seed: 'test',
+    });
+    app.onRender = (): void => {};
+    app.start();
+    const read = app.services.readDrawCost!;
+    read(); // 打开统计（不影响 drawMs 的计时口）
+
+    app.tick(1 / 60); // 首帧：真画，墙钟差 4 ms
+    expect(read().drawMs).toBe(4);
+
+    app.tick(1 / 60); // 同内容 ⇒ 脏帧门跳过，没有 onRender ⇒ 不采样
+    expect(read().drawMs).toBe(4);
+
+    app.stop();
+  });
+
+  it('readDrawCost 每次返回同一对象（热路径零分配）', () => {
+    const app = new App({
+      game: new PaintGame(),
+      platform: new NodePlatform({ width: 750, height: 1334, pixelRatio: 2 }),
+      designWidth: 750,
+      designHeight: 1334,
+      seed: 'test',
+    });
+    app.dirtyGate = false;
+    app.onRender = (): void => {};
+    app.start();
+    app.tick(1 / 60);
+    const read = app.services.readDrawCost!;
+    expect(read()).toBe(read());
+    app.stop();
+  });
+});

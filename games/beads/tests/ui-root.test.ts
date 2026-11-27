@@ -53,6 +53,8 @@ describe('UI-25 · UiRoot', () => {
         const d: UiDebugState = {
             enabled: true,
             frameMs: 16.666,
+            drawMs: 0,
+            paintCalls: 0,
             phase: 'PLAYING',
             level: 'L3',
             detail: 'pitch 54.0 · LOD 2',
@@ -71,6 +73,8 @@ describe('UI-25 · UiRoot', () => {
         const d: UiDebugState = {
             enabled: true,
             frameMs: 16.666,
+            drawMs: 0,
+            paintCalls: 0,
             phase: 'PLAYING',
             level: 'L3',
             detail: 'pitch 54.0 · LOD 2',
@@ -105,7 +109,7 @@ describe('UI-25 · UiRoot', () => {
     });
 
     it('调试关时路由照画、零覆层指令', () => {
-        const root = new UiRoot(host({ enabled: false, frameMs: 0, phase: 'menu', level: '', detail: '' }));
+        const root = new UiRoot(host({ enabled: false, frameMs: 0, drawMs: 0, paintCalls: 0, phase: 'menu', level: '', detail: '' }));
         root.push(route('menu', 'page'));
         const { builder, calls } = fakeBuilder();
         root.draw(builder, PALETTE);

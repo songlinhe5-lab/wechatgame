@@ -75,11 +75,11 @@ describe('drawPerfOverlay', () => {
         expect(calls).toEqual([]);
     });
 
-    it('开：窄面板贴屏顶 + fps / 相位 / 细节三行', () => {
+    it('开：窄面板贴屏顶 + fps / 相位 / 细节三行（未接线时不出绘制成本行）', () => {
         const { calls, builder } = recorder();
         drawPerfOverlay(builder, P, true, 16.7, 'PLAYING', 'L3', 'pitch 54.0 · LOD 2');
         expect(calls.map((c) => c.kind)).toEqual(['rect', 'text', 'text', 'text']);
-        expect(calls[0].args.slice(0, 4)).toEqual([12, 1334 - 148, 316, 136]);
+        expect(calls[0].args.slice(0, 4)).toEqual([12, 1334 - 186, 316, 174]);
         const fill = (calls[0].args[4] as { fill: string }).fill;
         expect(fill).toContain('0.7');
         // 深底必须用深底专用米白：`palette.text` 与遮罩 RGB 同为 (42,46,67) ⇒ 肉眼看零字。
@@ -88,10 +88,33 @@ describe('drawPerfOverlay', () => {
         expect(texts(calls)).toEqual(['fps 60 · 16.7 ms', 'PLAYING · L3', 'pitch 54.0 · LOD 2']);
     });
 
+    it('`[WXG-T-1110]` 有绘制成本时追加第四行（绘 ms + 下笔次数），三行版式不动', () => {
+        const { calls, builder } = recorder();
+        drawPerfOverlay(builder, P, true, 34.5, 'PLAYING', 'L3', 'pitch 54.0 · LOD 2', 21.4, 3010);
+        expect(calls.map((c) => c.kind)).toEqual(['rect', 'text', 'text', 'text', 'text']);
+        expect(texts(calls)).toEqual([
+            'fps 29 · 34.5 ms',
+            'PLAYING · L3',
+            'pitch 54.0 · LOD 2',
+            '绘 21.4 ms · 3010 次',
+        ]);
+        // 四行等距 38：新增行不得挤压原三行的 y（版式只向下长、不上移）。
+        const ys = calls.filter((c) => c.kind === 'text').map((c) => Number(c.args[1]));
+        expect(ys).toEqual([1334 - 38, 1334 - 76, 1334 - 114, 1334 - 152]);
+    });
+
     it('菜单腿（phase=menu、无细节）：两行，不画空行', () => {
         const { calls, builder } = recorder();
         drawPerfOverlay(builder, P, true, 0, 'menu', '', '');
         expect(texts(calls)).toEqual(['fps 0 · 0.0 ms', 'menu']);
+    });
+
+    it('菜单腿有绘制成本：不占空槽（fps 行下面直接是绘制成本行）', () => {
+        const { calls, builder } = recorder();
+        drawPerfOverlay(builder, P, true, 16.7, 'menu', '', '', 8.2, 640);
+        expect(texts(calls)).toEqual(['fps 60 · 16.7 ms', 'menu', '绘 8.2 ms · 640 次']);
+        const ys = calls.filter((c) => c.kind === 'text').map((c) => Number(c.args[1]));
+        expect(ys).toEqual([1334 - 38, 1334 - 76, 1334 - 114]);
     });
 });
 

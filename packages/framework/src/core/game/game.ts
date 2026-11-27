@@ -23,7 +23,7 @@ import type { RenderModelBuilder } from '../render/render-model.js';
 import type { RewardedAdProvider } from '../ads/rewarded-ad.js';
 import type { OpenDataProvider } from '../opendata/provider.js';
 import type { HapticKind, ShareOptions } from '../haptics.js';
-import type { PerformanceSnapshot } from '../performance/performance.js';
+import type { DrawCostReading, PerformanceSnapshot } from '../performance/performance.js';
 
 /**
  * Opaque texture reference resolved by the render adapter. The core never
@@ -125,6 +125,14 @@ export interface GameServices {
   readonly setPreferredFps?: (fps: 30 | 60) => void;
   /** Pull a runtime performance snapshot (WXG-T-414). Zero args — platform keeps its own counters. */
   readonly getPerformance?: () => PerformanceSnapshot;
+  /**
+   * `[WXG-T-1110]` 上一渲染帧的**绘制成本**（`onRender` 内的墙钟 EMA + 本帧下笔次数）。
+   *
+   * 供游戏侧性能覆层读：几何重建发生在宿主渲染器里，游戏自己量不到。首帧前 /
+   * 未接线的宿主读到的 `drawMs` 为 0（消费端 `> 0` 才显示，⛔ 不要拿 0 当「秒开」）。
+   * `App` 恒接线；仅当有人读过一次后才逐帧统计 `paintCalls`（release 路径零额外开销）。
+   */
+  readonly readDrawCost?: () => DrawCostReading;
 }
 
 export interface Game {

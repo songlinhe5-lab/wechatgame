@@ -13442,3 +13442,24 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 ② **本项目每帧绘制超预算**（拖动期一帧 ≈ 1650 条命令 / 496 个多边形 + blit）⇒ 手指按住**不动**时画面无变化、脏帧门跳过重绘，此时如果首行回到 60fps、一动就掉到 30，即坐实此项。
 
 判别动作（无需出包）：开「性能信息」→ 拖动中看首行 ≈30 → **手指按住不动 2 秒**再看首行。回到 60 ⇒ 属 ②；仍 30 ⇒ 属 ①（同时查手机是否开了低电量/省电模式）。
+
+## WXG-T-1110
+
+**性能覆层加绘制成本读数（drawMs + 下笔次数）：把「帧慢」与「我们画得慢」分开** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ **代码完成（2026-11-28）**
+
+承用户「查下现在每帧的性能瓶颈，分析解决方案，是否可以做批量处理？」。分析结论：13×12 最坏盘面 2382 条命令 / **3010 次 `fill()/stroke()`**（1870 fill + 1140 stroke），而 `buildRenderModel` 0.50 ms、命令分派 0.15 ms（Mac/Node）——**框架侧不是瓶颈**，几何重建在 Cocos `Graphics` 里同步跑完，这段只有宿主能量到。本单把这段读数送上覆层，作为「要不要上批处理/缓存」的定性前提（`render-perf-device-baseline.md §3.1` 本来就要求「建模段 / flush 段分开记」）。
+
+**做法（框架量、游戏读、零日志通道）**：
+- 计时点只能是 `App._render` 包住 `onRender`（`CocosRenderModelRenderer.draw` 在其中逐图元调 `fill/stroke`）；EMA α=0.1。⛔ 不在游戏层自量——那里拿不到宿主耗时。
+- `paintCalls` 口径 = 像素图元的 `fill` 次数 + `stroke` 次数；`text` / `blit` / 容器与裁切命令**不计**（实测 1860 + 1140 与逐形状蹲点一致；`text` 的 `fill` 不是 `Graphics.fill`）。
+- 下发通道 = `GameServices.readDrawCost?: () => DrawCostReading`（App 恒接线，返回**同一个**对象 ⇒ 热路径零分配）。**没人读就一次表都不读、命令流不扫** ⇒ release 路径零额外开销（首读后才打开统计，代价 = 每帧两次 `platform.now()` + 一遍命令流计数）。
+- 脏帧门跳过的帧**不采样**（那些帧没画，混进 EMA 会把成本摊薄）。
+- 覆层第四行 `绘 X ms · N 次`：四行等距 38、面板 136 → **174**（`dy` −148 → −186）向下长；空行不占槽（菜单腿不会出现空白）；`drawMs = 0`（未接线 / 首帧前）时不出该行。
+
+**判读口径（写进注释，防误读）**：`绘` 与首行 ms **同升** ⇒ 这一帧是我们画慢的（几何/上传），才轮到批处理或缓存腿；`fps` 掉而 `绘` 不变 ⇒ 宿主被限帧/降频/被别处占 CPU，改渲染代码无用。
+
+**判据（TDD 4 例）**：框架 `tests/compose/app.test.ts` 三例——① 首读只开统计（三项全 0）→ 次帧给出 `paintCalls = 2`（rect fill+stroke）且 text/blit/容器不计、`commands = 5`；② `drawMs` 吃 onRender 墙钟差、脏帧门跳过的帧不混进 EMA（SteppingPlatform 每次读表 +4 ms）；③ 每次返回同一对象。beads `tests/perf-frame-clock.test.ts` 两例——宿主有 `readDrawCost` ⇒ 字段原样进 `debugState`；没接线 ⇒ 两项为 0。`tests/debug-layer.test.ts` 三例重钉（面板几何、第四行文案与 y 序列、菜单腿不占空槽）。
+
+**验证（2026-11-28 实跑）**：framework 全量 **56 文件 / 616 passed**；beads 全量 **137 文件 / 1682 passed / 2 skipped**（较 T-1109 的 1678 +4）；`typecheck`（framework + beads + breakout）绿；`framework:sync` 写入 8、再同步写入 2，`framework:sync:check` 一致；`check:arch`（1 warning = L1 编辑器产物，常态）/ `check:size` / `check:links` / `check:tasks` 绿；**`pnpm run verify` 24/24 PASS，0 WARN / 0 FAIL**。金样与封箱不受影响（覆层仅在 `debugInfo` 开时出图，十态与封箱均关）；`check:board-seam` 与 `check:frozen-values` 一并绿。
+
+**下一步（设备侧，30 秒）**：暂停面板开「性能信息」→ 回对局拖动读 `绘 X ms · N 次`。判读：`绘 ≥ 12 ms` ⇒ 几何/上传确为主项，走「适配器按画法分组」或「盘面烘焙/图集」；`绘 < 5 ms` 而首行仍 ~30 ⇒ 不是我们画慢的，回到限帧/降频腿（与 T-1109 的判别同源）。⚠️ 本机 `build:cocos` 不会真编译，需在 Cocos Creator 面板重建后才有新读数。

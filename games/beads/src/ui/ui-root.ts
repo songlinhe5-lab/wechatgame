@@ -123,7 +123,7 @@ export class UiRoot {
         // `[ADR-0033 §S1]` 调试层走**恒置顶容器**（`bindings.ts` 把它登记为 `topMost`）⇒
         // 弹窗容器再怎么新建也压不住它。关掉时一条命令都不发（生产零开销、金样本零漂移）。
         if (d.enabled) builder.beginContainer(UI_DEBUG_SCOPE_ID);
-        drawPerfOverlay(builder, palette, d.enabled, d.frameMs, d.phase, d.level, d.detail);
+        drawPerfOverlay(builder, palette, d.enabled, d.frameMs, d.phase, d.level, d.detail, d.drawMs, d.paintCalls);
         if (d.enabled) builder.endContainer();
     }
 }

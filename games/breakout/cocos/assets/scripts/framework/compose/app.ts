@@ -19,7 +19,7 @@ import { InputManager } from '../core/input/input-manager';
 import { AudioScheduler } from '../core/audio/audio';
 import { createRng, type Rng } from '../core/math/rng';
 import { Viewport } from '../core/render/viewport';
-import { RenderModelBuilder, type RenderModel } from '../core/render/render-model';
+import { RenderModelBuilder, type DrawCommand, type RenderModel } from '../core/render/render-model';
 import { FixedStepLoop } from '../core/loop/game-loop';
 import type { AssetProvider, Game, GameServices } from '../core/game/game';
 import { detectPlatform, type Platform } from '../platform/index';
@@ -109,6 +109,24 @@ export class App {
    */
   private _lastSig = Number.NaN;
   private _unsubs: (() => void)[] = [];
+  /**
+   * `[WXG-T-1110]` 上一渲染帧的绘制成本投影（`GameServices.readDrawCost` 的返回体）。
+   *
+   * 计时点只能是这里：几何重建发生在宿主 `onRender` 内部（Cocos 侧同步跑完
+   * `fill()/stroke()`），游戏层量不到。对象**恒为同一个**（热路径零分配）。
+   */
+  private readonly _drawCost: { drawMs: number; paintCalls: number; commands: number } = {
+    drawMs: 0,
+    paintCalls: 0,
+    commands: 0,
+  };
+  /** 已累计的绘制样本数（0 ⇒ 还没量过；用来区分「首样本」与「EMA 尚未收敛」）。 */
+  private _drawSamples = 0;
+  /**
+   * 有人读过绘制成本后置 true ⇒ 才逐帧统计 `paintCalls`（要扫一遍命令流）。
+   * 没人读（release 常态）就一帧都不扫，热路径零额外开销。
+   */
+  private _drawCostWanted = false;
 
   constructor(options: AppOptions) {
     this.game = options.game;
@@ -145,6 +163,11 @@ export class App {
       httpGet: this.platform.httpGet?.bind(this.platform),
       setPreferredFps: this.platform.setPreferredFps?.bind(this.platform),
       getPerformance: this.platform.getPerformance?.bind(this.platform),
+      // `[WXG-T-1110]` 绘制成本投影：返回**同一个**对象（只读视图），首读即打开逐帧统计。
+      readDrawCost: () => {
+        this._drawCostWanted = true;
+        return this._drawCost;
+      },
     };
 
     this.loop = new FixedStepLoop(
@@ -342,8 +365,51 @@ export class App {
       this._lastSig = Number.NaN;
     }
     if (this.onRender) {
-      this.onRender(model, alpha);
+      // `[WXG-T-1110]` 绘制成本：卡表只包 `onRender`（建模那段由游戏自己量）。
+      // ⚠ 脏帧门跳过的帧**不采样** —— 那些帧根本没画，混进 EMA 会把成本摊薄。
+      // ⚠ 没人读过（release 常态）就一次表都不读：两次 `now()` 也是热路径成本。
+      if (this._drawCostWanted) {
+        const t0 = this.platform.now();
+        this.onRender(model, alpha);
+        const spent = this.platform.now() - t0;
+        const cost = this._drawCost;
+        if (this._drawSamples === 0) cost.drawMs = spent;
+        else cost.drawMs = cost.drawMs * 0.9 + spent * 0.1;
+        this._drawSamples += 1;
+        cost.commands = model.commands.length;
+        cost.paintCalls = countPaintCalls(model.commands);
+      } else {
+        this.onRender(model, alpha);
+      }
       this._drewThisTick = true; // 脏帧门放行且真有宿主 ⇒ 这一帧改变了画面
     }
   }
+}
+
+/**
+ * `[WXG-T-1110]` 一帧的**真下笔**次数 = 像素图元的 `fill` + `stroke` 次数。
+ *
+ * 逐命令扫一遍、零分配（只累加）。文字走 `cc.Label`、位图走 blit 载体、容器/裁切
+ * 命令不产像素 —— 三者都不计，否则读数会虚高（实测口径：13×12 盘 2382 条命令里
+ * 1860 fill + 1140 stroke，而 `text` 的 10 条 `fill` 不产生 `Graphics.fill`）。
+ */
+function countPaintCalls(commands: readonly DrawCommand[]): number {
+  let n = 0;
+  for (let i = 0; i < commands.length; i += 1) {
+    const cmd = commands[i]!;
+    switch (cmd.kind) {
+      case 'rect':
+      case 'circle':
+      case 'polygon':
+        if (cmd.fill) n += 1;
+        if (cmd.stroke) n += 1;
+        break;
+      case 'line':
+        n += 1; // `line` 的 `stroke` 是必填字段
+        break;
+      default:
+        break;
+    }
+  }
+  return n;
 }

@@ -270,3 +270,36 @@ export function armMotionProbe(host: MotionProbeHost, options: MotionProbeOption
     stop: (): void => { host.motionProbe = null; },
   };
 }
+
+// ── WXG-T-1110 宿主绘制成本（P0 诊断：把「画一帧花多少」送上覆层）──────────────
+//
+// 与上面两条腿正交：`PerformanceSnapshot` 是周期快照（fps/heap），`MotionRecorder`
+// 是位移分布；本投影量的是**一帧内部的成本拆分**——`onRender` 里那段时间（宿主
+// `Graphics` 逐图元重建几何 + 提交）到底吃掉多少毫秒、这帧一共下了几次笔。
+//
+// 为什么必须由 App 计时：`buildRenderModel` 只产命令流，真正的几何重建发生在宿主
+// `onRender` 内部（Cocos 侧在 `renderer.draw` 的 `fill()/stroke()` 里同步跑完）；
+// 游戏层看不到那段，所以只能由 `App._render` 卡表并投影给游戏读。
+//
+// ⛔ 不要把它做成模块级单例：那是隐式全局状态，harness/多 App 并存时读数会串台。
+//    本投影经 `GameServices.readDrawCost` 显式下发，谁持有 App 谁才读得到。
+
+/** 一帧绘制成本读数（只读投影；`App` 每渲染 tick 更新）。 */
+export interface DrawCostReading {
+  /**
+   * `onRender` 内墙钟毫秒的 EMA（α = 0.1）。含宿主渲染器的**全部**同步成本：
+   * Cocos 侧 = 逐图元路径写入 + 三角化 + 描边扩张 + mesh 上传提交。
+   *
+   * ⚠️ 三项在「还没量过」时全为 `0`（首帧前 / 刚有人读的第一帧）：0 只表示无样本，
+   * 消费端 `> 0` 才显示（⛔ 不要拿 0 当「本帧零耗时」）。
+   */
+  readonly drawMs: number;
+  /**
+   * 本帧**真下笔**次数 = 像素图元（rect / circle / line / polygon）的
+   * `fill` 次数 + `stroke` 次数。文字 / 位图 / 容器命令**不计**（它们不走
+   * `Graphics.fill/stroke`）。
+   */
+  readonly paintCalls: number;
+  /** 本帧命令总条数（含 text / blit / 容器与裁切命令），用于分辨「命令多但下笔少」。 */
+  readonly commands: number;
+}

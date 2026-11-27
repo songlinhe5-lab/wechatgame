@@ -6,8 +6,10 @@
  *   半透明**窄面板**而非全屏遮罩（全屏 α 会改变 fill 负载，测量就不干净）；开关关闭零指令。
  * - {@link drawSafeGuideLines}：安全区三条标定线（顶部 / 胶囊底缘 / Home 条），对局与主菜单共用。
  *
- * 采样不在这里：EMA 单源在 `BeadsGame.sampleDrawFrame`（`[WXG-T-1108]` 口径 = 宿主壁钟的
+ * 采样不在这里：EMA 单源在 `BeadsGame`（`[WXG-T-1108]` 口径 = 宿主壁钟的
  * 渲染帧间隔，由 `BeadsShell.buildRenderModel` 每渲染帧喂一次）；本层只读结果。
+ * `[WXG-T-1110]` 第四行「绘 X ms · N 次」同理只读：数来自 `App.onRender` 的计时
+ * 投影（`GameServices.readDrawCost`），游戏侧不自己量。
  *
  * ⚠ 迁移期落点 = `src/view/`；UI-25 随风格层搬 `src/ui/kit/`。
  */
@@ -16,12 +18,19 @@ import { DESIGN_W } from '../config/tuning.js';
 import { DEBUG_OUTLINE_TILE_HEX, type BeadsPalette } from './palette.js';
 import { UI_DEBUG_HIT_FILL, UI_FONT, UI_SCRIM, scrimFill } from './ui-theme.js';
 
-/** 性能覆层面板几何（设计 px，贴屏顶；`top = builder.height` 动态高）。 */
-const PERF_PANEL = { x: 12, dy: -148, w: 316, h: 136, radius: 12 } as const;
+/**
+ * 性能覆层面板几何（设计 px，贴屏顶；`top = builder.height` 动态高）。
+ *
+ * `[WXG-T-1110]` 由三行扩到四行（新增绘制成本行）：面板高 136 → 174、底边下移
+ * 一档（`dy` −148 → −186），四条行距仍是 38。`⛔` 别把行距改小——22px 字号下
+ * 38 是「两行不粘」的下限（黄金比 1.7）。
+ */
+const PERF_PANEL = { x: 12, dy: -186, w: 316, h: 174, radius: 12 } as const;
 
 /**
  * 性能覆层。`enabled = false` 时零指令（金样本与正常玩法不受影响）。
  * `level` / `detail` 可为空串：菜单腿只有 `phase = 'menu'`，不画空行。
+ * `drawMs = 0`（未接线 / 首帧前）时不出绘制成本行 —— 该行按需追加，不占空槽。
  */
 export function drawPerfOverlay(
     builder: RenderModelBuilder,
@@ -31,6 +40,8 @@ export function drawPerfOverlay(
     phase: string,
     level: string,
     detail: string,
+    drawMs = 0,
+    paintCalls = 0,
 ): void {
     if (!enabled) return;
     const fps = frameMs > 0 ? Math.round(1000 / frameMs) : 0;
@@ -49,9 +60,21 @@ export function drawPerfOverlay(
             baseline: 'middle',
         });
     };
-    line(top - 38, `fps ${fps} · ${frameMs.toFixed(1)} ms`);
-    line(top - 76, level ? `${phase} · ${level}` : phase);
-    if (detail) line(top - 114, detail);
+    // 逐行下移 38：空行不占槽（否则菜单腿会出现一段空白）。
+    let y = top - 38;
+    line(y, `fps ${fps} · ${frameMs.toFixed(1)} ms`);
+    y -= 38;
+    line(y, level ? `${phase} · ${level}` : phase);
+    if (detail) {
+        y -= 38;
+        line(y, detail);
+    }
+    if (drawMs > 0) {
+        y -= 38;
+        // `[WXG-T-1110]` 判读口径：`绘` 与 `fps` 的 ms 一升一降才叫「宿主变慢」；
+        // 两者同升 ⇒ 这一帧是**我们画慢的**（几何/上传），才轮到批处理或缓存腿。
+        line(y, `绘 ${drawMs.toFixed(1)} ms · ${paintCalls} 次`);
+    }
 }
 
 /**

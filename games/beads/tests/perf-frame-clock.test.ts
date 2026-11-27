@@ -22,7 +22,10 @@ import {
 import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import { createBeadsShell } from '../src/game/beads-shell.js';
 
-function rig(initialScreen?: 'play'): { shell: ReturnType<typeof createBeadsShell>; advance(ms: number): void } {
+function rig(
+    initialScreen?: 'play',
+    drawCost?: { drawMs: number; paintCalls: number; commands: number },
+): { shell: ReturnType<typeof createBeadsShell>; advance(ms: number): void } {
     let now = 1_000;
     const platform = new NodePlatform({ width: 750, height: 1334, pixelRatio: 2 });
     const services: GameServices = {
@@ -35,6 +38,8 @@ function rig(initialScreen?: 'play'): { shell: ReturnType<typeof createBeadsShel
         assets: new NullAssetProvider(),
         platform: platform.info,
         rewardedAd: platform.createRewardedAdProvider(),
+        // `[WXG-T-1110]` 真机侧由 App 接线；测试注入同一形状的只读投影。
+        ...(drawCost ? { readDrawCost: () => drawCost } : {}),
     };
     const shell = createBeadsShell({
         clock: () => now,
@@ -46,7 +51,7 @@ function rig(initialScreen?: 'play'): { shell: ReturnType<typeof createBeadsShel
     return { shell, advance: (ms) => { now += ms; } };
 }
 
-const OUT = { enabled: false, frameMs: 0, phase: '', level: '', detail: '' };
+const OUT = { enabled: false, frameMs: 0, drawMs: 0, paintCalls: 0, phase: '', level: '', detail: '' };
 
 describe('性能覆层帧耗时 = 渲染帧壁钟（WXG-T-1108）', () => {
     it('每渲染帧 33 ms ⇒ frameMs ≈ 33（旧口径恒 16.7）', () => {
@@ -96,5 +101,21 @@ describe('性能覆层帧耗时 = 渲染帧壁钟（WXG-T-1108）', () => {
         r.advance(1_000);
         draw();
         expect(r.shell.play.debugState(OUT).frameMs).toBe(0); // 只吃 >250ms 的档 ⇒ 仍无样本
+    });
+});
+
+describe('性能覆层绘制成本投影（WXG-T-1110）', () => {
+    it('宿主有 readDrawCost ⇒ drawMs / paintCalls 原样进调试投影', () => {
+        const r = rig(undefined, { drawMs: 21.4, paintCalls: 3010, commands: 2382 });
+        const st = r.shell.play.debugState(OUT);
+        expect(st.drawMs).toBe(21.4);
+        expect(st.paintCalls).toBe(3010);
+    });
+
+    it('宿主没接线（harness / 老宿主）⇒ 两个字段为 0，覆层不出那一行', () => {
+        const r = rig();
+        const st = r.shell.play.debugState(OUT);
+        expect(st.drawMs).toBe(0);
+        expect(st.paintCalls).toBe(0);
     });
 });

@@ -1149,6 +1149,12 @@ export class BeadsGame {
     const s = this._snapshot;
     out.enabled = this._settings.values.debugInfo;
     out.frameMs = this._frameMs;
+    // `[WXG-T-1110]` 绘制成本由 App 在 `onRender` 里量（游戏量不到宿主几何重建那段）；
+    // 读的是**上一渲染帧**的 EMA —— 覆层晚一帧不影响判定，但能直接分开「帧变慢」
+    // 与「我们画得慢」。未接线 / 首帧前 ⇒ drawMs = 0，覆层不出这一行。
+    const cost = this._services?.readDrawCost?.();
+    out.drawMs = cost ? cost.drawMs : 0;
+    out.paintCalls = cost ? cost.paintCalls : 0;
     out.phase = onMenu ? 'menu' : s.phase;
     out.level = onMenu ? '' : s.mode === 'sprint' ? '冲刺' : `L${s.levelIndex + 1}`;
     // [WXG-T-1101] 权威盘面珠数：数变 ⇒ 查逻辑/守恒；数不变但视觉缺珠 ⇒ 查渲染/宿主载体（K-095/K-216）。
