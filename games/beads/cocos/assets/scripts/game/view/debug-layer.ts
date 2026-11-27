@@ -13,7 +13,7 @@
  *
  * ⚠ 迁移期落点 = `src/view/`；UI-25 随风格层搬 `src/ui/kit/`。
  */
-import type { RenderModelBuilder } from '../../framework/index';
+import type { DrawCostBreakdown, RenderModelBuilder } from '../../framework/index';
 import { DESIGN_W } from '../config/tuning';
 import { DEBUG_OUTLINE_TILE_HEX, type BeadsPalette } from './palette';
 import { UI_DEBUG_HIT_FILL, UI_FONT, UI_SCRIM, scrimFill } from './ui-theme';
@@ -21,11 +21,13 @@ import { UI_DEBUG_HIT_FILL, UI_FONT, UI_SCRIM, scrimFill } from './ui-theme';
 /**
  * 性能覆层面板几何（设计 px，贴屏顶；`top = builder.height` 动态高）。
  *
- * `[WXG-T-1110]` 由三行扩到四行（新增绘制成本行）：面板高 136 → 174、底边下移
- * 一档（`dy` −148 → −186），四条行距仍是 38。`⛔` 别把行距改小——22px 字号下
- * 38 是「两行不粘」的下限（黄金比 1.7）。
+ * `[WXG-T-1110]` 三行 → 四行（绘制成本行）：面板 136 → 174、`dy` −148 → −186；
+ * `[WXG-T-1111]` 四行 → 五行（分段行）：174 → 212、`dy` −186 → −224。行距恒 38，
+ * `⛔` 别改小——22px 字号下 38 是「两行不粘」的下限（黄金比 1.7）。细分行只在
+ * 宿主真的回投分段时间时出现（全 0 ⇒ 未接线，不画空白槽）。
  */
-const PERF_PANEL = { x: 12, dy: -186, w: 316, h: 174, radius: 12 } as const;
+const PERF_PANEL = { x: 12, w: 316, radius: 12 } as const;
+const PERF_ROW_GAP = 38;
 
 /**
  * 性能覆层。`enabled = false` 时零指令（金样本与正常玩法不受影响）。
@@ -42,11 +44,18 @@ export function drawPerfOverlay(
     detail: string,
     drawMs = 0,
     paintCalls = 0,
+    commands = 0,
+    breakdown: DrawCostBreakdown | null = null,
 ): void {
     if (!enabled) return;
     const fps = frameMs > 0 ? Math.round(1000 / frameMs) : 0;
     const top = builder.height;
-    builder.rect(PERF_PANEL.x, top + PERF_PANEL.dy, PERF_PANEL.w, PERF_PANEL.h, {
+    // `[WXG-T-1111]` 分段行存在与否决定面板高度；四段全 0 = 宿主没回投 ⇒ 不画空槽。
+    const segmented = drawMs > 0 && breakdown !== null
+        && breakdown.vectorMs + breakdown.blitMs + breakdown.textMs + breakdown.scopeMs > 0;
+    const panelDy = segmented ? -(PERF_ROW_GAP * 6 - 4) : -(PERF_ROW_GAP * 5 - 4);
+    const panelH = segmented ? PERF_ROW_GAP * 6 - 16 : PERF_ROW_GAP * 5 - 16;
+    builder.rect(PERF_PANEL.x, top + panelDy, PERF_PANEL.w, panelH, {
         fill: scrimFill(UI_SCRIM.canvas, 0.7),
         radius: PERF_PANEL.radius,
     });
@@ -61,19 +70,25 @@ export function drawPerfOverlay(
         });
     };
     // 逐行下移 38：空行不占槽（否则菜单腿会出现一段空白）。
-    let y = top - 38;
+    let y = top - PERF_ROW_GAP;
     line(y, `fps ${fps} · ${frameMs.toFixed(1)} ms`);
-    y -= 38;
+    y -= PERF_ROW_GAP;
     line(y, level ? `${phase} · ${level}` : phase);
     if (detail) {
-        y -= 38;
+        y -= PERF_ROW_GAP;
         line(y, detail);
     }
     if (drawMs > 0) {
-        y -= 38;
+        y -= PERF_ROW_GAP;
         // `[WXG-T-1110]` 判读口径：`绘` 与 `fps` 的 ms 一升一降才叫「宿主变慢」；
         // 两者同升 ⇒ 这一帧是**我们画慢的**（几何/上传），才轮到批处理或缓存腿。
-        line(y, `绘 ${drawMs.toFixed(1)} ms · ${paintCalls} 次`);
+        line(y, `绘 ${drawMs.toFixed(1)}ms · ${paintCalls}笔/${commands}令`);
+    }
+    if (segmented) {
+        y -= PERF_ROW_GAP;
+        const b = breakdown!;
+        // `[WXG-T-1111]` 四段同帧读数（⛔ 不做 EMA）：一眼看出 22.8ms 落在哪条腿。
+        line(y, `矢 ${b.vectorMs.toFixed(1)} 位 ${b.blitMs.toFixed(1)} 文 ${b.textMs.toFixed(1)} 余 ${b.scopeMs.toFixed(1)}ms`);
     }
 }
 

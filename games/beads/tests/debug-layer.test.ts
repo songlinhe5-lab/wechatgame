@@ -96,11 +96,35 @@ describe('drawPerfOverlay', () => {
             'fps 29 · 34.5 ms',
             'PLAYING · L3',
             'pitch 54.0 · LOD 2',
-            '绘 21.4 ms · 3010 次',
+            '绘 21.4ms · 3010笔/0令',
         ]);
         // 四行等距 38：新增行不得挤压原三行的 y（版式只向下长、不上移）。
         const ys = calls.filter((c) => c.kind === 'text').map((c) => Number(c.args[1]));
         expect(ys).toEqual([1334 - 38, 1334 - 76, 1334 - 114, 1334 - 152]);
+    });
+
+    it('`[WXG-T-1111]` 宿主回投分段 ⇒ 追加第五行，面板向下长到 212', () => {
+        const { calls, builder } = recorder();
+        const bd = { vectorMs: 3.1, blitMs: 18.9, textMs: 0.4, scopeMs: 0.4, vectorCalls: 12, blitCalls: 156, textCalls: 8 };
+        drawPerfOverlay(builder, P, true, 37.0, 'PLAYING', 'L3', 'pitch 54.0 · LOD 2', 22.8, 195, 2382, bd);
+        expect(calls[0].args.slice(0, 4)).toEqual([12, 1334 - 224, 316, 212]);
+        expect(texts(calls)).toEqual([
+            'fps 27 · 37.0 ms',
+            'PLAYING · L3',
+            'pitch 54.0 · LOD 2',
+            '绘 22.8ms · 195笔/2382令',
+            '矢 3.1 位 18.9 文 0.4 余 0.4ms',
+        ]);
+        const ys = calls.filter((c) => c.kind === 'text').map((c) => Number(c.args[1]));
+        expect(ys).toEqual([1334 - 38, 1334 - 76, 1334 - 114, 1334 - 152, 1334 - 190]);
+    });
+
+    it('分段全 0（宿主未接线）⇒ 不画空分段行，面板仍是四行尺寸', () => {
+        const { calls, builder } = recorder();
+        const bd = { vectorMs: 0, blitMs: 0, textMs: 0, scopeMs: 0, vectorCalls: 0, blitCalls: 0, textCalls: 0 };
+        drawPerfOverlay(builder, P, true, 37.0, 'PLAYING', 'L3', 'pitch 54.0 · LOD 2', 22.8, 195, 2382, bd);
+        expect(calls[0].args.slice(0, 4)).toEqual([12, 1334 - 186, 316, 174]);
+        expect(texts(calls)).toHaveLength(4);
     });
 
     it('菜单腿（phase=menu、无细节）：两行，不画空行', () => {
@@ -112,7 +136,7 @@ describe('drawPerfOverlay', () => {
     it('菜单腿有绘制成本：不占空槽（fps 行下面直接是绘制成本行）', () => {
         const { calls, builder } = recorder();
         drawPerfOverlay(builder, P, true, 16.7, 'menu', '', '', 8.2, 640);
-        expect(texts(calls)).toEqual(['fps 60 · 16.7 ms', 'menu', '绘 8.2 ms · 640 次']);
+        expect(texts(calls)).toEqual(['fps 60 · 16.7 ms', 'menu', '绘 8.2ms · 640笔/0令']);
         const ys = calls.filter((c) => c.kind === 'text').map((c) => Number(c.args[1]));
         expect(ys).toEqual([1334 - 38, 1334 - 76, 1334 - 114]);
     });

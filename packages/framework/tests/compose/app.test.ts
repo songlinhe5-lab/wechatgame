@@ -418,6 +418,22 @@ describe('App 绘制成本投影（WXG-T-1110）', () => {
     app.stop();
   });
 
+  it('`[WXG-T-1111]` reportDrawBreakdown 逐字段覆写同一对象（零分配）', () => {
+    const { app } = makeApp();
+    app.onRender = (): void => {};
+    app.start();
+    const read = app.services.readDrawCost!;
+    const first = read();
+    app.reportDrawBreakdown({
+      vectorMs: 3.1, blitMs: 18.9, textMs: 0.4, scopeMs: 0.4,
+      vectorCalls: 12, blitCalls: 156, textCalls: 8,
+    });
+    expect(first.breakdown).toMatchObject({ vectorMs: 3.1, blitMs: 18.9, blitCalls: 156 });
+    expect(read()).toBe(first); // 嵌套对象也没换
+    expect(read().breakdown).toBe(first.breakdown);
+    app.stop();
+  });
+
   it('readDrawCost 每次返回同一对象（热路径零分配）', () => {
     const app = new App({
       game: new PaintGame(),

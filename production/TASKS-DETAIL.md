@@ -13463,3 +13463,22 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 **验证（2026-11-28 实跑）**：framework 全量 **56 文件 / 616 passed**；beads 全量 **137 文件 / 1683 passed / 2 skipped**（较 T-1109 的 1678 +5）；`typecheck`（framework + beads + breakout）绿；`framework:sync` 写入 8、再同步写入 2，`framework:sync:check` 一致；`check:arch`（1 warning = L1 编辑器产物，常态）/ `check:size` / `check:links` / `check:tasks` 绿；**`pnpm run verify` 24/24 PASS，0 WARN / 0 FAIL**。金样与封箱不受影响（覆层仅在 `debugInfo` 开时出图，十态与封箱均关）；`check:board-seam` 与 `check:frozen-values` 一并绿。
 
 **下一步（设备侧，30 秒）**：暂停面板开「性能信息」→ 回对局拖动读 `绘 X ms · N 次`。判读：`绘 ≥ 12 ms` ⇒ 几何/上传确为主项，走「适配器按画法分组」或「盘面烘焙/图集」；`绘 < 5 ms` 而首行仍 ~30 ⇒ 不是我们画慢的，回到限帧/降频腿（与 T-1109 的判别同源）。⚠️ 本机 `build:cocos` 不会真编译，需在 Cocos Creator 面板重建后才有新读数。
+
+## WXG-T-1111
+
+**绘制成本四段探针：把 22.8 ms 拆成矢量 / 位图 / 文字 / 其余** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ **代码完成（2026-11-28）**
+
+承 T-1110 落地的首条真机读数（用户原文：`fps 27`、`绘 22.8ms 195次`）。折算：27fps ⇒ 帧间隔 ≈ **37 ms**，`drawMs` 占 **62%** ⇒ 绘制确是主项；但 `paintCalls` 仅 **195**（13×12 满盘矢量实测是 **3010**），差一个数量级 ⇒ **按画法分组减少 fill/stroke 调用这条腿基本被否**：省不了几次调用，成本必在别处（`paintCalls` 不数 blit，也不反映每次下笔的贵贱）。
+
+**三个候选**：① blit 载体 `accept` 里的逐节点属性更新 / 纹理上传；② 少数大面积半透明填充（QA 单 H-FILL 假设，`bufferSubData` 被 GPU 反压阻塞也会记在 onRender 墙钟里）；③ 文字测宽 / Label 更新。三者都能解释「调用少但耗时长」，⛔ 未定性前不再改渲染逻辑。
+
+**做法（分段计时，仍不碰绘制路径）**：
+- `CocosRendererOptions.clock`（宿主注入 `platform.now`）+ `CocosRenderModelRenderer.measureBreakdown` 开关；`draw` 内按命令类别（0 矢量 / 1 位图 / 2 文字 / 3 其余）逐条卡表，帧首段（清屏 / 作用域 beginFrame / 底图 / 变换）单独卡一次。四段之和 = 同帧 `drawMs`。
+- 宿主 `bindings.ts` 按 `App.drawCostWanted` 逐帧开关探针并在 `draw` 后 `app.reportDrawBreakdown(renderer.lastBreakdown)`；逐字段覆写、对象恒定 ⇒ 零分配，release 路径 **clock 一次都不读**。
+- `DrawCostReading` / `UiDebugState` 加 `breakdown` 与 `commands`；覆层第四行改为 `绘 X ms · N笔/M令`，第五行 `矢 … 位 … 文 … 余 … ms`（四段全 0 = 未接线，不画空槽；面板 174 → 212）。⛔ 段值不做 EMA —— 必须与 `drawMs` 同帧才能归因。
+
+**判据（新增 5 例）**：框架 `cocos-renderer.test.ts` 两例——① `measureBreakdown=false` ⇒ clock 零调用、分段全 0；② 打开后 5 条命令（容器 / rect / blit / text / 容器尾）在假表上精确归到 `vectorMs=2 / blitMs=2 / textMs=2 / scopeMs=6`、读表 12 次、条数 1/1/1，下一帧覆写同一对象。`app.test.ts` 一例——分段回投逐字段覆写、嵌套对象不换。`perf-frame-clock.test.ts` 一例断言分段原样进 `debugState`。`debug-layer.test.ts` 两例——第五行文案 / 面板几何 / 行 y 序列，以及全 0 时不画空行。
+
+**验证（2026-11-28 实跑）**：framework 全量 **56 文件 / 619 passed**（+3）；beads 全量 **137 文件 / 1685 passed / 2 skipped**（+2）；`typecheck`（framework + beads + breakout）绿；`framework:sync` 写入 9 / 4、`framework:sync:check` 一致；**`pnpm run verify` 24/24 PASS，0 WARN / 0 FAIL**（含 `check:arch` / `check:size` / `check:tasks` / `check:links` / `cocos:check` / harness:smoke）；金样 / 封箱 / `check:board-seam` / `check:frozen-values` 均绿（覆层关时零指令）。
+
+**下一步（设备侧，30 秒）**：新包开「性能信息」读第五行。`位图` 显著最大 ⇒ 修 blit 载体（节点属性更新 / 纹理上传 / 脏标记）；`矢量` 最大 ⇒ 回到几何重建腿（此时 195 次下笔贵在单次图元，不是次数）；`其余` 最大 ⇒ 查 `scopeHost.beginFrame` / `backGraphics` / 容器切换；`文字` 最大 ⇒ 查 Label 测宽。⚠️ 本机 `build:cocos` 不会真编译，需 Cocos Creator 面板重建。

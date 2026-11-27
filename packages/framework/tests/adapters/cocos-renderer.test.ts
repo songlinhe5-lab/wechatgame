@@ -506,3 +506,69 @@ describe('CocosRenderModelRenderer backGraphics（底图通道）', () => {
     expect(calls).toContain('rect(-100,-200,10,10)');
   });
 });
+
+// ── WXG-T-1111：分段计时探针（矢量 / 位图 / 文字 / 其余）────────────────────
+describe('CocosRenderModelRenderer 分段计时', () => {
+  function setup() {
+    let t = 0;
+    let reads = 0;
+    const clock = (): number => {
+      reads += 1;
+      t += 2; // 每次读表前进 2 ms ⇒ 每条命令的耗时恰好 2 ms（可机检）
+      return t;
+    };
+    const { g } = fakeGraphics();
+    const { source } = fakeLabels();
+    const viewport = new Viewport(200, 400);
+    const accepted: string[] = [];
+    const renderer = new CocosRenderModelRenderer(g, source, colors, viewport, {
+      clock,
+      blitCarrier: { accept: () => { accepted.push('blit'); } },
+    });
+    return { renderer, reads: () => reads, accepted };
+  }
+
+  it('未开 measureBreakdown ⇒ clock 一次都不读，分段全 0（release 零开销）', () => {
+    const { renderer, reads } = setup();
+    const b = new RenderModelBuilder(200, 400);
+    b.begin();
+    b.rect(0, 0, 10, 10, { fill: '#fff' });
+    renderer.draw(b.end());
+    expect(reads()).toBe(0);
+    expect(renderer.lastBreakdown).toMatchObject({
+      vectorMs: 0, blitMs: 0, textMs: 0, scopeMs: 0,
+      vectorCalls: 0, blitCalls: 0, textCalls: 0,
+    });
+  });
+
+  it('开后逐命令归类，四段之和 = 帧内卡表总量；下一帧重置', () => {
+    const { renderer, reads, accepted } = setup();
+    const b = new RenderModelBuilder(200, 400);
+    b.begin();
+    b.beginContainer('probe');
+    b.rect(0, 0, 10, 10, { fill: '#fff', stroke: '#000' });
+    b.text(1, 2, 'x', { fill: '#fff' });
+    b.blit('tex', 0, 0, 10, 10);
+    b.endContainer();
+    const model = b.end();
+
+    renderer.measureBreakdown = true;
+    renderer.draw(model);
+    const before = reads();
+    const d = renderer.lastBreakdown;
+    // 帧首前后各 1 次 + 5 条命令 × 2 次 = 12 次读表；每段 2 ms。
+    expect(before).toBe(12);
+    expect(d).toMatchObject({
+      vectorMs: 2, blitMs: 2, textMs: 2, scopeMs: 6,
+      vectorCalls: 1, blitCalls: 1, textCalls: 1,
+    });
+    expect(d.vectorMs + d.blitMs + d.textMs + d.scopeMs).toBe(12);
+    expect(accepted).toEqual(['blit']);
+
+    // 同一对象逐帧覆写，不累积、不新建。
+    const same = renderer.lastBreakdown;
+    renderer.draw(model);
+    expect(renderer.lastBreakdown).toBe(same);
+    expect(renderer.lastBreakdown).toMatchObject({ vectorMs: 2, scopeMs: 6 });
+  });
+});

@@ -302,4 +302,30 @@ export interface DrawCostReading {
   readonly paintCalls: number;
   /** 本帧命令总条数（含 text / blit / 容器与裁切命令），用于分辨「命令多但下笔少」。 */
   readonly commands: number;
+  /**
+   * `[WXG-T-1111]` 宿主分段时间；未接线的宿主恒为全 0（消费端据此隐藏细分行）。
+   * 与上面三项共用同一个对象 ⇒ 读取零分配。
+   */
+  readonly breakdown: DrawCostBreakdown;
+}
+
+/**
+ * `[WXG-T-1111]` 绘制成本分段时间（宿主渲染器测量，经 `App.reportDrawBreakdown` 回投）。
+ *
+ * 四段之和 ≈ `drawMs`（宿主只计自己的分派段；段外开销归 `scopeMs`）。每段是**本帧**
+ * 的墙钟毫秒，⛔ 不做 EMA —— 要与总数同帧对齐，才能判断 22.8 ms 到底落在哪条腿。
+ */
+export interface DrawCostBreakdown {
+  /** 矢量图元段：rect / circle / line / polygon 的路径写入 + `fill()/stroke()`。 */
+  readonly vectorMs: number;
+  /** 位图段：`blitCarrier.accept(...)` 内的节点属性更新 / 纹理绑定 / 上传。 */
+  readonly blitMs: number;
+  /** 文字段：Label 借用、测宽、setText / setPosition。 */
+  readonly textMs: number;
+  /** 其余：帧首清屏、容器/段/裁切切换、变换、底图提交体。 */
+  readonly scopeMs: number;
+  /** 落到各段的命令条数（矢量 / 位图 / 文字），用于分辨「少而贵」还是「多而快」。 */
+  readonly vectorCalls: number;
+  readonly blitCalls: number;
+  readonly textCalls: number;
 }

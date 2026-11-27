@@ -176,7 +176,12 @@ export class Bootstrap extends Component {
     });
 
     app.onRender = (model) => {
-      this._renderer?.draw(model);
+      const renderer = this._renderer;
+      if (!renderer) return;
+      // `[WXG-T-1111]` 分段探针只在有人读绘制成本时开；⛔ release 零计时开销。
+      renderer.measureBreakdown = app.drawCostWanted;
+      renderer.draw(model);
+      if (app.drawCostWanted) app.reportDrawBreakdown(renderer.lastBreakdown);
     };
 
     // `[WXG-T-1077]` 运动节奏取样（真机 / 开发者工具侧）。⚠ 本层拿不到棋盘相机
@@ -527,6 +532,8 @@ export class Bootstrap extends Component {
         // `[UI-60 P1 / ADR-0033 DEC-3]` 容器 × 段层树：视图发 `beginContainer` 才落层，
         // 不发则四 kind 静默忽略 ⇒ 未接线视图（breakout）与旧行为逐字节一致。
         scopeHost: this._scopes ?? undefined,
+        // `[WXG-T-1111]` 分段计时表：宿主平台自带 perf.now / Date.now 兜底。
+        clock: () => this._app?.platform.now() ?? 0,
       },
     );
   }

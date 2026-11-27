@@ -1158,9 +1158,24 @@ export class BeadsGame {
       const cost = this._services?.readDrawCost?.();
       out.drawMs = cost ? cost.drawMs : 0;
       out.paintCalls = cost ? cost.paintCalls : 0;
+      out.commands = cost ? cost.commands : 0;
+      // `[WXG-T-1111]` 逐字段拷进复用对象（零分配）；宿主未回投时清成全 0。
+      const b = out.breakdown;
+      const src = cost?.breakdown;
+      b.vectorMs = src ? src.vectorMs : 0;
+      b.blitMs = src ? src.blitMs : 0;
+      b.textMs = src ? src.textMs : 0;
+      b.scopeMs = src ? src.scopeMs : 0;
+      b.vectorCalls = src ? src.vectorCalls : 0;
+      b.blitCalls = src ? src.blitCalls : 0;
+      b.textCalls = src ? src.textCalls : 0;
     } else {
       out.drawMs = 0;
       out.paintCalls = 0;
+      out.commands = 0;
+      const b = out.breakdown;
+      b.vectorMs = 0; b.blitMs = 0; b.textMs = 0; b.scopeMs = 0;
+      b.vectorCalls = 0; b.blitCalls = 0; b.textCalls = 0;
     }
     out.phase = onMenu ? 'menu' : s.phase;
     out.level = onMenu ? '' : s.mode === 'sprint' ? '冲刺' : `L${s.levelIndex + 1}`;

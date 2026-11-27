@@ -6,6 +6,11 @@
  * 现在没有执行者，先造动作联合会是空脚手架。
  */
 
+import type { DrawCostBreakdown } from '../../framework/index';
+
+/** 调试投影里可逐字段覆写的分段槽（来源只读，写入的是本对象自己的副本，零分配）。 */
+export type DebugDrawBreakdown = { -readonly [K in keyof DrawCostBreakdown]: DrawCostBreakdown[K] };
+
 /** 调试层四行数据的宿主投影；字段与 `drawPerfOverlay` 入参一一对应。 */
 export interface UiDebugState {
     /** 统一调试开关（`settings.debugInfo`）。 */
@@ -19,6 +24,13 @@ export interface UiDebugState {
     drawMs: number;
     /** `[WXG-T-1110]` 本帧真下笔次数（fill + stroke，文字与 blit 不计）。 */
     paintCalls: number;
+    /** `[WXG-T-1111]` 本帧命令总条数（与 paintCalls 一起读「少而贵 / 多而快」）。 */
+    commands: number;
+    /**
+     * `[WXG-T-1111]` 宿主分段计时（矢量 / blit / 文字 / 其余）。对象是复用的同一个，
+     * UI 只读；全 0 ⇒ 宿主未接线，覆层不出细分行。
+     */
+    breakdown: DebugDrawBreakdown;
     /** 相位，菜单腿为 `'menu'`。 */
     phase: string;
     /** 关卡标签，菜单腿为空。 */

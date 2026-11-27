@@ -22,6 +22,18 @@ import { Viewport } from '../core/render/viewport.js';
 import { RenderModelBuilder, type DrawCommand, type RenderModel } from '../core/render/render-model.js';
 import { FixedStepLoop } from '../core/loop/game-loop.js';
 import type { AssetProvider, Game, GameServices } from '../core/game/game.js';
+import type { DrawCostBreakdown } from '../core/performance/performance.js';
+
+/** `[WXG-T-1111]` 分段回投槽的可写形状（对外一律以只读 `DrawCostBreakdown` 暴露）。 */
+interface MutableDrawBreakdown {
+  vectorMs: number;
+  blitMs: number;
+  textMs: number;
+  scopeMs: number;
+  vectorCalls: number;
+  blitCalls: number;
+  textCalls: number;
+}
 import { detectPlatform, type Platform } from '../platform/index.js';
 
 export interface AppOptions {
@@ -115,10 +127,21 @@ export class App {
    * 计时点只能是这里：几何重建发生在宿主 `onRender` 内部（Cocos 侧同步跑完
    * `fill()/stroke()`），游戏层量不到。对象**恒为同一个**（热路径零分配）。
    */
-  private readonly _drawCost: { drawMs: number; paintCalls: number; commands: number } = {
+  /**
+   * `[WXG-T-1111]` 宿主分段成本回投槽：字段逐个覆写，对象恒为同一个（零分配）。
+   */
+  private readonly _breakdown: MutableDrawBreakdown = {
+    vectorMs: 0, blitMs: 0, textMs: 0, scopeMs: 0,
+    vectorCalls: 0, blitCalls: 0, textCalls: 0,
+  };
+  private readonly _drawCost: {
+    drawMs: number; paintCalls: number; commands: number;
+    breakdown: MutableDrawBreakdown;
+  } = {
     drawMs: 0,
     paintCalls: 0,
     commands: 0,
+    breakdown: this._breakdown,
   };
   /** 已累计的绘制样本数（0 ⇒ 还没量过；用来区分「首样本」与「EMA 尚未收敛」）。 */
   private _drawSamples = 0;
@@ -189,6 +212,29 @@ export class App {
   /** True when the host owns the frame loop (see {@link startHostDriven}). */
   get hostDriven(): boolean {
     return this._hostDriven;
+  }
+
+  /**
+   * `[WXG-T-1111]` 宿主渲染器是否该打开分段计时（= 有人读过 `readDrawCost`）。
+   * `bindings.ts` 据此决定要不要每次 `draw` 逐命令卡表 —— release 路径零开销。
+   */
+  get drawCostWanted(): boolean {
+    return this._drawCostWanted;
+  }
+
+  /**
+   * `[WXG-T-1111]` 宿主渲染器在 `draw` 末尾回投本帧分段成本（⛔ 不分配，逐字段覆写）。
+   * 未接线的宿主不调 ⇒ 细分行恒 0，覆层自动隐藏。
+   */
+  reportDrawBreakdown(b: DrawCostBreakdown): void {
+    const t = this._breakdown;
+    t.vectorMs = b.vectorMs;
+    t.blitMs = b.blitMs;
+    t.textMs = b.textMs;
+    t.scopeMs = b.scopeMs;
+    t.vectorCalls = b.vectorCalls;
+    t.blitCalls = b.blitCalls;
+    t.textCalls = b.textCalls;
   }
 
   /** Initialise the game and begin the frame loop. */

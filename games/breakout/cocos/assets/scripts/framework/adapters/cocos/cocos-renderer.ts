@@ -26,6 +26,7 @@
 
 import type { BlitCommand, DrawCommand, RenderModel, UiSegment } from '../../core/render/render-model';
 import type { Viewport } from '../../core/render/viewport';
+import type { DrawCostBreakdown } from '../../core/performance/performance';
 
 /** Structural colour (Cocos `Color` uses 0–255 channels). */
 export interface ColorLike {
@@ -189,6 +190,35 @@ export interface CocosRendererOptions {
    * - 有宿主 ⇒ 矢量与文字按 `host.current` 落笔；默认作用域 = 旧那两个提交体。
    */
   readonly scopeHost?: CocosUiScopeHostLike;
+  /**
+   * `[WXG-T-1111]` 分段计时表（宿主注入 `platform.now`）。缺省 ⇒ 即使 `measureBreakdown`
+   * 为真也不计时，未接线宿主零开销。`⛔` 只在调试探针打开时才调它。
+   */
+  readonly clock?: () => number;
+}
+
+/** 分段时间的可写槽（对外以 `DrawCostBreakdown` 只读暴露）。 */
+interface MutableBreakdown {
+  vectorMs: number;
+  blitMs: number;
+  textMs: number;
+  scopeMs: number;
+  vectorCalls: number;
+  blitCalls: number;
+  textCalls: number;
+}
+
+/** `[WXG-T-1111]` 一条命令属于哪一段：0 矢量 / 1 位图 / 2 文字 / 3 其余。 */
+function costCategory(cmd: DrawCommand): number {
+  switch (cmd.kind) {
+    case 'blit': return 1;
+    case 'text': return 2;
+    case 'rect':
+    case 'circle':
+    case 'line':
+    case 'polygon': return 0;
+    default: return 3;
+  }
 }
 
 /**
@@ -268,6 +298,17 @@ export class CocosRenderModelRenderer {
   private readonly _seenScopes: CocosUiScopeLike[] = [];
   private _lastPaintedScope: CocosUiScopeLike | null = null;
   private _labelSeq = 0;
+  /** `[WXG-T-1111]` 宿主注入的墙钟；未注入 ⇒ 分段计时整段短路。 */
+  private readonly _clock: (() => number) | undefined;
+  private readonly _breakdown: MutableBreakdown = {
+    vectorMs: 0, blitMs: 0, textMs: 0, scopeMs: 0,
+    vectorCalls: 0, blitCalls: 0, textCalls: 0,
+  };
+  /**
+   * `[WXG-T-1111]` 由宿主按 `App.drawCostWanted` 开关；打开后每帧重置并逐命令计时。
+   * ⚠ 计时本身有成本（每命令两次 `now()`），release 恒为 false。
+   */
+  measureBreakdown = false;
 
   constructor(
     private readonly _graphics: CocosGraphicsLike,
@@ -282,6 +323,21 @@ export class CocosRenderModelRenderer {
     this._back = options.backGraphics;
     this._clipHost = options.clipHost;
     this._scopeHost = options.scopeHost;
+    this._clock = options.clock;
+  }
+
+  /** `[WXG-T-1111]` 本帧分段时间（同一个对象，逐帧覆写，零分配）。 */
+  get lastBreakdown(): DrawCostBreakdown {
+    return this._breakdown;
+  }
+
+  /** 每段累加一次；调用方保证 `clock` 存在（由 `measureBreakdown` 门控）。 */
+  private _stamp(br: MutableBreakdown, cat: number, at: number): void {
+    const dt = Math.max(0, this._clock!() - at);
+    if (cat === 0) { br.vectorMs += dt; br.vectorCalls += 1; }
+    else if (cat === 1) { br.blitMs += dt; br.blitCalls += 1; }
+    else if (cat === 2) { br.textMs += dt; br.textCalls += 1; }
+    else br.scopeMs += dt;
   }
 
   /** Labels borrowed during the last frame (telemetry / budget checks). */
@@ -308,6 +364,14 @@ export class CocosRenderModelRenderer {
   }
 
   draw(model: RenderModel): void {
+    // `[WXG-T-1111]` 分段计时（调试探针）：未开或未注入 clock ⇒ 下面所有分支短路。
+    const clock = this.measureBreakdown ? this._clock : null;
+    const br = this._breakdown;
+    if (clock) {
+      br.vectorMs = 0; br.blitMs = 0; br.textMs = 0; br.scopeMs = 0;
+      br.vectorCalls = 0; br.blitCalls = 0; br.textCalls = 0;
+    }
+    const preAt = clock ? clock() : 0;
     const g = this._graphics;
     const scopeHost = this._scopeHost;
     // `[UI-60 P0 / ADR-0033 DEC-3]` 有宿主 ⇒ 帧首清层与归还标签交给宿主（它同时清默认作用域
@@ -356,24 +420,32 @@ export class CocosRenderModelRenderer {
 
     // Vertex arena (ADR-0024): indexed directly below — no per-command view.
     const verts = model.vertices;
+    // 帧首（清屏 / 作用域 beginFrame / 底图 / 变换）归「其余」段，单独卡一次表。
+    if (clock) br.scopeMs += Math.max(0, clock() - preAt);
 
     for (const cmd of model.commands) {
+      const at = clock ? clock() : 0;
+      const cat = clock ? costCategory(cmd) : 3;
       // `[UI-60 P0]` 容器 / 段命令：只切换作用域，⛔ 不产像素。未注入宿主 ⇒ 静默忽略，
       // 其余命令的绘制序列与旧行为逐字一致（P0 真机零漂移的根据）。
       if (cmd.kind === 'container') {
         if (scopeHost) { scopeHost.enterContainer(cmd.id); this._labelSeq = 0; }
+      if (clock) this._stamp(br, cat, at);
         continue;
       }
       if (cmd.kind === 'segment') {
         if (scopeHost) { scopeHost.enterSegment(cmd.segment); this._labelSeq = 0; }
+      if (clock) this._stamp(br, cat, at);
         continue;
       }
       if (cmd.kind === 'containerEnd') {
         if (scopeHost) { scopeHost.exitContainer(); this._labelSeq = 0; }
+      if (clock) this._stamp(br, cat, at);
         continue;
       }
       if (cmd.kind === 'segmentEnd') {
         if (scopeHost) { scopeHost.exitSegment(); this._labelSeq = 0; }
+      if (clock) this._stamp(br, cat, at);
         continue;
       }
       if (cmd.kind === 'clip') {
@@ -381,6 +453,7 @@ export class CocosRenderModelRenderer {
         // ⇒ 回落全局 clipHost（菜单走马灯旧腿，行为不变）。
         if (this._scopeHost?.enterClip?.(cmd.x + ox, cmd.y + oy, cmd.w, cmd.h) === true) {
           this._scopedClip = true;
+      if (clock) this._stamp(br, cat, at);
           continue;
         }
         const host = this._clipHost;
@@ -389,17 +462,20 @@ export class CocosRenderModelRenderer {
           this._clipped = true;
         }
         if (carrier && carrier.pushClip) carrier.pushClip();
+      if (clock) this._stamp(br, cat, at);
         continue;
       }
       if (cmd.kind === 'unclip') {
         if (this._scopedClip) {
           this._scopeHost?.exitClip?.();
           this._scopedClip = false;
+      if (clock) this._stamp(br, cat, at);
           continue;
         }
         if (this._clipHost) this._clipHost.pop();
         if (carrier && carrier.popClip) carrier.popClip();
         this._clipped = false;
+      if (clock) this._stamp(br, cat, at);
         continue;
       }
       // 本条命令落到哪个作用域（无宿主 = null ⇒ 走旧单层）。裁切 / 层级命令已在上面
@@ -408,6 +484,7 @@ export class CocosRenderModelRenderer {
       this._notePaint(scope);
       if (cmd.kind === 'text') {
         this._drawText(cmd, ox, oy, scope ? scope.labels : this._labels);
+      if (clock) this._stamp(br, cat, at);
         continue;
       }
 
@@ -476,6 +553,7 @@ export class CocosRenderModelRenderer {
           break;
         }
       }
+      if (clock) this._stamp(br, cat, at);
     }
   }
   private _blitWarned = false;
