@@ -528,6 +528,11 @@ function drawGrid(
     const liftScale = selectLiftScale(snap);
     // 组内错峰的名序基准（`boardGroupRows` 已是 game 侧消费序，锚在序首）；颗数 ≤ 1 ⇒ 0 = 无错峰。
     const groupLastRank = snap.boardGroupCount - 1;
+    // `[WXG-T-1106 · 用户 2026-11-27 令]`「描边应该与珠子底图整体绘制，再绘制珠槽和珠面」：
+    // 盘面剪影描边**提到格循环之前**（= 与底图同层、在所有珠槽 / 珠面之下）⇒ 后画的底 tile / 槽 / 珠
+    // 自然盖住带的内侧，只有落在剪影外的部分露出来（带本身已整带外置，见 `bead-outline`）⇒
+    // 珠面零描边墨；⛔ 不要再放回循环末尾（那会重新压在珠面之上）。
+    drawBoardOutline(builder, snap, palette.shadowInk);
     for (let i = 0; i < snap.gridRows; i++) {
         for (let j = 0; j < snap.gridCols; j++) {
             const cell = snap.cells[i * snap.gridCols + j]!;
@@ -854,10 +859,8 @@ function drawGrid(
             }
         }
     }
-    // `[WXG-T-927 / T-928]` 珠面描边（用户令「游戏中也需要这个描边」「描边要盖在珠面上面」）：
-    // 与详情 / 选关缩略同一套剪影形状；**末笔覆在珠面之上**（盖住边界珠外缘 W）；
-    // 占位取快照 `void`、锁定格贴珠体。
-    drawBoardOutline(builder, snap, palette.shadowInk);
+    // `[WXG-T-927 / T-928 → T-1106]` 珠面描边已上移到格循环**之前**（与底图同层、珠槽/珠面之下）；
+    // ⛔ 不再在末尾补一笔（旧口径「末笔覆在珠面之上」已由用户令「再绘制珠槽和珠面」推翻）。
     // DEBUG 轮廓（`setDebugOutlines`）：主循环**之上**再叠一层，压在面板下、格内容之上。
     if (snap.debugOutlines) {
         for (let i = 0; i < snap.gridRows; i++) {

@@ -13368,4 +13368,6 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 
 **基准影响（如实）**：命令数与逐 kind 计数**逐字不变**、只有顶点位移 ⇒ 金样本十一态与封箱两帧 `sha` 变、`total` 零变（故 `recheckLedger` 无新入账项）；已按 `tests/ui-golden-capture.ts` 与 `tests/bead-style-seal-recapture.ts` 在同一可复现锚重抓，并在 `docs/architecture/ui-architecture-beads.md §12` 登记视觉变更（K-051 / K-053 / ADR-0032 DEC-6）。
 
+**补（2026-11-27 · 用户再令「描边压应该与珠子底图整体绘制，再绘制珠槽和珠面」）**：盘面描边的调用点由格循环**末尾**上移到**循环之前**（`play-page.ts`：与底图同层、珠槽 / 珠面之下），后画的底 tile / 槽 / 珠自然盖住带的内侧；与「整带外置」合起来 ⇒ 珠面零描边墨、只有剪影外缘露线。层序不进单测（命令顺序已由金样 / 封箱 sha 覆盖：本轮仅 play/pause/clear/fail/sprint-settle/finish 六态漂移，菜单五态逐字不变——正好证明只在盘面侧改了序）。
+
 **验证**：beads 全量 **135 文件 / 1666 passed / 2 skipped**（含金样十一态与封箱两帧，夹具已按锚重抓）；`typecheck`（framework + beads + breakout）绿；`framework:sync` → `sync:check` 一致；`check:tasks` / `check:links` 绿。**重抓锚** = 代码提交 `80ff52f3`（干净工作树）：`tests/ui-golden-capture.ts` 十一帧确定性自证 PASS；`bead-style-seal-recapture.ts` 双跑等值，`frame78 total 1836` / `frame0 total 1290` 逐字不变、仅 sha 变（`recheckLedger` 无新入账项）。
