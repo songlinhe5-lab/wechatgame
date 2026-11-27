@@ -136,7 +136,7 @@ export class App {
   };
   private readonly _drawCost: {
     drawMs: number; paintCalls: number; commands: number;
-    tickMs: number; engineDrawMs: number;
+    tickMs: number; engineDrawMs: number; idleMs: number;
     breakdown: MutableDrawBreakdown;
   } = {
     drawMs: 0,
@@ -144,6 +144,7 @@ export class App {
     commands: 0,
     tickMs: 0,
     engineDrawMs: 0,
+    idleMs: 0,
     breakdown: this._breakdown,
   };
   /** 已累计的绘制样本数（0 ⇒ 还没量过；用来区分「首样本」与「EMA 尚未收敛」）。 */
@@ -151,6 +152,9 @@ export class App {
   /** `[WXG-T-1113]` tick 段 / 引擎渲染段的样本数（0 ⇒ 首样本直写，不走 EMA）。 */
   private _tickSamples = 0;
   private _engineDrawSamples = 0;
+  /** `[WXG-T-1114]` 上帧引擎渲染终点（`platform.now()`；`0` = 尚未回投过 ⇒ 不采空档）。 */
+  private _lastEngineDrawEnd = 0;
+  private _idleSamples = 0;
   /**
    * 有人读过绘制成本后置 true ⇒ 才逐帧统计 `paintCalls`（要扫一遍命令流）。
    * 没人读（release 常态）就一帧都不扫，热路径零额外开销。
@@ -263,6 +267,27 @@ export class App {
     if (this._engineDrawSamples === 0) c.engineDrawMs = ms;
     else c.engineDrawMs = c.engineDrawMs * 0.9 + ms * 0.1;
     this._engineDrawSamples += 1;
+  }
+
+  /**
+   * `[WXG-T-1114]` bindings 在 `EVENT_AFTER_DRAW` 处理末尾登记引擎渲染的终点墙钟
+   * （绝对时间戳，同源 `platform.now`）。下一帧 tick 起点据此算空档。
+   */
+  noteEngineDrawEnd(nowMs: number): void {
+    this._lastEngineDrawEnd = nowMs;
+  }
+
+  /**
+   * `[WXG-T-1114]` loop-bridge 在 tick 起点调用：空档 = 本次 tick 起点 − 上帧
+   * AFTER_DRAW 终点（EMA α = 0.1）。尚无终点基线 / 时钟倒退时跳过本帧采样。
+   */
+  sampleIdleAt(nowMs: number): void {
+    const idle = nowMs - this._lastEngineDrawEnd;
+    if (this._lastEngineDrawEnd <= 0 || idle < 0) return;
+    const c = this._drawCost;
+    if (this._idleSamples === 0) c.idleMs = idle;
+    else c.idleMs = c.idleMs * 0.9 + idle * 0.1;
+    this._idleSamples += 1;
   }
 
   /** Initialise the game and begin the frame loop. */

@@ -89,7 +89,10 @@ export class Bootstrap extends Component {
     if (this._engineDrawT0 <= 0) return;
     const app = this._app;
     if (!app) return;
-    app.reportEngineDrawMs(app.platform.now() - this._engineDrawT0);
+    const end = app.platform.now();
+    app.reportEngineDrawMs(end - this._engineDrawT0);
+    // `[WXG-T-1114]` 引擎渲染终点墙钟：下一帧 tick 起点据此算空档 idleMs。
+    app.noteEngineDrawEnd(end);
     this._engineDrawT0 = 0;
   };
   private _graphics: Graphics | null = null;

@@ -144,7 +144,7 @@ describe('drawPerfOverlay', () => {
     it('`[WXG-T-1113]` tick / 引探针非 0 ⇒ 追加第六行，面板向下长到 250', () => {
         const { calls, builder } = recorder();
         const bd = { vectorMs: 2.0, blitMs: 2.0, textMs: 5.0, scopeMs: 1.0, vectorCalls: 12, blitCalls: 156, textCalls: 8 };
-        drawPerfOverlay(builder, P, true, 48.9, 'playing', 'L9', 'pitch 27.8 · LOD 7', 11.9, 195, 1116, bd, 30.0, 8.4);
+        drawPerfOverlay(builder, P, true, 48.9, 'playing', 'L9', 'pitch 27.8 · LOD 7', 11.9, 195, 1116, bd, 30.0, 8.4, 27.0);
         expect(calls[0].args.slice(0, 4)).toEqual([12, 1334 - 262, 316, 250]);
         expect(texts(calls)).toEqual([
             'fps 20 · 48.9 ms',
@@ -152,7 +152,7 @@ describe('drawPerfOverlay', () => {
             'pitch 27.8 · LOD 7',
             '绘 11.9ms · 195笔/1116令',
             '矢 2.0 位 2.0 文 5.0 余 1.0ms',
-            'tick 30.0 引 8.4ms',
+            'tick 30.0 引 8.4 空 27.0ms',
         ]);
         const ys = calls.filter((c) => c.kind === 'text').map((c) => Number(c.args[1]));
         expect(ys).toEqual([1334 - 38, 1334 - 76, 1334 - 114, 1334 - 152, 1334 - 190, 1334 - 228]);
@@ -164,6 +164,15 @@ describe('drawPerfOverlay', () => {
         drawPerfOverlay(builder, P, true, 37.0, 'PLAYING', 'L3', 'pitch 54.0 · LOD 2', 22.8, 195, 2382, bd, 0, 0);
         expect(calls[0].args.slice(0, 4)).toEqual([12, 1334 - 224, 316, 212]);
         expect(texts(calls)).toHaveLength(5);
+    });
+
+    it('`[WXG-T-1114]` 空档未量到（0）⇒ 探针行不画「空」，不误导成零空档', () => {
+        const { calls, builder } = recorder();
+        const bd = { vectorMs: 2.0, blitMs: 2.0, textMs: 7.0, scopeMs: 0.0, vectorCalls: 12, blitCalls: 156, textCalls: 8 };
+        drawPerfOverlay(builder, P, true, 45.3, 'playing', 'L9', 'pitch 27.8 · LOD 7', 10.9, 195, 1117, bd, 13.7, 4.6, 0);
+        const last = texts(calls).at(-1);
+        expect(last).toBe('tick 13.7 引 4.6ms');
+        expect(last).not.toContain('空');
     });
 });
 

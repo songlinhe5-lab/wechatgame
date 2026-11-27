@@ -50,6 +50,7 @@ export function drawPerfOverlay(
     breakdown: DrawCostBreakdown | null = null,
     tickMs = 0,
     engineDrawMs = 0,
+    idleMs = 0,
 ): void {
     if (!enabled) return;
     const fps = frameMs > 0 ? Math.round(1000 / frameMs) : 0;
@@ -99,10 +100,13 @@ export function drawPerfOverlay(
     }
     if (probed) {
         y -= PERF_ROW_GAP;
-        // `[WXG-T-1113]` 判读口径：`帧` ≈ `tick` + `引`（两者相位不重叠）。
-        // `tick` ≈ 帧间隔 ⇒ 瓶颈在我们的固定步/建模/onRender（看分段行）；
-        // `引` 大 ⇒ 引擎渲染段（batcher 提交 / mesh 上传 / present / GPU 反压）。
-        line(y, `tick ${tickMs.toFixed(1)} 引 ${engineDrawMs.toFixed(1)}ms`);
+        // `[WXG-T-1113/1114]` 判读口径：`帧 ≈ tick + 引 + 空`（三者相位不重叠）。
+        // `tick` 大 ⇒ 瓶颈在我们的固定步/建模/onRender（看分段行）；`引` 大 ⇒ 引擎渲染段
+        // （batcher 提交 / mesh 上传）；`空` 大 ⇒ 该段 JS 不执行，GPU/present 反压或宿主
+        // 调度推迟 rAF（顶点量超 GPU 吞吐的指纹）。`空` 未量到时不画（不误导成 0）。
+        const probe = [`tick ${tickMs.toFixed(1)}`, `引 ${engineDrawMs.toFixed(1)}`];
+        if (idleMs > 0) probe.push(`空 ${idleMs.toFixed(1)}`);
+        line(y, `${probe.join(' ')}ms`);
     }
 }
 

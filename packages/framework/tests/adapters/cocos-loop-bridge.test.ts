@@ -135,4 +135,24 @@ describe('CocosLoopBridge', () => {
     expect(app.services.readDrawCost!().tickMs).toBe(0);
     bridge.stop();
   });
+
+  // `[WXG-T-1114]` 空档采样：tick 起点 − 上帧渲染终点；无基线（首帧）⇒ 不采。
+  it('idle probe: first frame has no baseline (skipped), second frame reports gap', () => {
+    const platform = new NodePlatform();
+    const game = new Counter();
+    const app = new App({ game, platform, seed: 'loop' });
+    const scheduler = fakeScheduler();
+    const times = [5, 10, 25, 30]; // 帧1: t0=5/t=10；帧2: t0=25/t=30
+    let i = 0;
+    const clock = vi.fn((): number => times[Math.min(i++, times.length - 1)]!);
+    const bridge = new CocosLoopBridge(app, scheduler, undefined, clock);
+    app.services.readDrawCost!();
+    bridge.start();
+    scheduler.tick(1 / 60);
+    expect(app.services.readDrawCost!().idleMs).toBe(0); // 无 AFTER_DRAW 基线 ⇒ 跳过
+    app.noteEngineDrawEnd(20); // 模拟 bindings 在上帧 AFTER_DRAW 登记终点
+    scheduler.tick(1 / 60);
+    expect(app.services.readDrawCost!().idleMs).toBe(5); // 25 − 20
+    bridge.stop();
+  });
 });

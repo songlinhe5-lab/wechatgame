@@ -1172,12 +1172,15 @@ export class BeadsGame {
       // `[WXG-T-1113]` tick 段 / 引擎渲染段 EMA（未接线 / 未量过时为 0，覆层不画探针行）。
       out.tickMs = cost ? cost.tickMs : 0;
       out.engineDrawMs = cost ? cost.engineDrawMs : 0;
+      // `[WXG-T-1114]` 帧间空档 EMA（GPU/present 反压 / 调度推迟的指纹）。
+      out.idleMs = cost ? cost.idleMs : 0;
     } else {
       out.drawMs = 0;
       out.paintCalls = 0;
       out.commands = 0;
       out.tickMs = 0;
       out.engineDrawMs = 0;
+      out.idleMs = 0;
       const b = out.breakdown;
       b.vectorMs = 0; b.blitMs = 0; b.textMs = 0; b.scopeMs = 0;
       b.vectorCalls = 0; b.blitCalls = 0; b.textCalls = 0;

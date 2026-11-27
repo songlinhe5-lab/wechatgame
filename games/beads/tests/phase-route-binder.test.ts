@@ -96,7 +96,7 @@ describe('UI-42 · PhaseRouteBinder', () => {
 
     it('与 UiRoot 共用同一 Navigator：页面 + 弹窗各自绘制，弹窗包容器边界（UI-50 / ADR-0033）', () => {
         const root = new UiRoot({
-            debugState: () => ({ enabled: false, frameMs: 0, drawMs: 0, paintCalls: 0, commands: 0, tickMs: 0, engineDrawMs: 0, breakdown: { vectorMs: 0, blitMs: 0, textMs: 0, scopeMs: 0, vectorCalls: 0, blitCalls: 0, textCalls: 0 }, phase: 'menu', level: '', detail: '' }),
+            debugState: () => ({ enabled: false, frameMs: 0, drawMs: 0, paintCalls: 0, commands: 0, tickMs: 0, engineDrawMs: 0, idleMs: 0, breakdown: { vectorMs: 0, blitMs: 0, textMs: 0, scopeMs: 0, vectorCalls: 0, blitCalls: 0, textCalls: 0 }, phase: 'menu', level: '', detail: '' }),
         });
         const calls: string[] = [];
         const b = new PhaseRouteBinder(root.nav, {
@@ -133,7 +133,7 @@ describe('UI-42 · PhaseRouteBinder', () => {
 });
 
 const NO_DEBUG = {
-    debugState: () => ({ enabled: false, frameMs: 0, drawMs: 0, paintCalls: 0, commands: 0, tickMs: 0, engineDrawMs: 0, breakdown: { vectorMs: 0, blitMs: 0, textMs: 0, scopeMs: 0, vectorCalls: 0, blitCalls: 0, textCalls: 0 }, phase: 'menu', level: '', detail: '' }),
+    debugState: () => ({ enabled: false, frameMs: 0, drawMs: 0, paintCalls: 0, commands: 0, tickMs: 0, engineDrawMs: 0, idleMs: 0, breakdown: { vectorMs: 0, blitMs: 0, textMs: 0, scopeMs: 0, vectorCalls: 0, blitCalls: 0, textCalls: 0 }, phase: 'menu', level: '', detail: '' }),
 };
 
 /**

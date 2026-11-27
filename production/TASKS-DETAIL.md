@@ -13530,3 +13530,20 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 - **tick 13.7 = 固定步 + 建模 + 绘 10.9 ⇒ 我们侧 JS 全程只有 ~2.8 ms**，完全健康。
 - **预判证伪**：`引` 只有 4.6 ms ≠ 预估 30 ms ⇒ 缺口**不在引擎渲染 JS 段**。帧 45.3 − tick 13.7 − 引 4.6 ≈ **27 ms 落在「AFTER_DRAW → 下一帧 tick 起点」的空档**：该段 JS 不执行，唯一解释 = GPU/present 反压（引擎每帧提交 ~10 万顶点 Graphics mesh + 890 sprite，GPU 跟不上 ⇒ 运行时推迟下一帧 rAF）或宿主调度等待——CPU 侧探针天然量不到。
 - **结论**：瓶颈定性为 **GPU 侧**（顶点量/overdraw），JS 侧（tick/引/绘）均健康；下一刀应打 GPU 负载（减顶点/减 overdraw）或先落 idleMs 探针坐实空档归属。
+
+## WXG-T-1114
+
+**帧间空档探针 idleMs：坐实 27ms GPU/present 反压假设** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ **代码完成（2026-11-28）**
+
+承 T-1113 真机读数的缺口（帧 45.3 − tick 13.7 − 引 4.6 ≈ 27 ms）。用户拍板走「先落 idle 探针坐实，再动 GPU 减负刀」。口径：**空 = 本帧 tick 起点 − 上帧 `EVENT_AFTER_DRAW` 终点**（该段 JS 不执行；读数大 ⇒ GPU/present 反压或宿主调度推迟 rAF；读数 ≈0 ⇒ 缺口另有未量段）。
+
+**实现（同样只走 `drawCostWanted` 门控）**：
+- `App.noteEngineDrawEnd(nowMs)`：bindings 在 `_onEngineAfterDraw` 末尾登记渲染终点墙钟（同源 `platform.now`）。
+- `App.sampleIdleAt(nowMs)`：loop-bridge 在 tick 起点调用（t0 读表后、tick 前）；无基线（首帧）/时钟倒退 ⇒ 跳过采样不污染 EMA；EMA α = 0.1、首样本直写。
+- `DrawCostReading.idleMs` / `UiDebugState.idleMs`；覆层第六行扩为 **`tick X 引 X 空 X ms`**——`空` 未量到（0）时**不画**该段（不误导成零空档，行文本按段拼接）。
+
+**判据（新增 4 例）**：framework `app.test.ts` 一例（首样本直写 + EMA 0.9/0.1 + 倒退跳过）；`cocos-loop-bridge.test.ts` 一例（首帧无基线跳过、登记终点后次帧 idle = 5）；beads `debug-layer.test.ts` 两例（空 27 进行文本 / 空 0 不画「空」段）。
+
+**验证（2026-11-28 实跑）**：`pnpm run typecheck` 绿（framework + beads + breakout）；framework 全量 **56 文件 / 626 passed**；beads 全量 **138 文件 / 1691 passed / 2 skipped**；breakout 全绿；其余 verify 项逐项实跑全过（arch / es5spread / secrets / levels / palettes / a11y / mcp / cocos-mask / bead-style-pool / size / sync:check / board-seam / frozen-values / harness:build / mask:diff / harness:smoke / host-tests / selftest:fast 15/15 / assets / tools node --test 12）。beads 版本 1.0.120。
+
+**下一步（设备侧）**：Cocos Creator 面板重建出包读第六行。`空 ≈ 27 ms` ⇒ 坐实 GPU/present 反压，下一单走 GPU 减负（盘面描边带三角化瘦身 / 珠面全量位图腿 / LOD A/B）；`空 ≈ 0` ⇒ 缺口另有未量段（嫌疑转回引擎 update 相位里 tick 之外的组件或事件处理）。

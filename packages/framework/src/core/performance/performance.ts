@@ -319,6 +319,13 @@ export interface DrawCostReading {
    * （引擎 render 相位在 update 之后）⇒ `tickMs + engineDrawMs` ≈ 整帧。`0` = 未接线。
    */
   readonly engineDrawMs: number;
+  /**
+   * `[WXG-T-1114]` 帧间空档 EMA（α = 0.1）：上帧 `EVENT_AFTER_DRAW` 终点 → 本帧
+   * `tick` 起点。该段 JS 不执行——理想 ≈ 0，读数大 ⇒ GPU/present 反压或宿主调度
+   * 推迟了 rAF（引擎每帧提交的顶点量超过 GPU 吞吐时的指纹）。`0` = 未量过
+   * （首帧前 / 探针未接线），消费端 `> 0` 才显示。
+   */
+  readonly idleMs: number;
 }
 
 /**

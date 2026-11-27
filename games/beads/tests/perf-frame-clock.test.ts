@@ -60,7 +60,7 @@ function rig(
     return { shell, advance: (ms) => { now += ms; } };
 }
 
-const OUT = { enabled: false, frameMs: 0, drawMs: 0, paintCalls: 0, commands: 0, tickMs: 0, engineDrawMs: 0, breakdown: { vectorMs: 0, blitMs: 0, textMs: 0, scopeMs: 0, vectorCalls: 0, blitCalls: 0, textCalls: 0 }, phase: '', level: '', detail: '' };
+const OUT = { enabled: false, frameMs: 0, drawMs: 0, paintCalls: 0, commands: 0, tickMs: 0, engineDrawMs: 0, idleMs: 0, breakdown: { vectorMs: 0, blitMs: 0, textMs: 0, scopeMs: 0, vectorCalls: 0, blitCalls: 0, textCalls: 0 }, phase: '', level: '', detail: '' };
 
 describe('性能覆层帧耗时 = 渲染帧壁钟（WXG-T-1108）', () => {
     it('每渲染帧 33 ms ⇒ frameMs ≈ 33（旧口径恒 16.7）', () => {
@@ -116,7 +116,7 @@ describe('性能覆层帧耗时 = 渲染帧壁钟（WXG-T-1108）', () => {
 describe('性能覆层绘制成本投影（WXG-T-1110）', () => {
     it('宿主有 readDrawCost ⇒ drawMs / paintCalls 原样进调试投影', () => {
         const r = rig(undefined, {
-            drawMs: 21.4, paintCalls: 3010, commands: 2382, tickMs: 0, engineDrawMs: 0,
+            drawMs: 21.4, paintCalls: 3010, commands: 2382, tickMs: 0, engineDrawMs: 0, idleMs: 0,
             breakdown: { vectorMs: 3.1, blitMs: 18.9, textMs: 0.4, scopeMs: 0.4, vectorCalls: 12, blitCalls: 156, textCalls: 8 },
         });
         r.shell.play.setDebugInfo(true);
@@ -137,7 +137,7 @@ describe('性能覆层绘制成本投影（WXG-T-1110）', () => {
 
     it('⚠ 覆层关闭时一次都不读 readDrawCost（否则 release 路径会被打开计时分支）', () => {
         const reads = { n: 0 };
-        const r = rig(undefined, { drawMs: 9, paintCalls: 9, commands: 9, tickMs: 0, engineDrawMs: 0, breakdown: { vectorMs: 0, blitMs: 0, textMs: 0, scopeMs: 0, vectorCalls: 0, blitCalls: 0, textCalls: 0 } }, reads);
+        const r = rig(undefined, { drawMs: 9, paintCalls: 9, commands: 9, tickMs: 0, engineDrawMs: 0, idleMs: 0, breakdown: { vectorMs: 0, blitMs: 0, textMs: 0, scopeMs: 0, vectorCalls: 0, blitCalls: 0, textCalls: 0 } }, reads);
         const off = r.shell.play.debugState(OUT);
         expect(off.enabled).toBe(false);
         expect(reads.n).toBe(0);

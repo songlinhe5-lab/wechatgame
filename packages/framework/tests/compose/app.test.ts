@@ -469,4 +469,24 @@ describe('App 绘制成本投影（WXG-T-1110）', () => {
     expect(first.engineDrawMs).toBeCloseTo(28, 6);
     app.stop();
   });
+
+  // `[WXG-T-1114]` 帧间空档：tick 起点 − 上帧 AFTER_DRAW 终点，EMA 同口径；倒退跳过。
+  it('`[WXG-T-1114]` noteEngineDrawEnd + sampleIdleAt：空档首样本直写、之后 EMA(0.1)', () => {
+    const { app } = makeApp();
+    app.onRender = (): void => {};
+    app.start();
+    const first = app.services.readDrawCost!();
+    app.reportEngineDrawMs(5);
+    app.noteEngineDrawEnd(100);
+    app.sampleIdleAt(127);
+    expect(first.idleMs).toBe(27);
+    app.noteEngineDrawEnd(160);
+    app.sampleIdleAt(190);
+    expect(first.idleMs).toBeCloseTo(27.3, 6);
+    // 时钟倒退（AFTER_DRAW 晚于下一 tick 起点）⇒ 跳过采样，不污染 EMA
+    app.noteEngineDrawEnd(500);
+    app.sampleIdleAt(100);
+    expect(first.idleMs).toBeCloseTo(27.3, 6);
+    app.stop();
+  });
 });

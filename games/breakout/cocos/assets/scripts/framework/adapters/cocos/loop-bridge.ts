@@ -37,6 +37,8 @@ export class CocosLoopBridge {
       // Cocos already handles backgrounding; App.tick clamps pathological deltas.
       if (this._clock && this._app.drawCostWanted) {
         const t0 = this._clock();
+        // `[WXG-T-1114]` 空档采样必须在 t0 读取后、tick 之前（口径 = 上帧渲染终点 → 本帧 tick 起点）。
+        this._app.sampleIdleAt(t0);
         this._app.tick(dt);
         this._app.reportTickCost(this._clock() - t0);
       } else {

@@ -38,6 +38,11 @@ export interface UiDebugState {
     tickMs: number;
     /** `[WXG-T-1113]` 引擎渲染段 EMA（batcher / mesh 上传 / present），与 `tickMs` 不重叠。 */
     engineDrawMs: number;
+    /**
+     * `[WXG-T-1114]` 帧间空档 EMA（上帧 AFTER_DRAW 终点 → 本帧 tick 起点）。
+     * 该段 JS 不执行：读数大 = GPU/present 反压或宿主调度推迟 rAF。`0` = 未量过。
+     */
+    idleMs: number;
     /** 相位，菜单腿为 `'menu'`。 */
     phase: string;
     /** 关卡标签，菜单腿为空。 */
