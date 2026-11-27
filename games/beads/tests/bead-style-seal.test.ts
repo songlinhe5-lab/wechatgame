@@ -166,8 +166,13 @@ const PLATE_BG_RETIRE_FRAME78 = 9;
  * `[WXG-T-1088]`（用户 2026-11-26 裁定「底槽背景压珠面」）：面板 + 投影 + 三段内阴影**再次去 `back`
  * 提 graphics**（同层矢量按绘制序压住盘面珠）；`[WXG-T-1093]` 槽底改走 tint 臂（`maskSpace:'bead'`）。
  * 登记改回 **0** —— ⚠ 层序互斥破法（blit 池白名单）仍待裁定（T-1093 §未解项），若回沉底须同步本值。
+ *
+ * `[WXG-T-1106]`（用户 2026-11-27 令「描边应该与珠子底图整体绘制，再绘制珠槽和珠面」）：真机复验
+ * 证明 `graphics` 恒在 blit 之上 ⇒ 盘面剪影描边只靠「调用点上移」无法沉到珠面之下，改由
+ * **多边形逐条打 `back`**（framework `PolygonCommand.back`）投宿主 `backGraphics`。
+ * 本夹具帧的描边段 = **54 条 polygon**（13×12 稿的外轮廓）⇒ 登记 `0 → 54`；两帧同量（同一图案）。
  */
-const BACK_KEY_LINES = 0;
+const BACK_KEY_LINES = 54;
 /**
  * **[EP12-S2/S3 · 第十八次复评登记（K.5.1-补10）]** 整帧登记漂移 = 两帧各 +3（复取实测）：
  * ① 托盘投影 rect（back:true ⇒ BACK_KEY_LINES 4→5）② LV 纸 chip rect 96×48 ③ expand 底缘 line。

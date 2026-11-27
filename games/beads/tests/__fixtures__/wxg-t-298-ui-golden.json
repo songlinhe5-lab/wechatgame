@@ -4,7 +4,7 @@
   "unit": "UI-02",
   "spec": "docs/architecture/ui-architecture-beads.md §5 / §9.4 / §12",
   "codeBaseline": "bd964a0",
-  "capturedFrom": "cc84e480 · 工作树（WXG-T-298）",
+  "capturedFrom": "3812739b · 工作树（WXG-T-298）",
   "fixture": {
     "viewport": {
       "width": 750,
@@ -173,7 +173,7 @@
         "containerEnd": 1,
         "text": 10
       },
-      "sha": "c9168bd55083ebf8a05430d7efd25e4c4896295756a14fb979baeb8b01a36062",
+      "sha": "5e57b199a445952e0e987f63352f9a9cfc1f0bce149283f7c0bc411b039e5772",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -196,7 +196,7 @@
         "containerEnd": 2,
         "text": 15
       },
-      "sha": "4fdfbbd0483159e27c48314906d920cdfedcd10ebb05094df3d05fa6b19fed59",
+      "sha": "9b0e091310df857e0af55675637226ea891cf25d03c471743e27248c9a118de5",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -220,7 +220,7 @@
         "text": 16,
         "blit": 1
       },
-      "sha": "60065e7c03fc8ab111c87d758895ffaec5e49c7178e2a117592a79c09d456190",
+      "sha": "4650458e979e3e19b2bf1734d4e5fc23397fc6d33f146314388eae69be698b43",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -243,7 +243,7 @@
         "containerEnd": 3,
         "text": 26
       },
-      "sha": "6ec5fb79ba1b233a5fa9293a4c4dce7ba9974f0a5335daff2213420c2836a690",
+      "sha": "f118bc5bb7a2aa085daf0d0092f883d97288c8c080a5321a58340a3dd8b6c294",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -266,7 +266,7 @@
         "text": 19,
         "circle": 3
       },
-      "sha": "68041e7dd62d4412dc4a84efd5e645b3e22217dc109e9652dd0f6e5e23c2f927",
+      "sha": "7d3446976d7351845681060cdc78fbd5922eb99d4b8736a7f95f168be4927f54",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -289,7 +289,7 @@
         "containerEnd": 2,
         "text": 16
       },
-      "sha": "1f33ff516f19a9978eabb782764f0412c63875a11af5dfb2fca24226eeb98e7a",
+      "sha": "7b1c719be373a89bccdd4879e58ca751e8228f4f9f2b537c113691ec74c045d0",
       "background": "#F1E8D8",
       "transform": null
     }
