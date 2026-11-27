@@ -450,4 +450,23 @@ describe('App 绘制成本投影（WXG-T-1110）', () => {
     expect(read()).toBe(read());
     app.stop();
   });
+
+  // `[WXG-T-1113]` tick 段 / 引擎渲染段回投：首样本直写、之后 EMA，同一对象零分配。
+  it('`[WXG-T-1113]` reportTickCost / reportEngineDrawMs：首样本直写，之后 EMA(0.1)', () => {
+    const { app } = makeApp();
+    app.onRender = (): void => {};
+    app.start();
+    const read = app.services.readDrawCost!;
+    const first = read();
+    app.reportTickCost(40);
+    app.reportEngineDrawMs(30);
+    expect(read()).toBe(first);
+    expect(first.tickMs).toBe(40);
+    expect(first.engineDrawMs).toBe(30);
+    app.reportTickCost(20);
+    app.reportEngineDrawMs(10);
+    expect(first.tickMs).toBeCloseTo(38, 6);
+    expect(first.engineDrawMs).toBeCloseTo(28, 6);
+    app.stop();
+  });
 });

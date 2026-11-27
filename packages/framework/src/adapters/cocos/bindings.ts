@@ -23,6 +23,8 @@ import {
   _decorator,
   Color,
   Component,
+  director,
+  Director,
   Graphics,
   HorizontalTextAlignment,
   input as ccInput,
@@ -72,6 +74,24 @@ export class Bootstrap extends Component {
 
   private _app: App | null = null;
   private _loop: CocosLoopBridge | null = null;
+  /**
+   * `[WXG-T-1113]` 引擎渲染段卡表的起点（`platform.now()`；`0` = 无进行中的卡表）。
+   * 引擎 render 相位在我们的 update（tick）之后 —— 帧间隔里 `tickMs` 之外的那段
+   * （batcher 提交 + mesh 上传 + present）就落在这里。
+   */
+  private _engineDrawT0 = 0;
+  private _onEngineBeforeDraw = (): void => {
+    const app = this._app;
+    if (!app || !app.drawCostWanted) return;
+    this._engineDrawT0 = app.platform.now();
+  };
+  private _onEngineAfterDraw = (): void => {
+    if (this._engineDrawT0 <= 0) return;
+    const app = this._app;
+    if (!app) return;
+    app.reportEngineDrawMs(app.platform.now() - this._engineDrawT0);
+    this._engineDrawT0 = 0;
+  };
   private _graphics: Graphics | null = null;
   /** `[WXG-T-256]` 底图提交体（`model.background` 的全屏 rect），恒在珠下。 */
   private _back: Graphics | null = null;
@@ -207,6 +227,10 @@ export class Bootstrap extends Component {
     };
 
     this._app = app;
+    // `[WXG-T-1113]` 引擎渲染段探针：按 `drawCostWanted` 门控，release 一次时钟都不读；
+    // onDestroy 对称 off（Director 是引擎单例，不随节点销毁自动解绑）。
+    director.on(Director.EVENT_BEFORE_DRAW, this._onEngineBeforeDraw, this);
+    director.on(Director.EVENT_AFTER_DRAW, this._onEngineAfterDraw, this);
     // 动态高：GameRoot 尺寸跟上实际设计高（构造基准档下为恒等操作）。
     this._root?.getComponent(UITransform)?.setContentSize(app.viewport.designWidth, app.viewport.designHeight);
     this._bindRenderer();
@@ -214,7 +238,13 @@ export class Bootstrap extends Component {
     // [WXG-T-1005] 等 blit carrier warmup resolve —— 菜单第一帧才能有 menuBitmapResolver，
     // 招牌/CTA/背景直接走位图（不闪 v1 矢量腿）。无 warmup 时立即通过。
     await (this._warmupPromise ?? Promise.resolve());
-    this._loop = new CocosLoopBridge(app, this);
+    this._loop = new CocosLoopBridge(
+      app,
+      this,
+      undefined,
+      // `[WXG-T-1113]` tick 段卡表（loop-bridge 内部再按 drawCostWanted 门控）。
+      () => app.platform.now(),
+    );
     this._loop.start();
     // Must run AFTER the loop starts: CocosLoopBridge.start() calls
     // App.startHostDriven() (WXG-T-122), which re-fits the viewport to
@@ -278,6 +308,9 @@ export class Bootstrap extends Component {
       target?.call(globalThis, 'resize', this._onWindowResize);
       this._resizeBound = false;
     }
+    // `[WXG-T-1113]` 引擎渲染段探针对称解绑。
+    director.off(Director.EVENT_BEFORE_DRAW, this._onEngineBeforeDraw, this);
+    director.off(Director.EVENT_AFTER_DRAW, this._onEngineAfterDraw, this);
     this._loop?.stop();
     this._app?.dispose();
     this._app = null;

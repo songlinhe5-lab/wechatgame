@@ -136,15 +136,21 @@ export class App {
   };
   private readonly _drawCost: {
     drawMs: number; paintCalls: number; commands: number;
+    tickMs: number; engineDrawMs: number;
     breakdown: MutableDrawBreakdown;
   } = {
     drawMs: 0,
     paintCalls: 0,
     commands: 0,
+    tickMs: 0,
+    engineDrawMs: 0,
     breakdown: this._breakdown,
   };
   /** 已累计的绘制样本数（0 ⇒ 还没量过；用来区分「首样本」与「EMA 尚未收敛」）。 */
   private _drawSamples = 0;
+  /** `[WXG-T-1113]` tick 段 / 引擎渲染段的样本数（0 ⇒ 首样本直写，不走 EMA）。 */
+  private _tickSamples = 0;
+  private _engineDrawSamples = 0;
   /**
    * 有人读过绘制成本后置 true ⇒ 才逐帧统计 `paintCalls`（要扫一遍命令流）。
    * 没人读（release 常态）就一帧都不扫，热路径零额外开销。
@@ -235,6 +241,28 @@ export class App {
     t.vectorCalls = b.vectorCalls;
     t.blitCalls = b.blitCalls;
     t.textCalls = b.textCalls;
+  }
+
+  /**
+   * `[WXG-T-1113]` loop-bridge 在 `app.tick` 全程卡表后回投（EMA α = 0.1，首样本直写）。
+   * 调用方（loop-bridge）已按 `drawCostWanted` 门控；未接线的宿主不调 ⇒ 恒 0。
+   */
+  reportTickCost(ms: number): void {
+    const c = this._drawCost;
+    if (this._tickSamples === 0) c.tickMs = ms;
+    else c.tickMs = c.tickMs * 0.9 + ms * 0.1;
+    this._tickSamples += 1;
+  }
+
+  /**
+   * `[WXG-T-1113]` bindings 在 `EVENT_BEFORE_DRAW` → `EVENT_AFTER_DRAW` 卡表后回投
+   * （EMA 同口径）。覆盖引擎渲染段（batcher / mesh 上传 / present），与 `tickMs` 不重叠。
+   */
+  reportEngineDrawMs(ms: number): void {
+    const c = this._drawCost;
+    if (this._engineDrawSamples === 0) c.engineDrawMs = ms;
+    else c.engineDrawMs = c.engineDrawMs * 0.9 + ms * 0.1;
+    this._engineDrawSamples += 1;
   }
 
   /** Initialise the game and begin the frame loop. */

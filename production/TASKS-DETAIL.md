@@ -13506,3 +13506,21 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 **验证（2026-11-28 实跑）**：framework 全量 **56 文件 / 621 passed**（+2）；beads 全量 **138 文件 / 1688 passed / 2 skipped**（+3，新增载体静态门文件）；`typecheck`（framework + beads + breakout）绿；`framework:sync` 写入 1 / 1、`framework:sync:check` 一致；**`pnpm run verify` 24/24 PASS，0 WARN / 0 FAIL**；金样 / 封箱 / `check:board-seam` / `check:frozen-values` 均绿（本刀不产像素：只改池位生命周期与守卫，同帧最终提交态与旧实现逐位一致）。beads 版本 1.0.118。
 
 **下一步（设备侧）**：重建出包后再读分段行。预期「位」从 10 ms 降到 2–4 ms（稳态零翻转 + 短路省掉的固定开销）；若「位」仍 >6 ms，下一嫌疑是 `beginFrame` 收尾循环之外的 batcher 层（Sprite 逐帧改 `spriteFrame` 触发合并重建）。**文字段 5 ms 留待下一单**（`measureWidth` 每帧实测 + Label 池借用，候选 = 文本不变跳过测宽 / 池位对齐复用）。⚠️ 需 Cocos Creator 面板重建；本机 `build:cocos` 不会真编译。
+
+## WXG-T-1113
+
+**tick 段 + 引擎渲染段探针：找 48.9 − 19 ≈ 30 ms 帧缺口** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ **代码完成（2026-11-28）**
+
+承 T-1112 后的真机读数（用户截图：`fps 20 · 48.9 ms / 绘 11.9ms · 195笔/1116令 / 矢 2.0 位 2.0 文 5.0 余 1.0ms`）。定性：位段 10→2.0 ms（载体修复生效），但帧间隔 48.9 ms 与已量段（固定步 + 建模 + 绘 11.9，≈19 ms）之间**缺 ≈30 ms**，形状 = 60 Hz 屏每帧漏 2 个 vsync。缺失段只能落在**引擎渲染相位**（我们的 tick 全在引擎 update 相位，引擎 render 在其后）：batcher 提交 + Graphics mesh 上传（~10 万顶点/帧）+ 890 sprite 合批 + present/GPU 反压。本单把两段缺口量出来。
+
+**实现（全走 `drawCostWanted` 门控，release 一次时钟都不读）**：
+- `CocosLoopBridge` 构造器加可选第 4 形参 **`clock`**（bindings 注入 `app.platform.now()`）：有人读过成本时每次 tick 对 `app.tick` 全程卡表并 `app.reportTickCost(ms)` 回投 ⇒ **`tickMs`**（EMA α=0.1，首样本直写；含固定步 + 建模 + onRender/drawMs）。
+- `bindings.ts` 注册 **`Director.EVENT_BEFORE_DRAW` → `EVENT_AFTER_DRAW`** 卡表，`app.reportEngineDrawMs(ms)` 回投 ⇒ **`engineDrawMs`**（引擎渲染段：batcher / mesh 上传 / present；与 tickMs 相位不重叠 ⇒ 帧 ≈ tick + 引）。onDestroy 对称 off。
+- `DrawCostReading` 加 `tickMs` / `engineDrawMs`（同一只读对象，零分配）；`UiDebugState` 加同名字段；覆层第六行 **`tick X 引 X ms`**（面板随行数 ×38 递增；全 0 = 未接线不画空槽）。
+- 判读口径（写进覆层注释）：`帧 ≈ tick + 引`；`tick` 大 ⇒ 回固定步/建模/onRender（看分段行）；`引` 大 ⇒ 引擎渲染段（mesh 上传 / 合批 / GPU），`tick` 小 `引` 大即坐实缺口归属。
+
+**判据（新增 5 例）**：framework `app.test.ts` 一例（回投首样本直写 + EMA 0.9/0.1 + 同对象零分配）；`cocos-loop-bridge.test.ts` 两例（注入 clock + 开门 ⇒ 两次读表、tickMs=5；没开门 ⇒ clock 零调用、tickMs 恒 0）；beads `debug-layer.test.ts` 两例（六行版式 250 高 + 探针全 0 不画空行）。
+
+**验证（2026-11-28 实跑）**：`pnpm run verify` 24/24 PASS / 0 FAIL（typecheck 含 beads 测试夹具补字段后全绿）；framework 56 文件 624 passed；beads 138 文件 1690 passed / 2 skipped；`framework:sync` 写入 5、`framework:sync:check` 一致。beads 版本 1.0.119。
+
+**下一步（设备侧）**：Cocos Creator 面板重建出包后读第六行。`引` ≈ 30 ms ⇒ 缺口坐实引擎渲染段，下一单打 mesh 上传（Graphics 顶点瘦身 / blit 顶点缓存）；`tick` ≈ 30 ms ⇒ 回到固定步/建模侧；文字段 5 ms 仍留待独立单。

@@ -26,10 +26,22 @@ export class CocosLoopBridge {
     private readonly _app: App,
     private readonly _scheduler: SchedulerLike,
     private readonly _onFrame?: () => void,
+    /**
+     * `[WXG-T-1113]` 墙钟（宿主注入 `platform.now`）。有人读过绘制成本
+     * （`app.drawCostWanted`）时，每次 tick 对 `app.tick` 全程卡表并回投 `tickMs`；
+     * 不注入或没人读 ⇒ 一次表都不读，release 热路径零开销。
+     */
+    private readonly _clock?: () => number,
   ) {
     this._tick = (dt: number) => {
       // Cocos already handles backgrounding; App.tick clamps pathological deltas.
-      this._app.tick(dt);
+      if (this._clock && this._app.drawCostWanted) {
+        const t0 = this._clock();
+        this._app.tick(dt);
+        this._app.reportTickCost(this._clock() - t0);
+      } else {
+        this._app.tick(dt);
+      }
       this._onFrame?.();
     };
   }

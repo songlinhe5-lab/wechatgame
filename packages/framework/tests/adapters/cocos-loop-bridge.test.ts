@@ -103,4 +103,36 @@ describe('CocosLoopBridge', () => {
     expect(() => bridge.start()).toThrow(/already self-driving/);
     expect(scheduler.scheduled).toBe(false); // second driver rejected
   });
+
+  // `[WXG-T-1113]` tick 段卡表：有人读过绘制成本才读 clock，release 热路径零读表。
+  it('injected clock + drawCostWanted ⇒ times app.tick and reports tickMs', () => {
+    const platform = new NodePlatform();
+    const game = new Counter();
+    const app = new App({ game, platform, seed: 'loop' });
+    const scheduler = fakeScheduler();
+    let t = 0;
+    const clock = vi.fn((): number => (t += 5)); // 每次读表 +5ms ⇒ tick 段 = 5ms
+    const bridge = new CocosLoopBridge(app, scheduler, undefined, clock);
+    app.services.readDrawCost!(); // 打开统计门（drawCostWanted = true）
+    bridge.start();
+    scheduler.tick(1 / 60);
+    expect(clock).toHaveBeenCalledTimes(2); // t0 + t1，不多读
+    expect(app.services.readDrawCost!().tickMs).toBe(5);
+    bridge.stop();
+    expect(app.running).toBe(false);
+  });
+
+  it('nobody read draw cost ⇒ clock is never touched, tickMs stays 0', () => {
+    const platform = new NodePlatform();
+    const game = new Counter();
+    const app = new App({ game, platform, seed: 'loop' });
+    const scheduler = fakeScheduler();
+    const clock = vi.fn((): number => 0);
+    const bridge = new CocosLoopBridge(app, scheduler, undefined, clock);
+    bridge.start();
+    scheduler.tick(1 / 60);
+    expect(clock).not.toHaveBeenCalled();
+    expect(app.services.readDrawCost!().tickMs).toBe(0);
+    bridge.stop();
+  });
 });

@@ -1169,10 +1169,15 @@ export class BeadsGame {
       b.vectorCalls = src ? src.vectorCalls : 0;
       b.blitCalls = src ? src.blitCalls : 0;
       b.textCalls = src ? src.textCalls : 0;
+      // `[WXG-T-1113]` tick 段 / 引擎渲染段 EMA（未接线 / 未量过时为 0，覆层不画探针行）。
+      out.tickMs = cost ? cost.tickMs : 0;
+      out.engineDrawMs = cost ? cost.engineDrawMs : 0;
     } else {
       out.drawMs = 0;
       out.paintCalls = 0;
       out.commands = 0;
+      out.tickMs = 0;
+      out.engineDrawMs = 0;
       const b = out.breakdown;
       b.vectorMs = 0; b.blitMs = 0; b.textMs = 0; b.scopeMs = 0;
       b.vectorCalls = 0; b.blitCalls = 0; b.textCalls = 0;

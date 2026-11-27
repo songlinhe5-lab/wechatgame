@@ -31,6 +31,13 @@ export interface UiDebugState {
      * UI 只读；全 0 ⇒ 宿主未接线，覆层不出细分行。
      */
     breakdown: DebugDrawBreakdown;
+    /**
+     * `[WXG-T-1113]` `App.tick` 全程 EMA（固定步 + 建模 + onRender）。`0` = 未接线
+     * （loop-bridge 未注入 clock / 无人读过成本），覆层不出探针行。
+     */
+    tickMs: number;
+    /** `[WXG-T-1113]` 引擎渲染段 EMA（batcher / mesh 上传 / present），与 `tickMs` 不重叠。 */
+    engineDrawMs: number;
     /** 相位，菜单腿为 `'menu'`。 */
     phase: string;
     /** 关卡标签，菜单腿为空。 */

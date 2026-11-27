@@ -307,6 +307,18 @@ export interface DrawCostReading {
    * 与上面三项共用同一个对象 ⇒ 读取零分配。
    */
   readonly breakdown: DrawCostBreakdown;
+  /**
+   * `[WXG-T-1113]` `App.tick` 全程墙钟 EMA（α = 0.1）：固定步循环 + 建模 + `onRender`
+   * （即 `drawMs` 含在内）。引擎调度的 update 相位就在这段里。`0` = 还没量过
+   * （loop-bridge 未注入 clock / 无人读过成本 ⇒ 未接线），消费端 `> 0` 才显示。
+   */
+  readonly tickMs: number;
+  /**
+   * `[WXG-T-1113]` 引擎渲染段墙钟 EMA（α = 0.1）：`Director.EVENT_BEFORE_DRAW` →
+   * `EVENT_AFTER_DRAW`（batcher 提交 + mesh 上传 + present）。与 `tickMs` 不重叠
+   * （引擎 render 相位在 update 之后）⇒ `tickMs + engineDrawMs` ≈ 整帧。`0` = 未接线。
+   */
+  readonly engineDrawMs: number;
 }
 
 /**

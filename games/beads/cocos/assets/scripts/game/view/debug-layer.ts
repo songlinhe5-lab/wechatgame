@@ -22,7 +22,9 @@ import { UI_DEBUG_HIT_FILL, UI_FONT, UI_SCRIM, scrimFill } from './ui-theme';
  * 性能覆层面板几何（设计 px，贴屏顶；`top = builder.height` 动态高）。
  *
  * `[WXG-T-1110]` 三行 → 四行（绘制成本行）：面板 136 → 174、`dy` −148 → −186；
- * `[WXG-T-1111]` 四行 → 五行（分段行）：174 → 212、`dy` −186 → −224。行距恒 38，
+ * `[WXG-T-1111]` 四行 → 五行（分段行）：174 → 212、`dy` −186 → −224；
+ * `[WXG-T-1113]` 五行 → 六行（探针行 tick/引）：面板随行数以 38 递增（`rows` 计数）。
+ * 行距恒 38，
  * `⛔` 别改小——22px 字号下 38 是「两行不粘」的下限（黄金比 1.7）。细分行只在
  * 宿主真的回投分段时间时出现（全 0 ⇒ 未接线，不画空白槽）。
  */
@@ -46,6 +48,8 @@ export function drawPerfOverlay(
     paintCalls = 0,
     commands = 0,
     breakdown: DrawCostBreakdown | null = null,
+    tickMs = 0,
+    engineDrawMs = 0,
 ): void {
     if (!enabled) return;
     const fps = frameMs > 0 ? Math.round(1000 / frameMs) : 0;
@@ -53,8 +57,11 @@ export function drawPerfOverlay(
     // `[WXG-T-1111]` 分段行存在与否决定面板高度；四段全 0 = 宿主没回投 ⇒ 不画空槽。
     const segmented = drawMs > 0 && breakdown !== null
         && breakdown.vectorMs + breakdown.blitMs + breakdown.textMs + breakdown.scopeMs > 0;
-    const panelDy = segmented ? -(PERF_ROW_GAP * 6 - 4) : -(PERF_ROW_GAP * 5 - 4);
-    const panelH = segmented ? PERF_ROW_GAP * 6 - 16 : PERF_ROW_GAP * 5 - 16;
+    // `[WXG-T-1113]` 探针行：tick 段 / 引擎渲染段任一非 0 才画（未接线不占空槽）。
+    const probed = tickMs > 0 || engineDrawMs > 0;
+    const rows = 5 + (segmented ? 1 : 0) + (probed ? 1 : 0);
+    const panelDy = -(PERF_ROW_GAP * rows - 4);
+    const panelH = PERF_ROW_GAP * rows - 16;
     builder.rect(PERF_PANEL.x, top + panelDy, PERF_PANEL.w, panelH, {
         fill: scrimFill(UI_SCRIM.canvas, 0.7),
         radius: PERF_PANEL.radius,
@@ -89,6 +96,13 @@ export function drawPerfOverlay(
         const b = breakdown!;
         // `[WXG-T-1111]` 四段同帧读数（⛔ 不做 EMA）：一眼看出 22.8ms 落在哪条腿。
         line(y, `矢 ${b.vectorMs.toFixed(1)} 位 ${b.blitMs.toFixed(1)} 文 ${b.textMs.toFixed(1)} 余 ${b.scopeMs.toFixed(1)}ms`);
+    }
+    if (probed) {
+        y -= PERF_ROW_GAP;
+        // `[WXG-T-1113]` 判读口径：`帧` ≈ `tick` + `引`（两者相位不重叠）。
+        // `tick` ≈ 帧间隔 ⇒ 瓶颈在我们的固定步/建模/onRender（看分段行）；
+        // `引` 大 ⇒ 引擎渲染段（batcher 提交 / mesh 上传 / present / GPU 反压）。
+        line(y, `tick ${tickMs.toFixed(1)} 引 ${engineDrawMs.toFixed(1)}ms`);
     }
 }
 
