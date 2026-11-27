@@ -20,6 +20,7 @@ import {
   sliderTFromZoom,
   zoomAtPoint,
   zoomFromSliderT,
+  MIN_VISIBLE_CELLS,
   type PinchInput,
 } from '../src/systems/board-camera.js';
 import {
@@ -41,26 +42,26 @@ import {
   DESIGN_W,
   TRAY_PANEL_WIDTH,
   PUZZLE_BAND,
-  HUD_BAND,
-  TRAY_BAND,
-  BOARD_FIT_MARGIN,
   GRID_MIN_COLS,
   GRID_MIN_ROWS,
   LEVEL_TIME_MIN,
   gridLayoutFor,
+  liveDesignHeight,
 } from '../src/config/tuning.js';
 import { STAGE_PATTERN_POOL } from '../src/config/levels.js';
 
 const cam = (): BoardCamera => ({ zoom: 1, offsetX: 0, offsetY: 0 });
 
-/** Y 夹取镜像（[v1.69] 与 `clampCamera` 同构，换 band 尺不漂移）：返回 [下限, 上限]。 */
-const OP_LO = TRAY_BAND.yMax + BOARD_FIT_MARGIN;
-const OP_HI = HUD_BAND.yMin - BOARD_FIT_MARGIN;
+/**
+ * Y 夹取镜像（`[WXG-T-1105]` 与 `clampCamera` 同构：窗口 = **整屏高**，盘心仍锚盘带心）。
+ * 返回 [下限, 上限]（zoom = 1 档，与旧镜像同口径）。
+ */
 const BAND_MID = (PUZZLE_BAND.yMin + PUZZLE_BAND.yMax) / 2;
-const OP_MID_REL = (OP_LO + OP_HI) / 2 - BAND_MID;
+const VIS4 = MIN_VISIBLE_CELLS * BEAD_PITCH; // zoom=1 档的 4 格可见宽
+const SCREEN_H = liveDesignHeight();
 const clampY = (bh: number): [number, number] => [
-  Math.min(OP_LO - BAND_MID + bh / 2, OP_MID_REL - bh / 2),
-  Math.max(OP_HI - BAND_MID - bh / 2, OP_MID_REL + bh / 2),
+  VIS4 - BAND_MID - bh / 2,
+  SCREEN_H - VIS4 - BAND_MID + bh / 2,
 ];
 
 const two = (x: number, y: number, x2: number, y2: number): PinchInput => ({
@@ -215,7 +216,8 @@ describe('applyPinch（issue 2 缩放有界 · §3.3 v1.59 绝对档）', () => 
     const layout = gridLayoutFor(cols, rows, c);
     const right = layout.left + cols * layout.pitch - BEAD_GAP * c.zoom;
     const visW = Math.min(right, DESIGN_W) - Math.max(layout.left, 0);
-    const visH = Math.min(layout.top, PUZZLE_BAND.yMax) - Math.max(layout.bottom, PUZZLE_BAND.yMin);
+    // `[WXG-T-1105]` 纵向视口 = 整屏高（旧盘带窗口已退役）
+    const visH = Math.min(layout.top, liveDesignHeight()) - Math.max(layout.bottom, 0);
     expect(visW / layout.pitch).toBeGreaterThanOrEqual(4 - 1e-6);
     expect(visH / layout.pitch).toBeGreaterThanOrEqual(4 - 1e-6);
   });
@@ -262,7 +264,7 @@ describe('zoomAtPoint（低倍点击焦点放大）', () => {
     const idealX = px - fresh.colCenterX(bead.col);
     const idealY = py - fresh.rowCenterY(bead.row);
     const maxOffX = (BIG * BEAD_PITCH - BEAD_GAP) / 2; // v1.66：盘缘至中线 ⇒ 半盘宽（旧 (b−750)/2=136 作废）
-    const [, yUpper] = clampY((BIG * BEAD_PITCH - BEAD_GAP) * c.zoom); // v1.69 镜像（夹取发生在 zoom=1）
+    const [, yUpper] = clampY((BIG * BEAD_PITCH - BEAD_GAP) * c.zoom); // WXG-T-1105 镜像（夹取发生在 zoom=1）
     expect(Math.abs(idealX)).toBeLessThan(maxOffX); // 本例恰为 −(col−(cols−1)/2)·PITCH = −258
     expect(Math.abs(idealY)).toBeLessThan(yUpper);
     expect(c.offsetX).toBeCloseTo(idealX, 6);
@@ -515,27 +517,47 @@ describe('盘面下方缩放控件：slider ↔ zoom 映射（§3.3 v1.59 绝对
 });
 
 describe('[WXG-T-1090] 相机边界 = 至少 4 格可见（拖动与缩放同源）', () => {
-  it('任意方向拖到底 / 任意倍率，盘面在视口与盘面带内的可见格数恒 ≥ 4', () => {
+  it('任意方向拖到底 / 任意倍率，盘面在**屏幕**内的可见格数恒 ≥ 4', () => {
     // 用户 2026-11-26 令：「珠面上下左右拖动时候，边缘限制必须至少展现出 4 格珠子；
     // 缩放时候这个限制必须在缩放过程中也要严格限制」。本用例取代 v1.66/67/68/69 的旧窗口断言。
+    // `[WXG-T-1105]` 纵向视口同步换成整屏高（用户 2026-11-27 令）。
     const cols = 13, rows = 12;
     for (const zoom of [CAMERA_ZOOM_MIN, 1, 1.6, CAMERA_ZOOM_MAX]) {
       for (const [dx, dy] of [[1e4, 0], [-1e4, 0], [0, 1e4], [0, -1e4], [1e4, 1e4], [-1e4, -1e4]]) {
         const cam = { zoom, offsetX: 0, offsetY: 0 };
         applyPan(dx, dy, cam, cols, rows);
-        // 盘面尺寸 = 格数 × 格距（与 `boardPx` 同式，避免跨模块依赖）
-        const b = { w: cols * BEAD_PITCH * cam.zoom, h: rows * BEAD_PITCH * cam.zoom };
+        // 盘面尺寸 = 与 `boardPx` 同式（含缝）
+        const b = { w: (cols * BEAD_PITCH - BEAD_GAP) * cam.zoom, h: (rows * BEAD_PITCH - BEAD_GAP) * cam.zoom };
         const pitch = BEAD_PITCH * cam.zoom;
         const left = 750 / 2 + cam.offsetX - b.w / 2; // WINDOW_W = 设计宽 750
         const right = 750 / 2 + cam.offsetX + b.w / 2;
         const visW = Math.min(right, 750) - Math.max(left, 0);
-        const bandMid = (PUZZLE_BAND.yMin + PUZZLE_BAND.yMax) / 2;
-        const bottom = bandMid + cam.offsetY - b.h / 2;
-        const top = bandMid + cam.offsetY + b.h / 2;
-        const visH = Math.min(top, PUZZLE_BAND.yMax) - Math.max(bottom, PUZZLE_BAND.yMin);
+        const bottom = BAND_MID + cam.offsetY - b.h / 2;
+        const top = BAND_MID + cam.offsetY + b.h / 2;
+        const visH = Math.min(top, liveDesignHeight()) - Math.max(bottom, 0);
         expect(visW / pitch, `zoom=${zoom} dx=${dx} ⇒ 可见列数`).toBeGreaterThanOrEqual(4 - 1e-6);
         expect(visH / pitch, `zoom=${zoom} dy=${dy} ⇒ 可见行数`).toBeGreaterThanOrEqual(4 - 1e-6);
       }
     }
+  });
+
+  it('`[WXG-T-1105]` 纵向边界 = **屏幕**上/下沿（不再是盘带沿）：拖到底恰好留 4 格', () => {
+    // 用户 2026-11-27 令：「上下拖动和缩放的边界在屏幕的顶部和底部」。
+    const cols = 13, rows = 12;
+    const minVis = MIN_VISIBLE_CELLS * BEAD_PITCH; // zoom = 1
+
+    // 往**下**拖到底（offsetY → −∞）：盘顶缘停在离屏底 4 格处 ⇒ 远低于盘带下沿 560（旧口径必红）。
+    const c = cam();
+    applyPan(0, -1e4, c, cols, rows);
+    const low = gridLayoutFor(cols, rows, c);
+    expect(low.top).toBeCloseTo(minVis, 6);
+    expect(low.top).toBeLessThan(PUZZLE_BAND.yMin + minVis);
+
+    // 往**上**拖到底（offsetY → +∞）：盘底缘停在离屏顶 4 格处。
+    const c2 = cam();
+    applyPan(0, 1e4, c2, cols, rows);
+    const high = gridLayoutFor(cols, rows, c2);
+    expect(high.bottom).toBeCloseTo(liveDesignHeight() - minVis, 6);
+    expect(high.top - high.bottom).toBeGreaterThan(0);
   });
 });

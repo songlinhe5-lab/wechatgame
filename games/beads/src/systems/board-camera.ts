@@ -36,20 +36,25 @@ import {
   IDENTITY_CAMERA,
   gridLayoutFor,
   hitGridCell,
+  liveDesignHeight,
   type BoardCamera,
 } from '../config/tuning.js';
 
-/** 横向操作边界（设计 px）：整幅；纵向见 OP_Y_*（v1.69 不再用盘带高）。 */
+/**
+ * 拖动/缩放的**可见窗口**（设计 px）：横向 = 屏宽整幅；纵向 = 屏高整幅
+ * （`liveDesignHeight()`，逐机实际设计高，基准档 1334）。
+ * `[WXG-T-1105 · 用户 2026-11-27 令]` 纵向由 `PUZZLE_BAND`（560 高）换成**整屏**：
+ * 「上下拖动和缩放的边界在屏幕的顶部和底部」——与左右同尺，仍在屏幕边各留 4 格。
+ */
 const WINDOW_W = DESIGN_W;
+/** 盘面布局锚心（`gridLayoutFor` 的落点，⛔ 与 `PUZZLE_BAND` 同源，不得另起一份算式）。 */
+const BAND_MID_Y = (PUZZLE_BAND.yMin + PUZZLE_BAND.yMax) / 2;
 
 /**
- * 纵向**操作边界**（[WXG-T-262 七续裁 v1.69]，用户裁「上边界应该是在 top 的 menu 下面
- * 一点，下边界应该是在托盘上面一点」）：由 `PUZZLE_BAND`（560 高）换成
- * 「HUD 下缘留 `BOARD_FIT_MARGIN` 净空 ~ 托盘带上缘留同净空」（1190 → 474，共 716 高）；
- * 「一点」= 既有留边常量 24，零新冻结。盘仍锚 `PUZZLE_BAND` 心布局（offset=0 不变），
- * 故夹取区间关于新操作中心（832）不对称（带心 840 ≠ 操作心，差 8px 如实入式）。
+ * 纵向**操作边界**史（现口径见 {@link clampCamera}）：`[WXG-T-262 七续裁 v1.69]` 曾把窗口定为
+ * 「菜单下 ~ 托盘上」（716 高）；`[WXG-T-1090]` 换成「盘面任一侧至少 4 格可见」并沿用盘带作窗口；
+ * `[WXG-T-1105]` 再把窗口换成**整屏高**（用户令「上下拖动和缩放的边界在屏幕的顶部和底部」）。
  */
-// `[WXG-T-1090]` 旧的「操作心相对带心 −8」随 4 格可见口径作废（v1.66/67/69 窗口已被取代）。
 
 /**
  * The slice of `InputSnapshot` this module reads. Duck-typed so the module does
@@ -223,11 +228,12 @@ export function clampCamera(cam: BoardCamera, cols: number, rows: number): void 
   // X：盘面左/右可见宽度各 ≥ minVis（视口 = 全宽 `WINDOW_W`，对称）。
   const minOffX = minVis - WINDOW_W / 2 - b.w / 2;
   const maxOffX = WINDOW_W / 2 - minVis + b.w / 2;
-  // Y：可见带 = `PUZZLE_BAND`（托盘与 HUD 之上），以带中心为基准。
-  const bandMid = (PUZZLE_BAND.yMin + PUZZLE_BAND.yMax) / 2;
-  let minOffY = PUZZLE_BAND.yMin + minVis - bandMid - b.h / 2;
-  let maxOffY = PUZZLE_BAND.yMax - minVis - bandMid + b.h / 2;
-  // 盘面本身比「带 + 2×minVis」还窄时两侧条件会打架 ⇒ 退化为**居中**（不留可拖余量）。
+  // Y：`[WXG-T-1105 · 用户 2026-11-27 令]` 视口 = **整屏高**（不再用盘带），盘心仍锚带心；
+  // offset 相对带心的偏置 ⇒ 上/下限换算各减 `BAND_MID_Y`（与 `gridLayoutFor` 同源）。
+  const screenH = liveDesignHeight();
+  let minOffY = minVis - BAND_MID_Y - b.h / 2;
+  let maxOffY = screenH - minVis - BAND_MID_Y + b.h / 2;
+  // 盘面本身比「屏高 + 2×minVis」还窄时两侧条件会打架 ⇒ 退化为**居中**（不留可拖余量）。
   if (minOffY > maxOffY) { const mid = (minOffY + maxOffY) / 2; minOffY = mid; maxOffY = mid; }
   cam.offsetX = clamp(cam.offsetX, minOffX, maxOffX);
   cam.offsetY = clamp(cam.offsetY, minOffY, maxOffY);

@@ -54,7 +54,7 @@ import {
   type RankBoard,
 } from '../../framework/index';
 
-import { ASSIST_STOPPED_HINT, ASSIST_STOPPED_HINT_MS, ASSIST_TAKEOVER_HINT, ASSIST_TAKEOVER_HINT_MS, AUDIO_CLIP_DENIED, AUDIO_CLIP_PANEL_IN, AUDIO_CLIP_PANEL_OUT, AUDIO_CLIP_REJECT, AUDIO_CLIP_REVIVE_OK, AUDIO_CLIP_STAR, AUDIO_CLIP_UI_TAP, COMBO_WINDOW_S, DEFAULT_TUNING, DESIGN_H, PUZZLE_BAND, DESIGN_W, POWERUP_BUY_DENIED_HINT, REVIVE_BONUS_SEC, REVIVE_MAX_PER_LEVEL, SELECT_LIFT_MS, SOLVER_HINT_MS, SOLVER_MAX_CELLS, SOLVER_STAGGER_MS, STAGE_BONUS_TIME, STAMINA_REFILL_PLACEMENT, TRAY_COLS, trayLayout, arcRangeOfLevel, computeClearStars, gridLayoutFor, hitGridCell, isBossLevelId, menuAnchors, nextBeadLod, nextTierFor, normalSettleScore, solverSequenceMs, stageParamsFor, tierSecondsFor, trayPreviewFits, type BeadSizeKind, type BeadsTuning, type GridLayout, type PowerupType, validatedSprintTime } from '../config/tuning';
+import { ASSIST_STOPPED_HINT, ASSIST_STOPPED_HINT_MS, ASSIST_TAKEOVER_HINT, ASSIST_TAKEOVER_HINT_MS, AUDIO_CLIP_DENIED, AUDIO_CLIP_PANEL_IN, AUDIO_CLIP_PANEL_OUT, AUDIO_CLIP_REJECT, AUDIO_CLIP_REVIVE_OK, AUDIO_CLIP_STAR, AUDIO_CLIP_UI_TAP, COMBO_WINDOW_S, DEFAULT_TUNING, DESIGN_H, DESIGN_W, POWERUP_BUY_DENIED_HINT, REVIVE_BONUS_SEC, REVIVE_MAX_PER_LEVEL, SELECT_LIFT_MS, SOLVER_HINT_MS, SOLVER_MAX_CELLS, SOLVER_STAGGER_MS, STAGE_BONUS_TIME, STAMINA_REFILL_PLACEMENT, TRAY_COLS, trayLayout, arcRangeOfLevel, computeClearStars, gridLayoutFor, hitGridCell, isBossLevelId, liveDesignHeight, menuAnchors, nextBeadLod, nextTierFor, normalSettleScore, solverSequenceMs, stageParamsFor, tierSecondsFor, trayPreviewFits, type BeadSizeKind, type BeadsTuning, type GridLayout, type PowerupType, validatedSprintTime } from '../config/tuning';
 import { BEADS_AUDIO_VOICES } from '../config/audio-voices';
 import {
   LEVELS,
@@ -3493,8 +3493,9 @@ export class BeadsGame {
     const xLo = minVis - bw;
     const xHi = DESIGN_W - minVis;
     if (xLo <= xHi) snap.gridLeft = Math.min(xHi, Math.max(xLo, snap.gridLeft));
-    const yLo = PUZZLE_BAND.yMin + minVis;
-    const yHi = PUZZLE_BAND.yMax - minVis + bh;
+    // `[WXG-T-1105]` 纵向窗口同 `clampCamera`：**整屏高**（`liveDesignHeight()`），上下边各留 4 格。
+    const yLo = minVis;
+    const yHi = liveDesignHeight() - minVis + bh;
     if (yLo <= yHi) snap.gridTop = Math.min(yHi, Math.max(yLo, snap.gridTop));
   }
 
