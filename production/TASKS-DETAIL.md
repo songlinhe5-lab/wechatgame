@@ -13263,3 +13263,11 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 **证据**：先写行为测试确认类缺失红灯，再实现；真实 `Bootstrap._onTouchMove` 接线测试通过「摘掉入口调用 → 失败 → 恢复 → 通过」的变异验证；`onDestroy` 生命周期测试先红后绿，覆盖本实例接口清理与不误删后启动实例。定向 7/7；Framework 622/622；Beads 1662 passed / 2 skipped；Breakout 239/239；三包 typecheck、`framework:sync:check`、`git diff --check` 均通过；`cocos:check` 退出 0，但因编辑器 temp 缺失跳过 beads/breakout，Cocos 脚本类型检查未覆盖；完整 `verify` 22 PASS / 2 SKIP / 0 FAIL（两个 SKIP 为 `check:size`、`check:cocos-mask`）。
 
 **真机采集**：在已安装该产物的真机/开发者工具控制台执行 `__touchProbe.start()`，匀速拖动盘面 1–2 秒后执行 `__touchProbe.stop(); __touchProbe.report()`。当前尚无真机输出，⛔ 不把示例或自动化测试读数当作真机达标证据。
+
+## WXG-T-1102
+
+**对局盘面轮廓沉到珠体之下** · 负责：工程轨(Qoder)·beads · 状态：🚧 **进行中（2026-11-27；分支 wxg-t-1098）**
+
+承用户实帧反馈「轮廓线压到豆面上面了」。根因 = `drawGrid()` 在格循环之后调用 `drawBoardOutline()`，T-928 的末笔轮廓因此覆盖边界珠面。修法只改对局层序：把轮廓调用移到格循环之前，后续格底与珠体覆盖轮廓内侧，只露外圈；轮廓几何、颜色、宽度、缓存与占用判定均不变。详情 / 选关缩略继续在珠面图案之上绘制，T-928 旧令仅适用于展示缩略。
+
+**验证**：先加真实 `drawPlayPage()` 命令序失败测试，红灯时轮廓索引 56、珠体索引 1；移动调用后 `play-page.test.ts` 5/5 通过。官方复取范围 = UI 金样本 `play/pause/clear/fail/sprint-settle/finish` 六帧与 S3 `frame0/frame78` 两帧；预期 total/kinds 零变、仅 sha 变。封箱归因 = `K.5.1-补19` / provenance `s3_frame_recheck_t1102` / 台账 `recheck-27-outline-below`。

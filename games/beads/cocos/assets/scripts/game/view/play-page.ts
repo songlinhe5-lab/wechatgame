@@ -470,6 +470,9 @@ function drawGrid(
     palette: BeadsPalette,
     inks: BeadInks,
 ): void {
+    // 对局盘面轮廓先画，随后格底与珠体覆盖其内侧，只露外圈、不压豆面。
+    drawBoardOutline(builder, snap, palette.shadowInk);
+
     // G1 `vfx_fill_pop`（WXG-T-128）：包络槽在**循环外**建一次（整帧共用，同一时刻至多一颗珠在落座）。
     const pop: FillPopEnvelope = {
         scale: 1,
@@ -854,10 +857,6 @@ function drawGrid(
             }
         }
     }
-    // `[WXG-T-927 / T-928]` 珠面描边（用户令「游戏中也需要这个描边」「描边要盖在珠面上面」）：
-    // 与详情 / 选关缩略同一套剪影形状；**末笔覆在珠面之上**（盖住边界珠外缘 W）；
-    // 占位取快照 `void`、锁定格贴珠体。
-    drawBoardOutline(builder, snap, palette.shadowInk);
     // DEBUG 轮廓（`setDebugOutlines`）：主循环**之上**再叠一层，压在面板下、格内容之上。
     if (snap.debugOutlines) {
         for (let i = 0; i < snap.gridRows; i++) {

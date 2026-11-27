@@ -190,6 +190,13 @@
 > - **流级差分（未解释 0 条）**：唯一插入段 = `beginContainer('tray')`/`endContainer` 一对（S3 矢量臂同样容器化，容器命令进流）；空槽 mask 回 cell 与有珠槽 `tintSocketSize` 均为 tint 臂行为，封箱（矢量臂）零扰动；最强反证 = 珠体族 `legacyFlow` 96/96、facet 45/45 逐字节全等。
 > - **判据同步**：新增常数 `T1096_TRAY_CONTAINER = 2` + 键 26 断言 + 台账 `recheck-26-tray-container`（2/2）+ 两式与 `delta.container/containerEnd`、`totalDelta`、`s3.frame78.total` 1836 入账。
 
+### K.5.1-补19 整帧基线第二十八次复评修订（2026-11-27 · WXG-T-1102 对局盘面轮廓沉到珠体之下 · 正本 = provenance `s3_frame_recheck_t1102`）
+
+> - **通道声明**：属**纯帖序重排**改动（用户实帧反馈「轮廓线压到豆面上面了」⇒ `drawBoardOutline()` 从 `drawGrid()` 格循环之后移到之前）；条数 / 逐 kind 计数零变、仅 sha 变。重抓由工程侧跑官方复取器，本文只给文号与索引。
+> - **编号口径**：本段 ↔ **键 27**；前态 = 第二十七次复评（T-1096 托盘容器化）产物 frame0 `1290` / frame78 `1836`；现役两帧 total / kinds 必须全等。
+> - **流级差分（复取后回填）**：要求零新增、零删除、零几何改写，仅盘面轮廓 polygon 段从格循环之后移到之前；最强反证 = 珠体族 `legacyFlow` 96/96、facet 45/45 逐字节全等。
+> - **判据同步**：provenance 新增 `s3_frame_recheck_t1102` + 台账 `recheck-27-outline-below`（0/0）；⛔ 不改任何登记常数与帧长等式。
+
 ### K.6 `06` 珐琅 —— **只登记出池门引用，本批不造判据**（Q1 = 甲）
 >
 > | 引用项 | 内容 | 出处 | QA 处置 |

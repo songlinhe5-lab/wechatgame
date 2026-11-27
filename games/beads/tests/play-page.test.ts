@@ -26,7 +26,8 @@ import { hitExpandButton, hitGear, hitPowerupCard, hitTraySlot } from '../src/ga
 import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
 import { drawPlayPage } from '../src/view/play-page.js';
 import { buildBeadsFrame } from '../src/view/view-model.js';
-import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
+import { setBeadTintRuntime } from '../src/view/bead-render.js';
+import { createBeadsHarness, placeColor, simpleTestLevel, type Harness } from './helpers.js';
 
 const SRC_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (rel: string): string => readFileSync(resolve(SRC_ROOT, rel), 'utf8');
@@ -127,5 +128,44 @@ describe('UI-41 · PlayPage', () => {
             '托盘内阴影须与面板同层',
         ).toBe(0);
         expect(cmds.filter((c) => c.kind === 'clip').length, '⛔ 不靠裁剪盘面').toBe(0);
+    });
+
+    it('盘面轮廓必须画在珠体之下，只露外圈、不压豆面', () => {
+        const h = harness();
+        let placed = false;
+        for (let row = 0; row < h.game.grid.rows && !placed; row++) {
+            for (let col = 0; col < h.game.grid.cols && !placed; col++) {
+                const cell = h.game.grid.cell(row, col);
+                if (!cell || cell.void) continue;
+                placed = placeColor(h.game, cell.colorIdx, row, col);
+            }
+        }
+        expect(placed, '夹具必须至少落一颗珠').toBe(true);
+
+        setBeadTintRuntime({
+            getMaskId: (kind, gauge, styleId) => `tex:${kind}:${gauge}:${styleId}`,
+            getTileMaskId: (gauge, styleId) => `tex:tile:${gauge}:${styleId}`,
+        });
+        try {
+            const cmds = modelOf((b) =>
+                drawPlayPage(b, h.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS, true),
+            ).commands;
+            const outline = cmds
+                .map((c, i) => ({ c, i }))
+                .filter((e) => e.c.kind === 'polygon' && (e.c as { fill?: string }).fill === DEFAULT_PALETTE.shadowInk)
+                .map((e) => e.i);
+            const beads = cmds
+                .map((c, i) => ({ c, i }))
+                .filter((e) => e.c.kind === 'blit' && e.c.textureId.startsWith('tex:bead:'))
+                .map((e) => e.i);
+            expect(outline.length, '盘面轮廓命令必须存在').toBeGreaterThan(0);
+            expect(beads.length, '盘面珠体命令必须存在').toBeGreaterThan(0);
+            expect(
+                Math.max(...outline),
+                '轮廓若在珠体之后，会像用户实帧那样压到边界豆面上',
+            ).toBeLessThan(Math.min(...beads));
+        } finally {
+            setBeadTintRuntime(undefined);
+        }
     });
 });

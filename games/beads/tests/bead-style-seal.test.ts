@@ -645,6 +645,11 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         expect(SEAL.provenance.s3_frame_recheck_25).toContain('96/96');
         expect(SEAL.provenance.s3_frame_recheck_25).toContain('未解释 0 条');
         expect(SEAL.provenance.s3_frame_recheck_21).toContain('未解释 0 条');
+        // [WXG-T-1102 · 第二十八次复评] 对局轮廓沉到珠体之下：纯帖序、计数零变、珠体族零差。
+        expect(SEAL.provenance.s3_frame_recheck_t1102, '第二十八次复评无归因登记').toContain('第二十八次复评');
+        expect(SEAL.provenance.s3_frame_recheck_t1102).toContain('帖序');
+        expect(SEAL.provenance.s3_frame_recheck_t1102).toContain('96/96');
+        expect(SEAL.provenance.s3_frame_recheck_t1102).toContain('未解释 0 条');
         // **back 键计数腿**：[EP12-S3] 托盘投影 rect 也打 back ⇒ 登记 4→5（面板底 + 投影 + 三段内阴影）。
         //   [WXG-T-1088] 用户裁定「底槽背景压珠面」⇒ 五处去 back 提 graphics，登记回 **0**（沿革见常量头注）。
         const backEmpty = emptyFlow.filter((l) => l.includes(',"back":true'));
@@ -913,6 +918,9 @@ describe('WXG-T-230-B · 整帧漂移复评登记哨兵（未走复评通道的�
         // [WXG-T-1096] 第二十五次复评登记常数 ↔ 台账一一对应（插入型批次，两帧各 +2）。
         expect(byId.get('recheck-26-tray-container')!.frame0).toBe(T1096_TRAY_CONTAINER);
         expect(byId.get('recheck-26-tray-container')!.frame78).toBe(T1096_TRAY_CONTAINER);
+        // [WXG-T-1102] 第二十八次复评：纯帖序重排，两帧 total 贡献均为 0。
+        expect(byId.get('recheck-27-outline-below')!.frame0).toBe(0);
+        expect(byId.get('recheck-27-outline-below')!.frame78).toBe(0);
         // 差分自洽腿的珠体族项（每颗填格 78×(−5)）必须同源入账（少一笔 = Σ 对不上帧差）。
         expect(byId.get('s3-formalization-bead-family')!.frame78).toBe(78 * -5);
     });
