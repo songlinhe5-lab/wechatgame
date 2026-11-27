@@ -1,20 +1,24 @@
 /**
- * `[WXG-T-925 / T-926 / T-927 / T-928 / T-929 / T-930]` 珠面剪影轮廓（「贴纸裁切」外圈）：沿整幅图案剪影画一圈连续描边，
- * 折叠处随每颗边界珠的圆角自然过渡。绘制在珠面**之上**（T-928 用户令「珠面描边要盖在珠面上面」）⇒
- * 线条压住边界珠外缘 W 宽。
+ * `[WXG-T-925 / T-926 / T-927 / T-928 / T-929 / T-930 / T-1106]` 珠面剪影轮廓（「贴纸裁切」外圈）：沿整幅图案剪影画一圈连续描边，
+ * 折叠处随每颗边界珠的圆角自然过渡。
+ *
+ * **带的位置分两档**（`buildShapes` 的 `outset` 形参）：
+ *  - `false`（缩略 / 详情）：**骑线**（内 `W/2`、外 `W/2`），沿用 T-929 / T-1040 版面；
+ *  - `true`（**对局盘面**，`[WXG-T-1106 · 用户 2026-11-27 令]**「珠面的外描边，还是压在珠面上绘制」）：
+ *    整带**外置**（内缘 = 剪影面缘、外缘 = 面缘 + W）⇒ 珠面零覆盖；盘面侧推翻 T-928 的
+ *    「描边要盖在珠面上面」。
  *
  * 裁定来源（art 2026-11-12 二裁，用户令「边缘颜色适合凸显珠面，可以是黑色或者金色；
  * 线条需要连续、紧贴珠面边缘；各种珠面展示都需要加，跟珠面等比例缩放」；
  * T-927 用户三调「描边窄一点、圆角半径再大一点、游戏中也需要」；
- * T-928 用户四调「珠面描边要盖在珠面上面」）：
+ * T-928 用户四调「珠面描边要盖在珠面上面」；T-1106 用户再调「不要压在珠面上」）：
  *  - 颜色 = `palette.shadowInk`（暖可可 `#3D2E1E` 黑，单层实线；金色靠近珠面违反
  *    art-bible §3.5/§4.3「金色仅结算用」，且 `STAR_GOLD` 与珠色 2 柠黄同值 ⇒ 不可用）；
  *  - 线宽 / 圆角（T-930）：**1:1 基准 = 珠距 `BEAD_PITCH` 时 `W=3`、`R=9`**，
  *    其余尺寸一律 `× pitch / BEAD_PITCH` **线性等比**（缩放盘面同步放大缩小，⛔ 不再钳位）；
  *    （历史：T-926 `0.18 / 2–6` 过粗 → T-927 `0.10 / 1–4`、`0.30 / 2–9` → T-930 去钳位改纯比例）；
- *  - 贴边口径（T-929 修正）：轮廓是**骑在剪影边线上的一条带**（宽 W：内 `W/2`、外 `W/2`），
- *    逐边界珠只画露空的边 + 凸角 1/4 环带 ⇒ 连续闭环、随珠面等比；
- *    ⛔ 不再用「整颗边界珠外扩 W 的实心圆角方块」——填色盖在珠面上会把一圈珠子涂黑；
+ *  - 贴边口径（T-929 修正）：轮廓是一条连续闭环带，逐边界珠只画露空的边 + 凸角 1/4 环带 ⇒ 随珠面等比；
+ *    ⛔ 不用「整颗边界珠外扩 W 的实心圆角方块」——填色盖在珠面上会把一圈珠子涂黑；
  *  - 同色一次性并集填充（不透明重叠，不叠 α）；
  *  - 适用范围：详情橱窗 / 选关缩略 / **对局盘面**（T-927 新增；盘面与缩略同一套形状，
  *    只把占用判定从 `pattern` 换成快照格 `void`）；首页走马灯 = 烘焙作品图，描边随图烘
@@ -94,15 +98,16 @@ export function drawThumbOutline(
     const key = `${occKey ?? ''}|${left}|${top}|${pitch}|${lockedFace}`;
     let hit = _cache.get(level);
     if (!hit || hit.key !== key) {
-        hit = { key, shapes: buildShapes(level.pattern.length, level.cols, occOverride ?? thumbOcc(level), thumbLocked(level), left, top, pitch, lockedFace, thumbOutlineWidth(pitch)) };
+        hit = { key, shapes: buildShapes(level.pattern.length, level.cols, occOverride ?? thumbOcc(level), thumbLocked(level), left, top, pitch, lockedFace, thumbOutlineWidth(pitch), false) };
         _cache.set(level, hit);
     }
     for (const s of hit.shapes) builder.polygon(s.pts, { fill: color });
 }
 
 /**
- * `[WXG-T-927 / T-928]` 对局盘面轮廓：占位取自快照（`cell.void`），锁定格取自 `cell.state`。
- * 必须在对局格循环**之后**调用（末笔覆在珠面之上）。
+ * `[WXG-T-927 / T-928 / T-1106]` 对局盘面轮廓：占位取自快照（`cell.void`），锁定格取自 `cell.state`。
+ * 必须在对局格循环**之后**调用（末笔；z 序不变），但带**外置**（`outset = true`）⇒ 不再压住珠面，
+ * 只落在剪影外缘到 +W 的环上（`[WXG-T-1106 · 用户 2026-11-27 令]`）。
  * 缓存键 = 关卡身份 + 几何（数值逐项比较，⛔ 不拼字符串 ⇒ 每帧零分配）。
  */
 export function drawBoardOutline(
@@ -142,7 +147,7 @@ export function drawBoardOutline(
             top,
             pitch: snap.gridPitch,
             lockedFace: snap.gridCell,
-            shapes: buildShapes(snap.gridRows, cols, occ, locked, left, top, snap.gridPitch, snap.gridCell, boardOutlineWidth(snap.gridPitch)),
+            shapes: buildShapes(snap.gridRows, cols, occ, locked, left, top, snap.gridPitch, snap.gridCell, boardOutlineWidth(snap.gridPitch), true),
         };
         _boardCache = hit;
     }
@@ -172,6 +177,7 @@ function buildShapes(
     pitch: number,
     lockedFace: number,
     width: number,
+    outset: boolean,
 ): OutlineShape[] {
     const bw = width / 2;
     const tileFace = pitch + TILE_BLEED * 2;
@@ -190,6 +196,11 @@ function buildShapes(
             if (R <= 0) continue;
             const cx = left + (c + 0.5) * pitch;
             const cy = top - (r + 0.5) * pitch;
+            // `[WXG-T-1106 · 用户 2026-11-27 令]` `outset = true`（仅对局盘面）⇒ 带**整体落在剪影外侧**
+            // （内缘 = 面缘 `f2`、外缘 = `f2 + W`），珠面零覆盖；`false`（缩略 / 详情）仍骑线（`f2 ± W/2`，
+            // 沿用 T-929 / T-1040 口径，⛔ 不动那两处版面）。
+            const nIn = outset ? f2 : f2 - bw;
+            const nOut = outset ? f2 + width : f2 + bw;
             // 凸角 = 两相邻边都露空 **且** 斜对角也空（凹角不圆，交给邻格带在缝上自然相接）。
             const cvNE = expN && expE && !occ(r - 1, c + 1);
             const cvSE = expE && expS && !occ(r + 1, c + 1);
@@ -202,46 +213,46 @@ function buildShapes(
             if (expN) {
                 const x0 = cx - end(expW, cvNW);
                 const x1 = cx + end(expE, cvNE);
-                shapes.push({ pts: [x0, cy + f2 - bw, x1, cy + f2 - bw, x1, cy + f2 + bw, x0, cy + f2 + bw] });
+                shapes.push({ pts: [x0, cy + nIn, x1, cy + nIn, x1, cy + nOut, x0, cy + nOut] });
             }
             if (expS) {
                 const x0 = cx - end(expW, cvSW);
                 const x1 = cx + end(expE, cvSE);
-                shapes.push({ pts: [x0, cy - f2 - bw, x1, cy - f2 - bw, x1, cy - f2 + bw, x0, cy - f2 + bw] });
+                shapes.push({ pts: [x0, cy - nOut, x1, cy - nOut, x1, cy - nIn, x0, cy - nIn] });
             }
             if (expW) {
                 const y0 = cy - end(expS, cvSW);
                 const y1 = cy + end(expN, cvNW);
-                shapes.push({ pts: [cx - f2 - bw, y0, cx - f2 + bw, y0, cx - f2 + bw, y1, cx - f2 - bw, y1] });
+                shapes.push({ pts: [cx - nOut, y0, cx - nIn, y0, cx - nIn, y1, cx - nOut, y1] });
             }
             if (expE) {
                 const y0 = cy - end(expS, cvSE);
                 const y1 = cy + end(expN, cvNE);
-                shapes.push({ pts: [cx + f2 - bw, y0, cx + f2 + bw, y0, cx + f2 + bw, y1, cx + f2 - bw, y1] });
+                shapes.push({ pts: [cx + nIn, y0, cx + nOut, y0, cx + nOut, y1, cx + nIn, y1] });
             }
-            if (cvNE) shapes.push({ pts: cornerBand(cx + f2 - R, cy + f2 - R, 0, R, bw) });
-            if (cvNW) shapes.push({ pts: cornerBand(cx - f2 + R, cy + f2 - R, Math.PI / 2, R, bw) });
-            if (cvSW) shapes.push({ pts: cornerBand(cx - f2 + R, cy - f2 + R, Math.PI, R, bw) });
-            if (cvSE) shapes.push({ pts: cornerBand(cx + f2 - R, cy - f2 + R, Math.PI * 1.5, R, bw) });
+            const rIn = outset ? R : R - bw;
+            const rOut = outset ? R + width : R + bw;
+            if (cvNE) shapes.push({ pts: cornerBand(cx + f2 - R, cy + f2 - R, 0, rIn, rOut) });
+            if (cvNW) shapes.push({ pts: cornerBand(cx - f2 + R, cy + f2 - R, Math.PI / 2, rIn, rOut) });
+            if (cvSW) shapes.push({ pts: cornerBand(cx - f2 + R, cy - f2 + R, Math.PI, rIn, rOut) });
+            if (cvSE) shapes.push({ pts: cornerBand(cx + f2 - R, cy - f2 + R, Math.PI * 1.5, rIn, rOut) });
         }
     }
     return shapes;
 }
 
-/** 凸角 1/4 环带（外弧 → 内弧反向，设计空间 y 向上）。 */
-function cornerBand(cx: number, cy: number, a0: number, r: number, bw: number): number[] {
+/** 凸角 1/4 环带（外弧 → 内弧反向，设计空间 y 向上）；半径直接给内/外弧（骑线档 = `R∓W/2`，外置档 = `R…R+W`）。 */
+function cornerBand(cx: number, cy: number, a0: number, rIn: number, rOut: number): number[] {
     const pts: number[] = [];
     const steps = 4;
-    const ro = r + bw;
-    const ri = r - bw;
     for (let i = 0; i <= steps; i++) {
         const a = a0 + (Math.PI / 2) * (i / steps);
-        pts.push(cx + Math.cos(a) * ro, cy + Math.sin(a) * ro);
+        pts.push(cx + Math.cos(a) * rOut, cy + Math.sin(a) * rOut);
     }
-    if (ri > 0.01) {
+    if (rIn > 0.01) {
         for (let i = steps; i >= 0; i--) {
             const a = a0 + (Math.PI / 2) * (i / steps);
-            pts.push(cx + Math.cos(a) * ri, cy + Math.sin(a) * ri);
+            pts.push(cx + Math.cos(a) * rIn, cy + Math.sin(a) * rIn);
         }
     } else {
         pts.push(cx, cy);

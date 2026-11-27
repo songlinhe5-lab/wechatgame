@@ -13355,3 +13355,17 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 **验证**：beads 全量 136 files / 1666 passed / 2 skipped；`tsc --noEmit`（framework + beads + breakout）绿；`framework:sync`（写入 2）后 `framework:sync:check` 一致；`check:arch` OK（仅 L1 编辑器产物 1 条既有 warning）；`check:size` 主包 3436.6 KB 达标；`check:links` OK。
 
 **下一步**：用户重建 wechatgame 产物后真机复验上下边界（预期：盘面可拖到屏幕上下沿、只露 4 格；HUD/托盘会压住其中部分盘面，属选定的「整屏」口径，如需限制遮挡另裁）。
+
+## WXG-T-1106
+
+**盘面外描边整带外置（不压珠面）** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ **代码完成（2026-11-27）**
+
+承用户令「珠面的外描边，还是压在珠面上绘制」。
+
+**口径变更**：对局盘面 `games/beads/src/view/bead-outline.ts::drawBoardOutline` 的剪影带由**骑线**（内缘 = 面缘 − W/2，且末笔压在珠面上——T-928 旧令）改为**整带外置**（内缘 = 剪影面缘、外缘 = 面缘 + W），珠面零覆盖；缩略 / 详情（`drawThumbOutline`）仍骑线，T-929 / T-1040 版面零变化 ⇒ 两档由 `buildShapes(..., outset)` 分派（`outset = true` 只给盘面）。颜色（`palette.shadowInk`）、线宽（`W = 4 × pitch/32`）、圆角（`R ≡ W`）零改动；绘制序仍是格循环之后的末笔（z 序不变，风险最小）。
+
+**判据**：`games/beads/tests/thumb-outline.test.ts` 新增 describe「WXG-T-1106 盘面描边外置」三例——① 实心格上带内缘 > 珠面上缘（旧骑线带必红）且带厚 = W；② 锁定格内缘 = 珠体上缘（贴而不侵入）；③ 缩略仍骑线（内缘 = 面缘 − W/2，锁住 T-929/T-1040 不被误改）。
+
+**基准影响（如实）**：命令数与逐 kind 计数**逐字不变**、只有顶点位移 ⇒ 金样本十一态与封箱两帧 `sha` 变、`total` 零变（故 `recheckLedger` 无新入账项）；已按 `tests/ui-golden-capture.ts` 与 `tests/bead-style-seal-recapture.ts` 在同一可复现锚重抓，并在 `docs/architecture/ui-architecture-beads.md §12` 登记视觉变更（K-051 / K-053 / ADR-0032 DEC-6）。
+
+**验证**：`typecheck`（framework + beads + breakout）绿；`framework:sync` → `sync:check` 一致；`thumb-outline` 12 例绿。⚠ 本笔提交时金样（`ui-golden`）与封箱（`bead-style-seal`）夹具仍是旧 sha ⇒ 该两件红是**预期**，随下一笔「按锚重抓」一起收口（K-051 禁手改夹具）。

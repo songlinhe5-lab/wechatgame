@@ -8,7 +8,7 @@
  * 填色盖到珠面上会把一圈珠子涂黑）；T-927 起对局盘面同用（占位取快照 `void`）。
  */
 import { describe, expect, it } from 'vitest';
-import { RenderModelBuilder } from '@wxgame/framework';
+import { RenderModelBuilder, type RenderModel } from '@wxgame/framework';
 import type { BeadsLevelRaw } from '../src/config/levels-data.js';
 import type { BeadsSnapshot } from '../src/game/state.js';
 import { LEVELS } from '../src/config/levels.js';
@@ -171,5 +171,81 @@ describe('WXG-T-925/926 珠面贴纸轮廓', () => {
         expect(cmds.every((c) => c.kind === 'polygon' && c.fill === DEFAULT_PALETTE.shadowInk)).toBe(true);
         expect(cmds[0]!.count).toBe(4);
         expect(cmds[2]!.count).toBe(10);
+    });
+});
+
+/**
+ * `[WXG-T-1106 · 用户 2026-11-27 令]`「珠面的外描边，还是压在珠面上绘制」：
+ * 对局盘面的带改成**整带外置**（内缘 = 剪影面缘），珠面零覆盖；缩略 / 详情仍骑线（T-929 / T-1040）。
+ */
+describe('WXG-T-1106 盘面描边外置（不压珠面）', () => {
+    const boardSnap = (state: 'filled' | 'locked'): BeadsSnapshot => ({
+        cells: [{ state, colorIdx: 1, beadColorIdx: 1, void: false }],
+        gridRows: 1,
+        gridCols: 1,
+        gridLeft: 100,
+        gridTop: 500,
+        gridCell: 30,
+        gridPitch: 32,
+        levelId: 'outset',
+        levelIndex: 0,
+        stageIndex: 0,
+    } as unknown as BeadsSnapshot);
+
+    /** 取第 n 条多边形命令的 y 值区间。 */
+    const yRange = (model: RenderModel, n: number) => {
+        const c = model.commands[n] as unknown as { offset: number; count: number };
+        let lo = Infinity;
+        let hi = -Infinity;
+        for (let i = 0; i < c.count; i++) {
+            const y = model.vertices[c.offset + i * 2 + 1]!;
+            if (y < lo) lo = y;
+            if (y > hi) hi = y;
+        }
+        return { lo, hi };
+    };
+
+    it('实心格：上带内缘落在珠面上缘之外，带厚 = W', () => {
+        const b = new RenderModelBuilder(750, 1334);
+        b.begin();
+        drawBoardOutline(b, boardSnap('filled'), DEFAULT_PALETTE.shadowInk);
+        const model = b.end();
+        // 盘面格心 = (gridLeft + cell/2, gridTop − cell/2) = (115, 485)；面缘 = pitch + 2×TILE_BLEED = 33 ⇒ f2 = 16.5
+        const cy = 485;
+        const beadTop = cy + 30 / 2; // 珠体上缘（珠面）
+        const W = boardOutlineWidth(32);
+        const top = yRange(model, 0); // 命令序：上带先出
+        expect(top.lo).toBeGreaterThan(beadTop); // ⛔ 旧骑线带内缘 = 珠面上缘 − 2 ⇒ 本断言红
+        expect(top.lo).toBeCloseTo(cy + 16.5, 6);
+        expect(top.hi - top.lo).toBeCloseTo(W, 6);
+    });
+
+    it('锁定格：内缘 = 珠体上缘（贴而不侵入），带厚 = W', () => {
+        const b = new RenderModelBuilder(750, 1334);
+        b.begin();
+        drawBoardOutline(b, boardSnap('locked'), DEFAULT_PALETTE.shadowInk);
+        const model = b.end();
+        const cy = 485;
+        const beadTop = cy + 30 / 2;
+        const W = boardOutlineWidth(32);
+        const top = yRange(model, 0);
+        expect(top.lo).toBeGreaterThanOrEqual(beadTop - 1e-6);
+        expect(top.hi - top.lo).toBeCloseTo(W, 6);
+    });
+
+    it('缩略仍骑线（T-929 / T-1040 零变化）：内缘 = 面缘 − W/2', () => {
+        const pitch = 20;
+        const left = 100;
+        const top = 500;
+        const b = new RenderModelBuilder(750, 1334);
+        b.begin();
+        drawThumbOutline(b, stub(['X'], 1), left, top, pitch, 16, DEFAULT_PALETTE.shadowInk);
+        const model = b.end();
+        const cy = top - 0.5 * pitch;
+        const W = thumbOutlineWidth(pitch);
+        const t = yRange(model, 0);
+        // 非锁定格面缘 = pitch + 2×TILE_BLEED = 21 ⇒ f2 = 10.5；骑线档内缘 = f2 − W/2
+        expect(t.lo).toBeCloseTo(cy + (pitch + 1) / 2 - W / 2, 6);
+        expect(t.hi - t.lo).toBeCloseTo(W, 6);
     });
 });
