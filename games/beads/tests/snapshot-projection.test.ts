@@ -19,7 +19,7 @@
  * 它们没作为**整体**断言的投影契约与接线证明（K-106：新模块被主类实际走到）。
  */
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { createSnapshot, type BeadsSnapshot } from '../src/game/state.js';
 import type { BeadsGame } from '../src/game/beads-game.js';
@@ -70,6 +70,31 @@ describe('WXG-T-420 T6 · 快照投影契约（逐字段对拍一致 / 原地写
         }
         // 放下的那颗确已落子（非恒等空盘 ⇒ 证投影随源变化）。
         expect(s.cells[0]!.state).not.toBe('empty');
+    });
+
+    it('③ 珠槽出现/消失时按帧聚合打一条变化数量日志', () => {
+        const h = booted();
+        const g = h.game;
+        const spy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+        try {
+            void g.snapshot; // 先定基线，避免把装配读成变化
+            spy.mockClear();
+
+            expect(g.grid.fill(1, 2, 1)).toBe(true);
+            expect(g.grid.fill(2, 2, 1)).toBe(true);
+            void g.snapshot;
+            expect(spy).toHaveBeenCalledTimes(1);
+            expect(spy).toHaveBeenCalledWith(expect.stringContaining('[slotdbg] +2 -0 changed=2 beads=2'));
+
+            spy.mockClear();
+            expect(g.selectBoardBead(2, 2)).toBe(true);
+            expect(g.retrieveSelectedGroup()).toBe(true);
+            void g.snapshot;
+            expect(spy).toHaveBeenCalledTimes(1);
+            expect(spy).toHaveBeenCalledWith(expect.stringContaining('[slotdbg] +0 -2 changed=2 beads=0'));
+        } finally {
+            spy.mockRestore();
+        }
     });
 
     it('② 托盘槽对拍 · s.traySlots 逐槽反映 Tray 且容量匹配', () => {

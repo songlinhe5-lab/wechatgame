@@ -13311,3 +13311,19 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 **坑**：第一轮 release 构建因 Cocos 资产库未重导入 host 文件，产物仍是旧 `$.__BLITDBG=function(t){H=!!t}`；重启编辑器后重建才进包（K-216 同族：宿主腿陈旧产物）。
 
 **下一步**：用户真机执行 `__BLITDBG(true)`，应看到 `[blitdbg] switch on` 回显；随后复现拖动异常并抓 `[blitdbg] f...`。
+
+---
+
+## WXG-T-1103
+
+**珠槽出现/消失变化数量 debug 日志** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ **代码完成（2026-11-27）**
+
+承用户令「在槽的珠子消失或者出现时候，打个日志，日志信息是多少个珠槽变化」。
+
+**修法**：落在 `games/beads/src/game/beads-game/snapshot-projection.ts` 的逐格投影循环：写回前先比对旧 `s.cells[i].state` 与权威 `grid.cell().state`，统计 `+出现 / -消失 / changed 合计`，非 0 时打一条 `console.warn('[slotdbg] +N -M changed=K beads=B')`（B = `_grid.filledCount` 权威数；用 warn 而非 debug：release 产物实测 `console.debug=0 / console.warn=42`，debug 通道在发布档不可见）。选投影层而非 `grid.fill/retrieve` 两原语：一处覆盖托盘填色、组填、取回、解环换出、崩溃快照恢复、换关整盘重建全部写盘路径；同帧多格合并一条，重复读快照不重打；只读投影，不改玩法状态。
+
+**判据**：`games/beads/tests/snapshot-projection.test.ts` 新增 ③，spy `console.warn`：同帧两颗出现 ⇒ 恰好一条 `+2 -0 changed=2 beads=2`；随后整组取回 ⇒ 恰好一条 `+0 -2 changed=2 beads=0`。TDD RED 实测 `expected "warn" to be called 1 times, but got 0 times`，GREEN 同例 14 passed。
+
+**验证**：typecheck 绿；beads 全量 136 files / 1665 passed / 2 skipped；`framework:sync:check` 绿（framework 72 + game 138）；`check:tasks` 绿（352 行 / 379 节）；`pnpm run verify` PASS 24 | WARN 0 | SKIP 0 | FAIL 0；`build:cocos` release 构建成功、`check:size` 主包 3436.3 KB 达标。⚠️ **产物新鲜度阻塞**：运行中的 Cocos 编辑器内存缓存未随 MCP `refresh` / `reimport` / 清 `temp/programming` 失效，产物 `assets/main/index.js` 仍是旧 `snapshot-projection` 编译片段（无 `[slotdbg]`）；需用户重启 Cocos Creator 后重建并 grep 产物确认，源码与单测侧已闭环。
+
+**下一步**：用户重启 Cocos Creator → `pnpm --filter @wxgame/beads run build:cocos` → 确认产物含 `[slotdbg]`；真机复现时把 `[slotdbg]` 与 HUD `beads N`、`[blitdbg] f...` 三类读数对齐；本单只打点，不改产品行为。

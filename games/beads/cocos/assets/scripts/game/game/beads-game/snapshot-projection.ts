@@ -211,15 +211,24 @@ function projectPlayShard(s: SnapshotPlay, src: SnapshotSource): void {
             s.cells.push({ state: 'empty', colorIdx: 0, beadColorIdx: 0, void: false });
         }
     }
+    let appeared = 0;
+    let disappeared = 0;
     for (let i = 0; i < cellsNeeded; i++) {
         const row = Math.floor(i / src.grid.cols);
         const col = i % src.grid.cols;
         const cell = src.grid.cell(row, col)!;
         const out = s.cells[i]!;
+        if (out.state !== cell.state) {
+            if (cell.state === 'filled') appeared++;
+            else if (out.state === 'filled') disappeared++;
+        }
         out.state = cell.state;
         out.colorIdx = cell.colorIdx;
         out.beadColorIdx = cell.beadColorIdx;
         out.void = cell.void;
+    }
+    if (appeared !== 0 || disappeared !== 0) {
+        console.warn(`[slotdbg] +${appeared} -${disappeared} changed=${appeared + disappeared} beads=${src.grid.filledCount}`);
     }
     s.gridLeft = src.layout.left;
     s.gridTop = src.layout.top;
