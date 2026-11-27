@@ -25,6 +25,7 @@ import { createBeadsShell } from '../src/game/beads-shell.js';
 function rig(
     initialScreen?: 'play',
     drawCost?: { drawMs: number; paintCalls: number; commands: number },
+    reads?: { n: number },
 ): { shell: ReturnType<typeof createBeadsShell>; advance(ms: number): void } {
     let now = 1_000;
     const platform = new NodePlatform({ width: 750, height: 1334, pixelRatio: 2 });
@@ -39,7 +40,14 @@ function rig(
         platform: platform.info,
         rewardedAd: platform.createRewardedAdProvider(),
         // `[WXG-T-1110]` 真机侧由 App 接线；测试注入同一形状的只读投影。
-        ...(drawCost ? { readDrawCost: () => drawCost } : {}),
+        ...(drawCost
+            ? {
+                readDrawCost: () => {
+                    if (reads) reads.n += 1;
+                    return drawCost;
+                },
+            }
+            : {}),
     };
     const shell = createBeadsShell({
         clock: () => now,
@@ -107,7 +115,9 @@ describe('性能覆层帧耗时 = 渲染帧壁钟（WXG-T-1108）', () => {
 describe('性能覆层绘制成本投影（WXG-T-1110）', () => {
     it('宿主有 readDrawCost ⇒ drawMs / paintCalls 原样进调试投影', () => {
         const r = rig(undefined, { drawMs: 21.4, paintCalls: 3010, commands: 2382 });
+        r.shell.play.setDebugInfo(true);
         const st = r.shell.play.debugState(OUT);
+        expect(st.enabled).toBe(true);
         expect(st.drawMs).toBe(21.4);
         expect(st.paintCalls).toBe(3010);
     });
@@ -117,5 +127,16 @@ describe('性能覆层绘制成本投影（WXG-T-1110）', () => {
         const st = r.shell.play.debugState(OUT);
         expect(st.drawMs).toBe(0);
         expect(st.paintCalls).toBe(0);
+    });
+
+    it('⚠ 覆层关闭时一次都不读 readDrawCost（否则 release 路径会被打开计时分支）', () => {
+        const reads = { n: 0 };
+        const r = rig(undefined, { drawMs: 9, paintCalls: 9, commands: 9 }, reads);
+        const off = r.shell.play.debugState(OUT);
+        expect(off.enabled).toBe(false);
+        expect(reads.n).toBe(0);
+        r.shell.play.setDebugInfo(true);
+        expect(r.shell.play.debugState(OUT).drawMs).toBe(9);
+        expect(reads.n).toBe(1);
     });
 });
