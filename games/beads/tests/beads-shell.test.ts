@@ -24,6 +24,8 @@ import {
 } from '@wxgame/framework';
 import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import { createBeadsShell, type BeadsShell } from '../src/game/beads-shell.js';
+import type { BeadsGameOptions } from '../src/game/beads-game.js';
+import { simpleTestLevel } from './helpers.js';
 import { defaultBeadsMeta } from '../src/game/meta-save-schema.js';
 import { metaLayout, type MetaAction, type MetaOverlay } from '../src/view/meta-view.js';
 import { anchoredGeo, levelDetailPlate, overlayPlate } from '../src/view/meta-layout.js';
@@ -86,7 +88,11 @@ function settingsRowPoint(id: MetaAction): { x: number; y: number; scroll: numbe
     return { x: box.x + box.w / 2, y: cy + scroll, scroll };
 }
 
-function rig(opts: { initialScreen?: 'play' | 'menu'; seedMeta?: Partial<ReturnType<typeof defaultBeadsMeta>> } = {}): Rig {
+function rig(opts: {
+    initialScreen?: 'play' | 'menu';
+    seedMeta?: Partial<ReturnType<typeof defaultBeadsMeta>>;
+    play?: BeadsGameOptions;
+} = {}): Rig {
     let now = START;
     const platform = new NodePlatform({ width: 750, height: 1334, pixelRatio: 2 });
     const storage = platform.createStorage();
@@ -119,11 +125,19 @@ function rig(opts: { initialScreen?: 'play' | 'menu'; seedMeta?: Partial<ReturnT
     const shell = createBeadsShell({
         clock: () => now,
         metaKey: META_KEY,
-        play: { saveKey: PLAY_KEY },
+        play: { saveKey: PLAY_KEY, ...(opts.play ?? {}) },
         ...(opts.initialScreen ? { initialScreen: opts.initialScreen } : {}),
     });
     shell.init(services);
     return { shell, storage, overlayEvents };
+}
+
+/** 画一帧对局页；第二参模拟框架在渲染阶段传入的 `alpha × fixedDt`。 */
+function drawPlay(r: Rig, previewSeconds = 0): readonly unknown[] {
+    const b = new RenderModelBuilder(DESIGN_W, DESIGN_H);
+    b.begin();
+    r.shell.buildRenderModel(b, previewSeconds);
+    return b.end().commands;
 }
 
 describe('BeadsShell — boot routing (ux-spec §6.3；#1 · WXG-T-180 反转：首屏停主菜单)', () => {
@@ -654,5 +668,59 @@ describe('BeadsShell — 装扮馆 skins 弹窗：入口 · 卡区 · 买断闭�
         });
         rich.shell.play.applySettingsAction('cycle-skin');
         expect(rich.shell.play.skinId).toBe(SECOND.id);
+    });
+});
+
+describe('BeadsShell — 120Hz 渲染相位预览（WXG-T-1098）', () => {
+    it('托盘选中抬起：零固定步帧随预览相位连续变化，权威计时不变', () => {
+        const r = rig({
+            initialScreen: 'play',
+            play: { noBootAssembly: true, levels: [simpleTestLevel()] },
+        });
+        const slot = r.shell.play.giveTrayBead(2);
+        expect(slot).toBeGreaterThanOrEqual(0);
+        expect(r.shell.play.selectTraySlot(slot)).toBe(true);
+        const authoritative = r.shell.play.snapshot.liftProgress;
+
+        expect(drawPlay(r, 1 / 120)).not.toEqual(drawPlay(r, 0));
+        expect(r.shell.play.snapshot.liftProgress).toBe(authoritative);
+    });
+
+    it('托盘落珠：零固定步帧随预览相位连续变化，权威计时不变', () => {
+        const r = rig({
+            initialScreen: 'play',
+            play: { noBootAssembly: true, levels: [simpleTestLevel()] },
+        });
+        expect(r.shell.play.grid.fill(0, 0, 2)).toBe(true);
+        expect(r.shell.play.retrieveBead(0, 0)).toBe(true);
+        expect(r.shell.play.snapshot.trayLandCount).toBe(1);
+        const authoritative = r.shell.play.snapshot.trayLandElapsedMs;
+
+        expect(drawPlay(r, 1 / 120)).not.toEqual(drawPlay(r, 0));
+        expect(r.shell.play.snapshot.trayLandElapsedMs).toBe(authoritative);
+    });
+
+    it('盘面组落座：零固定步帧随预览相位连续变化，权威计时不变', () => {
+        const r = rig({
+            initialScreen: 'play',
+            play: { noBootAssembly: true, levels: [simpleTestLevel()] },
+        });
+        const slot = r.shell.play.giveTrayBead(2);
+        expect(slot).toBeGreaterThanOrEqual(0);
+        expect(r.shell.play.selectTraySlot(slot)).toBe(true);
+        expect(r.shell.play.tapGridCell(0, 1)).toBe(true);
+        expect(r.shell.play.snapshot.groupLandCount).toBe(1);
+        const authoritative = r.shell.play.snapshot.groupLandElapsedMs;
+
+        expect(drawPlay(r, 1 / 120)).not.toEqual(drawPlay(r, 0));
+        expect(r.shell.play.snapshot.groupLandElapsedMs).toBe(authoritative);
+    });
+
+    it('无活动表现动画时预览不改变命令流（脏帧门仍可跳过干净帧）', () => {
+        const r = rig({
+            initialScreen: 'play',
+            play: { noBootAssembly: true, levels: [simpleTestLevel()] },
+        });
+        expect(drawPlay(r, 1 / 120)).toEqual(drawPlay(r, 0));
     });
 });

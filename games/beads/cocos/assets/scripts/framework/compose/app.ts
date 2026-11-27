@@ -329,7 +329,7 @@ export class App {
 
   private _render(alpha: number): void {
     this._builder.begin();
-    this.game.buildRenderModel(this._builder);
+    this.game.buildRenderModel(this._builder, alpha * this.loop.fixedDt);
     const model = this._builder.end();
     if (this.dirtyGate) {
       // Signature must be read after `end()` and before the next `begin()`.

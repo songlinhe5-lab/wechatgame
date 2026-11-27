@@ -77,7 +77,7 @@ const PHASE_MODAL_NAMES: ReadonlySet<string> = new Set<PhaseModal>([
  */
 export interface PhasePageDrawers {
     menu(builder: RenderModelBuilder): void;
-    play(builder: RenderModelBuilder): void;
+    play(builder: RenderModelBuilder, previewSeconds?: number): void;
     /** EP15-S4：回放页（基础页；回放期不叠加任何 `BeadsGame` 相位面板）。 */
     replay(builder: RenderModelBuilder): void;
     /** `[UI-60 P1 / ADR-0033 DEC-1]` 弹窗自持绘制（⛔ 不再由页面视图分支代画）。 */
@@ -111,7 +111,7 @@ export class PhaseRouteBinder {
         screen: ShellScreen = 'menu',
     ) {
         this._menuRoute = { name: 'menu', kind: 'page', draw: (b) => drawers.menu(b) };
-        this._playRoute = { name: 'play', kind: 'page', draw: (b) => drawers.play(b) };
+        this._playRoute = { name: 'play', kind: 'page', draw: (b, previewSeconds) => drawers.play(b, previewSeconds) };
         this._replayRoute = { name: 'replay', kind: 'page', draw: (b) => drawers.replay(b) };
         // `[UI-60 P1 / ADR-0033 DEC-1]` 弹窗自持绘制（构造期一次建表，⛔ 每帧不新建）。
         // `[WXG-T-1029]` meta 弹窗显式声明蒙版浓度 ⇒ UiRoot 以平级前置容器注入（蒙版在弹窗

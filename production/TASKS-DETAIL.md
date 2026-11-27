@@ -13237,3 +13237,15 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 **① 蒙版在上层（确诊 + 修法）**：fail 面板木牌自 T-1051 起是**九宫格位图 blit**（容器 BlitLayerUI 通道），而内联蒙版是矢量 rect（容器 Graphics 通道）——同容器通道序 blit < graphics ⇒ 蒙版恒罩暗木牌。矢量回退档（`drawPaperPanel`）与蒙版同通道按绘制序自洽 ⇒ **位图档真机才暴露**（T-1051 后首次真机位图加载命中）。clear 结算板（`clearPanelBoard` blit）同病。修法 = 沿用 T-1029/`{overlay}:scrim` 先例：`UiRoute` 增 `scrimRgb`，fail/clear 路由声明 `scrimAlpha`/`scrimRgb`（rgb 同参 canvas 族视觉零变），UiRoot 以平级前置容器 `{name}:scrim` 注入；视图撤内联蒙版防双份（确认态对话框全矢量同通道自洽，一并撤）。pause/sprint-settle/finish 全矢量面板不声明（防双份）。
 
 **② ✕ 过大**：视觉 56²→**44²**（`visualR` 22，叉臂 14→11），**热区保持 56²**（`r` 不缩水）双框同心；`hitFailPanel` 改走热区框；WXG-T-1004 判据改双框口径（含热区环带命中例）。
+
+## WXG-T-1098
+
+**60/120Hz 渲染相位预览 + 触摸全量透传** · 负责：工程轨(Qoder)·framework/beads · 状态：✅ **已完成（2026-11-27；分支 wxg-t-1098）**
+
+承用户要求「游戏帧率、手势事件采样率要足够快，比如满足 60Hz 或 120Hz」。诊断将卡顿拆为宿主掉帧、固定步零步重复帧、触摸事件采样三层：Cocos `TOUCH_MOVE` 已逐事件直写 `InputManager`，无节流队列；根因是固定步严格 60Hz，而 `App._render` 丢弃 `FixedStepLoop` 提供的 alpha，导致 120Hz 宿主上的零固定步帧仍重复 60Hz 画面，托盘抬起、托盘落珠、盘面组落座出现成对重复帧，脏帧门进一步跳过重绘。
+
+**修法**：Framework 把 `alpha × fixedDt` 作为可选 `previewSeconds` 传入 `Game.buildRenderModel`；beads 对局渲染链转发该相位，仅在每帧 snapshot 上只读预览 lift / trayLand / groupLand 三类表现动画。120Hz 零固定步帧因此产生新画面并通过脏帧门；权威 `FeedbackFx` 计时不回写，固定步仍为 60Hz，玩法时钟、动画时长与输入行为均不变。触摸链路新增连续 120Hz touch move 全量透传回归测试，锁死不节流、不丢事件。
+
+**边界**：微信真机以稳定 60Hz 为硬目标（`wx.setPreferredFramesPerSecond` 有效上限 60）；120Hz 是支持高刷的浏览器/Cocos 宿主目标。固定步不提升到 120Hz，不引入输入预测，不关闭脏帧门；无活动表现动画时预览不改变命令流。
+
+**证据**：TDD 先红后绿；Framework 615/615；Beads 1662 passed / 2 skipped；Framework 与 Beads typecheck 通过；`framework:sync` 已同步 beads/breakout Cocos 产物；`git diff --check` 通过；瞬态 ctx 基线下完整 `verify` 22 PASS / 2 SKIP / 0 FAIL（两个 SKIP 为 `check:size`、`check:cocos-mask`）；独立 CodeReview PASS，未发现阻塞问题。

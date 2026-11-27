@@ -1261,10 +1261,10 @@ describe('设置态遮罩 α 分列 · ux §3.3「遮罩」条 + 工作项④：
         const shell = SRC('game/beads-shell.ts');
         expect(shell).not.toContain('UI_ROOT_ENABLED');
         expect(shell).not.toContain('_drawDebugLayer');
-        expect(shell).toContain('this._uiRoot.draw(builder, this.play.palette);');
+        expect(shell).toContain('this._uiRoot.draw(builder, this.play.palette, previewSeconds);');
         expect(shell.match(/buildMetaView\(/g) ?? []).toHaveLength(1);
         // WXG-T-420 T9：对局腿不再经 `play.buildRenderModel`，改走组装层 `renderPlayPage`。
-        expect(shell.match(/renderPlayPage\(this\.play, b\)/g) ?? []).toHaveLength(1);
+        expect(shell.match(/renderPlayPage\(this\.play, b, previewSeconds\)/g) ?? []).toHaveLength(1);
         expect(shell).not.toContain('this.play.buildRenderModel(');
         expect(shell.indexOf('new PhaseRouteBinder')).toBeLessThan(shell.indexOf('buildMetaView('));
     });

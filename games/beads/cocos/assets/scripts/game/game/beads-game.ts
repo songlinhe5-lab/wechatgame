@@ -54,7 +54,7 @@ import {
   type RankBoard,
 } from '../../framework/index';
 
-import { ASSIST_STOPPED_HINT, ASSIST_STOPPED_HINT_MS, ASSIST_TAKEOVER_HINT, ASSIST_TAKEOVER_HINT_MS, AUDIO_CLIP_DENIED, AUDIO_CLIP_PANEL_IN, AUDIO_CLIP_PANEL_OUT, AUDIO_CLIP_REJECT, AUDIO_CLIP_REVIVE_OK, AUDIO_CLIP_STAR, AUDIO_CLIP_UI_TAP, COMBO_WINDOW_S, DEFAULT_TUNING, DESIGN_H, PUZZLE_BAND, DESIGN_W, POWERUP_BUY_DENIED_HINT, REVIVE_BONUS_SEC, REVIVE_MAX_PER_LEVEL, SELECT_LIFT_MS, SOLVER_HINT_MS, SOLVER_MAX_CELLS, SOLVER_STAGGER_MS, STAGE_BONUS_TIME, STAMINA_REFILL_PLACEMENT, TRAY_COLS, trayLayout, arcRangeOfLevel, computeClearStars, gridLayoutFor, hitGridCell, isBossLevelId, menuAnchors, nextBeadLod, nextTierFor, normalSettleScore, solverSequenceMs, stageParamsFor, tierSecondsFor, trayPreviewFits, type BeadSizeKind, type BeadsTuning, type GridLayout, type PowerupType, validatedSprintTime } from '../config/tuning';
+import { ASSIST_STOPPED_HINT, ASSIST_STOPPED_HINT_MS, ASSIST_TAKEOVER_HINT, ASSIST_TAKEOVER_HINT_MS, AUDIO_CLIP_DENIED, AUDIO_CLIP_PANEL_IN, AUDIO_CLIP_PANEL_OUT, AUDIO_CLIP_REJECT, AUDIO_CLIP_REVIVE_OK, AUDIO_CLIP_STAR, AUDIO_CLIP_UI_TAP, COMBO_WINDOW_S, DEFAULT_TUNING, DESIGN_H, PUZZLE_BAND, DESIGN_W, GROUP_LAND_TOTAL_MS, POWERUP_BUY_DENIED_HINT, REVIVE_BONUS_SEC, REVIVE_MAX_PER_LEVEL, SELECT_LIFT_MS, SOLVER_HINT_MS, SOLVER_MAX_CELLS, SOLVER_STAGGER_MS, STAGE_BONUS_TIME, STAMINA_REFILL_PLACEMENT, TRAY_COLS, trayLayout, arcRangeOfLevel, computeClearStars, gridLayoutFor, hitGridCell, isBossLevelId, menuAnchors, nextBeadLod, nextTierFor, normalSettleScore, solverSequenceMs, stageParamsFor, tierSecondsFor, trayPreviewFits, type BeadSizeKind, type BeadsTuning, type GridLayout, type PowerupType, validatedSprintTime } from '../config/tuning';
 import { BEADS_AUDIO_VOICES } from '../config/audio-voices';
 import {
   LEVELS,
@@ -999,6 +999,31 @@ export class BeadsGame {
   get snapshot(): Readonly<BeadsSnapshot> {
     this._syncSnapshot();
     return this._snapshot;
+  }
+
+  /**
+   * `[WXG-T-1098]` 高刷宿主的表现相位预览。
+   *
+   * 固定步仍严格 60Hz；渲染阶段把 `alpha × fixedDt` 传进来，只在本帧
+   * snapshot 上叠加抬起 / 托盘落珠 / 组落座的进度，让 120Hz 的零固定步帧
+   * 也产生新画面。⛔ 不回写 `FeedbackFx` 权威计时，不改玩法状态与动画时长。
+   */
+  snapshotForRender(previewSeconds: number): Readonly<BeadsSnapshot> {
+    this._syncSnapshot();
+    const snap = this._snapshot;
+    const ms = Number.isFinite(previewSeconds) ? Math.max(0, previewSeconds) * 1000 : 0;
+    if (ms <= 0 || snap.phase !== 'playing' || snap.reduceMotion) return snap;
+
+    if (snap.liftProgress < 1) {
+      snap.liftProgress = Math.min(1, snap.liftProgress + ms / SELECT_LIFT_MS);
+    }
+    if (snap.trayLandCount > 0) {
+      snap.trayLandElapsedMs = Math.min(GROUP_LAND_TOTAL_MS, snap.trayLandElapsedMs + ms);
+    }
+    if (snap.groupLandCount > 0) {
+      snap.groupLandElapsedMs = Math.min(GROUP_LAND_TOTAL_MS, snap.groupLandElapsedMs + ms);
+    }
+    return snap;
   }
 
   // ─────────────────────────────────────────────────────────────── lifecycle

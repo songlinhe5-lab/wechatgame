@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { CocosInputBridge } from '../../src/adapters/cocos/input-bridge.js';
 import { InputManager } from '../../src/core/input/input-manager.js';
 
@@ -28,6 +28,22 @@ describe('CocosInputBridge', () => {
     input.beginFrame();
     bridge.onTouchEnd({ id: 1, x: 30, y: 40 });
     expect(input.snapshot.justUp).toBe(true);
+  });
+
+  it('连续 120Hz touch move 全部透传，不节流、不丢事件', () => {
+    const { input, bridge, setNow } = setup();
+    const push = vi.spyOn(input, 'push');
+    input.beginFrame();
+    bridge.onTouchStart({ id: 1, x: 0, y: 0 });
+    for (let i = 1; i <= 8; i += 1) {
+      setNow(1000 + (i * 1000) / 120);
+      bridge.onTouchMove({ id: 1, x: i, y: i * 2 });
+    }
+
+    expect(push).toHaveBeenCalledTimes(9);
+    expect(push.mock.calls.slice(1).map(([sample]) => sample.x)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+    expect(input.snapshot.x).toBe(8);
+    expect(input.snapshot.y).toBe(16);
   });
 
   it('maps cancel onto a release', () => {

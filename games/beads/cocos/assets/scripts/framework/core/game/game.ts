@@ -144,8 +144,13 @@ export interface Game {
   init(services: GameServices): void;
   /** Fixed-timestep simulation. `dt` is always the loop's `fixedDt`. */
   update(dt: number): void;
-  /** Write this frame's draw commands. MUST NOT mutate game state. */
-  buildRenderModel(builder: RenderModelBuilder): void;
+  /**
+   * Write this frame's draw commands. MUST NOT mutate game state.
+   * `previewSeconds` is the fractional fixed-step phase (`alpha × fixedDt`);
+   * games may use it for read-only presentation interpolation on high-refresh
+   * hosts. Omit it to keep the authoritative fixed-step state unchanged.
+   */
+  buildRenderModel(builder: RenderModelBuilder, previewSeconds?: number): void;
   /** App moved to the background (WeChat `onHide`). Pause timers here. */
   onPause?(): void;
   /** App returned to the foreground. */

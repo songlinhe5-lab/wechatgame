@@ -11,6 +11,11 @@ class FakeGame implements Game {
   updates = 0;
   lastDt = 0;
   renderCount = 0;
+  /** 渲染相位预览秒数（`alpha × fixedDt`）；默认 0 ⇒ 既有金样本逐字节不变。 */
+  previewSeconds = 0;
+  previewValues: number[] = [];
+  /** 仅相位预览用例开启：让预览秒数改变画面，触发脏帧门。 */
+  previewAffectsGeometry = false;
   paused = 0;
   resumed = 0;
   disposed = 0;
@@ -30,10 +35,12 @@ class FakeGame implements Game {
     this.updates++;
     this.lastDt = dt;
   }
-  buildRenderModel(builder: RenderModelBuilder): void {
+  buildRenderModel(builder: RenderModelBuilder, previewSeconds = 0): void {
     this.renderCount++;
+    this.previewSeconds = previewSeconds;
+    this.previewValues.push(previewSeconds);
     builder.setBackground('#000000');
-    builder.rect(0, 0, this.size, this.size, { fill: '#fff', alpha: this.fillAlpha });
+    builder.rect(this.previewAffectsGeometry ? previewSeconds * 1000 : 0, 0, this.size, this.size, { fill: '#fff', alpha: this.fillAlpha });
     if (this.emitBlit) builder.blit('tex', 0, 0, this.size, this.size, { fx: { a: this.blitFx } });
   }
   onPause(): void {
@@ -312,6 +319,26 @@ describe('App', () => {
     app.tick(1 / 60);
     expect(render).toHaveBeenCalledTimes(4);
     app.stop();
+  });
+
+  // ── 渲染相位预览（WXG-T-1098）──────────────────────────────────────────────
+  // 120Hz 宿主的零固定步帧仍要产生新画面：框架把 `alpha × fixedDt` 交给 Game，
+  // 游戏只读预览表现动画；权威仿真仍严格 60Hz。
+  it('120Hz 零固定步帧收到 alpha×fixedDt 预览，且模型变化不被脏帧门跳过', () => {
+    const { app, game } = makeApp();
+    game.previewAffectsGeometry = true;
+    const drawnX: number[] = [];
+    app.onRender = (model) => {
+      drawnX.push((model.commands[0] as { x: number }).x);
+    };
+
+    expect(app.tick(1 / 120)).toBe(0); // 第一帧：零固定步，alpha = 0.5
+    expect(app.tick(1 / 120)).toBe(1); // 第二帧：一个固定步，alpha = 0
+
+    expect(game.previewValues[0]).toBeCloseTo(1 / 120, 10);
+    expect(game.previewValues[1]).toBe(0);
+    expect(drawnX).toHaveLength(2);
+    expect(drawnX[0]).toBeGreaterThan(drawnX[1]!);
   });
 
   // [WXG-T-1075] 「帧耗时稳但拖动卡顿」的取样腿：钩子必须交出**时间轴**三列，

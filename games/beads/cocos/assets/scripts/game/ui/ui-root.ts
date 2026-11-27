@@ -23,7 +23,7 @@ import type { UiHost } from './ui-host';
  * 「哪个面板该响应哪颗钮」与「哪个面板画在哪一层」出自**同一张路由表**，⛔ 不再两处真源。
  */
 export interface UiRoute extends Route {
-    draw(builder: RenderModelBuilder): void;
+    draw(builder: RenderModelBuilder, previewSeconds?: number): void;
     /** 命中并派发（`true` = 已消费）。仅 `modal` 路由需要；缺省 = 不参与命中链。 */
     presenter?(x: number, y: number): boolean;
     /**
@@ -81,7 +81,7 @@ export class UiRoot {
     }
 
     /** 自下而上画可见路由，最后画调试层（盖住所有路由）。 */
-    draw(builder: RenderModelBuilder, palette: BeadsPalette): void {
+    draw(builder: RenderModelBuilder, palette: BeadsPalette, previewSeconds?: number): void {
         const routes = this.nav.visibleRoutes(this._visible) as UiRoute[];
         // `[WXG-T-601]` 弹窗可叠（`levels → level-detail` / `settings → skins`）；弹窗 = 整屏遮罩 + 居中纸面板
         // ⇒ 底下那张被**完全覆盖**，多画只会多压一层遮罩（画面偏黑）。只画栈顶一张（⛔ 不再逐张调 `modal`）。
@@ -113,10 +113,10 @@ export class UiRoot {
                     builder.endContainer();
                 }
                 builder.beginContainer(route.name);
-                route.draw(builder);
+                route.draw(builder, previewSeconds);
                 builder.endContainer();
             } else {
-                route.draw(builder);
+                route.draw(builder, previewSeconds);
             }
         }
         const d = this._host.debugState();

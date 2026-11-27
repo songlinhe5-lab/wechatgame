@@ -430,7 +430,7 @@ export class BeadsShell implements Game {
         // 菜单腿仍在壳内直调（绘制腿与命中腿 `hitTestMeta` 同源 ⇒ 收敛另开）。层序逐字不变。
         this._phase = new PhaseRouteBinder(this._uiRoot.nav, {
             menu: (b) => buildMetaView(b, this._metaViewData(), this.play.palette),
-            play: (b) => renderPlayPage(this.play, b),
+            play: (b, previewSeconds) => renderPlayPage(this.play, b, previewSeconds),
             replay: (b) => this._renderReplay(b),
             // `[UI-60 P1 / ADR-0033 DEC-1]` 弹窗自持绘制（容器边界由 `UiRoot.draw` 包）。
             // `[WXG-T-601]` 弹窗可叠（`levels → level-detail`），`UiRoot.draw` 只调**栈顶**一张 ⇒ 这里读
@@ -601,13 +601,13 @@ export class BeadsShell implements Game {
         this._refreshArcGateOnMenuPage();
     }
 
-    buildRenderModel(builder: RenderModelBuilder): void {
+    buildRenderModel(builder: RenderModelBuilder, previewSeconds?: number): void {
         // UI-50：唯一绘制入口 —— 可见路由自下而上画内容，最后叠调试层。
         // 基础页路由的 `draw` 闭已绑到视图入口（菜单腿 `buildMetaView` / 对局腿
         // `renderPlayPage` ⇒ `buildBeadsView`，WXG-T-420 T9）⇒ 层序与拆分前逐字一致。
         // `[WXG-T-440]` 相位 → 面板路由的幂等对账放在画之前：栈即绘制源，相位是唯一真源。
         if (this._phase.screen === 'play') this._phase.syncPhase(this.play.phase, this.play.mode);
-        this._uiRoot.draw(builder, this.play.palette);
+        this._uiRoot.draw(builder, this.play.palette, previewSeconds);
     }
 
     onPause(): void {

@@ -29,6 +29,8 @@ import type { BeadsLevelRaw } from '../config/levels-data.js';
 export interface PlayRenderSource {
     /** 只读快照：**读即投影**（getter 内部走 `projectSnapshot`，⛔ 视图不读游戏对象）。 */
     readonly snapshot: Readonly<BeadsSnapshot>;
+    /** 可选渲染相位预览：只读叠加表现动画，不回写权威计时。 */
+    snapshotForRender?(previewSeconds: number): Readonly<BeadsSnapshot>;
     /** 当前渲染令牌集（换肤 = 换引用，真源在 game 的皮肤/设置侧）。 */
     readonly palette: BeadsPalette;
     /** 当前关卡原始数据（珠色墨水组 v1.40 按关解析）。 */
@@ -39,8 +41,15 @@ export interface PlayRenderSource {
  * 对局**页面层**的绘制入口（= `play` 路由的 `draw`）。`[WXG-T-440]` 相位面板已搬上路由栈 ⇒
  * 面板由 {@link renderPlayPanel} 画、容器边界由 `UiRoot.draw` 发。
  */
-export function renderPlayPage(play: PlayRenderSource, builder: RenderModelBuilder): void {
-    buildBeadsView(builder, play.snapshot, play.palette, beadInksFor(play.currentLevel));
+export function renderPlayPage(
+    play: PlayRenderSource,
+    builder: RenderModelBuilder,
+    previewSeconds?: number,
+): void {
+    const snap = previewSeconds && play.snapshotForRender
+        ? play.snapshotForRender(previewSeconds)
+        : play.snapshot;
+    buildBeadsView(builder, snap, play.palette, beadInksFor(play.currentLevel));
 }
 
 /**
