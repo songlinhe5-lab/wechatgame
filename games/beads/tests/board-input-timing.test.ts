@@ -297,3 +297,76 @@ describe('同帧棋盘 tap 的手势收尾（回归）', () => {
     expect({ ...cam }).toEqual(before);
   });
 });
+
+// `[WXG-T-1107 · 用户 2026-11-27「拖动时候珠面移动还是不跟手」]` **越阈首帧补齐死区**：
+// 旧口径每帧只吃 `snap.dx`，而「按下 → 越阈」那几天帧的位移（阈值 `BOARD_TAP_MOVE_THRESHOLD`
+// = 8 设计 px，乘屏幕 scale 真机约 16 css px）**一帧都没入账** ⇒ 整段拖动里盘面恒落后手指
+// 一个阈值，读作「不跟手」。现口径：越阈首帧按按下点算**累计**位移，之后吃增量 ⇒ 总量守恒。
+// ⚠ 用例必须走**多帧小步**：单次大跳时 `dx` 本来就等于全量，两种口径都过 ⇒ 没判别力。
+describe('[WXG-T-1107] 拖动越阈首帧补齐死区（跟手）', () => {
+    const bigLevel = simpleTestLevel({
+        id: 93,
+        cols: 13,
+        rows: 12,
+        pattern: Array.from({ length: 12 }, () => '1231231231231'),
+    });
+    const camOf = (h: Harness) =>
+        (h.game as unknown as { _board: { camera: { offsetX: number; offsetY: number } } })._board.camera;
+
+    it('越阈前的小步位移不得丢弃：press→3→6→10 后相机位移 = 10（旧口径 = 4）', () => {
+        const h = createBeadsHarness({ noAssemble: true, levels: [bigLevel], saveKey: 'wxgame.beads.test.t1107-drag' });
+        expect(h.game.phase).toBe('playing');
+        // 放大到 2×（盘面超出视口才拖得动，否则 clamp 恒把 offset 夹回 0）
+        h.game.setZoomForDebug(2);
+        const cam = camOf(h);
+        const x0 = cam.offsetX;
+
+        const px = DESIGN_W / 2;
+        const py = (PUZZLE_BAND.yMin + PUZZLE_BAND.yMax) / 2;
+        const s0 = screenOf(h, px, py);
+        frame(h, [{ id: 1, x: s0.x, y: s0.y, phase: 'down' }]);
+
+        // 三帧小步：3 → 6（仍在死区内，不平移）→ 10（越阈）
+        for (const dx of [3, 6]) {
+            const s = screenOf(h, px + dx, py);
+            frame(h, [{ id: 1, x: s.x, y: s.y, phase: 'move' }]);
+            expect(cam.offsetX - x0).toBeCloseTo(0, 6); // 死区内不平移（tap 判定不受影响）
+        }
+        const s3 = screenOf(h, px + 10, py);
+        frame(h, [{ id: 1, x: s3.x, y: s3.y, phase: 'move' }]);
+        // 越阈首帧：累计 10 全部入账（旧口径只入当帧 dx = 4）
+        expect(cam.offsetX - x0).toBeCloseTo(10, 3);
+
+        // 之后每帧吃增量：再走 15 ⇒ 累计 25（⛔ 不是 19，也不是 40）
+        const s4 = screenOf(h, px + 25, py);
+        frame(h, [{ id: 1, x: s4.x, y: s4.y, phase: 'move' }]);
+        expect(cam.offsetX - x0).toBeCloseTo(25, 3);
+    });
+
+    it('第二次按下重新计（跨手势不复用上一手的 latch）', () => {
+        const h = createBeadsHarness({ noAssemble: true, levels: [bigLevel], saveKey: 'wxgame.beads.test.t1107-relatch' });
+        h.game.setZoomForDebug(2);
+        const cam = camOf(h);
+        const px = DESIGN_W / 2;
+        const py = (PUZZLE_BAND.yMin + PUZZLE_BAND.yMax) / 2;
+
+        // 第一手：一次大跳 +40 后抬起
+        const s0 = screenOf(h, px, py);
+        frame(h, [{ id: 1, x: s0.x, y: s0.y, phase: 'down' }]);
+        const s4 = screenOf(h, px + 40, py);
+        frame(h, [{ id: 1, x: s4.x, y: s4.y, phase: 'move' }]);
+        frame(h, [{ id: 1, x: s4.x, y: s4.y, phase: 'up' }]);
+
+        // 第二手：换一处按下，仍然先死区小步再越阈 ⇒ 累计 9 必须全入账
+        // （latch 若没复位，本帧只入 9−6=3 ⇒ 红）
+        const x1 = cam.offsetX;
+        const p2 = screenOf(h, px, py - 60);
+        frame(h, [{ id: 2, x: p2.x, y: p2.y, phase: 'down' }]);
+        const q0 = screenOf(h, px + 6, py - 60);
+        frame(h, [{ id: 2, x: q0.x, y: q0.y, phase: 'move' }]);
+        expect(cam.offsetX - x1).toBeCloseTo(0, 6);
+        const q1 = screenOf(h, px + 9, py - 60);
+        frame(h, [{ id: 2, x: q1.x, y: q1.y, phase: 'move' }]);
+        expect(cam.offsetX - x1).toBeCloseTo(9, 3);
+    });
+});

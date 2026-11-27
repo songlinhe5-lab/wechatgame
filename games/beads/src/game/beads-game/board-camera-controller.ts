@@ -56,6 +56,11 @@ export class BoardCameraController {
   private readonly _tapStart = { x: 0, y: 0 };
   private _tapActive = false; // owner pressed inside the board region → tap deferred to lift
   private _tapMoved = false; // single-finger drag past threshold → pan, suppress tap
+  /**
+   * `[WXG-T-1107]` 越阈首帧是否已把「按下 → 当前」的累计位移补齐（`boardHeld` pan 分支）。
+   * 未补齐 ⇒ 本帧吃累计位移（死区补偿）；已补齐 ⇒ 吃每帧增量。`pressBoard` / `endGesture` 复位。
+   */
+  private _panLatched = false;
   private _pinched = false; // a second finger joined → pinch, suppress tap
   /** 手指落在 slider 轨道上 → 拖拽映射 x→zoom（吞掉棋盘 tap/pan/pinch）。 */
   private _zoomSliderDrag = false;
@@ -166,6 +171,7 @@ export class BoardCameraController {
     this._tapActive = true;
     this._tapMoved = false;
     this._pinched = false;
+    this._panLatched = false;
     this._tapStart.x = x;
     this._tapStart.y = y;
     // WXG-T-170 / F1：同一固定步内 down+up = 即时 tap，当场提交。
@@ -199,10 +205,19 @@ export class BoardCameraController {
     }
     if (this._tapMoved) {
       // 单指拖拽 → 平移相机（screen dx/dy → design：/scale、y 翻向）。
+      // `[WXG-T-1107 · 用户 2026-11-27「拖动时候珠面移动不跟手」]` **越阈首帧补齐死区**：
+      // 旧口径只吃当帧 `snap.dx`，而「按下 → 越阈」那段位移（阈值 8 设计 px，× 屏幕 scale
+      // 真机约 16 css px）从未被消费 ⇒ 整段拖动里盘面**恒落后手指一个阈值**，读作「不跟手」。
+      // 现口径：首帧按按下点算**累计**位移（`_pt − _tapStart`，已是设计坐标、含 y 翻向），
+      // 之后每帧仍吃增量 ⇒ 位移总量守恒、与手指绝对对位。
       const scale = vp.fit.scale || 1;
+      const latched = this._panLatched;
+      this._panLatched = true;
+      const dxDesign = latched ? snap.dx / scale : this._pt.x - this._tapStart.x;
+      const dyDesign = latched ? -snap.dy / scale : this._pt.y - this._tapStart.y;
       this._dbgPan.frames += 1;
-      this._dbgPan.dxSum += snap.dx / scale;
-      applyPan(snap.dx / scale, -snap.dy / scale, this._cam, this._host.grid.cols, this._host.grid.rows);
+      this._dbgPan.dxSum += dxDesign;
+      applyPan(dxDesign, dyDesign, this._cam, this._host.grid.cols, this._host.grid.rows);
       this._changed();
     } else {
       this._dbgPan.movedFrames += 1;
@@ -226,6 +241,7 @@ export class BoardCameraController {
     this._tapActive = false;
     this._tapMoved = false;
     this._pinched = false;
+    this._panLatched = false;
     this._zoomSliderDrag = false;
     this._dbgPan.frames = 0;
     this._dbgPan.dxSum = 0;

@@ -13375,3 +13375,19 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 **补二（2026-11-27 · 真机复验「单个珠面还是被珠面整体外轮廓给压住了」）**：先证**包陈旧**——真机 boot 标记仍是 `[hook] boot`（无版本）/`v1.0.109`，对应 19:05–20:52 三个旧预览副本，而两处描边修复落在 21:25 / 22:03。再证**层序机制**：Cocos 端只有一层 `Graphics`，且节点序 `Background → BlitLayer（珠/底 tile 的 tint blit）→ Graphics` ⇒ **`graphics` 恒在 blit 之上**，命令先后**不决定**层序 ⇒ 上一批（补）把 `drawBoardOutline` 上移到格循环之前，在真机上零观感变化（几何侧 `buildShapes` 外置已生效，实测描边到珠心最近距 32.87 > 珠半径 17.70）。**修** = framework `PolygonCommand` 新增 `back` 字段（同 `RectCommand.back` 口径）+ `cocos-renderer` polygon 分支按 `back` 投宿主 `backGraphics`（`Background` 节点，节点序最底、恒在 blit 与主 `Graphics` 之下），`drawBoardOutline` 逐条打 `back: true` ⇒ 描边恒在珠面 / 底 tile 之下，带的内侧被底图盖住，只有剪影外缘露线；缩略 / 详情**不**打 `back`（仍骑线走主 `Graphics`，T-929 / T-1040 版面零变化），由用例双钉（盘面多边形必带 `back`、缩略必不带）。命令集合与逐 kind 计数零变（`frame78 1836` / `frame0 1290`），S3 `back` 键登记 `0 → 54`（13×12 稿外轮廓 54 条 polygon，两帧同量）。
 
 **补二验证**：beads **135 文件 / 1668 passed / 2 skipped**；framework 单测 **56 文件 / 613 passed**；`typecheck`（framework + beads + breakout）绿；`framework:sync:check` 一致；`check:arch` / `check:size` / `check:links` 绿。**重抓锚** = 代码提交 `3812739b`（干净工作树）：金样仅 play/pause/clear/fail/sprint-settle/finish 六态漂移（菜单五态逐字不变），封箱双跑等值、total 与逐 kind 计数逐字不变仅 sha 变、`legacyFlow` 96/96 未漂、facet 值多重集全等（`recheckLedger` 无新入账项）。已推送 `3812739b`（码）+ `c814a70a`（夹具）到 `origin/develop`。**真机验收待用户重构建**（当前真机仍为旧包）。
+
+## WXG-T-1107
+
+**拖动越阈首帧补齐死区（拖动跟手）** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ **代码完成（2026-11-27）**
+
+承用户令「现在游戏中拖动时候，珠面移动还是不跟手，感觉刷新率不够，也可能是手势采样率不够」。
+
+**病灶（可算，非主观）**：`board-camera-controller.boardHeld` 的 pan 分支每帧只吃 `snap.dx`（当帧增量），而「按下 → 越阈」那几日帧因 `_tapMoved` 仍为 false **一帧都没入账** ⇒ 整段拖动里盘面**恒落后手指 `BOARD_TAP_MOVE_THRESHOLD` = 8 设计 px**（÷ 屏 scale 后真机约 4 css px）。这不是抖动，是**恒定偏差**，读作「不跟手」；`_applyDragResidual`（T-1081）只补「固定步未推进」的残差，对这种「死区内位移被丢弃」无能为力。
+
+**修法（最小面）**：`_panLatched` 标记 + 越阈首帧按 `_pt − _tapStart`（已是设计坐标、含 y 翻向）吃**累计**位移，其后每帧仍吃增量 ⇒ 位移总量守恒、与手指绝对对位；`pressBoard` / `endGesture` 复位 latch（跨手势、捏合后不复用）。
+
+**判据（ᵇ 反向自证）**：`tests/board-input-timing.test.ts` 新增 `[WXG-T-1107]` 两例——① press→3→6→10（三帧小步）：死区内 offset 不动、越阈首帧 offset = **10**（旧口径 = 4）；② 第二手换位仍先死区小步再越阈 ⇒ 9 全入账（latch 未复位只入 3）。⚠ 用例刻意不用「单次大跳」——单跳时 `dx` 本来就等于全量，两种口径都过、没有判别力。**已做反向自证**：把 `latched` 恒真（= 旧口径）跑同两例 ⇒ 2 failed，恢复即 13 passed。
+
+**验证**：beads 全量 **135 文件 / 1670 passed / 2 skipped**；`typecheck`（framework + beads + breakout）绿；`framework:sync` → 一致。渲染面零改动 ⇒ 金样 / 封箱零漂移（未重抓）。
+
+**未闭环（如实）**：用户并报「感觉刷新率不够 / 手势采样率不够」——那是**另一个维度**（时间轴分布，不是位移总量），按 K-225 必须取三列读数（帧间隔 / 本帧固定步数 / 是否真重绘）才能定性 `refresh-halved` / `accumulator-jitter` / `stall`。探针已在 Cocos 宿主接线（`bindings.ts` `armMotionProbe`，420 帧自动 `[MOTION]` 一行，`globalThis.__motion.report()`），但当前取样窗 = 开机后前 420 帧、不与拖动手势对齐，且本机日志 sink 已被用户停用 ⇒ 待用户允许后按「拖动窗口采样」再接线。
