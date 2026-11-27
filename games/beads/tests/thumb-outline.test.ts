@@ -248,4 +248,26 @@ describe('WXG-T-1106 盘面描边外置（不压珠面）', () => {
         expect(t.lo).toBeCloseTo(cy + (pitch + 1) / 2 - W / 2, 6);
         expect(t.hi - t.lo).toBeCloseTo(W, 6);
     });
+
+    // `[WXG-T-1106]` 真机复验：`graphics` 恒在 blit 之上（珠 / 底 tile 是 tint blit）⇒ 命令先后
+    // 无法把描边压到珠面之下。盘面轮廓必须打 `back`（底图通道 → 宿主 `backGraphics`，节点树最底）。
+    it('盘面轮廓全部走底图通道（back: true）', () => {
+        const b = new RenderModelBuilder(750, 1334);
+        b.begin();
+        drawBoardOutline(b, boardSnap('filled'), DEFAULT_PALETTE.shadowInk);
+        const model = b.end();
+        const polys = model.commands.filter((c) => c.kind === 'polygon');
+        expect(polys.length).toBeGreaterThan(0);
+        for (const c of polys) expect((c as { back?: boolean }).back).toBe(true);
+    });
+
+    it('缩略轮廓不带 back（仍走主 Graphics，T-929 / T-1040 版面零变化）', () => {
+        const b = new RenderModelBuilder(750, 1334);
+        b.begin();
+        drawThumbOutline(b, stub(['X'], 1), 100, 500, 20, 16, DEFAULT_PALETTE.shadowInk);
+        const model = b.end();
+        const polys = model.commands.filter((c) => c.kind === 'polygon');
+        expect(polys.length).toBeGreaterThan(0);
+        for (const c of polys) expect((c as { back?: boolean }).back).toBeUndefined();
+    });
 });

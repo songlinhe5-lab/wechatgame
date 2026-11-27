@@ -529,9 +529,10 @@ function drawGrid(
     // 组内错峰的名序基准（`boardGroupRows` 已是 game 侧消费序，锚在序首）；颗数 ≤ 1 ⇒ 0 = 无错峰。
     const groupLastRank = snap.boardGroupCount - 1;
     // `[WXG-T-1106 · 用户 2026-11-27 令]`「描边应该与珠子底图整体绘制，再绘制珠槽和珠面」：
-    // 盘面剪影描边**提到格循环之前**（= 与底图同层、在所有珠槽 / 珠面之下）⇒ 后画的底 tile / 槽 / 珠
-    // 自然盖住带的内侧，只有落在剪影外的部分露出来（带本身已整带外置，见 `bead-outline`）⇒
-    // 珠面零描边墨；⛔ 不要再放回循环末尾（那会重新压在珠面之上）。
+    // 盘面剪影描边画在**格循环之前**，且每次 `polygon` 打 `back: true`（底图通道）。
+    // ⚠ 真机复验：`graphics` 恒在 blit 之上（珠 / 底 tile 是 tint blit）⇒ **命令先后不决定层序**，
+    //   真正把描边压到珠面下面的是 `back`（宿主 `backGraphics` = 节点树最底）；
+    //   位置放前只是让 canvas2d 腿 / 封箱命令序也读作「底图先画」，⛔ 别据此以为改位置能修观感。
     drawBoardOutline(builder, snap, palette.shadowInk);
     for (let i = 0; i < snap.gridRows; i++) {
         for (let j = 0; j < snap.gridCols; j++) {

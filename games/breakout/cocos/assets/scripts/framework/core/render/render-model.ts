@@ -119,6 +119,16 @@ export interface PolygonCommand {
   readonly stroke?: string;
   readonly lineWidth?: number;
   readonly alpha?: number;
+  /**
+   * `[WXG-T-1106]` 同 {@link RectCommand.back}：**压在所有 blit / 矢量之下**的底图通道。
+   *
+   * 用途 = 「贴合剪影、但必须被珠面盖住」的整圈描边（盘面外轮廓）：Cocos 端
+   * `graphics` 恒在 blit 之上（珠 / 底 tile 是 tint blit）⇒ 只靠命令先后无法把描边
+   * 压到珠面之下；标记本字段后由 adapter 改投宿主的 `backGraphics`（Background 节点，
+   * 节点序最底），珠面 / 底 tile 自然盖住带的内侧。
+   * ⛔ 未注入 `backGraphics` 的宿主回落主 `Graphics`，与旧宿主逐字节等价。
+   */
+  readonly back?: boolean;
 }
 
 /**

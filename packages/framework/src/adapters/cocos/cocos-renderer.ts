@@ -448,11 +448,14 @@ export class CocosRenderModelRenderer {
           // unchanged on purpose (ADR-0024 DEC-4).
           const n = cmd.count;
           if (n < 2) break;
+          // `[WXG-T-1106]` 底图通道（与 `rect` / `line` 同口径）：盘面剪影描边必须在
+          // blit 之下（珠 / 底 tile 是 tint blit，`graphics` 恒在它们之上）。
+          const t = cmd.back ? (back ?? pen) : pen;
           const o = cmd.offset;
-          pen.moveTo(verts[o]! + ox, verts[o + 1]! + oy);
-          for (let k = 1; k < n; k += 1) pen.lineTo(verts[o + k * 2]! + ox, verts[o + k * 2 + 1]! + oy);
-          pen.close();
-          this._paint(pen, cmd.fill, cmd.stroke, cmd.lineWidth ?? 1, cmd.alpha);
+          t.moveTo(verts[o]! + ox, verts[o + 1]! + oy);
+          for (let k = 1; k < n; k += 1) t.lineTo(verts[o + k * 2]! + ox, verts[o + k * 2 + 1]! + oy);
+          t.close();
+          this._paint(t, cmd.fill, cmd.stroke, cmd.lineWidth ?? 1, cmd.alpha);
           break;
         }
         case 'blit': {

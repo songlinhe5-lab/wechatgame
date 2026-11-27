@@ -3,10 +3,12 @@
  * 折叠处随每颗边界珠的圆角自然过渡。
  *
  * **绘制层**（`[WXG-T-1106 · 用户 2026-11-27 令]`「描边应该与珠子底图整体绘制，再绘制珠槽和珠面」）：
- * 对局盘面的剪影描边在**格循环之前**画（与底图同层、珠槽 / 珠面之下），⛔ 不再作末笔覆在珠面之上。
+ * 对局盘面的剪影描边走**底图通道**（`back: true`，宿主 `backGraphics` = 节点树最底），恒在珠 / 底 tile
+ * 与全部矢量**之下**，⛔ 不再作末笔覆在珠面之上；且**命令位置无关**（`graphics` 恒在 blit 之上，
+ * 单靠把调用挪前不足以改变观感 —— 必须打 `back`，见 `drawBoardOutline` 注）。
  *
  * **带的位置分两档**（`buildShapes` 的 `outset` 形参）：
- *  - `false`（缩略 / 详情）：**骑线**（内 `W/2`、外 `W/2`），沿用 T-929 / T-1040 版面；
+ *  - `false`（缩略 / 详情）：**骑线**（内 `W/2`、外 `W/2`），沿用 T-929 / T-1040 版面（仍走主 `Graphics`）；
  *  - `true`（**对局盘面**，`[WXG-T-1106 · 用户 2026-11-27 令]**「珠面的外描边，还是压在珠面上绘制」）：
  *    整带**外置**（内缘 = 剪影面缘、外缘 = 面缘 + W）⇒ 珠面零覆盖；盘面侧推翻 T-928 的
  *    「描边要盖在珠面上面」。
@@ -109,8 +111,11 @@ export function drawThumbOutline(
 
 /**
  * `[WXG-T-927 / T-928 / T-1106]` 对局盘面轮廓：占位取自快照（`cell.void`），锁定格取自 `cell.state`。
- * **在格循环之前调用**（与底图同层；后画的珠槽 / 珠面盖住带的内侧），带**外置**（`outset = true`）
- * ⇒ 珠面零描边墨（`[WXG-T-1106 · 用户 2026-11-27 令]`）。⛔ 放回循环末尾即违规。
+ * **绘制命令逐条打 `back: true`**（底图通道）⇒ Cocos 端落到宿主 `backGraphics`（`Background` 节点，
+ * 节点序最底），恒在珠 / 底 tile（tint blit）与全部矢量**之下**，后画的底 tile / 槽 / 珠自然盖住带的内侧；
+ * 带本身**外置**（`outset = true`）⇒ 珠面零描边墨（`[WXG-T-1106 · 用户 2026-11-27 令]`）。
+ * ⚠ **层序不是命令先后决定的**：`graphics` 恒在 blit 之上（`WXG-T-1106` 真机复验结论），
+ * 只把调用挪到格循环前面**不足以**让描边沉到珠面下面 —— 必须打 `back`。⛔ 删掉 `back` 即回到旧观感。
  * 缓存键 = 关卡身份 + 几何（数值逐项比较，⛔ 不拼字符串 ⇒ 每帧零分配）。
  */
 export function drawBoardOutline(
@@ -154,7 +159,9 @@ export function drawBoardOutline(
         };
         _boardCache = hit;
     }
-    for (const s of hit.shapes) builder.polygon(s.pts, { fill: color });
+    // 逐条打 `back: true`（底图通道）⇒ 恒在珠面 / 底 tile 之下；选项对象循环外建一次（热路径零分配）。
+    const paint = { fill: color, back: true } as const;
+    for (const s of hit.shapes) builder.polygon(s.pts, paint);
 }
 
 function thumbOcc(level: BeadsLevelRaw): Occupancy {
