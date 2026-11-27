@@ -185,7 +185,7 @@ export class BoardCameraController {
     if (!this._tapActive || !snap.isDown) return false;
     if (snap.isDown2) {
       this._pinched = true;
-      if (applyPinch(snap, this._cam, this._gesture)) this._changed();
+      if (applyPinch(snap, this._cam, this._gesture, this._host.grid.cols, this._host.grid.rows)) this._changed();
       return true;
     }
     vp.screenToDesign(this._pt, snap.x, snap.y);

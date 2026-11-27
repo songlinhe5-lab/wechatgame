@@ -38,6 +38,7 @@ import {
   CAMERA_ZOOM_MAX,
   BEAD_PITCH,
   BEAD_GAP,
+  DESIGN_W,
   TRAY_PANEL_WIDTH,
   PUZZLE_BAND,
   HUD_BAND,
@@ -163,44 +164,60 @@ describe('applyPinch（issue 2 缩放有界 · §3.3 v1.59 绝对档）', () => 
     const c = cam();
     const g = createGesture();
     const one: PinchInput = { isDown: true, isDown2: false, x: 10, y: 10, x2: 0, y2: 0 };
-    expect(applyPinch(one, c, g)).toBe(false);
+    expect(applyPinch(one, c, g, SC, SR)).toBe(false);
     expect(c.zoom).toBe(1);
   });
   it('anchors on 2nd finger landing without a jump', () => {
     const c = cam();
     c.zoom = 2;
     const g = createGesture();
-    expect(applyPinch(two(100, 100, 200, 100), c, g)).toBe(true);
+    expect(applyPinch(two(100, 100, 200, 100), c, g, SC, SR)).toBe(true);
     expect(c.zoom).toBe(2);
     expect(g.pinchDist0).toBeCloseTo(100, 6);
   });
   it('spread/pinch drives zoom by the relative ratio', () => {
     const c = cam();
     const g = createGesture();
-    applyPinch(two(0, 0, 100, 0), c, g); // anchor 100, zoom0=1
-    applyPinch(two(0, 0, 200, 0), c, g); // ratio 2 → 2
+    applyPinch(two(0, 0, 100, 0), c, g, SC, SR); // anchor 100, zoom0=1
+    applyPinch(two(0, 0, 200, 0), c, g, SC, SR); // ratio 2 → 2
     expect(c.zoom).toBeCloseTo(2, 6);
   });
   it('clamps to the absolute range [CAMERA_ZOOM_MIN, CAMERA_ZOOM_MAX]（与 fit 无关）', () => {
     const c = cam();
     const g = createGesture();
-    applyPinch(two(0, 0, 100, 0), c, g);
-    applyPinch(two(0, 0, 100000, 0), c, g); // huge spread → max
+    applyPinch(two(0, 0, 100, 0), c, g, SC, SR);
+    applyPinch(two(0, 0, 100000, 0), c, g, SC, SR); // huge spread → max
     expect(c.zoom).toBeCloseTo(CAMERA_ZOOM_MAX, 6);
     const c2 = cam();
     const g2 = createGesture();
-    applyPinch(two(0, 0, 100, 0), c2, g2);
-    applyPinch(two(0, 0, 0.0001, 0), c2, g2); // collapse → min = CAMERA_ZOOM_MIN（旧「下限 = fit」已退役）
+    applyPinch(two(0, 0, 100, 0), c2, g2, SC, SR);
+    applyPinch(two(0, 0, 0.0001, 0), c2, g2, SC, SR); // collapse → min = CAMERA_ZOOM_MIN（旧「下限 = fit」已退役）
     expect(c2.zoom).toBeCloseTo(CAMERA_ZOOM_MIN, 6);
   });
   it('2nd finger up drops the anchor (no re-anchor on owner)', () => {
     const c = cam();
     const g = createGesture();
-    applyPinch(two(0, 0, 100, 0), c, g);
+    applyPinch(two(0, 0, 100, 0), c, g, SC, SR);
     expect(g.pinchDist0).toBe(100);
     const lifted: PinchInput = { isDown: true, isDown2: false, x: 0, y: 0, x2: 100, y2: 0 };
-    expect(applyPinch(lifted, c, g)).toBe(false);
+    expect(applyPinch(lifted, c, g, SC, SR)).toBe(false);
     expect(g.pinchDist0).toBe(0);
+  });
+  it('[WXG-T-1100] 拖到边缘后捏合缩小，X/Y 可见格数仍 ≥ 4（漏夹则红）', () => {
+    const cols = 13;
+    const rows = 12;
+    const c = cam();
+    applyPan(1e4, 1e4, c, cols, rows); // 先把相机停在拖动允许的边缘（恰好 4 格）
+    const g = createGesture();
+    applyPinch(two(0, 0, 100, 0), c, g, cols, rows); // 落第二指，锚 zoom=1
+    applyPinch(two(0, 0, 1, 0), c, g, cols, rows); // 捏到最低倍（0.2）：旧 offset 不再合法
+
+    const layout = gridLayoutFor(cols, rows, c);
+    const right = layout.left + cols * layout.pitch - BEAD_GAP * c.zoom;
+    const visW = Math.min(right, DESIGN_W) - Math.max(layout.left, 0);
+    const visH = Math.min(layout.top, PUZZLE_BAND.yMax) - Math.max(layout.bottom, PUZZLE_BAND.yMin);
+    expect(visW / layout.pitch).toBeGreaterThanOrEqual(4 - 1e-6);
+    expect(visH / layout.pitch).toBeGreaterThanOrEqual(4 - 1e-6);
   });
 });
 

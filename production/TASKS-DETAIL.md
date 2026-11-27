@@ -13259,3 +13259,19 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 **下一步**：真机/开发者工具复现一次，按日志落点选修法（丢弃 ⇒ `_bail` 分支；`INV` ⇒ 兄弟序；`BEAD_DROP` 但无 bail/INV ⇒ 节点 active/引擎提交层）。临时探针 `games/beads/tests/probe-drag-cells.test.ts` 未入库，待修完提炼判据后再定去留。
 
 **撞号披露**：跨工作树全局最大已领 1098（并发会话），本单按 K-046 取 1099。
+
+---
+
+## WXG-T-1100
+
+**捏合缩放也守 4 格可见边界** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ **完成（2026-11-27）**
+
+承用户令「盘面缩放时候上下所有盘面至少要留 4 行豆子；先做好上下左右移动时候 4 个珠子显示的限制，再让缩放时候保证能显示至少 4 个珠子宽度内容」。
+
+**根因**：`clampCamera` 已按 `MIN_VISIBLE_CELLS=4` 夹 X/Y，`applyPan` / `_applyDragResidual`（T-1091）/ `setCameraZoom` / `zoomAtPoint` 都过这一夹；唯一漏腿 = `applyPinch` 直接改 `cam.zoom` 后返回，offset 保持旧值 ⇒ 捏合缩放中/后 4 格限制被绕过。
+
+**修法**：`applyPinch` 增 `cols, rows` 入参，zoom 变化后调用 `clampCamera`；生产调用点 `board-camera-controller.boardHeld` 传网格尺寸。零新增冻结常量，GDD §3 不动。
+
+**判据**：`board-camera.test.ts` 新增回归——先把相机拖到边缘，再捏合缩到低倍，按 `gridLayoutFor` 真源算可见格数，X/Y 均 ≥4（K-085：不从屏幕式手推）。既有 `applyPinch` 例同步补 cols/rows。
+
+**验证**：TDD RED 实测 `visW / pitch = -5.8750000000000036 < 4`；修复后 `pnpm --filter @wxgame/beads exec vitest run tests/board-camera.test.ts` 27 passed；`pnpm --filter @wxgame/beads run typecheck` 绿；`pnpm --filter @wxgame/beads test` 135 files / 1662 passed / 2 skipped；`pnpm run framework:sync` 写 2 文件、`pnpm run framework:sync:check` 绿；`pnpm run check:tasks` 绿；`pnpm run build:cocos` release 绿；`pnpm run verify` PASS 24 | WARN 0 | SKIP 0 | FAIL 0。

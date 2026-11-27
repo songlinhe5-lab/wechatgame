@@ -139,6 +139,8 @@ export function fitCamera(cam: BoardCamera, cols: number, rows: number, contentC
  * (caller should recompute the layout); `false` when a single finger is down.
  * Zoom is bounded to the absolute range `[CAMERA_ZOOM_MIN, CAMERA_ZOOM_MAX]`
  * (§3.3 v1.59; board-independent — `fit` no longer clamps).
+ * `[WXG-T-1100]` 缩放后必须复用 `clampCamera` 的 4 格可见边界：否则 offset
+ * 留在旧档，缩到低倍时盘面被推出视口（拖动/残差/按钮三路都已夹，唯独本路曾漏）。
  *
  * The ratio is `current / anchor two-finger distance`, so the gesture is
  * scale-relative and never jumps when the second finger lands.
@@ -148,7 +150,13 @@ export function fitCamera(cam: BoardCamera, cols: number, rows: number, contentC
  * fingers) is a feel refinement deferred to playtest; add a counter-offset term
  * here if it earns its keep.
  */
-export function applyPinch(snap: PinchInput, cam: BoardCamera, g: Gesture): boolean {
+export function applyPinch(
+  snap: PinchInput,
+  cam: BoardCamera,
+  g: Gesture,
+  cols: number,
+  rows: number,
+): boolean {
   if (!snap.isDown2) {
     // Second finger up (or never down): drop the pinch anchor. The remaining
     // owner finger must NOT be re-read as a pinch (owner non-migration,
@@ -164,6 +172,7 @@ export function applyPinch(snap: PinchInput, cam: BoardCamera, g: Gesture): bool
   }
   if (dist > 0) {
     cam.zoom = clamp((g.zoom0 * dist) / g.pinchDist0, CAMERA_ZOOM_MIN, CAMERA_ZOOM_MAX);
+    clampCamera(cam, cols, rows);
   }
   return true;
 }
