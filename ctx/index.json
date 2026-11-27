@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4391,
       "lines": 144,
-      "sha256": "c33f1be1263a85d9ac51f6fb9432bdd63790f38cb43985158a1d539867944e55",
+      "sha256": "0f664b41af2e5c6c84dbb975930ac56615fd225f104863d9826dda8e6bc9a318",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 407,
-          "summary": "1 production/TASKS-DETAIL.md 425118 13371 normal",
+          "summary": "1 production/TASKS-DETAIL.md 425176 13371 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5209,
       "lines": 159,
-      "sha256": "9c19defcd63f548fdf18519bf9cd54eac8b9cf329f27910c17b2de8067dd34b8",
+      "sha256": "eec8a62708b5c018a8666d5e3646ea7f78f365e619989361078fb3900dcfc9bc",
       "tier": "normal",
       "sections": [
         {
@@ -1080,7 +1080,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 13371 行 / 425118 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 13371 行 / 425176 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
@@ -94561,9 +94561,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 425118,
+      "tokens": 425176,
       "lines": 13371,
-      "sha256": "6fa77a07b2db75587c1c6fb1d38a14a3f7740cddb1bed4e297e488ed492249cd",
+      "sha256": "5afaafdeb73fc8bc4e9f7287fd434ea172de71e334a4c5f155bb23ae16868438",
       "tier": "normal",
       "sections": [
         {
@@ -94571,7 +94571,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 13372,
-          "tokens": 425101,
+          "tokens": 425159,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -113178,7 +113178,7 @@
           "level": 2,
           "startLine": 13359,
           "endLine": 13372,
-          "tokens": 581,
+          "tokens": 638,
           "summary": "盘面外描边整带外置（不压珠面） · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ 代码完成（2026-11-",
           "keywords": [
             "WXG",

@@ -13368,4 +13368,4 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 
 **基准影响（如实）**：命令数与逐 kind 计数**逐字不变**、只有顶点位移 ⇒ 金样本十一态与封箱两帧 `sha` 变、`total` 零变（故 `recheckLedger` 无新入账项）；已按 `tests/ui-golden-capture.ts` 与 `tests/bead-style-seal-recapture.ts` 在同一可复现锚重抓，并在 `docs/architecture/ui-architecture-beads.md §12` 登记视觉变更（K-051 / K-053 / ADR-0032 DEC-6）。
 
-**验证**：`typecheck`（framework + beads + breakout）绿；`framework:sync` → `sync:check` 一致；`thumb-outline` 12 例绿。⚠ 本笔提交时金样（`ui-golden`）与封箱（`bead-style-seal`）夹具仍是旧 sha ⇒ 该两件红是**预期**，随下一笔「按锚重抓」一起收口（K-051 禁手改夹具）。
+**验证**：beads 全量 **135 文件 / 1666 passed / 2 skipped**（含金样十一态与封箱两帧，夹具已按锚重抓）；`typecheck`（framework + beads + breakout）绿；`framework:sync` → `sync:check` 一致；`check:tasks` / `check:links` 绿。**重抓锚** = 代码提交 `80ff52f3`（干净工作树）：`tests/ui-golden-capture.ts` 十一帧确定性自证 PASS；`bead-style-seal-recapture.ts` 双跑等值，`frame78 total 1836` / `frame0 total 1290` 逐字不变、仅 sha 变（`recheckLedger` 无新入账项）。

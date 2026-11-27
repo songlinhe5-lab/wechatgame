@@ -4,7 +4,7 @@
   "unit": "UI-02",
   "spec": "docs/architecture/ui-architecture-beads.md §5 / §9.4 / §12",
   "codeBaseline": "bd964a0",
-  "capturedFrom": "2937e107 · 工作树（WXG-T-298）",
+  "capturedFrom": "80ff52f3 · 工作树（WXG-T-298）",
   "fixture": {
     "viewport": {
       "width": 750,
@@ -42,7 +42,7 @@
         "unclip": 1,
         "blit": 1
       },
-      "sha": "cbf698bbf33831df6a4f950ceb1282ba51a5101a5cd1fa1f8a4b52c2e0012922",
+      "sha": "be35f59022add901e5530469fbe2dca4a2ce3f8569b5de8df75b85a072a46b1a",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -70,7 +70,7 @@
         "segment": 1,
         "segmentEnd": 1
       },
-      "sha": "186b91179f278a804c5042fb21e72c7d4d5ddbf9081f1562430c9d78f0bfbb8d",
+      "sha": "2b08e0cfa4a2f60d5990483a35c48a623474afe4ac2866f4906f9f695e63472b",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -98,7 +98,7 @@
         "segment": 1,
         "segmentEnd": 1
       },
-      "sha": "845d4d881e8752e39d7ee8129da1944d387fa78c346b9cd47b15893b030a86de",
+      "sha": "07fffbc99780e539c71aa0750d34b71d1d39c99cc7a900647a993254bf69c7b0",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -124,7 +124,7 @@
         "container": 2,
         "containerEnd": 2
       },
-      "sha": "b4b427166940d8673b416b3806b5b922bd24966d01c25e94c54af29520167e05",
+      "sha": "919a44b5924df39984d36c31e44fd44bb3468b3466fe82a753f4c90f5080d7f1",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -150,7 +150,7 @@
         "container": 2,
         "containerEnd": 2
       },
-      "sha": "d8387bcd97a12a83d5108b074ed13d9cd15a332153330671d2702bcfe351a943",
+      "sha": "8780c0cc10f531f80082b2396ac2ffce8026ec6252c9e4999bc10bcff51df13e",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -173,7 +173,7 @@
         "containerEnd": 1,
         "text": 10
       },
-      "sha": "60383c105aea257b60c90fc7af44a7b3407b1b67e2d433133e2bfd66d3d7dbf0",
+      "sha": "e94dd6eccd8f5ff758229aad1ed94f91f46519a7f804d3902e2540846988934d",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -196,7 +196,7 @@
         "containerEnd": 2,
         "text": 15
       },
-      "sha": "a8a42d6ea5d14926489ef441e57b40a0f3f362496826c19d79b1d753bbaafb8d",
+      "sha": "b09d58f279a41e783c651e4a0b345a60a616ccb0c9678d7e5a287ba3e31a70e5",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -220,7 +220,7 @@
         "text": 16,
         "blit": 1
       },
-      "sha": "bfdaba4132a467a94b67bddebee882438e61bf7d82916c660d492351929d8ff9",
+      "sha": "86a1d70ec108e32e5c0238dc1705396924e27f8e510fa9badb2db77b301c7b99",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -243,7 +243,7 @@
         "containerEnd": 3,
         "text": 26
       },
-      "sha": "71cc63a6fb5365156a2d659f9845c11d6a4a90edaf90072834a3cf3b668b5d72",
+      "sha": "a3735758f89da4bbaf67b1feef8d759a4641d757857bb0f0e4736754fbc43701",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -266,7 +266,7 @@
         "text": 19,
         "circle": 3
       },
-      "sha": "b4de86990d4cd3240945c0fe8527483ec2c03891fe2121ee29cded2697cc8603",
+      "sha": "7830843184f805708cb57d11bf335f5f6c33d2e73b128402c914bc2609c9ccee",
       "background": "#F1E8D8",
       "transform": null
     },
@@ -289,7 +289,7 @@
         "containerEnd": 2,
         "text": 16
       },
-      "sha": "f9c0085a7652fb816980ac0422b7f493c9dd230b45723649186735844a61cc89",
+      "sha": "69fbbe6b796cec551759b435c1684c1bb5d24716b1e8718ba1426110e667c938",
       "background": "#F1E8D8",
       "transform": null
     }
