@@ -58,7 +58,7 @@ let _blitDbgFrame = 0;
 let _blitDbgPrevTile = -1;
 let _blitDbgPrevBead = -1;
 const _dbgHost = globalThis as unknown as {
-    __BLITDBG?: (on: boolean) => void;
+    __BLITDBG?: (on?: boolean) => boolean;
     wx?: { getLaunchOptionsSync?: () => { query?: Record<string, string> } };
     location?: { search?: string };
 };
@@ -66,7 +66,12 @@ let _dbgWxFlag: string | undefined;
 try { _dbgWxFlag = _dbgHost.wx?.getLaunchOptionsSync?.()?.query?.blitdbg; } catch { /* 宿主未就绪 ⇒ 仅 web/console 开关 */ }
 const _dbgFlag = _dbgWxFlag ?? /[?&]blitdbg=([^&]+)/.exec(_dbgHost.location?.search ?? '')?.[1];
 _blitDbg = _dbgFlag === '1' || _dbgFlag === 'true';
-_dbgHost.__BLITDBG = (on: boolean): void => { _blitDbg = !!on; };
+// [WXG-T-1102] 回显 + 无参查询：真机远程 Console 能自证开关是否生效（默认关时零开销）。
+_dbgHost.__BLITDBG = (on?: boolean): boolean => {
+    if (on !== undefined) _blitDbg = !!on;
+    console.warn(`[blitdbg] switch ${_blitDbg ? 'on' : 'off'}`);
+    return _blitDbg;
+};
 
 /**
  * 图集网格：8×8 格 × 128 px = 1024²（一格 = 一个 `maskId|base` 组合）。

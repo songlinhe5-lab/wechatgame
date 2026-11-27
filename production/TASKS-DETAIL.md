@@ -13293,3 +13293,21 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 **验证**：TDD RED 实测 `expected 'pitch 0.0 · LOD 0' to contain 'beads 0'`；GREEN 同例 1 passed；`pnpm --filter @wxgame/beads run typecheck` 绿；`pnpm --filter @wxgame/beads test` 135 files / 1663 passed / 2 skipped；`pnpm run framework:sync:check` 绿；`pnpm run build:cocos` release 绿；`pnpm run verify` PASS 24 | WARN 0 | SKIP 0 | FAIL 0。
 
 **下一步**：用户真机跑异常场景；按 `beads N` 是否变化定性，再决定是否开根因修复（本单不修产品行为）。
+
+---
+
+## WXG-T-1102
+
+**blitdbg 开关回显与状态查询** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ **完成（2026-11-27）**
+
+承用户「需要」一个能自证的 blitdbg 开关：真机远程 Console 里 `__BLITDBG(true)` 返回 `undefined`，无法判断内部 `_blitDbg` 是否翻转。
+
+**修法**：`games/beads/cocos/assets/scripts/host/beads-blit-carrier.ts` 的 `__BLITDBG` 改为 `(on?: boolean) => boolean`：传 bool 时翻转 `_blitDbg`，随即 `console.warn('[blitdbg] switch on/off')`；无参调用只返回当前状态。默认关时零额外开销，不动渲染逻辑与产品行为。
+
+**判据**：新增 `games/beads/tests/blitdbg-switch.test.ts` 静态源码门（host 顶层 `import 'cc'` ⇒ Node 不可导入，只能用源码门锁定公开契约），断言可选入参 + boolean 返回 + 条件翻转 + warn 回显 + 返回状态。
+
+**验证**：TDD RED 实测 `expected source to contain '__BLITDBG?: (on?: boolean) => boolean'`；GREEN 同例 1 passed；typecheck 绿；beads 全量 136 files / 1664 passed / 2 skipped；`framework:sync:check` 绿；`pnpm run build:cocos` release 绿且 `game.json` 含 `plugins.cocos`；重启 Cocos 编辑器后重建，产物 `assets/main/index.js` 确认含 `[blitdbg] switch` 回显串；`pnpm run check:tasks` 绿（351 行 / 378 节，配对完整）；`pnpm run verify` PASS 24 | WARN 0 | SKIP 0 | FAIL 0。
+
+**坑**：第一轮 release 构建因 Cocos 资产库未重导入 host 文件，产物仍是旧 `$.__BLITDBG=function(t){H=!!t}`；重启编辑器后重建才进包（K-216 同族：宿主腿陈旧产物）。
+
+**下一步**：用户真机执行 `__BLITDBG(true)`，应看到 `[blitdbg] switch on` 回显；随后复现拖动异常并抓 `[blitdbg] f...`。
