@@ -13524,3 +13524,9 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 **验证（2026-11-28 实跑）**：`pnpm run verify` 24/24 PASS / 0 FAIL（typecheck 含 beads 测试夹具补字段后全绿）；framework 56 文件 624 passed；beads 138 文件 1690 passed / 2 skipped；`framework:sync` 写入 5、`framework:sync:check` 一致。beads 版本 1.0.119。
 
 **下一步（设备侧）**：Cocos Creator 面板重建出包后读第六行。`引` ≈ 30 ms ⇒ 缺口坐实引擎渲染段，下一单打 mesh 上传（Graphics 顶点瘦身 / blit 顶点缓存）；`tick` ≈ 30 ms ⇒ 回到固定步/建模侧；文字段 5 ms 仍留待独立单。
+
+**真机读数回填（2026-11-28，用户截图 L9）**：`fps 22 · 45.3 ms / 绘 10.9ms · 195笔/1117令 / 矢 0.0 位 2.0 文 7.0 余 0.0ms / tick 13.7 引 4.6ms`。判读：
+- **载体验证通过**：位 2.0（T-1112 修复持续生效）、矢 0.0、余 0.0；绘 10.9 里**文 7.0 升为首位**（此前 5.0）——文字段成为 draw 内最大腿（Label 测宽/重建）。
+- **tick 13.7 = 固定步 + 建模 + 绘 10.9 ⇒ 我们侧 JS 全程只有 ~2.8 ms**，完全健康。
+- **预判证伪**：`引` 只有 4.6 ms ≠ 预估 30 ms ⇒ 缺口**不在引擎渲染 JS 段**。帧 45.3 − tick 13.7 − 引 4.6 ≈ **27 ms 落在「AFTER_DRAW → 下一帧 tick 起点」的空档**：该段 JS 不执行，唯一解释 = GPU/present 反压（引擎每帧提交 ~10 万顶点 Graphics mesh + 890 sprite，GPU 跟不上 ⇒ 运行时推迟下一帧 rAF）或宿主调度等待——CPU 侧探针天然量不到。
+- **结论**：瓶颈定性为 **GPU 侧**（顶点量/overdraw），JS 侧（tick/引/绘）均健康；下一刀应打 GPU 负载（减顶点/减 overdraw）或先落 idleMs 探针坐实空档归属。

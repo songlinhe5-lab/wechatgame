@@ -9,7 +9,7 @@
 
 | Task ID | 名称 | 负责 | 状态 | 产出 |
 |---|---|---|---|---|
-| WXG-T-1113 | tick 段 + 引擎渲染段探针（找 30ms 帧缺口） | 主理人(CodeBuddy)·工程轨 | ✅ **代码完成**：承真机「位 10→2.0ms 后帧间隔仍 48.9ms、已量段 ≈19ms」⇒ 帧缺口 ≈30ms 疑在引擎渲染段（update 相位之后的 batcher/mesh 上传/present）⇒ `CocosLoopBridge` 注入 clock 对 `app.tick` 全程卡表回投 `tickMs`、bindings 注册 `Director.EVENT_BEFORE_DRAW→AFTER_DRAW` 回投 `engineDrawMs`（均 `drawCostWanted` 门控 + EMA α=0.1、未接线恒 0）；覆层第六行 `tick X 引 X ms`（判读：帧 ≈ tick + 引）；TDD 5 例 | 见详情 |
+| WXG-T-1113 | tick 段 + 引擎渲染段探针（找 30ms 帧缺口） | 主理人(CodeBuddy)·工程轨 | ✅ **完成（真机回填）**：探针落地（`tickMs` = loop-bridge 卡 `app.tick`；`engineDrawMs` = `Director.EVENT_BEFORE_DRAW→AFTER_DRAW`；`drawCostWanted` 门控 + EMA；覆层第六行）；真机读数 `tick 13.7 引 4.6ms` ⇒ **预判证伪**：缺口不在引擎渲染 JS 段，帧 45.3 − 18.3 ≈ **27ms 落在 AFTER_DRAW→下一 tick 空档** = GPU/present 反压（~10 万顶点/帧）⇒ 瓶颈定性 GPU 侧，JS 侧全健康（tick 内除绘 10.9 仅 ~2.8ms）；另 文 7.0 升为绘内首位；TDD 5 例 | 见详情 |
 | WXG-T-1112 | blit 载体差分复用 + 热路径短路（打「位」段） | 主理人(CodeBuddy)·工程轨 | ✅ **代码完成**：承分段读数「位 10ms」居首 ⇒ ① `beginFrame` 不再整池 active 翻转，新增可选 `endFrame` 帧末只关「上帧有本帧无」尾段（稳态零翻转，残影窗口同 tick 闭合）；② 图集节点/池位组件缓存；③ `setPosition`/`setSiblingIndex` 本地等值短路（引擎实核无短路 / 前置 indexOf O(n)）；TDD 6 例 | 见详情 |
 | WXG-T-1111 | 绘制成本四段探针（矢量/位图/文字/其余） | 主理人(CodeBuddy)·工程轨 | ✅ **代码完成**：承真机 `fps 27 / 绘 22.8ms / 195次` ⇒ 帧慢且画慢，但下笔次数远低于满盘矢量 ⇒ 否掉「批量减调用」路线；渲染器按命令分类逐条卡表（宿主注入 clock、`App.drawCostWanted` 门控 release 零开销），覆层第五行同帧显示四段 ms + `commands`；TDD 5 例 | 见详情 |
 | WXG-T-1110 | 性能覆层加绘制成本读数（绘 ms + 下笔次数） | 主理人(CodeBuddy)·工程轨 | ✅ **代码完成**：承用户「查每帧性能瓶颈 / 能不能批量处理」⇒ 覆层第四行 `绘 X ms · N 次`：`drawMs` = `App.onRender` 墙钟 EMA（几何重建在宿主渲染器里，游戏侧量不到），`paintCalls` = 本帧 fill+stroke 次数（文字/blit/容器命令不计）；`GameServices.readDrawCost` 投影、脏帧门跳过的帧不采样、没人读则零开销（含关闭时不读的回归）；新增 TDD 8 例 | 见详情 |
