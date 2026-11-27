@@ -36,7 +36,8 @@
  */
 
 import type { Game, GameServices, RenderModelBuilder } from '@wxgame/framework';
-import { LOW_MEMORY_BAKE_BUDGET_BYTES } from '@wxgame/framework';
+import { LOW_MEMORY_BAKE_BUDGET_BYTES, MotionRecorder, judgeMotionJudder } from '@wxgame/framework';
+import type { MotionJudder, MotionVerdict } from '@wxgame/framework';
 import {
     FACET4_STYLE_ID,
     BEAD_SIZE_DEFAULT,
@@ -115,6 +116,34 @@ const PANEL_PHASE: Readonly<Record<PlayPanelName, BeadsPhase>> = {
     'sprint-settle': 'game-over',
     finish: 'finish',
 };
+
+/**
+ * `[WXG-T-1109]` 抬手后拖动读数在性能覆层上停留的渲染帧数（600 帧 ≈ 60Hz 下 10 s）。
+ * 留够「抬手 → 抬头看面板」的时窗，又不会永久顶掉 pitch / LOD / beads 那行。
+ */
+const DRAG_LINE_LINGER_FRAMES = 600;
+
+/** `[WXG-T-1109]` 判定结论 → 面板用词（阈值与结论本身在框架 `judgeMotionJudder`）。 */
+const MOTION_VERDICT_LABEL: Readonly<Record<MotionVerdict, string>> = {
+    insufficient: '待采',
+    smooth: '平滑',
+    'refresh-halved': '半帧率',
+    'accumulator-jitter': '累加抖',
+    stall: '掉帧',
+};
+
+/**
+ * `[WXG-T-1109]` 拖动窗口读数一行（顶替性能覆层的详情行约 10 s）。
+ *
+ * 只放「一眼能对上表格」的四个数：判定词、中位帧率、零步帧占比、最长帧间隔。
+ * 判定词与阈值全部来自框架判定表（⛔ 这里不另写第二套判据）。
+ * 长度按面板可写宽裁剪过（22px 字体、中文按整宽算），再长会露出面板。
+ */
+export function motionLine(j: MotionJudder): string {
+    const fps = j.dtMedianMs > 0 ? Math.round(1000 / j.dtMedianMs) : 0;
+    const zero = Math.round(j.zeroStepShare * 100);
+    return `拖 ${MOTION_VERDICT_LABEL[j.verdict]} ${fps}fps 零步${zero}% 峰${Math.round(j.dtMaxMs)}`;
+}
 
 /**
  * `[WXG-T-601]` 关卡详情道具行角标的 8 档预分配常量表（索引 = 已用位图
@@ -358,6 +387,19 @@ export class BeadsShell implements Game {
      * 只在 `buildRenderModel` 里推进 —— 那里每个渲染 tick 恰好被调一次。
      */
     private _lastDrawAt = 0;
+    /**
+     * `[WXG-T-1109]` **拖动窗口**的运动节奏取样（K-225 三列读数的真机落地腿）。
+     *
+     * 只用一帧两数就能分辨三种工况：`_stepsSinceDraw`（本渲染帧跑了几个固定步：0 / 1 / 补 2）
+     * 与壁钟间隔；判定表不在这里另写一套 —— 直接吃框架的 `judgeMotionJudder`。
+     * 开关关时整条腿不跑（`_dragRec` 恒 null、`_dragLine` 恒空）。
+     */
+    private _stepsSinceDraw = 0;
+    private _dragRec: MotionRecorder | null = null;
+    private _dragFrames = 0;
+    /** 抬手后冻结的读数行 + 剩余显示帧数（`0` = 不显示，恢复常规细节行）。 */
+    private _dragLine = '';
+    private _dragLineFrames = 0;
     /** UI-25：组合根（开关关闭时不参与绘制/推进）。 */
     private readonly _uiRoot: UiRoot;
     /** UI-42：导航唯一真源 —— 屏幕 / 覆盖层 / 选关页大关上下文都由这个栈投影。 */
@@ -426,6 +468,10 @@ export class BeadsShell implements Game {
         this._uiRoot = new UiRoot({
             debugState: () => {
                 this.play.debugState(this._uiDebug, this._phase.screen !== 'play');
+                // `[WXG-T-1109]` 拖动读数占详情行：采集中报帧数（有反馈才知道在采），
+                // 抬手后报冻结结论；两者都不在时保留 pitch/LOD/beads 常规行。
+                if (this._dragRec) this._uiDebug.detail = `拖动采集中 ${this._dragFrames} 帧`;
+                else if (this._dragLine !== '') this._uiDebug.detail = this._dragLine;
                 return this._uiDebug;
             },
         });
@@ -565,6 +611,8 @@ export class BeadsShell implements Game {
     }
 
     update(dt: number): void {
+        // `[WXG-T-1109]` 每个固定步加一，`buildRenderModel` 读走并清零 ⇒ 得到「本渲染帧跑了几步」。
+        this._stepsSinceDraw += 1;
         // WXG-T-414：每 600 帧（≈10s @60Hz）拉一次性能快照。
         if (this._perfCounter++ >= 600) {
             this._perfCounter = 0;
@@ -611,7 +659,11 @@ export class BeadsShell implements Game {
         const now = this._clock();
         const prev = this._lastDrawAt;
         this._lastDrawAt = now;
-        if (prev > 0) this.play.sampleDrawFrame(now - prev);
+        const frameMs = prev > 0 ? now - prev : 0;
+        if (frameMs > 0) this.play.sampleDrawFrame(frameMs);
+        // `[WXG-T-1109]` 拖动窗口取样：手指在动的那几帧才值得定性（其余帧掉不掉帧不影响「跟手」）。
+        if (this.play.debugInfo && frameMs > 0) this._sampleDragWindow(frameMs);
+        this._stepsSinceDraw = 0;
         // UI-50：唯一绘制入口 —— 可见路由自下而上画内容，最后叠调试层。
         // 基础页路由的 `draw` 闭已绑到视图入口（菜单腿 `buildMetaView` / 对局腿
         // `renderPlayPage` ⇒ `buildBeadsView`，WXG-T-420 T9）⇒ 层序与拆分前逐字一致。
@@ -620,12 +672,40 @@ export class BeadsShell implements Game {
         this._uiRoot.draw(builder, this.play.palette);
     }
 
+    /**
+     * `[WXG-T-1109]` 拖动**窗口**取样与结论落字（K-225 三列读数的真机落地腿）。
+     *
+     * 窗口 = `play.dragging`（越阈后的单指平移）。三列：帧间隔、本渲染帧跑掉的固定步数
+     * （0 / 1 / 补 2）、被跟踪位移（`snapshot.gridLeft`，含呈现残差 ⇒ 就是眼睛看到的那条线）。
+     * `drew` 恒传 `true` 的理由：拖动期相机必变 ⇒ 内容签名必变 ⇒ 脏帧门必放行；手指停住且
+     * 画面无需变时「不重绘」本来就是对的，判定表也不消费这一列。
+     * 判定不在这里另写阈值 —— 直接吃框架的 `judgeMotionJudder`（同一张表，⛔ 不许两套）。
+     */
+    private _sampleDragWindow(frameMs: number): void {
+        if (this.play.dragging) {
+            if (!this._dragRec) this._dragRec = new MotionRecorder(240);
+            this._dragRec.frame(frameMs, this._stepsSinceDraw, true, this.play.snapshot.gridLeft);
+            this._dragFrames += 1;
+            this._dragLine = '';
+            this._dragLineFrames = 0;
+            return;
+        }
+        if (this._dragRec) {
+            // 抬手那一帧落结论：冻结成一行，读得完再让回常规细节行。
+            this._dragLine = motionLine(judgeMotionJudder(this._dragRec.frames()));
+            this._dragLineFrames = DRAG_LINE_LINGER_FRAMES;
+            this._dragRec = null;
+            this._dragFrames = 0;
+        } else if (this._dragLineFrames > 0) {
+            this._dragLineFrames -= 1;
+            if (this._dragLineFrames === 0) this._dragLine = '';
+        }
+    }
+
     onPause(): void {
         if (this._phase.screen === 'play') this.play.onPause();
         if (this._phase.screen === 'replay') this._replayPlayer?.pause(); // 后台暂停回放
-    }
-
-    onResume(): void {
+    }    onResume(): void {
         if (this._phase.screen === 'play') this.play.onResume();
     }
 

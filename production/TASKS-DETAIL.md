@@ -13412,3 +13412,20 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 **附带量化（一次性临时基准，未入库）**：13×12 盘 102 珠的对局帧 = **1650 条命令**（polygon 496 / rect 690 / line 245 / circle 207 / text 10）、3778 顶点；`renderPlayFrame` 在 Node 约 **0.4–0.5 ms/帧**。⇒ 命令**构建**侧不是瓶颈，真机风险只可能在 Cocos Graphics 的逐帧重建/上传（只能用覆层读数判，Node 数不能代替）。
 
 **下一步（设备侧，1 分钟）**：暂停面板开「性能信息」→ 回对局匀速拖动 → 读 `fps N · X ms`。判据：≈60 → 不是刷新率，属输入相位/采样（继续查 touchmove 到达与固定步相位）；30–45 且 `ms ≥ 22` → 拖动期每帧全盘重绘超预算，走命令裁剪/缓存腿；稳定 60 但**画面仍顿** → `accumulator-jitter`，走呈现残差扩面（当前只覆盖「零固定步帧」）。
+
+## WXG-T-1109
+
+**拖动窗口取样：性能覆层直接给出判据（不用日志通道）** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ **代码完成（2026-11-27）**
+
+承用户「现在游戏中拖动时候，珠面移动还是不跟手，感觉刷新率不够，也可能是手势采样率不够」，以及随后的追问「虽然 debug 显示性能数据是 60 帧，但是各种动画都不是很流畅，这个性能数据是不是有问题？」。第二问的答案是**有问题**（T-1108 已修：旧口径拿固定步 1/60 冒充帧耗时，恒显示 60），但「修好仪表」还不等于「拿到读数」——真机没有 console 通道，读数就落不了地。本单把读数直接画到屏幕上。
+
+**做法（零新面板几何、零日志依赖）**：
+- 取样窗 = `play.dragging`（`tapActive && tapMoved`，即越阈后的单指平移）。只有这段窗口里「画面跟不上手指」才是要定性的那件事。
+- 三列：帧间隔（`_lastDrawAt` 壁钟差）、本渲染帧跑掉的固定步数（`update` 自增、`buildRenderModel` 取用后清零）、被跟踪位移（`snapshot.gridLeft`，含呈现残差 ⇒ 就是眼睛看到的那条线）。`drew` 恒传 `true`：拖动期相机必变 ⇒ 内容签名必变 ⇒ 脏帧门必放行，判定表也不消费这一列。
+- 判定**复用**框架 `judgeMotionJudder`（`packages/framework/src/core/performance/performance.ts`，含 `n<24 ⇒ insufficient`、`dtMax>40 ⇒ stall`、`dt中位<12 且零步≥25% ⇒ refresh-halved`、`cv>5% 且有补步 ⇒ accumulator-jitter`）——⛔ 视图/壳层不许出现第二套阈值。
+- 落字位置 = 覆层**详情行**（顶替 `pitch/LOD/beads`，面板几何零改动）：采集中报 `拖动采集中 N 帧`（有反馈才知道在采），抬手当帧冻结 `拖 <判定> <fps> 零步<N>% 峰<N>`，600 帧（≈10 s）后让回常规行。
+- 层序约束：`motionLine` 与判定词表放 `beads-shell.ts` 而非 `view/debug-layer.ts` —— 首次写在 view 里被 `check:arch` 的 `L6-direction` 拦下（新增 game → view 运行时边，旧边只减不增），已按规则搬进壳层。
+
+**判据（`tests/drag-window-probe.test.ts` 5 例，断言走「画出来的字」而非内部字段）**：① 按下（未越阈）仍画常规行 → 越阈后每帧画 `拖动采集中`（第 31 帧读数 = `拖动采集中 31 帧`）→ 抬手画 `拖 平滑 60fps 零步0% 峰17` → 再 600 帧后回到 `pitch …`；② 覆层关闭时这两行一条都不出现；③④⑤ `motionLine` 五种判定词、零步占比取整、空样本不出 `NaN`。
+
+**验证**：beads 全量 **137 文件 / 1678 passed / 2 skipped**；`typecheck`（framework + beads + breakout）绿；`framework:sync` 写入 3、`framework:sync:check` 一致；`check:arch` 绿（先红后修，见上）；`check:size` / `cocos:check` / `check:links` 绿。金样与封箱不受影响（覆层只在 `debugInfo` 开时出图，十态全关）。
