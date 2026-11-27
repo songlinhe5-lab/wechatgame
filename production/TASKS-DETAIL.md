@@ -13266,8 +13266,14 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 
 ## WXG-T-1102
 
-**对局盘面轮廓沉到珠体之下** · 负责：工程轨(Qoder)·beads/framework · 状态：🚧 **进行中（2026-11-27；分支 wxg-t-1098）**
+**对局盘面轮廓沉到珠体之下** · 负责：工程轨(Qoder)·beads/framework · 状态：✅ **已完成（2026-11-27；分支 wxg-t-1098；真机视觉待复验）**
 
 承用户实帧反馈「轮廓线压到豆面上面了」。根因有两层：① `drawGrid()` 在格循环之后调用 `drawBoardOutline()`，RenderModel 帖序上末笔轮廓覆盖边界珠面；② Cocos 珠体走 `BlitLayer`，轮廓 polygon 默认走更靠上的 `Graphics`，仅前移命令不足以改变宿主像素层序。修法 = 调用前移到格循环之前，并给对局轮廓 polygon 标记 `back: true`，复用既有 `backGraphics` 通道沉到珠体之下；Canvas2D 与详情 / 选关缩略画法不变，轮廓几何、颜色、宽度、缓存与占用判定均不变。
 
-**验证**：第一轮命令序测试先红后绿；独立审查指出宿主通道遗漏后，补 `PolygonCommand.back` 契约、renderer 路由与 `back === true` 回归，Framework renderer/render-model 52/52、play-page 5/5 通过。封箱在当前源码下按预期因旧 sha 红 2 条，待最终修复锚由官方复取器重抓 UI `play/pause/clear/fail/sprint-settle/finish` 六帧与 S3 `frame0/frame78` 两帧；要求 total/kinds 零变、每帧 54 条轮廓新增 `back`、几何与珠体族逐字节全等。封箱归因 = `K.5.1-补19` / provenance `s3_frame_recheck_t1102` / 台账 `recheck-27-outline-below`。
+**验证与取证**：
+
+- 修复锚 `5474f297`；第一轮命令序测试先红后绿，独立审查指出宿主通道遗漏后补 `PolygonCommand.back` 契约、renderer 路由与 `back === true` 回归。
+- 干净 detached worktree 用两套官方复取器各连跑两遍，输出逐字节确定性 PASS；UI 金样晋升 `play/pause/clear/fail/sprint-settle/finish` 六态，S3 封箱晋升 `frame0/frame78` 两帧。
+- 相对修复前 `ad7d4d3e` 的流级差分：两帧各 54 条轮廓 polygon 移到索引 `0–53` 并新增 `back: true`；剥离内部 `offset` 与 `back` 后几何全等，非轮廓命令 frame78 `1782/1782`、frame0 `1236/1236` 全等；total/kinds 全等。UI 六态仅 sha 变，其余五态逐字节不变；珠体族 `legacyFlow` 96/96、facet 45/45 全等。
+- 定向 Framework render-model + cocos-renderer `52/52`，Beads play-page + bead-style-seal + ui-golden `30/30`；全量 `pnpm run verify` = `PASS 22 / WARN 0 / SKIP 2 / FAIL 0`。两个 SKIP 为隔离工作树无 Cocos 构建产物导致的 `check:size`、`check:cocos-mask`，不是测试失败。
+- 封箱归因 = `K.5.1-补19` / provenance `s3_frame_recheck_t1102` / 台账 `recheck-27-outline-below`。⛔ 真机视觉仍待用户复验；「拖动时随机缺珠」为独立未结问题，本单未修改、未宣称修复。

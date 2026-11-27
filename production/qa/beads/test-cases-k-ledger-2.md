@@ -194,7 +194,7 @@
 
 > - **通道声明**：属**帖序重排 + 底图通道标记**改动（用户实帧反馈「轮廓线压到豆面上面了」）。`drawBoardOutline()` 从 `drawGrid()` 格循环之后移到之前，同时 54 条对局轮廓 polygon 新增 `back: true`，Cocos adapter 将其路由到珠体 `BlitLayer` 之下的 `backGraphics`；条数 / 逐 kind 计数零变、仅 sha 变。
 > - **编号口径**：本段 ↔ **键 27**；前态 = 第二十七次复评（T-1096 托盘容器化）产物 frame0 `1290` / frame78 `1836`；现役两帧 total / kinds 必须全等。
-> - **流级差分（最终锚复取后回填）**：要求两帧各 54 条轮廓从格循环之后移到 `0–53`，并逐条新增 `back: true`；剥离 `polygon.offset` 与 `back` 后，轮廓几何及其余命令必须逐条全等，未解释 0 条。最强反证 = 珠体族 `legacyFlow` 96/96、facet 45/45 逐字节全等。
+> - **流级差分（未解释 0 条）**：官方复取器在干净锚 `5474f297` 连跑两遍逐字节确定性 PASS。相对修复前 `ad7d4d3e`，两帧各 54 条轮廓 polygon：frame78 索引 `1638–1691→0–53`、frame0 `1092–1145→0–53`，并逐条新增 `back: true`；剥离 `polygon.offset` 与 `back` 后，轮廓几何逐条全等，非轮廓命令 frame78 `1782/1782`、frame0 `1236/1236` 亦逐条全等。零新增、零删除、零几何改写，total/kinds 全等（frame78 `1836` / frame0 `1290`），仅 sha 变。UI 金样本 `play/pause/clear/fail/sprint-settle/finish` 六态仅 sha 变、total/kinds 全等，其余五态逐字节未变。最强反证 = 珠体族 `legacyFlow` 96/96、facet 45/45 逐字节全等。
 > - **判据同步**：provenance 新增 `s3_frame_recheck_t1102` + 台账 `recheck-27-outline-below`（0/0），`BACK_KEY_LINES` 登记两帧各 54；⛔ 不改任何帧长等式。
 
 ### K.6 `06` 珐琅 —— **只登记出池门引用，本批不造判据**（Q1 = 甲）
