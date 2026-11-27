@@ -13327,3 +13327,31 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 **验证**：typecheck 绿；beads 全量 136 files / 1665 passed / 2 skipped；`framework:sync:check` 绿（framework 72 + game 138）；`check:tasks` 绿（352 行 / 379 节）；`pnpm run verify` PASS 24 | WARN 0 | SKIP 0 | FAIL 0；`build:cocos` release 构建成功、`check:size` 主包 3436.3 KB 达标。⚠️ **产物新鲜度阻塞**：运行中的 Cocos 编辑器内存缓存未随 MCP `refresh` / `reimport` / 清 `temp/programming` 失效，产物 `assets/main/index.js` 仍是旧 `snapshot-projection` 编译片段（无 `[slotdbg]`）；需用户重启 Cocos Creator 后重建并 grep 产物确认，源码与单测侧已闭环。
 
 **下一步**：用户重启 Cocos Creator → `pnpm --filter @wxgame/beads run build:cocos` → 确认产物含 `[slotdbg]`；真机复现时把 `[slotdbg]` 与 HUD `beads N`、`[blitdbg] f...` 三类读数对齐；本单只打点，不改产品行为。
+
+## WXG-T-1104
+
+**wechatgame 产物丢组件黑屏修复（B 方案：场景只留 GameRoot，Bootstrap 代码自举）** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ **代码完成 + 用户构建通过（2026-11-27）**
+
+承用户「构建出来的 wechatgame 包打不开，一直黑屏；web-mobile 正常」+ 方案 B 拍板。
+
+**根因（取证，非推定）**：`build/wechatgame` 产物里的场景 JSON 把 `GameRoot` 上的自定义组件序列化成 `null` 占位 —— 反序列化当场抛 `Error 3817 … Arguments: GameRoot, 1`（等价 `component … index of 1 is corrupted! It has been removed.`），引导组件被删 ⇒ 只剩空 Canvas ⇒ 黑屏，且游戏侧 console 一条不出（引擎日志之后无业务日志）。同场景 web-mobile 产物完好 ⇒ 排除场景数据损坏。已排除：引擎分离档、`merge_dep`、资源库缓存（`library/96/9683d2dd-….json` 含脚本类）、插件未授权（`separatedPlugins` 已注入）。
+
+**修法**：`games/beads/cocos/assets/Main.scene` 移除 `GameRoot` 上的 `BeadsBootstrap` 组件（场景现只有 `GameRoot` + `cc.UITransform`）；`BeadsBootstrap.ts` 末尾自举 —— `director.on(Director.EVENT_AFTER_SCENE_LAUNCH, mountBeadsBootstrap)` + 立即调用一次，按名字找 `GameRoot`（兜底 `Canvas/GameRoot`）并 `addComponent`，已挂则不重复。口径：**场景不再承载自定义脚本组件**（L1 精神：不手改场景，只让场景更简）。
+
+**验证**：用户编辑器构建成功（20:39）；产物场景 JSON = `[4,"GameRoot",1,[[0,-8,[5,750,1334]]]]`，无 `null` 占位、类型表无脚本类；模拟器跑干净产物 `[verify] scene=Main nodes=35 spr=12 frm=12 frames=126`、`[BeadsBlitCarrier] 静态位图 53/53 已装载`，本次无 3817；`tsc -p games/beads/cocos/tsconfig.json --noEmit` 零报错；`check:size` beads 主包 3436.6 KB 达标。
+
+**附带**：`games/beads/project.config.json` / `games/beads/cocos/project.config.json` 的 AppID 统一为用户新注册的引擎分离 id `wxc4fad445b6d9c916`（两文件被 `.gitignore` 忽略，不入仓）；密钥不入仓。
+
+## WXG-T-1105
+
+**上下拖动/缩放边界换整屏（与左右同尺，仍各留 4 格）** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ **代码完成（2026-11-27）**
+
+承用户令：「左右必须保留 4 个珠子宽度已经可以了，可是上下不行，上下拖动和缩放的边界在屏幕的顶部和底部」+ 选定「上下也按屏幕留 4 珠」。
+
+**口径**：`clampCamera` 的纵向视口由 `PUZZLE_BAND`（560 高）换成**整屏高**（`liveDesignHeight()`，逐机实际设计高，基准 1334），与横向 `DESIGN_W` 对称同尺 ⇒ 盘面任一侧至少 `MIN_VISIBLE_CELLS = 4` 格可见；盘心仍锚盘带心（`gridLayoutFor` 落点不变，offset 换算各减 `BAND_MID_Y`）。`beads-game::_applyDragResidual` 的拖动残差夹取同一改（该腿绕过 clampCamera，旧盘带窗口会让跟手帧把盘面推出屏）。
+
+**判据**：`games/beads/tests/board-camera.test.ts` —— ①「任意方向拖到底 / 任意倍率，可见格数 ≥ 4」的纵向视口改 `[0, liveDesignHeight()]`（旧断言按盘带算，口径已废）；②新增「纵向边界 = 屏幕上/下沿」：13×12 @1.0 往下拖到底 ⇒ 盘顶缘 = `4×BEAD_PITCH` 且 `< PUZZLE_BAND.yMin + 4格`（旧口径必红），往上拖到底 ⇒ 盘底缘 = `liveDesignHeight() − 4格`；③`clampY` 镜像同步成整屏式。
+
+**验证**：beads 全量 136 files / 1666 passed / 2 skipped；`tsc --noEmit`（framework + beads + breakout）绿；`framework:sync`（写入 2）后 `framework:sync:check` 一致；`check:arch` OK（仅 L1 编辑器产物 1 条既有 warning）；`check:size` 主包 3436.6 KB 达标；`check:links` OK。
+
+**下一步**：用户重建 wechatgame 产物后真机复验上下边界（预期：盘面可拖到屏幕上下沿、只露 4 格；HUD/托盘会压住其中部分盘面，属选定的「整屏」口径，如需限制遮挡另裁）。

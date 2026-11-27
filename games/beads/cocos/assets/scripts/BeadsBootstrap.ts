@@ -12,7 +12,7 @@
  * 拷贝件统一由 `framework:sync`（默认 strip-suffix 语义）生成。
  */
 
-import { _decorator, Node } from 'cc';
+import { _decorator, Director, director, Node } from 'cc';
 
 import { Bootstrap } from './framework/adapters/cocos/bindings';
 import type { CocosBlitCarrierLike, CocosClipHostLike } from './framework/adapters/cocos/cocos-renderer';
@@ -146,3 +146,25 @@ export class BeadsBootstrap extends Bootstrap {
     return createShowcaseClip(parent);
   }
 }
+
+/**
+ * `[WXG-T-1104]` **代码自举**：场景不再挂本组件，由本模块自行挂到 `GameRoot`。
+ *
+ * 为什么：wechatgame 构建器把场景里的自定义组件序列化成 `null` 占位（web-mobile 正常），
+ * 运行时反序列化报 `Error 3817 ... component of 'GameRoot' which with an index of 1 is corrupted`
+ * 并**移除组件** ⇒ 引导逻辑不存在 ⇒ 只有空 `Canvas`、整屏黑。
+ *
+ * 时序：构建产物里前置脚本可能晚于场景启动执行（同一构建器问题），所以两条路都要盖：
+ * ① 模块先执行 ⇒ 监听 `EVENT_AFTER_SCENE_LAUNCH`；② 模块后执行 ⇒ 立即补挂一次。
+ * `getComponent` 守卫保证不会重复挂载。
+ */
+function mountBeadsBootstrap(): void {
+  const scene = director.getScene();
+  if (!scene) return;
+  const root = scene.getChildByName('GameRoot') ?? scene.getChildByName('Canvas')?.getChildByName('GameRoot');
+  if (!root || root.getComponent(BeadsBootstrap)) return;
+  root.addComponent(BeadsBootstrap);
+}
+
+director.on(Director.EVENT_AFTER_SCENE_LAUNCH, mountBeadsBootstrap);
+mountBeadsBootstrap();
