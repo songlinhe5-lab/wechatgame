@@ -1284,6 +1284,23 @@ describe('设置态遮罩 α 分列 · ux §3.3「遮罩」条 + 工作项④：
         expect(metaFrame(shell).join('\n')).not.toContain('fps ');
     });
 
+    // WXG-T-1101：debug 第三行带权威盘面珠数，填珠后同步 +1（K-095：先定性「数错/画错」）。
+    it('调试层 detail 带当前盘面权威珠数，填珠后同步 +1', () => {
+        const harness = boot(newStorage());
+        const game = ensurePlaying(harness);
+        const out = { enabled: false, frameMs: 0, phase: '', level: '', detail: '' };
+
+        game.debugState(out, false);
+        const before = game.grid.filledCount;
+        expect(out.detail).toContain(`beads ${before}`);
+
+        const placed = fillRow(game, 1);
+        expect(placed).toBe(1);
+        game.debugState(out, false);
+        expect(out.detail).toContain(`beads ${game.grid.filledCount}`);
+        expect(game.grid.filledCount).toBe(before + placed);
+    });
+
     // 菜单 overlay 判定面 = overlay 打开期间：仅 settings 读下调 α，signin 仍 0.5（真 shell 渲染链）。
     // ⚠ EP12-S6（Q5①）：`open-levels` 钮已从菜单版面摘除 ⇒ 本例不再能由菜单腿驱动 levels overlay；
     //   其 `rgba(0,0,0,0.5)` 分支仍由上方**静态穷尽门**（meta-view 含该字面）钉住，不因此漏网。

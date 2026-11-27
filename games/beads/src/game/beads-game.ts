@@ -1146,7 +1146,8 @@ export class BeadsGame {
     out.frameMs = this._frameMs;
     out.phase = onMenu ? 'menu' : s.phase;
     out.level = onMenu ? '' : s.mode === 'sprint' ? '冲刺' : `L${s.levelIndex + 1}`;
-    out.detail = onMenu ? '' : `pitch ${s.gridPitch.toFixed(1)} · LOD ${s.beadLodLayers}`;
+    // [WXG-T-1101] 权威盘面珠数：数变 ⇒ 查逻辑/守恒；数不变但视觉缺珠 ⇒ 查渲染/宿主载体（K-095/K-216）。
+    out.detail = onMenu ? '' : `pitch ${s.gridPitch.toFixed(1)} · LOD ${s.beadLodLayers} · beads ${this._grid.filledCount}`;
     return out;
   }
 

@@ -13275,3 +13275,21 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 **判据**：`board-camera.test.ts` 新增回归——先把相机拖到边缘，再捏合缩到低倍，按 `gridLayoutFor` 真源算可见格数，X/Y 均 ≥4（K-085：不从屏幕式手推）。既有 `applyPinch` 例同步补 cols/rows。
 
 **验证**：TDD RED 实测 `visW / pitch = -5.8750000000000036 < 4`；修复后 `pnpm --filter @wxgame/beads exec vitest run tests/board-camera.test.ts` 27 passed；`pnpm --filter @wxgame/beads run typecheck` 绿；`pnpm --filter @wxgame/beads test` 135 files / 1662 passed / 2 skipped；`pnpm run framework:sync` 写 2 文件、`pnpm run framework:sync:check` 绿；`pnpm run check:tasks` 绿；`pnpm run build:cocos` release 绿；`pnpm run verify` PASS 24 | WARN 0 | SKIP 0 | FAIL 0。
+
+---
+
+## WXG-T-1101
+
+**debug 信息增加权威盘面珠数** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ **完成（2026-11-27）**
+
+承用户令「debug 信息里增加一个显示，当前盘面显示珠子的个数，我跑下看下那个场景下是否数字有变化，看是渲染问题还是逻辑问题」。
+
+**口径**：取 `BeadsGame._grid.filledCount`（逻辑权威盘面珠数）；不是渲染模型快照、不含托盘持珠、不随相机可见格变化。数字变化 ⇒ 先查逻辑/守恒；数字不变但视觉缺珠 ⇒ 查渲染/宿主载体（K-095 先定性「数错/画错」，K-216 harness 对宿主腿结构性盲，K-110 两端消费面核对）。
+
+**落点**：`games/beads/src/game/beads-game.ts` 的 `debugState()` 第三行 `detail` 追加 ` · beads N`；菜单帧仍空串，关 debug 开关仍零指令；harness 画布内 HUD 与 Cocos 同源，DOM `#hud` 不动；Cocos 镜像由 `framework:sync` 同步（写 1 文件）。不改游戏状态、不改 `blitdbg` 日志格式。
+
+**判据**：`tests/bead-style-settings.test.ts` 新增红灯——权威数为 0 时 detail 含 `beads 0`，填 1 颗后数字同步 +1（`grid.filledCount` 真值对照）。
+
+**验证**：TDD RED 实测 `expected 'pitch 0.0 · LOD 0' to contain 'beads 0'`；GREEN 同例 1 passed；`pnpm --filter @wxgame/beads run typecheck` 绿；`pnpm --filter @wxgame/beads test` 135 files / 1663 passed / 2 skipped；`pnpm run framework:sync:check` 绿；`pnpm run build:cocos` release 绿；`pnpm run verify` PASS 24 | WARN 0 | SKIP 0 | FAIL 0。
+
+**下一步**：用户真机跑异常场景；按 `beads N` 是否变化定性，再决定是否开根因修复（本单不修产品行为）。
