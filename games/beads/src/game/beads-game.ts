@@ -1093,7 +1093,6 @@ export class BeadsGame {
   update(dt: number): void {
     if (!this._services) return;
     this._frameSeq += 1;
-    this.sampleFrame(dt);
     // ── 输入段（相位无关，WXG-T-100 / BD-34）────────────────────────────────
     // `InputRouter.handleTap` 的相位路由表已写全四相位（`input-control §2.3 状态门禁`：
     // PAUSED 仅暂停面板按钮；LEVEL_CLEAR / GAME_OVER / FINISH 仅各自面板按钮；
@@ -1126,13 +1125,19 @@ export class BeadsGame {
   }
 
   /**
-   * 性能采样（UI-24）：帧耗时 EMA（α=0.1 ≈ 十帧平滑）。由 `BeadsShell.update` 每帧统一喂
-   * ⇒ 菜单腿也在测（旧版只在玩法 update 里算，菜单 fps 会冻结）。关→开从 0 重起步。
+   * 性能采样（UI-24）：**渲染帧间隔**（壁钟 ms）EMA（α=0.1 ≈ 十帧平滑）。
+   *
+   * `[WXG-T-1108]` 旧口径吃 `update(dt)` 的入参 —— 那是**固定步长**恒 1/60，折算恒 16.7 ms
+   * ⇒ 覆层 fps 恒显示 60，拖动期真掉帧根本读不出来（K-225 的「帧间隔」这一列在真机上
+   * 一直是假的）。现口径由宿主在 `buildRenderModel` 里按壁钟差值喂（每个渲染 tick 一次，
+   * 脏帧门只拦 `onRender`、拦不到那里）。开关关时首行早退 ⇒ 零开销。
+   *
+   * 关→开从 0 重起步（`setDebugInfo` 置 0）；> 250 ms 的档视为后台/挂起不采样
+   * （同 `FixedStepLoop.maxFrameTime` 口径，避免回前台时把 EMA 拉爆）。
    */
-  sampleFrame(dt: number): void {
-    if (!this._settings.values.debugInfo || dt <= 0) return;
-    const ms = dt * 1000;
-    this._frameMs = this._frameMs === 0 ? ms : this._frameMs * 0.9 + ms * 0.1;
+  sampleDrawFrame(frameMs: number): void {
+    if (!this._settings.values.debugInfo || !(frameMs > 0) || frameMs > 250) return;
+    this._frameMs = this._frameMs === 0 ? frameMs : this._frameMs * 0.9 + frameMs * 0.1;
   }
 
   /**

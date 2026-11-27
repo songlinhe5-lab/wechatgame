@@ -353,6 +353,11 @@ export class BeadsShell implements Game {
     private readonly _eventOffs: Array<() => void> = [];
     /** UI-25：UiRoot 的调试投影复用对象（与 `BeadsGame.debugState` 同口径）。 */
     private readonly _uiDebug: UiDebugState = { enabled: false, frameMs: 0, phase: '', level: '', detail: '' };
+    /**
+     * `[WXG-T-1108]` 上一渲染帧的壁钟（ms）。`0` = 尚无基准（首帧不采样）。
+     * 只在 `buildRenderModel` 里推进 —— 那里每个渲染 tick 恰好被调一次。
+     */
+    private _lastDrawAt = 0;
     /** UI-25：组合根（开关关闭时不参与绘制/推进）。 */
     private readonly _uiRoot: UiRoot;
     /** UI-42：导航唯一真源 —— 屏幕 / 覆盖层 / 选关页大关上下文都由这个栈投影。 */
@@ -585,13 +590,11 @@ export class BeadsShell implements Game {
         }
         if (this._phase.screen === 'play') {
             this._menuPress = null; // 进玩法后不得残留菜单按压（否则回菜单时会补发一次 phantom tap）
-            this.play.update(dt); // 对局腿的采样在 `sampleFrame` 内（game.update 开头）
+            this.play.update(dt);
             this._replay.tick(this.play); // EP15-S3：录制起止 / 续时事件（无在录 = 早退）
             this._tickBotAssist(dt);
             return;
         }
-        // UI-24：菜单腿不跑 play.update ⇒ 采样单独喂（debugInfo 关时内部零开销）。
-        this.play.sampleFrame(dt);
         this.play.updateRank(dt); // 好友榜面板：菜单腿推进开合动画（play.update 在菜单不跑）
         // 菜单：推进体力恢复（离线 f(Δt)）+ 读点击。play 冻结（不 update ⇒ 倒计时不走）。
         this.meta?.refresh();
@@ -602,6 +605,13 @@ export class BeadsShell implements Game {
     }
 
     buildRenderModel(builder: RenderModelBuilder): void {
+        // `[WXG-T-1108]` 性能覆层的帧耗时取样点在这里：`buildRenderModel` 每个**渲染 tick**
+        // 恰好被调一次（脏帧门只拦 `onRender`，拦不到本函数），宿主的壁钟差值就是真实帧间隔。
+        // ⛔ 不要再把 `update(dt)` 的固定步长当帧耗时 —— 那是 1/60 常数，覆层 fps 会恒显示 60。
+        const now = this._clock();
+        const prev = this._lastDrawAt;
+        this._lastDrawAt = now;
+        if (prev > 0) this.play.sampleDrawFrame(now - prev);
         // UI-50：唯一绘制入口 —— 可见路由自下而上画内容，最后叠调试层。
         // 基础页路由的 `draw` 闭已绑到视图入口（菜单腿 `buildMetaView` / 对局腿
         // `renderPlayPage` ⇒ `buildBeadsView`，WXG-T-420 T9）⇒ 层序与拆分前逐字一致。

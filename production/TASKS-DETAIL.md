@@ -13391,3 +13391,24 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 **验证**：beads 全量 **135 文件 / 1670 passed / 2 skipped**；`typecheck`（framework + beads + breakout）绿；`framework:sync` → 一致。渲染面零改动 ⇒ 金样 / 封箱零漂移（未重抓）。
 
 **未闭环（如实）**：用户并报「感觉刷新率不够 / 手势采样率不够」——那是**另一个维度**（时间轴分布，不是位移总量），按 K-225 必须取三列读数（帧间隔 / 本帧固定步数 / 是否真重绘）才能定性 `refresh-halved` / `accumulator-jitter` / `stall`。探针已在 Cocos 宿主接线（`bindings.ts` `armMotionProbe`，420 帧自动 `[MOTION]` 一行，`globalThis.__motion.report()`），但当前取样窗 = 开机后前 420 帧、不与拖动手势对齐，且本机日志 sink 已被用户停用 ⇒ 待用户允许后按「拖动窗口采样」再接线。
+
+## WXG-T-1108
+
+**性能覆层帧耗时改吃渲染帧壁钟（把「刷新率」这列读数变成真的）** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ **代码完成（2026-11-27）**
+
+承 T-1107 同一用户口述的后半句「感觉刷新率不够，也可能是手势采样率不够」。按 K-225，定性 `refresh-halved` / `accumulator-jitter` / `stall` 必须先拿到**帧间隔**读数，而真机侧唯一的「无日志」读数点就是暂停面板 →「性能信息」覆层。
+
+**病灶（结构性，非实测偏差）**：`BeadsGame.sampleFrame(dt)` 吃的 `dt` 是 `game.update(dt)` 的入参，而那恒等于 `FixedStepLoop.fixedDt`（1/60）⇒ `_frameMs` **恒 16.7**、覆层 fps **恒显示 60**。也就是说这个面板从出生起就测不出掉帧：拖动期真掉到 30 fps，面板照样写 60。（旁证：T-1076/T-1080 取证时记录的「性能面板帧耗时稳定」正是这个盲区的产物。）
+
+**修法（最小面，零渲染改动）**：
+- `BeadsGame.sampleFrame(dt)` → `sampleDrawFrame(frameMs)`：语义从「固定步秒数」改成「壁钟毫秒」，EMA α=0.1 不变，`> 250 ms` 的档（回前台/挂起）不采样（同 `FixedStepLoop.maxFrameTime` 口径）。
+- 取样点搬到 `BeadsShell.buildRenderModel`：该函数**每个渲染 tick 恰好被调一次**（脏帧门只拦 `onRender`，拦不到它）⇒ 差值即宿主帧间隔；用宿主注入的 `clock`（Cocos 缺省 `Date.now`，1 ms 分辨率对 16/33 ms 的 EMA 足够）。
+- 删除 `game.update` 与菜单腿的两处旧调用；`debug-layer.ts` 头注同步。
+
+**判据（ᵇ 反向自证）**：新增 `tests/perf-frame-clock.test.ts` 三例——① 每渲染帧 33 ms ⇒ `frameMs ≈ 33`、折算 fps 30；② 只跑固定步 `update(1/60)`（`initialScreen: 'play'`）⇒ `frameMs` 仍为 0；③ 开关关闭零写入、`1000 ms` 档不采样。**已做反向自证**：临时在 `update` 里补回旧口径 `sampleDrawFrame(dt*1000)` ⇒ 例② 红（`expected 16.6666… to be +0`），移除即绿。`tests/pause-settings.test.ts` §8-13 同步改钉新口径（旧断言「固定步后 `perfFrameMs > 0`」本身编码的就是错口径）。
+
+**验证**：beads 全量 **136 文件 / 1673 passed / 2 skipped**；`typecheck`（framework + beads + breakout）绿；`framework:sync` 写入 4、`framework:sync:check` 一致；`check:arch`（1 warning = L1 编辑器产物，常态）/`check:size`/`ctx:check` 绿。金样与封箱夹具不受影响（覆层仅在 `debugInfo` 开时出图，十态与封箱均关）。
+
+**附带量化（一次性临时基准，未入库）**：13×12 盘 102 珠的对局帧 = **1650 条命令**（polygon 496 / rect 690 / line 245 / circle 207 / text 10）、3778 顶点；`renderPlayFrame` 在 Node 约 **0.4–0.5 ms/帧**。⇒ 命令**构建**侧不是瓶颈，真机风险只可能在 Cocos Graphics 的逐帧重建/上传（只能用覆层读数判，Node 数不能代替）。
+
+**下一步（设备侧，1 分钟）**：暂停面板开「性能信息」→ 回对局匀速拖动 → 读 `fps N · X ms`。判据：≈60 → 不是刷新率，属输入相位/采样（继续查 touchmove 到达与固定步相位）；30–45 且 `ms ≥ 22` → 拖动期每帧全盘重绘超预算，走命令裁剪/缓存腿；稳定 60 但**画面仍顿** → `accumulator-jitter`，走呈现残差扩面（当前只覆盖「零固定步帧」）。

@@ -789,10 +789,14 @@ describe('S9 pause & settings', () => {
     });
     expect(rebooted.game.snapshot.debugInfo).toBe(true);
 
-    // 覆层开着才有帧样本（EMA 起步 = 首帧实测 1/60s，随后按 α=0.1 平滑）。
+    // `[WXG-T-1108]` 覆层帧耗时 = **渲染帧壁钟间隔**（宿主在 `buildRenderModel` 里喂），
+    // 固定步 `advance` 不再产生样本（旧口径把 1/60 当帧耗时 ⇒ fps 恒 60，测不出掉帧）。
     harness.advance(1 / 60);
-    expect(game.snapshot.perfFrameMs).toBeGreaterThan(0);
-    expect(game.snapshot.perfFrameMs).toBeLessThanOrEqual(1000 / 60 + 1e-6);
+    expect(game.snapshot.perfFrameMs).toBe(0);
+    game.sampleDrawFrame(33); // 宿主喂一帧 33 ms ⇒ EMA 起步值 = 首帧
+    expect(game.snapshot.perfFrameMs).toBeCloseTo(33, 6);
+    game.sampleDrawFrame(1_000); // 后台/挂起档（> 250 ms）不采样
+    expect(game.snapshot.perfFrameMs).toBeCloseTo(33, 6);
 
     // 再点回 OFF：写档反转，EMA 清零（热路径零开销）。
     game.applySettingsAction('toggle-debug-info');

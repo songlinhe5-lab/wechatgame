@@ -6,8 +6,8 @@
  *   半透明**窄面板**而非全屏遮罩（全屏 α 会改变 fill 负载，测量就不干净）；开关关闭零指令。
  * - {@link drawSafeGuideLines}：安全区三条标定线（顶部 / 胶囊底缘 / Home 条），对局与主菜单共用。
  *
- * 采样不在这里：EMA 单源在 `BeadsGame.sampleFrame`——对局腿由 `game.update` 喂，
- * 菜单腿由 `BeadsShell.update` 单独喂（play.update 不跑）；本层只读结果。
+ * 采样不在这里：EMA 单源在 `BeadsGame.sampleDrawFrame`（`[WXG-T-1108]` 口径 = 宿主壁钟的
+ * 渲染帧间隔，由 `BeadsShell.buildRenderModel` 每渲染帧喂一次）；本层只读结果。
  *
  * ⚠ 迁移期落点 = `src/view/`；UI-25 随风格层搬 `src/ui/kit/`。
  */
