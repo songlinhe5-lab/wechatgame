@@ -197,6 +197,15 @@
 > - **流级差分（未解释 0 条）**：官方复取器在干净锚 `5474f297` 连跑两遍逐字节确定性 PASS。相对修复前 `ad7d4d3e`，两帧各 54 条轮廓 polygon：frame78 索引 `1638–1691→0–53`、frame0 `1092–1145→0–53`，并逐条新增 `back: true`；剥离 `polygon.offset` 与 `back` 后，轮廓几何逐条全等，非轮廓命令 frame78 `1782/1782`、frame0 `1236/1236` 亦逐条全等。零新增、零删除、零几何改写，total/kinds 全等（frame78 `1836` / frame0 `1290`），仅 sha 变。UI 金样本 `play/pause/clear/fail/sprint-settle/finish` 六态仅 sha 变、total/kinds 全等，其余五态逐字节未变。最强反证 = 珠体族 `legacyFlow` 96/96、facet 45/45 逐字节全等。
 > - **判据同步**：provenance 新增 `s3_frame_recheck_t1102` + 台账 `recheck-27-outline-below`（0/0），`BACK_KEY_LINES` 登记两帧各 54；⛔ 不改任何帧长等式。
 
+### K.5.1-补20 整帧基线第二十九次复评修订（2026-11-27 · WXG-T-1103 盘面 B0 拆条沉 `backGraphics` · 正本 = provenance `s3_frame_recheck_t1103`）
+
+> - **通道声明**：属**命令拆条 + 底图通道标记 + 帖序重排**改动（用户在三案中裁「甲」：外轮廓须在珠面背景色之后、珠槽与珠子之前）。旧写法 `drawTargetTile` 把 B0 背景色与珠槽合成同一条 tile blit（同进宿主 `BlitLayer`，层 1）⇒ 轮廓在「背景色」与「珠槽」之间没有可插入位置；本批由新增 `drawBoardBase()` 把 B0 拆成单独 `back: true` rect、由 `drawGrid()` 前置一趟铺设（层 0），`drawBoardOutline()` 移到该趟之后，empty / filled 两分支退出合并无条件画槽 ⇒ 序 = 背景色 → 轮廓 → 珠槽 → 珠子，⛔ 不新增宿主通道。
+> - **编号口径**：本段 ↔ **键 28**；前态 = 第二十八次复评（T-1102 轮廓沉底）产物 frame0 `1290` / frame78 `1836`；现役两帧 total / kinds 必须全等。
+> - **流级差分（未解释 0 条）**：官方复取器在干净锚 `018ec511`（detached worktree）连跑两遍逐字节确定性 PASS；前态基线由同一复取器在 `23bee965` 隔离复现（frame0 `985d1ba1…` / frame78 `5ac2ab82…` 逐字节 ≡ 入库夹具 ⇒ 基线可再生）。相对差分唯一集合差 = **156 条 B0 rect 打 `back` 键**（剥离 `back` 键后两帧命令多重集全等）；其余差异均属同一条令在帧内的位置移动（B0 由逐格前置成独立一趟、轮廓移到该趟之后）⇒ 零新增、零删除、零几何与零墨值改写，total / kinds 全等（frame78 `1836` / frame0 `1290`），仅 sha 变（frame0 `985d1ba1→1d6aa547`、frame78 `5ac2ab82→04fb3391`）。UI 金样本 `play/pause/clear/fail/sprint-settle/finish` 六态仅 sha 变、total / kinds 全等，其余五态（菜单族）逐字节未变。最强反证 = 珠体族 `legacyFlow` 96/96、facet 45/45 逐字节全等。
+> - **代价与适用边界**：本批只改**对局盘面**的合并腿；详情页 / 选关缩略仍走 `drawTargetTile` 合并且轮廓压珠面（T-928 口径）⇒ 与盘面层序不一致，已登为尾巴待裁。真机 tint 臂代价 = 盘面退出 tile 合并 ⇒ 每格 +1 条命令（B0 rect）、tile 图集少一整段格面（封箱为矢量臂 ⇒ 不体现在两帧计数上）。
+> - **判据同步**：provenance 新增 `s3_frame_recheck_t1103` + 台账 `recheck-28-board-base-back`（0/0）；`BACK_KEY_LINES` 登记 54 → **210**（拆为 `BOARD_OUTLINE_BACK_KEYS` 54 + `BOARD_BASE_BACK_KEYS` 156，另钉 kind 构成腿）；⛔ 不改任何帧长等式。
+
+
 ### K.6 `06` 珐琅 —— **只登记出池门引用，本批不造判据**（Q1 = 甲）
 >
 > | 引用项 | 内容 | 出处 | QA 处置 |

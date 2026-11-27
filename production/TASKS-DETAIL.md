@@ -13266,7 +13266,7 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 
 ## WXG-T-1103
 
-**盘面 B0 拆条沉底（背景色→轮廓→珠槽→珠子）** · 负责：工程轨(Qoder)·beads · 状态：🚧 **进行中（2026-11-27；分支 wxg-t-1098）**
+**盘面 B0 拆条沉底（背景色→轮廓→珠槽→珠子）** · 负责：工程轨(Qoder)·beads · 状态：✅ **已完成（2026-11-27；分支 wxg-t-1098；真机视觉待复验）**
 
 承用户实帧反馈「上一层的槽压住了下一层的豆」与「轮廓线压到豆面上面了」，并对「外轮廓线应在珠面背景色之后、珠槽与珠子之前」给出裁定「**甲**」。根因是通道而非命令序：旧写法 `drawTargetTile` 把 **B0 背景色与珠槽合成同一条 tile blit**（同进宿主 `BlitLayer`，层 1），轮廓没有能插在「背景色」与「珠槽」之间的位置 ⇒ 沉 `backGraphics` 就被背景色盖住，留 `Graphics` 就压住豆面。甲案 = 把 B0 从合并腿拆出、单独成条沉底，序自然成立，⛔ 不需要新增宿主通道。
 
@@ -13274,7 +13274,11 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 
 **已得证据**：红灯测试先行（`play-page.test.ts` 新增「盘面绘制序 = 背景色 → 轮廓 → 珠槽 → 珠子」，首轮因 `背景色 B0 必须单独成条: expected 0 to be greater than 0` 失败）⇒ 实现后 play-page `6/6`、`tsc --noEmit` 干净、`framework:sync:check` 一致。封箱流级差分（HEAD `23bee965` ↔ 本工作树，官方复取器 `WXG211_DUMP_FLOW` 双臂 dump）：两帧 `total` / 逐 kind **全等**（frame78 `1836`、frame0 `1290`；rect 936 / polygon 376 / line 353 / circle 159 / container 对 2 / text 10），唯一集合差 = **156 条 B0 rect 打 `back` 键**（剥键后两帧多重集全等）⇒ back 键登记 54 → **210**（54 polygon 轮廓 + 156 rect 背景色）；珠体族 `legacyFlow` 96/96 与 facet 45/45 逐字节全等。
 
-**待做**：干净 detached 锚官方复取器重抓 UI 金样六态与 S3 两帧（各连跑两遍确定性自证）+ `BACK_KEY_LINES` 54→210 与 provenance 第廿九次复评 / 台账 `recheck-28` / QA `K.5.1-补20` 同步登记 + 全量 `verify` + 按新包重建 release 产物交用户真机复验。⛔ 本轮未改「拖动时随机缺珠」与「点过盘面后 22 格珠 blit 与 tile 中心偏移 ≈6dp」两项独立未结问题。
+**收口取证**：修复锚 `018ec511`（代码 + 红灯测试 + 台账登记同笔入库，已推 origin/wxg-t-1098）。在该锚的**干净 detached worktree**（`.worktrees/wxg-t-1103-recapture`）用两套官方复取器各连跑两遍：UI 金样十一帧逐字节确定性 PASS（`play/pause/clear/fail/sprint-settle/finish` 六态 sha 变、total / kinds 全等，菜单族五态逐字节未变）；S3 封箱两遍逐字节 PASS（frame0 `1290` sha `985d1ba1→1d6aa547`、frame78 `1836` sha `5ac2ab82→04fb3391`、逐 kind 全等；`legacyFlow` 96/96 与 facet 45/45 逐字节全等）。前态基线可再生自证：同一复取器在 `23bee965` 隔离复现的 frame0 / frame78 sha 逐字节 ≡ 当时入库夹具。正式夹具由 `temp/t1103-promote.mjs` 从复取产物搬运（⛔ 不手改 sha）。判据同步 = `BACK_KEY_LINES` 54 → 210（拆为轮廓 54 polygon + B0 156 rect，另钉 kind 构成腿）+ provenance `s3_frame_recheck_t1103` + 台账 `recheck-28-board-base-back`（0/0）+ QA `K.5.1-补20` + `ui-architecture-beads.md` §12 视觉变更登记。
+
+**验证结果**：`pnpm --filter @wxgame/beads test` = **134 文件 / 1664 passed / 2 skipped**（零红）；`pnpm run verify` = **PASS 23 / WARN 0 / SKIP 1 / FAIL 0**，唯一 SKIP = `check:size`（隔离工作树无完整构建产物时的子命令自报 SKIP，非测试失败）；`framework:sync:check`、`check:tasks`、`check:links`、`git diff --check` 均绿。
+
+**未结与尾巴**：⛔ 真机像素层序仍需用户扫码复验（需先重建 release 包：旧 v1.0.80 产物构自本代码之前；真机预览另受缺上传私钥阻塞）。另两项独立问题本单未修、未宣称：「拖动时随机缺珠」、「点过盘面后 22 格珠 blit 与 tile 中心偏移 ≈6dp」。详情页 / 选关缩略的轮廓层序与盘面不一致（T-928 口径），待用户裁定是否统一。
 
 ## WXG-T-1102
 
