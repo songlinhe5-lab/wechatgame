@@ -38,7 +38,7 @@ import {
 
 import { App } from '../../compose/app.js';
 import type { Game } from '../../core/game/game.js';
-import { armMotionProbe } from '../../core/performance/performance.js';
+import { armMotionProbe, TouchMoveProbe } from '../../core/performance/performance.js';
 import { CocosRenderModelRenderer, parseColorLiteral } from './cocos-renderer.js';
 import type { CocosBlitCarrierLike, CocosClipHostLike } from './cocos-renderer.js';
 import { CocosInputBridge } from './input-bridge.js';
@@ -83,6 +83,10 @@ export class Bootstrap extends Component {
   private _menuClip: { host: CocosClipHostLike; blitLayer: Node } | null = null;
   private _renderer: CocosRenderModelRenderer | null = null;
   private _bridge: CocosInputBridge | null = null;
+  /** Cocos `_onTouchMove` 入口计数；默认关闭，仅显式 start 后累计。 */
+  private readonly _touchProbe = new TouchMoveProbe();
+  /** 本实例注册的全局诊断口；onDestroy 只删除仍指向它的那一份。 */
+  private _touchProbeGlobal: Record<string, unknown> | null = null;
   /** `[WXG-T-451]` 全局 input 监听已挂（onDestroy 对称 off）。 */
   private _inputBound = false;
   private _labels: PooledLabelSource | null = null;
@@ -200,6 +204,15 @@ export class Bootstrap extends Component {
       report: (): string => motionProbe.report(),
       frames: (): unknown => motionProbe.frames(),
     };
+    // 与 __motion 同形：先 start，匀速拖动 1~2s，再 stop/report。
+    // 计数点在 Cocos 引擎派发入口，⛔ 不是 fixed-step 的 panFrames。
+    this._touchProbeGlobal = {
+      start: (): void => this._touchProbe.start(Date.now()),
+      stop: (): void => this._touchProbe.stop(),
+      reset: (): void => this._touchProbe.reset(),
+      report: (): string => this._touchProbe.report(),
+    };
+    (globalThis as Record<string, unknown>).__touchProbe = this._touchProbeGlobal;
 
     this._app = app;
     // 动态高：GameRoot 尺寸跟上实际设计高（构造基准档下为恒等操作）。
@@ -277,6 +290,12 @@ export class Bootstrap extends Component {
     this._app?.dispose();
     this._app = null;
     this._loop = null;
+    this._touchProbe.reset();
+    const globals = globalThis as Record<string, unknown>;
+    if (this._touchProbeGlobal && globals.__touchProbe === this._touchProbeGlobal) {
+      delete globals.__touchProbe;
+    }
+    this._touchProbeGlobal = null;
   }
 
   private _buildGraph(): void {
@@ -656,6 +675,7 @@ export class Bootstrap extends Component {
   }
 
   private _onTouchMove(e: EventTouch): void {
+    this._touchProbe.sample(Date.now());
     if (!this._bridge) return;
     this._bridge.onTouchMove(readTouch(e, this._touchSpace()));
   }

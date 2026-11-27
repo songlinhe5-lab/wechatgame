@@ -13249,3 +13249,17 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 **边界**：微信真机以稳定 60Hz 为硬目标（`wx.setPreferredFramesPerSecond` 有效上限 60）；120Hz 是支持高刷的浏览器/Cocos 宿主目标。固定步不提升到 120Hz，不引入输入预测，不关闭脏帧门；无活动表现动画时预览不改变命令流。
 
 **证据**：TDD 先红后绿；Framework 615/615；Beads 1662 passed / 2 skipped；Framework 与 Beads typecheck 通过；`framework:sync` 已同步 beads/breakout Cocos 产物；`git diff --check` 通过；瞬态 ctx 基线下完整 `verify` 22 PASS / 2 SKIP / 0 FAIL（两个 SKIP 为 `check:size`、`check:cocos-mask`）；独立 CodeReview PASS，未发现阻塞问题。
+
+## WXG-T-1099
+
+**Cocos touchmove 入口采样计数** · 负责：工程轨(Qoder)·framework · 状态：✅ **已完成（2026-11-27；分支 wxg-t-1098）**
+
+承用户要求「在 Cocos `_onTouchMove` 入口计数」。目的不是改输入链路，而是把「宿主实际送达多少 touchmove」与「固定步/渲染消费多少」分开计量：新增纯 core 计数器 `TouchMoveProbe`，在真实 Cocos `Bootstrap._onTouchMove` 的第一行调用 `sample(Date.now())`，计数早于 `_bridge` 判空、`InputManager.push` 合流和渲染消费；桥接未就绪时也计入宿主入口。默认关闭，不建事件队列、不改坐标、不做插值、不自动输出。
+
+**运行时接口**：`launch()` 暴露全局 `__touchProbe.start() / stop() / reset() / report()`。`start(now)` 清空旧窗口并开始；`stop()` 停止累计；`reset()` 停止并清空；`report()` 返回 `count / elapsedMs / hz / maxGapMs`。Hz 口径为相邻样本间隔 `(count-1) × 1000 / (last-first)`，不把首尾两个样本误算成额外一次事件；相同坐标、相同时间戳仍逐次计数，不按 60Hz 固定步或渲染帧合并。`onDestroy()` 对称复位探针，且只在全局仍指向本实例接口时删除 `__touchProbe`，避免悬挂旧实例或误删后启动实例。
+
+**边界**：该读数只证明 Cocos 宿主入口收到的事件节奏，不能单独证明真机触摸硬件采样率，也不能替代渲染 FPS；微信真机仍以稳定 60Hz 为硬目标，120Hz 仅适用于支持高刷的浏览器/Cocos 宿主。
+
+**证据**：先写行为测试确认类缺失红灯，再实现；真实 `Bootstrap._onTouchMove` 接线测试通过「摘掉入口调用 → 失败 → 恢复 → 通过」的变异验证；`onDestroy` 生命周期测试先红后绿，覆盖本实例接口清理与不误删后启动实例。定向 7/7；Framework 622/622；Beads 1662 passed / 2 skipped；Breakout 239/239；三包 typecheck、`framework:sync:check`、`git diff --check` 均通过；`cocos:check` 退出 0，但因编辑器 temp 缺失跳过 beads/breakout，Cocos 脚本类型检查未覆盖；完整 `verify` 22 PASS / 2 SKIP / 0 FAIL（两个 SKIP 为 `check:size`、`check:cocos-mask`）。
+
+**真机采集**：在已安装该产物的真机/开发者工具控制台执行 `__touchProbe.start()`，匀速拖动盘面 1–2 秒后执行 `__touchProbe.stop(); __touchProbe.report()`。当前尚无真机输出，⛔ 不把示例或自动化测试读数当作真机达标证据。

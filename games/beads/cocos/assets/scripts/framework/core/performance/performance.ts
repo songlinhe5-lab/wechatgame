@@ -217,6 +217,52 @@ export function judgeMotionJudder(frames: readonly MotionFrame[]): MotionJudder 
   return { verdict: 'smooth', ...base };
 }
 
+// ── [WXG-T-1099] Cocos touchmove 入口采样（区分宿主采样率与渲染帧率）────────
+
+/**
+ * 只数 Cocos `_onTouchMove` 的到达次数；默认关闭，热路径仅一次布尔分支。
+ * Hz 用相邻样本间隔算（`(count-1)/elapsed`），避免把首尾样本误算成额外一次。
+ */
+export class TouchMoveProbe {
+  private _running = false;
+  private _count = 0;
+  private _start = 0;
+  private _last = 0;
+  private _maxGap = 0;
+
+  start(now: number): void {
+    this.reset();
+    this._last = now;
+    this._running = true;
+  }
+
+  stop(): void {
+    this._running = false;
+  }
+
+  reset(): void {
+    this._running = false;
+    this._count = 0;
+    this._start = 0;
+    this._last = 0;
+    this._maxGap = 0;
+  }
+
+  sample(now: number): void {
+    if (!this._running) return;
+    if (this._count === 0) this._start = now;
+    else this._maxGap = Math.max(this._maxGap, now - this._last);
+    this._count += 1;
+    this._last = now;
+  }
+
+  report(): string {
+    const elapsedMs = this._count > 1 ? this._last - this._start : 0;
+    const hz = elapsedMs > 0 ? (this._count - 1) * 1000 / elapsedMs : 0;
+    return `count=${this._count} elapsedMs=${elapsedMs.toFixed(1)} hz=${hz.toFixed(1)} maxGapMs=${this._maxGap.toFixed(1)}`;
+  }
+}
+
 // ── [WXG-T-1077] 宿主接线片：把 recorder 挂到 App 的每帧钩子上 ──────────────
 //
 // 放在 core 而不是各 adapter，是为了让 **Cocos 宿主 / 微信真机 / 浏览器 harness**
