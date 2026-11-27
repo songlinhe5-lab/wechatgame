@@ -86,6 +86,7 @@ import {
 import type { BeadsSnapshot } from '../game/state.js';
 import {
     SELECTED_SHADOW_ALPHA,
+    drawBoardBase,
     drawDebugCellOutline,
     drawEmptySocket,
     drawFilledBead,
@@ -94,7 +95,6 @@ import {
     drawLockedBead,
     drawSocketTintBase,
     drawStateRing,
-    drawTargetTile,
     fillPopEnvelope,
     socketTintArmActive,
     type FillPopEnvelope,
@@ -470,7 +470,32 @@ function drawGrid(
     palette: BeadsPalette,
     inks: BeadInks,
 ): void {
-    // 对局盘面轮廓先画并沉到 backGraphics，随后格底与珠体覆盖其内侧，只露外圈、不压豆面。
+    // `[WXG-T-1103 · 用户裁「甲」]` **B0 背景色单独一趟、最先画**（沉 `backGraphics`），随后才是轮廓。
+    // 理据：宿主里轮廓与 B0 同层 ⇒ 层内按命令序就是「背景色 → 轮廓」；下一趟的珠槽与珠子走
+    // blit（更高一层）又把轮廓压回去 ⇒ 用户要的「背景色 → 轮廓 → 珠槽 → 珠子」不需要新通道。
+    // 代价：盘面退出 tile 合并腿 ⇒ 每格 +1 条命令（封箱两帧与金样需按锚重抓）。
+    for (let i = 0; i < snap.gridRows; i++) {
+        for (let j = 0; j < snap.gridCols; j++) {
+            const cell = snap.cells[i * snap.gridCols + j]!;
+            // 锁格从不铺 B0（旧口径一致：`drawLockedBead` 自画整格平色块）⇒ 本趟同样跳过。
+            if (cell.void || cell.state === 'locked') continue;
+            const cx = snap.gridLeft + snap.gridCell / 2 + snap.gridPitch * j;
+            const cy = snap.gridTop - snap.gridCell / 2 - snap.gridPitch * i;
+            // 剔除窗口与主循环**逐字同式**：两处不一致就会在盘缘露出半格底色。
+            if (
+                cy < -snap.gridCell ||
+                cy > builder.height + snap.gridCell ||
+                cx < -snap.gridPitch ||
+                cx > DESIGN_W + snap.gridPitch
+            ) {
+                continue;
+            }
+            // ⛔ 锁 `cx`、不吃 `dx`（T-242：位移属于格内对象，不属于跨格连续底层）。
+            drawBoardBase(builder, cx, cy, cell.colorIdx, inks, snap.gridPitch);
+        }
+    }
+
+    // 对局盘面轮廓：**压在 B0 之上、珠槽与珠子之下**（本行必须在上面那趟之后）。
     drawBoardOutline(builder, snap, palette.shadowInk);
 
     // G1 `vfx_fill_pop`（WXG-T-128）：包络槽在**循环外**建一次（整帧共用，同一时刻至多一颗珠在落座）。
@@ -517,11 +542,11 @@ function drawGrid(
     const sizeSmall = snap.beadSize === BEAD_SIZE_SMALL;
     const beadDrawInset = sizeSmall ? BEAD_DRAW_INSET_SMALL : BEAD_DRAW_INSET;
     /**
-     * `[WXG-T-254 / ADR-0030 S5′-2]` **L0 底 tile** 开关（盘面族专用；托盘槽 ⛔ 不传）。
+     * `[WXG-T-254 / ADR-0030 S5′-2]` 旧「L0 底 tile」开关的参。**WXG-T-1103 起盘面不再合并**
+     * ⇒ 本框现在只作 `drawEmptySocket` tint 臂的**格面 mask 档位 + 风格**源（变量名沿旧）。
      *
-     * 命中时 `drawTargetTile` 一条 blit 同时承担 B0 与格面槽 ⇒ 本格**不再**调
-     * `drawEmptySocket`。档位与珠/槽**同一把尺**（`sizeSmall` ⇒ 无孔档），⛔ 不新增推导。
-     * 本框在循环外建一次（旧写法每格新建两个同形字面量 ⇒ 顺手收掉）。
+     * 档位与珠/槽**同一把尺**（`sizeSmall` ⇒ 无孔档），⛔ 不新增推导。本框在循环外建一次
+     *（旧写法每格新建两个同形字面量 ⇒ 顺手收掉）。
      */
     const tileOpts: TargetTileOptions = { maskGauge: sizeSmall ? 'holeless' : 'holed', styleId: snap.beadStyle };
     /**
@@ -598,12 +623,8 @@ function drawGrid(
                 //   ⇒ fixture 逐字节不变，无需重录 / 归因复评。
                 // ⚠ 1043 的 filled 分支同样用 `bx`，**但不改** —— wrong 只在 `state === 'empty'` 可达
                 //   （`placement.ts` 的 `mismatch` 判例 + 红环只画在 empty 分支）⇒ 那里 `dx` 恒 0。
-                // [WXG-T-254] **wrong 抖动的本格不合并**：坑已住在底图里 ⇒ 吃不到 `dx` 就丢了这个部件。
-                // 合并后若把 tile 也推到 `bx`，就是 T-242 要修的「地皮在抖」（露 2px 白缝）⇒
-                // 该格（同屏最多 1 格、≤200ms）退回两条的旧路径，其余格照旧一条。
-                const tileMerged = drawTargetTile(
-                    builder, cx, cy, cell.colorIdx, inks, snap.gridPitch, isWrong ? undefined : tileOpts,
-                );
+                // `[WXG-T-254 → WXG-T-1103]` 旧「wrong 抖动格不合并」已作废：B0 已由前置一趟
+                // 锁 `cx` 铺好 ⇒ 本格只需把**槽**推到 `bx` 一起抖，不再需要退旧路径。
                 // 空格 = 在这张底图上**挖洞**（pit 内缩 + 暗缘 + 下受光）；自带的亮 `base` 外块
                 // 由 `tilePainted = true` 跳过。旧注释里的“E4 幽灵符号”已随 WXG-T-130 降档移除。
                 // 坑外廓按「同格有豆时的珠体绘制边长」退一圈（用户裁定：坑恒小于珠、有豆时看不到坑）
@@ -613,12 +634,12 @@ function drawGrid(
                 // ⛔ `styleId` 必须与 `drawFilledBead` 同源（`snap.beadStyle`）：不传 ⇒ 恒用
                 // `DEFAULT_BEAD_STYLE_ID` 的 mask，而**珠**用的是当前风格 ⇒ 换风格时「珠是新风格、槽是默认风格」
                 // ⇒ 又一次「有珠 / 无珠不是一张图」。默认档下两者同值 ⇒ 本条对封箱**零影响**（可证）。
-                if (!tileMerged) {
-                    drawEmptySocket(builder, bx, cy, palette, snap.gridCell, cell.colorIdx, inks, true, beadDrawInset, tileOpts);
-                }
+                // `[WXG-T-1103]` 盘面不再走 tile 合并 ⇒ **无条件画槽**（`tilePainted = true` 仍成立：
+                // B0 已由前置一趟的 `drawBoardBase` 铺过）。
+                drawEmptySocket(builder, bx, cy, palette, snap.gridCell, cell.colorIdx, inks, true, beadDrawInset, tileOpts);
                 // [WXG-T-434] E4 幽灵符号（设置开关 `snap.ghostSymbol`，默认关）。
-                // ⛔ 必须挂在 `tileMerged` **之外**：tint 臂合并 B0 时整条 `drawEmptySocket`
-                // 都不调用，挂进去会让「开 tint ⇒ 开关失效」。画在坑底中心、α 0.32。
+                // ⚠ `[WXG-T-1103]` 旧注释的「必须挂在 `tileMerged` 之外」已随合并腿退出盘面而失去对象
+                // ⇒ 槽现在恒被画，本行只需继续在**槽之后**（画在坑底中心、α 0.32）。
                 if (snap.ghostSymbol) {
                     drawGhostSymbol(builder, bx, cy, snap.gridCell, cell.colorIdx, inks);
                 }
@@ -780,10 +801,8 @@ function drawGrid(
                 draft.scale = deniedPressScale(deniedP);
             }
             const opts: FilledBeadOptions = draft;
-            // B0 连续目标色底图：与 empty 分支同图元同色档 ⇒ 整片谜面一张图（v1.5-r8）。
-            // ⛔ 锁格心、不吃 lift / scale / pop 包络（§1.6.1 P0 陷阱 #2）。
-            // 边长同上：= 缩放后格距，与 `opts.size`（`snap.gridCell`）同尺（ADR-0020 甲案）。
-            const tileMergedFilled = drawTargetTile(builder, bx, cy, cell.colorIdx, inks, snap.gridPitch, tileOpts);
+            // B0 连续目标色底图：已由 `drawGrid` 前置一趟的 `drawBoardBase` 铺好（WXG-T-1103）
+            // ⇒ 本格不再发 tile；⛔ 锁格心、不吃 lift / scale / pop 包络（§1.6.1 P0 陷阱 #2）。
             // §5 分离影（仅选中组）：珠抬起来 ⇒ 影留在格面。默认皮肤 `facet-4` 无阴影层，
             // 本层是盘面**唯一**随高度变化的通道（= 斜俯视的立体感载体）。函数内注释含口径。
             if (groupLift > 0) {
@@ -793,7 +812,7 @@ function drawGrid(
                 // **看不到槽**，用户报「格图上的槽还是看不到」。
                 //
                 // 复用口径（⛔ 不新造部件、不新造墨色）：
-                // · `tilePainted = true` ⇒ 跳过本函数自带的亮 `base` 外块（B0 已由 `drawTargetTile` 画过）
+                // · `tilePainted = true` ⇒ 跳过本函数自带的亮 `base` 外块（B0 已由前置一趟 `drawBoardBase` 画过）
                 // · `colorIdx` 传本格目标色 ⇒ 坑底/暗缘/受光线的墨档与同色空格**同源**
                 // · ⛔ **只在 `lift > 0` 时画** ⇒ 静息帧（无选中）命令流**逐字节不变**（封箱基线不受影响）
                 //
@@ -803,7 +822,7 @@ function drawGrid(
             }
             // [WXG-T-236 八轮 · 2026-10-03 用户裁定「有珠 / 无珠的格底不是一张图 ⇒ 都按无珠的格底实现」]
             // **有珠格也画坑底**（⛔ 不再只在 `lift > 0` 时画）⇒ 与空格**同图元同色档**（`tilePainted = true`
-            // 跳过自带亮底，因 B0 已由 `drawTargetTile` 铺过；`colorIdx` 传目标色 ⇒ 墨档与空格**同源**）。
+            // 跳过自带亮底，因 B0 已由前置一趟的 `drawBoardBase` 铺过；`colorIdx` 传目标色 ⇒ 墨档与空格**同源**）。
             // ⛔ 绘制序不变式：**坑底 → 影 → 珠**（影夹在两者之间，见下）。
             // ⛔⛔ `maskGauge` **必须与空格分支逐字同参**（见下方空格调用）：漏传 ⇒
             // `drawEmptySocket` 的 tint 臂命中条件 `options.maskGauge !== undefined` 不成立
@@ -811,11 +830,9 @@ function drawGrid(
             // 而非 `grid-hole-tint-128-mask.png` 的 **0.698**（规格判据 I-5/I-6 要求 0.70）
             // ⇒ **珠孔内露出 0.56 而不是 B0 的 0.70**（实测 (120,57,80) vs (150,71,99)）
             // ⇒ 这正是「有珠 / 无珠的格底不是一张图」的**根因**：空格走 mask、有珠格走矢量。
-            // [WXG-T-254] 底 tile 命中 ⇒ 槽已在图里 ⇒ 跳过本调用（⛔ 与空格分支共用 `tileOpts`，
-            // 上面那段「两分支同参」的约束由同一个对象字面量结构性保证，不再靠两处抄写）。
-            if (!tileMergedFilled) {
-                drawEmptySocket(builder, bx, cy, palette, snap.gridCell, cell.colorIdx, inks, true, beadDrawInset, tileOpts);
-            }
+            // `[WXG-T-254 → WXG-T-1103]` 盘面不再走 tile 合并 ⇒ **无条件画槽**（⛔ 与空格分支共用
+            // `tileOpts`，上面那段「两分支同参」的约束仍由同一个对象字面量结构性保证）。
+            drawEmptySocket(builder, bx, cy, palette, snap.gridCell, cell.colorIdx, inks, true, beadDrawInset, tileOpts);
             if (groupLift > 0) {
                 // [WXG-T-236 定标 · 用户裁「抬起态要影」+ 选型 C-3，后续裁「影跟珠轮廓」] 珠底投影。
                 // ⛔ 绘制序钉死：**坑底之后、珠之前** —— 在坑底后 ⇒ 影压在内阴影阶梯与 S4 受光亮线之上（物理正确）；

@@ -462,6 +462,34 @@ export function fillPopEnvelope(
 }
 
 /**
+ * `[WXG-T-1103 · 用户裁「甲」]` **对局盘面 B0 背景色单独成条**（沉底通道）。
+ *
+ * 为什么不再用 `drawTargetTile` 的合并腿：合并后「B0 + 珠槽」是**同一条 blit**，
+ * 轮廓就没有能插在两者之间的位置 ⇒ 要么压住豆面、要么被背景色盖住。本函数把 B0
+ * 拆成一条 `back: true` 的 rect，与轮廓同落宿主 `backGraphics`（层 0），层内按命令序
+ * ⇒ **背景色 → 轮廓**；随后的珠槽与珠子走 blit（层 1）又把轮廓压回去
+ * ⇒ 整条序 = 背景色 → 轮廓 → 珠槽 → 珠子，⛔ 不需要新增通道。
+ *
+ * 几何与墨档与 `drawTargetTile` 的矢量腿**逐字同式**（`edge` 档、方角、`+2×TILE_BLEED`
+ * 出血盖格缝，T-235 结论不动）；⛔ 锁格心、不吃 `lift`/`scale`/`pop`（§1.6.1 P0 陷阱 #2）。
+ */
+export function drawBoardBase(
+  builder: RenderModelBuilder,
+  cx: number,
+  cy: number,
+  colorIdx: number,
+  inks: BeadInks = DEMO_BEAD_INKS,
+  size: number = BEAD_PITCH,
+): void {
+  const s = size + TILE_BLEED * 2;
+  builder.rect(cx - s / 2, cy - s / 2, s, s, {
+    fill: endpointOf(inks, colorIdx).edge,
+    radius: 0,
+    back: true,
+  });
+}
+
+/**
  * **B0 连续目标色底图**（`bead-visual-style-spec` §1 / K8，用户 2026-09-23 拍板）。
  *
  * 旧模型下“这一格要什么色”只有两个不一致的载体：`filled` 靠珠周 6px 缝（每格一个圆角块，

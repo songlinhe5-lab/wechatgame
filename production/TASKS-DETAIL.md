@@ -13264,6 +13264,18 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 
 **真机采集**：在已安装该产物的真机/开发者工具控制台执行 `__touchProbe.start()`，匀速拖动盘面 1–2 秒后执行 `__touchProbe.stop(); __touchProbe.report()`。当前尚无真机输出，⛔ 不把示例或自动化测试读数当作真机达标证据。
 
+## WXG-T-1103
+
+**盘面 B0 拆条沉底（背景色→轮廓→珠槽→珠子）** · 负责：工程轨(Qoder)·beads · 状态：🚧 **进行中（2026-11-27；分支 wxg-t-1098）**
+
+承用户实帧反馈「上一层的槽压住了下一层的豆」与「轮廓线压到豆面上面了」，并对「外轮廓线应在珠面背景色之后、珠槽与珠子之前」给出裁定「**甲**」。根因是通道而非命令序：旧写法 `drawTargetTile` 把 **B0 背景色与珠槽合成同一条 tile blit**（同进宿主 `BlitLayer`，层 1），轮廓没有能插在「背景色」与「珠槽」之间的位置 ⇒ 沉 `backGraphics` 就被背景色盖住，留 `Graphics` 就压住豆面。甲案 = 把 B0 从合并腿拆出、单独成条沉底，序自然成立，⛔ 不需要新增宿主通道。
+
+**落码**：`bead-render::drawBoardBase()` 新增（`back: true` 的方角 rect，`+2×TILE_BLEED` 出血盖格缝，墨档取 `endpointOf(inks, colorIdx).edge`，与 `drawTargetTile` 矢量臂逐字同式）；`play-page::drawGrid()` 在轮廓之前新增一趟 B0（跳过 `void` 与 `locked` 格、锁 `cx` 不吃 `dx`、剔除窗口与主循环逐字同式），`drawBoardOutline()` 移到该趟之后；empty / filled 两分支退出 tile 合并 ⇒ 无条件 `drawEmptySocket(..., tilePainted = true, ...)`。详情页与选关缩略口径不变（仍为轮廓压珠面），层序不一致作为尾巴登记待裁。
+
+**已得证据**：红灯测试先行（`play-page.test.ts` 新增「盘面绘制序 = 背景色 → 轮廓 → 珠槽 → 珠子」，首轮因 `背景色 B0 必须单独成条: expected 0 to be greater than 0` 失败）⇒ 实现后 play-page `6/6`、`tsc --noEmit` 干净、`framework:sync:check` 一致。封箱流级差分（HEAD `23bee965` ↔ 本工作树，官方复取器 `WXG211_DUMP_FLOW` 双臂 dump）：两帧 `total` / 逐 kind **全等**（frame78 `1836`、frame0 `1290`；rect 936 / polygon 376 / line 353 / circle 159 / container 对 2 / text 10），唯一集合差 = **156 条 B0 rect 打 `back` 键**（剥键后两帧多重集全等）⇒ back 键登记 54 → **210**（54 polygon 轮廓 + 156 rect 背景色）；珠体族 `legacyFlow` 96/96 与 facet 45/45 逐字节全等。
+
+**待做**：干净 detached 锚官方复取器重抓 UI 金样六态与 S3 两帧（各连跑两遍确定性自证）+ `BACK_KEY_LINES` 54→210 与 provenance 第廿九次复评 / 台账 `recheck-28` / QA `K.5.1-补20` 同步登记 + 全量 `verify` + 按新包重建 release 产物交用户真机复验。⛔ 本轮未改「拖动时随机缺珠」与「点过盘面后 22 格珠 blit 与 tile 中心偏移 ≈6dp」两项独立未结问题。
+
 ## WXG-T-1102
 
 **对局盘面轮廓沉到珠体之下** · 负责：工程轨(Qoder)·beads/framework · 状态：✅ **已完成（2026-11-27；分支 wxg-t-1098；真机视觉待复验）**

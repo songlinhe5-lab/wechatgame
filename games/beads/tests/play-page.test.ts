@@ -174,4 +174,65 @@ describe('UI-41 · PlayPage', () => {
             setBeadTintRuntime(undefined);
         }
     });
+
+    it('[WXG-T-1103] 盘面绘制序 = 背景色 → 轮廓 → 珠槽 → 珠子', () => {
+        // 用户 2026-11-27 拍板「甲」：B0 背景色必须**单独成条且最先**（沉 backGraphics），
+        // 轮廓画在它之后、珠槽与珠子之前 ⇒ 轮廓压得住背景色、压不住豆面。
+        // tile 合并腿（B0 + 槽 一条 blit）必须从盘面退出，否则两者之间没有插入点。
+        const h = harness();
+        let placed = false;
+        for (let row = 0; row < h.game.grid.rows && !placed; row++) {
+            for (let col = 0; col < h.game.grid.cols && !placed; col++) {
+                const cell = h.game.grid.cell(row, col);
+                if (!cell || cell.void) continue;
+                placed = placeColor(h.game, cell.colorIdx, row, col);
+            }
+        }
+        expect(placed, '夹具必须至少落一颗珠').toBe(true);
+
+        setBeadTintRuntime({
+            getMaskId: (kind, gauge, styleId) => `tex:${kind}:${gauge}:${styleId}`,
+            getTileMaskId: (gauge, styleId) => `tex:tile:${gauge}:${styleId}`,
+        });
+        try {
+            const cmds = modelOf((b) =>
+                drawPlayPage(b, h.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS, true),
+            ).commands;
+            const idx = (pred: (c: (typeof cmds)[number]) => boolean): number[] =>
+                cmds.map((c, i) => ({ c, i })).filter((e) => pred(e.c)).map((e) => e.i);
+
+            const base = idx((c) => c.kind === 'rect' && (c as { back?: boolean }).back === true);
+            const outline = idx(
+                (c) => c.kind === 'polygon' && (c as { fill?: string }).fill === DEFAULT_PALETTE.shadowInk,
+            );
+            const sockets = idx((c) => c.kind === 'blit' && c.textureId.startsWith('tex:cell:'));
+            const beads = idx((c) => c.kind === 'blit' && c.textureId.startsWith('tex:bead:'));
+            const tiles = idx((c) => c.kind === 'blit' && c.textureId.startsWith('tex:tile:'));
+
+            expect(base.length, '背景色 B0 必须单独成条（不再与珠槽合并成 tile）').toBeGreaterThan(0);
+            expect(outline.length, '盘面轮廓命令必须存在').toBeGreaterThan(0);
+            expect(sockets.length, '珠槽必须走 cell mask').toBeGreaterThan(0);
+            expect(beads.length, '盘面珠体命令必须存在').toBeGreaterThan(0);
+            expect(tiles.length, '⛔ 盘面不再走 tile 合并腿（B0 与槽之间必须有轮廓的插入点）').toBe(0);
+
+            expect(Math.max(...base), '背景色必须全部先于轮廓').toBeLessThan(Math.min(...outline));
+            expect(Math.max(...outline), '轮廓必须先于珠槽（否则压到豆面）').toBeLessThan(Math.min(...sockets));
+
+            // 同格不变式：珠槽先、珠子后（两者格心相同）。
+            const centerOf = (c: Extract<(typeof cmds)[number], { kind: 'blit' }>): string =>
+                `${Math.round(c.x + c.w / 2)}|${Math.round(c.y + c.h / 2)}`;
+            const socketAt = new Map<string, number>();
+            cmds.forEach((c, i) => {
+                if (c.kind === 'blit' && c.textureId.startsWith('tex:cell:')) socketAt.set(centerOf(c), i);
+            });
+            for (const c of cmds) {
+                if (c.kind !== 'blit' || !c.textureId.startsWith('tex:bead:')) continue;
+                const key = centerOf(c);
+                const s = socketAt.get(key);
+                expect(s !== undefined && cmds.indexOf(c) > s, `格心 ${key} 的珠槽必须先于珠子`).toBe(true);
+            }
+        } finally {
+            setBeadTintRuntime(undefined);
+        }
+    });
 });
