@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4391,
       "lines": 144,
-      "sha256": "aaeb76f14b219871fa41fc91e8bb5181fb323fec29f3bebce8269b343a880bff",
+      "sha256": "14def898137adca5b42b879dada7985958e6e64ebd0a13feba613d1b2d8ae3ce",
       "tier": "normal",
       "sections": [
         {
@@ -377,7 +377,7 @@
           "startLine": 1,
           "endLine": 145,
           "tokens": 4378,
-          "summary": "生成：2026-11-26 · 由 tools/scripts/build-context-index.mjs 自动生成",
+          "summary": "生成：2026-11-27 · 由 tools/scripts/build-context-index.mjs 自动生成",
           "keywords": [
             "ctx",
             "BUDGET",
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 407,
-          "summary": "1 production/TASKS-DETAIL.md 420554 13239 normal",
+          "summary": "1 production/TASKS-DETAIL.md 421197 13261 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5209,
       "lines": 159,
-      "sha256": "dee6e72dd4a4ce82a581cf62cf50697e6faea9704c9f5c7d6597152c4da19eeb",
+      "sha256": "d864ef31c3d8624643b189b0a93b52def26c85307fc672749925cf9771c53d68",
       "tier": "normal",
       "sections": [
         {
@@ -761,12 +761,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 399 行 / 125706 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 400 行 / 125937 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+400 · §待排（backlog，无号，立项时领取…=370+31",
+          "summary": "§WXG 任务台账（SSOT）=1+401 · §待排（backlog，无号，立项时领取…=371+31",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1080,12 +1080,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 13239 行 / 420554 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 13261 行 / 421197 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
           "tokens": 130,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+13240 · §WXG-T-1086=13040+17 · §WXG-",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+13262 · §WXG-T-1087=13057+15 · §WXG-",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -70930,7 +70930,7 @@
       "path": "memory/INDEX.md",
       "tokens": 15195,
       "lines": 358,
-      "sha256": "ec384b76fbf880f44f2b1bec4b7e1f86e26421d0bc56530a6db96615ee6c670d",
+      "sha256": "cb9a9c063b330f84d6b926780f0b931d5ba02f88643e08c3c3d319f4bbe1c99b",
       "tier": "normal",
       "sections": [
         {
@@ -71021,7 +71021,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-22.md` — 398 tok｜0 节｜**蒸馏已到期（2026-11-21，已过期 5 天）**",
+          "anchor": "§`memory/2026-10-22.md` — 398 tok｜0 节｜**蒸馏已到期（2026-11-21，已过期 6 天）**",
           "level": 3,
           "startLine": 73,
           "endLine": 77,
@@ -71036,7 +71036,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-21.md` — 5,478 tok｜10 节｜**蒸馏已到期（2026-11-20，已过期 6 天）**",
+          "anchor": "§`memory/2026-10-21.md` — 5,478 tok｜10 节｜**蒸馏已到期（2026-11-20，已过期 7 天）**",
           "level": 3,
           "startLine": 78,
           "endLine": 92,
@@ -71052,7 +71052,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-20.md` — 1,785 tok｜4 节｜**蒸馏已到期（2026-11-19，已过期 7 天）**",
+          "anchor": "§`memory/2026-10-20.md` — 1,785 tok｜4 节｜**蒸馏已到期（2026-11-19，已过期 8 天）**",
           "level": 3,
           "startLine": 93,
           "endLine": 101,
@@ -71068,7 +71068,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-14.md` — 142 tok｜2 节｜2 节已外移｜**蒸馏已到期（2026-11-13，已过期 13 天）**",
+          "anchor": "§`memory/2026-10-14.md` — 142 tok｜2 节｜2 节已外移｜**蒸馏已到期（2026-11-13，已过期 14 天）**",
           "level": 3,
           "startLine": 102,
           "endLine": 108,
@@ -71084,7 +71084,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-13.md` — 4,542 tok｜8 节｜5 节已外移｜**蒸馏已到期（2026-11-12，已过期 14 天）**",
+          "anchor": "§`memory/2026-10-13.md` — 4,542 tok｜8 节｜5 节已外移｜**蒸馏已到期（2026-11-12，已过期 15 天）**",
           "level": 3,
           "startLine": 109,
           "endLine": 121,
@@ -71100,7 +71100,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-12.md` — 6,315 tok｜7 节｜**蒸馏已到期（2026-11-11，已过期 15 天）**",
+          "anchor": "§`memory/2026-10-12.md` — 6,315 tok｜7 节｜**蒸馏已到期（2026-11-11，已过期 16 天）**",
           "level": 3,
           "startLine": 122,
           "endLine": 133,
@@ -71116,7 +71116,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-10.md` — 2,825 tok｜2 节｜**蒸馏已到期（2026-11-09，已过期 17 天）**",
+          "anchor": "§`memory/2026-10-10.md` — 2,825 tok｜2 节｜**蒸馏已到期（2026-11-09，已过期 18 天）**",
           "level": 3,
           "startLine": 134,
           "endLine": 140,
@@ -71131,7 +71131,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-09.md` — 358 tok｜0 节｜**蒸馏已到期（2026-11-08，已过期 18 天）**",
+          "anchor": "§`memory/2026-10-09.md` — 358 tok｜0 节｜**蒸馏已到期（2026-11-08，已过期 19 天）**",
           "level": 3,
           "startLine": 141,
           "endLine": 145,
@@ -71146,7 +71146,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-07.md` — 5,905 tok｜4 节｜**蒸馏已到期（2026-11-06，已过期 20 天）**",
+          "anchor": "§`memory/2026-10-07.md` — 5,905 tok｜4 节｜**蒸馏已到期（2026-11-06，已过期 21 天）**",
           "level": 3,
           "startLine": 146,
           "endLine": 154,
@@ -71162,7 +71162,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-06.md` — 2,680 tok｜2 节｜**蒸馏已到期（2026-11-05，已过期 21 天）**",
+          "anchor": "§`memory/2026-10-06.md` — 2,680 tok｜2 节｜**蒸馏已到期（2026-11-05，已过期 22 天）**",
           "level": 3,
           "startLine": 155,
           "endLine": 161,
@@ -71178,7 +71178,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-05.md` — 4,344 tok｜0 节｜**蒸馏已到期（2026-11-04，已过期 22 天）**",
+          "anchor": "§`memory/2026-10-05.md` — 4,344 tok｜0 节｜**蒸馏已到期（2026-11-04，已过期 23 天）**",
           "level": 3,
           "startLine": 162,
           "endLine": 166,
@@ -71193,7 +71193,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-04.md` — 28,255 tok｜14 节｜14 节已外移｜**蒸馏已到期（2026-11-03，已过期 23 天）**",
+          "anchor": "§`memory/2026-10-04.md` — 28,255 tok｜14 节｜14 节已外移｜**蒸馏已到期（2026-11-03，已过期 24 天）**",
           "level": 3,
           "startLine": 167,
           "endLine": 185,
@@ -71209,7 +71209,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-10-03.md` — 79 tok｜1 节｜1 节已外移｜**蒸馏已到期（2026-11-02，已过期 24 天）**",
+          "anchor": "§`memory/2026-10-03.md` — 79 tok｜1 节｜1 节已外移｜**蒸馏已到期（2026-11-02，已过期 25 天）**",
           "level": 3,
           "startLine": 186,
           "endLine": 191,
@@ -71225,7 +71225,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-29.md` — 7,239 tok｜0 节｜**蒸馏已到期（2026-10-29，已过期 28 天）**",
+          "anchor": "§`memory/2026-09-29.md` — 7,239 tok｜0 节｜**蒸馏已到期（2026-10-29，已过期 29 天）**",
           "level": 3,
           "startLine": 192,
           "endLine": 196,
@@ -71240,7 +71240,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-28.md` — 1,352 tok｜10 节｜9 节已外移｜**蒸馏已到期（2026-10-28，已过期 29 天）**",
+          "anchor": "§`memory/2026-09-28.md` — 1,352 tok｜10 节｜9 节已外移｜**蒸馏已到期（2026-10-28，已过期 30 天）**",
           "level": 3,
           "startLine": 197,
           "endLine": 211,
@@ -71256,7 +71256,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-27.md` — 6,212 tok｜3 节｜**蒸馏已到期（2026-10-27，已过期 30 天）**",
+          "anchor": "§`memory/2026-09-27.md` — 6,212 tok｜3 节｜**蒸馏已到期（2026-10-27，已过期 31 天）**",
           "level": 3,
           "startLine": 212,
           "endLine": 219,
@@ -71272,7 +71272,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-22.md` — 1,263 tok｜1 节｜**蒸馏已到期（2026-10-22，已过期 35 天）**",
+          "anchor": "§`memory/2026-09-22.md` — 1,263 tok｜1 节｜**蒸馏已到期（2026-10-22，已过期 36 天）**",
           "level": 3,
           "startLine": 220,
           "endLine": 225,
@@ -71288,7 +71288,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-17.md` — 6,817 tok｜12 节｜**蒸馏已到期（2026-10-17，已过期 40 天）**",
+          "anchor": "§`memory/2026-09-17.md` — 6,817 tok｜12 节｜**蒸馏已到期（2026-10-17，已过期 41 天）**",
           "level": 3,
           "startLine": 226,
           "endLine": 242,
@@ -71304,7 +71304,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-16.md` — 4,236 tok｜7 节｜1 节已外移｜**蒸馏已到期（2026-10-16，已过期 41 天）**",
+          "anchor": "§`memory/2026-09-16.md` — 4,236 tok｜7 节｜1 节已外移｜**蒸馏已到期（2026-10-16，已过期 42 天）**",
           "level": 3,
           "startLine": 243,
           "endLine": 254,
@@ -71320,7 +71320,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏已到期（2026-10-15，已过期 42 天）**",
+          "anchor": "§`memory/2026-09-15.md` — 3,449 tok｜12 节｜6 节已外移｜**蒸馏已到期（2026-10-15，已过期 43 天）**",
           "level": 3,
           "startLine": 255,
           "endLine": 271,
@@ -71336,7 +71336,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏已到期（2026-10-14，已过期 43 天）**",
+          "anchor": "§`memory/2026-09-14.md` — 6,911 tok｜23 节｜7 节已外移｜**蒸馏已到期（2026-10-14，已过期 44 天）**",
           "level": 3,
           "startLine": 272,
           "endLine": 299,
@@ -71352,7 +71352,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏已到期（2026-10-13，已过期 44 天）**",
+          "anchor": "§`memory/2026-09-13.md` — 6,645 tok｜16 节｜**蒸馏已到期（2026-10-13，已过期 45 天）**",
           "level": 3,
           "startLine": 300,
           "endLine": 320,
@@ -71368,7 +71368,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏已到期（2026-10-12，已过期 45 天）**",
+          "anchor": "§`memory/2026-09-12.md` — 3,132 tok｜13 节｜4 节已外移｜**蒸馏已到期（2026-10-12，已过期 46 天）**",
           "level": 3,
           "startLine": 321,
           "endLine": 338,
@@ -71384,7 +71384,7 @@
           ]
         },
         {
-          "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏已到期（2026-10-11，已过期 46 天）**",
+          "anchor": "§`memory/2026-09-11.md` — 5,617 tok｜11 节｜**蒸馏已到期（2026-10-11，已过期 47 天）**",
           "level": 3,
           "startLine": 339,
           "endLine": 359,
@@ -94561,17 +94561,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 420554,
-      "lines": 13239,
-      "sha256": "ebb24dd7b3db799b15d7ce6e54b10497568021d89993b12e8219fc8a8996cd3d",
+      "tokens": 421197,
+      "lines": 13261,
+      "sha256": "80bde96912fb0f02f27bb24624a984b4be5743d861c12b23b708ec1147d81a53",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 13240,
-          "tokens": 420537,
+          "endLine": 13262,
+          "tokens": 421180,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -113075,11 +113075,24 @@
           "anchor": "§WXG-T-1097",
           "level": 2,
           "startLine": 13231,
-          "endLine": 13240,
-          "tokens": 418,
+          "endLine": 13242,
+          "tokens": 419,
           "summary": "时间到面板蒙版上楼 + ✕ 视觉缩 44² · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ 已完成（202",
           "keywords": [
             "WXG",
+            "CodeBuddy"
+          ]
+        },
+        {
+          "anchor": "§WXG-T-1099",
+          "level": 2,
+          "startLine": 13243,
+          "endLine": 13262,
+          "tokens": 638,
+          "summary": "单格 bead 偶发消失的宿主腿取证开关 · 负责：主理人(CodeBuddy)·工程轨 · 状态：🚧 进行中（202",
+          "keywords": [
+            "WXG",
+            "bead",
             "CodeBuddy"
           ]
         }
@@ -113087,17 +113100,17 @@
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 125706,
-      "lines": 399,
-      "sha256": "db0085623db20d5a627e1485187bba90b8178cffd9bdb02292094a9d0fba9f0f",
+      "tokens": 125937,
+      "lines": 400,
+      "sha256": "099e08b04284cc90e3b296ce8df742cade302cdadc5eb64fc801fb821edc85a2",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 400,
-          "tokens": 125697,
+          "endLine": 401,
+          "tokens": 125929,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -113110,8 +113123,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 370,
-          "endLine": 400,
+          "startLine": 371,
+          "endLine": 401,
           "tokens": 1571,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

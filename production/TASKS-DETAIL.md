@@ -13237,3 +13237,25 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 **① 蒙版在上层（确诊 + 修法）**：fail 面板木牌自 T-1051 起是**九宫格位图 blit**（容器 BlitLayerUI 通道），而内联蒙版是矢量 rect（容器 Graphics 通道）——同容器通道序 blit < graphics ⇒ 蒙版恒罩暗木牌。矢量回退档（`drawPaperPanel`）与蒙版同通道按绘制序自洽 ⇒ **位图档真机才暴露**（T-1051 后首次真机位图加载命中）。clear 结算板（`clearPanelBoard` blit）同病。修法 = 沿用 T-1029/`{overlay}:scrim` 先例：`UiRoute` 增 `scrimRgb`，fail/clear 路由声明 `scrimAlpha`/`scrimRgb`（rgb 同参 canvas 族视觉零变），UiRoot 以平级前置容器 `{name}:scrim` 注入；视图撤内联蒙版防双份（确认态对话框全矢量同通道自洽，一并撤）。pause/sprint-settle/finish 全矢量面板不声明（防双份）。
 
 **② ✕ 过大**：视觉 56²→**44²**（`visualR` 22，叉臂 14→11），**热区保持 56²**（`r` 不缩水）双框同心；`hitFailPanel` 改走热区框；WXG-T-1004 判据改双框口径（含热区环带命中例）。
+
+---
+
+## WXG-T-1099
+
+**单格 bead 偶发消失的宿主腿取证开关** · 负责：主理人(CodeBuddy)·工程轨 · 状态：🚧 **进行中（2026-11-27，取证工具已入库，待真机一次取样定根因）**
+
+承用户报障「拖动中某些有珠的槽突然空了、又有了」与选 A：先在宿主腿装最小探针，不改玩法/渲染判定。
+
+**前置取证（只读，已证伪三条）**：实帧 f84→f85 该格从白色四棱珠变成近黑坑底 `(30,19,6)+唇边(84,74,61)`（同帧盘面下方大量同色块 ⇒ 是该格正常空槽外观），相邻珠与 HUD 逐像素不变；`f84↔f131` 配准 dx≈-2 ⇒ 掉珠窗口盘面几乎静止，不是整列剔除。harness 连续拖动 120 帧 snapshot 槽状态 0 翻转；逐帧命令流每颗有珠格 tile 紧邻 bead（gap=1、零反转）。按载体父节点/兄弟序算法跑真实命令流 60 帧：换父 24 次、反转 0 次 ⇒ 上一轮怀疑的「below 腿不钉 ⇒ tile 压珠」被否。对局页无 clip。
+
+**落码**：`games/beads/cocos/assets/scripts/host/beads-blit-carrier.ts` 一个文件：
+- `?blitdbg=1`（web）/ 微信启动参数 `blitdbg=1` / 真机 console `__BLITDBG(true)` 启用；默认关、关时零分配。
+- 每帧一行 `[blitdbg] fN used/tile/bead/dT/dB/inactive/bail`；`bead` 掉 1 而 `tile` 不变标 `BEAD_DROP`。
+- 被 `_bail` 的每条 `textureId` 单独打（K-216：warn-once 按原因会掩盖后犯 id）。
+- 相邻 tile→bead 同中心的层序反转标 `INV`（含 parent 层与 child 序号）。
+
+**验证**：beads typecheck 绿；1661 单测绿；Cocos 工程 tsc 载体文件 0 错（引擎 `.d.ts` 既有错除外）；`pnpm run build:cocos` release 绿。
+
+**下一步**：真机/开发者工具复现一次，按日志落点选修法（丢弃 ⇒ `_bail` 分支；`INV` ⇒ 兄弟序；`BEAD_DROP` 但无 bail/INV ⇒ 节点 active/引擎提交层）。临时探针 `games/beads/tests/probe-drag-cells.test.ts` 未入库，待修完提炼判据后再定去留。
+
+**撞号披露**：跨工作树全局最大已领 1098（并发会话），本单按 K-046 取 1099。

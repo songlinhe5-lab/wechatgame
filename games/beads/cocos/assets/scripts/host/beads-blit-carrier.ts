@@ -43,6 +43,32 @@ import { setLevelThumbBitmapResolver } from '../game/view/menu-signage';
 import { setMenuBitmapResolver } from '../game/view/meta-view';
 
 /**
+ * 单帧 bead 消失的宿主腿取证（默认关，关时零分配；K-216：harness 腿对此结构性盲）。
+ *
+ * 开法：web `?blitdbg=1` / 微信启动参数 `blitdbg=1` / 真机 console `__BLITDBG(true)`。
+ * 每帧一行 `tile/bead/used/bail/inactive` 计数 + 相邻 tile→bead 的层序检查；
+ * 一帧 `bead` 掉 1 而 `tile` 不变 ⇒ 标 `BEAD_DROP`（= 用户所见「槽突然空了」）。
+ * 每个被 `_bail` 的 textureId 都单独打（K-216：warn-once 按原因会掩盖后犯 id）。
+ */
+type BlitDbgRec = { tex: string; kind: 'tile' | 'bead' | 'other'; x: number; y: number; parent: string; sib: number; active: boolean };
+let _blitDbg = false;
+let _blitDbgRecs: BlitDbgRec[] = [];
+let _blitDbgBails: string[] = [];
+let _blitDbgFrame = 0;
+let _blitDbgPrevTile = -1;
+let _blitDbgPrevBead = -1;
+const _dbgHost = globalThis as unknown as {
+    __BLITDBG?: (on: boolean) => void;
+    wx?: { getLaunchOptionsSync?: () => { query?: Record<string, string> } };
+    location?: { search?: string };
+};
+let _dbgWxFlag: string | undefined;
+try { _dbgWxFlag = _dbgHost.wx?.getLaunchOptionsSync?.()?.query?.blitdbg; } catch { /* 宿主未就绪 ⇒ 仅 web/console 开关 */ }
+const _dbgFlag = _dbgWxFlag ?? /[?&]blitdbg=([^&]+)/.exec(_dbgHost.location?.search ?? '')?.[1];
+_blitDbg = _dbgFlag === '1' || _dbgFlag === 'true';
+_dbgHost.__BLITDBG = (on: boolean): void => { _blitDbg = !!on; };
+
+/**
  * 图集网格：8×8 格 × 128 px = 1024²（一格 = 一个 `maskId|base` 组合）。
  *
  * `[WXG-T-254]` **底 tile 带来的键数增量（记账，⛔ 本批不扩图集）**：热路径 `maskId` 从
@@ -403,7 +429,48 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
         return loaded;
     }
 
+    /** 只在 `_blitDbg` 时调用：把刚结束那一帧的池位真相打到 console。 */
+    private _dbgDump(): void {
+        const recs = _blitDbgRecs;
+        const bails = _blitDbgBails;
+        _blitDbgFrame++;
+        let tiles = 0;
+        let beads = 0;
+        let inactive = 0;
+        const bad: string[] = [];
+        const rank = (p: string): number => p === 'atlas' ? 0 : p === 'clip' ? 2 : 1;
+        for (const r of recs) {
+            if (r.kind === 'tile') tiles++;
+            else if (r.kind === 'bead') beads++;
+            if (!r.active) inactive++;
+        }
+        // 间隙 ≤1px = 同一格（tile 带 bleed，中心仍同位）；bead 必须在 tile 之上
+        for (let i = 0; i + 1 < recs.length; i++) {
+            const t = recs[i]!;
+            const b = recs[i + 1]!;
+            if (t.kind !== 'tile' || b.kind !== 'bead') continue;
+            if (Math.abs(t.x - b.x) > 1 || Math.abs(t.y - b.y) > 1) continue;
+            if (rank(b.parent) < rank(t.parent) || (b.parent === t.parent && b.sib <= t.sib)) {
+                if (bad.length < 4) bad.push(`${t.tex} ${t.parent}/${t.sib} -> ${b.tex} ${b.parent}/${b.sib}`);
+            }
+        }
+        const dB = _blitDbgPrevBead < 0 ? 0 : beads - _blitDbgPrevBead;
+        const dT = _blitDbgPrevTile < 0 ? 0 : tiles - _blitDbgPrevTile;
+        console.log(
+            `[blitdbg] f${_blitDbgFrame} used=${this._used} tile=${tiles} bead=${beads} ` +
+                `dT=${dT} dB=${dB} inactive=${inactive} bail=${bails.length}` +
+                (dB < 0 && dT === 0 ? ' BEAD_DROP' : '') +
+                (bad.length ? ` INV=${bad.join(' | ')}` : ''),
+        );
+        if (bails.length) console.warn(`[blitdbg] BAIL f${_blitDbgFrame}: ${bails.join(' | ')}`);
+        _blitDbgPrevTile = tiles;
+        _blitDbgPrevBead = beads;
+        _blitDbgRecs = [];
+        _blitDbgBails = [];
+    }
+
     beginFrame(): void {
+        if (_blitDbg) this._dbgDump();
         // 收上一帧**实际用过**的那批 `[0, _used)`：本帧命令尚未交出，收掉的只是上一帧模型的残留
         // ⇒ 不会有一帧残影（`Sprite` 显隐在引擎提交前生效）。
         // ⚠ 区间必须是 `[0, _used)` 而非 `[_used, pool.length)`：后者关的是「上帧没用的尾」（本就
@@ -541,6 +608,15 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
             const want = cmd.alpha === undefined || cmd.alpha === 1 ? 255 : Math.round(cmd.alpha * 255);
             if (opacity.opacity !== want) opacity.opacity = want;
         }
+        if (_blitDbg) _blitDbgRecs.push({
+            tex: cmd.textureId,
+            kind: /tile/.test(cmd.textureId) ? 'tile' : /bead/.test(cmd.textureId) ? 'bead' : 'other',
+            x: x + cmd.w / 2,
+            y: y + cmd.h / 2,
+            parent: this._clipOn && this._clipLayer ? 'clip' : (below ? 'atlas' : 'ui'),
+            sib: sp.node.parent?.children.indexOf(sp.node) ?? -1,
+            active: sp.node.active,
+        });
     }
 
     /**
@@ -549,6 +625,7 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
      */
     private readonly _bailed = new Set<string>();
     private _bail(why: string, cmd: BlitCommand): void {
+        if (_blitDbg) _blitDbgBails.push(`${cmd.textureId}:${why}`);
         if (this._bailed.has(why)) return;
         this._bailed.add(why);
         console.warn(`[BeadsBlitCarrier] 丢弃 blit \`${cmd.textureId}\`：${why}`);
