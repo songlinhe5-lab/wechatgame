@@ -165,9 +165,10 @@ const PLATE_BG_RETIRE_FRAME78 = 9;
  *
  * `[WXG-T-1088]`（用户 2026-11-26 裁定「底槽背景压珠面」）：面板 + 投影 + 三段内阴影**再次去 `back`
  * 提 graphics**（同层矢量按绘制序压住盘面珠）；`[WXG-T-1093]` 槽底改走 tint 臂（`maskSpace:'bead'`）。
- * 登记改回 **0** —— ⚠ 层序互斥破法（blit 池白名单）仍待裁定（T-1093 §未解项），若回沉底须同步本值。
+ * 登记改回 **0**；`[WXG-T-1102]` 对局盘面轮廓改为 `back: true` 后，两帧各新增 **54** 条 polygon 底图键。
+ * ⚠ 托盘层序互斥破法（blit 池白名单）仍待裁定（T-1093 §未解项）。
  */
-const BACK_KEY_LINES = 0;
+const BACK_KEY_LINES = 54;
 /**
  * **[EP12-S2/S3 · 第十八次复评登记（K.5.1-补10）]** 整帧登记漂移 = 两帧各 +3（复取实测）：
  * ① 托盘投影 rect（back:true ⇒ BACK_KEY_LINES 4→5）② LV 纸 chip rect 96×48 ③ expand 底缘 line。
@@ -645,17 +646,19 @@ describe('WXG-T-211-S3 封箱基准（§K.5.1 ④ 零视觉自证 + §11.2 差�
         expect(SEAL.provenance.s3_frame_recheck_25).toContain('96/96');
         expect(SEAL.provenance.s3_frame_recheck_25).toContain('未解释 0 条');
         expect(SEAL.provenance.s3_frame_recheck_21).toContain('未解释 0 条');
-        // [WXG-T-1102 · 第二十八次复评] 对局轮廓沉到珠体之下：纯帖序、计数零变、珠体族零差。
+        // [WXG-T-1102 · 第二十八次复评] 对局轮廓沉到珠体之下：帖序重排 + backGraphics 通道、计数零变、珠体族零差。
         expect(SEAL.provenance.s3_frame_recheck_t1102, '第二十八次复评无归因登记').toContain('第二十八次复评');
         expect(SEAL.provenance.s3_frame_recheck_t1102).toContain('帖序');
+        expect(SEAL.provenance.s3_frame_recheck_t1102).toContain('backGraphics');
+        expect(SEAL.provenance.s3_frame_recheck_t1102).toContain('54 条');
         expect(SEAL.provenance.s3_frame_recheck_t1102).toContain('96/96');
         expect(SEAL.provenance.s3_frame_recheck_t1102).toContain('未解释 0 条');
-        // **back 键计数腿**：[EP12-S3] 托盘投影 rect 也打 back ⇒ 登记 4→5（面板底 + 投影 + 三段内阴影）。
-        //   [WXG-T-1088] 用户裁定「底槽背景压珠面」⇒ 五处去 back 提 graphics，登记回 **0**（沿革见常量头注）。
+        // **back 键计数腿**：[WXG-T-1088] 托盘五处去 back 后登记回 0；
+        //   [WXG-T-1102] 两帧各 54 条盘面轮廓 polygon 新增 back，登记改为 54。
         const backEmpty = emptyFlow.filter((l) => l.includes(',"back":true'));
         const backFrame = frameFixture().flow.filter((l) => l.includes(',"back":true'));
-        expect(backEmpty.length, `⛔ 空盘帧的 back 键数须 ≡ 登记值（T-1088 裁定后 = ${BACK_KEY_LINES}）`).toBe(BACK_KEY_LINES);
-        expect(backFrame.length, '⛔ 78 填帧同上（同一批桌面图元，不随填格数变）').toBe(BACK_KEY_LINES);
+        expect(backEmpty.length, `⛔ 空盘帧的 back 键数须 ≡ 登记值（T-1102 盘面轮廓 = ${BACK_KEY_LINES}）`).toBe(BACK_KEY_LINES);
+        expect(backFrame.length, '⛔ 78 填帧同上（盘面轮廓不随填格数变）').toBe(BACK_KEY_LINES);
         // ⚠ [WXG-T-261 第十五次复评 · K-053 划线作废不净删] 旧闭合自证「剥 back ⇒ ≡ s3_pre_back_channel」
         //   两行等式作废：本批修订面 = 托盘几何/墨值**改写**（非纯插键）⇒ 剥键后在数学上不可能回到
         //   第十四批复取前的前态字节。等效证明改由 provenance.s3_frame_recheck_15 的前/现态锚（HEAD 隔离

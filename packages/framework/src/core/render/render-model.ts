@@ -119,6 +119,8 @@ export interface PolygonCommand {
   readonly stroke?: string;
   readonly lineWidth?: number;
   readonly alpha?: number;
+  /** 同 {@link RectCommand.back}：必须在 blit 载体之下的桌面级多边形（如盘面轮廓）。 */
+  readonly back?: boolean;
 }
 
 /**

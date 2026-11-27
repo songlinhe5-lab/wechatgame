@@ -161,6 +161,12 @@ describe('UI-41 · PlayPage', () => {
             expect(outline.length, '盘面轮廓命令必须存在').toBeGreaterThan(0);
             expect(beads.length, '盘面珠体命令必须存在').toBeGreaterThan(0);
             expect(
+                cmds
+                    .filter((c) => c.kind === 'polygon' && (c as { fill?: string }).fill === DEFAULT_PALETTE.shadowInk)
+                    .every((c) => (c as { back?: boolean }).back === true),
+                'Cocos 的珠体走 BlitLayer，轮廓必须标记 back 沉到该层之下',
+            ).toBe(true);
+            expect(
                 Math.max(...outline),
                 '轮廓若在珠体之后，会像用户实帧那样压到边界豆面上',
             ).toBeLessThan(Math.min(...beads));

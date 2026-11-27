@@ -459,7 +459,7 @@ describe('CocosRenderModelRenderer transformHost', () => {
 //
 // Cocos 只有 `Graphics` 一个提交体时，blit 载体整层压在它下面 ⇒ 「桌面」（面板底/内阴影）
 // 会把 sprite 珠子整块盖掉（托盘实测只剩接触影）。本组钉的是路由本身：
-// 带 `back` 的 rect/line 必进底图体，其余一律留在主层，未注入的宿主逐字节等价于旧行为。
+// 带 `back` 的 rect/line/polygon 必进底图体，其余一律留在主层，未注入的宿主逐字节等价于旧行为。
 describe('CocosRenderModelRenderer backGraphics（底图通道）', () => {
   function makeLayered() {
     const main = fakeGraphics();
@@ -473,14 +473,16 @@ describe('CocosRenderModelRenderer backGraphics（底图通道）', () => {
     return { main, back, renderer };
   }
 
-  it('routes back-marked rect/line to the bottom layer and keeps the rest on Graphics', () => {
+  it('routes back-marked rect/line/polygon to the bottom layer and keeps the rest on Graphics', () => {
     const { main, back, renderer } = makeLayered();
     const b = new RenderModelBuilder(200, 400);
     b.begin('#ffffff');
     b.rect(0, 0, 10, 10, { fill: '#fff', radius: 18, back: true }); // 托盘面板底
     b.line(0, 0, 10, 0, '#000000', 2, undefined, true); // 白瓷内阴影
+    b.polygon([0, 0, 10, 0, 10, 10], { fill: '#000', back: true }); // 盘面轮廓：必须在 blit 珠体之下
     b.rect(20, 20, 10, 10, { fill: '#fff' }); // HUD
     b.line(0, 100, 10, 100, '#000000', 1); // HUD 描边
+    b.polygon([20, 20, 30, 20, 30, 30], { fill: '#000' }); // 普通 UI 多边形
     renderer.draw(b.end());
     // 底图层：全屏底色 rect + 面板（走 roundRect）+ 内阴影线，⛔ 不得混进 HUD。
     expect(back.calls).toEqual([
@@ -492,9 +494,26 @@ describe('CocosRenderModelRenderer backGraphics（底图通道）', () => {
       'moveTo(-100,-200)',
       'lineTo(-90,-200)',
       'stroke',
+      'moveTo(-100,-200)',
+      'lineTo(-90,-200)',
+      'lineTo(-90,-190)',
+      'close',
+      'fill',
     ]);
-    // 主层：只剩 HUD（坐标同源）。
-    expect(main.calls).toEqual(['clear', 'rect(-80,-180,10,10)', 'fill', 'moveTo(-100,-100)', 'lineTo(-90,-100)', 'stroke']);
+    // 主层：只剩 HUD 与普通多边形（坐标同源）。
+    expect(main.calls).toEqual([
+      'clear',
+      'rect(-80,-180,10,10)',
+      'fill',
+      'moveTo(-100,-100)',
+      'lineTo(-90,-100)',
+      'stroke',
+      'moveTo(-80,-180)',
+      'lineTo(-70,-180)',
+      'lineTo(-70,-170)',
+      'close',
+      'fill',
+    ]);
   });
 
   it('falls back to the main Graphics when the host injects no backGraphics', () => {

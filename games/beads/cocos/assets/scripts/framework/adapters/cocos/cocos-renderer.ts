@@ -172,7 +172,7 @@ export interface CocosRendererOptions {
    * `[WXG-T-256 / ADR-0030 S5′-3 → S5′-4]` **底图提交体**（宿主注入，可选）。宿主把它挂在
    * 节点树的**最底层**（blit 载体之下），本 adapter 每帧往上头填两类图元：
    * ① 一条 `model.background` 的全屏 rect（底色恒在珠下）；
-   * ② 任何带 `back: true` 的 `rect` / `line`（桌面级图元，如托盘白瓷面板底与其内阴影）。
+   * ② 任何带 `back: true` 的 `rect` / `line` / `polygon`（桌面级图元，如托盘面板、内阴影与盘面轮廓）。
    * 缺省 ⇒ ② 回落普通 `Graphics`（与旧宿主逐字节等价；引擎清屏色归宿主自己定）。
    */
   readonly backGraphics?: CocosGraphicsLike;
@@ -449,10 +449,11 @@ export class CocosRenderModelRenderer {
           const n = cmd.count;
           if (n < 2) break;
           const o = cmd.offset;
-          pen.moveTo(verts[o]! + ox, verts[o + 1]! + oy);
-          for (let k = 1; k < n; k += 1) pen.lineTo(verts[o + k * 2]! + ox, verts[o + k * 2 + 1]! + oy);
-          pen.close();
-          this._paint(pen, cmd.fill, cmd.stroke, cmd.lineWidth ?? 1, cmd.alpha);
+          const t = cmd.back ? (back ?? pen) : pen;
+          t.moveTo(verts[o]! + ox, verts[o + 1]! + oy);
+          for (let k = 1; k < n; k += 1) t.lineTo(verts[o + k * 2]! + ox, verts[o + k * 2 + 1]! + oy);
+          t.close();
+          this._paint(t, cmd.fill, cmd.stroke, cmd.lineWidth ?? 1, cmd.alpha);
           break;
         }
         case 'blit': {

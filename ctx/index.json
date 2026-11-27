@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4391,
       "lines": 144,
-      "sha256": "110657d878caf12639adbe4e46c3d24ebde4c18ad0581628bf9d37f285b94f3f",
+      "sha256": "8c243957b4341c10346c436e51a91515a6a2d44cf6936afa18ccb8d2a3121e95",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 407,
-          "summary": "1 production/TASKS-DETAIL.md 422210 13273 normal",
+          "summary": "1 production/TASKS-DETAIL.md 422309 13273 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5208,
       "lines": 159,
-      "sha256": "66ded88fc0c8cc8357cf17dfd1ab14e142121885cc12ec908b2d2dffed2ecba5",
+      "sha256": "4031d12429f9a965bd21649edc366e8d738a265da4cdeec3a2aff309d1aa1919",
       "tier": "normal",
       "sections": [
         {
@@ -761,7 +761,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 402 行 / 126289 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 402 行 / 126300 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
@@ -1080,7 +1080,7 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 13273 行 / 422210 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 13273 行 / 422309 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
@@ -14587,9 +14587,9 @@
     },
     {
       "path": "docs/architecture/ui-architecture-beads.md",
-      "tokens": 66520,
+      "tokens": 66595,
       "lines": 463,
-      "sha256": "bc283b3be78ad8ac63f61d40c623088d3d4dc8046c908abaed6f9d63ab95139e",
+      "sha256": "7ec6e08e79df2a8a253f88b7d9c6fe576cc7451dcf9458720c3ed16a281fa94e",
       "tier": "normal",
       "sections": [
         {
@@ -14597,7 +14597,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 464,
-          "tokens": 66501,
+          "tokens": 66577,
           "summary": "状态：Accepted（2026-10-20，[ADR-0032](adr/ADR-0032-beads-ui-arch",
           "keywords": [
             "beads",
@@ -14768,7 +14768,7 @@
           "level": 2,
           "startLine": 138,
           "endLine": 460,
-          "tokens": 61448,
+          "tokens": 61523,
           "summary": "编号 UI-NN 为本方案内部编号（尚未在台账领号，避免撞 WXG-T-）。规模：S ≤ 半天，M ≈ 1 天，L ≈ ",
           "keywords": [
             "TODO",
@@ -94561,9 +94561,9 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 422210,
+      "tokens": 422309,
       "lines": 13273,
-      "sha256": "23e552d8367a35c19f967674fb569c6b5d6773703d1abbde1efedefe401d88c8",
+      "sha256": "721be8f421744dcfb35286e2ef181b4b42c1a005593d734032d984aaedc90d94",
       "tier": "normal",
       "sections": [
         {
@@ -94571,7 +94571,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 13274,
-          "tokens": 422194,
+          "tokens": 422293,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -113117,21 +113117,22 @@
           "level": 2,
           "startLine": 13267,
           "endLine": 13274,
-          "tokens": 317,
-          "summary": "对局盘面轮廓沉到珠体之下 · 负责：工程轨(Qoder)·beads · 状态：🚧 进行中（2026-11-27；分支",
+          "tokens": 416,
+          "summary": "对局盘面轮廓沉到珠体之下 · 负责：工程轨(Qoder)·beads/framework · 状态：🚧 进行中（202",
           "keywords": [
             "WXG",
             "Qoder",
-            "beads"
+            "beads",
+            "framework"
           ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 126289,
+      "tokens": 126300,
       "lines": 402,
-      "sha256": "cbbd44a04f1da726edc68ce2b68f8e5f189ad2ac30271d4afc822b70f6c1798b",
+      "sha256": "3b9cf727b684f16608c2d4a23a3535090f78424e35e521852aee5dc9b7ed0d32",
       "tier": "hot",
       "sections": [
         {
@@ -113139,7 +113140,7 @@
           "level": 1,
           "startLine": 1,
           "endLine": 403,
-          "tokens": 126280,
+          "tokens": 126291,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -124427,9 +124428,9 @@
     },
     {
       "path": "production/qa/beads/test-cases-k-ledger-2.md",
-      "tokens": 17636,
+      "tokens": 17693,
       "lines": 212,
-      "sha256": "467bd53bd873f0c41dd6b239024631ef683135d5b2cf820162bd93bd24197152",
+      "sha256": "409a461229c606e0e3c3939f5662a712b85cbf3d81e14cb8cca9f209a9f807da",
       "tier": "normal",
       "sections": [
         {
@@ -124693,15 +124694,15 @@
           "level": 3,
           "startLine": 193,
           "endLine": 199,
-          "tokens": 269,
-          "summary": "通道声明：属纯帖序重排改动（用户实帧反馈「轮廓线压到豆面上面了」⇒ drawBoardOutline() 从 drawG",
+          "tokens": 326,
+          "summary": "通道声明：属帖序重排 + 底图通道标记改动（用户实帧反馈「轮廓线压到豆面上面了」）。drawBoardOutline()",
           "keywords": [
             "s3_frame_recheck_t1102",
             "WXG",
             "provenance",
             "drawBoardOutline",
-            "drawG",
-            "整帧基线第二"
+            "整帧基线第二",
+            "十八次复评修"
           ]
         },
         {

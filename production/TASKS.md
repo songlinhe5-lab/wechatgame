@@ -9,7 +9,7 @@
 
 | Task ID | 名称 | 负责 | 状态 | 产出 |
 |---|---|---|---|---|
-| WXG-T-1102 | 对局盘面轮廓沉到珠体之下 | 工程轨(Qoder)·beads | 🚧 **进行中（2026-11-27）**：承用户「轮廓线压到豆面上面了」⇒ `drawBoardOutline` 移到格循环前，只露外圈；TDD 先红后绿，定向 5/5；六帧金样与两帧封箱待官方重抓；详情 / 选关缩略层序不变 | 见详情 |
+| WXG-T-1102 | 对局盘面轮廓沉到珠体之下 | 工程轨(Qoder)·beads/framework | 🚧 **进行中（2026-11-27）**：轮廓前移 + polygon `back` 路由到 `backGraphics`，修复 Cocos Graphics/BlitLayer 二次压面；通道回归先红后绿，Framework 52/52、play-page 5/5；六帧金样与两帧封箱待最终锚官方重抓；详情 / 选关缩略层序不变 | 见详情 |
 | WXG-T-1099 | Cocos touchmove 入口采样计数 | 工程轨(Qoder)·framework | ✅ **已完成（2026-11-27）**：真实 `Bootstrap._onTouchMove` 第一行计数，早于桥接/固定步/渲染；全局 `__touchProbe.start/stop/reset/report` 默认关闭、不自动输出，onDestroy 对称清理；Hz 按相邻样本间隔；定向 7/7、Framework 622、Beads 1662+2 skip、Breakout 239、typecheck/sync/diff、verify 22 PASS/2 SKIP/0 FAIL 全绿；cocos:check 缺编辑器 temp 跳过两游戏、类型检查未覆盖；真机读数待采 | 见详情 |
 | WXG-T-1098 | 60/120Hz 渲染相位预览 + 触摸全量透传 | 工程轨(Qoder)·framework/beads | ✅ **已完成（2026-11-27）**：Framework 把 `alpha×fixedDt` 传入 `buildRenderModel`；beads 只读预览 lift/trayLand/groupLand，权威计时不变；Cocos 连续 120Hz touch move 全量透传；Framework 615、Beads 1662+2 skip；verify 22 PASS/2 SKIP/0 FAIL（瞬态 ctx 基线） | 见详情 |
 | WXG-T-1097 | 时间到面板蒙版上楼 + ✕ 视觉缩 44² | 主理人(CodeBuddy)·工程轨 | ✅ **已完成**：fail/clear 路由声明 scrim 注入 `{name}:scrim` 前置容器 + 撤视图内联蒙版；✕ 双框同心（视觉 44² / 热区 56²）；彩带三明治随蒙版上楼重构；金样 fail/clear 重抓；verify 24/24（2937e107 + a61c5341） | 见详情 |

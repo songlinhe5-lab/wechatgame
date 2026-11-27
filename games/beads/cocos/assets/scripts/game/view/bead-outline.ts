@@ -104,7 +104,7 @@ export function drawThumbOutline(
 
 /**
  * `[WXG-T-927 / T-928]` 对局盘面轮廓：占位取自快照（`cell.void`），锁定格取自 `cell.state`。
- * 必须在对局格循环**之前**调用；随后格底 / 珠体覆盖轮廓内侧，只露外圈。
+ * 必须在对局格循环**之前**调用，并标记 `back` 进入 Cocos `backGraphics`；随后格底 / 珠体覆盖轮廓内侧，只露外圈。
  * 缓存键 = 关卡身份 + 几何（数值逐项比较，⛔ 不拼字符串 ⇒ 每帧零分配）。
  */
 export function drawBoardOutline(
@@ -148,7 +148,7 @@ export function drawBoardOutline(
         };
         _boardCache = hit;
     }
-    for (const s of hit.shapes) builder.polygon(s.pts, { fill: color });
+    for (const s of hit.shapes) builder.polygon(s.pts, { fill: color, back: true });
 }
 
 function thumbOcc(level: BeadsLevelRaw): Occupancy {

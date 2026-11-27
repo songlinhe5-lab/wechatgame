@@ -258,17 +258,20 @@ describe('RenderModelBuilder', () => {
 
   // ── WXG-T-256 / ADR-0030 S5′-4：**底图通道**（`back`）──────────────────────
 
-  it('back 只落在显式声明的 rect/line 上；缺省不落键（seal / signature 零漂移）', () => {
+  it('back 只落在显式声明的 rect/line/polygon 上；缺省不落键（seal / signature 零漂移）', () => {
     const b = new RenderModelBuilder(10, 10);
     b.begin();
     b.rect(0, 0, 1, 1, { fill: '#fff', back: true });
     b.line(0, 0, 1, 1, '#fff', 1, undefined, true);
+    b.polygon([0, 0, 1, 0, 1, 1], { fill: '#fff', back: true });
     b.rect(0, 0, 1, 1, { fill: '#fff' });
     b.line(0, 0, 1, 1, '#fff', 1);
+    b.polygon([0, 0, 1, 0, 1, 1], { fill: '#fff' });
     const cmds = b.end().commands as unknown as ReadonlyArray<Record<string, unknown>>;
-    expect([cmds[0]!.back, cmds[1]!.back]).toEqual([true, true]);
-    expect('back' in cmds[2]!, '⛔ 不传就不落键（`JSON.stringify` 多一字节 = 封箱基准改漂）').toBe(false);
-    expect('back' in cmds[3]!, 'line 同理').toBe(false);
+    expect([cmds[0]!.back, cmds[1]!.back, cmds[2]!.back]).toEqual([true, true, true]);
+    expect('back' in cmds[3]!, '⛔ 不传就不落键（`JSON.stringify` 多一字节 = 封箱基准改漂）').toBe(false);
+    expect('back' in cmds[4]!, 'line 同理').toBe(false);
+    expect('back' in cmds[5]!, 'polygon 同理').toBe(false);
   });
 
   // ── WXG-T-132 / ADR-0014：全局变换通道 ──────────────────────────────
@@ -350,6 +353,13 @@ describe('RenderModelBuilder.signature', () => {
       b.setTransform(1.02, 5, 5);
       b.rect(0, 0, 10, 10, { fill: '#fff' });
     })).not.toBe(base);
+  });
+
+  it('polygon 的 back 通道改变也算脏（宿主层序变化必须触发重画）', () => {
+    const b = new RenderModelBuilder(100, 100);
+    const a = sigOf(b, () => b.polygon([0, 0, 4, 0, 0, 3], { fill: '#fff' }));
+    const c = sigOf(b, () => b.polygon([0, 0, 4, 0, 0, 3], { fill: '#fff', back: true }));
+    expect(c).not.toBe(a);
   });
 
   it('顶点改变但 offset/count 不变也算脏（arena 入哈希）', () => {

@@ -192,10 +192,10 @@
 
 ### K.5.1-补19 整帧基线第二十八次复评修订（2026-11-27 · WXG-T-1102 对局盘面轮廓沉到珠体之下 · 正本 = provenance `s3_frame_recheck_t1102`）
 
-> - **通道声明**：属**纯帖序重排**改动（用户实帧反馈「轮廓线压到豆面上面了」⇒ `drawBoardOutline()` 从 `drawGrid()` 格循环之后移到之前）；条数 / 逐 kind 计数零变、仅 sha 变。重抓由工程侧跑官方复取器，本文只给文号与索引。
+> - **通道声明**：属**帖序重排 + 底图通道标记**改动（用户实帧反馈「轮廓线压到豆面上面了」）。`drawBoardOutline()` 从 `drawGrid()` 格循环之后移到之前，同时 54 条对局轮廓 polygon 新增 `back: true`，Cocos adapter 将其路由到珠体 `BlitLayer` 之下的 `backGraphics`；条数 / 逐 kind 计数零变、仅 sha 变。
 > - **编号口径**：本段 ↔ **键 27**；前态 = 第二十七次复评（T-1096 托盘容器化）产物 frame0 `1290` / frame78 `1836`；现役两帧 total / kinds 必须全等。
-> - **流级差分（复取后回填）**：要求零新增、零删除、零几何改写，仅盘面轮廓 polygon 段从格循环之后移到之前；最强反证 = 珠体族 `legacyFlow` 96/96、facet 45/45 逐字节全等。
-> - **判据同步**：provenance 新增 `s3_frame_recheck_t1102` + 台账 `recheck-27-outline-below`（0/0）；⛔ 不改任何登记常数与帧长等式。
+> - **流级差分（最终锚复取后回填）**：要求两帧各 54 条轮廓从格循环之后移到 `0–53`，并逐条新增 `back: true`；剥离 `polygon.offset` 与 `back` 后，轮廓几何及其余命令必须逐条全等，未解释 0 条。最强反证 = 珠体族 `legacyFlow` 96/96、facet 45/45 逐字节全等。
+> - **判据同步**：provenance 新增 `s3_frame_recheck_t1102` + 台账 `recheck-27-outline-below`（0/0），`BACK_KEY_LINES` 登记两帧各 54；⛔ 不改任何帧长等式。
 
 ### K.6 `06` 珐琅 —— **只登记出池门引用，本批不造判据**（Q1 = 甲）
 >

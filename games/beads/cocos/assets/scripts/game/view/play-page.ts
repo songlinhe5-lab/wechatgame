@@ -470,7 +470,7 @@ function drawGrid(
     palette: BeadsPalette,
     inks: BeadInks,
 ): void {
-    // 对局盘面轮廓先画，随后格底与珠体覆盖其内侧，只露外圈、不压豆面。
+    // 对局盘面轮廓先画并沉到 backGraphics，随后格底与珠体覆盖其内侧，只露外圈、不压豆面。
     drawBoardOutline(builder, snap, palette.shadowInk);
 
     // G1 `vfx_fill_pop`（WXG-T-128）：包络槽在**循环外**建一次（整帧共用，同一时刻至多一颗珠在落座）。

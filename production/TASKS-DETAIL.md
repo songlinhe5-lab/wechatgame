@@ -13266,8 +13266,8 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 
 ## WXG-T-1102
 
-**对局盘面轮廓沉到珠体之下** · 负责：工程轨(Qoder)·beads · 状态：🚧 **进行中（2026-11-27；分支 wxg-t-1098）**
+**对局盘面轮廓沉到珠体之下** · 负责：工程轨(Qoder)·beads/framework · 状态：🚧 **进行中（2026-11-27；分支 wxg-t-1098）**
 
-承用户实帧反馈「轮廓线压到豆面上面了」。根因 = `drawGrid()` 在格循环之后调用 `drawBoardOutline()`，T-928 的末笔轮廓因此覆盖边界珠面。修法只改对局层序：把轮廓调用移到格循环之前，后续格底与珠体覆盖轮廓内侧，只露外圈；轮廓几何、颜色、宽度、缓存与占用判定均不变。详情 / 选关缩略继续在珠面图案之上绘制，T-928 旧令仅适用于展示缩略。
+承用户实帧反馈「轮廓线压到豆面上面了」。根因有两层：① `drawGrid()` 在格循环之后调用 `drawBoardOutline()`，RenderModel 帖序上末笔轮廓覆盖边界珠面；② Cocos 珠体走 `BlitLayer`，轮廓 polygon 默认走更靠上的 `Graphics`，仅前移命令不足以改变宿主像素层序。修法 = 调用前移到格循环之前，并给对局轮廓 polygon 标记 `back: true`，复用既有 `backGraphics` 通道沉到珠体之下；Canvas2D 与详情 / 选关缩略画法不变，轮廓几何、颜色、宽度、缓存与占用判定均不变。
 
-**验证**：先加真实 `drawPlayPage()` 命令序失败测试，红灯时轮廓索引 56、珠体索引 1；移动调用后 `play-page.test.ts` 5/5 通过。官方复取范围 = UI 金样本 `play/pause/clear/fail/sprint-settle/finish` 六帧与 S3 `frame0/frame78` 两帧；预期 total/kinds 零变、仅 sha 变。封箱归因 = `K.5.1-补19` / provenance `s3_frame_recheck_t1102` / 台账 `recheck-27-outline-below`。
+**验证**：第一轮命令序测试先红后绿；独立审查指出宿主通道遗漏后，补 `PolygonCommand.back` 契约、renderer 路由与 `back === true` 回归，Framework renderer/render-model 52/52、play-page 5/5 通过。封箱在当前源码下按预期因旧 sha 红 2 条，待最终修复锚由官方复取器重抓 UI `play/pause/clear/fail/sprint-settle/finish` 六帧与 S3 `frame0/frame78` 两帧；要求 total/kinds 零变、每帧 54 条轮廓新增 `back`、几何与珠体族逐字节全等。封箱归因 = `K.5.1-补19` / provenance `s3_frame_recheck_t1102` / 台账 `recheck-27-outline-below`。
