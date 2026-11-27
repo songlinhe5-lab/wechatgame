@@ -507,6 +507,54 @@ describe('CocosRenderModelRenderer backGraphics（底图通道）', () => {
   });
 });
 
+// ── WXG-T-1112：载体帧边界 beginFrame / endFrame 配对 ────────────────────────
+describe('CocosRenderModelRenderer 载体 endFrame', () => {
+  function makeWithCarrier() {
+    const { g } = fakeGraphics();
+    const { source } = fakeLabels();
+    const viewport = new Viewport(200, 400);
+    const events: string[] = [];
+    const renderer = new CocosRenderModelRenderer(g, source, colors, viewport, {
+      blitCarrier: {
+        accept: () => { events.push('accept'); },
+        beginFrame: () => { events.push('begin'); },
+        endFrame: () => { events.push('end'); },
+      },
+    });
+    return { renderer, events };
+  }
+
+  it('一次 draw 恰好 begin→accept→end 各按序一次（差分复用契约）', () => {
+    const { renderer, events } = makeWithCarrier();
+    const b = new RenderModelBuilder(200, 400);
+    b.begin();
+    b.rect(0, 0, 10, 10, { fill: '#fff' });
+    b.blit('tex', 0, 0, 10, 10);
+    b.blit('tex', 5, 0, 10, 10);
+    renderer.draw(b.end());
+    expect(events).toEqual(['begin', 'accept', 'accept', 'end']);
+    // 再来一帧：begin 重置 → end 收尾，事件序列同形（载体据此外推差分）。
+    const b2 = new RenderModelBuilder(200, 400);
+    b2.begin();
+    renderer.draw(b2.end());
+    expect(events.slice(4)).toEqual(['begin', 'end']);
+  });
+
+  it('载体未实现 endFrame ⇒ draw 末尾零调用（可选契约，旧行为逐字节不变）', () => {
+    const { g } = fakeGraphics();
+    const { source } = fakeLabels();
+    const viewport = new Viewport(200, 400);
+    const events: string[] = [];
+    const renderer = new CocosRenderModelRenderer(g, source, colors, viewport, {
+      blitCarrier: { accept: () => { events.push('accept'); } },
+    });
+    const b = new RenderModelBuilder(200, 400);
+    b.begin();
+    renderer.draw(b.end());
+    expect(events).toEqual([]);
+  });
+});
+
 // ── WXG-T-1111：分段计时探针（矢量 / 位图 / 文字 / 其余）────────────────────
 describe('CocosRenderModelRenderer 分段计时', () => {
   function setup() {

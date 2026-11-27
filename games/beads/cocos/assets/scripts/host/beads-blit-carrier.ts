@@ -344,7 +344,20 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
      */
     private readonly _frostFrames = new Map<string, { frame: SpriteFrame; radius: number; gray: number }>();
     private readonly _pool: Sprite[] = [];
+    /**
+     * `[WXG-T-1112]` 池位组件缓存：`accept` 每条 blit 都要 setContentSize / 设 α，
+     * 旧写法每帧两次 `getComponent`（线性扫组件表）。池位创建时组件恒定 ⇒ 建档时存引用。
+     */
+    private readonly _poolUiT: UITransform[] = [];
+    private readonly _poolUiO: UIOpacity[] = [];
     private _used = 0;
+    /**
+     * `[WXG-T-1112]` 上一帧借用量（差分复用：`beginFrame` 不再整池 `active=false`，
+     * 本帧前缀复用仍 active 的池位；`endFrame` 只关 `[本帧, 上帧)` 尾段 ⇒ 稳态零翻转）。
+     */
+    private _usedPrev = 0;
+    /** `[WXG-T-1112]` 图集容器节点缓存：旧写法每条 blit 都 `getChildByName`（O(children) 线性扫）。 */
+    private _atlasNodeRef: Node | null = null;
     private _ready = false;
     /** [WXG-T-1005] Bootstrap launch 拿它 await 再 start loop，避免菜单第一帧闪 v1 矢量腿。 */
     public warmupPromise: Promise<number> | null = null;
@@ -476,18 +489,27 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
 
     beginFrame(): void {
         if (_blitDbg) this._dbgDump();
-        // 收上一帧**实际用过**的那批 `[0, _used)`：本帧命令尚未交出，收掉的只是上一帧模型的残留
-        // ⇒ 不会有一帧残影（`Sprite` 显隐在引擎提交前生效）。
-        // ⚠ 区间必须是 `[0, _used)` 而非 `[_used, pool.length)`：后者关的是「上帧没用的尾」（本就
-        //   inactive），而本帧 blit 数 < 上帧时（play→menu 珠数骤减）`[本帧, 上帧)` 段既不被
-        //   `_borrow` 复用、又没在此关掉 ⇒ 停在上帧盘面/托盘位置 = 残影。本帧要哪些由 `_borrow`
-        //   重新 `active=true` 点亮（WXG-T-269 后 play→menu 暴露）。
-        for (let i = 0; i < this._used; i++) {
+        // `[WXG-T-1112]` 差分复用：旧写法在这里把 `[0, _used)` 全部 `active=false`、`_borrow`
+        // 再逐个 `active=true` ⇒ 每个渲染帧每颗珠吃 **2 次完整 onEnable/onDisable 周期**
+        // （组件回调 + batcher 重登记），~890 blit/帧时实测占「位」段 10 ms 的大头。
+        // 现口径：借用是**顺序前缀**（第 i 次借 = 池位 i），上帧借过的 `[0, _usedPrev)` 保持
+        // active 直接复用；本帧没用到的尾段 `[本帧, 上帧)` 由 `endFrame`（同 tick、引擎渲染前）
+        // 关掉 ⇒ 稳态（前后帧 blit 数相同，拖动期正是如此）**零翻转**，play→menu 骤减也由
+        // endFrame 收尾，无残影（WXG-T-269 案例同口径闭合）。
+        this._usedPrev = this._used;
+        this._used = 0;
+        this._clipOn = false;
+    }
+
+    /**
+     * `[WXG-T-1112]` 帧末钩子（框架 `draw()` 末尾调，`CocosBlitCarrierLike.endFrame`）。
+     * 只关「上帧借过、本帧没借到」的尾段；稳态这段为空 ⇒ 循环空转、零 toggle。
+     */
+    endFrame(): void {
+        for (let i = this._used; i < this._usedPrev; i++) {
             const node = this._pool[i]!.node;
             if (node.active) node.active = false;
         }
-        this._used = 0;
-        this._clipOn = false;
     }
 
     pushClip(): void {
@@ -548,6 +570,9 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
         }
         if (ns !== undefined) this._ensureSliceBorder(cmd.textureId, frame, ns.capX, ns.capY);
         const sp = this._borrow();
+        // `[WXG-T-1112]` 组件引用从池位档案取（`_borrow` 建档时已存），⛔ 热路径 getComponent。
+        const uiT = this._poolUiT[this._used - 1]!;
+        const uiO = this._poolUiO[this._used - 1]!;
         // 两条腿不同层：珠（tint 图集）在 `Graphics` 之下、静态位图在其上。池位是同一条，
         // 只在层真变了时 setParent（选关墙同屏仅此 1 条位图命令，热路径仍零分配）。
         // `[2026-11-20]` 珠腿（tint 图集）与「承着内容的整片底图」都在 Graphics 之下：
@@ -577,7 +602,10 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
         // 格底盖住锁。above 池位每帧按命令序（= 借位序）钉死兄弟位，⛔ 不依赖 setParent 追加历史。
         // below 腿保持原样（珠层垫底语义不变）。
         if (!below && sp.node.parent === parent) {
-            sp.node.setSiblingIndex(this._used - 1);
+            // `[WXG-T-1112]` `getSiblingIndex` 是 O(1) 读缓存位，先比再调可省掉引擎
+            // `setSiblingIndex` 内部每次必跑的 `siblings.indexOf(this)`（O(children)）。
+            const sib = this._used - 1;
+            if (sp.node.getSiblingIndex() !== sib) sp.node.setSiblingIndex(sib);
         }
         // border 全 0 的帧 SLICED ≡ SIMPLE ⇒ 恒按命令语义赋值（同帧混发两类也不残留）。
         sp.type = ns !== undefined ? Sprite.Type.SLICED : Sprite.Type.SIMPLE;
@@ -601,14 +629,19 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
                 drawH = cmd.h / vs;
             }
         }
-        sp.node.getComponent(UITransform)!.setContentSize(drawW, drawH);
+        uiT.setContentSize(drawW, drawH);
         if (sp.node.scale.x !== fit) sp.node.setScale(fit, fit, 1);
         if (sp.spriteFrame !== frame) sp.spriteFrame = frame;
         // blit 的 x/y 是左下角（设计系），Sprite 锚点是中心 ⇒ 补半宽高。
-        sp.node.setPosition(x + cmd.w / 2, y + cmd.h / 2, 0);
+        // `[WXG-T-1112]` 引擎 `setPosition` **无等值短路**（3.8.8 实核：每次必走
+        // `invalidateChildren(POSITION)`）⇒ 本地加比较，静止池位（托盘珠）零开销。
+        const px = x + cmd.w / 2;
+        const py = y + cmd.h / 2;
+        const lp = sp.node.position;
+        if (lp.x !== px || lp.y !== py || lp.z !== 0) sp.node.setPosition(px, py, 0);
         // `[WXG-T-280]` α 腿落地（旧 warn-once 占位退役）：菜单预留钮发 `alpha=0.5`。
         // 池位建时已挂 `UIOpacity` ⇒ 每帧只比值赋值，零分配；⛔ 不在热路径 getComponent。
-        const opacity = sp.node.getComponent(UIOpacity);
+        const opacity = uiO;
         if (opacity) {
             const want = cmd.alpha === undefined || cmd.alpha === 1 ? 255 : Math.round(cmd.alpha * 255);
             if (opacity.opacity !== want) opacity.opacity = want;
@@ -832,9 +865,9 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
         if (!sp) {
             const node = new Node(`B${this._pool.length}`);
             this._atlasNode().addChild(node);
-            node.addComponent(UITransform);
+            this._poolUiT.push(node.addComponent(UITransform));
             // `[WXG-T-280]` α 腿常驻组件（菜单位图会发 alpha；珠层恒 255 零成本）。
-            node.addComponent(UIOpacity);
+            this._poolUiO.push(node.addComponent(UIOpacity));
             sp = node.addComponent(Sprite);
             sp.sizeMode = Sprite.SizeMode.CUSTOM;
             sp.type = Sprite.Type.SIMPLE;
@@ -848,14 +881,20 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
 
     /** 图集容器节点（懒建；挂在 BlitLayer 下 ⇒ 继承 WXG-T-132 的整屏节点缩放且层序正确）。 */
     private _atlasNode(): Node {
+        // `[WXG-T-1112]` 缓存命中 ⇒ 不再每条 blit 一次 `getChildByName` 线性扫。
+        if (this._atlasNodeRef && this._atlasNodeRef.isValid) return this._atlasNodeRef;
         const name = 'BlitAtlas';
         const existing = this._layer.getChildByName(name);
-        if (existing) return existing;
+        if (existing) {
+            this._atlasNodeRef = existing;
+            return existing;
+        }
         const node = new Node(name);
         // [WXG-T-256 / S5′-3] 旧批的 `ponytail:` 注在此兑现：父节点不再是 GameRoot 末尾，
         // 而是专用 BlitLayer ⇒ `addChild` 天然落在底图与矢量 UI 之间（面板/遮罩能压住珠）。
         this._layer.addChild(node);
         node.addComponent(UITransform);
+        this._atlasNodeRef = node;
         return node;
     }
 

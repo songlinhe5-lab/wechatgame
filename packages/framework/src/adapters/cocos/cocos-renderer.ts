@@ -264,6 +264,21 @@ export interface CocosBlitCarrierLike {
    * Optional: absent ⇒ the renderer calls nothing and behaviour is unchanged.
    */
   beginFrame?(): void;
+  /**
+   * `[WXG-T-1112]` Called once at the **end** of every `draw()` — the frame-end
+   * hook. Paired with `beginFrame` this enables **differential pool reuse**: the
+   * carrier can keep last frame's pool nodes active through the redraw and only
+   * deactivate the tail this frame didn't borrow, so a steady-state frame pays
+   * **zero** `onEnable`/`onDisable` cycles (each full cycle costs component
+   * callbacks + batcher re-registration; at ~890 blits/frame that was the
+   * measured 10 ms「位」leg).
+   *
+   * Semantics contract with `beginFrame`: whatever `beginFrame` leaves active
+   * must be either re-borrowed this frame or deactivated here, **within the same
+   * JS tick** — the engine renders after the tick, so no ghost frame can leak.
+   * Optional: absent ⇒ renderer calls nothing (old behaviour, byte-identical).
+   */
+  endFrame?(): void;
 }
 
 /**
@@ -555,6 +570,9 @@ export class CocosRenderModelRenderer {
       }
       if (clock) this._stamp(br, cat, at);
     }
+    // `[WXG-T-1112]` 帧边界收尾：载体在本帧最后一条命令交出后关掉「上帧有、本帧无」的
+    // 尾段池位（差分复用契约见 `CocosBlitCarrierLike.endFrame`）。没实现 ⇒ 零调用。
+    if (carrier && carrier.endFrame) carrier.endFrame();
   }
   private _blitWarned = false;
 

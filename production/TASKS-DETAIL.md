@@ -13482,3 +13482,27 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 **验证（2026-11-28 实跑）**：framework 全量 **56 文件 / 619 passed**（+3）；beads 全量 **137 文件 / 1685 passed / 2 skipped**（+2）；`typecheck`（framework + beads + breakout）绿；`framework:sync` 写入 9 / 4、`framework:sync:check` 一致；**`pnpm run verify` 24/24 PASS，0 WARN / 0 FAIL**（含 `check:arch` / `check:size` / `check:tasks` / `check:links` / `cocos:check` / harness:smoke）；金样 / 封箱 / `check:board-seam` / `check:frozen-values` 均绿（覆层关时零指令）。
 
 **下一步（设备侧，30 秒）**：新包开「性能信息」读第五行。`位图` 显著最大 ⇒ 修 blit 载体（节点属性更新 / 纹理上传 / 脏标记）；`矢量` 最大 ⇒ 回到几何重建腿（此时 195 次下笔贵在单次图元，不是次数）；`其余` 最大 ⇒ 查 `scopeHost.beginFrame` / `backGraphics` / 容器切换；`文字` 最大 ⇒ 查 Label 测宽。⚠️ 本机 `build:cocos` 不会真编译，需 Cocos Creator 面板重建。
+
+## WXG-T-1112
+
+**blit 载体差分复用 + 热路径短路：打「位」段 10 ms** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ **代码完成（2026-11-28）**
+
+承 T-1111 探针的首条分段读数（用户原文：`绘 25ms 195笔/1104令`、`矢 2.0 位 10 文 5 余 5.0ms`）。定性：四段之和 ≈ 22 ms 与 `drawMs` 25 ms 相符（差值为逐命令计时开销）；**「位」10 ms 居首**（40%），矢量段仅 2 ms ⇒ 批量减 fill/stroke 调用与矢量侧优化双双出局。1104 条命令 − ≤195 次下笔 ⇒ 本屏约 **890 条 blit/帧**，全部过 `beads-blit-carrier.accept`。
+
+**四嫌疑证据闭合（T-1111 后的本会话审计，引擎 3.8.8 源码逐条实核）**：
+1. **每帧整池 active 翻转**（`beginFrame` 逐个 `active=false` + `_borrow` `=true`）：引擎 `Node.active` setter 等值才短路 ⇒ 每渲染帧每珠 **2 次完整 onEnable/onDisable 周期**（组件回调 + batcher 重登记）。这同时解释「拖动（每帧重绘）卡、静止不卡（脏帧门跳过）」的形态。
+2. 每条 blit `getChildByName('BlitAtlas')` 线性扫。
+3. `setSiblingIndex` 引擎内每次必跑 `siblings.indexOf(this)`（O(children)，有 `index !== oldIndex` 短路但短路前就扫完）。
+4. 每条 blit 两次 `getComponent`（注释禁令与代码相悖，BD 类登记）。
+**无罪释放**：`setContentSize`（引擎 approx 短路）、`Sprite.type` setter（`!==` 短路）、`spriteFrame`/`trim`（载体已守卫）、`fx` 六读（单属性查表）。
+
+**修法（不碰绘制语义，五刀）**：
+- `CocosBlitCarrierLike` 加可选 **`endFrame()`**（框架 `draw()` 末尾调，未实现 = 旧行为逐字节不变）；载体 `beginFrame` 改**差分复用**：借用恒为顺序前缀（第 i 次借 = 池位 i）⇒ 上帧借过的 `[0, _usedPrev)` 保持 active 直接复用，`endFrame` 只关 `[本帧, 上帧)` 尾段。稳态（拖动期 blit 数恒定）**零翻转**；play→menu 骤减由 endFrame 收尾，残影窗口在同 tick 内闭合（引擎渲染在 tick 后），WXG-T-269 案例同口径闭合。
+- `_atlasNode` 结果缓存（`isValid` 复核）；池位建档时缓存 `UITransform`/`UIOpacity` 引用（`_poolUiT`/`_poolUiO` 平行数组）。
+- `setPosition` 本地等值比较（**引擎 3.8.8 `setPosition` 无等值短路**，每次必走 `invalidateChildren(POSITION)`——源码实核）；`setSiblingIndex` 前置 `getSiblingIndex() !== sib` 比较（O(1) 读缓存位，省引擎内 indexOf）。
+
+**判据（新增 6 例）**：框架 `cocos-renderer.test.ts` 两例——一次 draw 恰好 `begin → accept… → end` 按序各一次、第二帧同形；载体未实现 endFrame ⇒ 零调用。beads 新增 `blit-carrier-reuse.test.ts` 三例静态门（host 顶层 `import 'cc'` 不可导入，同 `blitdbg-switch` 口径）：beginFrame 不再含 `active=false`、accept 热路径零 getComponent、引擎无短路处必须本地守卫。**反向自证**：`git stash` 载体旧源 ⇒ 三例全红，还原即绿。
+
+**验证（2026-11-28 实跑）**：framework 全量 **56 文件 / 621 passed**（+2）；beads 全量 **138 文件 / 1688 passed / 2 skipped**（+3，新增载体静态门文件）；`typecheck`（framework + beads + breakout）绿；`framework:sync` 写入 1 / 1、`framework:sync:check` 一致；**`pnpm run verify` 24/24 PASS，0 WARN / 0 FAIL**；金样 / 封箱 / `check:board-seam` / `check:frozen-values` 均绿（本刀不产像素：只改池位生命周期与守卫，同帧最终提交态与旧实现逐位一致）。beads 版本 1.0.118。
+
+**下一步（设备侧）**：重建出包后再读分段行。预期「位」从 10 ms 降到 2–4 ms（稳态零翻转 + 短路省掉的固定开销）；若「位」仍 >6 ms，下一嫌疑是 `beginFrame` 收尾循环之外的 batcher 层（Sprite 逐帧改 `spriteFrame` 触发合并重建）。**文字段 5 ms 留待下一单**（`measureWidth` 每帧实测 + Label 池借用，候选 = 文本不变跳过测宽 / 池位对齐复用）。⚠️ 需 Cocos Creator 面板重建；本机 `build:cocos` 不会真编译。
