@@ -710,20 +710,21 @@ describe('CocosRenderModelRenderer 分段计时', () => {
     renderer.draw(model);
     const before = reads();
     const d = renderer.lastBreakdown;
-    // 帧首前后各 1 次 + 5 条命令 × 2 次 = 12 次读表；每段 2 ms。
-    expect(before).toBe(12);
+    // 帧首 1 对 + 5 条命令各 1 对 + 帧尾 1 对（`[WXG-T-1125]` 帧尾也计时）= 14 次读表；
+    // 每对 2 ms。容器 / 容器尾 / 帧首 / 帧尾四条都归「余」。
+    expect(before).toBe(14);
     expect(d).toMatchObject({
-      vectorMs: 2, blitMs: 2, textMs: 2, scopeMs: 6,
+      vectorMs: 2, blitMs: 2, textMs: 2, scopeMs: 8,
       vectorCalls: 1, blitCalls: 1, textCalls: 1,
     });
-    expect(d.vectorMs + d.blitMs + d.textMs + d.scopeMs).toBe(12);
+    expect(d.vectorMs + d.blitMs + d.textMs + d.scopeMs).toBe(14);
     expect(accepted).toEqual(['blit']);
 
     // 同一对象逐帧覆写，不累积、不新建。
     const same = renderer.lastBreakdown;
     renderer.draw(model);
     expect(renderer.lastBreakdown).toBe(same);
-    expect(renderer.lastBreakdown).toMatchObject({ vectorMs: 2, scopeMs: 6 });
+    expect(renderer.lastBreakdown).toMatchObject({ vectorMs: 2, scopeMs: 8 });
   });
 });
 

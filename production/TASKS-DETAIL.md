@@ -13952,3 +13952,25 @@ tick 18.1  引 3.5  空 16.4 ms
 4. **保守边界**：缩图下 chip 亮/暗状态无法可靠判读；若当时有关掉的分区，`绘` 会偏低。但 `209 笔 / 1131 令` ≈ T-1122 全量读数（209 笔/1100 令）⇒ 本行按**全量内容**读。
 
 **下一步候选（待拍板）**：甲 = 给宿主 `draw` 的「逐命令派发 / `clear` / scope 应用 / 节点属性写」加临时分段，定位重画成本里四段之外的部分；乙 = 先查 `文 3.0 ms`（文字命令仅 ~10 条，疑似 Label 字符串更新/重排）；丙 = 补一次静置 30 秒后的读数，确认 `绘` 的收敛值再动手。
+
+## WXG-T-1125
+
+**标签池按序复用：真机「文 3.0ms」的翻转账清零** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ **代码完成（2026-11-28）**
+
+承 T-1124 判定（静态 60fps 已达标、重画帧才是预算消耗处）。用户选「丙 / 乙 / 甲」，本单 = 乙 + 甲。
+
+**根因（乙）**：`PooledLabelSource` 用 `ObjectPool` 的**栈序**借出（后进先出），而「回收」被实现成逐枚 `setVisible(false)`。两件事相乘 ⇒ **相邻两帧的「池位 ↔ 文本」整表翻转**：第 2 帧第 1 条文字拿到的是第 1 帧最后一枚节点 ⇒ T-1118 的 setter 脏门（值不变就不发引擎调用）**永远打不中**。于是每次重画都是 N 次 `label.string = …`（Cocos 文本重排）+ 2N 次 `node.active` 翻转 + 按 label 缓存的文本宽度全 miss（`_measureTextWidth` 走 `updateRenderData(true)` 再排一次）。T-1118 把「文」从 9ms 压到 3ms 靠的是同值拦截，剩下的 3ms 正是这笔翻转。
+
+**修法**：
+- `packages/framework/src/adapters/cocos/label-pool.ts`：改为**按序号复用**（第 i 条文字恒用第 i 枚节点，⛔ 不再走 `ObjectPool` 栈）；复用位**不隐藏**。
+- 新增 `endFrame?()`（`CocosLabelSource` 可选方法）：帧尾只把「本帧没用到的尾段」隐藏一次 ⇒ 收起仍发生在**本帧内**（不留一帧残影），而同内容帧的 `setText` / `setVisible` / `setPosition` / `setColor` / `setSiblingIndex` 全被脏门拦掉。
+- 帧首 `releaseAll()` 语义收窄为「本层本帧没画过 ⇒ 全隐藏」；画过的层已由 `endFrame()` 收尾 ⇒ 空转（`_closed` 标志，同帧二次调用亦 no-op）。
+- `cocos-renderer.ts::draw()` 帧尾对 `_seenScopes` 各层与本层标签池调 `endFrame`。未实现该方法的旧宿主 / 测试假件零调用，行为不变。
+
+**甲（同单收口）**：T-1124 里「绘 11.3ms 对四段合计 6.0ms」的那条尾巴，读码后确认**不是漏计的桶**——四段本来覆盖帧首与逐条命令；真正没计时的是帧尾（载体池位回收 + 标签尾段）且两者口径不同（绘=EMA / 四段=末帧瞬时）。本单把帧尾也计入「余」段（不新开面板行：316px 已满）⇒ `绘 − Σ四段` 不再留无主残差。
+
+**判据**（`packages/framework/tests/adapters/label-pool.test.ts` 6 例，含 3 条新契约）：① 同内容连画两帧 ⇒ 引擎零调用（红测证据：旧实现第 2 帧冒 `text:a`，池位翻转）；② 文本数变少 ⇒ **同一帧内**只隐藏尾段（`['visible:false']`）；③ 整层本帧没画 ⇒ 帧首 `releaseAll` 全隐藏。另 `cocos-renderer.test.ts` 的分段计时用例按新口径更新（帧尾 1 对时钟 = 14 次读表，`scopeMs` 6→8）。
+
+**验证（2026-11-28 实跑）**：framework **57 文件 647 passed**；`pnpm run verify` **PASS 24 / WARN 0 / SKIP 0 / FAIL 0**（含 typecheck、`framework:sync:check`、`test`、`harness:smoke`、`check:host-tests`）；`framework:sync` 已重跑（beads / breakout 镜像同步）。
+
+**未验（需真机）**：`文` 是否从 3.0ms 掉到近 0（本单只动标签提交腿，不动矢量/位图）。复测时须同时看 `绘` 的收敛值，见 T-1124 丙项。

@@ -91,6 +91,12 @@ export interface CocosLabelSource {
   acquire(): CocosLabelLike;
   /** Return labels not used this frame. */
   releaseAll(): void;
+  /**
+   * `[WXG-T-1125]` 帧尾收口（可选）：把本帧没用到的标签在**本帧内**隐藏，同时
+   * 放过本帧复用到的那些（不复位 ⇒ 下一帧 setter 脏门全命中）。实现方必须容忍
+   * 同帧二次调用（默认层与主标签池常是同一个池）。
+   */
+  endFrame?(): void;
 }
 
 /**
@@ -705,7 +711,18 @@ export class CocosRenderModelRenderer {
     }
     // `[WXG-T-1112]` 帧边界收尾：载体在本帧最后一条命令交出后关掉「上帧有、本帧无」的
     // 尾段池位（差分复用契约见 `CocosBlitCarrierLike.endFrame`）。没实现 ⇒ 零调用。
+    const tailAt = clock ? clock() : 0;
     if (carrier && carrier.endFrame) carrier.endFrame();
+    // `[WXG-T-1125]` 标签同理：只收起本帧没用到的尾段，复用位保持可见 ⇒ 下一帧
+    // `setText` / `setVisible` 全被 setter 脏门拦掉（真机「文 3.0ms」的翻转账清零）。
+    // 未实现 `endFrame` 的标签源（旧宿主 / 测试假件）零调用，行为不变。
+    const seen = this._seenScopes;
+    for (let i = 0; i < seen.length; i += 1) seen[i]!.labels.endFrame?.();
+    if (this._labels.endFrame) this._labels.endFrame();
+    // `[WXG-T-1125]` 帧尾（载体池位回收 + 标签尾段）也算这次 draw 的成本，归「余」段：
+    // 否则 `绘 − (矢+位+文+余)` 会留下一条无主的尾巴，被误读成「漏计了一块」
+    // （WXG-T-1124 的口径告诫就是踩在这个坑上）。
+    if (clock) br.scopeMs += Math.max(0, clock() - tailAt);
   }
   private _blitWarned = false;
 

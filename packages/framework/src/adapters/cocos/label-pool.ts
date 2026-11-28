@@ -12,9 +12,15 @@
  * （`color` / `string` / `node.setPosition` 尤其），白白触发重排与重绘。值不变
  * ⇒ 一个引擎调用都不发。包装层是节点状态的**唯一写入者**，所以缓存的「上次值」
  * 恒等于节点真值（池复用跨帧同样成立）。
+ *
+ * `[WXG-T-1125]` **按序号复用（⛔ 不用 `ObjectPool` 的栈序）**：旧实现把「回收」做成
+ * 「逐枚 `setVisible(false)`」，而 `ObjectPool.acquire` 是后进先出 ⇒ 相邻两帧的
+ * 「池位 ↔ 文本」**整表翻转**，脏门永远打不中：每帧 N 次 `setText`（触发文本重排）
+ * + 2N 次 `node.active` 翻转。真机 `文 3.0ms` 就是这么来的（T-1118 已把 9ms 降到
+ * 3ms，剩下的 3ms 是翻转账）。现在第 i 条文字恒用第 i 枚节点、复用位**不隐藏**，
+ * 只有「本帧没用到的尾段」才关一次 ⇒ 同内容连画两帧引擎零调用。
  */
 
-import { ObjectPool } from '../../core/pool/object-pool.js';
 import type { CocosLabelLike, CocosLabelSource } from './cocos-renderer.js';
 
 export interface PooledLabelSourceOptions {
@@ -96,39 +102,77 @@ function memoizeLabel(label: CocosLabelLike): CocosLabelLike {
 }
 
 export class PooledLabelSource implements CocosLabelSource {
-  private readonly _pool: ObjectPool<CocosLabelLike>;
-  private readonly _active: CocosLabelLike[] = [];
+  private readonly _create: () => CocosLabelLike;
+  private readonly _labels: CocosLabelLike[] = [];
   private readonly _hide: ((label: CocosLabelLike) => void) | undefined;
+  /** 本帧已借出的枚数（= 下一个要借的序号）。 */
+  private _used = 0;
+  /** 当前可见的连续前缀长度。 */
+  private _shown = 0;
+  /** 本帧已 `endFrame()` 收尾（二次截止与「本层本帧没画」的区分靠它）。 */
+  private _closed = false;
 
   constructor(options: PooledLabelSourceOptions) {
+    this._create = options.create;
     this._hide = options.hide;
-    this._pool = new ObjectPool<CocosLabelLike>(() => memoizeLabel(options.create()), {
-      initial: options.initial ?? 0,
-      reset: (label) => {
-        label.setVisible(false);
-      },
-    });
+    const initial = options.initial ?? 0;
+    for (let i = 0; i < initial; i += 1) {
+      const label = memoizeLabel(options.create());
+      label.setVisible(false); // 未借出前不进渲染批；首借时脏门放行一次
+      this._labels.push(label);
+    }
   }
 
   acquire(): CocosLabelLike {
-    const label = this._pool.acquire();
-    this._active.push(label);
+    let label = this._labels[this._used];
+    if (label === undefined) {
+      label = memoizeLabel(this._create());
+      this._labels.push(label);
+    }
+    this._used += 1;
+    this._closed = false;
     return label;
   }
 
-  releaseAll(): void {
-    for (const label of this._active) {
-      this._hide?.(label);
-      this._pool.release(label);
-    }
-    this._active.length = 0;
+  /**
+   * 帧尾：只隐藏「本帧没用上」的尾段 —— 复用位一概不动。这样相邻两帧的
+   * `setVisible(true)` 会被脏门拦掉，引擎零 `active` 翻转；隐藏仍发生在**本帧内**，
+   * 不留一帧残影。同一帧内二次调用是 no-op（默认层与 `_labels` 常是同一个池）。
+   */
+  endFrame(): void {
+    if (this._closed) return;
+    this._closed = true;
+    this._trim(this._used);
   }
 
+  /**
+   * 帧首：本层**本帧没画过**（上一帧没 `endFrame`）⇒ 全隐藏；画过的层已由
+   * `endFrame()` 收过尾，这里什么都不做。
+   */
+  releaseAll(): void {
+    if (this._closed) {
+      this._closed = false;
+      return;
+    }
+    this._trim(0);
+  }
+
+  private _trim(keep: number): void {
+    for (let i = keep; i < this._shown; i += 1) {
+      const label = this._labels[i]!;
+      if (this._hide) this._hide(label);
+      else label.setVisible(false);
+    }
+    this._shown = keep;
+    this._used = 0;
+  }
+
+  /** 本帧借出的 label 数。 */
   get activeCount(): number {
-    return this._active.length;
+    return this._used;
   }
 
   get createdCount(): number {
-    return this._pool.createdCount;
+    return this._labels.length;
   }
 }
