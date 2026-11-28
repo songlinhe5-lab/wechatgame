@@ -553,6 +553,11 @@ describe('CocosRenderModelRenderer tileOverlayGraphics（中间矢量通道）',
     b.polygon([0, 0, 10, 0, 10, 10], { fill: '#000000', overTiles: true });
     return b.end();
   };
+  const emptyFrame = () => {
+    const b = new RenderModelBuilder(200, 400);
+    b.begin();
+    return b.end();
+  };
 
   function make(withCarrier: boolean) {
     const main = fakeGraphics();
@@ -572,6 +577,15 @@ describe('CocosRenderModelRenderer tileOverlayGraphics（中间矢量通道）',
     s.renderer.draw(frame());
     expect(s.overlayCalls).toContain('moveTo(-100,-200)');
     expect(s.mainCalls.filter((c) => c.startsWith('moveTo'))).toHaveLength(0);
+  });
+
+  it('抬起结束后中间层清屏，上一帧影子不残留', () => {
+    const s = make(true);
+    s.renderer.draw(frame());
+    expect(s.overlayCalls.filter((c) => c.startsWith('moveTo'))).toHaveLength(1);
+    s.renderer.draw(emptyFrame());
+    expect(s.overlayCalls.filter((c) => c === 'clear'), '每帧帧首都应清中间层').toHaveLength(2);
+    expect(s.overlayCalls.filter((c) => c.startsWith('moveTo')), '空帧不得留下旧影').toHaveLength(1);
   });
 
   it('无载体 ⇒ 回落主层（carrier off 逐字节不变）', () => {

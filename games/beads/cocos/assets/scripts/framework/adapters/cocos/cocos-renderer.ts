@@ -473,6 +473,9 @@ export class CocosRenderModelRenderer {
       g.clear();
       this._labels.releaseAll();
     }
+    // `[WXG-T-1122]` 抬起影层不是 scopeHost 管理的任一 Graphics：不清屏会让旧影
+    // 留在上一帧坐标，拖动时串成弧状拖尾。载体关闭时本层从未被写入，零调用。
+    if (this._blitCarrier && this._tileOverlay) this._tileOverlay.clear();
     this._labelsUsed = 0;
     this._labelSeq = 0;
     this._seenScopes.length = 0;
