@@ -224,6 +224,9 @@ describe('`[WXG-T-1119/1121]` 归因开关位', () => {
         expect(all.text).not.toContain('扩展');
         expect(all.text).not.toContain('熨贴片');
         expect(all.text).not.toContain('LV ');
+        // 倒计时（`mm:ss`）也必须一并消失 —— 真机上曾出现「胶囊底没了、时间字还在」的残留，
+        // 这里钉死「模型里本来就没有这行字」，把问题锁在宿主通道而不是视图。
+        expect(all.text).not.toMatch(/\d{2}:\d{2}/);
         expect(all.count).toBeLessThan(top.count);
     });
 
