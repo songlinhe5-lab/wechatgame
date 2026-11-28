@@ -13547,3 +13547,8 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 **验证（2026-11-28 实跑）**：`pnpm run typecheck` 绿（framework + beads + breakout）；framework 全量 **56 文件 / 626 passed**；beads 全量 **138 文件 / 1691 passed / 2 skipped**；breakout 全绿；其余 verify 项逐项实跑全过（arch / es5spread / secrets / levels / palettes / a11y / mcp / cocos-mask / bead-style-pool / size / sync:check / board-seam / frozen-values / harness:build / mask:diff / harness:smoke / host-tests / selftest:fast 15/15 / assets / tools node --test 12）。beads 版本 1.0.120。
 
 **下一步（设备侧）**：Cocos Creator 面板重建出包读第六行。`空 ≈ 27 ms` ⇒ 坐实 GPU/present 反压，下一单走 GPU 减负（盘面描边带三角化瘦身 / 珠面全量位图腿 / LOD A/B）；`空 ≈ 0` ⇒ 缺口另有未量段（嫌疑转回引擎 update 相位里 tick 之外的组件或事件处理）。
+
+**真机读数回填（2026-11-28，用户截图 L9，1.0.120 包）**：`fps 21 · 47.7 ms / 绘 11.9ms · 195笔/1117令 / 矢 2.0 位 1.0 文 6.0 余 1.0ms / tick 15.0 引 5.1 空 27.5ms`。判读：
+- **假设坐实**：帧 47.7 ≈ tick 15.0 + 引 5.1 + 空 27.5（差 0.1 = 带宽内）⇒ **58% 的帧间隔耗在 AFTER_DRAW → 下一 tick 的空档**。该段 JS 不执行，CPU 探针全绿（位 1.0、绘 11.9、tick 15.0），唯一像样解释 = **GPU/present 反压**：每帧 Graphics 重建的 ~10 万顶点 + 890 sprite 超 GPU 吞吐，运行时推迟下一帧 rAF。
+- **T-1114 探针使命完成**：三段账（tick/引/空）与帧间隔闭合，缺口归属从「推算」升为「实测」。
+- **下一单方向**：GPU 减负刀（顶点量 / overdraw），JS 侧不再有值得动的大腿（文 6.0 上限 ~6ms，次要）。
