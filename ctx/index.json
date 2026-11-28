@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4391,
       "lines": 144,
-      "sha256": "dbfff3aa230311230d24c4d17f7b458955946c69dc33f6808ec9977119565ea2",
+      "sha256": "2e3fc946e506a331c781b39561f9d024ae814725f1009b2987683f16982e2d86",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 407,
-          "summary": "1 production/TASKS-DETAIL.md 449243 13915 normal",
+          "summary": "1 production/TASKS-DETAIL.md 449888 13929 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5209,
       "lines": 159,
-      "sha256": "3d1aa55346a23046f917723cdc8880b51dd4ce1d6c71b870135dcfe025f3bc71",
+      "sha256": "255c616bc9fe8784b89bced63e2a6211728a962f8aa727b764ce6dcab0b019cc",
       "tier": "normal",
       "sections": [
         {
@@ -761,12 +761,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS.md` — 423 行 / 132645 tok / 实测读 4 次",
+          "anchor": "§`production/TASKS.md` — 424 行 / 132877 tok / 实测读 4 次",
           "level": 2,
           "startLine": 28,
           "endLine": 31,
           "tokens": 28,
-          "summary": "§WXG 任务台账（SSOT）=1+424 · §待排（backlog，无号，立项时领取…=394+31",
+          "summary": "§WXG 任务台账（SSOT）=1+425 · §待排（backlog，无号，立项时领取…=395+31",
           "keywords": [
             "production/TASKS.md",
             "production",
@@ -1080,12 +1080,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 13915 行 / 449243 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 13929 行 / 449888 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
           "tokens": 131,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+13916 · §WXG-T-1111=13467+19 · §WXG-",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+13930 · §WXG-T-1112=13486+24 · §WXG-",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -94688,17 +94688,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 449243,
-      "lines": 13915,
-      "sha256": "f82572a6c638e20c6dcbfe91cda2676d29ee96cbb33ddd47a953b50421c52674",
+      "tokens": 449888,
+      "lines": 13929,
+      "sha256": "7492e4be66989ec80243af9c61b849e559571fffe655ffa9bc1482e7f3b19811",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 13916,
-          "tokens": 449226,
+          "endLine": 13930,
+          "tokens": 449871,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -113516,22 +113516,35 @@
             "WXG",
             "CodeBuddy"
           ]
+        },
+        {
+          "anchor": "§WXG-T-1123",
+          "level": 2,
+          "startLine": 13917,
+          "endLine": 13930,
+          "tokens": 642,
+          "summary": "内容指纹补 backPan：纯底图平移帧必须判脏 · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ 代码完成",
+          "keywords": [
+            "WXG",
+            "backPan",
+            "CodeBuddy"
+          ]
         }
       ]
     },
     {
       "path": "production/TASKS.md",
-      "tokens": 132645,
-      "lines": 423,
-      "sha256": "f48fe814bf86e68e10b047aab2882c088801bd0c065f959ac8b2cb05e155cefd",
+      "tokens": 132877,
+      "lines": 424,
+      "sha256": "a0e4fdfca13b020967b19acf3e20b7961bfdfd1f3a4a81005624d744987e12e4",
       "tier": "hot",
       "sections": [
         {
           "anchor": "§WXG 任务台账（SSOT）",
           "level": 1,
           "startLine": 1,
-          "endLine": 424,
-          "tokens": 132636,
+          "endLine": 425,
+          "tokens": 132868,
           "summary": "格式（WXG-T-064 起）：标题制 + 详情分片。 本表只留标题（名称列 ≤ 60 字符，由 pnpm run ch",
           "keywords": [
             "WXG",
@@ -113544,8 +113557,8 @@
         {
           "anchor": "§待排（backlog，无号，立项时领取）",
           "level": 2,
-          "startLine": 394,
-          "endLine": 424,
+          "startLine": 395,
+          "endLine": 425,
           "tokens": 1571,
           "summary": "纪律（WXG-T-076，由 check:tasks G 项机械强制）：结项即移除（不留删除线占位）；",
           "keywords": [

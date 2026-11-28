@@ -407,4 +407,23 @@ describe('RenderModelBuilder.setBackPan（WXG-T-1115）', () => {
     b.begin();
     expect(b.end().backPan).toBeUndefined();
   });
+
+  // `[WXG-T-1123]` 前置门（脏帧门控 / 建模跳过）只看 `signature()` 就决定「这帧能不能复用」。
+  // 底图平移若不入指纹，纯平移帧会被判成「净」，于是珠子跟着相机走了、描边留在原地——
+  // 半截冻屏。下面两条把 backPan 钉进指纹契约里（不含它 = 红）。
+  it('只改 backPan（命令流逐字节相同）⇒ 指纹必须变', () => {
+    const b = new RenderModelBuilder(100, 100);
+    const sig = (x?: number, y?: number): number => {
+      b.begin();
+      b.rect(0, 0, 10, 10, { fill: '#fff', back: true });
+      if (x !== undefined && y !== undefined) b.setBackPan(x, y);
+      b.end();
+      return b.signature();
+    };
+    const base = sig(0, 0);
+    expect(sig(0, 0)).toBe(base);
+    expect(sig(0.5, 0)).not.toBe(base);
+    expect(sig(0, -3)).not.toBe(base);
+    expect(sig(undefined, undefined)).not.toBe(base);
+  });
 });

@@ -685,7 +685,11 @@ export class RenderModelBuilder {
    *    (`fx`) are walked the same way — legal because `BlitFx` is JSON-safe by
    *    contract and its producers pin key order (rule 4 in the type doc);
    *  - frames with no difference return the same number, and the polygon arena is
-   *    covered too (commands only carry `offset`/`count`).
+   *    covered too (commands only carry `offset`/`count`);
+   *  - **frame-level fields are mixed too**: design size, background, `transform`
+   *    and `backPan` (WXG-T-1123) — a frame that only pans the `back` channel has
+   *    byte-identical commands, and treating it as clean would freeze the outline
+   *    while the beads move under it.
    *
    * ponytail: the hash covers a texture **reference** (`textureId`), never its
    * pixels ⇒ a texture re-baked *in place* under an unchanged id is invisible to
@@ -720,6 +724,14 @@ export class RenderModelBuilder {
     mix(this._tScale);
     mix(this._tAx);
     mix(this._tAy);
+    // `[WXG-T-1123]` 底图平移也是内容的一部分：只走相机（命令流逐字节相同）的帧必须判脏，
+    // 否则前置门会跳过重画，出现「珠子随相机走、描边留在原地」的半截冻屏。缺省帧不掺
+    // （与 WXG-T-1115 的零字段契约同口径 ⇒ 菜单帧指纹与旧实现逐位相同）。
+    if (this._backPanSet) {
+      mix(1);
+      mix(this._backPanX);
+      mix(this._backPanY);
+    }
 
     for (const cmd of this._commands) {
       const rec = cmd as unknown as Record<string, unknown>;

@@ -13913,3 +13913,17 @@ tick 18.1  引 3.5  空 16.4 ms
 **盘面层序修复与性能回归（续 · 2026-11-28）**：真机放大实帧确认整格底 tile 偶发压住相邻珠面（绿底盖紫珠），根因是 tile 与珠同属宿主 below 图集、池位复用后兄弟序不保证命令先后。第一版给每块 tile 每帧 `setSiblingIndex(0)`（`0878cb1e`）观感修好，但拖动跌到 **7fps**，分段 `绘 66.2ms / 位 65.2ms`（此前位图段约 2.3ms）⇒ 逐帧全量兄弟数组重排是用性能换正确性的假修复。第二版改为独立 `BlitTiles` 节点挂在 `BlitLayer` 首位（`8fbf240e`），层级一次固定、热路径零兄弟重排；静态门同步改写并跑红→绿。两版均只改宿主运行时，RenderModel 与金样/封箱命令流未变。
 
 **知识沉淀（`kb:sync --task=WXG-T-1122`）**：新增 1 条 —— K-230 [引擎Cocos]「修 Cocos 层序不要逐帧钉全量兄弟位：建独立父节点把层级一次固定」；修改 1 条（该条标题 ID 订正）；激活 0；归档 0。`kb:audit` 无相似命中，`ctx:build` 已刷新索引面。
+
+## WXG-T-1123
+
+**内容指纹补 `backPan`：纯底图平移帧必须判脏** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ **代码完成（2026-11-28）**
+
+起因：为用户「2/3」第 3 项（建模前置门可行性）盘 `signature()` 的覆盖面时发现缺口——指纹混了宽高 / 背景 / `transform` / 命令流 / 顶点区，唯独**没有混 `setBackPan`**（`RenderModelBuilder._backPanSet/_backPanX/_backPanY`，`end()` 时才写进 `model.backPan`）。底图通道（`back`）平移而其它命令不变时，命令流可逐字节相同 ⇒ 脏帧门判「净」直接 return，结果是珠子跟着相机走了、描边留在原地。`App.dirtyGate` 现为开（默认 true），所以这是**现役路径上的缺口**，不是纯理论。
+
+**做法**（`packages/framework/src/core/render/render-model.ts::signature()`）：混完 `_tScale/_tAx/_tAy` 后，**仅当 `_backPanSet`** 才掺 `1, _backPanX, _backPanY`。缺省帧零掺 ⇒ 菜单/静默帧指纹与旧实现**逐位相同**（不触碰任何在册基线、不改变既有干净帧的判定）；量化沿用既有 1/64 设计 px（亚像素平移本就低于可见门）。doc 契约补一条「帧级字段也入哈希」。
+
+**判据**（`packages/framework/tests/core/render-model.test.ts` 新 1 例）：同一条 `back: true` 命令流下，`(0,0)` / `(0.5,0)` / `(0,-3)` / 未设四态指纹两两不同，且 `(0,0)` 逐帧稳定。红测先红（`expected 3425347338 not to be 3425347338`）后绿。
+
+**验证（2026-11-28 实跑）**：`render-model.test.ts` **28/28 passed**；`pnpm run verify` **PASS 24 / WARN 0 / SKIP 0 / FAIL 0**（含 typecheck、`framework:sync:check`、`test`、`harness:smoke`）；`framework:sync` 已重跑（beads / breakout 各写入 1）。
+
+**未做（本单边界）**：建模前置门（影子模式 + 假净计数）仍停在评估结论，未落码——它需要壳侧 `buildRenderModel` 副作用先迁出（`games/beads/src/game/beads-shell.ts:679-696` 的 `sampleDrawFrame` / `_sampleDragWindow` / `_stepsSinceDraw` / `syncPhase`）且要有游戏侧 O(1) 输入指纹（beads 现无状态 revision），属独立一单。
