@@ -1257,9 +1257,9 @@ function drawTray(
             // 小豆档 = 缩小 + 无孔，两参恒同步（同网格珠，⛔ 不得只传其一）。
             hideHole: sizeSmall,
             maskGauge: sizeSmall ? 'holeless' : 'holed',
-            forceVector: true, // `[WXG-T-1088]` 与面板同层（graphics），层序由绘制顺序决定
-            // [S5′-4 · 2026-10-05] 托盘面板底已改走 `back` 图元（blit 之下）⇒ 托盘珠不再需要排他标，
-            // 与盘面同走纹理臂；`trayZone` 只剩「槽放宽 `colorIdx`」一个职责（见 `drawEmptySocket`）。
+            // `[WXG-T-1122]` 撤 `forceVector`：托盘珠与空槽同走 tint blit（T-1096 容器
+            // BlitLayerUI 排在默认通道之后 ⇒ 压过 graphics 面板）。代价：tint 臂只吃
+            // `outer`，`liftScaleGain` / `tlScale` 放大消失；夹具未注入 tint runtime，流不变。
             // [用户 2026-10-06 二批裁「托盘珠子孔不透明，看不到下面的槽颜色 ⇒ 孔要透明透底」]
             // **撤 `liveHole` 补孔**（2026-10-05 一版药方）：当时病灶 = 格底近白、真透透出近白；
             // 现槽底已加深 `traySlot` 深灰 ⇒ 真透**正该透出槽底** ⇒ 补孔反而盖底。撤后与盘面珠同构

@@ -7,7 +7,7 @@
  *   （齿轮 / 托盘槽 / 道具卡 / 展开钮）；③ 静态门（旧文件不再自带这些 draw，且主菜单
  *   齿轮仍复用同一函数）。
  */
-import { describe, it, expect } from 'vitest';
+import { afterEach, describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -24,6 +24,7 @@ import {
 } from '../src/config/tuning.js';
 import { hitExpandButton, hitGear, hitPowerupCard, hitTraySlot } from '../src/game/beads-game/hit-test.js';
 import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
+import { setBeadTintRuntime } from '../src/view/bead-render.js';
 import { drawPlayPage } from '../src/view/play-page.js';
 import { buildBeadsFrame } from '../src/view/view-model.js';
 import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
@@ -45,6 +46,8 @@ function modelOf(fn: (b: RenderModelBuilder) => void): RenderModel {
     fn(b);
     return b.end();
 }
+
+afterEach(() => setBeadTintRuntime(undefined));
 
 describe('UI-41 · PlayPage', () => {
     it('门面等价：buildBeadsFrame 的前缀 ≡ drawPlayPage（结算层只在其后追加）', () => {
@@ -108,6 +111,24 @@ describe('UI-41 · PlayPage', () => {
         // WXG-T-420 T7：顶栏齿轮画法复用腿随 `drawTopbar` 搬到 `meta-menu.ts`（判例 K-183 ⇒ 守卫跟着迁移）。
         expect(read('src/view/meta-menu.ts')).toContain("import { drawGear } from './play-page.js';");
     });
+    it('[WXG-T-1122] 托盘珠命中 tint 臂：多一颗托盘珠 ⇒ 多一次 bead mask 查询', () => {
+        const h = harness();
+        let beadQueries = 0;
+        setBeadTintRuntime({
+            getMaskId(kind) {
+                if (kind === 'bead') beadQueries++;
+                return `tex:${kind}`;
+            },
+        });
+        const draw = () =>
+            modelOf((b) => drawPlayPage(b, h.game.snapshot, DEFAULT_PALETTE, DEMO_BEAD_INKS, true));
+        draw();
+        const before = beadQueries;
+        expect(h.game.giveTrayBead(1), '托盘须有空槽').toBeGreaterThanOrEqual(0);
+        draw();
+        expect(beadQueries - before, '⛔ 托盘珠未走 tint 臂（forceVector 回潮即红）').toBe(1);
+    });
+
     it('[WXG-T-1088] 托盘面板**不沉底**（提 graphics 压盘面珠），槽/珠同层走矢量', () => {
         // 用户 2026-11-26 点头：「底槽背景要盖在珠面上面」。面板必须离开 `back`（blit 之下）才压得住
         // 盘面珠；配套把托盘槽/珠 `forceVector`（否则会被面板自己盖住）。三者同层后由绘制序决定。
