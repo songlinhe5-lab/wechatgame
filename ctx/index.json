@@ -368,7 +368,7 @@
       "path": "ctx/BUDGET.md",
       "tokens": 4391,
       "lines": 144,
-      "sha256": "25fe8ed96a5b21f4bfb8b9a11b806cc7c428b700dd56d925d74842df7b02020b",
+      "sha256": "af1481afd0d1f3f862427bd923f61ca2a20f48fed86e842a2a52d0832d9756ec",
       "tier": "normal",
       "sections": [
         {
@@ -406,7 +406,7 @@
           "startLine": 21,
           "endLine": 45,
           "tokens": 407,
-          "summary": "1 production/TASKS-DETAIL.md 446705 13847 normal",
+          "summary": "1 production/TASKS-DETAIL.md 447462 13869 normal",
           "keywords": [
             "Top",
             "tokens",
@@ -677,7 +677,7 @@
       "path": "ctx/hot-files.md",
       "tokens": 5209,
       "lines": 159,
-      "sha256": "59f398b1bab5757bb297fca161b405ac809eb618e9b5fdf2af3443c66f205e26",
+      "sha256": "ab443bcea965bb26539f6add9c5539e3373c7afd2ee93dd72d9dff4c4234b7a3",
       "tier": "normal",
       "sections": [
         {
@@ -1080,12 +1080,12 @@
           ]
         },
         {
-          "anchor": "§`production/TASKS-DETAIL.md` — 13847 行 / 446705 tok",
+          "anchor": "§`production/TASKS-DETAIL.md` — 13869 行 / 447462 tok",
           "level": 2,
           "startLine": 120,
           "endLine": 124,
           "tokens": 131,
-          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+13848 · §WXG-T-1111=13467+19 · §WXG-",
+          "summary": "§WXG 任务台账 · 详情（标题制正文…=1+13870 · §WXG-T-1111=13467+19 · §WXG-",
           "keywords": [
             "production/TASKS-DETAIL.md",
             "production",
@@ -94561,17 +94561,17 @@
     },
     {
       "path": "production/TASKS-DETAIL.md",
-      "tokens": 446705,
-      "lines": 13847,
-      "sha256": "bddc8169c5037ff5786d44353123477e963bd1eaca548579bfe4569739313873",
+      "tokens": 447462,
+      "lines": 13869,
+      "sha256": "aba3b993ab60e1b39431af0ea2f2624fcee51fbdd543c844fefdc4ca32605a59",
       "tier": "normal",
       "sections": [
         {
           "anchor": "§WXG 任务台账 · 详情（标题制正文侧）",
           "level": 1,
           "startLine": 1,
-          "endLine": 13848,
-          "tokens": 446688,
+          "endLine": 13870,
+          "tokens": 447446,
           "summary": "为什么拆开：production/TASKS.md 曾81% 的体积是任务行详情（16 行 ≈ 5334 tok，中位行",
           "keywords": [
             "WXG",
@@ -113382,8 +113382,8 @@
           "anchor": "§WXG-T-1122",
           "level": 2,
           "startLine": 13724,
-          "endLine": 13848,
-          "tokens": 5391,
+          "endLine": 13870,
+          "tokens": 6149,
           "summary": "拖动窗口通道归因：一次拖动就把「34ms/帧花在哪」读出来 · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅",
           "keywords": [
             "WXG",
