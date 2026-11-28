@@ -84,7 +84,7 @@ function drawnText(model: RenderModel): string {
 }
 
 describe('拖动窗口取样（WXG-T-1109）', () => {
-    it('平移期间报帧数，抬手后冻结成一行结论，10 s 后让回常规细节行', () => {
+    it('平移期间报帧数，抬手后冻结成一行结论，30 s 后让回常规细节行', () => {
         const r = rig();
         r.shell.play.setDebugInfo(true);
         // `[WXG-T-1116]` 面板默认收起：先点面板展开（本例断言的 pitch / 拖动读数行都在展开态里）。
@@ -115,7 +115,7 @@ describe('拖动窗口取样（WXG-T-1109）', () => {
 
         // 显示窗到期 ⇒ 让回 pitch / LOD / beads 常规行
         let after = '';
-        for (let i = 0; i < 600; i++) after = drawnText(r.frame());
+        for (let i = 0; i < 1820; i++) after = drawnText(r.frame());
         expect(after).toContain('pitch');
         expect(after).not.toContain('拖 平滑');
     });
@@ -165,10 +165,10 @@ describe('拖动窗口取样（WXG-T-1109）', () => {
         expect(frozen).toContain('矢 9.0 位 2.0 文 4.0 余 2.0ms');
         expect(frozen).toContain('tick 18.0 引 9.0 空 7.0ms');
 
-        // 冻结行到期 ⇒ 三行让回实时值。多跑 20 帧：数值段本身就是 15 帧一跳（T-1120 降频），
-        // 冻结行消失的那一帧可能还停在旧值上，那是采样节拍不是残留。
+        // 冻结行到期（1800 帧）⇒ 三行让回实时值。多跑 20 帧：数值段本身就是 15 帧一跳（T-1120
+        // 降频），冻结行消失的那一帧可能还停在旧值上，那是采样节拍不是残留。
         let after = '';
-        for (let i = 0; i < 620; i++) after = drawnText(r.frame());
+        for (let i = 0; i < 1820; i++) after = drawnText(r.frame());
         expect(after).toContain('绘 8.0ms');
         expect(after).not.toContain('绘 34.4ms');
     });

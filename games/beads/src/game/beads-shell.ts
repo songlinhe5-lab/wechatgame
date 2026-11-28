@@ -118,10 +118,15 @@ const PANEL_PHASE: Readonly<Record<PlayPanelName, BeadsPhase>> = {
 };
 
 /**
- * `[WXG-T-1109]` 抬手后拖动读数在性能覆层上停留的渲染帧数（600 帧 ≈ 60Hz 下 10 s）。
- * 留够「抬手 → 抬头看面板」的时窗，又不会永久顶掉 pitch / LOD / beads 那行。
+ * `[WXG-T-1109 / 1122]` 抬手后拖动读数在性能覆层上停留的渲染帧数（1800 帧 ≈ 60Hz 下 30 s）。
+ *
+ * 原为 600 帧（10 s）。T-1122 的真机实验需要「收起面板 → 拖动 → 再展开读那行」，10 s 连
+ * 「抬手、点面板、抬头看」都不够一次（用户实测展开后那行已过期）⇒ 放宽到 30 s。
+ * 结论行只在展开态可见，收起态拖得再对也读不到，所以留够时窗比省屏幕更重要。
+ *
+ * 仍不会永久顶掉 `pitch / LOD / beads` 那行 —— 30 s 后照旧让回。
  */
-const DRAG_LINE_LINGER_FRAMES = 600;
+const DRAG_LINE_LINGER_FRAMES = 1800;
 
 /** `[WXG-T-1109]` 判定结论 → 面板用词（阈值与结论本身在框架 `judgeMotionJudder`）。 */
 const MOTION_VERDICT_LABEL: Readonly<Record<MotionVerdict, string>> = {

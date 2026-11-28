@@ -13743,6 +13743,8 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 
 **验证（2026-11-28 实跑）**：typecheck 0 错；beads 全量 **139 文件 1707 passed / 2 skipped**；`check:arch` OK（1 条 editor 产物 warning）；`harness:smoke` OK（breakout, beads）；`framework:sync` 已重跑（写入 2）；版本 **1.0.128**。
 
+**追补（2026-11-28 · 1.0.129）：结论行停留 600 → 1800 帧（≈30 s）**。真机首轮实验按「收起面板 → 拖动 → 再展开」做，展开时详情行已经是 `pitch …`——`拖…` 行的 10 s 停留不够走完「抬手、点面板、抬头看」，而它**只在展开态可见**（收起态那一行是 `fps … 点按展开`）。已核 `tapDebugPanel` 只翻转展开位、不碰拖动状态，所以不是点面板清掉了它。判据同步：两条用例的到期等待 600/620 → 1820 帧（`tests/drag-window-probe.test.ts`）。
+
 **真机待你验（本轮不代跑，分工铁律）**：`pnpm -C games/beads run build:cocos` 后进 L9，覆层展开，按住盘面拖 2–3 秒再抬手，读那三行（此时就是拖动期的账）。判读：
 
 - `绘` ≈ 34 且 `矢` 大 ⇒ 拖动期每帧全量重画珠体/描边 ⇒ 减层、减面积或拖动期降档才有效；
