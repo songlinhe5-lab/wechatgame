@@ -640,12 +640,14 @@ export class CocosRenderModelRenderer {
           // `[WXG-T-1115]` 注入了 Outline 静态层 ⇒ back polygon 改投该层并在冻结帧
           // 整段跳画（几何已提交、只平移节点）；冻结帧里 back 的 rect/line 不受影响
           // （托盘面板是屏幕空间，不随盘面 pan）。未注入 ⇒ 回落 `back ?? pen` 旧路径。
+          // ⚠ 顶点发**原始设计坐标**（不加 ox/oy）：居中偏移已由节点位 `(ox+pan)` 承担
+          // —— 两边都加 = 偏移算两遍（`[WXG-T-1116]` 真机报「描边整层画到左下」的根因）。
           if (cmd.back && this._outline) {
             if (this._outlineFrozen) break;
             const t = this._outline;
             const o = cmd.offset;
-            t.moveTo(verts[o]! + ox, verts[o + 1]! + oy);
-            for (let k = 1; k < n; k += 1) t.lineTo(verts[o + k * 2]! + ox, verts[o + k * 2 + 1]! + oy);
+            t.moveTo(verts[o]!, verts[o + 1]!);
+            for (let k = 1; k < n; k += 1) t.lineTo(verts[o + k * 2]!, verts[o + k * 2 + 1]!);
             t.close();
             this._paint(t, cmd.fill, cmd.stroke, cmd.lineWidth ?? 1, cmd.alpha);
             break;

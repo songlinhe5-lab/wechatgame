@@ -658,6 +658,10 @@ describe('CocosRenderModelRenderer Outline 静态层（WXG-T-1115）', () => {
     s.renderer.draw(frame({ x: 0, y: 0 }));
     expect(s.outlineCalls).toContain('clear');
     expect(polys(s.outlineCalls)).toBe(1);
+    // `[WXG-T-1116]` 顶点发**原始设计坐标**：居中偏移（ox/oy）只由节点位承担一次。
+    // 两边都加 = 偏移算两遍 ⇒ 真机描边整层画到左下（本行即防复发的钉子）。
+    expect(s.outlineCalls).toContain('moveTo(10,100)');
+    expect(s.outlineCalls).not.toContain('moveTo(-90,-100)');
     expect(s.positions).toEqual(['(-100,-200,0)']);
 
     s.renderer.draw(frame({ x: 5, y: 0 }));

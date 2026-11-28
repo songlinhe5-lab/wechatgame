@@ -13589,3 +13589,23 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 **验证（2026-11-28 实跑）**：`npm run typecheck` 0 错；beads 全量 138 文件 **1695 passed / 2 skipped**（含金样 / 封箱 / 板缝零漂移——收起分支只在新参数下生效，旧调用路径逐字不变）。beads 版本 **1.0.122**。framework 未动。
 
 **真机验证项**：Cocos Creator 重建 1.0.122 包后：① 面板默认只一行；② 点面板展开出全六行、再点收起；③ 展开态点面板区域不误触齿轮/棋盘/托盘。
+
+## WXG-T-1117
+
+**修 T-1115 真机回归：Outline 层居中偏移算两遍（描边整层画到左下）** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ **代码完成（2026-11-28）**
+
+承用户真机截图原话「珠面轮廓画错地方了吧？画到左下了」。截图同时证实 T-1116 已生效（覆层默认收起为一行 `fps 40 · 25.0 ms 点按展开`）。
+
+**根因**：Cocos UI 空间以画布中心为原点，框架设计空间原点在左下 ⇒ 渲染器用 `(ox, oy) = (-designW/2, -designH/2)` 做换算。T-1115 把描边搬进独立 `BoardOutline` 节点做「几何冻结、只平移节点」时，**两条腿各摊了一半换算**：
+1. 顶点发射沿用旧路径 `verts + ox/oy`（`cocos-renderer.ts` Outline 分支）；
+2. 节点又定位到 `(ox + panX, oy + panY)`。
+
+⇒ 实际偏移 = `2×(ox, oy) + pan`，即描边比盘面多偏了半屏宽 + 半屏高（750×1334 下 = 375 / 667 设计 px），方向左下——与截图中描边只剩左半 + 下半、左侧被屏边裁掉完全吻合。canvas2d 走设计坐标 + `backPan` 平移（无居中换算）⇒ 金样本 harness 全绿，故此 bug 只在真机 Cocos 腿暴露；framework 的 T-1115 用例只断言了多边形**条数**与节点位，没钉子顶点坐标 ⇒ 漏网。
+
+**修法**：Outline 分支顶点改发**原始设计坐标**（去掉 `+ ox/+ oy`），居中偏移只由节点位 `(ox + panX, oy + panY)` 承担一次。冻结签名（`hashBackPolys` 对原始顶点哈希）、画布腿、金样本均不受影响。
+
+**判据（新增钉子断言）**：`packages/framework/tests/adapters/cocos-renderer.test.ts` Outline describe 首例加 `moveTo(10,100)`（原始坐标在场）+ `not.toContain('moveTo(-90,-100)')`（双算版本不在场，旧代码必红）。
+
+**验证（2026-11-28 实跑）**：`npm run typecheck` 0 错；framework 全量 56 文件 **632 passed**；beads 未改源码（仅版本号）⇒ 金样本 / 封箱零漂移继承 T-1116 全绿结果。beads 版本 **1.0.123**。
+
+**真机验证项**：Cocos Creator 重建 1.0.123 包：描边须重新贴住盘面轮廓（外置带、`shadowInk`、随拖动/缩放同步移动），且拖动期覆层读数不劣化（冻结协议仍生效）。
