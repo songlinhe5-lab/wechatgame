@@ -13758,6 +13758,16 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 
 **未排除的混杂**：两次拖动的缩放未记录（`pitch / LOD` 那行被 `拖…` 行顶掉），静止那张是 `pitch 27.8 · LOD 7`；若要严格对照，需在同一缩放下各拖一次。
 
+**根因核查（读码 · 2026-11-28 · 未改码）**：拖动期 `引` 从 2.0 翻到 4.0 的机制已定位，不是「一条全盘 blit 被重烘」，而是**逐珠 setPosition**：
+
+- 盘面是**每条珠/每格 tile 各一条 blit**（`view/play-page.ts:561-566` 逐格循环；`view/bead-render.ts:527` 底 tile、`877-878` 珠面）⇒ 449 珠 × 2 = ~890 条/帧，与读数 `209 笔/1100 令` 吻合。
+- **相机被烘进每条 blit 的坐标**：`config/tuning/board.ts:530-539` 的 `gridLayoutFor` 把 pan 折进 `left/top`，快照直取（`snapshot-projection.ts:235`）⇒ 平移帧**每一条** `cmd.x/y` 都变。
+- 载体 `cocos/assets/scripts/host/beads-blit-carrier.ts:638-641` 做 `sp.node.setPosition(px, py, 0)`；Cocos 3.8.8 的 `setPosition` **无等值短路**（本仓已源码实核，判据在 §详见 `blit-carrier-reuse.test.ts:43-45`）⇒ 平移帧 ~890 次必走 `invalidateChildren(POSITION)` ⇒ 引擎渲染段为这些 Sprite 重算世界顶点并重传，这正是 `引` 翻倍。
+- 次要嫌疑 `:634` `sp.spriteFrame !== frame`：平移时离屏剔除（`play-page.ts:574-581`）改变「本帧发哪些格」，而池位是顺序前缀借用 ⇒ 槽位换珠换色 ⇒ 引擎 `_applySpriteFrame` 触发**整条 sprite 顶点/UV 重组装**；静止帧不命中，故只在拖动期出现。
+- `accept()` 内部没有任何 `markDirty` / `_flushAssembler` 直调；纹理只在首见配色时 `uploadData`（`:694`），平移帧不重传。`endFrame()`（`:508-513`）只关尾段池位，稳态为零。
+- **现成「恒等坐标 + 只挪节点」路径只有描边那一条**（`bead-outline.ts:134-142` + `cocos-renderer.ts:494-523` 的 Outline 静态层）。blit 通道**没有**等价协议：`CocosBlitCarrierLike`（`cocos-renderer.ts:290-332`）无 pan 形参，`accept` 收绝对坐标（`:677`）。
+- ⇒ 真要拿回这 ~2ms，得给珠层新开「板内恒等坐标 + 容器节点平移」通道（沿 Outline 那条腿的形态），属 ADR-0030 级追加；**收益上限就是这个 2ms**，且 Cocos 2D 会把世界坐标烘进 sprite 顶点，整层平移能否真省顶点⛔ 仓内无法自证，须真机 A/B。
+
 **真机待你验（本轮不代跑，分工铁律）**：`pnpm -C games/beads run build:cocos` 后进 L9，覆层展开，按住盘面拖 2–3 秒再抬手，读那三行（此时就是拖动期的账）。判读：
 
 - `绘` ≈ 34 且 `矢` 大 ⇒ 拖动期每帧全量重画珠体/描边 ⇒ 减层、减面积或拖动期降档才有效；
