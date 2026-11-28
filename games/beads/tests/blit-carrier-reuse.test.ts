@@ -50,9 +50,11 @@ describe('WXG-T-1112 载体差分复用（静态门）', () => {
         expect(src).toContain('if (sp.node.getSiblingIndex() !== sib) sp.node.setSiblingIndex(sib);');
     });
 
-    it('真机底 tile 压珠面：tile blit 每帧钉到图集最底（WXG-T-1122）', () => {
+    it('真机底 tile 压珠面：tile blit 走独立底层节点，⛔ 逐帧钉兄弟位（WXG-T-1122）', () => {
         expect(src).toContain('MASK_TILE_SUFFIX');
-        expect(src).toMatch(/cmd\.textureId\.endsWith\(MASK_TILE_SUFFIX\)/);
-        expect(src).toMatch(/endsWith\(MASK_TILE_SUFFIX\)[\s\S]{0,260}setSiblingIndex\(0\)/);
+        expect(src).toContain('private _tileNodeRef: Node | null = null;');
+        expect(src).toMatch(/const tileBlit = base !== undefined && cmd\.textureId\.endsWith\(MASK_TILE_SUFFIX\)/);
+        // 逐帧 setSiblingIndex(0) 会让几百块 tile 触发父节点兄弟数组重排（真机 位 65ms）。
+        expect(src).not.toMatch(/endsWith\(MASK_TILE_SUFFIX\)[\s\S]{0,260}setSiblingIndex\(0\)/);
     });
 });

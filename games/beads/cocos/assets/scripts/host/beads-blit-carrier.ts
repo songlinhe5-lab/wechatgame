@@ -358,6 +358,8 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
     private _usedPrev = 0;
     /** `[WXG-T-1112]` 图集容器节点缓存：旧写法每条 blit 都 `getChildByName`（O(children) 线性扫）。 */
     private _atlasNodeRef: Node | null = null;
+    /** `[WXG-T-1122]` 整格底 tile 的独立底层节点：建一次即恒在珠图集之下，热路径零兄弟重排。 */
+    private _tileNodeRef: Node | null = null;
     private _ready = false;
     /** [WXG-T-1005] Bootstrap launch 拿它 await 再 start loop，避免菜单第一帧闪 v1 矢量腿。 */
     public warmupPromise: Promise<number> | null = null;
@@ -589,19 +591,18 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
         const scoped = blitParent as Node | undefined;
         const unscooped = scoped === undefined || scoped === this._uiLayer;
         const below = (base !== undefined && unscooped) || BELOW_GRAPHICS_TEXTURE_IDS.has(cmd.textureId);
+        // `[WXG-T-1122]` tile 走独立底层节点：与珠图集分属两个父节点，层序由节点树固定，
+        // ⛔ 不再逐帧 setSiblingIndex(0)（真机每帧几百次父节点兄弟数组重排 ⇒ 位 65ms）。
+        const tileBlit = base !== undefined && cmd.textureId.endsWith(MASK_TILE_SUFFIX);
         const parent = this._clipOn && this._clipLayer
             ? this._clipLayer
-            : (below ? this._atlasNode() : (scoped ?? this._uiLayer));
+            : tileBlit ? this._tileNode()
+                : below ? this._atlasNode()
+                    : (scoped ?? this._uiLayer);
         if (sp.node.parent !== parent) {
             sp.node.setParent(parent);
             // 框垫底：同层若有珠（同属 BlitAtlas），框必须在它们之下。
             if (base === undefined && below) sp.node.setSiblingIndex(0);
-        }
-        // `[WXG-T-1122]` 真机实帧：放大后整格底 tile 偶发压在相邻珠面上（两者同属 below
-        // 图集，池位复用后的兄弟序不保证命令先后）。tile 恒定钉到图集最底，珠 / 坑 mask
-        // 保持命令序追加 ⇒ 珠面永远在底图之上；先比后设省掉引擎每次必跑的 siblings.indexOf。
-        if (below && base !== undefined && cmd.textureId.endsWith(MASK_TILE_SUFFIX)) {
-            if (sp.node.getSiblingIndex() !== 0) sp.node.setSiblingIndex(0);
         }
         // `[WXG-T-1048]` 跨容器池位复用后兄弟序会残留旧容器的追加历史：详情帧借走 dialogBg/
         // cellNormal 等池位挂到详情容器，返回帧它们 setParent 回选关容器时插到锁之后 ⇒ 不透明
@@ -901,6 +902,26 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
         this._layer.addChild(node);
         node.addComponent(UITransform);
         this._atlasNodeRef = node;
+        return node;
+    }
+
+    /**
+     * `[WXG-T-1122]` 整格底 tile 专用底层节点（建一次 ⇒ 热路径零兄弟重排）。
+     * 挂在 BlitLayer 首位 ⇒ 恒在 `BlitAtlas`（珠 / 坑 mask）之下，也在所有矢量之上。
+     */
+    private _tileNode(): Node {
+        if (this._tileNodeRef && this._tileNodeRef.isValid) return this._tileNodeRef;
+        const name = 'BlitTiles';
+        const existing = this._layer.getChildByName(name);
+        if (existing) {
+            this._tileNodeRef = existing;
+            return existing;
+        }
+        const node = new Node(name);
+        node.addComponent(UITransform);
+        this._layer.addChild(node);
+        node.setSiblingIndex(0);
+        this._tileNodeRef = node;
         return node;
     }
 
