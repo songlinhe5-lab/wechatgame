@@ -49,4 +49,10 @@ describe('WXG-T-1112 载体差分复用（静态门）', () => {
         // setSiblingIndex 前置 O(1) 比较，省掉引擎内部每次必跑的 indexOf
         expect(src).toContain('if (sp.node.getSiblingIndex() !== sib) sp.node.setSiblingIndex(sib);');
     });
+
+    it('真机底 tile 压珠面：tile blit 每帧钉到图集最底（WXG-T-1122）', () => {
+        expect(src).toContain('MASK_TILE_SUFFIX');
+        expect(src).toMatch(/cmd\.textureId\.endsWith\(MASK_TILE_SUFFIX\)/);
+        expect(src).toMatch(/endsWith\(MASK_TILE_SUFFIX\)[\s\S]{0,260}setSiblingIndex\(0\)/);
+    });
 });

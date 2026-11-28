@@ -31,7 +31,7 @@ import {
     type TintImageDataLike,
 } from '../framework/adapters/canvas2d/tint-sprite-cache';
 import { MASK_CANONICAL_SIZE } from '../framework/core/bake/mask-spec';
-import { maskTileInnerPx } from '../framework/core/bake/mask-tile';
+import { MASK_TILE_SUFFIX, maskTileInnerPx } from '../framework/core/bake/mask-tile';
 import { BEAD_PITCH, BELOW_GRAPHICS_TEXTURE_IDS, BOSS_THUMB_TEXTURES, LEVEL_DETAIL_TEXTURES, LEVEL_SELECT_TEXTURES, MENU_TEXTURES, POWERUP_RESTORE_BASE_TILE, POWERUP_TILE_TEXTURES, TILE_BLEED, TIMEOUT_TEXTURES } from '../game/config/tuning';
 import { OPEN_ARCS } from '../game/config/arcs';
 import { tintFxBase } from '../framework/core/bake/tint-composite';
@@ -596,6 +596,12 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
             sp.node.setParent(parent);
             // 框垫底：同层若有珠（同属 BlitAtlas），框必须在它们之下。
             if (base === undefined && below) sp.node.setSiblingIndex(0);
+        }
+        // `[WXG-T-1122]` 真机实帧：放大后整格底 tile 偶发压在相邻珠面上（两者同属 below
+        // 图集，池位复用后的兄弟序不保证命令先后）。tile 恒定钉到图集最底，珠 / 坑 mask
+        // 保持命令序追加 ⇒ 珠面永远在底图之上；先比后设省掉引擎每次必跑的 siblings.indexOf。
+        if (below && base !== undefined && cmd.textureId.endsWith(MASK_TILE_SUFFIX)) {
+            if (sp.node.getSiblingIndex() !== 0) sp.node.setSiblingIndex(0);
         }
         // `[WXG-T-1048]` 跨容器池位复用后兄弟序会残留旧容器的追加历史：详情帧借走 dialogBg/
         // cellNormal 等池位挂到详情容器，返回帧它们 setParent 回选关容器时插到锁之后 ⇒ 不透明
