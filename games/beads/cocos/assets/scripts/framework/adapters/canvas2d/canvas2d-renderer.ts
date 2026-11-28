@@ -126,6 +126,12 @@ export class Canvas2DRenderer {
   private readonly _textures: TextureRegistry | undefined;
   /** 见 `BlitResolver`。缺省 = 直接查注册表（构造期定一次，热路径零分支成本）。 */
   private readonly _resolve: BlitResolver;
+  /**
+   * `[WXG-T-1115]` 本帧底图通道平移（`model.backPan`，仅作用于 back polygon =
+   * 盘面剪影描边）。Cocos 侧把它乘到 Outline 层节点上，这里在落笔时平移同源
+   * 量 ⇒ 两端视觉逐位一致。缺省 = null（零平移，旧行为）。
+   */
+  private _backPan: { readonly x: number; readonly y: number } | null = null;
 
   constructor(
     private readonly _ctx: Canvas2DLike,
@@ -146,6 +152,9 @@ export class Canvas2DRenderer {
     const ctx = this._ctx;
     const fit = this._viewport.fit;
     const dpr = this._dpr;
+
+    // `[WXG-T-1115]` 帧首取平移（模型冻结对象，直接持有引用即可——本帧内只读）。
+    this._backPan = model.backPan ?? null;
 
     ctx.save();
     if (this._applyTransform) {
@@ -214,9 +223,15 @@ export class Canvas2DRenderer {
         const n = cmd.count;
         if (n < 2) break;
         const o = cmd.offset;
+        // `[WXG-T-1115]` back polygon（盘面剪影描边）以恒等相机坐标发出，落笔时
+        // 平移 `model.backPan` —— 与 Cocos Outline 层节点平移同源，视觉逐位一致。
+        // back 的 rect/line（托盘面板，屏幕空间）不平移。
+        const pan = cmd.back ? this._backPan : null;
+        const dx = pan ? pan.x : 0;
+        const dy = pan ? pan.y : 0;
         ctx.beginPath();
-        ctx.moveTo(verts[o]!, verts[o + 1]!);
-        for (let k = 1; k < n; k += 1) ctx.lineTo(verts[o + k * 2]!, verts[o + k * 2 + 1]!);
+        ctx.moveTo(verts[o]! + dx, verts[o + 1]! + dy);
+        for (let k = 1; k < n; k += 1) ctx.lineTo(verts[o + k * 2]! + dx, verts[o + k * 2 + 1]! + dy);
         ctx.closePath();
         this._paint(cmd.fill, cmd.stroke, cmd.lineWidth ?? 1, cmd.alpha);
         break;

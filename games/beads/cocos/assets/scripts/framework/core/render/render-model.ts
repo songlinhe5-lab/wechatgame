@@ -306,6 +306,17 @@ export interface RenderModel {
   readonly transform?: RenderTransform;
   readonly commands: readonly DrawCommand[];
   /**
+   * `[WXG-T-1115]` 底图通道**平移**（对局盘面相机 pan，设计 px）：只作用于
+   * `back: true` 的 **polygon**（盘面剪影描边）。游戏以**恒等相机坐标**发描边，
+   * 渲染器把它乘到独立的 Outline 提交体节点上 ⇒ 几何逐帧不变时（纯拖动帧）
+   * 该层免清屏 / 免重三角化 / 免重新上传，只移动节点 —— GPU 顶点提交大减
+   * （T-1114 实测 58% 帧间隔耗在 GPU/present 反压）。
+   *
+   * - 缺省（`begin()` 复位）⇒ 渲染器走旧路径：back 图元逐帧清屏重画，零漂移。
+   * - canvas2d：对 back polygon 平移 `backPan` 后按命令序绘制（视觉逐位一致）。
+   */
+  readonly backPan?: { readonly x: number; readonly y: number };
+  /**
    * Vertex arena shared by every `polygon` command of this frame (design-space
    * floats, y-up). The model owns a **private copy** — later frames reusing the
    * builder's arena can never mutate a model already handed to a renderer
@@ -382,6 +393,11 @@ export class RenderModelBuilder {
   private _tScale = 1;
   private _tAx = 0;
   private _tAy = 0;
+  // `[WXG-T-1115]` 底图通道平移槽（标量，热路径零分配）：`setBackPan` 置值、
+  // `begin` 复位。只在 end() 时按需产出一个小冻结对象（对局帧 1 个/帧，菜单帧 0 个）。
+  private _backPanSet = false;
+  private _backPanX = 0;
+  private _backPanY = 0;
   private _width: number;
   private _height: number;
 
@@ -409,6 +425,7 @@ export class RenderModelBuilder {
     this._tAx = 0;
     this._tAy = 0;
     this._alpha = 1;
+    this._backPanSet = false;
   }
 
   /** Set/replace the frame background fill. */
@@ -427,6 +444,17 @@ export class RenderModelBuilder {
     this._tScale = scale;
     this._tAx = anchorX;
     this._tAy = anchorY;
+  }
+
+  /**
+   * `[WXG-T-1115]` 底图通道平移（对局盘面相机 pan，设计 px）。只应由**发描边的视图**
+   * 在发 back polygon 之前调用一次（beads `drawBoardOutline`）；不调 ⇒ 本帧无 backPan
+   * ⇒ 渲染器走旧路径（back 图元逐帧清屏重画）。标量形参，热路径零分配。
+   */
+  setBackPan(x: number, y: number): void {
+    this._backPanSet = true;
+    this._backPanX = x;
+    this._backPanY = y;
   }
 
   /**
@@ -710,6 +738,8 @@ export class RenderModelBuilder {
       ...(this._tScale !== 1 ? {
         transform: Object.freeze({ scale: this._tScale, anchorX: this._tAx, anchorY: this._tAy }),
       } : {}),
+      // `[WXG-T-1115]` 只在对局帧（视图调过 setBackPan）产出，菜单/静默帧零分配。
+      ...(this._backPanSet ? { backPan: Object.freeze({ x: this._backPanX, y: this._backPanY }) } : {}),
       commands: Object.freeze([...this._commands]),
       vertices,
     });

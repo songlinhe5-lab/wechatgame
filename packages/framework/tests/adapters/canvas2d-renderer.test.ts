@@ -317,3 +317,32 @@ describe('Canvas2DRenderer', () => {
     expect(calls.filter((c) => c.startsWith('scale(') || c.startsWith('translate('))).toEqual([]);
   });
 });
+
+// `[WXG-T-1115]` 底图通道平移：back polygon（盘面剪影描边）以恒等相机坐标发出，
+// canvas2d 落笔时平移 `model.backPan`（与 Cocos Outline 层节点平移同源，视觉逐位一致）；
+// back 的 rect/line（托盘面板，屏幕空间）不平移。
+describe('Canvas2DRenderer backPan（WXG-T-1115）', () => {
+  it('back polygon 按 backPan 平移；非 back polygon 与 back rect 不平移', () => {
+    const { calls, renderer } = makeRenderer();
+    const b = new RenderModelBuilder(100, 100);
+    b.begin();
+    b.setBackPan(7, -3);
+    b.polygon([0, 0, 10, 0, 5, 10], { fill: '#111', back: true });
+    b.polygon([0, 0, 10, 0, 5, 10], { fill: '#222' });
+    b.rect(0, 0, 5, 5, { fill: '#333', back: true });
+    renderer.draw(b.end());
+    expect(calls).toContain('moveTo(7,-3)');
+    expect(calls).toContain('lineTo(17,-3)');
+    expect(calls).toContain('moveTo(0,0)'); // 非 back：不平移
+    expect(calls).toContain('rect(0,0,5,5)'); // back rect：不平移
+  });
+
+  it('无 backPan ⇒ back polygon 零平移（旧行为逐位）', () => {
+    const { calls, renderer } = makeRenderer();
+    const b = new RenderModelBuilder(100, 100);
+    b.begin();
+    b.polygon([0, 0, 10, 0, 5, 10], { fill: '#111', back: true });
+    renderer.draw(b.end());
+    expect(calls).toContain('moveTo(0,0)');
+  });
+});

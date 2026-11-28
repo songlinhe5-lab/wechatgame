@@ -32,7 +32,7 @@
  */
 
 import type { RenderModelBuilder } from '@wxgame/framework';
-import { BEAD_PITCH, TILE_BLEED } from '../config/tuning/board.js';
+import { BEAD_PITCH, gridLayoutFor, TILE_BLEED } from '../config/tuning/board.js';
 import type { BeadsLevelRaw } from '../config/levels-data.js';
 import type { BeadsSnapshot } from '../game/state.js';
 
@@ -78,8 +78,16 @@ let _boardCache: {
     top: number;
     pitch: number;
     lockedFace: number;
+    occSig: number;
     shapes: readonly OutlineShape[];
 } | null = null;
+
+/**
+ * `[WXG-T-1115]` 恒等相机布局的复用形参（热路径零分配）：`gridLayoutFor` 只读它，
+ * 每帧只改 `zoom`。平移恒 0 ⇒ 描边以**恒等相机坐标**发出，几何签名逐帧稳定，
+ * 纯拖动帧 Outline 层可整帧冻结（`CocosRendererOptions.outlineGraphics` 协议）。
+ */
+const _identityPanCam: { zoom: number; offsetX: number; offsetY: number } = { zoom: 1, offsetX: 0, offsetY: 0 };
 
 /**
  * 画珠面轮廓（必须在底块 / 珠体**之后**调用，覆在珠面之上）。
@@ -123,12 +131,30 @@ export function drawBoardOutline(
     snap: BeadsSnapshot,
     color: string,
 ): void {
-    const left = snap.gridLeft + snap.gridCell / 2 - snap.gridPitch / 2;
-    const top = snap.gridTop - snap.gridCell / 2 + snap.gridPitch / 2;
+    // `[WXG-T-1115]` 描边以**恒等相机坐标**发出（`gridLayoutFor` 平移归零），相机 pan
+    // 经 `builder.setBackPan` 下发 ⇒ Cocos Outline 静态层几何逐帧不变，纯拖动帧
+    // 免清屏 / 免重三角化 / 免重上传（T-1114 实测 58% 帧间隔耗在 GPU/present 反压）。
+    // base 布局与 `gridLayoutFor` 的平移项公式同源（同函数求值，⛔ 不复写公式防漂移）。
+    _identityPanCam.zoom = snap.gridPitch / BEAD_PITCH;
+    const base = gridLayoutFor(snap.gridCols, snap.gridRows, _identityPanCam);
+    const panX = snap.gridLeft - base.left;
+    const panY = snap.gridTop - base.top;
+    builder.setBackPan(panX, panY);
+    const left = base.left + snap.gridCell / 2 - snap.gridPitch / 2;
+    const top = base.top - snap.gridCell / 2 + snap.gridPitch / 2;
+    // `[WXG-T-1115]` 内容签名：格子缓冲是跨帧复用对象（引用不变）⇒ void 图案与锁定态
+    // 的变化必须逐格签名才进得了缓存键。旧键含 pan 烘焙的 left/top（每帧必 miss），
+    // 换恒等坐标后键自然稳定 —— 没有本签名，锁定态变化会被旧缓存吞掉（顺带修掉）。
+    let occSig = 0;
+    const cells = snap.cells;
+    for (let i = 0; i < cells.length; i += 1) {
+        const c = cells[i]!;
+        occSig = (Math.imul(occSig, 31) + (c.void ? 3 : 0) + (c.state === 'locked' ? 5 : 0)) | 0;
+    }
     let hit = _boardCache;
     if (
         !hit ||
-        hit.cells !== snap.cells ||
+        hit.cells !== cells ||
         hit.levelId !== snap.levelId ||
         hit.levelIndex !== snap.levelIndex ||
         hit.stageIndex !== snap.stageIndex ||
@@ -137,10 +163,10 @@ export function drawBoardOutline(
         hit.left !== left ||
         hit.top !== top ||
         hit.pitch !== snap.gridPitch ||
-        hit.lockedFace !== snap.gridCell
+        hit.lockedFace !== snap.gridCell ||
+        hit.occSig !== occSig
     ) {
         const cols = snap.gridCols;
-        const cells = snap.cells;
         const occ: Occupancy = (r, c) =>
             r >= 0 && r < snap.gridRows && c >= 0 && c < cols && !cells[r * cols + c]!.void;
         const locked: Occupancy = (r, c) => cells[r * cols + c]!.state === 'locked';
@@ -155,6 +181,7 @@ export function drawBoardOutline(
             top,
             pitch: snap.gridPitch,
             lockedFace: snap.gridCell,
+            occSig,
             shapes: buildShapes(snap.gridRows, cols, occ, locked, left, top, snap.gridPitch, snap.gridCell, boardOutlineWidth(snap.gridPitch), true),
         };
         _boardCache = hit;

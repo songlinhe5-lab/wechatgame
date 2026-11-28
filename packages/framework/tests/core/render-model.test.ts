@@ -393,3 +393,18 @@ describe('RenderModelBuilder.signature', () => {
     expect(sig()).not.toBe(base);
   });
 });
+
+// `[WXG-T-1115]` 底图通道平移：setBackPan 只在对局帧产出 backPan（菜单帧零分配、零字段）。
+describe('RenderModelBuilder.setBackPan（WXG-T-1115）', () => {
+  it('setBackPan → model.backPan；begin 复位 ⇒ 缺省帧不产字段', () => {
+    const b = new RenderModelBuilder(100, 100);
+    b.begin();
+    expect(b.end().backPan).toBeUndefined();
+    b.begin();
+    b.setBackPan(3.5, -7);
+    const m = b.end();
+    expect(m.backPan).toEqual({ x: 3.5, y: -7 });
+    b.begin();
+    expect(b.end().backPan).toBeUndefined();
+  });
+});

@@ -15,6 +15,7 @@ import { LEVELS } from '../src/config/levels.js';
 import { DEFAULT_PALETTE } from '../src/view/palette.js';
 import { drawBeadFace } from '../src/view/menu-signage.js';
 import { boardOutlineWidth, drawBoardOutline, drawThumbOutline, thumbOutlineRadius, thumbOutlineWidth } from '../src/view/bead-outline.js';
+import { BEAD_PITCH, gridLayoutFor } from '../src/config/tuning/board.js';
 
 const stub = (pattern: readonly string[], cols: number): BeadsLevelRaw =>
     ({ pattern, cols } as unknown as BeadsLevelRaw);
@@ -205,14 +206,19 @@ describe('WXG-T-1106 盘面描边外置（不压珠面）', () => {
         return { lo, hi };
     };
 
-    it('实心格：上带内缘落在珠面上缘之外，带厚 = W', () => {
+    it('实心格：上带内缘落在珠面上缘之外，带厚 = W（`[WXG-T-1115]` 恒等坐标 + backPan）', () => {
         const b = new RenderModelBuilder(750, 1334);
         b.begin();
-        drawBoardOutline(b, boardSnap('filled'), DEFAULT_PALETTE.shadowInk);
+        const snap = boardSnap('filled');
+        drawBoardOutline(b, snap, DEFAULT_PALETTE.shadowInk);
         const model = b.end();
-        // 盘面格心 = (gridLeft + cell/2, gridTop − cell/2) = (115, 485)；面缘 = pitch + 2×TILE_BLEED = 33 ⇒ f2 = 16.5
-        const cy = 485;
-        const beadTop = cy + 30 / 2; // 珠体上缘（珠面）
+        // `[WXG-T-1115]` 描边以**恒等相机坐标**发出；相机 pan 走 `model.backPan`
+        // （= 快照布局 − 恒等布局，与 `gridLayoutFor` 同源求值）。
+        const base = gridLayoutFor(snap.gridCols, snap.gridRows, { zoom: snap.gridPitch / BEAD_PITCH, offsetX: 0, offsetY: 0 });
+        expect(model.backPan).toEqual({ x: snap.gridLeft - base.left, y: snap.gridTop - base.top });
+        // 盘面格心（恒等坐标）= (base.left + cell/2, base.top − cell/2)；面缘 = pitch + 2×TILE_BLEED = 33 ⇒ f2 = 16.5
+        const cy = base.top - snap.gridCell / 2;
+        const beadTop = cy + snap.gridCell / 2; // 珠体上缘（珠面）
         const W = boardOutlineWidth(32);
         const top = yRange(model, 0); // 命令序：上带先出
         expect(top.lo).toBeGreaterThan(beadTop); // ⛔ 旧骑线带内缘 = 珠面上缘 − 2 ⇒ 本断言红
@@ -220,13 +226,15 @@ describe('WXG-T-1106 盘面描边外置（不压珠面）', () => {
         expect(top.hi - top.lo).toBeCloseTo(W, 6);
     });
 
-    it('锁定格：内缘 = 珠体上缘（贴而不侵入），带厚 = W', () => {
+    it('锁定格：内缘 = 珠体上缘（贴而不侵入），带厚 = W（`[WXG-T-1115]` 恒等坐标）', () => {
         const b = new RenderModelBuilder(750, 1334);
         b.begin();
-        drawBoardOutline(b, boardSnap('locked'), DEFAULT_PALETTE.shadowInk);
+        const snap = boardSnap('locked');
+        drawBoardOutline(b, snap, DEFAULT_PALETTE.shadowInk);
         const model = b.end();
-        const cy = 485;
-        const beadTop = cy + 30 / 2;
+        const base = gridLayoutFor(snap.gridCols, snap.gridRows, { zoom: snap.gridPitch / BEAD_PITCH, offsetX: 0, offsetY: 0 });
+        const cy = base.top - snap.gridCell / 2;
+        const beadTop = cy + snap.gridCell / 2;
         const W = boardOutlineWidth(32);
         const top = yRange(model, 0);
         expect(top.lo).toBeGreaterThanOrEqual(beadTop - 1e-6);
@@ -269,5 +277,59 @@ describe('WXG-T-1106 盘面描边外置（不压珠面）', () => {
         const polys = model.commands.filter((c) => c.kind === 'polygon');
         expect(polys.length).toBeGreaterThan(0);
         for (const c of polys) expect((c as { back?: boolean }).back).toBeUndefined();
+    });
+});
+
+// `[WXG-T-1115]` 盘面描边静态层：描边以恒等相机坐标发出（几何逐帧稳定，纯 pan 帧
+// Outline 层可整帧冻结），pan 走 `model.backPan`；格子缓冲跨帧复用（引用不变）⇒
+// void / 锁定态变化必须经 occSig 进缓存键，否则会被形状缓存吞掉。
+describe('WXG-T-1115 盘面描边静态层：恒等坐标 + 内容签名缓存', () => {
+    const mkSnap = (state: 'filled' | 'locked'): BeadsSnapshot =>
+        ({
+            cells: [
+                { state, colorIdx: 1, beadColorIdx: 1, void: false },
+                { state: 'filled', colorIdx: 2, beadColorIdx: 0, void: false },
+                { state: 'filled', colorIdx: 0, beadColorIdx: 0, void: false },
+                { state: 'filled', colorIdx: 0, beadColorIdx: 0, void: true },
+            ],
+            gridRows: 2,
+            gridCols: 2,
+            gridLeft: 360,
+            gridTop: 500,
+            gridCell: 30,
+            gridPitch: 32,
+            levelId: 'static',
+            levelIndex: 0,
+            stageIndex: 0,
+        } as unknown as BeadsSnapshot);
+    const vertsOf = (m: RenderModel): number[] => Array.from(m.vertices);
+
+    it('纯 pan 帧：几何逐位不变（缓存命中）+ backPan 随 pan 平移', () => {
+        const b = new RenderModelBuilder(750, 1334);
+        const snap = mkSnap('filled');
+        b.begin();
+        drawBoardOutline(b, snap, '#000000');
+        const m1 = b.end();
+        snap.gridLeft = 365; // 拖动 5 设计 px
+        b.begin();
+        drawBoardOutline(b, snap, '#000000');
+        const m2 = b.end();
+        expect(vertsOf(m1)).toEqual(vertsOf(m2)); // 恒等坐标 ⇒ 顶点逐位相同
+        expect(m1.backPan).toBeDefined();
+        expect(m2.backPan!.x).toBeCloseTo(m1.backPan!.x + 5, 6);
+        expect(m2.backPan!.y).toBeCloseTo(m1.backPan!.y, 6);
+    });
+
+    it('锁定态变化（同 cells 引用）⇒ occSig 变 ⇒ 形状重建（不被缓存吞掉）', () => {
+        const b = new RenderModelBuilder(750, 1334);
+        const snap = mkSnap('filled');
+        b.begin();
+        drawBoardOutline(b, snap, '#000000');
+        const m1 = b.end();
+        (snap.cells[0] as { state: string }).state = 'locked'; // 同引用改内容
+        b.begin();
+        drawBoardOutline(b, snap, '#000000');
+        const m2 = b.end();
+        expect(vertsOf(m1)).not.toEqual(vertsOf(m2)); // 锁定格 face 33→30 ⇒ 带几何变
     });
 });

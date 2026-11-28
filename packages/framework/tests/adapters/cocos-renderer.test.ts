@@ -620,3 +620,81 @@ describe('CocosRenderModelRenderer 分段计时', () => {
     expect(renderer.lastBreakdown).toMatchObject({ vectorMs: 2, scopeMs: 6 });
   });
 });
+
+// `[WXG-T-1115]` Outline 静态层冻结协议：几何签名（back polygon 顶点/色哈希）相同 ⇒
+// 不清屏、不重画，只把节点平移 `model.backPan`（引擎 setPosition 无等值短路 ⇒
+// 渲染器自行等值门控）；签名变 ⇒ 解冻清屏重画一次。back 的 rect/line 冻结帧照画。
+describe('CocosRenderModelRenderer Outline 静态层（WXG-T-1115）', () => {
+  // viewport 200×400、居中原点 ⇒ ox=-100, oy=-200。
+  function makeOutlineSetup() {
+    const { g, calls } = fakeGraphics();
+    const { source } = fakeLabels();
+    const outlineRec = fakeGraphics();
+    const positions: string[] = [];
+    const outline = {
+      ...outlineRec.g,
+      node: { setPosition: (x: number, y: number, z?: number) => positions.push(`(${x},${y},${z ?? 0})`) },
+    };
+    const viewport = new Viewport(200, 400);
+    viewport.resize(200, 400);
+    const renderer = new CocosRenderModelRenderer(g, source, colors, viewport, { outlineGraphics: outline });
+    return { g, calls, outlineCalls: outlineRec.calls, positions, renderer };
+  }
+
+  /** 一帧：一个 back polygon（可选 pan / 可选几何变体）。 */
+  const frame = (pan: { x: number; y: number } | undefined, yBottom = 120) => {
+    const b = new RenderModelBuilder(200, 400);
+    b.begin();
+    if (pan) b.setBackPan(pan.x, pan.y);
+    b.polygon([10, 100, 30, 100, 30, yBottom, 10, yBottom], { fill: '#111111', back: true });
+    return b.end();
+  };
+
+  const clears = (cs: readonly string[]): number => cs.filter((c) => c === 'clear').length;
+  const polys = (cs: readonly string[]): number => cs.filter((c) => c.startsWith('moveTo')).length;
+
+  it('首帧重建；同几何换 pan ⇒ 冻结只平移节点；同 pan ⇒ 全免', () => {
+    const s = makeOutlineSetup();
+    s.renderer.draw(frame({ x: 0, y: 0 }));
+    expect(s.outlineCalls).toContain('clear');
+    expect(polys(s.outlineCalls)).toBe(1);
+    expect(s.positions).toEqual(['(-100,-200,0)']);
+
+    s.renderer.draw(frame({ x: 5, y: 0 }));
+    expect(clears(s.outlineCalls)).toBe(1); // 不清屏
+    expect(polys(s.outlineCalls)).toBe(1); // 不重画
+    expect(s.positions).toEqual(['(-100,-200,0)', '(-95,-200,0)']);
+
+    s.renderer.draw(frame({ x: 5, y: 0 }));
+    expect(clears(s.outlineCalls)).toBe(1); // 同 pan：连节点位都不动
+    expect(s.positions).toHaveLength(2);
+  });
+
+  it('几何变 ⇒ 解冻重建；无 backPan 的帧（菜单）走清屏路径且节点位回落 ox/oy', () => {
+    const s = makeOutlineSetup();
+    s.renderer.draw(frame({ x: 3, y: 4 }));
+    s.renderer.draw(frame({ x: 3, y: 4 }, 130)); // 顶点变 ⇒ 签名变 ⇒ 重建
+    expect(clears(s.outlineCalls)).toBe(2);
+    expect(polys(s.outlineCalls)).toBe(2);
+    expect(s.positions).toEqual(['(-97,-196,0)', '(-97,-196,0)']); // 重建帧重落同位
+
+    s.renderer.draw(frame(undefined)); // 菜单帧：无 backPan、无 back poly ⇒ 清屏 + 回 (ox,oy)
+    expect(clears(s.outlineCalls)).toBe(3);
+    expect(s.positions).toEqual(['(-97,-196,0)', '(-97,-196,0)', '(-100,-200,0)']);
+  });
+
+  it('冻结帧里 back 的 rect/line 照画（回落主 Graphics，屏幕空间不随 pan）', () => {
+    const s = makeOutlineSetup();
+    s.renderer.draw(frame({ x: 0, y: 0 }));
+    const mainBefore = s.calls.length;
+    const b = new RenderModelBuilder(200, 400);
+    b.begin();
+    b.setBackPan(0, 0);
+    b.polygon([10, 100, 30, 100, 30, 120, 10, 120], { fill: '#111111', back: true }); // 同几何 ⇒ 冻结跳画
+    b.rect(0, 0, 10, 10, { fill: '#222222', back: true }); // 屏幕 space 面板底：照画
+    s.renderer.draw(b.end());
+    expect(clears(s.outlineCalls)).toBe(1); // outline 不清屏
+    expect(s.calls.length).toBeGreaterThan(mainBefore); // rect 落主 Graphics
+    expect(s.calls).toContain('rect(-100,-200,10,10)');
+  });
+});

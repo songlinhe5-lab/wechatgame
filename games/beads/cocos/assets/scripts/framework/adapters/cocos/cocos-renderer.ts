@@ -53,6 +53,15 @@ export interface CocosGraphicsLike {
   stroke(): void;
 }
 
+/**
+ * `[WXG-T-1115]` Outline 静态层 = `cc.Graphics` + 节点平移口（冻结协议里
+ * 「几何不变、只挪节点」的那一刀）。引擎 `setPosition` 无等值短路，
+ * 渲染器在冻结路径自行做等值门（见 draw 内 `_outlinePanX/Y` 比较）。
+ */
+export interface CocosOutlineLayerLike extends CocosGraphicsLike {
+  readonly node: { setPosition(x: number, y: number, z?: number): unknown };
+}
+
 /** Structural view of a pooled `cc.Label`. */
 export interface CocosLabelLike {
   setText(text: string): void;
@@ -178,6 +187,19 @@ export interface CocosRendererOptions {
    */
   readonly backGraphics?: CocosGraphicsLike;
   /**
+   * `[WXG-T-1115]` **Outline 静态层提交体**（宿主注入，可选）。宿主把它挂在
+   * Background 之上、blit 载体之下（层序 = 旧 back polygon 的观感不变）。
+   * 消费 `back: true` 的 **polygon**（= 盘面剪影描边；back 的 rect/line 仍走
+   * `backGraphics`，它们是屏幕空间的托盘面板，不随盘面 pan）。
+   *
+   * 冻结协议（配合 `model.backPan`）：游戏以**恒等相机坐标**发描边 ⇒
+   * 几何签名（back polygon 的顶点/色哈希）逐帧相等时**不清屏、不重画、
+   * 不重三角化**，只把本层节点平移 `backPan` —— 纯拖动帧 GPU 顶点提交归零。
+   * 签名变（换关 / 缩放 / 锁定态）⇒ 清屏重画一次。缺省 ⇒ back polygon 走
+   * `backGraphics` 旧路径（逐帧重画，与 T-1106 行为逐字节等价）。
+   */
+  readonly outlineGraphics?: CocosOutlineLayerLike;
+  /**
    * 矩形裁切宿主（菜单走马灯）。缺省 ⇒ `clip`/`unclip` 不做事，其余命令照旧
    * （breakout 与未接线宿主零漂移）。`graphics` 与主 `Graphics` 同一坐标系。
    */
@@ -219,6 +241,34 @@ function costCategory(cmd: DrawCommand): number {
     case 'polygon': return 0;
     default: return 3;
   }
+}
+
+/**
+ * `[WXG-T-1115]` Outline 层几何签名：FNV-1a 散列全部 `back: true` polygon 的
+ * 顶点（×64 量化，与 builder `signature()` 同一口径）+ 颜色/α。游戏以恒等相机
+ * 坐标发描边 ⇒ 纯拖动帧哈希逐帧相等 ⇒ 冻结；换关 / 缩放（pitch 变）/ 锁定态变
+ * ⇒ 哈希变 ⇒ 重建。空帧（菜单）哈希恒为同一常数 ⇒ 冻结后菜单帧零 back 开销。
+ * 每帧一趟命令扫描 + 几千次浮点整乘 ≈ 微秒级（远小于被省掉的重三角化/上传）。
+ */
+function hashBackPolys(model: RenderModel): number {
+  let h = 0x811c9dc5 | 0;
+  const verts = model.vertices;
+  const cmds = model.commands;
+  for (let i = 0; i < cmds.length; i += 1) {
+    const cmd = cmds[i]!;
+    if (cmd.kind !== 'polygon' || !cmd.back) continue;
+    const o = cmd.offset;
+    const n = cmd.count;
+    h = (Math.imul(h, 16777619) + o) | 0;
+    h = (Math.imul(h, 16777619) + n) | 0;
+    const fill = cmd.fill;
+    for (let k = 0; fill !== undefined && k < fill.length; k += 1) h = (Math.imul(h, 16777619) + fill.charCodeAt(k)) | 0;
+    const stroke = cmd.stroke;
+    for (let k = 0; stroke !== undefined && k < stroke.length; k += 1) h = (Math.imul(h, 16777619) + stroke.charCodeAt(k)) | 0;
+    if (cmd.alpha !== undefined) h = (Math.imul(h, 16777619) + ((cmd.alpha * 256) | 0)) | 0;
+    for (let k = 0; k < n * 2; k += 1) h = (Math.imul(h, 16777619) + ((verts[o + k]! * 64) | 0)) | 0;
+  }
+  return h >>> 0;
 }
 
 /**
@@ -303,6 +353,7 @@ export class CocosRenderModelRenderer {
   private readonly _transformHost: CocosTransformHostLike | undefined;
   private readonly _blitCarrier: CocosBlitCarrierLike | undefined;
   private readonly _back: CocosGraphicsLike | undefined;
+  private readonly _outline: CocosOutlineLayerLike | undefined;
   private readonly _clipHost: CocosClipHostLike | undefined;
   private _labelsUsed = 0;
   private _clipped = false;
@@ -320,6 +371,18 @@ export class CocosRenderModelRenderer {
     vectorCalls: 0, blitCalls: 0, textCalls: 0,
   };
   /**
+   * `[WXG-T-1115]` Outline 层冻结协议状态。`_outlineSig = -1`（真实哈希恒 ≥0 ⇒ 首帧必重建）；
+   * pan/ox/oy 用 `NaN` 起步（与任何实数不相等 ⇒ 首帧必落节点位置）。引擎 `setPosition`
+   * 无等值短路 ⇒ 冻结路径的节点平移由本状态自行等值门控。
+   */
+  private _outlineSig = -1;
+  private _outlinePanX = Number.NaN;
+  private _outlinePanY = Number.NaN;
+  private _outlineOx = Number.NaN;
+  private _outlineOy = Number.NaN;
+  /** 本帧 back polygon 是否冻结跳画（true ⇒ 命令循环里只跳过、不清屏）。 */
+  private _outlineFrozen = false;
+  /**
    * `[WXG-T-1111]` 由宿主按 `App.drawCostWanted` 开关；打开后每帧重置并逐命令计时。
    * ⚠ 计时本身有成本（每命令两次 `now()`），release 恒为 false。
    */
@@ -336,6 +399,7 @@ export class CocosRenderModelRenderer {
     this._transformHost = options.transformHost;
     this._blitCarrier = options.blitCarrier;
     this._back = options.backGraphics;
+    this._outline = options.outlineGraphics;
     this._clipHost = options.clipHost;
     this._scopeHost = options.scopeHost;
     this._clock = options.clock;
@@ -420,6 +484,37 @@ export class CocosRenderModelRenderer {
     // its origin at the bottom-left. The offset converts between the two.
     const ox = this._centered ? -this._viewport.designWidth / 2 : 0;
     const oy = this._centered ? -this._viewport.designHeight / 2 : 0;
+
+    // `[WXG-T-1115]` Outline 静态层冻结协议：几何签名（back polygon 顶点/色哈希）
+    // 相同 ⇒ 不清屏、不重画，只把节点平移 `backPan`（等值门控，引擎 setPosition
+    // 无短路）；签名或视口变了 ⇒ 清屏重画一次。未注入 outline 宿主 ⇒ 整块短路。
+    const outline = this._outline;
+    if (outline) {
+      const pan = model.backPan;
+      const px = pan ? pan.x : 0;
+      const py = pan ? pan.y : 0;
+      const sig = hashBackPolys(model);
+      // 视口（ox/oy）参与冻结判定：resize 后节点位置必须跟上，冻结态不得跨视口续命。
+      const frozen = sig === this._outlineSig && ox === this._outlineOx && oy === this._outlineOy;
+      if (frozen) {
+        if (px !== this._outlinePanX || py !== this._outlinePanY) {
+          outline.node.setPosition(ox + px, oy + py, 0);
+          this._outlinePanX = px;
+          this._outlinePanY = py;
+        }
+      } else {
+        outline.clear();
+        outline.node.setPosition(ox + px, oy + py, 0);
+        this._outlineSig = sig;
+        this._outlinePanX = px;
+        this._outlinePanY = py;
+        this._outlineOx = ox;
+        this._outlineOy = oy;
+      }
+      this._outlineFrozen = frozen;
+    } else {
+      this._outlineFrozen = false;
+    }
 
     // [WXG-T-256] 底图：与 canvas2d 同源语义（那里是一帧起手的 fillRect）。坐标走同一对
     // ox/oy ⇒ 与其他分支共用一次换算；无 backGraphics 的宿主一行不多跑。
@@ -542,6 +637,19 @@ export class CocosRenderModelRenderer {
           if (n < 2) break;
           // `[WXG-T-1106]` 底图通道（与 `rect` / `line` 同口径）：盘面剪影描边必须在
           // blit 之下（珠 / 底 tile 是 tint blit，`graphics` 恒在它们之上）。
+          // `[WXG-T-1115]` 注入了 Outline 静态层 ⇒ back polygon 改投该层并在冻结帧
+          // 整段跳画（几何已提交、只平移节点）；冻结帧里 back 的 rect/line 不受影响
+          // （托盘面板是屏幕空间，不随盘面 pan）。未注入 ⇒ 回落 `back ?? pen` 旧路径。
+          if (cmd.back && this._outline) {
+            if (this._outlineFrozen) break;
+            const t = this._outline;
+            const o = cmd.offset;
+            t.moveTo(verts[o]! + ox, verts[o + 1]! + oy);
+            for (let k = 1; k < n; k += 1) t.lineTo(verts[o + k * 2]! + ox, verts[o + k * 2 + 1]! + oy);
+            t.close();
+            this._paint(t, cmd.fill, cmd.stroke, cmd.lineWidth ?? 1, cmd.alpha);
+            break;
+          }
           const t = cmd.back ? (back ?? pen) : pen;
           const o = cmd.offset;
           t.moveTo(verts[o]! + ox, verts[o + 1]! + oy);

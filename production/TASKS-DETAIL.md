@@ -13552,3 +13552,22 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 - **假设坐实**：帧 47.7 ≈ tick 15.0 + 引 5.1 + 空 27.5（差 0.1 = 带宽内）⇒ **58% 的帧间隔耗在 AFTER_DRAW → 下一 tick 的空档**。该段 JS 不执行，CPU 探针全绿（位 1.0、绘 11.9、tick 15.0），唯一像样解释 = **GPU/present 反压**：每帧 Graphics 重建的 ~10 万顶点 + 890 sprite 超 GPU 吞吐，运行时推迟下一帧 rAF。
 - **T-1114 探针使命完成**：三段账（tick/引/空）与帧间隔闭合，缺口归属从「推算」升为「实测」。
 - **下一单方向**：GPU 减负刀（顶点量 / overdraw），JS 侧不再有值得动的大腿（文 6.0 上限 ~6ms，次要）。
+
+## WXG-T-1115
+
+**盘面描边静态层：冻结几何，纯 pan 帧免重提交** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ **代码完成（2026-11-28）**
+
+承 T-1114 判读（58% 帧间隔耗在 GPU/present 反压；用户拍板走「盘面描边静态化」刀）。根因链：`gridLayoutFor` 把相机 pan 烘进 `left/top` ⇒ 描边形状缓存键含 pan（每帧必 miss）⇒ 拖动期每帧重建 shapes + Cocos 侧每帧 `clear()` + 重新三角化 + 重新上传全部顶点（~10 万/帧）⇒ GPU 吃不消，运行时推迟下一帧 rAF。
+
+**实现（协议三层）**：
+1. **恒等坐标发射**（beads `bead-outline.ts`）：`drawBoardOutline` 用 `gridLayoutFor(cols, rows, {zoom, 0, 0})` 求恒等布局（模块级 scratch 形参，零分配），描边以恒等相机坐标发出；相机 pan = `snap.gridLeft/gridTop − base.left/top`，经 **`builder.setBackPan(x, y)`**（`RenderModelBuilder` 新方法，标量槽零分配）下发 ⇒ `RenderModel.backPan`（仅对局帧产出小冻结对象，菜单帧零分配零字段）。
+2. **Cocos Outline 静态层**（`cocos-renderer.ts` + `bindings.ts`）：新可选提交体 `outlineGraphics`（宿主 `BoardOutline` 节点，Background 之上、BlitLayer 之下 = 旧 back polygon 观感层序）。冻结协议：`hashBackPolys`（back polygon 顶点 ×64 量化 + 色/α 的 FNV-1a，空帧恒常数）帧首求签名——签名 + 视口（ox/oy）不变 ⇒ **不清屏、不重画、只平移节点**（pan 变时等值门控 setPosition，引擎无短路）；签名/视口变 ⇒ 清屏重画一次。冻结帧里 back 的 rect/line（托盘面板，屏幕空间）照走 `backGraphics` 旧路径不受影响。未注入 outline 宿主 ⇒ back polygon 走 `back ?? pen` 旧路径逐字节等价（breakout 零漂移）。
+3. **canvas2d 同源**（`canvas2d-renderer.ts`）：back polygon 落笔时平移 `model.backPan`（与 Cocos 节点平移同源量）⇒ 金样本 harness 视觉逐位一致。
+
+**顺带修掉的隐患**：旧形状缓存键含 pan 烘焙坐标（每帧必 miss）⇒ 缓存从不命中，但也因此掩盖了「cells 缓冲跨帧复用（引用不变）⇒ 锁定态/void 变化会被缓存吞掉」的潜在 bug。恒等坐标后键自然稳定，新增 **occSig**（逐格 void/locked 的 FNV 签名）入键 ⇒ 内容变化必重建。
+
+**判据（新增 8 例）**：framework `render-model.test.ts` 1（setBackPan / begin 复位）；`cocos-renderer.test.ts` 3（首帧重建→换 pan 冻结只平移→同 pan 全免；几何变解冻重建 + 菜单帧回落 ox/oy；冻结帧 back rect 照画）；`canvas2d-renderer.test.ts` 2（back polygon 平移 / 无 backPan 零平移）；beads `thumb-outline.test.ts` 2（纯 pan 帧几何逐位不变 + backPan 平移；同 cells 引用下锁定态变化必重建）+ 2 例 T-1106 旧用例改钉恒等坐标 + backPan 契约。
+
+**验证（2026-11-28 实跑）**：`pnpm run typecheck` 绿；framework 全量 56 文件 632 passed；beads 全量 138 文件 1693 passed / 2 skipped；breakout 全绿；`framework:sync` 写入 9 / `sync:check` 一致；**金样 / 封箱 / `check:board-seam` / `check:frozen-values` / `check:cocos-mask` / `check:bead-style-pool` 零漂移全绿（无需重抓）**；其余 verify 项（arch / es5spread / secrets / levels / palettes / a11y / mcp / size / harness:build / mask:diff / harness:smoke / host-tests / selftest:fast 15/15 / assets / tools node --test 12）逐项实跑全过。beads 版本 1.0.121。
+
+**下一步（设备侧）**：Cocos Creator 面板重建出包，拖动盘面读覆层。预期 `空` 从 27.5ms 显著回落（拖动期描边顶点提交归零）；若 `空` 仍 >10ms，剩余 GPU 负载 = 珠 blit 合批 + 波浪动画期矢量，下一刀走「LOD 降档 A/B」或「描边带几何瘦身」。
