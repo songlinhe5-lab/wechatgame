@@ -360,6 +360,8 @@ export class CocosRenderModelRenderer {
   private readonly _back: CocosGraphicsLike | undefined;
   private readonly _outline: CocosOutlineLayerLike | undefined;
   private readonly _tileOverlay: CocosGraphicsLike | undefined;
+  /** `[WXG-T-1122]` 上一帧是否把 polygon 写进中间层（决定本帧是否需要清屏）。 */
+  private _tileOverlayUsed = false;
   private readonly _clipHost: CocosClipHostLike | undefined;
   private _labelsUsed = 0;
   private _clipped = false;
@@ -474,8 +476,9 @@ export class CocosRenderModelRenderer {
       this._labels.releaseAll();
     }
     // `[WXG-T-1122]` 抬起影层不是 scopeHost 管理的任一 Graphics：不清屏会让旧影
-    // 留在上一帧坐标，拖动时串成弧状拖尾。载体关闭时本层从未被写入，零调用。
-    if (this._blitCarrier && this._tileOverlay) this._tileOverlay.clear();
+    // 留在上一帧坐标，拖动时串成弧状拖尾。只在上一帧真写过时清，连续空帧零调用。
+    if (this._tileOverlayUsed && this._tileOverlay) this._tileOverlay.clear();
+    this._tileOverlayUsed = false;
     this._labelsUsed = 0;
     this._labelSeq = 0;
     this._seenScopes.length = 0;
@@ -670,9 +673,9 @@ export class CocosRenderModelRenderer {
           }
           // `[WXG-T-1122]` 抬起影走 tile/珠之间的中间矢量层；无载体时回落主层，
           // 否则无 blit 的宿主会被自家矢量 tile 盖掉（carrier off 逐字节不变）。
-          const t = cmd.overTiles && this._blitCarrier && this._tileOverlay
-            ? this._tileOverlay
-            : cmd.back ? (back ?? pen) : pen;
+          const useOverlay = cmd.overTiles && this._blitCarrier !== undefined && this._tileOverlay !== undefined;
+          const t = useOverlay ? this._tileOverlay! : cmd.back ? (back ?? pen) : pen;
+          if (useOverlay) this._tileOverlayUsed = true;
           const o = cmd.offset;
           t.moveTo(verts[o]! + ox, verts[o + 1]! + oy);
           for (let k = 1; k < n; k += 1) t.lineTo(verts[o + k * 2]! + ox, verts[o + k * 2 + 1]! + oy);
@@ -862,4 +865,35 @@ export function parseColorLiteral(input: string): { r: number; g: number; b: num
     return { r: 0, g: 0, b: 0, a: 1 };
   }
   return { r: 0, g: 0, b: 0, a: 1 };
+}
+
+/**
+ * `[WXG-T-1122]` 可测的颜色工厂：宿主只负责造 `Color`，解析与缓存走引擎无关实现。
+ *
+ * 缓存按色串 + 量化到 8-bit 的最终 alpha 复用实例：动画 alpha 是连续浮点，
+ * ⛔ 不能拿原始 alpha 当 key（会无界增长）；`Color.a` 本来就是 0–255，量化零视觉损失。
+ */
+export function createColorFactory<T extends ColorLike>(create: (r: number, g: number, b: number, a: number) => T): CocosColorFactory {
+  const parsed = new Map<string, { r: number; g: number; b: number; a: number }>();
+  const colors = new Map<string, Map<number, T>>();
+  return {
+    fromHex(hex, alpha = 1) {
+      let byAlpha = colors.get(hex);
+      if (byAlpha === undefined) {
+        byAlpha = new Map<number, T>();
+        colors.set(hex, byAlpha);
+      }
+      let c = parsed.get(hex);
+      if (c === undefined) {
+        c = parseColorLiteral(hex);
+        parsed.set(hex, c);
+      }
+      const byte = Math.round(Math.min(1, Math.max(0, c.a * alpha)) * 255);
+      const hit = byAlpha.get(byte);
+      if (hit !== undefined) return hit;
+      const color = create(c.r, c.g, c.b, byte);
+      byAlpha.set(byte, color);
+      return color;
+    },
+  };
 }

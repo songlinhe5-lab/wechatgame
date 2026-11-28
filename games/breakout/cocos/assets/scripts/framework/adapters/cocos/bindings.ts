@@ -41,7 +41,7 @@ import {
 import { App } from '../../compose/app';
 import type { Game } from '../../core/game/game';
 import { armMotionProbe } from '../../core/performance/performance';
-import { CocosRenderModelRenderer, parseColorLiteral } from './cocos-renderer';
+import { CocosRenderModelRenderer, createColorFactory } from './cocos-renderer';
 import type { CocosBlitCarrierLike, CocosClipHostLike } from './cocos-renderer';
 import { CocosInputBridge } from './input-bridge';
 import { CocosLoopBridge } from './loop-bridge';
@@ -541,16 +541,8 @@ export class Bootstrap extends Component {
     this._renderer = new CocosRenderModelRenderer(
       this._graphics,
       this._labels,
-      {
-        fromHex: (hex, alpha = 1) => {
-          // BD-50（WXG-T-156）：改走 parseColorLiteral——旧 parseHex 只识 #hex，
-          // 视图层 withAlpha() 的 `rgba(…)` 串被 parseInt 吐 NaN ⇒ 静默画成不透明纯黑
-          // （裁定②彩带「Cocos 未渲染」真因）。嵌入 α 与命令级 alpha 相乘，对齐 canvas2d。
-          const c = parseColorLiteral(hex);
-          const a = Math.min(1, Math.max(0, c.a * alpha));
-          return new Color(c.r, c.g, c.b, Math.round(a * 255));
-        },
-      },
+      // `[WXG-T-1122]` 解析与缓存走可测同源实现；宿主只保留引擎 Color 构造器。
+      createColorFactory((r, g, b, a) => new Color(r, g, b, a)),
       this._app.viewport,
       {
         // WXG-T-132 / ADR-0014：整屏缩放宿主 = GameRoot 节点缩放。

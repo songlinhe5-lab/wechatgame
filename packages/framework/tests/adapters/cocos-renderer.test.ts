@@ -1,5 +1,6 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
-import { CocosRenderModelRenderer, parseColorLiteral } from '../../src/adapters/cocos/cocos-renderer.js';
+import { CocosRenderModelRenderer, createColorFactory, parseColorLiteral } from '../../src/adapters/cocos/cocos-renderer.js';
 import { PooledLabelSource } from '../../src/adapters/cocos/label-pool.js';
 import { Viewport } from '../../src/core/render/viewport.js';
 import { RenderModelBuilder } from '../../src/core/render/render-model.js';
@@ -88,17 +89,7 @@ function fakeLabels(measure?: (text: string, fontSize: number) => number) {
 }
 
 // BD-50 判例：mock 必须走与宿主同一条解析（parseColorLiteral），不得再手抄 hex-only 缺陷实现。
-const colors = {
-  fromHex: (hex: string, alpha = 1) => {
-    const c = parseColorLiteral(hex);
-    return {
-      r: c.r,
-      g: c.g,
-      b: c.b,
-      a: Math.round(Math.min(1, Math.max(0, c.a * alpha)) * 255),
-    };
-  },
-};
+const colors = createColorFactory((r, g, b, a) => ({ r, g, b, a }));
 
 function makeSetup(measure?: (text: string, fontSize: number) => number) {
   const { g, calls } = fakeGraphics();
@@ -364,6 +355,24 @@ describe('CocosRenderModelRenderer', () => {
     expect(bad).toEqual({ r: 0, g: 0, b: 0, a: 1 }); // 与旧行为一致的黑底兜底，但绝不再 NaN
   });
 
+  it('颜色工厂按色串与量化后的 alpha 缓存，同一档复用同一实例', () => {
+    let created = 0;
+    const f = createColorFactory((r, g, b, a) => {
+      created += 1;
+      return { r, g, b, a };
+    });
+    const first = f.fromHex('#FFD23F', 0.501);
+    expect(first).toEqual({ r: 255, g: 210, b: 63, a: Math.round(0.501 * 255) });
+    expect(f.fromHex('#FFD23F', 0.502), '同一 8-bit alpha 档应复用').toBe(first);
+    expect(created).toBe(1);
+    expect(f.fromHex('rgba(255,255,255,0.5)', 0.5)).toEqual({
+      r: 255, g: 255, b: 255, a: Math.round(0.25 * 255),
+    });
+    expect(created).toBe(2);
+    for (let i = 0; i <= 1000; i += 1) f.fromHex('#fff', i / 1000);
+    expect(created, 'alpha 必须量化到 8-bit，缓存不能随浮点帧数无界增长').toBeLessThanOrEqual(258);
+  });
+
   // ── G3 可测半（WXG-T-077）：`_anchorForText` 消费宿主注入的实测宽度 ──
   it('nudges left/right text by the host-measured width, symmetrically (G3)', () => {
     // 注入一个与 0.55 不同斜率的测量出口；若渲染器真消费它，偏移应与降级值不同。
@@ -579,13 +588,21 @@ describe('CocosRenderModelRenderer tileOverlayGraphics（中间矢量通道）',
     expect(s.mainCalls.filter((c) => c.startsWith('moveTo'))).toHaveLength(0);
   });
 
-  it('抬起结束后中间层清屏，上一帧影子不残留', () => {
+  it('抬起结束后中间层清屏一次，随后连续空帧不再重复清屏', () => {
     const s = make(true);
     s.renderer.draw(frame());
     expect(s.overlayCalls.filter((c) => c.startsWith('moveTo'))).toHaveLength(1);
     s.renderer.draw(emptyFrame());
-    expect(s.overlayCalls.filter((c) => c === 'clear'), '每帧帧首都应清中间层').toHaveLength(2);
+    s.renderer.draw(emptyFrame());
+    expect(s.overlayCalls.filter((c) => c === 'clear'), '只在上一帧写过影时清一次').toHaveLength(1);
     expect(s.overlayCalls.filter((c) => c.startsWith('moveTo')), '空帧不得留下旧影').toHaveLength(1);
+  });
+
+  it('静态守卫：中间层清屏必须由“上一帧写过”标志门控', () => {
+    const src = readFileSync(new URL('../../src/adapters/cocos/cocos-renderer.ts', import.meta.url), 'utf8');
+    expect(src).toContain('if (this._tileOverlayUsed && this._tileOverlay) this._tileOverlay.clear();');
+    expect(src).not.toContain('if (this._blitCarrier && this._tileOverlay) this._tileOverlay.clear();');
+    expect(src).toContain('this._tileOverlayUsed = true;');
   });
 
   it('无载体 ⇒ 回落主层（carrier off 逐字节不变）', () => {

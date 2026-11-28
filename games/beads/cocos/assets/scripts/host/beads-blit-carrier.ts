@@ -310,8 +310,9 @@ function carrierSwitchOn(): boolean {
 }
 
 class BeadsBlitCarrier implements CocosBlitCarrierLike {
-    /** `maskId|base` → 图集格（首见即合成 + 整张重传；⚠ 只在换色时发生）。 */
-    private readonly _cells = new Map<string, SpriteFrame>();
+    /** `[WXG-T-1122]` maskId → base → 图集格；命中不拼字符串（首见才合成 + 整张重传）。 */
+    private readonly _cells = new Map<string, Map<string, SpriteFrame>>();
+    private _cellCount = 0;
     private readonly _masks = new Map<string, object>();
     /** `[WXG-T-271 / ADR-0031 C′]` `textureId` → 预载全彩位图 `SpriteFrame`（静态位图注册表腿）。 */
     private readonly _bitmaps = new Map<string, SpriteFrame>();
@@ -350,6 +351,9 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
      */
     private readonly _poolUiT: UITransform[] = [];
     private readonly _poolUiO: UIOpacity[] = [];
+    /** `[WXG-T-1122]` 池位级尺寸档案：引擎 `setContentSize` 无等值短路，命中即跳过。 */
+    private readonly _poolSizeW: number[] = [];
+    private readonly _poolSizeH: number[] = [];
     private _used = 0;
     /**
      * `[WXG-T-1112]` 上一帧借用量（差分复用：`beginFrame` 不再整池 `active=false`，
@@ -575,6 +579,7 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
         // `[WXG-T-1112]` 组件引用从池位档案取（`_borrow` 建档时已存），⛔ 热路径 getComponent。
         const uiT = this._poolUiT[this._used - 1]!;
         const uiO = this._poolUiO[this._used - 1]!;
+        const slot = this._used - 1;
         // 两条腿不同层：珠（tint 图集）在 `Graphics` 之下、静态位图在其上。池位是同一条，
         // 只在层真变了时 setParent（选关墙同屏仅此 1 条位图命令，热路径仍零分配）。
         // `[2026-11-20]` 珠腿（tint 图集）与「承着内容的整片底图」都在 Graphics 之下：
@@ -636,7 +641,11 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
                 drawH = cmd.h / vs;
             }
         }
-        uiT.setContentSize(drawW, drawH);
+        if (this._poolSizeW[slot] !== drawW || this._poolSizeH[slot] !== drawH) {
+            uiT.setContentSize(drawW, drawH);
+            this._poolSizeW[slot] = drawW;
+            this._poolSizeH[slot] = drawH;
+        }
         if (sp.node.scale.x !== fit) sp.node.setScale(fit, fit, 1);
         if (sp.spriteFrame !== frame) sp.spriteFrame = frame;
         // blit 的 x/y 是左下角（设计系），Sprite 锚点是中心 ⇒ 补半宽高。
@@ -678,10 +687,10 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
 
     /** 图集格（含首见合成）。⛔ 不在热路径 `new`：命中缓存时零分配。 */
     private _cell(maskId: string, base: string): SpriteFrame | undefined {
-        const key = `${maskId}|${base}`;
-        const hit = this._cells.get(key);
+        let byBase = this._cells.get(maskId);
+        const hit = byBase?.get(base);
         if (hit) return hit;
-        if (this._cells.size >= ATLAS_COLS * ATLAS_ROWS) {
+        if (this._cellCount >= ATLAS_COLS * ATLAS_ROWS) {
             if (!this._overflowWarned) {
                 console.warn(`[BeadsBlitCarrier] 图集 ${ATLAS_COLS * ATLAS_ROWS} 格用尽 ⇒ 新配色不落珠面`);
                 this._overflowWarned = true;
@@ -694,7 +703,7 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
         const ctx = this._atlasCtx!;
         const sprite = cache.get(maskId, base) as TintCanvasLike | undefined;
         if (!sprite) return undefined;
-        const idx = this._cells.size;
+        const idx = this._cellCount;
         const dx = (idx % ATLAS_COLS) * MASK_CANONICAL_SIZE;
         const dy = Math.floor(idx / ATLAS_COLS) * MASK_CANONICAL_SIZE;
         ctx.drawImage(sprite, dx, dy, MASK_CANONICAL_SIZE, MASK_CANONICAL_SIZE);
@@ -706,7 +715,12 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
             rect: new Rect(dx, dy, MASK_CANONICAL_SIZE, MASK_CANONICAL_SIZE),
         });
         sf.packable = false;
-        this._cells.set(key, sf);
+        if (byBase === undefined) {
+            byBase = new Map<string, SpriteFrame>();
+            this._cells.set(maskId, byBase);
+        }
+        byBase.set(base, sf);
+        this._cellCount++;
         return sf;
     }
 
@@ -875,6 +889,8 @@ class BeadsBlitCarrier implements CocosBlitCarrierLike {
             this._poolUiT.push(node.addComponent(UITransform));
             // `[WXG-T-280]` α 腿常驻组件（菜单位图会发 alpha；珠层恒 255 零成本）。
             this._poolUiO.push(node.addComponent(UIOpacity));
+            this._poolSizeW.push(0);
+            this._poolSizeH.push(0);
             sp = node.addComponent(Sprite);
             sp.sizeMode = Sprite.SizeMode.CUSTOM;
             sp.type = Sprite.Type.SIMPLE;

@@ -57,4 +57,26 @@ describe('WXG-T-1112 载体差分复用（静态门）', () => {
         // 逐帧 setSiblingIndex(0) 会让几百块 tile 触发父节点兄弟数组重排（真机 位 65ms）。
         expect(src).not.toMatch(/endsWith\(MASK_TILE_SUFFIX\)[\s\S]{0,260}setSiblingIndex\(0\)/);
     });
+
+    it('setContentSize 必须按池位做等值门，⛔ 每条 blit 无条件写', () => {
+        expect(src).toContain('private readonly _poolSizeW: number[] = [];');
+        expect(src).toContain('private readonly _poolSizeH: number[] = [];');
+        expect(src).toMatch(/this\._poolSizeW\.push\(0\)/);
+        expect(src).toMatch(
+            /if \(this\._poolSizeW\[slot\] !== drawW \|\| this\._poolSizeH\[slot\] !== drawH\) \{[\s\S]{0,160}?uiT\.setContentSize\(drawW, drawH\);[\s\S]{0,120}?this\._poolSizeW\[slot\] = drawW;/,
+        );
+        expect(src).not.toMatch(/^        uiT\.setContentSize\(drawW, drawH\);$/m);
+    });
+
+    it('_cell 命中不得拼字符串键：嵌套 Map + 容量上限口径不变', () => {
+        expect(src).not.toContain('const key = `${maskId}|${base}`;');
+        expect(src).toContain('private readonly _cells = new Map<string, Map<string, SpriteFrame>>();');
+        expect(src).toContain('private _cellCount = 0;');
+        expect(src).toContain('let byBase = this._cells.get(maskId);');
+        expect(src).toContain('const hit = byBase?.get(base);');
+        expect(src).toContain('if (this._cellCount >= ATLAS_COLS * ATLAS_ROWS)');
+        expect(src).toContain('const idx = this._cellCount;');
+        expect(src).toContain('this._cellCount++;');
+        expect(src).toContain('cache.get(maskId, base)');
+    });
 });
