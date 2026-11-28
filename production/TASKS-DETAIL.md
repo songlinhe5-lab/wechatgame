@@ -13789,6 +13789,25 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 
 **下一步（零成本三向试验，无需改码）**：同一关、同一缩放，分别读三次 `拖 …`：① 快划（约 0.3 s）② 慢拖（约 2 s）③ **按住不动几秒再抬手**（仍在 `dragging`，但无 touchmove）。判读：③ 若回升到 60fps ⇒ 是 touchmove 事件频率；①②③ 全 30fps ⇒ 是「触摸状态本身」或平台降频；只有①正常 ⇒ 与拖动速度/位移量相关。
 
+**`空` 这个桶里到底装了什么（读码 · 2026-11-28 · 未改码）**：口径 = 上帧引擎渲染终点（`bindings.ts::_onEngineAfterDraw` → `noteEngineDrawEnd`）→ 本帧 `tick` 起点（`loop-bridge.ts:41`）。因此 `空` 大**不指认**任何单一机制，它同时含三样：
+
+1. 等下一次 rAF/vsync（平台给的节奏）；
+2. 引擎在同一次 rAF 回调里、`tick` 之前做的活（`director.tick` 前段）；触摸事件的 `_onTouchMove` 是 `wx.onTouch*` 系回调，跑在 rAF 之间，账同样落在这里；
+3. 上帧 `AFTER_DRAW` 之后引擎仍要做的事（present/swap 若落在该事件之后）。
+
+**这一轮先排掉三条**：
+
+- **输入风暴（旧③）在 JS 侧站不住**：`CocosInputBridge::_push` 只写字段（`input-bridge.ts:60-70`），`InputManager.push` 是纯标量赋值（`input-manager.ts:126-160`）；每事件唯一分配是那个 `PointerSample` 小对象，量级 ~120/s，够不上 20ms。除非 `readTouch` 的坐标映射贵（`bindings.ts:714`，一次 `getUILocation` + 一次分配）—— 那也只有微秒级。
+- **「按住就硬锁 30」与已有样本互斥**：收起态同一手势是 **53fps**（`7.7 / 4.0 / 9.9`）⇒ 触摸按住期间平台并非硬性 30Hz 上限。
+- **没人降档**：`wx.setPreferredFramesPerSecond(60)` 在 init 就调过（`platform/weapp.ts:403-406`），全仓无运行时降档调用点。
+
+⇒ 剩两个活候选，读数上**同形**（都是 33.3ms 帧 + 二十几 ms 的 `空`）：
+
+- **(A) vsync 落档后不回弹**：一次超线 ⇒ 双缓冲只每两个 vsync 换一次，于是稳定卡 33.3ms，等待时间全记在 `空`。修法 = 把跨线那 ~2ms 砍掉（贴线掉帧），不是找隐藏大头。
+- **(B) present/swap 反压**：GPU 侧成本堵在 `AFTER_DRAW` 之后，与手指无关。
+
+**区分只靠试验 ③**：工作量与 ①② 相同、但无 touchmove ⇒ (A) 因不再触发新的超线而**回弹到 60fps**；(B) 则**仍 33ms**。若落 (B)/平台节流，下一步才是给引擎加 `EVENT_BEGIN_FRAME` 级卡表把 `空` 一劈两半（需动覆层版式，先请你拍板）。
+
 **真机待你验（本轮不代跑，分工铁律）**：`pnpm -C games/beads run build:cocos` 后进 L9，覆层展开，按住盘面拖 2–3 秒再抬手，读那三行（此时就是拖动期的账）。判读：
 
 - `绘` ≈ 34 且 `矢` 大 ⇒ 拖动期每帧全量重画珠体/描边 ⇒ 减层、减面积或拖动期降档才有效；
