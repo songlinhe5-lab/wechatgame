@@ -14245,6 +14245,111 @@
       ]
     },
     {
+      "path": "docs/architecture/beads-vector-inventory.md",
+      "tokens": 2546,
+      "lines": 62,
+      "sha256": "5575ccc4f7f77d0c5c1be9d353599e8ae6131bb9a67daffb506591ac705cc4d1",
+      "tier": "normal",
+      "sections": [
+        {
+          "anchor": "§Beads 矢量负载清单",
+          "level": 1,
+          "startLine": 1,
+          "endLine": 63,
+          "tokens": 2537,
+          "summary": "附属于拖动掉帧归因（WXG-T-1122）。用途：回答「矢量绘制是否比位图绘制更费时」「哪些矢量逻辑值得换轨」。",
+          "keywords": [
+            "Beads",
+            "WXG",
+            "矢量负载清单"
+          ]
+        },
+        {
+          "anchor": "§1 结论摘要",
+          "level": 2,
+          "startLine": 6,
+          "endLine": 12,
+          "tokens": 355,
+          "summary": "在同一帧的宿主墙钟里，矢量段确实更贵：放大拖动样本为 矢 11.2ms / 位 2.3ms / 文 0.4ms / 余 ",
+          "keywords": [
+            "结论摘要"
+          ]
+        },
+        {
+          "anchor": "§2 读数口径与量级锚点",
+          "level": 2,
+          "startLine": 13,
+          "endLine": 28,
+          "tokens": 462,
+          "summary": "矢（vectorMs） rect / circle / line / polygon 的路径写入 + fill() / ",
+          "keywords": [
+            "vectorMs",
+            "rect",
+            "circle",
+            "line",
+            "polygon",
+            "fill"
+          ]
+        },
+        {
+          "anchor": "§3 对局页矢量发出点（按每帧量级粗排）",
+          "level": 2,
+          "startLine": 29,
+          "endLine": 43,
+          "tokens": 822,
+          "summary": "格循环 [play-page.ts:561-889](../../games/beads/src/view/play-p",
+          "keywords": [
+            "play",
+            "page",
+            "games",
+            "beads",
+            "src",
+            "view"
+          ]
+        },
+        {
+          "anchor": "§4 非对局页",
+          "level": 2,
+          "startLine": 44,
+          "endLine": 49,
+          "tokens": 241,
+          "summary": "主菜单整屏背板、选关格底与编号牌、通用弹窗木板已有位图臂（[meta-menu.ts:544-597](../../ga",
+          "keywords": [
+            "meta",
+            "menu",
+            "非对局页"
+          ]
+        },
+        {
+          "anchor": "§5 替代方案与门禁次序",
+          "level": 2,
+          "startLine": 50,
+          "endLine": 58,
+          "tokens": 335,
+          "summary": "1. 脏帧门控（优先）：在载体之外先砍掉「模型没变却整帧重放」，对所有通道同时生效，不动美术与夹具。已知判据：签名计数必",
+          "keywords": [
+            "替代方案与门",
+            "禁次序"
+          ]
+        },
+        {
+          "anchor": "§6 关联变更与出处",
+          "level": 2,
+          "startLine": 59,
+          "endLine": 63,
+          "tokens": 173,
+          "summary": "现役托盘珠已撤 forceVector，与空槽同走 tint 位图臂（[play-page.ts:1260](../..",
+          "keywords": [
+            "forceVector",
+            "tint",
+            "play",
+            "page",
+            "关联变更与出"
+          ]
+        }
+      ]
+    },
+    {
       "path": "docs/architecture/control-manifest.md",
       "tokens": 11253,
       "lines": 425,
