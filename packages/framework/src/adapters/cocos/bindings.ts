@@ -100,6 +100,8 @@ export class Bootstrap extends Component {
   private _back: Graphics | null = null;
   /** `[WXG-T-1115]` Outline 静态层（盘面剪影描边），Background 之上、BlitLayer 之下。 */
   private _outline: Graphics | null = null;
+  /** `[WXG-T-1122]` 抬起影矢量层：BlitTiles 之上、BlitAtlas 之下。 */
+  private _tileOverlay: Graphics | null = null;
   /** `[WXG-T-256]` blit 载体层（珠）：夹在底图与矢量 UI 之间。 */
   private _blitLayer: Node | null = null;
   /** `[WXG-T-271 / ADR-0031]` UI 位图层：夹在矢量 UI 与 `Labels` 之间（全彩静态位图专用）。 */
@@ -349,6 +351,12 @@ export class Bootstrap extends Component {
     root.addChild(blitLayer);
     this._blitLayer = blitLayer;
 
+    // `[WXG-T-1122]` 抬起影专用矢量层：先建 ⇒ 宿主的 `BlitTiles` 随后钉到首位、
+    // `BlitAtlas` 再追加，层序一次固定为 tile → 影 → 珠；热路径零兄弟重排。
+    const tileOverlayNode = new Node('BlitShadow');
+    blitLayer.addChild(tileOverlayNode);
+    this._tileOverlay = tileOverlayNode.addComponent(Graphics);
+
     const graphicsNode = new Node('Graphics');
     root.addChild(graphicsNode);
     this._graphics = graphicsNode.addComponent(Graphics);
@@ -576,6 +584,8 @@ export class Bootstrap extends Component {
         backGraphics: this._back ?? undefined,
         // `[WXG-T-1115]` Outline 静态层：盘面剪影描边几何不变时只平移节点（省 GPU 顶点提交）。
         outlineGraphics: this._outline ?? undefined,
+        // `[WXG-T-1122]` 抬起影：底 tile 之上、珠 blit 之下（carrier off 时自然不被消费）。
+        tileOverlayGraphics: this._tileOverlay ?? undefined,
         // `[UI-60 P1 / ADR-0033 DEC-3]` 容器 × 段层树：视图发 `beginContainer` 才落层，
         // 不发则四 kind 静默忽略 ⇒ 未接线视图（breakout）与旧行为逐字节一致。
         scopeHost: this._scopes ?? undefined,

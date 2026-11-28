@@ -779,6 +779,9 @@ export function drawLiftBeadShadow(
   }
   builder.polygon(pts, {
     fill: withAlpha(endpointOf(inks, colorIdx).shadeOuter, LIFT_SHADOW_ALPHA),
+    // [WXG-T-1122] 影在珠下：Cocos 主 Graphics 恒在珠 blit 之上，靠命令序压不住；
+    // 走 tile/珠之间的中间矢量层。`back` 会沉到不透明底 tile 之下 ⇒ 不能用。
+    overTiles: true,
   });
 }
 
@@ -875,7 +878,10 @@ export function drawFilledBead(
       // ⇒ 取 targetColorIdx 会让**两臂渲出不同颜色**（实测逐扇 ΔE ≈ 52，2026-10-03）。
       // `[ADR-0029 §8.2]` 具象化在效果模块（`tintFx`），⛔ 不在 beads 手写 `{ base }` 字面量。
       tintBlitOpts.fx = tintFx(beadColorOf(inks, colorIdx));
-      builder.blit(maskId, x - outer / 2, y - outer / 2, outer, outer, tintBlitOpts);
+      // `[WXG-T-1122]` 抬起放大补回位图臂：mask 有透明留白，整帧放 4% 才等于珠面放 4%。
+      // ⛔ 只吃 `liftT` 通道；`options.scale`（pop/wave/denied）仍不入 blit（旧口径不变）。
+      const tintOuter = outer * (1 + BEAD_CARD.liftScaleGain * liftT);
+      builder.blit(maskId, x - tintOuter / 2, y - tintOuter / 2, tintOuter, tintOuter, tintBlitOpts);
       /**
        * **DEC-2 · 孔底口径（孔区真透）**：tint 臂下默认**不画 live `pit` circle / 孔环**
        * —— 孔的 ⌀12 真透由 mask 的 B 通道自带（+0.5dp 羽化）⇒ 透出下层 **B0 tile**

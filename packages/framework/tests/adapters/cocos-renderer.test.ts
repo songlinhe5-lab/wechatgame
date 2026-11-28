@@ -544,6 +544,44 @@ describe('CocosRenderModelRenderer backGraphics（底图通道）', () => {
   });
 });
 
+// `[WXG-T-1122]` tile 之上、珠之下的中间矢量层：抬起影靠它压在珠位图下面，
+// ⛔ 不改 `back`（会被不透明底 tile 吃掉）；carrier off 的宿主仍走主 Graphics。
+describe('CocosRenderModelRenderer tileOverlayGraphics（中间矢量通道）', () => {
+  const frame = () => {
+    const b = new RenderModelBuilder(200, 400);
+    b.begin();
+    b.polygon([0, 0, 10, 0, 10, 10], { fill: '#000000', overTiles: true });
+    return b.end();
+  };
+
+  function make(withCarrier: boolean) {
+    const main = fakeGraphics();
+    const overlay = fakeGraphics();
+    const { source } = fakeLabels();
+    const viewport = new Viewport(200, 400);
+    viewport.resize(200, 400);
+    const renderer = new CocosRenderModelRenderer(main.g, source, colors, viewport, {
+      tileOverlayGraphics: overlay.g,
+      ...(withCarrier ? { blitCarrier: { accept: () => {}, beginFrame: () => {}, endFrame: () => {} } } : {}),
+    });
+    return { mainCalls: main.calls, overlayCalls: overlay.calls, renderer };
+  }
+
+  it('有载体 ⇒ overTiles polygon 落中间层，主层不画', () => {
+    const s = make(true);
+    s.renderer.draw(frame());
+    expect(s.overlayCalls).toContain('moveTo(-100,-200)');
+    expect(s.mainCalls.filter((c) => c.startsWith('moveTo'))).toHaveLength(0);
+  });
+
+  it('无载体 ⇒ 回落主层（carrier off 逐字节不变）', () => {
+    const s = make(false);
+    s.renderer.draw(frame());
+    expect(s.mainCalls).toContain('moveTo(-100,-200)');
+    expect(s.overlayCalls.filter((c) => c.startsWith('moveTo'))).toHaveLength(0);
+  });
+});
+
 // ── WXG-T-1112：载体帧边界 beginFrame / endFrame 配对 ────────────────────────
 describe('CocosRenderModelRenderer 载体 endFrame', () => {
   function makeWithCarrier() {

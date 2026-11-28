@@ -129,6 +129,14 @@ export interface PolygonCommand {
    * ⛔ 未注入 `backGraphics` 的宿主回落主 `Graphics`，与旧宿主逐字节等价。
    */
   readonly back?: boolean;
+  /**
+   * `[WXG-T-1122]` **tile 之上、珠 blit 之下的中间矢量通道**。
+   *
+   * `back` 在整层底 tile 之下，抬起影若走该通道会被不透明 tile 吃掉；主 `Graphics`
+   * 又在珠 blit 之上，影会盖住珠。本标记给宿主一条夹在两类 blit 之间的提交体。
+   * ⛔ 未注入该提交体（或宿主没有 blit 载体）⇒ 回落普通 `Graphics`，旧行为逐字节不变。
+   */
+  readonly overTiles?: boolean;
 }
 
 /**

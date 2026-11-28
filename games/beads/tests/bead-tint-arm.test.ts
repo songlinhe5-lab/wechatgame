@@ -180,6 +180,28 @@ describe('trayZone 方向守卫（S5′-4：面板底走 back ⇒ 托盘区与�
         expect(cmds.filter((c) => c.kind === 'blit').length, '恰好 1 条 blit').toBe(1);
         expect(cmds.filter((c) => c.kind === 'polygon').length, '⛔ 命中后不得再发矢量扇面层').toBe(0);
     });
+
+    it('⑤ 抬起珠仍走 tint/blit，满抬起只吃 4% 放大（不混入 pop scale）', () => {
+        const { runtime, calls } = stubTintRuntime();
+        setBeadTintRuntime(runtime);
+        const cmds = build((b) =>
+            drawFilledBead(b, 100, 100, 1, {
+                maskGauge: 'holed', styleId: TINT_MASK_STYLE_ID, inks: DEMO_BEAD_INKS,
+                lift: BEAD_CARD.liftRef, scale: 0.96,
+            }),
+        ).commands;
+        expect(calls, '⛔ 抬起珠退出 tint 臂回潮').toEqual([
+            { kind: 'bead', gauge: 'holed', styleId: TINT_MASK_STYLE_ID },
+        ]);
+        const blits = cmds.filter((c) => c.kind === 'blit') as BlitCommand[];
+        expect(blits).toHaveLength(1);
+        expect(blits[0]!.w, '满抬起位图整帧应放大 4%').toBeCloseTo(BEAD_CELL * (1 + BEAD_CARD.liftScaleGain), 6);
+        expect(blits[0]!.h, '满抬起位图整帧应放大 4%').toBeCloseTo(BEAD_CELL * (1 + BEAD_CARD.liftScaleGain), 6);
+        expect(blits[0]!.w, '⛔ pop scale 不得混入位图臂').not.toBeCloseTo(
+            BEAD_CELL * 0.96 * (1 + BEAD_CARD.liftScaleGain), 6,
+        );
+        expect(cmds.filter((c) => c.kind === 'polygon').length, '⛔ 抬起珠不得回矢量臂').toBe(0);
+    });
 });
 
 // ── [WXG-T-1096] 层序互斥破法（槽底走 tint、面板保持压盘面珠）＋ 槽图案口径 ──────────

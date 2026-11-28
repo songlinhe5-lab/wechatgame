@@ -11,8 +11,10 @@ import { afterEach, describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { RenderModelBuilder, type RenderModel } from '@wxgame/framework';
+import { RenderModelBuilder, type BlitCommand, type RenderModel } from '@wxgame/framework';
 import {
+    BEAD_CARD,
+    BEAD_CELL,
     DESIGN_H,
     DESIGN_W,
     HUD_BAND,
@@ -27,7 +29,7 @@ import { DEFAULT_PALETTE, DEMO_BEAD_INKS } from '../src/view/palette.js';
 import { setBeadTintRuntime } from '../src/view/bead-render.js';
 import { drawPlayPage } from '../src/view/play-page.js';
 import { buildBeadsFrame } from '../src/view/view-model.js';
-import { createBeadsHarness, simpleTestLevel, type Harness } from './helpers.js';
+import { createBeadsHarness, pinIdentityCamera, simpleTestLevel, type Harness } from './helpers.js';
 
 const SRC_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (rel: string): string => readFileSync(resolve(SRC_ROOT, rel), 'utf8');
@@ -127,6 +129,60 @@ describe('UI-41 · PlayPage', () => {
         expect(h.game.giveTrayBead(1), '托盘须有空槽').toBeGreaterThanOrEqual(0);
         draw();
         expect(beadQueries - before, '⛔ 托盘珠未走 tint 臂（forceVector 回潮即红）').toBe(1);
+    });
+
+    it('[WXG-T-1122] 抬起珠仍走 tint/blit，放大只走 lift 通道，影走中间矢量层', () => {
+        const h = createBeadsHarness({
+            seed: 'lift-bitmap-arm',
+            noAssemble: true,
+            levels: [simpleTestLevel()],
+            saveKey: 'wxgame.beads.test.lift-bitmap-arm',
+        });
+        h.game.goToLevel(0);
+        pinIdentityCamera(h.game);
+        expect(h.game.grid.fill(1, 2, 1)).toBe(true);
+        expect(h.game.grid.fill(2, 2, 1)).toBe(true);
+        expect(h.game.selectBoardBead(2, 2)).toBe(true);
+        expect(h.game.snapshot.boardGroupCount).toBe(2);
+
+        let beadQueries = 0;
+        setBeadTintRuntime({
+            getMaskId(kind) {
+                if (kind === 'bead') beadQueries++;
+                return `tex:${kind}`;
+            },
+        });
+        const drawAt = (liftProgress: number) =>
+            modelOf((b) =>
+                drawPlayPage(
+                    b,
+                    { ...h.game.snapshot, liftProgress },
+                    DEFAULT_PALETTE,
+                    DEMO_BEAD_INKS,
+                    true,
+                ),
+            );
+        const rest = drawAt(0);
+        const restingQueries = beadQueries;
+        const up = drawAt(0.5);
+        expect(beadQueries - restingQueries, '⛔ 抬起珠退出 tint 臂回潮').toBe(2);
+
+        const beadBlits = (m: RenderModel) =>
+            m.commands.filter((c): c is BlitCommand => c.kind === 'blit' && c.textureId === 'tex:bead');
+        const restBlits = beadBlits(rest);
+        const upBlits = beadBlits(up);
+        expect(restBlits).toHaveLength(2);
+        expect(upBlits, '抬起态珠子仍在位图臂').toHaveLength(2);
+        expect(upBlits.some((c) => c.w > BEAD_CELL + 1e-6), '抬起放大未补回位图尺寸').toBe(true);
+        expect(
+            upBlits.every((c) => c.w <= BEAD_CELL * (1 + BEAD_CARD.liftScaleGain) + 1e-6),
+            '⛔ 位图放大越过 4% 上界',
+        ).toBe(true);
+
+        const overTileShadows = (m: RenderModel) =>
+            m.commands.filter((c) => c.kind === 'polygon' && (c as { overTiles?: boolean }).overTiles === true);
+        expect(overTileShadows(rest)).toHaveLength(0);
+        expect(overTileShadows(up).length, '抬起影必须夹在 tile 与珠之间').toBeGreaterThanOrEqual(2);
     });
 
     it('[WXG-T-1088] 托盘面板**不沉底**（提 graphics 压盘面珠），槽/珠同层走矢量', () => {

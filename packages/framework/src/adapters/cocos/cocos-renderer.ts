@@ -200,6 +200,11 @@ export interface CocosRendererOptions {
    */
   readonly outlineGraphics?: CocosOutlineLayerLike;
   /**
+   * `[WXG-T-1122]` 中间矢量提交体：宿主挂在底 tile blit 与珠 blit 之间。
+   * 只消费 `overTiles: true` 的 polygon（抬起影）；未注入或无 blit 载体 ⇒ 回落主 `Graphics`。
+   */
+  readonly tileOverlayGraphics?: CocosGraphicsLike;
+  /**
    * 矩形裁切宿主（菜单走马灯）。缺省 ⇒ `clip`/`unclip` 不做事，其余命令照旧
    * （breakout 与未接线宿主零漂移）。`graphics` 与主 `Graphics` 同一坐标系。
    */
@@ -354,6 +359,7 @@ export class CocosRenderModelRenderer {
   private readonly _blitCarrier: CocosBlitCarrierLike | undefined;
   private readonly _back: CocosGraphicsLike | undefined;
   private readonly _outline: CocosOutlineLayerLike | undefined;
+  private readonly _tileOverlay: CocosGraphicsLike | undefined;
   private readonly _clipHost: CocosClipHostLike | undefined;
   private _labelsUsed = 0;
   private _clipped = false;
@@ -406,6 +412,7 @@ export class CocosRenderModelRenderer {
     this._blitCarrier = options.blitCarrier;
     this._back = options.backGraphics;
     this._outline = options.outlineGraphics;
+    this._tileOverlay = options.tileOverlayGraphics;
     this._clipHost = options.clipHost;
     this._scopeHost = options.scopeHost;
     this._clock = options.clock;
@@ -658,7 +665,11 @@ export class CocosRenderModelRenderer {
             this._paint(t, cmd.fill, cmd.stroke, cmd.lineWidth ?? 1, cmd.alpha);
             break;
           }
-          const t = cmd.back ? (back ?? pen) : pen;
+          // `[WXG-T-1122]` 抬起影走 tile/珠之间的中间矢量层；无载体时回落主层，
+          // 否则无 blit 的宿主会被自家矢量 tile 盖掉（carrier off 逐字节不变）。
+          const t = cmd.overTiles && this._blitCarrier && this._tileOverlay
+            ? this._tileOverlay
+            : cmd.back ? (back ?? pen) : pen;
           const o = cmd.offset;
           t.moveTo(verts[o]! + ox, verts[o + 1]! + oy);
           for (let k = 1; k < n; k += 1) t.lineTo(verts[o + k * 2]! + ox, verts[o + k * 2 + 1]! + oy);
