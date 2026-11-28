@@ -13684,3 +13684,29 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 **验证（2026-11-28 实跑）**：typecheck 0 错；beads 全量 **139 文件 1704 passed / 2 skipped**；版本 **1.0.126**。
 
 **预期（待真机确认）**：同样「三项全关」应看到 21.7 → ≈16ms 量级、fps 46 → ≈60；基线 36.6 → ≈31ms。⚠ 这不是性能优化，只是让后续读数不再自带 5.7ms 偏差 —— 真正的优化对象是 HUD（见 T-1121 待立）。
+
+## WXG-T-1121
+
+**HUD 三位细分 chip（托 / 卡 / 顶）：把 16.4ms 定位到具体部件** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ **代码完成（2026-11-28）**
+
+承 T-1119 真机结论（盘面 ≈ 0、HUD ≈ 16.4ms、覆层自身 5.7ms），用户选「丙：先定位」。HUD 整组一键关只能证明「HUD 贵」，不知道贵在哪 —— 托盘面板是 5 层同尺寸覆盖（投影 + 面/描边 + 3 段内阴影）叠 1204×140，卡片是 3 层，顶栏是小件；三者量级差一个数量级，必须分开量。
+
+**三位**（`config/debug-flags.ts`，与 HUD 总开关**取并集**，总开关仍一键全关）：
+
+| 位 | 文案 | 关掉什么 |
+|---|---|---|
+| `DBG_HIDE_TRAY` | 托 | 托盘面板 + 12 槽 + 托盘珠 + 「扩展」钮（`drawTray` / `drawExpandButton`） |
+| `DBG_HIDE_CARDS` | 卡 | 三张道具卡（卡面 + 投影 + 图标 + 角标 + ×N + 卡名） |
+| `DBG_HIDE_TOPBAR` | 顶 | 时间胶囊 / LV 徽章 / 帮助钮（`drawHud`） |
+
+`play-page.ts::drawPlayPage` 改成分块卫语句：`hudOff` 关整组；否则 `托` / `卡` / `顶` 各自跳过一块，扫光与连击（`drawSweep` / `drawComboVfx`）仍只归总开关（它们平时无进度不画，量级可忽略）。
+
+**chip 改两行**：7 枚挤一行每枚只剩 ~35px（`HUD` 放不下）⇒ `DBG_CHIP_ROWS = [4, 3]`，第一行内容族（珠/盘/HUD/30）、第二行 HUD 细分（托/卡/顶）。几何全部按行派生：`dbgChipWidth(rowBits)` / `dbgChipX(rowBits, i)` / `dbgChipY(..., row)` / `dbgChipAt(...)`（遍历两行返回全局序号），`perfPanelRows` = `5 + dbgChipRowCount() + 细分 + 探针` ⇒ 展开态 7 行（基准）/ 8 行（+细分）/ 9 行（+探针），面板高 250 / 288 / 326。
+
+**判据**：新 1 例渲染层断言（`tests/debug-flags.test.ts`）—— 基线三块标记都在（「扩展」/「熨贴片」/「LV 」）；开「托」只剩后两者且命令数下降；开「卡」/「顶」同理；HUD 总开关三者全清。`tests/debug-layer.test.ts` 版式断言按 7 行/两行 chip 改写（含「行 1 更宽、行间不重叠」的几何钉）；`tests/ui-root.test.ts` 指令序列补 3 枚。
+
+**验证（2026-11-28 实跑）**：typecheck 0 错；beads 全量 **139 文件 1705 passed / 2 skipped**；版本 **1.0.127**。
+
+**真机验证（交用户执行）**：同样 L9、覆层展开，逐枚点 `托` / `卡` / `顶`，各记一行 `fps / tick 引 空 / 矢 位 文`。判读：
+- **`空` 大降、`引` 几乎不动** ⇒ 填充率/present 反压 ⇒ 纹理化（blit 同面积）**无效**，要减层数/减面积。
+- **`引` 或 `矢` 明显降、`空` 变化小** ⇒ 顶点/三角化/批次瓶颈 ⇒ 九宫格纹理化（1 blit 替 N 条圆角路径）有效。

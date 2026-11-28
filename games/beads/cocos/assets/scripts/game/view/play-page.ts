@@ -135,8 +135,15 @@ import {
 } from './scene-vfx';
 import type { WaveEnvelope } from './scene-vfx';
 import { drawSafeGuideLines } from './debug-layer';
-// `[WXG-T-1119]` 性能归因开关位（只让视图少画，⛔ 不参与玩法 / 命中）。
-import { DBG_HIDE_BEADS, DBG_HIDE_BOARD, DBG_HIDE_HUD } from '../config/debug-flags';
+// `[WXG-T-1119/1121]` 性能归因开关位（只让视图少画，⛔ 不参与玩法 / 命中）。
+import {
+    DBG_HIDE_BEADS,
+    DBG_HIDE_BOARD,
+    DBG_HIDE_CARDS,
+    DBG_HIDE_HUD,
+    DBG_HIDE_TOPBAR,
+    DBG_HIDE_TRAY,
+} from '../config/debug-flags';
 import { UI_FONT, bodyFont, drawPaperPanel, formatTime } from './ui-theme';
 import { drawButton, drawDashedRect } from './ui-widgets';
 import { arcPoints, starPoints } from './shape-utils';
@@ -178,16 +185,22 @@ export function drawPlayPage(
     // 代价是盘面上下被切出一条硬直线（用户实帧一眼看出）。盘面必须完整绘制、可越出屏幕，
     // 「底槽背景盖在珠面上面」改由**绘制顺序**承担（托盘面板与槽画在盘面之后，见 `drawTray` 段）。
     drawGrid(builder, snap, palette, inks);
-    // `[WXG-T-1119]` 隐 HUD：缩放条 / 托盘 / 展开钮 / 道具卡 / 扫光 / 连击 / 顶部 HUD 整组不画
-    // （真机归因用；`debugInfo` 关时 `debugFlags` 恒 0 ⇒ 生产路径零分支代价）。
-    if ((snap.debugFlags & DBG_HIDE_HUD) === 0) {
+    // `[WXG-T-1119/1121]` 隐 HUD：总开关（HUD）一键关整组；细分位（托 / 卡 / 顶）各关一块
+    // —— 真机读数显示 HUD ≈ 16.4ms，需要知道落在哪里（`debugInfo` 关时 `debugFlags` 恒 0）。
+    const dbg = snap.debugFlags;
+    const hudOff = (dbg & DBG_HIDE_HUD) !== 0;
+    if (!hudOff) {
         drawZoomControls(builder, snap, palette, zoomControlsVisible); // 缩放控件条（盘面下方净空带，不遮珠）
-        drawTray(builder, snap, palette, inks);
-        drawExpandButton(builder, snap, palette);
-        drawPowerupBand(builder, snap, palette);
+        if ((dbg & DBG_HIDE_TRAY) === 0) {
+            drawTray(builder, snap, palette, inks);
+            drawExpandButton(builder, snap, palette);
+        }
+        if ((dbg & DBG_HIDE_CARDS) === 0) drawPowerupBand(builder, snap, palette);
         drawSweep(builder, snap); // G3 道具生效扫光（§1.6.3）：叠在珠面上、面板与 HUD 之下
         drawComboVfx(builder, snap, palette);
-        drawHud(builder, snap, palette); // `[WXG-T-1086]` 常驻 UI 恒在最上层（压在盘面珠 / 特效之上）
+        if ((dbg & DBG_HIDE_TOPBAR) === 0) {
+            drawHud(builder, snap, palette); // `[WXG-T-1086]` 常驻 UI 恒在最上层（压在盘面珠 / 特效之上）
+        }
     }
 }
 // ───────────── 棋盘缩放控件（盘面下方净空带 · `zoomControlLayout` 与命中同源）

@@ -108,7 +108,13 @@ describe('UI-25 · UiRoot', () => {
             'text',
             'text',
             'text',
-            // `[WXG-T-1119]` 归因 chip 行：4 ×（底 + 字）。
+            // `[WXG-T-1119/1121]` 归因 chip 两行 7 枚：7 ×（底 + 字）。
+            'rect',
+            'text',
+            'rect',
+            'text',
+            'rect',
+            'text',
             'rect',
             'text',
             'rect',
@@ -132,6 +138,9 @@ describe('UI-25 · UiRoot', () => {
             '盘',
             'HUD',
             '30',
+            '托',
+            '卡',
+            '顶',
         ]);
     });
 

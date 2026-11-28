@@ -10,6 +10,7 @@ import { DEBUG_OUTLINE_TILE_HEX } from '../src/view/palette.js';
 import { UI_DEBUG_CHIP_ON_TEXT, UI_DEBUG_HIT_FILL } from '../src/view/ui-theme.js';
 import { drawHitBox, drawPerfOverlay, drawSafeGuideLines, drawTapTrace } from '../src/view/debug-layer.js';
 import { dbgChipAt, perfPanelHit } from '../src/config/perf-panel.js';
+import { DBG_CAP_30, DBG_HIDE_BEADS, DBG_HIDE_TRAY } from '../src/config/debug-flags.js';
 
 const P = { text: '#text', bannerText: '#banner' } as unknown as BeadsPalette;
 
@@ -39,7 +40,7 @@ function texts(calls: readonly Call[]): string[] {
  * `[WXG-T-1119]` 展开态最下一行是 4 个归因 chip（珠 / 盘 / HUD / 30）⇒ 版式断言先把它拆出去，
  * 只看文字行；chip 自身另用 `chipTexts` / `chipRects` 断言。
  */
-const CHIP_LABELS = ['珠', '盘', 'HUD', '30'] as const;
+const CHIP_LABELS = ['珠', '盘', 'HUD', '30', '托', '卡', '顶'] as const;
 
 function lineTexts(calls: readonly Call[]): string[] {
     return texts(calls).filter((t) => !(CHIP_LABELS as readonly string[]).includes(t));
@@ -93,8 +94,8 @@ describe('drawPerfOverlay', () => {
     it('开：窄面板贴屏顶 + fps / 相位 / 细节三行（未接线时不出绘制成本行）', () => {
         const { calls, builder } = recorder();
         drawPerfOverlay(builder, P, true, 16.7, 'PLAYING', 'L3', 'pitch 54.0 · LOD 2');
-        // 5 行版（3 文字行 + 归因 chip 行让位）⇒ 面板 [1334-224, 1334-12]、高 212。
-        expect(calls[0].args.slice(0, 4)).toEqual([12, 1334 - 224, 316, 212]);
+        // 7 行版（3 文字行 + 两行归因 chip 让位）⇒ 面板 [1334-262, 1334-12]、高 250。
+        expect(calls[0].args.slice(0, 4)).toEqual([12, 1334 - 262, 316, 250]);
         const fill = (calls[0].args[4] as { fill: string }).fill;
         expect(fill).toContain('0.7');
         // 深底必须用深底专用米白：`palette.text` 与遮罩 RGB 同为 (42,46,67) ⇒ 肉眼看零字。
@@ -118,11 +119,11 @@ describe('drawPerfOverlay', () => {
         expect(ys).toEqual([1334 - 38, 1334 - 76, 1334 - 114, 1334 - 152]);
     });
 
-    it('`[WXG-T-1111]` 宿主回投分段 ⇒ 追加第五行，面板向下长到 250', () => {
+    it('`[WXG-T-1111]` 宿主回投分段 ⇒ 追加第五行，面板向下长到 288', () => {
         const { calls, builder } = recorder();
         const bd = { vectorMs: 3.1, blitMs: 18.9, textMs: 0.4, scopeMs: 0.4, vectorCalls: 12, blitCalls: 156, textCalls: 8 };
         drawPerfOverlay(builder, P, true, 37.0, 'PLAYING', 'L3', 'pitch 54.0 · LOD 2', 22.8, 195, 2382, bd);
-        expect(calls[0].args.slice(0, 4)).toEqual([12, 1334 - 262, 316, 250]);
+        expect(calls[0].args.slice(0, 4)).toEqual([12, 1334 - 300, 316, 288]);
         expect(lineTexts(calls)).toEqual([
             'fps 27 · 37.0 ms',
             'PLAYING · L3',
@@ -139,7 +140,7 @@ describe('drawPerfOverlay', () => {
         const { calls, builder } = recorder();
         const bd = { vectorMs: 0, blitMs: 0, textMs: 0, scopeMs: 0, vectorCalls: 0, blitCalls: 0, textCalls: 0 };
         drawPerfOverlay(builder, P, true, 37.0, 'PLAYING', 'L3', 'pitch 54.0 · LOD 2', 22.8, 195, 2382, bd);
-        expect(calls[0].args.slice(0, 4)).toEqual([12, 1334 - 224, 316, 212]);
+        expect(calls[0].args.slice(0, 4)).toEqual([12, 1334 - 262, 316, 250]);
         expect(lineTexts(calls)).toHaveLength(4);
     });
 
@@ -158,11 +159,11 @@ describe('drawPerfOverlay', () => {
         expect(ys).toEqual([1334 - 38, 1334 - 76, 1334 - 114]);
     });
 
-    it('`[WXG-T-1113]` tick / 引探针非 0 ⇒ 追加第六行，面板向下长到 288', () => {
+    it('`[WXG-T-1113]` tick / 引探针非 0 ⇒ 追加第六行，面板向下长到 326', () => {
         const { calls, builder } = recorder();
         const bd = { vectorMs: 2.0, blitMs: 2.0, textMs: 5.0, scopeMs: 1.0, vectorCalls: 12, blitCalls: 156, textCalls: 8 };
         drawPerfOverlay(builder, P, true, 48.9, 'playing', 'L9', 'pitch 27.8 · LOD 7', 11.9, 195, 1116, bd, 30.0, 8.4, 27.0);
-        expect(calls[0].args.slice(0, 4)).toEqual([12, 1334 - 300, 316, 288]);
+        expect(calls[0].args.slice(0, 4)).toEqual([12, 1334 - 338, 316, 326]);
         expect(lineTexts(calls)).toEqual([
             'fps 20 · 48.9 ms',
             'playing · L9',
@@ -180,7 +181,7 @@ describe('drawPerfOverlay', () => {
         const { calls, builder } = recorder();
         const bd = { vectorMs: 3.1, blitMs: 18.9, textMs: 0.4, scopeMs: 0.4, vectorCalls: 12, blitCalls: 156, textCalls: 8 };
         drawPerfOverlay(builder, P, true, 37.0, 'PLAYING', 'L3', 'pitch 54.0 · LOD 2', 22.8, 195, 2382, bd, 0, 0);
-        expect(calls[0].args.slice(0, 4)).toEqual([12, 1334 - 262, 316, 250]);
+        expect(calls[0].args.slice(0, 4)).toEqual([12, 1334 - 300, 316, 288]);
         expect(lineTexts(calls)).toHaveLength(5);
     });
 
@@ -211,48 +212,55 @@ describe('drawPerfOverlay', () => {
         // 收起（1 行）：面板 [1300, 1322]，y=1334-60 在面板外。
         expect(perfPanelHit(100, 1334 - 23, 1334, true, true, false)).toBe(true);
         expect(perfPanelHit(100, 1334 - 60, 1334, true, true, false)).toBe(false);
-        // 展开（`[WXG-T-1119]` = 8 行：6 基础 + 细分 + 探针）：同一 y 落进面板；下缘恒 1334-12。
+        // 展开（`[WXG-T-1121]` = 9 行：5 文字 + 2 chip 行 + 细分 + 探针）：同一 y 落进面板；下缘恒 1334-12。
         expect(perfPanelHit(100, 1334 - 60, 1334, true, true, true)).toBe(true);
-        expect(perfPanelHit(100, 1334 - 300 + 1, 1334, true, true, true)).toBe(true);
-        expect(perfPanelHit(100, 1334 - 300 - 1, 1334, true, true, true)).toBe(false);
+        expect(perfPanelHit(100, 1334 - 338 + 1, 1334, true, true, true)).toBe(true);
+        expect(perfPanelHit(100, 1334 - 338 - 1, 1334, true, true, true)).toBe(false);
         // 面板横向 [12, 328]：左右越界不命中。
         expect(perfPanelHit(11, 1334 - 23, 1334, true, true, false)).toBe(false);
         expect(perfPanelHit(329, 1334 - 23, 1334, true, true, false)).toBe(false);
     });
 
-    it('`[WXG-T-1119]` chip 行：4 枚逐项可选、命中与绘制同源', () => {
+    it('`[WXG-T-1119/1121]` chip 两行 7 枚逐项可选、命中与绘制同源', () => {
         const { calls, builder } = recorder();
         const bd = { vectorMs: 2.0, blitMs: 2.0, textMs: 5.0, scopeMs: 1.0, vectorCalls: 12, blitCalls: 156, textCalls: 8 };
-        // 打开「珠」与「30」两位 ⇒ 这两枚实色底 + 深字，另两枚半透明底 + 米白字。
-        drawPerfOverlay(builder, P, true, 48.9, 'playing', 'L9', 'pitch 27.8 · LOD 7', 11.9, 195, 1116, bd, 30.0, 8.4, 27.0, true, 0b1001);
-        expect(chipTexts(calls)).toEqual(['珠', '盘', 'HUD', '30']);
+        // 打开「珠」「30」「托」三位 ⇒ 这三枚实色底 + 深字，其余半透明底 + 米白字。
+        drawPerfOverlay(builder, P, true, 48.9, 'playing', 'L9', 'pitch 27.8 · LOD 7', 11.9, 195, 1116, bd, 30.0, 8.4, 27.0, true,
+            DBG_HIDE_BEADS | DBG_CAP_30 | DBG_HIDE_TRAY);
+        expect(chipTexts(calls)).toEqual(['珠', '盘', 'HUD', '30', '托', '卡', '顶']);
         const chipRects = calls.filter((c) => c.kind === 'rect' && Number(c.args[3]) === 26);
-        expect(chipRects).toHaveLength(4);
+        expect(chipRects).toHaveLength(7);
         const fills = chipRects.map((c) => (c.args[4] as { fill: string }).fill);
         expect(fills[0]).toBe('#banner'); // 珠 = 开
         expect(fills[1]).toContain('0.16'); // 盘 = 关
-        expect(fills[2]).toContain('0.16');
+        expect(fills[2]).toContain('0.16'); // HUD = 关
         expect(fills[3]).toBe('#banner'); // 30 = 开
-        const chipTextFills = calls.filter((c) => c.kind === 'text').slice(-4)
+        expect(fills[4]).toBe('#banner'); // 托 = 开
+        const chipTextFills = calls.filter((c) => c.kind === 'text').slice(-7)
             .map((c) => (c.args[3] as { fill: string }).fill);
         expect(chipTextFills[0]).toBe(UI_DEBUG_CHIP_ON_TEXT);
         expect(chipTextFills[1]).toBe('#banner');
-        // 每枚 chip 的中心必须命中自己（顺序 = 珠 / 盘 / HUD / 30）。
-        for (let i = 0; i < 4; i++) {
+        // 两行几何：第 0 行 4 枚（窄）、第 1 行 3 枚（宽），行间不重叠。
+        expect(Number(chipRects[0]!.args[2])).toBeLessThan(Number(chipRects[4]!.args[2])!);
+        expect(Number(chipRects[4]!.args[1])).toBeGreaterThan(
+            Number(chipRects[0]!.args[1]) + Number(chipRects[0]!.args[3]),
+        );
+        // 每枚 chip 的中心必须命中自己（顺序 = 珠 / 盘 / HUD / 30 / 托 / 卡 / 顶）。
+        for (let i = 0; i < 7; i++) {
             const r = chipRects[i]!.args;
             const cx = Number(r[0]) + Number(r[2]) / 2;
             const cy = Number(r[1]) + Number(r[3]) / 2;
-            expect(dbgChipAt(cx, cy, 1334, true, true, 4)).toBe(i);
+            expect(dbgChipAt(cx, cy, 1334, true, true)).toBe(i);
         }
-        // chip 行下方（出面板）与上方（文字行带）都不算 chip。
+        // 行间空隙与文字行带都不算 chip。
         const first = chipRects[0]!.args;
-        expect(dbgChipAt(Number(first[0]) + 1, Number(first[1]) - 1, 1334, true, true, 4)).toBe(-1);
-        expect(dbgChipAt(Number(first[0]) + 1, Number(first[1]) + 27, 1334, true, true, 4)).toBe(-1);
+        expect(dbgChipAt(Number(first[0]) + 1, Number(first[1]) - 1, 1334, true, true)).toBe(-1);
+        expect(dbgChipAt(Number(first[0]) + 1, Number(first[1]) + 27, 1334, true, true)).toBe(-1);
     });
 
     it('`[WXG-T-1119]` 收起态不画 chip（没有控制面就无命中）', () => {
         const { calls, builder } = recorder();
-        drawPerfOverlay(builder, P, true, 48.9, 'playing', 'L9', 'pitch 27.8 · LOD 7', 0, 0, 0, null, 0, 0, 0, false, 0b1111);
+        drawPerfOverlay(builder, P, true, 48.9, 'playing', 'L9', 'pitch 27.8 · LOD 7', 0, 0, 0, null, 0, 0, 0, false, 0b1111111);
         expect(chipTexts(calls)).toEqual([]);
         expect(calls.map((c) => c.kind)).toEqual(['rect', 'text']);
     });

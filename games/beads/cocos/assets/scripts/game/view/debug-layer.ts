@@ -24,7 +24,7 @@ import {
     dbgChipY,
     perfPanelRows,
 } from '../config/perf-panel';
-import { DBG_CHIP_BITS, DBG_CHIP_LABELS } from '../config/debug-flags';
+import { DBG_CHIP_BITS, DBG_CHIP_LABELS, DBG_CHIP_ROWS } from '../config/debug-flags';
 import { DEBUG_OUTLINE_TILE_HEX, type BeadsPalette } from './palette';
 import {
     UI_DEBUG_CHIP_OFF_FILL,
@@ -137,28 +137,31 @@ export function drawPerfOverlay(
         if (idleMs > 0) probe.push(`空 ${idleMs.toFixed(1)}`);
         line(y, `${probe.join(' ')}ms`);
     }
-    // `[WXG-T-1119]` 归因 chip（面板最下一行）：逐项关掉再看帧账 ⇒ 把「空」落到具体绘制内容。
-    // 几何与命中同源（`dbgChipY` / `dbgChipAt`），⛔ 不在这里另算坐标。
-    const bits = DBG_CHIP_BITS.length;
-    const chipH = DBG_CHIP.h;
-    const chipW = dbgChipWidth(bits);
-    const chipY = dbgChipY(top, segmented, probed);
-    for (let k = 0; k < bits; k++) {
-        const on = (debugFlags & DBG_CHIP_BITS[k]!) !== 0;
-        const cx = dbgChipX(k, bits);
-        builder.rect(cx, chipY, chipW, chipH, {
-            // 选中 = 实色米白 + 深字；未选中 = 16% 米白 + 米白字（同一对比族，一眼分得开）。
-            fill: on ? palette.bannerText : UI_DEBUG_CHIP_OFF_FILL,
-            radius: DBG_CHIP.radius,
-            stroke: DEBUG_OUTLINE_TILE_HEX,
-            lineWidth: 1,
-        });
-        builder.text(cx + chipW / 2, chipY + chipH / 2, DBG_CHIP_LABELS[k]!, {
-            fill: on ? UI_DEBUG_CHIP_ON_TEXT : palette.bannerText,
-            font: UI_FONT.cell,
-            align: 'center',
-            baseline: 'middle',
-        });
+    // `[WXG-T-1119/1121]` 归因 chip（面板最底部，两行：内容 / HUD 细分）：逐项关掉再看帧账
+    // ⇒ 把「空」落到具体绘制内容。几何与命中同源（`dbgChip*`），⛔ 不在这里另算坐标。
+    let index = 0;
+    for (let row = 0; row < DBG_CHIP_ROWS.length; row++) {
+        const bits = DBG_CHIP_ROWS[row]!;
+        const chipW = dbgChipWidth(bits);
+        const chipY = dbgChipY(top, segmented, probed, row);
+        for (let k = 0; k < bits; k++) {
+            const on = (debugFlags & DBG_CHIP_BITS[index]!) !== 0;
+            const cx = dbgChipX(bits, k);
+            builder.rect(cx, chipY, chipW, DBG_CHIP.h, {
+                // 选中 = 实色米白 + 深字；未选中 = 16% 米白 + 米白字（同一对比族，一眼分得开）。
+                fill: on ? palette.bannerText : UI_DEBUG_CHIP_OFF_FILL,
+                radius: DBG_CHIP.radius,
+                stroke: DEBUG_OUTLINE_TILE_HEX,
+                lineWidth: 1,
+            });
+            builder.text(cx + chipW / 2, chipY + DBG_CHIP.h / 2, DBG_CHIP_LABELS[index]!, {
+                fill: on ? UI_DEBUG_CHIP_ON_TEXT : palette.bannerText,
+                font: UI_FONT.cell,
+                align: 'center',
+                baseline: 'middle',
+            });
+            index += 1;
+        }
     }
 }
 

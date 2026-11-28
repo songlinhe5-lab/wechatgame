@@ -5,6 +5,7 @@
  * ⚠ 落 `config/` 而非 `view/`：WXG-T-420 T9 架构门规定 `game/beads-game.ts` 的
  * 运行时闭包不加载 view（Node 玩法测试判据），命中判定必须在 view 之外可导入。
  */
+import { DBG_CHIP_ROWS } from './debug-flags';
 
 /** 面板横向几何（设计 px，贴屏顶左侧；`top = builder.height` 动态高）。 */
 export const PERF_PANEL = { x: 12, w: 316, radius: 12 } as const;
@@ -15,32 +16,45 @@ export const PERF_PANEL = { x: 12, w: 316, radius: 12 } as const;
 export const PERF_ROW_GAP = 38;
 
 /**
- * `[WXG-T-1119]` 归因 chip 几何（展开态面板**最下一行**的 4 个开关）。
+ * `[WXG-T-1119]` 归因 chip 几何（展开态面板**最底部**的开关排）。
  *
- * 放最下一行而不是最上一行：文字行自面板顶部向下排（`drawPerfOverlay` 的 `y -= 38`），
- * 面板底部恒留 `38 - 16 = 22` 的余量，chip 高 26 ⇒ 只有贴底这 34px 带子放得下。
+ * 放最底部而不是最顶部：文字行自面板顶部向下排（`drawPerfOverlay` 的 `y -= 38`），
+ * 面板底部恒留 `38 - 16 = 22` 的余量，chip 高 26 ⇒ 只有贴底这条带子放得下。
+ * `[WXG-T-1121]` 7 枚挤一行每枚只剩 ~35px（`HUD` 放不下）⇒ 分两行（`DBG_CHIP_ROWS`），
+ * 每行各占一条 `PERF_ROW_GAP` 带子 ⇒ 面板再让一行。
  */
-export const DBG_CHIP = { h: 26, gap: 6, padX: 16, radius: 8, lift: 4 } as const;
+export const DBG_CHIP = { h: 26, gap: 6, rowGap: 6, padX: 16, radius: 8, lift: 4 } as const;
 
-/** chip 宽度（= 面板内宽四等分，扣 3 个间距）。 */
-export function dbgChipWidth(bits: number): number {
-    return (PERF_PANEL.w - DBG_CHIP.padX * 2 - DBG_CHIP.gap * (bits - 1)) / bits;
+/** chip 占用几条行带（= 行数）。绘制与行数公式同源。 */
+export function dbgChipRowCount(): number {
+    return DBG_CHIP_ROWS.length;
 }
 
-/** 第 `i` 个 chip 的左缘 x（顺序与 `DBG_CHIP_BITS` 一致）。 */
-export function dbgChipX(i: number, bits: number): number {
-    return PERF_PANEL.x + DBG_CHIP.padX + i * (dbgChipWidth(bits) + DBG_CHIP.gap);
+/** 某一行的 chip 宽度（该行按自身枚数等分，扣掉行内间距）。 */
+export function dbgChipWidth(rowBits: number): number {
+    return (PERF_PANEL.w - DBG_CHIP.padX * 2 - DBG_CHIP.gap * (rowBits - 1)) / rowBits;
 }
 
-/** chip 行的下缘 y（贴面板底、抬 `lift`）。 */
-export function dbgChipY(designH: number, segmented: boolean, probed: boolean): number {
+/** 第 `row` 行第 `i` 枚 chip 的左缘 x。 */
+export function dbgChipX(rowBits: number, i: number): number {
+    return PERF_PANEL.x + DBG_CHIP.padX + i * (dbgChipWidth(rowBits) + DBG_CHIP.gap);
+}
+
+/** chip 行（第 `row` 行）的下缘 y：贴面板底、抬 `lift`，逐行向上叠 `h + rowGap`。 */
+export function dbgChipY(
+    designH: number,
+    segmented: boolean,
+    probed: boolean,
+    row: number,
+): number {
     const rows = perfPanelRows(segmented, probed, true);
-    return designH - (PERF_ROW_GAP * rows - 4) + DBG_CHIP.lift;
+    const bottom = designH - (PERF_ROW_GAP * rows - 4);
+    return bottom + DBG_CHIP.lift + row * (DBG_CHIP.h + DBG_CHIP.rowGap);
 }
 
 /**
- * `[WXG-T-1119]` chip 命中：返回序号，`-1` = 没点中（绘制与命中同源几何）。
- * tap 路径单次调用 ⇒ 允许循环，⛔ 不进逐帧热路径。
+ * `[WXG-T-1119/1121]` chip 命中：返回**全局序号**（= `DBG_CHIP_BITS` 下标），`-1` = 没点中。
+ * 绘制与命中同源几何。tap 路径单次调用 ⇒ 允许两重循环，⛔ 不进逐帧热路径。
  */
 export function dbgChipAt(
     x: number,
@@ -48,14 +62,19 @@ export function dbgChipAt(
     designH: number,
     segmented: boolean,
     probed: boolean,
-    bits: number,
 ): number {
-    const cy = dbgChipY(designH, segmented, probed);
-    if (y < cy || y > cy + DBG_CHIP.h) return -1;
-    const w = dbgChipWidth(bits);
-    for (let i = 0; i < bits; i++) {
-        const cx = dbgChipX(i, bits);
-        if (x >= cx && x <= cx + w) return i;
+    let index = 0;
+    for (let row = 0; row < DBG_CHIP_ROWS.length; row++) {
+        const bits = DBG_CHIP_ROWS[row]!;
+        const cy = dbgChipY(designH, segmented, probed, row);
+        if (y >= cy && y <= cy + DBG_CHIP.h) {
+            const w = dbgChipWidth(bits);
+            for (let i = 0; i < bits; i++) {
+                const cx = dbgChipX(bits, i);
+                if (x >= cx && x <= cx + w) return index + i;
+            }
+        }
+        index += bits;
     }
     return -1;
 }
@@ -73,10 +92,10 @@ export const PERF_UI_REFRESH_FRAMES = 15;
 /**
  * `[WXG-T-1116]` 面板行数唯一真源（绘制与命中同源）。展开 = 常规五行 + 按需追加行；
  * 收起 = 一行紧凑行（fps）。细分 / 探针行只在数据真的回投时出现。
- * `[WXG-T-1119]` 展开态底部再让一行给归因 chip（见 `DBG_CHIP`）。
+ * `[WXG-T-1119/1121]` 展开态底部让出 chip 行带（`dbgChipRowCount()` 条）。
  */
 export function perfPanelRows(segmented: boolean, probed: boolean, expanded: boolean): number {
-    return expanded ? 6 + (segmented ? 1 : 0) + (probed ? 1 : 0) : 1;
+    return expanded ? 5 + dbgChipRowCount() + (segmented ? 1 : 0) + (probed ? 1 : 0) : 1;
 }
 
 /**

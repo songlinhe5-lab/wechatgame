@@ -14,6 +14,7 @@ import {
     InputManager,
     NullAssetProvider,
     NullAudioBackend,
+    RenderModelBuilder,
     Viewport,
     createRng,
     type GameServices,
@@ -24,9 +25,13 @@ import {
     DBG_CAP_30,
     DBG_CHIP_BITS,
     DBG_CHIP_LABELS,
+    DBG_CHIP_ROWS,
     DBG_HIDE_BEADS,
     DBG_HIDE_BOARD,
+    DBG_HIDE_CARDS,
     DBG_HIDE_HUD,
+    DBG_HIDE_TOPBAR,
+    DBG_HIDE_TRAY,
 } from '../src/config/debug-flags.js';
 import { dbgChipWidth, dbgChipX, dbgChipY } from '../src/config/perf-panel.js';
 import type { UiDebugState } from '../src/ui/ui-host.js';
@@ -55,6 +60,7 @@ function rig(): {
     play: ReturnType<typeof createBeadsShell>['play'];
     update: () => void;
     fps: number[];
+    render: () => { text: string; count: number };
 } {
     let now = 1_000;
     const platform = new NodePlatform({ width: 750, height: 1334, pixelRatio: 2 });
@@ -78,6 +84,7 @@ function rig(): {
         initialScreen: 'play',
     });
     shell.init(services);
+    const builder = new RenderModelBuilder(750, 1334);
     return {
         play: shell.play,
         update: () => {
@@ -85,24 +92,50 @@ function rig(): {
             now += 16.7;
         },
         fps,
+        // 画一帧并收集文字 / 命令数（渲染层判据：用户看到的就是这些）。
+        render: () => {
+            builder.begin();
+            shell.buildRenderModel(builder);
+            const model = builder.end();
+            let text = '';
+            for (const c of model.commands) if (c.kind === 'text') text += `${c.text}\n`;
+            return { text, count: model.commands.length };
+        },
     };
+}
+
+/** 全局序号 → (行, 行内序号)：与 `config/debug-flags.ts::DBG_CHIP_ROWS` 同一张表。 */
+function chipSlot(i: number): { row: number; col: number } {
+    let rest = i;
+    for (let row = 0; row < DBG_CHIP_ROWS.length; row++) {
+        const bits = DBG_CHIP_ROWS[row]!;
+        if (rest < bits) return { row, col: rest };
+        rest -= bits;
+    }
+    return { row: -1, col: -1 };
 }
 
 /** chip `i` 的中心（设计坐标；与绘制/命中同一套几何）。 */
 function chipCenter(i: number): { x: number; y: number } {
-    const bits = DBG_CHIP_BITS.length;
+    const { row, col } = chipSlot(i);
+    const bits = DBG_CHIP_ROWS[row]!;
     return {
-        x: dbgChipX(i, bits) + dbgChipWidth(bits) / 2,
-        y: dbgChipY(DESIGN_H, false, false) + 13,
+        x: dbgChipX(bits, col) + dbgChipWidth(bits) / 2,
+        y: dbgChipY(DESIGN_H, false, false, row) + 13,
     };
 }
 
-describe('`[WXG-T-1119]` 归因开关位', () => {
-    it('四枚 chip 的位互不重叠、顺序 = 珠 / 盘 / HUD / 30', () => {
-        expect(DBG_CHIP_LABELS).toEqual(['珠', '盘', 'HUD', '30']);
-        expect(DBG_CHIP_BITS).toEqual([DBG_HIDE_BEADS, DBG_HIDE_BOARD, DBG_HIDE_HUD, DBG_CAP_30]);
+describe('`[WXG-T-1119/1121]` 归因开关位', () => {
+    it('七枚 chip 的位互不重叠、顺序 = 珠 / 盘 / HUD / 30 / 托 / 卡 / 顶', () => {
+        expect(DBG_CHIP_LABELS).toEqual(['珠', '盘', 'HUD', '30', '托', '卡', '顶']);
+        expect(DBG_CHIP_BITS).toEqual([
+            DBG_HIDE_BEADS, DBG_HIDE_BOARD, DBG_HIDE_HUD, DBG_CAP_30,
+            DBG_HIDE_TRAY, DBG_HIDE_CARDS, DBG_HIDE_TOPBAR,
+        ]);
         const or = DBG_CHIP_BITS.reduce((a, b) => a | b, 0);
-        expect(or).toBe(0b1111);
+        expect(or).toBe(0b1111111);
+        // 分行清单之和必须等于 chip 总数（画与命中都按这张表遍历）。
+        expect(DBG_CHIP_ROWS.reduce((a, b) => a + b, 0)).toBe(DBG_CHIP_BITS.length);
     });
 
     it('覆层关：位不可翻、快照恒 0（release 路径零行为变化）', () => {
@@ -150,6 +183,48 @@ describe('`[WXG-T-1119]` 归因开关位', () => {
         expect(r.fps.at(-1)).toBe(60);
         r.update();
         expect(r.play.snapshot.debugFlags).toBe(0);
+    });
+
+    it('`[WXG-T-1121]` 托 / 卡 / 顶 三位各关一块（渲染层：字与命令数）', () => {
+        const r = rig();
+        r.play.setDebugInfo(true);
+        const base = r.render();
+        // 基线三块都在：托盘「扩展」钮 / 道具卡名 / 顶栏 LV 徽章。
+        expect(base.text).toContain('扩展');
+        expect(base.text).toContain('熨贴片');
+        expect(base.text).toContain('LV ');
+
+        r.play.toggleDebugFlag(DBG_HIDE_TRAY);
+        const tray = r.render();
+        expect(tray.text).not.toContain('扩展'); // 托盘 + 扩展钮整块不画
+        expect(tray.text).toContain('熨贴片'); // 其它块不受牵连
+        expect(tray.text).toContain('LV ');
+        expect(tray.count).toBeLessThan(base.count);
+        r.play.toggleDebugFlag(DBG_HIDE_TRAY);
+
+        r.play.toggleDebugFlag(DBG_HIDE_CARDS);
+        const cards = r.render();
+        expect(cards.text).not.toContain('熨贴片');
+        expect(cards.text).toContain('扩展');
+        expect(cards.text).toContain('LV ');
+        expect(cards.count).toBeLessThan(base.count);
+        r.play.toggleDebugFlag(DBG_HIDE_CARDS);
+
+        r.play.toggleDebugFlag(DBG_HIDE_TOPBAR);
+        const top = r.render();
+        expect(top.text).not.toContain('LV ');
+        expect(top.text).toContain('扩展');
+        expect(top.text).toContain('熨贴片');
+        expect(top.count).toBeLessThan(base.count);
+        r.play.toggleDebugFlag(DBG_HIDE_TOPBAR);
+
+        // 总开关仍是一键全关（三位各自独立，但 HUD 位优先并集）。
+        r.play.toggleDebugFlag(DBG_HIDE_HUD);
+        const all = r.render();
+        expect(all.text).not.toContain('扩展');
+        expect(all.text).not.toContain('熨贴片');
+        expect(all.text).not.toContain('LV ');
+        expect(all.count).toBeLessThan(top.count);
     });
 
     it('关覆层 ⇒ 位清零 + 帧率上限复位到 60（限帧不许留在正式玩法里）', () => {

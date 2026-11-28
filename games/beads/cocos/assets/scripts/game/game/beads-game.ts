@@ -1238,7 +1238,7 @@ export class BeadsGame {
     if (!perfPanelHit(x, y, designH, this._dbgSegmented, this._dbgProbed, this._debugExpanded)) return false;
     // `[WXG-T-1119]` 展开态最下一行是 4 个归因 chip：命中即翻转该位并吞掉点击（面板保持展开）。
     if (this._debugExpanded) {
-        const chip = dbgChipAt(x, y, designH, this._dbgSegmented, this._dbgProbed, DBG_CHIP_BITS.length);
+        const chip = dbgChipAt(x, y, designH, this._dbgSegmented, this._dbgProbed);
         if (chip >= 0) return this.toggleDebugFlag(DBG_CHIP_BITS[chip]!);
     }
     this._debugExpanded = !this._debugExpanded;
