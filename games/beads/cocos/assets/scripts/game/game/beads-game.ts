@@ -121,6 +121,7 @@ import {
 } from './save-schema';
 import type { BeadsPalette } from '../view/palette'; // WXG-T-420 T9：只取类型作字段面，渲染绑定已上移
 import { dbgChipAt, perfPanelHit } from '../config/perf-panel'; // `[WXG-T-1116/1119]` 面板与 chip 命中（与绘制同源；T9 门 ⇒ 不经 view）
+import { PERF_UI_REFRESH_FRAMES } from '../config/perf-panel'; // `[WXG-T-1120]` 覆层数值降频周期
 import { DBG_CAP_30, DBG_CHIP_BITS } from '../config/debug-flags'; // `[WXG-T-1119]` 归因位（视图只读同一张表）
 // **EP12-S8**：整套皮肤的注册真源（注册序即循环序；`DEFAULT_SKIN_ID` = 默认肤，⛔ 不另写字面量）。
 import { DEFAULT_SKIN, DEFAULT_SKIN_ID, skinById } from '../config/skins/registry';
@@ -514,6 +515,11 @@ export class BeadsGame {
   /** `[WXG-T-1116]` 上一帧 `debugState` 投影的分段 / 探针行在场标记（tap 命中矩形同源用）。 */
   private _dbgSegmented = false;
   private _dbgProbed = false;
+  /**
+   * `[WXG-T-1120]` 覆层数值降频投影的帧计数（见 `debugState` 与 `PERF_UI_REFRESH_FRAMES`）。
+   * ⛔ 不入存档、不参与玩法；覆层关时不推进。
+   */
+  private _uiTick = 0;
   /** 暂停面板「回主菜单」回调（options.onMenuRequest；无 shell 时 undefined）。 */
   private readonly _onMenuRequest?: () => void;
   /** 新局开局体力闸门（options.canStartRun；无 shell 时 undefined ⇒ 不设门）。 */
@@ -1165,13 +1171,17 @@ export class BeadsGame {
   debugState(out: UiDebugState, onMenu = false): UiDebugState {
     const s = this._snapshot;
     out.enabled = this._settings.values.debugInfo;
-    out.frameMs = this._frameMs;
-    // `[WXG-T-1110]` 绘制成本由 App 在 `onRender` 里量（游戏量不到宿主几何重建那段）；
-    // 读的是**上一渲染帧**的 EMA —— 覆层晚一帧不影响判定，但能直接分开「帧变慢」
-    // 与「我们画得慢」。未接线 / 首帧前 ⇒ drawMs = 0，覆层不出这一行。
-    // ⚠ 本函数每帧都调（UiRoot 不关开关也调），**必须只在覆层开着时才读**：
-    //   `readDrawCost()` 会打开 App 的逐帧计时/计数分支，release 路径读一次就关不回去了。
-    if (out.enabled) {
+    // `[WXG-T-1120]` 数值段**降频**投影（覆层自身 5.7ms 的根因，见 `PERF_UI_REFRESH_FRAMES`）：
+    // 覆层关 ⇒ 每帧都清 0（必须立刻归零，不能等窗口）；覆层开 ⇒ 每 N 帧才采纳一次 EMA。
+    // 窗口内复用同一批数字 ⇒ 覆层拼出的字符串逐字不变 ⇒ 池化 label 脏门全命中（0 次重排）。
+    const refresh = out.enabled && this._uiTick++ % PERF_UI_REFRESH_FRAMES === 0;
+    if (refresh) {
+      out.frameMs = this._frameMs;
+      // `[WXG-T-1110]` 绘制成本由 App 在 `onRender` 里量（游戏量不到宿主几何重建那段）；
+      // 读的是**上一渲染帧**的 EMA —— 覆层晚一帧不影响判定，但能直接分开「帧变慢」
+      // 与「我们画得慢」。未接线 / 首帧前 ⇒ drawMs = 0，覆层不出这一行。
+      // ⚠ **必须只在覆层开着时才读**：`readDrawCost()` 会打开 App 的逐帧计时/计数分支，
+      //   release 路径读一次就关不回去了（关掉的腿走下面的清零分支，一个字段都不读）。
       const cost = this._services?.readDrawCost?.();
       out.drawMs = cost ? cost.drawMs : 0;
       out.paintCalls = cost ? cost.paintCalls : 0;
@@ -1191,7 +1201,8 @@ export class BeadsGame {
       out.engineDrawMs = cost ? cost.engineDrawMs : 0;
       // `[WXG-T-1114]` 帧间空档 EMA（GPU/present 反压 / 调度推迟的指纹）。
       out.idleMs = cost ? cost.idleMs : 0;
-    } else {
+    } else if (!out.enabled) {
+      out.frameMs = 0;
       out.drawMs = 0;
       out.paintCalls = 0;
       out.commands = 0;
@@ -3308,6 +3319,7 @@ export class BeadsGame {
   setDebugInfo(on: boolean): void {
     if (this._settings.values.debugInfo === on) return;
     this._frameMs = 0; // 重开时从首帧实测值重新起步，不读旧 EMA
+    this._uiTick = 0; // `[WXG-T-1120]` 重开 ⇒ 下一次投影立刻刷新读数（不等降频窗口）
     // `[WXG-T-1119]` 关覆层 ⇒ 归因开关一并清零 + 帧率上限复位（否则限帧 30 会留在正式玩法里）。
     this._debugFlags = 0;
     this._services?.setPreferredFps?.(60);

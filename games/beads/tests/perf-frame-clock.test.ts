@@ -22,6 +22,7 @@ import {
 } from '@wxgame/framework';
 import { NodePlatform } from '../../../packages/framework/src/platform/node.js';
 import { createBeadsShell } from '../src/game/beads-shell.js';
+import { PERF_UI_REFRESH_FRAMES } from '../src/config/perf-panel.js';
 
 function rig(
     initialScreen?: 'play',
@@ -62,6 +63,16 @@ function rig(
 
 const OUT = { enabled: false, frameMs: 0, drawMs: 0, paintCalls: 0, commands: 0, tickMs: 0, engineDrawMs: 0, idleMs: 0, breakdown: { vectorMs: 0, blitMs: 0, textMs: 0, scopeMs: 0, vectorCalls: 0, blitCalls: 0, textCalls: 0 }, phase: '', level: '', detail: '', expanded: false, debugFlags: 0 };
 
+/**
+ * `[WXG-T-1120]` 取一次**一定会刷新**的投影：数值降频后单次调用可能落在窗口内（`frameMs`
+ * 还是旧值），最多等一个窗口（`PERF_UI_REFRESH_FRAMES` 次调用）必刷新。
+ */
+function freshState(r: ReturnType<typeof rig>): typeof OUT {
+    let st = r.shell.play.debugState(OUT);
+    for (let i = 0; i < PERF_UI_REFRESH_FRAMES && st.frameMs === 0; i++) st = r.shell.play.debugState(OUT);
+    return st;
+}
+
 describe('性能覆层帧耗时 = 渲染帧壁钟（WXG-T-1108）', () => {
     it('每渲染帧 33 ms ⇒ frameMs ≈ 33（旧口径恒 16.7）', () => {
         const r = rig();
@@ -78,7 +89,7 @@ describe('性能覆层帧耗时 = 渲染帧壁钟（WXG-T-1108）', () => {
             r.advance(33);
             draw();
         }
-        const st = r.shell.play.debugState(OUT);
+        const st = freshState(r);
         expect(st.frameMs).toBeCloseTo(33, 6);
         expect(Math.round(1000 / st.frameMs)).toBe(30);
     });
@@ -144,5 +155,39 @@ describe('性能覆层绘制成本投影（WXG-T-1110）', () => {
         r.shell.play.setDebugInfo(true);
         expect(r.shell.play.debugState(OUT).drawMs).toBe(9);
         expect(reads.n).toBe(1);
+    });
+
+    it('`[WXG-T-1120]` 数值降频：窗口内读数冻结（字符串不变 ⇒ 脏门全命中），到窗口才采纳新值', () => {
+        const cost = {
+            drawMs: 5, paintCalls: 5, commands: 5, tickMs: 0, engineDrawMs: 0, idleMs: 0,
+            breakdown: { vectorMs: 0, blitMs: 0, textMs: 0, scopeMs: 0, vectorCalls: 0, blitCalls: 0, textCalls: 0 },
+        };
+        const r = rig(undefined, cost);
+        r.shell.play.setDebugInfo(true);
+        expect(r.shell.play.debugState(OUT).drawMs).toBe(5); // 首帧即刷新
+        // 宿主换了一帧的读数 ⇒ 窗口内仍读旧值（覆层不重排文字）。
+        cost.drawMs = 9;
+        for (let i = 0; i < PERF_UI_REFRESH_FRAMES - 1; i++) {
+            expect(r.shell.play.debugState(OUT).drawMs).toBe(5);
+        }
+        // 第 `PERF_UI_REFRESH_FRAMES` 帧才采纳（= 250ms 一跳，判读不受影响）。
+        expect(r.shell.play.debugState(OUT).drawMs).toBe(9);
+    });
+
+    it('`[WXG-T-1120]` 关掉覆层立即归零（首行 fps 不许留旧值，也不许等窗口）', () => {
+        const r = rig(undefined, {
+            drawMs: 21.4, paintCalls: 3010, commands: 2382, tickMs: 12, engineDrawMs: 4, idleMs: 20,
+            breakdown: { vectorMs: 3.1, blitMs: 18.9, textMs: 0.4, scopeMs: 0.4, vectorCalls: 12, blitCalls: 156, textCalls: 8 },
+        });
+        r.shell.play.setDebugInfo(true);
+        const on = r.shell.play.debugState(OUT);
+        expect(on.drawMs).toBe(21.4);
+        r.shell.play.setDebugInfo(false);
+        const off = r.shell.play.debugState(OUT);
+        expect(off.enabled).toBe(false);
+        expect(off.frameMs).toBe(0);
+        expect(off.drawMs).toBe(0);
+        expect(off.tickMs).toBe(0);
+        expect(off.breakdown.blitMs).toBe(0);
     });
 });
