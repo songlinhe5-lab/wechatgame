@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "nextId": 230,
+  "nextId": 231,
   "thresholds": {
     "archiveIdleDays": 90,
     "archiveMaxAccess": 1,
@@ -3852,6 +3852,23 @@
       "archivedDate": null,
       "archiveReason": null,
       "reactivatedDate": null
+    },
+    {
+      "id": "K-230",
+      "state": "active",
+      "file": "knowledge/lessons/engine-cocos.md",
+      "category": "引擎Cocos",
+      "title": "修 Cocos 层序不要逐帧钉全量兄弟位：建独立父节点把层级一次固定",
+      "contentHash": "0828ee10c1b91d5d93834168c490450a4ba74f3b899ac388a5122c393a80ca96",
+      "sourceTask": "WXG-T-1122",
+      "addedDate": "2026-11-28",
+      "lastAccess": "2026-11-28",
+      "accessCount": 0,
+      "accessSources": [],
+      "seen": [],
+      "archivedDate": null,
+      "archiveReason": null,
+      "reactivatedDate": null
     }
   ],
   "events": [
@@ -6172,6 +6189,24 @@
         "K-227",
         "K-228",
         "K-229"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-11-28",
+      "taskId": "WXG-T-1122",
+      "kind": "added",
+      "ids": [
+        "K-230"
+      ],
+      "note": null
+    },
+    {
+      "date": "2026-11-28",
+      "taskId": "WXG-T-1122",
+      "kind": "updated",
+      "ids": [
+        "K-230"
       ],
       "note": null
     }

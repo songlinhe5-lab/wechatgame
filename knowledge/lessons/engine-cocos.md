@@ -75,3 +75,9 @@
   ④ 产物级自证法：把上层节点 `active = false` 截一张图 —— 沉底图元仍在 ⇒ 提交体确实换了（比读代码注释硬）。
   判例引用：`packages/framework/src/core/render/render-model.ts`（`back` 注释）、`packages/framework/src/adapters/cocos/cocos-renderer.ts`、`ADR-0030 §5.7`；同族 K-110（改渲染真源前先 grep 两侧消费方）、K-109（层序死结优先删对象）。
   ⚠ 违反实例（2026-10-28，WXG-T-461 / d7c12850）：WXG-T-261 三批给托盘槽 tint 臂补「底 rect」（`bead-render.ts`）时**漏打 back**——承载珠下层的槽底色以矢量命令落主 `Graphics`（Cocos 层序在 BlitLayer **之上**）⇒ 真机 carrier=on 时深灰槽底盖住珠 blit（用户读作「豆子上盖着槽底色」）。两道既有门都**结构性**测不到：harness canvas2d 按命令序单趟（本标记无副作用＝缺陷也不显形）、封箱无 tint 运行时不覆盖该分支；浏览器 Cocos 又因构建档 mask 不齐 carrier 静默 off 而从未暴露（K-198）⇒ 只有真机 4/4 才踩到。修 = 一行 `back: true`；P2 探针读数 `mask__grid__holed|#4A5060` 全透明（槽底色全靠底 rect 承担）是定位铁证。规避补充：**⑤ 凡在 blit 宿主形态下新增「语义在珠下」的矢量图元，落码当批即打 back**（⛔ 等 harness 截图验证——它天然复现不了分层序），评审检查单对应加「新矢量图元的 Cocos 层归属」一条。
+
+- **[引擎Cocos][K-230] 修 Cocos 层序不要逐帧钉全量兄弟位：建独立父节点把层级一次固定**（来源 WXG-T-1122 / commit 8fbf240e，2026-11-28）
+  现象：真机放大后整格底 tile 偶发压住相邻珠面。给每块 tile 每帧 `setSiblingIndex(0)` 后观感修好，但拖动从 26fps 跌到 7fps；分段读数为 `绘 66.2ms · 位 65.2ms`（修复前位图段约 2.3ms）。
+  根因：Cocos 的 `setSiblingIndex` 每次都要在父节点 children 数组里 `indexOf` 并搬移节点。几百块 tile 每帧各钉一次，把成本从「一次节点树分层」变成「每帧 O(图元数) 的全量重排」，且 `getSiblingIndex` 的前置比较挡不住父节点被其它节点追加后索引变化。
+  规避/做法：① 同一层内需要固定相对层级时，优先**新建专用父节点**并把它的兄弟位一次钉死（本次 = `BlitTiles` 挂在 `BlitLayer` 首位，恒在 `BlitAtlas` 之下），热路径只切父节点、零兄弟重排；② 逐帧 `setSiblingIndex` 只适合数量很小且层级确需动态切换的对象（如选中项置顶），⛔ 不用于成百上千的底图块；③ 修复后必须回读分段读数——观感对了但位图段从 2.3ms 涨到 65ms，属于用性能换正确性的假修复；④ 静态源码门可锁住「不再出现逐帧钉 tile 兄弟位」这条回归线。
+  判例引用：`games/beads/cocos/assets/scripts/host/beads-blit-carrier.ts`（`_tileNode()` / `accept()` 的 `tileBlit` 路由）、`games/beads/tests/blit-carrier-reuse.test.ts`；同族 K-116（新矢量图元先判 Cocos 层归属）、K-100（先量脏帧再比载体）。

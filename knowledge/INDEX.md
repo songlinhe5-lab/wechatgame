@@ -336,4 +336,5 @@
 | K-227 | 工具链图像 | toolchain-image | 档位卡边关（D 距档界 < 0.2）只准拆色，靠补珠凑色数必跨档 | WXG-T-1060 | 2026-11-26 | 0 | active |
 | K-228 | 工具链图像 | toolchain-image | studio 量化器的 tier/time 是旧判档口径，⛔ 不能直接当游戏侧档位与定价真源 | WXG-T-1060 | 2026-11-26 | 0 | active |
 | K-229 | 工具链图像 | toolchain-image | 在 pattern 上 `paint_rect` 补格 = 悬空矩形色块；装饰必须先存在于母版 | WXG-T-1060 | 2026-11-26 | 0 | active |
+| K-230 | 引擎Cocos | engine-cocos | 修 Cocos 层序不要逐帧钉全量兄弟位：建独立父节点把层级一次固定 | WXG-T-1122 | 2026-11-28 | 0 | active |
 <!-- kb:active:end -->
