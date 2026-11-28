@@ -13720,3 +13720,31 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 真痛点转为**拖动期**：`拖 掉帧 29fps 零步0% 峰44`（三张图同值）⇒ 拖动时 ~34ms/帧、峰 44ms。
 
 **补判据（同批）**：`tests/debug-flags.test.ts` 增「HUD 全关时模型里不得出现 `mm:ss`」——真机图 3 曾见「胶囊底消失、`00:59` 字还在」，本断言把视图侧钉死（模型已无该字 ⇒ 残留只可能出自宿主通道或截图落在未重绘帧），待复现后归因。
+
+## WXG-T-1122
+
+**拖动窗口通道归因：一次拖动就把「34ms/帧花在哪」读出来** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ **代码完成（2026-11-28）**
+
+承 T-1121 回填：静止 17.3ms 只超 60fps 预算 0.6ms，真痛点在拖动期（三张读数同值 `拖 掉帧 29fps 零步0% 峰44` ⇒ ~34ms/帧、峰 44ms）。用户选「A：拖动窗口加通道归因」。原冻结行只有帧间隔（判定词 + fps + 零步 + 峰），而 `绘 / 分段 / 探针` 三行抬手后已让回**实时**值——手在屏上时又读不到 ⇒「拖动期这 34ms 落哪条腿」两头顶不上。
+
+**做法**（⛔ 不新开面板行：面板 316 设计 px 已被 `拖…` 行占满；也⛔ 不改版式）：
+
+- `BeadsGame.readCostForDrag()`（`beads-game.ts`）：覆层关 ⇒ 返回 `null` 且**一个字段都不读**（同 `debugState` 的告警：读一次即打开 App 的计时分支）；宿主未接线 ⇒ `null`。
+- 壳侧 `_accumulateDragCost()`：拖动期间**逐帧**把 `drawMs / paintCalls / commands / tickMs / engineDrawMs / idleMs` 与分段 `vectorMs / blitMs / textMs / scopeMs`（含三个 calls）累加进复用对象（热路径零分配）；新一次拖动开始 `_resetDragCost()`（⛔ 不跨拖动混算）。
+- 抬手后 `_applyDragCost(out)`：把三行钉成拖动期**均值**，停留时长与冻结结论行同源（`DRAG_LINE_LINGER_FRAMES = 600`）；计数取整（面板直接拼整数，带小数会露面板右缘）。冻结行到期 ⇒ 三行让回实时值。
+
+**口径诚实边界**：取的是**均值**不是中位数——`drawMs` 本身已是 α=0.1 的 EMA，均值即可；尖峰信息由冻结行的 `峰44` 那一列承担。数值段仍是 15 帧一跳（T-1120 降频），冻结行恰好消失的那一帧可能还停在旧值，属采样节拍不是残留（用例为此多等 20 帧）。
+
+**代价**：拖动期每帧多一次 `readDrawCost()`（覆层开着时那个计时分支本来就在跑）；宿主没接线的老路径整条腿静默跳过，面板照旧不画那三行。
+
+**顺带修门**：`UI_DEBUG_CHIP_ON_TEXT = '#2A2E43'` 落在 `view/ui-theme.ts` ⇒ `check:arch` §3「硬编码色值」FAIL（T-1119 起就红，本单暴露）。移到 `config/debug-flags.ts::DBG_CHIP_ON_TEXT_HEX`（`check:arch` §3 认 `config/**` 为色值家；`palette.ts` 另有封箱色表锁——`bead-render.test.ts` 条数 + 指纹，诊断件不该动它），`debug-layer.ts` 与 `tests/debug-layer.test.ts` 改引用 ⇒ 门复绿。
+
+**判据**（`tests/drag-window-probe.test.ts` 新 2 例）：① 拖动期 34.4ms、抬手后宿主回 8.0ms ⇒ 冻结行在显示的 600 帧内三行读 **34.4**（不被实时值顶掉），到期后读 8.0；② 宿主没接线 `readDrawCost` ⇒ 不出三行，冻结行照出。
+
+**验证（2026-11-28 实跑）**：typecheck 0 错；beads 全量 **139 文件 1707 passed / 2 skipped**；`check:arch` OK（1 条 editor 产物 warning）；`harness:smoke` OK（breakout, beads）；`framework:sync` 已重跑（写入 2）；版本 **1.0.128**。
+
+**真机待你验（本轮不代跑，分工铁律）**：`pnpm -C games/beads run build:cocos` 后进 L9，覆层展开，按住盘面拖 2–3 秒再抬手，读那三行（此时就是拖动期的账）。判读：
+
+- `绘` ≈ 34 且 `矢` 大 ⇒ 拖动期每帧全量重画珠体/描边 ⇒ 减层、减面积或拖动期降档才有效；
+- `绘` 小、`空` 大 ⇒ GPU/present 反压（顶点量超吞吐）⇒ 要减顶点，不是减 JS；
+- `tick` 大 ⇒ 瓶颈在我们自己的固定步 / 建模 ⇒ 查 `update` 与 `buildRenderModel` 的逐帧重建。

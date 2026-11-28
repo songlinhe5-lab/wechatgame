@@ -182,11 +182,12 @@ export const UI_DEBUG_HIT_FILL = 'rgba(255,60,230,0.14)';
 
 /**
  * `[WXG-T-1119]` 归因 chip 双态色：未选中底 = 米白 16%（压在 `rgba(42,46,67,0.7)` 面板上仍可辨），
- * 选中底直接用 `palette.bannerText` 实色、字用本常量（深藏青，与选中底对比 ≈ 15:1）。
+ * 选中底直接用 `palette.bannerText` 实色、字用 `config/debug-flags.ts` 的 `DBG_CHIP_ON_TEXT_HEX`（深藏青，与选中底对比 ≈ 15:1）。
  * 与 `UI_DEBUG_HIT_FILL` 同口径：⛔ 不进正式 `palette`。
+ * `[WXG-T-1122]` 选中字色是 `#rrggbb` ⇒ 移 `config/debug-flags.ts`（arch §3 认可 `config/**` 为色值家；
+ * `palette.ts` 另有封箱色表锁，诊断件不该动它）。
  */
 export const UI_DEBUG_CHIP_OFF_FILL = 'rgba(253,246,233,0.16)';
-export const UI_DEBUG_CHIP_ON_TEXT = '#2A2E43';
 
 export interface UiScrimRgb {
     readonly r: number;

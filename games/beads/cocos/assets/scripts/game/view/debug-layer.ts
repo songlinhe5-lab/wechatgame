@@ -24,11 +24,10 @@ import {
     dbgChipY,
     perfPanelRows,
 } from '../config/perf-panel';
-import { DBG_CHIP_BITS, DBG_CHIP_LABELS, DBG_CHIP_ROWS } from '../config/debug-flags';
+import { DBG_CHIP_BITS, DBG_CHIP_LABELS, DBG_CHIP_ON_TEXT_HEX, DBG_CHIP_ROWS } from '../config/debug-flags';
 import { DEBUG_OUTLINE_TILE_HEX, type BeadsPalette } from './palette';
 import {
     UI_DEBUG_CHIP_OFF_FILL,
-    UI_DEBUG_CHIP_ON_TEXT,
     UI_DEBUG_HIT_FILL,
     UI_FONT,
     UI_SCRIM,
@@ -155,7 +154,7 @@ export function drawPerfOverlay(
                 lineWidth: 1,
             });
             builder.text(cx + chipW / 2, chipY + DBG_CHIP.h / 2, DBG_CHIP_LABELS[index]!, {
-                fill: on ? UI_DEBUG_CHIP_ON_TEXT : palette.bannerText,
+                fill: on ? DBG_CHIP_ON_TEXT_HEX : palette.bannerText,
                 font: UI_FONT.cell,
                 align: 'center',
                 baseline: 'middle',

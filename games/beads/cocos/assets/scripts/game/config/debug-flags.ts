@@ -50,3 +50,12 @@ export const DBG_CHIP_LABELS = ['珠', '盘', 'HUD', '30', '托', '卡', '顶'] 
  * 第二行 = HUD 细分（托/卡/顶）。7 枚挤一行会让每枚只剩 ~35px、`HUD` 放不下。
  */
 export const DBG_CHIP_ROWS = [4, 3] as const;
+
+/**
+ * `[WXG-T-1122]` 归因 chip **选中态字色**（深藏青，压在 `palette.bannerText` 米白实底上对比 ≈ 15:1）。
+ *
+ * 为什么钉死而不读 `palette.text`：换肤后 chip 底仍是米白，字色跟着皮肤走会掉对比。
+ * 为什么落 `config/`：`check:arch` §3 只认 `view/palette.ts` 与 `config/**` 是色值的家，
+ * 而 `palette.ts` 另有封箱色表锁（`bead-render.test.ts` 条数 + 指纹）——诊断件的色值不该动那张表。
+ */
+export const DBG_CHIP_ON_TEXT_HEX = '#2A2E43';

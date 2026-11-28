@@ -50,6 +50,7 @@ import {
   SaveManager,
   StateMachine,
   type AudioVoices,
+  type DrawCostReading,
   type GameServices,
   type RankBoard,
 } from '@wxgame/framework';
@@ -1161,6 +1162,18 @@ export class BeadsGame {
   sampleDrawFrame(frameMs: number): void {
     if (!this._settings.values.debugInfo || !(frameMs > 0) || frameMs > 250) return;
     this._frameMs = this._frameMs === 0 ? frameMs : this._frameMs * 0.9 + frameMs * 0.1;
+  }
+
+  /**
+   * `[WXG-T-1122]` 拖动窗口逐帧成本读取（供壳累积拖动期均值，抬手后钉在覆层三行上）。
+   *
+   * 两处与 `debugState` 同一口径：① 覆层关 ⇒ 返回 `null` 且**一个字段都不读**
+   * （`readDrawCost()` 会打开 App 的逐帧计时分支，见 `debugState` 的告警）；
+   * ② 未接线宿主 ⇒ `null`，调用方据此跳过累积（面板照旧不画那几行）。
+   */
+  readCostForDrag(): DrawCostReading | null {
+    if (!this._settings.values.debugInfo) return null;
+    return this._services?.readDrawCost?.() ?? null;
   }
 
   /**

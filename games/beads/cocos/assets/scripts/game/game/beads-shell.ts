@@ -400,6 +400,20 @@ export class BeadsShell implements Game {
     /** 抬手后冻结的读数行 + 剩余显示帧数（`0` = 不显示，恢复常规细节行）。 */
     private _dragLine = '';
     private _dragLineFrames = 0;
+    /**
+     * `[WXG-T-1122]` 拖动窗口的**成本均值累加器**（复用对象，逐帧就地加 ⇒ 零分配）。
+     *
+     * 手在屏上时读不了实时读数（那几行每 15 帧才刷新一次，抬头看已停手）⇒ 抬手后
+     * 覆层面板的「绘 / 分段 / 探针」三行改钉成拖动期的均值，停留时长与冻结结论行同源
+     * （`_dragLineFrames`）。三行的行数与宽度都不动：⛔ 不新开一行（面板 316 设计 px 已满）。
+     */
+    private _dragCostN = 0;
+    private readonly _dragCost = {
+        drawMs: 0, paintCalls: 0, commands: 0,
+        tickMs: 0, engineDrawMs: 0, idleMs: 0,
+        vectorMs: 0, blitMs: 0, textMs: 0, scopeMs: 0,
+        vectorCalls: 0, blitCalls: 0, textCalls: 0,
+    };
     /** UI-25：组合根（开关关闭时不参与绘制/推进）。 */
     private readonly _uiRoot: UiRoot;
     /** UI-42：导航唯一真源 —— 屏幕 / 覆盖层 / 选关页大关上下文都由这个栈投影。 */
@@ -471,7 +485,12 @@ export class BeadsShell implements Game {
                 // `[WXG-T-1109]` 拖动读数占详情行：采集中报帧数（有反馈才知道在采），
                 // 抬手后报冻结结论；两者都不在时保留 pitch/LOD/beads 常规行。
                 if (this._dragRec) this._uiDebug.detail = `拖动采集中 ${this._dragFrames} 帧`;
-                else if (this._dragLine !== '') this._uiDebug.detail = this._dragLine;
+                else if (this._dragLine !== '') {
+                    this._uiDebug.detail = this._dragLine;
+                    // `[WXG-T-1122]` 冻结行在显示 ⇒ 「绘 / 分段 / 探针」三行同窗钉成拖动期均值
+                    // （手在屏上时读不到实时值；抬手后这才是拖动期那几帧的账）。
+                    this._applyDragCost(this._uiDebug);
+                }
                 return this._uiDebug;
             },
         });
@@ -683,8 +702,12 @@ export class BeadsShell implements Game {
      */
     private _sampleDragWindow(frameMs: number): void {
         if (this.play.dragging) {
-            if (!this._dragRec) this._dragRec = new MotionRecorder(240);
+            if (!this._dragRec) {
+                this._dragRec = new MotionRecorder(240);
+                this._resetDragCost(); // 新一次拖动 ⇒ 上一窗口的均值作废（⛔ 不跨拖动混算）
+            }
             this._dragRec.frame(frameMs, this._stepsSinceDraw, true, this.play.snapshot.gridLeft);
+            this._accumulateDragCost();
             this._dragFrames += 1;
             this._dragLine = '';
             this._dragLineFrames = 0;
@@ -700,6 +723,62 @@ export class BeadsShell implements Game {
             this._dragLineFrames -= 1;
             if (this._dragLineFrames === 0) this._dragLine = '';
         }
+    }
+
+    /** `[WXG-T-1122]` 清空拖动期均值累加器（新一次拖动开始 ⇒ 上一窗口作废）。 */
+    private _resetDragCost(): void {
+        this._dragCostN = 0;
+        const a = this._dragCost;
+        a.drawMs = 0; a.paintCalls = 0; a.commands = 0;
+        a.tickMs = 0; a.engineDrawMs = 0; a.idleMs = 0;
+        a.vectorMs = 0; a.blitMs = 0; a.textMs = 0; a.scopeMs = 0;
+        a.vectorCalls = 0; a.blitCalls = 0; a.textCalls = 0;
+    }
+
+    /** `[WXG-T-1122]` 累积本帧成本；未接线宿主 ⇒ `readCostForDrag` 返回 null，静默跳过。 */
+    private _accumulateDragCost(): void {
+        const c = this.play.readCostForDrag();
+        if (!c) return;
+        const a = this._dragCost;
+        const b = c.breakdown;
+        a.drawMs += c.drawMs;
+        a.paintCalls += c.paintCalls;
+        a.commands += c.commands;
+        a.tickMs += c.tickMs;
+        a.engineDrawMs += c.engineDrawMs;
+        a.idleMs += c.idleMs;
+        a.vectorMs += b.vectorMs;
+        a.blitMs += b.blitMs;
+        a.textMs += b.textMs;
+        a.scopeMs += b.scopeMs;
+        a.vectorCalls += b.vectorCalls;
+        a.blitCalls += b.blitCalls;
+        a.textCalls += b.textCalls;
+        this._dragCostN += 1;
+    }
+
+    /**
+     * `[WXG-T-1122]` 把拖动期均值钉进覆层读数（`_dragCostN === 0` ⇒ 不动，照旧读实时值）。
+     * 计数取整：面板直接 `$ {}` 拼整数（不 `toFixed`），带小数会露出面板右缘。
+     */
+    private _applyDragCost(out: UiDebugState): void {
+        const n = this._dragCostN;
+        if (n === 0) return;
+        const a = this._dragCost;
+        const b = out.breakdown;
+        out.drawMs = a.drawMs / n;
+        out.paintCalls = Math.round(a.paintCalls / n);
+        out.commands = Math.round(a.commands / n);
+        out.tickMs = a.tickMs / n;
+        out.engineDrawMs = a.engineDrawMs / n;
+        out.idleMs = a.idleMs / n;
+        b.vectorMs = a.vectorMs / n;
+        b.blitMs = a.blitMs / n;
+        b.textMs = a.textMs / n;
+        b.scopeMs = a.scopeMs / n;
+        b.vectorCalls = Math.round(a.vectorCalls / n);
+        b.blitCalls = Math.round(a.blitCalls / n);
+        b.textCalls = Math.round(a.textCalls / n);
     }
 
     onPause(): void {

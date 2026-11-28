@@ -18,6 +18,7 @@ import {
     RenderModelBuilder,
     Viewport,
     createRng,
+    type DrawCostReading,
     type GameServices,
     type MotionJudder,
     type RenderModel,
@@ -28,7 +29,7 @@ import { createBeadsShell, motionLine } from '../src/game/beads-shell.js';
 const STEP = 1 / 60;
 const FRAME_MS = 16.7;
 
-function rig(): {
+function rig(cost?: () => DrawCostReading): {
     shell: ReturnType<typeof createBeadsShell>;
     services: GameServices;
     input: InputManager;
@@ -47,6 +48,7 @@ function rig(): {
         assets: new NullAssetProvider(),
         platform: platform.info,
         rewardedAd: platform.createRewardedAdProvider(),
+        ...(cost ? { readDrawCost: cost } : {}),
     };
     const shell = createBeadsShell({
         clock: () => now,
@@ -129,6 +131,60 @@ describe('拖动窗口取样（WXG-T-1109）', () => {
         // 覆层关 ⇒ 面板一条字都不发（棋盘/托盘的正常文字仍在，所以只钉读数行缺席）
         expect(up).not.toContain('拖动采集中');
         expect(up).not.toContain('拖 ');
+    });
+
+    it('拖动期成本均值钉在覆层三行上，抬手后不被实时值顶掉（WXG-T-1122）', () => {
+        // 拖动期 34.4ms 慢帧，抬手后宿主回到 8.0ms —— 只有「钉住」才读得到 34.4。
+        let live = 34.4;
+        const r = rig(() => ({
+            drawMs: live,
+            paintCalls: 510,
+            commands: 1324,
+            breakdown: { vectorMs: 9, blitMs: 2, textMs: 4, scopeMs: 2, vectorCalls: 300, blitCalls: 1, textCalls: 8 },
+            tickMs: 18,
+            engineDrawMs: 9,
+            idleMs: 7,
+        }));
+        r.shell.play.setDebugInfo(true);
+        expect(r.shell.play.tapDebugPanel(160, 1334 - 23)).toBe(true);
+        const center = r.shell.play.debugCellCenter(
+            Math.floor(r.shell.play.grid.rows / 2),
+            Math.floor(r.shell.play.grid.cols / 2),
+        )!;
+        const screen = { x: 0, y: 0 };
+        r.services.viewport.designToScreen(screen, center.x, center.y);
+        r.frame({ id: 1, x: screen.x, y: screen.y, phase: 'down' });
+        r.frame({ id: 1, x: screen.x - 60, y: screen.y, phase: 'move' });
+        expect(r.shell.play.dragging).toBe(true);
+        for (let i = 0; i < 10; i++) r.frame({ id: 1, x: screen.x - 60 - i * 2, y: screen.y, phase: 'move' });
+
+        live = 8.0; // 抬手后宿主变快（模拟「只有拖动期慢」）
+        const frozen = drawnText(r.frame({ id: 1, x: screen.x - 120, y: screen.y, phase: 'up' }));
+        expect(frozen).toContain('拖 ');
+        expect(frozen).toContain('绘 34.4ms · 510笔/1324令');
+        expect(frozen).toContain('矢 9.0 位 2.0 文 4.0 余 2.0ms');
+        expect(frozen).toContain('tick 18.0 引 9.0 空 7.0ms');
+
+        // 冻结行到期 ⇒ 三行让回实时值。多跑 20 帧：数值段本身就是 15 帧一跳（T-1120 降频），
+        // 冻结行消失的那一帧可能还停在旧值上，那是采样节拍不是残留。
+        let after = '';
+        for (let i = 0; i < 620; i++) after = drawnText(r.frame());
+        expect(after).toContain('绘 8.0ms');
+        expect(after).not.toContain('绘 34.4ms');
+    });
+
+    it('宿主没接线 readDrawCost ⇒ 不钉任何读数（照旧不出这三行）', () => {
+        const r = rig();
+        r.shell.play.setDebugInfo(true);
+        expect(r.shell.play.tapDebugPanel(160, 1334 - 23)).toBe(true);
+        const center = r.shell.play.debugCellCenter(1, 1)!;
+        const screen = { x: 0, y: 0 };
+        r.services.viewport.designToScreen(screen, center.x, center.y);
+        r.frame({ id: 1, x: screen.x, y: screen.y, phase: 'down' });
+        r.frame({ id: 1, x: screen.x - 60, y: screen.y, phase: 'move' });
+        const up = drawnText(r.frame({ id: 1, x: screen.x - 120, y: screen.y, phase: 'up' }));
+        expect(up).toContain('拖 ');
+        expect(up).not.toContain('绘 ');
     });
 });
 

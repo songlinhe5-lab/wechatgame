@@ -7,7 +7,8 @@ import { describe, expect, it } from 'vitest';
 import type { RenderModelBuilder } from '@wxgame/framework';
 import type { BeadsPalette } from '../src/view/palette.js';
 import { DEBUG_OUTLINE_TILE_HEX } from '../src/view/palette.js';
-import { UI_DEBUG_CHIP_ON_TEXT, UI_DEBUG_HIT_FILL } from '../src/view/ui-theme.js';
+import { DBG_CHIP_ON_TEXT_HEX } from '../src/config/debug-flags.js';
+import { UI_DEBUG_HIT_FILL } from '../src/view/ui-theme.js';
 import { drawHitBox, drawPerfOverlay, drawSafeGuideLines, drawTapTrace } from '../src/view/debug-layer.js';
 import { dbgChipAt, perfPanelHit } from '../src/config/perf-panel.js';
 import { DBG_CAP_30, DBG_HIDE_BEADS, DBG_HIDE_TRAY } from '../src/config/debug-flags.js';
@@ -238,7 +239,7 @@ describe('drawPerfOverlay', () => {
         expect(fills[4]).toBe('#banner'); // 托 = 开
         const chipTextFills = calls.filter((c) => c.kind === 'text').slice(-7)
             .map((c) => (c.args[3] as { fill: string }).fill);
-        expect(chipTextFills[0]).toBe(UI_DEBUG_CHIP_ON_TEXT);
+        expect(chipTextFills[0]).toBe(DBG_CHIP_ON_TEXT_HEX);
         expect(chipTextFills[1]).toBe('#banner');
         // 两行几何：第 0 行 4 枚（窄）、第 1 行 3 枚（宽），行间不重叠。
         expect(Number(chipRects[0]!.args[2])).toBeLessThan(Number(chipRects[4]!.args[2])!);
