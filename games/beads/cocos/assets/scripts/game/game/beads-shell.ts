@@ -381,7 +381,7 @@ export class BeadsShell implements Game {
     /** 事件总线订阅退订器（WXG-T-403 haptic:trigger 等；`init` 登记、`dispose` 释放）。 */
     private readonly _eventOffs: Array<() => void> = [];
     /** UI-25：UiRoot 的调试投影复用对象（与 `BeadsGame.debugState` 同口径）。 */
-    private readonly _uiDebug: UiDebugState = { enabled: false, frameMs: 0, drawMs: 0, paintCalls: 0, commands: 0, phase: '', level: '', detail: '', tickMs: 0, engineDrawMs: 0, idleMs: 0, breakdown: { vectorMs: 0, blitMs: 0, textMs: 0, scopeMs: 0, vectorCalls: 0, blitCalls: 0, textCalls: 0 } };
+    private readonly _uiDebug: UiDebugState = { enabled: false, frameMs: 0, drawMs: 0, paintCalls: 0, commands: 0, phase: '', level: '', detail: '', tickMs: 0, engineDrawMs: 0, idleMs: 0, expanded: false, breakdown: { vectorMs: 0, blitMs: 0, textMs: 0, scopeMs: 0, vectorCalls: 0, blitCalls: 0, textCalls: 0 } };
     /**
      * `[WXG-T-1108]` 上一渲染帧的壁钟（ms）。`0` = 尚无基准（首帧不采样）。
      * 只在 `buildRenderModel` 里推进 —— 那里每个渲染 tick 恰好被调一次。
@@ -1002,6 +1002,8 @@ export class BeadsShell implements Game {
 
     /** 命中 + 派发的唯一腿（菜单 / overlay 共用）；返回是否被控件消费。 */
     private _dispatchMetaTap(x: number, y: number): boolean {
+        // `[WXG-T-1116]` 调试面板画在 UiRoot 最后（恒置顶）：菜单腿 tap 先判它，命中即吞。
+        if (this.play.tapDebugPanel(x, y)) return true;
         const btn = hitTestMeta(this._phase.overlay, x, y, this._viewData.anchors, this._settingsScroll);
         if (!btn) return false;
         return this._applyMetaAction(btn);

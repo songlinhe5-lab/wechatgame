@@ -85,6 +85,8 @@ describe('拖动窗口取样（WXG-T-1109）', () => {
     it('平移期间报帧数，抬手后冻结成一行结论，10 s 后让回常规细节行', () => {
         const r = rig();
         r.shell.play.setDebugInfo(true);
+        // `[WXG-T-1116]` 面板默认收起：先点面板展开（本例断言的 pitch / 拖动读数行都在展开态里）。
+        expect(r.shell.play.tapDebugPanel(160, 1334 - 23)).toBe(true);
         const center = r.shell.play.debugCellCenter(
             Math.floor(r.shell.play.grid.rows / 2),
             Math.floor(r.shell.play.grid.cols / 2),

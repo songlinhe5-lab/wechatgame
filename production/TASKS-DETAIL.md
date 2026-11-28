@@ -13571,3 +13571,21 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 **验证（2026-11-28 实跑）**：`pnpm run typecheck` 绿；framework 全量 56 文件 632 passed；beads 全量 138 文件 1693 passed / 2 skipped；breakout 全绿；`framework:sync` 写入 9 / `sync:check` 一致；**金样 / 封箱 / `check:board-seam` / `check:frozen-values` / `check:cocos-mask` / `check:bead-style-pool` 零漂移全绿（无需重抓）**；其余 verify 项（arch / es5spread / secrets / levels / palettes / a11y / mcp / size / harness:build / mask:diff / harness:smoke / host-tests / selftest:fast 15/15 / assets / tools node --test 12）逐项实跑全过。beads 版本 1.0.121。
 
 **下一步（设备侧）**：Cocos Creator 面板重建出包，拖动盘面读覆层。预期 `空` 从 27.5ms 显著回落（拖动期描边顶点提交归零）；若 `空` 仍 >10ms，剩余 GPU 负载 = 珠 blit 合批 + 波浪动画期矢量，下一刀走「LOD 降档 A/B」或「描边带几何瘦身」。
+
+## WXG-T-1116
+
+**调试面板展开/收起：默认收起，命中与绘制同源矩形** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ **代码完成（2026-11-28）**
+
+承用户原话「debug面板增加一个展开收起的功能，默认收起」。T-1108～1114 六行性能覆层常驻占屏顶大块，收起态只留一行 fps。
+
+**实现**：
+1. **几何唯一真源外移**（新 `src/config/perf-panel.ts`）：`PERF_PANEL` / `PERF_ROW_GAP` / `perfPanelRows` / `perfPanelHit` 落 config 而非 view —— 绘制（`debug-layer.ts`）与命中（`beads-game.ts tapDebugPanel`）吃同一份矩形公式；落 config 是 **WXG-T-420 T9 架构门**要求（`beads-game` 运行时闭包不加载 view）。
+2. **收起分支**（`drawPerfOverlay` 末参 `expanded`，缺省 true 兼容旧直调）：收起 = 1 行面板（高 22，上缘 `top-34`），单行垂直居中 `fps X · Y ms 点按展开`；分段 / 探针数据在场也不展开。展开 = 原五行 + 按需追加行逐字不变（金样本口径零漂移：开关关零指令不变）。
+3. **状态与投影**：`BeadsGame._debugExpanded` 运行时内存态**默认 false**（⛔ 不入 settings 存档——避免 save schema 风险，重启/重开调试都回收起）；`UiDebugState.expanded` 必填字段逐帧投影（复用对象零分配）；`debugState` 顺带记 `_dbgSegmented/_dbgProbed` 两布尔（命中矩形行数与绘制同源的数据面）。
+4. **tap 前置消费**：对局腿 `_routeTap` 最前、菜单腿 `_dispatchMetaTap` 最前调 `tapDebugPanel(x, y)`——开关关零开销早退；面板矩形内即切换并**吞掉**本次点击（调试层画在 `UI_DEBUG_SCOPE` 恒置顶容器 ⇒ 命中序与绘制层序一致，不漏给榜面/购买弹窗/HUD/棋盘）。回放腿未接（演示屏，后续按需）。
+
+**判据（新增 5 例）**：`debug-layer.test.ts` 2（收起态只画 rect+1 行且含「点按展开」、单行垂直居中 top-23；`perfPanelHit` 收起/展开矩形与横向越界不命中）；`drag-window-probe.test.ts` 1 处适配（T-1109 用例先 `tapDebugPanel` 展开再断言 pitch/拖动读数行——收起态本就不画细节行）；`ui-root.test.ts` 3 处夹具补 `expanded` 字段（真源收敛无行为改动）。
+
+**验证（2026-11-28 实跑）**：`npm run typecheck` 0 错；beads 全量 138 文件 **1695 passed / 2 skipped**（含金样 / 封箱 / 板缝零漂移——收起分支只在新参数下生效，旧调用路径逐字不变）。beads 版本 **1.0.122**。framework 未动。
+
+**真机验证项**：Cocos Creator 重建 1.0.122 包后：① 面板默认只一行；② 点面板展开出全六行、再点收起；③ 展开态点面板区域不误触齿轮/棋盘/托盘。

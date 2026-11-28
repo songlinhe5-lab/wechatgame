@@ -120,6 +120,7 @@ import {
   type BeadsSave,
 } from './save-schema';
 import type { BeadsPalette } from '../view/palette'; // WXG-T-420 T9：只取类型作字段面，渲染绑定已上移
+import { perfPanelHit } from '../config/perf-panel'; // `[WXG-T-1116]` 面板命中（与绘制同源；T9 门 ⇒ 不经 view）
 // **EP12-S8**：整套皮肤的注册真源（注册序即循环序；`DEFAULT_SKIN_ID` = 默认肤，⛔ 不另写字面量）。
 import { DEFAULT_SKIN, DEFAULT_SKIN_ID, skinById } from '../config/skins/registry';
 import type { UiDebugState } from '../ui/ui-host';
@@ -499,6 +500,14 @@ export class BeadsGame {
   private _debugOutlines = false;
   /** DEBUG：帧耗时 EMA（ms，α=0.1）；覆层关闭不更新、恒 0，view 派生 fps。 */
   private _frameMs = 0;
+  /**
+   * `[WXG-T-1116]` 性能面板展开态（运行时内存态，⛔ 不入 settings 存档）：
+   * **默认收起**，点面板矩形切换。重开 debugInfo / 重启游戏都回到收起。
+   */
+  private _debugExpanded = false;
+  /** `[WXG-T-1116]` 上一帧 `debugState` 投影的分段 / 探针行在场标记（tap 命中矩形同源用）。 */
+  private _dbgSegmented = false;
+  private _dbgProbed = false;
   /** 暂停面板「回主菜单」回调（options.onMenuRequest；无 shell 时 undefined）。 */
   private readonly _onMenuRequest?: () => void;
   /** 新局开局体力闸门（options.canStartRun；无 shell 时 undefined ⇒ 不设门）。 */
@@ -1189,7 +1198,24 @@ export class BeadsGame {
     out.level = onMenu ? '' : s.mode === 'sprint' ? '冲刺' : `L${s.levelIndex + 1}`;
     // [WXG-T-1101] 权威盘面珠数：数变 ⇒ 查逻辑/守恒；数不变但视觉缺珠 ⇒ 查渲染/宿主载体（K-095/K-216）。
     out.detail = onMenu ? '' : `pitch ${s.gridPitch.toFixed(1)} · LOD ${s.beadLodLayers} · beads ${this._grid.filledCount}`;
+    // `[WXG-T-1116]` 展开态随帧投影；tap 命中矩形要与绘制同行数 ⇒ 顺带记下行是否存在标记。
+    out.expanded = this._debugExpanded;
+    this._dbgSegmented = out.enabled && out.drawMs > 0
+      && out.breakdown.vectorMs + out.breakdown.blitMs + out.breakdown.textMs + out.breakdown.scopeMs > 0;
+    this._dbgProbed = out.enabled && (out.tickMs > 0 || out.engineDrawMs > 0);
     return out;
+  }
+
+  /**
+   * `[WXG-T-1116]` 调试面板点击：开关关 ⇒ 不判定（返回 false，零开销）；面板矩形内
+   * ⇒ 切换展开/收起并**吞掉**本次点击（调用方不得再派发）。命中矩形与绘制同源
+   * （`perfPanelHit`，行数公式同一出处）⇒ 「画在哪、点哪生效」永不脱节。
+   */
+  tapDebugPanel(x: number, y: number): boolean {
+    if (!this._settings.values.debugInfo) return false;
+    if (!perfPanelHit(x, y, liveDesignHeight(), this._dbgSegmented, this._dbgProbed, this._debugExpanded)) return false;
+    this._debugExpanded = !this._debugExpanded;
+    return true;
   }
 
   /**
@@ -2581,6 +2607,12 @@ export class BeadsGame {
 
   private _routeTap(x: number, y: number): void {
     this._consumedTap = false;
+    // `[WXG-T-1116]` 调试面板 = 恒置顶层 UI（`UI_DEBUG_SCOPE` 容器画在一切路由之上）：
+    // tap 最前判定，命中即切换展开并吞掉——不漏给榜面 / 购买弹窗 / HUD / 棋盘。
+    if (this.tapDebugPanel(x, y)) {
+      this._consumedTap = true;
+      return;
+    }
     // 好友榜面板 = 模态（ADR-0035 §5.2 S-3）：可见期吞掉一切其它点击，只派发面板按钮。
     if (this._rankPanel.visible) {
       this._consumedTap = true;

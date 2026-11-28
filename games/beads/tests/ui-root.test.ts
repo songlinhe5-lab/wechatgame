@@ -63,6 +63,7 @@ describe('UI-25 · UiRoot', () => {
             phase: 'PLAYING',
             level: 'L3',
             detail: 'pitch 54.0 · LOD 2',
+            expanded: true,
         };
         const old = fakeBuilder();
         drawPerfOverlay(old.builder, PALETTE, d.enabled, d.frameMs, d.phase, d.level, d.detail);
@@ -88,6 +89,7 @@ describe('UI-25 · UiRoot', () => {
             phase: 'PLAYING',
             level: 'L3',
             detail: 'pitch 54.0 · LOD 2',
+            expanded: true,
         };
         const root = new UiRoot(host(d));
         root.push(route('menu', 'page'));
@@ -119,7 +121,7 @@ describe('UI-25 · UiRoot', () => {
     });
 
     it('调试关时路由照画、零覆层指令', () => {
-        const root = new UiRoot(host({ enabled: false, frameMs: 0, drawMs: 0, paintCalls: 0, commands: 0, tickMs: 0, engineDrawMs: 0, idleMs: 0, breakdown: { vectorMs: 0, blitMs: 0, textMs: 0, scopeMs: 0, vectorCalls: 0, blitCalls: 0, textCalls: 0 }, phase: 'menu', level: '', detail: '' }));
+        const root = new UiRoot(host({ enabled: false, frameMs: 0, drawMs: 0, paintCalls: 0, commands: 0, tickMs: 0, engineDrawMs: 0, idleMs: 0, breakdown: { vectorMs: 0, blitMs: 0, textMs: 0, scopeMs: 0, vectorCalls: 0, blitCalls: 0, textCalls: 0 }, phase: 'menu', level: '', detail: '', expanded: false }));
         root.push(route('menu', 'page'));
         const { builder, calls } = fakeBuilder();
         root.draw(builder, PALETTE);

@@ -49,6 +49,11 @@ export interface UiDebugState {
     level: string;
     /** 附加行（pitch / LOD），菜单腿为空。 */
     detail: string;
+    /**
+     * `[WXG-T-1116]` 性能面板展开态。运行时内存态（`BeadsGame._debugExpanded`，
+     * **不入 settings 存档**）：每次启动默认收起（`false` = 一行 fps）。
+     */
+    expanded: boolean;
 }
 
 export interface UiHost {

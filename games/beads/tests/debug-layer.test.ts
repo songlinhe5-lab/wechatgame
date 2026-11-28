@@ -9,6 +9,7 @@ import type { BeadsPalette } from '../src/view/palette.js';
 import { DEBUG_OUTLINE_TILE_HEX } from '../src/view/palette.js';
 import { UI_DEBUG_HIT_FILL } from '../src/view/ui-theme.js';
 import { drawHitBox, drawPerfOverlay, drawSafeGuideLines, drawTapTrace } from '../src/view/debug-layer.js';
+import { perfPanelHit } from '../src/config/perf-panel.js';
 
 const P = { text: '#text', bannerText: '#banner' } as unknown as BeadsPalette;
 
@@ -173,6 +174,33 @@ describe('drawPerfOverlay', () => {
         const last = texts(calls).at(-1);
         expect(last).toBe('tick 13.7 引 4.6ms');
         expect(last).not.toContain('空');
+    });
+
+    it('`[WXG-T-1116]` 收起：只画一行紧凑面板，分段 / 探针数据在场也不展开', () => {
+        const { calls, builder } = recorder();
+        const bd = { vectorMs: 2.0, blitMs: 2.0, textMs: 5.0, scopeMs: 1.0, vectorCalls: 12, blitCalls: 156, textCalls: 8 };
+        drawPerfOverlay(builder, P, true, 48.9, 'playing', 'L9', 'pitch 27.8 · LOD 7', 11.9, 195, 1116, bd, 30.0, 8.4, 27.0, false);
+        expect(calls.map((c) => c.kind)).toEqual(['rect', 'text']);
+        // 一行面板：上缘 1334-34、高 22（与 `perfPanelHit` 同式）。
+        expect(calls[0].args.slice(0, 4)).toEqual([12, 1334 - 34, 316, 22]);
+        const t = texts(calls)[0]!;
+        expect(t).toContain('fps 20 · 48.9 ms');
+        expect(t).toContain('点按展开');
+        // 单行垂直居中：面板中线 top-23。
+        expect(calls[1]!.args[1]).toBe(1334 - 23);
+    });
+
+    it('`[WXG-T-1116]` perfPanelHit：收起 / 展开矩形与绘制同源，面板外不命中', () => {
+        // 收起（1 行）：面板 [1300, 1322]，y=1334-60 在面板外。
+        expect(perfPanelHit(100, 1334 - 23, 1334, true, true, false)).toBe(true);
+        expect(perfPanelHit(100, 1334 - 60, 1334, true, true, false)).toBe(false);
+        // 展开（7 行）：同一 y 落进面板；下缘恒 1334-12。
+        expect(perfPanelHit(100, 1334 - 60, 1334, true, true, true)).toBe(true);
+        expect(perfPanelHit(100, 1334 - 262 + 1, 1334, true, true, true)).toBe(true);
+        expect(perfPanelHit(100, 1334 - 262 - 1, 1334, true, true, true)).toBe(false);
+        // 面板横向 [12, 328]：左右越界不命中。
+        expect(perfPanelHit(11, 1334 - 23, 1334, true, true, false)).toBe(false);
+        expect(perfPanelHit(329, 1334 - 23, 1334, true, true, false)).toBe(false);
     });
 });
 

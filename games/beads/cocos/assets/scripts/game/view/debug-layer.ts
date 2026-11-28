@@ -15,6 +15,7 @@
  */
 import type { DrawCostBreakdown, RenderModelBuilder } from '../../framework/index';
 import { DESIGN_W } from '../config/tuning';
+import { PERF_PANEL, PERF_ROW_GAP, perfPanelRows } from '../config/perf-panel';
 import { DEBUG_OUTLINE_TILE_HEX, type BeadsPalette } from './palette';
 import { UI_DEBUG_HIT_FILL, UI_FONT, UI_SCRIM, scrimFill } from './ui-theme';
 
@@ -27,9 +28,9 @@ import { UI_DEBUG_HIT_FILL, UI_FONT, UI_SCRIM, scrimFill } from './ui-theme';
  * 行距恒 38，
  * `⛔` 别改小——22px 字号下 38 是「两行不粘」的下限（黄金比 1.7）。细分行只在
  * 宿主真的回投分段时间时出现（全 0 ⇒ 未接线，不画空白槽）。
+ * `[WXG-T-1116]` 面板几何与行数公式已外移到 `config/perf-panel.ts`（命中同源 +
+ * T9 架构门），此处只消费。
  */
-const PERF_PANEL = { x: 12, w: 316, radius: 12 } as const;
-const PERF_ROW_GAP = 38;
 
 /**
  * 性能覆层。`enabled = false` 时零指令（金样本与正常玩法不受影响）。
@@ -51,6 +52,7 @@ export function drawPerfOverlay(
     tickMs = 0,
     engineDrawMs = 0,
     idleMs = 0,
+    expanded = true,
 ): void {
     if (!enabled) return;
     const fps = frameMs > 0 ? Math.round(1000 / frameMs) : 0;
@@ -60,7 +62,10 @@ export function drawPerfOverlay(
         && breakdown.vectorMs + breakdown.blitMs + breakdown.textMs + breakdown.scopeMs > 0;
     // `[WXG-T-1113]` 探针行：tick 段 / 引擎渲染段任一非 0 才画（未接线不占空槽）。
     const probed = tickMs > 0 || engineDrawMs > 0;
-    const rows = 5 + (segmented ? 1 : 0) + (probed ? 1 : 0);
+    // `[WXG-T-1116]` 收起 = 一行紧凑面板（fps + 展开提示），命中矩形与绘制同源
+    // （`perfPanelHit` 同式算行数）。默认展开参数只为旧直调用例兼容；生产由
+    // `UiDebugState.expanded` 驱动（`BeadsGame._debugExpanded`，默认收起）。
+    const rows = perfPanelRows(segmented, probed, expanded);
     const panelDy = -(PERF_ROW_GAP * rows - 4);
     const panelH = PERF_ROW_GAP * rows - 16;
     builder.rect(PERF_PANEL.x, top + panelDy, PERF_PANEL.w, panelH, {
@@ -77,6 +82,11 @@ export function drawPerfOverlay(
             baseline: 'middle',
         });
     };
+    if (!expanded) {
+        // 收起：单行垂直居中（面板 [top-34, top-12]，中线 top-23）。
+        line(top + panelDy + panelH / 2, `fps ${fps} · ${frameMs.toFixed(1)} ms 点按展开`);
+        return;
+    }
     // 逐行下移 38：空行不占槽（否则菜单腿会出现一段空白）。
     let y = top - PERF_ROW_GAP;
     line(y, `fps ${fps} · ${frameMs.toFixed(1)} ms`);
