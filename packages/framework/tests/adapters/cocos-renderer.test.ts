@@ -401,6 +401,43 @@ describe('CocosRenderModelRenderer', () => {
     // 与实测路径（10+24-100=-66）不同，证明两分支选型正确。
     expect(created[0]!.x).not.toBeCloseTo(10 + 24 - 100);
   });
+
+  // ── `[WXG-T-1118]` 文本通道：居中不测宽、同文本同字号按 label 缓存 ──
+  it('居中文字不测宽（偏移恒 0，测量是死计算）', () => {
+    const seen: string[] = [];
+    const { renderer, created } = makeSetup((t, s) => {
+      seen.push(`${t}@${s}`);
+      return t.length * s * 0.6;
+    });
+    const b = new RenderModelBuilder(200, 400);
+    b.begin();
+    b.text(100, 30, 'ABCD', { fill: '#fff', font: '20px sans', align: 'center' });
+    renderer.draw(b.end());
+    expect(seen).toEqual([]);
+    expect(created[0]!.x).toBeCloseTo(100 - 100); // x 原样（只做居中换算）
+  });
+
+  it('同文本同字号跨帧只问宿主一次（缓存），文本变才重测', () => {
+    const seen: string[] = [];
+    const { renderer, created } = makeSetup((t, s) => {
+      seen.push(`${t}@${s}`);
+      return t.length * s * 0.6;
+    });
+    const draw = (label: string) => {
+      const b = new RenderModelBuilder(200, 400);
+      b.begin();
+      b.text(10, 30, label, { fill: '#fff', font: '20px sans', align: 'left' });
+      renderer.draw(b.end());
+    };
+    draw('ABCD');
+    draw('ABCD'); // 同标签复用同一池位 ⇒ 命中缓存，不再回问宿主
+    expect(seen).toEqual(['ABCD@20']);
+    // 缓存命中不影响版式：两帧锚点一致。
+    const half = (4 * 20 * 0.6) / 2;
+    expect(created[0]!.x).toBeCloseTo(10 + half - 100);
+    draw('ABCDE'); // 文本变 ⇒ 重测一次
+    expect(seen).toEqual(['ABCD@20', 'ABCDE@20']);
+  });
 });
 
 // ── WXG-T-132 / ADR-0014：transformHost 逐帧幂等分派 ──────────────────

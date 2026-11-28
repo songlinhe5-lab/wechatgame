@@ -383,6 +383,12 @@ export class CocosRenderModelRenderer {
   /** 本帧 back polygon 是否冻结跳画（true ⇒ 命令循环里只跳过、不清屏）。 */
   private _outlineFrozen = false;
   /**
+   * `[WXG-T-1118]` 文本实测宽缓存（per label：最近一次 文本 + 字号 ⇒ 宽）。
+   * label 由池复用 ⇒ 同一节点跨帧比对即可；文本/字号不变就不回问宿主的
+   * `measureWidth`（其内部强制 `updateRenderData(true)` 重排文本）。
+   */
+  private readonly _textWidth = new WeakMap<CocosLabelLike, { text: string; size: number; w: number }>();
+  /**
    * `[WXG-T-1111]` 由宿主按 `App.drawCostWanted` 开关；打开后每帧重置并逐命令计时。
    * ⚠ 计时本身有成本（每命令两次 `now()`），release 恒为 false。
    */
@@ -736,7 +742,9 @@ export class CocosRenderModelRenderer {
     const align = cmd.align ?? 'left';
     const baseline = cmd.baseline ?? 'middle';
     const size = parseFontSize(cmd.font);
-    const textWidth = this._measureTextWidth(cmd.text, size, label);
+    // `[WXG-T-1118]` 居中文字不吃字宽（`x += 0`）⇒ 连测量都不做。宿主测量出口要
+    // `updateRenderData(true)` 强制重排文本（真机「文 9ms」的主成本），白测一次不划算。
+    const textWidth = align === 'center' ? 0 : this._measureTextWidth(cmd.text, size, label);
     let x = cmd.x;
     if (align === 'center') x += 0;
     else if (align === 'left') x += textWidth / 2;
@@ -750,6 +758,11 @@ export class CocosRenderModelRenderer {
   /**
    * 文本宽度：优先用宿主注入的实测出口（G3 正道），否则退回保守估算。
    * 放在 `_drawText` 中 `setText` 之后调用，宿主可基于已设文本回读真实尺寸。
+   *
+   * `[WXG-T-1118]` 按 label 缓存「最近一次（文本, 字号）⇒ 宽」：宿主的测量出口
+   * （`bindings.ts`）内部是 `label.updateRenderData(true)` —— **强制重排文本**，
+   * 同文本同字号每帧重测纯属白烧（真机分段读数「文」段 9ms/帧的主成本）。
+   * 文本或字号真变了才回问宿主；退回估算的档不缓存（估算本身是纯乘法）。
    */
   private _measureTextWidth(
     text: string,
@@ -758,8 +771,19 @@ export class CocosRenderModelRenderer {
   ): number {
     const measure = label.measureWidth;
     if (measure) {
+      const hit = this._textWidth.get(label);
+      if (hit !== undefined && hit.text === text && hit.size === fontSize) return hit.w;
       const w = measure.call(label, text, fontSize);
-      if (typeof w === 'number' && w > 0) return w;
+      if (typeof w === 'number' && w > 0) {
+        if (hit !== undefined) {
+          hit.text = text;
+          hit.size = fontSize;
+          hit.w = w;
+        } else {
+          this._textWidth.set(label, { text, size: fontSize, w });
+        }
+        return w;
+      }
     }
     return text.length * fontSize * FALLBACK_CHAR_WIDTH_RATIO;
   }

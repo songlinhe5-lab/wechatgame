@@ -13609,3 +13609,20 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 **验证（2026-11-28 实跑）**：`npm run typecheck` 0 错；framework 全量 56 文件 **632 passed**；beads 未改源码（仅版本号）⇒ 金样本 / 封箱零漂移继承 T-1116 全绿结果。beads 版本 **1.0.123**。
 
 **真机验证项**：Cocos Creator 重建 1.0.123 包：描边须重新贴住盘面轮廓（外置带、`shadowInk`、随拖动/缩放同步移动），且拖动期覆层读数不劣化（冻结协议仍生效）。
+
+## WXG-T-1118
+
+**文本通道脏检查：居中不测宽 + 实测宽按 label 缓存 + setter 脏门** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ **代码完成（2026-11-28）**
+
+承 1.0.123 真机读数（`fps 21 · 48.3ms`；`tick 14.6 引 4.9 空 28.8`；分段 `矢 4.0 位 3.0 文 9.0 余 1.0`），用户拍板「先做文字通道脏检查」。
+
+**三刀**：
+1. **居中不测宽**（`cocos-renderer.ts::_anchorForText`）：居中对齐偏移恒 0（原文 `x += 0`），却照样调测量出口 —— 而宿主的 `measureWidth` 内部是 `label.updateRenderData(true)`（**强制重排文本**）⇒ 纯死计算。改为仅 left/right 才测。
+2. **实测宽按 label 缓存**（`_measureTextWidth` + WeakMap）：同节点「文本 + 字号」不变 ⇒ 直接返回上次宽度，不再回问宿主（省掉每帧重排）。文本/字号变才重测；退回字符估算的档不缓存。
+3. **池化 label setter 脏门**（`label-pool.ts::memoizeLabel`）：每个池位套一层记「最近一次写入值」的包装，`setText / setPosition / setFontSize / setColor / setAlign / setVisible / setSiblingIndex` 值不变一律不发引擎调用（颜色按通道比较 —— 渲染器每帧 `fromHex` 产新对象，同值必须判等）。包装层是节点状态的唯一写入者 ⇒ 缓存恒等于真值；池复用跨帧成立；初值用 `null/NaN/''` 哨兵 ⇒ 首帧必透传。
+
+**判据（新增 6 例）**：`cocos-renderer.test.ts` 2（居中文字测量调用 0 次且 x 不偏；同文本同字号跨帧只问宿主一次、文本变重测一次）；新 `label-pool.test.ts` 4（重复同值只透传一次 / 池复用跨帧仍拦 / 哨兵不吞首帧 / measureWidth 原样转发）。
+
+**验证（2026-11-28 实跑）**：typecheck 0 错；framework 全量 57 文件 **638 passed**；beads 全量 138 文件 **1695 passed / 2 skipped**（金样 / 封箱零漂移：canvas2d 腿不经过 label 池）。beads 版本 **1.0.124**（`build:cocos` 自动递增 build 号）。
+
+**真机验证项**：Cocos Creator 重建 1.0.124 包，展开覆层看：`文` 段应从 9ms 降到 3–4ms 量级，`tick` 随之回落；`空` 不变（本轮不动 GPU）。
