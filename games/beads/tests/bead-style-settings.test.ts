@@ -1288,7 +1288,7 @@ describe('设置态遮罩 α 分列 · ux §3.3「遮罩」条 + 工作项④：
     it('调试层 detail 带当前盘面权威珠数，填珠后同步 +1', () => {
         const harness = boot(newStorage());
         const game = ensurePlaying(harness);
-        const out = { enabled: false, frameMs: 0, drawMs: 0, paintCalls: 0, commands: 0, tickMs: 0, engineDrawMs: 0, idleMs: 0, breakdown: { vectorMs: 0, blitMs: 0, textMs: 0, scopeMs: 0, vectorCalls: 0, blitCalls: 0, textCalls: 0 }, phase: '', level: '', detail: '', expanded: false };
+        const out = { enabled: false, frameMs: 0, drawMs: 0, paintCalls: 0, commands: 0, tickMs: 0, engineDrawMs: 0, idleMs: 0, breakdown: { vectorMs: 0, blitMs: 0, textMs: 0, scopeMs: 0, vectorCalls: 0, blitCalls: 0, textCalls: 0 }, phase: '', level: '', detail: '', expanded: false, debugFlags: 0 };
 
         game.debugState(out, false);
         const before = game.grid.filledCount;

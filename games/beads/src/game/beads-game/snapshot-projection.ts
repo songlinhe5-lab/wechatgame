@@ -118,6 +118,8 @@ export interface SnapshotSource {
     readonly sprintBestScore: number;
     readonly isNewBest: boolean;
     readonly debugOutlines: boolean;
+    /** `[WXG-T-1119]` 归因开关位掩码；`debugInfo` 关时源侧恒返回 0。 */
+    readonly debugFlags: number;
     readonly frameMs: number;
     readonly hudDy: number;
     readonly safeTop: number;
@@ -428,6 +430,7 @@ function projectDebugShard(s: SnapshotDebug, src: SnapshotSource): void {
     s.debugOutlines = src.debugOutlines;
     s.debugInfo = src.settings.values.debugInfo;
     s.debugGuides = src.settings.values.debugGuides;
+    s.debugFlags = src.debugFlags;
     s.perfFrameMs = src.frameMs;
     s.safeTop = src.safeTop;
     s.capsuleBottom = src.capsuleBottom;

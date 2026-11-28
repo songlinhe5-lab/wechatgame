@@ -54,6 +54,11 @@ export interface UiDebugState {
      * **不入 settings 存档**）：每次启动默认收起（`false` = 一行 fps）。
      */
     expanded: boolean;
+    /**
+     * `[WXG-T-1119]` 归因开关位掩码（`config/debug-flags.ts`）。chip 选中态 = 对应位为 1；
+     * 覆层关闭时恒 0（游戏侧同一门）。⛔ 不参与玩法。
+     */
+    debugFlags: number;
 }
 
 export interface UiHost {

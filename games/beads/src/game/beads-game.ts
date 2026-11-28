@@ -120,7 +120,8 @@ import {
   type BeadsSave,
 } from './save-schema.js';
 import type { BeadsPalette } from '../view/palette.js'; // WXG-T-420 T9：只取类型作字段面，渲染绑定已上移
-import { perfPanelHit } from '../config/perf-panel.js'; // `[WXG-T-1116]` 面板命中（与绘制同源；T9 门 ⇒ 不经 view）
+import { dbgChipAt, perfPanelHit } from '../config/perf-panel.js'; // `[WXG-T-1116/1119]` 面板与 chip 命中（与绘制同源；T9 门 ⇒ 不经 view）
+import { DBG_CAP_30, DBG_CHIP_BITS } from '../config/debug-flags.js'; // `[WXG-T-1119]` 归因位（视图只读同一张表）
 // **EP12-S8**：整套皮肤的注册真源（注册序即循环序；`DEFAULT_SKIN_ID` = 默认肤，⛔ 不另写字面量）。
 import { DEFAULT_SKIN, DEFAULT_SKIN_ID, skinById } from '../config/skins/registry.js';
 import type { UiDebugState } from '../ui/ui-host.js';
@@ -505,6 +506,11 @@ export class BeadsGame {
    * **默认收起**，点面板矩形切换。重开 debugInfo / 重启游戏都回到收起。
    */
   private _debugExpanded = false;
+  /**
+   * `[WXG-T-1119]` 性能归因开关位掩码（`config/debug-flags.ts`；⛔ 不入存档）。
+   * 只由覆层 chip 点击翻转；`debugInfo` 关掉即清零并复位帧率上限。
+   */
+  private _debugFlags = 0;
   /** `[WXG-T-1116]` 上一帧 `debugState` 投影的分段 / 探针行在场标记（tap 命中矩形同源用）。 */
   private _dbgSegmented = false;
   private _dbgProbed = false;
@@ -654,6 +660,8 @@ export class BeadsGame {
       get sprintBestScore() { return self._sprintBestScore; },
       get isNewBest() { return self._isNewBest; },
       get debugOutlines() { return self._debugOutlines; },
+      // `[WXG-T-1119]` 双保险：即使 `_debugFlags` 因故残留，覆层关掉时快照也恒 0（release 零分支）。
+      get debugFlags() { return self._settings.values.debugInfo ? self._debugFlags : 0; },
       get frameMs() { return self._frameMs; },
       get hudDy() { return self._hudDy(); },
       get safeTop() { return self._safeTop; },
@@ -1200,6 +1208,8 @@ export class BeadsGame {
     out.detail = onMenu ? '' : `pitch ${s.gridPitch.toFixed(1)} · LOD ${s.beadLodLayers} · beads ${this._grid.filledCount}`;
     // `[WXG-T-1116]` 展开态随帧投影；tap 命中矩形要与绘制同行数 ⇒ 顺带记下行是否存在标记。
     out.expanded = this._debugExpanded;
+    // `[WXG-T-1119]` 归因 chip 的选中态（chip 行随 `expanded` 一起出现；关覆层时清零）。
+    out.debugFlags = out.enabled ? this._debugFlags : 0;
     this._dbgSegmented = out.enabled && out.drawMs > 0
       && out.breakdown.vectorMs + out.breakdown.blitMs + out.breakdown.textMs + out.breakdown.scopeMs > 0;
     this._dbgProbed = out.enabled && (out.tickMs > 0 || out.engineDrawMs > 0);
@@ -1213,7 +1223,13 @@ export class BeadsGame {
    */
   tapDebugPanel(x: number, y: number): boolean {
     if (!this._settings.values.debugInfo) return false;
-    if (!perfPanelHit(x, y, liveDesignHeight(), this._dbgSegmented, this._dbgProbed, this._debugExpanded)) return false;
+    const designH = liveDesignHeight();
+    if (!perfPanelHit(x, y, designH, this._dbgSegmented, this._dbgProbed, this._debugExpanded)) return false;
+    // `[WXG-T-1119]` 展开态最下一行是 4 个归因 chip：命中即翻转该位并吞掉点击（面板保持展开）。
+    if (this._debugExpanded) {
+        const chip = dbgChipAt(x, y, designH, this._dbgSegmented, this._dbgProbed, DBG_CHIP_BITS.length);
+        if (chip >= 0) return this.toggleDebugFlag(DBG_CHIP_BITS[chip]!);
+    }
     this._debugExpanded = !this._debugExpanded;
     return true;
   }
@@ -3292,7 +3308,24 @@ export class BeadsGame {
   setDebugInfo(on: boolean): void {
     if (this._settings.values.debugInfo === on) return;
     this._frameMs = 0; // 重开时从首帧实测值重新起步，不读旧 EMA
+    // `[WXG-T-1119]` 关覆层 ⇒ 归因开关一并清零 + 帧率上限复位（否则限帧 30 会留在正式玩法里）。
+    this._debugFlags = 0;
+    this._services?.setPreferredFps?.(60);
     this._settings.setDebugInfo(on);
+  }
+
+  /**
+   * `[WXG-T-1119]` 翻转一个性能归因位（覆层 chip 点击的唯一入口）。
+   *
+   * 覆层没开 ⇒ 早退 `false`（调用方照常派发 tap）；翻转成功 ⇒ `true`，调用方须**吞掉**本次点击。
+   * `DBG_CAP_30` 是唯一有副作用的位：直接调平台 `setPreferredFps`（关掉回 60），
+   * 用于验证「稳定 30fps 这条腿」能把「空」压掉多少。⛔ 不碰渲染管线、不持久化。
+   */
+  toggleDebugFlag(bit: number): boolean {
+    if (!this._settings.values.debugInfo) return false;
+    this._debugFlags ^= bit;
+    this._services?.setPreferredFps?.((this._debugFlags & DBG_CAP_30) !== 0 ? 30 : 60);
+    return true;
   }
 
   /**

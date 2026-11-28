@@ -60,7 +60,7 @@ function rig(
     return { shell, advance: (ms) => { now += ms; } };
 }
 
-const OUT = { enabled: false, frameMs: 0, drawMs: 0, paintCalls: 0, commands: 0, tickMs: 0, engineDrawMs: 0, idleMs: 0, breakdown: { vectorMs: 0, blitMs: 0, textMs: 0, scopeMs: 0, vectorCalls: 0, blitCalls: 0, textCalls: 0 }, phase: '', level: '', detail: '', expanded: false };
+const OUT = { enabled: false, frameMs: 0, drawMs: 0, paintCalls: 0, commands: 0, tickMs: 0, engineDrawMs: 0, idleMs: 0, breakdown: { vectorMs: 0, blitMs: 0, textMs: 0, scopeMs: 0, vectorCalls: 0, blitCalls: 0, textCalls: 0 }, phase: '', level: '', detail: '', expanded: false, debugFlags: 0 };
 
 describe('性能覆层帧耗时 = 渲染帧壁钟（WXG-T-1108）', () => {
     it('每渲染帧 33 ms ⇒ frameMs ≈ 33（旧口径恒 16.7）', () => {

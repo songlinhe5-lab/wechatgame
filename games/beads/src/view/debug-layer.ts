@@ -15,9 +15,25 @@
  */
 import type { DrawCostBreakdown, RenderModelBuilder } from '@wxgame/framework';
 import { DESIGN_W } from '../config/tuning.js';
-import { PERF_PANEL, PERF_ROW_GAP, perfPanelRows } from '../config/perf-panel.js';
+import {
+    DBG_CHIP,
+    PERF_PANEL,
+    PERF_ROW_GAP,
+    dbgChipWidth,
+    dbgChipX,
+    dbgChipY,
+    perfPanelRows,
+} from '../config/perf-panel.js';
+import { DBG_CHIP_BITS, DBG_CHIP_LABELS } from '../config/debug-flags.js';
 import { DEBUG_OUTLINE_TILE_HEX, type BeadsPalette } from './palette.js';
-import { UI_DEBUG_HIT_FILL, UI_FONT, UI_SCRIM, scrimFill } from './ui-theme.js';
+import {
+    UI_DEBUG_CHIP_OFF_FILL,
+    UI_DEBUG_CHIP_ON_TEXT,
+    UI_DEBUG_HIT_FILL,
+    UI_FONT,
+    UI_SCRIM,
+    scrimFill,
+} from './ui-theme.js';
 
 /**
  * 性能覆层面板几何（设计 px，贴屏顶；`top = builder.height` 动态高）。
@@ -30,6 +46,8 @@ import { UI_DEBUG_HIT_FILL, UI_FONT, UI_SCRIM, scrimFill } from './ui-theme.js';
  * 宿主真的回投分段时间时出现（全 0 ⇒ 未接线，不画空白槽）。
  * `[WXG-T-1116]` 面板几何与行数公式已外移到 `config/perf-panel.ts`（命中同源 +
  * T9 架构门），此处只消费。
+ * `[WXG-T-1119]` 展开态最下一行 = 4 个归因 chip（珠 / 盘 / HUD / 30）：真机上逐项关掉，
+ * 把「空」按绘制内容归因。chip 几何与命中同样来自 `config/perf-panel.ts`。
  */
 
 /**
@@ -53,6 +71,7 @@ export function drawPerfOverlay(
     engineDrawMs = 0,
     idleMs = 0,
     expanded = true,
+    debugFlags = 0,
 ): void {
     if (!enabled) return;
     const fps = frameMs > 0 ? Math.round(1000 / frameMs) : 0;
@@ -117,6 +136,29 @@ export function drawPerfOverlay(
         const probe = [`tick ${tickMs.toFixed(1)}`, `引 ${engineDrawMs.toFixed(1)}`];
         if (idleMs > 0) probe.push(`空 ${idleMs.toFixed(1)}`);
         line(y, `${probe.join(' ')}ms`);
+    }
+    // `[WXG-T-1119]` 归因 chip（面板最下一行）：逐项关掉再看帧账 ⇒ 把「空」落到具体绘制内容。
+    // 几何与命中同源（`dbgChipY` / `dbgChipAt`），⛔ 不在这里另算坐标。
+    const bits = DBG_CHIP_BITS.length;
+    const chipH = DBG_CHIP.h;
+    const chipW = dbgChipWidth(bits);
+    const chipY = dbgChipY(top, segmented, probed);
+    for (let k = 0; k < bits; k++) {
+        const on = (debugFlags & DBG_CHIP_BITS[k]!) !== 0;
+        const cx = dbgChipX(k, bits);
+        builder.rect(cx, chipY, chipW, chipH, {
+            // 选中 = 实色米白 + 深字；未选中 = 16% 米白 + 米白字（同一对比族，一眼分得开）。
+            fill: on ? palette.bannerText : UI_DEBUG_CHIP_OFF_FILL,
+            radius: DBG_CHIP.radius,
+            stroke: DEBUG_OUTLINE_TILE_HEX,
+            lineWidth: 1,
+        });
+        builder.text(cx + chipW / 2, chipY + chipH / 2, DBG_CHIP_LABELS[k]!, {
+            fill: on ? UI_DEBUG_CHIP_ON_TEXT : palette.bannerText,
+            font: UI_FONT.cell,
+            align: 'center',
+            baseline: 'middle',
+        });
     }
 }
 

@@ -64,6 +64,7 @@ describe('UI-25 · UiRoot', () => {
             level: 'L3',
             detail: 'pitch 54.0 · LOD 2',
             expanded: true,
+            debugFlags: 0,
         };
         const old = fakeBuilder();
         drawPerfOverlay(old.builder, PALETTE, d.enabled, d.frameMs, d.phase, d.level, d.detail);
@@ -90,6 +91,7 @@ describe('UI-25 · UiRoot', () => {
             level: 'L3',
             detail: 'pitch 54.0 · LOD 2',
             expanded: true,
+            debugFlags: 0,
         };
         const root = new UiRoot(host(d));
         root.push(route('menu', 'page'));
@@ -106,6 +108,15 @@ describe('UI-25 · UiRoot', () => {
             'text',
             'text',
             'text',
+            // `[WXG-T-1119]` 归因 chip 行：4 ×（底 + 字）。
+            'rect',
+            'text',
+            'rect',
+            'text',
+            'rect',
+            'text',
+            'rect',
+            'text',
             'containerEnd',
         ]);
         expect(calls.filter((c) => c.kind === 'container').map((c) => c.text)).toEqual([
@@ -117,11 +128,15 @@ describe('UI-25 · UiRoot', () => {
             'fps 60 · 16.7 ms',
             'PLAYING · L3',
             'pitch 54.0 · LOD 2',
+            '珠',
+            '盘',
+            'HUD',
+            '30',
         ]);
     });
 
     it('调试关时路由照画、零覆层指令', () => {
-        const root = new UiRoot(host({ enabled: false, frameMs: 0, drawMs: 0, paintCalls: 0, commands: 0, tickMs: 0, engineDrawMs: 0, idleMs: 0, breakdown: { vectorMs: 0, blitMs: 0, textMs: 0, scopeMs: 0, vectorCalls: 0, blitCalls: 0, textCalls: 0 }, phase: 'menu', level: '', detail: '', expanded: false }));
+        const root = new UiRoot(host({ enabled: false, frameMs: 0, drawMs: 0, paintCalls: 0, commands: 0, tickMs: 0, engineDrawMs: 0, idleMs: 0, breakdown: { vectorMs: 0, blitMs: 0, textMs: 0, scopeMs: 0, vectorCalls: 0, blitCalls: 0, textCalls: 0 }, phase: 'menu', level: '', detail: '', expanded: false, debugFlags: 0 }));
         root.push(route('menu', 'page'));
         const { builder, calls } = fakeBuilder();
         root.draw(builder, PALETTE);

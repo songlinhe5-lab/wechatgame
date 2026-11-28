@@ -222,6 +222,12 @@ export interface BeadsSnapshot {
   beadLodLayers: number;
 
   /**
+   * `[WXG-T-1119]` 性能归因开关位掩码（`config/debug-flags.ts`）：视图只按位少画，
+   * ⛔ 不参与玩法 / 命中。`debugInfo` 关时恒 0（由 `BeadsGame` 的快照源门住）。
+   */
+  debugFlags: number;
+
+  /**
    * 棋盘缩放控件（盘面下方净空带）：slider 归一位 `0..1` 与当前倍率。
    * 均**由相机派生**（game 侧算完才入快照）⇒ 视图只读（L5）。
    */
@@ -621,6 +627,8 @@ function createDebugShard(): SnapshotDebug {
     safeTop: 0,
     capsuleBottom: 0,
     safeBottom: 0,
+    // `[WXG-T-1119]` 归因位掩码初值：真源 = `BeadsGame._debugFlags`（覆层关时源侧恒 0）。
+    debugFlags: 0,
   };
 }
 

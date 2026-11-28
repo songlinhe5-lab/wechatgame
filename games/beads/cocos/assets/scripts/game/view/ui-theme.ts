@@ -180,6 +180,14 @@ export const UI_SCRIM = Object.freeze({
  */
 export const UI_DEBUG_HIT_FILL = 'rgba(255,60,230,0.14)';
 
+/**
+ * `[WXG-T-1119]` 归因 chip 双态色：未选中底 = 米白 16%（压在 `rgba(42,46,67,0.7)` 面板上仍可辨），
+ * 选中底直接用 `palette.bannerText` 实色、字用本常量（深藏青，与选中底对比 ≈ 15:1）。
+ * 与 `UI_DEBUG_HIT_FILL` 同口径：⛔ 不进正式 `palette`。
+ */
+export const UI_DEBUG_CHIP_OFF_FILL = 'rgba(253,246,233,0.16)';
+export const UI_DEBUG_CHIP_ON_TEXT = '#2A2E43';
+
 export interface UiScrimRgb {
     readonly r: number;
     readonly g: number;

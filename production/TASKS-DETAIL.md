@@ -13626,3 +13626,31 @@ const bw = snap.gridCols * snap.gridPitch, bh = snap.gridRows * snap.gridPitch;
 **验证（2026-11-28 实跑）**：typecheck 0 错；framework 全量 57 文件 **638 passed**；beads 全量 138 文件 **1695 passed / 2 skipped**（金样 / 封箱零漂移：canvas2d 腿不经过 label 池）。beads 版本 **1.0.124**（`build:cocos` 自动递增 build 号）。
 
 **真机验证项**：Cocos Creator 重建 1.0.124 包，展开覆层看：`文` 段应从 9ms 降到 3–4ms 量级，`tick` 随之回落；`空` 不变（本轮不动 GPU）。
+
+## WXG-T-1119
+
+**性能归因 4 开关：隐珠 / 隐盘 / 隐 HUD / 限帧 30（覆层展开态最下一排 chip）** · 负责：主理人(CodeBuddy)·工程轨 · 状态：✅ **代码完成（2026-11-28）**
+
+承 1.0.124 真机读数（`fps 26 · 39.1ms`；`tick 10.4 引 5.7 空 22.9`；`矢 1.0 位 2.0 文 2.0 余 0.0`；`绘 7.1ms · 195笔/1117令`），用户令「加 4 个 debug 开关」——目标不是再猜哪条腿贵，而是**逐项关掉再看帧账**，把 `空 22.9ms` 落到具体绘制内容上。
+
+**四个位**（`src/config/debug-flags.ts`，`DBG_CHIP_BITS` 顺序 = 面板从左到右）：
+
+| 位 | 文案 | 关掉什么 | 判读 |
+|---|---|---|---|
+| `DBG_HIDE_BEADS` | 珠 | 盘面珠体 + 珠影 + 锁珠（同一 blit 通道） | 「空」跟着掉 ⇒ 珠体顶点/blit 量是成本源 |
+| `DBG_HIDE_BOARD` | 盘 | 底 tile（B0 合并）+ 盘面剪影描边 + 格坑（`drawEmptySocket`） | 掉 ⇒ 底图马赛克（150 格 × tile）是成本源 |
+| `DBG_HIDE_HUD` | HUD | 缩放条 / 托盘 / 展开钮 / 道具卡带 / 扫光 / 连击 / 顶部 HUD 整组 | 掉 ⇒ UI 层（文字 + 纸面板）是成本源 |
+| `DBG_CAP_30` | 30 | ——（不删绘制）走平台 `setPreferredFps(30)`，关回 60 | 稳定 30fps 下「空」的绝对值 ⇒ 反压是否随目标帧率变 |
+
+**接线（五处，全部读同一张表，⛔ 不各写一套）**：
+1. `debug-flags.ts`：位常量 + chip 序号表 + 文案（唯一真源）。
+2. `state.ts` / `snapshot-shards.ts` / `snapshot-projection.ts`：`debugFlags` 落**调试片**（分片越界会当场编译红），初值 0。
+3. `beads-game.ts`：`_debugFlags`（运行时内存态，⛔ 不入存档）+ 快照源 getter 加门 `debugInfo ? _debugFlags : 0`（覆层关 ⇒ 快照恒 0，双保险）；`toggleDebugFlag(bit)` 覆层关时早退 `false`；`setDebugInfo(false)` 清位并把帧率复位 60（限帧不许留在正式玩法里）。
+4. `config/perf-panel.ts`：`perfPanelRows` 展开态 +1 行给 chip；`dbgChipWidth / dbgChipX / dbgChipY / dbgChipAt` —— **绘制与命中同源**（T9 架构门：`beads-game` 不得加载 `view/**`，故几何必须住 `config/`）。
+5. `view/debug-layer.ts` 画 chip（选中 = 米白实底 + 深字，未选中 = 16% 米白），`view/play-page.ts` 按位跳过六个绘制入口；chip 的画布宽度按设计 px 四等分，贴面板底（文字行自顶向下排，底部恒留一条带子）。
+
+**判据（新增 5 + 改写 10 例）**：新 `tests/debug-flags.test.ts` 5（位不重叠且顺序 = 珠/盘/HUD/30；覆层关 ⇒ 位不可翻 / 快照恒 0 / 面板不吃 tap；覆层开 ⇒ 翻位即入快照与投影、chip 点击走同一命中并吞 tap、再点翻回；`DBG_CAP_30` 开 30 / 关 60；关覆层 ⇒ 清位 + `setPreferredFps(60)`）；`tests/debug-layer.test.ts` 加 chip 行命中四例与「收起态无 chip」，其余版式断言按新的行数（展开基准 6 行、细分 7、探针 8）与 chip 拆分口径改写；`tests/ui-root.test.ts` 指令序列补 chip 行。
+
+**验证（2026-11-28 实跑）**：typecheck 0 错；beads 全量 **139 文件 1702 passed / 2 skipped**（金样 `ui-golden` / 封箱零漂移：覆层关时 `debugFlags ≡ 0`，六个绘制入口与原路径逐字节等价）；版本 **1.0.125**。
+
+**真机验证（交用户执行，⛔ 不由 AI 代跑）**：`pnpm -C games/beads run build:cocos` ⇒ 真机预览 ⇒ 点性能面板展开 ⇒ 逐个点 chip，每次稳定 3–5 秒后记一行 `fps / tick 引 空 / 文`。四组读数合起来即可判定「空 22.9ms」归谁；`30` 那一组同时验证「稳定 30fps」这条腿是否值得做。

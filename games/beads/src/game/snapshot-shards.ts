@@ -77,6 +77,8 @@ export const MENU_SHARD_FIELDS = [
 export const DEBUG_SHARD_FIELDS = [
     'debugOutlines', 'debugInfo', 'debugGuides', 'perfFrameMs',
     'safeTop', 'capsuleBottom', 'safeBottom',
+    // `[WXG-T-1119]` 性能归因位掩码（只让视图少画；`debugInfo` 关时恒 0）。
+    'debugFlags',
 ] as const;
 
 // ─────────────────────────────────────────── 片五 · 特效与反馈时序（单调进度 / 定长槽）

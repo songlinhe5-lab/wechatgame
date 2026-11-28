@@ -135,6 +135,8 @@ import {
 } from './scene-vfx';
 import type { WaveEnvelope } from './scene-vfx';
 import { drawSafeGuideLines } from './debug-layer';
+// `[WXG-T-1119]` 性能归因开关位（只让视图少画，⛔ 不参与玩法 / 命中）。
+import { DBG_HIDE_BEADS, DBG_HIDE_BOARD, DBG_HIDE_HUD } from '../config/debug-flags';
 import { UI_FONT, bodyFont, drawPaperPanel, formatTime } from './ui-theme';
 import { drawButton, drawDashedRect } from './ui-widgets';
 import { arcPoints, starPoints } from './shape-utils';
@@ -176,13 +178,17 @@ export function drawPlayPage(
     // 代价是盘面上下被切出一条硬直线（用户实帧一眼看出）。盘面必须完整绘制、可越出屏幕，
     // 「底槽背景盖在珠面上面」改由**绘制顺序**承担（托盘面板与槽画在盘面之后，见 `drawTray` 段）。
     drawGrid(builder, snap, palette, inks);
-    drawZoomControls(builder, snap, palette, zoomControlsVisible); // 缩放控件条（盘面下方净空带，不遮珠）
-    drawTray(builder, snap, palette, inks);
-    drawExpandButton(builder, snap, palette);
-    drawPowerupBand(builder, snap, palette);
-    drawSweep(builder, snap); // G3 道具生效扫光（§1.6.3）：叠在珠面上、面板与 HUD 之下
-    drawComboVfx(builder, snap, palette);
-    drawHud(builder, snap, palette); // `[WXG-T-1086]` 常驻 UI 恒在最上层（压在盘面珠 / 特效之上）
+    // `[WXG-T-1119]` 隐 HUD：缩放条 / 托盘 / 展开钮 / 道具卡 / 扫光 / 连击 / 顶部 HUD 整组不画
+    // （真机归因用；`debugInfo` 关时 `debugFlags` 恒 0 ⇒ 生产路径零分支代价）。
+    if ((snap.debugFlags & DBG_HIDE_HUD) === 0) {
+        drawZoomControls(builder, snap, palette, zoomControlsVisible); // 缩放控件条（盘面下方净空带，不遮珠）
+        drawTray(builder, snap, palette, inks);
+        drawExpandButton(builder, snap, palette);
+        drawPowerupBand(builder, snap, palette);
+        drawSweep(builder, snap); // G3 道具生效扫光（§1.6.3）：叠在珠面上、面板与 HUD 之下
+        drawComboVfx(builder, snap, palette);
+        drawHud(builder, snap, palette); // `[WXG-T-1086]` 常驻 UI 恒在最上层（压在盘面珠 / 特效之上）
+    }
 }
 // ───────────── 棋盘缩放控件（盘面下方净空带 · `zoomControlLayout` 与命中同源）
 
@@ -528,12 +534,17 @@ function drawGrid(
     const liftScale = selectLiftScale(snap);
     // 组内错峰的名序基准（`boardGroupRows` 已是 game 侧消费序，锚在序首）；颗数 ≤ 1 ⇒ 0 = 无错峰。
     const groupLastRank = snap.boardGroupCount - 1;
+    // `[WXG-T-1119]` 归因开关：逐帧只读快照，⛔ 不参与布局/命中。覆层关着时 `debugFlags === 0`
+    // ⇒ 两个位恒 false，与旧路径逐字节等价（金样零漂移由「关覆层」前提保证）。
+    const dbg = snap.debugFlags;
+    const hideBoard = (dbg & DBG_HIDE_BOARD) !== 0;
+    const hideBeads = (dbg & DBG_HIDE_BEADS) !== 0;
     // `[WXG-T-1106 · 用户 2026-11-27 令]`「描边应该与珠子底图整体绘制，再绘制珠槽和珠面」：
     // 盘面剪影描边画在**格循环之前**，且每次 `polygon` 打 `back: true`（底图通道）。
     // ⚠ 真机复验：`graphics` 恒在 blit 之上（珠 / 底 tile 是 tint blit）⇒ **命令先后不决定层序**，
     //   真正把描边压到珠面下面的是 `back`（宿主 `backGraphics` = 节点树最底）；
     //   位置放前只是让 canvas2d 腿 / 封箱命令序也读作「底图先画」，⛔ 别据此以为改位置能修观感。
-    drawBoardOutline(builder, snap, palette.shadowInk);
+    if (!hideBoard) drawBoardOutline(builder, snap, palette.shadowInk);
     for (let i = 0; i < snap.gridRows; i++) {
         for (let j = 0; j < snap.gridCols; j++) {
             const cell = snap.cells[i * snap.gridCols + j]!;
@@ -570,13 +581,16 @@ function drawGrid(
                 // G7 轻压（WXG-T-152 / §1.6.7）：locked 无垫 ⇒ scale 走 `size` 形参即安全通道
                 //（只缩不胀 ⇒ 零重叠）；D1 退为 1px `slot_border` 静态环（game 侧 120ms 清）。
                 const deniedP = deniedProgressAt(snap, i, j);
-                drawLockedBead(
-                    builder,
-                    bx,
-                    cy,
-                    palette,
-                    deniedP > 0 && !snap.reduceMotion ? snap.gridCell * deniedPressScale(deniedP) : snap.gridCell,
-                );
+                // `[WXG-T-1119]` 锁珠同样是珠体 ⇒ 隐珠一并跳过；反馈环保留（属语义层，不属 blit 负载）。
+                if (!hideBeads) {
+                    drawLockedBead(
+                        builder,
+                        bx,
+                        cy,
+                        palette,
+                        deniedP > 0 && !snap.reduceMotion ? snap.gridCell * deniedPressScale(deniedP) : snap.gridCell,
+                    );
+                }
                 if (deniedP > 0 && snap.reduceMotion) {
                     drawStateRing(builder, bx, cy, snap.gridCell, palette.slotBorder, 1, DENIED_RING_LINEWIDTH);
                 }
@@ -604,7 +618,7 @@ function drawGrid(
                 // [WXG-T-254] **wrong 抖动的本格不合并**：坑已住在底图里 ⇒ 吃不到 `dx` 就丢了这个部件。
                 // 合并后若把 tile 也推到 `bx`，就是 T-242 要修的「地皮在抖」（露 2px 白缝）⇒
                 // 该格（同屏最多 1 格、≤200ms）退回两条的旧路径，其余格照旧一条。
-                const tileMerged = drawTargetTile(
+                const tileMerged = hideBoard ? false : drawTargetTile(
                     builder, cx, cy, cell.colorIdx, inks, snap.gridPitch, isWrong ? undefined : tileOpts,
                 );
                 // 空格 = 在这张底图上**挖洞**（pit 内缩 + 暗缘 + 下受光）；自带的亮 `base` 外块
@@ -616,7 +630,7 @@ function drawGrid(
                 // ⛔ `styleId` 必须与 `drawFilledBead` 同源（`snap.beadStyle`）：不传 ⇒ 恒用
                 // `DEFAULT_BEAD_STYLE_ID` 的 mask，而**珠**用的是当前风格 ⇒ 换风格时「珠是新风格、槽是默认风格」
                 // ⇒ 又一次「有珠 / 无珠不是一张图」。默认档下两者同值 ⇒ 本条对封箱**零影响**（可证）。
-                if (!tileMerged) {
+                if (!hideBoard && !tileMerged) {
                     drawEmptySocket(builder, bx, cy, palette, snap.gridCell, cell.colorIdx, inks, true, beadDrawInset, tileOpts);
                 }
                 // [WXG-T-434] E4 幽灵符号（设置开关 `snap.ghostSymbol`，默认关）。
@@ -786,7 +800,7 @@ function drawGrid(
             // B0 连续目标色底图：与 empty 分支同图元同色档 ⇒ 整片谜面一张图（v1.5-r8）。
             // ⛔ 锁格心、不吃 lift / scale / pop 包络（§1.6.1 P0 陷阱 #2）。
             // 边长同上：= 缩放后格距，与 `opts.size`（`snap.gridCell`）同尺（ADR-0020 甲案）。
-            const tileMergedFilled = drawTargetTile(builder, bx, cy, cell.colorIdx, inks, snap.gridPitch, tileOpts);
+            const tileMergedFilled = hideBoard ? false : drawTargetTile(builder, bx, cy, cell.colorIdx, inks, snap.gridPitch, tileOpts);
             // §5 分离影（仅选中组）：珠抬起来 ⇒ 影留在格面。默认皮肤 `facet-4` 无阴影层，
             // 本层是盘面**唯一**随高度变化的通道（= 斜俯视的立体感载体）。函数内注释含口径。
             if (groupLift > 0) {
@@ -816,10 +830,11 @@ function drawGrid(
             // ⇒ 这正是「有珠 / 无珠的格底不是一张图」的**根因**：空格走 mask、有珠格走矢量。
             // [WXG-T-254] 底 tile 命中 ⇒ 槽已在图里 ⇒ 跳过本调用（⛔ 与空格分支共用 `tileOpts`，
             // 上面那段「两分支同参」的约束由同一个对象字面量结构性保证，不再靠两处抄写）。
-            if (!tileMergedFilled) {
+            if (!hideBoard && !tileMergedFilled) {
                 drawEmptySocket(builder, bx, cy, palette, snap.gridCell, cell.colorIdx, inks, true, beadDrawInset, tileOpts);
             }
-            if (groupLift > 0) {
+            // `[WXG-T-1119]` 隐珠：珠体与珠影（同一 blit 通道）一起跳过，⛔ 不动坑/环（那是盘的语义）。
+            if (groupLift > 0 && !hideBeads) {
                 // [WXG-T-236 定标 · 用户裁「抬起态要影」+ 选型 C-3，后续裁「影跟珠轮廓」] 珠底投影。
                 // ⛔ 绘制序钉死：**坑底之后、珠之前** —— 在坑底后 ⇒ 影压在内阴影阶梯与 S4 受光亮线之上（物理正确）；
                 // 在珠前 ⇒ 珠体自然遮住影的上半，只露下弧 ⇒ 读作「圆珠投在槽里」而非「半个圆饼」。
@@ -832,7 +847,7 @@ function drawGrid(
             }
             // [T-244] 组落座「出现」语义：相位未到 ⇒ 本格**不画珠**（B0/坑/状态环正常）⇒
             // 视觉 = 从被点格起逐颗浮现。数据同帧已在盘（规则读取不受表现影响）。
-            if (!glHidden) drawFilledBead(builder, bx, cy, cell.beadColorIdx || cell.colorIdx, opts);
+            if (!glHidden && !hideBeads) drawFilledBead(builder, bx, cy, cell.beadColorIdx || cell.colorIdx, opts);
             // [T-244 十八批] `pulse` 档：本格目标色的 `lit`（= `mix(base, #FFF, 0.38)`，端点表内既有档）
             // 只走**亮度通道** ⇒ 罩层打底光 + 锁边环给轮廓（环几何与 `wrong`/`named`/`denied` 同一个
             // `drawStateRing` ⇒ 「这格有话说」是既有语言）。⛔ 零位移零缩放 ⇒ 与落位动画结构性正交。
